@@ -1,3 +1,6 @@
+import {
+  paragraphClassName
+} from './config.js'
 /**
  * RegExp constants
  */
@@ -27,14 +30,14 @@ const getUniqueId = set => {
     id = getId()
   }
   set.add(id)
-  return { set, id }
+  return id
 }
 
 /**
  * markedText to html
  */
 const markedText2Html = (markedText, cursorRange) => {
-  let result = ''
+  let result = markedText
   // handle head mark symble
   if (HEAD_REG.test(markedText)) {
     result = markedText.replace(HEAD_REG, '<span class="gray">$1</span>$2')
@@ -115,9 +118,32 @@ const checkLineBreakUpdate = text => {
  * viewModel2Html
  */
 
+const paragraph2Html = paph => {
+  const { id, paragraphType, markedText, cursorRange } = paph
+  let p = null
+  switch (paragraphType) {
+    case 'p':
+      p = document.createElement('p')
+      p.id = id
+      p.classList.add(paragraphClassName)
+      p.innerHTML = markedText2Html(markedText, cursorRange)
+      break
+    default: break
+  }
+  p.id = id
+  return p.outerHTML
+}
+
+const viewModel2Html = vm => {
+  const htmls = vm.map(p => paragraph2Html(p))
+  return htmls.join('\n')
+}
+
 export {
   getUniqueId,
   markedText2Html,
   checkInlineUpdate,
-  checkLineBreakUpdate
+  checkLineBreakUpdate,
+  viewModel2Html,
+  paragraph2Html
 }

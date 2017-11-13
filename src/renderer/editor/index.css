@@ -1,0 +1,12 @@
+#write {
+	outline: none;
+}
+.gray {
+  color: #efefef;
+}
+.hidden {
+  display: inline-block;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+}

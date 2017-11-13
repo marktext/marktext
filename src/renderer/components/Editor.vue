@@ -1,5 +1,5 @@
 <template>
-  <div ref="editor" class="editor">
+  <div ref="editor">
   </div>
 </template>
 
@@ -24,12 +24,6 @@
 </script>
 
 <style scoped>
-  @import '../editor/theme.css';
-
-  .editor {
-    outline: none;
-    margin: 0 auto;
-    padding: 50px 0;
-    width: 800px;
-  }
+  @import '../themes/github.css';
+  @import '../editor/index.css';
 </style>
