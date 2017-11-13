@@ -1,6 +1,5 @@
 <template>
   <div ref="editor" class="editor">
-    hello world
   </div>
 </template>
 
