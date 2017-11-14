@@ -33,11 +33,13 @@ class Aganippe {
     const emptyElement = paragraph2Element(newParagraph)
     container.appendChild(emptyElement)
     selection.moveCursor(doc, emptyElement, 0)
-    console.log(viewModel)
   }
 
   handleKeyDown () {
-    this.container.addEventListener('keydown', event => {
+    this.container.addEventListener('keyup', event => {
+      const node = selection.getSelectionStart(this.doc)
+      console.log(node)
+      // this.doc.execCommand('formatBlock', false, 'BLOCKQUOTE')
     })
   }
 
