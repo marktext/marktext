@@ -4,7 +4,7 @@
 </template>
 
 <script>
-  import Aganippe from '@/editor'
+  import Aganippe from '../../editor'
   export default {
     data () {
       return {
@@ -24,6 +24,6 @@
 </script>
 
 <style scoped>
-  @import '../themes/github.css';
-  @import '../editor/index.css';
+  @import '../../editor/themes/github.css';
+  @import '../../editor/index.css';
 </style>

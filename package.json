@@ -57,7 +57,6 @@
   },
   "dependencies": {
     "axios": "^0.16.1",
-    "dom-iterator": "^0.3.0",
     "vue": "^2.3.3",
     "vue-electron": "^1.0.6",
     "vuex": "^2.3.1"

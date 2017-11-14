@@ -1,5 +1,7 @@
 import {
-  paragraphClassName
+  emptyElementNames,
+  paragraphClassName,
+  blockContainerElementNames
 } from './config.js'
 /**
  * RegExp constants
@@ -118,25 +120,112 @@ const checkLineBreakUpdate = text => {
  * viewModel2Html
  */
 
-const paragraph2Html = paph => {
+const paragraph2Element = paph => {
   const { id, paragraphType, markedText, cursorRange } = paph
-  let p = null
+  let element = null
   switch (paragraphType) {
     case 'p':
-      p = document.createElement('p')
-      p.id = id
-      p.classList.add(paragraphClassName)
-      p.innerHTML = markedText2Html(markedText, cursorRange)
+      element = document.createElement('p')
+      element.id = id
+      element.classList.add(paragraphClassName)
+      element.innerHTML = markedText2Html(markedText, cursorRange)
       break
     default: break
   }
-  p.id = id
-  return p.outerHTML
+  element.id = id
+  return element
 }
 
 const viewModel2Html = vm => {
-  const htmls = vm.map(p => paragraph2Html(p))
+  const htmls = vm.map(p => paragraph2Element(p).outerHTML)
   return htmls.join('\n')
+}
+
+const isBlockContainer = element => {
+  return element && element.nodeType !== 3 &&
+  blockContainerElementNames.indexOf(element.nodeName.toLowerCase()) !== -1
+}
+
+const isAganippeEditorElement = element => {
+  return element && element.getAttribute && !!element.getAttribute('aganippe-editor-element')
+}
+
+const traverseUp = (current, testElementFunction) => {
+  if (!current) {
+    return false
+  }
+
+  do {
+    if (current.nodeType === 1) {
+      if (testElementFunction(current)) {
+        return current
+      }
+      // do not traverse upwards past the nearest containing editor
+      if (isAganippeEditorElement(current)) {
+        return false
+      }
+    }
+
+    current = current.parentNode
+  } while (current)
+
+  return false
+}
+
+const getFirstSelectableLeafNode = element => {
+  while (element && element.firstChild) {
+    element = element.firstChild
+  }
+
+  // We don't want to set the selection to an element that can't have children, this messes up Gecko.
+  element = traverseUp(element, el => {
+    return emptyElementNames.indexOf(el.nodeName.toLowerCase()) === -1
+  })
+  // Selecting at the beginning of a table doesn't work in PhantomJS.
+  if (element.nodeName.toLowerCase() === 'table') {
+    const firstCell = element.querySelector('th, td')
+    if (firstCell) {
+      element = firstCell
+    }
+  }
+  return element
+}
+
+const isElementAtBeginningOfBlock = node => {
+  let textVal
+  let sibling
+  while (!isBlockContainer(node) && !isAganippeEditorElement(node)) {
+    sibling = node.previousSibling
+    while (sibling) {
+      textVal = sibling.nodeType === 3 ? sibling.nodeValue : sibling.textContent
+      if (textVal.length > 0) {
+        return false
+      }
+      sibling = sibling.previousSibling
+    }
+    node = node.parentNode
+  }
+  return true
+}
+
+const findPreviousSibling = node => {
+  if (!node || isAganippeEditorElement(node)) {
+    return false
+  }
+
+  var previousSibling = node.previousSibling
+  while (!previousSibling && !isAganippeEditorElement(node.parentNode)) {
+    node = node.parentNode
+    previousSibling = node.previousSibling
+  }
+
+  return previousSibling
+}
+
+const getClosestBlockContainer = node => {
+  return traverseUp(node, node => {
+    return isBlockContainer(node) || isAganippeEditorElement(node)
+  })
 }
 
 export {
@@ -145,5 +234,13 @@ export {
   checkInlineUpdate,
   checkLineBreakUpdate,
   viewModel2Html,
-  paragraph2Html
+  paragraph2Element,
+
+  isBlockContainer,
+  traverseUp,
+  isAganippeEditorElement,
+  isElementAtBeginningOfBlock,
+  getFirstSelectableLeafNode,
+  findPreviousSibling,
+  getClosestBlockContainer
 }
