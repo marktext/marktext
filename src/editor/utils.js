@@ -3,14 +3,17 @@ import {
   paragraphClassName,
   blockContainerElementNames
 } from './config.js'
+
+import { html2json, json2html } from 'html2json'
+
 /**
  * RegExp constants
  */
 const HEAD_REG = /^(#{1,6})(.+)$/
 const EMPHASIZE_REG_G = /(\*{1,3})(.*)(\1)/g
 const EMPHASIZE_REG = /(\*{1,3})(.*)(\1)/
-const LINE_BREAK_BLOCK_REG = /^(?:#{1,6}|>\s|`{3,}(.*))/
-const INLINE_BLOCK_REG = /^(?:[*+-]\s(\[\s\]\s)?|\d+\.\s)/
+const LINE_BREAK_BLOCK_REG = /^(?:`{3,}(.*))/
+const INLINE_BLOCK_REG = /^(?:[*+-]\s(\[\s\]\s)?|\d+\.\s|(#{1,6})[^#]+|>\s)/
 
 /**
  * help functions
@@ -91,6 +94,10 @@ const checkInlineUpdate = text => {
       return token[1] ? { type: 'ul', info: 'tasklist' } : { type: 'ul', info: 'disorder' }
     case /\d+\.\s/.test(match):
       return { type: 'ol' }
+    case /#{1,6}/.test(match):
+      return { type: `h${token[2].length}` }
+    case />\s/.test(match):
+      return { type: 'blockquote' }
     default:
       return false
   }
@@ -101,15 +108,34 @@ const checkLineBreakUpdate = text => {
   if (!token) return false
   const match = token[0]
   switch (true) {
-    case /#{1,6}/.test(match):
-      return { type: `h${match.length + 1}` }
-    case />\s/.test(match):
-      return { type: 'blockquote' }
     case /`{3,}.*/.test(match):
-      return { type: 'blockcode', info: token[1] }
+      return { type: 'pre', info: token[1] }
     default:
       return false
   }
+}
+
+const html2element = html => {
+  const wrapper = document.createElement('div')
+  wrapper.innerHTML = html
+  const children = wrapper.children
+  if (children.length > 1) {
+    throw new Error(`[${html}] must has one ancestor`)
+  }
+  return children[0]
+}
+
+const replaceElement = (origin, alt) => {
+  const parentNode = origin.parentNode
+  parentNode.insertBefore(alt, origin)
+  parentNode.removeChild(origin)
+}
+
+const updateBlock = (origin, tagName) => {
+  const json = html2json(origin.outerHTML)
+  json.child[0].tag = tagName
+  const html = json2html(json)
+  replaceElement(origin, html2element(html))
 }
 
 /**
@@ -141,6 +167,13 @@ const viewModel2Html = vm => {
   return htmls.join('\n')
 }
 
+const findNearestParagraph = node => {
+  do {
+    if (isAganippeParagraph(node)) return node
+    node = node.parentNode
+  } while (node)
+}
+
 const isBlockContainer = element => {
   return element && element.nodeType !== 3 &&
   blockContainerElementNames.indexOf(element.nodeName.toLowerCase()) !== -1
@@ -148,6 +181,10 @@ const isBlockContainer = element => {
 
 const isAganippeEditorElement = element => {
   return element && element.getAttribute && !!element.getAttribute('aganippe-editor-element')
+}
+
+const isAganippeParagraph = element => {
+  return element && element.classList && element.classList.contains(paragraphClassName)
 }
 
 const traverseUp = (current, testElementFunction) => {
@@ -229,13 +266,14 @@ const getClosestBlockContainer = node => {
 }
 
 export {
+  updateBlock,
   getUniqueId,
   markedText2Html,
   checkInlineUpdate,
   checkLineBreakUpdate,
   viewModel2Html,
   paragraph2Element,
-
+  findNearestParagraph,
   isBlockContainer,
   traverseUp,
   isAganippeEditorElement,

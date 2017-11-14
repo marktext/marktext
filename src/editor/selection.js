@@ -673,7 +673,8 @@ class Selection {
     selection.addRange(range)
   }
 
-  // http://stackoverflow.com/questions/1197401/how-can-i-get-the-element-the-caret-is-in-with-javascript-when-using-contentedi
+  // http://stackoverflow.com/questions/1197401/
+  // how-can-i-get-the-element-the-caret-is-in-with-javascript-when-using-contenteditable
   // by You
   getSelectionStart (ownerDocument) {
     const node = ownerDocument.getSelection().anchorNode
