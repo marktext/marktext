@@ -9,7 +9,7 @@ const getNewParagraph = set => {
     active: true,
     markedText: '<br>',
     paragraphType: 'p',
-    cursorRange: [0, 0],
+    cursorRange: { right: 0, left: 0 },
     sections: []
   }
 }
@@ -27,6 +27,8 @@ const blockContainerElementNames = [
 ]
 
 const emptyElementNames = ['br', 'col', 'colgroup', 'hr', 'img', 'input', 'source', 'wbr']
+
+const markedSymbol = ['*', '-', '_', '!', '[', ']']
 // const vm = [
 //   {
 //     parentType: null,
@@ -50,6 +52,7 @@ const emptyElementNames = ['br', 'col', 'colgroup', 'hr', 'img', 'input', 'sourc
 //   }
 // ]
 export {
+  markedSymbol,
   getNewParagraph,
   paragraphClassName,
   emptyElementNames,

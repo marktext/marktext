@@ -1,4 +1,5 @@
 import {
+  markedSymbol,
   emptyElementNames,
   paragraphClassName,
   blockContainerElementNames
@@ -41,7 +42,7 @@ const getUniqueId = set => {
 /**
  * markedText to html
  */
-const markedText2Html = (markedText, cursorRange) => {
+const markedText2Html = (markedText, { start, end }) => {
   let result = markedText
   // handle head mark symble
   if (HEAD_REG.test(markedText)) {
@@ -51,7 +52,7 @@ const markedText2Html = (markedText, cursorRange) => {
   if (EMPHASIZE_REG.test(markedText)) {
     const offset = markedText.match(EMPHASIZE_REG).index
     result = result.replace(EMPHASIZE_REG_G, (match, p1, p2, p3) => {
-      const isConflicted = conflict([offset, offset + match.length], cursorRange)
+      const isConflicted = conflict([offset, offset + match.length], [start, end])
       const className = isConflicted ? 'gray' : 'hidden'
       const tags = { startTags: '', endTags: '' }
       switch (p1.length) {
@@ -81,6 +82,14 @@ const markedText2Html = (markedText, cursorRange) => {
   // TODO
   return result
 }
+/**
+ * check input marked html
+ */
+
+const checkInputMarkedSymbol = key => {
+  return markedSymbol.indexOf(key) > -1
+}
+
 /**
  * checkInlineUpdate
  */
@@ -275,6 +284,7 @@ export {
   paragraph2Element,
   findNearestParagraph,
   isBlockContainer,
+  checkInputMarkedSymbol,
   traverseUp,
   isAganippeEditorElement,
   isElementAtBeginningOfBlock,

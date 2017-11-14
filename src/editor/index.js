@@ -6,7 +6,9 @@ import {
   checkLineBreakUpdate,
   checkInlineUpdate,
   isAganippeEditorElement,
-  findNearestParagraph
+  findNearestParagraph,
+  checkInputMarkedSymbol,
+  markedText2Html
 } from './utils.js'
 
 import {
@@ -66,11 +68,10 @@ class Aganippe {
   }
 
   handleKeyDown () {
-    this.container.addEventListener('input', event => {
+    this.container.addEventListener('keyup', event => {
       // if #write has textNode child, wrap it a `p` tag.
       const node = selection.getSelectionStart(this.doc)
       if (isAganippeEditorElement(node)) {
-        console.log(node.childNodes.length)
         this.doc.execCommand('formatBlock', false, 'p')
       }
 
@@ -87,11 +88,15 @@ class Aganippe {
       if (inlineUpdate && inlineUpdate.type !== tagName) {
         if (/^h/.test(inlineUpdate.type)) {
           updateBlock(paragraph, inlineUpdate.type)
-          paragraph = null // avoid memory leak
+          paragraph = document.querySelector(`#${id}`)
 
-          const root = document.querySelector(`#${id}`)
-          selection.importSelection(selectionState, root, this.doc)
+          selection.importSelection(selectionState, paragraph, this.doc)
         }
+      }
+
+      if (checkInputMarkedSymbol(event.key)) {
+        const markedHtml = markedText2Html(text, selectionState)
+        console.log(markedHtml)
       }
     })
   }
