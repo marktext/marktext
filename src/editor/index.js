@@ -104,10 +104,14 @@ class Aganippe {
   }
 
   getMarkdown () {
-
+    // TODO
   }
   getHtml () {
-
+    // TODO
+  }
+  destroy () {
+    // TODO
+    // destroy the event bind.
   }
 }
 
