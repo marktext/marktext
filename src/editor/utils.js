@@ -10,53 +10,38 @@ import { html2json, json2html } from 'html2json'
 /**
  * RegExp constants
  */
-const HEAD_REG = /^(#{1,6})([^#]*)$/g
+const CHOP_REG = /^#{1,6}|(\*{1,3})[^*]+\1/g
+const HEAD_REG_G = /^(#{1,6})([^#]*)$/g
+const HEAD_REG = /^(#{1,6})([^#]*)$/
 const EMPHASIZE_REG_G = /(\*{1,3})([^*]+)(\1)/g
 const EMPHASIZE_REG = /(\*{1,3})([^*]+)(\1)/
 const LINE_BREAK_BLOCK_REG = /^(?:`{3,}(.*))/
 const INLINE_BLOCK_REG = /^(?:[*+-]\s(\[\s\]\s)?|\d+\.\s|(#{1,6})[^#]+|>\s)/
 
+// help functions
 /**
- * help functions
+ *  Are two arraies have intersection
  */
 const conflict = (arr1, arr2) => {
-  // Are two arraies have intersection
   return !(arr1[1] < arr2[0] || arr2[1] < arr1[0])
 }
 const getId = () => {
   const prefix = 'ag-'
   return `${prefix}${Math.random().toString(32).slice(2)}`
 }
-/**
- * get unique id name
- */
-export const getUniqueId = set => {
-  let id = getId()
-  while (set.has(id)) {
-    id = getId()
-  }
-  set.add(id)
-  return id
-}
 
-/**
- * markedText to html
- */
-export const markedText2Html = (markedText, { start, end }) => {
-  let result = markedText
+const chunk2html = ({ chunk, index, lastIndex }, { start, end }) => {
+  const isConflicted = conflict([index, lastIndex], [start, end])
+  const className = isConflicted ? 'gray' : 'hidden'
   // handle head mark symble
-  if (HEAD_REG.test(markedText)) {
-    result = result.replace(HEAD_REG, (match, p1, p2, offset) => {
-      const isConflicted = conflict([offset, offset + p1.length], [start, end])
-      const className = isConflicted ? 'gray' : 'hidden'
+  if (HEAD_REG.test(chunk)) {
+    return chunk.replace(HEAD_REG_G, (match, p1, p2) => {
       return `<a href="#" class="${className}">${p1}</a>${p2}`
     })
   }
   // handle emphasize
-  if (EMPHASIZE_REG.test(markedText)) {
-    result = result.replace(EMPHASIZE_REG_G, (match, p1, p2, p3, offset) => {
-      const isConflicted = conflict([offset, offset + match.length], [start, end])
-      const className = isConflicted ? 'gray' : 'hidden'
+  if (EMPHASIZE_REG.test(chunk)) {
+    return chunk.replace(EMPHASIZE_REG_G, (match, p1, p2, p3) => {
       let startTags
       let endTags
       switch (p1.length) {
@@ -83,6 +68,55 @@ export const markedText2Html = (markedText, { start, end }) => {
   // TODO
   // handle auto link
   // TODO
+}
+
+/**
+ * get unique id name
+ */
+export const getUniqueId = set => {
+  let id
+  do {
+    id = getId()
+  } while (set.has(id))
+  set.add(id)
+  return id
+}
+
+/**
+ * translate marked text to html
+ * ex: `###hello **world|**` =>
+ * `
+ *   <a href="#" class="hidden">###</a>hello <a href="#" class="gray">**</a>world<a href="#" class="gray">
+ * `
+ * `|` is the cursor position in marked test
+ */
+export const markedText2Html = (markedText, positionState) => {
+  const chunks = []
+  let result = markedText
+  let match
+
+  do {
+    match = CHOP_REG.exec(markedText)
+    if (match) {
+      chunks.push({
+        index: match.index,
+        chunk: match[0],
+        lastIndex: CHOP_REG.lastIndex
+      })
+    }
+  } while (match)
+
+  if (chunks.length > 0) {
+    const chunksWithHtml = chunks.map(c => {
+      const html = chunk2html(c, positionState)
+      return Object.assign(c, { html })
+    })
+    // does this will have bug ?
+    chunksWithHtml.forEach(c => {
+      result = result.replace(c.chunk, c.html)
+    })
+  }
+
   return result
 }
 
@@ -145,6 +179,9 @@ export const replaceElement = (origin, alt) => {
 export const updateBlock = (origin, tagName) => {
   const json = html2json(origin.outerHTML)
   json.child[0].tag = tagName
+  if (/^h/.test(tagName)) {
+    json.child[0].attr['data-head-level'] = tagName
+  }
   const html = json2html(json)
   replaceElement(origin, html2element(html))
 }

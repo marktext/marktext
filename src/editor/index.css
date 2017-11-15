@@ -1,3 +1,26 @@
+h1::before,
+h2::before,
+h3::before,
+h4::before,
+h5::before,
+h6::before {
+  content: attr(data-head-level);
+  width: 20px;
+  height: 20px;
+  text-align: center;
+  line-height: 22px;
+  display: block;
+  position: absolute;
+  top: 0;
+  left: -25px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 12px;
+  color: #ddd;
+  transform: scale(.7);
+  font-weight: 100;
+}
+
 #write {
 	outline: none;
   caret-color: #333;
