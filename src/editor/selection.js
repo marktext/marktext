@@ -21,6 +21,10 @@ const filterOnlyParentElements = function (node) {
 }
 
 class Selection {
+  constructor (doc) {
+    this.doc = doc
+  }
+
   findMatchingSelectionParent (testElementFunction, contentWindow) {
     const selection = contentWindow.getSelection()
     let range
@@ -44,32 +48,31 @@ class Selection {
 
   // http://stackoverflow.com/questions/17678843/cant-restore-selection-after-html-modify-even-if-its-the-same-html
   // Tim Down
-  exportSelection (root, doc) {
+  exportSelection (root) {
     if (!root) {
       return null
     }
 
     let selectionState = null
-    const selection = doc.getSelection()
+    const selection = this.doc.getSelection()
 
     if (selection.rangeCount > 0) {
       const range = selection.getRangeAt(0)
       const preSelectionRange = range.cloneRange()
-      let start
 
       preSelectionRange.selectNodeContents(root)
       preSelectionRange.setEnd(range.startContainer, range.startOffset)
-      start = preSelectionRange.toString().length
 
+      const start = preSelectionRange.toString().length
       selectionState = {
-        start: start,
+        start,
         end: start + range.toString().length
       }
 
       // Check to see if the selection starts with any images
       // if so we need to make sure the the beginning of the selection is
       // set correctly when importing selection
-      if (this.doesRangeStartWithImages(range, doc)) {
+      if (this.doesRangeStartWithImages(range)) {
         selectionState.startsWithImage = true
       }
 
@@ -82,13 +85,12 @@ class Selection {
 
       // If start = 0 there may still be an empty paragraph before it, but we don't care.
       if (start !== 0) {
-        const emptyBlocksIndex = this.getIndexRelativeToAdjacentEmptyBlocks(doc, root, range.startContainer, range.startOffset)
+        const emptyBlocksIndex = this.getIndexRelativeToAdjacentEmptyBlocks(root, range.startContainer, range.startOffset)
         if (emptyBlocksIndex !== -1) {
           selectionState.emptyBlocksIndex = emptyBlocksIndex
         }
       }
     }
-
     return selectionState
   }
 
@@ -97,17 +99,16 @@ class Selection {
   //
   // {object} selectionState - the selection to import
   // {DOMElement} root - the root element the selection is being restored inside of
-  // {Document} doc - the document to use for managing selection
   // {boolean} [favorLaterSelectionAnchor] - defaults to false. If true, import the cursor immediately
   //      subsequent to an anchor tag if it would otherwise be placed right at the trailing edge inside the
   //      anchor. This cursor positioning, even though visually equivalent to the user, can affect behavior
   //      in MS IE.
-  importSelection (selectionState, root, doc, favorLaterSelectionAnchor) {
+  importSelection (selectionState, root, favorLaterSelectionAnchor) {
     if (!selectionState || !root) {
       return
     }
 
-    let range = doc.createRange()
+    let range = this.doc.createRange()
     range.setStart(root, 0)
     range.collapse(true)
 
@@ -215,7 +216,7 @@ class Selection {
     }
 
     if (typeof selectionState.emptyBlocksIndex !== 'undefined') {
-      range = this.importSelectionMoveCursorPastBlocks(doc, root, selectionState.emptyBlocksIndex, range)
+      range = this.importSelectionMoveCursorPastBlocks(root, selectionState.emptyBlocksIndex, range)
     }
 
     // If the selection is right at the ending edge of a link, put it outside the anchor tag instead of inside.
@@ -223,7 +224,7 @@ class Selection {
       range = this.importSelectionMoveCursorPastAnchor(selectionState, range)
     }
 
-    this.selectRange(doc, range)
+    this.selectRange(range)
   }
 
   // Utility method called from importSelection only
@@ -261,8 +262,8 @@ class Selection {
 
   // Uses the emptyBlocksIndex calculated by getIndexRelativeToAdjacentEmptyBlocks
   // to move the cursor back to the start of the correct paragraph
-  importSelectionMoveCursorPastBlocks (doc, root, index = 1, range) {
-    const treeWalker = doc.createTreeWalker(root, NodeFilter.SHOW_ELEMENT, filterOnlyParentElements, false)
+  importSelectionMoveCursorPastBlocks (root, index = 1, range) {
+    const treeWalker = this.doc.createTreeWalker(root, NodeFilter.SHOW_ELEMENT, filterOnlyParentElements, false)
     let startContainer = range.startContainer
     let startBlock
     let targetNode
@@ -316,7 +317,7 @@ class Selection {
   // it will return the number of empty paragraphs before the cursor.
   // Otherwise, it will return 0, which indicates the cursor is at the beginning
   // of a paragraph/block, and not at the end of the paragraph/block before it
-  getIndexRelativeToAdjacentEmptyBlocks (doc, root, cursorContainer, cursorOffset) {
+  getIndexRelativeToAdjacentEmptyBlocks (root, cursorContainer, cursorOffset) {
     // If there is text in front of the cursor, that means there isn't only empty blocks before it
     if (cursorContainer.textContent.length > 0 && cursorOffset > 0) {
       return -1
@@ -346,7 +347,7 @@ class Selection {
     // Walk over block elements, counting number of empty blocks between last piece of text
     // and the block the cursor is in
     const closestBlock = getClosestBlockContainer(cursorContainer)
-    const treeWalker = doc.createTreeWalker(root, NodeFilter.SHOW_ELEMENT, filterOnlyParentElements, false)
+    const treeWalker = this.doc.createTreeWalker(root, NodeFilter.SHOW_ELEMENT, filterOnlyParentElements, false)
     let emptyBlocksCount = 0
     while (treeWalker.nextNode()) {
       const blockIsEmpty = treeWalker.currentNode.textContent === ''
@@ -366,7 +367,7 @@ class Selection {
 
   // Returns true if the selection range begins with an image tag
   // Returns false if the range starts with any non empty text nodes
-  doesRangeStartWithImages (range, doc) {
+  doesRangeStartWithImages (range) {
     if (range.startOffset !== 0 || range.startContainer.nodeType !== 1) {
       return false
     }
@@ -380,7 +381,7 @@ class Selection {
       return false
     }
 
-    const treeWalker = doc.createTreeWalker(range.startContainer, NodeFilter.SHOW_ALL, null, false)
+    const treeWalker = this.doc.createTreeWalker(range.startContainer, NodeFilter.SHOW_ALL, null, false)
     while (treeWalker.nextNode()) {
       const next = treeWalker.currentNode
       // If we hit the image, then there isn't any text before the image so
@@ -470,8 +471,8 @@ class Selection {
 
   // determine if the current selection contains any 'content'
   // content being any non-white space text or an image
-  selectionContainsContent (doc) {
-    const sel = doc.getSelection()
+  selectionContainsContent () {
+    const sel = this.doc.getSelection()
 
     // collapsed selection or selection withour range doesn't contain content
     if (!sel || sel.isCollapsed || !sel.rangeCount) {
@@ -514,14 +515,14 @@ class Selection {
 
   // http://stackoverflow.com/questions/4176923/html-of-selected-text
   // by Tim Down
-  getSelectionHtml (doc) {
+  getSelectionHtml () {
     let i
     let html = ''
-    const sel = doc.getSelection()
+    const sel = this.doc.getSelection()
     let len
     let container
     if (sel.rangeCount) {
-      container = doc.createElement('div')
+      container = this.doc.createElement('div')
       for (i = 0, len = sel.rangeCount; i < len; i += 1) {
         container.appendChild(sel.getRangeAt(i).cloneContents())
       }
@@ -587,8 +588,8 @@ class Selection {
     return range.startContainer
   }
 
-  getSelectedElements (doc) {
-    const selection = doc.getSelection()
+  getSelectedElements () {
+    const selection = this.doc.getSelection()
     let range
     let toRet
     let currNode
@@ -615,59 +616,57 @@ class Selection {
     })
   }
 
-  selectNode (node, doc) {
-    const range = doc.createRange()
+  selectNode (node) {
+    const range = this.doc.createRange()
     range.selectNodeContents(node)
-    this.selectRange(doc, range)
+    this.selectRange(range)
   }
 
-  select (doc, startNode, startOffset, endNode, endOffset) {
-    const range = doc.createRange()
+  select (startNode, startOffset, endNode, endOffset) {
+    const range = this.doc.createRange()
     range.setStart(startNode, startOffset)
     if (endNode) {
       range.setEnd(endNode, endOffset)
     } else {
       range.collapse(true)
     }
-    this.selectRange(doc, range)
+    this.selectRange(range)
     return range
   }
 
   /**
    *  Clear the current highlighted selection and set the caret to the start or the end of that prior selection, defaults to end.
    *
-   *  @param {DomDocument} doc            Current document
    *  @param {boolean} moveCursorToStart  A boolean representing whether or not to set the caret to the beginning of the prior selection.
    */
-  clearSelection (doc, moveCursorToStart) {
+  clearSelection (moveCursorToStart) {
     if (moveCursorToStart) {
-      doc.getSelection().collapseToStart()
+      this.doc.getSelection().collapseToStart()
     } else {
-      doc.getSelection().collapseToEnd()
+      this.doc.getSelection().collapseToEnd()
     }
   }
 
   /**
    * Move cursor to the given node with the given offset.
    *
-   * @param  {DomDocument} doc     Current document
    * @param  {DomElement}  node    Element where to jump
    * @param  {integer}     offset  Where in the element should we jump, 0 by default
    */
-  moveCursor (doc, node, offset) {
-    this.select(doc, node, offset)
+  moveCursor (node, offset) {
+    this.select(node, offset)
   }
 
-  getSelectionRange (ownerDocument) {
-    const selection = ownerDocument.getSelection()
+  getSelectionRange () {
+    const selection = this.doc.getSelection()
     if (selection.rangeCount === 0) {
       return null
     }
     return selection.getRangeAt(0)
   }
 
-  selectRange (ownerDocument, range) {
-    const selection = ownerDocument.getSelection()
+  selectRange (range) {
+    const selection = this.doc.getSelection()
 
     selection.removeAllRanges()
     selection.addRange(range)
@@ -676,12 +675,12 @@ class Selection {
   // http://stackoverflow.com/questions/1197401/
   // how-can-i-get-the-element-the-caret-is-in-with-javascript-when-using-contenteditable
   // by You
-  getSelectionStart (ownerDocument) {
-    const node = ownerDocument.getSelection().anchorNode
+  getSelectionStart () {
+    const node = this.doc.getSelection().anchorNode
     const startNode = (node && node.nodeType === 3 ? node.parentNode : node)
 
     return startNode
   }
 }
 
-export default new Selection()
+export default Selection

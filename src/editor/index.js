@@ -16,11 +16,12 @@ import {
   paragraphClassName // eslint-disable-line no-unused-vars
 } from './config.js'
 
-import selection from './selection' // eslint-disable-line no-unused-vars
+import Selection from './selection' // eslint-disable-line no-unused-vars
+
+const selection = new Selection(document)
 
 class Aganippe {
   constructor (container, options) {
-    this.doc = document
     this.container = container
     this.viewModel = []
     this.cursor = {
@@ -59,25 +60,25 @@ class Aganippe {
   }
 
   generateLastEmptyParagraph () {
-    const { ids, viewModel, container, doc } = this
+    const { ids, viewModel, container } = this
     const newParagraph = getNewParagraph(ids)
     viewModel.push(newParagraph)
     const emptyElement = paragraph2Element(newParagraph)
     container.appendChild(emptyElement)
-    selection.moveCursor(doc, emptyElement, 0)
+    selection.moveCursor(emptyElement, 0)
   }
 
   handleKeyDown () {
     this.container.addEventListener('keyup', event => {
       // if #write has textNode child, wrap it a `p` tag.
-      const node = selection.getSelectionStart(this.doc)
+      const node = selection.getSelectionStart()
       if (isAganippeEditorElement(node)) {
         this.doc.execCommand('formatBlock', false, 'p')
       }
 
       let paragraph = findNearestParagraph(node)
       const id = paragraph.id
-      const selectionState = selection.exportSelection(paragraph, this.doc)
+      const selectionState = selection.exportSelection(paragraph)
       const tagName = paragraph.tagName.toLowerCase()
       const text = paragraph.textContent
       const linkBreakUpdate = checkLineBreakUpdate(text)
@@ -90,7 +91,7 @@ class Aganippe {
           updateBlock(paragraph, inlineUpdate.type)
           paragraph = document.querySelector(`#${id}`)
 
-          selection.importSelection(selectionState, paragraph, this.doc)
+          selection.importSelection(selectionState, paragraph)
         }
       }
 
