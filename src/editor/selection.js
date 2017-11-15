@@ -512,9 +512,9 @@ class Selection {
   // http://stackoverflow.com/questions/4176923/html-of-selected-text
   // by Tim Down
   getSelectionHtml () {
+    const sel = this.doc.getSelection()
     let i
     let html = ''
-    const sel = this.doc.getSelection()
     let len
     let container
     if (sel.rangeCount) {
@@ -525,6 +525,28 @@ class Selection {
       html = container.innerHTML
     }
     return html
+  }
+
+  chopHtmlByCursor (root) {
+    const getContent = range => {
+      const div = document.createElement('div')
+      div.appendChild(range.cloneContents())
+      return div.innerHTML
+    }
+    const sel = this.doc.getSelection()
+    if (sel.rangeCount) {
+      const range = sel.getRangeAt(0)
+      const preCaretRange = range.cloneRange()
+      const postCaretRange = range.cloneRange()
+      postCaretRange.setStart(range.startContainer, range.startOffset)
+      postCaretRange.setEnd(root, root.childNodes.length)
+      preCaretRange.setStart(root, 0)
+      preCaretRange.setEnd(range.startContainer, range.startOffset)
+      return {
+        pre: getContent(preCaretRange),
+        post: getContent(postCaretRange)
+      }
+    }
   }
 
   /**

@@ -1,5 +1,4 @@
 import {
-  markedSymbol,
   emptyElementNames,
   paragraphClassName,
   blockContainerElementNames
@@ -70,6 +69,23 @@ const chunk2html = ({ chunk, index, lastIndex }, { start, end }) => {
   // TODO
 }
 
+const getMarkedChunks = markedText => {
+  const chunks = []
+  let match
+
+  do {
+    match = CHOP_REG.exec(markedText)
+    if (match) {
+      chunks.push({
+        index: match.index,
+        chunk: match[0],
+        lastIndex: CHOP_REG.lastIndex
+      })
+    }
+  } while (match)
+  return chunks
+}
+
 /**
  * get unique id name
  */
@@ -91,20 +107,8 @@ export const getUniqueId = set => {
  * `|` is the cursor position in marked test
  */
 export const markedText2Html = (markedText, positionState) => {
-  const chunks = []
+  const chunks = getMarkedChunks(markedText)
   let result = markedText
-  let match
-
-  do {
-    match = CHOP_REG.exec(markedText)
-    if (match) {
-      chunks.push({
-        index: match.index,
-        chunk: match[0],
-        lastIndex: CHOP_REG.lastIndex
-      })
-    }
-  } while (match)
 
   if (chunks.length > 0) {
     const chunksWithHtml = chunks.map(c => {
@@ -121,10 +125,22 @@ export const markedText2Html = (markedText, positionState) => {
 }
 
 /**
- * check input marked html
+ * check markedTextUpdate
  */
-export const checkInputMarkedSymbol = key => {
-  return markedSymbol.indexOf(key) > -1
+
+export const checkMarkedTextUpdate = (html, markedText, { start, end }) => {
+  if (/gray/.test(html)) return true
+  const chunks = getMarkedChunks(markedText)
+  const len = chunks.length
+  const textLen = markedText.length
+  let i
+  for (i = 0; i < len; i++) {
+    const { index, lastIndex } = chunks[i]
+    if (conflict([Math.max(0, index - 1), Math.min(textLen, lastIndex + 1)], [start, end])) {
+      return true
+    }
+  }
+  return false
 }
 
 /**
@@ -157,6 +173,15 @@ export const checkLineBreakUpdate = text => {
       return { type: 'pre', info: token[1] }
     default:
       return false
+  }
+}
+
+export const insertAfter = (newNode, originNode) => {
+  const parentNode = originNode.parentNode
+  if (originNode.nextSibling) {
+    parentNode.insertBefore(newNode, originNode.nextSibling)
+  } else {
+    parentNode.appendChild(newNode)
   }
 }
 
@@ -194,25 +219,18 @@ export const updateBlock = (origin, tagName) => {
  * viewModel2Html
  */
 
-export const paragraph2Element = paph => {
-  const { id, paragraphType, markedText, cursorRange } = paph
-  let element = null
-  switch (paragraphType) {
-    case 'p':
-      element = document.createElement('p')
-      element.id = id
-      element.classList.add(paragraphClassName)
-      element.innerHTML = markedText2Html(markedText, cursorRange)
-      break
-    default: break
+export const createEmptyElement = (ids, tagName, attrs) => {
+  const id = getUniqueId(ids)
+  const element = document.createElement(tagName)
+  if (attrs) {
+    Array.from(attrs).forEach(attr => {
+      element.setAttribute(attr.name, attr.value)
+    })
   }
+  if (!element.classList.contains(paragraphClassName)) element.classList.add(paragraphClassName)
+  element.innerHTML = '<br>'
   element.id = id
   return element
-}
-
-export const viewModel2Html = vm => {
-  const htmls = vm.map(p => paragraph2Element(p).outerHTML)
-  return htmls.join('\n')
 }
 
 export const findNearestParagraph = node => {

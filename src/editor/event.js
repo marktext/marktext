@@ -10,7 +10,7 @@ class Event {
   }
   /**
    * [attachDOMEvent] bind event listener to target, and return a unique ID,
-   * this ID 
+   * this ID
    */
   attachDOMEvent (target, event, listener, capture) {
     if (this.checkHasBind(target, event, listener, capture)) return false
@@ -54,7 +54,17 @@ class Event {
       this.listeners[event] = [listener]
     }
   }
-  // dispatch custom event
+  /**
+   * dispatch custom event
+   * customEvent includes: {
+   *   'markedTextChange',
+   *   'elementUpdate': 'update `p` elementNode to other elementNode. ex: `h1`, `ul-li`, `blockquote`'
+   *   'enter',
+   *   'delete',
+   *   'tab',
+   *   'backspace', 'paragraphBlur'
+   * }
+   */
   dispatch (event, ...data) {
     const eventListener = this.listeners[event]
     if (eventListener && Array.isArray(eventListener)) {
@@ -62,7 +72,7 @@ class Event {
     }
   }
   // Determine whether the event has been bind
-  checkHasBind(cTarget, cEvent, cListener, cCapture) {
+  checkHasBind (cTarget, cEvent, cListener, cCapture) {
     let i
     let len = this.events.length
     for (i = 0; i < len; i++) {
@@ -73,7 +83,6 @@ class Event {
     }
     return false
   }
-
 }
 
 export default Event

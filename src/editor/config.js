@@ -1,18 +1,3 @@
-import {
-  getUniqueId
-} from './utils.js'
-
-export const getNewParagraph = set => {
-  return {
-    parentType: null,
-    id: getUniqueId(set),
-    active: true,
-    markedText: '<br>',
-    paragraphType: 'p',
-    cursorRange: { right: 0, left: 0 },
-    sections: []
-  }
-}
 
 export const paragraphClassName = 'aganippe-paragraph'
 
@@ -28,4 +13,4 @@ export const blockContainerElementNames = [
 
 export const emptyElementNames = ['br', 'col', 'colgroup', 'hr', 'img', 'input', 'source', 'wbr']
 
-export const markedSymbol = ['*', '-', '_', '!', '[', ']']
+// export const markedSymbol = ['*', '-', '_', '!', '[', ']']
