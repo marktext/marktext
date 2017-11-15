@@ -69,7 +69,7 @@ class Aganippe {
   }
 
   handleKeyDown () {
-    this.container.addEventListener('keyup', event => {
+    this.container.addEventListener('input', event => {
       // if #write has textNode child, wrap it a `p` tag.
       const node = selection.getSelectionStart()
       if (isAganippeEditorElement(node)) {
@@ -95,9 +95,10 @@ class Aganippe {
         }
       }
 
-      if (checkInputMarkedSymbol(event.key)) {
+      if (checkInputMarkedSymbol(event.key) || 1) {
         const markedHtml = markedText2Html(text, selectionState)
-        console.log(markedHtml)
+        paragraph.innerHTML = markedHtml
+        selection.importSelection(selectionState, paragraph)
       }
     })
   }

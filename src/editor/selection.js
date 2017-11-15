@@ -12,17 +12,13 @@ import {
   getClosestBlockContainer
 } from './utils'
 
-const filterOnlyParentElements = function (node) {
-  if (isBlockContainer(node)) {
-    return NodeFilter.FILTER_ACCEPT
-  } else {
-    return NodeFilter.FILTER_SKIP
-  }
+const filterOnlyParentElements = node => {
+  return isBlockContainer(node) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP
 }
 
 class Selection {
   constructor (doc) {
-    this.doc = doc
+    this.doc = doc // document
   }
 
   findMatchingSelectionParent (testElementFunction, contentWindow) {
@@ -105,7 +101,7 @@ class Selection {
   //      in MS IE.
   importSelection (selectionState, root, favorLaterSelectionAnchor) {
     if (!selectionState || !root) {
-      return
+      throw new Error('your must provide a [selectionState] and a [root] element')
     }
 
     let range = this.doc.createRange()

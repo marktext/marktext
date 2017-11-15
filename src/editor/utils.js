@@ -10,9 +10,9 @@ import { html2json, json2html } from 'html2json'
 /**
  * RegExp constants
  */
-const HEAD_REG = /^(#{1,6})(.+)$/
-const EMPHASIZE_REG_G = /(\*{1,3})(.*)(\1)/g
-const EMPHASIZE_REG = /(\*{1,3})(.*)(\1)/
+const HEAD_REG = /^(#{1,6})([^#]*)$/g
+const EMPHASIZE_REG_G = /(\*{1,3})([^*]+)(\1)/g
+const EMPHASIZE_REG = /(\*{1,3})([^*]+)(\1)/
 const LINE_BREAK_BLOCK_REG = /^(?:`{3,}(.*))/
 const INLINE_BLOCK_REG = /^(?:[*+-]\s(\[\s\]\s)?|\d+\.\s|(#{1,6})[^#]+|>\s)/
 
@@ -20,7 +20,7 @@ const INLINE_BLOCK_REG = /^(?:[*+-]\s(\[\s\]\s)?|\d+\.\s|(#{1,6})[^#]+|>\s)/
  * help functions
  */
 const conflict = (arr1, arr2) => {
-  // Are two array have intersection
+  // Are two arraies have intersection
   return !(arr1[1] < arr2[0] || arr2[1] < arr1[0])
 }
 const getId = () => {
@@ -30,7 +30,7 @@ const getId = () => {
 /**
  * get unique id name
  */
-const getUniqueId = set => {
+export const getUniqueId = set => {
   let id = getId()
   while (set.has(id)) {
     id = getId()
@@ -42,34 +42,37 @@ const getUniqueId = set => {
 /**
  * markedText to html
  */
-const markedText2Html = (markedText, { start, end }) => {
+export const markedText2Html = (markedText, { start, end }) => {
   let result = markedText
   // handle head mark symble
   if (HEAD_REG.test(markedText)) {
-    result = markedText.replace(HEAD_REG, '<span class="gray">$1</span>$2')
+    result = result.replace(HEAD_REG, (match, p1, p2, offset) => {
+      const isConflicted = conflict([offset, offset + p1.length], [start, end])
+      const className = isConflicted ? 'gray' : 'hidden'
+      return `<a href="#" class="${className}">${p1}</a>${p2}`
+    })
   }
   // handle emphasize
   if (EMPHASIZE_REG.test(markedText)) {
-    const offset = markedText.match(EMPHASIZE_REG).index
-    result = result.replace(EMPHASIZE_REG_G, (match, p1, p2, p3) => {
+    result = result.replace(EMPHASIZE_REG_G, (match, p1, p2, p3, offset) => {
       const isConflicted = conflict([offset, offset + match.length], [start, end])
       const className = isConflicted ? 'gray' : 'hidden'
-      const tags = { startTags: '', endTags: '' }
+      let startTags
+      let endTags
       switch (p1.length) {
         case 1:
-          tags.startTags = '<em>'
-          tags.endTags = '</em>'
+          startTags = '<em>'
+          endTags = '</em>'
           break
         case 2:
-          tags.startTags = '<strong>'
-          tags.endTags = '</strong>'
+          startTags = '<strong>'
+          endTags = '</strong>'
           break
         case 3:
-          tags.startTags = '<strong><em>'
-          tags.endTags = '</em></strong>'
+          startTags = '<strong><em>'
+          endTags = '</em></strong>'
       }
-      const { startTags, endTags } = tags
-      return `<span class="${className}">${p1}</span>${startTags}${p2}${endTags}<span class="${className}">${p2}</span>`
+      return `<a href="#" class="${className}">${p1}</a>${startTags}${p2}${endTags}<a href="#" class="${className}">${p3}</a>`
     })
   }
   // handle link
@@ -82,19 +85,18 @@ const markedText2Html = (markedText, { start, end }) => {
   // TODO
   return result
 }
+
 /**
  * check input marked html
  */
-
-const checkInputMarkedSymbol = key => {
+export const checkInputMarkedSymbol = key => {
   return markedSymbol.indexOf(key) > -1
 }
 
 /**
  * checkInlineUpdate
  */
-
-const checkInlineUpdate = text => {
+export const checkInlineUpdate = text => {
   const token = text.match(INLINE_BLOCK_REG)
   if (!token) return false
   const match = token[0]
@@ -112,7 +114,7 @@ const checkInlineUpdate = text => {
   }
 }
 
-const checkLineBreakUpdate = text => {
+export const checkLineBreakUpdate = text => {
   const token = text.match(LINE_BREAK_BLOCK_REG)
   if (!token) return false
   const match = token[0]
@@ -124,7 +126,7 @@ const checkLineBreakUpdate = text => {
   }
 }
 
-const html2element = html => {
+export const html2element = html => {
   const wrapper = document.createElement('div')
   wrapper.innerHTML = html
   const children = wrapper.children
@@ -134,13 +136,13 @@ const html2element = html => {
   return children[0]
 }
 
-const replaceElement = (origin, alt) => {
+export const replaceElement = (origin, alt) => {
   const parentNode = origin.parentNode
   parentNode.insertBefore(alt, origin)
   parentNode.removeChild(origin)
 }
 
-const updateBlock = (origin, tagName) => {
+export const updateBlock = (origin, tagName) => {
   const json = html2json(origin.outerHTML)
   json.child[0].tag = tagName
   const html = json2html(json)
@@ -155,7 +157,7 @@ const updateBlock = (origin, tagName) => {
  * viewModel2Html
  */
 
-const paragraph2Element = paph => {
+export const paragraph2Element = paph => {
   const { id, paragraphType, markedText, cursorRange } = paph
   let element = null
   switch (paragraphType) {
@@ -171,32 +173,32 @@ const paragraph2Element = paph => {
   return element
 }
 
-const viewModel2Html = vm => {
+export const viewModel2Html = vm => {
   const htmls = vm.map(p => paragraph2Element(p).outerHTML)
   return htmls.join('\n')
 }
 
-const findNearestParagraph = node => {
+export const findNearestParagraph = node => {
   do {
     if (isAganippeParagraph(node)) return node
     node = node.parentNode
   } while (node)
 }
 
-const isBlockContainer = element => {
+export const isBlockContainer = element => {
   return element && element.nodeType !== 3 &&
   blockContainerElementNames.indexOf(element.nodeName.toLowerCase()) !== -1
 }
 
-const isAganippeEditorElement = element => {
+export const isAganippeEditorElement = element => {
   return element && element.getAttribute && !!element.getAttribute('aganippe-editor-element')
 }
 
-const isAganippeParagraph = element => {
+export const isAganippeParagraph = element => {
   return element && element.classList && element.classList.contains(paragraphClassName)
 }
 
-const traverseUp = (current, testElementFunction) => {
+export const traverseUp = (current, testElementFunction) => {
   if (!current) {
     return false
   }
@@ -218,7 +220,7 @@ const traverseUp = (current, testElementFunction) => {
   return false
 }
 
-const getFirstSelectableLeafNode = element => {
+export const getFirstSelectableLeafNode = element => {
   while (element && element.firstChild) {
     element = element.firstChild
   }
@@ -237,7 +239,7 @@ const getFirstSelectableLeafNode = element => {
   return element
 }
 
-const isElementAtBeginningOfBlock = node => {
+export const isElementAtBeginningOfBlock = node => {
   let textVal
   let sibling
   while (!isBlockContainer(node) && !isAganippeEditorElement(node)) {
@@ -254,7 +256,7 @@ const isElementAtBeginningOfBlock = node => {
   return true
 }
 
-const findPreviousSibling = node => {
+export const findPreviousSibling = node => {
   if (!node || isAganippeEditorElement(node)) {
     return false
   }
@@ -268,27 +270,8 @@ const findPreviousSibling = node => {
   return previousSibling
 }
 
-const getClosestBlockContainer = node => {
+export const getClosestBlockContainer = node => {
   return traverseUp(node, node => {
     return isBlockContainer(node) || isAganippeEditorElement(node)
   })
-}
-
-export {
-  updateBlock,
-  getUniqueId,
-  markedText2Html,
-  checkInlineUpdate,
-  checkLineBreakUpdate,
-  viewModel2Html,
-  paragraph2Element,
-  findNearestParagraph,
-  isBlockContainer,
-  checkInputMarkedSymbol,
-  traverseUp,
-  isAganippeEditorElement,
-  isElementAtBeginningOfBlock,
-  getFirstSelectableLeafNode,
-  findPreviousSibling,
-  getClosestBlockContainer
 }

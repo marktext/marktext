@@ -1,8 +1,10 @@
 #write {
 	outline: none;
+  caret-color: #333;
 }
 .gray {
-  color: #efefef;
+  color: #cccccc;
+  text-decoration: none;
 }
 .hidden {
   display: inline-block;
