@@ -16,7 +16,8 @@ const HEAD_REG = /^(#{1,6})([^#]*)$/
 const EMPHASIZE_REG_G = /(\*{1,3})([^*]+)(\1)/g
 const EMPHASIZE_REG = /(\*{1,3})([^*]+)(\1)/
 const LINE_BREAK_BLOCK_REG = /^(?:`{3,}(.*))/
-const INLINE_BLOCK_REG = /^(?:[*+-]\s(\[\s\]\s)?|\d+\.\s|(#{1,6})[^#]+|>\s)/
+const INLINE_BLOCK_REG = /^(?:[*+-]\s(\[\s\]\s)?|\d+\.\s|(#{1,6})[^#]+|>.+)/
+const CHOP_HEADER_REG = /^([*+-]\s(?:\[\s\]\s)?|>)/
 
 // help functions
 /**
@@ -152,16 +153,17 @@ export const checkMarkedTextUpdate = (html, markedText, { start, end }) => {
  */
 export const checkInlineUpdate = text => {
   const token = text.match(INLINE_BLOCK_REG)
+  console.log(token)
   if (!token) return false
   const match = token[0]
   switch (true) {
     case /[*+-]\s/.test(match):
-      return token[1] ? { type: 'ul', info: 'tasklist' } : { type: 'ul', info: 'disorder' }
+      return token[1] ? { type: 'li', info: 'tasklist' } : { type: 'li', info: 'disorder' }
     case /\d+\.\s/.test(match):
-      return { type: 'ol' }
+      return { type: 'li', info: 'order' }
     case /#{1,6}/.test(match):
       return { type: `h${token[2].length}` }
-    case />\s/.test(match):
+    case />/.test(match):
       return { type: 'blockquote' }
     default:
       return false
@@ -193,11 +195,18 @@ export const html2element = html => {
 export const updateBlock = (origin, tagName) => {
   const json = html2json(origin.outerHTML)
   json.child[0].tag = tagName
+
   if (/^h/.test(tagName)) {
     json.child[0].attr['data-head-level'] = tagName
   }
   const html = json2html(json)
-  replaceElement(origin, html2element(html))
+  const newElement = html2element(html)
+  replaceElement(origin, newElement)
+  return newElement
+}
+
+export const chopHeader = markedText => {
+  return markedText.replace(CHOP_HEADER_REG, '')
 }
 
 // DOM operations
@@ -242,6 +251,20 @@ export const removeNode = node => {
 // is firstChildElement
 export const isFirstChildElement = node => {
   return !!node.previousElementSibling
+}
+
+export const wrapperElementWithTag = (element, tagName) => {
+  const wrapper = document.createElement(tagName)
+  wrapper.innerHTML = element.outerHTML
+  replaceElement(element, wrapper)
+  return wrapper
+}
+
+export const nestElementWithTag = (element, tagName) => {
+  const wrapper = document.createElement(tagName)
+  wrapper.innerHTML = element.innerHTML
+  element.innerHTML = wrapper.outerHTML
+  return element
 }
 
 /**

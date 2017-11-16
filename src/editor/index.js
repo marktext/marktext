@@ -1,4 +1,3 @@
-
 import {
   updateBlock,
   checkLineBreakUpdate,
@@ -12,7 +11,10 @@ import {
   insertBefore,
   insertAfter,
   removeNode,
-  isFirstChildElement
+  isFirstChildElement,
+  wrapperElementWithTag,
+  nestElementWithTag,
+  chopHeader
 } from './utils.js'
 
 import {
@@ -50,6 +52,9 @@ class Aganippe {
 
     eventCenter.subscribe('paragraphChange', this.subscribeParagraphChange.bind(this))
     this.dispatchParagraphChange()
+
+    eventCenter.subscribe('elementUpdate', this.subscribeElementUpdate.bind(this))
+    this.dispatchElementUpdate()
 
     this.dispatchArrow()
 
@@ -193,11 +198,52 @@ class Aganippe {
   }
 
   dispatchElementUpdate () {
-    // TODO
+    const { container, eventCenter } = this
+    const updateHandler = event => {
+      const node = selection.getSelectionStart()
+      let paragraph = findNearestParagraph(node)
+      const selectionState = selection.exportSelection(paragraph)
+      const tagName = paragraph.tagName.toLowerCase()
+      const text = paragraph.textContent
+      const inlineUpdate = checkInlineUpdate(text)
+      if (inlineUpdate && inlineUpdate.type !== tagName) {
+        eventCenter.dispatch('elementUpdate', inlineUpdate, selectionState, paragraph)
+      }
+    }
+
+    eventCenter.attachDOMEvent(container, 'input', updateHandler)
   }
 
-  subscribeElementUpdate () {
-    // TODO
+  subscribeElementUpdate (inlineUpdate, selectionState, paragraph) {
+    const preTagName = paragraph.tagName.toLowerCase()
+    const chopedText = chopHeader(paragraph.textContent)
+    paragraph.innerHTML = markedText2Html(chopedText)
+    let newElement
+    if (/^h/.test(inlineUpdate.type)) {
+      newElement = updateBlock(paragraph, inlineUpdate.type)
+      selection.importSelection(selectionState, newElement)
+    } else if (inlineUpdate.type === 'blockquote') {
+      if (preTagName === 'p') {
+        const { start, end } = selectionState
+        newElement = updateBlock(paragraph, inlineUpdate.type)
+        nestElementWithTag(newElement, 'p')
+        selection.importSelection({ start: start - 1, end: end - 1 }, newElement) // `1` is length of `>`
+      } else {
+        // TODO li
+        const nestElement = nestElementWithTag(paragraph, 'p')
+        newElement = wrapperElementWithTag(nestElement, 'blockquote')
+      }
+    } else if (inlineUpdate.type === 'li') {
+      switch (inlineUpdate.info) {
+        case 'disorder':
+          
+          break
+        case 'order':
+          break
+        case 'tasklist':
+          break
+      }
+    }
   }
 
   dispatchArrow () {
@@ -249,6 +295,7 @@ class Aganippe {
     operateClassName(newParagraph, 'add', activeClassName)
     oldParagraph.innerHTML = markedText2Html(oldParagraph.textContent)
   }
+
   // TODO: refactor
   handleKeyDown () {
     this.container.addEventListener('input', event => {
@@ -259,22 +306,11 @@ class Aganippe {
       }
 
       let paragraph = findNearestParagraph(node)
-      const id = paragraph.id
-      const selectionState = selection.exportSelection(paragraph)
       const tagName = paragraph.tagName.toLowerCase()
       const text = paragraph.textContent
       const linkBreakUpdate = checkLineBreakUpdate(text)
-      const inlineUpdate = checkInlineUpdate(text)
       if (linkBreakUpdate && linkBreakUpdate.type !== tagName) {
         // TODO: update to lineBreak block
-      }
-      if (inlineUpdate && inlineUpdate.type !== tagName) {
-        if (/^h/.test(inlineUpdate.type)) {
-          updateBlock(paragraph, inlineUpdate.type)
-          paragraph = document.querySelector(`#${id}`)
-
-          selection.importSelection(selectionState, paragraph)
-        }
       }
     })
   }

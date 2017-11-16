@@ -60,7 +60,7 @@ class Event {
    *   'markedTextChange',
    *   'paragraphChange',
    *   'arrow',
-   *   'elementUpdate': 'update `p` elementNode to other elementNode. ex: `h1`, `ul-li`, `blockquote`'
+   *   'elementUpdate': 'update `p` elementNode to other elementNode. ex: `h1`, `ul-li`, `blockquote` or reversed'
    *   'enter',
    *   'delete',
    *   'tab',
