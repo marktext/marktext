@@ -17,7 +17,7 @@ const EMPHASIZE_REG_G = /(\*{1,3})([^*]+)(\1)/g
 const EMPHASIZE_REG = /(\*{1,3})([^*]+)(\1)/
 const LINE_BREAK_BLOCK_REG = /^(?:`{3,}(.*))/
 const INLINE_BLOCK_REG = /^(?:[*+-]\s(\[\s\]\s)?|\d+\.\s|(#{1,6})[^#]+|>.+)/
-const CHOP_HEADER_REG = /^([*+-]\s(?:\[\s\]\s)?|>|\d+\.\s)/
+const CHOP_HEADER_REG = /^([*+-]\s(?:\[\s\]\s)?|>\s*|\d+\.\s)/
 
 // help functions
 /**
@@ -258,6 +258,30 @@ export const removeNode = node => {
 // is firstChildElement
 export const isFirstChildElement = node => {
   return !node.previousElementSibling
+}
+
+export const isOnlyChildElement = node => {
+  return !node.previousElementSibling && !node.nextElementSibling
+}
+
+export const isLastChildElement = node => {
+  return !node.nextElementSibling
+}
+// chop one blockQute into two
+export const chopBlockQuote = (ids, node) => {
+  const blockQuote = document.createElement('blockquote')
+  const id = getUniqueId(ids)
+  let nextSibling
+  blockQuote.id = id
+  operateClassName(blockQuote, 'add', paragraphClassName)
+  do {
+    nextSibling = node.nextElementSibling
+    if (nextSibling) {
+      blockQuote.appendChild(nextSibling.cloneNode(true))
+      removeNode(nextSibling)
+    }
+  } while (nextSibling)
+  insertAfter(blockQuote, node.parentNode)
 }
 
 export const wrapperElementWithTag = (ids, element, tagName) => {

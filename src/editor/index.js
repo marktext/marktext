@@ -1,7 +1,8 @@
 import {
   updateBlock, checkLineBreakUpdate, createEmptyElement, checkInlineUpdate, checkMarkedTextUpdate,
   isAganippeEditorElement, findNearestParagraph, markedText2Html, operateClassName, insertBefore,
-  insertAfter, removeNode, isFirstChildElement, wrapperElementWithTag, nestElementWithTag, chopHeader
+  insertAfter, removeNode, isFirstChildElement, wrapperElementWithTag, nestElementWithTag, chopHeader,
+  isOnlyChildElement, isLastChildElement, chopBlockQuote
 } from './utils'
 
 import {
@@ -153,6 +154,9 @@ class Aganippe {
         selection.moveCursor(newParagraph, 0)
         return false
       case left === 0 && right === 0: // paragraph is empty
+        if (parTagName === 'blockquote') {
+          return this.enterInImptyBlockquote(paragraph)
+        }
         if (isFirstChildElement(paragraph) && preTagName === 'li') {
           tagName = preTagName
           newParagraph = createEmptyElement(this.ids, tagName, attrs)
@@ -195,6 +199,25 @@ class Aganippe {
         selection.moveCursor(newParagraph, 0)
         return false
     }
+  }
+
+  enterInImptyBlockquote (paragraph) {
+    const newParagraph = createEmptyElement(this.ids, 'p')
+    const parentNode = paragraph.parentNode
+    if (isOnlyChildElement(paragraph)) {
+      insertAfter(newParagraph, parentNode)
+      removeNode(parentNode)
+    } else if (isFirstChildElement(paragraph)) {
+      insertBefore(newParagraph, parentNode)
+    } else if (isLastChildElement(paragraph)) {
+      insertAfter(newParagraph, parentNode)
+    } else {
+      chopBlockQuote(this.ids, paragraph)
+      const preBlockQuote = paragraph.parentNode
+      insertAfter(newParagraph, preBlockQuote)
+    }
+    removeNode(paragraph)
+    selection.moveCursor(newParagraph, 0)
   }
 
   dispatchElementUpdate () {
