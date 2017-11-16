@@ -1,9 +1,9 @@
-h1::before,
-h2::before,
-h3::before,
-h4::before,
-h5::before,
-h6::before {
+h1.aganippe-active::before,
+h2.aganippe-active::before,
+h3.aganippe-active::before,
+h4.aganippe-active::before,
+h5.aganippe-active::before,
+h6.aganippe-active::before {
   content: attr(data-head-level);
   width: 20px;
   height: 20px;

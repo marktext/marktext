@@ -1,5 +1,6 @@
 
 export const paragraphClassName = 'aganippe-paragraph'
+export const activeClassName = 'aganippe-active'
 
 export const blockContainerElementNames = [
   // elements our editor generates
