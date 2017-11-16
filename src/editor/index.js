@@ -1,27 +1,13 @@
 import {
-  updateBlock,
-  checkLineBreakUpdate,
-  createEmptyElement,
-  checkInlineUpdate,
-  checkMarkedTextUpdate,
-  isAganippeEditorElement,
-  findNearestParagraph,
-  markedText2Html,
-  operateClassName,
-  insertBefore,
-  insertAfter,
-  removeNode,
-  isFirstChildElement,
-  wrapperElementWithTag,
-  nestElementWithTag,
-  chopHeader
-} from './utils.js'
+  updateBlock, checkLineBreakUpdate, createEmptyElement, checkInlineUpdate, checkMarkedTextUpdate,
+  isAganippeEditorElement, findNearestParagraph, markedText2Html, operateClassName, insertBefore,
+  insertAfter, removeNode, isFirstChildElement, wrapperElementWithTag, nestElementWithTag, chopHeader
+} from './utils'
 
 import {
   keys,
-  activeClassName,
-  paragraphClassName // eslint-disable-line no-unused-vars
-} from './config.js'
+  activeClassName
+} from './config'
 
 import Selection from './selection'
 import Event from './event'
@@ -138,7 +124,12 @@ class Aganippe {
   subscribeEnter (event) {
     event.preventDefault()
     const node = selection.getSelectionStart()
-    const paragraph = findNearestParagraph(node)
+    let paragraph = findNearestParagraph(node)
+    const parentNode = paragraph.parentNode
+    const parTagName = parentNode.tagName.toLowerCase()
+    if (parTagName === 'li' && isFirstChildElement(paragraph)) {
+      paragraph = parentNode
+    }
     const { left, right } = selection.getCaretOffsets(paragraph)
     const preTagName = paragraph.tagName.toLowerCase()
     const attrs = paragraph.attributes
@@ -151,14 +142,19 @@ class Aganippe {
         tagName = preTagName
         const { pre, post } = selection.chopHtmlByCursor(paragraph)
         newParagraph = createEmptyElement(this.ids, tagName, attrs)
-        paragraph.innerHTML = markedText2Html(pre)
-        newParagraph.innerHTML = markedText2Html(post, { start: 0, end: 0 })
+        if (tagName === 'li') {
+          paragraph.children[0].innerHTML = markedText2Html(pre)
+          newParagraph.children[0].innerHTML = markedText2Html(post, { start: 0, end: 0 })
+        } else {
+          paragraph.innerHTML = markedText2Html(pre)
+          newParagraph.innerHTML = markedText2Html(post, { start: 0, end: 0 })
+        }
         insertAfter(newParagraph, paragraph)
         selection.moveCursor(newParagraph, 0)
         return false
       case left === 0 && right === 0: // paragraph is empty
         if (isFirstChildElement(paragraph) && preTagName === 'li') {
-          tagName = 'li'
+          tagName = preTagName
           newParagraph = createEmptyElement(this.ids, tagName, attrs)
           insertAfter(newParagraph, paragraph)
           selection.moveCursor(newParagraph, 0)
@@ -177,7 +173,7 @@ class Aganippe {
         return false
       case left !== 0 && right === 0: // cursor at end of paragraph
       case left === 0 && right !== 0: // cursor at begin of paragraph
-        if (preTagName === 'li') tagName = 'li'
+        if (preTagName === 'li') tagName = preTagName
         else tagName = 'p' // insert after or before
         newParagraph = createEmptyElement(this.ids, tagName, attrs)
         if (left === 0 && right !== 0) {
@@ -215,8 +211,11 @@ class Aganippe {
   }
 
   subscribeElementUpdate (inlineUpdate, selectionState, paragraph) {
+    const { start, end } = selectionState
     const preTagName = paragraph.tagName.toLowerCase()
-    const chopedText = chopHeader(paragraph.textContent)
+    const markedText = paragraph.textContent
+    const chopedText = chopHeader(markedText)
+    const chopedLength = markedText.length - chopedText.length
     paragraph.innerHTML = markedText2Html(chopedText)
     let newElement
     if (/^h/.test(inlineUpdate.type)) {
@@ -224,23 +223,47 @@ class Aganippe {
       selection.importSelection(selectionState, newElement)
     } else if (inlineUpdate.type === 'blockquote') {
       if (preTagName === 'p') {
-        const { start, end } = selectionState
         newElement = updateBlock(paragraph, inlineUpdate.type)
-        nestElementWithTag(newElement, 'p')
-        selection.importSelection({ start: start - 1, end: end - 1 }, newElement) // `1` is length of `>`
+        nestElementWithTag(this.ids, newElement, 'p')
+        selection.importSelection({
+          start: start - chopedLength,
+          end: end - chopedLength
+        }, newElement) // `1` is length of `>`
       } else {
         // TODO li
-        const nestElement = nestElementWithTag(paragraph, 'p')
-        newElement = wrapperElementWithTag(nestElement, 'blockquote')
+        const nestElement = nestElementWithTag(this.ids, paragraph, 'p')
+        newElement = wrapperElementWithTag(this.ids, nestElement, 'blockquote')
       }
     } else if (inlineUpdate.type === 'li') {
       switch (inlineUpdate.info) {
+        case 'order': // fallthrough
         case 'disorder':
-          
+          newElement = updateBlock(paragraph, inlineUpdate.type)
+          newElement = nestElementWithTag(this.ids, newElement, 'p')
+          const id = newElement.querySelector('p').id
+          const altTagName = inlineUpdate.info === 'order' ? 'ol' : 'ul'
+          const parentNode = newElement.parentNode
+          const parentTagName = parentNode.tagName.toLowerCase()
+          const previousElement = newElement.previousElementSibling
+          const preViousTagName = previousElement && previousElement.tagName.toLowerCase()
+
+          if (parentTagName !== altTagName && preViousTagName !== altTagName) {
+            newElement = wrapperElementWithTag(this.ids, newElement, altTagName)
+          }
+          if (preViousTagName === altTagName) {
+            previousElement.appendChild(newElement)
+          }
+          // has bug: cursor postion disorder
+          const cursorElement = newElement.querySelector(`#${id}`)
+          console.log(cursorElement, chopedLength, start, end)
+          selection.importSelection({
+            start: start - chopedLength,
+            end: end - chopedLength
+          }, cursorElement)
           break
-        case 'order':
-          break
+
         case 'tasklist':
+          // TODO
           break
       }
     }
@@ -273,7 +296,10 @@ class Aganippe {
     const changeHandler = event => {
       const { id: preId, paragraph: preParagraph } = this.activeParagraph
       const node = selection.getSelectionStart()
-      const paragraph = findNearestParagraph(node)
+      let paragraph = findNearestParagraph(node)
+      if (paragraph.tagName.toLowerCase() === 'li') {
+        paragraph = paragraph.children[0]
+      }
       const newId = paragraph.id
       if (newId !== preId) {
         eventCenter.dispatch('paragraphChange', paragraph, preParagraph)
@@ -290,7 +316,6 @@ class Aganippe {
   }
 
   subscribeParagraphChange (newParagraph, oldParagraph) {
-    console.log(newParagraph.id, oldParagraph.id)
     operateClassName(oldParagraph, 'remove', activeClassName)
     operateClassName(newParagraph, 'add', activeClassName)
     oldParagraph.innerHTML = markedText2Html(oldParagraph.textContent)

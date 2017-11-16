@@ -17,7 +17,7 @@ const EMPHASIZE_REG_G = /(\*{1,3})([^*]+)(\1)/g
 const EMPHASIZE_REG = /(\*{1,3})([^*]+)(\1)/
 const LINE_BREAK_BLOCK_REG = /^(?:`{3,}(.*))/
 const INLINE_BLOCK_REG = /^(?:[*+-]\s(\[\s\]\s)?|\d+\.\s|(#{1,6})[^#]+|>.+)/
-const CHOP_HEADER_REG = /^([*+-]\s(?:\[\s\]\s)?|>)/
+const CHOP_HEADER_REG = /^([*+-]\s(?:\[\s\]\s)?|>|\d+\.\s)/
 
 // help functions
 /**
@@ -233,13 +233,21 @@ export const replaceElement = (origin, alt) => {
 export const createEmptyElement = (ids, tagName, attrs) => {
   const id = getUniqueId(ids)
   const element = document.createElement(tagName)
+  element.innerHTML = '<br>'
   if (attrs) {
     Array.from(attrs).forEach(attr => {
       element.setAttribute(attr.name, attr.value)
     })
   }
-  if (!element.classList.contains(paragraphClassName)) element.classList.add(paragraphClassName)
-  element.innerHTML = '<br>'
+  if (tagName === 'li') {
+    const pid = getUniqueId(ids)
+    const p = document.createElement('p')
+    p.innerHTML = '<br>'
+    operateClassName(p, 'add', paragraphClassName)
+    p.id = pid
+    element.innerHTML = p.outerHTML
+  }
+  operateClassName(element, 'add', paragraphClassName)
   element.id = id
   return element
 }
@@ -250,19 +258,25 @@ export const removeNode = node => {
 }
 // is firstChildElement
 export const isFirstChildElement = node => {
-  return !!node.previousElementSibling
+  return !node.previousElementSibling
 }
 
-export const wrapperElementWithTag = (element, tagName) => {
+export const wrapperElementWithTag = (ids, element, tagName) => {
   const wrapper = document.createElement(tagName)
+  const id = getUniqueId(ids)
+  operateClassName(wrapper, 'add', paragraphClassName)
+  wrapper.id = id
   wrapper.innerHTML = element.outerHTML
   replaceElement(element, wrapper)
   return wrapper
 }
 
-export const nestElementWithTag = (element, tagName) => {
+export const nestElementWithTag = (ids, element, tagName) => {
+  const id = getUniqueId(ids)
   const wrapper = document.createElement(tagName)
-  wrapper.innerHTML = element.innerHTML
+  operateClassName(wrapper, 'add', paragraphClassName)
+  wrapper.id = id
+  wrapper.innerHTML = element.innerHTML || '<br>'
   element.innerHTML = wrapper.outerHTML
   return element
 }
