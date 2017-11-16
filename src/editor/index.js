@@ -9,6 +9,7 @@ import {
   isAganippeEditorElement,
   findNearestParagraph,
   markedText2Html,
+  operateClassName,
   insertAfter // eslint-disable-line no-unused-vars
 } from './utils.js'
 
@@ -192,12 +193,8 @@ class Aganippe {
 
   subscribeParagraphChange (newParagraph, oldParagraph) {
     console.log(newParagraph.id, oldParagraph.id)
-    if (oldParagraph.classList.contains(activeClassName)) {
-      oldParagraph.classList.remove(activeClassName)
-    }
-    if (!newParagraph.classList.contains(activeClassName)) {
-      newParagraph.classList.add(activeClassName)
-    }
+    operateClassName(oldParagraph, 'remove', activeClassName)
+    operateClassName(newParagraph, 'add', activeClassName)
   }
   // TODO: refactor
   handleKeyDown () {

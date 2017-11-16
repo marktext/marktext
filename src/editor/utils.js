@@ -211,14 +211,6 @@ export const updateBlock = (origin, tagName) => {
   replaceElement(origin, html2element(html))
 }
 
-/**
- * translate paragraph to ohter block
- */
-
-/**
- * viewModel2Html
- */
-
 export const createEmptyElement = (ids, tagName, attrs) => {
   const id = getUniqueId(ids)
   const element = document.createElement(tagName)
@@ -231,6 +223,15 @@ export const createEmptyElement = (ids, tagName, attrs) => {
   element.innerHTML = '<br>'
   element.id = id
   return element
+}
+
+/**
+ * [description `add` or `remove` className of element
+ */
+export const operateClassName = (element, ctrl, className) => {
+  const containClassName = element.classList.contains(className)
+  const needOperation = ctrl === 'add' ? !containClassName : containClassName
+  return needOperation && element.classList[ctrl](className)
 }
 
 export const findNearestParagraph = node => {
