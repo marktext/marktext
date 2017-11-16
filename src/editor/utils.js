@@ -153,7 +153,6 @@ export const checkMarkedTextUpdate = (html, markedText, { start, end }) => {
  */
 export const checkInlineUpdate = text => {
   const token = text.match(INLINE_BLOCK_REG)
-  console.log(token)
   if (!token) return false
   const match = token[0]
   switch (true) {

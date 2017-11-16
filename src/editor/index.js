@@ -157,19 +157,23 @@ class Aganippe {
           tagName = preTagName
           newParagraph = createEmptyElement(this.ids, tagName, attrs)
           insertAfter(newParagraph, paragraph)
-          selection.moveCursor(newParagraph, 0)
+        } else if (parTagName === 'li') {
+          tagName = parTagName
+          newParagraph = createEmptyElement(this.ids, tagName, attrs)
+          insertAfter(newParagraph, parentNode)
+          removeNode(paragraph)
         } else {
           tagName = 'p'
           newParagraph = createEmptyElement(this.ids, tagName, attrs)
           if (preTagName === 'li') {
             // jump out ul
-            insertAfter(newParagraph, paragraph.parentNode)
+            insertAfter(newParagraph, parentNode)
             removeNode(paragraph)
           } else {
             insertAfter(newParagraph, paragraph)
           }
-          selection.moveCursor(newParagraph, 0)
         }
+        selection.moveCursor(newParagraph, 0)
         return false
       case left !== 0 && right === 0: // cursor at end of paragraph
       case left === 0 && right !== 0: // cursor at begin of paragraph
@@ -253,9 +257,7 @@ class Aganippe {
           if (preViousTagName === altTagName) {
             previousElement.appendChild(newElement)
           }
-          // has bug: cursor postion disorder
           const cursorElement = newElement.querySelector(`#${id}`)
-          console.log(cursorElement, chopedLength, start, end)
           selection.importSelection({
             start: start - chopedLength,
             end: end - chopedLength
