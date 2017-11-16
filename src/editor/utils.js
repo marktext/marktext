@@ -10,6 +10,7 @@ import { html2json, json2html } from 'html2json'
  * RegExp constants
  */
 const CHOP_REG = /^#{1,6}|(\*{1,3})[^*]+\1/g
+const CHOP_TEXT_REG = /(\*{1,3})([^*]+)(\1)/g
 const HEAD_REG_G = /^(#{1,6})([^#]*)$/g
 const HEAD_REG = /^(#{1,6})([^#]*)$/
 const EMPHASIZE_REG_G = /(\*{1,3})([^*]+)(\1)/g
@@ -29,8 +30,11 @@ const getId = () => {
   return `${prefix}${Math.random().toString(32).slice(2)}`
 }
 
-const chunk2html = ({ chunk, index, lastIndex }, { start, end }) => {
-  const isConflicted = conflict([index, lastIndex], [start, end])
+const chunk2html = ({ chunk, index, lastIndex }, { start, end } = {}) => {
+  // if no positionState provided, no conflict.
+  const isConflicted = start !== undefined && end !== undefined
+    ? conflict([index, lastIndex], [start, end])
+    : false
   const className = isConflicted ? 'gray' : 'hidden'
   // handle head mark symble
   if (HEAD_REG.test(chunk)) {
@@ -176,15 +180,6 @@ export const checkLineBreakUpdate = text => {
   }
 }
 
-export const insertAfter = (newNode, originNode) => {
-  const parentNode = originNode.parentNode
-  if (originNode.nextSibling) {
-    parentNode.insertBefore(newNode, originNode.nextSibling)
-  } else {
-    parentNode.appendChild(newNode)
-  }
-}
-
 export const html2element = html => {
   const wrapper = document.createElement('div')
   wrapper.innerHTML = html
@@ -195,12 +190,6 @@ export const html2element = html => {
   return children[0]
 }
 
-export const replaceElement = (origin, alt) => {
-  const parentNode = origin.parentNode
-  parentNode.insertBefore(alt, origin)
-  parentNode.removeChild(origin)
-}
-
 export const updateBlock = (origin, tagName) => {
   const json = html2json(origin.outerHTML)
   json.child[0].tag = tagName
@@ -209,6 +198,27 @@ export const updateBlock = (origin, tagName) => {
   }
   const html = json2html(json)
   replaceElement(origin, html2element(html))
+}
+
+// DOM operations
+export const insertAfter = (newNode, originNode) => {
+  const parentNode = originNode.parentNode
+  if (originNode.nextSibling) {
+    parentNode.insertBefore(newNode, originNode.nextSibling)
+  } else {
+    parentNode.appendChild(newNode)
+  }
+}
+
+export const insertBefore = (newNode, originNode) => {
+  const parentNode = originNode.parentNode
+  parentNode.insertBefore(newNode, originNode)
+}
+
+export const replaceElement = (origin, alt) => {
+  const parentNode = origin.parentNode
+  parentNode.insertBefore(alt, origin)
+  parentNode.removeChild(origin)
 }
 
 export const createEmptyElement = (ids, tagName, attrs) => {
@@ -223,6 +233,15 @@ export const createEmptyElement = (ids, tagName, attrs) => {
   element.innerHTML = '<br>'
   element.id = id
   return element
+}
+// delete node
+export const removeNode = node => {
+  const parentNode = node.parentNode
+  parentNode.removeChild(node)
+}
+// is firstChildElement
+export const isFirstChildElement = node => {
+  return !!node.previousElementSibling
 }
 
 /**
@@ -330,4 +349,34 @@ export const getClosestBlockContainer = node => {
   return traverseUp(node, node => {
     return isBlockContainer(node) || isAganippeEditorElement(node)
   })
+}
+
+export const getCursorPositionWithinMarkedText = (markedText, cursorOffset) => {
+  const chunks = []
+  let match
+  let result = { type: 'OUT' }
+
+  do {
+    match = CHOP_TEXT_REG.exec(markedText)
+    if (match) {
+      chunks.push({
+        index: match.index + match[1].length,
+        leftSymbol: match[1],
+        rightSymbol: match[3],
+        lastIndex: CHOP_TEXT_REG.lastIndex - match[3].length
+      })
+    }
+  } while (match)
+
+  chunks.forEach(c => {
+    const { index, leftSymbol, rightSymbol, lastIndex } = c
+    if (cursorOffset > index && cursorOffset < lastIndex) {
+      result = { type: 'IN', info: leftSymbol } // rightSymbol is also ok
+    } else if (cursorOffset === index) {
+      result = { type: 'LEFT', info: leftSymbol.length }
+    } else if (cursorOffset === lastIndex) {
+      result = { type: 'RIGHT', info: rightSymbol.length }
+    }
+  })
+  return result
 }

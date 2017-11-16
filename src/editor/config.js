@@ -1,5 +1,15 @@
+// helps functions
+const generateKeyHash = keys => {
+  return keys.reduce((acc, key) => {
+    return Object.assign(acc, { [key]: key })
+  }, {})
+}
 
+/**
+ * configs
+ */
 export const paragraphClassName = 'aganippe-paragraph'
+
 export const activeClassName = 'aganippe-active'
 
 export const blockContainerElementNames = [
@@ -13,5 +23,14 @@ export const blockContainerElementNames = [
 ]
 
 export const emptyElementNames = ['br', 'col', 'colgroup', 'hr', 'img', 'input', 'source', 'wbr']
+
+// event.key
+export const keys = generateKeyHash([
+  'Enter',
+  'ArrowUp',
+  'ArrowDown',
+  'ArrowLeft',
+  'ArrowRight'
+])
 
 // export const markedSymbol = ['*', '-', '_', '!', '[', ']']

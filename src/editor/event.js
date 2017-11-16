@@ -6,7 +6,7 @@ class Event {
   constructor () {
     this.events = []
     this.listeners = {}
-    this.eventIds = new Set([]) // use to store eventId
+    this.eventIds = new Set() // use to store eventId
   }
   /**
    * [attachDOMEvent] bind event listener to target, and return a unique ID,

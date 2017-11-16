@@ -1,6 +1,5 @@
 
 import {
-  getUniqueId, // eslint-disable-line no-unused-vars
   updateBlock,
   checkLineBreakUpdate,
   createEmptyElement,
@@ -10,10 +9,14 @@ import {
   findNearestParagraph,
   markedText2Html,
   operateClassName,
-  insertAfter // eslint-disable-line no-unused-vars
+  insertBefore,
+  insertAfter,
+  removeNode,
+  isFirstChildElement
 } from './utils.js'
 
 import {
+  keys,
   activeClassName,
   paragraphClassName // eslint-disable-line no-unused-vars
 } from './config.js'
@@ -27,7 +30,7 @@ class Aganippe {
   constructor (container, options) {
     this.container = container
     this.activeParagraph = null
-    this.ids = new Set([]) // use to store element'id
+    this.ids = new Set() // use to store element'id
     this.eventCenter = new Event()
     this.init()
   }
@@ -113,7 +116,7 @@ class Aganippe {
   dispatchEnter () {
     const { container, eventCenter } = this
     const handleKeyDown = event => {
-      if (event.key === 'Enter') {
+      if (event.key === keys.Enter) {
         eventCenter.dispatch('enter', event)
       }
     }
@@ -123,7 +126,7 @@ class Aganippe {
    * [subscribeEnter handler user type `enter|return` key]
    * step 1: detemine tagName
    * step 2: chop markedText
-   * step 3: dom manipulate, replacement or insertAfter
+   * step 3: dom manipulate, replacement or insertAfter or inertBefore ...
    * step 4: markedText to html
    * step 5: set cursor
    */
@@ -131,31 +134,82 @@ class Aganippe {
     event.preventDefault()
     const node = selection.getSelectionStart()
     const paragraph = findNearestParagraph(node)
+    const { left, right } = selection.getCaretOffsets(paragraph)
+    const preTagName = paragraph.tagName.toLowerCase()
     const attrs = paragraph.attributes
-    const newElement = createEmptyElement(this.ids, paragraph.tagName.toLowerCase(), attrs)
-    const { pre, post } = selection.chopHtmlByCursor(paragraph)
-    paragraph.innerHTML = pre || '<br>'
-    newElement.innerHTML = post || '<br>'
-    insertAfter(newElement, paragraph)
-    selection.moveCursor(newElement, 0)
+
+    // step1: detemine tagName
+    let tagName
+    let newParagraph
+    switch (true) {
+      case left !== 0 && right !== 0: // cursor at middile of paragraph
+        tagName = preTagName
+        const { pre, post } = selection.chopHtmlByCursor(paragraph)
+        newParagraph = createEmptyElement(this.ids, tagName, attrs)
+        paragraph.innerHTML = markedText2Html(pre)
+        newParagraph.innerHTML = markedText2Html(post, { start: 0, end: 0 })
+        insertAfter(newParagraph, paragraph)
+        selection.moveCursor(newParagraph, 0)
+        return false
+      case left === 0 && right === 0: // paragraph is empty
+        if (isFirstChildElement(paragraph) && preTagName === 'li') {
+          tagName = 'li'
+          newParagraph = createEmptyElement(this.ids, tagName, attrs)
+          insertAfter(newParagraph, paragraph)
+          selection.moveCursor(newParagraph, 0)
+        } else {
+          tagName = 'p'
+          newParagraph = createEmptyElement(this.ids, tagName, attrs)
+          if (preTagName === 'li') {
+            // jump out ul
+            insertAfter(newParagraph, paragraph.parentNode)
+            removeNode(paragraph)
+          } else {
+            insertAfter(newParagraph, paragraph)
+          }
+          selection.moveCursor(newParagraph, 0)
+        }
+        return false
+      case left !== 0 && right === 0: // cursor at end of paragraph
+      case left === 0 && right !== 0: // cursor at begin of paragraph
+        if (preTagName === 'li') tagName = 'li'
+        else tagName = 'p' // insert after or before
+        newParagraph = createEmptyElement(this.ids, tagName, attrs)
+        if (left === 0 && right !== 0) {
+          insertBefore(newParagraph, paragraph)
+          selection.moveCursor(paragraph, 0)
+        } else {
+          insertAfter(newParagraph, paragraph)
+          selection.moveCursor(newParagraph, 0)
+        }
+        return false
+      default:
+        tagName = 'p'
+        newParagraph = createEmptyElement(this.ids, tagName, attrs)
+        insertAfter(newParagraph, paragraph)
+        selection.moveCursor(newParagraph, 0)
+        return false
+    }
   }
 
   dispatchElementUpdate () {
-
+    // TODO
   }
 
   subscribeElementUpdate () {
-
+    // TODO
   }
 
   dispatchArrow () {
     const { eventCenter, container } = this
     const changeHandler = event => {
       if (event.key) {
-        if (event.key === 'ArrowLeft' ||
-          event.key === 'ArrowRight' ||
-          event.key === 'ArrowUp' ||
-          event.key === 'ArrowDown') {
+        if (
+          event.key === keys.ArrowLeft ||
+          event.key === keys.ArrowRight ||
+          event.key === keys.ArrowUp ||
+          event.key === keys.ArrowDown
+        ) {
           eventCenter.dispatch('arrow', event)
         }
       }
@@ -164,7 +218,7 @@ class Aganippe {
   }
 
   subscribeArrow () {
-
+    // TODO
   }
 
   dispatchParagraphChange () {
@@ -175,9 +229,7 @@ class Aganippe {
       const node = selection.getSelectionStart()
       const paragraph = findNearestParagraph(node)
       const newId = paragraph.id
-      if (newId === preId) {
-        return false
-      } else {
+      if (newId !== preId) {
         eventCenter.dispatch('paragraphChange', paragraph, preParagraph)
         this.activeParagraph = {
           id: newId,
@@ -195,6 +247,7 @@ class Aganippe {
     console.log(newParagraph.id, oldParagraph.id)
     operateClassName(oldParagraph, 'remove', activeClassName)
     operateClassName(newParagraph, 'add', activeClassName)
+    oldParagraph.innerHTML = markedText2Html(oldParagraph.textContent)
   }
   // TODO: refactor
   handleKeyDown () {

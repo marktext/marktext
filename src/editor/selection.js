@@ -9,7 +9,8 @@ import {
   getFirstSelectableLeafNode,
   isElementAtBeginningOfBlock,
   findPreviousSibling,
-  getClosestBlockContainer
+  getClosestBlockContainer,
+  getCursorPositionWithinMarkedText
 } from './utils'
 
 const filterOnlyParentElements = node => {
@@ -528,24 +529,32 @@ class Selection {
   }
 
   chopHtmlByCursor (root) {
-    const getContent = range => {
-      const div = document.createElement('div')
-      div.appendChild(range.cloneContents())
-      return div.innerHTML
-    }
-    const sel = this.doc.getSelection()
-    if (sel.rangeCount) {
-      const range = sel.getRangeAt(0)
-      const preCaretRange = range.cloneRange()
-      const postCaretRange = range.cloneRange()
-      postCaretRange.setStart(range.startContainer, range.startOffset)
-      postCaretRange.setEnd(root, root.childNodes.length)
-      preCaretRange.setStart(root, 0)
-      preCaretRange.setEnd(range.startContainer, range.startOffset)
-      return {
-        pre: getContent(preCaretRange),
-        post: getContent(postCaretRange)
-      }
+    const { left } = this.getCaretOffsets(root)
+    const markedText = root.textContent
+    const { type, info } = getCursorPositionWithinMarkedText(markedText, left)
+    let pre = markedText.slice(0, left)
+    let post = markedText.slice(left)
+    switch (type) {
+      case 'OUT':
+        return {
+          pre,
+          post
+        }
+      case 'IN':
+        return {
+          pre: `${pre}${info}`,
+          post: `${info}${post}`
+        }
+      case 'LEFT':
+        return {
+          pre: markedText.slice(0, left - info),
+          post: markedText.slice(left - info)
+        }
+      case 'RIGHT':
+        return {
+          pre: markedText.slice(0, left + info),
+          post: markedText.slice(left + info)
+        }
     }
   }
 
