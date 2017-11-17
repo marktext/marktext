@@ -23,6 +23,68 @@ h6.aganippe-active::before {
 a {
   pointer-events: none;
 }
+
+.ag-float-emoji-box {
+  position: absolute;
+  display: none;
+  opacity: 0;
+  width: 150px;
+  min-height: 200px;
+  max-height: 280px;
+  margin: 0;
+  padding: 0;
+  width: 150px;
+  border-radius: 2px;
+  box-shadow: 1px 1px 2px #bbb;
+  border: 1px solid #ddd;
+  list-style: none;
+  transform: scale(0);
+  transition: transform, opacity .5s ease-out;
+  overflow: hidden;
+}
+
+.ag-float-emoji-box-show {
+  display: block;
+  opacity: 1;
+  transform: scale(1);
+}
+
+.ag-emoji-item {
+  padding-right: 5px;
+  height: 35px;
+  line-height: 35px;
+  color: #666;
+  cursor: pointer;
+  font-size: 13px;
+  display: flex;
+}
+
+.ag-emoji-item span:nth-of-type(2n) {
+  overflow: hidden;
+  text-overflow:ellipsis;
+  white-space: nowrap;
+}
+
+.ag-emoji-item:hover {
+  background: rgba(65, 131, 196, 0.51);
+  color: #eeeeee;
+}
+
+.ag-emoji-active {
+  background: rgba(65, 131, 196, 0.61);
+  color: #efefef;
+}
+
+.ag-emoji-item-icon {
+  font-size: 22px;
+  width: 35px;
+  height: 35px;
+  text-align: center;
+  display: inline-block;
+  vertical-align: middle;
+  flex-shrink: 0;
+}
+
 #write {
 	outline: none;
   caret-color: #333;

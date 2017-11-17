@@ -2,15 +2,16 @@ import {
   updateBlock, checkLineBreakUpdate, createEmptyElement, checkInlineUpdate, checkMarkedTextUpdate,
   isAganippeEditorElement, findNearestParagraph, markedText2Html, operateClassName, insertBefore,
   insertAfter, removeNode, isFirstChildElement, wrapperElementWithTag, nestElementWithTag, chopHeader,
-  isOnlyChildElement, isLastChildElement, chopBlockQuote
+  isOnlyChildElement, isLastChildElement, chopBlockQuote, checkEditEmoji, setInlineEmoji, throttle
 } from './utils'
 
 import {
-  EVENT_KEYS, LOWERCASE_TAGS, EDITOR_ATTR_NAME, EDITOR_ID, activeClassName
+  EVENT_KEYS, LOWERCASE_TAGS, EDITOR_ATTR_NAME, EDITOR_ID, activeClassName, EMOJI_MARKED_TEXT
 } from './config'
 
 import Selection from './selection'
 import Event from './event'
+import Emoji from './emojis'
 
 const selection = new Selection(document)
 
@@ -20,6 +21,7 @@ class Aganippe {
     this.activeParagraph = null
     this.ids = new Set() // use to store element'id
     this.eventCenter = new Event()
+    this.emoji = new Emoji(this.eventCenter) // emoji instance: has search(text) clear() methods.
     this.init()
   }
 
@@ -34,6 +36,9 @@ class Aganippe {
     // listen to customEvent `markedTextChange` event, and change markedText to html.
     eventCenter.subscribe('markedTextChange', this.subscribeMarkedText.bind(this))
     this.dispatchMarkedText()
+
+    eventCenter.subscribe('editEmoji', throttle(this.subscribeEditEmoji.bind(this)))
+    this.dispatchEditeEmoji()
 
     eventCenter.subscribe('enter', this.subscribeEnter.bind(this))
     this.dispatchEnter()
@@ -77,6 +82,48 @@ class Aganippe {
     this.activeParagraph = {
       id: emptyElement.id,
       paragraph: emptyElement
+    }
+  }
+  /**
+   * dispatchEditeEmoji
+   */
+  dispatchEditeEmoji () {
+    const { container, eventCenter } = this
+    const changeHandler = event => {
+      const node = selection.getSelectionStart()
+      const paragraph = findNearestParagraph(node)
+      const html = paragraph.innerHTML
+      Promise.resolve()
+        .then(() => {
+          const action = checkEditEmoji(html)
+          eventCenter.dispatch('editEmoji', node, action)
+        })
+    }
+    eventCenter.attachDOMEvent(container, 'click', changeHandler)
+    eventCenter.attachDOMEvent(container, 'keyup', changeHandler)
+  }
+  subscribeEditEmoji (node, action) {
+    if (action === 'hide') this.emoji.box.hideIfNeeded()
+    if (node.classList.contains(EMOJI_MARKED_TEXT)) {
+      const text = node.textContent.replace(/:/g, '')
+      if (!text) return false
+      const list = this.emoji.search(text)
+      const { left, top } = node.getBoundingClientRect()
+      const cb = index => {
+        console.log(index)
+        const selectEmoji = list[index]
+        setInlineEmoji(node, selectEmoji, selection)
+        this.emoji.box.hideIfNeeded()
+      }
+      if (list.length) {
+        list[0].active = true
+        this.emoji.box.showIfNeeded()
+        this.emoji.box.setOptions(list, { left: `${left}px`, top: `${top + 35}px` }, cb)
+      } else {
+        this.emoji.box.hideIfNeeded()
+      }
+    } else {
+      this.emoji.box.hideIfNeeded()
     }
   }
   /**
@@ -375,6 +422,7 @@ class Aganippe {
   }
   destroy () {
     this.eventCenter.detachAllDomEvents()
+    this.emoji.clear() // clear emoji cache for memory recycle
     this.ids.clear()
     this.container = null
     this.activeParagraphId = null
