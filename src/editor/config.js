@@ -33,7 +33,7 @@ export const EVENT_KEYS = generateKeyHash([
 ])
 
 export const LOWERCASE_TAGS = generateKeyHash([
-  ...blockContainerElementNames, ...emptyElementNames
+  ...blockContainerElementNames, ...emptyElementNames, 'div'
 ])
 
 export const EDITOR_ATTR_NAME = 'aganippe-editor-element'

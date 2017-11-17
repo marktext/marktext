@@ -179,7 +179,6 @@ export const checkInlineUpdate = text => {
     default:
       return false
   }
-
 }
 
 export const checkLineBreakUpdate = text => {
