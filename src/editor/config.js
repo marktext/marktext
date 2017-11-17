@@ -25,12 +25,16 @@ export const blockContainerElementNames = [
 export const emptyElementNames = ['br', 'col', 'colgroup', 'hr', 'img', 'input', 'source', 'wbr']
 
 // event.key
-export const keys = generateKeyHash([
+export const EVENT_KEYS = generateKeyHash([
   'Enter',
   'ArrowUp',
   'ArrowDown',
   'ArrowLeft',
   'ArrowRight'
+])
+
+export const LOWERCASE_TAGS = generateKeyHash([
+  ...blockContainerElementNames, ...emptyElementNames
 ])
 
 // export const markedSymbol = ['*', '-', '_', '!', '[', ']']

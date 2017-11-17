@@ -1,8 +1,9 @@
 import {
+  LOWERCASE_TAGS,
   emptyElementNames,
   paragraphClassName,
   blockContainerElementNames
-} from './config.js'
+} from './config'
 
 import { html2json, json2html } from 'html2json'
 
@@ -157,13 +158,13 @@ export const checkInlineUpdate = text => {
   const match = token[0]
   switch (true) {
     case /[*+-]\s/.test(match):
-      return token[1] ? { type: 'li', info: 'tasklist' } : { type: 'li', info: 'disorder' }
+      return token[1] ? { type: LOWERCASE_TAGS.li, info: 'tasklist' } : { type: LOWERCASE_TAGS.li, info: 'disorder' }
     case /\d+\.\s/.test(match):
-      return { type: 'li', info: 'order' }
+      return { type: LOWERCASE_TAGS.li, info: 'order' }
     case /#{1,6}/.test(match):
       return { type: `h${token[2].length}` }
     case />/.test(match):
-      return { type: 'blockquote' }
+      return { type: LOWERCASE_TAGS.blockquote }
     default:
       return false
   }
@@ -238,9 +239,9 @@ export const createEmptyElement = (ids, tagName, attrs) => {
       element.setAttribute(attr.name, attr.value)
     })
   }
-  if (tagName === 'li') {
+  if (tagName === LOWERCASE_TAGS.li) {
     const pid = getUniqueId(ids)
-    const p = document.createElement('p')
+    const p = document.createElement(LOWERCASE_TAGS.p)
     p.innerHTML = '<br>'
     operateClassName(p, 'add', paragraphClassName)
     p.id = pid

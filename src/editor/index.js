@@ -6,7 +6,8 @@ import {
 } from './utils'
 
 import {
-  keys,
+  EVENT_KEYS,
+  LOWERCASE_TAGS,
   activeClassName
 } from './config'
 
@@ -68,7 +69,7 @@ class Aganippe {
 
   generateLastEmptyParagraph () {
     const { ids, container } = this
-    const emptyElement = createEmptyElement(ids, 'p')
+    const emptyElement = createEmptyElement(ids, LOWERCASE_TAGS.p)
     container.appendChild(emptyElement)
     selection.moveCursor(emptyElement, 0)
     emptyElement.classList.add(activeClassName)
@@ -108,7 +109,7 @@ class Aganippe {
   dispatchEnter () {
     const { container, eventCenter } = this
     const handleKeyDown = event => {
-      if (event.key === keys.Enter) {
+      if (event.key === EVENT_KEYS.Enter) {
         eventCenter.dispatch('enter', event)
       }
     }
@@ -128,7 +129,7 @@ class Aganippe {
     let paragraph = findNearestParagraph(node)
     const parentNode = paragraph.parentNode
     const parTagName = parentNode.tagName.toLowerCase()
-    if (parTagName === 'li' && isFirstChildElement(paragraph)) {
+    if (parTagName === LOWERCASE_TAGS.li && isFirstChildElement(paragraph)) {
       paragraph = parentNode
     }
     const { left, right } = selection.getCaretOffsets(paragraph)
@@ -143,7 +144,7 @@ class Aganippe {
         tagName = preTagName
         const { pre, post } = selection.chopHtmlByCursor(paragraph)
         newParagraph = createEmptyElement(this.ids, tagName, attrs)
-        if (tagName === 'li') {
+        if (tagName === LOWERCASE_TAGS.li) {
           paragraph.children[0].innerHTML = markedText2Html(pre)
           newParagraph.children[0].innerHTML = markedText2Html(post, { start: 0, end: 0 })
         } else {
@@ -154,22 +155,22 @@ class Aganippe {
         selection.moveCursor(newParagraph, 0)
         return false
       case left === 0 && right === 0: // paragraph is empty
-        if (parTagName === 'blockquote') {
+        if (parTagName === LOWERCASE_TAGS.blockquote) {
           return this.enterInImptyBlockquote(paragraph)
         }
-        if (isFirstChildElement(paragraph) && preTagName === 'li') {
+        if (isFirstChildElement(paragraph) && preTagName === LOWERCASE_TAGS.li) {
           tagName = preTagName
           newParagraph = createEmptyElement(this.ids, tagName, attrs)
           insertAfter(newParagraph, paragraph)
-        } else if (parTagName === 'li') {
+        } else if (parTagName === LOWERCASE_TAGS.li) {
           tagName = parTagName
           newParagraph = createEmptyElement(this.ids, tagName, attrs)
           insertAfter(newParagraph, parentNode)
           removeNode(paragraph)
         } else {
-          tagName = 'p'
+          tagName = LOWERCASE_TAGS.p
           newParagraph = createEmptyElement(this.ids, tagName, attrs)
-          if (preTagName === 'li') {
+          if (preTagName === LOWERCASE_TAGS.li) {
             // jump out ul
             insertAfter(newParagraph, parentNode)
             removeNode(paragraph)
@@ -181,8 +182,8 @@ class Aganippe {
         return false
       case left !== 0 && right === 0: // cursor at end of paragraph
       case left === 0 && right !== 0: // cursor at begin of paragraph
-        if (preTagName === 'li') tagName = preTagName
-        else tagName = 'p' // insert after or before
+        if (preTagName === LOWERCASE_TAGS.li) tagName = preTagName
+        else tagName = LOWERCASE_TAGS.p // insert after or before
         newParagraph = createEmptyElement(this.ids, tagName, attrs)
         if (left === 0 && right !== 0) {
           insertBefore(newParagraph, paragraph)
@@ -193,7 +194,7 @@ class Aganippe {
         }
         return false
       default:
-        tagName = 'p'
+        tagName = LOWERCASE_TAGS.p
         newParagraph = createEmptyElement(this.ids, tagName, attrs)
         insertAfter(newParagraph, paragraph)
         selection.moveCursor(newParagraph, 0)
@@ -202,7 +203,7 @@ class Aganippe {
   }
 
   enterInImptyBlockquote (paragraph) {
-    const newParagraph = createEmptyElement(this.ids, 'p')
+    const newParagraph = createEmptyElement(this.ids, LOWERCASE_TAGS.p)
     const parentNode = paragraph.parentNode
     if (isOnlyChildElement(paragraph)) {
       insertAfter(newParagraph, parentNode)
@@ -248,27 +249,27 @@ class Aganippe {
     if (/^h/.test(inlineUpdate.type)) {
       newElement = updateBlock(paragraph, inlineUpdate.type)
       selection.importSelection(selectionState, newElement)
-    } else if (inlineUpdate.type === 'blockquote') {
-      if (preTagName === 'p') {
+    } else if (inlineUpdate.type === LOWERCASE_TAGS.blockquote) {
+      if (preTagName === LOWERCASE_TAGS.p) {
         newElement = updateBlock(paragraph, inlineUpdate.type)
-        nestElementWithTag(this.ids, newElement, 'p')
+        nestElementWithTag(this.ids, newElement, LOWERCASE_TAGS.p)
         selection.importSelection({
           start: start - chopedLength,
           end: end - chopedLength
         }, newElement) // `1` is length of `>`
       } else {
         // TODO li
-        const nestElement = nestElementWithTag(this.ids, paragraph, 'p')
-        newElement = wrapperElementWithTag(this.ids, nestElement, 'blockquote')
+        const nestElement = nestElementWithTag(this.ids, paragraph, LOWERCASE_TAGS.p)
+        newElement = wrapperElementWithTag(this.ids, nestElement, LOWERCASE_TAGS.blockquote)
       }
-    } else if (inlineUpdate.type === 'li') {
+    } else if (inlineUpdate.type === LOWERCASE_TAGS.li) {
       switch (inlineUpdate.info) {
         case 'order': // fallthrough
         case 'disorder':
           newElement = updateBlock(paragraph, inlineUpdate.type)
-          newElement = nestElementWithTag(this.ids, newElement, 'p')
-          const id = newElement.querySelector('p').id
-          const altTagName = inlineUpdate.info === 'order' ? 'ol' : 'ul'
+          newElement = nestElementWithTag(this.ids, newElement, LOWERCASE_TAGS.p)
+          const id = newElement.querySelector(LOWERCASE_TAGS.p).id
+          const altTagName = inlineUpdate.info === 'order' ? LOWERCASE_TAGS.ol : LOWERCASE_TAGS.ul
           const parentNode = newElement.parentNode
           const parentTagName = parentNode.tagName.toLowerCase()
           const previousElement = newElement.previousElementSibling
@@ -299,10 +300,10 @@ class Aganippe {
     const changeHandler = event => {
       if (event.key) {
         if (
-          event.key === keys.ArrowLeft ||
-          event.key === keys.ArrowRight ||
-          event.key === keys.ArrowUp ||
-          event.key === keys.ArrowDown
+          event.key === EVENT_KEYS.ArrowLeft ||
+          event.key === EVENT_KEYS.ArrowRight ||
+          event.key === EVENT_KEYS.ArrowUp ||
+          event.key === EVENT_KEYS.ArrowDown
         ) {
           eventCenter.dispatch('arrow', event)
         }
@@ -322,7 +323,7 @@ class Aganippe {
       const { id: preId, paragraph: preParagraph } = this.activeParagraph
       const node = selection.getSelectionStart()
       let paragraph = findNearestParagraph(node)
-      if (paragraph.tagName.toLowerCase() === 'li') {
+      if (paragraph.tagName.toLowerCase() === LOWERCASE_TAGS.li) {
         paragraph = paragraph.children[0]
       }
       const newId = paragraph.id
@@ -352,7 +353,7 @@ class Aganippe {
       // if #write has textNode child, wrap it a `p` tag.
       const node = selection.getSelectionStart()
       if (isAganippeEditorElement(node)) {
-        this.doc.execCommand('formatBlock', false, 'p')
+        this.doc.execCommand('formatBlock', false, LOWERCASE_TAGS.p)
       }
 
       let paragraph = findNearestParagraph(node)

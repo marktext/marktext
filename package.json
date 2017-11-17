@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "author": "Jocs <luoran1988@126.com>",
   "description": "A markdown editor",
-  "license": null,
+  "license": "MIT",
   "main": "./dist/electron/main.js",
   "scripts": {
     "build": "node .electron-vue/build.js && electron-builder",
