@@ -11,12 +11,20 @@ import { html2json, json2html } from 'html2json'
 /**
  * RegExp constants
  */
-const CHOP_REG = /^#{1,6}|(\*{1,3})[^*]+\1/g
+//                header | Emphasize      | inline code |        link      | no text link
+const CHOP_REG = /^#{1,6}|(\*{1,3})[^*]+\1|(`{1,3}).+?\2|\[[^\[\]]+\]\(.*?\)|\[\]\([^\(\)]*?\)/g // eslint-disable-line no-useless-escape
 const CHOP_TEXT_REG = /(\*{1,3})([^*]+)(\1)/g
 const HEAD_REG_G = /^(#{1,6})([^#]*)$/g
 const HEAD_REG = /^(#{1,6})([^#]*)$/
 const EMPHASIZE_REG_G = /(\*{1,3})([^*]+)(\1)/g
 const EMPHASIZE_REG = /(\*{1,3})([^*]+)(\1)/
+const INLINE_CODE_REG_G = /(`{1,3})(.+)(\1)/g
+const INLINE_CODE_REG = /(`{1,3})(.+)(\1)/
+// eslint has bug ? need ignore
+const LINK_REG_G = /(\[)([^\[\]]+)(\]\()([^()]*?)(\))/g // eslint-disable-line no-useless-escape
+const LINK_REG = /(\[)([^\[\]]+)(\]\()([^()]*?)(\))/ // eslint-disable-line no-useless-escape
+const NO_TEXT_LINK_G = /(\[\]\()([^()]*?)(\))/g
+const NO_TEXT_LINK = /(\[\]\([^()]*?\))/
 const LINE_BREAK_BLOCK_REG = /^(?:`{3,}(.*))/
 const INLINE_BLOCK_REG = /^(?:[*+-]\s(\[\s\]\s)?|\d+\.\s|(#{1,6})[^#]+|>.+)/
 const CHOP_HEADER_REG = /^([*+-]\s(?:\[\s\]\s)?|>\s*|\d+\.\s)/
@@ -66,11 +74,65 @@ const chunk2html = ({ chunk, index, lastIndex }, { start, end } = {}) => {
           startTags = '<strong><em>'
           endTags = '</em></strong>'
       }
-      return `<a href="#" class="${className}">${p1}</a>${startTags}${p2}${endTags}<a href="#" class="${className}">${p3}</a>`
+      return (
+        `<a href="#" class="${className}">${p1}</a>` +
+        `${startTags}${p2}${endTags}` +
+        `<a href="#" class="${className}">${p3}</a>`
+      )
     })
   }
-  // handle link
-  // TODO
+  // handle inline code: markdown text: `code`
+  // => `
+  //    <a href="#" class="gray|hiden">`</a>
+  //    <code>code</code>
+  //    <a href="#" class="gray|hidden">`<a>
+  //  `
+  //  also need to handle more than one `. ex: ``code`another```
+  if (INLINE_CODE_REG.test(chunk)) {
+    return chunk.replace(INLINE_CODE_REG_G, (match, p1, p2, p3) => {
+      return (
+        `<a href="#" class="${className}">${p1}</a>` +
+        `<code>${p2}</code>` +
+        `<a href="#" class="${className}">${p3}</a>`
+      )
+    })
+  }
+  // handler no text link: markdown text: `[](www.baidu.com)`
+  if (NO_TEXT_LINK.test(chunk)) {
+    return chunk.replace(NO_TEXT_LINK_G, (match, p1, p2, p3) => {
+      return (
+        `<a href="#" class="gray">${p1}</a>` +
+        `<a href="#" data-href="${p2}">${p2}</a>` +
+        `<a href="#" class="gray">${p3}</a>`
+      )
+    })
+  }
+
+  // handle link: markdown text: [Aganippe](https://github.com/Jocs/aganippe/commits/master)
+  //  => html bellow
+  //  `
+  //  <a href="#" class="gray|hidden">[</a>
+  //  <a href="#" data-href="https://github.com/Jocs/aganippe/commits/master">Aganippe</a>
+  //  <a href="#" class="gray|hidden">]</a>
+  //  <a href="#" class="gray|hidden">(</a>
+  //  <a href="#" class="gray|hidden">https://github.com/Jocs/aganippe/commits/master</a>
+  //  <a href="#" class="gray|hidden">)</a>
+  //
+  //  `
+  if (LINK_REG.test(chunk)) {
+    return chunk.replace(LINK_REG_G, (match, p1, p2, p3, p4, p5) => {
+      console.log(p1, p2, p3, p4, p5)
+      const linkClassName = className === 'hidden' ? className : ''
+      return (
+        `<a href="#" class="${className}">${p1}</a>` +
+        `<a href="#" data-href="${p4}">${p2}</a>` +
+        `<a href="#" class="${className}">${p3}</a>` +
+        `<a href="#" class="${linkClassName}">${p4}</a>` +
+        `<a href="#" class="${className}">${p5}</a>`
+      )
+    })
+  }
+
   // handle picture
   // TODO
   // handle code
@@ -93,12 +155,12 @@ const getMarkedChunks = markedText => {
       })
     }
   } while (match)
-
+  console.log(chunks)
   return chunks
 }
 
 /**
- * get unique id name
+ * get unique id base on a set.
  */
 export const getUniqueId = set => {
   let id
