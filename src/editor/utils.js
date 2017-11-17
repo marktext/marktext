@@ -25,6 +25,8 @@ const LINK_REG_G = /(\[)([^\[\]]+)(\]\()([^()]*?)(\))/g // eslint-disable-line n
 const LINK_REG = /(\[)([^\[\]]+)(\]\()([^()]*?)(\))/ // eslint-disable-line no-useless-escape
 const NO_TEXT_LINK_G = /(\[\]\()([^()]*?)(\))/g
 const NO_TEXT_LINK = /(\[\]\([^()]*?\))/
+// const SIMPLE_LINK_G = /(<)([^<>]+?)(>)/g
+// const SIMPLE_LINK = /<[^<>]+?>/g
 const LINE_BREAK_BLOCK_REG = /^(?:`{3,}(.*))/
 const INLINE_BLOCK_REG = /^(?:[*+-]\s(\[\s\]\s)?|\d+\.\s|(#{1,6})[^#]+|>.+)/
 const CHOP_HEADER_REG = /^([*+-]\s(?:\[\s\]\s)?|>\s*|\d+\.\s)/
@@ -102,7 +104,7 @@ const chunk2html = ({ chunk, index, lastIndex }, { start, end } = {}) => {
     return chunk.replace(NO_TEXT_LINK_G, (match, p1, p2, p3) => {
       return (
         `<a href="#" class="gray">${p1}</a>` +
-        `<a href="#" data-href="${p2}">${p2}</a>` +
+        `<a href="${p2}">${p2}</a>` +
         `<a href="#" class="gray">${p3}</a>`
       )
     })
@@ -125,7 +127,7 @@ const chunk2html = ({ chunk, index, lastIndex }, { start, end } = {}) => {
       const linkClassName = className === 'hidden' ? className : ''
       return (
         `<a href="#" class="${className}">${p1}</a>` +
-        `<a href="#" data-href="${p4}">${p2}</a>` +
+        `<a href="${p4}">${p2}</a>` +
         `<a href="#" class="${className}">${p3}</a>` +
         `<a href="#" class="${linkClassName}">${p4}</a>` +
         `<a href="#" class="${className}">${p5}</a>`
@@ -135,10 +137,7 @@ const chunk2html = ({ chunk, index, lastIndex }, { start, end } = {}) => {
 
   // handle picture
   // TODO
-  // handle code
-  // TODO
-  // handle auto link
-  // TODO
+  // handle auto link: markdown text: `<this is a auto link>`
 }
 
 const getMarkedChunks = markedText => {

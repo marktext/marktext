@@ -57,6 +57,7 @@ _   底线
 !   惊叹号
 ```
 
+- [search and add emoji](https://www.webpagefx.com/tools/emoji-cheat-sheet/)
 - 表格支持。
 
 
