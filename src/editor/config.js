@@ -24,7 +24,6 @@ export const blockContainerElementNames = [
 
 export const emptyElementNames = ['br', 'col', 'colgroup', 'hr', 'img', 'input', 'source', 'wbr']
 
-// event.key
 export const EVENT_KEYS = generateKeyHash([
   'Enter',
   'ArrowUp',
@@ -36,5 +35,9 @@ export const EVENT_KEYS = generateKeyHash([
 export const LOWERCASE_TAGS = generateKeyHash([
   ...blockContainerElementNames, ...emptyElementNames
 ])
+
+export const EDITOR_ATTR_NAME = 'aganippe-editor-element'
+
+export const EDITOR_ID = 'write'
 
 // export const markedSymbol = ['*', '-', '_', '!', '[', ']']

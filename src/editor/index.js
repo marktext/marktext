@@ -6,9 +6,7 @@ import {
 } from './utils'
 
 import {
-  EVENT_KEYS,
-  LOWERCASE_TAGS,
-  activeClassName
+  EVENT_KEYS, LOWERCASE_TAGS, EDITOR_ATTR_NAME, EDITOR_ID, activeClassName
 } from './config'
 
 import Selection from './selection'
@@ -24,12 +22,14 @@ class Aganippe {
     this.eventCenter = new Event()
     this.init()
   }
+
   init () {
     this.ensureContainerDiv()
     const { container, eventCenter } = this
+
     container.setAttribute('contenteditable', true)
-    container.setAttribute('aganippe-editor-element', true)
-    container.id = 'write'
+    container.setAttribute(EDITOR_ATTR_NAME, true)
+    container.id = EDITOR_ID
 
     // listen to customEvent `markedTextChange` event, and change markedText to html.
     eventCenter.subscribe('markedTextChange', this.subscribeMarkedText.bind(this))
@@ -51,11 +51,11 @@ class Aganippe {
   }
 
   ensureContainerDiv () {
-    if (this.container.tagName.toLowerCase() === 'div') {
+    if (this.container.tagName.toLowerCase() === LOWERCASE_TAGS.div) {
       return false
     }
     const { container } = this
-    const div = document.createElement('div')
+    const div = document.createElement(LOWERCASE_TAGS.div)
     const attrs = container.attributes
     const parentNode = container.parentNode
     // copy attrs from origin container to new div element
@@ -70,6 +70,7 @@ class Aganippe {
   generateLastEmptyParagraph () {
     const { ids, container } = this
     const emptyElement = createEmptyElement(ids, LOWERCASE_TAGS.p)
+
     container.appendChild(emptyElement)
     selection.moveCursor(emptyElement, 0)
     emptyElement.classList.add(activeClassName)
@@ -256,7 +257,7 @@ class Aganippe {
         selection.importSelection({
           start: start - chopedLength,
           end: end - chopedLength
-        }, newElement) // `1` is length of `>`
+        }, newElement)
       } else {
         // TODO li
         const nestElement = nestElementWithTag(this.ids, paragraph, LOWERCASE_TAGS.p)

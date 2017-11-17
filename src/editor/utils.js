@@ -1,5 +1,6 @@
 import {
   LOWERCASE_TAGS,
+  EDITOR_ATTR_NAME,
   emptyElementNames,
   paragraphClassName,
   blockContainerElementNames
@@ -29,6 +30,7 @@ const conflict = (arr1, arr2) => {
 }
 const getId = () => {
   const prefix = 'ag-'
+
   return `${prefix}${Math.random().toString(32).slice(2)}`
 }
 
@@ -38,12 +40,14 @@ const chunk2html = ({ chunk, index, lastIndex }, { start, end } = {}) => {
     ? conflict([index, lastIndex], [start, end])
     : false
   const className = isConflicted ? 'gray' : 'hidden'
+
   // handle head mark symble
   if (HEAD_REG.test(chunk)) {
     return chunk.replace(HEAD_REG_G, (match, p1, p2) => {
       return `<a href="#" class="${className}">${p1}</a>${p2}`
     })
   }
+
   // handle emphasize
   if (EMPHASIZE_REG.test(chunk)) {
     return chunk.replace(EMPHASIZE_REG_G, (match, p1, p2, p3) => {
@@ -89,6 +93,7 @@ const getMarkedChunks = markedText => {
       })
     }
   } while (match)
+
   return chunks
 }
 
@@ -97,10 +102,12 @@ const getMarkedChunks = markedText => {
  */
 export const getUniqueId = set => {
   let id
+
   do {
     id = getId()
   } while (set.has(id))
   set.add(id)
+
   return id
 }
 
@@ -136,16 +143,19 @@ export const markedText2Html = (markedText, positionState) => {
 
 export const checkMarkedTextUpdate = (html, markedText, { start, end }) => {
   if (/gray/.test(html)) return true
+
   const chunks = getMarkedChunks(markedText)
   const len = chunks.length
   const textLen = markedText.length
   let i
+
   for (i = 0; i < len; i++) {
     const { index, lastIndex } = chunks[i]
     if (conflict([Math.max(0, index - 1), Math.min(textLen, lastIndex + 1)], [start, end])) {
       return true
     }
   }
+
   return false
 }
 
@@ -156,6 +166,7 @@ export const checkInlineUpdate = text => {
   const token = text.match(INLINE_BLOCK_REG)
   if (!token) return false
   const match = token[0]
+
   switch (true) {
     case /[*+-]\s/.test(match):
       return token[1] ? { type: LOWERCASE_TAGS.li, info: 'tasklist' } : { type: LOWERCASE_TAGS.li, info: 'disorder' }
@@ -168,12 +179,14 @@ export const checkInlineUpdate = text => {
     default:
       return false
   }
+
 }
 
 export const checkLineBreakUpdate = text => {
   const token = text.match(LINE_BREAK_BLOCK_REG)
   if (!token) return false
   const match = token[0]
+
   switch (true) {
     case /`{3,}.*/.test(match):
       return { type: 'pre', info: token[1] }
@@ -186,16 +199,18 @@ export const html2element = html => {
   const wrapper = document.createElement('div')
   wrapper.innerHTML = html
   const children = wrapper.children
+
   if (children.length > 1) {
     throw new Error(`[${html}] must has one ancestor`)
   }
+
   return children[0]
 }
 
 export const updateBlock = (origin, tagName) => {
   const json = html2json(origin.outerHTML)
-  json.child[0].tag = tagName
 
+  json.child[0].tag = tagName
   if (/^h/.test(tagName)) {
     json.child[0].attr['data-head-level'] = tagName
   }
@@ -212,6 +227,7 @@ export const chopHeader = markedText => {
 // DOM operations
 export const insertAfter = (newNode, originNode) => {
   const parentNode = originNode.parentNode
+
   if (originNode.nextSibling) {
     parentNode.insertBefore(newNode, originNode.nextSibling)
   } else {
@@ -221,11 +237,13 @@ export const insertAfter = (newNode, originNode) => {
 
 export const insertBefore = (newNode, originNode) => {
   const parentNode = originNode.parentNode
+
   parentNode.insertBefore(newNode, originNode)
 }
 
 export const replaceElement = (origin, alt) => {
   const parentNode = origin.parentNode
+
   parentNode.insertBefore(alt, origin)
   parentNode.removeChild(origin)
 }
@@ -233,12 +251,14 @@ export const replaceElement = (origin, alt) => {
 export const createEmptyElement = (ids, tagName, attrs) => {
   const id = getUniqueId(ids)
   const element = document.createElement(tagName)
+
   element.innerHTML = '<br>'
   if (attrs) {
     Array.from(attrs).forEach(attr => {
       element.setAttribute(attr.name, attr.value)
     })
   }
+
   if (tagName === LOWERCASE_TAGS.li) {
     const pid = getUniqueId(ids)
     const p = document.createElement(LOWERCASE_TAGS.p)
@@ -249,11 +269,13 @@ export const createEmptyElement = (ids, tagName, attrs) => {
   }
   operateClassName(element, 'add', paragraphClassName)
   element.id = id
+
   return element
 }
 // delete node
 export const removeNode = node => {
   const parentNode = node.parentNode
+
   parentNode.removeChild(node)
 }
 // is firstChildElement
@@ -273,8 +295,10 @@ export const chopBlockQuote = (ids, node) => {
   const blockQuote = document.createElement('blockquote')
   const id = getUniqueId(ids)
   let nextSibling
+
   blockQuote.id = id
   operateClassName(blockQuote, 'add', paragraphClassName)
+
   do {
     nextSibling = node.nextElementSibling
     if (nextSibling) {
@@ -282,26 +306,31 @@ export const chopBlockQuote = (ids, node) => {
       removeNode(nextSibling)
     }
   } while (nextSibling)
+
   insertAfter(blockQuote, node.parentNode)
 }
 
 export const wrapperElementWithTag = (ids, element, tagName) => {
   const wrapper = document.createElement(tagName)
   const id = getUniqueId(ids)
+
   operateClassName(wrapper, 'add', paragraphClassName)
   wrapper.id = id
   wrapper.innerHTML = element.outerHTML
   replaceElement(element, wrapper)
+
   return wrapper
 }
 
 export const nestElementWithTag = (ids, element, tagName) => {
   const id = getUniqueId(ids)
   const wrapper = document.createElement(tagName)
+
   operateClassName(wrapper, 'add', paragraphClassName)
   wrapper.id = id
   wrapper.innerHTML = element.innerHTML || '<br>'
   element.innerHTML = wrapper.outerHTML
+
   return element
 }
 
@@ -311,6 +340,7 @@ export const nestElementWithTag = (ids, element, tagName) => {
 export const operateClassName = (element, ctrl, className) => {
   const containClassName = element.classList.contains(className)
   const needOperation = ctrl === 'add' ? !containClassName : containClassName
+
   return needOperation && element.classList[ctrl](className)
 }
 
@@ -327,7 +357,7 @@ export const isBlockContainer = element => {
 }
 
 export const isAganippeEditorElement = element => {
-  return element && element.getAttribute && !!element.getAttribute('aganippe-editor-element')
+  return element && element.getAttribute && !!element.getAttribute(EDITOR_ATTR_NAME)
 }
 
 export const isAganippeParagraph = element => {
@@ -366,7 +396,7 @@ export const getFirstSelectableLeafNode = element => {
     return emptyElementNames.indexOf(el.nodeName.toLowerCase()) === -1
   })
   // Selecting at the beginning of a table doesn't work in PhantomJS.
-  if (element.nodeName.toLowerCase() === 'table') {
+  if (element.nodeName.toLowerCase() === LOWERCASE_TAGS.table) {
     const firstCell = element.querySelector('th, td')
     if (firstCell) {
       element = firstCell
@@ -429,8 +459,8 @@ export const getCursorPositionWithinMarkedText = (markedText, cursorOffset) => {
     }
   } while (match)
 
-  chunks.forEach(c => {
-    const { index, leftSymbol, rightSymbol, lastIndex } = c
+  chunks.forEach(chunk => {
+    const { index, leftSymbol, rightSymbol, lastIndex } = chunk
     if (cursorOffset > index && cursorOffset < lastIndex) {
       result = { type: 'IN', info: leftSymbol } // rightSymbol is also ok
     } else if (cursorOffset === index) {
