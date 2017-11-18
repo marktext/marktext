@@ -15,19 +15,21 @@ import {
 
 const fragments = [
   '^#{1,6}', // Header
-  '(\\*{1,3})[^*]+\\1', // Emphasize
+  '(\\*{1,3}|_{1,3})[^*_]+\\1', // Emphasize
   '(`{1,3}).+?\\2', // inline code
   '\\[[^\\[\\]]+\\]\\(.*?\\)', // link
   '\\[\\]\\([^\\(\\)]*?\\)', // no text link
-  ':[^:]+?:' // emoji
+  ':[^:]+?:', // emoji
+  '~{2}[^~]+~{2}', // line through
+  'https?://[^\\s]+(?=\\s|$)' // auto link
 ]
 
 const CHOP_REG = new RegExp(fragments.join('|'), 'g') // eslint-disable-line no-useless-escape
 const CHOP_TEXT_REG = /(\*{1,3})([^*]+)(\1)/g
 const HEAD_REG_G = /^(#{1,6})([^#]*)$/g
 const HEAD_REG = /^(#{1,6})([^#]*)$/
-const EMPHASIZE_REG_G = /(\*{1,3})([^*]+)(\1)/g
-const EMPHASIZE_REG = /(\*{1,3})([^*]+)(\1)/
+const EMPHASIZE_REG_G = /(\*{1,3}|_{1,3})([^*]+)(\1)/g
+const EMPHASIZE_REG = /(\*{1,3}|_{1,3})([^*]+)(\1)/
 const INLINE_CODE_REG_G = /(`{1,3})(.+)(\1)/g
 const INLINE_CODE_REG = /(`{1,3})(.+)(\1)/
 // eslint has bug ? need ignore
@@ -37,6 +39,10 @@ const NO_TEXT_LINK_G = /(\[\]\()([^()]*?)(\))/g
 const NO_TEXT_LINK = /(\[\]\([^()]*?\))/
 const EMOJI_REG_G = /(:)([^:]+?)(:)/g
 const EMOJI_REG = /:[^:]+?:/
+const LINE_THROUGH_REG_G = /(~{2})([^~]+?)(~{2})/g
+const LINE_THROUGH_REG = /~{2}[^~]+?~{2}/
+const AUTO_LINK_G = /(https?:\/\/[^\\s]+)(?=\s|$)/g
+const AUTO_LINK = /https?:\/\/[^\s]+(?=\s|$)/
 // const SIMPLE_LINK_G = /(<)([^<>]+?)(>)/g
 // const SIMPLE_LINK = /<[^<>]+?>/g
 const LINE_BREAK_BLOCK_REG = /^(?:`{3,}(.*))/
@@ -156,14 +162,37 @@ const chunk2html = ({ chunk, index, lastIndex }, { start, end } = {}) => {
           `<a href="#" class="${className}">${p3}</a>`
         )
       } else {
-        return `<a href="#">${p1}</a><a href="#" class="${EMOJI_MARKED_TEXT}">${p2}</a><a href="#">${p3}</a>`
+        return (
+          `<a href="#" class="ag-warn">${p1}</a>` +
+          `<a href="#" class="ag-warn ${EMOJI_MARKED_TEXT}">${p2}</a>` +
+          `<a href="#" class="ag-warn">${p3}</a>`
+        )
       }
+    })
+  }
+
+  if (LINE_THROUGH_REG.test(chunk)) {
+    return chunk.replace(LINE_THROUGH_REG_G, (match, p1, p2, p3) => {
+      return (
+        `<a href="#" class="${className}">${p1}</a>` +
+        `<del>${p2}</del>` +
+        `<a href="#" class="${className}">${p3}</a>`
+      )
+    })
+  }
+
+  if (AUTO_LINK.test(chunk)) {
+    return chunk.replace(AUTO_LINK_G, (match, p1) => {
+      return (
+        `<a href="${p1}">${p1}</a>`
+      )
     })
   }
 
   // handle picture
   // TODO
   // handle auto link: markdown text: `<this is a auto link>`
+  return chunk
 }
 
 const getMarkedChunks = markedText => {
@@ -286,15 +315,14 @@ export const checkInlineUpdate = text => {
   const token = text.match(INLINE_BLOCK_REG)
   if (!token) return false
   const match = token[0]
-
   switch (true) {
-    case /[*+-]\s/.test(match):
+    case /^[*+-]\s/.test(match):
       return token[1] ? { type: LOWERCASE_TAGS.li, info: 'tasklist' } : { type: LOWERCASE_TAGS.li, info: 'disorder' }
-    case /\d+\.\s/.test(match):
+    case /^\d+\.\s/.test(match):
       return { type: LOWERCASE_TAGS.li, info: 'order' }
-    case /#{1,6}/.test(match):
+    case /^#{1,6}/.test(match):
       return { type: `h${token[2].length}` }
-    case />/.test(match):
+    case /^>/.test(match):
       return { type: LOWERCASE_TAGS.blockquote }
     default:
       return false

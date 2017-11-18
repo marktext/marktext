@@ -277,6 +277,7 @@ class Aganippe {
       const tagName = paragraph.tagName.toLowerCase()
       const text = paragraph.textContent
       const inlineUpdate = checkInlineUpdate(text)
+
       if (inlineUpdate && inlineUpdate.type !== tagName) {
         eventCenter.dispatch('elementUpdate', inlineUpdate, selectionState, paragraph)
       }
