@@ -16,7 +16,7 @@ import {
 const fragments = [
   '^#{1,6}', // Header
   '(\\*{1,3}|_{1,3})[^*_]+\\1', // Emphasize
-  '(`{1,3}).+?\\2', // inline code
+  '(`{1,3})([^`]+?|.{2,})\\2', // inline code
   '\\[[^\\[\\]]+\\]\\(.*?\\)', // link
   '\\[\\]\\([^\\(\\)]*?\\)', // no text link
   ':[^:]+?:', // emoji
@@ -30,8 +30,8 @@ const HEAD_REG_G = /^(#{1,6})([^#]*)$/g
 const HEAD_REG = /^(#{1,6})([^#]*)$/
 const EMPHASIZE_REG_G = /(\*{1,3}|_{1,3})([^*]+)(\1)/g
 const EMPHASIZE_REG = /(\*{1,3}|_{1,3})([^*]+)(\1)/
-const INLINE_CODE_REG_G = /(`{1,3})(.+)(\1)/g
-const INLINE_CODE_REG = /(`{1,3})(.+)(\1)/
+const INLINE_CODE_REG_G = /(`{1,3})([^`]+?|.{2,})(\1)/g
+const INLINE_CODE_REG = /(`{1,3})([^`]+?|.{2,})(\1)/
 // eslint has bug ? need ignore
 const LINK_REG_G = /(\[)([^\[\]]+)(\]\()([^()]*?)(\))/g // eslint-disable-line no-useless-escape
 const LINK_REG = /(\[)([^\[\]]+)(\]\()([^()]*?)(\))/ // eslint-disable-line no-useless-escape
