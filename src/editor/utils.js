@@ -12,8 +12,17 @@ import {
 /**
  * RegExp constants
  */
-//                header | Emphasize      | inline code |        link      | no text link     | emoji
-const CHOP_REG = /^#{1,6}|(\*{1,3})[^*]+\1|(`{1,3}).+?\2|\[[^\[\]]+\]\(.*?\)|\[\]\([^\(\)]*?\)|:[^:]+?:/g // eslint-disable-line no-useless-escape
+
+const fragments = [
+  '^#{1,6}', // Header
+  '(\\*{1,3})[^*]+\\1', // Emphasize
+  '(`{1,3}).+?\\2', // inline code
+  '\\[[^\\[\\]]+\\]\\(.*?\\)', // link
+  '\\[\\]\\([^\\(\\)]*?\\)', // no text link
+  ':[^:]+?:' // emoji
+]
+
+const CHOP_REG = new RegExp(fragments.join('|'), 'g') // eslint-disable-line no-useless-escape
 const CHOP_TEXT_REG = /(\*{1,3})([^*]+)(\1)/g
 const HEAD_REG_G = /^(#{1,6})([^#]*)$/g
 const HEAD_REG = /^(#{1,6})([^#]*)$/
@@ -126,7 +135,6 @@ const chunk2html = ({ chunk, index, lastIndex }, { start, end } = {}) => {
   //  `
   if (LINK_REG.test(chunk)) {
     return chunk.replace(LINK_REG_G, (match, p1, p2, p3, p4, p5) => {
-      console.log(p1, p2, p3, p4, p5)
       const linkClassName = className === 'hidden' ? className : ''
       return (
         `<a href="#" class="${className}">${p1}</a>` +

@@ -4,11 +4,9 @@ import {
   insertAfter, removeNode, isFirstChildElement, wrapperElementWithTag, nestElementWithTag, chopHeader,
   isOnlyChildElement, isLastChildElement, chopBlockQuote, checkEditEmoji, setInlineEmoji, throttle
 } from './utils'
-
 import {
   EVENT_KEYS, LOWERCASE_TAGS, EDITOR_ATTR_NAME, EDITOR_ID, activeClassName, EMOJI_MARKED_TEXT
 } from './config'
-
 import Selection from './selection'
 import Event from './event'
 import Emoji from './emojis'
@@ -55,7 +53,9 @@ class Aganippe {
     this.handleKeyDown()
     this.generateLastEmptyParagraph()
   }
-
+  /**
+   * [ensureContainerDiv ensure container element is div]
+   */
   ensureContainerDiv () {
     if (this.container.tagName.toLowerCase() === LOWERCASE_TAGS.div) {
       return false
@@ -95,7 +95,6 @@ class Aganippe {
       Promise.resolve()
         .then(() => {
           const isEdit = checkEditEmoji(event, node)
-          console.log('isedit', isEdit)
           eventCenter.dispatch('editEmoji', node, isEdit)
         })
     }
@@ -111,7 +110,6 @@ class Aganippe {
       const list = this.emoji.search(text).slice(0, 5)
       const { left, top } = emojiNode.getBoundingClientRect()
       const cb = index => {
-        console.log(index)
         const selectEmoji = list[index]
         setInlineEmoji(emojiNode, selectEmoji, selection)
         this.emoji.box.hideIfNeeded()

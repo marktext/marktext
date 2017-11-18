@@ -87,7 +87,8 @@ a {
 }
 .ag-emoji-marked-text {
   position: relative;
-
+  color: #888;
+  text-decoration: none;
 }
 
 .ag-emoji-marked-text::before {
