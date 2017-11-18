@@ -28,19 +28,18 @@ a {
   position: absolute;
   display: none;
   opacity: 0;
-  width: 150px;
-  min-height: 200px;
-  max-height: 280px;
+  height: 165px;
+  min-width: 180px;
   margin: 0;
   padding: 0;
-  width: 150px;
-  border-radius: 2px;
-  box-shadow: 1px 1px 2px #bbb;
-  border: 1px solid #ddd;
+  border: 1px solid #dfe2e5;
+  border-radius: 3px;
+  box-shadow: 0 0 5px rgba(27,31,35,0.1);
   list-style: none;
   transform: scale(0);
   transition: transform, opacity .5s ease-out;
   overflow: hidden;
+  background: #fff;
 }
 
 .ag-float-emoji-box-show {
@@ -50,13 +49,16 @@ a {
 }
 
 .ag-emoji-item {
-  padding-right: 5px;
-  height: 35px;
-  line-height: 35px;
-  color: #666;
+  padding-right: .5em;
+  height: 33px;
+  line-height: 33px;
+  box-sizing: border-box;
+  border-bottom: 1px solid #dfe2e5;
+  color: #000;
   cursor: pointer;
   font-size: 13px;
   display: flex;
+  font-weight: 600;
 }
 
 .ag-emoji-item span:nth-of-type(2n) {
@@ -65,14 +67,13 @@ a {
   white-space: nowrap;
 }
 
-.ag-emoji-item:hover {
-  background: rgba(65, 131, 196, 0.51);
-  color: #eeeeee;
+.ag-float-emoji-box:hover .ag-emoji-active {
+   background: #fff;
+   color: #000;
 }
-
-.ag-emoji-active {
-  background: rgba(65, 131, 196, 0.61);
-  color: #efefef;
+.ag-emoji-active, .ag-float-emoji-box .ag-emoji-item:hover {
+  background: #0366d6;
+  color: #fff;
 }
 
 .ag-emoji-item-icon {
@@ -83,6 +84,28 @@ a {
   display: inline-block;
   vertical-align: middle;
   flex-shrink: 0;
+}
+.ag-emoji-marked-text {
+  position: relative;
+
+}
+
+.ag-emoji-marked-text::before {
+  content: attr(data-emoji);
+  position: absolute;
+  top: -1em;
+  left: 50%;
+  transform: translateX(-50%);
+  color: #000;
+}
+
+.hidden.ag-emoji-marked-text {
+  width: 1.4em;
+  height: 1.15em;
+  color: #fff;
+}
+.hidden.ag-emoji-marked-text::before {
+  top: 0;
 }
 
 #write {

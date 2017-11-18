@@ -1,20 +1,19 @@
+import { html2json, json2html } from 'html2json'
+import { validEmoji } from './emojis'
 import {
   LOWERCASE_TAGS,
   EMOJI_MARKED_TEXT,
-  INLINE_EMOJI,
   EDITOR_ATTR_NAME,
   emptyElementNames,
   paragraphClassName,
   blockContainerElementNames
 } from './config'
 
-import { html2json, json2html } from 'html2json'
-
 /**
  * RegExp constants
  */
 //                header | Emphasize      | inline code |        link      | no text link     | emoji
-const CHOP_REG = /^#{1,6}|(\*{1,3})[^*]+\1|(`{1,3}).+?\2|\[[^\[\]]+\]\(.*?\)|\[\]\([^\(\)]*?\)|:[^:]+?:(\ud83c[\udf00-\udfff]|\ud83d[\udc00-\ude4f]|\ud83d[\ude80-\udeff])?/g // eslint-disable-line no-useless-escape
+const CHOP_REG = /^#{1,6}|(\*{1,3})[^*]+\1|(`{1,3}).+?\2|\[[^\[\]]+\]\(.*?\)|\[\]\([^\(\)]*?\)|:[^:]+?:/g // eslint-disable-line no-useless-escape
 const CHOP_TEXT_REG = /(\*{1,3})([^*]+)(\1)/g
 const HEAD_REG_G = /^(#{1,6})([^#]*)$/g
 const HEAD_REG = /^(#{1,6})([^#]*)$/
@@ -27,7 +26,7 @@ const LINK_REG_G = /(\[)([^\[\]]+)(\]\()([^()]*?)(\))/g // eslint-disable-line n
 const LINK_REG = /(\[)([^\[\]]+)(\]\()([^()]*?)(\))/ // eslint-disable-line no-useless-escape
 const NO_TEXT_LINK_G = /(\[\]\()([^()]*?)(\))/g
 const NO_TEXT_LINK = /(\[\]\([^()]*?\))/
-const EMOJI_REG_G = /(:[^:]+?:)(\ud83c[\udf00-\udfff]|\ud83d[\udc00-\ude4f]|\ud83d[\ude80-\udeff])?/g
+const EMOJI_REG_G = /(:)([^:]+?)(:)/g
 const EMOJI_REG = /:[^:]+?:/
 // const SIMPLE_LINK_G = /(<)([^<>]+?)(>)/g
 // const SIMPLE_LINK = /<[^<>]+?>/g
@@ -140,12 +139,17 @@ const chunk2html = ({ chunk, index, lastIndex }, { start, end } = {}) => {
   }
   // handle emoji
   if (EMOJI_REG.test(chunk)) {
-    return chunk.replace(EMOJI_REG_G, (match, p1, p2) => {
-      console.log(match, p1, p2)
-      const emojiHtml = p2 ? `<a href="#" class="${INLINE_EMOJI}">${p2}</a>` : ''
-      return (
-        `<a href="#" class="${className} ${EMOJI_MARKED_TEXT}">${p1}</a>` + emojiHtml
-      )
+    return chunk.replace(EMOJI_REG_G, (match, p1, p2, p3) => {
+      const validation = validEmoji(p2)
+      if (validation) {
+        return (
+          `<a href="#" class="${className}">${p1}</a>` +
+          `<a href="#" class="${className} ${EMOJI_MARKED_TEXT}" data-emoji="${validation.emoji}">${p2}</a>` +
+          `<a href="#" class="${className}">${p3}</a>`
+        )
+      } else {
+        return `<a href="#">${p1}</a><a href="#" class="${EMOJI_MARKED_TEXT}">${p2}</a><a href="#">${p3}</a>`
+      }
     })
   }
 
@@ -238,27 +242,23 @@ export const checkMarkedTextUpdate = (html, markedText, { start, end }) => {
  * check edit emoji
  */
 
-export const checkEditEmoji = html => {
-  if (new RegExp(EMOJI_MARKED_TEXT).test(html) && /gray/.test(html)) {
-    return 'show'
+export const checkEditEmoji = (event, node) => {
+  const { type } = event
+  if (type === 'click') return false
+  const preSibling = node.previousElementSibling
+  if (
+    node.classList.contains(EMOJI_MARKED_TEXT) ||
+    (preSibling && preSibling.classList.contains(EMOJI_MARKED_TEXT))
+  ) {
+    return true
   }
-  return 'hide'
+  return false
 }
 
 export const setInlineEmoji = (node, emoji, selection) => {
-  let emojiWrapper
-  const hasNext = node.nextElementSibling && node.nextElementSibling.classList.contains(INLINE_EMOJI)
-  if (!hasNext) {
-    emojiWrapper = document.createElement('a')
-    emojiWrapper.href = '#'
-    emojiWrapper.classList.add(INLINE_EMOJI)
-    insertAfter(emojiWrapper, node)
-  } else {
-    emojiWrapper = node.nextElementSibling
-  }
-  node.textContent = `:${emoji.aliases[0]}:`
-  emojiWrapper.textContent = emoji.emoji
-  selection.moveCursor(emojiWrapper, 1)
+  node.textContent = `${emoji.aliases[0]}`
+  node.setAttribute('data-emoji', emoji.emoji)
+  selection.moveCursor(node.nextElementSibling, 1)
 }
 
 export const throttle = fn => {

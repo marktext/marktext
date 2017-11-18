@@ -49,6 +49,7 @@ class Aganippe {
     eventCenter.subscribe('elementUpdate', this.subscribeElementUpdate.bind(this))
     this.dispatchElementUpdate()
 
+    eventCenter.subscribe('arrow', this.subscribeArrow.bind(this))
     this.dispatchArrow()
 
     this.handleKeyDown()
@@ -91,39 +92,39 @@ class Aganippe {
     const { container, eventCenter } = this
     const changeHandler = event => {
       const node = selection.getSelectionStart()
-      const paragraph = findNearestParagraph(node)
-      const html = paragraph.innerHTML
       Promise.resolve()
         .then(() => {
-          const action = checkEditEmoji(html)
-          eventCenter.dispatch('editEmoji', node, action)
+          const isEdit = checkEditEmoji(event, node)
+          console.log('isedit', isEdit)
+          eventCenter.dispatch('editEmoji', node, isEdit)
         })
     }
     eventCenter.attachDOMEvent(container, 'click', changeHandler)
     eventCenter.attachDOMEvent(container, 'keyup', changeHandler)
   }
-  subscribeEditEmoji (node, action) {
-    if (action === 'hide') this.emoji.box.hideIfNeeded()
-    if (node.classList.contains(EMOJI_MARKED_TEXT)) {
-      const text = node.textContent.replace(/:/g, '')
-      if (!text) return false
-      const list = this.emoji.search(text)
-      const { left, top } = node.getBoundingClientRect()
+  subscribeEditEmoji (node, isEdit) {
+    const emojiNode = node.classList.contains(EMOJI_MARKED_TEXT) ? node : node.previousElementSibling
+    const text = emojiNode ? emojiNode.textContent.trim() : ''
+    if (!isEdit || !text) {
+      this.emoji.box.hideIfNeeded()
+    } else {
+      const list = this.emoji.search(text).slice(0, 5)
+      const { left, top } = emojiNode.getBoundingClientRect()
       const cb = index => {
         console.log(index)
         const selectEmoji = list[index]
-        setInlineEmoji(node, selectEmoji, selection)
+        setInlineEmoji(emojiNode, selectEmoji, selection)
         this.emoji.box.hideIfNeeded()
       }
       if (list.length) {
-        list[0].active = true
+        const activeIndex = 0
         this.emoji.box.showIfNeeded()
-        this.emoji.box.setOptions(list, { left: `${left}px`, top: `${top + 35}px` }, cb)
+        this.emoji.box.setOptions(list, activeIndex, {
+          left: `${left}px`, top: `${top + 35}px`
+        }, cb)
       } else {
         this.emoji.box.hideIfNeeded()
       }
-    } else {
-      this.emoji.box.hideIfNeeded()
     }
   }
   /**
@@ -361,6 +362,27 @@ class Aganippe {
   }
 
   subscribeArrow () {
+    // switch (event.key) {
+    //   case EVENT_KEYS.ArrowUp:
+    //     if (this.activeEmojiItem > 0) {
+    //       event.preventDefault()
+    //       this.activeEmojiItem = this.activeEmojiItem - 1
+    //       if (this.emojiList) {
+    //         this.emoji.box.setOptions(this.emojiList, this.activeEmojiItem)
+    //       }
+    //     }
+    //     break
+    //   case EVENT_KEYS.ArrowDown:
+    //     console.log(this.activeEmojiItem, this.emojiList.length)
+    //     if (this.activeEmojiItem < this.emojiList.length - 1) {
+    //       event.preventDefault()
+    //       this.activeEmojiItem = this.activeEmojiItem + 1
+    //       if (this.emojiList) {
+    //         this.emoji.box.setOptions(this.emojiList, this.activeEmojiItem)
+    //       }
+    //     }
+    //     break
+    // }
     // TODO
   }
 

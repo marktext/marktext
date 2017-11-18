@@ -29,10 +29,12 @@ class FloatBox {
     this.box = box
   }
 
-  setOptions (list, position, cb) {
-    this.cb = cb
-    const { left, top } = position
-    Object.assign(this.box.style, { left, top })
+  setOptions (list, index, position, cb) {
+    if (cb) this.cb = cb
+    if (position) {
+      const { left, top } = position
+      Object.assign(this.box.style, { left, top })
+    }
     const fragment = document.createDocumentFragment()
     list.forEach((l, i) => {
       const li = document.createElement('li')
@@ -43,7 +45,7 @@ class FloatBox {
       ;[span, textSpan, li].forEach(ele => {
         ele.setAttribute('key', i)
       })
-      if (l.active) li.classList.add(EMOJI_ITEM_ACTIVE)
+      if (i === index) li.classList.add(EMOJI_ITEM_ACTIVE)
       span.textContent = l.emoji
       textSpan.textContent = l.aliases[0]
       li.appendChild(span)
@@ -71,6 +73,8 @@ class FloatBox {
   }
 
   hideIfNeeded () {
+    this.empty()
+    this.cb = null
     if (this.checkStatus()) {
       this.box.classList.remove(SHOW_EMOJI_BOX)
     }
