@@ -1,9 +1,9 @@
-h1.aganippe-active::before,
-h2.aganippe-active::before,
-h3.aganippe-active::before,
-h4.aganippe-active::before,
-h5.aganippe-active::before,
-h6.aganippe-active::before {
+h1.ag-active::before,
+h2.ag-active::before,
+h3.ag-active::before,
+h4.ag-active::before,
+h5.ag-active::before,
+h6.ag-active::before {
   content: attr(data-head-level);
   width: 20px;
   height: 20px;
@@ -24,7 +24,7 @@ a {
   pointer-events: none;
 }
 
-.ag-float-emoji-box {
+.ag-emoji-box {
   position: absolute;
   display: none;
   opacity: 0;
@@ -42,7 +42,7 @@ a {
   background: #fff;
 }
 
-.ag-float-emoji-box-show {
+.ag-show-emoji-box {
   display: block;
   opacity: 1;
   transform: scale(1);
@@ -67,11 +67,11 @@ a {
   white-space: nowrap;
 }
 
-.ag-float-emoji-box:hover .ag-emoji-active {
+.ag-emoji-box:hover .ag-emoji-item-active {
    background: #fff;
    color: #000;
 }
-.ag-emoji-active, .ag-float-emoji-box .ag-emoji-item:hover {
+.ag-emoji-item-active, .ag-emoji-box .ag-emoji-item:hover {
   background: #0366d6;
   color: #fff;
 }
@@ -109,7 +109,7 @@ a {
   top: 0;
 }
 
-#write {
+#ag-editor-id {
 	outline: none;
   caret-color: #333;
 }

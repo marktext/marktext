@@ -118,7 +118,7 @@ body {
 	font-weight: 400;
 }
 
-#write {
+#ag-editor-id {
 	max-width: 914px;
 	color: #333;
 }
@@ -249,9 +249,9 @@ h6,
 	h4 {
 		font-size: 1.3rem;
 	}
-	#write>h4.md-focus:before,
-	#write>h5.md-focus:before,
-	#write>h6.md-focus:before{
+	#ag-editor-id>h4.md-focus:before,
+	#ag-editor-id>h5.md-focus:before,
+	#ag-editor-id>h6.md-focus:before{
 		top: 1px;
 	}
 	.p,
@@ -304,7 +304,7 @@ h6,
 	h4 {
 		font-size: 1.591rem;
 	}
-	#write>h4.md-focus:before{
+	#ag-editor-id>h4.md-focus:before{
 		top:4px;
 	}
 }
@@ -313,11 +313,11 @@ a {
 	text-decoration: underline;
 }
 
-#write {
+#ag-editor-id {
 	padding-top: 2rem;
 }
 
-#write pre.md-meta-block {
+#ag-editor-id pre.md-meta-block {
 	min-height: 35px;
 	padding: 0.5em 1em;
 	white-space: pre;

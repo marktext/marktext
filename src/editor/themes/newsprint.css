@@ -50,7 +50,7 @@ html, body {
 	line-height: 1.5em;
 }
 
-/*#write {
+/*#ag-editor-id {
 	overflow-x: auto;
     max-width: initial;
 	padding-left: calc(50% - 17em);
@@ -58,13 +58,13 @@ html, body {
 }
 
 @media (max-width: 36em) {
- 	#write {
+ 	#ag-editor-id {
  		padding-left: 1em;
     	padding-right: 1em;
  	}
 }*/
 
-#write {
+#ag-editor-id {
 	max-width: 40em;
 }
 
@@ -313,7 +313,7 @@ hr {
 	color: inherit;
 }
 
-#write pre.md-meta-block {
+#ag-editor-id pre.md-meta-block {
 	min-height: 1.875rem;
 	color: #555;
 	border: 0px;
@@ -332,24 +332,24 @@ hr {
 }
 
 
-#write>h3.md-focus:before{
+#ag-editor-id>h3.md-focus:before{
 	left: -1.5rem;
 	color:#999;
 	border-color:#999;
 }
-#write>h4.md-focus:before{
+#ag-editor-id>h4.md-focus:before{
 	left: -1.5rem;
 	top: .25rem;
 	color:#999;
 	border-color:#999;
 }
-#write>h5.md-focus:before{
+#ag-editor-id>h5.md-focus:before{
 	left: -1.5rem;
 	top: .0.3125rem;
 	color:#999;
 	border-color:#999;
 }
-#write>h6.md-focus:before{
+#ag-editor-id>h6.md-focus:before{
 	left: -1.5rem;
 	top: 0.3125rem;
 	color:#999;
@@ -366,7 +366,7 @@ hr {
 .md-toc-item {
 	color: #065588;
 }
-#write div.md-toc-tooltip {
+#ag-editor-id div.md-toc-tooltip {
 	background-color: #f3f2ee;
 }
 

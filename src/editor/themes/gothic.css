@@ -52,7 +52,7 @@
 
 html,
 body,
-#write{
+#ag-editor-id{
 	background: #fcfcfc;
 	font-family: 'TeXGyreAdventor', "Century Gothic", 'Yu Gothic', 'Raleway', "STHeiti", sans-serif;
 	font-weight: 400;
@@ -71,21 +71,21 @@ html {
 	font-size:16px;
 }
 
-#write {
+#ag-editor-id {
 	max-width: 914px;
 	text-align: justify;
 }
 
-#write>h1:first-child {
+#ag-editor-id>h1:first-child {
 	margin-top: 2.75rem;
 }
-#write>h2:first-child {
+#ag-editor-id>h2:first-child {
 	margin-top: 1.75rem;
 }
-#write>h3:first-child {
+#ag-editor-id>h3:first-child {
 	margin-top: 1rem;
 }
-#write>h4:first-child {
+#ag-editor-id>h4:first-child {
 	margin-top: 0.5rem;
 }
 h1 {
@@ -126,22 +126,22 @@ p {
 	line-height: 1.75rem;
 	margin: 0 0 1.25rem;
 }
-#write>h3.md-focus:before {
+#ag-editor-id>h3.md-focus:before {
 	left: -1.875rem;
 	top: 0.5rem;
 	padding: 2px;
 }
-#write>h4.md-focus:before {
+#ag-editor-id>h4.md-focus:before {
 	left: -1.875rem;
 	top: 0.3125rem;
 	padding: 2px;
 }
-#write>h5.md-focus:before {
+#ag-editor-id>h5.md-focus:before {
 	left: -1.875rem;
 	top: 0.25rem;
 	padding: 2px;
 }
-#write>h6.md-focus:before {
+#ag-editor-id>h6.md-focus:before {
 	left: -1.875rem;
 	top: .125rem;
 	padding: 2px;
@@ -171,9 +171,9 @@ p {
 	h6 {
 		font-size: 1rem;
 	}
-	#write>h4.md-focus:before,
-	#write>h5.md-focus:before,
-	#write>h6.md-focus:before {
+	#ag-editor-id>h4.md-focus:before,
+	#ag-editor-id>h5.md-focus:before,
+	#ag-editor-id>h6.md-focus:before {
 		top: 1px;
 	}
 	p {
@@ -322,7 +322,7 @@ blockquote p {
 	line-height: 1.6;
 	color: #6f6f6f;
 }
-#write pre.md-meta-block {
+#ag-editor-id pre.md-meta-block {
 	min-height: 30px;
 	background: #f8f8f8;
 	padding: 1.5em;

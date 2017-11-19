@@ -11,7 +11,7 @@ import {
   findPreviousSibling,
   getClosestBlockContainer,
   getCursorPositionWithinMarkedText
-} from './utils'
+} from './utils/domManipulate'
 
 const filterOnlyParentElements = node => {
   return isBlockContainer(node) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP

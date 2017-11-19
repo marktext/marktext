@@ -1,4 +1,6 @@
-import { FLOAT_BOX_ID, FLOAT_BOX_CLASSNAME, SHOW_EMOJI_BOX, EMOJI_ITEM, EMOJI_ICON, EMOJI_ITEM_ACTIVE } from '../config'
+import {
+  CLASS_OR_ID
+} from '../config'
 
 class FloatBox {
   constructor (event) {
@@ -10,7 +12,7 @@ class FloatBox {
   }
 
   initBox () {
-    let box = document.querySelector(`#${FLOAT_BOX_ID}`)
+    let box = document.querySelector(`#${CLASS_OR_ID['AG_EMOJI_BOX_ID']}`)
     const clickHandler = event => {
       const target = event.target
       const key = target.getAttribute('key')
@@ -21,8 +23,8 @@ class FloatBox {
 
     if (!box) {
       box = document.createElement('ul')
-      box.id = FLOAT_BOX_ID
-      box.classList.add(FLOAT_BOX_CLASSNAME)
+      box.id = CLASS_OR_ID['AG_EMOJI_BOX_ID']
+      box.classList.add(CLASS_OR_ID['AG_EMOJI_BOX'])
       document.body.appendChild(box)
       this.event.attachDOMEvent(box, 'click', clickHandler)
     }
@@ -40,12 +42,12 @@ class FloatBox {
       const li = document.createElement('li')
       const span = document.createElement('span')
       const textSpan = document.createElement('span')
-      span.classList.add(EMOJI_ICON)
-      li.classList.add(EMOJI_ITEM)
+      span.classList.add(CLASS_OR_ID['AG_EMOJI_ITEM_ICON'])
+      li.classList.add(CLASS_OR_ID['AG_EMOJI_ITEM'])
       ;[span, textSpan, li].forEach(ele => {
         ele.setAttribute('key', i)
       })
-      if (i === index) li.classList.add(EMOJI_ITEM_ACTIVE)
+      if (i === index) li.classList.add(CLASS_OR_ID['AG_EMOJI_ITEM_ACTIVE'])
       span.textContent = l.emoji
       textSpan.textContent = l.aliases[0]
       li.appendChild(span)
@@ -63,12 +65,12 @@ class FloatBox {
 
   checkStatus () {
     const { box } = this
-    return box.classList.contains(SHOW_EMOJI_BOX)
+    return box.classList.contains(CLASS_OR_ID['AG_SHOW_EMOJI_BOX'])
   }
 
   showIfNeeded () {
     if (!this.checkStatus()) {
-      this.box.classList.add(SHOW_EMOJI_BOX)
+      this.box.classList.add(CLASS_OR_ID['AG_SHOW_EMOJI_BOX'])
     }
   }
 
@@ -76,7 +78,7 @@ class FloatBox {
     this.empty()
     this.cb = null
     if (this.checkStatus()) {
-      this.box.classList.remove(SHOW_EMOJI_BOX)
+      this.box.classList.remove(CLASS_OR_ID['AG_SHOW_EMOJI_BOX'])
     }
   }
 }

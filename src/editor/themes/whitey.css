@@ -12,24 +12,24 @@ body {
 	line-height: 1.4;
 	text-align: justify;
 }
-#write {
+#ag-editor-id {
 	max-width: 960px;
 	margin: 0 auto;
 	margin-bottom: 2em;
 	line-height: 1.53;
 }
 
-#write>h2:first-child,
-#write>h3:first-child,
-#write>h4:first-child,
-#write>p:first-child{
+#ag-editor-id>h2:first-child,
+#ag-editor-id>h3:first-child,
+#ag-editor-id>h4:first-child,
+#ag-editor-id>p:first-child{
 	margin-top: 1.2em;
 }
 
 /* Typography
 -------------------------------------------------------- */
 
-#write>h1:first-child,
+#ag-editor-id>h1:first-child,
 h1 {
 	margin-top: 1.6em;
 	font-weight: normal;
@@ -186,11 +186,11 @@ table tbody+tbody {
 	color: inherit;
 	font: inherit;
 }
-#write pre.md-meta-block {
+#ag-editor-id pre.md-meta-block {
 	min-height: 35px;
 	padding: 0.5em 1em;
 }
-#write pre.md-meta-block {
+#ag-editor-id pre.md-meta-block {
 	white-space: pre;
 	background: #f8f8f8;
 	border: 0px;
@@ -214,7 +214,7 @@ table tbody+tbody {
 .md-img-error.md-image>.md-meta{
 	vertical-align: bottom;
 }
-#write>h5.md-focus:before {
+#ag-editor-id>h5.md-focus:before {
 	top: 2px;
 }
 

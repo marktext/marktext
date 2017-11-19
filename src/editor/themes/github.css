@@ -43,15 +43,15 @@ body {
   line-height: 1.6;
 }
 
-#write{
+#ag-editor-id{
   max-width: 860px;
   margin: 0 auto;
   padding: 20px 30px 40px 30px;
   padding-top: 20px;
   padding-bottom: 100px;
 }
-#write > ul:first-child,
-#write > ol:first-child{
+#ag-editor-id > ul:first-child,
+#ag-editor-id > ol:first-child{
   margin-top: 30px;
 }
 
@@ -310,7 +310,7 @@ tt {
 .md-fences {
   background-color: #f8f8f8;
 }
-#write pre.md-meta-block {
+#ag-editor-id pre.md-meta-block {
   padding: 1rem;
   font-size: 85%;
   line-height: 1.45;
@@ -325,19 +325,19 @@ tt {
   bottom: .375rem;
 }
 
-#write>h3.md-focus:before{
+#ag-editor-id>h3.md-focus:before{
   left: -1.5625rem;
   top: .375rem;
 }
-#write>h4.md-focus:before{
+#ag-editor-id>h4.md-focus:before{
   left: -1.5625rem;
   top: .285714286rem;
 }
-#write>h5.md-focus:before{
+#ag-editor-id>h5.md-focus:before{
   left: -1.5625rem;
   top: .285714286rem;
 }
-#write>h6.md-focus:before{
+#ag-editor-id>h6.md-focus:before{
   left: -1.5625rem;
   top: .285714286rem;
 }

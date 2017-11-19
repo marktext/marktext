@@ -35,7 +35,7 @@ body {
     fill: currentColor;
 }
 
-#write {
+#ag-editor-id {
     max-width: 914px;
     padding-top: 20px;
 }
@@ -154,10 +154,10 @@ h6 {
 }
 
 @media (min-width: 980px) {
-    #write h3:before,
-    #write h4:before,
-    #write h5:before,
-    #write h6:before {
+    #ag-editor-id h3:before,
+    #ag-editor-id h4:before,
+    #ag-editor-id h5:before,
+    #ag-editor-id h6:before {
         color: #ddd;
         border: 1px solid #ddd;
         border-radius: 3px;
@@ -173,20 +173,20 @@ h6 {
         line-height: normal;
     }
 
-    #write h3:before {
+    #ag-editor-id h3:before {
         content: 'h3';
     }
 
-    #write h4:before {
+    #ag-editor-id h4:before {
         content: 'h4';
     }
 
-    #write h5:before {
+    #ag-editor-id h5:before {
         content: 'h5';
         top: 0px;
     }
 
-    #write h6:before {
+    #ag-editor-id h6:before {
         content: 'h6';
         top: 0px;
     }
@@ -346,7 +346,7 @@ hr {
     /* variable */
 }
 
-#write>*:first-child {
+#ag-editor-id>*:first-child {
     margin-top: 40px;
 }
 
@@ -600,7 +600,7 @@ td {
   background-color: #fff;
 }
 
-#write pre.md-meta-block {
+#ag-editor-id pre.md-meta-block {
     border-bottom: 1px dashed #ccc;
     background: transparent;
     padding-bottom: 0.6em;
@@ -631,10 +631,10 @@ td {
     color: #DDD;
 }
 
-#write>h3:before,
-#write>h4:before,
-#write>h5:before,
-#write>h6:before {
+#ag-editor-id>h3:before,
+#ag-editor-id>h4:before,
+#ag-editor-id>h5:before,
+#ag-editor-id>h6:before {
     border: none;
     border-radius: 0px;
     color: #888;
@@ -643,11 +643,11 @@ td {
     top: 0.2rem;
 }
 
-#write>h3.md-focus:before {
+#ag-editor-id>h3.md-focus:before {
     top: 2px;
 }
 
-#write>h4.md-focus:before {
+#ag-editor-id>h4.md-focus:before {
     top: 2px;
 }
 
@@ -655,7 +655,7 @@ td {
     color: #A8C2DC;
 }
 
-#write div.md-toc-tooltip {
+#ag-editor-id div.md-toc-tooltip {
     background-color: #363B40;
 }
 
@@ -945,7 +945,7 @@ footer {
 
 
 /*diagrams*/
-#write .md-focus .md-diagram-panel {
+#ag-editor-id .md-focus .md-diagram-panel {
     border: 1px solid #ddd;
     margin-left: -30px;
 }

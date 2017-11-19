@@ -1,12 +1,23 @@
 import {
-  updateBlock, checkLineBreakUpdate, createEmptyElement, checkInlineUpdate, checkMarkedTextUpdate,
-  isAganippeEditorElement, findNearestParagraph, markedText2Html, operateClassName, insertBefore,
-  insertAfter, removeNode, isFirstChildElement, wrapperElementWithTag, nestElementWithTag, chopHeader,
-  isOnlyChildElement, isLastChildElement, chopBlockQuote, checkEditEmoji, setInlineEmoji, throttle
-} from './utils'
+  updateBlock, createEmptyElement, isAganippeEditorElement, findNearestParagraph,
+  operateClassName, insertBefore, insertAfter, removeNode, isFirstChildElement,
+  wrapperElementWithTag, nestElementWithTag, isOnlyChildElement, isLastChildElement,
+  chopBlockQuote
+} from './utils/domManipulate'
+
 import {
-  EVENT_KEYS, LOWERCASE_TAGS, EDITOR_ATTR_NAME, EDITOR_ID, activeClassName, EMOJI_MARKED_TEXT
+  checkLineBreakUpdate, checkInlineUpdate, checkMarkedTextUpdate, markedText2Html,
+  chopHeader, checkEditEmoji, setInlineEmoji
+} from './syntax'
+
+import {
+  throttle
+} from './utils'
+
+import {
+  CLASS_OR_ID, EVENT_KEYS, LOWERCASE_TAGS
 } from './config'
+
 import Selection from './selection'
 import Event from './event'
 import Emoji from './emojis'
@@ -28,8 +39,8 @@ class Aganippe {
     const { container, eventCenter } = this
 
     container.setAttribute('contenteditable', true)
-    container.setAttribute(EDITOR_ATTR_NAME, true)
-    container.id = EDITOR_ID
+    container.setAttribute(CLASS_OR_ID['AG_EDITOR_ATTR'], true)
+    container.id = CLASS_OR_ID['AG_EDITOR_ID']
 
     // listen to customEvent `markedTextChange` event, and change markedText to html.
     eventCenter.subscribe('markedTextChange', this.subscribeMarkedText.bind(this))
@@ -79,7 +90,7 @@ class Aganippe {
 
     container.appendChild(emptyElement)
     selection.moveCursor(emptyElement, 0)
-    emptyElement.classList.add(activeClassName)
+    emptyElement.classList.add(CLASS_OR_ID['AG_ACTIVE'])
     this.activeParagraph = {
       id: emptyElement.id,
       paragraph: emptyElement
@@ -102,7 +113,7 @@ class Aganippe {
     eventCenter.attachDOMEvent(container, 'keyup', changeHandler)
   }
   subscribeEditEmoji (node, isEdit) {
-    const emojiNode = node.classList.contains(EMOJI_MARKED_TEXT) ? node : node.previousElementSibling
+    const emojiNode = node.classList.contains(CLASS_OR_ID['AG_EMOJI_MARKED_TEXT']) ? node : node.previousElementSibling
     const text = emojiNode ? emojiNode.textContent.trim() : ''
     if (!isEdit || !text) {
       this.emoji.box.hideIfNeeded()
@@ -411,8 +422,8 @@ class Aganippe {
   }
 
   subscribeParagraphChange (newParagraph, oldParagraph) {
-    operateClassName(oldParagraph, 'remove', activeClassName)
-    operateClassName(newParagraph, 'add', activeClassName)
+    operateClassName(oldParagraph, 'remove', CLASS_OR_ID['AG_ACTIVE'])
+    operateClassName(newParagraph, 'add', CLASS_OR_ID['AG_ACTIVE'])
     oldParagraph.innerHTML = markedText2Html(oldParagraph.textContent)
   }
 
