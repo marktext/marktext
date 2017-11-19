@@ -46,7 +46,7 @@ class Aganippe {
     eventCenter.subscribe('markedTextChange', this.subscribeMarkedText.bind(this))
     this.dispatchMarkedText()
 
-    eventCenter.subscribe('editEmoji', throttle(this.subscribeEditEmoji.bind(this)))
+    eventCenter.subscribe('editEmoji', throttle(this.subscribeEditEmoji.bind(this), 200))
     this.dispatchEditeEmoji()
 
     eventCenter.subscribe('enter', this.subscribeEnter.bind(this))

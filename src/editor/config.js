@@ -47,16 +47,4 @@ export const CLASS_OR_ID = genUpper2LowerKeyHash([
   'AG_EMOJI_MARKED_TEXT'
 ])
 
-export const paragraphClassName = 'aganippe-paragraph'
-export const activeClassName = 'aganippe-active'
-export const EDITOR_ATTR_NAME = 'aganippe-editor-element'
-export const EDITOR_ID = 'write'
-export const FLOAT_BOX_ID = 'ag-float-emoji-box'
-export const FLOAT_BOX_CLASSNAME = 'ag-float-emoji-box'
-export const SHOW_EMOJI_BOX = 'ag-float-emoji-box-show'
-export const EMOJI_ITEM = 'ag-emoji-item'
-export const EMOJI_ITEM_ACTIVE = 'ag-emoji-active'
-export const EMOJI_ICON = 'ag-emoji-item-icon'
-export const EMOJI_MARKED_TEXT = 'ag-emoji-marked-text'
-
 // export const markedSymbol = ['*', '-', '_', '!', '[', ']']
