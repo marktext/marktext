@@ -34,6 +34,9 @@ export const LOWERCASE_TAGS = generateKeyHash([
  * classname has no postfix.
  */
 export const CLASS_OR_ID = genUpper2LowerKeyHash([
+  'AG_GRAY',
+  'AG_HIDE',
+  'AG_WARN',
   'AG_PARAGRAPH', // => 'ag-paragraph'
   'AG_ACTIVE',
   'AG_EDITOR_ATTR',

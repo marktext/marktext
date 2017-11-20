@@ -55,7 +55,7 @@ const chunk2html = ({ chunk, index, lastIndex }, { start, end } = {}) => {
   const isConflicted = start !== undefined && end !== undefined
     ? conflict([index, lastIndex], [start, end])
     : false
-  const className = isConflicted ? 'gray' : 'hidden'
+  const className = isConflicted ? CLASS_OR_ID['AG_GRAY'] : CLASS_OR_ID['AG_HIDE']
 
   // handle head mark symble
   if (HEAD_REG.test(chunk)) {
@@ -91,9 +91,9 @@ const chunk2html = ({ chunk, index, lastIndex }, { start, end } = {}) => {
   }
   // handle inline code: markdown text: `code`
   // => `
-  //    <a href="#" class="gray|hiden">`</a>
+  //    <a href="#" class="ag-gray|ag-hide">`</a>
   //    <code>code</code>
-  //    <a href="#" class="gray|hidden">`<a>
+  //    <a href="#" class="ag-gray|ag-hide">`<a>
   //  `
   //  also need to handle more than one `. ex: ``code`another```
   if (INLINE_CODE_REG.test(chunk)) {
@@ -109,9 +109,9 @@ const chunk2html = ({ chunk, index, lastIndex }, { start, end } = {}) => {
   if (NO_TEXT_LINK.test(chunk)) {
     return chunk.replace(NO_TEXT_LINK_G, (match, p1, p2, p3) => {
       return (
-        `<a href="#" class="gray">${p1}</a>` +
+        `<a href="#" class="${CLASS_OR_ID['AG_GRAY']}">${p1}</a>` +
         `<a href="${p2}">${p2}</a>` +
-        `<a href="#" class="gray">${p3}</a>`
+        `<a href="#" class="${CLASS_OR_ID['AG_GRAY']}">${p3}</a>`
       )
     })
   }
@@ -119,17 +119,17 @@ const chunk2html = ({ chunk, index, lastIndex }, { start, end } = {}) => {
   // handle link: markdown text: [Aganippe](https://github.com/Jocs/aganippe/commits/master)
   //  => html bellow
   //  `
-  //  <a href="#" class="gray|hidden">[</a>
+  //  <a href="#" class="ag-gray|ag-hide">[</a>
   //  <a href="#" data-href="https://github.com/Jocs/aganippe/commits/master">Aganippe</a>
-  //  <a href="#" class="gray|hidden">]</a>
-  //  <a href="#" class="gray|hidden">(</a>
-  //  <a href="#" class="gray|hidden">https://github.com/Jocs/aganippe/commits/master</a>
-  //  <a href="#" class="gray|hidden">)</a>
+  //  <a href="#" class="ag-gray|ag-hide">]</a>
+  //  <a href="#" class="ag-gray|ag-hide">(</a>
+  //  <a href="#" class="ag-gray|ag-hide">https://github.com/Jocs/aganippe/commits/master</a>
+  //  <a href="#" class="ag-gray|ag-hide">)</a>
   //
   //  `
   if (LINK_REG.test(chunk)) {
     return chunk.replace(LINK_REG_G, (match, p1, p2, p3, p4, p5) => {
-      const linkClassName = className === 'hidden' ? className : ''
+      const linkClassName = className === CLASS_OR_ID['AG_HIDE'] ? className : ''
       return (
         `<a href="#" class="${className}">${p1}</a>` +
         `<a href="${p4}">${p2}</a>` +
@@ -151,9 +151,9 @@ const chunk2html = ({ chunk, index, lastIndex }, { start, end } = {}) => {
         )
       } else {
         return (
-          `<a href="#" class="ag-warn">${p1}</a>` +
-          `<a href="#" class="ag-warn ${CLASS_OR_ID['AG_EMOJI_MARKED_TEXT']}">${p2}</a>` +
-          `<a href="#" class="ag-warn">${p3}</a>`
+          `<a href="#" class="${CLASS_OR_ID['AG_WARN']}">${p1}</a>` +
+          `<a href="#" class="${CLASS_OR_ID['AG_WARN']} ${CLASS_OR_ID['AG_EMOJI_MARKED_TEXT']}">${p2}</a>` +
+          `<a href="#" class="${CLASS_OR_ID['AG_WARN']}">${p3}</a>`
         )
       }
     })
@@ -232,7 +232,7 @@ export const markedText2Html = (markedText, positionState) => {
  */
 
 export const checkMarkedTextUpdate = (html, markedText, { start, end }) => {
-  if (/gray/.test(html)) return true
+  if (/ag-gray/.test(html)) return true
 
   const chunks = getMarkedChunks(markedText)
   const len = chunks.length

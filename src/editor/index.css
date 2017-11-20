@@ -91,29 +91,29 @@ a {
   text-decoration: none;
 }
 
-.ag-emoji-marked-text::before {
-  content: attr(data-emoji);
-  position: absolute;
-  top: -1em;
-  left: 50%;
-  transform: translateX(-50%);
-  color: #000;
+.ag-emoji-marked-text[data-emoji] {
+  margin-left: 1.3em;
 }
 
-.hidden.ag-emoji-marked-text {
-  width: 1.4em;
-  height: 1.15em;
-  color: #fff;
+.ag-hide.ag-emoji-marked-text[data-emoji] {
+  overflow: visible;
+  white-space: nowrap;
+  color: transparent;
 }
-.hidden.ag-emoji-marked-text::before {
+
+.ag-emoji-marked-text::before {
+  position: absolute;
+  content: attr(data-emoji);
+  color: #000;
   top: 0;
+  left: -1.3em;
 }
 
 #ag-editor-id {
 	outline: none;
   caret-color: #333;
 }
-.gray {
+.ag-gray {
   color: #bbb;
   text-decoration: none;
 }
@@ -121,7 +121,7 @@ a {
   color: #000;
   text-decoration: none;
 }
-.hidden {
+.ag-hide {
   display: inline-block;
   width: 0;
   height: 0;
