@@ -2,7 +2,7 @@ import emojis from './emojisJson'
 import EmojiBox from './emojiFloatBox'
 
 /**
- * check one imoji code is in emojis, return undefined or found emoji
+ * check if one imoji code is in emojis, return undefined or found emoji
  */
 export const validEmoji = text => {
   return emojis.filter(emoji => {

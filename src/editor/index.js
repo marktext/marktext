@@ -2,12 +2,13 @@ import {
   updateBlock, createEmptyElement, isAganippeEditorElement, findNearestParagraph,
   operateClassName, insertBefore, insertAfter, removeNode, isFirstChildElement,
   wrapperElementWithTag, nestElementWithTag, isOnlyChildElement, isLastChildElement,
-  chopBlockQuote
+  chopBlockQuote, removeAndInsertBefore, removeAndInsertPreList, replaceElement,
+  replacementLists, insertBeforeBlockQuote
 } from './utils/domManipulate'
 
 import {
   checkLineBreakUpdate, checkInlineUpdate, checkMarkedTextUpdate, markedText2Html,
-  chopHeader, checkEditEmoji, setInlineEmoji
+  chopHeader, checkEditEmoji, setInlineEmoji, checkBackspaceCase
 } from './syntax'
 
 import {
@@ -28,7 +29,7 @@ class Aganippe {
   constructor (container, options) {
     this.container = container
     this.activeParagraph = null
-    this.ids = new Set() // use to store element'id
+    this.ids = new Set() // use to store element's id
     this.eventCenter = new Event()
     this.emoji = new Emoji(this.eventCenter) // emoji instance: has search(text) clear() methods.
     this.init()
@@ -40,6 +41,7 @@ class Aganippe {
 
     container.setAttribute('contenteditable', true)
     container.setAttribute(CLASS_OR_ID['AG_EDITOR_ATTR'], true)
+    container.classList.add('mousetrap') // for use of mousetrap
     container.id = CLASS_OR_ID['AG_EDITOR_ID']
 
     // listen to customEvent `markedTextChange` event, and change markedText to html.
@@ -49,9 +51,6 @@ class Aganippe {
     eventCenter.subscribe('editEmoji', throttle(this.subscribeEditEmoji.bind(this), 200))
     this.dispatchEditeEmoji()
 
-    eventCenter.subscribe('enter', this.subscribeEnter.bind(this))
-    this.dispatchEnter()
-
     eventCenter.subscribe('paragraphChange', this.subscribeParagraphChange.bind(this))
     this.dispatchParagraphChange()
 
@@ -60,6 +59,9 @@ class Aganippe {
 
     eventCenter.subscribe('arrow', this.subscribeArrow.bind(this))
     this.dispatchArrow()
+
+    eventCenter.bind('enter', this.enterKeyHandler.bind(this))
+    eventCenter.bind('backspace', this.backspaceKeyHandler.bind(this))
 
     this.handleKeyDown()
     this.generateLastEmptyParagraph()
@@ -163,121 +165,14 @@ class Aganippe {
     paragraph.innerHTML = markedHtml
     selection.importSelection(selectionState, paragraph)
   }
-
-  dispatchEnter () {
-    const { container, eventCenter } = this
-    const handleKeyDown = event => {
-      if (event.key === EVENT_KEYS.Enter) {
-        eventCenter.dispatch('enter', event)
-      }
-    }
-    eventCenter.attachDOMEvent(container, 'keydown', handleKeyDown)
-  }
   /**
-   * [subscribeEnter handler user type `enter|return` key]
+   * [enterKeyHandler handler user type `enter|return` key]
    * step 1: detemine tagName
    * step 2: chop markedText
    * step 3: dom manipulate, replacement or insertAfter or inertBefore ...
    * step 4: markedText to html
    * step 5: set cursor
    */
-  subscribeEnter (event) {
-    event.preventDefault()
-    const node = selection.getSelectionStart()
-    let paragraph = findNearestParagraph(node)
-    const parentNode = paragraph.parentNode
-    const parTagName = parentNode.tagName.toLowerCase()
-    if (parTagName === LOWERCASE_TAGS.li && isFirstChildElement(paragraph)) {
-      paragraph = parentNode
-    }
-    const { left, right } = selection.getCaretOffsets(paragraph)
-    const preTagName = paragraph.tagName.toLowerCase()
-    const attrs = paragraph.attributes
-
-    // step1: detemine tagName
-    let tagName
-    let newParagraph
-    switch (true) {
-      case left !== 0 && right !== 0: // cursor at middile of paragraph
-        tagName = preTagName
-        const { pre, post } = selection.chopHtmlByCursor(paragraph)
-        newParagraph = createEmptyElement(this.ids, tagName, attrs)
-        if (tagName === LOWERCASE_TAGS.li) {
-          paragraph.children[0].innerHTML = markedText2Html(pre)
-          newParagraph.children[0].innerHTML = markedText2Html(post, { start: 0, end: 0 })
-        } else {
-          paragraph.innerHTML = markedText2Html(pre)
-          newParagraph.innerHTML = markedText2Html(post, { start: 0, end: 0 })
-        }
-        insertAfter(newParagraph, paragraph)
-        selection.moveCursor(newParagraph, 0)
-        return false
-      case left === 0 && right === 0: // paragraph is empty
-        if (parTagName === LOWERCASE_TAGS.blockquote) {
-          return this.enterInImptyBlockquote(paragraph)
-        }
-        if (isFirstChildElement(paragraph) && preTagName === LOWERCASE_TAGS.li) {
-          tagName = preTagName
-          newParagraph = createEmptyElement(this.ids, tagName, attrs)
-          insertAfter(newParagraph, paragraph)
-        } else if (parTagName === LOWERCASE_TAGS.li) {
-          tagName = parTagName
-          newParagraph = createEmptyElement(this.ids, tagName, attrs)
-          insertAfter(newParagraph, parentNode)
-          removeNode(paragraph)
-        } else {
-          tagName = LOWERCASE_TAGS.p
-          newParagraph = createEmptyElement(this.ids, tagName, attrs)
-          if (preTagName === LOWERCASE_TAGS.li) {
-            // jump out ul
-            insertAfter(newParagraph, parentNode)
-            removeNode(paragraph)
-          } else {
-            insertAfter(newParagraph, paragraph)
-          }
-        }
-        selection.moveCursor(newParagraph, 0)
-        return false
-      case left !== 0 && right === 0: // cursor at end of paragraph
-      case left === 0 && right !== 0: // cursor at begin of paragraph
-        if (preTagName === LOWERCASE_TAGS.li) tagName = preTagName
-        else tagName = LOWERCASE_TAGS.p // insert after or before
-        newParagraph = createEmptyElement(this.ids, tagName, attrs)
-        if (left === 0 && right !== 0) {
-          insertBefore(newParagraph, paragraph)
-          selection.moveCursor(paragraph, 0)
-        } else {
-          insertAfter(newParagraph, paragraph)
-          selection.moveCursor(newParagraph, 0)
-        }
-        return false
-      default:
-        tagName = LOWERCASE_TAGS.p
-        newParagraph = createEmptyElement(this.ids, tagName, attrs)
-        insertAfter(newParagraph, paragraph)
-        selection.moveCursor(newParagraph, 0)
-        return false
-    }
-  }
-
-  enterInImptyBlockquote (paragraph) {
-    const newParagraph = createEmptyElement(this.ids, LOWERCASE_TAGS.p)
-    const parentNode = paragraph.parentNode
-    if (isOnlyChildElement(paragraph)) {
-      insertAfter(newParagraph, parentNode)
-      removeNode(parentNode)
-    } else if (isFirstChildElement(paragraph)) {
-      insertBefore(newParagraph, parentNode)
-    } else if (isLastChildElement(paragraph)) {
-      insertAfter(newParagraph, parentNode)
-    } else {
-      chopBlockQuote(this.ids, paragraph)
-      const preBlockQuote = paragraph.parentNode
-      insertAfter(newParagraph, preBlockQuote)
-    }
-    removeNode(paragraph)
-    selection.moveCursor(newParagraph, 0)
-  }
 
   dispatchElementUpdate () {
     const { container, eventCenter } = this
@@ -305,7 +200,7 @@ class Aganippe {
     const chopedLength = markedText.length - chopedText.length
     paragraph.innerHTML = markedText2Html(chopedText)
     let newElement
-    if (/^h/.test(inlineUpdate.type)) {
+    if (/^h|p/.test(inlineUpdate.type)) {
       newElement = updateBlock(paragraph, inlineUpdate.type)
       selection.importSelection(selectionState, newElement)
     } else if (inlineUpdate.type === LOWERCASE_TAGS.blockquote) {
@@ -427,6 +322,146 @@ class Aganippe {
     oldParagraph.innerHTML = markedText2Html(oldParagraph.textContent)
   }
 
+  enterKeyHandler (event) {
+    event.preventDefault()
+    const node = selection.getSelectionStart()
+    let paragraph = findNearestParagraph(node)
+    const parentNode = paragraph.parentNode
+    const parTagName = parentNode.tagName.toLowerCase()
+    if (parTagName === LOWERCASE_TAGS.li && isFirstChildElement(paragraph)) {
+      paragraph = parentNode
+    }
+    const { left, right } = selection.getCaretOffsets(paragraph)
+    const preTagName = paragraph.tagName.toLowerCase()
+    const attrs = paragraph.attributes
+
+    // step1: detemine tagName
+    let tagName
+    let newParagraph
+    switch (true) {
+      case left !== 0 && right !== 0: // cursor at middile of paragraph
+        tagName = preTagName
+        const { pre, post } = selection.chopHtmlByCursor(paragraph)
+        newParagraph = createEmptyElement(this.ids, tagName, attrs)
+        if (tagName === LOWERCASE_TAGS.li) {
+          paragraph.children[0].innerHTML = markedText2Html(pre)
+          newParagraph.children[0].innerHTML = markedText2Html(post, { start: 0, end: 0 })
+        } else {
+          paragraph.innerHTML = markedText2Html(pre)
+          newParagraph.innerHTML = markedText2Html(post, { start: 0, end: 0 })
+        }
+        insertAfter(newParagraph, paragraph)
+        selection.moveCursor(newParagraph, 0)
+        return false
+      case left === 0 && right === 0: // paragraph is empty
+        if (parTagName === LOWERCASE_TAGS.blockquote) {
+          return this.enterInImptyBlockquote(paragraph)
+        }
+        if (isFirstChildElement(paragraph) && preTagName === LOWERCASE_TAGS.li) {
+          tagName = preTagName
+          newParagraph = createEmptyElement(this.ids, tagName, attrs)
+          insertAfter(newParagraph, paragraph)
+        } else if (parTagName === LOWERCASE_TAGS.li) {
+          tagName = parTagName
+          newParagraph = createEmptyElement(this.ids, tagName, attrs)
+          insertAfter(newParagraph, parentNode)
+          removeNode(paragraph)
+        } else {
+          tagName = LOWERCASE_TAGS.p
+          newParagraph = createEmptyElement(this.ids, tagName, attrs)
+          if (preTagName === LOWERCASE_TAGS.li) {
+            // jump out ul
+            insertAfter(newParagraph, parentNode)
+            removeNode(paragraph)
+          } else {
+            insertAfter(newParagraph, paragraph)
+          }
+        }
+        selection.moveCursor(newParagraph, 0)
+        return false
+      case left !== 0 && right === 0: // cursor at end of paragraph
+      case left === 0 && right !== 0: // cursor at begin of paragraph
+        if (preTagName === LOWERCASE_TAGS.li) tagName = preTagName
+        else tagName = LOWERCASE_TAGS.p // insert after or before
+        newParagraph = createEmptyElement(this.ids, tagName, attrs)
+        if (left === 0 && right !== 0) {
+          insertBefore(newParagraph, paragraph)
+          selection.moveCursor(paragraph, 0)
+        } else {
+          insertAfter(newParagraph, paragraph)
+          selection.moveCursor(newParagraph, 0)
+        }
+        return false
+      default:
+        tagName = LOWERCASE_TAGS.p
+        newParagraph = createEmptyElement(this.ids, tagName, attrs)
+        insertAfter(newParagraph, paragraph)
+        selection.moveCursor(newParagraph, 0)
+        return false
+    }
+  }
+  /**
+   * [subscribeBackspace]
+   * description: need to handle these cases:
+   * 1. cursor at begining of list
+   * 2. cursor at begining of blockquote whick has only one p element
+   * 3. no text in editor
+   */
+  backspaceKeyHandler (event) {
+    const node = selection.getSelectionStart()
+    const paragraph = findNearestParagraph(node)
+    const selectionState = selection.exportSelection(paragraph)
+    const inlineDegrade = checkBackspaceCase(node, selection)
+    let newElement
+    if (inlineDegrade) {
+      event.preventDefault()
+      switch (inlineDegrade.type) {
+        case 'STOP':
+          // do nothing...
+          break
+        case 'LI': {
+          if (inlineDegrade.info === 'REPLACEMENT') {
+            newElement = replacementLists(paragraph)
+          } else if (inlineDegrade.info === 'REMOVE_INSERT_BEFORE') {
+            newElement = removeAndInsertBefore(paragraph)
+          } else if (inlineDegrade.info === 'INSERT_PRE_LIST') {
+            newElement = removeAndInsertPreList(paragraph)
+          }
+          break
+        }
+        case 'BLOCKQUOTE':
+          if (inlineDegrade.info === 'REPLACEMENT') {
+            newElement = replaceElement(paragraph, paragraph.parentNode)
+          } else if (inlineDegrade.info === 'INSERT_BEFORE') {
+            newElement = insertBeforeBlockQuote(paragraph)
+          }
+          break
+      }
+      if (newElement) {
+        selection.importSelection(selectionState, newElement)
+      }
+    }
+  }
+
+  enterInImptyBlockquote (paragraph) {
+    const newParagraph = createEmptyElement(this.ids, LOWERCASE_TAGS.p)
+    const parentNode = paragraph.parentNode
+    if (isOnlyChildElement(paragraph)) {
+      insertAfter(newParagraph, parentNode)
+      removeNode(parentNode)
+    } else if (isFirstChildElement(paragraph)) {
+      insertBefore(newParagraph, parentNode)
+    } else if (isLastChildElement(paragraph)) {
+      insertAfter(newParagraph, parentNode)
+    } else {
+      chopBlockQuote(this.ids, paragraph)
+      const preBlockQuote = paragraph.parentNode
+      insertAfter(newParagraph, preBlockQuote)
+    }
+    removeNode(paragraph)
+    selection.moveCursor(newParagraph, 0)
+  }
+
   // TODO: refactor
   handleKeyDown () {
     this.container.addEventListener('input', event => {
@@ -452,6 +487,7 @@ class Aganippe {
   getHtml () {
     // TODO
   }
+
   destroy () {
     this.eventCenter.detachAllDomEvents()
     this.emoji.clear() // clear emoji cache for memory recycle

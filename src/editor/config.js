@@ -18,6 +18,8 @@ export const emptyElementNames = ['br', 'col', 'colgroup', 'hr', 'img', 'input',
 
 export const EVENT_KEYS = generateKeyHash([
   'Enter',
+  'Backspace',
+  'Delete',
   'ArrowUp',
   'ArrowDown',
   'ArrowLeft',
@@ -29,9 +31,14 @@ export const LOWERCASE_TAGS = generateKeyHash([
 ])
 /**
  * ALL classname, id, attributes need has a `AG_` prefix,
- * element id will has a `_ID` postfix,
+ * elements's id will has a `_ID` postfix,
  * attribute will has a `_ATTR` postfix.
  * classname has no postfix.
+ * example:
+ *   genUpper2LowerKeyHash(['AG_GRAY'])
+ *   => {
+ *     'AG_GRAY': 'ag-gray'
+ *   }
  */
 export const CLASS_OR_ID = genUpper2LowerKeyHash([
   'AG_GRAY',

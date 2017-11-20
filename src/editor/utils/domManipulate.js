@@ -35,6 +35,14 @@ export const findNearestParagraph = node => {
   } while (node)
 }
 
+export const findOutMostParagraph = node => {
+  do {
+    let parentNode = node.parentNode
+    if (isAganippeEditorElement(parentNode) && isAganippeParagraph(node)) return node
+    node = parentNode
+  } while (node)
+}
+
 export const isBlockContainer = element => {
   return element && element.nodeType !== 3 &&
   blockContainerElementNames.indexOf(element.nodeName.toLowerCase()) !== -1
@@ -173,10 +181,11 @@ export const insertBefore = (newNode, originNode) => {
   parentNode.insertBefore(newNode, originNode)
 }
 
-export const replaceElement = (oldNode, newNode) => {
+export const replaceElement = (newNode, oldNode) => {
   const parentNode = oldNode.parentNode
 
-  return parentNode.replaceChild(newNode, oldNode) // return oldNode
+  parentNode.replaceChild(newNode, oldNode) // return oldNode
+  return newNode
 }
 
 export const createEmptyElement = (ids, tagName, attrs) => {
@@ -248,9 +257,79 @@ export const wrapperElementWithTag = (ids, element, tagName) => {
   operateClassName(wrapper, 'add', CLASS_OR_ID['AG_PARAGRAPH'])
   wrapper.id = id
   wrapper.innerHTML = element.outerHTML
-  replaceElement(element, wrapper)
+  return replaceElement(wrapper, element)
+}
 
-  return wrapper
+// export const deWrapperElement = element => {
+//   const parentNode = element.parentNode
+//   const copy = element.cloneNode(true)
+//   return replaceElement(copy, parentNode)
+// }
+/**
+ * `<ul><li><p>hello</p><p>world</p></li></ul>` => `<p>hello</p><p>world</p>`
+ */
+export const replacementLists = element => {
+  const parentNode = element.parentNode
+  const children = parentNode.children
+  let firstCopy
+  Array.from(children).forEach(child => {
+    const copy = child.cloneNode(true)
+    if (element === child) firstCopy = copy
+    insertBefore(copy, parentNode.parentNode)
+  })
+  removeNode(parentNode.parentNode)
+  return firstCopy
+}
+/**
+ * `<ul><li><p>hello</p></li><li><p>jocs</p></li></ul>` => `<p>hello</p><ul><li><p>jocs</p></li></ul>`
+ */
+export const removeAndInsertBefore = element => {
+  const parentNode = element.parentNode // li
+  const children = parentNode.children
+  let firstCopy
+  Array.from(children).forEach((child, i) => {
+    const copy = child.cloneNode(true)
+    if (i === 0) firstCopy = copy
+    insertBefore(copy, parentNode.parentNode)
+  })
+  removeNode(parentNode)
+
+  return firstCopy
+}
+/**
+ * `
+ *  <ul>
+ *    <li><p>hello</p></li>
+ *    <li><p>world</p></li>
+ *  </ul>
+ * ` =>
+ * `
+ *  <ul>
+ *    <li>
+ *        <p>hello</p>
+ *        <p>world</p>
+ *    </li>
+ *  </ul>
+ * `
+ */
+export const removeAndInsertPreList = element => {
+  const previousSibling = element.parentNode.previousElementSibling
+  const children = element.parentNode.children
+  let firstCopy
+  Array.from(children).forEach((child, i) => {
+    const copy = child.cloneNode(true)
+    if (i === 0) firstCopy = copy
+    previousSibling.appendChild(copy)
+  })
+  removeNode(element.parentNode)
+  return firstCopy
+}
+
+export const insertBeforeBlockQuote = element => {
+  const copy = element.cloneNode(true)
+  insertBefore(copy, element.parentNode)
+  removeNode(element)
+  return copy
 }
 
 export const nestElementWithTag = (ids, element, tagName) => {
@@ -274,6 +353,5 @@ export const updateBlock = (origin, tagName) => {
   }
   const html = json2html(json)
   const newElement = html2element(html)
-  replaceElement(origin, newElement)
-  return newElement
+  return replaceElement(newElement, origin)
 }

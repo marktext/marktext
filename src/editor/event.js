@@ -1,3 +1,4 @@
+import mousetrap from 'mousetrap'
 import {
   getUniqueId
 } from './utils'
@@ -7,6 +8,10 @@ class Event {
     this.events = []
     this.listeners = {}
     this.eventIds = new Set() // use to store eventId
+
+    ;['bind', 'unbind', 'trigger', 'stopCallback', 'reset', 'handleKey', 'addKeycodes'].forEach(mothod => {
+      this[mothod] = mousetrap[mothod]
+    })
   }
   /**
    * [attachDOMEvent] bind event listener to target, and return a unique ID,
@@ -42,6 +47,7 @@ class Event {
    */
   detachAllDomEvents () {
     this.events.forEach(event => this.detachDOMEvent(event.eventId))
+    this.reset()
   }
   /**
    * [subscribe] subscribe custom event

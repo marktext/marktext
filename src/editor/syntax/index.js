@@ -1,5 +1,10 @@
 import { validEmoji } from '../emojis'
 import {
+  findOutMostParagraph, findNearestParagraph, isFirstChildElement,
+  isOnlyChildElement
+} from '../utils/domManipulate'
+
+import {
   LOWERCASE_TAGS,
   CLASS_OR_ID
 } from '../config'
@@ -205,9 +210,9 @@ const getMarkedChunks = markedText => {
  * translate marked text to html
  * ex: `###hello **world|**` =>
  * `
- *   <a href="#" class="hidden">###</a>hello <a href="#" class="gray">**</a>world<a href="#" class="gray">
+ *   <a href="#" class="ag-hide">###</a>hello <a href="#" class="ag-gray">**</a>world<a href="#" class="ag-gray">
  * `
- * `|` is the cursor position in marked test
+ * `|` is the cursor position in marked text
  */
 export const markedText2Html = (markedText, positionState) => {
   const chunks = getMarkedChunks(markedText)
@@ -277,7 +282,7 @@ export const setInlineEmoji = (node, emoji, selection) => {
  */
 export const checkInlineUpdate = text => {
   const token = text.match(INLINE_BLOCK_REG)
-  if (!token) return false
+  if (!token) return { type: LOWERCASE_TAGS.p }
   const match = token[0]
   switch (true) {
     case /^[*+-]\s/.test(match):
@@ -289,7 +294,37 @@ export const checkInlineUpdate = text => {
     case /^>/.test(match):
       return { type: LOWERCASE_TAGS.blockquote }
     default:
-      return false
+      return { type: LOWERCASE_TAGS.p }
+  }
+}
+
+export const checkBackspaceCase = (startNode, selection) => {
+  const nearestParagraph = findNearestParagraph(startNode)
+  const outMostParagraph = findOutMostParagraph(startNode)
+  const parentNode = nearestParagraph.parentNode
+  const parTagName = parentNode.tagName.toLowerCase()
+  const { left: outLeft, right: outRight } = selection.getCaretOffsets(outMostParagraph)
+  const { left: inLeft } = selection.getCaretOffsets(nearestParagraph)
+
+  if (parTagName === LOWERCASE_TAGS.li && inLeft === 0) {
+    if (isOnlyChildElement(parentNode)) {
+      return { type: 'LI', info: 'REPLACEMENT' }
+    } else if (isFirstChildElement(parentNode)) {
+      return { type: 'LI', info: 'REMOVE_INSERT_BEFORE' }
+    } else {
+      return { type: 'LI', info: 'INSERT_PRE_LIST' }
+    }
+  }
+  if (parTagName === LOWERCASE_TAGS.blockquote && inLeft === 0) {
+    if (isOnlyChildElement(nearestParagraph)) {
+      console.log('xx')
+      return { type: 'BLOCKQUOTE', info: 'REPLACEMENT' }
+    } else if (isFirstChildElement(nearestParagraph)) {
+      return { type: 'BLOCKQUOTE', info: 'INSERT_BEFORE' }
+    }
+  }
+  if (!outMostParagraph.previousElementSibling && outLeft === 0 && outRight === 0) {
+    return { type: 'STOP' }
   }
 }
 
