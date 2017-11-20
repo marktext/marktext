@@ -1,5 +1,5 @@
 import {
-  updateBlock, createEmptyElement, isAganippeEditorElement, findNearestParagraph,
+  updateBlock, createEmptyElement, findNearestParagraph,
   operateClassName, insertBefore, insertAfter, removeNode, isFirstChildElement,
   wrapperElementWithTag, nestElementWithTag, isOnlyChildElement, isLastChildElement,
   chopBlockQuote, removeAndInsertBefore, removeAndInsertPreList, replaceElement,
@@ -7,7 +7,7 @@ import {
 } from './utils/domManipulate'
 
 import {
-  checkLineBreakUpdate, checkInlineUpdate, checkMarkedTextUpdate, markedText2Html,
+  checkInlineUpdate, checkMarkedTextUpdate, markedText2Html,
   chopHeader, checkEditEmoji, setInlineEmoji, checkBackspaceCase
 } from './syntax'
 
@@ -63,7 +63,6 @@ class Aganippe {
     eventCenter.bind('enter', this.enterKeyHandler.bind(this))
     eventCenter.bind('backspace', this.backspaceKeyHandler.bind(this))
 
-    this.handleKeyDown()
     this.generateLastEmptyParagraph()
   }
   /**
@@ -460,25 +459,6 @@ class Aganippe {
     }
     removeNode(paragraph)
     selection.moveCursor(newParagraph, 0)
-  }
-
-  // TODO: refactor
-  handleKeyDown () {
-    this.container.addEventListener('input', event => {
-      // if #write has textNode child, wrap it a `p` tag.
-      const node = selection.getSelectionStart()
-      if (isAganippeEditorElement(node)) {
-        this.doc.execCommand('formatBlock', false, LOWERCASE_TAGS.p)
-      }
-
-      let paragraph = findNearestParagraph(node)
-      const tagName = paragraph.tagName.toLowerCase()
-      const text = paragraph.textContent
-      const linkBreakUpdate = checkLineBreakUpdate(text)
-      if (linkBreakUpdate && linkBreakUpdate.type !== tagName) {
-        // TODO: update to lineBreak block
-      }
-    })
   }
 
   getMarkdown () {
