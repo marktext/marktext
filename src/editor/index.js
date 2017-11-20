@@ -211,15 +211,15 @@ class Aganippe {
           end: end - chopedLength
         }, newElement)
       } else {
-        // TODO li
-        const nestElement = nestElementWithTag(this.ids, paragraph, LOWERCASE_TAGS.p)
-        newElement = wrapperElementWithTag(this.ids, nestElement, LOWERCASE_TAGS.blockquote)
+        console.warn(`${preTagName} element can not update to [blockquote] element`)
       }
     } else if (inlineUpdate.type === LOWERCASE_TAGS.li) {
       switch (inlineUpdate.info) {
         case 'order': // fallthrough
         case 'disorder':
+          // first change `p` to 'li'.
           newElement = updateBlock(paragraph, inlineUpdate.type)
+          // second put a p element in li.
           newElement = nestElementWithTag(this.ids, newElement, LOWERCASE_TAGS.p)
           const id = newElement.querySelector(LOWERCASE_TAGS.p).id
           const altTagName = inlineUpdate.info === 'order' ? LOWERCASE_TAGS.ol : LOWERCASE_TAGS.ul
@@ -234,17 +234,21 @@ class Aganippe {
           if (preViousTagName === altTagName) {
             previousElement.appendChild(newElement)
           }
-          const cursorElement = newElement.querySelector(`#${id}`)
+          newElement = newElement.querySelector(`#${id}`)
           selection.importSelection({
             start: start - chopedLength,
             end: end - chopedLength
-          }, cursorElement)
+          }, newElement)
           break
 
         case 'tasklist':
           // TODO
           break
       }
+    }
+    this.activeParagraph = {
+      id: newElement.id,
+      paragraph: newElement
     }
   }
 
@@ -291,7 +295,7 @@ class Aganippe {
   }
 
   dispatchParagraphChange () {
-    const { container, eventCenter } = this
+    const { eventCenter } = this
 
     const changeHandler = event => {
       const { id: preId, paragraph: preParagraph } = this.activeParagraph
@@ -300,25 +304,26 @@ class Aganippe {
       if (paragraph.tagName.toLowerCase() === LOWERCASE_TAGS.li) {
         paragraph = paragraph.children[0]
       }
-      const newId = paragraph.id
-      if (newId !== preId) {
+      const id = paragraph.id
+      if (id !== preId) {
         eventCenter.dispatch('paragraphChange', paragraph, preParagraph)
         this.activeParagraph = {
-          id: newId,
+          id,
           paragraph
         }
       }
     }
 
-    eventCenter.attachDOMEvent(container, 'click', changeHandler)
-    eventCenter.subscribe('arrow', changeHandler)
-    eventCenter.subscribe('enter', changeHandler)
+    eventCenter.attachDOMEvent(document, 'selectionchange', changeHandler)
   }
 
   subscribeParagraphChange (newParagraph, oldParagraph) {
+    console.log(newParagraph)
+    console.log(oldParagraph)
     operateClassName(oldParagraph, 'remove', CLASS_OR_ID['AG_ACTIVE'])
     operateClassName(newParagraph, 'add', CLASS_OR_ID['AG_ACTIVE'])
     oldParagraph.innerHTML = markedText2Html(oldParagraph.textContent)
+    // TODO line break change
   }
 
   enterKeyHandler (event) {
@@ -340,8 +345,15 @@ class Aganippe {
     switch (true) {
       case left !== 0 && right !== 0: // cursor at middile of paragraph
         tagName = preTagName
-        const { pre, post } = selection.chopHtmlByCursor(paragraph)
-        newParagraph = createEmptyElement(this.ids, tagName, attrs)
+        let { pre, post } = selection.chopHtmlByCursor(paragraph)
+        newParagraph = createEmptyElement(this.ids, tagName)
+
+        if (/^h/.test(tagName)) {
+          const PREFIX = /^#+/.exec(pre)[0]
+          post = `${PREFIX}${post}`
+          newParagraph.setAttribute('data-head-level', attrs['data-head-level'].value)
+        }
+
         if (tagName === LOWERCASE_TAGS.li) {
           paragraph.children[0].innerHTML = markedText2Html(pre)
           newParagraph.children[0].innerHTML = markedText2Html(post, { start: 0, end: 0 })
@@ -350,24 +362,23 @@ class Aganippe {
           newParagraph.innerHTML = markedText2Html(post, { start: 0, end: 0 })
         }
         insertAfter(newParagraph, paragraph)
-        selection.moveCursor(newParagraph, 0)
-        return false
+        break
       case left === 0 && right === 0: // paragraph is empty
         if (parTagName === LOWERCASE_TAGS.blockquote) {
           return this.enterInImptyBlockquote(paragraph)
         }
         if (isFirstChildElement(paragraph) && preTagName === LOWERCASE_TAGS.li) {
           tagName = preTagName
-          newParagraph = createEmptyElement(this.ids, tagName, attrs)
+          newParagraph = createEmptyElement(this.ids, tagName)
           insertAfter(newParagraph, paragraph)
         } else if (parTagName === LOWERCASE_TAGS.li) {
           tagName = parTagName
-          newParagraph = createEmptyElement(this.ids, tagName, attrs)
+          newParagraph = createEmptyElement(this.ids, tagName)
           insertAfter(newParagraph, parentNode)
           removeNode(paragraph)
         } else {
           tagName = LOWERCASE_TAGS.p
-          newParagraph = createEmptyElement(this.ids, tagName, attrs)
+          newParagraph = createEmptyElement(this.ids, tagName)
           if (preTagName === LOWERCASE_TAGS.li) {
             // jump out ul
             insertAfter(newParagraph, parentNode)
@@ -376,27 +387,28 @@ class Aganippe {
             insertAfter(newParagraph, paragraph)
           }
         }
-        selection.moveCursor(newParagraph, 0)
-        return false
+        break
       case left !== 0 && right === 0: // cursor at end of paragraph
       case left === 0 && right !== 0: // cursor at begin of paragraph
         if (preTagName === LOWERCASE_TAGS.li) tagName = preTagName
         else tagName = LOWERCASE_TAGS.p // insert after or before
-        newParagraph = createEmptyElement(this.ids, tagName, attrs)
+        newParagraph = createEmptyElement(this.ids, tagName)
         if (left === 0 && right !== 0) {
           insertBefore(newParagraph, paragraph)
-          selection.moveCursor(paragraph, 0)
         } else {
           insertAfter(newParagraph, paragraph)
-          selection.moveCursor(newParagraph, 0)
         }
-        return false
+        break
       default:
         tagName = LOWERCASE_TAGS.p
-        newParagraph = createEmptyElement(this.ids, tagName, attrs)
+        newParagraph = createEmptyElement(this.ids, tagName)
         insertAfter(newParagraph, paragraph)
-        selection.moveCursor(newParagraph, 0)
-        return false
+        break
+    }
+    if (left === 0 && right !== 0) {
+      selection.moveCursor(paragraph, 0)
+    } else {
+      selection.moveCursor(newParagraph, 0)
     }
   }
   /**

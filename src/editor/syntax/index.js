@@ -202,7 +202,6 @@ const getMarkedChunks = markedText => {
       })
     }
   } while (match)
-  console.log(chunks)
   return chunks
 }
 

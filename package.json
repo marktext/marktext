@@ -57,6 +57,7 @@
   },
   "dependencies": {
     "axios": "^0.16.1",
+    "codemirror": "^5.31.0",
     "html2json": "^1.0.2",
     "mousetrap": "^1.6.1",
     "vue": "^2.3.3",
