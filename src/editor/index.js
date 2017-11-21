@@ -369,9 +369,11 @@ class Aganippe {
           if (!isLastChildElement(newParagraph) && autofocus) {
             removeNode(newParagraph)
           }
-
+          if (autofocus) {
+            operateClassName(codeMirrorWrapper, 'add', CLASS_OR_ID['AG_ACTIVE'])
+          }
           this.codeBlocks.set(codeMirrorWrapper.id, codeBlock)
-          break
+          return false
         }
         case LOWERCASE_TAGS.hr: {
           oldParagraph = updateBlock(oldParagraph, LOWERCASE_TAGS.hr)
