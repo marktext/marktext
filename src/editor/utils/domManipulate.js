@@ -347,7 +347,7 @@ export const updateBlock = (origin, tagName) => {
   const json = html2json(origin.outerHTML)
 
   json.child[0].tag = tagName
-  if (/^h/.test(tagName)) {
+  if (/^h\d$/.test(tagName)) {
     json.child[0].attr['data-head-level'] = tagName
   } else if (json.child[0].attr['data-head-level']) {
     delete json.child[0].attr['data-head-level']

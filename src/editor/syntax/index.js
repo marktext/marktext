@@ -14,19 +14,20 @@ import {
  */
 
 const fragments = [
-  '^#{1,6}', // Header
+  '^#{1,6}[^#]?', // Header
   '(\\*{1,3}|_{1,3})[^*_]+\\1', // Emphasize
   '(`{1,3})([^`]+?|.{2,})\\2', // inline code
   '\\[[^\\[\\]]+\\]\\(.*?\\)', // link
   '\\[\\]\\([^\\(\\)]*?\\)', // no text link
   ':[^:]+?:', // emoji
   '~{2}[^~]+~{2}', // line through
-  'https?://[^\\s]+(?=\\s|$)' // auto link
+  'https?://[^\\s]+(?=\\s|$)', // auto link
+  '^\\*{3,}|^\\-{3,}|^\\_{3,}' // hr
 ]
 
 const CHOP_REG = new RegExp(fragments.join('|'), 'g') // eslint-disable-line no-useless-escape
 const HEAD_REG_G = /^(#{1,6})([^#]*)$/g
-const HEAD_REG = /^(#{1,6})([^#]*)$/
+const HEAD_REG = /^#{1,6}[^#]*$/
 const EMPHASIZE_REG_G = /(\*{1,3}|_{1,3})([^*]+)(\1)/g
 const EMPHASIZE_REG = /(\*{1,3}|_{1,3})([^*]+)(\1)/
 const INLINE_CODE_REG_G = /(`{1,3})([^`]+?|.{2,})(\1)/g
@@ -42,6 +43,8 @@ const LINE_THROUGH_REG_G = /(~{2})([^~]+?)(~{2})/g
 const LINE_THROUGH_REG = /~{2}[^~]+?~{2}/
 const AUTO_LINK_G = /(https?:\/\/[^\\s]+)(?=\s|$)/g
 const AUTO_LINK = /https?:\/\/[^\s]+(?=\s|$)/
+const HR_REG_G = /(^\*{3,}|^-{3,}|^_{3,})/g
+const HR_REG = /^\*{3,}|^-{3,}|^_{3,}/
 // const SIMPLE_LINK_G = /(<)([^<>]+?)(>)/g
 // const SIMPLE_LINK = /<[^<>]+?>/g
 const LINE_BREAK_BLOCK_REG = /^(?:`{3,}([^`]*))|[\*\-\_]{3,}/ // eslint-disable-line no-useless-escape
@@ -56,6 +59,8 @@ const conflict = (arr1, arr2) => {
 }
 
 const chunk2html = ({ chunk, index, lastIndex }, { start, end } = {}) => {
+  // `###h` should be corrected to `###` to judge the confliction.
+  if (/^#{1,6}[^#]/.test(chunk)) lastIndex = lastIndex - 1
   // if no positionState provided, no conflict.
   const isConflicted = start !== undefined && end !== undefined
     ? conflict([index, lastIndex], [start, end])
@@ -65,7 +70,11 @@ const chunk2html = ({ chunk, index, lastIndex }, { start, end } = {}) => {
   // handle head mark symble
   if (HEAD_REG.test(chunk)) {
     return chunk.replace(HEAD_REG_G, (match, p1, p2) => {
-      return `<a href="#" class="${className}">${p1}</a>${p2}`
+      if (p2) {
+        return `<a href="#" class="${className}">${p1}</a>${p2}`
+      } else {
+        return `<a href="#" class="${CLASS_OR_ID['AG_GRAY']}">${p1}</a>${p2}`
+      }
     })
   }
 
@@ -182,6 +191,12 @@ const chunk2html = ({ chunk, index, lastIndex }, { start, end } = {}) => {
     })
   }
 
+  if (HR_REG.test(chunk)) {
+    return chunk.replace(HR_REG_G, (match, p1) => {
+      return `<a href="#" class="${CLASS_OR_ID['AG_GRAY']}">${p1}</a>`
+    })
+  }
+
   // handle picture
   // TODO
   // handle auto link: markdown text: `<this is a auto link>`
@@ -227,7 +242,7 @@ export const markedText2Html = (markedText, positionState) => {
       result = result.replace(c.chunk, c.html)
     })
   }
-
+  console.log(chunks)
   return result
 }
 
@@ -316,7 +331,6 @@ export const checkBackspaceCase = (startNode, selection) => {
   }
   if (parTagName === LOWERCASE_TAGS.blockquote && inLeft === 0) {
     if (isOnlyChildElement(nearestParagraph)) {
-      console.log('xx')
       return { type: 'BLOCKQUOTE', info: 'REPLACEMENT' }
     } else if (isFirstChildElement(nearestParagraph)) {
       return { type: 'BLOCKQUOTE', info: 'INSERT_BEFORE' }
@@ -335,7 +349,7 @@ export const checkLineBreakUpdate = text => {
   switch (true) {
     case /^`{3,}.*/.test(match):
       return { type: 'pre', info: token[1] }
-    case /^[*_-]{3,}/.test(match):
+    case HR_REG.test(match):
       return { type: 'hr' }
     default:
       return false

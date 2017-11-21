@@ -3,7 +3,8 @@ import {
   operateClassName, insertBefore, insertAfter, removeNode, isFirstChildElement,
   wrapperElementWithTag, nestElementWithTag, isOnlyChildElement, isLastChildElement,
   chopBlockQuote, removeAndInsertBefore, removeAndInsertPreList, replaceElement,
-  replacementLists, insertBeforeBlockQuote, isAganippeEditorElement
+  replacementLists, insertBeforeBlockQuote, isAganippeEditorElement,
+  findOutMostParagraph
 } from './utils/domManipulate'
 
 import {
@@ -16,7 +17,7 @@ import {
 } from './utils'
 
 import {
-  CLASS_OR_ID, EVENT_KEYS, LOWERCASE_TAGS
+  CLASS_OR_ID, LOWERCASE_TAGS, EVENT_KEYS
 } from './config'
 
 import Selection from './selection'
@@ -57,11 +58,10 @@ class Aganippe {
     eventCenter.subscribe('elementUpdate', this.subscribeElementUpdate.bind(this))
     this.dispatchElementUpdate()
 
-    eventCenter.subscribe('arrow', this.subscribeArrow.bind(this))
-    this.dispatchArrow()
-
     eventCenter.bind('enter', this.enterKeyHandler.bind(this))
     eventCenter.bind('backspace', this.backspaceKeyHandler.bind(this))
+
+    this.handlerSelectHr()
 
     this.generateLastEmptyParagraph()
   }
@@ -103,6 +103,10 @@ class Aganippe {
   dispatchEditeEmoji () {
     const { container, eventCenter } = this
     const changeHandler = event => {
+      const target = event.target
+      if (event.type === 'click' && target.tagName.toLowerCase() === LOWERCASE_TAGS.hr) {
+        return false
+      }
       const node = selection.getSelectionStart()
       Promise.resolve()
         .then(() => {
@@ -143,7 +147,10 @@ class Aganippe {
   dispatchMarkedText () {
     const { container, eventCenter } = this
     const changeHandler = event => {
-      // TODO: Handler hr
+      const target = event.target
+      if (event.type === 'click' && target.tagName.toLowerCase() === LOWERCASE_TAGS.hr) {
+        return false
+      }
       const node = selection.getSelectionStart()
       const paragraph = findNearestParagraph(node)
       const text = paragraph.textContent
@@ -253,47 +260,59 @@ class Aganippe {
       paragraph: newElement
     }
   }
-
-  dispatchArrow () {
-    const { eventCenter, container } = this
-    const changeHandler = event => {
-      if (event.key) {
-        if (
-          event.key === EVENT_KEYS.ArrowLeft ||
-          event.key === EVENT_KEYS.ArrowRight ||
-          event.key === EVENT_KEYS.ArrowUp ||
-          event.key === EVENT_KEYS.ArrowDown
-        ) {
-          eventCenter.dispatch('arrow', event)
+  // add handler to select hr element. and translate it to a p element
+  handlerSelectHr () {
+    const { container, eventCenter } = this
+    let newElement
+    const changeHr2P = (event, target, preParagraph) => {
+      newElement = updateBlock(target, LOWERCASE_TAGS.p)
+      newElement.textContent = '---'
+      selection.importSelection({
+        start: 3,
+        end: 3
+      }, newElement)
+      this.activeParagraph = {
+        id: newElement.id,
+        paragraph: newElement
+      }
+      eventCenter.dispatch('paragraphChange', newElement, preParagraph)
+      event.preventDefault()
+    }
+    const handler = event => {
+      switch (event.type) {
+        case 'click': {
+          const target = event.target
+          if (target.tagName.toLowerCase() === LOWERCASE_TAGS.hr) {
+            changeHr2P(event, target, this.activeParagraph.paragraph)
+          }
+          break
+        }
+        case 'keydown': {
+          const node = selection.getSelectionStart()
+          const outmostParagraph = findOutMostParagraph(node)
+          const preSibling = outmostParagraph.previousElementSibling
+          const nextSibling = outmostParagraph.nextElementSibling
+          if (
+            event.key === EVENT_KEYS.ArrowUp &&
+            preSibling &&
+            preSibling.tagName.toLowerCase() === LOWERCASE_TAGS.hr
+          ) {
+            changeHr2P(event, preSibling, outmostParagraph)
+          }
+          if (
+            event.key === EVENT_KEYS.ArrowDown &&
+            nextSibling &&
+            nextSibling.tagName.toLowerCase() === LOWERCASE_TAGS.hr
+          ) {
+            changeHr2P(event, nextSibling, outmostParagraph)
+          }
+          break
         }
       }
     }
-    eventCenter.attachDOMEvent(container, 'keydown', changeHandler)
-  }
 
-  subscribeArrow () {
-    // switch (event.key) {
-    //   case EVENT_KEYS.ArrowUp:
-    //     if (this.activeEmojiItem > 0) {
-    //       event.preventDefault()
-    //       this.activeEmojiItem = this.activeEmojiItem - 1
-    //       if (this.emojiList) {
-    //         this.emoji.box.setOptions(this.emojiList, this.activeEmojiItem)
-    //       }
-    //     }
-    //     break
-    //   case EVENT_KEYS.ArrowDown:
-    //     console.log(this.activeEmojiItem, this.emojiList.length)
-    //     if (this.activeEmojiItem < this.emojiList.length - 1) {
-    //       event.preventDefault()
-    //       this.activeEmojiItem = this.activeEmojiItem + 1
-    //       if (this.emojiList) {
-    //         this.emoji.box.setOptions(this.emojiList, this.activeEmojiItem)
-    //       }
-    //     }
-    //     break
-    // }
-    // TODO
+    eventCenter.attachDOMEvent(container, 'keydown', handler)
+    eventCenter.attachDOMEvent(container, 'click', handler)
   }
 
   dispatchParagraphChange () {
@@ -333,16 +352,19 @@ class Aganippe {
           break
         }
         case LOWERCASE_TAGS.hr: {
-          updateBlock(oldParagraph, LOWERCASE_TAGS.hr)
+          oldParagraph = updateBlock(oldParagraph, LOWERCASE_TAGS.hr)
           break
         }
       }
     } else {
-      // set and remove active className
-      operateClassName(oldParagraph, 'remove', CLASS_OR_ID['AG_ACTIVE'])
-      operateClassName(newParagraph, 'add', CLASS_OR_ID['AG_ACTIVE'])
-      oldParagraph.innerHTML = markedText2Html(oldParagraph.textContent)
+      if (oldContext) {
+        oldParagraph.innerHTML = markedText2Html(oldParagraph.textContent)
+      }
     }
+    console.log(newParagraph, oldParagraph)
+    // set and remove active className
+    operateClassName(oldParagraph, 'remove', CLASS_OR_ID['AG_ACTIVE'])
+    operateClassName(newParagraph, 'add', CLASS_OR_ID['AG_ACTIVE'])
   }
 
   enterKeyHandler (event) {

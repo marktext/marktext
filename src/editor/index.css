@@ -24,6 +24,10 @@ a {
   pointer-events: none;
 }
 
+hr {
+  cursor: default;
+}
+
 .ag-emoji-box {
   position: absolute;
   display: none;
