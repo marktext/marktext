@@ -312,9 +312,9 @@ tt {
 }
 #ag-editor-id pre.ag-code-block {
   padding: 1rem;
-  font-size: 85%;
-  line-height: 1.45;
-  background-color: #f7f7f7;
+  font-size: 90%;
+  line-height: 1.6;
+  background-color: #f6f8fa;
   border: 0;
   border-radius: 3px;
   color: #777777;
