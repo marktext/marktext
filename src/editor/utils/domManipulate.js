@@ -343,6 +343,7 @@ export const nestElementWithTag = (ids, element, tagName) => {
   return element
 }
 
+// use the same id.
 export const updateBlock = (origin, tagName) => {
   const json = html2json(origin.outerHTML)
 

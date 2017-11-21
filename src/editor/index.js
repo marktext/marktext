@@ -280,7 +280,7 @@ class Aganippe {
         id: newElement.id,
         paragraph: newElement
       }
-      eventCenter.dispatch('paragraphChange', newElement, preParagraph)
+      eventCenter.dispatch('paragraphChange', newElement, preParagraph, false)
       event.preventDefault()
     }
 
@@ -322,7 +322,7 @@ class Aganippe {
   }
 
   dispatchParagraphChange () {
-    const { eventCenter } = this
+    const { container, eventCenter } = this
 
     const changeHandler = event => {
       const { id: preId, paragraph: preParagraph } = this.activeParagraph
@@ -335,9 +335,11 @@ class Aganippe {
       if (paragraph.tagName.toLowerCase() === LOWERCASE_TAGS.li) {
         paragraph = paragraph.children[0]
       }
+
       const id = paragraph.id
       if (id !== preId) {
-        eventCenter.dispatch('paragraphChange', paragraph, preParagraph)
+        const autoFocus = event.key && event.key === EVENT_KEYS.Enter
+        eventCenter.dispatch('paragraphChange', paragraph, preParagraph, autoFocus)
         this.activeParagraph = {
           id,
           paragraph
@@ -345,10 +347,11 @@ class Aganippe {
       }
     }
 
-    eventCenter.attachDOMEvent(document, 'selectionchange', changeHandler)
+    eventCenter.attachDOMEvent(container, 'click', changeHandler)
+    eventCenter.attachDOMEvent(container, 'keyup', changeHandler)
   }
   // newParagrpha and oldParagraph must be h1~6\p\pre element. can not be `li` or `blockquote`
-  subscribeParagraphChange (newParagraph, oldParagraph) {
+  subscribeParagraphChange (newParagraph, oldParagraph, autofocus) {
     const oldContext = oldParagraph.textContent
     const oldTagName = oldParagraph.tagName.toLowerCase()
     const lineBreakUpdate = checkLineBreakUpdate(oldContext)
@@ -356,20 +359,18 @@ class Aganippe {
       switch (lineBreakUpdate.type) {
         case LOWERCASE_TAGS.pre: {
           // exchange of newParagraph and oldParagraph
-          const temp = newParagraph
-          newParagraph = oldParagraph
-          oldParagraph = temp
-          newParagraph = updateBlock(newParagraph, lineBreakUpdate.type)
-          operateClassName(newParagraph, 'add', CLASS_OR_ID['AG_CODE_BLOCK'])
-          newParagraph.innerHTML = ''
-          const codeBlock = codeMirror(newParagraph, {
-            autofocus: true
+
+          const codeMirrorWrapper = updateBlock(oldParagraph, lineBreakUpdate.type)
+          operateClassName(codeMirrorWrapper, 'add', CLASS_OR_ID['AG_CODE_BLOCK'])
+          codeMirrorWrapper.innerHTML = ''
+          const codeBlock = codeMirror(codeMirrorWrapper, {
+            autofocus
           })
-          if (!isLastChildElement(oldParagraph)) {
-            removeNode(oldParagraph)
+          if (!isLastChildElement(newParagraph) && autofocus) {
+            removeNode(newParagraph)
           }
 
-          this.codeBlocks.set(newParagraph.id, codeBlock)
+          this.codeBlocks.set(codeMirrorWrapper.id, codeBlock)
           break
         }
         case LOWERCASE_TAGS.hr: {
