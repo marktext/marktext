@@ -310,7 +310,7 @@ tt {
 .md-fences {
   background-color: #f8f8f8;
 }
-#ag-editor-id pre.md-meta-block {
+#ag-editor-id pre.ag-code-block {
   padding: 1rem;
   font-size: 85%;
   line-height: 1.45;

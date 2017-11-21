@@ -242,7 +242,6 @@ export const markedText2Html = (markedText, positionState) => {
       result = result.replace(c.chunk, c.html)
     })
   }
-  console.log(chunks)
   return result
 }
 

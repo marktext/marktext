@@ -7,6 +7,8 @@ import {
   findOutMostParagraph
 } from './utils/domManipulate'
 
+import codeMirror from './codeMirror'
+
 import {
   checkInlineUpdate, checkMarkedTextUpdate, markedText2Html, checkLineBreakUpdate,
   chopHeader, checkEditEmoji, setInlineEmoji, checkBackspaceCase
@@ -31,6 +33,7 @@ class Aganippe {
     this.container = container
     this.activeParagraph = null
     this.ids = new Set() // use to store element's id
+    this.codeBlocks = new Map()
     this.eventCenter = new Event()
     this.emoji = new Emoji(this.eventCenter) // emoji instance: has search(text) clear() methods.
     this.init()
@@ -153,6 +156,7 @@ class Aganippe {
       }
       const node = selection.getSelectionStart()
       const paragraph = findNearestParagraph(node)
+      // TODO handle code change and history
       const text = paragraph.textContent
       const html = paragraph.innerHTML
       const selectionState = selection.exportSelection(paragraph)
@@ -191,7 +195,7 @@ class Aganippe {
       const text = paragraph.textContent
       const inlineUpdate = checkInlineUpdate(text)
 
-      if (inlineUpdate && inlineUpdate.type !== tagName) {
+      if (inlineUpdate && inlineUpdate.type !== tagName && tagName !== LOWERCASE_TAGS.pre) {
         eventCenter.dispatch('elementUpdate', inlineUpdate, selectionState, paragraph)
       }
     }
@@ -207,6 +211,7 @@ class Aganippe {
     const chopedLength = markedText.length - chopedText.length
     paragraph.innerHTML = markedText2Html(chopedText)
     let newElement
+
     if (/^(h|p)/.test(inlineUpdate.type)) {
       newElement = updateBlock(paragraph, inlineUpdate.type)
       selection.importSelection(selectionState, newElement)
@@ -278,6 +283,7 @@ class Aganippe {
       eventCenter.dispatch('paragraphChange', newElement, preParagraph)
       event.preventDefault()
     }
+
     const handler = event => {
       switch (event.type) {
         case 'click': {
@@ -349,6 +355,21 @@ class Aganippe {
     if (lineBreakUpdate && oldTagName !== lineBreakUpdate.type) {
       switch (lineBreakUpdate.type) {
         case LOWERCASE_TAGS.pre: {
+          // exchange of newParagraph and oldParagraph
+          const temp = newParagraph
+          newParagraph = oldParagraph
+          oldParagraph = temp
+          newParagraph = updateBlock(newParagraph, lineBreakUpdate.type)
+          operateClassName(newParagraph, 'add', CLASS_OR_ID['AG_CODE_BLOCK'])
+          newParagraph.innerHTML = ''
+          const codeBlock = codeMirror(newParagraph, {
+            autofocus: true
+          })
+          if (!isLastChildElement(oldParagraph)) {
+            removeNode(oldParagraph)
+          }
+
+          this.codeBlocks.set(newParagraph.id, codeBlock)
           break
         }
         case LOWERCASE_TAGS.hr: {
@@ -357,16 +378,15 @@ class Aganippe {
         }
       }
     } else {
-      if (oldContext) {
+      if (oldContext && oldTagName !== LOWERCASE_TAGS.pre) {
         oldParagraph.innerHTML = markedText2Html(oldParagraph.textContent)
       }
     }
-    console.log(newParagraph, oldParagraph)
     // set and remove active className
     operateClassName(oldParagraph, 'remove', CLASS_OR_ID['AG_ACTIVE'])
     operateClassName(newParagraph, 'add', CLASS_OR_ID['AG_ACTIVE'])
   }
-
+  // handler `enter` key event.
   enterKeyHandler (event) {
     event.preventDefault()
     const node = selection.getSelectionStart()
@@ -525,6 +545,7 @@ class Aganippe {
     this.eventCenter.detachAllDomEvents()
     this.emoji.clear() // clear emoji cache for memory recycle
     this.ids.clear()
+    this.codeBlocks.clear()
     this.container = null
     this.activeParagraphId = null
     this.eventCenter = null

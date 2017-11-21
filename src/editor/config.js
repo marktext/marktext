@@ -54,7 +54,8 @@ export const CLASS_OR_ID = genUpper2LowerKeyHash([
   'AG_EMOJI_ITEM', // LI element
   'AG_EMOJI_ITEM_ACTIVE',
   'AG_EMOJI_ITEM_ICON', // icon wrapper in li
-  'AG_EMOJI_MARKED_TEXT'
+  'AG_EMOJI_MARKED_TEXT',
+  'AG_CODE_BLOCK'
 ])
 
 // export const markedSymbol = ['*', '-', '_', '!', '[', ']']
