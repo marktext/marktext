@@ -1,14 +1,17 @@
 import 'codemirror/addon/edit/closebrackets'
 import 'codemirror/addon/edit/closetag'
-import 'codemirror/addon/mode/loadmode'
-import 'codemirror/mode/meta.js'
+import 'codemirror/mode/meta'
 import codeMirror from 'codemirror/lib/codemirror'
 
+import loadmode from './loadmode'
 import 'codemirror/lib/codemirror.css'
 import './index.css'
 
+loadmode(codeMirror)
+window.CodeMirror = codeMirror
+
 const modes = codeMirror.modeInfo
-codeMirror.modeURL = 'codemirror/mode/%N/%N.js'
+codeMirror.modeURL = './node_modules/codemirror/mode/%N/%N.js'
 
 export const search = text => {
   return modes.filter(mode => {
