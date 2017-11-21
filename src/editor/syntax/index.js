@@ -44,7 +44,7 @@ const AUTO_LINK_G = /(https?:\/\/[^\\s]+)(?=\s|$)/g
 const AUTO_LINK = /https?:\/\/[^\s]+(?=\s|$)/
 // const SIMPLE_LINK_G = /(<)([^<>]+?)(>)/g
 // const SIMPLE_LINK = /<[^<>]+?>/g
-const LINE_BREAK_BLOCK_REG = /^(?:`{3,}(.*))/
+const LINE_BREAK_BLOCK_REG = /^(?:`{3,}([^`]*))|[\*\-\_]{3,}/ // eslint-disable-line no-useless-escape
 const INLINE_BLOCK_REG = /^(?:[*+-]\s(\[\s\]\s)?|\d+\.\s|(#{1,6})[^#]+|>.+)/
 const CHOP_HEADER_REG = /^([*+-]\s(?:\[\s\]\s)?|>\s*|\d+\.\s)/
 
@@ -333,8 +333,10 @@ export const checkLineBreakUpdate = text => {
   const match = token[0]
 
   switch (true) {
-    case /`{3,}.*/.test(match):
+    case /^`{3,}.*/.test(match):
       return { type: 'pre', info: token[1] }
+    case /^[*_-]{3,}/.test(match):
+      return { type: 'hr' }
     default:
       return false
   }

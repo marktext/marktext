@@ -340,7 +340,6 @@ export const nestElementWithTag = (ids, element, tagName) => {
   wrapper.id = id
   wrapper.innerHTML = element.innerHTML || '<br>'
   element.innerHTML = wrapper.outerHTML
-
   return element
 }
 

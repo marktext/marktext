@@ -3,11 +3,11 @@ import {
   operateClassName, insertBefore, insertAfter, removeNode, isFirstChildElement,
   wrapperElementWithTag, nestElementWithTag, isOnlyChildElement, isLastChildElement,
   chopBlockQuote, removeAndInsertBefore, removeAndInsertPreList, replaceElement,
-  replacementLists, insertBeforeBlockQuote
+  replacementLists, insertBeforeBlockQuote, isAganippeEditorElement
 } from './utils/domManipulate'
 
 import {
-  checkInlineUpdate, checkMarkedTextUpdate, markedText2Html,
+  checkInlineUpdate, checkMarkedTextUpdate, markedText2Html, checkLineBreakUpdate,
   chopHeader, checkEditEmoji, setInlineEmoji, checkBackspaceCase
 } from './syntax'
 
@@ -143,6 +143,7 @@ class Aganippe {
   dispatchMarkedText () {
     const { container, eventCenter } = this
     const changeHandler = event => {
+      // TODO: Handler hr
       const node = selection.getSelectionStart()
       const paragraph = findNearestParagraph(node)
       const text = paragraph.textContent
@@ -199,13 +200,14 @@ class Aganippe {
     const chopedLength = markedText.length - chopedText.length
     paragraph.innerHTML = markedText2Html(chopedText)
     let newElement
-    if (/^h|p/.test(inlineUpdate.type)) {
+    if (/^(h|p)/.test(inlineUpdate.type)) {
       newElement = updateBlock(paragraph, inlineUpdate.type)
       selection.importSelection(selectionState, newElement)
     } else if (inlineUpdate.type === LOWERCASE_TAGS.blockquote) {
       if (preTagName === LOWERCASE_TAGS.p) {
         newElement = updateBlock(paragraph, inlineUpdate.type)
-        nestElementWithTag(this.ids, newElement, LOWERCASE_TAGS.p)
+        // ensure newElement is innermost p element.
+        newElement = nestElementWithTag(this.ids, newElement, LOWERCASE_TAGS.p).children[0]
         selection.importSelection({
           start: start - chopedLength,
           end: end - chopedLength
@@ -300,6 +302,10 @@ class Aganippe {
     const changeHandler = event => {
       const { id: preId, paragraph: preParagraph } = this.activeParagraph
       const node = selection.getSelectionStart()
+      if (isAganippeEditorElement(node)) {
+        event.preventDefault()
+        return false
+      }
       let paragraph = findNearestParagraph(node)
       if (paragraph.tagName.toLowerCase() === LOWERCASE_TAGS.li) {
         paragraph = paragraph.children[0]
@@ -316,14 +322,27 @@ class Aganippe {
 
     eventCenter.attachDOMEvent(document, 'selectionchange', changeHandler)
   }
-
+  // newParagrpha and oldParagraph must be h1~6\p\pre element. can not be `li` or `blockquote`
   subscribeParagraphChange (newParagraph, oldParagraph) {
-    console.log(newParagraph)
-    console.log(oldParagraph)
-    operateClassName(oldParagraph, 'remove', CLASS_OR_ID['AG_ACTIVE'])
-    operateClassName(newParagraph, 'add', CLASS_OR_ID['AG_ACTIVE'])
-    oldParagraph.innerHTML = markedText2Html(oldParagraph.textContent)
-    // TODO line break change
+    const oldContext = oldParagraph.textContent
+    const oldTagName = oldParagraph.tagName.toLowerCase()
+    const lineBreakUpdate = checkLineBreakUpdate(oldContext)
+    if (lineBreakUpdate && oldTagName !== lineBreakUpdate.type) {
+      switch (lineBreakUpdate.type) {
+        case LOWERCASE_TAGS.pre: {
+          break
+        }
+        case LOWERCASE_TAGS.hr: {
+          updateBlock(oldParagraph, LOWERCASE_TAGS.hr)
+          break
+        }
+      }
+    } else {
+      // set and remove active className
+      operateClassName(oldParagraph, 'remove', CLASS_OR_ID['AG_ACTIVE'])
+      operateClassName(newParagraph, 'add', CLASS_OR_ID['AG_ACTIVE'])
+      oldParagraph.innerHTML = markedText2Html(oldParagraph.textContent)
+    }
   }
 
   enterKeyHandler (event) {
