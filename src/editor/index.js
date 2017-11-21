@@ -7,7 +7,7 @@ import {
   findOutMostParagraph
 } from './utils/domManipulate'
 
-import codeMirror from './codeMirror'
+import codeMirror, { setMode } from './codeMirror'
 
 import {
   checkInlineUpdate, checkMarkedTextUpdate, markedText2Html, checkLineBreakUpdate,
@@ -19,7 +19,7 @@ import {
 } from './utils'
 
 import {
-  CLASS_OR_ID, LOWERCASE_TAGS, EVENT_KEYS
+  CLASS_OR_ID, LOWERCASE_TAGS, EVENT_KEYS, codeMirrorConfig
 } from './config'
 
 import Selection from './selection'
@@ -359,13 +359,21 @@ class Aganippe {
       switch (lineBreakUpdate.type) {
         case LOWERCASE_TAGS.pre: {
           // exchange of newParagraph and oldParagraph
-
+          console.log(lineBreakUpdate.info)
           const codeMirrorWrapper = updateBlock(oldParagraph, lineBreakUpdate.type)
           operateClassName(codeMirrorWrapper, 'add', CLASS_OR_ID['AG_CODE_BLOCK'])
           codeMirrorWrapper.innerHTML = ''
-          const codeBlock = codeMirror(codeMirrorWrapper, {
+          const config = Object.assign(codeMirrorConfig, {
             autofocus
           })
+          const codeBlock = codeMirror(codeMirrorWrapper, config)
+          setMode(codeBlock, lineBreakUpdate.info)
+            .then(mode => {
+              console.log(mode)
+            })
+            .catch(err => {
+              console.warn(err)
+            })
           if (!isLastChildElement(newParagraph) && autofocus) {
             removeNode(newParagraph)
           }

@@ -121,6 +121,10 @@ hr {
   color: #bbb;
   text-decoration: none;
 }
+.ag-language {
+  color: #708;
+  text-decoration: none;
+}
 .ag-warn {
   color: #000;
   text-decoration: none;

@@ -22,7 +22,8 @@ const fragments = [
   ':[^:]+?:', // emoji
   '~{2}[^~]+~{2}', // line through
   'https?://[^\\s]+(?=\\s|$)', // auto link
-  '^\\*{3,}|^\\-{3,}|^\\_{3,}' // hr
+  '^\\*{3,}|^\\-{3,}|^\\_{3,}', // hr
+  '^`{3,}[^`]*'
 ]
 
 const CHOP_REG = new RegExp(fragments.join('|'), 'g') // eslint-disable-line no-useless-escape
@@ -45,6 +46,8 @@ const AUTO_LINK_G = /(https?:\/\/[^\\s]+)(?=\s|$)/g
 const AUTO_LINK = /https?:\/\/[^\s]+(?=\s|$)/
 const HR_REG_G = /(^\*{3,}|^-{3,}|^_{3,})/g
 const HR_REG = /^\*{3,}|^-{3,}|^_{3,}/
+const CODE_BLOCK_G = /(^`{3,})([^`]*)/g
+const CODE_BLOCK = /^`{3,}[^`]*/
 // const SIMPLE_LINK_G = /(<)([^<>]+?)(>)/g
 // const SIMPLE_LINK = /<[^<>]+?>/g
 const LINE_BREAK_BLOCK_REG = /^(?:`{3,}([^`]*))|[\*\-\_]{3,}/ // eslint-disable-line no-useless-escape
@@ -190,10 +193,19 @@ const chunk2html = ({ chunk, index, lastIndex }, { start, end } = {}) => {
       )
     })
   }
-
+  // hr chunk
   if (HR_REG.test(chunk)) {
     return chunk.replace(HR_REG_G, (match, p1) => {
       return `<a href="#" class="${CLASS_OR_ID['AG_GRAY']}">${p1}</a>`
+    })
+  }
+
+  if (CODE_BLOCK.test(chunk)) {
+    return chunk.replace(CODE_BLOCK_G, (match, p1, p2) => {
+      return (
+        `<a href="#" class="${CLASS_OR_ID['AG_GRAY']}">${p1}</a>` +
+        `<a href="#" class="${CLASS_OR_ID['AG_LANGUAGE']}">${p2}</a>`
+      )
     })
   }
 
@@ -347,7 +359,7 @@ export const checkLineBreakUpdate = text => {
 
   switch (true) {
     case /^`{3,}.*/.test(match):
-      return { type: 'pre', info: token[1] }
+      return { type: 'pre', info: token[1].trim() }
     case HR_REG.test(match):
       return { type: 'hr' }
     default:
