@@ -50,18 +50,14 @@ class Event {
     this.reset()
   }
   /**
-   * [subscribe] subscribe custom event
+   * [subscribe] subscribe custom event one event one listener, old listener will be rewrite by new one.
+   * so you should add only one listener to custom event.
    */
   subscribe (event, listener) {
-    const eventListener = this.listeners[event]
-    if (eventListener && Array.isArray(eventListener)) {
-      eventListener.push(listener)
-    } else {
-      this.listeners[event] = [listener]
-    }
+    this.listeners[event] = listener
   }
   /**
-   * dispatch custom event
+   * dispatch custom event: custom event shoud only has **one** listener.
    * customEvent includes: {
    *   'markedTextChange',
    *   'paragraphChange',
@@ -72,11 +68,14 @@ class Event {
    *   'tab',
    *   'backspace', 'paragraphBlur'
    * }
+   * return a Promise resolve the listener result.
    */
   dispatch (event, ...data) {
     const eventListener = this.listeners[event]
-    if (eventListener && Array.isArray(eventListener)) {
-      eventListener.forEach(listener => listener(...data))
+    if (eventListener) {
+      return Promise.resolve(eventListener(...data))
+    } else {
+      return Promise.reject(`${event} custom event does not created.`) // eslint-disable-line prefer-promise-reject-errors
     }
   }
   // Determine whether the event has been bind

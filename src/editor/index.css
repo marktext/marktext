@@ -24,6 +24,10 @@ a {
   pointer-events: none;
 }
 
+#ag-editor-id > pre {
+  position: relative;
+}
+
 hr {
   cursor: default;
 }
@@ -112,6 +116,23 @@ hr {
   color: #000;
   top: 0;
   left: -1.3em;
+}
+
+.ag-language-input {
+  display: none;
+  min-width: 80px;
+  max-width: 100px;
+  position: absolute;
+  font-size: .85em;
+  top: 5px;
+  right: 5px;
+  color: #9e9e9e;
+  background: transparent;
+  border: none;
+  text-align: center;
+}
+pre.ag-active .ag-language-input {
+  display: block;
 }
 
 #ag-editor-id {

@@ -56,7 +56,8 @@ export const CLASS_OR_ID = genUpper2LowerKeyHash([
   'AG_FLOAT_ITEM_ICON', // icon wrapper in li
   'AG_EMOJI_MARKED_TEXT',
   'AG_CODE_BLOCK',
-  'AG_LANGUAGE'
+  'AG_LANGUAGE',
+  'AG_LANGUAGE_INPUT'
 ])
 
 export const codeMirrorConfig = {

@@ -343,6 +343,13 @@ export const nestElementWithTag = (ids, element, tagName) => {
   return element
 }
 
+export const createInputInCodeBlock = codeEle => {
+  const input = document.createElement('input')
+  operateClassName(input, 'add', CLASS_OR_ID['AG_LANGUAGE_INPUT'])
+  codeEle.appendChild(input)
+  return input
+}
+
 // use the same id.
 export const updateBlock = (origin, tagName) => {
   const json = html2json(origin.outerHTML)

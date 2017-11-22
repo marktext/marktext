@@ -297,6 +297,10 @@ export const checkEditLanguage = (paragraph, selectionState) => {
 }
 
 export const replaceLanguage = (paragraph, mode, selection) => {
+  if (paragraph.tagName.toLowerCase() === LOWERCASE_TAGS.input) {
+    paragraph.value = mode
+    return paragraph.focus()
+  }
   paragraph.querySelector(`.${CLASS_OR_ID['AG_LANGUAGE']}`).textContent = mode
   const offset = paragraph.textContent.length
   selection.importSelection({

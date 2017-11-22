@@ -4,7 +4,7 @@ import {
   wrapperElementWithTag, nestElementWithTag, isOnlyChildElement, isLastChildElement,
   chopBlockQuote, removeAndInsertBefore, removeAndInsertPreList, replaceElement,
   replacementLists, insertBeforeBlockQuote, isAganippeEditorElement,
-  findOutMostParagraph
+  findOutMostParagraph, createInputInCodeBlock
 } from './utils/domManipulate'
 
 import codeMirror, { setMode, search } from './codeMirror'
@@ -115,6 +115,9 @@ class Aganippe {
     const { container, eventCenter } = this
 
     const handler = event => {
+      if (event.target && event.target.classList.contains(CLASS_OR_ID['AG_LANGUAGE_INPUT'])) {
+        return
+      }
       if (event.type === 'click') return eventCenter.dispatch('hideFloatBox')
       const node = selection.getSelectionStart()
       const paragraph = findNearestParagraph(node)
@@ -407,6 +410,7 @@ class Aganippe {
   }
   // newParagrpha and oldParagraph must be h1~6\p\pre element. can not be `li` or `blockquote`
   subscribeParagraphChange (newParagraph, oldParagraph, autofocus) {
+    const { eventCenter } = this
     const oldContext = oldParagraph.textContent
     const oldTagName = oldParagraph.tagName.toLowerCase()
     const lineBreakUpdate = checkLineBreakUpdate(oldContext)
@@ -422,12 +426,26 @@ class Aganippe {
             autofocus
           })
           const codeBlock = codeMirror(codeMirrorWrapper, config)
+          const input = createInputInCodeBlock(codeMirrorWrapper)
+
+          eventCenter.attachDOMEvent(input, 'keyup', () => {
+            const value = input.value
+            eventCenter.dispatch('editLanguage', input, value.trim())
+              .then(mode => {
+                setMode(codeBlock, mode.mode)
+                  .then(res => {
+                    codeMirrorWrapper.setAttribute('lang', res.name)
+                  })
+              })
+          })
+
           setMode(codeBlock, lineBreakUpdate.info)
             .then(mode => {
-              console.log(mode)
+              codeMirrorWrapper.setAttribute('lang', mode.name)
+              input.value = mode.name
             })
             .catch(err => {
-              console.warn(err)
+              console.log(err)
             })
           if (!isLastChildElement(newParagraph) && autofocus) {
             removeNode(newParagraph)
