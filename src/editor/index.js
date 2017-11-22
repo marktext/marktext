@@ -7,13 +7,14 @@ import {
   findOutMostParagraph
 } from './utils/domManipulate'
 
-import codeMirror, { setMode } from './codeMirror'
+import codeMirror, { setMode, search } from './codeMirror'
 
 import FloatBox from './floatBox'
 
 import {
   checkInlineUpdate, checkMarkedTextUpdate, markedText2Html, checkLineBreakUpdate,
-  chopHeader, checkEditEmoji, setInlineEmoji, checkBackspaceCase
+  chopHeader, checkEditEmoji, setInlineEmoji, checkBackspaceCase, checkEditLanguage,
+  replaceLanguage
 } from './syntax'
 
 import {
@@ -63,6 +64,11 @@ class Aganippe {
 
     eventCenter.subscribe('elementUpdate', this.subscribeElementUpdate.bind(this))
     this.dispatchElementUpdate()
+    eventCenter.subscribe('editLanguage', throttle(this.subscribeEditLanguage.bind(this)))
+    this.dispatchEditLanguage()
+
+    eventCenter.subscribe('hideFloatBox', this.subscribeHideFloatBox.bind(this))
+    this.dispatchHideFloatBox()
 
     eventCenter.bind('enter', this.enterKeyHandler.bind(this))
     eventCenter.bind('backspace', this.backspaceKeyHandler.bind(this))
@@ -103,47 +109,98 @@ class Aganippe {
       paragraph: emptyElement
     }
   }
+
+  dispatchHideFloatBox () {
+    const { container, eventCenter } = this
+
+    const handler = event => {
+      if (event.type === 'click') return eventCenter.dispatch('hideFloatBox')
+      const node = selection.getSelectionStart()
+      const paragraph = findNearestParagraph(node)
+      const selectionState = selection.exportSelection(paragraph)
+      const lang = checkEditLanguage(paragraph, selectionState)
+      const emojiNode = node && checkEditEmoji(node)
+      if (!emojiNode && !lang) {
+        eventCenter.dispatch('hideFloatBox')
+      }
+    }
+
+    eventCenter.attachDOMEvent(container, 'click', handler)
+    eventCenter.attachDOMEvent(container, 'keyup', handler)
+  }
+
+  subscribeHideFloatBox () {
+    this.floatBox.hideIfNeeded()
+  }
+
+  /**
+   * dispatchIsEditLanguage
+   */
+  dispatchEditLanguage () {
+    const { container, eventCenter } = this
+    const inputHandler = event => {
+      const node = selection.getSelectionStart()
+      const paragraph = findNearestParagraph(node)
+      const selectionState = selection.exportSelection(paragraph)
+      const lang = checkEditLanguage(paragraph, selectionState)
+      if (lang) {
+        eventCenter.dispatch('editLanguage', paragraph, lang)
+      }
+    }
+
+    eventCenter.attachDOMEvent(container, 'keyup', inputHandler)
+  }
+
+  subscribeEditLanguage (paragraph, lang) {
+    const { left, top } = paragraph.getBoundingClientRect()
+    const modes = search(lang).map(mode => {
+      return Object.assign(mode, { text: mode.name })
+    })
+    const cb = item => {
+      replaceLanguage(paragraph, item.mode, selection)
+      this.floatBox.hideIfNeeded()
+    }
+    if (modes.length) {
+      this.floatBox.showIfNeeded({
+        left: `${left}px`,
+        top: `${top + 30}px`
+      }, cb)
+      this.floatBox.setOptions(modes, -1)
+    } else {
+      this.floatBox.hideIfNeeded()
+    }
+  }
+
   /**
    * dispatchEditeEmoji
    */
   dispatchEditeEmoji () {
     const { container, eventCenter } = this
     const changeHandler = event => {
-      const target = event.target
-      if (event.type === 'click' && target.tagName.toLowerCase() === LOWERCASE_TAGS.hr) {
-        return false
-      }
       const node = selection.getSelectionStart()
-      Promise.resolve()
-        .then(() => {
-          const isEdit = checkEditEmoji(event, node)
-          eventCenter.dispatch('editEmoji', node, isEdit)
-        })
+      const emojiNode = checkEditEmoji(node)
+      if (emojiNode) {
+        eventCenter.dispatch('editEmoji', emojiNode)
+      }
     }
-    eventCenter.attachDOMEvent(container, 'click', changeHandler)
-    eventCenter.attachDOMEvent(container, 'keyup', changeHandler)
+    eventCenter.attachDOMEvent(container, 'keyup', changeHandler) // don't listen `input` event
   }
-  subscribeEditEmoji (node, isEdit) {
-    const emojiNode = node.classList.contains(CLASS_OR_ID['AG_EMOJI_MARKED_TEXT'])
-      ? node : node.previousElementSibling
-    const text = emojiNode ? emojiNode.textContent.trim() : ''
-    if (!isEdit || !text) {
-      this.floatBox.hideIfNeeded()
-    } else {
-      const list = this.emoji.search(text).slice(0, 5).map(l => ({ emoji: l.emoji, text: l.aliases[0] }))
+  subscribeEditEmoji (emojiNode) {
+    const text = emojiNode.textContent.trim()
+    if (text) {
+      const list = this.emoji.search(text).map(l => {
+        return Object.assign(l, { text: l.aliases[0] })
+      })
       const { left, top } = emojiNode.getBoundingClientRect()
-      const cb = index => {
-        const selectEmoji = list[index]
-        setInlineEmoji(emojiNode, selectEmoji, selection)
+      const cb = item => {
+        setInlineEmoji(emojiNode, item, selection)
         this.floatBox.hideIfNeeded()
       }
       if (list.length) {
-        console.log('show')
-        const activeIndex = -1
         this.floatBox.showIfNeeded({
-          left: `${left}px`, top: `${top + 35}px`
+          left: `${left}px`, top: `${top + 30}px`
         }, cb)
-        this.floatBox.setOptions(list, activeIndex)
+        this.floatBox.setOptions(list, -1)
       } else {
         this.floatBox.hideIfNeeded()
       }

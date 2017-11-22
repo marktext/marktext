@@ -53,7 +53,7 @@ hr {
 }
 
 .ag-float-item {
-  padding-right: .5em;
+  padding: 0 .5em;
   height: 33px;
   line-height: 33px;
   box-sizing: border-box;

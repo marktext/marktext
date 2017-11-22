@@ -278,20 +278,43 @@ export const checkMarkedTextUpdate = (html, markedText, { start, end }) => {
 
   return false
 }
+/**
+ * check edit language
+ */
+export const checkEditLanguage = (paragraph, selectionState) => {
+  const text = paragraph.textContent
+  const { start } = selectionState
+  const token = text.match(/(^`{3,})([^`]+)/)
+  if (token) {
+    const len = token[1].length
+    const lang = token[2].trim()
+    if (start < len) return false
+    if (!lang) return false
+    return lang
+  } else {
+    return false
+  }
+}
+
+export const replaceLanguage = (paragraph, mode, selection) => {
+  paragraph.querySelector(`.${CLASS_OR_ID['AG_LANGUAGE']}`).textContent = mode
+  const offset = paragraph.textContent.length
+  selection.importSelection({
+    start: offset,
+    end: offset
+  }, paragraph)
+}
 
 /**
  * check edit emoji
  */
 
-export const checkEditEmoji = (event, node) => {
-  const { type } = event
-  if (type === 'click') return false
+export const checkEditEmoji = node => {
   const preSibling = node.previousElementSibling
-  if (
-    node.classList.contains(CLASS_OR_ID['AG_EMOJI_MARKED_TEXT']) ||
-    (preSibling && preSibling.classList.contains(CLASS_OR_ID['AG_EMOJI_MARKED_TEXT']))
-  ) {
-    return true
+  if (node.classList.contains(CLASS_OR_ID['AG_EMOJI_MARKED_TEXT'])) {
+    return node
+  } else if (preSibling && preSibling.classList.contains(CLASS_OR_ID['AG_EMOJI_MARKED_TEXT'])) {
+    return preSibling
   }
   return false
 }
@@ -299,6 +322,7 @@ export const checkEditEmoji = (event, node) => {
 export const setInlineEmoji = (node, emoji, selection) => {
   node.textContent = `${emoji.text}`
   node.setAttribute('data-emoji', emoji.emoji)
+  console.log(node)
   selection.moveCursor(node.nextElementSibling, 1)
 }
 

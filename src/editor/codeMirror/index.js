@@ -17,7 +17,7 @@ codeMirror.modeURL = process.env.NODE_ENV !== 'production'
 
 export const search = text => {
   return modes.filter(mode => {
-    return new RegExp(`^${text}`, 'i').test(mode.mode)
+    return new RegExp(`^${text}`, 'i').test(mode.name)
   })
 }
 
