@@ -34,6 +34,7 @@ hr {
   opacity: 0;
   height: 165px;
   min-width: 180px;
+  max-width: 220px;
   margin: 0;
   padding: 0;
   border: 1px solid #dfe2e5;
@@ -42,7 +43,7 @@ hr {
   list-style: none;
   transform: scale(0);
   transition: transform, opacity .5s ease-out;
-  overflow: hidden;
+  overflow: auto;
   background: #fff;
 }
 

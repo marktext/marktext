@@ -72,6 +72,7 @@ class Aganippe {
 
     eventCenter.bind('enter', this.enterKeyHandler.bind(this))
     eventCenter.bind('backspace', this.backspaceKeyHandler.bind(this))
+    eventCenter.bind(['up', 'down'], this.upDownHander.bind(this))
 
     this.handlerSelectHr()
 
@@ -148,7 +149,7 @@ class Aganippe {
       }
     }
 
-    eventCenter.attachDOMEvent(container, 'keyup', inputHandler)
+    eventCenter.attachDOMEvent(container, 'input', inputHandler)
   }
 
   subscribeEditLanguage (paragraph, lang) {
@@ -163,9 +164,9 @@ class Aganippe {
     if (modes.length) {
       this.floatBox.showIfNeeded({
         left: `${left}px`,
-        top: `${top + 30}px`
+        top: `${top + 30 + document.body.scrollTop}px`
       }, cb)
-      this.floatBox.setOptions(modes, -1)
+      this.floatBox.setOptions(modes)
     } else {
       this.floatBox.hideIfNeeded()
     }
@@ -198,9 +199,9 @@ class Aganippe {
       }
       if (list.length) {
         this.floatBox.showIfNeeded({
-          left: `${left}px`, top: `${top + 30}px`
+          left: `${left}px`, top: `${top + 30 + document.body.scrollTop}px`
         }, cb)
-        this.floatBox.setOptions(list, -1)
+        this.floatBox.setOptions(list)
       } else {
         this.floatBox.hideIfNeeded()
       }
@@ -238,14 +239,6 @@ class Aganippe {
     paragraph.innerHTML = markedHtml
     selection.importSelection(selectionState, paragraph)
   }
-  /**
-   * [enterKeyHandler handler user type `enter|return` key]
-   * step 1: detemine tagName
-   * step 2: chop markedText
-   * step 3: dom manipulate, replacement or insertAfter or inertBefore ...
-   * step 4: markedText to html
-   * step 5: set cursor
-   */
 
   dispatchElementUpdate () {
     const { container, eventCenter } = this
@@ -459,9 +452,22 @@ class Aganippe {
     operateClassName(oldParagraph, 'remove', CLASS_OR_ID['AG_ACTIVE'])
     operateClassName(newParagraph, 'add', CLASS_OR_ID['AG_ACTIVE'])
   }
-  // handler `enter` key event.
+  /**
+   * [enterKeyHandler handler user type `enter|return` key]
+   * step 1: detemine tagName
+   * step 2: chop markedText
+   * step 3: dom manipulate, replacement or insertAfter or inertBefore ...
+   * step 4: markedText to html
+   * step 5: set cursor
+   */
   enterKeyHandler (event) {
     event.preventDefault()
+    // handle float box
+    const { list, index, show } = this.floatBox
+    if (show) {
+      return this.floatBox.cb(list[index])
+    }
+    // handle others
     const node = selection.getSelectionStart()
     let paragraph = findNearestParagraph(node)
     const parentNode = paragraph.parentNode
@@ -605,6 +611,26 @@ class Aganippe {
     }
     removeNode(paragraph)
     selection.moveCursor(newParagraph, 0)
+  }
+
+  upDownHander (event) {
+    const { list, index, show } = this.floatBox
+    if (show) {
+      event.preventDefault()
+      switch (event.key) {
+        case 'ArrowDown':
+          if (index < list.length - 1) {
+            this.floatBox.setOptions(list, index + 1)
+          }
+          break
+        case 'ArrowUp':
+          console.log(index)
+          if (index > 0) {
+            this.floatBox.setOptions(list, index - 1)
+          }
+          break
+      }
+    }
   }
 
   getMarkdown () {

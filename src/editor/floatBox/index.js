@@ -5,7 +5,7 @@ import {
 class FloatBox {
   constructor (event) {
     this.list = []
-    this.index = -1
+    this.index = 0
     this.event = event
     this.show = false
     this.box = null
@@ -35,13 +35,17 @@ class FloatBox {
   }
 
   setOptions (list, index) {
+    const ITEM_HEIGHT = 33
     const fragment = document.createDocumentFragment()
     this.list = list
-    this.index = index
+    if (index !== undefined) {
+      this.index = index
+    }
+
     list.forEach((l, i) => {
       const li = document.createElement('li')
       li.classList.add(CLASS_OR_ID['AG_FLOAT_ITEM'])
-      if (i === index) li.classList.add(CLASS_OR_ID['AG_FLOAT_ITEM_ACTIVE'])
+      if (i === this.index) li.classList.add(CLASS_OR_ID['AG_FLOAT_ITEM_ACTIVE'])
       if (l.emoji) {
         const icon = document.createElement('span')
         icon.classList.add(CLASS_OR_ID['AG_FLOAT_ITEM_ICON'])
@@ -62,6 +66,7 @@ class FloatBox {
     })
     this.empty()
     this.box.appendChild(fragment)
+    this.box.scrollTop = ITEM_HEIGHT * this.index
   }
 
   empty () {
@@ -82,6 +87,8 @@ class FloatBox {
   hideIfNeeded () {
     this.empty()
     this.cb = null
+    this.list = []
+    this.index = 0
     if (this.show) {
       this.box.classList.remove(CLASS_OR_ID['AG_SHOW_FLOAT_BOX'])
     }
