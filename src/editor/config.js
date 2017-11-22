@@ -40,7 +40,9 @@ export const LOWERCASE_TAGS = generateKeyHash([
  *     'AG_GRAY': 'ag-gray'
  *   }
  */
+
 export const CLASS_OR_ID = genUpper2LowerKeyHash([
+  'mousetrap',
   'AG_GRAY',
   'AG_HIDE',
   'AG_WARN',

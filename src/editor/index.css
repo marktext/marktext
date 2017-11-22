@@ -36,9 +36,9 @@ hr {
   position: absolute;
   display: none;
   opacity: 0;
-  height: 165px;
-  min-width: 180px;
-  max-width: 220px;
+  height: 168px;
+  min-width: 130px;
+  max-width: 150px;
   margin: 0;
   padding: 0;
   border: 1px solid #dfe2e5;
@@ -49,6 +49,7 @@ hr {
   transition: transform, opacity .5s ease-out;
   overflow: auto;
   background: #fff;
+  z-index: 10000;
 }
 
 .ag-show-float-box {
@@ -59,15 +60,15 @@ hr {
 
 .ag-float-item {
   padding: 0 .5em;
-  height: 33px;
-  line-height: 33px;
+  height: 28px;
+  line-height: 28px;
   box-sizing: border-box;
   border-bottom: 1px solid #dfe2e5;
   color: #000;
   cursor: pointer;
-  font-size: 13px;
+  font-size: 12px;
   display: flex;
-  font-weight: 600;
+  font-weight: 400;
 }
 
 .ag-float-item span:nth-of-type(2n) {
@@ -81,7 +82,7 @@ hr {
    color: #000;
 }
 .ag-float-item-active, .ag-float-box .ag-float-item:hover {
-  background: #0366d6;
+  background: #9099A2;
   color: #fff;
 }
 
@@ -115,13 +116,12 @@ hr {
   content: attr(data-emoji);
   color: #000;
   top: 0;
-  left: -1.3em;
+  left: -1.15em;
 }
 
 .ag-language-input {
   display: none;
   min-width: 80px;
-  max-width: 100px;
   position: absolute;
   font-size: .85em;
   top: 5px;

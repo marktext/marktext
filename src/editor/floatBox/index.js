@@ -35,7 +35,7 @@ class FloatBox {
   }
 
   setOptions (list, index) {
-    const ITEM_HEIGHT = 33
+    const ITEM_HEIGHT = 28
     const fragment = document.createDocumentFragment()
     this.list = list
     if (index !== undefined) {

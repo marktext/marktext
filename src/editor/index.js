@@ -49,7 +49,7 @@ class Aganippe {
 
     container.setAttribute('contenteditable', true)
     container.setAttribute(CLASS_OR_ID['AG_EDITOR_ATTR'], true)
-    container.classList.add('mousetrap') // for use of mousetrap
+    container.classList.add(CLASS_OR_ID['mousetrap']) // for use of mousetrap
     container.id = CLASS_OR_ID['AG_EDITOR_ID']
 
     // listen to customEvent `markedTextChange` event, and change markedText to html.
@@ -155,20 +155,20 @@ class Aganippe {
     eventCenter.attachDOMEvent(container, 'input', inputHandler)
   }
 
-  subscribeEditLanguage (paragraph, lang) {
+  subscribeEditLanguage (paragraph, lang, cb) {
     const { left, top } = paragraph.getBoundingClientRect()
     const modes = search(lang).map(mode => {
       return Object.assign(mode, { text: mode.name })
     })
-    const cb = item => {
+    const callback = item => {
       replaceLanguage(paragraph, item.mode, selection)
       this.floatBox.hideIfNeeded()
     }
     if (modes.length) {
       this.floatBox.showIfNeeded({
         left: `${left}px`,
-        top: `${top + 30 + document.body.scrollTop}px`
-      }, cb)
+        top: `${top + 25 + document.body.scrollTop}px`
+      }, cb || callback)
       this.floatBox.setOptions(modes)
     } else {
       this.floatBox.hideIfNeeded()
@@ -202,7 +202,7 @@ class Aganippe {
       }
       if (list.length) {
         this.floatBox.showIfNeeded({
-          left: `${left}px`, top: `${top + 30 + document.body.scrollTop}px`
+          left: `${left}px`, top: `${top + 25 + document.body.scrollTop}px`
         }, cb)
         this.floatBox.setOptions(list)
       } else {
@@ -418,7 +418,6 @@ class Aganippe {
       switch (lineBreakUpdate.type) {
         case LOWERCASE_TAGS.pre: {
           // exchange of newParagraph and oldParagraph
-          console.log(lineBreakUpdate.info)
           const codeMirrorWrapper = updateBlock(oldParagraph, lineBreakUpdate.type)
           operateClassName(codeMirrorWrapper, 'add', CLASS_OR_ID['AG_CODE_BLOCK'])
           codeMirrorWrapper.innerHTML = ''
@@ -428,25 +427,27 @@ class Aganippe {
           const codeBlock = codeMirror(codeMirrorWrapper, config)
           const input = createInputInCodeBlock(codeMirrorWrapper)
 
+          const handler = langMode => {
+            const { mode } = langMode
+            setMode(codeBlock, mode)
+              .then(mode => {
+                codeMirrorWrapper.setAttribute('lang', mode.name)
+                input.value = mode.name
+                input.blur()
+              })
+              .catch(err => {
+                console.log(err)
+              })
+            this.floatBox.hideIfNeeded()
+          }
+
+          handler({mode: lineBreakUpdate.info})
+
           eventCenter.attachDOMEvent(input, 'keyup', () => {
             const value = input.value
-            eventCenter.dispatch('editLanguage', input, value.trim())
-              .then(mode => {
-                setMode(codeBlock, mode.mode)
-                  .then(res => {
-                    codeMirrorWrapper.setAttribute('lang', res.name)
-                  })
-              })
+            eventCenter.dispatch('editLanguage', input, value.trim(), handler)
           })
 
-          setMode(codeBlock, lineBreakUpdate.info)
-            .then(mode => {
-              codeMirrorWrapper.setAttribute('lang', mode.name)
-              input.value = mode.name
-            })
-            .catch(err => {
-              console.log(err)
-            })
           if (!isLastChildElement(newParagraph) && autofocus) {
             removeNode(newParagraph)
           }
@@ -642,7 +643,6 @@ class Aganippe {
           }
           break
         case 'ArrowUp':
-          console.log(index)
           if (index > 0) {
             this.floatBox.setOptions(list, index - 1)
           }
