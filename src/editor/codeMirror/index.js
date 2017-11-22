@@ -11,7 +11,9 @@ loadmode(codeMirror)
 window.CodeMirror = codeMirror
 
 const modes = codeMirror.modeInfo
-codeMirror.modeURL = './node_modules/codemirror/mode/%N/%N.js'
+codeMirror.modeURL = process.env.NODE_ENV !== 'production'
+  ? './node_modules/codemirror/mode/%N/%N.js'
+  : './codemirror/mode/%N/%N.js'
 
 export const search = text => {
   return modes.filter(mode => {

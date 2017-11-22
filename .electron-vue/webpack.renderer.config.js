@@ -164,6 +164,10 @@ if (process.env.NODE_ENV === 'production') {
         from: path.join(__dirname, '../static'),
         to: path.join(__dirname, '../dist/electron/static'),
         ignore: ['.*']
+      },
+      {
+        from: path.resolve(__dirname, '../node_modules/codemirror/mode/*/*'),
+        to: path.join(__dirname, '../dist/electron/codemirror/mode/[name]/[name].js')
       }
     ]),
     new webpack.DefinePlugin({
