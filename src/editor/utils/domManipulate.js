@@ -351,6 +351,10 @@ export const createInputInCodeBlock = codeEle => {
   return input
 }
 
+export const isCodeBlockParagraph = paragraph => {
+  return paragraph && paragraph.classList.contains(CLASS_OR_ID['AG_CODE_BLOCK'])
+}
+
 // use the same id.
 export const updateBlock = (origin, tagName) => {
   const json = html2json(origin.outerHTML)

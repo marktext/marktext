@@ -59,7 +59,8 @@ export const CLASS_OR_ID = genUpper2LowerKeyHash([
   'AG_EMOJI_MARKED_TEXT',
   'AG_CODE_BLOCK',
   'AG_LANGUAGE',
-  'AG_LANGUAGE_INPUT'
+  'AG_LANGUAGE_INPUT',
+  'AG_TEMP'
 ])
 
 export const codeMirrorConfig = {

@@ -4,10 +4,13 @@ import {
   wrapperElementWithTag, nestElementWithTag, isOnlyChildElement, isLastChildElement,
   chopBlockQuote, removeAndInsertBefore, removeAndInsertPreList, replaceElement,
   replacementLists, insertBeforeBlockQuote, isAganippeEditorElement,
-  findOutMostParagraph, createInputInCodeBlock
+  findOutMostParagraph, createInputInCodeBlock, isCodeBlockParagraph
 } from './utils/domManipulate'
 
-import codeMirror, { setMode, search } from './codeMirror'
+import codeMirror, { setMode, search, setCursorAtLastLine,
+  isCursorAtFirstLine, isCursorAtLastLine, isCursorAtBegin, // eslint-disable-line no-unused-vars
+  isCursorAtEnd, setCursorAtFirstLine // eslint-disable-line no-unused-vars
+} from './codeMirror'
 
 import FloatBox from './floatBox'
 
@@ -72,8 +75,10 @@ class Aganippe {
 
     eventCenter.bind('enter', this.enterKeyHandler.bind(this))
     eventCenter.bind('backspace', this.backspaceKeyHandler.bind(this))
-    eventCenter.bind(['up', 'down'], this.upDownHander.bind(this))
 
+    eventCenter.subscribe('leftAndRight', this.leftRightHandler.bind(this))
+    eventCenter.subscribe('upAndDown', this.upDownHander.bind(this))
+    this.dispatchArrow()
     this.handlerSelectHr()
 
     this.generateLastEmptyParagraph()
@@ -414,7 +419,13 @@ class Aganippe {
     const oldContext = oldParagraph.textContent
     const oldTagName = oldParagraph.tagName.toLowerCase()
     const lineBreakUpdate = checkLineBreakUpdate(oldContext)
-    if (lineBreakUpdate && oldTagName !== lineBreakUpdate.type) {
+    if (oldParagraph.classList.contains(CLASS_OR_ID['AG_TEMP'])) {
+      if (!oldContext) {
+        removeNode(oldParagraph)
+      } else {
+        operateClassName(oldParagraph, 'remove', CLASS_OR_ID['AG_TEMP'])
+      }
+    } else if (lineBreakUpdate && oldTagName !== lineBreakUpdate.type) {
       switch (lineBreakUpdate.type) {
         case LOWERCASE_TAGS.pre: {
           // exchange of newParagraph and oldParagraph
@@ -434,6 +445,7 @@ class Aganippe {
                 codeMirrorWrapper.setAttribute('lang', mode.name)
                 input.value = mode.name
                 input.blur()
+                setCursorAtLastLine(codeBlock)
               })
               .catch(err => {
                 console.log(err)
@@ -468,8 +480,12 @@ class Aganippe {
       }
     }
     // set and remove active className
-    operateClassName(oldParagraph, 'remove', CLASS_OR_ID['AG_ACTIVE'])
-    operateClassName(newParagraph, 'add', CLASS_OR_ID['AG_ACTIVE'])
+    if (oldParagraph) {
+      operateClassName(oldParagraph, 'remove', CLASS_OR_ID['AG_ACTIVE'])
+    }
+    if (newParagraph) {
+      operateClassName(newParagraph, 'add', CLASS_OR_ID['AG_ACTIVE'])
+    }
   }
   /**
    * [enterKeyHandler handler user type `enter|return` key]
@@ -578,6 +594,7 @@ class Aganippe {
    * 3. no text in editor
    */
   backspaceKeyHandler (event) {
+    // TODO handle code block when codeblock is empty or empty is after codeblock
     const node = selection.getSelectionStart()
     const paragraph = findNearestParagraph(node)
     const selectionState = selection.exportSelection(paragraph)
@@ -631,24 +648,105 @@ class Aganippe {
     removeNode(paragraph)
     selection.moveCursor(newParagraph, 0)
   }
+  // dispach arrow event
+  dispatchArrow () {
+    const { container, eventCenter } = this
+    const handler = event => {
+      switch (event.key) {
+        case EVENT_KEYS.ArrowUp: // fallthrough
+        case EVENT_KEYS.ArrowDown:
+          eventCenter.dispatch('upAndDown', event)
+          break
+        case EVENT_KEYS.ArrowLeft: // fallthrough
+        case EVENT_KEYS.ArrowRight:
+          eventCenter.dispatch('leftAndRight', event)
+          break
+      }
+    }
+    eventCenter.attachDOMEvent(container, 'keydown', handler)
+  }
 
   upDownHander (event) {
     const { list, index, show } = this.floatBox
     if (show) {
       event.preventDefault()
       switch (event.key) {
-        case 'ArrowDown':
+        case EVENT_KEYS.ArrowDown:
           if (index < list.length - 1) {
             this.floatBox.setOptions(list, index + 1)
           }
           break
-        case 'ArrowUp':
+        case EVENT_KEYS.ArrowUp:
           if (index > 0) {
             this.floatBox.setOptions(list, index - 1)
           }
           break
       }
     }
+    // handle cursor in code block. the case at firstline or lastline.
+    const node = selection.getSelectionStart()
+    const paragraph = findNearestParagraph(node)
+    const outMostParagraph = findOutMostParagraph(node)
+    let preParagraph = outMostParagraph.previousElementSibling
+    let nextParagraph = outMostParagraph.nextElementSibling
+
+    if (isCodeBlockParagraph(paragraph)) {
+      const codeBlockId = paragraph.id
+      const cm = this.codeBlocks.get(codeBlockId)
+
+      event.preventDefault()
+      switch (event.key) {
+        case EVENT_KEYS.ArrowUp:
+          if (isCursorAtFirstLine(cm) && preParagraph) {
+            if (isCodeBlockParagraph(preParagraph)) {
+              const newParagraph = createEmptyElement(this.ids, LOWERCASE_TAGS.p)
+              operateClassName(newParagraph, 'add', CLASS_OR_ID['AG_TEMP'])
+              insertAfter(newParagraph, preParagraph)
+              preParagraph = newParagraph
+            }
+
+            selection.importSelection({
+              start: preParagraph.textContent.length,
+              end: preParagraph.textContent.length
+            }, preParagraph)
+          }
+          break
+        case EVENT_KEYS.ArrowDown:
+          if (isCursorAtLastLine(cm) && nextParagraph) {
+            if (isCodeBlockParagraph(nextParagraph)) {
+              const newParagraph = createEmptyElement(this.ids, LOWERCASE_TAGS.p)
+              operateClassName(newParagraph, 'add', CLASS_OR_ID['AG_TEMP'])
+              insertBefore(newParagraph, nextParagraph)
+              nextParagraph = newParagraph
+            }
+            selection.importSelection({
+              start: 0,
+              end: 0
+            }, nextParagraph)
+          } else if (!nextParagraph) {
+            const newParagraph = createEmptyElement(this.ids, LOWERCASE_TAGS.p)
+            insertAfter(newParagraph, paragraph)
+            selection.moveCursor(newParagraph, 0)
+          }
+          break
+      }
+      return
+    }
+
+    if (isCodeBlockParagraph(preParagraph) && event.key === EVENT_KEYS.ArrowUp) {
+      const codeBlockId = preParagraph.id
+      const cm = this.codeBlocks.get(codeBlockId)
+      return setCursorAtLastLine(cm)
+    }
+    if (isCodeBlockParagraph(nextParagraph) && event.key === EVENT_KEYS.ArrowDown) {
+      const codeBlockId = nextParagraph.id
+      const cm = this.codeBlocks.get(codeBlockId)
+      return setCursorAtFirstLine(cm)
+    }
+  }
+
+  leftRightHandler (event) {
+    // TODO
   }
 
   getMarkdown () {

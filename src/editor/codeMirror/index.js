@@ -21,6 +21,50 @@ export const search = text => {
   })
 }
 
+/**
+ * set cursor at the end of last line.
+ */
+export const setCursorAtLastLine = cm => {
+  const lastLine = cm.lastLine()
+  const lineHandle = cm.getLineHandle(lastLine)
+
+  cm.focus()
+  cm.setCursor(lastLine, lineHandle.text.length)
+}
+
+// if cursor at firstline return true
+export const isCursorAtFirstLine = cm => {
+  const cursor = cm.getCursor()
+  const { line } = cursor
+  return line === 0
+}
+
+export const isCursorAtLastLine = cm => {
+  const lastLine = cm.lastLine()
+  const cursor = cm.getCursor()
+  const { line } = cursor
+  return line === lastLine
+}
+
+export const isCursorAtBegin = cm => {
+  const cursor = cm.getCursor()
+  const { line, ch } = cursor
+  return line === 0 && ch === 0
+}
+
+export const isCursorAtEnd = cm => {
+  const lastLine = cm.lastLine()
+  const lastLineHandle = cm.getLineHandle(lastLine)
+  const cursor = cm.getCursor()
+  const { line, ch } = cursor
+  return line === lastLine && ch === lastLineHandle.text.length
+}
+
+export const setCursorAtFirstLine = cm => {
+  cm.focus()
+  cm.setCursor(0, 0)
+}
+
 export const setMode = (doc, text) => {
   const m = modes.filter(mode => text === mode.mode)[0]
 
