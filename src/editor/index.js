@@ -9,6 +9,8 @@ import {
 
 import codeMirror, { setMode } from './codeMirror'
 
+import FloatBox from './floatBox'
+
 import {
   checkInlineUpdate, checkMarkedTextUpdate, markedText2Html, checkLineBreakUpdate,
   chopHeader, checkEditEmoji, setInlineEmoji, checkBackspaceCase
@@ -36,6 +38,7 @@ class Aganippe {
     this.codeBlocks = new Map()
     this.eventCenter = new Event()
     this.emoji = new Emoji(this.eventCenter) // emoji instance: has search(text) clear() methods.
+    this.floatBox = new FloatBox(this.eventCenter)
     this.init()
   }
 
@@ -121,26 +124,28 @@ class Aganippe {
     eventCenter.attachDOMEvent(container, 'keyup', changeHandler)
   }
   subscribeEditEmoji (node, isEdit) {
-    const emojiNode = node.classList.contains(CLASS_OR_ID['AG_EMOJI_MARKED_TEXT']) ? node : node.previousElementSibling
+    const emojiNode = node.classList.contains(CLASS_OR_ID['AG_EMOJI_MARKED_TEXT'])
+      ? node : node.previousElementSibling
     const text = emojiNode ? emojiNode.textContent.trim() : ''
     if (!isEdit || !text) {
-      this.emoji.box.hideIfNeeded()
+      this.floatBox.hideIfNeeded()
     } else {
-      const list = this.emoji.search(text).slice(0, 5)
+      const list = this.emoji.search(text).slice(0, 5).map(l => ({ emoji: l.emoji, text: l.aliases[0] }))
       const { left, top } = emojiNode.getBoundingClientRect()
       const cb = index => {
         const selectEmoji = list[index]
         setInlineEmoji(emojiNode, selectEmoji, selection)
-        this.emoji.box.hideIfNeeded()
+        this.floatBox.hideIfNeeded()
       }
       if (list.length) {
-        const activeIndex = 0
-        this.emoji.box.showIfNeeded()
-        this.emoji.box.setOptions(list, activeIndex, {
+        console.log('show')
+        const activeIndex = -1
+        this.floatBox.showIfNeeded({
           left: `${left}px`, top: `${top + 35}px`
         }, cb)
+        this.floatBox.setOptions(list, activeIndex)
       } else {
-        this.emoji.box.hideIfNeeded()
+        this.floatBox.hideIfNeeded()
       }
     }
   }

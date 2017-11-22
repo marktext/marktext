@@ -5,14 +5,13 @@ import {
 class FloatBox {
   constructor (event) {
     this.event = event
-    console.log(event)
     this.box = null
     this.cb = null
     this.initBox()
   }
 
   initBox () {
-    let box = document.querySelector(`#${CLASS_OR_ID['AG_EMOJI_BOX_ID']}`)
+    let box = document.querySelector(`#${CLASS_OR_ID['AG_FLOAT_BOX_ID']}`)
     const clickHandler = event => {
       const target = event.target
       const key = target.getAttribute('key')
@@ -23,35 +22,35 @@ class FloatBox {
 
     if (!box) {
       box = document.createElement('ul')
-      box.id = CLASS_OR_ID['AG_EMOJI_BOX_ID']
-      box.classList.add(CLASS_OR_ID['AG_EMOJI_BOX'])
+      box.id = CLASS_OR_ID['AG_FLOAT_BOX_ID']
+      box.classList.add(CLASS_OR_ID['AG_FLOAT_BOX'])
       document.body.appendChild(box)
       this.event.attachDOMEvent(box, 'click', clickHandler)
     }
     this.box = box
   }
 
-  setOptions (list, index, position, cb) {
-    if (cb) this.cb = cb
-    if (position) {
-      const { left, top } = position
-      Object.assign(this.box.style, { left, top })
-    }
+  setOptions (list, index) {
     const fragment = document.createDocumentFragment()
     list.forEach((l, i) => {
       const li = document.createElement('li')
-      const span = document.createElement('span')
-      const textSpan = document.createElement('span')
-      span.classList.add(CLASS_OR_ID['AG_EMOJI_ITEM_ICON'])
-      li.classList.add(CLASS_OR_ID['AG_EMOJI_ITEM'])
-      ;[span, textSpan, li].forEach(ele => {
+      li.classList.add(CLASS_OR_ID['AG_FLOAT_ITEM'])
+      if (i === index) li.classList.add(CLASS_OR_ID['AG_FLOAT_ITEM_ACTIVE'])
+      if (l.emoji) {
+        const icon = document.createElement('span')
+        icon.classList.add(CLASS_OR_ID['AG_FLOAT_ITEM_ICON'])
+        icon.setAttribute('key', i)
+        icon.textContent = l.emoji
+        li.appendChild(icon)
+      }
+      const text = document.createElement('span')
+
+      ;[text, li].forEach(ele => {
         ele.setAttribute('key', i)
       })
-      if (i === index) li.classList.add(CLASS_OR_ID['AG_EMOJI_ITEM_ACTIVE'])
-      span.textContent = l.emoji
-      textSpan.textContent = l.aliases[0]
-      li.appendChild(span)
-      li.appendChild(textSpan)
+
+      text.textContent = l.text
+      li.appendChild(text)
 
       fragment.appendChild(li)
     })
@@ -65,12 +64,17 @@ class FloatBox {
 
   checkStatus () {
     const { box } = this
-    return box.classList.contains(CLASS_OR_ID['AG_SHOW_EMOJI_BOX'])
+    return box.classList.contains(CLASS_OR_ID['AG_SHOW_FLOAT_BOX'])
   }
 
-  showIfNeeded () {
+  showIfNeeded (position, cb) {
+    if (cb) this.cb = cb
     if (!this.checkStatus()) {
-      this.box.classList.add(CLASS_OR_ID['AG_SHOW_EMOJI_BOX'])
+      if (position) {
+        const { left, top } = position
+        Object.assign(this.box.style, { left, top })
+      }
+      this.box.classList.add(CLASS_OR_ID['AG_SHOW_FLOAT_BOX'])
     }
   }
 
@@ -78,7 +82,7 @@ class FloatBox {
     this.empty()
     this.cb = null
     if (this.checkStatus()) {
-      this.box.classList.remove(CLASS_OR_ID['AG_SHOW_EMOJI_BOX'])
+      this.box.classList.remove(CLASS_OR_ID['AG_SHOW_FLOAT_BOX'])
     }
   }
 }

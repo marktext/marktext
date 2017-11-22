@@ -28,7 +28,7 @@ hr {
   cursor: default;
 }
 
-.ag-emoji-box {
+.ag-float-box {
   position: absolute;
   display: none;
   opacity: 0;
@@ -46,13 +46,13 @@ hr {
   background: #fff;
 }
 
-.ag-show-emoji-box {
+.ag-show-float-box {
   display: block;
   opacity: 1;
   transform: scale(1);
 }
 
-.ag-emoji-item {
+.ag-float-item {
   padding-right: .5em;
   height: 33px;
   line-height: 33px;
@@ -65,22 +65,22 @@ hr {
   font-weight: 600;
 }
 
-.ag-emoji-item span:nth-of-type(2n) {
+.ag-float-item span:nth-of-type(2n) {
   overflow: hidden;
   text-overflow:ellipsis;
   white-space: nowrap;
 }
 
-.ag-emoji-box:hover .ag-emoji-item-active {
+.ag-float-box:hover .ag-float-item-active {
    background: #fff;
    color: #000;
 }
-.ag-emoji-item-active, .ag-emoji-box .ag-emoji-item:hover {
+.ag-float-item-active, .ag-float-box .ag-float-item:hover {
   background: #0366d6;
   color: #fff;
 }
 
-.ag-emoji-item-icon {
+.ag-float-item-icon {
   font-size: 22px;
   width: 35px;
   height: 35px;

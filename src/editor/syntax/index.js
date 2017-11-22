@@ -297,7 +297,7 @@ export const checkEditEmoji = (event, node) => {
 }
 
 export const setInlineEmoji = (node, emoji, selection) => {
-  node.textContent = `${emoji.aliases[0]}`
+  node.textContent = `${emoji.text}`
   node.setAttribute('data-emoji', emoji.emoji)
   selection.moveCursor(node.nextElementSibling, 1)
 }
