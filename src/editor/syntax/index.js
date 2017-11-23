@@ -15,6 +15,8 @@ import {
  */
 
 const fragments = [
+  '^\\*{3,}|^\\-{3,}|^\\_{3,}', // hr
+  '^`{3,}[^`]*',
   '^#{1,6}', // Header
   '(\\*{2}|_{2})(?:[^\\s]|[^\\s].*[^\\s])\\1', // strong
   '(\\*{1}|_{1})(?:[^\\s]|[^\\s].*[^\\s])\\2', // em
@@ -24,12 +26,12 @@ const fragments = [
   ':[^:]+?:', // emoji
   '~{2}[^~]+~{2}', // line through
   'https?://[^\\s]+(?=\\s|$)', // auto link
-  '^\\*{3,}|^\\-{3,}|^\\_{3,}', // hr
-  '^`{3,}[^`]*',
   `\\\\(?=[${markedSymbol.join()}]{1})` // eslint-disable-line no-useless-escape
 ]
 
 const CHOP_REG = new RegExp(fragments.join('|'), 'g') // eslint-disable-line no-useless-escape
+const INLINE_CHOP_REG = new RegExp(fragments.slice(3).join('|'), 'g') // eslint-disable-line no-useless-escape
+
 const HEAD_REG_G = /^(#{1,6})/g
 const HEAD_REG = /^#{1,6}/
 
@@ -68,14 +70,14 @@ const conflict = (arr1, arr2) => {
   return !(arr1[1] < arr2[0] || arr2[1] < arr1[0])
 }
 
-const chunk2html = ({ chunk, index, lastIndex }, { start, end } = {}) => {
+const chunk2html = ({ chunk, index, lastIndex }, { start, end } = {}, outerClsssName) => {
   // `###h` should be corrected to `###` to judge the confliction.
   if (/^#{1,6}[^#]/.test(chunk)) lastIndex = lastIndex - 1
   // if no positionState provided, no conflict.
   const isConflicted = start !== undefined && end !== undefined
     ? conflict([index, lastIndex], [start, end])
     : false
-  const className = isConflicted ? CLASS_OR_ID['AG_GRAY'] : CLASS_OR_ID['AG_HIDE']
+  const className = outerClsssName || (isConflicted ? CLASS_OR_ID['AG_GRAY'] : CLASS_OR_ID['AG_HIDE'])
 
   // handle head mark symble
   if (HEAD_REG.test(chunk)) {
@@ -83,12 +85,12 @@ const chunk2html = ({ chunk, index, lastIndex }, { start, end } = {}) => {
       return `<a href="#" class="${className}">${p1}</a>`
     })
   }
-
+  // handle strong
   if (STRONG_REG.test(chunk)) {
     return chunk.replace(STRONG_REG_G, (match, p1, p2, p3) => {
       return (
         `<a href="#" class="${className}">${p1}</a>` +
-        `<strong>${markedText2Html(p2)}</strong>` +
+        `<strong>${markedText2Html(p2, undefined, className, 'inline')}</strong>` +
         `<a href="#" class="${className}">${p3}</a>`
       )
     })
@@ -99,7 +101,7 @@ const chunk2html = ({ chunk, index, lastIndex }, { start, end } = {}) => {
     return chunk.replace(EM_REG_G, (match, p1, p2, p3) => {
       return (
         `<a href="#" class="${className}">${p1}</a>` +
-        `<em>${markedText2Html(p2)}</em>` +
+        `<em>${markedText2Html(p2, undefined, className, 'inline')}</em>` +
         `<a href="#" class="${className}">${p3}</a>`
       )
     })
@@ -147,7 +149,7 @@ const chunk2html = ({ chunk, index, lastIndex }, { start, end } = {}) => {
       const linkClassName = className === CLASS_OR_ID['AG_HIDE'] ? className : ''
       return (
         `<a href="#" class="${className}">${p1}</a>` +
-        `<a href="${p4}">${p2}</a>` +
+        `<a href="${p4}">${markedText2Html(p2, undefined, className, 'inline')}</a>` +
         `<a href="#" class="${className}">${p3}</a>` +
         `<a href="#" class="${linkClassName}">${p4}</a>` +
         `<a href="#" class="${className}">${p5}</a>`
@@ -173,12 +175,12 @@ const chunk2html = ({ chunk, index, lastIndex }, { start, end } = {}) => {
       }
     })
   }
-
+  // del or s element
   if (LINE_THROUGH_REG.test(chunk)) {
     return chunk.replace(LINE_THROUGH_REG_G, (match, p1, p2, p3) => {
       return (
         `<a href="#" class="${className}">${p1}</a>` +
-        `<del>${p2}</del>` +
+        `<del>${markedText2Html(p2, undefined, className, 'inline')}</del>` +
         `<a href="#" class="${className}">${p3}</a>`
       )
     })
@@ -213,17 +215,18 @@ const chunk2html = ({ chunk, index, lastIndex }, { start, end } = {}) => {
   return chunk
 }
 
-const getMarkedChunks = markedText => {
+const getMarkedChunks = (markedText, type) => {
   const chunks = []
+  const REG_EXP = type && type === 'inline' ? INLINE_CHOP_REG : CHOP_REG
   let match
 
   do {
-    match = CHOP_REG.exec(markedText)
+    match = REG_EXP.exec(markedText)
     if (match) {
       chunks.push({
         index: match.index,
         chunk: match[0],
-        lastIndex: CHOP_REG.lastIndex
+        lastIndex: REG_EXP.lastIndex
       })
     }
   } while (match)
@@ -239,13 +242,13 @@ const getMarkedChunks = markedText => {
  * `
  * `|` is the cursor position in marked text
  */
-export const markedText2Html = (markedText, positionState) => {
-  const chunks = getMarkedChunks(markedText)
+export const markedText2Html = (markedText, positionState, className, type) => {
+  const chunks = getMarkedChunks(markedText, type)
   let result = markedText
 
   if (chunks.length > 0) {
     const chunksWithHtml = chunks.map(c => {
-      const html = chunk2html(c, positionState)
+      const html = chunk2html(c, positionState, className)
       return Object.assign(c, { html })
     })
     // does this will have bug ?
