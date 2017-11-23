@@ -16,8 +16,9 @@ import {
 
 const fragments = [
   '^#{1,6}', // Header
-  '(\\*{1,3}|_{1,3})[^*_]+\\1', // Emphasize
-  '(`{1,3})([^`]+?|.{2,})\\2', // inline code
+  '(\\*{2}|_{2})(?:[^\\s]|[^\\s].*[^\\s])\\1', // strong
+  '(\\*{1}|_{1})(?:[^\\s]|[^\\s].*[^\\s])\\2', // em
+  '(`{1,3})([^`]+?|.{2,})\\3', // inline code
   '\\[[^\\[\\]]+\\]\\(.*?\\)', // link
   '\\[\\]\\([^\\(\\)]*?\\)', // no text link
   ':[^:]+?:', // emoji
@@ -31,8 +32,12 @@ const fragments = [
 const CHOP_REG = new RegExp(fragments.join('|'), 'g') // eslint-disable-line no-useless-escape
 const HEAD_REG_G = /^(#{1,6})/g
 const HEAD_REG = /^#{1,6}/
-const EMPHASIZE_REG_G = /(\*{1,3}|_{1,3})([^*]+)(\1)/g
-const EMPHASIZE_REG = /(\*{1,3}|_{1,3})([^*]+)(\1)/
+
+const STRONG_REG_G = /(\*{2}|_{2})([^\s]|[^\s].*[^\s])(\1)/g
+const STRONG_REG = /(\*{2}|_{2})(?:[^\s]|[^\s].*[^\s])\1/
+const EM_REG_G = /(\*{1}|_{1})([^\s]|[^\s].*[^\s])(\1)/g
+const EM_REG = /(\*{1}|_{1})(?:[^\s]|[^\s].*[^\s])\1/
+
 const INLINE_CODE_REG_G = /(`{1,3})([^`]+?|.{2,})(\1)/g
 const INLINE_CODE_REG = /(`{1,3})([^`]+?|.{2,})(\1)/
 // eslint has bug ? need ignore
@@ -79,27 +84,22 @@ const chunk2html = ({ chunk, index, lastIndex }, { start, end } = {}) => {
     })
   }
 
-  // handle emphasize
-  if (EMPHASIZE_REG.test(chunk)) {
-    return chunk.replace(EMPHASIZE_REG_G, (match, p1, p2, p3) => {
-      let startTags
-      let endTags
-      switch (p1.length) {
-        case 1:
-          startTags = '<em>'
-          endTags = '</em>'
-          break
-        case 2:
-          startTags = '<strong>'
-          endTags = '</strong>'
-          break
-        case 3:
-          startTags = '<strong><em>'
-          endTags = '</em></strong>'
-      }
+  if (STRONG_REG.test(chunk)) {
+    return chunk.replace(STRONG_REG_G, (match, p1, p2, p3) => {
       return (
         `<a href="#" class="${className}">${p1}</a>` +
-        `${startTags}${p2}${endTags}` +
+        `<strong>${markedText2Html(p2)}</strong>` +
+        `<a href="#" class="${className}">${p3}</a>`
+      )
+    })
+  }
+
+  // handle emphasize
+  if (EM_REG.test(chunk)) {
+    return chunk.replace(EM_REG_G, (match, p1, p2, p3) => {
+      return (
+        `<a href="#" class="${className}">${p1}</a>` +
+        `<em>${markedText2Html(p2)}</em>` +
         `<a href="#" class="${className}">${p3}</a>`
       )
     })
