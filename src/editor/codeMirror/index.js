@@ -35,15 +35,15 @@ export const setCursorAtLastLine = cm => {
 // if cursor at firstline return true
 export const isCursorAtFirstLine = cm => {
   const cursor = cm.getCursor()
-  const { line } = cursor
-  return line === 0
+  const { line, ch, outside } = cursor
+  return line === 0 && ch === 0 && outside
 }
 
 export const isCursorAtLastLine = cm => {
   const lastLine = cm.lastLine()
   const cursor = cm.getCursor()
-  const { line } = cursor
-  return line === lastLine
+  const { line, outside, sticky } = cursor
+  return line === lastLine && (outside || !sticky)
 }
 
 export const isCursorAtBegin = cm => {
@@ -69,7 +69,8 @@ export const setMode = (doc, text) => {
   const m = modes.filter(mode => text === mode.mode)[0]
 
   if (!m) {
-    return Promise.reject(`${text} is not a valid language mode!`) // eslint-disable-line prefer-promise-reject-errors
+    const errMsg = !text ? 'A language mode should be provided' : `${text} is not a valid language mode!`
+    return Promise.reject(errMsg) // eslint-disable-line prefer-promise-reject-errors
   }
 
   const { mode, mime } = m

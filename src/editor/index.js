@@ -4,7 +4,7 @@ import {
   wrapperElementWithTag, nestElementWithTag, isOnlyChildElement, isLastChildElement,
   chopBlockQuote, removeAndInsertBefore, removeAndInsertPreList, replaceElement,
   replacementLists, insertBeforeBlockQuote, isAganippeEditorElement,
-  findOutMostParagraph, createInputInCodeBlock, isCodeBlockParagraph
+  findOutMostParagraph, createInputInCodeBlock, isCodeBlockParagraph, hr2P
 } from './utils/domManipulate'
 
 import codeMirror, { setMode, search, setCursorAtLastLine,
@@ -333,12 +333,8 @@ class Aganippe {
     const { container, eventCenter } = this
     let newElement
     const changeHr2P = (event, target, preParagraph) => {
-      newElement = updateBlock(target, LOWERCASE_TAGS.p)
-      newElement.textContent = '---'
-      selection.importSelection({
-        start: 3,
-        end: 3
-      }, newElement)
+      newElement = hr2P(target, selection)
+      // todo need remove below ?
       this.activeParagraph = {
         id: newElement.id,
         paragraph: newElement
@@ -361,6 +357,8 @@ class Aganippe {
           const outmostParagraph = findOutMostParagraph(node)
           const preSibling = outmostParagraph.previousElementSibling
           const nextSibling = outmostParagraph.nextElementSibling
+          // if the out most paragraph is pre element. handle over this to `arrow` event.
+          if (outmostParagraph.tagName.toLowerCase() === LOWERCASE_TAGS.pre) return
           if (
             event.key === EVENT_KEYS.ArrowUp &&
             preSibling &&
@@ -403,10 +401,6 @@ class Aganippe {
       if (id !== preId) {
         const autoFocus = event.key && event.key === EVENT_KEYS.Enter
         eventCenter.dispatch('paragraphChange', paragraph, preParagraph, autoFocus)
-        this.activeParagraph = {
-          id,
-          paragraph
-        }
       }
     }
 
@@ -415,6 +409,7 @@ class Aganippe {
   }
   // newParagrpha and oldParagraph must be h1~6\p\pre element. can not be `li` or `blockquote`
   subscribeParagraphChange (newParagraph, oldParagraph, autofocus) {
+    console.log(newParagraph, oldParagraph)
     const { eventCenter } = this
     const oldContext = oldParagraph.textContent
     const oldTagName = oldParagraph.tagName.toLowerCase()
@@ -448,7 +443,7 @@ class Aganippe {
                 setCursorAtLastLine(codeBlock)
               })
               .catch(err => {
-                console.log(err)
+                console.warn(err)
               })
             this.floatBox.hideIfNeeded()
           }
@@ -465,6 +460,10 @@ class Aganippe {
           }
           if (autofocus) {
             operateClassName(codeMirrorWrapper, 'add', CLASS_OR_ID['AG_ACTIVE'])
+            this.activeParagraph = {
+              id: codeMirrorWrapper.id,
+              paragraph: codeMirrorWrapper
+            }
           }
           this.codeBlocks.set(codeMirrorWrapper.id, codeBlock)
           return false
@@ -485,6 +484,10 @@ class Aganippe {
     }
     if (newParagraph) {
       operateClassName(newParagraph, 'add', CLASS_OR_ID['AG_ACTIVE'])
+      this.activeParagraph = {
+        id: newParagraph.id,
+        paragraph: newParagraph
+      }
     }
   }
   /**
@@ -705,10 +708,14 @@ class Aganippe {
               preParagraph = newParagraph
             }
 
-            selection.importSelection({
-              start: preParagraph.textContent.length,
-              end: preParagraph.textContent.length
-            }, preParagraph)
+            if (preParagraph.tagName.toLowerCase() === LOWERCASE_TAGS.hr) {
+              hr2P(preParagraph, selection)
+            } else {
+              selection.importSelection({
+                start: preParagraph.textContent.length,
+                end: preParagraph.textContent.length
+              }, preParagraph)
+            }
           }
           break
         case EVENT_KEYS.ArrowDown:
@@ -719,10 +726,14 @@ class Aganippe {
               insertBefore(newParagraph, nextParagraph)
               nextParagraph = newParagraph
             }
-            selection.importSelection({
-              start: 0,
-              end: 0
-            }, nextParagraph)
+            if (nextParagraph.tagName.toLowerCase() === LOWERCASE_TAGS.hr) {
+              hr2P(nextParagraph, selection)
+            } else {
+              selection.importSelection({
+                start: 0,
+                end: 0
+              }, nextParagraph)
+            }
           } else if (!nextParagraph) {
             const newParagraph = createEmptyElement(this.ids, LOWERCASE_TAGS.p)
             insertAfter(newParagraph, paragraph)
@@ -734,11 +745,14 @@ class Aganippe {
     }
 
     if (isCodeBlockParagraph(preParagraph) && event.key === EVENT_KEYS.ArrowUp) {
+      event.preventDefault()
       const codeBlockId = preParagraph.id
       const cm = this.codeBlocks.get(codeBlockId)
       return setCursorAtLastLine(cm)
     }
+
     if (isCodeBlockParagraph(nextParagraph) && event.key === EVENT_KEYS.ArrowDown) {
+      event.preventDefault()
       const codeBlockId = nextParagraph.id
       const cm = this.codeBlocks.get(codeBlockId)
       return setCursorAtFirstLine(cm)

@@ -355,6 +355,20 @@ export const isCodeBlockParagraph = paragraph => {
   return paragraph && paragraph.classList.contains(CLASS_OR_ID['AG_CODE_BLOCK'])
 }
 
+export const hr2P = (paragraph, selection) => {
+  const tagName = paragraph.tagName.toLowerCase()
+  if (tagName !== LOWERCASE_TAGS.hr) {
+    return console.warn(`${tagName} is not a HR element.`)
+  }
+  const newElement = updateBlock(paragraph, LOWERCASE_TAGS.p)
+  newElement.textContent = '---'
+  selection.importSelection({
+    start: 3,
+    end: 3
+  }, newElement)
+  return newElement
+}
+
 // use the same id.
 export const updateBlock = (origin, tagName) => {
   const json = html2json(origin.outerHTML)
