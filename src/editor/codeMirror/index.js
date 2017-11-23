@@ -60,8 +60,8 @@ export const isCursorAtEnd = cm => {
   const lastLine = cm.lastLine()
   const lastLineHandle = cm.getLineHandle(lastLine)
   const cursor = cm.getCursor()
-  const { line, ch } = cursor
-  return line === lastLine && ch === lastLineHandle.text.length
+  const { line, ch, hitSide } = cursor
+  return line === lastLine && ch === lastLineHandle.text.length && hitSide
 }
 
 export const setCursorAtFirstLine = cm => {

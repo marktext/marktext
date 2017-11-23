@@ -78,9 +78,9 @@ class Aganippe {
     eventCenter.subscribe('backspace', this.backspaceKeyHandler.bind(this))
     this.dispatchBackspace()
 
-    eventCenter.subscribe('leftAndRight', this.leftRightHandler.bind(this))
-    eventCenter.subscribe('upAndDown', this.upDownHander.bind(this))
+    eventCenter.subscribe('arrow', this.arrowHander.bind(this))
     this.dispatchArrow()
+
     this.handlerSelectHr()
 
     this.generateLastEmptyParagraph()
@@ -411,11 +411,11 @@ class Aganippe {
   }
   // newParagrpha and oldParagraph must be h1~6\p\pre element. can not be `li` or `blockquote`
   subscribeParagraphChange (newParagraph, oldParagraph, autofocus) {
-    console.log(newParagraph, oldParagraph)
     const { eventCenter } = this
     const oldContext = oldParagraph.textContent
     const oldTagName = oldParagraph.tagName.toLowerCase()
     const lineBreakUpdate = checkLineBreakUpdate(oldContext)
+
     if (oldParagraph.classList.contains(CLASS_OR_ID['AG_TEMP'])) {
       if (!oldContext) {
         removeNode(oldParagraph)
@@ -701,19 +701,18 @@ class Aganippe {
     const handler = event => {
       switch (event.key) {
         case EVENT_KEYS.ArrowUp: // fallthrough
-        case EVENT_KEYS.ArrowDown:
-          eventCenter.dispatch('upAndDown', event)
-          break
+        case EVENT_KEYS.ArrowDown: // fallthrough
         case EVENT_KEYS.ArrowLeft: // fallthrough
-        case EVENT_KEYS.ArrowRight:
-          eventCenter.dispatch('leftAndRight', event)
+        case EVENT_KEYS.ArrowRight: // fallthrough
+          eventCenter.dispatch('arrow', event)
           break
       }
     }
     eventCenter.attachDOMEvent(container, 'keydown', handler)
   }
 
-  upDownHander (event) {
+  arrowHander (event) {
+    // when the float box is show, use up and down to select item.
     const { list, index, show } = this.floatBox
     if (show) {
       event.preventDefault()
@@ -743,8 +742,12 @@ class Aganippe {
 
       event.preventDefault()
       switch (event.key) {
+        case EVENT_KEYS.ArrowLeft: // fallthrough
         case EVENT_KEYS.ArrowUp:
-          if (isCursorAtFirstLine(cm) && preParagraph) {
+          if (
+            (event.key === EVENT_KEYS.ArrowUp && isCursorAtFirstLine(cm) && preParagraph) ||
+            (event.key === EVENT_KEYS.ArrowLeft && isCursorAtBegin(cm) && preParagraph)
+          ) {
             if (isCodeBlockParagraph(preParagraph)) {
               const newParagraph = createEmptyElement(this.ids, LOWERCASE_TAGS.p)
               operateClassName(newParagraph, 'add', CLASS_OR_ID['AG_TEMP'])
@@ -762,8 +765,12 @@ class Aganippe {
             }
           }
           break
+        case EVENT_KEYS.ArrowRight: // fallthrough
         case EVENT_KEYS.ArrowDown:
-          if (isCursorAtLastLine(cm) && nextParagraph) {
+          if (
+            (event.key === EVENT_KEYS.ArrowDown && isCursorAtLastLine(cm) && nextParagraph) ||
+            (event.key === EVENT_KEYS.ArrowRight && isCursorAtEnd(cm) && nextParagraph)
+          ) {
             if (isCodeBlockParagraph(nextParagraph)) {
               const newParagraph = createEmptyElement(this.ids, LOWERCASE_TAGS.p)
               operateClassName(newParagraph, 'add', CLASS_OR_ID['AG_TEMP'])
@@ -787,24 +794,26 @@ class Aganippe {
       }
       return
     }
-
-    if (isCodeBlockParagraph(preParagraph) && event.key === EVENT_KEYS.ArrowUp) {
+    const { left, right } = selection.getCaretOffsets(paragraph)
+    if (
+      (isCodeBlockParagraph(preParagraph) && event.key === EVENT_KEYS.ArrowUp) ||
+      (isCodeBlockParagraph(preParagraph) && event.key === EVENT_KEYS.ArrowLeft && left === 0)
+    ) {
       event.preventDefault()
       const codeBlockId = preParagraph.id
       const cm = this.codeBlocks.get(codeBlockId)
       return setCursorAtLastLine(cm)
     }
 
-    if (isCodeBlockParagraph(nextParagraph) && event.key === EVENT_KEYS.ArrowDown) {
+    if (
+      (isCodeBlockParagraph(nextParagraph) && event.key === EVENT_KEYS.ArrowDown) ||
+      (isCodeBlockParagraph(nextParagraph) && event.key === EVENT_KEYS.ArrowRight && right === 0)
+    ) {
       event.preventDefault()
       const codeBlockId = nextParagraph.id
       const cm = this.codeBlocks.get(codeBlockId)
       return setCursorAtFirstLine(cm)
     }
-  }
-
-  leftRightHandler (event) {
-    // TODO
   }
 
   getMarkdown () {
