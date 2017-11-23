@@ -9,7 +9,7 @@ import {
 
 import codeMirror, { setMode, search, setCursorAtLastLine,
   isCursorAtFirstLine, isCursorAtLastLine, isCursorAtBegin, // eslint-disable-line no-unused-vars
-  isCursorAtEnd, setCursorAtFirstLine // eslint-disable-line no-unused-vars
+  isCursorAtEnd, setCursorAtFirstLine, onlyHaveOneLine // eslint-disable-line no-unused-vars
 } from './codeMirror'
 
 import FloatBox from './floatBox'
@@ -74,7 +74,9 @@ class Aganippe {
     this.dispatchHideFloatBox()
 
     eventCenter.bind('enter', this.enterKeyHandler.bind(this))
-    eventCenter.bind('backspace', this.backspaceKeyHandler.bind(this))
+
+    eventCenter.subscribe('backspace', this.backspaceKeyHandler.bind(this))
+    this.dispatchBackspace()
 
     eventCenter.subscribe('leftAndRight', this.leftRightHandler.bind(this))
     eventCenter.subscribe('upAndDown', this.upDownHander.bind(this))
@@ -426,6 +428,7 @@ class Aganippe {
           // exchange of newParagraph and oldParagraph
           const codeMirrorWrapper = updateBlock(oldParagraph, lineBreakUpdate.type)
           operateClassName(codeMirrorWrapper, 'add', CLASS_OR_ID['AG_CODE_BLOCK'])
+
           codeMirrorWrapper.innerHTML = ''
           const config = Object.assign(codeMirrorConfig, {
             autofocus
@@ -589,6 +592,19 @@ class Aganippe {
       selection.moveCursor(newParagraph, 0)
     }
   }
+
+  dispatchBackspace () {
+    const { container, eventCenter } = this
+
+    const handler = event => {
+      if (event.key === EVENT_KEYS.Backspace) {
+        eventCenter.dispatch('backspace', event)
+      }
+    }
+
+    eventCenter.attachDOMEvent(container, 'keydown', handler)
+  }
+
   /**
    * [subscribeBackspace]
    * description: need to handle these cases:
@@ -597,16 +613,17 @@ class Aganippe {
    * 3. no text in editor
    */
   backspaceKeyHandler (event) {
-    // TODO handle code block when codeblock is empty or empty is after codeblock
     const node = selection.getSelectionStart()
     const paragraph = findNearestParagraph(node)
+    const preParagraph = paragraph.previousElementSibling
     const selectionState = selection.exportSelection(paragraph)
     const inlineDegrade = checkBackspaceCase(node, selection)
-    let newElement
+
     if (inlineDegrade) {
+      let newElement
       event.preventDefault()
       switch (inlineDegrade.type) {
-        case 'STOP':
+        case 'STOP': // at begin of article
           // do nothing...
           break
         case 'LI': {
@@ -630,6 +647,33 @@ class Aganippe {
       if (newElement) {
         selection.importSelection(selectionState, newElement)
       }
+    }
+
+    if (isCodeBlockParagraph(paragraph)) {
+      const codeBlockId = paragraph.id
+      const cm = this.codeBlocks.get(codeBlockId)
+
+      if (isCursorAtBegin(cm) && onlyHaveOneLine(cm)) {
+        const value = cm.getValue()
+        const newParagraph = createEmptyElement(this.ids, LOWERCASE_TAGS.p)
+        if (value) newParagraph.textContent = value
+        insertBefore(newParagraph, paragraph)
+        removeNode(paragraph)
+        this.codeBlocks.delete(codeBlockId)
+        selection.moveCursor(newParagraph, 0)
+      }
+    }
+
+    if (selection.getCaretOffsets(paragraph).left === 0 && preParagraph &&
+      preParagraph.tagName.toLowerCase() === LOWERCASE_TAGS.pre) {
+      event.preventDefault()
+      const text = paragraph.textContent
+      const codeBlockId = preParagraph.id
+      const cm = this.codeBlocks.get(codeBlockId)
+      const value = cm.getValue() + text
+      cm.setValue(value)
+      removeNode(paragraph)
+      setCursorAtLastLine(cm)
     }
   }
 

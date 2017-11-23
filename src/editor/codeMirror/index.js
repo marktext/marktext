@@ -48,8 +48,12 @@ export const isCursorAtLastLine = cm => {
 
 export const isCursorAtBegin = cm => {
   const cursor = cm.getCursor()
-  const { line, ch } = cursor
-  return line === 0 && ch === 0
+  const { line, ch, hitSide } = cursor
+  return line === 0 && ch === 0 && hitSide
+}
+
+export const onlyHaveOneLine = cm => {
+  return cm.lineCount() === 1
 }
 
 export const isCursorAtEnd = cm => {
