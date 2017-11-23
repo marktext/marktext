@@ -1,6 +1,7 @@
 import { generateKeyHash, genUpper2LowerKeyHash } from './utils'
 
-export const markedSymbol = ['\\*', '\\-', '\\_', '\\!', '\\[', '\\]', '\\+', '\\\\', '\\)', '\\(']
+export const markedSymbol = ['\\*', '\\-', '\\_', '\\!', '\\[', '\\]', '\\+',
+  '\\\\', '\\)', '\\(', '\\`', '\\{', '\\}', '\\#', '\\.']
 /**
  * configs
  */
