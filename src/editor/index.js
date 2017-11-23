@@ -190,7 +190,7 @@ class Aganippe {
     const changeHandler = event => {
       const node = selection.getSelectionStart()
       const emojiNode = checkEditEmoji(node)
-      if (emojiNode) {
+      if (emojiNode && event.key !== EVENT_KEYS.Enter) {
         eventCenter.dispatch('editEmoji', emojiNode)
       }
     }
@@ -714,7 +714,7 @@ class Aganippe {
   arrowHander (event) {
     // when the float box is show, use up and down to select item.
     const { list, index, show } = this.floatBox
-    if (show) {
+    if (show && (event.key === EVENT_KEYS.ArrowUp || event.key === EVENT_KEYS.ArrowDown)) {
       event.preventDefault()
       switch (event.key) {
         case EVENT_KEYS.ArrowDown:

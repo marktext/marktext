@@ -6,7 +6,8 @@ import {
 
 import {
   LOWERCASE_TAGS,
-  CLASS_OR_ID
+  CLASS_OR_ID,
+  markedSymbol
 } from '../config'
 
 /**
@@ -14,7 +15,7 @@ import {
  */
 
 const fragments = [
-  '^#{1,6}[^#]?', // Header
+  '^#{1,6}', // Header
   '(\\*{1,3}|_{1,3})[^*_]+\\1', // Emphasize
   '(`{1,3})([^`]+?|.{2,})\\2', // inline code
   '\\[[^\\[\\]]+\\]\\(.*?\\)', // link
@@ -23,12 +24,13 @@ const fragments = [
   '~{2}[^~]+~{2}', // line through
   'https?://[^\\s]+(?=\\s|$)', // auto link
   '^\\*{3,}|^\\-{3,}|^\\_{3,}', // hr
-  '^`{3,}[^`]*'
+  '^`{3,}[^`]*',
+  `\\\\(?=[${markedSymbol.join()}]{1})` // eslint-disable-line no-useless-escape
 ]
 
 const CHOP_REG = new RegExp(fragments.join('|'), 'g') // eslint-disable-line no-useless-escape
-const HEAD_REG_G = /^(#{1,6})([^#]*)$/g
-const HEAD_REG = /^#{1,6}[^#]*$/
+const HEAD_REG_G = /^(#{1,6})/g
+const HEAD_REG = /^#{1,6}/
 const EMPHASIZE_REG_G = /(\*{1,3}|_{1,3})([^*]+)(\1)/g
 const EMPHASIZE_REG = /(\*{1,3}|_{1,3})([^*]+)(\1)/
 const INLINE_CODE_REG_G = /(`{1,3})([^`]+?|.{2,})(\1)/g
@@ -72,12 +74,8 @@ const chunk2html = ({ chunk, index, lastIndex }, { start, end } = {}) => {
 
   // handle head mark symble
   if (HEAD_REG.test(chunk)) {
-    return chunk.replace(HEAD_REG_G, (match, p1, p2) => {
-      if (p2) {
-        return `<a href="#" class="${className}">${p1}</a>${p2}`
-      } else {
-        return `<a href="#" class="${CLASS_OR_ID['AG_GRAY']}">${p1}</a>${p2}`
-      }
+    return chunk.replace(HEAD_REG_G, (match, p1) => {
+      return `<a href="#" class="${className}">${p1}</a>`
     })
   }
 
@@ -229,6 +227,7 @@ const getMarkedChunks = markedText => {
       })
     }
   } while (match)
+  console.log(chunks)
   return chunks
 }
 

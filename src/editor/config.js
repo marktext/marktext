@@ -1,5 +1,6 @@
 import { generateKeyHash, genUpper2LowerKeyHash } from './utils'
 
+export const markedSymbol = ['\\*', '\\-', '\\_', '\\!', '\\[', '\\]', '\\+', '\\\\', '\\)', '\\(']
 /**
  * configs
  */
@@ -69,5 +70,3 @@ export const codeMirrorConfig = {
   autofocus: true,
   tabSize: 2
 }
-
-// export const markedSymbol = ['*', '-', '_', '!', '[', ']']
