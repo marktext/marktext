@@ -246,6 +246,7 @@ class Aganippe {
         eventCenter.dispatch('markedTextChange', paragraph, selectionState)
       }
     }
+
     eventCenter.attachDOMEvent(container, 'click', changeHandler)
     eventCenter.attachDOMEvent(container, 'compositionend', changeHandler)
     eventCenter.attachDOMEvent(container, 'compositionstart', changeHandler)

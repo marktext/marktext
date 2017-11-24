@@ -22,10 +22,10 @@ const fragments = [
   '\\\\*(\\*{2}|_{2})(?:[^\\s]|[^\\s].*?[^\\s])\\\\*\\1', // strong
   '\\\\*(\\*{1}|_{1})(?:[^\\s]|[^\\s].*?[^\\s])\\\\*\\2', // em
   '\\\\*(`{1,3})([^`]+?|.{2,})\\\\*\\3', // inline code
-  '\\[.+?\\]\\(.*?\\)', // link
-  '\\[\\]\\([^\\(\\)]*?\\)', // no text link
-  ':[^:]+?:', // emoji
-  '~{2}[^~]+~{2}', // line through
+  '\\\\*\\[.+?\\\\*\\]\\(.*?\\\\*\\)', // link
+  '\\\\*\\[\\]\\(.*?\\\\*\\)', // no text link
+  '\\\\*:[^:\\\\]+?:', // emoji
+  '\\\\*~{2}[^~]+\\\\*~{2}', // line through
   'https?://[^\\s]+(?=\\s|$)', // auto link
   `\\\\+(?=[${markedSymbol.join()}]{1})` // eslint-disable-line no-useless-escape
 ]
@@ -44,14 +44,14 @@ const EM_REG = /^(?:\\*)(\*{1}|_{1})(?:[^\s]|[^\s].*?[^\s])(?:\\*)\1/
 const INLINE_CODE_REG_G = /^(\\*)(`{1,3})([^`]+?|.{2,})(\\*)(\2)/g
 const INLINE_CODE_REG = /^(?:\\*)(`{1,3})([^`]+?|.{2,})(?:\\*)(\1)/
 // eslint has bug ? need ignore
-const LINK_REG_G = /^(\[)(.+?)(\]\()(.*?)(\))/g // eslint-disable-line no-useless-escape
-const LINK_REG = /^\[.+?\]\(.*?\)/ // eslint-disable-line no-useless-escape
-const NO_TEXT_LINK_G = /^(\[\]\()([^()]*?)(\))/g
-const NO_TEXT_LINK = /^(\[\]\([^()]*?\))/
+const LINK_REG_G = /^(\\*)(\[)(.+?)(\\*)(\]\()(.*?)(\\*)(\))/g // eslint-disable-line no-useless-escape
+const LINK_REG = /^\\*\[.+?\\*\]\(.*?\\*\)/ // eslint-disable-line no-useless-escape
+const NO_TEXT_LINK_G = /^(\\*)(\[\]\()(.*?)(\\*)(\))/g
+const NO_TEXT_LINK = /^\\*\[\]\(.*?\\*\)/
 const EMOJI_REG_G = /^(:)([^:]+?)(:)/g
 const EMOJI_REG = /^:[^:]+?:/
-const LINE_THROUGH_REG_G = /^(~{2})([^~]+?)(~{2})/g
-const LINE_THROUGH_REG = /^~{2}[^~]+?~{2}/
+const LINE_THROUGH_REG_G = /^(\\*)(~{2})([^~]+?)(\\*)(~{2})/g
+const LINE_THROUGH_REG = /^\\*~{2}[^~]+?\\*~{2}/
 const AUTO_LINK_G = /^(https?:\/\/[^\\s]+)(?=\s|$)/g
 const AUTO_LINK = /^https?:\/\/[^\s]+(?=\s|$)/
 const HR_REG_G = /(^\*{3,}|^-{3,}|^_{3,})/g
@@ -182,12 +182,23 @@ const chunk2html = ({ chunk, index, lastIndex }, { start, end } = {}, outerClsss
   }
   // handler no text link: markdown text: `[](www.baidu.com)`
   if (NO_TEXT_LINK.test(chunk)) {
-    return chunk.replace(NO_TEXT_LINK_G, (match, p1, p2, p3) => {
-      return (
-        `<a href="#" class="${CLASS_OR_ID['AG_GRAY']}">${p1}</a>` +
-        `<a href="${p2}">${p2}</a>` +
-        `<a href="#" class="${CLASS_OR_ID['AG_GRAY']}">${p3}</a>`
-      )
+    return chunk.replace(NO_TEXT_LINK_G, (match, p1, p2, p3, p4, p5) => {
+      if (isEven(p1.length) && isEven(p4.length)) {
+        return (
+          backlash2html(p1, className) +
+          `<a href="#" class="${CLASS_OR_ID['AG_GRAY']}">${p2}</a>` +
+          `<span href="${p3 + p4}" role="link">${p3}${backlash2html(p4, className)}</span>` +
+          `<a href="#" class="${CLASS_OR_ID['AG_GRAY']}">${p5}</a>`
+        )
+      } else {
+        return (
+          backlash2html(p1, className) +
+          p2 +
+          p3 +
+          backlash2html(p4, className) +
+          p5
+        )
+      }
     })
   }
 
@@ -203,16 +214,33 @@ const chunk2html = ({ chunk, index, lastIndex }, { start, end } = {}, outerClsss
   //
   //  `
   if (LINK_REG.test(chunk)) {
-    return chunk.replace(LINK_REG_G, (match, p1, p2, p3, p4, p5) => {
+    return chunk.replace(LINK_REG_G, (match, p1, p2, p3, p4, p5, p6, p7, p8) => {
       const linkClassName = className === CLASS_OR_ID['AG_HIDE'] ? className : CLASS_OR_ID['AG_LINK_IN_BRACKET']
       // use span tag to simulate a tag. because can not nest a tag in a tag.
-      return (
-        `<a href="#" class="${className}">${p1}</a>` +
-        `<span data-href="${p4}" role="link">${markedText2Html(p2, undefined, className, 'inline')}</span>` +
-        `<a href="#" class="${className}">${p3}</a>` +
-        `<a href="#" class="${linkClassName}">${p4}</a>` +
-        `<a href="#" class="${className}">${p5}</a>`
-      )
+      if (isEven(p1.length) && isEven(p4.length) && isEven(p7.length)) {
+        return (
+          backlash2html(p1, className) +
+          `<a href="#" class="${className}">${p2}</a>` +
+          `<span data-href="${p6 + p7}" role="link">` +
+          `${markedText2Html(p3, undefined, className, 'inline')}` +
+          `${backlash2html(p4, className)}` +
+          `</span>` +
+          `<a href="#" class="${className}">${p5}</a>` +
+          `<span href="#" class="${linkClassName}">${p6}${backlash2html(p7, className)}</span>` +
+          `<a href="#" class="${className}">${p8}</a>`
+        )
+      } else {
+        return (
+          backlash2html(p1, className) +
+          p2 +
+          `${markedText2Html(p3, undefined, className, 'inline')}` +
+          backlash2html(p4, className) +
+          p5 +
+          p6 +
+          backlash2html(p7, className) +
+          p8
+        )
+      }
     })
   }
   // handle emoji
@@ -236,12 +264,24 @@ const chunk2html = ({ chunk, index, lastIndex }, { start, end } = {}, outerClsss
   }
   // del or s element
   if (LINE_THROUGH_REG.test(chunk)) {
-    return chunk.replace(LINE_THROUGH_REG_G, (match, p1, p2, p3) => {
-      return (
-        `<a href="#" class="${className}">${p1}</a>` +
-        `<del>${markedText2Html(p2, undefined, className, 'inline')}</del>` +
-        `<a href="#" class="${className}">${p3}</a>`
-      )
+    return chunk.replace(LINE_THROUGH_REG_G, (match, p1, p2, p3, p4, p5) => {
+      console.log(p1, p2, p3, p4, p5)
+      if (isEven(p1.length) && isEven(p4.length)) {
+        return (
+          backlash2html(p1, className) +
+          `<a href="#" class="${className}">${p2}</a>` +
+          `<del>${markedText2Html(p3, undefined, className, 'inline')}${backlash2html(p4, className)}</del>` +
+          `<a href="#" class="${className}">${p5}</a>`
+        )
+      } else {
+        return (
+          backlash2html(p1, className) +
+          p2 +
+          p3 +
+          backlash2html(p4, className) +
+          p5
+        )
+      }
     })
   }
 

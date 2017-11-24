@@ -144,12 +144,7 @@ pre.ag-active .ag-language-input {
   text-decoration: none;
 }
 
-span[role="link"], a[role="link"] {
-  color: #0366d6;
-  text-decoration: none;
-}
-
-.ag-link-in-bracket {
+.ag-link-in-bracket, .ag-link-in-bracket .ag-backlash {
   color: darkred;
   text-decoration: none;
 }
@@ -170,4 +165,9 @@ span[role="link"], a[role="link"] {
   width: 0;
   height: 0;
   overflow: hidden;
+}
+
+span[role="link"], a[role="link"], span[role="link"] .ag-backlash {
+  color: #0366d6;
+  text-decoration: none;
 }
