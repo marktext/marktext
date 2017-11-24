@@ -222,10 +222,18 @@ class Aganippe {
    */
   dispatchMarkedText () {
     const { container, eventCenter } = this
+    let isEditChinese = false
     const changeHandler = event => {
       const target = event.target
       if (event.type === 'click' && target.tagName.toLowerCase() === LOWERCASE_TAGS.hr) {
         return false
+      }
+      if (event.type === 'compositionstart') {
+        isEditChinese = true
+        return false
+      }
+      if (event.type === 'compositionend') {
+        isEditChinese = false
       }
       const node = selection.getSelectionStart()
       const paragraph = findNearestParagraph(node)
@@ -234,11 +242,13 @@ class Aganippe {
       const html = paragraph.innerHTML
       const selectionState = selection.exportSelection(paragraph)
 
-      if (!isCodeBlockParagraph(paragraph) && checkMarkedTextUpdate(html, text, selectionState)) {
+      if (!isEditChinese && !isCodeBlockParagraph(paragraph) && checkMarkedTextUpdate(html, text, selectionState)) {
         eventCenter.dispatch('markedTextChange', paragraph, selectionState)
       }
     }
     eventCenter.attachDOMEvent(container, 'click', changeHandler)
+    eventCenter.attachDOMEvent(container, 'compositionend', changeHandler)
+    eventCenter.attachDOMEvent(container, 'compositionstart', changeHandler)
     eventCenter.attachDOMEvent(container, 'keyup', changeHandler)
   }
   /**

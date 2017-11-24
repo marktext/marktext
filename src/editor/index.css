@@ -95,9 +95,9 @@ hr {
   vertical-align: middle;
   flex-shrink: 0;
 }
-.ag-emoji-marked-text {
+a.ag-emoji-marked-text {
   position: relative;
-  color: #888;
+  color: aqua;
   text-decoration: none;
 }
 
