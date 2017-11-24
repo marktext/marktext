@@ -145,7 +145,7 @@ const chunk2html = ({ chunk, index, lastIndex }, { start, end } = {}, outerClsss
   //  `
   if (LINK_REG.test(chunk)) {
     return chunk.replace(LINK_REG_G, (match, p1, p2, p3, p4, p5) => {
-      const linkClassName = className === CLASS_OR_ID['AG_HIDE'] ? className : ''
+      const linkClassName = className === CLASS_OR_ID['AG_HIDE'] ? className : CLASS_OR_ID['AG_LINK_IN_BRACKET']
       // use span tag to simulate a tag. because can not nest a tag in a tag.
       return (
         `<a href="#" class="${className}">${p1}</a>` +

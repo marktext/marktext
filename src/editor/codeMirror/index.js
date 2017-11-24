@@ -73,7 +73,9 @@ export const setMode = (doc, text) => {
   const m = modes.filter(mode => text === mode.mode)[0]
 
   if (!m) {
-    const errMsg = !text ? 'A language mode should be provided' : `${text} is not a valid language mode!`
+    const errMsg = !text
+      ? 'You\'d better provided a language mode when you create code block'
+      : `${text} is not a valid language mode!`
     return Promise.reject(errMsg) // eslint-disable-line prefer-promise-reject-errors
   }
 

@@ -234,7 +234,7 @@ class Aganippe {
       const html = paragraph.innerHTML
       const selectionState = selection.exportSelection(paragraph)
 
-      if (checkMarkedTextUpdate(html, text, selectionState)) {
+      if (!isCodeBlockParagraph(paragraph) && checkMarkedTextUpdate(html, text, selectionState)) {
         eventCenter.dispatch('markedTextChange', paragraph, selectionState)
       }
     }
@@ -653,7 +653,7 @@ class Aganippe {
     if (isCodeBlockParagraph(paragraph)) {
       const codeBlockId = paragraph.id
       const cm = this.codeBlocks.get(codeBlockId)
-      event.preventDefault()
+      // if event.preventDefault(), U can not use backspace in language input.
       if (isCursorAtBegin(cm) && onlyHaveOneLine(cm)) {
         const value = cm.getValue()
         const newParagraph = createEmptyElement(this.ids, LOWERCASE_TAGS.p)
@@ -716,6 +716,12 @@ class Aganippe {
   arrowHander (event) {
     // when the float box is show, use up and down to select item.
     const { list, index, show } = this.floatBox
+    const node = selection.getSelectionStart()
+    const paragraph = findNearestParagraph(node)
+    const outMostParagraph = findOutMostParagraph(node)
+    const { left, right } = selection.getCaretOffsets(paragraph)
+    let preParagraph = outMostParagraph.previousElementSibling
+    let nextParagraph = outMostParagraph.nextElementSibling
     if (show && (event.key === EVENT_KEYS.ArrowUp || event.key === EVENT_KEYS.ArrowDown)) {
       event.preventDefault()
       switch (event.key) {
@@ -730,15 +736,8 @@ class Aganippe {
           }
           break
       }
-    }
-    // handle cursor in code block. the case at firstline or lastline.
-    const node = selection.getSelectionStart()
-    const paragraph = findNearestParagraph(node)
-    const outMostParagraph = findOutMostParagraph(node)
-    let preParagraph = outMostParagraph.previousElementSibling
-    let nextParagraph = outMostParagraph.nextElementSibling
-
-    if (isCodeBlockParagraph(paragraph)) {
+    } else if (isCodeBlockParagraph(paragraph)) {
+      // handle cursor in code block. the case at firstline or lastline.
       const codeBlockId = paragraph.id
       const cm = this.codeBlocks.get(codeBlockId)
 
@@ -794,10 +793,7 @@ class Aganippe {
           }
           break
       }
-      return
-    }
-    const { left, right } = selection.getCaretOffsets(paragraph)
-    if (
+    } else if (
       (isCodeBlockParagraph(preParagraph) && event.key === EVENT_KEYS.ArrowUp) ||
       (isCodeBlockParagraph(preParagraph) && event.key === EVENT_KEYS.ArrowLeft && left === 0)
     ) {
@@ -805,9 +801,7 @@ class Aganippe {
       const codeBlockId = preParagraph.id
       const cm = this.codeBlocks.get(codeBlockId)
       return setCursorAtLastLine(cm)
-    }
-
-    if (
+    } else if (
       (isCodeBlockParagraph(nextParagraph) && event.key === EVENT_KEYS.ArrowDown) ||
       (isCodeBlockParagraph(nextParagraph) && event.key === EVENT_KEYS.ArrowRight && right === 0)
     ) {

@@ -23,10 +23,6 @@ h6.ag-active::before {
 a {
   pointer-events: none;
 }
-span[role="link"] {
-  color: #4183C4;
-  text-decoration: underline;
-}
 
 #ag-editor-id > pre {
   position: relative;
@@ -144,7 +140,17 @@ pre.ag-active .ag-language-input {
   caret-color: #333;
 }
 .ag-gray {
-  color: #bbb;
+  color: lavender;
+  text-decoration: none;
+}
+
+span[role="link"], a[role="link"] {
+  color: #0366d6;
+  text-decoration: none;
+}
+
+.ag-link-in-bracket {
+  color: darkred;
   text-decoration: none;
 }
 .ag-language {
