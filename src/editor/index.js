@@ -75,7 +75,7 @@ class Aganippe {
 
     eventCenter.bind('enter', this.enterKeyHandler.bind(this))
 
-    eventCenter.subscribe('backspace', this.backspaceKeyHandler.bind(this))
+    eventCenter.subscribe('backspace', this.backspaceHandler.bind(this))
     this.dispatchBackspace()
 
     eventCenter.subscribe('arrow', this.arrowHander.bind(this))
@@ -613,7 +613,7 @@ class Aganippe {
    * 2. cursor at begining of blockquote whick has only one p element
    * 3. no text in editor
    */
-  backspaceKeyHandler (event) {
+  backspaceHandler (event) {
     const node = selection.getSelectionStart()
     const paragraph = findNearestParagraph(node)
     const preParagraph = paragraph.previousElementSibling
@@ -653,7 +653,7 @@ class Aganippe {
     if (isCodeBlockParagraph(paragraph)) {
       const codeBlockId = paragraph.id
       const cm = this.codeBlocks.get(codeBlockId)
-
+      event.preventDefault()
       if (isCursorAtBegin(cm) && onlyHaveOneLine(cm)) {
         const value = cm.getValue()
         const newParagraph = createEmptyElement(this.ids, LOWERCASE_TAGS.p)
@@ -663,10 +663,11 @@ class Aganippe {
         this.codeBlocks.delete(codeBlockId)
         selection.moveCursor(newParagraph, 0)
       }
-    }
-
-    if (selection.getCaretOffsets(paragraph).left === 0 && preParagraph &&
-      preParagraph.tagName.toLowerCase() === LOWERCASE_TAGS.pre) {
+    } else if (
+      selection.getCaretOffsets(paragraph).left === 0 &&
+      preParagraph &&
+      isCodeBlockParagraph(preParagraph)
+    ) {
       event.preventDefault()
       const text = paragraph.textContent
       const codeBlockId = preParagraph.id

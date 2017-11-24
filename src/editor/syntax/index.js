@@ -13,7 +13,8 @@ import {
 /**
  * RegExp constants
  */
-
+// **attention please**  the order in fragments is important.
+// because INLINE_CHOP_REG also use parts of it's fragment.
 const fragments = [
   '^\\*{3,}|^\\-{3,}|^\\_{3,}', // hr
   '^`{3,}[^`]*',
@@ -327,7 +328,6 @@ export const checkEditEmoji = node => {
 export const setInlineEmoji = (node, emoji, selection) => {
   node.textContent = `${emoji.text}`
   node.setAttribute('data-emoji', emoji.emoji)
-  console.log(node)
   selection.moveCursor(node.nextElementSibling, 1)
 }
 
