@@ -157,6 +157,10 @@ span[role="link"], a[role="link"] {
   color: #708;
   text-decoration: none;
 }
+.ag-backlash {
+  text-decoration: none;
+  color: rgb(51, 51, 51);
+}
 .ag-warn {
   color: #000;
   text-decoration: none;

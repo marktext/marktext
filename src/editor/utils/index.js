@@ -19,6 +19,9 @@ export const getUniqueId = set => {
   return id
 }
 
+export const isOdd = number => Math.abs(number) % 2 === 1
+export const isEven = number => Math.abs(number) % 2 === 0
+
 // https://github.com/jashkenas/underscore
 export const throttle = (func, wait = 50) => {
   let context

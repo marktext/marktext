@@ -3,7 +3,7 @@ import {
   findOutMostParagraph, findNearestParagraph, isFirstChildElement,
   isOnlyChildElement
 } from '../utils/domManipulate'
-
+import { isEven } from '../utils'
 import {
   LOWERCASE_TAGS,
   CLASS_OR_ID,
@@ -20,14 +20,14 @@ const fragments = [
   '^`{3,}[^`]*',
   '^#{1,6}', // Header
   '(\\*{2}|_{2})(?:[^\\s]|[^\\s].*[^\\s])\\1', // strong
-  '(\\*{1}|_{1})(?:[^\\s]|[^\\s].*[^\\s])\\2', // em
+  '\\\\*(\\*{1}|_{1})(?:[^\\s]|[^\\s].*[^\\s])\\\\*\\2', // em
   '(`{1,3})([^`]+?|.{2,})\\3', // inline code
   '\\[[^\\[\\]]+\\]\\(.*?\\)', // link
   '\\[\\]\\([^\\(\\)]*?\\)', // no text link
   ':[^:]+?:', // emoji
   '~{2}[^~]+~{2}', // line through
   'https?://[^\\s]+(?=\\s|$)', // auto link
-  `\\\\(?=[${markedSymbol.join()}]{1})` // eslint-disable-line no-useless-escape
+  `\\\\+(?=[${markedSymbol.join()}]{1})` // eslint-disable-line no-useless-escape
 ]
 
 const CHOP_REG = new RegExp(fragments.join('|'), 'g') // eslint-disable-line no-useless-escape
@@ -38,8 +38,8 @@ const HEAD_REG = /^#{1,6}/
 
 const STRONG_REG_G = /^(\*{2}|_{2})([^\s]|[^\s].*[^\s])(\1)/g
 const STRONG_REG = /^(\*{2}|_{2})(?:[^\s]|[^\s].*[^\s])\1/
-const EM_REG_G = /^(\*{1}|_{1})([^\s]|[^\s].*[^\s])(\1)/g
-const EM_REG = /^(\*{1}|_{1})(?:[^\s]|[^\s].*[^\s])\1/
+const EM_REG_G = /^(\\*)(\*{1}|_{1})([^\s]|[^\s].*?[^\s])(\\*)(\2)/g
+const EM_REG = /^(?:\\*)(\*{1}|_{1})(?:[^\s]|[^\s].*[^\s])(?:\\*)\1/
 
 const INLINE_CODE_REG_G = /^(`{1,3})([^`]+?|.{2,})(\1)/g
 const INLINE_CODE_REG = /^(`{1,3})([^`]+?|.{2,})(\1)/
@@ -58,6 +58,9 @@ const HR_REG_G = /(^\*{3,}|^-{3,}|^_{3,})/g
 const HR_REG = /^\*{3,}|^-{3,}|^_{3,}/
 const CODE_BLOCK_G = /(^`{3,})([^`]*)/g
 const CODE_BLOCK = /^`{3,}[^`]*/
+const BACKLASH_REG_G = new RegExp('^(\\\\+)', 'g')
+const BACKLASH_REG = new RegExp('^\\\\+', 'i')
+
 // const SIMPLE_LINK_G = /(<)([^<>]+?)(>)/g
 // const SIMPLE_LINK = /<[^<>]+?>/g
 const LINE_BREAK_BLOCK_REG = /^(?:`{3,}([^`]*))|[\*\-\_]{3,}/ // eslint-disable-line no-useless-escape
@@ -69,6 +72,26 @@ const CHOP_HEADER_REG = /^([*+-]\s(?:\[\s\]\s)?|>\s*|\d+\.\s)/
  */
 const conflict = (arr1, arr2) => {
   return !(arr1[1] < arr2[0] || arr2[1] < arr1[0])
+}
+/**
+ * [backlash => html]
+ * examples:
+ * `\` => `<a href="#" class="${className}">\</a>`
+ * `\\` => `<a href="#" class="${className}">\</a>\`
+ */
+const backlash2html = (backlashes, className) => {
+  const chunks = backlashes.split('')
+  const len = chunks.length
+  let i
+  let result = ''
+  for (i = 0; i < len; i++) {
+    if (isEven(i)) {
+      result += `<a href="#" class="${className}">${chunks[i]}<a>`
+    } else {
+      result += `<a href="#" class="${CLASS_OR_ID['AG_BACKLASH']}">${chunks[i]}</a>`
+    }
+  }
+  return `${result}<a class="${CLASS_OR_ID['AG_BUG']}"></a>` // the extral a tag for fix the bug.
 }
 
 const chunk2html = ({ chunk, index, lastIndex }, { start, end } = {}, outerClsssName) => {
@@ -97,12 +120,23 @@ const chunk2html = ({ chunk, index, lastIndex }, { start, end } = {}, outerClsss
 
   // handle emphasize
   if (EM_REG.test(chunk)) {
-    return chunk.replace(EM_REG_G, (match, p1, p2, p3) => {
-      return (
-        `<a href="#" class="${className}">${p1}</a>` +
-        `<em>${markedText2Html(p2, undefined, className, 'inline')}</em>` +
-        `<a href="#" class="${className}">${p3}</a>`
-      )
+    console.log('em')
+    return chunk.replace(EM_REG_G, (match, p1, p2, p3, p4, p5) => {
+      console.log(`p1: ${p1}, p2: ${p2}, p3: ${p3}, p4: ${p4}, p5: ${p5}`)
+      if (isEven(p1.length) && isEven(p4.length)) {
+        return (
+          backlash2html(p1, className) +
+          `<a href="#" class="${className}">${p2}</a>` +
+          `<em>${markedText2Html(p3, undefined, className, 'inline')}${backlash2html(p4, className)}</em>` +
+          `<a href="#" class="${className}">${p5}</a>`
+        )
+      } else {
+        return (
+          `${backlash2html(p1, className)}${p2}` +
+          `${markedText2Html(p3, undefined, className, 'inline')}` +
+          `${backlash2html(p4, className)}${p5}`
+        )
+      }
     })
   }
   // handle inline code: markdown text: `code`
@@ -206,6 +240,12 @@ const chunk2html = ({ chunk, index, lastIndex }, { start, end } = {}, outerClsss
         `<a href="#" class="${CLASS_OR_ID['AG_GRAY']}">${p1}</a>` +
         `<a href="#" class="${CLASS_OR_ID['AG_LANGUAGE']}">${p2}</a>`
       )
+    })
+  }
+
+  if (BACKLASH_REG.test(chunk)) {
+    return chunk.replace(BACKLASH_REG_G, (match, p1) => {
+      return backlash2html(p1, className)
     })
   }
 
