@@ -340,7 +340,9 @@ export const checkInlineUpdate = text => {
   const match = token[0]
   switch (true) {
     case /^[*+-]\s/.test(match):
-      return token[1] ? { type: LOWERCASE_TAGS.li, info: 'tasklist' } : { type: LOWERCASE_TAGS.li, info: 'disorder' }
+      return token[1]
+        ? { type: LOWERCASE_TAGS.li, info: 'tasklist' }
+        : { type: LOWERCASE_TAGS.li, info: 'disorder' }
     case /^\d+\.\s/.test(match):
       return { type: LOWERCASE_TAGS.li, info: 'order' }
     case /^#{1,6}/.test(match):
