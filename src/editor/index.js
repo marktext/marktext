@@ -233,6 +233,7 @@ class Aganippe {
       const text = paragraph.textContent
       const html = paragraph.innerHTML
       const selectionState = selection.exportSelection(paragraph)
+
       if (checkMarkedTextUpdate(html, text, selectionState)) {
         eventCenter.dispatch('markedTextChange', paragraph, selectionState)
       }

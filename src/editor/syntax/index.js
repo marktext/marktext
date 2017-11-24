@@ -35,24 +35,24 @@ const INLINE_CHOP_REG = new RegExp(fragments.slice(3).join('|'), 'g') // eslint-
 const HEAD_REG_G = /^(#{1,6})/g
 const HEAD_REG = /^#{1,6}/
 
-const STRONG_REG_G = /(\*{2}|_{2})([^\s]|[^\s].*[^\s])(\1)/g
-const STRONG_REG = /(\*{2}|_{2})(?:[^\s]|[^\s].*[^\s])\1/
-const EM_REG_G = /(\*{1}|_{1})([^\s]|[^\s].*[^\s])(\1)/g
-const EM_REG = /(\*{1}|_{1})(?:[^\s]|[^\s].*[^\s])\1/
+const STRONG_REG_G = /^(\*{2}|_{2})([^\s]|[^\s].*[^\s])(\1)/g
+const STRONG_REG = /^(\*{2}|_{2})(?:[^\s]|[^\s].*[^\s])\1/
+const EM_REG_G = /^(\*{1}|_{1})([^\s]|[^\s].*[^\s])(\1)/g
+const EM_REG = /^(\*{1}|_{1})(?:[^\s]|[^\s].*[^\s])\1/
 
-const INLINE_CODE_REG_G = /(`{1,3})([^`]+?|.{2,})(\1)/g
-const INLINE_CODE_REG = /(`{1,3})([^`]+?|.{2,})(\1)/
+const INLINE_CODE_REG_G = /^(`{1,3})([^`]+?|.{2,})(\1)/g
+const INLINE_CODE_REG = /^(`{1,3})([^`]+?|.{2,})(\1)/
 // eslint has bug ? need ignore
-const LINK_REG_G = /(\[)([^\[\]]+)(\]\()([^()]*?)(\))/g // eslint-disable-line no-useless-escape
-const LINK_REG = /(\[)([^\[\]]+)(\]\()([^()]*?)(\))/ // eslint-disable-line no-useless-escape
-const NO_TEXT_LINK_G = /(\[\]\()([^()]*?)(\))/g
-const NO_TEXT_LINK = /(\[\]\([^()]*?\))/
-const EMOJI_REG_G = /(:)([^:]+?)(:)/g
-const EMOJI_REG = /:[^:]+?:/
-const LINE_THROUGH_REG_G = /(~{2})([^~]+?)(~{2})/g
-const LINE_THROUGH_REG = /~{2}[^~]+?~{2}/
-const AUTO_LINK_G = /(https?:\/\/[^\\s]+)(?=\s|$)/g
-const AUTO_LINK = /https?:\/\/[^\s]+(?=\s|$)/
+const LINK_REG_G = /^(\[)([^\[\]]+)(\]\()([^()]*?)(\))/g // eslint-disable-line no-useless-escape
+const LINK_REG = /^(\[)([^\[\]]+)(\]\()([^()]*?)(\))/ // eslint-disable-line no-useless-escape
+const NO_TEXT_LINK_G = /^(\[\]\()([^()]*?)(\))/g
+const NO_TEXT_LINK = /^(\[\]\([^()]*?\))/
+const EMOJI_REG_G = /^(:)([^:]+?)(:)/g
+const EMOJI_REG = /^:[^:]+?:/
+const LINE_THROUGH_REG_G = /^(~{2})([^~]+?)(~{2})/g
+const LINE_THROUGH_REG = /^~{2}[^~]+?~{2}/
+const AUTO_LINK_G = /^(https?:\/\/[^\\s]+)(?=\s|$)/g
+const AUTO_LINK = /^https?:\/\/[^\s]+(?=\s|$)/
 const HR_REG_G = /(^\*{3,}|^-{3,}|^_{3,})/g
 const HR_REG = /^\*{3,}|^-{3,}|^_{3,}/
 const CODE_BLOCK_G = /(^`{3,})([^`]*)/g
@@ -71,8 +71,6 @@ const conflict = (arr1, arr2) => {
 }
 
 const chunk2html = ({ chunk, index, lastIndex }, { start, end } = {}, outerClsssName) => {
-  // `###h` should be corrected to `###` to judge the confliction.
-  if (/^#{1,6}[^#]/.test(chunk)) lastIndex = lastIndex - 1
   // if no positionState provided, no conflict.
   const isConflicted = start !== undefined && end !== undefined
     ? conflict([index, lastIndex], [start, end])
@@ -137,7 +135,7 @@ const chunk2html = ({ chunk, index, lastIndex }, { start, end } = {}, outerClsss
   //  => html bellow
   //  `
   //  <a href="#" class="ag-gray|ag-hide">[</a>
-  //  <a href="#" data-href="https://github.com/Jocs/aganippe/commits/master">Aganippe</a>
+  //  <span data-href="https://github.com/Jocs/aganippe/commits/master" role="link">Aganippe</span>
   //  <a href="#" class="ag-gray|ag-hide">]</a>
   //  <a href="#" class="ag-gray|ag-hide">(</a>
   //  <a href="#" class="ag-gray|ag-hide">https://github.com/Jocs/aganippe/commits/master</a>
@@ -147,9 +145,10 @@ const chunk2html = ({ chunk, index, lastIndex }, { start, end } = {}, outerClsss
   if (LINK_REG.test(chunk)) {
     return chunk.replace(LINK_REG_G, (match, p1, p2, p3, p4, p5) => {
       const linkClassName = className === CLASS_OR_ID['AG_HIDE'] ? className : ''
+      // use span tag to simulate a tag. because can not nest a tag in a tag.
       return (
         `<a href="#" class="${className}">${p1}</a>` +
-        `<a href="${p4}">${markedText2Html(p2, undefined, className, 'inline')}</a>` +
+        `<span data-href="${p4}" role="link">${markedText2Html(p2, undefined, className, 'inline')}</span>` +
         `<a href="#" class="${className}">${p3}</a>` +
         `<a href="#" class="${linkClassName}">${p4}</a>` +
         `<a href="#" class="${className}">${p5}</a>`

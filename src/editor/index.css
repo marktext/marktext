@@ -23,6 +23,10 @@ h6.ag-active::before {
 a {
   pointer-events: none;
 }
+span[role="link"] {
+  color: #4183C4;
+  text-decoration: underline;
+}
 
 #ag-editor-id > pre {
   position: relative;
