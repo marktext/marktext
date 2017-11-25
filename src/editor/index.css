@@ -167,6 +167,23 @@ pre.ag-active .ag-language-input {
   overflow: hidden;
 }
 
+.ag-image-marked-text {
+  color: cadetblue;
+  border-radius: 4px;
+  font-size: 14px;
+  text-decoration: none;
+}
+
+.ag-image-marked-text::before {
+  content: '';
+  width: 1.1em;
+  height: 1.1em;
+  display: inline-block;
+  vertical-align: middle;
+  background: url(./assets/icons/image.svg);
+  background-size: contain;
+}
+
 span[role="link"], a[role="link"], span[role="link"] .ag-backlash {
   color: #0366d6;
   text-decoration: none;

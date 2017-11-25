@@ -60,6 +60,20 @@ export const throttle = (func, wait = 50) => {
     return result
   }
 }
+
+export const loadImage = url => {
+  const image = new Image()
+  return new Promise((resolve, reject) => {
+    image.onload = () => {
+      resolve(url)
+    }
+    image.onerror = err => {
+      reject(err)
+    }
+    image.src = url
+  })
+}
+
 /**
  * [genUpper2LowerKeyHash generate constants map hash, the value is lowercase of the key,
  * also translate `_` to `-`]

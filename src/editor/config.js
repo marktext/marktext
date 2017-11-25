@@ -65,7 +65,9 @@ export const CLASS_OR_ID = genUpper2LowerKeyHash([
   'AG_TEMP',
   'AG_LINK_IN_BRACKET',
   'AG_BACKLASH',
-  'AG_BUG' // for remove bug
+  'AG_BUG', // for remove bug
+  'AG_IMAGE_MARKED_TEXT',
+  'AG_IMAGE_FAIL'
 ])
 
 export const codeMirrorConfig = {

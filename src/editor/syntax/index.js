@@ -1,9 +1,9 @@
 import { validEmoji } from '../emojis'
 import {
   findOutMostParagraph, findNearestParagraph, isFirstChildElement,
-  isOnlyChildElement
+  isOnlyChildElement, insertAfter, operateClassName
 } from '../utils/domManipulate'
-import { isEven } from '../utils'
+import { isEven, loadImage } from '../utils'
 import {
   LOWERCASE_TAGS,
   CLASS_OR_ID,
@@ -22,6 +22,7 @@ const fragments = [
   '\\\\*(\\*{2}|_{2})(?:[^\\s]|[^\\s].*?[^\\s])\\\\*\\1', // strong
   '\\\\*(\\*{1}|_{1})(?:[^\\s]|[^\\s].*?[^\\s])\\\\*\\2', // em
   '\\\\*(`{1,3})([^`]+?|.{2,})\\\\*\\3', // inline code
+  '\\\\*\\!\\[.*?\\\\*\\]\\(.*?\\\\*\\)', // image
   '\\\\*\\[.+?\\\\*\\]\\(.*?\\\\*\\)', // link
   '\\\\*\\[\\]\\(.*?\\\\*\\)', // no text link
   '\\\\*:[^:\\\\]+?:', // emoji
@@ -46,6 +47,8 @@ const INLINE_CODE_REG = /^(?:\\*)(`{1,3})([^`]+?|.{2,})(?:\\*)(\1)/
 // eslint has bug ? need ignore
 const LINK_REG_G = /^(\\*)(\[)(.+?)(\\*)(\]\()(.*?)(\\*)(\))/g // eslint-disable-line no-useless-escape
 const LINK_REG = /^\\*\[.+?\\*\]\(.*?\\*\)/ // eslint-disable-line no-useless-escape
+const IMAGE_REG_G = /^(\\*)(\!\[)(.*?)(\\*)(\]\()(.*?)(\\*)(\))/g // eslint-disable-line no-useless-escape
+const IMAGE_REG = /^\\*\!\[.*?\\*\]\(.*?\\*\)/ // eslint-disable-line no-useless-escape
 const NO_TEXT_LINK_G = /^(\\*)(\[\]\()(.*?)(\\*)(\))/g
 const NO_TEXT_LINK = /^\\*\[\]\(.*?\\*\)/
 const EMOJI_REG_G = /^(:)([^:]+?)(:)/g
@@ -228,6 +231,46 @@ const chunk2html = ({ chunk, index, lastIndex }, { start, end } = {}, outerClsss
           `<a href="#" class="${className}">${p5}</a>` +
           `<span href="#" class="${linkClassName}">${p6}${backlash2html(p7, className)}</span>` +
           `<a href="#" class="${className}">${p8}</a>`
+        )
+      } else {
+        return (
+          backlash2html(p1, className) +
+          p2 +
+          `${markedText2Html(p3, undefined, className, 'inline')}` +
+          backlash2html(p4, className) +
+          p5 +
+          p6 +
+          backlash2html(p7, className) +
+          p8
+        )
+      }
+    })
+  }
+  if (IMAGE_REG.test(chunk)) {
+    // `<img src="${p6 + encodeURI(p7)}" alt="${p3 + encodeURI(p4)}">`
+    return chunk.replace(IMAGE_REG_G, (match, p1, p2, p3, p4, p5, p6, p7, p8) => {
+      const imageClassName = CLASS_OR_ID['AG_IMAGE_MARKED_TEXT']
+
+      if (isEven(p1.length) && isEven(p4.length) && isEven(p7.length)) {
+        loadImage(p6 + encodeURI(p7))
+          .then(url => {
+            const imageWrapper = document.querySelector('#ag-image')
+            const img = document.createElement('img')
+            img.src = url
+            img.alt = p3 + encodeURI(p4)
+            insertAfter(img, imageWrapper)
+            operateClassName(imageWrapper, 'add', className)
+          })
+          .catch(err => {
+            console.log(err)
+            const imageWrapper = document.querySelector('#ag-image')
+            operateClassName(imageWrapper, 'add', CLASS_OR_ID['AG_IMAGE_FAIL'])
+          })
+        return (
+          backlash2html(p1, className) +
+          `<a href="#" class="${imageClassName}" id="ag-image">` +
+          p2 + p3 + p4 + p5 + p6 + p7 + p8 +
+          `</a>`
         )
       } else {
         return (
