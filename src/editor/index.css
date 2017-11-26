@@ -28,6 +28,10 @@ a {
   position: relative;
 }
 
+img {
+  max-width: 100%;
+}
+
 hr {
   cursor: default;
 }
@@ -168,10 +172,11 @@ pre.ag-active .ag-language-input {
 }
 
 .ag-image-marked-text {
-  color: cadetblue;
+  color: black;
   border-radius: 4px;
   font-size: 14px;
   text-decoration: none;
+  background: azure;
 }
 
 .ag-image-marked-text::before {
@@ -182,6 +187,10 @@ pre.ag-active .ag-language-input {
   vertical-align: middle;
   background: url(./assets/icons/image.svg);
   background-size: contain;
+}
+
+.ag-image-marked-text.ag-image-fail::before {
+  background-image: url(./assets/icons/imagefail.svg);
 }
 
 span[role="link"], a[role="link"], span[role="link"] .ag-backlash {

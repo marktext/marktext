@@ -60,6 +60,16 @@ export const throttle = (func, wait = 50) => {
     return result
   }
 }
+// simple implementation...
+export const debounce = (func, wait = 50) => {
+  let timer = null
+  return function (...args) {
+    if (timer) clearTimeout(timer)
+    timer = setTimeout(() => {
+      func(...args)
+    }, wait)
+  }
+}
 
 export const loadImage = url => {
   const image = new Image()

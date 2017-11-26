@@ -3,7 +3,7 @@ import {
   findOutMostParagraph, findNearestParagraph, isFirstChildElement,
   isOnlyChildElement, insertAfter, operateClassName
 } from '../utils/domManipulate'
-import { isEven, loadImage } from '../utils'
+import { isEven, loadImage, getUniqueId } from '../utils'
 import {
   LOWERCASE_TAGS,
   CLASS_OR_ID,
@@ -97,7 +97,7 @@ const backlash2html = (backlashes, className) => {
   return `${result}<a class="${CLASS_OR_ID['AG_BUG']}"></a>` // the extral a tag for fix the bug.
 }
 
-const chunk2html = ({ chunk, index, lastIndex }, { start, end } = {}, outerClsssName) => {
+const chunk2html = (ids, { chunk, index, lastIndex }, { start, end } = {}, outerClsssName) => {
   // if no positionState provided, no conflict.
   const isConflicted = start !== undefined && end !== undefined
     ? conflict([index, lastIndex], [start, end])
@@ -252,23 +252,31 @@ const chunk2html = ({ chunk, index, lastIndex }, { start, end } = {}, outerClsss
       const imageClassName = CLASS_OR_ID['AG_IMAGE_MARKED_TEXT']
 
       if (isEven(p1.length) && isEven(p4.length) && isEven(p7.length)) {
+        const imgId = getUniqueId(ids)
         loadImage(p6 + encodeURI(p7))
           .then(url => {
-            const imageWrapper = document.querySelector('#ag-image')
+            const imageWrapper = document.querySelector(`#${imgId}`)
             const img = document.createElement('img')
             img.src = url
             img.alt = p3 + encodeURI(p4)
-            insertAfter(img, imageWrapper)
-            operateClassName(imageWrapper, 'add', className)
+            if (imageWrapper) {
+              insertAfter(img, imageWrapper)
+              operateClassName(imageWrapper, 'add', className)
+            } else {
+              if (ids.has(imgId)) ids.delete(imgId)
+            }
           })
-          .catch(err => {
-            console.log(err)
-            const imageWrapper = document.querySelector('#ag-image')
-            operateClassName(imageWrapper, 'add', CLASS_OR_ID['AG_IMAGE_FAIL'])
+          .catch(() => {
+            const imageWrapper = document.querySelector(`#${imgId}`)
+            if (imageWrapper) {
+              operateClassName(imageWrapper, 'add', CLASS_OR_ID['AG_IMAGE_FAIL'])
+            } else {
+              if (ids.has(imgId)) ids.delete(imgId)
+            }
           })
         return (
           backlash2html(p1, className) +
-          `<a href="#" class="${imageClassName}" id="ag-image">` +
+          `<a href="#" class="${imageClassName}" id="${imgId}">` +
           p2 + p3 + p4 + p5 + p6 + p7 + p8 +
           `</a>`
         )
@@ -390,13 +398,13 @@ const getMarkedChunks = (markedText, type) => {
  * `
  * `|` is the cursor position in marked text
  */
-export const markedText2Html = (markedText, positionState, className, type) => {
+export const markedText2Html = (ids, markedText, positionState, className, type) => {
   const chunks = getMarkedChunks(markedText, type)
   let result = markedText
 
   if (chunks.length > 0) {
     const chunksWithHtml = chunks.map(c => {
-      const html = chunk2html(c, positionState, className)
+      const html = chunk2html(ids, c, positionState, className)
       return Object.assign(c, { html })
     })
     // does this will have bug ?

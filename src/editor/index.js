@@ -21,7 +21,8 @@ import {
 } from './syntax'
 
 import {
-  throttle
+  throttle,
+  debounce
 } from './utils'
 
 import {
@@ -80,9 +81,11 @@ class Aganippe {
 
     eventCenter.subscribe('arrow', this.arrowHander.bind(this))
     this.dispatchArrow()
+    // if you dont click the keyboard after 1 second, the garbageCollection will run.
+    eventCenter.attachDOMEvent(container, 'keydown', debounce(this.garbageCollection.bind(this), 1000))
 
     this.handlerSelectHr()
-
+    this.imageClick()
     this.generateLastEmptyParagraph()
   }
   /**
@@ -257,7 +260,7 @@ class Aganippe {
    */
   subscribeMarkedText (paragraph, selectionState) {
     const text = paragraph.textContent
-    const markedHtml = markedText2Html(text, selectionState)
+    const markedHtml = markedText2Html(this.ids, text, selectionState)
     paragraph.innerHTML = markedHtml
     selection.importSelection(selectionState, paragraph)
   }
@@ -286,7 +289,7 @@ class Aganippe {
     const markedText = paragraph.textContent
     const chopedText = chopHeader(markedText)
     const chopedLength = markedText.length - chopedText.length
-    paragraph.innerHTML = markedText2Html(chopedText)
+    paragraph.innerHTML = markedText2Html(this.ids, chopedText)
     let newElement
 
     if (/^(h|p)/.test(inlineUpdate.type)) {
@@ -401,10 +404,17 @@ class Aganippe {
 
     const changeHandler = event => {
       const { id: preId, paragraph: preParagraph } = this.activeParagraph
-      const node = selection.getSelectionStart()
+      let node = selection.getSelectionStart()
       if (isAganippeEditorElement(node)) {
         event.preventDefault()
         return false
+      }
+      // handle click img
+      if (event.type === 'click') {
+        const target = event.target
+        if (target.tagName.toLowerCase() === LOWERCASE_TAGS.img) {
+          node = target
+        }
       }
       let paragraph = findNearestParagraph(node)
       if (paragraph.tagName.toLowerCase() === LOWERCASE_TAGS.li) {
@@ -423,7 +433,7 @@ class Aganippe {
   }
   // newParagrpha and oldParagraph must be h1~6\p\pre element. can not be `li` or `blockquote`
   subscribeParagraphChange (newParagraph, oldParagraph, autofocus) {
-    const { eventCenter } = this
+    const { eventCenter, ids } = this
     const oldContext = oldParagraph.textContent
     const oldTagName = oldParagraph.tagName.toLowerCase()
     const lineBreakUpdate = checkLineBreakUpdate(oldContext)
@@ -490,7 +500,7 @@ class Aganippe {
       }
     } else {
       if (oldContext && oldTagName !== LOWERCASE_TAGS.pre) {
-        oldParagraph.innerHTML = markedText2Html(oldParagraph.textContent)
+        oldParagraph.innerHTML = markedText2Html(ids, oldParagraph.textContent)
       }
     }
     // set and remove active className
@@ -548,11 +558,11 @@ class Aganippe {
         }
 
         if (tagName === LOWERCASE_TAGS.li) {
-          paragraph.children[0].innerHTML = markedText2Html(pre)
-          newParagraph.children[0].innerHTML = markedText2Html(post, { start: 0, end: 0 })
+          paragraph.children[0].innerHTML = markedText2Html(this.ids, pre)
+          newParagraph.children[0].innerHTML = markedText2Html(this.ids, post, { start: 0, end: 0 })
         } else {
-          paragraph.innerHTML = markedText2Html(pre)
-          newParagraph.innerHTML = markedText2Html(post, { start: 0, end: 0 })
+          paragraph.innerHTML = markedText2Html(this.ids, pre)
+          newParagraph.innerHTML = markedText2Html(this.ids, post, { start: 0, end: 0 })
         }
         insertAfter(newParagraph, paragraph)
         break
@@ -729,6 +739,7 @@ class Aganippe {
     const { list, index, show } = this.floatBox
     const node = selection.getSelectionStart()
     const paragraph = findNearestParagraph(node)
+    console.log(node)
     const outMostParagraph = findOutMostParagraph(node)
     const { left, right } = selection.getCaretOffsets(paragraph)
     let preParagraph = outMostParagraph.previousElementSibling
@@ -821,6 +832,34 @@ class Aganippe {
       const cm = this.codeBlocks.get(codeBlockId)
       return setCursorAtFirstLine(cm)
     }
+  }
+
+  imageClick () {
+    const { container, eventCenter } = this
+    const handler = event => {
+      const target = event.target
+      const markedImageText = target.previousElementSibling
+      if (markedImageText && markedImageText.classList.contains(CLASS_OR_ID['AG_IMAGE_MARKED_TEXT'])) {
+        const textLen = markedImageText.textContent.length
+        operateClassName(markedImageText, 'remove', CLASS_OR_ID['AG_HIDE'])
+        operateClassName(markedImageText, 'add', CLASS_OR_ID['AG_GRAY'])
+        selection.importSelection({
+          start: textLen,
+          end: textLen
+        }, markedImageText)
+      }
+    }
+
+    eventCenter.attachDOMEvent(container, 'click', handler)
+  }
+
+  garbageCollection () {
+    for (let id of this.ids) {
+      if (!document.querySelector(`#${id}`)) {
+        this.ids.delete(id)
+      }
+    }
+    console.log(this.ids.size)
   }
 
   getMarkdown () {
