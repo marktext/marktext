@@ -118,21 +118,21 @@ const chunk2html = (ids, { chunk, index, lastIndex }, { start, end } = {}, outer
         return (
           backlash2html(p1, className) +
           `<a href="#" class="${className}">${p2}</a>` +
-          `<strong>${markedText2Html(p3, undefined, className, 'inline')}${backlash2html(p4, className)}</strong>` +
+          `<strong>${markedText2Html(ids, p3, undefined, className, 'inline')}${backlash2html(p4, className)}</strong>` +
           `<a href="#" class="${className}">${p5}</a>`
         )
       } else if (!isEven(p4.length)) {
         return (
           `${backlash2html(p1, className)}*` +
           `<a href="#" class="${className}">*</a>` +
-          `<em>${markedText2Html(p3, undefined, className, 'inline')}${backlash2html(p4, className)}*</em>` +
+          `<em>${markedText2Html(ids, p3, undefined, className, 'inline')}${backlash2html(p4, className)}*</em>` +
           `<a href="#" class="${className}">*</a>`
         )
       } else if (!isEven(p1.length) && isEven(p4.length)) {
         return (
           `${backlash2html(p1, className)}*` +
           `<a href="#" class="${className}">*</a>` +
-          `<em>${markedText2Html(p3, undefined, className, 'inline')}${backlash2html(p4, className)}</em>` +
+          `<em>${markedText2Html(ids, p3, undefined, className, 'inline')}${backlash2html(p4, className)}</em>` +
           `<a href="#" class="${className}">*</a>*`
         )
       }
@@ -146,13 +146,13 @@ const chunk2html = (ids, { chunk, index, lastIndex }, { start, end } = {}, outer
         return (
           backlash2html(p1, className) +
           `<a href="#" class="${className}">${p2}</a>` +
-          `<em>${markedText2Html(p3, undefined, className, 'inline')}${backlash2html(p4, className)}</em>` +
+          `<em>${markedText2Html(ids, p3, undefined, className, 'inline')}${backlash2html(p4, className)}</em>` +
           `<a href="#" class="${className}">${p5}</a>`
         )
       } else {
         return (
           `${backlash2html(p1, className)}${p2}` +
-          `${markedText2Html(p3, undefined, className, 'inline')}` +
+          `${markedText2Html(ids, p3, undefined, className, 'inline')}` +
           `${backlash2html(p4, className)}${p5}`
         )
       }
@@ -225,7 +225,7 @@ const chunk2html = (ids, { chunk, index, lastIndex }, { start, end } = {}, outer
           backlash2html(p1, className) +
           `<a href="#" class="${className}">${p2}</a>` +
           `<span data-href="${p6 + p7}" role="link">` +
-          `${markedText2Html(p3, undefined, className, 'inline')}` +
+          `${markedText2Html(ids, p3, undefined, className, 'inline')}` +
           `${backlash2html(p4, className)}` +
           `</span>` +
           `<a href="#" class="${className}">${p5}</a>` +
@@ -236,7 +236,7 @@ const chunk2html = (ids, { chunk, index, lastIndex }, { start, end } = {}, outer
         return (
           backlash2html(p1, className) +
           p2 +
-          `${markedText2Html(p3, undefined, className, 'inline')}` +
+          `${markedText2Html(ids, p3, undefined, className, 'inline')}` +
           backlash2html(p4, className) +
           p5 +
           p6 +
@@ -262,16 +262,12 @@ const chunk2html = (ids, { chunk, index, lastIndex }, { start, end } = {}, outer
             if (imageWrapper) {
               insertAfter(img, imageWrapper)
               operateClassName(imageWrapper, 'add', className)
-            } else {
-              if (ids.has(imgId)) ids.delete(imgId)
             }
           })
           .catch(() => {
             const imageWrapper = document.querySelector(`#${imgId}`)
             if (imageWrapper) {
               operateClassName(imageWrapper, 'add', CLASS_OR_ID['AG_IMAGE_FAIL'])
-            } else {
-              if (ids.has(imgId)) ids.delete(imgId)
             }
           })
         return (
