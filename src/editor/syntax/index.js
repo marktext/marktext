@@ -15,9 +15,10 @@ import {
  */
 // **attention please**  the order in fragments is important.
 // because INLINE_CHOP_REG also use parts of it's fragment.
+
 const fragments = [
   '^\\*{3,}|^\\-{3,}|^\\_{3,}', // hr
-  '^`{3,}[^`]*',
+  '^`{3,}[^`]*', // code fense
   '^#{1,6}', // Header
   '\\\\*(\\*{2}|_{2})(?:[^\\s]|[^\\s].*?[^\\s])\\\\*\\1', // strong
   '\\\\*(\\*{1}|_{1})(?:[^\\s]|[^\\s].*?[^\\s])\\\\*\\2', // em
