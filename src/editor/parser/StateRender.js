@@ -12,6 +12,7 @@ const patch = snabbdom.init([ // Init patch function with chosen modules
   require('snabbdom/modules/dataset').default
 ])
 const h = require('snabbdom/h').default // helper function for creating vnodes
+const toHTML = require('snabbdom-to-html')
 
 class StateRender {
   constructor () {
@@ -34,6 +35,10 @@ class StateRender {
       return conflict([start, end], [cStart, cEnd])
     }
   }
+
+  getClassName (outerClass, block, token, cursor) {
+    return outerClass || (this.checkConflicted(block, token, cursor) ? CLASS_OR_ID['AG_GRAY'] : CLASS_OR_ID['AG_HIDE'])
+  }
   /**
    * [render]: 2 steps:
    * render vdom
@@ -50,16 +55,19 @@ class StateRender {
               return Array.isArray(chunk) ? [...acc, ...chunk] : [...acc, chunk]
             }, [])
             : [ h(LOWERCASE_TAGS.br) ]
-
-          return h(`${LOWERCASE_TAGS.p}#${block.key}.${CLASS_OR_ID['AG_PARAGRAPH']}`, {}, childs)
+          console.log(JSON.stringify(childs, null, 2))
+          return h(`${LOWERCASE_TAGS.p}#${block.key}.${CLASS_OR_ID['AG_PARAGRAPH']}`, childs)
         case LOWERCASE_TAGS.h1:
           break
       }
     })
-    const newVdom = h(selector, {}, children)
-    patch(this.vdom || this.container, newVdom)
-    this.vdom = newVdom
+    const newVdom = h(selector, children)
+    const root = this.vdom || this.container
+    console.log(toHTML(this.vdom))
+    console.log(toHTML(newVdom))
+    patch(root, newVdom)
 
+    this.vdom = newVdom
     if (cursor && cursor.range) {
       const cursorEle = document.querySelector(`#${cursor.key}`)
       selection.importSelection(cursor.range, cursorEle)
@@ -72,12 +80,25 @@ class StateRender {
     })
   }
 
+  ['inline_code'] (h, cursor, block, token, outerClass) {
+    const className = this.getClassName(outerClass, block, token, cursor)
+    return [
+      h(`a.${className}`, {
+        props: { href: '#' }
+      }, token.marker),
+      h('code', token.content),
+      h(`a.${className}`, {
+        props: { href: '#' }
+      }, token.marker)
+    ]
+  }
+
   text (h, cursor, block, token) {
     return token.content
   }
 
   em (h, cursor, block, token, outerClass) {
-    const className = outerClass || (this.checkConflicted(block, token, cursor) ? CLASS_OR_ID['AG_GRAY'] : CLASS_OR_ID['AG_HIDE'])
+    const className = this.getClassName(outerClass, block, token, cursor)
     return [
       h(`a.${className}`, {
         props: { href: '#' }
@@ -93,7 +114,7 @@ class StateRender {
   }
 
   strong (h, cursor, block, token, outerClass) {
-    const className = outerClass || (this.checkConflicted(block, token, cursor) ? CLASS_OR_ID['AG_GRAY'] : CLASS_OR_ID['AG_HIDE'])
+    const className = this.getClassName(outerClass, block, token, cursor)
     return [
       h(`a.${className}`, {
         props: { href: '#' }

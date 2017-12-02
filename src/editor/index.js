@@ -13,8 +13,9 @@ class Aganippe {
   init () {
     this.ensureContainerDiv()
     const { container, contentState } = this
-    contentState.stateRender.setContainer(container.firstChild)
+    contentState.stateRender.setContainer(container.children[0])
     contentState.render()
+
     this.dispatchUpdateState()
   }
 
@@ -22,9 +23,6 @@ class Aganippe {
    * [ensureContainerDiv ensure container element is div]
    */
   ensureContainerDiv () {
-    if (this.container.tagName.toLowerCase() === LOWERCASE_TAGS.div) {
-      return false
-    }
     const { container } = this
     const div = document.createElement(LOWERCASE_TAGS.div)
     const rootdom = document.createElement(LOWERCASE_TAGS.div)

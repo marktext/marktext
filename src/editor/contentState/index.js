@@ -13,7 +13,7 @@ const initBlocks = set => {
     parent: null,
     preSibling: null,
     nextSibling: null,
-    text: 'ae**hello**wowow',
+    text: 'a',
     children: [],
     depth: 0,
     type: LOWERCASE_TAGS.p
@@ -58,7 +58,6 @@ class ContentState {
     const selectionState = selection.exportSelection(paragraph)
     const block = this.getBlock(paragraph.id)
     block.text = text
-    console.log(text)
     Object.assign(this.cursor.range, selectionState)
     if (this.checkNeedRender(block)) {
       this.render()
