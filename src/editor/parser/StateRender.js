@@ -7,12 +7,10 @@ import { rules } from './rules'
 const snabbdom = require('snabbdom')
 const patch = snabbdom.init([ // Init patch function with chosen modules
   require('snabbdom/modules/class').default, // makes it easy to toggle classes
-  require('snabbdom/modules/props').default, // for setting properties on DOM elements
-  require('snabbdom/modules/style').default, // handles styling on elements with support for animations
-  require('snabbdom/modules/dataset').default
+  require('snabbdom/modules/props').default // for setting properties on DOM elements
 ])
 const h = require('snabbdom/h').default // helper function for creating vnodes
-const toHTML = require('snabbdom-to-html')
+const toVNode = require('snabbdom/tovnode').default
 
 class StateRender {
   constructor () {
@@ -62,10 +60,10 @@ class StateRender {
       }
     })
     const newVdom = h(selector, children)
-    const root = this.vdom || this.container
-    console.log(toHTML(this.vdom))
-    console.log(toHTML(newVdom))
-    patch(root, newVdom)
+    const root = document.querySelector(selector) || this.container
+    const oldVdom = toVNode(root)
+
+    patch(oldVdom, newVdom)
 
     this.vdom = newVdom
     if (cursor && cursor.range) {

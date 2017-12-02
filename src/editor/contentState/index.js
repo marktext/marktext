@@ -13,7 +13,7 @@ const initBlocks = set => {
     parent: null,
     preSibling: null,
     nextSibling: null,
-    text: 'a',
+    text: '',
     children: [],
     depth: 0,
     type: LOWERCASE_TAGS.p
@@ -59,12 +59,14 @@ class ContentState {
     const block = this.getBlock(paragraph.id)
     block.text = text
     Object.assign(this.cursor.range, selectionState)
-    if (this.checkNeedRender(block)) {
+    if (this.checkNeedRender(block, paragraph)) {
       this.render()
     }
   }
 
-  checkNeedRender (block) {
+  checkNeedRender (block, paragraph) {
+    const html = paragraph.innerHTML
+    if (/ag-gray/.test(html)) return true
     const { start: cStart, end: cEnd } = this.cursor.range
     const tokens = tokenizer(block.text, rules)
     let i
