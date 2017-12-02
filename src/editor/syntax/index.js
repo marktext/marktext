@@ -3,7 +3,7 @@ import {
   findOutMostParagraph, findNearestParagraph, isFirstChildElement,
   isOnlyChildElement, insertAfter, operateClassName
 } from '../utils/domManipulate'
-import { isEven, loadImage, getUniqueId } from '../utils'
+import { isEven, loadImage, getUniqueId, isConflicted } from '../utils'
 import {
   LOWERCASE_TAGS,
   CLASS_OR_ID,
@@ -71,12 +71,6 @@ const LINE_BREAK_BLOCK_REG = /^(?:`{3,}([^`]*))|^\*{3,}|^-{3,}|^_{3,}/ // eslint
 const INLINE_BLOCK_REG = /^(?:[*+-]\s(\[\s\]\s)?|\d+\.\s|(#{1,6})[^#]+|>.+)/
 const CHOP_HEADER_REG = /^([*+-]\s(?:\[\s\]\s)?|>\s*|\d+\.\s)/
 
-/**
- *  Are two arraies have intersection
- */
-const conflict = (arr1, arr2) => {
-  return !(arr1[1] < arr2[0] || arr2[1] < arr1[0])
-}
 /**
  * [backlash => html]
  * examples:

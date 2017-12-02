@@ -49,7 +49,7 @@ export const isBlockContainer = element => {
 }
 
 export const isAganippeEditorElement = element => {
-  return element && element.getAttribute && !!element.getAttribute(CLASS_OR_ID['AG_EDITOR_ATTR'])
+  return element && element.getAttribute && !!element.id === (CLASS_OR_ID['AG_EDITOR_ID'])
 }
 
 export const isAganippeParagraph = element => {

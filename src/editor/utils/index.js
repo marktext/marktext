@@ -1,7 +1,6 @@
 // help functions
 const getId = () => {
   const prefix = 'ag-'
-
   return `${prefix}${Math.random().toString(32).slice(2)}`
 }
 
@@ -21,6 +20,13 @@ export const getUniqueId = set => {
 
 export const isOdd = number => Math.abs(number) % 2 === 1
 export const isEven = number => Math.abs(number) % 2 === 0
+
+/**
+ *  Are two arraies have intersection
+ */
+export const conflict = (arr1, arr2) => {
+  return !(arr1[1] < arr2[0] || arr2[1] < arr1[0])
+}
 
 // https://github.com/jashkenas/underscore
 export const throttle = (func, wait = 50) => {

@@ -50,7 +50,6 @@ export const CLASS_OR_ID = genUpper2LowerKeyHash([
   'AG_WARN',
   'AG_PARAGRAPH', // => 'ag-paragraph'
   'AG_ACTIVE',
-  'AG_EDITOR_ATTR',
   'AG_EDITOR_ID',
   'AG_FLOAT_BOX_ID',
   'AG_FLOAT_BOX',

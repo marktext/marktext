@@ -139,7 +139,7 @@ pre.ag-active .ag-language-input {
   display: block;
 }
 
-#ag-editor-id {
+#ag-editor-id, [contenteditable] {
 	outline: none;
   caret-color: #333;
 }

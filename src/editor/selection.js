@@ -710,4 +710,4 @@ class Selection {
   }
 }
 
-export default Selection
+export default new Selection(document)

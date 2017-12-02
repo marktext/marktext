@@ -1,30 +1,8 @@
+import { inlineRules } from './rules'
 const isEven = (str = '') => {
   const len = str.length
   return len % 2 === 0
 }
-
-const beginRules = {
-  'hr': /^\*{3,}|^\-{3,}|^\_{3,}/,
-  'code_fense': /^`{3,}[^`]*/,
-  'header': /^#{1,6}/ // can nest
-}
-
-const inlineRules = {
-  'backlash': /^(\\)([\\`*{}\[\]()#+\-.!_>~])/,
-  'strong': /^(\*{2}|_{2})([^\s]|[^\s].*?[^\s])(\\*)\1/, // can nest
-  'em': /^(\*{1}|_{1})([^\s]|[^\s].*?[^\s])(\\*)\1/, // can nest
-  'inline_code': /^(`{1,3})([^`]+?|.{2,})(\\*)\1/,
-  'image': /^(\!\[)(.*?)(\\*)\]\((.*?)(\\*)\)/,
-  'link': /^(\[)((?:\[[^\]]*\]|[^\[\]]|\](?=[^\[]*\]))*?)(\\*)\]\((.*?)(\\*)\)/, // can nest
-  'emoji': /^(:)([^:\\]+?)\1/,
-  'del': /^(~{2})(?=\S)([\s\S]*?\S)(\\*)\1/, // can nest
-  'auto_link': /^(https?:\/\/[^\s]+)(?=\s|$)/
-}
-
-const rules = Object.assign({}, beginRules, inlineRules)
-const src = ':smile:'
-
-
 /**
  * [{
  *   type: 'hr',
@@ -51,19 +29,22 @@ const src = ':smile:'
  * }]
  */
 
-const tokenizer = (src, rules, pos = 0) => {
+export const tokenizer = (src, rules, pos = 0) => {
   const tokens = []
   let pending = ''
   let pendingStartPos = pos
   const pushPending = () => {
-    if (pending) tokens.push({
-      type: 'text',
-      content: pending,
-      range: {
-        start: pendingStartPos,
-        end: pos
-      }
-    })
+    if (pending) {
+      tokens.push({
+        type: 'text',
+        content: pending,
+        range: {
+          start: pendingStartPos,
+          end: pos
+        }
+      })
+    }
+
     pendingStartPos = pos
     pending = ''
   }
@@ -103,7 +84,9 @@ const tokenizer = (src, rules, pos = 0) => {
         const marker = to[1]
         if (type === 'inline_code' || type === 'emoji') {
           tokens.push({
-            type, range, marker,
+            type,
+            range,
+            marker,
             content: to[2],
             backlash: to[3]
           })
@@ -185,7 +168,6 @@ const tokenizer = (src, rules, pos = 0) => {
       continue
     }
 
-
     if (!pending) pendingStartPos = pos
     pending += src[0]
     src = src.substring(1)
@@ -195,5 +177,3 @@ const tokenizer = (src, rules, pos = 0) => {
   pushPending()
   return tokens
 }
-
-console.log(JSON.stringify(tokenizer(src, rules), null, 2))
