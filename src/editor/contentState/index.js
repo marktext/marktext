@@ -1,7 +1,6 @@
 import { getUniqueId, conflict, deepCopy } from '../utils'
 import { LOWERCASE_TAGS } from '../config'
 import StateRender from '../parser/StateRender'
-import { rules } from '../parser/rules'
 import { tokenizer } from '../parser/parse'
 import selection from '../selection'
 import { findNearestParagraph } from '../utils/domManipulate'
@@ -72,7 +71,7 @@ class ContentState {
     const html = paragraph.innerHTML
     if (/ag-gray/.test(html)) return true
     const { start: cStart, end: cEnd } = this.cursor.range
-    const tokens = tokenizer(block.text, rules)
+    const tokens = tokenizer(block.text)
     let i
     const len = tokens.length
     const textLen = block.text.length
@@ -263,31 +262,3 @@ class ContentState {
 }
 
 export default ContentState
-/**
- * cursor: {
- *   range: {
- *     start: 3,
- *     end: 5
- *   },
- *   key: '3u2ab'
- * }
- * blocks: [{
- *   key: '3u2ab', // data-3u2ab,
- *   parent: null,
- *   preSibling: null,
- *   nextSibling: '459aui',
- *   text: '',
- *   children: [{
- *     key: '45iou',
- *     parent: '3u2ab',
- *     preSibling: null,
- *     nextSibling: null,
- *     text: '',
- *     type: 'li',
- *     children: [],
- *     depth: 1
- *   }],
- *   type: 'ul',
- *   depth: 0
- * }]
- */

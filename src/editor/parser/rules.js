@@ -1,8 +1,8 @@
 /* eslint-disable no-useless-escape */
-const beginRules = {
-  'hr': /^\*{3,}|^\-{3,}|^\_{3,}/,
-  'code_fense': /^`{3,}[^`]*/,
-  'header': /^#{1,6}/ // can nest
+export const beginRules = {
+  'hr': /^(\*{3,}$|^\-{3,}$|^\_{3,}$)/,
+  'code_fense': /^(`{3,})([^`]*)$/,
+  'header': /(^#{1,6})/
 }
 
 export const inlineRules = {
@@ -17,5 +17,3 @@ export const inlineRules = {
   'auto_link': /^(https?:\/\/[^\s]+)(?=\s|$)/
 }
 /* eslint-enable no-useless-escape */
-
-export const rules = Object.assign({}, beginRules, inlineRules)

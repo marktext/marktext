@@ -2,12 +2,13 @@ import { LOWERCASE_TAGS, CLASS_OR_ID } from '../config'
 import { conflict } from '../utils'
 import selection from '../selection'
 import { tokenizer } from './parse'
-import { rules } from './rules'
+import { validEmoji } from '../emojis'
 
 const snabbdom = require('snabbdom')
 const patch = snabbdom.init([ // Init patch function with chosen modules
   require('snabbdom/modules/class').default, // makes it easy to toggle classes
-  require('snabbdom/modules/props').default // for setting properties on DOM elements
+  require('snabbdom/modules/props').default, // for setting properties on DOM elements
+  require('snabbdom/modules/dataset').default
 ])
 const h = require('snabbdom/h').default // helper function for creating vnodes
 const toVNode = require('snabbdom/tovnode').default
@@ -51,7 +52,7 @@ class StateRender {
         return h(blockSelector, block.children.map(child => renderBlock(child)))
       } else {
         const children = block.text
-          ? tokenizer(block.text, rules).reduce((acc, token) => {
+          ? tokenizer(block.text).reduce((acc, token) => {
             const chunk = this[token.type](h, cursor, block, token)
             return Array.isArray(chunk) ? [...acc, ...chunk] : [...acc, chunk]
           }, [])
@@ -78,10 +79,42 @@ class StateRender {
     }
   }
 
-  hr (h, cursor, block, token) {
-    // const className = this.checkConflicted(block, token) ? CLASS_OR_ID['AG_GRAY'] : CLASS_OR_ID['AG_HIDE']
-    return h(LOWERCASE_TAGS.span, {
-    })
+  hr (h, cursor, block, token, outerClass) {
+    const className = CLASS_OR_ID['AG_GRAY']
+    return [
+      h(`a.${className}`, {
+        props: { href: '#' }
+      }, token.marker)
+    ]
+  }
+
+  header (h, cursor, block, token, outerClass) {
+    const className = this.getClassName(outerClass, block, token, cursor)
+    return [
+      h(`a.${className}`, {
+        props: { href: '#' }
+      }, token.marker)
+    ]
+  }
+
+  ['code_fense'] (h, cursor, block, token, outerClass) {
+    return [
+      h(`a.${CLASS_OR_ID['AG_GRAY']}`, {
+        props: { href: '#' }
+      }, token.marker),
+      h(`a.${CLASS_OR_ID['AG_LANGUAGE']}`, {
+        props: { href: '#' }
+      }, token.content)
+    ]
+  }
+
+  backlash (h, cursor, block, token, outerClass) {
+    const className = this.getClassName(outerClass, block, token, cursor)
+    return [
+      h(`a.${className}`, {
+        props: { href: '#' }
+      }, token.marker)
+    ]
   }
 
   ['inline_code'] (h, cursor, block, token, outerClass) {
@@ -99,6 +132,21 @@ class StateRender {
 
   text (h, cursor, block, token) {
     return token.content
+  }
+
+  emoji (h, cursor, block, token, outerClass) {
+    const className = this.getClassName(outerClass, block, token, cursor)
+    const validation = validEmoji(token.content)
+    const finalClass = validation ? className : CLASS_OR_ID['AG_WARN']
+    const emojiVdom = validation
+      ? h(`a.${finalClass}.${CLASS_OR_ID['AG_EMOJI_MARKED_TEXT']}`, { dataset: { emoji: validation.emoji } }, token.content)
+      : h(`a.${finalClass}.${CLASS_OR_ID['AG_EMOJI_MARKED_TEXT']}`, token.content)
+
+    return [
+      h(`a.${finalClass}`, { props: { href: '#' } }, token.marker),
+      emojiVdom,
+      h(`a.${finalClass}`, { props: { href: '#' } }, token.marker)
+    ]
   }
 
   em (h, cursor, block, token, outerClass) {
