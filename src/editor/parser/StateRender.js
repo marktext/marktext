@@ -44,21 +44,27 @@ class StateRender {
    */
   render (blocks, cursor) {
     const selector = `${LOWERCASE_TAGS.div}#${CLASS_OR_ID['AG_EDITOR_ID']}.${CLASS_OR_ID['mousetrap']}`
-    const children = blocks.map(block => {
-      switch (block.type) {
-        case LOWERCASE_TAGS.p:
-          const childs = block.text
-            ? tokenizer(block.text, rules).reduce((acc, token) => {
-              const chunk = this[token.type](h, cursor, block, token)
-              return Array.isArray(chunk) ? [...acc, ...chunk] : [...acc, chunk]
-            }, [])
-            : [ h(LOWERCASE_TAGS.br) ]
-          console.log(JSON.stringify(childs, null, 2))
-          return h(`${LOWERCASE_TAGS.p}#${block.key}.${CLASS_OR_ID['AG_PARAGRAPH']}`, childs)
-        case LOWERCASE_TAGS.h1:
-          break
+    const renderBlock = block => {
+      const blockSelector = `${block.type}#${block.key}.${CLASS_OR_ID['AG_PARAGRAPH']}`
+
+      if (block.children.length) {
+        return h(blockSelector, block.children.map(child => renderBlock(child)))
+      } else {
+        const children = block.text
+          ? tokenizer(block.text, rules).reduce((acc, token) => {
+            const chunk = this[token.type](h, cursor, block, token)
+            return Array.isArray(chunk) ? [...acc, ...chunk] : [...acc, chunk]
+          }, [])
+          : [ h(LOWERCASE_TAGS.br) ]
+
+        return h(blockSelector, children)
       }
+    }
+
+    const children = blocks.map(block => {
+      return renderBlock(block)
     })
+
     const newVdom = h(selector, children)
     const root = document.querySelector(selector) || this.container
     const oldVdom = toVNode(root)

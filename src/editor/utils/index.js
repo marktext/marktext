@@ -77,6 +77,41 @@ export const debounce = (func, wait = 50) => {
   }
 }
 
+export const deepCopyArray = array => {
+  const result = []
+  const len = array.length
+  let i
+  for (i = 0; i < len; i++) {
+    if (typeof array[i] === 'object' && array[i] !== null) {
+      if (Array.isArray(array[i])) {
+        result.push(deepCopyArray(array[i]))
+      } else {
+        result.push(deepCopy(array[i]))
+      }
+    } else {
+      result.push(array[i])
+    }
+  }
+  return result
+}
+
+export const deepCopy = object => {
+  console.log(object)
+  const obj = {}
+  Object.keys(object).forEach(key => {
+    if (typeof object[key] === 'object' && object[key] !== null) {
+      if (Array.isArray(object[key])) {
+        obj[key] = deepCopyArray(object[key])
+      } else {
+        obj[key] = deepCopy(object[key])
+      }
+    } else {
+      obj[key] = object[key]
+    }
+  })
+  return obj
+}
+
 export const loadImage = url => {
   const image = new Image()
   return new Promise((resolve, reject) => {
