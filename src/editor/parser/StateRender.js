@@ -51,6 +51,7 @@ class StateRender {
       if (block.children.length) {
         return h(blockSelector, block.children.map(child => renderBlock(child)))
       } else {
+        console.log(JSON.stringify(tokenizer(block.text), null, 2))
         const children = block.text
           ? tokenizer(block.text).reduce((acc, token) => {
             const chunk = this[token.type](h, cursor, block, token)
@@ -141,7 +142,6 @@ class StateRender {
     const emojiVdom = validation
       ? h(`a.${finalClass}.${CLASS_OR_ID['AG_EMOJI_MARKED_TEXT']}`, { dataset: { emoji: validation.emoji } }, token.content)
       : h(`a.${finalClass}.${CLASS_OR_ID['AG_EMOJI_MARKED_TEXT']}`, token.content)
-
     return [
       h(`a.${finalClass}`, { props: { href: '#' } }, token.marker),
       emojiVdom,
@@ -152,18 +152,33 @@ class StateRender {
   // render factory of `del`,`em`,`strong`
   delEmStrongFac (type, h, cursor, block, token, outerClass) {
     const className = this.getClassName(outerClass, block, token, cursor)
-    return [
-      h(`a.${className}`, {
-        props: { href: '#' }
-      }, token.marker),
-      h(type, token.children.reduce((acc, to) => {
-        const chunk = this[to.type](h, cursor, block, to, className)
-        return Array.isArray(chunk) ? [...acc, ...chunk] : [...acc, chunk]
-      }, [])),
-      h(`a.${className}`, {
-        props: { href: '#' }
-      }, token.marker)
-    ]
+    if (isLengthEven(token.backlash)) {
+      return [
+        h(`a.${className}`, {
+          props: { href: '#' }
+        }, token.marker),
+        h(type, [
+          ...token.children.reduce((acc, to) => {
+            const chunk = this[to.type](h, cursor, block, to, className)
+            return Array.isArray(chunk) ? [...acc, ...chunk] : [...acc, chunk]
+          }, []),
+          ...this.backlashInToken(token.backlash, className)
+        ]),
+        h(`a.${className}`, {
+          props: { href: '#' }
+        }, token.marker)
+      ]
+    } else {
+      return [
+        token.marker,
+        ...token.children.reduce((acc, to) => {
+          const chunk = this[to.type](h, cursor, block, to, className)
+          return Array.isArray(chunk) ? [...acc, ...chunk] : [...acc, chunk]
+        }, []),
+        ...this.backlashInToken(token.backlash, className),
+        token.marker
+      ]
+    }
   }
 
   backlashInToken (backlashes, outerClass) {

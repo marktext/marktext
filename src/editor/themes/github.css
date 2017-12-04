@@ -268,12 +268,24 @@ tt {
   font-size: 0.9em;
 }
 
+/* custom add */
+.md-fences, code {
+  border: none;
+  padding: 2px 4px;
+  font-size: 90%;
+  color: #c7254e;
+  background-color: #f9f2f4;
+  border-radius: 4px;
+  font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
+}
+
 .md-fences {
   margin-bottom: 15px;
   margin-top: 15px;
   padding: 0.2em 1em;
   padding-top: 8px;
   padding-bottom: 6px;
+  border: none;
 }
 .task-list{
   padding-left: 0;
