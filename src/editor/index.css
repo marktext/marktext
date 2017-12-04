@@ -4,7 +4,7 @@ h3.ag-active::before,
 h4.ag-active::before,
 h5.ag-active::before,
 h6.ag-active::before {
-  content: attr(data-head-level);
+  content: attr(data-head);
   width: 20px;
   height: 20px;
   text-align: center;

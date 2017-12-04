@@ -1,6 +1,6 @@
 import ContentState from './contentState'
 import Event from './event'
-import { LOWERCASE_TAGS } from './config'
+import { LOWERCASE_TAGS, EVENT_KEYS } from './config'
 
 class Aganippe {
   constructor (container, options) {
@@ -16,6 +16,7 @@ class Aganippe {
     contentState.stateRender.setContainer(container.children[0])
     contentState.render()
 
+    this.dispatchEnter()
     this.dispatchUpdateState()
   }
 
@@ -37,6 +38,18 @@ class Aganippe {
     parentNode.insertBefore(div, container)
     parentNode.removeChild(container)
     this.container = div
+  }
+
+  dispatchEnter (event) {
+    const { container, eventCenter } = this
+    const handler = event => {
+      if (event.key === EVENT_KEYS.Enter) {
+        event.preventDefault()
+        this.contentState.enterHandler()
+      }
+    }
+
+    eventCenter.attachDOMEvent(container, 'keydown', handler)
   }
 
   dispatchUpdateState () {

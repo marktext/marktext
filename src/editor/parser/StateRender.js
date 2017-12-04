@@ -44,10 +44,12 @@ class StateRender {
    * render vdom
    * return set cursor method
    */
-  render (blocks, cursor) {
+  render (blocks, cursor, activeBlockKey) {
     const selector = `${LOWERCASE_TAGS.div}#${CLASS_OR_ID['AG_EDITOR_ID']}.${CLASS_OR_ID['mousetrap']}`
     const renderBlock = block => {
-      const blockSelector = `${block.type}#${block.key}.${CLASS_OR_ID['AG_PARAGRAPH']}`
+      const blockSelector = block.key === activeBlockKey
+        ? `${block.type}#${block.key}.${CLASS_OR_ID['AG_PARAGRAPH']}.${CLASS_OR_ID['AG_ACTIVE']}`
+        : `${block.type}#${block.key}.${CLASS_OR_ID['AG_PARAGRAPH']}`
 
       if (block.children.length) {
         return h(blockSelector, block.children.map(child => renderBlock(child)))
@@ -59,8 +61,9 @@ class StateRender {
             return Array.isArray(chunk) ? [...acc, ...chunk] : [...acc, chunk]
           }, [])
           : [ h(LOWERCASE_TAGS.br) ]
+        const data = /^h\d$/.test(block.type) ? { dataset: {'head': block.type} } : {}
 
-        return h(blockSelector, children)
+        return h(blockSelector, data, children)
       }
     }
 
