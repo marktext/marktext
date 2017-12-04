@@ -1,5 +1,5 @@
 import { LOWERCASE_TAGS, CLASS_OR_ID } from '../config'
-import { conflict } from '../utils'
+import { conflict, isLengthEven, isEven } from '../utils'
 import selection from '../selection'
 import { tokenizer } from './parse'
 import { validEmoji } from '../emojis'
@@ -149,13 +149,14 @@ class StateRender {
     ]
   }
 
-  em (h, cursor, block, token, outerClass) {
+  // render factory of `del`,`em`,`strong`
+  delEmStrongFac (type, h, cursor, block, token, outerClass) {
     const className = this.getClassName(outerClass, block, token, cursor)
     return [
       h(`a.${className}`, {
         props: { href: '#' }
       }, token.marker),
-      h('em', token.children.reduce((acc, to) => {
+      h(type, token.children.reduce((acc, to) => {
         const chunk = this[to.type](h, cursor, block, to, className)
         return Array.isArray(chunk) ? [...acc, ...chunk] : [...acc, chunk]
       }, [])),
@@ -165,20 +166,106 @@ class StateRender {
     ]
   }
 
-  strong (h, cursor, block, token, outerClass) {
+  backlashInToken (backlashes, outerClass) {
+    const chunks = backlashes.split('')
+    const len = chunks.length
+    const result = []
+    let i
+
+    for (i = 0; i < len; i++) {
+      if (isEven(i)) {
+        result.push(
+          h(`a.${outerClass}`, {
+            props: {
+              href: '#'
+            }
+          }, chunks[i])
+        )
+      } else {
+        result.push(
+          h(`a.${CLASS_OR_ID['AG_BACKLASH']}`, {
+            props: {
+              href: '#'
+            }
+          }, chunks[i])
+        )
+      }
+    }
+
+    result.push(
+      h(`a.${CLASS_OR_ID['AG_BUG']}`) // the extral a tag for fix bug
+    )
+
+    return result
+  }
+
+  // 'link': /^(\[)((?:\[[^\]]*\]|[^\[\]]|\](?=[^\[]*\]))*?)(\\*)\]\((.*?)(\\*)\)/, // can nest
+  link (h, cursor, block, token, outerClass) {
     const className = this.getClassName(outerClass, block, token, cursor)
-    return [
-      h(`a.${className}`, {
-        props: { href: '#' }
-      }, token.marker),
-      h('strong', token.children.reduce((acc, to) => {
-        const chunk = this[to.type](h, cursor, block, to, className)
-        return Array.isArray(chunk) ? [...acc, ...chunk] : [...acc, chunk]
-      }, [])),
-      h(`a.${className}`, {
-        props: { href: '#' }
-      }, token.marker)
-    ]
+    const linkClassName = className === CLASS_OR_ID['AG_HIDE'] ? className : CLASS_OR_ID['AG_LINK_IN_BRACKET']
+    if (isLengthEven(token.backlash.first) && isLengthEven(token.backlash.second)) {
+      if (!token.children.length && !token.backlash.first) { // no-text-link
+        return [
+          h(`a.${CLASS_OR_ID['AG_GRAY']}`, { props: { href: '#' } }, '[]('),
+          h('span', {
+            dataset: {
+              href: token.href + encodeURI(token.backlash.second),
+              role: 'link'
+            }
+          }, [
+            token.href,
+            ...this.backlashInToken(token.backlash.second, className)
+          ]),
+          h(`a.${CLASS_OR_ID['AG_GRAY']}`, { props: { href: '#' } }, ')')
+        ]
+      } else { // has children
+        return [
+          h(`a.${className}`, { props: { href: '#' } }, '['),
+          h('span', {
+            dataset: {
+              href: token.href + encodeURI(token.backlash.second),
+              role: 'link'
+            }
+          }, [
+            ...token.children.reduce((acc, to) => {
+              const chunk = this[to.type](h, cursor, block, to, className)
+              return Array.isArray(chunk) ? [...acc, ...chunk] : [...acc, chunk]
+            }, []),
+            ...this.backlashInToken(token.backlash.first, className)
+          ]),
+          h(`a.${className}`, { props: { href: '#' } }, ']('),
+          h(`span.${linkClassName}`, [
+            token.href,
+            ...this.backlashInToken(token.backlash.second, className)
+          ]),
+          h(`a.${className}`, { props: { href: '#' } }, ')')
+        ]
+      }
+    } else {
+      return [
+        '[',
+        ...token.children.reduce((acc, to) => {
+          const chunk = this[to.type](h, cursor, block, to, className)
+          return Array.isArray(chunk) ? [...acc, ...chunk] : [...acc, chunk]
+        }, []),
+        ...this.backlashInToken(token.backlash.first, className),
+        `](${token.href}`,
+        ...this.backlashInToken(token.backlash.second, className),
+        ')'
+      ]
+    }
+  }
+
+  del (h, cursor, block, token, outerClass) {
+    return this.delEmStrongFac('del', h, cursor, block, token, outerClass)
+  }
+
+  em (h, cursor, block, token, outerClass) {
+    return this.delEmStrongFac('em', h, cursor, block, token, outerClass)
+  }
+
+  strong (h, cursor, block, token, outerClass) {
+    return this.delEmStrongFac('strong', h, cursor, block, token, outerClass)
   }
 }
 

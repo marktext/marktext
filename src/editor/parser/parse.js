@@ -1,9 +1,5 @@
 import { beginRules, inlineRules } from './rules'
-
-const isEven = (str = '') => {
-  const len = str.length
-  return len % 2 === 0
-}
+import { isLengthEven } from '../utils'
 
 const tokenizerFac = (src, beginRules, inlineRules, pos = 0) => {
   const tokens = []
@@ -77,7 +73,7 @@ const tokenizerFac = (src, beginRules, inlineRules, pos = 0) => {
     for (i = 0; i < chLen; i++) {
       const type = chunks[i]
       const to = inlineRules[type].exec(src)
-      if (to && isEven(to[3])) {
+      if (to && isLengthEven(to[3])) {
         inChunk = true
         pushPending()
         const range = {
@@ -110,7 +106,7 @@ const tokenizerFac = (src, beginRules, inlineRules, pos = 0) => {
     if (inChunk) continue
     // link
     const linkTo = inlineRules.link.exec(src)
-    if (linkTo && isEven(linkTo[3]) && isEven(linkTo[5])) {
+    if (linkTo && isLengthEven(linkTo[3]) && isLengthEven(linkTo[5])) {
       pushPending()
       tokens.push({
         type: 'link',

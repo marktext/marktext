@@ -21,6 +21,10 @@ export const getUniqueId = set => {
 export const isOdd = number => Math.abs(number) % 2 === 1
 export const isEven = number => Math.abs(number) % 2 === 0
 
+export const isLengthEven = (str = '') => {
+  const len = str.length
+  return len % 2 === 0
+}
 /**
  *  Are two arraies have intersection
  */

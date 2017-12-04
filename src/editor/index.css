@@ -193,7 +193,7 @@ pre.ag-active .ag-language-input {
   background-image: url(./assets/icons/imagefail.svg);
 }
 
-span[role="link"], a[role="link"], span[role="link"] .ag-backlash {
+span[data-role="link"], a[data-role="link"], span[data-role="link"] .ag-backlash {
   color: #0366d6;
   text-decoration: none;
 }
