@@ -24,9 +24,12 @@ const enterCtrl = ContentState => {
     const node = selection.getSelectionStart()
     let paragraph = findNearestParagraph(node)
     let block = this.getBlock(paragraph.id)
-    const parent = this.getParent(block)
+    let parent = this.getParent(block)
+    console.log(JSON.stringify(this.blocks, null, 2))
+    console.log(JSON.stringify(block, null, 2))
     if (parent && parent.type === 'li' && !block.preSibling) {
       block = parent
+      parent = this.getParent(block)
     }
     const { left, right } = selection.getCaretOffsets(paragraph)
     const preType = block.type
@@ -73,21 +76,16 @@ const enterCtrl = ContentState => {
           this.removeBlock(block)
         }
         if (this.isFirstChild(block) && preType === 'li') {
-          console.log(1)
-          const liBlock = this.createBlockLi('', block.depth)
-          this.insertAfter(liBlock, block)
-          newBlock = liBlock.children[0]
+          newBlock = this.createBlockLi('', block.depth)
+          this.insertAfter(newBlock, block)
         } else if (parent.type === 'li') {
-          console.log(block)
-          console.log('2')
-          const liBlock = this.createBlockLi('', block.depth - 1)
-          this.insertAfter(liBlock, parent)
+          newBlock = this.createBlockLi('', block.depth - 1)
+          this.insertAfter(newBlock, parent)
           this.removeBlock(block)
-          newBlock = liBlock.children[0]
         } else {
-          console.log('x')
           newBlock = newABlock(this.keys, null, null, null, '', block.depth, 'p')
           if (preType === 'li') {
+            const parent = this.getParent(block)
             this.insertAfter(newBlock, parent)
             newBlock.depth = parent.depth
             this.removeBlock(block)
@@ -96,9 +94,26 @@ const enterCtrl = ContentState => {
           }
         }
         break
+      case left !== 0 && right === 0: // cursor at end of paragraph
+      case left === 0 && right !== 0: // cursor at begin of paragraph
+        if (preType === 'li') type = 'li'
+        else type = 'p' // insert after or before
+        newBlock = type === 'li'
+          ? this.createBlockLi('', block.depth)
+          : newABlock(this.keys, null, null, null, '', block.depth, 'p')
+        if (left === 0 && right !== 0) {
+          this.insertBefore(newBlock, block)
+        } else {
+          this.insertAfter(newBlock, block)
+        }
+        break
+      default:
+        newBlock = newABlock(this.keys, null, null, null, '', block.depth, 'p')
+        this.insertAfter(newBlock, block)
+        break
     }
     this.cursor = {
-      key: newBlock.key,
+      key: newBlock.type === 'li' ? newBlock.children[0].key : newBlock.key,
       range: {
         start: 0,
         end: 0
