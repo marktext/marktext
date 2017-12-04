@@ -1,5 +1,6 @@
 import { LOWERCASE_TAGS, CLASS_OR_ID } from '../config'
-import { conflict, isLengthEven, isEven } from '../utils'
+import { conflict, isLengthEven, isEven, getIdWithoutSet, loadImage } from '../utils'
+import { insertAfter, operateClassName } from '../utils/domManipulate.js'
 import selection from '../selection'
 import { tokenizer } from './parse'
 import { validEmoji } from '../emojis'
@@ -212,6 +213,65 @@ class StateRender {
     )
 
     return result
+  }
+  // I dont want operate dom directly, is there any better method? need help!
+  image (h, cursor, block, token, outerClass) {
+    const className = this.getClassName(outerClass, block, token, cursor)
+    const imageClass = CLASS_OR_ID['AG_IMAGE_MARKED_TEXT']
+
+    if (isLengthEven(token.backlash.first) && isLengthEven(token.backlash.second)) {
+      const id = getIdWithoutSet()
+      loadImage(token.src + encodeURI(token.backlash.second))
+        .then(url => {
+          const imageWrapper = document.querySelector(`#${id}`)
+          const img = document.createElement('img')
+          img.src = url
+          img.alt = token.title + encodeURI(token.backlash.first)
+          if (imageWrapper) {
+            insertAfter(img, imageWrapper)
+            operateClassName(imageWrapper, 'add', className)
+          }
+        })
+        .catch(() => {
+          const imageWrapper = document.querySelector(`#${id}`)
+          if (imageWrapper) {
+            operateClassName(imageWrapper, 'add', CLASS_OR_ID['AG_IMAGE_FAIL'])
+          }
+        })
+
+      return [
+        h(`a#${id}.${imageClass}`, { props: { href: '#' } }, [
+          `![${token.title}`,
+          ...this.backlashInToken(token.backlash.first, className),
+          `](${token.src}`,
+          ...this.backlashInToken(token.backlash.second, className),
+          ')'
+        ])
+      ]
+    } else {
+      return [
+        '![',
+        ...token.children.reduce((acc, to) => {
+          const chunk = this[to.type](h, cursor, block, to, className)
+          return Array.isArray(chunk) ? [...acc, ...chunk] : [...acc, chunk]
+        }, []),
+        ...this.backlashInToken(token.backlash.first, className),
+        '](',
+        token.src,
+        ...this.backlashInToken(token.backlash.second, className),
+        ')'
+      ]
+    }
+  }
+
+  ['auto_link'] (h, cursor, block, token, outerClass) {
+    return [
+      h('a', {
+        porps: {
+          href: token.href
+        }
+      }, token.href)
+    ]
   }
 
   // 'link': /^(\[)((?:\[[^\]]*\]|[^\[\]]|\](?=[^\[]*\]))*?)(\\*)\]\((.*?)(\\*)\)/, // can nest

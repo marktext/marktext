@@ -141,6 +141,7 @@ const tokenizerFac = (src, beginRules, inlineRules, pos = 0) => {
           end: pos + imageTo[0].length
         },
         title: imageTo[2],
+        children: tokenizerFac(imageTo[2], undefined, inlineRules, pos + imageTo[1].length),
         backlash: {
           first: imageTo[3],
           second: imageTo[5]

@@ -18,6 +18,10 @@ export const getUniqueId = set => {
   return id
 }
 
+export const getIdWithoutSet = () => {
+  return `${getId()}-${+new Date()}`
+}
+
 export const isOdd = number => Math.abs(number) % 2 === 1
 export const isEven = number => Math.abs(number) % 2 === 0
 
