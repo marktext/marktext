@@ -79,13 +79,11 @@ class ContentState {
     return null
   }
 
-  getPreSibling (key) {
-    const block = this.getBlock(key)
+  getPreSibling (block) {
     return block.preSibling ? this.getBlock(block.preSibling) : null
   }
 
-  getNextSibling (key) {
-    const block = this.getBlock(key)
+  getNextSibling (block) {
     return block.nextSibling ? this.getBlock(block.nextSibling) : null
   }
 
@@ -170,6 +168,7 @@ class ContentState {
     parent.children.push(block)
     block.parent = parent.key
     if (lastChild) {
+      lastChild.nextSibling = block.key
       block.preSibling = lastChild.key
     }
   }

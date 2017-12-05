@@ -1,7 +1,7 @@
 import selection from '../selection'
 import { findNearestParagraph } from '../utils/domManipulate'
 import { tokenizer } from '../parser/parse'
-import { conflict, deepCopy, getUniqueId } from '../utils'
+import { conflict } from '../utils'
 import { newABlock } from './index'
 
 const INLINE_UPDATE_REG = /^([*+-]\s(\[\s\]\s)?)|^(\d+\.\s)|^(#{1,6})[^#]+|^(>).+/
@@ -67,45 +67,44 @@ const updateCtrl = ContentState => {
 
   ContentState.prototype.updateList = function (block, type, marker) {
     const parent = this.getParent(block)
-    const preSibling = this.getPreSibling(block.key)
+    const preSibling = this.getPreSibling(block)
+    const nextSibling = this.getNextSibling(block)
     const wrapperTag = type === 'order' ? 'ol' : 'ul'
     const newText = block.text.substring(marker.length)
     const { start, end } = this.cursor.range
-    let newPblock
+    let newBlock
 
-    block.text = ''
-    block.type = 'li'
-
-    const cloneBlock = deepCopy(block)
-
-    if ((parent && parent.type !== wrapperTag) || (preSibling && preSibling.type !== wrapperTag) || !parent) {
-      cloneBlock.key = getUniqueId(this.keys)
-      cloneBlock.parent = block.key
-      cloneBlock.depth = block.depth + 1
-      newPblock = newABlock(this.keys, cloneBlock.key, null, null, newText, cloneBlock.depth + 1, 'p')
-      block.type = wrapperTag
-      block.children = [ cloneBlock ]
-      cloneBlock.children = [ newPblock ]
-    } else if (preSibling && preSibling.type === wrapperTag) {
+    if ((preSibling && preSibling.type === wrapperTag) && (nextSibling && nextSibling.type === wrapperTag)) {
+      newBlock = this.createBlockLi(newText, preSibling.depth + 1)
+      this.appendChild(preSibling, newBlock)
+      const partChildren = nextSibling.children.splice(0)
+      partChildren.forEach(b => this.appendChild(preSibling, b))
+      this.removeBlock(nextSibling)
       this.removeBlock(block)
-      cloneBlock.parent = preSibling.key
-      cloneBlock.depth = preSibling.depth + 1
+    } else if (preSibling && preSibling.type === wrapperTag) {
+      newBlock = this.createBlockLi(newText, preSibling.depth + 1)
+      this.appendChild(preSibling, newBlock)
 
-      if (preSibling.children.length) {
-        const lastChild = preSibling.children[preSibling.children.length - 1]
-        cloneBlock.preSibling = lastChild.key
-      }
+      this.removeBlock(block)
+    } else if (nextSibling && nextSibling.type === wrapperTag) {
+      newBlock = this.createBlockLi(newText, nextSibling.depth + 1)
+      this.insertBefore(newBlock, nextSibling.children[0])
 
-      preSibling.children.push(cloneBlock)
-      newPblock = newABlock(this.keys, cloneBlock.key, null, null, newText, cloneBlock.depth + 1, 'p')
-      cloneBlock.children = [ newPblock ]
+      this.removeBlock(block)
+    } else if (parent && parent.type === wrapperTag) {
+      newBlock = this.createBlockLi(newText, parent.depth + 1)
+      this.insertBefore(newBlock, block)
+
+      this.removeBlock(block)
     } else {
-      newPblock = newABlock(this.keys, block.key, null, null, newText, block.depth + 1, 'p')
-      block.children = [ newPblock ]
+      block.type = wrapperTag
+      block.text = ''
+      newBlock = this.createBlockLi(newText, block.depth + 1)
+      this.appendChild(block, newBlock)
     }
 
     this.cursor = {
-      key: newPblock.key,
+      key: newBlock.type === 'li' ? newBlock.children[0].key : newBlock.key,
       range: {
         start: Math.max(0, start - marker.length),
         end: Math.max(0, end - marker.length)

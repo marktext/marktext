@@ -26,7 +26,8 @@ const enterCtrl = ContentState => {
     let paragraph = findNearestParagraph(node)
     let block = this.getBlock(paragraph.id)
     let parent = this.getParent(block)
-    if (parent && parent.type === 'li' && !block.preSibling) {
+    if (parent && parent.type === 'li' && this.isOnlyChild(block)) {
+      console.log(JSON.stringify(block, null, 2))
       block = parent
       parent = this.getParent(block)
     }
@@ -36,7 +37,7 @@ const enterCtrl = ContentState => {
     let type
     let newBlock
     switch (true) {
-      case left !== 0 && right !== 0:
+      case left !== 0 && right !== 0: // cursor in the middle
         type = preType
         let { pre, post } = selection.chopHtmlByCursor(paragraph)
 
@@ -46,10 +47,7 @@ const enterCtrl = ContentState => {
         }
 
         if (type === 'li') {
-          const liBlock = newABlock(this.keys, block.parent, block.key, null, '', block.depth, 'li')
-          newBlock = newABlock(this.keys, newBlock.key, null, null, post, newBlock.depth + 1, 'p')
-          liBlock.children = [ newBlock ]
-          block.children[0].text = pre
+          newBlock = this.createBlockLi(post, block.depth)
         } else {
           block.text = pre
           newBlock = newABlock(this.keys, block.parent, block.key, null, post, block.depth, type)
