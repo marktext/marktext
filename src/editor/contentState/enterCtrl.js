@@ -25,8 +25,6 @@ const enterCtrl = ContentState => {
     let paragraph = findNearestParagraph(node)
     let block = this.getBlock(paragraph.id)
     let parent = this.getParent(block)
-    console.log(JSON.stringify(this.blocks, null, 2))
-    console.log(JSON.stringify(block, null, 2))
     if (parent && parent.type === 'li' && !block.preSibling) {
       block = parent
       parent = this.getParent(block)
@@ -74,8 +72,7 @@ const enterCtrl = ContentState => {
           }
 
           this.removeBlock(block)
-        }
-        if (this.isFirstChild(block) && preType === 'li') {
+        } else if (this.isFirstChild(block) && preType === 'li') {
           newBlock = this.createBlockLi('', block.depth)
           this.insertAfter(newBlock, block)
         } else if (parent.type === 'li') {
