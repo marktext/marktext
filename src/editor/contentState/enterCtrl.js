@@ -3,14 +3,15 @@ import { findNearestParagraph } from '../utils/domManipulate'
 import { newABlock } from './index'
 
 const enterCtrl = ContentState => {
-  ContentState.prototype.chopBlockQuote = function (block) {
-    const blockQuote = newABlock(this.keys, null, null, null, '', block.depth - 1, 'blockquote')
+  ContentState.prototype.chopBlock = function (block) {
     const parent = this.getParent(block)
+    const type = parent.type
+    const container = newABlock(this.keys, null, null, null, '', block.depth - 1, type)
     const index = this.findIndex(parent.children, block)
-    const blocks = parent.children.splice(index + 1)
+    const partChildren = parent.children.splice(index + 1)
     block.nextSibling = null
-    blocks.forEach(block => this.appendChild(blockQuote, block))
-    this.insertAfter(blockQuote, parent)
+    partChildren.forEach(b => this.appendChild(container, b))
+    this.insertAfter(container, parent)
   }
 
   ContentState.prototype.createBlockLi = function (text, depth) {
@@ -56,7 +57,7 @@ const enterCtrl = ContentState => {
         this.insertAfter(newBlock, block)
         break
       case left === 0 && right === 0: // paragraph is empty
-        if (parent.type === 'blockquote') {
+        if (parent.type === 'blockquote' || parent.type === 'ul') {
           newBlock = newABlock(this.keys, null, null, null, '', block.depth - 1, 'p')
 
           if (this.isOnlyChild(block)) {
@@ -67,17 +68,18 @@ const enterCtrl = ContentState => {
           } else if (this.isLastChild(block)) {
             this.insertAfter(newBlock, parent)
           } else {
-            this.chopBlockQuote(block)
+            this.chopBlock(block)
             this.insertAfter(newBlock, parent)
           }
 
           this.removeBlock(block)
-        } else if (this.isFirstChild(block) && preType === 'li') {
-          newBlock = this.createBlockLi('', block.depth)
-          this.insertAfter(newBlock, block)
         } else if (parent.type === 'li') {
           newBlock = this.createBlockLi('', block.depth - 1)
           this.insertAfter(newBlock, parent)
+          const index = this.findIndex(parent.children, block)
+          const partChildren = parent.children.splice(index + 1)
+          partChildren.forEach(b => this.appendChild(newBlock, b))
+
           this.removeBlock(block)
         } else {
           newBlock = newABlock(this.keys, null, null, null, '', block.depth, 'p')

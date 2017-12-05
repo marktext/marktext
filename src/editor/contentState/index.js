@@ -1,6 +1,5 @@
 import { getUniqueId } from '../utils'
 import StateRender from '../parser/StateRender'
-
 import enterCtrl from './enterCtrl'
 import updateCtrl from './updateCtrl'
 
@@ -142,6 +141,7 @@ class ContentState {
     newBlock.parent = oldBlock.parent
     newBlock.preSibling = oldBlock.key
     newBlock.nextSibling = siblings[index + 2] ? siblings[index + 2].key : null
+    newBlock.depth = oldBlock.depth
   }
 
   insertBefore (newBlock, oldBlock) {
@@ -152,6 +152,7 @@ class ContentState {
     newBlock.parent = oldBlock.parent
     newBlock.preSibling = siblings[index - 1] ? siblings[index - 1].key : null
     newBlock.nextSibling = oldBlock.key
+    newBlock.depth = oldBlock.depth
   }
 
   findIndex (children, block) {

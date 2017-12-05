@@ -31,17 +31,14 @@ const updateCtrl = ContentState => {
       case !!disorder:
         this.updateList(block, 'disorder', disorder)
         return true
-        // maybe no needed `break`
 
       case !!tasklist:
         this.updateList(block, 'tasklist', disorder) // tasklist is one type of disorder.
         return true
-        // maybe no needed `break`
 
       case !!order:
         this.updateList(block, 'order', order)
         return true
-        // maybe no needed `break`
 
       case !!header:
         newType = `h${header.length}`
