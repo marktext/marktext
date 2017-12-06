@@ -2,10 +2,14 @@ import { getUniqueId } from '../utils'
 import StateRender from '../parser/StateRender'
 import enterCtrl from './enterCtrl'
 import updateCtrl from './updateCtrl'
+import garbageCtrl from './garbageCtrl'
+import backspaceCtrl from './backspaceCtrl'
 
 const ctrls = [
   enterCtrl,
-  updateCtrl
+  updateCtrl,
+  garbageCtrl,
+  backspaceCtrl
 ]
 
 export const newABlock = (set, parent = null, preSibling = null, nextSibling = null, text = '', depth = 0, type = 'p') => {
@@ -153,6 +157,14 @@ class ContentState {
     newBlock.depth = oldBlock.depth
   }
 
+  findOutMostBlock (block) {
+    if (!block.parent) return block
+    else {
+      const parent = this.getBlock(block.parent)
+      return this.findOutMostBlock(parent)
+    }
+  }
+
   findIndex (children, block) {
     const len = children.length
     let i
@@ -173,6 +185,21 @@ class ContentState {
     }
   }
 
+  replaceBlock (newBlock, oldBlock) {
+    let index
+    if (!oldBlock.parent) {
+      index = this.findIndex(this.blocks, oldBlock)
+      this.blocks.splice(index, 1, newBlock)
+    } else {
+      const parent = this.getBlock(oldBlock.parent)
+      index = this.findIndex(parent.children, oldBlock)
+      parent.children.splice(index, 1, newBlock)
+    }
+    newBlock.parent = oldBlock.parent
+    newBlock.preSibling = oldBlock.preSibling
+    newBlock.nextSibling = oldBlock.nextSibling
+  }
+
   isFirstChild (block) {
     return !block.preSibling
   }
@@ -189,6 +216,10 @@ class ContentState {
     const arrayBlocks = this.getArrayBlocks()
     const len = arrayBlocks.length
     return arrayBlocks[len - 1]
+  }
+
+  clear () {
+    this.keys.clear()
   }
 }
 

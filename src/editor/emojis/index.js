@@ -1,4 +1,5 @@
 import emojis from './emojisJson'
+import { CLASS_OR_ID } from '../config'
 
 /**
  * check if one imoji code is in emojis, return undefined or found emoji
@@ -7,6 +8,26 @@ export const validEmoji = text => {
   return emojis.filter(emoji => {
     return emoji.aliases.includes(text)
   })[0]
+}
+
+/**
+ * check edit emoji
+ */
+
+export const checkEditEmoji = node => {
+  const preSibling = node.previousElementSibling
+  if (node.classList.contains(CLASS_OR_ID['AG_EMOJI_MARKED_TEXT'])) {
+    return node
+  } else if (preSibling && preSibling.classList.contains(CLASS_OR_ID['AG_EMOJI_MARKED_TEXT'])) {
+    return preSibling
+  }
+  return false
+}
+
+export const setInlineEmoji = (node, emoji, selection) => {
+  node.textContent = `${emoji.text}`
+  node.setAttribute('data-emoji', emoji.emoji)
+  selection.moveCursor(node.nextElementSibling, 1)
 }
 
 class Emoji {
