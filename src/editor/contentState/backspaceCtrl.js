@@ -13,7 +13,7 @@ const backspaceCtrl = ContentState => {
     const { left: outLeft } = selection.getCaretOffsets(outMostParagraph)
     const { left: inLeft } = selection.getCaretOffsets(nearestParagraph)
 
-    if (parent && parent.type === 'li' && inLeft === 0) {
+    if (parent && parent.type === 'li' && inLeft === 0 && this.isFirstChild(block)) {
       if (this.isOnlyChild(parent)) {
         return { type: 'LI', info: 'REPLACEMENT' }
       } else if (this.isFirstChild(parent)) {
