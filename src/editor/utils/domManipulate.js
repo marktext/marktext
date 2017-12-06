@@ -1,22 +1,8 @@
-import { html2json, json2html } from 'html2json'
-import { getUniqueId } from './index'
 import {
   LOWERCASE_TAGS, CLASS_OR_ID, blockContainerElementNames, emptyElementNames
 } from '../config'
 
 const CHOP_TEXT_REG = /(\*{1,3})([^*]+)(\1)/g
-
-const html2element = html => {
-  const wrapper = document.createElement('div')
-  wrapper.innerHTML = html
-  const children = wrapper.children
-
-  if (children.length > 1) {
-    throw new Error(`[${html}] must has one ancestor`)
-  }
-
-  return children[0]
-}
 
 /**
  * [description `add` or `remove` className of element
@@ -177,16 +163,27 @@ export const isCodeBlockParagraph = paragraph => {
   return paragraph && paragraph.classList.contains(CLASS_OR_ID['AG_CODE_BLOCK'])
 }
 
-export const hr2P = (paragraph, selection) => {
-  const tagName = paragraph.tagName.toLowerCase()
-  if (tagName !== LOWERCASE_TAGS.hr) {
-    return console.warn(`${tagName} is not a HR element.`)
+// DOM operations
+export const insertAfter = (newNode, originNode) => {
+  const parentNode = originNode.parentNode
+
+  if (originNode.nextSibling) {
+    parentNode.insertBefore(newNode, originNode.nextSibling)
+  } else {
+    parentNode.appendChild(newNode)
   }
-  const newElement = updateBlock(paragraph, LOWERCASE_TAGS.p)
-  newElement.textContent = '---'
-  selection.importSelection({
-    start: 3,
-    end: 3
-  }, newElement)
-  return newElement
 }
+
+// export const hr2P = (paragraph, selection) => {
+//   const tagName = paragraph.tagName.toLowerCase()
+//   if (tagName !== LOWERCASE_TAGS.hr) {
+//     return console.warn(`${tagName} is not a HR element.`)
+//   }
+//   const newElement = updateBlock(paragraph, LOWERCASE_TAGS.p)
+//   newElement.textContent = '---'
+//   selection.importSelection({
+//     start: 3,
+//     end: 3
+//   }, newElement)
+//   return newElement
+// }
