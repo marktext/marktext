@@ -2,7 +2,6 @@ import selection from '../selection'
 import { findNearestParagraph } from '../utils/domManipulate'
 import { tokenizer } from '../parser/parse'
 import { conflict } from '../utils'
-import { newABlock } from './index'
 
 const INLINE_UPDATE_REG = /^([*+-]\s(\[\s\]\s)?)|^(\d+\.\s)|^(#{1,6})[^#]+|^(>).+/
 
@@ -114,10 +113,10 @@ const updateCtrl = ContentState => {
 
   ContentState.prototype.updateBlockQuote = function (block) {
     const newText = block.text.substring(1).trim()
-    const newPblock = newABlock(this.keys, block.key, null, null, newText, block.depth + 1, 'p')
+    const newPblock = this.createBlock('p', newText)
     block.type = 'blockquote'
     block.text = ''
-    block.children = [ newPblock ]
+    this.appendChild(block, newPblock)
     const { start, end } = this.cursor.range
     this.cursor = {
       key: newPblock.key,

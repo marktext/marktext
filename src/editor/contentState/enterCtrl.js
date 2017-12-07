@@ -1,12 +1,11 @@
 import selection from '../selection'
 import { findNearestParagraph } from '../utils/domManipulate'
-import { newABlock } from './index'
 
 const enterCtrl = ContentState => {
   ContentState.prototype.chopBlock = function (block) {
     const parent = this.getParent(block)
     const type = parent.type
-    const container = newABlock(this.keys, null, null, null, '', block.depth - 1, type)
+    const container = this.createBlock(type)
     const index = this.findIndex(parent.children, block)
     const partChildren = parent.children.splice(index + 1)
     block.nextSibling = null
@@ -14,9 +13,9 @@ const enterCtrl = ContentState => {
     this.insertAfter(container, parent)
   }
 
-  ContentState.prototype.createBlockLi = function (text, depth) {
-    const liBlock = newABlock(this.keys, null, null, null, '', depth, 'li')
-    const pBlock = newABlock(this.keys, liBlock.key, null, null, text, depth + 1, 'p')
+  ContentState.prototype.createBlockLi = function (text = '') {
+    const liBlock = this.createBlock('li')
+    const pBlock = this.createBlock('p', text)
     this.appendChild(liBlock, pBlock)
     return liBlock
   }
@@ -47,16 +46,16 @@ const enterCtrl = ContentState => {
         }
 
         if (type === 'li') {
-          newBlock = this.createBlockLi(post, block.depth)
+          newBlock = this.createBlockLi(post)
         } else {
           block.text = pre
-          newBlock = newABlock(this.keys, block.parent, block.key, null, post, block.depth, type)
+          newBlock = this.createBlock(type, post)
         }
         this.insertAfter(newBlock, block)
         break
       case left === 0 && right === 0: // paragraph is empty
         if (parent.type === 'blockquote' || parent.type === 'ul') {
-          newBlock = newABlock(this.keys, null, null, null, '', block.depth - 1, 'p')
+          newBlock = this.createBlock('p')
 
           if (this.isOnlyChild(block)) {
             this.insertAfter(newBlock, parent)
@@ -72,7 +71,7 @@ const enterCtrl = ContentState => {
 
           this.removeBlock(block)
         } else if (parent.type === 'li') {
-          newBlock = this.createBlockLi('', block.depth - 1)
+          newBlock = this.createBlockLi()
           this.insertAfter(newBlock, parent)
           const index = this.findIndex(parent.children, block)
           const partChildren = parent.children.splice(index + 1)
@@ -80,7 +79,7 @@ const enterCtrl = ContentState => {
 
           this.removeBlock(block)
         } else {
-          newBlock = newABlock(this.keys, null, null, null, '', block.depth, 'p')
+          newBlock = this.createBlock('p')
           if (preType === 'li') {
             const parent = this.getParent(block)
             this.insertAfter(newBlock, parent)
@@ -96,8 +95,8 @@ const enterCtrl = ContentState => {
         if (preType === 'li') type = 'li'
         else type = 'p' // insert after or before
         newBlock = type === 'li'
-          ? this.createBlockLi('', block.depth)
-          : newABlock(this.keys, null, null, null, '', block.depth, 'p')
+          ? this.createBlockLi()
+          : this.createBlock('p')
         if (left === 0 && right !== 0) {
           this.insertBefore(newBlock, block)
         } else {
@@ -105,7 +104,7 @@ const enterCtrl = ContentState => {
         }
         break
       default:
-        newBlock = newABlock(this.keys, null, null, null, '', block.depth, 'p')
+        newBlock = this.createBlock('p')
         this.insertAfter(newBlock, block)
         break
     }

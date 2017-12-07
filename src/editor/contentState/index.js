@@ -12,20 +12,6 @@ const ctrls = [
   backspaceCtrl
 ]
 
-export const newABlock = (set, parent = null, preSibling = null, nextSibling = null, text = '', depth = 0, type = 'p') => {
-  const key = getUniqueId(set)
-  return {
-    key,
-    parent,
-    preSibling,
-    nextSibling,
-    text,
-    children: [],
-    depth,
-    type
-  }
-}
-
 // deep first search
 const convertBlocksToArray = blocks => {
   const result = []
@@ -39,9 +25,9 @@ const convertBlocksToArray = blocks => {
 }
 
 class ContentState {
-  constructor (blocks) {
+  constructor () {
     this.keys = new Set()
-    this.blocks = blocks || [ newABlock(this.keys) ]
+    this.blocks = [ this.createBlock() ]
     this.stateRender = new StateRender()
     const lastBlock = this.getLastBlock()
     this.cursor = {
@@ -57,6 +43,19 @@ class ContentState {
     const { blocks, cursor } = this
     const activeBlock = this.getActiveBlockKey()
     return this.stateRender.render(blocks, cursor, activeBlock)
+  }
+
+  createBlock (type = 'p', text = '') {
+    const key = getUniqueId(this.keys)
+    return {
+      key,
+      type,
+      text,
+      parent: null,
+      preSibling: null,
+      nextSibling: null,
+      children: []
+    }
   }
 
   // getBlocks
