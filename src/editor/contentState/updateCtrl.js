@@ -3,7 +3,7 @@ import { findNearestParagraph } from '../utils/domManipulate'
 import { tokenizer } from '../parser/parse'
 import { conflict } from '../utils'
 
-const INLINE_UPDATE_REG = /^([*+-]\s(\[\s\]\s)?)|^(\d+\.\s)|^(#{1,6})[^#]+|^(>).+/
+const INLINE_UPDATE_REG = /^([*+-]\s(\[\s\]\s)?)|^(\d+\.\s)|^(#{1,6})[^#]+|^(>).+|^(\*{3,}|-{3,}|_{3,})/
 
 const updateCtrl = ContentState => {
   ContentState.prototype.checkNeedRender = function (block) {
@@ -23,10 +23,14 @@ const updateCtrl = ContentState => {
 
   ContentState.prototype.checkInlineUpdate = function (block) {
     const { text } = block
-    const [match, disorder, tasklist, order, header, blockquote] = text.match(INLINE_UPDATE_REG) || []
+    const [match, disorder, tasklist, order, header, blockquote, hr] = text.match(INLINE_UPDATE_REG) || []
     let newType
 
     switch (true) {
+      case !!hr:
+        this.updateHr(block, hr)
+        return true
+
       case !!disorder:
         this.updateList(block, 'disorder', disorder)
         return true
@@ -125,6 +129,10 @@ const updateCtrl = ContentState => {
         end: Math.max(0, end - 1)
       }
     }
+  }
+
+  ContentState.prototype.updateHr = function (block, marker) {
+    block.type = 'hr'
   }
 
   ContentState.prototype.updateState = function () {

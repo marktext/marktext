@@ -46,10 +46,12 @@ class StateRender {
    */
   render (blocks, cursor, activeBlockKey) {
     const selector = `${LOWERCASE_TAGS.div}#${CLASS_OR_ID['AG_EDITOR_ID']}.${CLASS_OR_ID['mousetrap']}`
+
     const renderBlock = block => {
-      const blockSelector = block.key === activeBlockKey
-        ? `${block.type}#${block.key}.${CLASS_OR_ID['AG_PARAGRAPH']}.${CLASS_OR_ID['AG_ACTIVE']}`
-        : `${block.type}#${block.key}.${CLASS_OR_ID['AG_PARAGRAPH']}`
+      const type = block.type === 'hr' ? 'p' : block.type
+      const blockSelector = block.key === activeBlockKey || block.key === cursor.key
+        ? `${type}#${block.key}.${CLASS_OR_ID['AG_PARAGRAPH']}.${CLASS_OR_ID['AG_ACTIVE']}`
+        : `${type}#${block.key}.${CLASS_OR_ID['AG_PARAGRAPH']}`
 
       if (block.children.length) {
         return h(blockSelector, block.children.map(child => renderBlock(child)))
@@ -60,7 +62,15 @@ class StateRender {
             return Array.isArray(chunk) ? [...acc, ...chunk] : [...acc, chunk]
           }, [])
           : [ h(LOWERCASE_TAGS.br) ]
-        const data = /^h\d$/.test(block.type) ? { dataset: {'head': block.type} } : {}
+        const data = {
+          dataset: {}
+        }
+        if (/^h\d$/.test(block.type)) {
+          Object.assign(data.dataset, { head: block.type })
+        }
+        if (/^h/.test(block.type)) { // h\d or hr
+          Object.assign(data.dataset, { role: block.type })
+        }
 
         return h(blockSelector, data, children)
       }

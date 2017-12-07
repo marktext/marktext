@@ -24,6 +24,23 @@ a {
   pointer-events: none;
 }
 
+p:not(.ag-active)[data-role="hr"] {
+  position: relative;
+}
+
+p:not(.ag-active)[data-role="hr"]::before {
+  content: '';
+  width: 100%;
+  height: 5px;
+  background: gainsboro;
+  position: absolute;
+  bottom: -2px;
+}
+
+p:not(.ag-active) * {
+  color: transparent;
+}
+
 #ag-editor-id > pre {
   position: relative;
 }
