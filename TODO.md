@@ -67,3 +67,4 @@ Bugs:
 * [ ] 处理嵌套在 item 中的 codeblock 的方向键。
 * [ ] codeblock 中光标在 begining 的时候，向上箭头失效。
 * [ ] codeblock 中 language input 输入，enter 后，codeblock 没有自动获取焦点。
+* [ ] 图片段落下面有新的段落，编辑跳动现象。

@@ -7,7 +7,7 @@ import { search } from './codeMirror'
 import { checkEditLanguage, replaceLanguage } from './codeMirror/language'
 import Emoji, { checkEditEmoji, setInlineEmoji } from './emojis'
 import floatBox from './floatBox'
-import { findNearestParagraph } from './utils/domManipulate'
+import { findNearestParagraph, operateClassName } from './utils/domManipulate'
 
 class Aganippe {
   constructor (container, options) {
@@ -42,6 +42,7 @@ class Aganippe {
     // if you dont click the keyboard after 1 second, the garbageCollection will run.
     eventCenter.attachDOMEvent(container, 'keydown', debounce(() => this.contentState.garbageCollection(), 1000))
 
+    this.imageClick()
     this.dispatchArrow()
     this.dispatchBackspace()
     this.dispatchEnter()
@@ -229,6 +230,25 @@ class Aganippe {
     eventCenter.attachDOMEvent(container, 'compositionend', changeHandler)
     eventCenter.attachDOMEvent(container, 'compositionstart', changeHandler)
     eventCenter.attachDOMEvent(container, 'keyup', changeHandler)
+  }
+
+  imageClick () {
+    const { container, eventCenter } = this
+    const handler = event => {
+      const target = event.target
+      const markedImageText = target.previousElementSibling
+      if (markedImageText && markedImageText.classList.contains(CLASS_OR_ID['AG_IMAGE_MARKED_TEXT'])) {
+        const textLen = markedImageText.textContent.length
+        operateClassName(markedImageText, 'remove', CLASS_OR_ID['AG_HIDE'])
+        operateClassName(markedImageText, 'add', CLASS_OR_ID['AG_GRAY'])
+        selection.importSelection({
+          start: textLen,
+          end: textLen
+        }, markedImageText)
+      }
+    }
+
+    eventCenter.attachDOMEvent(container, 'click', handler)
   }
 
   destroy () {

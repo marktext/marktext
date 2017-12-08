@@ -81,7 +81,7 @@ const enterCtrl = ContentState => {
           }
 
           this.removeBlock(block)
-        } else if (parent.type === 'li') {
+        } else if (parent && parent.type === 'li') {
           newBlock = this.createBlockLi()
           this.insertAfter(newBlock, parent)
           const index = this.findIndex(parent.children, block)

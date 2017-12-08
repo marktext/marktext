@@ -105,7 +105,7 @@ export const findPreviousSibling = node => {
     return false
   }
 
-  var previousSibling = node.previousSibling
+  let previousSibling = node.previousSibling
   while (!previousSibling && !isAganippeEditorElement(node.parentNode)) {
     node = node.parentNode
     previousSibling = node.previousSibling
@@ -157,10 +157,6 @@ export const createInputInCodeBlock = codeEle => {
   operateClassName(input, 'add', CLASS_OR_ID['mousetrap'])
   codeEle.appendChild(input)
   return input
-}
-
-export const isCodeBlockParagraph = paragraph => {
-  return paragraph && paragraph.classList.contains(CLASS_OR_ID['AG_CODE_BLOCK'])
 }
 
 // DOM operations
