@@ -51,7 +51,6 @@ const arrowCtrl = ContentState => {
             (event.key === EVENT_KEYS.ArrowLeft && isCursorAtBegin(cm) && preBlock)
           ) {
             activeBlock = preBlock
-            console.log(this.blocks)
             if (preBlock.type === 'pre') {
               activeBlock = this.createBlock('p')
               activeBlock.temp = true

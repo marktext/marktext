@@ -148,6 +148,7 @@ const updateCtrl = ContentState => {
 
     if (block.key !== key) {
       const oldBlock = this.getBlock(key)
+      this.codeBlockUpdate(oldBlock)
       if (oldBlock && oldBlock.temp) {
         if (oldBlock.text || oldBlock.children.length) {
           delete oldBlock.temp
