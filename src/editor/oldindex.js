@@ -89,60 +89,6 @@ class Aganippe {
     this.generateLastEmptyParagraph()
   }
 
-  // add handler to select hr element. and translate it to a p element
-  handlerSelectHr () {
-    const { container, eventCenter } = this
-    let newElement
-    const changeHr2P = (event, target, preParagraph) => {
-      newElement = hr2P(target, selection)
-      // todo need remove below ?
-      this.activeParagraph = {
-        id: newElement.id,
-        paragraph: newElement
-      }
-      eventCenter.dispatch('paragraphChange', newElement, preParagraph, false)
-      event.preventDefault()
-    }
-
-    const handler = event => {
-      switch (event.type) {
-        case 'click': {
-          const target = event.target
-          if (target.tagName.toLowerCase() === LOWERCASE_TAGS.hr) {
-            changeHr2P(event, target, this.activeParagraph.paragraph)
-          }
-          break
-        }
-        case 'keydown': {
-          const node = selection.getSelectionStart()
-          const outmostParagraph = findOutMostParagraph(node)
-          const preSibling = outmostParagraph.previousElementSibling
-          const nextSibling = outmostParagraph.nextElementSibling
-          // if the out most paragraph is pre element. handle over this to `arrow` event.
-          if (outmostParagraph.tagName.toLowerCase() === LOWERCASE_TAGS.pre) return
-          if (
-            event.key === EVENT_KEYS.ArrowUp &&
-            preSibling &&
-            preSibling.tagName.toLowerCase() === LOWERCASE_TAGS.hr
-          ) {
-            changeHr2P(event, preSibling, outmostParagraph)
-          }
-          if (
-            event.key === EVENT_KEYS.ArrowDown &&
-            nextSibling &&
-            nextSibling.tagName.toLowerCase() === LOWERCASE_TAGS.hr
-          ) {
-            changeHr2P(event, nextSibling, outmostParagraph)
-          }
-          break
-        }
-      }
-    }
-
-    eventCenter.attachDOMEvent(container, 'keydown', handler)
-    eventCenter.attachDOMEvent(container, 'click', handler)
-  }
-
   dispatchParagraphChange () {
     const { container, eventCenter } = this
 

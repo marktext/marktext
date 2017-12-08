@@ -173,17 +173,3 @@ export const insertAfter = (newNode, originNode) => {
     parentNode.appendChild(newNode)
   }
 }
-
-// export const hr2P = (paragraph, selection) => {
-//   const tagName = paragraph.tagName.toLowerCase()
-//   if (tagName !== LOWERCASE_TAGS.hr) {
-//     return console.warn(`${tagName} is not a HR element.`)
-//   }
-//   const newElement = updateBlock(paragraph, LOWERCASE_TAGS.p)
-//   newElement.textContent = '---'
-//   selection.importSelection({
-//     start: 3,
-//     end: 3
-//   }, newElement)
-//   return newElement
-// }

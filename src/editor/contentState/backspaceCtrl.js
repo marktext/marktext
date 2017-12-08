@@ -42,6 +42,10 @@ const backspaceCtrl = ContentState => {
     const selectionState = selection.exportSelection(paragraph)
     const { left } = selection.getCaretOffsets(paragraph)
     const inlineDegrade = this.checkBackspaceCase()
+
+    if (block.type === 'pre') {
+      return
+    }
     console.log(inlineDegrade)
     if (inlineDegrade) {
       event.preventDefault()

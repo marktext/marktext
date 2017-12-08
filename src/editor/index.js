@@ -1,21 +1,22 @@
 import ContentState from './contentState'
 import selection from './selection'
-import Event from './event'
+import eventCenter from './event'
 import { LOWERCASE_TAGS, EVENT_KEYS, CLASS_OR_ID } from './config'
 import { throttle, debounce } from './utils'
 import { search } from './codeMirror'
 import { checkEditLanguage, replaceLanguage } from './codeMirror/language'
 import Emoji, { checkEditEmoji, setInlineEmoji } from './emojis'
-import FloatBox from './floatBox'
+import floatBox from './floatBox'
 import { findNearestParagraph } from './utils/domManipulate'
 
 class Aganippe {
   constructor (container, options) {
     this.container = container
-    this.eventCenter = new Event()
-    this.contentState = new ContentState()
+    this.eventCenter = eventCenter
+    this.floatBox = floatBox
+    this.contentState = new ContentState(this.floatBox)
     this.emoji = new Emoji(this.eventCenter) // emoji instance: has search(text) clear() methods.
-    this.floatBox = new FloatBox(this.eventCenter)
+
     this.init()
   }
 
@@ -33,9 +34,15 @@ class Aganippe {
     eventCenter.subscribe('hideFloatBox', this.subscribeHideFloatBox.bind(this))
     this.dispatchHideFloatBox()
 
+    eventCenter.bind('command+z', event => {
+      event.preventDefault()
+      this.contentState.history.undo()
+    })
+
     // if you dont click the keyboard after 1 second, the garbageCollection will run.
     eventCenter.attachDOMEvent(container, 'keydown', debounce(() => this.contentState.garbageCollection(), 1000))
 
+    this.dispatchArrow()
     this.dispatchBackspace()
     this.dispatchEnter()
     this.dispatchUpdateState()
@@ -55,6 +62,7 @@ class Aganippe {
       div.setAttribute(attr.name, attr.value)
     })
     div.setAttribute('contenteditable', true)
+    div.classList.add('mousetrap')
     div.appendChild(rootdom)
     parentNode.insertBefore(div, container)
     parentNode.removeChild(container)
@@ -177,11 +185,26 @@ class Aganippe {
     const { container, eventCenter } = this
     const handler = event => {
       if (event.key === EVENT_KEYS.Enter) {
-        event.preventDefault()
-        this.contentState.enterHandler()
+        this.contentState.enterHandler(event)
       }
     }
 
+    eventCenter.attachDOMEvent(container, 'keydown', handler)
+  }
+
+  // dispach arrow event
+  dispatchArrow () {
+    const { container, eventCenter } = this
+    const handler = event => {
+      switch (event.key) {
+        case EVENT_KEYS.ArrowUp: // fallthrough
+        case EVENT_KEYS.ArrowDown: // fallthrough
+        case EVENT_KEYS.ArrowLeft: // fallthrough
+        case EVENT_KEYS.ArrowRight: // fallthrough
+          this.contentState.arrowHandler(event)
+          break
+      }
+    }
     eventCenter.attachDOMEvent(container, 'keydown', handler)
   }
 
@@ -189,10 +212,6 @@ class Aganippe {
     const { container, eventCenter } = this
     let isEditChinese = false
     const changeHandler = event => {
-      const target = event.target
-      if (event.type === 'click' && target.tagName.toLowerCase() === LOWERCASE_TAGS.hr) {
-        return false
-      }
       if (event.type === 'compositionstart') {
         isEditChinese = true
         return false
@@ -202,7 +221,7 @@ class Aganippe {
       }
 
       if (!isEditChinese) {
-        this.contentState.updateState()
+        this.contentState.updateState(event)
       }
     }
 

@@ -5,7 +5,6 @@ const garbageCtrl = ContentState => {
         this.keys.delete(key)
       }
     }
-    console.log(this.keys.size)
   }
 }
 

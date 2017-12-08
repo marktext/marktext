@@ -45,11 +45,11 @@ class StateRender {
    * return set cursor method
    */
   render (blocks, cursor, activeBlockKey) {
-    const selector = `${LOWERCASE_TAGS.div}#${CLASS_OR_ID['AG_EDITOR_ID']}.${CLASS_OR_ID['mousetrap']}`
+    const selector = `${LOWERCASE_TAGS.div}#${CLASS_OR_ID['AG_EDITOR_ID']}`
 
     const renderBlock = block => {
       const type = block.type === 'hr' ? 'p' : block.type
-      const blockSelector = block.key === activeBlockKey || block.key === cursor.key
+      let blockSelector = block.key === activeBlockKey || block.key === cursor.key
         ? `${type}#${block.key}.${CLASS_OR_ID['AG_PARAGRAPH']}.${CLASS_OR_ID['AG_ACTIVE']}`
         : `${type}#${block.key}.${CLASS_OR_ID['AG_PARAGRAPH']}`
 
@@ -70,6 +70,14 @@ class StateRender {
         }
         if (/^h/.test(block.type)) { // h\d or hr
           Object.assign(data.dataset, { role: block.type })
+        }
+        if (block.type === 'pre') {
+          if (block.lang) Object.assign(data.dataset, { lang: block.lang })
+          blockSelector += `.${CLASS_OR_ID['AG_CODE_BLOCK']}`
+        }
+
+        if (block.temp) {
+          blockSelector += `.${CLASS_OR_ID['AG_TEMP']}`
         }
 
         return h(blockSelector, data, children)

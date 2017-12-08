@@ -93,4 +93,4 @@ class Event {
   }
 }
 
-export default Event
+export default new Event()

@@ -1,6 +1,7 @@
 import {
   CLASS_OR_ID
 } from '../config'
+import eventCenter from '../event'
 
 class FloatBox {
   constructor (event) {
@@ -96,4 +97,4 @@ class FloatBox {
   }
 }
 
-export default FloatBox
+export default new FloatBox(eventCenter)

@@ -4,12 +4,19 @@ import enterCtrl from './enterCtrl'
 import updateCtrl from './updateCtrl'
 import garbageCtrl from './garbageCtrl'
 import backspaceCtrl from './backspaceCtrl'
+import codeBlockCtrl from './codeBlockCtrl'
+import History from './history'
+import historyCtrl from './historyCtrl'
+import arrowCtrl from './arrowCtrl'
 
 const ctrls = [
   enterCtrl,
   updateCtrl,
   garbageCtrl,
-  backspaceCtrl
+  backspaceCtrl,
+  codeBlockCtrl,
+  historyCtrl,
+  arrowCtrl
 ]
 
 // deep first search
@@ -29,6 +36,8 @@ class ContentState {
     this.keys = new Set()
     this.blocks = [ this.createBlock() ]
     this.stateRender = new StateRender()
+    this.codeBlocks = new Map()
+    this.history = new History(this)
     const lastBlock = this.getLastBlock()
     this.cursor = {
       key: lastBlock.key,
@@ -37,12 +46,18 @@ class ContentState {
         end: lastBlock.text.length
       }
     }
+    this.history.push({
+      type: 'normal',
+      blocks: this.blocks,
+      cursor: this.cursor
+    })
   }
 
   render () {
     const { blocks, cursor } = this
     const activeBlock = this.getActiveBlockKey()
-    return this.stateRender.render(blocks, cursor, activeBlock)
+    this.stateRender.render(blocks, cursor, activeBlock)
+    this.pre2CodeMirror()
   }
 
   createBlock (type = 'p', text = '') {
@@ -136,24 +151,31 @@ class ContentState {
 
   insertAfter (newBlock, oldBlock) {
     const siblings = oldBlock.parent ? this.getBlock(oldBlock.parent).children : this.blocks
+    const oldNextSibling = this.getBlock(oldBlock.nextSibling)
     const index = this.findIndex(siblings, oldBlock)
     siblings.splice(index + 1, 0, newBlock)
     oldBlock.nextSibling = newBlock.key
     newBlock.parent = oldBlock.parent
     newBlock.preSibling = oldBlock.key
-    newBlock.nextSibling = siblings[index + 2] ? siblings[index + 2].key : null
-    newBlock.depth = oldBlock.depth
+    if (oldNextSibling) {
+      newBlock.nextSibling = oldNextSibling.key
+      oldNextSibling.preSibling = newBlock.key
+    }
   }
 
   insertBefore (newBlock, oldBlock) {
     const siblings = oldBlock.parent ? this.getBlock(oldBlock.parent).children : this.blocks
+    const oldPreSibling = this.getBlock(oldBlock.preSibling)
     const index = this.findIndex(siblings, oldBlock)
     siblings.splice(index, 0, newBlock)
     oldBlock.preSibling = newBlock.key
     newBlock.parent = oldBlock.parent
-    newBlock.preSibling = siblings[index - 1] ? siblings[index - 1].key : null
     newBlock.nextSibling = oldBlock.key
-    newBlock.depth = oldBlock.depth
+
+    if (oldPreSibling) {
+      oldPreSibling.nextSibling = newBlock.key
+      newBlock.preSibling = oldPreSibling.key
+    }
   }
 
   findOutMostBlock (block) {

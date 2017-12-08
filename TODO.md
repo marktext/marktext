@@ -61,3 +61,9 @@ _   底线
 
 
 
+
+Bugs:
+
+* [ ] 处理嵌套在 item 中的 codeblock 的方向键。
+* [ ] codeblock 中光标在 begining 的时候，向上箭头失效。
+* [ ] codeblock 中 language input 输入，enter 后，codeblock 没有自动获取焦点。

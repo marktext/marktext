@@ -1,5 +1,6 @@
 import selection from '../selection'
 import { findNearestParagraph } from '../utils/domManipulate'
+import floatBox from '../floatBox'
 
 const enterCtrl = ContentState => {
   ContentState.prototype.chopBlock = function (block) {
@@ -20,11 +21,21 @@ const enterCtrl = ContentState => {
     return liBlock
   }
 
-  ContentState.prototype.enterHandler = function () {
+  ContentState.prototype.enterHandler = function (event) {
     const node = selection.getSelectionStart()
     let paragraph = findNearestParagraph(node)
     let block = this.getBlock(paragraph.id)
     let parent = this.getParent(block)
+    // handle float box
+    const { list, index, show } = floatBox
+    if (show) {
+      event.preventDefault()
+      return floatBox.cb(list[index])
+    }
+    if (block.type === 'pre') {
+      return
+    }
+    event.preventDefault()
     if (parent && parent.type === 'li' && this.isOnlyChild(block)) {
       console.log(JSON.stringify(block, null, 2))
       block = parent
@@ -54,7 +65,7 @@ const enterCtrl = ContentState => {
         this.insertAfter(newBlock, block)
         break
       case left === 0 && right === 0: // paragraph is empty
-        if (parent.type === 'blockquote' || parent.type === 'ul') {
+        if (parent && (parent.type === 'blockquote' || parent.type === 'ul')) {
           newBlock = this.createBlock('p')
 
           if (this.isOnlyChild(block)) {
@@ -99,6 +110,7 @@ const enterCtrl = ContentState => {
           : this.createBlock('p')
         if (left === 0 && right !== 0) {
           this.insertBefore(newBlock, block)
+          newBlock = block
         } else {
           this.insertAfter(newBlock, block)
         }
@@ -108,8 +120,13 @@ const enterCtrl = ContentState => {
         this.insertAfter(newBlock, block)
         break
     }
+
+    this.codeBlockUpdate(newBlock.type === 'li' ? newBlock.children[0] : newBlock)
+    // If block is pre block when updated, need to focus it.
+    const blockNeedFocus = this.codeBlockUpdate(block.type === 'li' ? block.children[0] : block)
+    const cursorBlock = blockNeedFocus ? block : newBlock
     this.cursor = {
-      key: newBlock.type === 'li' ? newBlock.children[0].key : newBlock.key,
+      key: cursorBlock.type === 'li' ? cursorBlock.children[0].key : cursorBlock.key,
       range: {
         start: 0,
         end: 0

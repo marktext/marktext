@@ -135,7 +135,7 @@ const updateCtrl = ContentState => {
     block.type = 'hr'
   }
 
-  ContentState.prototype.updateState = function () {
+  ContentState.prototype.updateState = function (event) {
     const node = selection.getSelectionStart()
     const paragraph = findNearestParagraph(node)
     const text = paragraph.textContent
@@ -146,7 +146,38 @@ const updateCtrl = ContentState => {
     const { start, end } = selectionState
     let needRender = false
 
-    block.text = text
+    if (block.key !== key) {
+      const oldBlock = this.getBlock(key)
+      if (oldBlock && oldBlock.temp) {
+        if (oldBlock.text || oldBlock.children.length) {
+          delete oldBlock.temp
+        } else {
+          this.removeBlock(oldBlock)
+          needRender = true
+        }
+      }
+    }
+
+    console.log(block.type)
+    if (block.type === 'pre') {
+      if (block.key !== key) {
+        this.cursor.key = block.key
+        this.cursor.range = { start, end }
+        this.render()
+      }
+      return
+    }
+
+    if (block.text !== text) {
+      // if (event.key !== 'Meta' && event.key !== 'z') {
+      //   this.history.push({
+      //     type: 'normal',
+      //     blocks: this.blocks,
+      //     cursor: this.cursor
+      //   })
+      // }
+      block.text = text
+    }
 
     if (key !== block.key || start !== oldStart || end !== oldEnd) {
       Object.assign(this.cursor.range, selectionState)
