@@ -1,5 +1,6 @@
 import selection from '../selection'
 import { findNearestParagraph, findOutMostParagraph } from '../utils/domManipulate'
+import { isCursorAtBegin, onlyHaveOneLine, setCursorAtLastLine } from '../codeMirror'
 
 const backspaceCtrl = ContentState => {
   ContentState.prototype.checkBackspaceCase = function () {
@@ -37,17 +38,42 @@ const backspaceCtrl = ContentState => {
   ContentState.prototype.backspaceHandler = function (event) {
     const node = selection.getSelectionStart()
     const paragraph = findNearestParagraph(node)
-    const block = this.getBlock(paragraph.id)
+    const id = paragraph.id
+    const block = this.getBlock(id)
     const parent = this.getBlock(block.parent)
+    const preBlock = this.getBlock(block.preSibling)
     const selectionState = selection.exportSelection(paragraph)
     const { left } = selection.getCaretOffsets(paragraph)
     const inlineDegrade = this.checkBackspaceCase()
 
     if (block.type === 'pre') {
-      return
-    }
-    console.log(inlineDegrade)
-    if (inlineDegrade) {
+      const cm = this.codeBlocks.get(id)
+      // if event.preventDefault(), U can not use backspace in language input.
+      if (isCursorAtBegin(cm) && onlyHaveOneLine(cm)) {
+        event.preventDefault()
+        const value = cm.getValue()
+        const newBlock = this.createBlock('p')
+        if (value) newBlock.text = value
+        this.insertBefore(newBlock, block)
+        this.removeBlock(block)
+        this.codeBlocks.delete(id)
+        this.cursor.key = newBlock.key
+        this.cursor.range = { start: 0, end: 0 }
+        this.render()
+      }
+    } else if (
+      left === 0 &&
+      preBlock &&
+      preBlock.type === 'pre'
+    ) {
+      event.preventDefault()
+      const text = block.text
+      const cm = this.codeBlocks.get(preBlock.key)
+      const value = cm.getValue() + text
+      cm.setValue(value)
+      this.removeBlock(block)
+      setCursorAtLastLine(cm)
+    } else if (inlineDegrade) {
       event.preventDefault()
       switch (inlineDegrade.type) {
         case 'STOP': // at begin of article
@@ -94,37 +120,8 @@ const backspaceCtrl = ContentState => {
       }
       this.render()
     } else if (left === 0) {
-      console.log(left)
       this.removeBlock(block)
     }
-
-    // if (isCodeBlockParagraph(paragraph)) {
-    //   const codeBlockId = paragraph.id
-    //   const cm = this.codeBlocks.get(codeBlockId)
-    //   // if event.preventDefault(), U can not use backspace in language input.
-    //   if (isCursorAtBegin(cm) && onlyHaveOneLine(cm)) {
-    //     const value = cm.getValue()
-    //     const newParagraph = createEmptyElement(this.ids, LOWERCASE_TAGS.p)
-    //     if (value) newParagraph.textContent = value
-    //     insertBefore(newParagraph, paragraph)
-    //     removeNode(paragraph)
-    //     this.codeBlocks.delete(codeBlockId)
-    //     selection.moveCursor(newParagraph, 0)
-    //   }
-    // } else if (
-    //   selection.getCaretOffsets(paragraph).left === 0 &&
-    //   preParagraph &&
-    //   isCodeBlockParagraph(preParagraph)
-    // ) {
-    //   event.preventDefault()
-    //   const text = paragraph.textContent
-    //   const codeBlockId = preParagraph.id
-    //   const cm = this.codeBlocks.get(codeBlockId)
-    //   const value = cm.getValue() + text
-    //   cm.setValue(value)
-    //   removeNode(paragraph)
-    //   setCursorAtLastLine(cm)
-    // }
   }
 }
 

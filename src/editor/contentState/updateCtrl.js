@@ -148,7 +148,7 @@ const updateCtrl = ContentState => {
 
     if (block.key !== key) {
       const oldBlock = this.getBlock(key)
-      this.codeBlockUpdate(oldBlock)
+      if (oldBlock) this.codeBlockUpdate(oldBlock)
       if (oldBlock && oldBlock.temp) {
         if (oldBlock.text || oldBlock.children.length) {
           delete oldBlock.temp
@@ -159,7 +159,6 @@ const updateCtrl = ContentState => {
       }
     }
 
-    console.log(block.type)
     if (block.type === 'pre') {
       if (block.key !== key) {
         this.cursor.key = block.key
