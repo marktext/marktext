@@ -78,31 +78,35 @@ const updateCtrl = ContentState => {
     let newBlock
 
     if ((preSibling && preSibling.type === wrapperTag) && (nextSibling && nextSibling.type === wrapperTag)) {
-      newBlock = this.createBlockLi(newText, preSibling.depth + 1)
+      newBlock = this.createBlockLi(newText)
       this.appendChild(preSibling, newBlock)
       const partChildren = nextSibling.children.splice(0)
       partChildren.forEach(b => this.appendChild(preSibling, b))
       this.removeBlock(nextSibling)
       this.removeBlock(block)
     } else if (preSibling && preSibling.type === wrapperTag) {
-      newBlock = this.createBlockLi(newText, preSibling.depth + 1)
+      newBlock = this.createBlockLi(newText)
       this.appendChild(preSibling, newBlock)
 
       this.removeBlock(block)
     } else if (nextSibling && nextSibling.type === wrapperTag) {
-      newBlock = this.createBlockLi(newText, nextSibling.depth + 1)
+      newBlock = this.createBlockLi(newText)
       this.insertBefore(newBlock, nextSibling.children[0])
 
       this.removeBlock(block)
     } else if (parent && parent.type === wrapperTag) {
-      newBlock = this.createBlockLi(newText, parent.depth + 1)
+      newBlock = this.createBlockLi(newText)
       this.insertBefore(newBlock, block)
 
       this.removeBlock(block)
     } else {
       block.type = wrapperTag
       block.text = ''
-      newBlock = this.createBlockLi(newText, block.depth + 1)
+      if (wrapperTag === 'ol') {
+        const start = marker.split('.')[0]
+        block.start = start
+      }
+      newBlock = this.createBlockLi(newText)
       this.appendChild(block, newBlock)
     }
 

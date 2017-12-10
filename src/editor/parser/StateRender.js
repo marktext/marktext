@@ -49,12 +49,21 @@ class StateRender {
 
     const renderBlock = block => {
       const type = block.type === 'hr' ? 'p' : block.type
+
       let blockSelector = block.key === activeBlockKey || block.key === cursor.key
         ? `${type}#${block.key}.${CLASS_OR_ID['AG_PARAGRAPH']}.${CLASS_OR_ID['AG_ACTIVE']}`
         : `${type}#${block.key}.${CLASS_OR_ID['AG_PARAGRAPH']}`
 
+      const data = {
+        props: {},
+        dataset: {}
+      }
+
       if (block.children.length) {
-        return h(blockSelector, block.children.map(child => renderBlock(child)))
+        if (block.type === 'ol') {
+          Object.assign(data.props, { start: block.start })
+        }
+        return h(blockSelector, data, block.children.map(child => renderBlock(child)))
       } else {
         let children = block.text
           ? tokenizer(block.text).reduce((acc, token) => {
@@ -62,9 +71,7 @@ class StateRender {
             return Array.isArray(chunk) ? [...acc, ...chunk] : [...acc, chunk]
           }, [])
           : [ h(LOWERCASE_TAGS.br) ]
-        const data = {
-          dataset: {}
-        }
+
         if (/^h\d$/.test(block.type)) {
           Object.assign(data.dataset, { head: block.type })
         }

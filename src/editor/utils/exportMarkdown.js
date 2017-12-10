@@ -4,18 +4,15 @@ class ExportMarkdown {
   constructor (blocks) {
     this.blocks = blocks
     this.listType = [] // 'ul' or 'ol'
-    this.blockquoteType = []
   }
 
   generate () {
-    this.addDepth2Block(this.blocks, 0)
-    return this.translateBlocks2Markdown(this.blocks, 0)
+    return this.translateBlocks2Markdown(this.blocks)
   }
 
-  translateBlocks2Markdown (blocks, inLen) {
+  translateBlocks2Markdown (blocks, indent = '') {
     const result = []
     const len = blocks.length
-    const indent = ' '.repeat(inLen)
     let i
     for (i = 0; i < len; i++) {
       const block = blocks[i]
@@ -62,9 +59,7 @@ class ExportMarkdown {
 
         case 'blockquote':
           this.insertLineBreak(result, indent)
-          this.blockquoteType.push({ type: 'blockquote' })
           result.push(this.normalizeBlockquote(block, indent))
-          this.blockquoteType.pop()
           break
       }
     }
@@ -74,48 +69,45 @@ class ExportMarkdown {
 
   insertLineBreak (result, indent) {
     if (result.length > 0) {
-      const depth = this.blockquoteType.length
-      const blockquotePrefix = depth ? `${'>'.repeat(depth)} ` : ''
-      result.push(blockquotePrefix ? `${indent}${blockquotePrefix}\n` : '\n')
+      if (/\S/.test(indent)) {
+        result.push(`${indent}\n`)
+      } else {
+        result.push('\n')
+      }
     }
   }
 
-  insertBlockquotePrefix (text, indent) {
-    const depth = this.blockquoteType.length
-    const blockquotePrefix = depth ? `${'> '.repeat(depth)}` : ''
-    return `${indent}${blockquotePrefix}${text}\n`
+  normalizeParagraphText (block, indent) {
+    return `${indent}${block.text}\n`
   }
 
   normalizeHeaderText (block, indent) {
     const match = block.text.match(/(#{1,6})(.*)/)
     const text = `${match[1]} ${match[2].trim()}`
-    return this.insertBlockquotePrefix(text, indent)
-  }
-
-  normalizeParagraphText (block, indent) {
-    return this.insertBlockquotePrefix(block.text, indent)
+    return `${indent}${text}\n`
   }
 
   normalizeBlockquote (block, indent) {
     const { children } = block
-    return this.translateBlocks2Markdown(children, indent.length)
+    const newIndent = `${indent}> `
+    return this.translateBlocks2Markdown(children, newIndent)
   }
 
   normalizeCodeBlock (block, indent) {
     const result = []
     const textList = block.text.split(LINE_BREAKS)
-    result.push(this.insertBlockquotePrefix(block.lang ? '```' + block.lang : '```', indent))
+    result.push(`${indent}${block.lang ? '```' + block.lang + '\n' : '```\n'}`)
 
     textList.forEach(text => {
-      result.push(this.insertBlockquotePrefix(text, indent))
+      result.push(`${indent}${text}\n`)
     })
-    result.push(this.insertBlockquotePrefix('```', indent))
+    result.push(indent + '```\n')
     return result.join('')
   }
 
   normalizeList (block, indent) {
     const { children } = block
-    return this.translateBlocks2Markdown(children, indent.length)
+    return this.translateBlocks2Markdown(children, indent)
   }
 
   normalizeListItem (block, indent) {
@@ -123,25 +115,12 @@ class ExportMarkdown {
     const listInfo = this.listType[this.listType.length - 1]
     const itemMarker = listInfo.type === 'ul' ? '- ' : `${listInfo.listCount++}. `
     const { children } = block
+    const newIndent = indent + ' '.repeat(itemMarker.length)
 
     result.push(`${indent}${itemMarker}`)
-    result.push(this.translateBlocks2Markdown(children, indent.length + itemMarker.length).trimLeft())
+    result.push(this.translateBlocks2Markdown(children, newIndent).substring(newIndent.length))
 
     return result.join('')
-  }
-
-  addDepth2Block (blocks, initDepth) {
-    const len = blocks.length
-    let i
-
-    for (i = 0; i < len; i++) {
-      const block = blocks[i]
-      block.depth = initDepth
-      const { children } = block
-      if (children.length) {
-        this.addDepth2Block(children, initDepth + 1)
-      }
-    }
   }
 }
 
