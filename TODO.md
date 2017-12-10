@@ -9,11 +9,11 @@
 - [x] 代码区块，代码区块中的 markdown 语法不再被转换。
 - [x] 分割线，你可以在一行中使用三个以上的 *、-、_ 来创建分割线。
 - [x] 链接，markdown 支持两种形式的链接，行内式、参考式。
-- [ ] 图片，markdown 支持两种形式的图片，行内式、参考式。
+- [x] 图片，markdown 支持两种形式的图片，行内式、参考式。
 - [x] Markdown 中使用\*、\_ 来表示强调，使用一个用 em 标签，使用两个用 strong 标签，如果\*、\_ 内侧有空白的话，会被当做普通的符号。
 - [x] 代码，如果标记一小段代码，可以用反引号标记：\`。如果文字中已经有反引号，那么使用两个反引号。
 - [x] 简单链接、自动连接，使用\<\>包裹的链接会被转换为a 标签，还可以自动识别链接。
-- [ ] 反斜线 \ 可以对如下字符转义：
+- [x] 反斜线 \ 可以对如下字符转义：
 
 ```
 \   反斜线
@@ -36,7 +36,7 @@ _   底线
 
 **输出**
 
-- [ ] 输出 markdown
+- [x] 输出 markdown
 - [ ] 输出 pdf
 - [ ] 输出 html
 
@@ -68,3 +68,5 @@ Bugs:
 * [ ] codeblock 中光标在 begining 的时候，向上箭头失效。
 * [ ] codeblock 中 language input 输入，enter 后，codeblock 没有自动获取焦点。
 * [ ] 图片段落下面有新的段落，编辑跳动现象。
+* [ ] 当 codeBlock 在 list item 中， item nextSibling 为 null，但是 list 还有nextSibling。这个时候不应该创建行的 block。
+* [ ] codeBlock 在 list item 中时，list style 消失。
