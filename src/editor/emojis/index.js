@@ -31,7 +31,7 @@ export const setInlineEmoji = (node, emoji, selection) => {
 }
 
 class Emoji {
-  constructor (event) {
+  constructor () {
     this.cache = new Map()
   }
 

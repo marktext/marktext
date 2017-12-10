@@ -56,7 +56,7 @@ class StateRender {
       if (block.children.length) {
         return h(blockSelector, block.children.map(child => renderBlock(child)))
       } else {
-        const children = block.text
+        let children = block.text
           ? tokenizer(block.text).reduce((acc, token) => {
             const chunk = this[token.type](h, cursor, block, token)
             return Array.isArray(chunk) ? [...acc, ...chunk] : [...acc, chunk]
@@ -74,6 +74,7 @@ class StateRender {
         if (block.type === 'pre') {
           if (block.lang) Object.assign(data.dataset, { lang: block.lang })
           blockSelector += `.${CLASS_OR_ID['AG_CODE_BLOCK']}`
+          children = ''
         }
 
         if (block.temp) {

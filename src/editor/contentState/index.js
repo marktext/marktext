@@ -75,6 +75,13 @@ class ContentState {
 
   // getBlocks
   getBlocks () {
+    let key
+    let cm
+    for ([ key, cm ] of this.codeBlocks.entries()) {
+      const value = cm.getValue()
+      const block = this.getBlock(key)
+      if (block) block.text = value
+    }
     return this.blocks
   }
 
