@@ -65,6 +65,8 @@ const codeBlockCtrl = ContentState => {
         const history = cm.getHistory()
         codeBlock.setValue(value)
         codeBlock.setHistory(history)
+      } else if (block.text) {
+        codeBlock.setValue(block.text)
       }
 
       this.codeBlocks.set(id, codeBlock)

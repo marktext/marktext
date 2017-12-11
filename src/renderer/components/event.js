@@ -15,8 +15,7 @@ const mixins = {
       })
       ipcRenderer.on('AGANI::file-loaded', (e, { file, filename, pathname }) => {
         this.pathname = pathname
-        console.log(file)
-        console.log(filename)
+        this.editor.setMarkdown(file)
       })
     }
   }

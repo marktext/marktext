@@ -258,6 +258,10 @@ class Aganippe {
     return markdown
   }
 
+  setMarkdown (text) {
+    this.contentState.importMarkdown(text)
+  }
+
   destroy () {
     this.eventCenter.detachAllDomEvents()
     this.emoji.clear() // clear emoji cache for memory recycle

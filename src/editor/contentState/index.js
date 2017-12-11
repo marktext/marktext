@@ -8,6 +8,7 @@ import codeBlockCtrl from './codeBlockCtrl'
 import History from './history'
 import historyCtrl from './historyCtrl'
 import arrowCtrl from './arrowCtrl'
+import importMarkdown from '../utils/importMarkdown'
 
 const ctrls = [
   enterCtrl,
@@ -16,7 +17,8 @@ const ctrls = [
   backspaceCtrl,
   codeBlockCtrl,
   historyCtrl,
-  arrowCtrl
+  arrowCtrl,
+  importMarkdown
 ]
 
 // deep first search
@@ -55,8 +57,8 @@ class ContentState {
 
   render () {
     const { blocks, cursor } = this
-    const activeBlock = this.getActiveBlockKey()
-    this.stateRender.render(blocks, cursor, activeBlock)
+    const activeBlockKey = this.getActiveBlockKey()
+    this.stateRender.render(blocks, cursor, activeBlockKey)
     this.pre2CodeMirror()
   }
 
@@ -150,6 +152,7 @@ class ContentState {
 
   getActiveBlockKey () {
     let block = this.getBlock(this.cursor.key)
+    if (!block) return null
     while (block.parent) {
       block = this.getBlock(block.parent)
     }
