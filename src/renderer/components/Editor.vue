@@ -5,10 +5,13 @@
 
 <script>
   import Aganippe from '../../editor'
+  import mixins from './event'
   export default {
+    mixins: [ mixins ],
     data () {
       return {
-        editor: null
+        editor: null,
+        pathname: ''
       }
     },
     created () {
@@ -16,6 +19,8 @@
         const ele = this.$refs.editor
         this.editor = new Aganippe(ele)
       })
+      this.handleSave()
+      this.listenEvents()
     },
     destroyed () {
       this.editor = null

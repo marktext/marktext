@@ -1,7 +1,8 @@
 'use strict'
 
-import { app, BrowserWindow, Menu } from 'electron'
+import { app, Menu } from 'electron'
 import configureMenu from './configureMenu'
+import createWindow, { windows } from './createWindow'
 
 /**
  * Set `__static` path to static files in production
@@ -11,57 +12,13 @@ if (process.env.NODE_ENV !== 'development') {
   global.__static = require('path').join(__dirname, '/static').replace(/\\/g, '\\\\')
 }
 
-let mainWindow
-const winURL = process.env.NODE_ENV === 'development'
-  ? `http://localhost:9080`
-  : `file://${__dirname}/index.html`
-
-function createWindow () {
-  /**
-   * Initial window options
-   */
-  mainWindow = new BrowserWindow({
-    height: 800,
-    frame: true,
-    show: false,
-    center: true,
-    useContentSize: true,
-    width: 1200
-  })
-
-  mainWindow.loadURL(winURL)
-  // setTimeout(() => {
-  //   const filePathes = dialog.showOpenDialog({
-  //     filters: [{
-  //       name: 'Text',
-  //       extensions: ['md']
-  //     }],
-  //     properties: ['openFile']
-  //   })
-  //   console.log(filePathes)
-  // }, 2000)
-
-  // setTimeout(() => {
-  //   const path = dialog.showSaveDialog(mainWindow, {
-
-  //     message: 'hello'
-  //   })
-  //   console.log(path)
-  // }, 2000)
-
-  mainWindow.once('ready-to-show', () => {
-    mainWindow.show()
-    // mainWindow.setTitle('hello')
-  })
-
-  mainWindow.on('closed', () => {
-    mainWindow = null
-  })
+const onReady = () => {
+  createWindow()
   const menu = Menu.buildFromTemplate(configureMenu({ app }))
   Menu.setApplicationMenu(menu)
 }
 
-app.on('ready', createWindow)
+app.on('ready', onReady)
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
@@ -70,27 +27,9 @@ app.on('window-all-closed', () => {
 })
 
 app.on('activate', () => {
-  if (mainWindow === null) {
-    createWindow()
+  // On OS X it's common to re-create a window in the app when the
+  // dock icon is clicked and there are no other windows open.
+  if (windows.size === 0) {
+    onReady()
   }
 })
-
-/**
- * Auto Updater
- *
- * Uncomment the following code below and install `electron-updater` to
- * support auto updating. Code Signing with a valid certificate is required.
- * https://simulatedgreg.gitbooks.io/electron-vue/content/en/using-electron-builder.html#auto-updating
- */
-
-/*
-import { autoUpdater } from 'electron-updater'
-
-autoUpdater.on('update-downloaded', () => {
-  autoUpdater.quitAndInstall()
-})
-
-app.on('ready', () => {
-  if (process.env.NODE_ENV === 'production') autoUpdater.checkForUpdates()
-})
- */

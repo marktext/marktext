@@ -9,7 +9,6 @@ import Emoji, { checkEditEmoji, setInlineEmoji } from './emojis'
 import floatBox from './floatBox'
 import { findNearestParagraph, operateClassName } from './utils/domManipulate'
 import ExportMarkdown from './utils/exportMarkdown'
-import fs from 'fs'
 
 class Aganippe {
   constructor (container, options) {
@@ -39,15 +38,6 @@ class Aganippe {
     eventCenter.bind('command+z', event => {
       event.preventDefault()
       this.contentState.history.undo()
-    })
-
-    eventCenter.bind('command+s', event => {
-      const blocks = this.contentState.getBlocks()
-      const markdown = new ExportMarkdown(blocks).generate()
-      console.log(blocks)
-      fs.writeFile('./src/editor/output.md', markdown, 'utf-8', (err, data) => {
-        if (err) console.log(err)
-      })
     })
 
     // if you dont click the keyboard after 1 second, the garbageCollection will run.
@@ -260,6 +250,12 @@ class Aganippe {
     }
 
     eventCenter.attachDOMEvent(container, 'click', handler)
+  }
+
+  getMarkdown () {
+    const blocks = this.contentState.getBlocks()
+    const markdown = new ExportMarkdown(blocks).generate()
+    return markdown
   }
 
   destroy () {

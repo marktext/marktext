@@ -58,6 +58,7 @@
   "dependencies": {
     "axios": "^0.16.1",
     "codemirror": "^5.31.0",
+    "electron-window-state": "^4.1.1",
     "markdown-it": "^8.4.0",
     "mousetrap": "^1.6.1",
     "parse5": "^3.0.3",

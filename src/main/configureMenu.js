@@ -5,9 +5,9 @@ import aganippe from './menus/aganippe'
 import view from './menus/view'
 import windowMenu from './menus/windowMenu'
 
-export default function configureMenu ({app}) {
+export default function configureMenu ({ app }) {
   let template = process.platform === 'darwin'
-    ? [aganippe({app})]
+    ? [aganippe({ app })]
     : []
   return [
     ...template,

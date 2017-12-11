@@ -12,7 +12,7 @@ export default {
     label: 'Open...',
     accelerator: 'CmdOrCtrl+O',
     click: (menuItem, browserWindow) => {
-      actions.open({browserWindow})
+      actions.open(browserWindow)
     }
   }, {
     type: 'separator'
@@ -20,13 +20,13 @@ export default {
     label: 'Save',
     accelerator: 'CmdOrCtrl+S',
     click: (menuItem, browserWindow) => {
-      actions.save({browserWindow})
+      actions.save(browserWindow)
     }
   }, {
     label: 'Save As...',
     accelerator: 'Shift+CmdOrCtrl+S',
     click: (menuItem, browserWindow) => {
-      actions.saveAs({browserWindow})
+      actions.saveAs(browserWindow)
     }
   }, {
     type: 'separator'
