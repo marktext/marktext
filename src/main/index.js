@@ -1,6 +1,7 @@
 'use strict'
 
-import { app, BrowserWindow } from 'electron'
+import { app, BrowserWindow, Menu } from 'electron'
+import configureMenu from './configureMenu'
 
 /**
  * Set `__static` path to static files in production
@@ -20,16 +21,44 @@ function createWindow () {
    * Initial window options
    */
   mainWindow = new BrowserWindow({
-    height: 563,
+    height: 800,
+    frame: true,
+    show: false,
+    center: true,
     useContentSize: true,
-    width: 1000
+    width: 1200
   })
 
   mainWindow.loadURL(winURL)
+  // setTimeout(() => {
+  //   const filePathes = dialog.showOpenDialog({
+  //     filters: [{
+  //       name: 'Text',
+  //       extensions: ['md']
+  //     }],
+  //     properties: ['openFile']
+  //   })
+  //   console.log(filePathes)
+  // }, 2000)
+
+  // setTimeout(() => {
+  //   const path = dialog.showSaveDialog(mainWindow, {
+
+  //     message: 'hello'
+  //   })
+  //   console.log(path)
+  // }, 2000)
+
+  mainWindow.once('ready-to-show', () => {
+    mainWindow.show()
+    // mainWindow.setTitle('hello')
+  })
 
   mainWindow.on('closed', () => {
     mainWindow = null
   })
+  const menu = Menu.buildFromTemplate(configureMenu({ app }))
+  Menu.setApplicationMenu(menu)
 }
 
 app.on('ready', createWindow)

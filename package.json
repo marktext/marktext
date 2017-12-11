@@ -58,8 +58,9 @@
   "dependencies": {
     "axios": "^0.16.1",
     "codemirror": "^5.31.0",
-    "html2json": "^1.0.2",
+    "markdown-it": "^8.4.0",
     "mousetrap": "^1.6.1",
+    "parse5": "^3.0.3",
     "snabbdom": "^0.7.0",
     "snabbdom-to-html": "^5.0.0",
     "vue": "^2.3.3",

@@ -1,10 +1,11 @@
 import { generateKeyHash, genUpper2LowerKeyHash } from './utils'
 
-export const markedSymbol = ['\\*', '\\-', '\\_', '\\!', '\\[', '\\]', '\\+',
-  '\\\\', '\\)', '\\(', '\\`', '\\{', '\\}', '\\#', '\\.']
+// export const markedSymbol = ['\\*', '\\-', '\\_', '\\!', '\\[', '\\]', '\\+',
+//   '\\\\', '\\)', '\\(', '\\`', '\\{', '\\}', '\\#', '\\.']
 /**
  * configs
  */
+export const INLINE_RULES = ['autolink', 'backticks', 'emphasis', 'escape', 'image', 'link', 'strikethrough']
 
 export const blockContainerElementNames = [
   // elements our editor generates
