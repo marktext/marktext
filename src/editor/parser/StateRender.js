@@ -4,6 +4,7 @@ import { insertAfter, operateClassName } from '../utils/domManipulate.js'
 import selection from '../selection'
 import { tokenizer } from './parse'
 import { validEmoji } from '../emojis'
+import path from 'path'
 
 const snabbdom = require('snabbdom')
 const patch = snabbdom.init([ // Init patch function with chosen modules
@@ -249,7 +250,10 @@ class StateRender {
 
     if (isLengthEven(token.backlash.first) && isLengthEven(token.backlash.second)) {
       const id = getIdWithoutSet()
-      loadImage(token.src + encodeURI(token.backlash.second))
+      const src = /$http(s)?:/.test(token.src) || !window.__dirname
+        ? token.src + encodeURI(token.backlash.second)
+        : 'file://' + path.resolve(window.__dirname, token.src + encodeURI(token.backlash.second))
+      loadImage(src)
         .then(url => {
           const imageWrapper = document.querySelector(`#${id}`)
           const img = document.createElement('img')

@@ -1,4 +1,5 @@
 import { ipcRenderer } from 'electron'
+import path from 'path'
 import bus from '../bus'
 const state = {
   filename: 'Untitled - unsaved',
@@ -16,6 +17,7 @@ const mutations = {
     state.filename = filename
   },
   SET_PATHNAME (state, pathname) {
+    window.__dirname = path.dirname(pathname)
     state.pathname = pathname
   },
   SET_STATUS (state, status) {
