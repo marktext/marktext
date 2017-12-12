@@ -63,7 +63,6 @@ class ExportMarkdown {
           break
       }
     }
-    console.log(result)
     return result.join('')
   }
 

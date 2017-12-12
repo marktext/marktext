@@ -5,9 +5,13 @@
 
 <script>
   import Aganippe from '../../editor'
-  import mixins from './event'
+
   export default {
-    mixins: [ mixins ],
+    props: {
+      markdown: {
+        type: String
+      }
+    },
     data () {
       return {
         editor: null,
@@ -18,9 +22,19 @@
       this.$nextTick(() => {
         const ele = this.$refs.editor
         this.editor = new Aganippe(ele)
+
+        const unwatch = this.$watch('markdown', newValue => {
+          if (newValue !== '' && this.editor) {
+            this.editor.setMarkdown(newValue)
+            unwatch()
+          }
+        })
+
+        this.editor.on('auto-save', markdown => {
+          console.log('auto-save')
+          this.$store.dispatch('SAVE_FILE', markdown)
+        })
       })
-      this.handleSave()
-      this.listenEvents()
     },
     destroyed () {
       this.editor = null

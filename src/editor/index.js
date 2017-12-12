@@ -41,7 +41,11 @@ class Aganippe {
     })
 
     // if you dont click the keyboard after 1 second, the garbageCollection will run.
-    eventCenter.attachDOMEvent(container, 'keydown', debounce(() => this.contentState.garbageCollection(), 1000))
+    eventCenter.attachDOMEvent(container, 'keydown', debounce(() => {
+      this.contentState.garbageCollection()
+      const markdown = this.getMarkdown()
+      eventCenter.dispatch('auto-save', markdown)
+    }, 1000))
 
     this.imageClick()
     this.dispatchArrow()
@@ -262,11 +266,15 @@ class Aganippe {
     this.contentState.importMarkdown(text)
   }
 
+  on (event, listener) {
+    const { eventCenter } = this
+    eventCenter.subscribe(event, listener)
+  }
+
   destroy () {
     this.eventCenter.detachAllDomEvents()
     this.emoji.clear() // clear emoji cache for memory recycle
     this.contentState.clear()
-    // this.codeBlocks.clear()
     this.container = null
     this.contentState = null
     this.eventCenter = null

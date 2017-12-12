@@ -1,4 +1,4 @@
-export default function aganippeMenu ({app}) {
+export default function aganippeMenu ({ app }) {
   return {
     label: 'Aganippe',
     submenu: [{

@@ -22,7 +22,7 @@ ipcMain.on('AGANI:response-file-save', (e, { markdown, pathname }) => {
       fs.writeFile(filePath, markdown, 'utf-8', err => {
         if (err) return console.log('save as file failed')
         win.setTitle(filename)
-        e.sender.send('AGANI::set-pathname', { pathname: filePath })
+        e.sender.send('AGANI::set-pathname', { pathname: filePath, filename })
       })
     }
   }

@@ -14,7 +14,12 @@ const createWindow = (pathname, options = {}) => {
   })
 
   const { x, y, width, height } = mainWindowState
-  const winOpt = Object.assign({ x, y, width, height }, { useContentSize: true, show: false }, options)
+  const winOpt = Object.assign({ x, y, width, height }, {
+    useContentSize: true,
+    show: false,
+    frame: false,
+    titleBarStyle: 'hidden'
+  }, options)
   let win = new BrowserWindow(winOpt)
 
   const winURL = process.env.NODE_ENV === 'development'

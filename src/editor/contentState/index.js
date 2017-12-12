@@ -251,6 +251,7 @@ class ContentState {
 
   clear () {
     this.keys.clear()
+    this.codeBlocks.clear()
   }
 }
 
