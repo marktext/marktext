@@ -1,13 +1,17 @@
 import { ipcRenderer } from 'electron'
-
+import bus from '../bus'
 const state = {
   filename: 'Untitled - unsaved',
   pathname: '',
   isSaved: false,
-  markdown: ''
+  markdown: '',
+  windowActive: true
 }
 
 const mutations = {
+  SET_WIN_STATUS (state, status) {
+    state.windowActive = status
+  },
   SET_FILENAME (state, filename) {
     state.filename = filename
   },
@@ -23,6 +27,12 @@ const mutations = {
 }
 
 const actions = {
+  LINTEN_WIN_STATUS ({ commit }) {
+    ipcRenderer.on('AGANI::window-active-status', (e, { status }) => {
+      console.log(status)
+      commit('SET_WIN_STATUS', status)
+    })
+  },
   LISTEN_FOR_SAVE ({ commit, state }) {
     ipcRenderer.on('AGANI::ask-file-save', () => {
       const { pathname, markdown } = state
@@ -42,6 +52,19 @@ const actions = {
       commit('SET_PATHNAME', pathname)
       commit('SET_MARKDOWN', file)
       commit('SET_STATUS', true)
+      bus.$emit('file-loaded', file)
+    })
+  },
+  LISTEN_FOR_FILE_CHANGE ({ commit, state }) {
+    ipcRenderer.on('AGANI::file-change', (e, { file, filename, pathname }) => {
+      const { windowActive } = state
+      commit('SET_FILENAME', filename)
+      commit('SET_PATHNAME', pathname)
+      commit('SET_MARKDOWN', file)
+      commit('SET_STATUS', true)
+      if (!windowActive) {
+        bus.$emit('file-loaded', file)
+      }
     })
   },
   EDITE_FILE ({ commit }) {

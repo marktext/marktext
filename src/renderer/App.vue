@@ -2,6 +2,7 @@
   <div class="editor-container">
     <title-bar
       :filename="filename"
+      :active="windowActive"
     ></title-bar>
     <editor
       :markdown="markdown"
@@ -21,12 +22,14 @@
       TitleBar
     },
     computed: {
-      ...mapState(['filename', 'markdown'])
+      ...mapState(['filename', 'markdown', 'windowActive'])
     },
     created () {
+      this.$store.dispatch('LINTEN_WIN_STATUS')
       this.$store.dispatch('LISTEN_FOR_SAVE')
       this.$store.dispatch('GET_FILENAME')
       this.$store.dispatch('LISTEN_FOR_FILE_LOAD')
+      this.$store.dispatch('LISTEN_FOR_FILE_CHANGE')
     }
   }
 </script>

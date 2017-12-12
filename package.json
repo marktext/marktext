@@ -57,6 +57,7 @@
   },
   "dependencies": {
     "axios": "^0.16.1",
+    "chokidar": "^1.7.0",
     "codemirror": "^5.31.0",
     "electron-window-state": "^4.1.1",
     "markdown-it": "^8.4.0",

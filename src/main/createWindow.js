@@ -32,7 +32,6 @@ const createWindow = (pathname, options = {}) => {
     win.show()
 
     if (pathname) {
-      console.log(typeof pathname)
       const filename = path.basename(pathname)
       fs.readFile(path.resolve(pathname), 'utf-8', (err, file) => {
         if (err) return console.log(err)
@@ -41,12 +40,16 @@ const createWindow = (pathname, options = {}) => {
           filename,
           pathname
         })
-
-        win.setTitle(filename)
       })
-    } else {
-      win.setTitle('Untitled')
     }
+  })
+
+  win.on('focus', () => {
+    win.webContents.send('AGANI::window-active-status', { status: true })
+  })
+
+  win.on('blur', () => {
+    win.webContents.send('AGANI::window-active-status', { status: false })
   })
 
   win.on('close', () => { // before closed
@@ -56,6 +59,7 @@ const createWindow = (pathname, options = {}) => {
   })
 
   windows.set(win.id, win)
+  return win
 }
 
 export default createWindow

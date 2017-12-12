@@ -1,5 +1,7 @@
 <template>
-  <div class="title-bar active">
+  <div class="title-bar"
+    :class="{'active': active}"
+  >
     <div class="title">
       <img src="../assets/icons/markdown.svg" v-if="filename">
       {{ filename }}
@@ -10,7 +12,8 @@
 <script>
   export default {
     props: {
-      filename: String
+      filename: String,
+      active: Boolean
     }
   }
 </script>
@@ -31,7 +34,7 @@
   }
   .active {
     background: linear-gradient(180deg, #efefef, #ccc);
-    color: #666;
+    color: #333;
   }
   img {
     height: 90%;
