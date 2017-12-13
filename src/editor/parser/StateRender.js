@@ -40,18 +40,37 @@ class StateRender {
   getClassName (outerClass, block, token, cursor) {
     return outerClass || (this.checkConflicted(block, token, cursor) ? CLASS_OR_ID['AG_GRAY'] : CLASS_OR_ID['AG_HIDE'])
   }
+
+  existedPreBlockRender (block, isActive) {
+    const id = block.key
+    const preEle = document.querySelector(`#${id}`)
+    if (preEle) {
+      if (isActive) {
+        operateClassName(preEle, 'add', CLASS_OR_ID['AG_ACTIVE'])
+      } else {
+        operateClassName(preEle, 'remove', CLASS_OR_ID['AG_ACTIVE'])
+      }
+      return toVNode(preEle)
+    }
+  }
+
   /**
    * [render]: 2 steps:
    * render vdom
    * return set cursor
    */
-  render (blocks, cursor, activeBlockKey) {
+  render (blocks, cursor, activeBlockKey, codeBlocks) {
     const selector = `${LOWERCASE_TAGS.div}#${CLASS_OR_ID['AG_EDITOR_ID']}`
 
     const renderBlock = block => {
       const type = block.type === 'hr' ? 'p' : block.type
+      const isActive = block.key === activeBlockKey || block.key === cursor.key
+      // if the block is codeBlock, and already rendered, then converted the existed dom to vdom.
+      if (codeBlocks.has(block.key) && type === 'pre') {
+        return this.existedPreBlockRender(block, isActive)
+      }
 
-      let blockSelector = block.key === activeBlockKey || block.key === cursor.key
+      let blockSelector = isActive
         ? `${type}#${block.key}.${CLASS_OR_ID['AG_PARAGRAPH']}.${CLASS_OR_ID['AG_ACTIVE']}`
         : `${type}#${block.key}.${CLASS_OR_ID['AG_PARAGRAPH']}`
 

@@ -26,6 +26,8 @@ const codeBlockCtrl = ContentState => {
   ContentState.prototype.pre2CodeMirror = function () {
     const pres = document.querySelectorAll(`pre.${CLASS_OR_ID['AG_CODE_BLOCK']}`)
     Array.from(pres).forEach(pre => {
+      if (this.codeBlocks.has(pre.id)) return false
+
       pre.innerHTML = ''
       const id = pre.id
       const block = this.getBlock(id)
@@ -59,13 +61,7 @@ const codeBlockCtrl = ContentState => {
         floatBox.hideIfNeeded()
       }
 
-      if (this.codeBlocks.has(id)) {
-        const cm = this.codeBlocks.get(id)
-        const value = cm.getValue()
-        const history = cm.getHistory()
-        codeBlock.setValue(value)
-        codeBlock.setHistory(history)
-      } else if (block.text) {
+      if (block.text) {
         codeBlock.setValue(block.text)
       }
 
