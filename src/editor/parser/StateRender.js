@@ -1,10 +1,9 @@
 import { LOWERCASE_TAGS, CLASS_OR_ID } from '../config'
-import { conflict, isLengthEven, isEven, getIdWithoutSet, loadImage } from '../utils'
+import { conflict, isLengthEven, isEven, getIdWithoutSet, loadImage, getImageSrc } from '../utils'
 import { insertAfter, operateClassName } from '../utils/domManipulate.js'
 import selection from '../selection'
 import { tokenizer } from './parse'
 import { validEmoji } from '../emojis'
-import path from 'path'
 
 const snabbdom = require('snabbdom')
 const patch = snabbdom.init([ // Init patch function with chosen modules
@@ -19,6 +18,7 @@ class StateRender {
   constructor () {
     this.container = null
     this.vdom = null
+    this.loadImageMap = new Map()
   }
 
   setContainer (container) {
@@ -249,37 +249,69 @@ class StateRender {
     const imageClass = CLASS_OR_ID['AG_IMAGE_MARKED_TEXT']
 
     if (isLengthEven(token.backlash.first) && isLengthEven(token.backlash.second)) {
-      const id = getIdWithoutSet()
-      const src = (/^http(s)?:/.test(token.src) || !window.__dirname)
-        ? token.src + encodeURI(token.backlash.second)
-        : 'file://' + path.resolve(window.__dirname, token.src + encodeURI(token.backlash.second))
-      loadImage(src)
-        .then(url => {
-          const imageWrapper = document.querySelector(`#${id}`)
-          const img = document.createElement('img')
-          img.src = url
-          img.alt = token.title + encodeURI(token.backlash.first)
-          if (imageWrapper) {
-            insertAfter(img, imageWrapper)
-            operateClassName(imageWrapper, 'add', className)
-          }
-        })
-        .catch(() => {
-          const imageWrapper = document.querySelector(`#${id}`)
-          if (imageWrapper) {
-            operateClassName(imageWrapper, 'add', CLASS_OR_ID['AG_IMAGE_FAIL'])
-          }
-        })
+      let id
+      let isSuccess
+      let selector
+      const src = getImageSrc(token.src + encodeURI(token.backlash.second))
+      const alt = token.title + encodeURI(token.backlash.first)
 
-      return [
-        h(`a#${id}.${imageClass}`, { props: { href: '#' } }, [
-          `![${token.title}`,
-          ...this.backlashInToken(token.backlash.first, className),
-          `](${token.src}`,
-          ...this.backlashInToken(token.backlash.second, className),
-          ')'
-        ])
+      if (src) {
+        if (!this.loadImageMap.has(src)) {
+          id = getIdWithoutSet()
+          loadImage(src)
+            .then(url => {
+              const imageWrapper = document.querySelector(`#${id}`)
+              const img = document.createElement('img')
+              img.src = url
+              img.alt = alt
+              if (imageWrapper) {
+                insertAfter(img, imageWrapper)
+                operateClassName(imageWrapper, 'add', className)
+              }
+              this.loadImageMap.set(src, {
+                id,
+                isSuccess: true
+              })
+            })
+            .catch(() => {
+              const imageWrapper = document.querySelector(`#${id}`)
+              if (imageWrapper) {
+                operateClassName(imageWrapper, 'add', CLASS_OR_ID['AG_IMAGE_FAIL'])
+              }
+              this.loadImageMap.set(src, {
+                id,
+                isSuccess: false
+              })
+            })
+        } else {
+          const imageInfo = this.loadImageMap.get(src)
+          id = imageInfo.id
+          isSuccess = imageInfo.isSuccess
+        }
+      }
+
+      selector = id ? `a#${id}.${imageClass}` : `a.${imageClass}`
+
+      if (isSuccess) {
+        selector += `.${className}`
+      } else {
+        selector += `.${CLASS_OR_ID['AG_IMAGE_FAIL']}`
+      }
+
+      const children = [
+        `![${token.title}`,
+        ...this.backlashInToken(token.backlash.first, className),
+        `](${token.src}`,
+        ...this.backlashInToken(token.backlash.second, className),
+        ')'
       ]
+
+      return isSuccess
+        ? [
+          h(selector, { props: { href: '#' } }, children),
+          h('img', { props: { alt, src } })
+        ]
+        : [h(selector, { props: { href: '#' } }, children)]
     } else {
       return [
         '![',

@@ -190,11 +190,11 @@ pre.ag-active .ag-language-input {
 }
 
 .ag-image-marked-text {
-  color: black;
+  color: #666;
   border-radius: 4px;
   font-size: 14px;
   text-decoration: none;
-  background: azure;
+  background: lightgray;
 }
 
 .ag-image-marked-text ~ img {

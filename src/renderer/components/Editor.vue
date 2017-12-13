@@ -8,11 +8,6 @@
   import bus from '../bus'
 
   export default {
-    props: {
-      markdown: {
-        type: String
-      }
-    },
     data () {
       return {
         editor: null,

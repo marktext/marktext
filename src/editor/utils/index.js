@@ -1,3 +1,5 @@
+import path from 'path'
+
 // help functions
 const getId = () => {
   const prefix = 'ag-'
@@ -130,6 +132,18 @@ export const loadImage = url => {
     }
     image.src = url
   })
+}
+
+export const getImageSrc = src => {
+  const EXT_REG = /\.(jpeg|jpg|png|gif|svg|webp)$/i
+  const HTTP_REG = /^http(s)?:/
+  if (EXT_REG.test(src)) {
+    return (HTTP_REG.test(src) || !window.__dirname)
+      ? src
+      : 'file://' + path.resolve(window.__dirname, src)
+  } else {
+    return ''
+  }
 }
 
 /**

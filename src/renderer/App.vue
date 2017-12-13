@@ -4,9 +4,7 @@
       :filename="filename"
       :active="windowActive"
     ></title-bar>
-    <editor
-      :markdown="markdown"
-    ></editor>
+    <editor></editor>
   </div>
 </template>
 
@@ -22,7 +20,7 @@
       TitleBar
     },
     computed: {
-      ...mapState(['filename', 'markdown', 'windowActive'])
+      ...mapState(['filename', 'windowActive'])
     },
     created () {
       this.$store.dispatch('LINTEN_WIN_STATUS')

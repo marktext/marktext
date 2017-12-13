@@ -20,6 +20,7 @@
 
 <style scoped>
   .title-bar {
+    user-select: none;
     width: 100%;
     height: 22px;
     border-bottom: 1px solid #ccc;
