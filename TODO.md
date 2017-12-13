@@ -1,5 +1,77 @@
 #### TODO LIST
 
+**Bugs**
+
+- [ ] 处理嵌套在 item 中的 codeblock 的方向键。
+- [ ] codeblock 中光标在 begining 的时候，向上箭头失效。
+- [ ] codeblock 中 language input 输入，enter 后，codeblock 没有自动获取焦点。
+- [ ] 图片段落下面有新的段落，编辑跳动现象。
+- [ ] 当 codeBlock 在 list item 中， item nextSibling 为 null，但是 list 还有nextSibling。这个时候不应该创建行的 block。
+- [ ] codeBlock 在 list item 中时，list style 消失。
+
+**菜单**
+
+* File：
+  - [x] New... （cmd + N）
+  - [x] Open (cmd + O)
+  - [ ] Open Recent
+  - [ ] Open With Finder
+  - [ ] Close
+  - [x] Save
+  - [ ] Duplicate
+  - [ ] Rename
+  - [ ] Move To
+  - [ ] Export(PDF | HTML with style | HTML)
+* Edit
+  - [ ] Undo
+  - [ ] Redo
+  - [ ] Cut
+  - [ ] Copy
+  - [ ] Paste
+  - [ ] Copy As Markdown
+  - [ ] Copy As HTML
+  - [ ] Paste As Plain Text
+  - [ ] Find | Find And Replace
+* Paragraph
+  - [ ] Heading 1~6
+  - [ ] Paragraph
+  - [ ] Increase Heading Level
+  - [ ] Decrease Heading Level
+  - [ ] Table
+  - [ ] Code Fences
+  - [ ] Quote Block
+  - [ ] Order List
+  - [ ] Unorder List
+  - [ ] Task List
+  - [ ] List Indentation (up | down)
+  - [ ] Horizontal Line
+* Format
+  - [ ] Strong
+  - [ ] Emphasis
+  - [ ] Code
+  - [ ] Strike
+  - [ ] Link
+  - [ ] Image
+  - [ ] Clear Format
+* View
+  - [ ] Customize Touch Bar
+* Theme
+  - [ ] GitHub | ...
+* Window
+  - [ ] Minimize
+  - [ ] Zoom
+  - [ ] Current Window
+* Help
+  - [ ] Website
+
+**Website**
+
+// TODO
+
+**Title Bar**
+
+* 字数统计（Words | Paragraphes | Characters | Characters With Space）
+
 **语法实现**
 
 - [x] 段落和换行，两个或两个以上的空格再敲回车，或插入一个\<br/\>
@@ -34,39 +106,7 @@ _   底线
 - [ ] 表格支持。
 
 
-**输出**
-
-- [x] 输出 markdown
-- [ ] 输出 pdf
-- [ ] 输出 html
-
-**顶部菜单**
-
-// 复制、黏贴、快捷键
-
-**右键菜单**
-
-// TODO
-
-**打开、编辑、保存文件**
-
-- [ ] Markdown to render html
-
-
-- [ ] redo、ondo
-
-
-
-- [ ] 终端打开
 
 
 
 
-Bugs:
-
-* [ ] 处理嵌套在 item 中的 codeblock 的方向键。
-* [ ] codeblock 中光标在 begining 的时候，向上箭头失效。
-* [ ] codeblock 中 language input 输入，enter 后，codeblock 没有自动获取焦点。
-* [ ] 图片段落下面有新的段落，编辑跳动现象。
-* [ ] 当 codeBlock 在 list item 中， item nextSibling 为 null，但是 list 还有nextSibling。这个时候不应该创建行的 block。
-* [ ] codeBlock 在 list item 中时，list style 消失。

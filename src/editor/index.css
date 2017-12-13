@@ -197,6 +197,11 @@ pre.ag-active .ag-language-input {
   background: azure;
 }
 
+.ag-image-marked-text ~ img {
+  display: block;
+  margin: 0 auto;
+}
+
 .ag-image-marked-text::before {
   content: '';
   width: 1.1em;

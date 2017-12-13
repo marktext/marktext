@@ -1,27 +1,27 @@
 'use strict'
 
 import fs from 'fs'
-import chokidar from 'chokidar'
+// import chokidar from 'chokidar'
 import path from 'path'
 import { dialog, ipcMain, BrowserWindow } from 'electron'
 import createWindow from './createWindow'
 import { EXTENSIONS } from './config'
 
-const watchAndReload = (pathname, win) => {
-  const watcher = chokidar.watch(pathname, {
-    persistent: true
-  })
-  const filename = path.basename(pathname)
-  watcher.on('change', path => {
-    fs.readFile(pathname, 'utf-8', (err, file) => {
-      if (err) return console.log(err)
-      win.webContents.send('AGANI::file-change', {
-        file,
-        filename,
-        pathname
-      })
-    })
-  })
+const watchAndReload = (pathname, win) => { // when i build, and failed.
+  // const watcher = chokidar.watch(pathname, {
+  //   persistent: true
+  // })
+  // const filename = path.basename(pathname)
+  // watcher.on('change', path => {
+  //   fs.readFile(pathname, 'utf-8', (err, file) => {
+  //     if (err) return console.log(err)
+  //     win.webContents.send('AGANI::file-change', {
+  //       file,
+  //       filename,
+  //       pathname
+  //     })
+  //   })
+  // })
 }
 
 ipcMain.on('AGANI:response-file-save', (e, { markdown, pathname }) => {
@@ -48,7 +48,7 @@ ipcMain.on('AGANI:response-file-save', (e, { markdown, pathname }) => {
 
 export const open = win => {
   const filename = dialog.showOpenDialog(win, {
-    properties: ['openFile'],
+    properties: [ 'openFile' ],
     filters: [{
       name: 'text',
       extensions: EXTENSIONS

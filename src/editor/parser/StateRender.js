@@ -43,7 +43,7 @@ class StateRender {
   /**
    * [render]: 2 steps:
    * render vdom
-   * return set cursor method
+   * return set cursor
    */
   render (blocks, cursor, activeBlockKey) {
     const selector = `${LOWERCASE_TAGS.div}#${CLASS_OR_ID['AG_EDITOR_ID']}`
@@ -250,7 +250,7 @@ class StateRender {
 
     if (isLengthEven(token.backlash.first) && isLengthEven(token.backlash.second)) {
       const id = getIdWithoutSet()
-      const src = /$http(s)?:/.test(token.src) || !window.__dirname
+      const src = (/^http(s)?:/.test(token.src) || !window.__dirname)
         ? token.src + encodeURI(token.backlash.second)
         : 'file://' + path.resolve(window.__dirname, token.src + encodeURI(token.backlash.second))
       loadImage(src)

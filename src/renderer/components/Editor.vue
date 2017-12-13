@@ -1,5 +1,5 @@
 <template>
-  <div ref="editor">
+  <div ref="editor" class="editor-component">
   </div>
 </template>
 
@@ -47,4 +47,8 @@
 <style scoped>
   @import '../../editor/themes/github.css';
   @import '../../editor/index.css';
+  .editor-component {
+    height: calc(100vh - 22px);
+    overflow: auto;
+  }
 </style>
