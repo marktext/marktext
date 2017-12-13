@@ -4,7 +4,7 @@
 
 - [ ] 处理嵌套在 item 中的 codeblock 的方向键。
 - [ ] codeblock 中光标在 begining 的时候，向上箭头失效。
-- [ ] codeblock 中 language input 输入，enter 后，codeblock 没有自动获取焦点。
+- [x] codeblock 中 language input 输入，enter 后，codeblock 没有自动获取焦点。
 - [ ] 图片段落下面有新的段落，编辑跳动现象。
 - [ ] 当 codeBlock 在 list item 中， item nextSibling 为 null，但是 list 还有nextSibling。这个时候不应该创建行的 block。
 - [ ] codeBlock 在 list item 中时，list style 消失。
