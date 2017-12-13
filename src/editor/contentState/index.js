@@ -56,6 +56,7 @@ class ContentState {
   }
 
   render () {
+    console.log('render')
     const { blocks, cursor, codeBlocks } = this
     const activeBlockKey = this.getActiveBlockKey()
     this.stateRender.render(blocks, cursor, activeBlockKey, codeBlocks)

@@ -26,11 +26,19 @@ const codeBlockCtrl = ContentState => {
   ContentState.prototype.pre2CodeMirror = function () {
     const pres = document.querySelectorAll(`pre.${CLASS_OR_ID['AG_CODE_BLOCK']}`)
     Array.from(pres).forEach(pre => {
-      if (this.codeBlocks.has(pre.id)) return false
-
-      pre.innerHTML = ''
       const id = pre.id
       const block = this.getBlock(id)
+
+      if (this.codeBlocks.has(id)) {
+        const cm = this.codeBlocks.get(id)
+        if (block.pos && this.cursor.key === block.key) {
+          cm.focus()
+          cm.setCursor(block.pos)
+        }
+        return
+      }
+
+      pre.innerHTML = ''
       const autofocus = id === this.cursor.key
       const config = Object.assign(codeMirrorConfig, { autofocus })
       const codeBlock = codeMirror(pre, config)
@@ -49,6 +57,7 @@ const codeBlockCtrl = ContentState => {
             input.blur()
             if (this.cursor.key === block.key) {
               if (block.pos) {
+                codeBlock.focus()
                 codeBlock.setCursor(block.pos)
               } else {
                 setCursorAtLastLine(codeBlock)
@@ -72,8 +81,6 @@ const codeBlockCtrl = ContentState => {
           mode
         })
       }
-
-      if (block.pos && this.cursor.key === block.key) codeBlock.setCursor(block.pos)
 
       eventCenter.attachDOMEvent(input, 'keyup', () => {
         const value = input.value

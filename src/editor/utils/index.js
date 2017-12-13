@@ -135,7 +135,7 @@ export const loadImage = url => {
 }
 
 export const getImageSrc = src => {
-  const EXT_REG = /\.(jpeg|jpg|png|gif|svg|webp)$/i
+  const EXT_REG = /\.(jpeg|jpg|png|gif|svg|webp)(?=\?|$)/i
   const HTTP_REG = /^http(s)?:/
   if (EXT_REG.test(src)) {
     return (HTTP_REG.test(src) || !window.__dirname)

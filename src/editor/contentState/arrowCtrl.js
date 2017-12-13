@@ -17,11 +17,7 @@ const arrowCtrl = ContentState => {
     const block = this.getBlock(id)
     const preBlock = this.getPreSibling(block)
     const nextBlock = this.getNextSibling(block)
-
-    // const outMostParagraph = findOutMostParagraph(node)
     const { left, right } = selection.getCaretOffsets(paragraph)
-    // let preParagraph = outMostParagraph.previousElementSibling
-    // let nextParagraph = outMostParagraph.nextElementSibling
 
     if (show && (event.key === EVENT_KEYS.ArrowUp || event.key === EVENT_KEYS.ArrowDown)) {
       event.preventDefault()
