@@ -74,5 +74,9 @@ export const codeMirrorConfig = {
   autoCloseBrackets: true,
   autoCloseTags: true,
   autofocus: true,
-  tabSize: 2
+  tabSize: 2,
+  extraKeys: {
+    'Cmd-Z': false,
+    'Cmd-Y': false
+  }
 }

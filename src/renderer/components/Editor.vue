@@ -21,6 +21,8 @@
 
         bus.$on('file-loaded', this.handleFileLoaded)
         bus.$on('undo', () => this.editor.undo())
+        bus.$on('redo', () => this.editor.redo())
+
         this.editor.on('auto-save', markdown => {
           this.$store.dispatch('SAVE_FILE', markdown)
         })

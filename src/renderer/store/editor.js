@@ -86,9 +86,12 @@ const actions = {
       ipcRenderer.send('AGANI::response-file-save', { pathname, markdown })
     }
   },
-  LISTEN_FOR_UNDO ({ commit }) {
+  LISTEN_FOR_UNDO_REDO ({ commit }) {
     ipcRenderer.on('AGANI::undo', e => {
       bus.$emit('undo')
+    })
+    ipcRenderer.on('AGANI::redo', e => {
+      bus.$emit('redo')
     })
   }
 }

@@ -159,6 +159,10 @@ class ContentState {
     return block.key
   }
 
+  getCursorBlock () {
+    return this.getBlock(this.cursor.key) || null
+  }
+
   insertAfter (newBlock, oldBlock) {
     const siblings = oldBlock.parent ? this.getBlock(oldBlock.parent).children : this.blocks
     const oldNextSibling = this.getBlock(oldBlock.nextSibling)

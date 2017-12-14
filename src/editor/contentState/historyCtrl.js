@@ -1,5 +1,5 @@
-// import selection from '../selection'
-// import { findNearestParagraph } from '../utils/domManipulate'
+import selection from '../selection'
+import { findNearestParagraph } from '../utils/domManipulate'
 
 const historyCtrl = ContentState => {
   ContentState.prototype.historyHandler = function (event) {
@@ -11,15 +11,16 @@ const historyCtrl = ContentState => {
       (event.key === 'z' && event.metaKey) // when user press `commandOrCtrl + z` , don't push history
     ) return
 
-    // const node = selection.getSelectionStart()
-    // const paragraph = findNearestParagraph(node)
-    // const text = paragraph.textContent
-    // const block = this.getBlock(paragraph.id)
-    this.history.push({
-      type: 'normal',
-      blocks: this.blocks,
-      cursor: this.cursor
-    })
+    const node = selection.getSelectionStart()
+    const paragraph = findNearestParagraph(node)
+    const block = this.getBlock(paragraph.id)
+    if (block.type !== 'pre') {
+      this.history.push({
+        type: 'normal',
+        blocks: this.blocks,
+        cursor: this.cursor
+      })
+    }
   }
 }
 

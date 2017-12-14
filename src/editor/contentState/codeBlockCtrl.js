@@ -87,11 +87,24 @@ const codeBlockCtrl = ContentState => {
         eventCenter.dispatch('editLanguage', input, value.trim(), handler)
       })
 
-      codeBlock.on('focus', event => {
-        block.pos = codeBlock.getCursor()
+      codeBlock.on('focus', (cm, event) => {
+        block.pos = cm.getCursor()
       })
-      codeBlock.on('blur', event => {
-        block.pos = codeBlock.getCursor()
+
+      codeBlock.on('blur', (cm, event) => {
+        block.pos = cm.getCursor()
+      })
+
+      let lastUndoLength = 0
+      codeBlock.on('change', (cm, change) => {
+        const { undo } = cm.historySize()
+        if (undo > lastUndoLength) {
+          this.history.push({
+            type: 'codeBlock',
+            id
+          })
+          lastUndoLength = undo
+        }
       })
     })
   }

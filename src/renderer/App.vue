@@ -29,7 +29,7 @@
       this.$store.dispatch('GET_FILENAME')
       this.$store.dispatch('LISTEN_FOR_FILE_LOAD')
       this.$store.dispatch('LISTEN_FOR_FILE_CHANGE')
-      this.$store.dispatch('LISTEN_FOR_UNDO')
+      this.$store.dispatch('LISTEN_FOR_UNDO_REDO')
     }
   }
 </script>

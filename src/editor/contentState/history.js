@@ -18,13 +18,34 @@ export class History {
           this.contentState.render()
           break
         case 'codeBlock':
-          state.cmHistory.undo()
+          const id = state.id
+          const codeBlock = this.contentState.codeBlocks.get(id)
+          codeBlock.focus()
+          codeBlock.undo()
           break
       }
     }
   }
   redo () {
-
+    const { index, stack } = this
+    const len = stack.length
+    if (index < len - 1) {
+      this.index = index + 1
+      const state = deepCopy(stack[this.index])
+      switch (state.type) {
+        case 'normal':
+          this.contentState.blocks = state.blocks
+          this.contentState.cursor = state.cursor
+          this.contentState.render()
+          break
+        case 'codeBlock':
+          const id = state.id
+          const codeBlock = this.contentState.codeBlocks.get(id)
+          codeBlock.focus()
+          codeBlock.redo()
+          break
+      }
+    }
   }
   push (state) {
     this.stack.splice(this.index + 1)

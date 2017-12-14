@@ -10,8 +10,10 @@ export default {
     }
   }, {
     label: 'Redo',
-    accelerator: 'Shift+CmdOrCtrl+Z',
-    role: 'redo'
+    accelerator: 'CmdOrCtrl+Y',
+    click: (menuItem, browserWindow) => {
+      actions.redo(browserWindow)
+    }
   }, {
     type: 'separator'
   }, {
