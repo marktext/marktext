@@ -23,6 +23,7 @@
       ...mapState(['filename', 'windowActive'])
     },
     created () {
+      this.$store.dispatch('LISTEN_FOR_SAVE_AS')
       this.$store.dispatch('LINTEN_WIN_STATUS')
       this.$store.dispatch('LISTEN_FOR_SAVE')
       this.$store.dispatch('GET_FILENAME')

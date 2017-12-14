@@ -38,7 +38,13 @@ const actions = {
   LISTEN_FOR_SAVE ({ commit, state }) {
     ipcRenderer.on('AGANI::ask-file-save', () => {
       const { pathname, markdown } = state
-      ipcRenderer.send('AGANI:response-file-save', { pathname, markdown })
+      ipcRenderer.send('AGANI::response-file-save', { pathname, markdown })
+    })
+  },
+  LISTEN_FOR_SAVE_AS ({ commit, state }) {
+    ipcRenderer.on('AGANI::ask-file-save-as', () => {
+      const { pathname, markdown } = state
+      ipcRenderer.send('AGANI::response-file-save-as', { pathname, markdown })
     })
   },
   GET_FILENAME ({ commit, state }) {
@@ -77,7 +83,7 @@ const actions = {
     const { pathname } = state
     if (pathname) {
       commit('SET_STATUS', true)
-      ipcRenderer.send('AGANI:response-file-save', { pathname, markdown })
+      ipcRenderer.send('AGANI::response-file-save', { pathname, markdown })
     }
   }
 }

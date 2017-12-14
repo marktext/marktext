@@ -24,7 +24,27 @@ const watchAndReload = (pathname, win) => { // when i build, and failed.
   // })
 }
 
-ipcMain.on('AGANI:response-file-save', (e, { markdown, pathname }) => {
+const writeFile = (pathname, markdown, win, e) => {
+  if (pathname) {
+    pathname = pathname.endsWith('.md') ? pathname : `${pathname}.md`
+    const filename = path.basename(pathname)
+    fs.writeFile(pathname, markdown, 'utf-8', err => {
+      if (err) return console.log('save as file failed')
+      e.sender.send('AGANI::set-pathname', { pathname, filename })
+    })
+    watchAndReload(pathname, win)
+  }
+}
+
+ipcMain.on('AGANI::response-file-save-as', (e, { markdown, pathname }) => {
+  const win = BrowserWindow.fromWebContents(e.sender)
+  let filePath = dialog.showSaveDialog(win, {
+    defaultPath: pathname || '~/Untitled.md'
+  })
+  writeFile(filePath, markdown, win, e)
+})
+
+ipcMain.on('AGANI::response-file-save', (e, { markdown, pathname }) => {
   const win = BrowserWindow.fromWebContents(e.sender)
   if (pathname) {
     fs.writeFile(pathname, markdown, 'utf-8', err => {
@@ -34,15 +54,7 @@ ipcMain.on('AGANI:response-file-save', (e, { markdown, pathname }) => {
     let filePath = dialog.showSaveDialog(win, {
       defaultPath: '~/Untitled.md'
     })
-    if (filePath) {
-      filePath = filePath.endsWith('.md') ? filePath : `${filePath}.md`
-      const filename = path.basename(filePath)
-      fs.writeFile(filePath, markdown, 'utf-8', err => {
-        if (err) return console.log('save as file failed')
-        e.sender.send('AGANI::set-pathname', { pathname: filePath, filename })
-      })
-      watchAndReload(filePath, win)
-    }
+    writeFile(filePath, markdown, win, e)
   }
 })
 
@@ -66,4 +78,8 @@ export const newFile = () => {
 
 export const save = win => {
   win.webContents.send('AGANI::ask-file-save')
+}
+
+export const saveAs = win => {
+  win.webContents.send('AGANI::ask-file-save-as')
 }
