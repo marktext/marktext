@@ -7,9 +7,10 @@ export class History {
     this.contentState = contentState
   }
   undo () {
-    console.log(this.index)
-    if (this.index > -1) {
-      const state = this.stack[this.index]
+    if (this.index > 0) {
+      this.index = this.index - 1
+      console.log(this.index)
+      const state = deepCopy(this.stack[this.index])
       switch (state.type) {
         case 'normal':
           this.contentState.blocks = state.blocks
@@ -20,7 +21,6 @@ export class History {
           state.cmHistory.undo()
           break
       }
-      this.index = this.index - 1
     }
   }
   redo () {

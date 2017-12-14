@@ -85,6 +85,11 @@ const actions = {
       commit('SET_STATUS', true)
       ipcRenderer.send('AGANI::response-file-save', { pathname, markdown })
     }
+  },
+  LISTEN_FOR_UNDO ({ commit }) {
+    ipcRenderer.on('AGANI::undo', e => {
+      bus.$emit('undo')
+    })
   }
 }
 

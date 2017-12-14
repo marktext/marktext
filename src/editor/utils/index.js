@@ -106,6 +106,7 @@ export const deepCopyArray = array => {
 }
 
 export const deepCopy = object => {
+  // return JSON.parse(JSON.stringify(object))
   const obj = {}
   Object.keys(object).forEach(key => {
     if (typeof object[key] === 'object' && object[key] !== null) {

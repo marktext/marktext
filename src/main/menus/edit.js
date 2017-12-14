@@ -1,9 +1,13 @@
+import * as actions from '../editActions'
+
 export default {
   label: 'Edit',
   submenu: [{
     label: 'Undo',
     accelerator: 'CmdOrCtrl+Z',
-    role: 'undo'
+    click: (menuItem, browserWindow) => {
+      actions.undo(browserWindow)
+    }
   }, {
     label: 'Redo',
     accelerator: 'Shift+CmdOrCtrl+Z',

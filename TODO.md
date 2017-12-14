@@ -12,9 +12,9 @@
   - [x] Open (cmd + O)
   - [ ] Open Recent
   - [ ] Open With Finder
-  - [ ] Close
+  - [x] Close
   - [x] Save
-  - [ ] Duplicate
+  - [x] Save As
   - [ ] Rename
   - [ ] Move To
   - [ ] Export(PDF | HTML with style | HTML)
@@ -66,7 +66,7 @@
 
 **Title Bar**
 
-* 字数统计（Words | Paragraphes | Characters | Characters With Space）
+- [ ] 字数统计（Words | Paragraphes | Characters | Characters With Space）
 
 **语法实现**
 

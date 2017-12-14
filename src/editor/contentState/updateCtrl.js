@@ -173,13 +173,6 @@ const updateCtrl = ContentState => {
     }
 
     if (block.text !== text) {
-      // if (event.key !== 'Meta' && event.key !== 'z') {
-      //   this.history.push({
-      //     type: 'normal',
-      //     blocks: this.blocks,
-      //     cursor: this.cursor
-      //   })
-      // }
       block.text = text
     }
 

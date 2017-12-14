@@ -20,9 +20,8 @@
         this.editor = new Aganippe(ele)
 
         bus.$on('file-loaded', this.handleFileLoaded)
-
+        bus.$on('undo', () => this.editor.undo())
         this.editor.on('auto-save', markdown => {
-          console.log('auto-save')
           this.$store.dispatch('SAVE_FILE', markdown)
         })
       })

@@ -35,13 +35,14 @@ class Aganippe {
     eventCenter.subscribe('hideFloatBox', this.subscribeHideFloatBox.bind(this))
     this.dispatchHideFloatBox()
 
-    eventCenter.bind('command+z', event => {
+    eventCenter.bind('mod+z', event => {
       event.preventDefault()
-      this.contentState.history.undo()
+      this.undo()
     })
 
     // if you dont click the keyboard after 1 second, the garbageCollection will run.
-    eventCenter.attachDOMEvent(container, 'keydown', debounce(() => {
+    eventCenter.attachDOMEvent(container, 'keydown', debounce(event => {
+      this.contentState.historyHandler(event)
       this.contentState.garbageCollection()
       const markdown = this.getMarkdown()
       eventCenter.dispatch('auto-save', markdown)
@@ -269,6 +270,11 @@ class Aganippe {
   on (event, listener) {
     const { eventCenter } = this
     eventCenter.subscribe(event, listener)
+  }
+
+  undo () {
+    console.log('undo')
+    this.contentState.history.undo()
   }
 
   destroy () {
