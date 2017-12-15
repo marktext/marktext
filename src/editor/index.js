@@ -156,8 +156,9 @@ class Aganippe {
     const modes = search(lang).map(mode => {
       return Object.assign(mode, { text: mode.name })
     })
+
     const callback = item => {
-      replaceLanguage(paragraph, item.mode, selection)
+      replaceLanguage(paragraph, item.name, selection)
       this.floatBox.hideIfNeeded()
     }
     if (modes.length) {

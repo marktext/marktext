@@ -4,6 +4,7 @@ import 'codemirror/mode/meta'
 import codeMirror from 'codemirror/lib/codemirror'
 
 import loadmode from './loadmode'
+import languages from './modes'
 import 'codemirror/lib/codemirror.css'
 import './index.css'
 
@@ -15,10 +16,43 @@ codeMirror.modeURL = process.env.NODE_ENV !== 'production'
   ? './node_modules/codemirror/mode/%N/%N.js'
   : './codemirror/mode/%N/%N.js'
 
+const getModeFromName = name => {
+  let result = null
+  const lang = languages.filter(lang => lang.name === name)[0]
+  if (lang) {
+    const { name, mode, mime } = lang
+    const matched = modes.filter(m => {
+      if (m.mime) {
+        if (Array.isArray(m.mime)) {
+          return m.mime.indexOf(mime) > -1 && m.mode === mode
+        } else {
+          return m.mime === mime && m.mode === mode
+        }
+      } else if (m.mimes.length > 0 && Array.isArray(m.mimes)) {
+        return m.mimes.indexOf(mime) > -1 && m.mode === mode
+      } else {
+        return false
+      }
+    })
+    if (matched.length && typeof matched[0] === 'object') {
+      result = {
+        name,
+        mode: matched[0]
+      }
+    }
+  }
+  return result
+}
+
 export const search = text => {
-  return modes.filter(mode => {
-    return new RegExp(`^${text}`, 'i').test(mode.name)
+  const matchedLangs = languages.filter(lang => {
+    return new RegExp(text, 'i').test(lang.name)
   })
+
+  return matchedLangs.map(lang => {
+    return getModeFromName(lang.name)
+  })
+    .filter(lang => !!lang)
 }
 
 /**
@@ -70,7 +104,7 @@ export const setCursorAtFirstLine = cm => {
 }
 
 export const setMode = (doc, text) => {
-  const m = modes.filter(mode => text === mode.mode)[0]
+  const m = getModeFromName(text)
 
   if (!m) {
     const errMsg = !text
@@ -79,10 +113,11 @@ export const setMode = (doc, text) => {
     return Promise.reject(errMsg) // eslint-disable-line prefer-promise-reject-errors
   }
 
-  const { mode, mime } = m
+  const { mode, mime } = m.mode
+  console.log(mode)
   return new Promise(resolve => {
     codeMirror.requireMode(mode, () => {
-      doc.setOption('mode', mime)
+      doc.setOption('mode', mime || mode)
       codeMirror.autoLoadMode(doc, mode)
       resolve(m)
     })

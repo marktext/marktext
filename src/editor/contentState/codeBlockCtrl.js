@@ -50,10 +50,10 @@ const codeBlockCtrl = ContentState => {
           mode
         } = langMode
         setMode(codeBlock, mode)
-          .then(mode => {
-            pre.setAttribute('data-lang', mode.name)
-            input.value = mode.name
-            block.lang = mode.name.toLowerCase()
+          .then(m => {
+            pre.setAttribute('data-lang', m.name)
+            input.value = m.name
+            block.lang = m.name.toLowerCase()
             input.blur()
             if (this.cursor.key === block.key) {
               if (block.pos) {
