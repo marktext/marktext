@@ -9,8 +9,8 @@
 </template>
 
 <script>
-  import Editor from '@/components/editor'
-  import TitleBar from '@/components/titleBar'
+  import Editor from './components/editor'
+  import TitleBar from './components/titleBar'
   import { mapState } from 'vuex'
 
   export default {
