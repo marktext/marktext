@@ -18,6 +18,7 @@ class ExportMarkdown {
       const block = blocks[i]
       switch (block.type) {
         case 'p':
+        case 'hr':
           this.insertLineBreak(result, indent)
           result.push(this.normalizeParagraphText(block, indent))
           break

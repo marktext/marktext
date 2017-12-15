@@ -48,6 +48,7 @@ const importRegistor = ContentState => {
         const child = childNodes[i]
         let block
         let value
+        console.log(child)
         switch (child.nodeName) {
           case 'p':
           case 'h1':
@@ -60,6 +61,12 @@ const importRegistor = ContentState => {
             const match = /\d/.exec(child.nodeName)
             value = match ? '#'.repeat(+match[0]) + textValue : textValue
             block = this.createBlock(child.nodeName, value)
+            this.appendChild(parent, block)
+            break
+
+          case 'hr':
+            const initValue = '---'
+            block = this.createBlock(child.nodeName, initValue)
             this.appendChild(parent, block)
             break
 
