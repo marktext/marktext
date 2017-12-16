@@ -1,4 +1,3 @@
-import { CLASS_OR_ID } from '../config'
 /**
  * check edit language
  */
@@ -15,17 +14,4 @@ export const checkEditLanguage = (paragraph, selectionState) => {
   } else {
     return false
   }
-}
-
-export const replaceLanguage = (paragraph, mode, selection) => {
-  if (paragraph.tagName.toLowerCase() === 'input') {
-    paragraph.value = mode
-    return paragraph.focus()
-  }
-  paragraph.querySelector(`.${CLASS_OR_ID['AG_LANGUAGE']}`).textContent = mode
-  const offset = paragraph.textContent.length
-  selection.importSelection({
-    start: offset,
-    end: offset
-  }, paragraph)
 }

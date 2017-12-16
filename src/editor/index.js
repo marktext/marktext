@@ -4,7 +4,7 @@ import eventCenter from './event'
 import { LOWERCASE_TAGS, EVENT_KEYS, CLASS_OR_ID } from './config'
 import { throttle, debounce } from './utils'
 import { search } from './codeMirror'
-import { checkEditLanguage, replaceLanguage } from './codeMirror/language'
+import { checkEditLanguage } from './codeMirror/language'
 import Emoji, { checkEditEmoji, setInlineEmoji } from './emojis'
 import floatBox from './floatBox'
 import { findNearestParagraph, operateClassName } from './utils/domManipulate'
@@ -158,7 +158,7 @@ class Aganippe {
     })
 
     const callback = item => {
-      replaceLanguage(paragraph, item.name, selection)
+      this.contentState.selectLanguage(paragraph, item.name)
       this.floatBox.hideIfNeeded()
     }
     if (modes.length) {
@@ -255,8 +255,7 @@ class Aganippe {
 
   getMarkdown () {
     const blocks = this.contentState.getBlocks()
-    const markdown = new ExportMarkdown(blocks).generate()
-    return markdown
+    return new ExportMarkdown(blocks).generate()
   }
 
   setMarkdown (text) {
@@ -269,7 +268,6 @@ class Aganippe {
   }
 
   undo () {
-    console.log('undo')
     this.contentState.history.undo()
   }
 

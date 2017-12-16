@@ -10,6 +10,10 @@ import eventCenter from '../event'
 const CODE_UPDATE_REP = /^`{3,}(.*)/
 
 const codeBlockCtrl = ContentState => {
+  ContentState.prototype.selectLanguage = function (paragraph, name) {
+    const block = this.getBlock(paragraph.id)
+    block.text = block.text.replace(/^(`+)([^`]+$)/g, `$1${name}`)
+  }
   /**
    * [codeBlockUpdate if block updated to `pre` return true, else return false]
    */
@@ -47,9 +51,9 @@ const codeBlockCtrl = ContentState => {
 
       const handler = langMode => {
         const {
-          mode
+          name
         } = langMode
-        setMode(codeBlock, mode)
+        setMode(codeBlock, name)
           .then(m => {
             pre.setAttribute('data-lang', m.name)
             input.value = m.name
@@ -78,7 +82,7 @@ const codeBlockCtrl = ContentState => {
 
       if (mode) {
         handler({
-          mode
+          name: mode
         })
       }
 

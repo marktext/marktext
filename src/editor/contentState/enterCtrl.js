@@ -30,7 +30,10 @@ const enterCtrl = ContentState => {
     const { list, index, show } = floatBox
     if (show) {
       event.preventDefault()
-      return floatBox.cb(list[index])
+      floatBox.cb(list[index])
+      const isUpdated = this.codeBlockUpdate(block)
+      isUpdated && this.render()
+      return
     }
     if (block.type === 'pre') {
       return
