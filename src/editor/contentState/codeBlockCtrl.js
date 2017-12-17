@@ -35,7 +35,7 @@ const codeBlockCtrl = ContentState => {
 
       if (this.codeBlocks.has(id)) {
         const cm = this.codeBlocks.get(id)
-        if (block.pos && this.cursor.key === block.key) {
+        if (block.pos && this.cursor.start.key === block.key) {
           cm.focus()
           cm.setCursor(block.pos)
         }
@@ -43,7 +43,7 @@ const codeBlockCtrl = ContentState => {
       }
 
       pre.innerHTML = ''
-      const autofocus = id === this.cursor.key
+      const autofocus = id === this.cursor.start.key
       const config = Object.assign(codeMirrorConfig, { autofocus })
       const codeBlock = codeMirror(pre, config)
       const mode = pre.getAttribute('data-lang')
@@ -59,7 +59,7 @@ const codeBlockCtrl = ContentState => {
             input.value = m.name
             block.lang = m.name.toLowerCase()
             input.blur()
-            if (this.cursor.key === block.key) {
+            if (this.cursor.start.key === block.key) {
               if (block.pos) {
                 codeBlock.focus()
                 codeBlock.setCursor(block.pos)

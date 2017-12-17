@@ -43,6 +43,10 @@ class Aganippe {
       eventCenter.dispatch('auto-save', markdown)
     }, 1024))
 
+    eventCenter.attachDOMEvent(container, 'paste', event => {
+      // console.log(event)
+    })
+
     this.imageClick()
     this.dispatchArrow()
     this.dispatchBackspace()

@@ -20,6 +20,11 @@ export const getUniqueId = set => {
   return id
 }
 
+export const isMetaKey = event => {
+  const key = event.key
+  return key === 'Shift' || key === 'Control' || key === 'Alt' || key === 'Meta'
+}
+
 export const getIdWithoutSet = () => {
   return `${getId()}-${+new Date()}`
 }

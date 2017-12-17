@@ -9,6 +9,7 @@ import {
   getFirstSelectableLeafNode,
   isElementAtBeginningOfBlock,
   findPreviousSibling,
+  findNearestParagraph,
   getClosestBlockContainer,
   getCursorPositionWithinMarkedText
 } from './utils/domManipulate'
@@ -707,6 +708,80 @@ class Selection {
     const startNode = (node && node.nodeType === 3 ? node.parentNode : node)
 
     return startNode
+  }
+
+  setCursorRange (cursorRange) {
+    const { start, end } = cursorRange
+    const startParagraph = document.querySelector(`#${start.key}`)
+    const endParagraph = document.querySelector(`#${end.key}`)
+
+    const getNodeAndOffset = (node, offset) => {
+      if (node.nodeType === 3) {
+        return {
+          node,
+          offset
+        }
+      }
+      const childNodes = node.childNodes
+      const len = childNodes.length
+      let i
+      let count = 0
+      for (i = 0; i < len; i++) {
+        const child = childNodes[i]
+        if (count + child.textContent.length >= offset) {
+          return getNodeAndOffset(child, offset - count)
+        } else {
+          count += child.textContent.length
+        }
+      }
+      return { node, offset }
+    }
+
+    let { node: startNode, offset: startOffset } = getNodeAndOffset(startParagraph, start.offset)
+    let { node: endNode, offset: endOffset } = getNodeAndOffset(endParagraph, end.offset)
+    startOffset = Math.min(startOffset, startNode.textContent.length)
+    endOffset = Math.min(endOffset, endNode.textContent.length)
+
+    this.select(startNode, startOffset, endNode, endOffset)
+  }
+
+  getCursorRange () {
+    const { anchorNode, anchorOffset, focusNode, focusOffset } = this.doc.getSelection()
+    const startParagraph = findNearestParagraph(anchorNode)
+    const endParagraph = findNearestParagraph(focusNode)
+
+    const getOffsetOfParagraph = (node, paragraph) => {
+      let offset = 0
+      let preSibling = node
+
+      do {
+        preSibling = preSibling.previousSibling
+        if (preSibling) {
+          offset += preSibling.textContent.length
+        }
+      } while (preSibling)
+      return (node === paragraph || node.parentNode === paragraph)
+        ? offset
+        : offset + getOffsetOfParagraph(node.parentNode, paragraph)
+    }
+
+    return {
+      start: {
+        key: startParagraph.id,
+        offset: getOffsetOfParagraph(anchorNode, startParagraph) + anchorOffset
+      },
+      end: {
+        key: endParagraph.id,
+        offset: getOffsetOfParagraph(focusNode, endParagraph) + focusOffset
+      }
+    }
+  }
+
+  getSelectionEnd () {
+    const node = this.doc.getSelection().focusNode
+    const endNode = (node && node.nodeType === 3 ? node.parentNode : node)
+
+    return endNode
   }
 }
 

@@ -42,7 +42,6 @@ const backspaceCtrl = ContentState => {
     const block = this.getBlock(id)
     const parent = this.getBlock(block.parent)
     const preBlock = this.getBlock(block.preSibling)
-    const selectionState = selection.exportSelection(paragraph)
     const { left } = selection.getCaretOffsets(paragraph)
     const inlineDegrade = this.checkBackspaceCase()
 
@@ -57,8 +56,14 @@ const backspaceCtrl = ContentState => {
         this.insertBefore(newBlock, block)
         this.removeBlock(block)
         this.codeBlocks.delete(id)
-        this.cursor.key = newBlock.key
-        this.cursor.range = { start: 0, end: 0 }
+        const key = newBlock.key
+        const offset = 0
+
+        this.cursor = {
+          start: { key, offset },
+          end: { key, offset }
+        }
+
         this.render()
       }
     } else if (
@@ -101,7 +106,6 @@ const backspaceCtrl = ContentState => {
               this.appendChild(parPre, child)
             })
             this.removeBlock(parent)
-            console.log(JSON.stringify(this.blocks, null, 2))
           }
           break
         }
@@ -114,10 +118,7 @@ const backspaceCtrl = ContentState => {
           }
           break
       }
-      this.cursor = {
-        key: block.key,
-        range: selectionState
-      }
+      this.cursor = selection.getCursorRange()
       this.render()
     } else if (left === 0) {
       this.removeBlock(block)

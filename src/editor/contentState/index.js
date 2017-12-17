@@ -1,4 +1,5 @@
 import { getUniqueId } from '../utils'
+import selection from '../selection'
 import StateRender from '../parser/StateRender'
 import enterCtrl from './enterCtrl'
 import updateCtrl from './updateCtrl'
@@ -40,12 +41,19 @@ class ContentState {
     this.stateRender = new StateRender()
     this.codeBlocks = new Map()
     this.history = new History(this)
+    this.init()
+  }
+
+  init () {
     const lastBlock = this.getLastBlock()
     this.cursor = {
-      key: lastBlock.key,
-      range: {
-        start: lastBlock.text.length,
-        end: lastBlock.text.length
+      start: {
+        key: lastBlock.key,
+        offset: lastBlock.text.length
+      },
+      end: {
+        key: lastBlock.key,
+        offset: lastBlock.text.length
       }
     }
     this.history.push({
@@ -55,11 +63,19 @@ class ContentState {
     })
   }
 
+  setCursor () {
+    const { cursor } = this
+    selection.setCursorRange(cursor)
+  }
+
   render () {
     const { blocks, cursor, codeBlocks } = this
     const activeBlockKey = this.getActiveBlockKey()
+
     this.stateRender.render(blocks, cursor, activeBlockKey, codeBlocks)
+    this.setCursor()
     this.pre2CodeMirror()
+    console.log('render')
   }
 
   createBlock (type = 'p', text = '') {

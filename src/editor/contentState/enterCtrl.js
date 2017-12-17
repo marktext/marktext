@@ -128,13 +128,13 @@ const enterCtrl = ContentState => {
     // If block is pre block when updated, need to focus it.
     const blockNeedFocus = this.codeBlockUpdate(block.type === 'li' ? block.children[0] : block)
     const cursorBlock = blockNeedFocus ? block : newBlock
+    const key = cursorBlock.type === 'li' ? cursorBlock.children[0].key : cursorBlock.key
+    const offset = 0
     this.cursor = {
-      key: cursorBlock.type === 'li' ? cursorBlock.children[0].key : cursorBlock.key,
-      range: {
-        start: 0,
-        end: 0
-      }
+      start: { key, offset },
+      end: { key, offset }
     }
+
     this.render()
   }
 }

@@ -73,9 +73,19 @@ const arrowCtrl = ContentState => {
           break
       }
       if (activeBlock) {
-        const len = activeBlock.text.length
-        this.cursor.key = activeBlock.key
-        this.cursor.range = { start: len, end: len }
+        const offset = activeBlock.text.length
+        const key = activeBlock.key
+        this.cursor = {
+          start: {
+            key,
+            offset
+          },
+          end: {
+            key,
+            offset
+          }
+        }
+
         this.render()
       }
     } else if (

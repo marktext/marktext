@@ -1,7 +1,6 @@
 import { LOWERCASE_TAGS, CLASS_OR_ID } from '../config'
 import { conflict, isLengthEven, isEven, getIdWithoutSet, loadImage, getImageSrc } from '../utils'
 import { insertAfter, operateClassName } from '../utils/domManipulate.js'
-import selection from '../selection'
 import { tokenizer } from './parse'
 import { validEmoji } from '../emojis'
 
@@ -26,18 +25,24 @@ class StateRender {
   }
 
   checkConflicted (block, token, cursor) {
+    const { start, end } = cursor
     const key = block.key
-    const cursorKey = cursor.key
-    if (key !== cursorKey) {
+    const { start: tokenStart, end: tokenEnd } = token.range
+
+    if (key !== start.key && key !== end.key) {
       return false
+    } else if (key === start.key && key !== end.key) {
+      return conflict([tokenStart, tokenEnd], [start.offset, start.offset])
+    } else if (key !== start.key && key === end.key) {
+      return conflict([tokenStart, tokenEnd], [end.offset, end.offset])
     } else {
-      const { start, end } = token.range
-      const { start: cStart, end: cEnd } = cursor.range
-      return conflict([start, end], [cStart, cEnd])
+      return conflict([tokenStart, tokenEnd], [start.offset, start.offset]) ||
+        conflict([tokenStart, tokenEnd], [end.offset, end.offset])
     }
   }
 
   getClassName (outerClass, block, token, cursor) {
+    console.log(this.checkConflicted(block, token, cursor))
     return outerClass || (this.checkConflicted(block, token, cursor) ? CLASS_OR_ID['AG_GRAY'] : CLASS_OR_ID['AG_HIDE'])
   }
 
@@ -57,14 +62,13 @@ class StateRender {
   /**
    * [render]: 2 steps:
    * render vdom
-   * return set cursor
    */
   render (blocks, cursor, activeBlockKey, codeBlocks) {
     const selector = `${LOWERCASE_TAGS.div}#${CLASS_OR_ID['AG_EDITOR_ID']}`
 
     const renderBlock = block => {
       const type = block.type === 'hr' ? 'p' : block.type
-      const isActive = block.key === activeBlockKey || block.key === cursor.key
+      const isActive = block.key === activeBlockKey || block.key === cursor.start.key
       // if the block is codeBlock, and already rendered, then converted the existed dom to vdom.
       if (codeBlocks.has(block.key) && type === 'pre') {
         return this.existedPreBlockRender(block, isActive)
@@ -123,10 +127,6 @@ class StateRender {
     patch(oldVdom, newVdom)
 
     this.vdom = newVdom
-    if (cursor && cursor.range) {
-      const cursorEle = document.querySelector(`#${cursor.key}`)
-      selection.importSelection(cursor.range, cursorEle)
-    }
   }
 
   hr (h, cursor, block, token, outerClass) {
@@ -201,6 +201,7 @@ class StateRender {
   // render factory of `del`,`em`,`strong`
   delEmStrongFac (type, h, cursor, block, token, outerClass) {
     const className = this.getClassName(outerClass, block, token, cursor)
+
     if (isLengthEven(token.backlash)) {
       return [
         h(`a.${className}`, {
