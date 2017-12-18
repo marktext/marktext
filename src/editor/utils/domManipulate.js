@@ -120,6 +120,15 @@ export const getClosestBlockContainer = node => {
   })
 }
 
+export const compareParagraphsOrder = (paragraph1, paragraph2) => {
+  const allParagraph = [...document.querySelectorAll(`.${CLASS_OR_ID['AG_PARAGRAPH']}`)]
+
+  const p1Index = allParagraph.indexOf(paragraph1)
+  const p2Index = allParagraph.indexOf(paragraph2)
+
+  return p1Index < p2Index
+}
+
 export const getCursorPositionWithinMarkedText = (markedText, cursorOffset) => {
   const chunks = []
   let match

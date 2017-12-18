@@ -11,7 +11,8 @@ import {
   findPreviousSibling,
   findNearestParagraph,
   getClosestBlockContainer,
-  getCursorPositionWithinMarkedText
+  getCursorPositionWithinMarkedText,
+  compareParagraphsOrder
 } from './utils/domManipulate'
 
 const filterOnlyParentElements = node => {
@@ -668,6 +669,8 @@ class Selection {
    *  @param {boolean} moveCursorToStart  A boolean representing whether or not to set the caret to the beginning of the prior selection.
    */
   clearSelection (moveCursorToStart) {
+    const { rangeCount } = this.doc.getSelection()
+    if (!rangeCount) return
     if (moveCursorToStart) {
       this.doc.getSelection().collapseToStart()
     } else {
@@ -747,8 +750,8 @@ class Selection {
 
   getCursorRange () {
     const { anchorNode, anchorOffset, focusNode, focusOffset } = this.doc.getSelection()
-    const startParagraph = findNearestParagraph(anchorNode)
-    const endParagraph = findNearestParagraph(focusNode)
+    let startParagraph = findNearestParagraph(anchorNode)
+    let endParagraph = findNearestParagraph(focusNode)
 
     const getOffsetOfParagraph = (node, paragraph) => {
       let offset = 0
@@ -765,14 +768,31 @@ class Selection {
         : offset + getOffsetOfParagraph(node.parentNode, paragraph)
     }
 
-    return {
-      start: {
-        key: startParagraph.id,
-        offset: getOffsetOfParagraph(anchorNode, startParagraph) + anchorOffset
-      },
-      end: {
-        key: endParagraph.id,
-        offset: getOffsetOfParagraph(focusNode, endParagraph) + focusOffset
+    if (startParagraph === endParagraph) {
+      const key = startParagraph.id
+      const offset1 = getOffsetOfParagraph(anchorNode, startParagraph) + anchorOffset
+      const offset2 = getOffsetOfParagraph(focusNode, endParagraph) + focusOffset
+      return {
+        start: { key, offset: Math.min(offset1, offset2) },
+        end: { key, offset: Math.max(offset1, offset2) }
+      }
+    } else {
+      const order = compareParagraphsOrder(startParagraph, endParagraph)
+
+      const rawCursor = {
+        start: {
+          key: startParagraph.id,
+          offset: getOffsetOfParagraph(anchorNode, startParagraph) + anchorOffset
+        },
+        end: {
+          key: endParagraph.id,
+          offset: getOffsetOfParagraph(focusNode, endParagraph) + focusOffset
+        }
+      }
+      if (order) {
+        return rawCursor
+      } else {
+        return { start: rawCursor.end, end: rawCursor.start }
       }
     }
   }
