@@ -129,12 +129,11 @@ const importRegistor = ContentState => {
     travel(rootState, childNodes)
     this.blocks = rootState.children
     const lastBlock = this.getLastBlock()
+    const key = lastBlock.key
+    const offset = lastBlock.text.length
     this.cursor = {
-      key: lastBlock.key,
-      range: {
-        start: lastBlock.text.length,
-        end: lastBlock.text.length
-      }
+      start: { key, offset },
+      end: { key, offset }
     }
     this.render()
   }

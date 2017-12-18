@@ -75,7 +75,6 @@ class ContentState {
     this.stateRender.render(blocks, cursor, activeBlockKey, codeBlocks)
     this.setCursor()
     this.pre2CodeMirror()
-    console.log('render')
   }
 
   createBlock (type = 'p', text = '') {
@@ -137,6 +136,63 @@ class ContentState {
     } else {
       throw new Error('article need at least has one paragraph')
     }
+  }
+  /**
+   * if target is descendant of parent return true, else return false
+   * @param  {[type]}  parent [description]
+   * @param  {[type]}  target [description]
+   * @return {Boolean}        [description]
+   */
+  isInclude (parent, target) {
+    const children = parent.children
+    if (children.length === 0) {
+      return false
+    } else {
+      if (children.some(child => child.key === target.key)) {
+        return true
+      } else {
+        return children.some(child => this.isInclude(child, target))
+      }
+    }
+  }
+  /**
+   * remove blocks between before and after, and includes after block.
+   */
+  removeBlocks (before, after, isRemoveAfter = true) {
+    let preSibling = this.getBlock(after.preSibling)
+    let afterEnd = false
+    while (preSibling) {
+      if (preSibling.key === before.key || this.isInclude(preSibling, before)) {
+        afterEnd = true
+        break
+      }
+      this.removeBlock(preSibling)
+      preSibling = this.getBlock(preSibling.preSibling)
+    }
+    if (!afterEnd) {
+      const parent = this.getParent(after)
+      if (parent) {
+        const isOnlyChild = this.isOnlyChild(after)
+        this.removeBlocks(before, parent, isOnlyChild)
+      }
+    }
+    let nextSibling = this.getBlock(before.nextSibling)
+    let beforeEnd = false
+    while (nextSibling) {
+      if (nextSibling.key === after.key || this.isInclude(nextSibling, after)) {
+        beforeEnd = true
+        break
+      }
+      this.removeBlock(nextSibling)
+      nextSibling = this.getBlock(nextSibling.nextSibling)
+    }
+    if (!beforeEnd) {
+      const parent = this.getParent(before)
+      if (parent) {
+        this.removeBlocks(parent, after, false)
+      }
+    }
+    if (isRemoveAfter) this.removeBlock(after)
   }
 
   removeBlock (block) {

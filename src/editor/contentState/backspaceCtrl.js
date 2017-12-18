@@ -36,6 +36,15 @@ const backspaceCtrl = ContentState => {
   }
 
   ContentState.prototype.backspaceHandler = function (event) {
+    const { start, end } = this.cursor
+
+    if (start.key !== end.key) {
+      const startBlock = this.getBlock(start.key)
+      const endBlock = this.getBlock(end.key)
+      this.removeBlocks(startBlock, endBlock)
+      return
+    }
+
     const node = selection.getSelectionStart()
     const paragraph = findNearestParagraph(node)
     const id = paragraph.id

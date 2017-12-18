@@ -31,7 +31,6 @@ const mutations = {
 const actions = {
   LINTEN_WIN_STATUS ({ commit }) {
     ipcRenderer.on('AGANI::window-active-status', (e, { status }) => {
-      console.log(status)
       commit('SET_WIN_STATUS', status)
     })
   },

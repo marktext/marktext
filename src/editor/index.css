@@ -183,7 +183,7 @@ pre.ag-active .ag-language-input {
   text-decoration: none;
 }
 .ag-hide {
-  display: inline-block;
+  display: none;
   width: 0;
   height: 0;
   overflow: hidden;
