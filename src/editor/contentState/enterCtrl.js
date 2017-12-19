@@ -40,7 +40,6 @@ const enterCtrl = ContentState => {
     }
     event.preventDefault()
     if (parent && parent.type === 'li' && this.isOnlyChild(block)) {
-      console.log(JSON.stringify(block, null, 2))
       block = parent
       parent = this.getParent(block)
     }
@@ -54,12 +53,13 @@ const enterCtrl = ContentState => {
         type = preType
         let { pre, post } = selection.chopHtmlByCursor(paragraph)
 
-        if (/^h/.test(type)) {
+        if (/^h\d/.test(type)) {
           const PREFIX = /^#+/.exec(pre)[0]
           post = `${PREFIX}${post}`
         }
 
         if (type === 'li') {
+          block.children[0].text = pre
           newBlock = this.createBlockLi(post)
         } else {
           block.text = pre

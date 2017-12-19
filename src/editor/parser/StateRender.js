@@ -42,7 +42,6 @@ class StateRender {
   }
 
   getClassName (outerClass, block, token, cursor) {
-    console.log(this.checkConflicted(block, token, cursor))
     return outerClass || (this.checkConflicted(block, token, cursor) ? CLASS_OR_ID['AG_GRAY'] : CLASS_OR_ID['AG_HIDE'])
   }
 

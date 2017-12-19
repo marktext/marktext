@@ -176,7 +176,6 @@ const updateCtrl = ContentState => {
 
     const key = start.key
     const oldKey = oldStart.key
-
     const paragraph = document.querySelector(`#${key}`)
     const text = paragraph.textContent
     const block = this.getBlock(key)
@@ -209,10 +208,8 @@ const updateCtrl = ContentState => {
       block.text = text
     }
 
-    if (event.type === 'click') {
-      if (oldKey !== key || oldStart.offset !== start.offset || oldEnd.offset !== end.offset) {
-        needRender = true
-      }
+    if (oldKey !== key || oldStart.offset !== start.offset || oldEnd.offset !== end.offset) {
+      needRender = true
     }
 
     this.cursor = { start, end }
