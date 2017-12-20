@@ -1,5 +1,5 @@
 import selection from '../selection'
-import { findNearestParagraph } from '../utils/domManipulate'
+// import { findNearestParagraph } from '../utils/domManipulate'
 import floatBox from '../floatBox'
 
 const enterCtrl = ContentState => {
@@ -22,9 +22,42 @@ const enterCtrl = ContentState => {
   }
 
   ContentState.prototype.enterHandler = function (event) {
-    const node = selection.getSelectionStart()
-    let paragraph = findNearestParagraph(node)
-    let block = this.getBlock(paragraph.id)
+    const { start, end } = this.cursor
+
+    if (start.key !== end.key) {
+      event.preventDefault()
+      const startBlock = this.getBlock(start.key)
+      const endBlock = this.getBlock(end.key)
+      const key = start.key
+      const offset = start.offset
+      console.log(endBlock.text)
+      startBlock.text = startBlock.text.substring(0, start.offset) + endBlock.text.substring(end.offset)
+
+      this.removeBlocks(startBlock, endBlock)
+      this.cursor = {
+        start: { key, offset },
+        end: { key, offset }
+      }
+      this.render()
+      return this.enterHandler(event)
+    }
+
+    if (start.key === end.key && start.offset !== end.offset) {
+      event.preventDefault()
+      const key = start.key
+      const offset = start.offset
+      const block = this.getBlock(key)
+      block.text = block.text.substring(0, start.offset) + block.text.substring(end.offset)
+      this.cursor = {
+        start: { key, offset },
+        end: { key, offset }
+      }
+      this.render()
+      return this.enterHandler(event)
+    }
+
+    let paragraph = document.querySelector(`#${start.key}`)
+    let block = this.getBlock(start.key)
     let parent = this.getParent(block)
     // handle float box
     const { list, index, show } = floatBox
@@ -134,7 +167,6 @@ const enterCtrl = ContentState => {
       start: { key, offset },
       end: { key, offset }
     }
-
     this.render()
   }
 }

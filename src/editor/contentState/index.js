@@ -160,6 +160,22 @@ class ContentState {
    * remove blocks between before and after, and includes after block.
    */
   removeBlocks (before, after, isRemoveAfter = true) {
+    let nextSibling = this.getBlock(before.nextSibling)
+    let beforeEnd = false
+    while (nextSibling) {
+      if (nextSibling.key === after.key || this.isInclude(nextSibling, after)) {
+        beforeEnd = true
+        break
+      }
+      this.removeBlock(nextSibling)
+      nextSibling = this.getBlock(nextSibling.nextSibling)
+    }
+    if (!beforeEnd) {
+      const parent = this.getParent(before)
+      if (parent) {
+        this.removeBlocks(parent, after, false)
+      }
+    }
     let preSibling = this.getBlock(after.preSibling)
     let afterEnd = false
     while (preSibling) {
@@ -177,23 +193,9 @@ class ContentState {
         this.removeBlocks(before, parent, isOnlyChild)
       }
     }
-    let nextSibling = this.getBlock(before.nextSibling)
-    let beforeEnd = false
-    while (nextSibling) {
-      if (nextSibling.key === after.key || this.isInclude(nextSibling, after)) {
-        beforeEnd = true
-        break
-      }
-      this.removeBlock(nextSibling)
-      nextSibling = this.getBlock(nextSibling.nextSibling)
+    if (isRemoveAfter) {
+      this.removeBlock(after)
     }
-    if (!beforeEnd) {
-      const parent = this.getParent(before)
-      if (parent) {
-        this.removeBlocks(parent, after, false)
-      }
-    }
-    if (isRemoveAfter) this.removeBlock(after)
   }
 
   removeBlock (block) {
