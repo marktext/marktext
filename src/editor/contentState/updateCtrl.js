@@ -169,7 +169,7 @@ const updateCtrl = ContentState => {
         end.offset !== oldEnd.offset
       ) {
         this.cursor = { start, end }
-        this.render()
+        // this.render()
       }
       return
     }

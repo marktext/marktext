@@ -44,7 +44,7 @@ const codeBlockCtrl = ContentState => {
 
       pre.innerHTML = ''
       const autofocus = id === this.cursor.start.key
-      const config = Object.assign(codeMirrorConfig, { autofocus })
+      const config = Object.assign(codeMirrorConfig, { autofocus, value: block.text })
       const codeBlock = codeMirror(pre, config)
       const mode = pre.getAttribute('data-lang')
       const input = createInputInCodeBlock(pre)
@@ -101,6 +101,8 @@ const codeBlockCtrl = ContentState => {
 
       let lastUndoLength = 0
       codeBlock.on('change', (cm, change) => {
+        const value = cm.getValue()
+        block.text = value
         const { undo } = cm.historySize()
         if (undo > lastUndoLength) {
           this.history.push({

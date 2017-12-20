@@ -75,7 +75,7 @@ class ContentState {
     this.stateRender.render(blocks, cursor, activeBlockKey, codeBlocks)
     this.setCursor()
     this.pre2CodeMirror()
-    // console.log('render')
+    console.log('render')
   }
 
   createBlock (type = 'p', text = '') {
@@ -199,6 +199,12 @@ class ContentState {
   }
 
   removeBlock (block) {
+    if (block.type === 'pre') {
+      const codeBlockId = block.key
+      if (this.codeBlocks.has(codeBlockId)) {
+        this.codeBlocks.delete(codeBlockId)
+      }
+    }
     const remove = (blocks, block) => {
       const len = blocks.length
       let i
