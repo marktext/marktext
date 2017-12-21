@@ -5,7 +5,7 @@ let viewMenu = {
     accelerator: 'CmdOrCtrl+R',
     click: function (item, focusedWindow) {
       if (focusedWindow) {
-        focusedWindow.reload()
+        console.log('ddd')
       }
     }
   }, {

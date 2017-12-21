@@ -3,8 +3,8 @@
 import fs from 'fs'
 // import chokidar from 'chokidar'
 import path from 'path'
-import { dialog, ipcMain, BrowserWindow } from 'electron'
-import createWindow from './createWindow'
+import { app, dialog, ipcMain, BrowserWindow } from 'electron'
+import createWindow, { windows } from './createWindow'
 import { EXTENSIONS } from './config'
 
 const watchAndReload = (pathname, win) => { // when i build, and failed.
@@ -36,15 +36,17 @@ const writeFile = (pathname, markdown, win, e) => {
   }
 }
 
-ipcMain.on('AGANI::response-file-save-as', (e, { markdown, pathname }) => {
-  const win = BrowserWindow.fromWebContents(e.sender)
-  let filePath = dialog.showSaveDialog(win, {
-    defaultPath: pathname || '~/Untitled.md'
-  })
-  writeFile(filePath, markdown, win, e)
-})
+const forceClose = win => {
+  if (windows.has(win.id)) {
+    windows.delete(win.id)
+  }
+  win.destroy() // if use win.close(), it will cause a endless loop.
+  if (windows.size === 0) {
+    app.quit()
+  }
+}
 
-ipcMain.on('AGANI::response-file-save', (e, { markdown, pathname }) => {
+const handleResponseForSave = (e, { markdown, pathname }) => {
   const win = BrowserWindow.fromWebContents(e.sender)
   if (pathname) {
     fs.writeFile(pathname, markdown, 'utf-8', err => {
@@ -56,6 +58,45 @@ ipcMain.on('AGANI::response-file-save', (e, { markdown, pathname }) => {
     })
     writeFile(filePath, markdown, win, e)
   }
+}
+
+ipcMain.on('AGANI::response-file-save-as', (e, { markdown, pathname }) => {
+  const win = BrowserWindow.fromWebContents(e.sender)
+  let filePath = dialog.showSaveDialog(win, {
+    defaultPath: pathname || '~/Untitled.md'
+  })
+  writeFile(filePath, markdown, win, e)
+})
+
+ipcMain.on('AGANI::response-close-confirm', (e, { filename, pathname, markdown }) => {
+  const win = BrowserWindow.fromWebContents(e.sender)
+  dialog.showMessageBox(win, {
+    type: 'warning',
+    buttons: ['Save', 'Cancel', 'Delete'],
+    defaultId: 0,
+    message: `Do you want to save the changes you made to ${filename}?`,
+    detail: `Your changes will be lost if you don't save them.`,
+    cancelId: 1,
+    noLink: true
+  }, index => {
+    switch (index) {
+      case 2:
+        forceClose(win)
+        break
+      case 0:
+        setTimeout(() => {
+          handleResponseForSave(e, { pathname, markdown })
+        })
+        break
+    }
+  })
+})
+
+ipcMain.on('AGANI::response-file-save', handleResponseForSave)
+
+ipcMain.on('AGANI::close-window', e => {
+  const win = BrowserWindow.fromWebContents(e.sender)
+  forceClose(win)
 })
 
 export const open = win => {

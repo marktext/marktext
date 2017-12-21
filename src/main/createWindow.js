@@ -52,10 +52,9 @@ const createWindow = (pathname, options = {}) => {
     win.webContents.send('AGANI::window-active-status', { status: false })
   })
 
-  win.on('close', () => { // before closed
-    if (windows.has(win.id)) {
-      windows.delete(win.id)
-    }
+  win.on('close', event => { // before closed
+    event.preventDefault()
+    win.webContents.send('AGANI::ask-for-close')
   })
 
   windows.set(win.id, win)

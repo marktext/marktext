@@ -1,10 +1,11 @@
 import { ipcRenderer } from 'electron'
 import path from 'path'
 import bus from '../bus'
+
 const state = {
   filename: 'Untitled - unsaved',
   pathname: '',
-  isSaved: false,
+  isSaved: true,
   markdown: '',
   windowActive: true
 }
@@ -83,6 +84,8 @@ const actions = {
     if (pathname) {
       commit('SET_STATUS', true)
       ipcRenderer.send('AGANI::response-file-save', { pathname, markdown })
+    } else {
+      commit('SET_STATUS', false)
     }
   },
   LISTEN_FOR_UNDO_REDO ({ commit }) {
@@ -91,6 +94,16 @@ const actions = {
     })
     ipcRenderer.on('AGANI::redo', e => {
       bus.$emit('redo')
+    })
+  },
+  LISTEN_FOR_CLOSE ({ commit, state }) {
+    ipcRenderer.on('AGANI::ask-for-close', e => {
+      const { isSaved, markdown, pathname, filename } = state
+      if (!isSaved && /[^\n]/.test(markdown)) {
+        ipcRenderer.send('AGANI::response-close-confirm', { filename, pathname, markdown })
+      } else {
+        ipcRenderer.send('AGANI::close-window')
+      }
     })
   }
 }

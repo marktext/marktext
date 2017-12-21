@@ -24,6 +24,7 @@
     },
     created () {
       const { dispatch } = this.$store
+      dispatch('LISTEN_FOR_CLOSE')
       dispatch('LISTEN_FOR_SAVE_AS')
       dispatch('LINTEN_WIN_STATUS')
       dispatch('LISTEN_FOR_SAVE')
