@@ -1,14 +1,6 @@
 let viewMenu = {
   label: 'View',
   submenu: [{
-    label: 'Reload',
-    accelerator: 'CmdOrCtrl+R',
-    click: function (item, focusedWindow) {
-      if (focusedWindow) {
-        console.log('ddd')
-      }
-    }
-  }, {
     label: 'Toggle Full Screen',
     accelerator: (function () {
       if (process.platform === 'darwin') {
@@ -22,7 +14,12 @@ let viewMenu = {
         focusedWindow.setFullScreen(!focusedWindow.isFullScreen())
       }
     }
-  }, {
+  }]
+}
+
+if (process.env.NODE_ENV !== 'production') {
+  // add devtool when development
+  viewMenu.submenu.push({
     label: 'Toggle Developer Tools',
     accelerator: (function () {
       if (process.platform === 'darwin') {
@@ -36,7 +33,17 @@ let viewMenu = {
         focusedWindow.webContents.toggleDevTools()
       }
     }
-  }]
+  })
+  // add reload when development
+  viewMenu.submenu.push({
+    label: 'Reload',
+    accelerator: 'CmdOrCtrl+R',
+    click: function (item, focusedWindow) {
+      if (focusedWindow) {
+        focusedWindow.reload()
+      }
+    }
+  })
 }
 
 if (process.platform === 'darwin') {
