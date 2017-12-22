@@ -28,7 +28,7 @@ class Aganippe {
     contentState.render()
 
     eventCenter.subscribe('editEmoji', throttle(this.subscribeEditEmoji.bind(this), 200))
-    this.dispatchEditeEmoji()
+    this.dispatchEditEmoji()
     eventCenter.subscribe('editLanguage', throttle(this.subscribeEditLanguage.bind(this)))
     this.dispatchEditLanguage()
 
@@ -76,9 +76,9 @@ class Aganippe {
   }
 
   /**
-   * dispatchEditeEmoji
+   * dispatchEditEmoji
   */
-  dispatchEditeEmoji () {
+  dispatchEditEmoji () {
     const { container, eventCenter } = this
     const changeHandler = event => {
       const node = selection.getSelectionStart()

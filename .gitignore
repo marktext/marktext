@@ -4,6 +4,7 @@ dist/web/*
 build/*
 !build/icons
 coverage
+.vscode
 node_modules/
 npm-debug.log
 npm-debug.log.*
