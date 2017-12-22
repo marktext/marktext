@@ -1,7 +1,7 @@
 // CodeMirror, copyright (c) by Marijn Haverbeke and others
 // Distributed under an MIT license: http://codemirror.net/LICENSE
 
-const loadmore = CodeMirror => {
+const loadMore = CodeMirror => {
   if (!CodeMirror.modeURL) {
     CodeMirror.modeURL = '../../mode/%N/%N.js'
   }
@@ -57,4 +57,4 @@ const loadmore = CodeMirror => {
     }
   }
 }
-export default loadmore
+export default loadMore

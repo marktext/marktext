@@ -66,7 +66,7 @@ export const setCursorAtLastLine = cm => {
   cm.setCursor(lastLine, lineHandle.text.length)
 }
 
-// if cursor at firstline return true
+// if cursor at firstLine return true
 export const isCursorAtFirstLine = cm => {
   const cursor = cm.getCursor()
   const { line, ch, outside } = cursor

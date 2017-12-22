@@ -96,16 +96,16 @@ const backspaceCtrl = ContentState => {
         case 'LI': {
           if (inlineDegrade.info === 'REPLACEMENT') {
             const children = parent.children
-            const parentsparent = this.getBlock(parent.parent)
+            const grandpa = this.getBlock(parent.parent)
             children.forEach(child => {
-              this.insertBefore(child, parentsparent)
+              this.insertBefore(child, grandpa)
             })
-            this.removeBlock(parentsparent)
+            this.removeBlock(grandpa)
           } else if (inlineDegrade.info === 'REMOVE_INSERT_BEFORE') {
             const children = parent.children
-            const parentsparent = this.getBlock(parent.parent)
+            const grandpa = this.getBlock(parent.parent)
             children.forEach(child => {
-              this.insertBefore(child, parentsparent)
+              this.insertBefore(child, grandpa)
             })
             this.removeBlock(parent)
           } else if (inlineDegrade.info === 'INSERT_PRE_LIST') {

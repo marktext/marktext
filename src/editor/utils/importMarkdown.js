@@ -1,15 +1,15 @@
 /**
  * translate markdown format to content state used by editor
  */
-import Markdownit from 'markdown-it'
+import MarkdownIt from 'markdown-it'
 import parse5 from 'parse5'
-// To be disabled rules when parse markdown, Becase content state don't need to parse inline rules
+// To be disabled rules when parse markdown, Because content state don't need to parse inline rules
 import { INLINE_RULES } from '../config'
 
-const md = new Markdownit()
+const md = new MarkdownIt()
 md.disable(INLINE_RULES)
 
-const importRegistor = ContentState => {
+const importRegister = ContentState => {
   ContentState.prototype.importMarkdown = function (text) {
     this.keys = new Set()
     this.codeBlocks = new Map()
@@ -119,7 +119,7 @@ const importRegistor = ContentState => {
             break
           default:
             if (child.tagName) {
-              throw new Error(`unhandle node type ${child.tagName}`)
+              throw new Error(`unHandle node type ${child.tagName}`)
             }
             break
         }
@@ -139,4 +139,4 @@ const importRegistor = ContentState => {
   }
 }
 
-export default importRegistor
+export default importRegister

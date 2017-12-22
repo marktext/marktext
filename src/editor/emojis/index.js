@@ -2,7 +2,7 @@ import emojis from './emojisJson'
 import { CLASS_OR_ID } from '../config'
 
 /**
- * check if one imoji code is in emojis, return undefined or found emoji
+ * check if one emoji code is in emojis, return undefined or found emoji
  */
 export const validEmoji = text => {
   return emojis.filter(emoji => {
@@ -54,7 +54,7 @@ class Emoji {
     return this.cache.clear()
   }
 
-  checkvalidation (text) {
+  checkValidation (text) {
     validEmoji(text)
   }
 }

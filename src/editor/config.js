@@ -33,10 +33,10 @@ export const LOWERCASE_TAGS = generateKeyHash([
   ...blockContainerElementNames, ...emptyElementNames, 'div'
 ])
 /**
- * ALL classname, id, attributes need has a `AG_` prefix,
- * elements's id will has a `_ID` postfix,
+ * ALL className, id, attributes need has a `AG_` prefix,
+ * element's id will has a `_ID` postfix,
  * attribute will has a `_ATTR` postfix.
- * classname has no postfix.
+ * className has no postfix.
  * example:
  *   genUpper2LowerKeyHash(['AG_GRAY'])
  *   => {

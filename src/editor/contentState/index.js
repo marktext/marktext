@@ -11,7 +11,7 @@ import historyCtrl from './historyCtrl'
 import arrowCtrl from './arrowCtrl'
 import importMarkdown from '../utils/importMarkdown'
 
-const ctrls = [
+const prototypes = [
   enterCtrl,
   updateCtrl,
   garbageCtrl,
@@ -340,6 +340,6 @@ class ContentState {
   }
 }
 
-ctrls.forEach(ctrl => ctrl(ContentState))
+prototypes.forEach(ctrl => ctrl(ContentState))
 
 export default ContentState

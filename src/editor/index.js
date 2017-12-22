@@ -60,7 +60,7 @@ class Aganippe {
   ensureContainerDiv () {
     const { container } = this
     const div = document.createElement(LOWERCASE_TAGS.div)
-    const rootdom = document.createElement(LOWERCASE_TAGS.div)
+    const rootDom = document.createElement(LOWERCASE_TAGS.div)
     const attrs = container.attributes
     const parentNode = container.parentNode
     // copy attrs from origin container to new div element
@@ -69,7 +69,7 @@ class Aganippe {
     })
     div.setAttribute('contenteditable', true)
     div.classList.add('mousetrap')
-    div.appendChild(rootdom)
+    div.appendChild(rootDom)
     parentNode.insertBefore(div, container)
     parentNode.removeChild(container)
     this.container = div

@@ -9,8 +9,8 @@ class Event {
     this.listeners = {}
     this.eventIds = new Set() // use to store eventId
     // bind mousetrap methods to event instance.
-    ;['bind', 'unbind', 'trigger', 'stopCallback', 'reset', 'handleKey', 'addKeycodes'].forEach(mothod => {
-      this[mothod] = mousetrap[mothod]
+    ;['bind', 'unbind', 'trigger', 'stopCallback', 'reset', 'handleKey', 'addKeycodes'].forEach(method => {
+      this[method] = mousetrap[method]
     })
   }
   /**
