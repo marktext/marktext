@@ -28,6 +28,10 @@ li > h1, li > h2, li > h3, li > h4, li > h5, li > h6 {
   display: initial;
 }
 
+p .ag-hide:first-child {
+  display: none;
+}
+
 p:not(.ag-active)[data-role="hr"] {
   position: relative;
   color: transparent;

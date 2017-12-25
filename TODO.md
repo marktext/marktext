@@ -4,7 +4,6 @@
 
 - [ ] 当 codeBlock 在 list item 中， item nextSibling 为 null，但是 list 还有nextSibling。这个时候不应该创建行的 block。
 - [ ] codeBlock 在 list item 中时，list style 问题。
-- [ ] 在 codeBlock 中，光标没有在最后位置，按 arrow right 键时，出现跳出 codeBlock 现象。
 
 **菜单**
 
