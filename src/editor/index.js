@@ -18,6 +18,8 @@ class Aganippe {
     this.contentState = new ContentState()
     this.emoji = new Emoji() // emoji instance: has search(text) clear() methods.
 
+    // private property
+    this._isEditChinese = false
     this.init()
   }
 
@@ -47,6 +49,7 @@ class Aganippe {
       console.log(event)
     })
 
+    this.recordEditChinese()
     this.imageClick()
     this.dispatchArrow()
     this.dispatchBackspace()
@@ -188,10 +191,25 @@ class Aganippe {
     eventCenter.attachDOMEvent(container, 'keydown', handler)
   }
 
-  dispatchEnter (event) {
+  recordEditChinese () {
     const { container, eventCenter } = this
     const handler = event => {
-      if (event.key === EVENT_KEYS.Enter) {
+      if (event.type === 'compositionstart') {
+        this._isEditChinese = true
+      } else if (event.type === 'compositionend') {
+        this._isEditChinese = false
+      }
+    }
+
+    eventCenter.attachDOMEvent(container, 'compositionend', handler)
+    eventCenter.attachDOMEvent(container, 'compositionstart', handler)
+  }
+
+  dispatchEnter (event) {
+    const { container, eventCenter } = this
+
+    const handler = event => {
+      if (event.key === EVENT_KEYS.Enter && !this._isEditChinese) {
         this.contentState.enterHandler(event)
       }
     }
@@ -217,24 +235,13 @@ class Aganippe {
 
   dispatchUpdateState () {
     const { container, eventCenter } = this
-    let isEditChinese = false
     const changeHandler = event => {
-      if (event.type === 'compositionstart') {
-        isEditChinese = true
-        return false
-      }
-      if (event.type === 'compositionend') {
-        isEditChinese = false
-      }
-
-      if (!isEditChinese) {
+      if (!this._isEditChinese) {
         this.contentState.updateState(event)
       }
     }
 
     eventCenter.attachDOMEvent(container, 'click', changeHandler)
-    eventCenter.attachDOMEvent(container, 'compositionend', changeHandler)
-    eventCenter.attachDOMEvent(container, 'compositionstart', changeHandler)
     eventCenter.attachDOMEvent(container, 'keyup', changeHandler)
   }
 

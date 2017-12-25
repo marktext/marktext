@@ -1,6 +1,6 @@
 import selection from '../selection'
 import floatBox from '../floatBox'
-import { getUniqueId } from '../utils'
+// import { getUniqueId } from '../utils'
 
 const enterCtrl = ContentState => {
   // ContentState.prototype.preBlockChangeKey = function (block) {
