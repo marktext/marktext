@@ -49,9 +49,8 @@ export const search = text => {
     return new RegExp(text, 'i').test(lang.name)
   })
 
-  return matchedLangs.map(lang => {
-    return getModeFromName(lang.name)
-  })
+  return matchedLangs
+    .map(({ name }) => getModeFromName(name))
     .filter(lang => !!lang)
 }
 
@@ -70,6 +69,7 @@ export const setCursorAtLastLine = cm => {
 export const isCursorAtFirstLine = cm => {
   const cursor = cm.getCursor()
   const { line, ch, outside } = cursor
+
   return line === 0 && ch === 0 && outside
 }
 
@@ -83,7 +83,7 @@ export const isCursorAtLastLine = cm => {
 export const isCursorAtBegin = cm => {
   const cursor = cm.getCursor()
   const { line, ch, hitSide } = cursor
-  return line === 0 && ch === 0 && hitSide
+  return line === 0 && ch === 0 && !!hitSide
 }
 
 export const onlyHaveOneLine = cm => {
@@ -95,7 +95,8 @@ export const isCursorAtEnd = cm => {
   const lastLineHandle = cm.getLineHandle(lastLine)
   const cursor = cm.getCursor()
   const { line, ch, hitSide } = cursor
-  return line === lastLine && ch === lastLineHandle.text.length && hitSide
+
+  return line === lastLine && ch === lastLineHandle.text.length && !!hitSide
 }
 
 export const setCursorAtFirstLine = cm => {

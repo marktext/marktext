@@ -9,7 +9,7 @@ export class History {
   undo () {
     if (this.index > 0) {
       this.index = this.index - 1
-      console.log(this.index)
+
       const state = deepCopy(this.stack[this.index])
       switch (state.type) {
         case 'normal':
@@ -51,8 +51,6 @@ export class History {
     this.stack.splice(this.index + 1)
     this.stack.push(deepCopy(state))
     this.index = this.index + 1
-    console.log(this.index)
-    console.log(this.stack)
   }
 }
 

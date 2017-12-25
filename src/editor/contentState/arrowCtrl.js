@@ -36,9 +36,9 @@ const arrowCtrl = ContentState => {
     } else if (block.type === 'pre') {
       // handle cursor in code block. the case at firstline or lastline.
       const cm = this.codeBlocks.get(id)
-
       let activeBlock
       event.preventDefault()
+
       switch (event.key) {
         case EVENT_KEYS.ArrowLeft: // fallthrough
         case EVENT_KEYS.ArrowUp:
@@ -57,22 +57,26 @@ const arrowCtrl = ContentState => {
         case EVENT_KEYS.ArrowRight: // fallthrough
         case EVENT_KEYS.ArrowDown:
           if (
-            (event.key === EVENT_KEYS.ArrowDown && isCursorAtLastLine(cm) && nextBlock) ||
-            (event.key === EVENT_KEYS.ArrowRight && isCursorAtEnd(cm) && nextBlock)
+            (event.key === EVENT_KEYS.ArrowDown && isCursorAtLastLine(cm)) ||
+            (event.key === EVENT_KEYS.ArrowRight && isCursorAtEnd(cm))
           ) {
-            activeBlock = nextBlock
-            if (nextBlock.type === 'pre') {
+            if (nextBlock) {
+              activeBlock = nextBlock
+              if (nextBlock.type === 'pre') {
+                activeBlock = this.createBlock('p')
+                activeBlock.temp = true
+                this.insertAfter(activeBlock, block)
+              }
+            } else {
               activeBlock = this.createBlock('p')
-              activeBlock.temp = true
               this.insertAfter(activeBlock, block)
             }
-          } else if (!nextBlock) {
-            activeBlock = this.createBlock('p')
-            this.insertAfter(activeBlock, block)
           }
           break
       }
+
       if (activeBlock) {
+        console.log(activeBlock)
         const offset = activeBlock.text.length
         const key = activeBlock.key
         this.cursor = {
