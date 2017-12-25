@@ -298,7 +298,10 @@ class ContentState {
     if (lastChild) {
       lastChild.nextSibling = block.key
       block.preSibling = lastChild.key
+    } else {
+      block.preSibling = null
     }
+    block.nextSibling = null
   }
 
   replaceBlock (newBlock, oldBlock) {

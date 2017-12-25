@@ -1,8 +1,13 @@
 import selection from '../selection'
-// import { findNearestParagraph } from '../utils/domManipulate'
 import floatBox from '../floatBox'
+import { getUniqueId } from '../utils'
 
 const enterCtrl = ContentState => {
+  // ContentState.prototype.preBlockChangeKey = function (block) {
+  //   if (block.type === 'pre') block.key = getUniqueId(this.keys)
+  //   if (block.children.length) block.children.forEach(child => this.preBlockChangeKey(child))
+  // }
+
   ContentState.prototype.chopBlock = function (block) {
     const parent = this.getParent(block)
     const type = parent.type
@@ -10,7 +15,10 @@ const enterCtrl = ContentState => {
     const index = this.findIndex(parent.children, block)
     const partChildren = parent.children.splice(index + 1)
     block.nextSibling = null
-    partChildren.forEach(b => this.appendChild(container, b))
+    partChildren.forEach(b => {
+      // this.preBlockChangeKey(b)
+      this.appendChild(container, b)
+    })
     this.insertAfter(container, parent)
   }
 

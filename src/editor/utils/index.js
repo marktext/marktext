@@ -37,7 +37,7 @@ export const isLengthEven = (str = '') => {
   return len % 2 === 0
 }
 /**
- *  Are two arraies have intersection
+ *  Are two arrays have intersection
  */
 export const conflict = (arr1, arr2) => {
   return !(arr1[1] < arr2[0] || arr2[1] < arr1[0])
@@ -162,6 +162,7 @@ export const genUpper2LowerKeyHash = keys => {
     return Object.assign(acc, { [key]: value })
   }, {})
 }
+
 /**
  * generate constants map, the value is the key.
  */

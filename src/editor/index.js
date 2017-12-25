@@ -44,7 +44,7 @@ class Aganippe {
     }, 1024))
 
     eventCenter.attachDOMEvent(container, 'paste', event => {
-      // console.log(event)
+      console.log(event)
     })
 
     this.imageClick()
@@ -199,7 +199,7 @@ class Aganippe {
     eventCenter.attachDOMEvent(container, 'keydown', handler)
   }
 
-  // dispach arrow event
+  // dispatch arrow event
   dispatchArrow () {
     const { container, eventCenter } = this
     const handler = event => {

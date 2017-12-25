@@ -46,7 +46,7 @@ p:not(.ag-active)[data-role="hr"] * {
   color: transparent;
 }
 
-#ag-editor-id > pre {
+#ag-editor-id pre.ag-code-block {
   position: relative;
 }
 
