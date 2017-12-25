@@ -2,8 +2,9 @@
 
 **Bugs**
 
-- [ ] 当 codeBlock 在 list item 中， item nextSibling 为 null，但是 list 还有nextSibling。这个时候不应该创建行的 block。
+- [ ] 当 codeBlock 在 list item 中， item nextSibling 为 null，但是 list 还有nextSibling。这个时候不应该创建行的 block。（严重 bug）
 - [ ] codeBlock 在 list item 中时，list style 问题。
+- [ ] codeBlock 出现 textarea 导致无法编辑问题（严重 bug）
 
 **菜单**
 

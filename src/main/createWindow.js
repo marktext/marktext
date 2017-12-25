@@ -27,7 +27,7 @@ const createWindow = (pathname, options = {}) => {
     : `file://${__dirname}/index.html`
 
   win.loadURL(winURL)
-
+  win.setSheetOffset(21) // 21 is the title bar height
   win.once('ready-to-show', () => {
     win.show()
 
