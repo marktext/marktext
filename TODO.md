@@ -6,7 +6,6 @@
 - [ ] codeBlock 在 list item 中时，list style 问题。
 - [ ] 一直按 backspace 键，文字删除后又会重新出现。
 - [ ] 在 codeBlock 中，光标没有在最后位置，按 arrow right 键时，出现跳出 codeBlock 现象。
-- [ ] 在输入中文时，文字还没输入，按回车，不是出现拼音，而是换行了。
 
 **菜单**
 

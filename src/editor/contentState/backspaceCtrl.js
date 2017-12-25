@@ -128,7 +128,9 @@ const backspaceCtrl = ContentState => {
           break
       }
       this.cursor = selection.getCursorRange()
-      this.render()
+      if (inlineDegrade.type !== 'STOP') {
+        this.render()
+      }
     } else if (left === 0) {
       this.removeBlock(block)
     }
