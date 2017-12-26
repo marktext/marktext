@@ -16,7 +16,6 @@ const toVNode = require('snabbdom/tovnode').default
 class StateRender {
   constructor () {
     this.container = null
-    this.vdom = null
     this.loadImageMap = new Map()
   }
 
@@ -45,33 +44,16 @@ class StateRender {
     return outerClass || (this.checkConflicted(block, token, cursor) ? CLASS_OR_ID['AG_GRAY'] : CLASS_OR_ID['AG_HIDE'])
   }
 
-  existedPreBlockRender (block, isActive) {
-    const id = block.key
-    const preEle = document.querySelector(`#${id}`)
-    if (preEle) {
-      if (isActive) {
-        operateClassName(preEle, 'add', CLASS_OR_ID['AG_ACTIVE'])
-      } else {
-        operateClassName(preEle, 'remove', CLASS_OR_ID['AG_ACTIVE'])
-      }
-      return toVNode(preEle)
-    }
-  }
-
   /**
    * [render]: 2 steps:
    * render vdom
    */
-  render (blocks, cursor, activeBlockKey, codeBlocks) {
+  render (blocks, cursor, activeBlockKey) {
     const selector = `${LOWERCASE_TAGS.div}#${CLASS_OR_ID['AG_EDITOR_ID']}`
 
     const renderBlock = block => {
       const type = block.type === 'hr' ? 'p' : block.type
       const isActive = block.key === activeBlockKey || block.key === cursor.start.key
-      // if the block is codeBlock, and already rendered, then converted the existed dom to vdom.
-      if (codeBlocks.has(block.key) && type === 'pre') {
-        return this.existedPreBlockRender(block, isActive)
-      }
 
       let blockSelector = isActive
         ? `${type}#${block.key}.${CLASS_OR_ID['AG_PARAGRAPH']}.${CLASS_OR_ID['AG_ACTIVE']}`
@@ -98,9 +80,11 @@ class StateRender {
         if (/^h\d$/.test(block.type)) {
           Object.assign(data.dataset, { head: block.type })
         }
+
         if (/^h/.test(block.type)) { // h\d or hr
           Object.assign(data.dataset, { role: block.type })
         }
+
         if (block.type === 'pre') {
           if (block.lang) Object.assign(data.dataset, { lang: block.lang })
           blockSelector += `.${CLASS_OR_ID['AG_CODE_BLOCK']}`
@@ -124,8 +108,6 @@ class StateRender {
     const oldVdom = toVNode(root)
 
     patch(oldVdom, newVdom)
-
-    this.vdom = newVdom
   }
 
   hr (h, cursor, block, token, outerClass) {

@@ -69,10 +69,10 @@ class ContentState {
   }
 
   render () {
-    const { blocks, cursor, codeBlocks } = this
+    const { blocks, cursor } = this
     const activeBlockKey = this.getActiveBlockKey()
 
-    this.stateRender.render(blocks, cursor, activeBlockKey, codeBlocks)
+    this.stateRender.render(blocks, cursor, activeBlockKey)
     this.setCursor()
     this.pre2CodeMirror()
     console.log('render')
