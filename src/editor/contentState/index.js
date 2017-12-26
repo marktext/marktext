@@ -337,6 +337,31 @@ class ContentState {
     return arrayBlocks[len - 1]
   }
 
+  wordCount () {
+    const blocks = this.getBlocks()
+    let paragraph = blocks.length
+    let word = 0
+    let character = 0
+    let all = 0
+    const travel = block => {
+      if (block.text) {
+        const text = block.text
+        const removedChinese = text.replace(/[\u4e00-\u9fa5]/g, '')
+        const tokens = removedChinese.split(/[\s\n]+/).filter(t => t)
+        const chineseWordLength = text.length - removedChinese.length
+        word += chineseWordLength + tokens.length
+        character += tokens.reduce((acc, t) => acc + t.length, 0) + chineseWordLength
+        all += text.length
+      }
+      if (block.children.length) {
+        block.children.forEach(child => travel(child))
+      }
+    }
+    blocks.forEach(block => travel(block))
+    console.log(word, paragraph, character, all)
+    return { word, paragraph, character, all }
+  }
+
   clear () {
     this.keys.clear()
     this.codeBlocks.clear()

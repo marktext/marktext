@@ -42,7 +42,8 @@ class Aganippe {
       this.contentState.historyHandler(event)
       this.contentState.garbageCollection()
       const markdown = this.getMarkdown()
-      eventCenter.dispatch('auto-save', markdown)
+      const wordCount = this.getWordCount()
+      eventCenter.dispatch('auto-save', markdown, wordCount)
     }, 1024))
 
     eventCenter.attachDOMEvent(container, 'paste', event => {
@@ -267,6 +268,10 @@ class Aganippe {
   getMarkdown () {
     const blocks = this.contentState.getBlocks()
     return new ExportMarkdown(blocks).generate()
+  }
+
+  getWordCount () {
+    return this.contentState.wordCount()
   }
 
   setMarkdown (text) {

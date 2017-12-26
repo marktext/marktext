@@ -3,6 +3,7 @@
     <title-bar
       :filename="filename"
       :active="windowActive"
+      :word-count="wordCount"
     ></title-bar>
     <editor></editor>
   </div>
@@ -20,7 +21,7 @@
       TitleBar
     },
     computed: {
-      ...mapState(['filename', 'windowActive'])
+      ...mapState(['filename', 'windowActive', 'wordCount'])
     },
     created () {
       const { dispatch } = this.$store

@@ -7,7 +7,13 @@ const state = {
   pathname: '',
   isSaved: true,
   markdown: '',
-  windowActive: true
+  windowActive: true,
+  wordCount: {
+    paragraph: 0,
+    word: 0,
+    character: 0,
+    all: 0
+  }
 }
 
 const mutations = {
@@ -26,6 +32,9 @@ const mutations = {
   },
   SET_MARKDOWN (state, markdown) {
     state.markdown = markdown
+  },
+  SET_WORD_COUNT (state, wordCount) {
+    state.wordCount = wordCount
   }
 }
 
@@ -78,8 +87,9 @@ const actions = {
   EDITE_FILE ({ commit }) {
     commit('SET_STATUS', false)
   },
-  SAVE_FILE ({ commit, state }, markdown) {
+  SAVE_FILE ({ commit, state }, { markdown, wordCount }) {
     commit('SET_MARKDOWN', markdown)
+    commit('SET_WORD_COUNT', wordCount)
     const { pathname } = state
     if (pathname) {
       commit('SET_STATUS', true)
