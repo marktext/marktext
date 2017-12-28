@@ -9,6 +9,7 @@ import codeBlockCtrl from './codeBlockCtrl'
 import History from './history'
 import historyCtrl from './historyCtrl'
 import arrowCtrl from './arrowCtrl'
+import pasteCtrl from './pasteCtrl'
 import importMarkdown from '../utils/importMarkdown'
 
 const prototypes = [
@@ -19,6 +20,7 @@ const prototypes = [
   codeBlockCtrl,
   historyCtrl,
   arrowCtrl,
+  pasteCtrl,
   importMarkdown
 ]
 
@@ -343,6 +345,7 @@ class ContentState {
     let word = 0
     let character = 0
     let all = 0
+
     const travel = block => {
       if (block.text) {
         const text = block.text
@@ -357,8 +360,8 @@ class ContentState {
         block.children.forEach(child => travel(child))
       }
     }
+
     blocks.forEach(block => travel(block))
-    console.log(word, paragraph, character, all)
     return { word, paragraph, character, all }
   }
 

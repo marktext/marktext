@@ -63,6 +63,7 @@
     "mousetrap": "^1.6.1",
     "parse5": "^3.0.3",
     "snabbdom": "^0.7.0",
+    "turndown": "^4.0.1",
     "vue": "^2.3.3",
     "vue-electron": "^1.0.6",
     "vuex": "^2.3.1"

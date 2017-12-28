@@ -47,7 +47,13 @@ class Aganippe {
     }, 1024))
 
     eventCenter.attachDOMEvent(container, 'paste', event => {
-      console.log(event)
+      this.contentState.pasteHandler(event)
+    })
+
+    eventCenter.attachDOMEvent(container, 'cut', event => {
+      // when user use `cut` function, the dom has been deleted by default.
+      // But should update content state manually.
+      this.contentState.cutHandler()
     })
 
     this.recordEditChinese()

@@ -3,16 +3,17 @@
  */
 import MarkdownIt from 'markdown-it'
 import parse5 from 'parse5'
+import TurndownService from 'turndown'
 // To be disabled rules when parse markdown, Because content state don't need to parse inline rules
 import { INLINE_RULES } from '../config'
 
 const md = new MarkdownIt()
 md.disable(INLINE_RULES)
+// turn html to markdown
+const turndownService = new TurndownService()
 
 const importRegister = ContentState => {
-  ContentState.prototype.importMarkdown = function (text) {
-    this.keys = new Set()
-    this.codeBlocks = new Map()
+  ContentState.prototype.getStateFragment = function (markdown) {
     // mock a root block...
     const rootState = {
       key: null,
@@ -24,7 +25,7 @@ const importRegister = ContentState => {
       children: []
     }
 
-    const htmlText = md.render(text)
+    const htmlText = md.render(markdown)
     const domAst = parse5.parseFragment(htmlText)
 
     const childNodes = domAst.childNodes
@@ -48,7 +49,7 @@ const importRegister = ContentState => {
         const child = childNodes[i]
         let block
         let value
-        console.log(child)
+
         switch (child.nodeName) {
           case 'p':
           case 'h1':
@@ -127,7 +128,19 @@ const importRegister = ContentState => {
     }
 
     travel(rootState, childNodes)
-    this.blocks = rootState.children
+    return rootState.children
+  }
+  // transform `paste's text/html data` to content state blocks.
+  ContentState.prototype.html2State = function (html) {
+    const markdown = turndownService.turndown(html)
+    return this.getStateFragment(markdown)
+  }
+
+  ContentState.prototype.importMarkdown = function (markdown) {
+    this.keys = new Set()
+    this.codeBlocks = new Map()
+    this.blocks = this.getStateFragment(markdown)
+    // set cursor
     const lastBlock = this.getLastBlock()
     const key = lastBlock.key
     const offset = lastBlock.text.length
@@ -135,6 +148,7 @@ const importRegister = ContentState => {
       start: { key, offset },
       end: { key, offset }
     }
+    // re-render
     this.render()
   }
 }

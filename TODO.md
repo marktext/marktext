@@ -4,6 +4,8 @@
 
 - [ ] 当 codeBlock 在 list item 中， item nextSibling 为 null，但是 list 还有nextSibling。这个时候不应该创建行的 block。（严重 bug）
 - [ ] codeBlock 在 list item 中时，list style 问题。
+- [ ] 在输入“```”后，输入字母，应该出现选择语言的弹窗，但是，弹窗出现后立即消失，导致无法通过方向键选择。
+- [ ] 打开文件后，初始状态没有 word count。
 
 **菜单**
 
@@ -101,7 +103,7 @@
 
 **Title Bar**
 
-- [ ] 字数统计（Words | Paragraphes | Characters | Characters With Space）
+- [x] 字数统计（Words | Paragraphes | Characters | Characters With Space）
 
 **语法实现**
 
