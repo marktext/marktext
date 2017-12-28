@@ -6,6 +6,8 @@
 - [ ] codeBlock 在 list item 中时，list style 问题。
 - [ ] 在输入“```”后，输入字母，应该出现选择语言的弹窗，但是，弹窗出现后立即消失，导致无法通过方向键选择。
 - [ ] 打开文件后，初始状态没有 word count。
+- [ ] 从 [memory](https://hacks.mozilla.org/2017/06/a-crash-course-in-memory-management/) 上面复制文字，点击图片，跳转到另外图片页面，并且无法关闭（严重 bug）
+- [ ] 复制自身文本有问题，ag-gray 中内容不应该再显示。
 
 **菜单**
 
