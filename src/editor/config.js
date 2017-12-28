@@ -80,3 +80,11 @@ export const codeMirrorConfig = {
     'Cmd-Y': false
   }
 }
+
+export const turndownConfig = {
+  headingStyle: 'atx',
+  bulletListMarker: '*',
+  codeBlockStyle: 'fenced',
+  emDelimiter: '_',
+  strongDelimiter: '**'
+}

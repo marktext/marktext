@@ -5,12 +5,24 @@ import MarkdownIt from 'markdown-it'
 import parse5 from 'parse5'
 import TurndownService from 'turndown'
 // To be disabled rules when parse markdown, Because content state don't need to parse inline rules
-import { INLINE_RULES } from '../config'
+import { INLINE_RULES, turndownConfig } from '../config'
+
+const turndownPluginGfm = require('turndown-plugin-gfm')
 
 const md = new MarkdownIt()
 md.disable(INLINE_RULES)
 // turn html to markdown
-const turndownService = new TurndownService()
+const turndownService = new TurndownService(turndownConfig)
+const gfm = turndownPluginGfm.gfm
+// Use the gfm plugin
+turndownService.use(gfm)
+// because the strikethrough rule in gfm is single `~`, So need rewrite the strikethrough rule.
+turndownService.addRule('strikethrough', {
+  filter: ['del', 's', 'strike'],
+  replacement: function (content) {
+    return '~~' + content + '~~'
+  }
+})
 
 const importRegister = ContentState => {
   ContentState.prototype.getStateFragment = function (markdown) {
@@ -133,6 +145,7 @@ const importRegister = ContentState => {
   // transform `paste's text/html data` to content state blocks.
   ContentState.prototype.html2State = function (html) {
     const markdown = turndownService.turndown(html)
+    console.log(markdown)
     return this.getStateFragment(markdown)
   }
 

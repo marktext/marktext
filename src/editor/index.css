@@ -28,7 +28,7 @@ li > h1, li > h2, li > h3, li > h4, li > h5, li > h6 {
   display: initial;
 }
 
-p .ag-hide:first-child {
+li p .ag-hide:first-child {
   display: none;
 }
 
@@ -125,7 +125,7 @@ hr {
   vertical-align: middle;
   flex-shrink: 0;
 }
-a.ag-emoji-marked-text {
+span.ag-emoji-marked-text {
   position: relative;
   color: aqua;
   text-decoration: none;

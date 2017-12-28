@@ -113,51 +113,37 @@ class StateRender {
   hr (h, cursor, block, token, outerClass) {
     const className = CLASS_OR_ID['AG_GRAY']
     return [
-      h(`a.${className}`, {
-        props: { href: '#' }
-      }, token.marker)
+      h(`span.${className}`, token.marker)
     ]
   }
 
   header (h, cursor, block, token, outerClass) {
     const className = this.getClassName(outerClass, block, token, cursor)
     return [
-      h(`a.${className}`, {
-        props: { href: '#' }
-      }, token.marker)
+      h(`span.${className}`, token.marker)
     ]
   }
 
   ['code_fense'] (h, cursor, block, token, outerClass) {
     return [
-      h(`a.${CLASS_OR_ID['AG_GRAY']}`, {
-        props: { href: '#' }
-      }, token.marker),
-      h(`a.${CLASS_OR_ID['AG_LANGUAGE']}`, {
-        props: { href: '#' }
-      }, token.content)
+      h(`span.${CLASS_OR_ID['AG_GRAY']}`, token.marker),
+      h(`span.${CLASS_OR_ID['AG_LANGUAGE']}`, token.content)
     ]
   }
 
   backlash (h, cursor, block, token, outerClass) {
     const className = this.getClassName(outerClass, block, token, cursor)
     return [
-      h(`a.${className}`, {
-        props: { href: '#' }
-      }, token.marker)
+      h(`span.${className}`, token.marker)
     ]
   }
 
   ['inline_code'] (h, cursor, block, token, outerClass) {
     const className = this.getClassName(outerClass, block, token, cursor)
     return [
-      h(`a.${className}`, {
-        props: { href: '#' }
-      }, token.marker),
+      h(`span.${className}`, token.marker),
       h('code', token.content),
-      h(`a.${className}`, {
-        props: { href: '#' }
-      }, token.marker)
+      h(`span.${className}`, token.marker)
     ]
   }
 
@@ -170,12 +156,12 @@ class StateRender {
     const validation = validEmoji(token.content)
     const finalClass = validation ? className : CLASS_OR_ID['AG_WARN']
     const emojiVdom = validation
-      ? h(`a.${finalClass}.${CLASS_OR_ID['AG_EMOJI_MARKED_TEXT']}`, { dataset: { emoji: validation.emoji } }, token.content)
-      : h(`a.${finalClass}.${CLASS_OR_ID['AG_EMOJI_MARKED_TEXT']}`, token.content)
+      ? h(`span.${finalClass}.${CLASS_OR_ID['AG_EMOJI_MARKED_TEXT']}`, { dataset: { emoji: validation.emoji } }, token.content)
+      : h(`span.${finalClass}.${CLASS_OR_ID['AG_EMOJI_MARKED_TEXT']}`, token.content)
     return [
-      h(`a.${finalClass}`, { props: { href: '#' } }, token.marker),
+      h(`span.${finalClass}`, token.marker),
       emojiVdom,
-      h(`a.${finalClass}`, { props: { href: '#' } }, token.marker)
+      h(`span.${finalClass}`, token.marker)
     ]
   }
 
@@ -185,9 +171,7 @@ class StateRender {
 
     if (isLengthEven(token.backlash)) {
       return [
-        h(`a.${className}`, {
-          props: { href: '#' }
-        }, token.marker),
+        h(`span.${className}`, token.marker),
         h(type, [
           ...token.children.reduce((acc, to) => {
             const chunk = this[to.type](h, cursor, block, to, className)
@@ -195,9 +179,7 @@ class StateRender {
           }, []),
           ...this.backlashInToken(token.backlash, className)
         ]),
-        h(`a.${className}`, {
-          props: { href: '#' }
-        }, token.marker)
+        h(`span.${className}`, token.marker)
       ]
     } else {
       return [
@@ -221,26 +203,18 @@ class StateRender {
     for (i = 0; i < len; i++) {
       if (isEven(i)) {
         result.push(
-          h(`a.${outerClass}`, {
-            props: {
-              href: '#'
-            }
-          }, chunks[i])
+          h(`span.${outerClass}`, chunks[i])
         )
       } else {
         result.push(
-          h(`a.${CLASS_OR_ID['AG_BACKLASH']}`, {
-            props: {
-              href: '#'
-            }
-          }, chunks[i])
+          h(`span.${CLASS_OR_ID['AG_BACKLASH']}`, chunks[i])
         )
       }
     }
 
-    result.push(
-      h(`a.${CLASS_OR_ID['AG_BUG']}`) // the extral a tag for fix bug
-    )
+    // result.push(
+    //   h(`span.${CLASS_OR_ID['AG_BUG']}`) // the extral a tag for fix bug
+    // )
 
     return result
   }
@@ -291,7 +265,7 @@ class StateRender {
         }
       }
 
-      selector = id ? `a#${id}.${imageClass}` : `a.${imageClass}`
+      selector = id ? `span#${id}.${imageClass}` : `span.${imageClass}`
 
       if (isSuccess) {
         selector += `.${className}`
@@ -309,10 +283,10 @@ class StateRender {
 
       return isSuccess
         ? [
-          h(selector, { props: { href: '#' } }, children),
+          h(selector, children),
           h('img', { props: { alt, src } })
         ]
-        : [h(selector, { props: { href: '#' } }, children)]
+        : [h(selector, children)]
     } else {
       return [
         '![',
@@ -346,25 +320,23 @@ class StateRender {
     if (isLengthEven(token.backlash.first) && isLengthEven(token.backlash.second)) {
       if (!token.children.length && !token.backlash.first) { // no-text-link
         return [
-          h(`a.${CLASS_OR_ID['AG_GRAY']}`, { props: { href: '#' } }, '[]('),
-          h('span', {
-            dataset: {
-              href: token.href + encodeURI(token.backlash.second),
-              role: 'link'
+          h(`span.${CLASS_OR_ID['AG_GRAY']}`, '[]('),
+          h('a', {
+            props: {
+              href: token.href + encodeURI(token.backlash.second)
             }
           }, [
             token.href,
             ...this.backlashInToken(token.backlash.second, className)
           ]),
-          h(`a.${CLASS_OR_ID['AG_GRAY']}`, { props: { href: '#' } }, ')')
+          h(`span.${CLASS_OR_ID['AG_GRAY']}`, ')')
         ]
       } else { // has children
         return [
-          h(`a.${className}`, { props: { href: '#' } }, '['),
-          h('span', {
-            dataset: {
-              href: token.href + encodeURI(token.backlash.second),
-              role: 'link'
+          h(`span.${className}`, '['),
+          h('a', {
+            props: {
+              href: token.href + encodeURI(token.backlash.second)
             }
           }, [
             ...token.children.reduce((acc, to) => {
@@ -373,12 +345,12 @@ class StateRender {
             }, []),
             ...this.backlashInToken(token.backlash.first, className)
           ]),
-          h(`a.${className}`, { props: { href: '#' } }, ']('),
+          h(`span.${className}`, ']('),
           h(`span.${linkClassName}`, [
             token.href,
             ...this.backlashInToken(token.backlash.second, className)
           ]),
-          h(`a.${className}`, { props: { href: '#' } }, ')')
+          h(`span.${className}`, ')')
         ]
       }
     } else {
