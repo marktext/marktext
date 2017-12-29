@@ -10,6 +10,7 @@ import History from './history'
 import historyCtrl from './historyCtrl'
 import arrowCtrl from './arrowCtrl'
 import pasteCtrl from './pasteCtrl'
+import copyCutCtrl from './copyCutCtrl'
 import importMarkdown from '../utils/importMarkdown'
 
 const prototypes = [
@@ -21,6 +22,7 @@ const prototypes = [
   historyCtrl,
   arrowCtrl,
   pasteCtrl,
+  copyCutCtrl,
   importMarkdown
 ]
 

@@ -35,7 +35,7 @@ const backspaceCtrl = ContentState => {
     }
   }
 
-  ContentState.prototype.cutHandler = function () {
+  ContentState.prototype.checkCut = function () {
     const { start, end } = this.cursor
 
     if (start.key !== end.key) {
@@ -47,7 +47,7 @@ const backspaceCtrl = ContentState => {
   }
 
   ContentState.prototype.backspaceHandler = function (event) {
-    if (this.cutHandler()) return
+    if (this.checkCut()) return
 
     const node = selection.getSelectionStart()
     const paragraph = findNearestParagraph(node)

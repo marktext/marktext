@@ -111,16 +111,15 @@ class StateRender {
   }
 
   hr (h, cursor, block, token, outerClass) {
-    const className = CLASS_OR_ID['AG_GRAY']
     return [
-      h(`span.${className}`, token.marker)
+      h(`span.${CLASS_OR_ID['AG_GRAY']}.${CLASS_OR_ID['AG_REMOVE']}`, token.marker)
     ]
   }
 
   header (h, cursor, block, token, outerClass) {
     const className = this.getClassName(outerClass, block, token, cursor)
     return [
-      h(`span.${className}`, token.marker)
+      h(`span.${className}.${CLASS_OR_ID['AG_REMOVE']}`, token.marker)
     ]
   }
 
@@ -134,16 +133,16 @@ class StateRender {
   backlash (h, cursor, block, token, outerClass) {
     const className = this.getClassName(outerClass, block, token, cursor)
     return [
-      h(`span.${className}`, token.marker)
+      h(`span.${className}.${CLASS_OR_ID['AG_REMOVE']}`, token.marker)
     ]
   }
 
   ['inline_code'] (h, cursor, block, token, outerClass) {
     const className = this.getClassName(outerClass, block, token, cursor)
     return [
-      h(`span.${className}`, token.marker),
+      h(`span.${className}.${CLASS_OR_ID['AG_REMOVE']}`, token.marker),
       h('code', token.content),
-      h(`span.${className}`, token.marker)
+      h(`span.${className}.${CLASS_OR_ID['AG_REMOVE']}`, token.marker)
     ]
   }
 
@@ -158,10 +157,11 @@ class StateRender {
     const emojiVdom = validation
       ? h(`span.${finalClass}.${CLASS_OR_ID['AG_EMOJI_MARKED_TEXT']}`, { dataset: { emoji: validation.emoji } }, token.content)
       : h(`span.${finalClass}.${CLASS_OR_ID['AG_EMOJI_MARKED_TEXT']}`, token.content)
+
     return [
-      h(`span.${finalClass}`, token.marker),
+      h(`span.${finalClass}.${CLASS_OR_ID['AG_EMOJI_MARKER']}`, token.marker),
       emojiVdom,
-      h(`span.${finalClass}`, token.marker)
+      h(`span.${finalClass}.${CLASS_OR_ID['AG_EMOJI_MARKER']}`, token.marker)
     ]
   }
 
@@ -171,7 +171,7 @@ class StateRender {
 
     if (isLengthEven(token.backlash)) {
       return [
-        h(`span.${className}`, token.marker),
+        h(`span.${className}.${CLASS_OR_ID['AG_REMOVE']}`, token.marker),
         h(type, [
           ...token.children.reduce((acc, to) => {
             const chunk = this[to.type](h, cursor, block, to, className)
@@ -179,7 +179,7 @@ class StateRender {
           }, []),
           ...this.backlashInToken(token.backlash, className)
         ]),
-        h(`span.${className}`, token.marker)
+        h(`span.${className}.${CLASS_OR_ID['AG_REMOVE']}`, token.marker)
       ]
     } else {
       return [
@@ -265,7 +265,7 @@ class StateRender {
         }
       }
 
-      selector = id ? `span#${id}.${imageClass}` : `span.${imageClass}`
+      selector = id ? `span#${id}.${imageClass}.${CLASS_OR_ID['AG_REMOVE']}` : `span.${imageClass}.${CLASS_OR_ID['AG_REMOVE']}`
 
       if (isSuccess) {
         selector += `.${className}`
@@ -317,11 +317,12 @@ class StateRender {
   link (h, cursor, block, token, outerClass) {
     const className = this.getClassName(outerClass, block, token, cursor)
     const linkClassName = className === CLASS_OR_ID['AG_HIDE'] ? className : CLASS_OR_ID['AG_LINK_IN_BRACKET']
+
     if (isLengthEven(token.backlash.first) && isLengthEven(token.backlash.second)) {
       if (!token.children.length && !token.backlash.first) { // no-text-link
         return [
-          h(`span.${CLASS_OR_ID['AG_GRAY']}`, '[]('),
-          h('a', {
+          h(`span.${CLASS_OR_ID['AG_GRAY']}.${CLASS_OR_ID['AG_REMOVE']}`, '[]('),
+          h(`a.${CLASS_OR_ID['AG_NOTEXT_LINK']}`, {
             props: {
               href: token.href + encodeURI(token.backlash.second)
             }
@@ -329,13 +330,13 @@ class StateRender {
             token.href,
             ...this.backlashInToken(token.backlash.second, className)
           ]),
-          h(`span.${CLASS_OR_ID['AG_GRAY']}`, ')')
+          h(`span.${CLASS_OR_ID['AG_GRAY']}.${CLASS_OR_ID['AG_REMOVE']}`, ')')
         ]
       } else { // has children
         return [
-          h(`span.${className}`, '['),
+          h(`span.${className}.${CLASS_OR_ID['AG_REMOVE']}`, '['),
           h('a', {
-            props: {
+            dataset: {
               href: token.href + encodeURI(token.backlash.second)
             }
           }, [
@@ -345,12 +346,12 @@ class StateRender {
             }, []),
             ...this.backlashInToken(token.backlash.first, className)
           ]),
-          h(`span.${className}`, ']('),
-          h(`span.${linkClassName}`, [
+          h(`span.${className}.${CLASS_OR_ID['AG_REMOVE']}`, ']('),
+          h(`span.${linkClassName}.${CLASS_OR_ID['AG_REMOVE']}`, [
             token.href,
             ...this.backlashInToken(token.backlash.second, className)
           ]),
-          h(`span.${className}`, ')')
+          h(`span.${className}.${CLASS_OR_ID['AG_REMOVE']}`, ')')
         ]
       }
     } else {

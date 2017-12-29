@@ -117,13 +117,14 @@ hr {
 }
 
 .ag-float-item-icon {
-  font-size: 22px;
-  width: 35px;
-  height: 35px;
+  font-size: 14px;
+  width: 28px;
+  height: 28px;
   text-align: center;
   display: inline-block;
   vertical-align: middle;
   flex-shrink: 0;
+  margin-right: .5em;
 }
 span.ag-emoji-marked-text {
   position: relative;

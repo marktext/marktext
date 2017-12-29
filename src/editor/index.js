@@ -44,16 +44,10 @@ class Aganippe {
       const markdown = this.getMarkdown()
       const wordCount = this.getWordCount()
       eventCenter.dispatch('auto-save', markdown, wordCount)
-    }, 1024))
+    }, 300))
 
     eventCenter.attachDOMEvent(container, 'paste', event => {
       this.contentState.pasteHandler(event)
-    })
-
-    eventCenter.attachDOMEvent(container, 'cut', event => {
-      // when user use `cut` function, the dom has been deleted by default.
-      // But should update content state manually.
-      this.contentState.cutHandler()
     })
 
     this.recordEditChinese()
@@ -62,6 +56,7 @@ class Aganippe {
     this.dispatchBackspace()
     this.dispatchEnter()
     this.dispatchUpdateState()
+    this.dispatchCopyCut()
   }
 
   /**
@@ -83,6 +78,20 @@ class Aganippe {
     parentNode.insertBefore(div, container)
     parentNode.removeChild(container)
     this.container = div
+  }
+
+  dispatchCopyCut () {
+    const { container, eventCenter } = this
+    const handler = event => {
+      this.contentState.copyCutHandler(event)
+      if (event.type === 'cut') {
+        // when user use `cut` function, the dom has been deleted by default.
+        // But should update content state manually.
+        this.contentState.cutHandler()
+      }
+    }
+    eventCenter.attachDOMEvent(container, 'cut', handler)
+    eventCenter.attachDOMEvent(container, 'copy', handler)
   }
 
   /**
@@ -134,6 +143,7 @@ class Aganippe {
       const selectionState = selection.exportSelection(paragraph)
       const lang = checkEditLanguage(paragraph, selectionState)
       const emojiNode = node && checkEditEmoji(node)
+
       if (!emojiNode && !lang) {
         eventCenter.dispatch('hideFloatBox')
       }

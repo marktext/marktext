@@ -57,6 +57,7 @@
   },
   "dependencies": {
     "axios": "^0.16.1",
+    "cheerio": "^1.0.0-rc.2",
     "codemirror": "^5.31.0",
     "electron-window-state": "^4.1.1",
     "markdown-it": "^8.4.0",
