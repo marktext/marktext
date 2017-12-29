@@ -159,8 +159,10 @@ const updateCtrl = ContentState => {
 
   ContentState.prototype.updateState = function (event) {
     const { start, end } = selection.getCursorRange()
+    console.log(start, end)
+    console.log(selection.getSelectionStart())
+    console.log(selection.getSelectionEnd())
     const { start: oldStart, end: oldEnd } = this.cursor
-
     if (start.key !== end.key) {
       if (
         start.key !== oldStart.key ||
