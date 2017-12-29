@@ -23,7 +23,7 @@
         bus.$on('undo', () => this.editor.undo())
         bus.$on('redo', () => this.editor.redo())
 
-        this.editor.on('auto-save', (markdown, wordCount) => {
+        this.editor.on('change', (markdown, wordCount) => {
           this.$store.dispatch('SAVE_FILE', { markdown, wordCount })
         })
       })

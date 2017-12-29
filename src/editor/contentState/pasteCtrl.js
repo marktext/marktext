@@ -23,7 +23,7 @@ const pasteCtrl = ContentState => {
     event.preventDefault()
     const text = event.clipboardData.getData('text/plain')
     let html = event.clipboardData.getData('text/html')
-    console.log(text)
+
     if (!html) {
       html = text.split(/\n+/)
         .filter(t => t)
@@ -100,12 +100,12 @@ const pasteCtrl = ContentState => {
         }
         break
       case 'NEWLINE':
-        if (startBlock.text.length === 0) this.removeBlock(startBlock)
         let target = startBlock
         stateFragments.forEach(block => {
           this.insertAfter(block, target)
           target = block
         })
+        if (startBlock.text.length === 0) this.removeBlock(startBlock)
         break
       default:
         throw new Error('unknown paste type')

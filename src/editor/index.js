@@ -41,9 +41,7 @@ class Aganippe {
     eventCenter.attachDOMEvent(container, 'keydown', debounce(event => {
       this.contentState.historyHandler(event)
       this.contentState.garbageCollection()
-      const markdown = this.getMarkdown()
-      const wordCount = this.getWordCount()
-      eventCenter.dispatch('auto-save', markdown, wordCount)
+      this.dispatchChange()
     }, 300))
 
     eventCenter.attachDOMEvent(container, 'paste', event => {
@@ -78,6 +76,13 @@ class Aganippe {
     parentNode.insertBefore(div, container)
     parentNode.removeChild(container)
     this.container = div
+  }
+
+  dispatchChange () {
+    const { eventCenter } = this
+    const markdown = this.getMarkdown()
+    const wordCount = this.getWordCount()
+    eventCenter.dispatch('change', markdown, wordCount)
   }
 
   dispatchCopyCut () {
@@ -292,6 +297,7 @@ class Aganippe {
 
   setMarkdown (text) {
     this.contentState.importMarkdown(text)
+    this.dispatchChange()
   }
 
   on (event, listener) {
