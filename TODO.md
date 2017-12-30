@@ -8,6 +8,9 @@
 - [ ] 当选择复制的时候，如果selection 其实 dom 为 codeblock，没法复制文档（严重 bug）
 - [ ] codeblock 内部无法复制内容。（严重 bug)
 - [ ] 输入两端文字，全选，点击第二段段末，推出全选，enter 回车。结果两段文字删除了。
+- [ ] 当表情中有 `_` 的时候，复制表情，自动加上了 `\` 转义，这儿不需要转义的，转以后就不能够识别表情了。所以复制的时候不能够加上反斜线。
+- [ ] 在通过 Aganippe 打开文件时，无法通过右键选择 Aganippe。
+- [ ] 在通过 Aganippe 打开文件时，通过右键选择软件，但是打开无内容。
 
 **菜单**
 
@@ -31,15 +34,15 @@
 
   - [ ] Export(PDF | HTML with style | HTML)
 
-- - [ ] Undo
+- - [x] Undo
 
-  - [ ] Redo
+  - [x] Redo
 
-  - [ ] Cut
+  - [x] Cut
 
-  - [ ] Copy
+  - [x] Copy
 
-  - [ ] Paste
+  - [x] Paste
 
   - [ ] Copy As Markdown
 
