@@ -30,6 +30,7 @@ const pasteCtrl = ContentState => {
         .map(t => `<p>${t}</p>`)
         .join('')
     }
+
     const stateFragments = this.html2State(html)
     if (stateFragments.length <= 0) return
     // step 1: if select content, cut the content, and chop the block text into two part by the cursor.

@@ -5,7 +5,7 @@ import MarkdownIt from 'markdown-it'
 import parse5 from 'parse5'
 import TurndownService from 'turndown'
 // To be disabled rules when parse markdown, Because content state don't need to parse inline rules
-import { INLINE_RULES, turndownConfig } from '../config'
+import { INLINE_RULES, turndownConfig, CLASS_OR_ID } from '../config'
 
 const turndownPluginGfm = require('turndown-plugin-gfm')
 
@@ -21,6 +21,17 @@ turndownService.addRule('strikethrough', {
   filter: ['del', 's', 'strike'],
   replacement: function (content) {
     return '~~' + content + '~~'
+  }
+})
+
+// remove `\` in emoji text when paste
+turndownService.addRule('normalEmoji', {
+  filter (node, options) {
+    return node.nodeName === 'SPAN' &&
+      node.classList.contains(CLASS_OR_ID['AG_EMOJI_MARKED_TEXT'])
+  },
+  replacement (content, node, options) {
+    return content.replace(/\\/g, '')
   }
 })
 
