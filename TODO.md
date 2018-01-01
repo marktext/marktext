@@ -4,14 +4,13 @@
 
 - [ ] 当 codeBlock 在 list item 中， item nextSibling 为 null，但是 list 还有nextSibling。这个时候不应该创建行的 block。（严重 bug）
 - [ ] codeBlock 在 list item 中时，list style 问题。
-- [ ] 在输入“```”后，输入字母，应该出现选择语言的弹窗，但是，弹窗出现后立即消失，导致无法通过方向键选择。
-- [ ] 当选择复制的时候，如果selection 其实 dom 为 codeblock，没法复制文档（严重 bug）
+- [ ] 当选择复制的时候，如果selection 起始 dom 为 codeblock，没法复制文档（严重 bug）
 - [ ] codeblock 内部无法复制内容。（严重 bug)
-- [ ] 输入两端文字，全选，点击第二段段末，推出全选，enter 回车。结果两段文字删除了。
 - [ ] 在通过 Aganippe 打开文件时，无法通过右键选择 Aganippe。（严重 bug）
 - [ ] 在通过 Aganippe 打开文件时，通过右键选择软件，但是打开无内容。（严重 bug）
 - [ ] 在编辑语言或者表情的时候，出现弹窗位置有问题。如果放焦点元素下面空间不够，应该放焦点元素上面。其次，当滚动的时候，位置应该实时更新。
 - [ ] 输入一个 codeblock，在输入一个段落。全选，按 backspace 删除，结果把 ag-editor-id 都删除了。（严重 bug）
+- [ ] 当选择了内容，输入内容时，应该先删除选择的内容，然后再输入。现在是没有做删除。
 
 **菜单**
 

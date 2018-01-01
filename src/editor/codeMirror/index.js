@@ -115,7 +115,6 @@ export const setMode = (doc, text) => {
   }
 
   const { mode, mime } = m.mode
-  console.log(mode)
   return new Promise(resolve => {
     codeMirror.requireMode(mode, () => {
       doc.setOption('mode', mime || mode)

@@ -1,7 +1,7 @@
 import codeMirror, { setMode, setCursorAtLastLine } from '../codeMirror'
 import { createInputInCodeBlock } from '../utils/domManipulate'
 import { codeMirrorConfig, CLASS_OR_ID } from '../config'
-import floatBox from '../floatBox'
+// import floatBox from '../floatBox'
 import eventCenter from '../event'
 
 const CODE_UPDATE_REP = /^`{3,}(.*)/
@@ -31,7 +31,6 @@ const codeBlockCtrl = ContentState => {
       const id = pre.id
       const block = this.getBlock(id)
 
-      pre.innerHTML = ''
       const autofocus = id === this.cursor.start.key
       const config = Object.assign(codeMirrorConfig, { autofocus, value: block.text })
       const codeBlock = codeMirror(pre, config)
@@ -60,7 +59,7 @@ const codeBlockCtrl = ContentState => {
           .catch(err => {
             console.warn(err)
           })
-        floatBox.hideIfNeeded()
+        // floatBox.hideIfNeeded()
       }
 
       this.codeBlocks.set(id, codeBlock)

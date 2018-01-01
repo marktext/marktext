@@ -1,6 +1,7 @@
 import cheerio from 'cheerio'
 import selection from '../selection'
 import { CLASS_OR_ID } from '../config'
+// import { findNearestParagraph } from '../utils/domManipulate'
 
 const copyCutCtrl = ContentState => {
   ContentState.prototype.cutHandler = function () {
@@ -19,8 +20,15 @@ const copyCutCtrl = ContentState => {
   }
 
   ContentState.prototype.copyCutHandler = function (event) {
+    // const node = selection.getSelectionStart()
+    // const end = selection.getSelectionEnd()
+    // const paragraph = findNearestParagraph(node)
+    // const endParagraph = findNearestParagraph(end)
+    // console.log(paragraph)
+    // console.log(endParagraph)
     event.preventDefault()
     const html = selection.getSelectionHtml()
+    // console.log(html)
     // const text = event.clipboardData.getData('text/plain')
     const $ = cheerio.load(html)
     $(`.${CLASS_OR_ID['AG_REMOVE']}`).remove()

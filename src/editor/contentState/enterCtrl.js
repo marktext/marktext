@@ -30,7 +30,7 @@ const enterCtrl = ContentState => {
   }
 
   ContentState.prototype.enterHandler = function (event) {
-    const { start, end } = this.cursor
+    const { start, end } = selection.getCursorRange()
 
     if (start.key !== end.key) {
       event.preventDefault()
@@ -38,7 +38,7 @@ const enterCtrl = ContentState => {
       const endBlock = this.getBlock(end.key)
       const key = start.key
       const offset = start.offset
-      console.log(endBlock.text)
+
       startBlock.text = startBlock.text.substring(0, start.offset) + endBlock.text.substring(end.offset)
 
       this.removeBlocks(startBlock, endBlock)

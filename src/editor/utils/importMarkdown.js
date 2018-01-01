@@ -156,7 +156,6 @@ const importRegister = ContentState => {
   // transform `paste's text/html data` to content state blocks.
   ContentState.prototype.html2State = function (html) {
     const markdown = turndownService.turndown(html)
-    console.log(markdown)
     return this.getStateFragment(markdown)
   }
 

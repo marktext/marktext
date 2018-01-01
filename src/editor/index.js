@@ -113,6 +113,7 @@ class Aganippe {
     }
     eventCenter.attachDOMEvent(container, 'keyup', changeHandler) // don't listen `input` event
   }
+
   subscribeEditEmoji (emojiNode) {
     const text = emojiNode.textContent.trim()
     if (text) {
@@ -126,7 +127,7 @@ class Aganippe {
       }
       if (list.length) {
         this.floatBox.showIfNeeded({
-          left: `${left}px`, top: `${top + 25 + document.body.scrollTop}px`
+          left, top
         }, cb)
         this.floatBox.setOptions(list)
       } else {
@@ -137,8 +138,18 @@ class Aganippe {
 
   dispatchHideFloatBox () {
     const { container, eventCenter } = this
-
+    let cacheTop = null
     const handler = event => {
+      if (event.type === 'scroll') {
+        const scrollTop = container.scrollTop
+        if (cacheTop && Math.abs(scrollTop - cacheTop) > 10) {
+          cacheTop = null
+          return eventCenter.dispatch('hideFloatBox')
+        } else {
+          cacheTop = scrollTop
+          return
+        }
+      }
       if (event.target && event.target.classList.contains(CLASS_OR_ID['AG_LANGUAGE_INPUT'])) {
         return
       }
@@ -156,6 +167,7 @@ class Aganippe {
 
     eventCenter.attachDOMEvent(container, 'click', handler)
     eventCenter.attachDOMEvent(container, 'keyup', handler)
+    eventCenter.attachDOMEvent(container, 'scroll', throttle(handler, 200))
   }
 
   subscribeHideFloatBox () {
@@ -192,8 +204,7 @@ class Aganippe {
     }
     if (modes.length) {
       this.floatBox.showIfNeeded({
-        left: `${left}px`,
-        top: `${top + 25 + document.body.scrollTop}px`
+        left, top
       }, cb || callback)
       this.floatBox.setOptions(modes)
     } else {

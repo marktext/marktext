@@ -76,7 +76,6 @@ const arrowCtrl = ContentState => {
       }
 
       if (activeBlock) {
-        console.log(activeBlock)
         const offset = activeBlock.text.length
         const key = activeBlock.key
         this.cursor = {

@@ -3,10 +3,14 @@ import {
 } from '../config'
 import eventCenter from '../event'
 
+const FLOAT_BOX_HEIGHT = 170
+const ITEM_HEIGHT = 28
+
 class FloatBox {
   constructor (event) {
     this.list = []
     this.index = 0
+    this.position = null
     this.event = event
     this.show = false
     this.box = null
@@ -20,7 +24,6 @@ class FloatBox {
       const target = event.target
       const key = +target.getAttribute('key')
       if (this.cb && key !== undefined) {
-        console.log(this.list[key])
         this.cb(this.list[key])
       }
     }
@@ -36,7 +39,6 @@ class FloatBox {
   }
 
   setOptions (list, index) {
-    const ITEM_HEIGHT = 28
     const fragment = document.createDocumentFragment()
     this.list = list
     if (index !== undefined) {
@@ -77,8 +79,15 @@ class FloatBox {
   showIfNeeded (position, cb) {
     if (cb) this.cb = cb
     if (!this.show) {
-      const { left, top } = position
-      Object.assign(this.box.style, { left, top })
+      let { left, top } = position
+      this.position = { left, top }
+      const viewHeight = document.documentElement.offsetHeight
+      if (viewHeight - top <= FLOAT_BOX_HEIGHT + 25) {
+        top = top - FLOAT_BOX_HEIGHT
+      } else {
+        top = top + 25
+      }
+      Object.assign(this.box.style, { left: `${left}px`, top: `${top}px` })
 
       this.box.classList.add(CLASS_OR_ID['AG_SHOW_FLOAT_BOX'])
     }
