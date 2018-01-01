@@ -75,6 +75,7 @@ export const CLASS_OR_ID = genUpper2LowerKeyHash([
 
 export const codeMirrorConfig = {
   autoCloseBrackets: true,
+  lineWiseCopyCut: false,
   autoCloseTags: true,
   autofocus: true,
   tabSize: 2,
