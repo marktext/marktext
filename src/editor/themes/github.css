@@ -366,7 +366,7 @@ code {
 }
 
 #ag-editor-id pre.ag-code-block {
-  padding: 1rem;
+  padding: .4rem 1rem;
   font-size: 90%;
   line-height: 1.6;
   background-color: #f6f8fa;
