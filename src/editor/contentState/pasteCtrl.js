@@ -20,6 +20,9 @@ const pasteCtrl = ContentState => {
   }
 
   ContentState.prototype.pasteHandler = function (event) {
+    if (this.checkInCodeBlock()) {
+      return
+    }
     event.preventDefault()
     const text = event.clipboardData.getData('text/plain')
     let html = event.clipboardData.getData('text/html')

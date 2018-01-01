@@ -4,7 +4,6 @@
 
 - [ ] 当 codeBlock 在 list item 中， item nextSibling 为 null，但是 list 还有nextSibling。这个时候不应该创建行的 block。（严重 bug）
 - [ ] codeBlock 在 list item 中时，list style 问题。
-- [ ] codeblock 内部无法复制内容。（严重 bug)
 - [ ] 在通过 Aganippe 打开文件时，无法通过右键选择 Aganippe。（严重 bug）
 - [ ] 在通过 Aganippe 打开文件时，通过右键选择软件，但是打开无内容。（严重 bug）
 - [ ] 输入一个 codeblock，在输入一个段落。全选，按 backspace 删除，结果把 ag-editor-id 都删除了。（严重 bug）
