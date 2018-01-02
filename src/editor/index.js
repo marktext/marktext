@@ -269,13 +269,14 @@ class Aganippe {
   dispatchUpdateState () {
     const { container, eventCenter } = this
     const changeHandler = event => {
-      if (!this._isEditChinese) {
+      if (!this._isEditChinese || event.type === 'input') {
         this.contentState.updateState(event)
       }
     }
 
     eventCenter.attachDOMEvent(container, 'click', changeHandler)
     eventCenter.attachDOMEvent(container, 'keyup', changeHandler)
+    eventCenter.attachDOMEvent(container, 'input', changeHandler)
   }
 
   imageClick () {

@@ -6,7 +6,6 @@
 - [ ] codeBlock 在 list item 中时，list style 问题。
 - [ ] 在通过 Aganippe 打开文件时，无法通过右键选择 Aganippe。（严重 bug）
 - [ ] 在通过 Aganippe 打开文件时，通过右键选择软件，但是打开无内容。（严重 bug）
-- [ ] 当选择了内容，输入内容时，应该先删除选择的内容，然后再输入。现在是没有做删除。
 
 **菜单**
 

@@ -161,6 +161,33 @@ const updateCtrl = ContentState => {
     const { start, end } = selection.getCursorRange()
     const { start: oldStart, end: oldEnd } = this.cursor
 
+    if (event.type === 'input' && oldStart.key !== oldEnd.key) {
+      const startBlock = this.getBlock(oldStart.key)
+      const endBlock = this.getBlock(oldEnd.key)
+      this.removeBlocks(startBlock, endBlock)
+      // there still has little bug, when the oldstart block is `pre`, the input value will be ignored.
+      // and act as `backspace`
+      if (startBlock.type === 'pre') {
+        event.preventDefault()
+        const startRemainText = startBlock.type === 'pre'
+          ? startBlock.text.substring(0, oldStart.offset - 1)
+          : startBlock.text.substring(0, oldStart.offset)
+
+        const endRemainText = endBlock.type === 'pre'
+          ? endBlock.text.substring(oldEnd.offset - 1)
+          : endBlock.text.substring(oldEnd.offset)
+
+        startBlock.text = startRemainText + endRemainText
+        const key = oldStart.key
+        const offset = oldStart.offset
+        this.cursor = {
+          start: { key, offset },
+          end: { key, offset }
+        }
+        return this.render()
+      }
+    }
+
     if (start.key !== end.key) {
       if (
         start.key !== oldStart.key ||
