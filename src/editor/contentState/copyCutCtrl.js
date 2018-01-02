@@ -33,33 +33,37 @@ const copyCutCtrl = ContentState => {
     }
     event.preventDefault()
     const html = selection.getSelectionHtml()
+    // console.log(html)
     // const text = event.clipboardData.getData('text/plain')
     const $ = cheerio.load(html)
+
     $(`.${CLASS_OR_ID['AG_REMOVE']}`).remove()
     $(`.${CLASS_OR_ID['AG_EMOJI_MARKER']}`).text(':')
     $(`.${CLASS_OR_ID['AG_NOTEXT_LINK']}`).empty()
     $(`[data-role=hr]`).replaceWith('<hr>')
 
     const anchors = $(`a[data-href]`)
-
-    anchors.each((i, a) => {
-      const anchor = $(a)
-      const href = anchor.attr('data-href')
-      anchor.removeAttr('data-href')
-      anchor.attr('href', href)
-    })
+    if (anchors.length > 0) {
+      anchors.each((i, a) => {
+        const anchor = $(a)
+        const href = anchor.attr('data-href')
+        anchor.removeAttr('data-href')
+        anchor.attr('href', href)
+      })
+    }
 
     const codefense = $(`pre.${CLASS_OR_ID['AG_CODE_BLOCK']}`)
-
-    codefense.each((i, cf) => {
-      const ele = $(cf)
-      const id = ele.attr('id')
-      const language = ele.attr('data-lang')
-      const cm = this.codeBlocks.get(id)
-      const codeText = cm.getValue()
-      ele.empty()
-      ele.html(`<code class="language-${language}" lang="${language}">${codeText}</code>`)
-    })
+    if (codefense.length > 0) {
+      codefense.each((i, cf) => {
+        const ele = $(cf)
+        const id = ele.attr('id')
+        const language = ele.attr('data-lang')
+        const cm = this.codeBlocks.get(id)
+        const codeText = cm.getValue()
+        ele.empty()
+        ele.html(`<code class="language-${language}" lang="${language}">${codeText}</code>`)
+      })
+    }
 
     event.clipboardData.setData('text/html', $('body').html())
   }

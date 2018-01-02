@@ -757,6 +757,8 @@ class Selection {
       let offset = 0
       let preSibling = node
 
+      if (node === paragraph) return offset
+
       do {
         preSibling = preSibling.previousSibling
         if (preSibling) {

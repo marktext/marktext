@@ -6,6 +6,7 @@
 - [ ] codeBlock 在 list item 中时，list style 问题。
 - [ ] 在通过 Aganippe 打开文件时，无法通过右键选择 Aganippe。（严重 bug）
 - [ ] 在通过 Aganippe 打开文件时，通过右键选择软件，但是打开无内容。（严重 bug）
+- [ ] 行内样式，链接小括号中的文本没法复制。
 
 **菜单**
 
