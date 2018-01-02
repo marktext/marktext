@@ -1,6 +1,6 @@
 import cheerio from 'cheerio'
 import selection from '../selection'
-import { CLASS_OR_ID } from '../config'
+import { CLASS_OR_ID, blockContainerElementNames } from '../config'
 
 const copyCutCtrl = ContentState => {
   ContentState.prototype.cutHandler = function () {
@@ -33,9 +33,17 @@ const copyCutCtrl = ContentState => {
     }
     event.preventDefault()
     const html = selection.getSelectionHtml()
-    // console.log(html)
     // const text = event.clipboardData.getData('text/plain')
     const $ = cheerio.load(html)
+    const children = $('body').children()
+    let text = ''
+    children.each((i, child) => {
+      const tagName = child.tagName
+      const content = $(child).text()
+      if (content) {
+        text += blockContainerElementNames.indexOf(tagName) > -1 && text ? `\n${content}` : `${content}`
+      }
+    })
 
     $(`.${CLASS_OR_ID['AG_REMOVE']}`).remove()
     $(`.${CLASS_OR_ID['AG_EMOJI_MARKER']}`).text(':')
@@ -66,6 +74,7 @@ const copyCutCtrl = ContentState => {
     }
 
     event.clipboardData.setData('text/html', $('body').html())
+    event.clipboardData.setData('text/plain', text)
   }
 }
 
