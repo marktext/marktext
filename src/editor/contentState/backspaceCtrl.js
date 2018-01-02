@@ -35,19 +35,37 @@ const backspaceCtrl = ContentState => {
     }
   }
 
-  ContentState.prototype.checkCut = function () {
-    const { start, end } = this.cursor
+  ContentState.prototype.backspaceHandler = function (event) {
+    const { start, end } = selection.getCursorRange()
 
     if (start.key !== end.key) {
+      event.preventDefault()
       const startBlock = this.getBlock(start.key)
       const endBlock = this.getBlock(end.key)
-      this.removeBlocks(startBlock, endBlock)
-    }
-    return start.key !== end.key
-  }
+      const key = start.key
+      const offset = start.offset
 
-  ContentState.prototype.backspaceHandler = function (event) {
-    if (this.checkCut()) return
+      const startRemainText = startBlock.type === 'pre'
+        ? startBlock.text.substring(0, start.offset - 1)
+        : startBlock.text.substring(0, start.offset)
+
+      const endRemainText = endBlock.type === 'pre'
+        ? endBlock.text.substring(end.offset - 1)
+        : endBlock.text.substring(end.offset)
+
+      startBlock.text = startRemainText + endRemainText
+
+      if (offset === 0) {
+        startBlock.type = 'p'
+      }
+
+      this.removeBlocks(startBlock, endBlock)
+      this.cursor = {
+        start: { key, offset },
+        end: { key, offset }
+      }
+      return this.render()
+    }
 
     const node = selection.getSelectionStart()
     const paragraph = findNearestParagraph(node)

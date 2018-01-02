@@ -39,7 +39,15 @@ const enterCtrl = ContentState => {
       const key = start.key
       const offset = start.offset
 
-      startBlock.text = startBlock.text.substring(0, start.offset) + endBlock.text.substring(end.offset)
+      const startRemainText = startBlock.type === 'pre'
+        ? startBlock.text.substring(0, start.offset - 1)
+        : startBlock.text.substring(0, start.offset)
+
+      const endRemainText = endBlock.type === 'pre'
+        ? endBlock.text.substring(end.offset - 1)
+        : endBlock.text.substring(end.offset)
+
+      startBlock.text = startRemainText + endRemainText
 
       this.removeBlocks(startBlock, endBlock)
       this.cursor = {
