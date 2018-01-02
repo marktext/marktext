@@ -68,6 +68,9 @@ class StateRender {
         if (block.type === 'ol') {
           Object.assign(data.props, { start: block.start })
         }
+        if (block.type === 'li' && block.isTask) {
+          blockSelector += `.${CLASS_OR_ID['AG_TASK_LIST_ITEM']}`
+        }
         return h(blockSelector, data, block.children.map(child => renderBlock(child)))
       } else {
         let children = block.text
@@ -88,6 +91,16 @@ class StateRender {
         if (block.type === 'pre') {
           if (block.lang) Object.assign(data.dataset, { lang: block.lang })
           blockSelector += `.${CLASS_OR_ID['AG_CODE_BLOCK']}`
+          children = ''
+        }
+
+        if (block.type === 'input') {
+          const { checked, type, key } = block
+          Object.assign(data.props, { type: 'checkbox' })
+          if (checked) {
+            Object.assign(data.props, { checked: true })
+          }
+          blockSelector = `${type}#${key}`
           children = ''
         }
 

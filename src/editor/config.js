@@ -70,7 +70,8 @@ export const CLASS_OR_ID = genUpper2LowerKeyHash([
   'AG_IMAGE_FAIL',
   'AG_REMOVE',
   'AG_EMOJI_MARKER',
-  'AG_NOTEXT_LINK'
+  'AG_NOTEXT_LINK',
+  'AG_TASK_LIST_ITEM'
 ])
 
 export const codeMirrorConfig = {

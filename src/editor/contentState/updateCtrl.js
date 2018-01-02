@@ -2,7 +2,7 @@ import selection from '../selection'
 import { tokenizer } from '../parser/parse'
 import { conflict } from '../utils'
 
-const INLINE_UPDATE_REG = /^([*+-]\s(\[\s\]\s)?)|^(\d+\.\s)|^(#{1,6})[^#]+|^(>).+|^(\*{3,}|-{3,}|_{3,})/
+const INLINE_UPDATE_REG = /^([*+-]\s)|^(\[[x\s]{1}\]\s)|^(\d+\.\s)|^(#{1,6})[^#]+|^(>).+|^(\*{3,}|-{3,}|_{3,})/
 
 const updateCtrl = ContentState => {
   ContentState.prototype.checkNeedRender = function (block) {
@@ -30,6 +30,7 @@ const updateCtrl = ContentState => {
 
   ContentState.prototype.checkInlineUpdate = function (block) {
     const { text } = block
+    const parent = this.getParent(block)
     const [match, disorder, tasklist, order, header, blockquote, hr] = text.match(INLINE_UPDATE_REG) || []
     let newType
 
@@ -42,8 +43,8 @@ const updateCtrl = ContentState => {
         this.updateList(block, 'disorder', disorder)
         return true
 
-      case !!tasklist:
-        this.updateList(block, 'tasklist', disorder) // tasklist is one type of disorder.
+      case !!tasklist && parent && parent.type === 'li':
+        this.updateTaskListItem(block, 'tasklist', tasklist)
         return true
 
       case !!order:
@@ -75,7 +76,29 @@ const updateCtrl = ContentState => {
     return false
   }
 
+  ContentState.prototype.updateTaskListItem = function (block, type, marker) {
+    const parent = this.getParent(block)
+    const checked = /\[x\]\s/.test(marker)
+    const checkbox = this.createBlock('input')
+    const { start, end } = this.cursor
+    checkbox.checked = checked
+    this.insertBefore(checkbox, block)
+    block.text = block.text.substring(marker.length)
+    parent.isTask = true
+    this.cursor = {
+      start: {
+        key: start.key,
+        offset: Math.max(0, start.offset - marker.length)
+      },
+      end: {
+        key: end.key,
+        offset: Math.max(0, end.offset - marker.length)
+      }
+    }
+  }
+
   ContentState.prototype.updateList = function (block, type, marker) {
+    console.log(type, marker)
     const parent = this.getParent(block)
     const preSibling = this.getPreSibling(block)
     const nextSibling = this.getNextSibling(block)

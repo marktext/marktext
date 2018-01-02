@@ -28,6 +28,21 @@ li > h1, li > h2, li > h3, li > h4, li > h5, li > h6 {
   display: initial;
 }
 
+li.ag-task-list-item {
+  list-style-type: none;
+  position: relative;
+}
+
+li.ag-task-list-item > input[type=checkbox] {
+  position: absolute;
+  cursor: pointer;
+  width: inherit;
+  height: inherit;
+  margin: 4px 0px 0px;
+  top: 3px;
+  left: -20px;
+}
+
 li p .ag-hide:first-child {
   display: none;
 }
