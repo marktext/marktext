@@ -8,18 +8,55 @@ const backspaceCtrl = ContentState => {
     const nearestParagraph = findNearestParagraph(node)
     const outMostParagraph = findOutMostParagraph(node)
     const block = this.getBlock(nearestParagraph.id)
+    const preBlock = this.getPreSibling(block)
     const outBlock = this.findOutMostBlock(block)
     const parent = this.getParent(block)
 
     const { left: outLeft } = selection.getCaretOffsets(outMostParagraph)
     const { left: inLeft } = selection.getCaretOffsets(nearestParagraph)
 
-    if (parent && parent.type === 'li' && inLeft === 0 && this.isFirstChild(block)) {
+    if (
+      (parent && parent.type === 'li' && inLeft === 0 && this.isFirstChild(block)) ||
+      (parent && parent.type === 'li' && inLeft === 0 && parent.isTask && preBlock.type === 'input') // handle task item
+    ) {
       if (this.isOnlyChild(parent)) {
+        /**
+         * `<ul>
+         *   <li>
+         *     <p>|text</p>
+         *     <p>maybe has other paragraph</p>
+         *   </li>
+         * <ul>`
+         */
         return { type: 'LI', info: 'REPLACEMENT' }
       } else if (this.isFirstChild(parent)) {
+        /**
+         * `<ul>
+         *   <li>
+         *     <p>|text</p>
+         *     <p>maybe has other paragraph</p>
+         *   </li>
+         *   <li>
+         *     <p>other list item</p>
+         *   </li>
+         * <ul>`
+         */
         return { type: 'LI', info: 'REMOVE_INSERT_BEFORE' }
       } else {
+        /**
+         * `<ul>
+         *   <li>
+         *     <p>other list item</p>
+         *   </li>
+         *   <li>
+         *     <p>|text</p>
+         *     <p>maybe has other paragraph</p>
+         *   </li>
+         *   <li>
+         *     <p>other list item</p>
+         *   </li>
+         * <ul>`
+         */
         return { type: 'LI', info: 'INSERT_PRE_LIST' }
       }
     }
@@ -120,6 +157,9 @@ const backspaceCtrl = ContentState => {
           if (inlineDegrade.info === 'REPLACEMENT') {
             const children = parent.children
             const grandpa = this.getBlock(parent.parent)
+            if (children[0].type === 'input') {
+              this.removeBlock(children[0])
+            }
             children.forEach(child => {
               this.insertBefore(child, grandpa)
             })
@@ -127,6 +167,9 @@ const backspaceCtrl = ContentState => {
           } else if (inlineDegrade.info === 'REMOVE_INSERT_BEFORE') {
             const children = parent.children
             const grandpa = this.getBlock(parent.parent)
+            if (children[0].type === 'input') {
+              this.removeBlock(children[0])
+            }
             children.forEach(child => {
               this.insertBefore(child, grandpa)
             })
@@ -134,6 +177,9 @@ const backspaceCtrl = ContentState => {
           } else if (inlineDegrade.info === 'INSERT_PRE_LIST') {
             const parPre = this.getBlock(parent.preSibling)
             const children = parent.children
+            if (children[0].type === 'input') {
+              this.removeBlock(children[0])
+            }
             children.forEach(child => {
               this.appendChild(parPre, child)
             })
@@ -143,7 +189,7 @@ const backspaceCtrl = ContentState => {
         }
         case 'BLOCKQUOTE':
           if (inlineDegrade.info === 'REPLACEMENT') {
-            this.replaceBlock(block, parent)
+            this.replaceBlock(block/* new block */, parent/* old block */)
           } else if (inlineDegrade.info === 'INSERT_BEFORE') {
             this.removeBlock(block)
             this.insertBefore(block, parent)
@@ -151,7 +197,9 @@ const backspaceCtrl = ContentState => {
           break
       }
       this.cursor = selection.getCursorRange()
+      console.log(JSON.stringify(this.cursor, null, 2))
       if (inlineDegrade.type !== 'STOP') {
+        console.log(JSON.stringify(this.blocks, null, 2))
         this.render()
       }
     } else if (left === 0) {

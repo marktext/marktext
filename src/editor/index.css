@@ -39,7 +39,9 @@ li.ag-task-list-item > input[type=checkbox] {
   width: inherit;
   height: inherit;
   margin: 4px 0px 0px;
-  top: 3px;
+  top: 1px;
+  width: 19px;
+  height: 19px;
   left: -20px;
 }
 

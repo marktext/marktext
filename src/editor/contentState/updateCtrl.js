@@ -2,7 +2,7 @@ import selection from '../selection'
 import { tokenizer } from '../parser/parse'
 import { conflict } from '../utils'
 
-const INLINE_UPDATE_REG = /^([*+-]\s)|^(\[[x\s]{1}\]\s)|^(\d+\.\s)|^(#{1,6})[^#]+|^(>).+|^(\*{3,}|-{3,}|_{3,})/
+const INLINE_UPDATE_REG = /^([*+-]\s)|^(\[[x\s]{1}\]\s)|^(\d+\.\s)|^(#{1,6})[^#]+|^(>).+|^(\*{3,}|-{3,}|_{3,})/i
 
 const updateCtrl = ContentState => {
   ContentState.prototype.checkNeedRender = function (block) {
@@ -78,7 +78,7 @@ const updateCtrl = ContentState => {
 
   ContentState.prototype.updateTaskListItem = function (block, type, marker) {
     const parent = this.getParent(block)
-    const checked = /\[x\]\s/.test(marker)
+    const checked = /\[x\]\s/i.test(marker)
     const checkbox = this.createBlock('input')
     const { start, end } = this.cursor
     checkbox.checked = checked
