@@ -7,7 +7,7 @@
 - [ ] 在通过 Aganippe 打开文件时，无法通过右键选择 Aganippe。（严重 bug）
 - [ ] 在通过 Aganippe 打开文件时，通过右键选择软件，但是打开无内容。（严重 bug）
 - [ ] 行内样式，链接小括号中的文本没法复制。
-- [ ] task item: (1)处理方向键 (2)task item 只能和 task item 在一个 ul 中。所以需要优化 update 模块（3）输出和输入。（4）复制黏贴
+- [ ] task item: (1)处理方向键 (2)task item 只能和 task item 在一个 ul 中。所以需要优化 update 模块（3）输出和输入。（4）复制黏贴(5) 处理 task item 点击
 
 **菜单**
 
