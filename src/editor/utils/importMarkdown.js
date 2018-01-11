@@ -2,6 +2,7 @@
  * translate markdown format to content state used by editor
  */
 import MarkdownIt from 'markdown-it'
+import taskLists from 'markdown-it-task-lists'
 import parse5 from 'parse5'
 import TurndownService from 'turndown'
 // To be disabled rules when parse markdown, Because content state don't need to parse inline rules
@@ -11,6 +12,8 @@ const turndownPluginGfm = require('turndown-plugin-gfm')
 
 const md = new MarkdownIt()
 md.disable(INLINE_RULES)
+// use `taskLists` plugin
+md.use(taskLists, { enabled: true })
 // turn html to markdown
 const turndownService = new TurndownService(turndownConfig)
 const gfm = turndownPluginGfm.gfm
@@ -88,6 +91,18 @@ const importRegister = ContentState => {
             this.appendChild(parent, block)
             break
 
+          case 'input':
+            const isCheckbox = child.attrs.some(attr => attr.name === 'type' && attr.value === 'checkbox')
+            const checked = child.attrs.some(attr => attr.name === 'checked' && attr.value === '')
+
+            if (isCheckbox && parent.type === 'li') {
+              parent.isTask = true
+              block = this.createBlock('input')
+              block.checked = checked
+              this.appendChild(parent, block)
+            }
+            break
+
           case 'hr':
             const initValue = '---'
             block = this.createBlock(child.nodeName, initValue)
@@ -95,6 +110,7 @@ const importRegister = ContentState => {
             break
 
           case 'li':
+            console.log(child)
             block = this.createBlock('li')
             this.appendChild(parent, block)
             if (child.childNodes.length === 1) {
@@ -160,6 +176,7 @@ const importRegister = ContentState => {
   }
 
   ContentState.prototype.importMarkdown = function (markdown) {
+    // empty the blocks and codeBlocks
     this.keys = new Set()
     this.codeBlocks = new Map()
     this.blocks = this.getStateFragment(markdown)

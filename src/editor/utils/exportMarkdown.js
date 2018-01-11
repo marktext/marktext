@@ -14,6 +14,7 @@ class ExportMarkdown {
     const result = []
     const len = blocks.length
     let i
+
     for (i = 0; i < len; i++) {
       const block = blocks[i]
       switch (block.type) {
@@ -61,6 +62,9 @@ class ExportMarkdown {
         case 'blockquote':
           this.insertLineBreak(result, indent)
           result.push(this.normalizeBlockquote(block, indent))
+          break
+        default:
+          console.log(block.type)
           break
       }
     }
@@ -113,8 +117,20 @@ class ExportMarkdown {
   normalizeListItem (block, indent) {
     const result = []
     const listInfo = this.listType[this.listType.length - 1]
-    const itemMarker = listInfo.type === 'ul' ? '- ' : `${listInfo.listCount++}. `
-    const { children } = block
+    let { children } = block
+    let itemMarker
+
+    if (listInfo.type === 'ul') {
+      itemMarker = '- '
+      if (block.isTask) {
+        const firstChild = children[0]
+        itemMarker += firstChild.checked ? '[x] ' : '[ ] '
+        children = children.slice(1)
+      }
+    } else {
+      itemMarker = `${listInfo.listCount++}. `
+    }
+
     const newIndent = indent + ' '.repeat(itemMarker.length)
 
     result.push(`${indent}${itemMarker}`)
