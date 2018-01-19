@@ -1,19 +1,16 @@
 /**
  * translate markdown format to content state used by editor
  */
-import MarkdownIt from 'markdown-it'
-import taskLists from 'markdown-it-task-lists'
+
 import parse5 from 'parse5'
 import TurndownService from 'turndown'
+import marked from '../parser/marked'
+
 // To be disabled rules when parse markdown, Because content state don't need to parse inline rules
-import { INLINE_RULES, turndownConfig, CLASS_OR_ID } from '../config'
+import { turndownConfig, CLASS_OR_ID } from '../config'
 
 const turndownPluginGfm = require('turndown-plugin-gfm')
 
-const md = new MarkdownIt()
-md.disable(INLINE_RULES)
-// use `taskLists` plugin
-md.use(taskLists, { enabled: true })
 // turn html to markdown
 const turndownService = new TurndownService(turndownConfig)
 const gfm = turndownPluginGfm.gfm
@@ -51,7 +48,8 @@ const importRegister = ContentState => {
       children: []
     }
 
-    const htmlText = md.render(markdown)
+    const htmlText = marked(markdown, { disableInline: true })
+
     const domAst = parse5.parseFragment(htmlText)
 
     const childNodes = domAst.childNodes
@@ -91,35 +89,30 @@ const importRegister = ContentState => {
             this.appendChild(parent, block)
             break
 
-          case 'input':
-            const isCheckbox = child.attrs.some(attr => attr.name === 'type' && attr.value === 'checkbox')
-            const checked = child.attrs.some(attr => attr.name === 'checked' && attr.value === '')
-
-            if (isCheckbox && parent.type === 'li') {
-              parent.isTask = true
-              block = this.createBlock('input')
-              block.checked = checked
-              this.appendChild(parent, block)
-            }
-            break
-
           case 'hr':
             const initValue = '---'
             block = this.createBlock(child.nodeName, initValue)
             this.appendChild(parent, block)
             break
 
-          case 'li':
-            console.log(child)
-            block = this.createBlock('li')
-            this.appendChild(parent, block)
-            if (child.childNodes.length === 1) {
-              value = child.childNodes[0].value
-              const pBlock = this.createBlock('p', value)
-              this.appendChild(block, pBlock)
-            } else {
-              travel(block, child.childNodes)
+          case 'input':
+            const isTaskListItemCheckbox = child.attrs.some(attr => attr.name === 'class' && attr.value === 'task-list-item-checkbox')
+            const checked = child.attrs.some(attr => attr.name === 'checked' && attr.value === '')
+
+            if (isTaskListItemCheckbox) {
+              parent.isTask = true // double check
+              block = this.createBlock('input')
+              block.checked = checked
+              this.appendChild(parent, block)
             }
+            break
+
+          case 'li':
+            const isTask = child.attrs.some(attr => attr.name === 'class' && attr.value === 'task-list-item')
+            block = this.createBlock('li')
+            block.isTask = isTask
+            this.appendChild(parent, block)
+            travel(block, child.childNodes)
             break
 
           case 'ul':
@@ -157,6 +150,16 @@ const importRegister = ContentState => {
             block.lang = getLang(codeNode)
             this.appendChild(parent, block)
             break
+
+          case '#text':
+            const { parentNode } = child
+            value = child.value
+            if (parentNode.nodeName === 'li' && value !== '\n') {
+              block = this.createBlock('p', value)
+              this.appendChild(parent, block)
+            }
+            break
+
           default:
             if (child.tagName) {
               throw new Error(`unHandle node type ${child.tagName}`)
