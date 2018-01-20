@@ -50,6 +50,7 @@ class Aganippe {
 
     this.recordEditChinese()
     this.imageClick()
+    this.listItemCheckBoxClick()
     this.dispatchArrow()
     this.dispatchBackspace()
     this.dispatchEnter()
@@ -292,6 +293,18 @@ class Aganippe {
           start: textLen,
           end: textLen
         }, markedImageText)
+      }
+    }
+
+    eventCenter.attachDOMEvent(container, 'click', handler)
+  }
+
+  listItemCheckBoxClick () {
+    const { container, eventCenter } = this
+    const handler = event => {
+      const target = event.target
+      if (target.tagName === 'INPUT' && target.classList.contains(CLASS_OR_ID['AG_TASK_LIST_ITEM_CHECKBOX'])) {
+        this.contentState.listItemCheckBoxClick(target)
       }
     }
 

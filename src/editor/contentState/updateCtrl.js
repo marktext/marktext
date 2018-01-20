@@ -78,7 +78,7 @@ const updateCtrl = ContentState => {
 
   ContentState.prototype.updateTaskListItem = function (block, type, marker) {
     const parent = this.getParent(block)
-    const checked = /\[x\]\s/i.test(marker)
+    const checked = /\[x\]\s/i.test(marker) // use `i` flag to ignore upper case or lower case
     const checkbox = this.createBlock('input')
     const { start, end } = this.cursor
     checkbox.checked = checked
@@ -95,6 +95,13 @@ const updateCtrl = ContentState => {
         offset: Math.max(0, end.offset - marker.length)
       }
     }
+  }
+
+  // handle task list item checkbox click
+  ContentState.prototype.listItemCheckBoxClick = function (checkbox) {
+    const { checked, id } = checkbox
+    const block = this.getBlock(id)
+    block.checked = checked
   }
 
   ContentState.prototype.updateList = function (block, type, marker) {

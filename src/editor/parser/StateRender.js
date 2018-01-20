@@ -100,7 +100,7 @@ class StateRender {
           if (checked) {
             Object.assign(data.props, { checked: true })
           }
-          blockSelector = `${type}#${key}`
+          blockSelector = `${type}#${key}.${CLASS_OR_ID['AG_TASK_LIST_ITEM_CHECKBOX']}`
           children = ''
         }
 
