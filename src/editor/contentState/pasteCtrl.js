@@ -52,6 +52,7 @@ const pasteCtrl = ContentState => {
     const getLastBlock = blocks => {
       const len = blocks.length
       const lastBlock = blocks[len - 1]
+
       if (lastBlock.children.length === 0) {
         return lastBlock
       } else {
@@ -103,6 +104,7 @@ const pasteCtrl = ContentState => {
           })
         }
         break
+
       case 'NEWLINE':
         let target = startBlock
         stateFragments.forEach(block => {

@@ -7,6 +7,7 @@ import { validEmoji } from '../emojis'
 const snabbdom = require('snabbdom')
 const patch = snabbdom.init([ // Init patch function with chosen modules
   require('snabbdom/modules/class').default, // makes it easy to toggle classes
+  require('snabbdom/modules/attributes').default,
   require('snabbdom/modules/props').default, // for setting properties on DOM elements
   require('snabbdom/modules/dataset').default
 ])
@@ -60,13 +61,13 @@ class StateRender {
         : `${type}#${block.key}.${CLASS_OR_ID['AG_PARAGRAPH']}`
 
       const data = {
-        props: {},
+        attrs: {},
         dataset: {}
       }
 
       if (block.children.length) {
         if (block.type === 'ol') {
-          Object.assign(data.props, { start: block.start })
+          Object.assign(data.attrs, { start: block.start })
         }
         if (block.type === 'li' && block.isTask) {
           blockSelector += `.${CLASS_OR_ID['AG_TASK_LIST_ITEM']}`
@@ -96,9 +97,9 @@ class StateRender {
 
         if (block.type === 'input') {
           const { checked, type, key } = block
-          Object.assign(data.props, { type: 'checkbox' })
+          Object.assign(data.attrs, { type: 'checkbox' })
           if (checked) {
-            Object.assign(data.props, { checked: true })
+            Object.assign(data.attrs, { checked: true })
           }
           blockSelector = `${type}#${key}.${CLASS_OR_ID['AG_TASK_LIST_ITEM_CHECKBOX']}`
           children = ''
