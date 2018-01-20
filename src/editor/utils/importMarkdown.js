@@ -49,7 +49,6 @@ const importRegister = ContentState => {
     }
 
     const htmlText = marked(markdown, { disableInline: true })
-
     const domAst = parse5.parseFragment(htmlText)
 
     const childNodes = domAst.childNodes
@@ -100,7 +99,7 @@ const importRegister = ContentState => {
             const checked = child.attrs.some(attr => attr.name === 'checked' && attr.value === '')
 
             if (isTaskListItemCheckbox) {
-              parent.isTask = true // double check
+              parent.listItemType = 'task' // double check
               block = this.createBlock('input')
               block.checked = checked
               this.appendChild(parent, block)
@@ -110,19 +109,22 @@ const importRegister = ContentState => {
           case 'li':
             const isTask = child.attrs.some(attr => attr.name === 'class' && attr.value === 'task-list-item')
             block = this.createBlock('li')
-            block.isTask = isTask
+            block.listItemType = parent.nodeName === 'ul' ? (isTask ? 'task' : 'bullet') : 'order'
             this.appendChild(parent, block)
             travel(block, child.childNodes)
             break
 
           case 'ul':
+            const isTaskList = child.attrs.some(attr => attr.name === 'class' && attr.value === 'task-list')
             block = this.createBlock('ul')
+            block.listType = isTaskList ? 'task' : 'bullet'
             travel(block, child.childNodes)
             this.appendChild(parent, block)
             break
 
           case 'ol':
             block = this.createBlock('ol')
+            block.listType = 'order'
             child.attrs.forEach(attr => {
               block[attr.name] = attr.value
             })
@@ -154,7 +156,8 @@ const importRegister = ContentState => {
           case '#text':
             const { parentNode } = child
             value = child.value
-            if (parentNode.nodeName === 'li' && value !== '\n') {
+
+            if (parentNode.nodeName === 'li' && /\S/.test(value)) {
               block = this.createBlock('p', value)
               this.appendChild(parent, block)
             }

@@ -17,7 +17,9 @@ var block = {
   nptable: noop,
   lheading: /^([^\n]+)\n *(=|-){2,} *(?:\n+|$)/,
   blockquote: /^( *>[^\n]+(\n(?!def)[^\n]+)*\n*)+/,
-  list: /^( *)(bull) [\s\S]+?(?:hr|def|\n{2,}(?! )(?!\1bull )\n*|\s*$)/,
+  tasklist: /^( *)([*+-] \[(?:X|x|\s)\]) [\s\S]+?(?:hr|def|\n{2,}(?! )(?!\1(?:[*+-] \[(?:X|x|\s)\]))\n*|\s*$)/,
+  orderlist: /^( *)(\d+\.) [\s\S]+?(?:hr|def|\n{2,}(?! )(?!\1\d+\. )\n*|\s*$)/,
+  bulletlist: /^( *)([*+-]) [\s\S]+?(?:hr|def|\n{2,}(?! )(?!\1[*+-] )\n*|\s*$)/,
   html: /^ *(?:comment *(?:\n|\s*$)|closed *(?:\n{2,}|\s*$)|closing *(?:\n{2,}|\s*$))/,
   def: /^ *\[([^\]]+)\]: *<?([^\s>]+)>?(?: +["(]([^\n]+)[")])? *(?:\n+|$)/,
   table: noop,
@@ -26,17 +28,18 @@ var block = {
 };
 
 block.checkbox = /^\[([ x])\] +/;
-block.bullet = /(?:[*+-]|\d+\.)/;
+block.bullet = /(?:[*+-] \[(?:X|x|\s)\]|[*+-]|\d+\.)/;
 block.item = /^( *)(bull) [^\n]*(?:\n(?!\1bull )[^\n]*)*/;
 block.item = replace(block.item, 'gm')
   (/bull/g, block.bullet)
   ();
 
-block.list = replace(block.list)
-  (/bull/g, block.bullet)
-  ('hr', '\\n+(?=\\1?(?:[-*_] *){3,}(?:\\n+|$))')
-  ('def', '\\n+(?=' + block.def.source + ')')
-  ();
+['tasklist', 'orderlist', 'bulletlist'].forEach(list => {
+  block[list] = replace(block[list])
+    ('hr', '\\n+(?=\\1?(?:[-*_] *){3,}(?:\\n+|$))')
+    ('def', '\\n+(?=' + block.def.source + ')')
+    ();
+});
 
 block.blockquote = replace(block.blockquote)
   ('def', block.def)
@@ -79,10 +82,13 @@ block.gfm = merge({}, block.normal, {
   heading: /^ *(#{1,6}) +([^\n]+?) *#* *(?:\n+|$)/
 });
 
+// fix me
 block.gfm.paragraph = replace(block.paragraph)
   ('(?!', '(?!' +
     block.gfm.fences.source.replace('\\1', '\\2') + '|' +
-    block.list.source.replace('\\1', '\\3') + '|')
+    block.tasklist.source.replace('\\1', '\\5') + '|' +
+    block.orderlist.source.replace('\\1', '\\7') + '|' +
+    block.bulletlist.source.replace('\\1', '\\9') + '|')
   ();
 
 /**
@@ -168,7 +174,8 @@ Lexer.prototype.token = function(src, top, bq) {
       this.tokens.push({
         type: 'code',
         text: !this.options.pedantic ?
-          cap.replace(/\n+$/, '') : cap
+          cap.replace(/\n+$/, '') :
+          cap
       });
       continue;
     }
@@ -270,18 +277,18 @@ Lexer.prototype.token = function(src, top, bq) {
     }
 
     // list
-    if (cap = this.rules.list.exec(src)) {
+    if (cap = this.rules.tasklist.exec(src) || this.rules.orderlist.exec(src) || this.rules.bulletlist.exec(src)) {
       src = src.substring(cap[0].length);
       bull = cap[2];
 
       this.tokens.push({
         type: 'list_start',
-        ordered: bull.length > 1
+        ordered: bull.length > 1 && /\d/.test(bull),
+        listType: bull.length > 1 ? (/\d/.test(bull) ? 'order' : 'task') : 'bullet'
       });
 
       // Get each top-level item.
       cap = cap[0].match(this.rules.item);
-
       next = false;
       l = cap.length;
       i = 0;
@@ -334,8 +341,10 @@ Lexer.prototype.token = function(src, top, bq) {
 
         this.tokens.push({
           checked: checked,
+          listItemType: bull.length > 1 ? (/\d/.test(bull) ? 'order' : 'task') : 'bullet',
           type: loose ?
-            'loose_item_start' : 'list_item_start'
+            'loose_item_start' :
+            'list_item_start'
         });
 
         // Recurse.
@@ -358,7 +367,8 @@ Lexer.prototype.token = function(src, top, bq) {
       src = src.substring(cap[0].length);
       this.tokens.push({
         type: this.options.sanitize ?
-          'paragraph' : 'html',
+          'paragraph' :
+          'html',
         pre: !this.options.sanitizer &&
           (cap[1] === 'pre' || cap[1] === 'script' || cap[1] === 'style'),
         text: cap[0]
@@ -412,11 +422,13 @@ Lexer.prototype.token = function(src, top, bq) {
 
     // top-level paragraph
     if (top && (cap = this.rules.paragraph.exec(src))) {
+      console.log(cap)
       src = src.substring(cap[0].length);
       this.tokens.push({
         type: 'paragraph',
         text: cap[1].charAt(cap[1].length - 1) === '\n' ?
-          cap[1].slice(0, -1) : cap[1]
+          cap[1].slice(0, -1) :
+          cap[1]
       });
       continue;
     }
@@ -812,16 +824,28 @@ Renderer.prototype.hr = function() {
 
 Renderer.prototype.list = function(body, ordered, taskList) {
   var type = ordered ? 'ol' : 'ul';
-  var classes = taskList ? ' class="task-list"' : '';
+  var classes = !ordered ? (taskList ? ' class="task-list"' : ' class="bullet-list"') : ' class="order-list"'
   return '<' + type + classes + '>\n' + body + '</' + type + '>\n';
 };
 
-Renderer.prototype.listitem = function(text, checked) {
+Renderer.prototype.listitem = function(text, checked, listItemType) {
+  var classes
+  switch (listItemType) {
+    case 'order':
+      classes = ' class="order-list-item"'
+      break
+    case 'task':
+      classes = ' class="task-list-item"'
+      break
+    case 'bullet':
+      classes = ' class="bullet-list-item"'
+      break
+  }
   if (checked === undefined) {
-    return '<li>' + text + '</li>\n';
+    return '<li ' + classes + '>' + text + '</li>\n';
   }
 
-  return '<li class="task-list-item">' +
+  return '<li ' + classes + '>' +
     '<input type="checkbox" class="task-list-item-checkbox"' +
     (checked ? ' checked' : '') +
     '> ' +
@@ -1074,7 +1098,8 @@ Parser.prototype.tok = function() {
     case 'list_item_start':
       {
         var body = '',
-          checked = this.token.checked;
+          checked = this.token.checked,
+          listItemType = this.token.listItemType;
 
         while (this.next().type !== 'list_item_end') {
           body += this.token.type === 'text' ?
@@ -1082,23 +1107,25 @@ Parser.prototype.tok = function() {
             this.tok();
         }
 
-        return this.renderer.listitem(body, checked);
+        return this.renderer.listitem(body, checked, listItemType);
       }
     case 'loose_item_start':
       {
         var body = '',
-          checked = this.token.checked;
+          checked = this.token.checked,
+          listItemType = this.token.listItemType;
 
         while (this.next().type !== 'list_item_end') {
           body += this.tok();
         }
 
-        return this.renderer.listitem(body, checked);
+        return this.renderer.listitem(body, checked, listItemType);
       }
     case 'html':
       {
         var html = !this.token.pre && !this.options.pedantic ?
-          this.inline.output(this.token.text) : this.token.text;
+          this.inline.output(this.token.text) :
+          this.token.text;
         return this.renderer.html(html);
       }
     case 'paragraph':

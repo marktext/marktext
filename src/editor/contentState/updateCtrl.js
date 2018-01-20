@@ -31,7 +31,7 @@ const updateCtrl = ContentState => {
   ContentState.prototype.checkInlineUpdate = function (block) {
     const { text } = block
     const parent = this.getParent(block)
-    const [match, disorder, tasklist, order, header, blockquote, hr] = text.match(INLINE_UPDATE_REG) || []
+    const [match, bullet, tasklist, order, header, blockquote, hr] = text.match(INLINE_UPDATE_REG) || []
     let newType
 
     switch (true) {
@@ -39,11 +39,11 @@ const updateCtrl = ContentState => {
         this.updateHr(block, hr)
         return true
 
-      case !!disorder:
-        this.updateList(block, 'disorder', disorder)
+      case !!bullet:
+        this.updateList(block, 'bullet', bullet)
         return true
 
-      case !!tasklist && parent && parent.type === 'li':
+      case !!tasklist && parent && parent.listItemType === 'bullet': // only `bullet` list item can be update to `task` list item
         this.updateTaskListItem(block, 'tasklist', tasklist)
         return true
 
@@ -78,13 +78,49 @@ const updateCtrl = ContentState => {
 
   ContentState.prototype.updateTaskListItem = function (block, type, marker) {
     const parent = this.getParent(block)
+    const grandpa = this.getParent(parent)
     const checked = /\[x\]\s/i.test(marker) // use `i` flag to ignore upper case or lower case
     const checkbox = this.createBlock('input')
     const { start, end } = this.cursor
+
     checkbox.checked = checked
     this.insertBefore(checkbox, block)
     block.text = block.text.substring(marker.length)
-    parent.isTask = true
+    parent.listItemType = 'task'
+
+    let taskListWrapper
+    if (this.isOnlyChild(parent)) {
+      grandpa.listType = 'task'
+    } else if (this.isFirstChild(parent) || this.isLastChild(parent)) {
+      taskListWrapper = this.createBlock('ul')
+      taskListWrapper.listType = 'task'
+      this.isFirstChild(parent) ? this.insertBefore(taskListWrapper, grandpa) : this.insertAfter(taskListWrapper, grandpa)
+      this.removeBlock(parent)
+      this.appendChild(taskListWrapper, parent)
+    } else {
+      taskListWrapper = this.createBlock('ul')
+      taskListWrapper.listType = 'task'
+      const bulletListWrapper = this.createBlock('ul')
+      bulletListWrapper.listType = 'bullet'
+
+      let preSibling = this.getPreSibling(parent)
+      while (preSibling) {
+        this.removeBlock(preSibling)
+        if (bulletListWrapper.children.length) {
+          const firstChild = bulletListWrapper.children[0]
+          this.insertBefore(preSibling, firstChild)
+        } else {
+          this.appendChild(bulletListWrapper, preSibling)
+        }
+        preSibling = this.getPreSibling(preSibling)
+      }
+
+      this.removeBlock(parent)
+      this.appendChild(taskListWrapper, parent)
+      this.insertBefore(taskListWrapper, grandpa)
+      this.insertBefore(bulletListWrapper, taskListWrapper)
+    }
+
     this.cursor = {
       start: {
         key: start.key,
@@ -105,47 +141,43 @@ const updateCtrl = ContentState => {
   }
 
   ContentState.prototype.updateList = function (block, type, marker) {
-    console.log(type, marker)
     const parent = this.getParent(block)
     const preSibling = this.getPreSibling(block)
     const nextSibling = this.getNextSibling(block)
-    const wrapperTag = type === 'order' ? 'ol' : 'ul'
+    const wrapperTag = type === 'order' ? 'ol' : 'ul' // `bullet` => `ul` and `order` => `ol`
     const newText = block.text.substring(marker.length)
     const { start, end } = this.cursor
     const startOffset = start.offset
     const endOffset = end.offset
-    let newBlock
+    const newBlock = this.createBlockLi(newText)
+    newBlock.listItemType = type
 
-    if ((preSibling && preSibling.type === wrapperTag) && (nextSibling && nextSibling.type === wrapperTag)) {
-      newBlock = this.createBlockLi(newText)
+    if (preSibling && preSibling.listType === type && nextSibling && nextSibling.listType === type) {
       this.appendChild(preSibling, newBlock)
       const partChildren = nextSibling.children.splice(0)
       partChildren.forEach(b => this.appendChild(preSibling, b))
       this.removeBlock(nextSibling)
       this.removeBlock(block)
     } else if (preSibling && preSibling.type === wrapperTag) {
-      newBlock = this.createBlockLi(newText)
       this.appendChild(preSibling, newBlock)
 
       this.removeBlock(block)
-    } else if (nextSibling && nextSibling.type === wrapperTag) {
-      newBlock = this.createBlockLi(newText)
+    } else if (nextSibling && nextSibling.listType === type) {
       this.insertBefore(newBlock, nextSibling.children[0])
 
       this.removeBlock(block)
-    } else if (parent && parent.type === wrapperTag) {
-      newBlock = this.createBlockLi(newText)
+    } else if (parent && parent.listType === type) {
       this.insertBefore(newBlock, block)
 
       this.removeBlock(block)
     } else {
       block.type = wrapperTag
+      block.listType = type // `bullet` or `order`
       block.text = ''
       if (wrapperTag === 'ol') {
         const start = marker.split('.')[0]
         block.start = start
       }
-      newBlock = this.createBlockLi(newText)
       this.appendChild(block, newBlock)
     }
 

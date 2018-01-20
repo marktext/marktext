@@ -122,7 +122,7 @@ class ExportMarkdown {
 
     if (listInfo.type === 'ul') {
       itemMarker = '- '
-      if (block.isTask) {
+      if (block.listItemType === 'task') {
         const firstChild = children[0]
         itemMarker += firstChild.checked ? '[x] ' : '[ ] '
         children = children.slice(1)

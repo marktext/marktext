@@ -17,7 +17,7 @@ const backspaceCtrl = ContentState => {
 
     if (
       (parent && parent.type === 'li' && inLeft === 0 && this.isFirstChild(block)) ||
-      (parent && parent.type === 'li' && inLeft === 0 && parent.isTask && preBlock.type === 'input') // handle task item
+      (parent && parent.type === 'li' && inLeft === 0 && parent.listItemType === 'task' && preBlock.type === 'input') // handle task item
     ) {
       if (this.isOnlyChild(parent)) {
         /**

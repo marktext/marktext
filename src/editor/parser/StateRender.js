@@ -66,12 +66,40 @@ class StateRender {
       }
 
       if (block.children.length) {
+        if (/ul|ol/.test(block.type) && block.listType) {
+          switch (block.listType) {
+            case 'order':
+              blockSelector += `.${CLASS_OR_ID['AG_ORDER_LIST']}`
+              break
+            case 'bullet':
+              blockSelector += `.${CLASS_OR_ID['AG_BULLET_LIST']}`
+              break
+            case 'task':
+              blockSelector += `.${CLASS_OR_ID['AG_TASK_LIST']}`
+              break
+            default:
+              break
+          }
+        }
+        if (block.type === 'li' && block.listItemType) {
+          switch (block.listItemType) {
+            case 'order':
+              blockSelector += `.${CLASS_OR_ID['AG_ORDER_LIST_ITEM']}`
+              break
+            case 'bullet':
+              blockSelector += `.${CLASS_OR_ID['AG_BULLET_LIST_ITEM']}`
+              break
+            case 'task':
+              blockSelector += `.${CLASS_OR_ID['AG_TASK_LIST_ITEM']}`
+              break
+            default:
+              break
+          }
+        }
         if (block.type === 'ol') {
           Object.assign(data.attrs, { start: block.start })
         }
-        if (block.type === 'li' && block.isTask) {
-          blockSelector += `.${CLASS_OR_ID['AG_TASK_LIST_ITEM']}`
-        }
+
         return h(blockSelector, data, block.children.map(child => renderBlock(child)))
       } else {
         let children = block.text

@@ -27,7 +27,7 @@ const enterCtrl = ContentState => {
     const paragraphInListItem = this.createBlock('p', text)
     const checkboxInListItem = this.createBlock('input')
 
-    listItem.isTask = true
+    listItem.listItemType = 'task'
     checkboxInListItem.checked = checked
     this.appendChild(listItem, checkboxInListItem)
     this.appendChild(listItem, paragraphInListItem)
@@ -96,7 +96,7 @@ const enterCtrl = ContentState => {
     event.preventDefault()
     if (
       (parent && parent.type === 'li' && this.isOnlyChild(block)) ||
-      (parent && parent.type === 'li' && parent.isTask && parent.children.length === 2) // one `input` and one `p`
+      (parent && parent.type === 'li' && parent.listItemType === 'task' && parent.children.length === 2) // one `input` and one `p`
     ) {
       block = parent
       parent = this.getParent(block)
@@ -106,6 +106,7 @@ const enterCtrl = ContentState => {
 
     let type
     let newBlock
+
     switch (true) {
       case left !== 0 && right !== 0: // cursor in the middle
         type = preType
@@ -118,13 +119,14 @@ const enterCtrl = ContentState => {
 
         if (type === 'li') {
           // handle task item
-          if (block.isTask) {
+          if (block.listItemType === 'task') {
             const { checked } = block.children[0] // block.children[0] is input[type=checkbox]
             block.children[1].text = pre // block.children[1] is p
             newBlock = this.createTaskItemBlock(post, checked)
           } else {
             block.children[0].text = pre
             newBlock = this.createBlockLi(post)
+            newBlock.listItemType = block.listItemType
           }
         } else {
           block.text = pre
@@ -150,11 +152,12 @@ const enterCtrl = ContentState => {
 
           this.removeBlock(block)
         } else if (parent && parent.type === 'li') {
-          if (parent.isTask) {
+          if (parent.listItemType === 'task') {
             const { checked } = parent.children[0]
             newBlock = this.createTaskItemBlock('', checked)
           } else {
             newBlock = this.createBlockLi()
+            newBlock.listItemType = parent.listItemType
           }
           this.insertAfter(newBlock, parent)
           const index = this.findIndex(parent.children, block)
@@ -176,11 +179,12 @@ const enterCtrl = ContentState => {
       case left !== 0 && right === 0: // cursor at end of paragraph
       case left === 0 && right !== 0: // cursor at begin of paragraph
         if (preType === 'li') {
-          if (block.isTask) {
+          if (block.listItemType === 'task') {
             const { checked } = block.children[0]
             newBlock = this.createTaskItemBlock('', checked)
           } else {
             newBlock = this.createBlockLi()
+            newBlock.listItemType = block.listItemType
           }
         } else {
           newBlock = this.createBlock('p')
@@ -205,7 +209,7 @@ const enterCtrl = ContentState => {
     const cursorBlock = blockNeedFocus ? block : newBlock
     let key
     if (cursorBlock.type === 'li') {
-      if (cursorBlock.isTask) {
+      if (cursorBlock.listItemType === 'task') {
         key = cursorBlock.children[1].key
       } else {
         key = cursorBlock.children[0].key
