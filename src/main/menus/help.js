@@ -21,7 +21,7 @@ export default {
   }, {
     label: 'Changelog',
     click: function () {
-      shell.openExternal('https://github.com/Jocs/aganippe/blob/master/CHANGELOG.md')
+      shell.openExternal('https://github.com/Jocs/aganippe/CHANGELOG.md')
     }
   }, {
     label: 'Markdown syntax',

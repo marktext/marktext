@@ -749,7 +749,23 @@ class Selection {
   }
 
   getCursorRange () {
-    const { anchorNode, anchorOffset, focusNode, focusOffset } = this.doc.getSelection()
+    let { anchorNode, anchorOffset, focusNode, focusOffset } = this.doc.getSelection()
+
+    // when the first paragraph is task list, press ctrl + a, then press backspace will cause bug
+    // use code bellow to fix the bug
+    const findFirstTextNode = anchor => {
+      if (anchor.nodeType === 3) return anchor
+      const children = anchor.childNodes
+      for (const node of children) {
+        if (node.nodeName !== 'INPUT') {
+          return findFirstTextNode(node)
+        }
+      }
+    }
+    if (anchorNode.nodeName === 'LI') {
+      anchorNode = findFirstTextNode(anchorNode)
+    }
+
     let startParagraph = findNearestParagraph(anchorNode)
     let endParagraph = findNearestParagraph(focusNode)
 

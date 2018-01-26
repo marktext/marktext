@@ -75,8 +75,6 @@ const backspaceCtrl = ContentState => {
   ContentState.prototype.backspaceHandler = function (event) {
     const { start, end } = selection.getCursorRange()
     if (start.key !== end.key) {
-      // console.log(JSON.stringify(start, null, 2))
-      // console.log(JSON.stringify(end, null, 2))
       event.preventDefault()
       const startBlock = this.getBlock(start.key)
       const endBlock = this.getBlock(end.key)

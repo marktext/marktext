@@ -222,7 +222,11 @@ const updateCtrl = ContentState => {
   ContentState.prototype.updateState = function (event) {
     const { start, end } = selection.getCursorRange()
     const { start: oldStart, end: oldEnd } = this.cursor
-
+    if (event.type === 'click' && start.key !== end.key) {
+      setTimeout(() => {
+        this.updateState(event)
+      })
+    }
     if (event.type === 'input' && oldStart.key !== oldEnd.key) {
       const startBlock = this.getBlock(oldStart.key)
       const endBlock = this.getBlock(oldEnd.key)
@@ -262,7 +266,6 @@ const updateCtrl = ContentState => {
       }
       return
     }
-
     const key = start.key
     const oldKey = oldStart.key
     const paragraph = document.querySelector(`#${key}`)
@@ -285,7 +288,7 @@ const updateCtrl = ContentState => {
       }
     }
 
-    if (block.type === 'pre') {
+    if (block && block.type === 'pre') {
       if (block.key !== oldKey) {
         this.cursor = { start, end }
         this.render()
@@ -293,7 +296,7 @@ const updateCtrl = ContentState => {
       return
     }
 
-    if (block.text !== text) {
+    if (block && block.text !== text) {
       block.text = text
     }
 
