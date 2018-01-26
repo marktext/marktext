@@ -20,11 +20,17 @@ h6.ag-active::before {
   transform: scale(.7);
   font-weight: 100;
 }
+
 a {
   pointer-events: none;
 }
 
-li > h1, li > h2, li > h3, li > h4, li > h5, li > h6 {
+li > h1,
+li > h2,
+li > h3,
+li > h4,
+li > h5,
+li > h6 {
   display: initial;
 }
 

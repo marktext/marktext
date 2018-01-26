@@ -9,6 +9,7 @@ import Emoji, { checkEditEmoji, setInlineEmoji } from './emojis'
 import floatBox from './floatBox'
 import { findNearestParagraph, operateClassName } from './utils/domManipulate'
 import ExportMarkdown from './utils/exportMarkdown'
+import ExportStyledHTML from './utils/exportStyledHTML'
 
 class Aganippe {
   constructor (container, options) {
@@ -314,6 +315,12 @@ class Aganippe {
   getMarkdown () {
     const blocks = this.contentState.getBlocks()
     return new ExportMarkdown(blocks).generate()
+  }
+
+  async exportStyledHTML () {
+    const html = await new ExportStyledHTML().generate()
+    console.log(html)
+    return html
   }
 
   getWordCount () {

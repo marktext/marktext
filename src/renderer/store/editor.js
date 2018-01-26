@@ -87,6 +87,9 @@ const actions = {
   EDITE_FILE ({ commit }) {
     commit('SET_STATUS', false)
   },
+  EXPORT ({ commit }, { type, content }) {
+    ipcRenderer.send('AGANI::response-export', { type, content })
+  },
   SAVE_FILE ({ commit, state }, { markdown, wordCount }) {
     commit('SET_MARKDOWN', markdown)
     commit('SET_WORD_COUNT', wordCount)
@@ -97,6 +100,11 @@ const actions = {
     } else {
       commit('SET_STATUS', false)
     }
+  },
+  LISTEN_FOR_EXPORT ({ commit }) {
+    ipcRenderer.on('AGANI::export', (e, { type }) => {
+      bus.$emit('export', type)
+    })
   },
   LISTEN_FOR_UNDO_REDO ({ commit }) {
     ipcRenderer.on('AGANI::undo', e => {

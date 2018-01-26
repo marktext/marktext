@@ -6,6 +6,7 @@
 - [ ] codeBlock 在 list item 中时，list style 问题。
 - [ ] 在通过 Aganippe 打开文件时，无法通过右键选择 Aganippe。（严重 bug）
 - [ ] 在通过 Aganippe 打开文件时，通过右键选择软件，但是打开无内容。（严重 bug）
+- [ ] export html: (1) task list 不可点击 （2）code block 太长
 
 **菜单**
 

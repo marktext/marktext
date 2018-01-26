@@ -24,13 +24,14 @@ const watchAndReload = (pathname, win) => { // when i build, and failed.
   // })
 }
 
-const writeFile = (pathname, markdown, win, e) => {
+const writeFile = (pathname, content, extension, win, e) => {
   if (pathname) {
-    pathname = pathname.endsWith('.md') ? pathname : `${pathname}.md`
+    pathname = pathname.endsWith(extension) ? pathname : `${pathname}${extension}`
     const filename = path.basename(pathname)
-    fs.writeFile(pathname, markdown, 'utf-8', err => {
+    fs.writeFile(pathname, content, 'utf-8', err => {
       if (err) return console.log('save as file failed')
-      e.sender.send('AGANI::set-pathname', { pathname, filename })
+      // not export
+      if (extension === '.md') e.sender.send('AGANI::set-pathname', { pathname, filename })
     })
     watchAndReload(pathname, win)
   }
@@ -45,6 +46,19 @@ const forceClose = win => {
     app.quit()
   }
 }
+const handleResponseForExport = (e, { type, content }) => {
+  const win = BrowserWindow.fromWebContents(e.sender)
+  let defaultPath = ''
+  switch (type) {
+    case 'styledHtml':
+      defaultPath = `~/Untitled.html`
+      break
+  }
+  const filePath = dialog.showSaveDialog(win, {
+    defaultPath
+  })
+  writeFile(filePath, content, '.html', win, e)
+}
 
 const handleResponseForSave = (e, { markdown, pathname }) => {
   const win = BrowserWindow.fromWebContents(e.sender)
@@ -53,10 +67,10 @@ const handleResponseForSave = (e, { markdown, pathname }) => {
       if (err) console.log('save file failed')
     })
   } else {
-    let filePath = dialog.showSaveDialog(win, {
+    const filePath = dialog.showSaveDialog(win, {
       defaultPath: '~/Untitled.md'
     })
-    writeFile(filePath, markdown, win, e)
+    writeFile(filePath, markdown, '.md', win, e)
   }
 }
 
@@ -93,11 +107,16 @@ ipcMain.on('AGANI::response-close-confirm', (e, { filename, pathname, markdown }
 })
 
 ipcMain.on('AGANI::response-file-save', handleResponseForSave)
+ipcMain.on('AGANI::response-export', handleResponseForExport)
 
 ipcMain.on('AGANI::close-window', e => {
   const win = BrowserWindow.fromWebContents(e.sender)
   forceClose(win)
 })
+
+export const exportStyledHTML = win => {
+  win.webContents.send('AGANI::export', { type: 'styledHtml' })
+}
 
 export const open = win => {
   const filename = dialog.showOpenDialog(win, {

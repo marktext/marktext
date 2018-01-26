@@ -92,6 +92,33 @@ export const codeMirrorConfig = {
   }
 }
 
+export const DAED_REMOVE_SELECTOR = new Set([
+  '.ag-image-marked-text::before',
+  '.ag-image-marked-text.ag-image-fail::before',
+  '.ag-hide',
+  '.ag-gray',
+  '.ag-warn'
+])
+
+export const htmlBeautifyConfig = {
+  'indent_size': 4,
+  'html': {
+    'end_with_newline': true,
+    'js': {
+      'indent_size': 2
+    },
+    'css': {
+      'indent_size': 2
+    }
+  },
+  'css': {
+    'indent_size': 1
+  },
+  'js': {
+    'preserve-newlines': true
+  }
+}
+
 export const turndownConfig = {
   headingStyle: 'atx',
   bulletListMarker: '*',

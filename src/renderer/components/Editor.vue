@@ -22,6 +22,7 @@
         bus.$on('file-loaded', this.handleFileLoaded)
         bus.$on('undo', () => this.editor.undo())
         bus.$on('redo', () => this.editor.redo())
+        bus.$on('export', this.handleExport)
 
         this.editor.on('change', (markdown, wordCount) => {
           this.$store.dispatch('SAVE_FILE', { markdown, wordCount })
@@ -29,12 +30,22 @@
       })
     },
     methods: {
+      async handleExport (type) {
+        switch (type) {
+          case 'styledHtml': {
+            const content = await this.editor.exportStyledHTML()
+            this.$store.dispatch('EXPORT', { type, content })
+            break
+          }
+        }
+      },
       handleFileLoaded (file) {
         this.editor && this.editor.setMarkdown(file)
       }
     },
     beforeDestroy () {
       bus.$off('file-loaded', this.handleFileLoaded)
+      bus.$off('export-styled-html', this.handleExport('styledHtml'))
       this.editor = null
     }
   }

@@ -140,6 +140,17 @@ export const loadImage = url => {
   })
 }
 
+export const collectImportantComments = css => {
+  const once = new Set()
+  const cleaned = css.replace(/(\/\*![\s\S]*?\*\/)\n*/gm, (match, p1) => {
+    once.add(p1)
+    return ''
+  })
+  const combined = Array.from(once)
+  combined.push(cleaned)
+  return combined.join('\n')
+}
+
 export const getImageSrc = src => {
   const EXT_REG = /\.(jpeg|jpg|png|gif|svg|webp)(?=\?|$)/i
   const HTTP_REG = /^http(s)?:/

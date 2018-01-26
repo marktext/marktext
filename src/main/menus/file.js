@@ -5,13 +5,13 @@ export default {
   submenu: [{
     label: 'New File',
     accelerator: 'CmdOrCtrl+N',
-    click: (menuItem, browserWindow) => {
+    click (menuItem, browserWindow) {
       actions.newFile()
     }
   }, {
     label: 'Open...',
     accelerator: 'CmdOrCtrl+O',
-    click: (menuItem, browserWindow) => {
+    click (menuItem, browserWindow) {
       actions.open(browserWindow)
     }
   }, {
@@ -19,23 +19,28 @@ export default {
   }, {
     label: 'Save',
     accelerator: 'CmdOrCtrl+S',
-    click: (menuItem, browserWindow) => {
+    click (menuItem, browserWindow) {
       actions.save(browserWindow)
     }
   }, {
     label: 'Save As...',
     accelerator: 'Shift+CmdOrCtrl+S',
-    click: (menuItem, browserWindow) => {
+    click (menuItem, browserWindow) {
       actions.saveAs(browserWindow)
     }
   }, {
     type: 'separator'
   }, {
-    label: 'Export As HTML',
-    click: function () {}
-  }, {
-    label: 'Export As PDF',
-    click: function () {}
+    label: 'Export',
+    submenu: [{
+      label: 'Export Styled HTML',
+      click (menuItem, browserWindow) {
+        actions.exportStyledHTML(browserWindow)
+      }
+    }, {
+      label: 'Export As PDF',
+      click: function () {}
+    }]
   }, {
     type: 'separator'
   }, {
