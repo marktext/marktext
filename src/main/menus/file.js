@@ -35,11 +35,13 @@ export default {
     submenu: [{
       label: 'Export Styled HTML',
       click (menuItem, browserWindow) {
-        actions.exportStyledHTML(browserWindow)
+        actions.exportHTML(browserWindow, true)
       }
     }, {
-      label: 'Export As PDF',
-      click: function () {}
+      label: 'Export HTML',
+      click (menuItem, browserWindow) {
+        actions.exportHTML(browserWindow, false)
+      }
     }]
   }, {
     type: 'separator'

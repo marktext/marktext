@@ -10,6 +10,7 @@ import floatBox from './floatBox'
 import { findNearestParagraph, operateClassName } from './utils/domManipulate'
 import ExportMarkdown from './utils/exportMarkdown'
 import ExportStyledHTML from './utils/exportStyledHTML'
+import exportHtml from './utils/exportUnstylishHtml'
 
 class Aganippe {
   constructor (container, options) {
@@ -321,6 +322,12 @@ class Aganippe {
     const html = await new ExportStyledHTML().generate()
     console.log(html)
     return html
+  }
+
+  exportUnstylishHtml () {
+    const blocks = this.contentState.getBlocks()
+    const markdown = new ExportMarkdown(blocks).generate()
+    return exportHtml(markdown)
   }
 
   getWordCount () {

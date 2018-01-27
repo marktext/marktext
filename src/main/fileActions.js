@@ -50,7 +50,8 @@ const handleResponseForExport = (e, { type, content }) => {
   const win = BrowserWindow.fromWebContents(e.sender)
   let defaultPath = ''
   switch (type) {
-    case 'styledHtml':
+    case 'styledHtml': // html with style
+    case 'html': // html without style
       defaultPath = `~/Untitled.html`
       break
   }
@@ -114,8 +115,8 @@ ipcMain.on('AGANI::close-window', e => {
   forceClose(win)
 })
 
-export const exportStyledHTML = win => {
-  win.webContents.send('AGANI::export', { type: 'styledHtml' })
+export const exportHTML = (win, withStyle) => {
+  win.webContents.send('AGANI::export', { type: withStyle ? 'styledHtml' : 'html' })
 }
 
 export const open = win => {

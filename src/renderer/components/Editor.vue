@@ -37,6 +37,12 @@
             this.$store.dispatch('EXPORT', { type, content })
             break
           }
+
+          case 'html': {
+            const content = this.editor.exportUnstylishHtml()
+            this.$store.dispatch('EXPORT', { type, content })
+            break
+          }
         }
       },
       handleFileLoaded (file) {

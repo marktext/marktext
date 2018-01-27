@@ -1,11 +1,11 @@
 import axios from 'axios'
 import cheerio from 'cheerio'
-import beautify from 'js-beautify'
+// import beautify from 'js-beautify'
 import { parse, toPlainObject, fromPlainObject, generate } from 'css-tree'
-import { CLASS_OR_ID, htmlBeautifyConfig, DAED_REMOVE_SELECTOR } from '../config'
+import { CLASS_OR_ID, DAED_REMOVE_SELECTOR } from '../config'
 import { collectImportantComments } from './index'
 
-const { html_beautify: htmlBeautify } = beautify
+// const { html_beautify: htmlBeautify } = beautify
 
 class ExportHTML {
   async generate () {
@@ -24,8 +24,8 @@ class ExportHTML {
         ${html}
       </body>
     </html>`
-
-    return htmlBeautify(outputHtml, htmlBeautifyConfig)
+    return outputHtml
+    // return htmlBeautify(outputHtml, htmlBeautifyConfig)
   }
   async getStyle () {
     const links = Array.from(document.querySelectorAll('link'))
@@ -126,7 +126,7 @@ class ExportHTML {
     const rawHTML = document.querySelector(`#${CLASS_OR_ID['AG_EDITOR_ID']}`).outerHTML
     const $ = cheerio.load(rawHTML)
 
-    $(`.${CLASS_OR_ID['AG_REMOVE']}, .${CLASS_OR_ID['AG_EMOJI_MARKER']}`).remove()
+    $(`.${CLASS_OR_ID['AG_REMOVE']}, .${CLASS_OR_ID['AG_EMOJI_MARKER']}, .CodeMirror-cursors`).remove()
 
     const emojis = $(`span.${CLASS_OR_ID['AG_EMOJI_MARKED_TEXT']}`)
     if (emojis.length > 0) {
@@ -135,6 +135,14 @@ class ExportHTML {
         const emoji = emojiElement.attr('data-emoji')
 
         emojiElement.text(emoji)
+      })
+    }
+
+    const checkboxs = $(`input.${CLASS_OR_ID['AG_TASK_LIST_ITEM_CHECKBOX']}`)
+    if (checkboxs.length) {
+      checkboxs.each((i, c) => {
+        const checkbox = $(c)
+        checkbox.attr('disabled', true)
       })
     }
 
