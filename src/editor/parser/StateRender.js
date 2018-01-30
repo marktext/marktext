@@ -348,7 +348,7 @@ class StateRender {
   ['auto_link'] (h, cursor, block, token, outerClass) {
     return [
       h('a', {
-        porps: {
+        props: {
           href: token.href
         }
       }, token.href)

@@ -6,7 +6,7 @@
 - [ ] codeBlock 在 list item 中时，list style 问题。
 - [ ] 在通过 Aganippe 打开文件时，无法通过右键选择 Aganippe。（严重 bug）
 - [ ] 在通过 Aganippe 打开文件时，通过右键选择软件，但是打开无内容。（严重 bug）
-- [ ] export html: (3) keyframe 和 font-face 以及 bar-top 的样式都可以删除。(4) 打包后的应用 axios 获取样式有问题。
+- [ ] export html: (3) keyframe 和 font-face 以及 bar-top 的样式都可以删除。(4) 打包后的应用 axios 获取样式有问题。(5) 输出的 html 中 a 标签无法点击
 
 **菜单**
 
@@ -28,7 +28,7 @@
 
   - [ ] Move To
 
-  - [ ] Export(PDF | HTML with style | HTML)
+  - [x] Export(PDF | HTML with style | HTML)
 
 - - [x] Undo
 
@@ -149,4 +149,34 @@ _   底线
 
 - [x] [search and add emoji](https://www.webpagefx.com/tools/emoji-cheat-sheet/)
 
-- [ ] 表格支持。
+**表格功能**
+
+* [ ] 输入`|xxx|xxx|`回车或其他失去 active 的操作生成2 * 2 表格。如果是回车，p （1， 1）自动获取光标。
+
+      block 类型包括 table、thead、tr、th、tbody、td
+
+* [ ] 处理表格内部的 enter、cmd + enter、backspace 键。
+
+      enter 光标跳转到下一行第一个cell。如果已经是最后一行，光标跳转到下一的段落。
+
+      backspace 默认功能，如果是第一行第一个 cell，并且 table 没有内容。那么执行删除 cell
+
+      cmd + enter在当前行下创建一新行
+
+* [ ] tool bar
+
+      设置多少行多少列
+
+      设置每列对齐方式
+
+      删除整个 table
+
+* [ ] tbody 中可以通过拖拽交换行
+
+      每行末有删除符号，可以删除行
+
+* [ ] 支持通过菜单插入表格
+
+* [ ] 表格的输入、输出
+
+* [ ] 表格的复制黏贴
