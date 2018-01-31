@@ -7,7 +7,7 @@ import {
 import { findNearestParagraph } from '../utils/domManipulate'
 import selection from '../selection'
 
-const HAS_TEXT_BLOCK_REG = /^[hp]{1}/
+const HAS_TEXT_BLOCK_REG = /^(h\d|p|th|td)/
 
 const arrowCtrl = ContentState => {
   ContentState.prototype.firstInDescendant = function (block) {

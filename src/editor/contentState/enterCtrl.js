@@ -94,6 +94,34 @@ const enterCtrl = ContentState => {
       return
     }
     event.preventDefault()
+
+    const getNextBlock = row => {
+      let nextSibling = this.getBlock(row.nextSibling)
+      if (!nextSibling) {
+        const rowContainer = this.getBlock(row.parent)
+        const table = this.getBlock(rowContainer.parent)
+        if (rowContainer.type === 'thead') {
+          nextSibling = table.children[1]
+        } else if (table.nextSibling) {
+          nextSibling = this.getBlock(table.nextSibling)
+        } else {
+          nextSibling = this.createBlock('p')
+          this.insertAfter(nextSibling, table)
+        }
+        return this.firstInDescendant(nextSibling)
+      }
+    }
+    if (/th|td/.test(block.type)) {
+      const row = this.getBlock(block.parent)
+      const nextSibling = getNextBlock(row)
+      const key = nextSibling.key
+      const offset = 0
+      this.cursor = {
+        start: { key, offset },
+        end: { key, offset }
+      }
+      return this.render()
+    }
     if (
       (parent && parent.type === 'li' && this.isOnlyChild(block)) ||
       (parent && parent.type === 'li' && parent.listItemType === 'task' && parent.children.length === 2) // one `input` and one `p`

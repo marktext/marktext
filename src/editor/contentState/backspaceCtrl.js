@@ -179,18 +179,28 @@ const backspaceCtrl = ContentState => {
         offset = preBlock.text.length
       } else if (parent) {
         const preRow = getPreRow(parent)
+
         if (preRow) {
           if (preRow.type === 'tr') {
             const lastCell = preRow.children[preRow.children.length - 1]
             key = lastCell.key
             offset = lastCell.text.length
           } else {
-            key = preRow.key
-            offset = preRow.text.length
             const tHead = this.getBlock(parent.parent)
             const table = this.getBlock(tHead.parent)
             const hasContent = tableHasContent(table)
-            if (!hasContent) this.removeBlock(table)
+            // if the table is empty change the table to a `p` paragraph
+            // else set the cursor to the pre block
+            if (!hasContent) {
+              table.children = []
+              table.text = ''
+              table.type = 'p'
+              key = table.key
+              offset = 0
+            } else {
+              key = preRow.key
+              offset = preRow.text.length
+            }
           }
         }
       }
