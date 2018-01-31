@@ -6,6 +6,7 @@ import updateCtrl from './updateCtrl'
 import garbageCtrl from './garbageCtrl'
 import backspaceCtrl from './backspaceCtrl'
 import codeBlockCtrl from './codeBlockCtrl'
+import tableBlockCtrl from './tableBlockCtrl'
 import History from './history'
 import historyCtrl from './historyCtrl'
 import arrowCtrl from './arrowCtrl'
@@ -23,6 +24,7 @@ const prototypes = [
   arrowCtrl,
   pasteCtrl,
   copyCutCtrl,
+  tableBlockCtrl,
   importMarkdown
 ]
 

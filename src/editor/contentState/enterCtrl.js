@@ -206,7 +206,20 @@ const enterCtrl = ContentState => {
     this.codeBlockUpdate(newBlock.type === 'li' ? newBlock.children[0] : newBlock)
     // If block is pre block when updated, need to focus it.
     const blockNeedFocus = this.codeBlockUpdate(block.type === 'li' ? block.children[0] : block)
-    const cursorBlock = blockNeedFocus ? block : newBlock
+    let tableNeedFocus = false
+    let cursorBlock
+    if (!blockNeedFocus) {
+      tableNeedFocus = this.tableBlockUpdate(block.type === 'li' ? block.children[0] : block)
+    }
+
+    if (blockNeedFocus) {
+      cursorBlock = block
+    } else if (tableNeedFocus) {
+      cursorBlock = tableNeedFocus
+    } else {
+      cursorBlock = newBlock
+    }
+
     let key
     if (cursorBlock.type === 'li') {
       if (cursorBlock.listItemType === 'task') {

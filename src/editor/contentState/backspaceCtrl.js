@@ -112,6 +112,31 @@ const backspaceCtrl = ContentState => {
     const { left } = selection.getCaretOffsets(paragraph)
     const inlineDegrade = this.checkBackspaceCase()
 
+    const getPreRow = row => {
+      const preSibling = this.getBlock(row.preSibling)
+      if (preSibling) {
+        return preSibling
+      } else {
+        const rowParent = this.getBlock(row.parent)
+        if (rowParent.type === 'tbody') {
+          const tHead = this.getBlock(rowParent.preSibling)
+          return tHead.children[0]
+        } else {
+          const table = this.getBlock(rowParent.parent)
+          const tablePreSibling = this.getBlock(table.preSibling)
+          return tablePreSibling ? this.lastInDescendant(tablePreSibling) : false
+        }
+      }
+    }
+
+    const tableHasContent = table => {
+      const tHead = table.children[0]
+      const tBody = table.children[1]
+      const tHeadHasContent = tHead.children[0].children.some(th => th.text.trim())
+      const tBodyHasContent = tBody.children.some(row => row.children.some(td => td.text.trim()))
+      return tHeadHasContent || tBodyHasContent
+    }
+
     if (block.type === 'pre') {
       const cm = this.codeBlocks.get(id)
       // if event.preventDefault(), U can not use backspace in language input.
@@ -145,6 +170,37 @@ const backspaceCtrl = ContentState => {
       cm.setValue(value)
       this.removeBlock(block)
       setCursorAtLastLine(cm)
+    } else if (left === 0 && /th|td/.test(block.type)) {
+      event.preventDefault()
+      let key
+      let offset
+      if (preBlock) {
+        key = preBlock.key
+        offset = preBlock.text.length
+      } else if (parent) {
+        const preRow = getPreRow(parent)
+        if (preRow) {
+          if (preRow.type === 'tr') {
+            const lastCell = preRow.children[preRow.children.length - 1]
+            key = lastCell.key
+            offset = lastCell.text.length
+          } else {
+            key = preRow.key
+            offset = preRow.text.length
+            const tHead = this.getBlock(parent.parent)
+            const table = this.getBlock(tHead.parent)
+            const hasContent = tableHasContent(table)
+            if (!hasContent) this.removeBlock(table)
+          }
+        }
+      }
+      if (key !== undefined && offset !== undefined) {
+        this.cursor = {
+          start: { key, offset },
+          end: { key, offset }
+        }
+        this.render()
+      }
     } else if (inlineDegrade) {
       event.preventDefault()
       switch (inlineDegrade.type) {
@@ -195,9 +251,7 @@ const backspaceCtrl = ContentState => {
           break
       }
       this.cursor = selection.getCursorRange()
-      console.log(JSON.stringify(this.cursor, null, 2))
       if (inlineDegrade.type !== 'STOP') {
-        console.log(JSON.stringify(this.blocks, null, 2))
         this.render()
       }
     } else if (left === 0) {

@@ -29,6 +29,7 @@ const updateCtrl = ContentState => {
   }
 
   ContentState.prototype.checkInlineUpdate = function (block) {
+    if (/th|td/.test(block.type)) return false
     const { text } = block
     const parent = this.getParent(block)
     const [match, bullet, tasklist, order, header, blockquote, hr] = text.match(INLINE_UPDATE_REG) || []

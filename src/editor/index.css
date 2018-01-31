@@ -21,6 +21,12 @@ h6.ag-active::before {
   font-weight: 100;
 }
 
+table {
+  width: 100%;
+  border-collapse: collapse;
+  border: 1px solid #ebeef5;
+}
+
 a {
   pointer-events: none;
 }
