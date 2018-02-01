@@ -7,6 +7,7 @@
 - [ ] 在通过 Aganippe 打开文件时，无法通过右键选择 Aganippe。（严重 bug）
 - [ ] 在通过 Aganippe 打开文件时，通过右键选择软件，但是打开无内容。（严重 bug）
 - [ ] export html: (3) keyframe 和 font-face 以及 bar-top 的样式都可以删除。(4) 打包后的应用 axios 获取样式有问题。(5) 输出的 html 中 a 标签无法点击
+- [ ] table: 1. table 前面不能够点击出现光标。2. 处理 table 内容选中后的backspace， enter 等。
 
 **菜单**
 
@@ -151,11 +152,11 @@ _   底线
 
 **表格功能**
 
-* [ ] 输入`|xxx|xxx|`回车或其他失去 active 的操作生成2 * 2 表格。如果是回车，p （1， 1）自动获取光标。
+* [x] 输入`|xxx|xxx|`回车或其他失去 active 的操作生成2 * 2 表格。如果是回车，p （1， 1）自动获取光标。
 
       block 类型包括 table、thead、tr、th、tbody、td
 
-* [ ] 处理表格内部的 enter、cmd + enter、backspace 键。
+* [x] 处理表格内部的 enter、cmd + enter、backspace 键。
 
       enter 光标跳转到下一行第一个cell。如果已经是最后一行，光标跳转到下一的段落。
 

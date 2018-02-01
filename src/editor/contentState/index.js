@@ -76,9 +76,9 @@ class ContentState {
 
   render () {
     const { blocks, cursor } = this
-    const activeBlockKey = this.getActiveBlockKey()
+    const activeBlocks = this.getActiveBlocks()
 
-    this.stateRender.render(blocks, cursor, activeBlockKey)
+    this.stateRender.render(blocks, cursor, activeBlocks)
     this.setCursor()
     this.pre2CodeMirror()
     console.log('render')
@@ -237,13 +237,15 @@ class ContentState {
     remove(this.blocks, block)
   }
 
-  getActiveBlockKey () {
-    let block = this.getBlock(this.cursor.key)
-    if (!block) return null
-    while (block.parent) {
+  getActiveBlocks () {
+    let result = []
+    let block = this.getBlock(this.cursor.start.key)
+    if (block) result.push(block)
+    while (block && block.parent) {
       block = this.getBlock(block.parent)
+      result.push(block)
     }
-    return block.key
+    return result
   }
 
   getCursorBlock () {

@@ -15,11 +15,15 @@ const enterCtrl = ContentState => {
     this.insertAfter(container, parent)
   }
 
-  ContentState.prototype.createRow = function (columns) {
+  ContentState.prototype.createRow = function (row) {
     const trBlock = this.createBlock('tr')
+    const len = row.children.length
     let i
-    for (i = 0; i < columns; i++) {
+    for (i = 0; i < len; i++) {
       const tdBlock = this.createBlock('td')
+      const preChild = row.children[i]
+      tdBlock.column = i
+      tdBlock.align = preChild.align
       this.appendChild(trBlock, tdBlock)
     }
     return trBlock
@@ -110,13 +114,14 @@ const enterCtrl = ContentState => {
       if (!nextSibling) {
         const rowContainer = this.getBlock(row.parent)
         const table = this.getBlock(rowContainer.parent)
+        const figure = this.getBlock(table.parent)
         if (rowContainer.type === 'thead') {
           nextSibling = table.children[1]
-        } else if (table.nextSibling) {
-          nextSibling = this.getBlock(table.nextSibling)
+        } else if (figure.nextSibling) {
+          nextSibling = this.getBlock(figure.nextSibling)
         } else {
           nextSibling = this.createBlock('p')
-          this.insertAfter(nextSibling, table)
+          this.insertAfter(nextSibling, figure)
         }
       }
       return this.firstInDescendant(nextSibling)
@@ -127,7 +132,7 @@ const enterCtrl = ContentState => {
       const rowContainer = this.getBlock(row.parent)
 
       if (event.metaKey) {
-        const nextRow = this.createRow(row.children.length)
+        const nextRow = this.createRow(row)
         if (rowContainer.type === 'thead') {
           const tBody = this.getBlock(rowContainer.nextSibling)
           this.insertBefore(nextRow, tBody.children[0])

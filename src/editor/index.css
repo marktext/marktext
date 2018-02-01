@@ -21,10 +21,58 @@ h6.ag-active::before {
   font-weight: 100;
 }
 
+figure {
+  padding: 0;
+  margin: 0;
+  margin-top: 18px;
+  position: relative;
+}
+.ag-table-tool-bar {
+  user-select: none;
+  position: absolute;
+  top: -20px;
+  left: 0;
+  display: none;
+}
+.ag-table-tool-bar ul {
+  height: 18px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+}
+.ag-table-tool-bar ul li {
+  box-sizing: border-box;
+  display: flex;
+  width: 18px;
+  height: 18px;
+  padding: 2px;
+  margin-right: 3px;
+  cursor: pointer;
+  border-radius: 3px;
+}
+.ag-table-tool-bar ul li img {
+  width: 14px;
+  height: 14px;
+}
+
+.ag-table-tool-bar ul li.active {
+  background: lightblue;
+}
+
+.ag-table-tool-bar ul li:hover {
+  background: #bbb;
+}
+
+figure.ag-active .ag-table-tool-bar {
+  display: block;
+}
+
 table {
   width: 100%;
   border-collapse: collapse;
   border: 1px solid #ebeef5;
+  margin-top: 0;
 }
 
 a {

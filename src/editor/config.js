@@ -77,7 +77,8 @@ export const CLASS_OR_ID = genUpper2LowerKeyHash([
   'AG_BULLET_LIST_ITEM',
   'AG_TASK_LIST',
   'AG_TASK_LIST_ITEM',
-  'AG_TASK_LIST_ITEM_CHECKBOX'
+  'AG_TASK_LIST_ITEM_CHECKBOX',
+  'AG_TABLE_TOOL_BAR'
 ])
 
 export const codeMirrorConfig = {

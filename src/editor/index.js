@@ -58,6 +58,7 @@ class Aganippe {
     this.dispatchEnter()
     this.dispatchUpdateState()
     this.dispatchCopyCut()
+    this.dispatchTableToolBar()
   }
 
   /**
@@ -269,9 +270,26 @@ class Aganippe {
     eventCenter.attachDOMEvent(container, 'keydown', handler)
   }
 
+  dispatchTableToolBar () {
+    const { container, eventCenter } = this
+    const handler = event => {
+      const target = event.target
+      const parent = target.parentNode
+      if (parent && parent.hasAttribute('data-label')) {
+        const type = parent.getAttribute('data-label')
+        this.contentState.tableToolBarClick(type)
+      }
+    }
+
+    eventCenter.attachDOMEvent(container, 'click', handler)
+  }
+
   dispatchUpdateState () {
     const { container, eventCenter } = this
     const changeHandler = event => {
+      // const target = event.target
+      // const style = getComputedStyle(target)
+      // if (event.type === 'click' && !style.contenteditable) return
       if (!this._isEditChinese || event.type === 'input') {
         this.contentState.updateState(event)
       }

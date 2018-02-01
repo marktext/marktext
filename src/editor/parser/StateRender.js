@@ -49,12 +49,12 @@ class StateRender {
    * [render]: 2 steps:
    * render vdom
    */
-  render (blocks, cursor, activeBlockKey) {
+  render (blocks, cursor, activeBlocks) {
     const selector = `${LOWERCASE_TAGS.div}#${CLASS_OR_ID['AG_EDITOR_ID']}`
 
     const renderBlock = block => {
       const type = block.type === 'hr' ? 'p' : block.type
-      const isActive = block.key === activeBlockKey || block.key === cursor.start.key
+      const isActive = activeBlocks.some(b => b.key === block.key) || block.key === cursor.start.key
 
       let blockSelector = isActive
         ? `${type}#${block.key}.${CLASS_OR_ID['AG_PARAGRAPH']}.${CLASS_OR_ID['AG_ACTIVE']}`
@@ -66,6 +66,10 @@ class StateRender {
       }
 
       if (block.children.length) {
+        if (/div/.test(block.type) && !block.editable) {
+          blockSelector += `.${CLASS_OR_ID['AG_TABLE_TOOL_BAR']}`
+          Object.assign(data.attrs, { contenteditable: 'false' })
+        }
         if (/ul|ol/.test(block.type) && block.listType) {
           switch (block.listType) {
             case 'order':
@@ -80,6 +84,15 @@ class StateRender {
             default:
               break
           }
+        }
+        if (block.type === 'li' && block.label) {
+          const { label } = block
+          const { align } = activeBlocks[0]
+
+          if (align && block.label === align) {
+            blockSelector += '.active'
+          }
+          Object.assign(data.dataset, { label })
         }
         if (block.type === 'li' && block.listItemType) {
           switch (block.listItemType) {
@@ -109,6 +122,18 @@ class StateRender {
           }, [])
           : [ h(LOWERCASE_TAGS.br) ]
 
+        if (/th|td/.test(block.type)) {
+          const { align } = block
+          if (align) {
+            Object.assign(data.attrs, { style: `text-align:${align}` })
+          }
+        }
+
+        if (/img/.test(block.type)) {
+          const { src } = block
+          Object.assign(data.attrs, { src })
+          children = ''
+        }
         if (/^h\d$/.test(block.type)) {
           Object.assign(data.dataset, { head: block.type })
         }
