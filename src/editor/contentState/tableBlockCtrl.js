@@ -4,6 +4,7 @@ import LeftIcon from '../assets/icons/align-left.svg'
 import CenterIcon from '../assets/icons/align-center.svg'
 import RightIcon from '../assets/icons/align-right.svg'
 import DeleteIcon from '../assets/icons/delete.svg'
+import tablePicker from '../tablePicker'
 
 const TABLE_BLOCK_REG = /^\|.*?(\\*)\|.*?(\\*)\|/
 
@@ -98,6 +99,7 @@ const tableBlockCtrl = ContentState => {
       return this.getBlock(rowContainer.parent)
     }
     const table = getTable(block)
+    const figure = this.getBlock(table.parent)
     switch (type) {
       case 'left':
       case 'center':
@@ -112,7 +114,6 @@ const tableBlockCtrl = ContentState => {
         break
       }
       case 'delete': {
-        const figure = this.getBlock(table.parent)
         figure.children = []
         figure.type = 'p'
         figure.text = ''
@@ -124,6 +125,15 @@ const tableBlockCtrl = ContentState => {
         }
         this.render()
         break
+      }
+      case 'table': {
+        const figureKey = figure.key
+        const tableLable = document.querySelector(`#${figureKey} [data-label=table]`)
+        const rect = tableLable.getBoundingClientRect()
+        const left = `${rect.left + rect.width / 2 - 29}px`
+        const top = `${rect.top + rect.height + 8}px`
+        tablePicker.toogle({ row: 3, column: 4 }, { left, top })
+        // tablePicker.status ? tableLable.classList.add('active') : tableLable.classList.remove('active')
       }
     }
   }

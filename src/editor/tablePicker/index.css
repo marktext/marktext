@@ -1,0 +1,94 @@
+.ag-table-picker {
+  position: absolute;
+  font-size: 12px;
+  width: 110px;
+  height: auto;
+  padding: 10px;
+  background: rgb(239, 239, 239);
+  top: 35px;
+  right: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  box-shadow: 0 2px 6px 0 rgba(0,0,0,.1);
+  transition: all .2s ease-out;
+  transform-origin: top;
+  box-sizing: border-box;
+  display: none;
+}
+
+.ag-table-picker.show {
+  display: block;
+}
+
+.ag-table-picker::before {
+  content: '';
+  width: 15px;
+  height: 15px;
+  background: rgb(239, 239, 239);
+  border: 1px solid #ddd;
+  display: inline-block;
+  position: absolute;
+  top: -9px;
+  left: 20px;
+  border-right: none;
+  border-bottom: none;
+  transform: rotate(45deg);
+}
+.ag-table-picker .checker {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 5px;
+}
+.ag-table-picker-row {
+  display: flex;
+}
+.ag-table-picker-cell {
+  width: 14px;
+  height: 14px;
+  box-sizing: border-box;
+  margin-right: 1px;
+  margin-bottom: 1px;
+  border: 1px solid #ccc;
+  cursor: pointer;
+}
+.ag-table-picker-header span {
+  background: #ddd;
+}
+.ag-table-picker-cell.current {
+  background: darkgray;
+}
+.ag-table-picker-header .current {
+  background: #666;
+}
+.ag-table-picker-cell.selected {
+  background: aliceblue;
+}
+.ag-table-picker-header .selected {
+  background: aliceblue;
+}
+.ag-table-picker-cell:last-of-type {
+  margin-right: 0;
+}
+.ag-table-picker .footer {
+  padding-top: 5px;
+  border-top: 1px solid #ccc;
+  text-align: center;
+}
+.ag-table-picker .footer input {
+  text-align: center;
+  border: none;
+  padding: 0;
+  height: 16px;
+  width: 16px;
+}
+.ag-table-picker .footer button {
+  outline: none;
+  cursor: pointer;
+  vertical-align: text-bottom;
+  border-radius: 2px;
+  line-height: 12px;
+  border: none;
+  height: 16px;
+  background: #409eff;
+  color: #fff;
+}

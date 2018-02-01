@@ -11,12 +11,14 @@ import { findNearestParagraph, operateClassName } from './utils/domManipulate'
 import ExportMarkdown from './utils/exportMarkdown'
 import ExportStyledHTML from './utils/exportStyledHTML'
 import exportHtml from './utils/exportUnstylishHtml'
+import tablePicker from './tablePicker'
 
 class Aganippe {
   constructor (container, options) {
     this.container = container
     this.eventCenter = eventCenter
     this.floatBox = floatBox
+    this.tablePicker = tablePicker
     this.contentState = new ContentState()
     this.emoji = new Emoji() // emoji instance: has search(text) clear() methods.
 
@@ -273,9 +275,11 @@ class Aganippe {
   dispatchTableToolBar () {
     const { container, eventCenter } = this
     const handler = event => {
+      event.preventDefault()
       const target = event.target
       const parent = target.parentNode
       if (parent && parent.hasAttribute('data-label')) {
+        event.stopPropagation()
         const type = parent.getAttribute('data-label')
         this.contentState.tableToolBarClick(type)
       }

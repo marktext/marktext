@@ -25,6 +25,8 @@ export const isMetaKey = event => {
   return key === 'Shift' || key === 'Control' || key === 'Alt' || key === 'Meta'
 }
 
+export const noop = () => {}
+
 export const getIdWithoutSet = () => {
   return `${getId()}-${+new Date()}`
 }

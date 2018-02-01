@@ -1,6 +1,7 @@
 import selection from '../selection'
 import { tokenizer } from '../parser/parse'
 import { conflict } from '../utils'
+// import tablePicker from '../tablePicker'
 
 const INLINE_UPDATE_REG = /^([*+-]\s)|^(\[[x\s]{1}\]\s)|^(\d+\.\s)|^(#{1,6})[^#]+|^(>).+|^(\*{3,}|-{3,}|_{3,})/i
 
