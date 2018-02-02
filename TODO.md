@@ -164,7 +164,7 @@ _   底线
 
       cmd + enter在当前行下创建一新行
 
-* [ ] tool bar
+* [x] tool bar
 
       设置多少行多少列
 

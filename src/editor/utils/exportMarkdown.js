@@ -34,6 +34,12 @@ class ExportMarkdown {
           result.push(this.normalizeHeaderText(block, indent))
           break
 
+        case 'figure':
+          this.insertLineBreak(result, indent)
+          const table = block.children[1]
+          result.push(this.normalizeTable(table, indent))
+          break
+
         case 'li':
           this.insertLineBreak(result, indent)
           result.push(this.normalizeListItem(block, indent))
@@ -107,6 +113,58 @@ class ExportMarkdown {
     })
     result.push(indent + '```\n')
     return result.join('')
+  }
+
+  normalizeTable (table, indent) {
+    const result = []
+    const { row, column } = table
+    const tableData = []
+    const tHeader = table.children[0]
+
+    const tBody = table.children[1]
+    tableData.push(tHeader.children[0].children.map(th => th.text.trim()))
+    tBody.children.forEach(bodyRow => {
+      tableData.push(bodyRow.children.map(td => td.text.trim()))
+    })
+
+    const columnWidth = tHeader.children[0].children.map(th => ({ width: 5, align: th.align }))
+    let i
+    let j
+
+    for (i = 0; i <= row; i++) {
+      for (j = 0; j <= column; j++) {
+        columnWidth[j].width = Math.max(columnWidth[j].width, tableData[i][j].length + 2) // add 2, because have two space around text
+      }
+    }
+    tableData.forEach((r, i) => {
+      const rs = indent + '|' + r.map((cell, j) => {
+        const raw = ` ${cell + ' '.repeat(columnWidth[j].width)}`
+        return raw.substring(0, columnWidth[j].width)
+      }).join('|') + '|'
+      result.push(rs)
+      if (i === 0) {
+        const cutOff = indent + '|' + columnWidth.map(({ width, align }) => {
+          let raw = '-'.repeat(width - 2)
+          switch (align) {
+            case 'left':
+              raw = `:${raw} `
+              break
+            case 'center':
+              raw = `:${raw}:`
+              break
+            case 'right':
+              raw = ` ${raw}:`
+              break
+            default:
+              raw = ` ${raw} `
+              break
+          }
+          return raw
+        }).join('|') + '|'
+        result.push(cutOff)
+      }
+    })
+    return result.join('\n') + '\n'
   }
 
   normalizeList (block, indent) {
