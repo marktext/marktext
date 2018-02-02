@@ -7,7 +7,7 @@ class TablePicker {
   constructor (eventCenter) {
     this.eventCenter = eventCenter
     this.status = false
-    this.checker = {
+    this.checkerCount = {
       row: 10,
       column: 6
     }
@@ -20,7 +20,7 @@ class TablePicker {
 
   init () {
     const { eventCenter } = this
-    const { row, column } = this.checker
+    const { row, column } = this.checkerCount
     const container = document.createElement('div')
     container.innerHTML = template
     const checker = container.querySelector('.checker')
@@ -76,7 +76,11 @@ class TablePicker {
     }
   }
 
-  setClassName (row, column, className) {
+  setClassName (rawRow, rawColumn, className) {
+    const { row: MaxRow, column: MaxColumn } = this.checkerCount // not zero base
+    const row = Math.min(rawRow, MaxRow - 1)
+    const column = Math.min(rawColumn, MaxColumn - 1)
+
     let i
     let j
     const rows = document.querySelectorAll('.ag-table-picker-row')
