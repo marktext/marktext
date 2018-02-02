@@ -35,6 +35,9 @@ const tableBlockCtrl = ContentState => {
     const bodyRow = this.createBlock('tr')
     this.appendChild(tHead, headRow)
     this.appendChild(tBody, bodyRow)
+    // set the init table row count and column count. the init value is (1, colLen - 1)
+    table.row = 1 // zero base
+    table.column = colLen - 1 // zero base
     for (i = 0; i < colLen; i++) {
       const headCell = this.createBlock('th', rowHeader[i])
       const bodyCell = this.createBlock('td')
@@ -132,7 +135,63 @@ const tableBlockCtrl = ContentState => {
         const rect = tableLable.getBoundingClientRect()
         const left = `${rect.left + rect.width / 2 - 29}px`
         const top = `${rect.top + rect.height + 8}px`
-        tablePicker.toogle({ row: 3, column: 4 }, { left, top })
+        const { row = 1, column = 1 } = table // zero base
+        const handler = (row, column) => {
+          const { row: oldRow, column: oldColumn } = table
+          const tBody = table.children[1]
+          const tHead = table.children[0]
+          const headerRow = tHead.children[0]
+          const bodyRows = tBody.children
+          let i
+          if (column > oldColumn) {
+            for (i = oldColumn + 1; i <= column; i++) {
+              const th = this.createBlock('th')
+              th.column = i
+              th.align = ''
+              this.appendChild(headerRow, th)
+              bodyRows.forEach(bodyRow => {
+                const td = this.createBlock('td')
+                td.column = i
+                td.align = ''
+                this.appendChild(bodyRow, td)
+              })
+            }
+          } else if (column < oldColumn) {
+            const rows = [headerRow, ...bodyRows]
+            rows.forEach(row => {
+              while (row.children.length > column + 1) {
+                const lastChild = row.children[row.children.length - 1]
+                this.removeBlock(lastChild)
+              }
+            })
+          }
+
+          if (row < oldRow) {
+            while (tBody.children.length > row) {
+              const lastRow = tBody.children[tBody.children.length - 1]
+              this.removeBlock(lastRow)
+            }
+          } else if (row > oldRow) {
+            const oneRowInBody = bodyRows[0]
+            for (i = oldRow + 1; i <= row; i++) {
+              const bodyRow = this.createRow(oneRowInBody)
+              this.appendChild(tBody, bodyRow)
+            }
+          }
+          Object.assign(table, { row, column })
+
+          const cursorBlock = headerRow.children[0]
+          const key = cursorBlock.key
+          const offset = cursorBlock.text.length
+          this.cursor = {
+            start: { key, offset },
+            end: { key, offset }
+          }
+
+          this.render()
+        }
+
+        tablePicker.toogle({ row, column }, { left, top }, handler.bind(this))
         // tablePicker.status ? tableLable.classList.add('active') : tableLable.classList.remove('active')
       }
     }

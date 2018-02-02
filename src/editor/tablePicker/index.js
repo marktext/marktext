@@ -9,7 +9,7 @@ class TablePicker {
     this.status = false
     this.checker = {
       row: 10,
-      coloum: 6
+      column: 6
     }
     this.container = null
     this.cb = noop
@@ -17,9 +17,10 @@ class TablePicker {
     this.handlerHover()
     this.handerClick()
   }
+
   init () {
     const { eventCenter } = this
-    const { row, coloum } = this.checker
+    const { row, column } = this.checker
     const container = document.createElement('div')
     container.innerHTML = template
     const checker = container.querySelector('.checker')
@@ -31,7 +32,7 @@ class TablePicker {
       rowContainer.classList.add('ag-table-picker-row')
       if (i === 0) rowContainer.classList.add('ag-table-picker-header')
       checker.appendChild(rowContainer)
-      for (j = 0; j < coloum; j++) {
+      for (j = 0; j < column; j++) {
         const cell = document.createElement('span')
         cell.classList.add('ag-table-picker-cell')
         cell.setAttribute('data-row', i)
@@ -42,8 +43,11 @@ class TablePicker {
     this.container = container.children[0]
     document.body.appendChild(this.container)
 
+    const rowInput = document.querySelector('.ag-table-picker .row-input')
+    const columnInput = document.querySelector('.ag-table-picker .column-input')
+    Object.assign(this, { rowInput, columnInput, checker })
+
     const handler = event => {
-      console.log('dodod')
       this.hide()
     }
 
@@ -57,19 +61,22 @@ class TablePicker {
   }
 
   toogle ({ row, column }, { left, top }, cb) {
-    const { container, status } = this
+    const { container, status, rowInput, columnInput } = this
     if (status) {
       this.hide()
     } else {
       this.cb = cb
+      this.setClassName(-1, -1, 'selected')
       this.setClassName(row, column, 'current')
+      rowInput.value = row + 1
+      columnInput.value = column + 1
       Object.assign(container.style, { left, top })
       container.classList.add('show')
       this.status = true
     }
   }
 
-  setClassName (row, coloum, className) {
+  setClassName (row, column, className) {
     let i
     let j
     const rows = document.querySelectorAll('.ag-table-picker-row')
@@ -79,36 +86,33 @@ class TablePicker {
     }
     for (i = 0; i < row + 1; i++) {
       const rowContainer = rows[i]
-      for (j = 0; j < coloum + 1; j++) {
+      for (j = 0; j < column + 1; j++) {
         const cell = rowContainer.children[j]
         cell.classList.add(className)
       }
     }
   }
+
   handlerHover () {
-    const { eventCenter } = this
-    const checker = document.querySelector('.ag-table-picker .checker')
-    const rowInput = document.querySelector('.ag-table-picker .row-input')
-    const columnInput = document.querySelector('.ag-table-picker .column-input')
+    const { eventCenter, checker, rowInput, columnInput } = this
     const hander = event => {
       const target = event.target
       if (target.classList.contains('ag-table-picker-cell')) {
         const row = +target.getAttribute('data-row')
-        const coloum = +target.getAttribute('data-column')
-        this.setClassName(row, coloum, 'selected')
+        const column = +target.getAttribute('data-column')
+        this.setClassName(row, column, 'selected')
         rowInput.value = row + 1
-        columnInput.value = coloum + 1
+        columnInput.value = column + 1
       }
     }
     eventCenter.attachDOMEvent(checker, 'mouseover', hander)
   }
 
   handerClick () {
-    const rowInput = document.querySelector('.ag-table-picker .row-input')
-    const columnInput = document.querySelector('.ag-table-picker .column-input')
-    const tablePicker = document.querySelector('.ag-table-picker')
-    const { cb, eventCenter } = this
+    const { rowInput, columnInput, container, eventCenter } = this
+
     const hander = event => {
+      const { cb } = this
       let row
       let column
       event.preventDefault()
@@ -122,13 +126,15 @@ class TablePicker {
         column = +target.getAttribute('data-column')
       }
       if (target.tagName === 'BUTTON' || target.classList.contains('ag-table-picker-cell')) {
+        row = Math.max(row, 1)
+        column = Math.max(column, 1)
         console.log(row, column)
         cb(row, column)
         this.hide()
       }
     }
 
-    eventCenter.attachDOMEvent(tablePicker, 'click', hander)
+    eventCenter.attachDOMEvent(container, 'click', hander)
   }
 }
 

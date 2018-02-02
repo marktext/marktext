@@ -130,6 +130,7 @@ const enterCtrl = ContentState => {
     if (/th|td/.test(block.type)) {
       const row = this.getBlock(block.parent)
       const rowContainer = this.getBlock(row.parent)
+      const table = this.getBlock(rowContainer.parent)
 
       if (event.metaKey) {
         const nextRow = this.createRow(row)
@@ -139,6 +140,7 @@ const enterCtrl = ContentState => {
         } else {
           this.insertAfter(nextRow, row)
         }
+        table.row++
       }
 
       const nextSibling = getNextBlock(row)
