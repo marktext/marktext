@@ -40,6 +40,9 @@ const convertBlocksToArray = blocks => {
   return result
 }
 
+// use to cache the keys which you dont want to remove.
+const exemption = new Set()
+
 class ContentState {
   constructor () {
     this.keys = new Set()
@@ -164,10 +167,61 @@ class ContentState {
     }
   }
 
+  removeTextOrBlock (block) {
+    const checkerIn = block => {
+      if (exemption.has(block.key)) {
+        return true
+      } else {
+        const parent = this.getBlock(block.parent)
+        return parent ? checkerIn(parent) : false
+      }
+    }
+
+    const checkerOut = block => {
+      const children = block.children
+      if (children.length) {
+        if (children.some(child => exemption.has(child.key))) {
+          return true
+        } else {
+          return children.some(child => checkerOut(child))
+        }
+      } else {
+        return false
+      }
+    }
+
+    if (checkerIn(block) || checkerOut(block)) {
+      block.text = ''
+      const { children } = block
+      if (children.length) {
+        children.forEach(child => this.removeTextOrBlock(child))
+      }
+    } else {
+      this.removeBlock(block)
+    }
+  }
+  // help func in removeBlocks
+  findFigure (block) {
+    if (block.type === 'figure') {
+      return block.key
+    } else {
+      const parent = this.getBlock(block.parent)
+      return this.findFigure(parent)
+    }
+  }
+
   /**
    * remove blocks between before and after, and includes after block.
    */
-  removeBlocks (before, after, isRemoveAfter = true) {
+  removeBlocks (before, after, isRemoveAfter = true, isRecursion = false) {
+    if (!isRecursion) {
+      if (/td|th/.test(before.type)) {
+        exemption.add(this.findFigure(before))
+      }
+      if (/td|th/.test(after.type)) {
+        exemption.add(this.findFigure(after))
+      }
+    }
     let nextSibling = this.getBlock(before.nextSibling)
     let beforeEnd = false
     while (nextSibling) {
@@ -175,13 +229,13 @@ class ContentState {
         beforeEnd = true
         break
       }
-      this.removeBlock(nextSibling)
+      this.removeTextOrBlock(nextSibling)
       nextSibling = this.getBlock(nextSibling.nextSibling)
     }
     if (!beforeEnd) {
       const parent = this.getParent(before)
       if (parent) {
-        this.removeBlocks(parent, after, false)
+        this.removeBlocks(parent, after, false, true)
       }
     }
     let preSibling = this.getBlock(after.preSibling)
@@ -191,18 +245,21 @@ class ContentState {
         afterEnd = true
         break
       }
-      this.removeBlock(preSibling)
+      this.removeTextOrBlock(preSibling)
       preSibling = this.getBlock(preSibling.preSibling)
     }
     if (!afterEnd) {
       const parent = this.getParent(after)
       if (parent) {
         const isOnlyChild = this.isOnlyChild(after)
-        this.removeBlocks(before, parent, isOnlyChild)
+        this.removeBlocks(before, parent, isOnlyChild, true)
       }
     }
     if (isRemoveAfter) {
-      this.removeBlock(after)
+      this.removeTextOrBlock(after)
+    }
+    if (!isRecursion) {
+      exemption.clear()
     }
   }
 

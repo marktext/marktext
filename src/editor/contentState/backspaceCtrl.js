@@ -91,7 +91,7 @@ const backspaceCtrl = ContentState => {
 
       startBlock.text = startRemainText + endRemainText
 
-      if (offset === 0) {
+      if (offset === 0 && !(/th|td/.test(startBlock.type))) {
         startBlock.type = 'p'
       }
 
