@@ -9,7 +9,7 @@ import { collectImportantComments } from './index'
 
 class ExportHTML {
   async generate () {
-    const html = this.getHTML()
+    const html = this.getHtml()
     const style = await this.getStyle()
     const outputHtml = `<!DOCTYPE html>
       <html lang="en">
@@ -122,11 +122,16 @@ class ExportHTML {
     return finalCSS
   }
 
-  getHTML () {
+  getHtml () {
     const rawHTML = document.querySelector(`#${CLASS_OR_ID['AG_EDITOR_ID']}`).outerHTML
     const $ = cheerio.load(rawHTML)
-
-    $(`.${CLASS_OR_ID['AG_REMOVE']}, .${CLASS_OR_ID['AG_EMOJI_MARKER']}, .CodeMirror-cursors`).remove()
+    const removeClassNames = [
+      `.${CLASS_OR_ID['AG_REMOVE']}`,
+      `.${CLASS_OR_ID['AG_EMOJI_MARKER']}`,
+      `.${CLASS_OR_ID['AG_TABLE_TOOL_BAR']}`,
+      '.CodeMirror-cursors'
+    ]
+    $(removeClassNames.join(', ')).remove()
 
     const emojis = $(`span.${CLASS_OR_ID['AG_EMOJI_MARKED_TEXT']}`)
     if (emojis.length > 0) {
@@ -138,6 +143,7 @@ class ExportHTML {
       })
     }
 
+    // set checkbox to disabled
     const checkboxs = $(`input.${CLASS_OR_ID['AG_TASK_LIST_ITEM_CHECKBOX']}`)
     if (checkboxs.length) {
       checkboxs.each((i, c) => {
@@ -146,6 +152,7 @@ class ExportHTML {
       })
     }
 
+    // change `data-href` to `href` attribute
     const anchors = $(`a[data-href]`)
     if (anchors.length > 0) {
       anchors.each((i, a) => {

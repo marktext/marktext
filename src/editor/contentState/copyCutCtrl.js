@@ -45,7 +45,7 @@ const copyCutCtrl = ContentState => {
       }
     })
 
-    $(`.${CLASS_OR_ID['AG_REMOVE']}`).remove()
+    $(`.${CLASS_OR_ID['AG_REMOVE']}, .${CLASS_OR_ID['AG_TABLE_TOOL_BAR']}`).remove()
     $(`.${CLASS_OR_ID['AG_EMOJI_MARKER']}`).text(':')
     $(`.${CLASS_OR_ID['AG_NOTEXT_LINK']}`).empty()
     $(`[data-role=hr]`).replaceWith('<hr>')

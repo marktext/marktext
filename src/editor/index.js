@@ -342,7 +342,6 @@ class Aganippe {
 
   async exportStyledHTML () {
     const html = await new ExportStyledHTML().generate()
-    console.log(html)
     return html
   }
 

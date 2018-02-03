@@ -8,6 +8,9 @@
 - [ ] 在通过 Aganippe 打开文件时，通过右键选择软件，但是打开无内容。（严重 bug）
 - [ ] export html: (3) keyframe 和 font-face 以及 bar-top 的样式都可以删除。(4) 打包后的应用 axios 获取样式有问题。(5) 输出的 html 中 a 标签无法点击
 - [ ] table: 1. table 前面不能够点击出现光标。2. 处理 table 内容选中后的backspace， enter 等。
+- [ ] table: 在 cell 中输入汉字，按向下选择时，没法选择汉字。
+- [ ] table: 不支持 table 在 list item 中的语法文件的打开。
+- [ ] table: table: 输出 html 的时候，td 为空的时候，没有输出。
 
 **菜单**
 
@@ -178,6 +181,6 @@ _   底线
 
 * [ ] 支持通过菜单插入表格
 
-* [ ] 表格的输入、输出
+* [x] 表格的输入、输出
 
 * [ ] 表格的复制黏贴

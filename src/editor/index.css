@@ -24,7 +24,7 @@ h6.ag-active::before {
 figure {
   padding: 0;
   margin: 0;
-  margin-top: 18px;
+  margin-top: 25px;
   position: relative;
 }
 .ag-table-tool-bar {
@@ -57,7 +57,7 @@ figure {
 }
 
 .ag-table-tool-bar ul li.active {
-  background: lightblue;
+  background: #aaa;
 }
 
 .ag-table-tool-bar ul li:hover {

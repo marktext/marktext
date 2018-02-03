@@ -422,7 +422,6 @@ Lexer.prototype.token = function(src, top, bq) {
 
     // top-level paragraph
     if (top && (cap = this.rules.paragraph.exec(src))) {
-      console.log(cap)
       src = src.substring(cap[0].length);
       this.tokens.push({
         type: 'paragraph',

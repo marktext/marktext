@@ -144,6 +144,7 @@ class ContentState {
       throw new Error('article need at least has one paragraph')
     }
   }
+
   /**
    * if target is descendant of parent return true, else return false
    * @param  {[type]}  parent [description]
@@ -162,6 +163,7 @@ class ContentState {
       }
     }
   }
+
   /**
    * remove blocks between before and after, and includes after block.
    */
