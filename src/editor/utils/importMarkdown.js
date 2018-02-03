@@ -64,6 +64,17 @@ const importRegister = ContentState => {
       return lang
     }
 
+    const getRowColumnCount = childNodes => {
+      const THEAD_ROW_COUNT = 1
+      const tbodyNode = childNodes.find(child => child.nodeName === 'tbody')
+      const row = tbodyNode.childNodes.filter(child => child.nodeName === 'tr').length + THEAD_ROW_COUNT - 1
+      const column = tbodyNode.childNodes
+        .find(child => child.nodeName === 'tr').childNodes
+        .filter(td => td.nodeName === 'td')
+        .length - 1
+      return { row, column } // zero base
+    }
+
     const travel = (parent, childNodes) => {
       const len = childNodes.length
       let i
@@ -74,6 +85,8 @@ const importRegister = ContentState => {
         let value
 
         switch (child.nodeName) {
+          case 'th':
+          case 'td':
           case 'p':
           case 'h1':
           case 'h2':
@@ -85,7 +98,39 @@ const importRegister = ContentState => {
             const match = /\d/.exec(child.nodeName)
             value = match ? '#'.repeat(+match[0]) + textValue : textValue
             block = this.createBlock(child.nodeName, value)
+            // handle `th` and `td`
+            if (child.nodeName === 'th' || child.nodeName === 'td') {
+              const column = childNodes.filter(child => /th|td/.test(child.nodeName)).indexOf(child)
+              let align = ''
+              const styleAttr = child.attrs.filter(attr => attr.name === 'style')
+              if (styleAttr.length) {
+                const styleValue = styleAttr[0].value
+                if (/text-align/.test(styleValue)) {
+                  align = styleValue.split(':')[1]
+                }
+              }
+              Object.assign(block, { column, align })
+            }
             this.appendChild(parent, block)
+            break
+
+          case 'table':
+            const toolBar = this.createToolBar()
+            const table = this.createBlock('table')
+            Object.assign(table, getRowColumnCount(child.childNodes)) // set row and column
+            block = this.createBlock('figure')
+            this.appendChild(block, toolBar)
+            this.appendChild(block, table)
+            this.appendChild(parent, block)
+            travel(table, child.childNodes)
+            break
+
+          case 'tr':
+          case 'tbody':
+          case 'thead':
+            block = this.createBlock(child.nodeName)
+            this.appendChild(parent, block)
+            travel(block, child.childNodes)
             break
 
           case 'hr':

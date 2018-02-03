@@ -9,6 +9,39 @@ import tablePicker from '../tablePicker'
 const TABLE_BLOCK_REG = /^\|.*?(\\*)\|.*?(\\*)\|/
 
 const tableBlockCtrl = ContentState => {
+  ContentState.prototype.createToolBar = function () {
+    const toolBar = this.createBlock('div')
+    toolBar.editable = false
+    const ul = this.createBlock('ul')
+    const tools = [{
+      label: 'table',
+      icon: TableIcon
+    }, {
+      label: 'left',
+      icon: LeftIcon
+    }, {
+      label: 'center',
+      icon: CenterIcon
+    }, {
+      label: 'right',
+      icon: RightIcon
+    }, {
+      label: 'delete',
+      icon: DeleteIcon
+    }]
+
+    tools.forEach(tool => {
+      const toolBlock = this.createBlock('li')
+      const imgBlock = this.createBlock('img')
+      imgBlock.src = tool.icon
+      toolBlock.label = tool.label
+      this.appendChild(toolBlock, imgBlock)
+      this.appendChild(ul, toolBlock)
+    })
+    this.appendChild(toolBar, ul)
+    return toolBar
+  }
+
   ContentState.prototype.initTable = function (block) {
     const { text } = block
     const rowHeader = []
@@ -53,35 +86,7 @@ const tableBlockCtrl = ContentState => {
     this.appendChild(table, tHead)
     this.appendChild(table, tBody)
 
-    const toolBar = this.createBlock('div')
-    toolBar.editable = false
-    const ul = this.createBlock('ul')
-    const tools = [{
-      label: 'table',
-      icon: TableIcon
-    }, {
-      label: 'left',
-      icon: LeftIcon
-    }, {
-      label: 'center',
-      icon: CenterIcon
-    }, {
-      label: 'right',
-      icon: RightIcon
-    }, {
-      label: 'delete',
-      icon: DeleteIcon
-    }]
-
-    tools.forEach(tool => {
-      const toolBlock = this.createBlock('li')
-      const imgBlock = this.createBlock('img')
-      imgBlock.src = tool.icon
-      toolBlock.label = tool.label
-      this.appendChild(toolBlock, imgBlock)
-      this.appendChild(ul, toolBlock)
-    })
-    this.appendChild(toolBar, ul)
+    const toolBar = this.createToolBar()
 
     block.type = 'figure'
     block.text = ''
