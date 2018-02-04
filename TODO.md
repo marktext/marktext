@@ -11,7 +11,8 @@
 - [ ] table: 在 cell 中输入汉字，按向下选择时，没法选择汉字。
 - [ ] table: 不支持 table 在 list item 中的语法文件的打开。
 - [ ] table: table: 输出 html 的时候，td 为空的时候，没有输出。
-- [ ] table: 如果 table 在 selection 后面，那么删除cell 的时候，会把整个 row 删除了。（小 bug）
+- [ ] table: 如果 table 在 selection 后面，那么删除cell 的时候，会把整个 row 删除了。（小 bug)
+- [ ] table: 刚插入 table 后，菜单没有被 disable。
 
 **菜单**
 

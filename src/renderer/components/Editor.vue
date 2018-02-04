@@ -90,6 +90,7 @@
       handleEditParagraph (type) {
         switch (type) {
           case 'table':
+            this.tableChecker = { rows: 2, columns: 2 }
             this.dialogTableVisible = true
             break
         }
@@ -97,7 +98,6 @@
       handleDialogTableConfirm () {
         this.dialogTableVisible = false
         this.editor && this.editor.createTable(this.tableChecker)
-        this.tableChecker = { rows: 2, columns: 2 }
       },
       handleFileLoaded (file) {
         this.editor && this.editor.setMarkdown(file)

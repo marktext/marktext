@@ -123,8 +123,9 @@ const backspaceCtrl = ContentState => {
           return tHead.children[0]
         } else {
           const table = this.getBlock(rowParent.parent)
-          const tablePreSibling = this.getBlock(table.preSibling)
-          return tablePreSibling ? this.lastInDescendant(tablePreSibling) : false
+          const figure = this.getBlock(table.parent)
+          const figurePreSibling = this.getBlock(figure.preSibling)
+          return figurePreSibling ? this.lastInDescendant(figurePreSibling) : false
         }
       }
     }
@@ -179,6 +180,10 @@ const backspaceCtrl = ContentState => {
         offset = preBlock.text.length
       } else if (parent) {
         const preRow = getPreRow(parent)
+        const tHead = this.getBlock(parent.parent)
+        const table = this.getBlock(tHead.parent)
+        const figure = this.getBlock(table.parent)
+        const hasContent = tableHasContent(table)
 
         if (preRow) {
           if (preRow.type === 'tr') {
@@ -186,21 +191,26 @@ const backspaceCtrl = ContentState => {
             key = lastCell.key
             offset = lastCell.text.length
           } else {
-            const tHead = this.getBlock(parent.parent)
-            const table = this.getBlock(tHead.parent)
-            const hasContent = tableHasContent(table)
             // if the table is empty change the table to a `p` paragraph
             // else set the cursor to the pre block
             if (!hasContent) {
-              table.children = []
-              table.text = ''
-              table.type = 'p'
-              key = table.key
+              figure.children = []
+              figure.text = ''
+              figure.type = 'p'
+              key = figure.key
               offset = 0
             } else {
               key = preRow.key
               offset = preRow.text.length
             }
+          }
+        } else {
+          if (!hasContent) {
+            figure.children = []
+            figure.text = ''
+            figure.type = 'p'
+            key = figure.key
+            offset = 0
           }
         }
       }

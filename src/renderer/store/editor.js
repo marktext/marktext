@@ -102,7 +102,6 @@ const actions = {
     }
   },
   SELECTION_CHANGE ({ commit }, changes) {
-    console.log(changes)
     ipcRenderer.send('AGANI::selection-change', changes)
   },
   LISTEN_FOR_EXPORT ({ commit }) {
