@@ -1,7 +1,7 @@
 'use strict'
 
 import { app, Menu } from 'electron'
-import configureMenu from './configureMenu'
+import configureMenu from './menus'
 import createWindow, { windows } from './createWindow'
 
 /**

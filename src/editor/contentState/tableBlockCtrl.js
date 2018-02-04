@@ -5,6 +5,7 @@ import CenterIcon from '../assets/icons/align-center.svg'
 import RightIcon from '../assets/icons/align-right.svg'
 import DeleteIcon from '../assets/icons/delete.svg'
 import tablePicker from '../tablePicker'
+// import selection from '../selection'
 
 const TABLE_BLOCK_REG = /^\|.*?(\\*)\|.*?(\\*)\|/
 
@@ -42,12 +43,63 @@ const tableBlockCtrl = ContentState => {
     return toolBar
   }
 
+  ContentState.prototype.createTable = function ({ rows, columns }, headerTexts) {
+    const table = this.createBlock('table')
+    const tHead = this.createBlock('thead')
+    const tBody = this.createBlock('tbody')
+
+    this.appendChild(table, tHead)
+    this.appendChild(table, tBody)
+    table.rows = rows - 1
+    table.columns = columns - 1
+    let i
+    let j
+    for (i = 0; i < rows; i++) {
+      const rowBlock = this.createBlock('tr')
+      i === 0 ? this.appendChild(tHead, rowBlock) : this.appendChild(tBody, rowBlock)
+      for (j = 0; j < columns; j++) {
+        const cell = this.createBlock(i === 0 ? 'th' : 'td', headerTexts && i === 0 ? headerTexts[j] : '')
+        this.appendChild(rowBlock, cell)
+        cell.align = ''
+        cell.column = j
+      }
+    }
+    return table
+  }
+
+  ContentState.prototype.createFigure = function ({ rows, columns }) {
+    const { start, end } = this.cursor
+    const toolBar = this.createToolBar()
+    const table = this.createTable({ rows, columns })
+    let figureBlock
+    if (start.key === end.key) {
+      const startBlock = this.getBlock(start.key)
+      if (startBlock.text) {
+        figureBlock = this.createBlock('figure')
+        this.insertAfter(figureBlock, startBlock)
+      } else {
+        figureBlock = startBlock
+        figureBlock.type = 'figure'
+        figureBlock.text = ''
+        figureBlock.children = []
+      }
+      this.appendChild(figureBlock, toolBar)
+      this.appendChild(figureBlock, table)
+    }
+    const key = table.children[0].children[0].children[0].key // fist cell key in thead
+    const offset = 0
+    this.cursor = {
+      start: { key, offset },
+      end: { key, offset }
+    }
+    this.render()
+  }
+
   ContentState.prototype.initTable = function (block) {
     const { text } = block
     const rowHeader = []
     const len = text.length
     let i
-    let result
     for (i = 0; i < len; i++) {
       const char = text[i]
       if (/^[^|]$/.test(char)) {
@@ -60,32 +112,10 @@ const tableBlockCtrl = ContentState => {
         rowHeader.push('')
       }
     }
-    const colLen = rowHeader.length
-    const table = this.createBlock('table')
-    const tHead = this.createBlock('thead')
-    const headRow = this.createBlock('tr')
-    const tBody = this.createBlock('tbody')
-    const bodyRow = this.createBlock('tr')
-    this.appendChild(tHead, headRow)
-    this.appendChild(tBody, bodyRow)
-    // set the init table row count and column count. the init value is (1, colLen - 1)
-    table.row = 1 // zero base
-    table.column = colLen - 1 // zero base
-    for (i = 0; i < colLen; i++) {
-      const headCell = this.createBlock('th', rowHeader[i])
-      const bodyCell = this.createBlock('td')
-      headCell.column = i
-      headCell.align = ''
-      bodyCell.column = i
-      bodyCell.align = ''
+    const columns = rowHeader.length
+    const rows = 2
 
-      this.appendChild(headRow, headCell)
-      this.appendChild(bodyRow, bodyCell)
-      if (i === 0) result = bodyCell
-    }
-    this.appendChild(table, tHead)
-    this.appendChild(table, tBody)
-
+    const table = this.createTable({ rows, columns }, rowHeader)
     const toolBar = this.createToolBar()
 
     block.type = 'figure'
@@ -93,7 +123,7 @@ const tableBlockCtrl = ContentState => {
     block.children = []
     this.appendChild(block, toolBar)
     this.appendChild(block, table)
-    return result
+    return table.children[1].children[0].children[0] // first cell in tbody
   }
 
   ContentState.prototype.tableToolBarClick = function (type) {

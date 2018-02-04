@@ -360,6 +360,10 @@ class Aganippe {
     this.dispatchChange()
   }
 
+  createTable (tableChecker) {
+    this.contentState.createFigure(tableChecker)
+  }
+
   on (event, listener) {
     const { eventCenter } = this
     eventCenter.subscribe(event, listener)

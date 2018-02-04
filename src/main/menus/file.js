@@ -1,4 +1,4 @@
-import * as actions from '../fileActions'
+import * as actions from '../actions/file'
 
 export default {
   label: 'File',

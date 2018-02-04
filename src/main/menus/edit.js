@@ -1,4 +1,4 @@
-import * as actions from '../editActions'
+import * as actions from '../actions/edit'
 
 export default {
   label: 'Edit',
@@ -6,13 +6,13 @@ export default {
     label: 'Undo',
     accelerator: 'CmdOrCtrl+Z',
     click: (menuItem, browserWindow) => {
-      actions.undo(browserWindow)
+      actions.edit(browserWindow, 'undo')
     }
   }, {
     label: 'Redo',
     accelerator: 'CmdOrCtrl+Y',
     click: (menuItem, browserWindow) => {
-      actions.redo(browserWindow)
+      actions.edit(browserWindow, 'redo')
     }
   }, {
     type: 'separator'

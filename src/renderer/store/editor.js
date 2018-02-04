@@ -107,11 +107,13 @@ const actions = {
     })
   },
   LISTEN_FOR_UNDO_REDO ({ commit }) {
-    ipcRenderer.on('AGANI::undo', e => {
-      bus.$emit('undo')
+    ipcRenderer.on('AGANI::edit', (e, { type }) => {
+      bus.$emit(type)
     })
-    ipcRenderer.on('AGANI::redo', e => {
-      bus.$emit('redo')
+  },
+  LISTEN_FOR_PARAGRAPH ({ commit }) {
+    ipcRenderer.on('AGANI::paragraph', (e, { type }) => {
+      bus.$emit('paragraph', type)
     })
   },
   LISTEN_FOR_CLOSE ({ commit, state }) {

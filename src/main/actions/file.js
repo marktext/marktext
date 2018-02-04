@@ -4,8 +4,8 @@ import fs from 'fs'
 // import chokidar from 'chokidar'
 import path from 'path'
 import { app, dialog, ipcMain, BrowserWindow } from 'electron'
-import createWindow, { windows } from './createWindow'
-import { EXTENSIONS } from './config'
+import createWindow, { windows } from '../createWindow'
+import { EXTENSIONS } from '../config'
 
 const watchAndReload = (pathname, win) => { // when i build, and failed.
   // const watcher = chokidar.watch(pathname, {
