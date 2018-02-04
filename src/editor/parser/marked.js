@@ -348,7 +348,7 @@ Lexer.prototype.token = function(src, top, bq) {
         });
 
         // Recurse.
-        this.token(item, false, bq);
+        this.token(item, true, bq);
 
         this.tokens.push({
           type: 'list_item_end'
@@ -394,7 +394,7 @@ Lexer.prototype.token = function(src, top, bq) {
         type: 'table',
         header: cap[1].replace(/^ *| *\| *$/g, '').split(/ *\| */),
         align: cap[2].replace(/^ *|\| *$/g, '').split(/ *\| */),
-        cells: cap[3].replace(/(?: *\| *)?\n$/, '').split('\n')
+        cells: cap[3].replace(/\n$/, '').split('\n')
       };
 
       for (i = 0; i < item.align.length; i++) {

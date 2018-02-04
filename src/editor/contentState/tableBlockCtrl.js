@@ -50,8 +50,8 @@ const tableBlockCtrl = ContentState => {
 
     this.appendChild(table, tHead)
     this.appendChild(table, tBody)
-    table.rows = rows - 1
-    table.columns = columns - 1
+    table.row = rows - 1
+    table.column = columns - 1
     let i
     let j
     for (i = 0; i < rows; i++) {
@@ -171,8 +171,10 @@ const tableBlockCtrl = ContentState => {
         const left = `${rect.left + rect.width / 2 - 29}px`
         const top = `${rect.top + rect.height + 8}px`
         const { row = 1, column = 1 } = table // zero base
+
         const handler = (row, column) => {
           const { row: oldRow, column: oldColumn } = table
+          console.log(oldRow, oldColumn)
           const tBody = table.children[1]
           const tHead = table.children[0]
           const headerRow = tHead.children[0]

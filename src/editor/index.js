@@ -260,6 +260,7 @@ class Aganippe {
   dispatchArrow () {
     const { container, eventCenter } = this
     const handler = event => {
+      if (this._isEditChinese) return
       switch (event.key) {
         case EVENT_KEYS.ArrowUp: // fallthrough
         case EVENT_KEYS.ArrowDown: // fallthrough
@@ -365,7 +366,10 @@ class Aganippe {
   }
 
   createTable (tableChecker) {
+    const { eventCenter } = this
     this.contentState.createFigure(tableChecker)
+    const selectionChanges = this.contentState.selectionChange()
+    eventCenter.dispatch('selectionChange', selectionChanges)
   }
 
   on (event, listener) {
