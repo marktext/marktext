@@ -297,6 +297,10 @@ class Aganippe {
       if (!this._isEditChinese || event.type === 'input') {
         this.contentState.updateState(event)
       }
+      if (event.type === 'click' || event.type === 'keyup') {
+        const selectionChanges = this.contentState.selectionChange()
+        eventCenter.dispatch('selectionChange', selectionChanges)
+      }
     }
 
     eventCenter.attachDOMEvent(container, 'click', changeHandler)

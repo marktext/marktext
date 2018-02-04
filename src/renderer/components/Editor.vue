@@ -5,6 +5,8 @@
       title="Insert Table"
       :visible.sync="dialogTableVisible"
       :show-close="isShowClose"
+      :modal="false"
+      custom-class="ag-dialog-table"
       width="450px"
     >
       <el-form :model="tableChecker" :inline="true">
@@ -64,6 +66,9 @@
         this.editor.on('change', (markdown, wordCount) => {
           this.$store.dispatch('SAVE_FILE', { markdown, wordCount })
         })
+        this.editor.on('selectionChange', changes => {
+          this.$store.dispatch('SELECTION_CHANGE', changes)
+        })
       })
     },
     methods: {
@@ -107,11 +112,14 @@
   }
 </script>
 
-<style scoped>
+<style>
   @import '../../editor/themes/github.css';
   @import '../../editor/index.css';
   .editor-component {
     height: calc(100vh - 22px);
     overflow: auto;
+  }
+  .ag-dialog-table {
+    background: rgb(239, 239, 239);
   }
 </style>

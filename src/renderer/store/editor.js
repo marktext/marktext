@@ -101,6 +101,10 @@ const actions = {
       commit('SET_STATUS', false)
     }
   },
+  SELECTION_CHANGE ({ commit }, changes) {
+    console.log(changes)
+    ipcRenderer.send('AGANI::selection-change', changes)
+  },
   LISTEN_FOR_EXPORT ({ commit }) {
     ipcRenderer.on('AGANI::export', (e, { type }) => {
       bus.$emit('export', type)
