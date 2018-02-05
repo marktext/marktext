@@ -372,6 +372,10 @@ class Aganippe {
     eventCenter.dispatch('selectionChange', selectionChanges)
   }
 
+  updateParagraph (type) {
+    this.contentState.updateParagraph(type)
+  }
+
   on (event, listener) {
     const { eventCenter } = this
     eventCenter.subscribe(event, listener)

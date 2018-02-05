@@ -88,10 +88,22 @@
         }
       },
       handleEditParagraph (type) {
+        console.log(type)
         switch (type) {
           case 'table':
             this.tableChecker = { rows: 2, columns: 2 }
             this.dialogTableVisible = true
+            break
+          case 'heading 1':
+          case 'heading 2':
+          case 'heading 3':
+          case 'heading 4':
+          case 'heading 5':
+          case 'heading 6':
+          case 'upgrade heading':
+          case 'degrade heading':
+          case 'paragraph':
+            this.editor && this.editor.updateParagraph(type)
             break
         }
       },
