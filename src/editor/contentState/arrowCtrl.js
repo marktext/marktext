@@ -7,7 +7,7 @@ import {
 import { findNearestParagraph } from '../utils/domManipulate'
 import selection from '../selection'
 
-const HAS_TEXT_BLOCK_REG = /^(h\d|p|th|td)/
+const HAS_TEXT_BLOCK_REG = /^(h\d|p|th|td|hr)/
 
 const arrowCtrl = ContentState => {
   ContentState.prototype.firstInDescendant = function (block) {
@@ -76,8 +76,7 @@ const arrowCtrl = ContentState => {
     ) {
       return
     }
-    // console.log(preBlock)
-    // console.log(JSON.stringify(selection.getCursorRange(), null, 2))
+
     if (show && (event.key === EVENT_KEYS.ArrowUp || event.key === EVENT_KEYS.ArrowDown)) {
       event.preventDefault()
       switch (event.key) {
