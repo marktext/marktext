@@ -103,6 +103,7 @@
           case 'upgrade heading':
           case 'degrade heading':
           case 'paragraph':
+          case 'hr':
             this.editor && this.editor.updateParagraph(type)
             break
         }

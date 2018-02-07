@@ -9,7 +9,6 @@
 - [ ] export html: (3) keyframe 和 font-face 以及 bar-top 的样式都可以删除。(4) 打包后的应用 axios 获取样式有问题。(5) 输出的 html 中 a 标签无法点击
 - [ ] table: 如果 table 在 selection 后面，那么删除cell 的时候，会把整个 row 删除了。（小 bug)
 - [ ] 输出的 styled html 中 a 标签无法点击
-- [ ] 当上面一个段落是 hr 时候，向上箭头无效果。
 
 **菜单**
 
@@ -51,15 +50,15 @@
 
   - [ ] Find | Find And Replace
 
-- - [ ] Heading 1~6
+- - [x] Heading 1~6
 
-  - [ ] Paragraph
+  - [x] Paragraph
 
-  - [ ] Increase Heading Level
+  - [x] Increase Heading Level
 
-  - [ ] Decrease Heading Level
+  - [x] Decrease Heading Level
 
-  - [ ] Table
+  - [x] Table
 
   - [ ] Code Fences
 

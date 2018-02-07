@@ -74,5 +74,11 @@ export default {
     click: function (menuItem, browserWindow) {
       actions.paragraph(browserWindow, 'paragraph')
     }
+  }, {
+    label: 'Horizontal Line',
+    accelerator: 'Option+CmdOrCtrl+-',
+    click: function (menuItem, browserWindow) {
+      actions.paragraph(browserWindow, 'hr')
+    }
   }]
 }
