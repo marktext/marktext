@@ -13,9 +13,11 @@ import arrowCtrl from './arrowCtrl'
 import pasteCtrl from './pasteCtrl'
 import copyCutCtrl from './copyCutCtrl'
 import paragraphCtrl from './paragraphCtrl'
+import tabCtrl from './tabCtrl'
 import importMarkdown from '../utils/importMarkdown'
 
 const prototypes = [
+  tabCtrl,
   enterCtrl,
   updateCtrl,
   garbageCtrl,

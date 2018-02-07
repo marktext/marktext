@@ -268,6 +268,9 @@ class Aganippe {
         case EVENT_KEYS.ArrowRight: // fallthrough
           this.contentState.arrowHandler(event)
           break
+        case EVENT_KEYS.Tab:
+          this.contentState.tabHandler(event)
+          break
       }
     }
     eventCenter.attachDOMEvent(container, 'keydown', handler)
