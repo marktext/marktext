@@ -72,7 +72,7 @@
 
   - [ ] List Indentation (up | down)
 
-  - [ ] Horizontal Line
+  - [x] Horizontal Line
 
 - - [ ] Strong
 
@@ -174,10 +174,14 @@ _   底线
       删除整个 table
 
 * [ ] tbody 中可以通过拖拽交换行
+      
+      拖拽交换列
+
+      可以删除列
 
       每行末有删除符号，可以删除行
 
-* [ ] 支持通过菜单插入表格
+* [x] 支持通过菜单插入表格
 
 * [x] 表格的输入、输出
 

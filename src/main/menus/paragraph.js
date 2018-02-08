@@ -62,7 +62,7 @@ export default {
     }
   }, {
     label: 'Code Fences',
-    accelerator: 'Option+CmdOrCtrl+C',
+    accelerator: 'Alt+CmdOrCtrl+C',
     click (menuItem, browserWindow) {
       //
     }
@@ -76,7 +76,7 @@ export default {
     }
   }, {
     label: 'Horizontal Line',
-    accelerator: 'Option+CmdOrCtrl+-',
+    accelerator: 'Alt+CmdOrCtrl+-',
     click: function (menuItem, browserWindow) {
       actions.paragraph(browserWindow, 'hr')
     }

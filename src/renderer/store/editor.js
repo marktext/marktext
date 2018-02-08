@@ -114,9 +114,12 @@ const actions = {
       bus.$emit(type)
     })
   },
-  LISTEN_FOR_PARAGRAPH ({ commit }) {
+  LISTEN_FOR_PARAGRAPH_INLINE_STYLE ({ commit }) {
     ipcRenderer.on('AGANI::paragraph', (e, { type }) => {
       bus.$emit('paragraph', type)
+    })
+    ipcRenderer.on('AGANI::format', (e, { type }) => {
+      bus.$emit('format', type)
     })
   },
   LISTEN_FOR_CLOSE ({ commit, state }) {

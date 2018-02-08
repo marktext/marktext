@@ -62,6 +62,7 @@
         bus.$on('redo', () => this.editor.redo())
         bus.$on('export', this.handleExport)
         bus.$on('paragraph', this.handleEditParagraph)
+        bus.$on('format', this.handleInlineFormat)
 
         this.editor.on('change', (markdown, wordCount) => {
           this.$store.dispatch('SAVE_FILE', { markdown, wordCount })
@@ -107,6 +108,9 @@
             this.editor && this.editor.updateParagraph(type)
             break
         }
+      },
+      handleInlineFormat (type) {
+        console.log(type)
       },
       handleDialogTableConfirm () {
         this.dialogTableVisible = false

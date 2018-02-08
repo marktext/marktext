@@ -35,7 +35,7 @@
       dispatch('LISTEN_FOR_FILE_CHANGE')
       dispatch('LISTEN_FOR_UNDO_REDO')
       dispatch('LISTEN_FOR_EXPORT')
-      dispatch('LISTEN_FOR_PARAGRAPH')
+      dispatch('LISTEN_FOR_PARAGRAPH_INLINE_STYLE')
     }
   }
 </script>
