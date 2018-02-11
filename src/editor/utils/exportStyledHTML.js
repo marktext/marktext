@@ -18,6 +18,9 @@ class ExportHTML {
         <title>Aganippe</title>
         <style>
         ${style}
+        a {
+          pointer-events: auto;
+        }
         </style>
       </head>
       <body>
@@ -160,6 +163,7 @@ class ExportHTML {
         const href = anchor.attr('data-href')
         anchor.removeAttr('data-href')
         anchor.attr('href', href)
+        anchor.attr('target', '_blank')
       })
     }
     return $('body').html()

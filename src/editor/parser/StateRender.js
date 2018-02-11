@@ -115,6 +115,7 @@ class StateRender {
 
         return h(blockSelector, data, block.children.map(child => renderBlock(child)))
       } else {
+        console.log(tokenizer(block.text))
         let children = block.text
           ? tokenizer(block.text).reduce((acc, token) => {
             const chunk = this[token.type](h, cursor, block, token)
