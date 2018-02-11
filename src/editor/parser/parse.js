@@ -182,6 +182,45 @@ export const tokenizer = src => {
   return tokenizerFac(src, beginRules, inlineRules, 0)
 }
 
+// transform `tokens` to text
+export const generator = tokens => {
+  let result = ''
+  for (const token of tokens) {
+    switch (token.type) {
+      case 'hr':
+      case 'header':
+      case 'code_fense':
+      case 'backlash':
+        result += token.marker + token.content
+        break
+      case 'text':
+        result += token.content
+        break
+      case 'em':
+      case 'del':
+      case 'strong':
+        result += `${token.marker}${generator(token.children)}${token.backlash}${token.marker}`
+        break
+      case 'emoji':
+      case 'inline_code':
+        result += `${token.marker}${token.content}${token.backlash}${token.marker}`
+        break
+      case 'link':
+        result += `[${generator(token.children)}${token.backlash.first}](${token.href}${token.backlash.second})`
+        break
+      case 'image':
+        result += `![${generator(token.children)}${token.backlash.first}](${token.src}${token.backlash.second})`
+        break
+      case 'auto_link':
+        result += token.href
+        break
+      default:
+        throw new Error(`unhandle token type: ${token.type}`)
+    }
+  }
+  return result
+}
+
 /**
  * [{
  *   type: 'hr',
