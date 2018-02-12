@@ -64,7 +64,7 @@ const clearFormat = (token, { start, end }) => {
 }
 
 const addFormat = (type, block, { start, end }) => {
-  console.log(type, block, start, end)
+  if (block.type === 'pre') return false
   const MARKER_MAP = {
     'em': '*',
     'inline_code': '`',
@@ -136,6 +136,7 @@ const formatCtrl = ContentState => {
   }
 
   ContentState.prototype.clearBlockFormat = function (block, { start, end } = selection.getCursorRange(), type) {
+    if (block.type === 'pre') return false
     const { key } = block
     let tokens
     let neighbors
@@ -163,7 +164,7 @@ const formatCtrl = ContentState => {
         }
       }))
     }
-    console.log(neighbors)
+
     neighbors = type ? neighbors.filter(n => n.type === type) : neighbors
 
     for (const neighbor of neighbors) {
@@ -238,7 +239,7 @@ const formatCtrl = ContentState => {
           end
         })
       }
-
+      console.log(start, end)
       this.cursor = { start, end }
       this.render()
     }

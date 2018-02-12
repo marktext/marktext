@@ -11,11 +11,11 @@ const HAS_TEXT_BLOCK_REG = /^(h\d|p|th|td|hr)/
 
 const arrowCtrl = ContentState => {
   ContentState.prototype.firstInDescendant = function (block) {
+    const children = block.children
     if (block.children.length === 0 && HAS_TEXT_BLOCK_REG.test(block.type)) {
       return block
-    } else if (block.children.length) {
-      const children = block.children
-      if (children[0].type === 'input') { // handle task item
+    } else if (children.length) {
+      if (children[0].type === 'input' || (children[0].type === 'div' && !children[0].editable)) { // handle task item
         return this.firstInDescendant(children[1])
       } else {
         return this.firstInDescendant(children[0])
