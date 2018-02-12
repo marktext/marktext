@@ -14,6 +14,7 @@ import pasteCtrl from './pasteCtrl'
 import copyCutCtrl from './copyCutCtrl'
 import paragraphCtrl from './paragraphCtrl'
 import tabCtrl from './tabCtrl'
+import formatCtrl from './formatCtrl'
 import importMarkdown from '../utils/importMarkdown'
 
 const prototypes = [
@@ -29,6 +30,7 @@ const prototypes = [
   copyCutCtrl,
   tableBlockCtrl,
   paragraphCtrl,
+  formatCtrl,
   importMarkdown
 ]
 
@@ -88,7 +90,6 @@ class ContentState {
     this.stateRender.render(blocks, cursor, activeBlocks)
     this.setCursor()
     this.pre2CodeMirror()
-    console.log('render')
   }
 
   createBlock (type = 'p', text = '') {

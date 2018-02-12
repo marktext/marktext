@@ -31,6 +31,7 @@ const tokenizerFac = (src, beginRules, inlineRules, pos = 0) => {
       if (to) {
         const token = {
           type: beginR[i],
+          parent: tokens,
           marker: to[1],
           content: to[2] || '',
           range: {
@@ -54,6 +55,7 @@ const tokenizerFac = (src, beginRules, inlineRules, pos = 0) => {
       tokens.push({
         type: 'backlash',
         marker: backTo[1],
+        parent: tokens,
         content: '',
         range: {
           start: pos,
@@ -86,6 +88,7 @@ const tokenizerFac = (src, beginRules, inlineRules, pos = 0) => {
             type,
             range,
             marker,
+            parent: tokens,
             content: to[2],
             backlash: to[3]
           })
@@ -94,6 +97,7 @@ const tokenizerFac = (src, beginRules, inlineRules, pos = 0) => {
             type,
             range,
             marker,
+            parent: tokens,
             children: tokenizerFac(to[2], undefined, inlineRules, pos + to[1].length),
             backlash: to[3]
           })
@@ -112,6 +116,8 @@ const tokenizerFac = (src, beginRules, inlineRules, pos = 0) => {
         type: 'link',
         marker: linkTo[1],
         href: linkTo[4],
+        parent: tokens,
+        anchor: linkTo[2],
         range: {
           start: pos,
           end: pos + linkTo[0].length
@@ -136,6 +142,7 @@ const tokenizerFac = (src, beginRules, inlineRules, pos = 0) => {
         type: 'image',
         marker: imageTo[1],
         src: imageTo[4],
+        parent: tokens,
         range: {
           start: pos,
           end: pos + imageTo[0].length
@@ -158,6 +165,7 @@ const tokenizerFac = (src, beginRules, inlineRules, pos = 0) => {
       tokens.push({
         type: 'auto_link',
         href: autoLTo[0],
+        parent: tokens,
         range: {
           start: pos,
           end: pos + autoLTo[0].length
@@ -182,9 +190,10 @@ export const tokenizer = src => {
   return tokenizerFac(src, beginRules, inlineRules, 0)
 }
 
-// transform `tokens` to text
+// transform `tokens` to text ignore the range of token
 export const generator = tokens => {
   let result = ''
+  const getBash = bash => bash !== undefined ? bash : ''
   for (const token of tokens) {
     switch (token.type) {
       case 'hr':
@@ -199,17 +208,17 @@ export const generator = tokens => {
       case 'em':
       case 'del':
       case 'strong':
-        result += `${token.marker}${generator(token.children)}${token.backlash}${token.marker}`
+        result += `${token.marker}${generator(token.children)}${getBash(token.backlash)}${token.marker}`
         break
       case 'emoji':
       case 'inline_code':
-        result += `${token.marker}${token.content}${token.backlash}${token.marker}`
+        result += `${token.marker}${token.content}${getBash(token.backlash)}${token.marker}`
         break
       case 'link':
-        result += `[${generator(token.children)}${token.backlash.first}](${token.href}${token.backlash.second})`
+        result += `[${generator(token.children)}${getBash(token.backlash.first)}](${token.href}${getBash(token.backlash.second)})`
         break
       case 'image':
-        result += `![${generator(token.children)}${token.backlash.first}](${token.src}${token.backlash.second})`
+        result += `![${generator(token.children)}${getBash(token.backlash.first)}](${token.src}${getBash(token.backlash.second)})`
         break
       case 'auto_link':
         result += token.href

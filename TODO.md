@@ -8,6 +8,7 @@
 - [ ] 在通过 Aganippe 打开文件时，通过右键选择软件，但是打开无内容。（严重 bug）
 - [ ] export html: (3) keyframe 和 font-face 以及 bar-top 的样式都可以删除。(4) 打包后的应用 axios 获取样式有问题。
 - [ ] table: 如果 table 在 selection 后面，那么删除cell 的时候，会把整个 row 删除了。（小 bug)
+- [ ] 处理 inline-format 选择中有 table 和 codeblock 的情况
 
 **菜单**
 

@@ -70,6 +70,9 @@
         this.editor.on('selectionChange', changes => {
           this.$store.dispatch('SELECTION_CHANGE', changes)
         })
+        this.editor.on('selectionFormats', formats => {
+          this.$store.dispatch('SELECTION_FORMATS', formats)
+        })
       })
     },
     methods: {
@@ -110,7 +113,7 @@
         }
       },
       handleInlineFormat (type) {
-        console.log(type)
+        this.editor && this.editor.format(type)
       },
       handleDialogTableConfirm () {
         this.dialogTableVisible = false

@@ -1,7 +1,7 @@
 import { LOWERCASE_TAGS, CLASS_OR_ID } from '../config'
 import { conflict, isLengthEven, isEven, getIdWithoutSet, loadImage, getImageSrc } from '../utils'
 import { insertAfter, operateClassName } from '../utils/domManipulate.js'
-import { tokenizer, generator } from './parse'
+import { tokenizer } from './parse'
 import { validEmoji } from '../emojis'
 
 const snabbdom = require('snabbdom')
@@ -115,8 +115,6 @@ class StateRender {
 
         return h(blockSelector, data, block.children.map(child => renderBlock(child)))
       } else {
-        const tokens = tokenizer(block.text)
-        console.log(generator(tokens))
         let children = block.text
           ? tokenizer(block.text).reduce((acc, token) => {
             const chunk = this[token.type](h, cursor, block, token)

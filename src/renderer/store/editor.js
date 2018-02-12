@@ -104,6 +104,9 @@ const actions = {
   SELECTION_CHANGE ({ commit }, changes) {
     ipcRenderer.send('AGANI::selection-change', changes)
   },
+  SELECTION_FORMATS ({ commit }, formats) {
+    ipcRenderer.send('AGANI::selection-formats', formats)
+  },
   LISTEN_FOR_EXPORT ({ commit }) {
     ipcRenderer.on('AGANI::export', (e, { type }) => {
       bus.$emit('export', type)

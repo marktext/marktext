@@ -303,7 +303,9 @@ class Aganippe {
       }
       if (event.type === 'click' || event.type === 'keyup') {
         const selectionChanges = this.contentState.selectionChange()
+        const { formats } = this.contentState.selectionFormats()
         eventCenter.dispatch('selectionChange', selectionChanges)
+        eventCenter.dispatch('selectionFormats', formats)
       }
     }
 
@@ -377,6 +379,10 @@ class Aganippe {
 
   updateParagraph (type) {
     this.contentState.updateParagraph(type)
+  }
+
+  format (type) {
+    this.contentState.format(type)
   }
 
   on (event, listener) {
