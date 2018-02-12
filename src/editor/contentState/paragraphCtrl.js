@@ -10,15 +10,20 @@ const getCurrentLevel = type => {
 
 const paragraphCtrl = ContentState => {
   ContentState.prototype.selectionChange = function () {
-    const {
-      start,
-      end
-    } = selection.getCursorRange()
+    const { start, end } = selection.getCursorRange()
     start.type = this.getBlock(start.key).type
     end.type = this.getBlock(end.key).type
+    const startBlock = this.getBlock(start.key)
+    const endBlock = this.getBlock(end.key)
+    const startParents = this.getParents(startBlock)
+    const endParents = this.getParents(endBlock)
+
+    const affiliation = startParents.filter(p => endParents.includes(p))
+
     return {
       start,
-      end
+      end,
+      affiliation
     }
   }
 

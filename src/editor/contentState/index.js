@@ -136,6 +136,17 @@ class ContentState {
     return null
   }
 
+  getParents (block) {
+    const result = []
+    result.push(block)
+    let parent = this.getParent(block)
+    while (parent) {
+      result.push(parent)
+      parent = this.getParent(parent)
+    }
+    return result
+  }
+
   getPreSibling (block) {
     return block.preSibling ? this.getBlock(block.preSibling) : null
   }
