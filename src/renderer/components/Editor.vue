@@ -92,12 +92,16 @@
         }
       },
       handleEditParagraph (type) {
-        console.log(type)
         switch (type) {
           case 'table':
             this.tableChecker = { rows: 2, columns: 2 }
             this.dialogTableVisible = true
             break
+          case 'ul-bullet':
+          case 'ul-task':
+          case 'ol-order':
+          case 'pre':
+          case 'blockquote':
           case 'heading 1':
           case 'heading 2':
           case 'heading 3':

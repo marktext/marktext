@@ -78,7 +78,7 @@ const updateCtrl = ContentState => {
     return false
   }
 
-  ContentState.prototype.updateTaskListItem = function (block, type, marker) {
+  ContentState.prototype.updateTaskListItem = function (block, type, marker = '') {
     const parent = this.getParent(block)
     const grandpa = this.getParent(parent)
     const checked = /\[x\]\s/i.test(marker) // use `i` flag to ignore upper case or lower case
@@ -142,7 +142,7 @@ const updateCtrl = ContentState => {
     block.checked = checked
   }
 
-  ContentState.prototype.updateList = function (block, type, marker) {
+  ContentState.prototype.updateList = function (block, type, marker = '') {
     const parent = this.getParent(block)
     const preSibling = this.getPreSibling(block)
     const nextSibling = this.getNextSibling(block)
@@ -151,7 +151,7 @@ const updateCtrl = ContentState => {
     const { start, end } = this.cursor
     const startOffset = start.offset
     const endOffset = end.offset
-    const newBlock = this.createBlockLi(newText)
+    const newBlock = this.createBlockLi(newText, block.type)
     newBlock.listItemType = type
 
     if (preSibling && preSibling.listType === type && nextSibling && nextSibling.listType === type) {
@@ -178,7 +178,7 @@ const updateCtrl = ContentState => {
       block.text = ''
       if (wrapperTag === 'ol') {
         const start = marker.split('.')[0]
-        block.start = start
+        block.start = /^\d+$/.test(start) ? start : 1
       }
       this.appendChild(block, newBlock)
     }
@@ -194,6 +194,7 @@ const updateCtrl = ContentState => {
         offset: Math.max(0, endOffset - marker.length)
       }
     }
+    return newBlock.children[0]
   }
 
   ContentState.prototype.updateBlockQuote = function (block) {

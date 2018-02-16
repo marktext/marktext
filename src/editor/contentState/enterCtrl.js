@@ -29,9 +29,9 @@ const enterCtrl = ContentState => {
     return trBlock
   }
 
-  ContentState.prototype.createBlockLi = function (text = '') {
+  ContentState.prototype.createBlockLi = function (text = '', type = 'p') {
     const liBlock = this.createBlock('li')
-    const pBlock = this.createBlock('p', text)
+    const pBlock = this.createBlock(type, text)
     this.appendChild(liBlock, pBlock)
     return liBlock
   }

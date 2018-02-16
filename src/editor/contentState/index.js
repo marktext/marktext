@@ -135,7 +135,7 @@ class ContentState {
     }
     return null
   }
-
+  // return block and its parents
   getParents (block) {
     const result = []
     result.push(block)

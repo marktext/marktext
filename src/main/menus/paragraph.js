@@ -72,14 +72,14 @@ export default {
     type: 'checkbox',
     accelerator: 'Alt+CmdOrCtrl+C',
     click (menuItem, browserWindow) {
-      //
+      actions.paragraph(browserWindow, 'pre')
     }
   }, {
     label: 'Quote Block',
     type: 'checkbox',
     accelerator: 'Alt+CmdOrCtrl+Q',
     click (menuItem, browserWindow) {
-      //
+      actions.paragraph(browserWindow, 'blockquote')
     }
   }, {
     type: 'separator'
@@ -88,21 +88,21 @@ export default {
     type: 'checkbox',
     accelerator: 'Alt+CmdOrCtrl+O',
     click (menuItem, browserWindow) {
-      //
+      actions.paragraph(browserWindow, 'ol-order')
     }
   }, {
     label: 'Bullet List',
     type: 'checkbox',
     accelerator: 'Alt+CmdOrCtrl+U',
     click (menuItem, browserWindow) {
-      //
+      actions.paragraph(browserWindow, 'ul-bullet')
     }
   }, {
     label: 'Task List',
     type: 'checkbox',
     accelerator: 'Alt+CmdOrCtrl+X',
     click (menuItem, browserWindow) {
-      //
+      actions.paragraph(browserWindow, 'ul-task')
     }
   }, {
     type: 'separator'

@@ -16,7 +16,7 @@ const LABEL_MAP = {
   'Heading 6': 'h6',
   'Table': 'figure',
   'Code Fences': 'pre',
-  'Quote Block': 'quoteblock',
+  'Quote Block': 'blockquote',
   'Order List': 'ol',
   'Bullet List': 'ul',
   'Task List': 'ul',
@@ -70,7 +70,7 @@ ipcMain.on('AGANI::selection-change', (e, { start, end, affiliation }) => {
   setCheckedMenuItem(affiliation)
   // handle disable
   allCtrl(true)
-  if (/th|td/.test(start.type) || /th|td/.test(end.type)) {
+  if (/th|td/.test(start.type) && /th|td/.test(end.type)) {
     allCtrl(false)
   } else if (start.key !== end.key) {
     formatMenuItem.submenu.items

@@ -6,7 +6,7 @@ import { generateKeyHash, genUpper2LowerKeyHash } from './utils'
  * configs
  */
 // export const INLINE_RULES = ['autolink', 'backticks', 'emphasis', 'escape', 'image', 'link', 'strikethrough']
-
+export const PARAGRAPH_TYPES = ['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote', 'pre', 'ul', 'ol', 'li', 'figure']
 export const blockContainerElementNames = [
   // elements our editor generates
   'p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote', 'pre', 'ul', 'li', 'ol',
