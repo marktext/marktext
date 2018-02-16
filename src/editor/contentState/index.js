@@ -90,6 +90,7 @@ class ContentState {
     this.stateRender.render(blocks, cursor, activeBlocks)
     this.setCursor()
     this.pre2CodeMirror()
+    console.log('render')
   }
 
   createBlock (type = 'p', text = '') {

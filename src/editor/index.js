@@ -279,10 +279,10 @@ class Aganippe {
   dispatchTableToolBar () {
     const { container, eventCenter } = this
     const handler = event => {
-      event.preventDefault()
       const target = event.target
       const parent = target.parentNode
       if (parent && parent.hasAttribute('data-label')) {
+        event.preventDefault()
         event.stopPropagation()
         const type = parent.getAttribute('data-label')
         this.contentState.tableToolBarClick(type)

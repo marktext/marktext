@@ -138,6 +138,7 @@ const updateCtrl = ContentState => {
   // handle task list item checkbox click
   ContentState.prototype.listItemCheckBoxClick = function (checkbox) {
     const { checked, id } = checkbox
+    console.log(checked)
     const block = this.getBlock(id)
     block.checked = checked
   }

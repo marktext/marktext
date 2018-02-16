@@ -6,9 +6,8 @@
 - [ ] codeBlock 在 list item 中时，list style 问题。
 - [ ] 在通过 Aganippe 打开文件时，无法通过右键选择 Aganippe。（严重 bug）
 - [ ] 在通过 Aganippe 打开文件时，通过右键选择软件，但是打开无内容。（严重 bug）
-- [ ] export html: (3) keyframe 和 font-face 以及 bar-top 的样式都可以删除。(4) 打包后的应用 axios 获取样式有问题。
+- [ ] export html: (3) keyframe 和 font-face 以及 bar-top 的样式都可以删除。(4) 打包后的应用 axios 获取样式有问题。(优化)
 - [ ] table: 如果 table 在 selection 后面，那么删除cell 的时候，会把整个 row 删除了。（小 bug)
-- [ ] task list 中 checkbox 无反应
 
 **菜单**
 
@@ -60,15 +59,15 @@
 
   - [x] Table
 
-  - [ ] Code Fences
+  - [x] Code Fences
 
-  - [ ] Quote Block
+  - [x] Quote Block
 
-  - [ ] Order List
+  - [x] Order List
 
-  - [ ] Unorder List
+  - [x] Unorder List
 
-  - [ ] Task List
+  - [x] Task List
 
   - [ ] List Indentation (up | down)
 
