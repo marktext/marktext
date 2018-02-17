@@ -2,6 +2,8 @@
 
 **Aganippe** is an **open source** Markdown editor for OS X, released under the **MIT license**. It is inspired by outstanding markdown editor **Typora**.
 
+![](https://github.com/Jocs/aganippe/blob/master/static/intro.gif)
+
 ### Why write another Markdown editor ?
 
 1. Typora is so excellent that I love it so much that I cannot bear to part with it. But in the process of using Typora, I still find some small problems. As a programmer, I can't wait to fix these problems, because Typora is not an open source software. So I decided to write a self - used markdown editor and open source for all the people who love markdown.
@@ -22,7 +24,7 @@
 
 - English word autocompletion (in development).
 
-###Install
+### Install
 
 [Download](https://github.com/Jocs/aganippe/releases), unzip, and drag the app to Applications folder.
 
@@ -39,7 +41,7 @@ When you use Aganippe, if you have any questions, you are welcome to write an is
 
 ### Last
 
-If you find MacDown suitable for your needs, It's my pleasure.
+If you find Aganippe suitable for your needs, It's my pleasure.
 
 
 
