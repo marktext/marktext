@@ -8,6 +8,7 @@ import windowStateKeeper from 'electron-window-state'
 export const windows = new Map()
 
 const createWindow = (pathname, options = {}) => {
+  const TITLE_BAR_HEIGHT = 21
   const mainWindowState = windowStateKeeper({
     defaultWidth: 1200,
     defaultHeight: 800
@@ -27,7 +28,7 @@ const createWindow = (pathname, options = {}) => {
     : `file://${__dirname}/index.html`
 
   win.loadURL(winURL)
-  win.setSheetOffset(21) // 21 is the title bar height
+  win.setSheetOffset(TITLE_BAR_HEIGHT) // 21 is the title bar height
   win.once('ready-to-show', () => {
     win.show()
 

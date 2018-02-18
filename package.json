@@ -1,6 +1,6 @@
 {
   "name": "aganippe",
-  "version": "0.0.2",
+  "version": "0.2.0",
   "author": "Jocs <luoran1988@126.com>",
   "description": "A markdown editor",
   "license": "MIT",
@@ -26,6 +26,18 @@
     "appId": "org.simulatedgreg.electron-vue",
     "directories": {
       "output": "build"
+    },
+    "fileAssociations": {
+      "ext": [
+        "md",
+        "markdown",
+        "txt",
+        "mmd",
+        "text",
+        "mdown",
+        "mdtxt",
+        "mdtext"
+      ]
     },
     "files": [
       "dist/electron/**/*"
