@@ -4,6 +4,8 @@ import { app, Menu } from 'electron'
 import configureMenu from './menus'
 import createWindow, { windows } from './createWindow'
 
+const openFilesCache = []
+
 /**
  * Set `__static` path to static files in production
  * https://simulatedgreg.gitbooks.io/electron-vue/content/en/using-static-assets.html
@@ -13,10 +15,27 @@ if (process.env.NODE_ENV !== 'development') {
 }
 
 const onReady = () => {
-  createWindow()
+  app.removeListener('open-file', openFile)
+  if (openFilesCache.length) {
+    openFilesCache.forEach(path => createWindow(path))
+    openFilesCache.length = 0 // empty the open file path cache
+  } else {
+    createWindow()
+  }
   const menu = Menu.buildFromTemplate(configureMenu({ app }))
   Menu.setApplicationMenu(menu)
 }
+
+const openFile = (event, path) => {
+  event.preventDefault()
+  if (app.isReady()) {
+    createWindow(path)
+  } else {
+    openFilesCache.push(path)
+  }
+}
+
+app.on('open-file', openFile)
 
 app.on('ready', onReady)
 
