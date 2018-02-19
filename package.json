@@ -1,5 +1,5 @@
 {
-  "name": "aganippe",
+  "name": "marktext",
   "version": "0.2.0",
   "author": "Jocs <luoran1988@126.com>",
   "description": "A markdown editor",
@@ -22,7 +22,7 @@
     "postinstall": "npm run lint:fix"
   },
   "build": {
-    "productName": "Aganippe",
+    "productName": "MarkText",
     "appId": "org.simulatedgreg.electron-vue",
     "directories": {
       "output": "build"
