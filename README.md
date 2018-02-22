@@ -2,7 +2,7 @@
 
 **MarkText** is an **open source** Markdown editor for OS X, released under the **MIT license**. It is inspired by outstanding markdown editor **Typora**.
 
-![](https://github.com/marktext/marktext/blob/master/static/intro.gif)
+![](https://github.com/marktext/marktext/blob/master/static/summary.gif)
 
 ### Why write another Markdown editor ?
 
