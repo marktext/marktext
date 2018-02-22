@@ -1,8 +1,8 @@
 export default function aganippeMenu ({ app }) {
   return {
-    label: 'Aganippe',
+    label: 'Mark Text',
     submenu: [{
-      label: 'About Aganippe',
+      label: 'About Mark Text',
       role: 'about'
     }, {
       type: 'separator'

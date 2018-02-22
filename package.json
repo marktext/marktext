@@ -22,7 +22,7 @@
     "postinstall": "npm run lint:fix"
   },
   "build": {
-    "productName": "MarkText",
+    "productName": "Mark Text",
     "appId": "org.simulatedgreg.electron-vue",
     "directories": {
       "output": "build"

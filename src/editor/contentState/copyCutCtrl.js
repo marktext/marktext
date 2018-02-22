@@ -33,10 +33,11 @@ const copyCutCtrl = ContentState => {
     }
     event.preventDefault()
     const html = selection.getSelectionHtml()
-    // const text = event.clipboardData.getData('text/plain')
+    // const xx = event.clipboardData.getData('text/plain')
     const $ = cheerio.load(html)
-    const children = $('body').children()
+    const children = $('body').contents()
     let text = ''
+
     children.each((i, child) => {
       const tagName = child.tagName
       const content = $(child).text()

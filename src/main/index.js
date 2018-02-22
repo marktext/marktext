@@ -15,7 +15,6 @@ if (process.env.NODE_ENV !== 'development') {
 }
 
 const onReady = () => {
-  app.removeListener('open-file', openFile)
   if (openFilesCache.length) {
     openFilesCache.forEach(path => createWindow(path))
     openFilesCache.length = 0 // empty the open file path cache
@@ -40,6 +39,7 @@ app.on('open-file', openFile)
 app.on('ready', onReady)
 
 app.on('window-all-closed', () => {
+  app.removeListener('open-file', openFile)
   if (process.platform !== 'darwin') {
     app.quit()
   }
