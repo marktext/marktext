@@ -1,4 +1,4 @@
-export default function aganippeMenu ({ app }) {
+export default function markTextMenu ({ app }) {
   return {
     label: 'Mark Text',
     submenu: [{
@@ -13,7 +13,7 @@ export default function aganippeMenu ({ app }) {
     }, {
       type: 'separator'
     }, {
-      label: 'Hide Aganippe',
+      label: 'Hide Mark Text',
       accelerator: 'Command+H',
       role: 'hide'
     }, {

@@ -15,7 +15,7 @@
   import { mapState } from 'vuex'
 
   export default {
-    name: 'aganippe',
+    name: 'marktext',
     components: {
       Editor,
       TitleBar

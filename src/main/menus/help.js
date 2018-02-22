@@ -6,22 +6,22 @@ export default {
   submenu: [{
     label: 'Learn More',
     click: function () {
-      shell.openExternal('https://github.com/Jocs/aganippe')
+      shell.openExternal('https://github.com/marktext/marktext')
     }
   }, {
     label: 'Report Issue',
     click: function () {
-      shell.openExternal('https://github.com/Jocs/aganippe/issues')
+      shell.openExternal('https://github.com/marktext/marktext/issues')
     }
   }, {
     label: 'Source Code on GitHub',
     click: function () {
-      shell.openExternal('https://github.com/Jocs/aganippe')
+      shell.openExternal('https://github.com/marktext/marktext')
     }
   }, {
     label: 'Changelog',
     click: function () {
-      shell.openExternal('https://github.com/Jocs/aganippe/CHANGELOG.md')
+      shell.openExternal('https://github.com/marktext/marktext/CHANGELOG.md')
     }
   }, {
     label: 'Markdown syntax',

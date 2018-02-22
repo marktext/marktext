@@ -1,7 +1,7 @@
 'use strict'
 
 import { app, Menu } from 'electron'
-import configureMenu from './menus'
+import configureMenu, { dockMenu } from './menus'
 import createWindow, { windows } from './createWindow'
 
 const openFilesCache = []
@@ -23,6 +23,7 @@ const onReady = () => {
   }
   const menu = Menu.buildFromTemplate(configureMenu({ app }))
   Menu.setApplicationMenu(menu)
+  app.dock.setMenu(dockMenu)
 }
 
 const openFile = (event, path) => {

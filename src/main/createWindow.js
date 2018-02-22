@@ -2,7 +2,7 @@
 
 import fs from 'fs'
 import path from 'path'
-import { BrowserWindow } from 'electron'
+import { BrowserWindow, app } from 'electron'
 import windowStateKeeper from 'electron-window-state'
 
 export const windows = new Map()
@@ -33,6 +33,7 @@ const createWindow = (pathname, options = {}) => {
     win.show()
 
     if (pathname) {
+      app.addRecentDocument(pathname)
       const filename = path.basename(pathname)
       fs.readFile(path.resolve(pathname), 'utf-8', (err, file) => {
         if (err) return console.log(err)

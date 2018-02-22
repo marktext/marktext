@@ -7,6 +7,8 @@ import windowMenu from './windowMenu'
 import paragraph from './paragraph'
 import format from './format'
 
+export dockMenu from './dock'
+
 export default function configureMenu ({ app }) {
   let template = process.platform === 'darwin' ? [marktext({ app })] : []
 
