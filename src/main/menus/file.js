@@ -15,6 +15,13 @@ export default {
       actions.open(browserWindow)
     }
   }, {
+    role: 'recentdocuments',
+    submenu: [
+      {
+        role: 'clearrecentdocuments'
+      }
+    ]
+  }, {
     type: 'separator'
   }, {
     label: 'Save',

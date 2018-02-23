@@ -1,6 +1,6 @@
 {
   "name": "marktext",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "author": "Jocs <luoran1988@126.com>",
   "description": "A markdown editor",
   "license": "MIT",
@@ -103,7 +103,7 @@
     "css-loader": "^0.28.4",
     "del": "^3.0.0",
     "devtron": "^1.4.0",
-    "electron": "^1.8.1",
+    "electron": "^2.0.0-beta.1",
     "electron-builder": "^19.49.0",
     "electron-debug": "^1.4.0",
     "electron-devtools-installer": "^2.2.0",
