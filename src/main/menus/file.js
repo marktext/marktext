@@ -55,6 +55,8 @@ export default {
   }, {
     label: 'Print',
     accelerator: 'CmdOrCtrl+P',
-    click: function () {}
+    click: function (menuItem, browserWindow) {
+      actions.print(browserWindow)
+    }
   }]
 }

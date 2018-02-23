@@ -119,6 +119,10 @@ export const exportHTML = (win, withStyle) => {
   win.webContents.send('AGANI::export', { type: withStyle ? 'styledHtml' : 'html' })
 }
 
+export const print = win => {
+  win.webContents.print({ silent: false, printBackground: false, deviceName: '' })
+}
+
 export const open = win => {
   const filename = dialog.showOpenDialog(win, {
     properties: [ 'openFile' ],
