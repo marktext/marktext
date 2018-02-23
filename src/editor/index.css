@@ -126,9 +126,12 @@ p:not(.ag-active)[data-role="hr"]::before {
 p:not(.ag-active)[data-role="hr"] * {
   color: transparent;
 }
-
+#ag-editor-id figure,
 #ag-editor-id pre.ag-code-block {
   position: relative;
+  display: inline-flex;
+  box-sizing: border-box;
+  width: 100%;
 }
 
 img {
