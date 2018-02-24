@@ -4,6 +4,8 @@ import axios from 'axios'
 import App from './App'
 import store from './store'
 
+import './index.css'
+
 import { Dialog, Form, FormItem, InputNumber, Button } from 'element-ui'
 Vue.use(Dialog)
 Vue.use(Form)

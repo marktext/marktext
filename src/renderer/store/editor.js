@@ -87,8 +87,9 @@ const actions = {
   EDITE_FILE ({ commit }) {
     commit('SET_STATUS', false)
   },
-  EXPORT ({ commit }, { type, content }) {
-    ipcRenderer.send('AGANI::response-export', { type, content })
+  EXPORT ({ commit, state }, { type, content }) {
+    const { filename, pathname } = state
+    ipcRenderer.send('AGANI::response-export', { type, content, filename, pathname })
   },
   SAVE_FILE ({ commit, state }, { markdown, wordCount }) {
     commit('SET_MARKDOWN', markdown)
@@ -107,9 +108,19 @@ const actions = {
   SELECTION_FORMATS ({ commit }, formats) {
     ipcRenderer.send('AGANI::selection-formats', formats)
   },
-  LISTEN_FOR_EXPORT ({ commit }) {
+  // listen for export from main process
+  LISTEN_FOR_EXPORT ({ commit, state }) {
     ipcRenderer.on('AGANI::export', (e, { type }) => {
-      bus.$emit('export', type)
+      switch (type) {
+        case 'styledHtml':
+        case 'html':
+          bus.$emit('export', type)
+          break
+        case 'pdf':
+          const { filename, pathname } = state
+          ipcRenderer.send('AGANI::response-export', { type, filename, pathname })
+          break
+      }
     })
   },
   LISTEN_FOR_UNDO_REDO ({ commit }) {

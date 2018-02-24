@@ -1,0 +1,8 @@
+@media print {
+  .title-bar {
+    display: none;
+  }
+  body .editor-component {
+    height: auto;
+  }
+}

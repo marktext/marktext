@@ -10,3 +10,9 @@ export const EXTENSIONS = [
   'text',
   'txt'
 ]
+
+export const EXTENSION_HASN = {
+  styledHtml: '.html',
+  html: '.html',
+  pdf: '.pdf'
+}

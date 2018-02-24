@@ -5,7 +5,7 @@ import fs from 'fs'
 import path from 'path'
 import { app, dialog, ipcMain, BrowserWindow } from 'electron'
 import createWindow, { windows } from '../createWindow'
-import { EXTENSIONS } from '../config'
+import { EXTENSIONS, EXTENSION_HASN } from '../config'
 
 const watchAndReload = (pathname, win) => { // when i build, and failed.
   // const watcher = chokidar.watch(pathname, {
@@ -31,9 +31,9 @@ const writeFile = (pathname, content, extension, win, e) => {
     fs.writeFile(pathname, content, 'utf-8', err => {
       if (err) return console.log('save as file failed')
       // not export
-      if (extension === '.md') e.sender.send('AGANI::set-pathname', { pathname, filename })
+      if (extension === '.md' && e) e.sender.send('AGANI::set-pathname', { pathname, filename })
     })
-    watchAndReload(pathname, win)
+    // watchAndReload(pathname, win)
   }
 }
 
@@ -46,19 +46,25 @@ const forceClose = win => {
     app.quit()
   }
 }
-const handleResponseForExport = (e, { type, content }) => {
+// handle the response from render process.
+const handleResponseForExport = (e, { type, content, filename, pathname }) => {
   const win = BrowserWindow.fromWebContents(e.sender)
-  let defaultPath = ''
-  switch (type) {
-    case 'styledHtml': // html with style
-    case 'html': // html without style
-      defaultPath = `~/Untitled.html`
-      break
-  }
+  const extension = EXTENSION_HASN[type]
+  const dirname = pathname ? path.dirname(pathname) : '~'
+  const nakedFilename = pathname ? path.basename(pathname, '.md') : 'untitled'
+  const defaultPath = `${dirname}/${nakedFilename}${extension}`
   const filePath = dialog.showSaveDialog(win, {
     defaultPath
   })
-  writeFile(filePath, content, '.html', win, e)
+
+  if (!content && type === 'pdf') {
+    win.webContents.printToPDF({}, (err, data) => {
+      if (err) throw err
+      writeFile(filePath, data, extension, win, e)
+    })
+  } else {
+    writeFile(filePath, content, extension, win, e)
+  }
 }
 
 const handleResponseForSave = (e, { markdown, pathname }) => {
@@ -80,7 +86,7 @@ ipcMain.on('AGANI::response-file-save-as', (e, { markdown, pathname }) => {
   let filePath = dialog.showSaveDialog(win, {
     defaultPath: pathname || '~/Untitled.md'
   })
-  writeFile(filePath, markdown, win, e)
+  writeFile(filePath, markdown, '.md', win, e)
 })
 
 ipcMain.on('AGANI::response-close-confirm', (e, { filename, pathname, markdown }) => {
@@ -115,8 +121,8 @@ ipcMain.on('AGANI::close-window', e => {
   forceClose(win)
 })
 
-export const exportHTML = (win, withStyle) => {
-  win.webContents.send('AGANI::export', { type: withStyle ? 'styledHtml' : 'html' })
+export const exportFile = (win, type) => {
+  win.webContents.send('AGANI::export', { type })
 }
 
 export const print = win => {

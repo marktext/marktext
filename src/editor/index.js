@@ -366,6 +366,8 @@ class Aganippe {
   }
 
   setMarkdown (text) {
+    // if text is blank, dont need to import markdown
+    if (!text.trim()) return
     this.contentState.importMarkdown(text)
     this.dispatchChange()
   }

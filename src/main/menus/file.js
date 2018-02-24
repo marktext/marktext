@@ -40,14 +40,19 @@ export default {
   }, {
     label: 'Export',
     submenu: [{
-      label: 'Export Styled HTML',
+      label: 'Styled HTML',
       click (menuItem, browserWindow) {
-        actions.exportHTML(browserWindow, true)
+        actions.exportFile(browserWindow, 'styledHtml')
       }
     }, {
-      label: 'Export HTML',
+      label: 'HTML',
       click (menuItem, browserWindow) {
-        actions.exportHTML(browserWindow, false)
+        actions.exportFile(browserWindow, 'html')
+      }
+    }, {
+      label: 'PDF',
+      click (menuItem, browserWindow) {
+        actions.exportFile(browserWindow, 'pdf')
       }
     }]
   }, {
