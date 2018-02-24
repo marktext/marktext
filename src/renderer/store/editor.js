@@ -111,16 +111,7 @@ const actions = {
   // listen for export from main process
   LISTEN_FOR_EXPORT ({ commit, state }) {
     ipcRenderer.on('AGANI::export', (e, { type }) => {
-      switch (type) {
-        case 'styledHtml':
-        case 'html':
-          bus.$emit('export', type)
-          break
-        case 'pdf':
-          const { filename, pathname } = state
-          ipcRenderer.send('AGANI::response-export', { type, filename, pathname })
-          break
-      }
+      bus.$emit('export', type)
     })
   },
   LISTEN_FOR_UNDO_REDO ({ commit }) {

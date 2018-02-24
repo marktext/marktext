@@ -83,12 +83,12 @@ class ContentState {
     selection.setCursorRange(cursor)
   }
 
-  render () {
+  render (isRenderCursor = true) {
     const { blocks, cursor } = this
     const activeBlocks = this.getActiveBlocks()
 
     this.stateRender.render(blocks, cursor, activeBlocks)
-    this.setCursor()
+    if (isRenderCursor) this.setCursor()
     this.pre2CodeMirror()
     console.log('render')
   }

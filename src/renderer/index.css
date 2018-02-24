@@ -1,8 +1,24 @@
 @media print {
-  .title-bar {
-    display: none;
-  }
   body .editor-component {
-    height: auto;
+    height: auto !important;
+  }
+  body .editor-component #ag-editor-id,
+  body [contenteditable] {
+    caret-color: transparent !important;
+  }
+  h1.ag-active::before,
+  h2.ag-active::before,
+  h3.ag-active::before,
+  h4.ag-active::before,
+  h5.ag-active::before,
+  h6.ag-active::before {
+    content: none !important;
+  }
+  .title-bar,
+  .ag-remove,
+  .ag-emoji-marker,
+  .ag-table-tool-bar,
+  .CodeMirror-cursors {
+    display: none !important;
   }
 }

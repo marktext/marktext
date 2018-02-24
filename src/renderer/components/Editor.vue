@@ -89,6 +89,11 @@
             this.$store.dispatch('EXPORT', { type, content })
             break
           }
+
+          case 'pdf': {
+            this.$store.dispatch('EXPORT', { type })
+            break
+          }
         }
       },
       handleEditParagraph (type) {

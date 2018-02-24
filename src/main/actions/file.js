@@ -58,7 +58,7 @@ const handleResponseForExport = (e, { type, content, filename, pathname }) => {
   })
 
   if (!content && type === 'pdf') {
-    win.webContents.printToPDF({}, (err, data) => {
+    win.webContents.printToPDF({ printBackground: true }, (err, data) => {
       if (err) throw err
       writeFile(filePath, data, extension, win, e)
     })
@@ -126,7 +126,7 @@ export const exportFile = (win, type) => {
 }
 
 export const print = win => {
-  win.webContents.print({ silent: false, printBackground: false, deviceName: '' })
+  win.webContents.print({ silent: false, printBackground: true, deviceName: '' })
 }
 
 export const open = win => {
