@@ -12,6 +12,7 @@
       <el-form :model="tableChecker" :inline="true">
         <el-form-item label="Rows">
           <el-input-number
+            ref="rowInput"
             size="mini" v-model="tableChecker.rows"
             controls-position="right"
             :min="2"
@@ -101,6 +102,9 @@
           case 'table':
             this.tableChecker = { rows: 2, columns: 2 }
             this.dialogTableVisible = true
+            this.$nextTick(() => {
+              this.$refs.rowInput.focus()
+            })
             break
           case 'ul-bullet':
           case 'ul-task':

@@ -36,7 +36,7 @@ const arrowCtrl = ContentState => {
   ContentState.prototype.findPreBlockInLocation = function (block) {
     const parent = this.getParent(block)
     const preBlock = this.getPreSibling(block)
-    if (block.preSibling && preBlock.type !== 'input') { // handle task item
+    if (block.preSibling && preBlock.type !== 'input' && preBlock.type !== 'div') { // handle task item and table
       return this.lastInDescendant(preBlock)
     } else if (parent) {
       return this.findPreBlockInLocation(parent)

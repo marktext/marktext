@@ -1,3 +1,5 @@
+<p align="center"><img src="https://github.com/marktext/marktext/blob/master/static/logo-small.png" alt="mark text"></p>
+
 # MarkText
 
 **MarkText** is an **open source** Markdown editor for OS X, released under the **MIT license**. It is inspired by outstanding markdown editor **Typora**.
