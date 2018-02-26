@@ -129,10 +129,15 @@ class StateRender {
           }
         }
 
-        if (/img/.test(block.type)) {
-          const { src } = block
-          Object.assign(data.attrs, { src })
-          children = ''
+        if (/svg/.test(block.type)) {
+          const { icon } = block
+          blockSelector += '.icon'
+          Object.assign(data.attrs, { 'aria-hidden': 'true' })
+          children = [
+            h('use', {
+              attrs: { 'xlink:href': `#${icon}` }
+            })
+          ]
         }
         if (/^h\d$/.test(block.type)) {
           Object.assign(data.dataset, { head: block.type })

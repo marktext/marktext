@@ -13,6 +13,9 @@ import ExportStyledHTML from './utils/exportStyledHTML'
 import exportHtml from './utils/exportUnstylishHtml'
 import tablePicker from './tablePicker'
 
+import './assets/symbolIcon' // import symbol icons
+import './assets/symbolIcon/index.css'
+
 class Aganippe {
   constructor (container, options) {
     this.container = container
@@ -278,13 +281,22 @@ class Aganippe {
 
   dispatchTableToolBar () {
     const { container, eventCenter } = this
+    const getToolItem = target => {
+      // poor implement， fix me
+      const parent = target.parentNode
+      const grandPa = parent && parent.parentNode
+      if (target.hasAttribute('data-label')) return target
+      if (parent && parent.hasAttribute('data-label')) return parent
+      if (grandPa && grandPa.hasAttribute('data-label')) return grandPa
+      return null
+    }
     const handler = event => {
       const target = event.target
-      const parent = target.parentNode
-      if (parent && parent.hasAttribute('data-label')) {
+      const toolItem = getToolItem(target)
+      if (toolItem) {
         event.preventDefault()
         event.stopPropagation()
-        const type = parent.getAttribute('data-label')
+        const type = toolItem.getAttribute('data-label')
         this.contentState.tableToolBarClick(type)
       }
     }

@@ -15,7 +15,7 @@ class ExportHTML {
       <html lang="en">
       <head>
         <meta charset="UTF-8">
-        <title>Aganippe</title>
+        <title>Mark Text</title>
         <style>
         ${style}
         a {

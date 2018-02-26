@@ -1,9 +1,4 @@
 import { isLengthEven } from '../utils'
-import TableIcon from '../assets/icons/table.svg'
-import LeftIcon from '../assets/icons/align-left.svg'
-import CenterIcon from '../assets/icons/align-center.svg'
-import RightIcon from '../assets/icons/align-right.svg'
-import DeleteIcon from '../assets/icons/delete.svg'
 import tablePicker from '../tablePicker'
 // import selection from '../selection'
 
@@ -16,27 +11,27 @@ const tableBlockCtrl = ContentState => {
     const ul = this.createBlock('ul')
     const tools = [{
       label: 'table',
-      icon: TableIcon
+      icon: 'icon-table'
     }, {
       label: 'left',
-      icon: LeftIcon
+      icon: 'icon-alignleft'
     }, {
       label: 'center',
-      icon: CenterIcon
+      icon: 'icon-aligncenter'
     }, {
       label: 'right',
-      icon: RightIcon
+      icon: 'icon-alignright'
     }, {
       label: 'delete',
-      icon: DeleteIcon
+      icon: 'icon-del'
     }]
 
     tools.forEach(tool => {
       const toolBlock = this.createBlock('li')
-      const imgBlock = this.createBlock('img')
-      imgBlock.src = tool.icon
+      const svgBlock = this.createBlock('svg')
+      svgBlock.icon = tool.icon
       toolBlock.label = tool.label
-      this.appendChild(toolBlock, imgBlock)
+      this.appendChild(toolBlock, svgBlock)
       this.appendChild(ul, toolBlock)
     })
     this.appendChild(toolBar, ul)
@@ -228,7 +223,7 @@ const tableBlockCtrl = ContentState => {
           this.render()
         }
 
-        tablePicker.toogle({ row, column }, { left, top }, handler.bind(this))
+        tablePicker.toggle({ row, column }, { left, top }, handler.bind(this))
         // tablePicker.status ? tableLable.classList.add('active') : tableLable.classList.remove('active')
       }
     }

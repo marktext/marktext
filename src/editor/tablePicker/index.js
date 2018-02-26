@@ -60,7 +60,7 @@ class TablePicker {
     this.cb = noop
   }
 
-  toogle ({ row, column }, { left, top }, cb) {
+  toggle ({ row, column }, { left, top }, cb) {
     const { container, status, rowInput, columnInput } = this
     if (status) {
       this.hide()

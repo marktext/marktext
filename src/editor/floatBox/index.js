@@ -3,7 +3,9 @@ import {
 } from '../config'
 import eventCenter from '../event'
 
-const FLOAT_BOX_HEIGHT = 170
+import './index.css'
+
+const FLOAT_BOX_HEIGHT = 180
 const ITEM_HEIGHT = 28
 
 class FloatBox {
@@ -83,7 +85,7 @@ class FloatBox {
       this.position = { left, top }
       const viewHeight = document.documentElement.offsetHeight
       if (viewHeight - top <= FLOAT_BOX_HEIGHT + 25) {
-        top = top - FLOAT_BOX_HEIGHT
+        top = top - (FLOAT_BOX_HEIGHT + 5) // left 5px between floatbox and input element
       } else {
         top = top + 25
       }

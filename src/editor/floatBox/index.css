@@ -1,0 +1,63 @@
+.ag-float-box {
+  position: absolute;
+  display: none;
+  opacity: 0;
+  height: 168px;
+  min-width: 130px;
+  max-width: 150px;
+  margin: 0;
+  padding: 5px 0;
+  border: 1px solid #ebeef5;
+  border-radius: 4px;
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, .1);
+  list-style: none;
+  transform: scale(0);
+  transition: transform, opacity .5s ease-out;
+  overflow: auto;
+  background: #fff;
+  z-index: 10000;
+}
+
+.ag-show-float-box {
+  display: block;
+  opacity: 1;
+  transform: scale(1);
+}
+
+.ag-float-item {
+  padding: 0 .5em;
+  height: 28px;
+  line-height: 28px;
+  box-sizing: border-box;
+  color: #606266;
+  cursor: pointer;
+  font-size: 12px;
+  display: flex;
+  font-weight: 400;
+}
+
+.ag-float-item span:nth-of-type(2n) {
+  overflow: hidden;
+  text-overflow:ellipsis;
+  white-space: nowrap;
+}
+
+.ag-float-box:hover .ag-float-item-active {
+   background: #fff;
+   color: #606266;
+}
+.ag-float-item-active, .ag-float-box .ag-float-item:hover {
+  background-color: #ecf5ff;
+  color: #66b1ff;
+}
+
+.ag-float-item-icon {
+  font-size: 14px;
+  width: 28px;
+  height: 28px;
+  text-align: center;
+  display: inline-block;
+  vertical-align: middle;
+  flex-shrink: 0;
+  margin-right: .5em;
+}

@@ -255,25 +255,25 @@ table {
 }
 
 table tr {
-  border-top: 1px solid #cccccc;
   margin: 0;
   padding: 0;
 }
 
+table thead tr,
 table tr:nth-child(2n) {
-  background-color: #f8f8f8;
+  background-color: #fafafa;
 }
 
 table tr th {
   font-weight: bold;
-  border: 1px solid #cccccc;
+  border: 1px solid #ebeef5;
   text-align: left;
   margin: 0;
   padding: 6px 13px;
 }
 
 table tr td {
-  border: 1px solid #cccccc;
+  border: 1px solid #ebeef5;
   text-align: left;
   margin: 0;
   padding: 6px 13px;
