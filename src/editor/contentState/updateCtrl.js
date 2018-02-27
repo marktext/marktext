@@ -277,7 +277,6 @@ const updateCtrl = ContentState => {
     const block = this.getBlock(key)
 
     let needRender = false
-
     if (event.type === 'click' && block.type === 'figure') {
       // first cell in thead
       const cursorBlock = block.children[1].children[0].children[0].children[0]

@@ -1,6 +1,7 @@
 .ag-float-box {
   position: absolute;
-  display: none;
+  left: -10000px;
+  top: -10000px;
   opacity: 0;
   height: 168px;
   min-width: 130px;
@@ -11,17 +12,14 @@
   border-radius: 4px;
   box-shadow: 0 2px 12px 0 rgba(0, 0, 0, .1);
   list-style: none;
-  transform: scale(0);
-  transition: transform, opacity .5s ease-out;
+  transition: opacity .4s ease-in;
   overflow: auto;
   background: #fff;
   z-index: 10000;
 }
 
 .ag-show-float-box {
-  display: block;
   opacity: 1;
-  transform: scale(1);
 }
 
 .ag-float-item {

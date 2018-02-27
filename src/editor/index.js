@@ -64,6 +64,7 @@ class Aganippe {
     this.dispatchUpdateState()
     this.dispatchCopyCut()
     this.dispatchTableToolBar()
+    this.dispatchCodeBlockClick()
   }
 
   /**
@@ -277,6 +278,18 @@ class Aganippe {
       }
     }
     eventCenter.attachDOMEvent(container, 'keydown', handler)
+  }
+
+  dispatchCodeBlockClick () {
+    const { container, eventCenter } = this
+    const handler = event => {
+      const target = event.target
+      if (target.tagName === 'PRE' && target.classList.contains(CLASS_OR_ID['AG_CODE_BLOCK'])) {
+        this.contentState.focusCodeBlock(event)
+      }
+    }
+
+    eventCenter.attachDOMEvent(container, 'click', handler)
   }
 
   dispatchTableToolBar () {

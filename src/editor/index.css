@@ -139,6 +139,10 @@ p:not(.ag-active)[data-role="hr"] * {
   width: 100%;
 }
 
+#ag-editor-id pre .CodeMirror {
+  width: 100%;
+}
+
 img {
   max-width: 100%;
 }
