@@ -1,6 +1,6 @@
 <template>
   <div class="title-bar"
-    :class="{'active': active}"
+    :class="{ 'active': active }"
   >
     <div class="title">
       <img src="../assets/icons/markdown.svg" v-if="filename">
@@ -48,6 +48,7 @@
 
 <style scoped>
   .title-bar {
+    background: rgb(252, 252, 252);
     -webkit-app-region: drag;
     user-select: none;
     width: 100%;

@@ -6,19 +6,25 @@
       :word-count="wordCount"
     ></title-bar>
     <editor></editor>
+    <search></search>
   </div>
 </template>
 
 <script>
   import Editor from '@/components/editor'
   import TitleBar from '@/components/titleBar'
+  import Search from '@/components/search'
   import { mapState } from 'vuex'
 
   export default {
     name: 'marktext',
     components: {
       Editor,
-      TitleBar
+      TitleBar,
+      Search
+    },
+    data () {
+      return {}
     },
     computed: {
       ...mapState(['filename', 'windowActive', 'wordCount'])
@@ -33,7 +39,7 @@
       dispatch('GET_FILENAME')
       dispatch('LISTEN_FOR_FILE_LOAD')
       dispatch('LISTEN_FOR_FILE_CHANGE')
-      dispatch('LISTEN_FOR_UNDO_REDO')
+      dispatch('LISTEN_FOR_EDIT')
       dispatch('LISTEN_FOR_EXPORT')
       dispatch('LISTEN_FOR_PARAGRAPH_INLINE_STYLE')
     }
@@ -43,5 +49,6 @@
 <style>
   .editor-container {
     padding-top: 22px;
+    flex-direction: column;
   }
 </style>

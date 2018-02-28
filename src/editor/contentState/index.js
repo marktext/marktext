@@ -15,6 +15,7 @@ import copyCutCtrl from './copyCutCtrl'
 import paragraphCtrl from './paragraphCtrl'
 import tabCtrl from './tabCtrl'
 import formatCtrl from './formatCtrl'
+import searchCtrl from './searchCtrl'
 import importMarkdown from '../utils/importMarkdown'
 
 const prototypes = [
@@ -31,6 +32,7 @@ const prototypes = [
   tableBlockCtrl,
   paragraphCtrl,
   formatCtrl,
+  searchCtrl,
   importMarkdown
 ]
 
@@ -61,6 +63,11 @@ class ContentState {
 
   init () {
     const lastBlock = this.getLastBlock()
+    this.searchMatches = {
+      value: '',
+      matches: [],
+      index: -1
+    }
     this.cursor = {
       start: {
         key: lastBlock.key,
@@ -84,10 +91,12 @@ class ContentState {
   }
 
   render (isRenderCursor = true) {
-    const { blocks, cursor } = this
+    const { blocks, cursor, searchMatches: { matches, index } } = this
     const activeBlocks = this.getActiveBlocks()
-
-    this.stateRender.render(blocks, cursor, activeBlocks)
+    matches.forEach((m, i) => {
+      m.active = i === index
+    })
+    this.stateRender.render(blocks, cursor, activeBlocks, matches)
     if (isRenderCursor) this.setCursor()
     this.pre2CodeMirror()
     console.log('render')

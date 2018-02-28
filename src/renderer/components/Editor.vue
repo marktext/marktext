@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="editor-wrapper">
     <div ref="editor" class="editor-component"></div>
     <el-dialog 
       :visible.sync="dialogTableVisible"
@@ -79,6 +79,9 @@
         bus.$on('export', this.handleExport)
         bus.$on('paragraph', this.handleEditParagraph)
         bus.$on('format', this.handleInlineFormat)
+        bus.$on('searchValue', this.handleSearch)
+        bus.$on('replaceValue', this.handReplace)
+        bus.$on('find', this.handleFind)
 
         this.editor.on('change', (markdown, wordCount) => {
           this.$store.dispatch('SAVE_FILE', { markdown, wordCount })
@@ -92,6 +95,18 @@
       })
     },
     methods: {
+      handleSearch (value, opt) {
+        const searchMatches = this.editor.search(value, opt)
+        this.$store.dispatch('SEARCH', searchMatches)
+      },
+      handReplace (value, opt) {
+        const searchMatches = this.editor.replace(value, opt)
+        this.$store.dispatch('SEARCH', searchMatches)
+      },
+      handleFind (action) {
+        const searchMatches = this.editor.find(action)
+        this.$store.dispatch('SEARCH', searchMatches)
+      },
       async handleExport (type) {
         switch (type) {
           case 'styledHtml': {
@@ -155,6 +170,8 @@
       bus.$off('file-loaded', this.handleFileLoaded)
       bus.$off('export-styled-html', this.handleExport('styledHtml'))
       bus.$off('paragraph', this.handleEditParagraph)
+      bus.$off('searchValue', this.handleSearch)
+      bus.$off('find', this.handleFind)
       this.editor = null
     }
   }
@@ -163,8 +180,11 @@
 <style>
   @import '../../editor/themes/light.css';
   @import '../../editor/index.css';
-  .editor-component {
+  .editor-wrapper {
     height: calc(100vh - 22px);
+  }
+  .editor-component {
+    height: 100%;
     overflow: auto;
   }
   .v-modal {

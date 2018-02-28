@@ -412,6 +412,31 @@ class Aganippe {
     this.contentState.format(type)
   }
 
+  search (value, opt) {
+    const { selectHighlight } = opt
+    this.contentState.search(value, opt)
+    this.contentState.render(!!selectHighlight)
+    return this.contentState.searchMatches
+  }
+
+  replace (value, opt) {
+    this.contentState.replace(value, opt)
+    this.contentState.render(false)
+    return this.contentState.searchMatches
+  }
+
+  find (action/* pre or next */) {
+    let { matches, index } = this.contentState.searchMatches
+    const len = matches.length
+    if (!len) return
+    index = action === 'next' ? index + 1 : index - 1
+    if (index < 0) index = len - 1
+    if (index >= len) index = 0
+    this.contentState.searchMatches.index = index
+    this.contentState.render(false)
+    return this.contentState.searchMatches
+  }
+
   on (event, listener) {
     const { eventCenter } = this
     eventCenter.subscribe(event, listener)

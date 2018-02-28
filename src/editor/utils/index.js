@@ -45,6 +45,25 @@ export const conflict = (arr1, arr2) => {
   return !(arr1[1] < arr2[0] || arr2[1] < arr1[0])
 }
 
+export const union = ({ start: tStart, end: tEnd }, { start: lStart, end: lEnd, active }) => {
+  if (!(tEnd <= lStart || lEnd <= tStart)) {
+    if (lStart < tStart) {
+      return {
+        start: tStart,
+        end: tEnd < lEnd ? tEnd : lEnd,
+        active
+      }
+    } else {
+      return {
+        start: lStart,
+        end: tEnd < lEnd ? tEnd : lEnd,
+        active
+      }
+    }
+  }
+  return null
+}
+
 // https://github.com/jashkenas/underscore
 export const throttle = (func, wait = 50) => {
   let context

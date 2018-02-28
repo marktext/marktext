@@ -1,5 +1,7 @@
 import { beginRules, inlineRules } from './rules'
-import { isLengthEven } from '../utils'
+import { isLengthEven, union } from '../utils'
+
+const CAN_NEST_RULES = ['strong', 'em', 'link', 'del', 'image'] // image can not nest but it has children
 
 const tokenizerFac = (src, beginRules, inlineRules, pos = 0) => {
   const tokens = []
@@ -59,10 +61,11 @@ const tokenizerFac = (src, beginRules, inlineRules, pos = 0) => {
         content: '',
         range: {
           start: pos,
-          end: pos + backTo[0].length
+          end: pos + backTo[1].length
         }
       })
       pending += pending + backTo[2]
+      pendingStartPos = pos + backTo[1].length
       src = src.substring(backTo[0].length)
       pos = pos + backTo[0].length
       continue
@@ -186,11 +189,34 @@ const tokenizerFac = (src, beginRules, inlineRules, pos = 0) => {
   return tokens
 }
 
-export const tokenizer = src => {
-  return tokenizerFac(src, beginRules, inlineRules, 0)
+export const tokenizer = (src, highlights = []) => {
+  const tokens = tokenizerFac(src, beginRules, inlineRules, 0)
+  const postTokenizer = tokens => {
+    for (const token of tokens) {
+      for (const light of highlights) {
+        const highlight = union(token.range, light)
+        if (highlight) {
+          if (token.highlights && Array.isArray(token.highlights)) {
+            token.highlights.push(highlight)
+          } else {
+            token.highlights = [highlight]
+          }
+        }
+      }
+      if (CAN_NEST_RULES.indexOf(token.type) > -1) {
+        postTokenizer(token.children)
+      }
+    }
+  }
+  if (highlights.length) {
+    postTokenizer(tokens)
+  }
+
+  return tokens
 }
 
 // transform `tokens` to text ignore the range of token
+// the opposite of tokenizer
 export const generator = tokens => {
   let result = ''
   const getBash = bash => bash !== undefined ? bash : ''

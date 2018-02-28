@@ -32,5 +32,31 @@ export default {
     label: 'Select All',
     accelerator: 'CmdOrCtrl+A',
     role: 'selectall'
+  }, {
+    type: 'separator'
+  }, {
+    label: 'Find',
+    accelerator: 'CmdOrCtrl+F',
+    click: (menuItem, browserWindow) => {
+      actions.edit(browserWindow, 'find')
+    }
+  }, {
+    label: 'Find Next',
+    accelerator: 'Alt+CmdOrCtrl+U',
+    click: (menuItem, browserWindow) => {
+      actions.edit(browserWindow, 'fineNext')
+    }
+  }, {
+    label: 'FindPrev',
+    accelerator: 'Shift+CmdOrCtrl+U',
+    click: (menuItem, browserWindow) => {
+      actions.edit(browserWindow, 'findPrev')
+    }
+  }, {
+    label: 'Replace',
+    accelerator: 'Alt+CmdOrCtrl+F',
+    click: (menuItem, browserWindow) => {
+      actions.edit(browserWindow, 'replace')
+    }
   }]
 }

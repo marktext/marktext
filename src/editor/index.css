@@ -1,3 +1,15 @@
+@keyframes highlight {
+  from {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2);
+  } /* ignored */
+  to {
+    transform: scale(1); 
+  }
+}
+
 h1.ag-active::before,
 h2.ag-active::before,
 h3.ag-active::before,
@@ -13,16 +25,24 @@ h6.ag-active::before {
   position: absolute;
   top: 0;
   left: -25px;
-  border: 1px solid #ddd;
-  border-radius: 5px;
+  border: 1px solid #C0C4CC;
+  border-radius: 3px;
   font-size: 12px;
-  color: #ddd;
+  color: #C0C4CC;
   transform: scale(.7);
   font-weight: 100;
 }
 
-*::selection {
-  background: #efefef;
+*::selection, .ag-selection {
+  background: #E4E7ED;
+}
+
+.ag-highlight {
+  animation-name: highlight;
+  animation-duration: .25s;
+  display: inline-block;
+  background: rgb(249, 226, 153);
+  color: #303133;
 }
 
 figure {
@@ -242,7 +262,7 @@ pre.ag-active .ag-language-input {
   caret-color: #303133;
 }
 .ag-gray {
-  color: lavender;
+  color: #C0C4CC;
   text-decoration: none;
 }
 
@@ -262,7 +282,8 @@ pre.ag-active .ag-language-input {
   color: #000;
   text-decoration: none;
 }
-.ag-hide {
+
+.ag-hide, .ag-hide .ag-highlight, .ag-hide .ag-selection {
   display: inline-block;
   width: 0;
   height: 0;

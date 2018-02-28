@@ -25,7 +25,9 @@ const paragraphCtrl = ContentState => {
       .filter(p => PARAGRAPH_TYPES.includes(p.type))
 
     start.type = startBlock.type
+    start.block = startBlock
     end.type = endBlock.type
+    end.block = endBlock
 
     return {
       start,

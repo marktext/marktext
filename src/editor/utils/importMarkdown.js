@@ -94,7 +94,7 @@ const importRegister = ContentState => {
           case 'h4':
           case 'h5':
           case 'h6':
-            const textValue = child.childNodes[0].value
+            const textValue = child.childNodes.length ? child.childNodes[0].value : ''
             const match = /\d/.exec(child.nodeName)
             value = match ? '#'.repeat(+match[0]) + textValue : textValue
             block = this.createBlock(child.nodeName, value)

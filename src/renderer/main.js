@@ -7,12 +7,13 @@ import store from './store'
 import './assets/symbolIcon'
 import './index.css'
 
-import { Dialog, Form, FormItem, InputNumber, Button } from 'element-ui'
+import { Dialog, Form, FormItem, InputNumber, Button, Tooltip } from 'element-ui'
 Vue.use(Dialog)
 Vue.use(Form)
 Vue.use(FormItem)
 Vue.use(InputNumber)
 Vue.use(Button)
+Vue.use(Tooltip)
 
 if (!process.env.IS_WEB) Vue.use(require('vue-electron'))
 Vue.http = Vue.prototype.$http = axios

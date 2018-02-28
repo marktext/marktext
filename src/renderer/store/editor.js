@@ -4,6 +4,11 @@ import bus from '../bus'
 
 const state = {
   filename: 'Untitled - unsaved',
+  searchMatches: {
+    index: -1,
+    matches: [],
+    value: ''
+  },
   pathname: '',
   isSaved: true,
   markdown: '',
@@ -17,6 +22,9 @@ const state = {
 }
 
 const mutations = {
+  SET_SEARCH (state, value) {
+    state.searchMatches = value
+  },
   SET_WIN_STATUS (state, status) {
     state.windowActive = status
   },
@@ -39,6 +47,9 @@ const mutations = {
 }
 
 const actions = {
+  SEARCH ({ commit }, value) {
+    commit('SET_SEARCH', value)
+  },
   LINTEN_WIN_STATUS ({ commit }) {
     ipcRenderer.on('AGANI::window-active-status', (e, { status }) => {
       commit('SET_WIN_STATUS', status)
@@ -103,6 +114,16 @@ const actions = {
     }
   },
   SELECTION_CHANGE ({ commit }, changes) {
+    const { start, end } = changes
+    if (start.key === end.key && start.block.text) {
+      const value = start.block.text.substring(start.offset, end.offset)
+      commit('SET_SEARCH', {
+        matches: [],
+        index: -1,
+        value
+      })
+    }
+
     ipcRenderer.send('AGANI::selection-change', changes)
   },
   SELECTION_FORMATS ({ commit }, formats) {
@@ -114,7 +135,7 @@ const actions = {
       bus.$emit('export', type)
     })
   },
-  LISTEN_FOR_UNDO_REDO ({ commit }) {
+  LISTEN_FOR_EDIT ({ commit }) {
     ipcRenderer.on('AGANI::edit', (e, { type }) => {
       bus.$emit(type)
     })

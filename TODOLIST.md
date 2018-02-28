@@ -1,6 +1,6 @@
 #### TODO LIST
 
-- [ ] Support Search and Replacement.
+- [x] Support Search and Replacement.
 
 - [ ] add Dark, Light and GitHub theme.
 

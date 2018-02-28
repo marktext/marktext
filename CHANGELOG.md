@@ -1,4 +1,20 @@
-### 0.3.1
+### 0.4.0
+
+**Feature**
+
+- Search value in document, Use **FIND PREV** and **FIND NEXT** to selection previous one or next one.
+
+  Add animation of highlight word.
+
+  Auto focus the search input when open search panel.
+
+  close the search panel will auto selection the last highlight word by ESC button.
+
+- Replace value
+
+  Replace All
+
+  Replace one and auto highlight the next word.
 
 **Bug fix**
 
