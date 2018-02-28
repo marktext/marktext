@@ -2,18 +2,24 @@
   <div>
     <div ref="editor" class="editor-component"></div>
     <el-dialog 
-      title="Insert Table"
       :visible.sync="dialogTableVisible"
       :show-close="isShowClose"
-      :modal="false"
+      :modal="true"
       custom-class="ag-dialog-table"
       width="450px"
+      center
     >
+      <div slot="title" class="dialog-title">
+        <svg class="icon" aria-hidden="true">
+          <use xlink:href="#icon-table"></use>
+        </svg>
+      </div>
       <el-form :model="tableChecker" :inline="true">
         <el-form-item label="Rows">
           <el-input-number
             ref="rowInput"
-            size="mini" v-model="tableChecker.rows"
+            size="mini"
+            v-model="tableChecker.rows"
             controls-position="right"
             :min="2"
             :max="20"
@@ -21,7 +27,8 @@
         </el-form-item>
         <el-form-item label="Columns">
           <el-input-number
-            size="mini" v-model="tableChecker.columns"
+            size="mini"
+            v-model="tableChecker.columns"
             controls-position="right"
             :min="2"
             :max="20"
@@ -29,8 +36,16 @@
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="dialogTableVisible = false" size="mini">Cancel</el-button>
-        <el-button type="primary" @click="handleDialogTableConfirm" size="mini">Ok</el-button>
+        <el-button @click="dialogTableVisible = false" size="mini">
+          <svg class="icon" aria-hidden="true">
+            <use xlink:href="#icon-close"></use>
+          </svg>
+        </el-button>
+        <el-button type="primary" @click="handleDialogTableConfirm" size="mini">
+          <svg class="icon" aria-hidden="true">
+            <use xlink:href="#icon-gou"></use>
+          </svg>
+        </el-button>
       </div>
     </el-dialog>
   </div>
@@ -48,8 +63,8 @@
         isShowClose: false,
         dialogTableVisible: false,
         tableChecker: {
-          rows: 2,
-          columns: 2
+          rows: 4,
+          columns: 3
         }
       }
     },
@@ -146,13 +161,21 @@
 </script>
 
 <style>
-  @import '../../editor/themes/github.css';
+  @import '../../editor/themes/light.css';
   @import '../../editor/index.css';
   .editor-component {
     height: calc(100vh - 22px);
     overflow: auto;
   }
+  .v-modal {
+    background: #fff;
+    opacity: .8;
+  }
   .ag-dialog-table {
-    background: rgb(239, 239, 239);
+    box-shadow: none;
+  }
+  .ag-dialog-table .dialog-title svg {
+    width: 1.5em;
+    height: 1.5em;
   }
 </style>

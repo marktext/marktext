@@ -156,10 +156,11 @@ class StateRender {
         if (block.type === 'input') {
           const { checked, type, key } = block
           Object.assign(data.attrs, { type: 'checkbox' })
+          blockSelector = `${type}#${key}.${CLASS_OR_ID['AG_TASK_LIST_ITEM_CHECKBOX']}`
           if (checked) {
             Object.assign(data.attrs, { checked: true })
+            blockSelector += `.${CLASS_OR_ID['AG_CHECKBOX_CHECKED']}`
           }
-          blockSelector = `${type}#${key}.${CLASS_OR_ID['AG_TASK_LIST_ITEM_CHECKBOX']}`
           children = ''
         }
 

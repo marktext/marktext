@@ -103,6 +103,7 @@ class FloatBox {
     this.index = 0
     if (this.show) {
       this.box.classList.remove(CLASS_OR_ID['AG_SHOW_FLOAT_BOX'])
+      this.box.removeAttribute('style')
     }
     this.show = false
   }

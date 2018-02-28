@@ -4,6 +4,7 @@ import axios from 'axios'
 import App from './App'
 import store from './store'
 
+import './assets/symbolIcon'
 import './index.css'
 
 import { Dialog, Form, FormItem, InputNumber, Button } from 'element-ui'

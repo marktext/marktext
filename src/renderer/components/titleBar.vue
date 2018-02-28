@@ -10,29 +10,7 @@
       <div 
         class="word-count"
         @click.stop="handleWordClick"
-      >{{wordCount.word >= 2 ? `${wordCount.word} Words` : `${wordCount.word} Word`}}</div>
-    </div>
-    <div 
-      class="popup"
-      :class="{ 'show-popup': show }"
-      @click.stop="noop"
-    >
-      <div class="pop-item">
-        <div class="label">Words</div>
-        <div class="value">{{wordCount.word}}</div>
-      </div>
-      <div class="pop-item">
-        <div class="label">Paragraphs</div>
-        <div class="value">{{wordCount.paragraph}}</div>
-      </div>
-      <div class="pop-item">
-        <div class="label">Characters</div>
-        <div class="value">{{wordCount.character}}</div>
-      </div>
-      <div class="pop-item">
-        <div class="label">All</div>
-        <div class="value">{{wordCount.all}}</div>
-      </div>
+      >{{ `${HASH[show]} ${wordCount[show]}` }}</div>
     </div>
   </div>
 </template>
@@ -40,8 +18,14 @@
 <script>
   export default {
     data () {
+      this.HASH = {
+        'word': 'W',
+        'character': 'C',
+        'paragraph': 'P',
+        'all': 'A'
+      }
       return {
-        show: false
+        show: 'word'
       }
     },
     props: {
@@ -49,16 +33,15 @@
       active: Boolean,
       wordCount: Object
     },
-    created () {
-      document.addEventListener('click', event => {
-        this.show = false
-      })
-    },
     methods: {
       handleWordClick () {
-        this.show = !this.show
-      },
-      noop () {}
+        const ITEMS = ['word', 'paragraph', 'character', 'all']
+        const len = ITEMS.length
+        let index = ITEMS.indexOf(this.show)
+        index += 1
+        if (index >= len) index = 0
+        this.show = ITEMS[index]
+      }
     }
   }
 </script>
@@ -69,19 +52,17 @@
     user-select: none;
     width: 100%;
     height: 22px;
-    border-bottom: 1px solid #ccc;
     box-sizing: border-box;
-    color: #999;
-    background: linear-gradient(180deg, #ffffff, #efefef);
+    color: #C0C4CC;
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
     z-index: 1;
+    transition: color .4s ease-in;
   }
   .active {
-    background: linear-gradient(180deg, #efefef, #ccc);
-    color: #333;
+    color: #909399;
   }
   img {
     height: 90%;
@@ -104,68 +85,21 @@
     right: 0;
     width: 100px;
     display: flex;
+    flex-direction: row-reverse;
   }
   .word-count {
+    cursor: pointer;
     font-size: 12px;
-    color: #666;
+    color: #C0C4CC;
     height: 15px;
     line-height: 15px;
-    margin-top: 3px;
-    padding: 0 3px;
-    border-radius: 2px;
-    cursor: pointer;
+    margin-top: 4px;
+    padding: 1px 5px;
+    border-radius: 1px;
     transition: all .3s ease-in;
   }
   .word-count:hover {
-    background: #bbb;
-    color: #000;
-  }
-  .popup {
-    font-size: 12px;
-    font-weight: 500;
-    width: 150px;
-    height: auto;
-    padding: 10px;
-    background: rgb(239, 239, 239);
-    position: absolute;
-    top: 35px;
-    right: 10px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    box-shadow: 0 2px 6px 0 rgba(0,0,0,.1);
-    transition: all .2s ease-out;
-    transform-origin: top;
-    transform: scale(0);
-    opacity: .3;
-  }
-  .show-popup {
-    transform: scale(1);
-    opacity: 1;
-  }
-  .popup::before {
-    content: '';
-    width: 15px;
-    height: 15px;
-    background: rgb(239, 239, 239);
-    border: 1px solid #ddd;
-    display: inline-block;
-    position: absolute;
-    top: -9px;
-    right: 60px;
-    border-right: none;
-    border-bottom: none;
-    transform: rotate(45deg);
-  }
-  .pop-item {
-    display: flex;
-  }
-  .label {
-    width: 75px;
-    flex-shrink: 1;
-    text-align: right;
-    font-weight: 600;
-  }
-  .value {
-    padding-left: 25px;
+    background: #F2F6FC;
+    color: #606266;
   }
 </style>
