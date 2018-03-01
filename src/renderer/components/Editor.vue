@@ -1,6 +1,12 @@
 <template>
-  <div class="editor-wrapper">
-    <div ref="editor" class="editor-component"></div>
+  <div
+    class="editor-wrapper"
+    :class="{ 'typewriter': typewriter, 'focus': focus, 'source-code': sourceCode }"
+  >
+    <div
+      ref="editor"
+      class="editor-component"
+    ></div>
     <el-dialog 
       :visible.sync="dialogTableVisible"
       :show-close="isShowClose"
@@ -54,8 +60,29 @@
 <script>
   import Aganippe from '../../editor'
   import bus from '../bus'
+  import { animatedScrollTo } from '../../editor/utils'
+
+  const STANDAR_Y = 320
+  const PARAGRAPH_CMD = [
+    'ul-bullet', 'ul-task', 'ol-order', 'pre', 'blockquote', 'heading 1', 'heading 2', 'heading 3',
+    'heading 4', 'heading 5', 'heading 6', 'upgrade heading', 'degrade heading', 'paragraph', 'hr'
+  ]
 
   export default {
+    props: {
+      typewriter: {
+        type: Boolean,
+        required: true
+      },
+      focus: {
+        type: Boolean,
+        required: true
+      },
+      sourceCode: {
+        type: Boolean,
+        required: true
+      }
+    },
     data () {
       return {
         editor: null,
@@ -87,6 +114,13 @@
           this.$store.dispatch('SAVE_FILE', { markdown, wordCount })
         })
         this.editor.on('selectionChange', changes => {
+          const editor = this.editor.container
+          const { y } = changes.cursorCoords
+
+          if (this.typewriter) {
+            animatedScrollTo(editor, editor.scrollTop + y - STANDAR_Y, 100)
+          }
+
           this.$store.dispatch('SELECTION_CHANGE', changes)
         })
         this.editor.on('selectionFormats', formats => {
@@ -104,8 +138,13 @@
         this.$store.dispatch('SEARCH', searchMatches)
       },
       handleFind (action) {
+        const { container } = this.editor
         const searchMatches = this.editor.find(action)
         this.$store.dispatch('SEARCH', searchMatches)
+        // Scroll to highlight
+        const anchor = document.querySelector('.ag-highlight')
+        const { y } = anchor.getBoundingClientRect()
+        animatedScrollTo(container, container.scrollTop + y - STANDAR_Y, 300)
       },
       async handleExport (type) {
         switch (type) {
@@ -128,31 +167,14 @@
         }
       },
       handleEditParagraph (type) {
-        switch (type) {
-          case 'table':
-            this.tableChecker = { rows: 2, columns: 2 }
-            this.dialogTableVisible = true
-            this.$nextTick(() => {
-              this.$refs.rowInput.focus()
-            })
-            break
-          case 'ul-bullet':
-          case 'ul-task':
-          case 'ol-order':
-          case 'pre':
-          case 'blockquote':
-          case 'heading 1':
-          case 'heading 2':
-          case 'heading 3':
-          case 'heading 4':
-          case 'heading 5':
-          case 'heading 6':
-          case 'upgrade heading':
-          case 'degrade heading':
-          case 'paragraph':
-          case 'hr':
-            this.editor && this.editor.updateParagraph(type)
-            break
+        if (type === 'table') {
+          this.tableChecker = { rows: 2, columns: 2 }
+          this.dialogTableVisible = true
+          this.$nextTick(() => {
+            this.$refs.rowInput.focus()
+          })
+        } else if (PARAGRAPH_CMD.indexOf(type) > -1) {
+          this.editor && this.editor.updateParagraph(type)
         }
       },
       handleInlineFormat (type) {
@@ -186,6 +208,11 @@
   .editor-component {
     height: 100%;
     overflow: auto;
+    box-sizing: border-box;
+  }
+  .typewriter .editor-component {
+    padding-top: calc(50vh - 136px);
+    padding-bottom: calc(50vh - 54px);
   }
   .v-modal {
     background: #fff;

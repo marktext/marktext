@@ -1,3 +1,5 @@
+import * as actions from '../actions/view'
+
 let viewMenu = {
   label: 'View',
   submenu: [{
@@ -14,6 +16,31 @@ let viewMenu = {
         focusedWindow.setFullScreen(!focusedWindow.isFullScreen())
       }
     }
+  }, {
+    type: 'separator'
+  }, {
+    label: 'Source Code Mode',
+    accelerator: 'Alt+CmdOrCtrl+S',
+    type: 'checkbox',
+    click (item, browserWindow) {
+      actions.view(browserWindow, item, 'sourceCode')
+    }
+  }, {
+    label: 'Typewriter Mode',
+    accelerator: 'Alt+CmdOrCtrl+T',
+    type: 'checkbox',
+    click (item, browserWindow) {
+      actions.view(browserWindow, item, 'typewriter')
+    }
+  }, {
+    label: 'Focus Mode',
+    accelerator: 'Alt+CmdOrCtrl+M',
+    type: 'checkbox',
+    click (item, browserWindow) {
+      actions.view(browserWindow, item, 'focus')
+    }
+  }, {
+    type: 'separator'
   }]
 }
 

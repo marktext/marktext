@@ -5,7 +5,11 @@
       :active="windowActive"
       :word-count="wordCount"
     ></title-bar>
-    <editor></editor>
+    <editor
+      :typewriter="typewriter"
+      :focus="focus"
+      :source-code="sourceCode"
+    ></editor>
     <search></search>
   </div>
 </template>
@@ -27,7 +31,7 @@
       return {}
     },
     computed: {
-      ...mapState(['filename', 'windowActive', 'wordCount'])
+      ...mapState(['filename', 'windowActive', 'wordCount', 'typewriter', 'focus', 'sourceCode'])
     },
     created () {
       const { dispatch } = this.$store
@@ -40,6 +44,7 @@
       dispatch('LISTEN_FOR_FILE_LOAD')
       dispatch('LISTEN_FOR_FILE_CHANGE')
       dispatch('LISTEN_FOR_EDIT')
+      dispatch('LISTEN_FOR_VIEW')
       dispatch('LISTEN_FOR_EXPORT')
       dispatch('LISTEN_FOR_PARAGRAPH_INLINE_STYLE')
     }
@@ -49,6 +54,5 @@
 <style>
   .editor-container {
     padding-top: 22px;
-    flex-direction: column;
   }
 </style>

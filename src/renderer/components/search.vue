@@ -164,9 +164,6 @@
       },
       find (action) {
         bus.$emit('find', action)
-        // const anchor = document.querySelector('.ag-highlight')
-        // console.log(this.scroll)
-        // this.scroll.animateScroll(anchor)
       },
       search (event) {
         if (event.key !== 'Enter') {

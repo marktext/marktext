@@ -815,6 +815,26 @@ class Selection {
     }
   }
 
+  getCursorCoords () {
+    const sel = this.doc.getSelection()
+    let range
+    let x = 0
+    let y = 0
+
+    if (sel.rangeCount) {
+      range = sel.getRangeAt(0).cloneRange()
+      if (range.getClientRects) {
+        range.collapse(true)
+        const rects = range.getClientRects()
+        if (rects.length) {
+          ({ x, y } = rects[0])
+        }
+      }
+    }
+
+    return { x, y }
+  }
+
   getSelectionEnd () {
     const node = this.doc.getSelection().focusNode
     const endNode = (node && node.nodeType === 3 ? node.parentNode : node)

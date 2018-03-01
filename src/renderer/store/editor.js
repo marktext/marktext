@@ -9,6 +9,9 @@ const state = {
     matches: [],
     value: ''
   },
+  typewriter: false, // typewriter mode
+  focus: false, // focus mode
+  sourceCode: false, // source code mode
   pathname: '',
   isSaved: true,
   markdown: '',
@@ -22,6 +25,9 @@ const state = {
 }
 
 const mutations = {
+  SET_MODE (state, { type, checked }) {
+    state[type] = checked
+  },
   SET_SEARCH (state, value) {
     state.searchMatches = value
   },
@@ -138,6 +144,11 @@ const actions = {
   LISTEN_FOR_EDIT ({ commit }) {
     ipcRenderer.on('AGANI::edit', (e, { type }) => {
       bus.$emit(type)
+    })
+  },
+  LISTEN_FOR_VIEW ({ commit }) {
+    ipcRenderer.on('AGANI::view', (e, data) => {
+      commit('SET_MODE', data)
     })
   },
   LISTEN_FOR_PARAGRAPH_INLINE_STYLE ({ commit }) {

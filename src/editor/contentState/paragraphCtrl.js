@@ -16,6 +16,7 @@ const getCurrentLevel = type => {
 const paragraphCtrl = ContentState => {
   ContentState.prototype.selectionChange = function () {
     const { start, end } = selection.getCursorRange()
+    const cursorCoords = selection.getCursorCoords()
     const startBlock = this.getBlock(start.key)
     const endBlock = this.getBlock(end.key)
     const startParents = this.getParents(startBlock)
@@ -32,7 +33,8 @@ const paragraphCtrl = ContentState => {
     return {
       start,
       end,
-      affiliation
+      affiliation,
+      cursorCoords
     }
   }
 

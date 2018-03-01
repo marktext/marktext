@@ -34,13 +34,13 @@
 }
 
 html, body {
-  font-size: 16px;
+  font-size: 15px;
   background: rgb(252, 252, 252);
 }
 
 body {
   font-family: "Open Sans", "Clear Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
-  color: #303133;
+  color: #606266;
   line-height: 1.6;
 }
 

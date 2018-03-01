@@ -35,6 +35,7 @@ h6.ag-active::before {
 
 *::selection, .ag-selection {
   background: #E4E7ED;
+  color: #303133;
 }
 
 .ag-highlight {
@@ -262,7 +263,7 @@ pre.ag-active .ag-language-input {
   caret-color: #303133;
 }
 .ag-gray {
-  color: #C0C4CC;
+  color: #E4E7ED;
   text-decoration: none;
 }
 
