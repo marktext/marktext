@@ -1,14 +1,17 @@
 import 'codemirror/addon/edit/closebrackets'
 import 'codemirror/addon/edit/closetag'
+import 'codemirror/addon/selection/active-line'
 import 'codemirror/mode/meta'
 import codeMirror from 'codemirror/lib/codemirror'
 
 import loadmode from './loadmode'
+import overlayMode from './overlayMode'
 import languages from './modes'
 import 'codemirror/lib/codemirror.css'
 import './index.css'
 
 loadmode(codeMirror)
+overlayMode(codeMirror)
 window.CodeMirror = codeMirror
 
 const modes = codeMirror.modeInfo

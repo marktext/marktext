@@ -1,7 +1,7 @@
 <template>
   <div
     class="editor-wrapper"
-    :class="{ 'typewriter': typewriter, 'focus': focus, 'source-code': sourceCode }"
+    :class="{ 'typewriter': typewriter, 'focus': focus, 'source': sourceCode }"
   >
     <div
       ref="editor"
@@ -81,7 +81,9 @@
       sourceCode: {
         type: Boolean,
         required: true
-      }
+      },
+      markdown: String,
+      cursor: Object
     },
     data () {
       return {
@@ -114,8 +116,14 @@
       this.$nextTick(() => {
         const ele = this.$refs.editor
         this.editor = new Aganippe(ele)
+        const { container } = this.editor
+        const { markdown } = this
 
-        bus.$on('file-loaded', this.handleFileLoaded)
+        if (markdown.trim()) {
+          this.setMarkdownToEditor(markdown)
+        }
+
+        bus.$on('file-loaded', this.setMarkdownToEditor)
         bus.$on('undo', () => this.editor.undo())
         bus.$on('redo', () => this.editor.redo())
         bus.$on('export', this.handleExport)
@@ -124,8 +132,6 @@
         bus.$on('searchValue', this.handleSearch)
         bus.$on('replaceValue', this.handReplace)
         bus.$on('find', this.handleFind)
-
-        const { container } = this.editor
 
         this.editor.on('change', (markdown, wordCount) => {
           this.$store.dispatch('SAVE_FILE', { markdown, wordCount })
@@ -210,16 +216,23 @@
         this.dialogTableVisible = false
         this.editor && this.editor.createTable(this.tableChecker)
       },
-      handleFileLoaded (file) {
-        this.editor && this.editor.setMarkdown(file)
+      setMarkdownToEditor (markdown) {
+        const { cursor } = this
+        this.editor && this.editor.setMarkdown(markdown, cursor)
       }
     },
     beforeDestroy () {
-      bus.$off('file-loaded', this.handleFileLoaded)
-      bus.$off('export-styled-html', this.handleExport('styledHtml'))
+      bus.$off('file-loaded', this.setMarkdownToEditor)
+      bus.$off('undo', () => this.editor.undo())
+      bus.$off('redo', () => this.editor.redo())
+      bus.$off('export', this.handleExport)
       bus.$off('paragraph', this.handleEditParagraph)
+      bus.$off('format', this.handleInlineFormat)
       bus.$off('searchValue', this.handleSearch)
+      bus.$off('replaceValue', this.handReplace)
       bus.$off('find', this.handleFind)
+
+      // this.editor.destroy()
       this.editor = null
     }
   }
@@ -230,6 +243,12 @@
   @import '../../editor/index.css';
   .editor-wrapper {
     height: calc(100vh - 22px);
+  }
+  .editor-wrapper.source {
+    position: absolute;
+    z-index: -1;
+    left: -10000px;
+    opacity: 0;
   }
   .editor-component {
     height: 100%;

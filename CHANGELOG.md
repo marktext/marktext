@@ -4,6 +4,8 @@
 
 - Add Typewriter Mode, The current line will always in the center of the document. If you change the current line, it will be auto scroll to the new line.
 
+- Add Focus Mode, the current paragraph's will be focused.
+
 **Optimization**
 
 - Optimize the display of path name and file name in title bar.

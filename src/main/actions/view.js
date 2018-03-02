@@ -10,6 +10,15 @@ const HASH = {
 export const view = (win, item, type) => {
   const { checked } = item
   win.webContents.send('AGANI::view', { type, checked })
+
+  if (type === 'sourceCode') {
+    const viewMenuItem = getMenuItem('View')
+    viewMenuItem.submenu.items.forEach(item => {
+      if (/typewriter|focus/.test(HASH[item.label])) {
+        item.enabled = !checked
+      }
+    })
+  }
 }
 
 ipcMain.on('AGANI::ask-for-mode', e => {

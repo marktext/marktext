@@ -226,21 +226,33 @@ const importRegister = ContentState => {
     return this.getStateFragment(markdown)
   }
 
+  ContentState.prototype.importCursor = function (cursor) {
+    // set cursor
+    if (cursor) {
+      // TODO for codeMirror cursor to aganippe cursor
+      const lastBlock = this.getLastBlock()
+      const key = lastBlock.key
+      const offset = lastBlock.text.length
+      this.cursor = {
+        start: { key, offset },
+        end: { key, offset }
+      }
+    } else {
+      const lastBlock = this.getLastBlock()
+      const key = lastBlock.key
+      const offset = lastBlock.text.length
+      this.cursor = {
+        start: { key, offset },
+        end: { key, offset }
+      }
+    }
+  }
+
   ContentState.prototype.importMarkdown = function (markdown) {
     // empty the blocks and codeBlocks
     this.keys = new Set()
     this.codeBlocks = new Map()
     this.blocks = this.getStateFragment(markdown)
-    // set cursor
-    const lastBlock = this.getLastBlock()
-    const key = lastBlock.key
-    const offset = lastBlock.text.length
-    this.cursor = {
-      start: { key, offset },
-      end: { key, offset }
-    }
-    // re-render
-    this.render()
   }
 }
 

@@ -9,8 +9,18 @@
       :typewriter="typewriter"
       :focus="focus"
       :source-code="sourceCode"
+      :markdown="markdown"
+      :cursor="cursor"
+      v-if="!sourceCode"
     ></editor>
-    <search></search>
+    <source-code
+      v-else
+      :markdown="markdown"
+      :cursor="cursor"
+    ></source-code>
+    <search
+      v-if="!sourceCode"
+    ></search>
   </div>
 </template>
 
@@ -18,6 +28,7 @@
   import Editor from '@/components/editor'
   import TitleBar from '@/components/titleBar'
   import Search from '@/components/search'
+  import SourceCode from '@/components/sourceCode'
   import { mapState } from 'vuex'
 
   export default {
@@ -25,13 +36,14 @@
     components: {
       Editor,
       TitleBar,
-      Search
+      Search,
+      SourceCode
     },
     data () {
       return {}
     },
     computed: {
-      ...mapState(['pathname', 'windowActive', 'wordCount', 'typewriter', 'focus', 'sourceCode'])
+      ...mapState(['pathname', 'windowActive', 'wordCount', 'typewriter', 'focus', 'sourceCode', 'markdown', 'cursor'])
     },
     created () {
       const { dispatch } = this.$store
@@ -55,5 +67,11 @@
 <style>
   .editor-container {
     padding-top: 22px;
+  }
+  .editor-container .hide {
+    z-index: -1;
+    opacity: 0;
+    position: absolute;
+    left: -10000px;
   }
 </style>

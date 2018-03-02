@@ -135,8 +135,8 @@ li.ag-task-list-item > input[type=checkbox] {
   height: inherit;
   margin: 4px 0px 0px;
   top: 1px;
-  width: 19px;
-  height: 19px;
+  width: 18px;
+  height: 18px;
   left: -20px;
 }
 
@@ -146,8 +146,8 @@ li.ag-task-list-item > input.ag-checkbox-checked ~ p {
 
 li.ag-task-list-item > input[type=checkbox]::before {
   content: '';
-  width: 16px;
-  height: 16px;
+  width: 14px;
+  height: 14px;
   box-sizing: border-box;
   display: inline-block;
   border: 2px solid #606266;
@@ -174,7 +174,7 @@ li.ag-task-list-item > input.ag-checkbox-checked::after {
   position: absolute;
   display: inline-block;
   top: 4px;
-  left: 4px;
+  left: 3px;
 }
 
 li p .ag-hide:first-child {

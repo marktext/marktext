@@ -12,9 +12,10 @@ const state = {
   typewriter: false, // typewriter mode
   focus: false, // focus mode
   sourceCode: false, // source code mode
-  pathname: 'Untitled - unsaved',
+  pathname: '',
   isSaved: true,
   markdown: '',
+  cursor: null,
   windowActive: true,
   wordCount: {
     paragraph: 0,
@@ -49,6 +50,9 @@ const mutations = {
   },
   SET_WORD_COUNT (state, wordCount) {
     state.wordCount = wordCount
+  },
+  SET_CURSOR (state, cursor) {
+    state.cursor = cursor
   }
 }
 
@@ -119,9 +123,10 @@ const actions = {
     const { filename, pathname } = state
     ipcRenderer.send('AGANI::response-export', { type, content, filename, pathname })
   },
-  SAVE_FILE ({ commit, state }, { markdown, wordCount }) {
+  SAVE_FILE ({ commit, state }, { markdown, wordCount, cursor }) {
     commit('SET_MARKDOWN', markdown)
-    commit('SET_WORD_COUNT', wordCount)
+    if (wordCount) commit('SET_WORD_COUNT', wordCount)
+    if (cursor) commit('SET_CURSOR', cursor)
     const { pathname } = state
     if (pathname) {
       commit('SET_STATUS', true)

@@ -390,10 +390,12 @@ class Aganippe {
     return this.contentState.wordCount()
   }
 
-  setMarkdown (text) {
-    // if text is blank, dont need to import markdown
-    if (!text.trim()) return
-    this.contentState.importMarkdown(text)
+  setMarkdown (markdown, cursor) {
+    // if markdown is blank, dont need to import markdown
+    if (!markdown.trim()) return
+    this.contentState.importMarkdown(markdown)
+    this.contentState.importCursor(cursor)
+    this.contentState.render()
     this.dispatchChange()
   }
 

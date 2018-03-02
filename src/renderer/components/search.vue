@@ -136,31 +136,39 @@
       }
     },
     created () {
-      bus.$on('find', () => {
+      bus.$on('find', this.listenFind)
+      bus.$on('replace', this.listenReplace)
+      bus.$on('findNext', this.listenFindNext)
+      bus.$on('findPrev', this.listenFindPrev)
+      document.addEventListener('click', this.docClick)
+      document.addEventListener('keyup', this.docKeyup)
+    },
+    beforeDestroy () {
+      bus.$off('find', this.listenFind)
+      bus.$off('replace', this.listenReplace)
+      bus.$off('findNext', this.listenFindNext)
+      bus.$off('findPrev', this.listenFindPrev)
+      document.removeEventListener('click', this.docClick)
+      document.removeEventListener('keyup', this.docKeyup)
+    },
+    methods: {
+      listenFind () {
         this.showSearch = true
         this.type = 'search'
         this.$nextTick(() => {
           this.$refs.search.focus()
         })
-      })
-      bus.$on('replace', () => {
+      },
+      listenReplace () {
         this.showSearch = true
         this.type = 'replace'
-      })
-      bus.$on('findNext', () => {
+      },
+      listenFindNext () {
         this.find('next')
-      })
-      bus.$on('findPrev', () => {
+      },
+      listenFindPrev () {
         this.find('prev')
-      })
-      document.addEventListener('click', this.docClick)
-      document.addEventListener('keyup', this.docKeyup)
-    },
-    beforeDestroy () {
-      document.removeEventListener('click', this.docClick)
-      document.removeEventListener('keyup', this.docKeyup)
-    },
-    methods: {
+      },
       docKeyup (event) {
         if (event.key === 'Escape') {
           this.emitSearch(true)
