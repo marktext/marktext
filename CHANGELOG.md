@@ -1,3 +1,17 @@
+### 0.5.2
+
+**Features**
+
+- Add Typewriter Mode, The current line will always in the center of the document. If you change the current line, it will be auto scroll to the new line.
+
+**Optimization**
+
+- Optimize the display of path name and file name in title bar.
+
+- Eidtor will auto scroll to the highlight word when click Find Prev or Find Next.
+
+**Bug fix**
+
 ### 0.4.0
 
 **Feature**

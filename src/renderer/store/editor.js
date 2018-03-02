@@ -12,7 +12,7 @@ const state = {
   typewriter: false, // typewriter mode
   focus: false, // focus mode
   sourceCode: false, // source code mode
-  pathname: '',
+  pathname: 'Untitled - unsaved',
   isSaved: true,
   markdown: '',
   windowActive: true,
@@ -55,6 +55,17 @@ const mutations = {
 const actions = {
   SEARCH ({ commit }, value) {
     commit('SET_SEARCH', value)
+  },
+  ASK_FOR_MODE ({ commit }) {
+    ipcRenderer.send('AGANI::ask-for-mode')
+    ipcRenderer.on('AGANI::res-for-mode', (e, modes) => {
+      Object.keys(modes).forEach(type => {
+        commit('SET_MODE', {
+          type,
+          checked: modes[type]
+        })
+      })
+    })
   },
   LINTEN_WIN_STATUS ({ commit }) {
     ipcRenderer.on('AGANI::window-active-status', (e, { status }) => {

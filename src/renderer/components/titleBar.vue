@@ -3,8 +3,13 @@
     :class="{ 'active': active }"
   >
     <div class="title">
-      <img src="../assets/icons/markdown.svg" v-if="filename">
-      {{ filename }}
+      <span v-for="(path, index) of paths" :key="index">
+        {{ path }}
+        <svg class="icon" aria-hidden="true">
+          <use xlink:href="#icon-arrow-right"></use>
+        </svg>
+      </span>
+      <span>{{ filename }}</span>
     </div>
     <div class="right-toolbar">
       <div 
@@ -29,9 +34,19 @@
       }
     },
     props: {
-      filename: String,
+      pathname: String,
       active: Boolean,
       wordCount: Object
+    },
+    computed: {
+      paths () {
+        const pathnameToken = this.pathname.split('/').filter(i => i)
+        return pathnameToken.slice(0, pathnameToken.length - 1).slice(-3)
+      },
+      filename () {
+        const pathnameToken = this.pathname.split('/').filter(i => i)
+        return pathnameToken.pop()
+      }
     },
     methods: {
       handleWordClick () {
@@ -54,16 +69,16 @@
     width: 100%;
     height: 22px;
     box-sizing: border-box;
-    color: #C0C4CC;
+    color: #F2F6FC;
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
     z-index: 1;
-    transition: color .4s ease-in;
+    transition: color .4s ease-in-out;
   }
   .active {
-    color: #909399;
+    color: #DCDFE6;
   }
   img {
     height: 90%;
@@ -77,6 +92,10 @@
     font-size: 12px;
     font-weight: 500;
     text-align: center;
+    transition: all .25s ease-in-out;
+  }
+  .title:hover {
+    color: #606266;
   }
   .right-toolbar {
     padding: 0 10px;
@@ -91,13 +110,16 @@
   .word-count {
     cursor: pointer;
     font-size: 12px;
-    color: #C0C4CC;
+    color: #F2F6FC;
     height: 15px;
     line-height: 15px;
     margin-top: 4px;
     padding: 1px 5px;
     border-radius: 1px;
-    transition: all .3s ease-in;
+    transition: all .25s ease-in-out;
+  }
+  .active .word-count {
+    color: #DCDFE6;
   }
   .word-count:hover {
     background: #F2F6FC;

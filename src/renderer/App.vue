@@ -1,7 +1,7 @@
 <template>
   <div class="editor-container">
     <title-bar
-      :filename="filename"
+      :pathname="pathname"
       :active="windowActive"
       :word-count="wordCount"
     ></title-bar>
@@ -31,11 +31,12 @@
       return {}
     },
     computed: {
-      ...mapState(['filename', 'windowActive', 'wordCount', 'typewriter', 'focus', 'sourceCode'])
+      ...mapState(['pathname', 'windowActive', 'wordCount', 'typewriter', 'focus', 'sourceCode'])
     },
     created () {
       const { dispatch } = this.$store
 
+      dispatch('ASK_FOR_MODE')
       dispatch('LISTEN_FOR_CLOSE')
       dispatch('LISTEN_FOR_SAVE_AS')
       dispatch('LINTEN_WIN_STATUS')

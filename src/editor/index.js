@@ -24,7 +24,7 @@ class Aganippe {
     this.tablePicker = tablePicker
     this.contentState = new ContentState()
     this.emoji = new Emoji() // emoji instance: has search(text) clear() methods.
-
+    this.focusMode = false
     // private property
     this._isEditChinese = false
     this.init()
@@ -404,6 +404,20 @@ class Aganippe {
     eventCenter.dispatch('selectionChange', selectionChanges)
   }
 
+  getSelection () {
+    return this.contentState.selectionChange()
+  }
+
+  setFocusMode (bool) {
+    const { container, focusMode } = this
+    if (bool && !focusMode) {
+      container.classList.add(CLASS_OR_ID['AG_FOCUS_MODE'])
+    } else {
+      container.classList.remove(CLASS_OR_ID['AG_FOCUS_MODE'])
+    }
+    this.focusMode = bool
+  }
+
   updateParagraph (type) {
     this.contentState.updateParagraph(type)
   }
@@ -426,13 +440,7 @@ class Aganippe {
   }
 
   find (action/* pre or next */) {
-    let { matches, index } = this.contentState.searchMatches
-    const len = matches.length
-    if (!len) return
-    index = action === 'next' ? index + 1 : index - 1
-    if (index < 0) index = len - 1
-    if (index >= len) index = 0
-    this.contentState.searchMatches.index = index
+    this.contentState.find(action)
     this.contentState.render(false)
     return this.contentState.searchMatches
   }

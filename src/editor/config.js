@@ -64,6 +64,7 @@ export const CLASS_OR_ID = genUpper2LowerKeyHash([
   'AG_LANGUAGE',
   'AG_LANGUAGE_INPUT',
   'AG_TEMP',
+  'AG_FOCUS_MODE',
   'AG_LINK_IN_BRACKET',
   'AG_BACKLASH',
   'AG_BUG', // for remove bug

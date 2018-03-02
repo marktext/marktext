@@ -98,6 +98,11 @@ const codeBlockCtrl = ContentState => {
         block.pos = cm.getCursor()
       })
 
+      codeBlock.on('cursorActivity', (cm, event) => {
+        block.coords = cm.cursorCoords()
+        block.pos = cm.getCursor()
+      })
+
       let lastUndoLength = 0
       codeBlock.on('change', (cm, change) => {
         block.text = cm.getValue()

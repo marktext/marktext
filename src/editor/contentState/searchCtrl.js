@@ -36,10 +36,41 @@ const searchCtrl = ContentState => {
     }
   }
 
+  ContentState.prototype.setCursorToHighlight = function () {
+    const { matches, index } = this.searchMatches
+    const match = matches[index]
+
+    if (!match) return
+    const { key, start, end } = match
+
+    this.cursor = {
+      start: {
+        key,
+        offset: start
+      },
+      end: {
+        key,
+        offset: end
+      }
+    }
+  }
+
+  ContentState.prototype.find = function (action/* prev next */) {
+    let { matches, index } = this.searchMatches
+    const len = matches.length
+    if (!len) return
+    index = action === 'next' ? index + 1 : index - 1
+    if (index < 0) index = len - 1
+    if (index >= len) index = 0
+    this.searchMatches.index = index
+
+    this.setCursorToHighlight()
+  }
+
   ContentState.prototype.search = function (value, opt = {}) {
     value = value.trim()
     let matches = []
-    const { caseSensitive, selectHighlight, highlightIndex } = Object.assign(defaultSearchOption, opt)
+    const { caseSensitive, highlightIndex } = Object.assign(defaultSearchOption, opt)
     const { blocks } = this
     const search = blocks => {
       for (const block of blocks) {
@@ -72,25 +103,8 @@ const searchCtrl = ContentState => {
       index = 0
     }
 
-    if (selectHighlight) {
-      const { matches, index } = this.searchMatches
-      const light = matches[index]
-      if (light) {
-        const key = light.key
-        this.cursor = {
-          start: {
-            key,
-            offset: light.start
-          },
-          end: {
-            key,
-            offset: light.end
-          }
-        }
-      }
-    }
     Object.assign(this.searchMatches, { value, matches, index })
-
+    if (value) this.setCursorToHighlight()
     return matches
   }
 }

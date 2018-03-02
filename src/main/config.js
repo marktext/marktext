@@ -16,3 +16,9 @@ export const EXTENSION_HASN = {
   html: '.html',
   pdf: '.pdf'
 }
+
+export const VIEW_MENU_ITEM = {
+  'Source Code Mode': false,
+  'Typewriter Mode': false,
+  'Focus Mode': false
+}

@@ -1,3 +1,4 @@
+import { VIEW_MENU_ITEM } from '../config'
 import * as actions from '../actions/view'
 
 let viewMenu = {
@@ -22,6 +23,7 @@ let viewMenu = {
     label: 'Source Code Mode',
     accelerator: 'Alt+CmdOrCtrl+S',
     type: 'checkbox',
+    checked: VIEW_MENU_ITEM['Source Code Mode'],
     click (item, browserWindow) {
       actions.view(browserWindow, item, 'sourceCode')
     }
@@ -29,6 +31,7 @@ let viewMenu = {
     label: 'Typewriter Mode',
     accelerator: 'Alt+CmdOrCtrl+T',
     type: 'checkbox',
+    checked: VIEW_MENU_ITEM['Typewriter Mode'],
     click (item, browserWindow) {
       actions.view(browserWindow, item, 'typewriter')
     }
@@ -36,6 +39,7 @@ let viewMenu = {
     label: 'Focus Mode',
     accelerator: 'Alt+CmdOrCtrl+M',
     type: 'checkbox',
+    checked: VIEW_MENU_ITEM['Focus Mode'],
     click (item, browserWindow) {
       actions.view(browserWindow, item, 'focus')
     }

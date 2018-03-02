@@ -260,7 +260,7 @@ pre.ag-active .ag-language-input {
 
 #ag-editor-id, [contenteditable] {
 	outline: none;
-  caret-color: #303133;
+  caret-color: #00BCD4;
 }
 .ag-gray {
   color: #E4E7ED;
@@ -322,3 +322,30 @@ span[data-role="link"], a[data-role="link"], span[data-role="link"] .ag-backlash
   color: #0366d6;
   text-decoration: none;
 }
+
+.ag-focus-mode p.ag-paragraph,
+.ag-focus-mode h1.ag-paragraph,
+.ag-focus-mode h2.ag-paragraph,
+.ag-focus-mode h3.ag-paragraph,
+.ag-focus-mode h4.ag-paragraph,
+.ag-focus-mode h5.ag-paragraph,
+.ag-focus-mode h6.ag-paragraph,
+.ag-focus-mode th.ag-paragraph,
+.ag-focus-mode td.ag-paragraph,
+.ag-focus-mode pre.ag-paragraph {
+  opacity: .25;
+}
+
+.ag-focus-mode p.ag-active,
+.ag-focus-mode h1.ag-active,
+.ag-focus-mode h2.ag-active,
+.ag-focus-mode h3.ag-active,
+.ag-focus-mode h4.ag-active,
+.ag-focus-mode h5.ag-active,
+.ag-focus-mode h6.ag-active,
+.ag-focus-mode th.ag-active,
+.ag-focus-mode td.ag-active,
+.ag-focus-mode pre.ag-active {
+  opacity: 1;
+}
+

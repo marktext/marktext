@@ -17,7 +17,7 @@
     >
       <div slot="title" class="dialog-title">
         <svg class="icon" aria-hidden="true">
-          <use xlink:href="#icon-table"></use>
+          <use xlink:href="#icon-table-3d"></use>
         </svg>
       </div>
       <el-form :model="tableChecker" :inline="true">
@@ -85,6 +85,7 @@
     },
     data () {
       return {
+        selectionChange: null,
         editor: null,
         pathname: '',
         isShowClose: false,
@@ -93,6 +94,20 @@
           rows: 4,
           columns: 3
         }
+      }
+    },
+    watch: {
+      typewriter: function (value) {
+        if (value) {
+          this.$nextTick(() => {
+            const { container } = this.editor
+            const { y } = this.editor.getSelection().cursorCoords
+            animatedScrollTo(container, container.scrollTop + y - STANDAR_Y, 300)
+          })
+        }
+      },
+      focus: function (value) {
+        this.editor.setFocusMode(value)
       }
     },
     created () {
@@ -110,19 +125,23 @@
         bus.$on('replaceValue', this.handReplace)
         bus.$on('find', this.handleFind)
 
+        const { container } = this.editor
+
         this.editor.on('change', (markdown, wordCount) => {
           this.$store.dispatch('SAVE_FILE', { markdown, wordCount })
         })
+
         this.editor.on('selectionChange', changes => {
-          const editor = this.editor.container
           const { y } = changes.cursorCoords
 
           if (this.typewriter) {
-            animatedScrollTo(editor, editor.scrollTop + y - STANDAR_Y, 100)
+            animatedScrollTo(container, container.scrollTop + y - STANDAR_Y, 100)
           }
 
+          this.selectionChange = changes
           this.$store.dispatch('SELECTION_CHANGE', changes)
         })
+
         this.editor.on('selectionFormats', formats => {
           this.$store.dispatch('SELECTION_FORMATS', formats)
         })
@@ -132,19 +151,26 @@
       handleSearch (value, opt) {
         const searchMatches = this.editor.search(value, opt)
         this.$store.dispatch('SEARCH', searchMatches)
+        this.scrollToHighlight()
       },
       handReplace (value, opt) {
         const searchMatches = this.editor.replace(value, opt)
         this.$store.dispatch('SEARCH', searchMatches)
       },
-      handleFind (action) {
+      scrollToHighlight () {
+        // Scroll to highlight
         const { container } = this.editor
+        const anchor = document.querySelector('.ag-highlight')
+        if (anchor) {
+          const { y } = anchor.getBoundingClientRect()
+          const DURATION = 300
+          animatedScrollTo(container, container.scrollTop + y - STANDAR_Y, DURATION)
+        }
+      },
+      handleFind (action) {
         const searchMatches = this.editor.find(action)
         this.$store.dispatch('SEARCH', searchMatches)
-        // Scroll to highlight
-        const anchor = document.querySelector('.ag-highlight')
-        const { y } = anchor.getBoundingClientRect()
-        animatedScrollTo(container, container.scrollTop + y - STANDAR_Y, 300)
+        this.scrollToHighlight()
       },
       async handleExport (type) {
         switch (type) {
@@ -168,7 +194,7 @@
       },
       handleEditParagraph (type) {
         if (type === 'table') {
-          this.tableChecker = { rows: 2, columns: 2 }
+          this.tableChecker = { rows: 4, columns: 3 }
           this.dialogTableVisible = true
           this.$nextTick(() => {
             this.$refs.rowInput.focus()
