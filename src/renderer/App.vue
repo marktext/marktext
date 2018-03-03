@@ -2,6 +2,7 @@
   <div class="editor-container">
     <title-bar
       :pathname="pathname"
+      :filename="filename"
       :active="windowActive"
       :word-count="wordCount"
     ></title-bar>
@@ -43,7 +44,10 @@
       return {}
     },
     computed: {
-      ...mapState(['pathname', 'windowActive', 'wordCount', 'typewriter', 'focus', 'sourceCode', 'markdown', 'cursor'])
+      ...mapState([
+        'pathname', 'filename', 'windowActive', 'wordCount',
+        'typewriter', 'focus', 'sourceCode', 'markdown', 'cursor'
+      ])
     },
     created () {
       const { dispatch } = this.$store

@@ -101,11 +101,7 @@
     watch: {
       typewriter: function (value) {
         if (value) {
-          this.$nextTick(() => {
-            const { container } = this.editor
-            const { y } = this.editor.getSelection().cursorCoords
-            animatedScrollTo(container, container.scrollTop + y - STANDAR_Y, 300)
-          })
+          this.scrollToCursor()
         }
       },
       focus: function (value) {
@@ -118,9 +114,13 @@
         this.editor = new Aganippe(ele)
         const { container } = this.editor
         const { markdown } = this
-
+        // init set markdown and edit mode(typewriter mode and focus mode)
         if (markdown.trim()) {
           this.setMarkdownToEditor(markdown)
+          if (this.typewriter) {
+            this.scrollToCursor()
+          }
+          this.editor.setFocusMode(this.focus)
         }
 
         bus.$on('file-loaded', this.setMarkdownToEditor)
@@ -162,6 +162,13 @@
       handReplace (value, opt) {
         const searchMatches = this.editor.replace(value, opt)
         this.$store.dispatch('SEARCH', searchMatches)
+      },
+      scrollToCursor () {
+        this.$nextTick(() => {
+          const { container } = this.editor
+          const { y } = this.editor.getSelection().cursorCoords
+          animatedScrollTo(container, container.scrollTop + y - STANDAR_Y, 300)
+        })
       },
       scrollToHighlight () {
         // Scroll to highlight
