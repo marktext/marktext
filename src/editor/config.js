@@ -1,4 +1,4 @@
-import { generateKeyHash, genUpper2LowerKeyHash } from './utils'
+import { generateKeyHash, genUpper2LowerKeyHash, getIdWithoutSet } from './utils'
 
 // export const markedSymbol = ['\\*', '\\-', '\\_', '\\!', '\\[', '\\]', '\\+',
 //   '\\\\', '\\)', '\\(', '\\`', '\\{', '\\}', '\\#', '\\.']
@@ -124,6 +124,8 @@ export const htmlBeautifyConfig = {
     'preserve-newlines': true
   }
 }
+
+export const CURSOR_DNA = getIdWithoutSet()
 
 export const turndownConfig = {
   headingStyle: 'atx',

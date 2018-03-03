@@ -21,10 +21,11 @@
     },
     created () {
       this.$nextTick(() => {
+        const { markdown = '' } = this
         this.contentState = new ContentState()
         const container = this.$refs.sourceCode
         const editor = this.editor = codeMirror(container, {
-          value: this.markdown || '',
+          value: markdown,
           lineNumbers: true,
           autofocus: true,
           lineWrapping: true,
@@ -49,7 +50,7 @@
         })
 
         setMode(editor, 'markdown')
-        this.setMarkdown(this.markdown || '')
+        this.setMarkdown(markdown)
       })
     },
     beforeDestory () {
@@ -57,9 +58,13 @@
     },
     methods: {
       setMarkdown (markdown) {
-        const { editor } = this
+        const { editor, cursor } = this
         this.editor.setValue(markdown)
-        setCursorAtLastLine(editor)
+        if (cursor) {
+          editor.setCursor(cursor)
+        } else {
+          setCursorAtLastLine(editor)
+        }
       }
     }
   }

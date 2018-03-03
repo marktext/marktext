@@ -133,8 +133,9 @@
         bus.$on('replaceValue', this.handReplace)
         bus.$on('find', this.handleFind)
 
-        this.editor.on('change', (markdown, wordCount) => {
-          this.$store.dispatch('SAVE_FILE', { markdown, wordCount })
+        this.editor.on('change', (markdown, wordCount, cursor) => {
+          console.log(cursor)
+          this.$store.dispatch('SAVE_FILE', { markdown, wordCount, cursor })
         })
 
         this.editor.on('selectionChange', changes => {
@@ -171,7 +172,7 @@
         })
       },
       scrollToHighlight () {
-        // Scroll to highlight
+        // Scroll to search highlight word
         const { container } = this.editor
         const anchor = document.querySelector('.ag-highlight')
         if (anchor) {

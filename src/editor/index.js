@@ -92,7 +92,8 @@ class Aganippe {
     const { eventCenter } = this
     const markdown = this.getMarkdown()
     const wordCount = this.getWordCount()
-    eventCenter.dispatch('change', markdown, wordCount)
+    const cursor = this.getCursor()
+    eventCenter.dispatch('change', markdown, wordCount, cursor)
   }
 
   dispatchCopyCut () {
@@ -390,10 +391,18 @@ class Aganippe {
     return this.contentState.wordCount()
   }
 
+  getCursor () {
+    return this.contentState.getCodeMirrorCursor()
+  }
+
   setMarkdown (markdown, cursor) {
     // if markdown is blank, dont need to import markdown
     if (!markdown.trim()) return
-    this.contentState.importMarkdown(markdown)
+    let newMarkdown = markdown
+    if (cursor) {
+      newMarkdown = this.contentState.addCursorToMarkdown(markdown, cursor)
+    }
+    this.contentState.importMarkdown(newMarkdown)
     this.contentState.importCursor(cursor)
     this.contentState.render()
     this.dispatchChange()

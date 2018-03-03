@@ -5,9 +5,10 @@
 import parse5 from 'parse5'
 import TurndownService from 'turndown'
 import marked from '../parser/marked'
+import ExportMarkdown from './exportMarkdown'
 
 // To be disabled rules when parse markdown, Because content state don't need to parse inline rules
-import { turndownConfig, CLASS_OR_ID } from '../config'
+import { turndownConfig, CLASS_OR_ID, CURSOR_DNA } from '../config'
 
 const turndownPluginGfm = require('turndown-plugin-gfm')
 
@@ -226,16 +227,54 @@ const importRegister = ContentState => {
     return this.getStateFragment(markdown)
   }
 
+  ContentState.prototype.addCursorToMarkdown = function (markdown, cursor) {
+    const { ch, line } = cursor
+    const lines = markdown.split('\n')
+    const rawText = lines[line]
+    lines[line] = rawText.substring(0, ch) + CURSOR_DNA + rawText.substring(ch)
+    return lines.join('\n')
+  }
+
+  ContentState.prototype.getCodeMirrorCursor = function () {
+    const blocks = this.getBlocks()
+    const { start: { key, offset } } = this.cursor
+    const block = this.getBlock(key)
+    const { text } = block
+    block.text = text.substring(0, offset) + CURSOR_DNA + text.substring(offset)
+    const markdown = new ExportMarkdown(blocks).generate()
+    const cursor = markdown.split('\n').reduce((acc, line, index) => {
+      const ch = line.indexOf(CURSOR_DNA)
+      if (ch > -1) {
+        Object.assign(acc, { line: index, ch })
+      }
+      return acc
+    }, {
+      line: 0,
+      ch: 0
+    })
+    // remove CURSOR_DNA
+    block.text = text
+    return cursor
+  }
+
   ContentState.prototype.importCursor = function (cursor) {
     // set cursor
     if (cursor) {
-      // TODO for codeMirror cursor to aganippe cursor
-      const lastBlock = this.getLastBlock()
-      const key = lastBlock.key
-      const offset = lastBlock.text.length
-      this.cursor = {
-        start: { key, offset },
-        end: { key, offset }
+      const blocks = this.getArrayBlocks()
+      for (const block of blocks) {
+        const { text, key } = block
+        if (text) {
+          const offset = block.text.indexOf(CURSOR_DNA)
+          if (offset > -1) {
+            // remove the CURSOR_DNA in the block text
+            block.text = text.substring(0, offset) + text.substring(offset + CURSOR_DNA.length)
+            this.cursor = {
+              start: { key, offset },
+              end: { key, offset }
+            }
+            break
+          }
+        }
       }
     } else {
       const lastBlock = this.getLastBlock()
