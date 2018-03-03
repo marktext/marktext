@@ -25,6 +25,7 @@
         this.contentState = new ContentState()
         const container = this.$refs.sourceCode
         const editor = this.editor = codeMirror(container, {
+          // theme: 'railscasts',
           value: markdown,
           lineNumbers: true,
           autofocus: true,

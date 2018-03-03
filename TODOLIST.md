@@ -4,7 +4,7 @@
 
 - [ ] add Dark, Light and GitHub theme.
 
-- [ ] source code edit mode.
+- [x] source code edit mode typewriter mode focus mode.
 
 - [ ] Support Raw HTML in editor.
 

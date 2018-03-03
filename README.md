@@ -1,8 +1,9 @@
-<p align="center"><img src="https://github.com/marktext/marktext/blob/master/static/logo-small.png" alt="mark text"></p>
+<p align="center"><img src="https://github.com/marktext/marktext/blob/master/static/logo-small.png" alt="mark text" width="100" height="100"></p>
 
-# MarkText
+<h1 align="center">MarkText</h1>
 
-[![GitHub version](https://badge.fury.io/gh/jocs%2Fmarktext.svg)](https://badge.fury.io/gh/jocs%2Fmarktext)
+<p align="center"><img src="https://badge.fury.io/gh/jocs%2Fmarktext.svg"></p>
+
 
 **MarkText** is an **open source** Markdown editor for OS X, released under the **MIT license**. It is inspired by outstanding markdown editor **Typora**.
 

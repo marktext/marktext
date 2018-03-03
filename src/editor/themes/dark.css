@@ -4,6 +4,7 @@
 }
 
 @include-when-export url(http://fonts.googleapis.com/css?family=Open+Sans:400italic,700italic,700,400&subset=latin,latin-ext);
+
 @font-face {
   font-family: 'Open Sans';
   font-style: normal;
@@ -32,13 +33,14 @@
   src: local('Open Sans Bold Italic'), url('./github/700i.woff') format('woff')
 }
 
-html {
+html, body {
   font-size: 16px;
+  background: rgb(43, 43, 43);
 }
 
 body {
   font-family: "Open Sans", "Clear Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
-  color: rgb(51, 51, 51);
+  color: rgb(217, 217, 217);
   line-height: 1.6;
 }
 
@@ -50,9 +52,19 @@ body {
   padding-bottom: 100px;
 }
 
+#ag-editor-id, [contenteditable] {
+  outline: none;
+  caret-color: #efefef;
+}
+
 #ag-editor-id>ul:first-child,
 #ag-editor-id>ol:first-child {
   margin-top: 30px;
+}
+
+.ag-gray {
+  color: #909399;
+  text-decoration: none;
 }
 
 body>*:first-child {
@@ -240,9 +252,9 @@ ol:last-child {
 }
 
 blockquote {
-  border-left: 4px solid #dddddd;
+  border-left: 4px solid #606266;
   padding: 0 15px;
-  color: #777777;
+  color: #999999;
 }
 
 blockquote blockquote {
@@ -261,19 +273,20 @@ table tr {
 
 table thead tr,
 table tr:nth-child(2n) {
-  background-color: #fafafa;
+  background-color: #303133;
 }
 
 table tr th {
   font-weight: bold;
-  border: 1px solid #ebeef5;
+  border-top: 2px solid #606266;
+  border-bottom: 2px solid #606266;
   text-align: left;
   margin: 0;
   padding: 6px 13px;
 }
 
 table tr td {
-  border: 1px solid #ebeef5;
+  border-bottom: 1px solid #606266;
   text-align: left;
   margin: 0;
   padding: 6px 13px;
@@ -293,11 +306,10 @@ table tr td:last-child {
   border-right: 1px solid #ddd;
 }
 
-.md-fences,
 code,
 tt {
   border: 1px solid #ddd;
-  background-color: #f8f8f8;
+  background-color: #606266;
   border-radius: 3px;
   padding: 0;
   font-family: Consolas, "Liberation Mono", Courier, monospace;
@@ -307,45 +319,14 @@ tt {
 
 
 /* custom add */
-
-.md-fences,
 code {
   border: none;
   padding: 2px 4px;
   font-size: 90%;
-  color: #c7254e;
-  background-color: #f9f2f4;
+  color: #efefef;
+  background-color: #606266;
   border-radius: 4px;
   font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
-}
-
-.md-fences {
-  margin-bottom: 15px;
-  margin-top: 15px;
-  padding: 0.2em 1em;
-  padding-top: 8px;
-  padding-bottom: 6px;
-  border: none;
-}
-
-.task-list {
-  padding-left: 0;
-}
-
-.task-list-item {
-  padding-left: 32px;
-}
-
-.task-list-item input {
-  top: 3px;
-  left: 8px;
-}
-
-@media screen and (min-width: 914px) {
-  /*body {
-    width: 854px;
-    margin: 0 auto;
-  }*/
 }
 
 @media print {
@@ -361,103 +342,12 @@ code {
   }
 }
 
-.md-fences {
-  background-color: #f8f8f8;
-}
-
 #ag-editor-id pre.ag-code-block {
   padding: .4rem 1rem;
   font-size: 90%;
   line-height: 1.6;
-  background-color: #f6f8fa;
-  border: 0;
+  border: 1px solid #606266;
   border-radius: 3px;
   color: #777777;
   margin-top: 0;
-}
-
-.mathjax-block>.code-tooltip {
-  bottom: .375rem;
-}
-
-#ag-editor-id>h3.md-focus:before {
-  left: -1.5625rem;
-  top: .375rem;
-}
-
-#ag-editor-id>h4.md-focus:before {
-  left: -1.5625rem;
-  top: .285714286rem;
-}
-
-#ag-editor-id>h5.md-focus:before {
-  left: -1.5625rem;
-  top: .285714286rem;
-}
-
-#ag-editor-id>h6.md-focus:before {
-  left: -1.5625rem;
-  top: .285714286rem;
-}
-
-.md-image>.md-meta {
-  border: 1px solid #ddd;
-  border-radius: 3px;
-  font-family: Consolas, "Liberation Mono", Courier, monospace;
-  padding: 2px 4px 0px 4px;
-  font-size: 0.9em;
-  color: inherit;
-}
-
-.md-tag {
-  color: inherit;
-}
-
-.md-toc {
-  margin-top: 20px;
-  padding-bottom: 20px;
-}
-
-.sidebar-tabs {
-  border-bottom: none;
-}
-
-#typora-quick-open {
-  border: 1px solid #ddd;
-  background-color: #f8f8f8;
-}
-
-#typora-quick-open-item {
-  background-color: #FAFAFA;
-  border-color: #FEFEFE #e5e5e5 #e5e5e5 #eee;
-  border-style: solid;
-  border-width: 1px;
-}
-
-#md-notification:before {
-  top: 10px;
-}
-
-
-/** focus mode */
-
-.on-focus-mode blockquote {
-  border-left-color: rgba(85, 85, 85, 0.12);
-}
-
-header,
-.context-menu,
-.megamenu-content,
-footer {
-  font-family: "Segoe UI", "Arial", sans-serif;
-}
-
-.file-node-content:hover .file-node-icon,
-.file-node-content:hover .file-node-open-state {
-  visibility: visible;
-}
-
-.mac-seamless-mode #typora-sidebar {
-  background-color: #fafafa;
-  background-color: var(--side-bar-bg-color);
 }

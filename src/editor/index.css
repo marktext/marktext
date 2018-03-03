@@ -106,7 +106,6 @@ figure.ag-active .ag-table-tool-bar {
 table {
   width: 100%;
   border-collapse: collapse;
-  border: 1px solid #ebeef5;
   margin-top: 0;
 }
 
@@ -135,8 +134,6 @@ li.ag-task-list-item > input[type=checkbox] {
   height: inherit;
   margin: 4px 0px 0px;
   top: 1px;
-  width: 18px;
-  height: 18px;
   left: -20px;
 }
 
@@ -256,15 +253,6 @@ span.ag-emoji-marked-text {
 }
 pre.ag-active .ag-language-input {
   display: block;
-}
-
-#ag-editor-id, [contenteditable] {
-	outline: none;
-  caret-color: #00BCD4;
-}
-.ag-gray {
-  color: #E4E7ED;
-  text-decoration: none;
 }
 
 .ag-link-in-bracket, .ag-link-in-bracket .ag-backlash {

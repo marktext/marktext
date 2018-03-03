@@ -87,6 +87,7 @@ export const CLASS_OR_ID = genUpper2LowerKeyHash([
 ])
 
 export const codeMirrorConfig = {
+  // theme: 'railscasts',
   autoCloseBrackets: true,
   lineWiseCopyCut: false,
   autoCloseTags: true,
