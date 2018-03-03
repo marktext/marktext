@@ -1,4 +1,4 @@
-### 0.5.2
+### 0.5.3
 
 **Features**
 
@@ -13,6 +13,8 @@
 - Eidtor will auto scroll to the highlight word when click Find Prev or Find Next.
 
 **Bug fix**
+
+- Set back the cursor when mode change between source code mode and normal mode
 
 ### 0.4.0
 

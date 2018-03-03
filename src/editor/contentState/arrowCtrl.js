@@ -1,4 +1,3 @@
-import floatBox from '../floatBox'
 import { EVENT_KEYS } from '../config'
 import {
   isCursorAtFirstLine, isCursorAtLastLine, isCursorAtBegin, search, // eslint-disable-line no-unused-vars
@@ -60,7 +59,8 @@ const arrowCtrl = ContentState => {
 
   ContentState.prototype.arrowHandler = function (event) {
     // when the float box is show, use up and down to select item.
-    const { list, index, show } = floatBox
+    const { floatBox } = this
+    const { list, index, show } = this.floatBox
     const node = selection.getSelectionStart()
     const paragraph = findNearestParagraph(node)
     const id = paragraph.id

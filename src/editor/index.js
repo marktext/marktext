@@ -1,17 +1,17 @@
 import ContentState from './contentState'
 import selection from './selection'
-import eventCenter from './event'
+import EventCenter from './event'
 import { LOWERCASE_TAGS, EVENT_KEYS, CLASS_OR_ID } from './config'
 import { throttle, debounce } from './utils'
 import { search } from './codeMirror'
 import { checkEditLanguage } from './codeMirror/language'
 import Emoji, { checkEditEmoji, setInlineEmoji } from './emojis'
-import floatBox from './floatBox'
+import FloatBox from './floatBox'
 import { findNearestParagraph, operateClassName } from './utils/domManipulate'
 import ExportMarkdown from './utils/exportMarkdown'
 import ExportStyledHTML from './utils/exportStyledHTML'
 import exportHtml from './utils/exportUnstylishHtml'
-import tablePicker from './tablePicker'
+import TablePicker from './tablePicker'
 
 import './assets/symbolIcon' // import symbol icons
 import './assets/symbolIcon/index.css'
@@ -19,10 +19,10 @@ import './assets/symbolIcon/index.css'
 class Aganippe {
   constructor (container, options) {
     this.container = container
-    this.eventCenter = eventCenter
-    this.floatBox = floatBox
-    this.tablePicker = tablePicker
-    this.contentState = new ContentState()
+    const eventCenter = this.eventCenter = new EventCenter()
+    const floatBox = this.floatBox = new FloatBox(eventCenter)
+    const tablePicker = this.tablePicker = new TablePicker(eventCenter)
+    this.contentState = new ContentState(eventCenter, floatBox, tablePicker)
     this.emoji = new Emoji() // emoji instance: has search(text) clear() methods.
     this.focusMode = false
     // private property
@@ -48,7 +48,6 @@ class Aganippe {
     eventCenter.attachDOMEvent(container, 'keydown', debounce(event => {
       this.contentState.historyHandler(event)
       this.contentState.garbageCollection()
-      this.dispatchChange()
     }, 300))
 
     eventCenter.attachDOMEvent(container, 'paste', event => {
@@ -332,6 +331,7 @@ class Aganippe {
         const { formats } = this.contentState.selectionFormats()
         eventCenter.dispatch('selectionChange', selectionChanges)
         eventCenter.dispatch('selectionFormats', formats)
+        this.dispatchChange()
       }
     }
 
@@ -470,14 +470,17 @@ class Aganippe {
   }
 
   destroy () {
-    this.eventCenter.detachAllDomEvents()
     this.emoji.clear() // clear emoji cache for memory recycle
     this.contentState.clear()
+    this.floatBox.destroy()
+    this.tablePicker.destroy()
     this.container = null
     this.contentState = null
-    this.eventCenter = null
     this.emoji = null
     this.floatBox = null
+    this.tablePicker = null
+    this.eventCenter.detachAllDomEvents()
+    this.eventCenter = null
   }
 }
 

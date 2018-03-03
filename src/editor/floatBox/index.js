@@ -1,7 +1,6 @@
 import {
   CLASS_OR_ID
 } from '../config'
-import eventCenter from '../event'
 
 import './index.css'
 
@@ -9,11 +8,11 @@ const FLOAT_BOX_HEIGHT = 180
 const ITEM_HEIGHT = 28
 
 class FloatBox {
-  constructor (event) {
+  constructor (eventCenter) {
     this.list = []
     this.index = 0
     this.position = null
-    this.event = event
+    this.eventCenter = eventCenter
     this.show = false
     this.box = null
     this.cb = null
@@ -35,7 +34,7 @@ class FloatBox {
       box.id = CLASS_OR_ID['AG_FLOAT_BOX_ID']
       box.classList.add(CLASS_OR_ID['AG_FLOAT_BOX'])
       document.body.appendChild(box)
-      this.event.attachDOMEvent(box, 'click', clickHandler)
+      this.eventCenter.attachDOMEvent(box, 'click', clickHandler)
     }
     this.box = box
   }
@@ -107,6 +106,10 @@ class FloatBox {
     }
     this.show = false
   }
+
+  destroy () {
+    this.box.parentNode.removeChild(this.box)
+  }
 }
 
-export default new FloatBox(eventCenter)
+export default FloatBox

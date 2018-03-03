@@ -1,6 +1,4 @@
 import { isLengthEven } from '../utils'
-import tablePicker from '../tablePicker'
-// import selection from '../selection'
 
 const TABLE_BLOCK_REG = /^\|.*?(\\*)\|.*?(\\*)\|/
 
@@ -160,6 +158,7 @@ const tableBlockCtrl = ContentState => {
         break
       }
       case 'table': {
+        const { tablePicker } = this
         const figureKey = figure.key
         const tableLable = document.querySelector(`#${figureKey} [data-label=table]`)
         const rect = tableLable.getBoundingClientRect()

@@ -1,8 +1,6 @@
 import codeMirror, { setMode, setCursorAtLastLine } from '../codeMirror'
 import { createInputInCodeBlock } from '../utils/domManipulate'
 import { codeMirrorConfig, CLASS_OR_ID } from '../config'
-// import floatBox from '../floatBox'
-import eventCenter from '../event'
 
 const CODE_UPDATE_REP = /^`{3,}(.*)/
 
@@ -37,6 +35,7 @@ const codeBlockCtrl = ContentState => {
   }
 
   ContentState.prototype.pre2CodeMirror = function () {
+    const { eventCenter } = this
     const pres = document.querySelectorAll(`pre.${CLASS_OR_ID['AG_CODE_BLOCK']}`)
     Array.from(pres).forEach(pre => {
       const id = pre.id

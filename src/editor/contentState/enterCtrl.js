@@ -1,5 +1,4 @@
 import selection from '../selection'
-import floatBox from '../floatBox'
 
 const enterCtrl = ContentState => {
   ContentState.prototype.chopBlock = function (block) {
@@ -95,7 +94,8 @@ const enterCtrl = ContentState => {
     let block = this.getBlock(start.key)
     let parent = this.getParent(block)
     // handle float box
-    const { list, index, show } = floatBox
+    const { list, index, show } = this.floatBox
+    const { floatBox } = this
     if (show) {
       event.preventDefault()
       floatBox.cb(list[index])

@@ -1,4 +1,3 @@
-import eventCenter from '../event'
 import { noop } from '../utils'
 import template from './index.tpl.html'
 import './index.css'
@@ -140,6 +139,10 @@ class TablePicker {
 
     eventCenter.attachDOMEvent(container, 'click', hander)
   }
+
+  destroy () {
+    this.container.parentNode.removeChild(this.container)
+  }
 }
 
-export default new TablePicker(eventCenter)
+export default TablePicker

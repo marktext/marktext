@@ -240,7 +240,7 @@
       bus.$off('replaceValue', this.handReplace)
       bus.$off('find', this.handleFind)
 
-      // this.editor.destroy()
+      this.editor.destroy()
       this.editor = null
     }
   }

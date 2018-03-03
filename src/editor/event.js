@@ -3,7 +3,7 @@ import {
   getUniqueId
 } from './utils'
 
-class Event {
+class EventCenter {
   constructor () {
     this.events = []
     this.listeners = {}
@@ -83,4 +83,4 @@ class Event {
   }
 }
 
-export default new Event()
+export default EventCenter
