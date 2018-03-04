@@ -146,7 +146,6 @@
         bus.$on('find', this.handleFind)
 
         this.editor.on('change', (markdown, wordCount, cursor) => {
-          console.log(cursor)
           this.$store.dispatch('SAVE_FILE', { markdown, wordCount, cursor })
         })
 

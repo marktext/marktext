@@ -168,7 +168,6 @@ const tableBlockCtrl = ContentState => {
 
         const handler = (row, column) => {
           const { row: oldRow, column: oldColumn } = table
-          console.log(oldRow, oldColumn)
           const tBody = table.children[1]
           const tHead = table.children[0]
           const headerRow = tHead.children[0]

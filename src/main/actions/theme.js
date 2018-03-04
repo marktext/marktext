@@ -2,8 +2,17 @@ import fs from 'fs'
 import path from 'path'
 import { ipcMain, BrowserWindow } from 'electron'
 import { getMenuItem } from '../utils'
+/**
+ * Set `__static` path to static files in production
+ * https://simulatedgreg.gitbooks.io/electron-vue/content/en/using-static-assets.html
+ */
 
-const THEME_PATH = path.resolve(__dirname, '../../editor/themes')
+if (process.env.NODE_ENV !== 'development') {
+  global.__static = require('path').join(__dirname, '/static').replace(/\\/g, '\\\\')
+}
+
+const THEME_PATH = path.join(__static, '/themes')
+
 const themeCSS = {}
 
 export const selectTheme = (win, theme, themeCSS) => {
@@ -29,13 +38,10 @@ ipcMain.on('AGANI::ask-for-theme', e => {
     Promise.all(promises)
       .then(themes => {
         themes.forEach(t => {
-          console.log(t)
           const { theme, data } = t
           themeCSS[theme] = data
         })
         const selectedTheme = getSelectTheme().label.toLowerCase()
-        console.log(selectedTheme)
-        console.log(themeCSS)
         selectTheme(win, selectedTheme, themeCSS)
       })
   } else {

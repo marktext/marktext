@@ -203,7 +203,6 @@ const paragraphCtrl = ContentState => {
     const isBlockQuote = affiliation.slice(0, 2).filter(b => /blockquote/.test(b.type))
     if (isBlockQuote.length) {
       const quoteBlock = isBlockQuote[0]
-      console.log(quoteBlock)
       const children = quoteBlock.children
       for (const child of children) {
         this.insertBefore(child, quoteBlock)

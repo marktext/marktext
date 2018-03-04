@@ -6,14 +6,6 @@ import createWindow, { windows } from './createWindow'
 
 const openFilesCache = []
 
-/**
- * Set `__static` path to static files in production
- * https://simulatedgreg.gitbooks.io/electron-vue/content/en/using-static-assets.html
- */
-if (process.env.NODE_ENV !== 'development') {
-  global.__static = require('path').join(__dirname, '/static').replace(/\\/g, '\\\\')
-}
-
 const onReady = () => {
   if (openFilesCache.length) {
     openFilesCache.forEach(path => createWindow(path))

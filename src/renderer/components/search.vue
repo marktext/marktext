@@ -280,6 +280,7 @@
     font-size: 14px;
     color: #606266;
     padding: 0 8px;
+    background: rgb(252, 252, 252);
   }
   /* css for dark theme*/
   .dark {

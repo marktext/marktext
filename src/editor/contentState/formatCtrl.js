@@ -239,7 +239,7 @@ const formatCtrl = ContentState => {
           end
         })
       }
-      console.log(start, end)
+
       this.cursor = { start, end }
       this.render()
     }
