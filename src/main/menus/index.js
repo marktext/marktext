@@ -6,6 +6,7 @@ import view from './view'
 import windowMenu from './windowMenu'
 import paragraph from './paragraph'
 import format from './format'
+import theme from './theme'
 
 export dockMenu from './dock'
 
@@ -19,6 +20,7 @@ export default function configureMenu ({ app }) {
     paragraph,
     format,
     windowMenu,
+    theme,
     view,
     help
   ]

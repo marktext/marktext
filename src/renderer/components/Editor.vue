@@ -1,7 +1,7 @@
 <template>
   <div
     class="editor-wrapper"
-    :class="{ 'typewriter': typewriter, 'focus': focus, 'source': sourceCode }"
+    :class="[{ 'typewriter': typewriter, 'focus': focus, 'source': sourceCode }, theme]"
   >
     <div
       ref="editor"
@@ -83,7 +83,9 @@
         required: true
       },
       markdown: String,
-      cursor: Object
+      cursor: Object,
+      theme: String,
+      themeCss: Object
     },
     data () {
       return {
@@ -106,6 +108,12 @@
       },
       focus: function (value) {
         this.editor.setFocusMode(value)
+      },
+      theme: function (value, oldValue) {
+        const { editor, themeCss } = this
+        if (value !== oldValue && editor) {
+          editor.setTheme(value, themeCss[value])
+        }
       }
     },
     created () {
@@ -113,7 +121,7 @@
         const ele = this.$refs.editor
         this.editor = new Aganippe(ele)
         const { container } = this.editor
-        const { markdown } = this
+        const { markdown, theme, themeCss } = this
         // init set markdown and edit mode(typewriter mode and focus mode)
         if (markdown.trim()) {
           this.setMarkdownToEditor(markdown)
@@ -121,6 +129,10 @@
             this.scrollToCursor()
           }
           this.editor.setFocusMode(this.focus)
+        }
+
+        if (theme) {
+          this.editor.setTheme(theme, themeCss[theme])
         }
 
         bus.$on('file-loaded', this.setMarkdownToEditor)
@@ -247,7 +259,7 @@
 </script>
 
 <style>
-  @import '../../editor/themes/light.css';
+  /*  @import '../../editor/themes/dark.css';*/
   @import '../../editor/index.css';
   .editor-wrapper {
     height: calc(100vh - 22px);
@@ -267,15 +279,17 @@
     padding-top: calc(50vh - 136px);
     padding-bottom: calc(50vh - 54px);
   }
-  .v-modal {
-    background: #fff;
-    opacity: .8;
-  }
+
   .ag-dialog-table {
     box-shadow: none;
   }
+
   .ag-dialog-table .dialog-title svg {
     width: 1.5em;
     height: 1.5em;
+  }
+  /* for dark theme */
+  .dark.editor-wrapper {
+    background: rgb(43, 43, 43);
   }
 </style>

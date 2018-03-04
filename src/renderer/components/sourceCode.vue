@@ -1,5 +1,5 @@
 <template>
-  <div class="source-code" ref="sourceCode">
+  <div class="source-code" ref="sourceCode" :class="[theme]">
   </div>
 </template>
 
@@ -11,7 +11,8 @@
   export default {
     props: {
       markdown: String,
-      cursor: Object
+      cursor: Object,
+      theme: String
     },
     data () {
       return {
@@ -19,14 +20,28 @@
         editor: null
       }
     },
+    watch: {
+      theme: function (value, oldValue) {
+        const cm = this.$refs.sourceCode.querySelector('.CodeMirror')
+        if (value !== oldValue) {
+          if (value === 'dark') {
+            cm.classList.remove('cm-s-default')
+            cm.classList.add('cm-s-railscasts')
+          } else {
+            cm.classList.add('cm-s-default')
+            cm.classList.remove('cm-s-railscasts')
+          }
+        }
+      }
+    },
     created () {
       this.$nextTick(() => {
-        const { markdown = '' } = this
+        const { markdown = '', theme } = this
         this.contentState = new ContentState()
         const container = this.$refs.sourceCode
-        const editor = this.editor = codeMirror(container, {
+        const codeMirrorConfig = {
           // theme: 'railscasts',
-          value: markdown,
+          value: '',
           lineNumbers: true,
           autofocus: true,
           lineWrapping: true,
@@ -38,9 +53,22 @@
               return ''
             }
           }
-        })
+        }
+        if (theme === 'dark') codeMirrorConfig.theme = 'railscasts'
+        this.editor = codeMirror(container, codeMirrorConfig)
         bus.$on('file-loaded', this.setMarkdown)
 
+        this.listenChange()
+
+        this.setMarkdown(markdown)
+      })
+    },
+    beforeDestory () {
+      bus.$off('file-loaded', this.setMarkdown)
+    },
+    methods: {
+      listenChange () {
+        const { editor } = this
         editor.on('cursorActivity', (cm, event) => {
           const cursor = cm.getCursor()
           const markdown = cm.getValue()
@@ -51,13 +79,7 @@
         })
 
         setMode(editor, 'markdown')
-        this.setMarkdown(markdown)
-      })
-    },
-    beforeDestory () {
-      bus.$off('file-loaded', this.setMarkdown)
-    },
-    methods: {
+      },
       setMarkdown (markdown) {
         const { editor, cursor } = this
         this.editor.setValue(markdown)
@@ -88,5 +110,12 @@
   .source-code .CodeMirror-activeline-background,
   .source-code .CodeMirror-activeline-gutter {
     background: #F2F6FC;
+  }
+  .dark {
+    background: rgb(43, 43, 43);
+  }
+  .dark.source-code .CodeMirror-activeline-background,
+  .dark.source-code .CodeMirror-activeline-gutter {
+    background: #333;
   }
 </style>

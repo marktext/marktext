@@ -1,7 +1,7 @@
 import ContentState from './contentState'
 import selection from './selection'
 import EventCenter from './event'
-import { LOWERCASE_TAGS, EVENT_KEYS, CLASS_OR_ID } from './config'
+import { LOWERCASE_TAGS, EVENT_KEYS, CLASS_OR_ID, codeMirrorConfig } from './config'
 import { throttle, debounce } from './utils'
 import { search } from './codeMirror'
 import { checkEditLanguage } from './codeMirror/language'
@@ -427,6 +427,23 @@ class Aganippe {
       container.classList.remove(CLASS_OR_ID['AG_FOCUS_MODE'])
     }
     this.focusMode = bool
+  }
+
+  setTheme (name, css) {
+    if (name === 'dark') {
+      codeMirrorConfig.theme = 'railscasts'
+    } else {
+      delete codeMirrorConfig.theme
+    }
+    const themeStyleId = CLASS_OR_ID['AG_THEME_ID']
+    let styleEle = document.querySelector(`#${themeStyleId}`)
+    if (!styleEle) {
+      styleEle = document.createElement('style')
+      styleEle.id = themeStyleId
+      document.querySelector('head').appendChild(styleEle)
+    }
+    styleEle.innerHTML = css
+    this.contentState.render()
   }
 
   updateParagraph (type) {

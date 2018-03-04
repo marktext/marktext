@@ -5,34 +5,6 @@
 
 @include-when-export url(http://fonts.googleapis.com/css?family=Open+Sans:400italic,700italic,700,400&subset=latin,latin-ext);
 
-@font-face {
-  font-family: 'Open Sans';
-  font-style: normal;
-  font-weight: normal;
-  src: local('Open Sans Regular'), url('./github/400.woff') format('woff')
-}
-
-@font-face {
-  font-family: 'Open Sans';
-  font-style: italic;
-  font-weight: normal;
-  src: local('Open Sans Italic'), url('./github/400i.woff') format('woff')
-}
-
-@font-face {
-  font-family: 'Open Sans';
-  font-style: normal;
-  font-weight: bold;
-  src: local('Open Sans Bold'), url('./github/700.woff') format('woff')
-}
-
-@font-face {
-  font-family: 'Open Sans';
-  font-style: italic;
-  font-weight: bold;
-  src: local('Open Sans Bold Italic'), url('./github/700i.woff') format('woff')
-}
-
 html, body {
   font-size: 16px;
   background: rgb(252, 252, 252);
@@ -40,7 +12,7 @@ html, body {
 
 body {
   font-family: "Open Sans", "Clear Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
-  color: #606266;
+  color: #303133;
   line-height: 1.6;
 }
 
@@ -65,6 +37,11 @@ body {
 .ag-gray {
   color: #E4E7ED;
   text-decoration: none;
+}
+
+.v-modal {
+  background: #fff;
+  opacity: .8;
 }
 
 body>*:first-child {

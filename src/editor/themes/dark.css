@@ -5,37 +5,8 @@
 
 @include-when-export url(http://fonts.googleapis.com/css?family=Open+Sans:400italic,700italic,700,400&subset=latin,latin-ext);
 
-@font-face {
-  font-family: 'Open Sans';
-  font-style: normal;
-  font-weight: normal;
-  src: local('Open Sans Regular'), url('./github/400.woff') format('woff')
-}
-
-@font-face {
-  font-family: 'Open Sans';
-  font-style: italic;
-  font-weight: normal;
-  src: local('Open Sans Italic'), url('./github/400i.woff') format('woff')
-}
-
-@font-face {
-  font-family: 'Open Sans';
-  font-style: normal;
-  font-weight: bold;
-  src: local('Open Sans Bold'), url('./github/700.woff') format('woff')
-}
-
-@font-face {
-  font-family: 'Open Sans';
-  font-style: italic;
-  font-weight: bold;
-  src: local('Open Sans Bold Italic'), url('./github/700i.woff') format('woff')
-}
-
 html, body {
   font-size: 16px;
-  background: rgb(43, 43, 43);
 }
 
 body {
@@ -62,9 +33,42 @@ body {
   margin-top: 30px;
 }
 
+.ag-float-box {
+  background: #303133;
+  border: 1px solid #303133;
+}
+.ag-float-item {
+  color: #909399;
+}
+
+.ag-float-item-active {
+  background: #606266;
+  color: #C0C4CC;
+}
+
+.ag-table-picker {
+  background: #606266;
+  border: 1px solid #606266;
+}
+
+.ag-table-picker::before {
+  background: #606266;
+  border: 1px solid #606266;
+  border-right: none;
+  border-bottom: none;
+}
+
 .ag-gray {
   color: #909399;
   text-decoration: none;
+}
+
+.el-dialog {
+  background: rgb(43, 43, 43);
+}
+
+.v-modal {
+  background: rgba(0, 0, 0, .9);
 }
 
 body>*:first-child {

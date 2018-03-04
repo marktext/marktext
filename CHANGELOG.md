@@ -6,6 +6,8 @@
 
 - Add Focus Mode, the current paragraph's will be focused.
 
+- Add Dark theme, Light theme.
+
 **Optimization**
 
 - Optimize the display of path name and file name in title bar.

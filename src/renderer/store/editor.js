@@ -9,6 +9,8 @@ const state = {
     matches: [],
     value: ''
   },
+  theme: '',
+  themeCSS: null,
   typewriter: false, // typewriter mode
   focus: false, // focus mode
   sourceCode: false, // source code mode
@@ -26,6 +28,12 @@ const state = {
 }
 
 const mutations = {
+  SET_THEME (state, { theme, themeCSS }) {
+    state.theme = theme
+    if (themeCSS) {
+      state.themeCSS = themeCSS
+    }
+  },
   SET_MODE (state, { type, checked }) {
     state[type] = checked
   },
@@ -57,6 +65,13 @@ const mutations = {
 }
 
 const actions = {
+  ASK_FOR_THEME ({ commit }) {
+    ipcRenderer.send('AGANI::ask-for-theme')
+    ipcRenderer.on('AGANI::theme', (e, themes) => {
+      console.log(themes)
+      commit('SET_THEME', themes)
+    })
+  },
   SEARCH ({ commit }, value) {
     commit('SET_SEARCH', value)
   },

@@ -1,5 +1,6 @@
 <template>
   <div class="search-bar"
+    :class="theme"
     @click.stop="noop"
     v-show="showSearch"
   >
@@ -100,6 +101,9 @@
   import { mapState } from 'vuex'
 
   export default {
+    props: {
+      theme: String
+    },
     data () {
       return {
         showSearch: false,
@@ -258,6 +262,7 @@
     display: flex;
     flex: 1;
     position: relative;
+    margin-right: 5px;
   }
   .input-wrapper .search-result {
     position: absolute;
@@ -275,5 +280,22 @@
     font-size: 14px;
     color: #606266;
     padding: 0 8px;
+  }
+  /* css for dark theme*/
+  .dark {
+    caret-color: #efefef;
+    background: rgb(43, 43, 43);
+    color: #606266;
+  }
+  .dark input {
+    background: rgb(54, 55, 49);
+    color: #C0C4CC;
+  }
+  .dark .button:hover {
+    background: rgb(71, 72, 66);
+    color: #C0C4CC;
+  }
+  .dark .button:active {
+    background: #303133;
   }
 </style>

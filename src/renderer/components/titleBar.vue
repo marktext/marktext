@@ -1,6 +1,6 @@
 <template>
   <div class="title-bar"
-    :class="{ 'active': active }"
+    :class="[{ 'active': active }, theme]"
   >
     <div class="title">
       <span v-for="(path, index) of paths" :key="index">
@@ -37,7 +37,8 @@
       filename: String,
       pathname: String,
       active: Boolean,
-      wordCount: Object
+      wordCount: Object,
+      theme: String
     },
     computed: {
       paths () {
@@ -121,5 +122,17 @@
   .word-count:hover {
     background: #F2F6FC;
     color: #606266;
+  }
+  /* css for dark theme */
+  .dark {
+    background: rgb(43, 43, 43);
+    color: #909399;
+  }
+  .dark .title:hover {
+    color: #F2F6FC;
+  }
+  .dark .word-count:hover {
+    background: rgb(71, 72, 66);
+    color: #C0C4CC;
   }
 </style>

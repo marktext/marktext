@@ -84,7 +84,6 @@
 .ag-table-picker .footer button {
   outline: none;
   cursor: pointer;
-  vertical-align: text-bottom;
   border-radius: 2px;
   line-height: 12px;
   border: none;

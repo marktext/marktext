@@ -5,6 +5,7 @@
       :filename="filename"
       :active="windowActive"
       :word-count="wordCount"
+      :theme="theme"
     ></title-bar>
     <editor
       :typewriter="typewriter"
@@ -13,14 +14,18 @@
       :markdown="markdown"
       :cursor="cursor"
       v-if="!sourceCode"
+      :theme="theme"
+      :theme-css="themeCSS"
     ></editor>
     <source-code
       v-else
       :markdown="markdown"
       :cursor="cursor"
+      :theme="theme"
     ></source-code>
     <search
       v-if="!sourceCode"
+      :theme="theme"
     ></search>
   </div>
 </template>
@@ -46,12 +51,14 @@
     computed: {
       ...mapState([
         'pathname', 'filename', 'windowActive', 'wordCount',
-        'typewriter', 'focus', 'sourceCode', 'markdown', 'cursor'
+        'typewriter', 'focus', 'sourceCode', 'markdown', 'cursor',
+        'theme', 'themeCSS'
       ])
     },
     created () {
       const { dispatch } = this.$store
 
+      dispatch('ASK_FOR_THEME')
       dispatch('ASK_FOR_MODE')
       dispatch('LISTEN_FOR_CLOSE')
       dispatch('LISTEN_FOR_SAVE_AS')
