@@ -34,14 +34,14 @@ const codeBlockCtrl = ContentState => {
     return !!match
   }
 
-  ContentState.prototype.pre2CodeMirror = function () {
+  ContentState.prototype.pre2CodeMirror = function (isRenderCursor) {
     const { eventCenter } = this
     const pres = document.querySelectorAll(`pre.${CLASS_OR_ID['AG_CODE_BLOCK']}`)
     Array.from(pres).forEach(pre => {
       const id = pre.id
       const block = this.getBlock(id)
 
-      const autofocus = id === this.cursor.start.key
+      const autofocus = id === this.cursor.start.key && isRenderCursor
       const config = Object.assign(codeMirrorConfig, { autofocus, value: block.text })
       const codeBlock = codeMirror(pre, config)
       const mode = pre.getAttribute('data-lang')
@@ -57,7 +57,7 @@ const codeBlockCtrl = ContentState => {
             input.value = m.name
             block.lang = m.name.toLowerCase()
             input.blur()
-            if (this.cursor.start.key === block.key) {
+            if (this.cursor.start.key === block.key && isRenderCursor) {
               if (block.pos) {
                 codeBlock.focus()
                 codeBlock.setCursor(block.pos)
