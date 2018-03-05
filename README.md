@@ -1,54 +1,57 @@
 <p align="center"><img src="https://github.com/marktext/marktext/blob/master/static/logo-small.png" alt="mark text" width="100" height="100"></p>
 
-<h1 align="center">MarkText</h1>
+<h1 align="center">Mark Text</h1>
 
 <p align="center"><img src="https://badge.fury.io/gh/jocs%2Fmarktext.svg"></p>
 
+**Mark Text** is a Markdown editor for Mac, It is a concise text editor, dedicated to improving your editing efficiency, enabling you to enjoy pleasure when you finish documents, novels and conference notes easily.
 
-**MarkText** is an **open source** Markdown editor for OS X, released under the **MIT license**. It is inspired by outstanding markdown editor **Typora**.
+![](https://github.com/marktext/marktext/blob/master/doc/summary.jpg)
 
-![](https://github.com/marktext/marktext/blob/master/summary.gif)
+<h3 align="center">Features</h3>
 
-### Why write another Markdown editor ?
-
-1. Typora is so excellent that I love it so much that I cannot bear to part with it. But in the process of using Typora, I still find some small problems. As a programmer, I can't wait to fix these problems, because Typora is not an open source software. So I decided to write a self - used markdown editor and open source for all the people who love markdown.
-
-2. As mentioned above, **MarkText** will be open source indefinitely. It is also hoped that all markdown lovers can contribute their own code, and develop **MarkText** into a popular markdown editor.
-
-3. There are many markdown editors, and each editor has its own characteristics, but it is also difficult to satisfy all makdown users' needs. I hope **MarkText** can satisfy markdown users' needs as much as possible. Although the latest **MarkText** is still not perfect, but we are trying to make it perfect.
-
-### Features
-
+- Realtime preview and use [snabbdom](https://github.com/snabbdom/snabbdom) as it's render engine.
 - Support [CommonMark Spec](http://spec.commonmark.org/0.28/) and [GitHub Flavored Markdown Spec](http://spec.commonmark.org/0.28/).
+- Support paragraphs and inline style shortcuts to improve your writing efficiency.
+- Output **HTML** and **PDF** file.
+- Multiple themes.
+- Various edit mode: **Source Code mode**、**Typewriter mode**、**Focus mode**.
 
-- Support paragraphs and line style shortcuts to improve your writing efficiency.
+#### Source Code Mode
 
-- Output HTML file, which is convenient for you to open in the browser.
+![](https://github.com/marktext/marktext/blob/master/doc/source-code-mode.jpg)
 
-- Output PDF file (in development).
+#### Typewriter Mode
 
-- Supporting the editing of mathematical formulas (in development).
+![](https://github.com/marktext/marktext/blob/master/doc/typewriter-mode.gif)
 
-- English word autocompletion (in development).
+#### Focus Mode
 
-### Install
+![](https://github.com/marktext/marktext/blob/master/doc/focus-mode.jpg)
+
+<h3 align="center">Why write another editor?</h3>
+
+1. I love writing, I have used a lot of markdown editors,there is still not a editor can fully meet my needs, I don't like to be disturbed when I write, and some unbearable bug, **Mark Text** use virtual DOM to render the page, So it's high efficiency, and open source to friends all love markdown and writing.
+2. As mentioned above, **Mark Text** will be open source indefinitely. It is also hoped that all markdown lovers can contribute their own code, and develop **Mark Text** into a popular markdown editor.
+3. There are many markdown editors, and each editor has its own characteristics, but it is also difficult to satisfy all makdown users' needs. I hope **Mark Text** can satisfy markdown users' needs as much as possible. Although the latest **Mark Text** is still not perfect, but we are trying to make it perfect.
+
+<h3 align="center">Download</h3>
 
 [Download](https://github.com/marktext/marktext/releases), unzip, and drag the app to Applications folder.
 
-### Development
+<h3 align="center">Development</h3>
 
-If you wish to build **MarkText** yourself.
+If you wish to build **Mark Text** yourself.
 
 - first clone this repo.
-
 - Run `npm install`
-
 - Run `npm run build`
-
 - copy the build app to Applications folder.
 
-When you use **MarkText**, if you have any questions, you are welcome to write an issue, but I hope you follow the format of issue. Of course, if you can submit a PR directly, it will be appreciated.
+When you use **Mark Text**, if you have any questions, you are welcome to write an issue, but I hope you follow the format of issue. Of course, if you can submit a PR directly, it will be appreciated.
 
-### Last
+<h3 align="center">Last</h3>
 
-If you find **MarkText** suitable for your needs, It's my pleasure.
+It is under [**MIT LICENSE**](https://github.com/marktext/marktext/blob/master/LICENSE).
+
+if you find **Mark Text** suitable for your needs, It's my pleasure.

@@ -16,6 +16,14 @@ body {
   line-height: 1.6;
 }
 
+::-webkit-scrollbar {
+  background: rgb(252, 252, 252);
+}
+
+::-webkit-scrollbar-thumb {
+  background: #EBEEF5;
+}
+
 #ag-editor-id {
   max-width: 860px;
   margin: 0 auto;
