@@ -1,3 +1,17 @@
+### 0.6.10
+
+**Features**
+
+- Add **dark** theme and **light** theme in both realtime preview mode and source code mode.
+
+**Optimization**
+
+- Customize the scroll bar background color and thumb color.
+
+**Bug fix**
+
+- Fix bug when search key in code block will cause the search input lose focus.
+
 ### 0.5.2
 
 **Features**
