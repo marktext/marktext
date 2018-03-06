@@ -2,7 +2,7 @@
 
 <h1 align="center">Mark Text</h1>
 
-<p align="center"><img src="https://badge.fury.io/gh/jocs%2Fmarktext.svg"></p>
+<p align="center"><img src="https://badge.fury.io/gh/jocs%2Fmarktext.svg">  <img src="https://img.shields.io/github/license/marktext/marktext.svg"></p>
 
 **Mark Text** is a Markdown editor for Mac, It is a concise text editor, dedicated to improving your editing efficiency, enabling you to enjoy pleasure when you finish documents, novels and conference notes easily.
 
