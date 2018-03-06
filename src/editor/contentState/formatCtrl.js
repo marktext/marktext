@@ -175,6 +175,35 @@ const formatCtrl = ContentState => {
     block.text = generator(tokens)
   }
 
+  ContentState.prototype.insertAidou = function (url) {
+    const { start, end } = this.cursor
+    const { key, offset: startOffset } = start
+    const { offset: endOffset } = end
+    const block = this.getBlock(key)
+    const { text } = block
+    if (key !== end.key) {
+      block.text = text.substring(0, startOffset) + `![](${url})` + text.substring(startOffset)
+      const offset = startOffset + 2
+      this.cursor = {
+        start: { key, offset },
+        end: { key, offset }
+      }
+    } else {
+      block.text = text.substring(0, start.offset) + `![${text.substring(startOffset, endOffset)}](${url})` + text.substring(end.offset)
+      this.cursor = {
+        start: {
+          key,
+          offset: startOffset + 2
+        },
+        end: {
+          key,
+          offset: startOffset + 2 + text.substring(startOffset, endOffset).length
+        }
+      }
+    }
+    this.render()
+  }
+
   ContentState.prototype.format = function (type) {
     const { start, end } = selection.getCursorRange()
     const startBlock = this.getBlock(start.key)

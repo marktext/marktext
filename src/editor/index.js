@@ -454,6 +454,10 @@ class Aganippe {
     this.contentState.format(type)
   }
 
+  insertAidou (url) {
+    this.contentState.insertAidou(url)
+  }
+
   search (value, opt) {
     const { selectHighlight } = opt
     this.contentState.search(value, opt)

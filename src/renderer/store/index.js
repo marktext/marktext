@@ -2,11 +2,13 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 
 import editorStore from './editor'
+import aidouStore from './aidou'
 
 Vue.use(Vuex)
 
 const storeArray = [
-  editorStore
+  editorStore,
+  aidouStore
 ]
 
 const { actions, mutations, state } = storeArray.reduce((acc, s) => {

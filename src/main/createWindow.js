@@ -16,6 +16,9 @@ const createWindow = (pathname, options = {}) => {
 
   const { x, y, width, height } = mainWindowState
   const winOpt = Object.assign({ x, y, width, height }, {
+    webPreferences: {
+      webSecurity: false
+    },
     useContentSize: true,
     show: false,
     frame: false,

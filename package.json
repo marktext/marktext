@@ -1,6 +1,6 @@
 {
   "name": "marktext",
-  "version": "0.6.10",
+  "version": "0.6.11",
   "author": "Jocs <luoran1988@126.com>",
   "description": "A markdown editor",
   "license": "MIT",
@@ -68,7 +68,7 @@
     }
   },
   "dependencies": {
-    "axios": "^0.16.1",
+    "axios": "^0.18.0",
     "cheerio": "^1.0.0-rc.2",
     "codemirror": "^5.31.0",
     "css-tree": "^1.0.0-alpha.27",

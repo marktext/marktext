@@ -54,11 +54,15 @@
         </el-button>
       </div>
     </el-dialog>
+    <aidou
+      @select="handleSelect"
+    ></aidou>
   </div>
 </template>
 
 <script>
   import Aganippe from '../../editor'
+  import aidou from './aidou/aidou.vue'
   import bus from '../bus'
   import { animatedScrollTo } from '../../editor/utils'
 
@@ -69,6 +73,9 @@
   ]
 
   export default {
+    components: {
+      aidou
+    },
     props: {
       typewriter: {
         type: Boolean,
@@ -166,6 +173,9 @@
       })
     },
     methods: {
+      handleSelect (url) {
+        this.editor && this.editor.insertAidou(url)
+      },
       handleSearch (value, opt) {
         const searchMatches = this.editor.search(value, opt)
         this.$store.dispatch('SEARCH', searchMatches)

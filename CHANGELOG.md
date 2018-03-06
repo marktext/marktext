@@ -1,8 +1,10 @@
-### 0.6.10
+### 0.6.11
 
 **Features**
 
 - Add **dark** theme and **light** theme in both realtime preview mode and source code mode.
+
+- Insert `doutu` into the document, use CMD + / to open the panel.
 
 **Optimization**
 

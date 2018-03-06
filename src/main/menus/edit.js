@@ -58,5 +58,13 @@ export default {
     click: (menuItem, browserWindow) => {
       actions.edit(browserWindow, 'replace')
     }
+  }, {
+    type: 'separator'
+  }, {
+    label: 'Aidou',
+    accelerator: 'CmdOrCtrl+/',
+    click: (menuItem, browserWindow) => {
+      actions.edit(browserWindow, 'aidou')
+    }
   }]
 }
