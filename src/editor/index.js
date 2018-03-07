@@ -323,7 +323,7 @@ class Aganippe {
       // const target = event.target
       // const style = getComputedStyle(target)
       // if (event.type === 'click' && !style.contenteditable) return
-      if (!this._isEditChinese || event.type === 'input') {
+      if (!this._isEditChinese) {
         this.contentState.updateState(event)
       }
       if (event.type === 'click' || event.type === 'keyup') {
