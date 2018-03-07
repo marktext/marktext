@@ -255,10 +255,12 @@ pre.ag-active .ag-language-input {
   display: block;
 }
 
-.ag-link-in-bracket, .ag-link-in-bracket .ag-backlash {
-  color: darkred;
+.ag-image-marked-text, .ag-link-in-bracket, .ag-link-in-bracket .ag-backlash {
+  color: rgb(125, 125, 125);
+  font-size: 16px;
   text-decoration: none;
 }
+
 .ag-language {
   color: #708;
   text-decoration: none;
@@ -277,14 +279,6 @@ pre.ag-active .ag-language-input {
   width: 0;
   height: 0;
   overflow: hidden;
-}
-
-.ag-image-marked-text {
-  color: #666;
-  border-radius: 4px;
-  font-size: 14px;
-  text-decoration: none;
-  background: lightgray;
 }
 
 .ag-image-marked-text ~ img {
