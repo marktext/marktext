@@ -98,11 +98,10 @@ const searchCtrl = ContentState => {
     if (value) search(blocks)
     let index = -1
     if (highlightIndex !== -1) {
-      index = highlightIndex
+      index = highlightIndex // If set the highlight index, then highlight the highlighIndex
     } else if (matches.length) {
-      index = 0
+      index = 0 // highlight the first word that matches.
     }
-
     Object.assign(this.searchMatches, { value, matches, index })
     if (value) this.setCursorToHighlight()
     return matches

@@ -184,9 +184,9 @@
       },
       emitSearch (selectHighlight = false) {
         this.showSearch = false
-        this.searchValue = ''
+        const searchValue = this.searchValue = ''
         this.replaceValue = ''
-        bus.$emit('searchValue', this.searchValue, { selectHighlight })
+        bus.$emit('searchValue', searchValue, { selectHighlight })
       },
       caseClick () {
         this.caseSensitive = !this.caseSensitive
@@ -198,6 +198,7 @@
         bus.$emit('find', action)
       },
       search (event) {
+        if (event.key === 'Escape') return
         if (event.key !== 'Enter') {
           const { caseSensitive } = this
           bus.$emit('searchValue', this.searchValue, { caseSensitive })

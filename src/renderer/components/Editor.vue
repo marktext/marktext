@@ -64,7 +64,7 @@
   import Aganippe from '../../editor'
   import aidou from './aidou/aidou.vue'
   import bus from '../bus'
-  import { animatedScrollTo } from '../../editor/utils'
+  import { animatedScrollTo } from '../util'
 
   const STANDAR_Y = 320
   const PARAGRAPH_CMD = [

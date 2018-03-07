@@ -6,13 +6,6 @@ const getId = () => {
   return `${prefix}${Math.random().toString(32).slice(2)}`
 }
 
-const easeInOutQuad = function (t, b, c, d) {
-  t /= d / 2
-  if (t < 1) return c / 2 * t * t + b
-  t--
-  return -c / 2 * (t * (t - 2) - 1) + b
-}
-
 /**
  * get unique id base on a set.
  */
@@ -189,42 +182,6 @@ export const getImageSrc = src => {
   } else {
     return ''
   }
-}
-
-export const animatedScrollTo = function (element, to, duration, callback) {
-  let start = element.scrollTop
-  let change = to - start
-  let animationStart = +new Date()
-  let animating = true
-  let lastpos = null
-
-  const animateScroll = function () {
-    if (!animating) {
-      return
-    }
-    requestAnimationFrame(animateScroll)
-    const now = +new Date()
-    const val = Math.floor(easeInOutQuad(now - animationStart, start, change, duration))
-    if (lastpos) {
-      if (lastpos === element.scrollTop) {
-        lastpos = val
-        element.scrollTop = val
-      } else {
-        animating = false
-      }
-    } else {
-      lastpos = val
-      element.scrollTop = val
-    }
-    if (now > animationStart + duration) {
-      element.scrollTop = to
-      animating = false
-      if (callback) {
-        callback()
-      }
-    }
-  }
-  requestAnimationFrame(animateScroll)
 }
 
 /**

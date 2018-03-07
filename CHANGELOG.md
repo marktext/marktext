@@ -1,4 +1,4 @@
-### 0.6.11
+### 0.6.12
 
 **Features**
 
@@ -13,6 +13,7 @@
 **Bug fix**
 
 - Fix bug when search key in code block will cause the search input lose focus.
+- Fix the bug the editor will lose cursor after input Chinese.
 
 ### 0.5.2
 

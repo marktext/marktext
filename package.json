@@ -1,8 +1,8 @@
 {
   "name": "marktext",
-  "version": "0.6.11",
+  "version": "0.6.12",
   "author": "Jocs <luoran1988@126.com>",
-  "description": "A markdown editor",
+  "description": "Next generation markdown editor",
   "license": "MIT",
   "main": "./dist/electron/main.js",
   "scripts": {
