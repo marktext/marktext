@@ -6,12 +6,17 @@ const easeInOutQuad = function (t, b, c, d) {
   return -c / 2 * (t * (t - 2) - 1) + b
 }
 
+const DOTU = 'DOTU'
+const MAX_HISTORY_LENGTH = 6
+
 export const serialize = function (params) {
   return Object.keys(params).map(key => `${key}=${params[key]}`).join('&')
 }
+
 export const merge = function (...args) {
   return Object.assign({}, ...args)
 }
+
 export const dataURItoBlob = function (dataURI) {
   const data = dataURI.split(';base64,')
   const byte = window.atob(data[1])
@@ -24,6 +29,40 @@ export const dataURItoBlob = function (dataURI) {
     ia[i] = byte.charCodeAt(i)
   }
   return new window.Blob([ab], { type: mime })
+}
+
+export const dotuHistory = {
+  setItem (value) {
+    const data = localStorage.getItem(DOTU)
+    if (data) {
+      let history = JSON.parse(data)
+      history.unshift(value)
+      history = [...new Set(history)] // delete the duplicate word
+      if (history.length > MAX_HISTORY_LENGTH) {
+        history.pop()
+      }
+      localStorage.setItem(DOTU, JSON.stringify(history))
+    } else {
+      localStorage.setItem(DOTU, JSON.stringify([ value ]))
+    }
+  },
+  getItems () {
+    const data = localStorage.getItem(DOTU)
+    return data ? JSON.parse(data) : []
+  },
+  deleteItem (value) {
+    const data = localStorage.getItem(DOTU)
+    if (!data) return
+    const history = JSON.parse(data)
+    const index = history.indexOf(value)
+    if (index > -1) {
+      history.splice(index, 1)
+      localStorage.setItem(DOTU, JSON.stringify(history))
+    }
+  },
+  clear () {
+    localStorage.setItem(DOTU, '[]')
+  }
 }
 
 export const animatedScrollTo = function (element, to, duration, callback) {
