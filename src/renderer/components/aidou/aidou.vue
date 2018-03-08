@@ -1,5 +1,5 @@
 <template>
-  <div class="aidou">
+  <div class="aidou" :class="theme">
     <el-dialog 
       :visible.sync="showAiDou"
       :show-close="false"
@@ -10,21 +10,25 @@
     >
       <div slot="title" class="search-wrapper">
         <div class="input-wrapper">
-          <svg class="icon" aria-hidden="true" @click="shuffle">
-            <use xlink:href="#icon-shuffle"></use>
-          </svg>
+          <svg class="icon" aria-hidden="true" @click="search()">
+            <use xlink:href="#icon-search"></use>
+          </svg> 
           <input
             type="text" v-model="query" class="search"
             @keyup="handleInput"
             @input="historyIndex = -1"
+            @focus = "showCollection = false"
             ref="search" placeholder="Discover you next dotu..."
-          >
-          <svg class="icon" aria-hidden="true" @click="search()">
-            <use xlink:href="#icon-search"></use>
-          </svg>          
+          > 
+          <svg class="icon" aria-hidden="true" @click="getCollection">
+            <use xlink:href="#icon-collect"></use>
+          </svg>
+          <svg class="icon" aria-hidden="true" @click="shuffle">
+            <use xlink:href="#icon-shuffle"></use>
+          </svg>        
         </div>
         <transition name="fade">
-          <ul v-if="history.length && !query" class="history">
+          <ul v-if="history.length && !query && !showCollection" class="history">
             <li v-for="(word, index) of history" :key="index" @click="search(word)"
               :class="{'active': index === historyIndex}"
             >
@@ -40,8 +44,15 @@
         </transition>
       </div>
       <div class="image-container" ref="emojis">
-        <div class="img-wrapper" v-for="(emoji, index) of aiList" :key="index" @click="handleEmojiClick(emoji)">
-          <img :src="emoji.link" alt="" >
+        <div class="img-wrapper" v-for="(emoji, index) of emojis" :key="index" @click="handleEmojiClick(emoji)">
+          <svg
+            class="icon" 
+            :class="{'active': emoji.collected}"
+            aria-hidden="true" @click.stop="collect(emoji)"
+          >
+            <use xlink:href="#icon-collected"></use>
+          </svg>  
+          <img :src="emoji.link" alt="">
         </div>
         <loading v-if="aiLoading"></loading>
       </div>
@@ -59,7 +70,7 @@
   import { mapState } from 'vuex'
   import hotWords from './hotWords'
   import resource from '../../store/resource'
-  import { dotuHistory } from '../../util'
+  import { dotuHistory, collection } from '../../util'
 
   export default {
     components: {
@@ -67,6 +78,8 @@
     },
     data () {
       return {
+        showCollection: false,
+        collection: collection.getItems(),
         historyIndex: -1,
         history: dotuHistory.getItems(),
         showAiDou: false,
@@ -87,10 +100,32 @@
     },
     computed: {
       ...mapState([
-        'aiLoading', 'aiList'
-      ])
+        'aiLoading', 'aiList', 'theme'
+      ]),
+      emojis () {
+        return this.aiList.map(e => {
+          e.collected = this.collection.findIndex(c => c.link === e.link) > -1
+          return e
+        })
+      }
     },
     methods: {
+      getCollection () {
+        const data = this.collection
+        const type = 'collect'
+        this.$store.dispatch('AI_LIST', {data, type})
+        this.showCollection = true
+      },
+      collect (emoji) {
+        if (emoji.collected) {
+          emoji.collected = false
+          collection.deleteItem(emoji)
+        } else {
+          emoji.collected = true
+          collection.setItem(emoji)
+        }
+        this.collection = collection.getItems()
+      },
       async handleEmojiClick ({ link }) {
         try {
           const base64 = await resource.fetchImgToBase64(link)
@@ -190,6 +225,7 @@
     margin-bottom: 20px;
   }
   .search-wrapper {
+    margin-top: 8px;
     z-index: 10000;
     position: absolute;
     top: 0;
@@ -228,6 +264,10 @@
     width: 30px;
     height: 30px;
     color: #606266;
+    transition: all .3s ease-in-out;
+  }
+  .search-wrapper svg:hover {
+    color: orange;
   }
   ul.history {
     display: flex;
@@ -266,7 +306,7 @@
     background: #EBEEF5;
   }
   ul.history:hover li {
-    background: #fff;
+    background: transparent;
   }
   ul.history li:hover .icon {
     display: block;
@@ -279,6 +319,7 @@
     overflow: auto;
   }
   .image-container .img-wrapper {
+    position: relative;
     overflow: hidden;
     width: 130px;
     height: 130px;
@@ -293,6 +334,20 @@
   .image-container .img-wrapper img {
     width: 100%;
     height: 100%;
+  }
+  .image-container .img-wrapper > svg {
+    position: absolute;
+    top: 3px;
+    right: 0px;
+    width: 20px;
+    height: 20px;
+    display: none;
+  }
+  .image-container .img-wrapper > svg.active {
+    color: orange;
+  }
+  .image-container .img-wrapper:hover > svg {
+    display: block;
   }
   .image-container .img-wrapper:hover {
     transform: scale(1.05);
@@ -309,4 +364,16 @@
   .fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
     opacity: 0;
   }
+  /* style for dark theme */
+  .dark .search-wrapper {
+    background: rgb(75, 75, 75);
+    border-color: rgb(75, 75, 75);
+  }
+  .dark ul.history li.active {
+    background: rgb(39, 39, 39);
+  }
+  .dark ul.history li:hover {
+    background: rgb(39, 39, 39);
+  }
+
 </style>

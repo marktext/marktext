@@ -7,8 +7,7 @@ const state = {
 
 const mutations = {
   SET_AI_LIST (state, { data, type }) {
-    console.log(type)
-    if (type === 'search') {
+    if (type === 'search' || type === 'collect') {
       state.aiList = data
     } else {
       state.aiList = [...state.aiList, ...data]
@@ -20,6 +19,9 @@ const mutations = {
 }
 
 const actions = {
+  AI_LIST ({ commit }, data) {
+    commit('SET_AI_LIST', data)
+  },
   AI_SEARCH ({ commit }, { params, type }) {
     commit('SET_AI_STATUS', true)
     return resource.sogou(params)

@@ -7,7 +7,18 @@ const easeInOutQuad = function (t, b, c, d) {
 }
 
 const DOTU = 'DOTU'
-const MAX_HISTORY_LENGTH = 6
+const MAX_HISTORY_LENGTH = 10
+const DOTU_COLLECTION = 'DOTU_COLLECTION'
+const deleteItem = key => value => {
+  const data = localStorage.getItem(key)
+  if (!data) return
+  const col = JSON.parse(data)
+  const index = col.indexOf(value)
+  if (index > -1) {
+    col.splice(index, 1)
+    localStorage.setItem(key, JSON.stringify(col))
+  }
+}
 
 export const serialize = function (params) {
   return Object.keys(params).map(key => `${key}=${params[key]}`).join('&')
@@ -31,6 +42,35 @@ export const dataURItoBlob = function (dataURI) {
   return new window.Blob([ab], { type: mime })
 }
 
+export const collection = {
+  setItem (emoji) {
+    const data = localStorage.getItem(DOTU_COLLECTION)
+    if (data) {
+      let col = JSON.parse(data)
+      if (col.findIndex(c => c.link === emoji.link) === -1) {
+        col.push(emoji)
+      }
+      localStorage.setItem(DOTU_COLLECTION, JSON.stringify(col))
+    } else {
+      localStorage.setItem(DOTU_COLLECTION, JSON.stringify([ emoji ]))
+    }
+  },
+  getItems () {
+    const data = localStorage.getItem(DOTU_COLLECTION)
+    return data ? JSON.parse(data) : []
+  },
+  deleteItem (emoji) {
+    const data = localStorage.getItem(DOTU_COLLECTION)
+    if (!data) return
+    const col = JSON.parse(data)
+    const index = col.findIndex(c => c.link === emoji.link)
+    if (index > -1) {
+      col.splice(index, 1)
+      localStorage.setItem(DOTU_COLLECTION, JSON.stringify(col))
+    }
+  }
+}
+
 export const dotuHistory = {
   setItem (value) {
     const data = localStorage.getItem(DOTU)
@@ -50,16 +90,7 @@ export const dotuHistory = {
     const data = localStorage.getItem(DOTU)
     return data ? JSON.parse(data) : []
   },
-  deleteItem (value) {
-    const data = localStorage.getItem(DOTU)
-    if (!data) return
-    const history = JSON.parse(data)
-    const index = history.indexOf(value)
-    if (index > -1) {
-      history.splice(index, 1)
-      localStorage.setItem(DOTU, JSON.stringify(history))
-    }
-  },
+  deleteItem: deleteItem(DOTU),
   clear () {
     localStorage.setItem(DOTU, '[]')
   }
