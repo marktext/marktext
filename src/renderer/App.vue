@@ -27,6 +27,7 @@
       v-if="!sourceCode"
       :theme="theme"
     ></search>
+    <aidou></aidou>
   </div>
 </template>
 
@@ -35,11 +36,13 @@
   import TitleBar from '@/components/titleBar'
   import Search from '@/components/search'
   import SourceCode from '@/components/sourceCode'
+  import Aidou from '@/components/aidou/aidou.vue'
   import { mapState } from 'vuex'
 
   export default {
     name: 'marktext',
     components: {
+      Aidou,
       Editor,
       TitleBar,
       Search,

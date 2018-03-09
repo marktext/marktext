@@ -52,7 +52,7 @@
           >
             <use xlink:href="#icon-collected"></use>
           </svg>  
-          <img :src="emoji.link" alt="">
+          <img :src="emoji.link" alt="doutu">
         </div>
         <loading v-if="aiLoading"></loading>
       </div>
@@ -96,7 +96,9 @@
     },
     beforeDestroy () {
       const container = this.$refs.emojis
-      container.removeEventListener('scroll', this.handlerScroll)
+      if (container) {
+        container.removeEventListener('scroll', this.handlerScroll)
+      }
     },
     computed: {
       ...mapState([
@@ -115,6 +117,7 @@
         const type = 'collect'
         this.$store.dispatch('AI_LIST', {data, type})
         this.showCollection = true
+        this.query = ''
       },
       collect (emoji) {
         if (emoji.collected) {
@@ -130,7 +133,7 @@
         try {
           const base64 = await resource.fetchImgToBase64(link)
           const { url } = await resource.sm(base64)
-          this.$emit('select', url)
+          bus.$emit('dotu-select', url)
           this.showAiDou = false
         } catch (err) {
           // todo handle error
@@ -210,8 +213,10 @@
       },
       loadMore () {
         const { query, size, page } = this
-        const params = { query, size, page: page + 1 }
-        this.$store.dispatch('AI_SEARCH', { params, type: 'loadMore' })
+        if (query.trim()) {
+          const params = { query, size, page: page + 1 }
+          this.$store.dispatch('AI_SEARCH', { params, type: 'loadMore' })
+        }
       },
       shuffle () {
         const luckWord = hotWords[Math.random() * hotWords.length | 0]

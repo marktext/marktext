@@ -1,5 +1,9 @@
 <template>
-  <div class="source-code" ref="sourceCode" :class="[theme]">
+  <div
+    class="source-code"
+    ref="sourceCode"
+    :class="[theme]"
+  >
   </div>
 </template>
 
@@ -40,7 +44,6 @@
         this.contentState = new ContentState()
         const container = this.$refs.sourceCode
         const codeMirrorConfig = {
-          // theme: 'railscasts',
           value: '',
           lineNumbers: true,
           autofocus: true,
@@ -57,6 +60,7 @@
         if (theme === 'dark') codeMirrorConfig.theme = 'railscasts'
         this.editor = codeMirror(container, codeMirrorConfig)
         bus.$on('file-loaded', this.setMarkdown)
+        bus.$on('dotu-select', this.handleSelectDoutu)
 
         this.listenChange()
 
@@ -65,8 +69,15 @@
     },
     beforeDestory () {
       bus.$off('file-loaded', this.setMarkdown)
+      bus.$off('dotu-select', this.handleSelectDoutu)
     },
     methods: {
+      handleSelectDoutu (url) {
+        const { editor } = this
+        if (editor) {
+          editor.replaceSelection(`![](${url})`)
+        }
+      },
       listenChange () {
         const { editor } = this
         editor.on('cursorActivity', (cm, event) => {

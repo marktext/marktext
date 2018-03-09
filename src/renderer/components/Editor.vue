@@ -54,15 +54,11 @@
         </el-button>
       </div>
     </el-dialog>
-    <aidou
-      @select="handleSelect"
-    ></aidou>
   </div>
 </template>
 
 <script>
   import Aganippe from '../../editor'
-  import aidou from './aidou/aidou.vue'
   import bus from '../bus'
   import { animatedScrollTo } from '../util'
 
@@ -73,9 +69,6 @@
   ]
 
   export default {
-    components: {
-      aidou
-    },
     props: {
       typewriter: {
         type: Boolean,
@@ -151,6 +144,7 @@
         bus.$on('searchValue', this.handleSearch)
         bus.$on('replaceValue', this.handReplace)
         bus.$on('find', this.handleFind)
+        bus.$on('dotu-select', this.handleSelect)
 
         this.editor.on('change', (markdown, wordCount, cursor) => {
           this.$store.dispatch('SAVE_FILE', { markdown, wordCount, cursor })
@@ -174,7 +168,9 @@
     },
     methods: {
       handleSelect (url) {
-        this.editor && this.editor.insertAidou(url)
+        if (!this.sourceCode) {
+          this.editor && this.editor.insertAidou(url)
+        }
       },
       handleSearch (value, opt) {
         const searchMatches = this.editor.search(value, opt)
@@ -260,6 +256,7 @@
       bus.$off('searchValue', this.handleSearch)
       bus.$off('replaceValue', this.handReplace)
       bus.$off('find', this.handleFind)
+      bus.$off('dotu-select', this.handleSelect)
 
       this.editor.destroy()
       this.editor = null
