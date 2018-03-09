@@ -152,7 +152,9 @@
         switch (event.key) {
           case 'Enter':
             const query = this.historyIndex !== -1 ? this.history[this.historyIndex] : this.query
-            this.search(query)
+            if (!this.aiLoading) {
+              this.search(query)
+            }
             break
           case 'ArrowUp':
             historyIndex = historyIndex - 1

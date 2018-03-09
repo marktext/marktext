@@ -10,6 +10,10 @@
 
 - Customize the scroll bar background color and thumb color.
 
+- Add collection of doutu.
+
+- Add History search word of doutu.
+
 **Bug fix**
 
 - Fix bug when search key in code block will cause the search input lose focus.
