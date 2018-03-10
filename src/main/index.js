@@ -15,7 +15,10 @@ const onReady = () => {
   }
   const menu = Menu.buildFromTemplate(configureMenu({ app }))
   Menu.setApplicationMenu(menu)
-  app.dock.setMenu(dockMenu)
+  if (process.platform === 'darwin') {
+    // app.dock is only for macosx
+    app.dock.setMenu(dockMenu)
+  }
 }
 
 const openFile = (event, path) => {
