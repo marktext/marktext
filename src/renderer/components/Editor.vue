@@ -136,8 +136,8 @@
         }
 
         bus.$on('file-loaded', this.setMarkdownToEditor)
-        bus.$on('undo', () => this.editor.undo())
-        bus.$on('redo', () => this.editor.redo())
+        bus.$on('undo', this.handleUndo)
+        bus.$on('redo', this.handleRedo)
         bus.$on('export', this.handleExport)
         bus.$on('paragraph', this.handleEditParagraph)
         bus.$on('format', this.handleInlineFormat)
@@ -167,6 +167,16 @@
       })
     },
     methods: {
+      handleUndo () {
+        if (this.editor) {
+          this.editor.undo()
+        }
+      },
+      handleRedo () {
+        if (this.editor) {
+          this.editor.redo()
+        }
+      },
       handleSelect (url) {
         if (!this.sourceCode) {
           this.editor && this.editor.insertAidou(url)
@@ -248,8 +258,8 @@
     },
     beforeDestroy () {
       bus.$off('file-loaded', this.setMarkdownToEditor)
-      bus.$off('undo', () => this.editor.undo())
-      bus.$off('redo', () => this.editor.redo())
+      bus.$off('undo', this.handleUndo)
+      bus.$off('redo', this.handleRedo)
       bus.$off('export', this.handleExport)
       bus.$off('paragraph', this.handleEditParagraph)
       bus.$off('format', this.handleInlineFormat)

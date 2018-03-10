@@ -32,10 +32,10 @@
 </template>
 
 <script>
-  import Editor from '@/components/editor'
-  import TitleBar from '@/components/titleBar'
-  import Search from '@/components/search'
-  import SourceCode from '@/components/sourceCode'
+  import Editor from '@/components/editor.vue'
+  import TitleBar from '@/components/titleBar.vue'
+  import Search from '@/components/search.vue'
+  import SourceCode from '@/components/sourceCode.vue'
   import Aidou from '@/components/aidou/aidou.vue'
   import { mapState } from 'vuex'
 
