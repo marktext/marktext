@@ -4,7 +4,7 @@
 
 <p align="center"><img src="https://badge.fury.io/gh/jocs%2Fmarktext.svg">  <img src="https://img.shields.io/github/license/marktext/marktext.svg"></p>
 
-**Mark Text** is a Markdown editor for Mac, It is a concise text editor, dedicated to improving your editing efficiency, enabling you to enjoy pleasure when you finish documents, novels and conference notes easily.
+**Mark Text** is a Markdown editor for Mac and Windows, It is a concise text editor, dedicated to improving your editing efficiency, enabling you to enjoy pleasure when you finish documents, novels and conference notes easily.
 
 ![](https://github.com/marktext/marktext/blob/master/doc/summary.jpg)
 
@@ -46,7 +46,7 @@ If you wish to build **Mark Text** yourself.
 - first clone this repo.
 - Run `npm install`
 - Run `npm run build`
-- copy the build app to Applications folder.
+- copy the build app to Applications folder, or if on Windows run the executable installer.
 
 When you use **Mark Text**, if you have any questions, you are welcome to write an issue, but I hope you follow the format of issue. Of course, if you can submit a PR directly, it will be appreciated.
 
