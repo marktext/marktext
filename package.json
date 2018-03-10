@@ -24,6 +24,7 @@
   "build": {
     "productName": "Mark Text",
     "appId": "org.simulatedgreg.electron-vue",
+    "asar": true,
     "directories": {
       "output": "build"
     },
@@ -39,9 +40,7 @@
         "mdtext"
       ]
     },
-    "files": [
-      "dist/electron/**/*"
-    ],
+    "files": ["dist/electron/**/*"],
     "dmg": {
       "contents": [
         {
@@ -61,7 +60,11 @@
       "icon": "build/icons/icon.icns"
     },
     "win": {
-      "icon": "build/icons/icon.ico"
+      "icon": "build/icons/icon.ico",
+      "target": "nsis"
+    },
+    "nsis": {
+      "perMachine": true
     },
     "linux": {
       "icon": "build/icons"
