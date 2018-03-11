@@ -9,18 +9,27 @@
           <use xlink:href="#icon-arrow-right"></use>
         </svg>
       </span>
-      <span>{{ filename }}</span>
+      <span :class="[{ 'title-no-drag': platform === 'win32' }]">{{ filename }}</span>
     </div>
-    <div class="right-toolbar">
+    <div :class="platform === 'win32' ? 'left-toolbar' : 'right-toolbar'">
+      <div v-if="platform === 'win32'" class="windows-titlebar-menu title-no-drag" @click.stop="handleMenuClick">&#9776;</div>
       <div 
         class="word-count"
+        :class="[{ 'title-no-drag': platform === 'win32' }]"
         @click.stop="handleWordClick"
       >{{ `${HASH[show]} ${wordCount[show]}` }}</div>
+    </div>
+    <div v-if="platform === 'win32'" class="right-toolbar" :class="[{ 'title-no-drag': platform === 'win32' }]">
+      <div class="windows-titlebar-close" @click.stop="handleCloseClick">&times;</div>
+      <div class="windows-titlebar-toggle" @click.stop="handleMaximizeClick">&#9633;</div>
+      <div class="windows-titlebar-minimize" @click.stop="handleMinimizeClick">&minus;</div>
     </div>
   </div>
 </template>
 
 <script>
+  const remote = require('electron').remote
+
   export default {
     data () {
       this.HASH = {
@@ -44,6 +53,9 @@
       paths () {
         const pathnameToken = this.pathname.split('/').filter(i => i)
         return pathnameToken.slice(0, pathnameToken.length - 1).slice(-3)
+      },
+      platform () {
+        return process.platform
       }
     },
     methods: {
@@ -54,6 +66,22 @@
         index += 1
         if (index >= len) index = 0
         this.show = ITEMS[index]
+      },
+      handleCloseClick () {
+        remote.getCurrentWindow().close()
+      },
+      handleMaximizeClick () {
+        if (remote.getCurrentWindow().isMaximized()) {
+          remote.getCurrentWindow().unmaximize()
+        } else {
+          remote.getCurrentWindow().maximize()
+        }
+      },
+      handleMinimizeClick () {
+        remote.getCurrentWindow().minimize()
+      },
+      handleMenuClick () {
+        remote.Menu.getApplicationMenu().popup({window: remote.getCurrentWindow(), x: remote.getCurrentWindow().getPosition()[0] + 23, y: remote.getCurrentWindow().getPosition()[1] + 20})
       }
     }
   }
@@ -74,6 +102,7 @@
     right: 0;
     z-index: 1;
     transition: color .4s ease-in-out;
+    cursor: default;
   }
   .active {
     color: #DCDFE6;
@@ -105,6 +134,16 @@
     display: flex;
     flex-direction: row-reverse;
   }
+  .left-toolbar {
+    padding: 0 10px;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100px;
+    display: flex;
+    flex-direction: row;
+  }
   .word-count {
     cursor: pointer;
     font-size: 12px;
@@ -122,6 +161,45 @@
   .word-count:hover {
     background: #F2F6FC;
     color: #606266;
+  }
+  .title-no-drag {
+    -webkit-app-region: no-drag;
+  }
+  /* windows window controls */
+  .windows-titlebar-close {
+    width: 25px;
+    height: 25px;
+    text-align: center;
+    font-size: 30px;
+    color: #606266;
+    line-height: 24px;
+  }
+  .windows-titlebar-toggle {
+    width: 25px;
+    height: 25px;
+    text-align: center;
+    font-size: 29px;
+    color: #606266;
+    line-height: 16px;
+  }
+  .windows-titlebar-minimize {
+    width: 25px;
+    height: 25px;
+    text-align: center;
+    font-size: 30px;
+    color: #606266;
+    line-height: 24px;
+  }
+  .windows-titlebar-menu {
+    color: #606266;
+  }
+  .windows-titlebar-close:hover {
+    background-color: rgb(228, 79, 79);
+    color: white;
+  }
+  .windows-titlebar-minimize:hover,
+  .windows-titlebar-toggle:hover {
+    background-color: rgba(0, 0, 0, 0.1);
   }
   /* css for dark theme */
   .dark {
