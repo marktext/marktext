@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import axios from 'axios'
 
-import App from './App'
+import App from './app'
 import store from './store'
 
 import './assets/symbolIcon'

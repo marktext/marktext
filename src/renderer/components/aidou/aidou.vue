@@ -66,7 +66,7 @@
 
 <script>
   import bus from '../../bus'
-  import loading from './loading.vue'
+  import loading from './loading'
   import { mapState } from 'vuex'
   import hotWords from './hotWords'
   import resource from '../../store/resource'

@@ -16,5 +16,5 @@
 
 ### Versions
 
-- aganippe-editor:
+- Mark Text:
 - OS:

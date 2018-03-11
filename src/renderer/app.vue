@@ -32,11 +32,11 @@
 </template>
 
 <script>
-  import Editor from '@/components/editor.vue'
-  import TitleBar from '@/components/titleBar.vue'
+  import Editor from '@/components/editor'
+  import TitleBar from '@/components/titleBar'
   import Search from '@/components/search.vue'
-  import SourceCode from '@/components/sourceCode.vue'
-  import Aidou from '@/components/aidou/aidou.vue'
+  import SourceCode from '@/components/sourceCode'
+  import Aidou from '@/components/aidou/aidou'
   import { mapState } from 'vuex'
 
   export default {
@@ -54,8 +54,8 @@
     computed: {
       ...mapState([
         'pathname', 'filename', 'windowActive', 'wordCount',
-        'typewriter', 'focus', 'sourceCode', 'markdown', 'cursor',
-        'theme', 'themeCSS'
+        'typewriter', 'focus', 'sourceCode', 'markdown',
+        'cursor', 'theme', 'themeCSS'
       ])
     },
     created () {

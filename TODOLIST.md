@@ -2,7 +2,7 @@
 
 - [x] Support Search and Replacement.
 
-- [ ] add Dark, Light and GitHub theme.
+- [x] add Dark, Light and GitHub theme.
 
 - [x] source code edit mode typewriter mode focus mode.
 
