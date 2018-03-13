@@ -1,12 +1,12 @@
 {
   "name": "marktext",
-  "version": "0.6.13",
+  "version": "0.6.14",
   "author": "Jocs <luoran1988@126.com>",
   "description": "Next generation markdown editor",
   "license": "MIT",
   "main": "./dist/electron/main.js",
   "scripts": {
-    "build": "node .electron-vue/build.js && electron-builder",
+    "release": "node .electron-vue/build.js && electron-builder -mwl",
     "build:dir": "node .electron-vue/build.js && electron-builder --dir",
     "build:clean": "cross-env BUILD_TARGET=clean node .electron-vue/build.js",
     "build:web": "cross-env BUILD_TARGET=web node .electron-vue/build.js",
