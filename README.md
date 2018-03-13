@@ -4,6 +4,8 @@
 
 <p align="center"><img src="https://badge.fury.io/gh/jocs%2Fmarktext.svg">  <img src="https://img.shields.io/github/license/marktext/marktext.svg">  <img src="https://travis-ci.org/marktext/marktext.svg?branch=master" alt=""></p>
 
+[中文](https://github.com/marktext/marktext/blob/master/doc/i18n/zh_cn.md)
+
 **Mark Text** is a Markdown editor for Mac and Windows, It is a concise text editor, dedicated to improving your editing efficiency, enabling you to enjoy pleasure when you finish documents, novels and conference notes easily.
 
 ![](https://github.com/marktext/marktext/blob/master/doc/summary.jpg)
