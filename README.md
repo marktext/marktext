@@ -50,8 +50,14 @@ If you wish to build **Mark Text** yourself.
 
 When you use **Mark Text**, if you have any questions, you are welcome to write an issue, but I hope you follow the format of issue. Of course, if you can submit a PR directly, it will be appreciated.
 
-<h3 align="center">Last</h3>
+<h3 align="center">Contribution</h3>
 
-It is under [**MIT LICENSE**](https://github.com/marktext/marktext/blob/master/LICENSE).
+Please make sure to read the [Contributing Guide](https://github.com/marktext/marktext/blob/master/.github/CONTRIBUTING.md) before making a pull request.
 
-if you find **Mark Text** suitable for your needs, It's my pleasure.
+Thank you to all the people who have already contributed to Mark Text!
+
+<h3 align="center">License</h3>
+
+ [**MIT**](https://github.com/marktext/marktext/blob/master/LICENSE).
+
+Copyright (c) 2017-present, Jocs
