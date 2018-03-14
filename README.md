@@ -100,9 +100,9 @@
 
 ### Why write another editor?
 
-1. I love writing, I have used a lot of markdown editors,there is still not a editor can fully meet my needs, I don't like to be disturbed when I write, and some unbearable bug, **Mark Text** use virtual DOM to render the page, So it's high efficiency, and open source to friends all love markdown and writing.
+1. I love writing, I have used a lot of markdown editors, there is still not a editor can fully meet my needs, I don't like to be disturbed when I write, and some unbearable bug, **Mark Text** use virtual DOM to render the page, So it's high efficiency, and open source to friends all love markdown and writing.
 2. As mentioned above, **Mark Text** will be open source forever. It is also hoped that all markdown lovers can contribute their own code, and develop **Mark Text** into a popular markdown editor.
-3. There are many markdown editors, and each editor has its own characteristics, but it is also difficult to satisfy all makdown users' needs. I hope **Mark Text** can satisfy markdown users' needs as much as possible. Although the latest **Mark Text** is still not perfect, but we are trying to make it perfect.
+3. There are many markdown editors, and each editor has its own characteristics, but it is also difficult to satisfy all markdown users' needs. I hope **Mark Text** can satisfy markdown users' needs as much as possible. Although the latest **Mark Text** is still not perfect, but we are trying to make it perfect.
 
 ### Download
 
