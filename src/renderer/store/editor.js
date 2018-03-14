@@ -24,7 +24,8 @@ const state = {
     word: 0,
     character: 0,
     all: 0
-  }
+  },
+  platform: ''
 }
 
 const mutations = {
@@ -61,6 +62,9 @@ const mutations = {
   },
   SET_CURSOR (state, cursor) {
     state.cursor = cursor
+  },
+  SET_PLATFORM (state, platform) {
+    state.platform = platform
   }
 }
 
@@ -199,6 +203,9 @@ const actions = {
         ipcRenderer.send('AGANI::close-window')
       }
     })
+  },
+  GET_PLATFORM ({ commit }) {
+    commit('SET_PLATFORM', process.platform)
   }
 }
 

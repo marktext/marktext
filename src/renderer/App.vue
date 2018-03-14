@@ -6,6 +6,7 @@
       :active="windowActive"
       :word-count="wordCount"
       :theme="theme"
+      :platform="platform"
     ></title-bar>
     <editor
       :typewriter="typewriter"
@@ -55,7 +56,7 @@
       ...mapState([
         'pathname', 'filename', 'windowActive', 'wordCount',
         'typewriter', 'focus', 'sourceCode', 'markdown', 'cursor',
-        'theme', 'themeCSS'
+        'theme', 'themeCSS', 'platform'
       ])
     },
     created () {
@@ -74,6 +75,7 @@
       dispatch('LISTEN_FOR_VIEW')
       dispatch('LISTEN_FOR_EXPORT')
       dispatch('LISTEN_FOR_PARAGRAPH_INLINE_STYLE')
+      dispatch('GET_PLATFORM')
     }
   }
 </script>

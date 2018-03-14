@@ -28,7 +28,7 @@
 </template>
 
 <script>
-  const remote = require('electron').remote
+  import { remote } from 'electron'
 
   export default {
     data () {
@@ -47,15 +47,13 @@
       pathname: String,
       active: Boolean,
       wordCount: Object,
-      theme: String
+      theme: String,
+      platform: String
     },
     computed: {
       paths () {
         const pathnameToken = this.pathname.split('/').filter(i => i)
         return pathnameToken.slice(0, pathnameToken.length - 1).slice(-3)
-      },
-      platform () {
-        return process.platform
       }
     },
     methods: {
@@ -71,17 +69,19 @@
         remote.getCurrentWindow().close()
       },
       handleMaximizeClick () {
-        if (remote.getCurrentWindow().isMaximized()) {
-          remote.getCurrentWindow().unmaximize()
+        const win = remote.getCurrentWindow()
+        if (win.isMaximized()) {
+          win.unmaximize()
         } else {
-          remote.getCurrentWindow().maximize()
+          win.maximize()
         }
       },
       handleMinimizeClick () {
         remote.getCurrentWindow().minimize()
       },
       handleMenuClick () {
-        remote.Menu.getApplicationMenu().popup({window: remote.getCurrentWindow(), x: remote.getCurrentWindow().getPosition()[0] + 23, y: remote.getCurrentWindow().getPosition()[1] + 20})
+        const win = remote.getCurrentWindow()
+        remote.Menu.getApplicationMenu().popup({window: win, x: win.getPosition()[0] + 23, y: win.getPosition()[1] + 20})
       }
     }
   }
