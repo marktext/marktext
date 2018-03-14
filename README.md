@@ -9,7 +9,7 @@
   <strong>Next generation markdown editor</strong>
 </div>
 <div align="center">
-  A <code>Electron</code> app for platforms of OS X Windows and Linux
+  An <code>Electron</code> app for platforms of OS X Windows and Linux
 </div>
 
 <br />
@@ -112,7 +112,9 @@ Mark Text build for these platforms ![Conda](https://img.shields.io/conda/pn/con
 | :----------------------------------------------------------: | :----------------------------------------------------------: | :----------------------------------------------------------: |
 | [v0.6.14](https://github.com/marktext/marktext/releases/download/v0.6.14/marktext-0.6.14.dmg) | [v0.6.14](https://github.com/marktext/marktext/releases/download/v0.6.14/marktext-setup-0.6.14.exe) | [v 0.6.14](https://github.com/marktext/marktext/releases/download/v0.6.14/marktext-0.6.14-x86_64.AppImage) |
 
-Not found your system ? Go the the [release page](https://github.com/marktext/marktext/releases), still not found ? Shoot an [issue](https://github.com/marktext/marktext/issues)
+Not found your system ? Go the the [release page](https://github.com/marktext/marktext/releases), still not found ? Shoot an [issue](https://github.com/marktext/marktext/issues).
+
+Want to see new features in this version? Refer to [CHANGELOG](https://github.com/marktext/marktext/blob/master/.github/CHANGELOG.md)
 
 ### Development
 
@@ -127,7 +129,7 @@ When you use **Mark Text**, if you have any questions, you are welcome to write 
 
 ## Contribution
 
-Please make sure to read the [Contributing Guide](https://github.com/marktext/marktext/blob/master/.github/CONTRIBUTING.md) before making a pull request.
+Please make sure to read the [Contributing Guide](https://github.com/marktext/marktext/blob/master/.github/CONTRIBUTING.md) before making a pull request. Want to add some features to Mark Text? Reference [TODO LIST](https://github.com/marktext/marktext/blob/master/.github/TODOLIST.md)
 
 Thank you to all the people who have already contributed to Mark Text!
 
