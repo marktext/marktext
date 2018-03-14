@@ -1,4 +1,4 @@
-<p align="center"><img src="https://github.com/marktext/marktext/blob/master/static/logo-small.png" alt="mark text" width="100" height="100"></p>
+<p align="center"><img src="https://github.com/marktext/marktext/blob/master/static/logo-small.png" alt="mark text" width="100" height="100"></p>
 
 <h1 align="center">Mark Text</h1>
 
@@ -73,8 +73,6 @@
   </a>
 </div>
 
-   
-
 ![](https://github.com/marktext/marktext/blob/master/doc/marktext.gif)
 
 ### Features
@@ -83,20 +81,20 @@
 - Support [CommonMark Spec](http://spec.commonmark.org/0.28/) and [GitHub Flavored Markdown Spec](http://spec.commonmark.org/0.28/).
 - Support paragraphs and inline style shortcuts to improve your writing efficiency.
 - Output **HTML** and **PDF** file.
-- Multiple themes.
+- Dark and Light themes.
 - Various edit mode: **Source Code mode**、**Typewriter mode**、**Focus mode**.
 
-#### Source Code Mode
+<h4 align="center">:crescent_moon:Dark and Light themes:high_brightness:</h4>
 
-![](https://github.com/marktext/marktext/blob/master/doc/source-code-mode.jpg)
+|                     Dark :crescent_moon:                     |                    Light:high_brightness:                    |
+| :----------------------------------------------------------: | :----------------------------------------------------------: |
+| ![](https://github.com/marktext/marktext/blob/master/doc/dark.jpg) | ![](https://github.com/marktext/marktext/blob/master/doc/light.jpg) |
 
-#### Typewriter Mode
+<h4 align="center">:smile_cat:​Edit modes:dog:​</h4>
 
-![](https://github.com/marktext/marktext/blob/master/doc/typewriter-mode.gif)
-
-#### Focus Mode
-
-![](https://github.com/marktext/marktext/blob/master/doc/focus-mode.jpg)
+|                         Source Code                          |                          Typewriter                          |                            Focus                             |
+| :----------------------------------------------------------: | :----------------------------------------------------------: | :----------------------------------------------------------: |
+| ![](https://github.com/marktext/marktext/blob/master/doc/source-code-mode.jpg) | ![](https://github.com/marktext/marktext/blob/master/doc/typewriter-mode.gif) | ![](https://github.com/marktext/marktext/blob/master/doc/focus-mode.jpg) |
 
 ### Why write another editor?
 
