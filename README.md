@@ -94,7 +94,7 @@
 
 |                         Source Code                          |                          Typewriter                          |                            Focus                             |
 | :----------------------------------------------------------: | :----------------------------------------------------------: | :----------------------------------------------------------: |
-| ![](https://github.com/marktext/marktext/blob/master/doc/source-code-mode.jpg) | ![](https://github.com/marktext/marktext/blob/master/doc/typewriter-mode.gif) | ![](https://github.com/marktext/marktext/blob/master/doc/focus-mode.jpg) |
+| ![](https://github.com/marktext/marktext/blob/master/doc/source.gif) | ![](https://github.com/marktext/marktext/blob/master/doc/typewriter.gif) | ![](https://github.com/marktext/marktext/blob/master/doc/focus.gif) |
 
 ### Why write another editor?
 

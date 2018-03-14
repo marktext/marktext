@@ -1,4 +1,4 @@
-<p align="center"><img src="https://github.com/marktext/marktext/blob/master/static/logo-small.png" alt="mark text" width="100" height="100"></p>
+<p align="center"><img src="https://github.com/marktext/marktext/blob/master/static/logo-small.png" alt="mark text" width="100" height="100"></p>
 
 <h1 align="center">Mark Text</h1>
 
@@ -6,7 +6,7 @@
 
 **Mark Text** 是一款高性能的 Markdown 编辑器，运行于 Mac、Windows 和 Linux 平台。其简洁的外观，流程的运行，给您带来舒适的写作体验。
 
-![](https://github.com/marktext/marktext/blob/master/doc/summary.jpg)
+![](https://github.com/marktext/marktext/blob/master/doc/marktext.gif)
 
 <h3 align="center">特性</h3>
 
@@ -18,17 +18,17 @@
 - 黑、白两款主题，自由切换。
 - 多种编辑模式：**Source Code mode**、**Typewriter mode**、**Focus mode**。
 
-#### Source Code Mode
+<h4 align="center">:crescent_moon:Dark and Light themes:high_brightness:</h4>
 
-![](https://github.com/marktext/marktext/blob/master/doc/source-code-mode.jpg)
+|                     Dark :crescent_moon:                     |                    Light:high_brightness:                    |
+| :----------------------------------------------------------: | :----------------------------------------------------------: |
+| ![](https://github.com/marktext/marktext/blob/master/doc/dark.jpg) | ![](https://github.com/marktext/marktext/blob/master/doc/light.jpg) |
 
-#### Typewriter Mode
+<h4 align="center">:smile_cat:​Edit modes:dog:​</h4>
 
-![](https://github.com/marktext/marktext/blob/master/doc/typewriter-mode.gif)
-
-#### Focus Mode
-
-![](https://github.com/marktext/marktext/blob/master/doc/focus-mode.jpg)
+|                         Source Code                          |                          Typewriter                          |                            Focus                             |
+| :----------------------------------------------------------: | :----------------------------------------------------------: | :----------------------------------------------------------: |
+| ![](https://github.com/marktext/marktext/blob/master/doc/source.gif) | ![](https://github.com/marktext/marktext/blob/master/doc/typewriter.gif) | ![](https://github.com/marktext/marktext/blob/master/doc/focus.gif) |
 
 <h3 align="center">可以斗图的 Markdown 编辑器</h3>
 
@@ -52,6 +52,10 @@
 <h3 align="center">贡献</h3>
 
 在贡献代码或者优化文档之前，请确保阅读了[Contributing Guide](https://github.com/marktext/marktext/blob/master/.github/CONTRIBUTING.md)，感谢所有为 Mark Text 做出贡献的开源爱好者们。
+
+[![Jocs](https://avatars0.githubusercontent.com/u/9712830?s=150&v=4)](https://github.com/Jocs) | [![ywwhack](https://avatars1.githubusercontent.com/u/8746197?s=150&v=4)](https://github.com/ywwhack) | [![notAlaanor](https://avatars1.githubusercontent.com/u/17591936?s=150&v=4)](https://github.com/notAlaanor)
+:---:|:---:|:---:
+[Jocs](https://github.com/Jocs) | [ywwhack](https://github.com/ywwhack) | [notAlaanor](https://github.com/notAlaanor)
 
 <h3 align="center">License</h3>
 
