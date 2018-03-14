@@ -35,9 +35,9 @@
 <script>
   import Editor from '@/components/editor'
   import TitleBar from '@/components/titleBar'
-  import Search from '@/components/search'
+  import Search from '@/components/search.vue'
   import SourceCode from '@/components/sourceCode'
-  import Aidou from '@/components/aidou/aidou.vue'
+  import Aidou from '@/components/aidou/aidou'
   import { mapState } from 'vuex'
 
   export default {
@@ -55,8 +55,13 @@
     computed: {
       ...mapState([
         'pathname', 'filename', 'windowActive', 'wordCount',
+<<<<<<< HEAD:src/renderer/App.vue
         'typewriter', 'focus', 'sourceCode', 'markdown', 'cursor',
         'theme', 'themeCSS', 'platform'
+=======
+        'typewriter', 'focus', 'sourceCode', 'markdown',
+        'cursor', 'theme', 'themeCSS'
+>>>>>>> upstream/master:src/renderer/app.vue
       ])
     },
     created () {
