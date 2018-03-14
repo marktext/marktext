@@ -92,7 +92,7 @@
 | :----------------------------------------------------------: | :----------------------------------------------------------: |
 | ![](https://github.com/marktext/marktext/blob/master/doc/dark.jpg) | ![](https://github.com/marktext/marktext/blob/master/doc/light.jpg) |
 
-<h4 align="center">:smile_cat:​Edit modes:dog:​</h4>
+<h4 align="center">:smile_cat:Edit modes:dog:</h4>
 
 |                         Source Code                          |                          Typewriter                          |                            Focus                             |
 | :----------------------------------------------------------: | :----------------------------------------------------------: | :----------------------------------------------------------: |
@@ -104,7 +104,7 @@
 2. As mentioned above, **Mark Text** will be open source forever. It is also hoped that all markdown lovers can contribute their own code, and develop **Mark Text** into a popular markdown editor.
 3. There are many markdown editors, and each editor has its own characteristics, but it is also difficult to satisfy all markdown users' needs. I hope **Mark Text** can satisfy markdown users' needs as much as possible. Although the latest **Mark Text** is still not perfect, but we are trying to make it perfect.
 
-### Download
+### Download and Install
 
 Mark Text build for these platforms ![Conda](https://img.shields.io/conda/pn/conda-forge/python.svg?style=for-the-badge)
 
@@ -115,6 +115,16 @@ Mark Text build for these platforms ![Conda](https://img.shields.io/conda/pn/con
 Not found your system ? Go the the [release page](https://github.com/marktext/marktext/releases), still not found ? Shoot an [issue](https://github.com/marktext/marktext/issues).
 
 Want to see new features in this version? Refer to [CHANGELOG](https://github.com/marktext/marktext/blob/master/.github/CHANGELOG.md)
+
+If you use OS X system, you can install Mark Text by [**homebrew cask**](https://github.com/caskroom/homebrew-cask), to start using Homebrew-Cask, you just need [Homebrew](http://brew.sh/) installed.
+
+> brew cask install mark-text
+
+![](https://github.com/marktext/marktext/blob/master/doc/brew-cask.jpg)
+
+Use the following command to uninstall Mark Text.
+
+> brew cask uninstall mark-text
 
 ### Development
 
