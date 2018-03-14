@@ -55,13 +55,8 @@
     computed: {
       ...mapState([
         'pathname', 'filename', 'windowActive', 'wordCount',
-<<<<<<< HEAD:src/renderer/App.vue
-        'typewriter', 'focus', 'sourceCode', 'markdown', 'cursor',
-        'theme', 'themeCSS', 'platform'
-=======
         'typewriter', 'focus', 'sourceCode', 'markdown',
-        'cursor', 'theme', 'themeCSS'
->>>>>>> upstream/master:src/renderer/app.vue
+        'cursor', 'theme', 'themeCSS', 'platform'
       ])
     },
     created () {
