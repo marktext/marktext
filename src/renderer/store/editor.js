@@ -24,7 +24,8 @@ const state = {
     word: 0,
     character: 0,
     all: 0
-  }
+  },
+  platform: process.platform
 }
 
 const mutations = {
