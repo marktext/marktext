@@ -3,10 +3,12 @@
 <h1 align="center">Mark Text</h1>
 
 <div align="center">
-  :high_brightness::crescent_moon:
+  <a href="https://twitter.com/intent/tweet?text=Wow:&url=https%3A%2F%2Fgithub.com%2Fmarktext%2Fmarktext">
+    <img src="https://img.shields.io/twitter/url/https/github.com/marktext/marktext.svg?style=for-the-badge" alt="twitter">
+  </a>
 </div>
 <div align="center">
-  <strong>Next generation markdown editor</strong>
+  <strong>:high_brightness:Next generation markdown editor:crescent_moon:</strong>
 </div>
 <div align="center">
   An <code>Electron</code> app for platforms of OS X Windows and Linux
