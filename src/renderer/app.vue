@@ -75,7 +75,6 @@
       dispatch('LISTEN_FOR_VIEW')
       dispatch('LISTEN_FOR_EXPORT')
       dispatch('LISTEN_FOR_PARAGRAPH_INLINE_STYLE')
-      dispatch('GET_PLATFORM')
     }
   }
 </script>
