@@ -8,6 +8,8 @@ const codeBlockCtrl = ContentState => {
   ContentState.prototype.selectLanguage = function (paragraph, name) {
     const block = this.getBlock(paragraph.id)
     block.text = block.text.replace(/^(`+)([^`]+$)/g, `$1${name}`)
+    this.codeBlockUpdate(block)
+    this.render()
   }
   // Fix bug: when click the edge at the code block, the code block will be not focused.
   ContentState.prototype.focusCodeBlock = function (event) {
@@ -69,7 +71,6 @@ const codeBlockCtrl = ContentState => {
           .catch(err => {
             console.warn(err)
           })
-        // floatBox.hideIfNeeded()
       }
 
       this.codeBlocks.set(id, codeBlock)
