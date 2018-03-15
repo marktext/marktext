@@ -73,6 +73,8 @@
   </a>
 </div>
 
+<br />
+
 ![](https://github.com/marktext/marktext/blob/master/doc/marktext.gif)
 
 ### Features
@@ -119,10 +121,6 @@ If you use OS X system, you can install Mark Text by [**homebrew cask**](https:/
 > brew cask install mark-text
 
 ![](https://github.com/marktext/marktext/blob/master/doc/brew-cask.jpg)
-
-Use the following command to uninstall Mark Text.
-
-> brew cask uninstall mark-text
 
 ### Development
 
