@@ -62,7 +62,8 @@
     },
     "win": {
       "icon": "build/icons/icon.ico",
-      "target": "nsis"
+      "target": "nsis",
+      "requestedExecutionLevel": "asInvoker"
     },
     "nsis": {
       "perMachine": true,
