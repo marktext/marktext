@@ -24,8 +24,12 @@ class FloatBox {
     const clickHandler = event => {
       const target = event.target
       const key = +target.getAttribute('key')
-      if (this.cb && key !== undefined) {
-        this.cb(this.list[key])
+      const { cb, list } = this
+
+      if (cb && typeof key === 'number' && !Number.isNaN(key)) {
+        console.log(cb)
+        this.cb(list[key])
+        this.hideIfNeeded()
       }
     }
 

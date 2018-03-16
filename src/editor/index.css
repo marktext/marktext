@@ -246,11 +246,17 @@ span.ag-emoji-marked-text {
   font-size: .85em;
   top: 5px;
   right: 5px;
-  color: #9e9e9e;
+  color: #606266;
   background: transparent;
   border: none;
   text-align: center;
+  z-index: 10;
 }
+
+.ag-language-input::placeholder {
+  color: #C0C4CC;
+}
+
 pre.ag-active .ag-language-input {
   display: block;
 }

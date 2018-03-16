@@ -8,6 +8,14 @@ import './assets/symbolIcon'
 import './index.css'
 
 import { Dialog, Form, FormItem, InputNumber, Button, Tooltip } from 'element-ui'
+// In the renderer process:
+// var webFrame = require('electron').webFrame
+// var SpellCheckProvider = require('electron-spell-check-provider')
+
+// webFrame.setSpellCheckProvider('en-US', true, new SpellCheckProvider('en-US').on('misspelling', function (suggestions) {
+//   console.log(suggestions)
+// }))
+
 Vue.use(Dialog)
 Vue.use(Form)
 Vue.use(FormItem)

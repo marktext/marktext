@@ -210,7 +210,6 @@ class Aganippe {
 
     const callback = item => {
       this.contentState.selectLanguage(paragraph, item.name)
-      this.floatBox.hideIfNeeded()
     }
     if (modes.length) {
       this.floatBox.showIfNeeded({

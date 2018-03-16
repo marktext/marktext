@@ -1,3 +1,11 @@
+### 0.6.15
+
+**Bug fix**
+
+1. It's hard to focus the input in code fence.
+2. When input the language in code block, click the language item will not cause hide the float box.
+3. other bugs in code block.
+
 ### 0.6.12
 
 **Features**
