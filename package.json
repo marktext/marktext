@@ -44,8 +44,7 @@
       "dist/electron/**/*"
     ],
     "dmg": {
-      "contents": [
-        {
+      "contents": [{
           "x": 410,
           "y": 150,
           "type": "link",
@@ -66,7 +65,9 @@
       "target": "nsis"
     },
     "nsis": {
-      "perMachine": true
+      "perMachine": true,
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
     },
     "linux": {
       "icon": "build/icons"
