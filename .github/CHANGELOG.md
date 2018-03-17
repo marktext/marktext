@@ -1,4 +1,8 @@
-### 0.6.15
+### 0.7.15
+
+**Features**
+
+1. Check for updates..., and auto update when update available.
 
 **Bug fix**
 
@@ -6,7 +10,12 @@
 2. When input the language in code block, click the language item will not cause hide the float box.
 3. other bugs in code block.
 
-### 0.6.12
+**Optimization**
+
+1. allow user to change install directory on windows.
+2. Show notification when output HTML and PDF successfully.
+
+### 0.6.14
 
 **Features**
 

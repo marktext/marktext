@@ -105,7 +105,7 @@
     cursor: default;
   }
   .active {
-    color: #DCDFE6;
+    color: #909399;
   }
   img {
     height: 90%;
@@ -122,7 +122,7 @@
     transition: all .25s ease-in-out;
   }
   .title:hover {
-    color: #606266;
+    color: #303133;
   }
   .right-toolbar {
     padding: 0 10px;

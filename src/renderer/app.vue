@@ -24,18 +24,17 @@
       :cursor="cursor"
       :theme="theme"
     ></source-code>
-    <search
-      v-if="!sourceCode"
+    <bottom-bar
+      :source-code="sourceCode"
       :theme="theme"
-    ></search>
-    <aidou></aidou>
+    ></bottom-bar>
   </div>
 </template>
 
 <script>
   import Editor from '@/components/editor'
   import TitleBar from '@/components/titleBar'
-  import Search from '@/components/search.vue'
+  import BottomBar from '@/components/bottomBar'
   import SourceCode from '@/components/sourceCode'
   import Aidou from '@/components/aidou/aidou'
   import { mapState } from 'vuex'
@@ -46,7 +45,7 @@
       Aidou,
       Editor,
       TitleBar,
-      Search,
+      BottomBar,
       SourceCode
     },
     data () {
@@ -75,6 +74,7 @@
       dispatch('LISTEN_FOR_VIEW')
       dispatch('LISTEN_FOR_EXPORT')
       dispatch('LISTEN_FOR_PARAGRAPH_INLINE_STYLE')
+      dispatch('LISTEN_FOR_UPDATE')
     }
   }
 </script>
