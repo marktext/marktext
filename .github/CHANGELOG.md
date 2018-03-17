@@ -1,18 +1,29 @@
-### 0.7.15
+### 0.7.16
 
 **Features**
 
 1. Check for updates..., and auto update when update available.
 
+2. Insert Image: ( In edit menu )
+
+   - absolute path
+
+   - relative path
+
+   - Upload Image to cloud
+
 **Bug fix**
 
 1. It's hard to focus the input in code fence.
+
 2. When input the language in code block, click the language item will not cause hide the float box.
+
 3. other bugs in code block.
 
 **Optimization**
 
 1. allow user to change install directory on windows.
+
 2. Show notification when output HTML and PDF successfully.
 
 ### 0.6.14
@@ -34,6 +45,7 @@
 **Bug fix**
 
 - Fix bug when search key in code block will cause the search input lose focus.
+
 - Fix the bug the editor will lose cursor after input Chinese.
 
 ### 0.5.2

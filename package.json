@@ -1,6 +1,6 @@
 {
   "name": "marktext",
-  "version": "0.7.15",
+  "version": "0.7.16",
   "author": "Jocs <luoran1988@126.com>",
   "description": "Next generation markdown editor",
   "license": "MIT",
@@ -24,7 +24,7 @@
   },
   "build": {
     "productName": "Mark Text",
-    "appId": "org.simulatedgreg.electron-vue",
+    "appId": "org.simulatedgreg.electron-marktext",
     "asar": true,
     "directories": {
       "output": "build"
@@ -115,10 +115,11 @@
     "css-loader": "^0.28.4",
     "del": "^3.0.0",
     "devtron": "^1.4.0",
-    "electron": "^2.0.0-beta.3",
+    "electron": "^1.8.4",
     "electron-builder": "^20.4.1",
     "electron-debug": "^1.4.0",
     "electron-devtools-installer": "^2.2.0",
+    "electron-rebuild": "^1.7.3",
     "electron-updater": "^2.21.0",
     "eslint": "^4.4.1",
     "eslint-config-standard": "^10.2.1",

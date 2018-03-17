@@ -46,7 +46,7 @@
 
 - [ ] Status bar, also and toggle status bar in view menu.
 
-- [ ] Insert Image in edit menu
+- [x] Insert Image in edit menu
 
       - Absolute path
 

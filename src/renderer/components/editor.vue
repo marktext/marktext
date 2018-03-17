@@ -144,7 +144,7 @@
         bus.$on('searchValue', this.handleSearch)
         bus.$on('replaceValue', this.handReplace)
         bus.$on('find', this.handleFind)
-        bus.$on('dotu-select', this.handleSelect)
+        bus.$on('insert-image', this.handleSelect)
 
         this.editor.on('change', (markdown, wordCount, cursor) => {
           this.$store.dispatch('SAVE_FILE', { markdown, wordCount, cursor })
@@ -162,6 +162,7 @@
         })
 
         this.editor.on('selectionFormats', formats => {
+          console.log(formats)
           this.$store.dispatch('SELECTION_FORMATS', formats)
         })
       })
@@ -179,7 +180,7 @@
       },
       handleSelect (url) {
         if (!this.sourceCode) {
-          this.editor && this.editor.insertAidou(url)
+          this.editor && this.editor.insertImage(url)
         }
       },
       handleSearch (value, opt) {

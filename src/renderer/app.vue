@@ -28,6 +28,8 @@
       :source-code="sourceCode"
       :theme="theme"
     ></bottom-bar>
+    <aidou></aidou>
+    <upload-image></upload-image>
   </div>
 </template>
 
@@ -37,6 +39,7 @@
   import BottomBar from '@/components/bottomBar'
   import SourceCode from '@/components/sourceCode'
   import Aidou from '@/components/aidou/aidou'
+  import UploadImage from '@/components/uploadImage'
   import { mapState } from 'vuex'
 
   export default {
@@ -46,7 +49,8 @@
       Editor,
       TitleBar,
       BottomBar,
-      SourceCode
+      SourceCode,
+      UploadImage
     },
     data () {
       return {}
@@ -75,6 +79,7 @@
       dispatch('LISTEN_FOR_EXPORT')
       dispatch('LISTEN_FOR_PARAGRAPH_INLINE_STYLE')
       dispatch('LISTEN_FOR_UPDATE')
+      dispatch('LISTEN_FOR_INSERT_IMAGE')
     }
   }
 </script>

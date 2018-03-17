@@ -48,7 +48,7 @@ let viewMenu = {
   }]
 }
 
-if (process.env.NODE_ENV === 'production' || process.env.NODE_ENV === 'development') {
+if (process.env.NODE_ENV !== 'production' || process.env.NODE_ENV === 'development') {
   // add devtool when development
   viewMenu.submenu.push({
     label: 'Toggle Developer Tools',

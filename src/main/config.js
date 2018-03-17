@@ -11,6 +11,15 @@ export const EXTENSIONS = [
   'txt'
 ]
 
+export const IMAGE_EXTENSIONS = [
+  'jpeg',
+  'jpg',
+  'png',
+  'gif',
+  'svg',
+  'webp'
+]
+
 export const EXTENSION_HASN = {
   styledHtml: '.html',
   html: '.html',

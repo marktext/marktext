@@ -7,7 +7,7 @@ autoUpdater.autoDownload = false
 
 autoUpdater.on('error', error => {
   if (win) {
-    win.webContents.send('AGANI::UPDATE_ERROR', error == null ? 'Error: unknown' : (error.stack || error).toString())
+    win.webContents.send('AGANI::UPDATE_ERROR', error === null ? 'Error: unknown' : (error.stack || error).toString())
   }
 })
 
@@ -24,6 +24,8 @@ autoUpdater.on('update-available', () => {
   if (win) {
     win.webContents.send('AGANI::UPDATE_AVAILABLE', 'Found updates, do you want update now?')
   }
+  updater.enabled = true
+  updater = null
 })
 
 autoUpdater.on('update-not-available', () => {

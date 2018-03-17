@@ -79,6 +79,13 @@
     font-size: 13px;
     color: rgb(136, 170, 204);
   }
+  .message {
+    width: 70%;
+    display: inline-block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap
+  }
   .message, .yes {
     margin-right: 5px;
   }
@@ -86,6 +93,7 @@
     color: #E6A23C;
   }
   .yes, .no {
+    vertical-align: top;
     color: rgb(79, 183, 221);
     cursor: pointer;
   }
