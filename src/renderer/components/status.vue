@@ -80,7 +80,7 @@
     color: rgb(136, 170, 204);
   }
   .message {
-    width: 70%;
+    max-width: 70%;
     display: inline-block;
     overflow: hidden;
     text-overflow: ellipsis;

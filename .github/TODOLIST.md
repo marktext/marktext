@@ -44,7 +44,7 @@
 
 - [ ] Side bar contains TOC and folders/files, also and toggle side bar in view menu.
 
-- [ ] Status bar, also and toggle status bar in view menu.
+- [x] Status bar, also and toggle status bar in view menu.
 
 - [x] Insert Image in edit menu
 

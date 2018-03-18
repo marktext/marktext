@@ -265,6 +265,7 @@ span.ag-image-marked-text, span.ag-link-in-bracket, span.ag-link-in-bracket .ag-
   color: rgb(125, 125, 125);
   font-size: 16px;
   text-decoration: none;
+  font-family: monospace;
 }
 
 .ag-language {
