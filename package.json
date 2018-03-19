@@ -83,6 +83,7 @@
     "css-tree": "^1.0.0-alpha9",
     "electron-window-state": "^4.1.1",
     "element-ui": "^2.1.0",
+    "file-icons-js": "^1.0.3",
     "js-beautify": "^1.7.5",
     "mousetrap": "^1.6.1",
     "npm": "^5.7.1",
