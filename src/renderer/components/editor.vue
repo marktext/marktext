@@ -152,7 +152,7 @@
 
         this.editor.on('selectionChange', changes => {
           const { y } = changes.cursorCoords
-
+          console.log(y)
           if (this.typewriter) {
             animatedScrollTo(container, container.scrollTop + y - STANDAR_Y, 100)
           }
@@ -162,7 +162,6 @@
         })
 
         this.editor.on('selectionFormats', formats => {
-          console.log(formats)
           this.$store.dispatch('SELECTION_FORMATS', formats)
         })
       })
