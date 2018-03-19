@@ -826,6 +826,7 @@ class Selection {
       if (range.getClientRects) {
         range.collapse(true)
         const rects = range.getClientRects()
+        console.log(rects)
         if (rects.length) {
           ({ x, y } = rects[0])
         }

@@ -1,9 +1,16 @@
+import * as actions from '../actions/marktext'
+
 export default function markTextMenu ({ app }) {
   return {
     label: 'Mark Text',
     submenu: [{
       label: 'About Mark Text',
       role: 'about'
+    }, {
+      label: 'Check for updates...',
+      click (menuItem, browserWindow) {
+        actions.checkUpdates(menuItem, browserWindow)
+      }
     }, {
       type: 'separator'
     }, {

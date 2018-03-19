@@ -4,7 +4,7 @@
 
 <p align="center"><img src="https://badge.fury.io/gh/jocs%2Fmarktext.svg">  <img src="https://img.shields.io/github/license/marktext/marktext.svg">  <img src="https://travis-ci.org/marktext/marktext.svg?branch=master" alt=""></p>
 
-**Mark Text** 是一款高性能的 Markdown 编辑器，运行于 Mac、Windows 和 Linux 平台。其简洁的外观，流程的运行，给您带来舒适的写作体验。
+**Mark Text** 是一款高性能的 Markdown 编辑器，运行于 Mac、Windows 和 Linux 平台。其简洁的外观，流畅的运行，给您带来舒适的写作体验。
 
 ![](https://github.com/marktext/marktext/blob/master/doc/marktext.gif)
 

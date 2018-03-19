@@ -21,7 +21,7 @@ let viewMenu = {
     type: 'separator'
   }, {
     label: 'Source Code Mode',
-    accelerator: 'Alt+CmdOrCtrl+S',
+    accelerator: 'Shift+CmdOrCtrl+S',
     type: 'checkbox',
     checked: VIEW_MENU_ITEM['Source Code Mode'],
     click (item, browserWindow) {
@@ -29,7 +29,7 @@ let viewMenu = {
     }
   }, {
     label: 'Typewriter Mode',
-    accelerator: 'Alt+CmdOrCtrl+T',
+    accelerator: 'Shift+CmdOrCtrl+T',
     type: 'checkbox',
     checked: VIEW_MENU_ITEM['Typewriter Mode'],
     click (item, browserWindow) {
@@ -37,7 +37,7 @@ let viewMenu = {
     }
   }, {
     label: 'Focus Mode',
-    accelerator: 'Alt+CmdOrCtrl+M',
+    accelerator: 'Shift+CmdOrCtrl+F',
     type: 'checkbox',
     checked: VIEW_MENU_ITEM['Focus Mode'],
     click (item, browserWindow) {

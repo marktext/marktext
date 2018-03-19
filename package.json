@@ -1,12 +1,13 @@
 {
   "name": "marktext",
-  "version": "0.6.14",
+  "version": "0.7.16",
   "author": "Jocs <luoran1988@126.com>",
   "description": "Next generation markdown editor",
   "license": "MIT",
   "main": "./dist/electron/main.js",
   "scripts": {
     "release": "node .electron-vue/build.js && electron-builder -mwl",
+    "build": "node .electron-vue/build.js && electron-builder",
     "build:dir": "node .electron-vue/build.js && electron-builder --dir",
     "build:clean": "cross-env BUILD_TARGET=clean node .electron-vue/build.js",
     "build:web": "cross-env BUILD_TARGET=web node .electron-vue/build.js",
@@ -23,7 +24,7 @@
   },
   "build": {
     "productName": "Mark Text",
-    "appId": "org.simulatedgreg.electron-vue",
+    "appId": "org.simulatedgreg.electron-marktext",
     "asar": true,
     "directories": {
       "output": "build"
@@ -44,7 +45,8 @@
       "dist/electron/**/*"
     ],
     "dmg": {
-      "contents": [{
+      "contents": [
+        {
           "x": 410,
           "y": 150,
           "type": "link",
@@ -78,9 +80,10 @@
     "axios": "^0.18.0",
     "cheerio": "^1.0.0-rc.2",
     "codemirror": "^5.31.0",
-    "css-tree": "^1.0.0-alpha.27",
+    "css-tree": "^1.0.0-alpha9",
     "electron-window-state": "^4.1.1",
     "element-ui": "^2.1.0",
+    "file-icons-js": "^1.0.3",
     "js-beautify": "^1.7.5",
     "mousetrap": "^1.6.1",
     "npm": "^5.7.1",
@@ -99,7 +102,7 @@
     "babel-eslint": "^7.2.3",
     "babel-loader": "^7.1.1",
     "babel-plugin-component": "^1.1.0",
-    "babel-plugin-istanbul": "^4.1.1",
+    "babel-plugin-istanbul": "^4.1.6",
     "babel-plugin-transform-runtime": "^6.23.0",
     "babel-preset-env": "^1.6.0",
     "babel-preset-stage-0": "^6.24.1",
@@ -113,10 +116,12 @@
     "css-loader": "^0.28.4",
     "del": "^3.0.0",
     "devtron": "^1.4.0",
-    "electron": "^2.0.0-beta.3",
+    "electron": "^2.0.0-beta.4",
     "electron-builder": "^20.4.1",
     "electron-debug": "^1.4.0",
     "electron-devtools-installer": "^2.2.0",
+    "electron-rebuild": "^1.7.3",
+    "electron-updater": "^2.21.1",
     "eslint": "^4.4.1",
     "eslint-config-standard": "^10.2.1",
     "eslint-friendly-formatter": "^3.0.0",

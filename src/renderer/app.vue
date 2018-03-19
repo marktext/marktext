@@ -24,20 +24,22 @@
       :cursor="cursor"
       :theme="theme"
     ></source-code>
-    <search
-      v-if="!sourceCode"
+    <bottom-bar
+      :source-code="sourceCode"
       :theme="theme"
-    ></search>
+    ></bottom-bar>
     <aidou></aidou>
+    <upload-image></upload-image>
   </div>
 </template>
 
 <script>
   import Editor from '@/components/editor'
   import TitleBar from '@/components/titleBar'
-  import Search from '@/components/search.vue'
+  import BottomBar from '@/components/bottomBar'
   import SourceCode from '@/components/sourceCode'
   import Aidou from '@/components/aidou/aidou'
+  import UploadImage from '@/components/uploadImage'
   import { mapState } from 'vuex'
 
   export default {
@@ -46,8 +48,9 @@
       Aidou,
       Editor,
       TitleBar,
-      Search,
-      SourceCode
+      BottomBar,
+      SourceCode,
+      UploadImage
     },
     data () {
       return {}
@@ -75,6 +78,8 @@
       dispatch('LISTEN_FOR_VIEW')
       dispatch('LISTEN_FOR_EXPORT')
       dispatch('LISTEN_FOR_PARAGRAPH_INLINE_STYLE')
+      dispatch('LISTEN_FOR_UPDATE')
+      dispatch('LISTEN_FOR_INSERT_IMAGE')
     }
   }
 </script>

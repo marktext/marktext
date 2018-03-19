@@ -133,7 +133,7 @@
         try {
           const base64 = await resource.fetchImgToBase64(link)
           const { url } = await resource.sm(base64)
-          bus.$emit('dotu-select', url)
+          bus.$emit('insert-image', url)
           this.showAiDou = false
         } catch (err) {
           // todo handle error

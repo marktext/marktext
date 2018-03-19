@@ -217,11 +217,7 @@
 
 <style scoped>
   .search-bar {
-    position: fixed;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgb(245, 245, 245);
+    width: 100%;
     padding: 5px;
   }
   .search {
@@ -286,7 +282,6 @@
   /* css for dark theme*/
   .dark {
     caret-color: #efefef;
-    background: rgb(43, 43, 43);
     color: #606266;
   }
   .dark input {

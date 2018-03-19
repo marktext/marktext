@@ -453,8 +453,8 @@ class Aganippe {
     this.contentState.format(type)
   }
 
-  insertAidou (url) {
-    this.contentState.insertAidou(url)
+  insertImage (url) {
+    this.contentState.insertImage(url)
   }
 
   search (value, opt) {

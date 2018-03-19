@@ -144,7 +144,7 @@
         bus.$on('searchValue', this.handleSearch)
         bus.$on('replaceValue', this.handReplace)
         bus.$on('find', this.handleFind)
-        bus.$on('dotu-select', this.handleSelect)
+        bus.$on('insert-image', this.handleSelect)
 
         this.editor.on('change', (markdown, wordCount, cursor) => {
           this.$store.dispatch('SAVE_FILE', { markdown, wordCount, cursor })
@@ -152,7 +152,7 @@
 
         this.editor.on('selectionChange', changes => {
           const { y } = changes.cursorCoords
-
+          console.log(y)
           if (this.typewriter) {
             animatedScrollTo(container, container.scrollTop + y - STANDAR_Y, 100)
           }
@@ -179,7 +179,7 @@
       },
       handleSelect (url) {
         if (!this.sourceCode) {
-          this.editor && this.editor.insertAidou(url)
+          this.editor && this.editor.insertImage(url)
         }
       },
       handleSearch (value, opt) {

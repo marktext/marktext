@@ -173,6 +173,20 @@ const actions = {
       bus.$emit('export', type)
     })
   },
+  LISTEN_FOR_INSERT_IMAGE ({ commit, state }) {
+    ipcRenderer.on('AGANI::INSERT_IMAGE', (e, { filename: imagePath, type }) => {
+      if (type === 'absolute' || type === 'relative') {
+        const { pathname } = state
+        if (type === 'relative' && pathname) {
+          imagePath = path.relative(path.dirname(pathname), imagePath)
+        }
+        bus.$emit('insert-image', imagePath)
+      } else {
+        // upload to CM
+        bus.$emit('upload-image')
+      }
+    })
+  },
   LISTEN_FOR_EDIT ({ commit }) {
     ipcRenderer.on('AGANI::edit', (e, { type }) => {
       bus.$emit(type)

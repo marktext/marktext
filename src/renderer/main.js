@@ -7,7 +7,7 @@ import store from './store'
 import './assets/symbolIcon'
 import './index.css'
 
-import { Dialog, Form, FormItem, InputNumber, Button, Tooltip } from 'element-ui'
+import { Dialog, Form, FormItem, InputNumber, Button, Tooltip, Upload } from 'element-ui'
 // In the renderer process:
 // var webFrame = require('electron').webFrame
 // var SpellCheckProvider = require('electron-spell-check-provider')
@@ -22,6 +22,7 @@ Vue.use(FormItem)
 Vue.use(InputNumber)
 Vue.use(Button)
 Vue.use(Tooltip)
+Vue.use(Upload)
 
 if (!process.env.IS_WEB) Vue.use(require('vue-electron'))
 Vue.http = Vue.prototype.$http = axios

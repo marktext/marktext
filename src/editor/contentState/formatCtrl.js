@@ -175,21 +175,43 @@ const formatCtrl = ContentState => {
     block.text = generator(tokens)
   }
 
-  ContentState.prototype.insertAidou = function (url) {
+  ContentState.prototype.insertImage = function (url) {
+    const title = /\/?([^./]+)\.[a-z]+$/.exec(url)[1] || ''
     const { start, end } = this.cursor
+    const { formats } = this.selectionFormats({ start, end })
+    console.log(formats)
     const { key, offset: startOffset } = start
     const { offset: endOffset } = end
     const block = this.getBlock(key)
     const { text } = block
-    if (key !== end.key) {
-      block.text = text.substring(0, startOffset) + `![](${url})` + text.substring(startOffset)
-      const offset = startOffset + 2
+    const imageFormat = formats.filter(f => f.type === 'image')
+
+    if (imageFormat.length === 1) {
+      // replace pre image
+      const { start, end } = imageFormat[0].range
+      block.text = text.substring(0, start) +
+        `![${title}](${url})` +
+        text.substring(end)
+
       this.cursor = {
-        start: { key, offset },
-        end: { key, offset }
+        start: { key, offset: start + 2 },
+        end: { key, offset: start + 2 + title.length }
+      }
+    } else if (key !== end.key) {
+      const endBlock = this.getBlock(end.key)
+      const { text } = endBlock
+      endBlock.text = text.substring(0, endOffset) + `![${title}](${url})` + text.substring(endOffset)
+      const offset = endOffset + 2
+      this.cursor = {
+        start: { key: end.key, offset },
+        end: { key: end.key, offset: offset + title.length }
       }
     } else {
-      block.text = text.substring(0, start.offset) + `![${text.substring(startOffset, endOffset)}](${url})` + text.substring(end.offset)
+      const imageTitle = startOffset !== endOffset ? text.substring(startOffset, endOffset) : title
+      block.text = text.substring(0, start.offset) +
+        `![${imageTitle}](${url})` +
+        text.substring(end.offset)
+
       this.cursor = {
         start: {
           key,
@@ -197,7 +219,7 @@ const formatCtrl = ContentState => {
         },
         end: {
           key,
-          offset: startOffset + 2 + text.substring(startOffset, endOffset).length
+          offset: startOffset + 2 + imageTitle.length
         }
       }
     }

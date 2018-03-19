@@ -1,3 +1,4 @@
+import fileIcons from '../fileIcons'
 import {
   CLASS_OR_ID
 } from '../config'
@@ -27,7 +28,6 @@ class FloatBox {
       const { cb, list } = this
 
       if (cb && typeof key === 'number' && !Number.isNaN(key)) {
-        console.log(cb)
         this.cb(list[key])
         this.hideIfNeeded()
       }
@@ -54,11 +54,34 @@ class FloatBox {
       const li = document.createElement('li')
       li.classList.add(CLASS_OR_ID['AG_FLOAT_ITEM'])
       if (i === this.index) li.classList.add(CLASS_OR_ID['AG_FLOAT_ITEM_ACTIVE'])
+      // for emoji
       if (l.emoji) {
         const icon = document.createElement('span')
         icon.classList.add(CLASS_OR_ID['AG_FLOAT_ITEM_ICON'])
         icon.setAttribute('key', i)
         icon.textContent = l.emoji
+        li.appendChild(icon)
+      } else if (l.mode) { // for language
+        let className
+        if (l.mode.ext && Array.isArray(l.mode.ext)) {
+          for (const ext of l.mode.ext) {
+            className = fileIcons.getClassWithColor(`fackname.${ext}`)
+            if (className) break
+          }
+        } else if (l.mode.name) {
+          className = fileIcons.getClassWithColor(l.mode.name)
+        }
+
+        // Because `markdown mode in Codemirror` don't have extensions.
+        // if still can not get the className, add a common className 'atom-icon light-cyan'
+        if (!className) {
+          className = l.text === 'markdown' ? fileIcons.getClassWithColor('fackname.md') : 'atom-icon light-cyan'
+        }
+
+        const icon = document.createElement('span')
+        icon.classList.add(...className.split(/\s/))
+        icon.classList.add(CLASS_OR_ID['AG_FLOAT_ITEM_ICON'])
+        icon.setAttribute('key', i)
         li.appendChild(icon)
       }
       const text = document.createElement('span')
