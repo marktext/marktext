@@ -58,7 +58,7 @@ const importRegister = ContentState => {
       let lang = ''
       if (node.nodeName === 'code') {
         const classAttr = node.attrs.filter(attr => attr.name === 'class')[0]
-        if (classAttr && /^language/.test(classAttr.value)) {
+        if (classAttr && /^lang-/.test(classAttr.value)) {
           lang = classAttr.value.split('-')[1]
         }
       }

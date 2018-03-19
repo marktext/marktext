@@ -23,7 +23,7 @@
 }
 
 .ag-float-item {
-  padding: 0 .5em;
+  padding: 0 .2em;
   height: 28px;
   line-height: 28px;
   box-sizing: border-box;
@@ -57,5 +57,5 @@
   display: inline-block;
   vertical-align: middle;
   flex-shrink: 0;
-  margin-right: .5em;
+  margin-right: .1em;
 }

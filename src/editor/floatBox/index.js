@@ -1,10 +1,9 @@
-import fileIcons from 'file-icons-js'
+import fileIcons from '../fileIcons'
 import {
   CLASS_OR_ID
 } from '../config'
 
 import './index.css'
-import 'file-icons-js/css/style.css'
 
 const FLOAT_BOX_HEIGHT = 180
 const ITEM_HEIGHT = 28
@@ -73,6 +72,8 @@ class FloatBox {
           className = fileIcons.getClassWithColor(l.mode.name)
         }
 
+        // Because `markdown mode in Codemirror` don't have extensions.
+        // if still can not get the className, add a common className 'atom-icon light-cyan'
         if (!className) {
           className = l.text === 'markdown' ? fileIcons.getClassWithColor('fackname.md') : 'atom-icon light-cyan'
         }

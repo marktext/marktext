@@ -2,7 +2,7 @@
 
 **Features**
 
-1. Check for updates..., and auto update when update available.
+1. Check for updates..., and auto update when update available.(Still need signature...:cry:)
 
 2. Insert Image: ( In edit menu )
 
@@ -12,6 +12,8 @@
 
    - Upload Image to cloud
 
+3. Add file icons to languages when create code block or change language in code block.
+
 **Bug fix**
 
 1. It's hard to focus the input in code fence.
@@ -19,6 +21,12 @@
 2. When input the language in code block, click the language item will not cause hide the float box.
 
 3. other bugs in code block.
+
+4. Windows user can not use open with feature.
+
+5. The menu disapear in Linux sysyem.
+
+6. Fix the bug that the language highlight disapear when open markdown file with code block.
 
 **Optimization**
 
