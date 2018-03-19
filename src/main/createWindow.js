@@ -21,7 +21,7 @@ const createWindow = (pathname, options = {}) => {
     },
     useContentSize: true,
     show: false,
-    frame: (process.platform === 'linux'),
+    frame: (process.platform === 'linux' ? false : true),
     titleBarStyle: 'hidden'
   }, options)
   let win = new BrowserWindow(winOpt)
