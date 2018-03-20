@@ -7,14 +7,14 @@ export default {
     type: 'radio',
     checked: false,
     click (menuItem, browserWindow) {
-      actions.selectTheme(browserWindow, 'dark')
+      actions.selectTheme('dark')
     }
   }, {
     label: 'Light',
     type: 'radio',
     checked: true,
     click (menuItem, browserWindow) {
-      actions.selectTheme(browserWindow, 'light')
+      actions.selectTheme('light')
     }
   }]
 }

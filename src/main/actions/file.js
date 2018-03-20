@@ -154,3 +154,7 @@ export const save = win => {
 export const saveAs = win => {
   win.webContents.send('AGANI::ask-file-save-as')
 }
+
+export const autoSave = (menuItem, win) => {
+  // TODO
+}

@@ -1,7 +1,8 @@
 import fs from 'fs'
 import path from 'path'
-import { ipcMain, BrowserWindow } from 'electron'
+import { ipcMain } from 'electron'
 import { getMenuItem } from '../utils'
+import { windows } from '../createWindow'
 /**
  * Set `__static` path to static files in production
  * https://simulatedgreg.gitbooks.io/electron-vue/content/en/using-static-assets.html
@@ -15,8 +16,10 @@ const THEME_PATH = path.join(__static, '/themes')
 
 const themeCSS = {}
 
-export const selectTheme = (win, theme, themeCSS) => {
-  win.webContents.send('AGANI::theme', { theme, themeCSS })
+export const selectTheme = (theme, themeCSS) => {
+  for (const win of windows.values()) {
+    win.webContents.send('AGANI::theme', { theme, themeCSS })
+  }
 }
 
 const getSelectTheme = () => {
@@ -25,7 +28,7 @@ const getSelectTheme = () => {
 }
 
 ipcMain.on('AGANI::ask-for-theme', e => {
-  const win = BrowserWindow.fromWebContents(e.sender)
+  // const win = BrowserWindow.fromWebContents(e.sender)
   if (!Object.keys(themeCSS).length) {
     const promises = ['dark', 'light'].map(theme => {
       return new Promise((resolve, reject) => {
@@ -42,10 +45,10 @@ ipcMain.on('AGANI::ask-for-theme', e => {
           themeCSS[theme] = data
         })
         const selectedTheme = getSelectTheme().label.toLowerCase()
-        selectTheme(win, selectedTheme, themeCSS)
+        selectTheme(selectedTheme, themeCSS)
       })
   } else {
     const selectedTheme = getSelectTheme().label.toLowerCase()
-    selectTheme(win, selectedTheme, themeCSS)
+    selectTheme(selectedTheme, themeCSS)
   }
 })

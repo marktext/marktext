@@ -1,8 +1,11 @@
+import path from 'path'
 import { autoUpdater } from 'electron-updater'
 import { ipcMain } from 'electron'
+import createWindow from '../createWindow'
 
 let updater
 let win
+
 autoUpdater.autoDownload = false
 
 autoUpdater.on('error', error => {
@@ -42,6 +45,11 @@ autoUpdater.on('update-downloaded', () => {
   }
   setImmediate(() => autoUpdater.quitAndInstall())
 })
+
+export const userSetting = (menuItem, browserWindow) => {
+  const settingPath = path.join(__static, '/preference.md')
+  createWindow(settingPath)
+}
 
 export const checkUpdates = (menuItem, browserWindow) => {
   updater = menuItem

@@ -36,31 +36,34 @@ export default {
       actions.saveAs(browserWindow)
     }
   }, {
+    label: 'Auto Save',
+    type: 'radio',
+    click (menuItem, browserWindow) {
+      actions.autoSave(browserWindow)
+    }
+  }, {
     type: 'separator'
   }, {
-    label: 'Export',
-    submenu: [{
-      label: 'Styled HTML',
-      click (menuItem, browserWindow) {
-        actions.exportFile(browserWindow, 'styledHtml')
-      }
-    }, {
-      label: 'HTML',
-      click (menuItem, browserWindow) {
-        actions.exportFile(browserWindow, 'html')
-      }
-    }, {
-      label: 'PDF',
-      click (menuItem, browserWindow) {
-        actions.exportFile(browserWindow, 'pdf')
-      }
-    }]
+    label: 'Export Styled HTML',
+    click (menuItem, browserWindow) {
+      actions.exportFile(browserWindow, 'styledHtml')
+    }
+  }, {
+    label: 'Export HTML',
+    click (menuItem, browserWindow) {
+      actions.exportFile(browserWindow, 'html')
+    }
+  }, {
+    label: 'Export PDF',
+    click (menuItem, browserWindow) {
+      actions.exportFile(browserWindow, 'pdf')
+    }
   }, {
     type: 'separator'
   }, {
     label: 'Print',
     accelerator: 'CmdOrCtrl+P',
-    click: function (menuItem, browserWindow) {
+    click (menuItem, browserWindow) {
       actions.print(browserWindow)
     }
   }]

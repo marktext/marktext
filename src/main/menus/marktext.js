@@ -12,6 +12,12 @@ export default function markTextMenu ({ app }) {
         actions.checkUpdates(menuItem, browserWindow)
       }
     }, {
+      label: 'Preferences',
+      accelerator: 'Cmd+,',
+      click (menuItem, browserWindow) {
+        actions.userSetting(menuItem, browserWindow)
+      }
+    }, {
       type: 'separator'
     }, {
       label: 'Services',
