@@ -2,6 +2,7 @@
  * marked - a markdown parser
  * Copyright (c) 2011-2014, Christopher Jeffrey. (MIT Licensed)
  * https://github.com/chjj/marked
+ * modified for Mark Text use
  */
 
 /**
@@ -573,7 +574,7 @@ InlineLexer.prototype.output = function(src) {
     disableInline
   } = this.options
   if (disableInline) {
-    return src
+    return escape(src)
   }
   var out = '',
     link, text, href, cap;

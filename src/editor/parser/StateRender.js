@@ -4,9 +4,6 @@ import { insertAfter, operateClassName } from '../utils/domManipulate.js'
 import { tokenizer } from './parse'
 import { validEmoji } from '../emojis'
 
-// for test
-window.tokenizer = tokenizer
-
 const snabbdom = require('snabbdom')
 const patch = snabbdom.init([ // Init patch function with chosen modules
   require('snabbdom/modules/class').default, // makes it easy to toggle classes
