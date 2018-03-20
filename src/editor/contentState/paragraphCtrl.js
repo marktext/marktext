@@ -32,12 +32,12 @@ const paragraphCtrl = ContentState => {
 
     if (start.type === 'pre' && end.type === 'pre') {
       const preElement = document.querySelector(`#${start.key}`)
-      const { y } = preElement.getBoundingClientRect()
+      const { top } = preElement.getBoundingClientRect()
       const { line } = start.block.pos
       const FONT_SIZE = 16 // TODO: in the future font size be be set in perference.
       const STYLE_LINE_HEIGHT = 1.6 // in stylesheet
       const LINE_HEIGHT = STYLE_LINE_HEIGHT * FONT_SIZE
-      cursorCoords.y = y + line * LINE_HEIGHT
+      cursorCoords.y = top + line * LINE_HEIGHT
     }
 
     return {

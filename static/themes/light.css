@@ -45,7 +45,7 @@ body {
 .ag-gray {
   color: #E4E7ED;
   text-decoration: none;
-  font-family: monospace;
+  letter-spacing: .15rem;
 }
 
 .v-modal {
