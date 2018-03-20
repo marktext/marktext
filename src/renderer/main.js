@@ -16,6 +16,14 @@ import { Dialog, Form, FormItem, InputNumber, Button, Tooltip, Upload } from 'el
 //   console.log(suggestions)
 // }))
 
+// prevent drag image or other file to Mark Text, and open it by Chrome default behavior.
+window.addEventListener('dragover', function (e) {
+  e.preventDefault()
+}, false)
+window.addEventListener('drop', function (e) {
+  e.preventDefault()
+}, false)
+
 Vue.use(Dialog)
 Vue.use(Form)
 Vue.use(FormItem)
