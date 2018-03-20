@@ -69,7 +69,6 @@ const actions = {
   ASK_FOR_THEME ({ commit }) {
     ipcRenderer.send('AGANI::ask-for-theme')
     ipcRenderer.on('AGANI::theme', (e, themes) => {
-      console.log(themes)
       commit('SET_THEME', themes)
     })
   },

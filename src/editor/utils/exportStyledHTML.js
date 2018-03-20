@@ -114,6 +114,7 @@ class ExportHTML {
         parseValue: false,
         parseRulePrelude: false
       })
+
       return toPlainObject(ast)
     })
     const cleanedStyles = styleSheets.map(ast => {
@@ -135,7 +136,7 @@ class ExportHTML {
       '.CodeMirror-cursors'
     ]
     $(removeClassNames.join(', ')).remove()
-
+    $(`.${CLASS_OR_ID['AG_ACTIVE']}`).removeClass(CLASS_OR_ID['AG_ACTIVE'])
     const emojis = $(`span.${CLASS_OR_ID['AG_EMOJI_MARKED_TEXT']}`)
     if (emojis.length > 0) {
       emojis.each((i, e) => {

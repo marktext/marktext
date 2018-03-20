@@ -80,7 +80,7 @@
     "axios": "^0.18.0",
     "cheerio": "^1.0.0-rc.2",
     "codemirror": "^5.31.0",
-    "css-tree": "^1.0.0-alpha9",
+    "css-tree": "^1.0.0-alpha.28",
     "electron-window-state": "^4.1.1",
     "element-ui": "^2.1.0",
     "file-icons-js": "^1.0.3",
