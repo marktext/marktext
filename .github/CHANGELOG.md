@@ -1,4 +1,4 @@
-### 0.7.16
+### 0.7.17
 
 **Features**
 
@@ -26,13 +26,19 @@
 
 5. The menu disapear in Linux sysyem.
 
-6. Fix the bug that the language highlight disapear when open markdown file with code block.
+6. Fix the bug that the language highlight disapear when open markdown file with code block
+
+7. remove the symbol in output styled html. #41
 
 **Optimization**
 
 1. allow user to change install directory on windows.
 
 2. Show notification when output HTML and PDF successfully.
+
+3. update css-tree to latest version.
+
+4. Add lineWrapping is true to codeMirror config
 
 ### 0.6.14
 

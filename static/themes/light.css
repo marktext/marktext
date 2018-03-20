@@ -45,6 +45,7 @@ body {
 .ag-gray {
   color: #E4E7ED;
   text-decoration: none;
+  font-family: monospace;
 }
 
 .v-modal {

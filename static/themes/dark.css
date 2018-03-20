@@ -69,6 +69,7 @@ body {
 .ag-gray {
   color: #909399;
   text-decoration: none;
+  font-family: monospace;
 }
 
 .el-dialog {
