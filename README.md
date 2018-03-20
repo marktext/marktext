@@ -19,23 +19,27 @@
 <div align="center">
   <!-- Version -->
   <a href="https://marktext.github.io/website">
-    <img src="https://badge.fury.io/gh/jocs%2Fmarktext.svg">
+    <img src="https://badge.fury.io/gh/jocs%2Fmarktext.svg" alt="website">
   </a>
   <!-- License -->
   <a href="https://marktext.github.io/website">
-    <img src="https://img.shields.io/github/license/marktext/marktext.svg">
+    <img src="https://img.shields.io/github/license/marktext/marktext.svg" alt="LICENSE">
   </a>
   <!-- Build Status -->
   <a href="https://marktext.github.io/website">
-    <img src="https://travis-ci.org/marktext/marktext.svg?branch=master" alt="">
+    <img src="https://travis-ci.org/marktext/marktext.svg?branch=master" alt="build">
   </a>
-  <!-- Downloads -->
+  <!-- Downloads total -->
   <a href="https://marktext.github.io/website">
-    <img src="https://img.shields.io/github/downloads/marktext/marktext/total.svg" alt="">
+    <img src="https://img.shields.io/github/downloads/marktext/marktext/total.svg" alt="total download">
+  </a>
+  <!-- Downloads latest release -->
+  <a href="https://marktext.github.io/website">
+    <img src="https://img.shields.io/github/downloads/marktext/marktext/latest/total.svg" alt="latest download">
   </a>
   <!-- deps -->
   <a href="https://marktext.github.io/website">
-    <img src="https://img.shields.io/hackage-deps/v/lens.svg" alt="">
+    <img src="https://img.shields.io/hackage-deps/v/lens.svg" alt="dependencies">
   </a>
 </div>
 
