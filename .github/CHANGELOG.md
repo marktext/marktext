@@ -30,6 +30,8 @@
 
 7. remove the symbol in output styled html. #41
 
+8. escape the raw Markdown when open the markdown file. #37
+
 **Optimization**
 
 1. allow user to change install directory on windows.

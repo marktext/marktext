@@ -112,7 +112,7 @@ Mark Text build for these platforms ![Conda](https://img.shields.io/conda/pn/con
 
 | ![]( https://github.com/ryanoasis/nerd-fonts/wiki/screenshots/v1.0.x/mac-pass-sm.png) | ![]( https://github.com/ryanoasis/nerd-fonts/wiki/screenshots/v1.0.x/windows-pass-sm.png) | ![]( https://github.com/ryanoasis/nerd-fonts/wiki/screenshots/v1.0.x/linux-pass-sm.png) |
 | :----------------------------------------------------------: | :----------------------------------------------------------: | :----------------------------------------------------------: |
-| [v0.6.14](https://github.com/marktext/marktext/releases/download/v0.6.14/marktext-0.6.14.dmg) | [v0.6.14](https://github.com/marktext/marktext/releases/download/v0.6.14/marktext-setup-0.6.14.exe) | [v 0.6.14](https://github.com/marktext/marktext/releases/download/v0.6.14/marktext-0.6.14-x86_64.AppImage) |
+| [latest version](https://github.com/marktext/marktext/releases/download/v0.7.17/marktext-0.7.17.dmg) | [latest version](https://github.com/marktext/marktext/releases/download/v0.7.17/marktext-setup-0.7.17.exe) | [latest version](https://github.com/marktext/marktext/releases/download/v0.7.17/marktext-0.7.17-x86_64.AppImage) |
 
 Not found your system ? Go the the [release page](https://github.com/marktext/marktext/releases), still not found ? Shoot an [issue](https://github.com/marktext/marktext/issues).
 
@@ -137,9 +137,9 @@ When you use **Mark Text**, if you have any questions, you are welcome to write 
 
 ## Contribution
 
-Please make sure to read the [Contributing Guide](https://github.com/marktext/marktext/blob/master/.github/CONTRIBUTING.md) before making a pull request. Want to add some features to Mark Text? Reference [TODO LIST](https://github.com/marktext/marktext/blob/master/.github/TODOLIST.md)
+Mark Text is in full development, please make sure to read the [Contributing Guide](https://github.com/marktext/marktext/blob/master/.github/CONTRIBUTING.md) before making a pull request. Want to add some features to Mark Text? Refer to [TODO LIST](https://github.com/marktext/marktext/blob/master/.github/TODOLIST.md)
 
-Thank you to all the people who have already contributed to Mark Text!
+Thank you to all the people who have already contributed to Mark Text! If you are contributor in [contributors](https://github.com/marktext/marktext/graphs/contributors), Open a PR to add you name and photo to the contribution list bellow.
 
 [![Jocs](https://avatars0.githubusercontent.com/u/9712830?s=150&v=4)](https://github.com/Jocs) | [![ywwhack](https://avatars1.githubusercontent.com/u/8746197?s=150&v=4)](https://github.com/ywwhack) | [![notAlaanor](https://avatars1.githubusercontent.com/u/17591936?s=150&v=4)](https://github.com/notAlaanor)
 :---:|:---:|:---:
