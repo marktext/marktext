@@ -5,9 +5,12 @@ import configureMenu, { dockMenu } from './menus'
 import createWindow, { windows } from './createWindow'
 // import { autoUpdater } from "electron-updater"
 
-const openFilesCache = []
+let openFilesCache = []
 
 const onReady = () => {
+  if (process.platform === 'win32' && process.argv.length >= 2) {
+    openFilesCache = [process.argv[1]]
+  }
   if (openFilesCache.length) {
     openFilesCache.forEach(path => createWindow(path))
     openFilesCache.length = 0 // empty the open file path cache
