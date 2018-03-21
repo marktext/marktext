@@ -3,7 +3,10 @@
     <div v-if="isTopDialogShown" id="TopDialog">
       <div class="wrapper">
         <div class="row">
-          <input id="textfield" type="text" value="Test">
+          <label>Rename file</label>
+        </div>
+        <div class="row">
+          <input id="textfield" type="text" :value="filenameWithoutExt">
         </div>
         <div class="row">
           <input id="submit" type="button" value="Rename" v-on:click="rename">
@@ -15,14 +18,21 @@
 </template>
 
 <script>
+  import {mapState} from 'vuex'
+  import fs from 'fs'
+  const dialog = require('electron').remote.dialog
+
   export default {
     name: 'TopDialog',
     data () {
       return {}
     },
     computed: {
-      isTopDialogShown () {
-        return this.$store.state.isTopDialogShown
+      ...mapState([
+        'isTopDialogShown', 'pathname', 'filename'
+      ]),
+      filenameWithoutExt () {
+        return this.filename.replace(/^(.*)\.[^\\\/]+/, '$1') // eslint-disable-line
       }
     },
     methods: {
@@ -30,7 +40,31 @@
         this.$store.commit('HIDE_TOP_DIALOG')
       },
       rename () {
-        this.$store.commit('HIDE_TOP_DIALOG')
+        var newFileName = document.getElementById('textfield').value + '.md'
+        var newPath = this.pathname.replace(/^(.*[\\\/])[^\\\/]+/, '$1' + newFileName) // eslint-disable-line
+
+        if (!fs.existsSync(newPath)) {
+          fs.renameSync(this.pathname, newPath)
+          this.$store.commit('SET_FILENAME', newFileName)
+          this.$store.commit('SET_PATHNAME', newPath)
+          this.$store.commit('HIDE_TOP_DIALOG')
+        } else {
+          dialog.showMessageBox({
+            type: 'warning',
+            buttons: ['Replace', 'Cancel'],
+            defaultId: 1,
+            message: `The file ${this.pathname} already exists. Do you want to replace it?`,
+            cancelId: 1,
+            noLink: true
+          }, index => {
+            if (index === 0) {
+              fs.renameSync(this.pathname, newPath)
+              this.$store.commit('SET_FILENAME', newFileName)
+              this.$store.commit('SET_PATHNAME', newPath)
+              this.$store.commit('HIDE_TOP_DIALOG')
+            }
+          })
+        }
       }
     }
   }
@@ -42,7 +76,7 @@
     top: 0;
     margin: 0 auto;
     width: 450px;
-    height: 88px;
+    height: 118px;
     background-color: white;
     box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
     border-bottom-left-radius: 4px;
@@ -51,10 +85,11 @@
   }
 
   .moveIn-enter-active, .moveIn-leave-active {
-    transition: all .5s ease;
+    transition: all .5s cubic-bezier(0.165, 0.84, 0.44, 1);
   }
+
   .moveIn-enter, .moveIn-leave-to {
-    transform: translateY(-100px);
+    transform: translateY(-125px);
   }
 
   .wrapper {
@@ -82,6 +117,7 @@
   }
 
   input {
+    color: black;
     border: 0;
     box-shadow: none;
     border-radius: 4px;
@@ -91,6 +127,12 @@
     font-size: 16px;
     padding-left: 8px;
     padding-right: 8px;
+  }
+
+  label {
+    color: black;
+    font-size: 16px;
+    height: 20px;
   }
 
   #textfield {

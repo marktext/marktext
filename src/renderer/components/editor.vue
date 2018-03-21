@@ -310,7 +310,7 @@
   }
 
   .fade-enter-active, .fade-leave-active {
-    transition: all .2s ease;
+    transition: all .5s cubic-bezier(0.165, 0.84, 0.44, 1);
   }
   .fade-enter, .fade-leave-to {
     opacity: 0;
