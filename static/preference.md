@@ -17,6 +17,4 @@ More user preferences comming soon.
 
 **Please use `CmdOrCtrl + S` to save your preferences and reload Mark Text to use your setting!**
 
-
-
 > Your friends at Mark Text

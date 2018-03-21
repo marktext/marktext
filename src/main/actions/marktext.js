@@ -1,7 +1,7 @@
-import path from 'path'
 import { autoUpdater } from 'electron-updater'
 import { ipcMain } from 'electron'
 import createWindow from '../createWindow'
+import userPreference from '../preference'
 
 let updater
 let win
@@ -47,8 +47,7 @@ autoUpdater.on('update-downloaded', () => {
 })
 
 export const userSetting = (menuItem, browserWindow) => {
-  const settingPath = path.join(__static, 'preference.md')
-  createWindow(settingPath)
+  createWindow(userPreference.userDataPath)
 }
 
 export const checkUpdates = (menuItem, browserWindow) => {

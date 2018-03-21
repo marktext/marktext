@@ -6,7 +6,8 @@ import path from 'path'
 import { app, dialog, ipcMain, BrowserWindow } from 'electron'
 import createWindow, { windows } from '../createWindow'
 import { EXTENSIONS, EXTENSION_HASN } from '../config'
-import { getPath, getUserPreference, setUserPreference } from '../utils'
+import { getPath, log } from '../utils'
+import userPreference from '../preference'
 
 const watchAndReload = (pathname, win) => { // when i build, and failed.
   // const watcher = chokidar.watch(pathname, {
@@ -30,7 +31,7 @@ const writeFile = (pathname, content, extension, win, e) => {
     pathname = pathname.endsWith(extension) ? pathname : `${pathname}${extension}`
     const filename = path.basename(pathname)
     fs.writeFile(pathname, content, 'utf-8', err => {
-      if (err) return console.log('save as file failed')
+      if (err) log(err)
       // not export
       if (extension === '.md' && e) e.sender.send('AGANI::set-pathname', { pathname, filename })
     })
@@ -60,7 +61,7 @@ const handleResponseForExport = (e, { type, content, filename, pathname }) => {
 
   if (!content && type === 'pdf') {
     win.webContents.printToPDF({ printBackground: true }, (err, data) => {
-      if (err) throw err
+      if (err) log(err)
       writeFile(filePath, data, extension, win, e)
     })
   } else {
@@ -72,7 +73,7 @@ const handleResponseForSave = (e, { markdown, pathname }) => {
   const win = BrowserWindow.fromWebContents(e.sender)
   if (pathname) {
     fs.writeFile(pathname, markdown, 'utf-8', err => {
-      if (err) console.log('save file failed')
+      if (err) log(err)
     })
   } else {
     const filePath = dialog.showSaveDialog(win, {
@@ -118,7 +119,8 @@ ipcMain.on('AGANI::response-file-save', handleResponseForSave)
 
 ipcMain.on('AGANI::ask-for-auto-save', e => {
   const win = BrowserWindow.fromWebContents(e.sender)
-  const { autoSave } = getUserPreference()
+  const { autoSave } = userPreference.getAll()
+
   win.webContents.send('AGANI::auto-save', autoSave)
 })
 
@@ -165,13 +167,11 @@ export const saveAs = win => {
 
 export const autoSave = (menuItem, browserWindow) => {
   const { checked } = menuItem
-  setUserPreference('autoSave', checked)
+  userPreference.setItem('autoSave', checked)
     .then(() => {
       for (const win of windows.values()) {
         win.webContents.send('AGANI::auto-save', checked)
       }
     })
-    .catch(err => {
-      console.log(err)
-    })
+    .catch(log)
 }

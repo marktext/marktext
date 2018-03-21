@@ -1,7 +1,8 @@
 import fs from 'fs'
 import path from 'path'
 import { ipcMain } from 'electron'
-import { getMenuItem, setUserPreference } from '../utils'
+import { getMenuItem, log } from '../utils'
+import userPreference from '../preference'
 import { windows } from '../createWindow'
 
 const THEME_PATH = path.join(__static, '/themes')
@@ -9,15 +10,13 @@ const THEME_PATH = path.join(__static, '/themes')
 const themeCSS = {}
 
 export const selectTheme = (theme, themeCSS) => {
-  setUserPreference('theme', theme)
+  userPreference.setItem('theme', theme)
     .then(() => {
       for (const win of windows.values()) {
         win.webContents.send('AGANI::theme', { theme, themeCSS })
       }
     })
-    .catch(err => {
-      console.log(err)
-    })
+    .catch(log)
 }
 
 const getSelectTheme = () => {
@@ -45,6 +44,7 @@ ipcMain.on('AGANI::ask-for-theme', e => {
         const selectedTheme = getSelectTheme().label.toLowerCase()
         selectTheme(selectedTheme, themeCSS)
       })
+      .catch(log)
   } else {
     const selectedTheme = getSelectTheme().label.toLowerCase()
     selectTheme(selectedTheme, themeCSS)
