@@ -7,6 +7,7 @@
       :word-count="wordCount"
       :theme="theme"
       :platform="platform"
+      :is-saved="isSaved"
     ></title-bar>
     <editor
       :typewriter="typewriter"
@@ -57,7 +58,7 @@
     },
     computed: {
       ...mapState([
-        'pathname', 'filename', 'windowActive', 'wordCount',
+        'pathname', 'filename', 'isSaved', 'windowActive', 'wordCount',
         'typewriter', 'focus', 'sourceCode', 'markdown',
         'cursor', 'theme', 'themeCSS', 'platform'
       ])
@@ -66,6 +67,7 @@
       const { dispatch } = this.$store
 
       dispatch('ASK_FOR_THEME')
+      dispatch('ASK_FOR_AUTO_SAVE')
       dispatch('ASK_FOR_MODE')
       dispatch('LISTEN_FOR_CLOSE')
       dispatch('LISTEN_FOR_SAVE_AS')

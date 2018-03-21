@@ -1,4 +1,7 @@
 import * as actions from '../actions/file'
+import { getUserPreference } from '../utils'
+
+const { autoSave } = getUserPreference()
 
 export default {
   label: 'File',
@@ -37,9 +40,10 @@ export default {
     }
   }, {
     label: 'Auto Save',
-    type: 'radio',
+    type: 'checkbox',
+    checked: autoSave,
     click (menuItem, browserWindow) {
-      actions.autoSave(browserWindow)
+      actions.autoSave(menuItem, browserWindow)
     }
   }, {
     type: 'separator'

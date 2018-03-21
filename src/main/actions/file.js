@@ -6,6 +6,7 @@ import path from 'path'
 import { app, dialog, ipcMain, BrowserWindow } from 'electron'
 import createWindow, { windows } from '../createWindow'
 import { EXTENSIONS, EXTENSION_HASN } from '../config'
+import { getUserPreference, setUserPreference } from '../utils'
 
 const watchAndReload = (pathname, win) => { // when i build, and failed.
   // const watcher = chokidar.watch(pathname, {
@@ -114,6 +115,13 @@ ipcMain.on('AGANI::response-close-confirm', (e, { filename, pathname, markdown }
 })
 
 ipcMain.on('AGANI::response-file-save', handleResponseForSave)
+
+ipcMain.on('AGANI::ask-for-auto-save', e => {
+  const win = BrowserWindow.fromWebContents(e.sender)
+  const { autoSave } = getUserPreference()
+  win.webContents.send('AGANI::auto-save', autoSave)
+})
+
 ipcMain.on('AGANI::response-export', handleResponseForExport)
 
 ipcMain.on('AGANI::close-window', e => {
@@ -155,6 +163,15 @@ export const saveAs = win => {
   win.webContents.send('AGANI::ask-file-save-as')
 }
 
-export const autoSave = (menuItem, win) => {
-  // TODO
+export const autoSave = (menuItem, browserWindow) => {
+  const { checked } = menuItem
+  setUserPreference('autoSave', checked)
+    .then(() => {
+      for (const win of windows.values()) {
+        win.webContents.send('AGANI::auto-save', checked)
+      }
+    })
+    .catch(err => {
+      console.log(err)
+    })
 }

@@ -10,6 +10,7 @@
         </svg>
       </span>
       <span :class="[{ 'title-no-drag': platform === 'win32' }]">{{ filename }}</span>
+      <span class="save-dot" :class="{'show': !isSaved}"></span>
     </div>
     <div :class="platform === 'win32' ? 'left-toolbar' : 'right-toolbar'">
       <div v-if="platform === 'win32'" class="windows-titlebar-menu title-no-drag" @click.stop="handleMenuClick">&#9776;</div>
@@ -48,7 +49,8 @@
       active: Boolean,
       wordCount: Object,
       theme: String,
-      platform: String
+      platform: String,
+      isSaved: Boolean
     },
     computed: {
       paths () {
@@ -81,7 +83,10 @@
       },
       handleMenuClick () {
         const win = remote.getCurrentWindow()
-        remote.Menu.getApplicationMenu().popup({window: win, x: 23, y: 20})
+        remote
+          .Menu
+          .getApplicationMenu()
+          .popup({ window: win, x: 23, y: 20 })
       }
     }
   }
@@ -121,8 +126,24 @@
     text-align: center;
     transition: all .25s ease-in-out;
   }
+
+  .active .save-dot {
+    margin-left: 3px;
+    width: 7px;
+    height: 7px;
+    display: inline-block;
+    border-radius: 50%;
+    background: rgba(242, 134, 94, .7);
+    visibility: hidden;
+  }
+  .active .save-dot.show {
+    visibility: visible; 
+  }
   .title:hover {
     color: #303133;
+  }
+  .title:hover .save-dot {
+    background: rgb(242, 134, 94);
   }
   .right-toolbar {
     padding: 0 10px;

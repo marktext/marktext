@@ -16,6 +16,7 @@ const state = {
   sourceCode: false, // source code mode
   pathname: '',
   isSaved: true,
+  autoSave: false,
   markdown: '',
   cursor: null,
   windowActive: true,
@@ -51,7 +52,7 @@ const mutations = {
     window.__dirname = path.dirname(pathname)
     state.pathname = pathname
   },
-  SET_STATUS (state, status) {
+  SET_SAVE_STATUS (state, status) {
     state.isSaved = status
   },
   SET_MARKDOWN (state, markdown) {
@@ -62,6 +63,9 @@ const mutations = {
   },
   SET_CURSOR (state, cursor) {
     state.cursor = cursor
+  },
+  SET_AUTO_SAVE (state, autoSave) {
+    state.autoSave = autoSave
   }
 }
 
@@ -72,9 +76,24 @@ const actions = {
       commit('SET_THEME', themes)
     })
   },
+
+  ASK_FOR_AUTO_SAVE ({ commit, state }) {
+    ipcRenderer.send('AGANI::ask-for-auto-save')
+    ipcRenderer.on('AGANI::auto-save', (e, autoSave) => {
+      const { pathname, markdown } = state
+      commit('SET_AUTO_SAVE', autoSave)
+
+      if (autoSave && pathname) {
+        commit('SET_SAVE_STATUS', true)
+        ipcRenderer.send('AGANI::response-file-save', { pathname, markdown })
+      }
+    })
+  },
+
   SEARCH ({ commit }, value) {
     commit('SET_SEARCH', value)
   },
+
   ASK_FOR_MODE ({ commit }) {
     ipcRenderer.send('AGANI::ask-for-mode')
     ipcRenderer.on('AGANI::res-for-mode', (e, modes) => {
@@ -86,70 +105,86 @@ const actions = {
       })
     })
   },
+
   LINTEN_WIN_STATUS ({ commit }) {
     ipcRenderer.on('AGANI::window-active-status', (e, { status }) => {
       commit('SET_WIN_STATUS', status)
     })
   },
+
   LISTEN_FOR_SAVE ({ commit, state }) {
     ipcRenderer.on('AGANI::ask-file-save', () => {
       const { pathname, markdown } = state
       ipcRenderer.send('AGANI::response-file-save', { pathname, markdown })
+      commit('SET_SAVE_STATUS', true)
     })
   },
+
   LISTEN_FOR_SAVE_AS ({ commit, state }) {
     ipcRenderer.on('AGANI::ask-file-save-as', () => {
       const { pathname, markdown } = state
       ipcRenderer.send('AGANI::response-file-save-as', { pathname, markdown })
     })
   },
+
   GET_FILENAME ({ commit, state }) {
     ipcRenderer.on('AGANI::set-pathname', (e, { pathname, filename }) => {
       commit('SET_FILENAME', filename)
       commit('SET_PATHNAME', pathname)
-      commit('SET_STATUS', true)
+      commit('SET_SAVE_STATUS', true)
     })
   },
+
   LISTEN_FOR_FILE_LOAD ({ commit, state }) {
     ipcRenderer.on('AGANI::file-loaded', (e, { file, filename, pathname }) => {
       commit('SET_FILENAME', filename)
       commit('SET_PATHNAME', pathname)
       commit('SET_MARKDOWN', file)
-      commit('SET_STATUS', true)
+      commit('SET_SAVE_STATUS', true)
       bus.$emit('file-loaded', file)
     })
   },
+
   LISTEN_FOR_FILE_CHANGE ({ commit, state }) {
     ipcRenderer.on('AGANI::file-change', (e, { file, filename, pathname }) => {
       const { windowActive } = state
       commit('SET_FILENAME', filename)
       commit('SET_PATHNAME', pathname)
       commit('SET_MARKDOWN', file)
-      commit('SET_STATUS', true)
+      commit('SET_SAVE_STATUS', true)
       if (!windowActive) {
         bus.$emit('file-loaded', file)
       }
     })
   },
+
   EDITE_FILE ({ commit }) {
-    commit('SET_STATUS', false)
+    commit('SET_SAVE_STATUS', false)
   },
+
   EXPORT ({ commit, state }, { type, content }) {
     const { filename, pathname } = state
     ipcRenderer.send('AGANI::response-export', { type, content, filename, pathname })
   },
+
   SAVE_FILE ({ commit, state }, { markdown, wordCount, cursor }) {
+    const { pathname, autoSave, markdown: oldMarkdown } = state
     commit('SET_MARKDOWN', markdown)
+    // set word count
     if (wordCount) commit('SET_WORD_COUNT', wordCount)
+    // set cursor
     if (cursor) commit('SET_CURSOR', cursor)
-    const { pathname } = state
-    if (pathname) {
-      commit('SET_STATUS', true)
-      ipcRenderer.send('AGANI::response-file-save', { pathname, markdown })
-    } else {
-      commit('SET_STATUS', false)
+    // save to file only when the markdown changed!
+    if (markdown !== oldMarkdown) {
+      if (pathname && autoSave) {
+        commit('SET_SAVE_STATUS', true)
+        ipcRenderer.send('AGANI::response-file-save', { pathname, markdown })
+      } else {
+        commit('SET_SAVE_STATUS', false)
+      }
     }
   },
+
   SELECTION_CHANGE ({ commit }, changes) {
     const { start, end } = changes
     if (start.key === end.key && start.block.text) {
@@ -163,15 +198,18 @@ const actions = {
 
     ipcRenderer.send('AGANI::selection-change', changes)
   },
+
   SELECTION_FORMATS ({ commit }, formats) {
     ipcRenderer.send('AGANI::selection-formats', formats)
   },
+
   // listen for export from main process
   LISTEN_FOR_EXPORT ({ commit, state }) {
     ipcRenderer.on('AGANI::export', (e, { type }) => {
       bus.$emit('export', type)
     })
   },
+
   LISTEN_FOR_INSERT_IMAGE ({ commit, state }) {
     ipcRenderer.on('AGANI::INSERT_IMAGE', (e, { filename: imagePath, type }) => {
       if (type === 'absolute' || type === 'relative') {
@@ -186,16 +224,19 @@ const actions = {
       }
     })
   },
+
   LISTEN_FOR_EDIT ({ commit }) {
     ipcRenderer.on('AGANI::edit', (e, { type }) => {
       bus.$emit(type)
     })
   },
+
   LISTEN_FOR_VIEW ({ commit }) {
     ipcRenderer.on('AGANI::view', (e, data) => {
       commit('SET_MODE', data)
     })
   },
+
   LISTEN_FOR_PARAGRAPH_INLINE_STYLE ({ commit }) {
     ipcRenderer.on('AGANI::paragraph', (e, { type }) => {
       bus.$emit('paragraph', type)
@@ -204,6 +245,7 @@ const actions = {
       bus.$emit('format', type)
     })
   },
+
   LISTEN_FOR_CLOSE ({ commit, state }) {
     ipcRenderer.on('AGANI::ask-for-close', e => {
       const { isSaved, markdown, pathname, filename } = state

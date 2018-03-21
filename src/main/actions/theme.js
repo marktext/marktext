@@ -1,7 +1,7 @@
 import fs from 'fs'
 import path from 'path'
 import { ipcMain } from 'electron'
-import { getMenuItem } from '../utils'
+import { getMenuItem, setUserPreference } from '../utils'
 import { windows } from '../createWindow'
 /**
  * Set `__static` path to static files in production
@@ -17,9 +17,15 @@ const THEME_PATH = path.join(__static, '/themes')
 const themeCSS = {}
 
 export const selectTheme = (theme, themeCSS) => {
-  for (const win of windows.values()) {
-    win.webContents.send('AGANI::theme', { theme, themeCSS })
-  }
+  setUserPreference('theme', theme)
+    .then(() => {
+      for (const win of windows.values()) {
+        win.webContents.send('AGANI::theme', { theme, themeCSS })
+      }
+    })
+    .catch(err => {
+      console.log(err)
+    })
 }
 
 const getSelectTheme = () => {

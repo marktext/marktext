@@ -1,6 +1,15 @@
-### 0.7.18
+### 0.8.4
 
-**Bug fix**
+**:cactus:Feature**
+
+- Add user preferences in `Mark Text menu`, the shoutcut is `CmdorCtrl + ,`, you can set the default `theme` and `autoSave`.
+- Add `autoSave` to `file menu`, the default value is in `preferences.md` which you can open in `Mark Text menu`. #45
+
+**:butterfly:Optimization**
+
+- Theme can be saved in user preferences now #16
+
+**:beetle:Bug fix**
 
 - fix: prevent open image or file directly when drag and drop over Mark Text #42
 - fix: set theme to all the open window not just the active one.
