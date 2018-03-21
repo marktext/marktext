@@ -1,7 +1,7 @@
 import * as actions from '../actions/file'
 import { getUserPreference } from '../utils'
 
-const { autoSave } = getUserPreference()
+const autoSave = getUserPreference()
 
 export default {
   label: 'File',
