@@ -4,6 +4,7 @@
 
 - fix: prevent open image or file directly when drag and drop over Mark Text #42
 - fix: set theme to all the open window not just the active one.
+- fix: set correct application menu offset on windows #44
 
 ### 0.7.17
 

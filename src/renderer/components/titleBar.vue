@@ -13,7 +13,7 @@
     </div>
     <div :class="platform === 'win32' ? 'left-toolbar' : 'right-toolbar'">
       <div v-if="platform === 'win32'" class="windows-titlebar-menu title-no-drag" @click.stop="handleMenuClick">&#9776;</div>
-      <div 
+      <div
         class="word-count"
         :class="[{ 'title-no-drag': platform === 'win32' }]"
         @click.stop="handleWordClick"
@@ -81,7 +81,7 @@
       },
       handleMenuClick () {
         const win = remote.getCurrentWindow()
-        remote.Menu.getApplicationMenu().popup({window: win, x: win.getPosition()[0] + 23, y: win.getPosition()[1] + 20})
+        remote.Menu.getApplicationMenu().popup({window: win, x: 23, y: 20})
       }
     }
   }
