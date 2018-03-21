@@ -1,7 +1,7 @@
 import * as actions from '../actions/theme'
 import { getUserPreference } from '../utils'
 
-const { theme } = getUserPreference()
+const theme = getUserPreference()
 
 export default {
   label: 'Theme',
