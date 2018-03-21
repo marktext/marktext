@@ -3,14 +3,6 @@ import path from 'path'
 import { ipcMain } from 'electron'
 import { getMenuItem, setUserPreference } from '../utils'
 import { windows } from '../createWindow'
-/**
- * Set `__static` path to static files in production
- * https://simulatedgreg.gitbooks.io/electron-vue/content/en/using-static-assets.html
- */
-
-if (process.env.NODE_ENV !== 'development') {
-  global.__static = require('path').join(__dirname, '/static').replace(/\\/g, '\\\\')
-}
 
 const THEME_PATH = path.join(__static, '/themes')
 

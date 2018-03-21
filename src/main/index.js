@@ -1,5 +1,6 @@
 'use strict'
 
+import './globalSetting'
 import { app, Menu } from 'electron'
 import configureMenu, { dockMenu } from './menus'
 import createWindow, { windows } from './createWindow'
