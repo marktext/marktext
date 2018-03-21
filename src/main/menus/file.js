@@ -38,6 +38,18 @@ export default {
   }, {
     type: 'separator'
   }, {
+    label: 'Rename...',
+    click (menuItem, browserWindow) {
+      actions.rename(browserWindow)
+    }
+  }, {
+    label: 'Move To...',
+    click (menuItem, browserWindow) {
+      actions.moveTo(browserWindow)
+    }
+  }, {
+    type: 'separator'
+  }, {
     label: 'Export',
     submenu: [{
       label: 'Styled HTML',

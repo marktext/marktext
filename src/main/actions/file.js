@@ -154,3 +154,11 @@ export const save = win => {
 export const saveAs = win => {
   win.webContents.send('AGANI::ask-file-save-as')
 }
+
+export const rename = win => {
+  win.webContents.send('DXXL::rename')
+}
+
+export const moveTo = win => {
+  // win.webContents.send('AGANI::ask-file-save')
+}

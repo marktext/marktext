@@ -25,10 +25,20 @@ const state = {
     character: 0,
     all: 0
   },
-  platform: process.platform
+  platform: process.platform,
+  isTopDialogShown: false,
+  isEditorEnabled: true
 }
 
 const mutations = {
+  SHOW_TOP_DIALOG (state) {
+    state.isTopDialogShown = true
+    state.isEditorEnabled = false
+  },
+  HIDE_TOP_DIALOG (state) {
+    state.isTopDialogShown = false
+    state.isEditorEnabled = true
+  },
   SET_THEME (state, { theme, themeCSS }) {
     state.theme = theme
     if (themeCSS) {
@@ -66,6 +76,11 @@ const mutations = {
 }
 
 const actions = {
+  LISTEN_FOR_RENAME ({ commit }) {
+    ipcRenderer.on('DXXL::rename', () => {
+      commit('SHOW_TOP_DIALOG')
+    })
+  },
   ASK_FOR_THEME ({ commit }) {
     ipcRenderer.send('AGANI::ask-for-theme')
     ipcRenderer.on('AGANI::theme', (e, themes) => {

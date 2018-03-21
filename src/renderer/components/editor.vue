@@ -3,6 +3,7 @@
     class="editor-wrapper"
     :class="[{ 'typewriter': typewriter, 'focus': focus, 'source': sourceCode }, theme]"
   >
+    <transition name="fade"><div id="disableEdit" v-if="!isEditable"></div></transition>
     <div
       ref="editor"
       class="editor-component"
@@ -85,7 +86,8 @@
       markdown: String,
       cursor: Object,
       theme: String,
-      themeCss: Object
+      themeCss: Object,
+      isEditable: Boolean
     },
     data () {
       return {
@@ -295,6 +297,23 @@
   .typewriter .editor-component {
     padding-top: calc(50vh - 136px);
     padding-bottom: calc(50vh - 54px);
+  }
+
+  #disableEdit {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(255, 255, 255, 0.4);
+    z-index: 1;
+  }
+
+  .fade-enter-active, .fade-leave-active {
+    transition: all .2s ease;
+  }
+  .fade-enter, .fade-leave-to {
+    opacity: 0;
   }
 
   .ag-dialog-table {

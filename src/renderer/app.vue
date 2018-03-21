@@ -17,6 +17,7 @@
       v-if="!sourceCode"
       :theme="theme"
       :theme-css="themeCSS"
+      :isEditable="isEditorEnabled"
     ></editor>
     <source-code
       v-else
@@ -59,12 +60,13 @@
       ...mapState([
         'pathname', 'filename', 'windowActive', 'wordCount',
         'typewriter', 'focus', 'sourceCode', 'markdown',
-        'cursor', 'theme', 'themeCSS', 'platform'
+        'cursor', 'theme', 'themeCSS', 'platform', 'isEditorEnabled'
       ])
     },
     created () {
       const { dispatch } = this.$store
 
+      dispatch('LISTEN_FOR_RENAME')
       dispatch('ASK_FOR_THEME')
       dispatch('ASK_FOR_MODE')
       dispatch('LISTEN_FOR_CLOSE')
