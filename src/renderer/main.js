@@ -1,6 +1,8 @@
 import Vue from 'vue'
 import axios from 'axios'
 
+import { ipcRenderer } from 'electron'
+
 import App from './app'
 import store from './store'
 
@@ -16,12 +18,25 @@ import { Dialog, Form, FormItem, InputNumber, Button, Tooltip, Upload } from 'el
 //   console.log(suggestions)
 // }))
 
-// prevent drag image or other file to Mark Text, and open it by Chrome default behavior.
+// prevent Chromium's default behavior and try to open the first file
 window.addEventListener('dragover', function (e) {
   e.preventDefault()
+  if (e.dataTransfer.types.indexOf('Files') >= 0) {
+    e.dataTransfer.dropEffect = 'copy'
+  } else {
+    e.stopPropagation()
+    e.dataTransfer.dropEffect = 'none'
+  }
 }, false)
 window.addEventListener('drop', function (e) {
   e.preventDefault()
+  if (e.dataTransfer.files) {
+    const fileList = []
+    for (const file of e.dataTransfer.files) {
+      fileList.push(file.path)
+    }
+    ipcRenderer.send('AGANI::window::drop', fileList)
+  }
 }, false)
 
 Vue.use(Dialog)

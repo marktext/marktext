@@ -4,6 +4,7 @@ import fs from 'fs'
 import path from 'path'
 import { BrowserWindow, app } from 'electron'
 import windowStateKeeper from 'electron-window-state'
+import { isMarkdownFile } from './utils'
 
 export const windows = new Map()
 
@@ -35,7 +36,7 @@ const createWindow = (pathname, options = {}) => {
   win.once('ready-to-show', () => {
     win.show()
 
-    if (pathname) {
+    if (pathname && isMarkdownFile(pathname)) {
       app.addRecentDocument(pathname)
       const filename = path.basename(pathname)
       fs.readFile(path.resolve(pathname), 'utf-8', (err, file) => {
