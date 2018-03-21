@@ -6,7 +6,7 @@ import path from 'path'
 import { app, dialog, ipcMain, BrowserWindow } from 'electron'
 import createWindow, { windows } from '../createWindow'
 import { EXTENSIONS, EXTENSION_HASN } from '../config'
-import { getUserPreference, setUserPreference } from '../utils'
+import { getPath, getUserPreference, setUserPreference } from '../utils'
 
 const watchAndReload = (pathname, win) => { // when i build, and failed.
   // const watcher = chokidar.watch(pathname, {
@@ -51,7 +51,7 @@ const forceClose = win => {
 const handleResponseForExport = (e, { type, content, filename, pathname }) => {
   const win = BrowserWindow.fromWebContents(e.sender)
   const extension = EXTENSION_HASN[type]
-  const dirname = pathname ? path.dirname(pathname) : '~'
+  const dirname = pathname ? path.dirname(pathname) : getPath('documents')
   const nakedFilename = pathname ? path.basename(pathname, '.md') : 'untitled'
   const defaultPath = `${dirname}/${nakedFilename}${extension}`
   const filePath = dialog.showSaveDialog(win, {
@@ -76,7 +76,7 @@ const handleResponseForSave = (e, { markdown, pathname }) => {
     })
   } else {
     const filePath = dialog.showSaveDialog(win, {
-      defaultPath: '~/Untitled.md'
+      defaultPath: getPath('documents') + '/Untitled.md'
     })
     writeFile(filePath, markdown, '.md', win, e)
   }
@@ -85,7 +85,7 @@ const handleResponseForSave = (e, { markdown, pathname }) => {
 ipcMain.on('AGANI::response-file-save-as', (e, { markdown, pathname }) => {
   const win = BrowserWindow.fromWebContents(e.sender)
   let filePath = dialog.showSaveDialog(win, {
-    defaultPath: pathname || '~/Untitled.md'
+    defaultPath: pathname || getPath('documents') + '/Untitled.md'
   })
   writeFile(filePath, markdown, '.md', win, e)
 })

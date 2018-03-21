@@ -47,7 +47,7 @@ autoUpdater.on('update-downloaded', () => {
 })
 
 export const userSetting = (menuItem, browserWindow) => {
-  const settingPath = path.join(__static, '/preference.md')
+  const settingPath = path.join(__static, 'preference.md')
   createWindow(settingPath)
 }
 

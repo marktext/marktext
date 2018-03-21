@@ -1,6 +1,6 @@
 import fs from 'fs'
 import path from 'path'
-import { Menu } from 'electron'
+import { app, Menu } from 'electron'
 
 const JSON_REG = /```json(.+)```/g
 const preferencePath = path.join(__static, 'preference.md')
@@ -44,4 +44,8 @@ export const setUserPreference = (key, value) => {
       else resolve(newUserSetting)
     })
   })
+}
+
+export const getPath = directory => {
+  return app.getPath(directory)
 }
