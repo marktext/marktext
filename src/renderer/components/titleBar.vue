@@ -30,13 +30,13 @@
           <div class="windows-titlebar-minimize" @click.stop="handleMinimizeClick">&minus;</div>
         </div>
       </div>
-      <TopDialog/>
+      <TopDialog v-if="isTopDialogShown" :dialog="topDialog"/>
     </div>
   </transition>
 </template>
 
 <script>
-  import TopDialog from './topDialog'
+  import TopDialog from './topDialog/topDialog'
   import {remote} from 'electron'
 
   export default {
@@ -64,8 +64,11 @@
         const pathnameToken = this.pathname.split('/').filter(i => i)
         return pathnameToken.slice(0, pathnameToken.length - 1).slice(-3)
       },
+      topDialog () {
+        return this.$store.state.topDialog
+      },
       isTopDialogShown () {
-        return this.$store.state.isTopDialogShown
+        return this.$store.state.topDialog != null
       }
     },
     methods: {
@@ -100,7 +103,7 @@
         })
       },
       handleTitleClick () {
-        this.$store.commit('SHOW_TOP_DIALOG')
+        this.$store.commit('SHOW_TOP_DIALOG', 'RenameDialog')
       }
     },
     components: {

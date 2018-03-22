@@ -1,20 +1,16 @@
 <template>
-  <transition name="moveIn">
-    <div v-if="isTopDialogShown" id="TopDialog">
-      <div class="wrapper">
-        <div class="row">
-          <label>Rename file</label>
-        </div>
-        <div class="row">
-          <input id="textfield" type="text" :value="filenameWithoutExt">
-        </div>
-        <div class="row">
-          <input id="submit" type="button" value="Rename" v-on:click="rename">
-          <input id="cancel" type="button" value="Cancel" v-on:click="cancel">
-        </div>
-      </div>
+  <div id="RenameDialog">
+    <div class="row">
+      <label>Rename file</label>
     </div>
-  </transition>
+    <div class="row">
+      <input id="textfield" type="text" :value="filenameWithoutExt">
+    </div>
+    <div class="row">
+      <input id="submit" type="button" value="Rename" v-on:click="rename">
+      <input id="cancel" type="button" value="Cancel" v-on:click="cancel">
+    </div>
+  </div>
 </template>
 
 <script>
@@ -23,13 +19,13 @@
   const dialog = require('electron').remote.dialog
 
   export default {
-    name: 'TopDialog',
+    name: 'RenameDialog',
     data () {
       return {}
     },
     computed: {
       ...mapState([
-        'isTopDialogShown', 'pathname', 'filename'
+        'pathname', 'filename'
       ]),
       filenameWithoutExt () {
         return this.filename.replace(/^(.*)\.[^\\\/]+/, '$1') // eslint-disable-line
@@ -71,33 +67,9 @@
 </script>
 
 <style scoped>
-  #TopDialog {
-    position: relative;
-    top: 0;
-    margin: 0 auto;
+  #RenameDialog {
+    height: 98px;
     width: 450px;
-    height: 118px;
-    background-color: white;
-    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
-    border-bottom-left-radius: 4px;
-    border-bottom-right-radius: 4px;
-    z-index: 2;
-  }
-
-  .moveIn-enter-active, .moveIn-leave-active {
-    transition: all .5s cubic-bezier(0.165, 0.84, 0.44, 1);
-  }
-
-  .moveIn-enter, .moveIn-leave-to {
-    transform: translateY(-125px);
-  }
-
-  .wrapper {
-    position: absolute;
-    top: 8px;
-    left: 8px;
-    right: 8px;
-    bottom: 8px;
   }
 
   .row {
@@ -125,14 +97,13 @@
     background: #EEE none;
     height: 32px;
     font-size: 16px;
-    padding-left: 8px;
-    padding-right: 8px;
+    padding: 0 8px;
   }
 
   label {
     color: black;
     font-size: 16px;
-    height: 20px;
+    line-height: 18px;
   }
 
   #textfield {
@@ -142,5 +113,4 @@
   #submit {
     background-color: skyblue;
   }
-
 </style>

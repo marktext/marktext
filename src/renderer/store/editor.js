@@ -26,17 +26,17 @@ const state = {
     all: 0
   },
   platform: process.platform,
-  isTopDialogShown: false,
+  topDialog: null,
   isEditorEnabled: true
 }
 
 const mutations = {
-  SHOW_TOP_DIALOG (state) {
-    state.isTopDialogShown = true
+  SHOW_TOP_DIALOG (state, dialog) {
+    state.topDialog = dialog
     state.isEditorEnabled = false
   },
   HIDE_TOP_DIALOG (state) {
-    state.isTopDialogShown = false
+    state.topDialog = null
     state.isEditorEnabled = true
   },
   SET_THEME (state, { theme, themeCSS }) {
@@ -78,7 +78,7 @@ const mutations = {
 const actions = {
   LISTEN_FOR_RENAME ({ commit }) {
     ipcRenderer.on('DXXL::rename', () => {
-      commit('SHOW_TOP_DIALOG')
+      commit('SHOW_TOP_DIALOG', 'RenameDialog')
     })
   },
   ASK_FOR_THEME ({ commit }) {
