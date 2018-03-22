@@ -1,4 +1,6 @@
+import { app } from 'electron'
 import * as actions from '../actions/file'
+import { userSetting } from '../actions/marktext'
 import userPreference from '../preference'
 
 const { autoSave } = userPreference.getAll()
@@ -70,5 +72,23 @@ export default {
     click (menuItem, browserWindow) {
       actions.print(browserWindow)
     }
+  }, {
+    type: 'separator',
+    visible: process.platform !== 'darwin'
+  }, {
+    label: 'Preferences',
+    accelerator: 'Ctrl+,',
+    visible: process.platform !== 'darwin',
+    click (menuItem, browserWindow) {
+      userSetting(menuItem, browserWindow)
+    }
+  }, {
+    type: 'separator',
+    visible: process.platform !== 'darwin'
+  }, {
+    label: 'Quit',
+    accelerator: 'Ctrl+Q',
+    visible: process.platform !== 'darwin',
+    click: app.quit
   }]
 }

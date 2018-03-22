@@ -1,4 +1,5 @@
-import { shell } from 'electron'
+import { app, dialog, shell } from 'electron'
+import { checkUpdates } from '../actions/marktext'
 
 export default {
   label: 'Help',
@@ -34,6 +35,29 @@ export default {
     label: 'Follow @Jocs on Github',
     click: function () {
       shell.openExternal('https://github.com/Jocs')
+    }
+  }, {
+    type: 'separator',
+    visible: process.platform !== 'darwin'
+  }, {
+    label: 'Check for updates...',
+    visible: process.platform !== 'darwin',
+    click (menuItem, browserWindow) {
+      checkUpdates(menuItem, browserWindow)
+    }
+  }, {
+    type: 'separator',
+    visible: process.platform !== 'darwin'
+  }, {
+    label: 'About Mark Text',
+    visible: process.platform !== 'darwin',
+    click (menuItem, browserWindow) {
+      dialog.showMessageBox(browserWindow, {
+        buttons: ['OK'],
+        message: 'Mark Text\nv' + app.getVersion() + '\nCopyright © 2018 Jocs',
+        title: 'About',
+        type: 'info'
+      })
     }
   }]
 }
