@@ -145,6 +145,8 @@ Mark Text is in full development, please make sure to read the [Contributing Gui
 
 Thank you to all the people who have already contributed to Mark Text! If you are contributor in [contributors](https://github.com/marktext/marktext/graphs/contributors), Open a PR to add you name and photo to the contribution list bellow.
 
+Special thanks to @[Yasujizr](https://github.com/Yasujizr) who designed the logo of Mark Text.
+
 [![Jocs](https://avatars0.githubusercontent.com/u/9712830?s=150&v=4)](https://github.com/Jocs) | [![ywwhack](https://avatars1.githubusercontent.com/u/8746197?s=150&v=4)](https://github.com/ywwhack) | [![notAlaanor](https://avatars1.githubusercontent.com/u/17591936?s=150&v=4)](https://github.com/notAlaanor)
 :---:|:---:|:---:
 [Jocs](https://github.com/Jocs) | [ywwhack](https://github.com/ywwhack) | [notAlaanor](https://github.com/notAlaanor)
