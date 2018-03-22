@@ -77,8 +77,13 @@ const mutations = {
 
 const actions = {
   LISTEN_FOR_RENAME ({ commit }) {
-    ipcRenderer.on('DXXL::rename', () => {
+    ipcRenderer.on('AGANI::renameFile', () => {
       commit('SHOW_TOP_DIALOG', 'RenameDialog')
+    })
+  },
+  LISTEN_FOR_MOVE_TO ({ commit, state }) {
+    ipcRenderer.on('AGANI::moveFileTo', () => {
+      ipcRenderer.send('AGANI::responseMoveFileTo', state.pathname)
     })
   },
   ASK_FOR_THEME ({ commit }) {

@@ -67,6 +67,7 @@
       const { dispatch } = this.$store
 
       dispatch('LISTEN_FOR_RENAME')
+      dispatch('LISTEN_FOR_MOVE_TO')
       dispatch('ASK_FOR_THEME')
       dispatch('ASK_FOR_MODE')
       dispatch('LISTEN_FOR_CLOSE')

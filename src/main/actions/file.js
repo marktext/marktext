@@ -116,6 +116,35 @@ ipcMain.on('AGANI::response-close-confirm', (e, { filename, pathname, markdown }
 ipcMain.on('AGANI::response-file-save', handleResponseForSave)
 ipcMain.on('AGANI::response-export', handleResponseForExport)
 
+ipcMain.on('AGANI::responseMoveFileTo', (e, pathname) => {
+  const win = BrowserWindow.fromWebContents(e.sender)
+  let location = dialog.showOpenDialog(win, {
+    title: 'Choose location to move to',
+    buttonLabel: 'Move',
+    properties: ['openDirectory'],
+    defaultPath: path.dirname(pathname) || '~/'
+  })
+  let newPath = location[0] + path.sep + path.basename(pathname)
+  if (!fs.existsSync(newPath)) {
+    fs.renameSync(pathname, newPath)
+    e.sender.send('AGANI::set-pathname', { pathname: newPath, filename: path.basename(newPath) })
+  } else {
+    dialog.showMessageBox({
+      type: 'warning',
+      buttons: ['Replace', 'Cancel'],
+      defaultId: 1,
+      message: `The file ${pathname} already exists. Do you want to replace it?`,
+      cancelId: 1,
+      noLink: true
+    }, index => {
+      if (index === 0) {
+        fs.renameSync(pathname, newPath)
+        e.sender.send('AGANI::set-pathname', { pathname: newPath, filename: path.basename(newPath) })
+      }
+    })
+  }
+})
+
 ipcMain.on('AGANI::close-window', e => {
   const win = BrowserWindow.fromWebContents(e.sender)
   forceClose(win)
@@ -156,9 +185,9 @@ export const saveAs = win => {
 }
 
 export const rename = win => {
-  win.webContents.send('DXXL::rename')
+  win.webContents.send('AGANI::renameFile')
 }
 
 export const moveTo = win => {
-  // win.webContents.send('AGANI::ask-file-save')
+  win.webContents.send('AGANI::moveFileTo')
 }

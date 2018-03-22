@@ -16,6 +16,7 @@
 <script>
   import {mapState} from 'vuex'
   import fs from 'fs'
+  import path from 'path'
   const dialog = require('electron').remote.dialog
 
   export default {
@@ -28,7 +29,7 @@
         'pathname', 'filename'
       ]),
       filenameWithoutExt () {
-        return this.filename.replace(/^(.*)\.[^\\\/]+/, '$1') // eslint-disable-line
+        return path.basename(this.filename, '.md')
       }
     },
     methods: {
@@ -37,7 +38,7 @@
       },
       rename () {
         var newFileName = document.getElementById('textfield').value + '.md'
-        var newPath = this.pathname.replace(/^(.*[\\\/])[^\\\/]+/, '$1' + newFileName) // eslint-disable-line
+        var newPath = path.dirname(this.pathname) + path.sep + newFileName // eslint-disable-line
 
         if (!fs.existsSync(newPath)) {
           fs.renameSync(this.pathname, newPath)
@@ -98,6 +99,10 @@
     height: 32px;
     font-size: 16px;
     padding: 0 8px;
+  }
+
+  input[type="button"] {
+    cursor: pointer;
   }
 
   label {
