@@ -3,6 +3,10 @@ const languages = [{
   'mode': 'clike',
   'mime': 'text/x-objectivec'
 }, {
+  'name': 'swift',
+  'mode': 'swift',
+  'mime': 'text/x-swift'
+}, {
   'name': 'c_cpp',
   'mode': 'clike',
   'mime': 'text/x-csrc'
