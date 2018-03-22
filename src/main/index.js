@@ -1,16 +1,22 @@
 'use strict'
 
 import './globalSetting'
-import { app, Menu } from 'electron'
+import { app, ipcMain, Menu } from 'electron'
 import configureMenu, { dockMenu } from './menus'
 import createWindow, { windows } from './createWindow'
+import { isMarkdownFile } from './utils'
 // import { autoUpdater } from "electron-updater"
 
 let openFilesCache = []
 
 const onReady = () => {
-  if (process.platform === 'win32' && process.argv.length >= 2) {
-    openFilesCache = [process.argv[1]]
+  if (process.platform !== 'darwin' && process.argv.length >= 2) {
+    for (const arg of process.argv) {
+      if (isMarkdownFile(arg)) {
+        openFilesCache = [arg]
+        break
+      }
+    }
   }
   if (openFilesCache.length) {
     openFilesCache.forEach(path => createWindow(path))
@@ -51,5 +57,14 @@ app.on('activate', () => {
   // dock icon is clicked and there are no other windows open.
   if (windows.size === 0) {
     onReady()
+  }
+})
+
+ipcMain.on('AGANI::window::drop', (e, fileList) => {
+  for (const file of fileList) {
+    if (isMarkdownFile(file)) {
+      createWindow(file)
+      break
+    }
   }
 })
