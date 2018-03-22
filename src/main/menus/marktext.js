@@ -1,11 +1,14 @@
 import { app } from 'electron'
+import { showAboutDialog } from '../actions/help'
 import * as actions from '../actions/marktext'
 
 export default {
   label: 'Mark Text',
   submenu: [{
     label: 'About Mark Text',
-    role: 'about'
+    click (menuItem, browserWindow) {
+      showAboutDialog(browserWindow)
+    }
   }, {
     label: 'Check for updates...',
     click (menuItem, browserWindow) {

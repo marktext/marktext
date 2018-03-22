@@ -4,6 +4,7 @@ import { userSetting } from '../actions/marktext'
 import userPreference from '../preference'
 
 const { autoSave } = userPreference.getAll()
+const notOsx = process.platform !== 'darwin'
 
 export default {
   label: 'File',
@@ -74,21 +75,21 @@ export default {
     }
   }, {
     type: 'separator',
-    visible: process.platform !== 'darwin'
+    visible: notOsx
   }, {
     label: 'Preferences',
     accelerator: 'Ctrl+,',
-    visible: process.platform !== 'darwin',
+    visible: notOsx,
     click (menuItem, browserWindow) {
       userSetting(menuItem, browserWindow)
     }
   }, {
     type: 'separator',
-    visible: process.platform !== 'darwin'
+    visible: notOsx
   }, {
     label: 'Quit',
     accelerator: 'Ctrl+Q',
-    visible: process.platform !== 'darwin',
+    visible: notOsx,
     click: app.quit
   }]
 }

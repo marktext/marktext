@@ -1,5 +1,8 @@
-import { app, dialog, shell } from 'electron'
+import { shell } from 'electron'
+import * as actions from '../actions/help'
 import { checkUpdates } from '../actions/marktext'
+
+const notOsx = process.platform !== 'darwin'
 
 export default {
   label: 'Help',
@@ -38,26 +41,21 @@ export default {
     }
   }, {
     type: 'separator',
-    visible: process.platform !== 'darwin'
+    visible: notOsx
   }, {
     label: 'Check for updates...',
-    visible: process.platform !== 'darwin',
+    visible: notOsx,
     click (menuItem, browserWindow) {
       checkUpdates(menuItem, browserWindow)
     }
   }, {
     type: 'separator',
-    visible: process.platform !== 'darwin'
+    visible: notOsx
   }, {
     label: 'About Mark Text',
-    visible: process.platform !== 'darwin',
+    visible: notOsx,
     click (menuItem, browserWindow) {
-      dialog.showMessageBox(browserWindow, {
-        buttons: ['OK'],
-        message: 'Mark Text\nv' + app.getVersion() + '\nCopyright © 2018 Jocs',
-        title: 'About',
-        type: 'info'
-      })
+      actions.showAboutDialog(browserWindow)
     }
   }]
 }
