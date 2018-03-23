@@ -6,7 +6,7 @@ import path from 'path'
 import { app, dialog, ipcMain, BrowserWindow } from 'electron'
 import createWindow, { windows } from '../createWindow'
 import { EXTENSIONS, EXTENSION_HASN } from '../config'
-import { getPath, log } from '../utils'
+import { getPath, log, isMarkdownFile } from '../utils'
 import userPreference from '../preference'
 
 const watchAndReload = (pathname, win) => { // when i build, and failed.
@@ -122,6 +122,15 @@ ipcMain.on('AGANI::response-export', handleResponseForExport)
 ipcMain.on('AGANI::close-window', e => {
   const win = BrowserWindow.fromWebContents(e.sender)
   forceClose(win)
+})
+
+ipcMain.on('AGANI::window::drop', (e, fileList) => {
+  for (const file of fileList) {
+    if (isMarkdownFile(file)) {
+      createWindow(file)
+      break
+    }
+  }
 })
 
 export const exportFile = (win, type) => {

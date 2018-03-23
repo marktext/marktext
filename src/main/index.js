@@ -1,11 +1,10 @@
 'use strict'
 
 import './globalSetting'
-import { app, ipcMain, Menu } from 'electron'
+import { app, Menu } from 'electron'
 import configureMenu, { dockMenu } from './menus'
 import createWindow, { windows } from './createWindow'
 import { isMarkdownFile } from './utils'
-// import { autoUpdater } from "electron-updater"
 
 let openFilesCache = []
 
@@ -57,14 +56,5 @@ app.on('activate', () => {
   // dock icon is clicked and there are no other windows open.
   if (windows.size === 0) {
     onReady()
-  }
-})
-
-ipcMain.on('AGANI::window::drop', (e, fileList) => {
-  for (const file of fileList) {
-    if (isMarkdownFile(file)) {
-      createWindow(file)
-      break
-    }
   }
 })

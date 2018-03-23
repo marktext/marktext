@@ -58,7 +58,7 @@
       BottomBar,
       SourceCode,
       UploadImage,
-      AboutDialog
+      AboutDialog,
       Font
     },
     data () {

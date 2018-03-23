@@ -66,7 +66,6 @@ ipcMain.on('AGANI::ask-for-user-preference', e => {
 
 ipcMain.on('AGANI::set-user-preference', (e, pre) => {
   Object.keys(pre).map(key => {
-    console.log(key, pre[key])
     preference.setItem(key, pre[key])
       .then(() => {})
       .catch(log)

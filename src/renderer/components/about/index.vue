@@ -19,6 +19,7 @@
           <div class="text">Copyright © 2018 Jocs</div>
         </el-col>
       </el-row>
+    </el-dialog>
   </div>
 </template>
 
@@ -61,6 +62,8 @@
   }
 
   .about-dialog .logo {
+    width: 100px;
+    height: 100px;
     display: inherit;
     margin: 0 auto;
   }

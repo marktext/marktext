@@ -9,7 +9,7 @@ import store from './store'
 import './assets/symbolIcon'
 import './index.css'
 
-import { Dialog, Form, FormItem, InputNumber, Button, Tooltip, Upload, Slider, ColorPicker } from 'element-ui'
+import { Dialog, Form, FormItem, InputNumber, Button, Tooltip, Upload, Slider, ColorPicker, Col, Row } from 'element-ui'
 // In the renderer process:
 // var webFrame = require('electron').webFrame
 // var SpellCheckProvider = require('electron-spell-check-provider')
@@ -48,6 +48,8 @@ Vue.use(Tooltip)
 Vue.use(Upload)
 Vue.use(Slider)
 Vue.use(ColorPicker)
+Vue.use(Col)
+Vue.use(Row)
 
 if (!process.env.IS_WEB) Vue.use(require('vue-electron'))
 Vue.http = Vue.prototype.$http = axios
