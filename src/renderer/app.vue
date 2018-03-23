@@ -17,7 +17,9 @@
       :cursor="cursor"
       v-if="!sourceCode"
       :theme="theme"
-      :theme-css="themeCSS"
+      :color="color"
+      :line-height="lineHeight"
+      :font-size="fontSize"
     ></editor>
     <source-code
       v-else
@@ -32,6 +34,7 @@
     <aidou></aidou>
     <upload-image></upload-image>
     <about-dialog></about-dialog>
+    <font></font>
   </div>
 </template>
 
@@ -43,6 +46,7 @@
   import Aidou from '@/components/aidou/aidou'
   import UploadImage from '@/components/uploadImage'
   import AboutDialog from '@/components/about'
+  import Font from '@/components/font'
   import { mapState } from 'vuex'
 
   export default {
@@ -55,6 +59,7 @@
       SourceCode,
       UploadImage,
       AboutDialog
+      Font
     },
     data () {
       return {}
@@ -63,14 +68,13 @@
       ...mapState([
         'pathname', 'filename', 'isSaved', 'windowActive', 'wordCount',
         'typewriter', 'focus', 'sourceCode', 'markdown',
-        'cursor', 'theme', 'themeCSS', 'platform'
+        'cursor', 'theme', 'platform', 'color', 'fontSize', 'lineHeight'
       ])
     },
     created () {
       const { dispatch } = this.$store
 
-      dispatch('ASK_FOR_THEME')
-      dispatch('ASK_FOR_AUTO_SAVE')
+      dispatch('ASK_FOR_USER_PREFERENCE')
       dispatch('ASK_FOR_MODE')
       dispatch('LISTEN_FOR_CLOSE')
       dispatch('LISTEN_FOR_SAVE_AS')

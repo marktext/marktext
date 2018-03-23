@@ -20,12 +20,20 @@ let viewMenu = {
   }, {
     type: 'separator'
   }, {
+    label: 'Font...',
+    accelerator: 'CmdOrCtrl+.',
+    click (item, browserWindow) {
+      actions.changeFont(browserWindow)
+    }
+  }, {
+    type: 'separator'
+  }, {
     label: 'Source Code Mode',
     accelerator: 'Shift+CmdOrCtrl+S',
     type: 'checkbox',
     checked: VIEW_MENU_ITEM['Source Code Mode'],
     click (item, browserWindow) {
-      actions.view(browserWindow, item, 'sourceCode')
+      actions.typeMode(browserWindow, item, 'sourceCode')
     }
   }, {
     label: 'Typewriter Mode',
@@ -33,7 +41,7 @@ let viewMenu = {
     type: 'checkbox',
     checked: VIEW_MENU_ITEM['Typewriter Mode'],
     click (item, browserWindow) {
-      actions.view(browserWindow, item, 'typewriter')
+      actions.typeMode(browserWindow, item, 'typewriter')
     }
   }, {
     label: 'Focus Mode',
@@ -41,7 +49,7 @@ let viewMenu = {
     type: 'checkbox',
     checked: VIEW_MENU_ITEM['Focus Mode'],
     click (item, browserWindow) {
-      actions.view(browserWindow, item, 'focus')
+      actions.typeMode(browserWindow, item, 'focus')
     }
   }, {
     type: 'separator'

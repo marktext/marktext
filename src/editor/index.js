@@ -428,20 +428,12 @@ class Aganippe {
     this.focusMode = bool
   }
 
-  setTheme (name, css) {
+  setTheme (name) {
     if (name === 'dark') {
       codeMirrorConfig.theme = 'railscasts'
     } else {
       delete codeMirrorConfig.theme
     }
-    const themeStyleId = CLASS_OR_ID['AG_THEME_ID']
-    let styleEle = document.querySelector(`#${themeStyleId}`)
-    if (!styleEle) {
-      styleEle = document.createElement('style')
-      styleEle.id = themeStyleId
-      document.querySelector('head').appendChild(styleEle)
-    }
-    styleEle.innerHTML = css
     this.contentState.render()
   }
 

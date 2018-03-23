@@ -1,5 +1,6 @@
 import fs from 'fs'
 import path from 'path'
+import { ipcMain, BrowserWindow } from 'electron'
 import { getPath, log } from './utils'
 
 const FILE_NAME = 'preference.md'
@@ -56,4 +57,20 @@ class Preference {
   }
 }
 
-export default new Preference(staticPath, userDataPath)
+const preference = new Preference(staticPath, userDataPath)
+
+ipcMain.on('AGANI::ask-for-user-preference', e => {
+  const win = BrowserWindow.fromWebContents(e.sender)
+  win.webContents.send('AGANI::user-preference', preference.getAll())
+})
+
+ipcMain.on('AGANI::set-user-preference', (e, pre) => {
+  Object.keys(pre).map(key => {
+    console.log(key, pre[key])
+    preference.setItem(key, pre[key])
+      .then(() => {})
+      .catch(log)
+  })
+})
+
+export default preference

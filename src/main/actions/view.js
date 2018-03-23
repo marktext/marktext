@@ -7,7 +7,7 @@ const HASH = {
   'Focus Mode': 'focus'
 }
 
-export const view = (win, item, type) => {
+export const typeMode = (win, item, type) => {
   const { checked } = item
   win.webContents.send('AGANI::view', { type, checked })
 
@@ -19,6 +19,10 @@ export const view = (win, item, type) => {
       }
     })
   }
+}
+
+export const changeFont = win => {
+  win.webContents.send('AGANI::font-setting')
 }
 
 ipcMain.on('AGANI::ask-for-mode', e => {

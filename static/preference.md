@@ -8,6 +8,9 @@ Edit and save to update preferences, You can only change the json bellow!
 
 ```json
 {
+  "fontSize": "16px",
+  "color": "#303133",
+  "lineHeight": "1.6",
   "theme": "light",
   "autoSave": false
 }

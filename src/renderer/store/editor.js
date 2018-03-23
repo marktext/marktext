@@ -9,14 +9,18 @@ const state = {
     matches: [],
     value: ''
   },
+  // user preference
   theme: '',
-  themeCSS: null,
+  fontSize: '16px',
+  lineHeight: 1.6,
+  color: '#303133',
+  autoSave: false,
+  // edit mode
   typewriter: false, // typewriter mode
   focus: false, // focus mode
   sourceCode: false, // source code mode
   pathname: '',
   isSaved: true,
-  autoSave: false,
   markdown: '',
   cursor: null,
   windowActive: true,
@@ -30,12 +34,6 @@ const state = {
 }
 
 const mutations = {
-  SET_THEME (state, { theme, themeCSS }) {
-    state.theme = theme
-    if (themeCSS) {
-      state.themeCSS = themeCSS
-    }
-  },
   SET_MODE (state, { type, checked }) {
     state[type] = checked
   },
@@ -64,28 +62,36 @@ const mutations = {
   SET_CURSOR (state, cursor) {
     state.cursor = cursor
   },
-  SET_AUTO_SAVE (state, autoSave) {
-    state.autoSave = autoSave
+  SET_USER_PREFERENCE (state, preference) {
+    Object.keys(preference).forEach(key => {
+      if (preference[key]) {
+        state[key] = preference[key]
+      }
+    })
   }
 }
 
 const actions = {
-  ASK_FOR_THEME ({ commit }) {
-    ipcRenderer.send('AGANI::ask-for-theme')
-    ipcRenderer.on('AGANI::theme', (e, themes) => {
-      commit('SET_THEME', themes)
-    })
+  CHANGE_FONT ({ commit }, { type, value }) {
+    commit('SET_USER_PREFERENCE', { [type]: value })
+    // save to preference.md
+    ipcRenderer.send('AGANI::set-user-preference', { [type]: value })
   },
+  ASK_FOR_USER_PREFERENCE ({ commit, state }) {
+    ipcRenderer.send('AGANI::ask-for-user-preference')
+    ipcRenderer.on('AGANI::user-preference', (e, preference) => {
+      const { autoSave } = preference
 
-  ASK_FOR_AUTO_SAVE ({ commit, state }) {
-    ipcRenderer.send('AGANI::ask-for-auto-save')
-    ipcRenderer.on('AGANI::auto-save', (e, autoSave) => {
-      const { pathname, markdown } = state
-      commit('SET_AUTO_SAVE', autoSave)
+      commit('SET_USER_PREFERENCE', preference)
 
-      if (autoSave && pathname) {
-        commit('SET_SAVE_STATUS', true)
-        ipcRenderer.send('AGANI::response-file-save', { pathname, markdown })
+      // handle autoSave
+      if (autoSave) {
+        const { pathname, markdown } = state
+
+        if (autoSave && pathname) {
+          commit('SET_SAVE_STATUS', true)
+          ipcRenderer.send('AGANI::response-file-save', { pathname, markdown })
+        }
       }
     })
   },
@@ -234,6 +240,9 @@ const actions = {
   LISTEN_FOR_VIEW ({ commit }) {
     ipcRenderer.on('AGANI::view', (e, data) => {
       commit('SET_MODE', data)
+    })
+    ipcRenderer.on('AGANI::font-setting', e => {
+      bus.$emit('font-setting')
     })
   },
 

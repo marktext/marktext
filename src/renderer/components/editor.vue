@@ -2,6 +2,7 @@
   <div
     class="editor-wrapper"
     :class="[{ 'typewriter': typewriter, 'focus': focus, 'source': sourceCode }, theme]"
+    :style="{ 'color': color, 'lineHeight': lineHeight, 'fontSize': fontSize }"
   >
     <div
       ref="editor"
@@ -85,7 +86,9 @@
       markdown: String,
       cursor: Object,
       theme: String,
-      themeCss: Object
+      color: String,
+      lineHeight: [Number, String],
+      fontSize: [Number, String]
     },
     data () {
       return {
@@ -110,9 +113,10 @@
         this.editor.setFocusMode(value)
       },
       theme: function (value, oldValue) {
-        const { editor, themeCss } = this
+        const { editor } = this
         if (value !== oldValue && editor) {
-          editor.setTheme(value, themeCss[value])
+          editor.setTheme(value)
+          this.addThemeStyle(value)
         }
       }
     },
@@ -121,7 +125,7 @@
         const ele = this.$refs.editor
         this.editor = new Aganippe(ele)
         const { container } = this.editor
-        const { markdown, theme, themeCss } = this
+        const { markdown, theme } = this
         // init set markdown and edit mode(typewriter mode and focus mode)
         if (markdown.trim()) {
           this.setMarkdownToEditor(markdown)
@@ -132,7 +136,8 @@
         }
 
         if (theme) {
-          this.editor.setTheme(theme, themeCss[theme])
+          this.editor.setTheme(theme)
+          this.addThemeStyle(theme)
         }
 
         bus.$on('file-loaded', this.setMarkdownToEditor)
@@ -167,6 +172,19 @@
       })
     },
     methods: {
+      addThemeStyle (theme) {
+        const linkId = 'ag-theme'
+        const href = `./static/themes/${theme}.css`
+        let link = document.querySelector(`#${linkId}`)
+
+        if (!link) {
+          link = document.createElement('link')
+          link.setAttribute('rel', 'stylesheet')
+          link.id = linkId
+          document.head.appendChild(link)
+        }
+        link.href = href
+      },
       handleUndo () {
         if (this.editor) {
           this.editor.undo()

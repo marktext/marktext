@@ -117,13 +117,6 @@ ipcMain.on('AGANI::response-close-confirm', (e, { filename, pathname, markdown }
 
 ipcMain.on('AGANI::response-file-save', handleResponseForSave)
 
-ipcMain.on('AGANI::ask-for-auto-save', e => {
-  const win = BrowserWindow.fromWebContents(e.sender)
-  const { autoSave } = userPreference.getAll()
-
-  win.webContents.send('AGANI::auto-save', autoSave)
-})
-
 ipcMain.on('AGANI::response-export', handleResponseForExport)
 
 ipcMain.on('AGANI::close-window', e => {
@@ -170,7 +163,7 @@ export const autoSave = (menuItem, browserWindow) => {
   userPreference.setItem('autoSave', checked)
     .then(() => {
       for (const win of windows.values()) {
-        win.webContents.send('AGANI::auto-save', checked)
+        win.webContents.send('AGANI::user-preference', { autoSave: checked })
       }
     })
     .catch(log)
