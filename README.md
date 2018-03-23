@@ -57,7 +57,7 @@
       Features
     </a>
     <span> | </span>
-    <a href="https://github.com/marktext/marktext#download">
+    <a href="https://github.com/marktext/marktext#download-and-install">
       Downloads
     </a>
     <span> | </span>
