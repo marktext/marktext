@@ -1,4 +1,8 @@
 import { shell } from 'electron'
+import * as actions from '../actions/help'
+import { checkUpdates } from '../actions/marktext'
+
+const notOsx = process.platform !== 'darwin'
 
 export default {
   label: 'Help',
@@ -34,6 +38,24 @@ export default {
     label: 'Follow @Jocs on Github',
     click: function () {
       shell.openExternal('https://github.com/Jocs')
+    }
+  }, {
+    type: 'separator',
+    visible: notOsx
+  }, {
+    label: 'Check for updates...',
+    visible: notOsx,
+    click (menuItem, browserWindow) {
+      checkUpdates(menuItem, browserWindow)
+    }
+  }, {
+    type: 'separator',
+    visible: notOsx
+  }, {
+    label: 'About Mark Text',
+    visible: notOsx,
+    click (menuItem, browserWindow) {
+      actions.showAboutDialog(browserWindow)
     }
   }]
 }

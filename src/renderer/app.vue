@@ -31,6 +31,7 @@
     ></bottom-bar>
     <aidou></aidou>
     <upload-image></upload-image>
+    <about-dialog></about-dialog>
   </div>
 </template>
 
@@ -41,6 +42,7 @@
   import SourceCode from '@/components/sourceCode'
   import Aidou from '@/components/aidou/aidou'
   import UploadImage from '@/components/uploadImage'
+  import AboutDialog from '@/components/about'
   import { mapState } from 'vuex'
 
   export default {
@@ -51,7 +53,8 @@
       TitleBar,
       BottomBar,
       SourceCode,
-      UploadImage
+      UploadImage,
+      AboutDialog
     },
     data () {
       return {}
@@ -82,6 +85,7 @@
       dispatch('LISTEN_FOR_PARAGRAPH_INLINE_STYLE')
       dispatch('LISTEN_FOR_UPDATE')
       dispatch('LISTEN_FOR_INSERT_IMAGE')
+      dispatch('LISTEN_FOR_ABOUT_DIALOG')
     }
   }
 </script>

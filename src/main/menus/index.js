@@ -10,18 +10,14 @@ import theme from './theme'
 
 export dockMenu from './dock'
 
-export default function configureMenu ({ app }) {
-  let template = process.platform === 'darwin' ? [marktext({ app })] : []
-
-  return [
-    ...template,
-    file,
-    edit,
-    paragraph,
-    format,
-    windowMenu,
-    theme,
-    view,
-    help
-  ]
-}
+export default [
+  ...(process.platform === 'darwin' ? [marktext] : []),
+  file,
+  edit,
+  paragraph,
+  format,
+  windowMenu,
+  theme,
+  view,
+  help
+]

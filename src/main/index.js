@@ -24,7 +24,7 @@ const onReady = () => {
   } else {
     createWindow()
   }
-  const menu = Menu.buildFromTemplate(configureMenu({ app }))
+  const menu = Menu.buildFromTemplate(configureMenu)
   Menu.setApplicationMenu(menu)
   if (process.platform === 'darwin') {
     // app.dock is only for macosx

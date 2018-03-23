@@ -336,3 +336,7 @@ code {
   color: #777777;
   margin-top: 0;
 }
+
+.fg-color-dark {
+  color: #303133;
+}

@@ -237,6 +237,12 @@ const actions = {
     })
   },
 
+  LISTEN_FOR_ABOUT_DIALOG ({ commit }) {
+    ipcRenderer.on('AGANI::about-dialog', e => {
+      bus.$emit('aboutDialog')
+    })
+  },
+
   LISTEN_FOR_PARAGRAPH_INLINE_STYLE ({ commit }) {
     ipcRenderer.on('AGANI::paragraph', (e, { type }) => {
       bus.$emit('paragraph', type)

@@ -1,7 +1,10 @@
+import { app } from 'electron'
 import * as actions from '../actions/file'
+import { userSetting } from '../actions/marktext'
 import userPreference from '../preference'
 
 const { autoSave } = userPreference.getAll()
+const notOsx = process.platform !== 'darwin'
 
 export default {
   label: 'File',
@@ -70,5 +73,23 @@ export default {
     click (menuItem, browserWindow) {
       actions.print(browserWindow)
     }
+  }, {
+    type: 'separator',
+    visible: notOsx
+  }, {
+    label: 'Preferences',
+    accelerator: 'Ctrl+,',
+    visible: notOsx,
+    click (menuItem, browserWindow) {
+      userSetting(menuItem, browserWindow)
+    }
+  }, {
+    type: 'separator',
+    visible: notOsx
+  }, {
+    label: 'Quit',
+    accelerator: 'Ctrl+Q',
+    visible: notOsx,
+    click: app.quit
   }]
 }
