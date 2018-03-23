@@ -118,13 +118,12 @@ ipcMain.on('AGANI::response-export', handleResponseForExport)
 
 ipcMain.on('AGANI::responseMoveFileTo', (e, pathname) => {
   const win = BrowserWindow.fromWebContents(e.sender)
-  let location = dialog.showOpenDialog(win, {
-    title: 'Choose location to move to',
-    buttonLabel: 'Move',
-    properties: ['openDirectory'],
-    defaultPath: path.dirname(pathname) || '~/'
+  let newPath = dialog.showSaveDialog(win, {
+    buttonLabel: 'Move or rename',
+    nameFieldLabel: 'Filename:',
+    defaultPath: pathname || '~/Untitled.md'
   })
-  let newPath = location[0] + path.sep + path.basename(pathname)
+  if (newPath === undefined) return
   if (!fs.existsSync(newPath)) {
     fs.renameSync(pathname, newPath)
     e.sender.send('AGANI::set-pathname', { pathname: newPath, filename: path.basename(newPath) })
