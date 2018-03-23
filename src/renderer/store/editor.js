@@ -13,7 +13,8 @@ const state = {
   theme: '',
   fontSize: '16px',
   lineHeight: 1.6,
-  color: '#303133',
+  lightColor: '#303133', // color in light theme
+  darkColor: 'rgb(217, 217, 217)', // color in dark theme
   autoSave: false,
   // edit mode
   typewriter: false, // typewriter mode
@@ -266,6 +267,7 @@ const actions = {
       const { isSaved, markdown, pathname, filename } = state
       if (!isSaved && /[^\n]/.test(markdown)) {
         ipcRenderer.send('AGANI::response-close-confirm', { filename, pathname, markdown })
+        commit('SET_SAVE_STATUS', true)
       } else {
         ipcRenderer.send('AGANI::close-window')
       }

@@ -1,6 +1,7 @@
 import fs from 'fs'
 import path from 'path'
 import { ipcMain, BrowserWindow } from 'electron'
+import { windows } from './createWindow'
 import { getPath, log } from './utils'
 
 const FILE_NAME = 'preference.md'
@@ -67,7 +68,11 @@ ipcMain.on('AGANI::ask-for-user-preference', e => {
 ipcMain.on('AGANI::set-user-preference', (e, pre) => {
   Object.keys(pre).map(key => {
     preference.setItem(key, pre[key])
-      .then(() => {})
+      .then(() => {
+        for (const win of windows.values()) {
+          win.webContents.send('AGANI::user-preference', { [key]: pre[key] })
+        }
+      })
       .catch(log)
   })
 })

@@ -13,7 +13,7 @@
           size="small"
           @active-change="colorChange"
         ></el-color-picker>
-        <svg class="icon" aria-hidden="true" :style="{ 'color': color }">
+        <svg class="icon" aria-hidden="true" :style="{ 'color': tempColor }">
           <use xlink:href="#icon-font"></use>
         </svg> 
       </div>
@@ -56,7 +56,7 @@
     },
     computed: {
       ...mapState([
-        'theme', 'fontSize', 'color', 'lineHeight'
+        'theme', 'fontSize', 'lightColor', 'darkColor', 'lineHeight'
       ]),
       defaultSize () {
         return parseInt(this.fontSize, 10)
@@ -70,9 +70,9 @@
     methods: {
       handleFontSetting () {
         this.showFontSetting = true
-        const { color, lineHeight } = this
+        const { darkColor, lightColor, theme, lineHeight } = this
         this.tempSize = this.defaultSize
-        this.tempColor = color
+        this.tempColor = theme === 'dark' ? darkColor : lightColor
         this.tempHeight = +lineHeight
       },
       formatSize (val) {
@@ -82,7 +82,8 @@
         return `${val}`
       },
       colorChange (color) {
-        this.handleChange('color')(color)
+        const COLOR_KEY = this.theme === 'dark' ? 'darkColor' : 'lightColor'
+        this.handleChange(COLOR_KEY)(color)
       },
       sizeChange (size) {
         this.handleChange('fontSize')(size)

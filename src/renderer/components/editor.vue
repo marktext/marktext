@@ -2,7 +2,7 @@
   <div
     class="editor-wrapper"
     :class="[{ 'typewriter': typewriter, 'focus': focus, 'source': sourceCode }, theme]"
-    :style="{ 'color': color, 'lineHeight': lineHeight, 'fontSize': fontSize }"
+    :style="{ 'color': theme === 'dark' ? darkColor : lightColor, 'lineHeight': lineHeight, 'fontSize': fontSize }"
   >
     <div
       ref="editor"
@@ -86,9 +86,10 @@
       markdown: String,
       cursor: Object,
       theme: String,
-      color: String,
       lineHeight: [Number, String],
-      fontSize: [Number, String]
+      fontSize: [Number, String],
+      lightColor: String,
+      darkColor: String
     },
     data () {
       return {

@@ -17,7 +17,8 @@
       :cursor="cursor"
       v-if="!sourceCode"
       :theme="theme"
-      :color="color"
+      :dark-color="darkColor"
+      :light-color="lightColor"
       :line-height="lineHeight"
       :font-size="fontSize"
     ></editor>
@@ -68,7 +69,7 @@
       ...mapState([
         'pathname', 'filename', 'isSaved', 'windowActive', 'wordCount',
         'typewriter', 'focus', 'sourceCode', 'markdown',
-        'cursor', 'theme', 'platform', 'color', 'fontSize', 'lineHeight'
+        'cursor', 'theme', 'platform', 'lightColor', 'darkColor', 'fontSize', 'lineHeight'
       ])
     },
     created () {

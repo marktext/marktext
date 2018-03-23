@@ -40,6 +40,7 @@ const writeFile = (pathname, content, extension, win, e) => {
 }
 
 const forceClose = win => {
+  if (!win) return
   if (windows.has(win.id)) {
     windows.delete(win.id)
   }
