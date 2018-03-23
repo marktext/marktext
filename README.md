@@ -49,7 +49,7 @@
       Website
     </a>
     <span> | </span>
-    <a href="https://github.com/marktext/marktext/blob/master/doc/i18n/zh_cn.md">
+    <a href="https://github.com/marktext/marktext/blob/master/doc/i18n/zh_cn.md#readme">
       中文
     </a>
     <span> | </span>
@@ -57,7 +57,7 @@
       Features
     </a>
     <span> | </span>
-    <a href="https://github.com/marktext/marktext#download">
+    <a href="https://github.com/marktext/marktext#download-and-install">
       Downloads
     </a>
     <span> | </span>
