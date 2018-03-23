@@ -1,19 +1,23 @@
-### 0.8.5
+### 0.8.8
 
 **:cactus:Feature**
 
 - Add user preferences in `Mark Text menu`, the shoutcut is `CmdorCtrl + ,`, you can set the default `theme` and `autoSave`.
 - Add `autoSave` to `file menu`, the default value is in `preferences.md` which you can open in `Mark Text menu`. #45
+- Add drag and drop to open Markdown file with Mark Text @fxha
+- User setting: fontSize, lineHeight, color in realtime mode.
 
 **:butterfly:Optimization**
 
 - Theme can be saved in user preferences now #16
+- Custom About dialog @fxha
 
 **:beetle:Bug fix**
 
 - fix: prevent open image or file directly when drag and drop over Mark Text #42
 - fix: set theme to all the open window not just the active one.
 - fix: set correct application menu offset on windows #44
+- fix: Missing preferences menu in Linux and Windows. @fxha
 
 ### 0.7.17
 
