@@ -85,16 +85,16 @@
 
 ### Features
 
-- Realtime preview and use [snabbdom](https://github.com/snabbdom/snabbdom) as it's render engine.
+- Realtime preview and use [snabbdom](https://github.com/snabbdom/snabbdom) as its render engine.
 - Support [CommonMark Spec](http://spec.commonmark.org/0.28/) and [GitHub Flavored Markdown Spec](http://spec.commonmark.org/0.28/).
 - Support paragraphs and inline style shortcuts to improve your writing efficiency.
 - Output **HTML** and **PDF** file.
 - Dark and Light themes.
-- Various edit mode: **Source Code mode**、**Typewriter mode**、**Focus mode**.
+- Various edit mode: **Source Code mode**, **Typewriter mode**, **Focus mode**.
 
 <h4 align="center">:crescent_moon:Dark and Light themes:high_brightness:</h4>
 
-|                     Dark :crescent_moon:                     |                    Light:high_brightness:                    |
+|                     Dark :crescent_moon:                     |                    Light :high_brightness:                    |
 | :----------------------------------------------------------: | :----------------------------------------------------------: |
 | ![](https://github.com/marktext/marktext/blob/master/doc/dark.jpg) | ![](https://github.com/marktext/marktext/blob/master/doc/light.jpg) |
 
@@ -106,9 +106,9 @@
 
 ### Why write another editor?
 
-1. I love writing, I have used a lot of markdown editors, there is still not a editor can fully meet my needs, I don't like to be disturbed when I write, and some unbearable bug, **Mark Text** use virtual DOM to render the page, So it's high efficiency, and open source to friends all love markdown and writing.
+1. I love writing. I have used a lot of markdown editors, yet there is still not an editor that can fully meet my needs. I don't like to be disturbed when I write by some unbearable bug. **Mark Text** uses virtual DOM to render the page, so it's high efficiency, and open source to all friends who love markdown and writing.
 2. As mentioned above, **Mark Text** will be open source forever. It is also hoped that all markdown lovers can contribute their own code, and develop **Mark Text** into a popular markdown editor.
-3. There are many markdown editors, and each editor has its own characteristics, but it is also difficult to satisfy all markdown users' needs. I hope **Mark Text** can satisfy markdown users' needs as much as possible. Although the latest **Mark Text** is still not perfect, but we are trying to make it perfect.
+3. There are many markdown editors, and each editor has its own characteristics, but it is also difficult to satisfy all markdown users' needs. I hope **Mark Text** can satisfy markdown users' needs as much as possible. Although the latest **Mark Text** is still not perfect, we are trying to make it as perfect as we can.
 
 ### Download and Install
 
@@ -118,7 +118,7 @@ Mark Text build for these platforms ![Conda](https://img.shields.io/conda/pn/con
 | :----------------------------------------------------------: | :----------------------------------------------------------: | :----------------------------------------------------------: |
 | [latest version](https://github.com/marktext/marktext/releases/download/v0.7.17/marktext-0.7.17.dmg) | [latest version](https://github.com/marktext/marktext/releases/download/v0.7.17/marktext-setup-0.7.17.exe) | [latest version](https://github.com/marktext/marktext/releases/download/v0.7.17/marktext-0.7.17-x86_64.AppImage) |
 
-Not found your system ? Go the the [release page](https://github.com/marktext/marktext/releases), still not found ? Shoot an [issue](https://github.com/marktext/marktext/issues).
+Did not found your system ? Go the the [release page](https://github.com/marktext/marktext/releases). Still not found ? Shoot an [issue](https://github.com/marktext/marktext/issues).
 
 Want to see new features in this version? Refer to [CHANGELOG](https://github.com/marktext/marktext/blob/master/.github/CHANGELOG.md)
 
@@ -130,20 +130,20 @@ If you use OS X system, you can install Mark Text by [**homebrew cask**](https:/
 
 ### Development
 
-If you wish to build **Mark Text** yourself.
+If you wish to build **Mark Text** yourself:
 
 - first clone this repo.
 - Run `npm install`
 - Run `npm run build`
 - copy the build app to Applications folder, or if on Windows run the executable installer.
 
-When you use **Mark Text**, if you have any questions, you are welcome to write an issue, but I hope you follow the format of issue. Of course, if you can submit a PR directly, it will be appreciated.
+When you have any questions while using **Mark Text**, you are welcome to write an issue, but I hope you will follow the format of issue. Of course, if you submit a PR directly, it will be appreciated.
 
 ## Contribution
 
 Mark Text is in full development, please make sure to read the [Contributing Guide](https://github.com/marktext/marktext/blob/master/.github/CONTRIBUTING.md) before making a pull request. Want to add some features to Mark Text? Refer to [TODO LIST](https://github.com/marktext/marktext/blob/master/.github/TODOLIST.md)
 
-Thank you to all the people who have already contributed to Mark Text! If you are contributor in [contributors](https://github.com/marktext/marktext/graphs/contributors), Open a PR to add you name and photo to the contribution list bellow.
+Thank you to all the people who have already contributed to Mark Text! If you are a member of [contributors](https://github.com/marktext/marktext/graphs/contributors), open a PR to add your name and photo to the contribution list bellow.
 
 Special thanks to @[Yasujizr](https://github.com/Yasujizr) who designed the logo of Mark Text.
 
