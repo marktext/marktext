@@ -328,4 +328,8 @@
   .dark.editor-wrapper {
     background: rgb(43, 43, 43);
   }
+
+  .dark #disableEdit {
+    background-color: rgba(0, 0, 0, 0.4);
+  }
 </style>

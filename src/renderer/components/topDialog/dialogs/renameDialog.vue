@@ -118,4 +118,9 @@
   #submit {
     background-color: skyblue;
   }
+
+  /* dark mode */
+  .dark label {
+    color: white;
+  }
 </style>

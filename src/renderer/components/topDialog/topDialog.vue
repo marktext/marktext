@@ -40,6 +40,11 @@
     z-index: 2;
   }
 
+  .dark #TopDialog {
+    box-shadow: 0 3px 6px rgba(255, 255, 255, 0.16), 0 3px 6px rgba(255, 255, 255, 0.23);
+    background-color: rgb(43, 43, 43);
+  }
+
   .moveIn-enter-active, .moveIn-leave-active {
     transition: all .5s cubic-bezier(0.165, 0.84, 0.44, 1);
   }

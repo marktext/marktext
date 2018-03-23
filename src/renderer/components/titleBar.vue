@@ -141,30 +141,12 @@
     background: rgb(252, 252, 252);
   }
 
-  @-webkit-keyframes shadow {
-    from {
-      box-shadow: none;
-    }
-    to {
-      box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
-    }
-  }
-
-  @-webkit-keyframes noShadow {
-    from {
-      box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
-    }
-    to {
-      box-shadow: none;
-    }
-  }
-
   .shadow {
-    animation: shadow .4s cubic-bezier(0.77, 0, 0.175, 1);
+    animation: shadowLight .4s cubic-bezier(0.77, 0, 0.175, 1);
     box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
   }
   .noShadow {
-    animation: noShadow .4s cubic-bezier(0.77, 0, 0.175, 1);
+    animation: noShadowLight .4s cubic-bezier(0.77, 0, 0.175, 1);
     box-shadow: none;
   }
 
@@ -282,7 +264,7 @@
   }
 
   /* css for dark theme */
-  .dark {
+  .dark #bar {
     background: rgb(43, 43, 43);
     color: #909399;
   }
@@ -294,5 +276,52 @@
   .dark .word-count:hover {
     background: rgb(71, 72, 66);
     color: #C0C4CC;
+  }
+
+  .dark.shadow {
+    animation: shadowDark .4s cubic-bezier(0.77, 0, 0.175, 1);
+    box-shadow: 0 3px 6px rgba(255, 255, 255, 0.16), 0 3px 6px rgba(255, 255, 255, 0.23);
+  }
+
+  .dark.noShadow {
+    animation: noShadowDark .4s cubic-bezier(0.77, 0, 0.175, 1);
+    box-shadow: none;
+  }
+
+  /* animations */
+  @-webkit-keyframes shadowLight {
+    from {
+      box-shadow: none;
+    }
+    to {
+      box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
+    }
+  }
+
+  @-webkit-keyframes noShadowLight {
+    from {
+      box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
+    }
+    to {
+      box-shadow: none;
+    }
+  }
+
+  @-webkit-keyframes shadowDark {
+    from {
+      box-shadow: none;
+    }
+    to {
+      box-shadow: 0 3px 6px rgba(255, 255, 255, 0.16), 0 3px 6px rgba(255, 255, 255, 0.23);
+    }
+  }
+
+  @-webkit-keyframes noShadowDark {
+    from {
+      box-shadow: 0 3px 6px rgba(255, 255, 255, 0.16), 0 3px 6px rgba(255, 255, 255, 0.23);
+    }
+    to {
+      box-shadow: none;
+    }
   }
 </style>
