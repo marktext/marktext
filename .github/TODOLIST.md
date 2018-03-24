@@ -10,17 +10,15 @@
 
 - [ ] Support Raw HTML in Mark Text
 
-- [ ] Support auto accompliment.
+- [ ] Support iamge path auto accompliment.
 
-      - Image path
-
-      - English word
+- [ ] checking spell and autocorrect spell
 
 - [ ] Left click menu.
 
 - [ ] Rename and moveTo in **File Menu**
 
-- [ ] Preference in **Mark Text** Menu
+- [x] Preference in **Mark Text** Menu
 
       - Font size
 

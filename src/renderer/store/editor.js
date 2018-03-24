@@ -1,8 +1,9 @@
-import { ipcRenderer } from 'electron'
+import { ipcRenderer, remote } from 'electron'
 import path from 'path'
 import bus from '../bus'
 
 const state = {
+  appVersion: remote.app.getVersion(),
   filename: 'Untitled - unsaved',
   searchMatches: {
     index: -1,
@@ -78,6 +79,7 @@ const actions = {
     // save to preference.md
     ipcRenderer.send('AGANI::set-user-preference', { [type]: value })
   },
+
   ASK_FOR_USER_PREFERENCE ({ commit, state }) {
     ipcRenderer.send('AGANI::ask-for-user-preference')
     ipcRenderer.on('AGANI::user-preference', (e, preference) => {
@@ -123,7 +125,6 @@ const actions = {
     ipcRenderer.on('AGANI::ask-file-save', () => {
       const { pathname, markdown } = state
       ipcRenderer.send('AGANI::response-file-save', { pathname, markdown })
-      commit('SET_SAVE_STATUS', true)
     })
   },
 
@@ -163,10 +164,6 @@ const actions = {
         bus.$emit('file-loaded', file)
       }
     })
-  },
-
-  EDITE_FILE ({ commit }) {
-    commit('SET_SAVE_STATUS', false)
   },
 
   EXPORT ({ commit, state }, { type, content }) {

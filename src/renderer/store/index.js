@@ -4,15 +4,13 @@ import Vuex from 'vuex'
 import editorStore from './editor'
 import aidouStore from './aidou'
 import autoUpdates from './autoUpdates'
-import version from './version'
 
 Vue.use(Vuex)
 
 const storeArray = [
   editorStore,
   aidouStore,
-  autoUpdates,
-  version
+  autoUpdates
 ]
 
 const { actions, mutations, state } = storeArray.reduce((acc, s) => {

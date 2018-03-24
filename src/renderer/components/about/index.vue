@@ -13,10 +13,10 @@
           <h3 class="text fg-color-dark">{{ name }}</h3>
         </el-col>
         <el-col :span="24">
-          <div class="text">{{ versionPrefix }}{{ appVersion }}</div>
+          <div class="text">{{ `${versionPrefix} ${appVersion}` }}</div>
         </el-col>
         <el-col :span="24">
-          <div class="text">Copyright © 2018 Jocs</div>
+          <div class="text">{{ copyright }}</div>
         </el-col>
       </el-row>
     </el-dialog>
@@ -29,10 +29,11 @@
 
   export default {
     data () {
+      this.name = 'Mark Text'
+      this.versionPrefix = 'v'
+      this.copyright = `Copyright © 2017-${new Date().getFullYear()} Jocs`
       return {
-        showAboutDialog: false,
-        name: 'Mark Text',
-        versionPrefix: 'v'
+        showAboutDialog: false
       }
     },
     computed: {
