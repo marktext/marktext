@@ -1,9 +1,9 @@
-import {app} from 'electron'
+import { app } from 'electron'
 import * as actions from '../actions/file'
-import {userSetting} from '../actions/marktext'
+import { userSetting } from '../actions/marktext'
 import userPreference from '../preference'
 
-const {autoSave} = userPreference.getAll()
+const { autoSave } = userPreference.getAll()
 const notOsx = process.platform !== 'darwin'
 
 export default {
