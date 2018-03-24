@@ -116,7 +116,7 @@ Mark Text build for these platforms ![Conda](https://img.shields.io/conda/pn/con
 
 | ![]( https://github.com/ryanoasis/nerd-fonts/wiki/screenshots/v1.0.x/mac-pass-sm.png) | ![]( https://github.com/ryanoasis/nerd-fonts/wiki/screenshots/v1.0.x/windows-pass-sm.png) | ![]( https://github.com/ryanoasis/nerd-fonts/wiki/screenshots/v1.0.x/linux-pass-sm.png) |
 | :----------------------------------------------------------: | :----------------------------------------------------------: | :----------------------------------------------------------: |
-| [latest version](https://github.com/marktext/marktext/releases/download/v0.7.17/marktext-0.7.17.dmg) | [latest version](https://github.com/marktext/marktext/releases/download/v0.7.17/marktext-setup-0.7.17.exe) | [latest version](https://github.com/marktext/marktext/releases/download/v0.7.17/marktext-0.7.17-x86_64.AppImage) |
+| [latest version](https://github.com/marktext/marktext/releases/download/v0.8.12/marktext-0.8.12.dmg) | [latest version](https://github.com/marktext/marktext/releases/download/v0.8.12/marktext-setup-0.8.12.exe) | [latest version](https://github.com/marktext/marktext/releases/download/v0.8.12/marktext-0.8.12-x86_64.AppImage) |
 
 Did not found your system ? Go the the [release page](https://github.com/marktext/marktext/releases). Still not found ? Shoot an [issue](https://github.com/marktext/marktext/issues).
 
