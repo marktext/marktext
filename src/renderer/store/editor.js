@@ -11,7 +11,7 @@ const state = {
     value: ''
   },
   // user preference
-  theme: '',
+  theme: 'light',
   fontSize: '16px',
   lineHeight: 1.6,
   lightColor: '#303133', // color in light theme

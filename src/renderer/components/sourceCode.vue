@@ -9,7 +9,6 @@
 
 <script>
   import codeMirror, { setMode, setCursorAtLastLine } from '../../editor/codeMirror'
-  import ContentState from '../../editor/contentState'
   import bus from '../bus'
 
   export default {
@@ -41,7 +40,6 @@
     created () {
       this.$nextTick(() => {
         const { markdown = '', theme } = this
-        this.contentState = new ContentState()
         const container = this.$refs.sourceCode
         const codeMirrorConfig = {
           value: '',
@@ -67,9 +65,11 @@
         this.setMarkdown(markdown)
       })
     },
-    beforeDestory () {
+    beforeDestroy () {
       bus.$off('file-loaded', this.setMarkdown)
       bus.$off('dotu-select', this.handleSelectDoutu)
+      const { markdown, cursor } = this
+      bus.$emit('content-in-source-mode', { markdown, cursor, renderCursor: true })
     },
     methods: {
       handleSelectDoutu (url) {
@@ -83,10 +83,7 @@
         editor.on('cursorActivity', (cm, event) => {
           const cursor = cm.getCursor()
           const markdown = cm.getValue()
-          // get word count
-          this.contentState.importMarkdown(markdown, cursor)
-          const wordCount = this.contentState.wordCount()
-          this.$store.dispatch('SAVE_FILE', { markdown, cursor, wordCount })
+          bus.$emit('content-in-source-mode', { markdown, cursor, renderCursor: false })
         })
 
         setMode(editor, 'markdown')

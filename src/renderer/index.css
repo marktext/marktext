@@ -5,8 +5,17 @@
   overflow: hidden;
 }
 @media print {
+  html, body {
+    background: #fff !important;
+  }
   body .editor-component {
     height: auto !important;
+  }
+  body .editor-wrapper {
+    z-index: 1 !important;
+  }
+  body .source-code {
+    display: none !important;
   }
   body .editor-component #ag-editor-id,
   body [contenteditable] {

@@ -83,9 +83,12 @@
         type: Boolean,
         required: true
       },
+      theme: {
+        type: String,
+        required: true
+      },
       markdown: String,
       cursor: Object,
-      theme: String,
       lineHeight: [Number, String],
       fontSize: [Number, String],
       lightColor: String,
@@ -124,23 +127,17 @@
     created () {
       this.$nextTick(() => {
         const ele = this.$refs.editor
-        this.editor = new Aganippe(ele)
-        const { container } = this.editor
-        const { markdown, theme } = this
-        // init set markdown and edit mode(typewriter mode and focus mode)
-        if (markdown.trim()) {
-          this.setMarkdownToEditor(markdown)
-          if (this.typewriter) {
-            this.scrollToCursor()
-          }
-          this.editor.setFocusMode(this.focus)
+        const { theme, focus: focusMode, markdown, typewriter } = this
+        const { container } = this.editor = new Aganippe(ele, { theme, focusMode, markdown })
+
+        if (typewriter) {
+          this.scrollToCursor()
         }
 
-        if (theme) {
-          this.editor.setTheme(theme)
-          this.addThemeStyle(theme)
-        }
+        // the default theme is light write in the store
+        this.addThemeStyle(theme)
 
+        // listen for bus events.
         bus.$on('file-loaded', this.setMarkdownToEditor)
         bus.$on('undo', this.handleUndo)
         bus.$on('redo', this.handleRedo)
@@ -151,6 +148,7 @@
         bus.$on('replaceValue', this.handReplace)
         bus.$on('find', this.handleFind)
         bus.$on('insert-image', this.handleSelect)
+        bus.$on('content-in-source-mode', this.handleMarkdownChange)
 
         this.editor.on('change', (markdown, wordCount, cursor) => {
           this.$store.dispatch('SAVE_FILE', { markdown, wordCount, cursor })
@@ -186,30 +184,36 @@
         }
         link.href = href
       },
+
       handleUndo () {
         if (this.editor) {
           this.editor.undo()
         }
       },
+
       handleRedo () {
         if (this.editor) {
           this.editor.redo()
         }
       },
+
       handleSelect (url) {
         if (!this.sourceCode) {
           this.editor && this.editor.insertImage(url)
         }
       },
+
       handleSearch (value, opt) {
         const searchMatches = this.editor.search(value, opt)
         this.$store.dispatch('SEARCH', searchMatches)
         this.scrollToHighlight()
       },
+
       handReplace (value, opt) {
         const searchMatches = this.editor.replace(value, opt)
         this.$store.dispatch('SEARCH', searchMatches)
       },
+
       scrollToCursor () {
         this.$nextTick(() => {
           const { container } = this.editor
@@ -217,6 +221,7 @@
           animatedScrollTo(container, container.scrollTop + y - STANDAR_Y, 300)
         })
       },
+
       scrollToHighlight () {
         // Scroll to search highlight word
         const { container } = this.editor
@@ -227,11 +232,13 @@
           animatedScrollTo(container, container.scrollTop + y - STANDAR_Y, DURATION)
         }
       },
+
       handleFind (action) {
         const searchMatches = this.editor.find(action)
         this.$store.dispatch('SEARCH', searchMatches)
         this.scrollToHighlight()
       },
+
       async handleExport (type) {
         switch (type) {
           case 'styledHtml': {
@@ -252,6 +259,7 @@
           }
         }
       },
+
       handleEditParagraph (type) {
         if (type === 'table') {
           this.tableChecker = { rows: 4, columns: 3 }
@@ -263,18 +271,28 @@
           this.editor && this.editor.updateParagraph(type)
         }
       },
+
       handleInlineFormat (type) {
         this.editor && this.editor.format(type)
       },
+
       handleDialogTableConfirm () {
         this.dialogTableVisible = false
         this.editor && this.editor.createTable(this.tableChecker)
       },
+
       setMarkdownToEditor (markdown) {
         const { cursor } = this
         this.editor && this.editor.setMarkdown(markdown, cursor)
+      },
+
+      // listen for markdown change form source mode
+      handleMarkdownChange ({ markdown, cursor, renderCursor }) {
+        console.log(markdown, cursor)
+        this.editor && this.editor.setMarkdown(markdown, cursor, renderCursor)
       }
     },
+
     beforeDestroy () {
       bus.$off('file-loaded', this.setMarkdownToEditor)
       bus.$off('undo', this.handleUndo)
@@ -294,7 +312,6 @@
 </script>
 
 <style>
-  /*  @import '../../editor/themes/dark.css';*/
   @import '../../editor/index.css';
   .editor-wrapper {
     height: calc(100vh - 22px);
@@ -302,8 +319,7 @@
   .editor-wrapper.source {
     position: absolute;
     z-index: -1;
-    left: -10000px;
-    opacity: 0;
+    width: 100%;
   }
   .editor-component {
     height: 100%;

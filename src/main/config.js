@@ -26,8 +26,6 @@ export const EXTENSION_HASN = {
   pdf: '.pdf'
 }
 
-// export const DEFAULT_THEME = 'dark'
-
 export const VIEW_MENU_ITEM = {
   'Source Code Mode': false,
   'Typewriter Mode': false,

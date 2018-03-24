@@ -18,13 +18,16 @@ import './assets/symbolIcon/index.css'
 
 class Aganippe {
   constructor (container, options) {
+    const { focusMode = false, theme = 'light', markdown = '' } = options
     this.container = container
     const eventCenter = this.eventCenter = new EventCenter()
     const floatBox = this.floatBox = new FloatBox(eventCenter)
     const tablePicker = this.tablePicker = new TablePicker(eventCenter)
     this.contentState = new ContentState(eventCenter, floatBox, tablePicker)
     this.emoji = new Emoji() // emoji instance: has search(text) clear() methods.
-    this.focusMode = false
+    this.focusMode = focusMode
+    this.theme = theme
+    this.markdown = markdown
     // private property
     this._isEditChinese = false
     this.init()
@@ -64,6 +67,11 @@ class Aganippe {
     this.dispatchCopyCut()
     this.dispatchTableToolBar()
     this.dispatchCodeBlockClick()
+
+    const { theme, focusMode, markdown } = this
+    this.setTheme(theme)
+    this.setMarkdown(markdown)
+    this.setFocusMode(focusMode)
   }
 
   /**
@@ -394,7 +402,7 @@ class Aganippe {
     return this.contentState.getCodeMirrorCursor()
   }
 
-  setMarkdown (markdown, cursor) {
+  setMarkdown (markdown, cursor, renderCursor = true) {
     // if markdown is blank, dont need to import markdown
     if (!markdown.trim()) return
     let newMarkdown = markdown
@@ -403,7 +411,7 @@ class Aganippe {
     }
     this.contentState.importMarkdown(newMarkdown)
     this.contentState.importCursor(cursor)
-    this.contentState.render()
+    this.contentState.render(renderCursor)
     this.dispatchChange()
   }
 
@@ -429,11 +437,13 @@ class Aganippe {
   }
 
   setTheme (name) {
+    if (!name) return
     if (name === 'dark') {
       codeMirrorConfig.theme = 'railscasts'
     } else {
       delete codeMirrorConfig.theme
     }
+    this.theme = name
     this.contentState.render()
   }
 

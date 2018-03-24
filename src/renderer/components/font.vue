@@ -67,6 +67,9 @@
         bus.$on('font-setting', this.handleFontSetting)
       })
     },
+    beforeDestroy () {
+      bus.$off('font-setting', this.handleFontSetting)
+    },
     methods: {
       handleFontSetting () {
         this.showFontSetting = true

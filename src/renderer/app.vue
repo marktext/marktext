@@ -15,7 +15,6 @@
       :source-code="sourceCode"
       :markdown="markdown"
       :cursor="cursor"
-      v-if="!sourceCode"
       :theme="theme"
       :dark-color="darkColor"
       :light-color="lightColor"
@@ -23,7 +22,7 @@
       :font-size="fontSize"
     ></editor>
     <source-code
-      v-else
+      v-if="sourceCode"
       :markdown="markdown"
       :cursor="cursor"
       :theme="theme"

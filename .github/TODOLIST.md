@@ -16,7 +16,7 @@
 
 - [ ] Left click menu.
 
-- [ ] Rename and moveTo in **File Menu**
+- [x] Rename and moveTo in **File Menu**
 
 - [x] Preference in **Mark Text** Menu
 
