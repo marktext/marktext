@@ -134,6 +134,44 @@ ipcMain.on('AGANI::window::drop', (e, fileList) => {
   }
 })
 
+ipcMain.on('AGANI::response-file-move-to', (e, { pathname }) => {
+  const win = BrowserWindow.fromWebContents(e.sender)
+  if (pathname !== '') {
+    let newPath = dialog.showSaveDialog(win, {
+      buttonLabel: 'Move or rename',
+      nameFieldLabel: 'Filename:',
+      defaultPath: pathname || '~/Untitled.md'
+    })
+    if (newPath === undefined) return
+    if (!fs.existsSync(newPath)) {
+      fs.renameSync(pathname, newPath)
+      e.sender.send('AGANI::set-pathname', {pathname: newPath, filename: path.basename(newPath)})
+    } else {
+      dialog.showMessageBox({
+        type: 'warning',
+        buttons: ['Replace', 'Cancel'],
+        defaultId: 1,
+        message: `The file ${pathname} already exists. Do you want to replace it?`,
+        cancelId: 1,
+        noLink: true
+      }, index => {
+        if (index === 0) {
+          fs.renameSync(pathname, newPath)
+          e.sender.send('AGANI::set-pathname', {pathname: newPath, filename: path.basename(newPath)})
+        }
+      })
+    }
+  } else {
+    dialog.showMessageBox({
+      type: 'info',
+      buttons: ['OK'],
+      message: `Please save the file before moving it!`,
+      cancelId: 0,
+      noLink: true
+    })
+  }
+})
+
 export const exportFile = (win, type) => {
   win.webContents.send('AGANI::export', { type })
 }
@@ -177,4 +215,8 @@ export const autoSave = (menuItem, browserWindow) => {
       }
     })
     .catch(log)
+}
+
+export const moveTo = win => {
+  win.webContents.send('AGANI::ask-file-move-to')
 }
