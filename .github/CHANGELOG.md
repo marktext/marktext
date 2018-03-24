@@ -1,4 +1,4 @@
-### 0.8.8
+### 0.8.12
 
 **:cactus:Feature**
 
@@ -6,6 +6,8 @@
 - Add `autoSave` to `file menu`, the default value is in `preferences.md` which you can open in `Mark Text menu`. #45
 - Add drag and drop to open Markdown file with Mark Text @fxha
 - User setting: fontSize, lineHeight, color in realtime mode.
+- Move your file to other folder @DXXL
+- Rename filename
 
 **:butterfly:Optimization**
 

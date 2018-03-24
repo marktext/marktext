@@ -138,8 +138,32 @@ const actions = {
   LISTEN_FOR_MOVE_TO ({ commit, state }) {
     ipcRenderer.on('AGANI::ask-file-move-to', () => {
       const { pathname, markdown } = state
-      ipcRenderer.send('AGANI::response-file-move-to', { pathname, markdown })
+      if (!pathname) {
+        ipcRenderer.send('AGANI::response-file-save', { pathname, markdown })
+      } else {
+        ipcRenderer.send('AGANI::response-file-move-to', { pathname })
+      }
     })
+  },
+
+  LISTEN_FOR_RENAME ({ commit, state }) {
+    ipcRenderer.on('AGANI::ask-file-rename', () => {
+      const { pathname, markdown } = state
+      if (!pathname) {
+        ipcRenderer.send('AGANI::response-file-save', { pathname, markdown })
+      } else {
+        bus.$emit('rename')
+      }
+    })
+  },
+
+  RENAME ({ commit, state }, newFilename) {
+    const { pathname, filename } = state
+    if (filename !== newFilename) {
+      const newPathname = path.join(path.dirname(pathname), newFilename)
+      console.log(pathname, newPathname)
+      ipcRenderer.send('AGANI::rename', { pathname, newPathname })
+    }
   },
 
   GET_FILENAME ({ commit, state }) {

@@ -6,7 +6,7 @@ import path from 'path'
 import { app, BrowserWindow, dialog, ipcMain } from 'electron'
 import createWindow, { windows } from '../createWindow'
 import { EXTENSION_HASN, EXTENSIONS } from '../config'
-import { getPath, isMarkdownFile, log } from '../utils'
+import { getPath, isMarkdownFile, log, isFile } from '../utils'
 import userPreference from '../preference'
 
 const watchAndReload = (pathname, win) => { // when i build, and failed.
@@ -134,20 +134,47 @@ ipcMain.on('AGANI::window::drop', (e, fileList) => {
   }
 })
 
-ipcMain.on('AGANI::response-file-move-to', (e, { pathname, markdown }) => {
+ipcMain.on('AGANI::rename', (e, {
+  pathname,
+  newPathname
+}) => {
   const win = BrowserWindow.fromWebContents(e.sender)
-  if (pathname !== '') {
-    let newPath = dialog.showSaveDialog(win, {
-      buttonLabel: 'Move to',
-      nameFieldLabel: 'Filename:',
-      defaultPath: pathname
+  if (!isFile(newPathname)) {
+    fs.renameSync(pathname, newPathname)
+    e.sender.send('AGANI::set-pathname', {
+      pathname: newPathname,
+      filename: path.basename(newPathname)
     })
-    if (newPath === undefined) return
-    fs.renameSync(pathname, newPath)
-    e.sender.send('AGANI::set-pathname', { pathname: newPath, filename: path.basename(newPath) })
   } else {
-    handleResponseForSave(e, { pathname, markdown })
+    dialog.showMessageBox(win, {
+      type: 'warning',
+      buttons: ['Replace', 'Cancel'],
+      defaultId: 1,
+      message: `The file ${path.basename(newPathname)} is already exists. Do you want to replace it?`,
+      cancelId: 1,
+      noLink: true
+    }, index => {
+      if (index === 0) {
+        fs.renameSync(pathname, newPathname)
+        e.sender.send('AGANI::set-pathname', {
+          pathname: newPathname,
+          filename: path.basename(newPathname)
+        })
+      }
+    })
   }
+})
+
+ipcMain.on('AGANI::response-file-move-to', (e, { pathname }) => {
+  const win = BrowserWindow.fromWebContents(e.sender)
+  let newPath = dialog.showSaveDialog(win, {
+    buttonLabel: 'Move to',
+    nameFieldLabel: 'Filename:',
+    defaultPath: pathname
+  })
+  if (newPath === undefined) return
+  fs.renameSync(pathname, newPath)
+  e.sender.send('AGANI::set-pathname', { pathname: newPath, filename: path.basename(newPath) })
 })
 
 export const exportFile = (win, type) => {
@@ -197,4 +224,8 @@ export const autoSave = (menuItem, browserWindow) => {
 
 export const moveTo = win => {
   win.webContents.send('AGANI::ask-file-move-to')
+}
+
+export const rename = win => {
+  win.webContents.send('AGANI::ask-file-rename')
 }

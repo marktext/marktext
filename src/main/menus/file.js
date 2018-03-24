@@ -56,6 +56,11 @@ export default {
       actions.moveTo(browserWindow)
     }
   }, {
+    label: 'Rename...',
+    click (menuItem, browserWindow) {
+      actions.rename(browserWindow)
+    }
+  }, {
     type: 'separator'
   }, {
     label: 'Export Styled HTML',

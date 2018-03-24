@@ -36,6 +36,7 @@
     <upload-image></upload-image>
     <about-dialog></about-dialog>
     <font></font>
+    <rename></rename>
   </div>
 </template>
 
@@ -48,6 +49,7 @@
   import UploadImage from '@/components/uploadImage'
   import AboutDialog from '@/components/about'
   import Font from '@/components/font'
+  import Rename from '@/components/rename'
   import { mapState } from 'vuex'
 
   export default {
@@ -60,7 +62,8 @@
       SourceCode,
       UploadImage,
       AboutDialog,
-      Font
+      Font,
+      Rename
     },
     data () {
       return {}
@@ -92,6 +95,7 @@
       dispatch('LISTEN_FOR_UPDATE')
       dispatch('LISTEN_FOR_INSERT_IMAGE')
       dispatch('LISTEN_FOR_ABOUT_DIALOG')
+      dispatch('LISTEN_FOR_RENAME')
     }
   }
 </script>
