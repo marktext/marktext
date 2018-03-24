@@ -134,41 +134,19 @@ ipcMain.on('AGANI::window::drop', (e, fileList) => {
   }
 })
 
-ipcMain.on('AGANI::response-file-move-to', (e, { pathname }) => {
+ipcMain.on('AGANI::response-file-move-to', (e, { pathname, markdown }) => {
   const win = BrowserWindow.fromWebContents(e.sender)
   if (pathname !== '') {
     let newPath = dialog.showSaveDialog(win, {
-      buttonLabel: 'Move or rename',
+      buttonLabel: 'Move to',
       nameFieldLabel: 'Filename:',
       defaultPath: pathname
     })
     if (newPath === undefined) return
-    if (!fs.existsSync(newPath)) {
-      fs.renameSync(pathname, newPath)
-      e.sender.send('AGANI::set-pathname', { pathname: newPath, filename: path.basename(newPath) })
-    } else {
-      dialog.showMessageBox(win, {
-        type: 'warning',
-        buttons: ['Replace', 'Cancel'],
-        defaultId: 1,
-        message: `The file ${pathname} already exists. Do you want to replace it?`,
-        cancelId: 1,
-        noLink: true
-      }, index => {
-        if (index === 0) {
-          fs.renameSync(pathname, newPath)
-          e.sender.send('AGANI::set-pathname', { pathname: newPath, filename: path.basename(newPath) })
-        }
-      })
-    }
+    fs.renameSync(pathname, newPath)
+    e.sender.send('AGANI::set-pathname', { pathname: newPath, filename: path.basename(newPath) })
   } else {
-    dialog.showMessageBox(win, {
-      type: 'info',
-      buttons: ['OK'],
-      message: `Please save the file before moving it!`,
-      cancelId: 0,
-      noLink: true
-    })
+    handleResponseForSave(e, { pathname, markdown })
   }
 })
 

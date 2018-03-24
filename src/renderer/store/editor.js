@@ -137,8 +137,8 @@ const actions = {
 
   LISTEN_FOR_MOVE_TO ({ commit, state }) {
     ipcRenderer.on('AGANI::ask-file-move-to', () => {
-      const { pathname } = state
-      ipcRenderer.send('AGANI::response-file-move-to', { pathname })
+      const { pathname, markdown } = state
+      ipcRenderer.send('AGANI::response-file-move-to', { pathname, markdown })
     })
   },
 

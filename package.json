@@ -37,7 +37,8 @@
         "mdown",
         "mdtxt",
         "mdtext"
-      ]
+      ],
+      "role": "Editor"
     },
     "files": [
       "dist/electron/**/*"
