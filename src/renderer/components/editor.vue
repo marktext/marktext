@@ -8,12 +8,12 @@
       ref="editor"
       class="editor-component"
     ></div>
-    <el-dialog 
+    <el-dialog
       :visible.sync="dialogTableVisible"
       :show-close="isShowClose"
       :modal="true"
       custom-class="ag-dialog-table"
-      width="450px"
+      width="454px"
       center
     >
       <div slot="title" class="dialog-title">
