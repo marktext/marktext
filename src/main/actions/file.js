@@ -3,10 +3,10 @@
 import fs from 'fs'
 // import chokidar from 'chokidar'
 import path from 'path'
-import { app, dialog, ipcMain, BrowserWindow } from 'electron'
+import { app, BrowserWindow, dialog, ipcMain } from 'electron'
 import createWindow, { windows } from '../createWindow'
-import { EXTENSIONS, EXTENSION_HASN } from '../config'
-import { getPath, log, isMarkdownFile } from '../utils'
+import { EXTENSION_HASN, EXTENSIONS } from '../config'
+import { getPath, isMarkdownFile, log } from '../utils'
 import userPreference from '../preference'
 
 const watchAndReload = (pathname, win) => { // when i build, and failed.
@@ -134,6 +134,44 @@ ipcMain.on('AGANI::window::drop', (e, fileList) => {
   }
 })
 
+ipcMain.on('AGANI::response-file-move-to', (e, { pathname }) => {
+  const win = BrowserWindow.fromWebContents(e.sender)
+  if (pathname !== '') {
+    let newPath = dialog.showSaveDialog(win, {
+      buttonLabel: 'Move or rename',
+      nameFieldLabel: 'Filename:',
+      defaultPath: pathname
+    })
+    if (newPath === undefined) return
+    if (!fs.existsSync(newPath)) {
+      fs.renameSync(pathname, newPath)
+      e.sender.send('AGANI::set-pathname', { pathname: newPath, filename: path.basename(newPath) })
+    } else {
+      dialog.showMessageBox(win, {
+        type: 'warning',
+        buttons: ['Replace', 'Cancel'],
+        defaultId: 1,
+        message: `The file ${pathname} already exists. Do you want to replace it?`,
+        cancelId: 1,
+        noLink: true
+      }, index => {
+        if (index === 0) {
+          fs.renameSync(pathname, newPath)
+          e.sender.send('AGANI::set-pathname', { pathname: newPath, filename: path.basename(newPath) })
+        }
+      })
+    }
+  } else {
+    dialog.showMessageBox(win, {
+      type: 'info',
+      buttons: ['OK'],
+      message: `Please save the file before moving it!`,
+      cancelId: 0,
+      noLink: true
+    })
+  }
+})
+
 export const exportFile = (win, type) => {
   win.webContents.send('AGANI::export', { type })
 }
@@ -144,7 +182,7 @@ export const print = win => {
 
 export const open = win => {
   const filename = dialog.showOpenDialog(win, {
-    properties: [ 'openFile' ],
+    properties: ['openFile'],
     filters: [{
       name: 'text',
       extensions: EXTENSIONS
@@ -177,4 +215,8 @@ export const autoSave = (menuItem, browserWindow) => {
       }
     })
     .catch(log)
+}
+
+export const moveTo = win => {
+  win.webContents.send('AGANI::ask-file-move-to')
 }

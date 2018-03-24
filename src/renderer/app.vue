@@ -79,6 +79,7 @@
       dispatch('ASK_FOR_MODE')
       dispatch('LISTEN_FOR_CLOSE')
       dispatch('LISTEN_FOR_SAVE_AS')
+      dispatch('LISTEN_FOR_MOVE_TO')
       dispatch('LINTEN_WIN_STATUS')
       dispatch('LISTEN_FOR_SAVE')
       dispatch('GET_FILENAME')

@@ -51,6 +51,13 @@ export default {
   }, {
     type: 'separator'
   }, {
+    label: 'Move To...',
+    click (menuItem, browserWindow) {
+      actions.moveTo(browserWindow)
+    }
+  }, {
+    type: 'separator'
+  }, {
     label: 'Export Styled HTML',
     click (menuItem, browserWindow) {
       actions.exportFile(browserWindow, 'styledHtml')

@@ -135,6 +135,13 @@ const actions = {
     })
   },
 
+  LISTEN_FOR_MOVE_TO ({ commit, state }) {
+    ipcRenderer.on('AGANI::ask-file-move-to', () => {
+      const { pathname } = state
+      ipcRenderer.send('AGANI::response-file-move-to', { pathname })
+    })
+  },
+
   GET_FILENAME ({ commit, state }) {
     ipcRenderer.on('AGANI::set-pathname', (e, { pathname, filename }) => {
       commit('SET_FILENAME', filename)
