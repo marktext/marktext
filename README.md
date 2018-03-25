@@ -126,7 +126,7 @@ If you use OS X system, you can install Mark Text by [**homebrew cask**](https:/
 
 > brew cask install mark-text
 
-![](https://github.com/marktext/marktext/blob/master/doc/brew-cask.jpg)
+![](https://github.com/marktext/marktext/blob/master/doc/brew-cask.gif)
 
 ### Development
 
