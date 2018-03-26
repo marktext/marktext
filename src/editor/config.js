@@ -83,7 +83,10 @@ export const CLASS_OR_ID = genUpper2LowerKeyHash([
   'AG_CHECKBOX_CHECKED',
   'AG_TABLE_TOOL_BAR',
   'AG_SELECTION',
-  'AG_HIGHLIGHT'
+  'AG_HIGHLIGHT',
+  'AG_MATH',
+  'AG_MATH_RENDER',
+  'AG_MATH_ERROR'
 ])
 
 export const codeMirrorConfig = {

@@ -16,6 +16,7 @@ import paragraphCtrl from './paragraphCtrl'
 import tabCtrl from './tabCtrl'
 import formatCtrl from './formatCtrl'
 import searchCtrl from './searchCtrl'
+import mathCtrl from './mathCtrl'
 import importMarkdown from '../utils/importMarkdown'
 
 const prototypes = [
@@ -33,6 +34,7 @@ const prototypes = [
   paragraphCtrl,
   formatCtrl,
   searchCtrl,
+  mathCtrl,
   importMarkdown
 ]
 
@@ -60,6 +62,7 @@ class ContentState {
     this.blocks = [ this.createBlock() ]
     this.stateRender = new StateRender()
     this.codeBlocks = new Map()
+    this.loadMathMap = new Map()
     this.history = new History(this)
     this.init()
   }
@@ -102,6 +105,7 @@ class ContentState {
     this.stateRender.render(blocks, cursor, activeBlocks, matches)
     if (isRenderCursor) this.setCursor()
     this.pre2CodeMirror(isRenderCursor)
+    this.renderMath()
   }
 
   createBlock (type = 'p', text = '') {

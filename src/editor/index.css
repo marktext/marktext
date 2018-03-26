@@ -46,6 +46,70 @@ h6.ag-active::before {
   color: #303133;
 }
 
+span.ag-math {
+  position: relative;
+  color: purple;
+  letter-spacing: 0.1em;
+  display: inline-block;
+  vertical-align: bottom;
+}
+
+.ag-math > .ag-math-render {
+  display: inline-block;
+  background: rgb(79, 79, 79);
+  padding: .3em 1em;
+  border-radius: 5px;
+  color: #fff;
+  position: absolute;
+  top: 30px;
+  left: 0;
+  z-index: 10;
+}
+
+.ag-math > .ag-math-error {
+  color: rgba(242, 134, 94, .7);
+}
+
+.ag-math > .ag-math-render::before {
+  content: '';
+  width: 10px;
+  height: 10px;
+  display: inline-block;
+  position: absolute;
+  transform: rotate(45deg) translateX(-50%);
+  background: rgb(79, 79, 79);
+  left: 10px;
+  top: -1px;
+}
+
+.ag-math > .ag-math-render .katex-display {
+  margin: 0;
+}
+
+.ag-hide.ag-math {
+  width: auto;
+  height: auto;
+}
+
+.ag-hide.ag-math > span:first-child {
+  display: inline-block;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+}
+
+.ag-hide.ag-math > .ag-math-render {
+  top: 0;
+  position: relative;
+  padding: 0;
+  color: #000;
+  background: transparent;
+}
+
+.ag-hide.ag-math > .ag-math-render::before {
+  content: none;
+}
+
 figure {
   padding: 0;
   margin: 0;

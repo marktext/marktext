@@ -7,7 +7,7 @@ import { search } from './codeMirror'
 import { checkEditLanguage } from './codeMirror/language'
 import Emoji, { checkEditEmoji, setInlineEmoji } from './emojis'
 import FloatBox from './floatBox'
-import { findNearestParagraph, operateClassName } from './utils/domManipulate'
+import { findNearestParagraph, operateClassName, isInMathRender } from './utils/domManipulate'
 import ExportMarkdown from './utils/exportMarkdown'
 import ExportStyledHTML from './utils/exportStyledHTML'
 import exportHtml from './utils/exportUnstylishHtml'
@@ -351,17 +351,25 @@ class Aganippe {
 
   imageClick () {
     const { container, eventCenter } = this
+    const selectionText = node => {
+      const textLen = node.textContent.length
+      operateClassName(node, 'remove', CLASS_OR_ID['AG_HIDE'])
+      operateClassName(node, 'add', CLASS_OR_ID['AG_GRAY'])
+      selection.importSelection({
+        start: textLen,
+        end: textLen
+      }, node)
+    }
+
     const handler = event => {
       const target = event.target
       const markedImageText = target.previousElementSibling
+      const mathRender = isInMathRender(target)
+      const mathText = mathRender && mathRender.previousElementSibling
       if (markedImageText && markedImageText.classList.contains(CLASS_OR_ID['AG_IMAGE_MARKED_TEXT'])) {
-        const textLen = markedImageText.textContent.length
-        operateClassName(markedImageText, 'remove', CLASS_OR_ID['AG_HIDE'])
-        operateClassName(markedImageText, 'add', CLASS_OR_ID['AG_GRAY'])
-        selection.importSelection({
-          start: textLen,
-          end: textLen
-        }, markedImageText)
+        selectionText(markedImageText)
+      } else if (mathText) {
+        selectionText(mathText)
       }
     }
 

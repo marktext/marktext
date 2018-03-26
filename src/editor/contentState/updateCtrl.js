@@ -1,6 +1,8 @@
 import selection from '../selection'
 import { tokenizer } from '../parser/parse'
 import { conflict } from '../utils'
+import { getTextContent } from '../utils/domManipulate'
+import { CLASS_OR_ID } from '../config'
 
 const INLINE_UPDATE_REG = /^([*+-]\s)|^(\[[x\s]{1}\]\s)|^(\d+\.\s)|^(#{1,6})[^#]+|^(>).+|^(\*{3,}|-{3,}|_{3,})/i
 
@@ -272,7 +274,7 @@ const updateCtrl = ContentState => {
     const key = start.key
     const oldKey = oldStart.key
     const paragraph = document.querySelector(`#${key}`)
-    const text = paragraph.textContent
+    const text = getTextContent(paragraph, [ CLASS_OR_ID['AG_MATH_RENDER'] ])
     const block = this.getBlock(key)
 
     let needRender = false

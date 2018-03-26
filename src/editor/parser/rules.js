@@ -2,7 +2,8 @@
 export const beginRules = {
   'hr': /^(\*{3,}$|^\-{3,}$|^\_{3,}$)/,
   'code_fense': /^(`{3,})([^`]*)$/,
-  'header': /(^#{1,6})/
+  'header': /(^#{1,6})/,
+  'display_math': /^(\$\$)([^\$]*?[^\$\\])(\\*)\1$/
 }
 
 export const inlineRules = {
@@ -14,6 +15,7 @@ export const inlineRules = {
   'link': /^(\[)((?:\[[^\]]*\]|[^\[\]]|\](?=[^\[]*\]))*?)(\\*)\]\((.*?)(\\*)\)/, // can nest
   'emoji': /^(:)([^:\\]+?)\1/,
   'del': /^(~{2})(?=\S)([\s\S]*?\S)(\\*)\1/, // can nest
-  'auto_link': /^(https?:\/\/[^\s]+)(?=\s|$)/
+  'auto_link': /^(https?:\/\/[^\s]+)(?=\s|$)/,
+  'inline_math': /^(\$)([^\$]*?[^\$\\])(\\*)\1(?!\1)/
 }
 /* eslint-enable no-useless-escape */
