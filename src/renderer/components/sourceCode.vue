@@ -9,6 +9,7 @@
 
 <script>
   import codeMirror, { setMode, setCursorAtLastLine } from '../../editor/codeMirror'
+  import { adjustCursor } from '../util'
   import bus from '../bus'
 
   export default {
@@ -81,8 +82,12 @@
       listenChange () {
         const { editor } = this
         editor.on('cursorActivity', (cm, event) => {
-          const cursor = cm.getCursor()
+          let cursor = cm.getCursor()
           const markdown = cm.getValue()
+          const line = cm.getLine(cursor.line)
+          const preLine = cm.getLine(cursor.line - 1)
+          const nextLine = cm.getLine(cursor.line + 1)
+          cursor = adjustCursor(cursor, preLine, line, nextLine)
           bus.$emit('content-in-source-mode', { markdown, cursor, renderCursor: false })
         })
 

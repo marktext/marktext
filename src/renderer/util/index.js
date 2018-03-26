@@ -96,6 +96,38 @@ export const dotuHistory = {
   }
 }
 
+export const adjustCursor = (cursor, preline, line, nextline) => {
+  const newCursor = Object.assign({}, { line: cursor.line, ch: cursor.ch })
+  // It's need to adjust the cursor when cursor is at begin or end in table row.
+  if (/^\|[^|]+\|.+\|$/.test(line)) {
+    if (/^\|\s*:?-+:?\s*\|[:-\s|]+\|$/.test(line)) { // cursor in `| --- | :---: |` :the second line of table
+      newCursor.line += 1 // reset the cursor to the next line
+      newCursor.ch = 1
+    } else { // cursor is not at the second line to table
+      if (cursor.ch === 0) newCursor.ch = 1
+      if (cursor.ch === line.length) newCursor.ch = line.length - 1
+    }
+  }
+
+  // Need to adjust the cursor when cursor in the first or last line of code block.
+  if (/```[\S]*/.test(line)) {
+    if (typeof nextline === 'string' && /\S/.test(nextline)) {
+      newCursor.line += 1
+      newCursor.ch = 0
+    } else if (typeof preline === 'string' && /\S/.test(preline)) {
+      newCursor.line -= 1
+      newCursor.ch = preline.length
+    }
+  }
+
+  // Nedd to adjust the cursor when cursor at the begin of the list
+  if (/[*+-]\s.+/.test(line) && newCursor.ch <= 1) {
+    newCursor.ch = 2
+  }
+
+  return newCursor
+}
+
 export const animatedScrollTo = function (element, to, duration, callback) {
   let start = element.scrollTop
   let change = to - start

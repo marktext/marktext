@@ -288,7 +288,6 @@
 
       // listen for markdown change form source mode
       handleMarkdownChange ({ markdown, cursor, renderCursor }) {
-        console.log(markdown, cursor)
         this.editor && this.editor.setMarkdown(markdown, cursor, renderCursor)
       }
     },
