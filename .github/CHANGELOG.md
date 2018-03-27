@@ -1,3 +1,19 @@
+### 0.9.18
+
+**:cactus:Feature**
+
+**:butterfly:Optimization**
+
+- adjust lineHeight and fontSize in typewriter mode
+- optimization of output unstylish html @fxha
+
+**:beetle:Bug fix**
+
+- fix: #81
+- fix: #55
+- fix: #63
+
+
 ### 0.8.12
 
 **:cactus:Feature**
