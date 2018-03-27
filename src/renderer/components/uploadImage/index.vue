@@ -68,6 +68,7 @@
       },
       handleUpload () {
         this.showUpload = true
+        bus.$emit('editor-blur')
       },
       handleResponse (res) {
         console.log(res)

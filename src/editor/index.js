@@ -28,6 +28,8 @@ class Aganippe {
     this.focusMode = focusMode
     this.theme = theme
     this.markdown = markdown
+    this.fontSize = 16
+    this.lineHeight = 1.6
     // private property
     this._isEditChinese = false
     this.init()
@@ -334,7 +336,7 @@ class Aganippe {
         this.contentState.updateState(event)
       }
       if (event.type === 'click' || event.type === 'keyup') {
-        const selectionChanges = this.contentState.selectionChange()
+        const selectionChanges = this.getSelection()
         const { formats } = this.contentState.selectionFormats()
         eventCenter.dispatch('selectionChange', selectionChanges)
         eventCenter.dispatch('selectionFormats', formats)
@@ -418,12 +420,13 @@ class Aganippe {
   createTable (tableChecker) {
     const { eventCenter } = this
     this.contentState.createFigure(tableChecker)
-    const selectionChanges = this.contentState.selectionChange()
+    const selectionChanges = this.getSelection()
     eventCenter.dispatch('selectionChange', selectionChanges)
   }
 
   getSelection () {
-    return this.contentState.selectionChange()
+    const { fontSize, lineHeight } = this
+    return this.contentState.selectionChange(fontSize, lineHeight)
   }
 
   setFocusMode (bool) {
@@ -447,8 +450,17 @@ class Aganippe {
     this.contentState.render()
   }
 
+  setFont ({ fontSize, lineHeight }) {
+    if (fontSize) this.fontSize = parseInt(fontSize, 10)
+    if (lineHeight) this.lineHeight = lineHeight
+  }
+
   updateParagraph (type) {
     this.contentState.updateParagraph(type)
+  }
+
+  blur () {
+    this.container.blur()
   }
 
   format (type) {

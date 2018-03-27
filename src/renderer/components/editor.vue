@@ -122,6 +122,18 @@
           editor.setTheme(value)
           this.addThemeStyle(value)
         }
+      },
+      fontSize: function (value, oldValue) {
+        const { editor } = this
+        if (value !== oldValue && editor) {
+          editor.setFont({ fontSize: value })
+        }
+      },
+      lineHeight: function (value, oldValue) {
+        const { editor } = this
+        if (value !== oldValue && editor) {
+          editor.setFont({ lineHeight: value })
+        }
       }
     },
     created () {
@@ -149,6 +161,7 @@
         bus.$on('find', this.handleFind)
         bus.$on('insert-image', this.handleSelect)
         bus.$on('content-in-source-mode', this.handleMarkdownChange)
+        bus.$on('editor-blur', this.blurEditor)
 
         this.editor.on('change', (markdown, wordCount, cursor) => {
           this.$store.dispatch('SAVE_FILE', { markdown, wordCount, cursor })
@@ -289,6 +302,10 @@
       // listen for markdown change form source mode
       handleMarkdownChange ({ markdown, cursor, renderCursor }) {
         this.editor && this.editor.setMarkdown(markdown, cursor, renderCursor)
+      },
+
+      blurEditor () {
+        this.editor.blur()
       }
     },
 
@@ -303,6 +320,7 @@
       bus.$off('replaceValue', this.handReplace)
       bus.$off('find', this.handleFind)
       bus.$off('dotu-select', this.handleSelect)
+      bus.$off('editor-blur', this.blurEditor)
 
       this.editor.destroy()
       this.editor = null
@@ -313,6 +331,7 @@
 <style>
   @import '../../editor/index.css';
   .editor-wrapper {
+    position: relative;
     height: calc(100vh - 22px);
   }
   .editor-wrapper.source {

@@ -51,6 +51,7 @@
     methods: {
       showDialog () {
         this.showAboutDialog = true
+        bus.$emit('editor-blur')
       }
     }
   }

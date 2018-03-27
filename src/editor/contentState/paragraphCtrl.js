@@ -14,7 +14,7 @@ const getCurrentLevel = type => {
 }
 
 const paragraphCtrl = ContentState => {
-  ContentState.prototype.selectionChange = function () {
+  ContentState.prototype.selectionChange = function (fontSize = 16, lineHeight = 1.6) {
     const { start, end } = selection.getCursorRange()
     const cursorCoords = selection.getCursorCoords()
     const startBlock = this.getBlock(start.key)
@@ -34,10 +34,7 @@ const paragraphCtrl = ContentState => {
       const preElement = document.querySelector(`#${start.key}`)
       const { top } = preElement.getBoundingClientRect()
       const { line } = start.block.pos
-      const FONT_SIZE = 16 // TODO: in the future font size be be set in perference.
-      const STYLE_LINE_HEIGHT = 1.6 // in stylesheet
-      const LINE_HEIGHT = STYLE_LINE_HEIGHT * FONT_SIZE
-      cursorCoords.y = top + line * LINE_HEIGHT
+      cursorCoords.y = top + line * lineHeight * fontSize
     }
 
     return {
