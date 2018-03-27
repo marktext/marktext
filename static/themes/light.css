@@ -221,6 +221,11 @@ li p.first {
   display: inline-block;
 }
 
+li.ag-tight-list-item > p {
+  padding: 0;
+  margin: 0;
+}
+
 ul,
 ol {
   padding-left: 30px;

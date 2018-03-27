@@ -4,6 +4,8 @@ class ExportMarkdown {
   constructor (blocks) {
     this.blocks = blocks
     this.listType = [] // 'ul' or 'ol'
+    // helper to translate the first tight item in a nested list
+    this.isLooseParentList = true
   }
 
   generate () {
@@ -20,7 +22,7 @@ class ExportMarkdown {
       switch (block.type) {
         case 'p':
         case 'hr':
-          this.insertLineBreak(result, indent)
+          this.insertLineBreak(result, indent, true)
           result.push(this.normalizeParagraphText(block, indent))
           break
 
@@ -30,43 +32,58 @@ class ExportMarkdown {
         case 'h4':
         case 'h5':
         case 'h6':
-          this.insertLineBreak(result, indent)
+          this.insertLineBreak(result, indent, true)
           result.push(this.normalizeHeaderText(block, indent))
           break
 
         case 'figure':
-          this.insertLineBreak(result, indent)
+          this.insertLineBreak(result, indent, true)
           const table = block.children[1]
           result.push(this.normalizeTable(table, indent))
           break
 
-        case 'li':
-          this.insertLineBreak(result, indent)
-          result.push(this.normalizeListItem(block, indent))
-          break
+        case 'li': {
+          const insertNewLine = block.isLooseListItem
 
-        case 'ul':
-          this.insertLineBreak(result, indent)
+          // helper variable to correct the first tight item in a nested list
+          this.isLooseParentList = insertNewLine
+
+          this.insertLineBreak(result, indent, insertNewLine)
+          result.push(this.normalizeListItem(block, indent))
+          this.isLooseParentList = true
+          break
+        }
+
+        case 'ul': {
+          const insertNewLine = this.isLooseParentList
+          this.isLooseParentList = true
+
+          this.insertLineBreak(result, indent, insertNewLine)
           this.listType.push({ type: 'ul' })
           result.push(this.normalizeList(block, indent))
           this.listType.pop()
           break
+        }
 
-        case 'ol':
-          this.insertLineBreak(result, indent)
+        case 'ol': {
+          const insertNewLine = this.isLooseParentList
+          this.isLooseParentList = true
+
+          this.insertLineBreak(result, indent, insertNewLine)
           const listCount = block.start !== undefined ? block.start : 1
           this.listType.push({ type: 'ol', listCount })
           result.push(this.normalizeList(block, indent))
           this.listType.pop()
           break
+        }
 
         case 'pre':
-          this.insertLineBreak(result, indent)
+          this.insertLineBreak(result, indent, true)
           result.push(this.normalizeCodeBlock(block, indent))
           break
 
         case 'blockquote':
-          this.insertLineBreak(result, indent)
+          this.insertLineBreak(result, indent, true)
           result.push(this.normalizeBlockquote(block, indent))
           break
         default:
@@ -77,12 +94,13 @@ class ExportMarkdown {
     return result.join('')
   }
 
-  insertLineBreak (result, indent) {
+  insertLineBreak (result, indent, insertNewLine) {
+    const newLine = insertNewLine ? '\n' : ''
     if (result.length > 0) {
       if (/\S/.test(indent)) {
-        result.push(`${indent}\n`)
-      } else {
-        result.push('\n')
+        result.push(`${indent}${newLine}`)
+      } else if (insertNewLine) {
+        result.push(newLine)
       }
     }
   }

@@ -19,7 +19,7 @@ import './assets/symbolIcon/index.css'
 
 class Aganippe {
   constructor (container, options) {
-    const { focusMode = false, theme = 'light', markdown = '' } = options
+    const { focusMode = false, theme = 'light', markdown = '', preferLooseListItem = true } = options
     this.container = container
     const eventCenter = this.eventCenter = new EventCenter()
     const floatBox = this.floatBox = new FloatBox(eventCenter)
@@ -31,6 +31,7 @@ class Aganippe {
     this.markdown = markdown
     this.fontSize = 16
     this.lineHeight = 1.6
+    this.preferLooseListItem = preferLooseListItem
     // private property
     this._isEditChinese = false
     this.init()
@@ -342,7 +343,7 @@ class Aganippe {
       // const style = getComputedStyle(target)
       // if (event.type === 'click' && !style.contenteditable) return
       if (!this._isEditChinese) {
-        this.contentState.updateState(event)
+        this.contentState.updateState(event, this.preferLooseListItem)
       }
       if (event.type === 'click' || event.type === 'keyup') {
         const selectionChanges = this.getSelection()

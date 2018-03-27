@@ -59,6 +59,7 @@
 </template>
 
 <script>
+  import { mapState } from 'vuex'
   import Aganippe from '../../editor'
   import bus from '../bus'
   import { animatedScrollTo } from '../util'
@@ -93,6 +94,11 @@
       fontSize: [Number, String],
       lightColor: String,
       darkColor: String
+    },
+    computed: {
+      ...mapState([
+        'preferLooseListItem'
+      ])
     },
     data () {
       return {
@@ -139,8 +145,9 @@
     created () {
       this.$nextTick(() => {
         const ele = this.$refs.editor
-        const { theme, focus: focusMode, markdown, typewriter } = this
-        const { container } = this.editor = new Aganippe(ele, { theme, focusMode, markdown })
+        const { theme, focus: focusMode, markdown, preferLooseListItem, typewriter } = this
+
+        const { container } = this.editor = new Aganippe(ele, { theme, focusMode, markdown, preferLooseListItem })
 
         if (typewriter) {
           this.scrollToCursor()
@@ -162,6 +169,7 @@
         bus.$on('insert-image', this.handleSelect)
         bus.$on('content-in-source-mode', this.handleMarkdownChange)
         bus.$on('editor-blur', this.blurEditor)
+        bus.$on('update-prefer-loose-list-item', this.handlePreferLooseListItemChange)
         bus.$on('image-auto-path', this.handleImagePath)
 
         this.editor.on('insert-image', type => {
@@ -324,6 +332,12 @@
 
       blurEditor () {
         this.editor.blur()
+      },
+
+      handlePreferLooseListItemChange (preferLooseListItem) {
+        if (this.editor) {
+          this.editor.preferLooseListItem = preferLooseListItem
+        }
       }
     },
 
@@ -339,6 +353,7 @@
       bus.$off('find', this.handleFind)
       bus.$off('dotu-select', this.handleSelect)
       bus.$off('editor-blur', this.blurEditor)
+      bus.$off('update-pref-list-item-type', this.handlePreferLooseListItemChange)
       bus.$on('image-auto-path', this.handleImagePath)
 
       this.editor.destroy()

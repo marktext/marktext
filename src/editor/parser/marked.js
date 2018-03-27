@@ -1,3 +1,5 @@
+import { CLASS_OR_ID } from '../config'
+
 /**
  * marked - a markdown parser
  * Copyright (c) 2011-2014, Christopher Jeffrey. (MIT Licensed)
@@ -155,7 +157,7 @@ Lexer.prototype.lex = function(src) {
 
 Lexer.prototype.token = function(src, top, bq) {
   var src = src.replace(/^ +$/gm, ''),
-    next, loose, cap, bull, b, item, space, i, l, checked;
+    loose, cap, bull, b, item, space, i, l, checked;
 
   while (src) {
     // newline
@@ -288,14 +290,18 @@ Lexer.prototype.token = function(src, top, bq) {
         listType: bull.length > 1 ? (/\d/.test(bull) ? 'order' : 'task') : 'bullet'
       });
 
+      let next = false;
+      let prevNext = true;
+      let listItemIndices = [];
+
       // Get each top-level item.
       cap = cap[0].match(this.rules.item);
-      next = false;
       l = cap.length;
       i = 0;
 
       for (; i < l; i++) {
-        item = cap[i];
+        const itemWithBullet = cap[i];
+        item = itemWithBullet;
 
         // Remove the list item's bullet
         // so it is seen as the next token.
@@ -331,13 +337,33 @@ Lexer.prototype.token = function(src, top, bq) {
           }
         }
 
-        // Determine whether item is loose or not.
-        // Use: /(^|\n)(?! )[^\n]+\n\n(?!\s*$)/
-        // for discount behavior.
-        loose = next || /\n\n(?!\s*$)/.test(item);
-        if (i !== l - 1) {
-          next = item.charAt(item.length - 1) === '\n';
-          if (!loose) loose = next;
+        var prevItem = '';
+        if (i === 0) {
+          prevItem = item;
+        } else {
+          prevItem = cap[i - 1];
+        }
+
+        // Determine whether item is loose or not. If previous item is loose
+        // this item is also loose.
+        loose = next = next || /^ *([*+-]|\d+\.) +\S+\n\n(?!\s*$)/.test(itemWithBullet);
+
+        // Check if previous line ends with a new line.
+        if (!loose && (i !== 0 || l > 1) && prevItem.length !== 0 && prevItem.charAt(prevItem.length - 1) === '\n') {
+          loose = next = true;
+        }
+
+        // A list is either loose or tight, so update previous list items.
+        if (next && prevNext !== next) {
+          for(const index of listItemIndices) {
+            this.tokens[index].type = 'loose_item_start'
+          }
+          listItemIndices = [];
+        }
+        prevNext = next;
+
+        if (!loose) {
+          listItemIndices.push(this.tokens.length);
         }
 
         this.tokens.push({
@@ -828,19 +854,26 @@ Renderer.prototype.list = function(body, ordered, taskList) {
   return '<' + type + classes + '>\n' + body + '</' + type + '>\n';
 };
 
-Renderer.prototype.listitem = function(text, checked, listItemType) {
-  var classes
+Renderer.prototype.listitem = function(text, checked, listItemType, loose) {
+  var classes;
   switch (listItemType) {
     case 'order':
-      classes = ' class="order-list-item"'
-      break
+      classes = ' class="order-list-item';
+      break;
     case 'task':
-      classes = ' class="task-list-item"'
-      break
+      classes = ' class="task-list-item';
+      break;
     case 'bullet':
-      classes = ' class="bullet-list-item"'
-      break
+      classes = ' class="bullet-list-item';
+      break;
+    default:
+      throw new
+      Error('Invalid state');
   }
+
+  // "tight-list-item" is only used to remove <p> padding
+  classes += loose ? ` .${CLASS_OR_ID['AG_LOOSE_LIST_ITEM']}"` : ` .${CLASS_OR_ID['AG_TIGHT_LIST_ITEM']}"`;
+
   if (checked === undefined) {
     return '<li ' + classes + '>' + text + '</li>\n';
   }
@@ -1107,7 +1140,7 @@ Parser.prototype.tok = function() {
             this.tok();
         }
 
-        return this.renderer.listitem(body, checked, listItemType);
+        return this.renderer.listitem(body, checked, listItemType, false);
       }
     case 'loose_item_start':
       {
@@ -1119,7 +1152,7 @@ Parser.prototype.tok = function() {
           body += this.tok();
         }
 
-        return this.renderer.listitem(body, checked, listItemType);
+        return this.renderer.listitem(body, checked, listItemType, true);
       }
     case 'html':
       {
