@@ -1,6 +1,6 @@
 <template>
   <div class="aidou" :class="theme">
-    <el-dialog 
+    <el-dialog
       :visible.sync="showUpload"
       :show-close="false"
       :modal="true"
@@ -71,7 +71,6 @@
         bus.$emit('editor-blur')
       },
       handleResponse (res) {
-        console.log(res)
         if (res.code === 'success') {
           // handle success
           const { url } = res.data
