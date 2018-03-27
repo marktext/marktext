@@ -1,4 +1,7 @@
 import * as actions from '../actions/edit'
+import userPreference from '../preference'
+
+const { aidou } = userPreference.getAll()
 
 export default {
   label: 'Edit',
@@ -62,6 +65,7 @@ export default {
     type: 'separator'
   }, {
     label: 'Aidou',
+    visible: aidou,
     accelerator: 'CmdOrCtrl+/',
     click: (menuItem, browserWindow) => {
       actions.edit(browserWindow, 'aidou')

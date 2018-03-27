@@ -13,7 +13,8 @@ Edit and save to update preferences, You can only change the json bellow!
   "darkColor": "rgb(217, 217, 217)",
   "lineHeight": "1.6",
   "theme": "light",
-  "autoSave": false
+  "autoSave": false,
+  "aidou": false
 }
 ```
 
