@@ -161,7 +161,6 @@ const actions = {
     const { pathname, filename } = state
     if (filename !== newFilename) {
       const newPathname = path.join(path.dirname(pathname), newFilename)
-      console.log(pathname, newPathname)
       ipcRenderer.send('AGANI::rename', { pathname, newPathname })
     }
   },

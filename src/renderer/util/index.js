@@ -124,7 +124,7 @@ export const adjustCursor = (cursor, preline, line, nextline) => {
   if (/[*+-]\s.+/.test(line) && newCursor.ch <= 1) {
     newCursor.ch = 2
   }
-  console.log(newCursor)
+
   return newCursor
 }
 

@@ -179,7 +179,6 @@ const formatCtrl = ContentState => {
     const title = /\/?([^./]+)\.[a-z]+$/.exec(url)[1] || ''
     const { start, end } = this.cursor
     const { formats } = this.selectionFormats({ start, end })
-    console.log(formats)
     const { key, offset: startOffset } = start
     const { offset: endOffset } = end
     const block = this.getBlock(key)
