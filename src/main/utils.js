@@ -1,5 +1,6 @@
 import fs from 'fs'
 import path from 'path'
+import fse from 'fs-extra'
 import { app, Menu } from 'electron'
 import { EXTENSIONS } from './config'
 
@@ -16,6 +17,7 @@ export const log = data => {
   if (typeof data !== 'string') data = (data.stack || data).toString()
   const LOG_DATA_PATH = path.join(getPath('userData'), 'error.log')
   const LOG_TIME = new Date().toLocaleString()
+  mkdir(getPath('userData'))
   fs.appendFileSync(LOG_DATA_PATH, `\n${LOG_TIME}\n${data}\n`)
 }
 
@@ -41,4 +43,15 @@ export const isFile = filepath => {
 // returns true if the file is a supported markdown file.
 export const isMarkdownFile = filepath => {
   return isFile(filepath) && hasMarkdownExtension(filepath)
+}
+
+// creates a directory if it doesn't already exist.
+export const mkdir = function (dirPath) {
+  try {
+    fse.ensureDirSync(dirPath)
+  } catch (e) {
+    if (e.code !== 'EEXIST') {
+      throw e
+    }
+  }
 }
