@@ -2,6 +2,8 @@ import Vue from 'vue'
 import axios from 'axios'
 
 import { ipcRenderer } from 'electron'
+import lang from 'element-ui/lib/locale/lang/en'
+import locale from 'element-ui/lib/locale'
 
 import App from './app'
 import store from './store'
@@ -38,6 +40,8 @@ window.addEventListener('drop', function (e) {
     ipcRenderer.send('AGANI::window::drop', fileList)
   }
 }, false)
+
+locale.use(lang)
 
 Vue.use(Dialog)
 Vue.use(Form)

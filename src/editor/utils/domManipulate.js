@@ -173,12 +173,12 @@ export const createInputInCodeBlock = codeEle => {
 export const getTextContent = (node, blackList) => {
   if (!blackList) return node.textContent
   let text = ''
+  if (blackList.some(className => node.classList && node.classList.contains(className))) {
+    return text
+  }
   if (node.nodeType === 3) {
     text += node.textContent
   } else {
-    if (blackList.some(className => node.classList && node.classList.contains(className))) {
-      return text
-    }
     const childNodes = node.childNodes
     for (const n of childNodes) {
       text += getTextContent(n, blackList)
