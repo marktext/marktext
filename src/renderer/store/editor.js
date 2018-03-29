@@ -74,6 +74,23 @@ const mutations = {
 }
 
 const actions = {
+  ASK_FOR_INSERT_IMAGE ({ commit }, type) {
+    ipcRenderer.send('AGANI::ask-for-insert-image', type)
+  },
+
+  ASK_FOR_IMAGE_AUTO_PATH ({ commit, state }, src) {
+    const { pathname } = state
+    if (pathname) {
+      ipcRenderer.send('AGANI::ask-for-image-auto-path', { pathname, src })
+    }
+  },
+
+  LISTEN_FOR_IMAGE_PATH ({ commit }) {
+    ipcRenderer.on('AGANI::image-auto-path', (e, files) => {
+      bus.$emit('image-auto-path', files)
+    })
+  },
+
   CHANGE_FONT ({ commit }, { type, value }) {
     commit('SET_USER_PREFERENCE', { [type]: value })
     // save to preference.md

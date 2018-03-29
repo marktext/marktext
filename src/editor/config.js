@@ -1,5 +1,7 @@
 import { generateKeyHash, genUpper2LowerKeyHash, getIdWithoutSet } from './utils'
 
+export const IMAGE_EXT_REG = /\.(jpeg|jpg|png|gif|svg|webp)(?=\?|$)/i
+
 // export const markedSymbol = ['\\*', '\\-', '\\_', '\\!', '\\[', '\\]', '\\+',
 //   '\\\\', '\\)', '\\(', '\\`', '\\{', '\\}', '\\#', '\\.']
 /**
@@ -70,6 +72,7 @@ export const CLASS_OR_ID = genUpper2LowerKeyHash([
   'AG_BUG', // for remove bug
   'AG_IMAGE_MARKED_TEXT',
   'AG_IMAGE_FAIL',
+  'AG_IMAGE_SRC',
   'AG_REMOVE',
   'AG_EMOJI_MARKER',
   'AG_NOTEXT_LINK',

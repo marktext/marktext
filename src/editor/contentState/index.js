@@ -17,6 +17,7 @@ import tabCtrl from './tabCtrl'
 import formatCtrl from './formatCtrl'
 import searchCtrl from './searchCtrl'
 import mathCtrl from './mathCtrl'
+import imagePathCtrl from './imagePathCtrl'
 import importMarkdown from '../utils/importMarkdown'
 
 const prototypes = [
@@ -35,6 +36,7 @@ const prototypes = [
   formatCtrl,
   searchCtrl,
   mathCtrl,
+  imagePathCtrl,
   importMarkdown
 ]
 
@@ -60,7 +62,7 @@ class ContentState {
     this.tablePicker = tablePicker
     this.keys = new Set()
     this.blocks = [ this.createBlock() ]
-    this.stateRender = new StateRender()
+    this.stateRender = new StateRender(eventCenter)
     this.codeBlocks = new Map()
     this.loadMathMap = new Map()
     this.history = new History(this)

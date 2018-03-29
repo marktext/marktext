@@ -162,6 +162,19 @@
         bus.$on('insert-image', this.handleSelect)
         bus.$on('content-in-source-mode', this.handleMarkdownChange)
         bus.$on('editor-blur', this.blurEditor)
+        bus.$on('image-auto-path', this.handleImagePath)
+
+        this.editor.on('insert-image', type => {
+          if (type === 'absolute' || type === 'relative') {
+            this.$store.dispatch('ASK_FOR_INSERT_IMAGE', type)
+          } else if (type === 'upload') {
+            bus.$emit('upload-image')
+          }
+        })
+
+        this.editor.on('image-path-autocomplement', src => {
+          this.$store.dispatch('ASK_FOR_IMAGE_AUTO_PATH', src)
+        })
 
         this.editor.on('change', (markdown, wordCount, cursor) => {
           this.$store.dispatch('SAVE_FILE', { markdown, wordCount, cursor })
@@ -184,6 +197,11 @@
       })
     },
     methods: {
+      handleImagePath (files) {
+        const { editor } = this
+        editor && editor.showAutoImagePath(files)
+      },
+
       addThemeStyle (theme) {
         const linkId = 'ag-theme'
         const href = `./static/themes/${theme}.css`
@@ -321,6 +339,7 @@
       bus.$off('find', this.handleFind)
       bus.$off('dotu-select', this.handleSelect)
       bus.$off('editor-blur', this.blurEditor)
+      bus.$on('image-auto-path', this.handleImagePath)
 
       this.editor.destroy()
       this.editor = null

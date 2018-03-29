@@ -20,6 +20,10 @@ export const IMAGE_EXTENSIONS = [
   'webp'
 ]
 
+export const BLACK_LIST = [
+  '$RECYCLE.BIN'
+]
+
 export const EXTENSION_HASN = {
   styledHtml: '.html',
   html: '.html',

@@ -3,7 +3,7 @@
   left: -10000px;
   top: -10000px;
   opacity: 0;
-  height: 168px;
+  max-height: 168px;
   min-width: 130px;
   max-width: 150px;
   margin: 0;

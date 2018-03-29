@@ -14,6 +14,7 @@ export const getMenuItem = menuName => {
 }
 
 export const log = data => {
+  console.log(data)
   if (typeof data !== 'string') data = (data.stack || data).toString()
   const LOG_DATA_PATH = path.join(getPath('userData'), 'error.log')
   const LOG_TIME = new Date().toLocaleString()
@@ -28,6 +29,15 @@ export const hasMarkdownExtension = filename => {
     return EXTENSIONS.indexOf(extension) >= 0
   }
   return false
+}
+
+export const isDirectory = dirPath => {
+  try {
+    return fs.existsSync(dirPath) && fs.lstatSync(dirPath).isDirectory()
+  } catch (e) {
+    // No permissions
+    return false
+  }
 }
 
 // returns true if the path is a file with read access.

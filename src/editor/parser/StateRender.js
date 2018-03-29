@@ -1,6 +1,6 @@
-import { LOWERCASE_TAGS, CLASS_OR_ID } from '../config'
+import { LOWERCASE_TAGS, CLASS_OR_ID, IMAGE_EXT_REG } from '../config'
 import { conflict, isLengthEven, union, isEven, getIdWithoutSet, loadImage, getImageSrc } from '../utils'
-import { insertAfter, operateClassName } from '../utils/domManipulate.js'
+import { insertAfter, operateClassName } from '../utils/domManipulate'
 import { tokenizer } from './parse'
 import { validEmoji } from '../emojis'
 
@@ -15,7 +15,8 @@ const h = require('snabbdom/h').default // helper function for creating vnodes
 const toVNode = require('snabbdom/tovnode').default
 
 class StateRender {
-  constructor () {
+  constructor (eventCenter) {
+    this.eventCenter = eventCenter
     this.container = null
   }
 
@@ -427,24 +428,43 @@ class StateRender {
   }
   // I dont want operate dom directly, is there any better method? need help!
   image (h, cursor, block, token, outerClass) {
+    const { eventCenter } = this
+    const { start: cursorStart, end: cursorEnd } = cursor
+    const { start, end } = token.range
+    if (
+      cursorStart.key === cursorEnd.key &&
+      cursorStart.offset === cursorEnd.offset &&
+      cursorStart.offset === end - 1 &&
+      !IMAGE_EXT_REG.test(token.src)
+    ) {
+      eventCenter.dispatch('image-path', token.src)
+    }
+
     const className = this.getClassName(outerClass, block, token, cursor)
     const imageClass = CLASS_OR_ID['AG_IMAGE_MARKED_TEXT']
 
-    const {
-      start,
-      end
-    } = token.range
     const titleContent = this.highlight(h, block, start, start + 2 + token.title.length, token)
+
     const srcContent = this.highlight(
       h, block,
-      start + 2 + token.title.length + token.backlash.first.length,
+      start + 2 + token.title.length + token.backlash.first.length + 2,
       start + 2 + token.title.length + token.backlash.first.length + 2 + token.src.length,
       token
     )
+
     const firstBracketContent = this.highlight(h, block, start, start + 2, token)
+
+    const secondBracketContent = this.highlight(
+      h, block,
+      start + 2 + token.title.length + token.backlash.first.length,
+      start + 2 + token.title.length + token.backlash.first.length + 2,
+      token
+    )
+
     const lastBracketContent = this.highlight(h, block, end - 1, end, token)
 
     const firstBacklashStart = start + 2 + token.title.length
+
     const secondBacklashStart = end - 1 - token.backlash.second.length
 
     if (isLengthEven(token.backlash.first) && isLengthEven(token.backlash.second)) {
@@ -496,11 +516,11 @@ class StateRender {
       } else {
         selector += `.${CLASS_OR_ID['AG_IMAGE_FAIL']}`
       }
-
       const children = [
         ...titleContent,
         ...this.backlashInToken(token.backlash.first, className, firstBacklashStart, token),
-        ...srcContent,
+        ...secondBracketContent,
+        h(`span.${CLASS_OR_ID['AG_IMAGE_SRC']}`, srcContent),
         ...this.backlashInToken(token.backlash.second, className, secondBacklashStart, token),
         ...lastBracketContent
       ]
@@ -519,6 +539,7 @@ class StateRender {
           return Array.isArray(chunk) ? [...acc, ...chunk] : [...acc, chunk]
         }, []),
         ...this.backlashInToken(token.backlash.first, className, firstBacklashStart, token),
+        ...secondBracketContent,
         ...srcContent,
         ...this.backlashInToken(token.backlash.second, className, secondBacklashStart, token),
         ...lastBracketContent

@@ -1,3 +1,4 @@
+// DOTO: Don't use Node API in editor folder, remove `path` @jocs
 import path from 'path'
 
 // help functions
