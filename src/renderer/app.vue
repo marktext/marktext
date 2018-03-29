@@ -95,6 +95,7 @@
       dispatch('LISTEN_FOR_INSERT_IMAGE')
       dispatch('LISTEN_FOR_ABOUT_DIALOG')
       dispatch('LISTEN_FOR_RENAME')
+      dispatch('LISTEN_FOR_IMAGE_PATH')
     }
   }
 </script>

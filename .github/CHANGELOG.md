@@ -2,6 +2,9 @@
 
 **:cactus:Feature**
 
+- display and inline math surport #36
+- Image path auto complement #96
+
 **:butterfly:Optimization**
 
 - adjust lineHeight and fontSize in typewriter mode

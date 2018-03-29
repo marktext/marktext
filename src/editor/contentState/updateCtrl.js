@@ -225,8 +225,12 @@ const updateCtrl = ContentState => {
   }
 
   ContentState.prototype.updateState = function (event) {
+    const { floatBox } = this
     const { start, end } = selection.getCursorRange()
     const { start: oldStart, end: oldEnd } = this.cursor
+    if (event.type === 'keyup' && (event.key === 'ArrowUp' || event.key === 'ArrowDown') && floatBox.show) {
+      return
+    }
     if (event.type === 'click' && start.key !== end.key) {
       setTimeout(() => {
         this.updateState(event)

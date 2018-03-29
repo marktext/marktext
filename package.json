@@ -89,6 +89,7 @@
     "element-ui": "^2.1.0",
     "file-icons-js": "^1.0.3",
     "fs-extra": "^5.0.0",
+    "fuzzaldrin": "^2.1.0",
     "js-beautify": "^1.7.5",
     "katex": "^0.9.0",
     "mousetrap": "^1.6.1",

@@ -11,6 +11,7 @@ const ITEM_HEIGHT = 28
 class FloatBox {
   constructor (eventCenter) {
     this.list = []
+    this.type = ''
     this.index = 0
     this.position = null
     this.eventCenter = eventCenter
@@ -29,7 +30,7 @@ class FloatBox {
 
       if (cb && typeof key === 'number' && !Number.isNaN(key)) {
         this.cb(list[key])
-        this.hideIfNeeded()
+        this.hideIfNeeded([this.type])
       }
     }
 
@@ -83,6 +84,17 @@ class FloatBox {
         icon.classList.add(CLASS_OR_ID['AG_FLOAT_ITEM_ICON'])
         icon.setAttribute('key', i)
         li.appendChild(icon)
+      } else if (l.iconClass) {
+        const { iconClass } = l
+        const icon = document.createElement('span')
+        icon.innerHTML = `
+          <svg class="icon" aria-hidden="true">
+            <use xlink:href="#${iconClass}"></use>
+          </svg>
+        `
+        icon.classList.add(CLASS_OR_ID['AG_FLOAT_ITEM_ICON'])
+        icon.setAttribute('key', i)
+        li.appendChild(icon)
       }
       const text = document.createElement('span')
 
@@ -104,11 +116,11 @@ class FloatBox {
     Array.from(this.box.childNodes).forEach(c => this.box.removeChild(c))
   }
 
-  showIfNeeded (position, cb) {
+  showIfNeeded (position, type, cb) {
     if (cb) this.cb = cb
-    if (!this.show) {
-      let { left, top } = position
-      this.position = { left, top }
+    if (!this.show || this.type !== type || position.left !== this.position.left || position.top !== this.position.top) {
+      let { left, top } = this.position = position
+      this.type = type
       const viewHeight = document.documentElement.offsetHeight
       if (viewHeight - top <= FLOAT_BOX_HEIGHT + 25) {
         top = top - (FLOAT_BOX_HEIGHT + 5) // left 5px between floatbox and input element
@@ -122,7 +134,8 @@ class FloatBox {
     this.show = true
   }
 
-  hideIfNeeded () {
+  hideIfNeeded (typeArray) {
+    if (!typeArray.includes(this.type)) return
     this.empty()
     this.cb = null
     this.list = []

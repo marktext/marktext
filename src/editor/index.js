@@ -10,6 +10,7 @@ import FloatBox from './floatBox'
 import { findNearestParagraph, operateClassName, isInMathRender } from './utils/domManipulate'
 import ExportMarkdown from './utils/exportMarkdown'
 import ExportStyledHTML from './utils/exportStyledHTML'
+import { checkEditImage } from './utils/checkEditImage'
 import exportHtml from './utils/exportUnstylishHtml'
 import TablePicker from './tablePicker'
 
@@ -51,12 +52,12 @@ class Aganippe {
 
     // if you dont click the keyboard after 1 second, the garbageCollection will run.
     eventCenter.attachDOMEvent(container, 'keydown', debounce(event => {
-      this.contentState.historyHandler(event)
-      this.contentState.garbageCollection()
+      contentState.historyHandler(event)
+      contentState.garbageCollection()
     }, 300))
 
     eventCenter.attachDOMEvent(container, 'paste', event => {
-      this.contentState.pasteHandler(event)
+      contentState.pasteHandler(event)
     })
 
     this.recordEditChinese()
@@ -69,6 +70,8 @@ class Aganippe {
     this.dispatchCopyCut()
     this.dispatchTableToolBar()
     this.dispatchCodeBlockClick()
+
+    contentState.listenForPathChange()
 
     const { theme, focusMode, markdown } = this
     this.setTheme(theme)
@@ -143,15 +146,15 @@ class Aganippe {
       const { left, top } = emojiNode.getBoundingClientRect()
       const cb = item => {
         setInlineEmoji(emojiNode, item, selection)
-        this.floatBox.hideIfNeeded()
+        this.floatBox.hideIfNeeded(['emojis'])
       }
       if (list.length) {
         this.floatBox.showIfNeeded({
           left, top
-        }, cb)
+        }, 'emoji', cb)
         this.floatBox.setOptions(list)
       } else {
-        this.floatBox.hideIfNeeded()
+        this.floatBox.hideIfNeeded('emojis')
       }
     }
   }
@@ -164,7 +167,7 @@ class Aganippe {
         const scrollTop = container.scrollTop
         if (cacheTop && Math.abs(scrollTop - cacheTop) > 10) {
           cacheTop = null
-          return eventCenter.dispatch('hideFloatBox')
+          return eventCenter.dispatch('hideFloatBox', ['emoji', 'language', 'image', 'image-path'])
         } else {
           cacheTop = scrollTop
           return
@@ -173,15 +176,21 @@ class Aganippe {
       if (event.target && event.target.classList.contains(CLASS_OR_ID['AG_LANGUAGE_INPUT'])) {
         return
       }
-      if (event.type === 'click') return eventCenter.dispatch('hideFloatBox')
+      if (event.type === 'click') return eventCenter.dispatch('hideFloatBox', ['emoji', 'language', 'image', 'image-path'])
       const node = selection.getSelectionStart()
       const paragraph = findNearestParagraph(node)
       const selectionState = selection.exportSelection(paragraph)
       const lang = checkEditLanguage(paragraph, selectionState)
       const emojiNode = node && checkEditEmoji(node)
+      const editImage = checkEditImage()
 
       if (!emojiNode && !lang) {
-        eventCenter.dispatch('hideFloatBox')
+        eventCenter.dispatch('hideFloatBox', ['emoji', 'language'])
+      }
+      if (!editImage) {
+        eventCenter.dispatch('hideFloatBox', ['image', 'image-path'])
+      } else {
+        eventCenter.dispatch('hideFloatBox', [editImage === 'image' ? 'image-path' : 'image'])
       }
     }
 
@@ -190,8 +199,8 @@ class Aganippe {
     eventCenter.attachDOMEvent(container, 'scroll', throttle(handler, 200))
   }
 
-  subscribeHideFloatBox () {
-    this.floatBox.hideIfNeeded()
+  subscribeHideFloatBox (typeArray) {
+    this.floatBox.hideIfNeeded(typeArray)
   }
 
   /**
@@ -224,10 +233,10 @@ class Aganippe {
     if (modes.length) {
       this.floatBox.showIfNeeded({
         left, top
-      }, cb || callback)
+      }, 'language', cb || callback)
       this.floatBox.setOptions(modes)
     } else {
-      this.floatBox.hideIfNeeded()
+      this.floatBox.hideIfNeeded(['language'])
     }
   }
 
@@ -469,6 +478,14 @@ class Aganippe {
 
   blur () {
     this.container.blur()
+  }
+
+  showAutoImagePath (files) {
+    const list = files.map(f => {
+      const iconClass = f.type === 'directory' ? 'icon-folder' : 'icon-image'
+      return Object.assign(f, { iconClass, text: f.file + (f.type === 'directory' ? '/' : '') })
+    })
+    this.contentState.showAutoImagePath(list)
   }
 
   format (type) {
