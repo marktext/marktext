@@ -30,6 +30,12 @@ export const hasMarkdownExtension = filename => {
   return false
 }
 
+export const hasSameKeys = (a, b) => {
+  const aKeys = Object.keys(a).sort()
+  const bKeys = Object.keys(b).sort()
+  return JSON.stringify(aKeys) === JSON.stringify(bKeys)
+}
+
 export const isDirectory = dirPath => {
   try {
     return fs.existsSync(dirPath) && fs.lstatSync(dirPath).isDirectory()
@@ -55,7 +61,7 @@ export const isMarkdownFile = filepath => {
 }
 
 // creates a directory if it doesn't already exist.
-export const mkdir = function (dirPath) {
+export const mkdir = dirPath => {
   try {
     fse.ensureDirSync(dirPath)
   } catch (e) {
