@@ -10,7 +10,7 @@
 
 - [ ] Support Raw HTML in Mark Text
 
-- [ ] Support iamge path auto accompliment.
+- [x] Support iamge path auto accompliment.
 
 - [ ] checking spell and autocorrect spell
 
@@ -26,7 +26,7 @@
 
       - Default theme
 
-- [ ] Inline and block Math
+- [x] Inline and block Math
 
 - [ ] Subscript (default false)
 
