@@ -12,8 +12,11 @@ import {
   findNearestParagraph,
   getClosestBlockContainer,
   getCursorPositionWithinMarkedText,
-  compareParagraphsOrder
+  compareParagraphsOrder,
+  getTextContent
 } from './utils/domManipulate'
+
+import { CLASS_OR_ID } from './config'
 
 const filterOnlyParentElements = node => {
   return isBlockContainer(node) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP
@@ -731,10 +734,10 @@ class Selection {
       let count = 0
       for (i = 0; i < len; i++) {
         const child = childNodes[i]
-        if (count + child.textContent.length >= offset) {
+        if (count + getTextContent(child, [ CLASS_OR_ID['AG_MATH_RENDER'] ]).length >= offset) {
           return getNodeAndOffset(child, offset - count)
         } else {
-          count += child.textContent.length
+          count += getTextContent(child, [ CLASS_OR_ID['AG_MATH_RENDER'] ]).length
         }
       }
       return { node, offset }
@@ -778,7 +781,7 @@ class Selection {
       do {
         preSibling = preSibling.previousSibling
         if (preSibling) {
-          offset += preSibling.textContent.length
+          offset += getTextContent(preSibling, [ CLASS_OR_ID['AG_MATH_RENDER'] ]).length
         }
       } while (preSibling)
       return (node === paragraph || node.parentNode === paragraph)

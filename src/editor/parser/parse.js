@@ -25,17 +25,19 @@ const tokenizerFac = (src, beginRules, inlineRules, pos = 0) => {
   }
 
   if (beginRules) {
-    const beginR = ['header', 'hr', 'code_fense']
+    const beginR = ['header', 'hr', 'code_fense', 'display_math']
     const len = beginR.length
     let i
     for (i = 0; i < len; i++) {
       const to = beginRules[beginR[i]].exec(src)
       if (to) {
+        if (beginR[i] === 'display_math' && !isLengthEven(to[3])) continue
         const token = {
           type: beginR[i],
           parent: tokens,
           marker: to[1],
           content: to[2] || '',
+          backlash: to[3] || '',
           range: {
             start: pos,
             end: pos + to[0].length
@@ -70,8 +72,8 @@ const tokenizerFac = (src, beginRules, inlineRules, pos = 0) => {
       pos = pos + backTo[0].length
       continue
     }
-    // strong | em | emoji | inline_code | del
-    const chunks = ['strong', 'em', 'inline_code', 'del', 'emoji']
+    // strong | em | emoji | inline_code | del | inline_math
+    const chunks = ['strong', 'em', 'inline_code', 'del', 'emoji', 'inline_math']
     const chLen = chunks.length
     let i
     let inChunk
@@ -86,7 +88,7 @@ const tokenizerFac = (src, beginRules, inlineRules, pos = 0) => {
           end: pos + to[0].length
         }
         const marker = to[1]
-        if (type === 'inline_code' || type === 'emoji') {
+        if (type === 'inline_code' || type === 'emoji' || type === 'inline_math') {
           tokens.push({
             type,
             range,
@@ -238,6 +240,7 @@ export const generator = tokens => {
         break
       case 'emoji':
       case 'inline_code':
+      case 'inline_math':
         result += `${token.marker}${token.content}${getBash(token.backlash)}${token.marker}`
         break
       case 'link':

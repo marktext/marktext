@@ -61,6 +61,16 @@ const copyCutCtrl = ContentState => {
       })
     }
 
+    // const mathText = $(`.${CLASS_OR_ID['AG_MATH']} span`)
+    // if (mathText.length > 0) {
+    //   mathText.each((i, m) => {
+    //     const ele = $(m)
+    //     console.log(ele.text())
+
+    //     ele.text(ele.text().replace(/\\/g, ''))
+    //   })
+    // }
+
     const codefense = $(`pre.${CLASS_OR_ID['AG_CODE_BLOCK']}`)
     if (codefense.length > 0) {
       codefense.each((i, cf) => {

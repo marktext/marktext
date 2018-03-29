@@ -17,7 +17,6 @@ const toVNode = require('snabbdom/tovnode').default
 class StateRender {
   constructor () {
     this.container = null
-    this.loadImageMap = new Map()
   }
 
   setContainer (container) {
@@ -227,6 +226,34 @@ class StateRender {
     return [
       h(`span.${className}.${CLASS_OR_ID['AG_REMOVE']}`, content)
     ]
+  }
+
+  ['display_math'] (h, cursor, block, token, outerClass) {
+    const className = this.getClassName(outerClass, block, token, cursor)
+    const { start, end } = token.range
+    const { marker } = token
+
+    const startMarker = this.highlight(h, block, start, start + marker.length, token)
+    const endMarker = this.highlight(h, block, end - marker.length, end, token)
+    const content = this.highlight(h, block, start + marker.length, end - marker.length, token)
+
+    const { content: math, type } = token
+
+    return [
+      h(`span.${className}`, startMarker),
+      h(`span.${className}.${CLASS_OR_ID['AG_MATH']}`, [
+        h('span', content),
+        h(`span.${CLASS_OR_ID['AG_MATH_RENDER']}.${CLASS_OR_ID['AG_REMOVE']}`, {
+          dataset: { math, type },
+          attrs: { contenteditable: 'false' }
+        }, 'Loading')
+      ]),
+      h(`span.${className}`, endMarker)
+    ]
+  }
+
+  ['inline_math'] (h, cursor, block, token, outerClass) {
+    return this['display_math'](h, cursor, block, token, outerClass)
   }
 
   ['inline_code'] (h, cursor, block, token, outerClass) {

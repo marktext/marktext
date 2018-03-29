@@ -170,6 +170,33 @@ export const createInputInCodeBlock = codeEle => {
   return inputInCodeFence
 }
 
+export const getTextContent = (node, blackList) => {
+  if (!blackList) return node.textContent
+  let text = ''
+  if (blackList.some(className => node.classList && node.classList.contains(className))) {
+    return text
+  }
+  if (node.nodeType === 3) {
+    text += node.textContent
+  } else {
+    const childNodes = node.childNodes
+    for (const n of childNodes) {
+      text += getTextContent(n, blackList)
+    }
+  }
+  return text
+}
+
+export const isInMathRender = node => {
+  if (!node || !node.classList) return false
+  if (node.classList.contains(CLASS_OR_ID['AG_MATH_RENDER'])) {
+    return node
+  } else {
+    const parentNode = node.parentNode
+    return parentNode ? isInMathRender(parentNode) : false
+  }
+}
+
 // DOM operations
 export const insertAfter = (newNode, originNode) => {
   const parentNode = originNode.parentNode
