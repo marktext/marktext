@@ -33,13 +33,13 @@ addons:
     #- xvfb
 
 before_install:
+  #- if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get -qq update ; fi
+  #- if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
+  #    wget -qO - https://dl.winehq.org/wine-builds/Release.key | sudo apt-key add -;
+  #    sudo apt-add-repository https://dl.winehq.org/wine-builds/ubuntu/;
+  #  fi
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get -qq update ; fi
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
-      wget -qO - https://dl.winehq.org/wine-builds/Release.key | sudo apt-key add -;
-      sudo apt-add-repository https://dl.winehq.org/wine-builds/ubuntu/;
-    fi
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get -qq update ; fi
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get install --install-recommends winehq-stable ; fi
+  #- if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get install --install-recommends winehq-stable ; fi
 
   #- if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew update ; fi
 
@@ -60,7 +60,7 @@ install:
 script:
   #- xvfb-maybe node_modules/.bin/karma start test/unit/karma.conf.js
   #- yarn run pack && xvfb-maybe node_modules/.bin/mocha test/e2e
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then yarn run release ; fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then yarn run release:linux ; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then yarn run release:all ; fi
 
 branches:
