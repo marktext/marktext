@@ -70,7 +70,7 @@
     computed: {
       ...mapState([
         'pathname', 'filename', 'isSaved', 'windowActive', 'wordCount',
-        'typewriter', 'focus', 'sourceCode', 'markdown',
+        'typewriter', 'focus', 'sourceCode', 'markdown', 'preferLooseListItem',
         'cursor', 'theme', 'platform', 'lightColor', 'darkColor', 'fontSize', 'lineHeight'
       ])
     },

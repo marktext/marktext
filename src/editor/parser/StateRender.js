@@ -113,6 +113,7 @@ class StateRender {
             default:
               break
           }
+          blockSelector += block.isLooseListItem ? `.${CLASS_OR_ID['AG_LOOSE_LIST_ITEM']}` : `.${CLASS_OR_ID['AG_TIGHT_LIST_ITEM']}`
         }
         if (block.type === 'ol') {
           Object.assign(data.attrs, { start: block.start })

@@ -187,6 +187,7 @@ const enterCtrl = ContentState => {
             newBlock = this.createBlockLi(post)
             newBlock.listItemType = block.listItemType
           }
+          newBlock.isLooseListItem = block.isLooseListItem
         } else {
           block.text = pre
           newBlock = this.createBlock(type, post)
@@ -218,6 +219,7 @@ const enterCtrl = ContentState => {
             newBlock = this.createBlockLi()
             newBlock.listItemType = parent.listItemType
           }
+          newBlock.isLooseListItem = parent.isLooseListItem
           this.insertAfter(newBlock, parent)
           const index = this.findIndex(parent.children, block)
           const partChildren = parent.children.splice(index + 1)
@@ -245,6 +247,7 @@ const enterCtrl = ContentState => {
             newBlock = this.createBlockLi()
             newBlock.listItemType = block.listItemType
           }
+          newBlock.isLooseListItem = block.isLooseListItem
         } else {
           newBlock = this.createBlock('p')
         }

@@ -17,6 +17,7 @@ const state = {
   lightColor: '#303133', // color in light theme
   darkColor: 'rgb(217, 217, 217)', // color in dark theme
   autoSave: false,
+  preferLooseListItem: true, // prefer loose or tight list items
   // edit mode
   typewriter: false, // typewriter mode
   focus: false, // focus mode
@@ -66,7 +67,7 @@ const mutations = {
   },
   SET_USER_PREFERENCE (state, preference) {
     Object.keys(preference).forEach(key => {
-      if (preference[key]) {
+      if (typeof preference[key] !== 'undefined' && typeof state[key] !== 'undefined') {
         state[key] = preference[key]
       }
     })
@@ -101,8 +102,14 @@ const actions = {
     ipcRenderer.send('AGANI::ask-for-user-preference')
     ipcRenderer.on('AGANI::user-preference', (e, preference) => {
       const { autoSave } = preference
+      const { preferLooseListItem } = state // old value
 
       commit('SET_USER_PREFERENCE', preference)
+
+      if (typeof preference.preferLooseListItem !== 'undefined' &&
+        preference.preferLooseListItem !== preferLooseListItem) {
+        bus.$emit('update-prefer-loose-list-item', preference.preferLooseListItem)
+      }
 
       // handle autoSave
       if (autoSave) {

@@ -2,7 +2,7 @@
 
 Edit and save to update preferences, You can only change the json bellow!
 
-- **theme**: *String* `dark` or `light` 
+- **theme**: *String* `dark` or `light`
 
 - **autoSave**: *Boolean* `true` or `false`
 
@@ -14,7 +14,8 @@ Edit and save to update preferences, You can only change the json bellow!
   "lineHeight": "1.6",
   "theme": "light",
   "autoSave": false,
-  "aidou": false
+  "aidou": false,
+  "preferLooseListItem": true
 }
 ```
 
