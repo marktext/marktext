@@ -12,6 +12,7 @@
 - fix: #81
 - fix: #55
 - fix: #63
+- fix: crash on first launch due missing directory (#78, #90, #93)
 
 
 ### 0.8.12

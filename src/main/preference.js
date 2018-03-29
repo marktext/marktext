@@ -2,7 +2,7 @@ import fs from 'fs'
 import path from 'path'
 import { ipcMain, BrowserWindow } from 'electron'
 import { windows } from './createWindow'
-import { getPath, log } from './utils'
+import { getPath, log, mkdir } from './utils'
 
 const FILE_NAME = 'preference.md'
 const staticPath = path.join(__static, FILE_NAME)
@@ -15,6 +15,7 @@ class Preference {
     this.userDataPath = userDataPath
 
     if (!fs.existsSync(userDataPath)) {
+      mkdir(getPath('userData'))
       const content = fs.readFileSync(staticPath, 'utf-8')
       fs.writeFileSync(userDataPath, content, 'utf-8')
     }
