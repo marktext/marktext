@@ -14,7 +14,7 @@ const mathCtrl = ContentState => {
       const key = `${content}_${type}`
       if (loadMathMap.has(key)) {
         math.innerHTML = loadMathMap.get(key)
-        return
+        continue
       }
       try {
         const html = katex.renderToString(content, {
