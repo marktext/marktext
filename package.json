@@ -6,7 +6,12 @@
   "license": "MIT",
   "main": "./dist/electron/main.js",
   "scripts": {
-    "release": "node .electron-vue/build.js && electron-builder -mwl",
+    "release": "node .electron-vue/build.js && electron-builder --win --linux",
+    "release:all": "node .electron-vue/build.js && electron-builder -mwl",
+    "release:linux": "node .electron-vue/build.js && electron-builder --linux",
+    "release:mac": "node .electron-vue/build.js && electron-builder --mac",
+    "release:win32": "node .electron-vue/build.js && electron-builder --win --ia32",
+    "release:win64": "node .electron-vue/build.js && electron-builder --win --x64",
     "build": "node .electron-vue/build.js && electron-builder",
     "build:dir": "node .electron-vue/build.js && electron-builder --dir",
     "build:clean": "cross-env BUILD_TARGET=clean node .electron-vue/build.js",
