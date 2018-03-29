@@ -26,7 +26,6 @@ const resource = {
     })
     const queryURL = `${api}?${serialize(params)}`
     return axios.get(queryURL, { withCredentials: true }).then(({ data = {} }) => {
-      console.log(data)
       return {
         data: (data.items || []).map(it => ({
           link: it.locImageLink,

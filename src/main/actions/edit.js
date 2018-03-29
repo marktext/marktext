@@ -18,7 +18,6 @@ const getAndSendImagePath = (win, type) => {
 }
 
 ipcMain.on('AGANI::ask-for-insert-image', (e, type) => {
-  console.log(type)
   const win = BrowserWindow.fromWebContents(e.sender)
   getAndSendImagePath(win, type)
 })

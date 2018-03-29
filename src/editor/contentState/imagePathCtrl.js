@@ -53,7 +53,6 @@ const imagePathCtrl = ContentState => {
       const { left, top } = node.getBoundingClientRect()
 
       if (src === '') {
-        console.log(floatBox)
         const cb = item => {
           const type = item.text === 'Absolute Path' ? 'absolute' : (item.text === 'Upload Image' ? 'upload' : 'relative')
           eventCenter.dispatch('insert-image', type)

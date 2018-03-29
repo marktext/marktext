@@ -131,7 +131,6 @@ class TablePicker {
       if (target.tagName === 'BUTTON' || target.classList.contains('ag-table-picker-cell')) {
         row = Math.max(row, 1)
         column = Math.max(column, 1)
-        console.log(row, column)
         cb(row, column)
         this.hide()
       }

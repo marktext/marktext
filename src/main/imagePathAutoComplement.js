@@ -8,7 +8,6 @@ import { IMAGE_EXTENSIONS, BLACK_LIST } from './config'
 const IMAGE_PATH = new Map()
 
 export const searchFilesAndDir = (directory, key) => {
-  console.log(isDirectory(directory))
   let result = []
   if (IMAGE_PATH.has(directory)) {
     result = filter(IMAGE_PATH.get(directory), key, { key: 'file' })
@@ -34,7 +33,6 @@ export const searchFilesAndDir = (directory, key) => {
               if (BLACK_LIST.includes(file)) return false
               return type === 'directory' || type === 'image'
             })
-          console.log('filter', onlyDirAndImage)
           result = filter(onlyDirAndImage, key, { key: 'file' })
           IMAGE_PATH.set(directory, onlyDirAndImage)
           resolve(result)

@@ -14,7 +14,6 @@ export const getMenuItem = menuName => {
 }
 
 export const log = data => {
-  console.log(data)
   if (typeof data !== 'string') data = (data.stack || data).toString()
   const LOG_DATA_PATH = path.join(getPath('userData'), 'error.log')
   const LOG_TIME = new Date().toLocaleString()

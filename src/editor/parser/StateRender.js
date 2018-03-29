@@ -17,6 +17,7 @@ const toVNode = require('snabbdom/tovnode').default
 class StateRender {
   constructor (eventCenter) {
     this.eventCenter = eventCenter
+    this.loadImageMap = new Map()
     this.container = null
   }
 
