@@ -245,7 +245,7 @@ class StateRender {
     return [
       h(`span.${className}`, startMarker),
       h(`span.${className}.${CLASS_OR_ID['AG_MATH']}`, [
-        h('span', content),
+        h(`span.${CLASS_OR_ID['AG_MATH_TEXT']}`, content),
         h(`span.${CLASS_OR_ID['AG_MATH_RENDER']}.${CLASS_OR_ID['AG_REMOVE']}`, {
           dataset: { math, type },
           attrs: { contenteditable: 'false' }

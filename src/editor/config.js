@@ -88,6 +88,7 @@ export const CLASS_OR_ID = genUpper2LowerKeyHash([
   'AG_SELECTION',
   'AG_HIGHLIGHT',
   'AG_MATH',
+  'AG_MATH_TEXT',
   'AG_MATH_RENDER',
   'AG_MATH_ERROR',
   'AG_LOOSE_LIST_ITEM',

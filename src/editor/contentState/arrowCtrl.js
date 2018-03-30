@@ -1,4 +1,4 @@
-import { EVENT_KEYS } from '../config'
+import { EVENT_KEYS, CLASS_OR_ID } from '../config'
 import {
   isCursorAtFirstLine, isCursorAtLastLine, isCursorAtBegin, search, // eslint-disable-line no-unused-vars
   isCursorAtEnd, setCursorAtFirstLine, onlyHaveOneLine, setCursorAtLastLine // eslint-disable-line no-unused-vars
@@ -69,6 +69,15 @@ const arrowCtrl = ContentState => {
     const nextBlock = this.getNextSibling(block)
     const { left, right } = selection.getCaretOffsets(paragraph)
     const { start, end } = selection.getCursorRange()
+
+    // fix #101
+    if (event.key === EVENT_KEYS.ArrowRight && node && node.classList && node.classList.contains(CLASS_OR_ID['AG_MATH_TEXT'])) {
+      const { right } = selection.getCaretOffsets(node)
+      if (right === 0 && start.key === end.key && start.offset === end.offset) {
+        // It's not recommended to use such lower API, but it's work well.
+        return selection.select(node.parentNode.nextElementSibling, 0)
+      }
+    }
 
     if (
       (start.key === end.key && start.offset !== end.offset) ||
