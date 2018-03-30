@@ -102,14 +102,8 @@ const actions = {
     ipcRenderer.send('AGANI::ask-for-user-preference')
     ipcRenderer.on('AGANI::user-preference', (e, preference) => {
       const { autoSave } = preference
-      const { preferLooseListItem } = state // old value
 
       commit('SET_USER_PREFERENCE', preference)
-
-      if (typeof preference.preferLooseListItem !== 'undefined' &&
-        preference.preferLooseListItem !== preferLooseListItem) {
-        bus.$emit('update-prefer-loose-list-item', preference.preferLooseListItem)
-      }
 
       // handle autoSave
       if (autoSave) {

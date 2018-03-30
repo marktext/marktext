@@ -1,5 +1,7 @@
 /**
- * translate markdown format to content state used by editor
+ * translate markdown format to content state used by Mark Text
+ * there is some difference when parse loose list item and tight lsit item.
+ * Both of them add a p block in li block, use the CSS style to distinguish loose and tight.
  */
 
 import parse5 from 'parse5'
@@ -77,11 +79,7 @@ const importRegister = ContentState => {
     }
 
     const travel = (parent, childNodes) => {
-      const len = childNodes.length
-      let i
-
-      for (i = 0; i < len; i++) {
-        const child = childNodes[i]
+      for (const child of childNodes) {
         let block
         let value
 
@@ -153,6 +151,7 @@ const importRegister = ContentState => {
             break
 
           case 'li':
+            console.log(child)
             const isTask = child.attrs.some(attr => attr.name === 'class' && attr.value.includes('task-list-item'))
             const isLoose = child.attrs.some(attr => attr.name === 'class' && attr.value.includes(CLASS_OR_ID['AG_LOOSE_LIST_ITEM']))
             block = this.createBlock('li')

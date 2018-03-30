@@ -30,7 +30,7 @@ const updateCtrl = ContentState => {
     return false
   }
 
-  ContentState.prototype.checkInlineUpdate = function (block, preferLooseListItem) {
+  ContentState.prototype.checkInlineUpdate = function (block) {
     if (/th|td|figure/.test(block.type)) return false
     const { text } = block
     const parent = this.getParent(block)
@@ -43,11 +43,11 @@ const updateCtrl = ContentState => {
         return true
 
       case !!bullet:
-        this.updateList(block, 'bullet', preferLooseListItem, bullet)
+        this.updateList(block, 'bullet', bullet)
         return true
 
       case !!tasklist && parent && parent.listItemType === 'bullet': // only `bullet` list item can be update to `task` list item
-        this.updateTaskListItem(block, 'tasklist', preferLooseListItem, tasklist)
+        this.updateTaskListItem(block, 'tasklist', tasklist)
         return true
 
       case !!order:
@@ -80,6 +80,7 @@ const updateCtrl = ContentState => {
   }
 
   ContentState.prototype.updateTaskListItem = function (block, type, marker = '') {
+    const { preferLooseListItem } = this
     const parent = this.getParent(block)
     const grandpa = this.getParent(parent)
     const checked = /\[x\]\s/i.test(marker) // use `i` flag to ignore upper case or lower case
@@ -90,6 +91,7 @@ const updateCtrl = ContentState => {
     this.insertBefore(checkbox, block)
     block.text = block.text.substring(marker.length)
     parent.listItemType = 'task'
+    parent.isLooseListItem = preferLooseListItem
 
     let taskListWrapper
     if (this.isOnlyChild(parent)) {
@@ -144,7 +146,8 @@ const updateCtrl = ContentState => {
     this.render()
   }
 
-  ContentState.prototype.updateList = function (block, type, preferLooseListItem, marker = '') {
+  ContentState.prototype.updateList = function (block, type, marker = '') {
+    const { preferLooseListItem } = this
     const parent = this.getParent(block)
     const preSibling = this.getPreSibling(block)
     const nextSibling = this.getNextSibling(block)
@@ -225,7 +228,7 @@ const updateCtrl = ContentState => {
     block.type = 'hr'
   }
 
-  ContentState.prototype.updateState = function (event, preferLooseListItem) {
+  ContentState.prototype.updateState = function (event) {
     const { floatBox } = this
     const { start, end } = selection.getCursorRange()
     const { start: oldStart, end: oldEnd } = this.cursor
@@ -234,7 +237,7 @@ const updateCtrl = ContentState => {
     }
     if (event.type === 'click' && start.key !== end.key) {
       setTimeout(() => {
-        this.updateState(event, preferLooseListItem)
+        this.updateState(event)
       })
     }
     if (event.type === 'input' && oldStart.key !== oldEnd.key) {
@@ -327,7 +330,7 @@ const updateCtrl = ContentState => {
     this.cursor = { start, end }
 
     const checkMarkedUpdate = this.checkNeedRender(block)
-    const checkInlineUpdate = this.checkInlineUpdate(block, preferLooseListItem)
+    const checkInlineUpdate = this.checkInlineUpdate(block)
 
     if (checkMarkedUpdate || checkInlineUpdate || needRender) {
       this.render()

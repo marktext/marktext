@@ -24,7 +24,7 @@ class Aganippe {
     const eventCenter = this.eventCenter = new EventCenter()
     const floatBox = this.floatBox = new FloatBox(eventCenter)
     const tablePicker = this.tablePicker = new TablePicker(eventCenter)
-    this.contentState = new ContentState(eventCenter, floatBox, tablePicker)
+    this.contentState = new ContentState(eventCenter, floatBox, tablePicker, preferLooseListItem)
     this.emoji = new Emoji() // emoji instance: has search(text) clear() methods.
     this.focusMode = focusMode
     this.theme = theme
@@ -343,7 +343,7 @@ class Aganippe {
       // const style = getComputedStyle(target)
       // if (event.type === 'click' && !style.contenteditable) return
       if (!this._isEditChinese) {
-        this.contentState.updateState(event, this.preferLooseListItem)
+        this.contentState.updateState(event)
       }
       if (event.type === 'click' || event.type === 'keyup') {
         const selectionChanges = this.getSelection()
@@ -471,6 +471,11 @@ class Aganippe {
   setFont ({ fontSize, lineHeight }) {
     if (fontSize) this.fontSize = parseInt(fontSize, 10)
     if (lineHeight) this.lineHeight = lineHeight
+  }
+
+  setListItemPreference (preferLooseListItem) {
+    this.preferLooseListItem = preferLooseListItem
+    this.contentState.preferLooseListItem = preferLooseListItem
   }
 
   updateParagraph (type) {
