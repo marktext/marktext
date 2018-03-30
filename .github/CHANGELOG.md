@@ -1,4 +1,4 @@
-### 0.9.18
+### 0.9.10
 
 **:cactus:Feature**
 
@@ -9,6 +9,7 @@
 
 - adjust lineHeight and fontSize in typewriter mode
 - optimization of output unstylish html @fxha
+-  Use 'fuzzaldrin' to filter language when insert code block
 
 **:beetle:Bug fix**
 
@@ -16,6 +17,7 @@
 - fix: #55
 - fix: #63
 - fix: crash on first launch due missing directory (#78, #90, #93)
+- fix: #101
 
 
 ### 0.8.12
