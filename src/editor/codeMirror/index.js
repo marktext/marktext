@@ -1,3 +1,4 @@
+import { filter } from 'fuzzaldrin'
 import 'codemirror/addon/edit/closebrackets'
 import 'codemirror/addon/edit/closetag'
 import 'codemirror/addon/selection/active-line'
@@ -49,9 +50,10 @@ const getModeFromName = name => {
 }
 
 export const search = text => {
-  const matchedLangs = languages.filter(lang => {
-    return new RegExp(text, 'i').test(lang.name)
-  })
+  const matchedLangs = filter(languages, text, { key: 'name' })
+  // const matchedLangs = languages.filter(lang => {
+  //   return new RegExp(text, 'i').test(lang.name)
+  // })
 
   return matchedLangs
     .map(({ name }) => getModeFromName(name))
