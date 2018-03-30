@@ -1,3 +1,9 @@
+/**
+ * Before you edit or update codes in this file, make sure you have read the
+ * Commonmark Spec: http://spec.commonmark.org/0.28/
+ * and GitHub Flavored Markdown Spec: https://github.github.com/gfm/
+ * The output markdown needs to obey the standards of the two Spec.
+ */
 const LINE_BREAKS = /\n/
 
 class ExportMarkdown {
@@ -14,11 +20,8 @@ class ExportMarkdown {
 
   translateBlocks2Markdown (blocks, indent = '') {
     const result = []
-    const len = blocks.length
-    let i
 
-    for (i = 0; i < len; i++) {
-      const block = blocks[i]
+    for (const block of blocks) {
       switch (block.type) {
         case 'p':
         case 'hr':
@@ -95,13 +98,12 @@ class ExportMarkdown {
   }
 
   insertLineBreak (result, indent, insertNewLine) {
+    if (!result.length) return
     const newLine = insertNewLine ? '\n' : ''
-    if (result.length > 0) {
-      if (/\S/.test(indent)) {
-        result.push(`${indent}${newLine}`)
-      } else if (insertNewLine) {
-        result.push(newLine)
-      }
+    if (/\S/.test(indent)) {
+      result.push(`${indent}${newLine}`)
+    } else if (insertNewLine) {
+      result.push(newLine)
     }
   }
 

@@ -375,7 +375,7 @@ Lexer.prototype.token = function(src, top, bq) {
         });
 
         // Recurse.
-        this.token(item, true, bq);
+        this.token(item, false, bq);
 
         this.tokens.push({
           type: 'list_item_end'
@@ -872,7 +872,7 @@ Renderer.prototype.listitem = function(text, checked, listItemType, loose) {
   }
 
   // "tight-list-item" is only used to remove <p> padding
-  classes += loose ? ` .${CLASS_OR_ID['AG_LOOSE_LIST_ITEM']}"` : ` .${CLASS_OR_ID['AG_TIGHT_LIST_ITEM']}"`;
+  classes += loose ? ` ${CLASS_OR_ID['AG_LOOSE_LIST_ITEM']}"` : ` ${CLASS_OR_ID['AG_TIGHT_LIST_ITEM']}"`;
 
   if (checked === undefined) {
     return '<li ' + classes + '>' + text + '</li>\n';

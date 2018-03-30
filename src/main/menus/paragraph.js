@@ -107,17 +107,26 @@ export default {
   }, {
     type: 'separator'
   }, {
+    label: 'Loose List Item',
+    type: 'checkbox',
+    accelerator: 'Alt+CmdOrCtrl+L',
+    click (menuItem, browserWindow) {
+      actions.paragraph(browserWindow, 'loose-list-item')
+    }
+  }, {
+    type: 'separator'
+  }, {
     label: 'Paragraph',
     type: 'checkbox',
     accelerator: 'CmdOrCtrl+0',
-    click: function (menuItem, browserWindow) {
+    click (menuItem, browserWindow) {
       actions.paragraph(browserWindow, 'paragraph')
     }
   }, {
     label: 'Horizontal Line',
     type: 'checkbox',
     accelerator: 'Alt+CmdOrCtrl+-',
-    click: function (menuItem, browserWindow) {
+    click (menuItem, browserWindow) {
       actions.paragraph(browserWindow, 'hr')
     }
   }]
