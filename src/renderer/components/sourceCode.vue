@@ -18,12 +18,14 @@
       cursor: Object,
       theme: String
     },
+
     data () {
       return {
         contentState: null,
         editor: null
       }
     },
+
     watch: {
       theme: function (value, oldValue) {
         const cm = this.$refs.sourceCode.querySelector('.CodeMirror')
@@ -38,6 +40,7 @@
         }
       }
     },
+
     created () {
       this.$nextTick(() => {
         const { markdown = '', theme } = this

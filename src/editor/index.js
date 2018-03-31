@@ -424,7 +424,6 @@ class Aganippe {
 
   setMarkdown (markdown, cursor, renderCursor = true) {
     // if markdown is blank, dont need to import markdown
-    if (!markdown.trim()) return
     let newMarkdown = markdown
     if (cursor) {
       newMarkdown = this.contentState.addCursorToMarkdown(markdown, cursor)
