@@ -53,7 +53,6 @@ const importRegister = ContentState => {
 
     const htmlText = marked(markdown, { disableInline: true })
     const domAst = parse5.parseFragment(htmlText)
-
     const childNodes = domAst.childNodes
 
     const getLang = node => {
@@ -151,7 +150,6 @@ const importRegister = ContentState => {
             break
 
           case 'li':
-            console.log(child)
             const isTask = child.attrs.some(attr => attr.name === 'class' && attr.value.includes('task-list-item'))
             const isLoose = child.attrs.some(attr => attr.name === 'class' && attr.value.includes(CLASS_OR_ID['AG_LOOSE_LIST_ITEM']))
             block = this.createBlock('li')
@@ -204,7 +202,7 @@ const importRegister = ContentState => {
             const { parentNode } = child
             value = child.value
 
-            if (parentNode.nodeName === 'li' && /\S/.test(value)) {
+            if ((parentNode.nodeName === 'li' || parentNode.nodeName === '#document-fragment') && /\S/.test(value)) {
               block = this.createBlock('p', value)
               this.appendChild(parent, block)
             }

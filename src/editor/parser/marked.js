@@ -284,10 +284,13 @@ Lexer.prototype.token = function(src, top, bq) {
       src = src.substring(cap[0].length);
       bull = cap[2];
 
+      const ordered = bull.length > 1 && /\d/.test(bull)
+
       this.tokens.push({
         type: 'list_start',
-        ordered: bull.length > 1 && /\d/.test(bull),
-        listType: bull.length > 1 ? (/\d/.test(bull) ? 'order' : 'task') : 'bullet'
+        ordered,
+        listType: bull.length > 1 ? (/\d/.test(bull) ? 'order' : 'task') : 'bullet',
+        start: ordered ? +bull : ''
       });
 
       let next = false;
@@ -848,11 +851,12 @@ Renderer.prototype.hr = function() {
   return this.options.xhtml ? '<hr/>\n' : '<hr>\n';
 };
 
-Renderer.prototype.list = function(body, ordered, taskList) {
-  var type = ordered ? 'ol' : 'ul';
-  var classes = !ordered ? (taskList ? ' class="task-list"' : ' class="bullet-list"') : ' class="order-list"'
-  return '<' + type + classes + '>\n' + body + '</' + type + '>\n';
-};
+Renderer.prototype.list = function(body, ordered, start, taskList) {
+  const type = ordered ? 'ol' : 'ul'
+  const classes = !ordered ? (taskList ? ' class="task-list"' : ' class="bullet-list"') : ' class="order-list"'
+  const startatt = (ordered && start !== 1) ? (' start="' + start + '"') : ''
+  return '<' + type + classes + startatt + '>\n' + body + '</' + type + '>\n'
+}
 
 Renderer.prototype.listitem = function(text, checked, listItemType, loose) {
   var classes;
@@ -1114,9 +1118,9 @@ Parser.prototype.tok = function() {
       }
     case 'list_start':
       {
-        var body = '',
-          taskList = false,
-          ordered = this.token.ordered;
+        let body = ''
+        let taskList = false
+        const { ordered, start } = this.token
 
         while (this.next().type !== 'list_end') {
           if (this.token.checked !== undefined) {
@@ -1126,7 +1130,7 @@ Parser.prototype.tok = function() {
           body += this.tok();
         }
 
-        return this.renderer.list(body, ordered, taskList);
+        return this.renderer.list(body, ordered, start, taskList);
       }
     case 'list_item_start':
       {
