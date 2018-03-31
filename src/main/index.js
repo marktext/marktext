@@ -5,6 +5,7 @@ import { app, Menu } from 'electron'
 import configureMenu, { dockMenu } from './menus'
 import createWindow, { windows } from './createWindow'
 import { isMarkdownFile } from './utils'
+import { watchers } from './imagePathAutoComplement'
 
 let openFilesCache = []
 
@@ -46,6 +47,10 @@ app.on('ready', onReady)
 
 app.on('window-all-closed', () => {
   app.removeListener('open-file', openFile)
+  // close all the image path watcher
+  for (const watcher of watchers.values()) {
+    watcher.close()
+  }
   if (process.platform !== 'darwin') {
     app.quit()
   }
