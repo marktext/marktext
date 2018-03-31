@@ -1,13 +1,13 @@
 {
   "name": "marktext",
-  "version": "0.9.10",
+  "version": "0.9.25",
   "author": "Jocs <luoran1988@126.com>",
   "description": "Next generation markdown editor",
   "license": "MIT",
   "main": "./dist/electron/main.js",
   "scripts": {
-    "release": "node .electron-vue/build.js && electron-builder --win --linux",
-    "release:all": "node .electron-vue/build.js && electron-builder -mwl",
+    "release:win:linux": "node .electron-vue/build.js && electron-builder --win --linux",
+    "release": "node .electron-vue/build.js && electron-builder -mwl",
     "release:linux": "node .electron-vue/build.js && electron-builder --linux",
     "release:mac": "node .electron-vue/build.js && electron-builder --mac",
     "release:win": "node .electron-vue/build.js && electron-builder --win",

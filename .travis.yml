@@ -60,8 +60,7 @@ install:
 script:
   #- xvfb-maybe node_modules/.bin/karma start test/unit/karma.conf.js
   #- yarn run pack && xvfb-maybe node_modules/.bin/mocha test/e2e
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then yarn run release:linux ; fi
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then yarn run release:all ; fi
+  - yarn run release
 
 branches:
   only:

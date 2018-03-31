@@ -1,15 +1,24 @@
-### 0.9.10
+### 0.9.25
 
 **:cactus:Feature**
 
 - display and inline math surport #36
 - Image path auto complement #96
+- Feature: Toggle loose list item in paragraph menu #103
+- Add loose and tight list compatibility #74
 
 **:butterfly:Optimization**
 
 - adjust lineHeight and fontSize in typewriter mode
 - optimization of output unstylish html @fxha
 -  Use 'fuzzaldrin' to filter language when insert code block
+- Optimization: Obey the GFM and optimization of thematic break update. - Jocs
+- Optimization: More than six # characters is not a heading So we don't need to highlight `#` - Jocs
+- Optimization: A closing sequence of # characters is optional when write ATX heading - Jocs
+- Optimization: watch image path change and rebuild the cache - Jocs
+- Update: update vue and snabbdom to the latest version - Jocs
+- Optimization: Use 'fuzzaldrin' to filter language when insert code block - Jocs
+- Update travis-ci (#92) - Felix Häusler
 
 **:beetle:Bug fix**
 
@@ -18,6 +27,12 @@
 - fix: #63
 - fix: crash on first launch due missing directory (#78, #90, #93)
 - fix: #101
+- Bugfix: #112 - Jocs
+- Bugfix: can not empty the content in source code mode #105 - Jocs
+- Bugfix: #107
+- fix: #88 (#108) - Felix Häusler
+- Allow exiting full screen with maximize button on windows (#109) - Felix Häusler
+- Bugfix: Caret can not move right when it's at the end of math format. #101 - Jocs
 
 
 ### 0.8.12
