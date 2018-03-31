@@ -10,8 +10,7 @@
     "release:all": "node .electron-vue/build.js && electron-builder -mwl",
     "release:linux": "node .electron-vue/build.js && electron-builder --linux",
     "release:mac": "node .electron-vue/build.js && electron-builder --mac",
-    "release:win32": "node .electron-vue/build.js && electron-builder --win --ia32",
-    "release:win64": "node .electron-vue/build.js && electron-builder --win --x64",
+    "release:win": "node .electron-vue/build.js && electron-builder --win",
     "build": "node .electron-vue/build.js && electron-builder",
     "build:dir": "node .electron-vue/build.js && electron-builder --dir",
     "build:clean": "cross-env BUILD_TARGET=clean node .electron-vue/build.js",
@@ -68,7 +67,15 @@
     },
     "win": {
       "icon": "build/icons/icon.ico",
-      "target": "nsis",
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "ia32",
+            "x64"
+          ]
+        }
+      ],
       "requestedExecutionLevel": "asInvoker"
     },
     "nsis": {
