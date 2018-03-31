@@ -218,7 +218,7 @@ const importRegister = ContentState => {
     }
 
     travel(rootState, childNodes)
-    return rootState.children
+    return rootState.children.length ? rootState.children : [this.createBlock()]
   }
   // transform `paste's text/html data` to content state blocks.
   ContentState.prototype.html2State = function (html) {
