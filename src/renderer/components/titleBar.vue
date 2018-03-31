@@ -13,14 +13,22 @@
       <span class="save-dot" :class="{'show': !isSaved}"></span>
     </div>
     <div :class="platform === 'win32' ? 'left-toolbar' : 'right-toolbar'">
-      <div v-if="platform === 'win32'" class="windows-titlebar-menu title-no-drag" @click.stop="handleMenuClick">&#9776;</div>
+      <div
+        v-if="platform === 'win32'"
+        class="windows-titlebar-menu title-no-drag"
+        @click.stop="handleMenuClick"
+      >&#9776;</div>
       <div
         class="word-count"
         :class="[{ 'title-no-drag': platform === 'win32' }]"
         @click.stop="handleWordClick"
       >{{ `${HASH[show]} ${wordCount[show]}` }}</div>
     </div>
-    <div v-if="platform === 'win32'" class="right-toolbar" :class="[{ 'title-no-drag': platform === 'win32' }]">
+    <div
+      v-if="platform === 'win32'"
+      class="right-toolbar"
+      :class="[{ 'title-no-drag': platform === 'win32' }]"
+    >
       <div class="windows-titlebar-close" @click.stop="handleCloseClick">&times;</div>
       <div class="windows-titlebar-toggle" @click.stop="handleMaximizeClick">&#9633;</div>
       <div class="windows-titlebar-minimize" @click.stop="handleMinimizeClick">&minus;</div>
@@ -67,20 +75,26 @@
         if (index >= len) index = 0
         this.show = ITEMS[index]
       },
+
       handleCloseClick () {
         remote.getCurrentWindow().close()
       },
+
       handleMaximizeClick () {
         const win = remote.getCurrentWindow()
-        if (win.isMaximized()) {
+        if (win.isFullScreen()) {
+          win.setFullScreen(false)
+        } else if (win.isMaximized()) {
           win.unmaximize()
         } else {
           win.maximize()
         }
       },
+
       handleMinimizeClick () {
         remote.getCurrentWindow().minimize()
       },
+
       handleMenuClick () {
         const win = remote.getCurrentWindow()
         remote
@@ -137,7 +151,7 @@
     visibility: hidden;
   }
   .active .save-dot.show {
-    visibility: visible; 
+    visibility: visible;
   }
   .title:hover {
     color: #303133;
