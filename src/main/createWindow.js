@@ -17,6 +17,9 @@ const createWindow = (pathname, options = {}) => {
 
   const { x, y, width, height } = mainWindowState
   const winOpt = Object.assign({ x, y, width, height }, {
+    icon: path.join(__static, 'logo-96px.png'),
+    minWidth: 450,
+    minHeight: 220,
     webPreferences: {
       webSecurity: false
     },
