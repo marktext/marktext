@@ -4,7 +4,16 @@ import { conflict } from '../utils'
 import { getTextContent } from '../utils/domManipulate'
 import { CLASS_OR_ID } from '../config'
 
-const INLINE_UPDATE_REG = /^([*+-]\s)|^(\[[x\s]{1}\]\s)|^(\d+\.\s)|^(#{1,6})[^#]+|^(>).+|^\s{0,3}(\*\s*\*\s*\*|-\s*-\s*-|_\s*_\s*_)\s*$/i
+const INLINE_UPDATE_FREGMENTS = [
+  '^([*+-]\\s)', // Bullet list
+  '^(\\[[x\\s]{1}\\]\\s)', // Task list
+  '^(\\d+\\.\\s)', // Order list
+  '^\\s{0,3}(#{1,6})[^#]+', // ATX heading
+  '^(>).+', // Block quote
+  '^\\s{0,3}(\\*\\s*\\*\\s*\\*|-\\s*-\\s*-|_\\s*_\\s*_)\\s*$' // Thematic break
+]
+
+const INLINE_UPDATE_REG = new RegExp(INLINE_UPDATE_FREGMENTS.join('|'), 'i')
 
 const updateCtrl = ContentState => {
   ContentState.prototype.checkNeedRender = function (block) {

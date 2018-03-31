@@ -3,7 +3,7 @@ import { isLengthEven, union } from '../utils'
 
 const CAN_NEST_RULES = ['strong', 'em', 'link', 'del', 'image'] // image can not nest but it has children
 
-const tokenizerFac = (src, beginRules, inlineRules, pos = 0) => {
+const tokenizerFac = (src, beginRules, inlineRules, pos = 0, top) => {
   const tokens = []
   let pending = ''
   let pendingStartPos = pos
@@ -103,7 +103,7 @@ const tokenizerFac = (src, beginRules, inlineRules, pos = 0) => {
             range,
             marker,
             parent: tokens,
-            children: tokenizerFac(to[2], undefined, inlineRules, pos + to[1].length),
+            children: tokenizerFac(to[2], undefined, inlineRules, pos + to[1].length, false),
             backlash: to[3]
           })
         }
@@ -127,7 +127,7 @@ const tokenizerFac = (src, beginRules, inlineRules, pos = 0) => {
           start: pos,
           end: pos + linkTo[0].length
         },
-        children: tokenizerFac(linkTo[2], undefined, inlineRules, pos + linkTo[1].length),
+        children: tokenizerFac(linkTo[2], undefined, inlineRules, pos + linkTo[1].length, false),
         backlash: {
           first: linkTo[3],
           second: linkTo[5]
@@ -153,7 +153,7 @@ const tokenizerFac = (src, beginRules, inlineRules, pos = 0) => {
           end: pos + imageTo[0].length
         },
         title: imageTo[2],
-        children: tokenizerFac(imageTo[2], undefined, inlineRules, pos + imageTo[1].length),
+        children: tokenizerFac(imageTo[2], undefined, inlineRules, pos + imageTo[1].length, false),
         backlash: {
           first: imageTo[3],
           second: imageTo[5]
@@ -180,6 +180,23 @@ const tokenizerFac = (src, beginRules, inlineRules, pos = 0) => {
       pos = pos + autoLTo[0].length
       continue
     }
+    // tail header
+    const tailTo = inlineRules['tail_header'].exec(src)
+    if (tailTo && top) {
+      pushPending()
+      tokens.push({
+        type: 'tail_header',
+        marker: tailTo[1],
+        parent: tokens,
+        range: {
+          start: pos,
+          end: pos + tailTo[1].length
+        }
+      })
+      src = src.substring(tailTo[1].length)
+      pos += tailTo[1].length
+      continue
+    }
 
     if (!pending) pendingStartPos = pos
     pending += src[0]
@@ -192,7 +209,7 @@ const tokenizerFac = (src, beginRules, inlineRules, pos = 0) => {
 }
 
 export const tokenizer = (src, highlights = []) => {
-  const tokens = tokenizerFac(src, beginRules, inlineRules, 0)
+  const tokens = tokenizerFac(src, beginRules, inlineRules, 0, true)
   const postTokenizer = tokens => {
     for (const token of tokens) {
       for (const light of highlights) {

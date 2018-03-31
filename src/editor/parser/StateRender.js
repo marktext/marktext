@@ -208,6 +208,19 @@ class StateRender {
     ]
   }
 
+  ['tail_header'] (h, cursor, block, token, outerClass) {
+    const className = this.getClassName(outerClass, block, token, cursor)
+    const { start, end } = token.range
+    if (/^h\d$/.test(block.type)) {
+      const content = this.highlight(h, block, start, end, token)
+      return [
+        h(`span.${className}`, content)
+      ]
+    } else {
+      return this.highlight(h, block, start, end, token)
+    }
+  }
+
   ['code_fense'] (h, cursor, block, token, outerClass) {
     const { start, end } = token.range
     const { marker } = token
