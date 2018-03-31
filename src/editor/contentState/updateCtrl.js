@@ -12,12 +12,9 @@ const updateCtrl = ContentState => {
     const startOffset = cStart.offset
     const endOffset = cEnd.offset
     const tokens = tokenizer(block.text)
-    const len = tokens.length
     const textLen = block.text.length
-    let i
 
-    for (i = 0; i < len; i++) {
-      const token = tokens[i]
+    for (const token of tokens) {
       if (token.type === 'text') continue
       const { start, end } = token.range
       if (
