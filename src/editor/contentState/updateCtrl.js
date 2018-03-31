@@ -4,7 +4,7 @@ import { conflict } from '../utils'
 import { getTextContent } from '../utils/domManipulate'
 import { CLASS_OR_ID } from '../config'
 
-const INLINE_UPDATE_REG = /^([*+-]\s)|^(\[[x\s]{1}\]\s)|^(\d+\.\s)|^(#{1,6})[^#]+|^(>).+|^(\*{3,}|-{3,}|_{3,})/i
+const INLINE_UPDATE_REG = /^([*+-]\s)|^(\[[x\s]{1}\]\s)|^(\d+\.\s)|^(#{1,6})[^#]+|^(>).+|^\s{0,3}(\*\s*\*\s*\*|-\s*-\s*-|_\s*_\s*_)\s*$/i
 
 const updateCtrl = ContentState => {
   ContentState.prototype.checkNeedRender = function (block) {
@@ -224,6 +224,7 @@ const updateCtrl = ContentState => {
     }
   }
 
+  // thematic break
   ContentState.prototype.updateHr = function (block, marker) {
     block.type = 'hr'
   }
