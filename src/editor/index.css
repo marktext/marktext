@@ -91,7 +91,7 @@ span.ag-math {
   height: auto;
 }
 
-.ag-hide.ag-math > span:first-child {
+.ag-hide.ag-math > .ag-math-text {
   display: inline-block;
   width: 0;
   height: 0;

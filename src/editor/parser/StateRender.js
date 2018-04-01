@@ -256,15 +256,15 @@ class StateRender {
     const { content: math, type } = token
 
     return [
-      h(`span.${className}`, startMarker),
+      h(`span.${className}.${CLASS_OR_ID['AG_MATH_MARKER']}`, startMarker),
       h(`span.${className}.${CLASS_OR_ID['AG_MATH']}`, [
         h(`span.${CLASS_OR_ID['AG_MATH_TEXT']}`, content),
-        h(`span.${CLASS_OR_ID['AG_MATH_RENDER']}.${CLASS_OR_ID['AG_REMOVE']}`, {
+        h(`span.${CLASS_OR_ID['AG_MATH_RENDER']}`, {
           dataset: { math, type },
           attrs: { contenteditable: 'false' }
         }, 'Loading')
       ]),
-      h(`span.${className}`, endMarker)
+      h(`span.${className}.${CLASS_OR_ID['AG_MATH_MARKER']}`, endMarker)
     ]
   }
 

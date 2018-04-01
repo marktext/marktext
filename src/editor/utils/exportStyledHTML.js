@@ -133,6 +133,8 @@ class ExportHTML {
       `.${CLASS_OR_ID['AG_REMOVE']}`,
       `.${CLASS_OR_ID['AG_EMOJI_MARKER']}`,
       `.${CLASS_OR_ID['AG_TABLE_TOOL_BAR']}`,
+      `.${CLASS_OR_ID['AG_MATH_MARKER']}`,
+      `.${CLASS_OR_ID['AG_MATH_TEXT']}`,
       '.CodeMirror-cursors'
     ]
     $(removeClassNames.join(', ')).remove()
