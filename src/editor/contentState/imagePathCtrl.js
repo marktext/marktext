@@ -21,7 +21,9 @@ const imagePathCtrl = ContentState => {
     const { floatBox } = this
     const node = this.getImageTextNode()
 
-    if (!node || list.length === 0) return
+    if (!node || list.length === 0) {
+      return floatBox.hideIfNeeded('image-path')
+    }
     const { left, top } = node.getBoundingClientRect()
     const cb = item => {
       const { text } = item
@@ -37,6 +39,7 @@ const imagePathCtrl = ContentState => {
         start: { key, offset: offset + (text.length - chop.length) },
         end: { key, offset: offset + (text.length - chop.length) }
       }
+      floatBox.hideIfNeeded('image-path')
       this.render()
     }
     floatBox.showIfNeeded({ left, top }, 'image-path', cb)

@@ -24,7 +24,9 @@ ipcMain.on('AGANI::ask-for-insert-image', (e, type) => {
 
 ipcMain.on('AGANI::ask-for-image-auto-path', (e, { pathname, src }) => {
   const win = BrowserWindow.fromWebContents(e.sender)
-  if (src.endsWith('/') || src.endsWith('.')) return
+  if (src.endsWith('/') || src.endsWith('.')) {
+    return win.webContents.send('AGANI::image-auto-path', [])
+  }
   const fullPath = path.isAbsolute(src) ? src : path.join(path.dirname(pathname), src)
   const dir = path.dirname(fullPath)
   const searchKey = path.basename(fullPath)
