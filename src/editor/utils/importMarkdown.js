@@ -222,7 +222,8 @@ const importRegister = ContentState => {
   }
   // transform `paste's text/html data` to content state blocks.
   ContentState.prototype.html2State = function (html) {
-    const markdown = turndownService.turndown(html)
+    // remove double `\\` in Math but I dont know why there are two '\' when paste. @jocs
+    const markdown = turndownService.turndown(html).replace(/(\\)\\/g, '$1')
     return this.getStateFragment(markdown)
   }
 

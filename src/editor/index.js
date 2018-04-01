@@ -147,7 +147,7 @@ class Aganippe {
       const { left, top } = emojiNode.getBoundingClientRect()
       const cb = item => {
         setInlineEmoji(emojiNode, item, selection)
-        this.floatBox.hideIfNeeded(['emojis'])
+        this.floatBox.hideIfNeeded(['emoji'])
       }
       if (list.length) {
         this.floatBox.showIfNeeded({
@@ -155,7 +155,7 @@ class Aganippe {
         }, 'emoji', cb)
         this.floatBox.setOptions(list)
       } else {
-        this.floatBox.hideIfNeeded('emojis')
+        this.floatBox.hideIfNeeded('emoji')
       }
     }
   }
