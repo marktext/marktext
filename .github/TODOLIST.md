@@ -8,7 +8,7 @@
 
 - [x] source code edit mode typewriter mode focus mode.
 
-- [ ] Support Raw HTML in Mark Text
+- [ ] Support Block HTML and Raw HTML in Mark Text
 
 - [x] Support iamge path auto accompliment.
 
@@ -27,12 +27,6 @@
       - Default theme
 
 - [x] Inline and block Math
-
-- [ ] Subscript (default false)
-
-- [ ] Supperscript (default false)
-
-- [ ] Hightlight (default false)
 
 - [ ] Auto Pair
 
