@@ -62,6 +62,8 @@
 
 - [ ] Copy as HTML
 
+- [ ] Redesign the float box
+
 ##### Documents
 
 - [ ] Manual
