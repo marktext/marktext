@@ -1,3 +1,15 @@
+### 0.10.4
+
+**:cactus:Feature**
+
+
+**:butterfly:Optimization**
+
+
+**:beetle:Bug fix**
+
+- fix: update outdated preferences on startup #100
+
 ### 0.9.25
 
 **:cactus:Feature**
