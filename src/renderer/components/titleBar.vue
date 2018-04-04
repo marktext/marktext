@@ -3,41 +3,65 @@
     :class="[{ 'active': active }, theme]"
   >
     <div class="title">
-      <span v-for="(path, index) of paths" :key="index">
+      <span
+        v-for="(path, index) of paths"
+        :key="index"
+        :class="{ 'title-no-drag': platform !== 'darwin' }"
+      >
         {{ path }}
         <svg class="icon" aria-hidden="true">
           <use xlink:href="#icon-arrow-right"></use>
         </svg>
       </span>
-      <span :class="[{ 'title-no-drag': platform === 'win32' }]">{{ filename }}</span>
+      <span>{{ filename }}</span>
       <span class="save-dot" :class="{'show': !isSaved}"></span>
     </div>
-    <div :class="platform === 'win32' ? 'left-toolbar' : 'right-toolbar'">
+    <div :class="platform !== 'darwin' ? 'left-toolbar' : 'right-toolbar'">
       <div
-        v-if="platform === 'win32'"
-        class="windows-titlebar-menu title-no-drag"
+        v-if="platform !== 'darwin'"
+        class="frameless-titlebar-menu title-no-drag"
         @click.stop="handleMenuClick"
       >&#9776;</div>
       <div
         class="word-count"
-        :class="[{ 'title-no-drag': platform === 'win32' }]"
+        :class="[{ 'title-no-drag': platform !== 'darwin' }]"
         @click.stop="handleWordClick"
       >{{ `${HASH[show]} ${wordCount[show]}` }}</div>
     </div>
     <div
-      v-if="platform === 'win32'"
+      v-if="platform !== 'darwin'"
       class="right-toolbar"
-      :class="[{ 'title-no-drag': platform === 'win32' }]"
+      :class="[{ 'title-no-drag': platform !== 'darwin' }]"
     >
-      <div class="windows-titlebar-close" @click.stop="handleCloseClick">&times;</div>
-      <div class="windows-titlebar-toggle" @click.stop="handleMaximizeClick">&#9633;</div>
-      <div class="windows-titlebar-minimize" @click.stop="handleMinimizeClick">&minus;</div>
+      <div class="frameless-titlebar-button frameless-titlebar-close" @click.stop="handleCloseClick">
+        <div>
+          <svg width="10" height="10">
+            <path :d="windowIconClose" />
+          </svg>
+        </div>
+      </div>
+      <div class="frameless-titlebar-button frameless-titlebar-toggle" @click.stop="handleMaximizeClick">
+        <div>
+          <svg width="10" height="10">
+            <path v-show="!isMaximized" :d="windowIconMaximize" />
+            <path v-show="isMaximized" :d="windowIconRestore" />
+          </svg>
+        </div>
+      </div>
+      <div class="frameless-titlebar-button frameless-titlebar-minimize" @click.stop="handleMinimizeClick">
+        <div>
+          <svg width="10" height="10">
+            <path :d="windowIconMinimize" />
+          </svg>
+        </div>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
   import { remote } from 'electron'
+  import { minimizePath, restorePath, maximizePath, closePath } from '../assets/window-controls.js'
 
   export default {
     data () {
@@ -47,9 +71,20 @@
         'paragraph': 'P',
         'all': 'A'
       }
+      this.windowIconMinimize = minimizePath
+      this.windowIconRestore = restorePath
+      this.windowIconMaximize = maximizePath
+      this.windowIconClose = closePath
       return {
+        isMaximized: remote.getCurrentWindow().isMaximized() || remote.getCurrentWindow().isFullScreen(),
         show: 'word'
       }
+    },
+    created () {
+      const win = remote.getCurrentWindow()
+      ;['maximize', 'unmaximize', 'enter-full-screen', 'leave-full-screen'].forEach(type => {
+        win.on(type, this.handleWindowStateChanged)
+      })
     },
     props: {
       filename: String,
@@ -101,7 +136,17 @@
           .Menu
           .getApplicationMenu()
           .popup({ window: win, x: 23, y: 20 })
+      },
+
+      handleWindowStateChanged () {
+        this.isMaximized = remote.getCurrentWindow().isMaximized() || remote.getCurrentWindow().isFullScreen()
       }
+    },
+    beforeDestroy () {
+      const win = remote.getCurrentWindow()
+      ;['maximize', 'unmaximize', 'enter-full-screen', 'leave-full-screen'].forEach(type => {
+        win.removeListener(type, this.handleWindowStateChanged)
+      })
     }
   }
 </script>
@@ -200,41 +245,35 @@
   .title-no-drag {
     -webkit-app-region: no-drag;
   }
-  /* windows window controls */
-  .windows-titlebar-close {
+  /* frameless window controls */
+  .frameless-titlebar-button {
+    position: relative;
+    display: block;
     width: 25px;
     height: 25px;
-    text-align: center;
-    font-size: 30px;
-    color: #606266;
-    line-height: 24px;
   }
-  .windows-titlebar-toggle {
-    width: 25px;
-    height: 25px;
-    text-align: center;
-    font-size: 29px;
-    color: #606266;
-    line-height: 16px;
+  .frameless-titlebar-button > div {
+    position: absolute;
+    display: inline-flex;
+    top: 50%;
+    left: 50%;
+    transform: translateX(-50%) translateY(-50%);
   }
-  .windows-titlebar-minimize {
-    width: 25px;
-    height: 25px;
-    text-align: center;
-    font-size: 30px;
-    color: #606266;
-    line-height: 24px;
-  }
-  .windows-titlebar-menu {
+  .frameless-titlebar-menu {
     color: #606266;
   }
-  .windows-titlebar-close:hover {
+  .frameless-titlebar-close:hover {
     background-color: rgb(228, 79, 79);
-    color: white;
   }
-  .windows-titlebar-minimize:hover,
-  .windows-titlebar-toggle:hover {
+  .frameless-titlebar-minimize:hover,
+  .frameless-titlebar-toggle:hover {
     background-color: rgba(0, 0, 0, 0.1);
+  }
+  .frameless-titlebar-button svg {
+    fill: #000000
+  }
+  .frameless-titlebar-close:hover svg {
+    fill: #ffffff
   }
   /* css for dark theme */
   .dark {
@@ -247,5 +286,11 @@
   .dark .word-count:hover {
     background: rgb(71, 72, 66);
     color: #C0C4CC;
+  }
+  .dark .frameless-titlebar-button svg {
+    fill: #909399
+  }
+  .dark .frameless-titlebar-close:hover svg {
+    fill: #ffffff
   }
 </style>
