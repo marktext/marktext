@@ -239,14 +239,17 @@ const updateCtrl = ContentState => {
     const { floatBox } = this
     const { start, end } = selection.getCursorRange()
     const { start: oldStart, end: oldEnd } = this.cursor
+
     if (event.type === 'keyup' && (event.key === 'ArrowUp' || event.key === 'ArrowDown') && floatBox.show) {
       return
     }
+
     if (event.type === 'click' && start.key !== end.key) {
       setTimeout(() => {
         this.updateState(event)
       })
     }
+
     if (event.type === 'input' && oldStart.key !== oldEnd.key) {
       const startBlock = this.getBlock(oldStart.key)
       const endBlock = this.getBlock(oldEnd.key)
@@ -293,7 +296,7 @@ const updateCtrl = ContentState => {
     const block = this.getBlock(key)
 
     let needRender = false
-    if (event.type === 'click' && block.type === 'figure') {
+    if (event.type === 'click' && block.type === 'figure' && block.functionType === 'table') {
       // first cell in thead
       const cursorBlock = block.children[1].children[0].children[0].children[0]
       const offset = cursorBlock.text.length

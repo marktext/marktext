@@ -331,15 +331,24 @@ code {
   }
 }
 
-#ag-editor-id pre.ag-code-block {
+#ag-editor-id pre.ag-code-block,
+#ag-editor-id pre.ag-html-block {
   padding: .4rem 1rem;
   font-size: 90%;
   line-height: 1.6;
-  background-color: #f6f8fa;
+  background: #f6f8fa;
   border: 0;
   border-radius: 3px;
   color: #777777;
   margin-top: 0;
+}
+
+#ag-editor-id pre.ag-html-block {
+  background: transparent;
+}
+
+#ag-editor-id pre.ag-active.ag-html-block {
+  background: #F2F6FC;
 }
 
 .fg-color-dark {

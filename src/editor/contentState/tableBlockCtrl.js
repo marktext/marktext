@@ -3,39 +3,6 @@ import { isLengthEven } from '../utils'
 const TABLE_BLOCK_REG = /^\|.*?(\\*)\|.*?(\\*)\|/
 
 const tableBlockCtrl = ContentState => {
-  ContentState.prototype.createToolBar = function () {
-    const toolBar = this.createBlock('div')
-    toolBar.editable = false
-    const ul = this.createBlock('ul')
-    const tools = [{
-      label: 'table',
-      icon: 'icon-table'
-    }, {
-      label: 'left',
-      icon: 'icon-alignleft'
-    }, {
-      label: 'center',
-      icon: 'icon-aligncenter'
-    }, {
-      label: 'right',
-      icon: 'icon-alignright'
-    }, {
-      label: 'delete',
-      icon: 'icon-del'
-    }]
-
-    tools.forEach(tool => {
-      const toolBlock = this.createBlock('li')
-      const svgBlock = this.createBlock('svg')
-      svgBlock.icon = tool.icon
-      toolBlock.label = tool.label
-      this.appendChild(toolBlock, svgBlock)
-      this.appendChild(ul, toolBlock)
-    })
-    this.appendChild(toolBar, ul)
-    return toolBar
-  }
-
   ContentState.prototype.createTable = function ({ rows, columns }, headerTexts) {
     const table = this.createBlock('table')
     const tHead = this.createBlock('thead')
@@ -62,7 +29,23 @@ const tableBlockCtrl = ContentState => {
 
   ContentState.prototype.createFigure = function ({ rows, columns }) {
     const { start, end } = this.cursor
-    const toolBar = this.createToolBar()
+    const tools = [{
+      label: 'table',
+      icon: 'icon-table'
+    }, {
+      label: 'left',
+      icon: 'icon-alignleft'
+    }, {
+      label: 'center',
+      icon: 'icon-aligncenter'
+    }, {
+      label: 'right',
+      icon: 'icon-alignright'
+    }, {
+      label: 'delete',
+      icon: 'icon-del'
+    }]
+    const toolBar = this.createToolBar(tools, 'table')
     const table = this.createTable({ rows, columns })
     let figureBlock
     if (start.key === end.key) {
@@ -73,6 +56,7 @@ const tableBlockCtrl = ContentState => {
       } else {
         figureBlock = startBlock
         figureBlock.type = 'figure'
+        figureBlock.functionType = 'table'
         figureBlock.text = ''
         figureBlock.children = []
       }

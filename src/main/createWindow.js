@@ -8,6 +8,31 @@ import { isMarkdownFile } from './utils'
 
 export const windows = new Map()
 
+const ensureWindowPosition = mainWindowState => {
+  let { x, y, width, height } = mainWindowState
+  let center = false
+  if (x === undefined || y === undefined) {
+    center = true
+  } else {
+    center = !screen.getAllDisplays().map(display =>
+      x >= display.bounds.x && x <= display.bounds.x + display.bounds.width &&
+      y >= display.bounds.y && y <= display.bounds.y + display.bounds.height)
+      .some(display => display)
+  }
+  if (center) {
+    // win.center() and "workArea" doesn't work on Linux
+    const screenArea = process.platform === 'linux' ? screen.getPrimaryDisplay().bounds : screen.getPrimaryDisplay().workArea
+    x = Math.ceil(screenArea.x + (screenArea.width - width) / 2)
+    y = Math.ceil(screenArea.y + (screenArea.height - height) / 2)
+  }
+  return {
+    x,
+    y,
+    width,
+    height
+  }
+}
+
 const createWindow = (pathname, options = {}) => {
   const TITLE_BAR_HEIGHT = 21
   const mainWindowState = windowStateKeeper({
@@ -69,31 +94,6 @@ const createWindow = (pathname, options = {}) => {
 
   windows.set(win.id, win)
   return win
-}
-
-const ensureWindowPosition = mainWindowState => {
-  let { x, y, width, height } = mainWindowState
-  let center = false
-  if (x === undefined || y === undefined) {
-    center = true
-  } else {
-    center = !screen.getAllDisplays().map(display =>
-      x >= display.bounds.x && x <= display.bounds.x + display.bounds.width &&
-      y >= display.bounds.y && y <= display.bounds.y + display.bounds.height)
-      .some(display => display)
-  }
-  if (center) {
-    // win.center() and "workArea" doesn't work on Linux
-    const screenArea = process.platform === 'linux' ? screen.getPrimaryDisplay().bounds : screen.getPrimaryDisplay().workArea
-    x = Math.ceil(screenArea.x + (screenArea.width - width) / 2)
-    y = Math.ceil(screenArea.y + (screenArea.height - height) / 2)
-  }
-  return {
-    x,
-    y,
-    width,
-    height
-  }
 }
 
 export default createWindow

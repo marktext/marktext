@@ -29,6 +29,7 @@ const codeBlockCtrl = ContentState => {
     const match = CODE_UPDATE_REP.exec(block.text)
     if (match) {
       block.type = 'pre'
+      block.functionType = 'code'
       block.text = ''
       block.history = null
       block.lang = match[1]
@@ -38,7 +39,8 @@ const codeBlockCtrl = ContentState => {
 
   ContentState.prototype.pre2CodeMirror = function (isRenderCursor) {
     const { eventCenter } = this
-    const pres = document.querySelectorAll(`pre.${CLASS_OR_ID['AG_CODE_BLOCK']}`)
+    const selector = `pre.${CLASS_OR_ID['AG_CODE_BLOCK']}, pre.${CLASS_OR_ID['AG_HTML_BLOCK']}`
+    const pres = document.querySelectorAll(selector)
     Array.from(pres).forEach(pre => {
       const id = pre.id
       const block = this.getBlock(id)
@@ -47,18 +49,20 @@ const codeBlockCtrl = ContentState => {
       const config = Object.assign(codeMirrorConfig, { autofocus, value: block.text })
       const codeBlock = codeMirror(pre, config)
       const mode = pre.getAttribute('data-lang')
-      const input = createInputInCodeBlock(pre)
+      let input
+      if (block.functionType === 'code') {
+        input = createInputInCodeBlock(pre)
+      }
 
-      const handler = langMode => {
-        const {
-          name
-        } = langMode
+      const handler = ({ name }) => {
         setMode(codeBlock, name)
           .then(m => {
             pre.setAttribute('data-lang', m.name)
-            input.value = m.name
             block.lang = m.name.toLowerCase()
-            input.blur()
+            if (input) {
+              input.value = m.name
+              input.blur()
+            }
             if (this.cursor.start.key === block.key && isRenderCursor) {
               if (block.pos) {
                 codeBlock.focus()
@@ -85,10 +89,12 @@ const codeBlockCtrl = ContentState => {
         codeBlock.setHistory(block.history)
       }
 
-      eventCenter.attachDOMEvent(input, 'keyup', () => {
-        const value = input.value
-        eventCenter.dispatch('editLanguage', input, value.trim(), handler)
-      })
+      if (input) {
+        eventCenter.attachDOMEvent(input, 'keyup', () => {
+          const value = input.value
+          eventCenter.dispatch('editLanguage', input, value.trim(), handler)
+        })
+      }
 
       codeBlock.on('focus', (cm, event) => {
         block.pos = cm.getCursor()
@@ -107,7 +113,14 @@ const codeBlockCtrl = ContentState => {
       codeBlock.on('change', (cm, change) => {
         block.text = cm.getValue()
         block.history = cm.getHistory()
-
+        // todo handle preview in HTML block
+        if (block.functionType === 'html') {
+          const preBlock = this.getNextSibling(block)
+          const htmlBlock = this.getParent(this.getParent(block))
+          preBlock.htmlContent = htmlBlock.text = block.text
+          const preEle = document.querySelector(`#${preBlock.key}`)
+          preEle.innerHTML = block.text
+        }
         const { undo } = cm.historySize()
         if (undo > lastUndoLength) {
           this.history.push({

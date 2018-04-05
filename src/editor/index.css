@@ -38,6 +38,16 @@ h6.ag-active::before {
   color: #303133;
 }
 
+div.ag-function-html .ag-html-preview,
+div.ag-function-html.ag-active pre.ag-html-block {
+  display: block;
+}
+
+div.ag-function-html.ag-active .ag-html-preview,
+div.ag-function-html pre.ag-html-block {
+  display: none;
+}
+
 .ag-highlight {
   animation-name: highlight;
   animation-duration: .25s;
@@ -116,7 +126,7 @@ figure {
   margin-top: 25px;
   position: relative;
 }
-.ag-table-tool-bar {
+.ag-tool-bar {
   width: 100%;
   user-select: none;
   position: absolute;
@@ -124,7 +134,7 @@ figure {
   left: 0;
   display: none;
 }
-.ag-table-tool-bar ul {
+.ag-tool-bar ul {
   height: 18px;
   list-style: none;
   margin: 0;
@@ -132,7 +142,7 @@ figure {
   display: flex;
   width: 100%;
 }
-.ag-table-tool-bar ul li {
+.ag-tool-bar ul li {
   box-sizing: border-box;
   display: flex;
   width: 18px;
@@ -144,27 +154,54 @@ figure {
   color: #606266;
 }
 
-.ag-table-tool-bar ul li[data-label=delete] {
-  color: #E6A23C;
+.ag-tool-bar ul li[data-label=delete] {
   position: absolute;
-  right: 0;
   top: 0;
 }
 
-.ag-table-tool-bar ul li.active {
+.ag-tool-bar ul li[data-label=delete] {
+  color: #E6A23C;
+  right: 0;
+}
+
+.ag-tool-bar ul li.active {
   color: #409eff;
 }
 
-.ag-table-tool-bar ul li svg {
+.ag-tool-bar ul li svg {
   transition: transform .2s ease-in-out;
 }
 
-.ag-table-tool-bar ul li:hover svg {
+.ag-tool-bar ul li:hover svg {
   transform: scale(1.1);
 }
 
-figure.ag-active .ag-table-tool-bar {
+figure.ag-active .ag-tool-bar {
   display: block;
+}
+
+figure[data-role=HTML] {
+  margin-top: 0;
+}
+
+figure.ag-active[data-role=HTML]::before {
+  content: attr(data-role);
+  width: auto;
+  padding: 0 .3rem;
+  letter-spacing: .1rem;
+  height: 20px;
+  text-align: center;
+  line-height: 22px;
+  display: block;
+  position: absolute;
+  top: 0;
+  left: -45px;
+  border: 1px solid #C0C4CC;
+  border-radius: 3px;
+  font-size: 12px;
+  color: #C0C4CC;
+  transform: scale(.7);
+  font-weight: 300;
 }
 
 table {
@@ -259,15 +296,27 @@ p:not(.ag-active)[data-role="hr"]::before {
 p:not(.ag-active)[data-role="hr"] * {
   color: transparent;
 }
-#ag-editor-id figure,
-#ag-editor-id pre.ag-code-block {
+
+figure,
+pre.ag-html-block,
+div.ag-function-html,
+pre.ag-code-block {
   position: relative;
   display: inline-flex;
   box-sizing: border-box;
   width: 100%;
 }
 
-#ag-editor-id pre .CodeMirror {
+div.ag-html-preview {
+  pointer-events: none;
+  width: 100%;
+}
+
+.ag-active div.ag-html-preview {
+  background: #F2F6FC;
+}
+
+pre .CodeMirror {
   width: 100%;
 }
 

@@ -41,8 +41,12 @@ class ExportMarkdown {
 
         case 'figure':
           this.insertLineBreak(result, indent, true)
-          const table = block.children[1]
-          result.push(this.normalizeTable(table, indent))
+          if (block.functionType === 'table') {
+            const table = block.children[1]
+            result.push(this.normalizeTable(table, indent))
+          } else if (block.functionType === 'html') {
+            // todo @jocs
+          }
           break
 
         case 'li': {

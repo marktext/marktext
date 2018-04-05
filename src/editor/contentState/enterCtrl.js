@@ -126,7 +126,7 @@ const enterCtrl = ContentState => {
       }
       return this.firstInDescendant(nextSibling)
     }
-
+    // enter in table
     if (/th|td/.test(block.type)) {
       const row = this.getBlock(block.parent)
       const rowContainer = this.getBlock(row.parent)
@@ -268,18 +268,23 @@ const enterCtrl = ContentState => {
     this.codeBlockUpdate(newBlock.type === 'li' ? newBlock.children[0] : newBlock)
     // If block is pre block when updated, need to focus it.
     const blockNeedFocus = this.codeBlockUpdate(block.type === 'li' ? block.children[0] : block)
-    let tableNeedFocus = false
+    let tableNeedFocus = this.tableBlockUpdate(block.type === 'li' ? block.children[0] : block)
+    let htmlNeedFocus = this.updateHtmlBlock(block.type === 'li' ? block.children[0] : block)
     let cursorBlock
-    if (!blockNeedFocus) {
-      tableNeedFocus = this.tableBlockUpdate(block.type === 'li' ? block.children[0] : block)
-    }
 
-    if (blockNeedFocus) {
-      cursorBlock = block
-    } else if (tableNeedFocus) {
-      cursorBlock = tableNeedFocus
-    } else {
-      cursorBlock = newBlock
+    switch (true) {
+      case !!blockNeedFocus:
+        cursorBlock = block
+        break
+      case !!tableNeedFocus:
+        cursorBlock = tableNeedFocus
+        break
+      case !!htmlNeedFocus:
+        cursorBlock = htmlNeedFocus
+        break
+      default:
+        cursorBlock = newBlock
+        break
     }
 
     let key
