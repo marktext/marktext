@@ -80,9 +80,12 @@ const codeBlockCtrl = ContentState => {
       this.codeBlocks.set(id, codeBlock)
 
       if (mode) {
-        handler({
-          name: mode
-        })
+        handler({ name: mode })
+      }
+
+      if (block.pos) {
+        codeBlock.focus()
+        codeBlock.setCursor(block.pos)
       }
 
       if (block.history) {

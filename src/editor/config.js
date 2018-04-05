@@ -156,3 +156,25 @@ export const turndownConfig = {
   emDelimiter: '_',
   strongDelimiter: '**'
 }
+
+export const TABLE_TOOLS = [{
+  label: 'table',
+  icon: 'icon-table'
+}, {
+  label: 'left',
+  icon: 'icon-alignleft'
+}, {
+  label: 'center',
+  icon: 'icon-aligncenter'
+}, {
+  label: 'right',
+  icon: 'icon-alignright'
+}, {
+  label: 'delete',
+  icon: 'icon-del'
+}]
+
+export const HTML_TOOLS = [{
+  label: 'delete',
+  icon: 'icon-del'
+}]

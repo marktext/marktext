@@ -1,4 +1,5 @@
 import { isLengthEven } from '../utils'
+import { TABLE_TOOLS } from '../config'
 
 const TABLE_BLOCK_REG = /^\|.*?(\\*)\|.*?(\\*)\|/
 
@@ -29,23 +30,7 @@ const tableBlockCtrl = ContentState => {
 
   ContentState.prototype.createFigure = function ({ rows, columns }) {
     const { start, end } = this.cursor
-    const tools = [{
-      label: 'table',
-      icon: 'icon-table'
-    }, {
-      label: 'left',
-      icon: 'icon-alignleft'
-    }, {
-      label: 'center',
-      icon: 'icon-aligncenter'
-    }, {
-      label: 'right',
-      icon: 'icon-alignright'
-    }, {
-      label: 'delete',
-      icon: 'icon-del'
-    }]
-    const toolBar = this.createToolBar(tools, 'table')
+    const toolBar = this.createToolBar(TABLE_TOOLS, 'table')
     const table = this.createTable({ rows, columns })
     let figureBlock
     if (start.key === end.key) {

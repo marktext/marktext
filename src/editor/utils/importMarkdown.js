@@ -10,7 +10,7 @@ import marked from '../parser/marked'
 import ExportMarkdown from './exportMarkdown'
 
 // To be disabled rules when parse markdown, Because content state don't need to parse inline rules
-import { turndownConfig, CLASS_OR_ID, CURSOR_DNA } from '../config'
+import { turndownConfig, CLASS_OR_ID, CURSOR_DNA, TABLE_TOOLS, HTML_TOOLS } from '../config'
 
 const turndownPluginGfm = require('turndown-plugin-gfm')
 
@@ -37,6 +37,14 @@ turndownService.addRule('normalEmoji', {
     return content.replace(/\\/g, '')
   }
 })
+
+const checkIsHTML = value => {
+  return /^<([a-zA-Z\d-]+)(?=\s|>).*>/.test(value.trim())
+}
+
+const chopHTML = value => {
+  return value.trim().split(/\n{2,}/)
+}
 
 const importRegister = ContentState => {
   ContentState.prototype.getStateFragment = function (markdown) {
@@ -113,10 +121,11 @@ const importRegister = ContentState => {
             break
 
           case 'table':
-            const toolBar = this.createToolBar()
+            const toolBar = this.createToolBar(TABLE_TOOLS, 'table')
             const table = this.createBlock('table')
             Object.assign(table, getRowColumnCount(child.childNodes)) // set row and column
             block = this.createBlock('figure')
+            block.functionType = 'table'
             this.appendChild(block, toolBar)
             this.appendChild(block, table)
             this.appendChild(parent, block)
@@ -202,9 +211,30 @@ const importRegister = ContentState => {
             const { parentNode } = child
             value = child.value
 
-            if ((parentNode.nodeName === 'li' || parentNode.nodeName === '#document-fragment') && /\S/.test(value)) {
-              block = this.createBlock('p', value)
-              this.appendChild(parent, block)
+            if (/\S/.test(value)) {
+              if (parentNode.nodeName === 'li') {
+                block = this.createBlock('p', value)
+                this.appendChild(parent, block)
+              } else if (checkIsHTML(value)) {
+                const fragments = chopHTML(value)
+                fragments.forEach(fragment => {
+                  if (checkIsHTML(fragment)) {
+                    // is html block
+                    block = this.createBlock('figure')
+                    block.functionType = 'html'
+                    block.text = fragment
+                    const toolBar = this.createToolBar(HTML_TOOLS, 'html')
+                    const htmlBlock = this.createCodeInHtml(fragment)
+                    this.appendChild(block, toolBar)
+                    this.appendChild(block, htmlBlock)
+                    this.appendChild(parent, block)
+                  } else {
+                    // not html block
+                    block = this.createBlock('p', fragment)
+                    this.appendChild(parent, block)
+                  }
+                })
+              }
             }
             break
 

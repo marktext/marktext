@@ -1,4 +1,4 @@
-import { VOID_HTML_TAGS, /* BLOCK_TYPE1, BLOCK_TYPE2_REG, BLOCK_TYPE6, BLOCK_TYPE7, */HTML_TAGS, CLASS_OR_ID } from '../config'
+import { VOID_HTML_TAGS, /* BLOCK_TYPE1, BLOCK_TYPE2_REG, BLOCK_TYPE6, BLOCK_TYPE7, */HTML_TAGS, CLASS_OR_ID, HTML_TOOLS } from '../config'
 
 const HTML_BLOCK_REG = /^<([a-zA-Z\d-]+)(?=\s|>).*>$/
 
@@ -22,7 +22,7 @@ const htmlBlock = ContentState => {
     return toolBar
   }
 
-  ContentState.prototype.createCodeInHtml = function (code) {
+  ContentState.prototype.createCodeInHtml = function (code, pos) {
     const codeContainer = this.createBlock('div')
     codeContainer.functionType = 'html'
     const preview = this.createBlock('div')
@@ -33,6 +33,9 @@ const htmlBlock = ContentState => {
     codePre.lang = 'html'
     codePre.functionType = 'html'
     codePre.text = code
+    if (pos) {
+      codePre.pos = pos
+    }
     this.appendChild(codeContainer, codePre)
     this.appendChild(codeContainer, preview)
     return codeContainer
@@ -84,16 +87,17 @@ const htmlBlock = ContentState => {
     const isVoidTag = VOID_HTML_TAGS.indexOf(tagName) > -1
     const { text } = block
     const htmlContent = isVoidTag ? text : `${text}\n\n</${tagName}>`
-    const tools = [{
-      label: 'delete',
-      icon: 'icon-del'
-    }]
+
+    const pos = {
+      line: isVoidTag ? 0 : 1,
+      ch: isVoidTag ? text.length : 0
+    }
     block.type = 'figure'
     block.functionType = 'html'
     block.text = htmlContent
     block.children = []
-    const toolBar = this.createToolBar(tools, 'html')
-    const codeContainer = this.createCodeInHtml(htmlContent)
+    const toolBar = this.createToolBar(HTML_TOOLS, 'html')
+    const codeContainer = this.createCodeInHtml(htmlContent, pos)
     this.appendChild(block, toolBar)
     this.appendChild(block, codeContainer)
     return codeContainer.children[0]
