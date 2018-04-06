@@ -70,7 +70,7 @@ const arrowCtrl = ContentState => {
     const block = this.getBlock(id)
     const preBlock = this.findPreBlockInLocation(block)
     const nextBlock = this.findNextBlockInLocation(block)
-    console.log(nextBlock)
+
     const { left, right } = selection.getCaretOffsets(paragraph)
     const { start, end } = selection.getCursorRange()
 
@@ -174,7 +174,7 @@ const arrowCtrl = ContentState => {
         start: { key, offset },
         end: { key, offset }
       }
-      console.log('render')
+
       return this.render()
     } else if (
       (nextBlock && nextBlock.type === 'pre' && event.key === EVENT_KEYS.ArrowDown) ||
