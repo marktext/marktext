@@ -70,6 +70,7 @@ const arrowCtrl = ContentState => {
     const block = this.getBlock(id)
     const preBlock = this.findPreBlockInLocation(block)
     const nextBlock = this.findNextBlockInLocation(block)
+    console.log(nextBlock)
     const { left, right } = selection.getCaretOffsets(paragraph)
     const { start, end } = selection.getCursorRange()
 
@@ -106,6 +107,7 @@ const arrowCtrl = ContentState => {
     } else if (block.type === 'pre') {
       // handle cursor in code block. the case at firstline or lastline.
       const cm = this.codeBlocks.get(id)
+      const anchorBlock = block.functionType === 'html' ? this.getParent(this.getParent(block)) : block
       let activeBlock
       event.preventDefault()
 
@@ -120,7 +122,7 @@ const arrowCtrl = ContentState => {
             if (preBlock.type === 'pre') {
               activeBlock = this.createBlock('p')
               activeBlock.temp = true
-              this.insertAfter(activeBlock, preBlock)
+              this.insertBefore(activeBlock, anchorBlock)
             }
           }
           break
@@ -135,7 +137,7 @@ const arrowCtrl = ContentState => {
               if (nextBlock.type === 'pre') {
                 activeBlock = this.createBlock('p')
                 activeBlock.temp = true
-                this.insertAfter(activeBlock, block)
+                this.insertAfter(activeBlock, anchorBlock)
               }
             } else {
               activeBlock = this.createBlock('p')
@@ -172,6 +174,7 @@ const arrowCtrl = ContentState => {
         start: { key, offset },
         end: { key, offset }
       }
+      console.log('render')
       return this.render()
     } else if (
       (nextBlock && nextBlock.type === 'pre' && event.key === EVENT_KEYS.ArrowDown) ||

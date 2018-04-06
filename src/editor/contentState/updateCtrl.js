@@ -15,6 +15,8 @@ const INLINE_UPDATE_FREGMENTS = [
 
 const INLINE_UPDATE_REG = new RegExp(INLINE_UPDATE_FREGMENTS.join('|'), 'i')
 
+let lastCursor = null
+
 const updateCtrl = ContentState => {
   ContentState.prototype.checkNeedRender = function (block) {
     const { start: cStart, end: cEnd } = this.cursor
@@ -290,7 +292,7 @@ const updateCtrl = ContentState => {
       return
     }
     const key = start.key
-    const oldKey = oldStart.key
+    const oldKey = lastCursor ? lastCursor.start.key : null
     const paragraph = document.querySelector(`#${key}`)
     const text = getTextContent(paragraph, [ CLASS_OR_ID['AG_MATH_RENDER'] ])
     const block = this.getBlock(key)
@@ -337,7 +339,7 @@ const updateCtrl = ContentState => {
       needRender = true
     }
 
-    this.cursor = { start, end }
+    this.cursor = lastCursor = { start, end }
 
     const checkMarkedUpdate = this.checkNeedRender(block)
     const checkInlineUpdate = this.checkInlineUpdate(block)

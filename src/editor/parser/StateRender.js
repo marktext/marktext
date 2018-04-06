@@ -1,3 +1,4 @@
+import virtualize from 'snabbdom-virtualize/strings'
 import { LOWERCASE_TAGS, CLASS_OR_ID, IMAGE_EXT_REG } from '../config'
 import { conflict, isLengthEven, union, isEven, getIdWithoutSet, loadImage, getImageSrc } from '../utils'
 import { insertAfter, operateClassName } from '../utils/domManipulate'
@@ -155,7 +156,7 @@ class StateRender {
         if (block.type === 'div' && block.htmlContent !== undefined) {
           blockSelector += `.${CLASS_OR_ID['AG_HTML_PREVIEW']}`
           Object.assign(data.attrs, { contenteditable: 'false' })
-          Object.assign(data.dataset, { content: block.htmlContent })
+          children = virtualize(block.htmlContent)
         }
 
         if (/svg/.test(block.type)) {

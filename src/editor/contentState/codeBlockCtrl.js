@@ -83,7 +83,7 @@ const codeBlockCtrl = ContentState => {
         handler({ name: mode })
       }
 
-      if (block.pos) {
+      if (block.pos && this.cursor.start.key === block.key && isRenderCursor) {
         codeBlock.focus()
         codeBlock.setCursor(block.pos)
       }

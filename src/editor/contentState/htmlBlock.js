@@ -1,4 +1,4 @@
-import { VOID_HTML_TAGS, /* BLOCK_TYPE1, BLOCK_TYPE2_REG, BLOCK_TYPE6, BLOCK_TYPE7, */HTML_TAGS, CLASS_OR_ID, HTML_TOOLS } from '../config'
+import { VOID_HTML_TAGS, /* BLOCK_TYPE1, BLOCK_TYPE2_REG, BLOCK_TYPE6, BLOCK_TYPE7, */HTML_TAGS, HTML_TOOLS } from '../config'
 
 const HTML_BLOCK_REG = /^<([a-zA-Z\d-]+)(?=\s|>).*>$/
 
@@ -39,14 +39,6 @@ const htmlBlock = ContentState => {
     this.appendChild(codeContainer, codePre)
     this.appendChild(codeContainer, preview)
     return codeContainer
-  }
-
-  ContentState.prototype.renderHtmlPreview = function () {
-    const previewEles = document.querySelectorAll(`.${CLASS_OR_ID['AG_HTML_PREVIEW']}`)
-    Array.from(previewEles).forEach(ele => {
-      const content = ele.getAttribute('data-content')
-      ele.innerHTML = content
-    })
   }
 
   ContentState.prototype.htmlToolBarClick = function (type) {
