@@ -26,17 +26,25 @@ const watchAndReload = (pathname, win) => { // when i build, and failed.
   // })
 }
 
-const writeFile = (pathname, content, extension, win, e) => {
+const writeFile = (pathname, content, extension, e, callback = null) => {
   if (pathname) {
-    pathname = pathname.endsWith(extension) ? pathname : `${pathname}${extension}`
-    const filename = path.basename(pathname)
+    pathname = !extension || pathname.endsWith(extension) ? pathname : `${pathname}${extension}`
     fs.writeFile(pathname, content, 'utf-8', err => {
       if (err) log(err)
-      // not export
-      if (extension === '.md' && e) e.sender.send('AGANI::set-pathname', { pathname, filename })
+      if (callback) callback(err, pathname)
     })
-    // watchAndReload(pathname, win)
+  } else {
+    log('[ERROR] Cannot save file without path.')
   }
+}
+
+const writeMarkdownFile = (pathname, content, extension, win, e, quitAfterSave = false) => {
+  writeFile(pathname, content, extension, e, (err, filePath) => {
+    if (!err) e.sender.send('AGANI::file-saved-successfully')
+    const filename = path.basename(filePath)
+    if (e && filePath) e.sender.send('AGANI::set-pathname', { pathname: filePath, filename })
+    if (!err && quitAfterSave) forceClose(win)
+  })
 }
 
 const forceClose = win => {
@@ -49,6 +57,7 @@ const forceClose = win => {
     app.quit()
   }
 }
+
 // handle the response from render process.
 const handleResponseForExport = (e, { type, content, filename, pathname }) => {
   const win = BrowserWindow.fromWebContents(e.sender)
@@ -63,24 +72,22 @@ const handleResponseForExport = (e, { type, content, filename, pathname }) => {
   if (!content && type === 'pdf') {
     win.webContents.printToPDF({ printBackground: true }, (err, data) => {
       if (err) log(err)
-      writeFile(filePath, data, extension, win, e)
+      writeFile(filePath, data, extension, e)
     })
   } else {
-    writeFile(filePath, content, extension, win, e)
+    writeFile(filePath, content, extension, e)
   }
 }
 
-const handleResponseForSave = (e, { markdown, pathname }) => {
+const handleResponseForSave = (e, { markdown, pathname, quitAfterSave = false }) => {
   const win = BrowserWindow.fromWebContents(e.sender)
   if (pathname) {
-    fs.writeFile(pathname, markdown, 'utf-8', err => {
-      if (err) log(err)
-    })
+    writeMarkdownFile(pathname, markdown, '', win, e, quitAfterSave)
   } else {
     const filePath = dialog.showSaveDialog(win, {
       defaultPath: getPath('documents') + '/Untitled.md'
     })
-    writeFile(filePath, markdown, '.md', win, e)
+    writeMarkdownFile(filePath, markdown, '.md', win, e, quitAfterSave)
   }
 }
 
@@ -89,7 +96,7 @@ ipcMain.on('AGANI::response-file-save-as', (e, { markdown, pathname }) => {
   let filePath = dialog.showSaveDialog(win, {
     defaultPath: pathname || getPath('documents') + '/Untitled.md'
   })
-  writeFile(filePath, markdown, '.md', win, e)
+  writeMarkdownFile(filePath, markdown, '.md', win, e)
 })
 
 ipcMain.on('AGANI::response-close-confirm', (e, { filename, pathname, markdown }) => {
@@ -109,7 +116,7 @@ ipcMain.on('AGANI::response-close-confirm', (e, { filename, pathname, markdown }
         break
       case 0:
         setTimeout(() => {
-          handleResponseForSave(e, { pathname, markdown })
+          handleResponseForSave(e, { pathname, markdown, quitAfterSave: true })
         })
         break
     }

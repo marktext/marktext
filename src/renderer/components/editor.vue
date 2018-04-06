@@ -191,7 +191,7 @@
         })
 
         this.editor.on('change', (markdown, wordCount, cursor) => {
-          this.$store.dispatch('SAVE_FILE', { markdown, wordCount, cursor })
+          this.$store.dispatch('LISTEN_FOR_CONTENT_CHANGE', { markdown, wordCount, cursor })
         })
 
         this.editor.on('selectionChange', changes => {

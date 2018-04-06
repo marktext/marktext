@@ -9,12 +9,13 @@
 **:beetle:Bug fix**
 
 - fix: update outdated preferences on startup #100
+- fix: reset modification indicator after successfully saved changes
 
 ### 0.9.25
 
 **:cactus:Feature**
 
-- display and inline math surport #36
+- display and inline math support #36
 - Image path auto complement #96
 - Feature: Toggle loose list item in paragraph menu #103
 - Add loose and tight list compatibility #74
