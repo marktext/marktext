@@ -129,9 +129,9 @@ export const DAED_REMOVE_SELECTOR = new Set([
 ])
 
 export const htmlBeautifyConfig = {
-  'indent_size': 4,
+  'indent_size': 2,
   'html': {
-    'end_with_newline': true,
+    'end_with_newline': false,
     'js': {
       'indent_size': 2
     },

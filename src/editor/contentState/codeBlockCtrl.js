@@ -1,7 +1,9 @@
+// import beautify from 'js-beautify'
 import codeMirror, { setMode, setCursorAtLastLine } from '../codeMirror'
 import { createInputInCodeBlock } from '../utils/domManipulate'
 import { codeMirrorConfig, CLASS_OR_ID } from '../config'
 
+// const beautifyHtml = beautify.html
 const CODE_UPDATE_REP = /^`{3,}(.*)/
 
 const codeBlockCtrl = ContentState => {
@@ -44,9 +46,9 @@ const codeBlockCtrl = ContentState => {
     Array.from(pres).forEach(pre => {
       const id = pre.id
       const block = this.getBlock(id)
-
+      const value = block.text
       const autofocus = id === this.cursor.start.key && isRenderCursor
-      const config = Object.assign(codeMirrorConfig, { autofocus, value: block.text })
+      const config = Object.assign(codeMirrorConfig, { autofocus, value })
       const codeBlock = codeMirror(pre, config)
       const mode = pre.getAttribute('data-lang')
       let input
@@ -114,7 +116,8 @@ const codeBlockCtrl = ContentState => {
 
       let lastUndoLength = 0
       codeBlock.on('change', (cm, change) => {
-        block.text = cm.getValue()
+        const value = cm.getValue()
+        block.text = value
         block.history = cm.getHistory()
         // todo handle preview in HTML block
         if (block.functionType === 'html') {

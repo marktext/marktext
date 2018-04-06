@@ -203,6 +203,7 @@ const importRegister = ContentState => {
               value = value.replace(/\n+$/, '')
             }
             block = this.createBlock('pre', value)
+            block.functionType = 'code'
             block.lang = getLang(codeNode)
             this.appendChild(parent, block)
             break
@@ -215,7 +216,7 @@ const importRegister = ContentState => {
               if (parentNode.nodeName === 'li') {
                 block = this.createBlock('p', value)
                 this.appendChild(parent, block)
-              } else if (checkIsHTML(value)) {
+              } else if (checkIsHTML(value) && (parentNode.nodeName === 'pre' || parentNode.nodeName === '#document-fragment')) {
                 const fragments = chopHTML(value)
                 fragments.forEach(fragment => {
                   if (checkIsHTML(fragment)) {

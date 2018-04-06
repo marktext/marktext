@@ -325,7 +325,7 @@ const updateCtrl = ContentState => {
 
     if (block && block.type === 'pre') {
       if (block.key !== oldKey) {
-        this.cursor = { start, end }
+        lastCursor = this.cursor = { start, end }
         this.render()
       }
       return

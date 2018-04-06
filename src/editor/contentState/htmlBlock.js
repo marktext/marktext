@@ -18,7 +18,6 @@ const htmlBlock = ContentState => {
       this.appendChild(ul, toolBlock)
     })
     this.appendChild(toolBar, ul)
-    console.log(toolBar)
     return toolBar
   }
 
