@@ -1,9 +1,10 @@
-// import beautify from 'js-beautify'
+import beautify from 'js-beautify'
 import codeMirror, { setMode, setCursorAtLastLine } from '../codeMirror'
 import { createInputInCodeBlock } from '../utils/domManipulate'
-import { codeMirrorConfig, CLASS_OR_ID } from '../config'
+import { escapeInBlockHtml } from '../utils'
+import { codeMirrorConfig, CLASS_OR_ID, htmlBeautifyConfig } from '../config'
 
-// const beautifyHtml = beautify.html
+const beautifyHtml = beautify.html
 const CODE_UPDATE_REP = /^`{3,}(.*)/
 
 const codeBlockCtrl = ContentState => {
@@ -107,6 +108,10 @@ const codeBlockCtrl = ContentState => {
 
       codeBlock.on('blur', (cm, event) => {
         block.pos = cm.getCursor()
+        if (block.functionType === 'html') {
+          // todo @jocs beautifyHtml is not work ???
+          block.text = beautifyHtml(cm.getValue(), htmlBeautifyConfig)
+        }
       })
 
       codeBlock.on('cursorActivity', (cm, event) => {
@@ -123,9 +128,12 @@ const codeBlockCtrl = ContentState => {
         if (block.functionType === 'html') {
           const preBlock = this.getNextSibling(block)
           const htmlBlock = this.getParent(this.getParent(block))
-          preBlock.htmlContent = htmlBlock.text = block.text
+          const escapedHtml = escapeInBlockHtml(block.text)
+          htmlBlock.text = block.text
           const preEle = document.querySelector(`#${preBlock.key}`)
-          preEle.innerHTML = block.text
+          console.log(block.text, escapedHtml)
+          preEle.innerHTML = escapedHtml
+          preBlock.htmlContent = escapedHtml
         }
         const { undo } = cm.historySize()
         if (undo > lastUndoLength) {

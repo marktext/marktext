@@ -185,6 +185,21 @@ export const getImageSrc = src => {
   }
 }
 
+export const escape = html => {
+  return html
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+}
+
+export const escapeInBlockHtml = html => {
+  return html
+    .replace(/(<(style|script|title)[^<>]*>)([\s\S]*?)(<\/\2>)/g, (m, p1, p2, p3, p4) => {
+      return `${escape(p1)}${p3}${escape(p4)}`
+    })
+}
+
 /**
  * [genUpper2LowerKeyHash generate constants map hash, the value is lowercase of the key,
  * also translate `_` to `-`]
