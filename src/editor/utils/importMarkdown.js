@@ -10,7 +10,7 @@ import marked from '../parser/marked'
 import ExportMarkdown from './exportMarkdown'
 
 // To be disabled rules when parse markdown, Because content state don't need to parse inline rules
-import { turndownConfig, CLASS_OR_ID, CURSOR_DNA, TABLE_TOOLS, HTML_TOOLS } from '../config'
+import { turndownConfig, CLASS_OR_ID, CURSOR_DNA, TABLE_TOOLS, HTML_TOOLS, BLOCK_TYPE7 } from '../config'
 
 const turndownPluginGfm = require('turndown-plugin-gfm')
 
@@ -39,7 +39,16 @@ turndownService.addRule('normalEmoji', {
 })
 
 const checkIsHTML = value => {
-  return /^<([a-zA-Z\d-]+)(?=\s|>).*>/.test(value.trim())
+  const trimedValue = value.trim()
+  const match = /^<([a-zA-Z\d-]+)(?=\s|>).*>/.exec(trimedValue)
+  if (match && match[1]) {
+    const tag = match[1]
+    if (BLOCK_TYPE7.indexOf(tag) > -1) {
+      return /^<([a-zA-Z\d-]+)(?=\s|>).*>\n/.test(trimedValue)
+    }
+    return true
+  }
+  return false
 }
 
 const chopHTML = value => {
@@ -101,6 +110,11 @@ const importRegister = ContentState => {
           case 'h5':
           case 'h6':
             const textValue = child.childNodes.length ? child.childNodes[0].value : ''
+            console.log(checkIsHTML(textValue))
+            if (checkIsHTML(textValue) && child.nodeName === 'p') {
+              travel(parent, child.childNodes)
+              break
+            }
             const match = /\d/.exec(child.nodeName)
             value = match ? '#'.repeat(+match[0]) + textValue : textValue
             block = this.createBlock(child.nodeName, value)
@@ -213,10 +227,7 @@ const importRegister = ContentState => {
             value = child.value
 
             if (/\S/.test(value)) {
-              if (parentNode.nodeName === 'li') {
-                block = this.createBlock('p', value)
-                this.appendChild(parent, block)
-              } else if (checkIsHTML(value) && (parentNode.nodeName === 'pre' || parentNode.nodeName === '#document-fragment')) {
+              if (checkIsHTML(value) && /^(#document-fragment|pre|p)$/.test(parentNode.nodeName)) {
                 const fragments = chopHTML(value)
                 fragments.forEach(fragment => {
                   if (checkIsHTML(fragment)) {
@@ -235,6 +246,9 @@ const importRegister = ContentState => {
                     this.appendChild(parent, block)
                   }
                 })
+              } else {
+                block = this.createBlock('p', value)
+                this.appendChild(parent, block)
               }
             }
             break
