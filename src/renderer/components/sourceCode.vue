@@ -91,6 +91,7 @@
           const preLine = cm.getLine(cursor.line - 1)
           const nextLine = cm.getLine(cursor.line + 1)
           cursor = adjustCursor(cursor, preLine, line, nextLine)
+          console.log(cursor)
           bus.$emit('content-in-source-mode', { markdown, cursor, renderCursor: false })
         })
 

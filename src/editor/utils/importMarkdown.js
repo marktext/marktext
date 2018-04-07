@@ -110,7 +110,6 @@ const importRegister = ContentState => {
           case 'h5':
           case 'h6':
             const textValue = child.childNodes.length ? child.childNodes[0].value : ''
-            console.log(checkIsHTML(textValue))
             if (checkIsHTML(textValue) && child.nodeName === 'p') {
               travel(parent, child.childNodes)
               break
@@ -317,7 +316,6 @@ const importRegister = ContentState => {
               start: { key, offset },
               end: { key, offset }
             }
-            break
           }
         }
       }

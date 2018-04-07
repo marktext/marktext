@@ -141,7 +141,8 @@ class ExportMarkdown {
 
   normalizeHTML (block, indent) {
     const result = []
-    const textList = block.text.split(LINE_BREAKS)
+    const codeContent = block.children[1].children[0].text
+    const textList = codeContent.split(LINE_BREAKS)
     for (const text of textList) {
       result.push(`${indent}${text}\n`)
     }

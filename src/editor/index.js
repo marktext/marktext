@@ -444,6 +444,7 @@ class Aganippe {
   }
 
   setMarkdown (markdown, cursor, renderCursor = true) {
+    console.log(cursor)
     // if markdown is blank, dont need to import markdown
     // if (!markdown.trim()) return
     let newMarkdown = markdown

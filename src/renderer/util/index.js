@@ -97,7 +97,7 @@ export const dotuHistory = {
 }
 
 export const adjustCursor = (cursor, preline, line, nextline) => {
-  const newCursor = Object.assign({}, { line: cursor.line, ch: cursor.ch })
+  let newCursor = Object.assign({}, { line: cursor.line, ch: cursor.ch })
   // It's need to adjust the cursor when cursor is at begin or end in table row.
   if (/\|[^|]+\|.+\|\s*$/.test(line)) {
     if (/\|\s*:?-+:?\s*\|[:-\s|]+\|\s*$/.test(line)) { // cursor in `| --- | :---: |` :the second line of table
@@ -120,9 +120,14 @@ export const adjustCursor = (cursor, preline, line, nextline) => {
     }
   }
 
-  // Nedd to adjust the cursor when cursor at the begin of the list
+  // Need to adjust the cursor when cursor at the begin of the list
   if (/[*+-]\s.+/.test(line) && newCursor.ch <= 1) {
     newCursor.ch = 2
+  }
+  // Need to adjust the cursor when cursor at blank line or in a line contains HTML tag.
+  // set the newCursor to null, the new cursor will at the last line of document.
+  if (!/\S/.test(line) || /<\/?([a-zA-Z\d-]+)(?=\s|>).*>/.test(line)) {
+    newCursor = null
   }
 
   return newCursor
