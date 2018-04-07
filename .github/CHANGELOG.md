@@ -4,6 +4,7 @@
 
 - block html #110
 - raw html #110
+- you can now indent list items with tab key
 
 **:butterfly:Optimization**
 
@@ -12,6 +13,7 @@
 
 - fix: update outdated preferences on startup #100
 - fix: reset modification indicator after successfully saved changes
+- fix: disable tab focus
 
 ### 0.9.25
 

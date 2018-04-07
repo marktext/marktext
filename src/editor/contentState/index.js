@@ -435,10 +435,22 @@ class ContentState {
     return !block.nextSibling && !block.preSibling
   }
 
+  getLastChild (block) {
+    const len = block.children.length
+    if (len) {
+      return block.children[len - 1]
+    }
+    return null
+  }
+
   getLastBlock () {
     const arrayBlocks = this.getArrayBlocks()
     const len = arrayBlocks.length
-    return arrayBlocks[len - 1]
+    if (len) {
+      return arrayBlocks[len - 1]
+    } else {
+      throw new Error('article need at least has one paragraph')
+    }
   }
 
   wordCount () {
