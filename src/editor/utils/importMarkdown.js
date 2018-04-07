@@ -10,7 +10,7 @@ import marked from '../parser/marked'
 import ExportMarkdown from './exportMarkdown'
 
 // To be disabled rules when parse markdown, Because content state don't need to parse inline rules
-import { turndownConfig, CLASS_OR_ID, CURSOR_DNA } from '../config'
+import { turndownConfig, CLASS_OR_ID, CURSOR_DNA, TABLE_TOOLS, HTML_TOOLS, BLOCK_TYPE7 } from '../config'
 
 const turndownPluginGfm = require('turndown-plugin-gfm')
 
@@ -37,6 +37,23 @@ turndownService.addRule('normalEmoji', {
     return content.replace(/\\/g, '')
   }
 })
+
+const checkIsHTML = value => {
+  const trimedValue = value.trim()
+  const match = /^<([a-zA-Z\d-]+)(?=\s|>).*>/.exec(trimedValue)
+  if (match && match[1]) {
+    const tag = match[1]
+    if (BLOCK_TYPE7.indexOf(tag) > -1) {
+      return /^<([a-zA-Z\d-]+)(?=\s|>).*>\n/.test(trimedValue)
+    }
+    return true
+  }
+  return false
+}
+
+const chopHTML = value => {
+  return value.trim().split(/\n{2,}/)
+}
 
 const importRegister = ContentState => {
   ContentState.prototype.getStateFragment = function (markdown) {
@@ -93,6 +110,10 @@ const importRegister = ContentState => {
           case 'h5':
           case 'h6':
             const textValue = child.childNodes.length ? child.childNodes[0].value : ''
+            if (checkIsHTML(textValue) && child.nodeName === 'p') {
+              travel(parent, child.childNodes)
+              break
+            }
             const match = /\d/.exec(child.nodeName)
             value = match ? '#'.repeat(+match[0]) + textValue : textValue
             block = this.createBlock(child.nodeName, value)
@@ -113,10 +134,11 @@ const importRegister = ContentState => {
             break
 
           case 'table':
-            const toolBar = this.createToolBar()
+            const toolBar = this.createToolBar(TABLE_TOOLS, 'table')
             const table = this.createBlock('table')
             Object.assign(table, getRowColumnCount(child.childNodes)) // set row and column
             block = this.createBlock('figure')
+            block.functionType = 'table'
             this.appendChild(block, toolBar)
             this.appendChild(block, table)
             this.appendChild(parent, block)
@@ -194,6 +216,7 @@ const importRegister = ContentState => {
               value = value.replace(/\n+$/, '')
             }
             block = this.createBlock('pre', value)
+            block.functionType = 'code'
             block.lang = getLang(codeNode)
             this.appendChild(parent, block)
             break
@@ -202,9 +225,30 @@ const importRegister = ContentState => {
             const { parentNode } = child
             value = child.value
 
-            if ((parentNode.nodeName === 'li' || parentNode.nodeName === '#document-fragment') && /\S/.test(value)) {
-              block = this.createBlock('p', value)
-              this.appendChild(parent, block)
+            if (/\S/.test(value)) {
+              if (checkIsHTML(value) && /^(#document-fragment|pre|p)$/.test(parentNode.nodeName)) {
+                const fragments = chopHTML(value)
+                fragments.forEach(fragment => {
+                  if (checkIsHTML(fragment)) {
+                    // is html block
+                    block = this.createBlock('figure')
+                    block.functionType = 'html'
+                    block.text = fragment
+                    const toolBar = this.createToolBar(HTML_TOOLS, 'html')
+                    const htmlBlock = this.createCodeInHtml(fragment)
+                    this.appendChild(block, toolBar)
+                    this.appendChild(block, htmlBlock)
+                    this.appendChild(parent, block)
+                  } else {
+                    // not html block
+                    block = this.createBlock('p', fragment)
+                    this.appendChild(parent, block)
+                  }
+                })
+              } else {
+                block = this.createBlock('p', value)
+                this.appendChild(parent, block)
+              }
             }
             break
 
@@ -272,7 +316,6 @@ const importRegister = ContentState => {
               start: { key, offset },
               end: { key, offset }
             }
-            break
           }
         }
       }

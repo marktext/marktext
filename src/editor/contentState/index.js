@@ -18,6 +18,7 @@ import formatCtrl from './formatCtrl'
 import searchCtrl from './searchCtrl'
 import mathCtrl from './mathCtrl'
 import imagePathCtrl from './imagePathCtrl'
+import htmlBlockCtrl from './htmlBlock'
 import importMarkdown from '../utils/importMarkdown'
 
 const prototypes = [
@@ -37,6 +38,7 @@ const prototypes = [
   searchCtrl,
   mathCtrl,
   imagePathCtrl,
+  htmlBlockCtrl,
   importMarkdown
 ]
 

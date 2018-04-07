@@ -1,7 +1,9 @@
+// import beautify from 'js-beautify'
 import codeMirror, { setMode, setCursorAtLastLine } from '../codeMirror'
 import { createInputInCodeBlock } from '../utils/domManipulate'
 import { codeMirrorConfig, CLASS_OR_ID } from '../config'
 
+// const beautifyHtml = beautify.html
 const CODE_UPDATE_REP = /^`{3,}(.*)/
 
 const codeBlockCtrl = ContentState => {
@@ -29,6 +31,7 @@ const codeBlockCtrl = ContentState => {
     const match = CODE_UPDATE_REP.exec(block.text)
     if (match) {
       block.type = 'pre'
+      block.functionType = 'code'
       block.text = ''
       block.history = null
       block.lang = match[1]
@@ -38,27 +41,30 @@ const codeBlockCtrl = ContentState => {
 
   ContentState.prototype.pre2CodeMirror = function (isRenderCursor) {
     const { eventCenter } = this
-    const pres = document.querySelectorAll(`pre.${CLASS_OR_ID['AG_CODE_BLOCK']}`)
+    const selector = `pre.${CLASS_OR_ID['AG_CODE_BLOCK']}, pre.${CLASS_OR_ID['AG_HTML_BLOCK']}`
+    const pres = document.querySelectorAll(selector)
     Array.from(pres).forEach(pre => {
       const id = pre.id
       const block = this.getBlock(id)
-
+      const value = block.text
       const autofocus = id === this.cursor.start.key && isRenderCursor
-      const config = Object.assign(codeMirrorConfig, { autofocus, value: block.text })
+      const config = Object.assign(codeMirrorConfig, { autofocus, value })
       const codeBlock = codeMirror(pre, config)
       const mode = pre.getAttribute('data-lang')
-      const input = createInputInCodeBlock(pre)
+      let input
+      if (block.functionType === 'code') {
+        input = createInputInCodeBlock(pre)
+      }
 
-      const handler = langMode => {
-        const {
-          name
-        } = langMode
+      const handler = ({ name }) => {
         setMode(codeBlock, name)
           .then(m => {
             pre.setAttribute('data-lang', m.name)
-            input.value = m.name
             block.lang = m.name.toLowerCase()
-            input.blur()
+            if (input) {
+              input.value = m.name
+              input.blur()
+            }
             if (this.cursor.start.key === block.key && isRenderCursor) {
               if (block.pos) {
                 codeBlock.focus()
@@ -76,19 +82,24 @@ const codeBlockCtrl = ContentState => {
       this.codeBlocks.set(id, codeBlock)
 
       if (mode) {
-        handler({
-          name: mode
-        })
+        handler({ name: mode })
+      }
+
+      if (block.pos && this.cursor.start.key === block.key && isRenderCursor) {
+        codeBlock.focus()
+        codeBlock.setCursor(block.pos)
       }
 
       if (block.history) {
         codeBlock.setHistory(block.history)
       }
 
-      eventCenter.attachDOMEvent(input, 'keyup', () => {
-        const value = input.value
-        eventCenter.dispatch('editLanguage', input, value.trim(), handler)
-      })
+      if (input) {
+        eventCenter.attachDOMEvent(input, 'keyup', () => {
+          const value = input.value
+          eventCenter.dispatch('editLanguage', input, value.trim(), handler)
+        })
+      }
 
       codeBlock.on('focus', (cm, event) => {
         block.pos = cm.getCursor()
@@ -105,9 +116,17 @@ const codeBlockCtrl = ContentState => {
 
       let lastUndoLength = 0
       codeBlock.on('change', (cm, change) => {
-        block.text = cm.getValue()
+        const value = cm.getValue()
+        block.text = value
         block.history = cm.getHistory()
-
+        // todo handle preview in HTML block
+        if (block.functionType === 'html') {
+          const preBlock = this.getNextSibling(block)
+          const htmlBlock = this.getParent(this.getParent(block))
+          preBlock.htmlContent = htmlBlock.text = block.text
+          const preEle = document.querySelector(`#${preBlock.key}`)
+          preEle.innerHTML = block.text
+        }
         const { undo } = cm.historySize()
         if (undo > lastUndoLength) {
           this.history.push({

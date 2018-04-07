@@ -15,6 +15,8 @@ const INLINE_UPDATE_FREGMENTS = [
 
 const INLINE_UPDATE_REG = new RegExp(INLINE_UPDATE_FREGMENTS.join('|'), 'i')
 
+let lastCursor = null
+
 const updateCtrl = ContentState => {
   ContentState.prototype.checkNeedRender = function (block) {
     const { start: cStart, end: cEnd } = this.cursor
@@ -239,14 +241,17 @@ const updateCtrl = ContentState => {
     const { floatBox } = this
     const { start, end } = selection.getCursorRange()
     const { start: oldStart, end: oldEnd } = this.cursor
+
     if (event.type === 'keyup' && (event.key === 'ArrowUp' || event.key === 'ArrowDown') && floatBox.show) {
       return
     }
+
     if (event.type === 'click' && start.key !== end.key) {
       setTimeout(() => {
         this.updateState(event)
       })
     }
+
     if (event.type === 'input' && oldStart.key !== oldEnd.key) {
       const startBlock = this.getBlock(oldStart.key)
       const endBlock = this.getBlock(oldEnd.key)
@@ -287,13 +292,13 @@ const updateCtrl = ContentState => {
       return
     }
     const key = start.key
-    const oldKey = oldStart.key
+    const oldKey = lastCursor ? lastCursor.start.key : null
     const paragraph = document.querySelector(`#${key}`)
     const text = getTextContent(paragraph, [ CLASS_OR_ID['AG_MATH_RENDER'] ])
     const block = this.getBlock(key)
 
     let needRender = false
-    if (event.type === 'click' && block.type === 'figure') {
+    if (event.type === 'click' && block.type === 'figure' && block.functionType === 'table') {
       // first cell in thead
       const cursorBlock = block.children[1].children[0].children[0].children[0]
       const offset = cursorBlock.text.length
@@ -320,7 +325,7 @@ const updateCtrl = ContentState => {
 
     if (block && block.type === 'pre') {
       if (block.key !== oldKey) {
-        this.cursor = { start, end }
+        lastCursor = this.cursor = { start, end }
         this.render()
       }
       return
@@ -334,7 +339,7 @@ const updateCtrl = ContentState => {
       needRender = true
     }
 
-    this.cursor = { start, end }
+    this.cursor = lastCursor = { start, end }
 
     const checkMarkedUpdate = this.checkNeedRender(block)
     const checkInlineUpdate = this.checkInlineUpdate(block)

@@ -187,13 +187,13 @@ export const getTextContent = (node, blackList) => {
   return text
 }
 
-export const isInMathRender = node => {
+export const isInElement = (node, className) => {
   if (!node || !node.classList) return false
-  if (node.classList.contains(CLASS_OR_ID['AG_MATH_RENDER'])) {
+  if (node.classList.contains(className)) {
     return node
   } else {
     const parentNode = node.parentNode
-    return parentNode ? isInMathRender(parentNode) : false
+    return parentNode ? isInElement(parentNode, className) : false
   }
 }
 

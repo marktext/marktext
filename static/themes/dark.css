@@ -359,7 +359,8 @@ code {
   }
 }
 
-#ag-editor-id pre.ag-code-block {
+#ag-editor-id pre.ag-code-block,
+#ag-editor-id pre.ag-html-block {
   padding: .4rem 1rem;
   font-size: 90%;
   line-height: 1.6;

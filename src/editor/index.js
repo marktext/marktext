@@ -7,7 +7,7 @@ import { search } from './codeMirror'
 import { checkEditLanguage } from './codeMirror/language'
 import Emoji, { checkEditEmoji, setInlineEmoji } from './emojis'
 import FloatBox from './floatBox'
-import { findNearestParagraph, operateClassName, isInMathRender } from './utils/domManipulate'
+import { findNearestParagraph, operateClassName, isInElement } from './utils/domManipulate'
 import ExportMarkdown from './utils/exportMarkdown'
 import ExportStyledHTML from './utils/exportStyledHTML'
 import { checkEditImage } from './utils/checkEditImage'
@@ -71,6 +71,7 @@ class Aganippe {
     this.dispatchCopyCut()
     this.dispatchTableToolBar()
     this.dispatchCodeBlockClick()
+    this.htmlPreviewClick()
 
     contentState.listenForPathChange()
 
@@ -314,7 +315,7 @@ class Aganippe {
   dispatchTableToolBar () {
     const { container, eventCenter } = this
     const getToolItem = target => {
-      // poor implement， fix me
+      // poor implement， fix me @jocs
       const parent = target.parentNode
       const grandPa = parent && parent.parentNode
       if (target.hasAttribute('data-label')) return target
@@ -329,7 +330,12 @@ class Aganippe {
         event.preventDefault()
         event.stopPropagation()
         const type = toolItem.getAttribute('data-label')
-        this.contentState.tableToolBarClick(type)
+        const grandPa = toolItem.parentNode.parentNode
+        if (grandPa.classList.contains('ag-tool-table')) {
+          this.contentState.tableToolBarClick(type)
+        } else if (grandPa.classList.contains('ag-tool-html')) {
+          this.contentState.htmlToolBarClick(type)
+        }
       }
     }
 
@@ -374,12 +380,27 @@ class Aganippe {
     const handler = event => {
       const target = event.target
       const markedImageText = target.previousElementSibling
-      const mathRender = isInMathRender(target)
+      const mathRender = isInElement(target, CLASS_OR_ID['AG_MATH_RENDER'])
       const mathText = mathRender && mathRender.previousElementSibling
       if (markedImageText && markedImageText.classList.contains(CLASS_OR_ID['AG_IMAGE_MARKED_TEXT'])) {
         selectionText(markedImageText)
       } else if (mathText) {
         selectionText(mathText)
+      }
+    }
+
+    eventCenter.attachDOMEvent(container, 'click', handler)
+  }
+
+  htmlPreviewClick () {
+    const { eventCenter, container } = this
+    const handler = event => {
+      const target = event.target
+      const htmlPreview = isInElement(target, 'ag-function-html')
+      if (htmlPreview && !htmlPreview.classList.contains(CLASS_OR_ID['AG_ACTIVE'])) {
+        event.preventDefault()
+        event.stopPropagation()
+        this.contentState.handleHtmlBlockClick(htmlPreview)
       }
     }
 
@@ -423,6 +444,7 @@ class Aganippe {
   }
 
   setMarkdown (markdown, cursor, renderCursor = true) {
+    console.log(cursor)
     // if markdown is blank, dont need to import markdown
     // if (!markdown.trim()) return
     let newMarkdown = markdown

@@ -1,3 +1,4 @@
+import virtualize from 'snabbdom-virtualize/strings'
 import { LOWERCASE_TAGS, CLASS_OR_ID, IMAGE_EXT_REG } from '../config'
 import { conflict, isLengthEven, union, isEven, getIdWithoutSet, loadImage, getImageSrc } from '../utils'
 import { insertAfter, operateClassName } from '../utils/domManipulate'
@@ -71,10 +72,25 @@ class StateRender {
       }
 
       if (block.children.length) {
-        if (/div/.test(block.type) && !block.editable) {
-          blockSelector += `.${CLASS_OR_ID['AG_TABLE_TOOL_BAR']}`
-          Object.assign(data.attrs, { contenteditable: 'false' })
+        // handle `div` block
+        if (/div/.test(block.type)) {
+          if (block.toolBarType) {
+            blockSelector += `.${'ag-tool-' + block.toolBarType}.${CLASS_OR_ID['AG_TOOL_BAR']}`
+          }
+          if (block.functionType) {
+            blockSelector += `.${'ag-function-' + block.functionType}`
+          }
+          if (block.editable !== undefined && !block.editable) {
+            Object.assign(data.attrs, { contenteditable: 'false' })
+          }
         }
+        // handle `figure` block
+        if (block.type === 'figure') {
+          if (block.functionType === 'html') { // HTML Block
+            Object.assign(data.dataset, { role: block.functionType.toUpperCase() })
+          }
+        }
+        // hanle list block
         if (/ul|ol/.test(block.type) && block.listType) {
           switch (block.listType) {
             case 'order':
@@ -137,6 +153,12 @@ class StateRender {
           }
         }
 
+        if (block.type === 'div' && block.htmlContent !== undefined) {
+          blockSelector += `.${CLASS_OR_ID['AG_HTML_PREVIEW']}`
+          Object.assign(data.attrs, { contenteditable: 'false' })
+          children = virtualize(block.htmlContent)
+        }
+
         if (/svg/.test(block.type)) {
           const { icon } = block
           blockSelector += '.icon'
@@ -157,7 +179,7 @@ class StateRender {
 
         if (block.type === 'pre') {
           if (block.lang) Object.assign(data.dataset, { lang: block.lang })
-          blockSelector += `.${CLASS_OR_ID['AG_CODE_BLOCK']}`
+          blockSelector += block.functionType === 'code' ? `.${CLASS_OR_ID['AG_CODE_BLOCK']}` : `.${CLASS_OR_ID['AG_HTML_BLOCK']}`
           children = ''
         }
 

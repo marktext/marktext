@@ -6,7 +6,7 @@ import {
 import { findNearestParagraph } from '../utils/domManipulate'
 import selection from '../selection'
 
-const HAS_TEXT_BLOCK_REG = /^(h\d|p|th|td|hr)/
+const HAS_TEXT_BLOCK_REG = /^(h\d|p|th|td|hr|pre)/
 
 const arrowCtrl = ContentState => {
   ContentState.prototype.firstInDescendant = function (block) {
@@ -14,7 +14,7 @@ const arrowCtrl = ContentState => {
     if (block.children.length === 0 && HAS_TEXT_BLOCK_REG.test(block.type)) {
       return block
     } else if (children.length) {
-      if (children[0].type === 'input' || (children[0].type === 'div' && !children[0].editable)) { // handle task item
+      if (children[0].type === 'input' || (children[0].type === 'div' && children[0].editable === false)) { // handle task item
         return this.firstInDescendant(children[1])
       } else {
         return this.firstInDescendant(children[0])
@@ -27,7 +27,10 @@ const arrowCtrl = ContentState => {
       return block
     } else if (block.children.length) {
       const children = block.children
-      const lastChild = children[children.length - 1]
+      let lastChild = children[children.length - 1]
+      while (lastChild.editable === false) {
+        lastChild = this.getPreSibling(lastChild)
+      }
       return this.lastInDescendant(lastChild)
     }
   }
@@ -35,7 +38,7 @@ const arrowCtrl = ContentState => {
   ContentState.prototype.findPreBlockInLocation = function (block) {
     const parent = this.getParent(block)
     const preBlock = this.getPreSibling(block)
-    if (block.preSibling && preBlock.type !== 'input' && preBlock.type !== 'div') { // handle task item and table
+    if (block.preSibling && preBlock.type !== 'input' && preBlock.type !== 'div' && preBlock.editable !== false) { // handle task item and table
       return this.lastInDescendant(preBlock)
     } else if (parent) {
       return this.findPreBlockInLocation(parent)
@@ -48,7 +51,7 @@ const arrowCtrl = ContentState => {
     const parent = this.getParent(block)
     const nextBlock = this.getNextSibling(block)
 
-    if (block.nextSibling) {
+    if (block.nextSibling && nextBlock.editable !== false) {
       return this.firstInDescendant(nextBlock)
     } else if (parent) {
       return this.findNextBlockInLocation(parent)
@@ -65,8 +68,9 @@ const arrowCtrl = ContentState => {
     const paragraph = findNearestParagraph(node)
     const id = paragraph.id
     const block = this.getBlock(id)
-    const preBlock = this.getPreSibling(block)
-    const nextBlock = this.getNextSibling(block)
+    const preBlock = this.findPreBlockInLocation(block)
+    const nextBlock = this.findNextBlockInLocation(block)
+
     const { left, right } = selection.getCaretOffsets(paragraph)
     const { start, end } = selection.getCursorRange()
 
@@ -103,6 +107,7 @@ const arrowCtrl = ContentState => {
     } else if (block.type === 'pre') {
       // handle cursor in code block. the case at firstline or lastline.
       const cm = this.codeBlocks.get(id)
+      const anchorBlock = block.functionType === 'html' ? this.getParent(this.getParent(block)) : block
       let activeBlock
       event.preventDefault()
 
@@ -117,7 +122,7 @@ const arrowCtrl = ContentState => {
             if (preBlock.type === 'pre') {
               activeBlock = this.createBlock('p')
               activeBlock.temp = true
-              this.insertAfter(activeBlock, preBlock)
+              this.insertBefore(activeBlock, anchorBlock)
             }
           }
           break
@@ -132,7 +137,7 @@ const arrowCtrl = ContentState => {
               if (nextBlock.type === 'pre') {
                 activeBlock = this.createBlock('p')
                 activeBlock.temp = true
-                this.insertAfter(activeBlock, block)
+                this.insertAfter(activeBlock, anchorBlock)
               }
             } else {
               activeBlock = this.createBlock('p')
@@ -163,17 +168,26 @@ const arrowCtrl = ContentState => {
       (preBlock && preBlock.type === 'pre' && event.key === EVENT_KEYS.ArrowLeft && left === 0)
     ) {
       event.preventDefault()
-      const codeBlockId = preBlock.key
-      const cm = this.codeBlocks.get(codeBlockId)
-      return setCursorAtLastLine(cm)
+      const key = preBlock.key
+      const offset = 0
+      this.cursor = {
+        start: { key, offset },
+        end: { key, offset }
+      }
+
+      return this.render()
     } else if (
       (nextBlock && nextBlock.type === 'pre' && event.key === EVENT_KEYS.ArrowDown) ||
       (nextBlock && nextBlock.type === 'pre' && event.key === EVENT_KEYS.ArrowRight && right === 0)
     ) {
       event.preventDefault()
-      const codeBlockId = nextBlock.key
-      const cm = this.codeBlocks.get(codeBlockId)
-      return setCursorAtFirstLine(cm)
+      const key = nextBlock.key
+      const offset = 0
+      this.cursor = {
+        start: { key, offset },
+        end: { key, offset }
+      }
+      return this.render()
     } else if (
       (event.key === EVENT_KEYS.ArrowUp) ||
       (event.key === EVENT_KEYS.ArrowLeft && start.offset === 0)

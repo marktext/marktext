@@ -46,7 +46,10 @@ const copyCutCtrl = ContentState => {
       }
     })
 
-    $(`.${CLASS_OR_ID['AG_REMOVE']}, .${CLASS_OR_ID['AG_TABLE_TOOL_BAR']}, .${CLASS_OR_ID['AG_MATH_RENDER']}`).remove()
+    $(
+      `.${CLASS_OR_ID['AG_REMOVE']}, .${CLASS_OR_ID['AG_TOOL_BAR']},
+      .${CLASS_OR_ID['AG_MATH_RENDER']}, .${CLASS_OR_ID['AG_HTML_PREVIEW']}`
+    ).remove()
     $(`.${CLASS_OR_ID['AG_EMOJI_MARKER']}`).text(':')
     $(`.${CLASS_OR_ID['AG_NOTEXT_LINK']}`).empty()
     $(`[data-role=hr]`).replaceWith('<hr>')
@@ -71,6 +74,18 @@ const copyCutCtrl = ContentState => {
         const codeText = cm.getValue()
         ele.empty()
         ele.html(`<code class="language-${language}" lang="${language}">${codeText}</code>`)
+      })
+    }
+
+    const htmlBlock = $(`figure[data-role='HTML']`)
+    if (htmlBlock.length > 0) {
+      htmlBlock.each((i, hb) => {
+        const ele = $(hb)
+        const id = ele.attr('id')
+        const { text } = this.getBlock(id)
+        const pre = $('<pre></pre>')
+        pre.text(text)
+        ele.replaceWith(pre)
       })
     }
 
