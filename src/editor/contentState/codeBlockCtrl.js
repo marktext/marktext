@@ -1,11 +1,25 @@
-import beautify from 'js-beautify'
 import codeMirror, { setMode, setCursorAtLastLine } from '../codeMirror'
 import { createInputInCodeBlock } from '../utils/domManipulate'
 import { escapeInBlockHtml } from '../utils'
-import { codeMirrorConfig, CLASS_OR_ID, htmlBeautifyConfig } from '../config'
+import { codeMirrorConfig, CLASS_OR_ID, BLOCK_TYPE7 } from '../config'
 
-const beautifyHtml = beautify.html
 const CODE_UPDATE_REP = /^`{3,}(.*)/
+
+const beautifyHtml = html => {
+  const HTML_REG = /^<([a-zA-Z\d-]+)(?=\s|>).*?>/
+  const HTML_NEWLINE_REG = /^<([a-zA-Z\d-]+)(?=\s|>).*?>\n/
+  const match = HTML_REG.exec(html)
+  const tag = match ? match[1] : null
+  // no empty line in block html
+  let result = html // .split(/\n/).filter(line => /\S/.test(line)).join('\n')
+  // start inline tag must ends with `\n`
+  if (tag) {
+    if (BLOCK_TYPE7.indexOf(tag) > -1 && !HTML_NEWLINE_REG.test(html)) {
+      result = result.replace(HTML_REG, (m, p) => `${m}\n`)
+    }
+  }
+  return result
+}
 
 const codeBlockCtrl = ContentState => {
   ContentState.prototype.selectLanguage = function (paragraph, name) {
@@ -109,8 +123,9 @@ const codeBlockCtrl = ContentState => {
       codeBlock.on('blur', (cm, event) => {
         block.pos = cm.getCursor()
         if (block.functionType === 'html') {
-          // todo @jocs beautifyHtml is not work ???
-          block.text = beautifyHtml(cm.getValue(), htmlBeautifyConfig)
+          const value = cm.getValue()
+
+          block.text = beautifyHtml(value)
         }
       })
 
@@ -124,7 +139,6 @@ const codeBlockCtrl = ContentState => {
         const value = cm.getValue()
         block.text = value
         block.history = cm.getHistory()
-        // todo handle preview in HTML block
         if (block.functionType === 'html') {
           const preBlock = this.getNextSibling(block)
           const htmlBlock = this.getParent(this.getParent(block))
