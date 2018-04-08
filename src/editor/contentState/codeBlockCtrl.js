@@ -145,7 +145,6 @@ const codeBlockCtrl = ContentState => {
           const escapedHtml = escapeInBlockHtml(block.text)
           htmlBlock.text = block.text
           const preEle = document.querySelector(`#${preBlock.key}`)
-          console.log(block.text, escapedHtml)
           preEle.innerHTML = escapedHtml
           preBlock.htmlContent = escapedHtml
         }
