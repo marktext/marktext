@@ -1,6 +1,6 @@
 import { VOID_HTML_TAGS, HTML_TAGS, HTML_TOOLS } from '../config'
 
-const HTML_BLOCK_REG = /^<([a-zA-Z\d-]+)(?=\s|>).*>$/
+const HTML_BLOCK_REG = /^<([a-zA-Z\d-]+)(?=\s|>)[^<>]*?>$/
 
 const htmlBlock = ContentState => {
   ContentState.prototype.createToolBar = function (tools, toolBarType) {
@@ -99,7 +99,7 @@ const htmlBlock = ContentState => {
     if (type !== 'li' && type !== 'p') return false
     const match = HTML_BLOCK_REG.exec(text)
     const tagName = match && match[1] && HTML_TAGS.find(t => t === match[1])
-    return tagName ? this.initHtmlBlock(block, tagName) : false
+    return VOID_HTML_TAGS.indexOf(tagName) === -1 && tagName ? this.initHtmlBlock(block, tagName) : false
   }
 }
 

@@ -463,6 +463,50 @@ class StateRender {
 
     return result
   }
+
+  loadImageAsync (src, alt, className, imageClass) {
+    let id
+    let isSuccess
+
+    if (!this.loadImageMap.has(src)) {
+      id = getIdWithoutSet()
+      loadImage(src)
+        .then(url => {
+          const imageWrapper = document.querySelector(`#${id}`)
+          const img = document.createElement('img')
+          img.src = url
+          if (alt) img.alt = alt
+          if (imageClass) {
+            img.classList.add(imageClass)
+          }
+          if (imageWrapper) {
+            insertAfter(img, imageWrapper)
+            operateClassName(imageWrapper, 'add', className)
+          }
+          this.loadImageMap.set(src, {
+            id,
+            isSuccess: true
+          })
+        })
+        .catch(() => {
+          const imageWrapper = document.querySelector(`#${id}`)
+          if (imageWrapper) {
+            operateClassName(imageWrapper, 'add', CLASS_OR_ID['AG_IMAGE_FAIL'])
+          }
+          this.loadImageMap.set(src, {
+            id,
+            isSuccess: false
+          })
+        })
+    } else {
+      const imageInfo = this.loadImageMap.get(src)
+      id = imageInfo.id
+      isSuccess = imageInfo.isSuccess
+    }
+
+    return { id, isSuccess }
+  }
+
   // I dont want operate dom directly, is there any better method? need help!
   image (h, cursor, block, token, outerClass) {
     const { eventCenter } = this
@@ -512,38 +556,7 @@ class StateRender {
       const alt = token.title + encodeURI(token.backlash.first)
 
       if (src) {
-        if (!this.loadImageMap.has(src)) {
-          id = getIdWithoutSet()
-          loadImage(src)
-            .then(url => {
-              const imageWrapper = document.querySelector(`#${id}`)
-              const img = document.createElement('img')
-              img.src = url
-              img.alt = alt
-              if (imageWrapper) {
-                insertAfter(img, imageWrapper)
-                operateClassName(imageWrapper, 'add', className)
-              }
-              this.loadImageMap.set(src, {
-                id,
-                isSuccess: true
-              })
-            })
-            .catch(() => {
-              const imageWrapper = document.querySelector(`#${id}`)
-              if (imageWrapper) {
-                operateClassName(imageWrapper, 'add', CLASS_OR_ID['AG_IMAGE_FAIL'])
-              }
-              this.loadImageMap.set(src, {
-                id,
-                isSuccess: false
-              })
-            })
-        } else {
-          const imageInfo = this.loadImageMap.get(src)
-          id = imageInfo.id
-          isSuccess = imageInfo.isSuccess
-        }
+        ({ id, isSuccess } = this.loadImageAsync(src, alt, className))
       }
 
       selector = id ? `span#${id}.${imageClass}.${CLASS_OR_ID['AG_REMOVE']}` : `span.${imageClass}.${CLASS_OR_ID['AG_REMOVE']}`
@@ -583,6 +596,37 @@ class StateRender {
       ]
     }
   }
+
+  // html_image
+  ['html_image'] (h, cursor, block, token, outerClass) {
+    const className = this.getClassName(outerClass, block, token, cursor)
+    const imageClass = CLASS_OR_ID['AG_IMAGE_MARKED_TEXT']
+    const { start, end } = token.range
+    const tag = this.highlight(h, block, start, end, token)
+    const { src: rawSrc, alt } = token
+    const src = getImageSrc(rawSrc)
+    let id
+    let isSuccess
+    let selector
+    if (src) {
+      ({ id, isSuccess } = this.loadImageAsync(src, alt, className, CLASS_OR_ID['AG_COPY_REMOVE']))
+    }
+    selector = id ? `span#${id}.${imageClass}.${CLASS_OR_ID['AG_HTML_TAG']}` : `span.${imageClass}.${CLASS_OR_ID['AG_HTML_TAG']}`
+    selector += `.${CLASS_OR_ID['AG_OUTPUT_REMOVE']}`
+    if (isSuccess) {
+      selector += `.${className}`
+    } else {
+      selector += `.${CLASS_OR_ID['AG_IMAGE_FAIL']}`
+    }
+
+    return isSuccess
+      ? [
+        h(selector, tag),
+        h(`img.${CLASS_OR_ID['AG_COPY_REMOVE']}`, { props: { alt, src } })
+      ]
+      : [h(selector, tag)]
+  }
+
   // render auto_link to vdom
   ['auto_link'] (h, cursor, block, token, outerClass) {
     const { start, end } = token.range
@@ -594,6 +638,38 @@ class StateRender {
           href: token.href
         }
       }, content)
+    ]
+  }
+
+  // `a_link`: `<a href="url">anchor</a>`
+  ['a_link'] (h, cursor, block, token, outerClass) {
+    const className = this.getClassName(outerClass, block, token, cursor)
+    const tagClassName = className === CLASS_OR_ID['AG_HIDE'] ? className : CLASS_OR_ID['AG_HTML_TAG']
+    const { start, end } = token.range
+    const openTag = this.highlight(h, block, start, start + token.openTag.length, token)
+    const anchor = token.children.reduce((acc, to) => {
+      const chunk = this[to.type](h, cursor, block, to, className)
+      return Array.isArray(chunk) ? [...acc, ...chunk] : [...acc, chunk]
+    }, [])
+    const closeTag = this.highlight(h, block, end - token.closeTag.length, end, token)
+
+    return [
+      h(`span.${tagClassName}.${CLASS_OR_ID['AG_OUTPUT_REMOVE']}`, openTag),
+      h(`a.${CLASS_OR_ID['AG_A_LINK']}`, {
+        dataset: {
+          href: token.href
+        }
+      }, anchor),
+      h(`span.${tagClassName}.${CLASS_OR_ID['AG_OUTPUT_REMOVE']}`, closeTag)
+    ]
+  }
+
+  ['html_tag'] (h, cursor, block, token, outerClass) {
+    const className = CLASS_OR_ID['AG_HTML_TAG']
+    const { start, end } = token.range
+    const tag = this.highlight(h, block, start, end, token)
+    return [
+      h(`span.${className}`, tag)
     ]
   }
 

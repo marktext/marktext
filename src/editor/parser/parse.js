@@ -1,7 +1,18 @@
 import { beginRules, inlineRules } from './rules'
 import { isLengthEven, union } from '../utils'
 
-const CAN_NEST_RULES = ['strong', 'em', 'link', 'del', 'image'] // image can not nest but it has children
+const CAN_NEST_RULES = ['strong', 'em', 'link', 'del', 'image', 'a_link'] // image can not nest but it has children
+
+const getSrcAlt = text => {
+  const SRC_REG = /src\s*=\s*("|')([^\1]+?)\1/
+  const ALT_REG = /alt\s*=\s*("|')([^\1]+?)\1/
+  const srcMatch = SRC_REG.exec(text)
+  const src = srcMatch ? srcMatch[2] : ''
+  const altMatch = ALT_REG.exec(text)
+  const alt = altMatch ? altMatch[2] : ''
+
+  return { src, alt }
+}
 
 const tokenizerFac = (src, beginRules, inlineRules, pos = 0, top) => {
   const tokens = []
@@ -139,6 +150,71 @@ const tokenizerFac = (src, beginRules, inlineRules, pos = 0, top) => {
       continue
     }
 
+    // a_link `<a href="url">Anchor</a>`
+    const aLinkTo = inlineRules['a_link'].exec(src)
+    if (aLinkTo) {
+      pushPending()
+      tokens.push({
+        type: 'a_link',
+        href: aLinkTo[3],
+        openTag: aLinkTo[1],
+        closeTag: aLinkTo[5],
+        anchor: aLinkTo[4],
+        parent: tokens,
+        range: {
+          start: pos,
+          end: pos + aLinkTo[0].length
+        },
+        children: tokenizerFac(aLinkTo[4], undefined, inlineRules, pos + aLinkTo[1].length, false)
+      })
+
+      src = src.substring(aLinkTo[0].length)
+      pos = pos + aLinkTo[0].length
+      continue
+    }
+
+    // html-image
+    const htmlImageTo = inlineRules['html_image'].exec(src)
+    if (htmlImageTo) {
+      const rawAttr = htmlImageTo[2]
+      const { src: imageSrc, alt } = getSrcAlt(rawAttr)
+      if (imageSrc) {
+        pushPending()
+        tokens.push({
+          type: 'html_image',
+          tag: htmlImageTo[1],
+          parent: tokens,
+          src: imageSrc,
+          alt,
+          range: {
+            start: pos,
+            end: pos + htmlImageTo[0].length
+          }
+        })
+        src = src.substring(htmlImageTo[0].length)
+        pos = pos + htmlImageTo[0].length
+        continue
+      }
+    }
+
+    // html-tag
+    const htmlTo = inlineRules['html_tag'].exec(src)
+    if (htmlTo) {
+      pushPending()
+      tokens.push({
+        type: 'html_tag',
+        tag: htmlTo[1],
+        parent: tokens,
+        range: {
+          start: pos,
+          end: pos + htmlTo[0].length
+        }
+      })
+      src = src.substring(htmlTo[0].length)
+      pos = pos + htmlTo[0].length
+      continue
+    }
+
     // image
     const imageTo = inlineRules.image.exec(src)
     if (imageTo) {
@@ -263,11 +339,21 @@ export const generator = tokens => {
       case 'link':
         result += `[${generator(token.children)}${getBash(token.backlash.first)}](${token.href}${getBash(token.backlash.second)})`
         break
+      case 'a_link':
+        result += `${token.openTag}${token.anchor}${token.closeTag}`
+        break
       case 'image':
         result += `![${generator(token.children)}${getBash(token.backlash.first)}](${token.src}${getBash(token.backlash.second)})`
         break
       case 'auto_link':
         result += token.href
+        break
+      case 'html-image':
+      case 'html_tag':
+        result += token.tag
+        break
+      case 'tail_header':
+        result += token.marker
         break
       default:
         throw new Error(`unhandle token type: ${token.type}`)

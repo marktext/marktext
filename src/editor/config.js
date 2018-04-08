@@ -84,6 +84,8 @@ export const CLASS_OR_ID = genUpper2LowerKeyHash([
   'AG_IMAGE_FAIL',
   'AG_IMAGE_SRC',
   'AG_REMOVE',
+  'AG_COPY_REMOVE',
+  'AG_OUTPUT_REMOVE',
   'AG_EMOJI_MARKER',
   'AG_NOTEXT_LINK',
   'AG_ORDER_LIST',
@@ -103,7 +105,9 @@ export const CLASS_OR_ID = genUpper2LowerKeyHash([
   'AG_MATH_ERROR',
   'AG_MATH_MARKER',
   'AG_LOOSE_LIST_ITEM',
-  'AG_TIGHT_LIST_ITEM'
+  'AG_TIGHT_LIST_ITEM',
+  'AG_HTML_TAG',
+  'AG_A_LINK'
 ])
 
 export const codeMirrorConfig = {
