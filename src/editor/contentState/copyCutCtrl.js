@@ -48,11 +48,21 @@ const copyCutCtrl = ContentState => {
 
     $(
       `.${CLASS_OR_ID['AG_REMOVE']}, .${CLASS_OR_ID['AG_TOOL_BAR']},
-      .${CLASS_OR_ID['AG_MATH_RENDER']}, .${CLASS_OR_ID['AG_HTML_PREVIEW']}`
+      .${CLASS_OR_ID['AG_MATH_RENDER']}, .${CLASS_OR_ID['AG_HTML_PREVIEW']},
+      .${CLASS_OR_ID['AG_COPY_REMOVE']}`
     ).remove()
     $(`.${CLASS_OR_ID['AG_EMOJI_MARKER']}`).text(':')
     $(`.${CLASS_OR_ID['AG_NOTEXT_LINK']}`).empty()
     $(`[data-role=hr]`).replaceWith('<hr>')
+
+    const aLink = $(`.${CLASS_OR_ID['AG_A_LINK']}`)
+    if (aLink.length > 0) {
+      aLink.each((i, a) => {
+        const anchor = $(a)
+        const html = anchor.html()
+        anchor.replaceWith(`<span>${html}</span>`)
+      })
+    }
 
     const anchors = $(`a[data-href]`)
     if (anchors.length > 0) {

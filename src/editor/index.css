@@ -56,6 +56,12 @@ div.ag-function-html pre.ag-html-block {
   color: #303133;
 }
 
+span.ag-html-tag {
+  color: silver;
+  font-weight: 200;
+  font-family: monospace;
+}
+
 span.ag-math {
   position: relative;
   color: purple;
