@@ -28,14 +28,20 @@ class Preference {
     } else {
       const defaultSettings = this.loadJson(staticPath)
       userSetting = this.loadJson(userDataPath)
-      const requiresUpdate = !hasSameKeys(defaultSettings, userDataPath)
+      const requiresUpdate = !hasSameKeys(defaultSettings, userSetting)
       if (requiresUpdate) {
+        // remove outdated settings
         for (const key in userSetting) {
           if (userSetting.hasOwnProperty(key) && !defaultSettings.hasOwnProperty(key)) {
             delete userSetting[key]
           }
         }
-        Object.assign(userSetting, defaultSettings)
+        // add new setting options
+        for (const key in defaultSettings) {
+          if (defaultSettings.hasOwnProperty(key) && !userSetting.hasOwnProperty(key)) {
+            userSetting[key] = defaultSettings[key]
+          }
+        }
         this.writeJson(userSetting, false)
           .catch(log)
       }

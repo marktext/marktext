@@ -348,7 +348,6 @@ const updateCtrl = ContentState => {
           autoPairBracket, autoPairMarkdownSyntax, autoPairQuote
         } = this
         const inputChar = text.charAt(+offset - 1)
-        console.log(BRACKET_HASH[inputChar], text, offset)
         /* eslint-disable no-useless-escape */
         if (
           (autoPairQuote && /["'`]{1}/.test(inputChar)) ||
