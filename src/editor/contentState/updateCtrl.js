@@ -339,8 +339,7 @@ const updateCtrl = ContentState => {
         '*': '*',
         '_': '_',
         '"': '"',
-        "'": "'",
-        '`': '`'
+        "'": "'"
       }
       if (start.key === end.key && start.offset === end.offset && event.type === 'input' && BRACKET_HASH[event.data]) {
         const { offset } = start
@@ -350,7 +349,7 @@ const updateCtrl = ContentState => {
         const inputChar = text.charAt(+offset - 1)
         /* eslint-disable no-useless-escape */
         if (
-          (autoPairQuote && /["'`]{1}/.test(inputChar)) ||
+          (autoPairQuote && /["']{1}/.test(inputChar)) ||
           (autoPairBracket && /[\{\[\(]{1}/.test(inputChar)) ||
           (autoPairMarkdownSyntax && /[*_]{1}/.test(inputChar))
         ) {

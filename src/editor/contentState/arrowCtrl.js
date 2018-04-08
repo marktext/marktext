@@ -119,7 +119,7 @@ const arrowCtrl = ContentState => {
             (event.key === EVENT_KEYS.ArrowLeft && isCursorAtBegin(cm) && preBlock)
           ) {
             activeBlock = preBlock
-            if (preBlock.type === 'pre') {
+            if (/^(?:pre|th|td)$/.test(preBlock.type)) {
               activeBlock = this.createBlock('p')
               activeBlock.temp = true
               this.insertBefore(activeBlock, anchorBlock)
@@ -134,7 +134,7 @@ const arrowCtrl = ContentState => {
           ) {
             if (nextBlock) {
               activeBlock = nextBlock
-              if (nextBlock.type === 'pre') {
+              if (/^(?:pre|th|td)$/.test(nextBlock.type)) {
                 activeBlock = this.createBlock('p')
                 activeBlock.temp = true
                 this.insertAfter(activeBlock, anchorBlock)
@@ -161,7 +161,46 @@ const arrowCtrl = ContentState => {
           }
         }
 
-        this.render()
+        return this.render()
+      }
+    } else if (/th|td/.test(block.type)) {
+      let activeBlock
+      const anchorBlock = this.getParent(this.getParent(this.getParent(this.getParent(block))))
+
+      if (
+        (block.type === 'th' && preBlock && /^(?:pre|td)$/.test(preBlock.type) && event.key === EVENT_KEYS.ArrowUp) ||
+        (block.type === 'th' && preBlock && /^(?:pre|td)$/.test(preBlock.type) && event.key === EVENT_KEYS.ArrowLeft && left === 0)
+      ) {
+        activeBlock = this.createBlock('p')
+        activeBlock.temp = true
+        this.insertBefore(activeBlock, anchorBlock)
+      }
+
+      if (
+        (block.type === 'td' && nextBlock && /^(?:pre|th)$/.test(nextBlock.type) && event.key === EVENT_KEYS.ArrowDown) ||
+        (block.type === 'td' && nextBlock && /^(?:pre|th)$/.test(nextBlock.type) && event.key === EVENT_KEYS.ArrowRight && right === 0)
+      ) {
+        activeBlock = this.createBlock('p')
+        activeBlock.temp = true
+        this.insertAfter(activeBlock, anchorBlock)
+      }
+
+      if (activeBlock) {
+        event.preventDefault()
+        const offset = 0
+        const key = activeBlock.key
+        this.cursor = {
+          start: {
+            key,
+            offset
+          },
+          end: {
+            key,
+            offset
+          }
+        }
+
+        return this.render()
       }
     } else if (
       (preBlock && preBlock.type === 'pre' && event.key === EVENT_KEYS.ArrowUp) ||
@@ -188,7 +227,9 @@ const arrowCtrl = ContentState => {
         end: { key, offset }
       }
       return this.render()
-    } else if (
+    }
+
+    if (
       (event.key === EVENT_KEYS.ArrowUp) ||
       (event.key === EVENT_KEYS.ArrowLeft && start.offset === 0)
     ) {
