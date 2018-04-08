@@ -18,6 +18,11 @@ class ExportHTML {
         a {
           pointer-events: auto;
         }
+        hr {
+          height: 5px;
+          background: gainsboro;
+          border: none;
+        }
         </style>
       </head>
       <body>
@@ -136,6 +141,7 @@ class ExportHTML {
     ]
     $(removeClassNames.join(', ')).remove()
     $(`.${CLASS_OR_ID['AG_ACTIVE']}`).removeClass(CLASS_OR_ID['AG_ACTIVE'])
+    $(`[data-role=hr]`).replaceWith('<hr>')
     const emojis = $(`span.${CLASS_OR_ID['AG_EMOJI_MARKED_TEXT']}`)
     if (emojis.length > 0) {
       emojis.each((i, e) => {
