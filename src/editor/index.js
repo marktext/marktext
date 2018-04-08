@@ -19,12 +19,17 @@ import './assets/symbolIcon/index.css'
 
 class Aganippe {
   constructor (container, options) {
-    const { focusMode = false, theme = 'light', markdown = '', preferLooseListItem = true } = options
+    const {
+      focusMode = false, theme = 'light', markdown = '', preferLooseListItem = true,
+      autoPairBracket = true, autoPairMarkdownSyntax = true, autoPairQuote = true
+    } = options
     this.container = container
     const eventCenter = this.eventCenter = new EventCenter()
     const floatBox = this.floatBox = new FloatBox(eventCenter)
     const tablePicker = this.tablePicker = new TablePicker(eventCenter)
-    this.contentState = new ContentState(eventCenter, floatBox, tablePicker, preferLooseListItem)
+    this.contentState = new ContentState({
+      eventCenter, floatBox, tablePicker, preferLooseListItem, autoPairBracket, autoPairMarkdownSyntax, autoPairQuote
+    })
     this.emoji = new Emoji() // emoji instance: has search(text) clear() methods.
     this.focusMode = focusMode
     this.theme = theme
@@ -444,7 +449,6 @@ class Aganippe {
   }
 
   setMarkdown (markdown, cursor, renderCursor = true) {
-    console.log(cursor)
     // if markdown is blank, dont need to import markdown
     // if (!markdown.trim()) return
     let newMarkdown = markdown

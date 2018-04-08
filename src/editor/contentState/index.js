@@ -58,11 +58,9 @@ const convertBlocksToArray = blocks => {
 const exemption = new Set()
 
 class ContentState {
-  constructor (eventCenter, floatBox, tablePicker, preferLooseListItem) {
-    this.eventCenter = eventCenter
-    this.floatBox = floatBox
-    this.tablePicker = tablePicker
-    this.preferLooseListItem = preferLooseListItem
+  constructor (options) {
+    const { eventCenter } = options
+    Object.assign(this, options)
     this.keys = new Set()
     this.blocks = [ this.createBlock() ]
     this.stateRender = new StateRender(eventCenter)

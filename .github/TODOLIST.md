@@ -28,7 +28,7 @@
 
 - [x] Inline and block Math
 
-- [ ] Auto Pair
+- [x] Auto Pair
 
 - [ ] Tabs in Mark Text, add toggle in view menu.
 

@@ -18,6 +18,9 @@ const state = {
   darkColor: 'rgb(217, 217, 217)', // color in dark theme
   autoSave: false,
   preferLooseListItem: true, // prefer loose or tight list items
+  autoPairBracket: true,
+  autoPairMarkdownSyntax: true,
+  autoPairQuote: true,
   // edit mode
   typewriter: false, // typewriter mode
   focus: false, // focus mode

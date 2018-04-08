@@ -1,10 +1,11 @@
-### 0.10.4
+### 0.10.7
 
 **:cactus:Feature**
 
 - block html #110
 - raw html #110
 - you can now indent list items with tab key
+- auto pair `markdown syntax`, `quote`, `bracket`
 
 **:butterfly:Optimization**
 

@@ -15,7 +15,10 @@ Edit and save to update preferences, You can only change the json bellow!
   "theme": "light",
   "autoSave": false,
   "aidou": false,
-  "preferLooseListItem": true
+  "preferLooseListItem": true,
+  "autoPairBracket": true,
+  "autoPairMarkdownSyntax": true,
+  "autoPairQuote": true
 }
 ```
 

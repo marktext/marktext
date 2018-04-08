@@ -294,7 +294,7 @@ const updateCtrl = ContentState => {
     const key = start.key
     const oldKey = lastCursor ? lastCursor.start.key : null
     const paragraph = document.querySelector(`#${key}`)
-    const text = getTextContent(paragraph, [ CLASS_OR_ID['AG_MATH_RENDER'] ])
+    let text = getTextContent(paragraph, [ CLASS_OR_ID['AG_MATH_RENDER'] ])
     const block = this.getBlock(key)
 
     let needRender = false
@@ -332,6 +332,33 @@ const updateCtrl = ContentState => {
     }
 
     if (block && block.text !== text) {
+      const BRACKET_HASH = {
+        '{': '}',
+        '[': ']',
+        '(': ')',
+        '*': '*',
+        '_': '_',
+        '"': '"',
+        "'": "'",
+        '`': '`'
+      }
+      if (start.key === end.key && start.offset === end.offset && event.type === 'input' && BRACKET_HASH[event.data]) {
+        const { offset } = start
+        const {
+          autoPairBracket, autoPairMarkdownSyntax, autoPairQuote
+        } = this
+        const inputChar = text.charAt(+offset - 1)
+        console.log(BRACKET_HASH[inputChar], text, offset)
+        /* eslint-disable no-useless-escape */
+        if (
+          (autoPairQuote && /["'`]{1}/.test(inputChar)) ||
+          (autoPairBracket && /[\{\[\(]{1}/.test(inputChar)) ||
+          (autoPairMarkdownSyntax && /[*_]{1}/.test(inputChar))
+        ) {
+          text = text.substring(0, offset) + BRACKET_HASH[inputChar] + text.substring(offset)
+        }
+        /* eslint-ensable no-useless-escape */
+      }
       block.text = text
     }
 
