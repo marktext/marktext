@@ -185,7 +185,7 @@ export const getImageSrc = src => {
   }
 }
 
-export const escape = html => {
+export const escapeHtml = html => {
   return html
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
@@ -193,10 +193,18 @@ export const escape = html => {
     .replace(/'/g, '&#39;')
 }
 
+export const unescapeHtml = text => {
+  return text
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, `'`)
+}
+
 export const escapeInBlockHtml = html => {
   return html
     .replace(/(<(style|script|title)[^<>]*>)([\s\S]*?)(<\/\2>)/g, (m, p1, p2, p3, p4) => {
-      return `${escape(p1)}${p3}${escape(p4)}`
+      return `${escapeHtml(p1)}${p3}${escapeHtml(p4)}`
     })
 }
 

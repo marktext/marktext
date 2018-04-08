@@ -2,7 +2,7 @@ import axios from 'axios'
 import cheerio from 'cheerio'
 import { parse, toPlainObject, fromPlainObject, generate } from 'css-tree'
 import { CLASS_OR_ID, DAED_REMOVE_SELECTOR } from '../config'
-import { collectImportantComments } from './index'
+import { collectImportantComments, unescapeHtml } from './index'
 
 class ExportHTML {
   async generate () {
@@ -167,6 +167,7 @@ class ExportHTML {
       })
     }
     return $('body').html()
+      .replace(/<span class="ag-html-tag">([\s\S]+?)<\/span>/g, (m, p1) => unescapeHtml(p1))
   }
 }
 
