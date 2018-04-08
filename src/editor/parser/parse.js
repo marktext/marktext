@@ -3,6 +3,12 @@ import { isLengthEven, union } from '../utils'
 
 const CAN_NEST_RULES = ['strong', 'em', 'link', 'del', 'image', 'a_link'] // image can not nest but it has children
 
+const validateRules = Object.assign({}, inlineRules)
+delete validateRules.em
+delete validateRules.strong
+delete validateRules['tail_header']
+delete validateRules['backlash']
+
 const getSrcAlt = text => {
   const SRC_REG = /src\s*=\s*("|')([^\1]+?)\1/
   const ALT_REG = /alt\s*=\s*("|')([^\1]+?)\1/
@@ -12,6 +18,20 @@ const getSrcAlt = text => {
   const alt = altMatch ? altMatch[2] : ''
 
   return { src, alt }
+}
+
+const validateEmphasize = (src, offset) => {
+  let i
+  for (i = 0; i < offset; i++) {
+    const text = src.substring(i)
+    for (const rule of Object.keys(validateRules)) {
+      const to = validateRules[rule].exec(text)
+      if (to && to[0].length > offset - i) {
+        return false
+      }
+    }
+  }
+  return true
 }
 
 const tokenizerFac = (src, beginRules, inlineRules, pos = 0, top) => {
@@ -83,14 +103,41 @@ const tokenizerFac = (src, beginRules, inlineRules, pos = 0, top) => {
       pos = pos + backTo[0].length
       continue
     }
-    // strong | em | emoji | inline_code | del | inline_math
-    const chunks = ['strong', 'em', 'inline_code', 'del', 'emoji', 'inline_math']
-    const chLen = chunks.length
-    let i
+    // strong | em
+    const emRules = ['strong', 'em']
     let inChunk
-    for (i = 0; i < chLen; i++) {
-      const type = chunks[i]
-      const to = inlineRules[type].exec(src)
+    for (const rule of emRules) {
+      const to = inlineRules[rule].exec(src)
+      if (to && isLengthEven(to[3])) {
+        const isValid = validateEmphasize(src, to[0].length)
+        if (isValid) {
+          inChunk = true
+          pushPending()
+          const range = {
+            start: pos,
+            end: pos + to[0].length
+          }
+          const marker = to[1]
+          tokens.push({
+            type: rule,
+            range,
+            marker,
+            parent: tokens,
+            children: tokenizerFac(to[2], undefined, inlineRules, pos + to[1].length, false),
+            backlash: to[3]
+          })
+          src = src.substring(to[0].length)
+          pos = pos + to[0].length
+        }
+        break
+      }
+    }
+    if (inChunk) continue
+
+    // strong | em | emoji | inline_code | del | inline_math
+    const chunks = ['inline_code', 'del', 'emoji', 'inline_math']
+    for (const rule of chunks) {
+      const to = inlineRules[rule].exec(src)
       if (to && isLengthEven(to[3])) {
         inChunk = true
         pushPending()
@@ -99,9 +146,9 @@ const tokenizerFac = (src, beginRules, inlineRules, pos = 0, top) => {
           end: pos + to[0].length
         }
         const marker = to[1]
-        if (type === 'inline_code' || type === 'emoji' || type === 'inline_math') {
+        if (rule === 'inline_code' || rule === 'emoji' || rule === 'inline_math') {
           tokens.push({
-            type,
+            type: rule,
             range,
             marker,
             parent: tokens,
@@ -110,7 +157,7 @@ const tokenizerFac = (src, beginRules, inlineRules, pos = 0, top) => {
           })
         } else {
           tokens.push({
-            type,
+            type: rule,
             range,
             marker,
             parent: tokens,
