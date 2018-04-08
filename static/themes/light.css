@@ -351,6 +351,10 @@ code {
   background: #F2F6FC;
 }
 
+p:not(.ag-active)[data-role="hr"]::before {
+  background: gainsboro;
+}
+
 .fg-color-dark {
   color: #303133;
 }

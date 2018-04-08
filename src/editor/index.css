@@ -6,7 +6,7 @@
     transform: scale(1.2);
   } /* ignored */
   to {
-    transform: scale(1); 
+    transform: scale(1);
   }
 }
 
@@ -288,6 +288,7 @@ li p .ag-hide:first-child {
 p:not(.ag-active)[data-role="hr"] {
   position: relative;
   color: transparent;
+  padding: 0.8em 0;
 }
 
 p:not(.ag-active)[data-role="hr"]::before {
@@ -296,7 +297,8 @@ p:not(.ag-active)[data-role="hr"]::before {
   height: 5px;
   background: gainsboro;
   position: absolute;
-  bottom: -2px;
+  top: 50%;
+  transform: translateY(-50%);
 }
 
 p:not(.ag-active)[data-role="hr"] * {
@@ -456,4 +458,3 @@ span[data-role="link"], a[data-role="link"], span[data-role="link"] .ag-backlash
 .ag-focus-mode pre.ag-active {
   opacity: 1;
 }
-

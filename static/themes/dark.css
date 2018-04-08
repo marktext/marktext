@@ -370,6 +370,10 @@ code {
   margin-top: 0;
 }
 
+p:not(.ag-active)[data-role="hr"]::before {
+  background: #545454;
+}
+
 .fg-color-dark {
   color: #c6c6c6;
 }
