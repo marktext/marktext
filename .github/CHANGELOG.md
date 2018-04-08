@@ -1,4 +1,4 @@
-### 0.10.7
+### 0.10.12
 
 **:cactus:Feature**
 
@@ -6,6 +6,7 @@
 - raw html #110
 - you can now indent list items with tab key
 - auto pair `markdown syntax`, `quote`, `bracket`
+- ability to insert an empty line between elements #33
 
 **:butterfly:Optimization**
 
@@ -15,6 +16,10 @@
 - fix: update outdated preferences on startup #100
 - fix: reset modification indicator after successfully saved changes
 - fix: disable tab focus
+- Bugfix: strong and em parse error #116
+- Fix horizontal line style (#120)
+- Fix user preferences (#122)
+- Bugfix: style error when export PDF/HTML with hr @Jocs
 
 ### 0.9.25
 
