@@ -96,6 +96,7 @@
       dispatch('LISTEN_FOR_ABOUT_DIALOG')
       dispatch('LISTEN_FOR_RENAME')
       dispatch('LISTEN_FOR_IMAGE_PATH')
+      dispatch('LISTEN_FOR_FILE_SAVED_SUCCESSFULLY')
     }
   }
 </script>

@@ -219,22 +219,27 @@ const actions = {
     ipcRenderer.send('AGANI::response-export', { type, content, filename, pathname })
   },
 
-  SAVE_FILE ({ commit, state }, { markdown, wordCount, cursor }) {
+  LISTEN_FOR_CONTENT_CHANGE ({ commit, state }, { markdown, wordCount, cursor }) {
     const { pathname, autoSave, markdown: oldMarkdown } = state
     commit('SET_MARKDOWN', markdown)
     // set word count
     if (wordCount) commit('SET_WORD_COUNT', wordCount)
     // set cursor
     if (cursor) commit('SET_CURSOR', cursor)
-    // save to file only when the markdown changed!
+    // change save status/save to file only when the markdown changed!
     if (markdown !== oldMarkdown) {
       if (pathname && autoSave) {
-        commit('SET_SAVE_STATUS', true)
         ipcRenderer.send('AGANI::response-file-save', { pathname, markdown })
       } else {
         commit('SET_SAVE_STATUS', false)
       }
     }
+  },
+
+  LISTEN_FOR_FILE_SAVED_SUCCESSFULLY ({ commit }) {
+    ipcRenderer.on('AGANI::file-saved-successfully', e => {
+      commit('SET_SAVE_STATUS', true)
+    })
   },
 
   SELECTION_CHANGE ({ commit }, changes) {
@@ -312,7 +317,6 @@ const actions = {
       const { isSaved, markdown, pathname, filename } = state
       if (!isSaved && /[^\n]/.test(markdown)) {
         ipcRenderer.send('AGANI::response-close-confirm', { filename, pathname, markdown })
-        commit('SET_SAVE_STATUS', true)
       } else {
         ipcRenderer.send('AGANI::close-window')
       }
