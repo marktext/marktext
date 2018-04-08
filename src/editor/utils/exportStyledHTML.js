@@ -1,11 +1,8 @@
 import axios from 'axios'
 import cheerio from 'cheerio'
-// import beautify from 'js-beautify'
 import { parse, toPlainObject, fromPlainObject, generate } from 'css-tree'
 import { CLASS_OR_ID, DAED_REMOVE_SELECTOR } from '../config'
 import { collectImportantComments } from './index'
-
-// const { html_beautify: htmlBeautify } = beautify
 
 class ExportHTML {
   async generate () {
@@ -28,7 +25,6 @@ class ExportHTML {
       </body>
     </html>`
     return outputHtml
-    // return htmlBeautify(outputHtml, htmlBeautifyConfig)
   }
   async getStyle () {
     const links = Array.from(document.querySelectorAll('link'))

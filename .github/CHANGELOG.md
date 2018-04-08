@@ -2,6 +2,8 @@
 
 **:cactus:Feature**
 
+- block html #110
+- raw html #110
 
 **:butterfly:Optimization**
 

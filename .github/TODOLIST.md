@@ -4,11 +4,11 @@
 
 - [x] Support Search and Replacement.
 
-- [x] add Dark, Light and GitHub theme.
+- [x] add Dark and Light theme.
 
 - [x] source code edit mode typewriter mode focus mode.
 
-- [ ] Support Block HTML and Raw HTML in Mark Text
+- [x] Support Block HTML and Raw HTML in Mark Text
 
 - [x] Support iamge path auto accompliment.
 
@@ -32,7 +32,7 @@
 
 - [ ] Tabs in Mark Text, add toggle in view menu.
 
-- [ ] TOC syntax
+- [ ] TOC syntax(only highlight `[TOC]`)
 
 - [ ] Side bar contains TOC and folders/files, also and toggle side bar in view menu.
 
@@ -57,6 +57,8 @@
 - [ ] Copy as HTML
 
 - [ ] Redesign the float box
+
+- [ ] Translate cursor between source code mode and realtime preview mode
 
 ##### Documents
 
