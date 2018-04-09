@@ -10,7 +10,7 @@ const INLINE_UPDATE_FREGMENTS = [
   '^(\\d+\\.\\s)', // Order list
   '^\\s{0,3}(#{1,6})[^#]+', // ATX heading
   '^(>).+', // Block quote
-  '^\\s{0,3}(\\*\\s*\\*\\s*\\*|-\\s*-\\s*-|_\\s*_\\s*_)[\\s\\*\\-\\_]*$' // Thematic break
+  '^\\s{0,3}((?:\\*\\s*\\*\\s*\\*|-\\s*-\\s*-|_\\s*_\\s*_)[\\s\\*\\-\\_]*)$' // Thematic break
 ]
 
 const INLINE_UPDATE_REG = new RegExp(INLINE_UPDATE_FREGMENTS.join('|'), 'i')
@@ -46,7 +46,7 @@ const updateCtrl = ContentState => {
     let newType
 
     switch (true) {
-      case !!hr:
+      case (hr && new Set(hr.split('').filter(i => /\S/.test(i))).size === 1):
         this.updateHr(block, hr)
         return true
 
