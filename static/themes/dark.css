@@ -195,11 +195,14 @@ hr {
   height: 4px;
   padding: 0;
   margin: 16px 0;
-  background-color: #e7e7e7;
+  background-color: #545454;
   border: 0 none;
   overflow: hidden;
   box-sizing: content-box;
-  border-bottom: 1px solid #ddd;
+}
+
+p:not(.ag-active)[data-role="hr"]::before {
+  background-color: #545454;
 }
 
 body>h2:first-child {
@@ -368,10 +371,6 @@ code {
   border-radius: 3px;
   color: #777777;
   margin-top: 0;
-}
-
-p:not(.ag-active)[data-role="hr"]::before {
-  background: #545454;
 }
 
 .fg-color-dark {

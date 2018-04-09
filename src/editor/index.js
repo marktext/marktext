@@ -430,7 +430,7 @@ class Aganippe {
   }
 
   async exportStyledHTML () {
-    const html = await new ExportStyledHTML().generate()
+    const html = await new ExportStyledHTML().generate(this.theme)
     return html
   }
 

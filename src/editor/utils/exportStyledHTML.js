@@ -5,7 +5,7 @@ import { CLASS_OR_ID, DAED_REMOVE_SELECTOR } from '../config'
 import { collectImportantComments, unescapeHtml } from './index'
 
 class ExportHTML {
-  async generate () {
+  async generate (themeName) {
     const html = this.getHtml()
     const style = await this.getStyle()
     const outputHtml = `<!DOCTYPE html>
@@ -15,17 +15,29 @@ class ExportHTML {
         <title>Mark Text</title>
         <style>
         ${style}
+        html, body, body.fillscreen {
+          display: block;
+          position: relative;
+          height: 100%;
+        }
         a {
           pointer-events: auto;
         }
         hr {
-          height: 5px;
-          background: gainsboro;
-          border: none;
+          height: 4px;
+          padding: 0;
+          margin: 16px 0;
+          background-color: #e7e7e7;
+          border: 0 none;
+          overflow: hidden;
+          box-sizing: content-box;
+        }
+        .dark hr {
+          background-color: #545454;
         }
         </style>
       </head>
-      <body>
+      <body class="editor-wrapper fillscreen ${themeName}">
         ${html}
       </body>
     </html>`

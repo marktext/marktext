@@ -22,7 +22,6 @@ const getSrcAlt = text => {
 }
 
 const validateEmphasize = (src, offset, marker, pending) => {
-  console.log(src, offset, marker)
   /**
    * Intraword emphasis is disallowed for _
    */
@@ -127,7 +126,6 @@ const tokenizerFac = (src, beginRules, inlineRules, pos = 0, top) => {
   while (src.length) {
     // backlash
     const backTo = inlineRules.backlash.exec(src)
-    console.log(backTo)
     if (backTo) {
       pushPending()
       tokens.push({
