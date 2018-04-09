@@ -1,5 +1,6 @@
 import { beginRules, inlineRules } from './rules'
 import { isLengthEven, union } from '../utils'
+import { punctuation } from '../config'
 
 const CAN_NEST_RULES = ['strong', 'em', 'link', 'del', 'image', 'a_link'] // image can not nest but it has children
 
@@ -20,7 +21,46 @@ const getSrcAlt = text => {
   return { src, alt }
 }
 
-const validateEmphasize = (src, offset) => {
+const validateEmphasize = (src, offset, marker, pending) => {
+  /**
+   * Intraword emphasis is disallowed for _
+   */
+  const lastChar = pending.charAt(pending.length - 1)
+  const followedChar = src[offset]
+  const ALPHA_REG = /[a-zA-Z]{1}/
+  if (/_/.test(marker)) {
+    if (ALPHA_REG.test(lastChar)) return false
+    if (followedChar && ALPHA_REG.test(followedChar)) return false
+  }
+  /**
+   * 1. This is not emphasis, because the second * is preceded by punctuation and followed by an alphanumeric
+   * (hence it is not part of a right-flanking delimiter run:
+   * 2. This is not emphasis, because the opening * is preceded by an alphanumeric and followed by punctuation,
+   * and hence not part of a left-flanking delimiter run:
+   */
+  if (ALPHA_REG.test(lastChar) && punctuation.indexOf(src[marker.length]) > -1) {
+    return false
+  }
+  if (followedChar && ALPHA_REG.test(followedChar) && punctuation.indexOf(src[offset - marker.length - 1])) {
+    return false
+  }
+  /**
+   * When there are two potential emphasis or strong emphasis spans with the same closing delimiter,
+   * the shorter one (the one that opens later) takes precedence. Thus, for example, **foo **bar baz**
+   * is parsed as **foo <strong>bar baz</strong> rather than <strong>foo **bar baz</strong>.
+   */
+  const mLen = marker.length
+  const emphasizeText = src.substring(mLen, offset - mLen)
+  const index = emphasizeText.indexOf(marker)
+  if (index > -1 && /\S/.test(emphasizeText[index + mLen])) {
+    return false
+  }
+  /**
+   * Inline code spans, links, images, and HTML tags group more tightly than emphasis.
+   * So, when there is a choice between an interpretation that contains one of these elements
+   * and one that does not, the former always wins. Thus, for example, *[foo*](bar) is parsed
+   * as *<a href="bar">foo*</a> rather than as <em>[foo</em>](bar).
+   */
   let i
   for (i = 0; i < offset; i++) {
     const text = src.substring(i)
@@ -109,7 +149,7 @@ const tokenizerFac = (src, beginRules, inlineRules, pos = 0, top) => {
     for (const rule of emRules) {
       const to = inlineRules[rule].exec(src)
       if (to && isLengthEven(to[3])) {
-        const isValid = validateEmphasize(src, to[0].length)
+        const isValid = validateEmphasize(src, to[0].length, to[1], pending)
         if (isValid) {
           inChunk = true
           pushPending()

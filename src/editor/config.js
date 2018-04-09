@@ -161,6 +161,8 @@ export const turndownConfig = {
   strongDelimiter: '**'
 }
 
+export const punctuation = ['!', '"', '#', '$', '%', '&', "'", '(', ')', '*', '+', ',', '-', '.', '/', ':', ';', '<', '=', '>', '?', '@', '[', '\\', ']', '^', '_', '`', '{', '|', '}', '~']
+
 export const TABLE_TOOLS = [{
   label: 'table',
   icon: 'icon-table'
