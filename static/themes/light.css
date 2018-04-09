@@ -172,7 +172,10 @@ hr {
   border: 0 none;
   overflow: hidden;
   box-sizing: content-box;
-  border-bottom: 1px solid #ddd;
+}
+
+p:not(.ag-active)[data-role="hr"]::before {
+  background: gainsboro;
 }
 
 body>h2:first-child {
