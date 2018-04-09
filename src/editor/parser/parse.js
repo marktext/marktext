@@ -22,6 +22,7 @@ const getSrcAlt = text => {
 }
 
 const validateEmphasize = (src, offset, marker, pending) => {
+  console.log(src, offset, marker)
   /**
    * Intraword emphasis is disallowed for _
    */
@@ -41,7 +42,8 @@ const validateEmphasize = (src, offset, marker, pending) => {
   if (ALPHA_REG.test(lastChar) && punctuation.indexOf(src[marker.length]) > -1) {
     return false
   }
-  if (followedChar && ALPHA_REG.test(followedChar) && punctuation.indexOf(src[offset - marker.length - 1])) {
+
+  if (followedChar && ALPHA_REG.test(followedChar) && punctuation.indexOf(src[offset - marker.length - 1]) > -1) {
     return false
   }
   /**
@@ -125,6 +127,7 @@ const tokenizerFac = (src, beginRules, inlineRules, pos = 0, top) => {
   while (src.length) {
     // backlash
     const backTo = inlineRules.backlash.exec(src)
+    console.log(backTo)
     if (backTo) {
       pushPending()
       tokens.push({
