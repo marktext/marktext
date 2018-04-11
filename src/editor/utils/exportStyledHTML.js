@@ -185,7 +185,10 @@ class ExportHTML {
       })
     }
     return $('body').html()
-      .replace(/<span class="ag-html-tag">([\s\S]+?)<\/span>/g, (m, p1) => unescapeHtml(p1))
+      .replace(/<span class="ag-html-tag">([\s\S]+?)<\/span>/g, (m, p1) => {
+        if (/script|style|title/.test(p1)) return p1
+        else return unescapeHtml(p1)
+      })
   }
 }
 
