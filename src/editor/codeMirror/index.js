@@ -105,6 +105,16 @@ export const isCursorAtEnd = cm => {
   return line === lastLine && ch === lastLineHandle.text.length && !!hitSide
 }
 
+export const getBeginPosition = () => {
+  return { line: 0, ch: 0 }
+}
+
+export const getEndPosition = cm => {
+  const lastLine = cm.lastLine()
+  const lastLineHandle = cm.getLineHandle(lastLine)
+  return { line: lastLine, ch: lastLineHandle.text.length }
+}
+
 export const setCursorAtFirstLine = cm => {
   cm.focus()
   cm.setCursor(0, 0)

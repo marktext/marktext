@@ -433,6 +433,7 @@ span[data-role="link"], a[data-role="link"], span[data-role="link"] .ag-backlash
 }
 
 .ag-focus-mode p.ag-paragraph,
+.ag-focus-mode div.ag-paragraph,
 .ag-focus-mode h1.ag-paragraph,
 .ag-focus-mode h2.ag-paragraph,
 .ag-focus-mode h3.ag-paragraph,
@@ -446,6 +447,7 @@ span[data-role="link"], a[data-role="link"], span[data-role="link"] .ag-backlash
 }
 
 .ag-focus-mode p.ag-active,
+.ag-focus-mode div.ag-active,
 .ag-focus-mode h1.ag-active,
 .ag-focus-mode h2.ag-active,
 .ag-focus-mode h3.ag-active,
