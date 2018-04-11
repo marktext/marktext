@@ -16,7 +16,9 @@ require('electron-debug')({ showDevTools: false })
 // Install `vue-devtools`
 require('electron').app.on('ready', () => {
   let installExtension = require('electron-devtools-installer')
-  installExtension.default(installExtension.VUEJS_DEVTOOLS)
+  // WORKAROUND: Electron: 2.0.0 does not match required range
+  // https://github.com/MarshallOfSound/electron-devtools-installer/issues/73
+  installExtension.default(installExtension.VUEJS_DEVTOOLS.id)
     .then(() => {})
     .catch(err => {
       console.log('Unable to install `vue-devtools`: \n', err)
