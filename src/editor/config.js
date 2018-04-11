@@ -180,6 +180,17 @@ export const TABLE_TOOLS = [{
   icon: 'icon-del'
 }]
 
+export const DOMPURIFY_CONFIG = {
+  FORBID_ATTR: ['style', 'class', 'contenteditable'],
+  ALLOW_DATA_ATTR: false,
+  USE_PROFILES: {
+    html: true,
+    svg: true,
+    svgFilters: true,
+    mathMl: true
+  }
+}
+
 export const HTML_TOOLS = [{
   label: 'delete',
   icon: 'icon-del'
