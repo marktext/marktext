@@ -1,8 +1,5 @@
 import { EVENT_KEYS, CLASS_OR_ID } from '../config'
-import {
-  isCursorAtFirstLine, isCursorAtLastLine, isCursorAtBegin,
-  isCursorAtEnd
-} from '../codeMirror'
+import { isCursorAtFirstLine, isCursorAtLastLine, isCursorAtBegin, isCursorAtEnd, getBeginPosition, getEndPosition } from '../codeMirror'
 import { findNearestParagraph } from '../utils/domManipulate'
 import selection from '../selection'
 
@@ -215,6 +212,9 @@ const arrowCtrl = ContentState => {
         end: { key, offset }
       }
 
+      const cm = this.codeBlocks.get(preBlock.key)
+      preBlock.pos = getEndPosition(cm)
+
       return this.render()
     } else if (
       (nextBlock && nextBlock.type === 'pre' && event.key === EVENT_KEYS.ArrowDown) ||
@@ -227,10 +227,11 @@ const arrowCtrl = ContentState => {
         start: { key, offset },
         end: { key, offset }
       }
-      return this.render()
-    }
 
-    if (
+      nextBlock.pos = getBeginPosition()
+
+      return this.render()
+    } else if (
       (event.key === EVENT_KEYS.ArrowUp) ||
       (event.key === EVENT_KEYS.ArrowLeft && start.offset === 0)
     ) {

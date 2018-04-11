@@ -3,14 +3,13 @@
  * there is some difference when parse loose list item and tight lsit item.
  * Both of them add a p block in li block, use the CSS style to distinguish loose and tight.
  */
-
 import parse5 from 'parse5'
 import TurndownService from 'turndown'
 import marked from '../parser/marked'
 import ExportMarkdown from './exportMarkdown'
 
 // To be disabled rules when parse markdown, Because content state don't need to parse inline rules
-import { turndownConfig, CLASS_OR_ID, CURSOR_DNA, TABLE_TOOLS, HTML_TOOLS, BLOCK_TYPE7 } from '../config'
+import { turndownConfig, CLASS_OR_ID, CURSOR_DNA, TABLE_TOOLS, BLOCK_TYPE7 } from '../config'
 
 const turndownPluginGfm = require('turndown-plugin-gfm')
 
@@ -70,6 +69,8 @@ const importRegister = ContentState => {
 
     const htmlText = marked(markdown, { disableInline: true })
     const domAst = parse5.parseFragment(htmlText)
+    // console.log(htmlText)
+    // console.log(domAst)
     const childNodes = domAst.childNodes
 
     const getLang = node => {
@@ -221,6 +222,13 @@ const importRegister = ContentState => {
             this.appendChild(parent, block)
             break
 
+          case 'script':
+            const code = child.childNodes.length ? child.childNodes[0].value : ''
+            const fullCode = `<script>${code}</script>`
+            block = this.createHtmlBlock(fullCode)
+            this.appendChild(parent, block)
+            break
+
           case '#text':
             const { parentNode } = child
             value = child.value
@@ -231,13 +239,7 @@ const importRegister = ContentState => {
                 fragments.forEach(fragment => {
                   if (checkIsHTML(fragment)) {
                     // is html block
-                    block = this.createBlock('figure')
-                    block.functionType = 'html'
-                    block.text = fragment
-                    const toolBar = this.createToolBar(HTML_TOOLS, 'html')
-                    const htmlBlock = this.createCodeInHtml(fragment)
-                    this.appendChild(block, toolBar)
-                    this.appendChild(block, htmlBlock)
+                    block = this.createHtmlBlock(fragment)
                     this.appendChild(parent, block)
                   } else {
                     // not html block

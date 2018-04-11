@@ -1,7 +1,10 @@
+import createDOMPurify from 'dompurify'
 import codeMirror, { setMode, setCursorAtLastLine } from '../codeMirror'
 import { createInputInCodeBlock } from '../utils/domManipulate'
 import { escapeInBlockHtml } from '../utils'
-import { codeMirrorConfig, CLASS_OR_ID, BLOCK_TYPE7 } from '../config'
+import { codeMirrorConfig, CLASS_OR_ID, BLOCK_TYPE7, DOMPURIFY_CONFIG } from '../config'
+
+const DOMPurify = createDOMPurify(window)
 
 const CODE_UPDATE_REP = /^`{3,}(.*)/
 
@@ -142,7 +145,7 @@ const codeBlockCtrl = ContentState => {
         if (block.functionType === 'html') {
           const preBlock = this.getNextSibling(block)
           const htmlBlock = this.getParent(this.getParent(block))
-          const escapedHtml = escapeInBlockHtml(block.text)
+          const escapedHtml = DOMPurify.sanitize(escapeInBlockHtml(block.text), DOMPURIFY_CONFIG)
           htmlBlock.text = block.text
           const preEle = document.querySelector(`#${preBlock.key}`)
           preEle.innerHTML = escapedHtml
