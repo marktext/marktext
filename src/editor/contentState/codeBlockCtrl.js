@@ -146,7 +146,6 @@ const codeBlockCtrl = ContentState => {
           const preBlock = this.getNextSibling(block)
           const htmlBlock = this.getParent(this.getParent(block))
           const escapedHtml = DOMPurify.sanitize(escapeInBlockHtml(block.text), DOMPURIFY_CONFIG)
-          console.log(escapedHtml)
           htmlBlock.text = block.text
           const preEle = document.querySelector(`#${preBlock.key}`)
           preEle.innerHTML = escapedHtml
