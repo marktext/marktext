@@ -1,7 +1,7 @@
 import { EVENT_KEYS, CLASS_OR_ID } from '../config'
 import {
-  isCursorAtFirstLine, isCursorAtLastLine, isCursorAtBegin, search, // eslint-disable-line no-unused-vars
-  isCursorAtEnd, setCursorAtFirstLine, onlyHaveOneLine, setCursorAtLastLine // eslint-disable-line no-unused-vars
+  isCursorAtFirstLine, isCursorAtLastLine, isCursorAtBegin,
+  isCursorAtEnd
 } from '../codeMirror'
 import { findNearestParagraph } from '../utils/domManipulate'
 import selection from '../selection'
@@ -63,7 +63,7 @@ const arrowCtrl = ContentState => {
   ContentState.prototype.arrowHandler = function (event) {
     // when the float box is show, use up and down to select item.
     const { floatBox } = this
-    const { list, index, show } = this.floatBox
+    const { list, index, show } = floatBox
     const node = selection.getSelectionStart()
     const paragraph = findNearestParagraph(node)
     const id = paragraph.id
@@ -104,13 +104,15 @@ const arrowCtrl = ContentState => {
           }
           break
       }
-    } else if (block.type === 'pre') {
+      return
+    }
+
+    if (block.type === 'pre') {
       // handle cursor in code block. the case at firstline or lastline.
       const cm = this.codeBlocks.get(id)
       const anchorBlock = block.functionType === 'html' ? this.getParent(this.getParent(block)) : block
       let activeBlock
       event.preventDefault()
-
       switch (event.key) {
         case EVENT_KEYS.ArrowLeft: // fallthrough
         case EVENT_KEYS.ArrowUp:
@@ -160,7 +162,6 @@ const arrowCtrl = ContentState => {
             offset
           }
         }
-
         return this.render()
       }
     } else if (/th|td/.test(block.type)) {
