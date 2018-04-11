@@ -350,9 +350,8 @@ class Aganippe {
   dispatchUpdateState () {
     const { container, eventCenter } = this
     const changeHandler = event => {
-      // const target = event.target
-      // const style = getComputedStyle(target)
-      // if (event.type === 'click' && !style.contenteditable) return
+      const target = event.target
+      if (event.type === 'click' && target.classList.contains(CLASS_OR_ID['AG_FUNCTION_HTML'])) return
       if (!this._isEditChinese) {
         this.contentState.updateState(event)
       }

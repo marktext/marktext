@@ -63,6 +63,7 @@ export const CLASS_OR_ID = genUpper2LowerKeyHash([
   'AG_ACTIVE',
   'AG_EDITOR_ID',
   'AG_FLOAT_BOX_ID',
+  'AG_FUNCTION_HTML',
   'AG_FLOAT_BOX',
   'AG_SHOW_FLOAT_BOX',
   'AG_FLOAT_ITEM', // LI element
