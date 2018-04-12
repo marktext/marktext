@@ -240,6 +240,11 @@ const updateCtrl = ContentState => {
   ContentState.prototype.updateState = function (event) {
     const { floatBox } = this
     const { start, end } = selection.getCursorRange()
+    const key = start.key
+    const block = this.getBlock(key)
+    // bugfix: #67 problem 1
+    if (block.icon) return event.preventDefault()
+
     const { start: oldStart, end: oldEnd } = this.cursor
 
     if (event.type === 'keyup' && (event.key === 'ArrowUp' || event.key === 'ArrowDown') && floatBox.show) {
@@ -291,12 +296,10 @@ const updateCtrl = ContentState => {
       }
       return
     }
-    const key = start.key
+
     const oldKey = lastCursor ? lastCursor.start.key : null
     const paragraph = document.querySelector(`#${key}`)
     let text = getTextContent(paragraph, [ CLASS_OR_ID['AG_MATH_RENDER'] ])
-    const block = this.getBlock(key)
-
     let needRender = false
     if (event.type === 'click' && block.type === 'figure' && block.functionType === 'table') {
       // first cell in thead

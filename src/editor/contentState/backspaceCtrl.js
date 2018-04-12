@@ -74,10 +74,34 @@ const backspaceCtrl = ContentState => {
 
   ContentState.prototype.backspaceHandler = function (event) {
     const { start, end } = selection.getCursorRange()
+    const startBlock = this.getBlock(start.key)
+    const endBlock = this.getBlock(end.key)
+    // bugfix: #67 problem 1
+    if (startBlock.icon) return event.preventDefault()
+    // fixbug: unexpect remove all editor html.
+    if (start.key === end.key && startBlock.type === 'figure' && !startBlock.preSibling) {
+      event.preventDefault()
+      let newBlock
+      if (this.blocks.length === 1) {
+        startBlock.type = 'p'
+        startBlock.text = ''
+        startBlock.children = []
+        newBlock = startBlock
+      } else {
+        this.removeBlock(startBlock)
+        newBlock = this.getNextSibling(startBlock)
+      }
+      const key = newBlock.key
+      const offset = 0
+      this.cursor = {
+        start: { key, offset },
+        end: { key, offset }
+      }
+      return this.render()
+    }
+
     if (start.key !== end.key) {
       event.preventDefault()
-      const startBlock = this.getBlock(start.key)
-      const endBlock = this.getBlock(end.key)
       const key = start.key
       const offset = start.offset
 
