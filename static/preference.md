@@ -1,6 +1,6 @@
 ### :bust_in_silhouette:User Preferences
 
-Edit and save to update preferences, You can only change the json bellow!
+Edit and save to update preferences.  You can only change the json below!
 
 - **theme**: *String* `dark` or `light`
 
@@ -22,7 +22,7 @@ Edit and save to update preferences, You can only change the json bellow!
 }
 ```
 
-More user preferences comming soon.
+More user preferences coming soon.
 
 **Please use `CmdOrCtrl + S` to save your preferences and reload Mark Text to use your setting!**
 
