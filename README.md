@@ -35,7 +35,7 @@
   </a>
   <!-- Downloads latest release -->
   <a href="https://marktext.github.io/website">
-    <img src="https://img.shields.io/github/downloads/marktext/marktext/latest/total.svg" alt="latest download">
+    <img src="https://img.shields.io/github/downloads/marktext/marktext/v0.9.25/total.svg" alt="latest download">
   </a>
   <!-- deps -->
   <a href="https://marktext.github.io/website">
@@ -98,14 +98,14 @@
 
 <h4 align="center">:crescent_moon:Dark and Light themes:high_brightness:</h4>
 
-|                     Dark :crescent_moon:                     |                    Light :high_brightness:                    |
-| :----------------------------------------------------------: | :----------------------------------------------------------: |
+| Dark :crescent_moon:                                               | Light :high_brightness:                                             |
+|:------------------------------------------------------------------:|:-------------------------------------------------------------------:|
 | ![](https://github.com/marktext/marktext/blob/master/doc/dark.jpg) | ![](https://github.com/marktext/marktext/blob/master/doc/light.jpg) |
 
 <h4 align="center">:smile_cat:Edit modes:dog:</h4>
 
-|                         Source Code                          |                          Typewriter                          |                            Focus                             |
-| :----------------------------------------------------------: | :----------------------------------------------------------: | :----------------------------------------------------------: |
+| Source Code                                                          | Typewriter                                                               | Focus                                                               |
+|:--------------------------------------------------------------------:|:------------------------------------------------------------------------:|:-------------------------------------------------------------------:|
 | ![](https://github.com/marktext/marktext/blob/master/doc/source.gif) | ![](https://github.com/marktext/marktext/blob/master/doc/typewriter.gif) | ![](https://github.com/marktext/marktext/blob/master/doc/focus.gif) |
 
 ### Why write another editor?
@@ -118,9 +118,9 @@
 
 ![Conda](https://img.shields.io/conda/pn/conda-forge/python.svg?style=for-the-badge)
 
-| ![]( https://github.com/ryanoasis/nerd-fonts/wiki/screenshots/v1.0.x/mac-pass-sm.png) | ![]( https://github.com/ryanoasis/nerd-fonts/wiki/screenshots/v1.0.x/windows-pass-sm.png) | ![]( https://github.com/ryanoasis/nerd-fonts/wiki/screenshots/v1.0.x/linux-pass-sm.png) |
-| :----------------------------------------------------------: | :----------------------------------------------------------: | :----------------------------------------------------------: |
-| [latest version](https://github.com/marktext/marktext/releases/download/v0.9.25/marktext-0.9.25.dmg) | [latest version](https://github.com/marktext/marktext/releases/download/v0.9.25/marktext-setup-0.9.25.exe) | [latest version](https://github.com/marktext/marktext/releases/download/v0.9.25/marktext-0.9.25-x86_64.AppImage) |
+| ![]( https://github.com/ryanoasis/nerd-fonts/wiki/screenshots/v1.0.x/mac-pass-sm.png)                                                                                               | ![]( https://github.com/ryanoasis/nerd-fonts/wiki/screenshots/v1.0.x/windows-pass-sm.png)                                                                                                       | ![]( https://github.com/ryanoasis/nerd-fonts/wiki/screenshots/v1.0.x/linux-pass-sm.png)                                                                                                                     |
+|:-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
+| [![](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-0.9.25.dmg.svg)](https://github.com/marktext/marktext/releases/download/v0.9.25/marktext-0.9.25.dmg) | [![](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-setup-0.9.25.exe.svg)](https://github.com/marktext/marktext/releases/download/v0.9.25/marktext-setup-0.9.25.exe) | [![](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-0.9.25-x86_64.AppImage.svg)](https://github.com/marktext/marktext/releases/download/v0.9.25/marktext-0.9.25-x86_64.AppImage) |
 
 Did not found your system ? Go the the [release page](https://github.com/marktext/marktext/releases). Still not found ? Shoot an [issue](https://github.com/marktext/marktext/issues).
 
@@ -151,9 +151,9 @@ Thank you to all the people who have already contributed to Mark Text! If you ar
 
 Special thanks to @[Yasujizr](https://github.com/Yasujizr) who designed the logo of Mark Text.
 
-[![Jocs](https://avatars0.githubusercontent.com/u/9712830?s=150&v=4)](https://github.com/Jocs) | [![ywwhack](https://avatars1.githubusercontent.com/u/8746197?s=150&v=4)](https://github.com/ywwhack) | [![notAlaanor](https://avatars1.githubusercontent.com/u/17591936?s=150&v=4)](https://github.com/notAlaanor) | [![fxha](https://avatars1.githubusercontent.com/u/22716132?s=150&v=4)](https://github.com/fxha)
-:---:|:---:|:---:|:---:
-[Jocs](https://github.com/Jocs) | [ywwhack](https://github.com/ywwhack) | [notAlaanor](https://github.com/notAlaanor) | [fxha](https://github.com/fxha)
+| [![Jocs](https://avatars0.githubusercontent.com/u/9712830?s=150&v=4)](https://github.com/Jocs) | [![ywwhack](https://avatars1.githubusercontent.com/u/8746197?s=150&v=4)](https://github.com/ywwhack) | [![notAlaanor](https://avatars1.githubusercontent.com/u/17591936?s=150&v=4)](https://github.com/notAlaanor) | [![fxha](https://avatars1.githubusercontent.com/u/22716132?s=150&v=4)](https://github.com/fxha) |
+|:----------------------------------------------------------------------------------------------:|:----------------------------------------------------------------------------------------------------:|:-----------------------------------------------------------------------------------------------------------:|:-----------------------------------------------------------------------------------------------:|
+| [Jocs](https://github.com/Jocs)                                                                | [ywwhack](https://github.com/ywwhack)                                                                | [notAlaanor](https://github.com/notAlaanor)                                                                 | [fxha](https://github.com/fxha)                                                                 |
 
 ### License
 
