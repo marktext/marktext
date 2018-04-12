@@ -1,9 +1,9 @@
 'use strict'
 
 import './globalSetting'
-import { app, Menu } from 'electron'
-import configureMenu, { dockMenu } from './menus'
+import { app } from 'electron'
 import createWindow, { windows } from './createWindow'
+import { updateApplicationMenu } from './menu'
 import { isMarkdownFile } from './utils'
 import { watchers } from './imagePathAutoComplement'
 
@@ -24,12 +24,7 @@ const onReady = () => {
   } else {
     createWindow()
   }
-  const menu = Menu.buildFromTemplate(configureMenu)
-  Menu.setApplicationMenu(menu)
-  if (process.platform === 'darwin') {
-    // app.dock is only for macosx
-    app.dock.setMenu(dockMenu)
-  }
+  updateApplicationMenu()
 }
 
 const openFile = (event, path) => {

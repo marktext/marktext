@@ -6,6 +6,7 @@ import path from 'path'
 import { app, BrowserWindow, dialog, ipcMain } from 'electron'
 import createWindow, { windows } from '../createWindow'
 import { EXTENSION_HASN, EXTENSIONS } from '../config'
+import { clearRecentlyUsedDocuments } from '../menu'
 import { getPath, isMarkdownFile, log, isFile } from '../utils'
 import userPreference from '../preference'
 
@@ -192,6 +193,13 @@ export const print = win => {
   win.webContents.print({ silent: false, printBackground: true, deviceName: '' })
 }
 
+export const openDocument = filePath => {
+  if (isFile(filePath)) {
+    const newWindow = createWindow(filePath)
+    watchAndReload(filePath, newWindow)
+  }
+}
+
 export const open = win => {
   const filename = dialog.showOpenDialog(win, {
     properties: ['openFile'],
@@ -201,8 +209,7 @@ export const open = win => {
     }]
   })
   if (filename && filename[0]) {
-    const newWindow = createWindow(filename[0])
-    watchAndReload(filename[0], newWindow)
+    openDocument(filename[0])
   }
 }
 
@@ -235,4 +242,8 @@ export const moveTo = win => {
 
 export const rename = win => {
   win.webContents.send('AGANI::ask-file-rename')
+}
+
+export const clearRecentlyUsed = () => {
+  clearRecentlyUsedDocuments()
 }

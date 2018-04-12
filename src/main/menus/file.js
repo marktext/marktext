@@ -3,31 +3,64 @@ import * as actions from '../actions/file'
 import { userSetting } from '../actions/marktext'
 import userPreference from '../preference'
 
-const { autoSave } = userPreference.getAll()
-const notOsx = process.platform !== 'darwin'
-
-export default {
-  label: 'File',
-  submenu: [{
-    label: 'New File',
-    accelerator: 'CmdOrCtrl+N',
-    click (menuItem, browserWindow) {
-      actions.newFile()
-    }
-  }, {
-    label: 'Open...',
-    accelerator: 'CmdOrCtrl+O',
-    click (menuItem, browserWindow) {
-      actions.open(browserWindow)
-    }
-  }, {
-    role: 'recentdocuments',
-    submenu: [
-      {
-        role: 'clearrecentdocuments'
+export default function (recentlyUsedFiles) {
+  const { autoSave } = userPreference.getAll()
+  const notOsx = process.platform !== 'darwin'
+  let fileMenu = {
+    label: 'File',
+    submenu: [{
+      label: 'New File',
+      accelerator: 'CmdOrCtrl+N',
+      click (menuItem, browserWindow) {
+        actions.newFile()
       }
-    ]
-  }, {
+    }, {
+      label: 'Open...',
+      accelerator: 'CmdOrCtrl+O',
+      click (menuItem, browserWindow) {
+        actions.open(browserWindow)
+      }
+    }]
+  }
+
+  if (notOsx) {
+    let recentlyUsedMenu = {
+      label: 'Open Recent',
+      submenu: []
+    }
+
+    for (const item of recentlyUsedFiles) {
+      recentlyUsedMenu.submenu.push({
+        label: item,
+        click (menuItem, browserWindow) {
+          actions.openDocument(menuItem.label)
+        }
+      })
+    }
+
+    recentlyUsedMenu.submenu.push({
+      type: 'separator',
+      visible: recentlyUsedFiles.length > 0
+    }, {
+      label: 'Clear Recently Used',
+      enabled: recentlyUsedFiles.length > 0,
+      click (menuItem, browserWindow) {
+        actions.clearRecentlyUsed()
+      }
+    })
+    fileMenu.submenu.push(recentlyUsedMenu)
+  } else {
+    fileMenu.submenu.push({
+      role: 'recentdocuments',
+      submenu: [
+        {
+          role: 'clearrecentdocuments'
+        }
+      ]
+    })
+  }
+
+  fileMenu.submenu.push({
     type: 'separator'
   }, {
     label: 'Save',
@@ -103,5 +136,6 @@ export default {
     accelerator: 'Ctrl+Q',
     visible: notOsx,
     click: app.quit
-  }]
+  })
+  return fileMenu
 }
