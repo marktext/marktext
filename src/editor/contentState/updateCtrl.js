@@ -154,6 +154,10 @@ const updateCtrl = ContentState => {
     this.render()
   }
 
+  ContentState.prototype.checkSameLooseType = function (list, isLooseType) {
+    return list.children[0].isLooseListItem === isLooseType
+  }
+
   ContentState.prototype.updateList = function (block, type, marker = '') {
     const { preferLooseListItem } = this
     const parent = this.getParent(block)
@@ -168,21 +172,24 @@ const updateCtrl = ContentState => {
     newBlock.listItemType = type
     newBlock.isLooseListItem = preferLooseListItem
 
-    if (preSibling && preSibling.listType === type && nextSibling && nextSibling.listType === type) {
+    if (
+      preSibling && preSibling.listType === type && this.checkSameLooseType(preSibling, preferLooseListItem) &&
+      nextSibling && nextSibling.listType === type && this.checkSameLooseType(nextSibling, preferLooseListItem)
+    ) {
       this.appendChild(preSibling, newBlock)
       const partChildren = nextSibling.children.splice(0)
       partChildren.forEach(b => this.appendChild(preSibling, b))
       this.removeBlock(nextSibling)
       this.removeBlock(block)
-    } else if (preSibling && preSibling.type === wrapperTag) {
+    } else if (preSibling && preSibling.type === wrapperTag && this.checkSameLooseType(preSibling, preferLooseListItem)) {
       this.appendChild(preSibling, newBlock)
 
       this.removeBlock(block)
-    } else if (nextSibling && nextSibling.listType === type) {
+    } else if (nextSibling && nextSibling.listType === type && this.checkSameLooseType(nextSibling, preferLooseListItem)) {
       this.insertBefore(newBlock, nextSibling.children[0])
 
       this.removeBlock(block)
-    } else if (parent && parent.listType === type) {
+    } else if (parent && parent.listType === type && this.checkSameLooseType(parent, preferLooseListItem)) {
       this.insertBefore(newBlock, block)
 
       this.removeBlock(block)
