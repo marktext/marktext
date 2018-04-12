@@ -142,12 +142,13 @@ const backspaceCtrl = ContentState => {
       const cm = this.codeBlocks.get(id)
       // if event.preventDefault(), U can not use backspace in language input.
       if (isCursorAtBegin(cm) && onlyHaveOneLine(cm)) {
+        const anchorBlock = block.functionType === 'html' ? this.getParent(this.getParent(block)) : block
         event.preventDefault()
         const value = cm.getValue()
         const newBlock = this.createBlock('p')
         if (value) newBlock.text = value
-        this.insertBefore(newBlock, block)
-        this.removeBlock(block)
+        this.insertBefore(newBlock, anchorBlock)
+        this.removeBlock(anchorBlock)
         this.codeBlocks.delete(id)
         const key = newBlock.key
         const offset = 0
