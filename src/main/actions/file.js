@@ -39,7 +39,12 @@ const writeFile = (pathname, content, extension, e, callback = null) => {
   }
 }
 
-const writeMarkdownFile = (pathname, content, extension, win, e, quitAfterSave = false) => {
+const writeMarkdownFile = (pathname, content, extension, isUtf8BomEncoded, win, e, quitAfterSave = false) => {
+  if (isUtf8BomEncoded) {
+    // js is call-by-value, so we can insert BOM
+    content = '\uFEFF' + content
+  }
+
   writeFile(pathname, content, extension, e, (err, filePath) => {
     if (!err) e.sender.send('AGANI::file-saved-successfully')
     const filename = path.basename(filePath)
@@ -80,27 +85,27 @@ const handleResponseForExport = (e, { type, content, filename, pathname }) => {
   }
 }
 
-const handleResponseForSave = (e, { markdown, pathname, quitAfterSave = false }) => {
+const handleResponseForSave = (e, { markdown, pathname, isUtf8BomEncoded, quitAfterSave = false }) => {
   const win = BrowserWindow.fromWebContents(e.sender)
   if (pathname) {
-    writeMarkdownFile(pathname, markdown, '', win, e, quitAfterSave)
+    writeMarkdownFile(pathname, markdown, '', isUtf8BomEncoded, win, e, quitAfterSave)
   } else {
     const filePath = dialog.showSaveDialog(win, {
       defaultPath: getPath('documents') + '/Untitled.md'
     })
-    writeMarkdownFile(filePath, markdown, '.md', win, e, quitAfterSave)
+    writeMarkdownFile(filePath, markdown, '.md', isUtf8BomEncoded, win, e, quitAfterSave)
   }
 }
 
-ipcMain.on('AGANI::response-file-save-as', (e, { markdown, pathname }) => {
+ipcMain.on('AGANI::response-file-save-as', (e, { markdown, pathname, isUtf8BomEncoded }) => {
   const win = BrowserWindow.fromWebContents(e.sender)
   let filePath = dialog.showSaveDialog(win, {
     defaultPath: pathname || getPath('documents') + '/Untitled.md'
   })
-  writeMarkdownFile(filePath, markdown, '.md', win, e)
+  writeMarkdownFile(filePath, markdown, '.md', isUtf8BomEncoded, win, e)
 })
 
-ipcMain.on('AGANI::response-close-confirm', (e, { filename, pathname, markdown }) => {
+ipcMain.on('AGANI::response-close-confirm', (e, { filename, pathname, markdown, isUtf8BomEncoded }) => {
   const win = BrowserWindow.fromWebContents(e.sender)
   dialog.showMessageBox(win, {
     type: 'warning',
@@ -117,7 +122,7 @@ ipcMain.on('AGANI::response-close-confirm', (e, { filename, pathname, markdown }
         break
       case 0:
         setTimeout(() => {
-          handleResponseForSave(e, { pathname, markdown, quitAfterSave: true })
+          handleResponseForSave(e, { pathname, markdown, isUtf8BomEncoded, quitAfterSave: true })
         })
         break
     }

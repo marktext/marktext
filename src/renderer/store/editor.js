@@ -28,6 +28,7 @@ const state = {
   pathname: '',
   isSaved: true,
   markdown: '',
+  isUtf8BomEncoded: false,
   cursor: null,
   windowActive: true,
   wordCount: {
@@ -61,6 +62,9 @@ const mutations = {
   },
   SET_MARKDOWN (state, markdown) {
     state.markdown = markdown
+  },
+  SET_IS_UTF8_BOM_ENCODED (state, isUtf8BomEncoded) {
+    state.isUtf8BomEncoded = isUtf8BomEncoded
   },
   SET_WORD_COUNT (state, wordCount) {
     state.wordCount = wordCount
@@ -110,11 +114,11 @@ const actions = {
 
       // handle autoSave
       if (autoSave) {
-        const { pathname, markdown } = state
+        const { pathname, markdown, isUtf8BomEncoded } = state
 
         if (autoSave && pathname) {
           commit('SET_SAVE_STATUS', true)
-          ipcRenderer.send('AGANI::response-file-save', { pathname, markdown })
+          ipcRenderer.send('AGANI::response-file-save', { pathname, markdown, isUtf8BomEncoded })
         }
       }
     })
@@ -144,23 +148,23 @@ const actions = {
 
   LISTEN_FOR_SAVE ({ commit, state }) {
     ipcRenderer.on('AGANI::ask-file-save', () => {
-      const { pathname, markdown } = state
-      ipcRenderer.send('AGANI::response-file-save', { pathname, markdown })
+      const { pathname, markdown, isUtf8BomEncoded } = state
+      ipcRenderer.send('AGANI::response-file-save', { pathname, markdown, isUtf8BomEncoded })
     })
   },
 
   LISTEN_FOR_SAVE_AS ({ commit, state }) {
     ipcRenderer.on('AGANI::ask-file-save-as', () => {
-      const { pathname, markdown } = state
-      ipcRenderer.send('AGANI::response-file-save-as', { pathname, markdown })
+      const { pathname, markdown, isUtf8BomEncoded } = state
+      ipcRenderer.send('AGANI::response-file-save-as', { pathname, markdown, isUtf8BomEncoded })
     })
   },
 
   LISTEN_FOR_MOVE_TO ({ commit, state }) {
     ipcRenderer.on('AGANI::ask-file-move-to', () => {
-      const { pathname, markdown } = state
+      const { pathname, markdown, isUtf8BomEncoded } = state
       if (!pathname) {
-        ipcRenderer.send('AGANI::response-file-save', { pathname, markdown })
+        ipcRenderer.send('AGANI::response-file-save', { pathname, markdown, isUtf8BomEncoded })
       } else {
         ipcRenderer.send('AGANI::response-file-move-to', { pathname })
       }
@@ -169,9 +173,9 @@ const actions = {
 
   LISTEN_FOR_RENAME ({ commit, state }) {
     ipcRenderer.on('AGANI::ask-file-rename', () => {
-      const { pathname, markdown } = state
+      const { pathname, markdown, isUtf8BomEncoded } = state
       if (!pathname) {
-        ipcRenderer.send('AGANI::response-file-save', { pathname, markdown })
+        ipcRenderer.send('AGANI::response-file-save', { pathname, markdown, isUtf8BomEncoded })
       } else {
         bus.$emit('rename')
       }
@@ -195,11 +199,12 @@ const actions = {
   },
 
   LISTEN_FOR_FILE_LOAD ({ commit, state }) {
-    ipcRenderer.on('AGANI::file-loaded', (e, { file, filename, pathname }) => {
+    ipcRenderer.on('AGANI::file-loaded', (e, { file, filename, pathname, isUtf8BomEncoded }) => {
       commit('SET_FILENAME', filename)
       commit('SET_PATHNAME', pathname)
       commit('SET_MARKDOWN', file)
       commit('SET_SAVE_STATUS', true)
+      commit('SET_IS_UTF8_BOM_ENCODED', isUtf8BomEncoded)
       bus.$emit('file-loaded', file)
     })
   },
@@ -223,7 +228,7 @@ const actions = {
   },
 
   LISTEN_FOR_CONTENT_CHANGE ({ commit, state }, { markdown, wordCount, cursor }) {
-    const { pathname, autoSave, markdown: oldMarkdown } = state
+    const { pathname, autoSave, markdown: oldMarkdown, isUtf8BomEncoded } = state
     commit('SET_MARKDOWN', markdown)
     // set word count
     if (wordCount) commit('SET_WORD_COUNT', wordCount)
@@ -232,7 +237,7 @@ const actions = {
     // change save status/save to file only when the markdown changed!
     if (markdown !== oldMarkdown) {
       if (pathname && autoSave) {
-        ipcRenderer.send('AGANI::response-file-save', { pathname, markdown })
+        ipcRenderer.send('AGANI::response-file-save', { pathname, markdown, isUtf8BomEncoded })
       } else {
         commit('SET_SAVE_STATUS', false)
       }
@@ -317,9 +322,9 @@ const actions = {
 
   LISTEN_FOR_CLOSE ({ commit, state }) {
     ipcRenderer.on('AGANI::ask-for-close', e => {
-      const { isSaved, markdown, pathname, filename } = state
+      const { isSaved, markdown, pathname, filename, isUtf8BomEncoded } = state
       if (!isSaved && /[^\n]/.test(markdown)) {
-        ipcRenderer.send('AGANI::response-close-confirm', { filename, pathname, markdown })
+        ipcRenderer.send('AGANI::response-close-confirm', { filename, pathname, markdown, isUtf8BomEncoded })
       } else {
         ipcRenderer.send('AGANI::close-window')
       }
