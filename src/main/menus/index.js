@@ -10,14 +10,16 @@ import theme from './theme'
 
 export dockMenu from './dock'
 
-export default [
-  ...(process.platform === 'darwin' ? [marktext] : []),
-  file,
-  edit,
-  paragraph,
-  format,
-  windowMenu,
-  theme,
-  view,
-  help
-]
+export default function (recentlyUsedFiles) {
+  return [
+    ...(process.platform === 'darwin' ? [marktext] : []),
+    file(recentlyUsedFiles),
+    edit,
+    paragraph,
+    format,
+    windowMenu,
+    theme,
+    view,
+    help
+  ]
+}
