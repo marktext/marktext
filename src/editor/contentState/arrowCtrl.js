@@ -140,7 +140,7 @@ const arrowCtrl = ContentState => {
               }
             } else {
               activeBlock = this.createBlock('p')
-              this.insertAfter(activeBlock, block)
+              this.insertAfter(activeBlock, anchorBlock)
             }
           }
           break

@@ -250,7 +250,7 @@ const updateCtrl = ContentState => {
     const key = start.key
     const block = this.getBlock(key)
     // bugfix: #67 problem 1
-    if (block.icon) return event.preventDefault()
+    if (block && block.icon) return event.preventDefault()
 
     const { start: oldStart, end: oldEnd } = this.cursor
 

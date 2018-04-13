@@ -1,6 +1,6 @@
 import selection from '../selection'
 import { findNearestParagraph, findOutMostParagraph } from '../utils/domManipulate'
-import { isCursorAtBegin, onlyHaveOneLine, setCursorAtLastLine } from '../codeMirror'
+import { isCursorAtBegin, onlyHaveOneLine, getEndPosition } from '../codeMirror'
 
 const backspaceCtrl = ContentState => {
   ContentState.prototype.checkBackspaceCase = function () {
@@ -93,6 +93,7 @@ const backspaceCtrl = ContentState => {
       }
       const key = newBlock.key
       const offset = 0
+
       this.cursor = {
         start: { key, offset },
         end: { key, offset }
@@ -132,7 +133,7 @@ const backspaceCtrl = ContentState => {
     const id = paragraph.id
     const block = this.getBlock(id)
     const parent = this.getBlock(block.parent)
-    const preBlock = this.getBlock(block.preSibling)
+    const preBlock = this.findPreBlockInLocation(block)
     const { left } = selection.getCaretOffsets(paragraph)
     const inlineDegrade = this.checkBackspaceCase()
 
@@ -184,18 +185,6 @@ const backspaceCtrl = ContentState => {
 
         this.render()
       }
-    } else if (
-      left === 0 &&
-      preBlock &&
-      preBlock.type === 'pre'
-    ) {
-      event.preventDefault()
-      const text = block.text
-      const cm = this.codeBlocks.get(preBlock.key)
-      const value = cm.getValue() + text
-      cm.setValue(value)
-      this.removeBlock(block)
-      setCursorAtLastLine(cm)
     } else if (left === 0 && /th|td/.test(block.type)) {
       event.preventDefault()
       let key
@@ -299,6 +288,29 @@ const backspaceCtrl = ContentState => {
       if (inlineDegrade.type !== 'STOP') {
         this.render()
       }
+    } else if (
+      left === 0 &&
+      preBlock &&
+      preBlock.type === 'pre'
+    ) {
+      event.preventDefault()
+      const text = block.text
+      const key = preBlock.key
+      const cm = this.codeBlocks.get(key)
+      const value = cm.getValue() + text
+      const offset = 0
+      cm.setValue(value)
+      const { line, ch } = getEndPosition(cm)
+
+      preBlock.pos = { line, ch: ch - text.length }
+
+      this.removeBlock(block)
+
+      this.cursor = {
+        start: { key, offset },
+        end: { key, offset }
+      }
+      this.render()
     } else if (left === 0) {
       this.removeBlock(block)
     }

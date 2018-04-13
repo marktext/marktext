@@ -319,7 +319,7 @@ div.ag-html-preview {
   width: 100%;
 }
 
-.ag-active div.ag-html-preview {
+.ag-active > div.ag-html-preview {
   background: #F2F6FC;
 }
 
