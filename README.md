@@ -147,7 +147,7 @@ When you have any questions while using **Mark Text**, you are welcome to write 
 
 Mark Text is in full development, please make sure to read the [Contributing Guide](https://github.com/marktext/marktext/blob/master/.github/CONTRIBUTING.md) before making a pull request. Want to add some features to Mark Text? Refer to [TODO LIST](https://github.com/marktext/marktext/blob/master/.github/TODOLIST.md)
 
-Thank you to all the people who have already contributed to Mark Text! If you are a member of [contributors](https://github.com/marktext/marktext/graphs/contributors), open a PR to add your name and photo to the contribution list bellow.
+Thank you to all the people who have already contributed to Mark Text! If you are a member of [contributors](https://github.com/marktext/marktext/graphs/contributors), open a PR to add your name and photo to the contribution list below.
 
 Special thanks to @[Yasujizr](https://github.com/Yasujizr) who designed the logo of Mark Text.
 

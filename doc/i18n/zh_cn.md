@@ -2,13 +2,92 @@
 
 <h1 align="center">Mark Text</h1>
 
-<p align="center"><img src="https://badge.fury.io/gh/jocs%2Fmarktext.svg">  <img src="https://img.shields.io/github/license/marktext/marktext.svg">  <img src="https://travis-ci.org/marktext/marktext.svg?branch=master" alt=""></p>
+<div align="center">
+  <a href="https://twitter.com/intent/tweet?text=Wow:&url=https%3A%2F%2Fgithub.com%2Fmarktext%2Fmarktext">
+    <img src="https://img.shields.io/twitter/url/https/github.com/marktext/marktext.svg?style=for-the-badge" alt="twitter">
+  </a>
+</div>
+<div align="center">
+  <strong>:high_brightness:Next generation markdown editor:crescent_moon:</strong>
+</div>
+<div align="center">
+  An <code>Electron</code> app for platforms of OS X Windows and Linux
+</div>
 
-**Mark Text** 是一款高性能的 Markdown 编辑器，运行于 Mac、Windows 和 Linux 平台。其简洁的外观，流畅的运行，给您带来舒适的写作体验。
+<br />
+
+<div align="center">
+  <!-- Version -->
+  <a href="https://marktext.github.io/website">
+    <img src="https://badge.fury.io/gh/jocs%2Fmarktext.svg" alt="website">
+  </a>
+  <!-- License -->
+  <a href="https://marktext.github.io/website">
+    <img src="https://img.shields.io/github/license/marktext/marktext.svg" alt="LICENSE">
+  </a>
+  <!-- Build Status -->
+  <a href="https://marktext.github.io/website">
+    <img src="https://travis-ci.org/marktext/marktext.svg?branch=master" alt="build">
+  </a>
+  <!-- Downloads total -->
+  <a href="https://marktext.github.io/website">
+    <img src="https://img.shields.io/github/downloads/marktext/marktext/total.svg" alt="total download">
+  </a>
+  <!-- Downloads latest release -->
+  <a href="https://marktext.github.io/website">
+    <img src="https://img.shields.io/github/downloads/marktext/marktext/v0.9.25/total.svg" alt="latest download">
+  </a>
+  <!-- deps -->
+  <a href="https://marktext.github.io/website">
+    <img src="https://img.shields.io/hackage-deps/v/lens.svg" alt="dependencies">
+  </a>
+  <!-- donates -->
+  <a href="https://opencollective.com/marktext">
+    <img src="https://opencollective.com/marktext/tiers/backer/badge.svg?label=backer&color=brightgreen" alt="donate">
+  </a>
+</div>
+
+<div align="center">
+  <h3>
+    <a href="https://marktext.github.io/website">
+      Website
+    </a>
+    <span> | </span>
+    <a href="https://github.com/marktext/marktext/blob/master/doc/i18n/zh_cn.md#readme">
+      中文
+    </a>
+    <span> | </span>
+    <a href="https://github.com/marktext/marktext#features">
+      Features
+    </a>
+    <span> | </span>
+    <a href="https://github.com/marktext/marktext#download-and-install">
+      Downloads
+    </a>
+    <span> | </span>
+    <a href="https://github.com/marktext/marktext#development">
+      Development
+    </a>
+    <span> | </span>
+    <a href="https://github.com/marktext/marktext#contribution">
+      Contribution
+    </a>
+  </h3>
+</div>
+
+<div align="center">
+  <sub>This Markdown editor that could. Built with ❤︎ by
+  <a href="https://github.com/Jocs">Jocs</a> and
+  <a href="https://github.com/marktext/marktext/graphs/contributors">
+    contributors
+  </a>
+</div>
+
+<br />
 
 ![](https://github.com/marktext/marktext/blob/master/doc/marktext.gif)
 
-<h3 align="center">特性</h3>
+### 特性
 
 - Mark Text 所输及所见，摒弃了众多 markdown 编辑器左边写作右边预览的写作方式，巧妙的将编辑和预览融为一体。
 - [snabbdom](https://github.com/snabbdom/snabbdom) 作为 Mark Text 的渲染引擎，保证了极速渲染编辑页面，带来流程的书写体验。
@@ -30,17 +109,29 @@
 | :----------------------------------------------------------: | :----------------------------------------------------------: | :----------------------------------------------------------: |
 | ![](https://github.com/marktext/marktext/blob/master/doc/source.gif) | ![](https://github.com/marktext/marktext/blob/master/doc/typewriter.gif) | ![](https://github.com/marktext/marktext/blob/master/doc/focus.gif) |
 
-<h3 align="center">可以斗图的 Markdown 编辑器</h3>
+### 可以斗图的 Markdown 编辑器
 
- Mark Text 内置斗图功能，省掉了寻找「斗图」的烦恼，通过快捷键 `Cmd+/` 直接打开斗图搜索面板，你需要的有趣图片就在里面。
+ Mark Text 内置斗图功能，省掉了寻找「斗图」的烦恼，通过快捷键 `Cmd+/` 直接打开斗图搜索面板，你需要的有趣图片就在里面。斗图功能默认是关闭的，你需要从`user preference` 菜单中，打开 preference.md, 然后设置 `aidou` 为 `true`。保存然后重启编辑器就可以使用了。
 
 ![](https://github.com/marktext/marktext/blob/master/doc/doutu.jpg)
 
-<h3 align="center">下载</h3>
+### 安装和下载
 
-[Download](https://github.com/marktext/marktext/releases), 解压，然后复制到Applications 文件夹。
+![Conda](https://img.shields.io/conda/pn/conda-forge/python.svg?style=for-the-badge)
 
-<h3 align="center">开发</h3>
+| ![]( https://github.com/ryanoasis/nerd-fonts/wiki/screenshots/v1.0.x/mac-pass-sm.png)                                                                                                             | ![]( https://github.com/ryanoasis/nerd-fonts/wiki/screenshots/v1.0.x/windows-pass-sm.png)                                                                                                                     | ![]( https://github.com/ryanoasis/nerd-fonts/wiki/screenshots/v1.0.x/linux-pass-sm.png)                                                                                                                                   |
+|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
+| [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-0.9.25.dmg.svg)](https://github.com/marktext/marktext/releases/download/v0.9.25/marktext-0.9.25.dmg) | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-setup-0.9.25.exe.svg)](https://github.com/marktext/marktext/releases/download/v0.9.25/marktext-setup-0.9.25.exe) | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-0.9.25-x86_64.AppImage.svg)](https://github.com/marktext/marktext/releases/download/v0.9.25/marktext-0.9.25-x86_64.AppImage) |
+
+如果你依然没有找到适合你的版本，请直接从 [release](https://github.com/marktext/marktext/releases) 页面下载。
+
+如果你使用 Mac，那么你可以通过 [**homebrew cask**](https://github.com/caskroom/homebrew-cask) 来安装 Mark Text。在使用 Homebrew-Cask 之前，你需要安装 [Homebrew](http://brew.sh/)。
+
+> brew cask install mark-text
+
+![](https://github.com/marktext/marktext/blob/master/doc/brew-cask.gif)
+
+### 开发
 
 如果你想自己打包应用，或者想打包到其他平台。
 
@@ -49,16 +140,20 @@
 - 运行 `npm run build`
 - 复制 app 到 Applications 文件夹，如果是 windows 系统直接点击相应软件安装。
 
-<h3 align="center">贡献</h3>
+### 贡献
 
-在贡献代码或者优化文档之前，请确保阅读了[Contributing Guide](https://github.com/marktext/marktext/blob/master/.github/CONTRIBUTING.md)，感谢所有为 Mark Text 做出贡献的开源爱好者们。
+Mark Text 正在全力开发中，在你提交 PR 之前，请首先阅读 [Contributing Guide](https://github.com/marktext/marktext/blob/master/.github/CONTRIBUTING.md)。 如果你想给 Mark Text 添加新的特性，请阅读 [TODO LIST](https://github.com/marktext/marktext/blob/master/.github/TODOLIST.md)
 
-[![Jocs](https://avatars0.githubusercontent.com/u/9712830?s=150&v=4)](https://github.com/Jocs) | [![ywwhack](https://avatars1.githubusercontent.com/u/8746197?s=150&v=4)](https://github.com/ywwhack) | [![notAlaanor](https://avatars1.githubusercontent.com/u/17591936?s=150&v=4)](https://github.com/notAlaanor)
-:---:|:---:|:---:
-[Jocs](https://github.com/Jocs) | [ywwhack](https://github.com/ywwhack) | [notAlaanor](https://github.com/notAlaanor)
+感谢所有 Mark Text 的所有[贡献者](https://github.com/marktext/marktext/graphs/contributors), 正是因为有你们，Mark Text 才会趋于完美。 如果你是贡献者，你可以将你的姓名和头像添加到下面列表中。
 
-<h3 align="center">License</h3>
+特别致谢 @[Yasujizr](https://github.com/Yasujizr) 为 Mark Text 设计了 logo。
+
+| [![Jocs](https://avatars0.githubusercontent.com/u/9712830?s=150&v=4)](https://github.com/Jocs) | [![ywwhack](https://avatars1.githubusercontent.com/u/8746197?s=150&v=4)](https://github.com/ywwhack) | [![notAlaanor](https://avatars1.githubusercontent.com/u/17591936?s=150&v=4)](https://github.com/notAlaanor) | [![fxha](https://avatars1.githubusercontent.com/u/22716132?s=150&v=4)](https://github.com/fxha) |
+|:----------------------------------------------------------------------------------------------:|:----------------------------------------------------------------------------------------------------:|:-----------------------------------------------------------------------------------------------------------:|:-----------------------------------------------------------------------------------------------:|
+| [Jocs](https://github.com/Jocs)                                                                | [ywwhack](https://github.com/ywwhack)                                                                | [notAlaanor](https://github.com/notAlaanor)                                                                 | [fxha](https://github.com/fxha)                                                                 |
+
+### License
 
  [**MIT**](https://github.com/marktext/marktext/blob/master/LICENSE).
 
-Copyright (c) 2017-present, Jocs
+Copyright (c) 2017-present, @Jocs
