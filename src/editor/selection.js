@@ -568,7 +568,7 @@ class Selection {
    *
    *  @param {DOMElement} An element containing the cursor to find offsets relative to.
    *  @param {Range} A Range representing cursor position. Will window.getSelection if none is passed.
-   *  @return {Object} 'left' and 'right' attributes contain offsets from begining and end of Element
+   *  @return {Object} 'left' and 'right' attributes contain offsets from beginning and end of Element
    */
   getCaretOffsets (element, range) {
     let preCaretRange
