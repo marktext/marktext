@@ -1310,9 +1310,9 @@ function marked(src, opt, callback) {
     if (opt) opt = merge({}, marked.defaults, opt);
     return Parser.parse(Lexer.lex(src, opt), opt);
   } catch (e) {
-    e.message += '\nPlease report this to https://github.com/jocs/aganippe.';
+    e.message += '\nPlease report this to https://github.com/marktext/marktext/issues.';
     if ((opt || marked.defaults).silent) {
-      return '<p>An error occured:</p><pre>' +
+      return '<p>An error occurred:</p><pre>' +
         escape(e.message + '', true) +
         '</pre>';
     }

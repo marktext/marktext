@@ -315,7 +315,7 @@ class Selection {
   }
 
   // Returns -1 unless the cursor is at the beginning of a paragraph/block
-  // If the paragraph/block is preceeded by empty paragraphs/block (with no text)
+  // If the paragraph/block is preceded by empty paragraphs/block (with no text)
   // it will return the number of empty paragraphs before the cursor.
   // Otherwise, it will return 0, which indicates the cursor is at the beginning
   // of a paragraph/block, and not at the end of the paragraph/block before it
@@ -568,7 +568,7 @@ class Selection {
    *
    *  @param {DOMElement} An element containing the cursor to find offsets relative to.
    *  @param {Range} A Range representing cursor position. Will window.getSelection if none is passed.
-   *  @return {Object} 'left' and 'right' attributes contain offsets from begining and end of Element
+   *  @return {Object} 'left' and 'right' attributes contain offsets from beginning and end of Element
    */
   getCaretOffsets (element, range) {
     let preCaretRange
