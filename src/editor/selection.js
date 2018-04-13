@@ -315,7 +315,7 @@ class Selection {
   }
 
   // Returns -1 unless the cursor is at the beginning of a paragraph/block
-  // If the paragraph/block is preceeded by empty paragraphs/block (with no text)
+  // If the paragraph/block is preceded by empty paragraphs/block (with no text)
   // it will return the number of empty paragraphs before the cursor.
   // Otherwise, it will return 0, which indicates the cursor is at the beginning
   // of a paragraph/block, and not at the end of the paragraph/block before it
