@@ -1312,7 +1312,7 @@ function marked(src, opt, callback) {
   } catch (e) {
     e.message += '\nPlease report this to https://github.com/jocs/aganippe.';
     if ((opt || marked.defaults).silent) {
-      return '<p>An error occured:</p><pre>' +
+      return '<p>An error occurred:</p><pre>' +
         escape(e.message + '', true) +
         '</pre>';
     }
