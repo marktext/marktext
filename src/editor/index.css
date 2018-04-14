@@ -396,8 +396,8 @@ span.ag-image-marked-text, span.ag-link-in-bracket, span.ag-link-in-bracket .ag-
   text-decoration: none;
   color: rgb(51, 51, 51);
 }
-.ag-warn {
-  color: #000;
+span.ag-warn.ag-emoji-marked-text {
+  color: rgba(242, 134, 94, .7);
   text-decoration: none;
 }
 

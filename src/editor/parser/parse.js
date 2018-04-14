@@ -1,6 +1,7 @@
 import { beginRules, inlineRules } from './rules'
 import { isLengthEven, union } from '../utils'
 import { punctuation } from '../config'
+// import { validEmoji } from '../emojis'
 
 const CAN_NEST_RULES = ['strong', 'em', 'link', 'del', 'image', 'a_link'] // image can not nest but it has children
 
@@ -19,6 +20,20 @@ const getSrcAlt = text => {
   const alt = altMatch ? altMatch[2] : ''
 
   return { src, alt }
+}
+
+const lowerPriority = (src, offset) => {
+  let i
+  for (i = 0; i < offset; i++) {
+    const text = src.substring(i)
+    for (const rule of Object.keys(validateRules)) {
+      const to = validateRules[rule].exec(text)
+      if (to && to[0].length > offset - i) {
+        return false
+      }
+    }
+  }
+  return true
 }
 
 const validateEmphasize = (src, offset, marker, pending) => {
@@ -62,17 +77,7 @@ const validateEmphasize = (src, offset, marker, pending) => {
    * and one that does not, the former always wins. Thus, for example, *[foo*](bar) is parsed
    * as *<a href="bar">foo*</a> rather than as <em>[foo</em>](bar).
    */
-  let i
-  for (i = 0; i < offset; i++) {
-    const text = src.substring(i)
-    for (const rule of Object.keys(validateRules)) {
-      const to = validateRules[rule].exec(text)
-      if (to && to[0].length > offset - i) {
-        return false
-      }
-    }
-  }
-  return true
+  return lowerPriority(src, offset)
 }
 
 const tokenizerFac = (src, beginRules, inlineRules, pos = 0, top) => {
@@ -180,6 +185,7 @@ const tokenizerFac = (src, beginRules, inlineRules, pos = 0, top) => {
     for (const rule of chunks) {
       const to = inlineRules[rule].exec(src)
       if (to && isLengthEven(to[3])) {
+        if (rule === 'emoji' && !lowerPriority(src, to[0].length)) break
         inChunk = true
         pushPending()
         const range = {
