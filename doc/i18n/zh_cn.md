@@ -95,7 +95,7 @@
 
 - Mark Text 所输及所见，摒弃了众多 markdown 编辑器左边写作右边预览的写作方式，巧妙的将编辑和预览融为一体。
 - [snabbdom](https://github.com/snabbdom/snabbdom) 作为 Mark Text 的渲染引擎，保证了极速渲染编辑页面，带来流程的书写体验。
-- 支持 [CommonMark Spec](http://spec.commonmark.org/0.28/) 和 [GitHub Flavored Markdown Spec](http://spec.commonmark.org/0.28/) 语法格式，生成的 Markdown 可以复制到任何支持 markdown 格式的社区、网站。
+- 支持 [CommonMark Spec](http://spec.commonmark.org/0.28/) 和 [GitHub Flavored Markdown Spec](https://github.github.com/gfm/) 语法格式，生成的 Markdown 可以复制到任何支持 markdown 格式的社区、网站。
 - 段落及行内样式快捷键提升您的编辑效率。
 - 输入 HTML 和 PDF 格式文件，方便在浏览器中预览。
 - 黑、白两款主题，自由切换。
