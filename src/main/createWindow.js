@@ -5,7 +5,7 @@ import path from 'path'
 import { BrowserWindow, screen } from 'electron'
 import windowStateKeeper from 'electron-window-state'
 import { addRecentlyUsedDocuments } from './menu'
-import { isMarkdownFile } from './utils'
+import { isMarkdownFile, log } from './utils'
 
 export const windows = new Map()
 
@@ -71,7 +71,7 @@ const createWindow = (pathname, options = {}) => {
       const filename = path.basename(pathname)
       fs.readFile(path.resolve(pathname), 'utf-8', (err, file) => {
         if (err) {
-          console.log(err)
+          log(err)
           return
         }
 
