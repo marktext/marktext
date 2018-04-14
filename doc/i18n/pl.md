@@ -8,10 +8,10 @@
   </a>
 </div>
 <div align="center">
-  <strong>:high_brightness:Next generation markdown editor:crescent_moon:</strong>
+  <strong>:high_brightness:Edytor markdown nowej generacji:crescent_moon:</strong>
 </div>
 <div align="center">
-  An <code>Electron</code> app for platforms of OS X Windows and Linux
+  Aplikacja na bazie <code>Electron</code> na platformy OS X, Windows i Linux
 </div>
 
 <br />
@@ -50,40 +50,36 @@
 <div align="center">
   <h3>
     <a href="https://marktext.github.io/website">
-      Website
+      Strona
     </a>
     <span> | </span>
     <a href="https://github.com/marktext/marktext/blob/master/doc/i18n/zh_cn.md#readme">
       中文
     </a>
     <span> | </span>
-    <a href="https://github.com/marktext/marktext/blob/master/doc/i18n/pl.md#readme">
-      Polski
-    </a>
-    <span> | </span>
     <a href="https://github.com/marktext/marktext#features">
-      Features
+      Cechy programu
     </a>
     <span> | </span>
     <a href="https://github.com/marktext/marktext#download-and-install">
-      Downloads
+      Instalacja
     </a>
     <span> | </span>
     <a href="https://github.com/marktext/marktext#development">
-      Development
+      Rozwój
     </a>
     <span> | </span>
     <a href="https://github.com/marktext/marktext#contribution">
-      Contribution
+      Udział w projekcie
     </a>
   </h3>
 </div>
 
 <div align="center">
-  <sub>This Markdown editor that could. Built with ❤︎ by
-  <a href="https://github.com/Jocs">Jocs</a> and
+  <sub>Edytor Markdown, który potrafi. Zbudowany z ❤︎ przez
+  <a href="https://github.com/Jocs">Jocs</a> i
   <a href="https://github.com/marktext/marktext/graphs/contributors">
-    contributors
+    innych
   </a>
 </div>
 
@@ -91,35 +87,34 @@
 
 ![](https://github.com/marktext/marktext/blob/master/doc/marktext.gif)
 
-### 特性
+### Cechy programu
 
-- Mark Text 所输及所见，摒弃了众多 markdown 编辑器左边写作右边预览的写作方式，巧妙的将编辑和预览融为一体。
-- [snabbdom](https://github.com/snabbdom/snabbdom) 作为 Mark Text 的渲染引擎，保证了极速渲染编辑页面，带来流程的书写体验。
-- 支持 [CommonMark Spec](http://spec.commonmark.org/0.28/) 和 [GitHub Flavored Markdown Spec](http://spec.commonmark.org/0.28/) 语法格式，生成的 Markdown 可以复制到任何支持 markdown 格式的社区、网站。
-- 段落及行内样式快捷键提升您的编辑效率。
-- 输入 HTML 和 PDF 格式文件，方便在浏览器中预览。
-- 黑、白两款主题，自由切换。
-- 多种编辑模式：**Source Code mode**、**Typewriter mode**、**Focus mode**。
+- Podgląd na żywo - użycie [snabbdom](https://github.com/snabbdom/snabbdom) jako swojego silnika renderującego.
+- Wsparcie specyfikacji [CommonMark](http://spec.commonmark.org/0.28/) i [GitHub Flavored Markdown](http://spec.commonmark.org/0.28/).
+- Wsparcie paragrafów i skrótów klawiatowych dla stylów wbudowanych w celu zwiększenia twojej wydajności podczas pisania.
+- Zapis do plików **HTML** i **PDF**.
+- Ciemny i jasny motyw.
+- Różne tryby edycji: **Kod źródłowy**, **Maszyna do pisania**, **Skupienie**.
 
-<h4 align="center">:crescent_moon:Dark and Light themes:high_brightness:</h4>
+<h4 align="center">:crescent_moon:Motywy:high_brightness:</h4>
 
-|                     Dark :crescent_moon:                     |                    Light:high_brightness:                    |
-| :----------------------------------------------------------: | :----------------------------------------------------------: |
+| Ciemny :crescent_moon:                                             | Jasny :high_brightness:                                             |
+|:------------------------------------------------------------------:|:-------------------------------------------------------------------:|
 | ![](https://github.com/marktext/marktext/blob/master/doc/dark.jpg) | ![](https://github.com/marktext/marktext/blob/master/doc/light.jpg) |
 
-<h4 align="center">:smile_cat:​Edit modes:dog:​</h4>
+<h4 align="center">:smile_cat:Tryby edycji:dog:</h4>
 
-|                         Source Code                          |                          Typewriter                          |                            Focus                             |
-| :----------------------------------------------------------: | :----------------------------------------------------------: | :----------------------------------------------------------: |
+| Kod źródłowy                                                         | Maszyna do pisania                                                       | Skupienie                                                           |
+|:--------------------------------------------------------------------:|:------------------------------------------------------------------------:|:-------------------------------------------------------------------:|
 | ![](https://github.com/marktext/marktext/blob/master/doc/source.gif) | ![](https://github.com/marktext/marktext/blob/master/doc/typewriter.gif) | ![](https://github.com/marktext/marktext/blob/master/doc/focus.gif) |
 
-### 可以斗图的 Markdown 编辑器
+### Dlaczego kolejny edytor?
 
- Mark Text 内置斗图功能，省掉了寻找「斗图」的烦恼，通过快捷键 `Cmd+/` 直接打开斗图搜索面板，你需要的有趣图片就在里面。斗图功能默认是关闭的，你需要从`user preference` 菜单中，打开 preference.md, 然后设置 `aidou` 为 `true`。保存然后重启编辑器就可以使用了。
+1. Kocham pisać. Używałem wiele różnych edytorów markdown, ale wciąż nie ma takiego, który byłby w pełni zgodny z moimi oczekiwaniami. Nie lubię, kiedy pisanie przerywają mi niemożliwe do wytrzymania błędy. **Mark Text** używa wirtualnego DOM do wyrenderowania strony co sprawia, że jest bardzo wydajny. Program jest rozpowszechniany na licencji open source dla wszystkich przyjaciół kochających markdown i pisanie.
+2. Jak już zostało wspomniane powyżej, **Mark Text** będzie zawsze rozpowszechniany na licencji open source. Wierzymy, że wszyscy wielbiciele markdown dołożą swoją cegiełkę do kodów źródłowych programu i pomogą w rozwijaniu **Mark Text**.
+3. Istnieje wiele edytorów markdown i każdy z nich ma swoje cechy szczególne, jednak ciężko jest zaspokoić wszystkie potrzeby użytkowników. Wierzę, że **Mark Text** jest w stanie zaspokoić potrzeby jak największej grupy osób. Mimo iż najnowsza wersja **Mark Text** nie jest idealna, próbujemy stworzyć go tak doskonałym jak to jest tylko możliwe.
 
-![](https://github.com/marktext/marktext/blob/master/doc/doutu.jpg)
-
-### 安装和下载
+### Instalacja
 
 ![Conda](https://img.shields.io/conda/pn/conda-forge/python.svg?style=for-the-badge)
 
@@ -127,36 +122,40 @@
 |:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
 | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-0.9.25.dmg.svg)](https://github.com/marktext/marktext/releases/download/v0.9.25/marktext-0.9.25.dmg) | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-setup-0.9.25.exe.svg)](https://github.com/marktext/marktext/releases/download/v0.9.25/marktext-setup-0.9.25.exe) | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-0.9.25-x86_64.AppImage.svg)](https://github.com/marktext/marktext/releases/download/v0.9.25/marktext-0.9.25-x86_64.AppImage) |
 
-如果你依然没有找到适合你的版本，请直接从 [release](https://github.com/marktext/marktext/releases) 页面下载。
+Nie znalazłeś swojego systemu? Przejdź do strony [release](https://github.com/marktext/marktext/releases). Wciąż nie znalazłeś? Zgłoś [problem](https://github.com/marktext/marktext/issues).
 
-如果你使用 Mac，那么你可以通过 [**homebrew cask**](https://github.com/caskroom/homebrew-cask) 来安装 Mark Text。在使用 Homebrew-Cask 之前，你需要安装 [Homebrew](http://brew.sh/)。
+Chciałbyś zobaczyć jak nowe udogodnienia wprowadziła najnowsza wersja? Udaj się do [CHANGELOG](https://github.com/marktext/marktext/blob/master/.github/CHANGELOG.md)
+
+Jeśli używasz systemu OS X, to możesz zainstalować Mark Text za pomocą [**homebrew cask**](https://github.com/caskroom/homebrew-cask). Aby zacząć korzystać z Homebrew-Cask potrzebujesz tylko [Homebrew](http://brew.sh/).
 
 > brew cask install mark-text
 
 ![](https://github.com/marktext/marktext/blob/master/doc/brew-cask.gif)
 
-### 开发
+### Rozwój
 
-如果你想自己打包应用，或者想打包到其他平台。
+Jeżeli chciałbyś samodzielnie zbudować **Mark Text**:
 
-- 首先 clone 仓库到本地
-- 运行 `npm install`
-- 运行 `npm run build`
-- 复制 app 到 Applications 文件夹，如果是 windows 系统直接点击相应软件安装。
+- sklonuj to repozytorium.
+- uruchom komendę `npm install`
+- uruchom komendę `npm run build`
+- skopiuj zbudowaną aplikację do folderu Applications lub jeśli używasz systemu Windows uruchom instalator.
 
-### 贡献
+W przypadku jakichkolwiek pytań podczas korzystania z **Mark Text** zaczęcamy do zgłoszenia problemu. Mamy nadzieję, że będziesz trzymał się ustalonego z góry formatu zgłaszania problemów. Wspaniale by było, jeżeli to właśnie ty naprawisz błąd i zgłosisz pull request. 
 
-Mark Text 正在全力开发中，在你提交 PR 之前，请首先阅读 [Contributing Guide](https://github.com/marktext/marktext/blob/master/.github/CONTRIBUTING.md)。 如果你想给 Mark Text 添加新的特性，请阅读 [TODO LIST](https://github.com/marktext/marktext/blob/master/.github/TODOLIST.md)
+## Udział w projekcie
 
-感谢所有 Mark Text 的所有[贡献者](https://github.com/marktext/marktext/graphs/contributors), 正是因为有你们，Mark Text 才会趋于完美。 如果你是贡献者，你可以将你的姓名和头像添加到下面列表中。
+Mark Text jest w trakcie rozwijania. Upewnij się, że przeczytałeś [Contributing Guide](https://github.com/marktext/marktext/blob/master/.github/CONTRIBUTING.md) przed stworzeniem pull request. Chcesz dodać nowe udogodnienia do Mark Text? Udaj się do [TODO LIST](https://github.com/marktext/marktext/blob/master/.github/TODOLIST.md)
 
-特别致谢 @[Yasujizr](https://github.com/Yasujizr) 为 Mark Text 设计了 logo。
+Dziękujemy wszystkim osobom, które już wzięły udział w projekcie Mark Text! Jeżeli już jesteś członkiem [contributors](https://github.com/marktext/marktext/graphs/contributors), otwórz pull request aby dodać twoje imię i zdjęcie do poniższej listy osób, które pomogły przy projekcie.
+
+Specjalne podziękowania dla @[Yasujizr](https://github.com/Yasujizr), który zaprojektował logo Mark Text.
 
 | [![Jocs](https://avatars0.githubusercontent.com/u/9712830?s=150&v=4)](https://github.com/Jocs) | [![ywwhack](https://avatars1.githubusercontent.com/u/8746197?s=150&v=4)](https://github.com/ywwhack) | [![notAlaanor](https://avatars1.githubusercontent.com/u/17591936?s=150&v=4)](https://github.com/notAlaanor) | [![fxha](https://avatars1.githubusercontent.com/u/22716132?s=150&v=4)](https://github.com/fxha) |
 |:----------------------------------------------------------------------------------------------:|:----------------------------------------------------------------------------------------------------:|:-----------------------------------------------------------------------------------------------------------:|:-----------------------------------------------------------------------------------------------:|
 | [Jocs](https://github.com/Jocs)                                                                | [ywwhack](https://github.com/ywwhack)                                                                | [notAlaanor](https://github.com/notAlaanor)                                                                 | [fxha](https://github.com/fxha)                                                                 |
 
-### License
+### Licencja
 
  [**MIT**](https://github.com/marktext/marktext/blob/master/LICENSE).
 
