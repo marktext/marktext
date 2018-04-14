@@ -94,7 +94,7 @@
 ### Features
 
 - Realtime preview and use [snabbdom](https://github.com/snabbdom/snabbdom) as its render engine.
-- Support [CommonMark Spec](http://spec.commonmark.org/0.28/) and [GitHub Flavored Markdown Spec](https://github.github.com/gfm/).
+- Support [CommonMark Spec](https://spec.commonmark.org/0.28/) and [GitHub Flavored Markdown Spec](https://github.github.com/gfm/).
 - Support paragraphs and inline style shortcuts to improve your writing efficiency.
 - Output **HTML** and **PDF** file.
 - Dark and Light themes.
@@ -130,7 +130,7 @@ Did not found your system ? Go the the [release page](https://github.com/marktex
 
 Want to see new features in this version? Refer to [CHANGELOG](https://github.com/marktext/marktext/blob/master/.github/CHANGELOG.md)
 
-If you use OS X system, you can install Mark Text by [**homebrew cask**](https://github.com/caskroom/homebrew-cask), to start using Homebrew-Cask, you just need [Homebrew](http://brew.sh/) installed.
+If you use OS X system, you can install Mark Text by [**homebrew cask**](https://github.com/caskroom/homebrew-cask), to start using Homebrew-Cask, you just need [Homebrew](https://brew.sh/) installed.
 
 > brew cask install mark-text
 

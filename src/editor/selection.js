@@ -48,7 +48,7 @@ class Selection {
     }, contentWindow)
   }
 
-  // http://stackoverflow.com/questions/17678843/cant-restore-selection-after-html-modify-even-if-its-the-same-html
+  // https://stackoverflow.com/questions/17678843/cant-restore-selection-after-html-modify-even-if-its-the-same-html
   // Tim Down
   exportSelection (root) {
     if (!root) {
@@ -96,7 +96,7 @@ class Selection {
     return selectionState
   }
 
-  // http://stackoverflow.com/questions/17678843/cant-restore-selection-after-html-modify-even-if-its-the-same-html
+  // https://stackoverflow.com/questions/17678843/cant-restore-selection-after-html-modify-even-if-its-the-same-html
   // Tim Down
   //
   // {object} selectionState - the selection to import
@@ -515,7 +515,7 @@ class Selection {
     return !sawtrue && sawfalse
   }
 
-  // http://stackoverflow.com/questions/4176923/html-of-selected-text
+  // https://stackoverflow.com/questions/4176923/html-of-selected-text
   // by Tim Down
   getSelectionHtml () {
     const sel = this.doc.getSelection()
@@ -593,7 +593,7 @@ class Selection {
     }
   }
 
-  // http://stackoverflow.com/questions/15867542/range-object-get-selection-parent-node-chrome-vs-firefox
+  // https://stackoverflow.com/questions/15867542/range-object-get-selection-parent-node-chrome-vs-firefox
   rangeSelectsSingleNode (range) {
     const startNode = range.startContainer
     return startNode === range.endContainer &&
@@ -706,7 +706,7 @@ class Selection {
     selection.addRange(range)
   }
 
-  // http://stackoverflow.com/questions/1197401/
+  // https://stackoverflow.com/questions/1197401/
   // how-can-i-get-the-element-the-caret-is-in-with-javascript-when-using-contenteditable
   // by You
   getSelectionStart () {

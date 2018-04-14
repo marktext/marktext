@@ -90,7 +90,7 @@
 ### Cechy programu
 
 - Podgląd na żywo - użycie [snabbdom](https://github.com/snabbdom/snabbdom) jako swojego silnika renderującego.
-- Wsparcie specyfikacji [CommonMark](http://spec.commonmark.org/0.28/) i [GitHub Flavored Markdown](https://github.github.com/gfm/).
+- Wsparcie specyfikacji [CommonMark](https://spec.commonmark.org/0.28/) i [GitHub Flavored Markdown](https://github.github.com/gfm/).
 - Wsparcie paragrafów i skrótów klawiatowych dla stylów wbudowanych w celu zwiększenia twojej wydajności podczas pisania.
 - Zapis do plików **HTML** i **PDF**.
 - Ciemny i jasny motyw.
@@ -126,7 +126,7 @@ Nie znalazłeś swojego systemu? Przejdź do strony [release](https://github.com
 
 Chciałbyś zobaczyć jak nowe udogodnienia wprowadziła najnowsza wersja? Udaj się do [CHANGELOG](https://github.com/marktext/marktext/blob/master/.github/CHANGELOG.md)
 
-Jeśli używasz systemu OS X, to możesz zainstalować Mark Text za pomocą [**homebrew cask**](https://github.com/caskroom/homebrew-cask). Aby zacząć korzystać z Homebrew-Cask potrzebujesz tylko [Homebrew](http://brew.sh/).
+Jeśli używasz systemu OS X, to możesz zainstalować Mark Text za pomocą [**homebrew cask**](https://github.com/caskroom/homebrew-cask). Aby zacząć korzystać z Homebrew-Cask potrzebujesz tylko [Homebrew](https://brew.sh/).
 
 > brew cask install mark-text
 
@@ -141,7 +141,7 @@ Jeżeli chciałbyś samodzielnie zbudować **Mark Text**:
 - uruchom komendę `npm run build`
 - skopiuj zbudowaną aplikację do folderu Applications lub jeśli używasz systemu Windows uruchom instalator.
 
-W przypadku jakichkolwiek pytań podczas korzystania z **Mark Text** zaczęcamy do zgłoszenia problemu. Mamy nadzieję, że będziesz trzymał się ustalonego z góry formatu zgłaszania problemów. Wspaniale by było, jeżeli to właśnie ty naprawisz błąd i zgłosisz pull request. 
+W przypadku jakichkolwiek pytań podczas korzystania z **Mark Text** zaczęcamy do zgłoszenia problemu. Mamy nadzieję, że będziesz trzymał się ustalonego z góry formatu zgłaszania problemów. Wspaniale by było, jeżeli to właśnie ty naprawisz błąd i zgłosisz pull request.
 
 ## Udział w projekcie
 
