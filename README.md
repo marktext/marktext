@@ -94,7 +94,7 @@
 ### Features
 
 - Realtime preview and use [snabbdom](https://github.com/snabbdom/snabbdom) as its render engine.
-- Support [CommonMark Spec](http://spec.commonmark.org/0.28/) and [GitHub Flavored Markdown Spec](http://spec.commonmark.org/0.28/).
+- Support [CommonMark Spec](http://spec.commonmark.org/0.28/) and [GitHub Flavored Markdown Spec](https://github.github.com/gfm/).
 - Support paragraphs and inline style shortcuts to improve your writing efficiency.
 - Output **HTML** and **PDF** file.
 - Dark and Light themes.
