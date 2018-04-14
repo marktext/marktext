@@ -100,7 +100,6 @@ const backspaceCtrl = ContentState => {
       }
       return this.render()
     }
-
     if (start.key !== end.key) {
       event.preventDefault()
       const key = start.key
@@ -114,11 +113,18 @@ const backspaceCtrl = ContentState => {
         ? endBlock.text.substring(end.offset - 1)
         : endBlock.text.substring(end.offset)
 
-      startBlock.text = startRemainText + endRemainText
-
       if (offset === 0 && !(/th|td/.test(startBlock.type))) {
+        if (startBlock.type === 'pre') {
+          delete startBlock.coords
+          delete startBlock.functionType
+          delete startBlock.history
+          delete startBlock.lang
+          delete startBlock.pos
+          this.codeBlocks.delete(key)
+        }
         startBlock.type = 'p'
       }
+      startBlock.text = startRemainText + endRemainText
 
       this.removeBlocks(startBlock, endBlock)
       this.cursor = {
