@@ -1,4 +1,4 @@
-### 0.10.12
+### 0.10.15
 
 **:cactus:Feature**
 
@@ -10,6 +10,7 @@
 
 **:butterfly:Optimization**
 
+- Update third-party packages to the latest version
 
 **:beetle:Bug fix**
 
@@ -17,9 +18,11 @@
 - fix: reset modification indicator after successfully saved changes
 - fix: disable tab focus
 - Bugfix: strong and em parse error #116
-- Fix horizontal line style (#120)
-- Fix user preferences (#122)
+- fix horizontal line style #120
+- fix user preferences #122
 - Bugfix: style error when export PDF/HTML with hr @Jocs
+- fix recently used documents on Linux and Windows #130
+- fix UTF-8 BOM encoding
 
 ### 0.9.25
 

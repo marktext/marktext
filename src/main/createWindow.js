@@ -5,7 +5,7 @@ import path from 'path'
 import { BrowserWindow, screen } from 'electron'
 import windowStateKeeper from 'electron-window-state'
 import { addRecentlyUsedDocuments } from './menu'
-import { isMarkdownFile } from './utils'
+import { isMarkdownFile, log } from './utils'
 
 export const windows = new Map()
 
@@ -70,11 +70,22 @@ const createWindow = (pathname, options = {}) => {
       addRecentlyUsedDocuments(pathname)
       const filename = path.basename(pathname)
       fs.readFile(path.resolve(pathname), 'utf-8', (err, file) => {
-        if (err) return console.log(err)
+        if (err) {
+          log(err)
+          return
+        }
+
+        // check UTF-8 BOM (EF BB BF) encoding
+        let isUtf8BomEncoded = file.length >= 1 && file.charCodeAt(0) === 0xFEFF
+        if (isUtf8BomEncoded) {
+          file = file.slice(1)
+        }
+
         win.webContents.send('AGANI::file-loaded', {
           file,
           filename,
-          pathname
+          pathname,
+          isUtf8BomEncoded
         })
       })
     }
