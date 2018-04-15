@@ -48,6 +48,10 @@
 
 - [ ] Auto update Mark Text
 
+- [ ] Support hard line break and soft line break
+
+- [ ] Support `Tab` and multiple `Spaces` when you are writing.
+
 ##### Optimizations
 
 - [ ] Search and Replace in Source Code mode.
