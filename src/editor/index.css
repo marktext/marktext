@@ -38,13 +38,29 @@ h6.ag-active::before {
   color: #303133;
 }
 
-div.ag-function-html .ag-html-preview,
+div.ag-function-html pre.ag-html-block {
+  width: 0;
+  height: 0;
+  overflow: hidden;
+  opacity: 0;
+  z-index: -1;
+  position: absolute;
+}
+
 div.ag-function-html.ag-active pre.ag-html-block {
+  position: static;
+  width: 100%;
+  height: auto;
+  opacity: 1;
+  z-index: 1;
   display: block;
 }
 
-div.ag-function-html.ag-active .ag-html-preview,
-div.ag-function-html pre.ag-html-block {
+div.ag-function-html .ag-html-preview {
+  display: block;
+}
+
+div.ag-function-html.ag-active .ag-html-preview {
   display: none;
 }
 
