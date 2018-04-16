@@ -30,7 +30,7 @@ export default {
   }, {
     label: 'Markdown syntax',
     click: function () {
-      shell.openExternal('http://spec.commonmark.org/0.28/')
+      shell.openExternal('https://spec.commonmark.org/0.28/')
     }
   }, {
     type: 'separator'

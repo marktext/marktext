@@ -95,7 +95,7 @@
 
 - Mark Text 所输及所见，摒弃了众多 markdown 编辑器左边写作右边预览的写作方式，巧妙的将编辑和预览融为一体。
 - [snabbdom](https://github.com/snabbdom/snabbdom) 作为 Mark Text 的渲染引擎，保证了极速渲染编辑页面，带来流程的书写体验。
-- 支持 [CommonMark Spec](http://spec.commonmark.org/0.28/) 和 [GitHub Flavored Markdown Spec](https://github.github.com/gfm/) 语法格式，生成的 Markdown 可以复制到任何支持 markdown 格式的社区、网站。
+- 支持 [CommonMark Spec](https://spec.commonmark.org/0.28/) 和 [GitHub Flavored Markdown Spec](https://github.github.com/gfm/) 语法格式，生成的 Markdown 可以复制到任何支持 markdown 格式的社区、网站。
 - 段落及行内样式快捷键提升您的编辑效率。
 - 输出 HTML 和 PDF 格式文件，方便在浏览器中预览。
 - 黑、白两款主题，自由切换。
@@ -129,7 +129,7 @@
 
 如果你依然没有找到适合你的版本，请直接从 [release](https://github.com/marktext/marktext/releases) 页面下载。
 
-如果你使用 Mac，那么你可以通过 [**homebrew cask**](https://github.com/caskroom/homebrew-cask) 来安装 Mark Text。在使用 Homebrew-Cask 之前，你需要安装 [Homebrew](http://brew.sh/)。
+如果你使用 Mac，那么你可以通过 [**homebrew cask**](https://github.com/caskroom/homebrew-cask) 来安装 Mark Text。在使用 Homebrew-Cask 之前，你需要安装 [Homebrew](https://brew.sh/)。
 
 > brew cask install mark-text
 

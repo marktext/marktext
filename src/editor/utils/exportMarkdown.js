@@ -1,6 +1,6 @@
 /**
  * Before you edit or update codes in this file, make sure you have read the
- * Commonmark Spec: http://spec.commonmark.org/0.28/
+ * Commonmark Spec: https://spec.commonmark.org/0.28/
  * and GitHub Flavored Markdown Spec: https://github.github.com/gfm/
  * The output markdown needs to obey the standards of the two Spec.
  */

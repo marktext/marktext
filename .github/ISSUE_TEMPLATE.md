@@ -12,7 +12,7 @@
 
 **Actual behavior:** [What actually happened]
 
-**Link to an example:** [If you're reporting a bug that's not reproducible, please try to reproduce it on [JSFiddle](https://jsfiddle.net/), [JS Bin](https://jsbin.com), [CodePen](http://codepen.io/) or a similar service and paste a link here]
+**Link to an example:** [If you're reporting a bug that's not reproducible, please try to reproduce it on [JSFiddle](https://jsfiddle.net/), [JS Bin](https://jsbin.com), [CodePen](https://codepen.io/) or a similar service and paste a link here]
 
 ### Versions
 
