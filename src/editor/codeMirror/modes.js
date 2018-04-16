@@ -11,6 +11,18 @@ const languages = [{
   'mode': 'clike',
   'mime': 'text/x-csrc'
 }, {
+  'name': 'c',
+  'mode': 'clike',
+  'mime': 'text/x-csrc'
+}, {
+  'name': 'c++',
+  'mode': 'clike',
+  'mime': 'text/x-c++src'
+}, {
+  'name': 'cmake',
+  'mode': 'cmake',
+  'mime': 'text/x-cmake'
+}, {
   'name': 'lisp',
   'mode': 'commonlisp',
   'mime': 'text/x-common-lisp'
@@ -54,6 +66,10 @@ const languages = [{
   'name': 'sh',
   'mode': 'shell',
   'mime': 'text/x-sh'
+}, { /* alias */
+  'name': 'shell',
+  'mode': 'shell',
+  'mime': 'text/x-sh'
 }, {
   'name': 'less',
   'mode': 'css',
@@ -75,13 +91,17 @@ const languages = [{
   'mode': 'cobol',
   'mime': 'text/x-cobol'
 }, {
+  'name': 'go',
+  'mode': 'go',
+  'mime': 'text/x-go'
+}, { /* alias */
   'name': 'golang',
   'mode': 'go',
   'mime': 'text/x-go'
 }, {
   'name': 'makefile',
-  'mode': 'cmake',
-  'mime': 'text/x-cmake'
+  'mode': 'shell', /* makefile syntax is not supported by CodeMirror */
+  'mime': 'text/x-sh'
 }, {
   'name': 'ocaml',
   'mode': 'mllike',
@@ -167,13 +187,21 @@ const languages = [{
   'mode': 'gfm',
   'mime': 'text/x-gfm'
 }, {
-  'name': 'c++',
-  'mode': 'clike',
-  'mime': 'text/x-c++src'
+  'name': 'rst',
+  'mode': 'rst',
+  'mime': 'text/x-rst'
+}, {
+  'name': 'LaTeX',
+  'mode': 'stex',
+  'mime': 'text/x-latex'
 }, {
   'name': 'java',
   'mode': 'clike',
   'mime': 'text/x-java'
+}, {
+  'name': 'kotlin',
+  'mode': 'clike',
+  'mime': 'text/x-kotlin'
 }, {
   'name': 'javascript',
   'mode': 'javascript',
@@ -290,6 +318,14 @@ const languages = [{
   'name': 'toml',
   'mode': 'toml',
   'mime': 'text/x-toml'
+}, {
+  'name': 'pgp',
+  'mode': 'asciiarmor',
+  'mime': 'application/pgp'
+}, {
+  'name': 'Nginx',
+  'mode': 'nginx',
+  'mime': 'text/x-nginx-conf'
 }]
 
 export default languages
