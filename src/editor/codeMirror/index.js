@@ -28,16 +28,16 @@ const getModeFromName = name => {
     const { name, mode, mime } = lang
     const matched = modes.filter(m => {
       if (m.mime) {
-        if (Array.isArray(m.mime)) {
-          return m.mime.indexOf(mime) > -1 && m.mode === mode
-        } else {
-          return m.mime === mime && m.mode === mode
+        if (Array.isArray(m.mime) && m.mime.indexOf(mime) > -1 && m.mode === mode) {
+          return true
+        } else if (typeof m.mime === 'string' && m.mime === mime && m.mode === mode) {
+          return true
         }
-      } else if (m.mimes.length > 0 && Array.isArray(m.mimes)) {
-        return m.mimes.indexOf(mime) > -1 && m.mode === mode
-      } else {
-        return false
       }
+      if (Array.isArray(m.mimes) && m.mimes.indexOf(mime) > -1 && m.mode === mode) {
+        return true
+      }
+      return false
     })
     if (matched.length && typeof matched[0] === 'object') {
       result = {
@@ -51,10 +51,6 @@ const getModeFromName = name => {
 
 export const search = text => {
   const matchedLangs = filter(languages, text, { key: 'name' })
-  // const matchedLangs = languages.filter(lang => {
-  //   return new RegExp(text, 'i').test(lang.name)
-  // })
-
   return matchedLangs
     .map(({ name }) => getModeFromName(name))
     .filter(lang => !!lang)
