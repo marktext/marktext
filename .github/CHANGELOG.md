@@ -1,4 +1,4 @@
-### 0.10.15
+### 0.10.22
 
 **:cactus:Feature**
 
@@ -7,22 +7,29 @@
 - you can now indent list items with tab key
 - auto pair `markdown syntax`, `quote`, `bracket`
 - ability to insert an empty line between elements #33
+- recently used documents on Linux and Windows (#139)
 
 **:butterfly:Optimization**
 
 - Update third-party packages to the latest version
+- Use HTTPS instead of HTTP (#158)
+- Add Polish readme (#154)
+- Optimization: sanitize html to avoid XSS attack #127 (#132)
 
 **:beetle:Bug fix**
 
 - fix: update outdated preferences on startup #100
 - fix: reset modification indicator after successfully saved changes
 - fix: disable tab focus
-- Bugfix: strong and em parse error #116
+- fix: strong and em parse error #116
 - fix horizontal line style #120
 - fix user preferences #122
-- Bugfix: style error when export PDF/HTML with hr @Jocs
+- fix: style error when export PDF/HTML with hr @Jocs
 - fix recently used documents on Linux and Windows #130
 - fix UTF-8 BOM encoding
+- fix: #162 support php language
+- fix: #152 emoji error
+- fix: #149 can not delete code block content
 
 ### 0.9.25
 
