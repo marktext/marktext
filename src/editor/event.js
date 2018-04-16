@@ -1,7 +1,5 @@
 import mousetrap from 'mousetrap'
-import {
-  getUniqueId
-} from './utils'
+import { getUniqueId } from './utils'
 
 class EventCenter {
   constructor () {
@@ -71,10 +69,7 @@ class EventCenter {
   }
   // Determine whether the event has been bind
   checkHasBind (cTarget, cEvent, cListener, cCapture) {
-    let i
-    let len = this.events.length
-    for (i = 0; i < len; i++) {
-      const { target, event, listener, capture } = this.events[i]
+    for (const { target, event, listener, capture } of this.events) {
       if (target === cTarget && event === cEvent && listener === cListener && capture === cCapture) {
         return true
       }

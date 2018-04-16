@@ -182,7 +182,6 @@ const arrowCtrl = ContentState => {
         activeBlock.temp = true
         this.insertAfter(activeBlock, anchorBlock)
       }
-
       if (activeBlock) {
         event.preventDefault()
         const offset = 0
@@ -200,7 +199,8 @@ const arrowCtrl = ContentState => {
 
         return this.render()
       }
-    } else if (
+    }
+    if (
       (preBlock && preBlock.type === 'pre' && event.key === EVENT_KEYS.ArrowUp) ||
       (preBlock && preBlock.type === 'pre' && event.key === EVENT_KEYS.ArrowLeft && left === 0)
     ) {

@@ -76,20 +76,19 @@ const backspaceCtrl = ContentState => {
     const { start, end } = selection.getCursorRange()
     const startBlock = this.getBlock(start.key)
     const endBlock = this.getBlock(end.key)
-    // bugfix: #67 problem 1
+    // fix: #67 problem 1
     if (startBlock.icon) return event.preventDefault()
-    // fixbug: unexpect remove all editor html.
-    if (start.key === end.key && startBlock.type === 'figure' && !startBlock.preSibling) {
+    // fix: unexpect remove all editor html. #67 problem 4
+    if (startBlock.type === 'figure' && !startBlock.preSibling) {
       event.preventDefault()
-      let newBlock
-      if (this.blocks.length === 1) {
-        startBlock.type = 'p'
-        startBlock.text = ''
-        startBlock.children = []
-        newBlock = startBlock
-      } else {
-        this.removeBlock(startBlock)
-        newBlock = this.getNextSibling(startBlock)
+      this.removeBlock(startBlock)
+      if (start.key !== end.key) {
+        this.removeBlocks(startBlock, endBlock)
+      }
+      let newBlock = this.getNextSibling(startBlock)
+      if (!newBlock) {
+        this.blocks = [this.createBlock()]
+        newBlock = this.blocks[0]
       }
       const key = newBlock.key
       const offset = 0
@@ -100,11 +99,11 @@ const backspaceCtrl = ContentState => {
       }
       return this.render()
     }
+
     if (start.key !== end.key) {
       event.preventDefault()
       const key = start.key
       const offset = start.offset
-
       const startRemainText = startBlock.type === 'pre'
         ? startBlock.text.substring(0, start.offset - 1)
         : startBlock.text.substring(0, start.offset)
@@ -171,7 +170,7 @@ const backspaceCtrl = ContentState => {
 
     if (block.type === 'pre') {
       const cm = this.codeBlocks.get(id)
-      // if event.preventDefault(), U can not use backspace in language input.
+      // if event.preventDefault(), you can not use backspace in language input.
       if (isCursorAtBegin(cm) && onlyHaveOneLine(cm)) {
         const anchorBlock = block.functionType === 'html' ? this.getParent(this.getParent(block)) : block
         event.preventDefault()
