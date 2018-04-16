@@ -101,7 +101,7 @@ const tokenizerFac = (src, beginRules, inlineRules, pos = 0, top) => {
     pending = ''
   }
 
-  if (beginRules) {
+  if (beginRules && pos === 0) {
     const beginR = ['header', 'hr', 'code_fense', 'display_math']
 
     for (const ruleName of beginR) {
@@ -350,6 +350,24 @@ const tokenizerFac = (src, beginRules, inlineRules, pos = 0, top) => {
       pos = pos + autoLTo[0].length
       continue
     }
+    const breakTo = inlineRules['line_break'].exec(src)
+    if (breakTo) {
+      pushPending()
+      const len = breakTo[0].length
+      tokens.push({
+        type: 'line_break',
+        space: breakTo[1],
+        parent: tokens,
+        lineBreak: breakTo[2],
+        range: {
+          start: pos,
+          end: pos + len
+        }
+      })
+      src = src.substring(len)
+      pos += len
+      continue
+    }
     // tail header
     const tailTo = inlineRules['tail_header'].exec(src)
     if (tailTo && top) {
@@ -378,8 +396,36 @@ const tokenizerFac = (src, beginRules, inlineRules, pos = 0, top) => {
   return tokens
 }
 
-export const tokenizer = (src, highlights = []) => {
-  const tokens = tokenizerFac(src, beginRules, inlineRules, 0, true)
+export const chop2lines = src => {
+  const LINE_REG = /[^\n]+(?:\n|$)/
+  const lines = []
+  let pos = 0
+  while (src) {
+    const to = LINE_REG.exec(src)
+    if (to) {
+      const len = to[0].length
+      lines.push({
+        value: to[0],
+        range: {
+          start: pos,
+          end: pos + len
+        }
+      })
+      src = src.substring(len)
+      pos = pos + len
+    }
+  }
+  if (lines[lines.length - 1].value.endsWith('\n')) {
+    lines.push({
+      value: '',
+      range: { start: pos, end: pos }
+    })
+  }
+  return lines
+}
+
+export const tokenizer = (src, startIndex = 0, highlights = []) => {
+  const tokens = tokenizerFac(src, beginRules, inlineRules, startIndex, true)
   const postTokenizer = tokens => {
     for (const token of tokens) {
       for (const light of highlights) {
@@ -445,6 +491,9 @@ export const generator = tokens => {
       case 'html-image':
       case 'html_tag':
         result += token.tag
+        break
+      case 'line_break':
+        result += token.space + token.lineBreak
         break
       case 'tail_header':
         result += token.marker

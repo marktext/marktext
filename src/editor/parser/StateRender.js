@@ -2,7 +2,7 @@ import virtualize from 'snabbdom-virtualize/strings'
 import { LOWERCASE_TAGS, CLASS_OR_ID, IMAGE_EXT_REG } from '../config'
 import { conflict, isLengthEven, union, isEven, getIdWithoutSet, loadImage, getImageSrc } from '../utils'
 import { insertAfter, operateClassName } from '../utils/domManipulate'
-import { tokenizer } from './parse'
+import { tokenizer, chop2lines } from './parse'
 import { validEmoji } from '../emojis'
 
 const snabbdom = require('snabbdom')
@@ -139,12 +139,19 @@ class StateRender {
       } else {
         // highlight search key in block
         const highlights = matches.filter(m => m.key === block.key)
-        let children = block.text
-          ? tokenizer(block.text, highlights).reduce((acc, token) => {
-            const chunk = this[token.type](h, cursor, block, token)
-            return Array.isArray(chunk) ? [...acc, ...chunk] : [...acc, chunk]
-          }, [])
-          : [ h(LOWERCASE_TAGS.br) ]
+        const { text } = block
+        let children = ''
+        if (text) {
+          const lines = chop2lines(text)
+          children = lines.map(({ value, range }) => {
+            const line = value
+              ? tokenizer(value, range.start, highlights)
+                .reduce((acc, token) => [...acc, ...this[token.type](h, cursor, block, token)], [])
+              : ''
+
+            return h(`span.${CLASS_OR_ID['AG_LINE']}`, line)
+          })
+        }
 
         if (/th|td/.test(block.type)) {
           const { align } = block
@@ -207,8 +214,8 @@ class StateRender {
     })
 
     const newVdom = h(selector, children)
-    const root = document.querySelector(selector) || this.container
-    const oldVdom = toVNode(root)
+    const rootDom = document.querySelector(selector) || this.container
+    const oldVdom = toVNode(rootDom)
 
     patch(oldVdom, newVdom)
   }
@@ -241,6 +248,12 @@ class StateRender {
     } else {
       return this.highlight(h, block, start, end, token)
     }
+  }
+
+  ['line_break'] (h, cursor, block, token, outerClass) {
+    return [
+      h(`span.${CLASS_OR_ID['AG_LINE_BREAK']}`, token.space + token.lineBreak)
+    ]
   }
 
   ['code_fense'] (h, cursor, block, token, outerClass) {
@@ -309,6 +322,7 @@ class StateRender {
       h(`span.${className}.${CLASS_OR_ID['AG_REMOVE']}`, endMarker)
     ]
   }
+
   // change text to highlight vdom
   highlight (h, block, rStart, rEnd, token) {
     const { text } = block

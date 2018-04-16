@@ -372,6 +372,7 @@ const updateCtrl = ContentState => {
           text = text.substring(0, offset) + text.substring(offset + 1)
         }
       }
+      console.log(text)
       block.text = text
     }
 

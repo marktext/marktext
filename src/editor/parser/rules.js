@@ -20,6 +20,7 @@ export const inlineRules = {
   'tail_header': /^(\s{1,}#{1,})(\s*)$/,
   'a_link': /^(<a[\s\S]*href\s*=\s*("|')(.+?)\2(?=\s|>)[\s\S]*(?!\\)>)([\s\S]*)(<\/a>)/, // can nest
   'html_image': /^(<img\s([\s\S]*?src[\s\S]+?)(?!\\)>)/,
-  'html_tag': /^(<!--[\s\S]*?-->|<\/?[a-zA-Z\d-]+[\s\S]*?(?!\\)>)/
+  'html_tag': /^(<!--[\s\S]*?-->|<\/?[a-zA-Z\d-]+[\s\S]*?(?!\\)>)/,
+  'line_break': /^( {0,2})(\n)/
 }
 /* eslint-enable no-useless-escape */

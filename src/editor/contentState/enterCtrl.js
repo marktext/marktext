@@ -49,66 +49,12 @@ const enterCtrl = ContentState => {
 
   ContentState.prototype.enterHandler = function (event) {
     const { start, end } = selection.getCursorRange()
-
-    if (start.key !== end.key) {
-      event.preventDefault()
-      const startBlock = this.getBlock(start.key)
-      const endBlock = this.getBlock(end.key)
-      const key = start.key
-      const offset = start.offset
-
-      const startRemainText = startBlock.type === 'pre'
-        ? startBlock.text.substring(0, start.offset - 1)
-        : startBlock.text.substring(0, start.offset)
-
-      const endRemainText = endBlock.type === 'pre'
-        ? endBlock.text.substring(end.offset - 1)
-        : endBlock.text.substring(end.offset)
-
-      startBlock.text = startRemainText + endRemainText
-
-      this.removeBlocks(startBlock, endBlock)
-      this.cursor = {
-        start: { key, offset },
-        end: { key, offset }
-      }
-      this.render()
-      return this.enterHandler(event)
-    }
-
-    if (start.key === end.key && start.offset !== end.offset) {
-      event.preventDefault()
-      const key = start.key
-      const offset = start.offset
-      const block = this.getBlock(key)
-      block.text = block.text.substring(0, start.offset) + block.text.substring(end.offset)
-      this.cursor = {
-        start: { key, offset },
-        end: { key, offset }
-      }
-      this.render()
-      return this.enterHandler(event)
-    }
-
-    let paragraph = document.querySelector(`#${start.key}`)
+    const paragraph = document.querySelector(`#${start.key}`)
     let block = this.getBlock(start.key)
+    const endBlock = this.getBlock(end.key)
     let parent = this.getParent(block)
-    // handle float box
-    const { list, index, show } = this.floatBox
     const { floatBox } = this
-    if (show) {
-      event.preventDefault()
-      floatBox.cb(list[index])
-      const isUpdated = this.codeBlockUpdate(block)
-      isUpdated && this.render()
-      return
-    }
-    // handle cursor in code block
-    if (block.type === 'pre') {
-      return
-    }
-    event.preventDefault()
-
+    const { list, index, show } = floatBox
     const getNextBlock = row => {
       let nextSibling = this.getBlock(row.nextSibling)
       if (!nextSibling) {
@@ -126,7 +72,72 @@ const enterCtrl = ContentState => {
       }
       return this.firstInDescendant(nextSibling)
     }
-    // enter in table
+
+    // handle float box
+    if (show) {
+      event.preventDefault()
+      floatBox.cb(list[index])
+      const isUpdated = this.codeBlockUpdate(block)
+      isUpdated && this.render()
+      return
+    }
+    // handle cursor in code block
+    if (block.type === 'pre') {
+      return
+    }
+
+    event.preventDefault()
+
+    // handle select multiple blocks
+    if (start.key !== end.key) {
+      const key = start.key
+      const offset = start.offset
+
+      const startRemainText = block.type === 'pre'
+        ? block.text.substring(0, start.offset - 1)
+        : block.text.substring(0, start.offset)
+
+      const endRemainText = endBlock.type === 'pre'
+        ? endBlock.text.substring(end.offset - 1)
+        : endBlock.text.substring(end.offset)
+
+      block.text = startRemainText + endRemainText
+
+      this.removeBlocks(block, endBlock)
+      this.cursor = {
+        start: { key, offset },
+        end: { key, offset }
+      }
+      this.render()
+      return this.enterHandler(event)
+    }
+
+    // handle select multiple charactors
+    if (start.key === end.key && start.offset !== end.offset) {
+      const key = start.key
+      const offset = start.offset
+      block.text = block.text.substring(0, start.offset) + block.text.substring(end.offset)
+      this.cursor = {
+        start: { key, offset },
+        end: { key, offset }
+      }
+      this.render()
+      return this.enterHandler(event)
+    }
+
+    // handle `shift + enter` insert `soft line break` or `hard line break`
+    if (event.shiftKey) { // start.offset === end.offset is true
+      block.text = block.text.substring(0, start.offset) + '\n' + block.text.substring(end.offset)
+      const key = start.key
+      const offset = start.offset + 1
+      this.cursor = {
+        start: { key, offset },
+        end: { key, offset }
+      }
+      return this.render()
+    }
+
+    // handle enter in table
     if (/th|td/.test(block.type)) {
       const row = this.getBlock(block.parent)
       const rowContainer = this.getBlock(row.parent)
