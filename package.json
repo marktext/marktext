@@ -28,7 +28,7 @@
   },
   "build": {
     "productName": "Mark Text",
-    "appId": "org.simulatedgreg.electron-marktext",
+    "appId": "com.github.marktext.marktext",
     "asar": true,
     "directories": {
       "output": "build"
@@ -84,7 +84,26 @@
       "allowToChangeInstallationDirectory": true
     },
     "linux": {
-      "icon": "build/icons"
+      "category": "Office;TextEditor;Utility",
+      "icon": "build/icons",
+      "target": [
+        {
+          "target": "AppImage",
+          "arch": ["x64"]
+        },
+        {
+          "target": "snap"
+        }
+      ]
+    },
+    "snap": {
+      "confinement": "classic",
+      "grade": "stable",
+      "plugs": [
+        "default",
+        "classic-support",
+        "wayland"
+      ]
     }
   },
   "dependencies": {
