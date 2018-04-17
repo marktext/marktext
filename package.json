@@ -85,16 +85,7 @@
     },
     "linux": {
       "category": "Office;TextEditor;Utility",
-      "icon": "build/icons",
-      "target": [
-        {
-          "target": "appImage",
-          "arch": ["x64"]
-        },
-        {
-          "target": "snap"
-        }
-      ]
+      "icon": "build/icons"
     },
     "snap": {
       "confinement": "classic",
