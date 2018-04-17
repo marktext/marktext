@@ -12,7 +12,7 @@ const state = {
   },
   // user preference
   theme: 'light',
-  editorFontFamily: 'Monaco',
+  editorFontFamily: 'Open Sans',
   fontSize: '16px',
   lineHeight: 1.6,
   lightColor: '#303133', // color in light theme
