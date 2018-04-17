@@ -161,7 +161,9 @@ const arrowCtrl = ContentState => {
         }
         return this.render()
       }
-    } else if (/th|td/.test(block.type)) {
+      return
+    }
+    if (/th|td/.test(block.type)) {
       let activeBlock
       const anchorBlock = this.getParent(this.getParent(this.getParent(this.getParent(block))))
 
