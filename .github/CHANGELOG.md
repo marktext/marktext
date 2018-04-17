@@ -1,4 +1,4 @@
-### 0.10.22
+### 0.10.21
 
 **:cactus:Feature**
 
@@ -25,7 +25,6 @@
 - fix horizontal line style #120
 - fix user preferences #122
 - fix: style error when export PDF/HTML with hr @Jocs
-- fix recently used documents on Linux and Windows #130
 - fix UTF-8 BOM encoding
 - fix: #162 support php language
 - fix: #152 emoji error
