@@ -1,5 +1,9 @@
 ### 0.10.21
 
+**:notebook_with_decorative_cover:​Note**
+
+You need uninstall the old version of Mark Text before install version 0.10.21, because we changed the AppId when build.
+
 **:cactus:Feature**
 
 - block html #110
