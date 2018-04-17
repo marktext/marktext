@@ -20,6 +20,7 @@
       :light-color="lightColor"
       :line-height="lineHeight"
       :font-size="fontSize"
+      :editor-font-family="editorFontFamily"
     ></editor>
     <source-code
       v-if="sourceCode"
@@ -71,7 +72,7 @@
       ...mapState([
         'pathname', 'filename', 'isSaved', 'windowActive', 'wordCount',
         'typewriter', 'focus', 'sourceCode', 'markdown', 'preferLooseListItem',
-        'cursor', 'theme', 'platform', 'lightColor', 'darkColor', 'fontSize', 'lineHeight'
+        'cursor', 'theme', 'platform', 'lightColor', 'darkColor', 'fontSize', 'lineHeight', 'editorFontFamily'
       ])
     },
     created () {

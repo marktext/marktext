@@ -493,9 +493,10 @@ class Aganippe {
     this.contentState.render()
   }
 
-  setFont ({ fontSize, lineHeight }) {
+  setFont ({ fontSize, lineHeight, editorFontFamily }) {
     if (fontSize) this.fontSize = parseInt(fontSize, 10)
     if (lineHeight) this.lineHeight = lineHeight
+    if (editorFontFamily) this.editorFontFamily = editorFontFamily
   }
 
   setListItemPreference (preferLooseListItem) {

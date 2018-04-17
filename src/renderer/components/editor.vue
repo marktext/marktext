@@ -2,7 +2,7 @@
   <div
     class="editor-wrapper"
     :class="[{ 'typewriter': typewriter, 'focus': focus, 'source': sourceCode }, theme]"
-    :style="{ 'color': theme === 'dark' ? darkColor : lightColor, 'lineHeight': lineHeight, 'fontSize': fontSize }"
+    :style="{ 'color': theme === 'dark' ? darkColor : lightColor, 'lineHeight': lineHeight, 'fontSize': fontSize, 'font-family': editorFontFamily }"
   >
     <div
       ref="editor"
@@ -94,7 +94,8 @@
       lineHeight: [Number, String],
       fontSize: [Number, String],
       lightColor: String,
-      darkColor: String
+      darkColor: String,
+      editorFontFamily: String
     },
     computed: {
       ...mapState([
@@ -134,6 +135,12 @@
         const { editor } = this
         if (value !== oldValue && editor) {
           editor.setFont({ fontSize: value })
+        }
+      },
+      editorFontFamily: function (value, oldValue) {
+        const { editor } = this
+        if (value !== oldValue && editor) {
+          editor.setFont({ editorFontFamily: value })
         }
       },
       lineHeight: function (value, oldValue) {
