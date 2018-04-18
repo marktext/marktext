@@ -138,12 +138,6 @@
           editor.setFont({ fontSize: value })
         }
       },
-      editorFontFamily: function (value, oldValue) {
-        const { editor } = this
-        if (value !== oldValue && editor) {
-          editor.setFont({ editorFontFamily: value })
-        }
-      },
       lineHeight: function (value, oldValue) {
         const { editor } = this
         if (value !== oldValue && editor) {
