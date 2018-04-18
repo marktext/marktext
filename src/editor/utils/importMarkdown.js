@@ -116,7 +116,7 @@ const importRegister = ContentState => {
               break
             }
             const match = /\d/.exec(child.nodeName)
-            value = match ? '#'.repeat(+match[0]) + textValue : textValue
+            value = match ? '#'.repeat(+match[0]) + ` ${textValue}` : textValue
             block = this.createBlock(child.nodeName, value)
             // handle `th` and `td`
             if (child.nodeName === 'th' || child.nodeName === 'td') {
