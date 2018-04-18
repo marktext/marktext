@@ -2,7 +2,8 @@
   <div
     class="editor-wrapper"
     :class="[{ 'typewriter': typewriter, 'focus': focus, 'source': sourceCode }, theme]"
-    :style="{ 'color': theme === 'dark' ? darkColor : lightColor, 'lineHeight': lineHeight, 'fontSize': fontSize, 'font-family': editorFontFamily }"
+    :style="{ 'color': theme === 'dark' ? darkColor : lightColor, 'lineHeight': lineHeight, 'fontSize': fontSize, 
+    'font-family': editorFontFamily ? `${editorFontFamily}, sans-serif`:'sans-serif'}"
   >
     <div
       ref="editor"
