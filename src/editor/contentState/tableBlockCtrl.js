@@ -78,7 +78,7 @@ const tableBlockCtrl = ContentState => {
     const rows = 2
 
     const table = this.createTable({ rows, columns }, rowHeader)
-    const toolBar = this.createToolBar()
+    const toolBar = this.createToolBar(TABLE_TOOLS, 'table')
 
     block.type = 'figure'
     block.text = ''
