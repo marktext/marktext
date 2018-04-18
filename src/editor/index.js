@@ -496,6 +496,7 @@ class Aganippe {
   setFont ({ fontSize, lineHeight }) {
     if (fontSize) this.fontSize = parseInt(fontSize, 10)
     if (lineHeight) this.lineHeight = lineHeight
+   
   }
 
   setListItemPreference (preferLooseListItem) {

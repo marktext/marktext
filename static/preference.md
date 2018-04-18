@@ -9,6 +9,7 @@ Edit and save to update preferences.  You can only change the JSON below!
 ```json
 {
   "fontSize": "16px",
+  "editorFontFamily": "Open Sans",
   "lightColor": "#303133",
   "darkColor": "rgb(217, 217, 217)",
   "lineHeight": "1.6",
