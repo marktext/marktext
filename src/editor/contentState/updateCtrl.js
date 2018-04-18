@@ -8,7 +8,7 @@ const INLINE_UPDATE_FREGMENTS = [
   '^([*+-]\\s)', // Bullet list
   '^(\\[[x\\s]{1}\\]\\s)', // Task list
   '^(\\d+\\.\\s)', // Order list
-  '^\\s{0,3}(#{1,6})[^#]+', // ATX heading
+  '^\\s{0,3}(#{1,6})(?=\\s{1,}|$)', // ATX heading
   '^(>).+', // Block quote
   '^\\s{0,3}((?:\\*\\s*\\*\\s*\\*|-\\s*-\\s*-|_\\s*_\\s*_)[\\s\\*\\-\\_]*)$' // Thematic break
 ]

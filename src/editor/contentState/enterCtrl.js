@@ -173,7 +173,7 @@ const enterCtrl = ContentState => {
 
         if (/^h\d/.test(type)) {
           const PREFIX = /^#+/.exec(pre)[0]
-          post = `${PREFIX}${post}`
+          post = `${PREFIX} ${post}`
         }
 
         if (type === 'li') {
