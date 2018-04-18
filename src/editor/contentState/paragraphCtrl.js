@@ -298,9 +298,9 @@ const paragraphCtrl = ContentState => {
           newType = newLevel === 0 ? 'p' : `h${newLevel}`
         }
 
-        start.offset += newLevel - hash.length
-        end.offset += newLevel - hash.length
-        block.text = '#'.repeat(newLevel) + partText
+        start.offset += newLevel - hash.length + 1
+        end.offset += newLevel - hash.length + 1
+        block.text = '#'.repeat(newLevel) + ` ${partText}`
         block.type = newType
         this.cursor = { start, end }
         break
