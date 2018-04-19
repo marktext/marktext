@@ -1,7 +1,5 @@
 import fileIcons from '../fileIcons'
-import {
-  CLASS_OR_ID
-} from '../config'
+import { CLASS_OR_ID } from '../config'
 
 import './index.css'
 

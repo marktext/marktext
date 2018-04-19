@@ -340,7 +340,7 @@ const updateCtrl = ContentState => {
       }
       return
     }
-
+    // auto pair
     if (block && block.text !== text) {
       const BRACKET_HASH = {
         '{': '}',
@@ -351,21 +351,26 @@ const updateCtrl = ContentState => {
         '"': '"',
         "'": "'"
       }
-      if (start.key === end.key && start.offset === end.offset && event.type === 'input' && BRACKET_HASH[event.data]) {
+      if (start.key === end.key && start.offset === end.offset && event.type === 'input') {
         const { offset } = start
-        const {
-          autoPairBracket, autoPairMarkdownSyntax, autoPairQuote
-        } = this
+        const { autoPairBracket, autoPairMarkdownSyntax, autoPairQuote } = this
         const inputChar = text.charAt(+offset - 1)
+        const preInputChar = text.charAt(+offset - 2)
+        const postInputChar = text.charAt(+offset)
         /* eslint-disable no-useless-escape */
         if (
           (autoPairQuote && /["']{1}/.test(inputChar)) ||
           (autoPairBracket && /[\{\[\(]{1}/.test(inputChar)) ||
           (autoPairMarkdownSyntax && /[*_]{1}/.test(inputChar))
         ) {
-          text = text.substring(0, offset) + BRACKET_HASH[inputChar] + text.substring(offset)
+          text = BRACKET_HASH[event.data]
+            ? text.substring(0, offset) + BRACKET_HASH[inputChar] + text.substring(offset)
+            : text
         }
         /* eslint-ensable no-useless-escape */
+        if (/\s/.test(event.data) && preInputChar === '*' && postInputChar === '*') {
+          text = text.substring(0, offset) + text.substring(offset + 1)
+        }
       }
       block.text = text
     }
