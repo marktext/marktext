@@ -126,7 +126,7 @@
 |:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
 | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-0.10.21.dmg.svg)](https://github.com/marktext/marktext/releases/download/v0.10.21/marktext-0.10.21.dmg) | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-setup-0.10.21.exe.svg)](https://github.com/marktext/marktext/releases/download/v0.10.21/marktext-setup-0.10.21.exe) | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-0.10.21-x86_64.AppImage.svg)](https://github.com/marktext/marktext/releases/download/v0.10.21/marktext-0.10.21-x86_64.AppImage) |
 
-Did not found your system ? Go the the [release page](https://github.com/marktext/marktext/releases). Still not found ? Shoot an [issue](https://github.com/marktext/marktext/issues).
+Did not found your system ? Go the the [release page](https://github.com/marktext/marktext/releases). Still not found? Open an [issue](https://github.com/marktext/marktext/issues).
 
 Want to see new features in this version? Refer to [CHANGELOG](https://github.com/marktext/marktext/blob/master/.github/CHANGELOG.md)
 
@@ -151,13 +151,21 @@ When you have any questions while using **Mark Text**, you are welcome to write 
 
 Mark Text is in full development, please make sure to read the [Contributing Guide](https://github.com/marktext/marktext/blob/master/.github/CONTRIBUTING.md) before making a pull request. Want to add some features to Mark Text? Refer to [TODO LIST](https://github.com/marktext/marktext/blob/master/.github/TODOLIST.md)
 
-**Contributors**
+## Backers
 
-Thank you to all the people who have already contributed to Mark Text![contributors](https://github.com/marktext/marktext/graphs/contributors)
+Thank you to all our backers! 🙏 [[Become a backer](https://opencollective.com/marktext#backers)]
+
+## Sponsors
+
+Support this project by becoming a sponsor. Your logo will show up here with a link to your website. [[Become a sponsor](https://opencollective.com/marktext#silver-sponsors)]
+
+## Contributors
+
+Thank you to all the people who have already contributed to Mark Text[contributors](https://github.com/marktext/marktext/graphs/contributors)
 
 Special thanks to @[Yasujizr](https://github.com/Yasujizr) who designed the logo of Mark Text.
 
-![](https://opencollective.com/marktext/contributors.svg?width=890)
+<a href="https://github.com/marktext/marktext/graphs/contributors"><img src="https://opencollective.com/marktext/contributors.svg?width=890" /></a>
 
 
 ### License
