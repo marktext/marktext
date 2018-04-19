@@ -206,6 +206,10 @@ figure[data-role=HTML] {
   margin-top: 0;
 }
 
+figure.ag-active[data-role=HTML] {
+  margin-left: -50px;
+}
+
 figure.ag-active[data-role=HTML]::before {
   content: attr(data-role);
   width: auto;
@@ -215,9 +219,9 @@ figure.ag-active[data-role=HTML]::before {
   text-align: center;
   line-height: 22px;
   display: block;
-  position: absolute;
+  position: sticky;
   top: 0;
-  left: -45px;
+  left: -50px;
   border: 1px solid #C0C4CC;
   border-radius: 3px;
   font-size: 12px;
