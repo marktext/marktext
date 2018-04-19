@@ -248,7 +248,7 @@ const importRegister = ContentState => {
                   }
                 })
               } else {
-                block = this.createBlock('p', value)
+                block = this.createBlock('p', value.replace(/^\s+/, '')) // fix: #153
                 this.appendChild(parent, block)
               }
             }
