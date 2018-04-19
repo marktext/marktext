@@ -165,7 +165,7 @@ Support this project by becoming a sponsor. Your logo will show up here with a l
 
 ## Contributors
 
-Thank you to all the people who have already contributed to Mark Text[contributors](https://github.com/marktext/marktext/graphs/contributors)
+Thank you to all the people who have already contributed to Mark Text[[contributors](https://github.com/marktext/marktext/graphs/contributors)]
 
 Special thanks to @[Yasujizr](https://github.com/Yasujizr) who designed the logo of Mark Text.
 
@@ -174,6 +174,8 @@ Special thanks to @[Yasujizr](https://github.com/Yasujizr) who designed the logo
 
 ### License
 
- [**MIT**](https://github.com/marktext/marktext/blob/master/LICENSE).
+[**MIT**](https://github.com/marktext/marktext/blob/master/LICENSE).
+
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fmarktext%2Fmarktext.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Fmarktext%2Fmarktext?ref=badge_large)
 
 Copyright (c) 2017-present, @Jocs
