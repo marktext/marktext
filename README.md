@@ -155,9 +155,13 @@ Mark Text is in full development, please make sure to read the [Contributing Gui
 
 Thank you to all our backers! 🙏 [[Become a backer](https://opencollective.com/marktext#backers)]
 
+<a href="https://opencollective.com/marktext#backers" target="_blank"><img src="https://opencollective.com/marktext/tiers/backer/badge.svg?label=backer&color=brightgreen" /></a>
+
 ## Sponsors
 
 Support this project by becoming a sponsor. Your logo will show up here with a link to your website. [[Become a sponsor](https://opencollective.com/marktext#silver-sponsors)]
+
+<a href="https://opencollective.com/marktext#silver-sponsors" target="_blank"><img src="https://opencollective.com/marktext/tiers/silver-sponsors/badge.svg?label=Silver Sponsors&color=brightgreen" /></a>
 
 ## Contributors
 
