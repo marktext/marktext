@@ -208,6 +208,7 @@ figure[data-role=HTML] {
 
 figure.ag-active[data-role=HTML] {
   margin-left: -50px;
+  width: calc(100% + 50px);
 }
 
 figure.ag-active[data-role=HTML]::before {
