@@ -8,10 +8,10 @@
   </a>
 </div>
 <div align="center">
-  <strong>:high_brightness:Next generation markdown editor:crescent_moon:</strong>
+  <strong>:high_brightness:次世代のマークダウンエディタ:crescent_moon:</strong>
 </div>
 <div align="center">
-  An <code>Electron</code> app for platforms of OS X Windows and Linux
+  OS XとLinuxとWindows向けの<code>Electron</code>アプリ
 </div>
 
 <br />
@@ -50,7 +50,7 @@
 <div align="center">
   <h3>
     <a href="https://marktext.github.io/website">
-      Website
+      ウェブサイト
     </a>
     <span> | </span>
     <a href="https://github.com/marktext/marktext/blob/master/doc/i18n/zh_cn.md#readme">
@@ -61,24 +61,20 @@
       Polski
     </a>
     <span> | </span>
-    <a href="https://github.com/marktext/marktext/blob/master/doc/i18n/ja.md#readme">
-      日本語
-    </a>
-    <span> | </span>
     <a href="https://github.com/marktext/marktext#features">
-      Features
+      特徴
     </a>
     <span> | </span>
     <a href="https://github.com/marktext/marktext#download-and-install">
-      Downloads
+      ダウンロード
     </a>
     <span> | </span>
     <a href="https://github.com/marktext/marktext#development">
-      Development
+      開発
     </a>
     <span> | </span>
     <a href="https://github.com/marktext/marktext#contribution">
-      Contribution
+      コントリビューション
     </a>
   </h3>
 </div>
@@ -95,34 +91,34 @@
 
 ![](https://github.com/marktext/marktext/blob/master/doc/marktext.gif)
 
-## Features
+## 特徴
 
-- Realtime preview and use [snabbdom](https://github.com/snabbdom/snabbdom) as its render engine.
-- Support [CommonMark Spec](https://spec.commonmark.org/0.28/) and [GitHub Flavored Markdown Spec](https://github.github.com/gfm/).
-- Support paragraphs and inline style shortcuts to improve your writing efficiency.
-- Output **HTML** and **PDF** file.
-- Dark and Light themes.
-- Various edit mode: **Source Code mode**, **Typewriter mode**, **Focus mode**.
+- リアルタイムプレビューと[snabbdom](https://github.com/snabbdom/snabbdom) を用いたレンダリング。
+- [CommonMark Spec](https://spec.commonmark.org/0.28/) と [GitHub Flavored Markdown Spec](https://github.github.com/gfm/)をサポート。
+- 段落とインラインショートカットを利用することで編集効率を向上。
+- **HTML** ファイルと **PDF** ファイルを出力可能.
+- ダークテーマとライトテーマが利用可能.
+- 沢山の編集モード: **Source Code mode**, **Typewriter mode**, **Focus mode**.
 
-<h4 align="center">:crescent_moon:Dark and Light themes:high_brightness:</h4>
+<h4 align="center">:crescent_moon:利用可能なテーマ:high_brightness:</h4>
 
 | Dark :crescent_moon:                                               | Light :high_brightness:                                             |
 |:------------------------------------------------------------------:|:-------------------------------------------------------------------:|
 | ![](https://github.com/marktext/marktext/blob/master/doc/dark.jpg) | ![](https://github.com/marktext/marktext/blob/master/doc/light.jpg) |
 
-<h4 align="center">:smile_cat:Edit modes:dog:</h4>
+<h4 align="center">:smile_cat:編集モード:dog:</h4>
 
 | Source Code                                                          | Typewriter                                                               | Focus                                                               |
 |:--------------------------------------------------------------------:|:------------------------------------------------------------------------:|:-------------------------------------------------------------------:|
 | ![](https://github.com/marktext/marktext/blob/master/doc/source.gif) | ![](https://github.com/marktext/marktext/blob/master/doc/typewriter.gif) | ![](https://github.com/marktext/marktext/blob/master/doc/focus.gif) |
 
-## Why write another editor?
+## 開発の意図
 
-1. I love writing. I have used a lot of markdown editors, yet there is still not an editor that can fully meet my needs. I don't like to be disturbed when I write by some unbearable bug. **Mark Text** uses virtual DOM to render the page, so it's high efficiency, and open source to all friends who love markdown and writing.
-2. As mentioned above, **Mark Text** will be open source forever. It is also hoped that all markdown lovers can contribute their own code, and develop **Mark Text** into a popular markdown editor.
-3. There are many markdown editors, and each editor has its own characteristics, but it is also difficult to satisfy all markdown users' needs. I hope **Mark Text** can satisfy markdown users' needs as much as possible. Although the latest **Mark Text** is still not perfect, we are trying to make it as perfect as we can.
+1. 私は書くことが好きです。これまでに沢山のマークダウンエディタを使ってきましたが、まだ私の要望を完璧に満たすものを見つけられていません。致命的なバグに執筆を邪魔されたくないのです。**Mark Text**はページのレンダリングに仮想DOMを用いることで効率を向上させ、さらにオープンソースで提供しました。
+2. 上記の通り、**Mark Text**はオープンソースなので、誰でもソースコードをコントリビュートすることで開発に参加し、**Mark Text** をポピュラーなマークダウンエディタにしていくことができます。
+3. 特徴的な機能を備えたマークダウンエディタは既に沢山ありますが、全てのマークダウンユーザーの要望を満たすのは難しいです。まだまだ未熟ですが、**Mark Text** がマークダウンユーザーの要望を可能な限り叶えられるエディタになることを願っています。
 
-## Download and Install
+## ダウンロードとインストール
 
 ![Conda](https://img.shields.io/conda/pn/conda-forge/python.svg?style=for-the-badge)
 
@@ -130,53 +126,53 @@
 |:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
 | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-0.10.21.dmg.svg)](https://github.com/marktext/marktext/releases/download/v0.10.21/marktext-0.10.21.dmg) | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-setup-0.10.21.exe.svg)](https://github.com/marktext/marktext/releases/download/v0.10.21/marktext-setup-0.10.21.exe) | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-0.10.21-x86_64.AppImage.svg)](https://github.com/marktext/marktext/releases/download/v0.10.21/marktext-0.10.21-x86_64.AppImage) |
 
-Did not found your system ? Go the the [release page](https://github.com/marktext/marktext/releases). Still not found? Open an [issue](https://github.com/marktext/marktext/issues).
+上記にご利用のプラットフォームが無い場合は、[リリースページ](https://github.com/marktext/marktext/releases)を探してみてください。それでも見つからない場合は [issue](https://github.com/marktext/marktext/issues) を作成してお知いただけると幸いです。
 
-Want to see new features in this version? Refer to [CHANGELOG](https://github.com/marktext/marktext/blob/master/.github/CHANGELOG.md)
+このバージョンでの新着情報をご確認いただくには、[CHANGELOG](https://github.com/marktext/marktext/blob/master/.github/CHANGELOG.md)を参照してください。
 
-If you use OS X system, you can install Mark Text by [**homebrew cask**](https://github.com/caskroom/homebrew-cask), to start using Homebrew-Cask, you just need [Homebrew](https://brew.sh/) installed.
+macOSをご利用の場合は、[**homebrew cask**](https://github.com/caskroom/homebrew-cask)からもインストールいただけます、homebrew-caskの利用には[Homebrew](https://brew.sh/)が必要です。
 
 > brew cask install mark-text
 
 ![](https://github.com/marktext/marktext/blob/master/doc/brew-cask.gif)
 
-## Development
+## 開発
 
-If you wish to build **Mark Text** yourself:
+**Mark Text** をビルドしたい場合は以下の手順で可能です:
 
-- first clone this repo.
-- Run `npm install`
-- Run `npm run build`
-- copy the build app to Applications folder, or if on Windows run the executable installer.
+- このリポジトリをcloneします
+- `npm install` を実行します
+- `npm run build` を実行します
+- ビルドしたアプリをApplicationsフォルダにコピーするか、Windowsの場合は実行可能なインストーラを起動します。
 
-When you have any questions while using **Mark Text**, you are welcome to write an issue, but I hope you will follow the format of issue. Of course, if you submit a PR directly, it will be appreciated.
+**Mark Text**のご利用中にご質問がありましたら、フォーマットを参考にissueを作成してください。もちろんプルリクエストを直接提出して頂いても構いません。ご協力ありがとうございます。
 
-## Contribution
+## コントリビューション
 
-Mark Text is in full development, please make sure to read the [Contributing Guide](https://github.com/marktext/marktext/blob/master/.github/CONTRIBUTING.md) before making a pull request. Want to add some features to Mark Text? Refer to [TODO LIST](https://github.com/marktext/marktext/blob/master/.github/TODOLIST.md)
+Mark Textは開発の真っ最中です、プルリクエストを作成する場合は事前に [Contributing Guide](https://github.com/marktext/marktext/blob/master/.github/CONTRIBUTING.md) をご確認ください。Mark Textに追加したい新機能がある場合は、 [TODO LIST](https://github.com/marktext/marktext/blob/master/.github/TODOLIST.md) を参考にしてください。
 
-## Backers
+## 後援者
 
-Thank you to all our backers! 🙏 [[Become a backer](https://opencollective.com/marktext#backers)]
+全ての後援者に感謝申し上げます🙏  [[Become a backer](https://opencollective.com/marktext#backers)]
 
 <a href="https://opencollective.com/marktext#backers" target="_blank"><img src="https://opencollective.com/marktext/tiers/backer.svg?avatarHeight=36" /></a>
 
-## Sponsors
+## スポンサー
 
-Support this project by becoming a sponsor. Your logo will show up here with a link to your website. [[Become a sponsor](https://opencollective.com/marktext#silver-sponsors)]
+スポンサーになることでこのプロジェクトをサポートすることができます。あなたのロゴがWebサイトへのリンクと共にここに表示されます。 [[Become a sponsor](https://opencollective.com/marktext#silver-sponsors)]
 
 <a href="https://opencollective.com/marktext#silver-sponsors" target="_blank"><img src="https://opencollective.com/marktext/tiers/silver-sponsors.svg?avatarHeight=36" /></a>
 
-## Contributors
+## コントリビューター
 
-Thank you to all the people who have already contributed to Mark Text[[contributors](https://github.com/marktext/marktext/graphs/contributors)]
+Mark Textにコントリビュートしてくださった [[コントリビューター](https://github.com/marktext/marktext/graphs/contributors)] の皆さんに感謝を申し上げます。
 
-Special thanks to @[Yasujizr](https://github.com/Yasujizr) who designed the logo of Mark Text.
+Mark Textのロゴをデザインしてくださった @[Yasujizr](https://github.com/Yasujizr) に感謝を申し上げます。
 
 <a href="https://github.com/marktext/marktext/graphs/contributors"><img src="https://opencollective.com/marktext/contributors.svg?width=890" /></a>
 
 
-## License
+## ライセンス
 
 [**MIT**](https://github.com/marktext/marktext/blob/master/LICENSE).
 
