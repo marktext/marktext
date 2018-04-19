@@ -10,10 +10,16 @@ import { isMarkdownFile, log } from './utils'
 export const windows = new Map()
 
 const ensureWindowPosition = mainWindowState => {
+  // "workArea" doesn't work on Linux
+  const screenArea = process.platform === 'linux' ? screen.getPrimaryDisplay().bounds : screen.getPrimaryDisplay().workArea
   let { x, y, width, height } = mainWindowState
   let center = false
   if (x === undefined || y === undefined) {
     center = true
+
+    // First app start; check whether window size is larger than screen size
+    if (screenArea.width < width) width = screenArea.width
+    if (screenArea.height < height) height = screenArea.height
   } else {
     center = !screen.getAllDisplays().map(display =>
       x >= display.bounds.x && x <= display.bounds.x + display.bounds.width &&
@@ -21,10 +27,9 @@ const ensureWindowPosition = mainWindowState => {
       .some(display => display)
   }
   if (center) {
-    // win.center() and "workArea" doesn't work on Linux
-    const screenArea = process.platform === 'linux' ? screen.getPrimaryDisplay().bounds : screen.getPrimaryDisplay().workArea
-    x = Math.ceil(screenArea.x + (screenArea.width - width) / 2)
-    y = Math.ceil(screenArea.y + (screenArea.height - height) / 2)
+    // win.center() doesn't work on Linux
+    x = Math.max(0, Math.ceil(screenArea.x + (screenArea.width - width) / 2))
+    y = Math.max(0, Math.ceil(screenArea.y + (screenArea.height - height) / 2))
   }
   return {
     x,
