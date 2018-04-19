@@ -91,7 +91,7 @@
 
 ![](https://github.com/marktext/marktext/blob/master/doc/marktext.gif)
 
-### Features
+## Features
 
 - Realtime preview and use [snabbdom](https://github.com/snabbdom/snabbdom) as its render engine.
 - Support [CommonMark Spec](https://spec.commonmark.org/0.28/) and [GitHub Flavored Markdown Spec](https://github.github.com/gfm/).
@@ -112,13 +112,13 @@
 |:--------------------------------------------------------------------:|:------------------------------------------------------------------------:|:-------------------------------------------------------------------:|
 | ![](https://github.com/marktext/marktext/blob/master/doc/source.gif) | ![](https://github.com/marktext/marktext/blob/master/doc/typewriter.gif) | ![](https://github.com/marktext/marktext/blob/master/doc/focus.gif) |
 
-### Why write another editor?
+## Why write another editor?
 
 1. I love writing. I have used a lot of markdown editors, yet there is still not an editor that can fully meet my needs. I don't like to be disturbed when I write by some unbearable bug. **Mark Text** uses virtual DOM to render the page, so it's high efficiency, and open source to all friends who love markdown and writing.
 2. As mentioned above, **Mark Text** will be open source forever. It is also hoped that all markdown lovers can contribute their own code, and develop **Mark Text** into a popular markdown editor.
 3. There are many markdown editors, and each editor has its own characteristics, but it is also difficult to satisfy all markdown users' needs. I hope **Mark Text** can satisfy markdown users' needs as much as possible. Although the latest **Mark Text** is still not perfect, we are trying to make it as perfect as we can.
 
-### Download and Install
+## Download and Install
 
 ![Conda](https://img.shields.io/conda/pn/conda-forge/python.svg?style=for-the-badge)
 
@@ -136,7 +136,7 @@ If you use OS X system, you can install Mark Text by [**homebrew cask**](https:/
 
 ![](https://github.com/marktext/marktext/blob/master/doc/brew-cask.gif)
 
-### Development
+## Development
 
 If you wish to build **Mark Text** yourself:
 
@@ -147,7 +147,7 @@ If you wish to build **Mark Text** yourself:
 
 When you have any questions while using **Mark Text**, you are welcome to write an issue, but I hope you will follow the format of issue. Of course, if you submit a PR directly, it will be appreciated.
 
-### Contribution
+## Contribution
 
 Mark Text is in full development, please make sure to read the [Contributing Guide](https://github.com/marktext/marktext/blob/master/.github/CONTRIBUTING.md) before making a pull request. Want to add some features to Mark Text? Refer to [TODO LIST](https://github.com/marktext/marktext/blob/master/.github/TODOLIST.md)
 
@@ -172,10 +172,8 @@ Special thanks to @[Yasujizr](https://github.com/Yasujizr) who designed the logo
 <a href="https://github.com/marktext/marktext/graphs/contributors"><img src="https://opencollective.com/marktext/contributors.svg?width=890" /></a>
 
 
-### License
+## License
 
 [**MIT**](https://github.com/marktext/marktext/blob/master/LICENSE).
 
 [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fmarktext%2Fmarktext.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Fmarktext%2Fmarktext?ref=badge_large)
-
-Copyright (c) 2017-present, @Jocs
