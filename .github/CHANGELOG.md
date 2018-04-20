@@ -1,3 +1,22 @@
+### 0.11.8
+
+**:cactus:Feature**
+
+- feature: add editorFont setting in user preference. (#175) - Anderson
+
+**:butterfly:Optimization**
+
+- #177 ATX headings strictly follow the GFM Spec - Jocs
+- no need to auto pair when * is to open a list item - Jocs
+- optimization: add sticky to block html tag - Jocs
+- Add Japanese readme (#191) - Neetshin
+
+**:beetle:Bug fix**
+
+- fix the error 'Cannot read property 'forEach' of undefined' (#178) - 鸿则
+- fix: Change Source Code Mode Accelerator (#180) - Mice
+- fix: #153 Double space between tasklist checkbox and text - Jocs
+
 ### 0.10.21
 
 **:notebook_with_decorative_cover:​Note**
