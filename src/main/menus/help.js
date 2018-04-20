@@ -3,6 +3,7 @@ import * as actions from '../actions/help'
 import { checkUpdates } from '../actions/marktext'
 
 const notOsx = process.platform !== 'darwin'
+const updateMenuVisibility = process.platform === 'win32' || !!process.env.APPIMAGE
 
 export default {
   label: 'Help',
@@ -41,10 +42,10 @@ export default {
     }
   }, {
     type: 'separator',
-    visible: notOsx
+    visible: updateMenuVisibility
   }, {
     label: 'Check for updates...',
-    visible: notOsx,
+    visible: updateMenuVisibility,
     click (menuItem, browserWindow) {
       checkUpdates(menuItem, browserWindow)
     }
