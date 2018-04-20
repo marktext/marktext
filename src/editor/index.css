@@ -42,6 +42,11 @@ h6.ag-active::before {
   display: block;
 }
 
+.ag-hard-line-break::after {
+  content: '↓';
+  opacity: .3;
+}
+
 *::selection, .ag-selection {
   background: #E4E7ED;
   color: #303133;

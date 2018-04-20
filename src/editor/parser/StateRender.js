@@ -2,7 +2,7 @@ import virtualize from 'snabbdom-virtualize/strings'
 import { LOWERCASE_TAGS, CLASS_OR_ID, IMAGE_EXT_REG } from '../config'
 import { conflict, isLengthEven, union, isEven, getIdWithoutSet, loadImage, getImageSrc } from '../utils'
 import { insertAfter, operateClassName } from '../utils/domManipulate'
-import { tokenizer, chop2lines } from './parse'
+import { tokenizer } from './parse'
 import { validEmoji } from '../emojis'
 
 const snabbdom = require('snabbdom')
@@ -62,9 +62,13 @@ class StateRender {
       const type = block.type === 'hr' ? 'p' : block.type
       const isActive = activeBlocks.some(b => b.key === block.key) || block.key === cursor.start.key
 
-      let blockSelector = isActive
-        ? `${type}#${block.key}.${CLASS_OR_ID['AG_PARAGRAPH']}.${CLASS_OR_ID['AG_ACTIVE']}`
-        : `${type}#${block.key}.${CLASS_OR_ID['AG_PARAGRAPH']}`
+      let blockSelector = `${type}#${block.key}.${CLASS_OR_ID['AG_PARAGRAPH']}`
+      if (isActive) {
+        blockSelector += `.${CLASS_OR_ID['AG_ACTIVE']}`
+      }
+      if (type === 'span') {
+        blockSelector += `.${CLASS_OR_ID['AG_LINE']}`
+      }
 
       const data = {
         attrs: {},
@@ -134,7 +138,6 @@ class StateRender {
         if (block.type === 'ol') {
           Object.assign(data.attrs, { start: block.start })
         }
-
         return h(blockSelector, data, block.children.map(child => renderBlock(child)))
       } else {
         // highlight search key in block
@@ -142,15 +145,7 @@ class StateRender {
         const { text } = block
         let children = ''
         if (text) {
-          const lines = chop2lines(text)
-          children = lines.map(({ value, range }) => {
-            const line = value
-              ? tokenizer(value, range.start, highlights)
-                .reduce((acc, token) => [...acc, ...this[token.type](h, cursor, block, token)], [])
-              : ''
-
-            return h(`span.${CLASS_OR_ID['AG_LINE']}`, line)
-          })
+          children = tokenizer(text, highlights).reduce((acc, token) => [...acc, ...this[token.type](h, cursor, block, token)], [])
         }
 
         if (/th|td/.test(block.type)) {
@@ -240,20 +235,26 @@ class StateRender {
   ['tail_header'] (h, cursor, block, token, outerClass) {
     const className = this.getClassName(outerClass, block, token, cursor)
     const { start, end } = token.range
+    const content = this.highlight(h, block, start, end, token)
     if (/^h\d$/.test(block.type)) {
-      const content = this.highlight(h, block, start, end, token)
       return [
         h(`span.${className}`, content)
       ]
     } else {
-      return this.highlight(h, block, start, end, token)
+      return content
     }
   }
 
-  ['line_break'] (h, cursor, block, token, outerClass) {
-    return [
-      h(`span.${CLASS_OR_ID['AG_LINE_BREAK']}`, token.space + token.lineBreak)
-    ]
+  ['hard_line_break'] (h, cursor, block, token, outerClass) {
+    const className = CLASS_OR_ID['AG_HARD_LINE_BREAK']
+    const content = [ token.spaces ]
+    if (block.type === 'span' && block.nextSibling) {
+      return [
+        h(`span.${className}`, content)
+      ]
+    } else {
+      return content
+    }
   }
 
   ['code_fense'] (h, cursor, block, token, outerClass) {

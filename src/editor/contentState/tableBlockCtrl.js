@@ -35,11 +35,12 @@ const tableBlockCtrl = ContentState => {
     let figureBlock
     if (start.key === end.key) {
       const startBlock = this.getBlock(start.key)
+      const anchor = startBlock.type === 'span' ? this.getParent(startBlock) : startBlock
       if (startBlock.text) {
         figureBlock = this.createBlock('figure')
-        this.insertAfter(figureBlock, startBlock)
+        this.insertAfter(figureBlock, anchor)
       } else {
-        figureBlock = startBlock
+        figureBlock = anchor
         figureBlock.type = 'figure'
         figureBlock.functionType = 'table'
         figureBlock.text = ''
@@ -58,7 +59,7 @@ const tableBlockCtrl = ContentState => {
   }
 
   ContentState.prototype.initTable = function (block) {
-    const { text } = block
+    const { text } = block.children[0]
     const rowHeader = []
     const len = text.length
     let i
@@ -114,10 +115,12 @@ const tableBlockCtrl = ContentState => {
         break
       }
       case 'delete': {
+        const newLine = this.createBlock('span')
         figure.children = []
+        this.appendChild(figure, newLine)
         figure.type = 'p'
         figure.text = ''
-        const key = figure.key
+        const key = newLine.key
         const offset = 0
         this.cursor = {
           start: { key, offset },
@@ -197,8 +200,9 @@ const tableBlockCtrl = ContentState => {
   }
 
   ContentState.prototype.tableBlockUpdate = function (block) {
-    const { type, text } = block
-    if (type !== 'li' && type !== 'p') return false
+    const { type } = block
+    if (type !== 'p') return false
+    const { text } = block.children[0]
     const match = TABLE_BLOCK_REG.exec(text)
     return (match && isLengthEven(match[1]) && isLengthEven(match[2])) ? this.initTable(block) : false
   }

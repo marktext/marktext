@@ -46,7 +46,6 @@ class Aganippe {
     this.ensureContainerDiv()
     const { container, contentState, eventCenter } = this
     contentState.stateRender.setContainer(container.children[0])
-    contentState.render()
 
     eventCenter.subscribe('editEmoji', throttle(this.subscribeEditEmoji.bind(this), 200))
     this.dispatchEditEmoji()

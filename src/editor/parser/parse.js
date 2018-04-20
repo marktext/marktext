@@ -350,15 +350,16 @@ const tokenizerFac = (src, beginRules, inlineRules, pos = 0, top) => {
       pos = pos + autoLTo[0].length
       continue
     }
-    const breakTo = inlineRules['line_break'].exec(src)
-    if (breakTo) {
+    // hard line break
+    const hardTo = inlineRules['hard_line_break'].exec(src)
+    console.log(hardTo)
+    if (hardTo && top) {
+      const len = hardTo[0].length
       pushPending()
-      const len = breakTo[0].length
       tokens.push({
-        type: 'line_break',
-        space: breakTo[1],
+        type: 'hard_line_break',
+        spaces: hardTo[1],
         parent: tokens,
-        lineBreak: breakTo[2],
         range: {
           start: pos,
           end: pos + len
@@ -368,6 +369,7 @@ const tokenizerFac = (src, beginRules, inlineRules, pos = 0, top) => {
       pos += len
       continue
     }
+
     // tail header
     const tailTo = inlineRules['tail_header'].exec(src)
     if (tailTo && top) {
@@ -396,36 +398,8 @@ const tokenizerFac = (src, beginRules, inlineRules, pos = 0, top) => {
   return tokens
 }
 
-export const chop2lines = src => {
-  const LINE_REG = /[^\n]+(?:\n|$)/
-  const lines = []
-  let pos = 0
-  while (src) {
-    const to = LINE_REG.exec(src)
-    if (to) {
-      const len = to[0].length
-      lines.push({
-        value: to[0],
-        range: {
-          start: pos,
-          end: pos + len
-        }
-      })
-      src = src.substring(len)
-      pos = pos + len
-    }
-  }
-  if (lines[lines.length - 1].value.endsWith('\n')) {
-    lines.push({
-      value: '',
-      range: { start: pos, end: pos }
-    })
-  }
-  return lines
-}
-
-export const tokenizer = (src, startIndex = 0, highlights = []) => {
-  const tokens = tokenizerFac(src, beginRules, inlineRules, startIndex, true)
+export const tokenizer = (src, highlights = []) => {
+  const tokens = tokenizerFac(src, beginRules, inlineRules, 0, true)
   const postTokenizer = tokens => {
     for (const token of tokens) {
       for (const light of highlights) {
@@ -446,7 +420,7 @@ export const tokenizer = (src, startIndex = 0, highlights = []) => {
   if (highlights.length) {
     postTokenizer(tokens)
   }
-
+  console.log(tokens)
   return tokens
 }
 
@@ -488,15 +462,15 @@ export const generator = tokens => {
       case 'auto_link':
         result += token.href
         break
-      case 'html-image':
+      case 'html_image':
       case 'html_tag':
         result += token.tag
         break
-      case 'line_break':
-        result += token.space + token.lineBreak
-        break
       case 'tail_header':
         result += token.marker
+        break
+      case 'hard_line_break':
+        result += token.spaces
         break
       default:
         throw new Error(`unhandle token type: ${token.type}`)

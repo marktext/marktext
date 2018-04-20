@@ -13,6 +13,8 @@ import { turndownConfig, CLASS_OR_ID, CURSOR_DNA, TABLE_TOOLS, BLOCK_TYPE7 } fro
 
 const turndownPluginGfm = require('turndown-plugin-gfm')
 
+const LINE_BREAKS = /\n/
+
 // turn html to markdown
 const turndownService = new TurndownService(turndownConfig)
 const gfm = turndownPluginGfm.gfm
@@ -103,7 +105,6 @@ const importRegister = ContentState => {
         switch (child.nodeName) {
           case 'th':
           case 'td':
-          case 'p':
           case 'h1':
           case 'h2':
           case 'h3':
@@ -111,10 +112,6 @@ const importRegister = ContentState => {
           case 'h5':
           case 'h6':
             const textValue = child.childNodes.length ? child.childNodes[0].value : ''
-            if (checkIsHTML(textValue) && child.nodeName === 'p') {
-              travel(parent, child.childNodes)
-              break
-            }
             const match = /\d/.exec(child.nodeName)
             value = match ? '#'.repeat(+match[0]) + ` ${textValue}` : textValue
             block = this.createBlock(child.nodeName, value)
@@ -132,6 +129,17 @@ const importRegister = ContentState => {
               Object.assign(block, { column, align })
             }
             this.appendChild(parent, block)
+            break
+
+          case 'p':
+            value = child.childNodes.length ? child.childNodes[0].value : ''
+            if (checkIsHTML(value)) {
+              travel(parent, child.childNodes)
+            } else {
+              block = this.createBlock('p')
+              travel(block, child.childNodes)
+              this.appendChild(parent, block)
+            }
             break
 
           case 'table':
@@ -243,13 +251,23 @@ const importRegister = ContentState => {
                     this.appendChild(parent, block)
                   } else {
                     // not html block
-                    block = this.createBlock('p', fragment)
+                    block = this.createBlockP(fragment)
                     this.appendChild(parent, block)
                   }
                 })
-              } else {
-                block = this.createBlock('p', value.replace(/^\s+/, '')) // fix: #153
+              } else if (parentNode.nodeName === 'li') {
+                block = this.createBlock('p')
+                // fix: #153
+                const lines = value.replace(/^\s+/, '').split(LINE_BREAKS).map(line => this.createBlock('span', line))
+                for (const line of lines) {
+                  this.appendChild(block, line)
+                }
                 this.appendChild(parent, block)
+              } else if (parentNode.nodeName === 'p') {
+                const lines = value.split(LINE_BREAKS).map(line => this.createBlock('span', line))
+                for (const line of lines) {
+                  this.appendChild(parent, line)
+                }
               }
             }
             break
@@ -264,7 +282,7 @@ const importRegister = ContentState => {
     }
 
     travel(rootState, childNodes)
-    return rootState.children.length ? rootState.children : [this.createBlock()]
+    return rootState.children.length ? rootState.children : [this.createBlockP()]
   }
   // transform `paste's text/html data` to content state blocks.
   ContentState.prototype.html2State = function (html) {

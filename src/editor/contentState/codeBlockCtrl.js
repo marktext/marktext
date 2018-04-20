@@ -46,13 +46,28 @@ const codeBlockCtrl = ContentState => {
    * [codeBlockUpdate if block updated to `pre` return true, else return false]
    */
   ContentState.prototype.codeBlockUpdate = function (block) {
-    const match = CODE_UPDATE_REP.exec(block.text)
+    if (block.type === 'span') {
+      block = this.getParent(block)
+    }
+    // if it's not a p block, no need to update
+    if (block.type !== 'p') return false
+    // if p block's children are more than one, no need to update
+    if (block.children.length !== 1) return false
+    const { text } = block.children[0]
+    const match = CODE_UPDATE_REP.exec(text)
     if (match) {
       block.type = 'pre'
       block.functionType = 'code'
       block.text = ''
       block.history = null
       block.lang = match[1]
+      block.children = []
+      const key = block.key
+      const offset = 0
+      this.cursor = {
+        start: { key, offset },
+        end: { key, offset }
+      }
     }
     return !!match
   }
