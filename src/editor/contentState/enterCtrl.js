@@ -82,24 +82,6 @@ const enterCtrl = ContentState => {
     const { floatBox } = this
     const { list, index, show } = floatBox
 
-    const getNextBlock = row => {
-      let nextSibling = this.getBlock(row.nextSibling)
-      if (!nextSibling) {
-        const rowContainer = this.getBlock(row.parent)
-        const table = this.getBlock(rowContainer.parent)
-        const figure = this.getBlock(table.parent)
-        if (rowContainer.type === 'thead') {
-          nextSibling = table.children[1]
-        } else if (figure.nextSibling) {
-          nextSibling = this.getBlock(figure.nextSibling)
-        } else {
-          nextSibling = this.createBlock('p')
-          this.insertAfter(nextSibling, figure)
-        }
-      }
-      return this.firstInDescendant(nextSibling)
-    }
-
     // handle float box
     if (show) {
       event.preventDefault()
@@ -169,6 +151,9 @@ const enterCtrl = ContentState => {
       return this.render()
     }
 
+    // Insert `<br/>` in table cell if you want to open a new line.
+    // Why not use `soft line break` or `hard line break` ?
+    // Becasuse table cell only have one line.
     if (event.shiftKey && /th|td/.test(block.type)) {
       const { text, key } = block
       const brTag = '<br/>'
@@ -198,8 +183,14 @@ const enterCtrl = ContentState => {
         table.row++
       }
 
-      const nextSibling = getNextBlock(row)
-      const key = nextSibling.key
+      let nextBlock = this.findNextBlockInLocation(block)
+      // if table(figure block) is the last block, create a new P block after table(figure block).
+      if (!nextBlock) {
+        const newBlock = this.createBlockP()
+        this.insertAfter(newBlock, this.getParent(table))
+        nextBlock = newBlock.children[0]
+      }
+      const key = nextBlock.key
       const offset = 0
 
       this.cursor = {
@@ -208,6 +199,7 @@ const enterCtrl = ContentState => {
       }
       return this.render()
     }
+
     if (block.type === 'span') {
       block = parent
       parent = this.getParent(block)
