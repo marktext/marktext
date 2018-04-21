@@ -224,7 +224,6 @@ const updateCtrl = ContentState => {
   }
 
   ContentState.prototype.updateHeader = function (block, header, text) {
-    console.log(header)
     const newType = `h${header.length}`
     if (block.type !== newType) {
       block.type = newType
@@ -349,7 +348,6 @@ const updateCtrl = ContentState => {
       if (oldBlock && oldBlock.type === 'span') {
         oldBlock = this.getParent(oldBlock)
       }
-      console.log(oldBlock)
       if (oldBlock && oldBlock.temp && oldBlock.type === 'p') {
         if (oldBlock.text || oldBlock.children.length) {
           delete oldBlock.temp
