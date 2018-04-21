@@ -683,8 +683,9 @@ class StateRender {
     const className = CLASS_OR_ID['AG_HTML_TAG']
     const { start, end } = token.range
     const tag = this.highlight(h, block, start, end, token)
+    const isBr = /<br(?=\s|\/|>)/.test(token.tag)
     return [
-      h(`span.${className}`, tag)
+      h(`span.${className}`, isBr ? [...tag, h('br')] : tag)
     ]
   }
 

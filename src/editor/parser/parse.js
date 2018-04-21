@@ -352,7 +352,6 @@ const tokenizerFac = (src, beginRules, inlineRules, pos = 0, top) => {
     }
     // hard line break
     const hardTo = inlineRules['hard_line_break'].exec(src)
-    console.log(hardTo)
     if (hardTo && top) {
       const len = hardTo[0].length
       pushPending()
@@ -420,7 +419,7 @@ export const tokenizer = (src, highlights = []) => {
   if (highlights.length) {
     postTokenizer(tokens)
   }
-  console.log(tokens)
+
   return tokens
 }
 

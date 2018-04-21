@@ -169,6 +169,18 @@ const enterCtrl = ContentState => {
       return this.render()
     }
 
+    if (event.shiftKey && /th|td/.test(block.type)) {
+      const { text, key } = block
+      const brTag = '<br/>'
+      block.text = text.substring(0, start.offset) + brTag + text.substring(start.offset)
+      const offset = start.offset + brTag.length
+      this.cursor = {
+        start: { key, offset },
+        end: { key, offset }
+      }
+      return this.render()
+    }
+
     // handle enter in table
     if (/th|td/.test(block.type)) {
       const row = this.getBlock(block.parent)
