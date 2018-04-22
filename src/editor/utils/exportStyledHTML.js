@@ -175,7 +175,7 @@ class ExportHTML {
       })
     }
 
-    // change `data-href` to `href` attribute, So the anchor can be clicked.
+    // change `data-href` to `href` attribute, so the anchor can be clicked.
     const anchors = $(`a[data-href]`)
     if (anchors.length) {
       anchors.each((i, a) => {
