@@ -82,7 +82,8 @@
     "nsis": {
       "perMachine": true,
       "oneClick": false,
-      "allowToChangeInstallationDirectory": true
+      "allowToChangeInstallationDirectory": true,
+      "include": "build/windows/installer.nsh"
     },
     "linux": {
       "category": "Office;TextEditor;Utility",
