@@ -3,6 +3,7 @@ dist/electron/*
 dist/web/*
 build/*
 !build/icons
+!build/windows
 coverage
 .vscode
 node_modules/
