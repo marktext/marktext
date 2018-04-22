@@ -4,6 +4,9 @@ const pasteCtrl = ContentState => {
   // check paste type: `MERGE` or `NEWLINE`
   ContentState.prototype.checkPasteType = function (start, fragment) {
     const fragmentType = fragment.type
+    if (start.type === 'span') {
+      start = this.getParent(start)
+    }
     if (fragmentType === 'p') return 'MERGE'
     if (fragmentType === 'blockquote') return 'NEWLINE'
     let parent = this.getParent(start)
@@ -26,7 +29,7 @@ const pasteCtrl = ContentState => {
     event.preventDefault()
     const text = event.clipboardData.getData('text/plain')
     let html = event.clipboardData.getData('text/html')
-
+    console.log(html)
     if (!html) {
       html = text.split(/\n+/)
         .filter(t => t)
@@ -35,12 +38,12 @@ const pasteCtrl = ContentState => {
     }
 
     const stateFragments = this.html2State(html)
-
     if (stateFragments.length <= 0) return
     // step 1: if select content, cut the content, and chop the block text into two part by the cursor.
     const { start, end } = this.cursor
     const startBlock = this.getBlock(start.key)
     const endBlock = this.getBlock(end.key)
+    const parent = this.getParent(startBlock)
     const cacheText = endBlock.text.substring(end.offset)
     startBlock.text = startBlock.text.substring(0, start.offset)
     if (start.key !== end.key) {
@@ -64,41 +67,50 @@ const pasteCtrl = ContentState => {
     let key = lastBlock.key
     let offset = lastBlock.text.length
     lastBlock.text += cacheText
+
     switch (pasteType) {
       case 'MERGE':
         if (LIST_REG.test(firstFragment.type)) {
-          const children = firstFragment.children
-          const firstChildOfFirstFragment = children[0]
-          const liChildren = firstChildOfFirstFragment.children
-          const startParent = this.getParent(startBlock)
-          const liParent = this.getParent(this.getParent(startBlock))
+          const listItems = firstFragment.children
+          const firstListItem = listItems[0]
+          const liChildren = firstListItem.children
+          const originListItem = this.getParent(parent)
+          const originList = this.getParent(originListItem)
           if (liChildren[0].type === 'p') {
-            startBlock.text += liChildren[0].text
+            // TODO @JOCS
+            startBlock.text += liChildren[0].children[0].text
+            liChildren[0].children.slice(1).forEach(c => this.appendChild(parent, c))
             const tail = liChildren.slice(1)
             if (tail.length) {
               tail.forEach(t => {
-                this.appendChild(startParent, t)
+                this.appendChild(originListItem, t)
               })
             }
-            const firstFragmentTail = children.slice(1)
+            const firstFragmentTail = listItems.slice(1)
             if (firstFragmentTail.length) {
               firstFragmentTail.forEach(t => {
-                this.appendChild(liParent, t)
+                this.appendChild(originList, t)
               })
             }
           } else {
-            children.forEach(c => {
-              this.appendChild(liParent, c)
+            listItems.forEach(c => {
+              this.appendChild(originList, c)
             })
           }
-          let target = liParent
+          let target = originList
           tailFragments.forEach(block => {
             this.insertAfter(block, target)
             target = block
           })
         } else {
-          startBlock.text += firstFragment.text
-          let target = startBlock
+          if (firstFragment.type === 'p') {
+            startBlock.text += firstFragment.children[0].text
+            firstFragment.children.slice(1).forEach(line => this.appendChild(parent, line))
+          } else {
+            startBlock.text += firstFragment.text
+          }
+
+          let target = parent
           tailFragments.forEach(block => {
             this.insertAfter(block, target)
             target = block
@@ -107,12 +119,13 @@ const pasteCtrl = ContentState => {
         break
 
       case 'NEWLINE':
-        let target = startBlock
+        let target = startBlock.type === 'span' ? parent : startBlock
         stateFragments.forEach(block => {
           this.insertAfter(block, target)
           target = block
         })
         if (startBlock.text.length === 0) this.removeBlock(startBlock)
+        if (this.isOnlyChild(startBlock)) this.removeBlock(parent)
         break
       default:
         throw new Error('unknown paste type')

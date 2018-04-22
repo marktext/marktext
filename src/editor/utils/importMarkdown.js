@@ -9,11 +9,11 @@ import marked from '../parser/marked'
 import ExportMarkdown from './exportMarkdown'
 
 // To be disabled rules when parse markdown, Because content state don't need to parse inline rules
-import { turndownConfig, CLASS_OR_ID, CURSOR_DNA, TABLE_TOOLS, BLOCK_TYPE7 } from '../config'
+import { turndownConfig, CLASS_OR_ID, CURSOR_DNA, TABLE_TOOLS, BLOCK_TYPE7, LINE_BREAK } from '../config'
 
 const turndownPluginGfm = require('turndown-plugin-gfm')
 
-const LINE_BREAKS = /\n/
+const LINE_BREAKS_REG = /\n/
 
 // turn html to markdown
 const turndownService = new TurndownService(turndownConfig)
@@ -25,6 +25,17 @@ turndownService.addRule('strikethrough', {
   filter: ['del', 's', 'strike'],
   replacement: function (content) {
     return '~~' + content + '~~'
+  }
+})
+
+// handle `soft line break` and `hard line break`
+// add `LINE_BREAK` to the end of soft line break and hard line break.
+turndownService.addRule('lineBreak', {
+  filter (node, options) {
+    return node.nodeName === 'SPAN' && node.classList.contains(CLASS_OR_ID['AG_LINE']) && node.nextElementSibling
+  },
+  replacement (content, node, options) {
+    return content + LINE_BREAK
   }
 })
 
@@ -71,8 +82,9 @@ const importRegister = ContentState => {
 
     const htmlText = marked(markdown, { disableInline: true })
     const domAst = parse5.parseFragment(htmlText)
-    // console.log(htmlText)
-    // console.log(domAst)
+    console.log(markdown)
+    console.log(htmlText)
+    console.log(domAst)
     const childNodes = domAst.childNodes
 
     const getLang = node => {
@@ -258,13 +270,13 @@ const importRegister = ContentState => {
               } else if (parentNode.nodeName === 'li') {
                 block = this.createBlock('p')
                 // fix: #153
-                const lines = value.replace(/^\s+/, '').split(LINE_BREAKS).map(line => this.createBlock('span', line))
+                const lines = value.replace(/^\s+/, '').split(LINE_BREAKS_REG).map(line => this.createBlock('span', line))
                 for (const line of lines) {
                   this.appendChild(block, line)
                 }
                 this.appendChild(parent, block)
               } else if (parentNode.nodeName === 'p') {
-                const lines = value.split(LINE_BREAKS).map(line => this.createBlock('span', line))
+                const lines = value.split(LINE_BREAKS_REG).map(line => this.createBlock('span', line))
                 for (const line of lines) {
                   this.appendChild(parent, line)
                 }

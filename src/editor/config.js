@@ -183,6 +183,8 @@ export const TABLE_TOOLS = [{
   icon: 'icon-del'
 }]
 
+export const LINE_BREAK = '\n'
+
 export const DOMPURIFY_CONFIG = {
   FORBID_ATTR: ['style', 'class', 'contenteditable'],
   ALLOW_DATA_ATTR: false,
