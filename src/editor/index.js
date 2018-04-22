@@ -55,6 +55,8 @@ class Aganippe {
     eventCenter.subscribe('hideFloatBox', this.subscribeHideFloatBox.bind(this))
     this.dispatchHideFloatBox()
 
+    eventCenter.subscribe('stateChange', this.dispatchChange.bind(this))
+
     // if you dont click the keyboard after 1 second, the garbageCollection will run.
     eventCenter.attachDOMEvent(container, 'keydown', debounce(event => {
       contentState.historyHandler(event)
@@ -447,8 +449,6 @@ class Aganippe {
   }
 
   setMarkdown (markdown, cursor, renderCursor = true) {
-    // if markdown is blank, dont need to import markdown
-    // if (!markdown.trim()) return
     let newMarkdown = markdown
     if (cursor) {
       newMarkdown = this.contentState.addCursorToMarkdown(markdown, cursor)

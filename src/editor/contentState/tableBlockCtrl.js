@@ -55,6 +55,7 @@ const tableBlockCtrl = ContentState => {
       start: { key, offset },
       end: { key, offset }
     }
+    this.eventCenter.dispatch('stateChange')
     this.render()
   }
 
@@ -111,6 +112,7 @@ const tableBlockCtrl = ContentState => {
             row.children[column].align = newAlign
           })
         })
+        this.eventCenter.dispatch('stateChange')
         this.render()
         break
       }
@@ -126,6 +128,7 @@ const tableBlockCtrl = ContentState => {
           start: { key, offset },
           end: { key, offset }
         }
+        this.eventCenter.dispatch('stateChange')
         this.render()
         break
       }
@@ -189,7 +192,7 @@ const tableBlockCtrl = ContentState => {
             start: { key, offset },
             end: { key, offset }
           }
-
+          this.eventCenter.dispatch('stateChange')
           this.render()
         }
 

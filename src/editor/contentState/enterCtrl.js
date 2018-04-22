@@ -309,7 +309,9 @@ const enterCtrl = ContentState => {
         } else {
           if (block.type === 'p') {
             const lastLine = block.children[block.children.length - 1]
-            if (block.text.trim() === '') this.removeBlock(lastLine)
+            if (lastLine.text.trim() === '') {
+              this.removeBlock(lastLine)
+            }
           }
           this.insertAfter(newBlock, block)
         }
