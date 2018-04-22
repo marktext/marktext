@@ -33,6 +33,20 @@ h6.ag-active::before {
   font-weight: 100;
 }
 
+.ag-paragraph:empty::after,
+.ag-line:empty:after {
+  content: '\200B'
+}
+
+.ag-line {
+  display: block;
+}
+
+.ag-hard-line-break::after {
+  content: '↓';
+  opacity: .3;
+}
+
 *::selection, .ag-selection {
   background: #E4E7ED;
   color: #303133;

@@ -3,7 +3,7 @@ import { isCursorAtFirstLine, isCursorAtLastLine, isCursorAtBegin, isCursorAtEnd
 import { findNearestParagraph } from '../utils/domManipulate'
 import selection from '../selection'
 
-const HAS_TEXT_BLOCK_REG = /^(h\d|p|th|td|hr|pre)/
+const HAS_TEXT_BLOCK_REG = /^(h\d|span|th|td|hr|pre)/
 
 const arrowCtrl = ContentState => {
   ContentState.prototype.firstInDescendant = function (block) {
@@ -119,7 +119,7 @@ const arrowCtrl = ContentState => {
           ) {
             activeBlock = preBlock
             if (/^(?:pre|th|td)$/.test(preBlock.type)) {
-              activeBlock = this.createBlock('p')
+              activeBlock = this.createBlockP()
               activeBlock.temp = true
               this.insertBefore(activeBlock, anchorBlock)
             }
@@ -134,12 +134,12 @@ const arrowCtrl = ContentState => {
             if (nextBlock) {
               activeBlock = nextBlock
               if (/^(?:pre|th|td)$/.test(nextBlock.type)) {
-                activeBlock = this.createBlock('p')
+                activeBlock = this.createBlockP()
                 activeBlock.temp = true
                 this.insertAfter(activeBlock, anchorBlock)
               }
             } else {
-              activeBlock = this.createBlock('p')
+              activeBlock = this.createBlockP()
               this.insertAfter(activeBlock, anchorBlock)
             }
           }
@@ -147,8 +147,9 @@ const arrowCtrl = ContentState => {
       }
 
       if (activeBlock) {
-        const offset = activeBlock.text.length
-        const key = activeBlock.key
+        const cursorBlock = activeBlock.type === 'p' ? activeBlock.children[0] : activeBlock
+        const offset = cursorBlock.text.length
+        const key = cursorBlock.key
         this.cursor = {
           start: {
             key,
@@ -165,13 +166,13 @@ const arrowCtrl = ContentState => {
     }
     if (/th|td/.test(block.type)) {
       let activeBlock
-      const anchorBlock = this.getParent(this.getParent(this.getParent(this.getParent(block))))
+      const anchorBlock = this.getParent(this.getParent(this.getParent(this.getParent(block)))) // figure
 
       if (
         (block.type === 'th' && preBlock && /^(?:pre|td)$/.test(preBlock.type) && event.key === EVENT_KEYS.ArrowUp) ||
         (block.type === 'th' && preBlock && /^(?:pre|td)$/.test(preBlock.type) && event.key === EVENT_KEYS.ArrowLeft && left === 0)
       ) {
-        activeBlock = this.createBlock('p')
+        activeBlock = this.createBlockP()
         activeBlock.temp = true
         this.insertBefore(activeBlock, anchorBlock)
       }
@@ -180,14 +181,14 @@ const arrowCtrl = ContentState => {
         (block.type === 'td' && nextBlock && /^(?:pre|th)$/.test(nextBlock.type) && event.key === EVENT_KEYS.ArrowDown) ||
         (block.type === 'td' && nextBlock && /^(?:pre|th)$/.test(nextBlock.type) && event.key === EVENT_KEYS.ArrowRight && right === 0)
       ) {
-        activeBlock = this.createBlock('p')
+        activeBlock = this.createBlockP()
         activeBlock.temp = true
         this.insertAfter(activeBlock, anchorBlock)
       }
       if (activeBlock) {
         event.preventDefault()
         const offset = 0
-        const key = activeBlock.key
+        const key = activeBlock.children[0].key
         this.cursor = {
           start: {
             key,
@@ -238,10 +239,9 @@ const arrowCtrl = ContentState => {
       (event.key === EVENT_KEYS.ArrowLeft && start.offset === 0)
     ) {
       event.preventDefault()
-      const preBlockInLocation = this.findPreBlockInLocation(block)
-      if (!preBlockInLocation) return
-      const key = preBlockInLocation.key
-      const offset = preBlockInLocation.text.length
+      if (!preBlock) return
+      const key = preBlock.key
+      const offset = preBlock.text.length
       this.cursor = {
         start: { key, offset },
         end: { key, offset }
@@ -252,15 +252,14 @@ const arrowCtrl = ContentState => {
       (event.key === EVENT_KEYS.ArrowRight && start.offset === block.text.length)
     ) {
       event.preventDefault()
-      const nextBlockInLocation = this.findNextBlockInLocation(block)
       let key
-      if (nextBlockInLocation) {
-        key = nextBlockInLocation.key
+      if (nextBlock) {
+        key = nextBlock.key
       } else {
-        const newBlock = this.createBlock('p')
+        const newBlock = this.createBlockP()
         const lastBlock = this.blocks[this.blocks.length - 1]
         this.insertAfter(newBlock, lastBlock)
-        key = newBlock.key
+        key = newBlock.children[0].key
       }
       const offset = 0
       this.cursor = {

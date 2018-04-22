@@ -18,6 +18,18 @@ const INLINE_UPDATE_REG = new RegExp(INLINE_UPDATE_FREGMENTS.join('|'), 'i')
 let lastCursor = null
 
 const updateCtrl = ContentState => {
+  // handle task list item checkbox click
+  ContentState.prototype.listItemCheckBoxClick = function (checkbox) {
+    const { checked, id } = checkbox
+    const block = this.getBlock(id)
+    block.checked = checked
+    this.render()
+  }
+
+  ContentState.prototype.checkSameLooseType = function (list, isLooseType) {
+    return list.children[0].isLooseListItem === isLooseType
+  }
+
   ContentState.prototype.checkNeedRender = function (block) {
     const { start: cStart, end: cEnd } = this.cursor
     const startOffset = cStart.offset
@@ -39,11 +51,16 @@ const updateCtrl = ContentState => {
   }
 
   ContentState.prototype.checkInlineUpdate = function (block) {
+    // table cell can not have blocks in it
     if (/th|td|figure/.test(block.type)) return false
-    const { text } = block
+    // only first line block can update to other block
+    if (block.type === 'span' && block.preSibling) return false
+    if (block.type === 'span') {
+      block = this.getParent(block)
+    }
     const parent = this.getParent(block)
+    const text = block.type === 'p' ? block.children.map(child => child.text).join('\n') : block.text
     const [match, bullet, tasklist, order, header, blockquote, hr] = text.match(INLINE_UPDATE_REG) || []
-    let newType
 
     switch (true) {
       case (hr && new Set(hr.split('').filter(i => /\S/.test(i))).size === 1):
@@ -54,7 +71,8 @@ const updateCtrl = ContentState => {
         this.updateList(block, 'bullet', bullet)
         return true
 
-      case !!tasklist && parent && parent.listItemType === 'bullet': // only `bullet` list item can be update to `task` list item
+      // only `bullet` list item can be update to `task` list item
+      case !!tasklist && parent && parent.listItemType === 'bullet':
         this.updateTaskListItem(block, 'tasklist', tasklist)
         return true
 
@@ -63,12 +81,8 @@ const updateCtrl = ContentState => {
         return true
 
       case !!header:
-        newType = `h${header.length}`
-        if (block.type !== newType) {
-          block.type = newType // updateHeader
-          return true
-        }
-        break
+        this.updateHeader(block, header, text)
+        return true
 
       case !!blockquote:
         this.updateBlockQuote(block)
@@ -76,15 +90,79 @@ const updateCtrl = ContentState => {
 
       case !match:
       default:
-        newType = 'p'
-        if (block.type !== newType) {
-          block.type = newType // updateP
-          return true
-        }
-        break
+        return this.updateToParagraph(block)
+    }
+  }
+
+  // thematic break
+  ContentState.prototype.updateHr = function (block, marker) {
+    block.type = 'hr'
+    block.text = marker
+    block.children.length = 0
+    const { key } = block
+    this.cursor.start.key = this.cursor.end.key = key
+  }
+
+  ContentState.prototype.updateList = function (block, type, marker = '') {
+    const { preferLooseListItem } = this
+    const parent = this.getParent(block)
+    const preSibling = this.getPreSibling(block)
+    const nextSibling = this.getNextSibling(block)
+    const wrapperTag = type === 'order' ? 'ol' : 'ul' // `bullet` => `ul` and `order` => `ol`
+    const { start, end } = this.cursor
+    const startOffset = start.offset
+    const endOffset = end.offset
+    const newBlock = this.createBlock('li')
+    block.children[0].text = block.children[0].text.substring(marker.length)
+    newBlock.listItemType = type
+    newBlock.isLooseListItem = preferLooseListItem
+
+    if (
+      preSibling && preSibling.listType === type && this.checkSameLooseType(preSibling, preferLooseListItem) &&
+      nextSibling && nextSibling.listType === type && this.checkSameLooseType(nextSibling, preferLooseListItem)
+    ) {
+      this.appendChild(preSibling, newBlock)
+      const partChildren = nextSibling.children.splice(0)
+      partChildren.forEach(b => this.appendChild(preSibling, b))
+      this.removeBlock(nextSibling)
+      this.removeBlock(block)
+    } else if (preSibling && preSibling.type === wrapperTag && this.checkSameLooseType(preSibling, preferLooseListItem)) {
+      this.appendChild(preSibling, newBlock)
+
+      this.removeBlock(block)
+    } else if (nextSibling && nextSibling.listType === type && this.checkSameLooseType(nextSibling, preferLooseListItem)) {
+      this.insertBefore(newBlock, nextSibling.children[0])
+
+      this.removeBlock(block)
+    } else if (parent && parent.listType === type && this.checkSameLooseType(parent, preferLooseListItem)) {
+      this.insertBefore(newBlock, block)
+
+      this.removeBlock(block)
+    } else {
+      const listBlock = this.createBlock(wrapperTag)
+      listBlock.listType = type
+      if (wrapperTag === 'ol') {
+        const start = marker.split('.')[0]
+        listBlock.start = /^\d+$/.test(start) ? start : 1
+      }
+      this.appendChild(listBlock, newBlock)
+      this.insertBefore(listBlock, block)
+      this.removeBlock(block)
     }
 
-    return false
+    this.appendChild(newBlock, block)
+
+    const key = block.children[0].key
+    this.cursor = {
+      start: {
+        key,
+        offset: Math.max(0, startOffset - marker.length)
+      },
+      end: {
+        key,
+        offset: Math.max(0, endOffset - marker.length)
+      }
+    }
   }
 
   ContentState.prototype.updateTaskListItem = function (block, type, marker = '') {
@@ -97,7 +175,7 @@ const updateCtrl = ContentState => {
 
     checkbox.checked = checked
     this.insertBefore(checkbox, block)
-    block.text = block.text.substring(marker.length)
+    block.children[0].text = block.children[0].text.substring(marker.length)
     parent.listItemType = 'task'
     parent.isLooseListItem = preferLooseListItem
 
@@ -146,102 +224,47 @@ const updateCtrl = ContentState => {
     }
   }
 
-  // handle task list item checkbox click
-  ContentState.prototype.listItemCheckBoxClick = function (checkbox) {
-    const { checked, id } = checkbox
-    const block = this.getBlock(id)
-    block.checked = checked
-    this.render()
-  }
-
-  ContentState.prototype.checkSameLooseType = function (list, isLooseType) {
-    return list.children[0].isLooseListItem === isLooseType
-  }
-
-  ContentState.prototype.updateList = function (block, type, marker = '') {
-    const { preferLooseListItem } = this
-    const parent = this.getParent(block)
-    const preSibling = this.getPreSibling(block)
-    const nextSibling = this.getNextSibling(block)
-    const wrapperTag = type === 'order' ? 'ol' : 'ul' // `bullet` => `ul` and `order` => `ol`
-    const newText = block.text.substring(marker.length)
-    const { start, end } = this.cursor
-    const startOffset = start.offset
-    const endOffset = end.offset
-    const newBlock = this.createBlockLi(newText, block.type)
-    newBlock.listItemType = type
-    newBlock.isLooseListItem = preferLooseListItem
-
-    if (
-      preSibling && preSibling.listType === type && this.checkSameLooseType(preSibling, preferLooseListItem) &&
-      nextSibling && nextSibling.listType === type && this.checkSameLooseType(nextSibling, preferLooseListItem)
-    ) {
-      this.appendChild(preSibling, newBlock)
-      const partChildren = nextSibling.children.splice(0)
-      partChildren.forEach(b => this.appendChild(preSibling, b))
-      this.removeBlock(nextSibling)
-      this.removeBlock(block)
-    } else if (preSibling && preSibling.type === wrapperTag && this.checkSameLooseType(preSibling, preferLooseListItem)) {
-      this.appendChild(preSibling, newBlock)
-
-      this.removeBlock(block)
-    } else if (nextSibling && nextSibling.listType === type && this.checkSameLooseType(nextSibling, preferLooseListItem)) {
-      this.insertBefore(newBlock, nextSibling.children[0])
-
-      this.removeBlock(block)
-    } else if (parent && parent.listType === type && this.checkSameLooseType(parent, preferLooseListItem)) {
-      this.insertBefore(newBlock, block)
-
-      this.removeBlock(block)
-    } else {
-      block.type = wrapperTag
-      block.listType = type // `bullet` or `order`
-      block.text = ''
-      if (wrapperTag === 'ol') {
-        const start = marker.split('.')[0]
-        block.start = /^\d+$/.test(start) ? start : 1
-      }
-      this.appendChild(block, newBlock)
+  ContentState.prototype.updateHeader = function (block, header, text) {
+    const newType = `h${header.length}`
+    if (block.type !== newType) {
+      block.type = newType
+      block.text = text
+      block.children.length = 0
     }
-
-    const key = newBlock.type === 'li' ? newBlock.children[0].key : newBlock.key
-    this.cursor = {
-      start: {
-        key,
-        offset: Math.max(0, startOffset - marker.length)
-      },
-      end: {
-        key,
-        offset: Math.max(0, endOffset - marker.length)
-      }
-    }
-    return newBlock.children[0]
+    this.cursor.start.key = this.cursor.end.key = block.key
   }
 
   ContentState.prototype.updateBlockQuote = function (block) {
-    const newText = block.text.substring(1).trim()
-    const newPblock = this.createBlock('p', newText)
-    block.type = 'blockquote'
-    block.text = ''
-    this.appendChild(block, newPblock)
+    block.children[0].text = block.children[0].text.substring(1).trim()
+    const quoteBlock = this.createBlock('blockquote')
+    this.insertBefore(quoteBlock, block)
+    this.removeBlock(block)
+    this.appendChild(quoteBlock, block)
 
     const { start, end } = this.cursor
-    const key = newPblock.key
     this.cursor = {
       start: {
-        key,
+        key: start.key,
         offset: start.offset - 1
       },
       end: {
-        key,
+        key: end.key,
         offset: end.offset - 1
       }
     }
   }
 
-  // thematic break
-  ContentState.prototype.updateHr = function (block, marker) {
-    block.type = 'hr'
+  ContentState.prototype.updateToParagraph = function (block) {
+    const newType = 'p'
+    if (block.type !== newType) {
+      block.type = newType // updateP
+      const newLine = this.createBlock('span', block.text)
+      this.appendChild(block, newLine)
+      block.text = ''
+      this.cursor.start.key = this.cursor.end.key = newLine.key
+      return true
+    }
+    return false
   }
 
   ContentState.prototype.updateState = function (event) {
@@ -321,9 +344,12 @@ const updateCtrl = ContentState => {
     }
     // remove temp block which generated by operation on code block
     if (block && block.key !== oldKey) {
-      const oldBlock = this.getBlock(oldKey)
+      let oldBlock = this.getBlock(oldKey)
       if (oldBlock) this.codeBlockUpdate(oldBlock)
-      if (oldBlock && oldBlock.temp) {
+      if (oldBlock && oldBlock.type === 'span') {
+        oldBlock = this.getParent(oldBlock)
+      }
+      if (oldBlock && oldBlock.temp && oldBlock.type === 'p') {
         if (oldBlock.text || oldBlock.children.length) {
           delete oldBlock.temp
         } else {
@@ -380,9 +406,8 @@ const updateCtrl = ContentState => {
     }
 
     this.cursor = lastCursor = { start, end }
-
     const checkMarkedUpdate = this.checkNeedRender(block)
-    const checkInlineUpdate = this.checkInlineUpdate(block)
+    const checkInlineUpdate = this.isCollapse() && this.checkInlineUpdate(block)
 
     if (checkMarkedUpdate || checkInlineUpdate || needRender) {
       this.render()

@@ -7,7 +7,8 @@ const backspaceCtrl = ContentState => {
     const node = selection.getSelectionStart()
     const nearestParagraph = findNearestParagraph(node)
     const outMostParagraph = findOutMostParagraph(node)
-    const block = this.getBlock(nearestParagraph.id)
+    let block = this.getBlock(nearestParagraph.id)
+    if (block.type === 'span') block = this.getParent(block)
     const preBlock = this.getPreSibling(block)
     const outBlock = this.findOutMostBlock(block)
     const parent = this.getParent(block)
@@ -85,10 +86,10 @@ const backspaceCtrl = ContentState => {
       if (start.key !== end.key) {
         this.removeBlocks(startBlock, endBlock)
       }
-      let newBlock = this.getNextSibling(startBlock)
+      let newBlock = this.findNextBlockInLocation(startBlock)
       if (!newBlock) {
-        this.blocks = [this.createBlock()]
-        newBlock = this.blocks[0]
+        this.blocks = [this.createBlockP()]
+        newBlock = this.blocks[0].children[0]
       }
       const key = newBlock.key
       const offset = 0
@@ -121,11 +122,18 @@ const backspaceCtrl = ContentState => {
           delete startBlock.pos
           this.codeBlocks.delete(key)
         }
-        startBlock.type = 'p'
+        if (startBlock.type !== 'span') {
+          startBlock.type = 'span'
+          const pBlock = this.createBlock('p')
+          this.insertBefore(pBlock, startBlock)
+          this.removeBlock(startBlock)
+          this.appendChild(pBlock, startBlock)
+        }
       }
       startBlock.text = startRemainText + endRemainText
 
       this.removeBlocks(startBlock, endBlock)
+
       this.cursor = {
         start: { key, offset },
         end: { key, offset }
@@ -136,29 +144,12 @@ const backspaceCtrl = ContentState => {
     const node = selection.getSelectionStart()
     const paragraph = findNearestParagraph(node)
     const id = paragraph.id
-    const block = this.getBlock(id)
+    let block = this.getBlock(id)
+    if (block.type === 'span') block = this.getParent(block)
     const parent = this.getBlock(block.parent)
     const preBlock = this.findPreBlockInLocation(block)
     const { left } = selection.getCaretOffsets(paragraph)
     const inlineDegrade = this.checkBackspaceCase()
-
-    const getPreRow = row => {
-      const preSibling = this.getBlock(row.preSibling)
-      if (preSibling) {
-        return preSibling
-      } else {
-        const rowParent = this.getBlock(row.parent)
-        if (rowParent.type === 'tbody') {
-          const tHead = this.getBlock(rowParent.preSibling)
-          return tHead.children[0]
-        } else {
-          const table = this.getBlock(rowParent.parent)
-          const figure = this.getBlock(table.parent)
-          const figurePreSibling = this.getBlock(figure.preSibling)
-          return figurePreSibling ? this.lastInDescendant(figurePreSibling) : false
-        }
-      }
-    }
 
     const tableHasContent = table => {
       const tHead = table.children[0]
@@ -175,12 +166,11 @@ const backspaceCtrl = ContentState => {
         const anchorBlock = block.functionType === 'html' ? this.getParent(this.getParent(block)) : block
         event.preventDefault()
         const value = cm.getValue()
-        const newBlock = this.createBlock('p')
-        if (value) newBlock.text = value
+        const newBlock = this.createBlockP(value)
         this.insertBefore(newBlock, anchorBlock)
         this.removeBlock(anchorBlock)
         this.codeBlocks.delete(id)
-        const key = newBlock.key
+        const key = newBlock.children[0].key
         const offset = 0
 
         this.cursor = {
@@ -192,47 +182,27 @@ const backspaceCtrl = ContentState => {
       }
     } else if (left === 0 && /th|td/.test(block.type)) {
       event.preventDefault()
+      const tHead = this.getBlock(parent.parent)
+      const table = this.getBlock(tHead.parent)
+      const figure = this.getBlock(table.parent)
+      const hasContent = tableHasContent(table)
       let key
       let offset
-      if (preBlock) {
+
+      if ((!preBlock || !/th|td/.test(preBlock.type)) && !hasContent) {
+        const newLine = this.createBlock('span')
+        delete figure.functionType
+        figure.children = []
+        this.appendChild(figure, newLine)
+        figure.text = ''
+        figure.type = 'p'
+        key = newLine.key
+        offset = 0
+      } else if (preBlock) {
         key = preBlock.key
         offset = preBlock.text.length
-      } else if (parent) {
-        const preRow = getPreRow(parent)
-        const tHead = this.getBlock(parent.parent)
-        const table = this.getBlock(tHead.parent)
-        const figure = this.getBlock(table.parent)
-        const hasContent = tableHasContent(table)
-
-        if (preRow) {
-          if (preRow.type === 'tr') {
-            const lastCell = preRow.children[preRow.children.length - 1]
-            key = lastCell.key
-            offset = lastCell.text.length
-          } else {
-            // if the table is empty change the table to a `p` paragraph
-            // else set the cursor to the pre block
-            if (!hasContent) {
-              figure.children = []
-              figure.text = ''
-              figure.type = 'p'
-              key = figure.key
-              offset = 0
-            } else {
-              key = preRow.key
-              offset = preRow.text.length
-            }
-          }
-        } else {
-          if (!hasContent) {
-            figure.children = []
-            figure.text = ''
-            figure.type = 'p'
-            key = figure.key
-            offset = 0
-          }
-        }
       }
+
       if (key !== undefined && offset !== undefined) {
         this.cursor = {
           start: { key, offset },
@@ -310,7 +280,9 @@ const backspaceCtrl = ContentState => {
       preBlock.pos = { line, ch: ch - text.length }
 
       this.removeBlock(block)
-
+      if (block.type === 'span' && this.isOnlyChild(block)) {
+        this.removeBlock(parent)
+      }
       this.cursor = {
         start: { key, offset },
         end: { key, offset }
@@ -318,6 +290,9 @@ const backspaceCtrl = ContentState => {
       this.render()
     } else if (left === 0) {
       this.removeBlock(block)
+      if (block.type === 'span' && this.isOnlyChild(block)) {
+        this.removeBlock(parent)
+      }
     }
   }
 }

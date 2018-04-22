@@ -101,7 +101,7 @@ const tokenizerFac = (src, beginRules, inlineRules, pos = 0, top) => {
     pending = ''
   }
 
-  if (beginRules) {
+  if (beginRules && pos === 0) {
     const beginR = ['header', 'hr', 'code_fense', 'display_math']
 
     for (const ruleName of beginR) {
@@ -350,6 +350,25 @@ const tokenizerFac = (src, beginRules, inlineRules, pos = 0, top) => {
       pos = pos + autoLTo[0].length
       continue
     }
+    // hard line break
+    const hardTo = inlineRules['hard_line_break'].exec(src)
+    if (hardTo && top) {
+      const len = hardTo[0].length
+      pushPending()
+      tokens.push({
+        type: 'hard_line_break',
+        spaces: hardTo[1],
+        parent: tokens,
+        range: {
+          start: pos,
+          end: pos + len
+        }
+      })
+      src = src.substring(len)
+      pos += len
+      continue
+    }
+
     // tail header
     const tailTo = inlineRules['tail_header'].exec(src)
     if (tailTo && top) {
@@ -442,12 +461,15 @@ export const generator = tokens => {
       case 'auto_link':
         result += token.href
         break
-      case 'html-image':
+      case 'html_image':
       case 'html_tag':
         result += token.tag
         break
       case 'tail_header':
         result += token.marker
+        break
+      case 'hard_line_break':
+        result += token.spaces
         break
       default:
         throw new Error(`unhandle token type: ${token.type}`)

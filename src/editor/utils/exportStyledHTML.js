@@ -154,6 +154,8 @@ class ExportHTML {
     $(removeClassNames.join(', ')).remove()
     $(`.${CLASS_OR_ID['AG_ACTIVE']}`).removeClass(CLASS_OR_ID['AG_ACTIVE'])
     $(`[data-role=hr]`).replaceWith('<hr>')
+
+    // replace the `emoji text` with actual emoji
     const emojis = $(`span.${CLASS_OR_ID['AG_EMOJI_MARKED_TEXT']}`)
     if (emojis.length > 0) {
       emojis.each((i, e) => {
@@ -173,9 +175,9 @@ class ExportHTML {
       })
     }
 
-    // change `data-href` to `href` attribute
+    // change `data-href` to `href` attribute, so the anchor can be clicked.
     const anchors = $(`a[data-href]`)
-    if (anchors.length > 0) {
+    if (anchors.length) {
       anchors.each((i, a) => {
         const anchor = $(a)
         const href = anchor.attr('data-href')
@@ -184,10 +186,32 @@ class ExportHTML {
         anchor.attr('target', '_blank')
       })
     }
+    // soft line break render to html is a space, and hard line break render to html is `<br>`
+    const paragraphs = $(`p.${CLASS_OR_ID['AG_PARAGRAPH']}`)
+    if (paragraphs.length) {
+      paragraphs.each((i, p) => {
+        const paragraph = $(p)
+        const children = paragraph.children()
+        const len = children.length
+        children.each((i, c) => {
+          const child = $(c)
+          child.removeClass(CLASS_OR_ID['AG_LINE'])
+          if (i < len - 1) { // no need to handle the last line
+            const hardLineBreak = $(`.${CLASS_OR_ID['AG_HARD_LINE_BREAK']}`, child)
+            if (hardLineBreak.length) {
+              hardLineBreak.removeClass(CLASS_OR_ID['AG_HARD_LINE_BREAK'])
+              hardLineBreak.append('<br/>')
+            } else {
+              $('<span>&nbsp;</span>').appendTo(child)
+            }
+          }
+        })
+      })
+    }
+
     return $('body').html()
       .replace(/<span class="ag-html-tag">([\s\S]+?)<\/span>/g, (m, p1) => {
-        if (/script|style|title/.test(p1)) return p1
-        else return unescapeHtml(p1)
+        return /script|style|title/.test(p1) ? p1 : unescapeHtml(p1)
       })
   }
 }

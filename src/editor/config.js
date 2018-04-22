@@ -60,6 +60,7 @@ export const CLASS_OR_ID = genUpper2LowerKeyHash([
   'AG_HIDE',
   'AG_WARN',
   'AG_PARAGRAPH', // => 'ag-paragraph'
+  'AG_LINE',
   'AG_ACTIVE',
   'AG_EDITOR_ID',
   'AG_FLOAT_BOX_ID',
@@ -108,7 +109,8 @@ export const CLASS_OR_ID = genUpper2LowerKeyHash([
   'AG_LOOSE_LIST_ITEM',
   'AG_TIGHT_LIST_ITEM',
   'AG_HTML_TAG',
-  'AG_A_LINK'
+  'AG_LINK',
+  'AG_HARD_LINE_BREAK'
 ])
 
 export const codeMirrorConfig = {

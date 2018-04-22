@@ -91,7 +91,7 @@ const htmlBlock = ContentState => {
 
   ContentState.prototype.initHtmlBlock = function (block, tagName) {
     const isVoidTag = VOID_HTML_TAGS.indexOf(tagName) > -1
-    const { text } = block
+    const { text } = block.children[0]
     const htmlContent = isVoidTag ? text : `${text}\n\n</${tagName}>`
 
     const pos = {
@@ -110,8 +110,9 @@ const htmlBlock = ContentState => {
   }
 
   ContentState.prototype.updateHtmlBlock = function (block) {
-    const { type, text } = block
+    const { type } = block
     if (type !== 'li' && type !== 'p') return false
+    const { text } = block.children[0]
     const match = HTML_BLOCK_REG.exec(text)
     const tagName = match && match[1] && HTML_TAGS.find(t => t === match[1])
     return VOID_HTML_TAGS.indexOf(tagName) === -1 && tagName ? this.initHtmlBlock(block, tagName) : false

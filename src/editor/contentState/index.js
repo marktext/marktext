@@ -54,7 +54,7 @@ const convertBlocksToArray = blocks => {
   return result
 }
 
-// use to cache the keys which you dont want to remove.
+// use to cache the keys which you don't want to remove.
 const exemption = new Set()
 
 class ContentState {
@@ -62,7 +62,7 @@ class ContentState {
     const { eventCenter } = options
     Object.assign(this, options)
     this.keys = new Set()
-    this.blocks = [ this.createBlock() ]
+    this.blocks = [ this.createBlockP() ]
     this.stateRender = new StateRender(eventCenter)
     this.codeBlocks = new Map()
     this.loadMathMap = new Map()
@@ -72,20 +72,16 @@ class ContentState {
 
   init () {
     const lastBlock = this.getLastBlock()
+    const { key, text } = lastBlock
+    const offset = text.length
     this.searchMatches = {
-      value: '',
-      matches: [],
-      index: -1
+      value: '', // the search value
+      matches: [], // matches
+      index: -1 // active match
     }
     this.cursor = {
-      start: {
-        key: lastBlock.key,
-        offset: lastBlock.text.length
-      },
-      end: {
-        key: lastBlock.key,
-        offset: lastBlock.text.length
-      }
+      start: { key, offset },
+      end: { key, offset }
     }
     this.history.push({
       type: 'normal',
@@ -95,8 +91,7 @@ class ContentState {
   }
 
   setCursor () {
-    const { cursor } = this
-    selection.setCursorRange(cursor)
+    selection.setCursorRange(this.cursor)
   }
 
   render (isRenderCursor = true) {
@@ -111,7 +106,11 @@ class ContentState {
     this.renderMath()
   }
 
-  createBlock (type = 'p', text = '') {
+  /**
+   * A block in Aganippe present a paragraph(block syntax in GFM) or a line in paragraph.
+   * a line block must in a `p block` and `p block`'s children must be line blocks.
+   */
+  createBlock (type = 'span', text = '') { // span type means it is a line block.
     const key = getUniqueId(this.keys)
     return {
       key,
@@ -124,11 +123,21 @@ class ContentState {
     }
   }
 
+  createBlockP (text = '') {
+    const pBlock = this.createBlock('p')
+    const lineBlock = this.createBlock('span', text)
+    this.appendChild(pBlock, lineBlock)
+    return pBlock
+  }
+
+  isCollapse (cursor = this.cursor) {
+    const { start, end } = cursor
+    return start.key === end.key && start.offset === end.offset
+  }
+
   // getBlocks
   getBlocks () {
-    let key
-    let cm
-    for ([ key, cm ] of this.codeBlocks.entries()) {
+    for (const [ key, cm ] of this.codeBlocks.entries()) {
       const value = cm.getValue()
       const block = this.getBlock(key)
       if (block) block.text = value
@@ -298,7 +307,7 @@ class ContentState {
     }
   }
 
-  removeBlock (block) {
+  removeBlock (block, fromBlocks = this.blocks) {
     if (block.type === 'pre') {
       const codeBlockId = block.key
       if (this.codeBlocks.has(codeBlockId)) {
@@ -328,7 +337,7 @@ class ContentState {
         }
       }
     }
-    remove(this.blocks, block)
+    remove(fromBlocks, block)
   }
 
   getActiveBlocks () {
@@ -390,6 +399,15 @@ class ContentState {
       if (children[i].key === block.key) return i
     }
     return -1
+  }
+
+  prependChild (parent, block) {
+    if (parent.children.length) {
+      const firstChild = parent.children[0]
+      this.insertBefore(block, firstChild)
+    } else {
+      this.appendChild(parent, block)
+    }
   }
 
   appendChild (parent, block) {

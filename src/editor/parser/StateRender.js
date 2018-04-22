@@ -62,9 +62,13 @@ class StateRender {
       const type = block.type === 'hr' ? 'p' : block.type
       const isActive = activeBlocks.some(b => b.key === block.key) || block.key === cursor.start.key
 
-      let blockSelector = isActive
-        ? `${type}#${block.key}.${CLASS_OR_ID['AG_PARAGRAPH']}.${CLASS_OR_ID['AG_ACTIVE']}`
-        : `${type}#${block.key}.${CLASS_OR_ID['AG_PARAGRAPH']}`
+      let blockSelector = `${type}#${block.key}.${CLASS_OR_ID['AG_PARAGRAPH']}`
+      if (isActive) {
+        blockSelector += `.${CLASS_OR_ID['AG_ACTIVE']}`
+      }
+      if (type === 'span') {
+        blockSelector += `.${CLASS_OR_ID['AG_LINE']}`
+      }
 
       const data = {
         attrs: {},
@@ -134,17 +138,15 @@ class StateRender {
         if (block.type === 'ol') {
           Object.assign(data.attrs, { start: block.start })
         }
-
         return h(blockSelector, data, block.children.map(child => renderBlock(child)))
       } else {
         // highlight search key in block
         const highlights = matches.filter(m => m.key === block.key)
-        let children = block.text
-          ? tokenizer(block.text, highlights).reduce((acc, token) => {
-            const chunk = this[token.type](h, cursor, block, token)
-            return Array.isArray(chunk) ? [...acc, ...chunk] : [...acc, chunk]
-          }, [])
-          : [ h(LOWERCASE_TAGS.br) ]
+        const { text } = block
+        let children = ''
+        if (text) {
+          children = tokenizer(text, highlights).reduce((acc, token) => [...acc, ...this[token.type](h, cursor, block, token)], [])
+        }
 
         if (/th|td/.test(block.type)) {
           const { align } = block
@@ -207,8 +209,8 @@ class StateRender {
     })
 
     const newVdom = h(selector, children)
-    const root = document.querySelector(selector) || this.container
-    const oldVdom = toVNode(root)
+    const rootDom = document.querySelector(selector) || this.container
+    const oldVdom = toVNode(rootDom)
 
     patch(oldVdom, newVdom)
   }
@@ -233,13 +235,25 @@ class StateRender {
   ['tail_header'] (h, cursor, block, token, outerClass) {
     const className = this.getClassName(outerClass, block, token, cursor)
     const { start, end } = token.range
+    const content = this.highlight(h, block, start, end, token)
     if (/^h\d$/.test(block.type)) {
-      const content = this.highlight(h, block, start, end, token)
       return [
         h(`span.${className}`, content)
       ]
     } else {
-      return this.highlight(h, block, start, end, token)
+      return content
+    }
+  }
+
+  ['hard_line_break'] (h, cursor, block, token, outerClass) {
+    const className = CLASS_OR_ID['AG_HARD_LINE_BREAK']
+    const content = [ token.spaces ]
+    if (block.type === 'span' && block.nextSibling) {
+      return [
+        h(`span.${className}`, content)
+      ]
+    } else {
+      return content
     }
   }
 
@@ -309,6 +323,7 @@ class StateRender {
       h(`span.${className}.${CLASS_OR_ID['AG_REMOVE']}`, endMarker)
     ]
   }
+
   // change text to highlight vdom
   highlight (h, block, rStart, rEnd, token) {
     const { text } = block
@@ -668,8 +683,9 @@ class StateRender {
     const className = CLASS_OR_ID['AG_HTML_TAG']
     const { start, end } = token.range
     const tag = this.highlight(h, block, start, end, token)
+    const isBr = /<br(?=\s|\/|>)/.test(token.tag)
     return [
-      h(`span.${className}`, tag)
+      h(`span.${className}`, isBr ? [...tag, h('br')] : tag)
     ]
   }
 
