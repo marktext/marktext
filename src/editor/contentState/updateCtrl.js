@@ -71,7 +71,8 @@ const updateCtrl = ContentState => {
         this.updateList(block, 'bullet', bullet)
         return true
 
-      case !!tasklist && parent && parent.listItemType === 'bullet': // only `bullet` list item can be update to `task` list item
+      // only `bullet` list item can be update to `task` list item
+      case !!tasklist && parent && parent.listItemType === 'bullet':
         this.updateTaskListItem(block, 'tasklist', tasklist)
         return true
 

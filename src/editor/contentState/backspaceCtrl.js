@@ -122,15 +122,18 @@ const backspaceCtrl = ContentState => {
           delete startBlock.pos
           this.codeBlocks.delete(key)
         }
-        startBlock.type = 'span'
-        const pBlock = this.createBlock('p')
-        this.insertBefore(pBlock, startBlock)
-        this.removeBlock(startBlock)
-        this.appendChild(pBlock, startBlock)
+        if (startBlock.type !== 'span') {
+          startBlock.type = 'span'
+          const pBlock = this.createBlock('p')
+          this.insertBefore(pBlock, startBlock)
+          this.removeBlock(startBlock)
+          this.appendChild(pBlock, startBlock)
+        }
       }
       startBlock.text = startRemainText + endRemainText
 
       this.removeBlocks(startBlock, endBlock)
+
       this.cursor = {
         start: { key, offset },
         end: { key, offset }

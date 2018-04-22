@@ -68,7 +68,6 @@ class ContentState {
     this.loadMathMap = new Map()
     this.history = new History(this)
     this.init()
-    console.log(this.blocks)
   }
 
   init () {
