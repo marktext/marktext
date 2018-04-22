@@ -57,6 +57,43 @@ const arrowCtrl = ContentState => {
     }
   }
 
+  ContentState.prototype.findNextRowCell = function (cell) {
+    if (!/th|td/.test(cell.type)) throw new Error(`block with type ${cell && cell.type} is not a table cell`)
+    const row = this.getParent(cell)
+    const rowContainer = this.getParent(row) // thead or tbody
+    const column = row.children.indexOf(cell)
+    if (rowContainer.type === 'thead') {
+      const tbody = this.getNextSibling(rowContainer)
+      if (tbody && tbody.children.length) {
+        return tbody.children[0].children[column]
+      }
+    } else if (rowContainer.type === 'tbody') {
+      const nextRow = this.getNextSibling(row)
+      if (nextRow) {
+        return nextRow.children[column]
+      }
+    }
+    return null
+  }
+
+  ContentState.prototype.findPrevRowCell = function (cell) {
+    if (!/th|td/.test(cell.type)) throw new Error(`block with type ${cell && cell.type} is not a table cell`)
+    const row = this.getParent(cell)
+    const rowContainer = this.getParent(row) // thead or tbody
+    const rowIndex = rowContainer.children.indexOf(row)
+    const column = row.children.indexOf(cell)
+    if (rowContainer.type === 'tbody') {
+      if (rowIndex === 0 && rowContainer.preSibling) {
+        const thead = this.getPreSibling(rowContainer)
+        return thead.children[0].children[column]
+      } else if (rowIndex > 0) {
+        return this.getPreSibling(row).children[column]
+      }
+      return null
+    }
+    return null
+  }
+
   ContentState.prototype.arrowHandler = function (event) {
     // when the float box is show, use up and down to select item.
     const { floatBox } = this
@@ -164,9 +201,12 @@ const arrowCtrl = ContentState => {
       }
       return
     }
+
     if (/th|td/.test(block.type)) {
       let activeBlock
       const anchorBlock = this.getParent(this.getParent(this.getParent(this.getParent(block)))) // figure
+      const cellInNextRow = this.findNextRowCell(block)
+      const cellInPrevRow = this.findPrevRowCell(block)
 
       if (
         (block.type === 'th' && preBlock && /^(?:pre|td)$/.test(preBlock.type) && event.key === EVENT_KEYS.ArrowUp) ||
@@ -185,10 +225,19 @@ const arrowCtrl = ContentState => {
         activeBlock.temp = true
         this.insertAfter(activeBlock, anchorBlock)
       }
+
+      if (event.key === EVENT_KEYS.ArrowUp && cellInPrevRow) {
+        activeBlock = cellInPrevRow
+      }
+
+      if (event.key === EVENT_KEYS.ArrowDown && cellInNextRow) {
+        activeBlock = cellInNextRow
+      }
+
       if (activeBlock) {
         event.preventDefault()
-        const offset = 0
-        const key = activeBlock.children[0].key
+        const offset = activeBlock.type === 'p' ? 0 : (event.key === EVENT_KEYS.ArrowUp ? activeBlock.text.length : 0)
+        const key = activeBlock.type === 'p' ? activeBlock.children[0].key : activeBlock.key
         this.cursor = {
           start: {
             key,
@@ -203,6 +252,7 @@ const arrowCtrl = ContentState => {
         return this.render()
       }
     }
+
     if (
       (preBlock && preBlock.type === 'pre' && event.key === EVENT_KEYS.ArrowUp) ||
       (preBlock && preBlock.type === 'pre' && event.key === EVENT_KEYS.ArrowLeft && left === 0)
