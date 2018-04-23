@@ -82,9 +82,9 @@ const importRegister = ContentState => {
 
     const htmlText = marked(markdown, { disableInline: true })
     const domAst = parse5.parseFragment(htmlText)
-    console.log(markdown)
-    console.log(htmlText)
-    console.log(domAst)
+    // console.log(markdown)
+    // console.log(htmlText)
+    // console.log(domAst)
     const childNodes = domAst.childNodes
 
     const getLang = node => {

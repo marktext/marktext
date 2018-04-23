@@ -417,7 +417,7 @@ Lexer.prototype.token = function(src, top, bq) {
     }
 
     // table (gfm)
-    if (top && (cap = this.rules.table.exec(src))) {
+    if (cap = this.rules.table.exec(src)) {
       src = src.substring(cap[0].length);
 
       item = {
