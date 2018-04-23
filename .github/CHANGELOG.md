@@ -1,8 +1,9 @@
-### 0.11.8
+### 0.11.14
 
 **:cactus:Feature**
 
 - feature: add editorFont setting in user preference. (#175) - Anderson
+- feature: line break, support event and import and export markdown - Jocs
 
 **:butterfly:Optimization**
 
@@ -10,12 +11,17 @@
 - no need to auto pair when * is to open a list item - Jocs
 - optimization: add sticky to block html tag - Jocs
 - Add Japanese readme (#191) - Neetshin
+- Disable update menu for snap and not supported packages (#196) - Felix Häusler
+- Check whether window size is larger than screen size (#192) - Felix Häusler
 
 **:beetle:Bug fix**
 
 - fix the error 'Cannot read property 'forEach' of undefined' (#178) - 鸿则
 - fix: Change Source Code Mode Accelerator (#180) - Mice
 - fix: #153 Double space between tasklist checkbox and text - Jocs
+- fix #198 navigation in table
+- fix: #190 Delete user settings on uninstall (NSIS) (#203) - Felix Häusler
+- fix: html block style error when active - Jocs
 
 ### 0.10.21
 
