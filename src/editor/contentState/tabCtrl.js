@@ -25,11 +25,12 @@ const tabCtrl = ContentState => {
   ContentState.prototype.isIndentableListItem = function () {
     const { start, end } = this.cursor
     const startBlock = this.getBlock(start.key)
-    if (startBlock.type !== 'p' || !startBlock.parent) {
+    const parent = this.getParent(startBlock)
+    if (parent.type !== 'p' || !parent.parent) {
       return false
     }
 
-    const listItem = this.getParent(startBlock)
+    const listItem = this.getParent(parent)
     if (listItem.type !== 'li' || start.key !== end.key || start.offset !== end.offset) {
       return false
     }
@@ -42,7 +43,8 @@ const tabCtrl = ContentState => {
   ContentState.prototype.indentListItem = function () {
     const { start } = this.cursor
     const startBlock = this.getBlock(start.key)
-    const listItem = this.getParent(startBlock)
+    const parent = this.getParent(startBlock)
+    const listItem = this.getParent(parent)
     const list = this.getParent(listItem)
     const prevListItem = this.getPreSibling(listItem)
 
