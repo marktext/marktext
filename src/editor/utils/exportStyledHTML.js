@@ -35,6 +35,13 @@ class ExportHTML {
         .dark hr {
           background-color: #545454;
         }
+        .ag-hide.ag-math > .ag-math-render {
+          top: 0;
+          position: relative;
+          padding: 0;
+          color: #000;
+          background: transparent;
+        }
         </style>
       </head>
       <body class="editor-wrapper fillscreen ${themeName}">
@@ -186,6 +193,15 @@ class ExportHTML {
         anchor.attr('target', '_blank')
       })
     }
+    // hide math preview bubble
+    const mathes = $(`span.${CLASS_OR_ID['AG_MATH']}`)
+    mathes.each((i, m) => {
+      const math = $(m)
+      if (math.hasClass(CLASS_OR_ID['AG_GRAY'])) {
+        math.removeClass(CLASS_OR_ID['AG_GRAY'])
+        math.addClass(CLASS_OR_ID['AG_HIDE'])
+      }
+    })
     // soft line break render to html is a space, and hard line break render to html is `<br>`
     const paragraphs = $(`p.${CLASS_OR_ID['AG_PARAGRAPH']}`)
     if (paragraphs.length) {

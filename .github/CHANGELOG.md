@@ -1,4 +1,4 @@
-### 0.11.14
+### 0.11.16
 
 **:cactus:Feature**
 
@@ -22,6 +22,8 @@
 - fix #198 navigation in table
 - fix: #190 Delete user settings on uninstall (NSIS) (#203) - Felix Häusler
 - fix: html block style error when active - Jocs
+- fix: PDF Export is contacted by LaTeX hightlight #194
+- fix: Table inside a list is not supported #202
 
 ### 0.10.21
 
