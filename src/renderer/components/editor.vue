@@ -2,8 +2,8 @@
   <div
     class="editor-wrapper"
     :class="[{ 'typewriter': typewriter, 'focus': focus, 'source': sourceCode }, theme]"
-    :style="{ 'color': theme === 'dark' ? darkColor : lightColor, 'lineHeight': lineHeight, 'fontSize': fontSize, 
-    'font-family': editorFontFamily ? `${editorFontFamily}, sans-serif`:'sans-serif'}"
+    :style="{ 'color': theme === 'dark' ? darkColor : lightColor, 'lineHeight': lineHeight, 'fontSize': fontSize,
+    'font-family': editorFontFamily ? `${editorFontFamily}, ${defaultFontFamily}` : `${defaultFontFamily}`}"
   >
     <div
       ref="editor"
@@ -104,6 +104,7 @@
       ])
     },
     data () {
+      this.defaultFontFamily = '"Open Sans", "Clear Sans", "Helvetica Neue", Helvetica, Arial, sans-serif'
       return {
         selectionChange: null,
         editor: null,
