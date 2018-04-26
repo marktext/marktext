@@ -334,6 +334,10 @@ code {
   }
 }
 
+.ag-hide.ag-math > .ag-math-render {
+  color: #333333;
+}
+
 #ag-editor-id pre.ag-code-block,
 #ag-editor-id pre.ag-html-block {
   padding: .4rem 1rem;
