@@ -18,7 +18,17 @@ You cannot really install a AppImage. It's just a file which can be integrated w
 2. Delete `~/.local/share/applications/appimagekit-marktext.desktop`
 3. Delete your user settings: `~/.config/marktext`
 
-### Extract application
+### Custom launch script
+
+1. Save AppImage somewhere. Let's say `~/bin/marktext.AppImage`
+2. `chmod +x ~/bin/marktext.AppImage`
+3. Create a launch script:
+   ```sh
+   #!/bin/bash
+   DESKTOPINTEGRATION=0 ~/bin/marktext.AppImage
+   ```
+
+### Extract application (not recommended)
 
 1. `./marktext-%version%-x86_64.AppImage --appimage-extract`
 2. Move Mark Text into another location: `mkdir ~/bin/marktext && mv squashfs-root/app/* ~/bin/marktext`
@@ -26,7 +36,7 @@ You cannot really install a AppImage. It's just a file which can be integrated w
 
 ### Known issues
 
-Some error output during application update. Just ignore it if everything is ok.
+- Mark Text is always integrated into desktop environment after updating
 
 ## Snappy
 
