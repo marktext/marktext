@@ -158,7 +158,7 @@ class ContentState {
   }
 
   getParent (block) {
-    if (block.parent) {
+    if (block && block.parent) {
       return this.getBlock(block.parent)
     }
     return null
@@ -337,7 +337,7 @@ class ContentState {
         }
       }
     }
-    remove(fromBlocks, block)
+    remove(Array.isArray(fromBlocks) ? fromBlocks : fromBlocks.children, block)
   }
 
   getActiveBlocks () {

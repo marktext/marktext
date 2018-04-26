@@ -22,6 +22,18 @@ const tabCtrl = ContentState => {
     return false
   }
 
+  ContentState.prototype.isUnindentableListItem = function (block) {
+    const parent = this.getParent(block)
+    const listItem = this.getParent(parent)
+    const list = this.getParent(listItem)
+    const listParent = this.getParent(list)
+    if (!this.isCollapse()) return false
+    if (listParent && listParent.type === 'li') {
+      return !list.preSibling ? 'REPLACEMENT' : 'INDENT'
+    }
+    return false
+  }
+
   ContentState.prototype.isIndentableListItem = function () {
     const { start, end } = this.cursor
     const startBlock = this.getBlock(start.key)
@@ -37,7 +49,49 @@ const tabCtrl = ContentState => {
 
     // Now we know it's a list item. Check whether we can indent the list item.
     const list = this.getParent(listItem)
-    return list && /ol|ul/.test(list.type) && list.children.indexOf(listItem) >= 1
+    return list && /ol|ul/.test(list.type) && listItem.preSibling
+  }
+
+  ContentState.prototype.unindentListItem = function (block, type) {
+    const pBlock = this.getParent(block)
+    const listItem = this.getParent(pBlock)
+    const list = this.getParent(listItem)
+    const listParent = this.getParent(list)
+    if (type === 'REPLACEMENT') {
+      this.insertBefore(pBlock, list)
+      if (this.isOnlyChild(listItem)) {
+        this.removeBlock(list)
+      } else {
+        this.removeBlock(listItem)
+      }
+    } else if (type === 'INDENT') {
+      if (list.children.length === 1) {
+        this.removeBlock(list)
+      } else {
+        const newList = this.createBlock(list.type)
+        let target = this.getNextSibling(listItem)
+        while (target) {
+          this.appendChild(newList, target)
+          let temp = target
+          target = this.getNextSibling(target)
+          this.removeBlock(temp, list)
+        }
+
+        if (newList.children.length) this.appendChild(listItem, newList)
+        this.removeBlock(listItem, list)
+        if (!list.children.length) {
+          this.removeBlock(list)
+        }
+      }
+      this.insertAfter(listItem, listParent)
+      let target = this.getNextSibling(list)
+      while (target) {
+        this.appendChild(listItem, target)
+        this.removeBlock(target, listParent)
+        target = this.getNextSibling(target)
+      }
+    }
+    return this.render()
   }
 
   ContentState.prototype.indentListItem = function () {
@@ -90,6 +144,15 @@ const tabCtrl = ContentState => {
     const { start, end } = selection.getCursorRange()
     const startBlock = this.getBlock(start.key)
     const endBlock = this.getBlock(end.key)
+
+    if (event.shiftKey) {
+      const unindentType = this.isUnindentableListItem(startBlock)
+      if (unindentType) {
+        this.unindentListItem(startBlock, unindentType)
+      }
+      return
+    }
+
     let nextCell
     if (start.key === end.key && /th|td/.test(startBlock.type)) {
       nextCell = this.findNextCell(startBlock)
@@ -103,9 +166,11 @@ const tabCtrl = ContentState => {
         start: { key, offset: 0 },
         end: { key, offset: textLength }
       }
-      this.render()
-    } else if (this.isIndentableListItem()) {
-      this.indentListItem()
+      return this.render()
+    }
+
+    if (this.isIndentableListItem()) {
+      return this.indentListItem()
     } // else {
     //   this.insertTab()
     // }
