@@ -26,6 +26,7 @@
 - fix: html block style error when active - Jocs
 - fix: PDF Export is contacted by LaTeX hightlight #194
 - fix: Table inside a list is not supported #202
+- fix: Cannot open file when window is started maximized or in full-screen mode #217
 
 ### 0.10.21
 
