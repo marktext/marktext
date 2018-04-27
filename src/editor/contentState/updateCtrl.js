@@ -350,7 +350,7 @@ const updateCtrl = ContentState => {
         oldBlock = this.getParent(oldBlock)
       }
       if (oldBlock && oldBlock.temp && oldBlock.type === 'p') {
-        if (oldBlock.text || oldBlock.children.length) {
+        if (oldBlock.children.some(child => child.text)) { // if p block has none empty line.
           delete oldBlock.temp
         } else {
           this.removeBlock(oldBlock)
@@ -361,7 +361,7 @@ const updateCtrl = ContentState => {
 
     if (block && block.type === 'pre') {
       if (block.key !== oldKey) {
-        lastCursor = this.cursor = { start, end }
+        this.cursor = lastCursor = { start, end }
         this.render()
       }
       return

@@ -1,9 +1,10 @@
-### 0.11.16
+### 0.11.18
 
 **:cactus:Feature**
 
 - feature: add editorFont setting in user preference. (#175) - Anderson
 - feature: line break, support event and import and export markdown - Jocs
+- feat: unindent list item - Jocs
 
 **:butterfly:Optimization**
 
@@ -13,6 +14,7 @@
 - Add Japanese readme (#191) - Neetshin
 - Disable update menu for snap and not supported packages (#196) - Felix Häusler
 - Check whether window size is larger than screen size (#192) - Felix Häusler
+- Add fallback editor font family (#209) - Felix Häusler
 
 **:beetle:Bug fix**
 
