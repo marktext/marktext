@@ -36,6 +36,8 @@
 
 - [ ] Side bar contains TOC and folders/files, also and toggle side bar in view menu.
 
+- [ ] Search in folder.
+
 - [x] Status bar, also and toggle status bar in view menu.
 
 - [x] Insert Image in edit menu
@@ -60,9 +62,11 @@
 
 - [ ] Copy as HTML
 
-- [ ] Redesign the float box
+- [ ] Redesign the float box, refactor with [popper](https://github.com/FezVrasta/popper.js)
 
 - [ ] Translate cursor between source code mode and realtime preview mode
+
+- [ ] Refactor data structure of contentState, add copyBlock...
 
 ##### Documents
 

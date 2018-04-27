@@ -8,10 +8,7 @@ const CHOP_TEXT_REG = /(\*{1,3})([^*]+)(\1)/g
  * [description `add` or `remove` className of element
  */
 export const operateClassName = (element, ctrl, className) => {
-  const containClassName = element.classList.contains(className)
-  const needOperation = ctrl === 'add' ? !containClassName : containClassName
-
-  return needOperation && element.classList[ctrl](className)
+  element.classList[ctrl](className)
 }
 
 export const findNearestParagraph = node => {
