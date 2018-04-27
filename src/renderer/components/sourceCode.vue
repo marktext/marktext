@@ -46,7 +46,7 @@
         const { markdown = '', theme } = this
         const container = this.$refs.sourceCode
         const codeMirrorConfig = {
-          value: '',
+          value: markdown,
           lineNumbers: true,
           autofocus: true,
           lineWrapping: true,
@@ -65,8 +65,6 @@
         bus.$on('dotu-select', this.handleSelectDoutu)
 
         this.listenChange()
-
-        this.setMarkdown(markdown)
       })
     },
     beforeDestroy () {
