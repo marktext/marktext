@@ -1,3 +1,4 @@
+import { setCursorAtLastLine } from '../codeMirror'
 import { getUniqueId } from '../utils'
 import selection from '../selection'
 import StateRender from '../parser/StateRender'
@@ -81,7 +82,20 @@ class ContentState {
   }
 
   setCursor () {
-    selection.setCursorRange(this.cursor)
+    const { start: { key } } = this.cursor
+    const block = this.getBlock(key)
+    if (block.type !== 'pre') {
+      selection.setCursorRange(this.cursor)
+    } else {
+      const cm = this.codeBlocks.get(key)
+      const { pos } = block
+      if (pos) {
+        cm.focus()
+        cm.setCursor(pos)
+      } else {
+        setCursorAtLastLine(cm)
+      }
+    }
   }
 
   render (isRenderCursor = true) {
@@ -90,9 +104,9 @@ class ContentState {
     matches.forEach((m, i) => {
       m.active = i === index
     })
-    this.stateRender.render(blocks, cursor, activeBlocks, matches)
+    const emptyPres = this.stateRender.render(blocks, cursor, activeBlocks, matches)
+    this.pre2CodeMirror(isRenderCursor, emptyPres)
     if (isRenderCursor) this.setCursor()
-    this.pre2CodeMirror(isRenderCursor)
     this.renderMath()
   }
 
@@ -100,6 +114,7 @@ class ContentState {
     const { cursor } = this
     this.stateRender.partialRender(block, cursor)
     this.setCursor()
+    this.renderMath(block)
   }
 
   /**

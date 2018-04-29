@@ -62,6 +62,7 @@ class StateRender {
    */
   render (blocks, cursor, activeBlocks, matches) {
     const selector = `div#${CLASS_OR_ID['AG_EDITOR_ID']}`
+    const emptyPres = []
 
     const renderBlock = block => {
       const type = block.type === 'hr' ? 'p' : block.type
@@ -191,12 +192,6 @@ class StateRender {
           Object.assign(data.dataset, { role: block.type })
         }
 
-        if (block.type === 'pre') {
-          if (block.lang) Object.assign(data.dataset, { lang: block.lang })
-          blockSelector += block.functionType === 'code' ? `.${CLASS_OR_ID['AG_CODE_BLOCK']}` : `.${CLASS_OR_ID['AG_HTML_BLOCK']}`
-          children = ''
-        }
-
         if (block.type === 'input') {
           const { checked, type, key } = block
           Object.assign(data.attrs, { type: 'checkbox' })
@@ -212,6 +207,19 @@ class StateRender {
           blockSelector += `.${CLASS_OR_ID['AG_TEMP']}`
         }
 
+        if (block.type === 'pre') {
+          const { key, lang } = block
+          const pre = document.querySelector(`pre#${key}`)
+          if (pre) {
+            operateClassName(pre, isActive ? 'add' : 'remove', CLASS_OR_ID['AG_ACTIVE'])
+            return toVNode(pre)
+          }
+          if (lang) Object.assign(data.dataset, { lang })
+          blockSelector += block.functionType === 'code' ? `.${CLASS_OR_ID['AG_CODE_BLOCK']}` : `.${CLASS_OR_ID['AG_HTML_BLOCK']}`
+          children = ''
+          emptyPres.push(key)
+        }
+
         return h(blockSelector, data, children)
       }
     }
@@ -225,6 +233,7 @@ class StateRender {
     const oldVdom = toVNode(rootDom)
 
     patch(oldVdom, newVdom)
+    return emptyPres
   }
 
   partialRender (block, cursor) {
