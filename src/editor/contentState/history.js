@@ -48,8 +48,13 @@ export class History {
     }
   }
   push (state) {
+    const UNDO_DEPTH = 20
     this.stack.splice(this.index + 1)
     this.stack.push(deepCopy(state))
+    if (this.stack.length > UNDO_DEPTH) {
+      this.stack.shift()
+      this.index = this.index - 1
+    }
     this.index = this.index + 1
   }
 }

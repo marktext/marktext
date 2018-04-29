@@ -1,3 +1,4 @@
+import { setCursorAtLastLine } from '../codeMirror'
 import { getUniqueId } from '../utils'
 import selection from '../selection'
 import StateRender from '../parser/StateRender'
@@ -42,17 +43,7 @@ const prototypes = [
   importMarkdown
 ]
 
-// deep first search
-const convertBlocksToArray = blocks => {
-  const result = []
-  blocks.forEach(block => {
-    result.push(block)
-    if (block.children.length) {
-      result.push(...convertBlocksToArray(block.children))
-    }
-  })
-  return result
-}
+const HAS_TEXT_BLOCK_REG = /^(h\d|span|th|td|hr|pre)/
 
 // use to cache the keys which you don't want to remove.
 const exemption = new Set()
@@ -91,7 +82,20 @@ class ContentState {
   }
 
   setCursor () {
-    selection.setCursorRange(this.cursor)
+    const { start: { key } } = this.cursor
+    const block = this.getBlock(key)
+    if (block.type !== 'pre') {
+      selection.setCursorRange(this.cursor)
+    } else {
+      const cm = this.codeBlocks.get(key)
+      const { pos } = block
+      if (pos) {
+        cm.focus()
+        cm.setCursor(pos)
+      } else {
+        setCursorAtLastLine(cm)
+      }
+    }
   }
 
   render (isRenderCursor = true) {
@@ -100,10 +104,17 @@ class ContentState {
     matches.forEach((m, i) => {
       m.active = i === index
     })
-    this.stateRender.render(blocks, cursor, activeBlocks, matches)
+    const emptyPres = this.stateRender.render(blocks, cursor, activeBlocks, matches)
+    this.pre2CodeMirror(isRenderCursor, emptyPres)
     if (isRenderCursor) this.setCursor()
-    this.pre2CodeMirror(isRenderCursor)
     this.renderMath()
+  }
+
+  partialRender (block) {
+    const { cursor } = this
+    this.stateRender.partialRender(block, cursor)
+    this.setCursor()
+    this.renderMath(block)
   }
 
   /**
@@ -137,11 +148,11 @@ class ContentState {
 
   // getBlocks
   getBlocks () {
-    for (const [ key, cm ] of this.codeBlocks.entries()) {
-      const value = cm.getValue()
-      const block = this.getBlock(key)
-      if (block) block.text = value
-    }
+    // for (const [ key, cm ] of this.codeBlocks.entries()) {
+    //   const value = cm.getValue()
+    //   const block = this.getBlock(key)
+    //   if (block) block.text = value
+    // }
     return this.blocks
   }
 
@@ -149,12 +160,22 @@ class ContentState {
     return this.cursor
   }
 
-  getArrayBlocks () {
-    return convertBlocksToArray(this.blocks)
-  }
-
   getBlock (key) {
-    return this.getArrayBlocks().filter(block => block.key === key)[0]
+    let result = null
+    const travel = blocks => {
+      for (const block of blocks) {
+        if (block.key === key) {
+          result = block
+          return
+        }
+        const { children } = block
+        if (children.length) {
+          travel(children)
+        }
+      }
+    }
+    travel(this.blocks)
+    return result
   }
 
   getParent (block) {
@@ -181,15 +202,6 @@ class ContentState {
 
   getNextSibling (block) {
     return block.nextSibling ? this.getBlock(block.nextSibling) : null
-  }
-
-  getFirstBlock () {
-    const arrayBlocks = this.getArrayBlocks()
-    if (arrayBlocks.length) {
-      return arrayBlocks[0]
-    } else {
-      throw new Error('article need at least has one paragraph')
-    }
   }
 
   /**
@@ -459,39 +471,76 @@ class ContentState {
     return null
   }
 
-  getLastBlock () {
-    const arrayBlocks = this.getArrayBlocks()
-    const len = arrayBlocks.length
-    if (len) {
-      return arrayBlocks[len - 1]
-    } else {
-      throw new Error('article need at least has one paragraph')
+  firstInDescendant (block) {
+    const children = block.children
+    if (block.children.length === 0 && HAS_TEXT_BLOCK_REG.test(block.type)) {
+      return block
+    } else if (children.length) {
+      if (children[0].type === 'input' || (children[0].type === 'div' && children[0].editable === false)) { // handle task item
+        return this.firstInDescendant(children[1])
+      } else {
+        return this.firstInDescendant(children[0])
+      }
     }
   }
 
-  wordCount () {
-    const blocks = this.getBlocks()
-    let paragraph = blocks.length
+  lastInDescendant (block) {
+    if (block.children.length === 0 && HAS_TEXT_BLOCK_REG.test(block.type)) {
+      return block
+    } else if (block.children.length) {
+      const children = block.children
+      let lastChild = children[children.length - 1]
+      while (lastChild.editable === false) {
+        lastChild = this.getPreSibling(lastChild)
+      }
+      return this.lastInDescendant(lastChild)
+    }
+  }
+
+  findPreBlockInLocation (block) {
+    const parent = this.getParent(block)
+    const preBlock = this.getPreSibling(block)
+    if (block.preSibling && preBlock.type !== 'input' && preBlock.type !== 'div' && preBlock.editable !== false) { // handle task item and table
+      return this.lastInDescendant(preBlock)
+    } else if (parent) {
+      return this.findPreBlockInLocation(parent)
+    } else {
+      return null
+    }
+  }
+
+  findNextBlockInLocation (block) {
+    const parent = this.getParent(block)
+    const nextBlock = this.getNextSibling(block)
+
+    if (block.nextSibling && nextBlock.editable !== false) {
+      return this.firstInDescendant(nextBlock)
+    } else if (parent) {
+      return this.findNextBlockInLocation(parent)
+    } else {
+      return null
+    }
+  }
+
+  getLastBlock () {
+    const { blocks } = this
+    const len = blocks.length
+    return this.lastInDescendant(blocks[len - 1])
+  }
+
+  wordCount (markdown) {
+    let paragraph = this.blocks.length
     let word = 0
     let character = 0
     let all = 0
 
-    const travel = block => {
-      if (block.text) {
-        const text = block.text
-        const removedChinese = text.replace(/[\u4e00-\u9fa5]/g, '')
-        const tokens = removedChinese.split(/[\s\n]+/).filter(t => t)
-        const chineseWordLength = text.length - removedChinese.length
-        word += chineseWordLength + tokens.length
-        character += tokens.reduce((acc, t) => acc + t.length, 0) + chineseWordLength
-        all += text.length
-      }
-      if (block.children.length) {
-        block.children.forEach(child => travel(child))
-      }
-    }
+    const removedChinese = markdown.replace(/[\u4e00-\u9fa5]/g, '')
+    const tokens = removedChinese.split(/[\s\n]+/).filter(t => t)
+    const chineseWordLength = markdown.length - removedChinese.length
+    word += chineseWordLength + tokens.length
+    character += tokens.reduce((acc, t) => acc + t.length, 0) + chineseWordLength
+    all += markdown.length
 
-    blocks.forEach(block => travel(block))
     return { word, paragraph, character, all }
   }
 

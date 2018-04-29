@@ -1,5 +1,5 @@
 import virtualize from 'snabbdom-virtualize/strings'
-import { LOWERCASE_TAGS, CLASS_OR_ID, IMAGE_EXT_REG } from '../config'
+import { CLASS_OR_ID, IMAGE_EXT_REG } from '../config'
 import { conflict, isLengthEven, union, isEven, getIdWithoutSet, loadImage, getImageSrc } from '../utils'
 import { insertAfter, operateClassName } from '../utils/domManipulate'
 import { tokenizer } from './parse'
@@ -19,6 +19,7 @@ class StateRender {
   constructor (eventCenter) {
     this.eventCenter = eventCenter
     this.loadImageMap = new Map()
+    this.tokenCache = new Map()
     this.container = null
   }
 
@@ -52,11 +53,16 @@ class StateRender {
   }
 
   /**
-   * [render]: 2 steps:
-   * render vdom
+   * [render All blocks]
+   * @param  {[Array]} blocks       [description]
+   * @param  {[Object]} cursor       [description]
+   * @param  {[Object]} activeBlocks [description]
+   * @param  {[Array]} matches      [description]
+   * @return {[undefined]}              [description]
    */
   render (blocks, cursor, activeBlocks, matches) {
-    const selector = `${LOWERCASE_TAGS.div}#${CLASS_OR_ID['AG_EDITOR_ID']}`
+    const selector = `div#${CLASS_OR_ID['AG_EDITOR_ID']}`
+    const emptyPres = []
 
     const renderBlock = block => {
       const type = block.type === 'hr' ? 'p' : block.type
@@ -145,7 +151,14 @@ class StateRender {
         const { text } = block
         let children = ''
         if (text) {
-          children = tokenizer(text, highlights).reduce((acc, token) => [...acc, ...this[token.type](h, cursor, block, token)], [])
+          let tokens = null
+          if (highlights.length === 0 && this.tokenCache.has(text)) {
+            tokens = this.tokenCache.get(text)
+          } else {
+            tokens = tokenizer(text, highlights)
+            this.tokenCache.set(text, tokens)
+          }
+          children = tokens.reduce((acc, token) => [...acc, ...this[token.type](h, cursor, block, token)], [])
         }
 
         if (/th|td/.test(block.type)) {
@@ -179,12 +192,6 @@ class StateRender {
           Object.assign(data.dataset, { role: block.type })
         }
 
-        if (block.type === 'pre') {
-          if (block.lang) Object.assign(data.dataset, { lang: block.lang })
-          blockSelector += block.functionType === 'code' ? `.${CLASS_OR_ID['AG_CODE_BLOCK']}` : `.${CLASS_OR_ID['AG_HTML_BLOCK']}`
-          children = ''
-        }
-
         if (block.type === 'input') {
           const { checked, type, key } = block
           Object.assign(data.attrs, { type: 'checkbox' })
@@ -200,6 +207,19 @@ class StateRender {
           blockSelector += `.${CLASS_OR_ID['AG_TEMP']}`
         }
 
+        if (block.type === 'pre') {
+          const { key, lang } = block
+          const pre = document.querySelector(`pre#${key}`)
+          if (pre) {
+            operateClassName(pre, isActive ? 'add' : 'remove', CLASS_OR_ID['AG_ACTIVE'])
+            return toVNode(pre)
+          }
+          if (lang) Object.assign(data.dataset, { lang })
+          blockSelector += block.functionType === 'code' ? `.${CLASS_OR_ID['AG_CODE_BLOCK']}` : `.${CLASS_OR_ID['AG_HTML_BLOCK']}`
+          children = ''
+          emptyPres.push(key)
+        }
+
         return h(blockSelector, data, children)
       }
     }
@@ -212,6 +232,48 @@ class StateRender {
     const rootDom = document.querySelector(selector) || this.container
     const oldVdom = toVNode(rootDom)
 
+    patch(oldVdom, newVdom)
+    return emptyPres
+  }
+
+  partialRender (block, cursor) {
+    const { key, text } = block
+    const type = block.type === 'hr' ? 'p' : block.type
+    let selector = `${type}#${key}`
+    const oldDom = document.querySelector(selector)
+    const oldVdom = toVNode(oldDom)
+
+    selector += `.${CLASS_OR_ID['AG_PARAGRAPH']}.${CLASS_OR_ID['AG_ACTIVE']}`
+    if (type === 'span') {
+      selector += `.${CLASS_OR_ID['AG_LINE']}`
+    }
+
+    const data = {
+      attrs: {},
+      dataset: {}
+    }
+
+    let children = ''
+    if (text) {
+      children = tokenizer(text, []).reduce((acc, token) => [...acc, ...this[token.type](h, cursor, block, token)], [])
+    }
+
+    if (/th|td/.test(type)) {
+      const { align } = block
+      if (align) {
+        Object.assign(data.attrs, { style: `text-align:${align}` })
+      }
+    }
+
+    if (/^h\d$/.test(block.type)) {
+      Object.assign(data.dataset, { head: block.type })
+    }
+
+    if (/^h/.test(block.type)) { // h\d or hr
+      Object.assign(data.dataset, { role: block.type })
+    }
+
+    const newVdom = h(selector, data, children)
     patch(oldVdom, newVdom)
   }
 

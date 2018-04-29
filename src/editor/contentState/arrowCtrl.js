@@ -3,60 +3,7 @@ import { isCursorAtFirstLine, isCursorAtLastLine, isCursorAtBegin, isCursorAtEnd
 import { findNearestParagraph } from '../utils/domManipulate'
 import selection from '../selection'
 
-const HAS_TEXT_BLOCK_REG = /^(h\d|span|th|td|hr|pre)/
-
 const arrowCtrl = ContentState => {
-  ContentState.prototype.firstInDescendant = function (block) {
-    const children = block.children
-    if (block.children.length === 0 && HAS_TEXT_BLOCK_REG.test(block.type)) {
-      return block
-    } else if (children.length) {
-      if (children[0].type === 'input' || (children[0].type === 'div' && children[0].editable === false)) { // handle task item
-        return this.firstInDescendant(children[1])
-      } else {
-        return this.firstInDescendant(children[0])
-      }
-    }
-  }
-
-  ContentState.prototype.lastInDescendant = function (block) {
-    if (block.children.length === 0 && HAS_TEXT_BLOCK_REG.test(block.type)) {
-      return block
-    } else if (block.children.length) {
-      const children = block.children
-      let lastChild = children[children.length - 1]
-      while (lastChild.editable === false) {
-        lastChild = this.getPreSibling(lastChild)
-      }
-      return this.lastInDescendant(lastChild)
-    }
-  }
-
-  ContentState.prototype.findPreBlockInLocation = function (block) {
-    const parent = this.getParent(block)
-    const preBlock = this.getPreSibling(block)
-    if (block.preSibling && preBlock.type !== 'input' && preBlock.type !== 'div' && preBlock.editable !== false) { // handle task item and table
-      return this.lastInDescendant(preBlock)
-    } else if (parent) {
-      return this.findPreBlockInLocation(parent)
-    } else {
-      return null
-    }
-  }
-
-  ContentState.prototype.findNextBlockInLocation = function (block) {
-    const parent = this.getParent(block)
-    const nextBlock = this.getNextSibling(block)
-
-    if (block.nextSibling && nextBlock.editable !== false) {
-      return this.firstInDescendant(nextBlock)
-    } else if (parent) {
-      return this.findNextBlockInLocation(parent)
-    } else {
-      return null
-    }
-  }
-
   ContentState.prototype.findNextRowCell = function (cell) {
     if (!/th|td/.test(cell.type)) throw new Error(`block with type ${cell && cell.type} is not a table cell`)
     const row = this.getParent(cell)
@@ -126,6 +73,7 @@ const arrowCtrl = ContentState => {
 
     if (show && (event.key === EVENT_KEYS.ArrowUp || event.key === EVENT_KEYS.ArrowDown)) {
       event.preventDefault()
+      event.stopPropagation()
       switch (event.key) {
         case EVENT_KEYS.ArrowDown:
           if (index < list.length - 1) {
@@ -147,6 +95,7 @@ const arrowCtrl = ContentState => {
       const anchorBlock = block.functionType === 'html' ? this.getParent(this.getParent(block)) : block
       let activeBlock
       event.preventDefault()
+      event.stopPropagation()
       switch (event.key) {
         case EVENT_KEYS.ArrowLeft: // fallthrough
         case EVENT_KEYS.ArrowUp:
@@ -236,6 +185,7 @@ const arrowCtrl = ContentState => {
 
       if (activeBlock) {
         event.preventDefault()
+        event.stopPropagation()
         const offset = activeBlock.type === 'p' ? 0 : (event.key === EVENT_KEYS.ArrowUp ? activeBlock.text.length : 0)
         const key = activeBlock.type === 'p' ? activeBlock.children[0].key : activeBlock.key
         this.cursor = {
@@ -258,6 +208,7 @@ const arrowCtrl = ContentState => {
       (preBlock && preBlock.type === 'pre' && event.key === EVENT_KEYS.ArrowLeft && left === 0)
     ) {
       event.preventDefault()
+      event.stopPropagation()
       const key = preBlock.key
       const offset = 0
       this.cursor = {
@@ -274,6 +225,7 @@ const arrowCtrl = ContentState => {
       (nextBlock && nextBlock.type === 'pre' && event.key === EVENT_KEYS.ArrowRight && right === 0)
     ) {
       event.preventDefault()
+      event.stopPropagation()
       const key = nextBlock.key
       const offset = 0
       this.cursor = {
@@ -289,6 +241,7 @@ const arrowCtrl = ContentState => {
       (event.key === EVENT_KEYS.ArrowLeft && start.offset === 0)
     ) {
       event.preventDefault()
+      event.stopPropagation()
       if (!preBlock) return
       const key = preBlock.key
       const offset = preBlock.text.length
@@ -302,6 +255,7 @@ const arrowCtrl = ContentState => {
       (event.key === EVENT_KEYS.ArrowRight && start.offset === block.text.length)
     ) {
       event.preventDefault()
+      event.stopPropagation()
       let key
       if (nextBlock) {
         key = nextBlock.key

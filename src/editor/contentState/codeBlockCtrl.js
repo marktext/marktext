@@ -2,7 +2,7 @@ import createDOMPurify from 'dompurify'
 import codeMirror, { setMode, setCursorAtLastLine } from '../codeMirror'
 import { createInputInCodeBlock } from '../utils/domManipulate'
 import { escapeInBlockHtml } from '../utils'
-import { codeMirrorConfig, CLASS_OR_ID, BLOCK_TYPE7, DOMPURIFY_CONFIG } from '../config'
+import { codeMirrorConfig, BLOCK_TYPE7, DOMPURIFY_CONFIG } from '../config'
 
 const DOMPurify = createDOMPurify(window)
 
@@ -72,9 +72,10 @@ const codeBlockCtrl = ContentState => {
     return !!match
   }
 
-  ContentState.prototype.pre2CodeMirror = function (isRenderCursor) {
+  ContentState.prototype.pre2CodeMirror = function (isRenderCursor, emptyPres) {
+    if (!emptyPres.length) return
     const { eventCenter } = this
-    const selector = `pre.${CLASS_OR_ID['AG_CODE_BLOCK']}, pre.${CLASS_OR_ID['AG_HTML_BLOCK']}`
+    const selector = emptyPres.map(key => `pre#${key}`).join(', ')
     const pres = document.querySelectorAll(selector)
     Array.from(pres).forEach(pre => {
       const id = pre.id

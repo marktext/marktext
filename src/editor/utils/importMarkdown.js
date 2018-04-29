@@ -335,22 +335,27 @@ const importRegister = ContentState => {
 
   ContentState.prototype.importCursor = function (cursor) {
     // set cursor
-    if (cursor) {
-      const blocks = this.getArrayBlocks()
+    const travel = blocks => {
       for (const block of blocks) {
-        const { text, key } = block
+        const { key, text, children } = block
         if (text) {
-          const offset = block.text.indexOf(CURSOR_DNA)
+          const offset = text.indexOf(CURSOR_DNA)
           if (offset > -1) {
-            // remove the CURSOR_DNA in the block text
             block.text = text.substring(0, offset) + text.substring(offset + CURSOR_DNA.length)
             this.cursor = {
               start: { key, offset },
               end: { key, offset }
             }
+            return
           }
         }
+        if (children.length) {
+          travel(children)
+        }
       }
+    }
+    if (cursor) {
+      travel(this.blocks)
     } else {
       const lastBlock = this.getLastBlock()
       const key = lastBlock.key
