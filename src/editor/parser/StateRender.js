@@ -19,6 +19,7 @@ class StateRender {
   constructor (eventCenter) {
     this.eventCenter = eventCenter
     this.loadImageMap = new Map()
+    this.tokenCache = new Map()
     this.container = null
   }
 
@@ -149,7 +150,14 @@ class StateRender {
         const { text } = block
         let children = ''
         if (text) {
-          children = tokenizer(text, highlights).reduce((acc, token) => [...acc, ...this[token.type](h, cursor, block, token)], [])
+          let tokens = null
+          if (highlights.length === 0 && this.tokenCache.has(text)) {
+            tokens = this.tokenCache.get(text)
+          } else {
+            tokens = tokenizer(text, highlights)
+            this.tokenCache.set(text, tokens)
+          }
+          children = tokens.reduce((acc, token) => [...acc, ...this[token.type](h, cursor, block, token)], [])
         }
 
         if (/th|td/.test(block.type)) {
