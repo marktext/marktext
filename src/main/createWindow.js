@@ -60,15 +60,8 @@ const createWindow = (pathname, options = {}) => {
     titleBarStyle: 'hidden'
   }, options)
   let win = new BrowserWindow(winOpt)
-  mainWindowState.manage(win)
-
-  const winURL = process.env.NODE_ENV === 'development'
-    ? `http://localhost:9080`
-    : `file://${__dirname}/index.html`
-
-  win.loadURL(winURL)
-  win.setSheetOffset(TITLE_BAR_HEIGHT) // 21 is the title bar height
   win.once('ready-to-show', () => {
+    mainWindowState.manage(win)
     win.show()
 
     if (pathname && isMarkdownFile(pathname)) {
@@ -108,6 +101,13 @@ const createWindow = (pathname, options = {}) => {
     event.preventDefault()
     win.webContents.send('AGANI::ask-for-close')
   })
+
+  const winURL = process.env.NODE_ENV === 'development'
+    ? `http://localhost:9080`
+    : `file://${__dirname}/index.html`
+
+  win.loadURL(winURL)
+  win.setSheetOffset(TITLE_BAR_HEIGHT) // 21 is the title bar height
 
   windows.set(win.id, win)
   return win
