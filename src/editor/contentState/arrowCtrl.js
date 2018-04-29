@@ -126,6 +126,7 @@ const arrowCtrl = ContentState => {
 
     if (show && (event.key === EVENT_KEYS.ArrowUp || event.key === EVENT_KEYS.ArrowDown)) {
       event.preventDefault()
+      event.stopPropagation()
       switch (event.key) {
         case EVENT_KEYS.ArrowDown:
           if (index < list.length - 1) {
@@ -147,6 +148,7 @@ const arrowCtrl = ContentState => {
       const anchorBlock = block.functionType === 'html' ? this.getParent(this.getParent(block)) : block
       let activeBlock
       event.preventDefault()
+      event.stopPropagation()
       switch (event.key) {
         case EVENT_KEYS.ArrowLeft: // fallthrough
         case EVENT_KEYS.ArrowUp:
@@ -236,6 +238,7 @@ const arrowCtrl = ContentState => {
 
       if (activeBlock) {
         event.preventDefault()
+        event.stopPropagation()
         const offset = activeBlock.type === 'p' ? 0 : (event.key === EVENT_KEYS.ArrowUp ? activeBlock.text.length : 0)
         const key = activeBlock.type === 'p' ? activeBlock.children[0].key : activeBlock.key
         this.cursor = {
@@ -258,6 +261,7 @@ const arrowCtrl = ContentState => {
       (preBlock && preBlock.type === 'pre' && event.key === EVENT_KEYS.ArrowLeft && left === 0)
     ) {
       event.preventDefault()
+      event.stopPropagation()
       const key = preBlock.key
       const offset = 0
       this.cursor = {
@@ -274,6 +278,7 @@ const arrowCtrl = ContentState => {
       (nextBlock && nextBlock.type === 'pre' && event.key === EVENT_KEYS.ArrowRight && right === 0)
     ) {
       event.preventDefault()
+      event.stopPropagation()
       const key = nextBlock.key
       const offset = 0
       this.cursor = {
@@ -289,6 +294,7 @@ const arrowCtrl = ContentState => {
       (event.key === EVENT_KEYS.ArrowLeft && start.offset === 0)
     ) {
       event.preventDefault()
+      event.stopPropagation()
       if (!preBlock) return
       const key = preBlock.key
       const offset = preBlock.text.length
@@ -302,6 +308,7 @@ const arrowCtrl = ContentState => {
       (event.key === EVENT_KEYS.ArrowRight && start.offset === block.text.length)
     ) {
       event.preventDefault()
+      event.stopPropagation()
       let key
       if (nextBlock) {
         key = nextBlock.key

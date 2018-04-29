@@ -106,6 +106,12 @@ class ContentState {
     this.renderMath()
   }
 
+  partialRender (block) {
+    const { cursor } = this
+    this.stateRender.partialRender(block, cursor)
+    this.setCursor()
+  }
+
   /**
    * A block in Aganippe present a paragraph(block syntax in GFM) or a line in paragraph.
    * a line block must in a `p block` and `p block`'s children must be line blocks.

@@ -68,6 +68,8 @@
 
 - [ ] Refactor data structure of contentState, add copyBlock...
 
+- [ ] Refactor the History data structure
+
 ##### Documents
 
 - [ ] Manual
