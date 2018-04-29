@@ -43,7 +43,7 @@
 
     created () {
       this.$nextTick(() => {
-        const { markdown = '', theme } = this
+        const { markdown = '', theme, cursor } = this
         const container = this.$refs.sourceCode
         const codeMirrorConfig = {
           value: markdown,
@@ -60,11 +60,16 @@
           }
         }
         if (theme === 'dark') codeMirrorConfig.theme = 'railscasts'
-        this.editor = codeMirror(container, codeMirrorConfig)
+        const editor = this.editor = codeMirror(container, codeMirrorConfig)
         bus.$on('file-loaded', this.setMarkdown)
         bus.$on('dotu-select', this.handleSelectDoutu)
 
         this.listenChange()
+        if (cursor) {
+          editor.setCursor(cursor)
+        } else {
+          setCursorAtLastLine(editor)
+        }
       })
     },
     beforeDestroy () {

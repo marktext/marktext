@@ -110,8 +110,8 @@ class Aganippe {
 
   dispatchChange () {
     const { eventCenter } = this
-    const markdown = this.getMarkdown()
-    const wordCount = this.getWordCount()
+    const markdown = this.markdown = this.getMarkdown()
+    const wordCount = this.getWordCount(markdown)
     const cursor = this.getCursor()
     eventCenter.dispatch('change', markdown, wordCount, cursor)
   }
@@ -435,13 +435,12 @@ class Aganippe {
   }
 
   exportUnstylishHtml () {
-    const blocks = this.contentState.getBlocks()
-    const markdown = new ExportMarkdown(blocks).generate()
+    const { markdown } = this
     return exportHtml(markdown)
   }
 
-  getWordCount () {
-    return this.contentState.wordCount()
+  getWordCount (markdown) {
+    return this.contentState.wordCount(markdown)
   }
 
   getCursor () {

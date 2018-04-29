@@ -276,6 +276,7 @@ const updateCtrl = ContentState => {
     const { start, end } = selection.getCursorRange()
     const key = start.key
     const block = this.getBlock(key)
+
     // bugfix: #67 problem 1
     if (block && block.icon) return event.preventDefault()
 
