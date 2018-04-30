@@ -2,7 +2,7 @@ import ContentState from './contentState'
 import selection from './selection'
 import EventCenter from './event'
 import { LOWERCASE_TAGS, EVENT_KEYS, CLASS_OR_ID, codeMirrorConfig } from './config'
-import { throttle, debounce } from './utils'
+import { throttle, debounce, wordCount } from './utils'
 import { search } from './codeMirror'
 import { checkEditLanguage } from './codeMirror/language'
 import Emoji, { checkEditEmoji, setInlineEmoji } from './emojis'
@@ -350,6 +350,7 @@ class Aganippe {
 
   dispatchUpdateState () {
     const { container, eventCenter } = this
+    let timer = null
     const changeHandler = event => {
       const target = event.target
       if (event.type === 'click' && target.classList.contains(CLASS_OR_ID['AG_FUNCTION_HTML'])) return
@@ -357,11 +358,14 @@ class Aganippe {
         this.contentState.updateState(event)
       }
       if (event.type === 'click' || event.type === 'keyup') {
-        const selectionChanges = this.getSelection()
-        const { formats } = this.contentState.selectionFormats()
-        eventCenter.dispatch('selectionChange', selectionChanges)
-        eventCenter.dispatch('selectionFormats', formats)
-        this.dispatchChange()
+        if (timer) clearTimeout(timer)
+        timer = setTimeout(() => {
+          const selectionChanges = this.getSelection()
+          const { formats } = this.contentState.selectionFormats()
+          eventCenter.dispatch('selectionChange', selectionChanges)
+          eventCenter.dispatch('selectionFormats', formats)
+          this.dispatchChange()
+        }, 1000)
       }
     }
 
@@ -440,7 +444,7 @@ class Aganippe {
   }
 
   getWordCount (markdown) {
-    return this.contentState.wordCount(markdown)
+    return wordCount(markdown)
   }
 
   getCursor () {

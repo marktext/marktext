@@ -9,6 +9,7 @@
 
 <script>
   import codeMirror, { setMode, setCursorAtLastLine } from '../../editor/codeMirror'
+  import { wordCount as getWordCount } from '../../editor/utils'
   import { adjustCursor } from '../util'
   import bus from '../bus'
 
@@ -64,6 +65,7 @@
         bus.$on('file-loaded', this.setMarkdown)
         bus.$on('dotu-select', this.handleSelectDoutu)
 
+        setMode(editor, 'markdown')
         this.listenChange()
         if (cursor) {
           editor.setCursor(cursor)
@@ -87,17 +89,20 @@
       },
       listenChange () {
         const { editor } = this
+        let timer = null
         editor.on('cursorActivity', (cm, event) => {
           let cursor = cm.getCursor()
           const markdown = cm.getValue()
+          const wordCount = getWordCount(markdown)
           const line = cm.getLine(cursor.line)
           const preLine = cm.getLine(cursor.line - 1)
           const nextLine = cm.getLine(cursor.line + 1)
           cursor = adjustCursor(cursor, preLine, line, nextLine)
-          bus.$emit('content-in-source-mode', { markdown, cursor, renderCursor: false })
+          if (timer) clearTimeout(timer)
+          timer = setTimeout(() => {
+            this.$store.dispatch('LISTEN_FOR_CONTENT_CHANGE', { markdown, wordCount, cursor })
+          }, 1000)
         })
-
-        setMode(editor, 'markdown')
       },
       setMarkdown (markdown) {
         const { editor, cursor } = this

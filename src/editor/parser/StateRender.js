@@ -156,7 +156,7 @@ class StateRender {
             tokens = this.tokenCache.get(text)
           } else {
             tokens = tokenizer(text, highlights)
-            this.tokenCache.set(text, tokens)
+            if (highlights.length === 0) this.tokenCache.set(text, tokens)
           }
           children = tokens.reduce((acc, token) => [...acc, ...this[token.type](h, cursor, block, token)], [])
         }

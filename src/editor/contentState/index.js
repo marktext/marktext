@@ -528,22 +528,6 @@ class ContentState {
     return this.lastInDescendant(blocks[len - 1])
   }
 
-  wordCount (markdown) {
-    let paragraph = this.blocks.length
-    let word = 0
-    let character = 0
-    let all = 0
-
-    const removedChinese = markdown.replace(/[\u4e00-\u9fa5]/g, '')
-    const tokens = removedChinese.split(/[\s\n]+/).filter(t => t)
-    const chineseWordLength = markdown.length - removedChinese.length
-    word += chineseWordLength + tokens.length
-    character += tokens.reduce((acc, t) => acc + t.length, 0) + chineseWordLength
-    all += markdown.length
-
-    return { word, paragraph, character, all }
-  }
-
   clear () {
     this.keys.clear()
     this.codeBlocks.clear()
