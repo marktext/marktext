@@ -280,7 +280,7 @@ const updateCtrl = ContentState => {
     // bugfix: #67 problem 1
     if (block && block.icon) return event.preventDefault()
 
-    if (isMetaKey(event) || event.key === EVENT_KEYS.Enter) {
+    if (isMetaKey(event)) {
       return
     }
 
