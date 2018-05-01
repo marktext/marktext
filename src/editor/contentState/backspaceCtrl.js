@@ -217,7 +217,6 @@ const backspaceCtrl = ContentState => {
       }
     } else if (inlineDegrade) {
       event.preventDefault()
-      event.stopPropagation()
       switch (inlineDegrade.type) {
         case 'STOP': // at begin of article
           // do nothing...
@@ -258,14 +257,22 @@ const backspaceCtrl = ContentState => {
         }
         case 'BLOCKQUOTE':
           if (inlineDegrade.info === 'REPLACEMENT') {
-            this.replaceBlock(block/* new block */, parent/* old block */)
+            this.insertBefore(block, parent)
+            this.removeBlock(parent)
           } else if (inlineDegrade.info === 'INSERT_BEFORE') {
             this.removeBlock(block)
             this.insertBefore(block, parent)
           }
           break
       }
-      this.cursor = selection.getCursorRange()
+
+      const key = block.type === 'p' ? block.children[0].key : block.key
+      const offset = 0
+      this.cursor = {
+        start: { key, offset },
+        end: { key, offset }
+      }
+
       if (inlineDegrade.type !== 'STOP') {
         this.render()
       }
