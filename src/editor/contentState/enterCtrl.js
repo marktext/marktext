@@ -34,6 +34,7 @@ const enterCtrl = ContentState => {
       this.appendChild(container, b)
     })
     this.insertAfter(container, parent)
+    return container
   }
 
   ContentState.prototype.createRow = function (row) {
@@ -74,6 +75,73 @@ const enterCtrl = ContentState => {
     return listItem
   }
 
+  ContentState.prototype.enterInEmptyParagraph = function (block) {
+    if (block.type === 'span') block = this.getParent(block)
+    const parent = this.getParent(block)
+    let newBlock = null
+    const needRenderBlocks = []
+    const outMostBlock = this.findOutMostBlock(block)
+    let containerOutBlock = null
+    if (parent && (/ul|ol|blockquote/.test(parent.type))) {
+      newBlock = this.createBlockP()
+      if (this.isOnlyChild(block)) {
+        if (outMostBlock !== parent) {
+          needRenderBlocks.push(outMostBlock)
+        }
+        this.insertAfter(newBlock, parent)
+        this.removeBlock(parent)
+      } else if (this.isFirstChild(block)) {
+        needRenderBlocks.push(outMostBlock)
+        this.insertBefore(newBlock, parent)
+      } else if (this.isLastChild(block)) {
+        needRenderBlocks.push(outMostBlock)
+        this.insertAfter(newBlock, parent)
+      } else {
+        const container = this.chopBlock(block)
+        containerOutBlock = this.findOutMostBlock(container)
+        needRenderBlocks.push(outMostBlock)
+        this.insertAfter(newBlock, parent)
+      }
+
+      this.removeBlock(block)
+    } else if (parent && parent.type === 'li') {
+      if (parent.listItemType === 'task') {
+        const { checked } = parent.children[0]
+        newBlock = this.createTaskItemBlock(null, checked)
+      } else {
+        newBlock = this.createBlockLi()
+        newBlock.listItemType = parent.listItemType
+      }
+      newBlock.isLooseListItem = parent.isLooseListItem
+      this.insertAfter(newBlock, parent)
+      const index = this.findIndex(parent.children, block)
+      const blocksInListItem = parent.children.splice(index + 1)
+      blocksInListItem.forEach(b => this.appendChild(newBlock, b))
+      needRenderBlocks.push(outMostBlock)
+      this.removeBlock(block)
+    } else {
+      newBlock = this.createBlockP()
+      if (block.type === 'li') {
+        this.insertAfter(newBlock, parent)
+        this.removeBlock(block)
+      } else {
+        this.insertAfter(newBlock, block)
+      }
+      needRenderBlocks.push(outMostBlock)
+    }
+    const newBlockOutMost = this.findOutMostBlock(newBlock)
+    needRenderBlocks.push(newBlockOutMost)
+    // push order is important!
+    if (containerOutBlock) needRenderBlocks.push(containerOutBlock)
+    const { key } = newBlock
+    const offset = 0
+    this.cursor = {
+      start: { key, offset },
+      end: { key, offset }
+    }
+    return this.partialRender([...new Set(needRenderBlocks)])
+  }
+
   ContentState.prototype.enterHandler = function (event) {
     const { start, end } = selection.getCursorRange()
     let block = this.getBlock(start.key)
@@ -98,6 +166,7 @@ const enterCtrl = ContentState => {
     event.preventDefault()
 
     // handle select multiple blocks
+    // TODO: use partialRender
     if (start.key !== end.key) {
       const key = start.key
       const offset = start.offset
@@ -130,7 +199,7 @@ const enterCtrl = ContentState => {
         start: { key, offset },
         end: { key, offset }
       }
-      this.render()
+      this.partialRender([ block ])
       return this.enterHandler(event)
     }
 
@@ -148,7 +217,7 @@ const enterCtrl = ContentState => {
         start: { key, offset },
         end: { key, offset }
       }
-      return this.render()
+      return this.partialRender([ parent ])
     }
 
     // Insert `<br/>` in table cell if you want to open a new line.
@@ -163,7 +232,7 @@ const enterCtrl = ContentState => {
         start: { key, offset },
         end: { key, offset }
       }
-      return this.render()
+      return this.partialRender([ block ])
     }
 
     // handle enter in table
@@ -197,7 +266,10 @@ const enterCtrl = ContentState => {
         start: { key, offset },
         end: { key, offset }
       }
-      return this.render()
+      const tableOutMostBlock = this.findOutMostBlock(table)
+      const cursorOutMostBlock = this.findOutMostBlock(nextBlock)
+      const needRenderBlocks = [...new Set([tableOutMostBlock, cursorOutMostBlock])]
+      return this.partialRender(needRenderBlocks)
     }
 
     if (block.type === 'span') {
@@ -213,14 +285,15 @@ const enterCtrl = ContentState => {
       parent = this.getParent(block)
     }
     const { left, right } = selection.getCaretOffsets(paragraph)
-    const preType = block.type
-
-    let type
+    const needRenderBlocks = []
+    const outMostBlock = this.findOutMostBlock(block)
+    needRenderBlocks.push(outMostBlock)
+    const type = block.type
     let newBlock
+    let tempBlock
 
     switch (true) {
       case left !== 0 && right !== 0: // cursor in the middle
-        type = preType
         let { pre, post } = selection.chopHtmlByCursor(paragraph)
 
         if (/^h\d$/.test(block.type)) {
@@ -246,51 +319,10 @@ const enterCtrl = ContentState => {
         this.insertAfter(newBlock, block)
         break
       case left === 0 && right === 0: // paragraph is empty
-        if (parent && (parent.type === 'blockquote' || parent.type === 'ul')) {
-          newBlock = this.createBlockP()
-
-          if (this.isOnlyChild(block)) {
-            this.insertAfter(newBlock, parent)
-            this.removeBlock(parent)
-          } else if (this.isFirstChild(block)) {
-            this.insertBefore(newBlock, parent)
-          } else if (this.isLastChild(block)) {
-            this.insertAfter(newBlock, parent)
-          } else {
-            this.chopBlock(block)
-            this.insertAfter(newBlock, parent)
-          }
-
-          this.removeBlock(block)
-        } else if (parent && parent.type === 'li') {
-          if (parent.listItemType === 'task') {
-            const { checked } = parent.children[0]
-            newBlock = this.createTaskItemBlock(null, checked)
-          } else {
-            newBlock = this.createBlockLi()
-            newBlock.listItemType = parent.listItemType
-          }
-          newBlock.isLooseListItem = parent.isLooseListItem
-          this.insertAfter(newBlock, parent)
-          const index = this.findIndex(parent.children, block)
-          const partChildren = parent.children.splice(index + 1)
-          partChildren.forEach(b => this.appendChild(newBlock, b))
-
-          this.removeBlock(block)
-        } else {
-          newBlock = this.createBlockP()
-          if (preType === 'li') {
-            const parent = this.getParent(block)
-            this.insertAfter(newBlock, parent)
-            this.removeBlock(block)
-          } else {
-            this.insertAfter(newBlock, block)
-          }
-        }
-        break
+        return this.enterInEmptyParagraph(block)
       case left !== 0 && right === 0: // cursor at end of paragraph
       case left === 0 && right !== 0: // cursor at begin of paragraph
-        if (preType === 'li') {
+        if (type === 'li') {
           if (block.listItemType === 'task') {
             const { checked } = block.children[0]
             newBlock = this.createTaskItemBlock(null, checked)
@@ -305,6 +337,7 @@ const enterCtrl = ContentState => {
 
         if (left === 0 && right !== 0) {
           this.insertBefore(newBlock, block)
+          tempBlock = newBlock
           newBlock = block
         } else {
           if (block.type === 'p') {
@@ -320,6 +353,12 @@ const enterCtrl = ContentState => {
         newBlock = this.createBlockP()
         this.insertAfter(newBlock, block)
         break
+    }
+
+    const outMostOfNewBlock = this.findOutMostBlock(newBlock)
+    needRenderBlocks.push(outMostOfNewBlock)
+    if (tempBlock) {
+      needRenderBlocks.push(this.findOutMostBlock(tempBlock))
     }
 
     const getParagraphBlock = block => {
@@ -353,15 +392,14 @@ const enterCtrl = ContentState => {
         break
     }
 
-    let key
     cursorBlock = getParagraphBlock(cursorBlock)
-    key = cursorBlock.type === 'p' ? cursorBlock.children[0].key : cursorBlock.key
+    const key = cursorBlock.type === 'p' ? cursorBlock.children[0].key : cursorBlock.key
     const offset = 0
     this.cursor = {
       start: { key, offset },
       end: { key, offset }
     }
-    this.render()
+    this.partialRender([...new Set(needRenderBlocks)])
   }
 }
 

@@ -177,15 +177,17 @@ const backspaceCtrl = ContentState => {
           start: { key, offset },
           end: { key, offset }
         }
-
-        this.render()
+        const outMostBlock = this.findOutMostBlock(newBlock)
+        this.partialRender([ outMostBlock ])
       }
     } else if (left === 0 && /th|td/.test(block.type)) {
       event.preventDefault()
+      event.stopPropagation()
       const tHead = this.getBlock(parent.parent)
       const table = this.getBlock(tHead.parent)
       const figure = this.getBlock(table.parent)
       const hasContent = tableHasContent(table)
+      const needRenderBlocks = []
       let key
       let offset
 
@@ -198,9 +200,11 @@ const backspaceCtrl = ContentState => {
         figure.type = 'p'
         key = newLine.key
         offset = 0
+        needRenderBlocks.push(this.findOutMostBlock(figure))
       } else if (preBlock) {
         key = preBlock.key
         offset = preBlock.text.length
+        needRenderBlocks.push(this.findOutMostBlock(preBlock))
       }
 
       if (key !== undefined && offset !== undefined) {
@@ -208,10 +212,12 @@ const backspaceCtrl = ContentState => {
           start: { key, offset },
           end: { key, offset }
         }
-        this.render()
+
+        this.partialRender(needRenderBlocks)
       }
     } else if (inlineDegrade) {
       event.preventDefault()
+      event.stopPropagation()
       switch (inlineDegrade.type) {
         case 'STOP': // at begin of article
           // do nothing...
@@ -263,36 +269,28 @@ const backspaceCtrl = ContentState => {
       if (inlineDegrade.type !== 'STOP') {
         this.render()
       }
-    } else if (
-      left === 0 &&
-      preBlock &&
-      preBlock.type === 'pre'
-    ) {
+    } else if (left === 0 && preBlock) {
       event.preventDefault()
-      const text = block.text
+      const text = block.type === 'p' ? block.children.map(line => line.text).join('').trim() : block.text
       const key = preBlock.key
-      const cm = this.codeBlocks.get(key)
-      const value = cm.getValue() + text
-      const offset = 0
-      cm.setValue(value)
-      const { line, ch } = getEndPosition(cm)
+      let offset = preBlock.text.length
+      if (preBlock.type === 'pre') {
+        const cm = this.codeBlocks.get(key)
+        const value = cm.getValue() + text
+        cm.setValue(value)
+        const { line, ch } = getEndPosition(cm)
 
-      preBlock.pos = { line, ch: ch - text.length }
-
-      this.removeBlock(block)
-      if (block.type === 'span' && this.isOnlyChild(block)) {
-        this.removeBlock(parent)
+        preBlock.pos = { line, ch: ch - text.length }
+      } else {
+        preBlock.text += text
       }
+      this.removeBlock(block)
+
       this.cursor = {
         start: { key, offset },
         end: { key, offset }
       }
-      this.render()
-    } else if (left === 0) {
-      this.removeBlock(block)
-      if (block.type === 'span' && this.isOnlyChild(block)) {
-        this.removeBlock(parent)
-      }
+      this.partialRender([ preBlock ])
     }
   }
 }

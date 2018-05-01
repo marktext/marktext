@@ -99,22 +99,29 @@ class ContentState {
   }
 
   render (isRenderCursor = true) {
+    console.log('render')
     const { blocks, cursor, searchMatches: { matches, index } } = this
     const activeBlocks = this.getActiveBlocks()
     matches.forEach((m, i) => {
       m.active = i === index
     })
-    const emptyPres = this.stateRender.render(blocks, cursor, activeBlocks, matches)
-    this.pre2CodeMirror(isRenderCursor, emptyPres)
+    this.stateRender.render(blocks, cursor, activeBlocks, matches)
+    this.pre2CodeMirror(isRenderCursor)
     if (isRenderCursor) this.setCursor()
     this.renderMath()
   }
 
-  partialRender (block) {
-    const { cursor } = this
-    this.stateRender.partialRender(block, cursor)
+  partialRender (blocks) {
+    console.log('partialrender')
+    const { cursor, searchMatches: { matches, index } } = this
+    const activeBlocks = this.getActiveBlocks()
+    matches.forEach((m, i) => {
+      m.active = i === index
+    })
+    this.stateRender.partialRender(blocks, cursor, activeBlocks, matches)
+    this.pre2CodeMirror(true, blocks)
     this.setCursor()
-    this.renderMath(block)
+    this.renderMath(blocks)
   }
 
   /**
@@ -161,6 +168,7 @@ class ContentState {
   }
 
   getBlock (key) {
+    if (!key) return null
     let result = null
     const travel = blocks => {
       for (const block of blocks) {
@@ -350,6 +358,10 @@ class ContentState {
       }
     }
     remove(Array.isArray(fromBlocks) ? fromBlocks : fromBlocks.children, block)
+    if (!block.parent) {
+      const element = document.querySelector(`#${block.key}`)
+      if (element) element.remove()
+    }
   }
 
   getActiveBlocks () {
@@ -397,8 +409,9 @@ class ContentState {
   }
 
   findOutMostBlock (block) {
-    if (!block.parent) return block
-    else {
+    if (!block.parent) {
+      return block
+    } else {
       const parent = this.getBlock(block.parent)
       return this.findOutMostBlock(parent)
     }

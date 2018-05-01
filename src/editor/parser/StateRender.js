@@ -1,7 +1,7 @@
 import virtualize from 'snabbdom-virtualize/strings'
 import { CLASS_OR_ID, IMAGE_EXT_REG } from '../config'
 import { conflict, isLengthEven, union, isEven, getIdWithoutSet, loadImage, getImageSrc } from '../utils'
-import { insertAfter, operateClassName } from '../utils/domManipulate'
+import { insertBefore, insertAfter, operateClassName } from '../utils/domManipulate'
 import { tokenizer } from './parse'
 import { validEmoji } from '../emojis'
 
@@ -52,180 +52,187 @@ class StateRender {
     return active ? CLASS_OR_ID['AG_HIGHLIGHT'] : CLASS_OR_ID['AG_SELECTION']
   }
 
-  /**
-   * [render All blocks]
-   * @param  {[Array]} blocks       [description]
-   * @param  {[Object]} cursor       [description]
-   * @param  {[Object]} activeBlocks [description]
-   * @param  {[Array]} matches      [description]
-   * @return {[undefined]}              [description]
-   */
-  render (blocks, cursor, activeBlocks, matches) {
-    const selector = `div#${CLASS_OR_ID['AG_EDITOR_ID']}`
-    const emptyPres = []
+  getSelector (block, cursor, activeBlocks) {
+    const type = block.type === 'hr' ? 'p' : block.type
+    const isActive = activeBlocks.some(b => b.key === block.key) || block.key === cursor.start.key
 
-    const renderBlock = block => {
-      const type = block.type === 'hr' ? 'p' : block.type
-      const isActive = activeBlocks.some(b => b.key === block.key) || block.key === cursor.start.key
+    let selector = `${type}#${block.key}.${CLASS_OR_ID['AG_PARAGRAPH']}`
+    if (isActive) {
+      selector += `.${CLASS_OR_ID['AG_ACTIVE']}`
+    }
+    if (type === 'span') {
+      selector += `.${CLASS_OR_ID['AG_LINE']}`
+    }
+    if (block.temp) {
+      selector += `.${CLASS_OR_ID['AG_TEMP']}`
+    }
+    return selector
+  }
 
-      let blockSelector = `${type}#${block.key}.${CLASS_OR_ID['AG_PARAGRAPH']}`
-      if (isActive) {
-        blockSelector += `.${CLASS_OR_ID['AG_ACTIVE']}`
-      }
-      if (type === 'span') {
-        blockSelector += `.${CLASS_OR_ID['AG_LINE']}`
-      }
+  renderLeafBlock (block, cursor, activeBlocks, matches) {
+    let selector = this.getSelector(block, cursor, activeBlocks)
+    // highlight search key in block
+    const highlights = matches.filter(m => m.key === block.key)
+    const { text, type, align, htmlContent, icon, checked, key, lang, functionType } = block
+    const data = {
+      attrs: {},
+      dataset: {}
+    }
+    let children = ''
 
-      const data = {
-        attrs: {},
-        dataset: {}
-      }
-
-      if (block.children.length) {
-        // handle `div` block
-        if (/div/.test(block.type)) {
-          if (block.toolBarType) {
-            blockSelector += `.${'ag-tool-' + block.toolBarType}.${CLASS_OR_ID['AG_TOOL_BAR']}`
-          }
-          if (block.functionType) {
-            blockSelector += `.${'ag-function-' + block.functionType}`
-          }
-          if (block.editable !== undefined && !block.editable) {
-            Object.assign(data.attrs, { contenteditable: 'false' })
-          }
-        }
-        // handle `figure` block
-        if (block.type === 'figure') {
-          if (block.functionType === 'html') { // HTML Block
-            Object.assign(data.dataset, { role: block.functionType.toUpperCase() })
-          }
-        }
-        // hanle list block
-        if (/ul|ol/.test(block.type) && block.listType) {
-          switch (block.listType) {
-            case 'order':
-              blockSelector += `.${CLASS_OR_ID['AG_ORDER_LIST']}`
-              break
-            case 'bullet':
-              blockSelector += `.${CLASS_OR_ID['AG_BULLET_LIST']}`
-              break
-            case 'task':
-              blockSelector += `.${CLASS_OR_ID['AG_TASK_LIST']}`
-              break
-            default:
-              break
-          }
-        }
-        if (block.type === 'li' && block.label) {
-          const { label } = block
-          const { align } = activeBlocks[0]
-
-          if (align && block.label === align) {
-            blockSelector += '.active'
-          }
-          Object.assign(data.dataset, { label })
-        }
-        if (block.type === 'li' && block.listItemType) {
-          switch (block.listItemType) {
-            case 'order':
-              blockSelector += `.${CLASS_OR_ID['AG_ORDER_LIST_ITEM']}`
-              break
-            case 'bullet':
-              blockSelector += `.${CLASS_OR_ID['AG_BULLET_LIST_ITEM']}`
-              break
-            case 'task':
-              blockSelector += `.${CLASS_OR_ID['AG_TASK_LIST_ITEM']}`
-              break
-            default:
-              break
-          }
-          blockSelector += block.isLooseListItem ? `.${CLASS_OR_ID['AG_LOOSE_LIST_ITEM']}` : `.${CLASS_OR_ID['AG_TIGHT_LIST_ITEM']}`
-        }
-        if (block.type === 'ol') {
-          Object.assign(data.attrs, { start: block.start })
-        }
-        return h(blockSelector, data, block.children.map(child => renderBlock(child)))
+    if (text) {
+      let tokens = null
+      if (highlights.length === 0 && this.tokenCache.has(text)) {
+        tokens = this.tokenCache.get(text)
       } else {
-        // highlight search key in block
-        const highlights = matches.filter(m => m.key === block.key)
-        const { text } = block
-        let children = ''
-        if (text) {
-          let tokens = null
-          if (highlights.length === 0 && this.tokenCache.has(text)) {
-            tokens = this.tokenCache.get(text)
-          } else {
-            tokens = tokenizer(text, highlights)
-            if (highlights.length === 0) this.tokenCache.set(text, tokens)
-          }
-          children = tokens.reduce((acc, token) => [...acc, ...this[token.type](h, cursor, block, token)], [])
-        }
-
-        if (/th|td/.test(block.type)) {
-          const { align } = block
-          if (align) {
-            Object.assign(data.attrs, { style: `text-align:${align}` })
-          }
-        }
-
-        if (block.type === 'div' && block.htmlContent !== undefined) {
-          blockSelector += `.${CLASS_OR_ID['AG_HTML_PREVIEW']}`
-          Object.assign(data.attrs, { contenteditable: 'false' })
-          children = virtualize(block.htmlContent)
-        }
-
-        if (/svg/.test(block.type)) {
-          const { icon } = block
-          blockSelector += '.icon'
-          Object.assign(data.attrs, { 'aria-hidden': 'true' })
-          children = [
-            h('use', {
-              attrs: { 'xlink:href': `#${icon}` }
-            })
-          ]
-        }
-        if (/^h\d$/.test(block.type)) {
-          Object.assign(data.dataset, { head: block.type })
-        }
-
-        if (/^h/.test(block.type)) { // h\d or hr
-          Object.assign(data.dataset, { role: block.type })
-        }
-
-        if (block.type === 'input') {
-          const { checked, type, key } = block
-          Object.assign(data.attrs, { type: 'checkbox' })
-          blockSelector = `${type}#${key}.${CLASS_OR_ID['AG_TASK_LIST_ITEM_CHECKBOX']}`
-          if (checked) {
-            Object.assign(data.attrs, { checked: true })
-            blockSelector += `.${CLASS_OR_ID['AG_CHECKBOX_CHECKED']}`
-          }
-          children = ''
-        }
-
-        if (block.temp) {
-          blockSelector += `.${CLASS_OR_ID['AG_TEMP']}`
-        }
-
-        if (block.type === 'pre') {
-          const { key, lang } = block
-          const pre = document.querySelector(`pre#${key}`)
-          if (pre) {
-            operateClassName(pre, isActive ? 'add' : 'remove', CLASS_OR_ID['AG_ACTIVE'])
-            return toVNode(pre)
-          }
-          if (lang) Object.assign(data.dataset, { lang })
-          blockSelector += block.functionType === 'code' ? `.${CLASS_OR_ID['AG_CODE_BLOCK']}` : `.${CLASS_OR_ID['AG_HTML_BLOCK']}`
-          children = ''
-          emptyPres.push(key)
-        }
-
-        return h(blockSelector, data, children)
+        tokens = tokenizer(text, highlights)
+        if (highlights.length === 0) this.tokenCache.set(text, tokens)
       }
+      children = tokens.reduce((acc, token) => [...acc, ...this[token.type](h, cursor, block, token)], [])
     }
 
+    if (/th|td/.test(type) && align) {
+      Object.assign(data.attrs, {
+        style: `text-align:${align}`
+      })
+    } else if (type === 'div' && htmlContent !== undefined) {
+      selector += `.${CLASS_OR_ID['AG_HTML_PREVIEW']}`
+      Object.assign(data.attrs, {
+        contenteditable: 'false'
+      })
+      children = virtualize(htmlContent)
+    } else if (type === 'svg' && icon) {
+      selector += '.icon'
+      Object.assign(data.attrs, {
+        'aria-hidden': 'true'
+      })
+      children = [
+        h('use', {
+          attrs: {
+            'xlink:href': `#${icon}`
+          }
+        })
+      ]
+    } else if (/^h/.test(type)) {
+      if (/^h\d$/.test(type)) {
+        Object.assign(data.dataset, {
+          head: type
+        })
+      }
+      Object.assign(data.dataset, {
+        role: type
+      })
+    } else if (type === 'input') {
+      Object.assign(data.attrs, {
+        type: 'checkbox'
+      })
+      selector = `${type}#${key}.${CLASS_OR_ID['AG_TASK_LIST_ITEM_CHECKBOX']}`
+      if (checked) {
+        Object.assign(data.attrs, {
+          checked: true
+        })
+        selector += `.${CLASS_OR_ID['AG_CHECKBOX_CHECKED']}`
+      }
+      children = ''
+    } else if (type === 'pre') {
+      if (lang) {
+        Object.assign(data.dataset, {
+          lang
+        })
+      }
+      selector += `.${CLASS_OR_ID['AG_CODEMIRROR_BLOCK']}`
+      selector += functionType === 'code' ? `.${CLASS_OR_ID['AG_CODE_BLOCK']}` : `.${CLASS_OR_ID['AG_HTML_BLOCK']}`
+      children = ''
+    }
+
+    return h(selector, data, children)
+  }
+
+  renderContainerBlock (block, cursor, activeBlocks, matches) {
+    let selector = this.getSelector(block, cursor, activeBlocks)
+    const data = {
+      attrs: {},
+      dataset: {}
+    }
+    // handle `div` block
+    if (/div/.test(block.type)) {
+      if (block.toolBarType) {
+        selector += `.${'ag-tool-' + block.toolBarType}.${CLASS_OR_ID['AG_TOOL_BAR']}`
+      }
+      if (block.functionType) {
+        selector += `.${'ag-function-' + block.functionType}`
+      }
+      if (block.editable !== undefined && !block.editable) {
+        Object.assign(data.attrs, { contenteditable: 'false' })
+      }
+    }
+    // handle `figure` block
+    if (block.type === 'figure') {
+      if (block.functionType === 'html') { // HTML Block
+        Object.assign(data.dataset, { role: block.functionType.toUpperCase() })
+      }
+    }
+    // hanle list block
+    if (/ul|ol/.test(block.type) && block.listType) {
+      switch (block.listType) {
+        case 'order':
+          selector += `.${CLASS_OR_ID['AG_ORDER_LIST']}`
+          break
+        case 'bullet':
+          selector += `.${CLASS_OR_ID['AG_BULLET_LIST']}`
+          break
+        case 'task':
+          selector += `.${CLASS_OR_ID['AG_TASK_LIST']}`
+          break
+        default:
+          break
+      }
+    }
+    if (block.type === 'li' && block.label) {
+      const { label } = block
+      const { align } = activeBlocks[0]
+
+      if (align && block.label === align) {
+        selector += '.active'
+      }
+      Object.assign(data.dataset, { label })
+    }
+    if (block.type === 'li' && block.listItemType) {
+      switch (block.listItemType) {
+        case 'order':
+          selector += `.${CLASS_OR_ID['AG_ORDER_LIST_ITEM']}`
+          break
+        case 'bullet':
+          selector += `.${CLASS_OR_ID['AG_BULLET_LIST_ITEM']}`
+          break
+        case 'task':
+          selector += `.${CLASS_OR_ID['AG_TASK_LIST_ITEM']}`
+          break
+        default:
+          break
+      }
+      selector += block.isLooseListItem ? `.${CLASS_OR_ID['AG_LOOSE_LIST_ITEM']}` : `.${CLASS_OR_ID['AG_TIGHT_LIST_ITEM']}`
+    }
+    if (block.type === 'ol') {
+      Object.assign(data.attrs, { start: block.start })
+    }
+    return h(selector, data, block.children.map(child => this.renderBlock(child, cursor, activeBlocks, matches)))
+  }
+
+  /**
+   * [renderBlock render one block, no matter it is a container block or text block]
+   */
+  renderBlock (block, cursor, activeBlocks, matches) {
+    const method = block.children.length > 0 ? 'renderContainerBlock' : 'renderLeafBlock'
+
+    return this[method](block, cursor, activeBlocks, matches)
+  }
+
+  render (blocks, cursor, activeBlocks, matches) {
+    const selector = `div#${CLASS_OR_ID['AG_EDITOR_ID']}`
+
     const children = blocks.map(block => {
-      return renderBlock(block)
+      return this.renderBlock(block, cursor, activeBlocks, matches)
     })
 
     const newVdom = h(selector, children)
@@ -233,48 +240,31 @@ class StateRender {
     const oldVdom = toVNode(rootDom)
 
     patch(oldVdom, newVdom)
-    return emptyPres
   }
 
-  partialRender (block, cursor) {
-    const { key, text } = block
-    const type = block.type === 'hr' ? 'p' : block.type
-    let selector = `${type}#${key}`
-    const oldDom = document.querySelector(selector)
-    const oldVdom = toVNode(oldDom)
-
-    selector += `.${CLASS_OR_ID['AG_PARAGRAPH']}.${CLASS_OR_ID['AG_ACTIVE']}`
-    if (type === 'span') {
-      selector += `.${CLASS_OR_ID['AG_LINE']}`
-    }
-
-    const data = {
-      attrs: {},
-      dataset: {}
-    }
-
-    let children = ''
-    if (text) {
-      children = tokenizer(text, []).reduce((acc, token) => [...acc, ...this[token.type](h, cursor, block, token)], [])
-    }
-
-    if (/th|td/.test(type)) {
-      const { align } = block
-      if (align) {
-        Object.assign(data.attrs, { style: `text-align:${align}` })
+  partialRender (blocks, cursor, activeBlocks, matches) {
+    for (const block of blocks) {
+      const { type, key, parent, preSibling, nextSibling } = block
+      const oldDom = document.querySelector(`#${key}`)
+      let newDom = null
+      if (!oldDom) {
+        if (parent) throw new Error(`${type} block is not the outmost block, and need has a real DOM to patch!`)
+        newDom = document.createElement(type)
+        if (preSibling) {
+          const preNode = document.querySelector(`#${preSibling}`)
+          insertAfter(newDom, preNode)
+        } else if (nextSibling) {
+          const nextNode = document.querySelector(`#${nextSibling}`)
+          insertBefore(newDom, nextNode)
+        } else {
+          const container = document.querySelector(`div#${CLASS_OR_ID['AG_EDITOR_ID']}`)
+          container.appendChild(newDom)
+        }
       }
+      const newVnode = this.renderBlock(block, cursor, activeBlocks, matches)
+      const oldVnode = oldDom ? toVNode(oldDom) : newDom
+      patch(oldVnode, newVnode)
     }
-
-    if (/^h\d$/.test(block.type)) {
-      Object.assign(data.dataset, { head: block.type })
-    }
-
-    if (/^h/.test(block.type)) { // h\d or hr
-      Object.assign(data.dataset, { role: block.type })
-    }
-
-    const newVdom = h(selector, data, children)
-    patch(oldVdom, newVdom)
   }
 
   hr (h, cursor, block, token, outerClass) {

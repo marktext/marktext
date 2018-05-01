@@ -194,6 +194,11 @@ export const isInElement = (node, className) => {
   }
 }
 
+export const insertBefore = (newNode, originNode) => {
+  const parentNode = originNode.parentNode
+  parentNode.insertBefore(newNode, originNode)
+}
+
 // DOM operations
 export const insertAfter = (newNode, originNode) => {
   const parentNode = originNode.parentNode
