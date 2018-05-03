@@ -31,7 +31,8 @@ const state = {
   isSaved: true,
   markdown: '',
   isUtf8BomEncoded: false,
-  lineEnding: 'lf', // lf, crlf or mixed
+  lineEnding: 'lf', // lf or crlf
+  adjustLineEndingOnSave: false,
   cursor: null,
   windowActive: true,
   wordCount: {
@@ -71,6 +72,9 @@ const mutations = {
   },
   SET_LINE_ENDING (state, lineEnding) {
     state.lineEnding = lineEnding
+  },
+  SET_ADJUST_LINE_ENDING_ON_SAVE (state, adjustLineEndingOnSave) {
+    state.adjustLineEndingOnSave = adjustLineEndingOnSave
   },
   SET_WORD_COUNT (state, wordCount) {
     state.wordCount = wordCount
@@ -216,6 +220,7 @@ const actions = {
       commit('SET_SAVE_STATUS', true)
       commit('SET_IS_UTF8_BOM_ENCODED', options.isUtf8BomEncoded)
       commit('SET_LINE_ENDING', options.lineEnding)
+      commit('SET_ADJUST_LINE_ENDING_ON_SAVE', options.adjustLineEndingOnSave)
       bus.$emit('file-loaded', file)
     })
   },
@@ -349,6 +354,7 @@ const actions = {
       const { lineEnding: oldLineEnding } = state
       if (lineEnding !== oldLineEnding) {
         commit('SET_LINE_ENDING', lineEnding)
+        commit('SET_ADJUST_LINE_ENDING_ON_SAVE', lineEnding !== 'lf')
       }
     })
   }
