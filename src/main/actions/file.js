@@ -3,13 +3,15 @@
 import fs from 'fs'
 // import chokidar from 'chokidar'
 import path from 'path'
-import { app, BrowserWindow, dialog, ipcMain } from 'electron'
-import createWindow, { windows } from '../createWindow'
+import { BrowserWindow, dialog, ipcMain } from 'electron'
+import createWindow, { forceClose, windows } from '../createWindow'
 import { EXTENSION_HASN, EXTENSIONS } from '../config'
+import { writeFile, writeMarkdownFile } from '../filesystem'
 import { clearRecentlyUsedDocuments } from '../menu'
 import { getPath, isMarkdownFile, log, isFile } from '../utils'
 import userPreference from '../preference'
 
+// TODO(fxha): Do we still need this?
 const watchAndReload = (pathname, win) => { // when i build, and failed.
   // const watcher = chokidar.watch(pathname, {
   //   persistent: true
@@ -25,43 +27,6 @@ const watchAndReload = (pathname, win) => { // when i build, and failed.
   //     })
   //   })
   // })
-}
-
-const writeFile = (pathname, content, extension, e, callback = null) => {
-  if (pathname) {
-    pathname = !extension || pathname.endsWith(extension) ? pathname : `${pathname}${extension}`
-    fs.writeFile(pathname, content, 'utf-8', err => {
-      if (err) log(err)
-      if (callback) callback(err, pathname)
-    })
-  } else {
-    log('[ERROR] Cannot save file without path.')
-  }
-}
-
-const writeMarkdownFile = (pathname, content, extension, isUtf8BomEncoded, win, e, quitAfterSave = false) => {
-  if (isUtf8BomEncoded) {
-    // js is call-by-value, so we can insert BOM
-    content = '\uFEFF' + content
-  }
-
-  writeFile(pathname, content, extension, e, (err, filePath) => {
-    if (!err) e.sender.send('AGANI::file-saved-successfully')
-    const filename = path.basename(filePath)
-    if (e && filePath) e.sender.send('AGANI::set-pathname', { pathname: filePath, filename })
-    if (!err && quitAfterSave) forceClose(win)
-  })
-}
-
-const forceClose = win => {
-  if (!win) return
-  if (windows.has(win.id)) {
-    windows.delete(win.id)
-  }
-  win.destroy() // if use win.close(), it will cause a endless loop.
-  if (windows.size === 0) {
-    app.quit()
-  }
 }
 
 // handle the response from render process.
@@ -85,27 +50,27 @@ const handleResponseForExport = (e, { type, content, filename, pathname }) => {
   }
 }
 
-const handleResponseForSave = (e, { markdown, pathname, isUtf8BomEncoded, quitAfterSave = false }) => {
+const handleResponseForSave = (e, { markdown, pathname, options, quitAfterSave = false }) => {
   const win = BrowserWindow.fromWebContents(e.sender)
   if (pathname) {
-    writeMarkdownFile(pathname, markdown, '', isUtf8BomEncoded, win, e, quitAfterSave)
+    writeMarkdownFile(pathname, markdown, '', options, win, e, quitAfterSave)
   } else {
     const filePath = dialog.showSaveDialog(win, {
       defaultPath: getPath('documents') + '/Untitled.md'
     })
-    writeMarkdownFile(filePath, markdown, '.md', isUtf8BomEncoded, win, e, quitAfterSave)
+    writeMarkdownFile(filePath, markdown, '.md', options, win, e, quitAfterSave)
   }
 }
 
-ipcMain.on('AGANI::response-file-save-as', (e, { markdown, pathname, isUtf8BomEncoded }) => {
+ipcMain.on('AGANI::response-file-save-as', (e, { markdown, pathname, options }) => {
   const win = BrowserWindow.fromWebContents(e.sender)
   let filePath = dialog.showSaveDialog(win, {
     defaultPath: pathname || getPath('documents') + '/Untitled.md'
   })
-  writeMarkdownFile(filePath, markdown, '.md', isUtf8BomEncoded, win, e)
+  writeMarkdownFile(filePath, markdown, '.md', options, win, e)
 })
 
-ipcMain.on('AGANI::response-close-confirm', (e, { filename, pathname, markdown, isUtf8BomEncoded }) => {
+ipcMain.on('AGANI::response-close-confirm', (e, { filename, pathname, markdown, options }) => {
   const win = BrowserWindow.fromWebContents(e.sender)
   dialog.showMessageBox(win, {
     type: 'warning',
@@ -122,7 +87,7 @@ ipcMain.on('AGANI::response-close-confirm', (e, { filename, pathname, markdown, 
         break
       case 0:
         setTimeout(() => {
-          handleResponseForSave(e, { pathname, markdown, isUtf8BomEncoded, quitAfterSave: true })
+          handleResponseForSave(e, { pathname, markdown, options, quitAfterSave: true })
         })
         break
     }
