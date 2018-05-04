@@ -71,6 +71,8 @@ export default {
       actions.edit(browserWindow, 'aidou')
     }
   }, {
+    type: 'separator'
+  }, {
     label: 'Insert Image',
     submenu: [{
       label: 'Absolute Path',
@@ -86,6 +88,21 @@ export default {
       label: 'Upload to Cloud (EXP)',
       click (menuItem, browserWindow) {
         actions.insertImage(browserWindow, 'upload')
+      }
+    }]
+  }, {
+    type: 'separator'
+  }, {
+    label: 'Line Ending',
+    submenu: [{
+      label: 'Carriage return and line feed (CRLF)',
+      click (menuItem, browserWindow) {
+        actions.lineEnding(browserWindow, 'crlf')
+      }
+    }, {
+      label: 'Line feed (LF)',
+      click (menuItem, browserWindow) {
+        actions.lineEnding(browserWindow, 'lf')
       }
     }]
   }]

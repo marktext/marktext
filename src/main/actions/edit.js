@@ -41,6 +41,10 @@ export const edit = (win, type) => {
   win.webContents.send('AGANI::edit', { type })
 }
 
+export const lineEnding = (win, lineEnding) => {
+  win.webContents.send('AGANI::set-line-ending', { lineEnding })
+}
+
 export const insertImage = (win, type) => {
   if (type === 'absolute' || type === 'relative') {
     getAndSendImagePath(win, type)

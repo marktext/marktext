@@ -3,7 +3,7 @@
 import path from 'path'
 import { app, BrowserWindow, screen } from 'electron'
 import windowStateKeeper from 'electron-window-state'
-import { loadMarkdownFile } from './filesystem'
+import { getOsLineEndingName, loadMarkdownFile } from './filesystem'
 import { addRecentlyUsedDocuments } from './menu'
 import { isMarkdownFile } from './utils'
 
@@ -67,6 +67,11 @@ const createWindow = (pathname, options = {}) => {
     if (pathname && isMarkdownFile(pathname)) {
       addRecentlyUsedDocuments(pathname)
       loadMarkdownFile(win, pathname)
+    } else {
+      win.webContents.send('AGANI::set-line-ending', {
+        lineEnding: getOsLineEndingName(),
+        ignoreSaveStatus: true
+      })
     }
   })
 

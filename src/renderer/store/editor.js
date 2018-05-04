@@ -350,11 +350,12 @@ const actions = {
   },
 
   LINTEN_FOR_SET_LINE_ENDING ({ commit, state }) {
-    ipcRenderer.on('AGANI::set-line-ending', (e, { lineEnding }) => {
+    ipcRenderer.on('AGANI::set-line-ending', (e, { lineEnding, ignoreSaveStatus }) => {
       const { lineEnding: oldLineEnding } = state
       if (lineEnding !== oldLineEnding) {
         commit('SET_LINE_ENDING', lineEnding)
         commit('SET_ADJUST_LINE_ENDING_ON_SAVE', lineEnding !== 'lf')
+        commit('SET_SAVE_STATUS', !!ignoreSaveStatus)
       }
     })
   }

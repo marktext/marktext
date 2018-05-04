@@ -11,7 +11,7 @@ const convertLineEndings = (text, lineEnding) => {
   return text.replace(LINE_ENDING_REG, getLineEnding(lineEnding))
 }
 
-const getOsLineEndingName = () => {
+export const getOsLineEndingName = () => {
   const { endOfLine } = userPreference.getAll()
   if (endOfLine === 'lf') {
     return 'lf'
