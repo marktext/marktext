@@ -1,24 +1,28 @@
 import fs from 'fs'
 import path from 'path'
-import { LF_LINE_ENDING_REG, CRLF_LINE_ENDING_REG } from './config'
+import { LINE_ENDING_REG, LF_LINE_ENDING_REG, CRLF_LINE_ENDING_REG } from './config'
 import { forceClose } from './createWindow'
 import { log } from './utils'
 
 const isWin = process.platform === 'win32'
+
+const convertLineEndings = (text, lineEnding) => {
+  return text.replace(LINE_ENDING_REG, getLineEnding(lineEnding))
+}
 
 const getOsLineEndingName = () => {
   // TODO: check settings option
   return isWin ? 'crlf' : 'lf'
 }
 
-// const getLineEnding = lineEnding => {
-//   if (lineEnding === 'lf') {
-//     return '\n'
-//   } else if (lineEnding === 'crlf') {
-//     return '\r\n'
-//   }
-//   return isWin ? '\r\n' : '\n'
-// }
+const getLineEnding = lineEnding => {
+  if (lineEnding === 'lf') {
+    return '\n'
+  } else if (lineEnding === 'crlf') {
+    return '\r\n'
+  }
+  return isWin ? '\r\n' : '\n'
+}
 
 export const writeFile = (pathname, content, extension, e, callback = null) => {
   if (pathname) {
@@ -38,7 +42,7 @@ export const writeMarkdownFile = (pathname, content, extension, options, win, e,
   }
 
   if (options.adjustLineEndingOnSave) {
-    // TODO: Change document line ending if needed
+    content = convertLineEndings(content, options.lineEnding)
   }
 
   writeFile(pathname, content, extension, e, (err, filePath) => {
@@ -67,16 +71,17 @@ export const loadMarkdownFile = (win, pathname) => {
     const isCrlf = CRLF_LINE_ENDING_REG.test(file)
     const isMixed = isLf && isCrlf
     let lineEnding = getOsLineEndingName()
-    if (isLf) {
+    if (isLf && !isCrlf) {
       lineEnding = 'lf'
-    } else if (isCrlf) {
+    } else if (isCrlf && !isLf) {
       lineEnding = 'crlf'
     }
 
     let adjustLineEndingOnSave = false
-    if (lineEnding !== 'lf') {
-      adjustLineEndingOnSave = true
-      // TODO: Convert CRLF to LF for internal use and change it back on save.
+    if (isMixed || lineEnding !== 'lf') {
+      adjustLineEndingOnSave = lineEnding !== 'lf'
+      // Convert CRLF to LF for internal use.
+      file = convertLineEndings(file, 'lf')
     }
 
     const filename = path.basename(pathname)
