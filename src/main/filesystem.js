@@ -2,6 +2,7 @@ import fs from 'fs'
 import path from 'path'
 import { LINE_ENDING_REG, LF_LINE_ENDING_REG, CRLF_LINE_ENDING_REG } from './config'
 import { forceClose } from './createWindow'
+import userPreference from './preference'
 import { log } from './utils'
 
 const isWin = process.platform === 'win32'
@@ -11,8 +12,11 @@ const convertLineEndings = (text, lineEnding) => {
 }
 
 const getOsLineEndingName = () => {
-  // TODO: check settings option
-  return isWin ? 'crlf' : 'lf'
+  const { endOfLine } = userPreference.getAll()
+  if (endOfLine === 'lf') {
+    return 'lf'
+  }
+  return endOfLine === 'crlf' || isWin ? 'crlf' : 'lf'
 }
 
 const getLineEnding = lineEnding => {
