@@ -25,7 +25,7 @@ const getLineEnding = lineEnding => {
   } else if (lineEnding === 'crlf') {
     return '\r\n'
   }
-  return isWin ? '\r\n' : '\n'
+  return getOsLineEndingName() === 'crlf' ? '\r\n' : '\n'
 }
 
 export const writeFile = (pathname, content, extension, e, callback = null) => {
@@ -100,8 +100,12 @@ export const loadMarkdownFile = (win, pathname) => {
       }
     })
 
+    // Notify user about mixed endings
     if (isMixed) {
-      // TODO: Notify user about mixed endings
+      win.webContents.send('AGANI::show-info-notification', {
+        msg: `The document has mixed line endings which are automatically normalized to ${lineEnding.toUpperCase()}.`,
+        timeout: 20000
+      })
     }
   })
 }
