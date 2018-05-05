@@ -355,7 +355,9 @@ const actions = {
       if (lineEnding !== oldLineEnding) {
         commit('SET_LINE_ENDING', lineEnding)
         commit('SET_ADJUST_LINE_ENDING_ON_SAVE', lineEnding !== 'lf')
-        commit('SET_SAVE_STATUS', !!ignoreSaveStatus)
+        if (!ignoreSaveStatus) {
+          commit('SET_SAVE_STATUS', false)
+        }
       }
     })
   }

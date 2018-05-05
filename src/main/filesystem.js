@@ -41,12 +41,13 @@ export const writeFile = (pathname, content, extension, e, callback = null) => {
 }
 
 export const writeMarkdownFile = (pathname, content, extension, options, win, e, quitAfterSave = false) => {
-  if (options.isUtf8BomEncoded) {
+  const { adjustLineEndingOnSave, isUtf8BomEncoded, lineEnding } = options
+  if (isUtf8BomEncoded) {
     content = '\uFEFF' + content
   }
 
-  if (options.adjustLineEndingOnSave) {
-    content = convertLineEndings(content, options.lineEnding)
+  if (adjustLineEndingOnSave) {
+    content = convertLineEndings(content, lineEnding)
   }
 
   writeFile(pathname, content, extension, e, (err, filePath) => {
@@ -74,6 +75,7 @@ export const loadMarkdownFile = (win, pathname) => {
     const isLf = LF_LINE_ENDING_REG.test(file)
     const isCrlf = CRLF_LINE_ENDING_REG.test(file)
     const isMixed = isLf && isCrlf
+    const isUnknownEnding = !isLf && !isCrlf
     let lineEnding = getOsLineEndingName()
     if (isLf && !isCrlf) {
       lineEnding = 'lf'
@@ -82,9 +84,9 @@ export const loadMarkdownFile = (win, pathname) => {
     }
 
     let adjustLineEndingOnSave = false
-    if (isMixed || lineEnding !== 'lf') {
+    if (isMixed || isUnknownEnding || lineEnding !== 'lf') {
       adjustLineEndingOnSave = lineEnding !== 'lf'
-      // Convert CRLF to LF for internal use.
+      // Convert to LF for internal use.
       file = convertLineEndings(file, 'lf')
     }
 

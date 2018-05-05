@@ -170,9 +170,6 @@ export const animatedScrollTo = function (element, to, duration, callback) {
 }
 
 export const getOptionsFromState = state => {
-  return {
-    isUtf8BomEncoded: state.isUtf8BomEncoded,
-    lineEnding: state.lineEnding,
-    adjustLineEndingOnSave: state.adjustLineEndingOnSave
-  }
+  const { isUtf8BomEncoded, lineEnding, adjustLineEndingOnSave } = state
+  return { isUtf8BomEncoded, lineEnding, adjustLineEndingOnSave }
 }

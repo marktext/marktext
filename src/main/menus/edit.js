@@ -71,8 +71,6 @@ export default {
       actions.edit(browserWindow, 'aidou')
     }
   }, {
-    type: 'separator'
-  }, {
     label: 'Insert Image',
     submenu: [{
       label: 'Absolute Path',
