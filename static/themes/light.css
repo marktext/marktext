@@ -19,9 +19,14 @@ body {
 ::-webkit-scrollbar {
   background: rgb(252, 252, 252);
 }
-
+::-webkit-scrollbar:vertical {
+  width: 12px;
+}
 ::-webkit-scrollbar-thumb {
   background: #EBEEF5;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #E1E4EA;
 }
 
 #ag-editor-id {
