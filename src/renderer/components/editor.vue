@@ -399,7 +399,8 @@
     height: 1.5em;
   }
   /* for dark theme */
-  .dark.editor-wrapper {
+  .dark.editor-wrapper,
+  .dark.editor-wrapper #ag-editor-id {
     background: rgb(43, 43, 43);
   }
 </style>
