@@ -4,9 +4,10 @@ import path from 'path'
 import { app, BrowserWindow, screen } from 'electron'
 import windowStateKeeper from 'electron-window-state'
 import { getOsLineEndingName, loadMarkdownFile } from './filesystem'
-import { addRecentlyUsedDocuments } from './menu'
+import { addRecentlyUsedDocuments, updateLineEndingnMenu } from './menu'
 import { isMarkdownFile } from './utils'
 
+let focusedWindowId = -1
 export const windows = new Map()
 
 const ensureWindowPosition = mainWindowState => {
@@ -68,15 +69,22 @@ const createWindow = (pathname, options = {}) => {
       addRecentlyUsedDocuments(pathname)
       loadMarkdownFile(win, pathname)
     } else {
+      const lineEnding = getOsLineEndingName()
       win.webContents.send('AGANI::set-line-ending', {
-        lineEnding: getOsLineEndingName(),
+        lineEnding,
         ignoreSaveStatus: true
       })
+      updateLineEndingnMenu(lineEnding)
     }
   })
 
   win.on('focus', () => {
     win.webContents.send('AGANI::window-active-status', { status: true })
+
+    if (win.id !== focusedWindowId) {
+      focusedWindowId = win.id
+      win.webContents.send('AGANI::req-update-line-ending-menu')
+    }
   })
 
   win.on('blur', () => {

@@ -1,7 +1,6 @@
 import { ipcRenderer, remote } from 'electron'
 import path from 'path'
 import bus from '../bus'
-import { getOptionsFromState } from '../util'
 
 const state = {
   appVersion: remote.app.getVersion(),
@@ -42,6 +41,11 @@ const state = {
     all: 0
   },
   platform: process.platform
+}
+
+export const getOptionsFromState = state => {
+  const { isUtf8BomEncoded, lineEnding, adjustLineEndingOnSave } = state
+  return { isUtf8BomEncoded, lineEnding, adjustLineEndingOnSave }
 }
 
 const mutations = {
@@ -150,9 +154,13 @@ const actions = {
     })
   },
 
-  LINTEN_WIN_STATUS ({ commit }) {
+  LINTEN_WIN_STATUS ({ commit, state }) {
     ipcRenderer.on('AGANI::window-active-status', (e, { status }) => {
       commit('SET_WIN_STATUS', status)
+    })
+    ipcRenderer.on('AGANI::req-update-line-ending-menu', e => {
+      const { lineEnding } = state
+      ipcRenderer.send('AGANI::update-line-ending-menu', lineEnding)
     })
   },
 
@@ -214,14 +222,16 @@ const actions = {
 
   LISTEN_FOR_FILE_LOAD ({ commit, state }) {
     ipcRenderer.on('AGANI::file-loaded', (e, { file, filename, pathname, options }) => {
+      const { adjustLineEndingOnSave, isUtf8BomEncoded, lineEnding } = options
       commit('SET_FILENAME', filename)
       commit('SET_PATHNAME', pathname)
       commit('SET_MARKDOWN', file)
       commit('SET_SAVE_STATUS', true)
-      commit('SET_IS_UTF8_BOM_ENCODED', options.isUtf8BomEncoded)
-      commit('SET_LINE_ENDING', options.lineEnding)
-      commit('SET_ADJUST_LINE_ENDING_ON_SAVE', options.adjustLineEndingOnSave)
+      commit('SET_IS_UTF8_BOM_ENCODED', isUtf8BomEncoded)
+      commit('SET_LINE_ENDING', lineEnding)
+      commit('SET_ADJUST_LINE_ENDING_ON_SAVE', adjustLineEndingOnSave)
       bus.$emit('file-loaded', file)
+      ipcRenderer.send('AGANI::update-line-ending-menu', lineEnding)
     })
   },
 

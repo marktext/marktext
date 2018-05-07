@@ -84,3 +84,14 @@ export const updateApplicationMenu = (recentUsedDocuments) => {
   }
   initMacDock = true
 }
+
+export const updateLineEndingnMenu = lineEnding => {
+  const menus = Menu.getApplicationMenu()
+  const crlfMenu = menus.getMenuItemById('crlfLineEndingMenuEntry')
+  const lfMenu = menus.getMenuItemById('lfLineEndingMenuEntry')
+  if (lineEnding === 'crlf') {
+    crlfMenu.checked = true
+  } else {
+    lfMenu.checked = true
+  }
+}

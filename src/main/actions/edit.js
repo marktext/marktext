@@ -2,6 +2,7 @@ import path from 'path'
 import { dialog, ipcMain, BrowserWindow } from 'electron'
 import { IMAGE_EXTENSIONS } from '../config'
 import { searchFilesAndDir } from '../imagePathAutoComplement'
+import { updateLineEndingnMenu } from '../menu'
 import { log } from '../utils'
 
 const getAndSendImagePath = (win, type) => {
@@ -35,6 +36,10 @@ ipcMain.on('AGANI::ask-for-image-auto-path', (e, { pathname, src }) => {
       win.webContents.send('AGANI::image-auto-path', files)
     })
     .catch(log)
+})
+
+ipcMain.on('AGANI::update-line-ending-menu', (e, lineEnding) => {
+  updateLineEndingnMenu(lineEnding)
 })
 
 export const edit = (win, type) => {

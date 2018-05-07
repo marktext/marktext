@@ -26,7 +26,6 @@
       }
     },
     created () {
-      const self = this
       this.$nextTick(() => {
         bus.$on('status-error', msg => {
           this.showStatus = true
@@ -39,7 +38,7 @@
           this.message = msg
           if (timeout) {
             setTimeout(() => {
-              self.close(true)
+              this.close(true)
             }, timeout)
           }
         })
