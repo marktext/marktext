@@ -1,10 +1,12 @@
 ### :bust_in_silhouette:User Preferences
 
-Edit and save to update preferences.  You can only change the JSON below!
+Edit and save to update preferences. You can only change the JSON below!
 
 - **theme**: *String* `dark` or `light`
 
 - **autoSave**: *Boolean* `true` or `false`
+
+- **endOfLine**: *String* `lf`, `crlf` or `default`
 
 ```json
 {
@@ -19,7 +21,8 @@ Edit and save to update preferences.  You can only change the JSON below!
   "preferLooseListItem": true,
   "autoPairBracket": true,
   "autoPairMarkdownSyntax": true,
-  "autoPairQuote": true
+  "autoPairQuote": true,
+  "endOfLine": "default"
 }
 ```
 

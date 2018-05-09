@@ -98,6 +98,8 @@
       dispatch('LISTEN_FOR_RENAME')
       dispatch('LISTEN_FOR_IMAGE_PATH')
       dispatch('LISTEN_FOR_FILE_SAVED_SUCCESSFULLY')
+      dispatch('LINTEN_FOR_SET_LINE_ENDING')
+      dispatch('LISTEN_FOR_NOTIFICATION')
     }
   }
 </script>

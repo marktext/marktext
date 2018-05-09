@@ -88,5 +88,24 @@ export default {
         actions.insertImage(browserWindow, 'upload')
       }
     }]
+  }, {
+    type: 'separator'
+  }, {
+    label: 'Line Ending',
+    submenu: [{
+      id: 'crlfLineEndingMenuEntry',
+      label: 'Carriage return and line feed (CRLF)',
+      type: 'radio',
+      click (menuItem, browserWindow) {
+        actions.lineEnding(browserWindow, 'crlf')
+      }
+    }, {
+      id: 'lfLineEndingMenuEntry',
+      label: 'Line feed (LF)',
+      type: 'radio',
+      click (menuItem, browserWindow) {
+        actions.lineEnding(browserWindow, 'lf')
+      }
+    }]
   }]
 }

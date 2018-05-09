@@ -1,12 +1,13 @@
 'use strict'
 
-import fs from 'fs'
 import path from 'path'
-import { BrowserWindow, screen } from 'electron'
+import { app, BrowserWindow, screen } from 'electron'
 import windowStateKeeper from 'electron-window-state'
-import { addRecentlyUsedDocuments } from './menu'
-import { isMarkdownFile, log } from './utils'
+import { getOsLineEndingName, loadMarkdownFile } from './filesystem'
+import { addRecentlyUsedDocuments, updateLineEndingnMenu } from './menu'
+import { isMarkdownFile } from './utils'
 
+let focusedWindowId = -1
 export const windows = new Map()
 
 const ensureWindowPosition = mainWindowState => {
@@ -66,31 +67,24 @@ const createWindow = (pathname, options = {}) => {
 
     if (pathname && isMarkdownFile(pathname)) {
       addRecentlyUsedDocuments(pathname)
-      const filename = path.basename(pathname)
-      fs.readFile(path.resolve(pathname), 'utf-8', (err, file) => {
-        if (err) {
-          log(err)
-          return
-        }
-
-        // check UTF-8 BOM (EF BB BF) encoding
-        let isUtf8BomEncoded = file.length >= 1 && file.charCodeAt(0) === 0xFEFF
-        if (isUtf8BomEncoded) {
-          file = file.slice(1)
-        }
-
-        win.webContents.send('AGANI::file-loaded', {
-          file,
-          filename,
-          pathname,
-          isUtf8BomEncoded
-        })
+      loadMarkdownFile(win, pathname)
+    } else {
+      const lineEnding = getOsLineEndingName()
+      win.webContents.send('AGANI::set-line-ending', {
+        lineEnding,
+        ignoreSaveStatus: true
       })
+      updateLineEndingnMenu(lineEnding)
     }
   })
 
   win.on('focus', () => {
     win.webContents.send('AGANI::window-active-status', { status: true })
+
+    if (win.id !== focusedWindowId) {
+      focusedWindowId = win.id
+      win.webContents.send('AGANI::req-update-line-ending-menu')
+    }
   })
 
   win.on('blur', () => {
@@ -111,6 +105,17 @@ const createWindow = (pathname, options = {}) => {
 
   windows.set(win.id, win)
   return win
+}
+
+export const forceClose = win => {
+  if (!win) return
+  if (windows.has(win.id)) {
+    windows.delete(win.id)
+  }
+  win.destroy() // if use win.close(), it will cause a endless loop.
+  if (windows.size === 0) {
+    app.quit()
+  }
 }
 
 export default createWindow

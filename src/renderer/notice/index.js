@@ -5,8 +5,8 @@ export const error = msg => {
   bus.$emit('status-error', msg)
 }
 
-export const message = msg => {
-  bus.$emit('status-message', msg)
+export const message = (msg, timeout) => {
+  bus.$emit('status-message', msg, timeout)
 }
 
 export const promote = msg => {

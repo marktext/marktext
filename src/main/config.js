@@ -35,3 +35,7 @@ export const VIEW_MENU_ITEM = {
   'Typewriter Mode': false,
   'Focus Mode': false
 }
+
+export const LINE_ENDING_REG = /(?:\r\n|\n)/g
+export const LF_LINE_ENDING_REG = /(?:[^\r]\n)|(?:^\n$)/
+export const CRLF_LINE_ENDING_REG = /\r\n/

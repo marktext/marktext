@@ -4,7 +4,8 @@
 
 - feature: add editorFont setting in user preference. (#175) - Anderson
 - feature: line break, support event and import and export markdown - Jocs
-- feat: unindent list item - Jocs
+- feature: unindent list item - Jocs
+- feature: Support for CRLF and LF line endings
 
 **:butterfly:Optimization**
 

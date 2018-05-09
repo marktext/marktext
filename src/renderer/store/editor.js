@@ -30,6 +30,8 @@ const state = {
   isSaved: true,
   markdown: '',
   isUtf8BomEncoded: false,
+  lineEnding: 'lf', // lf or crlf
+  adjustLineEndingOnSave: false,
   cursor: null,
   windowActive: true,
   wordCount: {
@@ -39,6 +41,11 @@ const state = {
     all: 0
   },
   platform: process.platform
+}
+
+export const getOptionsFromState = state => {
+  const { isUtf8BomEncoded, lineEnding, adjustLineEndingOnSave } = state
+  return { isUtf8BomEncoded, lineEnding, adjustLineEndingOnSave }
 }
 
 const mutations = {
@@ -66,6 +73,12 @@ const mutations = {
   },
   SET_IS_UTF8_BOM_ENCODED (state, isUtf8BomEncoded) {
     state.isUtf8BomEncoded = isUtf8BomEncoded
+  },
+  SET_LINE_ENDING (state, lineEnding) {
+    state.lineEnding = lineEnding
+  },
+  SET_ADJUST_LINE_ENDING_ON_SAVE (state, adjustLineEndingOnSave) {
+    state.adjustLineEndingOnSave = adjustLineEndingOnSave
   },
   SET_WORD_COUNT (state, wordCount) {
     state.wordCount = wordCount
@@ -115,11 +128,11 @@ const actions = {
 
       // handle autoSave
       if (autoSave) {
-        const { pathname, markdown, isUtf8BomEncoded } = state
-
+        const { pathname, markdown } = state
+        const options = getOptionsFromState(state)
         if (autoSave && pathname) {
           commit('SET_SAVE_STATUS', true)
-          ipcRenderer.send('AGANI::response-file-save', { pathname, markdown, isUtf8BomEncoded })
+          ipcRenderer.send('AGANI::response-file-save', { pathname, markdown, options })
         }
       }
     })
@@ -141,31 +154,38 @@ const actions = {
     })
   },
 
-  LINTEN_WIN_STATUS ({ commit }) {
+  LINTEN_WIN_STATUS ({ commit, state }) {
     ipcRenderer.on('AGANI::window-active-status', (e, { status }) => {
       commit('SET_WIN_STATUS', status)
+    })
+    ipcRenderer.on('AGANI::req-update-line-ending-menu', e => {
+      const { lineEnding } = state
+      ipcRenderer.send('AGANI::update-line-ending-menu', lineEnding)
     })
   },
 
   LISTEN_FOR_SAVE ({ commit, state }) {
     ipcRenderer.on('AGANI::ask-file-save', () => {
-      const { pathname, markdown, isUtf8BomEncoded } = state
-      ipcRenderer.send('AGANI::response-file-save', { pathname, markdown, isUtf8BomEncoded })
+      const { pathname, markdown } = state
+      const options = getOptionsFromState(state)
+      ipcRenderer.send('AGANI::response-file-save', { pathname, markdown, options })
     })
   },
 
   LISTEN_FOR_SAVE_AS ({ commit, state }) {
     ipcRenderer.on('AGANI::ask-file-save-as', () => {
-      const { pathname, markdown, isUtf8BomEncoded } = state
-      ipcRenderer.send('AGANI::response-file-save-as', { pathname, markdown, isUtf8BomEncoded })
+      const { pathname, markdown } = state
+      const options = getOptionsFromState(state)
+      ipcRenderer.send('AGANI::response-file-save-as', { pathname, markdown, options })
     })
   },
 
   LISTEN_FOR_MOVE_TO ({ commit, state }) {
     ipcRenderer.on('AGANI::ask-file-move-to', () => {
-      const { pathname, markdown, isUtf8BomEncoded } = state
+      const { pathname, markdown } = state
+      const options = getOptionsFromState(state)
       if (!pathname) {
-        ipcRenderer.send('AGANI::response-file-save', { pathname, markdown, isUtf8BomEncoded })
+        ipcRenderer.send('AGANI::response-file-save', { pathname, markdown, options })
       } else {
         ipcRenderer.send('AGANI::response-file-move-to', { pathname })
       }
@@ -174,9 +194,10 @@ const actions = {
 
   LISTEN_FOR_RENAME ({ commit, state }) {
     ipcRenderer.on('AGANI::ask-file-rename', () => {
-      const { pathname, markdown, isUtf8BomEncoded } = state
+      const { pathname, markdown } = state
+      const options = getOptionsFromState(state)
       if (!pathname) {
-        ipcRenderer.send('AGANI::response-file-save', { pathname, markdown, isUtf8BomEncoded })
+        ipcRenderer.send('AGANI::response-file-save', { pathname, markdown, options })
       } else {
         bus.$emit('rename')
       }
@@ -200,13 +221,17 @@ const actions = {
   },
 
   LISTEN_FOR_FILE_LOAD ({ commit, state }) {
-    ipcRenderer.on('AGANI::file-loaded', (e, { file, filename, pathname, isUtf8BomEncoded }) => {
+    ipcRenderer.on('AGANI::file-loaded', (e, { file, filename, pathname, options }) => {
+      const { adjustLineEndingOnSave, isUtf8BomEncoded, lineEnding } = options
       commit('SET_FILENAME', filename)
       commit('SET_PATHNAME', pathname)
       commit('SET_MARKDOWN', file)
       commit('SET_SAVE_STATUS', true)
       commit('SET_IS_UTF8_BOM_ENCODED', isUtf8BomEncoded)
+      commit('SET_LINE_ENDING', lineEnding)
+      commit('SET_ADJUST_LINE_ENDING_ON_SAVE', adjustLineEndingOnSave)
       bus.$emit('file-loaded', file)
+      ipcRenderer.send('AGANI::update-line-ending-menu', lineEnding)
     })
   },
 
@@ -229,7 +254,8 @@ const actions = {
   },
 
   LISTEN_FOR_CONTENT_CHANGE ({ commit, state }, { markdown, wordCount, cursor }) {
-    const { pathname, autoSave, markdown: oldMarkdown, isUtf8BomEncoded } = state
+    const { pathname, autoSave, markdown: oldMarkdown } = state
+    const options = getOptionsFromState(state)
     commit('SET_MARKDOWN', markdown)
     // set word count
     if (wordCount) commit('SET_WORD_COUNT', wordCount)
@@ -238,7 +264,7 @@ const actions = {
     // change save status/save to file only when the markdown changed!
     if (markdown !== oldMarkdown) {
       if (pathname && autoSave) {
-        ipcRenderer.send('AGANI::response-file-save', { pathname, markdown, isUtf8BomEncoded })
+        ipcRenderer.send('AGANI::response-file-save', { pathname, markdown, options })
       } else {
         commit('SET_SAVE_STATUS', false)
       }
@@ -323,11 +349,25 @@ const actions = {
 
   LISTEN_FOR_CLOSE ({ commit, state }) {
     ipcRenderer.on('AGANI::ask-for-close', e => {
-      const { isSaved, markdown, pathname, filename, isUtf8BomEncoded } = state
+      const { isSaved, markdown, pathname, filename } = state
+      const options = getOptionsFromState(state)
       if (!isSaved && /[^\n]/.test(markdown)) {
-        ipcRenderer.send('AGANI::response-close-confirm', { filename, pathname, markdown, isUtf8BomEncoded })
+        ipcRenderer.send('AGANI::response-close-confirm', { filename, pathname, markdown, options })
       } else {
         ipcRenderer.send('AGANI::close-window')
+      }
+    })
+  },
+
+  LINTEN_FOR_SET_LINE_ENDING ({ commit, state }) {
+    ipcRenderer.on('AGANI::set-line-ending', (e, { lineEnding, ignoreSaveStatus }) => {
+      const { lineEnding: oldLineEnding } = state
+      if (lineEnding !== oldLineEnding) {
+        commit('SET_LINE_ENDING', lineEnding)
+        commit('SET_ADJUST_LINE_ENDING_ON_SAVE', lineEnding !== 'lf')
+        if (!ignoreSaveStatus) {
+          commit('SET_SAVE_STATUS', false)
+        }
       }
     })
   }
