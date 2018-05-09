@@ -41,9 +41,9 @@
   <a href="https://marktext.github.io/website">
     <img src="https://img.shields.io/hackage-deps/v/lens.svg" alt="dependencies">
   </a>
-  <!-- donates -->
+  <!-- sponsors -->
   <a href="https://opencollective.com/marktext">
-    <img src="https://opencollective.com/marktext/tiers/backer/badge.svg?label=backer&color=brightgreen" alt="donate">
+    <img src="https://opencollective.com/marktext/tiers/silver-sponsors/badge.svg?label=Silver Sponsors&color=brightgreen" alt="sponsors">
   </a>
 </div>
 
