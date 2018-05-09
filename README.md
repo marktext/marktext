@@ -43,7 +43,7 @@
   </a>
   <!-- sponsors -->
   <a href="https://opencollective.com/marktext">
-    <img src="https://opencollective.com/marktext/tiers/silver-sponsors/badge.svg?label=Silver Sponsors&color=brightgreen" alt="sponsors">
+    <img src="https://opencollective.com/marktext/tiers/silver-sponsors/badge.svg?label=SilverSponsors&color=brightgreen" alt="sponsors">
   </a>
 </div>
 

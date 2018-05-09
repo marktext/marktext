@@ -18,6 +18,10 @@
   z-index: 10000;
 }
 
+.ag-float-box::-webkit-scrollbar:vertical {
+  width: 5px;
+}
+
 .ag-show-float-box {
   opacity: 1;
 }
