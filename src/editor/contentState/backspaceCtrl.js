@@ -5,16 +5,21 @@ import { isCursorAtBegin, onlyHaveOneLine, getEndPosition } from '../codeMirror'
 const backspaceCtrl = ContentState => {
   ContentState.prototype.checkBackspaceCase = function () {
     const node = selection.getSelectionStart()
-    const nearestParagraph = findNearestParagraph(node)
+    const paragraph = findNearestParagraph(node)
     const outMostParagraph = findOutMostParagraph(node)
-    let block = this.getBlock(nearestParagraph.id)
-    if (block.type === 'span') block = this.getParent(block)
+    let block = this.getBlock(paragraph.id)
+    if (block.type === 'span' && block.preSibling) {
+      return false
+    }
+    if (block.type === 'span') {
+      block = this.getParent(block)
+    }
     const preBlock = this.getPreSibling(block)
     const outBlock = this.findOutMostBlock(block)
     const parent = this.getParent(block)
 
     const { left: outLeft } = selection.getCaretOffsets(outMostParagraph)
-    const { left: inLeft } = selection.getCaretOffsets(nearestParagraph)
+    const { left: inLeft } = selection.getCaretOffsets(paragraph)
 
     if (
       (parent && parent.type === 'li' && inLeft === 0 && this.isFirstChild(block)) ||
@@ -22,17 +27,20 @@ const backspaceCtrl = ContentState => {
     ) {
       if (this.isOnlyChild(parent)) {
         /**
-         * `<ul>
+         * <ul>
          *   <li>
          *     <p>|text</p>
          *     <p>maybe has other paragraph</p>
          *   </li>
-         * <ul>`
+         * <ul>
+         * ===>
+         * <p>|text</p>
+         * <p>maybe has other paragraph</p>
          */
         return { type: 'LI', info: 'REPLACEMENT' }
       } else if (this.isFirstChild(parent)) {
         /**
-         * `<ul>
+         * <ul>
          *   <li>
          *     <p>|text</p>
          *     <p>maybe has other paragraph</p>
@@ -40,12 +48,20 @@ const backspaceCtrl = ContentState => {
          *   <li>
          *     <p>other list item</p>
          *   </li>
-         * <ul>`
+         * <ul>
+         * ===>
+         * <p>|text</p>
+         * <p>maybe has other paragraph</p>
+         * <ul>
+         *   <li>
+         *     <p>other list item</p>
+         *   </li>
+         * <ul>
          */
         return { type: 'LI', info: 'REMOVE_INSERT_BEFORE' }
       } else {
         /**
-         * `<ul>
+         * <ul>
          *   <li>
          *     <p>other list item</p>
          *   </li>
@@ -56,9 +72,20 @@ const backspaceCtrl = ContentState => {
          *   <li>
          *     <p>other list item</p>
          *   </li>
-         * <ul>`
+         * <ul>
+         * ===>
+         * <ul>
+         *   <li>
+         *     <p>other list item</p>
+         *     <p>|text</p>
+         *     <p>maybe has other paragraph</p>
+         *   </li>
+         *   <li>
+         *     <p>other list item</p>
+         *   </li>
+         * <ul>
          */
-        return { type: 'LI', info: 'INSERT_PRE_LIST' }
+        return { type: 'LI', info: 'INSERT_PRE_LIST_ITEM' }
       }
     }
     if (parent && parent.type === 'blockquote' && inLeft === 0) {
@@ -144,8 +171,7 @@ const backspaceCtrl = ContentState => {
     const node = selection.getSelectionStart()
     const paragraph = findNearestParagraph(node)
     const id = paragraph.id
-    let block = this.getBlock(id)
-    if (block.type === 'span') block = this.getParent(block)
+    const block = this.getBlock(id)
     const parent = this.getBlock(block.parent)
     const preBlock = this.findPreBlockInLocation(block)
     const { left } = selection.getCaretOffsets(paragraph)
@@ -218,8 +244,7 @@ const backspaceCtrl = ContentState => {
     } else if (inlineDegrade) {
       event.preventDefault()
       switch (inlineDegrade.type) {
-        case 'STOP': // at begin of article
-          // do nothing...
+        case 'STOP': // Cursor at begin of article and nothing need to do
           break
         case 'LI': {
           if (inlineDegrade.info === 'REPLACEMENT') {
@@ -242,7 +267,7 @@ const backspaceCtrl = ContentState => {
               this.insertBefore(child, grandpa)
             })
             this.removeBlock(parent)
-          } else if (inlineDegrade.info === 'INSERT_PRE_LIST') {
+          } else if (inlineDegrade.info === 'INSERT_PRE_LIST_ITEM') {
             const parPre = this.getBlock(parent.preSibling)
             const children = parent.children
             if (children[0].type === 'input') {
@@ -278,9 +303,9 @@ const backspaceCtrl = ContentState => {
       }
     } else if (left === 0 && preBlock) {
       event.preventDefault()
-      const text = block.type === 'p' ? block.children.map(line => line.text).join('').trim() : block.text
+      const { text } = block
       const key = preBlock.key
-      let offset = preBlock.text.length
+      const offset = preBlock.text.length
       if (preBlock.type === 'pre') {
         const cm = this.codeBlocks.get(key)
         const value = cm.getValue() + text
@@ -291,13 +316,19 @@ const backspaceCtrl = ContentState => {
       } else {
         preBlock.text += text
       }
-      this.removeBlock(block)
+      // If block is a line block and its parent paragraph only has one text line,
+      // also need to remove the paragrah
+      if (this.isOnlyChild(block) && block.type === 'span') {
+        this.removeBlock(parent)
+      } else {
+        this.removeBlock(block)
+      }
 
       this.cursor = {
         start: { key, offset },
         end: { key, offset }
       }
-      this.partialRender([ preBlock ])
+      this.render()
     }
   }
 }
