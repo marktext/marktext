@@ -45,7 +45,7 @@ const prototypes = [
 
 const HAS_TEXT_BLOCK_REG = /^(h\d|span|th|td|hr|pre)/
 
-// use to cache the keys which you don't want to remove.
+// Use to cache the keys which you don't want to remove.
 const exemption = new Set()
 
 class ContentState {
@@ -116,6 +116,7 @@ class ContentState {
     matches.forEach((m, i) => {
       m.active = i === index
     })
+
     this.stateRender.partialRender(blocks, cursor, activeBlocks, matches)
     this.pre2CodeMirror(true, blocks)
     this.setCursor()
@@ -153,11 +154,6 @@ class ContentState {
 
   // getBlocks
   getBlocks () {
-    // for (const [ key, cm ] of this.codeBlocks.entries()) {
-    //   const value = cm.getValue()
-    //   const block = this.getBlock(key)
-    //   if (block) block.text = value
-    // }
     return this.blocks
   }
 
@@ -356,10 +352,6 @@ class ContentState {
       }
     }
     remove(Array.isArray(fromBlocks) ? fromBlocks : fromBlocks.children, block)
-    if (!block.parent) {
-      const element = document.querySelector(`#${block.key}`)
-      if (element) element.remove()
-    }
   }
 
   getActiveBlocks () {
@@ -371,10 +363,6 @@ class ContentState {
       result.push(block)
     }
     return result
-  }
-
-  getCursorBlock () {
-    return this.getBlock(this.cursor.key) || null
   }
 
   insertAfter (newBlock, oldBlock) {
@@ -407,21 +395,12 @@ class ContentState {
   }
 
   findOutMostBlock (block) {
-    if (!block.parent) {
-      return block
-    } else {
-      const parent = this.getBlock(block.parent)
-      return this.findOutMostBlock(parent)
-    }
+    const parent = this.getBlock(block.parent)
+    return parent ? this.findOutMostBlock(parent) : block
   }
 
   findIndex (children, block) {
-    const len = children.length
-    let i
-    for (i = 0; i < len; i++) {
-      if (children[i].key === block.key) return i
-    }
-    return -1
+    return children.findIndex(child => child === block)
   }
 
   prependChild (parent, block) {
@@ -448,15 +427,10 @@ class ContentState {
   }
 
   replaceBlock (newBlock, oldBlock) {
-    let index
-    if (!oldBlock.parent) {
-      index = this.findIndex(this.blocks, oldBlock)
-      this.blocks.splice(index, 1, newBlock)
-    } else {
-      const parent = this.getBlock(oldBlock.parent)
-      index = this.findIndex(parent.children, oldBlock)
-      parent.children.splice(index, 1, newBlock)
-    }
+    const blockList = oldBlock.parent ? this.getParent(oldBlock).children : this.blocks
+    const index = this.findIndex(blockList, oldBlock)
+
+    blockList.splice(index, 1, newBlock)
     newBlock.parent = oldBlock.parent
     newBlock.preSibling = oldBlock.preSibling
     newBlock.nextSibling = oldBlock.nextSibling
