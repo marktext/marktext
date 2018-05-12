@@ -3,33 +3,19 @@ import path from 'path'
 
 const ID_PREFIX = 'ag-'
 let id = 0
+export const getUniqueId = () => `${ID_PREFIX}${id++}`
 
-/**
- * get unique id base on a set.
- */
-export const getUniqueId = () => {
-  id++
-  return `${ID_PREFIX}${id}`
-}
+export const getLongUniqueId = () => `${getUniqueId()}-${(+new Date()).toString(32)}`
 
-export const isMetaKey = event => {
-  const key = event.key
-  return key === 'Shift' || key === 'Control' || key === 'Alt' || key === 'Meta'
-}
+export const isMetaKey = ({ key }) => key === 'Shift' || key === 'Control' || key === 'Alt' || key === 'Meta'
 
 export const noop = () => {}
 
-export const getLongUniqueId = () => {
-  return `${getUniqueId()}-${+new Date()}`
-}
-
 export const isOdd = number => Math.abs(number) % 2 === 1
+
 export const isEven = number => Math.abs(number) % 2 === 0
 
-export const isLengthEven = (str = '') => {
-  const len = str.length
-  return len % 2 === 0
-}
+export const isLengthEven = (str = '') => str.length % 2 === 0
 /**
  *  Are two arrays have intersection
  */
@@ -123,8 +109,8 @@ export const deepCopyArray = array => {
   return result
 }
 
+// TODO: @jocs rewrite deepCopy
 export const deepCopy = object => {
-  // return JSON.parse(JSON.stringify(object))
   const obj = {}
   Object.keys(object).forEach(key => {
     if (typeof object[key] === 'object' && object[key] !== null) {

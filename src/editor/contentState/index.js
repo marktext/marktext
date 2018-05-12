@@ -4,7 +4,6 @@ import selection from '../selection'
 import StateRender from '../parser/StateRender'
 import enterCtrl from './enterCtrl'
 import updateCtrl from './updateCtrl'
-import garbageCtrl from './garbageCtrl'
 import backspaceCtrl from './backspaceCtrl'
 import codeBlockCtrl from './codeBlockCtrl'
 import tableBlockCtrl from './tableBlockCtrl'
@@ -26,7 +25,6 @@ const prototypes = [
   tabCtrl,
   enterCtrl,
   updateCtrl,
-  garbageCtrl,
   backspaceCtrl,
   codeBlockCtrl,
   historyCtrl,
