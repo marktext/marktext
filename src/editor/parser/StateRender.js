@@ -19,8 +19,19 @@ class StateRender {
   constructor (eventCenter) {
     this.eventCenter = eventCenter
     this.loadImageMap = new Map()
-    this.tokenCache = new Map()
     this.container = null
+    this.offScreen = null
+    this.init()
+  }
+
+  init () {
+    let section = document.querySelector(`.${CLASS_OR_ID['AG_OFF_SCREEN']}`)
+    if (!section) {
+      section = document.createElement('section')
+      section.classList.add(CLASS_OR_ID['AG_OFF_SCREEN'])
+      document.body.appendChild(section)
+    }
+    this.offScreen = section
   }
 
   setContainer (container) {
@@ -81,14 +92,7 @@ class StateRender {
     let children = ''
 
     if (text) {
-      let tokens = null
-      if (highlights.length === 0 && this.tokenCache.has(text)) {
-        tokens = this.tokenCache.get(text)
-      } else {
-        tokens = tokenizer(text, highlights)
-        if (highlights.length === 0) this.tokenCache.set(text, tokens)
-      }
-      children = tokens.reduce((acc, token) => [...acc, ...this[token.type](h, cursor, block, token)], [])
+      children = tokenizer(text, highlights).reduce((acc, token) => [...acc, ...this[token.type](h, cursor, block, token)], [])
     }
 
     if (/th|td/.test(type) && align) {
@@ -242,28 +246,45 @@ class StateRender {
     patch(oldVdom, newVdom)
   }
 
-  partialRender (blocks, cursor, activeBlocks, matches) {
-    for (const block of blocks) {
-      const { type, key, parent, preSibling, nextSibling } = block
-      const oldDom = document.querySelector(`#${key}`)
-      let newDom = null
-      if (!oldDom) {
-        if (parent) throw new Error(`${type} block is not the outmost block, and need has a real DOM to patch!`)
-        newDom = document.createElement(type)
-        if (preSibling) {
-          const preNode = document.querySelector(`#${preSibling}`)
-          insertAfter(newDom, preNode)
-        } else if (nextSibling) {
-          const nextNode = document.querySelector(`#${nextSibling}`)
-          insertBefore(newDom, nextNode)
-        } else {
-          const container = document.querySelector(`div#${CLASS_OR_ID['AG_EDITOR_ID']}`)
-          container.appendChild(newDom)
-        }
+  partialRender (blocks, cursor, activeBlocks, matches, startKey, endKey) {
+    const cursorOutMostBlock = activeBlocks[activeBlocks.length - 1]
+    // If cursor is not in render blocks, need to render cursor block independently
+    const needRenderCursorBlock = blocks.indexOf(cursorOutMostBlock) === -1
+    const newVnode = h(`section.${CLASS_OR_ID['AG_OFF_SCREEN']}`, blocks.map(block => this.renderBlock(block, cursor, activeBlocks, matches)))
+    const { offScreen } = this
+
+    patch(offScreen, newVnode)
+
+    const renderedDoms = offScreen.children
+    const needToRemoved = []
+    const firstOldDom = startKey
+      ? document.querySelector(`#${startKey}`)
+      : document.querySelector(`div#${CLASS_OR_ID['AG_EDITOR_ID']}`).firstElementChild
+    needToRemoved.push(firstOldDom)
+    let nextSibling = firstOldDom.nextElementSibling
+    while (nextSibling && nextSibling.id !== endKey) {
+      needToRemoved.push(nextSibling)
+      nextSibling = nextSibling.nextElementSibling
+    }
+    nextSibling && needToRemoved.push(nextSibling)
+
+    Array.from(renderedDoms).forEach(dom => {
+      insertBefore(dom, firstOldDom)
+    })
+
+    Array.from(needToRemoved).forEach(dom => dom.remove())
+
+    offScreen.textContent = ''
+
+    // Render cursor block independently
+    if (needRenderCursorBlock) {
+      const { key } = cursorOutMostBlock
+      const cursorDom = document.querySelector(`#${key}`)
+      if (cursorDom) {
+        const oldCursorVnode = toVNode(cursorDom)
+        const newCursorVnode = this.renderBlock(cursorOutMostBlock, cursor, activeBlocks, matches)
+        patch(oldCursorVnode, newCursorVnode)
       }
-      const newVnode = this.renderBlock(block, cursor, activeBlocks, matches)
-      const oldVnode = oldDom ? toVNode(oldDom) : newDom
-      patch(oldVnode, newVnode)
     }
   }
 

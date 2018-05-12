@@ -15,7 +15,7 @@ const copyCutCtrl = ContentState => {
       start,
       end: start
     }
-    this.render()
+    this.partialRender()
   }
 
   ContentState.prototype.checkInCodeBlock = function () {

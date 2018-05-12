@@ -144,7 +144,7 @@ const pasteCtrl = ContentState => {
         key, offset
       }
     }
-    this.render()
+    this.partialRender()
   }
 }
 

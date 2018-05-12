@@ -79,27 +79,17 @@ const enterCtrl = ContentState => {
     if (block.type === 'span') block = this.getParent(block)
     const parent = this.getParent(block)
     let newBlock = null
-    const needRenderBlocks = []
-    const outMostBlock = this.findOutMostBlock(block)
-    let containerOutBlock = null
     if (parent && (/ul|ol|blockquote/.test(parent.type))) {
       newBlock = this.createBlockP()
       if (this.isOnlyChild(block)) {
-        if (outMostBlock !== parent) {
-          needRenderBlocks.push(outMostBlock)
-        }
         this.insertAfter(newBlock, parent)
         this.removeBlock(parent)
       } else if (this.isFirstChild(block)) {
-        needRenderBlocks.push(outMostBlock)
         this.insertBefore(newBlock, parent)
       } else if (this.isLastChild(block)) {
-        needRenderBlocks.push(outMostBlock)
         this.insertAfter(newBlock, parent)
       } else {
-        const container = this.chopBlock(block)
-        containerOutBlock = this.findOutMostBlock(container)
-        needRenderBlocks.push(outMostBlock)
+        this.chopBlock(block)
         this.insertAfter(newBlock, parent)
       }
 
@@ -117,7 +107,6 @@ const enterCtrl = ContentState => {
       const index = this.findIndex(parent.children, block)
       const blocksInListItem = parent.children.splice(index + 1)
       blocksInListItem.forEach(b => this.appendChild(newBlock, b))
-      needRenderBlocks.push(outMostBlock)
       this.removeBlock(block)
     } else {
       newBlock = this.createBlockP()
@@ -127,19 +116,15 @@ const enterCtrl = ContentState => {
       } else {
         this.insertAfter(newBlock, block)
       }
-      needRenderBlocks.push(outMostBlock)
     }
-    const newBlockOutMost = this.findOutMostBlock(newBlock)
-    needRenderBlocks.push(newBlockOutMost)
-    // push order is important!
-    if (containerOutBlock) needRenderBlocks.push(containerOutBlock)
+
     const { key } = newBlock
     const offset = 0
     this.cursor = {
       start: { key, offset },
       end: { key, offset }
     }
-    return this.partialRender([...new Set(needRenderBlocks)])
+    return this.partialRender()
   }
 
   ContentState.prototype.enterHandler = function (event) {
@@ -155,7 +140,7 @@ const enterCtrl = ContentState => {
       event.preventDefault()
       floatBox.cb(list[index])
       const isUpdated = this.codeBlockUpdate(block)
-      isUpdated && this.render()
+      isUpdated && this.partialRender()
       return
     }
     // handle cursor in code block
@@ -166,7 +151,6 @@ const enterCtrl = ContentState => {
     event.preventDefault()
 
     // handle select multiple blocks
-    // TODO: use partialRender
     if (start.key !== end.key) {
       const key = start.key
       const offset = start.offset
@@ -186,7 +170,7 @@ const enterCtrl = ContentState => {
         start: { key, offset },
         end: { key, offset }
       }
-      this.render()
+      this.partialRender()
       return this.enterHandler(event)
     }
 
@@ -199,7 +183,7 @@ const enterCtrl = ContentState => {
         start: { key, offset },
         end: { key, offset }
       }
-      this.partialRender([ block ])
+      this.partialRender()
       return this.enterHandler(event)
     }
 
@@ -217,7 +201,7 @@ const enterCtrl = ContentState => {
         start: { key, offset },
         end: { key, offset }
       }
-      return this.partialRender([ parent ])
+      return this.partialRender()
     }
 
     // Insert `<br/>` in table cell if you want to open a new line.
@@ -233,6 +217,24 @@ const enterCtrl = ContentState => {
         end: { key, offset }
       }
       return this.partialRender([ block ])
+    }
+
+    const getFirstBlockInNextRow = row => {
+      let nextSibling = this.getBlock(row.nextSibling)
+      if (!nextSibling) {
+        const rowContainer = this.getBlock(row.parent)
+        const table = this.getBlock(rowContainer.parent)
+        const figure = this.getBlock(table.parent)
+        if (rowContainer.type === 'thead') {
+          nextSibling = table.children[1]
+        } else if (figure.nextSibling) {
+          nextSibling = this.getBlock(figure.nextSibling)
+        } else {
+          nextSibling = this.createBlockP()
+          this.insertAfter(nextSibling, figure)
+        }
+      }
+      return this.firstInDescendant(nextSibling)
     }
 
     // handle enter in table
@@ -252,24 +254,14 @@ const enterCtrl = ContentState => {
         table.row++
       }
 
-      let nextBlock = this.findNextBlockInLocation(block)
-      // if table(figure block) is the last block, create a new P block after table(figure block).
-      if (!nextBlock) {
-        const newBlock = this.createBlockP()
-        this.insertAfter(newBlock, this.getParent(table))
-        nextBlock = newBlock.children[0]
-      }
-      const key = nextBlock.key
+      const { key } = getFirstBlockInNextRow(row)
       const offset = 0
 
       this.cursor = {
         start: { key, offset },
         end: { key, offset }
       }
-      const tableOutMostBlock = this.findOutMostBlock(table)
-      const cursorOutMostBlock = this.findOutMostBlock(nextBlock)
-      const needRenderBlocks = [...new Set([tableOutMostBlock, cursorOutMostBlock])]
-      return this.partialRender(needRenderBlocks)
+      return this.partialRender()
     }
 
     if (block.type === 'span') {
@@ -285,12 +277,8 @@ const enterCtrl = ContentState => {
       parent = this.getParent(block)
     }
     const { left, right } = selection.getCaretOffsets(paragraph)
-    const needRenderBlocks = []
-    const outMostBlock = this.findOutMostBlock(block)
-    needRenderBlocks.push(outMostBlock)
     const type = block.type
     let newBlock
-    let tempBlock
 
     switch (true) {
       case left !== 0 && right !== 0: // cursor in the middle
@@ -337,7 +325,6 @@ const enterCtrl = ContentState => {
 
         if (left === 0 && right !== 0) {
           this.insertBefore(newBlock, block)
-          tempBlock = newBlock
           newBlock = block
         } else {
           if (block.type === 'p') {
@@ -353,12 +340,6 @@ const enterCtrl = ContentState => {
         newBlock = this.createBlockP()
         this.insertAfter(newBlock, block)
         break
-    }
-
-    const outMostOfNewBlock = this.findOutMostBlock(newBlock)
-    needRenderBlocks.push(outMostOfNewBlock)
-    if (tempBlock) {
-      needRenderBlocks.push(this.findOutMostBlock(tempBlock))
     }
 
     const getParagraphBlock = block => {
@@ -399,7 +380,7 @@ const enterCtrl = ContentState => {
       start: { key, offset },
       end: { key, offset }
     }
-    this.partialRender([...new Set(needRenderBlocks)])
+    this.partialRender()
   }
 }
 

@@ -53,6 +53,7 @@ class ContentState {
     this.stateRender = new StateRender(eventCenter)
     this.codeBlocks = new Map()
     this.loadMathMap = new Map()
+    this.renderRange = [null, null]
     this.history = new History(this)
     this.init()
   }
@@ -94,29 +95,45 @@ class ContentState {
     }
   }
 
+  setNextRenderRange () {
+    const { start, end } = this.cursor
+    const startOutMostBlock = this.findOutMostBlock(this.getBlock(start.key))
+    const endOutMostBlock = this.findOutMostBlock(this.getBlock(end.key))
+    this.renderRange = [ startOutMostBlock.preSibling, endOutMostBlock.nextSibling ]
+  }
+
   render (isRenderCursor = true) {
+    console.log('render')
     const { blocks, cursor, searchMatches: { matches, index } } = this
     const activeBlocks = this.getActiveBlocks()
     matches.forEach((m, i) => {
       m.active = i === index
     })
+    this.setNextRenderRange()
     this.stateRender.render(blocks, cursor, activeBlocks, matches)
     this.pre2CodeMirror(isRenderCursor)
-    if (isRenderCursor) this.setCursor()
     this.renderMath()
+    if (isRenderCursor) this.setCursor()
   }
 
-  partialRender (blocks) {
-    const { cursor, searchMatches: { matches, index } } = this
+  partialRender () {
+    console.log('partialrender')
+    const { blocks, cursor, searchMatches: { matches, index } } = this
     const activeBlocks = this.getActiveBlocks()
+    const [ startKey, endKey ] = this.renderRange
     matches.forEach((m, i) => {
       m.active = i === index
     })
 
-    this.stateRender.partialRender(blocks, cursor, activeBlocks, matches)
-    this.pre2CodeMirror(true, blocks)
+    const startIndex = startKey ? blocks.findIndex(block => block.key === startKey) : 0
+    const endIndex = endKey ? blocks.findIndex(block => block.key === endKey) + 1 : blocks.length
+    const needRenderBlocks = blocks.slice(startIndex, endIndex)
+
+    this.setNextRenderRange()
+    this.stateRender.partialRender(needRenderBlocks, cursor, activeBlocks, matches, startKey, endKey)
+    this.pre2CodeMirror(true, needRenderBlocks)
+    this.renderMath(needRenderBlocks)
     this.setCursor()
-    this.renderMath(blocks)
   }
 
   /**
@@ -494,7 +511,7 @@ class ContentState {
     const parent = this.getParent(block)
     const nextBlock = this.getNextSibling(block)
 
-    if (block.nextSibling && nextBlock.editable !== false) {
+    if (nextBlock && nextBlock.editable !== false) {
       return this.firstInDescendant(nextBlock)
     } else if (parent) {
       return this.findNextBlockInLocation(parent)

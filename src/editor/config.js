@@ -111,7 +111,8 @@ export const CLASS_OR_ID = genUpper2LowerKeyHash([
   'AG_TIGHT_LIST_ITEM',
   'AG_HTML_TAG',
   'AG_LINK',
-  'AG_HARD_LINE_BREAK'
+  'AG_HARD_LINE_BREAK',
+  'AG_OFF_SCREEN'
 ])
 
 export const codeMirrorConfig = {

@@ -165,14 +165,14 @@ const backspaceCtrl = ContentState => {
         start: { key, offset },
         end: { key, offset }
       }
-      return this.render()
+      return this.partialRender()
     }
 
     const node = selection.getSelectionStart()
     const paragraph = findNearestParagraph(node)
     const id = paragraph.id
-    const block = this.getBlock(id)
-    const parent = this.getBlock(block.parent)
+    let block = this.getBlock(id)
+    let parent = this.getBlock(block.parent)
     const preBlock = this.findPreBlockInLocation(block)
     const { left } = selection.getCaretOffsets(paragraph)
     const inlineDegrade = this.checkBackspaceCase()
@@ -203,8 +203,7 @@ const backspaceCtrl = ContentState => {
           start: { key, offset },
           end: { key, offset }
         }
-        const outMostBlock = this.findOutMostBlock(newBlock)
-        this.partialRender([ outMostBlock ])
+        this.partialRender()
       }
     } else if (left === 0 && /th|td/.test(block.type)) {
       event.preventDefault()
@@ -213,7 +212,6 @@ const backspaceCtrl = ContentState => {
       const table = this.getBlock(tHead.parent)
       const figure = this.getBlock(table.parent)
       const hasContent = tableHasContent(table)
-      const needRenderBlocks = []
       let key
       let offset
 
@@ -226,11 +224,9 @@ const backspaceCtrl = ContentState => {
         figure.type = 'p'
         key = newLine.key
         offset = 0
-        needRenderBlocks.push(this.findOutMostBlock(figure))
       } else if (preBlock) {
         key = preBlock.key
         offset = preBlock.text.length
-        needRenderBlocks.push(this.findOutMostBlock(preBlock))
       }
 
       if (key !== undefined && offset !== undefined) {
@@ -239,10 +235,15 @@ const backspaceCtrl = ContentState => {
           end: { key, offset }
         }
 
-        this.partialRender(needRenderBlocks)
+        this.partialRender()
       }
     } else if (inlineDegrade) {
       event.preventDefault()
+      if (block.type === 'span') {
+        block = this.getParent(block)
+        parent = this.getParent(parent)
+      }
+
       switch (inlineDegrade.type) {
         case 'STOP': // Cursor at begin of article and nothing need to do
           break
@@ -268,6 +269,7 @@ const backspaceCtrl = ContentState => {
             })
             this.removeBlock(parent)
           } else if (inlineDegrade.info === 'INSERT_PRE_LIST_ITEM') {
+            console.log(parent)
             const parPre = this.getBlock(parent.preSibling)
             const children = parent.children
             if (children[0].type === 'input') {
@@ -299,7 +301,7 @@ const backspaceCtrl = ContentState => {
       }
 
       if (inlineDegrade.type !== 'STOP') {
-        this.render()
+        this.partialRender()
       }
     } else if (left === 0 && preBlock) {
       event.preventDefault()
@@ -328,7 +330,7 @@ const backspaceCtrl = ContentState => {
         start: { key, offset },
         end: { key, offset }
       }
-      this.render()
+      this.partialRender()
     }
   }
 }

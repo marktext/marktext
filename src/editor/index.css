@@ -33,6 +33,11 @@ h6.ag-active::before {
   font-weight: 100;
 }
 
+.ag-off-screen {
+  position: absolute;
+  left: 100vw;
+}
+
 .ag-paragraph:empty::after,
 .ag-line:empty:after {
   content: '\200B'

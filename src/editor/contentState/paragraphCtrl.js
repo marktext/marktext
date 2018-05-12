@@ -106,7 +106,7 @@ const paragraphCtrl = ContentState => {
           // 2. second update bullet list to task list
           setTimeout(() => {
             this.updateTaskListItem(listItemParagraph, listType)
-            this.render()
+            this.partialRender()
           })
         } else {
           this.updateList(block, listType)
@@ -152,7 +152,7 @@ const paragraphCtrl = ContentState => {
       for (const block of listContainer) {
         block.isLooseListItem = !block.isLooseListItem
       }
-      this.render()
+      this.partialRender()
     }
   }
 
@@ -327,7 +327,7 @@ const paragraphCtrl = ContentState => {
         break
       }
     }
-    this.render()
+    this.partialRender()
   }
 }
 
