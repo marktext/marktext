@@ -91,8 +91,8 @@ const tabCtrl = ContentState => {
         target = this.getNextSibling(target)
       }
     }
-    const outMostBlock = this.findOutMostBlock(listParent)
-    return this.partialRender([ outMostBlock ])
+
+    return this.partialRender()
   }
 
   ContentState.prototype.indentListItem = function () {
@@ -118,8 +118,7 @@ const tabCtrl = ContentState => {
     }
 
     this.appendChild(newList, listItem)
-    const outMostBlock = this.findOutMostBlock(newList)
-    this.partialRender([outMostBlock])
+    this.partialRender()
   }
 
   // ContentState.prototype.insertTab = function () {
@@ -168,9 +167,8 @@ const tabCtrl = ContentState => {
         start: { key, offset: 0 },
         end: { key, offset: textLength }
       }
-      const outMostStartBlock = this.findOutMostBlock(startBlock)
-      const outMostEndBlock = this.findOutMostBlock(endBlock)
-      return this.partialRender([...new Set([outMostStartBlock, outMostEndBlock])])
+
+      return this.partialRender()
     }
 
     if (this.isIndentableListItem()) {

@@ -56,7 +56,7 @@ const tableBlockCtrl = ContentState => {
       end: { key, offset }
     }
     this.eventCenter.dispatch('stateChange')
-    this.render()
+    this.partialRender()
   }
 
   ContentState.prototype.initTable = function (block) {
@@ -113,7 +113,7 @@ const tableBlockCtrl = ContentState => {
           })
         })
         this.eventCenter.dispatch('stateChange')
-        this.render()
+        this.partialRender()
         break
       }
       case 'delete': {
@@ -129,7 +129,7 @@ const tableBlockCtrl = ContentState => {
           end: { key, offset }
         }
         this.eventCenter.dispatch('stateChange')
-        this.render()
+        this.partialRender()
         break
       }
       case 'table': {
@@ -193,7 +193,7 @@ const tableBlockCtrl = ContentState => {
             end: { key, offset }
           }
           this.eventCenter.dispatch('stateChange')
-          this.render()
+          this.partialRender()
         }
 
         tablePicker.toggle({ row, column }, { left, top }, handler.bind(this))

@@ -4,7 +4,6 @@ import selection from '../selection'
 import StateRender from '../parser/StateRender'
 import enterCtrl from './enterCtrl'
 import updateCtrl from './updateCtrl'
-import garbageCtrl from './garbageCtrl'
 import backspaceCtrl from './backspaceCtrl'
 import codeBlockCtrl from './codeBlockCtrl'
 import tableBlockCtrl from './tableBlockCtrl'
@@ -26,7 +25,6 @@ const prototypes = [
   tabCtrl,
   enterCtrl,
   updateCtrl,
-  garbageCtrl,
   backspaceCtrl,
   codeBlockCtrl,
   historyCtrl,
@@ -45,18 +43,17 @@ const prototypes = [
 
 const HAS_TEXT_BLOCK_REG = /^(h\d|span|th|td|hr|pre)/
 
-// use to cache the keys which you don't want to remove.
-const exemption = new Set()
-
 class ContentState {
   constructor (options) {
     const { eventCenter } = options
     Object.assign(this, options)
-    this.keys = new Set()
+    // Use to cache the keys which you don't want to remove.
+    this.exemption = new Set()
     this.blocks = [ this.createBlockP() ]
     this.stateRender = new StateRender(eventCenter)
     this.codeBlocks = new Map()
     this.loadMathMap = new Map()
+    this.renderRange = [null, null]
     this.history = new History(this)
     this.init()
   }
@@ -98,28 +95,43 @@ class ContentState {
     }
   }
 
+  setNextRenderRange () {
+    const { start, end } = this.cursor
+    const startOutMostBlock = this.findOutMostBlock(this.getBlock(start.key))
+    const endOutMostBlock = this.findOutMostBlock(this.getBlock(end.key))
+    this.renderRange = [ startOutMostBlock.preSibling, endOutMostBlock.nextSibling ]
+  }
+
   render (isRenderCursor = true) {
     const { blocks, cursor, searchMatches: { matches, index } } = this
     const activeBlocks = this.getActiveBlocks()
     matches.forEach((m, i) => {
       m.active = i === index
     })
+    this.setNextRenderRange()
     this.stateRender.render(blocks, cursor, activeBlocks, matches)
     this.pre2CodeMirror(isRenderCursor)
-    if (isRenderCursor) this.setCursor()
     this.renderMath()
+    if (isRenderCursor) this.setCursor()
   }
 
-  partialRender (blocks) {
-    const { cursor, searchMatches: { matches, index } } = this
+  partialRender () {
+    const { blocks, cursor, searchMatches: { matches, index } } = this
     const activeBlocks = this.getActiveBlocks()
+    const [ startKey, endKey ] = this.renderRange
     matches.forEach((m, i) => {
       m.active = i === index
     })
-    this.stateRender.partialRender(blocks, cursor, activeBlocks, matches)
-    this.pre2CodeMirror(true, blocks)
+
+    const startIndex = startKey ? blocks.findIndex(block => block.key === startKey) : 0
+    const endIndex = endKey ? blocks.findIndex(block => block.key === endKey) + 1 : blocks.length
+    const needRenderBlocks = blocks.slice(startIndex, endIndex)
+
+    this.setNextRenderRange()
+    this.stateRender.partialRender(needRenderBlocks, cursor, activeBlocks, matches, startKey, endKey)
+    this.pre2CodeMirror(true, needRenderBlocks)
+    this.renderMath(needRenderBlocks)
     this.setCursor()
-    this.renderMath(blocks)
   }
 
   /**
@@ -127,7 +139,7 @@ class ContentState {
    * a line block must in a `p block` and `p block`'s children must be line blocks.
    */
   createBlock (type = 'span', text = '') { // span type means it is a line block.
-    const key = getUniqueId(this.keys)
+    const key = getUniqueId()
     return {
       key,
       type,
@@ -153,11 +165,6 @@ class ContentState {
 
   // getBlocks
   getBlocks () {
-    // for (const [ key, cm ] of this.codeBlocks.entries()) {
-    //   const value = cm.getValue()
-    //   const block = this.getBlock(key)
-    //   if (block) block.text = value
-    // }
     return this.blocks
   }
 
@@ -231,7 +238,7 @@ class ContentState {
 
   removeTextOrBlock (block) {
     const checkerIn = block => {
-      if (exemption.has(block.key)) {
+      if (this.exemption.has(block.key)) {
         return true
       } else {
         const parent = this.getBlock(block.parent)
@@ -242,7 +249,7 @@ class ContentState {
     const checkerOut = block => {
       const children = block.children
       if (children.length) {
-        if (children.some(child => exemption.has(child.key))) {
+        if (children.some(child => this.exemption.has(child.key))) {
           return true
         } else {
           return children.some(child => checkerOut(child))
@@ -278,10 +285,10 @@ class ContentState {
   removeBlocks (before, after, isRemoveAfter = true, isRecursion = false) {
     if (!isRecursion) {
       if (/td|th/.test(before.type)) {
-        exemption.add(this.findFigure(before))
+        this.exemption.add(this.findFigure(before))
       }
       if (/td|th/.test(after.type)) {
-        exemption.add(this.findFigure(after))
+        this.exemption.add(this.findFigure(after))
       }
     }
     let nextSibling = this.getBlock(before.nextSibling)
@@ -321,7 +328,7 @@ class ContentState {
       this.removeTextOrBlock(after)
     }
     if (!isRecursion) {
-      exemption.clear()
+      this.exemption.clear()
     }
   }
 
@@ -356,10 +363,6 @@ class ContentState {
       }
     }
     remove(Array.isArray(fromBlocks) ? fromBlocks : fromBlocks.children, block)
-    if (!block.parent) {
-      const element = document.querySelector(`#${block.key}`)
-      if (element) element.remove()
-    }
   }
 
   getActiveBlocks () {
@@ -371,10 +374,6 @@ class ContentState {
       result.push(block)
     }
     return result
-  }
-
-  getCursorBlock () {
-    return this.getBlock(this.cursor.key) || null
   }
 
   insertAfter (newBlock, oldBlock) {
@@ -407,21 +406,12 @@ class ContentState {
   }
 
   findOutMostBlock (block) {
-    if (!block.parent) {
-      return block
-    } else {
-      const parent = this.getBlock(block.parent)
-      return this.findOutMostBlock(parent)
-    }
+    const parent = this.getBlock(block.parent)
+    return parent ? this.findOutMostBlock(parent) : block
   }
 
   findIndex (children, block) {
-    const len = children.length
-    let i
-    for (i = 0; i < len; i++) {
-      if (children[i].key === block.key) return i
-    }
-    return -1
+    return children.findIndex(child => child === block)
   }
 
   prependChild (parent, block) {
@@ -448,15 +438,10 @@ class ContentState {
   }
 
   replaceBlock (newBlock, oldBlock) {
-    let index
-    if (!oldBlock.parent) {
-      index = this.findIndex(this.blocks, oldBlock)
-      this.blocks.splice(index, 1, newBlock)
-    } else {
-      const parent = this.getBlock(oldBlock.parent)
-      index = this.findIndex(parent.children, oldBlock)
-      parent.children.splice(index, 1, newBlock)
-    }
+    const blockList = oldBlock.parent ? this.getParent(oldBlock).children : this.blocks
+    const index = this.findIndex(blockList, oldBlock)
+
+    blockList.splice(index, 1, newBlock)
     newBlock.parent = oldBlock.parent
     newBlock.preSibling = oldBlock.preSibling
     newBlock.nextSibling = oldBlock.nextSibling
@@ -524,7 +509,7 @@ class ContentState {
     const parent = this.getParent(block)
     const nextBlock = this.getNextSibling(block)
 
-    if (block.nextSibling && nextBlock.editable !== false) {
+    if (nextBlock && nextBlock.editable !== false) {
       return this.firstInDescendant(nextBlock)
     } else if (parent) {
       return this.findNextBlockInLocation(parent)
@@ -540,7 +525,6 @@ class ContentState {
   }
 
   clear () {
-    this.keys.clear()
     this.codeBlocks.clear()
   }
 }

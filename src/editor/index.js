@@ -57,11 +57,10 @@ class Aganippe {
 
     eventCenter.subscribe('stateChange', this.dispatchChange.bind(this))
 
-    // if you dont click the keyboard after 1 second, the garbageCollection will run.
+    // if you dont click the keyboard after 1 second, the history collection will run.
     eventCenter.attachDOMEvent(container, 'keydown', debounce(event => {
       contentState.historyHandler(event)
-      contentState.garbageCollection()
-    }, 300))
+    }, 1000))
 
     eventCenter.attachDOMEvent(container, 'paste', event => {
       contentState.pasteHandler(event)

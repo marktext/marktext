@@ -1,5 +1,5 @@
 import bus from '../bus'
-import { getIdWithoutSet } from '../../editor/utils'
+import { getUniqueId } from '../../editor/utils'
 
 export const error = msg => {
   bus.$emit('status-error', msg)
@@ -10,7 +10,7 @@ export const message = (msg, timeout) => {
 }
 
 export const promote = msg => {
-  const eventId = getIdWithoutSet()
+  const eventId = getUniqueId()
   bus.$emit('status-promote', msg, eventId)
 
   return new Promise((resolve, reject) => {

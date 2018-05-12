@@ -222,7 +222,7 @@ const formatCtrl = ContentState => {
         }
       }
     }
-    this.render()
+    this.partialRender()
   }
 
   ContentState.prototype.format = function (type) {
@@ -261,7 +261,7 @@ const formatCtrl = ContentState => {
         addFormat(type, startBlock, { start, end })
       }
       this.cursor = { start, end }
-      this.render()
+      this.partialRender()
     } else {
       let nextBlock = startBlock
       const formatType = type !== 'clear' ? type : undefined
@@ -291,7 +291,7 @@ const formatCtrl = ContentState => {
       }
 
       this.cursor = { start, end }
-      this.render()
+      this.partialRender()
     }
   }
 }

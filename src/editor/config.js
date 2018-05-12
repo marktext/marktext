@@ -1,4 +1,4 @@
-import { generateKeyHash, genUpper2LowerKeyHash, getIdWithoutSet } from './utils'
+import { generateKeyHash, genUpper2LowerKeyHash, getLongUniqueId } from './utils'
 import htmlTags from 'html-tags'
 import voidHtmlTags from 'html-tags/void'
 
@@ -111,7 +111,8 @@ export const CLASS_OR_ID = genUpper2LowerKeyHash([
   'AG_TIGHT_LIST_ITEM',
   'AG_HTML_TAG',
   'AG_LINK',
-  'AG_HARD_LINE_BREAK'
+  'AG_HARD_LINE_BREAK',
+  'AG_OFF_SCREEN'
 ])
 
 export const codeMirrorConfig = {
@@ -155,7 +156,7 @@ export const htmlBeautifyConfig = {
   }
 }
 
-export const CURSOR_DNA = getIdWithoutSet()
+export const CURSOR_DNA = getLongUniqueId()
 
 export const turndownConfig = {
   headingStyle: 'atx',

@@ -146,10 +146,8 @@ const arrowCtrl = ContentState => {
             offset
           }
         }
-        const outMostBlock = this.findOutMostBlock(block)
-        const outMostOfActiveBlock = this.findOutMostBlock(activeBlock)
 
-        return this.partialRender([...new Set([outMostBlock, outMostOfActiveBlock])])
+        return this.partialRender()
       }
       return
     }
@@ -202,10 +200,7 @@ const arrowCtrl = ContentState => {
           }
         }
 
-        const outMostBlock = this.findOutMostBlock(block)
-        const outMostOfActiveBlock = this.findOutMostBlock(activeBlock)
-
-        return this.partialRender([...new Set([outMostBlock, outMostOfActiveBlock])])
+        return this.partialRender()
       }
     }
 
@@ -225,10 +220,7 @@ const arrowCtrl = ContentState => {
       const cm = this.codeBlocks.get(preBlock.key)
       preBlock.pos = getEndPosition(cm)
 
-      const outMostBlock = this.findOutMostBlock(block)
-      const outMostOfPreBlock = this.findOutMostBlock(preBlock)
-
-      return this.partialRender([...new Set([outMostBlock, outMostOfPreBlock])])
+      return this.partialRender()
     } else if (
       (nextBlock && nextBlock.type === 'pre' && event.key === EVENT_KEYS.ArrowDown) ||
       (nextBlock && nextBlock.type === 'pre' && event.key === EVENT_KEYS.ArrowRight && right === 0)
@@ -243,10 +235,8 @@ const arrowCtrl = ContentState => {
       }
 
       nextBlock.pos = getBeginPosition()
-      const outMostBlock = this.findOutMostBlock(block)
-      const outMostOfNextBlock = this.findOutMostBlock(nextBlock)
 
-      return this.partialRender([...new Set([outMostBlock, outMostOfNextBlock])])
+      return this.partialRender()
     } else if (
       (event.key === EVENT_KEYS.ArrowUp) ||
       (event.key === EVENT_KEYS.ArrowLeft && start.offset === 0)
@@ -260,10 +250,8 @@ const arrowCtrl = ContentState => {
         start: { key, offset },
         end: { key, offset }
       }
-      const outMostBlock = this.findOutMostBlock(block)
-      const outMostOfPreBlock = this.findOutMostBlock(preBlock)
 
-      return this.partialRender([...new Set([outMostBlock, outMostOfPreBlock])])
+      return this.partialRender()
     } else if (
       (event.key === EVENT_KEYS.ArrowDown) ||
       (event.key === EVENT_KEYS.ArrowRight && start.offset === block.text.length)
@@ -285,10 +273,8 @@ const arrowCtrl = ContentState => {
         start: { key, offset },
         end: { key, offset }
       }
-      const outMostBlock = this.findOutMostBlock(block)
-      const outMostOfNewBlock = this.findOutMostBlock(nextBlock || newBlock)
 
-      return this.partialRender([...new Set([outMostBlock, outMostOfNewBlock])])
+      return this.partialRender()
     }
   }
 }

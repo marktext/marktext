@@ -40,7 +40,7 @@ const imagePathCtrl = ContentState => {
         end: { key, offset: offset + (text.length - chop.length) }
       }
       floatBox.hideIfNeeded('image-path')
-      this.render()
+      this.partialRender()
     }
     floatBox.showIfNeeded({ left, top }, 'image-path', cb)
     floatBox.setOptions(list)

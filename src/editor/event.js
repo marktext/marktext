@@ -5,7 +5,6 @@ class EventCenter {
   constructor () {
     this.events = []
     this.listeners = {}
-    this.eventIds = new Set() // use to store eventId
     // bind mousetrap methods to event instance.
     ;['bind', 'unbind', 'trigger', 'stopCallback', 'reset', 'handleKey', 'addKeycodes'].forEach(method => {
       this[method] = mousetrap[method]
@@ -17,7 +16,7 @@ class EventCenter {
    */
   attachDOMEvent (target, event, listener, capture) {
     if (this.checkHasBind(target, event, listener, capture)) return false
-    const eventId = getUniqueId(this.eventIds)
+    const eventId = getUniqueId()
     target.addEventListener(event, listener, capture)
     this.events.push({
       eventId,

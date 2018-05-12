@@ -55,13 +55,15 @@ const htmlBlock = ContentState => {
         htmlBlock.type = 'p'
         htmlBlock.text = ''
         htmlBlock.children = []
-        const key = htmlBlock.key
+        const emptyLine = this.createBlock('span')
+        this.appendChild(htmlBlock, emptyLine)
+        const key = emptyLine.key
         const offset = 0
         this.cursor = {
           start: { key, offset },
           end: { key, offset }
         }
-        this.render()
+        this.partialRender()
         break
     }
   }
@@ -75,7 +77,7 @@ const htmlBlock = ContentState => {
       start: { key, offset },
       end: { key, offset }
     }
-    this.render()
+    this.partialRender()
   }
 
   ContentState.prototype.createHtmlBlock = function (code) {

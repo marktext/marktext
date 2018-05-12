@@ -29,7 +29,7 @@ const codeBlockCtrl = ContentState => {
     const block = this.getBlock(paragraph.id)
     block.text = block.text.replace(/^(`+)([^`]+$)/g, `$1${name}`)
     this.codeBlockUpdate(block)
-    this.render()
+    this.partialRender()
   }
   // Fix bug: when click the edge at the code block, the code block will be not focused.
   ContentState.prototype.focusCodeBlock = function (event) {
@@ -40,7 +40,7 @@ const codeBlockCtrl = ContentState => {
       start: { key, offset },
       end: { key, offset }
     }
-    this.render()
+    this.partialRender()
   }
   /**
    * [codeBlockUpdate if block updated to `pre` return true, else return false]
@@ -88,6 +88,7 @@ const codeBlockCtrl = ContentState => {
     }
 
     const pres = document.querySelectorAll(selector)
+
     Array.from(pres).forEach(pre => {
       const id = pre.id
       const block = this.getBlock(id)
