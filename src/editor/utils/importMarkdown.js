@@ -9,7 +9,7 @@ import marked from '../parser/marked'
 import ExportMarkdown from './exportMarkdown'
 
 // To be disabled rules when parse markdown, Because content state don't need to parse inline rules
-import { turndownConfig, CLASS_OR_ID, CURSOR_DNA, TABLE_TOOLS, BLOCK_TYPE7, LINE_BREAK } from '../config'
+import { HAS_TEXT_BLOCK_REG, turndownConfig, CLASS_OR_ID, CURSOR_DNA, TABLE_TOOLS, BLOCK_TYPE7, LINE_BREAK } from '../config'
 
 const turndownPluginGfm = require('turndown-plugin-gfm')
 
@@ -23,7 +23,7 @@ turndownService.use(gfm)
 // because the strikethrough rule in gfm is single `~`, So need rewrite the strikethrough rule.
 turndownService.addRule('strikethrough', {
   filter: ['del', 's', 'strike'],
-  replacement: function (content) {
+  replacement (content) {
     return '~~' + content + '~~'
   }
 })
@@ -39,14 +39,13 @@ turndownService.addRule('lineBreak', {
   }
 })
 
-// remove `\` in emoji text when paste
-turndownService.addRule('normalEmoji', {
+// remove `\` in text when paste
+turndownService.addRule('normalText', {
   filter (node, options) {
-    return node.nodeName === 'SPAN' &&
-      node.classList.contains(CLASS_OR_ID['AG_EMOJI_MARKED_TEXT'])
+    return HAS_TEXT_BLOCK_REG.test(node.nodeName) || /^p$/i.test(node.nodeName)
   },
   replacement (content, node, options) {
-    return content.replace(/\\/g, '')
+    return content.replace(/\\(?!\\)/g, '')
   }
 })
 
@@ -298,6 +297,7 @@ const importRegister = ContentState => {
   }
   // transform `paste's text/html data` to content state blocks.
   ContentState.prototype.html2State = function (html) {
+    console.log(html)
     // remove double `\\` in Math but I dont know why there are two '\' when paste. @jocs
     const markdown = turndownService.turndown(html).replace(/(\\)\\/g, '$1')
     return this.getStateFragment(markdown)
