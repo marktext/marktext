@@ -1,24 +1,15 @@
 // DOTO: Don't use Node API in editor folder, remove `path` @jocs
 import path from 'path'
 
-// help functions
-const getId = () => {
-  const prefix = 'ag-'
-  return `${prefix}${Math.random().toString(32).slice(2)}`
-}
+const ID_PREFIX = 'ag-'
+let id = 0
 
 /**
  * get unique id base on a set.
  */
-export const getUniqueId = set => {
-  let id
-
-  do {
-    id = getId()
-  } while (set.has(id))
-  set.add(id)
-
-  return id
+export const getUniqueId = () => {
+  id++
+  return `${ID_PREFIX}${id}`
 }
 
 export const isMetaKey = event => {
@@ -28,8 +19,8 @@ export const isMetaKey = event => {
 
 export const noop = () => {}
 
-export const getIdWithoutSet = () => {
-  return `${getId()}-${+new Date()}`
+export const getLongUniqueId = () => {
+  return `${getUniqueId()}-${+new Date()}`
 }
 
 export const isOdd = number => Math.abs(number) % 2 === 1

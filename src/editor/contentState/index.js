@@ -45,14 +45,12 @@ const prototypes = [
 
 const HAS_TEXT_BLOCK_REG = /^(h\d|span|th|td|hr|pre)/
 
-// Use to cache the keys which you don't want to remove.
-const exemption = new Set()
-
 class ContentState {
   constructor (options) {
     const { eventCenter } = options
     Object.assign(this, options)
-    this.keys = new Set()
+    // Use to cache the keys which you don't want to remove.
+    this.exemption = new Set()
     this.blocks = [ this.createBlockP() ]
     this.stateRender = new StateRender(eventCenter)
     this.codeBlocks = new Map()
@@ -128,7 +126,7 @@ class ContentState {
    * a line block must in a `p block` and `p block`'s children must be line blocks.
    */
   createBlock (type = 'span', text = '') { // span type means it is a line block.
-    const key = getUniqueId(this.keys)
+    const key = getUniqueId()
     return {
       key,
       type,
@@ -227,7 +225,7 @@ class ContentState {
 
   removeTextOrBlock (block) {
     const checkerIn = block => {
-      if (exemption.has(block.key)) {
+      if (this.exemption.has(block.key)) {
         return true
       } else {
         const parent = this.getBlock(block.parent)
@@ -238,7 +236,7 @@ class ContentState {
     const checkerOut = block => {
       const children = block.children
       if (children.length) {
-        if (children.some(child => exemption.has(child.key))) {
+        if (children.some(child => this.exemption.has(child.key))) {
           return true
         } else {
           return children.some(child => checkerOut(child))
@@ -274,10 +272,10 @@ class ContentState {
   removeBlocks (before, after, isRemoveAfter = true, isRecursion = false) {
     if (!isRecursion) {
       if (/td|th/.test(before.type)) {
-        exemption.add(this.findFigure(before))
+        this.exemption.add(this.findFigure(before))
       }
       if (/td|th/.test(after.type)) {
-        exemption.add(this.findFigure(after))
+        this.exemption.add(this.findFigure(after))
       }
     }
     let nextSibling = this.getBlock(before.nextSibling)
@@ -317,7 +315,7 @@ class ContentState {
       this.removeTextOrBlock(after)
     }
     if (!isRecursion) {
-      exemption.clear()
+      this.exemption.clear()
     }
   }
 
@@ -514,7 +512,6 @@ class ContentState {
   }
 
   clear () {
-    this.keys.clear()
     this.codeBlocks.clear()
   }
 }

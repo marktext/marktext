@@ -1,4 +1,4 @@
-import { generateKeyHash, genUpper2LowerKeyHash, getIdWithoutSet } from './utils'
+import { generateKeyHash, genUpper2LowerKeyHash, getLongUniqueId } from './utils'
 import htmlTags from 'html-tags'
 import voidHtmlTags from 'html-tags/void'
 
@@ -155,7 +155,7 @@ export const htmlBeautifyConfig = {
   }
 }
 
-export const CURSOR_DNA = getIdWithoutSet()
+export const CURSOR_DNA = getLongUniqueId()
 
 export const turndownConfig = {
   headingStyle: 'atx',

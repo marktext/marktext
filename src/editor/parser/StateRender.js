@@ -1,6 +1,6 @@
 import virtualize from 'snabbdom-virtualize/strings'
 import { CLASS_OR_ID, IMAGE_EXT_REG } from '../config'
-import { conflict, isLengthEven, union, isEven, getIdWithoutSet, loadImage, getImageSrc } from '../utils'
+import { conflict, isLengthEven, union, isEven, getUniqueId, loadImage, getImageSrc } from '../utils'
 import { insertBefore, insertAfter, operateClassName } from '../utils/domManipulate'
 import { tokenizer } from './parse'
 import { validEmoji } from '../emojis'
@@ -536,7 +536,7 @@ class StateRender {
     let isSuccess
 
     if (!this.loadImageMap.has(src)) {
-      id = getIdWithoutSet()
+      id = getUniqueId()
       loadImage(src)
         .then(url => {
           const imageWrapper = document.querySelector(`#${id}`)
