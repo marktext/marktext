@@ -103,7 +103,6 @@ class ContentState {
   }
 
   render (isRenderCursor = true) {
-    console.log('render')
     const { blocks, cursor, searchMatches: { matches, index } } = this
     const activeBlocks = this.getActiveBlocks()
     matches.forEach((m, i) => {
@@ -117,7 +116,6 @@ class ContentState {
   }
 
   partialRender () {
-    console.log('partialrender')
     const { blocks, cursor, searchMatches: { matches, index } } = this
     const activeBlocks = this.getActiveBlocks()
     const [ startKey, endKey ] = this.renderRange
