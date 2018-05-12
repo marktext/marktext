@@ -1,3 +1,4 @@
+import { HAS_TEXT_BLOCK_REG } from '../config'
 import { setCursorAtLastLine } from '../codeMirror'
 import { getUniqueId } from '../utils'
 import selection from '../selection'
@@ -40,8 +41,6 @@ const prototypes = [
   htmlBlockCtrl,
   importMarkdown
 ]
-
-const HAS_TEXT_BLOCK_REG = /^(h\d|span|th|td|hr|pre)/
 
 class ContentState {
   constructor (options) {
