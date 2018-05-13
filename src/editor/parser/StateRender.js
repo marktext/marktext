@@ -84,7 +84,7 @@ class StateRender {
     let selector = this.getSelector(block, cursor, activeBlocks)
     // highlight search key in block
     const highlights = matches.filter(m => m.key === block.key)
-    const { text, type, align, htmlContent, icon, checked, key, lang, functionType } = block
+    const { text, type, align, htmlContent, icon, checked, key, lang, functionType, codeBlockStyle } = block
     const data = {
       attrs: {},
       dataset: {}
@@ -142,6 +142,11 @@ class StateRender {
       if (lang) {
         Object.assign(data.dataset, {
           lang
+        })
+      }
+      if (codeBlockStyle) {
+        Object.assign(data.dataset, {
+          codeBlockStyle
         })
       }
       selector += `.${CLASS_OR_ID['AG_CODEMIRROR_BLOCK']}`

@@ -58,6 +58,7 @@ const codeBlockCtrl = ContentState => {
     if (match) {
       block.type = 'pre'
       block.functionType = 'code'
+      block.codeBlockStyle = 'fenced'
       block.text = ''
       block.history = null
       block.lang = match[1]
@@ -107,6 +108,10 @@ const codeBlockCtrl = ContentState => {
           .then(m => {
             pre.setAttribute('data-lang', m.name)
             block.lang = m.name.toLowerCase()
+            // change indent code block to fence code block
+            if (block.codeBlockStyle !== 'fenced') {
+              block.codeBlockStyle = 'fenced'
+            }
             if (input) {
               input.value = m.name
               input.blur()

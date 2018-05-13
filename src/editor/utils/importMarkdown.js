@@ -83,20 +83,24 @@ const importRegister = ContentState => {
 
     const htmlText = marked(markdown, { disableInline: true })
     const domAst = parse5.parseFragment(htmlText)
-    // console.log(markdown)
-    // console.log(htmlText)
-    // console.log(domAst)
+    console.log(markdown)
+    console.log(htmlText)
+    console.log(domAst)
     const childNodes = domAst.childNodes
 
-    const getLang = node => {
+    const getLangAndType = node => {
       let lang = ''
+      let codeBlockStyle = ''
       if (node.nodeName === 'code') {
         const classAttr = node.attrs.filter(attr => attr.name === 'class')[0]
-        if (classAttr && /^lang-/.test(classAttr.value)) {
-          lang = classAttr.value.split('-')[1]
+        if (classAttr && classAttr.value) {
+          const { value } = classAttr
+          const token = /lang-([^\s]+)/.exec(value)
+          codeBlockStyle = /fenced-code-block/.test(value) ? 'fenced' : 'indented'
+          lang = token ? token[1] : ''
         }
       }
-      return lang
+      return { lang, codeBlockStyle }
     }
 
     const getRowColumnCount = childNodes => {
@@ -232,6 +236,7 @@ const importRegister = ContentState => {
 
           case 'pre':
             const codeNode = child.childNodes[0]
+            const { lang, codeBlockStyle } = getLangAndType(codeNode)
             value = codeNode.childNodes[0].value
 
             if (value.endsWith('\n')) {
@@ -239,7 +244,7 @@ const importRegister = ContentState => {
             }
             block = this.createBlock('pre', value)
             block.functionType = 'code'
-            block.lang = getLang(codeNode)
+            Object.assign(block, { lang, codeBlockStyle })
             this.appendChild(parent, block)
             break
 

@@ -79,7 +79,7 @@ const copyCutCtrl = ContentState => {
       codefense.each((i, cf) => {
         const ele = $(cf)
         const id = ele.attr('id')
-        const language = ele.attr('data-lang')
+        const language = ele.attr('data-lang') || ''
         const cm = this.codeBlocks.get(id)
         const codeText = cm.getValue()
         ele.empty()
