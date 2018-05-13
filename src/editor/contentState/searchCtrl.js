@@ -44,6 +44,7 @@ const searchCtrl = ContentState => {
     const { key, start, end } = match
 
     this.cursor = {
+      noHistory: true,
       start: {
         key,
         offset: start

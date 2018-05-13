@@ -2,6 +2,7 @@ import { generateKeyHash, genUpper2LowerKeyHash, getLongUniqueId } from './utils
 import htmlTags from 'html-tags'
 import voidHtmlTags from 'html-tags/void'
 
+export const UNDO_DEPTH = 100
 export const HAS_TEXT_BLOCK_REG = /^(h\d|span|th|td|hr|pre)/i
 export const VOID_HTML_TAGS = voidHtmlTags
 export const HTML_TAGS = htmlTags

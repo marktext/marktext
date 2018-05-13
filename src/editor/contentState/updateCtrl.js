@@ -329,8 +329,8 @@ const updateCtrl = ContentState => {
         end.offset !== oldEnd.offset
       ) {
         this.cursor = { start, end }
+        return this.partialRender()
       }
-      return
     }
 
     const oldKey = lastCursor ? lastCursor.start.key : null
@@ -412,7 +412,6 @@ const updateCtrl = ContentState => {
     if (oldKey !== key || oldStart.offset !== start.offset || oldEnd.offset !== end.offset) {
       needRender = true
     }
-
     this.cursor = lastCursor = { start, end }
     const checkMarkedUpdate = this.checkNeedRender(block)
     const inlineUpdatedBlock = this.isCollapse() && this.checkInlineUpdate(block)

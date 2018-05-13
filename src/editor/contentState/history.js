@@ -1,4 +1,5 @@
 import { deepCopy } from '../utils'
+import { UNDO_DEPTH } from '../config'
 
 export class History {
   constructor (contentState) {
@@ -13,8 +14,11 @@ export class History {
       const state = deepCopy(this.stack[this.index])
       switch (state.type) {
         case 'normal':
-          this.contentState.blocks = state.blocks
-          this.contentState.cursor = state.cursor
+          const { blocks, cursor, renderRange } = state
+          cursor.noHistory = true
+          this.contentState.blocks = blocks
+          this.contentState.renderRange = renderRange
+          this.contentState.cursor = cursor
           this.contentState.render()
           break
         case 'codeBlock':
@@ -34,8 +38,11 @@ export class History {
       const state = deepCopy(stack[this.index])
       switch (state.type) {
         case 'normal':
-          this.contentState.blocks = state.blocks
-          this.contentState.cursor = state.cursor
+          const { blocks, cursor, renderRange } = state
+          cursor.noHistory = true
+          this.contentState.blocks = blocks
+          this.contentState.renderRange = renderRange
+          this.contentState.cursor = cursor
           this.contentState.render()
           break
         case 'codeBlock':
@@ -48,9 +55,9 @@ export class History {
     }
   }
   push (state) {
-    const UNDO_DEPTH = 20
     this.stack.splice(this.index + 1)
-    this.stack.push(deepCopy(state))
+    const copyState = deepCopy(state)
+    this.stack.push(copyState)
     if (this.stack.length > UNDO_DEPTH) {
       this.stack.shift()
       this.index = this.index - 1

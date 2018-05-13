@@ -2,7 +2,7 @@ import ContentState from './contentState'
 import selection from './selection'
 import EventCenter from './event'
 import { LOWERCASE_TAGS, EVENT_KEYS, CLASS_OR_ID, codeMirrorConfig } from './config'
-import { throttle, debounce, wordCount } from './utils'
+import { throttle, wordCount } from './utils'
 import { search } from './codeMirror'
 import { checkEditLanguage } from './codeMirror/language'
 import Emoji, { checkEditEmoji, setInlineEmoji } from './emojis'
@@ -56,11 +56,6 @@ class Aganippe {
     this.dispatchHideFloatBox()
 
     eventCenter.subscribe('stateChange', this.dispatchChange.bind(this))
-
-    // if you dont click the keyboard after 1 second, the history collection will run.
-    eventCenter.attachDOMEvent(container, 'keydown', debounce(event => {
-      contentState.historyHandler(event)
-    }, 1000))
 
     eventCenter.attachDOMEvent(container, 'paste', event => {
       contentState.pasteHandler(event)
@@ -553,6 +548,7 @@ class Aganippe {
   }
 
   undo () {
+    console.log('undo')
     this.contentState.history.undo()
   }
 
