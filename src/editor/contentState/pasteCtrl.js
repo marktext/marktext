@@ -33,7 +33,7 @@ const pasteCtrl = ContentState => {
     if (!html) {
       html = text.split(/\n+/)
         .filter(t => t)
-        .map(t => `<p>${t}</p>`)
+        .map(t => `<p class="plain-text">${t}</p>`)
         .join('')
     }
 

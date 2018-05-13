@@ -130,11 +130,10 @@ const backspaceCtrl = ContentState => {
 
     if (start.key !== end.key) {
       event.preventDefault()
-      const key = start.key
-      const offset = start.offset
+      const { key, offset } = start
       const startRemainText = startBlock.type === 'pre'
-        ? startBlock.text.substring(0, start.offset - 1)
-        : startBlock.text.substring(0, start.offset)
+        ? startBlock.text.substring(0, offset - 1)
+        : startBlock.text.substring(0, offset)
 
       const endRemainText = endBlock.type === 'pre'
         ? endBlock.text.substring(end.offset - 1)
@@ -157,10 +156,9 @@ const backspaceCtrl = ContentState => {
           this.appendChild(pBlock, startBlock)
         }
       }
+
       startBlock.text = startRemainText + endRemainText
-
       this.removeBlocks(startBlock, endBlock)
-
       this.cursor = {
         start: { key, offset },
         end: { key, offset }

@@ -9,7 +9,7 @@ import marked from '../parser/marked'
 import ExportMarkdown from './exportMarkdown'
 
 // To be disabled rules when parse markdown, Because content state don't need to parse inline rules
-import { HAS_TEXT_BLOCK_REG, turndownConfig, CLASS_OR_ID, CURSOR_DNA, TABLE_TOOLS, BLOCK_TYPE7, LINE_BREAK } from '../config'
+import { turndownConfig, CLASS_OR_ID, CURSOR_DNA, TABLE_TOOLS, BLOCK_TYPE7, LINE_BREAK } from '../config'
 
 const turndownPluginGfm = require('turndown-plugin-gfm')
 
@@ -42,7 +42,9 @@ turndownService.addRule('lineBreak', {
 // remove `\` in text when paste
 turndownService.addRule('normalText', {
   filter (node, options) {
-    return HAS_TEXT_BLOCK_REG.test(node.nodeName) || /^p$/i.test(node.nodeName)
+    return (node.nodeName === 'SPAN' &&
+      node.classList.contains(CLASS_OR_ID['AG_EMOJI_MARKED_TEXT'])) ||
+      node.classList.contains('plain-text')
   },
   replacement (content, node, options) {
     return content.replace(/\\(?!\\)/g, '')
@@ -297,7 +299,6 @@ const importRegister = ContentState => {
   }
   // transform `paste's text/html data` to content state blocks.
   ContentState.prototype.html2State = function (html) {
-    console.log(html)
     // remove double `\\` in Math but I dont know why there are two '\' when paste. @jocs
     const markdown = turndownService.turndown(html).replace(/(\\)\\/g, '$1')
     return this.getStateFragment(markdown)
@@ -369,7 +370,6 @@ const importRegister = ContentState => {
 
   ContentState.prototype.importMarkdown = function (markdown) {
     // empty the blocks and codeBlocks
-    this.keys = new Set()
     this.codeBlocks = new Map()
     this.blocks = this.getStateFragment(markdown)
   }

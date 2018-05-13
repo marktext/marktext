@@ -9,7 +9,6 @@ import backspaceCtrl from './backspaceCtrl'
 import codeBlockCtrl from './codeBlockCtrl'
 import tableBlockCtrl from './tableBlockCtrl'
 import History from './history'
-import historyCtrl from './historyCtrl'
 import arrowCtrl from './arrowCtrl'
 import pasteCtrl from './pasteCtrl'
 import copyCutCtrl from './copyCutCtrl'
@@ -28,7 +27,6 @@ const prototypes = [
   updateCtrl,
   backspaceCtrl,
   codeBlockCtrl,
-  historyCtrl,
   arrowCtrl,
   pasteCtrl,
   copyCutCtrl,
@@ -52,9 +50,55 @@ class ContentState {
     this.stateRender = new StateRender(eventCenter)
     this.codeBlocks = new Map()
     this.loadMathMap = new Map()
-    this.renderRange = [null, null]
+    this.renderRange = [ null, null ]
+    this.currentCursor = null
+    this.prevCursor = null
+    this.historyTimer = null
     this.history = new History(this)
     this.init()
+  }
+
+  set cursor (cursor) {
+    if (this.currentCursor) {
+      const { start, end } = this.currentCursor
+      if (
+        start.key === cursor.start.key &&
+        start.offset === cursor.start.offset &&
+        end.key === cursor.end.key &&
+        end.offset === cursor.end.offset
+      ) {
+        return
+      }
+    }
+
+    const handler = () => {
+      const { blocks, renderRange, currentCursor } = this
+      this.history.push({
+        type: 'normal',
+        blocks,
+        renderRange,
+        cursor: currentCursor
+      })
+    }
+    this.prevCursor = this.currentCursor
+    this.currentCursor = cursor
+
+    if (!cursor.noHistory) {
+      if (
+        this.prevCursor && (this.prevCursor.start.key !== cursor.start.key || this.prevCursor.end.key !== cursor.end.key)
+      ) {
+        handler()
+      } else {
+        if (this.historyTimer) clearTimeout(this.historyTimer)
+        this.historyTimer = setTimeout(handler, 2000)
+      }
+    } else {
+      cursor.noHistory && delete cursor.noHistory
+    }
+  }
+
+  get cursor () {
+    return this.currentCursor
   }
 
   init () {
@@ -70,11 +114,6 @@ class ContentState {
       start: { key, offset },
       end: { key, offset }
     }
-    this.history.push({
-      type: 'normal',
-      blocks: this.blocks,
-      cursor: this.cursor
-    })
   }
 
   setCursor () {
@@ -96,8 +135,10 @@ class ContentState {
 
   setNextRenderRange () {
     const { start, end } = this.cursor
-    const startOutMostBlock = this.findOutMostBlock(this.getBlock(start.key))
-    const endOutMostBlock = this.findOutMostBlock(this.getBlock(end.key))
+    const startBlock = this.getBlock(start.key)
+    const endBlock = this.getBlock(end.key)
+    const startOutMostBlock = this.findOutMostBlock(startBlock)
+    const endOutMostBlock = this.findOutMostBlock(endBlock)
     this.renderRange = [ startOutMostBlock.preSibling, endOutMostBlock.nextSibling ]
   }
 
@@ -117,6 +158,7 @@ class ContentState {
   partialRender () {
     const { blocks, cursor, searchMatches: { matches, index } } = this
     const activeBlocks = this.getActiveBlocks()
+    const cursorOutMostBlock = activeBlocks[activeBlocks.length - 1]
     const [ startKey, endKey ] = this.renderRange
     matches.forEach((m, i) => {
       m.active = i === index
@@ -125,11 +167,11 @@ class ContentState {
     const startIndex = startKey ? blocks.findIndex(block => block.key === startKey) : 0
     const endIndex = endKey ? blocks.findIndex(block => block.key === endKey) + 1 : blocks.length
     const needRenderBlocks = blocks.slice(startIndex, endIndex)
-
+    // console.log(JSON.stringify(needRenderBlocks, null, 2), startKey, endKey)
     this.setNextRenderRange()
     this.stateRender.partialRender(needRenderBlocks, cursor, activeBlocks, matches, startKey, endKey)
-    this.pre2CodeMirror(true, needRenderBlocks)
-    this.renderMath(needRenderBlocks)
+    this.pre2CodeMirror(true, [...new Set([cursorOutMostBlock, ...needRenderBlocks])])
+    this.renderMath([...new Set([cursorOutMostBlock, ...needRenderBlocks])])
     this.setCursor()
   }
 
