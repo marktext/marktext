@@ -148,6 +148,18 @@ const enterCtrl = ContentState => {
     }
     // handle cursor in code block
     if (block.type === 'pre') {
+      if (block.functionType === 'frontmatter') {
+        event.preventDefault()
+        const { key, offset } = start
+        const { text } = block
+        block.text = text.substring(0, offset) + '\n' + text.substring(offset)
+
+        this.cursor = {
+          start: { key, offset: offset + 1 },
+          end: { key, offset: offset + 1 }
+        }
+        this.partialRender()
+      }
       return
     }
 

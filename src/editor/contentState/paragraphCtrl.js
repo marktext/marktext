@@ -30,7 +30,7 @@ const paragraphCtrl = ContentState => {
     end.type = endBlock.type
     end.block = endBlock
 
-    if (start.type === 'pre' && end.type === 'pre') {
+    if (start.type === 'pre' && end.type === 'pre' && startBlock.functionType !== 'frontmatter') {
       const preElement = document.querySelector(`#${start.key}`)
       const { top } = preElement.getBoundingClientRect()
       const { line } = start.block.pos
@@ -64,6 +64,23 @@ const paragraphCtrl = ContentState => {
       }
     }
     return { parent, startIndex, endIndex }
+  }
+
+  ContentState.prototype.handleFrontMatter = function () {
+    const firstBlock = this.blocks[0]
+    if (firstBlock.type === 'pre' && firstBlock.functionType === 'frontmatter') return
+    const frontMatter = this.createBlock('pre')
+    frontMatter.functionType = 'frontmatter'
+    this.insertBefore(frontMatter, firstBlock)
+    const { key } = frontMatter
+    const offset = 0
+    this.cursor = {
+      start: { key, offset },
+      end: { key, offset }
+    }
+    this.partialRender()
+    const selectionChanges = this.selectionChange()
+    this.eventCenter.dispatch('selectionChange', selectionChanges)
   }
 
   ContentState.prototype.handleListMenu = function (paraType) {
@@ -252,6 +269,10 @@ const paragraphCtrl = ContentState => {
     const { type, text } = block
 
     switch (paraType) {
+      case 'front-matter': {
+        this.handleFrontMatter()
+        break
+      }
       case 'ul-bullet':
       case 'ul-task':
       case 'ol-order': {

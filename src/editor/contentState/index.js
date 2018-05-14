@@ -119,9 +119,7 @@ class ContentState {
   setCursor () {
     const { start: { key } } = this.cursor
     const block = this.getBlock(key)
-    if (block.type !== 'pre') {
-      selection.setCursorRange(this.cursor)
-    } else {
+    if (block.type === 'pre' && block.functionType !== 'frontmatter') {
       const cm = this.codeBlocks.get(key)
       const { pos } = block
       if (pos) {
@@ -130,6 +128,8 @@ class ContentState {
       } else {
         setCursorAtLastLine(cm)
       }
+    } else {
+      selection.setCursorRange(this.cursor)
     }
   }
 

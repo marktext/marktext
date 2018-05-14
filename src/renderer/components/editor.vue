@@ -69,7 +69,7 @@
   const PARAGRAPH_CMD = [
     'ul-bullet', 'ul-task', 'ol-order', 'pre', 'blockquote', 'heading 1', 'heading 2', 'heading 3',
     'heading 4', 'heading 5', 'heading 6', 'upgrade heading', 'degrade heading', 'paragraph', 'hr',
-    'loose-list-item'
+    'loose-list-item', 'front-matter'
   ]
 
   export default {

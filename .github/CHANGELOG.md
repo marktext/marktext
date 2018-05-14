@@ -7,6 +7,7 @@
 - feature: unindent list item - Jocs
 - feature: Support for CRLF and LF line endings
 - feature: Click filename to `rename` or `save` in title bar.
+- feature: Support YAML Front Matter
 
 **:butterfly:Optimization**
 

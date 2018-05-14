@@ -103,6 +103,14 @@ const importRegister = ContentState => {
       return { lang, codeBlockStyle }
     }
 
+    const isFrontMatter = node => {
+      const classAttr = node.attrs.filter(attr => attr.name === 'class')[0]
+      if (classAttr && classAttr.value) {
+        return /front-matter/.test(classAttr.value)
+      }
+      return false
+    }
+
     const getRowColumnCount = childNodes => {
       const THEAD_ROW_COUNT = 1
       const tbodyNode = childNodes.find(child => child.nodeName === 'tbody')
@@ -235,16 +243,23 @@ const importRegister = ContentState => {
             break
 
           case 'pre':
-            const codeNode = child.childNodes[0]
-            const { lang, codeBlockStyle } = getLangAndType(codeNode)
-            value = codeNode.childNodes[0].value
+            const frontMatter = isFrontMatter(child)
+            if (frontMatter) {
+              value = child.childNodes[0].value
+              block = this.createBlock('pre', value)
+              block.functionType = 'frontmatter'
+            } else {
+              const codeNode = child.childNodes[0]
+              const { lang, codeBlockStyle } = getLangAndType(codeNode)
+              value = codeNode.childNodes[0].value
 
-            if (value.endsWith('\n')) {
-              value = value.replace(/\n+$/, '')
+              if (value.endsWith('\n')) {
+                value = value.replace(/\n+$/, '')
+              }
+              block = this.createBlock('pre', value)
+              block.functionType = 'code'
+              Object.assign(block, { lang, codeBlockStyle })
             }
-            block = this.createBlock('pre', value)
-            block.functionType = 'code'
-            Object.assign(block, { lang, codeBlockStyle })
             this.appendChild(parent, block)
             break
 

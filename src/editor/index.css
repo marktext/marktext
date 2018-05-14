@@ -338,6 +338,18 @@ p:not(.ag-active)[data-role="hr"] * {
   color: transparent;
 }
 
+pre.ag-front-matter {
+  background: #F2F6FC;
+  padding: 1rem;
+  border: 3px;
+  font-size: 15px;
+}
+
+pre.ag-front-matter:empty::before {
+  content: 'Input YAML Front Matter...';
+  color: #999;
+}
+
 figure,
 pre.ag-html-block,
 div.ag-function-html,

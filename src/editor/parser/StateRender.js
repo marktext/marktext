@@ -128,6 +128,11 @@ class StateRender {
       }
       children = ''
     } else if (type === 'pre') {
+      const hash = {
+        'code': `.${CLASS_OR_ID['AG_CODE_BLOCK']}`,
+        'html': `.${CLASS_OR_ID['AG_HTML_BLOCK']}`,
+        'frontmatter': `.${CLASS_OR_ID['AG_FRONT_MATTER']}`
+      }
       if (lang) {
         Object.assign(data.dataset, {
           lang
@@ -138,9 +143,13 @@ class StateRender {
           codeBlockStyle
         })
       }
-      selector += `.${CLASS_OR_ID['AG_CODEMIRROR_BLOCK']}`
-      selector += functionType === 'code' ? `.${CLASS_OR_ID['AG_CODE_BLOCK']}` : `.${CLASS_OR_ID['AG_HTML_BLOCK']}`
-      children = ''
+      selector += functionType !== 'frontmatter' ? `.${CLASS_OR_ID['AG_CODEMIRROR_BLOCK']}` : ''
+      selector += hash[functionType]
+      if (functionType !== 'frontmatter') {
+        children = ''
+      } else {
+        children = text
+      }
     }
 
     return h(selector, data, children)

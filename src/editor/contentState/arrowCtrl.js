@@ -66,9 +66,12 @@ const arrowCtrl = ContentState => {
 
     if (
       (start.key === end.key && start.offset !== end.offset) ||
-      start.key !== end.key
+      start.key !== end.key ||
+      (this.isCollapse({ start, end }) && block.type === 'pre' && block.functionType === 'frontmatter')
     ) {
-      return
+      if (event.key !== EVENT_KEYS.ArrowDown || right !== 0) {
+        return
+      }
     }
 
     if (show && (event.key === EVENT_KEYS.ArrowUp || event.key === EVENT_KEYS.ArrowDown)) {
@@ -89,7 +92,7 @@ const arrowCtrl = ContentState => {
       return
     }
 
-    if (block.type === 'pre') {
+    if (block.type === 'pre' && block.functionType !== 'frontmatter') {
       // handle cursor in code block. the case at firstline or lastline.
       const cm = this.codeBlocks.get(id)
       const anchorBlock = block.functionType === 'html' ? this.getParent(this.getParent(block)) : block
@@ -205,8 +208,8 @@ const arrowCtrl = ContentState => {
     }
 
     if (
-      (preBlock && preBlock.type === 'pre' && event.key === EVENT_KEYS.ArrowUp) ||
-      (preBlock && preBlock.type === 'pre' && event.key === EVENT_KEYS.ArrowLeft && left === 0)
+      (preBlock && preBlock.type === 'pre' && preBlock.functionType !== 'frontmatter' && event.key === EVENT_KEYS.ArrowUp) ||
+      (preBlock && preBlock.type === 'pre' && preBlock.functionType !== 'frontmatter' && event.key === EVENT_KEYS.ArrowLeft && left === 0)
     ) {
       event.preventDefault()
       event.stopPropagation()
@@ -222,8 +225,8 @@ const arrowCtrl = ContentState => {
 
       return this.partialRender()
     } else if (
-      (nextBlock && nextBlock.type === 'pre' && event.key === EVENT_KEYS.ArrowDown) ||
-      (nextBlock && nextBlock.type === 'pre' && event.key === EVENT_KEYS.ArrowRight && right === 0)
+      (nextBlock && nextBlock.type === 'pre' && nextBlock.functionType !== 'frontmatter' && event.key === EVENT_KEYS.ArrowDown) ||
+      (nextBlock && nextBlock.type === 'pre' && nextBlock.functionType !== 'frontmatter' && event.key === EVENT_KEYS.ArrowRight && right === 0)
     ) {
       event.preventDefault()
       event.stopPropagation()

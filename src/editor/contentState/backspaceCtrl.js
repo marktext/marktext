@@ -131,11 +131,11 @@ const backspaceCtrl = ContentState => {
     if (start.key !== end.key) {
       event.preventDefault()
       const { key, offset } = start
-      const startRemainText = startBlock.type === 'pre'
+      const startRemainText = startBlock.type === 'pre' && startBlock.functionType !== 'frontmatter'
         ? startBlock.text.substring(0, offset - 1)
         : startBlock.text.substring(0, offset)
 
-      const endRemainText = endBlock.type === 'pre'
+      const endRemainText = endBlock.type === 'pre' && endBlock.functionType !== 'frontmatter'
         ? endBlock.text.substring(end.offset - 1)
         : endBlock.text.substring(end.offset)
 
@@ -183,7 +183,7 @@ const backspaceCtrl = ContentState => {
       return tHeadHasContent || tBodyHasContent
     }
 
-    if (block.type === 'pre') {
+    if (block.type === 'pre' && block.functionType !== 'frontmatter') {
       const cm = this.codeBlocks.get(id)
       // if event.preventDefault(), you can not use backspace in language input.
       if (isCursorAtBegin(cm) && onlyHaveOneLine(cm)) {
@@ -197,6 +197,27 @@ const backspaceCtrl = ContentState => {
         const key = newBlock.children[0].key
         const offset = 0
 
+        this.cursor = {
+          start: { key, offset },
+          end: { key, offset }
+        }
+        this.partialRender()
+      }
+    } else if (block.type === 'pre' && block.functionType === 'frontmatter') {
+      if (left === 0) {
+        event.preventDefault()
+        event.stopPropagation()
+        const text = block.text.trim()
+        const pBlock = this.createBlock('p')
+        let key = null
+        const offset = 0
+        text.split('\n').forEach((lineText, i) => {
+          const line = this.createBlock('span', lineText)
+          this.appendChild(pBlock, line)
+          if (i === 0) key = line.key
+        })
+        this.insertBefore(pBlock, block)
+        this.removeBlock(block)
         this.cursor = {
           start: { key, offset },
           end: { key, offset }
@@ -306,7 +327,7 @@ const backspaceCtrl = ContentState => {
       const { text } = block
       const key = preBlock.key
       const offset = preBlock.text.length
-      if (preBlock.type === 'pre') {
+      if (preBlock.type === 'pre' && preBlock.functionType !== 'frontmatter') {
         const cm = this.codeBlocks.get(key)
         const value = cm.getValue() + text
         cm.setValue(value)
