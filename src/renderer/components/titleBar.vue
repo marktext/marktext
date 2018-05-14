@@ -13,7 +13,7 @@
           <use xlink:href="#icon-arrow-right"></use>
         </svg>
       </span>
-      <span>{{ filename }}</span>
+      <span @click="rename">{{ filename }}</span>
       <span class="save-dot" :class="{'show': !isSaved}"></span>
     </div>
     <div :class="platform !== 'darwin' ? 'left-toolbar' : 'right-toolbar'">
@@ -140,6 +140,10 @@
 
       handleWindowStateChanged () {
         this.isMaximized = remote.getCurrentWindow().isMaximized() || remote.getCurrentWindow().isFullScreen()
+      },
+
+      rename () {
+        this.$store.dispatch('RESPONSE_FOR_RENAME')
       }
     },
     beforeDestroy () {

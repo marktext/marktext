@@ -1,4 +1,4 @@
-### 0.11.18
+### 0.11.31
 
 **:cactus:Feature**
 
@@ -6,6 +6,7 @@
 - feature: line break, support event and import and export markdown - Jocs
 - feature: unindent list item - Jocs
 - feature: Support for CRLF and LF line endings
+- feature: Click filename to `rename` or `save` in title bar.
 
 **:butterfly:Optimization**
 
@@ -16,18 +17,28 @@
 - Disable update menu for snap and not supported packages (#196) - Felix Häusler
 - Check whether window size is larger than screen size (#192) - Felix Häusler
 - Add fallback editor font family (#209) - Felix Häusler
+- Use `partialRender` instead of `render` when render the file, this will speed up the render phase.
+- optimization: reduce the width of scroll bar in float box.
+- Smaller scrollbars and hover color (#245)
+- update: update electron to v2.0.0
 
 **:beetle:Bug fix**
 
-- fix the error 'Cannot read property 'forEach' of undefined' (#178) - 鸿则
+- fix: #94 history error
+- fix: #213 style error when render math
+- fix: the error 'Cannot read property 'forEach' of undefined' (#178) - 鸿则
 - fix: Change Source Code Mode Accelerator (#180) - Mice
 - fix: #153 Double space between tasklist checkbox and text - Jocs
-- fix #198 navigation in table
+- fix: #198 navigation in table
 - fix: #190 Delete user settings on uninstall (NSIS) (#203) - Felix Häusler
 - fix: html block style error when active - Jocs
 - fix: PDF Export is contacted by LaTeX hightlight #194
 - fix: Table inside a list is not supported #202
 - fix: Cannot open file when window is started maximized or in full-screen mode #217
+- fix: #243 (#260)
+- fix: #232 (#259)
+- fix: #251
+- fix: #248 dark background disappears when export PDF (#252)
 
 ### 0.10.21
 

@@ -192,15 +192,19 @@ const actions = {
     })
   },
 
-  LISTEN_FOR_RENAME ({ commit, state }) {
+  RESPONSE_FOR_RENAME ({ commit, state }) {
+    const { pathname, markdown } = state
+    const options = getOptionsFromState(state)
+    if (!pathname) {
+      ipcRenderer.send('AGANI::response-file-save', { pathname, markdown, options })
+    } else {
+      bus.$emit('rename')
+    }
+  },
+
+  LISTEN_FOR_RENAME ({ commit, state, dispatch }) {
     ipcRenderer.on('AGANI::ask-file-rename', () => {
-      const { pathname, markdown } = state
-      const options = getOptionsFromState(state)
-      if (!pathname) {
-        ipcRenderer.send('AGANI::response-file-save', { pathname, markdown, options })
-      } else {
-        bus.$emit('rename')
-      }
+      dispatch('RESPONSE_FOR_RENAME')
     })
   },
 
