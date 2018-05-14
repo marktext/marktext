@@ -176,6 +176,7 @@ Lexer.prototype.token = function(src, top, bq) {
       cap = cap[0].replace(/^ {4}/gm, '');
       this.tokens.push({
         type: 'code',
+        codeBlockStyle: 'indented',
         text: !this.options.pedantic ?
           cap.replace(/\n+$/, '') :
           cap
@@ -188,6 +189,7 @@ Lexer.prototype.token = function(src, top, bq) {
       src = src.substring(cap[0].length);
       this.tokens.push({
         type: 'code',
+        codeBlockStyle: 'fenced',
         lang: cap[2],
         text: cap[3]
       });
@@ -803,7 +805,7 @@ function Renderer(options) {
   this.options = options || {};
 }
 
-Renderer.prototype.code = function(code, lang, escaped) {
+Renderer.prototype.code = function (code, lang, escaped, codeBlockStyle) {
   if (this.options.highlight) {
     var out = this.options.highlight(code, lang);
     if (out != null && out !== code) {
@@ -812,15 +814,11 @@ Renderer.prototype.code = function(code, lang, escaped) {
     }
   }
 
-  if (!lang) {
-    return '<pre><code>' +
-      (escaped ? code : escape(code, true)) +
-      '\n</code></pre>';
-  }
+  let className = codeBlockStyle === 'fenced' ? 'fenced-code-block' : 'indented-code-block'
+  className = lang ? `${className} ${this.options.langPrefix}${escape(lang, true)}` : className
 
   return '<pre><code class="' +
-    this.options.langPrefix +
-    escape(lang, true) +
+    className +
     '">' +
     (escaped ? code : escape(code, true)) +
     '\n</code></pre>\n';
@@ -1063,9 +1061,8 @@ Parser.prototype.tok = function() {
       }
     case 'code':
       {
-        return this.renderer.code(this.token.text,
-          this.token.lang,
-          this.token.escaped);
+        const { codeBlockStyle, text, lang, escaped } = this.token
+        return this.renderer.code(text, lang, escaped, codeBlockStyle)
       }
     case 'table':
       {
