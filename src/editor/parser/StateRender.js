@@ -1,7 +1,7 @@
 import virtualize from 'snabbdom-virtualize/strings'
 import { CLASS_OR_ID, IMAGE_EXT_REG } from '../config'
 import { conflict, isLengthEven, union, isEven, getUniqueId, loadImage, getImageSrc } from '../utils'
-import { insertBefore, insertAfter, operateClassName } from '../utils/domManipulate'
+import { insertAfter, operateClassName } from '../utils/domManipulate'
 import { tokenizer } from './parse'
 import { validEmoji } from '../emojis'
 
@@ -13,6 +13,7 @@ const patch = snabbdom.init([ // Init patch function with chosen modules
   require('snabbdom/modules/dataset').default
 ])
 const h = require('snabbdom/h').default // helper function for creating vnodes
+const toHTML = require('snabbdom-to-html')
 const toVNode = require('snabbdom/tovnode').default
 
 class StateRender {
@@ -20,18 +21,6 @@ class StateRender {
     this.eventCenter = eventCenter
     this.loadImageMap = new Map()
     this.container = null
-    this.offScreen = null
-    this.init()
-  }
-
-  init () {
-    let section = document.querySelector(`.${CLASS_OR_ID['AG_OFF_SCREEN']}`)
-    if (!section) {
-      section = document.createElement('section')
-      section.classList.add(CLASS_OR_ID['AG_OFF_SCREEN'])
-      document.body.appendChild(section)
-    }
-    this.offScreen = section
   }
 
   setContainer (container) {
@@ -255,12 +244,9 @@ class StateRender {
     const cursorOutMostBlock = activeBlocks[activeBlocks.length - 1]
     // If cursor is not in render blocks, need to render cursor block independently
     const needRenderCursorBlock = blocks.indexOf(cursorOutMostBlock) === -1
-    const newVnode = h(`section.${CLASS_OR_ID['AG_OFF_SCREEN']}`, blocks.map(block => this.renderBlock(block, cursor, activeBlocks, matches)))
-    const { offScreen } = this
+    const newVnode = h('section', blocks.map(block => this.renderBlock(block, cursor, activeBlocks, matches)))
+    const html = toHTML(newVnode).replace(/^<section>([\s\S]+?)<\/section>$/, '$1')
 
-    patch(offScreen, newVnode)
-
-    const renderedDoms = offScreen.children
     const needToRemoved = []
     const firstOldDom = startKey
       ? document.querySelector(`#${startKey}`)
@@ -273,13 +259,9 @@ class StateRender {
     }
     nextSibling && needToRemoved.push(nextSibling)
 
-    Array.from(renderedDoms).forEach(dom => {
-      insertBefore(dom, firstOldDom)
-    })
+    firstOldDom.insertAdjacentHTML('beforebegin', html)
 
     Array.from(needToRemoved).forEach(dom => dom.remove())
-
-    offScreen.textContent = ''
 
     // Render cursor block independently
     if (needRenderCursorBlock) {
