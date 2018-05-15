@@ -150,14 +150,20 @@ const enterCtrl = ContentState => {
     if (block.type === 'pre') {
       if (block.functionType === 'frontmatter') {
         event.preventDefault()
-        const { key, offset } = start
+        let { key, offset } = start
         const { text } = block
         block.text = text.substring(0, offset) + '\n' + text.substring(offset)
-
-        this.cursor = {
-          start: { key, offset: offset + 1 },
-          end: { key, offset: offset + 1 }
+        // There must be 2 '\n' to generate a line break when cursor at the end
+        if (offset === text.length && !/\n{2}$/.test(block.text)) {
+          offset++
+          block.text += '\n'
         }
+        offset++
+        this.cursor = {
+          start: { key, offset },
+          end: { key, offset }
+        }
+
         this.partialRender()
       }
       return

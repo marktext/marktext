@@ -160,9 +160,9 @@ Lexer.prototype.token = function(src, top, bq) {
   var src = src.replace(/^ +$/gm, ''),
     loose, cap, bull, b, item, space, i, l, checked;
   
+  // Only check front matter at the begining of markdown file
   if (!bq && top && (cap = this.rules.frontmatter.exec(src))) {
     src = src.substring(cap[0].length)
-    console.log(cap)
     this.tokens.push({
       type: 'frontmatter',
       text: cap[1]
