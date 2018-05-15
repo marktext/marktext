@@ -2,6 +2,8 @@ import selection from '../selection'
 import { PARAGRAPH_TYPES } from '../config'
 import ExportMarkdown from '../utils/exportMarkdown'
 
+const LINE_BREAKS_REG = /\n/
+
 // get header level
 //  eg: h1 => 1
 //      h2 => 2
@@ -90,9 +92,22 @@ const paragraphCtrl = ContentState => {
     const { start, end, affiliation } = this.selectionChange()
     const [blockType, listType] = paraType.split('-')
     const isListed = affiliation.slice(0, 3).filter(b => /ul|ol/.test(b.type))
+    const { preferLooseListItem } = this
 
-    if (isListed.length && listType !== isListed[0].listType) {
+    if (isListed.length) {
       const listBlock = isListed[0]
+      if (listType === isListed[0].listType) {
+        const listItems = listBlock.children
+        listItems.forEach(listItem => {
+          listItem.children.forEach(itemParagraph => {
+            if (itemParagraph.type !== 'input') {
+              this.insertBefore(itemParagraph, listBlock)
+            }
+          })
+        })
+        this.removeBlock(listBlock)
+        return
+      }
       // if the old list block is task list, remove checkbox
       if (listBlock.listType === 'task') {
         const listItems = listBlock.children
@@ -137,16 +152,18 @@ const paragraphCtrl = ContentState => {
         const referBlock = children[endIndex]
         const listWrapper = this.createBlock(listType === 'order' ? 'ol' : 'ul')
         listWrapper.listType = listType
-        this.insertAfter(listWrapper, referBlock)
         if (listType === 'order') listWrapper.start = 1
-        let i
-        let child
-        const removeCache = []
-        for (i = startIndex; i <= endIndex; i++) {
-          child = children[i]
-          removeCache.push(child)
+
+        children.slice(startIndex, endIndex + 1).forEach(child => {
+          if (child !== referBlock) {
+            this.removeBlock(child, children)
+          } else {
+            this.insertAfter(listWrapper, child)
+            this.removeBlock(child, children)
+          }
           const listItem = this.createBlock('li')
           listItem.listItemType = listType
+          listItem.isLooseListItem = preferLooseListItem
           this.appendChild(listWrapper, listItem)
           if (listType === 'task') {
             const checkbox = this.createBlock('input')
@@ -154,8 +171,7 @@ const paragraphCtrl = ContentState => {
             this.appendChild(listItem, checkbox)
           }
           this.appendChild(listItem, child)
-        }
-        removeCache.forEach(b => this.removeBlock(b))
+        })
       }
     }
   }
@@ -178,36 +194,66 @@ const paragraphCtrl = ContentState => {
 
   ContentState.prototype.handleCodeBlockMenu = function () {
     const { start, end, affiliation } = this.selectionChange()
-    const startBlock = this.getBlock(start.key)
+    let startBlock = this.getBlock(start.key)
     const endBlock = this.getBlock(end.key)
     const startParents = this.getParents(startBlock)
     const endParents = this.getParents(endBlock)
-    const hasPreParent = () => {
-      return startParents.some(b => b.type === 'pre') || endParents.some(b => b.type === 'pre')
+    const hasFencedCodeBlockParent = () => {
+      return startParents.some(b => b.type === 'pre' && b.functionType === 'code') ||
+        endParents.some(b => b.type === 'pre' && b.functionType === 'code')
     }
-    if (affiliation.length && affiliation[0].type === 'pre') {
+    // change fenced code block to p paragraph
+    if (affiliation.length && affiliation[0].type === 'pre' && affiliation[0].functionType === 'code') {
       const codeBlock = affiliation[0]
+      this.codeBlocks.delete(codeBlock.key)
+      codeBlock.type = 'p'
+      codeBlock.children = []
+      const lines = codeBlock.text.split(LINE_BREAKS_REG).map(line => this.createBlock('span', line))
+      for (const line of lines) {
+        this.appendChild(codeBlock, line)
+      }
+
+      const { key } = codeBlock.children[codeBlock.pos.line]
+      const offset = codeBlock.pos.ch
       delete codeBlock.pos
       delete codeBlock.history
       delete codeBlock.lang
-      this.codeBlocks.delete(codeBlock.key)
-      codeBlock.type = 'p'
-      const key = codeBlock.key
-      const offset = codeBlock.text.length
+      delete codeBlock.coords
+      delete codeBlock.text
+      delete codeBlock.codeBlockStyle
+      delete codeBlock.functionType
       this.cursor = {
         start: { key, offset },
         end: { key, offset }
       }
     } else {
       if (start.key === end.key) {
+        if (startBlock.type === 'span') {
+          startBlock = this.getParent(startBlock)
+          startBlock.text = startBlock.children.map(line => line.text).join('\n')
+          const line = startBlock.children.findIndex(line => line.key === start.key)
+          const ch = start.offset
+          startBlock.pos = { line, ch }
+          startBlock.children = []
+        }
+        const { key } = startBlock
+        const offset = 0
         startBlock.type = 'pre'
+        startBlock.codeBlockStyle = 'fenced'
+        startBlock.functionType = 'code'
         startBlock.history = null
         startBlock.lang = ''
-      } else if (!hasPreParent()) {
+        this.cursor = {
+          start: { key, offset },
+          end: { key, offset }
+        }
+      } else if (!hasFencedCodeBlockParent()) {
         const { parent, startIndex, endIndex } = this.getCommonParent()
         const children = parent ? parent.children : this.blocks
         const referBlock = children[endIndex]
         const codeBlock = this.createBlock('pre')
+        codeBlock.codeBlockStyle = 'fenced'
+        codeBlock.functionType = 'code'
         codeBlock.history = null
         codeBlock.lang = ''
         const markdown = new ExportMarkdown(children.slice(startIndex, endIndex + 1)).generate()
@@ -222,9 +268,10 @@ const paragraphCtrl = ContentState => {
         }
         removeCache.forEach(b => this.removeBlock(b))
         const key = codeBlock.key
+        const offset = 0
         this.cursor = {
-          start: { key, offset: 0 },
-          end: { key, offset: 0 }
+          start: { key, offset },
+          end: { key, offset }
         }
       }
     }
@@ -232,8 +279,9 @@ const paragraphCtrl = ContentState => {
 
   ContentState.prototype.handleQuoteMenu = function () {
     const { start, end, affiliation } = this.selectionChange()
-    const startBlock = this.getBlock(start.key)
+    let startBlock = this.getBlock(start.key)
     const isBlockQuote = affiliation.slice(0, 2).filter(b => /blockquote/.test(b.type))
+    // change blockquote to paragraph
     if (isBlockQuote.length) {
       const quoteBlock = isBlockQuote[0]
       const children = quoteBlock.children
@@ -241,8 +289,12 @@ const paragraphCtrl = ContentState => {
         this.insertBefore(child, quoteBlock)
       }
       this.removeBlock(quoteBlock)
+    // change paragraph to blockquote
     } else {
       if (start.key === end.key) {
+        if (startBlock.type === 'span') {
+          startBlock = this.getParent(startBlock)
+        }
         const quoteBlock = this.createBlock('blockquote')
         this.insertAfter(quoteBlock, startBlock)
         this.removeBlock(startBlock)
@@ -252,16 +304,16 @@ const paragraphCtrl = ContentState => {
         const children = parent ? parent.children : this.blocks
         const referBlock = children[endIndex]
         const quoteBlock = this.createBlock('blockquote')
-        this.insertAfter(quoteBlock, referBlock)
-        let i
-        const removeCache = []
-        for (i = startIndex; i <= endIndex; i++) {
-          const child = children[i]
-          removeCache.push(child)
-          this.appendChild(quoteBlock, child)
-        }
 
-        removeCache.forEach(b => this.removeBlock(b))
+        children.slice(startIndex, endIndex + 1).forEach(child => {
+          if (child !== referBlock) {
+            this.removeBlock(child, children)
+          } else {
+            this.insertAfter(quoteBlock, child)
+            this.removeBlock(child, children)
+          }
+          this.appendChild(quoteBlock, child)
+        })
       }
     }
   }
@@ -303,9 +355,11 @@ const paragraphCtrl = ContentState => {
       case 'upgrade heading':
       case 'degrade heading':
       case 'paragraph': {
+        if (start.key !== end.key) return
         const [, hash, partText] = /(^#*)(.*)/.exec(text)
-        let newLevel = 0
+        let newLevel = 0 // 1, 2, 3, 4, 5, 6
         let newType = 'p'
+        let key
         if (/\d/.test(paraType)) {
           newLevel = Number(paraType.split(/\s/)[1])
           newType = `h${newLevel}`
@@ -322,27 +376,67 @@ const paragraphCtrl = ContentState => {
           newType = newLevel === 0 ? 'p' : `h${newLevel}`
         }
 
-        start.offset += newLevel - hash.length + 1
-        end.offset += newLevel - hash.length + 1
-        block.text = '#'.repeat(newLevel) + ` ${partText}`
-        block.type = newType
-        this.cursor = { start, end }
+        const startOffset = start.offset + newLevel - hash.length + 1
+        const endOffset = end.offset + newLevel - hash.length + 1
+        const newText = '#'.repeat(newLevel) + ` ${partText}`
+        if (block.type === 'span' && newType !== 'p') {
+          const header = this.createBlock(newType, newText)
+          key = header.key
+          const parent = this.getParent(block)
+          if (this.isOnlyChild(block)) {
+            this.insertBefore(header, parent)
+            this.removeBlock(parent)
+          } else if (this.isFirstChild(block)) {
+            this.insertBefore(header, parent)
+            this.removeBlock(block)
+          } else if (this.isLastChild(block)) {
+            this.insertAfter(header, parent)
+            this.removeBlock(block)
+          } else {
+            const pBlock = this.createBlock('p')
+            let nextSibling = this.getNextSibling(block)
+            while (nextSibling) {
+              this.appendChild(pBlock, nextSibling)
+              const oldNextSibling = nextSibling
+              nextSibling = this.getNextSibling(nextSibling)
+              this.removeBlock(oldNextSibling)
+            }
+            this.removeBlock(block)
+            this.insertAfter(header, parent)
+            this.insertAfter(pBlock, header)
+          }
+        } else if (/^h/.test(block.type) && newType === 'p') {
+          const pBlock = this.createBlockP(newText)
+          key = pBlock.children[0].key
+          this.insertAfter(pBlock, block)
+          this.removeBlock(block)
+        } else {
+          const newHeader = this.createBlock(newType, newText)
+          key = newHeader.key
+          this.insertAfter(newHeader, block)
+          this.removeBlock(block)
+        }
+        this.cursor = {
+          start: { key, offset: startOffset },
+          end: { key, offset: endOffset }
+        }
         break
       }
       case 'hr': {
-        const newBlock = this.createBlock('p')
-        let hrBlock
-        if (text) {
-          hrBlock = this.createBlock('hr')
-          hrBlock.text = '---'
-          this.insertAfter(hrBlock, block)
-          this.insertAfter(newBlock, hrBlock)
-        } else {
-          block.type = 'hr'
-          block.text = '---'
-          this.insertAfter(newBlock, block)
+        const pBlock = this.createBlockP()
+        const archor = block.type === 'span' ? this.getParent(block) : block
+        const hrBlock = this.createBlock('hr')
+        hrBlock.text = '---'
+        this.insertAfter(hrBlock, archor)
+        this.insertAfter(pBlock, hrBlock)
+        if (!text) {
+          if (block.type === 'span' && this.isOnlyChild(block)) {
+            this.removeBlock(archor)
+          } else {
+            this.removeBlock(block)
+          }
         }
-        const key = newBlock.key
+        const { key } = pBlock.children[0]
         const offset = 0
         this.cursor = {
           start: { key, offset },

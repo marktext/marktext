@@ -102,6 +102,9 @@ const updateCtrl = ContentState => {
   }
 
   ContentState.prototype.updateList = function (block, type, marker = '') {
+    if (block.type === 'span') {
+      block = this.getParent(block)
+    }
     const { preferLooseListItem } = this
     const parent = this.getParent(block)
     const preSibling = this.getPreSibling(block)
@@ -161,10 +164,14 @@ const updateCtrl = ContentState => {
         offset: Math.max(0, endOffset - marker.length)
       }
     }
-    return newBlock
+    return block
   }
 
   ContentState.prototype.updateTaskListItem = function (block, type, marker = '') {
+    if (block.type === 'span') {
+      block = this.getParent(block)
+    }
+
     const { preferLooseListItem } = this
     const parent = this.getParent(block)
     const grandpa = this.getParent(parent)

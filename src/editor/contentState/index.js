@@ -135,6 +135,7 @@ class ContentState {
 
   setNextRenderRange () {
     const { start, end } = this.cursor
+    // console.log(JSON.stringify(this.cursor, null, 2))
     const startBlock = this.getBlock(start.key)
     const endBlock = this.getBlock(end.key)
     const startOutMostBlock = this.findOutMostBlock(startBlock)
@@ -163,7 +164,7 @@ class ContentState {
     matches.forEach((m, i) => {
       m.active = i === index
     })
-
+    // console.log(startKey, endKey)
     const startIndex = startKey ? blocks.findIndex(block => block.key === startKey) : 0
     const endIndex = endKey ? blocks.findIndex(block => block.key === endKey) + 1 : blocks.length
     const needRenderBlocks = blocks.slice(startIndex, endIndex)
@@ -439,6 +440,7 @@ class ContentState {
     oldBlock.preSibling = newBlock.key
     newBlock.parent = oldBlock.parent
     newBlock.nextSibling = oldBlock.key
+    newBlock.preSibling = null
 
     if (oldPreSibling) {
       oldPreSibling.nextSibling = newBlock.key
