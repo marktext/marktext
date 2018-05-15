@@ -203,27 +203,27 @@ const backspaceCtrl = ContentState => {
         }
         this.partialRender()
       }
-    } else if (block.type === 'pre' && block.functionType === 'frontmatter') {
-      if (left === 0) {
-        event.preventDefault()
-        event.stopPropagation()
-        const text = block.text.trim()
-        const pBlock = this.createBlock('p')
-        let key = null
-        const offset = 0
-        text.split('\n').forEach((lineText, i) => {
-          const line = this.createBlock('span', lineText)
-          this.appendChild(pBlock, line)
-          if (i === 0) key = line.key
-        })
-        this.insertBefore(pBlock, block)
-        this.removeBlock(block)
-        this.cursor = {
-          start: { key, offset },
-          end: { key, offset }
-        }
-        this.partialRender()
+    } else if (
+      block.type === 'span' && block.functionType === 'frontmatter' &&
+      left === 0 && !preBlock
+    ) {
+      event.preventDefault()
+      event.stopPropagation()
+      const { key } = block
+      const offset = 0
+      const pBlock = this.createBlock('p')
+      for (const line of parent.children) {
+        delete line.functionType
+        this.appendChild(pBlock, line)
       }
+      this.insertBefore(pBlock, parent)
+      this.removeBlock(parent)
+
+      this.cursor = {
+        start: { key, offset },
+        end: { key, offset }
+      }
+      this.partialRender()
     } else if (left === 0 && /th|td/.test(block.type)) {
       event.preventDefault()
       event.stopPropagation()
@@ -288,7 +288,6 @@ const backspaceCtrl = ContentState => {
             })
             this.removeBlock(parent)
           } else if (inlineDegrade.info === 'INSERT_PRE_LIST_ITEM') {
-            console.log(parent)
             const parPre = this.getBlock(parent.preSibling)
             const children = parent.children
             if (children[0].type === 'input') {

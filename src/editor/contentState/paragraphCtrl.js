@@ -70,9 +70,12 @@ const paragraphCtrl = ContentState => {
     const firstBlock = this.blocks[0]
     if (firstBlock.type === 'pre' && firstBlock.functionType === 'frontmatter') return
     const frontMatter = this.createBlock('pre')
+    const emptyLine = this.createBlock('span')
+    emptyLine.functionType = 'frontmatter'
     frontMatter.functionType = 'frontmatter'
+    this.appendChild(frontMatter, emptyLine)
     this.insertBefore(frontMatter, firstBlock)
-    const { key } = frontMatter
+    const { key } = emptyLine
     const offset = 0
     this.cursor = {
       start: { key, offset },

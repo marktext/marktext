@@ -140,7 +140,9 @@ class ExportMarkdown {
   normalizeFrontMatter (block, indent) {
     const result = []
     result.push('---\n')
-    result.push(`${block.text.trim()}\n`)
+    for (const line of block.children) {
+      result.push(`${line.text}\n`)
+    }
     result.push('---\n')
     return result.join('')
   }

@@ -414,7 +414,7 @@ const updateCtrl = ContentState => {
     }
     this.cursor = lastCursor = { start, end }
     const checkMarkedUpdate = this.checkNeedRender(block)
-    const inlineUpdatedBlock = this.isCollapse() && block.type !== 'pre' && this.checkInlineUpdate(block)
+    const inlineUpdatedBlock = this.isCollapse() && block.functionType !== 'frontmatter' && this.checkInlineUpdate(block)
 
     if (checkMarkedUpdate || inlineUpdatedBlock || needRender) {
       this.partialRender()

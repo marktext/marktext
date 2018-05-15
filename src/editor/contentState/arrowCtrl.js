@@ -66,12 +66,9 @@ const arrowCtrl = ContentState => {
 
     if (
       (start.key === end.key && start.offset !== end.offset) ||
-      start.key !== end.key ||
-      (this.isCollapse({ start, end }) && block.type === 'pre' && block.functionType === 'frontmatter')
+      start.key !== end.key
     ) {
-      if (event.key !== EVENT_KEYS.ArrowDown || right !== 0) {
-        return
-      }
+      return
     }
 
     if (show && (event.key === EVENT_KEYS.ArrowUp || event.key === EVENT_KEYS.ArrowDown)) {

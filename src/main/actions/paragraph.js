@@ -90,8 +90,8 @@ ipcMain.on('AGANI::selection-change', (e, { start, end, affiliation }) => {
   setParagraphMenuItemStatus(true)
   if (
     (/th|td/.test(start.type) && /th|td/.test(end.type)) ||
-    (start.type === 'pre' && start.block.functionType === 'frontmatter') ||
-    (end.type === 'pre' && end.block.functionType === 'frontmatter')
+    (start.type === 'span' && start.block.functionType === 'frontmatter') ||
+    (end.type === 'span' && end.block.functionType === 'frontmatter')
   ) {
     setParagraphMenuItemStatus(false)
   } else if (start.key !== end.key) {
