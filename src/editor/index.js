@@ -548,7 +548,6 @@ class Aganippe {
   }
 
   undo () {
-    console.log('undo')
     this.contentState.history.undo()
   }
 

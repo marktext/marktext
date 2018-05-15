@@ -300,7 +300,7 @@ const updateCtrl = ContentState => {
       this.removeBlocks(startBlock, endBlock)
       // there still has little bug, when the oldstart block is `pre`, the input value will be ignored.
       // and act as `backspace`
-      if (startBlock.type === 'pre') {
+      if (startBlock.type === 'pre' && startBlock.functionType !== 'frontmatter') {
         event.preventDefault()
         const startRemainText = startBlock.type === 'pre'
           ? startBlock.text.substring(0, oldStart.offset - 1)
@@ -365,7 +365,7 @@ const updateCtrl = ContentState => {
       }
     }
 
-    if (block && block.type === 'pre') {
+    if (block && block.type === 'pre' && block.functionType !== 'frontmatter') {
       if (block.key !== oldKey) {
         this.cursor = lastCursor = { start, end }
         if (event.type === 'click' && oldKey) {
@@ -414,7 +414,7 @@ const updateCtrl = ContentState => {
     }
     this.cursor = lastCursor = { start, end }
     const checkMarkedUpdate = this.checkNeedRender(block)
-    const inlineUpdatedBlock = this.isCollapse() && this.checkInlineUpdate(block)
+    const inlineUpdatedBlock = this.isCollapse() && block.functionType !== 'frontmatter' && this.checkInlineUpdate(block)
 
     if (checkMarkedUpdate || inlineUpdatedBlock || needRender) {
       this.partialRender()

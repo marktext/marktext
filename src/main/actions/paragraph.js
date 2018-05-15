@@ -24,7 +24,8 @@ const LABEL_MAP = {
   'Bullet List': 'ul',
   'Task List': 'ul',
   'Paragraph': 'p',
-  'Horizontal Line': 'hr'
+  'Horizontal Line': 'hr',
+  'YAML Front Matter': 'pre'
 }
 
 const setParagraphMenuItemStatus = bool => {
@@ -60,6 +61,12 @@ const setCheckedMenuItem = affiliation => {
         } else {
           return item.label === 'Task List'
         }
+      } else if (b.type === 'pre' && b.functionType) {
+        if (b.functionType === 'frontmatter') {
+          return item.label === 'YAML Front Matter'
+        } else if (b.functionType === 'code') {
+          return item.label === 'Code Fences'
+        }
       } else {
         return b.type === LABEL_MAP[item.label]
       }
@@ -81,7 +88,11 @@ ipcMain.on('AGANI::selection-change', (e, { start, end, affiliation }) => {
   setCheckedMenuItem(affiliation)
   // handle disable
   setParagraphMenuItemStatus(true)
-  if (/th|td/.test(start.type) && /th|td/.test(end.type)) {
+  if (
+    (/th|td/.test(start.type) && /th|td/.test(end.type)) ||
+    (start.type === 'span' && start.block.functionType === 'frontmatter') ||
+    (end.type === 'span' && end.block.functionType === 'frontmatter')
+  ) {
     setParagraphMenuItemStatus(false)
   } else if (start.key !== end.key) {
     formatMenuItem.submenu.items

@@ -92,7 +92,11 @@ class ExportMarkdown {
 
         case 'pre':
           this.insertLineBreak(result, indent, true)
-          result.push(this.normalizeCodeBlock(block, indent))
+          if (block.functionType === 'frontmatter') {
+            result.push(this.normalizeFrontMatter(block, indent))
+          } else {
+            result.push(this.normalizeCodeBlock(block, indent))
+          }
           break
 
         case 'blockquote':
@@ -131,6 +135,16 @@ class ExportMarkdown {
     const { children } = block
     const newIndent = `${indent}> `
     return this.translateBlocks2Markdown(children, newIndent)
+  }
+
+  normalizeFrontMatter (block, indent) {
+    const result = []
+    result.push('---\n')
+    for (const line of block.children) {
+      result.push(`${line.text}\n`)
+    }
+    result.push('---\n')
+    return result.join('')
   }
 
   normalizeCodeBlock (block, indent) {

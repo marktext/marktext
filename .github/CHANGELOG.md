@@ -6,7 +6,8 @@
 - feature: line break, support event and import and export markdown - Jocs
 - feature: unindent list item - Jocs
 - feature: Support for CRLF and LF line endings
-- feature: Click filename to `rename` or `save` in title bar.
+- feature: Click filename to `rename` or `save` in title bar(**macOS ONLY**).
+- feature: Support YAML Front Matter
 
 **:butterfly:Optimization**
 

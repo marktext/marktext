@@ -147,7 +147,7 @@ const enterCtrl = ContentState => {
       return
     }
     // handle cursor in code block
-    if (block.type === 'pre') {
+    if (block.type === 'pre' && block.functionType !== 'frontmatter') {
       return
     }
 
@@ -192,11 +192,17 @@ const enterCtrl = ContentState => {
 
     // handle `shift + enter` insert `soft line break` or `hard line break`
     // only cursor in `line block` can create `soft line break` and `hard line break`
-    if (event.shiftKey && block.type === 'span') {
+    if (
+      (event.shiftKey && block.type === 'span') ||
+      (block.type === 'span' && block.functionType === 'frontmatter')
+    ) {
       const { text } = block
       const newLineText = text.substring(start.offset)
       block.text = text.substring(0, start.offset)
       const newLine = this.createBlock('span', newLineText)
+      if (block.functionType === 'frontmatter') {
+        newLine.functionType = 'frontmatter'
+      }
       this.insertAfter(newLine, block)
       const { key } = newLine
       const offset = 0

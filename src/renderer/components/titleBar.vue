@@ -143,7 +143,9 @@
       },
 
       rename () {
-        this.$store.dispatch('RESPONSE_FOR_RENAME')
+        if (this.platform === 'darwin') {
+          this.$store.dispatch('RESPONSE_FOR_RENAME')
+        }
       }
     },
     beforeDestroy () {

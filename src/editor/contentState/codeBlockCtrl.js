@@ -79,7 +79,7 @@ const codeBlockCtrl = ContentState => {
     if (blocks) {
       selector = blocks.map(({ type, key }) => {
         if (type === 'pre') {
-          return `pre#${key}`
+          return `pre#${key}.${CLASS_OR_ID['AG_CODEMIRROR_BLOCK']}`
         } else {
           return `#${key} pre.${CLASS_OR_ID['AG_CODEMIRROR_BLOCK']}`
         }

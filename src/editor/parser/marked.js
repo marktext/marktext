@@ -27,7 +27,8 @@ var block = {
   def: /^ *\[([^\]]+)\]: *<?([^\s>]+)>?(?: +["(]([^\n]+)[")])? *(?:\n+|$)/,
   table: noop,
   paragraph: /^((?:[^\n]+\n?(?!hr|heading|lheading|blockquote|tag|def))+)\n*/,
-  text: /^[^\n]+/
+  text: /^[^\n]+/,
+  frontmatter: /^---\n([\s\S]+?)---(?:\n+|$)/
 };
 
 block.checkbox = /^\[([ x])\] +/;
@@ -158,6 +159,15 @@ Lexer.prototype.lex = function(src) {
 Lexer.prototype.token = function(src, top, bq) {
   var src = src.replace(/^ +$/gm, ''),
     loose, cap, bull, b, item, space, i, l, checked;
+  
+  // Only check front matter at the begining of markdown file
+  if (!bq && top && (cap = this.rules.frontmatter.exec(src))) {
+    src = src.substring(cap[0].length)
+    this.tokens.push({
+      type: 'frontmatter',
+      text: cap[1]
+    })
+  }
 
   while (src) {
     // newline
@@ -805,6 +815,10 @@ function Renderer(options) {
   this.options = options || {};
 }
 
+Renderer.prototype.frontmatter = function (text) {
+  return `<pre class="front-matter">\n${text}</pre>\n`
+}
+
 Renderer.prototype.code = function (code, lang, escaped, codeBlockStyle) {
   if (this.options.highlight) {
     var out = this.options.highlight(code, lang);
@@ -1044,20 +1058,20 @@ Parser.prototype.parseText = function() {
 
 Parser.prototype.tok = function() {
   switch (this.token.type) {
-    case 'space':
-      {
-        return '';
+    case 'frontmatter': {
+      return this.renderer.frontmatter(this.token.text)
+    }
+    case 'space': {
+        return ''
       }
-    case 'hr':
-      {
-        return this.renderer.hr();
+    case 'hr': {
+        return this.renderer.hr()
       }
-    case 'heading':
-      {
+    case 'heading': {
         return this.renderer.heading(
           this.inline.output(this.token.text),
           this.token.depth,
-          this.token.text);
+          this.token.text)
       }
     case 'code':
       {

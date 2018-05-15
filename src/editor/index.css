@@ -219,12 +219,8 @@ figure[data-role=HTML] {
   margin-top: 0;
 }
 
-figure.ag-active[data-role=HTML] {
-  margin-left: -50px;
-  width: calc(100% + 50px);
-}
-
-figure.ag-active[data-role=HTML]::before {
+figure.ag-active[data-role=HTML]::before,
+pre.ag-active[data-role=YAML]::before {
   content: attr(data-role);
   width: auto;
   padding: 0 .3rem;
@@ -233,9 +229,9 @@ figure.ag-active[data-role=HTML]::before {
   text-align: center;
   line-height: 22px;
   display: block;
-  position: sticky;
+  position: absolute;
   top: 0;
-  left: -50px;
+  left: -45px;
   border: 1px solid #C0C4CC;
   border-radius: 3px;
   font-size: 12px;
@@ -336,6 +332,19 @@ p:not(.ag-active)[data-role="hr"]::before {
 
 p:not(.ag-active)[data-role="hr"] * {
   color: transparent;
+}
+
+pre.ag-front-matter {
+  position: relative;
+  background: #f7f7f7;
+  padding: 1rem;
+  border: 5px;
+  font-size: 15px;
+}
+
+span.ag-front-matter-line:first-of-type:empty::after {
+  content: 'Input YAML Front Matter...';
+  color: #999;
 }
 
 figure,

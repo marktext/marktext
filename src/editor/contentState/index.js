@@ -119,9 +119,7 @@ class ContentState {
   setCursor () {
     const { start: { key } } = this.cursor
     const block = this.getBlock(key)
-    if (block.type !== 'pre') {
-      selection.setCursorRange(this.cursor)
-    } else {
+    if (block.type === 'pre' && block.functionType !== 'frontmatter') {
       const cm = this.codeBlocks.get(key)
       const { pos } = block
       if (pos) {
@@ -130,6 +128,8 @@ class ContentState {
       } else {
         setCursorAtLastLine(cm)
       }
+    } else {
+      selection.setCursorRange(this.cursor)
     }
   }
 
@@ -177,7 +177,7 @@ class ContentState {
 
   /**
    * A block in Aganippe present a paragraph(block syntax in GFM) or a line in paragraph.
-   * a line block must in a `p block` and `p block`'s children must be line blocks.
+   * a line block must in a `p block` or `pre block(frontmatter)` and `p block`'s children must be line blocks.
    */
   createBlock (type = 'span', text = '') { // span type means it is a line block.
     const key = getUniqueId()

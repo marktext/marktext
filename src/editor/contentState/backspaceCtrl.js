@@ -131,11 +131,11 @@ const backspaceCtrl = ContentState => {
     if (start.key !== end.key) {
       event.preventDefault()
       const { key, offset } = start
-      const startRemainText = startBlock.type === 'pre'
+      const startRemainText = startBlock.type === 'pre' && startBlock.functionType !== 'frontmatter'
         ? startBlock.text.substring(0, offset - 1)
         : startBlock.text.substring(0, offset)
 
-      const endRemainText = endBlock.type === 'pre'
+      const endRemainText = endBlock.type === 'pre' && endBlock.functionType !== 'frontmatter'
         ? endBlock.text.substring(end.offset - 1)
         : endBlock.text.substring(end.offset)
 
@@ -183,7 +183,7 @@ const backspaceCtrl = ContentState => {
       return tHeadHasContent || tBodyHasContent
     }
 
-    if (block.type === 'pre') {
+    if (block.type === 'pre' && block.functionType !== 'frontmatter') {
       const cm = this.codeBlocks.get(id)
       // if event.preventDefault(), you can not use backspace in language input.
       if (isCursorAtBegin(cm) && onlyHaveOneLine(cm)) {
@@ -203,6 +203,27 @@ const backspaceCtrl = ContentState => {
         }
         this.partialRender()
       }
+    } else if (
+      block.type === 'span' && block.functionType === 'frontmatter' &&
+      left === 0 && !preBlock
+    ) {
+      event.preventDefault()
+      event.stopPropagation()
+      const { key } = block
+      const offset = 0
+      const pBlock = this.createBlock('p')
+      for (const line of parent.children) {
+        delete line.functionType
+        this.appendChild(pBlock, line)
+      }
+      this.insertBefore(pBlock, parent)
+      this.removeBlock(parent)
+
+      this.cursor = {
+        start: { key, offset },
+        end: { key, offset }
+      }
+      this.partialRender()
     } else if (left === 0 && /th|td/.test(block.type)) {
       event.preventDefault()
       event.stopPropagation()
@@ -267,7 +288,6 @@ const backspaceCtrl = ContentState => {
             })
             this.removeBlock(parent)
           } else if (inlineDegrade.info === 'INSERT_PRE_LIST_ITEM') {
-            console.log(parent)
             const parPre = this.getBlock(parent.preSibling)
             const children = parent.children
             if (children[0].type === 'input') {
@@ -306,7 +326,7 @@ const backspaceCtrl = ContentState => {
       const { text } = block
       const key = preBlock.key
       const offset = preBlock.text.length
-      if (preBlock.type === 'pre') {
+      if (preBlock.type === 'pre' && preBlock.functionType !== 'frontmatter') {
         const cm = this.codeBlocks.get(key)
         const value = cm.getValue() + text
         cm.setValue(value)

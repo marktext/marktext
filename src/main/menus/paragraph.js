@@ -129,5 +129,12 @@ export default {
     click (menuItem, browserWindow) {
       actions.paragraph(browserWindow, 'hr')
     }
+  }, {
+    label: 'YAML Front Matter',
+    type: 'checkbox',
+    accelerator: 'Alt+CmdOrCtrl+Y',
+    click (menuItem, browserWindow) {
+      actions.paragraph(browserWindow, 'front-matter')
+    }
   }]
 }

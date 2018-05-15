@@ -16,6 +16,12 @@ const h = require('snabbdom/h').default // helper function for creating vnodes
 const toHTML = require('snabbdom-to-html')
 const toVNode = require('snabbdom/tovnode').default
 
+const PRE_BLOCK_HASH = {
+  'code': `.${CLASS_OR_ID['AG_CODE_BLOCK']}`,
+  'html': `.${CLASS_OR_ID['AG_HTML_BLOCK']}`,
+  'frontmatter': `.${CLASS_OR_ID['AG_FRONT_MATTER']}`
+}
+
 class StateRender {
   constructor (eventCenter) {
     this.eventCenter = eventCenter
@@ -139,8 +145,13 @@ class StateRender {
         })
       }
       selector += `.${CLASS_OR_ID['AG_CODEMIRROR_BLOCK']}`
-      selector += functionType === 'code' ? `.${CLASS_OR_ID['AG_CODE_BLOCK']}` : `.${CLASS_OR_ID['AG_HTML_BLOCK']}`
-      children = ''
+      selector += PRE_BLOCK_HASH[functionType]
+      if (functionType !== 'frontmatter') {
+        children = ''
+      }
+    } else if (type === 'span' && functionType === 'frontmatter') {
+      selector += `.${CLASS_OR_ID['AG_FRONT_MATTER_LINE']}`
+      children = text
     }
 
     return h(selector, data, children)
@@ -214,6 +225,11 @@ class StateRender {
     if (block.type === 'ol') {
       Object.assign(data.attrs, { start: block.start })
     }
+    if (block.type === 'pre' && block.functionType === 'frontmatter') {
+      Object.assign(data.dataset, { role: 'YAML' })
+      selector += `.${CLASS_OR_ID['AG_FRONT_MATTER']}`
+    }
+
     return h(selector, data, block.children.map(child => this.renderBlock(child, cursor, activeBlocks, matches)))
   }
 

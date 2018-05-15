@@ -83,9 +83,9 @@ const importRegister = ContentState => {
 
     const htmlText = marked(markdown, { disableInline: true })
     const domAst = parse5.parseFragment(htmlText)
-    console.log(markdown)
-    console.log(htmlText)
-    console.log(domAst)
+    // console.log(markdown)
+    // console.log(htmlText)
+    // console.log(domAst)
     const childNodes = domAst.childNodes
 
     const getLangAndType = node => {
@@ -101,6 +101,14 @@ const importRegister = ContentState => {
         }
       }
       return { lang, codeBlockStyle }
+    }
+
+    const isFrontMatter = node => {
+      const classAttr = node.attrs.filter(attr => attr.name === 'class')[0]
+      if (classAttr && classAttr.value) {
+        return /front-matter/.test(classAttr.value)
+      }
+      return false
     }
 
     const getRowColumnCount = childNodes => {
@@ -235,16 +243,28 @@ const importRegister = ContentState => {
             break
 
           case 'pre':
-            const codeNode = child.childNodes[0]
-            const { lang, codeBlockStyle } = getLangAndType(codeNode)
-            value = codeNode.childNodes[0].value
+            const frontMatter = isFrontMatter(child)
+            if (frontMatter) {
+              value = child.childNodes[0].value
+              block = this.createBlock('pre')
+              const lines = value.replace(/^\s+/, '').split(LINE_BREAKS_REG).map(line => this.createBlock('span', line))
+              for (const line of lines) {
+                line.functionType = 'frontmatter'
+                this.appendChild(block, line)
+              }
+              block.functionType = 'frontmatter'
+            } else {
+              const codeNode = child.childNodes[0]
+              const { lang, codeBlockStyle } = getLangAndType(codeNode)
+              value = codeNode.childNodes[0].value
 
-            if (value.endsWith('\n')) {
-              value = value.replace(/\n+$/, '')
+              if (value.endsWith('\n')) {
+                value = value.replace(/\n+$/, '')
+              }
+              block = this.createBlock('pre', value)
+              block.functionType = 'code'
+              Object.assign(block, { lang, codeBlockStyle })
             }
-            block = this.createBlock('pre', value)
-            block.functionType = 'code'
-            Object.assign(block, { lang, codeBlockStyle })
             this.appendChild(parent, block)
             break
 
