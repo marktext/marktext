@@ -1,7 +1,6 @@
 import selection from '../selection'
 import { tokenizer, generator } from '../parser/parse'
-
-const FORMAT_TYPES = ['strong', 'em', 'del', 'inline_code', 'link', 'image']
+import { FORMAT_MARKER_MAP, FORMAT_TYPES } from '../config'
 
 const getOffset = (offset, { range: { start, end }, type, anchor, title }) => {
   const dis = offset - start
@@ -65,18 +64,12 @@ const clearFormat = (token, { start, end }) => {
 
 const addFormat = (type, block, { start, end }) => {
   if (block.type === 'pre') return false
-  const MARKER_MAP = {
-    'em': '*',
-    'inline_code': '`',
-    'strong': '**',
-    'del': '~~'
-  }
   switch (type) {
     case 'em':
     case 'del':
     case 'inline_code':
     case 'strong': {
-      const MARKER = MARKER_MAP[type]
+      const MARKER = FORMAT_MARKER_MAP[type]
       const oldText = block.text
       block.text = oldText.substring(0, start.offset) +
         MARKER + oldText.substring(start.offset, end.offset) +

@@ -8,6 +8,7 @@
 - feature: Support for CRLF and LF line endings
 - feature: Click filename to `rename` or `save` in title bar(**macOS ONLY**).
 - feature: Support YAML Front Matter
+- feature: Support `setext` heading but the default heading style is `atx`
 
 **:butterfly:Optimization**
 

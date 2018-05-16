@@ -162,12 +162,22 @@ export const htmlBeautifyConfig = {
 export const CURSOR_DNA = getLongUniqueId()
 
 export const turndownConfig = {
-  headingStyle: 'atx',
-  bulletListMarker: '*',
-  codeBlockStyle: 'fenced',
-  emDelimiter: '_',
-  strongDelimiter: '**'
+  headingStyle: 'atx', // setext or atx
+  bulletListMarker: '*', // -, +, or *
+  codeBlockStyle: 'fenced', // fenced or indented
+  fence: '```', // ``` or ~~~
+  emDelimiter: '*', // _ or *
+  strongDelimiter: '**' // ** or __
 }
+
+export const FORMAT_MARKER_MAP = {
+  'em': '*',
+  'inline_code': '`',
+  'strong': '**',
+  'del': '~~'
+}
+
+export const FORMAT_TYPES = ['strong', 'em', 'del', 'inline_code', 'link', 'image']
 
 export const punctuation = ['!', '"', '#', '$', '%', '&', "'", '(', ')', '*', '+', ',', '-', '.', '/', ':', ';', '<', '=', '>', '?', '@', '[', '\\', ']', '^', '_', '`', '{', '|', '}', '~']
 
@@ -188,6 +198,11 @@ export const TABLE_TOOLS = [{
   icon: 'icon-del'
 }]
 
+export const HTML_TOOLS = [{
+  label: 'delete',
+  icon: 'icon-del'
+}]
+
 export const LINE_BREAK = '\n'
 
 export const DOMPURIFY_CONFIG = {
@@ -200,8 +215,3 @@ export const DOMPURIFY_CONFIG = {
     mathMl: true
   }
 }
-
-export const HTML_TOOLS = [{
-  label: 'delete',
-  icon: 'icon-del'
-}]

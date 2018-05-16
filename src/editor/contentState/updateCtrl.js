@@ -2,7 +2,7 @@ import selection from '../selection'
 import { tokenizer } from '../parser/parse'
 import { conflict, isMetaKey } from '../utils'
 import { getTextContent } from '../utils/domManipulate'
-import { CLASS_OR_ID, EVENT_KEYS } from '../config'
+import { CLASS_OR_ID, EVENT_KEYS, turndownConfig } from '../config'
 
 const INLINE_UPDATE_FREGMENTS = [
   '^([*+-]\\s)', // Bullet list
@@ -234,6 +234,7 @@ const updateCtrl = ContentState => {
   ContentState.prototype.updateHeader = function (block, header, text) {
     const newType = `h${header.length}`
     if (block.type !== newType) {
+      block.headingStyle = turndownConfig.headingStyle
       block.type = newType
       block.text = text
       block.children.length = 0

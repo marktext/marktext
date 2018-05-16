@@ -1,5 +1,5 @@
 import selection from '../selection'
-import { PARAGRAPH_TYPES } from '../config'
+import { PARAGRAPH_TYPES, turndownConfig } from '../config'
 import ExportMarkdown from '../utils/exportMarkdown'
 
 const LINE_BREAKS_REG = /\n/
@@ -378,6 +378,7 @@ const paragraphCtrl = ContentState => {
         const newText = '#'.repeat(newLevel) + ` ${partText}`
         if (block.type === 'span' && newType !== 'p') {
           const header = this.createBlock(newType, newText)
+          header.headingStyle = turndownConfig.headingStyle
           key = header.key
           const parent = this.getParent(block)
           if (this.isOnlyChild(block)) {
@@ -409,6 +410,7 @@ const paragraphCtrl = ContentState => {
           this.removeBlock(block)
         } else {
           const newHeader = this.createBlock(newType, newText)
+          newHeader.headingStyle = turndownConfig.headingStyle
           key = newHeader.key
           this.insertAfter(newHeader, block)
           this.removeBlock(block)

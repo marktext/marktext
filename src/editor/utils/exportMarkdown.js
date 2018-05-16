@@ -126,9 +126,18 @@ class ExportMarkdown {
   }
 
   normalizeHeaderText (block, indent) {
+    const { headingStyle } = block
     const match = block.text.match(/(#{1,6})(.*)/)
-    const text = `${match[1]} ${match[2].trim()}`
-    return `${indent}${text}\n`
+    if (headingStyle === 'atx') {
+      const text = `${match[1]} ${match[2].trim()}`
+      return `${indent}${text}\n`
+    } else if (headingStyle === 'setext') {
+      const level = match[1].length
+      if (level !== 1 && level !== 2) {
+        console.error(`setext heading only have h1 or h2 but we got a heading h${level}`)
+      }
+      return `${indent}${match[2].trim()}\n${indent}${level === 1 ? '===' : '---'}\n`
+    }
   }
 
   normalizeBlockquote (block, indent) {
