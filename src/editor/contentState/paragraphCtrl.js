@@ -83,7 +83,7 @@ const paragraphCtrl = ContentState => {
       start: { key, offset },
       end: { key, offset }
     }
-    this.partialRender()
+    this.render()
     const selectionChanges = this.selectionChange()
     this.eventCenter.dispatch('selectionChange', selectionChanges)
   }
@@ -325,8 +325,7 @@ const paragraphCtrl = ContentState => {
 
     switch (paraType) {
       case 'front-matter': {
-        this.handleFrontMatter()
-        break
+        return this.handleFrontMatter()
       }
       case 'ul-bullet':
       case 'ul-task':
