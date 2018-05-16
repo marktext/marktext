@@ -135,20 +135,29 @@ class StateRender {
       }
       children = ''
     } else if (type === 'pre') {
+      selector += `.${CLASS_OR_ID['AG_CODEMIRROR_BLOCK']}`
+      selector += PRE_BLOCK_HASH[functionType]
+      data.hook = {
+        prepatch (oldvnode, vnode) {
+          // cheat snabbdom that the pre block is not changed!!!
+          vnode.children = oldvnode.children
+        }
+      }
       if (lang) {
         Object.assign(data.dataset, {
           lang
         })
       }
+
       if (codeBlockStyle) {
         Object.assign(data.dataset, {
           codeBlockStyle
         })
       }
-      selector += `.${CLASS_OR_ID['AG_CODEMIRROR_BLOCK']}`
-      selector += PRE_BLOCK_HASH[functionType]
+
       if (functionType !== 'frontmatter') {
-        children = ''
+        // do not set it to '' (empty string)
+        children = []
       }
     } else if (type === 'span' && functionType === 'frontmatter') {
       selector += `.${CLASS_OR_ID['AG_FRONT_MATTER_LINE']}`
