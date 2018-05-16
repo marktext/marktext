@@ -13,7 +13,7 @@ export default {
     }
   }, {
     label: 'Redo',
-    accelerator: 'CmdOrCtrl+Y',
+    accelerator: 'Shift+CmdOrCtrl+Z',
     click: (menuItem, browserWindow) => {
       actions.edit(browserWindow, 'redo')
     }

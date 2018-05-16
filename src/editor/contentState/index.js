@@ -164,11 +164,10 @@ class ContentState {
     matches.forEach((m, i) => {
       m.active = i === index
     })
-    // console.log(startKey, endKey)
     const startIndex = startKey ? blocks.findIndex(block => block.key === startKey) : 0
     const endIndex = endKey ? blocks.findIndex(block => block.key === endKey) + 1 : blocks.length
     const needRenderBlocks = blocks.slice(startIndex, endIndex)
-    // console.log(JSON.stringify(needRenderBlocks, null, 2), startKey, endKey)
+
     this.setNextRenderRange()
     this.stateRender.partialRender(needRenderBlocks, cursor, activeBlocks, matches, startKey, endKey)
     this.pre2CodeMirror(true, [...new Set([cursorOutMostBlock, ...needRenderBlocks])])
