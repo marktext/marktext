@@ -434,7 +434,7 @@ class StateRender {
       result = [ text.substring(rStart, rEnd) ]
     }
     // fix snabbdom-to-html bug https://github.com/snabbdom/snabbdom-to-html/issues/41
-    if (result.length === 1 && result[0] === '') result.length = 0
+    // if (result.length === 1 && result[0] === '') result.length = 0
     return result
   }
   // render token of text type to vdom.

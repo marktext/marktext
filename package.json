@@ -115,7 +115,7 @@
     "mousetrap": "^1.6.1",
     "parse5": "^3.0.3",
     "snabbdom": "^0.7.1",
-    "snabbdom-to-html": "^5.1.0",
+    "snabbdom-to-html": "^5.1.1",
     "snabbdom-virtualize": "^0.7.0",
     "to": "^0.2.9",
     "turndown": "^4.0.1",
