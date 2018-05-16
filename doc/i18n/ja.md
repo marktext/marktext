@@ -126,7 +126,7 @@
 |:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
 | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-0.10.21.dmg.svg)](https://github.com/marktext/marktext/releases/download/v0.10.21/marktext-0.10.21.dmg) | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-setup-0.10.21.exe.svg)](https://github.com/marktext/marktext/releases/download/v0.10.21/marktext-setup-0.10.21.exe) | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-0.10.21-x86_64.AppImage.svg)](https://github.com/marktext/marktext/releases/download/v0.10.21/marktext-0.10.21-x86_64.AppImage) |
 
-上記にご利用のプラットフォームが無い場合は、[リリースページ](https://github.com/marktext/marktext/releases)を探してみてください。それでも見つからない場合は [issue](https://github.com/marktext/marktext/issues) を作成してお知いただけると幸いです。
+上記にご利用のプラットフォームが無い場合は、[リリースページ](https://github.com/marktext/marktext/releases)を探してみてください。それでも見つからない場合は [issue](https://github.com/marktext/marktext/issues) を作成してお知らせいただけると幸いです。
 
 このバージョンでの新着情報をご確認いただくには、[CHANGELOG](https://github.com/marktext/marktext/blob/master/.github/CHANGELOG.md)を参照してください。
 
