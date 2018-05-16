@@ -83,9 +83,6 @@ const paragraphCtrl = ContentState => {
       start: { key, offset },
       end: { key, offset }
     }
-    this.render()
-    const selectionChanges = this.selectionChange()
-    this.eventCenter.dispatch('selectionChange', selectionChanges)
   }
 
   ContentState.prototype.handleListMenu = function (paraType) {
@@ -325,7 +322,8 @@ const paragraphCtrl = ContentState => {
 
     switch (paraType) {
       case 'front-matter': {
-        return this.handleFrontMatter()
+        this.handleFrontMatter()
+        break
       }
       case 'ul-bullet':
       case 'ul-task':
@@ -444,7 +442,14 @@ const paragraphCtrl = ContentState => {
         break
       }
     }
-    this.partialRender()
+    if (paraType === 'front-matter') {
+      this.render()
+    } else {
+      this.partialRender()
+    }
+    // update menu status
+    const selectionChanges = this.selectionChange()
+    this.eventCenter.dispatch('selectionChange', selectionChanges)
   }
 }
 
