@@ -42,9 +42,14 @@ h6.ag-active::before {
   display: block;
 }
 
-.ag-hard-line-break::after {
+/* .ag-soft-line-break::after {
   content: '↓';
-  opacity: .3;
+  opacity: .5;
+} */
+
+.ag-hard-line-break::after {
+  content: '↩';
+  opacity: .5;
 }
 
 *::selection, .ag-selection {
