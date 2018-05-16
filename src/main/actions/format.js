@@ -1,21 +1,21 @@
 import { ipcMain } from 'electron'
-import { getMenuItem } from '../utils'
+import { getMenuItemById } from '../utils'
 
-const FORMAT_MAP = {
-  'Strong': 'strong',
-  'Emphasis': 'em',
-  'Inline Code': 'inline_code',
-  'Strike': 'del',
-  'Hyperlink': 'link',
-  'Image': 'image'
+const MENU_ID_FORMAT_MAP = {
+  'strongMenuItem': 'strong',
+  'emphasisMenuItem': 'em',
+  'inlineCodeMenuItem': 'inline_code',
+  'strikeMenuItem': 'del',
+  'hyperlinkMenuItem': 'link',
+  'imageMenuItem': 'image'
 }
 
 const selectFormat = formats => {
-  const formatMenuItem = getMenuItem('Format')
+  const formatMenuItem = getMenuItemById('formatMenuItem')
   formatMenuItem.submenu.items.forEach(item => (item.checked = false))
   formatMenuItem.submenu.items
     .forEach(item => {
-      if (formats.some(format => format.type === FORMAT_MAP[item.label])) {
+      if (item.id && formats.some(format => format.type === MENU_ID_FORMAT_MAP[item.id])) {
         item.checked = true
       }
     })

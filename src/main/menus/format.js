@@ -1,8 +1,10 @@
 import * as actions from '../actions/format'
 
 export default {
+  id: 'formatMenuItem',
   label: 'Format',
   submenu: [{
+    id: 'strongMenuItem',
     label: 'Strong',
     type: 'checkbox',
     accelerator: 'Shift+CmdOrCtrl+B',
@@ -10,6 +12,7 @@ export default {
       actions.format(browserWindow, 'strong')
     }
   }, {
+    id: 'emphasisMenuItem',
     label: 'Emphasis',
     type: 'checkbox',
     accelerator: 'CmdOrCtrl+E',
@@ -17,6 +20,7 @@ export default {
       actions.format(browserWindow, 'em')
     }
   }, {
+    id: 'inlineCodeMenuItem',
     label: 'Inline Code',
     type: 'checkbox',
     accelerator: 'CmdOrCtrl+`',
@@ -26,6 +30,7 @@ export default {
   }, {
     type: 'separator'
   }, {
+    id: 'strikeMenuItem',
     label: 'Strike',
     type: 'checkbox',
     accelerator: 'CmdOrCtrl+D',
@@ -33,6 +38,7 @@ export default {
       actions.format(browserWindow, 'del')
     }
   }, {
+    id: 'hyperlinkMenuItem',
     label: 'Hyperlink',
     type: 'checkbox',
     accelerator: 'CmdOrCtrl+L',
@@ -40,6 +46,7 @@ export default {
       actions.format(browserWindow, 'link')
     }
   }, {
+    id: 'imageMenuItem',
     label: 'Image',
     type: 'checkbox',
     accelerator: 'Shift+CmdOrCtrl+I',
