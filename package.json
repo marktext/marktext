@@ -126,7 +126,7 @@
     "vuex": "^2.3.1"
   },
   "devDependencies": {
-    "babel-core": "^6.25.0",
+    "babel-core": "^6.26.3",
     "babel-eslint": "^7.2.3",
     "babel-loader": "^7.1.1",
     "babel-plugin-component": "^1.1.0",

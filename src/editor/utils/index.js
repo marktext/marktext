@@ -16,6 +16,8 @@ export const isOdd = number => Math.abs(number) % 2 === 1
 export const isEven = number => Math.abs(number) % 2 === 0
 
 export const isLengthEven = (str = '') => str.length % 2 === 0
+
+export const snackToCamel = name => name.replace(/_([a-z])/g, (p0, p1) => p1.toUpperCase())
 /**
  *  Are two arrays have intersection
  */
@@ -219,4 +221,11 @@ export const generateKeyHash = keys => {
   return keys.reduce((acc, key) => {
     return Object.assign(acc, { [key]: key })
   }, {})
+}
+
+// mixins.js
+export const mixins = (constructor, list) => {
+  return Object.assign(constructor.prototype, ...list.map(l => ({
+    [l.name]: l
+  })))
 }

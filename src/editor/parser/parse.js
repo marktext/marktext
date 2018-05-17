@@ -1,7 +1,6 @@
 import { beginRules, inlineRules } from './rules'
 import { isLengthEven, union } from '../utils'
 import { punctuation } from '../config'
-// import { validEmoji } from '../emojis'
 
 const CAN_NEST_RULES = ['strong', 'em', 'link', 'del', 'image', 'a_link'] // image can not nest but it has children
 
@@ -477,29 +476,3 @@ export const generator = tokens => {
   }
   return result
 }
-
-/**
- * [{
- *   type: 'hr',
- *   marker: '****',
- *   range: {
- *     start: 0,
- *     end: 4
- *   }
- * }, {
- *   type: 'text',
- *   content: 'abc',
- *   range: {
- *     start: 5, end: 7
- *   }
- * }, {
- *   type: 'strong',
- *   marker: '**',
- *   range: { start: 8, end: 10 }
- *   children: [{
- *     type: 'text',
- *     content: 'abc',
- *     range: { start, 8, end: 9 }
- *   }]
- * }]
- */
