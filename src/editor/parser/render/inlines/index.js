@@ -23,7 +23,7 @@ import del from './del'
 import em from './em'
 import strong from './strong'
 
-export default [
+export default {
   backlashInToken,
   backlash,
   highlight,
@@ -48,4 +48,4 @@ export default [
   del,
   em,
   strong
-]
+}

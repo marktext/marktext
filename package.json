@@ -145,7 +145,7 @@
     "del": "^3.0.0",
     "devtron": "^1.4.0",
     "electron": "^2.0.0",
-    "electron-builder": "^20.8.2",
+    "electron-builder": "^20.13.4",
     "electron-debug": "^1.5.0",
     "electron-devtools-installer": "^2.2.0",
     "electron-updater": "^2.21.8",
