@@ -28,6 +28,7 @@ let viewMenu = {
   }, {
     type: 'separator'
   }, {
+    id: 'sourceCodeModeMenuItem',
     label: 'Source Code Mode',
     accelerator: 'CmdOrCtrl+U',
     type: 'checkbox',
@@ -36,6 +37,7 @@ let viewMenu = {
       actions.typeMode(browserWindow, item, 'sourceCode')
     }
   }, {
+    id: 'typewriterModeMenuItem',
     label: 'Typewriter Mode',
     accelerator: 'Shift+CmdOrCtrl+T',
     type: 'checkbox',
@@ -44,6 +46,7 @@ let viewMenu = {
       actions.typeMode(browserWindow, item, 'typewriter')
     }
   }, {
+    id: 'focusModeMenuItem',
     label: 'Focus Mode',
     accelerator: 'Shift+CmdOrCtrl+F',
     type: 'checkbox',

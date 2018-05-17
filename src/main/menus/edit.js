@@ -50,7 +50,7 @@ export default {
       actions.edit(browserWindow, 'fineNext')
     }
   }, {
-    label: 'FindPrev',
+    label: 'Find Previous',
     accelerator: 'Shift+CmdOrCtrl+U',
     click: (menuItem, browserWindow) => {
       actions.edit(browserWindow, 'findPrev')

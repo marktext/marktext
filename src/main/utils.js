@@ -19,11 +19,9 @@ export const getPath = directory => {
   return app.getPath(directory)
 }
 
-export const getMenuItem = menuName => {
-  // TODO(fxha): Please use menu id attribute to find menu entries. This will
-  //             cause problems with internationalization later!
+export const getMenuItemById = menuId => {
   const menus = Menu.getApplicationMenu()
-  return menus.items.find(menu => menu.label === menuName)
+  return menus.getMenuItemById(menuId)
 }
 
 export const log = data => {
