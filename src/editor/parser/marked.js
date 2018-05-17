@@ -211,6 +211,7 @@ Lexer.prototype.token = function(src, top, bq) {
       src = src.substring(cap[0].length);
       this.tokens.push({
         type: 'heading',
+        headingStyle: 'atx',
         depth: cap[1].length,
         text: cap[2]
       });
@@ -254,6 +255,7 @@ Lexer.prototype.token = function(src, top, bq) {
       src = src.substring(cap[0].length);
       this.tokens.push({
         type: 'heading',
+        headingStyle: 'setext',
         depth: cap[2] === '=' ? 1 : 2,
         text: cap[1]
       });
@@ -846,12 +848,14 @@ Renderer.prototype.html = function(html) {
   return html;
 };
 
-Renderer.prototype.heading = function(text, level, raw) {
+Renderer.prototype.heading = function(text, level, raw, headingStyle) {
   return '<h' +
     level +
     ' id="' +
     this.options.headerPrefix +
     raw.toLowerCase().replace(/[^\w]+/g, '-') +
+    '" class="' +
+    headingStyle +
     '">' +
     text +
     '</h' +
@@ -1071,7 +1075,9 @@ Parser.prototype.tok = function() {
         return this.renderer.heading(
           this.inline.output(this.token.text),
           this.token.depth,
-          this.token.text)
+          this.token.text,
+          this.token.headingStyle
+        )
       }
     case 'code':
       {

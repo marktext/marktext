@@ -371,15 +371,18 @@ code {
   color: #efefef;
 }
 
+#ag-editor-id pre.ag-html-block {
+    padding: .4rem 1rem;
+    margin-top: 0;
+}
+
 #ag-editor-id pre.ag-code-block,
 #ag-editor-id pre.ag-html-block {
-  padding: .4rem 1rem;
   font-size: 90%;
   line-height: 1.6;
   border: 1px solid #606266;
   border-radius: 3px;
   color: #777777;
-  margin-top: 0;
 }
 
 .fg-color-dark {

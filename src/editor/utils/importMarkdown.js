@@ -140,6 +140,13 @@ const importRegister = ContentState => {
             const match = /\d/.exec(child.nodeName)
             value = match ? '#'.repeat(+match[0]) + ` ${textValue}` : textValue
             block = this.createBlock(child.nodeName, value)
+            // handle heading
+            if (match) {
+              const headingStyle = child.attrs.find(attr => attr.name === 'class').value
+              if (typeof headingStyle === 'string' && /atx|setext/.test(headingStyle)) {
+                block.headingStyle = headingStyle
+              }
+            }
             // handle `th` and `td`
             if (child.nodeName === 'th' || child.nodeName === 'td') {
               const column = childNodes.filter(child => /th|td/.test(child.nodeName)).indexOf(child)

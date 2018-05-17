@@ -79,7 +79,7 @@ class StateRender {
     let selector = this.getSelector(block, cursor, activeBlocks)
     // highlight search key in block
     const highlights = matches.filter(m => m.key === block.key)
-    const { text, type, align, htmlContent, icon, checked, key, lang, functionType, codeBlockStyle } = block
+    const { text, type, headingStyle, align, htmlContent, icon, checked, key, lang, functionType, codeBlockStyle } = block
     const data = {
       attrs: {},
       dataset: {}
@@ -117,6 +117,7 @@ class StateRender {
         Object.assign(data.dataset, {
           head: type
         })
+        selector += `.${headingStyle}`
       }
       Object.assign(data.dataset, {
         role: type
@@ -134,20 +135,29 @@ class StateRender {
       }
       children = ''
     } else if (type === 'pre') {
+      selector += `.${CLASS_OR_ID['AG_CODEMIRROR_BLOCK']}`
+      selector += PRE_BLOCK_HASH[functionType]
+      data.hook = {
+        prepatch (oldvnode, vnode) {
+          // cheat snabbdom that the pre block is not changed!!!
+          vnode.children = oldvnode.children
+        }
+      }
       if (lang) {
         Object.assign(data.dataset, {
           lang
         })
       }
+
       if (codeBlockStyle) {
         Object.assign(data.dataset, {
           codeBlockStyle
         })
       }
-      selector += `.${CLASS_OR_ID['AG_CODEMIRROR_BLOCK']}`
-      selector += PRE_BLOCK_HASH[functionType]
+
       if (functionType !== 'frontmatter') {
-        children = ''
+        // do not set it to '' (empty string)
+        children = []
       }
     } else if (type === 'span' && functionType === 'frontmatter') {
       selector += `.${CLASS_OR_ID['AG_FRONT_MATTER_LINE']}`

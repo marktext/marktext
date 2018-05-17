@@ -91,6 +91,9 @@ const codeBlockCtrl = ContentState => {
     const pres = document.querySelectorAll(selector)
 
     Array.from(pres).forEach(pre => {
+      // If pre element has children, means that this code block is not editing,
+      // and don't need to update to codeMirror.
+      if (pre.children.length) return
       const id = pre.id
       const block = this.getBlock(id)
       const value = block.text
