@@ -15,6 +15,7 @@ class StateRender {
   constructor (eventCenter) {
     this.eventCenter = eventCenter
     this.loadImageMap = new Map()
+    this.tokenCache = new Map()
     this.container = null
   }
 
@@ -64,7 +65,7 @@ class StateRender {
     return selector
   }
 
-  renderLeafBlock (block, cursor, activeBlocks, matches) {
+  renderLeafBlock (block, cursor, activeBlocks, matches, useCache = false) {
     let selector = this.getSelector(block, cursor, activeBlocks)
     // highlight search key in block
     const highlights = matches.filter(m => m.key === block.key)
@@ -76,8 +77,14 @@ class StateRender {
     let children = ''
 
     if (text) {
-      children = tokenizer(text, highlights)
-        .reduce((acc, token) => [...acc, ...this[snackToCamel(token.type)](h, cursor, block, token)], [])
+      let tokens = null
+      if (highlights.length === 0 && this.tokenCache.has(text)) {
+        tokens = this.tokenCache.get(text)
+      } else {
+        tokens = tokenizer(text, highlights)
+        if (highlights.length === 0 && useCache) this.tokenCache.set(text, tokens)
+      }
+      children = tokens.reduce((acc, token) => [...acc, ...this[snackToCamel(token.type)](h, cursor, block, token)], [])
     }
 
     if (/th|td/.test(type) && align) {
@@ -157,7 +164,7 @@ class StateRender {
     return h(selector, data, children)
   }
 
-  renderContainerBlock (block, cursor, activeBlocks, matches) {
+  renderContainerBlock (block, cursor, activeBlocks, matches, useCache = false) {
     let selector = this.getSelector(block, cursor, activeBlocks)
     const data = {
       attrs: {},
@@ -230,23 +237,23 @@ class StateRender {
       selector += `.${CLASS_OR_ID['AG_FRONT_MATTER']}`
     }
 
-    return h(selector, data, block.children.map(child => this.renderBlock(child, cursor, activeBlocks, matches)))
+    return h(selector, data, block.children.map(child => this.renderBlock(child, cursor, activeBlocks, matches, useCache)))
   }
 
   /**
    * [renderBlock render one block, no matter it is a container block or text block]
    */
-  renderBlock (block, cursor, activeBlocks, matches) {
+  renderBlock (block, cursor, activeBlocks, matches, useCache = false) {
     const method = block.children.length > 0 ? 'renderContainerBlock' : 'renderLeafBlock'
 
-    return this[method](block, cursor, activeBlocks, matches)
+    return this[method](block, cursor, activeBlocks, matches, useCache)
   }
 
   render (blocks, cursor, activeBlocks, matches) {
     const selector = `div#${CLASS_OR_ID['AG_EDITOR_ID']}`
 
     const children = blocks.map(block => {
-      return this.renderBlock(block, cursor, activeBlocks, matches)
+      return this.renderBlock(block, cursor, activeBlocks, matches, true)
     })
 
     const newVdom = h(selector, children)
@@ -268,6 +275,7 @@ class StateRender {
     const firstOldDom = startKey
       ? document.querySelector(`#${startKey}`)
       : document.querySelector(`div#${CLASS_OR_ID['AG_EDITOR_ID']}`).firstElementChild
+
     needToRemoved.push(firstOldDom)
     let nextSibling = firstOldDom.nextElementSibling
     while (nextSibling && nextSibling.id !== endKey) {

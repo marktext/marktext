@@ -1,5 +1,5 @@
 import { CLASS_OR_ID } from '../../../config'
-import { isLengthEven } from '../../../utils'
+import { isLengthEven, snackToCamel } from '../../../utils'
 
 // 'link': /^(\[)((?:\[[^\]]*\]|[^\[\]]|\](?=[^\[]*\]))*?)(\\*)\]\((.*?)(\\*)\)/, // can nest
 export default function link (h, cursor, block, token, outerClass) {
@@ -55,7 +55,7 @@ export default function link (h, cursor, block, token, outerClass) {
           }
         }, [
           ...token.children.reduce((acc, to) => {
-            const chunk = this[to.type](h, cursor, block, to, className)
+            const chunk = this[snackToCamel(to.type)](h, cursor, block, to, className)
             return Array.isArray(chunk) ? [...acc, ...chunk] : [...acc, chunk]
           }, []),
           ...this.backlashInToken(h, token.backlash.first, className, firstBacklashStart, token)
@@ -72,7 +72,7 @@ export default function link (h, cursor, block, token, outerClass) {
     return [
       ...firstBracket,
       ...token.children.reduce((acc, to) => {
-        const chunk = this[to.type](h, cursor, block, to, className)
+        const chunk = this[snackToCamel(to.type)](h, cursor, block, to, className)
         return Array.isArray(chunk) ? [...acc, ...chunk] : [...acc, chunk]
       }, []),
       ...this.backlashInToken(h, token.backlash.first, className, firstBacklashStart, token),
