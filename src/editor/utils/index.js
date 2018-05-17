@@ -224,6 +224,6 @@ export const generateKeyHash = keys => {
 }
 
 // mixins
-export const mixins = (constructor, object) => {
-  return Object.assign(constructor.prototype, object)
+export const mixins = (constructor, ...object) => {
+  return Object.assign(constructor.prototype, ...object)
 }

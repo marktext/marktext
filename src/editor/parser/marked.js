@@ -1,5 +1,5 @@
 import { CLASS_OR_ID } from '../config'
-
+// TODO(@Jocs) this file is too large, need to rewrite use es6 syntax / modules
 /**
  * marked - a markdown parser
  * Copyright (c) 2011-2014, Christopher Jeffrey. (MIT Licensed)
