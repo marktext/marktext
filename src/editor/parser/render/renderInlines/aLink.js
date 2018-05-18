@@ -1,5 +1,5 @@
 import { CLASS_OR_ID } from '../../../config'
-import { snackToCamel } from '../../../utils'
+import { snakeToCamel } from '../../../utils'
 
 // `a_link`: `<a href="url">anchor</a>`
 export default function aLink (h, cursor, block, token, outerClass) {
@@ -8,7 +8,7 @@ export default function aLink (h, cursor, block, token, outerClass) {
   const { start, end } = token.range
   const openTag = this.highlight(h, block, start, start + token.openTag.length, token)
   const anchor = token.children.reduce((acc, to) => {
-    const chunk = this[snackToCamel(to.type)](h, cursor, block, to, className)
+    const chunk = this[snakeToCamel(to.type)](h, cursor, block, to, className)
     return Array.isArray(chunk) ? [...acc, ...chunk] : [...acc, chunk]
   }, [])
   const closeTag = this.highlight(h, block, end - token.closeTag.length, end, token)

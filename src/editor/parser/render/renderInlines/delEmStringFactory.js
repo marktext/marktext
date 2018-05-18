@@ -1,5 +1,5 @@
 import { CLASS_OR_ID } from '../../../config'
-import { isLengthEven, snackToCamel } from '../../../utils'
+import { isLengthEven, snakeToCamel } from '../../../utils'
 
 // render factory of `del`,`em`,`strong`
 export default function delEmStrongFac (type, h, cursor, block, token, outerClass) {
@@ -10,7 +10,7 @@ export default function delEmStrongFac (type, h, cursor, block, token, outerClas
   const backlashStart = end - marker.length - token.backlash.length
   const content = [
     ...token.children.reduce((acc, to) => {
-      const chunk = this[snackToCamel(to.type)](h, cursor, block, to, className)
+      const chunk = this[snakeToCamel(to.type)](h, cursor, block, to, className)
       return Array.isArray(chunk) ? [...acc, ...chunk] : [...acc, chunk]
     }, []),
     ...this.backlashInToken(h, token.backlash, className, backlashStart, token)
