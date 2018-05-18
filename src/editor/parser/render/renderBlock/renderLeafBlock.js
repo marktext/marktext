@@ -1,6 +1,6 @@
 import { CLASS_OR_ID } from '../../../config'
 import { tokenizer } from '../../parse'
-import { snackToCamel } from '../../../utils'
+import { snakeToCamel } from '../../../utils'
 import { h, htmlToVNode } from '../snabbdom'
 
 const PRE_BLOCK_HASH = {
@@ -28,7 +28,7 @@ export default function renderLeafBlock (block, cursor, activeBlocks, matches, u
       tokens = tokenizer(text, highlights)
       if (highlights.length === 0 && useCache) this.tokenCache.set(text, tokens)
     }
-    children = tokens.reduce((acc, token) => [...acc, ...this[snackToCamel(token.type)](h, cursor, block, token)], [])
+    children = tokens.reduce((acc, token) => [...acc, ...this[snakeToCamel(token.type)](h, cursor, block, token)], [])
   }
 
   if (/th|td/.test(type) && align) {

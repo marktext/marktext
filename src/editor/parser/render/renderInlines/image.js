@@ -1,5 +1,5 @@
 import { CLASS_OR_ID, IMAGE_EXT_REG } from '../../../config'
-import { isLengthEven, getImageSrc, snackToCamel } from '../../../utils'
+import { isLengthEven, getImageSrc, snakeToCamel } from '../../../utils'
 
 // I dont want operate dom directly, is there any better method? need help!
 export default function image (h, cursor, block, token, outerClass) {
@@ -79,7 +79,7 @@ export default function image (h, cursor, block, token, outerClass) {
     return [
       ...firstBracketContent,
       ...token.children.reduce((acc, to) => {
-        const chunk = this[snackToCamel(to.type)](h, cursor, block, to, className)
+        const chunk = this[snakeToCamel(to.type)](h, cursor, block, to, className)
         return Array.isArray(chunk) ? [...acc, ...chunk] : [...acc, chunk]
       }, []),
       ...this.backlashInToken(h, token.backlash.first, className, firstBacklashStart, token),
