@@ -1,4 +1,4 @@
-# Mark Text on Linux
+# Linux installation instructions
 
 ## AppImage
 
@@ -23,6 +23,7 @@ You cannot really install a AppImage. It's just a file which can be integrated w
 1. Save AppImage somewhere. Let's say `~/bin/marktext.AppImage`
 2. `chmod +x ~/bin/marktext.AppImage`
 3. Create a launch script:
+
    ```sh
    #!/bin/bash
    DESKTOPINTEGRATION=0 ~/bin/marktext.AppImage
