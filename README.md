@@ -130,7 +130,7 @@
 |:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
 | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-0.10.21.dmg.svg)](https://github.com/marktext/marktext/releases/download/v0.10.21/marktext-0.10.21.dmg) | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-setup-0.10.21.exe.svg)](https://github.com/marktext/marktext/releases/download/v0.10.21/marktext-setup-0.10.21.exe) | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-0.10.21-x86_64.AppImage.svg)](https://github.com/marktext/marktext/releases/download/v0.10.21/marktext-0.10.21-x86_64.AppImage) |
 
-Did not found your system ? Go the the [release page](https://github.com/marktext/marktext/releases). Still not found? Open an [issue](https://github.com/marktext/marktext/issues).
+Did not found your system? Go the the [release page](https://github.com/marktext/marktext/releases). Still not found? Open an [issue](https://github.com/marktext/marktext/issues).
 
 Want to see new features in this version? Refer to [CHANGELOG](https://github.com/marktext/marktext/blob/master/.github/CHANGELOG.md)
 
@@ -140,20 +140,23 @@ If you use OS X system, you can install Mark Text by [**homebrew cask**](https:/
 
 ![](https://github.com/marktext/marktext/blob/master/doc/brew-cask.gif)
 
+#### macOS and Windows
+
+Simply download and install Mark Text via setup wizard.
+
+#### Linux
+
+Please follow the [Linux installation instructions](https://github.com/marktext/marktext/blob/master/doc/linux.md).
+
 ## Development
 
-If you wish to build **Mark Text** yourself:
-
-- first clone this repo.
-- Run `npm install`
-- Run `npm run build`
-- copy the build app to Applications folder, or if on Windows run the executable installer.
+If you wish to build **Mark Text** yourself, please check out our [developer documentation](https://github.com/marktext/marktext/blob/master/.github/CONTRIBUTING.md#build-instructions).
 
 When you have any questions while using **Mark Text**, you are welcome to write an issue, but I hope you will follow the format of issue. Of course, if you submit a PR directly, it will be appreciated.
 
 ## Contribution
 
-Mark Text is in full development, please make sure to read the [Contributing Guide](https://github.com/marktext/marktext/blob/master/.github/CONTRIBUTING.md) before making a pull request. Want to add some features to Mark Text? Refer to [TODO LIST](https://github.com/marktext/marktext/blob/master/.github/TODOLIST.md)
+Mark Text is in full development, please make sure to read the [Contributing Guide](https://github.com/marktext/marktext/blob/master/.github/CONTRIBUTING.md) before making a pull request. Want to add some features to Mark Text? Refer to [TODO LIST](https://github.com/marktext/marktext/blob/master/.github/TODOLIST.md) and open issues.
 
 ## Backers
 
