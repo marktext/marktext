@@ -6,7 +6,6 @@
       <span
         v-for="(path, index) of paths"
         :key="index"
-        :class="{ 'title-no-drag': platform !== 'darwin' }"
       >
         {{ path }}
         <svg class="icon" aria-hidden="true">
