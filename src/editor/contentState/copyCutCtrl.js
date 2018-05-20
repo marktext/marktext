@@ -4,6 +4,9 @@ import { CLASS_OR_ID, blockContainerElementNames } from '../config'
 
 const copyCutCtrl = ContentState => {
   ContentState.prototype.cutHandler = function () {
+    if (this.checkInCodeBlock()) {
+      return
+    }
     const { start, end } = this.cursor
     const startBlock = this.getBlock(start.key)
     const endBlock = this.getBlock(end.key)
