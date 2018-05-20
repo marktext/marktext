@@ -5,9 +5,9 @@ import { CLASS_OR_ID } from '../config'
  * check if one emoji code is in emojis, return undefined or found emoji
  */
 export const validEmoji = text => {
-  return emojis.filter(emoji => {
+  return emojis.find(emoji => {
     return emoji.aliases.includes(text)
-  })[0]
+  })
 }
 
 /**
