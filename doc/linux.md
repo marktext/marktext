@@ -41,7 +41,7 @@ You cannot really install a AppImage. It's just a file which can be integrated w
 
 ## Snappy
 
-Downlaod snap file and execute `sudo snap install --classic --dangerous marktext_%version%_amd64.snap`.
+Download snap file and execute `sudo snap install --classic --dangerous marktext_%version%_amd64.snap`.
 
 Please note that snappy packages may not work on not Debian-based distros and SELinux distros.
 
