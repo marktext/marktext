@@ -64,7 +64,7 @@ class Preference {
     const JSON_REG = /```json(.+)```/g
     try {
       const content = fs.readFileSync(filePath, 'utf-8')
-      const userSetting = JSON_REG.exec(content.replace(/\n/g, ''))[1]
+      const userSetting = JSON_REG.exec(content.replace(/(?:\r\n|\n)/g, ''))[1]
       return JSON.parse(userSetting)
     } catch (err) {
       log(err)
