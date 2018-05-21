@@ -64,6 +64,9 @@ export default function renderContainerBlock (block, cursor, activeBlocks, match
       default:
         break
     }
+    if (block.bulletListItemMarker) {
+      Object.assign(data.dataset, { marker: block.bulletListItemMarker })
+    }
     selector += block.isLooseListItem ? `.${CLASS_OR_ID['AG_LOOSE_LIST_ITEM']}` : `.${CLASS_OR_ID['AG_TIGHT_LIST_ITEM']}`
   }
   if (block.type === 'ol') {

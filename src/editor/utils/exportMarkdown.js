@@ -246,11 +246,12 @@ class ExportMarkdown {
   normalizeListItem (block, indent) {
     const result = []
     const listInfo = this.listType[this.listType.length - 1]
-    let { children } = block
+    let { children, bulletListItemMarker } = block
     let itemMarker
 
     if (listInfo.type === 'ul') {
-      itemMarker = '- '
+      // console.log(block)
+      itemMarker = bulletListItemMarker ? `${bulletListItemMarker} ` : '- '
       if (block.listItemType === 'task') {
         const firstChild = children[0]
         itemMarker += firstChild.checked ? '[x] ' : '[ ] '

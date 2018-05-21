@@ -177,9 +177,16 @@ const importRegister = ContentState => {
           case 'li':
             const isTask = child.attrs.some(attr => attr.name === 'class' && attr.value.includes('task-list-item'))
             const isLoose = child.attrs.some(attr => attr.name === 'class' && attr.value.includes(CLASS_OR_ID['AG_LOOSE_LIST_ITEM']))
+
             block = this.createBlock('li')
-            block.listItemType = parent.nodeName === 'ul' ? (isTask ? 'task' : 'bullet') : 'order'
+            block.listItemType = parent.type === 'ul' ? (isTask ? 'task' : 'bullet') : 'order'
             block.isLooseListItem = isLoose
+
+            if (/task|bullet/.test(block.listItemType)) {
+              const bulletListItemMarker = child.attrs.find(attr => attr.name === 'data-marker').value
+              if (bulletListItemMarker) block.bulletListItemMarker = bulletListItemMarker
+            }
+
             this.appendChild(parent, block)
             travel(block, child.childNodes)
             break

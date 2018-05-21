@@ -366,7 +366,7 @@ class Aganippe {
           eventCenter.dispatch('selectionChange', selectionChanges)
           eventCenter.dispatch('selectionFormats', formats)
           this.dispatchChange()
-        }, 1000)
+        })
       }
     }
 
