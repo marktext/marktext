@@ -19,6 +19,7 @@ const state = {
   darkColor: 'rgb(217, 217, 217)', // color in dark theme
   autoSave: false,
   preferLooseListItem: true, // prefer loose or tight list items
+  bulletListMarker: '-',
   autoPairBracket: true,
   autoPairMarkdownSyntax: true,
   autoPairQuote: true,
@@ -123,7 +124,6 @@ const actions = {
     ipcRenderer.send('AGANI::ask-for-user-preference')
     ipcRenderer.on('AGANI::user-preference', (e, preference) => {
       const { autoSave } = preference
-
       commit('SET_USER_PREFERENCE', preference)
 
       // handle autoSave

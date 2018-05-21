@@ -1,4 +1,4 @@
-import { HAS_TEXT_BLOCK_REG } from '../config'
+import { HAS_TEXT_BLOCK_REG, DEFAULT_TURNDOWN_CONFIG } from '../config'
 import { setCursorAtLastLine } from '../codeMirror'
 import { getUniqueId } from '../utils'
 import selection from '../selection'
@@ -42,7 +42,7 @@ const prototypes = [
 
 class ContentState {
   constructor (options) {
-    const { eventCenter } = options
+    const { eventCenter, bulletListMarker } = options
     Object.assign(this, options)
     // Use to cache the keys which you don't want to remove.
     this.exemption = new Set()
@@ -55,6 +55,7 @@ class ContentState {
     this.prevCursor = null
     this.historyTimer = null
     this.history = new History(this)
+    this.turndownConfig = Object.assign(DEFAULT_TURNDOWN_CONFIG, { bulletListMarker })
     this.init()
   }
 
