@@ -169,6 +169,7 @@ const codeBlockCtrl = ContentState => {
       })
 
       codeBlock.on('cursorActivity', (cm, event) => {
+        // console.log(cm.listSelections())
         block.coords = cm.cursorCoords()
         block.pos = cm.getCursor()
       })

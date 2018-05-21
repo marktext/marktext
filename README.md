@@ -168,7 +168,9 @@ Thank you to all our backers! 🙏 [[Become a backer](https://opencollective.com
 
 Support this project by becoming a sponsor. Your logo will show up here with a link to your website. [[Become a sponsor](https://opencollective.com/marktext#silver-sponsors)]
 
-<a href="https://opencollective.com/marktext#silver-sponsors" target="_blank"><img src="https://opencollective.com/marktext/tiers/silver-sponsors.svg?avatarHeight=36" /></a>
+**Platinum Sponsors**
+
+<a href="https://readme.io" target="_blank"><img src="https://github.com/marktext/marktext/blob/master/doc/sponsor/readme.png" /></a>
 
 ## Contributors
 
