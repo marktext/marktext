@@ -145,7 +145,7 @@ const backspaceCtrl = ContentState => {
           delete startBlock.functionType
           delete startBlock.history
           delete startBlock.lang
-          delete startBlock.pos
+          delete startBlock.selection
           this.codeBlocks.delete(key)
         }
         if (startBlock.type !== 'span') {
@@ -330,9 +330,12 @@ const backspaceCtrl = ContentState => {
         const cm = this.codeBlocks.get(key)
         const value = cm.getValue() + text
         cm.setValue(value)
-        const { line, ch } = getEndPosition(cm)
+        const { line, ch } = getEndPosition(cm).anchor
 
-        preBlock.pos = { line, ch: ch - text.length }
+        preBlock.selection = {
+          anchor: { line, ch: ch - text.length },
+          head: { line, ch: ch - text.length }
+        }
       } else {
         preBlock.text += text
       }
