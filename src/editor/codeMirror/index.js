@@ -102,13 +102,18 @@ export const isCursorAtEnd = cm => {
 }
 
 export const getBeginPosition = () => {
-  return { line: 0, ch: 0 }
+  return {
+    anchor: { line: 0, ch: 0 },
+    head: { line: 0, ch: 0 }
+  }
 }
 
 export const getEndPosition = cm => {
   const lastLine = cm.lastLine()
   const lastLineHandle = cm.getLineHandle(lastLine)
-  return { line: lastLine, ch: lastLineHandle.text.length }
+  const line = lastLine
+  const ch = lastLineHandle.text.length
+  return { anchor: { line, ch }, head: { line, ch } }
 }
 
 export const setCursorAtFirstLine = cm => {

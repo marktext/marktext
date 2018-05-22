@@ -35,7 +35,7 @@ const paragraphCtrl = ContentState => {
     if (start.type === 'pre' && end.type === 'pre' && startBlock.functionType !== 'frontmatter') {
       const preElement = document.querySelector(`#${start.key}`)
       const { top } = preElement.getBoundingClientRect()
-      const { line } = start.block.pos
+      const { line } = start.block.selection.anchor
       cursorCoords.y = top + line * lineHeight * fontSize
     }
 
@@ -210,9 +210,9 @@ const paragraphCtrl = ContentState => {
         this.appendChild(codeBlock, line)
       }
 
-      const { key } = codeBlock.children[codeBlock.pos.line]
-      const offset = codeBlock.pos.ch
-      delete codeBlock.pos
+      const { key } = codeBlock.children[codeBlock.selection.anchor.line]
+      const offset = codeBlock.selection.ahchor.ch
+      delete codeBlock.selection
       delete codeBlock.history
       delete codeBlock.lang
       delete codeBlock.coords
@@ -230,7 +230,10 @@ const paragraphCtrl = ContentState => {
           startBlock.text = startBlock.children.map(line => line.text).join('\n')
           const line = startBlock.children.findIndex(line => line.key === start.key)
           const ch = start.offset
-          startBlock.pos = { line, ch }
+          startBlock.selection = {
+            anchor: { line, ch },
+            head: { line, ch }
+          }
           startBlock.children = []
         }
         const { key } = startBlock

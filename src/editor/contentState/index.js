@@ -122,10 +122,11 @@ class ContentState {
     const block = this.getBlock(key)
     if (block.type === 'pre' && block.functionType !== 'frontmatter') {
       const cm = this.codeBlocks.get(key)
-      const { pos } = block
-      if (pos) {
+      const { selection } = block
+      if (selection) {
+        const { anchor, head } = selection
         cm.focus()
-        cm.setCursor(pos)
+        cm.setSelection(anchor, head)
       } else {
         setCursorAtLastLine(cm)
       }

@@ -218,7 +218,7 @@ const arrowCtrl = ContentState => {
       }
 
       const cm = this.codeBlocks.get(preBlock.key)
-      preBlock.pos = getEndPosition(cm)
+      preBlock.selection = getEndPosition(cm)
 
       return this.partialRender()
     } else if (
@@ -234,7 +234,7 @@ const arrowCtrl = ContentState => {
         end: { key, offset }
       }
 
-      nextBlock.pos = getBeginPosition()
+      nextBlock.selection = getBeginPosition()
 
       return this.partialRender()
     } else if (

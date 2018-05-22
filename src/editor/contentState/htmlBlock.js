@@ -25,7 +25,7 @@ const htmlBlock = ContentState => {
     return toolBar
   }
 
-  ContentState.prototype.createCodeInHtml = function (code, pos) {
+  ContentState.prototype.createCodeInHtml = function (code, selection) {
     const codeContainer = this.createBlock('div')
     codeContainer.functionType = 'html'
     const preview = this.createBlock('div')
@@ -36,8 +36,8 @@ const htmlBlock = ContentState => {
     codePre.lang = 'html'
     codePre.functionType = 'html'
     codePre.text = code
-    if (pos) {
-      codePre.pos = pos
+    if (selection) {
+      codePre.selection = selection
     }
     this.appendChild(codeContainer, codePre)
     this.appendChild(codeContainer, preview)
@@ -100,12 +100,16 @@ const htmlBlock = ContentState => {
       line: isVoidTag ? 0 : 1,
       ch: isVoidTag ? text.length : 0
     }
+    const range = {
+      anchor: pos,
+      head: pos
+    }
     block.type = 'figure'
     block.functionType = 'html'
     block.text = htmlContent
     block.children = []
     const toolBar = this.createToolBar(HTML_TOOLS, 'html')
-    const codeContainer = this.createCodeInHtml(htmlContent, pos)
+    const codeContainer = this.createCodeInHtml(htmlContent, range)
     this.appendChild(block, toolBar)
     this.appendChild(block, codeContainer)
     return codeContainer.children[0]

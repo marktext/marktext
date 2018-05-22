@@ -120,9 +120,10 @@ const codeBlockCtrl = ContentState => {
               input.blur()
             }
             if (this.cursor.start.key === block.key && isRenderCursor) {
-              if (block.pos) {
+              if (block.selection) {
                 codeBlock.focus()
-                codeBlock.setCursor(block.pos)
+                const { anchor, head } = block.selection
+                codeBlock.setSelection(anchor, head)
               } else {
                 setCursorAtLastLine(codeBlock)
               }
@@ -139,9 +140,10 @@ const codeBlockCtrl = ContentState => {
         handler({ name: mode })
       }
 
-      if (block.pos && this.cursor.start.key === block.key && isRenderCursor) {
+      if (block.selection && this.cursor.start.key === block.key && isRenderCursor) {
+        const { anchor, head } = block.selection
         codeBlock.focus()
-        codeBlock.setCursor(block.pos)
+        codeBlock.setSelection(anchor, head)
       }
 
       if (block.history) {
@@ -156,11 +158,11 @@ const codeBlockCtrl = ContentState => {
       }
 
       codeBlock.on('focus', (cm, event) => {
-        block.pos = cm.getCursor()
+        block.selection = cm.listSelections()[0]
       })
 
       codeBlock.on('blur', (cm, event) => {
-        block.pos = cm.getCursor()
+        block.selection = cm.listSelections()[0]
         if (block.functionType === 'html') {
           const value = cm.getValue()
 
@@ -169,9 +171,8 @@ const codeBlockCtrl = ContentState => {
       })
 
       codeBlock.on('cursorActivity', (cm, event) => {
-        // console.log(cm.listSelections())
         block.coords = cm.cursorCoords()
-        block.pos = cm.getCursor()
+        block.selection = cm.listSelections()[0]
       })
 
       let lastUndoLength = 0
