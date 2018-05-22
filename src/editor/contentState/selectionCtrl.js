@@ -33,15 +33,15 @@ const selectionCtrl = ContentState => {
           // Select entire document
           return
         }
-        const firstTableBlock = this.firstInDescendant(startTable)
-        const lastTableBlock = this.lastInDescendant(startTable)
-        if (!firstTableBlock || !/th|td/.test(firstTableBlock.type) ||
-          !lastTableBlock || !/th|td/.test(lastTableBlock.type)) {
+        const firstTableCell = this.firstInDescendant(startTable)
+        const lastTableCell = this.lastInDescendant(startTable)
+        if (!firstTableCell || !/th|td/.test(firstTableCell.type) ||
+          !lastTableCell || !/th|td/.test(lastTableCell.type)) {
           console.error('No table cell found or invalid type.')
           return
         }
-        const { key: startKey } = firstTableBlock
-        const { key: endKey, text } = lastTableBlock
+        const { key: startKey } = firstTableCell
+        const { key: endKey, text } = lastTableCell
         this.cursor = {
           start: { key: startKey, offset: 0 },
           end: { key: endKey, offset: text.length }

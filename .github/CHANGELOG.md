@@ -1,4 +1,4 @@
-### 0.11.36
+### 0.11.37
 
 **:cactus:Feature**
 
@@ -10,6 +10,7 @@
 - feature: Support YAML Front Matter
 - feature: Support `setext` heading but the default heading style is `atx`
 - feature: User list item marker setting in preference file.
+- feature: Select text from selected table (cell) only if you press Ctrl+A
 
 **:butterfly:Optimization**
 
