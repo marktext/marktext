@@ -8,6 +8,8 @@ Edit and save to update preferences. You can only change the JSON below!
 
 - **endOfLine**: *String* `lf`, `crlf` or `default`
 
+- **bulletListMarker**: *String* `+`,`-` or `*`
+
 ```json
 {
   "fontSize": "16px",
@@ -19,6 +21,7 @@ Edit and save to update preferences. You can only change the JSON below!
   "autoSave": false,
   "aidou": false,
   "preferLooseListItem": true,
+  "bulletListMarker": "-",
   "autoPairBracket": true,
   "autoPairMarkdownSyntax": true,
   "autoPairQuote": true,

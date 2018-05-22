@@ -100,7 +100,7 @@
     },
     computed: {
       ...mapState([
-        'preferLooseListItem', 'autoPairBracket', 'autoPairMarkdownSyntax', 'autoPairQuote'
+        'preferLooseListItem', 'autoPairBracket', 'autoPairMarkdownSyntax', 'autoPairQuote', 'bulletListItemMarker'
       ])
     },
     data () {
@@ -156,12 +156,26 @@
       this.$nextTick(() => {
         const ele = this.$refs.editor
         const {
-          theme, focus: focusMode, markdown, preferLooseListItem, typewriter,
-          autoPairBracket, autoPairMarkdownSyntax, autoPairQuote
+          theme,
+          focus: focusMode,
+          markdown,
+          preferLooseListItem,
+          typewriter,
+          autoPairBracket,
+          autoPairMarkdownSyntax,
+          autoPairQuote,
+          bulletListMarker
         } = this
 
         const { container } = this.editor = new Aganippe(ele, {
-          theme, focusMode, markdown, preferLooseListItem, autoPairBracket, autoPairMarkdownSyntax, autoPairQuote
+          theme,
+          focusMode,
+          markdown,
+          preferLooseListItem,
+          autoPairBracket,
+          autoPairMarkdownSyntax,
+          autoPairQuote,
+          bulletListMarker
         })
 
         if (typewriter) {

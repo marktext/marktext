@@ -118,6 +118,12 @@ const updateCtrl = ContentState => {
     newBlock.listItemType = type
     newBlock.isLooseListItem = preferLooseListItem
 
+    if (type === 'task' || type === 'bullet') {
+      const { bulletListMarker } = this
+      const bulletListItemMarker = marker ? marker.charAt(0) : bulletListMarker
+      newBlock.bulletListItemMarker = bulletListItemMarker
+    }
+
     if (
       preSibling && preSibling.listType === type && this.checkSameLooseType(preSibling, preferLooseListItem) &&
       nextSibling && nextSibling.listType === type && this.checkSameLooseType(nextSibling, preferLooseListItem)

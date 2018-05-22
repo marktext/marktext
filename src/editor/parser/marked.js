@@ -297,8 +297,7 @@ Lexer.prototype.token = function(src, top, bq) {
     // list
     if (cap = this.rules.tasklist.exec(src) || this.rules.orderlist.exec(src) || this.rules.bulletlist.exec(src)) {
       src = src.substring(cap[0].length);
-      bull = cap[2];
-
+      bull = cap[2]
       const ordered = bull.length > 1 && /\d/.test(bull)
 
       this.tokens.push({
@@ -387,6 +386,7 @@ Lexer.prototype.token = function(src, top, bq) {
         this.tokens.push({
           checked: checked,
           listItemType: bull.length > 1 ? (/\d/.test(bull) ? 'order' : 'task') : 'bullet',
+          bulletListItemMarker: /\d/.test(bull) ? '' : bull.charAt(0),
           type: loose ?
             'loose_item_start' :
             'list_item_start'
@@ -875,31 +875,31 @@ Renderer.prototype.list = function(body, ordered, start, taskList) {
   return '<' + type + classes + startatt + '>\n' + body + '</' + type + '>\n'
 }
 
-Renderer.prototype.listitem = function(text, checked, listItemType, loose) {
-  var classes;
+Renderer.prototype.listitem = function(text, checked, listItemType, bulletListItemMarker, loose) {
+  let classes
   switch (listItemType) {
     case 'order':
-      classes = ' class="order-list-item';
+      classes = ' class="order-list-item'
       break;
     case 'task':
-      classes = ' class="task-list-item';
+      classes = ' class="task-list-item'
       break;
     case 'bullet':
-      classes = ' class="bullet-list-item';
+      classes = ' class="bullet-list-item'
       break;
     default:
       throw new
-      Error('Invalid state');
+      Error('Invalid state')
   }
 
   // "tight-list-item" is only used to remove <p> padding
   classes += loose ? ` ${CLASS_OR_ID['AG_LOOSE_LIST_ITEM']}"` : ` ${CLASS_OR_ID['AG_TIGHT_LIST_ITEM']}"`;
 
   if (checked === undefined) {
-    return '<li ' + classes + '>' + text + '</li>\n';
+    return '<li ' + classes + ' data-marker="' + bulletListItemMarker + '">' + text + '</li>\n';
   }
 
-  return '<li ' + classes + '>' +
+  return '<li ' + classes + ' data-marker="' + bulletListItemMarker + '">' +
     '<input type="checkbox" class="task-list-item-checkbox"' +
     (checked ? ' checked' : '') +
     '> ' +
@@ -1152,29 +1152,27 @@ Parser.prototype.tok = function() {
       }
     case 'list_item_start':
       {
-        var body = '',
-          checked = this.token.checked,
-          listItemType = this.token.listItemType;
+        let body = ''
+        const { checked, listItemType, bulletListItemMarker } = this.token
 
         while (this.next().type !== 'list_item_end') {
           body += this.token.type === 'text' ?
             this.parseText() :
-            this.tok();
+            this.tok()
         }
 
-        return this.renderer.listitem(body, checked, listItemType, false);
+        return this.renderer.listitem(body, checked, listItemType, bulletListItemMarker, false)
       }
     case 'loose_item_start':
       {
-        var body = '',
-          checked = this.token.checked,
-          listItemType = this.token.listItemType;
+        let body = ''
+        const { checked, listItemType, bulletListItemMarker } = this.token
 
         while (this.next().type !== 'list_item_end') {
-          body += this.tok();
+          body += this.tok()
         }
 
-        return this.renderer.listitem(body, checked, listItemType, true);
+        return this.renderer.listitem(body, checked, listItemType, bulletListItemMarker, true)
       }
     case 'html':
       {

@@ -1,4 +1,4 @@
-### 0.11.33
+### 0.11.35
 
 **:cactus:Feature**
 
@@ -9,6 +9,7 @@
 - feature: Click filename to `rename` or `save` in title bar(**macOS ONLY**).
 - feature: Support YAML Front Matter
 - feature: Support `setext` heading but the default heading style is `atx`
+- feature: User list item marker setting in preference file.
 
 **:butterfly:Optimization**
 

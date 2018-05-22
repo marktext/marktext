@@ -162,9 +162,9 @@ export const htmlBeautifyConfig = {
 
 export const CURSOR_DNA = getLongUniqueId()
 
-export const turndownConfig = {
+export const DEFAULT_TURNDOWN_CONFIG = {
   headingStyle: 'atx', // setext or atx
-  bulletListMarker: '*', // -, +, or *
+  bulletListMarker: '-', // -, +, or *
   codeBlockStyle: 'fenced', // fenced or indented
   fence: '```', // ``` or ~~~
   emDelimiter: '*', // _ or *

@@ -21,14 +21,21 @@ class Aganippe {
   constructor (container, options) {
     const {
       focusMode = false, theme = 'light', markdown = '', preferLooseListItem = true,
-      autoPairBracket = true, autoPairMarkdownSyntax = true, autoPairQuote = true
+      autoPairBracket = true, autoPairMarkdownSyntax = true, autoPairQuote = true, bulletListMarker = '-'
     } = options
     this.container = container
     const eventCenter = this.eventCenter = new EventCenter()
     const floatBox = this.floatBox = new FloatBox(eventCenter)
     const tablePicker = this.tablePicker = new TablePicker(eventCenter)
     this.contentState = new ContentState({
-      eventCenter, floatBox, tablePicker, preferLooseListItem, autoPairBracket, autoPairMarkdownSyntax, autoPairQuote
+      eventCenter,
+      floatBox,
+      tablePicker,
+      preferLooseListItem,
+      autoPairBracket,
+      autoPairMarkdownSyntax,
+      autoPairQuote,
+      bulletListMarker
     })
     this.emoji = new Emoji() // emoji instance: has search(text) clear() methods.
     this.focusMode = focusMode
@@ -359,7 +366,7 @@ class Aganippe {
           eventCenter.dispatch('selectionChange', selectionChanges)
           eventCenter.dispatch('selectionFormats', formats)
           this.dispatchChange()
-        }, 1000)
+        })
       }
     }
 
