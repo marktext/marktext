@@ -122,7 +122,6 @@ const updateCtrl = ContentState => {
       const { bulletListMarker } = this
       const bulletListItemMarker = marker ? marker.charAt(0) : bulletListMarker
       newBlock.bulletListItemMarker = bulletListItemMarker
-      console.log(marker.charAt(0))
     }
 
     if (

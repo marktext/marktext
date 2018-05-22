@@ -156,7 +156,15 @@
       this.$nextTick(() => {
         const ele = this.$refs.editor
         const {
-          theme, focus: focusMode, markdown, preferLooseListItem, typewriter, autoPairBracket, autoPairMarkdownSyntax, autoPairQuote, bulletListMarker
+          theme,
+          focus: focusMode,
+          markdown,
+          preferLooseListItem,
+          typewriter,
+          autoPairBracket,
+          autoPairMarkdownSyntax,
+          autoPairQuote,
+          bulletListMarker
         } = this
 
         const { container } = this.editor = new Aganippe(ele, {
