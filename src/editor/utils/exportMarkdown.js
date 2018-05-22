@@ -1,6 +1,6 @@
 /**
  * Hi contributors!
- * 
+ *
  * Before you edit or update codes in this file,
  * make sure you have read this bellow:
  * Commonmark Spec: https://spec.commonmark.org/0.28/
