@@ -43,7 +43,7 @@
 - fix: #251
 - fix: #248 dark background disappears when export PDF (#252)
 - fix: #231 cut not work in code block
-- fix: #274 can not selection codes in code block when the cursor from other block.
+- fix: #274 can not selection codes in code block when the cursor is outside of code block.
 
 ### 0.10.21
 
