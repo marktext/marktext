@@ -119,6 +119,4 @@ const escapeCharactersMap = escapeCharacters.reduce((acc, escapeCharacter, index
   return Object.assign(acc, { [escapeCharacter]: charachers[index] })
 }, {})
 
-console.log(escapeCharactersMap)
-
 export default escapeCharactersMap
