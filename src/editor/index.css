@@ -40,6 +40,7 @@ h6.ag-active::before {
 
 .ag-line {
   display: block;
+  white-space: pre-wrap;
 }
 
 /* .ag-soft-line-break::after {
