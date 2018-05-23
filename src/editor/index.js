@@ -74,6 +74,7 @@ class Aganippe {
     this.dispatchArrow()
     this.dispatchBackspace()
     this.dispatchEnter()
+    this.dispatchSelection()
     this.dispatchUpdateState()
     this.dispatchCopyCut()
     this.dispatchTableToolBar()
@@ -281,6 +282,17 @@ class Aganippe {
     const handler = event => {
       if (event.key === EVENT_KEYS.Enter && !this._isEditChinese) {
         this.contentState.enterHandler(event)
+      }
+    }
+
+    eventCenter.attachDOMEvent(container, 'keydown', handler)
+  }
+
+  dispatchSelection (event) {
+    const { container, eventCenter } = this
+    const handler = event => {
+      if (event.ctrlKey && event.key === 'a') {
+        this.contentState.tableCellHandler(event)
       }
     }
 

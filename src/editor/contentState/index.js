@@ -8,6 +8,7 @@ import updateCtrl from './updateCtrl'
 import backspaceCtrl from './backspaceCtrl'
 import codeBlockCtrl from './codeBlockCtrl'
 import tableBlockCtrl from './tableBlockCtrl'
+import selectionCtrl from './selectionCtrl'
 import History from './history'
 import arrowCtrl from './arrowCtrl'
 import pasteCtrl from './pasteCtrl'
@@ -24,6 +25,7 @@ import importMarkdown from '../utils/importMarkdown'
 const prototypes = [
   tabCtrl,
   enterCtrl,
+  selectionCtrl,
   updateCtrl,
   backspaceCtrl,
   codeBlockCtrl,
@@ -504,9 +506,11 @@ class ContentState {
   }
 
   getLastChild (block) {
-    const len = block.children.length
-    if (len) {
-      return block.children[len - 1]
+    if (block) {
+      const len = block.children.length
+      if (len) {
+        return block.children[len - 1]
+      }
     }
     return null
   }
