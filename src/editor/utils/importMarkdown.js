@@ -65,12 +65,16 @@ const importRegister = ContentState => {
       return { lang, codeBlockStyle }
     }
 
-    const isFrontMatter = node => {
+    const getPreFunctionType = node => {
+      let type = ''
       const classAttr = node.attrs.filter(attr => attr.name === 'class')[0]
       if (classAttr && classAttr.value) {
-        return /front-matter/.test(classAttr.value)
+        const { value } = classAttr
+        if (/front-matter/.test(value)) type = 'frontmatter'
+        if (/multiple-math/.test(value)) type = 'multiplemath'
+        if (/code-block/.test(value)) type = 'code'
       }
-      return false
+      return type
     }
 
     const getRowColumnCount = childNodes => {
@@ -219,8 +223,8 @@ const importRegister = ContentState => {
             break
 
           case 'pre':
-            const frontMatter = isFrontMatter(child)
-            if (frontMatter) {
+            const functionType = getPreFunctionType(child)
+            if (functionType === 'frontmatter' || functionType === 'multiplemath') {
               value = child.childNodes[0].value
               block = this.createBlock('pre')
               const lines = value.replace(/^\s+/, '').split(LINE_BREAKS_REG).map(line => this.createBlock('span', line))
@@ -228,8 +232,8 @@ const importRegister = ContentState => {
                 line.functionType = 'frontmatter'
                 this.appendChild(block, line)
               }
-              block.functionType = 'frontmatter'
-            } else {
+              block.functionType = functionType
+            } else if (functionType === 'code') {
               const codeNode = child.childNodes[0]
               const { lang, codeBlockStyle } = getLangAndType(codeNode)
               value = codeNode.childNodes[0].value

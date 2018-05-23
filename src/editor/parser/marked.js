@@ -29,7 +29,8 @@ var block = {
   table: noop,
   paragraph: /^((?:[^\n]+\n?(?!hr|heading|lheading|blockquote|tag|def))+)\n*/,
   text: /^[^\n]+/,
-  frontmatter: /^---\n([\s\S]+?)---(?:\n+|$)/
+  frontmatter: /^---\n([\s\S]+?)---(?:\n+|$)/,
+  multiplemath: /^\$\$\n([\s\S]+?)\n\$\$(?:\n+|$)/
 };
 
 block.checkbox = /^\[([ x])\] +/;
@@ -195,16 +196,25 @@ Lexer.prototype.token = function(src, top, bq) {
       continue;
     }
 
+    // multiple line math
+    if (cap = this.rules.multiplemath.exec(src)) {
+      src = src.substring(cap[0].length)
+      this.tokens.push({
+        type: 'multiplemath',
+        text: cap[1]
+      })
+    }
+
     // fences (gfm)
     if (cap = this.rules.fences.exec(src)) {
-      src = src.substring(cap[0].length);
+      src = src.substring(cap[0].length)
       this.tokens.push({
         type: 'code',
         codeBlockStyle: 'fenced',
         lang: cap[2],
         text: cap[3]
-      });
-      continue;
+      })
+      continue
     }
 
     // heading
@@ -822,6 +832,10 @@ Renderer.prototype.frontmatter = function (text) {
   return `<pre class="front-matter">\n${text}</pre>\n`
 }
 
+Renderer.prototype.multiplemath = function (text) {
+  return `<pre class="multiple-math">\n${text}</pre>\n`
+}
+
 Renderer.prototype.code = function (code, lang, escaped, codeBlockStyle) {
   if (this.options.highlight) {
     var out = this.options.highlight(code, lang);
@@ -1073,13 +1087,17 @@ Parser.prototype.tok = function() {
         return this.renderer.hr()
       }
     case 'heading': {
-        return this.renderer.heading(
-          this.inline.output(this.token.text),
-          this.token.depth,
-          this.token.text,
-          this.token.headingStyle
-        )
-      }
+      return this.renderer.heading(
+        this.inline.output(this.token.text),
+        this.token.depth,
+        this.token.text,
+        this.token.headingStyle
+      )
+    }
+    case 'multiplemath': {
+      const { text } = this.token
+      return this.renderer.multiplemath(text)
+    }
     case 'code':
       {
         const { codeBlockStyle, text, lang, escaped } = this.token

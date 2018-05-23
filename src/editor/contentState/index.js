@@ -51,7 +51,6 @@ class ContentState {
     this.blocks = [ this.createBlockP() ]
     this.stateRender = new StateRender(eventCenter)
     this.codeBlocks = new Map()
-    this.loadMathMap = new Map()
     this.renderRange = [ null, null ]
     this.currentCursor = null
     this.prevCursor = null
@@ -122,7 +121,7 @@ class ContentState {
   setCursor () {
     const { start: { key } } = this.cursor
     const block = this.getBlock(key)
-    if (block.type === 'pre' && block.functionType !== 'frontmatter') {
+    if (block.type === 'pre' && /code|html/.test(block.functionType)) {
       const cm = this.codeBlocks.get(key)
       const { selection } = block
       if (selection) {
@@ -156,7 +155,6 @@ class ContentState {
     this.setNextRenderRange()
     this.stateRender.render(blocks, cursor, activeBlocks, matches)
     this.pre2CodeMirror(isRenderCursor)
-    this.renderMath()
     if (isRenderCursor) this.setCursor()
   }
 
@@ -175,7 +173,6 @@ class ContentState {
     this.setNextRenderRange()
     this.stateRender.partialRender(needRenderBlocks, cursor, activeBlocks, matches, startKey, endKey)
     this.pre2CodeMirror(true, [...new Set([cursorOutMostBlock, ...needRenderBlocks])])
-    this.renderMath([...new Set([cursorOutMostBlock, ...needRenderBlocks])])
     this.setCursor()
   }
 

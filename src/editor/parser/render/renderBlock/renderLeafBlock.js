@@ -9,8 +9,6 @@ const PRE_BLOCK_HASH = {
   'frontmatter': `.${CLASS_OR_ID['AG_FRONT_MATTER']}`
 }
 
-
-
 export default function renderLeafBlock (block, cursor, activeBlocks, matches, useCache = false) {
   let selector = this.getSelector(block, cursor, activeBlocks)
   // highlight search key in block
@@ -98,7 +96,7 @@ export default function renderLeafBlock (block, cursor, activeBlocks, matches, u
       })
     }
 
-    if (functionType !== 'frontmatter') {
+    if (/code|html/.test(functionType)) {
       // do not set it to '' (empty string)
       children = []
     }

@@ -1,40 +1,16 @@
-import katex from 'katex'
-import { CLASS_OR_ID } from '../config'
-
-import 'katex/dist/katex.min.css'
-
+// import { CLASS_OR_ID } from '../config'
 const mathCtrl = ContentState => {
-  ContentState.prototype.renderMath = function (blocks) {
-    let selector = ''
+  ContentState.prototype.initMathBlock = function (block) { // p block
+    // const textArea = this.createBlock('pre')
+    // const emptyLine = this.createBlock('span')
+    // this.appendChild(textArea, emptyLine)
+  }
 
-    if (blocks) {
-      selector = blocks.map(block => `#${block.key} .${CLASS_OR_ID['AG_MATH_RENDER']}`).join(', ')
-    } else {
-      selector = `.${CLASS_OR_ID['AG_MATH_RENDER']}`
-    }
-
-    const mathEles = document.querySelectorAll(selector)
-    const { loadMathMap } = this
-    for (const math of mathEles) {
-      const content = math.getAttribute('data-math')
-      const type = math.getAttribute('data-type')
-      const displayMode = type === 'display_math'
-      const key = `${content}_${type}`
-      if (loadMathMap.has(key)) {
-        math.innerHTML = loadMathMap.get(key)
-        continue
-      }
-      try {
-        const html = katex.renderToString(content, {
-          displayMode
-        })
-        loadMathMap.set(key, html)
-        math.innerHTML = html
-      } catch (err) {
-        math.innerHTML = 'Invalid'
-        math.classList.add(CLASS_OR_ID['AG_MATH_ERROR'])
-      }
-    }
+  ContentState.prototype.updateMathBlock = function (block) {
+    const { type } = block
+    if (type !== 'p') return false
+    const { text } = block.children[0]
+    return text.trim() === '$$' ? this.initMathBlock(block) : false
   }
 }
 

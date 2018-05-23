@@ -72,9 +72,11 @@ export default function renderContainerBlock (block, cursor, activeBlocks, match
   if (block.type === 'ol') {
     Object.assign(data.attrs, { start: block.start })
   }
-  if (block.type === 'pre' && block.functionType === 'frontmatter') {
-    Object.assign(data.dataset, { role: 'YAML' })
-    selector += `.${CLASS_OR_ID['AG_FRONT_MATTER']}`
+  if (block.type === 'pre' && /frontmatter|multiplemath/.test(block.functionType)) {
+    const role = block.functionType === 'frontmatter' ? 'YAML' : 'MATH'
+    const className = block.functionType === 'frontmatter' ? CLASS_OR_ID['AG_FRONT_MATTER'] : CLASS_OR_ID['AG_MULTIPLE_MATH']
+    Object.assign(data.dataset, { role })
+    selector += `.${className}`
   }
 
   return h(selector, data, block.children.map(child => this.renderBlock(child, cursor, activeBlocks, matches, useCache)))
