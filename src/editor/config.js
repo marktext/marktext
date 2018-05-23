@@ -3,6 +3,8 @@ import htmlTags from 'html-tags'
 import voidHtmlTags from 'html-tags/void'
 
 export const UNDO_DEPTH = 100
+// [0.25, 0.5, 1, 2, 4, 8] <—?—> [256M, 500M/768M, 1G/1000M, 2G, 4G, 8G]
+export const DEVICE_MEMORY = navigator.deviceMemory // Get the divice memory number
 export const HAS_TEXT_BLOCK_REG = /^(h\d|span|th|td|hr|pre)/i
 export const VOID_HTML_TAGS = voidHtmlTags
 export const HTML_TAGS = htmlTags
