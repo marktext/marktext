@@ -1,4 +1,4 @@
-import { CLASS_OR_ID } from '../../../config'
+import { CLASS_OR_ID, DEVICE_MEMORY } from '../../../config'
 import { tokenizer } from '../../parse'
 import { snakeToCamel } from '../../../utils'
 import { h, htmlToVNode } from '../snabbdom'
@@ -8,6 +8,8 @@ const PRE_BLOCK_HASH = {
   'html': `.${CLASS_OR_ID['AG_HTML_BLOCK']}`,
   'frontmatter': `.${CLASS_OR_ID['AG_FRONT_MATTER']}`
 }
+
+
 
 export default function renderLeafBlock (block, cursor, activeBlocks, matches, useCache = false) {
   let selector = this.getSelector(block, cursor, activeBlocks)
@@ -26,7 +28,7 @@ export default function renderLeafBlock (block, cursor, activeBlocks, matches, u
       tokens = this.tokenCache.get(text)
     } else {
       tokens = tokenizer(text, highlights)
-      if (highlights.length === 0 && useCache) this.tokenCache.set(text, tokens)
+      if (highlights.length === 0 && useCache && DEVICE_MEMORY >= 4) this.tokenCache.set(text, tokens)
     }
     children = tokens.reduce((acc, token) => [...acc, ...this[snakeToCamel(token.type)](h, cursor, block, token)], [])
   }

@@ -40,6 +40,7 @@ h6.ag-active::before {
 
 .ag-line {
   display: block;
+  white-space: pre-wrap;
 }
 
 /* .ag-soft-line-break::after {
@@ -413,7 +414,8 @@ span.ag-emoji-marked-text {
   margin-left: 1.3em;
 }
 
-.ag-hide.ag-emoji-marked-text[data-emoji] {
+.ag-hide.ag-emoji-marked-text[data-emoji],
+.ag-hide.ag-html-escape[data-character] {
   overflow: visible;
   white-space: nowrap;
   color: transparent;
@@ -425,6 +427,19 @@ span.ag-emoji-marked-text {
   color: #000;
   top: 0;
   left: -1.15em;
+}
+
+.ag-html-escape {
+  position: relative;
+  margin-left: .85rem;
+}
+
+.ag-html-escape::before {
+  position: absolute;
+  content: attr(data-character);
+  top: 0;
+  left: -.7rem;
+  color: #999;
 }
 
 .ag-language-input {
