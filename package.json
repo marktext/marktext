@@ -117,10 +117,8 @@
     "snabbdom": "^0.7.1",
     "snabbdom-to-html": "^5.1.1",
     "snabbdom-virtualize": "^0.7.0",
-    "to": "^0.2.9",
     "turndown": "^4.0.1",
     "turndown-plugin-gfm": "^1.0.1",
-    "update": "^0.7.4",
     "vue": "^2.5.16",
     "vue-electron": "^1.0.6",
     "vuex": "^2.3.1"
