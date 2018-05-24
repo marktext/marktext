@@ -80,6 +80,7 @@ class Aganippe {
     this.dispatchTableToolBar()
     this.dispatchCodeBlockClick()
     this.htmlPreviewClick()
+    this.mathPreviewClick()
 
     contentState.listenForPathChange()
 
@@ -423,6 +424,21 @@ class Aganippe {
         event.preventDefault()
         event.stopPropagation()
         this.contentState.handleHtmlBlockClick(htmlPreview)
+      }
+    }
+
+    eventCenter.attachDOMEvent(container, 'click', handler)
+  }
+
+  mathPreviewClick () {
+    const { eventCenter, container } = this
+    const handler = event => {
+      const target = event.target
+      const mathFigure = isInElement(target, 'ag-multiple-math-block')
+      if (mathFigure && !mathFigure.classList.contains(CLASS_OR_ID['AG_ACTIVE'])) {
+        event.preventDefault()
+        event.stopPropagation()
+        this.contentState.handleMathBlockClick(mathFigure)
       }
     }
 

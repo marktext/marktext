@@ -101,7 +101,7 @@ const tokenizerFac = (src, beginRules, inlineRules, pos = 0, top) => {
   }
 
   if (beginRules && pos === 0) {
-    const beginR = ['header', 'hr', 'code_fense', 'display_math']
+    const beginR = ['header', 'hr', 'code_fense', 'display_math', 'multiple_math']
 
     for (const ruleName of beginR) {
       const to = beginRules[ruleName].exec(src)
@@ -488,6 +488,7 @@ export const generator = tokens => {
         result += token.escapeCharacter
         break
       case 'tail_header':
+      case 'multiple_math':
         result += token.marker
         break
       case 'hard_line_break':

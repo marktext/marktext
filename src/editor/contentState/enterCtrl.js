@@ -372,6 +372,7 @@ const enterCtrl = ContentState => {
     const blockNeedFocus = this.codeBlockUpdate(preParagraphBlock)
     let tableNeedFocus = this.tableBlockUpdate(preParagraphBlock)
     let htmlNeedFocus = this.updateHtmlBlock(preParagraphBlock)
+    let mathNeedFocus = this.updateMathBlock(preParagraphBlock)
     let cursorBlock
 
     switch (true) {
@@ -383,6 +384,9 @@ const enterCtrl = ContentState => {
         break
       case !!htmlNeedFocus:
         cursorBlock = htmlNeedFocus
+        break
+      case !!mathNeedFocus:
+        cursorBlock = mathNeedFocus
         break
       default:
         cursorBlock = newBlock

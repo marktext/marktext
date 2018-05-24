@@ -224,15 +224,30 @@ const importRegister = ContentState => {
 
           case 'pre':
             const functionType = getPreFunctionType(child)
-            if (functionType === 'frontmatter' || functionType === 'multiplemath') {
+            if (functionType === 'frontmatter') {
               value = child.childNodes[0].value
               block = this.createBlock('pre')
               const lines = value.replace(/^\s+/, '').split(LINE_BREAKS_REG).map(line => this.createBlock('span', line))
               for (const line of lines) {
-                line.functionType = 'frontmatter'
+                line.functionType = functionType
                 this.appendChild(block, line)
               }
               block.functionType = functionType
+            } else if (functionType === 'multiplemath') {
+              block = this.createBlock('figure')
+              const textArea = this.createBlock('pre')
+              const mathPreview = this.createBlock('div')
+              value = child.childNodes[0].value
+              const lines = value.replace(/^\s+/, '').split(LINE_BREAKS_REG).map(line => this.createBlock('span', line))
+              for (const line of lines) {
+                line.functionType = functionType
+                this.appendChild(textArea, line)
+              }
+              block.functionType = textArea.functionType = mathPreview.functionType = functionType
+              mathPreview.math = value
+              mathPreview.editable = false
+              this.appendChild(block, textArea)
+              this.appendChild(block, mathPreview)
             } else if (functionType === 'code') {
               const codeNode = child.childNodes[0]
               const { lang, codeBlockStyle } = getLangAndType(codeNode)

@@ -284,6 +284,13 @@ const updateCtrl = ContentState => {
     return null
   }
 
+  ContentState.prototype.undateMathContent = function (block) {
+    const preBlock = this.getParent(block)
+    const mathPreview = this.getNextSibling(preBlock)
+    const math = preBlock.children.map(line => line.text).join('\n')
+    mathPreview.math = math
+  }
+
   ContentState.prototype.updateState = function (event) {
     const { floatBox } = this
     const { start, end } = selection.getCursorRange()
@@ -388,6 +395,7 @@ const updateCtrl = ContentState => {
       }
       return
     }
+
     // auto pair
     if (block && block.text !== text) {
       const BRACKET_HASH = {
@@ -423,13 +431,16 @@ const updateCtrl = ContentState => {
       block.text = text
     }
 
+    if (block && block.type === 'span' && block.functionType === 'multiplemath') {
+      this.undateMathContent(block)
+    }
+
     if (oldKey !== key || oldStart.offset !== start.offset || oldEnd.offset !== end.offset) {
       needRender = true
     }
     this.cursor = lastCursor = { start, end }
     const checkMarkedUpdate = this.checkNeedRender(block)
-    const inlineUpdatedBlock = this.isCollapse() && /code|html/.test(block.functionType) && this.checkInlineUpdate(block)
-
+    const inlineUpdatedBlock = this.isCollapse() && !/frontmatter|multiplemath/.test(block.functionType) && this.checkInlineUpdate(block)
     if (checkMarkedUpdate || inlineUpdatedBlock || needRender) {
       this.partialRender()
     }

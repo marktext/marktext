@@ -15,6 +15,16 @@ export const usePluginAddRules = turndownService => {
     }
   })
 
+  // handle multiple lines math
+  turndownService.addRule('multiplemath', {
+    filter (node, options) {
+      return node.nodeName === 'PRE' && node.classList.contains('multiple-math')
+    },
+    replacement (content, node, options) {
+      return `$$\n${content}\n$$`
+    }
+  })
+
   // handle `soft line break` and `hard line break`
   // add `LINE_BREAK` to the end of soft line break and hard line break.
   turndownService.addRule('lineBreak', {

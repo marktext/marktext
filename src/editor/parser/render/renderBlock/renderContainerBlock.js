@@ -24,6 +24,9 @@ export default function renderContainerBlock (block, cursor, activeBlocks, match
     if (block.functionType === 'html') { // HTML Block
       Object.assign(data.dataset, { role: block.functionType.toUpperCase() })
     }
+    if (block.functionType === 'multiplemath') {
+      selector += `.${CLASS_OR_ID['AG_MULTIPLE_MATH_BLOCK']}`
+    }
   }
   // hanle list block
   if (/ul|ol/.test(block.type) && block.listType) {

@@ -1,3 +1,4 @@
+import katex from 'katex'
 import { CLASS_OR_ID, DEVICE_MEMORY } from '../../../config'
 import { tokenizer } from '../../parse'
 import { snakeToCamel } from '../../../utils'
@@ -10,10 +11,25 @@ const PRE_BLOCK_HASH = {
 }
 
 export default function renderLeafBlock (block, cursor, activeBlocks, matches, useCache = false) {
+  const { loadMathMap } = this
   let selector = this.getSelector(block, cursor, activeBlocks)
   // highlight search key in block
   const highlights = matches.filter(m => m.key === block.key)
-  const { text, type, headingStyle, align, htmlContent, icon, checked, key, lang, functionType, codeBlockStyle } = block
+  const {
+    text,
+    type,
+    headingStyle,
+    align,
+    htmlContent,
+    icon,
+    checked,
+    key,
+    lang,
+    functionType,
+    codeBlockStyle,
+    math,
+    editable
+  } = block
   const data = {
     attrs: {},
     dataset: {}
@@ -31,16 +47,41 @@ export default function renderLeafBlock (block, cursor, activeBlocks, matches, u
     children = tokens.reduce((acc, token) => [...acc, ...this[snakeToCamel(token.type)](h, cursor, block, token)], [])
   }
 
+  if (editable === false) {
+    Object.assign(data.attrs, {
+      contenteditable: 'false'
+    })
+  }
+
   if (/th|td/.test(type) && align) {
     Object.assign(data.attrs, {
       style: `text-align:${align}`
     })
-  } else if (type === 'div' && htmlContent !== undefined) {
-    selector += `.${CLASS_OR_ID['AG_HTML_PREVIEW']}`
-    Object.assign(data.attrs, {
-      contenteditable: 'false'
-    })
-    children = htmlToVNode(htmlContent)
+  } else if (type === 'div') {
+    if (typeof htmlContent === 'string') {
+      selector += `.${CLASS_OR_ID['AG_HTML_PREVIEW']}`
+      children = htmlToVNode(htmlContent)
+    } else if (typeof math === 'string') {
+      const key = `${math}_display_math`
+      selector += `.${CLASS_OR_ID['AG_MATH_PREVIEW']}`
+      if (math === '') {
+        children = 'Empty Mathematical Formula...'
+        selector += `.${CLASS_OR_ID['AG_MATH_EMPTY']}`
+      } else if (loadMathMap.has(key)) {
+        children = loadMathMap.get(key)
+      } else {
+        try {
+          const html = katex.renderToString(math, {
+            displayMode: true
+          })
+          children = htmlToVNode(html)
+          loadMathMap.set(key, children)
+        } catch (err) {
+          children = 'Invalid Mathematical Formula...'
+          selector += `.${CLASS_OR_ID['AG_MATH_ERROR']}`
+        }
+      }
+    }
   } else if (type === 'svg' && icon) {
     selector += '.icon'
     Object.assign(data.attrs, {
@@ -100,8 +141,13 @@ export default function renderLeafBlock (block, cursor, activeBlocks, matches, u
       // do not set it to '' (empty string)
       children = []
     }
-  } else if (type === 'span' && functionType === 'frontmatter') {
-    selector += `.${CLASS_OR_ID['AG_FRONT_MATTER_LINE']}`
+  } else if (type === 'span' && /frontmatter|multiplemath/.test(functionType)) {
+    if (functionType === 'frontmatter') {
+      selector += `.${CLASS_OR_ID['AG_FRONT_MATTER_LINE']}`
+    }
+    if (functionType === 'multiplemath') {
+      selector += `.${CLASS_OR_ID['AG_MULTIPLE_MATH_LINE']}`
+    }
     children = text
   }
 

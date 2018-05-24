@@ -55,6 +55,8 @@ class ExportMarkdown {
             result.push(this.normalizeTable(table, indent))
           } else if (block.functionType === 'html') {
             result.push(this.normalizeHTML(block, indent))
+          } else if (block.functionType === 'multiplemath') {
+            result.push(this.normalizeMultipleMath(block, indent))
           }
           break
 
@@ -97,8 +99,6 @@ class ExportMarkdown {
           this.insertLineBreak(result, indent, true)
           if (block.functionType === 'frontmatter') {
             result.push(this.normalizeFrontMatter(block, indent))
-          } else if (block.functionType === 'multiplemath') {
-            result.push(this.normalizeMultipleMath(block, indent))
           } else {
             result.push(this.normalizeCodeBlock(block, indent))
           }
@@ -161,10 +161,10 @@ class ExportMarkdown {
     return result.join('')
   }
 
-  normalizeMultipleMath (block, indent) {
+  normalizeMultipleMath (block, /* figure */ indent) {
     const result = []
     result.push('$$\n')
-    for (const line of block.children) {
+    for (const line of block.children[0].children) {
       result.push(`${line.text}\n`)
     }
     result.push('$$\n')

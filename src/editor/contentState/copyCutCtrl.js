@@ -52,7 +52,7 @@ const copyCutCtrl = ContentState => {
     $(
       `.${CLASS_OR_ID['AG_REMOVE']}, .${CLASS_OR_ID['AG_TOOL_BAR']},
       .${CLASS_OR_ID['AG_MATH_RENDER']}, .${CLASS_OR_ID['AG_HTML_PREVIEW']},
-      .${CLASS_OR_ID['AG_COPY_REMOVE']}`
+      .${CLASS_OR_ID['AG_MATH_PREVIEW']}, .${CLASS_OR_ID['AG_COPY_REMOVE']}`
     ).remove()
     $(`.${CLASS_OR_ID['AG_EMOJI_MARKER']}`).text(':')
     $(`.${CLASS_OR_ID['AG_NOTEXT_LINK']}`).empty()
@@ -98,6 +98,18 @@ const copyCutCtrl = ContentState => {
         const { text } = this.getBlock(id)
         const pre = $('<pre></pre>')
         pre.text(text)
+        ele.replaceWith(pre)
+      })
+    }
+
+    const mathBlock = $(`figure.ag-multiple-math-block`)
+    if (mathBlock.length > 0) {
+      mathBlock.each((i, hb) => {
+        const ele = $(hb)
+        const id = ele.attr('id')
+        const { math } = this.getBlock(id).children[1]
+        const pre = $('<pre class="multiple-math"></pre>')
+        pre.text(math)
         ele.replaceWith(pre)
       })
     }
