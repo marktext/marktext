@@ -31,7 +31,7 @@ export default function displayMath (h, cursor, block, token, outerClass) {
       mathVnode = htmlToVNode(html)
       loadMathMap.set(key, mathVnode)
     } catch (err) {
-      mathVnode = 'Invalid Mathematical Formula...'
+      mathVnode = '< Invalid Mathematical Formula >'
       previewSelector += `.${CLASS_OR_ID['AG_MATH_ERROR']}`
     }
   }

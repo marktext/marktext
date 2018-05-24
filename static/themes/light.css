@@ -48,7 +48,7 @@ body {
 }
 
 .ag-gray {
-  color: #E4E7ED;
+  color: #C0C4CC;
   text-decoration: none;
 }
 
@@ -360,7 +360,7 @@ code {
 }
 
 #ag-editor-id pre.ag-active.ag-html-block {
-  background: #F2F6FC;
+  background: #f6f8fa;
 }
 
 p:not(.ag-active)[data-role="hr"]::before {

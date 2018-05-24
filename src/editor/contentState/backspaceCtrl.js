@@ -205,8 +205,9 @@ const backspaceCtrl = ContentState => {
       }
     } else if (
       block.type === 'span' && /frontmatter|multiplemath/.test(block.functionType) &&
-      left === 0 && !preBlock
+      left === 0 && !block.preSibling
     ) {
+      const isMathLine = block.functionType === 'multiplemath'
       event.preventDefault()
       event.stopPropagation()
       const { key } = block
@@ -215,6 +216,9 @@ const backspaceCtrl = ContentState => {
       for (const line of parent.children) {
         delete line.functionType
         this.appendChild(pBlock, line)
+      }
+      if (isMathLine) {
+        parent = this.getParent(parent)
       }
       this.insertBefore(pBlock, parent)
       this.removeBlock(parent)

@@ -65,7 +65,7 @@ export default function renderLeafBlock (block, cursor, activeBlocks, matches, u
       const key = `${math}_display_math`
       selector += `.${CLASS_OR_ID['AG_MATH_PREVIEW']}`
       if (math === '') {
-        children = 'Empty Mathematical Formula...'
+        children = '< Empty Mathematical Formula >'
         selector += `.${CLASS_OR_ID['AG_MATH_EMPTY']}`
       } else if (loadMathMap.has(key)) {
         children = loadMathMap.get(key)
@@ -77,7 +77,7 @@ export default function renderLeafBlock (block, cursor, activeBlocks, matches, u
           children = htmlToVNode(html)
           loadMathMap.set(key, children)
         } catch (err) {
-          children = 'Invalid Mathematical Formula...'
+          children = '< Invalid Mathematical Formula >'
           selector += `.${CLASS_OR_ID['AG_MATH_ERROR']}`
         }
       }
