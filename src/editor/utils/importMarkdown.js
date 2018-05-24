@@ -66,13 +66,12 @@ const importRegister = ContentState => {
     }
 
     const getPreFunctionType = node => {
-      let type = ''
+      let type = 'code'
       const classAttr = node.attrs.filter(attr => attr.name === 'class')[0]
       if (classAttr && classAttr.value) {
         const { value } = classAttr
         if (/front-matter/.test(value)) type = 'frontmatter'
         if (/multiple-math/.test(value)) type = 'multiplemath'
-        if (/code-block/.test(value)) type = 'code'
       }
       return type
     }

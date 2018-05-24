@@ -317,12 +317,13 @@ tt {
 
 /* custom add */
 code {
+  padding: 0.2em 0.4em;
+  margin: 0;
+  font-size: 85%;
+  background-color: rgba(27,31,35,0.05);
+  border-radius: 3px;
   border: none;
-  padding: 2px 4px;
-  font-size: 90%;
-  color: #c7254e;
-  background-color: #f9f2f4;
-  border-radius: 4px;
+  color: #24292e;
   font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
 }
 
