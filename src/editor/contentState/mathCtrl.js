@@ -1,5 +1,32 @@
 // import { CLASS_OR_ID } from '../config'
+const LINE_BREAKS_REG = /\n/
+
 const mathCtrl = ContentState => {
+  ContentState.prototype.createMathBlock = function (value = '') {
+    const FUNCTION_TYPE = 'multiplemath'
+    const mathBlock = this.createBlock('figure')
+    const textArea = this.createBlock('pre')
+    const mathPreview = this.createBlock('div')
+    if (typeof value === 'string' && value) {
+      const lines = value.replace(/^\s+/, '').split(LINE_BREAKS_REG).map(line => this.createBlock('span', line))
+      for (const line of lines) {
+        line.functionType = FUNCTION_TYPE
+        this.appendChild(textArea, line)
+      }
+    } else {
+      const emptyLine = this.createBlock('span')
+      emptyLine.functionType = FUNCTION_TYPE
+      this.appendChild(textArea, emptyLine)
+    }
+
+    mathBlock.functionType = textArea.functionType = mathPreview.functionType = FUNCTION_TYPE
+    mathPreview.math = value
+    mathPreview.editable = false
+    this.appendChild(mathBlock, textArea)
+    this.appendChild(mathBlock, mathPreview)
+    return mathBlock
+  }
+
   ContentState.prototype.initMathBlock = function (block) { // p block
     const FUNCTION_TYPE = 'multiplemath'
     const textArea = this.createBlock('pre')
