@@ -23,6 +23,7 @@ const state = {
   autoPairBracket: true,
   autoPairMarkdownSyntax: true,
   autoPairQuote: true,
+  tabSize: 4,
   // edit mode
   typewriter: false, // typewriter mode
   focus: false, // focus mode

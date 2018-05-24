@@ -25,7 +25,8 @@ Edit and save to update preferences. You can only change the JSON below!
   "autoPairBracket": true,
   "autoPairMarkdownSyntax": true,
   "autoPairQuote": true,
-  "endOfLine": "default"
+  "endOfLine": "default",
+  "tabSize": 4
 }
 ```
 

@@ -21,7 +21,8 @@ class Aganippe {
   constructor (container, options) {
     const {
       focusMode = false, theme = 'light', markdown = '', preferLooseListItem = true,
-      autoPairBracket = true, autoPairMarkdownSyntax = true, autoPairQuote = true, bulletListMarker = '-'
+      autoPairBracket = true, autoPairMarkdownSyntax = true, autoPairQuote = true,
+      bulletListMarker = '-', tabSize = 4
     } = options
     this.container = container
     const eventCenter = this.eventCenter = new EventCenter()
@@ -35,7 +36,8 @@ class Aganippe {
       autoPairBracket,
       autoPairMarkdownSyntax,
       autoPairQuote,
-      bulletListMarker
+      bulletListMarker,
+      tabSize
     })
     this.emoji = new Emoji() // emoji instance: has search(text) clear() methods.
     this.focusMode = focusMode
@@ -537,6 +539,16 @@ class Aganippe {
   setListItemPreference (preferLooseListItem) {
     this.preferLooseListItem = preferLooseListItem
     this.contentState.preferLooseListItem = preferLooseListItem
+  }
+
+  setTabSize (tabSize) {
+    if (!tabSize || typeof tabSize !== 'number') {
+      tabSize = 4
+    } else if (tabSize < 1) {
+      tabSize = 1
+    }
+    this.tabSize = tabSize
+    this.contentState.tabSize = tabSize
   }
 
   updateParagraph (type) {

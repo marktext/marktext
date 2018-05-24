@@ -118,25 +118,27 @@ const tabCtrl = ContentState => {
     }
 
     this.appendChild(newList, listItem)
-    this.partialRender()
+    return this.partialRender()
   }
 
-  // ContentState.prototype.insertTab = function () {
-  //   // TODO(fxha): Tabs and all spaces with length > 1 are converted to a single space
-  //                  in editor mode. Maybe write a HTML "tab" element
-  //   // TODO(fxha): create setting entry "tabSize: <int>"
-  //   const tabCharacter = new Array(4).join(' ')
-  //   const { start, end } = this.cursor
-  //   const startBlock = this.getBlock(start.key)
-  //   const endBlock = this.getBlock(end.key)
-  //   if (this.cursor.start.key === this.cursor.end.key) {
-  //     startBlock.text = startBlock.text.substring(0, start.offset) + tabCharacter + endBlock.text.substring(end.offset)
-  //     // workaround: see todo 1
-  //     this.cursor.start.offset += 1 // tabCharacter.length
-  //     this.cursor.end.offset += 1 // tabCharacter.length
-  //     this.render()
-  //   }
-  // }
+  ContentState.prototype.insertTab = function () {
+    const tabSize = this.tabSize
+    const tabCharacter = ' '.repeat(tabSize)
+    const { start, end } = this.cursor
+    const startBlock = this.getBlock(start.key)
+    const endBlock = this.getBlock(end.key)
+    if (start.key === end.key && start.offset === end.offset) {
+      startBlock.text = startBlock.text.substring(0, start.offset) +
+        tabCharacter + endBlock.text.substring(end.offset)
+      const key = start.key
+      const offset = start.offset + tabCharacter.length
+      this.cursor = {
+        start: { key, offset },
+        end: { key, offset }
+      }
+      return this.partialRender()
+    }
+  }
 
   ContentState.prototype.tabHandler = function (event) {
     // disable tab focus
@@ -173,9 +175,8 @@ const tabCtrl = ContentState => {
 
     if (this.isIndentableListItem()) {
       return this.indentListItem()
-    } // else {
-    //   this.insertTab()
-    // }
+    }
+    return this.insertTab()
   }
 }
 
