@@ -349,19 +349,29 @@ const importRegister = ContentState => {
     // set cursor
     const travel = blocks => {
       for (const block of blocks) {
-        const { key, text, children } = block
+        const { key, text, children, editable, type, functionType } = block
         if (text) {
           const offset = text.indexOf(CURSOR_DNA)
           if (offset > -1) {
             block.text = text.substring(0, offset) + text.substring(offset + CURSOR_DNA.length)
-            this.cursor = {
-              start: { key, offset },
-              end: { key, offset }
+            if (editable) {
+              this.cursor = {
+                start: { key, offset },
+                end: { key, offset }
+              }
+              // handle cursor in Math block, need to remove `CURSOR_DNA` in preview block
+              if (type === 'span' && functionType === 'multiplemath') {
+                const mathPreview = this.getNextSibling(this.getParent(block))
+                const { math } = mathPreview
+                const offset = math.indexOf(CURSOR_DNA)
+                if (offset > -1) {
+                  mathPreview.math = math.substring(0, offset) + math.substring(offset + CURSOR_DNA.length)
+                }
+              }
+              return
             }
-            return
           }
-        }
-        if (children.length) {
+        } else if (children.length) {
           travel(children)
         }
       }
