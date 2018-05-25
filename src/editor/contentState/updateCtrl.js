@@ -284,7 +284,7 @@ const updateCtrl = ContentState => {
     return null
   }
 
-  ContentState.prototype.undateMathContent = function (block) {
+  ContentState.prototype.updateMathContent = function (block) {
     const preBlock = this.getParent(block)
     const mathPreview = this.getNextSibling(preBlock)
     const math = preBlock.children.map(line => line.text).join('\n')
@@ -432,7 +432,7 @@ const updateCtrl = ContentState => {
     }
 
     if (block && block.type === 'span' && block.functionType === 'multiplemath') {
-      this.undateMathContent(block)
+      this.updateMathContent(block)
     }
 
     if (oldKey !== key || oldStart.offset !== start.offset || oldEnd.offset !== end.offset) {
