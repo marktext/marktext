@@ -131,10 +131,15 @@ const pasteCtrl = ContentState => {
         throw new Error('unknown paste type')
     }
     // step 3: set cursor and render
-    const cursorBlock = this.getBlock(key)
+    let cursorBlock = this.getBlock(key)
     if (!cursorBlock) {
       key = startBlock.key
       offset = startBlock.text.length - cacheText.length
+      cursorBlock = startBlock
+    }
+    // TODO @Jocs duplicate with codes in updateCtrl.js
+    if (cursorBlock && cursorBlock.type === 'span' && cursorBlock.functionType === 'multiplemath') {
+      this.updateMathContent(cursorBlock)
     }
     this.cursor = {
       start: {

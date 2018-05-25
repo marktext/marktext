@@ -5,12 +5,15 @@ process.env.BABEL_ENV = 'web'
 const path = require('path')
 const webpack = require('webpack')
 
-const BabiliWebpackPlugin = require('babili-webpack-plugin')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
-const ExtractTextPlugin = require('extract-text-webpack-plugin')
+const MiniCssExtractPlugin = require("mini-css-extract-plugin")
 const HtmlWebpackPlugin = require('html-webpack-plugin')
+const VueLoaderPlugin = require('vue-loader/lib/plugin')
 
-let webConfig = {
+const proMode = process.env.NODE_ENV === 'production'
+
+const webConfig = {
+  mode: 'development',
   devtool: '#cheap-module-eval-source-map',
   entry: {
     web: path.join(__dirname, '../src/renderer/main.js')
@@ -30,10 +33,10 @@ let webConfig = {
       },
       {
         test: /\.css$/,
-        use: ExtractTextPlugin.extract({
-          fallback: 'style-loader',
-          use: 'css-loader'
-        })
+        use: [
+          proMode ? MiniCssExtractPlugin.loader : 'style-loader',
+          "css-loader"
+        ]
       },
       {
         test: /\.html$/,
@@ -48,14 +51,7 @@ let webConfig = {
       {
         test: /\.vue$/,
         use: {
-          loader: 'vue-loader',
-          options: {
-            extractCSS: true,
-            loaders: {
-              sass: 'vue-style-loader!css-loader!sass-loader?indentedSyntax=1',
-              scss: 'vue-style-loader!css-loader!sass-loader'
-            }
-          }
+          loader: 'vue-loader'
         }
       },
       {
@@ -81,7 +77,6 @@ let webConfig = {
     ]
   },
   plugins: [
-    new ExtractTextPlugin('styles.css'),
     new HtmlWebpackPlugin({
       filename: 'index.html',
       template: path.resolve(__dirname, '../src/index.ejs'),
@@ -96,7 +91,8 @@ let webConfig = {
       'process.env.IS_WEB': 'true'
     }),
     new webpack.HotModuleReplacementPlugin(),
-    new webpack.NoEmitOnErrorsPlugin()
+    new webpack.NoEmitOnErrorsPlugin(),
+    new VueLoaderPlugin()
   ],
   output: {
     filename: '[name].js',
@@ -115,11 +111,17 @@ let webConfig = {
 /**
  * Adjust webConfig for production settings
  */
-if (process.env.NODE_ENV === 'production') {
+if (proMode) {
   webConfig.devtool = ''
+  webConfig.mode ='production'
 
   webConfig.plugins.push(
-    new BabiliWebpackPlugin(),
+    new MiniCssExtractPlugin({
+      // Options similar to the same options in webpackOptions.output
+      // both options are optional
+      filename: '[name].[hash].css',
+      chunkFilename: '[id].[hash].css'
+    }),
     new CopyWebpackPlugin([
       {
         from: path.join(__dirname, '../static'),
@@ -127,9 +129,6 @@ if (process.env.NODE_ENV === 'production') {
         ignore: ['.*']
       }
     ]),
-    new webpack.DefinePlugin({
-      'process.env.NODE_ENV': '"production"'
-    }),
     new webpack.LoaderOptionsPlugin({
       minimize: true
     })

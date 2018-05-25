@@ -68,6 +68,14 @@ const setCheckedMenuItem = affiliation => {
           return item.id === 'frontMatterMenuItem'
         } else if (b.functionType === 'code') {
           return item.id === 'codeFencesMenuItem'
+        } else if (b.functionType === 'html') {
+          return false
+        } else if (b.functionType === 'multiplemath') {
+          return item.id === 'mathBlockMenuItem'
+        }
+      } else if (b.type === 'figure' && b.functionType) {
+        if (b.functionType === 'table') {
+          return item.id === 'tableMenuItem'
         }
       } else {
         return b.type === MENU_ID_MAP[item.id]
@@ -90,10 +98,15 @@ ipcMain.on('AGANI::selection-change', (e, { start, end, affiliation }) => {
   setCheckedMenuItem(affiliation)
   // handle disable
   setParagraphMenuItemStatus(true)
+
   if (
     (/th|td/.test(start.type) && /th|td/.test(end.type)) ||
     (start.type === 'span' && start.block.functionType === 'frontmatter') ||
-    (end.type === 'span' && end.block.functionType === 'frontmatter')
+    (end.type === 'span' && end.block.functionType === 'frontmatter') ||
+    (start.type === 'span' && start.block.functionType === 'multiplemath') ||
+    (end.type === 'span' && end.block.functionType === 'multiplemath') ||
+    (start.type === 'pre' && start.block.functionType === 'html') ||
+    (end.type === 'pre' && end.block.functionType === 'html')
   ) {
     setParagraphMenuItemStatus(false)
   } else if (start.key !== end.key) {

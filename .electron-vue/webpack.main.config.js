@@ -5,10 +5,10 @@ process.env.BABEL_ENV = 'main'
 const path = require('path')
 const { dependencies } = require('../package.json')
 const webpack = require('webpack')
+const proMode = process.env.NODE_ENV === 'production'
 
-const BabiliWebpackPlugin = require('babili-webpack-plugin')
-
-let mainConfig = {
+const mainConfig = {
+  mode: 'development',
   entry: {
     main: path.join(__dirname, '../src/main/index.js')
   },
@@ -40,8 +40,8 @@ let mainConfig = {
     ]
   },
   node: {
-    __dirname: process.env.NODE_ENV !== 'production',
-    __filename: process.env.NODE_ENV !== 'production'
+    __dirname: !proMode,
+    __filename: !proMode
   },
   output: {
     filename: '[name].js',
@@ -60,7 +60,7 @@ let mainConfig = {
 /**
  * Adjust mainConfig for development settings
  */
-if (process.env.NODE_ENV !== 'production') {
+if (!proMode) {
   mainConfig.plugins.push(
     new webpack.DefinePlugin({
       '__static': `"${path.join(__dirname, '../static').replace(/\\/g, '\\\\')}"`
@@ -71,12 +71,10 @@ if (process.env.NODE_ENV !== 'production') {
 /**
  * Adjust mainConfig for production settings
  */
-if (process.env.NODE_ENV === 'production') {
+if (proMode) {
+  mainConfig.mode = 'production'
   mainConfig.plugins.push(
-    new BabiliWebpackPlugin(),
-    new webpack.DefinePlugin({
-      'process.env.NODE_ENV': '"production"'
-    })
+    // new BabiliWebpackPlugin()
   )
 }
 

@@ -1,4 +1,4 @@
-### 0.11.37
+### 0.11.38
 
 **:cactus:Feature**
 
@@ -11,6 +11,7 @@
 - feature: Support `setext` heading but the default heading style is `atx`
 - feature: User list item marker setting in preference file.
 - feature: Select text from selected table (cell) only if you press Ctrl+A
+- feature: Support Multiple lines math #242
 
 **:butterfly:Optimization**
 

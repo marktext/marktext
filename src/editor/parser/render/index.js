@@ -9,6 +9,7 @@ class StateRender {
   constructor (eventCenter) {
     this.eventCenter = eventCenter
     this.loadImageMap = new Map()
+    this.loadMathMap = new Map()
     this.tokenCache = new Map()
     this.container = null
   }

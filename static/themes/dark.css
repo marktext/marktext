@@ -372,8 +372,28 @@ code {
 }
 
 #ag-editor-id pre.ag-html-block {
-    padding: .4rem 1rem;
+    padding: 0 .5rem;
     margin-top: 0;
+}
+
+#ag-editor-id pre.ag-front-matter {
+  background: transparent;
+  border-bottom: 1px dashed #efefef;
+}
+
+#ag-editor-id pre.ag-multiple-math {
+  background: transparent;
+  border: 1px solid #909399;
+}
+
+#ag-editor-id span.ag-math-text,
+#ag-editor-id pre.ag-multiple-math span.ag-multiple-math-line {
+  color: lightsalmon;
+}
+
+#ag-editor-id div.ag-math-preview {
+  background: #303133;
+  border-color: #333;
 }
 
 #ag-editor-id pre.ag-code-block,

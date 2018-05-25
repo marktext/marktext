@@ -104,6 +104,7 @@ const backspaceCtrl = ContentState => {
     const { start, end } = selection.getCursorRange()
     const startBlock = this.getBlock(start.key)
     const endBlock = this.getBlock(end.key)
+
     // fix: #67 problem 1
     if (startBlock.icon) return event.preventDefault()
     // fix: unexpect remove all editor html. #67 problem 4
@@ -131,11 +132,11 @@ const backspaceCtrl = ContentState => {
     if (start.key !== end.key) {
       event.preventDefault()
       const { key, offset } = start
-      const startRemainText = startBlock.type === 'pre' && startBlock.functionType !== 'frontmatter'
+      const startRemainText = startBlock.type === 'pre' && /code|html/.test(startBlock.functionType)
         ? startBlock.text.substring(0, offset - 1)
         : startBlock.text.substring(0, offset)
 
-      const endRemainText = endBlock.type === 'pre' && endBlock.functionType !== 'frontmatter'
+      const endRemainText = endBlock.type === 'pre' && /code|html/.test(endBlock.functionType)
         ? endBlock.text.substring(end.offset - 1)
         : endBlock.text.substring(end.offset)
 
@@ -183,7 +184,7 @@ const backspaceCtrl = ContentState => {
       return tHeadHasContent || tBodyHasContent
     }
 
-    if (block.type === 'pre' && block.functionType !== 'frontmatter') {
+    if (block.type === 'pre' && /code|html/.test(block.functionType)) {
       const cm = this.codeBlocks.get(id)
       // if event.preventDefault(), you can not use backspace in language input.
       if (isCursorAtBegin(cm) && onlyHaveOneLine(cm)) {
@@ -204,9 +205,10 @@ const backspaceCtrl = ContentState => {
         this.partialRender()
       }
     } else if (
-      block.type === 'span' && block.functionType === 'frontmatter' &&
-      left === 0 && !preBlock
+      block.type === 'span' && /frontmatter|multiplemath/.test(block.functionType) &&
+      left === 0 && !block.preSibling
     ) {
+      const isMathLine = block.functionType === 'multiplemath'
       event.preventDefault()
       event.stopPropagation()
       const { key } = block
@@ -215,6 +217,9 @@ const backspaceCtrl = ContentState => {
       for (const line of parent.children) {
         delete line.functionType
         this.appendChild(pBlock, line)
+      }
+      if (isMathLine) {
+        parent = this.getParent(parent)
       }
       this.insertBefore(pBlock, parent)
       this.removeBlock(parent)
@@ -326,7 +331,7 @@ const backspaceCtrl = ContentState => {
       const { text } = block
       const key = preBlock.key
       const offset = preBlock.text.length
-      if (preBlock.type === 'pre' && preBlock.functionType !== 'frontmatter') {
+      if (preBlock.type === 'pre' && /code|html/.test(preBlock.functionType)) {
         const cm = this.codeBlocks.get(key)
         const value = cm.getValue() + text
         cm.setValue(value)

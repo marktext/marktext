@@ -109,8 +109,8 @@ export const adjustCursor = (cursor, preline, line, nextline) => {
     }
   }
 
-  // Need to adjust the cursor when cursor in the first or last line of code block.
-  if (/```[\S]*/.test(line)) {
+  // Need to adjust the cursor when cursor in the first or last line of code/math block.
+  if (/```[\S]*/.test(line) || /^\$\$$/.test(line)) {
     if (typeof nextline === 'string' && /\S/.test(nextline)) {
       newCursor.line += 1
       newCursor.ch = 0

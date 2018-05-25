@@ -94,6 +94,14 @@ export default {
       actions.paragraph(browserWindow, 'blockquote')
     }
   }, {
+    id: 'mathBlockMenuItem',
+    label: 'Math Block',
+    type: 'checkbox',
+    accelerator: 'Alt+CmdOrCtrl+M',
+    click (menuItem, browserWindow) {
+      actions.paragraph(browserWindow, 'mathblock')
+    }
+  }, {
     type: 'separator'
   }, {
     id: 'orderListMenuItem',

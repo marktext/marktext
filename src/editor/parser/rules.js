@@ -5,7 +5,8 @@ export const beginRules = {
   'hr': /^(\*{3,}$|^\-{3,}$|^\_{3,}$)/,
   'code_fense': /^(`{3,})([^`]*)$/,
   'header': /(^\s{0,3}#{1,6}(\s{1,}|$))/,
-  'display_math': /^(\$\$)([^\$]*?[^\$\\])(\\*)\1$/
+  'display_math': /^(\$\$)([^\$]*?[^\$\\])(\\*)\1$/,
+  'multiple_math': /^(\$\$)$/
 }
 
 export const inlineRules = {

@@ -10,12 +10,12 @@
   }
 }
 
-h1.ag-active::before,
-h2.ag-active::before,
-h3.ag-active::before,
-h4.ag-active::before,
-h5.ag-active::before,
-h6.ag-active::before {
+#ag-editor-id > h1.ag-active::before,
+#ag-editor-id > h2.ag-active::before,
+#ag-editor-id > h3.ag-active::before,
+#ag-editor-id > h4.ag-active::before,
+#ag-editor-id > h5.ag-active::before,
+#ag-editor-id > h6.ag-active::before {
   content: attr(data-head);
   width: 20px;
   height: 20px;
@@ -25,12 +25,10 @@ h6.ag-active::before {
   position: absolute;
   top: 0;
   left: -25px;
-  border: 1px solid #C0C4CC;
-  border-radius: 3px;
-  font-size: 12px;
+  font-size: 14px;
   color: #C0C4CC;
-  transform: scale(.7);
-  font-weight: 100;
+  font-weight: 400;
+  font-style: italic;
 }
 
 .ag-paragraph:empty::after,
@@ -41,6 +39,10 @@ h6.ag-active::before {
 .ag-line {
   display: block;
   white-space: pre-wrap;
+}
+
+.ag-gray {
+  font-family: monospace;
 }
 
 /* .ag-soft-line-break::after {
@@ -58,6 +60,7 @@ h6.ag-active::before {
   color: #303133;
 }
 
+figure pre.ag-multiple-math,
 div.ag-function-html pre.ag-html-block {
   width: 0;
   height: 0;
@@ -67,7 +70,8 @@ div.ag-function-html pre.ag-html-block {
   position: absolute;
 }
 
-div.ag-function-html.ag-active pre.ag-html-block {
+div.ag-function-html.ag-active pre.ag-html-block,
+figure.ag-active pre.ag-multiple-math {
   position: static;
   width: 100%;
   height: auto;
@@ -101,37 +105,38 @@ span.ag-html-tag {
 span.ag-math {
   position: relative;
   color: purple;
-  letter-spacing: 0.1em;
+  font-family: monospace;
   display: inline-block;
   vertical-align: bottom;
 }
 
 .ag-math > .ag-math-render {
   display: inline-block;
-  background: rgb(79, 79, 79);
-  padding: .3em 1em;
-  border-radius: 5px;
-  color: #fff;
+  padding: .5rem;
+  background: #fff;
+  border: 1px solid #ebeef5;
+  border-radius: 4px;
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, .1);
+  color: #333;
   position: absolute;
   top: 30px;
   left: 0;
   z-index: 10;
 }
 
-.ag-math > .ag-math-error {
-  color: rgba(242, 134, 94, .7);
+div.ag-math-empty {
+  color: #999;
+  font-size: 14px;
+  font-style: italic;
+  font-family: monospace;
 }
 
-.ag-math > .ag-math-render::before {
-  content: '';
-  width: 10px;
-  height: 10px;
-  display: inline-block;
-  position: absolute;
-  transform: rotate(45deg) translateX(-50%);
-  background: rgb(79, 79, 79);
-  left: 10px;
-  top: -1px;
+div.ag-math-error,
+span.ag-math > .ag-math-render.ag-math-error {
+  color: #e6a23c;
+  font-size: 14px;
+  font-style: italic;
+  font-family: monospace;
 }
 
 .ag-math > .ag-math-render .katex-display {
@@ -151,9 +156,11 @@ span.ag-math {
 }
 
 .ag-hide.ag-math > .ag-math-render {
+  padding: 0;
   top: 0;
   position: relative;
-  padding: 0;
+  border: none;
+  box-shadow: none;
   background: transparent;
 }
 
@@ -164,7 +171,7 @@ span.ag-math {
 figure {
   padding: 0;
   margin: 0;
-  margin-top: 25px;
+  margin: 1rem 0;
   position: relative;
 }
 .ag-tool-bar {
@@ -221,29 +228,18 @@ figure.ag-active .ag-tool-bar {
   display: block;
 }
 
-figure[data-role=HTML] {
-  margin-top: 0;
-}
-
-figure.ag-active[data-role=HTML]::before,
-pre.ag-active[data-role=YAML]::before {
+figure.ag-active[data-role=HTML]::before {
   content: attr(data-role);
-  width: auto;
-  padding: 0 .3rem;
-  letter-spacing: .1rem;
   height: 20px;
   text-align: center;
-  line-height: 22px;
   display: block;
   position: absolute;
   top: 0;
   left: -45px;
-  border: 1px solid #C0C4CC;
-  border-radius: 3px;
   font-size: 12px;
   color: #C0C4CC;
-  transform: scale(.7);
-  font-weight: 300;
+  font-weight: 400;
+  font-style: italic;
 }
 
 table {
@@ -340,16 +336,26 @@ p:not(.ag-active)[data-role="hr"] * {
   color: transparent;
 }
 
+pre.ag-multiple-math,
 pre.ag-front-matter {
   position: relative;
-  background: #f7f7f7;
-  padding: 1rem;
+  background: #f6f8fa;
+  padding: .5rem;
   border: 5px;
-  font-size: 15px;
+  font-size: 14px;
+  margin: 0;
+}
+pre.ag-front-matter {
+  margin: 1rem 0;
 }
 
 span.ag-front-matter-line:first-of-type:empty::after {
   content: 'Input YAML Front Matter...';
+  color: #999;
+}
+
+span.ag-multiple-math-line:first-of-type:empty::after {
+  content: 'Input Mathematical Formula...';
   color: #999;
 }
 
@@ -365,22 +371,70 @@ pre.ag-code-block {
 
 pre.ag-code-block {
   margin: 1rem 0;
+  padding: 0 .5rem;
+}
+
+pre.ag-active.ag-front-matter::before,
+pre.ag-active.ag-front-matter::after {
+  content: '---';
+}
+
+pre.ag-active.ag-multiple-math::before,
+pre.ag-active.ag-multiple-math::after {
+  content: '$$';
 }
 
 pre.ag-active.ag-code-block::before,
 pre.ag-active.ag-code-block::after {
   content: '```';
+}
+
+pre.ag-active.ag-front-matter::before,
+pre.ag-active.ag-front-matter::after,
+pre.ag-active.ag-code-block::before,
+pre.ag-active.ag-code-block::after,
+pre.ag-active.ag-multiple-math::before,
+pre.ag-active.ag-multiple-math::after {
   color: #909399;
+  font-family: monospace;
   position: absolute;
   left: 0;
 }
 
+pre.ag-active.ag-front-matter::before,
+pre.ag-active.ag-multiple-math::before,
 pre.ag-active.ag-code-block::before {
   top: -20px;
 }
 
+pre.ag-active.ag-front-matter::after,
+pre.ag-active.ag-multiple-math::after,
 pre.ag-active.ag-code-block::after {
-  bottom: -25px;
+  bottom: -23px;
+}
+
+span.ag-multiple-math-line {
+  color: purple;
+  font-family: monospace;
+}
+
+figure div.ag-math-preview {
+  width: 100%;
+  text-align: center;
+}
+
+figure.ag-active div.ag-math-preview {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 50%;
+  width: auto;
+  z-index: 1;
+  transform: translateX(-50%);
+  padding: .5rem;
+  background: #fff;
+  border: 1px solid #ebeef5;
+  border-radius: 4px;
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, .1);
 }
 
 div.ag-html-preview {

@@ -89,7 +89,7 @@ const arrowCtrl = ContentState => {
       return
     }
 
-    if (block.type === 'pre' && block.functionType !== 'frontmatter') {
+    if (block.type === 'pre' && /code|html/.test(block.functionType)) {
       // handle cursor in code block. the case at firstline or lastline.
       const cm = this.codeBlocks.get(id)
       const anchorBlock = block.functionType === 'html' ? this.getParent(this.getParent(block)) : block
@@ -205,8 +205,8 @@ const arrowCtrl = ContentState => {
     }
 
     if (
-      (preBlock && preBlock.type === 'pre' && preBlock.functionType !== 'frontmatter' && event.key === EVENT_KEYS.ArrowUp) ||
-      (preBlock && preBlock.type === 'pre' && preBlock.functionType !== 'frontmatter' && event.key === EVENT_KEYS.ArrowLeft && left === 0)
+      (preBlock && preBlock.type === 'pre' && /code|html/.test(preBlock.functionType) && event.key === EVENT_KEYS.ArrowUp) ||
+      (preBlock && preBlock.type === 'pre' && /code|html/.test(preBlock.functionType) && event.key === EVENT_KEYS.ArrowLeft && left === 0)
     ) {
       event.preventDefault()
       event.stopPropagation()
@@ -222,8 +222,8 @@ const arrowCtrl = ContentState => {
 
       return this.partialRender()
     } else if (
-      (nextBlock && nextBlock.type === 'pre' && nextBlock.functionType !== 'frontmatter' && event.key === EVENT_KEYS.ArrowDown) ||
-      (nextBlock && nextBlock.type === 'pre' && nextBlock.functionType !== 'frontmatter' && event.key === EVENT_KEYS.ArrowRight && right === 0)
+      (nextBlock && nextBlock.type === 'pre' && /code|html/.test(nextBlock.functionType) && event.key === EVENT_KEYS.ArrowDown) ||
+      (nextBlock && nextBlock.type === 'pre' && /code|html/.test(nextBlock.functionType) && event.key === EVENT_KEYS.ArrowRight && right === 0)
     ) {
       event.preventDefault()
       event.stopPropagation()

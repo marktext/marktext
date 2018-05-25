@@ -65,12 +65,15 @@ const importRegister = ContentState => {
       return { lang, codeBlockStyle }
     }
 
-    const isFrontMatter = node => {
+    const getPreFunctionType = node => {
+      let type = 'code'
       const classAttr = node.attrs.filter(attr => attr.name === 'class')[0]
       if (classAttr && classAttr.value) {
-        return /front-matter/.test(classAttr.value)
+        const { value } = classAttr
+        if (/front-matter/.test(value)) type = 'frontmatter'
+        if (/multiple-math/.test(value)) type = 'multiplemath'
       }
-      return false
+      return type
     }
 
     const getRowColumnCount = childNodes => {
@@ -219,17 +222,20 @@ const importRegister = ContentState => {
             break
 
           case 'pre':
-            const frontMatter = isFrontMatter(child)
-            if (frontMatter) {
+            const functionType = getPreFunctionType(child)
+            if (functionType === 'frontmatter') {
               value = child.childNodes[0].value
               block = this.createBlock('pre')
               const lines = value.replace(/^\s+/, '').split(LINE_BREAKS_REG).map(line => this.createBlock('span', line))
               for (const line of lines) {
-                line.functionType = 'frontmatter'
+                line.functionType = functionType
                 this.appendChild(block, line)
               }
-              block.functionType = 'frontmatter'
-            } else {
+              block.functionType = functionType
+            } else if (functionType === 'multiplemath') {
+              value = child.childNodes[0].value
+              block = this.createMathBlock(value)
+            } else if (functionType === 'code') {
               const codeNode = child.childNodes[0]
               const { lang, codeBlockStyle } = getLangAndType(codeNode)
               value = codeNode.childNodes[0].value
@@ -343,19 +349,29 @@ const importRegister = ContentState => {
     // set cursor
     const travel = blocks => {
       for (const block of blocks) {
-        const { key, text, children } = block
+        const { key, text, children, editable, type, functionType } = block
         if (text) {
           const offset = text.indexOf(CURSOR_DNA)
           if (offset > -1) {
             block.text = text.substring(0, offset) + text.substring(offset + CURSOR_DNA.length)
-            this.cursor = {
-              start: { key, offset },
-              end: { key, offset }
+            if (editable) {
+              this.cursor = {
+                start: { key, offset },
+                end: { key, offset }
+              }
+              // handle cursor in Math block, need to remove `CURSOR_DNA` in preview block
+              if (type === 'span' && functionType === 'multiplemath') {
+                const mathPreview = this.getNextSibling(this.getParent(block))
+                const { math } = mathPreview
+                const offset = math.indexOf(CURSOR_DNA)
+                if (offset > -1) {
+                  mathPreview.math = math.substring(0, offset) + math.substring(offset + CURSOR_DNA.length)
+                }
+              }
+              return
             }
-            return
           }
-        }
-        if (children.length) {
+        } else if (children.length) {
           travel(children)
         }
       }

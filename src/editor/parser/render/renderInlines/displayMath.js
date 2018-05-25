@@ -1,4 +1,8 @@
+import katex from 'katex'
 import { CLASS_OR_ID } from '../../../config'
+import { htmlToVNode } from '../snabbdom'
+
+import 'katex/dist/katex.min.css'
 
 export default function displayMath (h, cursor, block, token, outerClass) {
   const className = this.getClassName(outerClass, block, token, cursor)
@@ -11,14 +15,34 @@ export default function displayMath (h, cursor, block, token, outerClass) {
 
   const { content: math, type } = token
 
+  const { loadMathMap } = this
+
+  const displayMode = type === 'display_math'
+  const key = `${math}_${type}`
+  let mathVnode = null
+  let previewSelector = `span.${CLASS_OR_ID['AG_MATH_RENDER']}`
+  if (loadMathMap.has(key)) {
+    mathVnode = loadMathMap.get(key)
+  } else {
+    try {
+      const html = katex.renderToString(math, {
+        displayMode
+      })
+      mathVnode = htmlToVNode(html)
+      loadMathMap.set(key, mathVnode)
+    } catch (err) {
+      mathVnode = '< Invalid Mathematical Formula >'
+      previewSelector += `.${CLASS_OR_ID['AG_MATH_ERROR']}`
+    }
+  }
+
   return [
     h(`span.${className}.${CLASS_OR_ID['AG_MATH_MARKER']}`, startMarker),
     h(`span.${className}.${CLASS_OR_ID['AG_MATH']}`, [
       h(`span.${CLASS_OR_ID['AG_MATH_TEXT']}`, content),
-      h(`span.${CLASS_OR_ID['AG_MATH_RENDER']}`, {
-        dataset: { math, type },
+      h(previewSelector, {
         attrs: { contenteditable: 'false' }
-      }, 'Loading')
+      }, mathVnode)
     ]),
     h(`span.${className}.${CLASS_OR_ID['AG_MATH_MARKER']}`, endMarker)
   ]

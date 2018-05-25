@@ -318,6 +318,27 @@ const paragraphCtrl = ContentState => {
     }
   }
 
+  ContentState.prototype.insertMathBlock = function () {
+    const { start, end } = selection.getCursorRange()
+    if (start.key !== end.key) return
+    let block = this.getBlock(start.key)
+    if (block.type === 'span') {
+      block = this.getParent(block)
+    }
+    const mathBlock = this.createMathBlock()
+    this.insertAfter(mathBlock, block)
+    if (block.type === 'p' && block.children.length === 1 && !block.children[0].text) {
+      this.removeBlock(block)
+    }
+    const cursorBlock = mathBlock.children[0].children[0]
+    const { key } = cursorBlock
+    const offset = 0
+    this.cursor = {
+      start: { key, offset },
+      end: { key, offset }
+    }
+  }
+
   ContentState.prototype.updateParagraph = function (paraType) {
     const { start, end } = selection.getCursorRange()
     const block = this.getBlock(start.key)
@@ -344,6 +365,10 @@ const paragraphCtrl = ContentState => {
       }
       case 'blockquote': {
         this.handleQuoteMenu()
+        break
+      }
+      case 'mathblock': {
+        this.insertMathBlock()
         break
       }
       case 'heading 1':
