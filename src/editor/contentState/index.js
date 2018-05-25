@@ -180,12 +180,13 @@ class ContentState {
    * A block in Aganippe present a paragraph(block syntax in GFM) or a line in paragraph.
    * a line block must in a `p block` or `pre block(frontmatter)` and `p block`'s children must be line blocks.
    */
-  createBlock (type = 'span', text = '') { // span type means it is a line block.
+  createBlock (type = 'span', text = '', editable = true) { // span type means it is a line block.
     const key = getUniqueId()
     return {
       key,
       type,
       text,
+      editable,
       parent: null,
       preSibling: null,
       nextSibling: null,
@@ -307,7 +308,7 @@ class ContentState {
       if (children.length) {
         children.forEach(child => this.removeTextOrBlock(child))
       }
-    } else {
+    } else if (block.editable) {
       this.removeBlock(block)
     }
   }
@@ -362,8 +363,8 @@ class ContentState {
     if (!afterEnd) {
       const parent = this.getParent(after)
       if (parent) {
-        const isOnlyChild = this.isOnlyChild(after)
-        this.removeBlocks(before, parent, isOnlyChild, true)
+        const removeAfter = isRemoveAfter && this.isOnlyEditableChild(after)
+        this.removeBlocks(before, parent, removeAfter, true)
       }
     }
     if (isRemoveAfter) {
@@ -500,6 +501,13 @@ class ContentState {
 
   isOnlyChild (block) {
     return !block.nextSibling && !block.preSibling
+  }
+
+  isOnlyEditableChild (block) {
+    if (block.editable === false) return false
+    const parent = this.getParent(block)
+    if (!parent) throw new Error('isOnlyEditableChild method only apply for child block')
+    return parent.children.filter(child => child.editable).length === 1
   }
 
   getLastChild (block) {

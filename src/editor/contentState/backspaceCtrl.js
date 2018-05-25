@@ -104,6 +104,7 @@ const backspaceCtrl = ContentState => {
     const { start, end } = selection.getCursorRange()
     const startBlock = this.getBlock(start.key)
     const endBlock = this.getBlock(end.key)
+
     // fix: #67 problem 1
     if (startBlock.icon) return event.preventDefault()
     // fix: unexpect remove all editor html. #67 problem 4
