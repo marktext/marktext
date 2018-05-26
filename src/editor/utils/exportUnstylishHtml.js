@@ -3,9 +3,13 @@ import marked from '../parser/marked'
 import { DOMPURIFY_CONFIG } from '../config'
 import { escapeInBlockHtml } from '../utils'
 
-const exportUnstylishHtml = markdown => {
+export const getSanitizeHtml = markdown => {
   const DOMPurify = createDOMPurify(window)
-  const html = DOMPurify.sanitize(escapeInBlockHtml(marked(markdown)), DOMPURIFY_CONFIG)
+  return DOMPurify.sanitize(escapeInBlockHtml(marked(markdown)), DOMPURIFY_CONFIG)
+}
+
+const exportUnstylishHtml = markdown => {
+  const html = getSanitizeHtml(markdown)
   const outputHtml = `<!DOCTYPE html>
 <html lang="en">
 <head>

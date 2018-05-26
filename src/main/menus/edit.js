@@ -32,6 +32,27 @@ export default {
     accelerator: 'CmdOrCtrl+V',
     role: 'paste'
   }, {
+    type: 'separator'
+  }, {
+    label: 'Copy As Markdown',
+    accelerator: 'Shift+CmdOrCtrl+C',
+    click (menuItem, browserWindow) {
+      actions.edit(browserWindow, 'copyAsMarkdown')
+    }
+  }, {
+    label: 'Copy As HTML',
+    click (menuItem, browserWindow) {
+      actions.edit(browserWindow, 'copyAsHtml')
+    }
+  }, {
+    label: 'Paste As Plain Text',
+    accelerator: 'Shift+CmdOrCtrl+V',
+    click (menuItem, browserWindow) {
+      actions.edit(browserWindow, 'pasteAsPlainText')
+    }
+  }, {
+    type: 'separator'
+  }, {
     label: 'Select All',
     accelerator: 'CmdOrCtrl+A',
     role: 'selectall'
@@ -40,25 +61,25 @@ export default {
   }, {
     label: 'Find',
     accelerator: 'CmdOrCtrl+F',
-    click: (menuItem, browserWindow) => {
+    click (menuItem, browserWindow) {
       actions.edit(browserWindow, 'find')
     }
   }, {
     label: 'Find Next',
     accelerator: 'Alt+CmdOrCtrl+U',
-    click: (menuItem, browserWindow) => {
+    click (menuItem, browserWindow) {
       actions.edit(browserWindow, 'fineNext')
     }
   }, {
     label: 'Find Previous',
     accelerator: 'Shift+CmdOrCtrl+U',
-    click: (menuItem, browserWindow) => {
+    click (menuItem, browserWindow) {
       actions.edit(browserWindow, 'findPrev')
     }
   }, {
     label: 'Replace',
     accelerator: 'Alt+CmdOrCtrl+F',
-    click: (menuItem, browserWindow) => {
+    click (menuItem, browserWindow) {
       actions.edit(browserWindow, 'replace')
     }
   }, {
@@ -67,7 +88,7 @@ export default {
     label: 'Aidou',
     visible: aidou,
     accelerator: 'CmdOrCtrl+/',
-    click: (menuItem, browserWindow) => {
+    click (menuItem, browserWindow) {
       actions.edit(browserWindow, 'aidou')
     }
   }, {
