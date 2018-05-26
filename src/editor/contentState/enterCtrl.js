@@ -345,7 +345,7 @@ const enterCtrl = ContentState => {
         } else {
           if (block.type === 'p') {
             const lastLine = block.children[block.children.length - 1]
-            if (lastLine.text.trim() === '') {
+            if (lastLine.text === '') {
               this.removeBlock(lastLine)
             }
           }
