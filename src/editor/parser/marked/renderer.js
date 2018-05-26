@@ -17,7 +17,7 @@ Renderer.prototype.multiplemath = function (text) {
 
 Renderer.prototype.code = function (code, lang, escaped, codeBlockStyle) {
   if (this.options.highlight) {
-    var out = this.options.highlight(code, lang)
+    let out = this.options.highlight(code, lang)
     if (out !== null && out !== code) {
       escaped = true
       code = out
@@ -149,8 +149,9 @@ Renderer.prototype.del = function (text) {
 
 Renderer.prototype.link = function (href, title, text) {
   if (this.options.sanitize) {
+    let prot
     try {
-      var prot = decodeURIComponent(unescape(href))
+      prot = decodeURIComponent(unescape(href))
         .replace(/[^\w:]/g, '')
         .toLowerCase()
     } catch (e) {
@@ -160,7 +161,7 @@ Renderer.prototype.link = function (href, title, text) {
       return ''
     }
   }
-  var out = '<a href="' + href + '"'
+  let out = '<a href="' + href + '"'
   if (title) {
     out += ' title="' + title + '"'
   }
@@ -169,7 +170,7 @@ Renderer.prototype.link = function (href, title, text) {
 }
 
 Renderer.prototype.image = function (href, title, text) {
-  var out = '<img src="' + href + '" alt="' + text + '"'
+  let out = '<img src="' + href + '" alt="' + text + '"'
   if (title) {
     out += ' title="' + title + '"'
   }

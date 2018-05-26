@@ -83,7 +83,8 @@ const overlayMode = CodeMirror => {
       },
 
       blankLine (state) {
-        var baseToken, overlayToken
+        let baseToken
+        let overlayToken
         if (base.blankLine) baseToken = base.blankLine(state.base)
         if (overlay.blankLine) overlayToken = overlay.blankLine(state.overlay)
 

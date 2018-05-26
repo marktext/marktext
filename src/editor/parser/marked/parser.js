@@ -51,7 +51,7 @@ Parser.prototype.peek = function () {
  */
 
 Parser.prototype.parseText = function () {
-  var body = this.token.text
+  let body = this.token.text
 
   while (this.peek().type === 'text') {
     body += '\n' + this.next().text
@@ -134,7 +134,7 @@ Parser.prototype.tok = function () {
       return this.renderer.table(header, body)
     }
     case 'blockquote_start': {
-      var body = ''
+      let body = ''
 
       while (this.next().type !== 'blockquote_end') {
         body += this.tok()

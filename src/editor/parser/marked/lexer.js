@@ -258,7 +258,7 @@ Lexer.prototype.token = function (src, top, bq) {
           }
         }
 
-        var prevItem = ''
+        let prevItem = ''
         if (i === 0) {
           prevItem = item
         } else {
