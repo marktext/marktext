@@ -1,6 +1,5 @@
 test/unit/coverage/**
 test/unit/*.js
 test/e2e/*.js
-src/editor/parser/marked.js
 src/editor/assets/symbolIcon/index.js
 src/renderer/assets/symbolIcon/index.js
