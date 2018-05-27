@@ -28,6 +28,7 @@ class Preference {
     } else {
       const defaultSettings = this.loadJson(staticPath)
       userSetting = this.loadJson(userDataPath)
+      this.validateSettings(userSetting)
       const requiresUpdate = !hasSameKeys(defaultSettings, userSetting)
       if (requiresUpdate) {
         // remove outdated settings
@@ -92,6 +93,32 @@ class Preference {
         resolve(json)
       }
     })
+  }
+
+  /**
+   * workaround for issue #265
+   *   expects: settings != null
+   * @param  {Object} settings preferences object
+   */
+  validateSettings (settings) {
+    if (!settings) {
+      log('Broken settings detected: invalid settings object.')
+      return
+    }
+
+    let brokenSettings = false
+    if (!settings.theme || (settings.theme && !/dark|light/.test(settings.theme))) {
+      brokenSettings = true
+      settings.theme = 'light'
+    }
+    if (!settings.bulletListMarker ||
+      (settings.bulletListMarker && !/\+|-|\*/.test(settings.bulletListMarker))) {
+      brokenSettings = true
+      settings.bulletListMarker = '-'
+    }
+    if (brokenSettings) {
+      log('Broken settings detected; fallback to default value(s).')
+    }
   }
 }
 
