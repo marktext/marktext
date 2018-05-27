@@ -11,3 +11,11 @@ export const copyAsHtml = (menuItem, browserWindow) => {
 export const pasteAsPlainText = (menuItem, browserWindow) => {
   bus.$emit('pasteAsPlainText', 'pasteAsPlainText')
 }
+
+export const insertParagraph = location => {
+  bus.$emit('insertParagraph', location)
+}
+
+export const editTable = data => {
+  bus.$emit('editTable', data)
+}

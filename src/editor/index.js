@@ -73,7 +73,8 @@ class Aganippe {
 
     eventCenter.attachDOMEvent(container, 'contextmenu', event => {
       event.preventDefault()
-      const sectionChanges = this.contentState.selectionChange()
+      event.stopPropagation()
+      const sectionChanges = this.contentState.selectionChange(undefined, undefined, this.contentState.cursor)
       eventCenter.dispatch('contextmenu', event, sectionChanges)
     })
 
@@ -546,6 +547,14 @@ class Aganippe {
 
   updateParagraph (type) {
     this.contentState.updateParagraph(type)
+  }
+
+  insertParagraph (location) {
+    this.contentState.insertParagraph(location)
+  }
+
+  editTable (data) {
+    this.contentState.editTable(data)
   }
 
   blur () {

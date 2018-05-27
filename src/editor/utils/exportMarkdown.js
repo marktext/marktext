@@ -213,6 +213,7 @@ class ExportMarkdown {
     })
 
     const columnWidth = tHeader.children[0].children.map(th => ({ width: 5, align: th.align }))
+
     let i
     let j
 
