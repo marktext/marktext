@@ -31,7 +31,8 @@ const chopHTML = value => {
 }
 
 const importRegister = ContentState => {
-  ContentState.prototype.getStateFragment = function (markdown) {
+  // turn markdown to blocks
+  ContentState.prototype.markdownToState = function (markdown) {
     // mock a root block...
     const rootState = {
       key: null,
@@ -315,10 +316,10 @@ const importRegister = ContentState => {
     return markdown
   }
 
-  // transform `paste's text/html data` to content state blocks.
+  // turn html to blocks
   ContentState.prototype.html2State = function (html) {
     const markdown = this.htmlToMarkdown(html)
-    return this.getStateFragment(markdown)
+    return this.markdownToState(markdown)
   }
 
   ContentState.prototype.addCursorToMarkdown = function (markdown, cursor) {
@@ -398,7 +399,7 @@ const importRegister = ContentState => {
   ContentState.prototype.importMarkdown = function (markdown) {
     // empty the blocks and codeBlocks
     this.codeBlocks = new Map()
-    this.blocks = this.getStateFragment(markdown)
+    this.blocks = this.markdownToState(markdown)
   }
 }
 

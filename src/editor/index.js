@@ -67,15 +67,8 @@ class Aganippe {
     eventCenter.subscribe('stateChange', this.dispatchChange.bind(this))
 
     eventCenter.attachDOMEvent(container, 'paste', event => {
-      const { _pasteType: pasteType } = this
-      switch (pasteType) {
-        case 'normal':
-          contentState.pasteHandler(event)
-          break
-        case 'pasteAsPlainText':
-          contentState.pasteAsPlainText(event)
-          break
-      }
+      contentState.pasteHandler(event, this._pasteType)
+
       this._pasteType = 'normal'
     })
 
@@ -133,12 +126,12 @@ class Aganippe {
   dispatchCopyCut () {
     const { container, eventCenter, contentState } = this
     const handler = event => {
-      contentState.copyHandler(event, this._copyType)
       if (event.type === 'cut') {
         // when user use `cut` function, the dom has been deleted by default.
         // But should update content state manually.
         contentState.cutHandler()
       }
+      contentState.copyHandler(event, this._copyType)
       this._copyType = 'normal'
     }
     eventCenter.attachDOMEvent(container, 'cut', handler)
