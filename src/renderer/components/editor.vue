@@ -100,7 +100,7 @@
     },
     computed: {
       ...mapState([
-        'preferLooseListItem', 'autoPairBracket', 'autoPairMarkdownSyntax', 'autoPairQuote', 'bulletListItemMarker'
+        'preferLooseListItem', 'autoPairBracket', 'autoPairMarkdownSyntax', 'autoPairQuote', 'bulletListItemMarker', 'tabSize'
       ])
     },
     data () {
@@ -150,6 +150,12 @@
         if (value !== oldValue && editor) {
           editor.setListItemPreference(value)
         }
+      },
+      tabSize: function (value, oldValue) {
+        const { editor } = this
+        if (value !== oldValue && editor) {
+          editor.setTabSize(value)
+        }
       }
     },
     created () {
@@ -164,7 +170,8 @@
           autoPairBracket,
           autoPairMarkdownSyntax,
           autoPairQuote,
-          bulletListMarker
+          bulletListMarker,
+          tabSize
         } = this
 
         const { container } = this.editor = new Aganippe(ele, {
@@ -175,7 +182,8 @@
           autoPairBracket,
           autoPairMarkdownSyntax,
           autoPairQuote,
-          bulletListMarker
+          bulletListMarker,
+          tabSize
         })
 
         if (typewriter) {

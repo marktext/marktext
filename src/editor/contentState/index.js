@@ -46,6 +46,7 @@ class ContentState {
   constructor (options) {
     const { eventCenter, bulletListMarker } = options
     Object.assign(this, options)
+
     // Use to cache the keys which you don't want to remove.
     this.exemption = new Set()
     this.blocks = [ this.createBlockP() ]
