@@ -12,10 +12,11 @@
 - feature: User list item marker setting in preference file.
 - feature: Select text from selected table (cell) only if you press Ctrl+A
 - feature: Support Multiple lines math #242
+- feature: Support context menu: `copy`, `cut`, `paste`, `insert paragraph`, `edit table rows and columns` #169
 
 **:butterfly:Optimization**
 
-- #177 ATX headings strictly follow the GFM Spec - Jocs
+- ATX headings strictly follow the GFM Spec #177 - Jocs
 - no need to auto pair when * is to open a list item - Jocs
 - optimization: add sticky to block html tag - Jocs
 - Add Japanese readme (#191) - Neetshin
