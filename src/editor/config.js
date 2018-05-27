@@ -215,8 +215,19 @@ export const HTML_TOOLS = [{
 
 export const LINE_BREAK = '\n'
 
-export const DOMPURIFY_CONFIG = {
+export const PREVIEW_DOMPURIFY_CONFIG = {
   FORBID_ATTR: ['style', 'class', 'contenteditable'],
+  ALLOW_DATA_ATTR: false,
+  USE_PROFILES: {
+    html: true,
+    svg: true,
+    svgFilters: true,
+    mathMl: true
+  }
+}
+
+export const EXPORT_DOMPURIFY_CONFIG = {
+  FORBID_ATTR: ['contenteditable'],
   ALLOW_DATA_ATTR: false,
   USE_PROFILES: {
     html: true,

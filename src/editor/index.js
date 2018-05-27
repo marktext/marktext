@@ -45,7 +45,9 @@ class Aganippe {
     this.lineHeight = 1.6
     this.preferLooseListItem = preferLooseListItem
     // private property
-    this._isEditChinese = false
+    this._isEditChinese = false // true or false
+    this._copyType = 'normal' // `normal` or `copyAsMarkdown` or `copyAsHtml`
+    this._pasteType = 'normal' // `normal` or `pasteAsPlainText`
     this.init()
   }
 
@@ -65,7 +67,9 @@ class Aganippe {
     eventCenter.subscribe('stateChange', this.dispatchChange.bind(this))
 
     eventCenter.attachDOMEvent(container, 'paste', event => {
-      contentState.pasteHandler(event)
+      contentState.pasteHandler(event, this._pasteType)
+
+      this._pasteType = 'normal'
     })
 
     this.recordEditChinese()
@@ -120,14 +124,15 @@ class Aganippe {
   }
 
   dispatchCopyCut () {
-    const { container, eventCenter } = this
+    const { container, eventCenter, contentState } = this
     const handler = event => {
-      this.contentState.copyCutHandler(event)
       if (event.type === 'cut') {
         // when user use `cut` function, the dom has been deleted by default.
         // But should update content state manually.
-        this.contentState.cutHandler()
+        contentState.cutHandler()
       }
+      contentState.copyHandler(event, this._copyType)
+      this._copyType = 'normal'
     }
     eventCenter.attachDOMEvent(container, 'cut', handler)
     eventCenter.attachDOMEvent(container, 'copy', handler)
@@ -588,6 +593,21 @@ class Aganippe {
 
   redo () {
     this.contentState.history.redo()
+  }
+
+  copyAsMarkdown () {
+    this._copyType = 'copyAsMarkdown'
+    document.execCommand('copy')
+  }
+
+  copyAsHtml () {
+    this._copyType = 'copyAsHtml'
+    document.execCommand('copy')
+  }
+
+  pasteAsPlainText () {
+    this._pasteType = 'pasteAsPlainText'
+    document.execCommand('paste')
   }
 
   destroy () {

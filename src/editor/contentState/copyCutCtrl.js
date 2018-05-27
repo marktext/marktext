@@ -1,6 +1,7 @@
 import cheerio from 'cheerio'
 import selection from '../selection'
-import { CLASS_OR_ID, blockContainerElementNames } from '../config'
+import { CLASS_OR_ID } from '../config'
+import { getSanitizeHtml } from '../utils/exportUnstylishHtml'
 
 const copyCutCtrl = ContentState => {
   ContentState.prototype.cutHandler = function () {
@@ -23,37 +24,24 @@ const copyCutCtrl = ContentState => {
 
   ContentState.prototype.checkInCodeBlock = function () {
     const { start, end } = selection.getCursorRange()
-    const block = this.getBlock(start.key)
-    if (start.key === end.key && block.type === 'pre') {
+    const { type, functionType } = this.getBlock(start.key)
+
+    if (start.key === end.key && type === 'pre' && /code|html/.test(functionType)) {
       return true
     }
     return false
   }
 
-  ContentState.prototype.copyCutHandler = function (event) {
-    if (this.checkInCodeBlock()) {
-      return
-    }
-    event.preventDefault()
+  ContentState.prototype.getClipBoradData = function () {
     const html = selection.getSelectionHtml()
-    // const xx = event.clipboardData.getData('text/plain')
     const $ = cheerio.load(html)
-    const children = $('body').contents()
-    let text = ''
-
-    children.each((i, child) => {
-      const tagName = child.tagName
-      const content = $(child).text()
-      if (content) {
-        text += blockContainerElementNames.indexOf(tagName) > -1 && text ? `\n${content}` : `${content}`
-      }
-    })
 
     $(
       `.${CLASS_OR_ID['AG_REMOVE']}, .${CLASS_OR_ID['AG_TOOL_BAR']},
       .${CLASS_OR_ID['AG_MATH_RENDER']}, .${CLASS_OR_ID['AG_HTML_PREVIEW']},
       .${CLASS_OR_ID['AG_MATH_PREVIEW']}, .${CLASS_OR_ID['AG_COPY_REMOVE']}`
     ).remove()
+
     $(`.${CLASS_OR_ID['AG_EMOJI_MARKER']}`).text(':')
     $(`.${CLASS_OR_ID['AG_NOTEXT_LINK']}`).empty()
     $(`[data-role=hr]`).replaceWith('<hr>')
@@ -114,8 +102,37 @@ const copyCutCtrl = ContentState => {
       })
     }
 
-    event.clipboardData.setData('text/html', $('body').html())
-    event.clipboardData.setData('text/plain', text)
+    const htmlData = $('body').html()
+    const textData = this.htmlToMarkdown(htmlData)
+
+    return { html: htmlData, text: textData }
+  }
+
+  ContentState.prototype.copyHandler = function (event, type) {
+    if (this.checkInCodeBlock()) {
+      return
+    }
+    event.preventDefault()
+
+    const { html, text } = this.getClipBoradData()
+
+    switch (type) {
+      case 'normal': {
+        event.clipboardData.setData('text/html', html)
+        event.clipboardData.setData('text/plain', text)
+        break
+      }
+      case 'copyAsMarkdown': {
+        event.clipboardData.setData('text/html', '')
+        event.clipboardData.setData('text/plain', text)
+        break
+      }
+      case 'copyAsHtml': {
+        event.clipboardData.setData('text/html', '')
+        event.clipboardData.setData('text/plain', getSanitizeHtml(text))
+        break
+      }
+    }
   }
 }
 

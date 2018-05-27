@@ -9,7 +9,7 @@ import ExportMarkdown from './exportMarkdown'
 import TurndownService, { usePluginAddRules } from './turndownService'
 
 // To be disabled rules when parse markdown, Because content state don't need to parse inline rules
-import { CLASS_OR_ID, CURSOR_DNA, TABLE_TOOLS, BLOCK_TYPE7 } from '../config'
+import { CURSOR_DNA, TABLE_TOOLS, BLOCK_TYPE7 } from '../config'
 
 const LINE_BREAKS_REG = /\n/
 
@@ -31,7 +31,8 @@ const chopHTML = value => {
 }
 
 const importRegister = ContentState => {
-  ContentState.prototype.getStateFragment = function (markdown) {
+  // turn markdown to blocks
+  ContentState.prototype.markdownToState = function (markdown) {
     // mock a root block...
     const rootState = {
       key: null,
@@ -179,7 +180,7 @@ const importRegister = ContentState => {
 
           case 'li':
             const isTask = child.attrs.some(attr => attr.name === 'class' && attr.value.includes('task-list-item'))
-            const isLoose = child.attrs.some(attr => attr.name === 'class' && attr.value.includes(CLASS_OR_ID['AG_LOOSE_LIST_ITEM']))
+            const isLoose = child.attrs.some(attr => attr.name === 'class' && attr.value.includes('loose-list-item'))
 
             block = this.createBlock('li')
             block.listItemType = parent.type === 'ul' ? (isTask ? 'task' : 'bullet') : 'order'
@@ -304,15 +305,21 @@ const importRegister = ContentState => {
     travel(rootState, childNodes)
     return rootState.children.length ? rootState.children : [this.createBlockP()]
   }
-  // transform `paste's text/html data` to content state blocks.
-  ContentState.prototype.html2State = function (html) {
+
+  ContentState.prototype.htmlToMarkdown = function (html) {
     // turn html to markdown
     const { turndownConfig } = this
     const turndownService = new TurndownService(turndownConfig)
     usePluginAddRules(turndownService)
     // remove double `\\` in Math but I dont know why there are two '\' when paste. @jocs
     const markdown = turndownService.turndown(html).replace(/(\\)\\/g, '$1')
-    return this.getStateFragment(markdown)
+    return markdown
+  }
+
+  // turn html to blocks
+  ContentState.prototype.html2State = function (html) {
+    const markdown = this.htmlToMarkdown(html)
+    return this.markdownToState(markdown)
   }
 
   ContentState.prototype.addCursorToMarkdown = function (markdown, cursor) {
@@ -392,7 +399,7 @@ const importRegister = ContentState => {
   ContentState.prototype.importMarkdown = function (markdown) {
     // empty the blocks and codeBlocks
     this.codeBlocks = new Map()
-    this.blocks = this.getStateFragment(markdown)
+    this.blocks = this.markdownToState(markdown)
   }
 }
 

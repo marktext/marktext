@@ -205,7 +205,6 @@ const tableBlockCtrl = ContentState => {
   ContentState.prototype.tableBlockUpdate = function (block) {
     const { type } = block
     if (type !== 'p') return false
-    console.log(JSON.stringify(block, null, 2))
     const { text } = block.children[0]
     const match = TABLE_BLOCK_REG.exec(text)
     return (match && isLengthEven(match[1]) && isLengthEven(match[2])) ? this.initTable(block) : false

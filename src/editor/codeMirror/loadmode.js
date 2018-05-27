@@ -8,7 +8,7 @@ const loadMore = CodeMirror => {
 
   const loading = {}
   function splitCallback (cont, n) {
-    var countDown = n
+    let countDown = n
     return function () { if (--countDown === 0) cont() }
   }
   function ensureDeps (mode, cont) {

@@ -1,10 +1,7 @@
-import createDOMPurify from 'dompurify'
-import { escapeInBlockHtml } from '../utils'
-import { VOID_HTML_TAGS, HTML_TAGS, HTML_TOOLS, DOMPURIFY_CONFIG } from '../config'
+import { sanitize } from '../utils'
+import { VOID_HTML_TAGS, HTML_TAGS, HTML_TOOLS, PREVIEW_DOMPURIFY_CONFIG } from '../config'
 
 const HTML_BLOCK_REG = /^<([a-zA-Z\d-]+)(?=\s|>)[^<>]*?>$/
-
-const DOMPurify = createDOMPurify(window)
 
 const htmlBlock = ContentState => {
   ContentState.prototype.createToolBar = function (tools, toolBarType) {
@@ -28,7 +25,7 @@ const htmlBlock = ContentState => {
     const codeContainer = this.createBlock('div')
     codeContainer.functionType = 'html'
     const preview = this.createBlock('div', '', false)
-    preview.htmlContent = DOMPurify.sanitize(escapeInBlockHtml(code), DOMPURIFY_CONFIG)
+    preview.htmlContent = sanitize(code, PREVIEW_DOMPURIFY_CONFIG)
     preview.functionType = 'preview'
     const codePre = this.createBlock('pre')
     codePre.lang = 'html'

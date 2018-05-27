@@ -1,5 +1,6 @@
 // DOTO: Don't use Node API in editor folder, remove `path` @jocs
 import path from 'path'
+import createDOMPurify from 'dompurify'
 
 const ID_PREFIX = 'ag-'
 let id = 0
@@ -226,4 +227,9 @@ export const generateKeyHash = keys => {
 // mixins
 export const mixins = (constructor, ...object) => {
   return Object.assign(constructor.prototype, ...object)
+}
+
+export const sanitize = (html, options) => {
+  const DOMPurify = createDOMPurify(window)
+  return DOMPurify.sanitize(escapeInBlockHtml(html), options)
 }

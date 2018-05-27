@@ -323,7 +323,7 @@ const actions = {
 
   LISTEN_FOR_EDIT ({ commit }) {
     ipcRenderer.on('AGANI::edit', (e, { type }) => {
-      bus.$emit(type)
+      bus.$emit(type, type)
     })
   },
 

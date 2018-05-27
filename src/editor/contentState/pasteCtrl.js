@@ -1,4 +1,6 @@
+import { PARAGRAPH_TYPES } from '../config'
 const LIST_REG = /ul|ol/
+const LINE_BREAKS_REG = /\n/
 
 const pasteCtrl = ContentState => {
   // check paste type: `MERGE` or `NEWLINE`
@@ -22,7 +24,21 @@ const pasteCtrl = ContentState => {
     }
   }
 
-  ContentState.prototype.pasteHandler = function (event) {
+  ContentState.prototype.checkCopyType = function (html, text) {
+    let type = 'normal'
+    if (!html && text) {
+      type = 'copyAsMarkdown'
+      const match = /^<([a-zA-Z\d-]+)(?=\s|>).*?>[\s\S]+?<\/[a-zA-Z\d-]+>$/.exec(text.trim())
+      if (match && match[1]) {
+        const tag = match[1]
+        type = PARAGRAPH_TYPES.find(type => type === tag) ? 'copyAsHtml' : type
+      }
+    }
+    return type
+  }
+
+  // handle `normal` and `pasteAsPlainText` paste
+  ContentState.prototype.pasteHandler = function (event, type) {
     if (this.checkInCodeBlock()) {
       return
     }
@@ -30,25 +46,65 @@ const pasteCtrl = ContentState => {
     const text = event.clipboardData.getData('text/plain')
     let html = event.clipboardData.getData('text/html')
 
-    if (!html) {
-      html = text.split(/\n+/)
-        .filter(t => t)
-        .map(t => `<p class="plain-text">${t}</p>`)
-        .join('')
-    }
-
-    const stateFragments = this.html2State(html)
-    if (stateFragments.length <= 0) return
-    // step 1: if select content, cut the content, and chop the block text into two part by the cursor.
+    const copyType = this.checkCopyType(html, text)
     const { start, end } = this.cursor
     const startBlock = this.getBlock(start.key)
     const endBlock = this.getBlock(end.key)
     const parent = this.getParent(startBlock)
-    const cacheText = endBlock.text.substring(end.offset)
-    startBlock.text = startBlock.text.substring(0, start.offset)
     if (start.key !== end.key) {
       this.cutHandler()
+      return this.pasteHandler(event, type)
     }
+
+    const appendHtml = () => {
+      startBlock.text = startBlock.text.substring(0, start.offset) + text + startBlock.text.substring(start.offset)
+      const { key } = start
+      const offset = start.offset + text.length
+      this.cursor = {
+        start: { key, offset },
+        end: { key, offset }
+      }
+    }
+
+    // handle copyAsHtml
+    if (copyType === 'copyAsHtml') {
+      switch (type) {
+        case 'normal': {
+          if (startBlock.type === 'span' && this.isOnlyChild(startBlock) && !startBlock.text) {
+            this.codeBlockUpdate(startBlock, text.trim(), 'html')
+          } else {
+            appendHtml()
+          }
+          break
+        }
+        case 'pasteAsPlainText': {
+          if (startBlock.type === 'span') {
+            const lines = text.trim().split(LINE_BREAKS_REG).map(line => this.createBlock('span', line))
+            for (const line of lines) {
+              this.appendChild(parent, line)
+            }
+            const lastLine = lines[lines.length - 1]
+            const { key } = lastLine
+            const offset = lastLine.text.length
+            this.cursor = {
+              start: { key, offset },
+              end: { key, offset }
+            }
+          } else {
+            appendHtml()
+          }
+          break
+        }
+      }
+      return this.partialRender()
+    }
+
+    const stateFragments = this.markdownToState(text)
+    if (stateFragments.length <= 0) return
+    // step 1: if select content, cut the content, and chop the block text into two part by the cursor.
+    const cacheText = endBlock.text.substring(end.offset)
+    startBlock.text = startBlock.text.substring(0, start.offset)
+
     // step 2: when insert the fragments, check begin a new block, or insert into pre block.
     const firstFragment = stateFragments[0]
     const tailFragments = stateFragments.slice(1)

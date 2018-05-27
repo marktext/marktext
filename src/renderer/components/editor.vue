@@ -199,6 +199,9 @@
         bus.$on('content-in-source-mode', this.handleMarkdownChange)
         bus.$on('editor-blur', this.blurEditor)
         bus.$on('image-auto-path', this.handleImagePath)
+        bus.$on('copyAsMarkdown', this.handleCopyPaste)
+        bus.$on('copyAsHtml', this.handleCopyPaste)
+        bus.$on('pasteAsPlainText', this.handleCopyPaste)
 
         this.editor.on('insert-image', type => {
           if (type === 'absolute' || type === 'relative') {
@@ -261,6 +264,13 @@
       handleRedo () {
         if (this.editor) {
           this.editor.redo()
+        }
+      },
+
+      // Custom copyAsMarkdown copyAsHtml pasteAsPlainText
+      handleCopyPaste (type) {
+        if (this.editor) {
+          this.editor[type]()
         }
       },
 
@@ -375,7 +385,10 @@
       bus.$off('find', this.handleFind)
       bus.$off('dotu-select', this.handleSelect)
       bus.$off('editor-blur', this.blurEditor)
-      bus.$on('image-auto-path', this.handleImagePath)
+      bus.$off('image-auto-path', this.handleImagePath)
+      bus.$off('copyAsMarkdown', this.handleCopyPaste)
+      bus.$off('copyAsHtml', this.handleCopyPaste)
+      bus.$off('pasteAsPlainText', this.handleCopyPaste)
 
       this.editor.destroy()
       this.editor = null

@@ -1,10 +1,7 @@
-import createDOMPurify from 'dompurify'
 import codeMirror, { setMode, setCursorAtLastLine } from '../codeMirror'
 import { createInputInCodeBlock } from '../utils/domManipulate'
-import { escapeInBlockHtml } from '../utils'
-import { codeMirrorConfig, BLOCK_TYPE7, DOMPURIFY_CONFIG, CLASS_OR_ID } from '../config'
-
-const DOMPurify = createDOMPurify(window)
+import { sanitize } from '../utils'
+import { codeMirrorConfig, BLOCK_TYPE7, PREVIEW_DOMPURIFY_CONFIG, CLASS_OR_ID } from '../config'
 
 const CODE_UPDATE_REP = /^`{3,}(.*)/
 
@@ -45,7 +42,7 @@ const codeBlockCtrl = ContentState => {
   /**
    * [codeBlockUpdate if block updated to `pre` return true, else return false]
    */
-  ContentState.prototype.codeBlockUpdate = function (block) {
+  ContentState.prototype.codeBlockUpdate = function (block, code = '', lang) {
     if (block.type === 'span') {
       block = this.getParent(block)
     }
@@ -55,22 +52,23 @@ const codeBlockCtrl = ContentState => {
     if (block.children.length !== 1) return false
     const { text } = block.children[0]
     const match = CODE_UPDATE_REP.exec(text)
-    if (match) {
+    if (match || lang) {
       block.type = 'pre'
       block.functionType = 'code'
       block.codeBlockStyle = 'fenced'
-      block.text = ''
+      block.text = code
       block.history = null
-      block.lang = match[1]
+      block.lang = lang || (match ? match[1] : '')
       block.children = []
-      const key = block.key
+      const { key } = block
       const offset = 0
       this.cursor = {
         start: { key, offset },
         end: { key, offset }
       }
+      return true
     }
-    return !!match
+    return false
   }
 
   ContentState.prototype.pre2CodeMirror = function (isRenderCursor, blocks) {
@@ -183,7 +181,7 @@ const codeBlockCtrl = ContentState => {
         if (block.functionType === 'html') {
           const preBlock = this.getNextSibling(block)
           const htmlBlock = this.getParent(this.getParent(block))
-          const escapedHtml = DOMPurify.sanitize(escapeInBlockHtml(block.text), DOMPURIFY_CONFIG)
+          const escapedHtml = sanitize(block.text, PREVIEW_DOMPURIFY_CONFIG)
           htmlBlock.text = block.text
           const preEle = document.querySelector(`#${preBlock.key}`)
           preEle.innerHTML = escapedHtml
