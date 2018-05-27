@@ -64,6 +64,7 @@
   import Aganippe from '../../editor'
   import bus from '../bus'
   import { animatedScrollTo } from '../util'
+  import { showContextMenu } from '../contextMenu'
 
   const STANDAR_Y = 320
   const PARAGRAPH_CMD = [
@@ -232,6 +233,10 @@
 
         this.editor.on('selectionFormats', formats => {
           this.$store.dispatch('SELECTION_FORMATS', formats)
+        })
+
+        this.editor.on('contextmenu', (event, selectionChanges) => {
+          showContextMenu(event, selectionChanges)
         })
       })
     },
