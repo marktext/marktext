@@ -45,8 +45,6 @@ const pasteCtrl = ContentState => {
     event.preventDefault()
     const text = event.clipboardData.getData('text/plain')
     let html = event.clipboardData.getData('text/html')
-    console.log(text)
-    console.log(html)
 
     const copyType = this.checkCopyType(html, text)
     const { start, end } = this.cursor

@@ -115,8 +115,7 @@ const copyCutCtrl = ContentState => {
     event.preventDefault()
 
     const { html, text } = this.getClipBoradData()
-    console.log(html, text)
-    console.log(getSanitizeHtml(text))
+
     switch (type) {
       case 'normal': {
         event.clipboardData.setData('text/html', html)
