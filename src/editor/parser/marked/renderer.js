@@ -85,7 +85,7 @@ Renderer.prototype.listitem = function (text, checked, listItemType, bulletListI
   }
 
   // "tight-list-item" is only used to remove <p> padding
-  classes += loose ? ` ag-loose-list-item"` : ` ag-tight-list-item"`
+  classes += loose ? ` loose-list-item"` : ` tight-list-item"`
 
   if (checked === undefined) {
     return '<li ' + classes + ' data-marker="' + bulletListItemMarker + '">' + text + '</li>\n'

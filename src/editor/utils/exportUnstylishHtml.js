@@ -1,11 +1,10 @@
-import createDOMPurify from 'dompurify'
 import marked from '../parser/marked'
-import { DOMPURIFY_CONFIG } from '../config'
-import { escapeInBlockHtml } from '../utils'
+import { EXPORT_DOMPURIFY_CONFIG } from '../config'
+import { sanitize } from '../utils'
 
 export const getSanitizeHtml = markdown => {
-  const DOMPurify = createDOMPurify(window)
-  return DOMPurify.sanitize(escapeInBlockHtml(marked(markdown)), DOMPURIFY_CONFIG)
+  const html = marked(markdown)
+  return sanitize(html, EXPORT_DOMPURIFY_CONFIG)
 }
 
 const exportUnstylishHtml = markdown => {
