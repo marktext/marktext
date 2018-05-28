@@ -45,8 +45,8 @@ const pasteCtrl = ContentState => {
     event.preventDefault()
     const text = event.clipboardData.getData('text/plain')
     const html = event.clipboardData.getData('text/html')
-    console.log(text)
-    console.log(html)
+    // console.log(text)
+    // console.log(html)
     const copyType = this.checkCopyType(html, text)
     const { start, end } = this.cursor
     const startBlock = this.getBlock(start.key)
@@ -103,7 +103,7 @@ const pasteCtrl = ContentState => {
     const stateFragments = type === 'pasteAsPlainText' || copyType === 'copyAsMarkdown'
       ? this.markdownToState(text)
       : this.html2State(html)
-    console.log(stateFragments)
+
     if (stateFragments.length <= 0) return
     // step 1: if select content, cut the content, and chop the block text into two part by the cursor.
     const cacheText = endBlock.text.substring(end.offset)
