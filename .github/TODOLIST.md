@@ -14,7 +14,7 @@
 
 - [ ] checking spell and autocorrect spell
 
-- [ ] Left click menu.
+- [x] Left click menu.
 
 - [x] Rename and moveTo in **File Menu**
 
@@ -52,15 +52,15 @@
 
 - [x] Support hard line break and soft line break
 
-- [ ] Support `Tab` and multiple `Spaces` when you are writing.
+- [x] Support `Tab` and multiple `Spaces` when you are writing.
 
 ##### Optimizations
 
 - [ ] Search and Replace in Source Code mode.
 
-- [ ] Copy as Markdown
+- [x] Copy as Markdown
 
-- [ ] Copy as HTML
+- [x] Copy as HTML
 
 - [ ] Redesign the float box, refactor with [popper](https://github.com/FezVrasta/popper.js)
 

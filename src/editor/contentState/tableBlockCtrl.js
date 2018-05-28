@@ -1,5 +1,6 @@
 import { isLengthEven } from '../utils'
 import { TABLE_TOOLS } from '../config'
+// import selection from '../selection'
 
 const TABLE_BLOCK_REG = /^\|.*?(\\*)\|.*?(\\*)\|/
 
@@ -11,8 +12,8 @@ const tableBlockCtrl = ContentState => {
 
     this.appendChild(table, tHead)
     this.appendChild(table, tBody)
-    table.row = rows - 1
-    table.column = columns - 1
+    table.row = rows - 1 // zero base
+    table.column = columns - 1 // zero base
     let i
     let j
     for (i = 0; i < rows; i++) {
@@ -200,6 +201,149 @@ const tableBlockCtrl = ContentState => {
         // tablePicker.status ? tableLable.classList.add('active') : tableLable.classList.remove('active')
       }
     }
+  }
+
+  // insert/remove row/column
+  ContentState.prototype.editTable = function ({ location, action, target }) {
+    const { start, end } = this.cursor
+    const block = this.getBlock(start.key)
+    if (start.key !== end.key || !/th|td/.test(block.type)) {
+      throw new Error('Cursor is not in table block, so you can not insert/edit row/column')
+    }
+    const currentRow = this.getParent(block)
+    const rowContainer = this.getParent(currentRow) // tbody or thead
+    const table = this.getParent(rowContainer)
+    const thead = table.children[0]
+    const tbody = table.children[1]
+    const { column } = table
+    const columnIndex = currentRow.children.indexOf(block)
+    let cursorBlock
+
+    const createRow = (column, isHeader) => {
+      const tr = this.createBlock('tr')
+      let i
+      for (i = 0; i <= column; i++) {
+        const cell = this.createBlock(isHeader ? 'th' : 'td')
+        cell.align = currentRow.children[i].align
+        cell.column = i
+        this.appendChild(tr, cell)
+      }
+      return tr
+    }
+
+    if (target === 'row') {
+      if (action === 'insert') {
+        let newRow = (location === 'previous' && block.type === 'th')
+          ? createRow(column, true)
+          : createRow(column, false)
+        if (location === 'previous') {
+          this.insertBefore(newRow, currentRow)
+          if (block.type === 'th') {
+            this.removeBlock(currentRow)
+            currentRow.children.forEach(cell => (cell.type = 'td'))
+            const firstRow = tbody.children[0]
+            this.insertBefore(currentRow, firstRow)
+          }
+        } else {
+          if (block.type === 'th') {
+            const firstRow = tbody.children[0]
+            this.insertBefore(newRow, firstRow)
+          } else {
+            this.insertAfter(newRow, currentRow)
+          }
+        }
+        cursorBlock = newRow.children[columnIndex]
+        // handle remove row
+      } else {
+        if (location === 'previous') {
+          if (block.type === 'th') return
+          if (!currentRow.preSibling) {
+            const headRow = thead.children[0]
+            if (!currentRow.nextSibling) return
+            this.removeBlock(headRow)
+            this.removeBlock(currentRow)
+            currentRow.children.forEach(cell => (cell.type = 'th'))
+            this.appendChild(thead, currentRow)
+          } else {
+            const preRow = this.getPreSibling(currentRow)
+            this.removeBlock(preRow)
+          }
+        } else if (location === 'current') {
+          if (block.type === 'th' && tbody.children.length >= 2) {
+            const firstRow = tbody.children[0]
+            this.removeBlock(currentRow)
+            this.removeBlock(firstRow)
+            this.appendChild(thead, firstRow)
+            firstRow.children.forEach(cell => (cell.type = 'th'))
+            cursorBlock = firstRow.children[columnIndex]
+          }
+          if (block.type === 'td' && (currentRow.preSibling || currentRow.nextSibling)) {
+            cursorBlock = (this.getNextSibling(currentRow) || this.getPreSibling(currentRow)).children[columnIndex]
+            this.removeBlock(currentRow)
+          }
+        } else {
+          if (block.type === 'th') {
+            if (tbody.children.length >= 2) {
+              const firstRow = tbody.children[0]
+              this.removeBlock(firstRow)
+            } else {
+              return
+            }
+          } else {
+            const nextRow = this.getNextSibling(currentRow)
+            if (nextRow) this.removeBlock(nextRow)
+          }
+        }
+      }
+    } else if (target === 'column') {
+      if (action === 'insert') {
+        [...thead.children, ...tbody.children].forEach(tableRow => {
+          const targetCell = tableRow.children[columnIndex]
+          const cell = this.createBlock(targetCell.type)
+          cell.align = ''
+          if (location === 'left') {
+            this.insertBefore(cell, targetCell)
+          } else {
+            this.insertAfter(cell, targetCell)
+          }
+          tableRow.children.forEach((cell, i) => {
+            cell.column = i
+          })
+        })
+        cursorBlock = location === 'left' ? this.getPreSibling(block) : this.getNextSibling(block)
+        // handle remove column
+      } else {
+        if (currentRow.children.length <= 2) return
+        [...thead.children, ...tbody.children].forEach(tableRow => {
+          const targetCell = tableRow.children[columnIndex]
+          const removeCell = location === 'left'
+            ? this.getPreSibling(targetCell)
+            : (location === 'current' ? targetCell : this.getNextSibling(targetCell))
+          if (removeCell === block) {
+            cursorBlock = this.getNextSibling(block)
+          }
+          if (removeCell) this.removeBlock(removeCell)
+          tableRow.children.forEach((cell, i) => {
+            cell.column = i
+          })
+        })
+      }
+    }
+
+    const newColum = thead.children[0].children.length - 1
+    const newRow = thead.children.length + tbody.children.length - 1
+    Object.assign(table, { row: newRow, column: newColum })
+
+    if (cursorBlock) {
+      const { key } = cursorBlock
+      const offset = 0
+      this.cursor = { start: { key, offset }, end: { key, offset } }
+    } else {
+      this.cursor = { start, end }
+    }
+
+    this.partialRender()
+    this.eventCenter.dispatch('stateChange')
   }
 
   ContentState.prototype.tableBlockUpdate = function (block) {

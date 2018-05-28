@@ -62,17 +62,17 @@ class ContentState {
   }
 
   set cursor (cursor) {
-    if (this.currentCursor) {
-      const { start, end } = this.currentCursor
-      if (
-        start.key === cursor.start.key &&
-        start.offset === cursor.start.offset &&
-        end.key === cursor.end.key &&
-        end.offset === cursor.end.offset
-      ) {
-        return
-      }
-    }
+    // if (this.currentCursor) {
+    //   const { start, end } = this.currentCursor
+    //   if (
+    //     start.key === cursor.start.key &&
+    //     start.offset === cursor.start.offset &&
+    //     end.key === cursor.end.key &&
+    //     end.offset === cursor.end.offset
+    //   ) {
+    //     return
+    //   }
+    // }
 
     const handler = () => {
       const { blocks, renderRange, currentCursor } = this

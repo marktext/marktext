@@ -16,8 +16,8 @@ const getCurrentLevel = type => {
 }
 
 const paragraphCtrl = ContentState => {
-  ContentState.prototype.selectionChange = function (fontSize = 16, lineHeight = 1.6) {
-    const { start, end } = selection.getCursorRange()
+  ContentState.prototype.selectionChange = function (fontSize = 16, lineHeight = 1.6, cursor) {
+    const { start, end } = cursor || selection.getCursorRange()
     const cursorCoords = selection.getCursorCoords()
     const startBlock = this.getBlock(start.key)
     const endBlock = this.getBlock(end.key)
@@ -480,6 +480,32 @@ const paragraphCtrl = ContentState => {
     // update menu status
     const selectionChanges = this.selectionChange()
     this.eventCenter.dispatch('selectionChange', selectionChanges)
+  }
+
+  ContentState.prototype.insertParagraph = function (location) {
+    const { start, end } = this.cursor
+    // if cursor is not in one line or paragraph, can not insert paragraph
+    if (start.key !== end.key) return
+    let block = this.getBlock(start.key)
+    if (block.type === 'span') {
+      block = this.getParent(block)
+    } else if (/th|td/.test(block.type)) {
+      // get figure block from table cell
+      block = this.getParent(this.getParent(this.getParent(this.getParent(block))))
+    }
+    const newBlock = this.createBlockP()
+    if (location === 'before') {
+      this.insertBefore(newBlock, block)
+    } else {
+      this.insertAfter(newBlock, block)
+    }
+    const { key } = newBlock.children[0]
+    const offset = 0
+    this.cursor = {
+      start: { key, offset },
+      end: { key, offset }
+    }
+    this.partialRender()
   }
 }
 

@@ -70,8 +70,14 @@ class Aganippe {
 
     eventCenter.attachDOMEvent(container, 'paste', event => {
       contentState.pasteHandler(event, this._pasteType)
-
       this._pasteType = 'normal'
+    })
+
+    eventCenter.attachDOMEvent(container, 'contextmenu', event => {
+      event.preventDefault()
+      event.stopPropagation()
+      const sectionChanges = this.contentState.selectionChange(undefined, undefined, this.contentState.cursor)
+      eventCenter.dispatch('contextmenu', event, sectionChanges)
     })
 
     this.recordEditChinese()
@@ -128,12 +134,12 @@ class Aganippe {
   dispatchCopyCut () {
     const { container, eventCenter, contentState } = this
     const handler = event => {
+      contentState.copyHandler(event, this._copyType)
       if (event.type === 'cut') {
         // when user use `cut` function, the dom has been deleted by default.
         // But should update content state manually.
         contentState.cutHandler()
       }
-      contentState.copyHandler(event, this._copyType)
       this._copyType = 'normal'
     }
     eventCenter.attachDOMEvent(container, 'cut', handler)
@@ -555,6 +561,14 @@ class Aganippe {
     this.contentState.updateParagraph(type)
   }
 
+  insertParagraph (location) {
+    this.contentState.insertParagraph(location)
+  }
+
+  editTable (data) {
+    this.contentState.editTable(data)
+  }
+
   blur () {
     this.container.blur()
   }
@@ -595,8 +609,7 @@ class Aganippe {
   }
 
   on (event, listener) {
-    const { eventCenter } = this
-    eventCenter.subscribe(event, listener)
+    this.eventCenter.subscribe(event, listener)
   }
 
   undo () {

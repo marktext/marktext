@@ -64,6 +64,7 @@
   import Aganippe from '../../editor'
   import bus from '../bus'
   import { animatedScrollTo } from '../util'
+  import { showContextMenu } from '../contextMenu'
 
   const STANDAR_Y = 320
   const PARAGRAPH_CMD = [
@@ -210,6 +211,8 @@
         bus.$on('copyAsMarkdown', this.handleCopyPaste)
         bus.$on('copyAsHtml', this.handleCopyPaste)
         bus.$on('pasteAsPlainText', this.handleCopyPaste)
+        bus.$on('insertParagraph', this.handleInsertParagraph)
+        bus.$on('editTable', this.handleEditTable)
 
         this.editor.on('insert-image', type => {
           if (type === 'absolute' || type === 'relative') {
@@ -240,6 +243,10 @@
 
         this.editor.on('selectionFormats', formats => {
           this.$store.dispatch('SELECTION_FORMATS', formats)
+        })
+
+        this.editor.on('contextmenu', (event, selectionChanges) => {
+          showContextMenu(event, selectionChanges)
         })
       })
     },
@@ -376,6 +383,16 @@
         this.editor && this.editor.setMarkdown(markdown, cursor, renderCursor)
       },
 
+      handleInsertParagraph (location) {
+        const { editor } = this
+        editor && editor.insertParagraph(location)
+      },
+
+      handleEditTable (data) {
+        const { editor } = this
+        editor && editor.editTable(data)
+      },
+
       blurEditor () {
         this.editor.blur()
       }
@@ -397,6 +414,8 @@
       bus.$off('copyAsMarkdown', this.handleCopyPaste)
       bus.$off('copyAsHtml', this.handleCopyPaste)
       bus.$off('pasteAsPlainText', this.handleCopyPaste)
+      bus.$off('insertParagraph', this.handleInsertParagraph)
+      bus.$off('editTable', this.handleEditTable)
 
       this.editor.destroy()
       this.editor = null
