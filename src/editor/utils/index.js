@@ -1,4 +1,5 @@
 // DOTO: Don't use Node API in editor folder, remove `path` @jocs
+import axios from 'axios'
 import path from 'path'
 import createDOMPurify from 'dompurify'
 
@@ -129,9 +130,13 @@ export const deepCopy = object => {
   return obj
 }
 
-export const loadImage = url => {
-  const image = new Image()
+export const loadImage = async (url, detectContentType) => {
+  if (detectContentType) {
+    const isImage = await checkImageContentType(url)
+    if (!isImage) throw new Error('not an image')
+  }
   return new Promise((resolve, reject) => {
+    const image = new Image()
     image.onload = () => {
       resolve(url)
     }
@@ -140,6 +145,19 @@ export const loadImage = url => {
     }
     image.src = url
   })
+}
+
+export const checkImageContentType = async url => {
+  try {
+    const res = await axios.head(url)
+    const contentType = res.headers['content-type']
+    if (res.status === 200 && /^image\/(?:jpeg|png|gif|svg\+xml|webp)$/.test(contentType)) {
+      return true
+    }
+    return false
+  } catch (err) {
+    return false
+  }
 }
 
 export const collectImportantComments = css => {
@@ -153,15 +171,33 @@ export const collectImportantComments = css => {
   return combined.join('\n')
 }
 
-export const getImageSrc = src => {
+export const getImageInfo = src => {
   const EXT_REG = /\.(jpeg|jpg|png|gif|svg|webp)(?=\?|$)/i
-  const HTTP_REG = /^http(s)?:/
-  if (EXT_REG.test(src)) {
-    return (HTTP_REG.test(src) || !window.__dirname)
-      ? src
-      : 'file://' + path.resolve(window.__dirname, src)
-  } else {
-    return ''
+  // http[s] (domain or IPv4 or localhost or IPv6) [port] /not-white-space
+  const URL_REG = /^http(s)?:\/\/([a-z0-9\-._~]+\.[a-z]{2,}|[0-9.]+|localhost|\[[a-f0-9.:]+\])(:[0-9]{1,5})?\/[\S]+/i
+  const imageExtension = EXT_REG.test(src)
+  const isUrl = URL_REG.test(src)
+  if (imageExtension) {
+    if (isUrl || !window.__dirname) {
+      return {
+        isUnknownType: false,
+        src
+      }
+    } else {
+      return {
+        isUnknownType: false,
+        src: 'file://' + path.resolve(window.__dirname, src)
+      }
+    }
+  } else if (isUrl && !imageExtension) {
+    return {
+      isUnknownType: true,
+      src
+    }
+  }
+  return {
+    isUnknownType: false,
+    src: ''
   }
 }
 

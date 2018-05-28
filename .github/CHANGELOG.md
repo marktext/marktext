@@ -26,7 +26,8 @@
 - Use `partialRender` instead of `render` when render the file, this will speed up the render phase.
 - optimization: reduce the width of scroll bar in float box.
 - Smaller scrollbars and hover color (#245)
-- update: update electron to v2.0.0
+- update electron to v2.0.2 [SECURITY]
+- Add support for tab indentation (#125)
 
 **:beetle:Bug fix**
 
@@ -47,6 +48,8 @@
 - fix: #248 dark background disappears when export PDF (#252)
 - fix: #231 cut not work in code block
 - fix: #274 can not selection codes in code block when the cursor is outside of code block.
+- fix: frameless window drag
+- fix: #79 detect image type by mime type
 
 ### 0.10.21
 

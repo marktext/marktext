@@ -2,13 +2,14 @@ import { getUniqueId, loadImage } from '../../../utils'
 import { insertAfter, operateClassName } from '../../../utils/domManipulate'
 import { CLASS_OR_ID } from '../../../config'
 
-export default function loadImageAsync (src, alt, className, imageClass) {
+export default function loadImageAsync (imageInfo, alt, className, imageClass) {
+  const { src, isUnknownType } = imageInfo
   let id
   let isSuccess
 
   if (!this.loadImageMap.has(src)) {
     id = getUniqueId()
-    loadImage(src)
+    loadImage(src, isUnknownType)
       .then(url => {
         const imageWrapper = document.querySelector(`#${id}`)
         const img = document.createElement('img')

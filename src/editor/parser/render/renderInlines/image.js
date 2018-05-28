@@ -1,5 +1,5 @@
 import { CLASS_OR_ID, IMAGE_EXT_REG } from '../../../config'
-import { isLengthEven, getImageSrc, snakeToCamel } from '../../../utils'
+import { isLengthEven, getImageInfo, snakeToCamel } from '../../../utils'
 
 // I dont want operate dom directly, is there any better method? need help!
 export default function image (h, cursor, block, token, outerClass) {
@@ -46,11 +46,12 @@ export default function image (h, cursor, block, token, outerClass) {
     let id
     let isSuccess
     let selector
-    const src = getImageSrc(token.src + encodeURI(token.backlash.second))
+    const imageInfo = getImageInfo(token.src + encodeURI(token.backlash.second))
+    const { src } = imageInfo
     const alt = token.title + encodeURI(token.backlash.first)
 
     if (src) {
-      ({ id, isSuccess } = this.loadImageAsync(src, alt, className))
+      ({ id, isSuccess } = this.loadImageAsync(imageInfo, alt, className))
     }
 
     selector = id ? `span#${id}.${imageClass}.${CLASS_OR_ID['AG_REMOVE']}` : `span.${imageClass}.${CLASS_OR_ID['AG_REMOVE']}`
