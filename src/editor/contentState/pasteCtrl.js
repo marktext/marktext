@@ -99,7 +99,10 @@ const pasteCtrl = ContentState => {
       return this.partialRender()
     }
 
-    const stateFragments = this.markdownToState(text)
+    const stateFragments = type === 'pasteAsPlainText' || copyType === 'copyAsMarkdown'
+      ? this.markdownToState(text)
+      : this.html2State(html)
+
     if (stateFragments.length <= 0) return
     // step 1: if select content, cut the content, and chop the block text into two part by the cursor.
     const cacheText = endBlock.text.substring(end.offset)
