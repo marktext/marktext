@@ -89,6 +89,7 @@ const arrowCtrl = ContentState => {
       return
     }
 
+    // handle `html` and `code` block when press arrow key
     if (block.type === 'pre' && /code|html/.test(block.functionType)) {
       // handle cursor in code block. the case at firstline or lastline.
       const cm = this.codeBlocks.get(id)
@@ -104,11 +105,6 @@ const arrowCtrl = ContentState => {
             (event.key === EVENT_KEYS.ArrowLeft && isCursorAtBegin(cm) && preBlock)
           ) {
             activeBlock = preBlock
-            if (/^(?:pre|th|td)$/.test(preBlock.type)) {
-              activeBlock = this.createBlockP()
-              activeBlock.temp = true
-              this.insertBefore(activeBlock, anchorBlock)
-            }
           }
           break
         case EVENT_KEYS.ArrowRight: // fallthrough
@@ -119,11 +115,6 @@ const arrowCtrl = ContentState => {
           ) {
             if (nextBlock) {
               activeBlock = nextBlock
-              if (/^(?:pre|th|td)$/.test(nextBlock.type)) {
-                activeBlock = this.createBlockP()
-                activeBlock.temp = true
-                this.insertAfter(activeBlock, anchorBlock)
-              }
             } else {
               activeBlock = this.createBlockP()
               this.insertAfter(activeBlock, anchorBlock)
@@ -154,27 +145,8 @@ const arrowCtrl = ContentState => {
 
     if (/th|td/.test(block.type)) {
       let activeBlock
-      const anchorBlock = this.getParent(this.getParent(this.getParent(this.getParent(block)))) // figure
       const cellInNextRow = this.findNextRowCell(block)
       const cellInPrevRow = this.findPrevRowCell(block)
-
-      if (
-        (block.type === 'th' && preBlock && /^(?:pre|td)$/.test(preBlock.type) && event.key === EVENT_KEYS.ArrowUp) ||
-        (block.type === 'th' && preBlock && /^(?:pre|td)$/.test(preBlock.type) && event.key === EVENT_KEYS.ArrowLeft && left === 0)
-      ) {
-        activeBlock = this.createBlockP()
-        activeBlock.temp = true
-        this.insertBefore(activeBlock, anchorBlock)
-      }
-
-      if (
-        (block.type === 'td' && nextBlock && /^(?:pre|th)$/.test(nextBlock.type) && event.key === EVENT_KEYS.ArrowDown) ||
-        (block.type === 'td' && nextBlock && /^(?:pre|th)$/.test(nextBlock.type) && event.key === EVENT_KEYS.ArrowRight && right === 0)
-      ) {
-        activeBlock = this.createBlockP()
-        activeBlock.temp = true
-        this.insertAfter(activeBlock, anchorBlock)
-      }
 
       if (event.key === EVENT_KEYS.ArrowUp && cellInPrevRow) {
         activeBlock = cellInPrevRow
@@ -187,8 +159,16 @@ const arrowCtrl = ContentState => {
       if (activeBlock) {
         event.preventDefault()
         event.stopPropagation()
-        const offset = activeBlock.type === 'p' ? 0 : (event.key === EVENT_KEYS.ArrowUp ? activeBlock.text.length : 0)
-        const key = activeBlock.type === 'p' ? activeBlock.children[0].key : activeBlock.key
+        const offset = activeBlock.type === 'p'
+          ? 0
+          : (event.key === EVENT_KEYS.ArrowUp
+            ? activeBlock.text.length
+            : 0)
+
+        const key = activeBlock.type === 'p'
+          ? activeBlock.children[0].key
+          : activeBlock.key
+
         this.cursor = {
           start: {
             key,
