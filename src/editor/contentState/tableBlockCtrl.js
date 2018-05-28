@@ -208,7 +208,7 @@ const tableBlockCtrl = ContentState => {
     const { start, end } = this.cursor
     const block = this.getBlock(start.key)
     if (start.key !== end.key || !/th|td/.test(block.type)) {
-      throw new Error('Cursor is not in table block, So you can not insert/edit row/column')
+      throw new Error('Cursor is not in table block, so you can not insert/edit row/column')
     }
     const currentRow = this.getParent(block)
     const rowContainer = this.getParent(currentRow) // tbody or thead
@@ -274,8 +274,7 @@ const tableBlockCtrl = ContentState => {
             this.removeBlock(currentRow)
             this.removeBlock(firstRow)
             this.appendChild(thead, firstRow)
-            this.appendChild(thead, firstRow)
-            firstRow.forEach(cell => (cell.type = 'th'))
+            firstRow.children.forEach(cell => (cell.type = 'th'))
             cursorBlock = firstRow.children[columnIndex]
           }
           if (block.type === 'td' && (currentRow.preSibling || currentRow.nextSibling)) {
@@ -314,6 +313,7 @@ const tableBlockCtrl = ContentState => {
         cursorBlock = location === 'left' ? this.getPreSibling(block) : this.getNextSibling(block)
         // handle remove column
       } else {
+        if (currentRow.children.length <= 2) return
         [...thead.children, ...tbody.children].forEach(tableRow => {
           const targetCell = tableRow.children[columnIndex]
           const removeCell = location === 'left'

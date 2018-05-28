@@ -487,10 +487,10 @@ const paragraphCtrl = ContentState => {
     // if cursor is not in one line or paragraph, can not insert paragraph
     if (start.key !== end.key) return
     let block = this.getBlock(start.key)
-    console.log(block)
     if (block.type === 'span') {
       block = this.getParent(block)
     } else if (/th|td/.test(block.type)) {
+      // get figure block from table cell
       block = this.getParent(this.getParent(this.getParent(this.getParent(block))))
     }
     const newBlock = this.createBlockP()

@@ -2,7 +2,7 @@ import * as contextMenu from './actions'
 
 export const CUT = {
   label: 'Cut',
-  id: 'cutMenuItem',
+  id: 'cutMenuItem', // not used yet!
   role: 'cut'
 }
 
@@ -44,7 +44,7 @@ export const PASTE_AS_PLAIN_TEXT = {
 
 export const INSERT_BEFORE = {
   label: 'Insert Paragraph Before',
-  id: 'insertParagraphBefore',
+  id: 'insertParagraphBeforeMenuItem',
   click (menuItem, browserWindow) {
     contextMenu.insertParagraph('before')
   }
@@ -52,7 +52,7 @@ export const INSERT_BEFORE = {
 
 export const INSERT_AFTER = {
   label: 'Insert Paragraph After',
-  id: 'insertParagraphAfter',
+  id: 'insertParagraphAfterMenuItem',
   click (menuItem, browserWindow) {
     contextMenu.insertParagraph('after')
   }
