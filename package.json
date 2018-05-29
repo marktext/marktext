@@ -64,10 +64,10 @@
       ]
     },
     "mac": {
-      "icon": "build/icons/icon.icns"
+      "icon": "static/icons/icon.icns"
     },
     "win": {
-      "icon": "build/icons/icon.ico",
+      "icon": "static/icons/icon.ico",
       "target": [
         {
           "target": "nsis",
@@ -83,11 +83,11 @@
       "perMachine": true,
       "oneClick": false,
       "allowToChangeInstallationDirectory": true,
-      "include": "build/windows/installer.nsh"
+      "include": "static/windows/installer.nsh"
     },
     "linux": {
       "category": "Office;TextEditor;Utility",
-      "icon": "build/icons"
+      "icon": "static/icons"
     },
     "snap": {
       "confinement": "classic",
