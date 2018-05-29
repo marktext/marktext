@@ -373,9 +373,13 @@
         this.editor && this.editor.createTable(this.tableChecker)
       },
 
+      // listen for `load-file` event, it will call this method only when open a new file.
       setMarkdownToEditor (markdown) {
-        const { cursor } = this
-        this.editor && this.editor.setMarkdown(markdown, cursor)
+        const { cursor, editor } = this
+        if (editor) {
+          editor.clearHistory()
+          editor.setMarkdown(markdown, cursor)
+        }
       },
 
       // listen for markdown change form source mode

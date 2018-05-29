@@ -493,14 +493,18 @@ class Aganippe {
     return this.contentState.getCodeMirrorCursor()
   }
 
-  setMarkdown (markdown, cursor, renderCursor = true) {
+  clearHistory () {
+    this.contentState.history.clearHistory()
+  }
+
+  setMarkdown (markdown, cursor, isRenderCursor = true) {
     let newMarkdown = markdown
     if (cursor) {
       newMarkdown = this.contentState.addCursorToMarkdown(markdown, cursor)
     }
     this.contentState.importMarkdown(newMarkdown)
     this.contentState.importCursor(cursor)
-    this.contentState.render(renderCursor)
+    this.contentState.render(isRenderCursor)
     this.dispatchChange()
   }
 

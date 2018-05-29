@@ -7,6 +7,7 @@ export class History {
     this.index = -1
     this.contentState = contentState
   }
+
   undo () {
     if (this.index > 0) {
       this.index = this.index - 1
@@ -30,6 +31,7 @@ export class History {
       }
     }
   }
+
   redo () {
     const { index, stack } = this
     const len = stack.length
@@ -54,6 +56,7 @@ export class History {
       }
     }
   }
+
   push (state) {
     this.stack.splice(this.index + 1)
     const copyState = deepCopy(state)
@@ -63,6 +66,11 @@ export class History {
       this.index = this.index - 1
     }
     this.index = this.index + 1
+  }
+
+  clearHistory () {
+    this.stack = []
+    this.index = -1
   }
 }
 
