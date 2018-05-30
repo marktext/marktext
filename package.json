@@ -170,6 +170,8 @@
     "mocha": "^3.0.2",
     "multispinner": "^0.2.1",
     "node-loader": "^0.6.0",
+    "postcss-loader": "^2.1.5",
+    "postcss-preset-env": "^5.1.0",
     "require-dir": "^1.0.0",
     "spectron": "^3.8.0",
     "style-loader": "^0.21.0",

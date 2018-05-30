@@ -6,7 +6,6 @@
       :modal="true"
       custom-class="ag-dialog-table"
       width="410px"
-    
     >
       <div slot="title" class="search-wrapper">
         <div class="input-wrapper">
@@ -85,10 +84,10 @@
     box-shadow: 0 3px 8px rgba(0, 0, 0, .1);
     border: 1px solid #eeeeee;
     border-radius: 3px;
-  }
-  .input-wrapper {
-    display: flex;
-    width: 100%;
+    & .input-wrapper {
+      display: flex;
+      width: 100%;
+    }
   }
   .search {
     width: 100%;

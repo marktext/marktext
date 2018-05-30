@@ -9,6 +9,7 @@ const CopyWebpackPlugin = require('copy-webpack-plugin')
 const MiniCssExtractPlugin = require("mini-css-extract-plugin")
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const VueLoaderPlugin = require('vue-loader/lib/plugin')
+const postcssPresetEnv = require('postcss-preset-env')
 
 const proMode = process.env.NODE_ENV === 'production'
 
@@ -35,7 +36,17 @@ const webConfig = {
         test: /\.css$/,
         use: [
           proMode ? MiniCssExtractPlugin.loader : 'style-loader',
-          "css-loader"
+          { loader: 'css-loader', options: { importLoader: 1 } },
+          {
+            loader: 'postcss-loader', options: {
+              ident: 'postcss',
+              plugins: () => [
+                postcssPresetEnv({
+                  stage: 0
+                })
+              ]
+            }
+          }
         ]
       },
       {

@@ -1,3 +1,19 @@
+:root {
+  --brandColor: #409EFF;
+  --successColor: #67C23A;
+  --warningColor: #E6A23C;
+  --dangerColor: #F56C6C;
+  --infoColor: #909399;
+  --primaryColor: #303133;
+  --regularColor: #606266;
+  --secondaryColor: #909399;
+  --placeholerColor: #C0C4CC;
+  --baseBorder: #DCDFE6;
+  --lightBorder: #E4E7ED;
+  --lighterBorder: #EBEEF5;
+  --extraLightBorder: #F2F6FC;
+}
+
 @keyframes highlight {
   from {
     transform: scale(1);
@@ -26,13 +42,13 @@
   top: 0;
   left: -25px;
   font-size: 14px;
-  color: #C0C4CC;
+  color: var(--secondaryColor);
   font-weight: 400;
   font-style: italic;
 }
 
 .ag-paragraph:empty::after,
-.ag-line:empty:after {
+.ag-line:empty::after {
   content: '\200B'
 }
 
@@ -56,8 +72,8 @@
 }
 
 *::selection, .ag-selection {
-  background: #E4E7ED;
-  color: #303133;
+  background: var(--baseBorder);
+  color: var(--primaryColor);
 }
 
 figure pre.ag-multiple-math,
@@ -93,18 +109,18 @@ div.ag-function-html.ag-active .ag-html-preview {
   animation-duration: .25s;
   display: inline-block;
   background: rgb(249, 226, 153);
-  color: #303133;
+  color: var(--primaryColor);
 }
 
 span.ag-html-tag {
-  color: silver;
+  color: var(--secondaryColor);
   font-weight: 200;
   font-family: monospace;
 }
 
 span.ag-math {
   position: relative;
-  color: purple;
+  color: rebeccapurple;
   font-family: monospace;
   display: inline-block;
   vertical-align: bottom;
@@ -114,10 +130,10 @@ span.ag-math {
   display: inline-block;
   padding: .5rem;
   background: #fff;
-  border: 1px solid #ebeef5;
+  border: 1px solid var(--lightBorder);
   border-radius: 4px;
   box-shadow: 0 2px 12px 0 rgba(0, 0, 0, .1);
-  color: #333;
+  color: var(--primaryColor);
   position: absolute;
   top: 30px;
   left: 0;
@@ -125,7 +141,7 @@ span.ag-math {
 }
 
 div.ag-math-empty {
-  color: #999;
+  color: var(--regularColor);
   font-size: 14px;
   font-style: italic;
   font-family: monospace;
@@ -133,7 +149,7 @@ div.ag-math-empty {
 
 div.ag-math-error,
 span.ag-math > .ag-math-render.ag-math-error {
-  color: #e6a23c;
+  color: var(--warningColor);
   font-size: 14px;
   font-style: italic;
   font-family: monospace;
@@ -199,7 +215,7 @@ figure {
   margin-right: 3px;
   cursor: pointer;
   border-radius: 3px;
-  color: #606266;
+  color: var(--regularColor);
 }
 
 .ag-tool-bar ul li[data-label=delete] {
@@ -208,7 +224,7 @@ figure {
 }
 
 .ag-tool-bar ul li[data-label=delete] {
-  color: #E6A23C;
+  color: var(--dangerColor);
   right: 0;
 }
 
@@ -237,7 +253,7 @@ figure.ag-active[data-role=HTML]::before {
   top: 0;
   left: -45px;
   font-size: 12px;
-  color: #C0C4CC;
+  color: var(--secondaryColor);
   font-weight: 400;
   font-style: italic;
 }
@@ -277,7 +293,7 @@ li.ag-task-list-item > input[type=checkbox] {
 }
 
 li.ag-task-list-item > input.ag-checkbox-checked ~ p {
-  color: #909399;
+  color: var(--secondaryColor);
 }
 
 li.ag-task-list-item > input[type=checkbox]::before {
@@ -286,7 +302,7 @@ li.ag-task-list-item > input[type=checkbox]::before {
   height: 14px;
   box-sizing: border-box;
   display: inline-block;
-  border: 2px solid #606266;
+  border: 2px solid var(--infoColor);
   border-radius: 2px;
   background-color: #FFFFFF;
   position: absolute;
@@ -296,7 +312,7 @@ li.ag-task-list-item > input[type=checkbox]::before {
 
 li.ag-task-list-item > input.ag-checkbox-checked::before {
   border: none;
-  background-color: #606266;
+  background-color: var(--infoColor);
 }
 
 li.ag-task-list-item > input.ag-checkbox-checked::after {
@@ -351,12 +367,12 @@ pre.ag-front-matter {
 
 span.ag-front-matter-line:first-of-type:empty::after {
   content: 'Input YAML Front Matter...';
-  color: #999;
+  color: var(--placeholerColor);
 }
 
 span.ag-multiple-math-line:first-of-type:empty::after {
   content: 'Input Mathematical Formula...';
-  color: #999;
+  color: var(--placeholerColor);
 }
 
 figure,
@@ -395,7 +411,7 @@ pre.ag-active.ag-code-block::before,
 pre.ag-active.ag-code-block::after,
 pre.ag-active.ag-multiple-math::before,
 pre.ag-active.ag-multiple-math::after {
-  color: #909399;
+  color: var(--placeholerColor);
   font-family: monospace;
   position: absolute;
   left: 0;
@@ -432,7 +448,7 @@ figure.ag-active div.ag-math-preview {
   transform: translateX(-50%);
   padding: .5rem;
   background: #fff;
-  border: 1px solid #ebeef5;
+  border: 1px solid var(--lightBorder);
   border-radius: 4px;
   box-shadow: 0 2px 12px 0 rgba(0, 0, 0, .1);
 }
@@ -440,10 +456,6 @@ figure.ag-active div.ag-math-preview {
 div.ag-html-preview {
   pointer-events: none;
   width: 100%;
-}
-
-.ag-active > div.ag-html-preview {
-  background: #F2F6FC;
 }
 
 pre .CodeMirror {
@@ -460,7 +472,7 @@ hr {
 
 span.ag-emoji-marked-text {
   position: relative;
-  color: aqua;
+  color: var(--regularColor);
   text-decoration: none;
 }
 
@@ -493,7 +505,7 @@ span.ag-emoji-marked-text {
   content: attr(data-character);
   top: 0;
   left: -.7rem;
-  color: #999;
+  color: var(--secondaryColor);
 }
 
 .ag-language-input {
@@ -501,19 +513,18 @@ span.ag-emoji-marked-text {
   display: none;
   min-width: 80px;
   position: absolute;
-  font-size: .85em;
   top: -20px;
   left: 30px;
   font-size: 14px;
   font-family: monospace;
-  color: #909399;
+  color: var(--secondaryColor);
   background: transparent;
   border: none;
   z-index: 10;
 }
 
 .ag-language-input::placeholder {
-  color: #C0C4CC;
+  color: var(--placeholerColor);
 }
 
 pre.ag-active .ag-language-input {
@@ -521,22 +532,23 @@ pre.ag-active .ag-language-input {
 }
 
 span.ag-image-marked-text, span.ag-link-in-bracket, span.ag-link-in-bracket .ag-backlash {
-  color: rgb(125, 125, 125);
+  color: var(--regularColor);
   font-size: 16px;
   text-decoration: none;
   font-family: monospace;
 }
 
 .ag-language {
-  color: #708;
+  color: var(--dangerColor);
   text-decoration: none;
+  font-family: monospace;
 }
 .ag-backlash {
   text-decoration: none;
   color: rgb(51, 51, 51);
 }
 span.ag-warn.ag-emoji-marked-text {
-  color: rgba(242, 134, 94, .7);
+  color: var(--warningColor);
   text-decoration: none;
 }
 

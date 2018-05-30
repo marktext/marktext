@@ -400,11 +400,15 @@ code {
 #ag-editor-id pre.ag-html-block {
   font-size: 90%;
   line-height: 1.6;
-  border: 1px solid #606266;
-  border-radius: 3px;
+  background: var(--primaryColor);
   color: #777777;
 }
 
-.fg-color-dark {
+#ag-editor-id pre.ag-code-block .cm-s-railscasts.CodeMirror,
+#ag-editor-id pre.ag-html-block .cm-s-railscasts.CodeMirror {
+  background: var(--primaryColor);
+}
+
+.ag-color-dark {
   color: #c6c6c6;
 }
