@@ -1,6 +1,6 @@
 import { autoUpdater } from 'electron-updater'
 import { ipcMain } from 'electron'
-import createWindow from '../createWindow'
+import appWindow from '../window'
 import userPreference from '../preference'
 
 let updater
@@ -47,7 +47,7 @@ autoUpdater.on('update-downloaded', () => {
 })
 
 export const userSetting = (menuItem, browserWindow) => {
-  createWindow(userPreference.userDataPath)
+  appWindow.createWindow(userPreference.userDataPath)
 }
 
 export const checkUpdates = (menuItem, browserWindow) => {

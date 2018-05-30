@@ -4,10 +4,10 @@ import fs from 'fs'
 // import chokidar from 'chokidar'
 import path from 'path'
 import { BrowserWindow, dialog, ipcMain } from 'electron'
-import createWindow, { forceClose, windows } from '../createWindow'
+import appWindow from '../window'
 import { EXTENSION_HASN, EXTENSIONS } from '../config'
-import { writeFile, writeMarkdownFile } from '../filesystem'
-import { clearRecentlyUsedDocuments } from '../menu'
+import { writeFile, writeMarkdownFile } from '../utils/filesystem'
+import appMenu from '../menu'
 import { getPath, isMarkdownFile, log, isFile } from '../utils'
 import userPreference from '../preference'
 
@@ -83,7 +83,7 @@ ipcMain.on('AGANI::response-close-confirm', (e, { filename, pathname, markdown, 
   }, index => {
     switch (index) {
       case 2:
-        forceClose(win)
+        appWindow.forceClose(win)
         break
       case 0:
         setTimeout(() => {
@@ -100,13 +100,13 @@ ipcMain.on('AGANI::response-export', handleResponseForExport)
 
 ipcMain.on('AGANI::close-window', e => {
   const win = BrowserWindow.fromWebContents(e.sender)
-  forceClose(win)
+  appWindow.forceClose(win)
 })
 
 ipcMain.on('AGANI::window::drop', (e, fileList) => {
   for (const file of fileList) {
     if (isMarkdownFile(file)) {
-      createWindow(file)
+      appWindow.createWindow(file)
       break
     }
   }
@@ -165,7 +165,7 @@ export const print = win => {
 
 export const openDocument = filePath => {
   if (isFile(filePath)) {
-    const newWindow = createWindow(filePath)
+    const newWindow = appWindow.createWindow(filePath)
     watchAndReload(filePath, newWindow)
   }
 }
@@ -184,7 +184,7 @@ export const open = win => {
 }
 
 export const newFile = () => {
-  createWindow()
+  appWindow.createWindow()
 }
 
 export const save = win => {
@@ -199,7 +199,7 @@ export const autoSave = (menuItem, browserWindow) => {
   const { checked } = menuItem
   userPreference.setItem('autoSave', checked)
     .then(() => {
-      for (const win of windows.values()) {
+      for (const win of appWindow.windows.values()) {
         win.webContents.send('AGANI::user-preference', { autoSave: checked })
       }
     })
@@ -215,5 +215,5 @@ export const rename = win => {
 }
 
 export const clearRecentlyUsed = () => {
-  clearRecentlyUsedDocuments()
+  appMenu.clearRecentlyUsedDocuments()
 }

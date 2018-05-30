@@ -1,15 +1,15 @@
 import fs from 'fs'
 import path from 'path'
 import { ipcMain, BrowserWindow } from 'electron'
-import { windows } from './createWindow'
+import appWindow from './window'
 import { getPath, hasSameKeys, log, ensureDir } from './utils'
 
-const FILE_NAME = 'preference.md'
-const staticPath = path.join(__static, FILE_NAME)
-const userDataPath = path.join(getPath('userData'), FILE_NAME)
-
 class Preference {
-  constructor (staticPath, userDataPath) {
+  constructor () {
+    const FILE_NAME = 'preference.md'
+    const staticPath = path.join(__static, FILE_NAME)
+    const userDataPath = path.join(getPath('userData'), FILE_NAME)
+
     this.cache = null
     this.staticPath = staticPath
     this.userDataPath = userDataPath
@@ -20,6 +20,7 @@ class Preference {
   init () {
     // If the preference.md is not existed or can not load json from it.
     // Rebuild the preference.md
+    const { userDataPath, staticPath } = this
     let userSetting = null
     if (!fs.existsSync(userDataPath) || !this.loadJson(userDataPath)) {
       ensureDir(getPath('userData'))
@@ -122,7 +123,7 @@ class Preference {
   }
 }
 
-const preference = new Preference(staticPath, userDataPath)
+const preference = new Preference()
 
 ipcMain.on('AGANI::ask-for-user-preference', e => {
   const win = BrowserWindow.fromWebContents(e.sender)
@@ -133,7 +134,7 @@ ipcMain.on('AGANI::set-user-preference', (e, pre) => {
   Object.keys(pre).map(key => {
     preference.setItem(key, pre[key])
       .then(() => {
-        for (const win of windows.values()) {
+        for (const win of appWindow.windows.values()) {
           win.webContents.send('AGANI::user-preference', { [key]: pre[key] })
         }
       })

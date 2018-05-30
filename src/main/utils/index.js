@@ -2,7 +2,7 @@ import fs from 'fs'
 import path from 'path'
 import fse from 'fs-extra'
 import { app, Menu } from 'electron'
-import { EXTENSIONS } from './config'
+import { EXTENSIONS } from '../config'
 
 // creates a directory if it doesn't already exist.
 export const ensureDir = dirPath => {
@@ -34,11 +34,8 @@ export const log = data => {
 
 // returns true if the filename matches one of the markdown extensions
 export const hasMarkdownExtension = filename => {
-  const extension = path.extname(filename).split('.').pop()
-  if (extension) {
-    return EXTENSIONS.indexOf(extension) >= 0
-  }
-  return false
+  if (!filename || typeof filename !== 'string') return false
+  return EXTENSIONS.some(ext => filename.endsWith(ext))
 }
 
 export const hasSameKeys = (a, b) => {
@@ -52,6 +49,7 @@ export const isDirectory = dirPath => {
     return fs.existsSync(dirPath) && fs.lstatSync(dirPath).isDirectory()
   } catch (e) {
     // No permissions
+    log(e)
     return false
   }
 }
@@ -62,6 +60,7 @@ export const isFile = filepath => {
     return fs.existsSync(filepath) && fs.lstatSync(filepath).isFile()
   } catch (e) {
     // No permissions
+    log(e)
     return false
   }
 }

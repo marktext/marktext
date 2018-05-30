@@ -1,11 +1,9 @@
 import fs from 'fs'
 import path from 'path'
-import { LINE_ENDING_REG, LF_LINE_ENDING_REG, CRLF_LINE_ENDING_REG } from './config'
-import { forceClose } from './createWindow'
-import userPreference from './preference'
-import { log } from './utils'
-
-const isWin = process.platform === 'win32'
+import { LINE_ENDING_REG, LF_LINE_ENDING_REG, CRLF_LINE_ENDING_REG, isWindows } from '../config'
+import appWindow from '../window'
+import userPreference from '../preference'
+import { log } from './index'
 
 const convertLineEndings = (text, lineEnding) => {
   return text.replace(LINE_ENDING_REG, getLineEnding(lineEnding))
@@ -16,7 +14,7 @@ export const getOsLineEndingName = () => {
   if (endOfLine === 'lf') {
     return 'lf'
   }
-  return endOfLine === 'crlf' || isWin ? 'crlf' : 'lf'
+  return endOfLine === 'crlf' || isWindows ? 'crlf' : 'lf'
 }
 
 const getLineEnding = lineEnding => {
@@ -54,7 +52,7 @@ export const writeMarkdownFile = (pathname, content, extension, options, win, e,
     if (!err) e.sender.send('AGANI::file-saved-successfully')
     const filename = path.basename(filePath)
     if (e && filePath) e.sender.send('AGANI::set-pathname', { pathname: filePath, filename })
-    if (!err && quitAfterSave) forceClose(win)
+    if (!err && quitAfterSave) appWindow.forceClose(win)
   })
 }
 
