@@ -1,5 +1,3 @@
-'use strict'
-
 import fs from 'fs'
 // import chokidar from 'chokidar'
 import path from 'path'
@@ -8,26 +6,8 @@ import appWindow from '../window'
 import { EXTENSION_HASN, EXTENSIONS } from '../config'
 import { writeFile, writeMarkdownFile } from '../utils/filesystem'
 import appMenu from '../menu'
-import { getPath, isMarkdownFile, log, isFile } from '../utils'
+import { getPath, isMarkdownFile, log, isFile, isDirectory } from '../utils'
 import userPreference from '../preference'
-
-// TODO(fxha): Do we still need this?
-const watchAndReload = (pathname, win) => { // when i build, and failed.
-  // const watcher = chokidar.watch(pathname, {
-  //   persistent: true
-  // })
-  // const filename = path.basename(pathname)
-  // watcher.on('change', path => {
-  //   fs.readFile(pathname, 'utf-8', (err, file) => {
-  //     if (err) return console.log(err)
-  //     win.webContents.send('AGANI::file-change', {
-  //       file,
-  //       filename,
-  //       pathname
-  //     })
-  //   })
-  // })
-}
 
 // handle the response from render process.
 const handleResponseForExport = (e, { type, content, filename, pathname }) => {
@@ -112,10 +92,7 @@ ipcMain.on('AGANI::window::drop', (e, fileList) => {
   }
 })
 
-ipcMain.on('AGANI::rename', (e, {
-  pathname,
-  newPathname
-}) => {
+ipcMain.on('AGANI::rename', (e, { pathname, newPathname }) => {
   const win = BrowserWindow.fromWebContents(e.sender)
   if (!isFile(newPathname)) {
     fs.renameSync(pathname, newPathname)
@@ -163,10 +140,18 @@ export const print = win => {
   win.webContents.print({ silent: false, printBackground: true, deviceName: '' })
 }
 
-export const openDocument = filePath => {
-  if (isFile(filePath)) {
-    const newWindow = appWindow.createWindow(filePath)
-    watchAndReload(filePath, newWindow)
+export const openFileOrProject = pathname => {
+  if (isFile(pathname) || isDirectory(pathname)) {
+    appWindow.createWindow(pathname)
+  }
+}
+
+export const openProject = win => {
+  const pathname = dialog.showOpenDialog(win, {
+    properties: ['openDirectory', 'createDirectory']
+  })
+  if (pathname && pathname[0]) {
+    openFileOrProject(pathname[0])
   }
 }
 
@@ -179,7 +164,7 @@ export const open = win => {
     }]
   })
   if (filename && filename[0]) {
-    openDocument(filename[0])
+    openFileOrProject(filename[0])
   }
 }
 

@@ -397,6 +397,7 @@ const updateCtrl = ContentState => {
         '"': '"',
         "'": "'"
       }
+
       if (start.key === end.key && start.offset === end.offset && event.type === 'input') {
         const { offset } = start
         const { autoPairBracket, autoPairMarkdownSyntax, autoPairQuote } = this
@@ -421,6 +422,7 @@ const updateCtrl = ContentState => {
       block.text = text
     }
 
+    // Update preview content of math block
     if (block && block.type === 'span' && block.functionType === 'multiplemath') {
       this.updateMathContent(block)
     }

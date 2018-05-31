@@ -1,5 +1,5 @@
 :root {
-  --brandColor: #409EFF;
+  --brandColor: #d2b690;
   --successColor: #67C23A;
   --warningColor: #E6A23C;
   --dangerColor: #F56C6C;
@@ -233,6 +233,7 @@ figure {
 }
 
 .ag-tool-bar ul li svg {
+  will-change: transform;
   transition: transform .2s ease-in-out;
 }
 

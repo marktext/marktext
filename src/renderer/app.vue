@@ -9,25 +9,30 @@
       :platform="platform"
       :is-saved="isSaved"
     ></title-bar>
-    <editor
-      :typewriter="typewriter"
-      :focus="focus"
-      :source-code="sourceCode"
-      :markdown="markdown"
-      :cursor="cursor"
-      :theme="theme"
-      :dark-color="darkColor"
-      :light-color="lightColor"
-      :line-height="lineHeight"
-      :font-size="fontSize"
-      :editor-font-family="editorFontFamily"
-    ></editor>
-    <source-code
-      v-if="sourceCode"
-      :markdown="markdown"
-      :cursor="cursor"
-      :theme="theme"
-    ></source-code>
+    <div class="editor-middle">
+      <side-bar></side-bar>
+      <div class="editor">
+        <editor
+          :typewriter="typewriter"
+          :focus="focus"
+          :source-code="sourceCode"
+          :markdown="markdown"
+          :cursor="cursor"
+          :theme="theme"
+          :dark-color="darkColor"
+          :light-color="lightColor"
+          :line-height="lineHeight"
+          :font-size="fontSize"
+          :editor-font-family="editorFontFamily"
+        ></editor>
+        <source-code
+          v-if="sourceCode"
+          :markdown="markdown"
+          :cursor="cursor"
+          :theme="theme"
+        ></source-code>
+      </div>
+    </div>
     <bottom-bar
       :source-code="sourceCode"
       :theme="theme"
@@ -43,6 +48,7 @@
 <script>
   import Editor from '@/components/editor'
   import TitleBar from '@/components/titleBar'
+  import SideBar from '@/components/sideBar'
   import BottomBar from '@/components/bottomBar'
   import SourceCode from '@/components/sourceCode'
   import Aidou from '@/components/aidou/aidou'
@@ -58,6 +64,7 @@
       Aidou,
       Editor,
       TitleBar,
+      SideBar,
       BottomBar,
       SourceCode,
       UploadImage,
@@ -100,11 +107,12 @@
       dispatch('LISTEN_FOR_FILE_SAVED_SUCCESSFULLY')
       dispatch('LINTEN_FOR_SET_LINE_ENDING')
       dispatch('LISTEN_FOR_NOTIFICATION')
+      dispatch('LISTEN_FOR_LOAD_PROJECT')
     }
   }
 </script>
 
-<style>
+<style scoped>
   .editor-container {
     padding-top: 22px;
   }
@@ -113,5 +121,11 @@
     opacity: 0;
     position: absolute;
     left: -10000px;
+  }
+  .editor-middle {
+    display: flex;
+    & > .editor {
+      flex: 1;
+    }
   }
 </style>

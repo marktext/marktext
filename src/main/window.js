@@ -1,8 +1,8 @@
 import { app, BrowserWindow, screen } from 'electron'
 import windowStateKeeper from 'electron-window-state'
-import { getOsLineEndingName, loadMarkdownFile } from './utils/filesystem'
+import { getOsLineEndingName, loadMarkdownFile, loadProject } from './utils/filesystem'
 import appMenu from './menu'
-import { isMarkdownFile } from './utils'
+import { isMarkdownFile, isDirectory, log } from './utils'
 import { TITLE_BAR_HEIGHT, defaultWinOptions, isLinux } from './config'
 
 class AppWindow {
@@ -55,13 +55,51 @@ class AppWindow {
     const winOpt = Object.assign({ x, y, width, height }, defaultWinOptions, options)
     const win = new BrowserWindow(winOpt)
 
-    win.once('ready-to-show', () => {
+    win.once('ready-to-show', async () => {
       mainWindowState.manage(win)
       win.show()
 
       if (pathname && isMarkdownFile(pathname)) {
         appMenu.addRecentlyUsedDocument(pathname)
-        loadMarkdownFile(win, pathname)
+        loadMarkdownFile(pathname)
+          .then(data => {
+            const {
+              file,
+              filename,
+              pathname,
+              isUtf8BomEncoded,
+              lineEnding,
+              adjustLineEndingOnSave,
+              isMixed
+            } = data
+
+            win.webContents.send('AGANI::file-loaded', {
+              file,
+              filename,
+              pathname,
+              options: {
+                isUtf8BomEncoded,
+                lineEnding,
+                adjustLineEndingOnSave
+              }
+            })
+
+            // Notify user about mixed endings
+            if (isMixed) {
+              win.webContents.send('AGANI::show-info-notification', {
+                msg: `The document has mixed line endings which are automatically normalized to ${lineEnding.toUpperCase()}.`,
+                timeout: 20000
+              })
+            }
+          })
+          .catch(log)
+      } else if (pathname && isDirectory(pathname)) {
+        try {
+          const projectTree = await loadProject(pathname)
+          win.webContents.send('AGANI::project-loaded', projectTree)
+        } catch (err) {
+          log(err)
+        }
       } else {
         const lineEnding = getOsLineEndingName()
         win.webContents.send('AGANI::set-line-ending', {
