@@ -43,31 +43,31 @@ const handleResponseForExport = (e, { type, content, filename, pathname }) => {
   if (!content && type === 'pdf') {
     win.webContents.printToPDF({ printBackground: true }, (err, data) => {
       if (err) log(err)
-      writeFile(filePath, data, extension, e)
+      writeFile(filePath, data, extension)
     })
   } else {
-    writeFile(filePath, content, extension, e)
+    writeFile(filePath, content, extension)
   }
 }
 
 const handleResponseForSave = (e, { markdown, pathname, options, quitAfterSave = false }) => {
   const win = BrowserWindow.fromWebContents(e.sender)
   if (pathname) {
-    writeMarkdownFile(pathname, markdown, '', options, win, e, quitAfterSave)
+    writeMarkdownFile(pathname, markdown, options, win, e, quitAfterSave)
   } else {
     const filePath = dialog.showSaveDialog(win, {
       defaultPath: getPath('documents') + '/Untitled.md'
     })
-    writeMarkdownFile(filePath, markdown, '.md', options, win, e, quitAfterSave)
+    writeMarkdownFile(filePath, markdown, options, win, e, quitAfterSave)
   }
 }
 
 ipcMain.on('AGANI::response-file-save-as', (e, { markdown, pathname, options }) => {
   const win = BrowserWindow.fromWebContents(e.sender)
-  let filePath = dialog.showSaveDialog(win, {
+  const filePath = dialog.showSaveDialog(win, {
     defaultPath: pathname || getPath('documents') + '/Untitled.md'
   })
-  writeMarkdownFile(filePath, markdown, '.md', options, win, e)
+  writeMarkdownFile(filePath, markdown, options, win, e)
 })
 
 ipcMain.on('AGANI::response-close-confirm', (e, { filename, pathname, markdown, options }) => {
