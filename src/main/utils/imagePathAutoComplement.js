@@ -1,8 +1,8 @@
 import fs from 'fs'
 import path from 'path'
 import { filter } from 'fuzzaldrin'
-import { isDirectory, isFile, log } from './utils'
-import { IMAGE_EXTENSIONS, BLACK_LIST } from './config'
+import { isDirectory, isFile, log } from './index'
+import { IMAGE_EXTENSIONS, BLACK_LIST } from '../config'
 
 // TODO: rebuild cache @jocs
 const IMAGE_PATH = new Map()

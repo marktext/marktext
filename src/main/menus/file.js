@@ -137,5 +137,6 @@ export default function (recentlyUsedFiles) {
     visible: notOsx,
     click: app.quit
   })
+
   return fileMenu
 }

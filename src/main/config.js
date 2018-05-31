@@ -1,3 +1,22 @@
+import path from 'path'
+
+export const isOsx = process.platform === 'darwin'
+export const isWindows = process.platform === 'win32'
+export const isLinux = process.platform === 'linux'
+
+export const defaultWinOptions = {
+  icon: path.join(__static, 'logo-96px.png'),
+  minWidth: 450,
+  minHeight: 220,
+  webPreferences: {
+    webSecurity: false
+  },
+  useContentSize: true,
+  show: false,
+  frame: false,
+  titleBarStyle: 'hidden'
+}
+
 export const EXTENSIONS = [
   'markdown',
   'mdown',
@@ -30,12 +49,7 @@ export const EXTENSION_HASN = {
   pdf: '.pdf'
 }
 
-export const VIEW_MENU_ITEM = {
-  'Source Code Mode': false,
-  'Typewriter Mode': false,
-  'Focus Mode': false
-}
-
+export const TITLE_BAR_HEIGHT = 21
 export const LINE_ENDING_REG = /(?:\r\n|\n)/g
 export const LF_LINE_ENDING_REG = /(?:[^\r]\n)|(?:^\n$)/
 export const CRLF_LINE_ENDING_REG = /\r\n/

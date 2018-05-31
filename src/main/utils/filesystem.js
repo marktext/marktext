@@ -1,22 +1,16 @@
 import fs from 'fs'
 import path from 'path'
-import { LINE_ENDING_REG, LF_LINE_ENDING_REG, CRLF_LINE_ENDING_REG } from './config'
-import { forceClose } from './createWindow'
-import userPreference from './preference'
-import { log } from './utils'
-
-const isWin = process.platform === 'win32'
-
-const convertLineEndings = (text, lineEnding) => {
-  return text.replace(LINE_ENDING_REG, getLineEnding(lineEnding))
-}
+import { LINE_ENDING_REG, LF_LINE_ENDING_REG, CRLF_LINE_ENDING_REG, isWindows } from '../config'
+import appWindow from '../window'
+import userPreference from '../preference'
+import { log } from './index'
 
 export const getOsLineEndingName = () => {
   const { endOfLine } = userPreference.getAll()
   if (endOfLine === 'lf') {
     return 'lf'
   }
-  return endOfLine === 'crlf' || isWin ? 'crlf' : 'lf'
+  return endOfLine === 'crlf' || isWindows ? 'crlf' : 'lf'
 }
 
 const getLineEnding = lineEnding => {
@@ -28,7 +22,11 @@ const getLineEnding = lineEnding => {
   return getOsLineEndingName() === 'crlf' ? '\r\n' : '\n'
 }
 
-export const writeFile = (pathname, content, extension, e, callback = null) => {
+const convertLineEndings = (text, lineEnding) => {
+  return text.replace(LINE_ENDING_REG, getLineEnding(lineEnding))
+}
+
+export const writeFile = (pathname, content, extension, callback = null) => {
   if (pathname) {
     pathname = !extension || pathname.endsWith(extension) ? pathname : `${pathname}${extension}`
     fs.writeFile(pathname, content, 'utf-8', err => {
@@ -40,8 +38,10 @@ export const writeFile = (pathname, content, extension, e, callback = null) => {
   }
 }
 
-export const writeMarkdownFile = (pathname, content, extension, options, win, e, quitAfterSave = false) => {
+export const writeMarkdownFile = (pathname, content, options, win, e, quitAfterSave = false) => {
   const { adjustLineEndingOnSave, isUtf8BomEncoded, lineEnding } = options
+  const extension = path.extname(pathname) || '.md'
+
   if (isUtf8BomEncoded) {
     content = '\uFEFF' + content
   }
@@ -50,11 +50,11 @@ export const writeMarkdownFile = (pathname, content, extension, options, win, e,
     content = convertLineEndings(content, lineEnding)
   }
 
-  writeFile(pathname, content, extension, e, (err, filePath) => {
+  writeFile(pathname, content, extension, (err, filePath) => {
     if (!err) e.sender.send('AGANI::file-saved-successfully')
     const filename = path.basename(filePath)
     if (e && filePath) e.sender.send('AGANI::set-pathname', { pathname: filePath, filename })
-    if (!err && quitAfterSave) forceClose(win)
+    if (!err && quitAfterSave) appWindow.forceClose(win)
   })
 }
 

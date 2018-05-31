@@ -4,10 +4,10 @@ import fs from 'fs'
 // import chokidar from 'chokidar'
 import path from 'path'
 import { BrowserWindow, dialog, ipcMain } from 'electron'
-import createWindow, { forceClose, windows } from '../createWindow'
+import appWindow from '../window'
 import { EXTENSION_HASN, EXTENSIONS } from '../config'
-import { writeFile, writeMarkdownFile } from '../filesystem'
-import { clearRecentlyUsedDocuments } from '../menu'
+import { writeFile, writeMarkdownFile } from '../utils/filesystem'
+import appMenu from '../menu'
 import { getPath, isMarkdownFile, log, isFile } from '../utils'
 import userPreference from '../preference'
 
@@ -43,31 +43,31 @@ const handleResponseForExport = (e, { type, content, filename, pathname }) => {
   if (!content && type === 'pdf') {
     win.webContents.printToPDF({ printBackground: true }, (err, data) => {
       if (err) log(err)
-      writeFile(filePath, data, extension, e)
+      writeFile(filePath, data, extension)
     })
   } else {
-    writeFile(filePath, content, extension, e)
+    writeFile(filePath, content, extension)
   }
 }
 
 const handleResponseForSave = (e, { markdown, pathname, options, quitAfterSave = false }) => {
   const win = BrowserWindow.fromWebContents(e.sender)
   if (pathname) {
-    writeMarkdownFile(pathname, markdown, '', options, win, e, quitAfterSave)
+    writeMarkdownFile(pathname, markdown, options, win, e, quitAfterSave)
   } else {
     const filePath = dialog.showSaveDialog(win, {
       defaultPath: getPath('documents') + '/Untitled.md'
     })
-    writeMarkdownFile(filePath, markdown, '.md', options, win, e, quitAfterSave)
+    writeMarkdownFile(filePath, markdown, options, win, e, quitAfterSave)
   }
 }
 
 ipcMain.on('AGANI::response-file-save-as', (e, { markdown, pathname, options }) => {
   const win = BrowserWindow.fromWebContents(e.sender)
-  let filePath = dialog.showSaveDialog(win, {
+  const filePath = dialog.showSaveDialog(win, {
     defaultPath: pathname || getPath('documents') + '/Untitled.md'
   })
-  writeMarkdownFile(filePath, markdown, '.md', options, win, e)
+  writeMarkdownFile(filePath, markdown, options, win, e)
 })
 
 ipcMain.on('AGANI::response-close-confirm', (e, { filename, pathname, markdown, options }) => {
@@ -83,7 +83,7 @@ ipcMain.on('AGANI::response-close-confirm', (e, { filename, pathname, markdown, 
   }, index => {
     switch (index) {
       case 2:
-        forceClose(win)
+        appWindow.forceClose(win)
         break
       case 0:
         setTimeout(() => {
@@ -100,13 +100,13 @@ ipcMain.on('AGANI::response-export', handleResponseForExport)
 
 ipcMain.on('AGANI::close-window', e => {
   const win = BrowserWindow.fromWebContents(e.sender)
-  forceClose(win)
+  appWindow.forceClose(win)
 })
 
 ipcMain.on('AGANI::window::drop', (e, fileList) => {
   for (const file of fileList) {
     if (isMarkdownFile(file)) {
-      createWindow(file)
+      appWindow.createWindow(file)
       break
     }
   }
@@ -165,7 +165,7 @@ export const print = win => {
 
 export const openDocument = filePath => {
   if (isFile(filePath)) {
-    const newWindow = createWindow(filePath)
+    const newWindow = appWindow.createWindow(filePath)
     watchAndReload(filePath, newWindow)
   }
 }
@@ -184,7 +184,7 @@ export const open = win => {
 }
 
 export const newFile = () => {
-  createWindow()
+  appWindow.createWindow()
 }
 
 export const save = win => {
@@ -199,7 +199,7 @@ export const autoSave = (menuItem, browserWindow) => {
   const { checked } = menuItem
   userPreference.setItem('autoSave', checked)
     .then(() => {
-      for (const win of windows.values()) {
+      for (const win of appWindow.windows.values()) {
         win.webContents.send('AGANI::user-preference', { autoSave: checked })
       }
     })
@@ -215,5 +215,5 @@ export const rename = win => {
 }
 
 export const clearRecentlyUsed = () => {
-  clearRecentlyUsedDocuments()
+  appMenu.clearRecentlyUsedDocuments()
 }
