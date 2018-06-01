@@ -8,16 +8,19 @@
 </template>
 
 <script>
-  import codeMirror, { setMode, setCursorAtLastLine } from '../../editor/codeMirror'
-  import { wordCount as getWordCount } from '../../editor/utils'
-  import { adjustCursor } from '../util'
-  import bus from '../bus'
+  import codeMirror, { setMode, setCursorAtLastLine } from '../../../editor/codeMirror'
+  import { wordCount as getWordCount } from '../../../editor/utils'
+  import { adjustCursor } from '../../util'
+  import bus from '../../bus'
 
   export default {
     props: {
+      theme: {
+        type: String,
+        required: true
+      },
       markdown: String,
-      cursor: Object,
-      theme: String
+      cursor: Object
     },
 
     data () {

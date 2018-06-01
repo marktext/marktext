@@ -101,9 +101,13 @@
       }
     },
     computed: {
-      ...mapState([
-        'aiLoading', 'aiList', 'theme'
-      ]),
+      ...mapState({
+        'aiList': state => state.aidou.aiList,
+        'aiLoading': state => state.aidou.aiLoading
+      }),
+      ...mapState({
+        'theme': state => state.preferences.theme
+      }),
       emojis () {
         return this.aiList.map(e => {
           e.collected = this.collection.findIndex(c => c.link === e.link) > -1

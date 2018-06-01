@@ -11,27 +11,12 @@
     ></title-bar>
     <div class="editor-middle">
       <side-bar></side-bar>
-      <div class="editor">
-        <editor
-          :typewriter="typewriter"
-          :focus="focus"
-          :source-code="sourceCode"
-          :markdown="markdown"
-          :cursor="cursor"
-          :theme="theme"
-          :dark-color="darkColor"
-          :light-color="lightColor"
-          :line-height="lineHeight"
-          :font-size="fontSize"
-          :editor-font-family="editorFontFamily"
-        ></editor>
-        <source-code
-          v-if="sourceCode"
-          :markdown="markdown"
-          :cursor="cursor"
-          :theme="theme"
-        ></source-code>
-      </div>
+      <editor-with-tabs
+        :markdown="markdown"
+        :cursor="cursor"
+        :theme="theme"
+        :source-code="sourceCode"
+      ></editor-with-tabs>
     </div>
     <bottom-bar
       :source-code="sourceCode"
@@ -46,11 +31,10 @@
 </template>
 
 <script>
-  import Editor from '@/components/editor'
+  import EditorWithTabs from '@/components/editorWithTabs'
   import TitleBar from '@/components/titleBar'
   import SideBar from '@/components/sideBar'
   import BottomBar from '@/components/bottomBar'
-  import SourceCode from '@/components/sourceCode'
   import Aidou from '@/components/aidou/aidou'
   import UploadImage from '@/components/uploadImage'
   import AboutDialog from '@/components/about'
@@ -62,11 +46,10 @@
     name: 'marktext',
     components: {
       Aidou,
-      Editor,
+      EditorWithTabs,
       TitleBar,
       SideBar,
       BottomBar,
-      SourceCode,
       UploadImage,
       AboutDialog,
       Font,
@@ -76,38 +59,54 @@
       return {}
     },
     computed: {
+      ...mapState({
+        'sourceCode': state => state.preferences.sourceCode,
+        'theme': state => state.preferences.theme
+      }),
+      ...mapState({
+        'pathname': state => state.editor.currentFile.pathname,
+        'filename': state => state.editor.currentFile.filename,
+        'isSaved': state => state.editor.currentFile.isSaved,
+        'markdown': state => state.editor.currentFile.markdown,
+        'cursor': state => state.editor.currentFile.cursor,
+        'wordCount': state => state.editor.currentFile.wordCount
+      }),
       ...mapState([
-        'pathname', 'filename', 'isSaved', 'windowActive', 'wordCount',
-        'typewriter', 'focus', 'sourceCode', 'markdown', 'preferLooseListItem',
-        'cursor', 'theme', 'platform', 'lightColor', 'darkColor', 'fontSize', 'lineHeight', 'editorFontFamily'
+        'windowActive', 'platform'
       ])
     },
     created () {
+      console.log(this.$store)
       const { dispatch } = this.$store
-
+      // store/index.js
+      dispatch('LINTEN_WIN_STATUS')
+      // module: listenForMain
+      dispatch('LISTEN_FOR_IMAGE_PATH')
+      dispatch('LISTEN_FOR_EDIT')
+      dispatch('LISTEN_FOR_VIEW')
+      dispatch('LISTEN_FOR_ABOUT_DIALOG')
+      dispatch('LISTEN_FOR_PARAGRAPH_INLINE_STYLE')
+      // module: project
+      dispatch('LISTEN_FOR_LOAD_PROJECT')
+      // module: autoUpdates
+      dispatch('LISTEN_FOR_UPDATE')
+      // module: editor
       dispatch('ASK_FOR_USER_PREFERENCE')
       dispatch('ASK_FOR_MODE')
       dispatch('LISTEN_FOR_CLOSE')
       dispatch('LISTEN_FOR_SAVE_AS')
       dispatch('LISTEN_FOR_MOVE_TO')
-      dispatch('LINTEN_WIN_STATUS')
       dispatch('LISTEN_FOR_SAVE')
-      dispatch('GET_FILENAME')
-      dispatch('LISTEN_FOR_FILE_LOAD')
-      dispatch('LISTEN_FOR_FILE_CHANGE')
-      dispatch('LISTEN_FOR_EDIT')
-      dispatch('LISTEN_FOR_VIEW')
+      dispatch('LISTEN_FOR_SET_FILENAME')
+      dispatch('LISTEN_FOR_OPEN_SINGLE_FILE')
+      // dispatch('LISTEN_FOR_FILE_CHANGE')
       dispatch('LISTEN_FOR_EXPORT')
-      dispatch('LISTEN_FOR_PARAGRAPH_INLINE_STYLE')
-      dispatch('LISTEN_FOR_UPDATE')
       dispatch('LISTEN_FOR_INSERT_IMAGE')
-      dispatch('LISTEN_FOR_ABOUT_DIALOG')
       dispatch('LISTEN_FOR_RENAME')
-      dispatch('LISTEN_FOR_IMAGE_PATH')
       dispatch('LISTEN_FOR_FILE_SAVED_SUCCESSFULLY')
       dispatch('LINTEN_FOR_SET_LINE_ENDING')
+      // module: notification
       dispatch('LISTEN_FOR_NOTIFICATION')
-      dispatch('LISTEN_FOR_LOAD_PROJECT')
     }
   }
 </script>

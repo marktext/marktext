@@ -41,9 +41,9 @@
       }
     },
     computed: {
-      ...mapState([
-        'theme'
-      ])
+      ...mapState({
+        'theme': state => state.preferences.theme
+      })
     },
     created () {
       this.$nextTick(() => {

@@ -60,16 +60,16 @@ export const writeMarkdownFile = (pathname, content, options, win, e, quitAfterS
 }
 
 export const loadMarkdownFile = async pathname => {
-  let file = await promisify(fs.readFile)(path.resolve(pathname), 'utf-8')
+  let markdown = await promisify(fs.readFile)(path.resolve(pathname), 'utf-8')
   // Check UTF-8 BOM (EF BB BF) encoding
-  const isUtf8BomEncoded = file.length >= 1 && file.charCodeAt(0) === 0xFEFF
+  const isUtf8BomEncoded = markdown.length >= 1 && markdown.charCodeAt(0) === 0xFEFF
   if (isUtf8BomEncoded) {
-    file = file.slice(1)
+    markdown = markdown.slice(1)
   }
 
   // Detect line ending
-  const isLf = LF_LINE_ENDING_REG.test(file)
-  const isCrlf = CRLF_LINE_ENDING_REG.test(file)
+  const isLf = LF_LINE_ENDING_REG.test(markdown)
+  const isCrlf = CRLF_LINE_ENDING_REG.test(markdown)
   const isMixed = isLf && isCrlf
   const isUnknownEnding = !isLf && !isCrlf
   let lineEnding = getOsLineEndingName()
@@ -83,13 +83,13 @@ export const loadMarkdownFile = async pathname => {
   if (isMixed || isUnknownEnding || lineEnding !== 'lf') {
     adjustLineEndingOnSave = lineEnding !== 'lf'
     // Convert to LF for internal use.
-    file = convertLineEndings(file, 'lf')
+    markdown = convertLineEndings(markdown, 'lf')
   }
 
   const filename = path.basename(pathname)
 
   return {
-    file,
+    markdown,
     filename,
     pathname,
     isUtf8BomEncoded,

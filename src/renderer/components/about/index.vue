@@ -37,10 +37,10 @@
       }
     },
     computed: {
-      ...mapState([
-        'appVersion',
-        'theme'
-      ])
+      ...mapState({
+        'appVersion': state => state.appVersion,
+        'theme': state => state.preferences.theme
+      })
     },
     created () {
       bus.$on('aboutDialog', this.showDialog)

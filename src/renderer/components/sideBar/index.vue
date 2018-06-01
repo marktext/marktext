@@ -23,6 +23,7 @@
     <div class="right-column" v-show="rightColumn">
       <tree
         :project-tree="projectTree"
+        :file-list="fileList"
         :opened-files="openedFiles"
         v-if="rightColumn === 'files'"
       ></tree>
@@ -42,7 +43,7 @@
   import Tree from './tree.vue'
   import SideBarSearch from './search.vue'
   import Toc from './toc.vue'
-  import { mapState } from 'vuex'
+  import { mapState, mapGetters } from 'vuex'
 
   export default {
     data () {
@@ -59,7 +60,11 @@
       Toc
     },
     computed: {
-      ...mapState(['projectTree', 'sideBarWidth'])
+      ...mapState({
+        'projectTree': state => state.project.projectTree,
+        'sideBarWidth': state => state.project.sideBarWidth
+      }),
+      ...mapGetters(['fileList'])
     },
     created () {
       this.$nextTick(() => {

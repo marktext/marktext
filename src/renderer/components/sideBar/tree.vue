@@ -73,21 +73,8 @@
     },
     props: {
       projectTree: Object,
+      fileList: Array,
       openedFiles: Array
-    },
-    computed: {
-      fileList () {
-        const files = []
-        const travel = folder => {
-          files.push(...folder.files.filter(f => f.isMarkdown))
-          for (const childFolder of folder.folders) {
-            travel(childFolder)
-          }
-        }
-
-        travel(this.projectTree)
-        return files.sort()
-      }
     },
     components: {
       Folder,

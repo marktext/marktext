@@ -64,7 +64,7 @@ class AppWindow {
         loadMarkdownFile(pathname)
           .then(data => {
             const {
-              file,
+              markdown,
               filename,
               pathname,
               isUtf8BomEncoded,
@@ -73,8 +73,8 @@ class AppWindow {
               isMixed
             } = data
 
-            win.webContents.send('AGANI::file-loaded', {
-              file,
+            win.webContents.send('AGANI::open-single-file', {
+              markdown,
               filename,
               pathname,
               options: {

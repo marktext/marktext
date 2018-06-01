@@ -1,5 +1,6 @@
 <template>
   <div
+    :title="file.pathname"
     class="side-bar-file"
     :style="{'padding-left': `${depth * 5 + 15}px`, 'opacity': file.isMarkdown ? 1 : 0.75 }"
   >

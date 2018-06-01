@@ -123,7 +123,9 @@
       }
     },
     computed: {
-      ...mapState(['searchMatches']),
+      ...mapState({
+        'searchMatches': state => state.editor.currentFile.searchMatches
+      }),
       highlightIndex () {
         if (this.searchMatches) {
           return this.searchMatches.index

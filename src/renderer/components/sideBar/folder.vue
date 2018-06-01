@@ -2,15 +2,18 @@
   <div
     class="side-bar-folder"
   >
-    <div class="folder-name" @click="folderNameClick"
+    <div
+      class="folder-name" @click="folderNameClick"
       :style="{'padding-left': `${depth * 5 + 15}px`}"
+      :title="folder.pathname"
     >
       <svg class="icon" aria-hidden="true">
         <use :xlink:href="`#${folder.isCollapsed ? 'icon-folder-close' : 'icon-folder-open'}`"></use>
       </svg>
       <span>{{folder.name}}</span>
     </div>
-    <div class="folder-contents"
+    <div 
+      class="folder-contents"
       v-show="!folder.isCollapsed"
     >
       <folder
