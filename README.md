@@ -89,6 +89,7 @@
   <a href="https://github.com/marktext/marktext/graphs/contributors">
     contributors
   </a>
+  </sub>
 </div>
 
 <br />
