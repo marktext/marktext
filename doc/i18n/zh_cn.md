@@ -85,10 +85,11 @@
 
 <div align="center">
   <sub>This Markdown editor that could. Built with ❤︎ by
-  <a href="https://github.com/Jocs">Jocs</a> and
-  <a href="https://github.com/marktext/marktext/graphs/contributors">
-    contributors
-  </a>
+    <a href="https://github.com/Jocs">Jocs</a> and
+    <a href="https://github.com/marktext/marktext/graphs/contributors">
+      contributors
+    </a>
+  </sub>
 </div>
 
 <br />

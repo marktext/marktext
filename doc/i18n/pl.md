@@ -81,10 +81,11 @@
 
 <div align="center">
   <sub>Edytor Markdown, który potrafi. Zbudowany z ❤︎ przez
-  <a href="https://github.com/Jocs">Jocs</a> i
-  <a href="https://github.com/marktext/marktext/graphs/contributors">
-    innych
-  </a>
+    <a href="https://github.com/Jocs">Jocs</a> i
+    <a href="https://github.com/marktext/marktext/graphs/contributors">
+      innych
+    </a>
+  </sub>
 </div>
 
 <br />
