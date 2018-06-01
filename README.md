@@ -131,13 +131,15 @@
 |:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
 | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-0.11.42.dmg.svg)](https://github.com/marktext/marktext/releases/download/v0.11.42/marktext-0.11.42.dmg) | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-setup-0.11.42.exe.svg)](https://github.com/marktext/marktext/releases/download/v0.11.42/marktext-setup-0.11.42.exe) | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-0.11.42-x86_64.AppImage.svg)](https://github.com/marktext/marktext/releases/download/v0.11.42/marktext-0.11.42-x86_64.AppImage) |
 
-Did not found your system? Go the the [release page](https://github.com/marktext/marktext/releases). Still not found? Open an [issue](https://github.com/marktext/marktext/issues).
+Can't find your system? Go the the [release page](https://github.com/marktext/marktext/releases). Still can't find? Open an [issue](https://github.com/marktext/marktext/issues).
 
 Want to see new features in this version? Refer to [CHANGELOG](https://github.com/marktext/marktext/blob/master/.github/CHANGELOG.md)
 
 If you use OS X system, you can install Mark Text by [**homebrew cask**](https://github.com/caskroom/homebrew-cask), to start using Homebrew-Cask, you just need [Homebrew](https://brew.sh/) installed.
 
-> brew cask install mark-text
+```bash
+brew cask install mark-text
+```
 
 ![](https://github.com/marktext/marktext/blob/master/doc/brew-cask.gif)
 
