@@ -124,9 +124,10 @@ export const loadProject = async pathname => {
         })
         .map(async name => {
           const fullPath = path.join(dir, name)
-
+          const stats = await promisify(fs.stat)(fullPath)
           const iFile = isFile(fullPath)
           const iDirctory = isDirectory(fullPath)
+          const birthTime = stats.birthtime
           const isMarkdown = hasMarkdownExtension(fullPath)
 
           if (iFile) {
@@ -135,6 +136,7 @@ export const loadProject = async pathname => {
               name,
               isDirctory: iDirctory,
               isFile: iFile,
+              birthTime,
               isMarkdown
             }
             if (isMarkdown) {

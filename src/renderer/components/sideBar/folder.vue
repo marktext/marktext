@@ -57,6 +57,7 @@
       cursor: default;
       user-select: none;
       height: 25px;
+      padding-right: 15px;
       & > svg {
         color: rgb(35, 124, 170);
       }

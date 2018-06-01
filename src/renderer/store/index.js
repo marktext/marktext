@@ -5,7 +5,7 @@ import editorStore from './editor'
 import aidouStore from './aidou'
 import autoUpdates from './autoUpdates'
 import notification from './notification'
-import project from './project'
+import sidebar from './sidebar'
 
 Vue.use(Vuex)
 
@@ -14,7 +14,7 @@ const storeArray = [
   aidouStore,
   autoUpdates,
   notification,
-  project
+  sidebar
 ]
 
 const { actions, mutations, state } = storeArray.reduce((acc, s) => {
