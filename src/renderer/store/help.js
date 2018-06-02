@@ -3,12 +3,13 @@ import { getUniqueId } from '../util'
 export const defaultFileState = {
   isSaved: true,
   pathname: '',
-  filename: 'Untitled - unsaved',
+  filename: 'Untitled-1',
   markdown: '',
   isUtf8BomEncoded: false,
   lineEnding: 'lf', // lf or crlf
   adjustLineEndingOnSave: false,
-  cursor: {},
+  history: null,
+  cursor: null,
   wordCount: {
     paragraph: 0,
     word: 0,
@@ -25,6 +26,47 @@ export const defaultFileState = {
 export const getOptionsFromState = state => {
   const { isUtf8BomEncoded, lineEnding, adjustLineEndingOnSave } = state.currentFile
   return { isUtf8BomEncoded, lineEnding, adjustLineEndingOnSave }
+}
+
+export const getFileStateFromData = data => {
+  const fileState = JSON.parse(JSON.stringify(defaultFileState))
+  const {
+    markdown,
+    filename,
+    pathname,
+    isUtf8BomEncoded,
+    lineEnding,
+    adjustLineEndingOnSave
+  } = data
+  const id = getUniqueId()
+
+  return Object.assign(fileState, {
+    id,
+    markdown,
+    filename,
+    pathname,
+    isUtf8BomEncoded,
+    lineEnding,
+    adjustLineEndingOnSave
+  })
+}
+
+export const getBlankFileState = (tabs, lineEnding) => {
+  const fileState = JSON.parse(JSON.stringify(defaultFileState))
+  const untitleId = Math.max(...tabs.map(f => {
+    if (f.pathname === '') {
+      return +f.filename.split('-')[1]
+    } else {
+      return 0
+    }
+  }), 1)
+  const id = getUniqueId()
+
+  return Object.assign(fileState, {
+    lineEnding,
+    id,
+    filename: `Untitled-${untitleId}`
+  })
 }
 
 export const getSingleFileState = ({ id = getUniqueId(), markdown, filename, pathname, options }) => {

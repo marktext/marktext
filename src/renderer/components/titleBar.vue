@@ -191,7 +191,6 @@
     height: 100%;
     line-height: 22px;
     font-size: 12px;
-    font-weight: 500;
     text-align: center;
     transition: all .25s ease-in-out;
   }

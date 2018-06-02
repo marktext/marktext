@@ -29,7 +29,9 @@
         required: true
       },
       cursor: {
-        type: Object,
+        validator (value) {
+          return typeof value === 'object'
+        },
         required: true
       },
       sourceCode: {

@@ -11,7 +11,11 @@
     ></title-bar>
     <div class="editor-middle">
       <side-bar></side-bar>
+      <recent
+        v-if="!hasCurrentFile"
+      ></recent>
       <editor-with-tabs
+        v-else
         :markdown="markdown"
         :cursor="cursor"
         :theme="theme"
@@ -31,6 +35,7 @@
 </template>
 
 <script>
+  import Recent from '@/components/recent'
   import EditorWithTabs from '@/components/editorWithTabs'
   import TitleBar from '@/components/titleBar'
   import SideBar from '@/components/sideBar'
@@ -46,6 +51,7 @@
     name: 'marktext',
     components: {
       Aidou,
+      Recent,
       EditorWithTabs,
       TitleBar,
       SideBar,
@@ -73,7 +79,10 @@
       }),
       ...mapState([
         'windowActive', 'platform'
-      ])
+      ]),
+      hasCurrentFile () {
+        return this.markdown !== undefined
+      }
     },
     created () {
       console.log(this.$store)
@@ -99,6 +108,7 @@
       dispatch('LISTEN_FOR_SAVE')
       dispatch('LISTEN_FOR_SET_FILENAME')
       dispatch('LISTEN_FOR_OPEN_SINGLE_FILE')
+      dispatch('LISTEN_FOR_OPEN_BLANK_WINDOW')
       // dispatch('LISTEN_FOR_FILE_CHANGE')
       dispatch('LISTEN_FOR_EXPORT')
       dispatch('LISTEN_FOR_INSERT_IMAGE')

@@ -1,10 +1,10 @@
 import { ipcRenderer } from 'electron'
 import path from 'path'
 import bus from '../bus'
-import { getOptionsFromState, getSingleFileState, defaultFileState } from './help'
+import { getOptionsFromState, getSingleFileState, getBlankFileState } from './help'
 
 const state = {
-  currentFile: defaultFileState,
+  currentFile: {},
   tabs: []
 }
 
@@ -16,7 +16,12 @@ const mutations = {
     state.currentFile.searchMatches = value
   },
   SET_CURRENT_FILE (state, currentFile) {
-    state.currentFile = currentFile
+    const oldCurrentFile = state.currentFile
+    if (!oldCurrentFile.id || oldCurrentFile.id !== currentFile.id) {
+      const { markdown, cursor, history } = currentFile
+      bus.$emit('file-changed', { markdown, cursor, renderCursor: true, history })
+      state.currentFile = currentFile
+    }
   },
   ADD_FILE_TO_TABS (state, currentFile) {
     state.tabs.push(currentFile)
@@ -48,6 +53,9 @@ const mutations = {
   },
   SET_CURSOR (state, cursor) {
     state.currentFile.cursor = cursor
+  },
+  SET_HISTORY (state, history) {
+    state.currentFile.history = history
   }
 }
 
@@ -157,12 +165,19 @@ const actions = {
 
   LISTEN_FOR_OPEN_SINGLE_FILE ({ commit, state, dispatch }) {
     ipcRenderer.on('AGANI::open-single-file', (e, { markdown, filename, pathname, options }) => {
-      const fileStates = getSingleFileState({ markdown, filename, pathname, options })
-      const { lineEnding } = options
-      dispatch('UPDATE_CURRENT_FILE', fileStates)
-
+      const fileState = getSingleFileState({ markdown, filename, pathname, options })
+      dispatch('UPDATE_CURRENT_FILE', fileState)
       bus.$emit('file-loaded', markdown)
-      ipcRenderer.send('AGANI::update-line-ending-menu', lineEnding)
+    })
+  },
+
+  LISTEN_FOR_OPEN_BLANK_WINDOW ({ commit, state, dispatch }) {
+    ipcRenderer.on('AGANI::open-blank-window', (e, { lineEnding }) => {
+      const { tabs } = state
+      const fileState = getBlankFileState(tabs, lineEnding)
+      const { markdown } = fileState
+      dispatch('UPDATE_CURRENT_FILE', fileState)
+      bus.$emit('file-loaded', markdown)
     })
   },
 
@@ -180,7 +195,7 @@ const actions = {
   // },
 
   // Content change from realtime preview editor and source code editor
-  LISTEN_FOR_CONTENT_CHANGE ({ commit, state, rootState }, { markdown, wordCount, cursor }) {
+  LISTEN_FOR_CONTENT_CHANGE ({ commit, state, rootState }, { markdown, wordCount, cursor, history }) {
     const { autoSave } = rootState.preferences
     const { pathname, markdown: oldMarkdown } = state.currentFile
     const options = getOptionsFromState(state)
@@ -189,6 +204,8 @@ const actions = {
     if (wordCount) commit('SET_WORD_COUNT', wordCount)
     // set cursor
     if (cursor) commit('SET_CURSOR', cursor)
+    // set history
+    if (history) commit('SET_HISTORY', history)
     // change save status/save to file only when the markdown changed!
     if (markdown !== oldMarkdown) {
       if (pathname && autoSave) {

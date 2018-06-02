@@ -59,6 +59,7 @@ class AppWindow {
       mainWindowState.manage(win)
       win.show()
 
+      // open single mrkdown file
       if (pathname && isMarkdownFile(pathname)) {
         appMenu.addRecentlyUsedDocument(pathname)
         loadMarkdownFile(pathname)
@@ -73,6 +74,7 @@ class AppWindow {
               isMixed
             } = data
 
+            appMenu.updateLineEndingnMenu(lineEnding)
             win.webContents.send('AGANI::open-single-file', {
               markdown,
               filename,
@@ -93,16 +95,18 @@ class AppWindow {
             }
           })
           .catch(log)
+        // open directory / folder
       } else if (pathname && isDirectory(pathname)) {
         try {
           const projectTree = await loadProject(pathname)
-          win.webContents.send('AGANI::project-loaded', projectTree)
+          win.webContents.send('AGANI::open-project', projectTree)
         } catch (err) {
           log(err)
         }
+        // open a window but do not open a file or directory
       } else {
         const lineEnding = getOsLineEndingName()
-        win.webContents.send('AGANI::set-line-ending', {
+        win.webContents.send('AGANI::open-blank-window', {
           lineEnding,
           ignoreSaveStatus: true
         })

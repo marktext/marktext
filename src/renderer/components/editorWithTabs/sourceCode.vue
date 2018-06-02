@@ -81,7 +81,7 @@
       bus.$off('file-loaded', this.setMarkdown)
       bus.$off('dotu-select', this.handleSelectDoutu)
       const { markdown, cursor } = this
-      bus.$emit('content-in-source-mode', { markdown, cursor, renderCursor: true })
+      bus.$emit('file-changed', { markdown, cursor, renderCursor: true })
     },
     methods: {
       handleSelectDoutu (url) {

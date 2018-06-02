@@ -37,7 +37,7 @@ const mutations = {
 
 const actions = {
   LISTEN_FOR_LOAD_PROJECT ({ commit }) {
-    ipcRenderer.on('AGANI::project-loaded', (e, tree) => {
+    ipcRenderer.on('AGANI::open-project', (e, tree) => {
       const travel = folder => {
         folder.id = getUniqueId()
         if (Array.isArray(folder.files) && folder.files.length) {

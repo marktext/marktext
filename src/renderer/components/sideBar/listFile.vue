@@ -9,7 +9,7 @@
         <span class="birth-time">{{ new Date(file.birthTime).toLocaleString().split(/\s/)[0] }}</span>
       </div>
       <div class="content">
-        {{ file.data.file.substring(0, 50) }}
+        {{ file.data.markdown.substring(0, 50) }}
       </div>
     </div>
 </template>

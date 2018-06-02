@@ -202,7 +202,7 @@
         bus.$on('replaceValue', this.handReplace)
         bus.$on('find', this.handleFind)
         bus.$on('insert-image', this.handleSelect)
-        bus.$on('content-in-source-mode', this.handleMarkdownChange)
+        bus.$on('file-changed', this.handleMarkdownChange)
         bus.$on('editor-blur', this.blurEditor)
         bus.$on('image-auto-path', this.handleImagePath)
         bus.$on('copyAsMarkdown', this.handleCopyPaste)
@@ -224,8 +224,8 @@
           this.$store.dispatch('ASK_FOR_IMAGE_AUTO_PATH', src)
         })
 
-        this.editor.on('change', (markdown, wordCount, cursor) => {
-          this.$store.dispatch('LISTEN_FOR_CONTENT_CHANGE', { markdown, wordCount, cursor })
+        this.editor.on('change', changes => {
+          this.$store.dispatch('LISTEN_FOR_CONTENT_CHANGE', changes)
         })
 
         this.editor.on('selectionChange', changes => {
@@ -380,9 +380,13 @@
         }
       },
 
-      // listen for markdown change form source mode
-      handleMarkdownChange ({ markdown, cursor, renderCursor }) {
-        this.editor && this.editor.setMarkdown(markdown, cursor, renderCursor)
+      // listen for markdown change form source mode or change tabs etc
+      handleMarkdownChange ({ markdown, cursor, renderCursor, history }) {
+        const { editor } = this
+        if (editor) {
+          this.editor.setMarkdown(markdown, cursor, renderCursor)
+          if (history) editor.setHistory(history)
+        }
       },
 
       handleInsertParagraph (location) {
