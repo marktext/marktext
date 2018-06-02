@@ -19,12 +19,27 @@ const mutations = {
     const oldCurrentFile = state.currentFile
     if (!oldCurrentFile.id || oldCurrentFile.id !== currentFile.id) {
       const { markdown, cursor, history } = currentFile
-      bus.$emit('file-changed', { markdown, cursor, renderCursor: true, history })
+      // set state first, then emit file changed event
       state.currentFile = currentFile
+      bus.$emit('file-changed', { markdown, cursor, renderCursor: true, history })
     }
   },
   ADD_FILE_TO_TABS (state, currentFile) {
     state.tabs.push(currentFile)
+  },
+  REMOVE_FILE_WITHIN_TABS (state, file) {
+    const { tabs, currentFile } = state
+    const index = tabs.indexOf(file)
+    tabs.splice(index, 1)
+    state.tabs = tabs
+    if (file.id === currentFile.id) {
+      const fileState = state.tabs[index] || state.tabs[index - 1] || {}
+      state.currentFile = fileState
+      if (typeof fileState.markdown === 'string') {
+        const { markdown, cursor, history } = fileState
+        bus.$emit('file-changed', { markdown, cursor, renderCursor: true, history })
+      }
+    }
   },
   SET_FILENAME (state, filename) {
     state.currentFile.filename = filename
@@ -74,6 +89,10 @@ const actions = {
 
   SEARCH ({ commit }, value) {
     commit('SET_SEARCH', value)
+  },
+
+  REMOVE_FILE_IN_TABS ({ commit }, file) {
+    commit('REMOVE_FILE_WITHIN_TABS', file)
   },
 
   // need update line ending when change between windows.

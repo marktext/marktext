@@ -27,6 +27,11 @@
         </svg>
         <span>Opened files</span>
       </div>
+      <opened-file
+        v-for="(tab, index) of tabs"
+        :key="index"
+        :file="tab"
+      ></opened-file>
     </div>
     <!-- project tree view -->
     <div class="project-tree">
@@ -63,23 +68,26 @@
   import Folder from './folder.vue'
   import File from './file.vue'
   import ListFile from './listFile.vue'
+  import OpenedFile from './openedFile.vue'
 
   export default {
     data () {
       this.depth = 0
       return {
-        active: 'tree'
+        active: 'list' // tree or list
       }
     },
     props: {
       projectTree: Object,
       fileList: Array,
-      openedFiles: Array
+      openedFiles: Array,
+      tabs: Array
     },
     components: {
       Folder,
       File,
-      ListFile
+      ListFile,
+      OpenedFile
     },
     methods: {
       titleIconClick (active) {

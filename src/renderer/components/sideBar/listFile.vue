@@ -1,5 +1,9 @@
 <template>
-    <div class="side-bar-list-file">
+    <div
+      class="side-bar-list-file"
+      @click="handleFileClick"
+      :class="{ 'active': file.pathname === currentFile.pathname }"
+    >
       <div class="title">
         <span class="filename">{{ filename }}</span>
         <span>{{ extension }}</span>
@@ -15,7 +19,11 @@
 </template>
 
 <script>
+  import { mapState } from 'vuex'
+  import { fileMixins } from '../../mixins'
+
   export default {
+    mixins: [fileMixins],
     props: {
       file: {
         type: Object,
@@ -23,6 +31,10 @@
       }
     },
     computed: {
+      ...mapState({
+        tabs: state => state.editor.tabs,
+        currentFile: state => state.editor.currentFile
+      }),
       filename () {
         return this.file.name.split('.')[0]
       },
@@ -38,6 +50,7 @@
 
 <style scoped>
   .side-bar-list-file {
+    border-left: 3px solid transparent;
     user-select: none;
     padding: 10px 20px;
     color: var(--secondaryColor);
@@ -49,6 +62,9 @@
     &:hover {
       background: var(--extraLightBorder);
     }
+  }
+  .side-bar-list-file.active {
+    border-color: var(--brandColor);
   }
   .folder-date {
     margin-top: 5px;

@@ -16,10 +16,10 @@
 <script>
   import FileIcon from './icon.vue'
   import { mapState } from 'vuex'
-  import { getFileStateFromData } from '../../store/help.js'
-  import { message } from '../../notice'
+  import { fileMixins } from '../../mixins'
 
   export default {
+    mixins: [fileMixins],
     name: 'file',
     props: {
       file: {
@@ -36,22 +36,9 @@
     },
     computed: {
       ...mapState({
-        'currentFile': state => state.editor.currentFile
+        'currentFile': state => state.editor.currentFile,
+        'tabs': state => state.editor.tabs
       })
-    },
-    methods: {
-      handleFileClick () {
-        const { data, isMarkdown } = this.file
-        if (!isMarkdown) return
-        const { isMixed, filename, lineEnding } = data
-        const fileState = getFileStateFromData(data)
-
-        this.$store.dispatch('UPDATE_CURRENT_FILE', fileState)
-
-        if (isMixed) {
-          message(`${filename} has mixed line endings which are automatically normalized to ${lineEnding.toUpperCase()}.`, 20000)
-        }
-      }
     }
   }
 </script>
@@ -60,7 +47,7 @@
   .side-bar-file {
     cursor: default;
     user-select: none;
-    height: 25px;
+    height: 28px;
     border-left: 3px solid transparent;
     box-sizing: border-box;
     padding-right: 15px;

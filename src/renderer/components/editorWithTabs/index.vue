@@ -1,5 +1,6 @@
 <template>
     <div class="editor-with-tabs">
+      <tabs></tabs>
       <editor
         :theme="theme"
         :markdown="markdown"
@@ -15,6 +16,7 @@
 </template>
 
 <script>
+  import Tabs from './tabs.vue'
   import Editor from './editor.vue'
   import SourceCode from './sourceCode.vue'
 
@@ -40,6 +42,7 @@
       }
     },
     components: {
+      Tabs,
       Editor,
       SourceCode
     }

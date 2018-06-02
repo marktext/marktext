@@ -25,6 +25,7 @@
         :project-tree="projectTree"
         :file-list="fileList"
         :opened-files="openedFiles"
+        :tabs="tabs"
         v-if="rightColumn === 'files'"
       ></tree>
       <side-bar-search
@@ -62,7 +63,8 @@
     computed: {
       ...mapState({
         'projectTree': state => state.project.projectTree,
-        'sideBarWidth': state => state.project.sideBarWidth
+        'sideBarWidth': state => state.project.sideBarWidth,
+        'tabs': state => state.editor.tabs
       }),
       ...mapGetters(['fileList'])
     },

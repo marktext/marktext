@@ -480,8 +480,8 @@ class Aganippe {
     return this.contentState.getHistory()
   }
 
-  setHistory () {
-    return this.contentState.setHistory()
+  setHistory (history) {
+    return this.contentState.setHistory(history)
   }
 
   async exportStyledHTML () {
