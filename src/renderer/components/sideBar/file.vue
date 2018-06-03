@@ -4,7 +4,8 @@
     class="side-bar-file"
     :style="{'padding-left': `${depth * 5 + 15}px`, 'opacity': file.isMarkdown ? 1 : 0.75 }"
     @click="handleFileClick()"
-    :class="{'current': currentFile.pathname === file.pathname}"
+    :class="{'current': currentFile.pathname === file.pathname, 'active': file.id === activeId }"
+    ref="file"
   >
     <file-icon
       :name="file.name"
@@ -17,6 +18,7 @@
   import FileIcon from './icon.vue'
   import { mapState } from 'vuex'
   import { fileMixins } from '../../mixins'
+  import { showContextMenu } from '../../contextMenu/sideBar'
 
   export default {
     mixins: [fileMixins],
@@ -36,8 +38,19 @@
     },
     computed: {
       ...mapState({
+        'activeId': state => state.project.activeId,
+        'clipboard': state => state.project.clipboard,
         'currentFile': state => state.editor.currentFile,
         'tabs': state => state.editor.tabs
+      })
+    },
+    created () {
+      this.$nextTick(() => {
+        this.$refs.file.addEventListener('contextmenu', event => {
+          event.preventDefault()
+          this.$store.dispatch('CHANGE_ACTIVE_ID', this.file.id)
+          showContextMenu(event, !!this.clipboard)
+        })
       })
     }
   }
@@ -58,5 +71,8 @@
   .side-bar-file.current {
     color: var(--brandColor);
     border-left-color: var(--brandColor);
+  }
+  .side-bar-file.active {
+    background: var(--lightBorder);
   }
 </style>

@@ -64,7 +64,7 @@
   import Aganippe from '../../../editor'
   import bus from '../../bus'
   import { animatedScrollTo } from '../../util'
-  import { showContextMenu } from '../../contextMenu'
+  import { showContextMenu } from '../../contextMenu/editor'
 
   const STANDAR_Y = 320
   const PARAGRAPH_CMD = [

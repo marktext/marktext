@@ -5,6 +5,7 @@
     <div
       class="folder-name" @click="folderNameClick"
       :style="{'padding-left': `${depth * 5 + 15}px`}"
+      :class="{ 'active': folder.id === activeId }"
       :title="folder.pathname"
     >
       <svg class="icon" aria-hidden="true">
@@ -31,6 +32,8 @@
 </template>
 
 <script>
+  import { mapState } from 'vuex'
+
   export default {
     name: 'folder',
     props: {
@@ -45,6 +48,12 @@
     },
     components: {
       File: () => import('./file.vue')
+    },
+    computed: {
+      ...mapState({
+        'activeId': state => state.project.activeId,
+        'clipboard': state => state.project.clipboard
+      })
     },
     methods: {
       folderNameClick () {

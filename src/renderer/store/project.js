@@ -6,6 +6,8 @@ const sideBarWidth = typeof +width === 'number' ? Math.max(+width, 180) : 280
 
 const state = {
   sideBarWidth,
+  activeId: null,
+  clipboard: null,
   projectTree: null
 }
 
@@ -59,6 +61,12 @@ const mutations = {
   UNLINK_DIRECTORY (state, change) {
     const { projectTree } = state
     unlinkDirectory(projectTree, change)
+  },
+  SET_ACTIVE_ID (state, id) {
+    state.activeId = id
+  },
+  SET_CLIPBOARD (state, data) {
+    state.clipboard = data
   }
 }
 
@@ -97,6 +105,12 @@ const actions = {
   },
   CHANGE_SIDE_BAR_WIDTH ({ commit }, width) {
     commit('SET_SIDE_BAR_WIDTH', width)
+  },
+  CHANGE_ACTIVE_ID ({ commit }, id) {
+    commit('SET_ACTIVE_ID', id)
+  },
+  CHANGE_CLIPBOARD ({ commit }, data) {
+    commit('SET_CLIPBOARD', data)
   }
 }
 
