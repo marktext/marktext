@@ -96,6 +96,7 @@
       dispatch('LISTEN_FOR_ABOUT_DIALOG')
       dispatch('LISTEN_FOR_PARAGRAPH_INLINE_STYLE')
       // module: project
+      dispatch('LISTEN_FOR_UPDATE_PROJECT')
       dispatch('LISTEN_FOR_LOAD_PROJECT')
       // module: autoUpdates
       dispatch('LISTEN_FOR_UPDATE')

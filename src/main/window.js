@@ -1,7 +1,9 @@
+import path from 'path'
 import { app, BrowserWindow, screen } from 'electron'
 import windowStateKeeper from 'electron-window-state'
 import { getOsLineEndingName, loadMarkdownFile, loadProject } from './utils/filesystem'
 import appMenu from './menu'
+import Watcher from './watcher'
 import { isMarkdownFile, isDirectory, log } from './utils'
 import { TITLE_BAR_HEIGHT, defaultWinOptions, isLinux } from './config'
 
@@ -9,6 +11,7 @@ class AppWindow {
   constructor () {
     this.focusedWindowId = -1
     this.windows = new Map()
+    this.watcher = new Watcher()
   }
 
   ensureWindowPosition (mainWindowState) {
@@ -55,6 +58,8 @@ class AppWindow {
     const winOpt = Object.assign({ x, y, width, height }, defaultWinOptions, options)
     const win = new BrowserWindow(winOpt)
 
+    let unwatcher
+
     win.once('ready-to-show', async () => {
       mainWindowState.manage(win)
       win.show()
@@ -97,9 +102,13 @@ class AppWindow {
           .catch(log)
         // open directory / folder
       } else if (pathname && isDirectory(pathname)) {
+        unwatcher = this.watcher.watch(win, pathname)
         try {
-          const projectTree = await loadProject(pathname)
-          win.webContents.send('AGANI::open-project', projectTree)
+          const tree = await loadProject(pathname)
+          win.webContents.send('AGANI::open-project', {
+            projectName: path.basename(pathname),
+            tree
+          })
         } catch (err) {
           log(err)
         }
@@ -139,7 +148,10 @@ class AppWindow {
     win.loadURL(winURL)
     win.setSheetOffset(TITLE_BAR_HEIGHT) // 21 is the title bar height
 
-    windows.set(win.id, win)
+    windows.set(win.id, {
+      win,
+      unwatcher
+    })
     return win
   }
 
@@ -147,12 +159,18 @@ class AppWindow {
     if (!win) return
     const { windows } = this
     if (windows.has(win.id)) {
+      const { unwatcher } = windows.get(win.id)
+      unwatcher && unwatcher()
       windows.delete(win.id)
     }
     win.destroy() // if use win.close(), it will cause a endless loop.
     if (windows.size === 0) {
       app.quit()
     }
+  }
+
+  clear () {
+    this.watcher.clear()
   }
 }
 
