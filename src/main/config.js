@@ -39,11 +39,11 @@ export const IMAGE_EXTENSIONS = [
   'webp'
 ]
 
-export const PROJECT_BLACK_LIST = [
-  'node_modules',
-  '.git',
-  '.DS_Store'
-]
+// export const PROJECT_BLACK_LIST = [
+//   'node_modules',
+//   '.git',
+//   '.DS_Store'
+// ]
 
 export const BLACK_LIST = [
   '$RECYCLE.BIN'

@@ -1,4 +1,5 @@
 import path from 'path'
+import { getUniqueId } from '../util'
 
 const getPathArr = (projectName, pathname) => {
   let [prePath, partPath] = pathname.split(projectName)
@@ -20,6 +21,7 @@ export const addFile = (tree, file) => {
     let childFolder = folders.find(f => f.name === token)
     if (!childFolder) {
       childFolder = {
+        id: getUniqueId(),
         pathname: `${prePath}/${token}`,
         name: token,
         isCollapsed: true,
@@ -37,6 +39,7 @@ export const addFile = (tree, file) => {
   }
 
   if (!folder.files.find(f => f.name === name)) {
+    file.id = getUniqueId()
     folder.files.push(file)
   }
 }
@@ -49,6 +52,7 @@ export const addDirectory = (tree, dir) => {
     let childFolder = folders.find(f => f.name === token)
     if (!childFolder) {
       childFolder = {
+        id: getUniqueId(),
         pathname: `${prePath}/${token}`,
         name: token,
         isCollapsed: true,

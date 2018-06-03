@@ -26,7 +26,7 @@
         :file-list="fileList"
         :opened-files="openedFiles"
         :tabs="tabs"
-        v-if="rightColumn === 'files'"
+        v-if="rightColumn === 'files' && projectTree"
       ></tree>
       <side-bar-search
         v-else-if="rightColumn === 'search'"

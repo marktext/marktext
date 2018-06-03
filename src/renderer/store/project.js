@@ -1,14 +1,12 @@
 import { ipcRenderer } from 'electron'
-import { getUniqueId } from '../util'
 import { addFile, unlinkFile, changeFile, addDirectory, unlinkDirectory } from './treeCtrl'
 
 const width = localStorage.getItem('side-bar-width')
 const sideBarWidth = typeof +width === 'number' ? Math.max(+width, 180) : 280
 
 const state = {
-  projectName: '',
   sideBarWidth,
-  projectTree: JSON.parse(localStorage.getItem('tree'))
+  projectTree: null
 }
 
 const getters = {
@@ -27,10 +25,16 @@ const getters = {
 }
 
 const mutations = {
-  SET_PROJECT_TREE (state, { projectName, tree }) {
-    localStorage.setItem('tree', JSON.stringify(tree))
-    state.projectTree = tree
-    state.projectName = projectName
+  SET_PROJECT_TREE (state, { pathname, name }) {
+    state.projectTree = {
+      pathname,
+      name,
+      isDirctory: true,
+      isFile: false,
+      isMarkdown: false,
+      folders: [],
+      files: []
+    }
   },
   SET_SIDE_BAR_WIDTH (state, width) {
     localStorage.setItem('side-bar-width', Math.max(+width, 180))
@@ -60,23 +64,8 @@ const mutations = {
 
 const actions = {
   LISTEN_FOR_LOAD_PROJECT ({ commit }) {
-    ipcRenderer.on('AGANI::open-project', (e, { projectName, tree }) => {
-      const travel = folder => {
-        folder.id = getUniqueId()
-        if (Array.isArray(folder.files) && folder.files.length) {
-          folder.files.forEach(file => {
-            file.id = getUniqueId()
-          })
-        }
-        if (Array.isArray(folder.folders) && folder.folders.length) {
-          folder.folders.forEach(childFolder => {
-            travel(childFolder)
-          })
-        }
-      }
-      travel(tree)
-
-      commit('SET_PROJECT_TREE', { projectName, tree })
+    ipcRenderer.on('AGANI::open-project', (e, { pathname, name }) => {
+      commit('SET_PROJECT_TREE', { pathname, name })
     })
   },
   LISTEN_FOR_UPDATE_PROJECT ({ commit }) {

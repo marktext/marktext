@@ -88,7 +88,7 @@ class Watcher {
     const id = getUniqueId()
     const watcher = chokidar.watch(dir, {
       ignored: /node_modules|\.git/,
-      ignoreInitial: true,
+      ignoreInitial: false,
       persistent: true
     })
 

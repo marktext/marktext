@@ -1,7 +1,7 @@
 import path from 'path'
 import { app, BrowserWindow, screen } from 'electron'
 import windowStateKeeper from 'electron-window-state'
-import { getOsLineEndingName, loadMarkdownFile, loadProject } from './utils/filesystem'
+import { getOsLineEndingName, loadMarkdownFile } from './utils/filesystem'
 import appMenu from './menu'
 import Watcher from './watcher'
 import { isMarkdownFile, isDirectory, log } from './utils'
@@ -104,10 +104,10 @@ class AppWindow {
       } else if (pathname && isDirectory(pathname)) {
         unwatcher = this.watcher.watch(win, pathname)
         try {
-          const tree = await loadProject(pathname)
+          // const tree = await loadProject(pathname)
           win.webContents.send('AGANI::open-project', {
-            projectName: path.basename(pathname),
-            tree
+            name: path.basename(pathname),
+            pathname
           })
         } catch (err) {
           log(err)
