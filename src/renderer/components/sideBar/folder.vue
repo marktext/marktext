@@ -5,8 +5,9 @@
     <div
       class="folder-name" @click="folderNameClick"
       :style="{'padding-left': `${depth * 5 + 15}px`}"
-      :class="{ 'active': folder.id === activeId }"
+      :class="{ 'active': folder.id === activeItem.id }"
       :title="folder.pathname"
+      ref="folder"
     >
       <svg class="icon" aria-hidden="true">
         <use :xlink:href="`#${folder.isCollapsed ? 'icon-folder-close' : 'icon-folder-open'}`"></use>
@@ -22,6 +23,14 @@
         :folder="childFolder"
         :depth="depth + 1"
       ></folder>
+      <input
+        type="text" v-if="createCache.dirname === folder.pathname"
+        class="new-input"
+        :style="{'margin-left': `${depth * 5 + 15}px` }"
+        ref="input"
+        @keydown.enter="handleInputEnter"
+        v-model="createName"
+      >
       <file
         v-for="(file, index) of folder.files" :key="index + 'file'"
         :file="file"
@@ -33,9 +42,18 @@
 
 <script>
   import { mapState } from 'vuex'
+  import { showContextMenu } from '../../contextMenu/sideBar'
+  import bus from '../../bus'
+  import { createFileOrDirectoryMixins } from '../../mixins'
 
   export default {
+    mixins: [createFileOrDirectoryMixins],
     name: 'folder',
+    data () {
+      return {
+        createName: ''
+      }
+    },
     props: {
       folder: {
         type: Object,
@@ -51,8 +69,19 @@
     },
     computed: {
       ...mapState({
-        'activeId': state => state.project.activeId,
+        'createCache': state => state.project.createCache,
+        'activeItem': state => state.project.activeItem,
         'clipboard': state => state.project.clipboard
+      })
+    },
+    created () {
+      this.$nextTick(() => {
+        this.$refs.folder.addEventListener('contextmenu', event => {
+          event.preventDefault()
+          this.$store.dispatch('CHANGE_ACTIVE_ITEM', this.folder)
+          showContextMenu(event, !!this.clipboard)
+        })
+        bus.$on('SIDEBAR::show-new-input', this.handleInputFocus)
       })
     },
     methods: {
@@ -80,5 +109,10 @@
         background: var(--extraLightBorder);
       }
     }
+  }
+  .new-input {
+    outline: none;
+    height: 18px;
+    margin: 5px 0;
   }
 </style>

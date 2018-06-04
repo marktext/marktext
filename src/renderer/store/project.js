@@ -1,12 +1,16 @@
-import { ipcRenderer } from 'electron'
+import path from 'path'
+import { ipcRenderer, shell } from 'electron'
 import { addFile, unlinkFile, changeFile, addDirectory, unlinkDirectory } from './treeCtrl'
+import bus from '../bus'
+import { create, paste } from '../util/fileSystem'
 
 const width = localStorage.getItem('side-bar-width')
 const sideBarWidth = typeof +width === 'number' ? Math.max(+width, 180) : 280
 
 const state = {
   sideBarWidth,
-  activeId: null,
+  activeItem: {},
+  createCache: {},
   clipboard: null,
   projectTree: null
 }
@@ -62,11 +66,15 @@ const mutations = {
     const { projectTree } = state
     unlinkDirectory(projectTree, change)
   },
-  SET_ACTIVE_ID (state, id) {
-    state.activeId = id
+  SET_ACTIVE_ITEM (state, activeItem) {
+    state.activeItem = activeItem
   },
   SET_CLIPBOARD (state, data) {
     state.clipboard = data
+  },
+  CREATE_PATH (state, cache) {
+    console.log(cache)
+    state.createCache = cache
   }
 }
 
@@ -90,6 +98,7 @@ const actions = {
           break
         case 'unlink':
           commit('UNLINK_FILE', change)
+          commit('SET_SAVE_STATUS_WHEN_REMOVE', change)
           break
         case 'change':
           console.log(change)
@@ -112,14 +121,55 @@ const actions = {
   CHANGE_SIDE_BAR_WIDTH ({ commit }, width) {
     commit('SET_SIDE_BAR_WIDTH', width)
   },
-  CHANGE_ACTIVE_ID ({ commit }, id) {
-    commit('SET_ACTIVE_ID', id)
+  CHANGE_ACTIVE_ITEM ({ commit }, activeItem) {
+    commit('SET_ACTIVE_ITEM', activeItem)
   },
   CHANGE_CLIPBOARD ({ commit }, data) {
     commit('SET_CLIPBOARD', data)
   },
   ASK_FOR_OPEN_PROJECT ({ commit }) {
     ipcRenderer.send('AGANI::ask-for-open-project-in-sidebar')
+  },
+  LISTEN_FOR_SIDEBAR_CONTEXT_MENU ({ commit, state }) {
+    bus.$on('SIDEBAR::show-in-folder', () => {
+      const { pathname } = state.activeItem
+      shell.showItemInFolder(pathname)
+    })
+    bus.$on('SIDEBAR::new', type => {
+      const { pathname, isDirectory } = state.activeItem
+      const dirname = isDirectory ? pathname : path.dirname(pathname)
+      commit('CREATE_PATH', { dirname, type })
+      bus.$emit('SIDEBAR::show-new-input')
+    })
+    bus.$on('SIDEBAR::remove', () => {
+      const { pathname } = state.activeItem
+      shell.moveItemToTrash(pathname)
+    })
+    bus.$on('SIDEBAR::copy-cut', type => {
+      const { pathname: src } = state.activeItem
+      commit('SET_CLIPBOARD', { type, src })
+    })
+    bus.$on('SIDEBAR::paste', () => {
+      const { clipboard } = state
+      const { pathname, isDirectory } = state.activeItem
+      const dirname = isDirectory ? pathname : path.dirname(pathname)
+      if (clipboard) {
+        clipboard.dest = dirname + '/' + path.basename(clipboard.src)
+        paste(clipboard)
+          .then(() => {
+            commit('SET_CLIPBOARD', null)
+          })
+          .catch(console.log.bind(console))
+      }
+    })
+  },
+
+  CREATE_FILE_DIRECTORY ({ commit, state }, name) {
+    const { dirname, type } = state.createCache
+    create(`${dirname}/${name}`, type)
+      .then(() => {
+        commit('CREATE_PATH', {})
+      })
   }
 }
 

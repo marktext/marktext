@@ -37,3 +37,23 @@ export const fileMixins = {
     }
   }
 }
+
+export const createFileOrDirectoryMixins = {
+  methods: {
+    handleInputFocus () {
+      this.$nextTick(() => {
+        if (this.$refs.input) {
+          this.$refs.input.focus()
+          this.createName = ''
+          if (this.folder) {
+            this.folder.isCollapsed = false
+          }
+        }
+      })
+    },
+    handleInputEnter () {
+      const { createName } = this
+      this.$store.dispatch('CREATE_FILE_DIRECTORY', createName)
+    }
+  }
+}

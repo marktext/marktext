@@ -103,6 +103,7 @@
       // module: project
       dispatch('LISTEN_FOR_UPDATE_PROJECT')
       dispatch('LISTEN_FOR_LOAD_PROJECT')
+      dispatch('LISTEN_FOR_SIDEBAR_CONTEXT_MENU')
       // module: autoUpdates
       dispatch('LISTEN_FOR_UPDATE')
       // module: editor
@@ -116,7 +117,6 @@
       dispatch('LISTEN_FOR_OPEN_SINGLE_FILE')
       dispatch('LISTEN_FOR_OPEN_BLANK_WINDOW')
       dispatch('LISTEN_FOR_SAVE_ALL_CLOSE')
-      // dispatch('LISTEN_FOR_FILE_CHANGE')
       dispatch('LISTEN_FOR_EXPORT')
       dispatch('LISTEN_FOR_INSERT_IMAGE')
       dispatch('LISTEN_FOR_RENAME')

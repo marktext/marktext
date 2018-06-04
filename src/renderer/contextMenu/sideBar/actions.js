@@ -1,19 +1,19 @@
 import bus from '../../bus'
 
 export const newFile = (menuItem, browserWindow) => {
-  bus.$emit('SIDEBAR::new-file')
+  bus.$emit('SIDEBAR::new', 'file')
 }
 
 export const newDirectory = (menuItem, browserWindow) => {
-  bus.$emit('SIDEBAR::new-directory')
+  bus.$emit('SIDEBAR::new', 'directory')
 }
 
 export const copy = (menuItem, browserWindow) => {
-  bus.$emit('SIDEBAR::copy')
+  bus.$emit('SIDEBAR::copy-cut', 'copy')
 }
 
 export const cut = (menuItem, browserWindow) => {
-  bus.$emit('SIDEBAR::cut')
+  bus.$emit('SIDEBAR::copy-cut', 'cut')
 }
 
 export const paste = (menuItem, browserWindow) => {
@@ -26,4 +26,8 @@ export const rename = (menuItem, browserWindow) => {
 
 export const remove = (menuItem, browserWindow) => {
   bus.$emit('SIDEBAR::remove')
+}
+
+export const showInFolder = (menuItem, browserWindow) => {
+  bus.$emit('SIDEBAR::show-in-folder')
 }

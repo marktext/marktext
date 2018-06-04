@@ -7,7 +7,8 @@ import {
   CUT,
   PASTE,
   RENAME,
-  DELETE
+  DELETE,
+  SHOW_IN_FOLDER
 } from './menuItems'
 
 const { Menu, MenuItem } = remote
@@ -24,7 +25,9 @@ export const showContextMenu = (event, hasPathCache) => {
     PASTE,
     SEPARATOR,
     RENAME,
-    DELETE
+    DELETE,
+    SEPARATOR,
+    SHOW_IN_FOLDER
   ]
 
   PASTE.enabled = hasPathCache

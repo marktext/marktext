@@ -57,6 +57,13 @@
           :folder="folder"
           :depth="depth"
         ></folder>
+        <input
+          type="text" class="new-input" v-show="createCache.dirname === projectTree.pathname"
+          :style="{'margin-left': `${depth * 5 + 15}px` }"
+          ref="input"
+          v-model="createName"
+          @keydown.enter="handleInputEnter"
+        >
         <file
           v-for="(file, index) of projectTree.files" :key="index + 'file'"
           :file="file"
@@ -82,12 +89,18 @@
   import File from './file.vue'
   import ListFile from './listFile.vue'
   import OpenedFile from './openedFile.vue'
+  import { mapState } from 'vuex'
+  import bus from '../../bus'
+  import { createFileOrDirectoryMixins } from '../../mixins'
 
   export default {
+    mixins: [createFileOrDirectoryMixins],
     data () {
       this.depth = 0
       return {
-        active: 'list' // tree or list
+        active: 'list', // tree or list
+        showNewInput: false,
+        createName: ''
       }
     },
     props: {
@@ -106,6 +119,16 @@
       File,
       ListFile,
       OpenedFile
+    },
+    computed: {
+      ...mapState({
+        'createCache': state => state.project.createCache
+      })
+    },
+    created () {
+      this.$nextTick(() => {
+        bus.$on('SIDEBAR::show-new-input', this.handleInputFocus)
+      })
     },
     methods: {
       titleIconClick (active) {
@@ -204,5 +227,10 @@
       text-decoration: none;
       color: var(--activeColor);
     }
+  }
+  .new-input {
+    outline: none;
+    height: 18px;
+    margin: 5px 0;
   }
 </style>

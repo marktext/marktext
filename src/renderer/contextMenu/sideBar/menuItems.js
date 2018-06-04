@@ -53,9 +53,17 @@ export const RENAME = {
 }
 
 export const DELETE = {
-  label: 'Delete',
+  label: 'Move To Trach',
   id: 'deleteMenuItem',
   click (menuItem, browserWindow) {
     contextMenu.remove()
+  }
+}
+
+export const SHOW_IN_FOLDER = {
+  label: 'Show In Folder',
+  id: 'showInFolderMenuItem',
+  click (menuItem, browserWindow) {
+    contextMenu.showInFolder()
   }
 }

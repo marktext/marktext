@@ -1,6 +1,5 @@
-import fs from 'fs'
+import fse from 'fs-extra'
 import path from 'path'
-import { promisify } from 'util'
 import { LINE_ENDING_REG, LF_LINE_ENDING_REG, CRLF_LINE_ENDING_REG, isWindows } from '../config'
 import userPreference from '../preference'
 
@@ -32,12 +31,7 @@ export const writeFile = (pathname, content, extension) => {
   }
   pathname = !extension || pathname.endsWith(extension) ? pathname : `${pathname}${extension}`
 
-  return new Promise((resolve, reject) => {
-    fs.writeFile(pathname, content, 'utf-8', err => {
-      if (err) reject(err)
-      else resolve({ pathname })
-    })
-  })
+  return fse.outputFile(pathname, content, 'utf-8')
 }
 
 export const writeMarkdownFile = (pathname, content, options, win) => {
@@ -56,7 +50,7 @@ export const writeMarkdownFile = (pathname, content, options, win) => {
 }
 
 export const loadMarkdownFile = async pathname => {
-  let markdown = await promisify(fs.readFile)(path.resolve(pathname), 'utf-8')
+  let markdown = await fse.readFile(path.resolve(pathname), 'utf-8')
   // Check UTF-8 BOM (EF BB BF) encoding
   const isUtf8BomEncoded = markdown.length >= 1 && markdown.charCodeAt(0) === 0xFEFF
   if (isUtf8BomEncoded) {

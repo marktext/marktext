@@ -4,7 +4,7 @@
     class="side-bar-file"
     :style="{'padding-left': `${depth * 5 + 15}px`, 'opacity': file.isMarkdown ? 1 : 0.75 }"
     @click="handleFileClick()"
-    :class="{'current': currentFile.pathname === file.pathname, 'active': file.id === activeId }"
+    :class="{'current': currentFile.pathname === file.pathname, 'active': file.id === activeItem.id }"
     ref="file"
   >
     <file-icon
@@ -38,7 +38,7 @@
     },
     computed: {
       ...mapState({
-        'activeId': state => state.project.activeId,
+        'activeItem': state => state.project.activeItem,
         'clipboard': state => state.project.clipboard,
         'currentFile': state => state.editor.currentFile,
         'tabs': state => state.editor.tabs
@@ -48,7 +48,7 @@
       this.$nextTick(() => {
         this.$refs.file.addEventListener('contextmenu', event => {
           event.preventDefault()
-          this.$store.dispatch('CHANGE_ACTIVE_ID', this.file.id)
+          this.$store.dispatch('CHANGE_ACTIVE_ITEM', this.file)
           showContextMenu(event, !!this.clipboard)
         })
       })

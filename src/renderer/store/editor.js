@@ -54,6 +54,13 @@ const mutations = {
   SET_SAVE_STATUS (state, status) {
     state.currentFile.isSaved = status
   },
+  SET_SAVE_STATUS_WHEN_REMOVE (state, { pathname }) {
+    state.tabs.forEach(f => {
+      if (f.pathname === pathname) {
+        f.isSaved = false
+      }
+    })
+  },
   SET_MARKDOWN (state, markdown) {
     state.currentFile.markdown = markdown
   },
