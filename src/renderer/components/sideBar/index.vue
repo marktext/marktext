@@ -99,7 +99,6 @@
         }
 
         const mouseDownHandler = event => {
-          console.log(startX)
           startX = event.clientX
           startWidth = +this.sideBarWidth
           document.addEventListener('mousemove', mouseMoveHandler, false)

@@ -43,7 +43,6 @@ const handleResponseForSave = (e, { id, markdown, pathname, options }) => {
 
   return writeMarkdownFile(pathname, markdown, options, win)
     .then(() => {
-      console.log(pathname)
       const filename = path.basename(pathname)
       win.webContents.send('AGANI::set-pathname', { id, pathname, filename })
     })

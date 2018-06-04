@@ -71,7 +71,6 @@ const addDir = (win, pathname) => {
 }
 
 const unlinkDir = (win, pathname) => {
-  console.log(pathname)
   const directory = { pathname }
   win.webContents.send('AGANI::update-object-tree', {
     type: 'unlinkDir',

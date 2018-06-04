@@ -104,7 +104,6 @@ const actions = {
           commit('SET_SAVE_STATUS_WHEN_REMOVE', change)
           break
         case 'change':
-          console.log(change)
           commit('CHANGE_FILE', change)
           break
         case 'addDir':
