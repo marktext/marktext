@@ -58,9 +58,11 @@
 
 <style scoped>
   .side-bar-file {
+    display: flex;
+    align-items: center;
     cursor: default;
     user-select: none;
-    height: 28px;
+    height: 30px;
     border-left: 3px solid transparent;
     box-sizing: border-box;
     padding-right: 15px;
@@ -69,8 +71,8 @@
     }
   }
   .side-bar-file.current {
-    color: var(--brandColor);
-    border-left-color: var(--brandColor);
+    color: var(--activeColor);
+    border-left-color: var(--activeColor);
   }
   .side-bar-file.active {
     background: var(--lightBorder);

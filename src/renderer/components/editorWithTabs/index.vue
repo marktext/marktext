@@ -1,6 +1,6 @@
 <template>
     <div class="editor-with-tabs">
-      <tabs></tabs>
+      <tabs v-show="showTabBar"></tabs>
       <editor
         :theme="theme"
         :markdown="markdown"
@@ -37,6 +37,10 @@
         required: true
       },
       sourceCode: {
+        type: Boolean,
+        required: true
+      },
+      showTabBar: {
         type: Boolean,
         required: true
       }

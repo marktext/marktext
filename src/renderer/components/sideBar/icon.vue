@@ -22,5 +22,7 @@
 </script>
 
 <style scoped>
-
+  .file-icon {
+    margin-right: 5px;
+  }
 </style>

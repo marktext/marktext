@@ -11,7 +11,7 @@ let viewMenu = {
         return 'F11'
       }
     })(),
-    click: function (item, focusedWindow) {
+    click (item, focusedWindow) {
       if (focusedWindow) {
         focusedWindow.setFullScreen(!focusedWindow.isFullScreen())
       }
@@ -55,6 +55,24 @@ let viewMenu = {
     }
   }, {
     type: 'separator'
+  }, {
+    label: 'Tool Bar',
+    id: 'toolBarMenuItem',
+    type: 'checkbox',
+    checked: false,
+    click (item, browserWindow) {
+      actions.layout(item, browserWindow, 'showToolBar')
+    }
+  }, {
+    label: 'Tab Bar',
+    id: 'tabBarMenuItem',
+    type: 'checkbox',
+    checked: false,
+    click (item, browserWindow) {
+      actions.layout(item, browserWindow, 'showTabBar')
+    }
+  }, {
+    type: 'separator'
   }]
 }
 
@@ -69,7 +87,7 @@ if (process.env.NODE_ENV !== 'production' || process.env.NODE_ENV === 'developme
         return 'Ctrl+Shift+I'
       }
     })(),
-    click: function (item, focusedWindow) {
+    click (item, focusedWindow) {
       if (focusedWindow) {
         focusedWindow.webContents.toggleDevTools()
       }
@@ -79,7 +97,7 @@ if (process.env.NODE_ENV !== 'production' || process.env.NODE_ENV === 'developme
   viewMenu.submenu.push({
     label: 'Reload',
     accelerator: 'CmdOrCtrl+R',
-    click: function (item, focusedWindow) {
+    click (item, focusedWindow) {
       if (focusedWindow) {
         focusedWindow.reload()
       }

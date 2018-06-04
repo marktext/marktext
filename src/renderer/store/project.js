@@ -21,7 +21,7 @@ const getters = {
       }
     }
 
-    travel(state.projectTree)
+    if (state.projectTree) travel(state.projectTree)
     return files.sort()
   }
 }
@@ -71,9 +71,15 @@ const mutations = {
 }
 
 const actions = {
-  LISTEN_FOR_LOAD_PROJECT ({ commit }) {
+  LISTEN_FOR_LOAD_PROJECT ({ commit, dispatch }) {
     ipcRenderer.on('AGANI::open-project', (e, { pathname, name }) => {
       commit('SET_PROJECT_TREE', { pathname, name })
+      commit('SET_LAYOUT', {
+        rightColumn: 'files',
+        showToolBar: true,
+        showTabBar: false
+      })
+      dispatch('SET_LAYOUT_MENU_ITEM')
     })
   },
   LISTEN_FOR_UPDATE_PROJECT ({ commit }) {
@@ -111,6 +117,9 @@ const actions = {
   },
   CHANGE_CLIPBOARD ({ commit }, data) {
     commit('SET_CLIPBOARD', data)
+  },
+  ASK_FOR_OPEN_PROJECT ({ commit }) {
+    ipcRenderer.send('AGANI::ask-for-open-project-in-sidebar')
   }
 }
 

@@ -20,6 +20,7 @@
         :cursor="cursor"
         :theme="theme"
         :source-code="sourceCode"
+        :show-tab-bar="showTabBar"
       ></editor-with-tabs>
     </div>
     <bottom-bar
@@ -66,6 +67,7 @@
     },
     computed: {
       ...mapState({
+        'showTabBar': state => state.layout.showTabBar,
         'sourceCode': state => state.preferences.sourceCode,
         'theme': state => state.preferences.theme
       }),
@@ -89,6 +91,9 @@
       const { dispatch } = this.$store
       // store/index.js
       dispatch('LINTEN_WIN_STATUS')
+      // module: layout
+      dispatch('LISTEN_FOR_LAYOUT')
+      dispatch('LISTEN_FOR_REQUEST_LAYOUT')
       // module: listenForMain
       dispatch('LISTEN_FOR_IMAGE_PATH')
       dispatch('LISTEN_FOR_EDIT')

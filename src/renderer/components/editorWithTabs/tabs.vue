@@ -38,7 +38,7 @@
   .editor-tabs {
     width: 100%;
     height: 35px;
-    background: var(--lighterBorder);
+    background: var(--lightBarColor);
     user-select: none;
   }
   .tabs-container {
@@ -53,7 +53,7 @@
       font-size: 12px;
       line-height: 35px;
       border-right: 1px solid #fff;
-      background: var(--lightBorder);
+      background: var(--lightTabColor);
     }
     & > li.active {
       background: #fff;

@@ -68,10 +68,13 @@
     & > .folder-name {
       cursor: default;
       user-select: none;
-      height: 28px;
+      display: flex;
+      align-items: center;
+      height: 30px;
       padding-right: 15px;
       & > svg {
-        color: rgb(35, 124, 170);
+        color: darkgray;
+        margin-right: 5px;
       }
       &:hover {
         background: var(--extraLightBorder);

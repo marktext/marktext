@@ -58,7 +58,7 @@
     }
   }
   .opened-file.active {
-    color: var(--brandColor);
+    color: var(--activeColor);
   }
   .unsaved.opened-file::before {
     content: '';

@@ -163,7 +163,6 @@
 
 <style scoped>
   .title-bar {
-    background: var(--baseBorder);
     -webkit-app-region: drag;
     user-select: none;
     width: 100%;

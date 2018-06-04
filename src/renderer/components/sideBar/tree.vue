@@ -26,6 +26,16 @@
           <use xlink:href="#icon-arrow"></use>
         </svg>
         <span>Opened files</span>
+        <a href="javascript:;">
+          <svg class="icon" aria-hidden="true">
+            <use xlink:href="#icon-save-all"></use>
+          </svg>
+        </a>
+        <a href="javascript:;">
+          <svg class="icon" aria-hidden="true">
+            <use xlink:href="#icon-close-all"></use>
+          </svg>
+        </a>
       </div>
       <opened-file
         v-for="(tab, index) of tabs"
@@ -34,7 +44,7 @@
       ></opened-file>
     </div>
     <!-- project tree view -->
-    <div class="project-tree">
+    <div class="project-tree" v-if="projectTree">
       <div class="title">
         <svg class="icon" aria-hidden="true">
           <use xlink:href="#icon-arrow"></use>
@@ -61,6 +71,9 @@
         ></list-file>
       </div>
     </div>
+    <div v-else class="open-project">
+      <a href="javascript:;" @click="openProject">Open Project</a>
+    </div>
   </div>
 </template>
 
@@ -78,7 +91,12 @@
       }
     },
     props: {
-      projectTree: Object,
+      projectTree: {
+        validator: function (value) {
+          return typeof value === 'object'
+        },
+        required: true
+      },
       fileList: Array,
       openedFiles: Array,
       tabs: Array
@@ -92,6 +110,9 @@
     methods: {
       titleIconClick (active) {
         //
+      },
+      openProject () {
+        this.$store.dispatch('ASK_FOR_OPEN_PROJECT')
       }
     }
   }
@@ -132,8 +153,29 @@
   .project-tree {
     & > .title {
       height: 25px;
-      background: var(--lighterBorder);
+      background: var(--lightBarColor);
       line-height: 25px;
+    }
+  }
+
+  .opened-files .title {
+    padding-right: 15px;
+    display: flex;
+    align-items: center;
+    & > span {
+      flex: 1;
+    }
+    & > a {
+      display: none;
+      text-decoration: none;
+      color: var(--primaryColor);
+      margin-left: 8px;
+    }
+  }
+  .opened-files div.title:hover > a {
+    display: block;
+    &:hover {
+      color: var(--brandColor);
     }
   }
 
@@ -148,5 +190,16 @@
       }
     }
     flex: 1;
+  }
+  .open-project {
+    flex: 1;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    margin-top: -100px;
+    & > a {
+      text-decoration: none;
+      color: var(--activeColor);
+    }
   }
 </style>

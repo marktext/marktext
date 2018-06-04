@@ -1,12 +1,13 @@
 <template>
   <div
     class="side-bar"
+    :class="{ 'opacity' : rightColumn === '' }"
     ref="sideBar"
-    :style="{ 'width': `${sideBarViewWidth}px` }"
+    :style="{ 'width': `${finalSideBarWidth}px` }"
   >
     <div
       class="left-column"
-      :class="{ 'opacity' : rightColumn === '' }"
+      v-show="showToolBar"
     >
       <ul>
         <li
@@ -26,7 +27,7 @@
         :file-list="fileList"
         :opened-files="openedFiles"
         :tabs="tabs"
-        v-if="rightColumn === 'files' && projectTree"
+        v-if="rightColumn === 'files'"
       ></tree>
       <side-bar-search
         v-else-if="rightColumn === 'search'"
@@ -51,7 +52,6 @@
       this.sideBarIcons = sideBarIcons
       return {
         openedFiles: [],
-        rightColumn: 'files',
         sideBarViewWidth: 280
       }
     },
@@ -62,11 +62,20 @@
     },
     computed: {
       ...mapState({
+        'rightColumn': state => state.layout.rightColumn,
+        'showToolBar': state => state.layout.showToolBar,
         'projectTree': state => state.project.projectTree,
         'sideBarWidth': state => state.project.sideBarWidth,
         'tabs': state => state.editor.tabs
       }),
-      ...mapGetters(['fileList'])
+      ...mapGetters(['fileList']),
+      finalSideBarWidth () {
+        const { showToolBar, rightColumn, sideBarViewWidth } = this
+        let width = sideBarViewWidth
+        if (rightColumn === '') width = 50
+        if (!showToolBar) width -= 50
+        return width
+      }
     },
     created () {
       this.$nextTick(() => {
@@ -103,10 +112,9 @@
     methods: {
       handleLeftIconClick (name) {
         if (this.rightColumn === name) {
-          this.rightColumn = ''
-          this.sideBarViewWidth = 50
+          this.$store.commit('SET_LAYOUT', { rightColumn: '' })
         } else {
-          this.rightColumn = name
+          this.$store.commit('SET_LAYOUT', { rightColumn: name })
           this.sideBarViewWidth = +this.sideBarWidth
         }
       }
@@ -117,17 +125,20 @@
 <style scoped>
   .side-bar {
     display: flex;
-    border-right: 1px solid var(--lightBorder);
+    border-right: 1px solid var(--lightBarColor);
     height: calc(100vh - 22px);
     overflow: hidden;
     position: relative;
   }
+  .side-bar.opacity {
+    border-right-color: transparent;
+  }
   .left-column {
     height: 100%;
     width: 50px;
-    background: var(--lightBorder);
+    background-color: var(--lightBarColor);
   }
-  .left-column.opacity {
+  .opacity .left-column {
     background-color: transparent;
   }
   .left-column ul {

@@ -6,6 +6,7 @@ import listenForMain from './listenForMain'
 import project from './project'
 import editor from './editor'
 import aidou from './aidou'
+import layout from './layout'
 import preferences from './preferences'
 import autoUpdates from './autoUpdates'
 import notification from './notification'
@@ -49,7 +50,8 @@ const store = new Vuex.Store({
     project,
     aidou,
     preferences,
-    editor
+    editor,
+    layout
   }
 })
 

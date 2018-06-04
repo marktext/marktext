@@ -266,7 +266,7 @@ table {
   margin-top: 0;
 }
 
-a {
+#ag-editor-id a {
   pointer-events: none;
 }
 

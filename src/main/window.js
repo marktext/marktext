@@ -48,7 +48,7 @@ class AppWindow {
   }
 
   createWindow (pathname, options = {}) {
-    const { focusedWindowId, windows } = this
+    const { windows } = this
     const mainWindowState = windowStateKeeper({
       defaultWidth: 1200,
       defaultHeight: 800
@@ -57,8 +57,10 @@ class AppWindow {
     const { x, y, width, height } = this.ensureWindowPosition(mainWindowState)
     const winOpt = Object.assign({ x, y, width, height }, defaultWinOptions, options)
     const win = new BrowserWindow(winOpt)
-
-    let unwatcher
+    windows.set(win.id, {
+      win,
+      watchers: []
+    })
 
     win.once('ready-to-show', async () => {
       mainWindowState.manage(win)
@@ -102,16 +104,7 @@ class AppWindow {
           .catch(log)
         // open directory / folder
       } else if (pathname && isDirectory(pathname)) {
-        unwatcher = this.watcher.watch(win, pathname)
-        try {
-          // const tree = await loadProject(pathname)
-          win.webContents.send('AGANI::open-project', {
-            name: path.basename(pathname),
-            pathname
-          })
-        } catch (err) {
-          log(err)
-        }
+        this.openProject(win, pathname)
         // open a window but do not open a file or directory
       } else {
         const lineEnding = getOsLineEndingName()
@@ -126,9 +119,10 @@ class AppWindow {
     win.on('focus', () => {
       win.webContents.send('AGANI::window-active-status', { status: true })
 
-      if (win.id !== focusedWindowId) {
+      if (win.id !== this.focusedWindowId) {
         this.focusedWindowId = win.id
         win.webContents.send('AGANI::req-update-line-ending-menu')
+        win.webContents.send('AGANI::request-for-view-layout')
       }
     })
 
@@ -148,19 +142,31 @@ class AppWindow {
     win.loadURL(winURL)
     win.setSheetOffset(TITLE_BAR_HEIGHT) // 21 is the title bar height
 
-    windows.set(win.id, {
-      win,
-      unwatcher
-    })
     return win
+  }
+
+  openProject (win, pathname) {
+    const unwatcher = this.watcher.watch(win, pathname)
+    this.windows.get(win.id).watchers.push(unwatcher)
+    try {
+      // const tree = await loadProject(pathname)
+      win.webContents.send('AGANI::open-project', {
+        name: path.basename(pathname),
+        pathname
+      })
+    } catch (err) {
+      log(err)
+    }
   }
 
   forceClose (win) {
     if (!win) return
     const { windows } = this
     if (windows.has(win.id)) {
-      const { unwatcher } = windows.get(win.id)
-      unwatcher && unwatcher()
+      const { watchers } = windows.get(win.id)
+      if (watchers && watchers.length) {
+        watchers.forEach(w => w())
+      }
       windows.delete(win.id)
     }
     win.destroy() // if use win.close(), it will cause a endless loop.

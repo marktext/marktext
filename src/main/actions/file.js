@@ -132,6 +132,16 @@ ipcMain.on('AGANI::response-file-move-to', (e, { pathname }) => {
   e.sender.send('AGANI::set-pathname', { pathname: newPath, filename: path.basename(newPath) })
 })
 
+ipcMain.on('AGANI::ask-for-open-project-in-sidebar', e => {
+  const win = BrowserWindow.fromWebContents(e.sender)
+  const pathname = dialog.showOpenDialog(win, {
+    properties: ['openDirectory', 'createDirectory']
+  })
+  if (pathname && pathname[0]) {
+    appWindow.openProject(win, pathname[0])
+  }
+})
+
 export const exportFile = (win, type) => {
   win.webContents.send('AGANI::export', { type })
 }

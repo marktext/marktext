@@ -187,6 +187,12 @@ const actions = {
       const fileState = getSingleFileState({ markdown, filename, pathname, options })
       dispatch('UPDATE_CURRENT_FILE', fileState)
       bus.$emit('file-loaded', markdown)
+      commit('SET_LAYOUT', {
+        rightColumn: '',
+        showToolBar: false,
+        showTabBar: false
+      })
+      dispatch('SET_LAYOUT_MENU_ITEM')
     })
   },
 
@@ -197,6 +203,12 @@ const actions = {
       const { markdown } = fileState
       dispatch('UPDATE_CURRENT_FILE', fileState)
       bus.$emit('file-loaded', markdown)
+      commit('SET_LAYOUT', {
+        rightColumn: '',
+        showToolBar: false,
+        showTabBar: false
+      })
+      dispatch('SET_LAYOUT_MENU_ITEM')
     })
   },
 

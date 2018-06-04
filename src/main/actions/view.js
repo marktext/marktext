@@ -21,6 +21,10 @@ export const changeFont = win => {
   win.webContents.send('AGANI::font-setting')
 }
 
+export const layout = (item, win, type) => {
+  win.webContents.send('AGANI::listen-for-view-layout', { [type]: item.checked })
+}
+
 ipcMain.on('AGANI::ask-for-mode', e => {
   const sourceCodeModeMenuItem = getMenuItemById(sourceCodeModeMenuItemId)
   const typewriterModeMenuItem = getMenuItemById(typewriterModeMenuItemId)
@@ -32,4 +36,12 @@ ipcMain.on('AGANI::ask-for-mode', e => {
   }
   const win = BrowserWindow.fromWebContents(e.sender)
   win.webContents.send('AGANI::res-for-mode', modes)
+})
+
+ipcMain.on('AGANI::set-view-layout', (e, { showToolBar, showTabBar }) => {
+  const toolBarMenuItem = getMenuItemById('toolBarMenuItem')
+  const tabBarMenuItem = getMenuItemById('tabBarMenuItem')
+
+  toolBarMenuItem.checked = showToolBar
+  tabBarMenuItem.checked = showTabBar
 })
