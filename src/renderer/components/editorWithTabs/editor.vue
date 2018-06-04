@@ -61,10 +61,10 @@
 
 <script>
   import { mapState } from 'vuex'
-  import Aganippe from '../../editor'
-  import bus from '../bus'
-  import { animatedScrollTo } from '../util'
-  import { showContextMenu } from '../contextMenu'
+  import Aganippe from '../../../editor'
+  import bus from '../../bus'
+  import { animatedScrollTo } from '../../util'
+  import { showContextMenu } from '../../contextMenu/editor'
 
   const STANDAR_Y = 320
   const PARAGRAPH_CMD = [
@@ -75,34 +75,31 @@
 
   export default {
     props: {
-      typewriter: {
-        type: Boolean,
-        required: true
-      },
-      focus: {
-        type: Boolean,
-        required: true
-      },
-      sourceCode: {
-        type: Boolean,
-        required: true
-      },
       theme: {
         type: String,
         required: true
       },
       markdown: String,
-      cursor: Object,
-      lineHeight: [Number, String],
-      fontSize: [Number, String],
-      lightColor: String,
-      darkColor: String,
-      editorFontFamily: String
+      cursor: Object
     },
     computed: {
-      ...mapState([
-        'preferLooseListItem', 'autoPairBracket', 'autoPairMarkdownSyntax', 'autoPairQuote', 'bulletListItemMarker', 'tabSize'
-      ])
+      ...mapState({
+        'preferLooseListItem': state => state.preferences.preferLooseListItem,
+        'autoPairBracket': state => state.preferences.autoPairBracket,
+        'autoPairMarkdownSyntax': state => state.preferences.autoPairMarkdownSyntax,
+        'autoPairQuote': state => state.preferences.autoPairQuote,
+        'bulletListItemMarker': state => state.preferences.bulletListItemMarker,
+        'tabSize': state => state.preferences.tabSize,
+        'lineHeight': state => state.preferences.lineHeight,
+        'fontSize': state => state.preferences.fontSize,
+        'lightColor': state => state.preferences.lightColor,
+        'darkColor': state => state.preferences.darkColor,
+        'editorFontFamily': state => state.preferences.editorFontFamily,
+        // edit modes
+        'typewriter': state => state.preferences.typewriter,
+        'focus': state => state.preferences.focus,
+        'sourceCode': state => state.preferences.sourceCode
+      })
     },
     data () {
       this.defaultFontFamily = '"Open Sans", "Clear Sans", "Helvetica Neue", Helvetica, Arial, sans-serif'
@@ -205,7 +202,7 @@
         bus.$on('replaceValue', this.handReplace)
         bus.$on('find', this.handleFind)
         bus.$on('insert-image', this.handleSelect)
-        bus.$on('content-in-source-mode', this.handleMarkdownChange)
+        bus.$on('file-changed', this.handleMarkdownChange)
         bus.$on('editor-blur', this.blurEditor)
         bus.$on('image-auto-path', this.handleImagePath)
         bus.$on('copyAsMarkdown', this.handleCopyPaste)
@@ -214,6 +211,7 @@
         bus.$on('insertParagraph', this.handleInsertParagraph)
         bus.$on('editTable', this.handleEditTable)
 
+        // when cursor is in `![](cursor)` will emit `insert-image`
         this.editor.on('insert-image', type => {
           if (type === 'absolute' || type === 'relative') {
             this.$store.dispatch('ASK_FOR_INSERT_IMAGE', type)
@@ -226,8 +224,8 @@
           this.$store.dispatch('ASK_FOR_IMAGE_AUTO_PATH', src)
         })
 
-        this.editor.on('change', (markdown, wordCount, cursor) => {
-          this.$store.dispatch('LISTEN_FOR_CONTENT_CHANGE', { markdown, wordCount, cursor })
+        this.editor.on('change', changes => {
+          this.$store.dispatch('LISTEN_FOR_CONTENT_CHANGE', changes)
         })
 
         this.editor.on('selectionChange', changes => {
@@ -373,7 +371,7 @@
         this.editor && this.editor.createTable(this.tableChecker)
       },
 
-      // listen for `load-file` event, it will call this method only when open a new file.
+      // listen for `open-single-file` event, it will call this method only when open a new file.
       setMarkdownToEditor (markdown) {
         const { cursor, editor } = this
         if (editor) {
@@ -382,9 +380,13 @@
         }
       },
 
-      // listen for markdown change form source mode
-      handleMarkdownChange ({ markdown, cursor, renderCursor }) {
-        this.editor && this.editor.setMarkdown(markdown, cursor, renderCursor)
+      // listen for markdown change form source mode or change tabs etc
+      handleMarkdownChange ({ markdown, cursor, renderCursor, history }) {
+        const { editor } = this
+        if (editor) {
+          this.editor.setMarkdown(markdown, cursor, renderCursor)
+          if (history) editor.setHistory(history)
+        }
       },
 
       handleInsertParagraph (location) {
@@ -428,7 +430,7 @@
 </script>
 
 <style>
-  @import '../../editor/index.css';
+  @import '../../../editor/index.css';
   .editor-wrapper {
     position: relative;
     height: calc(100vh - 22px);

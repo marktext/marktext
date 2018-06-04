@@ -1,4 +1,4 @@
-import bus from '../bus'
+import bus from '../../bus'
 
 export const copyAsMarkdown = (menuItem, browserWindow) => {
   bus.$emit('copyAsMarkdown', 'copyAsMarkdown')

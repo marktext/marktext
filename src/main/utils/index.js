@@ -4,6 +4,13 @@ import fse from 'fs-extra'
 import { app, Menu } from 'electron'
 import { EXTENSIONS } from '../config'
 
+const ID_PREFIX = 'mt-'
+let id = 0
+
+export const getUniqueId = () => {
+  return `${ID_PREFIX}${id++}`
+}
+
 // creates a directory if it doesn't already exist.
 export const ensureDir = dirPath => {
   try {

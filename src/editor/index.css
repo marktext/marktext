@@ -1,8 +1,9 @@
 :root {
-  --brandColor: #409EFF;
+  --brandColor: #d2b690;
   --successColor: #67C23A;
   --warningColor: #E6A23C;
   --dangerColor: #F56C6C;
+  --activeColor: rgb(0, 122, 204);
   --infoColor: #909399;
   --primaryColor: #303133;
   --regularColor: #606266;
@@ -233,6 +234,7 @@ figure {
 }
 
 .ag-tool-bar ul li svg {
+  will-change: transform;
   transition: transform .2s ease-in-out;
 }
 
@@ -264,7 +266,7 @@ table {
   margin-top: 0;
 }
 
-a {
+#ag-editor-id a {
   pointer-events: none;
 }
 

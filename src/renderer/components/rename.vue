@@ -43,9 +43,10 @@
       bus.$off('rename', this.handleRename)
     },
     computed: {
-      ...mapState([
-        'filename', 'theme'
-      ])
+      ...mapState({
+        filename: state => state.editor.currentFile.filename,
+        theme: state => state.preferences.theme
+      })
     },
     methods: {
       handleRename () {

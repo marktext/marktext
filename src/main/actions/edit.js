@@ -47,7 +47,7 @@ export const edit = (win, type) => {
 }
 
 export const lineEnding = (win, lineEnding) => {
-  win.webContents.send('AGANI::set-line-ending', { lineEnding })
+  win.webContents.send('AGANI::set-line-ending', { lineEnding, ignoreSaveStatus: false })
 }
 
 export const insertImage = (win, type) => {

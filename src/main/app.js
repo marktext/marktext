@@ -22,6 +22,7 @@ class App {
         watcher.close()
       }
       if (!isOsx) {
+        appWindow.clear()
         app.quit()
       }
     })

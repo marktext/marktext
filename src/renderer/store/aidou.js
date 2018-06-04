@@ -5,6 +5,8 @@ const state = {
   aiList: []
 }
 
+const getters = {}
+
 const mutations = {
   SET_AI_LIST (state, { data, type }) {
     if (type === 'search' || type === 'collect') {
@@ -37,4 +39,4 @@ const actions = {
   }
 }
 
-export default { state, mutations, actions }
+export default { state, getters, mutations, actions }

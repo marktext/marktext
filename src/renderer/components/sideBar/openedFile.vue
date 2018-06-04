@@ -1,0 +1,76 @@
+<template>
+    <div
+      class="opened-file"
+      :title="file.pathname"
+      @click="selectFile(file)"
+      :class="{'active': currentFile.pathname === file.pathname, 'unsaved': !file.isSaved }"
+    >
+      <svg class="icon" aria-hidden="true"
+        @click.stop="removeFileInTab(file)"
+      >
+        <use xlink:href="#icon-close-small"></use>
+      </svg>
+      <span class="name">{{ file.filename }}</span>
+    </div>
+</template>
+
+<script>
+  import { mapState } from 'vuex'
+  import { tabsMixins } from '../../mixins'
+
+  export default {
+    mixins: [tabsMixins],
+    props: {
+      file: {
+        type: Object,
+        required: true
+      }
+    },
+    computed: {
+      ...mapState({
+        currentFile: state => state.editor.currentFile
+      })
+    }
+  }
+</script>
+
+<style scoped>
+  .opened-file {
+    user-select: none;
+    height: 28px;
+    line-height: 28px;
+    padding-left: 30px;
+    position: relative;
+    color: var(--regularColor);
+    & > svg {
+      display: none;
+      width: 10px;
+      height: 10px;
+      position: absolute;
+      top: 9px;
+      left: 10px;
+    }
+    &:hover > svg {
+      display: inline-block;
+    }
+    &:hover {
+      background: var(--extraLightBorder);
+    }
+  }
+  .opened-file.active {
+    color: var(--activeColor);
+  }
+  .unsaved.opened-file::before {
+    content: '';
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: rgba(242, 134, 94, .7);
+    position: absolute;
+    top: 11px;
+    left: 12px;
+  }
+  .unsaved.opened-file:hover::before {
+    content: none;
+  }
+</style>

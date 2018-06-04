@@ -128,7 +128,8 @@ class Aganippe {
     const markdown = this.markdown = this.getMarkdown()
     const wordCount = this.getWordCount(markdown)
     const cursor = this.getCursor()
-    eventCenter.dispatch('change', markdown, wordCount, cursor)
+    const history = this.getHistory()
+    eventCenter.dispatch('change', { markdown, wordCount, cursor, history })
   }
 
   dispatchCopyCut () {
@@ -473,6 +474,14 @@ class Aganippe {
   getMarkdown () {
     const blocks = this.contentState.getBlocks()
     return new ExportMarkdown(blocks).generate()
+  }
+
+  getHistory () {
+    return this.contentState.getHistory()
+  }
+
+  setHistory (history) {
+    return this.contentState.setHistory(history)
   }
 
   async exportStyledHTML () {

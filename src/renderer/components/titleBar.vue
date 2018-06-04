@@ -3,17 +3,20 @@
     :class="[{ 'active': active }, theme]"
   >
     <div class="title">
-      <span
-        v-for="(path, index) of paths"
-        :key="index"
-      >
-        {{ path }}
-        <svg class="icon" aria-hidden="true">
-          <use xlink:href="#icon-arrow-right"></use>
-        </svg>
+      <span v-if="!filename">Mark Text</span>
+      <span v-else>
+        <span
+          v-for="(path, index) of paths"
+          :key="index"
+        >
+          {{ path }}
+          <svg class="icon" aria-hidden="true">
+            <use xlink:href="#icon-arrow-right"></use>
+          </svg>
+        </span>
+        <span @click="rename">{{ filename }}</span>
+        <span class="save-dot" :class="{'show': !isSaved}"></span>
       </span>
-      <span @click="rename">{{ filename }}</span>
-      <span class="save-dot" :class="{'show': !isSaved}"></span>
     </div>
     <div :class="platform !== 'darwin' ? 'left-toolbar' : 'right-toolbar'">
       <div
@@ -22,6 +25,7 @@
         @click.stop="handleMenuClick"
       >&#9776;</div>
       <div
+        v-if="wordCount"
         class="word-count"
         :class="[{ 'title-no-drag': platform !== 'darwin' }]"
         @click.stop="handleWordClick"
@@ -96,6 +100,7 @@
     },
     computed: {
       paths () {
+        if (!this.pathname) return []
         const pathnameToken = this.pathname.split('/').filter(i => i)
         return pathnameToken.slice(0, pathnameToken.length - 1).slice(-3)
       }
@@ -158,7 +163,6 @@
 
 <style scoped>
   .title-bar {
-    background: rgb(252, 252, 252);
     -webkit-app-region: drag;
     user-select: none;
     width: 100%;
@@ -186,7 +190,6 @@
     height: 100%;
     line-height: 22px;
     font-size: 12px;
-    font-weight: 500;
     text-align: center;
     transition: all .25s ease-in-out;
   }

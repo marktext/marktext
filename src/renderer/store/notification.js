@@ -1,8 +1,9 @@
 import { ipcRenderer } from 'electron'
 import { error, message } from '../notice'
 
-const state = {
-}
+const state = {}
+
+const getters = {}
 
 const mutations = {
 }
@@ -18,4 +19,4 @@ const actions = {
   }
 }
 
-export default { state, mutations, actions }
+export default { state, getters, mutations, actions }

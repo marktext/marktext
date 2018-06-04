@@ -119,6 +119,15 @@ class ContentState {
     }
   }
 
+  getHistory () {
+    const { stack, index } = this.history
+    return { stack, index }
+  }
+
+  setHistory ({ stack, index }) {
+    Object.assign(this.history, { stack, index })
+  }
+
   setCursor () {
     const { start: { key } } = this.cursor
     const block = this.getBlock(key)

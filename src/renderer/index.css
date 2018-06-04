@@ -1,3 +1,7 @@
+:root {
+  --lightBarColor: rgb(245, 245, 245);
+  --lightTabColor: rgb(243, 243, 243);
+}
 .icon {
   width: 1em; height: 1em;
   vertical-align: -0.15em;

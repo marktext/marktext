@@ -15,10 +15,16 @@ export default function (recentlyUsedFiles) {
         actions.newFile()
       }
     }, {
-      label: 'Open...',
+      label: 'Open File',
       accelerator: 'CmdOrCtrl+O',
       click (menuItem, browserWindow) {
         actions.open(browserWindow)
+      }
+    }, {
+      label: 'Open Project',
+      accelerator: 'Shift+CmdOrCtrl+O',
+      click (menuItem, browserWindow) {
+        actions.openProject(browserWindow)
       }
     }]
   }
@@ -33,7 +39,7 @@ export default function (recentlyUsedFiles) {
       recentlyUsedMenu.submenu.push({
         label: item,
         click (menuItem, browserWindow) {
-          actions.openDocument(menuItem.label)
+          actions.openFileOrProject(menuItem.label)
         }
       })
     }

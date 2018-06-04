@@ -1,11 +1,12 @@
 import { ipcRenderer } from 'electron'
 import { error, message, promote } from '../notice'
 
-const state = {
-}
+const state = {}
 
-const mutations = {
-}
+const getters = {}
+
+const mutations = {}
+
 // AGANI::UPDATE_DOWNLOADED
 const actions = {
   LISTEN_FOR_UPDATE ({ commit }) {
@@ -32,4 +33,4 @@ const actions = {
   }
 }
 
-export default { state, mutations, actions }
+export default { state, getters, mutations, actions }
