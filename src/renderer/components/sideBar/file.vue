@@ -10,7 +10,16 @@
     <file-icon
       :name="file.name"
     ></file-icon>
-    <span>{{ file.name }}</span>
+    <input
+      type="text"
+      @click.stop="noop"
+      class="rename"
+      v-if="renameCache === file.pathname"
+      v-model="newName"
+      ref="renameInput"
+      @keydown.enter="rename"
+    >
+    <span v-else>{{ file.name }}</span>
   </div>
 </template>
 
@@ -19,10 +28,16 @@
   import { mapState } from 'vuex'
   import { fileMixins } from '../../mixins'
   import { showContextMenu } from '../../contextMenu/sideBar'
+  import bus from '../../bus'
 
   export default {
     mixins: [fileMixins],
     name: 'file',
+    data () {
+      return {
+        newName: ''
+      }
+    },
     props: {
       file: {
         type: Object,
@@ -38,6 +53,7 @@
     },
     computed: {
       ...mapState({
+        'renameCache': state => state.project.renameCache,
         'activeItem': state => state.project.activeItem,
         'clipboard': state => state.project.clipboard,
         'currentFile': state => state.editor.currentFile,
@@ -51,7 +67,26 @@
           this.$store.dispatch('CHANGE_ACTIVE_ITEM', this.file)
           showContextMenu(event, !!this.clipboard)
         })
+
+        bus.$on('SIDEBAR::show-rename-input', this.focusRenameInput)
       })
+    },
+    methods: {
+      noop () {},
+      focusRenameInput () {
+        this.$nextTick(() => {
+          if (this.$refs.renameInput) {
+            this.$refs.renameInput.focus()
+            this.newName = this.file.name
+          }
+        })
+      },
+      rename () {
+        const { newName } = this
+        if (newName) {
+          this.$store.dispatch('RENAME_IN_SIDEBAR', newName)
+        }
+      }
     }
   }
 </script>
@@ -76,5 +111,10 @@
   }
   .side-bar-file.active {
     background: var(--lightBorder);
+  }
+  input.rename {
+    height: 18px;
+    outline: none;
+    margin: 5px 0;
   }
 </style>

@@ -9,6 +9,9 @@ export const create = (pathname, type) => {
 }
 
 export const paste = ({ src, dest, type }) => {
-  console.log(src, dest)
   return type === 'cut' ? fse.move(src, dest) : fse.copy(src, dest)
+}
+
+export const rename = (src, dest) => {
+  return fse.move(src, dest)
 }

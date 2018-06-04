@@ -2,7 +2,7 @@ import path from 'path'
 import { ipcRenderer, shell } from 'electron'
 import { addFile, unlinkFile, changeFile, addDirectory, unlinkDirectory } from './treeCtrl'
 import bus from '../bus'
-import { create, paste } from '../util/fileSystem'
+import { create, paste, rename } from '../util/fileSystem'
 
 const width = localStorage.getItem('side-bar-width')
 const sideBarWidth = typeof +width === 'number' ? Math.max(+width, 180) : 280
@@ -11,6 +11,7 @@ const state = {
   sideBarWidth,
   activeItem: {},
   createCache: {},
+  renameCache: null,
   clipboard: null,
   projectTree: null
 }
@@ -73,8 +74,10 @@ const mutations = {
     state.clipboard = data
   },
   CREATE_PATH (state, cache) {
-    console.log(cache)
     state.createCache = cache
+  },
+  SET_RENAME_CACHE (state, cache) {
+    state.renameCache = cache
   }
 }
 
@@ -162,6 +165,11 @@ const actions = {
           .catch(console.log.bind(console))
       }
     })
+    bus.$on('SIDEBAR::rename', () => {
+      const { pathname } = state.activeItem
+      commit('SET_RENAME_CACHE', pathname)
+      bus.$emit('SIDEBAR::show-rename-input')
+    })
   },
 
   CREATE_FILE_DIRECTORY ({ commit, state }, name) {
@@ -169,6 +177,16 @@ const actions = {
     create(`${dirname}/${name}`, type)
       .then(() => {
         commit('CREATE_PATH', {})
+      })
+  },
+
+  RENAME_IN_SIDEBAR ({ commit, state }, name) {
+    const src = state.renameCache
+    const dirname = path.dirname(src)
+    const dest = dirname + '/' + name
+    rename(src, dest)
+      .then(() => {
+        commit('RENAME_IF_NEEDED', { src, dest })
       })
   }
 }

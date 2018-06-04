@@ -12,7 +12,16 @@
       <svg class="icon" aria-hidden="true">
         <use :xlink:href="`#${folder.isCollapsed ? 'icon-folder-close' : 'icon-folder-open'}`"></use>
       </svg>
-      <span>{{folder.name}}</span>
+      <input
+        type="text"
+        @click.stop="noop"
+        class="rename"
+        v-if="renameCache === folder.pathname"
+        v-model="newName"
+        ref="renameInput"
+        @keydown.enter="rename"
+      >
+      <span v-else>{{folder.name}}</span>
     </div>
     <div 
       class="folder-contents"
@@ -51,7 +60,8 @@
     name: 'folder',
     data () {
       return {
-        createName: ''
+        createName: '',
+        newName: ''
       }
     },
     props: {
@@ -69,6 +79,7 @@
     },
     computed: {
       ...mapState({
+        'renameCache': state => state.project.renameCache,
         'createCache': state => state.project.createCache,
         'activeItem': state => state.project.activeItem,
         'clipboard': state => state.project.clipboard
@@ -82,11 +93,27 @@
           showContextMenu(event, !!this.clipboard)
         })
         bus.$on('SIDEBAR::show-new-input', this.handleInputFocus)
+        bus.$on('SIDEBAR::show-rename-input', this.focusRenameInput)
       })
     },
     methods: {
       folderNameClick () {
         this.folder.isCollapsed = !this.folder.isCollapsed
+      },
+      noop () {},
+      focusRenameInput () {
+        this.$nextTick(() => {
+          if (this.$refs.renameInput) {
+            this.$refs.renameInput.focus()
+            this.newName = this.folder.name
+          }
+        })
+      },
+      rename () {
+        const { newName } = this
+        if (newName) {
+          this.$store.dispatch('RENAME_IN_SIDEBAR', newName)
+        }
       }
     }
   }
@@ -110,7 +137,7 @@
       }
     }
   }
-  .new-input {
+  .new-input, input.rename {
     outline: none;
     height: 18px;
     margin: 5px 0;

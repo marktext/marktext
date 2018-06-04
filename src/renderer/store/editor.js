@@ -85,6 +85,15 @@ const mutations = {
   CLOSE_ALL_TABS (state) {
     state.tabs = []
     state.currentFile = {}
+  },
+  RENAME_IF_NEEDED (state, { src, dest }) {
+    const { tabs } = state
+    tabs.forEach(f => {
+      if (f.pathname === src) {
+        f.pathname = dest
+        f.filename = path.basename(dest)
+      }
+    })
   }
 }
 

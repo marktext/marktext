@@ -44,7 +44,9 @@
       ></opened-file>
     </div>
     <!-- project tree view -->
-    <div class="project-tree" v-if="projectTree">
+    <div 
+      class="project-tree" v-if="projectTree"
+    >
       <div class="title">
         <svg class="icon" aria-hidden="true">
           <use xlink:href="#icon-arrow"></use>
@@ -128,6 +130,27 @@
     created () {
       this.$nextTick(() => {
         bus.$on('SIDEBAR::show-new-input', this.handleInputFocus)
+        // hide rename or create input if needed
+        document.addEventListener('click', event => {
+          const target = event.target
+          if (target.tagName !== 'INPUT') {
+            this.$store.commit('CREATE_PATH', {})
+            this.$store.commit('SET_RENAME_CACHE', null)
+          }
+        })
+        document.addEventListener('contextmenu', event => {
+          const target = event.target
+          if (target.tagName !== 'INPUT') {
+            this.$store.commit('CREATE_PATH', {})
+            this.$store.commit('SET_RENAME_CACHE', null)
+          }
+        })
+        document.addEventListener('keydown', event => {
+          if (event.key === 'Escape') {
+            this.$store.commit('CREATE_PATH', {})
+            this.$store.commit('SET_RENAME_CACHE', null)
+          }
+        })
       })
     },
     methods: {
