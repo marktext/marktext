@@ -41,12 +41,15 @@ const mutations = {
       }
     }
   },
-  SET_FILENAME (state, filename) {
-    state.currentFile.filename = filename
-  },
-  SET_PATHNAME (state, pathname) {
+  SET_PATHNAME (state, file) {
+    const { filename, pathname, id } = file
     window.__dirname = path.dirname(pathname)
-    state.currentFile.pathname = pathname
+
+    const targetFile = state.tabs.filter(f => f.id === id)[0]
+    if (targetFile) {
+      const isSaved = true
+      Object.assign(targetFile, { filename, pathname, isSaved })
+    }
   },
   SET_SAVE_STATUS (state, status) {
     state.currentFile.isSaved = status
@@ -71,6 +74,10 @@ const mutations = {
   },
   SET_HISTORY (state, history) {
     state.currentFile.history = history
+  },
+  CLOSE_ALL_TABS (state) {
+    state.tabs = []
+    state.currentFile = {}
   }
 }
 
@@ -111,31 +118,76 @@ const actions = {
   // need pass some data to main process when `save` menu item clicked
   LISTEN_FOR_SAVE ({ commit, state }) {
     ipcRenderer.on('AGANI::ask-file-save', () => {
-      const { pathname, markdown } = state.currentFile
-      const options = getOptionsFromState(state)
-      ipcRenderer.send('AGANI::response-file-save', { pathname, markdown, options })
+      const { id, pathname, markdown } = state.currentFile
+      const options = getOptionsFromState(state.currentFile)
+      ipcRenderer.send('AGANI::response-file-save', { id, pathname, markdown, options })
     })
   },
 
   // need pass some data to main process when `save as` menu item clicked
   LISTEN_FOR_SAVE_AS ({ commit, state }) {
     ipcRenderer.on('AGANI::ask-file-save-as', () => {
-      const { pathname, markdown } = state.currentFile
-      const options = getOptionsFromState(state)
-      ipcRenderer.send('AGANI::response-file-save-as', { pathname, markdown, options })
+      const { id, pathname, markdown } = state.currentFile
+      const options = getOptionsFromState(state.currentFile)
+      ipcRenderer.send('AGANI::response-file-save-as', { id, pathname, markdown, options })
     })
+  },
+
+  LISTEN_FOR_SET_PATHNAME ({ commit }) {
+    ipcRenderer.on('AGANI::set-pathname', (e, file) => {
+      commit('SET_PATHNAME', file)
+    })
+  },
+
+  LISTEN_FOR_CLOSE ({ commit, state }) {
+    ipcRenderer.on('AGANI::ask-for-close', e => {
+      const unSavedFiles = state.tabs.filter(file => !(file.isSaved && /[^\n]/.test(file.markdown)))
+        .map(file => {
+          const { id, filename, pathname, markdown } = file
+          const options = getOptionsFromState(file)
+          return { id, filename, pathname, markdown, options }
+        })
+
+      if (unSavedFiles.length) {
+        ipcRenderer.send('AGANI::response-close-confirm', unSavedFiles)
+      } else {
+        ipcRenderer.send('AGANI::close-window')
+      }
+    })
+  },
+
+  LISTEN_FOR_SAVE_ALL_CLOSE ({ commit, state }) {
+    ipcRenderer.on('AGANI::save-all-response', (e, err) => {
+      if (err) console.log(err)
+      else {
+        commit('CLOSE_ALL_TABS')
+      }
+    })
+  },
+
+  ASK_FOR_SAVE_ALL ({ commit, state }, isClose) {
+    const unSavedFiles = state.tabs.filter(file => !(file.isSaved && /[^\n]/.test(file.markdown)))
+      .map(file => {
+        const { id, filename, pathname, markdown } = file
+        const options = getOptionsFromState(file)
+        return { id, filename, pathname, markdown, options }
+      })
+    if (unSavedFiles.length) {
+      const EVENT_NAME = isClose ? 'AGANI::save-all-close' : 'AGANI::save-all'
+      ipcRenderer.send(EVENT_NAME, unSavedFiles)
+    }
   },
 
   LISTEN_FOR_MOVE_TO ({ commit, state }) {
     ipcRenderer.on('AGANI::ask-file-move-to', () => {
-      const { pathname, markdown } = state.currentFile
-      const options = getOptionsFromState(state)
+      const { id, pathname, markdown } = state.currentFile
+      const options = getOptionsFromState(state.currentFile)
       if (!pathname) {
         // if current file is a newly created file, just save it!
-        ipcRenderer.send('AGANI::response-file-save', { pathname, markdown, options })
+        ipcRenderer.send('AGANI::response-file-save', { id, pathname, markdown, options })
       } else {
         // if not, move to a new(maybe) folder
-        ipcRenderer.send('AGANI::response-file-move-to', { pathname })
+        ipcRenderer.send('AGANI::response-file-move-to', { id, pathname })
       }
     })
   },
@@ -147,11 +199,11 @@ const actions = {
   },
 
   RESPONSE_FOR_RENAME ({ commit, state }) {
-    const { pathname, markdown } = state.currentFile
-    const options = getOptionsFromState(state)
+    const { id, pathname, markdown } = state.currentFile
+    const options = getOptionsFromState(state.currentFile)
     if (!pathname) {
       // if current file is a newly created file, just save it!
-      ipcRenderer.send('AGANI::response-file-save', { pathname, markdown, options })
+      ipcRenderer.send('AGANI::response-file-save', { id, pathname, markdown, options })
     } else {
       bus.$emit('rename')
     }
@@ -164,14 +216,6 @@ const actions = {
       const newPathname = path.join(path.dirname(pathname), newFilename)
       ipcRenderer.send('AGANI::rename', { pathname, newPathname })
     }
-  },
-
-  LISTEN_FOR_SET_FILENAME ({ commit, state }) {
-    ipcRenderer.on('AGANI::set-pathname', (e, { pathname, filename }) => {
-      commit('SET_FILENAME', filename)
-      commit('SET_PATHNAME', pathname)
-      commit('SET_SAVE_STATUS', true)
-    })
   },
 
   UPDATE_CURRENT_FILE ({ commit, state }, currentFile) {
@@ -228,8 +272,8 @@ const actions = {
   // Content change from realtime preview editor and source code editor
   LISTEN_FOR_CONTENT_CHANGE ({ commit, state, rootState }, { markdown, wordCount, cursor, history }) {
     const { autoSave } = rootState.preferences
-    const { pathname, markdown: oldMarkdown } = state.currentFile
-    const options = getOptionsFromState(state)
+    const { pathname, markdown: oldMarkdown, id } = state.currentFile
+    const options = getOptionsFromState(state.currentFile)
     commit('SET_MARKDOWN', markdown)
     // set word count
     if (wordCount) commit('SET_WORD_COUNT', wordCount)
@@ -240,17 +284,11 @@ const actions = {
     // change save status/save to file only when the markdown changed!
     if (markdown !== oldMarkdown) {
       if (pathname && autoSave) {
-        ipcRenderer.send('AGANI::response-file-save', { pathname, markdown, options })
+        ipcRenderer.send('AGANI::response-file-save', { id, pathname, markdown, options })
       } else {
         commit('SET_SAVE_STATUS', false)
       }
     }
-  },
-
-  LISTEN_FOR_FILE_SAVED_SUCCESSFULLY ({ commit }) {
-    ipcRenderer.on('AGANI::file-saved-successfully', e => {
-      commit('SET_SAVE_STATUS', true)
-    })
   },
 
   SELECTION_CHANGE ({ commit }, changes) {
@@ -294,18 +332,6 @@ const actions = {
       } else {
         // upload to CM
         bus.$emit('upload-image')
-      }
-    })
-  },
-
-  LISTEN_FOR_CLOSE ({ commit, state }) {
-    ipcRenderer.on('AGANI::ask-for-close', e => {
-      const { isSaved, markdown, pathname, filename } = state.currentFile
-      const options = getOptionsFromState(state)
-      if (!isSaved && /[^\n]/.test(markdown)) {
-        ipcRenderer.send('AGANI::response-close-confirm', { filename, pathname, markdown, options })
-      } else {
-        ipcRenderer.send('AGANI::close-window')
       }
     })
   },

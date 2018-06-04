@@ -2,9 +2,7 @@ import fs from 'fs'
 import path from 'path'
 import { promisify } from 'util'
 import { LINE_ENDING_REG, LF_LINE_ENDING_REG, CRLF_LINE_ENDING_REG, isWindows } from '../config'
-import appWindow from '../window'
 import userPreference from '../preference'
-import { log } from './index'
 
 export const getOsLineEndingName = () => {
   const { endOfLine } = userPreference.getAll()
@@ -27,19 +25,22 @@ const convertLineEndings = (text, lineEnding) => {
   return text.replace(LINE_ENDING_REG, getLineEnding(lineEnding))
 }
 
-export const writeFile = (pathname, content, extension, callback = null) => {
-  if (pathname) {
-    pathname = !extension || pathname.endsWith(extension) ? pathname : `${pathname}${extension}`
-    fs.writeFile(pathname, content, 'utf-8', err => {
-      if (err) log(err)
-      if (callback) callback(err, pathname)
-    })
-  } else {
-    log('[ERROR] Cannot save file without path.')
+export const writeFile = (pathname, content, extension) => {
+  if (!pathname) {
+    const errMsg = '[ERROR] Cannot save file without path.'
+    return Promise.reject(errMsg)
   }
+  pathname = !extension || pathname.endsWith(extension) ? pathname : `${pathname}${extension}`
+
+  return new Promise((resolve, reject) => {
+    fs.writeFile(pathname, content, 'utf-8', err => {
+      if (err) reject(err)
+      else resolve({ pathname })
+    })
+  })
 }
 
-export const writeMarkdownFile = (pathname, content, options, win, e, quitAfterSave = false) => {
+export const writeMarkdownFile = (pathname, content, options, win) => {
   const { adjustLineEndingOnSave, isUtf8BomEncoded, lineEnding } = options
   const extension = path.extname(pathname) || '.md'
 
@@ -51,12 +52,7 @@ export const writeMarkdownFile = (pathname, content, options, win, e, quitAfterS
     content = convertLineEndings(content, lineEnding)
   }
 
-  writeFile(pathname, content, extension, (err, filePath) => {
-    if (!err) e.sender.send('AGANI::file-saved-successfully')
-    const filename = path.basename(filePath)
-    if (e && filePath) e.sender.send('AGANI::set-pathname', { pathname: filePath, filename })
-    if (!err && quitAfterSave) appWindow.forceClose(win)
-  })
+  return writeFile(pathname, content, extension)
 }
 
 export const loadMarkdownFile = async pathname => {

@@ -107,8 +107,8 @@ class Watcher {
 
     // unwatcher function
     return () => {
-      if (this.watchers.has(id)) {
-        this.watchers.delete(id)
+      if (this.watchers[id]) {
+        delete this.watchers[id]
       }
       watcher.close()
     }

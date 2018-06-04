@@ -23,40 +23,69 @@ const handleResponseForExport = (e, { type, content, filename, pathname }) => {
   if (!content && type === 'pdf') {
     win.webContents.printToPDF({ printBackground: true }, (err, data) => {
       if (err) log(err)
-      writeFile(filePath, data, extension)
+      else {
+        writeFile(filePath, data, extension)
+          .catch(log)
+      }
     })
   } else {
     writeFile(filePath, content, extension)
+      .catch(log)
   }
 }
 
-const handleResponseForSave = (e, { markdown, pathname, options, quitAfterSave = false }) => {
+const handleResponseForSave = (e, { id, markdown, pathname, options }) => {
   const win = BrowserWindow.fromWebContents(e.sender)
-  if (pathname) {
-    writeMarkdownFile(pathname, markdown, options, win, e, quitAfterSave)
-  } else {
-    const filePath = dialog.showSaveDialog(win, {
-      defaultPath: getPath('documents') + '/Untitled.md'
+
+  pathname = pathname || dialog.showSaveDialog(win, {
+    defaultPath: getPath('documents') + '/Untitled.md'
+  })
+
+  return writeMarkdownFile(pathname, markdown, options, win)
+    .then(() => {
+      console.log(pathname)
+      const filename = path.basename(pathname)
+      win.webContents.send('AGANI::set-pathname', { id, pathname, filename })
     })
-    writeMarkdownFile(filePath, markdown, options, win, e, quitAfterSave)
-  }
 }
 
-ipcMain.on('AGANI::response-file-save-as', (e, { markdown, pathname, options }) => {
+ipcMain.on('AGANI::save-all', (e, unSavedFiles) => {
+  Promise.all(unSavedFiles.map(file => handleResponseForSave(e, file)))
+    .catch(log)
+})
+
+ipcMain.on('AGANI::save-all-close', (e, unSavedFiles) => {
+  const win = BrowserWindow.fromWebContents(e.sender)
+  Promise.all(unSavedFiles.map(file => handleResponseForSave(e, file)))
+    .then(() => {
+      win.send('AGANI::save-all-response')
+    })
+    .catch(err => {
+      win.send('AGANI::save-all-response', err)
+      log(err)
+    })
+})
+
+ipcMain.on('AGANI::response-file-save-as', (e, { id, markdown, pathname, options }) => {
   const win = BrowserWindow.fromWebContents(e.sender)
   const filePath = dialog.showSaveDialog(win, {
     defaultPath: pathname || getPath('documents') + '/Untitled.md'
   })
-  writeMarkdownFile(filePath, markdown, options, win, e)
+  writeMarkdownFile(filePath, markdown, options, win)
+    .then(() => {
+      const filename = path.basename(filePath)
+      win.webContents.send('AGANI::set-pathname', { id, pathname: filePath, filename })
+    })
+    .catch(log)
 })
 
-ipcMain.on('AGANI::response-close-confirm', (e, { filename, pathname, markdown, options }) => {
+ipcMain.on('AGANI::response-close-confirm', (e, unSavedFiles) => {
   const win = BrowserWindow.fromWebContents(e.sender)
   dialog.showMessageBox(win, {
     type: 'warning',
     buttons: ['Save', 'Cancel', 'Delete'],
     defaultId: 0,
-    message: `Do you want to save the changes you made to ${filename}?`,
+    message: `Do you want to save the changes you made to ${unSavedFiles.length} ${unSavedFiles.length === 1 ? 'file' : 'files'}?\n\n${unSavedFiles.map(f => f.filename).join('\n')}`,
     detail: `Your changes will be lost if you don't save them.`,
     cancelId: 1,
     noLink: true
@@ -67,7 +96,14 @@ ipcMain.on('AGANI::response-close-confirm', (e, { filename, pathname, markdown, 
         break
       case 0:
         setTimeout(() => {
-          handleResponseForSave(e, { pathname, markdown, options, quitAfterSave: true })
+          Promise.all(unSavedFiles.map(file => handleResponseForSave(e, file)))
+            .then(() => {
+              appWindow.forceClose(win)
+            })
+            .catch(err => {
+              console.log(err)
+              log(err)
+            })
         })
         break
     }
@@ -92,11 +128,12 @@ ipcMain.on('AGANI::window::drop', (e, fileList) => {
   }
 })
 
-ipcMain.on('AGANI::rename', (e, { pathname, newPathname }) => {
+ipcMain.on('AGANI::rename', (e, { id, pathname, newPathname }) => {
   const win = BrowserWindow.fromWebContents(e.sender)
   if (!isFile(newPathname)) {
     fs.renameSync(pathname, newPathname)
     e.sender.send('AGANI::set-pathname', {
+      id,
       pathname: newPathname,
       filename: path.basename(newPathname)
     })
@@ -120,7 +157,7 @@ ipcMain.on('AGANI::rename', (e, { pathname, newPathname }) => {
   }
 })
 
-ipcMain.on('AGANI::response-file-move-to', (e, { pathname }) => {
+ipcMain.on('AGANI::response-file-move-to', (e, { id, pathname }) => {
   const win = BrowserWindow.fromWebContents(e.sender)
   let newPath = dialog.showSaveDialog(win, {
     buttonLabel: 'Move to',
@@ -129,7 +166,7 @@ ipcMain.on('AGANI::response-file-move-to', (e, { pathname }) => {
   })
   if (newPath === undefined) return
   fs.renameSync(pathname, newPath)
-  e.sender.send('AGANI::set-pathname', { pathname: newPath, filename: path.basename(newPath) })
+  e.sender.send('AGANI::set-pathname', { id, pathname: newPath, filename: path.basename(newPath) })
 })
 
 ipcMain.on('AGANI::ask-for-open-project-in-sidebar', e => {

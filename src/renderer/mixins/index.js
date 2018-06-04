@@ -22,12 +22,12 @@ export const tabsMixins = {
 export const fileMixins = {
   methods: {
     handleFileClick () {
-      const { data, isMarkdown, pathname, id } = this.file
+      const { data, isMarkdown, pathname } = this.file
       if (!isMarkdown || this.currentFile.pathname === pathname) return
       const { isMixed, filename, lineEnding } = data
       const isOpened = this.tabs.filter(file => file.pathname === pathname)[0]
-      console.log(isOpened)
-      const fileState = isOpened || getFileStateFromData(id, data)
+
+      const fileState = isOpened || getFileStateFromData(data)
 
       this.$store.dispatch('UPDATE_CURRENT_FILE', fileState)
 

@@ -23,12 +23,12 @@ export const defaultFileState = {
   }
 }
 
-export const getOptionsFromState = state => {
-  const { isUtf8BomEncoded, lineEnding, adjustLineEndingOnSave } = state.currentFile
+export const getOptionsFromState = file => {
+  const { isUtf8BomEncoded, lineEnding, adjustLineEndingOnSave } = file
   return { isUtf8BomEncoded, lineEnding, adjustLineEndingOnSave }
 }
 
-export const getFileStateFromData = (id, data) => {
+export const getFileStateFromData = data => {
   const fileState = JSON.parse(JSON.stringify(defaultFileState))
   const {
     markdown,
@@ -38,6 +38,7 @@ export const getFileStateFromData = (id, data) => {
     lineEnding,
     adjustLineEndingOnSave
   } = data
+  const id = getUniqueId()
 
   return Object.assign(fileState, {
     id,

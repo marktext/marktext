@@ -92,7 +92,6 @@ export const unlinkFile = (tree, file) => {
 }
 
 export const changeFile = (tree, file) => {
-  console.log(file)
   const { pathname, data } = file
   const dirname = path.dirname(pathname)
   let { tokens } = getPathArr(tree.name, dirname)

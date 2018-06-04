@@ -26,12 +26,12 @@
           <use xlink:href="#icon-arrow"></use>
         </svg>
         <span>Opened files</span>
-        <a href="javascript:;">
+        <a href="javascript:;" @click.stop="saveAll(false)">
           <svg class="icon" aria-hidden="true">
             <use xlink:href="#icon-save-all"></use>
           </svg>
         </a>
-        <a href="javascript:;">
+        <a href="javascript:;" @click.stop="saveAll(true)">
           <svg class="icon" aria-hidden="true">
             <use xlink:href="#icon-close-all"></use>
           </svg>
@@ -113,6 +113,9 @@
       },
       openProject () {
         this.$store.dispatch('ASK_FOR_OPEN_PROJECT')
+      },
+      saveAll (isClose) {
+        this.$store.dispatch('ASK_FOR_SAVE_ALL', isClose)
       }
     }
   }
