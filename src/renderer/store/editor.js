@@ -43,7 +43,9 @@ const mutations = {
   },
   SET_PATHNAME (state, file) {
     const { filename, pathname, id } = file
-    window.__dirname = path.dirname(pathname)
+    if (id === state.currentFile.id) {
+      window.__dirname = path.dirname(pathname)
+    }
 
     const targetFile = state.tabs.filter(f => f.id === id)[0]
     if (targetFile) {
@@ -227,10 +229,10 @@ const actions = {
 
   // ask for main process to rename this file to a new name `newFilename`
   RENAME ({ commit, state }, newFilename) {
-    const { pathname, filename } = state.currentFile
+    const { id, pathname, filename } = state.currentFile
     if (filename !== newFilename) {
       const newPathname = path.join(path.dirname(pathname), newFilename)
-      ipcRenderer.send('AGANI::rename', { pathname, newPathname })
+      ipcRenderer.send('AGANI::rename', { id, pathname, newPathname })
     }
   },
 

@@ -3,7 +3,7 @@
       class="opened-file"
       :title="file.pathname"
       @click="selectFile(file)"
-      :class="{'active': currentFile.pathname === file.pathname, 'unsaved': !file.isSaved }"
+      :class="[{'active': currentFile.pathname === file.pathname, 'unsaved': !file.isSaved }, theme]"
     >
       <svg class="icon" aria-hidden="true"
         @click.stop="removeFileInTab(file)"
@@ -28,7 +28,8 @@
     },
     computed: {
       ...mapState({
-        currentFile: state => state.editor.currentFile
+        'theme': state => state.preferences.theme,
+        'currentFile': state => state.editor.currentFile
       })
     }
   }
@@ -78,5 +79,9 @@
   }
   .unsaved.opened-file:hover::before {
     content: none;
+  }
+  .dark.opened-file:hover {
+    background: var(--darkHoverColor);
+    color: var(--lightTabColor);
   }
 </style>

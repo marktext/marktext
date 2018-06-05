@@ -19,6 +19,10 @@ html {
   -webkit-font-smoothing: antialiased;
 }
 
+pre {
+  -webkit-font-smoothing: auto;
+}
+
 
 @keyframes highlight {
   from {

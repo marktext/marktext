@@ -148,6 +148,7 @@ ipcMain.on('AGANI::rename', (e, { id, pathname, newPathname }) => {
       if (index === 0) {
         fs.renameSync(pathname, newPathname)
         e.sender.send('AGANI::set-pathname', {
+          id,
           pathname: newPathname,
           filename: path.basename(newPathname)
         })

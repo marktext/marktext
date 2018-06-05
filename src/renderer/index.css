@@ -1,6 +1,8 @@
 :root {
   --lightBarColor: rgb(245, 245, 245);
   --lightTabColor: rgb(243, 243, 243);
+  --darkBgColor: rgb(45, 45, 45);
+  --darkHoverColor: rgb(70, 70, 70);
 }
 .icon {
   width: 1em; height: 1em;

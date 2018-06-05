@@ -139,7 +139,7 @@
     background: #F2F6FC;
   }
   .dark {
-    background: rgb(43, 43, 43);
+    background: var(--darkBgColor);
   }
   .dark.source-code .CodeMirror-activeline-background,
   .dark.source-code .CodeMirror-activeline-gutter {

@@ -461,6 +461,6 @@
   /* for dark theme */
   .dark.editor-wrapper,
   .dark.editor-wrapper #ag-editor-id {
-    background: rgb(43, 43, 43);
+    background: var(--darkBgColor);
   }
 </style>

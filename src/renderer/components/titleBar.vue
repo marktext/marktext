@@ -285,7 +285,7 @@
   }
   /* css for dark theme */
   .dark {
-    background: rgb(43, 43, 43);
+    background: var(--darkBgColor);
     color: #909399;
   }
   .dark .title:hover {

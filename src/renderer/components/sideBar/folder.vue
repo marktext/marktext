@@ -1,11 +1,12 @@
 <template>
   <div
     class="side-bar-folder"
+    :class="theme"
   >
     <div
       class="folder-name" @click="folderNameClick"
       :style="{'padding-left': `${depth * 5 + 15}px`}"
-      :class="{ 'active': folder.id === activeItem.id }"
+      :class="[{ 'active': folder.id === activeItem.id }]"
       :title="folder.pathname"
       ref="folder"
     >
@@ -79,6 +80,7 @@
     },
     computed: {
       ...mapState({
+        'theme': state => state.preferences.theme,
         'renameCache': state => state.project.renameCache,
         'createCache': state => state.project.createCache,
         'activeItem': state => state.project.activeItem,
@@ -144,5 +146,9 @@
     border: 1px solid var(--lightBorder);
     width: 100%;
     border-radius: 3px;
+  }
+  .dark.side-bar-folder > .folder-name:hover {
+    background-color: var(--darkHoverColor);
+    color: var(--lightTabColor);
   }
 </style>

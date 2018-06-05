@@ -2,6 +2,7 @@
   <div
     v-show="showSideBar"
     class="side-bar"
+    :class="[theme]"
     ref="sideBar"
     :style="{ 'width': `${finalSideBarWidth}px` }"
   >
@@ -59,6 +60,7 @@
     },
     computed: {
       ...mapState({
+        'theme': state => state.preferences.theme,
         'rightColumn': state => state.layout.rightColumn,
         'showSideBar': state => state.layout.showSideBar,
         'projectTree': state => state.project.projectTree,
@@ -124,6 +126,10 @@
     height: calc(100vh - 22px);
     overflow: hidden;
     position: relative;
+    color: var(--secondaryColor);
+  }
+  .side-bar.dark {
+    background: var(--darkBgColor);
   }
 
   .left-column {
@@ -176,7 +182,7 @@
     width: 2px;
     cursor: col-resize;
     &:hover {
-      background: var(--lightBarColor);
+      background: var(--secondaryColor);
     }
   }
 </style>

@@ -4,7 +4,7 @@
     class="side-bar-file"
     :style="{'padding-left': `${depth * 5 + 15}px`, 'opacity': file.isMarkdown ? 1 : 0.75 }"
     @click="handleFileClick()"
-    :class="{'current': currentFile.pathname === file.pathname, 'active': file.id === activeItem.id }"
+    :class="[{'current': currentFile.pathname === file.pathname, 'active': file.id === activeItem.id }, theme]"
     ref="file"
   >
     <file-icon
@@ -53,6 +53,7 @@
     },
     computed: {
       ...mapState({
+        'theme': state => state.preferences.theme,
         'renameCache': state => state.project.renameCache,
         'activeItem': state => state.project.activeItem,
         'clipboard': state => state.project.clipboard,
@@ -124,5 +125,9 @@
     border: 1px solid var(--lightBorder);
     width: 100%;
     border-radius: 3px;
+  }
+  .dark.side-bar-file:hover {
+    background: var(--darkHoverColor);
+    color: var(--lightTabColor);
   }
 </style>

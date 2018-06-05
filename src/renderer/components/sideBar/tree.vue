@@ -190,7 +190,7 @@
       pointer-events: auto;
       cursor: pointer;
       margin-left: 8px;
-      color: var(--primaryColor);
+      color: var(--secondaryColor);
       opacity: 0;
     }
     & > a:hover {
@@ -223,7 +223,7 @@
     & > a {
       display: none;
       text-decoration: none;
-      color: var(--primaryColor);
+      color: var(--secondaryColor);
       margin-left: 8px;
     }
   }

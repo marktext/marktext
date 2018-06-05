@@ -2,7 +2,7 @@
     <div
       class="side-bar-list-file"
       @click="handleFileClick"
-      :class="{ 'active': file.pathname === currentFile.pathname }"
+      :class="[{ 'active': file.pathname === currentFile.pathname }, theme]"
     >
       <div class="title">
         <span class="filename">{{ filename }}</span>
@@ -32,6 +32,7 @@
     },
     computed: {
       ...mapState({
+        theme: state => state.preferences.theme,
         tabs: state => state.editor.tabs,
         currentFile: state => state.editor.currentFile
       }),
@@ -57,7 +58,6 @@
     font-size: 13px;
     & .title .filename {
       font-size: 15px;
-      color: var(--primaryColor);
     }
     &:hover {
       background: var(--extraLightBorder);
@@ -77,5 +77,9 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+  }
+  .dark.side-bar-list-file:hover {
+    background: var(--darkHoverColor);
+    color: var(--lightTabColor);
   }
 </style>
