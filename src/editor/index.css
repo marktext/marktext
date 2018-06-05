@@ -15,6 +15,11 @@
   --extraLightBorder: #F2F6FC;
 }
 
+html {
+  -webkit-font-smoothing: antialiased;
+}
+
+
 @keyframes highlight {
   from {
     transform: scale(1);
