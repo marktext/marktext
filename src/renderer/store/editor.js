@@ -248,8 +248,8 @@ const actions = {
       dispatch('UPDATE_CURRENT_FILE', fileState)
       bus.$emit('file-loaded', markdown)
       commit('SET_LAYOUT', {
-        rightColumn: '',
-        showToolBar: false,
+        rightColumn: 'list',
+        showSideBar: false,
         showTabBar: false
       })
       dispatch('SET_LAYOUT_MENU_ITEM')
@@ -264,8 +264,8 @@ const actions = {
       dispatch('UPDATE_CURRENT_FILE', fileState)
       bus.$emit('file-loaded', markdown)
       commit('SET_LAYOUT', {
-        rightColumn: '',
-        showToolBar: false,
+        rightColumn: 'list',
+        showSideBar: false,
         showTabBar: false
       })
       dispatch('SET_LAYOUT_MENU_ITEM')

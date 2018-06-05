@@ -3,7 +3,7 @@ import { ipcRenderer } from 'electron'
 // messages from main process, and do not change the state
 const state = {
   rightColumn: '',
-  showToolBar: false,
+  showSideBar: false,
   showTabBar: false
 }
 
@@ -27,8 +27,8 @@ const actions = {
     })
   },
   SET_LAYOUT_MENU_ITEM ({ commit, state }) {
-    const { showTabBar, showToolBar } = state
-    ipcRenderer.send('AGANI::set-view-layout', { showTabBar, showToolBar })
+    const { showTabBar, showSideBar } = state
+    ipcRenderer.send('AGANI::set-view-layout', { showTabBar, showSideBar })
   }
 }
 

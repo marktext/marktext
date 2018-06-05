@@ -64,7 +64,7 @@
     }
   }
   .side-bar-list-file.active {
-    border-color: var(--brandColor);
+    border-color: var(--activeColor);
   }
   .folder-date {
     margin-top: 5px;

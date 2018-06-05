@@ -139,7 +139,10 @@
   }
   .new-input, input.rename {
     outline: none;
-    height: 18px;
+    height: 22px;
     margin: 5px 0;
+    border: 1px solid var(--lightBorder);
+    width: 100%;
+    border-radius: 3px;
   }
 </style>

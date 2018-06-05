@@ -104,6 +104,11 @@
     &:hover {
       background: var(--extraLightBorder);
     }
+    & > span {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
   }
   .side-bar-file.current {
     color: var(--activeColor);
@@ -113,8 +118,11 @@
     background: var(--lightBorder);
   }
   input.rename {
-    height: 18px;
+    height: 22px;
     outline: none;
     margin: 5px 0;
+    border: 1px solid var(--lightBorder);
+    width: 100%;
+    border-radius: 3px;
   }
 </style>

@@ -1,7 +1,6 @@
 <template>
   <div class="tree-view">
     <div class="title">
-      <span>Explorer</span>
       <a
         href="javascript:;"
         :class="{'active': active === 'tree'}"
@@ -37,11 +36,13 @@
           </svg>
         </a>
       </div>
-      <opened-file
-        v-for="(tab, index) of tabs"
-        :key="index"
-        :file="tab"
-      ></opened-file>
+      <div class="opened-files-list">
+        <opened-file
+          v-for="(tab, index) of tabs"
+          :key="index"
+          :file="tab"
+        ></opened-file>
+      </div>
     </div>
     <!-- project tree view -->
     <div 
@@ -72,7 +73,7 @@
           :depth="depth"
         ></file>
       </div>
-      <div v-show="active === 'list'">
+      <div v-show="active === 'list'" class="list-wrapper">
         <list-file
           v-for="(file, index) of fileList"
           :key="index"
@@ -180,6 +181,7 @@
     line-height: 35px;
     padding: 0 15px;
     display: flex;
+    flex-direction: row-reverse;
     & > span {
       flex: 1;
       user-select: none;
@@ -189,6 +191,7 @@
       cursor: pointer;
       margin-left: 8px;
       color: var(--primaryColor);
+      opacity: 0;
     }
     & > a:hover {
       color: var(--brandColor);
@@ -196,14 +199,17 @@
     & > a.active {
       color: var(--activeColor);
     }
+    &:hover a {
+      opacity: 1;
+    }
   }
 
   .opened-files,
   .project-tree {
     & > .title {
-      height: 25px;
-      background: var(--lightBarColor);
-      line-height: 25px;
+      height: 30px;
+      line-height: 30px;
+      font-size: 14px;
     }
   }
 
@@ -227,11 +233,24 @@
       color: var(--brandColor);
     }
   }
+  .opened-files {
+    display: flex;
+    flex-direction: column;
+  }
+  .opened-files .opened-files-list {
+    max-height: 200px;
+    overflow: auto;
+    &::-webkit-scrollbar:vertical {
+      width: 5px;
+    }
+    flex: 1;
+  }
 
   .project-tree {
     display: flex;
     flex-direction: column;
-    & > .tree-wrapper {
+    & > .tree-wrapper,
+    & > .list-wrapper {
       overflow: auto;
       flex: 1;
       &::-webkit-scrollbar:vertical {
@@ -253,7 +272,10 @@
   }
   .new-input {
     outline: none;
-    height: 18px;
+    height: 22px;
     margin: 5px 0;
+    border: 1px solid var(--lightBorder);
+    width: calc(100% - 45px);
+    border-radius: 3px;
   }
 </style>

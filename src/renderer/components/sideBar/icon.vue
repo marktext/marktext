@@ -23,6 +23,7 @@
 
 <style scoped>
   .file-icon {
+    flex-shrink: 0;
     margin-right: 5px;
   }
 </style>

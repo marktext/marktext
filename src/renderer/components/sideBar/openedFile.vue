@@ -36,6 +36,7 @@
 
 <style scoped>
   .opened-file {
+    display: flex;
     user-select: none;
     height: 28px;
     line-height: 28px;
@@ -55,6 +56,11 @@
     }
     &:hover {
       background: var(--extraLightBorder);
+    }
+    & > span {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
   }
   .opened-file.active {

@@ -56,12 +56,12 @@ let viewMenu = {
   }, {
     type: 'separator'
   }, {
-    label: 'Tool Bar',
-    id: 'toolBarMenuItem',
+    label: 'Side Bar',
+    id: 'sideBarMenuItem',
     type: 'checkbox',
     checked: false,
     click (item, browserWindow) {
-      actions.layout(item, browserWindow, 'showToolBar')
+      actions.layout(item, browserWindow, 'showSideBar')
     }
   }, {
     label: 'Tab Bar',

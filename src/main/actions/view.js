@@ -38,10 +38,10 @@ ipcMain.on('AGANI::ask-for-mode', e => {
   win.webContents.send('AGANI::res-for-mode', modes)
 })
 
-ipcMain.on('AGANI::set-view-layout', (e, { showToolBar, showTabBar }) => {
-  const toolBarMenuItem = getMenuItemById('toolBarMenuItem')
+ipcMain.on('AGANI::set-view-layout', (e, { showSideBar, showTabBar }) => {
+  const sideBarMenuItem = getMenuItemById('sideBarMenuItem')
   const tabBarMenuItem = getMenuItemById('tabBarMenuItem')
 
-  toolBarMenuItem.checked = showToolBar
+  sideBarMenuItem.checked = showSideBar
   tabBarMenuItem.checked = showTabBar
 })

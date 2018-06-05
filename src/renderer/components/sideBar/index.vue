@@ -1,14 +1,11 @@
 <template>
   <div
+    v-show="showSideBar"
     class="side-bar"
-    :class="{ 'opacity' : rightColumn === '' }"
     ref="sideBar"
     :style="{ 'width': `${finalSideBarWidth}px` }"
   >
-    <div
-      class="left-column"
-      v-show="showToolBar"
-    >
+    <div class="left-column">
       <ul>
         <li
           v-for="(icon, index) of sideBarIcons"
@@ -63,17 +60,17 @@
     computed: {
       ...mapState({
         'rightColumn': state => state.layout.rightColumn,
-        'showToolBar': state => state.layout.showToolBar,
+        'showSideBar': state => state.layout.showSideBar,
         'projectTree': state => state.project.projectTree,
         'sideBarWidth': state => state.project.sideBarWidth,
         'tabs': state => state.editor.tabs
       }),
       ...mapGetters(['fileList']),
       finalSideBarWidth () {
-        const { showToolBar, rightColumn, sideBarViewWidth } = this
+        const { showSideBar, rightColumn, sideBarViewWidth } = this
         let width = sideBarViewWidth
-        if (rightColumn === '') width = 50
-        if (!showToolBar) width -= 50
+        if (rightColumn === '') width = 45
+        if (!showSideBar) width -= 45
         return width
       }
     },
@@ -124,22 +121,19 @@
 <style scoped>
   .side-bar {
     display: flex;
-    border-right: 1px solid var(--lightBarColor);
     height: calc(100vh - 22px);
     overflow: hidden;
     position: relative;
   }
-  .side-bar.opacity {
-    border-right-color: transparent;
-  }
+
   .left-column {
     height: 100%;
-    width: 50px;
-    background-color: var(--lightBarColor);
+    width: 45px;
+    & > ul {
+      opacity: 1;
+    }
   }
-  .opacity .left-column {
-    background-color: transparent;
-  }
+
   .left-column ul {
     list-style: none;
     display: flex;
@@ -147,8 +141,8 @@
     margin: 0;
     padding: 0;
     & > li {
-      width: 50px;
-      height: 50px;
+      width: 45px;
+      height: 45px;
       margin: 0;
       padding: 0;
       display: flex;
@@ -159,11 +153,15 @@
         color: var(--brandColor);
       }
       & > svg {
-        width: 20px;
-        height: 20px;
+        width: 1em;
+        height: 1em;
+        opacity: 0;
         color: var(--secondaryColor);
       }
     }
+  }
+  .left-column:hover ul li svg {
+    opacity: 1;
   }
   .right-column {
     flex: 1;
@@ -175,7 +173,10 @@
     right: 0;
     bottom: 0;
     height: 100%;
-    width: 5px;
+    width: 2px;
     cursor: col-resize;
+    &:hover {
+      background: var(--lightBarColor);
+    }
   }
 </style>

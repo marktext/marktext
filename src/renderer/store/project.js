@@ -87,7 +87,7 @@ const actions = {
       commit('SET_PROJECT_TREE', { pathname, name })
       commit('SET_LAYOUT', {
         rightColumn: 'files',
-        showToolBar: true,
+        showSideBar: true,
         showTabBar: false
       })
       dispatch('SET_LAYOUT_MENU_ITEM')
