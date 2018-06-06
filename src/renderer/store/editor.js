@@ -156,7 +156,9 @@ const actions = {
   // need pass some data to main process when `save` menu item clicked
   LISTEN_FOR_SAVE ({ commit, state, dispatch }) {
     ipcRenderer.on('AGANI::ask-file-save', () => {
-      dispatch('SAVE_SINGLE_FILE', state.currentFile)
+      const { id, pathname, markdown } = state.currentFile
+      const options = getOptionsFromState(state.currentFile)
+      ipcRenderer.send('AGANI::response-file-save', { id, pathname, markdown, options })
     })
   },
 
