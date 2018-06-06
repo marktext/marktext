@@ -72,6 +72,10 @@
           :file="file"
           :depth="depth"
         ></file>
+        <div class="empty-project" v-if="projectTree.files.length === 0 && projectTree.folders.length === 0">
+          <span>Empty project</span>
+          <a href="javascript:;" @click.stop="createFile">Create File</a>
+        </div>
       </div>
       <div v-show="active === 'list'" class="list-wrapper">
         <list-file
@@ -101,7 +105,7 @@
     data () {
       this.depth = 0
       return {
-        active: 'list', // tree or list
+        active: 'tree', // tree or list
         showNewInput: false,
         createName: ''
       }
@@ -164,6 +168,10 @@
       },
       saveAll (isClose) {
         this.$store.dispatch('ASK_FOR_SAVE_ALL', isClose)
+      },
+      createFile () {
+        this.$store.dispatch('CHANGE_ACTIVE_ITEM', this.projectTree)
+        bus.$emit('SIDEBAR::new', 'file')
       }
     }
   }
@@ -278,5 +286,27 @@
     border: 1px solid var(--lightBorder);
     width: calc(100% - 45px);
     border-radius: 3px;
+  }
+  .tree-wrapper {
+    position: relative;
+  }
+  .empty-project {
+    position: absolute;
+    top: 0;
+    left: 0;
+    font-size: 14px;
+    display: flex;
+    flex-direction: column;
+    padding-top: 40px;
+    align-items: center;
+    & > a {
+      color: var(--activeColor);
+      text-align: center;
+      margin-top: 15px;
+      text-decoration: none;
+    }
+  }
+  .bold {
+    font-weight: 600;
   }
 </style>

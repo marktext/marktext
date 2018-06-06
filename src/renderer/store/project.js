@@ -36,7 +36,7 @@ const mutations = {
     state.projectTree = {
       pathname,
       name,
-      isDirctory: true,
+      isDirectory: true,
       isFile: false,
       isMarkdown: false,
       folders: [],
@@ -139,6 +139,7 @@ const actions = {
     })
     bus.$on('SIDEBAR::new', type => {
       const { pathname, isDirectory } = state.activeItem
+      console.log(type, pathname, isDirectory)
       const dirname = isDirectory ? pathname : path.dirname(pathname)
       commit('CREATE_PATH', { dirname, type })
       bus.$emit('SIDEBAR::show-new-input')
