@@ -166,7 +166,7 @@
       }
     }
   }
-  .left-column:hover ul li svg {
+  .side-bar:hover .left-column ul li svg {
     opacity: 1;
   }
   .right-column {

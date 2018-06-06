@@ -45,6 +45,7 @@
     & > li {
       font-size: 14px;
       margin-bottom: 15px;
+      cursor: pointer;
     }
     & > li.active {
       color: var(--activeColor);

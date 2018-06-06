@@ -1,5 +1,7 @@
 <template>
-    <div class="side-bar-search">
+    <div class="side-bar-search"
+      :class="theme"
+    >
       <div class="search-wrapper">
         <input
           type="text" v-model="keyword"
@@ -24,7 +26,7 @@
 </template>
 
 <script>
-  import { mapGetters } from 'vuex'
+  import { mapGetters, mapState } from 'vuex'
   import ListFile from './listFile.vue'
 
   export default {
@@ -38,6 +40,9 @@
       ListFile
     },
     computed: {
+      ...mapState({
+        'theme': state => state.preferences.theme
+      }),
       ...mapGetters(['fileList'])
     },
     methods: {
@@ -99,5 +104,14 @@
   .empty {
     font-size: 13px;
     text-align: center;
+  }
+  .dark.side-bar-search .search-wrapper {
+    background: rgb(54, 55, 49);
+    border-color: transparent;
+    & > input,
+    & > svg {
+      background: transparent;
+      color: #C0C4CC;
+    }
   }
 </style>
