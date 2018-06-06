@@ -13,7 +13,7 @@ export const tabsMixins = {
       if (isSaved) {
         this.$store.dispatch('REMOVE_FILE_IN_TABS', file)
       } else {
-        // todo
+        this.$store.dispatch('CLOSE_SINGLE_FILE', file)
       }
     }
   }

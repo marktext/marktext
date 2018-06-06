@@ -53,22 +53,54 @@ const handleResponseForSave = (e, { id, markdown, pathname, options }) => {
   }
 }
 
+const showUnsavedFilesMessage = (win, files) => {
+  return new Promise((resolve, reject) => {
+    dialog.showMessageBox(win, {
+      type: 'warning',
+      buttons: ['Save', 'Cancel', 'Delete'],
+      defaultId: 0,
+      message: `Do you want to save the changes you made to ${files.length} ${files.length === 1 ? 'file' : 'files'}?\n\n${files.map(f => f.filename).join('\n')}`,
+      detail: `Your changes will be lost if you don't save them.`,
+      cancelId: 1,
+      noLink: true
+    }, index => {
+      switch (index) {
+        case 2:
+          resolve({ needSave: false })
+          break
+        case 0:
+          setTimeout(() => {
+            resolve({ needSave: true })
+          })
+          break
+      }
+    })
+  })
+}
+
 ipcMain.on('AGANI::save-all', (e, unSavedFiles) => {
   Promise.all(unSavedFiles.map(file => handleResponseForSave(e, file)))
     .catch(log)
 })
 
-ipcMain.on('AGANI::save-all-close', (e, unSavedFiles) => {
+ipcMain.on('AGANI::save-close', async (e, unSavedFiles, isSingle) => {
   const win = BrowserWindow.fromWebContents(e.sender)
-  Promise.all(unSavedFiles.map(file => handleResponseForSave(e, file)))
-    .then(arr => {
-      const data = arr.filter(id => id)
-      win.send('AGANI::save-all-response', { err: null, data })
-    })
-    .catch(err => {
-      win.send('AGANI::save-all-response', { err, data: null })
-      log(err)
-    })
+  const { needSave } = await showUnsavedFilesMessage(win, unSavedFiles)
+  const EVENT = isSingle ? 'AGANI::save-single-response' : 'AGANI::save-all-response'
+  if (needSave) {
+    Promise.all(unSavedFiles.map(file => handleResponseForSave(e, file)))
+      .then(arr => {
+        const data = arr.filter(id => id)
+        win.send(EVENT, { err: null, data })
+      })
+      .catch(err => {
+        win.send(EVENT, { err, data: null })
+        log(err)
+      })
+  } else {
+    const data = unSavedFiles.map(f => f.id)
+    win.send(EVENT, { err: null, data })
+  }
 })
 
 ipcMain.on('AGANI::response-file-save-as', (e, { id, markdown, pathname, options }) => {
@@ -84,35 +116,21 @@ ipcMain.on('AGANI::response-file-save-as', (e, { id, markdown, pathname, options
     .catch(log)
 })
 
-ipcMain.on('AGANI::response-close-confirm', (e, unSavedFiles) => {
+ipcMain.on('AGANI::response-close-confirm', async (e, unSavedFiles) => {
   const win = BrowserWindow.fromWebContents(e.sender)
-  dialog.showMessageBox(win, {
-    type: 'warning',
-    buttons: ['Save', 'Cancel', 'Delete'],
-    defaultId: 0,
-    message: `Do you want to save the changes you made to ${unSavedFiles.length} ${unSavedFiles.length === 1 ? 'file' : 'files'}?\n\n${unSavedFiles.map(f => f.filename).join('\n')}`,
-    detail: `Your changes will be lost if you don't save them.`,
-    cancelId: 1,
-    noLink: true
-  }, index => {
-    switch (index) {
-      case 2:
+  const { needSave } = await showUnsavedFilesMessage(win, unSavedFiles)
+  if (needSave) {
+    Promise.all(unSavedFiles.map(file => handleResponseForSave(e, file)))
+      .then(() => {
         appWindow.forceClose(win)
-        break
-      case 0:
-        setTimeout(() => {
-          Promise.all(unSavedFiles.map(file => handleResponseForSave(e, file)))
-            .then(() => {
-              appWindow.forceClose(win)
-            })
-            .catch(err => {
-              console.log(err)
-              log(err)
-            })
-        })
-        break
-    }
-  })
+      })
+      .catch(err => {
+        console.log(err)
+        log(err)
+      })
+  } else {
+    appWindow.forceClose(win)
+  }
 })
 
 ipcMain.on('AGANI::response-file-save', handleResponseForSave)

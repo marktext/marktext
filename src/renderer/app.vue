@@ -116,7 +116,7 @@
       dispatch('LISTEN_FOR_SET_PATHNAME')
       dispatch('LISTEN_FOR_OPEN_SINGLE_FILE')
       dispatch('LISTEN_FOR_OPEN_BLANK_WINDOW')
-      dispatch('LISTEN_FOR_SAVE_ALL_CLOSE')
+      dispatch('LISTEN_FOR_SAVE_CLOSE')
       dispatch('LISTEN_FOR_EXPORT')
       dispatch('LISTEN_FOR_INSERT_IMAGE')
       dispatch('LISTEN_FOR_RENAME')

@@ -147,12 +147,16 @@ const actions = {
     ipcRenderer.send('AGANI::update-line-ending-menu', lineEnding)
   },
 
+  CLOSE_SINGLE_FILE ({ commit, state }, file) {
+    const { id, pathname, markdown } = file
+    const options = getOptionsFromState(file)
+    ipcRenderer.send('AGANI::save-close', [{ id, pathname, markdown, options }], true)
+  },
+
   // need pass some data to main process when `save` menu item clicked
-  LISTEN_FOR_SAVE ({ commit, state }) {
+  LISTEN_FOR_SAVE ({ commit, state, dispatch }) {
     ipcRenderer.on('AGANI::ask-file-save', () => {
-      const { id, pathname, markdown } = state.currentFile
-      const options = getOptionsFromState(state.currentFile)
-      ipcRenderer.send('AGANI::response-file-save', { id, pathname, markdown, options })
+      dispatch('SAVE_SINGLE_FILE', state.currentFile)
     })
   },
 
@@ -188,8 +192,17 @@ const actions = {
     })
   },
 
-  LISTEN_FOR_SAVE_ALL_CLOSE ({ commit, state }) {
+  LISTEN_FOR_SAVE_CLOSE ({ commit, state }) {
     ipcRenderer.on('AGANI::save-all-response', (e, { err, data }) => {
+      if (err) {
+        console.log(err)
+      } else if (Array.isArray(data)) {
+        const toBeClosedTabs = [...state.tabs.filter(f => f.isSaved), ...data]
+        commit('CLOSE_TABS', toBeClosedTabs)
+      }
+    })
+    ipcRenderer.on('AGANI::save-single-response', (e, { err, data }) => {
+      console.log(data)
       if (err) {
         console.log(err)
       } else if (Array.isArray(data) && data.length) {
@@ -206,8 +219,11 @@ const actions = {
         return { id, filename, pathname, markdown, options }
       })
     if (unSavedFiles.length) {
-      const EVENT_NAME = isClose ? 'AGANI::save-all-close' : 'AGANI::save-all'
-      ipcRenderer.send(EVENT_NAME, unSavedFiles)
+      const EVENT_NAME = isClose ? 'AGANI::save-close' : 'AGANI::save-all'
+      const isSingle = false
+      ipcRenderer.send(EVENT_NAME, unSavedFiles, isSingle)
+    } else if (isClose) {
+      commit('CLOSE_TABS', state.tabs.map(f => f.id))
     }
   },
 
