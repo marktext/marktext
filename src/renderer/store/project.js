@@ -3,6 +3,7 @@ import { ipcRenderer, shell } from 'electron'
 import { addFile, unlinkFile, changeFile, addDirectory, unlinkDirectory } from './treeCtrl'
 import bus from '../bus'
 import { create, paste, rename } from '../util/fileSystem'
+import { error } from '../notice'
 
 const width = localStorage.getItem('side-bar-width')
 const sideBarWidth = typeof +width === 'number' ? Math.max(+width, 180) : 280
@@ -139,7 +140,6 @@ const actions = {
     })
     bus.$on('SIDEBAR::new', type => {
       const { pathname, isDirectory } = state.activeItem
-      console.log(type, pathname, isDirectory)
       const dirname = isDirectory ? pathname : path.dirname(pathname)
       commit('CREATE_PATH', { dirname, type })
       bus.$emit('SIDEBAR::show-new-input')
@@ -162,7 +162,9 @@ const actions = {
           .then(() => {
             commit('SET_CLIPBOARD', null)
           })
-          .catch(console.log.bind(console))
+          .catch(err => {
+            error(err.message)
+          })
       }
     })
     bus.$on('SIDEBAR::rename', () => {
@@ -177,6 +179,9 @@ const actions = {
     create(`${dirname}/${name}`, type)
       .then(() => {
         commit('CREATE_PATH', {})
+      })
+      .catch(err => {
+        error(err.message)
       })
   },
 

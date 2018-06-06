@@ -82,7 +82,7 @@
     color: #fff;
   }
   .bottom-status.error {
-    background-color: #F44336;
+    background-color: var(--dangerColor);
   }
   .status-wrapper {
     text-align: center;

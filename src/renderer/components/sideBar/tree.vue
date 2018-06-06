@@ -208,9 +208,9 @@
     & > a.active {
       color: var(--activeColor);
     }
-    &:hover a {
-      opacity: 1;
-    }
+  }
+  .tree-view:hover .title a {
+    opacity: 1;
   }
 
   .opened-files,
