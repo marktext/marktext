@@ -1,3 +1,18 @@
+### 0.12.4
+
+**:cactus:Feature**
+
+- feature: file list in side bar: tree view and list view.
+- feature: search in project in side bar.
+- feature: table of content of the current edit file.
+- feature: copy table from Number(MacOs App)
+- feature: new file, new directory, copy, cut, paste, rename, remove to trash in side bar.
+- feature: save all the opened files and close all the opened files.
+
+**:butterfly:Optimization**
+
+**:beetle:Bug fix**
+
 ### 0.11.42
 
 **:cactus:Feature**

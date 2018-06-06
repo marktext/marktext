@@ -34,9 +34,9 @@
 
 - [ ] TOC syntax(only highlight `[TOC]`)
 
-- [ ] Side bar contains TOC and folders/files, also and toggle side bar in view menu.
+- [x] Side bar contains TOC and folders/files, also and toggle side bar in view menu.
 
-- [ ] Search in folder.
+- [x] Search in folder.
 
 - [x] Status bar, also and toggle status bar in view menu.
 
