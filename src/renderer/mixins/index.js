@@ -28,7 +28,6 @@ export const fileMixins = {
       const isOpened = this.tabs.filter(file => file.pathname === pathname)[0]
 
       const fileState = isOpened || getFileStateFromData(data)
-
       this.$store.dispatch('UPDATE_CURRENT_FILE', fileState)
 
       if (isMixed && !isOpened) {

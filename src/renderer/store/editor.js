@@ -84,9 +84,15 @@ const mutations = {
   SET_HISTORY (state, history) {
     state.currentFile.history = history
   },
-  CLOSE_ALL_TABS (state) {
-    state.tabs = []
-    state.currentFile = {}
+  CLOSE_TABS (state, arr) {
+    arr.forEach(id => {
+      const index = state.tabs.findIndex(f => f.id === id)
+      state.tabs.splice(index, 1)
+      if (state.currentFile.id === id) state.currentFile = {}
+    })
+    if (!state.currentFile.id && state.tabs.length) {
+      state.currentFile = state.tabs[0]
+    }
   },
   RENAME_IF_NEEDED (state, { src, dest }) {
     const { tabs } = state
@@ -175,10 +181,11 @@ const actions = {
   },
 
   LISTEN_FOR_SAVE_ALL_CLOSE ({ commit, state }) {
-    ipcRenderer.on('AGANI::save-all-response', (e, err) => {
-      if (err) console.log(err)
-      else {
-        commit('CLOSE_ALL_TABS')
+    ipcRenderer.on('AGANI::save-all-response', (e, { err, data }) => {
+      if (err) {
+        console.log(err)
+      } else if (Array.isArray(data) && data.length) {
+        commit('CLOSE_TABS', data)
       }
     })
   },

@@ -2,7 +2,7 @@ import { ipcRenderer } from 'electron'
 
 // messages from main process, and do not change the state
 const state = {
-  rightColumn: '',
+  rightColumn: 'files',
   showSideBar: false,
   showTabBar: false
 }

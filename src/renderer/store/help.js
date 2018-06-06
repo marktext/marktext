@@ -8,7 +8,10 @@ export const defaultFileState = {
   isUtf8BomEncoded: false,
   lineEnding: 'lf', // lf or crlf
   adjustLineEndingOnSave: false,
-  history: null,
+  history: {
+    stack: [],
+    index: -1
+  },
   cursor: null,
   wordCount: {
     paragraph: 0,

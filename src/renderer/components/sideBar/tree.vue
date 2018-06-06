@@ -135,6 +135,7 @@
         document.addEventListener('click', event => {
           const target = event.target
           if (target.tagName !== 'INPUT') {
+            this.$store.dispatch('CHANGE_ACTIVE_ITEM', {})
             this.$store.commit('CREATE_PATH', {})
             this.$store.commit('SET_RENAME_CACHE', null)
           }

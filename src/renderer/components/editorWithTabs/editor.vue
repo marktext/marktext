@@ -384,8 +384,8 @@
       handleMarkdownChange ({ markdown, cursor, renderCursor, history }) {
         const { editor } = this
         if (editor) {
-          this.editor.setMarkdown(markdown, cursor, renderCursor)
           if (history) editor.setHistory(history)
+          this.editor.setMarkdown(markdown, cursor, renderCursor)
         }
       },
 

@@ -41,11 +41,16 @@ const handleResponseForSave = (e, { id, markdown, pathname, options }) => {
     defaultPath: getPath('documents') + '/Untitled.md'
   })
 
-  return writeMarkdownFile(pathname, markdown, options, win)
-    .then(() => {
-      const filename = path.basename(pathname)
-      win.webContents.send('AGANI::set-pathname', { id, pathname, filename })
-    })
+  if (pathname && typeof pathname === 'string') {
+    return writeMarkdownFile(pathname, markdown, options, win)
+      .then(() => {
+        const filename = path.basename(pathname)
+        win.webContents.send('AGANI::set-pathname', { id, pathname, filename })
+        return id
+      })
+  } else {
+    return Promise.resolve()
+  }
 }
 
 ipcMain.on('AGANI::save-all', (e, unSavedFiles) => {
@@ -56,11 +61,12 @@ ipcMain.on('AGANI::save-all', (e, unSavedFiles) => {
 ipcMain.on('AGANI::save-all-close', (e, unSavedFiles) => {
   const win = BrowserWindow.fromWebContents(e.sender)
   Promise.all(unSavedFiles.map(file => handleResponseForSave(e, file)))
-    .then(() => {
-      win.send('AGANI::save-all-response')
+    .then(arr => {
+      const data = arr.filter(id => id)
+      win.send('AGANI::save-all-response', { err: null, data })
     })
     .catch(err => {
-      win.send('AGANI::save-all-response', err)
+      win.send('AGANI::save-all-response', { err, data: null })
       log(err)
     })
 })
