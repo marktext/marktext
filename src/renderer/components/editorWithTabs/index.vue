@@ -56,5 +56,9 @@
 <style scoped>
   .editor-with-tabs {
     flex: 1;
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 22px);
+    overflow: hidden;
   }
 </style>

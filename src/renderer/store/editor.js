@@ -6,6 +6,7 @@ import { getOptionsFromState, getSingleFileState, getBlankFileState } from './he
 const toc = require('markdown-toc')
 
 const state = {
+  lineEnding: 'lf',
   currentFile: {},
   tabs: []
 }
@@ -110,6 +111,9 @@ const mutations = {
         f.filename = path.basename(dest)
       }
     })
+  },
+  SET_GLOBAL_LINE_ENDING (state, ending) {
+    state.lineEnding = ending
   }
 }
 
@@ -280,10 +284,12 @@ const actions = {
   LISTEN_FOR_OPEN_SINGLE_FILE ({ commit, state, dispatch }) {
     ipcRenderer.on('AGANI::open-single-file', (e, { markdown, filename, pathname, options }) => {
       const fileState = getSingleFileState({ markdown, filename, pathname, options })
+      const { lineEnding } = options
+      commit('SET_GLOBAL_LINE_ENDING', lineEnding)
       dispatch('UPDATE_CURRENT_FILE', fileState)
       bus.$emit('file-loaded', markdown)
       commit('SET_LAYOUT', {
-        rightColumn: 'list',
+        rightColumn: 'files',
         showSideBar: false,
         showTabBar: false
       })
@@ -291,15 +297,24 @@ const actions = {
     })
   },
 
+  NEW_BLANK_FILE ({ commit, state, dispatch }) {
+    const { tabs, lineEnding } = state
+    const fileState = getBlankFileState(tabs, lineEnding)
+    const { markdown } = fileState
+    dispatch('UPDATE_CURRENT_FILE', fileState)
+    bus.$emit('file-loaded', markdown)
+  },
+
   LISTEN_FOR_OPEN_BLANK_WINDOW ({ commit, state, dispatch }) {
     ipcRenderer.on('AGANI::open-blank-window', (e, { lineEnding }) => {
       const { tabs } = state
       const fileState = getBlankFileState(tabs, lineEnding)
       const { markdown } = fileState
+      commit('SET_GLOBAL_LINE_ENDING', lineEnding)
       dispatch('UPDATE_CURRENT_FILE', fileState)
       bus.$emit('file-loaded', markdown)
       commit('SET_LAYOUT', {
-        rightColumn: 'list',
+        rightColumn: 'files',
         showSideBar: false,
         showTabBar: false
       })

@@ -54,21 +54,22 @@ export const getFileStateFromData = data => {
   })
 }
 
-export const getBlankFileState = (tabs, lineEnding) => {
+export const getBlankFileState = (tabs, lineEnding = 'lf') => {
   const fileState = JSON.parse(JSON.stringify(defaultFileState))
-  const untitleId = Math.max(...tabs.map(f => {
+  let untitleId = Math.max(...tabs.map(f => {
     if (f.pathname === '') {
       return +f.filename.split('-')[1]
     } else {
       return 0
     }
-  }), 1)
+  }), 0)
+
   const id = getUniqueId()
 
   return Object.assign(fileState, {
     lineEnding,
     id,
-    filename: `Untitled-${untitleId}`
+    filename: `Untitled-${++untitleId}`
   })
 }
 

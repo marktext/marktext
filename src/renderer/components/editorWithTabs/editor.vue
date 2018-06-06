@@ -443,7 +443,8 @@
   @import '../../../editor/index.css';
   .editor-wrapper {
     position: relative;
-    height: calc(100vh - 22px);
+    overflow: auto;
+    flex: 1;
   }
   .editor-wrapper.source {
     position: absolute;

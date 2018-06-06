@@ -3,7 +3,7 @@
       class="opened-file"
       :title="file.pathname"
       @click="selectFile(file)"
-      :class="[{'active': currentFile.pathname === file.pathname, 'unsaved': !file.isSaved }, theme]"
+      :class="[{'active': currentFile.id === file.id, 'unsaved': !file.isSaved }, theme]"
     >
       <svg class="icon" aria-hidden="true"
         @click.stop="removeFileInTab(file)"
