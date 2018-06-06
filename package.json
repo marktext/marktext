@@ -112,6 +112,7 @@
     "fuzzaldrin": "^2.1.0",
     "html-tags": "^2.0.0",
     "katex": "^0.10.0-alpha",
+    "markdown-toc": "^1.2.0",
     "mousetrap": "^1.6.1",
     "parse5": "^5.0.0",
     "snabbdom": "^0.7.1",

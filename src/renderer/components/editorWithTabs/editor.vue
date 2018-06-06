@@ -210,6 +210,7 @@
         bus.$on('pasteAsPlainText', this.handleCopyPaste)
         bus.$on('insertParagraph', this.handleInsertParagraph)
         bus.$on('editTable', this.handleEditTable)
+        bus.$on('scroll-to-header', this.scrollToHeader)
 
         // when cursor is in `![](cursor)` will emit `insert-image`
         this.editor.on('insert-image', type => {
@@ -313,9 +314,17 @@
       },
 
       scrollToHighlight () {
+        return this.scrollToElement('.ag-highlight')
+      },
+
+      scrollToHeader (slug) {
+        return this.scrollToElement(`[data-id="${slug}"]`)
+      },
+
+      scrollToElement (selector) {
         // Scroll to search highlight word
         const { container } = this.editor
-        const anchor = document.querySelector('.ag-highlight')
+        const anchor = document.querySelector(selector)
         if (anchor) {
           const { y } = anchor.getBoundingClientRect()
           const DURATION = 300
@@ -422,6 +431,7 @@
       bus.$off('pasteAsPlainText', this.handleCopyPaste)
       bus.$off('insertParagraph', this.handleInsertParagraph)
       bus.$off('editTable', this.handleEditTable)
+      bus.$off('scroll-to-header', this.scrollToHeader)
 
       this.editor.destroy()
       this.editor = null

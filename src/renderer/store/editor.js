@@ -3,12 +3,20 @@ import path from 'path'
 import bus from '../bus'
 import { getOptionsFromState, getSingleFileState, getBlankFileState } from './help'
 
+const toc = require('markdown-toc')
+
 const state = {
   currentFile: {},
   tabs: []
 }
 
-const getters = {}
+const getters = {
+  toc: state => {
+    const { currentFile } = state
+    console.log(toc(currentFile.markdown).json)
+    return toc(currentFile.markdown).json
+  }
+}
 
 const mutations = {
   // set search key and matches also index

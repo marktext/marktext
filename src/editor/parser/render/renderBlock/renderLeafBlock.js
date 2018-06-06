@@ -4,6 +4,8 @@ import { tokenizer } from '../../parse'
 import { snakeToCamel } from '../../../utils'
 import { h, htmlToVNode } from '../snabbdom'
 
+const toc = require('markdown-toc')
+
 const PRE_BLOCK_HASH = {
   'code': `.${CLASS_OR_ID['AG_CODE_BLOCK']}`,
   'html': `.${CLASS_OR_ID['AG_HTML_BLOCK']}`,
@@ -97,7 +99,8 @@ export default function renderLeafBlock (block, cursor, activeBlocks, matches, u
   } else if (/^h/.test(type)) {
     if (/^h\d$/.test(type)) {
       Object.assign(data.dataset, {
-        head: type
+        head: type,
+        id: toc.slugify(text.replace(/^#+\s(.*)/, (_, p1) => p1))
       })
       selector += `.${headingStyle}`
     }
