@@ -14,7 +14,6 @@ const state = {
 const getters = {
   toc: state => {
     const { currentFile } = state
-    console.log(toc(currentFile.markdown).json)
     return toc(currentFile.markdown).json
   }
 }
@@ -201,16 +200,13 @@ const actions = {
   LISTEN_FOR_SAVE_CLOSE ({ commit, state }) {
     ipcRenderer.on('AGANI::save-all-response', (e, { err, data }) => {
       if (err) {
-        console.log(err)
       } else if (Array.isArray(data)) {
         const toBeClosedTabs = [...state.tabs.filter(f => f.isSaved), ...data]
         commit('CLOSE_TABS', toBeClosedTabs)
       }
     })
     ipcRenderer.on('AGANI::save-single-response', (e, { err, data }) => {
-      console.log(data)
       if (err) {
-        console.log(err)
       } else if (Array.isArray(data) && data.length) {
         commit('CLOSE_TABS', data)
       }

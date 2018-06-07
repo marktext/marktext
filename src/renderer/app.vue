@@ -87,7 +87,6 @@
       }
     },
     created () {
-      console.log(this.$store)
       const { dispatch } = this.$store
       // store/index.js
       dispatch('LINTEN_WIN_STATUS')

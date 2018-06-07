@@ -45,13 +45,14 @@ export default function renderContainerBlock (block, cursor, activeBlocks, match
     }
   }
   if (block.type === 'li' && block.label) {
-    const { label } = block
+    const { label, title } = block
     const { align } = activeBlocks[0]
 
     if (align && block.label === align) {
       selector += '.active'
     }
     Object.assign(data.dataset, { label })
+    Object.assign(data.attrs, { title })
   }
   if (block.type === 'li' && block.listItemType) {
     switch (block.listItemType) {

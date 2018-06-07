@@ -10,6 +10,13 @@
   fill: currentColor;
   overflow: hidden;
 }
+
+.text-overflow {
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
 @media print {
   html, body {
     background: #fff !important;

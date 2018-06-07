@@ -32,8 +32,7 @@ const actions = {
         commit('SET_AI_STATUS', false)
         return { data, total }
       })
-      .catch(err => {
-        console.log(err)
+      .catch(() => {
         commit('SET_AI_STATUS', false)
       })
   }

@@ -4,6 +4,7 @@
       <a
         href="javascript:;"
         :class="{'active': active === 'tree'}"
+        title="Tree View"
       >
         <svg class="icon" aria-hidden="true" @click="active = 'tree'">
           <use xlink:href="#icon-tree"></use>
@@ -12,6 +13,7 @@
       <a
         href="javascript:;"
         :class="{'active': active === 'list'}"
+        title="List View"
       >
         <svg class="icon" aria-hidden="true" @click="active = 'list'">
           <use xlink:href="#icon-list"></use>
@@ -24,13 +26,13 @@
         <svg class="icon" aria-hidden="true">
           <use xlink:href="#icon-arrow"></use>
         </svg>
-        <span>Opened files</span>
-        <a href="javascript:;" @click.stop="saveAll(false)">
+        <span class="text-overflow">Opened files</span>
+        <a href="javascript:;" @click.stop="saveAll(false)" title="Save All">
           <svg class="icon" aria-hidden="true">
             <use xlink:href="#icon-save-all"></use>
           </svg>
         </a>
-        <a href="javascript:;" @click.stop="saveAll(true)">
+        <a href="javascript:;" @click.stop="saveAll(true)" title="Close All">
           <svg class="icon" aria-hidden="true">
             <use xlink:href="#icon-close-all"></use>
           </svg>
@@ -52,7 +54,7 @@
         <svg class="icon" aria-hidden="true">
           <use xlink:href="#icon-arrow"></use>
         </svg>
-        <span>{{ projectTree.name }}</span>
+        <span class="text-overflow">{{ projectTree.name }}</span>
       </div>
       <div class="tree-wrapper" v-show="active === 'tree'">
         <folder
@@ -258,6 +260,10 @@
   .project-tree {
     display: flex;
     flex-direction: column;
+    & > .title {
+      display: flex;
+      align-items: center;
+    }
     & > .tree-wrapper,
     & > .list-wrapper {
       overflow: auto;

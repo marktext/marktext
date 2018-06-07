@@ -14,6 +14,7 @@ const htmlBlock = ContentState => {
       const svgBlock = this.createBlock('svg')
       svgBlock.icon = tool.icon
       toolBlock.label = tool.label
+      toolBlock.title = tool.title
       this.appendChild(toolBlock, svgBlock)
       this.appendChild(ul, toolBlock)
     })

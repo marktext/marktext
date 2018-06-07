@@ -22,7 +22,7 @@
         ref="renameInput"
         @keydown.enter="rename"
       >
-      <span v-else>{{folder.name}}</span>
+      <span v-else class="text-overflow">{{folder.name}}</span>
     </div>
     <div 
       class="folder-contents"
@@ -131,6 +131,7 @@
       height: 30px;
       padding-right: 15px;
       & > svg {
+        flex-shrink: 0;
         color: darkgray;
         margin-right: 5px;
       }

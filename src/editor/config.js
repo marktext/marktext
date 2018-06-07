@@ -193,23 +193,29 @@ export const punctuation = ['!', '"', '#', '$', '%', '&', "'", '(', ')', '*', '+
 
 export const TABLE_TOOLS = [{
   label: 'table',
+  title: 'Resize Table',
   icon: 'icon-table'
 }, {
   label: 'left',
+  title: 'Align Left',
   icon: 'icon-alignleft'
 }, {
   label: 'center',
+  title: 'Align Center',
   icon: 'icon-aligncenter'
 }, {
   label: 'right',
+  title: 'Align Right',
   icon: 'icon-alignright'
 }, {
   label: 'delete',
+  title: 'Delete Table',
   icon: 'icon-del'
 }]
 
 export const HTML_TOOLS = [{
   label: 'delete',
+  title: 'Delete HTML block',
   icon: 'icon-del'
 }]
 
