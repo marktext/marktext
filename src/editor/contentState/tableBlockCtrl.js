@@ -86,8 +86,10 @@ const tableBlockCtrl = ContentState => {
     block.type = 'figure'
     block.text = ''
     block.children = []
+    block.functionType = 'table'
     this.appendChild(block, toolBar)
     this.appendChild(block, table)
+
     return table.children[1].children[0].children[0] // first cell in tbody
   }
 
