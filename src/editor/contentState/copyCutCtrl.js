@@ -35,16 +35,41 @@ const copyCutCtrl = ContentState => {
   ContentState.prototype.getClipBoradData = function () {
     const html = selection.getSelectionHtml()
     const $ = cheerio.load(html)
-
+    // console.log(html)
     $(
-      `.${CLASS_OR_ID['AG_REMOVE']}, .${CLASS_OR_ID['AG_TOOL_BAR']},
-      .${CLASS_OR_ID['AG_MATH_RENDER']}, .${CLASS_OR_ID['AG_HTML_PREVIEW']},
-      .${CLASS_OR_ID['AG_MATH_PREVIEW']}, .${CLASS_OR_ID['AG_COPY_REMOVE']}`
+      `.${CLASS_OR_ID['AG_TOOL_BAR']},
+      .${CLASS_OR_ID['AG_MATH_RENDER']},
+      .${CLASS_OR_ID['AG_HTML_PREVIEW']},
+      .${CLASS_OR_ID['AG_MATH_PREVIEW']},
+      .${CLASS_OR_ID['AG_COPY_REMOVE']}`
     ).remove()
 
-    $(`.${CLASS_OR_ID['AG_EMOJI_MARKER']}`).text(':')
-    $(`.${CLASS_OR_ID['AG_NOTEXT_LINK']}`).empty()
     $(`[data-role=hr]`).replaceWith('<hr>')
+    const headers = $(`[data-head]`)
+    if (headers.length > 0) {
+      headers.each((i, a) => {
+        const e = $(a)
+        const text = e.text()
+        e.replaceWith(`<p>${text}</p>`)
+      })
+    }
+
+    // replace inline rule element: code, a, strong, em, del to span element
+    // in order to escape turndown translation
+    const inlineRuleElements = $(
+      `a.${CLASS_OR_ID['AG_INLINE_RULE']},
+      code.${CLASS_OR_ID['AG_INLINE_RULE']},
+      strong.${CLASS_OR_ID['AG_INLINE_RULE']},
+      em.${CLASS_OR_ID['AG_INLINE_RULE']},
+      del.${CLASS_OR_ID['AG_INLINE_RULE']}`
+    )
+    if (inlineRuleElements.length > 0) {
+      inlineRuleElements.each((i, a) => {
+        const e = $(a)
+        const text = e.text()
+        e.replaceWith(`<span>${text}</span>`)
+      })
+    }
 
     const aLink = $(`.${CLASS_OR_ID['AG_A_LINK']}`)
     if (aLink.length > 0) {
@@ -52,16 +77,6 @@ const copyCutCtrl = ContentState => {
         const anchor = $(a)
         const html = anchor.html()
         anchor.replaceWith(`<span>${html}</span>`)
-      })
-    }
-
-    const anchors = $(`a[data-href]`)
-    if (anchors.length > 0) {
-      anchors.each((i, a) => {
-        const anchor = $(a)
-        const href = anchor.attr('data-href')
-        anchor.removeAttr('data-href')
-        anchor.attr('href', href)
       })
     }
 

@@ -18,6 +18,16 @@
           </svg>
         </li>
       </ul>
+      <ul class="bottom">
+        <li
+          v-for="(icon, index) of sideBarBottomIcons"
+          :key="index"
+        >
+          <svg class="icon" aria-hidden="true">
+            <use :xlink:href="'#' + icon.icon"></use>
+          </svg>
+        </li>
+      </ul>
     </div>
     <div class="right-column" v-show="rightColumn">
       <tree
@@ -39,7 +49,7 @@
 </template>
 
 <script>
-  import { sideBarIcons } from './help'
+  import { sideBarIcons, sideBarBottomIcons } from './help'
   import Tree from './tree.vue'
   import SideBarSearch from './search.vue'
   import Toc from './toc.vue'
@@ -48,6 +58,7 @@
   export default {
     data () {
       this.sideBarIcons = sideBarIcons
+      this.sideBarBottomIcons = sideBarBottomIcons
       return {
         openedFiles: [],
         sideBarViewWidth: 280
@@ -135,6 +146,9 @@
   .left-column {
     height: 100%;
     width: 45px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
     & > ul {
       opacity: 1;
     }

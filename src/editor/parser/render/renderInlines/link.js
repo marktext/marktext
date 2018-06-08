@@ -36,9 +36,10 @@ export default function link (h, cursor, block, token, outerClass) {
     if (!token.children.length && !token.backlash.first) { // no-text-link
       return [
         h(`span.${CLASS_OR_ID['AG_GRAY']}.${CLASS_OR_ID['AG_REMOVE']}`, firstMiddleBracket),
-        h(`a.${CLASS_OR_ID['AG_NOTEXT_LINK']}`, {
+        h(`a.${CLASS_OR_ID['AG_NOTEXT_LINK']}.${CLASS_OR_ID['AG_INLINE_RULE']}`, {
           props: {
-            href: token.href + encodeURI(token.backlash.second)
+            href: token.href + encodeURI(token.backlash.second),
+            target: '_blank'
           }
         }, [
           ...hrefContent,
@@ -49,9 +50,10 @@ export default function link (h, cursor, block, token, outerClass) {
     } else { // has children
       return [
         h(`span.${className}.${CLASS_OR_ID['AG_REMOVE']}`, firstBracket),
-        h('a', {
-          dataset: {
-            href: token.href + encodeURI(token.backlash.second)
+        h(`a.${CLASS_OR_ID['AG_INLINE_RULE']}`, {
+          props: {
+            href: token.href + encodeURI(token.backlash.second),
+            target: '_blank'
           }
         }, [
           ...token.children.reduce((acc, to) => {

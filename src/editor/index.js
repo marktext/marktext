@@ -547,7 +547,8 @@ class Aganippe {
       delete codeMirrorConfig.theme
     }
     this.theme = name
-    this.contentState.render()
+    // Render cursor and refresh code block
+    this.contentState.render(true, true)
   }
 
   setFont ({ fontSize, lineHeight }) {

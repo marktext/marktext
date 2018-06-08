@@ -8,6 +8,7 @@ import renderBlock from './renderBlock'
 class StateRender {
   constructor (eventCenter) {
     this.eventCenter = eventCenter
+    this.refreshCodeBlock = false
     this.loadImageMap = new Map()
     this.loadMathMap = new Map()
     this.tokenCache = new Map()
@@ -60,7 +61,8 @@ class StateRender {
     return selector
   }
 
-  render (blocks, cursor, activeBlocks, matches) {
+  render (blocks, cursor, activeBlocks, matches, refreshCodeBlock) {
+    this.refreshCodeBlock = refreshCodeBlock
     const selector = `div#${CLASS_OR_ID['AG_EDITOR_ID']}`
 
     const children = blocks.map(block => {

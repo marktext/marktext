@@ -21,7 +21,7 @@ export default function delEmStrongFac (type, h, cursor, block, token, outerClas
   if (isLengthEven(token.backlash)) {
     return [
       h(COMMON_MARKER, startMarker),
-      h(type, content),
+      h(`${type}.${CLASS_OR_ID['AG_INLINE_RULE']}`, content),
       h(COMMON_MARKER, endMarker)
     ]
   } else {

@@ -156,14 +156,14 @@ class ContentState {
     this.renderRange = [ startOutMostBlock.preSibling, endOutMostBlock.nextSibling ]
   }
 
-  render (isRenderCursor = true) {
+  render (isRenderCursor = true, refreshCodeBlock = false) {
     const { blocks, cursor, searchMatches: { matches, index } } = this
     const activeBlocks = this.getActiveBlocks()
     matches.forEach((m, i) => {
       m.active = i === index
     })
     this.setNextRenderRange()
-    this.stateRender.render(blocks, cursor, activeBlocks, matches)
+    this.stateRender.render(blocks, cursor, activeBlocks, matches, refreshCodeBlock)
     this.pre2CodeMirror(isRenderCursor)
     if (isRenderCursor) this.setCursor()
   }

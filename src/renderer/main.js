@@ -1,16 +1,12 @@
 import Vue from 'vue'
 import axios from 'axios'
-
 import { ipcRenderer } from 'electron'
 import lang from 'element-ui/lib/locale/lang/en'
 import locale from 'element-ui/lib/locale'
-
 import App from './app'
 import store from './store'
-
 import './assets/symbolIcon'
 import './index.css'
-
 import { Dialog, Form, FormItem, InputNumber, Button, Tooltip, Upload, Slider, ColorPicker, Col, Row } from 'element-ui'
 // In the renderer process:
 // var webFrame = require('electron').webFrame

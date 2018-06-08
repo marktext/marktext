@@ -10,3 +10,10 @@ export const sideBarIcons = [
     icon: 'icon-header'
   }
 ]
+
+export const sideBarBottomIcons = [
+  {
+    name: 'twitter',
+    icon: 'icon-twitter'
+  }
+]

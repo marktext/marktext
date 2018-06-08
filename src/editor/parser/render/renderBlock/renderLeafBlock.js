@@ -13,7 +13,7 @@ const PRE_BLOCK_HASH = {
 }
 
 export default function renderLeafBlock (block, cursor, activeBlocks, matches, useCache = false) {
-  const { loadMathMap } = this
+  const { loadMathMap, refreshCodeBlock } = this
   let selector = this.getSelector(block, cursor, activeBlocks)
   // highlight search key in block
   const highlights = matches.filter(m => m.key === block.key)
@@ -125,7 +125,9 @@ export default function renderLeafBlock (block, cursor, activeBlocks, matches, u
     data.hook = {
       prepatch (oldvnode, vnode) {
         // cheat snabbdom that the pre block is not changed!!!
-        vnode.children = oldvnode.children
+        if (!refreshCodeBlock) {
+          vnode.children = oldvnode.children
+        }
       }
     }
     if (lang) {
