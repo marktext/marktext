@@ -163,6 +163,7 @@ class ContentState {
       m.active = i === index
     })
     this.setNextRenderRange()
+    this.stateRender.collectLabels(blocks)
     this.stateRender.render(blocks, cursor, activeBlocks, matches, refreshCodeBlock)
     this.pre2CodeMirror(isRenderCursor)
     if (isRenderCursor) this.setCursor()
@@ -181,6 +182,7 @@ class ContentState {
     const needRenderBlocks = blocks.slice(startIndex, endIndex)
 
     this.setNextRenderRange()
+    this.stateRender.collectLabels(blocks)
     this.stateRender.partialRender(needRenderBlocks, cursor, activeBlocks, matches, startKey, endKey)
     this.pre2CodeMirror(true, [...new Set([cursorOutMostBlock, ...needRenderBlocks])])
     this.setCursor()

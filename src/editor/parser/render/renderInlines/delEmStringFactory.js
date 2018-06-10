@@ -1,5 +1,5 @@
 import { CLASS_OR_ID } from '../../../config'
-import { isLengthEven, snakeToCamel } from '../../../utils'
+import { snakeToCamel } from '../../../utils'
 
 // render factory of `del`,`em`,`strong`
 export default function delEmStrongFac (type, h, cursor, block, token, outerClass) {
@@ -18,17 +18,9 @@ export default function delEmStrongFac (type, h, cursor, block, token, outerClas
   const startMarker = this.highlight(h, block, start, start + marker.length, token)
   const endMarker = this.highlight(h, block, end - marker.length, end, token)
 
-  if (isLengthEven(token.backlash)) {
-    return [
-      h(COMMON_MARKER, startMarker),
-      h(`${type}.${CLASS_OR_ID['AG_INLINE_RULE']}`, content),
-      h(COMMON_MARKER, endMarker)
-    ]
-  } else {
-    return [
-      ...startMarker,
-      ...content,
-      ...endMarker
-    ]
-  }
+  return [
+    h(COMMON_MARKER, startMarker),
+    h(`${type}.${CLASS_OR_ID['AG_INLINE_RULE']}`, content),
+    h(COMMON_MARKER, endMarker)
+  ]
 }

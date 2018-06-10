@@ -26,6 +26,7 @@ import htmlEscape from './htmlEscape'
 import multipleMath from './multipleMath'
 import referenceDefinition from './referenceDefinition'
 import referenceLink from './referenceLink'
+import referenceImage from './referenceImage'
 
 export default {
   backlashInToken,
@@ -55,5 +56,6 @@ export default {
   htmlEscape,
   multipleMath,
   referenceDefinition,
-  referenceLink
+  referenceLink,
+  referenceImage
 }

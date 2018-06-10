@@ -88,6 +88,7 @@ const tokenizerFac = (src, beginRules, inlineRules, pos = 0, top) => {
     if (pending) {
       tokens.push({
         type: 'text',
+        raw: pending,
         content: pending,
         range: {
           start: pendingStartPos,
@@ -110,6 +111,7 @@ const tokenizerFac = (src, beginRules, inlineRules, pos = 0, top) => {
         if (ruleName === 'display_math' && !isLengthEven(to[3])) continue
         const token = {
           type: ruleName,
+          raw: to[0],
           parent: tokens,
           marker: to[1],
           content: to[2] || '',
@@ -160,6 +162,7 @@ const tokenizerFac = (src, beginRules, inlineRules, pos = 0, top) => {
       pushPending()
       tokens.push({
         type: 'backlash',
+        raw: backTo[1],
         marker: backTo[1],
         parent: tokens,
         content: '',
@@ -191,6 +194,7 @@ const tokenizerFac = (src, beginRules, inlineRules, pos = 0, top) => {
           const marker = to[1]
           tokens.push({
             type: rule,
+            raw: to[0],
             range,
             marker,
             parent: tokens,
@@ -221,6 +225,7 @@ const tokenizerFac = (src, beginRules, inlineRules, pos = 0, top) => {
         if (rule === 'inline_code' || rule === 'emoji' || rule === 'inline_math') {
           tokens.push({
             type: rule,
+            raw: to[0],
             range,
             marker,
             parent: tokens,
@@ -230,6 +235,7 @@ const tokenizerFac = (src, beginRules, inlineRules, pos = 0, top) => {
         } else {
           tokens.push({
             type: rule,
+            raw: to[0],
             range,
             marker,
             parent: tokens,
@@ -243,12 +249,37 @@ const tokenizerFac = (src, beginRules, inlineRules, pos = 0, top) => {
       }
     }
     if (inChunk) continue
+    // image
+    const imageTo = inlineRules.image.exec(src)
+    if (imageTo && isLengthEven(imageTo[3]) && isLengthEven(imageTo[5])) {
+      pushPending()
+      tokens.push({
+        type: 'image',
+        raw: imageTo[0],
+        marker: imageTo[1],
+        src: imageTo[4],
+        parent: tokens,
+        range: {
+          start: pos,
+          end: pos + imageTo[0].length
+        },
+        alt: imageTo[2],
+        backlash: {
+          first: imageTo[3],
+          second: imageTo[5]
+        }
+      })
+      src = src.substring(imageTo[0].length)
+      pos = pos + imageTo[0].length
+      continue
+    }
     // link
     const linkTo = inlineRules.link.exec(src)
     if (linkTo && isLengthEven(linkTo[3]) && isLengthEven(linkTo[5])) {
       pushPending()
       tokens.push({
         type: 'link',
+        raw: linkTo[0],
         marker: linkTo[1],
         href: linkTo[4],
         parent: tokens,
@@ -270,15 +301,19 @@ const tokenizerFac = (src, beginRules, inlineRules, pos = 0, top) => {
     }
 
     const rLinkTo = inlineRules['reference_link'].exec(src)
-    if (rLinkTo && isLengthEven(rLinkTo[2])) {
+    if (rLinkTo && isLengthEven(rLinkTo[2]) && isLengthEven(rLinkTo[4])) {
       pushPending()
+
       tokens.push({
         type: 'reference_link',
         raw: rLinkTo[0],
         isFullLink: !!rLinkTo[3],
         parent: tokens,
         anchor: rLinkTo[1],
-        backlash: rLinkTo[2],
+        backlash: {
+          first: rLinkTo[2],
+          second: rLinkTo[4] || ''
+        },
         label: rLinkTo[3] || rLinkTo[1],
         range: {
           start: pos,
@@ -292,12 +327,39 @@ const tokenizerFac = (src, beginRules, inlineRules, pos = 0, top) => {
       continue
     }
 
+    const rImageTo = inlineRules['reference_image'].exec(src)
+    if (rImageTo && isLengthEven(rImageTo[2]) && isLengthEven(rImageTo[4])) {
+      pushPending()
+
+      tokens.push({
+        type: 'reference_image',
+        raw: rImageTo[0],
+        isFullLink: !!rImageTo[3],
+        parent: tokens,
+        alt: rImageTo[1],
+        backlash: {
+          first: rImageTo[2],
+          second: rImageTo[4] || ''
+        },
+        label: rImageTo[3] || rImageTo[1],
+        range: {
+          start: pos,
+          end: pos + rImageTo[0].length
+        }
+      })
+
+      src = src.substring(rImageTo[0].length)
+      pos = pos + rImageTo[0].length
+      continue
+    }
+
     // a_link `<a href="url">Anchor</a>`
     const aLinkTo = inlineRules['a_link'].exec(src)
     if (aLinkTo) {
       pushPending()
       tokens.push({
         type: 'a_link',
+        raw: aLinkTo[0],
         href: aLinkTo[3],
         openTag: aLinkTo[1],
         closeTag: aLinkTo[5],
@@ -324,6 +386,7 @@ const tokenizerFac = (src, beginRules, inlineRules, pos = 0, top) => {
         pushPending()
         tokens.push({
           type: 'html_image',
+          raw: htmlImageTo[0],
           tag: htmlImageTo[1],
           parent: tokens,
           src: imageSrc,
@@ -346,6 +409,7 @@ const tokenizerFac = (src, beginRules, inlineRules, pos = 0, top) => {
       pushPending()
       tokens.push({
         type: 'html_escape',
+        raw: htmlEscapeTo[0],
         escapeCharacter: htmlEscapeTo[1],
         parent: tokens,
         range: {
@@ -365,6 +429,7 @@ const tokenizerFac = (src, beginRules, inlineRules, pos = 0, top) => {
       pushPending()
       tokens.push({
         type: 'html_tag',
+        raw: htmlTo[0],
         tag: htmlTo[1],
         parent: tokens,
         range: {
@@ -377,36 +442,13 @@ const tokenizerFac = (src, beginRules, inlineRules, pos = 0, top) => {
       continue
     }
 
-    // image
-    const imageTo = inlineRules.image.exec(src)
-    if (imageTo) {
-      pushPending()
-      tokens.push({
-        type: 'image',
-        marker: imageTo[1],
-        src: imageTo[4],
-        parent: tokens,
-        range: {
-          start: pos,
-          end: pos + imageTo[0].length
-        },
-        title: imageTo[2],
-        children: tokenizerFac(imageTo[2], undefined, inlineRules, pos + imageTo[1].length, false),
-        backlash: {
-          first: imageTo[3],
-          second: imageTo[5]
-        }
-      })
-      src = src.substring(imageTo[0].length)
-      pos = pos + imageTo[0].length
-      continue
-    }
     // auto link
     const autoLTo = inlineRules['auto_link'].exec(src)
     if (autoLTo) {
       pushPending()
       tokens.push({
         type: 'auto_link',
+        raw: autoLTo[0],
         href: autoLTo[0],
         parent: tokens,
         range: {
@@ -425,6 +467,7 @@ const tokenizerFac = (src, beginRules, inlineRules, pos = 0, top) => {
       pushPending()
       tokens.push({
         type: 'hard_line_break',
+        raw: hardTo[0],
         spaces: hardTo[1],
         parent: tokens,
         range: {
@@ -443,6 +486,7 @@ const tokenizerFac = (src, beginRules, inlineRules, pos = 0, top) => {
       pushPending()
       tokens.push({
         type: 'tail_header',
+        raw: tailTo[1],
         marker: tailTo[1],
         parent: tokens,
         range: {
@@ -495,63 +539,8 @@ export const tokenizer = (src, highlights = []) => {
 // the opposite of tokenizer
 export const generator = tokens => {
   let result = ''
-  const getBash = bash => bash !== undefined ? bash : ''
   for (const token of tokens) {
-    switch (token.type) {
-      case 'hr':
-      case 'header':
-      case 'code_fense':
-      case 'backlash':
-        result += token.marker + token.content
-        break
-      case 'text':
-        result += token.content
-        break
-      case 'em':
-      case 'del':
-      case 'strong':
-        result += `${token.marker}${generator(token.children)}${getBash(token.backlash)}${token.marker}`
-        break
-      case 'emoji':
-      case 'inline_code':
-      case 'inline_math':
-        result += `${token.marker}${token.content}${getBash(token.backlash)}${token.marker}`
-        break
-      case 'link':
-        result += `[${generator(token.children)}${getBash(token.backlash.first)}](${token.href}${getBash(token.backlash.second)})`
-        break
-      case 'reference_link':
-        result += token.raw
-        break
-      case 'a_link':
-        result += `${token.openTag}${token.anchor}${token.closeTag}`
-        break
-      case 'image':
-        result += `![${generator(token.children)}${getBash(token.backlash.first)}](${token.src}${getBash(token.backlash.second)})`
-        break
-      case 'auto_link':
-        result += token.href
-        break
-      case 'html_image':
-      case 'html_tag':
-        result += token.tag
-        break
-      case 'html_escape':
-        result += token.escapeCharacter
-        break
-      case 'tail_header':
-      case 'multiple_math':
-        result += token.marker
-        break
-      case 'hard_line_break':
-        result += token.spaces
-        break
-      case 'reference_definition':
-        result += token.raw
-        break
-      default:
-        throw new Error(`unhandle token type: ${token.type}`)
-    }
+    result += token.raw
   }
   return result
 }

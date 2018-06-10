@@ -609,6 +609,10 @@ span[data-role="link"], a[data-role="link"], span[data-role="link"] .ag-backlash
   text-decoration: none;
 }
 
+span.ag-reference-link {
+  color: var(--warningColor);
+}
+
 .ag-focus-mode p.ag-paragraph,
 .ag-focus-mode div.ag-paragraph,
 .ag-focus-mode h1.ag-paragraph,
