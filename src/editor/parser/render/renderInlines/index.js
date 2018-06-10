@@ -24,6 +24,8 @@ import em from './em'
 import strong from './strong'
 import htmlEscape from './htmlEscape'
 import multipleMath from './multipleMath'
+import referenceDefinition from './referenceDefinition'
+import referenceLink from './referenceLink'
 
 export default {
   backlashInToken,
@@ -51,5 +53,7 @@ export default {
   em,
   strong,
   htmlEscape,
-  multipleMath
+  multipleMath,
+  referenceDefinition,
+  referenceLink
 }

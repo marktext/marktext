@@ -71,6 +71,21 @@ pre {
   font-family: monospace;
 }
 
+.ag-reference-marker {
+  font-size: .9em;
+  color: var(--secondaryColor);
+}
+
+.ag-reference-title {
+  font-size: .9em;
+  margin: 0 5px;
+}
+
+.ag-reference-label {
+  font-weight: 600;
+  margin: 0 5px;
+}
+
 /* .ag-soft-line-break::after {
   content: '↓';
   opacity: .5;

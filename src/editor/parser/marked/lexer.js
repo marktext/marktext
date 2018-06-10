@@ -322,11 +322,23 @@ Lexer.prototype.token = function (src, top, bq) {
     }
 
     // def
-    if ((!bq && top) && (cap = this.rules.def.exec(src))) {
-      src = src.substring(cap[0].length)
-      this.tokens.links[cap[1].toLowerCase()] = {
-        href: cap[2],
-        title: cap[3]
+    cap = this.rules.def.exec(src)
+    if (!bq && top && cap) {
+      let text = ''
+      while (cap) {
+        src = src.substring(cap[0].length)
+        this.tokens.links[cap[1].toLowerCase()] = {
+          href: cap[2],
+          title: cap[3]
+        }
+        text += cap[0]
+        cap = this.rules.def.exec(src)
+      }
+      if (this.options.disableInline) {
+        this.tokens.push({
+          type: 'paragraph',
+          text
+        })
       }
       continue
     }

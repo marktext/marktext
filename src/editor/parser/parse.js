@@ -101,9 +101,9 @@ const tokenizerFac = (src, beginRules, inlineRules, pos = 0, top) => {
   }
 
   if (beginRules && pos === 0) {
-    const beginR = ['header', 'hr', 'code_fense', 'display_math', 'multiple_math']
+    const beginRuleList = ['header', 'hr', 'code_fense', 'display_math', 'multiple_math']
 
-    for (const ruleName of beginR) {
+    for (const ruleName of beginRuleList) {
       const to = beginRules[ruleName].exec(src)
 
       if (to) {
@@ -124,6 +124,32 @@ const tokenizerFac = (src, beginRules, inlineRules, pos = 0, top) => {
         pos = pos + to[0].length
         break
       }
+    }
+    const def = beginRules['reference_definition'].exec(src)
+    if (def && isLengthEven(def[3])) {
+      const token = {
+        type: 'reference_definition',
+        parent: tokens,
+        leftBracket: def[1],
+        label: def[2],
+        backlash: def[3] || '',
+        rightBracket: def[4],
+        leftHrefMarker: def[5] || '',
+        href: def[6],
+        rightHrefMarker: def[7] || '',
+        leftTitlespace: def[8],
+        titleMarker: def[9] || '',
+        title: def[10] || '',
+        rightTitleSpace: def[11] || '',
+        raw: def[0],
+        range: {
+          start: pos,
+          end: pos + def[0].length
+        }
+      }
+      tokens.push(token)
+      src = src.substring(def[0].length)
+      pos = pos + def[0].length
     }
   }
 
@@ -240,6 +266,29 @@ const tokenizerFac = (src, beginRules, inlineRules, pos = 0, top) => {
 
       src = src.substring(linkTo[0].length)
       pos = pos + linkTo[0].length
+      continue
+    }
+
+    const rLinkTo = inlineRules['reference_link'].exec(src)
+    if (rLinkTo && isLengthEven(rLinkTo[2])) {
+      pushPending()
+      tokens.push({
+        type: 'reference_link',
+        raw: rLinkTo[0],
+        isFullLink: !!rLinkTo[3],
+        parent: tokens,
+        anchor: rLinkTo[1],
+        backlash: rLinkTo[2],
+        label: rLinkTo[3] || rLinkTo[1],
+        range: {
+          start: pos,
+          end: pos + rLinkTo[0].length
+        },
+        children: tokenizerFac(rLinkTo[1], undefined, inlineRules, pos + 1, false)
+      })
+
+      src = src.substring(rLinkTo[0].length)
+      pos = pos + rLinkTo[0].length
       continue
     }
 
@@ -471,6 +520,9 @@ export const generator = tokens => {
       case 'link':
         result += `[${generator(token.children)}${getBash(token.backlash.first)}](${token.href}${getBash(token.backlash.second)})`
         break
+      case 'reference_link':
+        result += token.raw
+        break
       case 'a_link':
         result += `${token.openTag}${token.anchor}${token.closeTag}`
         break
@@ -493,6 +545,9 @@ export const generator = tokens => {
         break
       case 'hard_line_break':
         result += token.spaces
+        break
+      case 'reference_definition':
+        result += token.raw
         break
       default:
         throw new Error(`unhandle token type: ${token.type}`)
