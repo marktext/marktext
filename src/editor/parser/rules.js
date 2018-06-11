@@ -6,7 +6,8 @@ export const beginRules = {
   'code_fense': /^(`{3,})([^`]*)$/,
   'header': /(^\s{0,3}#{1,6}(\s{1,}|$))/,
   'display_math': /^(\$\$)([^\$]*?[^\$\\])(\\*)\1$/,
-  'multiple_math': /^(\$\$)$/
+  'multiple_math': /^(\$\$)$/,
+  'reference_definition': /^( {0,3}\[)([^\]]+?)(\\*)(\]: *)(<?)([^\s>]+)(>?)(?:( +)(["'(]?)([^\n"'\(\)]+)\9)?( *)$/
 }
 
 export const inlineRules = {
@@ -19,6 +20,8 @@ export const inlineRules = {
   'emoji': /^(:)([a-z_]+?)\1/,
   'del': /^(~{2})(?=\S)([\s\S]*?\S)(\\*)\1/, // can nest
   'auto_link': /^(https?:\/\/[^\s]+)(?=\s|$)/,
+  'reference_link': /^\[([^\]]+?)(\\*)\](?:\[([^\]]*?)(\\*)\])?/,
+  'reference_image': /^\!\[([^\]]+?)(\\*)\](?:\[([^\]]*?)(\\*)\])?/,
   'inline_math': /^(\$)([^\$]*?[^\$\\])(\\*)\1(?!\1)/,
   'tail_header': /^(\s{1,}#{1,})(\s*)$/,
   'a_link': /^(<a[\s\S]*href\s*=\s*("|')(.+?)\2(?=\s|>)[\s\S]*(?!\\)>)([\s\S]*)(<\/a>)/, // can nest

@@ -71,6 +71,21 @@ pre {
   font-family: monospace;
 }
 
+.ag-reference-marker {
+  font-size: .9em;
+  color: var(--secondaryColor);
+}
+
+.ag-reference-title {
+  font-size: .9em;
+  margin: 0 5px;
+}
+
+.ag-reference-label {
+  font-weight: 600;
+  margin: 0 5px;
+}
+
 /* .ag-soft-line-break::after {
   content: '↓';
   opacity: .5;
@@ -592,6 +607,10 @@ span.ag-warn.ag-emoji-marked-text {
 span[data-role="link"], a[data-role="link"], span[data-role="link"] .ag-backlash {
   color: #0366d6;
   text-decoration: none;
+}
+
+span.ag-reference-link {
+  color: var(--warningColor);
 }
 
 .ag-focus-mode p.ag-paragraph,

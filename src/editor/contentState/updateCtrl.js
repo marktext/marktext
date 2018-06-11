@@ -3,6 +3,7 @@ import { tokenizer } from '../parser/parse'
 import { conflict, isMetaKey } from '../utils'
 import { getTextContent } from '../utils/domManipulate'
 import { CLASS_OR_ID, EVENT_KEYS, DEFAULT_TURNDOWN_CONFIG } from '../config'
+import { beginRules } from '../parser/rules'
 
 const INLINE_UPDATE_FREGMENTS = [
   '^([*+-]\\s)', // Bullet list
@@ -358,6 +359,7 @@ const updateCtrl = ContentState => {
     const paragraph = document.querySelector(`#${key}`)
     let text = getTextContent(paragraph, [ CLASS_OR_ID['AG_MATH_RENDER'] ])
     let needRender = false
+    let needRenderAll = false
     if (event.type === 'click' && block.type === 'figure' && block.functionType === 'table') {
       // first cell in thead
       const cursorBlock = block.children[1].children[0].children[0].children[0]
@@ -420,6 +422,9 @@ const updateCtrl = ContentState => {
         }
       }
       block.text = text
+      if (beginRules['reference_definition'].test(text)) {
+        needRenderAll = true
+      }
     }
 
     // Update preview content of math block
@@ -434,7 +439,7 @@ const updateCtrl = ContentState => {
     const checkMarkedUpdate = this.checkNeedRender(block)
     const inlineUpdatedBlock = this.isCollapse() && !/frontmatter|multiplemath/.test(block.functionType) && this.checkInlineUpdate(block)
     if (checkMarkedUpdate || inlineUpdatedBlock || needRender) {
-      this.partialRender()
+      needRenderAll ? this.render() : this.partialRender()
     }
   }
 }
