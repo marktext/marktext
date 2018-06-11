@@ -1,3 +1,4 @@
+import Popper from 'popper.js/dist/esm/popper'
 import { noop } from '../utils'
 import template from './index.tpl.html'
 import './index.css'
@@ -39,7 +40,11 @@ class TablePicker {
         rowContainer.appendChild(cell)
       }
     }
+    const arrow = this.arrow = document.createElement('div')
+    arrow.setAttribute('x-arrow', '')
+    arrow.classList.add('ag-popper-arrow')
     this.container = container.children[0]
+    this.container.appendChild(arrow)
     document.body.appendChild(this.container)
 
     const rowInput = document.querySelector('.ag-table-picker .row-input')
@@ -55,11 +60,13 @@ class TablePicker {
 
   hide () {
     this.status = false
-    this.container.classList.remove('show')
+    if (this.popper && this.popper.destroy) {
+      this.popper.destroy()
+    }
     this.cb = noop
   }
 
-  toggle ({ row, column }, { left, top }, cb) {
+  toggle ({ row, column }, reference, cb) {
     const { container, status, rowInput, columnInput } = this
     if (status) {
       this.hide()
@@ -69,8 +76,17 @@ class TablePicker {
       this.setClassName(row, column, 'current')
       rowInput.value = row + 1
       columnInput.value = column + 1
-      Object.assign(container.style, { left, top })
-      container.classList.add('show')
+      if (this.popper && this.popper.destroy) {
+        this.popper.destroy()
+      }
+      this.popper = new Popper(reference, container, {
+        placement: 'bottom-start',
+        modifiers: {
+          offset: {
+            offset: '-20, 12'
+          }
+        }
+      })
       this.status = true
     }
   }

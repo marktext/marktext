@@ -30,7 +30,7 @@
 
 - [x] Auto Pair
 
-- [ ] Tabs in Mark Text, add toggle in view menu.
+- [x] Tabs in Mark Text, add toggle in view menu.
 
 - [ ] TOC syntax(only highlight `[TOC]`)
 

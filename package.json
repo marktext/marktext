@@ -115,6 +115,7 @@
     "markdown-toc": "^1.2.0",
     "mousetrap": "^1.6.1",
     "parse5": "^5.0.0",
+    "popper.js": "^1.14.3",
     "snabbdom": "^0.7.1",
     "snabbdom-to-html": "^5.1.1",
     "snabbdom-virtualize": "^0.7.0",

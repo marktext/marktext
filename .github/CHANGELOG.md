@@ -1,17 +1,22 @@
-### 0.12.4
+### 0.12.10
 
 **:cactus:Feature**
 
-- feature: file list in side bar: tree view and list view.
+- feature: file list in side bar: tree view and list view. #71
 - feature: search in project in side bar.
 - feature: table of content of the current edit file.
 - feature: copy table from Number(MacOs App)
 - feature: new file, new directory, copy, cut, paste, rename, remove to trash in side bar.
 - feature: save all the opened files and close all the opened files.
+- feature: Support reference link. #297
+- feature: Support reference image.
 
 **:butterfly:Optimization**
 
 **:beetle:Bug fix**
+
+- fix: can not copy full link #312
+- fix: can not export table markdown #313
 
 ### 0.11.42
 

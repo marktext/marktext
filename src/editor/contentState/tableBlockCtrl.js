@@ -139,9 +139,6 @@ const tableBlockCtrl = ContentState => {
         const { tablePicker } = this
         const figureKey = figure.key
         const tableLable = document.querySelector(`#${figureKey} [data-label=table]`)
-        const rect = tableLable.getBoundingClientRect()
-        const left = `${rect.left + rect.width / 2 - 29}px`
-        const top = `${rect.top + rect.height + 8}px`
         const { row = 1, column = 1 } = table // zero base
 
         const handler = (row, column) => {
@@ -199,8 +196,7 @@ const tableBlockCtrl = ContentState => {
           this.partialRender()
         }
 
-        tablePicker.toggle({ row, column }, { left, top }, handler.bind(this))
-        // tablePicker.status ? tableLable.classList.add('active') : tableLable.classList.remove('active')
+        tablePicker.toggle({ row, column }, tableLable, handler.bind(this))
       }
     }
   }
