@@ -15,6 +15,14 @@ export default function (recentlyUsedFiles) {
         actions.newFile()
       }
     }, {
+      label: 'New Tab',
+      accelerator: 'Shift+CmdOrCtrl+T',
+      click (menuItem, browserWindow) {
+        actions.newTab(browserWindow)
+      }
+    }, {
+      type: 'separator'
+    }, {
       label: 'Open File',
       accelerator: 'CmdOrCtrl+O',
       click (menuItem, browserWindow) {

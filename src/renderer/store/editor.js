@@ -293,6 +293,12 @@ const actions = {
     })
   },
 
+  LISTEN_FOR_NEW_TAB ({ dispatch }) {
+    ipcRenderer.on('AGANI::new-tab', e => {
+      dispatch('NEW_BLANK_FILE')
+    })
+  },
+
   NEW_BLANK_FILE ({ commit, state, dispatch }) {
     const { tabs, lineEnding } = state
     const fileState = getBlankFileState(tabs, lineEnding)

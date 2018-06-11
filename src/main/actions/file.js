@@ -243,6 +243,10 @@ export const newFile = () => {
   appWindow.createWindow()
 }
 
+export const newTab = win => {
+  win.webContents.send('AGANI::new-tab')
+}
+
 export const save = win => {
   win.webContents.send('AGANI::ask-file-save')
 }

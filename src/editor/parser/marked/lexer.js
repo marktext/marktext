@@ -325,19 +325,21 @@ Lexer.prototype.token = function (src, top, bq) {
     cap = this.rules.def.exec(src)
     if (!bq && top && cap) {
       let text = ''
-      while (cap) {
+      do {
         src = src.substring(cap[0].length)
         this.tokens.links[cap[1].toLowerCase()] = {
           href: cap[2],
           title: cap[3]
         }
         text += cap[0]
+        if (cap[0].endsWith('\n\n')) break
         cap = this.rules.def.exec(src)
-      }
+      } while (cap)
+
       if (this.options.disableInline) {
         this.tokens.push({
           type: 'paragraph',
-          text
+          text: text.replace(/\n*$/, '')
         })
       }
       continue

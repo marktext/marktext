@@ -120,6 +120,7 @@
       dispatch('LISTEN_FOR_INSERT_IMAGE')
       dispatch('LISTEN_FOR_RENAME')
       dispatch('LINTEN_FOR_SET_LINE_ENDING')
+      dispatch('LISTEN_FOR_NEW_TAB')
       // module: notification
       dispatch('LISTEN_FOR_NOTIFICATION')
     }
