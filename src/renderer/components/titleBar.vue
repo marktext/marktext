@@ -1,6 +1,6 @@
 <template>
   <div class="title-bar"
-    :class="[{ 'active': active }, theme]"
+    :class="[{ 'active': active }, theme, { 'frameless': platform !== 'darwin' }]"
   >
     <div class="title">
       <span v-if="!filename">Mark Text</span>
@@ -176,6 +176,9 @@
     z-index: 1;
     transition: color .4s ease-in-out;
     cursor: default;
+  }
+  .title-bar.frameless {
+    height: 25px;
   }
   .active {
     color: #909399;

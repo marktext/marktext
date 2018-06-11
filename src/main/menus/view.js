@@ -56,7 +56,7 @@ let viewMenu = {
   }, {
     type: 'separator'
   }, {
-    label: 'Side Bar',
+    label: 'Toggle Side Bar',
     id: 'sideBarMenuItem',
     type: 'checkbox',
     checked: false,
@@ -64,7 +64,7 @@ let viewMenu = {
       actions.layout(item, browserWindow, 'showSideBar')
     }
   }, {
-    label: 'Tab Bar',
+    label: 'Toggle Tab Bar',
     id: 'tabBarMenuItem',
     type: 'checkbox',
     checked: false,

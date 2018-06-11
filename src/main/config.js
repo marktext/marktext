@@ -55,7 +55,7 @@ export const EXTENSION_HASN = {
   pdf: '.pdf'
 }
 
-export const TITLE_BAR_HEIGHT = 21
+export const TITLE_BAR_HEIGHT = isOsx ? 21 : 25
 export const LINE_ENDING_REG = /(?:\r\n|\n)/g
 export const LF_LINE_ENDING_REG = /(?:[^\r]\n)|(?:^\n$)/
 export const CRLF_LINE_ENDING_REG = /\r\n/
