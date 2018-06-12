@@ -211,6 +211,7 @@
         bus.$on('insertParagraph', this.handleInsertParagraph)
         bus.$on('editTable', this.handleEditTable)
         bus.$on('scroll-to-header', this.scrollToHeader)
+        bus.$on('copy-block', this.handleCopyBlock)
 
         // when cursor is in `![](cursor)` will emit `insert-image`
         this.editor.on('insert-image', type => {
@@ -410,6 +411,10 @@
 
       blurEditor () {
         this.editor.blur()
+      },
+
+      handleCopyBlock (name) {
+        this.editor.copy(name)
       }
     },
 
@@ -432,6 +437,7 @@
       bus.$off('insertParagraph', this.handleInsertParagraph)
       bus.$off('editTable', this.handleEditTable)
       bus.$off('scroll-to-header', this.scrollToHeader)
+      bus.$off('copy-block', this.handleCopyBlock)
 
       this.editor.destroy()
       this.editor = null

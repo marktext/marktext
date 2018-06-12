@@ -3,6 +3,7 @@ import {
   CUT,
   COPY,
   PASTE,
+  COPY_TABLE,
   COPY_AS_MARKDOWN,
   COPY_AS_HTML,
   PASTE_AS_PLAIN_TEXT,
@@ -29,6 +30,8 @@ export const showContextMenu = (event, { start, end }) => {
       REMOVE_ROW,
       INSERT_COLUMN,
       REMOVE_COLUMN,
+      SEPARATOR,
+      COPY_TABLE,
       SEPARATOR
     )
   }

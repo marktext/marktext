@@ -649,6 +649,17 @@ class Aganippe {
     document.execCommand('paste')
   }
 
+  copy (name) {
+    switch (name) {
+      case 'table':
+        this._copyType = 'copyTable'
+        document.execCommand('copy')
+        break
+      default:
+        break
+    }
+  }
+
   destroy () {
     this.emoji.clear() // clear emoji cache for memory recycle
     this.contentState.clear()

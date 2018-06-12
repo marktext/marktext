@@ -344,6 +344,21 @@ const tableBlockCtrl = ContentState => {
     this.eventCenter.dispatch('stateChange')
   }
 
+  ContentState.prototype.getTableBlock = function () {
+    const { start, end } = this.cursor
+    const startBlock = this.getBlock(start.key)
+    const endBlock = this.getBlock(end.key)
+    const startParents = this.getParents(startBlock)
+    const endParents = this.getParents(endBlock)
+    const affiliation = startParents
+      .filter(p => endParents.includes(p))
+
+    if (affiliation.length) {
+      const table = affiliation.find(p => p.type === 'figure')
+      return table
+    }
+  }
+
   ContentState.prototype.tableBlockUpdate = function (block) {
     const { type } = block
     if (type !== 'p') return false

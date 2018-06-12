@@ -1,5 +1,9 @@
 import bus from '../../bus'
 
+export const copyTable = () => {
+  bus.$emit('copy-block', 'table')
+}
+
 export const copyAsMarkdown = (menuItem, browserWindow) => {
   bus.$emit('copyAsMarkdown', 'copyAsMarkdown')
 }
