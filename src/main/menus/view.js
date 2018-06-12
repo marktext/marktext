@@ -29,7 +29,7 @@ let viewMenu = {
   }, {
     id: 'sourceCodeModeMenuItem',
     label: 'Source Code Mode',
-    accelerator: 'CmdOrCtrl+U',
+    accelerator: 'Alt+CmdOrCtrl+S',
     type: 'checkbox',
     checked: false,
     click (item, browserWindow) {
