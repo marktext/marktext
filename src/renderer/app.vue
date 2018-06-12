@@ -12,10 +12,10 @@
     <div class="editor-middle">
       <side-bar></side-bar>
       <recent
-        v-if="!hasCurrentFile"
+        v-if="!hasCurrentFile && init"
       ></recent>
       <editor-with-tabs
-        v-else
+        v-if="hasCurrentFile && init"
         :markdown="markdown"
         :cursor="cursor"
         :theme="theme"
@@ -32,6 +32,7 @@
     <about-dialog></about-dialog>
     <font></font>
     <rename></rename>
+    <tweet></tweet>
   </div>
 </template>
 
@@ -46,6 +47,7 @@
   import AboutDialog from '@/components/about'
   import Font from '@/components/font'
   import Rename from '@/components/rename'
+  import Tweet from '@/components/tweet'
   import { mapState } from 'vuex'
 
   export default {
@@ -60,7 +62,8 @@
       UploadImage,
       AboutDialog,
       Font,
-      Rename
+      Rename,
+      Tweet
     },
     data () {
       return {}
@@ -80,7 +83,7 @@
         'wordCount': state => state.editor.currentFile.wordCount
       }),
       ...mapState([
-        'windowActive', 'platform'
+        'windowActive', 'platform', 'init'
       ]),
       hasCurrentFile () {
         return this.markdown !== undefined
@@ -90,6 +93,8 @@
       const { dispatch } = this.$store
       // store/index.js
       dispatch('LINTEN_WIN_STATUS')
+      // module: tweet
+      dispatch('LISTEN_FOR_TWEET')
       // module: layout
       dispatch('LISTEN_FOR_LAYOUT')
       dispatch('LISTEN_FOR_REQUEST_LAYOUT')
@@ -121,6 +126,7 @@
       dispatch('LISTEN_FOR_RENAME')
       dispatch('LINTEN_FOR_SET_LINE_ENDING')
       dispatch('LISTEN_FOR_NEW_TAB')
+      dispatch('LISTEN_FOR_CLOSE_TAB')
       // module: notification
       dispatch('LISTEN_FOR_NOTIFICATION')
     }

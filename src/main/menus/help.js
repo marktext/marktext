@@ -10,34 +10,41 @@ export default {
   role: 'help',
   submenu: [{
     label: 'Learn More',
-    click: function () {
+    click () {
       shell.openExternal('https://github.com/marktext/marktext')
     }
   }, {
-    label: 'Report Issue',
-    click: function () {
-      shell.openExternal('https://github.com/marktext/marktext/issues')
-    }
-  }, {
     label: 'Source Code on GitHub',
-    click: function () {
+    click () {
       shell.openExternal('https://github.com/marktext/marktext')
     }
   }, {
     label: 'Changelog',
-    click: function () {
+    click () {
       shell.openExternal('https://github.com/marktext/marktext/blob/master/.github/CHANGELOG.md')
     }
   }, {
     label: 'Markdown syntax',
-    click: function () {
+    click () {
       shell.openExternal('https://spec.commonmark.org/0.28/')
     }
   }, {
     type: 'separator'
   }, {
+    label: 'Feedback via Twitter',
+    click (item, win) {
+      actions.showTweetDialog(win, 'twitter')
+    }
+  }, {
+    label: 'Report Issue or Feature request',
+    click () {
+      shell.openExternal('https://github.com/marktext/marktext/issues')
+    }
+  }, {
+    type: 'separator'
+  }, {
     label: 'Follow @Jocs on Github',
-    click: function () {
+    click () {
       shell.openExternal('https://github.com/Jocs')
     }
   }, {

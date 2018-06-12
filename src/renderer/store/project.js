@@ -85,6 +85,7 @@ const mutations = {
 const actions = {
   LISTEN_FOR_LOAD_PROJECT ({ commit, dispatch }) {
     ipcRenderer.on('AGANI::open-project', (e, { pathname, name }) => {
+      dispatch('INIT_STATUS', true)
       commit('SET_PROJECT_TREE', { pathname, name })
       commit('SET_LAYOUT', {
         rightColumn: 'files',

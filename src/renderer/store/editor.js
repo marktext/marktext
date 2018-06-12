@@ -1,6 +1,7 @@
 import { ipcRenderer } from 'electron'
 import path from 'path'
 import bus from '../bus'
+import { hasKeys } from '../util'
 import { getOptionsFromState, getSingleFileState, getBlankFileState } from './help'
 
 const toc = require('markdown-toc')
@@ -62,7 +63,9 @@ const mutations = {
     }
   },
   SET_SAVE_STATUS (state, status) {
-    state.currentFile.isSaved = status
+    if (hasKeys(state.currentFile)) {
+      state.currentFile.isSaved = status
+    }
   },
   SET_SAVE_STATUS_WHEN_REMOVE (state, { pathname }) {
     state.tabs.forEach(f => {
@@ -72,25 +75,39 @@ const mutations = {
     })
   },
   SET_MARKDOWN (state, markdown) {
-    state.currentFile.markdown = markdown
+    if (hasKeys(state.currentFile)) {
+      state.currentFile.markdown = markdown
+    }
   },
   SET_IS_UTF8_BOM_ENCODED (state, isUtf8BomEncoded) {
-    state.currentFile.isUtf8BomEncoded = isUtf8BomEncoded
+    if (hasKeys(state.currentFile)) {
+      state.currentFile.isUtf8BomEncoded = isUtf8BomEncoded
+    }
   },
   SET_LINE_ENDING (state, lineEnding) {
-    state.currentFile.lineEnding = lineEnding
+    if (hasKeys(state.currentFile)) {
+      state.currentFile.lineEnding = lineEnding
+    }
   },
   SET_ADJUST_LINE_ENDING_ON_SAVE (state, adjustLineEndingOnSave) {
-    state.currentFile.adjustLineEndingOnSave = adjustLineEndingOnSave
+    if (hasKeys(state.currentFile)) {
+      state.currentFile.adjustLineEndingOnSave = adjustLineEndingOnSave
+    }
   },
   SET_WORD_COUNT (state, wordCount) {
-    state.currentFile.wordCount = wordCount
+    if (hasKeys(state.currentFile)) {
+      state.currentFile.wordCount = wordCount
+    }
   },
   SET_CURSOR (state, cursor) {
-    state.currentFile.cursor = cursor
+    if (hasKeys(state.currentFile)) {
+      state.currentFile.cursor = cursor
+    }
   },
   SET_HISTORY (state, history) {
-    state.currentFile.history = history
+    if (hasKeys(state.currentFile)) {
+      state.currentFile.history = history
+    }
   },
   CLOSE_TABS (state, arr) {
     arr.forEach(id => {
@@ -147,13 +164,15 @@ const actions = {
   // need update line ending when change between tabs
   UPDATE_LINEENDING_MENU ({ commit, state }) {
     const { lineEnding } = state.currentFile
-    ipcRenderer.send('AGANI::update-line-ending-menu', lineEnding)
+    if (lineEnding) {
+      ipcRenderer.send('AGANI::update-line-ending-menu', lineEnding)
+    }
   },
 
   CLOSE_SINGLE_FILE ({ commit, state }, file) {
-    const { id, pathname, markdown } = file
+    const { id, pathname, filename, markdown } = file
     const options = getOptionsFromState(file)
-    ipcRenderer.send('AGANI::save-close', [{ id, pathname, markdown, options }], true)
+    ipcRenderer.send('AGANI::save-close', [{ id, pathname, filename, markdown, options }], true)
   },
 
   // need pass some data to main process when `save` menu item clicked
@@ -161,7 +180,9 @@ const actions = {
     ipcRenderer.on('AGANI::ask-file-save', () => {
       const { id, pathname, markdown } = state.currentFile
       const options = getOptionsFromState(state.currentFile)
-      ipcRenderer.send('AGANI::response-file-save', { id, pathname, markdown, options })
+      if (id) {
+        ipcRenderer.send('AGANI::response-file-save', { id, pathname, markdown, options })
+      }
     })
   },
 
@@ -170,7 +191,9 @@ const actions = {
     ipcRenderer.on('AGANI::ask-file-save-as', () => {
       const { id, pathname, markdown } = state.currentFile
       const options = getOptionsFromState(state.currentFile)
-      ipcRenderer.send('AGANI::response-file-save-as', { id, pathname, markdown, options })
+      if (id) {
+        ipcRenderer.send('AGANI::response-file-save-as', { id, pathname, markdown, options })
+      }
     })
   },
 
@@ -233,6 +256,7 @@ const actions = {
     ipcRenderer.on('AGANI::ask-file-move-to', () => {
       const { id, pathname, markdown } = state.currentFile
       const options = getOptionsFromState(state.currentFile)
+      if (!id) return
       if (!pathname) {
         // if current file is a newly created file, just save it!
         ipcRenderer.send('AGANI::response-file-save', { id, pathname, markdown, options })
@@ -252,6 +276,7 @@ const actions = {
   RESPONSE_FOR_RENAME ({ commit, state }) {
     const { id, pathname, markdown } = state.currentFile
     const options = getOptionsFromState(state.currentFile)
+    if (!id) return
     if (!pathname) {
       // if current file is a newly created file, just save it!
       ipcRenderer.send('AGANI::response-file-save', { id, pathname, markdown, options })
@@ -263,7 +288,7 @@ const actions = {
   // ask for main process to rename this file to a new name `newFilename`
   RENAME ({ commit, state }, newFilename) {
     const { id, pathname, filename } = state.currentFile
-    if (filename !== newFilename) {
+    if (typeof filename === 'string' && filename !== newFilename) {
       const newPathname = path.join(path.dirname(pathname), newFilename)
       ipcRenderer.send('AGANI::rename', { id, pathname, newPathname })
     }
@@ -282,6 +307,7 @@ const actions = {
       const fileState = getSingleFileState({ markdown, filename, pathname, options })
       const { lineEnding } = options
       commit('SET_GLOBAL_LINE_ENDING', lineEnding)
+      dispatch('INIT_STATUS', true)
       dispatch('UPDATE_CURRENT_FILE', fileState)
       bus.$emit('file-loaded', markdown)
       commit('SET_LAYOUT', {
@@ -299,6 +325,19 @@ const actions = {
     })
   },
 
+  LISTEN_FOR_CLOSE_TAB ({ commit, state, dispatch }) {
+    ipcRenderer.on('AGANI::close-tab', e => {
+      const file = state.currentFile
+      if (!hasKeys(file)) return
+      const { isSaved } = file
+      if (isSaved) {
+        dispatch('REMOVE_FILE_IN_TABS', file)
+      } else {
+        dispatch('CLOSE_SINGLE_FILE', file)
+      }
+    })
+  },
+
   NEW_BLANK_FILE ({ commit, state, dispatch }) {
     const { tabs, lineEnding } = state
     const fileState = getBlankFileState(tabs, lineEnding)
@@ -313,6 +352,7 @@ const actions = {
       const fileState = getBlankFileState(tabs, lineEnding)
       const { markdown } = fileState
       commit('SET_GLOBAL_LINE_ENDING', lineEnding)
+      dispatch('INIT_STATUS', true)
       dispatch('UPDATE_CURRENT_FILE', fileState)
       bus.$emit('file-loaded', markdown)
       commit('SET_LAYOUT', {
@@ -385,12 +425,14 @@ const actions = {
   },
 
   EXPORT ({ commit, state }, { type, content }) {
+    if (!hasKeys(state.currentFile)) return
     const { filename, pathname } = state.currentFile
     ipcRenderer.send('AGANI::response-export', { type, content, filename, pathname })
   },
 
   LISTEN_FOR_INSERT_IMAGE ({ commit, state }) {
     ipcRenderer.on('AGANI::INSERT_IMAGE', (e, { filename: imagePath, type }) => {
+      if (!hasKeys(state.currentFile)) return
       if (type === 'absolute' || type === 'relative') {
         const { pathname } = state.currentFile
         if (type === 'relative' && pathname) {

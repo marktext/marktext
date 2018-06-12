@@ -81,8 +81,7 @@ body {
 }
 
 .v-modal {
-  background: #fff;
-  opacity: .8;
+  background: rgba(230, 230, 230, .9);
 }
 
 body>*:first-child {

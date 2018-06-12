@@ -236,6 +236,7 @@
     margin-bottom: 20px;
   }
   .search-wrapper {
+    margin: 0 auto;
     margin-top: 8px;
     z-index: 10000;
     position: absolute;
@@ -243,7 +244,6 @@
     left: 50%;
     transform: translateX(-50%);
     width: 410px;
-    margin: 0 auto;
     box-sizing: border-box;
     display: flex;
     flex-direction: column;

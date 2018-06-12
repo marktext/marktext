@@ -22,6 +22,7 @@
         <li
           v-for="(icon, index) of sideBarBottomIcons"
           :key="index"
+          @click="handleLeftBottomClick(icon.name)"
         >
           <svg class="icon" aria-hidden="true">
             <use :xlink:href="'#' + icon.icon"></use>
@@ -50,6 +51,7 @@
 
 <script>
   import { sideBarIcons, sideBarBottomIcons } from './help'
+  import bus from '../../bus'
   import Tree from './tree.vue'
   import SideBarSearch from './search.vue'
   import Toc from './toc.vue'
@@ -126,6 +128,11 @@
           this.$store.commit('SET_LAYOUT', { rightColumn: name })
           this.sideBarViewWidth = +this.sideBarWidth
         }
+      },
+      handleLeftBottomClick (name) {
+        if (name === 'twitter') {
+          bus.$emit('tweetDialog')
+        }
       }
     }
   }
@@ -135,7 +142,6 @@
   .side-bar {
     display: flex;
     height: calc(100vh - 22px);
-    overflow: hidden;
     position: relative;
     color: var(--secondaryColor);
   }
@@ -175,9 +181,18 @@
       & > svg {
         width: 1em;
         height: 1em;
-        opacity: 0;
+        opacity: 1;
         color: var(--secondaryColor);
       }
+    }
+  }
+  .left-column ul.bottom li {
+    & > svg {
+      transition: transform .25s ease-in-out;
+    }
+    &:hover > svg {
+      color: #1da1f2;
+      transform: scale(1.2);
     }
   }
   .side-bar:hover .left-column ul li svg {

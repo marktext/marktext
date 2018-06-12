@@ -38,7 +38,7 @@ let viewMenu = {
   }, {
     id: 'typewriterModeMenuItem',
     label: 'Typewriter Mode',
-    accelerator: 'Option+CmdOrCtrl+T',
+    accelerator: 'Alt+CmdOrCtrl+T',
     type: 'checkbox',
     checked: false,
     click (item, browserWindow) {

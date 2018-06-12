@@ -10,6 +10,7 @@ import layout from './layout'
 import preferences from './preferences'
 import autoUpdates from './autoUpdates'
 import notification from './notification'
+import tweet from './tweet'
 
 Vue.use(Vuex)
 
@@ -17,7 +18,8 @@ Vue.use(Vuex)
 const state = {
   platform: process.platform, // platform of system `darwin` | `win32` | `linux`
   appVersion: remote.app.getVersion(), // electron version in develop and Mark Text version in production
-  windowActive: true // weather current window is active or focused
+  windowActive: true, // weather current window is active or focused
+  init: process.env.NODE_ENV === 'development' // weather Mark Text is inited
 }
 
 const getters = {}
@@ -25,6 +27,9 @@ const getters = {}
 const mutations = {
   SET_WIN_STATUS (state, status) {
     state.windowActive = status
+  },
+  SET_INIT_STATUS (state, status) {
+    state.init = status
   }
 }
 
@@ -33,6 +38,9 @@ const actions = {
     ipcRenderer.on('AGANI::window-active-status', (e, { status }) => {
       commit('SET_WIN_STATUS', status)
     })
+  },
+  INIT_STATUS ({ commit }, status) {
+    commit('SET_INIT_STATUS', status)
   }
 }
 
@@ -46,6 +54,7 @@ const store = new Vuex.Store({
     listenForMain,
     autoUpdates,
     notification,
+    tweet,
     // have states
     project,
     aidou,

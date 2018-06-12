@@ -247,6 +247,10 @@ export const newTab = win => {
   win.webContents.send('AGANI::new-tab')
 }
 
+export const closeTab = win => {
+  win.webContents.send('AGANI::close-tab')
+}
+
 export const save = win => {
   win.webContents.send('AGANI::ask-file-save')
 }

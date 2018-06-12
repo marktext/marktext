@@ -174,3 +174,5 @@ export const animatedScrollTo = function (element, to, duration, callback) {
 export const getUniqueId = () => {
   return `${ID_PREFEX}${id++}`
 }
+
+export const hasKeys = obj => Object.keys(obj).length > 0

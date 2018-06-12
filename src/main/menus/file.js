@@ -77,6 +77,14 @@ export default function (recentlyUsedFiles) {
   fileMenu.submenu.push({
     type: 'separator'
   }, {
+    label: 'Close Tab',
+    accelerator: 'CmdOrCtrl+W',
+    click (menuItem, browserWindow) {
+      actions.closeTab(browserWindow)
+    }
+  }, {
+    type: 'separator'
+  }, {
     label: 'Save',
     accelerator: 'CmdOrCtrl+S',
     click (menuItem, browserWindow) {
