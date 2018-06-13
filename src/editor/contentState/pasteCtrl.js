@@ -200,6 +200,8 @@ const pasteCtrl = ContentState => {
               if (startBlock.functionType) line.functionType = startBlock.functionType
               this.appendChild(parent, line)
             })
+          } else if (/^h\d$/.test(firstFragment.type)) {
+            startBlock.text += firstFragment.text.split(/\s+/)[1]
           } else {
             startBlock.text += firstFragment.text
           }
