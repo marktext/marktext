@@ -1,5 +1,8 @@
 <template>
-  <div class="editor-container">
+  <div
+    class="editor-container"
+    :class="[{ 'frameless': platform !== 'darwin' }]"
+  >
     <title-bar
       :pathname="pathname"
       :filename="filename"
@@ -136,6 +139,9 @@
 <style scoped>
   .editor-container {
     padding-top: 22px;
+  }
+  .editor-container.frameless {
+    padding-top: 25px;
   }
   .editor-container .hide {
     z-index: -1;
