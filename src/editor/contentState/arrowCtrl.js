@@ -79,9 +79,14 @@ const arrowCtrl = ContentState => {
     ) {
       return
     }
-    console.log(topOffset, bottomOffset)
-    if ((event.key === EVENT_KEYS.ArrowUp && topOffset > 0) || (event.key === EVENT_KEYS.ArrowDown && bottomOffset > 0)) {
-      return
+
+    if (
+      (event.key === EVENT_KEYS.ArrowUp && topOffset > 0) ||
+      (event.key === EVENT_KEYS.ArrowDown && bottomOffset > 0)
+    ) {
+      if (block.type !== 'pre') {
+        return
+      }
     }
 
     if (show && (event.key === EVENT_KEYS.ArrowUp || event.key === EVENT_KEYS.ArrowDown)) {
