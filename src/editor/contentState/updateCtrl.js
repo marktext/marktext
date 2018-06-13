@@ -24,7 +24,8 @@ const updateCtrl = ContentState => {
     const { checked, id } = checkbox
     const block = this.getBlock(id)
     block.checked = checked
-    this.render()
+    checkbox.classList.toggle(CLASS_OR_ID['AG_CHECKBOX_CHECKED'])
+    // this.render()
   }
 
   ContentState.prototype.checkSameLooseType = function (list, isLooseType) {

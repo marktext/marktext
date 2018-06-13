@@ -311,11 +311,18 @@ li.ag-task-list-item {
 li.ag-task-list-item > input[type=checkbox] {
   position: absolute;
   cursor: pointer;
-  width: inherit;
-  height: inherit;
+  width: 16px;
+  height: 16px;
   margin: 4px 0px 0px;
   top: 2px;
   left: -20px;
+  transform-origin: center;
+  transform: rotate(-90deg);
+  transition: all .2s ease;
+}
+
+li.ag-task-list-item > input.ag-checkbox-checked {
+  transform: rotate(0);
 }
 
 li.ag-task-list-item > input.ag-checkbox-checked ~ p {
@@ -324,35 +331,41 @@ li.ag-task-list-item > input.ag-checkbox-checked ~ p {
 
 li.ag-task-list-item > input[type=checkbox]::before {
   content: '';
-  width: 14px;
-  height: 14px;
+  width: 16px;
+  height: 16px;
   box-sizing: border-box;
   display: inline-block;
   border: 2px solid var(--infoColor);
   border-radius: 2px;
-  background-color: #FFFFFF;
+  background-color: #fff;
   position: absolute;
   top: 0;
   left: 0;
+  transition: all .2s ease;
 }
 
 li.ag-task-list-item > input.ag-checkbox-checked::before {
-  border: none;
-  background-color: var(--infoColor);
+  border: transparent;
+  background-color: var(--primaryColor);
 }
 
-li.ag-task-list-item > input.ag-checkbox-checked::after {
+li.ag-task-list-item > input::after {
   content: '';
-  transform: rotate(-45deg);
-  width: 7px;
-  height: 3px;
+  transform: rotate(-45deg) scale(0);
+  width: 9px;
+  height: 5px;
   border: 2px solid #fff;
   border-top: none;
   border-right: none;
   position: absolute;
   display: inline-block;
-  top: 4px;
+  top: 3px;
   left: 3px;
+  transition: all .2s ease;
+}
+
+li.ag-task-list-item > input.ag-checkbox-checked::after {
+  transform: rotate(-45deg) scale(1);
 }
 
 li p .ag-hide:first-child {
