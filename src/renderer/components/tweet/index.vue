@@ -123,14 +123,13 @@
 <style>
   .tweet-dialog {
     width: 450px;
+    color: var(--regularColor);
     & .title {
-      color: var(--regularColor);
       font-size: 24px;
     }
   }
   .feeling, .feedback {
     font-size: 16px;
-    color: var(--secondaryColor);
   }
   .feeling {
     & ul {
