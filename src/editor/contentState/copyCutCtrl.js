@@ -2,6 +2,7 @@ import cheerio from 'cheerio'
 import selection from '../selection'
 import { CLASS_OR_ID } from '../config'
 import { getSanitizeHtml } from '../utils/exportUnstylishHtml'
+import ExportMarkdown from '../utils/exportMarkdown'
 
 const copyCutCtrl = ContentState => {
   ContentState.prototype.cutHandler = function () {
@@ -145,6 +146,14 @@ const copyCutCtrl = ContentState => {
       case 'copyAsHtml': {
         event.clipboardData.setData('text/html', '')
         event.clipboardData.setData('text/plain', getSanitizeHtml(text))
+        break
+      }
+      case 'copyTable': {
+        const table = this.getTableBlock()
+        if (!table) return
+        const markdown = new ExportMarkdown([ table ]).generate()
+        event.clipboardData.setData('text/html', '')
+        event.clipboardData.setData('text/plain', markdown)
         break
       }
     }
