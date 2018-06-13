@@ -95,11 +95,11 @@
 <style scoped>
   .side-bar-file {
     display: flex;
+    position: relative;
     align-items: center;
     cursor: default;
     user-select: none;
     height: 30px;
-    border-left: 3px solid transparent;
     box-sizing: border-box;
     padding-right: 15px;
     &:hover {
@@ -110,10 +110,21 @@
       text-overflow: ellipsis;
       white-space: nowrap;
     }
+    &::before {
+      content: '';
+      position: absolute;
+      display: block;
+      left: 0;
+      background: var(--activeColor);
+      width: 2px;
+      height: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      transition: all .2s ease;
+    }
   }
-  .side-bar-file.current {
-    color: var(--activeColor);
-    border-left-color: var(--activeColor);
+  .side-bar-file.current::before {
+    height: 100%;
   }
   .side-bar-file.active {
     background: var(--lightBorder);

@@ -12,6 +12,7 @@
           v-for="(icon, index) of sideBarIcons"
           :key="index"
           @click="handleLeftIconClick(icon.name)"
+          :class="{ 'active': icon.name === rightColumn }"
         >
           <svg class="icon" aria-hidden="true">
             <use :xlink:href="'#' + icon.icon"></use>
@@ -189,6 +190,9 @@
         height: 1em;
         opacity: 1;
         color: var(--secondaryColor);
+      }
+      &.active > svg {
+        color: var(--activeColor);
       }
     }
   }

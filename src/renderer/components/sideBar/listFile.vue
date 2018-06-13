@@ -51,7 +51,7 @@
 
 <style scoped>
   .side-bar-list-file {
-    border-left: 3px solid transparent;
+    position: relative;
     user-select: none;
     padding: 10px 20px;
     color: var(--secondaryColor);
@@ -62,9 +62,21 @@
     &:hover {
       background: var(--extraLightBorder);
     }
+    &::before {
+      content: '';
+      position: absolute;
+      display: block;
+      left: 0;
+      background: var(--activeColor);
+      width: 2px;
+      height: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      transition: all .2s ease;
+    }
   }
-  .side-bar-list-file.active {
-    border-color: var(--activeColor);
+  .side-bar-list-file.active::before {
+    height: 100%;
   }
   .folder-date {
     margin-top: 5px;

@@ -2,6 +2,8 @@
   --lightBarColor: rgb(245, 245, 245);
   --lightTabColor: rgb(243, 243, 243);
   --darkBgColor: rgb(45, 45, 45);
+  --darkInputBgColor: rgb(54, 55, 49);
+  --darkInputColor: rgb(255, 255, 255);
   --darkHoverColor: rgb(70, 70, 70);
 }
 .icon {

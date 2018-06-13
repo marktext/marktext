@@ -186,7 +186,7 @@
     background: #eee;
   }
   .button a.active, .button a.twitter:hover {
-    background: #1da1f2;
+    background: var(--activeColor);
     color: #fff;
   }
   .button a.github {
@@ -195,5 +195,10 @@
     &:hover {
       color: #1da1f2;
     }
+  }
+  .tweet-dialog.dark textarea {
+    background: var(--darkInputBgColor);
+    border-color: transparent;
+    color: var(--darkInputColor);
   }
 </style>

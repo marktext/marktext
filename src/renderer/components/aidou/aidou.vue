@@ -278,7 +278,7 @@
     transition: all .3s ease-in-out;
   }
   .search-wrapper svg:hover {
-    color: orange;
+    color: var(--activeColor);
   }
   ul.history {
     display: flex;
@@ -355,7 +355,7 @@
     display: none;
   }
   .image-container .img-wrapper > svg.active {
-    color: orange;
+    color: var(--activeColor);
   }
   .image-container .img-wrapper:hover > svg {
     display: block;
@@ -377,8 +377,12 @@
   }
   /* style for dark theme */
   .dark .search-wrapper {
-    background: rgb(75, 75, 75);
-    border-color: rgb(75, 75, 75);
+    background: var(--darkInputBgColor);
+    border-color: transparent;
+    & input {
+      background: transparent;
+      color: var(--darkInputColor);
+    }
   }
   .dark ul.history li.active {
     background: rgb(39, 39, 39);
