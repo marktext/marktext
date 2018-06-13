@@ -143,6 +143,7 @@ const pasteCtrl = ContentState => {
     const firstFragment = stateFragments[0]
     const tailFragments = stateFragments.slice(1)
     const pasteType = this.checkPasteType(startBlock, firstFragment)
+
     const getLastBlock = blocks => {
       const len = blocks.length
       const lastBlock = blocks[len - 1]
@@ -199,6 +200,8 @@ const pasteCtrl = ContentState => {
               if (startBlock.functionType) line.functionType = startBlock.functionType
               this.appendChild(parent, line)
             })
+          } else if (/^h\d$/.test(firstFragment.type)) {
+            startBlock.text += firstFragment.text.split(/\s+/)[1]
           } else {
             startBlock.text += firstFragment.text
           }
@@ -217,8 +220,10 @@ const pasteCtrl = ContentState => {
           this.insertAfter(block, target)
           target = block
         })
-        if (startBlock.text.length === 0) this.removeBlock(startBlock)
-        if (this.isOnlyChild(startBlock)) this.removeBlock(parent)
+        if (startBlock.text.length === 0) {
+          this.removeBlock(startBlock)
+          if (this.isOnlyChild(startBlock) && startBlock.type === 'span') this.removeBlock(parent)
+        }
         break
       default:
         throw new Error('unknown paste type')
