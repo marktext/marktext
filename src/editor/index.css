@@ -1,8 +1,8 @@
 :root {
-  --brandColor: #409eff;
-  --successColor: #67C23A;
-  --warningColor: #E6A23C;
-  --dangerColor: #F56C6C;
+  --brandColor: #5b3cc4;
+  --successColor: rgb(23, 201, 100);
+  --warningColor: rgb(255, 130, 0);
+  --dangerColor: rgb(242, 19, 93);
   --activeColor: #409eff;
   --infoColor: #909399;
   --primaryColor: #303133;
@@ -314,8 +314,8 @@ li.ag-task-list-item > input[type=checkbox] {
   width: 16px;
   height: 16px;
   margin: 4px 0px 0px;
-  top: 2px;
-  left: -20px;
+  top: 0;
+  left: -22px;
   transform-origin: center;
   transform: rotate(-90deg);
   transition: all .2s ease;
@@ -325,8 +325,8 @@ li.ag-task-list-item > input.ag-checkbox-checked {
   transform: rotate(0);
 }
 
-li.ag-task-list-item > input.ag-checkbox-checked ~ p {
-  color: var(--secondaryColor);
+li.ag-task-list-item > input.ag-checkbox-checked ~ * {
+  color: var(--regularColor);
 }
 
 li.ag-task-list-item > input[type=checkbox]::before {
@@ -346,7 +346,7 @@ li.ag-task-list-item > input[type=checkbox]::before {
 
 li.ag-task-list-item > input.ag-checkbox-checked::before {
   border: transparent;
-  background-color: var(--primaryColor);
+  background-color: var(--regularColor);
 }
 
 li.ag-task-list-item > input::after {

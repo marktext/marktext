@@ -34,7 +34,9 @@
         </div>
         <div class="feedback">
           <div>Tell us your feedback?</div>
-          <textarea cols="30" rows="10" v-model="value" ref="textarea"></textarea>
+          <textarea
+            cols="30" rows="10" v-model="value" ref="textarea"
+          ></textarea>
         </div>
         <div class="button">
           <a
@@ -42,6 +44,9 @@
             class="github"
             @click="reportViaGithub"
           >
+            <svg class="icon" aria-hidden="true">
+              <use xlink:href="#icon-github"></use>
+            </svg>
             Report bug or feature request via github
           </a>
           <a
@@ -194,6 +199,11 @@
     text-decoration: none;
     &:hover {
       color: #1da1f2;
+    }
+    & > svg {
+      width: 1.4rem;
+      height: 1.4rem;
+      vertical-align: bottom;
     }
   }
   .tweet-dialog.dark textarea {

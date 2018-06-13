@@ -72,7 +72,7 @@
     width: 7px;
     height: 7px;
     border-radius: 50%;
-    background: rgba(242, 134, 94, .7);
+    background: var(--warningColor);
     position: absolute;
     top: 11px;
     left: 12px;

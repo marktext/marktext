@@ -14,7 +14,7 @@
             <use xlink:href="#icon-arrow-right"></use>
           </svg>
         </span>
-        <span @click="rename">{{ filename }}</span>
+        <span @click="rename" class="filename">{{ filename }}</span>
         <span class="save-dot" :class="{'show': !isSaved}"></span>
       </span>
     </div>
@@ -213,7 +213,7 @@
     color: #303133;
   }
   .title:hover .save-dot {
-    background: rgb(242, 134, 94);
+    background: var(--warningColor);
   }
   .right-toolbar {
     padding: 0 10px;
