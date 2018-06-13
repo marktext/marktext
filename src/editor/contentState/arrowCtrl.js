@@ -1,5 +1,12 @@
 import { EVENT_KEYS, CLASS_OR_ID } from '../config'
-import { isCursorAtFirstLine, isCursorAtLastLine, isCursorAtBegin, isCursorAtEnd, getBeginPosition, getEndPosition } from '../codeMirror'
+import {
+  isCursorAtFirstLine,
+  isCursorAtLastLine,
+  isCursorAtBegin,
+  isCursorAtEnd,
+  getBeginPosition,
+  getEndPosition
+} from '../codeMirror'
 import { findNearestParagraph } from '../utils/domManipulate'
 import selection from '../selection'
 
@@ -54,6 +61,7 @@ const arrowCtrl = ContentState => {
 
     const { left, right } = selection.getCaretOffsets(paragraph)
     const { start, end } = selection.getCursorRange()
+    const { topOffset, bottomOffset } = selection.getCursorYOffset(paragraph)
 
     // fix #101
     if (event.key === EVENT_KEYS.ArrowRight && node && node.classList && node.classList.contains(CLASS_OR_ID['AG_MATH_TEXT'])) {
@@ -64,10 +72,15 @@ const arrowCtrl = ContentState => {
       }
     }
 
+    // Just do nothing if the cursor is not collapsed
     if (
       (start.key === end.key && start.offset !== end.offset) ||
       start.key !== end.key
     ) {
+      return
+    }
+    console.log(topOffset, bottomOffset)
+    if ((event.key === EVENT_KEYS.ArrowUp && topOffset > 0) || (event.key === EVENT_KEYS.ArrowDown && bottomOffset > 0)) {
       return
     }
 
