@@ -1,6 +1,5 @@
 import { isLengthEven } from '../utils'
 import { TABLE_TOOLS } from '../config'
-// import selection from '../selection'
 
 const TABLE_BLOCK_REG = /^\|.*?(\\*)\|.*?(\\*)\|/
 

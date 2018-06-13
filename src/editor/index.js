@@ -271,6 +271,8 @@ class Aganippe {
     const handler = event => {
       if (event.key === EVENT_KEYS.Backspace) {
         this.contentState.backspaceHandler(event)
+      } else if (event.key === EVENT_KEYS.Delete) {
+        this.contentState.deleteHandler(event)
       }
     }
 

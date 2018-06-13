@@ -12,7 +12,7 @@
   border-radius: 4px;
   box-shadow: 0 2px 12px 0 rgba(0, 0, 0, .1);
   list-style: none;
-  transition: opacity .15s ease-in;
+  transition: all .15s ease-in;
   overflow: auto;
   background: #fff;
   z-index: 10000;
