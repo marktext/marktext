@@ -117,6 +117,10 @@ const mutations = {
     })
     if (!state.currentFile.id && state.tabs.length) {
       state.currentFile = state.tabs[0]
+      if (typeof state.currentFile.markdown === 'string') {
+        const { markdown, cursor, history } = state.currentFile
+        bus.$emit('file-changed', { markdown, cursor, renderCursor: true, history })
+      }
     }
   },
   RENAME_IF_NEEDED (state, { src, dest }) {
