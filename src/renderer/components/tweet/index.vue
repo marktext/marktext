@@ -103,7 +103,7 @@
         this.selectedFace = name
       },
       reportViaGithub () {
-        shell.openExternal('https://github.com/marktext/marktext/issues')
+        shell.openExternal('https://github.com/marktext/marktext/issues/new')
       },
       reportViaTwitter () {
         const { value, selectedFace } = this
