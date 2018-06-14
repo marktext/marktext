@@ -455,7 +455,9 @@
   .editor-wrapper.source {
     position: absolute;
     z-index: -1;
-    width: 100%;
+    width: 0;
+    height: 0;
+    overflow: hidden;
   }
   .editor-component {
     height: 100%;

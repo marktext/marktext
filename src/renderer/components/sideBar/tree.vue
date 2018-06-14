@@ -39,11 +39,13 @@
         </a>
       </div>
       <div class="opened-files-list">
-        <opened-file
-          v-for="(tab, index) of tabs"
-          :key="index"
-          :file="tab"
-        ></opened-file>
+        <transition-group name="list">
+          <opened-file
+            v-for="(tab, index) of tabs"
+            :key="index"
+            :file="tab"
+          ></opened-file>
+        </transition-group>
       </div>
     </div>
     <!-- project tree view -->
@@ -180,6 +182,18 @@
 </script>
 
 <style scoped>
+  .list-item {
+    display: inline-block;
+    margin-right: 10px;
+  }
+  .list-enter-active, .list-leave-active {
+    transition: all .2s;
+  }
+  .list-enter, .list-leave-to
+  /* .list-leave-active for below version 2.1.8 */ {
+    opacity: 0;
+    transform: translateX(-50px);
+  }
   .tree-view {
     font-size: 13px;
     color: var(--regularColor);

@@ -75,6 +75,10 @@
       transition: all .2s ease;
     }
   }
+  .side-bar-list-file.active {
+    font-weight: 600;
+    color: var(--regularColor);
+  }
   .side-bar-list-file.active::before {
     height: 100%;
   }
@@ -89,6 +93,9 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+  }
+  .dark.side-bar-list-file.active {
+    color: var(--lightTabColor);
   }
   .dark.side-bar-list-file:hover {
     background: var(--darkHoverColor);
