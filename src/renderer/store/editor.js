@@ -1,8 +1,9 @@
-import { ipcRenderer } from 'electron'
+import { ipcRenderer, shell } from 'electron'
 import path from 'path'
 import bus from '../bus'
 import { hasKeys } from '../util'
 import { getOptionsFromState, getSingleFileState, getBlankFileState } from './help'
+import notice from '../services/notification'
 
 const toc = require('markdown-toc')
 
@@ -432,6 +433,19 @@ const actions = {
     if (!hasKeys(state.currentFile)) return
     const { filename, pathname } = state.currentFile
     ipcRenderer.send('AGANI::response-export', { type, content, filename, pathname })
+  },
+
+  LINTEN_FOR_EXPORT_SUCCESS ({ commit }) {
+    ipcRenderer.on('AGANI::export-success', (e, { type, filePath }) => {
+      notice.notify({
+        title: 'Export',
+        message: `Export ${path.basename(filePath)} successfully`,
+        showConfirm: true
+      })
+        .then(() => {
+          shell.showItemInFolder(filePath)
+        })
+    })
   },
 
   LISTEN_FOR_INSERT_IMAGE ({ commit, state }) {

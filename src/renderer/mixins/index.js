@@ -1,5 +1,4 @@
 import { getFileStateFromData } from '../store/help.js'
-import { message } from '../notice'
 
 export const tabsMixins = {
   methods: {
@@ -31,7 +30,13 @@ export const fileMixins = {
       this.$store.dispatch('UPDATE_CURRENT_FILE', fileState)
 
       if (isMixed && !isOpened) {
-        message(`${filename} has mixed line endings which are automatically normalized to ${lineEnding.toUpperCase()}.`, 20000)
+        this.$notify({
+          title: 'Line Ending',
+          message: `${filename} has mixed line endings which are automatically normalized to ${lineEnding.toUpperCase()}.`,
+          type: 'primary',
+          time: 20000,
+          showConfirm: false
+        })
       }
     }
   }

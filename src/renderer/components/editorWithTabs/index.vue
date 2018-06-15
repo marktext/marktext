@@ -1,7 +1,6 @@
 <template>
     <div
       class="editor-with-tabs"
-      :class="[{ 'frameless': platform !== 'darwin' }]"
     >
       <tabs v-show="showTabBar"></tabs>
       <editor
@@ -22,7 +21,6 @@
   import Tabs from './tabs.vue'
   import Editor from './editor.vue'
   import SourceCode from './sourceCode.vue'
-  import { mapState } from 'vuex'
 
   export default {
     props: {
@@ -49,11 +47,6 @@
         required: true
       }
     },
-    computed: {
-      ...mapState([
-        'platform'
-      ])
-    },
     components: {
       Tabs,
       Editor,
@@ -67,10 +60,7 @@
     flex: 1;
     display: flex;
     flex-direction: column;
-    height: calc(100vh - 22px);
-    overflow: hidden;
-  }
-  .editor-with-tabs.frameless {
     height: calc(100vh - 25px);
+    overflow: hidden;
   }
 </style>

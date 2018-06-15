@@ -1,5 +1,6 @@
 <template>
-  <div class="title-bar"
+  <div
+    class="title-bar"
     :class="[{ 'active': active }, theme, { 'frameless': platform !== 'darwin' }]"
   >
     <div class="title">
@@ -166,7 +167,7 @@
     -webkit-app-region: drag;
     user-select: none;
     width: 100%;
-    height: 22px;
+    height: 25px;
     box-sizing: border-box;
     color: #F2F6FC;
     position: fixed;
@@ -176,9 +177,6 @@
     z-index: 1;
     transition: color .4s ease-in-out;
     cursor: default;
-  }
-  .title-bar.frameless {
-    height: 25px;
   }
   .active {
     color: #909399;
@@ -191,10 +189,17 @@
   .title {
     padding: 0 100px;
     height: 100%;
-    line-height: 22px;
-    font-size: 12px;
+    line-height: 25px;
+    font-size: 14px;
     text-align: center;
     transition: all .25s ease-in-out;
+    & .filename {
+      transition: all .25s ease-in-out;
+    }
+  }
+
+  .title-bar:not(.frameless) .title .filename:hover {
+    color: var(--primary);
   }
 
   .active .save-dot {
@@ -237,10 +242,10 @@
   }
   .word-count {
     cursor: pointer;
-    font-size: 12px;
+    font-size: 14px;
     color: #F2F6FC;
-    height: 15px;
-    line-height: 15px;
+    height: 17px;
+    line-height: 17px;
     margin-top: 4px;
     padding: 1px 5px;
     border-radius: 1px;

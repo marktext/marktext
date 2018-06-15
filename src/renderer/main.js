@@ -8,6 +8,9 @@ import store from './store'
 import './assets/symbolIcon'
 import './index.css'
 import { Dialog, Form, FormItem, InputNumber, Button, Tooltip, Upload, Slider, ColorPicker, Col, Row } from 'element-ui'
+import services from './services'
+
+// import notice from './services/notification'
 // In the renderer process:
 // var webFrame = require('electron').webFrame
 // var SpellCheckProvider = require('electron-spell-check-provider')
@@ -54,6 +57,10 @@ Vue.use(Row)
 if (!process.env.IS_WEB) Vue.use(require('vue-electron'))
 Vue.http = Vue.prototype.$http = axios
 Vue.config.productionTip = false
+
+services.forEach(s => {
+  Vue.prototype['$' + s.name] = s[s.name]
+})
 
 /* eslint-disable no-new */
 new Vue({

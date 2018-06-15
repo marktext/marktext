@@ -1,7 +1,6 @@
 <template>
   <div
     class="editor-container"
-    :class="[{ 'frameless': platform !== 'darwin' }]"
   >
     <title-bar
       :pathname="pathname"
@@ -130,6 +129,7 @@
       dispatch('LINTEN_FOR_SET_LINE_ENDING')
       dispatch('LISTEN_FOR_NEW_TAB')
       dispatch('LISTEN_FOR_CLOSE_TAB')
+      dispatch('LINTEN_FOR_EXPORT_SUCCESS')
       // module: notification
       dispatch('LISTEN_FOR_NOTIFICATION')
     }
@@ -138,9 +138,6 @@
 
 <style scoped>
   .editor-container {
-    padding-top: 22px;
-  }
-  .editor-container.frameless {
     padding-top: 25px;
   }
   .editor-container .hide {
@@ -151,6 +148,7 @@
   }
   .editor-middle {
     display: flex;
+    min-height: calc(100vh - 25px);
     & > .editor {
       flex: 1;
     }
