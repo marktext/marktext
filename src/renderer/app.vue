@@ -1,7 +1,6 @@
 <template>
   <div
     class="editor-container"
-    :class="[{ 'frameless': platform !== 'darwin' }]"
   >
     <title-bar
       :pathname="pathname"
@@ -139,9 +138,6 @@
 
 <style scoped>
   .editor-container {
-    padding-top: 22px;
-  }
-  .editor-container.frameless {
     padding-top: 25px;
   }
   .editor-container .hide {
@@ -152,6 +148,7 @@
   }
   .editor-middle {
     display: flex;
+    min-height: calc(100vh - 25px);
     & > .editor {
       flex: 1;
     }
