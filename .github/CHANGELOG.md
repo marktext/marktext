@@ -1,4 +1,4 @@
-### 0.12.10
+### 0.12.20
 
 **:cactus:Feature**
 
@@ -10,13 +10,24 @@
 - feature: save all the opened files and close all the opened files.
 - feature: Support reference link. #297
 - feature: Support reference image.
+- feature: copy table in context menu (#331)
+- feature: feedback via twitter
+- feature: can use delete key now, #301
 
 **:butterfly:Optimization**
+
+- optimization: rewirte table picker use popper
+- optimization: add animation to checkbox when clicked
+- Bundle desktop files and resources (#336)
+- Rewrite notification (#337)
 
 **:beetle:Bug fix**
 
 - fix: can not copy full link #312
 - fix: can not export table markdown #313
+- bugfix: #328 source code mode shortcut not work (#332)
+- bugfix: copy paste title delete text #321 (#333)
+- fix: text cursor skip lines in paragraph #330
 
 ### 0.11.42
 
