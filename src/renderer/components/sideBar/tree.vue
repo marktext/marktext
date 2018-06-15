@@ -90,7 +90,11 @@
       </div>
     </div>
     <div v-else class="open-project">
-      <a href="javascript:;" @click="openProject">Open Project</a>
+      <a href="javascript:;" @click="openProject" title="Open Project">
+        <svg class="icon" aria-hidden="true">
+          <use xlink:href="#icon-create-project"></use>
+        </svg>
+      </a>
     </div>
   </div>
 </template>
@@ -295,8 +299,23 @@
     align-items: center;
     margin-top: -100px;
     & > a {
+      width: 35px;
+      height: 35px;
+      border-radius: 50%;
       text-decoration: none;
-      color: var(--activeColor);
+      background: rgba(31, 116, 255, .5);
+      transition: all .3s ease;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      & > svg {
+        width: 18px;
+        height: 18px;
+        color: #fff;
+      }
+      &:hover {
+        background: var(--primary);
+      }
     }
   }
   .new-input {

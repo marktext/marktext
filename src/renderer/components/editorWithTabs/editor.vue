@@ -477,7 +477,7 @@
 
 <style>
   .ag-dialog-table {
-    border-radius: 3px;
+    border-radius: 5px;
     box-shadow: 0 1px 3px rgba(230, 230, 230, .3);
   }
 

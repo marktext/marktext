@@ -189,10 +189,14 @@
     box-sizing: border-box;
     display: inline-block;
     background: #eee;
+    cursor: not-allowed;
   }
-  .button a.active, .button a.twitter:hover {
-    background: var(--activeColor);
+  .button a.active {
+    background: var(--primary);
     color: #fff;
+  }
+  .button a.active {
+    cursor: pointer;
   }
   .button a.github {
     color: var(--secondaryColor);
@@ -210,5 +214,9 @@
     background: var(--darkInputBgColor);
     border-color: transparent;
     color: var(--darkInputColor);
+  }
+  .tweet-dialog.light .el-dialog__header {
+    background: var(--primary);
+    color: #fff;
   }
 </style>

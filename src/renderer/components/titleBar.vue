@@ -1,5 +1,6 @@
 <template>
-  <div class="title-bar"
+  <div
+    class="title-bar"
     :class="[{ 'active': active }, theme, { 'frameless': platform !== 'darwin' }]"
   >
     <div class="title">
@@ -195,6 +196,13 @@
     font-size: 12px;
     text-align: center;
     transition: all .25s ease-in-out;
+    & .filename {
+      transition: all .25s ease-in-out;
+    }
+  }
+
+  .title-bar:not(.frameless) .title .filename:hover {
+    color: var(--primary);
   }
 
   .active .save-dot {
