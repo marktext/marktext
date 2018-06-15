@@ -55,7 +55,7 @@
     user-select: none;
     padding: 10px 20px;
     color: var(--secondaryColor);
-    font-size: 13px;
+    font-size: 14px;
     & .title .filename {
       font-size: 15px;
     }

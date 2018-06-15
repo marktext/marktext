@@ -132,6 +132,10 @@
     & .title {
       font-size: 24px;
     }
+    & .el-dialog__header {
+      border-top-left-radius: 5px;
+      border-top-right-radius: 5px;
+    }
   }
   .feeling, .feedback {
     font-size: 16px;

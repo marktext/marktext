@@ -176,29 +176,23 @@
       justify-content: space-around;
       align-items: center;
       cursor: pointer;
-      &:hover > svg {
-        color: var(--brandColor);
-      }
       & > svg {
-        width: 1em;
-        height: 1em;
+        width: 18px;
+        height: 18px;
         opacity: 1;
         color: var(--secondaryColor);
+        transition: transform .25s ease-in-out;
+      }
+      &:hover > svg {
+        color: var(--primary);
+        transform: scale(1.2);
       }
       &.active > svg {
-        color: var(--activeColor);
+        color: var(--primary);
       }
     }
   }
-  .left-column ul.bottom li {
-    & > svg {
-      transition: transform .25s ease-in-out;
-    }
-    &:hover > svg {
-      color: #1da1f2;
-      transform: scale(1.2);
-    }
-  }
+
   .side-bar:hover .left-column ul li svg {
     opacity: 1;
   }

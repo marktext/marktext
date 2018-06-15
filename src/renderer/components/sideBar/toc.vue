@@ -48,7 +48,7 @@
       cursor: pointer;
     }
     & > li.active {
-      color: var(--activeColor);
+      color: var(--primary);
     }
   }
 </style>

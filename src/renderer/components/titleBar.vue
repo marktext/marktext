@@ -208,7 +208,8 @@
     height: 7px;
     display: inline-block;
     border-radius: 50%;
-    background: rgba(242, 134, 94, .7);
+    background: var(--warning);
+    opacity: .7;
     visibility: hidden;
   }
   .active .save-dot.show {
@@ -218,7 +219,7 @@
     color: #303133;
   }
   .title:hover .save-dot {
-    background: var(--warningColor);
+    background: var(--warning);
   }
   .right-toolbar {
     padding: 0 10px;

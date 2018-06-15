@@ -79,7 +79,7 @@
       border: none;
       outline: none;
       padding: 0 8px;
-      font-size: 13px;
+      font-size: 14px;
       width: 50%;
     }
     & > svg {
@@ -102,7 +102,7 @@
     }
   }
   .empty {
-    font-size: 13px;
+    font-size: 14px;
     text-align: center;
   }
   .dark.side-bar-search .search-wrapper {

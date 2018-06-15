@@ -199,7 +199,7 @@
     transform: translateX(-50px);
   }
   .tree-view {
-    font-size: 13px;
+    font-size: 14px;
     color: var(--regularColor);
     display: flex;
     flex-direction: column;
@@ -223,10 +223,10 @@
       opacity: 0;
     }
     & > a:hover {
-      color: var(--brandColor);
+      color: var(--primary);
     }
     & > a.active {
-      color: var(--activeColor);
+      color: var(--primary);
     }
   }
   .tree-view:hover .title a {
@@ -259,7 +259,7 @@
   .opened-files div.title:hover > a {
     display: block;
     &:hover {
-      color: var(--brandColor);
+      color: var(--primary);
     }
   }
   .opened-files {
@@ -339,7 +339,7 @@
     padding-top: 40px;
     align-items: center;
     & > a {
-      color: var(--activeColor);
+      color: var(--primary);
       text-align: center;
       margin-top: 15px;
       text-decoration: none;
