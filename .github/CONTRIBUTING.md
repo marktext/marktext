@@ -53,7 +53,7 @@ Other ways to help:
 ## Quick Start
 
 1. Fork the repository.
-2. Clone your fork: `git clone https://github.com/<username>/marktext.git`
+2. Clone your fork: `git clone git@github.com:<username>/marktext.git`
 3. Create a feature branch: `git checkout -b feature`
 4. Make you changes and push your branch.
 5. Create a PR against `master` and describe your changes.
