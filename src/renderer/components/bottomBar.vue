@@ -4,18 +4,15 @@
       v-if="!sourceCode"
       :theme="theme"
     ></search>
-    <status></status>
   </div>
 </template>
 
 <script>
   import Search from './search'
-  import Status from './status'
 
   export default {
     components: {
-      Search,
-      Status
+      Search
     },
     props: {
       sourceCode: Boolean,

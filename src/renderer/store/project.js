@@ -3,7 +3,7 @@ import { ipcRenderer, shell } from 'electron'
 import { addFile, unlinkFile, changeFile, addDirectory, unlinkDirectory } from './treeCtrl'
 import bus from '../bus'
 import { create, paste, rename } from '../util/fileSystem'
-import { error } from '../notice'
+import notice from '../services/notification'
 
 const width = localStorage.getItem('side-bar-width')
 const sideBarWidth = typeof +width === 'number' ? Math.max(+width, 180) : 280
@@ -164,7 +164,11 @@ const actions = {
             commit('SET_CLIPBOARD', null)
           })
           .catch(err => {
-            error(err.message)
+            notice.notify({
+              title: 'Paste Error',
+              type: 'error',
+              message: err.message
+            })
           })
       }
     })
@@ -182,7 +186,11 @@ const actions = {
         commit('CREATE_PATH', {})
       })
       .catch(err => {
-        error(err.message)
+        notice.notify({
+          title: 'Error in Side Bar',
+          type: 'error',
+          message: err.message
+        })
       })
   },
 

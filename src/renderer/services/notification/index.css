@@ -1,0 +1,116 @@
+.mt-notification {
+  position: fixed;
+  z-index: 10000;
+  overflow: hidden;
+  border-radius: 5px;
+  max-width: 350px;
+  min-width: 280px;
+  transition: all .2s ease;
+  box-shadow: 0px 12px 0px 0px rgba(0, 0, 0, 0.0);
+  backface-visibility: hidden;
+  right: 15px;
+  bottom: 15px;
+
+  & > .notice-bg {
+    width: 0;
+    height: 0;
+    position: absolute;
+    transition: all .8s ease,left .4s ease,top .4s ease;
+    border-radius: 50%;
+    z-index: 10;
+    transform: translate(-50%, -50%);
+    top: 50%;
+    left: 50%;
+  }
+
+  & .content {
+    z-index: 100;
+    color: #fff;
+    position: relative;
+    & .icon-wrapper {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      background: rgba(255, 255, 255, .2);
+    }
+    & .title {
+      display: flex;
+      align-items: center;
+      padding: 5px 5px;
+      & svg.icon {
+        width: .85em;
+        height: .85em;
+      }
+      & span {
+        flex: 1;
+        margin-left: 10px;
+      }
+      & .close {
+        margin-right: 10px;
+        opacity: 0;
+        transition: all .2s ease;
+        transform: scale(0);
+        cursor: pointer;
+        transform-origin: center;
+      }
+    }
+    & .body {
+      display: flex;
+      align-items: center;
+      font-size: 14px;
+      padding-bottom: 5px;
+      & .left-text {
+        overflow: hidden;
+        word-wrap: break-word;
+        padding: 5px;
+        box-sizing: border-box;
+        width: 100%;
+      }
+      & .confirm {
+        display: none;
+        margin-left: 7px;
+        width: 30px;
+        height: 30px;
+        cursor: pointer;
+
+      }
+    }
+  }
+  & .fluent-container {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    z-index: 40;
+    display: block;
+    top: 0px;
+    left: 0px;
+  }
+  & .fluent {
+    position: absolute;
+    z-index: 50;
+    display: block;
+    backface-visibility: hidden;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    transition: opacity 1s ease,width .4s ease,height .4s ease;
+    background: rgba(255, 255, 255, .2);
+    opacity: 0;
+    filter: blur(22px);
+  }
+
+  &:hover .content .title .close {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+.mt-notification.mt-confirm .content .body {
+  & .left-text {
+    width: calc(100% - 45px);
+  }
+  & .confirm {
+    display: flex;
+  }
+}

@@ -1,4 +1,8 @@
 :root {
+  --primary: #409eff;
+  --info: #909399;
+  --warning: rgb(255, 130, 0);
+  --error: rgb(242, 19, 93); 
   --lightBarColor: rgb(245, 245, 245);
   --lightTabColor: rgb(243, 243, 243);
   --darkBgColor: rgb(45, 45, 45);
