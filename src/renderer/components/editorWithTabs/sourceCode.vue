@@ -2,7 +2,6 @@
   <div
     class="source-code"
     ref="sourceCode"
-    :class="[theme, { 'frameless': platform !== 'darwin' }]"
   >
   </div>
 </template>
@@ -12,7 +11,6 @@
   import { wordCount as getWordCount } from '../../../editor/utils'
   import { adjustCursor } from '../../util'
   import bus from '../../bus'
-  import { mapState } from 'vuex'
 
   export default {
     props: {
@@ -22,12 +20,6 @@
       },
       markdown: String,
       cursor: Object
-    },
-
-    computed: {
-      ...mapState([
-        'platform'
-      ])
     },
 
     data () {
@@ -129,12 +121,9 @@
 
 <style>
   .source-code {
-    height: calc(100vh - 22px);
+    height: calc(100vh - 25px);
     box-sizing: border-box;
     overflow: auto;
-  }
-  .source-code.frameless {
-    height: calc(100vh - 25px);
   }
   .source-code .CodeMirror {
     margin: 50px auto;

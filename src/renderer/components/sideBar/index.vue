@@ -2,7 +2,7 @@
   <div
     v-show="showSideBar"
     class="side-bar"
-    :class="[theme, { 'frameless': platform !== 'darwin' }]"
+    :class="[theme]"
     ref="sideBar"
     :style="{ 'width': `${finalSideBarWidth}px` }"
   >
@@ -81,9 +81,6 @@
         'sideBarWidth': state => state.project.sideBarWidth,
         'tabs': state => state.editor.tabs
       }),
-      ...mapState([
-        'platform'
-      ]),
       ...mapGetters(['fileList']),
       finalSideBarWidth () {
         const { showSideBar, rightColumn, sideBarViewWidth } = this
@@ -145,12 +142,9 @@
 <style scoped>
   .side-bar {
     display: flex;
-    height: calc(100vh - 22px);
+    height: calc(100vh - 25px);
     position: relative;
     color: var(--secondaryColor);
-  }
-  .side-bar.frameless {
-    height: calc(100vh - 25px);
   }
   .side-bar.dark {
     background: var(--darkBgColor);
