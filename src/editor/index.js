@@ -168,18 +168,15 @@ class Aganippe {
       const list = this.emoji.search(text).map(l => {
         return Object.assign(l, { text: l.aliases[0] })
       })
-      const { left, top } = emojiNode.getBoundingClientRect()
       const cb = item => {
         setInlineEmoji(emojiNode, item, selection)
-        this.floatBox.hideIfNeeded(['emoji'])
+        this.floatBox.hideIfNeeded()
       }
       if (list.length) {
-        this.floatBox.showIfNeeded({
-          left, top
-        }, 'emoji', cb)
+        this.floatBox.showIfNeeded(emojiNode, cb)
         this.floatBox.setOptions(list)
       } else {
-        this.floatBox.hideIfNeeded('emoji')
+        this.floatBox.hideIfNeeded()
       }
     }
   }
@@ -192,7 +189,7 @@ class Aganippe {
         const scrollTop = container.scrollTop
         if (cacheTop && Math.abs(scrollTop - cacheTop) > 10) {
           cacheTop = null
-          return eventCenter.dispatch('hideFloatBox', ['emoji', 'language', 'image', 'image-path'])
+          return eventCenter.dispatch('hideFloatBox')
         } else {
           cacheTop = scrollTop
           return
@@ -201,7 +198,7 @@ class Aganippe {
       if (event.target && event.target.classList.contains(CLASS_OR_ID['AG_LANGUAGE_INPUT'])) {
         return
       }
-      if (event.type === 'click') return eventCenter.dispatch('hideFloatBox', ['emoji', 'language', 'image', 'image-path'])
+      if (event.type === 'click') return eventCenter.dispatch('hideFloatBox')
       const node = selection.getSelectionStart()
       const paragraph = findNearestParagraph(node)
       const selectionState = selection.exportSelection(paragraph)
@@ -209,13 +206,8 @@ class Aganippe {
       const emojiNode = node && checkEditEmoji(node)
       const editImage = checkEditImage()
 
-      if (!emojiNode && !lang) {
-        eventCenter.dispatch('hideFloatBox', ['emoji', 'language'])
-      }
-      if (!editImage) {
-        eventCenter.dispatch('hideFloatBox', ['image', 'image-path'])
-      } else {
-        eventCenter.dispatch('hideFloatBox', [editImage === 'image' ? 'image-path' : 'image'])
+      if (!emojiNode && !lang && !editImage) {
+        eventCenter.dispatch('hideFloatBox')
       }
     }
 
@@ -224,8 +216,8 @@ class Aganippe {
     eventCenter.attachDOMEvent(container, 'scroll', throttle(handler, 200))
   }
 
-  subscribeHideFloatBox (typeArray) {
-    this.floatBox.hideIfNeeded(typeArray)
+  subscribeHideFloatBox () {
+    this.floatBox.hideIfNeeded()
   }
 
   /**
@@ -247,7 +239,6 @@ class Aganippe {
   }
 
   subscribeEditLanguage (paragraph, lang, cb) {
-    const { left, top } = paragraph.getBoundingClientRect()
     const modes = search(lang).map(mode => {
       return Object.assign(mode, { text: mode.name })
     })
@@ -256,12 +247,10 @@ class Aganippe {
       this.contentState.selectLanguage(paragraph, item.name)
     }
     if (modes.length) {
-      this.floatBox.showIfNeeded({
-        left, top
-      }, 'language', cb || callback)
+      this.floatBox.showIfNeeded(paragraph, cb || callback)
       this.floatBox.setOptions(modes)
     } else {
-      this.floatBox.hideIfNeeded(['language'])
+      this.floatBox.hideIfNeeded()
     }
   }
 

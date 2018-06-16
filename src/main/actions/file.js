@@ -10,7 +10,7 @@ import { getPath, isMarkdownFile, log, isFile, isDirectory } from '../utils'
 import userPreference from '../preference'
 
 // handle the response from render process.
-const handleResponseForExport = (e, { type, content, filename, pathname }) => {
+const handleResponseForExport = (e, { type, content, pathname }) => {
   const win = BrowserWindow.fromWebContents(e.sender)
   const extension = EXTENSION_HASN[type]
   const dirname = pathname ? path.dirname(pathname) : getPath('documents')

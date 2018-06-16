@@ -1,29 +1,29 @@
 .ag-float-box {
   position: absolute;
-  left: -1000px;
-  top: -1000px;
-  opacity: 0;
   max-height: 168px;
   min-width: 130px;
   max-width: 150px;
   margin: 0;
+  opacity: 0;
+  top: -1000px;
+  left: -1000px;
   padding: 5px 0;
   border: 1px solid #ebeef5;
   border-radius: 4px;
   box-shadow: 0 2px 12px 0 rgba(0, 0, 0, .1);
   list-style: none;
-  transition: all .15s ease-in;
+  transition: opacity .25s ease;
   overflow: auto;
   background: #fff;
   z-index: 10000;
 }
 
-.ag-float-box::-webkit-scrollbar:vertical {
-  width: 5px;
+.ag-float-box.x-placement {
+  opacity: 1;
 }
 
-.ag-show-float-box {
-  opacity: 1;
+.ag-float-box::-webkit-scrollbar:vertical {
+  width: 5px;
 }
 
 .ag-float-item {
@@ -50,7 +50,7 @@
 }
 .ag-float-item-active, .ag-float-box .ag-float-item:hover {
   background-color: #ecf5ff;
-  color: #66b1ff;
+  color: var(--activeColor);
 }
 
 .ag-float-item-icon {
