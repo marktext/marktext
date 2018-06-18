@@ -53,7 +53,7 @@ export const RENAME = {
 }
 
 export const DELETE = {
-  label: 'Move To Trach',
+  label: 'Move To Trash',
   id: 'deleteMenuItem',
   click (menuItem, browserWindow) {
     contextMenu.remove()
