@@ -20,7 +20,7 @@ const handleResponseForExport = (e, { type, content, pathname }) => {
     defaultPath
   })
 
-  if (pathname) {
+  if (filePath) {
     // If export PDF, the content will be undefined.
     if (!content && type === 'pdf') {
       win.webContents.printToPDF({ printBackground: true }, (err, data) => {
