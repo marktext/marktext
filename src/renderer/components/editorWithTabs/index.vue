@@ -1,6 +1,7 @@
 <template>
     <div
       class="editor-with-tabs"
+      :class="[theme]"
     >
       <tabs v-show="showTabBar"></tabs>
       <div class="container">
