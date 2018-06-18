@@ -5,7 +5,7 @@ import { getTextContent } from '../utils/domManipulate'
 import { CLASS_OR_ID, EVENT_KEYS, DEFAULT_TURNDOWN_CONFIG } from '../config'
 import { beginRules } from '../parser/rules'
 
-const INLINE_UPDATE_FREGMENTS = [
+const INLINE_UPDATE_FRAGMENTS = [
   '^([*+-]\\s)', // Bullet list
   '^(\\[[x\\s]{1}\\]\\s)', // Task list
   '^(\\d+\\.\\s)', // Order list
@@ -14,7 +14,7 @@ const INLINE_UPDATE_FREGMENTS = [
   '^\\s{0,3}((?:\\*\\s*\\*\\s*\\*|-\\s*-\\s*-|_\\s*_\\s*_)[\\s\\*\\-\\_]*)$' // Thematic break
 ]
 
-const INLINE_UPDATE_REG = new RegExp(INLINE_UPDATE_FREGMENTS.join('|'), 'i')
+const INLINE_UPDATE_REG = new RegExp(INLINE_UPDATE_FRAGMENTS.join('|'), 'i')
 
 let lastCursor = null
 
@@ -397,7 +397,8 @@ const updateCtrl = ContentState => {
         '(': ')',
         '*': '*',
         '_': '_',
-        '"': '"'
+        '"': '"',
+        '\'': '\''
       }
 
       if (start.key === end.key && start.offset === end.offset && event.type === 'input') {
@@ -407,7 +408,9 @@ const updateCtrl = ContentState => {
         const preInputChar = text.charAt(+offset - 2)
         const postInputChar = text.charAt(+offset)
         /* eslint-disable no-useless-escape */
+        // Not Unicode aware, since things like \p{Alphabetic} or \p{L} are not supported yet
         if (
+          (autoPairQuote && /[']{1}/.test(inputChar) && !(/[a-zA-Z\d]{1}/.test(preInputChar))) ||
           (autoPairQuote && /["]{1}/.test(inputChar)) ||
           (autoPairBracket && /[\{\[\(]{1}/.test(inputChar)) ||
           (autoPairMarkdownSyntax && /[*_]{1}/.test(inputChar))
@@ -416,7 +419,7 @@ const updateCtrl = ContentState => {
             ? text.substring(0, offset) + BRACKET_HASH[inputChar] + text.substring(offset)
             : text
         }
-        /* eslint-ensable no-useless-escape */
+        /* eslint-enable no-useless-escape */
         if (/\s/.test(event.data) && preInputChar === '*' && postInputChar === '*') {
           text = text.substring(0, offset) + text.substring(offset + 1)
         }
