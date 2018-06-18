@@ -410,7 +410,8 @@ const updateCtrl = ContentState => {
         /* eslint-disable no-useless-escape */
         // Not Unicode aware, since things like \p{Alphabetic} or \p{L} are not supported yet
         if (
-          (autoPairQuote && /['"]{1}/.test(inputChar) && !(/[a-zA-Z\d]{1}/.test(preInputChar))) ||
+          (autoPairQuote && /[']{1}/.test(inputChar) && !(/[a-zA-Z\d]{1}/.test(preInputChar))) ||
+          (autoPairQuote && /["]{1}/.test(inputChar)) ||
           (autoPairBracket && /[\{\[\(]{1}/.test(inputChar)) ||
           (autoPairMarkdownSyntax && /[*_]{1}/.test(inputChar))
         ) {
