@@ -115,12 +115,14 @@ ipcMain.on('AGANI::response-file-save-as', (e, { id, markdown, pathname, options
   const filePath = dialog.showSaveDialog(win, {
     defaultPath: pathname || getPath('documents') + '/Untitled.md'
   })
-  writeMarkdownFile(filePath, markdown, options, win)
-    .then(() => {
-      const filename = path.basename(filePath)
-      win.webContents.send('AGANI::set-pathname', { id, pathname: filePath, filename })
-    })
-    .catch(log)
+  if (filePath) {
+    writeMarkdownFile(filePath, markdown, options, win)
+      .then(() => {
+        const filename = path.basename(filePath)
+        win.webContents.send('AGANI::set-pathname', { id, pathname: filePath, filename })
+      })
+      .catch(log)
+  }
 })
 
 ipcMain.on('AGANI::response-close-confirm', async (e, unSavedFiles) => {
