@@ -27,9 +27,7 @@
   html, body {
     background: #fff !important;
   }
-  body .editor-with-tabs .container {
-    overflow: visible !important;
-  }
+  body .editor-with-tabs,
   body .editor-wrapper,
   body .editor-component {
     height: auto !important;
@@ -37,9 +35,7 @@
   body .editor-wrapper {
     z-index: 1 !important;
   }
-  body .source-code {
-    display: none !important;
-  }
+
   body .editor-component #ag-editor-id,
   body [contenteditable] {
     caret-color: transparent !important;
@@ -52,6 +48,8 @@
   h6.ag-active::before {
     content: none !important;
   }
+
+  .source-code,
   .title-bar,
   .ag-remove,
   .ag-emoji-marker,
