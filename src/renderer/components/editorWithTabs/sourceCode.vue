@@ -130,10 +130,6 @@
     margin: 50px auto;
     max-width: 860px;
   }
-  .dark .source-code .CodeMirror {
-    /* Overwrite CodeMirror background color */
-    background: var(--darkBgColor);
-  }
   .source-code .CodeMirror-gutters {
     border-right: none;
     background-color: transparent;
@@ -142,7 +138,8 @@
   .source-code .CodeMirror-activeline-gutter {
     background: #F2F6FC;
   }
-  .dark {
+  .source-code.dark,
+  .source-code.dark .CodeMirror {
     background: var(--darkBgColor);
   }
   .dark.source-code .CodeMirror-activeline-background,
