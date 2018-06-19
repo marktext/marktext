@@ -3,7 +3,7 @@
     class="editor-wrapper"
     :class="[{ 'typewriter': typewriter, 'focus': focus, 'source': sourceCode }, theme]"
     :style="{ 'color': theme === 'dark' ? darkColor : lightColor, 'lineHeight': lineHeight, 'fontSize': fontSize,
-    'font-family': editorFontFamily ? `${editorFontFamily}, ${defaultFontFamily}` : `${defaultFontFamily}`}"
+    'font-family': editorFontFamily ? `${editorFontFamily}, ${defaultFontFamily}` : `${defaultFontFamily}` }"
   >
     <div
       ref="editor"
@@ -455,8 +455,8 @@
   .editor-wrapper.source {
     position: absolute;
     z-index: -1;
-    width: 0;
-    height: 0;
+    top: 0;
+    left: 0;
     overflow: hidden;
   }
   .editor-component {

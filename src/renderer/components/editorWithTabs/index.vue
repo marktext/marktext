@@ -3,17 +3,19 @@
       class="editor-with-tabs"
     >
       <tabs v-show="showTabBar"></tabs>
-      <editor
-        :theme="theme"
-        :markdown="markdown"
-        :cursor="cursor"
-      ></editor>
-      <source-code
-        v-if="sourceCode"
-        :theme="theme"
-        :markdown="markdown"
-        :cursor="cursor"
-      ></source-code>
+      <div>
+        <editor
+          :theme="theme"
+          :markdown="markdown"
+          :cursor="cursor"
+        ></editor>
+        <source-code
+          v-if="sourceCode"
+          :theme="theme"
+          :markdown="markdown"
+          :cursor="cursor"
+        ></source-code>
+      </div>
     </div>
 </template>
 
