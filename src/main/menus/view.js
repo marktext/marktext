@@ -58,6 +58,7 @@ let viewMenu = {
   }, {
     label: 'Toggle Side Bar',
     id: 'sideBarMenuItem',
+    accelerator: 'CmdOrCtrl+J',
     type: 'checkbox',
     checked: false,
     click (item, browserWindow) {
@@ -66,6 +67,7 @@ let viewMenu = {
   }, {
     label: 'Toggle Tab Bar',
     id: 'tabBarMenuItem',
+    accelerator: 'Alt+CmdOrCtrl+B',
     type: 'checkbox',
     checked: false,
     click (item, browserWindow) {
