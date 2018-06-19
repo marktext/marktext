@@ -27,6 +27,10 @@
   html, body {
     background: #fff !important;
   }
+  body .editor-with-tabs .container {
+    overflow: visible !important;
+  }
+  body .editor-wrapper,
   body .editor-component {
     height: auto !important;
   }
@@ -52,6 +56,8 @@
   .ag-remove,
   .ag-emoji-marker,
   .ag-table-tool-bar,
+  .editor-tabs,
+  .side-bar,
   .CodeMirror-cursors {
     display: none !important;
   }

@@ -3,7 +3,7 @@
       class="editor-with-tabs"
     >
       <tabs v-show="showTabBar"></tabs>
-      <div>
+      <div class="container">
         <editor
           :theme="theme"
           :markdown="markdown"
@@ -64,5 +64,9 @@
     flex-direction: column;
     height: calc(100vh - 25px);
     overflow: hidden;
+    & > .container {
+      flex: 1;
+      overflow: hidden;
+    }
   }
 </style>
