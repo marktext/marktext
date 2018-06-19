@@ -1,6 +1,7 @@
 <template>
   <div
     class="source-code"
+    :class="[theme]"
     ref="sourceCode"
   >
   </div>
@@ -137,7 +138,8 @@
   .source-code .CodeMirror-activeline-gutter {
     background: #F2F6FC;
   }
-  .dark {
+  .source-code.dark,
+  .source-code.dark .CodeMirror {
     background: var(--darkBgColor);
   }
   .dark.source-code .CodeMirror-activeline-background,
