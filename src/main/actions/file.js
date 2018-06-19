@@ -20,24 +20,26 @@ const handleResponseForExport = (e, { type, content, pathname }) => {
     defaultPath
   })
 
-  // If export PDF, the content will be undefined.
-  if (!content && type === 'pdf') {
-    win.webContents.printToPDF({ printBackground: true }, (err, data) => {
-      if (err) log(err)
-      else {
-        writeFile(filePath, data, extension)
-          .then(() => {
-            win.webContents.send('AGANI::export-success', { type, filePath })
-          })
-          .catch(log)
-      }
-    })
-  } else {
-    writeFile(filePath, content, extension)
-      .then(() => {
-        win.webContents.send('AGANI::export-success', { type, filePath })
+  if (filePath) {
+    // If export PDF, the content will be undefined.
+    if (!content && type === 'pdf') {
+      win.webContents.printToPDF({ printBackground: true }, (err, data) => {
+        if (err) log(err)
+        else {
+          writeFile(filePath, data, extension)
+            .then(() => {
+              win.webContents.send('AGANI::export-success', { type, filePath })
+            })
+            .catch(log)
+        }
       })
-      .catch(log)
+    } else {
+      writeFile(filePath, content, extension)
+        .then(() => {
+          win.webContents.send('AGANI::export-success', { type, filePath })
+        })
+        .catch(log)
+    }
   }
 }
 
