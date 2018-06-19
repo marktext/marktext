@@ -1,3 +1,18 @@
+### 0.12.25
+
+**:cactus:Feature**
+
+**:butterfly:Optimization**
+
+- optimization: #361 easy sidebar toggle (#368)
+
+**:beetle:Bug fix**
+
+- fix: #348 do not export tabs and sidebar when export PDF
+- bugfix: #360 No page breaks in PDF export
+- bugfix: #167 #357 #344
+- fix: #343 Inconsistent color scheme in source code mode (#363)
+
 ### 0.12.20
 
 **:cactus:Feature**
