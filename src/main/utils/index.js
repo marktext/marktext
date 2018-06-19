@@ -22,6 +22,20 @@ export const ensureDir = dirPath => {
   }
 }
 
+export const getRecommendTitle = markdown => {
+  const tokens = markdown.match(/#{1,6} {1,}(.+)(?:\n|$)/g)
+  if (!tokens) return ''
+  let headers = tokens.map(t => {
+    const matches = t.trim().match(/(#{1,6}) {1,}(.+)/)
+    return {
+      level: matches[1].length,
+      content: matches[2].trim()
+    }
+  })
+
+  return headers.sort((a, b) => a.level > b.level)[0].content
+}
+
 export const getPath = directory => {
   return app.getPath(directory)
 }

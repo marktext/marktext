@@ -97,7 +97,9 @@ class Watcher {
       .on('unlink', pathname => unlink(win, pathname))
       .on('addDir', pathname => addDir(win, pathname))
       .on('unlinkDir', pathname => unlinkDir(win, pathname))
-      .on('error', error => log(`Watcher error: ${error}`))
+      .on('error', error => {
+        log(`Watcher error: ${error}`)
+      })
 
     this.watchers[id] = {
       win,

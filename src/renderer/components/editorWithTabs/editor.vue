@@ -343,18 +343,21 @@
         switch (type) {
           case 'styledHtml': {
             const content = await this.editor.exportStyledHTML()
-            this.$store.dispatch('EXPORT', { type, content })
+            const markdown = this.editor.getMarkdown()
+            this.$store.dispatch('EXPORT', { type, content, markdown })
             break
           }
 
           case 'html': {
             const content = this.editor.exportUnstylishHtml()
-            this.$store.dispatch('EXPORT', { type, content })
+            const markdown = this.editor.getMarkdown()
+            this.$store.dispatch('EXPORT', { type, content, markdown })
             break
           }
 
           case 'pdf': {
-            this.$store.dispatch('EXPORT', { type })
+            const markdown = this.editor.getMarkdown()
+            this.$store.dispatch('EXPORT', { type, markdown })
             break
           }
         }

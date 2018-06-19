@@ -429,10 +429,10 @@ const actions = {
     })
   },
 
-  EXPORT ({ commit, state }, { type, content }) {
+  EXPORT ({ commit, state }, { type, content, markdown }) {
     if (!hasKeys(state.currentFile)) return
     const { filename, pathname } = state.currentFile
-    ipcRenderer.send('AGANI::response-export', { type, content, filename, pathname })
+    ipcRenderer.send('AGANI::response-export', { type, content, filename, pathname, markdown })
   },
 
   LINTEN_FOR_EXPORT_SUCCESS ({ commit }) {

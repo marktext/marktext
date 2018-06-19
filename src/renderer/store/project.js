@@ -4,6 +4,7 @@ import { addFile, unlinkFile, changeFile, addDirectory, unlinkDirectory } from '
 import bus from '../bus'
 import { create, paste, rename } from '../util/fileSystem'
 import notice from '../services/notification'
+import { getFileStateFromData } from './help'
 
 const width = localStorage.getItem('side-bar-width')
 const sideBarWidth = typeof +width === 'number' ? Math.max(+width, 180) : 280
@@ -12,6 +13,8 @@ const state = {
   sideBarWidth,
   activeItem: {},
   createCache: {},
+  // Use to cache newly created filename, for open iimmediately.
+  newFileNameCache: '',
   renameCache: null,
   clipboard: null,
   projectTree: null
@@ -47,6 +50,9 @@ const mutations = {
   SET_SIDE_BAR_WIDTH (state, width) {
     localStorage.setItem('side-bar-width', Math.max(+width, 180))
     state.sideBarWidth = width
+  },
+  SET_NEWFILENAME (state, name) {
+    state.newFileNameCache = name
   },
   ADD_FILE (state, change) {
     const { projectTree } = state
@@ -95,11 +101,17 @@ const actions = {
       dispatch('SET_LAYOUT_MENU_ITEM')
     })
   },
-  LISTEN_FOR_UPDATE_PROJECT ({ commit }) {
+  LISTEN_FOR_UPDATE_PROJECT ({ commit, state, dispatch }) {
     ipcRenderer.on('AGANI::update-object-tree', (e, { type, change }) => {
       switch (type) {
         case 'add':
+          const { pathname, data, isMarkdown } = change
           commit('ADD_FILE', change)
+          if (isMarkdown && state.newFileNameCache && pathname === state.newFileNameCache) {
+            const fileState = getFileStateFromData(data)
+            dispatch('UPDATE_CURRENT_FILE', fileState)
+            commit('SET_NEWFILENAME', '')
+          }
           break
         case 'unlink':
           commit('UNLINK_FILE', change)
@@ -181,9 +193,13 @@ const actions = {
 
   CREATE_FILE_DIRECTORY ({ commit, state }, name) {
     const { dirname, type } = state.createCache
-    create(`${dirname}/${name}`, type)
+    const fullName = `${dirname}/${name}`
+    create(fullName, type)
       .then(() => {
         commit('CREATE_PATH', {})
+        if (type === 'file') {
+          commit('SET_NEWFILENAME', fullName)
+        }
       })
       .catch(err => {
         notice.notify({

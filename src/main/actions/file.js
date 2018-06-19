@@ -6,23 +6,23 @@ import appWindow from '../window'
 import { EXTENSION_HASN, EXTENSIONS } from '../config'
 import { writeFile, writeMarkdownFile } from '../utils/filesystem'
 import appMenu from '../menu'
-import { getPath, isMarkdownFile, log, isFile, isDirectory } from '../utils'
+import { getPath, isMarkdownFile, log, isFile, isDirectory, getRecommendTitle } from '../utils'
 import userPreference from '../preference'
 
 // handle the response from render process.
-const handleResponseForExport = (e, { type, content, pathname }) => {
+const handleResponseForExport = (e, { type, content, pathname, markdown }) => {
   const win = BrowserWindow.fromWebContents(e.sender)
   const extension = EXTENSION_HASN[type]
   const dirname = pathname ? path.dirname(pathname) : getPath('documents')
-  const nakedFilename = pathname ? path.basename(pathname, '.md') : 'untitled'
+  const nakedFilename = getRecommendTitle(markdown) || (pathname ? path.basename(pathname, '.md') : 'untitled')
   const defaultPath = `${dirname}/${nakedFilename}${extension}`
   const filePath = dialog.showSaveDialog(win, {
     defaultPath
   })
 
   if (filePath) {
-    // If export PDF, the content will be undefined.
     if (!content && type === 'pdf') {
+      // when export for PDF, the conent is undefined
       win.webContents.printToPDF({ printBackground: true }, (err, data) => {
         if (err) log(err)
         else {
@@ -47,7 +47,7 @@ const handleResponseForSave = (e, { id, markdown, pathname, options }) => {
   const win = BrowserWindow.fromWebContents(e.sender)
 
   pathname = pathname || dialog.showSaveDialog(win, {
-    defaultPath: getPath('documents') + '/Untitled.md'
+    defaultPath: getPath('documents') + (`/${getRecommendTitle(markdown)}.md` || '/Untitled.md')
   })
 
   if (pathname && typeof pathname === 'string') {
