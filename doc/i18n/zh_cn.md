@@ -104,7 +104,7 @@
 - 段落及行内样式快捷键提升您的编辑效率。
 - 输出 HTML 和 PDF 格式文件，方便在浏览器中预览。
 - 黑、白两款主题，自由切换。
-- 多种编辑模式：**Source Code mode**、**Typewriter mode**、**Focus mode**。
+- 多种编辑模式：**源代码模式**、**打字机模式**、**专注模式**。
 
 <h4 align="center">:crescent_moon:Dark and Light themes:high_brightness:</h4>
 
