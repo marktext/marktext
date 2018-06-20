@@ -23,7 +23,7 @@
 .ag-popper-arrow {
   width: 15px;
   height: 15px;
-  background: #fff;
+  background: inherit;
   border: 1px solid #ebeef5;
   display: inline-block;
   position: absolute;

@@ -1,6 +1,6 @@
 import selection from '../selection'
 import { tokenizer } from '../parser/parse'
-import { conflict, isMetaKey } from '../utils'
+import { conflict } from '../utils'
 import { getTextContent } from '../utils/domManipulate'
 import { CLASS_OR_ID, EVENT_KEYS, DEFAULT_TURNDOWN_CONFIG } from '../config'
 import { beginRules } from '../parser/rules'
@@ -302,9 +302,9 @@ const updateCtrl = ContentState => {
     // bugfix: #67 problem 1
     if (block && block.icon) return event.preventDefault()
 
-    if (isMetaKey(event)) {
-      return
-    }
+    // if (isMetaKey(event)) {
+    //   return
+    // }
 
     if (event.type === 'keyup' && (event.key === EVENT_KEYS.ArrowUp || event.key === EVENT_KEYS.ArrowDown) && floatBox.show) {
       return

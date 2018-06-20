@@ -1,8 +1,3 @@
-:root {
-  --side-bar-bg-color: #fafafa;
-  --control-text-color: #777;
-}
-
 @include-when-export url(https://fonts.googleapis.com/css?family=Open+Sans:400italic,700italic,700,400&subset=latin,latin-ext);
 
 @font-face {
@@ -92,8 +87,7 @@ body {
   border: 1px solid #606266;
 }
 
-.ag-table-picker::before {
-  background: #606266;
+[x-placement] > .ag-popper-arrow {
   border: 1px solid #606266;
   border-right: none;
   border-bottom: none;
@@ -112,7 +106,7 @@ body {
   background: rgba(0, 0, 0, .9);
 }
 
-body>*:first-child {
+body > *:first-child {
   margin-top: 0 !important;
 }
 
