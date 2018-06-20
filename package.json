@@ -87,16 +87,8 @@
     },
     "linux": {
       "category": "Office;TextEditor;Utility",
-      "icon": "resources/icons"
-    },
-    "snap": {
-      "confinement": "classic",
-      "grade": "stable",
-      "plugs": [
-        "default",
-        "classic-support",
-        "wayland"
-      ]
+      "icon": "resources/icons",
+      "target": "AppImage"
     }
   },
   "dependencies": {

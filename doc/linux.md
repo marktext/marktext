@@ -10,9 +10,9 @@ Download the AppImage and type the following:
 
 ### Installation
 
-You cannot really install a AppImage. It's just a file which can be integrated with your desktop environment. The only thing you have to do is to execute Mark Text and click `Yes` on dialog.
+You cannot really install an AppImage. It's just a file which can be integrated with your desktop environment. The only thing you have to do is to execute Mark Text and click `Yes` on dialog.
 
-### Uninstall
+### Uninstallation
 
 1. Delete AppImage file
 2. Delete `~/.local/share/applications/appimagekit-marktext.desktop`
@@ -23,7 +23,6 @@ You cannot really install a AppImage. It's just a file which can be integrated w
 1. Save AppImage somewhere. Let's say `~/bin/marktext.AppImage`
 2. `chmod +x ~/bin/marktext.AppImage`
 3. Create a launch script:
-
    ```sh
    #!/bin/bash
    DESKTOPINTEGRATION=0 ~/bin/marktext.AppImage
@@ -39,13 +38,32 @@ You cannot really install a AppImage. It's just a file which can be integrated w
 
 - Mark Text is always integrated into desktop environment after updating
 
-## Snappy
+## Flatpak
 
-Download snap file and execute `sudo snap install --classic --dangerous marktext_%version%_amd64.snap`.
+### Installation
 
-Please note that snappy packages may not work on not Debian-based distros and SELinux distros.
+**Prerequisites:**
 
-### Known issues
+You need to install the `flatpak` package for your distribution. Please see the [official flatpak tutorial](https://flatpak.org/setup/) for more information and note that you have to add the flathub repository (`flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo`) as described in the Quick Setup.
 
-- Library problems on SELinux distros (even if SELinux is disabled) and not Debian-based distros.
-- User directories (like documents and downloads) are always saved under the english name.
+**Install from Flathub:**
+
+After you install flatpak and flathub repository, you can install [Mark Text](https://flathub.org/apps/details/com.github.marktext.marktext) with just one command:
+
+```
+sudo flatpak install flathub com.github.marktext.marktext
+```
+
+or `flatpak install --user flathub com.github.marktext.marktext` to install for the current user only.
+
+To run Mark Text just execute `flatpak run com.github.marktext.marktext` or click on the Mark Text icon in your application launcher.
+
+### Update
+
+To update Mark Text run the following command:
+
+```
+sudo flatpak update com.github.marktext.marktext
+```
+
+or `sudo flatpak update` to update all installed flatpaks.
