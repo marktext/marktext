@@ -394,6 +394,8 @@ const actions = {
     if (cursor) commit('SET_CURSOR', cursor)
     // set history
     if (history) commit('SET_HISTORY', history)
+    // if new markdown and old markdown are empty, no need to save or change status
+    if (!/\S/.test(markdown) && !/\S/.test(oldMarkdown)) return
     // change save status/save to file only when the markdown changed!
     if (markdown !== oldMarkdown) {
       if (pathname && autoSave) {

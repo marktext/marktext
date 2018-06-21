@@ -115,6 +115,7 @@ class ExportMarkdown {
           break
       }
     }
+
     return result.join('')
   }
 
