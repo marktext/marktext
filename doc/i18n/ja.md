@@ -35,7 +35,7 @@
   </a>
   <!-- Downloads latest release -->
   <a href="https://marktext.github.io/website">
-    <img src="https://img.shields.io/github/downloads/marktext/marktext/v0.10.21/total.svg" alt="latest download">
+    <img src="https://img.shields.io/github/downloads/marktext/marktext/v0.12.25/total.svg" alt="latest download">
   </a>
   <!-- deps -->
   <a href="https://marktext.github.io/website">
