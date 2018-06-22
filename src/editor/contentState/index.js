@@ -6,6 +6,7 @@ import StateRender from '../parser/render'
 import enterCtrl from './enterCtrl'
 import updateCtrl from './updateCtrl'
 import backspaceCtrl from './backspaceCtrl'
+import deleteCtrl from './deleteCtrl'
 import codeBlockCtrl from './codeBlockCtrl'
 import tableBlockCtrl from './tableBlockCtrl'
 import selectionCtrl from './selectionCtrl'
@@ -28,6 +29,7 @@ const prototypes = [
   selectionCtrl,
   updateCtrl,
   backspaceCtrl,
+  deleteCtrl,
   codeBlockCtrl,
   arrowCtrl,
   pasteCtrl,
@@ -119,6 +121,15 @@ class ContentState {
     }
   }
 
+  getHistory () {
+    const { stack, index } = this.history
+    return { stack, index }
+  }
+
+  setHistory ({ stack, index }) {
+    Object.assign(this.history, { stack, index })
+  }
+
   setCursor () {
     const { start: { key } } = this.cursor
     const block = this.getBlock(key)
@@ -147,14 +158,15 @@ class ContentState {
     this.renderRange = [ startOutMostBlock.preSibling, endOutMostBlock.nextSibling ]
   }
 
-  render (isRenderCursor = true) {
+  render (isRenderCursor = true, refreshCodeBlock = false) {
     const { blocks, cursor, searchMatches: { matches, index } } = this
     const activeBlocks = this.getActiveBlocks()
     matches.forEach((m, i) => {
       m.active = i === index
     })
     this.setNextRenderRange()
-    this.stateRender.render(blocks, cursor, activeBlocks, matches)
+    this.stateRender.collectLabels(blocks)
+    this.stateRender.render(blocks, cursor, activeBlocks, matches, refreshCodeBlock)
     this.pre2CodeMirror(isRenderCursor)
     if (isRenderCursor) this.setCursor()
   }
@@ -172,6 +184,7 @@ class ContentState {
     const needRenderBlocks = blocks.slice(startIndex, endIndex)
 
     this.setNextRenderRange()
+    this.stateRender.collectLabels(blocks)
     this.stateRender.partialRender(needRenderBlocks, cursor, activeBlocks, matches, startKey, endKey)
     this.pre2CodeMirror(true, [...new Set([cursorOutMostBlock, ...needRenderBlocks])])
     this.setCursor()

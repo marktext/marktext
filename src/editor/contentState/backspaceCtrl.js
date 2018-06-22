@@ -104,7 +104,6 @@ const backspaceCtrl = ContentState => {
     const { start, end } = selection.getCursorRange()
     const startBlock = this.getBlock(start.key)
     const endBlock = this.getBlock(end.key)
-
     // fix: #67 problem 1
     if (startBlock.icon) return event.preventDefault()
     // fix: unexpect remove all editor html. #67 problem 4
@@ -129,42 +128,10 @@ const backspaceCtrl = ContentState => {
       return this.render()
     }
 
-    if (start.key !== end.key) {
-      event.preventDefault()
-      const { key, offset } = start
-      const startRemainText = startBlock.type === 'pre' && /code|html/.test(startBlock.functionType)
-        ? startBlock.text.substring(0, offset - 1)
-        : startBlock.text.substring(0, offset)
-
-      const endRemainText = endBlock.type === 'pre' && /code|html/.test(endBlock.functionType)
-        ? endBlock.text.substring(end.offset - 1)
-        : endBlock.text.substring(end.offset)
-
-      if (offset === 0 && !(/th|td/.test(startBlock.type))) {
-        if (startBlock.type === 'pre') {
-          delete startBlock.coords
-          delete startBlock.functionType
-          delete startBlock.history
-          delete startBlock.lang
-          delete startBlock.selection
-          this.codeBlocks.delete(key)
-        }
-        if (startBlock.type !== 'span') {
-          startBlock.type = 'span'
-          const pBlock = this.createBlock('p')
-          this.insertBefore(pBlock, startBlock)
-          this.removeBlock(startBlock)
-          this.appendChild(pBlock, startBlock)
-        }
-      }
-
-      startBlock.text = startRemainText + endRemainText
-      this.removeBlocks(startBlock, endBlock)
-      this.cursor = {
-        start: { key, offset },
-        end: { key, offset }
-      }
-      return this.partialRender()
+    // If select multiple paragraph or multiple characters in one paragraph, just let
+    // updateCtrl to handle this case.
+    if (start.key !== end.key || start.offset !== end.offset) {
+      return
     }
 
     const node = selection.getSelectionStart()

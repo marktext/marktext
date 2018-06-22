@@ -3,7 +3,7 @@
 <h1 align="center">Mark Text</h1>
 
 <div align="center">
-  <a href="https://twitter.com/intent/tweet?text=Wow:&url=https%3A%2F%2Fgithub.com%2Fmarktext%2Fmarktext">
+  <a href="https://twitter.com/intent/tweet?via=marktextme&url=https://github.com/marktext/marktext/&text=What%20do%20you%20want%20to%20say%20to%20me?&hashtags=happyMarkText">
     <img src="https://img.shields.io/twitter/url/https/github.com/marktext/marktext.svg?style=for-the-badge" alt="twitter">
   </a>
 </div>
@@ -35,7 +35,7 @@
   </a>
   <!-- Downloads latest release -->
   <a href="https://marktext.github.io/website">
-    <img src="https://img.shields.io/github/downloads/marktext/marktext/v0.11.42/total.svg" alt="latest download">
+    <img src="https://img.shields.io/github/downloads/marktext/marktext/v0.12.25/total.svg" alt="latest download">
   </a>
   <!-- deps -->
   <a href="https://marktext.github.io/website">
@@ -85,10 +85,11 @@
 
 <div align="center">
   <sub>This Markdown editor that could. Built with ❤︎ by
-  <a href="https://github.com/Jocs">Jocs</a> and
-  <a href="https://github.com/marktext/marktext/graphs/contributors">
-    contributors
-  </a>
+    <a href="https://github.com/Jocs">Jocs</a> and
+    <a href="https://github.com/marktext/marktext/graphs/contributors">
+      contributors
+    </a>
+  </sub>
 </div>
 
 <br />
@@ -128,15 +129,17 @@
 
 | ![]( https://github.com/ryanoasis/nerd-fonts/wiki/screenshots/v1.0.x/mac-pass-sm.png)                                                                                                             | ![]( https://github.com/ryanoasis/nerd-fonts/wiki/screenshots/v1.0.x/windows-pass-sm.png)                                                                                                                     | ![]( https://github.com/ryanoasis/nerd-fonts/wiki/screenshots/v1.0.x/linux-pass-sm.png)                                                                                                                                   |
 |:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
-| [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-0.11.42.dmg.svg)](https://github.com/marktext/marktext/releases/download/v0.11.42/marktext-0.11.42.dmg) | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-setup-0.11.42.exe.svg)](https://github.com/marktext/marktext/releases/download/v0.11.42/marktext-setup-0.11.42.exe) | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-0.11.42-x86_64.AppImage.svg)](https://github.com/marktext/marktext/releases/download/v0.11.42/marktext-0.11.42-x86_64.AppImage) |
+| [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-0.12.25.dmg.svg)](https://github.com/marktext/marktext/releases/download/v0.12.25/marktext-0.12.25.dmg) | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-setup-0.12.25.exe.svg)](https://github.com/marktext/marktext/releases/download/v0.12.25/marktext-setup-0.12.25.exe) | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-0.12.25-x86_64.AppImage.svg)](https://github.com/marktext/marktext/releases/download/v0.12.25/marktext-0.12.25-x86_64.AppImage) |
 
-Did not found your system? Go the the [release page](https://github.com/marktext/marktext/releases). Still not found? Open an [issue](https://github.com/marktext/marktext/issues).
+Can't find your system? Go the the [release page](https://github.com/marktext/marktext/releases). Still can't find? Open an [issue](https://github.com/marktext/marktext/issues).
 
 Want to see new features in this version? Refer to [CHANGELOG](https://github.com/marktext/marktext/blob/master/.github/CHANGELOG.md)
 
 If you use OS X system, you can install Mark Text by [**homebrew cask**](https://github.com/caskroom/homebrew-cask), to start using Homebrew-Cask, you just need [Homebrew](https://brew.sh/) installed.
 
-> brew cask install mark-text
+```bash
+brew cask install mark-text
+```
 
 ![](https://github.com/marktext/marktext/blob/master/doc/brew-cask.gif)
 

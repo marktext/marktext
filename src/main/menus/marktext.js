@@ -42,7 +42,7 @@ export default {
   }, {
     type: 'separator'
   }, {
-    label: 'Quit',
+    label: 'Quit Mark Text',
     accelerator: 'Command+Q',
     click: app.quit
   }]

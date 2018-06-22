@@ -4,6 +4,8 @@ import { tokenizer } from '../../parse'
 import { snakeToCamel } from '../../../utils'
 import { h, htmlToVNode } from '../snabbdom'
 
+const toc = require('markdown-toc')
+
 const PRE_BLOCK_HASH = {
   'code': `.${CLASS_OR_ID['AG_CODE_BLOCK']}`,
   'html': `.${CLASS_OR_ID['AG_HTML_BLOCK']}`,
@@ -11,7 +13,7 @@ const PRE_BLOCK_HASH = {
 }
 
 export default function renderLeafBlock (block, cursor, activeBlocks, matches, useCache = false) {
-  const { loadMathMap } = this
+  const { loadMathMap, refreshCodeBlock } = this
   let selector = this.getSelector(block, cursor, activeBlocks)
   // highlight search key in block
   const highlights = matches.filter(m => m.key === block.key)
@@ -97,7 +99,8 @@ export default function renderLeafBlock (block, cursor, activeBlocks, matches, u
   } else if (/^h/.test(type)) {
     if (/^h\d$/.test(type)) {
       Object.assign(data.dataset, {
-        head: type
+        head: type,
+        id: toc.slugify(text.replace(/^#+\s(.*)/, (_, p1) => p1))
       })
       selector += `.${headingStyle}`
     }
@@ -122,7 +125,9 @@ export default function renderLeafBlock (block, cursor, activeBlocks, matches, u
     data.hook = {
       prepatch (oldvnode, vnode) {
         // cheat snabbdom that the pre block is not changed!!!
-        vnode.children = oldvnode.children
+        if (!refreshCodeBlock) {
+          vnode.children = oldvnode.children
+        }
       }
     }
     if (lang) {

@@ -11,7 +11,7 @@ let viewMenu = {
         return 'F11'
       }
     })(),
-    click: function (item, focusedWindow) {
+    click (item, focusedWindow) {
       if (focusedWindow) {
         focusedWindow.setFullScreen(!focusedWindow.isFullScreen())
       }
@@ -29,7 +29,7 @@ let viewMenu = {
   }, {
     id: 'sourceCodeModeMenuItem',
     label: 'Source Code Mode',
-    accelerator: 'CmdOrCtrl+U',
+    accelerator: 'Alt+CmdOrCtrl+S',
     type: 'checkbox',
     checked: false,
     click (item, browserWindow) {
@@ -38,7 +38,7 @@ let viewMenu = {
   }, {
     id: 'typewriterModeMenuItem',
     label: 'Typewriter Mode',
-    accelerator: 'Shift+CmdOrCtrl+T',
+    accelerator: 'Alt+CmdOrCtrl+T',
     type: 'checkbox',
     checked: false,
     click (item, browserWindow) {
@@ -52,6 +52,26 @@ let viewMenu = {
     checked: false,
     click (item, browserWindow) {
       actions.typeMode(browserWindow, item, 'focus')
+    }
+  }, {
+    type: 'separator'
+  }, {
+    label: 'Toggle Side Bar',
+    id: 'sideBarMenuItem',
+    accelerator: 'CmdOrCtrl+J',
+    type: 'checkbox',
+    checked: false,
+    click (item, browserWindow) {
+      actions.layout(item, browserWindow, 'showSideBar')
+    }
+  }, {
+    label: 'Toggle Tab Bar',
+    id: 'tabBarMenuItem',
+    accelerator: 'Alt+CmdOrCtrl+B',
+    type: 'checkbox',
+    checked: false,
+    click (item, browserWindow) {
+      actions.layout(item, browserWindow, 'showTabBar')
     }
   }, {
     type: 'separator'
@@ -69,7 +89,7 @@ if (process.env.NODE_ENV !== 'production' || process.env.NODE_ENV === 'developme
         return 'Ctrl+Shift+I'
       }
     })(),
-    click: function (item, focusedWindow) {
+    click (item, focusedWindow) {
       if (focusedWindow) {
         focusedWindow.webContents.toggleDevTools()
       }
@@ -79,7 +99,7 @@ if (process.env.NODE_ENV !== 'production' || process.env.NODE_ENV === 'developme
   viewMenu.submenu.push({
     label: 'Reload',
     accelerator: 'CmdOrCtrl+R',
-    click: function (item, focusedWindow) {
+    click (item, focusedWindow) {
       if (focusedWindow) {
         focusedWindow.reload()
       }

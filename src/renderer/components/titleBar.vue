@@ -1,19 +1,23 @@
 <template>
-  <div class="title-bar"
-    :class="[{ 'active': active }, theme]"
+  <div
+    class="title-bar"
+    :class="[{ 'active': active }, theme, { 'frameless': platform !== 'darwin' }]"
   >
     <div class="title">
-      <span
-        v-for="(path, index) of paths"
-        :key="index"
-      >
-        {{ path }}
-        <svg class="icon" aria-hidden="true">
-          <use xlink:href="#icon-arrow-right"></use>
-        </svg>
+      <span v-if="!filename">Mark Text</span>
+      <span v-else>
+        <span
+          v-for="(path, index) of paths"
+          :key="index"
+        >
+          {{ path }}
+          <svg class="icon" aria-hidden="true">
+            <use xlink:href="#icon-arrow-right"></use>
+          </svg>
+        </span>
+        <span @click="rename" class="filename">{{ filename }}</span>
+        <span class="save-dot" :class="{'show': !isSaved}"></span>
       </span>
-      <span @click="rename">{{ filename }}</span>
-      <span class="save-dot" :class="{'show': !isSaved}"></span>
     </div>
     <div :class="platform !== 'darwin' ? 'left-toolbar' : 'right-toolbar'">
       <div
@@ -22,6 +26,7 @@
         @click.stop="handleMenuClick"
       >&#9776;</div>
       <div
+        v-if="wordCount"
         class="word-count"
         :class="[{ 'title-no-drag': platform !== 'darwin' }]"
         @click.stop="handleWordClick"
@@ -96,6 +101,7 @@
     },
     computed: {
       paths () {
+        if (!this.pathname) return []
         const pathnameToken = this.pathname.split('/').filter(i => i)
         return pathnameToken.slice(0, pathnameToken.length - 1).slice(-3)
       }
@@ -158,11 +164,10 @@
 
 <style scoped>
   .title-bar {
-    background: rgb(252, 252, 252);
     -webkit-app-region: drag;
     user-select: none;
     width: 100%;
-    height: 22px;
+    height: 25px;
     box-sizing: border-box;
     color: #F2F6FC;
     position: fixed;
@@ -184,11 +189,17 @@
   .title {
     padding: 0 100px;
     height: 100%;
-    line-height: 22px;
-    font-size: 12px;
-    font-weight: 500;
+    line-height: 25px;
+    font-size: 14px;
     text-align: center;
     transition: all .25s ease-in-out;
+    & .filename {
+      transition: all .25s ease-in-out;
+    }
+  }
+
+  .title-bar:not(.frameless) .title .filename:hover {
+    color: var(--primary);
   }
 
   .active .save-dot {
@@ -197,7 +208,8 @@
     height: 7px;
     display: inline-block;
     border-radius: 50%;
-    background: rgba(242, 134, 94, .7);
+    background: var(--warning);
+    opacity: .7;
     visibility: hidden;
   }
   .active .save-dot.show {
@@ -207,7 +219,7 @@
     color: #303133;
   }
   .title:hover .save-dot {
-    background: rgb(242, 134, 94);
+    background: var(--warning);
   }
   .right-toolbar {
     padding: 0 10px;
@@ -231,10 +243,10 @@
   }
   .word-count {
     cursor: pointer;
-    font-size: 12px;
+    font-size: 14px;
     color: #F2F6FC;
-    height: 15px;
-    line-height: 15px;
+    height: 17px;
+    line-height: 17px;
     margin-top: 4px;
     padding: 1px 5px;
     border-radius: 1px;
@@ -282,7 +294,7 @@
   }
   /* css for dark theme */
   .dark {
-    background: rgb(43, 43, 43);
+    background: var(--darkBgColor);
     color: #909399;
   }
   .dark .title:hover {

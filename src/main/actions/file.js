@@ -1,5 +1,3 @@
-'use strict'
-
 import fs from 'fs'
 // import chokidar from 'chokidar'
 import path from 'path'
@@ -8,90 +6,142 @@ import appWindow from '../window'
 import { EXTENSION_HASN, EXTENSIONS } from '../config'
 import { writeFile, writeMarkdownFile } from '../utils/filesystem'
 import appMenu from '../menu'
-import { getPath, isMarkdownFile, log, isFile } from '../utils'
+import { getPath, isMarkdownFile, log, isFile, isDirectory, getRecommendTitle } from '../utils'
 import userPreference from '../preference'
 
-// TODO(fxha): Do we still need this?
-const watchAndReload = (pathname, win) => { // when i build, and failed.
-  // const watcher = chokidar.watch(pathname, {
-  //   persistent: true
-  // })
-  // const filename = path.basename(pathname)
-  // watcher.on('change', path => {
-  //   fs.readFile(pathname, 'utf-8', (err, file) => {
-  //     if (err) return console.log(err)
-  //     win.webContents.send('AGANI::file-change', {
-  //       file,
-  //       filename,
-  //       pathname
-  //     })
-  //   })
-  // })
-}
-
 // handle the response from render process.
-const handleResponseForExport = (e, { type, content, filename, pathname }) => {
+const handleResponseForExport = (e, { type, content, pathname, markdown }) => {
   const win = BrowserWindow.fromWebContents(e.sender)
   const extension = EXTENSION_HASN[type]
   const dirname = pathname ? path.dirname(pathname) : getPath('documents')
-  const nakedFilename = pathname ? path.basename(pathname, '.md') : 'untitled'
+  const nakedFilename = getRecommendTitle(markdown) || (pathname ? path.basename(pathname, '.md') : 'untitled')
   const defaultPath = `${dirname}/${nakedFilename}${extension}`
   const filePath = dialog.showSaveDialog(win, {
     defaultPath
   })
 
-  if (!content && type === 'pdf') {
-    win.webContents.printToPDF({ printBackground: true }, (err, data) => {
-      if (err) log(err)
-      writeFile(filePath, data, extension)
-    })
-  } else {
-    writeFile(filePath, content, extension)
+  if (filePath) {
+    if (!content && type === 'pdf') {
+      // when export for PDF, the conent is undefined
+      win.webContents.printToPDF({ printBackground: true }, (err, data) => {
+        if (err) log(err)
+        else {
+          writeFile(filePath, data, extension)
+            .then(() => {
+              win.webContents.send('AGANI::export-success', { type, filePath })
+            })
+            .catch(log)
+        }
+      })
+    } else {
+      writeFile(filePath, content, extension)
+        .then(() => {
+          win.webContents.send('AGANI::export-success', { type, filePath })
+        })
+        .catch(log)
+    }
   }
 }
 
-const handleResponseForSave = (e, { markdown, pathname, options, quitAfterSave = false }) => {
+const handleResponseForSave = (e, { id, markdown, pathname, options }) => {
   const win = BrowserWindow.fromWebContents(e.sender)
-  if (pathname) {
-    writeMarkdownFile(pathname, markdown, options, win, e, quitAfterSave)
+
+  pathname = pathname || dialog.showSaveDialog(win, {
+    defaultPath: getPath('documents') + (`/${getRecommendTitle(markdown)}.md` || '/Untitled.md')
+  })
+
+  if (pathname && typeof pathname === 'string') {
+    return writeMarkdownFile(pathname, markdown, options, win)
+      .then(() => {
+        const filename = path.basename(pathname)
+        win.webContents.send('AGANI::set-pathname', { id, pathname, filename })
+        return id
+      })
   } else {
-    const filePath = dialog.showSaveDialog(win, {
-      defaultPath: getPath('documents') + '/Untitled.md'
-    })
-    writeMarkdownFile(filePath, markdown, options, win, e, quitAfterSave)
+    return Promise.resolve()
   }
 }
 
-ipcMain.on('AGANI::response-file-save-as', (e, { markdown, pathname, options }) => {
+const showUnsavedFilesMessage = (win, files) => {
+  return new Promise((resolve, reject) => {
+    dialog.showMessageBox(win, {
+      type: 'warning',
+      buttons: ['Save', 'Cancel', 'Delete'],
+      defaultId: 0,
+      message: `Do you want to save the changes you made to ${files.length} ${files.length === 1 ? 'file' : 'files'}?\n\n${files.map(f => f.filename).join('\n')}`,
+      detail: `Your changes will be lost if you don't save them.`,
+      cancelId: 1,
+      noLink: true
+    }, index => {
+      switch (index) {
+        case 2:
+          resolve({ needSave: false })
+          break
+        case 0:
+          setTimeout(() => {
+            resolve({ needSave: true })
+          })
+          break
+      }
+    })
+  })
+}
+
+ipcMain.on('AGANI::save-all', (e, unSavedFiles) => {
+  Promise.all(unSavedFiles.map(file => handleResponseForSave(e, file)))
+    .catch(log)
+})
+
+ipcMain.on('AGANI::save-close', async (e, unSavedFiles, isSingle) => {
+  const win = BrowserWindow.fromWebContents(e.sender)
+  const { needSave } = await showUnsavedFilesMessage(win, unSavedFiles)
+  const EVENT = isSingle ? 'AGANI::save-single-response' : 'AGANI::save-all-response'
+  if (needSave) {
+    Promise.all(unSavedFiles.map(file => handleResponseForSave(e, file)))
+      .then(arr => {
+        const data = arr.filter(id => id)
+        win.send(EVENT, { err: null, data })
+      })
+      .catch(err => {
+        win.send(EVENT, { err, data: null })
+        log(err)
+      })
+  } else {
+    const data = unSavedFiles.map(f => f.id)
+    win.send(EVENT, { err: null, data })
+  }
+})
+
+ipcMain.on('AGANI::response-file-save-as', (e, { id, markdown, pathname, options }) => {
   const win = BrowserWindow.fromWebContents(e.sender)
   const filePath = dialog.showSaveDialog(win, {
     defaultPath: pathname || getPath('documents') + '/Untitled.md'
   })
-  writeMarkdownFile(filePath, markdown, options, win, e)
+  if (filePath) {
+    writeMarkdownFile(filePath, markdown, options, win)
+      .then(() => {
+        const filename = path.basename(filePath)
+        win.webContents.send('AGANI::set-pathname', { id, pathname: filePath, filename })
+      })
+      .catch(log)
+  }
 })
 
-ipcMain.on('AGANI::response-close-confirm', (e, { filename, pathname, markdown, options }) => {
+ipcMain.on('AGANI::response-close-confirm', async (e, unSavedFiles) => {
   const win = BrowserWindow.fromWebContents(e.sender)
-  dialog.showMessageBox(win, {
-    type: 'warning',
-    buttons: ['Save', 'Cancel', 'Delete'],
-    defaultId: 0,
-    message: `Do you want to save the changes you made to ${filename}?`,
-    detail: `Your changes will be lost if you don't save them.`,
-    cancelId: 1,
-    noLink: true
-  }, index => {
-    switch (index) {
-      case 2:
+  const { needSave } = await showUnsavedFilesMessage(win, unSavedFiles)
+  if (needSave) {
+    Promise.all(unSavedFiles.map(file => handleResponseForSave(e, file)))
+      .then(() => {
         appWindow.forceClose(win)
-        break
-      case 0:
-        setTimeout(() => {
-          handleResponseForSave(e, { pathname, markdown, options, quitAfterSave: true })
-        })
-        break
-    }
-  })
+      })
+      .catch(err => {
+        console.log(err)
+        log(err)
+      })
+  } else {
+    appWindow.forceClose(win)
+  }
 })
 
 ipcMain.on('AGANI::response-file-save', handleResponseForSave)
@@ -112,14 +162,12 @@ ipcMain.on('AGANI::window::drop', (e, fileList) => {
   }
 })
 
-ipcMain.on('AGANI::rename', (e, {
-  pathname,
-  newPathname
-}) => {
+ipcMain.on('AGANI::rename', (e, { id, pathname, newPathname }) => {
   const win = BrowserWindow.fromWebContents(e.sender)
   if (!isFile(newPathname)) {
     fs.renameSync(pathname, newPathname)
     e.sender.send('AGANI::set-pathname', {
+      id,
       pathname: newPathname,
       filename: path.basename(newPathname)
     })
@@ -135,6 +183,7 @@ ipcMain.on('AGANI::rename', (e, {
       if (index === 0) {
         fs.renameSync(pathname, newPathname)
         e.sender.send('AGANI::set-pathname', {
+          id,
           pathname: newPathname,
           filename: path.basename(newPathname)
         })
@@ -143,7 +192,7 @@ ipcMain.on('AGANI::rename', (e, {
   }
 })
 
-ipcMain.on('AGANI::response-file-move-to', (e, { pathname }) => {
+ipcMain.on('AGANI::response-file-move-to', (e, { id, pathname }) => {
   const win = BrowserWindow.fromWebContents(e.sender)
   let newPath = dialog.showSaveDialog(win, {
     buttonLabel: 'Move to',
@@ -152,7 +201,17 @@ ipcMain.on('AGANI::response-file-move-to', (e, { pathname }) => {
   })
   if (newPath === undefined) return
   fs.renameSync(pathname, newPath)
-  e.sender.send('AGANI::set-pathname', { pathname: newPath, filename: path.basename(newPath) })
+  e.sender.send('AGANI::set-pathname', { id, pathname: newPath, filename: path.basename(newPath) })
+})
+
+ipcMain.on('AGANI::ask-for-open-project-in-sidebar', e => {
+  const win = BrowserWindow.fromWebContents(e.sender)
+  const pathname = dialog.showOpenDialog(win, {
+    properties: ['openDirectory', 'createDirectory']
+  })
+  if (pathname && pathname[0]) {
+    appWindow.openProject(win, pathname[0])
+  }
 })
 
 export const exportFile = (win, type) => {
@@ -163,10 +222,18 @@ export const print = win => {
   win.webContents.print({ silent: false, printBackground: true, deviceName: '' })
 }
 
-export const openDocument = filePath => {
-  if (isFile(filePath)) {
-    const newWindow = appWindow.createWindow(filePath)
-    watchAndReload(filePath, newWindow)
+export const openFileOrProject = pathname => {
+  if (isFile(pathname) || isDirectory(pathname)) {
+    appWindow.createWindow(pathname)
+  }
+}
+
+export const openProject = win => {
+  const pathname = dialog.showOpenDialog(win, {
+    properties: ['openDirectory', 'createDirectory']
+  })
+  if (pathname && pathname[0]) {
+    openFileOrProject(pathname[0])
   }
 }
 
@@ -179,12 +246,20 @@ export const open = win => {
     }]
   })
   if (filename && filename[0]) {
-    openDocument(filename[0])
+    openFileOrProject(filename[0])
   }
 }
 
 export const newFile = () => {
   appWindow.createWindow()
+}
+
+export const newTab = win => {
+  win.webContents.send('AGANI::new-tab')
+}
+
+export const closeTab = win => {
+  win.webContents.send('AGANI::close-tab')
 }
 
 export const save = win => {

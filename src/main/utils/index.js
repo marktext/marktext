@@ -4,6 +4,13 @@ import fse from 'fs-extra'
 import { app, Menu } from 'electron'
 import { EXTENSIONS } from '../config'
 
+const ID_PREFIX = 'mt-'
+let id = 0
+
+export const getUniqueId = () => {
+  return `${ID_PREFIX}${id++}`
+}
+
 // creates a directory if it doesn't already exist.
 export const ensureDir = dirPath => {
   try {
@@ -13,6 +20,20 @@ export const ensureDir = dirPath => {
       throw e
     }
   }
+}
+
+export const getRecommendTitle = markdown => {
+  const tokens = markdown.match(/#{1,6} {1,}(.+)(?:\n|$)/g)
+  if (!tokens) return ''
+  let headers = tokens.map(t => {
+    const matches = t.trim().match(/(#{1,6}) {1,}(.+)/)
+    return {
+      level: matches[1].length,
+      content: matches[2].trim()
+    }
+  })
+
+  return headers.sort((a, b) => a.level > b.level)[0].content
 }
 
 export const getPath = directory => {

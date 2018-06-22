@@ -1,5 +1,6 @@
 import TurndownService from 'turndown'
 import { CLASS_OR_ID, LINE_BREAK } from '../config'
+import { identity } from './index'
 
 const turndownPluginGfm = require('turndown-plugin-gfm')
 
@@ -36,17 +37,7 @@ export const usePluginAddRules = turndownService => {
     }
   })
 
-  // remove `\` in text when paste
-  turndownService.addRule('normalText', {
-    filter (node, options) {
-      return (node.nodeName === 'SPAN' &&
-        node.classList.contains(CLASS_OR_ID['AG_EMOJI_MARKED_TEXT'])) ||
-        node.classList.contains('plain-text')
-    },
-    replacement (content, node, options) {
-      return content.replace(/\\(?!\\)/g, '')
-    }
-  })
+  turndownService.escape = identity
 }
 
 export default TurndownService

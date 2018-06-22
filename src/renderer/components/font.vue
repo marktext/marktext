@@ -55,9 +55,13 @@
       }
     },
     computed: {
-      ...mapState([
-        'theme', 'fontSize', 'lightColor', 'darkColor', 'lineHeight'
-      ]),
+      ...mapState({
+        'theme': state => state.preferences.theme,
+        'fontSize': state => state.preferences.fontSize,
+        'lightColor': state => state.preferences.lightColor,
+        'darkColor': state => state.preferences.darkColor,
+        'lineHeight': state => state.preferences.lineHeight
+      }),
       defaultSize () {
         return parseInt(this.fontSize, 10)
       }

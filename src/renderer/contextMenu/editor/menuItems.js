@@ -18,6 +18,14 @@ export const PASTE = {
   role: 'paste'
 }
 
+export const COPY_TABLE = {
+  label: 'Copy Table',
+  id: 'copyTableMenuItem',
+  click (menuItem, browserWindow) {
+    contextMenu.copyTable()
+  }
+}
+
 export const COPY_AS_MARKDOWN = {
   label: 'Copy As Markdown',
   id: 'copyAsMarkdownMenuItem',

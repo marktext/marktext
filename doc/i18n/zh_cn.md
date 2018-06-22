@@ -85,10 +85,11 @@
 
 <div align="center">
   <sub>This Markdown editor that could. Built with ❤︎ by
-  <a href="https://github.com/Jocs">Jocs</a> and
-  <a href="https://github.com/marktext/marktext/graphs/contributors">
-    contributors
-  </a>
+    <a href="https://github.com/Jocs">Jocs</a> and
+    <a href="https://github.com/marktext/marktext/graphs/contributors">
+      contributors
+    </a>
+  </sub>
 </div>
 
 <br />
@@ -103,7 +104,7 @@
 - 段落及行内样式快捷键提升您的编辑效率。
 - 输出 HTML 和 PDF 格式文件，方便在浏览器中预览。
 - 黑、白两款主题，自由切换。
-- 多种编辑模式：**Source Code mode**、**Typewriter mode**、**Focus mode**。
+- 多种编辑模式：**源代码模式**、**打字机模式**、**专注模式**。
 
 <h4 align="center">:crescent_moon:Dark and Light themes:high_brightness:</h4>
 
@@ -129,7 +130,7 @@
 
 | ![]( https://github.com/ryanoasis/nerd-fonts/wiki/screenshots/v1.0.x/mac-pass-sm.png)                                                                                                             | ![]( https://github.com/ryanoasis/nerd-fonts/wiki/screenshots/v1.0.x/windows-pass-sm.png)                                                                                                                     | ![]( https://github.com/ryanoasis/nerd-fonts/wiki/screenshots/v1.0.x/linux-pass-sm.png)                                                                                                                                   |
 |:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
-| [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-0.9.25.dmg.svg)](https://github.com/marktext/marktext/releases/download/v0.9.25/marktext-0.9.25.dmg) | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-setup-0.9.25.exe.svg)](https://github.com/marktext/marktext/releases/download/v0.9.25/marktext-setup-0.9.25.exe) | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-0.9.25-x86_64.AppImage.svg)](https://github.com/marktext/marktext/releases/download/v0.9.25/marktext-0.9.25-x86_64.AppImage) |
+| [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-0.12.25.dmg.svg)](https://github.com/marktext/marktext/releases/download/v0.12.25/marktext-0.12.25.dmg) | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-setup-0.12.25.exe.svg)](https://github.com/marktext/marktext/releases/download/v0.12.25/marktext-setup-0.12.25.exe) | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-0.12.25-x86_64.AppImage.svg)](https://github.com/marktext/marktext/releases/download/v0.12.25/marktext-0.12.25-x86_64.AppImage) |
 
 如果你依然没有找到适合你的版本，请直接从 [release](https://github.com/marktext/marktext/releases) 页面下载。
 

@@ -125,7 +125,12 @@ export const CLASS_OR_ID = genUpper2LowerKeyHash([
   'AG_HTML_TAG',
   'AG_LINK',
   'AG_HARD_LINE_BREAK',
-  'AG_SOFT_LINE_BREAK'
+  'AG_SOFT_LINE_BREAK',
+  'AG_INLINE_RULE',
+  'AG_REFERENCE_LABEL',
+  'AG_REFERENCE_TITLE',
+  'AG_REFERENCE_MARKER',
+  'AG_REFERENCE_LINK'
 ])
 
 export const codeMirrorConfig = {
@@ -193,23 +198,29 @@ export const punctuation = ['!', '"', '#', '$', '%', '&', "'", '(', ')', '*', '+
 
 export const TABLE_TOOLS = [{
   label: 'table',
+  title: 'Resize Table',
   icon: 'icon-table'
 }, {
   label: 'left',
+  title: 'Align Left',
   icon: 'icon-alignleft'
 }, {
   label: 'center',
+  title: 'Align Center',
   icon: 'icon-aligncenter'
 }, {
   label: 'right',
+  title: 'Align Right',
   icon: 'icon-alignright'
 }, {
   label: 'delete',
+  title: 'Delete Table',
   icon: 'icon-del'
 }]
 
 export const HTML_TOOLS = [{
   label: 'delete',
+  title: 'Delete HTML block',
   icon: 'icon-del'
 }]
 

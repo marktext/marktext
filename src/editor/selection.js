@@ -817,6 +817,20 @@ class Selection {
     }
   }
 
+  // topOffset is the line counts above cursor, and bottomOffset is line counts bellow cursor.
+  getCursorYOffset (paragraph) {
+    const { y } = this.getCursorCoords()
+    const { height, top } = paragraph.getBoundingClientRect()
+    const lineHeight = parseFloat(getComputedStyle(paragraph).lineHeight)
+    const topOffset = Math.round((y - top) / lineHeight)
+    const bottomOffset = Math.round((top + height - lineHeight - y) / lineHeight)
+
+    return {
+      topOffset,
+      bottomOffset
+    }
+  }
+
   getCursorCoords () {
     const sel = this.doc.getSelection()
     let range

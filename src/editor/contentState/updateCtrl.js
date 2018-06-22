@@ -1,10 +1,11 @@
 import selection from '../selection'
 import { tokenizer } from '../parser/parse'
-import { conflict, isMetaKey } from '../utils'
+import { conflict } from '../utils'
 import { getTextContent } from '../utils/domManipulate'
 import { CLASS_OR_ID, EVENT_KEYS, DEFAULT_TURNDOWN_CONFIG } from '../config'
+import { beginRules } from '../parser/rules'
 
-const INLINE_UPDATE_FREGMENTS = [
+const INLINE_UPDATE_FRAGMENTS = [
   '^([*+-]\\s)', // Bullet list
   '^(\\[[x\\s]{1}\\]\\s)', // Task list
   '^(\\d+\\.\\s)', // Order list
@@ -13,7 +14,7 @@ const INLINE_UPDATE_FREGMENTS = [
   '^\\s{0,3}((?:\\*\\s*\\*\\s*\\*|-\\s*-\\s*-|_\\s*_\\s*_)[\\s\\*\\-\\_]*)$' // Thematic break
 ]
 
-const INLINE_UPDATE_REG = new RegExp(INLINE_UPDATE_FREGMENTS.join('|'), 'i')
+const INLINE_UPDATE_REG = new RegExp(INLINE_UPDATE_FRAGMENTS.join('|'), 'i')
 
 let lastCursor = null
 
@@ -23,7 +24,8 @@ const updateCtrl = ContentState => {
     const { checked, id } = checkbox
     const block = this.getBlock(id)
     block.checked = checked
-    this.render()
+    checkbox.classList.toggle(CLASS_OR_ID['AG_CHECKBOX_CHECKED'])
+    // this.render()
   }
 
   ContentState.prototype.checkSameLooseType = function (list, isLooseType) {
@@ -300,9 +302,9 @@ const updateCtrl = ContentState => {
     // bugfix: #67 problem 1
     if (block && block.icon) return event.preventDefault()
 
-    if (isMetaKey(event)) {
-      return
-    }
+    // if (isMetaKey(event)) {
+    //   return
+    // }
 
     if (event.type === 'keyup' && (event.key === EVENT_KEYS.ArrowUp || event.key === EVENT_KEYS.ArrowDown) && floatBox.show) {
       return
@@ -358,6 +360,7 @@ const updateCtrl = ContentState => {
     const paragraph = document.querySelector(`#${key}`)
     let text = getTextContent(paragraph, [ CLASS_OR_ID['AG_MATH_RENDER'] ])
     let needRender = false
+    let needRenderAll = false
     if (event.type === 'click' && block.type === 'figure' && block.functionType === 'table') {
       // first cell in thead
       const cursorBlock = block.children[1].children[0].children[0].children[0]
@@ -395,8 +398,9 @@ const updateCtrl = ContentState => {
         '*': '*',
         '_': '_',
         '"': '"',
-        "'": "'"
+        '\'': '\''
       }
+
       if (start.key === end.key && start.offset === end.offset && event.type === 'input') {
         const { offset } = start
         const { autoPairBracket, autoPairMarkdownSyntax, autoPairQuote } = this
@@ -404,8 +408,10 @@ const updateCtrl = ContentState => {
         const preInputChar = text.charAt(+offset - 2)
         const postInputChar = text.charAt(+offset)
         /* eslint-disable no-useless-escape */
+        // Not Unicode aware, since things like \p{Alphabetic} or \p{L} are not supported yet
         if (
-          (autoPairQuote && /["']{1}/.test(inputChar)) ||
+          (autoPairQuote && /[']{1}/.test(inputChar) && !(/[a-zA-Z\d]{1}/.test(preInputChar))) ||
+          (autoPairQuote && /["]{1}/.test(inputChar)) ||
           (autoPairBracket && /[\{\[\(]{1}/.test(inputChar)) ||
           (autoPairMarkdownSyntax && /[*_]{1}/.test(inputChar))
         ) {
@@ -413,14 +419,18 @@ const updateCtrl = ContentState => {
             ? text.substring(0, offset) + BRACKET_HASH[inputChar] + text.substring(offset)
             : text
         }
-        /* eslint-ensable no-useless-escape */
+        /* eslint-enable no-useless-escape */
         if (/\s/.test(event.data) && preInputChar === '*' && postInputChar === '*') {
           text = text.substring(0, offset) + text.substring(offset + 1)
         }
       }
       block.text = text
+      if (beginRules['reference_definition'].test(text)) {
+        needRenderAll = true
+      }
     }
 
+    // Update preview content of math block
     if (block && block.type === 'span' && block.functionType === 'multiplemath') {
       this.updateMathContent(block)
     }
@@ -432,7 +442,7 @@ const updateCtrl = ContentState => {
     const checkMarkedUpdate = this.checkNeedRender(block)
     const inlineUpdatedBlock = this.isCollapse() && !/frontmatter|multiplemath/.test(block.functionType) && this.checkInlineUpdate(block)
     if (checkMarkedUpdate || inlineUpdatedBlock || needRender) {
-      this.partialRender()
+      needRenderAll ? this.render() : this.partialRender()
     }
   }
 }

@@ -13,6 +13,8 @@ export const isMetaKey = ({ key }) => key === 'Shift' || key === 'Control' || ke
 
 export const noop = () => {}
 
+export const identity = i => i
+
 export const isOdd = number => Math.abs(number) % 2 === 1
 
 export const isEven = number => Math.abs(number) % 2 === 0

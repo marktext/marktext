@@ -1,17 +1,16 @@
 import Vue from 'vue'
 import axios from 'axios'
-
 import { ipcRenderer } from 'electron'
 import lang from 'element-ui/lib/locale/lang/en'
 import locale from 'element-ui/lib/locale'
-
 import App from './app'
 import store from './store'
-
 import './assets/symbolIcon'
 import './index.css'
-
 import { Dialog, Form, FormItem, InputNumber, Button, Tooltip, Upload, Slider, ColorPicker, Col, Row } from 'element-ui'
+import services from './services'
+
+// import notice from './services/notification'
 // In the renderer process:
 // var webFrame = require('electron').webFrame
 // var SpellCheckProvider = require('electron-spell-check-provider')
@@ -58,6 +57,10 @@ Vue.use(Row)
 if (!process.env.IS_WEB) Vue.use(require('vue-electron'))
 Vue.http = Vue.prototype.$http = axios
 Vue.config.productionTip = false
+
+services.forEach(s => {
+  Vue.prototype['$' + s.name] = s[s.name]
+})
 
 /* eslint-disable no-new */
 new Vue({

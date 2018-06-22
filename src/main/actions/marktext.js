@@ -10,7 +10,7 @@ autoUpdater.autoDownload = false
 
 autoUpdater.on('error', error => {
   if (win) {
-    win.webContents.send('AGANI::UPDATE_ERROR', error === null ? 'Error: unknown' : (error.stack || error).toString())
+    win.webContents.send('AGANI::UPDATE_ERROR', error === null ? 'Error: unknown' : (error.message || error).toString())
   }
 })
 

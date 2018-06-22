@@ -1,14 +1,17 @@
+import path from 'path'
 import { app, BrowserWindow, screen } from 'electron'
 import windowStateKeeper from 'electron-window-state'
 import { getOsLineEndingName, loadMarkdownFile } from './utils/filesystem'
 import appMenu from './menu'
-import { isMarkdownFile } from './utils'
+import Watcher from './watcher'
+import { isMarkdownFile, isDirectory, log } from './utils'
 import { TITLE_BAR_HEIGHT, defaultWinOptions, isLinux } from './config'
 
 class AppWindow {
   constructor () {
     this.focusedWindowId = -1
     this.windows = new Map()
+    this.watcher = new Watcher()
   }
 
   ensureWindowPosition (mainWindowState) {
@@ -45,7 +48,7 @@ class AppWindow {
   }
 
   createWindow (pathname, options = {}) {
-    const { focusedWindowId, windows } = this
+    const { windows } = this
     const mainWindowState = windowStateKeeper({
       defaultWidth: 1200,
       defaultHeight: 800
@@ -54,17 +57,58 @@ class AppWindow {
     const { x, y, width, height } = this.ensureWindowPosition(mainWindowState)
     const winOpt = Object.assign({ x, y, width, height }, defaultWinOptions, options)
     const win = new BrowserWindow(winOpt)
+    windows.set(win.id, {
+      win,
+      watchers: []
+    })
 
-    win.once('ready-to-show', () => {
+    win.once('ready-to-show', async () => {
       mainWindowState.manage(win)
       win.show()
 
+      // open single mrkdown file
       if (pathname && isMarkdownFile(pathname)) {
         appMenu.addRecentlyUsedDocument(pathname)
-        loadMarkdownFile(win, pathname)
+        loadMarkdownFile(pathname)
+          .then(data => {
+            const {
+              markdown,
+              filename,
+              pathname,
+              isUtf8BomEncoded,
+              lineEnding,
+              adjustLineEndingOnSave,
+              isMixed
+            } = data
+
+            appMenu.updateLineEndingnMenu(lineEnding)
+            win.webContents.send('AGANI::open-single-file', {
+              markdown,
+              filename,
+              pathname,
+              options: {
+                isUtf8BomEncoded,
+                lineEnding,
+                adjustLineEndingOnSave
+              }
+            })
+
+            // Notify user about mixed endings
+            if (isMixed) {
+              win.webContents.send('AGANI::show-info-notification', {
+                msg: `The document has mixed line endings which are automatically normalized to ${lineEnding.toUpperCase()}.`,
+                timeout: 20000
+              })
+            }
+          })
+          .catch(log)
+        // open directory / folder
+      } else if (pathname && isDirectory(pathname)) {
+        this.openProject(win, pathname)
+        // open a window but do not open a file or directory
       } else {
         const lineEnding = getOsLineEndingName()
-        win.webContents.send('AGANI::set-line-ending', {
+        win.webContents.send('AGANI::open-blank-window', {
           lineEnding,
           ignoreSaveStatus: true
         })
@@ -75,9 +119,10 @@ class AppWindow {
     win.on('focus', () => {
       win.webContents.send('AGANI::window-active-status', { status: true })
 
-      if (win.id !== focusedWindowId) {
+      if (win.id !== this.focusedWindowId) {
         this.focusedWindowId = win.id
         win.webContents.send('AGANI::req-update-line-ending-menu')
+        win.webContents.send('AGANI::request-for-view-layout')
       }
     })
 
@@ -97,20 +142,41 @@ class AppWindow {
     win.loadURL(winURL)
     win.setSheetOffset(TITLE_BAR_HEIGHT) // 21 is the title bar height
 
-    windows.set(win.id, win)
     return win
+  }
+
+  openProject (win, pathname) {
+    const unwatcher = this.watcher.watch(win, pathname)
+    this.windows.get(win.id).watchers.push(unwatcher)
+    try {
+      // const tree = await loadProject(pathname)
+      win.webContents.send('AGANI::open-project', {
+        name: path.basename(pathname),
+        pathname
+      })
+    } catch (err) {
+      log(err)
+    }
   }
 
   forceClose (win) {
     if (!win) return
     const { windows } = this
     if (windows.has(win.id)) {
+      const { watchers } = windows.get(win.id)
+      if (watchers && watchers.length) {
+        watchers.forEach(w => w())
+      }
       windows.delete(win.id)
     }
     win.destroy() // if use win.close(), it will cause a endless loop.
     if (windows.size === 0) {
       app.quit()
     }
+  }
+
+  clear () {
+    this.watcher.clear()
   }
 }
 

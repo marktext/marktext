@@ -130,7 +130,7 @@ const paragraphCtrl = ContentState => {
         })
       }
     } else {
-      if (start.key === end.key) {
+      if (start.key === end.key || (start.block.parent && start.block.parent === end.block.parent)) {
         const block = this.getBlock(start.key)
         if (listType === 'task') {
           // 1. first update the block to bullet list

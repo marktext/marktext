@@ -1,6 +1,6 @@
 {
   "name": "marktext",
-  "version": "0.11.42",
+  "version": "0.12.25",
   "author": "Jocs <ransixi@gmail.com>",
   "description": "Next generation markdown editor",
   "license": "MIT",
@@ -64,10 +64,10 @@
       ]
     },
     "mac": {
-      "icon": "static/icons/icon.icns"
+      "icon": "resources/icons/icon.icns"
     },
     "win": {
-      "icon": "static/icons/icon.ico",
+      "icon": "resources/icons/icon.ico",
       "target": [
         {
           "target": "nsis",
@@ -83,25 +83,18 @@
       "perMachine": true,
       "oneClick": false,
       "allowToChangeInstallationDirectory": true,
-      "include": "static/windows/installer.nsh"
+      "include": "resources/windows/installer.nsh"
     },
     "linux": {
       "category": "Office;TextEditor;Utility",
-      "icon": "static/icons"
-    },
-    "snap": {
-      "confinement": "classic",
-      "grade": "stable",
-      "plugs": [
-        "default",
-        "classic-support",
-        "wayland"
-      ]
+      "icon": "resources/icons",
+      "target": "AppImage"
     }
   },
   "dependencies": {
     "axios": "^0.18.0",
     "cheerio": "^1.0.0-rc.2",
+    "chokidar": "^2.0.3",
     "codemirror": "^5.36.0",
     "css-tree": "^1.0.0-alpha.28",
     "dompurify": "^1.0.3",
@@ -111,8 +104,10 @@
     "fuzzaldrin": "^2.1.0",
     "html-tags": "^2.0.0",
     "katex": "^0.10.0-alpha",
+    "markdown-toc": "^1.2.0",
     "mousetrap": "^1.6.1",
     "parse5": "^5.0.0",
+    "popper.js": "^1.14.3",
     "snabbdom": "^0.7.1",
     "snabbdom-to-html": "^5.1.1",
     "snabbdom-virtualize": "^0.7.0",
@@ -142,7 +137,7 @@
     "devtron": "^1.4.0",
     "electron": "^2.0.2",
     "electron-builder": "^20.14.7",
-    "electron-debug": "^1.5.0",
+    "electron-debug": "^2.0.0",
     "electron-devtools-installer": "^2.2.4",
     "electron-updater": "^2.21.10",
     "electron-window-state": "^4.1.1",
@@ -180,8 +175,8 @@
     "vue-loader": "^15.2.0",
     "vue-style-loader": "^4.1.0",
     "vue-template-compiler": "^2.5.16",
-    "webpack": "^4.8.3",
-    "webpack-cli": "^2.1.4",
+    "webpack": "^4.11.1",
+    "webpack-cli": "^3.0.3",
     "webpack-dev-server": "^3.1.4",
     "webpack-hot-middleware": "^2.22.2",
     "webpack-merge": "^4.1.2"

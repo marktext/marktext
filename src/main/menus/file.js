@@ -15,10 +15,24 @@ export default function (recentlyUsedFiles) {
         actions.newFile()
       }
     }, {
-      label: 'Open...',
+      label: 'New Tab',
+      accelerator: 'Shift+CmdOrCtrl+T',
+      click (menuItem, browserWindow) {
+        actions.newTab(browserWindow)
+      }
+    }, {
+      type: 'separator'
+    }, {
+      label: 'Open File',
       accelerator: 'CmdOrCtrl+O',
       click (menuItem, browserWindow) {
         actions.open(browserWindow)
+      }
+    }, {
+      label: 'Open Project',
+      accelerator: 'Shift+CmdOrCtrl+O',
+      click (menuItem, browserWindow) {
+        actions.openProject(browserWindow)
       }
     }]
   }
@@ -33,7 +47,7 @@ export default function (recentlyUsedFiles) {
       recentlyUsedMenu.submenu.push({
         label: item,
         click (menuItem, browserWindow) {
-          actions.openDocument(menuItem.label)
+          actions.openFileOrProject(menuItem.label)
         }
       })
     }
@@ -61,6 +75,14 @@ export default function (recentlyUsedFiles) {
   }
 
   fileMenu.submenu.push({
+    type: 'separator'
+  }, {
+    label: 'Close Tab',
+    accelerator: 'CmdOrCtrl+W',
+    click (menuItem, browserWindow) {
+      actions.closeTab(browserWindow)
+    }
+  }, {
     type: 'separator'
   }, {
     label: 'Save',

@@ -6,6 +6,8 @@ const easeInOutQuad = function (t, b, c, d) {
   return -c / 2 * (t * (t - 2) - 1) + b
 }
 
+const ID_PREFEX = 'mt-'
+let id = 0
 const DOTU = 'DOTU'
 const MAX_HISTORY_LENGTH = 10
 const DOTU_COLLECTION = 'DOTU_COLLECTION'
@@ -168,3 +170,9 @@ export const animatedScrollTo = function (element, to, duration, callback) {
   }
   requestAnimationFrame(animateScroll)
 }
+
+export const getUniqueId = () => {
+  return `${ID_PREFEX}${id++}`
+}
+
+export const hasKeys = obj => Object.keys(obj).length > 0

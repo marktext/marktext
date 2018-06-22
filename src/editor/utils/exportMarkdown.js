@@ -30,9 +30,11 @@ class ExportMarkdown {
           this.insertLineBreak(result, indent, true)
           result.push(this.translateBlocks2Markdown(block.children, indent))
           break
+
         case 'span':
           result.push(this.normalizeParagraphText(block, indent))
           break
+
         case 'hr':
           this.insertLineBreak(result, indent, true)
           result.push(this.normalizeParagraphText(block, indent))

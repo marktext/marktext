@@ -1,43 +1,45 @@
+import Popper from 'popper.js/dist/esm/popper'
 import fileIcons from '../fileIcons'
 import { CLASS_OR_ID } from '../config'
 
 import './index.css'
 
-const FLOAT_BOX_HEIGHT = 180
 const ITEM_HEIGHT = 28
 
 class FloatBox {
   constructor (eventCenter) {
     this.list = []
-    this.type = ''
     this.index = 0
     this.position = null
     this.eventCenter = eventCenter
     this.show = false
     this.box = null
     this.cb = null
+    this.eventId = null
+    this.popper = null
     this.initBox()
+  }
+
+  clickHandler (event) {
+    const target = event.target
+    const key = +target.getAttribute('key')
+    const { cb, list } = this
+
+    if (cb && typeof key === 'number' && !Number.isNaN(key)) {
+      this.cb(list[key])
+      this.hideIfNeeded()
+    }
   }
 
   initBox () {
     let box = document.querySelector(`#${CLASS_OR_ID['AG_FLOAT_BOX_ID']}`)
-    const clickHandler = event => {
-      const target = event.target
-      const key = +target.getAttribute('key')
-      const { cb, list } = this
-
-      if (cb && typeof key === 'number' && !Number.isNaN(key)) {
-        this.cb(list[key])
-        this.hideIfNeeded([this.type])
-      }
-    }
 
     if (!box) {
       box = document.createElement('ul')
       box.id = CLASS_OR_ID['AG_FLOAT_BOX_ID']
       box.classList.add(CLASS_OR_ID['AG_FLOAT_BOX'])
       document.body.appendChild(box)
-      this.eventCenter.attachDOMEvent(box, 'click', clickHandler)
+      this.eventId = this.eventCenter.attachDOMEvent(box, 'click', this.clickHandler.bind(this))
     }
     this.box = box
   }
@@ -111,42 +113,53 @@ class FloatBox {
   }
 
   empty () {
-    Array.from(this.box.childNodes).forEach(c => this.box.removeChild(c))
+    Array.from(this.box.childNodes).forEach(c => c.remove())
   }
 
-  showIfNeeded (position, type, cb) {
-    if (cb) this.cb = cb
-    if (!this.show || this.type !== type || position.left !== this.position.left || position.top !== this.position.top) {
-      let { left, top } = this.position = position
-      this.type = type
-      const viewHeight = document.documentElement.offsetHeight
-      if (viewHeight - top <= FLOAT_BOX_HEIGHT + 25) {
-        top = top - (FLOAT_BOX_HEIGHT + 5) // left 5px between floatbox and input element
-      } else {
-        top = top + 25
-      }
-      Object.assign(this.box.style, { left: `${left}px`, top: `${top}px` })
+  showIfNeeded (element, cb) {
+    const rect = element.getBoundingClientRect()
+    const { top, left } = rect
+    const reference = {
+      getBoundingClientRect () {
+        return rect
+      },
+      clientWidth: element.clientWidth,
+      clientHeight: element.clientHeight
+    }
 
-      this.box.classList.add(CLASS_OR_ID['AG_SHOW_FLOAT_BOX'])
+    if (cb) this.cb = cb
+    if (!this.show || this.position.left !== left || this.position.top !== top) {
+      this.position = { top, left }
+      if (this.popper && this.popper.destroy) {
+        this.popper.destroy()
+      }
+      this.popper = new Popper(reference, this.box, {
+        placement: 'bottom-start',
+        modifiers: {
+          offset: {
+            offset: '-20, 12'
+          }
+        }
+      })
     }
     this.show = true
   }
 
-  hideIfNeeded (typeArray) {
-    if (!typeArray.includes(this.type)) return
+  hideIfNeeded () {
     this.empty()
     this.cb = null
     this.list = []
     this.index = 0
-    if (this.show) {
-      this.box.classList.remove(CLASS_OR_ID['AG_SHOW_FLOAT_BOX'])
-      this.box.removeAttribute('style')
+    if (this.popper && this.popper.destroy) {
+      this.popper.destroy()
     }
     this.show = false
+    this.popper = null
   }
 
   destroy () {
-    this.box.parentNode.removeChild(this.box)
+    this.eventCenter.detachDOMEvent(this.eventId)
+    this.box.remove()
   }
 }
 

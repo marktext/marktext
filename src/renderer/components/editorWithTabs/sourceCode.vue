@@ -1,23 +1,26 @@
 <template>
   <div
     class="source-code"
-    ref="sourceCode"
     :class="[theme]"
+    ref="sourceCode"
   >
   </div>
 </template>
 
 <script>
-  import codeMirror, { setMode, setCursorAtLastLine } from '../../editor/codeMirror'
-  import { wordCount as getWordCount } from '../../editor/utils'
-  import { adjustCursor } from '../util'
-  import bus from '../bus'
+  import codeMirror, { setMode, setCursorAtLastLine } from '../../../editor/codeMirror'
+  import { wordCount as getWordCount } from '../../../editor/utils'
+  import { adjustCursor } from '../../util'
+  import bus from '../../bus'
 
   export default {
     props: {
+      theme: {
+        type: String,
+        required: true
+      },
       markdown: String,
-      cursor: Object,
-      theme: String
+      cursor: Object
     },
 
     data () {
@@ -78,7 +81,7 @@
       bus.$off('file-loaded', this.setMarkdown)
       bus.$off('dotu-select', this.handleSelectDoutu)
       const { markdown, cursor } = this
-      bus.$emit('content-in-source-mode', { markdown, cursor, renderCursor: true })
+      bus.$emit('file-changed', { markdown, cursor, renderCursor: true })
     },
     methods: {
       handleSelectDoutu (url) {
@@ -119,7 +122,7 @@
 
 <style>
   .source-code {
-    height: calc(100vh - 22px);
+    height: calc(100vh - 25px);
     box-sizing: border-box;
     overflow: auto;
   }
@@ -135,8 +138,9 @@
   .source-code .CodeMirror-activeline-gutter {
     background: #F2F6FC;
   }
-  .dark {
-    background: rgb(43, 43, 43);
+  .source-code.dark,
+  .source-code.dark .CodeMirror {
+    background: var(--darkBgColor);
   }
   .dark.source-code .CodeMirror-activeline-background,
   .dark.source-code .CodeMirror-activeline-gutter {

@@ -1,6 +1,5 @@
 import { isLengthEven } from '../utils'
 import { TABLE_TOOLS } from '../config'
-// import selection from '../selection'
 
 const TABLE_BLOCK_REG = /^\|.*?(\\*)\|.*?(\\*)\|/
 
@@ -86,8 +85,10 @@ const tableBlockCtrl = ContentState => {
     block.type = 'figure'
     block.text = ''
     block.children = []
+    block.functionType = 'table'
     this.appendChild(block, toolBar)
     this.appendChild(block, table)
+
     return table.children[1].children[0].children[0] // first cell in tbody
   }
 
@@ -137,9 +138,6 @@ const tableBlockCtrl = ContentState => {
         const { tablePicker } = this
         const figureKey = figure.key
         const tableLable = document.querySelector(`#${figureKey} [data-label=table]`)
-        const rect = tableLable.getBoundingClientRect()
-        const left = `${rect.left + rect.width / 2 - 29}px`
-        const top = `${rect.top + rect.height + 8}px`
         const { row = 1, column = 1 } = table // zero base
 
         const handler = (row, column) => {
@@ -197,8 +195,7 @@ const tableBlockCtrl = ContentState => {
           this.partialRender()
         }
 
-        tablePicker.toggle({ row, column }, { left, top }, handler.bind(this))
-        // tablePicker.status ? tableLable.classList.add('active') : tableLable.classList.remove('active')
+        tablePicker.toggle({ row, column }, tableLable, handler.bind(this))
       }
     }
   }
@@ -344,6 +341,21 @@ const tableBlockCtrl = ContentState => {
 
     this.partialRender()
     this.eventCenter.dispatch('stateChange')
+  }
+
+  ContentState.prototype.getTableBlock = function () {
+    const { start, end } = this.cursor
+    const startBlock = this.getBlock(start.key)
+    const endBlock = this.getBlock(end.key)
+    const startParents = this.getParents(startBlock)
+    const endParents = this.getParents(endBlock)
+    const affiliation = startParents
+      .filter(p => endParents.includes(p))
+
+    if (affiliation.length) {
+      const table = affiliation.find(p => p.type === 'figure')
+      return table
+    }
   }
 
   ContentState.prototype.tableBlockUpdate = function (block) {

@@ -6,8 +6,8 @@ export default {
     accelerator: 'CmdOrCtrl+M',
     role: 'minimize'
   }, {
-    label: 'Close',
-    accelerator: 'CmdOrCtrl+W',
+    label: 'Close Window',
+    accelerator: 'Shift+CmdOrCtrl+W',
     role: 'close'
   }]
 }

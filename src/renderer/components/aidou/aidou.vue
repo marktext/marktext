@@ -101,9 +101,13 @@
       }
     },
     computed: {
-      ...mapState([
-        'aiLoading', 'aiList', 'theme'
-      ]),
+      ...mapState({
+        'aiList': state => state.aidou.aiList,
+        'aiLoading': state => state.aidou.aiLoading
+      }),
+      ...mapState({
+        'theme': state => state.preferences.theme
+      }),
       emojis () {
         return this.aiList.map(e => {
           e.collected = this.collection.findIndex(c => c.link === e.link) > -1
@@ -232,6 +236,7 @@
     margin-bottom: 20px;
   }
   .search-wrapper {
+    margin: 0 auto;
     margin-top: 8px;
     z-index: 10000;
     position: absolute;
@@ -239,7 +244,6 @@
     left: 50%;
     transform: translateX(-50%);
     width: 410px;
-    margin: 0 auto;
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
@@ -274,7 +278,7 @@
     transition: all .3s ease-in-out;
   }
   .search-wrapper svg:hover {
-    color: orange;
+    color: var(--activeColor);
   }
   ul.history {
     display: flex;
@@ -351,7 +355,7 @@
     display: none;
   }
   .image-container .img-wrapper > svg.active {
-    color: orange;
+    color: var(--activeColor);
   }
   .image-container .img-wrapper:hover > svg {
     display: block;
@@ -373,8 +377,12 @@
   }
   /* style for dark theme */
   .dark .search-wrapper {
-    background: rgb(75, 75, 75);
-    border-color: rgb(75, 75, 75);
+    background: var(--darkInputBgColor);
+    border-color: transparent;
+    & input {
+      background: transparent;
+      color: var(--darkInputColor);
+    }
   }
   .dark ul.history li.active {
     background: rgb(39, 39, 39);

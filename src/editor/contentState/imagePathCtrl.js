@@ -22,9 +22,9 @@ const imagePathCtrl = ContentState => {
     const node = this.getImageTextNode()
 
     if (!node || list.length === 0) {
-      return floatBox.hideIfNeeded('image-path')
+      return floatBox.hideIfNeeded()
     }
-    const { left, top } = node.getBoundingClientRect()
+
     const cb = item => {
       const { text } = item
       const { start: { key, offset } } = selection.getCursorRange()
@@ -39,10 +39,10 @@ const imagePathCtrl = ContentState => {
         start: { key, offset: offset + (text.length - chop.length) },
         end: { key, offset: offset + (text.length - chop.length) }
       }
-      floatBox.hideIfNeeded('image-path')
+      floatBox.hideIfNeeded()
       this.partialRender()
     }
-    floatBox.showIfNeeded({ left, top }, 'image-path', cb)
+    floatBox.showIfNeeded(node, cb)
     floatBox.setOptions(list)
   }
 
@@ -53,13 +53,12 @@ const imagePathCtrl = ContentState => {
       const node = this.getImageTextNode()
 
       if (!node) return
-      const { left, top } = node.getBoundingClientRect()
 
       if (src === '') {
         const cb = item => {
           const type = item.text === 'Absolute Path' ? 'absolute' : (item.text === 'Upload Image' ? 'upload' : 'relative')
           eventCenter.dispatch('insert-image', type)
-          floatBox.hideIfNeeded('image')
+          floatBox.hideIfNeeded()
         }
 
         const list = [{
@@ -73,7 +72,7 @@ const imagePathCtrl = ContentState => {
           iconClass: 'icon-upload'
         }]
 
-        floatBox.showIfNeeded({ left, top }, 'image', cb)
+        floatBox.showIfNeeded(node, cb)
         floatBox.setOptions(list)
       } else if (src && typeof src === 'string' && src.length) {
         eventCenter.dispatch('image-path-autocomplement', src)

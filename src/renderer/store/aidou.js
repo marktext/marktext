@@ -5,6 +5,8 @@ const state = {
   aiList: []
 }
 
+const getters = {}
+
 const mutations = {
   SET_AI_LIST (state, { data, type }) {
     if (type === 'search' || type === 'collect') {
@@ -30,11 +32,10 @@ const actions = {
         commit('SET_AI_STATUS', false)
         return { data, total }
       })
-      .catch(err => {
-        console.log(err)
+      .catch(() => {
         commit('SET_AI_STATUS', false)
       })
   }
 }
 
-export default { state, mutations, actions }
+export default { state, getters, mutations, actions }

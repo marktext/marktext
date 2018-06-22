@@ -182,17 +182,6 @@ class ExportHTML {
       })
     }
 
-    // change `data-href` to `href` attribute, so the anchor can be clicked.
-    const anchors = $(`a[data-href]`)
-    if (anchors.length) {
-      anchors.each((i, a) => {
-        const anchor = $(a)
-        const href = anchor.attr('data-href')
-        anchor.removeAttr('data-href')
-        anchor.attr('href', href)
-        anchor.attr('target', '_blank')
-      })
-    }
     // hide math preview bubble
     const mathes = $(`span.${CLASS_OR_ID['AG_MATH']}`)
     mathes.each((i, m) => {

@@ -43,9 +43,10 @@
       bus.$off('rename', this.handleRename)
     },
     computed: {
-      ...mapState([
-        'filename', 'theme'
-      ])
+      ...mapState({
+        filename: state => state.editor.currentFile.filename,
+        theme: state => state.preferences.theme
+      })
     },
     methods: {
       handleRename () {
@@ -61,10 +62,13 @@
   }
 </script>
 
-<style scoped>
-  .el-dialog__header {
-    margin-bottom: 20px;
+<style>
+  .rename .el-dialog__body {
+    display: none;
   }
+</style>
+
+<style scoped>
   .search-wrapper {
     margin-top: 8px;
     z-index: 10000;
@@ -108,13 +112,17 @@
     transition: all .3s ease-in-out;
   }
   .search-wrapper svg:hover {
-    color: orange;
+    color: var(--activeColor);
   }
 
   /* style for dark theme */
   .dark .search-wrapper {
-    background: rgb(75, 75, 75);
-    border-color: rgb(75, 75, 75);
+    background: var(--darkInputBgColor);
+    border-color: transparent;
+    & input {
+      background: transparent;
+      color: var(--darkInputColor);
+    }
   }
 
 </style>

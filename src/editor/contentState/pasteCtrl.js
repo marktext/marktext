@@ -1,4 +1,7 @@
-import { PARAGRAPH_TYPES } from '../config'
+import cheerio from 'cheerio'
+import { sanitize } from '../utils'
+import { PARAGRAPH_TYPES, PREVIEW_DOMPURIFY_CONFIG } from '../config'
+
 const LIST_REG = /ul|ol/
 const LINE_BREAKS_REG = /\n/
 
@@ -37,6 +40,33 @@ const pasteCtrl = ContentState => {
     return type
   }
 
+  ContentState.prototype.standardizeHTML = function (html) {
+    const $ = cheerio.load(sanitize(html, PREVIEW_DOMPURIFY_CONFIG))
+    // convert un-standard table to standard table which can be identified by turndown.
+    // These un-standard table mainly copy from Number app.
+    const tables = $('table')
+    if (tables.length > 0) {
+      tables.each((i, t) => {
+        const table = $(t)
+        table.find('tr').each((i, tr) => {
+          if (i === 0 && $(tr).children().first().tagName !== 'th') {
+            $(tr).children().each((i, td) => {
+              const html = $(td).html()
+              $(td).replaceWith($(`<th>${html}</th>`))
+            })
+          }
+        })
+
+        table.find('p').each((i, p) => {
+          const html = $(p).html()
+          $(p).replaceWith($(`<span>${html}</span>`))
+        })
+      })
+    }
+
+    return $('body').html()
+  }
+
   // handle `normal` and `pasteAsPlainText` paste
   ContentState.prototype.pasteHandler = function (event, type) {
     if (this.checkInCodeBlock()) {
@@ -44,7 +74,8 @@ const pasteCtrl = ContentState => {
     }
     event.preventDefault()
     const text = event.clipboardData.getData('text/plain')
-    const html = event.clipboardData.getData('text/html')
+    let html = event.clipboardData.getData('text/html')
+    html = this.standardizeHTML(html)
     // console.log(text)
     // console.log(html)
     const copyType = this.checkCopyType(html, text)
@@ -66,7 +97,6 @@ const pasteCtrl = ContentState => {
         end: { key, offset }
       }
     }
-
     // handle copyAsHtml
     if (copyType === 'copyAsHtml') {
       switch (type) {
@@ -113,6 +143,7 @@ const pasteCtrl = ContentState => {
     const firstFragment = stateFragments[0]
     const tailFragments = stateFragments.slice(1)
     const pasteType = this.checkPasteType(startBlock, firstFragment)
+
     const getLastBlock = blocks => {
       const len = blocks.length
       const lastBlock = blocks[len - 1]
@@ -169,6 +200,8 @@ const pasteCtrl = ContentState => {
               if (startBlock.functionType) line.functionType = startBlock.functionType
               this.appendChild(parent, line)
             })
+          } else if (/^h\d$/.test(firstFragment.type)) {
+            startBlock.text += firstFragment.text.split(/\s+/)[1]
           } else {
             startBlock.text += firstFragment.text
           }
@@ -187,8 +220,10 @@ const pasteCtrl = ContentState => {
           this.insertAfter(block, target)
           target = block
         })
-        if (startBlock.text.length === 0) this.removeBlock(startBlock)
-        if (this.isOnlyChild(startBlock)) this.removeBlock(parent)
+        if (startBlock.text.length === 0) {
+          this.removeBlock(startBlock)
+          if (this.isOnlyChild(startBlock) && startBlock.type === 'span') this.removeBlock(parent)
+        }
         break
       default:
         throw new Error('unknown paste type')
