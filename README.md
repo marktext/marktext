@@ -157,6 +157,10 @@ If you wish to build **Mark Text** yourself, please check out our [developer doc
 
 When you have any questions while using **Mark Text**, you are welcome to write an issue, but I hope you will follow the format of issue. Of course, if you submit a PR directly, it will be appreciated.
 
+## Integrations
+
+- [Alfred Workflow](http://www.packal.org/workflow/mark-text): A Workflow for the OS X app Alfred: Use "mt" to open files/folder with Mark Text.
+
 ## Contribution
 
 Mark Text is in full development, please make sure to read the [Contributing Guide](https://github.com/marktext/marktext/blob/master/.github/CONTRIBUTING.md) before making a pull request. Want to add some features to Mark Text? Refer to [TODO LIST](https://github.com/marktext/marktext/blob/master/.github/TODOLIST.md) and open issues.
