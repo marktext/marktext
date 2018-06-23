@@ -65,6 +65,10 @@
       日本語
     </a>
     <span> | </span>
+    <a href="https://github.com/marktext/marktext/blob/master/doc/i18n/french.md#readme">
+      Français
+    </a>
+    <span> | </span>
     <a href="https://github.com/marktext/marktext#features">
       Features
     </a>
