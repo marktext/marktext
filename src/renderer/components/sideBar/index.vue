@@ -142,7 +142,7 @@
 <style scoped>
   .side-bar {
     display: flex;
-    height: calc(100vh - 25px);
+    height: calc(100vh - var(--titleBarHeight));
     position: relative;
     color: var(--secondaryColor);
   }

@@ -167,7 +167,7 @@
     -webkit-app-region: drag;
     user-select: none;
     width: 100%;
-    height: 25px;
+    height: var(--titleBarHeight);
     box-sizing: border-box;
     color: #F2F6FC;
     position: fixed;
@@ -189,7 +189,7 @@
   .title {
     padding: 0 100px;
     height: 100%;
-    line-height: 25px;
+    line-height: var(--titleBarHeight);
     font-size: 14px;
     text-align: center;
     transition: all .25s ease-in-out;
@@ -266,8 +266,8 @@
   .frameless-titlebar-button {
     position: relative;
     display: block;
-    width: 25px;
-    height: 25px;
+    width: var(--titleBarHeight);
+    height: var(--titleBarHeight);
   }
   .frameless-titlebar-button > div {
     position: absolute;

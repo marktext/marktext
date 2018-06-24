@@ -138,7 +138,7 @@
 
 <style scoped>
   .editor-container {
-    padding-top: 25px;
+    padding-top: var(--titleBarHeight);
   }
   .editor-container .hide {
     z-index: -1;
@@ -148,7 +148,7 @@
   }
   .editor-middle {
     display: flex;
-    min-height: calc(100vh - 25px);
+    min-height: calc(100vh - var(--titleBarHeight));
     & > .editor {
       flex: 1;
     }
