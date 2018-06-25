@@ -62,7 +62,7 @@
     flex: 1;
     display: flex;
     flex-direction: column;
-    height: calc(100vh - 25px);
+    height: calc(100vh - var(--titleBarHeight));
     overflow: hidden;
     & > .container {
       flex: 1;

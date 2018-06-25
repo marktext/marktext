@@ -122,7 +122,7 @@
 
 <style>
   .source-code {
-    height: calc(100vh - 25px);
+    height: calc(100vh - var(--titleBarHeight));
     box-sizing: border-box;
     overflow: auto;
   }
