@@ -55,6 +55,7 @@ export default function renderContainerBlock (block, cursor, activeBlocks, match
     Object.assign(data.attrs, { title })
   }
   if (block.type === 'li' && block.listItemType) {
+    selector += `.${CLASS_OR_ID['AG_LIST_ITEM']}`
     switch (block.listItemType) {
       case 'order':
         selector += `.${CLASS_OR_ID['AG_ORDER_LIST_ITEM']}`

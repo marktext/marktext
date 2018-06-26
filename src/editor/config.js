@@ -100,6 +100,7 @@ export const CLASS_OR_ID = genUpper2LowerKeyHash([
   'AG_OUTPUT_REMOVE',
   'AG_EMOJI_MARKER',
   'AG_NOTEXT_LINK',
+  'AG_LIST_ITEM',
   'AG_ORDER_LIST',
   'AG_ORDER_LIST_ITEM',
   'AG_BULLET_LIST',
