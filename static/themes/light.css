@@ -76,6 +76,7 @@ body {
 }
 
 .v-modal {
+  backdrop-filter: blur(5px);
   background: rgba(230, 230, 230, .9);
 }
 

@@ -11,6 +11,9 @@ class App {
   }
 
   init () {
+    // Enable these features to use `backdrop-filter` css rules!
+    app.commandLine.appendSwitch('enable-experimental-web-platform-features', 'true')
+
     app.on('open-file', this.openFile.bind(this))
 
     app.on('ready', this.ready.bind(this))
