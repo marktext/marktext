@@ -417,10 +417,15 @@ span.ag-multiple-math-line:first-of-type:empty::after {
 figure,
 pre.ag-html-block,
 div.ag-function-html,
-pre.ag-code-block {
+pre.ag-code-block,
+li.ag-list-item > p.ag-paragraph {
   position: relative;
   display: inline-flex;
   box-sizing: border-box;
+  width: 100%;
+}
+
+li.ag-list-item > p.ag-paragraph > span {
   width: 100%;
 }
 
