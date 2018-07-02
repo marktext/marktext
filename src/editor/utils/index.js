@@ -180,7 +180,7 @@ export const getImageInfo = src => {
   const imageExtension = EXT_REG.test(src)
   const isUrl = URL_REG.test(src)
   if (imageExtension) {
-    if (isUrl || !window.__dirname) {
+    if (isUrl || !window.DIRNAME) {
       return {
         isUnknownType: false,
         src
@@ -188,7 +188,7 @@ export const getImageInfo = src => {
     } else {
       return {
         isUnknownType: false,
-        src: 'file://' + path.resolve(window.__dirname, src)
+        src: 'file://' + path.resolve(window.DIRNAME, src)
       }
     }
   } else if (isUrl && !imageExtension) {
