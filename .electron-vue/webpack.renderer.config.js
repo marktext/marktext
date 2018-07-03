@@ -136,6 +136,7 @@ const rendererConfig = {
   resolve: {
     alias: {
       '@': path.join(__dirname, '../src/renderer'),
+      'muya': path.join(__dirname, '../src/muya'),
       'vue$': 'vue/dist/vue.esm.js'
     },
     extensions: ['.js', '.vue', '.json', '.css', '.node']
@@ -147,6 +148,7 @@ const rendererConfig = {
  * Adjust rendererConfig for development settings
  */
 if (process.env.NODE_ENV !== 'production') {
+  console.log('dddd')
   rendererConfig.plugins.push(
     new webpack.DefinePlugin({
       '__static': `"${path.join(__dirname, '../static').replace(/\\/g, '\\\\')}"`
@@ -168,6 +170,11 @@ if (proMode) {
       chunkFilename: '[id].[hash].css'
     }),
     new CopyWebpackPlugin([
+      {
+        from: path.resolve(__dirname, '../src/muya/themes'),
+        to: path.join(__dirname, '../static/themes'),
+        force: true
+      },
       {
         from: path.join(__dirname, '../static'),
         to: path.join(__dirname, '../dist/electron/static'),

@@ -248,3 +248,5 @@ export const EXPORT_DOMPURIFY_CONFIG = {
     mathMl: true
   }
 }
+
+export const isInElectron = window && window.process && window.process.type === 'renderer'

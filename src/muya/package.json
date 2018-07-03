@@ -1,0 +1,24 @@
+{
+  "name": "muya",
+  "version": "0.1.2",
+  "description": "A browser based markdown editor that powers Mark Text",
+  "main": "dist/muya.min.js",
+  "scripts": {
+    "test": "npm run test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/marktext/muya.git"
+  },
+  "keywords": [
+    "markdown",
+    "editor",
+    "brower"
+  ],
+  "author": "ransixi@gmail.com",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/marktext/muya/issues"
+  },
+  "homepage": "https://github.com/marktext/muya#readme"
+}

@@ -8,8 +8,8 @@
 </template>
 
 <script>
-  import codeMirror, { setMode, setCursorAtLastLine } from '../../../editor/codeMirror'
-  import { wordCount as getWordCount } from '../../../editor/utils'
+  import codeMirror, { setMode, setCursorAtLastLine } from 'muya/lib/codeMirror'
+  import { wordCount as getWordCount } from 'muya/lib/utils'
   import { adjustCursor } from '../../util'
   import bus from '../../bus'
 

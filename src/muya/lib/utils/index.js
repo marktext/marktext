@@ -1,6 +1,5 @@
 // DOTO: Don't use Node API in editor folder, remove `path` @jocs
 import axios from 'axios'
-import path from 'path'
 import createDOMPurify from 'dompurify'
 
 const ID_PREFIX = 'ag-'
@@ -185,10 +184,10 @@ export const getImageInfo = src => {
         isUnknownType: false,
         src
       }
-    } else {
+    } else if (window && window.process && window.process.type === 'renderer') {
       return {
         isUnknownType: false,
-        src: 'file://' + path.resolve(window.DIRNAME, src)
+        src: 'file://' + require('path').resolve(window.DIRNAME, src)
       }
     }
   } else if (isUrl && !imageExtension) {

@@ -1,4 +1,4 @@
-import { CLASS_OR_ID, IMAGE_EXT_REG } from '../../../config'
+import { CLASS_OR_ID, IMAGE_EXT_REG, isInElectron } from '../../../config'
 import { getImageInfo } from '../../../utils'
 
 // I dont want operate dom directly, is there any better method? need help!
@@ -10,7 +10,8 @@ export default function image (h, cursor, block, token, outerClass) {
     cursorStart.key === cursorEnd.key &&
     cursorStart.offset === cursorEnd.offset &&
     cursorStart.offset === end - 1 &&
-    !IMAGE_EXT_REG.test(token.src)
+    !IMAGE_EXT_REG.test(token.src) &&
+    isInElectron
   ) {
     eventCenter.dispatch('image-path', token.src)
   }

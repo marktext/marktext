@@ -16,8 +16,9 @@ import TablePicker from './tablePicker'
 
 import './assets/symbolIcon' // import symbol icons
 import './assets/symbolIcon/index.css'
+import './index.css'
 
-class Aganippe {
+class Muya {
   constructor (container, options) {
     const {
       focusMode = false, theme = 'light', markdown = '', preferLooseListItem = true,
@@ -666,4 +667,4 @@ class Aganippe {
   }
 }
 
-export default Aganippe
+export default Muya
