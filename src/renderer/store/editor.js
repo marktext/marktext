@@ -6,7 +6,6 @@ import { getOptionsFromState, getSingleFileState, getBlankFileState } from './he
 import notice from '../services/notification'
 
 const toc = require('markdown-toc')
-
 const state = {
   lineEnding: 'lf',
   currentFile: {},
@@ -28,7 +27,8 @@ const mutations = {
   SET_CURRENT_FILE (state, currentFile) {
     const oldCurrentFile = state.currentFile
     if (!oldCurrentFile.id || oldCurrentFile.id !== currentFile.id) {
-      const { markdown, cursor, history } = currentFile
+      const { markdown, cursor, history, pathname } = currentFile
+      window.DIRNAME = pathname ? path.dirname(pathname) : ''
       // set state first, then emit file changed event
       state.currentFile = currentFile
       bus.$emit('file-changed', { markdown, cursor, renderCursor: true, history })
@@ -53,8 +53,8 @@ const mutations = {
   },
   SET_PATHNAME (state, file) {
     const { filename, pathname, id } = file
-    if (id === state.currentFile.id) {
-      window.__dirname = path.dirname(pathname)
+    if (id === state.currentFile.id && pathname) {
+      window.DIRNAME = path.dirname(pathname)
     }
 
     const targetFile = state.tabs.filter(f => f.id === id)[0]
