@@ -90,6 +90,7 @@ Lexer.prototype.token = function (src, top, bq) {
         type: 'multiplemath',
         text: cap[1]
       })
+      continue
     }
 
     // fences (gfm)
