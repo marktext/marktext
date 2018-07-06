@@ -2,6 +2,8 @@
 dist/electron/*
 dist/web/*
 build/*
+src/muya/dist/
+src/muya/node_modules/
 coverage
 .vscode
 node_modules/

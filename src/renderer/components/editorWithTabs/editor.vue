@@ -61,7 +61,7 @@
 
 <script>
   import { mapState } from 'vuex'
-  import Aganippe from '../../../editor'
+  import Muya from 'muya/lib'
   import bus from '../../bus'
   import { animatedScrollTo } from '../../util'
   import { showContextMenu } from '../../contextMenu/editor'
@@ -172,7 +172,7 @@
           tabSize
         } = this
 
-        const { container } = this.editor = new Aganippe(ele, {
+        const { container } = this.editor = new Muya(ele, {
           theme,
           focusMode,
           markdown,
@@ -258,7 +258,9 @@
 
       addThemeStyle (theme) {
         const linkId = 'ag-theme'
-        const href = `./static/themes/${theme}.css`
+        const href = process.env.NODE_ENV !== 'production'
+          ? `./src/muya/themes/${theme}.css`
+          : `./static/themes/${theme}.css`
         let link = document.querySelector(`#${linkId}`)
 
         if (!link) {
@@ -449,7 +451,6 @@
 </script>
 
 <style>
-  @import '../../../editor/index.css';
   .editor-wrapper {
     height: 100%;
     position: relative;

@@ -1,10 +1,8 @@
 import katex from 'katex'
-import { CLASS_OR_ID, DEVICE_MEMORY } from '../../../config'
+import { CLASS_OR_ID, DEVICE_MEMORY, isInElectron } from '../../../config'
 import { tokenizer } from '../../parse'
 import { snakeToCamel } from '../../../utils'
 import { h, htmlToVNode } from '../snabbdom'
-
-const toc = require('markdown-toc')
 
 const PRE_BLOCK_HASH = {
   'code': `.${CLASS_OR_ID['AG_CODE_BLOCK']}`,
@@ -100,7 +98,7 @@ export default function renderLeafBlock (block, cursor, activeBlocks, matches, u
     if (/^h\d$/.test(type)) {
       Object.assign(data.dataset, {
         head: type,
-        id: toc.slugify(text.replace(/^#+\s(.*)/, (_, p1) => p1))
+        id: isInElectron ? require('markdown-toc').slugify(text.replace(/^#+\s(.*)/, (_, p1) => p1)) : ''
       })
       selector += `.${headingStyle}`
     }
