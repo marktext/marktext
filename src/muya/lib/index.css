@@ -154,11 +154,7 @@ span.ag-math {
 .ag-math > .ag-math-render {
   display: inline-block;
   padding: .5rem;
-  background: #fff;
-  border: 1px solid var(--lightBorder);
   border-radius: 4px;
-  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, .1);
-  color: var(--primaryColor);
   position: absolute;
   top: 30px;
   left: 0;
@@ -184,6 +180,10 @@ span.ag-math > .ag-math-render.ag-math-error {
   margin: 0;
 }
 
+.ag-math > .ag-math-render .katex {
+  white-space: nowrap;
+}
+
 .ag-hide.ag-math {
   width: auto;
   height: auto;
@@ -203,6 +203,17 @@ span.ag-math > .ag-math-render.ag-math-error {
   border: none;
   box-shadow: none;
   background: transparent;
+}
+
+.ag-gray.ag-math > .ag-math-render::before {
+  border-width: 5px;
+  border-style: solid;
+  border-color: transparent;
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  margin-left: -5px;
+  content: "";
 }
 
 .ag-hide.ag-math > .ag-math-render::before {
