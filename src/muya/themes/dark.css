@@ -394,6 +394,15 @@ code {
   color: #efefef;
 }
 
+.ag-gray.ag-math > .ag-math-render {
+  color: #333333;
+  background: #f6f8fa;
+  box-shadow: 0 2px 12px 0 rgba(255, 255, 255, 0.3);
+}
+.ag-gray.ag-math > .ag-math-render::before {
+  border-bottom-color: #f6f8fa;
+}
+
 #ag-editor-id pre.ag-html-block {
     padding: 0 .5rem;
     margin-top: 0;
