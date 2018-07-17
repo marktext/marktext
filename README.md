@@ -70,7 +70,7 @@
     </a>
     <span> | </span>
     <a href="https://github.com/marktext/marktext/blob/master/doc/i18n/tr.md#readme">
-      Turkish
+      Türkçe
     </a>
     <span> | </span>
     <a href="https://github.com/marktext/marktext#features">
