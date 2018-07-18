@@ -128,8 +128,8 @@
 ## Neden başka editör yazıyoruz?
 
 1.  Yazmayı seviyorum.Birçok markdown editörü kullandım, ama benim gereksinimlerimi tam anlamı ile karşılayanı bulamadım.Yazarken bazı dayanılmaz buglar ile rahatsız edilmekten hoşlanmıyorum. **Mark Text** sayfayı yorumlamak için virtual DOM kullanıyor, yüksek verimlilik sağlıyor,bundan dolayı yazmayı ve markdown seven bütün arkadaşlara açık kaynak.
-2.  Yukarıda bahsettiğim gibi **Mark Text** sonsuza dek açık kaynak olacak.Tüm markdown seveblerin kendi kodlarına katkıda bulunması ve **Mark Text** daha popüler bir markdown editör olması ümit ediyorum.
-3.  Birçok markdown editör var ve her biri kendine göre karakteristiğe sahip, ama tüm markdown kullanıcılarını tatmin etmesi zor.**Mark Text** 'in markdown editör kullanıcılarının gereksinimlerini mümkün oldukça tatmin edeceğini umuyorum. **Mark Text** editörün hala mükemmel olmamasına rağmen, onu elimizden geldikçe mükemmel hale getirmeye çalışıyoruz.
+2.  Yukarıda bahsettiğim gibi **Mark Text** sonsuza dek açık kaynak olacak.Tüm markdown sevenlerin kendi kodlarına katkıda bulunması ve **Mark Text**'in daha popüler bir markdown editör olmasını ümit ediyorum.
+3.  Birçok markdown editör var ve her biri kendine göre karakteristiğe sahip, ama tüm markdown kullanıcılarını tatmin etmesi zor.**Mark Text** 'in markdown editör kullanıcılarının gereksinimlerini mümkün oldukça tatmin edeceğini umuyorum. **Mark Text** editörü hala mükemmel olmamasına rağmen, onu elimizden geldikçe mükemmel hale getirmeye çalışıyoruz.
 
 ## İndirme ve Yükleme
 
@@ -163,7 +163,7 @@ Lütfen [Linux kurulum talimatını](https://github.com/marktext/marktext/blob/m
 
 Eğer **Mark Text** kendiniz geliştirmek isterseniz, lütfen bizim [geliştirici dökümantasyonunu](https://github.com/marktext/marktext/blob/master/.github/CONTRIBUTING.md#build-instructions) kontrol edin.
 
-**Mark Text** kullanırken bir sorun olursa, bir issue açabilirsin ama issue formatına uyacağına umuyoruz.Tabi ki direk olarak PR gönderbilirsin bundan memnuniyet duyarız.
+**Mark Text** kullanırken bir sorun olursa, bir issue açabilirsin, ama issue formatına uyacağına umuyoruz.Tabi ki direk olarak PR gönderbilirsin bundan memnuniyet duyarız.
 
 ## Entegrasyon
 
