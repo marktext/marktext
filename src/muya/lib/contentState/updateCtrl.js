@@ -408,6 +408,20 @@ const updateCtrl = ContentState => {
         const preInputChar = text.charAt(+offset - 2)
         const postInputChar = text.charAt(+offset)
         /* eslint-disable no-useless-escape */
+        if (
+          (inputChar === postInputChar) &&
+          (
+            (autoPairQuote && /[']{1}/.test(inputChar)) ||
+            (autoPairQuote && /["]{1}/.test(inputChar)) ||
+            (autoPairBracket && /[\}\]\)]{1}/.test(inputChar)) ||
+            (autoPairMarkdownSyntax && /[*_]{1}/.test(inputChar))
+          )
+        ) {
+          text = text.substring(0, offset) + text.substring(offset + 1)
+          this.cursor = lastCursor = { start, end }
+          return this.partialRender()
+        }
+        /* eslint-disable no-useless-escape */
         // Not Unicode aware, since things like \p{Alphabetic} or \p{L} are not supported yet
         if (
           (autoPairQuote && /[']{1}/.test(inputChar) && !(/[a-zA-Z\d]{1}/.test(preInputChar))) ||
