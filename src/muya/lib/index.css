@@ -552,15 +552,20 @@ span.ag-emoji-marked-text {
 
 .ag-html-escape {
   position: relative;
-  margin-left: .85rem;
+  margin-left: 1rem;
 }
 
 .ag-html-escape::before {
   position: absolute;
   content: attr(data-character);
   top: 0;
-  left: -.7rem;
+  left: -1rem;
+  width: 1rem;
   color: var(--secondaryColor);
+  height: 100%;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
 }
 
 .ag-language-input {
@@ -612,6 +617,7 @@ span.ag-warn.ag-emoji-marked-text {
   width: 0;
   height: 0;
   overflow: hidden;
+  vertical-align: middle;
 }
 
 .ag-image-marked-text ~ img {
