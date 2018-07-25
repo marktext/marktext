@@ -409,6 +409,7 @@ const updateCtrl = ContentState => {
         const postInputChar = text.charAt(+offset)
         /* eslint-disable no-useless-escape */
         if (
+          (event.inputType.indexOf('delete') === -1) &&
           (inputChar === postInputChar) &&
           (
             (autoPairQuote && /[']{1}/.test(inputChar)) ||
@@ -419,28 +420,28 @@ const updateCtrl = ContentState => {
         ) {
           text = text.substring(0, offset) + text.substring(offset + 1)
           this.cursor = lastCursor = { start, end }
-          return this.partialRender()
+        } else {
+          /* eslint-disable no-useless-escape */
+          // Not Unicode aware, since things like \p{Alphabetic} or \p{L} are not supported yet
+          if (
+            (autoPairQuote && /[']{1}/.test(inputChar) && !(/[a-zA-Z\d]{1}/.test(preInputChar))) ||
+            (autoPairQuote && /["]{1}/.test(inputChar)) ||
+            (autoPairBracket && /[\{\[\(]{1}/.test(inputChar)) ||
+            (autoPairMarkdownSyntax && /[*_]{1}/.test(inputChar))
+          ) {
+            text = BRACKET_HASH[event.data]
+              ? text.substring(0, offset) + BRACKET_HASH[inputChar] + text.substring(offset)
+              : text
+          }
+          /* eslint-enable no-useless-escape */
+          if (/\s/.test(event.data) && preInputChar === '*' && postInputChar === '*') {
+            text = text.substring(0, offset) + text.substring(offset + 1)
+          }
         }
-        /* eslint-disable no-useless-escape */
-        // Not Unicode aware, since things like \p{Alphabetic} or \p{L} are not supported yet
-        if (
-          (autoPairQuote && /[']{1}/.test(inputChar) && !(/[a-zA-Z\d]{1}/.test(preInputChar))) ||
-          (autoPairQuote && /["]{1}/.test(inputChar)) ||
-          (autoPairBracket && /[\{\[\(]{1}/.test(inputChar)) ||
-          (autoPairMarkdownSyntax && /[*_]{1}/.test(inputChar))
-        ) {
-          text = BRACKET_HASH[event.data]
-            ? text.substring(0, offset) + BRACKET_HASH[inputChar] + text.substring(offset)
-            : text
+        block.text = text
+        if (beginRules['reference_definition'].test(text)) {
+          needRenderAll = true
         }
-        /* eslint-enable no-useless-escape */
-        if (/\s/.test(event.data) && preInputChar === '*' && postInputChar === '*') {
-          text = text.substring(0, offset) + text.substring(offset + 1)
-        }
-      }
-      block.text = text
-      if (beginRules['reference_definition'].test(text)) {
-        needRenderAll = true
       }
     }
 
