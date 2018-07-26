@@ -419,7 +419,6 @@ const updateCtrl = ContentState => {
           )
         ) {
           text = text.substring(0, offset) + text.substring(offset + 1)
-          this.cursor = lastCursor = { start, end }
         } else {
           /* eslint-disable no-useless-escape */
           // Not Unicode aware, since things like \p{Alphabetic} or \p{L} are not supported yet
@@ -438,10 +437,10 @@ const updateCtrl = ContentState => {
             text = text.substring(0, offset) + text.substring(offset + 1)
           }
         }
-        block.text = text
-        if (beginRules['reference_definition'].test(text)) {
-          needRenderAll = true
-        }
+      }
+      block.text = text
+      if (beginRules['reference_definition'].test(text)) {
+        needRenderAll = true
       }
     }
 
