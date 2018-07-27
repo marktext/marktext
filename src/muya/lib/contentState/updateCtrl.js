@@ -408,20 +408,34 @@ const updateCtrl = ContentState => {
         const preInputChar = text.charAt(+offset - 2)
         const postInputChar = text.charAt(+offset)
         /* eslint-disable no-useless-escape */
-        // Not Unicode aware, since things like \p{Alphabetic} or \p{L} are not supported yet
         if (
-          (autoPairQuote && /[']{1}/.test(inputChar) && !(/[a-zA-Z\d]{1}/.test(preInputChar))) ||
-          (autoPairQuote && /["]{1}/.test(inputChar)) ||
-          (autoPairBracket && /[\{\[\(]{1}/.test(inputChar)) ||
-          (autoPairMarkdownSyntax && /[*_]{1}/.test(inputChar))
+          (event.inputType.indexOf('delete') === -1) &&
+          (inputChar === postInputChar) &&
+          (
+            (autoPairQuote && /[']{1}/.test(inputChar)) ||
+            (autoPairQuote && /["]{1}/.test(inputChar)) ||
+            (autoPairBracket && /[\}\]\)]{1}/.test(inputChar)) ||
+            (autoPairMarkdownSyntax && /[*_]{1}/.test(inputChar))
+          )
         ) {
-          text = BRACKET_HASH[event.data]
-            ? text.substring(0, offset) + BRACKET_HASH[inputChar] + text.substring(offset)
-            : text
-        }
-        /* eslint-enable no-useless-escape */
-        if (/\s/.test(event.data) && preInputChar === '*' && postInputChar === '*') {
           text = text.substring(0, offset) + text.substring(offset + 1)
+        } else {
+          /* eslint-disable no-useless-escape */
+          // Not Unicode aware, since things like \p{Alphabetic} or \p{L} are not supported yet
+          if (
+            (autoPairQuote && /[']{1}/.test(inputChar) && !(/[a-zA-Z\d]{1}/.test(preInputChar))) ||
+            (autoPairQuote && /["]{1}/.test(inputChar)) ||
+            (autoPairBracket && /[\{\[\(]{1}/.test(inputChar)) ||
+            (autoPairMarkdownSyntax && /[*_]{1}/.test(inputChar))
+          ) {
+            text = BRACKET_HASH[event.data]
+              ? text.substring(0, offset) + BRACKET_HASH[inputChar] + text.substring(offset)
+              : text
+          }
+          /* eslint-enable no-useless-escape */
+          if (/\s/.test(event.data) && preInputChar === '*' && postInputChar === '*') {
+            text = text.substring(0, offset) + text.substring(offset + 1)
+          }
         }
       }
       block.text = text
