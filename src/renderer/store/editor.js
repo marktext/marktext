@@ -485,7 +485,7 @@ const actions = {
 
   LISTEN_FOR_SET_TEXT_DIRECTION ({ commit, state }) {
     ipcRenderer.on('AGANI::set-text-direction', (e, { textDirection }) => {
-      const { textDirection: oldTextDirection } = state
+      const { textDirection: oldTextDirection } = state.currentFile
       if (textDirection !== oldTextDirection) {
         commit('SET_TEXT_DIRECTION', textDirection)
       }
