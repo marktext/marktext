@@ -82,7 +82,11 @@
         required: true
       },
       markdown: String,
-      cursor: Object
+      cursor: Object,
+      textDirection: {
+        type: String,
+        required: true
+      }
     },
     computed: {
       ...mapState({
@@ -100,8 +104,7 @@
         // edit modes
         'typewriter': state => state.preferences.typewriter,
         'focus': state => state.preferences.focus,
-        'sourceCode': state => state.preferences.sourceCode,
-        'textDirection': state => state.editor.currentFile.textDirection
+        'sourceCode': state => state.preferences.sourceCode
       })
     },
     data () {

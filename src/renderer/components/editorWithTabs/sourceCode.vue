@@ -20,7 +20,11 @@
         required: true
       },
       markdown: String,
-      cursor: Object
+      cursor: Object,
+      textDirection: {
+        type: String,
+        required: true
+      }
     },
 
     data () {
@@ -41,6 +45,12 @@
             cm.classList.add('cm-s-default')
             cm.classList.remove('cm-s-railscasts')
           }
+        }
+      },
+      textDirection: function (value, oldValue) {
+        const { editor } = this
+        if (value !== oldValue && editor) {
+          setTextDirection(editor, value)
         }
       }
     },
@@ -75,8 +85,6 @@
         } else {
           setCursorAtLastLine(editor)
         }
-
-        setTextDirection(editor, 'rtl')
       })
     },
     beforeDestroy () {

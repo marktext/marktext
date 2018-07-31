@@ -23,6 +23,7 @@
         :theme="theme"
         :source-code="sourceCode"
         :show-tab-bar="showTabBar"
+        :text-direction="textDirection"
       ></editor-with-tabs>
     </div>
     <bottom-bar
@@ -82,7 +83,8 @@
         'isSaved': state => state.editor.currentFile.isSaved,
         'markdown': state => state.editor.currentFile.markdown,
         'cursor': state => state.editor.currentFile.cursor,
-        'wordCount': state => state.editor.currentFile.wordCount
+        'wordCount': state => state.editor.currentFile.wordCount,
+        'textDirection': state => state.editor.currentFile.textDirection
       }),
       ...mapState([
         'windowActive', 'platform', 'init'
