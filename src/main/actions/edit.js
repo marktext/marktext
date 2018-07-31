@@ -57,3 +57,7 @@ export const insertImage = (win, type) => {
     win.webContents.send('AGANI::INSERT_IMAGE', { type })
   }
 }
+
+export const textDirection = (win, textDirection) => {
+  win.webContents.send('AGANI::set-text-direction', { textDirection })
+}

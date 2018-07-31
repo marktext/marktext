@@ -143,4 +143,8 @@ export const setMode = (doc, text) => {
   })
 }
 
+export const setTextDirection = (cm, textDirection) => {
+  cm.setOption('direction', textDirection)
+}
+
 export default codeMirror

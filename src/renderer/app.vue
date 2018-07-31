@@ -130,6 +130,7 @@
       dispatch('LISTEN_FOR_NEW_TAB')
       dispatch('LISTEN_FOR_CLOSE_TAB')
       dispatch('LINTEN_FOR_EXPORT_SUCCESS')
+      dispatch('LISTEN_FOR_SET_TEXT_DIRECTION')
       // module: notification
       dispatch('LISTEN_FOR_NOTIFICATION')
     }

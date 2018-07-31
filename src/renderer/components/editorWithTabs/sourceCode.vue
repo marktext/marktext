@@ -8,7 +8,7 @@
 </template>
 
 <script>
-  import codeMirror, { setMode, setCursorAtLastLine } from 'muya/lib/codeMirror'
+  import codeMirror, { setMode, setCursorAtLastLine, setTextDirection } from 'muya/lib/codeMirror'
   import { wordCount as getWordCount } from 'muya/lib/utils'
   import { adjustCursor } from '../../util'
   import bus from '../../bus'
@@ -75,6 +75,8 @@
         } else {
           setCursorAtLastLine(editor)
         }
+
+        setTextDirection(editor, 'rtl')
       })
     },
     beforeDestroy () {

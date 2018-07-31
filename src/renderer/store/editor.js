@@ -9,7 +9,8 @@ const toc = require('markdown-toc')
 const state = {
   lineEnding: 'lf',
   currentFile: {},
-  tabs: []
+  tabs: [],
+  textDirection: 'ltr'
 }
 
 const getters = {
@@ -135,6 +136,11 @@ const mutations = {
   },
   SET_GLOBAL_LINE_ENDING (state, ending) {
     state.lineEnding = ending
+  },
+  SET_TEXT_DIRECTION (state, textDirection) {
+    if (hasKeys(state.currentFile)) {
+      state.currentFile.textDirection = textDirection
+    }
   }
 }
 
@@ -473,6 +479,15 @@ const actions = {
         if (!ignoreSaveStatus) {
           commit('SET_SAVE_STATUS', false)
         }
+      }
+    })
+  },
+
+  LISTEN_FOR_SET_TEXT_DIRECTION ({ commit, state }) {
+    ipcRenderer.on('AGANI::set-text-direction', (e, { textDirection }) => {
+      const { textDirection: oldTextDirection } = state
+      if (textDirection !== oldTextDirection) {
+        commit('SET_TEXT_DIRECTION', textDirection)
       }
     })
   }

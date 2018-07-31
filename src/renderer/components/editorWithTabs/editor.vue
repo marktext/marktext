@@ -4,6 +4,7 @@
     :class="[{ 'typewriter': typewriter, 'focus': focus, 'source': sourceCode }, theme]"
     :style="{ 'color': theme === 'dark' ? darkColor : lightColor, 'lineHeight': lineHeight, 'fontSize': fontSize,
     'font-family': editorFontFamily ? `${editorFontFamily}, ${defaultFontFamily}` : `${defaultFontFamily}` }"
+    :dir="textDirection"
   >
     <div
       ref="editor"
@@ -16,6 +17,7 @@
       custom-class="ag-dialog-table"
       width="454px"
       center
+      dir='ltr'
     >
       <div slot="title" class="dialog-title">
         <svg class="icon" aria-hidden="true">
@@ -98,7 +100,8 @@
         // edit modes
         'typewriter': state => state.preferences.typewriter,
         'focus': state => state.preferences.focus,
-        'sourceCode': state => state.preferences.sourceCode
+        'sourceCode': state => state.preferences.sourceCode,
+        'textDirection': state => state.editor.currentFile.textDirection
       })
     },
     data () {
