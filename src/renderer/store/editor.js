@@ -180,6 +180,19 @@ const actions = {
     }
   },
 
+  LISTEN_FOR_TEXT_DIRECTION_MENU ({ commit, state, dispatch }) {
+    ipcRenderer.on('AGANI::req-update-text-direction-menu', e => {
+      dispatch('UPDATE_TEXT_DIRECTION_MENU')
+    })
+  },
+
+  UPDATE_TEXT_DIRECTION_MENU ({ commit, state }) {
+    const { textDirection } = state.currentFile
+    if (textDirection) {
+      ipcRenderer.send('AGANI::update-text-direction-menu', textDirection)
+    }
+  },
+
   CLOSE_SINGLE_FILE ({ commit, state }, file) {
     const { id, pathname, filename, markdown } = file
     const options = getOptionsFromState(file)
@@ -305,8 +318,9 @@ const actions = {
     }
   },
 
-  UPDATE_CURRENT_FILE ({ commit, state }, currentFile) {
+  UPDATE_CURRENT_FILE ({ commit, state, dispatch }, currentFile) {
     commit('SET_CURRENT_FILE', currentFile)
+    dispatch('UPDATE_TEXT_DIRECTION_MENU', state)
     const { tabs } = state
     if (!tabs.some(file => file.id === currentFile.id)) {
       commit('ADD_FILE_TO_TABS', currentFile)

@@ -107,6 +107,17 @@ class AppMenu {
       lfMenu.checked = true
     }
   }
+
+  updateTextDirectionMenu (textDirection) {
+    const menus = Menu.getApplicationMenu()
+    const ltrMenu = menus.getMenuItemById('textDirectionLTRMenuEntry')
+    const rtlMenu = menus.getMenuItemById('textDirectionRTLMenuEntry')
+    if (textDirection === 'ltr') {
+      ltrMenu.checked = true
+    } else {
+      rtlMenu.checked = true
+    }
+  }
 }
 
 export default new AppMenu()

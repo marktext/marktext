@@ -1,7 +1,7 @@
 import path from 'path'
 import { app, BrowserWindow, screen } from 'electron'
 import windowStateKeeper from 'electron-window-state'
-import { getOsLineEndingName, loadMarkdownFile } from './utils/filesystem'
+import { getOsLineEndingName, loadMarkdownFile, getDefaultTextDirection } from './utils/filesystem'
 import appMenu from './menu'
 import Watcher from './watcher'
 import { isMarkdownFile, isDirectory, log } from './utils'
@@ -78,10 +78,12 @@ class AppWindow {
               isUtf8BomEncoded,
               lineEnding,
               adjustLineEndingOnSave,
-              isMixed
+              isMixed,
+              textDirection
             } = data
 
             appMenu.updateLineEndingnMenu(lineEnding)
+            appMenu.updateTextDirectionMenu(textDirection)
             win.webContents.send('AGANI::open-single-file', {
               markdown,
               filename,
@@ -108,11 +110,13 @@ class AppWindow {
         // open a window but do not open a file or directory
       } else {
         const lineEnding = getOsLineEndingName()
+        const textDirection = getDefaultTextDirection()
         win.webContents.send('AGANI::open-blank-window', {
           lineEnding,
           ignoreSaveStatus: true
         })
         appMenu.updateLineEndingnMenu(lineEnding)
+        appMenu.updateTextDirectionMenu(textDirection)
       }
     })
 
@@ -123,6 +127,7 @@ class AppWindow {
         this.focusedWindowId = win.id
         win.webContents.send('AGANI::req-update-line-ending-menu')
         win.webContents.send('AGANI::request-for-view-layout')
+        win.webContents.send('AGANI::req-update-text-direction-menu')
       }
     })
 

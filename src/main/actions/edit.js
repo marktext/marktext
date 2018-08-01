@@ -42,6 +42,10 @@ ipcMain.on('AGANI::update-line-ending-menu', (e, lineEnding) => {
   appMenu.updateLineEndingnMenu(lineEnding)
 })
 
+ipcMain.on('AGANI::update-text-direction-menu', (e, textDirection) => {
+  appMenu.updateTextDirectionMenu(textDirection)
+})
+
 export const edit = (win, type) => {
   win.webContents.send('AGANI::edit', { type })
 }
