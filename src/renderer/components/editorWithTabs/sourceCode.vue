@@ -57,7 +57,7 @@
 
     created () {
       this.$nextTick(() => {
-        const { markdown = '', theme, cursor } = this
+        const { markdown = '', theme, cursor, textDirection } = this
         const container = this.$refs.sourceCode
         const codeMirrorConfig = {
           value: markdown,
@@ -65,6 +65,7 @@
           autofocus: true,
           lineWrapping: true,
           styleActiveLine: true,
+          direction: textDirection,
           lineNumberFormatter (line) {
             if (line % 10 === 0 || line === 1) {
               return line
