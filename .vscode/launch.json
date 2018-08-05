@@ -8,7 +8,10 @@
       "type": "node",
       "request": "launch",
       "name": "Marktext: Main",
-      "program": "${workspaceFolder}/.electron-vue/dev-runner.js"
+      "program": "${workspaceFolder}/.electron-vue/dev-runner.js",
+      "windows": {
+        "runtimeExecutable": "${workspaceFolder}/node_modules/.bin/electron.cmd"
+      }
     },
     {
       "name": "Marktext: Renderer",
@@ -16,7 +19,7 @@
       "request": "attach",
       "port": 8315,
       "webRoot": "${workspaceFolder}/src",
-      "timeout": 100000,
+      "timeout": 30000,
       "urlFilter": "localhost:*"
     }
   ],
