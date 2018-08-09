@@ -57,7 +57,8 @@
   .ag-table-tool-bar,
   .editor-tabs,
   .side-bar,
-  .CodeMirror-cursors {
+  .CodeMirror-cursors,
+  .ag-hard-line-break {
     display: none !important;
   }
 }
