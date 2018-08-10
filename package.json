@@ -36,17 +36,38 @@
     "directories": {
       "output": "build"
     },
-    "fileAssociations": {
-      "ext": [
-        "md",
-        "markdown",
-        "mmd",
-        "mdown",
-        "mdtxt",
-        "mdtext"
-      ],
-      "role": "Editor"
-    },
+    "fileAssociations": [
+      {
+        "ext": "md",
+        "name": "Markdown",
+        "role": "Editor"
+      },
+      {
+        "ext": "markdown",
+        "name": "Markdown",
+        "role": "Editor"
+      },
+      {
+        "ext": "mmd",
+        "name": "Markdown",
+        "role": "Editor"
+      },
+      {
+        "ext": "mdown",
+        "name": "Markdown",
+        "role": "Editor"
+      },
+      {
+        "ext": "mdtxt",
+        "name": "Markdown",
+        "role": "Editor"
+      },
+      {
+        "ext": "mdtext",
+        "name": "Markdown",
+        "role": "Editor"
+      }
+    ],
     "files": [
       "dist/electron/**/*"
     ],
@@ -138,7 +159,7 @@
     "del": "^3.0.0",
     "devtron": "^1.4.0",
     "electron": "^2.0.2",
-    "electron-builder": "^20.14.7",
+    "electron-builder": "^20.27.1",
     "electron-debug": "^2.0.0",
     "electron-devtools-installer": "^2.2.4",
     "electron-updater": "^2.21.10",
