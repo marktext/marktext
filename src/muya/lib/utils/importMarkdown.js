@@ -193,6 +193,15 @@ const importRegister = ContentState => {
 
             this.appendChild(parent, block)
             travel(block, child.childNodes)
+
+            // fix #441 #451: if a list/task item is empty no paragraph is generated.
+            if (child.childNodes.length === 0 ||
+              (isTask && child.childNodes.length <= 2 && this.isFirstChild(this.getLastChild(block)))) {
+              const paragraph = this.createBlock('p')
+              const innerParagraph = this.createBlock('span')
+              this.appendChild(paragraph, innerParagraph)
+              this.appendChild(block, paragraph)
+            }
             break
 
           case 'ul':
