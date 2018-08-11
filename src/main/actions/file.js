@@ -14,7 +14,10 @@ const handleResponseForExport = (e, { type, content, pathname, markdown }) => {
   const win = BrowserWindow.fromWebContents(e.sender)
   const extension = EXTENSION_HASN[type]
   const dirname = pathname ? path.dirname(pathname) : getPath('documents')
-  const nakedFilename = getRecommendTitle(markdown) || (pathname ? path.basename(pathname, '.md') : 'untitled')
+  let nakedFilename = getRecommendTitle(markdown)
+  if (!nakedFilename) {
+    nakedFilename = pathname ? path.basename(pathname, '.md') : 'Untitled'
+  }
   const defaultPath = `${dirname}/${nakedFilename}${extension}`
   const filePath = dialog.showSaveDialog(win, {
     defaultPath
@@ -45,9 +48,13 @@ const handleResponseForExport = (e, { type, content, pathname, markdown }) => {
 
 const handleResponseForSave = (e, { id, markdown, pathname, options }) => {
   const win = BrowserWindow.fromWebContents(e.sender)
+  let recommendFilename = getRecommendTitle(markdown)
+  if (!recommendFilename) {
+    recommendFilename = 'Untitled'
+  }
 
   pathname = pathname || dialog.showSaveDialog(win, {
-    defaultPath: getPath('documents') + (`/${getRecommendTitle(markdown)}.md` || '/Untitled.md')
+    defaultPath: getPath('documents') + `/${recommendFilename}.md`
   })
 
   if (pathname && typeof pathname === 'string') {
@@ -114,8 +121,12 @@ ipcMain.on('AGANI::save-close', async (e, unSavedFiles, isSingle) => {
 
 ipcMain.on('AGANI::response-file-save-as', (e, { id, markdown, pathname, options }) => {
   const win = BrowserWindow.fromWebContents(e.sender)
+  let recommendFilename = getRecommendTitle(markdown)
+  if (!recommendFilename) {
+    recommendFilename = 'Untitled'
+  }
   const filePath = dialog.showSaveDialog(win, {
-    defaultPath: pathname || getPath('documents') + '/Untitled.md'
+    defaultPath: pathname || getPath('documents') + `/${recommendFilename}.md`
   })
   if (filePath) {
     writeMarkdownFile(filePath, markdown, options, win)
