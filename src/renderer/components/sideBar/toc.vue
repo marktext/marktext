@@ -38,10 +38,12 @@
 
 <style scoped>
   .side-bar-toc {
+    height: calc(100% - 35px);
     margin: 0;
     margin-top: 35px;
     padding: 0;
     list-style: none;
+    overflow: scroll;
     & > li {
       font-size: 14px;
       margin-bottom: 15px;
