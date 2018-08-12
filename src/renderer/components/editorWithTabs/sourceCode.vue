@@ -8,7 +8,7 @@
 </template>
 
 <script>
-  import codeMirror, { setMode, setCursorAtLastLine } from 'muya/lib/codeMirror'
+  import codeMirror, { setMode, setCursorAtLastLine, setTextDirection } from 'muya/lib/codeMirror'
   import { wordCount as getWordCount } from 'muya/lib/utils'
   import { adjustCursor } from '../../util'
   import bus from '../../bus'
@@ -20,7 +20,11 @@
         required: true
       },
       markdown: String,
-      cursor: Object
+      cursor: Object,
+      textDirection: {
+        type: String,
+        required: true
+      }
     },
 
     data () {
@@ -42,12 +46,18 @@
             cm.classList.remove('cm-s-railscasts')
           }
         }
+      },
+      textDirection: function (value, oldValue) {
+        const { editor } = this
+        if (value !== oldValue && editor) {
+          setTextDirection(editor, value)
+        }
       }
     },
 
     created () {
       this.$nextTick(() => {
-        const { markdown = '', theme, cursor } = this
+        const { markdown = '', theme, cursor, textDirection } = this
         const container = this.$refs.sourceCode
         const codeMirrorConfig = {
           value: markdown,
@@ -55,6 +65,7 @@
           autofocus: true,
           lineWrapping: true,
           styleActiveLine: true,
+          direction: textDirection,
           lineNumberFormatter (line) {
             if (line % 10 === 0 || line === 1) {
               return line

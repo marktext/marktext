@@ -10,6 +10,8 @@ Edit and save to update preferences. You can only change the JSON below!
 
 - **bulletListMarker**: *String* `+`,`-` or `*`
 
+- **textDirection**: *String* `ltr` or `rtl`
+
 ```json
 {
   "fontSize": "16px",
@@ -26,7 +28,8 @@ Edit and save to update preferences. You can only change the JSON below!
   "autoPairMarkdownSyntax": true,
   "autoPairQuote": true,
   "endOfLine": "default",
-  "tabSize": 4
+  "tabSize": 4,
+  "textDirection": "ltr"
 }
 ```
 

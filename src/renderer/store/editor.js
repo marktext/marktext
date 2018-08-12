@@ -9,7 +9,8 @@ const toc = require('markdown-toc')
 const state = {
   lineEnding: 'lf',
   currentFile: {},
-  tabs: []
+  tabs: [],
+  textDirection: 'ltr'
 }
 
 const getters = {
@@ -135,6 +136,11 @@ const mutations = {
   },
   SET_GLOBAL_LINE_ENDING (state, ending) {
     state.lineEnding = ending
+  },
+  SET_TEXT_DIRECTION (state, textDirection) {
+    if (hasKeys(state.currentFile)) {
+      state.currentFile.textDirection = textDirection
+    }
   }
 }
 
@@ -171,6 +177,19 @@ const actions = {
     const { lineEnding } = state.currentFile
     if (lineEnding) {
       ipcRenderer.send('AGANI::update-line-ending-menu', lineEnding)
+    }
+  },
+
+  LISTEN_FOR_TEXT_DIRECTION_MENU ({ commit, state, dispatch }) {
+    ipcRenderer.on('AGANI::req-update-text-direction-menu', e => {
+      dispatch('UPDATE_TEXT_DIRECTION_MENU')
+    })
+  },
+
+  UPDATE_TEXT_DIRECTION_MENU ({ commit, state }) {
+    const { textDirection } = state.currentFile
+    if (textDirection) {
+      ipcRenderer.send('AGANI::update-text-direction-menu', textDirection)
     }
   },
 
@@ -299,8 +318,9 @@ const actions = {
     }
   },
 
-  UPDATE_CURRENT_FILE ({ commit, state }, currentFile) {
+  UPDATE_CURRENT_FILE ({ commit, state, dispatch }, currentFile) {
     commit('SET_CURRENT_FILE', currentFile)
+    dispatch('UPDATE_TEXT_DIRECTION_MENU', state)
     const { tabs } = state
     if (!tabs.some(file => file.id === currentFile.id)) {
       commit('ADD_FILE_TO_TABS', currentFile)
@@ -473,6 +493,15 @@ const actions = {
         if (!ignoreSaveStatus) {
           commit('SET_SAVE_STATUS', false)
         }
+      }
+    })
+  },
+
+  LISTEN_FOR_SET_TEXT_DIRECTION ({ commit, state }) {
+    ipcRenderer.on('AGANI::set-text-direction', (e, { textDirection }) => {
+      const { textDirection: oldTextDirection } = state.currentFile
+      if (textDirection !== oldTextDirection) {
+        commit('SET_TEXT_DIRECTION', textDirection)
       }
     })
   }

@@ -128,5 +128,24 @@ export default {
         actions.lineEnding(browserWindow, 'lf')
       }
     }]
+  }, {
+    type: 'separator'
+  }, {
+    label: 'Text Direction',
+    submenu: [{
+      id: 'textDirectionLTRMenuEntry',
+      label: 'Left-To-Right',
+      type: 'radio',
+      click (menuItem, browserWindow) {
+        actions.textDirection(browserWindow, 'ltr')
+      }
+    }, {
+      id: 'textDirectionRTLMenuEntry',
+      label: 'Right-To-Left',
+      type: 'radio',
+      click (menuItem, browserWindow) {
+        actions.textDirection(browserWindow, 'rtl')
+      }
+    }]
   }]
 }

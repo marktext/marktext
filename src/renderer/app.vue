@@ -23,6 +23,7 @@
         :theme="theme"
         :source-code="sourceCode"
         :show-tab-bar="showTabBar"
+        :text-direction="textDirection"
       ></editor-with-tabs>
     </div>
     <bottom-bar
@@ -82,7 +83,8 @@
         'isSaved': state => state.editor.currentFile.isSaved,
         'markdown': state => state.editor.currentFile.markdown,
         'cursor': state => state.editor.currentFile.cursor,
-        'wordCount': state => state.editor.currentFile.wordCount
+        'wordCount': state => state.editor.currentFile.wordCount,
+        'textDirection': state => state.editor.currentFile.textDirection
       }),
       ...mapState([
         'windowActive', 'platform', 'init'
@@ -130,6 +132,8 @@
       dispatch('LISTEN_FOR_NEW_TAB')
       dispatch('LISTEN_FOR_CLOSE_TAB')
       dispatch('LINTEN_FOR_EXPORT_SUCCESS')
+      dispatch('LISTEN_FOR_SET_TEXT_DIRECTION')
+      dispatch('LISTEN_FOR_TEXT_DIRECTION_MENU')
       // module: notification
       dispatch('LISTEN_FOR_NOTIFICATION')
     }

@@ -8,6 +8,7 @@ export const defaultFileState = {
   isUtf8BomEncoded: false,
   lineEnding: 'lf', // lf or crlf
   adjustLineEndingOnSave: false,
+  textDirection: 'ltr',
   history: {
     stack: [],
     index: -1
@@ -39,7 +40,8 @@ export const getFileStateFromData = data => {
     pathname,
     isUtf8BomEncoded,
     lineEnding,
-    adjustLineEndingOnSave
+    adjustLineEndingOnSave,
+    textDirection
   } = data
   const id = getUniqueId()
 
@@ -50,7 +52,8 @@ export const getFileStateFromData = data => {
     pathname,
     isUtf8BomEncoded,
     lineEnding,
-    adjustLineEndingOnSave
+    adjustLineEndingOnSave,
+    textDirection
   })
 }
 
