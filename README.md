@@ -54,26 +54,6 @@
       Website
     </a>
     <span> | </span>
-    <a href="https://github.com/marktext/marktext/blob/master/doc/i18n/zh_cn.md#readme">
-      中文
-    </a>
-    <span> | </span>
-    <a href="https://github.com/marktext/marktext/blob/master/doc/i18n/pl.md#readme">
-      Polski
-    </a>
-    <span> | </span>
-    <a href="https://github.com/marktext/marktext/blob/master/doc/i18n/ja.md#readme">
-      日本語
-    </a>
-    <span> | </span>
-    <a href="https://github.com/marktext/marktext/blob/master/doc/i18n/french.md#readme">
-      Français
-    </a>
-    <span> | </span>
-    <a href="https://github.com/marktext/marktext/blob/master/doc/i18n/tr.md#readme">
-      Türkçe
-    </a>
-    <span> | </span>
     <a href="https://github.com/marktext/marktext#features">
       Features
     </a>
@@ -90,6 +70,25 @@
       Contribution
     </a>
   </h3>
+</div>
+
+<div align="center">
+  <sub>Translations:</sub>
+  <a href="https://github.com/marktext/marktext/blob/master/doc/i18n/zh_cn.md#readme">
+    <span>:cn:</span>    
+  </a>
+  <a href="https://github.com/marktext/marktext/blob/master/doc/i18n/pl.md#readme">
+    <span>:poland:</span>
+  </a>
+  <a href="https://github.com/marktext/marktext/blob/master/doc/i18n/ja.md#readme">
+    <span>:jp:</span>
+  </a>
+  <a href="https://github.com/marktext/marktext/blob/master/doc/i18n/french.md#readme">
+    <span>:fr:</span>
+  </a>
+  <a href="https://github.com/marktext/marktext/blob/master/doc/i18n/tr.md#readme">
+    <span>:tr:</span>
+  </a>
 </div>
 
 <div align="center">

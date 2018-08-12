@@ -134,14 +134,14 @@ export default {
     label: 'Text Direction',
     submenu: [{
       id: 'textDirectionLTRMenuEntry',
-      label: 'Left-To-Right',
+      label: 'Left To Right',
       type: 'radio',
       click (menuItem, browserWindow) {
         actions.textDirection(browserWindow, 'ltr')
       }
     }, {
       id: 'textDirectionRTLMenuEntry',
-      label: 'Right-To-Left',
+      label: 'Right To Left',
       type: 'radio',
       click (menuItem, browserWindow) {
         actions.textDirection(browserWindow, 'rtl')
