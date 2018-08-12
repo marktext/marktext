@@ -436,6 +436,10 @@ li.ag-list-item > p.ag-paragraph {
   width: 100%;
 }
 
+li.ag-task-list-item > p.ag-paragraph {
+  margin-top: 0;
+}
+
 li.ag-list-item > p.ag-paragraph > span {
   width: 100%;
 }
