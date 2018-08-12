@@ -12,7 +12,7 @@
   <strong>:high_brightness:Next generation markdown editor:crescent_moon:</strong>
 </div>
 <div align="center">
-  An <code>Electron</code> app for platforms of OS X Windows and Linux
+  An <code>Electron</code> app for platforms of macOS, Windows and Linux
 </div>
 
 <br />
