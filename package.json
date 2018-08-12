@@ -36,17 +36,38 @@
     "directories": {
       "output": "build"
     },
-    "fileAssociations": {
-      "ext": [
-        "md",
-        "markdown",
-        "mmd",
-        "mdown",
-        "mdtxt",
-        "mdtext"
-      ],
-      "role": "Editor"
-    },
+    "fileAssociations": [
+      {
+        "ext": "md",
+        "name": "Markdown",
+        "role": "Editor"
+      },
+      {
+        "ext": "markdown",
+        "name": "Markdown",
+        "role": "Editor"
+      },
+      {
+        "ext": "mmd",
+        "name": "Markdown",
+        "role": "Editor"
+      },
+      {
+        "ext": "mdown",
+        "name": "Markdown",
+        "role": "Editor"
+      },
+      {
+        "ext": "mdtxt",
+        "name": "Markdown",
+        "role": "Editor"
+      },
+      {
+        "ext": "mdtext",
+        "name": "Markdown",
+        "role": "Editor"
+      }
+    ],
     "files": [
       "dist/electron/**/*"
     ],
@@ -96,59 +117,59 @@
   "dependencies": {
     "axios": "^0.18.0",
     "cheerio": "^1.0.0-rc.2",
-    "chokidar": "^2.0.3",
-    "codemirror": "^5.36.0",
+    "chokidar": "^2.0.4",
+    "codemirror": "^5.39.2",
     "css-tree": "^1.0.0-alpha.28",
-    "dompurify": "^1.0.3",
-    "element-ui": "^2.3.9",
+    "dompurify": "^1.0.7",
+    "element-ui": "^2.4.6",
     "file-icons-js": "^1.0.3",
     "fs-extra": "^6.0.1",
     "fuzzaldrin": "^2.1.0",
     "html-tags": "^2.0.0",
-    "katex": "^0.10.0-alpha",
+    "katex": "^0.10.0-beta",
     "markdown-toc": "^1.2.0",
     "mousetrap": "^1.6.1",
     "parse5": "^5.0.0",
-    "popper.js": "^1.14.3",
+    "popper.js": "^1.14.4",
     "snabbdom": "^0.7.1",
     "snabbdom-to-html": "^5.1.1",
     "snabbdom-virtualize": "^0.7.0",
     "turndown": "^4.0.2",
     "turndown-plugin-gfm": "^1.0.2",
-    "vue": "^2.5.16",
+    "vue": "^2.5.17",
     "vue-electron": "^1.0.6",
     "vuex": "^3.0.1"
   },
   "devDependencies": {
     "babel-core": "^6.26.3",
-    "babel-eslint": "^8.2.3",
-    "babel-loader": "^7.1.4",
+    "babel-eslint": "^8.2.6",
+    "babel-loader": "^7.1.5",
     "babel-plugin-component": "^1.1.1",
     "babel-plugin-istanbul": "^4.1.6",
     "babel-plugin-transform-runtime": "^6.23.0",
     "babel-preset-env": "^1.7.0",
     "babel-preset-stage-0": "^6.24.1",
     "babel-register": "^6.26.0",
-    "cfonts": "^2.1.2",
+    "cfonts": "^2.1.3",
     "chai": "^4.0.0",
     "chalk": "^2.4.1",
-    "copy-webpack-plugin": "^4.5.1",
-    "cross-env": "^5.1.6",
+    "copy-webpack-plugin": "^4.5.2",
+    "cross-env": "^5.2.0",
     "css-loader": "^0.28.11",
     "del": "^3.0.0",
     "devtron": "^1.4.0",
-    "electron": "^2.0.2",
-    "electron-builder": "^20.14.7",
+    "electron": "^2.0.7",
+    "electron-builder": "^20.28.0",
     "electron-debug": "^2.0.0",
     "electron-devtools-installer": "^2.2.4",
-    "electron-updater": "^2.21.10",
+    "electron-updater": "^2.23.3",
     "electron-window-state": "^4.1.1",
     "eslint": "^4.19.1",
     "eslint-config-standard": "^11.0.0",
     "eslint-friendly-formatter": "^4.0.1",
-    "eslint-loader": "^2.0.0",
-    "eslint-plugin-html": "^4.0.3",
-    "eslint-plugin-import": "^2.12.0",
+    "eslint-loader": "^2.1.0",
+    "eslint-plugin-html": "^4.0.5",
+    "eslint-plugin-import": "^2.13.0",
     "eslint-plugin-node": "^6.0.1",
     "eslint-plugin-promise": "^3.8.0",
     "eslint-plugin-standard": "^3.1.0",
@@ -163,24 +184,24 @@
     "karma-sourcemap-loader": "^0.3.7",
     "karma-spec-reporter": "^0.0.31",
     "karma-webpack": "^2.0.1",
-    "mini-css-extract-plugin": "^0.4.0",
+    "mini-css-extract-plugin": "^0.4.1",
     "mocha": "^3.0.2",
     "multispinner": "^0.2.1",
     "node-loader": "^0.6.0",
-    "postcss-loader": "^2.1.5",
-    "postcss-preset-env": "^5.1.0",
+    "postcss-loader": "^2.1.6",
+    "postcss-preset-env": "^5.3.0",
     "require-dir": "^1.0.0",
     "spectron": "^3.8.0",
     "style-loader": "^0.21.0",
     "url-loader": "^1.0.1",
     "vue-html-loader": "^1.2.4",
-    "vue-loader": "^15.2.0",
-    "vue-style-loader": "^4.1.0",
-    "vue-template-compiler": "^2.5.16",
-    "webpack": "^4.11.1",
-    "webpack-cli": "^3.0.3",
-    "webpack-dev-server": "^3.1.4",
-    "webpack-hot-middleware": "^2.22.2",
-    "webpack-merge": "^4.1.2"
+    "vue-loader": "^15.3.0",
+    "vue-style-loader": "^4.1.1",
+    "vue-template-compiler": "^2.5.17",
+    "webpack": "^4.16.5",
+    "webpack-cli": "^3.1.0",
+    "webpack-dev-server": "^3.1.5",
+    "webpack-hot-middleware": "^2.22.3",
+    "webpack-merge": "^4.1.4"
   }
 }
