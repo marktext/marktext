@@ -19,7 +19,7 @@
         <span class="save-dot" :class="{'show': !isSaved}"></span>
       </span>
     </div>
-    <div :class="platform !== 'darwin' ? 'left-toolbar' : 'right-toolbar'">
+    <div :class="platform !== 'darwin' ? 'left-toolbar title-no-drag' : 'right-toolbar'">
       <div
         v-if="platform !== 'darwin'"
         class="frameless-titlebar-menu title-no-drag"
@@ -195,6 +195,15 @@
     transition: all .25s ease-in-out;
     & .filename {
       transition: all .25s ease-in-out;
+    }
+    &::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      height: 1px;
+      width: 100%;
+      z-index: 1;
+      -webkit-app-region: no-drag;
     }
   }
 
