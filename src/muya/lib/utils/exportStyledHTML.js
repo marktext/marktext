@@ -170,7 +170,7 @@ class ExportHTML {
     if (headings.length) {
       headings.each((i, h) => {
         const heading = $(h)
-        heading.attr('id', `${heading.attr('id')} ${heading.attr('data-id')}`)
+        heading.attr('id', heading.attr('data-id'))
       })
     }
 
