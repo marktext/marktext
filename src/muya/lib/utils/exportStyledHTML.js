@@ -149,6 +149,9 @@ class ExportHTML {
   getHtml () {
     const rawHTML = document.querySelector(`#${CLASS_OR_ID['AG_EDITOR_ID']}`).outerHTML
     const $ = cheerio.load(rawHTML)
+    const headingClassNames = [
+      'h1', 'h2', 'h3', 'h4', 'h5', 'h6'
+    ]
     const removeClassNames = [
       `.${CLASS_OR_ID['AG_REMOVE']}`,
       `.${CLASS_OR_ID['AG_OUTPUT_REMOVE']}`,
@@ -161,6 +164,15 @@ class ExportHTML {
     $(removeClassNames.join(', ')).remove()
     $(`.${CLASS_OR_ID['AG_ACTIVE']}`).removeClass(CLASS_OR_ID['AG_ACTIVE'])
     $(`[data-role=hr]`).replaceWith('<hr>')
+
+    // create heading id's
+    const headings = $(headingClassNames.join(', '))
+    if (headings.length) {
+      headings.each((i, h) => {
+        const heading = $(h)
+        heading.attr('id', heading.attr('data-id'))
+      })
+    }
 
     // replace the `emoji text` with actual emoji
     const emojis = $(`span.${CLASS_OR_ID['AG_EMOJI_MARKED_TEXT']}`)
