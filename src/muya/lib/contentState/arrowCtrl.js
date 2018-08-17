@@ -47,6 +47,11 @@ const arrowCtrl = ContentState => {
     }
     return null
   }
+  
+  ContentState.prototype.getTable = function (cell) {
+    const parents = this.getParents(cell)
+    return parents[parents.length - 1]
+  }
 
   ContentState.prototype.arrowHandler = function (event) {
     // when the float box is show, use up and down to select item.
@@ -166,12 +171,20 @@ const arrowCtrl = ContentState => {
       const cellInNextRow = this.findNextRowCell(block)
       const cellInPrevRow = this.findPrevRowCell(block)
 
-      if (event.key === EVENT_KEYS.ArrowUp && cellInPrevRow) {
-        activeBlock = cellInPrevRow
+      if (event.key === EVENT_KEYS.ArrowUp) {
+        if (cellInPrevRow) {
+          activeBlock = cellInPrevRow
+        } else {
+          activeBlock = this.findPreBlockInLocation(this.getTable(block))
+        }
       }
 
-      if (event.key === EVENT_KEYS.ArrowDown && cellInNextRow) {
-        activeBlock = cellInNextRow
+      if (event.key === EVENT_KEYS.ArrowDown) {
+        if (cellInNextRow) {
+          activeBlock = cellInNextRow
+        } else {
+          activeBlock = this.findNextBlockInLocation(this.getTable(block))
+        }
       }
 
       if (activeBlock) {
