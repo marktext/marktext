@@ -50,7 +50,14 @@ const arrowCtrl = ContentState => {
 
   ContentState.prototype.getTable = function (cell) {
     const parents = this.getParents(cell)
-    return parents[parents.length - 1]
+    const len = parents.length
+    let i
+    for (i = 0; i < len; i++) {
+      if (parents[i].type === 'table') {
+        return parents[i]
+      }
+    }
+    return null
   }
 
   ContentState.prototype.arrowHandler = function (event) {
