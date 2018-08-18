@@ -47,7 +47,7 @@ const arrowCtrl = ContentState => {
     }
     return null
   }
-  
+
   ContentState.prototype.getTable = function (cell) {
     const parents = this.getParents(cell)
     return parents[parents.length - 1]
