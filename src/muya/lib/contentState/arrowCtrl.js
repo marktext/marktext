@@ -166,12 +166,20 @@ const arrowCtrl = ContentState => {
       const cellInNextRow = this.findNextRowCell(block)
       const cellInPrevRow = this.findPrevRowCell(block)
 
-      if (event.key === EVENT_KEYS.ArrowUp && cellInPrevRow) {
-        activeBlock = cellInPrevRow
+      if (event.key === EVENT_KEYS.ArrowUp) {
+        if (cellInPrevRow) {
+          activeBlock = cellInPrevRow
+        } else {
+          activeBlock = this.findPreBlockInLocation(this.getTableBlock())
+        }
       }
 
-      if (event.key === EVENT_KEYS.ArrowDown && cellInNextRow) {
-        activeBlock = cellInNextRow
+      if (event.key === EVENT_KEYS.ArrowDown) {
+        if (cellInNextRow) {
+          activeBlock = cellInNextRow
+        } else {
+          activeBlock = this.findNextBlockInLocation(this.getTableBlock())
+        }
       }
 
       if (activeBlock) {
