@@ -2,7 +2,7 @@ import { shell } from 'electron'
 import * as actions from '../actions/help'
 import { checkUpdates } from '../actions/marktext'
 
-let helpMenu = {
+const helpMenu = {
   label: 'Help',
   role: 'help',
   submenu: [{
