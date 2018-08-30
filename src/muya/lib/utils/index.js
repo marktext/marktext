@@ -176,6 +176,7 @@ export const getImageInfo = src => {
   const EXT_REG = /\.(jpeg|jpg|png|gif|svg|webp)(?=\?|$)/i
   // http[s] (domain or IPv4 or localhost or IPv6) [port] /not-white-space
   const URL_REG = /^http(s)?:\/\/([a-z0-9\-._~]+\.[a-z]{2,}|[0-9.]+|localhost|\[[a-f0-9.:]+\])(:[0-9]{1,5})?\/[\S]+/i
+  const DATA_URL_REG = /^data:image\/[\w+-]+(;[\w-]+=[\w-]+|;base64)*,[a-zA-Z0-9+/]+={0,2}$/
   const imageExtension = EXT_REG.test(src)
   const isUrl = URL_REG.test(src)
   if (imageExtension) {
@@ -195,10 +196,19 @@ export const getImageInfo = src => {
       isUnknownType: true,
       src
     }
-  }
-  return {
-    isUnknownType: false,
-    src: ''
+  } else {
+    const isDataUrl = DATA_URL_REG.test(src)
+    if (isDataUrl) {
+      return {
+        isUnknownType: false,
+        src
+      }
+    } else {
+      return {
+        isUnknownType: false,
+        src: ''
+      }
+    }
   }
 }
 
