@@ -3,6 +3,7 @@
     class="editor-container"
   >
     <title-bar
+      :project="projectTree"
       :pathname="pathname"
       :filename="filename"
       :active="windowActive"
@@ -78,6 +79,7 @@
         'theme': state => state.preferences.theme
       }),
       ...mapState({
+        'projectTree': state => state.project.projectTree,
         'pathname': state => state.editor.currentFile.pathname,
         'filename': state => state.editor.currentFile.filename,
         'isSaved': state => state.editor.currentFile.isSaved,

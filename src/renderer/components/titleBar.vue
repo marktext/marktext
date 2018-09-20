@@ -91,6 +91,7 @@
       })
     },
     props: {
+      project: Object,
       filename: String,
       pathname: String,
       active: Boolean,
@@ -104,6 +105,12 @@
         if (!this.pathname) return []
         const pathnameToken = this.pathname.split('/').filter(i => i)
         return pathnameToken.slice(0, pathnameToken.length - 1).slice(-3)
+      }
+    },
+    watch: {
+      filename: function (value) {
+        const title = this.project && this.project.name ? `${value} - ${this.project.name}` : value
+        document.querySelector('title').textContent = title
       }
     },
     methods: {
