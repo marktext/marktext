@@ -1,6 +1,7 @@
 import fs from 'fs'
 // import chokidar from 'chokidar'
 import path from 'path'
+import { promisify } from 'util'
 import { BrowserWindow, dialog, ipcMain } from 'electron'
 import appWindow from '../window'
 import { EXTENSION_HASN, EXTENSIONS } from '../config'
@@ -10,7 +11,7 @@ import { getPath, isMarkdownFile, log, isFile, isDirectory, getRecommendTitle } 
 import userPreference from '../preference'
 
 // handle the response from render process.
-const handleResponseForExport = (e, { type, content, pathname, markdown }) => {
+const handleResponseForExport = async (e, { type, content, pathname, markdown }) => {
   const win = BrowserWindow.fromWebContents(e.sender)
   const extension = EXTENSION_HASN[type]
   const dirname = pathname ? path.dirname(pathname) : getPath('documents')
@@ -24,24 +25,19 @@ const handleResponseForExport = (e, { type, content, pathname, markdown }) => {
   })
 
   if (filePath) {
-    if (!content && type === 'pdf') {
-      // when export for PDF, the conent is undefined
-      win.webContents.printToPDF({ printBackground: true }, (err, data) => {
-        if (err) log(err)
-        else {
-          writeFile(filePath, data, extension)
-            .then(() => {
-              win.webContents.send('AGANI::export-success', { type, filePath })
-            })
-            .catch(log)
-        }
-      })
-    } else {
-      writeFile(filePath, content, extension)
-        .then(() => {
-          win.webContents.send('AGANI::export-success', { type, filePath })
-        })
-        .catch(log)
+    let data = content
+    try {
+      if (!content && type === 'pdf') {
+        data = await promisify(win.webContents.printToPDF.bind(win.webContents))({ printBackground: true })
+      }
+      if (data) {
+        await writeFile(filePath, data, extension)
+        win.webContents.send('AGANI::export-success', { type, filePath })
+      }
+    } catch (err) {
+      log(err)
+      const ERROR_MSG = err.message || `Error happened when export ${filePath}`
+      win.webContents.send('AGANI::show-error-notification', ERROR_MSG)
     }
   }
 }
