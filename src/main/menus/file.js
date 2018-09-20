@@ -29,7 +29,7 @@ export default function (recentlyUsedFiles) {
         actions.open(browserWindow)
       }
     }, {
-      label: 'Open Project',
+      label: 'Open Folder',
       accelerator: 'Shift+CmdOrCtrl+O',
       click (menuItem, browserWindow) {
         actions.openProject(browserWindow)
