@@ -51,7 +51,6 @@ export const BLACK_LIST = [
 
 export const EXTENSION_HASN = {
   styledHtml: '.html',
-  html: '.html',
   pdf: '.pdf'
 }
 

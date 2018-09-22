@@ -102,13 +102,12 @@ const tokenizerFac = (src, beginRules, inlineRules, pos = 0, top) => {
   }
 
   if (beginRules && pos === 0) {
-    const beginRuleList = ['header', 'hr', 'code_fense', 'display_math', 'multiple_math']
+    const beginRuleList = ['header', 'hr', 'code_fense', 'multiple_math']
 
     for (const ruleName of beginRuleList) {
       const to = beginRules[ruleName].exec(src)
 
       if (to) {
-        if (ruleName === 'display_math' && !isLengthEven(to[3])) continue
         const token = {
           type: ruleName,
           raw: to[0],

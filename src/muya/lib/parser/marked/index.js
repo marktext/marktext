@@ -13,6 +13,7 @@ const defaults = {
   smartLists: false,
   silent: false,
   highlight: null,
+  mathRenderer: null,
   langPrefix: 'lang-',
   smartypants: false,
   headerPrefix: '',

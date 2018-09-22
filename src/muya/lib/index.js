@@ -9,7 +9,7 @@ import Emoji, { checkEditEmoji, setInlineEmoji } from './emojis'
 import FloatBox from './floatBox'
 import { findNearestParagraph, operateClassName, isInElement } from './utils/domManipulate'
 import ExportMarkdown from './utils/exportMarkdown'
-import ExportStyledHTML from './utils/exportStyledHTML'
+import ExportHtml from './utils/exportHtml'
 import { checkEditImage } from './utils/checkEditImage'
 import exportHtml from './utils/exportUnstylishHtml'
 import TablePicker from './tablePicker'
@@ -477,8 +477,8 @@ class Muya {
   }
 
   async exportStyledHTML () {
-    const html = await new ExportStyledHTML().generate(this.theme)
-    return html
+    const { markdown } = this
+    return new ExportHtml(markdown).generate()
   }
 
   exportUnstylishHtml () {

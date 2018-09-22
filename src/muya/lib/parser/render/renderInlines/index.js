@@ -8,7 +8,6 @@ import hr from './hr'
 import tailHeader from './tailHeader'
 import hardLineBreak from './hardLineBreak'
 import codeFense from './codeFense'
-import displayMath from './displayMath'
 import inlineMath from './inlineMath'
 import aLink from './aLink'
 import autoLink from './autoLink'
@@ -39,7 +38,6 @@ export default {
   tailHeader,
   hardLineBreak,
   codeFense,
-  displayMath,
   inlineMath,
   aLink,
   autoLink,

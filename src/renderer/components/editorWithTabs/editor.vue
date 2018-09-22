@@ -356,13 +356,6 @@
             break
           }
 
-          case 'html': {
-            const content = this.editor.exportUnstylishHtml()
-            const markdown = this.editor.getMarkdown()
-            this.$store.dispatch('EXPORT', { type, content, markdown })
-            break
-          }
-
           case 'pdf': {
             const markdown = this.editor.getMarkdown()
             this.$store.dispatch('EXPORT', { type, markdown })

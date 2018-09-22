@@ -67,6 +67,14 @@ InlineLexer.prototype.output = function (src) {
       continue
     }
 
+    // math
+    cap = this.rules.math.exec(src)
+    if (cap) {
+      src = src.substring(cap[0].length)
+      text = cap[1]
+      out += this.renderer.inlineMath(text)
+    }
+
     // url (gfm)
     cap = this.rules.url.exec(src)
     if (!this.inLink && cap) {

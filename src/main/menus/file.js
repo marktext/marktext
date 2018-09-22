@@ -118,20 +118,20 @@ export default function (recentlyUsedFiles) {
   }, {
     type: 'separator'
   }, {
-    label: 'Export Styled HTML',
-    click (menuItem, browserWindow) {
-      actions.exportFile(browserWindow, 'styledHtml')
-    }
-  }, {
-    label: 'Export HTML',
-    click (menuItem, browserWindow) {
-      actions.exportFile(browserWindow, 'html')
-    }
-  }, {
-    label: 'Export PDF',
-    click (menuItem, browserWindow) {
-      actions.exportFile(browserWindow, 'pdf')
-    }
+    label: 'Export',
+    submenu: [
+      {
+        label: 'HTML',
+        click (menuItem, browserWindow) {
+          actions.exportFile(browserWindow, 'styledHtml')
+        }
+      }, {
+        label: 'PDF',
+        click (menuItem, browserWindow) {
+          actions.exportFile(browserWindow, 'pdf')
+        }
+      }
+    ]
   }, {
     type: 'separator'
   }, {

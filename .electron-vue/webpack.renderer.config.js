@@ -44,7 +44,15 @@ const rendererConfig = {
         }
       },
       {
+        test: /(katex|github\-markdown|highlight\.js\/styles\/default)\.css$/,
+        use: [
+          'to-string-loader',
+          'css-loader'
+        ]
+      },
+      {
         test: /\.css$/,
+        exclude: /(katex|github\-markdown|highlight\.js\/styles\/default)\.css$/,
         use: [
           proMode ? MiniCssExtractPlugin.loader : 'style-loader',
           { loader: 'css-loader', options: { importLoader: 1 } },
@@ -100,7 +108,7 @@ const rendererConfig = {
         use: {
           loader: 'url-loader',
           query: {
-            limit: 10000,
+            limit: 100000,
             name: 'fonts/[name]--[folder].[ext]'
           }
         }

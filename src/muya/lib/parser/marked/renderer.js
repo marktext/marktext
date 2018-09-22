@@ -12,7 +12,21 @@ Renderer.prototype.frontmatter = function (text) {
 }
 
 Renderer.prototype.multiplemath = function (text) {
-  return `<pre class="multiple-math">\n${text}</pre>\n`
+  let output = ''
+  if (this.options.mathRenderer) {
+    const displayMode = true
+    output = this.options.mathRenderer(text, displayMode)
+  }
+  return output || `<pre class="multiple-math">\n${text}</pre>\n`
+}
+
+Renderer.prototype.inlineMath = function (math) {
+  let output = ''
+  if (this.options.mathRenderer) {
+    const displayMode = false
+    output = this.options.mathRenderer(math, displayMode)
+  }
+  return output || math
 }
 
 Renderer.prototype.code = function (code, lang, escaped, codeBlockStyle) {
