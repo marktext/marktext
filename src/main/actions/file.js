@@ -226,7 +226,7 @@ export const exportFile = (win, type) => {
 }
 
 export const print = win => {
-  win.webContents.print({ silent: false, printBackground: true, deviceName: '' })
+  win.webContents.send('AGANI::print')
 }
 
 export const openFileOrProject = pathname => {

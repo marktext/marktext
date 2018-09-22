@@ -6,7 +6,7 @@
       <div class="container">
         <editor
           :theme="theme"
-          :fileanme="fileanme"
+          :fileanme="filename"
           :markdown="markdown"
           :cursor="cursor"
           :text-direction="textDirection"

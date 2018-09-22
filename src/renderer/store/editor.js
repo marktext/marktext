@@ -443,9 +443,12 @@ const actions = {
   },
 
   // listen for export from main process
-  LISTEN_FOR_EXPORT ({ commit, state }) {
+  LISTEN_FOR_EXPORT_PRINT ({ commit, state }) {
     ipcRenderer.on('AGANI::export', (e, { type }) => {
       bus.$emit('export', type)
+    })
+    ipcRenderer.on('AGANI::print', e => {
+      bus.$emit('print')
     })
   },
 

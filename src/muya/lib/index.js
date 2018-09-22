@@ -15,7 +15,7 @@ import TablePicker from './tablePicker'
 
 import './assets/symbolIcon' // import symbol icons
 import './assets/symbolIcon/index.css'
-import './index.css'
+import './assets/styles/index.css'
 
 class Muya {
   constructor (container, options) {
@@ -478,6 +478,11 @@ class Muya {
   exportStyledHTML (filename) {
     const { markdown } = this
     return new ExportHtml(markdown).generate(filename)
+  }
+
+  exportHtml () {
+    const { markdown } = this
+    return new ExportHtml(markdown).renderHtml()
   }
 
   getWordCount (markdown) {

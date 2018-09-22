@@ -6,9 +6,11 @@ import locale from 'element-ui/lib/locale'
 import App from './app'
 import store from './store'
 import './assets/symbolIcon'
-import './index.css'
 import { Dialog, Form, FormItem, InputNumber, Button, Tooltip, Upload, Slider, ColorPicker, Col, Row } from 'element-ui'
 import services from './services'
+
+import './assets/styles/index.css'
+import './assets/styles/printService.css'
 
 // import notice from './services/notification'
 // In the renderer process:

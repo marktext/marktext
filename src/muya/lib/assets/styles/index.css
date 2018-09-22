@@ -635,12 +635,12 @@ span.ag-warn.ag-emoji-marked-text {
   height: 1.1em;
   display: inline-block;
   vertical-align: middle;
-  background: url(./assets/icons/image.svg);
+  background: url(../icons/image.svg);
   background-size: contain;
 }
 
 .ag-image-marked-text.ag-image-fail::before {
-  background-image: url(./assets/icons/imagefail.svg);
+  background-image: url(../icons/imagefail.svg);
 }
 
 span[data-role="link"], a[data-role="link"], span[data-role="link"] .ag-backlash {

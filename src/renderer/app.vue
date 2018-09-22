@@ -128,7 +128,7 @@
       dispatch('LISTEN_FOR_OPEN_SINGLE_FILE')
       dispatch('LISTEN_FOR_OPEN_BLANK_WINDOW')
       dispatch('LISTEN_FOR_SAVE_CLOSE')
-      dispatch('LISTEN_FOR_EXPORT')
+      dispatch('LISTEN_FOR_EXPORT_PRINT')
       dispatch('LISTEN_FOR_INSERT_IMAGE')
       dispatch('LISTEN_FOR_RENAME')
       dispatch('LINTEN_FOR_SET_LINE_ENDING')

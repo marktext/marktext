@@ -67,6 +67,7 @@
   import bus from '../../bus'
   import { animatedScrollTo } from '../../util'
   import { showContextMenu } from '../../contextMenu/editor'
+  import Printer from '@/services/printService'
 
   const STANDAR_Y = 320
   const PARAGRAPH_CMD = [
@@ -78,8 +79,7 @@
   export default {
     props: {
       filename: {
-        type: String,
-        required: true
+        type: String
       },
       theme: {
         type: String,
@@ -222,6 +222,7 @@
         bus.$on('editTable', this.handleEditTable)
         bus.$on('scroll-to-header', this.scrollToHeader)
         bus.$on('copy-block', this.handleCopyBlock)
+        bus.$on('print', this.handlePrint)
 
         // when cursor is in `![](cursor)` will emit `insert-image`
         this.editor.on('insert-image', type => {
@@ -351,17 +352,25 @@
         this.scrollToHighlight()
       },
 
-      async handleExport (type) {
+      handlePrint () {
+        const html = this.editor.exportHtml()
+        const printer = new Printer(html)
+        printer.print()
+      },
+
+      handleExport (type) {
+        const markdown = this.editor.getMarkdown()
         switch (type) {
           case 'styledHtml': {
-            const content = await this.editor.exportStyledHTML(this.filename)
-            const markdown = this.editor.getMarkdown()
+            const content = this.editor.exportStyledHTML(this.filename)
             this.$store.dispatch('EXPORT', { type, content, markdown })
             break
           }
 
           case 'pdf': {
-            const markdown = this.editor.getMarkdown()
+            const html = this.editor.exportHtml()
+            const printer = new Printer(html)
+            printer.renderMarkdown()
             this.$store.dispatch('EXPORT', { type, markdown })
             break
           }

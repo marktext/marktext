@@ -192,7 +192,6 @@
     "node-loader": "^0.6.0",
     "postcss-loader": "^2.1.6",
     "postcss-preset-env": "^5.3.0",
-    "raw-loader": "^0.5.1",
     "require-dir": "^1.0.0",
     "spectron": "^3.8.0",
     "style-loader": "^0.21.0",
