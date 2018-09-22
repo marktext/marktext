@@ -77,6 +77,10 @@
 
   export default {
     props: {
+      filename: {
+        type: String,
+        required: true
+      },
       theme: {
         type: String,
         required: true
@@ -350,7 +354,7 @@
       async handleExport (type) {
         switch (type) {
           case 'styledHtml': {
-            const content = await this.editor.exportStyledHTML()
+            const content = await this.editor.exportStyledHTML(this.filename)
             const markdown = this.editor.getMarkdown()
             this.$store.dispatch('EXPORT', { type, content, markdown })
             break

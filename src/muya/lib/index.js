@@ -11,7 +11,6 @@ import { findNearestParagraph, operateClassName, isInElement } from './utils/dom
 import ExportMarkdown from './utils/exportMarkdown'
 import ExportHtml from './utils/exportHtml'
 import { checkEditImage } from './utils/checkEditImage'
-import exportHtml from './utils/exportUnstylishHtml'
 import TablePicker from './tablePicker'
 
 import './assets/symbolIcon' // import symbol icons
@@ -476,14 +475,9 @@ class Muya {
     return this.contentState.setHistory(history)
   }
 
-  async exportStyledHTML () {
+  exportStyledHTML (filename) {
     const { markdown } = this
-    return new ExportHtml(markdown).generate()
-  }
-
-  exportUnstylishHtml () {
-    const { markdown } = this
-    return exportHtml(markdown)
+    return new ExportHtml(markdown).generate(filename)
   }
 
   getWordCount (markdown) {

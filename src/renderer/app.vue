@@ -20,6 +20,7 @@
       <editor-with-tabs
         v-if="hasCurrentFile && init"
         :markdown="markdown"
+        :filename="filename"
         :cursor="cursor"
         :theme="theme"
         :source-code="sourceCode"

@@ -6,6 +6,7 @@
       <div class="container">
         <editor
           :theme="theme"
+          :fileanme="fileanme"
           :markdown="markdown"
           :cursor="cursor"
           :text-direction="textDirection"
@@ -31,6 +32,9 @@
       theme: {
         type: String,
         required: true
+      },
+      filename: {
+        type: String
       },
       markdown: {
         type: String,

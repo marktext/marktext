@@ -4,6 +4,13 @@ import katex from 'katex'
 import githubMarkdownCss from 'github-markdown-css/github-markdown.css'
 import highlightCss from 'highlight.js/styles/default.css'
 import katexCss from 'katex/dist/katex.css'
+import { EXPORT_DOMPURIFY_CONFIG } from '../config'
+import { sanitize } from '../utils'
+
+export const getSanitizeHtml = markdown => {
+  const html = marked(markdown)
+  return sanitize(html, EXPORT_DOMPURIFY_CONFIG)
+}
 
 class ExportHtml {
   constructor (markdown) {

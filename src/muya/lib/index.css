@@ -357,7 +357,7 @@ li.ag-task-list-item > input[type=checkbox]::before {
 
 li.ag-task-list-item > input.ag-checkbox-checked::before {
   border: transparent;
-  background-color: var(--regularColor);
+  background-color: var(--activeColor);
 }
 
 li.ag-task-list-item > input::after {
