@@ -67,8 +67,10 @@
         this.error = false
       },
       handleUpload () {
-        this.showUpload = true
-        bus.$emit('editor-blur')
+        if (!this.showUpload) {
+          this.showUpload = true
+          bus.$emit('editor-blur')
+        }
       },
       handleResponse (res) {
         if (res.code === 'success') {

@@ -42,6 +42,7 @@
 </template>
 
 <script>
+  import { ipcRenderer } from 'electron'
   import Recent from '@/components/recent'
   import EditorWithTabs from '@/components/editorWithTabs'
   import TitleBar from '@/components/titleBar'
@@ -54,6 +55,7 @@
   import Rename from '@/components/rename'
   import Tweet from '@/components/tweet'
   import { mapState } from 'vuex'
+  import bus from '@/bus'
 
   export default {
     name: 'marktext',
@@ -139,6 +141,32 @@
       dispatch('LISTEN_FOR_TEXT_DIRECTION_MENU')
       // module: notification
       dispatch('LISTEN_FOR_NOTIFICATION')
+
+      // prevent Chromium's default behavior and try to open the first file
+      window.addEventListener('dragover', function (e) {
+        e.preventDefault()
+        if (e.dataTransfer.types.indexOf('Files') >= 0) {
+          if (e.dataTransfer.items.length === 1 && /png|jpg|jpeg|gif/.test(e.dataTransfer.items[0].type)) {
+            bus.$emit('upload-image')
+          }
+          e.dataTransfer.dropEffect = 'copy'
+        } else {
+          e.stopPropagation()
+          e.dataTransfer.dropEffect = 'none'
+        }
+      }, false)
+
+      window.addEventListener('drop', e => {
+        e.preventDefault()
+        if (e.dataTransfer.files) {
+          const fileList = []
+          for (const file of e.dataTransfer.files) {
+            // console.log(file)
+            fileList.push(file.path)
+          }
+          ipcRenderer.send('AGANI::window::drop', fileList)
+        }
+      }, false)
     }
   }
 </script>

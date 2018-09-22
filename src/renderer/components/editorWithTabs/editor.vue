@@ -455,6 +455,7 @@
       bus.$off('editTable', this.handleEditTable)
       bus.$off('scroll-to-header', this.scrollToHeader)
       bus.$off('copy-block', this.handleCopyBlock)
+      bus.$off('print', this.handlePrint)
 
       this.editor.destroy()
       this.editor = null

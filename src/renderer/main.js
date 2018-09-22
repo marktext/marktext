@@ -1,6 +1,5 @@
 import Vue from 'vue'
 import axios from 'axios'
-import { ipcRenderer } from 'electron'
 import lang from 'element-ui/lib/locale/lang/en'
 import locale from 'element-ui/lib/locale'
 import App from './app'
@@ -20,27 +19,6 @@ import './assets/styles/printService.css'
 // webFrame.setSpellCheckProvider('en-US', true, new SpellCheckProvider('en-US').on('misspelling', function (suggestions) {
 //   console.log(suggestions)
 // }))
-
-// prevent Chromium's default behavior and try to open the first file
-window.addEventListener('dragover', function (e) {
-  e.preventDefault()
-  if (e.dataTransfer.types.indexOf('Files') >= 0) {
-    e.dataTransfer.dropEffect = 'copy'
-  } else {
-    e.stopPropagation()
-    e.dataTransfer.dropEffect = 'none'
-  }
-}, false)
-window.addEventListener('drop', function (e) {
-  e.preventDefault()
-  if (e.dataTransfer.files) {
-    const fileList = []
-    for (const file of e.dataTransfer.files) {
-      fileList.push(file.path)
-    }
-    ipcRenderer.send('AGANI::window::drop', fileList)
-  }
-}, false)
 
 locale.use(lang)
 
