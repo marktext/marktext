@@ -116,7 +116,6 @@ class Muya {
       div.setAttribute(attr.name, attr.value)
     })
     div.setAttribute('contenteditable', true)
-    div.classList.add('mousetrap')
     div.appendChild(rootDom)
     parentNode.insertBefore(div, container)
     parentNode.removeChild(container)

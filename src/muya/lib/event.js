@@ -1,14 +1,9 @@
-import mousetrap from 'mousetrap'
 import { getUniqueId } from './utils'
 
 class EventCenter {
   constructor () {
     this.events = []
     this.listeners = {}
-    // bind mousetrap methods to event instance.
-    ;['bind', 'unbind', 'trigger', 'stopCallback', 'reset', 'handleKey', 'addKeycodes'].forEach(method => {
-      this[method] = mousetrap[method]
-    })
   }
   /**
    * [attachDOMEvent] bind event listener to target, and return a unique ID,
@@ -44,7 +39,6 @@ class EventCenter {
    */
   detachAllDomEvents () {
     this.events.forEach(event => this.detachDOMEvent(event.eventId))
-    this.reset()
   }
   /**
    * [subscribe] subscribe custom event
