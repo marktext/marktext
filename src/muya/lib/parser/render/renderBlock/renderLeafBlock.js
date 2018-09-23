@@ -120,6 +120,7 @@ export default function renderLeafBlock (block, cursor, activeBlocks, matches, u
   } else if (type === 'pre') {
     selector += `.${CLASS_OR_ID['AG_CODEMIRROR_BLOCK']}`
     selector += PRE_BLOCK_HASH[functionType]
+    Object.assign(data.attrs, { contenteditable: 'false' })
     data.hook = {
       prepatch (oldvnode, vnode) {
         // cheat snabbdom that the pre block is not changed!!!
