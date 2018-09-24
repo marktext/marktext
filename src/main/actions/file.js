@@ -182,7 +182,6 @@ ipcMain.on('AGANI::window::drop', (e, fileList) => {
       break
     }
     // handle import file
-    console.log(file)
     if (PANDOC_EXTENSIONS.some(ext => file.endsWith(ext))) {
       pandocFile(file)
       break
@@ -250,7 +249,7 @@ export const importFile = async win => {
   const existsPandoc = await pandoc.exists()
   if (!existsPandoc) {
     win.webContents.send('AGANI::pandoc-not-exists', {
-      title: 'Export Warning',
+      title: 'Import Warning',
       type: 'warning',
       message: 'Install pandoc before you want to export files.',
       time: 10000
