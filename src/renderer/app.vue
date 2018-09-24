@@ -38,11 +38,11 @@
     <font></font>
     <rename></rename>
     <tweet></tweet>
+    <import-modal></import-modal>
   </div>
 </template>
 
 <script>
-  import { ipcRenderer } from 'electron'
   import Recent from '@/components/recent'
   import EditorWithTabs from '@/components/editorWithTabs'
   import TitleBar from '@/components/titleBar'
@@ -54,6 +54,7 @@
   import Font from '@/components/font'
   import Rename from '@/components/rename'
   import Tweet from '@/components/tweet'
+  import ImportModal from '@/components/import'
   import { mapState } from 'vuex'
   import bus from '@/bus'
 
@@ -70,10 +71,12 @@
       AboutDialog,
       Font,
       Rename,
-      Tweet
+      Tweet,
+      ImportModal
     },
     data () {
-      return {}
+      return {
+      }
     },
     computed: {
       ...mapState({
@@ -143,28 +146,24 @@
       dispatch('LISTEN_FOR_NOTIFICATION')
 
       // prevent Chromium's default behavior and try to open the first file
-      window.addEventListener('dragover', function (e) {
+      window.addEventListener('dragover', e => {
         e.preventDefault()
         if (e.dataTransfer.types.indexOf('Files') >= 0) {
           if (e.dataTransfer.items.length === 1 && /png|jpg|jpeg|gif/.test(e.dataTransfer.items[0].type)) {
             bus.$emit('upload-image')
+          } else {
+            if (this.timer) {
+              clearTimeout(this.timer)
+            }
+            this.timer = setTimeout(() => {
+              bus.$emit('importDialog', false)
+            }, 300)
+            bus.$emit('importDialog', true)
           }
           e.dataTransfer.dropEffect = 'copy'
         } else {
           e.stopPropagation()
           e.dataTransfer.dropEffect = 'none'
-        }
-      }, false)
-
-      window.addEventListener('drop', e => {
-        e.preventDefault()
-        if (e.dataTransfer.files) {
-          const fileList = []
-          for (const file of e.dataTransfer.files) {
-            // console.log(file)
-            fileList.push(file.path)
-          }
-          ipcRenderer.send('AGANI::window::drop', fileList)
         }
       }, false)
     }

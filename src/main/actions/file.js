@@ -95,6 +95,16 @@ const showUnsavedFilesMessage = (win, files) => {
   })
 }
 
+const pandocFile = async pathname => {
+  try {
+    const converter = pandoc(pathname, 'markdown')
+    const data = await converter()
+    appWindow.createWindow(undefined, data)
+  } catch (err) {
+    log(err)
+  }
+}
+
 ipcMain.on('AGANI::save-all', (e, unSavedFiles) => {
   Promise.all(unSavedFiles.map(file => handleResponseForSave(e, file)))
     .catch(log)
@@ -169,6 +179,12 @@ ipcMain.on('AGANI::window::drop', (e, fileList) => {
   for (const file of fileList) {
     if (isMarkdownFile(file)) {
       appWindow.createWindow(file)
+      break
+    }
+    // handle import file
+    console.log(file)
+    if (PANDOC_EXTENSIONS.some(ext => file.endsWith(ext))) {
+      pandocFile(file)
       break
     }
   }
@@ -249,13 +265,7 @@ export const importFile = async win => {
   })
 
   if (filename && filename[0]) {
-    try {
-      const converter = pandoc(filename[0], 'markdown')
-      const data = await converter()
-      appWindow.createWindow(undefined, data)
-    } catch (err) {
-      log(err)
-    }
+    pandocFile(filename[0])
   }
 }
 
