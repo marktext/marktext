@@ -4,11 +4,12 @@ import path from 'path'
 import { promisify } from 'util'
 import { BrowserWindow, dialog, ipcMain } from 'electron'
 import appWindow from '../window'
-import { EXTENSION_HASN, EXTENSIONS } from '../config'
+import { EXTENSION_HASN, EXTENSIONS, PANDOC_EXTENSIONS } from '../config'
 import { writeFile, writeMarkdownFile } from '../utils/filesystem'
 import appMenu from '../menu'
 import { getPath, isMarkdownFile, log, isFile, isDirectory, getRecommendTitle } from '../utils'
 import userPreference from '../preference'
+import pandoc from '../utils/pandoc'
 
 // handle the response from render process.
 const handleResponseForExport = async (e, { type, content, pathname, markdown }) => {
@@ -37,7 +38,11 @@ const handleResponseForExport = async (e, { type, content, pathname, markdown })
     } catch (err) {
       log(err)
       const ERROR_MSG = err.message || `Error happened when export ${filePath}`
-      win.webContents.send('AGANI::show-error-notification', ERROR_MSG)
+      win.webContents.send('AGANI::show-notification', {
+        title: 'Export File Error',
+        type: 'error',
+        message: ERROR_MSG
+      })
     }
   }
 }
@@ -223,6 +228,35 @@ ipcMain.on('AGANI::ask-for-open-project-in-sidebar', e => {
 
 export const exportFile = (win, type) => {
   win.webContents.send('AGANI::export', { type })
+}
+
+export const importFile = async win => {
+  const existsPandoc = await pandoc.exists()
+  if (!existsPandoc) {
+    win.webContents.send('AGANI::pandoc-not-exists', {
+      title: 'Export Warning',
+      type: 'warning',
+      message: 'Install pandoc before you want to export files.',
+      time: 10000
+    })
+  }
+  const filename = dialog.showOpenDialog(win, {
+    properties: [ 'openFile' ],
+    filters: [{
+      name: 'All Files',
+      extensions: PANDOC_EXTENSIONS
+    }]
+  })
+
+  if (filename && filename[0]) {
+    try {
+      const converter = pandoc(filename[0], 'markdown')
+      const data = await converter()
+      appWindow.createWindow(undefined, data)
+    } catch (err) {
+      log(err)
+    }
+  }
 }
 
 export const print = win => {

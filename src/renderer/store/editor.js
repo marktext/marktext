@@ -372,9 +372,9 @@ const actions = {
   },
 
   LISTEN_FOR_OPEN_BLANK_WINDOW ({ commit, state, dispatch }) {
-    ipcRenderer.on('AGANI::open-blank-window', (e, { lineEnding }) => {
+    ipcRenderer.on('AGANI::open-blank-window', (e, { lineEnding, markdown: source }) => {
       const { tabs } = state
-      const fileState = getBlankFileState(tabs, lineEnding)
+      const fileState = getBlankFileState(tabs, lineEnding, source)
       const { markdown } = fileState
       commit('SET_GLOBAL_LINE_ENDING', lineEnding)
       dispatch('INIT_STATUS', true)

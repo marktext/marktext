@@ -119,6 +119,7 @@
     "cheerio": "^1.0.0-rc.2",
     "chokidar": "^2.0.4",
     "codemirror": "^5.40.2",
+    "command-exists": "^1.2.7",
     "dompurify": "^1.0.8",
     "element-ui": "^2.4.7",
     "file-icons-js": "^1.0.3",

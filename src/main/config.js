@@ -39,6 +39,22 @@ export const IMAGE_EXTENSIONS = [
   'webp'
 ]
 
+export const PANDOC_EXTENSIONS = [
+  'html',
+  'docx',
+  'latex',
+  'tex',
+  'ltx',
+  'rst',
+  'rest',
+  'org',
+  'wiki',
+  'dokuwiki',
+  'textile',
+  'opml',
+  'epub'
+]
+
 // export const PROJECT_BLACK_LIST = [
 //   'node_modules',
 //   '.git',

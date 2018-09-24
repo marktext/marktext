@@ -47,7 +47,7 @@ class AppWindow {
     }
   }
 
-  createWindow (pathname, options = {}) {
+  createWindow (pathname, markdown = '', options = {}) {
     const { windows } = this
     const mainWindowState = windowStateKeeper({
       defaultWidth: 1200,
@@ -97,9 +97,11 @@ class AppWindow {
 
             // Notify user about mixed endings
             if (isMixed) {
-              win.webContents.send('AGANI::show-info-notification', {
-                msg: `The document has mixed line endings which are automatically normalized to ${lineEnding.toUpperCase()}.`,
-                timeout: 20000
+              win.webContents.send('AGANI::show-notification', {
+                title: 'Mixed Line Endings',
+                type: 'error',
+                message: `The document has mixed line endings which are automatically normalized to ${lineEnding.toUpperCase()}.`,
+                time: 20000
               })
             }
           })
@@ -113,7 +115,7 @@ class AppWindow {
         const textDirection = getDefaultTextDirection()
         win.webContents.send('AGANI::open-blank-window', {
           lineEnding,
-          ignoreSaveStatus: true
+          markdown
         })
         appMenu.updateLineEndingnMenu(lineEnding)
         appMenu.updateTextDirectionMenu(textDirection)

@@ -14,7 +14,7 @@ const notification = {
     time = 10000,
     title = '',
     message = '',
-    type = 'primary',
+    type = 'primary', // primary error warning info
     showConfirm = false
   }) {
     let rs

@@ -118,6 +118,11 @@ export default function (recentlyUsedFiles) {
   }, {
     type: 'separator'
   }, {
+    label: 'Import',
+    click (menuItem, browserWindow) {
+      actions.importFile(browserWindow)
+    }
+  }, {
     label: 'Export',
     submenu: [
       {
