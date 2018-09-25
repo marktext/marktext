@@ -6,7 +6,7 @@ const mathCtrl = ContentState => {
     const FUNCTION_TYPE = 'multiplemath'
     const mathBlock = this.createBlock('figure')
     const textArea = this.createBlock('pre')
-    const mathPreview = this.createBlock('div', '', false)
+    const mathPreview = this.createBlock('div', '', { editable: false })
     if (typeof value === 'string' && value) {
       const lines = value.replace(/^\s+/, '').split(LINE_BREAKS_REG).map(line => this.createBlock('span', line))
       for (const line of lines) {
@@ -36,7 +36,7 @@ const mathCtrl = ContentState => {
     block.functionType = FUNCTION_TYPE
     block.children = []
 
-    const mathPreview = this.createBlock('div', '', false)
+    const mathPreview = this.createBlock('div', '', { editable: false })
     mathPreview.math = ''
     mathPreview.functionType = FUNCTION_TYPE
 

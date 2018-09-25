@@ -1,11 +1,16 @@
 import { sanitize } from '../utils'
-import { VOID_HTML_TAGS, HTML_TAGS, HTML_TOOLS, PREVIEW_DOMPURIFY_CONFIG } from '../config'
+import { CLASS_OR_ID, VOID_HTML_TAGS, HTML_TAGS, HTML_TOOLS, PREVIEW_DOMPURIFY_CONFIG } from '../config'
 
 const HTML_BLOCK_REG = /^<([a-zA-Z\d-]+)(?=\s|>)[^<>]*?>$/
 
 const htmlBlock = ContentState => {
   ContentState.prototype.createToolBar = function (tools, toolBarType) {
-    const toolBar = this.createBlock('div', '', false)
+    const toolBar = this.createBlock('div', '', {
+      attrs: {
+        contenteditable: 'false'
+      },
+      selector: `.${'ag-tool-' + toolBarType}.${CLASS_OR_ID['AG_TOOL_BAR']}`
+    })
     toolBar.toolBarType = toolBarType
     const ul = this.createBlock('ul')
 
@@ -25,7 +30,7 @@ const htmlBlock = ContentState => {
   ContentState.prototype.createCodeInHtml = function (code, selection) {
     const codeContainer = this.createBlock('div')
     codeContainer.functionType = 'html'
-    const preview = this.createBlock('div', '', false)
+    const preview = this.createBlock('div', '', { editable: false })
     preview.htmlContent = sanitize(code, PREVIEW_DOMPURIFY_CONFIG)
     preview.functionType = 'preview'
     const codePre = this.createBlock('pre')
@@ -77,7 +82,9 @@ const htmlBlock = ContentState => {
   }
 
   ContentState.prototype.createHtmlBlock = function (code) {
-    const block = this.createBlock('figure')
+    const block = this.createBlock('figure', '', {
+      dataset: { role: 'HTML' }
+    })
     block.functionType = 'html'
     block.text = code
     const toolBar = this.createToolBar(HTML_TOOLS, 'html')

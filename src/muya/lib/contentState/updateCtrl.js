@@ -1,9 +1,9 @@
 import selection from '../selection'
-import { tokenizer } from '../parser/parse'
-import { conflict } from '../utils'
+import { inlineTokenizer } from '../parser/inlineTokenizer'
+import { conflict, snakeToCamel } from '../utils'
 import { getTextContent } from '../utils/domManipulate'
 import { CLASS_OR_ID, EVENT_KEYS, DEFAULT_TURNDOWN_CONFIG } from '../config'
-import { beginRules } from '../parser/rules'
+import { beginInlines } from '../parser/inlines'
 
 const INLINE_UPDATE_FRAGMENTS = [
   '^([*+-]\\s)', // Bullet list
@@ -36,7 +36,7 @@ const updateCtrl = ContentState => {
     const { start: cStart, end: cEnd } = this.cursor
     const startOffset = cStart.offset
     const endOffset = cEnd.offset
-    const tokens = tokenizer(block.text)
+    const tokens = inlineTokenizer(block.text)
     const textLen = block.text.length
 
     for (const token of tokens) {
@@ -358,7 +358,7 @@ const updateCtrl = ContentState => {
 
     const oldKey = lastCursor ? lastCursor.start.key : null
     const paragraph = document.querySelector(`#${key}`)
-    let text = getTextContent(paragraph, [ CLASS_OR_ID['AG_MATH_RENDER'] ])
+    let text = getTextContent(paragraph, [CLASS_OR_ID['AG_MATH_RENDER']])
     let needRender = false
     let needRenderAll = false
     if (event.type === 'click' && block.type === 'figure' && block.functionType === 'table') {
@@ -408,24 +408,40 @@ const updateCtrl = ContentState => {
         const preInputChar = text.charAt(+offset - 2)
         const postInputChar = text.charAt(+offset)
         /* eslint-disable no-useless-escape */
-        // Not Unicode aware, since things like \p{Alphabetic} or \p{L} are not supported yet
         if (
-          (autoPairQuote && /[']{1}/.test(inputChar) && !(/[a-zA-Z\d]{1}/.test(preInputChar))) ||
-          (autoPairQuote && /["]{1}/.test(inputChar)) ||
-          (autoPairBracket && /[\{\[\(]{1}/.test(inputChar)) ||
-          (autoPairMarkdownSyntax && /[*_]{1}/.test(inputChar))
+          (event.inputType.indexOf('delete') === -1) &&
+          (inputChar === postInputChar) &&
+          (
+            (autoPairQuote && /[']{1}/.test(inputChar)) ||
+            (autoPairQuote && /["]{1}/.test(inputChar)) ||
+            (autoPairBracket && /[\}\]\)]{1}/.test(inputChar)) ||
+            (autoPairMarkdownSyntax && /[*_]{1}/.test(inputChar))
+          )
         ) {
-          text = BRACKET_HASH[event.data]
-            ? text.substring(0, offset) + BRACKET_HASH[inputChar] + text.substring(offset)
-            : text
-        }
-        /* eslint-enable no-useless-escape */
-        if (/\s/.test(event.data) && preInputChar === '*' && postInputChar === '*') {
           text = text.substring(0, offset) + text.substring(offset + 1)
+        } else {
+          /* eslint-disable no-useless-escape */
+          // Not Unicode aware, since things like \p{Alphabetic} or \p{L} are not supported yet
+          if (
+            (autoPairQuote && /[']{1}/.test(inputChar) && !(/[a-zA-Z\d]{1}/.test(preInputChar))) ||
+            (autoPairQuote && /["]{1}/.test(inputChar)) ||
+            (autoPairBracket && /[\{\[\(]{1}/.test(inputChar)) ||
+            (autoPairMarkdownSyntax && /[*_]{1}/.test(inputChar))
+          ) {
+            text = BRACKET_HASH[event.data]
+              ? text.substring(0, offset) + BRACKET_HASH[inputChar] + text.substring(offset)
+              : text
+          }
+          /* eslint-enable no-useless-escape */
+          if (/\s/.test(event.data) && preInputChar === '*' && postInputChar === '*') {
+            text = text.substring(0, offset) + text.substring(offset + 1)
+          }
         }
       }
       block.text = text
-      if (beginRules['reference_definition'].test(text)) {
+      const rdInline = beginInlines.get(snakeToCamel('reference_definition'))
+      if (rdInline) {
+        rdInline.meta.rule.test(text)
         needRenderAll = true
       }
     }

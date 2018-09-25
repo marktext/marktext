@@ -2,7 +2,7 @@ import { HAS_TEXT_BLOCK_REG, DEFAULT_TURNDOWN_CONFIG } from '../config'
 import { setCursorAtLastLine } from '../codeMirror'
 import { getUniqueId } from '../utils'
 import selection from '../selection'
-import StateRender from '../parser/render'
+import StateRender from '../parser'
 import enterCtrl from './enterCtrl'
 import updateCtrl from './updateCtrl'
 import backspaceCtrl from './backspaceCtrl'
@@ -51,10 +51,10 @@ class ContentState {
 
     // Use to cache the keys which you don't want to remove.
     this.exemption = new Set()
-    this.blocks = [ this.createBlockP() ]
+    this.blocks = [this.createBlockP()]
     this.stateRender = new StateRender(eventCenter)
     this.codeBlocks = new Map()
-    this.renderRange = [ null, null ]
+    this.renderRange = [null, null]
     this.currentCursor = null
     this.prevCursor = null
     this.historyTimer = null
@@ -155,7 +155,7 @@ class ContentState {
     const endBlock = this.getBlock(end.key)
     const startOutMostBlock = this.findOutMostBlock(startBlock)
     const endOutMostBlock = this.findOutMostBlock(endBlock)
-    this.renderRange = [ startOutMostBlock.preSibling, endOutMostBlock.nextSibling ]
+    this.renderRange = [startOutMostBlock.preSibling, endOutMostBlock.nextSibling]
   }
 
   render (isRenderCursor = true, refreshCodeBlock = false) {
@@ -175,7 +175,7 @@ class ContentState {
     const { blocks, cursor, searchMatches: { matches, index } } = this
     const activeBlocks = this.getActiveBlocks()
     const cursorOutMostBlock = activeBlocks[activeBlocks.length - 1]
-    const [ startKey, endKey ] = this.renderRange
+    const [startKey, endKey] = this.renderRange
     matches.forEach((m, i) => {
       m.active = i === index
     })
@@ -194,18 +194,21 @@ class ContentState {
    * A block in Aganippe present a paragraph(block syntax in GFM) or a line in paragraph.
    * a line block must in a `p block` or `pre block(frontmatter)` and `p block`'s children must be line blocks.
    */
-  createBlock (type = 'span', text = '', editable = true) { // span type means it is a line block.
+  createBlock (type = 'span', text = '', extra) { // span type means it is a line block.
     const key = getUniqueId()
-    return {
+    let state = {
       key,
       type,
       text,
-      editable,
       parent: null,
       preSibling: null,
       nextSibling: null,
       children: []
     }
+    if (extra) {
+      state = Object.assign(extra, state)
+    }
+    return state
   }
 
   createBlockP (text = '') {

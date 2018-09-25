@@ -43,6 +43,7 @@ const codeBlockCtrl = ContentState => {
    * [codeBlockUpdate if block updated to `pre` return true, else return false]
    */
   ContentState.prototype.codeBlockUpdate = function (block, code = '', lang) {
+    console.log('blog. ', block.type)
     if (block.type === 'span') {
       block = this.getParent(block)
     }

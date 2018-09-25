@@ -1,5 +1,5 @@
 import selection from '../selection'
-import { tokenizer, generator } from '../parser/parse'
+import { inlineTokenizer, generator } from '../parser/inlineTokenizer'
 import { FORMAT_MARKER_MAP, FORMAT_TYPES } from '../config'
 
 const getOffset = (offset, { range: { start, end }, type, anchor, title }) => {
@@ -100,21 +100,21 @@ const formatCtrl = ContentState => {
     let tokens = []
     if (start.key === end.key) {
       const text = startBlock.text
-      tokens = tokenizer(text)
-      ;(function iterator (tks) {
+      tokens = inlineTokenizer(text)
+      ; (function iterator (tks) {
         for (const token of tks) {
           if (
             FORMAT_TYPES.includes(token.type) &&
-            start.offset >= token.range.start &&
-            end.offset <= token.range.end
+              start.offset >= token.range.start &&
+              end.offset <= token.range.end
           ) {
             formats.push(token)
           }
           if (
             FORMAT_TYPES.includes(token.type) &&
-            ((start.offset >= token.range.start && start.offset <= token.range.end) ||
-            (end.offset >= token.range.start && end.offset <= token.range.end) ||
-            (start.offset <= token.range.start && token.range.end <= end.offset))
+              ((start.offset >= token.range.start && start.offset <= token.range.end) ||
+                (end.offset >= token.range.start && end.offset <= token.range.end) ||
+                (start.offset <= token.range.start && token.range.end <= end.offset))
           ) {
             neighbors.push(token)
           }

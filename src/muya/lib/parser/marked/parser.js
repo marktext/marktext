@@ -1,5 +1,5 @@
 import Renderer from './renderer'
-import InlineLexer from './inlineLexer'
+import { escape } from '../utils'
 /**
  * Parsing & Compiling
  */
@@ -18,7 +18,6 @@ function Parser (options) {
  */
 
 Parser.prototype.parse = function (src) {
-  this.inline = new InlineLexer(src.links, this.options)
   this.tokens = src.reverse()
 
   let out = ''
@@ -57,7 +56,7 @@ Parser.prototype.parseText = function () {
     body += '\n' + this.next().text
   }
 
-  return this.inline.output(body)
+  return escape(body)
 }
 
 /**
@@ -77,7 +76,7 @@ Parser.prototype.tok = function () {
     }
     case 'heading': {
       return this.renderer.heading(
-        this.inline.output(this.token.text),
+        escape(this.token.text),
         this.token.depth,
         this.token.text,
         this.token.headingStyle
@@ -108,7 +107,7 @@ Parser.prototype.tok = function () {
         //   align: this.token.align[i]
         // }
         cell += this.renderer.tablecell(
-          this.inline.output(this.token.header[i]), {
+          escape(this.token.header[i]), {
             header: true,
             align: this.token.align[i]
           }
@@ -122,7 +121,7 @@ Parser.prototype.tok = function () {
         cell = ''
         for (j = 0; j < row.length; j++) {
           cell += this.renderer.tablecell(
-            this.inline.output(row[j]), {
+            escape(row[j]), {
               header: false,
               align: this.token.align[j]
             }
@@ -179,13 +178,13 @@ Parser.prototype.tok = function () {
     }
     case 'html': {
       const html = !this.token.pre && !this.options.pedantic
-        ? this.inline.output(this.token.text)
+        ? escape(this.token.text)
         : this.token.text
 
       return this.renderer.html(html)
     }
     case 'paragraph': {
-      return this.renderer.paragraph(this.inline.output(this.token.text))
+      return this.renderer.paragraph(escape(this.token.text))
     }
     case 'text': {
       return this.renderer.paragraph(this.parseText())

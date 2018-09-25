@@ -1,4 +1,4 @@
-import { escape, unescape } from './utils'
+import { escape, unescape } from '../utils'
 /**
  * Renderer
  */

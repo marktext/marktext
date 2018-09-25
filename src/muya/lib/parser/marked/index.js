@@ -1,6 +1,7 @@
 import Renderer from './renderer'
-import Lexer from './lexer'
+import blockTokenizer from '../blockTokenizer'
 import Parser from './parser'
+import { getBeginBlocks, getNotBeginBlocks } from '../blocks'
 
 const defaults = {
   gfm: true,
@@ -27,7 +28,7 @@ const defaults = {
 function marked (src, opt = {}) {
   try {
     opt = Object.assign({}, defaults, opt)
-    return new Parser(opt).parse(new Lexer(opt).lex(src))
+    return new Parser(opt).parse(blockTokenizer(src, opt, getBeginBlocks(opt), getNotBeginBlocks(opt), true, false))
   } catch (e) {
     e.message += '\nPlease report this to https://github.com/marktext/marktext/issues.'
     if (opt.silent) {
@@ -40,7 +41,7 @@ function marked (src, opt = {}) {
 }
 
 export {
-  Renderer, Lexer, Parser
+  Renderer, Parser
 }
 
 export default marked
