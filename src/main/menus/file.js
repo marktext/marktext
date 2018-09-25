@@ -29,7 +29,7 @@ export default function (recentlyUsedFiles) {
         actions.open(browserWindow)
       }
     }, {
-      label: 'Open Project',
+      label: 'Open Folder',
       accelerator: 'Shift+CmdOrCtrl+O',
       click (menuItem, browserWindow) {
         actions.openProject(browserWindow)
@@ -118,20 +118,25 @@ export default function (recentlyUsedFiles) {
   }, {
     type: 'separator'
   }, {
-    label: 'Export Styled HTML',
+    label: 'Import...',
     click (menuItem, browserWindow) {
-      actions.exportFile(browserWindow, 'styledHtml')
+      actions.importFile(browserWindow)
     }
   }, {
-    label: 'Export HTML',
-    click (menuItem, browserWindow) {
-      actions.exportFile(browserWindow, 'html')
-    }
-  }, {
-    label: 'Export PDF',
-    click (menuItem, browserWindow) {
-      actions.exportFile(browserWindow, 'pdf')
-    }
+    label: 'Export',
+    submenu: [
+      {
+        label: 'HTML',
+        click (menuItem, browserWindow) {
+          actions.exportFile(browserWindow, 'styledHtml')
+        }
+      }, {
+        label: 'PDF',
+        click (menuItem, browserWindow) {
+          actions.exportFile(browserWindow, 'pdf')
+        }
+      }
+    ]
   }, {
     type: 'separator'
   }, {

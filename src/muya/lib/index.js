@@ -9,14 +9,13 @@ import Emoji, { checkEditEmoji, setInlineEmoji } from './emojis'
 import FloatBox from './floatBox'
 import { findNearestParagraph, operateClassName, isInElement } from './utils/domManipulate'
 import ExportMarkdown from './utils/exportMarkdown'
-import ExportStyledHTML from './utils/exportStyledHTML'
+import ExportHtml from './utils/exportHtml'
 import { checkEditImage } from './utils/checkEditImage'
-import exportHtml from './utils/exportUnstylishHtml'
 import TablePicker from './tablePicker'
 
 import './assets/symbolIcon' // import symbol icons
 import './assets/symbolIcon/index.css'
-import './index.css'
+import './assets/styles/index.css'
 
 class Muya {
   constructor (container, options) {
@@ -117,7 +116,6 @@ class Muya {
       div.setAttribute(attr.name, attr.value)
     })
     div.setAttribute('contenteditable', true)
-    div.classList.add('mousetrap')
     div.appendChild(rootDom)
     parentNode.insertBefore(div, container)
     parentNode.removeChild(container)
@@ -476,14 +474,14 @@ class Muya {
     return this.contentState.setHistory(history)
   }
 
-  async exportStyledHTML () {
-    const html = await new ExportStyledHTML().generate(this.theme)
-    return html
+  exportStyledHTML (filename) {
+    const { markdown } = this
+    return new ExportHtml(markdown).generate(filename)
   }
 
-  exportUnstylishHtml () {
+  exportHtml () {
     const { markdown } = this
-    return exportHtml(markdown)
+    return new ExportHtml(markdown).renderHtml()
   }
 
   getWordCount (markdown) {

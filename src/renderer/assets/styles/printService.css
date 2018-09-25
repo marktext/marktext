@@ -1,0 +1,39 @@
+body article.print-container {
+  display: none;
+}
+@media print {
+  /* General rules for printing. */
+  body {
+    background: transparent none;
+  }
+
+  body > div {
+    display: none;
+  }
+
+  body article.print-container {
+    display: block;
+  }
+  body article.print-container {
+    height: 100%;
+  }
+  body article.markdown-body {
+    box-sizing: border-box;
+    min-width: 200px;
+    max-width: 980px;
+    margin: 0 auto;
+    padding: 45px;
+  }
+  body article.markdown-body table {
+    display: table;
+  }
+  body article.markdown-body input[type="checkbox"] ~ p {
+    margin-top: 0;
+    display: inline-block;
+  }
+  @media (max-width: 767px) {
+    body article.markdown-body {
+      padding: 15px;
+    }
+  }
+}

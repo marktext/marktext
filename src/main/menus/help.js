@@ -2,10 +2,7 @@ import { shell } from 'electron'
 import * as actions from '../actions/help'
 import { checkUpdates } from '../actions/marktext'
 
-const notOsx = process.platform !== 'darwin'
-const updateMenuVisibility = process.platform === 'win32' || !!process.env.APPIMAGE
-
-export default {
+const helpMenu = {
   label: 'Help',
   role: 'help',
   submenu: [{
@@ -47,23 +44,29 @@ export default {
     click () {
       shell.openExternal('https://github.com/Jocs')
     }
-  }, {
-    type: 'separator',
-    visible: updateMenuVisibility
+  }]
+}
+
+if (process.platform === 'win32' || !!process.env.APPIMAGE) {
+  helpMenu.submenu.push({
+    type: 'separator'
   }, {
     label: 'Check for updates...',
-    visible: updateMenuVisibility,
     click (menuItem, browserWindow) {
       checkUpdates(menuItem, browserWindow)
     }
-  }, {
-    type: 'separator',
-    visible: notOsx
+  })
+}
+
+if (process.platform !== 'darwin') {
+  helpMenu.submenu.push({
+    type: 'separator'
   }, {
     label: 'About Mark Text',
-    visible: notOsx,
     click (menuItem, browserWindow) {
       actions.showAboutDialog(browserWindow)
     }
-  }]
+  })
 }
+
+export default helpMenu

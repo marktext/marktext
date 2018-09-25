@@ -53,18 +53,6 @@
       Site web
     </a>
     <span> | </span>
-    <a href="https://github.com/marktext/marktext/blob/master/doc/i18n/zh_cn.md#readme">
-      Chinois
-    </a>
-    <span> | </span>
-    <a href="https://github.com/marktext/marktext/blob/master/doc/i18n/pl.md#readme">
-      Polonais
-    </a>
-    <span> | </span>
-    <a href="https://github.com/marktext/marktext/blob/master/doc/i18n/ja.md#readme">
-      Japonais
-    </a>
-    <span> | </span>
     <a href="https://github.com/marktext/marktext#features">
       Fonctionnalités
     </a>

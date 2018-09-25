@@ -8,6 +8,7 @@ export const defaultFileState = {
   isUtf8BomEncoded: false,
   lineEnding: 'lf', // lf or crlf
   adjustLineEndingOnSave: false,
+  textDirection: 'ltr',
   history: {
     stack: [],
     index: -1
@@ -39,7 +40,8 @@ export const getFileStateFromData = data => {
     pathname,
     isUtf8BomEncoded,
     lineEnding,
-    adjustLineEndingOnSave
+    adjustLineEndingOnSave,
+    textDirection
   } = data
   const id = getUniqueId()
 
@@ -50,11 +52,12 @@ export const getFileStateFromData = data => {
     pathname,
     isUtf8BomEncoded,
     lineEnding,
-    adjustLineEndingOnSave
+    adjustLineEndingOnSave,
+    textDirection
   })
 }
 
-export const getBlankFileState = (tabs, lineEnding = 'lf') => {
+export const getBlankFileState = (tabs, lineEnding = 'lf', markdown = '') => {
   const fileState = JSON.parse(JSON.stringify(defaultFileState))
   let untitleId = Math.max(...tabs.map(f => {
     if (f.pathname === '') {
@@ -69,7 +72,8 @@ export const getBlankFileState = (tabs, lineEnding = 'lf') => {
   return Object.assign(fileState, {
     lineEnding,
     id,
-    filename: `Untitled-${++untitleId}`
+    filename: `Untitled-${++untitleId}`,
+    markdown
   })
 }
 

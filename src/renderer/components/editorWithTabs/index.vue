@@ -6,14 +6,17 @@
       <div class="container">
         <editor
           :theme="theme"
+          :fileanme="filename"
           :markdown="markdown"
           :cursor="cursor"
+          :text-direction="textDirection"
         ></editor>
         <source-code
           v-if="sourceCode"
           :theme="theme"
           :markdown="markdown"
           :cursor="cursor"
+          :text-direction="textDirection"
         ></source-code>
       </div>
     </div>
@@ -29,6 +32,9 @@
       theme: {
         type: String,
         required: true
+      },
+      filename: {
+        type: String
       },
       markdown: {
         type: String,
@@ -46,6 +52,10 @@
       },
       showTabBar: {
         type: Boolean,
+        required: true
+      },
+      textDirection: {
+        type: String,
         required: true
       }
     },

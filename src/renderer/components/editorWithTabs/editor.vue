@@ -4,6 +4,7 @@
     :class="[{ 'typewriter': typewriter, 'focus': focus, 'source': sourceCode }, theme]"
     :style="{ 'color': theme === 'dark' ? darkColor : lightColor, 'lineHeight': lineHeight, 'fontSize': fontSize,
     'font-family': editorFontFamily ? `${editorFontFamily}, ${defaultFontFamily}` : `${defaultFontFamily}` }"
+    :dir="textDirection"
   >
     <div
       ref="editor"
@@ -16,6 +17,7 @@
       custom-class="ag-dialog-table"
       width="454px"
       center
+      dir='ltr'
     >
       <div slot="title" class="dialog-title">
         <svg class="icon" aria-hidden="true">
@@ -65,6 +67,7 @@
   import bus from '../../bus'
   import { animatedScrollTo } from '../../util'
   import { showContextMenu } from '../../contextMenu/editor'
+  import Printer from '@/services/printService'
 
   const STANDAR_Y = 320
   const PARAGRAPH_CMD = [
@@ -75,12 +78,19 @@
 
   export default {
     props: {
+      filename: {
+        type: String
+      },
       theme: {
         type: String,
         required: true
       },
       markdown: String,
-      cursor: Object
+      cursor: Object,
+      textDirection: {
+        type: String,
+        required: true
+      }
     },
     computed: {
       ...mapState({
@@ -212,6 +222,7 @@
         bus.$on('editTable', this.handleEditTable)
         bus.$on('scroll-to-header', this.scrollToHeader)
         bus.$on('copy-block', this.handleCopyBlock)
+        bus.$on('print', this.handlePrint)
 
         // when cursor is in `![](cursor)` will emit `insert-image`
         this.editor.on('insert-image', type => {
@@ -341,24 +352,25 @@
         this.scrollToHighlight()
       },
 
-      async handleExport (type) {
+      handlePrint () {
+        const html = this.editor.exportHtml()
+        const printer = new Printer(html)
+        printer.print()
+      },
+
+      handleExport (type) {
+        const markdown = this.editor.getMarkdown()
         switch (type) {
           case 'styledHtml': {
-            const content = await this.editor.exportStyledHTML()
-            const markdown = this.editor.getMarkdown()
-            this.$store.dispatch('EXPORT', { type, content, markdown })
-            break
-          }
-
-          case 'html': {
-            const content = this.editor.exportUnstylishHtml()
-            const markdown = this.editor.getMarkdown()
+            const content = this.editor.exportStyledHTML(this.filename)
             this.$store.dispatch('EXPORT', { type, content, markdown })
             break
           }
 
           case 'pdf': {
-            const markdown = this.editor.getMarkdown()
+            const html = this.editor.exportHtml()
+            const printer = new Printer(html)
+            printer.renderMarkdown()
             this.$store.dispatch('EXPORT', { type, markdown })
             break
           }
@@ -443,6 +455,7 @@
       bus.$off('editTable', this.handleEditTable)
       bus.$off('scroll-to-header', this.scrollToHeader)
       bus.$off('copy-block', this.handleCopyBlock)
+      bus.$off('print', this.handlePrint)
 
       this.editor.destroy()
       this.editor = null

@@ -1,7 +1,7 @@
 import cheerio from 'cheerio'
 import selection from '../selection'
 import { CLASS_OR_ID } from '../config'
-import { getSanitizeHtml } from '../utils/exportUnstylishHtml'
+import { getSanitizeHtml } from '../utils/exportHtml'
 import ExportMarkdown from '../utils/exportMarkdown'
 
 const copyCutCtrl = ContentState => {

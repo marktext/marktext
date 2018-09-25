@@ -160,7 +160,6 @@ export const getCursorPositionWithinMarkedText = (markedText, cursorOffset) => {
 export const createInputInCodeBlock = codeEle => {
   const inputInCodeFence = document.createElement('input')
   operateClassName(inputInCodeFence, 'add', CLASS_OR_ID['AG_LANGUAGE_INPUT'])
-  operateClassName(inputInCodeFence, 'add', CLASS_OR_ID['mousetrap'])
   inputInCodeFence.setAttribute('placeholder', 'Select language...')
   codeEle.appendChild(inputInCodeFence)
 

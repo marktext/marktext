@@ -53,18 +53,6 @@
       ウェブサイト
     </a>
     <span> | </span>
-    <a href="https://github.com/marktext/marktext/blob/master/doc/i18n/zh_cn.md#readme">
-      中文
-    </a>
-    <span> | </span>
-    <a href="https://github.com/marktext/marktext/blob/master/doc/i18n/pl.md#readme">
-      Polski
-    </a>
-    <span> | </span>
-    <a href="https://github.com/marktext/marktext/blob/master/doc/i18n/french.md#readme">
-      Français
-    </a>
-    <span> | </span>
     <a href="https://github.com/marktext/marktext#features">
       特徴
     </a>

@@ -119,7 +119,7 @@
       getCollection () {
         const data = this.collection
         const type = 'collect'
-        this.$store.dispatch('AI_LIST', {data, type})
+        this.$store.dispatch('AI_LIST', { data, type })
         this.showCollection = true
         this.query = ''
       },

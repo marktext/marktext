@@ -199,6 +199,7 @@
   .right-column {
     flex: 1;
     width: calc(100% - 50px);
+    overflow: hidden;
   }
   .drag-bar {
     position: absolute;
