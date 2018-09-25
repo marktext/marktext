@@ -29,7 +29,7 @@ const pandoc = (from, to, ...args) => {
 
 pandoc.exists = () => {
   return new Promise((resolve, reject) => {
-    exec('pandoc', (error, stdout, stderr) => {
+    exec('pandoc --version', (error, stdout, stderr) => {
       if (error) resolve(false)
       else resolve(true)
     })

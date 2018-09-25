@@ -118,7 +118,7 @@ export default function (recentlyUsedFiles) {
   }, {
     type: 'separator'
   }, {
-    label: 'Import',
+    label: 'Import...',
     click (menuItem, browserWindow) {
       actions.importFile(browserWindow)
     }

@@ -194,10 +194,11 @@ ipcMain.on('AGANI::window::drop', async (e, fileList) => {
     if (PANDOC_EXTENSIONS.some(ext => file.endsWith(ext))) {
       const existsPandoc = await pandoc.exists()
       if (!existsPandoc) {
-        return noticePandocNotFound(win)
+        noticePandocNotFound(win)
+      } else {
+        pandocFile(file)
+        break
       }
-      pandocFile(file)
-      break
     }
   }
 })
@@ -260,6 +261,7 @@ export const exportFile = (win, type) => {
 
 export const importFile = async win => {
   const existsPandoc = await pandoc.exists()
+
   if (!existsPandoc) {
     return noticePandocNotFound(win)
   }
