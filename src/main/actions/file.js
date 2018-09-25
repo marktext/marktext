@@ -94,6 +94,14 @@ const showUnsavedFilesMessage = (win, files) => {
     })
   })
 }
+const noticePandocNotFound = win => {
+  return win.webContents.send('AGANI::pandoc-not-exists', {
+    title: 'Import Warning',
+    type: 'warning',
+    message: 'Install pandoc before you want to import files.',
+    time: 10000
+  })
+}
 
 const pandocFile = async pathname => {
   try {
@@ -175,7 +183,8 @@ ipcMain.on('AGANI::close-window', e => {
   appWindow.forceClose(win)
 })
 
-ipcMain.on('AGANI::window::drop', (e, fileList) => {
+ipcMain.on('AGANI::window::drop', async (e, fileList) => {
+  const win = BrowserWindow.fromWebContents(e.sender)
   for (const file of fileList) {
     if (isMarkdownFile(file)) {
       appWindow.createWindow(file)
@@ -183,6 +192,10 @@ ipcMain.on('AGANI::window::drop', (e, fileList) => {
     }
     // handle import file
     if (PANDOC_EXTENSIONS.some(ext => file.endsWith(ext))) {
+      const existsPandoc = await pandoc.exists()
+      if (!existsPandoc) {
+        return noticePandocNotFound(win)
+      }
       pandocFile(file)
       break
     }
@@ -248,12 +261,7 @@ export const exportFile = (win, type) => {
 export const importFile = async win => {
   const existsPandoc = await pandoc.exists()
   if (!existsPandoc) {
-    win.webContents.send('AGANI::pandoc-not-exists', {
-      title: 'Import Warning',
-      type: 'warning',
-      message: 'Install pandoc before you want to export files.',
-      time: 10000
-    })
+    return noticePandocNotFound(win)
   }
   const filename = dialog.showOpenDialog(win, {
     properties: [ 'openFile' ],

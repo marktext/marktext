@@ -1,6 +1,5 @@
 // Copy from https://github.com/utatti/simple-pandoc/blob/master/index.js
-import commandExists from 'command-exists'
-import { spawn } from 'child_process'
+import { spawn, exec } from 'child_process'
 
 const command = 'pandoc'
 
@@ -28,13 +27,13 @@ const pandoc = (from, to, ...args) => {
   return converter
 }
 
-pandoc.exists = async () => {
-  try {
-    await commandExists('pandoc')
-    return true
-  } catch (err) {
-    return false
-  }
+pandoc.exists = () => {
+  return new Promise((resolve, reject) => {
+    exec('pandoc', (error, stdout, stderr) => {
+      if (error) resolve(false)
+      else resolve(true)
+    })
+  })
 }
 
 export default pandoc
