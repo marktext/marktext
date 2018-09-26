@@ -18,8 +18,8 @@ import multipleMath from './multipleMath'
 import list from './list'
 import def from './def'
 
-let blockArray = [def, list, html, multipleMath, code, gfmFences, hr, newLine, blockQuote, text, frontMatter, heading, lHeading]
-
+let blockArray = [def, list, html, multipleMath, code, gfmFences, hr, newLine, blockQuote, text,
+  frontMatter, heading, lHeading]
 /**
  *
  *
@@ -29,7 +29,7 @@ let blockArray = [def, list, html, multipleMath, code, gfmFences, hr, newLine, b
  * @param {*} selectedBlockKeys // only selected block ids are includes in blocks
  * @returns
  */
-
+// TODO: we shoult get blocks when muya init
 export function getBlocks (options, plugins = [], selectedBlockIds = []) {
   if (plugins && plugins.length) {
     blockArray.push(...plugins)
@@ -48,16 +48,21 @@ export function getBlocks (options, plugins = [], selectedBlockIds = []) {
     blockArray.push(npTable)
     blockArray.push(table)
   }
-
+  // console.log('blockArray  ..', blockArray)
+  // console.log('selectedBlockIds  ..', selectedBlockIds)
+  let filterBlocks = blockArray
   const selectedBlockIdsSet = new Set(selectedBlockIds)
+  // console.log('selectedBlockIdsSet  ..', selectedBlockIdsSet)
   if (selectedBlockIdsSet && selectedBlockIdsSet.size) {
-    blockArray = blockArray.filter(function (item) {
+    filterBlocks = blockArray.filter(function (item) {
+      //  console.log('item.meta.id  ..', item.meta.id)
+      //  console.log('selectedBlockIdsSet.id  ..', selectedBlockIdsSet.has(item.meta.id))
       return selectedBlockIdsSet.has(item.meta.id)
     })
   }
 
   const blocks = new Map()
-  const sortblockArray = blockArray.sort((a, b) => { return a.meta.sort - b.meta.sort })
+  const sortblockArray = filterBlocks.sort((a, b) => { return a.meta.sort - b.meta.sort })
   sortblockArray.map(block => {
     blocks.set(block.meta.id, block)
   })
@@ -71,10 +76,11 @@ export function getBlocks (options, plugins = [], selectedBlockIds = []) {
  * @param {*} plugins // plugin from other path or node
  * @returns
  */
-export function getBeginBlocks (options, plugins) {
-  const blocks = getBlocks(options, plugins)
+export function getBeginBlocks (options, plugins, selectedBlockIds) {
+  const blocks = getBlocks(options, plugins, selectedBlockIds)
+  // console.log('blocks  ..', blocks)
   const beginBlocks = new Map([...blocks].filter(([k, v]) => v.meta.begin === true))
-  console.log('beginBlocks  ..', beginBlocks)
+  // console.log('beginBlocks  ..', beginBlocks)
   return beginBlocks
 }
 /**
@@ -85,9 +91,9 @@ export function getBeginBlocks (options, plugins) {
  * @param {*} plugins // plugin from other path or node
  * @returns
  */
-export function getNotBeginBlocks (options, plugins) {
-  const blocks = getBlocks(options, plugins)
+export function getNotBeginBlocks (options, plugins, selectedBlockIds) {
+  const blocks = getBlocks(options, plugins, selectedBlockIds)
   const notBeginBlocks = new Map([...blocks].filter(([k, v]) => v.meta.begin !== true))
-  console.log('notBeginBlocks..', notBeginBlocks)
+  // console.log('notBeginBlocks..', notBeginBlocks)
   return notBeginBlocks
 }

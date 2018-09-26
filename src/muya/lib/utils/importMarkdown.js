@@ -103,7 +103,7 @@ const importRegister = ContentState => {
     }
   }
 
-  ContentState.prototype.fastMarkdownToState = function (markdown) {
+  ContentState.prototype.markdownToState = function (markdown) {
     // mock a root block...
     const rootState = {
       key: null,
@@ -123,7 +123,7 @@ const importRegister = ContentState => {
     // empty the blocks and codeBlocks
     this.codeBlocks = new Map()
     // this.blocks = this.markdownToState(markdown)
-    this.blocks = this.fastMarkdownToState(markdown)
+    this.blocks = this.markdownToState(markdown)
   }
 }
 

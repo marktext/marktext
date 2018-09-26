@@ -47,45 +47,48 @@ function getInlines (options, plugins, selectedInlineIds) {
   inlineArray.push(...[hardLineBreak])
   /*  } */
 
+  let filterInlines = inlineArray
   const selectedInlineSetIds = new Set(selectedInlineIds)
   if (selectedInlineSetIds && selectedInlineSetIds.size) {
-    inlineArray = inlineArray.filter(function (item) {
+    filterInlines = inlineArray.filter(function (item) {
       return selectedInlineSetIds.has(item.meta.id)
     })
   }
+
   const inlines = new Map()
-  const sortInlineArray = inlineArray.sort((a, b) => { return a.meta.sort - b.meta.sort })
+  const sortInlineArray = filterInlines.sort((a, b) => { return a.meta.sort - b.meta.sort })
   sortInlineArray.map(inline => {
     inlines.set(inline.meta.id, inline)
   })
   return inlines
 }
 
-function getBeginInlines (options, plugins) {
-  const inlines = getInlines(options, plugins)
+function getBeginInlines (options, plugins, selectedInlineIds) {
+  const inlines = getInlines(options, plugins, selectedInlineIds)
   const beginInlines = new Map([...inlines].filter(([k, v]) => v.meta.begin === true && !v.meta.token))
   // console.log('beginInlines. .', beginInlines)
   return beginInlines
 }
-function getNotBeginInlines (options, plugins) {
-  const inlines = getInlines(options, plugins)
+function getNotBeginInlines (options, plugins, selectedInlineIds) {
+  const inlines = getInlines(options, plugins, selectedInlineIds)
   const notBeginInlines = new Map([...inlines].filter(([k, v]) => v.meta.begin !== true && !v.meta.token))
   // console.log('notBeginInlines..', notBeginInlines)
   return notBeginInlines
 }
 
-function getValidateInlines (options, plugins) {
-  const inlines = getInlines(options, plugins)
+function getValidateInlines (options, plugins, selectedInlineIds) {
+  const inlines = getInlines(options, plugins, selectedInlineIds)
   const validateInlines = new Map([...inlines].filter(([k, v]) => v.meta.validate !== false))
   // console.log('validateInlines..', validateInlines)
   return validateInlines
 }
-export function getNestInlines (options, plugins) {
-  const inlines = getInlines(options, plugins)
+export function getNestInlines (options, plugins, selectedInlineIds) {
+  const inlines = getInlines(options, plugins, selectedInlineIds)
   const nestInlines = new Map([...inlines].filter(([k, v]) => v.meta.nest === true))
   // console.log('nestInlines..', nestInlines)
   return nestInlines
 }
+// TODO: we shoult init plugins when muya init
 export const inlines = getInlines()
 export const beginInlines = getBeginInlines()
 export const nestInlines = getNestInlines()

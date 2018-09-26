@@ -2,7 +2,7 @@
 const meta = {
   id: 'newLine',
   type: 'block',
-  sort: 10,
+  sort: 3,
   rule: /^\n+/
 }
 
