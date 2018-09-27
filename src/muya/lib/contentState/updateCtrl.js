@@ -389,7 +389,7 @@ const updateCtrl = ContentState => {
       return
     }
 
-    // auto pair
+    // auto pair (not need to auto pair in math block)
     if (block && block.text !== text) {
       const BRACKET_HASH = {
         '{': '}',
@@ -401,7 +401,7 @@ const updateCtrl = ContentState => {
         '\'': '\''
       }
 
-      if (start.key === end.key && start.offset === end.offset && event.type === 'input') {
+      if (start.key === end.key && start.offset === end.offset && event.type === 'input' && block.functionType !== 'multiplemath') {
         const { offset } = start
         const { autoPairBracket, autoPairMarkdownSyntax, autoPairQuote } = this
         const inputChar = text.charAt(+offset - 1)
