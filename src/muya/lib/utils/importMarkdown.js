@@ -324,7 +324,7 @@ const importRegister = ContentState => {
     const turndownService = new TurndownService(turndownConfig)
     usePluginAddRules(turndownService)
     // remove double `\\` in Math but I dont know why there are two '\' when paste. @jocs
-    const markdown = turndownService.turndown(html).replace(/(\\)\\/g, '$1')
+    const markdown = turndownService.turndown(html) // .replace(/(\\)\\/g, '$1')
     return markdown
   }
 
