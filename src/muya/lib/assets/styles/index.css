@@ -156,7 +156,7 @@ span.ag-math {
   padding: .5rem;
   border-radius: 4px;
   position: absolute;
-  top: 30px;
+  top: 100%;
   left: 0;
   z-index: 10;
 }
