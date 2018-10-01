@@ -74,6 +74,7 @@ export default function renderLeafBlock (block, cursor, activeBlocks, matches, u
           const html = katex.renderToString(math, {
             displayMode: true
           })
+
           children = htmlToVNode(html)
           loadMathMap.set(key, children)
         } catch (err) {
