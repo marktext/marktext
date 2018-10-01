@@ -146,7 +146,6 @@ Si tienes dudas sobre **Mark Text**, puedes abrir un issue. Si lo haces, por fav
 
 ## Integración
 - [Alfred Workflow](http://www.packal.org/workflow/mark-text): un workflow  para la aplicación de macOS Alfred: usa "mt" para abrir archivos/carpetas con Mark Text
-- 
 ## Contribución
 
 **Mark Text** está en pleno desarrollo. Asegúrate de leer [la guía de contribución](https://github.com/marktext/marktext/blob/master/.github/CONTRIBUTING.md) antes de hacer un Pull Request. ¿Quieres añadir algunas funcionalidades? Échale un vistazo a la [TODO LIST](https://github.com/marktext/marktext/blob/master/.github/TODOLIST.md) y abre issues.
