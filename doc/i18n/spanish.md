@@ -1,4 +1,3 @@
-
 <p align="center"><img src="https://github.com/marktext/marktext/blob/master/static/logo-small.png" alt="mark text" width="100" height="100"></p>
 
 <h1 align="center">Mark Text</h1>
@@ -9,10 +8,10 @@
   </a>
 </div>
 <div align="center">
-  <strong>:high_brightness:Next generation markdown editor:crescent_moon:</strong>
+  <strong>:high_brightness:Editor de Markdown next-gen:crescent_moon:</strong>
 </div>
 <div align="center">
-  An <code>Electron</code> app for platforms of macOS, Windows and Linux
+  Una aplicación hecha en <code>Electron</code> disponible para OS X, Windows y Linux
 </div>
 
 <br />
@@ -51,54 +50,32 @@
 <div align="center">
   <h3>
     <a href="https://marktext.github.io/website">
-      Website
+      Página web
     </a>
     <span> | </span>
     <a href="https://github.com/marktext/marktext#features">
-      Features
+      Funcionalidades
     </a>
     <span> | </span>
     <a href="https://github.com/marktext/marktext#download-and-install">
-      Downloads
+      Descargas
     </a>
     <span> | </span>
     <a href="https://github.com/marktext/marktext#development">
-      Development
+      Desarrollo
     </a>
     <span> | </span>
     <a href="https://github.com/marktext/marktext#contribution">
-      Contribution
+      Contribuciones
     </a>
   </h3>
 </div>
 
 <div align="center">
-  <sub>Translations:</sub>
-  <a href="https://github.com/marktext/marktext/blob/master/doc/i18n/zh_cn.md#readme">
-    <span>:cn:</span>    
-  </a>
-  <a href="https://github.com/marktext/marktext/blob/master/doc/i18n/pl.md#readme">
-    <span>:poland:</span>
-  </a>
-  <a href="https://github.com/marktext/marktext/blob/master/doc/i18n/ja.md#readme">
-    <span>:jp:</span>
-  </a>
-  <a href="https://github.com/marktext/marktext/blob/master/doc/i18n/french.md#readme">
-    <span>:fr:</span>
-  </a>
-  <a href="https://github.com/marktext/marktext/blob/master/doc/i18n/tr.md#readme">
-    <span>:tr:</span>
-  </a>
-  <a href="https://github.com/marktext/asmilex/blob/master/doc/i18n/spanish.md#readme">
-    <span>:es:</span>
-  </a>
-</div>
-
-<div align="center">
-  <sub>This Markdown editor that could. Built with ❤︎ by
-    <a href="https://github.com/Jocs">Jocs</a> and
+  <sub>Editor escrito con ❤︎ por
+    <a href="https://github.com/Jocs">Jocs</a> y
     <a href="https://github.com/marktext/marktext/graphs/contributors">
-      contributors
+      contribuidores
     </a>
   </sub>
 </div>
@@ -107,34 +84,34 @@
 
 ![](https://github.com/marktext/marktext/blob/master/doc/marktext.gif)
 
-## Features
+## Características
 
-- Realtime preview and use [snabbdom](https://github.com/snabbdom/snabbdom) as its render engine.
-- Support [CommonMark Spec](https://spec.commonmark.org/0.28/) and [GitHub Flavored Markdown Spec](https://github.github.com/gfm/).
-- Support paragraphs and inline style shortcuts to improve your writing efficiency.
-- Output **HTML** and **PDF** files.
-- Dark and Light themes.
-- Various editing modes: **Source Code mode**, **Typewriter mode**, **Focus mode**.
+- Renderizado en tiempo real, y utiliza [snabbdom](https://github.com/snabbdom/snabbdom) como motor de renderizado.
+- Soporta [CommonMark Spec](https://spec.commonmark.org/0.28/) y [GitHub Flavored Markdown Spec](https://github.github.com/gfm/).
+- Soporta párrafos y atajos en mitad de la línea para mejorar la eficiencia de escritura
+- Exporta archivos markdown en **HTML** y **PDF**.
+- Temas claro y oscuro.
+- Varios modos de edición: **Modo código fuente**, **Modo máquina de escribir**, **Modo concentración**.
 
-<h4 align="center">:crescent_moon:Dark and Light themes:high_brightness:</h4>
+<h4 align="center">:crescent_moon:Temas claro y oscuro:high_brightness:</h4>
 
-| Dark :crescent_moon:                                               | Light :high_brightness:                                             |
+| Oscuro :crescent_moon:                                               | Claro :high_brightness:                                             |
 |:------------------------------------------------------------------:|:-------------------------------------------------------------------:|
 | ![](https://github.com/marktext/marktext/blob/master/doc/dark.jpg) | ![](https://github.com/marktext/marktext/blob/master/doc/light.jpg) |
 
-<h4 align="center">:smile_cat:Edit modes:dog:</h4>
+<h4 align="center">:smile_cat:Mode d'édition:dog:</h4>
 
-| Source Code                                                          | Typewriter                                                               | Focus                                                               |
+| Código fuente                                                          | Máquina de escribir                                                               | Concentración                                                               |
 |:--------------------------------------------------------------------:|:------------------------------------------------------------------------:|:-------------------------------------------------------------------:|
 | ![](https://github.com/marktext/marktext/blob/master/doc/source.gif) | ![](https://github.com/marktext/marktext/blob/master/doc/typewriter.gif) | ![](https://github.com/marktext/marktext/blob/master/doc/focus.gif) |
 
-## Why write another editor?
+## ¿Por qué hacer otro editor ?
 
-1. I love writing. I have used a lot of markdown editors, yet there is still not an editor that can fully meet my needs. I don't like to be disturbed when I write by some unbearable bug. **Mark Text** uses virtual DOM to render pages which has the added benefits of being highly efficient and being open source. That way anyone who loves markdown and writing can use Mark Text. 
-2. As mentioned above, **Mark Text** is open source and will be open source forever. We hope that all markdown lovers will contribute their own code and help develop **Mark Text** into a popular markdown editor.
-3. There are many markdown editors and all have their own merits, some have feautures which others don't. It's difficult to satisfy each markdown users needs but we hope **Mark Text** will be able to satisfy each markdown users' needs as much as possible. Although the latest **Mark Text** is still not perfect, we will try to make it as best as we possibly can.
+1. Me encanta escribir. He usado un montón de editores de markdown, y todavía no he encontrado ninguno que cumpla todas mis necesidades. No me gusta que me moleste ningún bug cuando escribo. **Mark Text** usa virtual DOM para renderizar páginas, la cual tiene el beneficio de ser muy eficiente y de código abierto. Así, a cualquiera que le guste escribir y use markdown puede usar Mark Text
+2. Como se ha mencionado arriba, **Mark Text** es de código abierto, y lo será para siempre. Esperamos que todos los amantes de markdown contribuyan y ayuden al desarrollo de **Mark Text**, para que sea popular. 
+3. Hay muchos editores de markdown, y todos tienen sus méritos. Algunos tienen funcionalidades que otros no. Es difícil satisfacer los gustos de todo el mundo, pero esperamos que **Mark Text** cubra las necesidades de todos lo máximo posible. Aunque lo último de **Mark Text** no sea perfecto, lo damos todo para intentar que sea lo mejor
 
-## Download and Install
+## Descarga e instalación
 
 ![Conda](https://img.shields.io/conda/pn/conda-forge/python.svg?style=for-the-badge)
 
@@ -142,51 +119,46 @@
 |:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
 | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-0.12.25.dmg.svg)](https://github.com/marktext/marktext/releases/download/v0.12.25/marktext-0.12.25.dmg) | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-setup-0.12.25.exe.svg)](https://github.com/marktext/marktext/releases/download/v0.12.25/marktext-setup-0.12.25.exe) | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-0.12.25-x86_64.AppImage.svg)](https://github.com/marktext/marktext/releases/download/v0.12.25/marktext-0.12.25-x86_64.AppImage) |
 
-Can't find your system? Go to the [release page](https://github.com/marktext/marktext/releases). Is a version for your system unavailable? Than open an [issue](https://github.com/marktext/marktext/issues).
+¿No encuentras tu sistema? Ve a la [página de descargas](https://github.com/marktext/marktext/releases). ¿No se encuentra disponible tu versión? Abre una [issue](https://github.com/marktext/marktext/issues).
 
-Want to see new features of the latest version? Refer to [CHANGELOG](https://github.com/marktext/marktext/blob/master/.github/CHANGELOG.md)
+¿Quieres saber las nuevas funcionalidades de la última versión? Échale un vistazo al [CHANGELOG](https://github.com/marktext/marktext/blob/master/.github/CHANGELOG.md)
 
-If you use macOS, you can install Mark Text using [**homebrew cask**](https://github.com/caskroom/homebrew-cask). To use Homebrew-Cask you just need to have [Homebrew](https://brew.sh/) installed.
-
-```bash 
+Si estás usando macOS, puedes instalar Mart Text usando [**homebrew cask**](https://github.com/caskroom/homebrew-cask). Para usar Homebrew-Cask, tienes que tener instalado [Homebrew](https://brew.sh/)
+```bash
 brew cask install mark-text
 ```
 
 ![](https://github.com/marktext/marktext/blob/master/doc/brew-cask.gif)
 
-#### macOS and Windows
+#### macOS y Windows
 
-Simply download and install Mark Text via setup wizard.
+Descarga e instala Mart Text a partir del asistente de instalación
 
 #### Linux
 
-Please follow the [Linux installation instructions](https://github.com/marktext/marktext/blob/master/doc/linux.md).
+Sigue las [instrucciones de instalación de Linux]	(https://github.com/marktext/marktext/blob/master/doc/linux.md).
 
-## Development
+## Desarrollo
 
-If you wish to build **Mark Text** yourself, please check out our [developer documentation](https://github.com/marktext/marktext/blob/master/.github/CONTRIBUTING.md#build-instructions).
+Si quieres construir tú mismo **Mark Text**, por favor, sigue las  [instrucciones de desarrollo](https://github.com/marktext/marktext/blob/master/.github/CONTRIBUTING.md#build-instructions).
 
-If you have any questions regarding **Mark Text**, you are welcome to write an issue. When doing so please use the default format found when opening a issue. Of course, if you submit a PR directly, it will be greatly appreciated.
+Si tienes dudas sobre **Mark Text**, puedes abrir un issue. Si lo haces, por favor, sigue el formato estándar. Por supuesto, apreciamos que mandes directamente un Pull Request
 
-## Integrations
+## Integración
+- [Alfred Workflow](http://www.packal.org/workflow/mark-text): un workflow  para la aplicación de macOS Alfred: usa "mt" para abrir archivos/carpetas con Mark Text
+## Contribución
 
-- [Alfred Workflow](http://www.packal.org/workflow/mark-text): A Workflow for the macOS app Alfred: Use "mt" to open files/folder with Mark Text.
-
-## Contribution
-
-Mark Text is in full development, please make sure to read the [Contributing Guide](https://github.com/marktext/marktext/blob/master/.github/CONTRIBUTING.md) before making a pull request. Want to add some features to Mark Text? Refer to [TODO LIST](https://github.com/marktext/marktext/blob/master/.github/TODOLIST.md) and open issues.
+**Mark Text** está en pleno desarrollo. Asegúrate de leer [la guía de contribución](https://github.com/marktext/marktext/blob/master/.github/CONTRIBUTING.md) antes de hacer un Pull Request. ¿Quieres añadir algunas funcionalidades? Échale un vistazo a la [TODO LIST](https://github.com/marktext/marktext/blob/master/.github/TODOLIST.md) y abre issues.
 
 ## Backers
 
-Thank you to all our backers! 🙏 [[Become a backer](https://opencollective.com/marktext#backers)]
+¡Gracias a todos nuestros colaboradores! 🙏 [[Conviértete en un backer](https://opencollective.com/marktext#backers)]
 
-<a href="https://opencollective.com/marktext#backers">
-  <img src="https://opencollective.com/marktext/tiers/backer.svg?avatarHeight=36&width=600">
-</a>
+<a href="https://opencollective.com/marktext#backers" target="_blank"><img src="https://opencollective.com/marktext/tiers/backer.svg?avatarHeight=36" /></a>
 
 ## Sponsors
 
-Support this project by becoming a sponsor. Your logo will show up here with a link to your website. [[Become a sponsor](https://opencollective.com/marktext#platinum-sponsors)]
+Apoya este proyecto convirtiéndote en un sponsor. Tu logo se verá aquí con un link a tu página [[Conviértete en un sponsor](https://opencollective.com/marktext#silver-sponsors)]
 
 **Bronze Sponsors**
 
@@ -210,16 +182,16 @@ Support this project by becoming a sponsor. Your logo will show up here with a l
 
 <a href="https://readme.io" target="_blank"><img src="https://github.com/marktext/marktext/blob/master/doc/sponsor/readme.png" /></a>
 
-## Contributors
 
-Thank you to all the people who have already contributed to Mark Text[[contributors](https://github.com/marktext/marktext/graphs/contributors)]
+## Contribuidores
 
-Special thanks to @[Yasujizr](https://github.com/Yasujizr) who designed the logo of Mark Text.
+Gracias a todo el mundo que ha contribuido al desarrollo de Mark Text! [[contributors](https://github.com/marktext/marktext/graphs/contributors)]
+
+Un especial agradecimiento a @[Yasujizr](https://github.com/Yasujizr) por hacer el logo de Mark Text.
 
 <a href="https://github.com/marktext/marktext/graphs/contributors"><img src="https://opencollective.com/marktext/contributors.svg?width=890" /></a>
 
-
-## License
+## Licencia
 
 [**MIT**](https://github.com/marktext/marktext/blob/master/LICENSE).
 
