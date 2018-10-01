@@ -85,6 +85,21 @@ const mutations = {
   },
   SET_RENAME_CACHE (state, cache) {
     state.renameCache = cache
+  },
+  UPDATE_PROJECT_CONTENT (state, { markdown, pathname }) {
+    if (!state.projectTree) return
+    const travel = folder => {
+      folder.files.filter(file => file.isMarkdown)
+        .forEach(file => {
+          if (file.pathname === pathname) {
+            file.data.markdown = markdown
+          }
+        })
+      for (const childFolder of folder.folders) {
+        travel(childFolder)
+      }
+    }
+    travel(state.projectTree)
   }
 }
 
