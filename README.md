@@ -89,7 +89,7 @@
   <a href="https://github.com/marktext/marktext/blob/master/doc/i18n/tr.md#readme">
     <span>:tr:</span>
   </a>
-  <a href="https://github.com/marktext/asmilex/blob/master/doc/i18n/spanish.md#readme">
+  <a href="https://github.com/marktext/marktext/blob/master/doc/i18n/spanish.md#readme">
     <span>:es:</span>
   </a>
 </div>
