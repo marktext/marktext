@@ -12,6 +12,7 @@ import ExportMarkdown from './utils/exportMarkdown'
 import ExportHtml from './utils/exportHtml'
 import { checkEditImage } from './utils/checkEditImage'
 import TablePicker from './tablePicker'
+import ToolTip from './ui/tooltip'
 
 import './assets/symbolIcon' // import symbol icons
 import './assets/symbolIcon/index.css'
@@ -57,6 +58,9 @@ class Muya {
     this.ensureContainerDiv()
     const { container, contentState, eventCenter } = this
     contentState.stateRender.setContainer(container.children[0])
+
+    // init tooltip
+    this.tooltip = new ToolTip(this)
 
     eventCenter.subscribe('editEmoji', throttle(this.subscribeEditEmoji.bind(this), 200))
     this.dispatchEditEmoji()

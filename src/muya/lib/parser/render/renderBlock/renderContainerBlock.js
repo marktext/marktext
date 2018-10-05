@@ -45,14 +45,13 @@ export default function renderContainerBlock (block, cursor, activeBlocks, match
     }
   }
   if (block.type === 'li' && block.label) {
-    const { label, title } = block
+    const { label, title: tooltip } = block
     const { align } = activeBlocks[0]
 
     if (align && block.label === align) {
       selector += '.active'
     }
-    Object.assign(data.dataset, { label })
-    Object.assign(data.attrs, { title })
+    Object.assign(data.dataset, { label, tooltip })
   }
   if (block.type === 'li' && block.listItemType) {
     selector += `.${CLASS_OR_ID['AG_LIST_ITEM']}`

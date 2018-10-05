@@ -220,7 +220,7 @@ export const TABLE_TOOLS = [{
 
 export const HTML_TOOLS = [{
   label: 'delete',
-  title: 'Delete HTML block',
+  title: 'Delete HTML',
   icon: 'icon-del'
 }]
 

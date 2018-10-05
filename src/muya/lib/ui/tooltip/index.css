@@ -1,0 +1,28 @@
+.ag-tooltip {
+  transition: opacity .2s, transform .2s;
+  position: absolute;
+  font-size: 12px;
+  padding: 5px 7px;
+  border-radius: 5px;
+  background: rgb(50, 50, 50);
+  color: rgb(255, 255, 255);
+  z-index: 1000;
+  opacity: 0;
+}
+
+.ag-tooltip.active {
+  opacity: 1;
+  transform: translateY(-5px);
+}
+
+.ag-tooltip:after {
+  top: 0;
+  left: 50%;
+  content: '';
+  background: inherit;
+  width: 8px;
+  height: 8px;
+  position: absolute;
+  display: block;
+  transform: rotate(45deg) translateX(-50%);
+}
