@@ -4,8 +4,8 @@ import template from './index.tpl.html'
 import './index.css'
 
 class TablePicker {
-  constructor (eventCenter) {
-    this.eventCenter = eventCenter
+  constructor (muya) {
+    this.muya = muya
     this.status = false
     this.checkerCount = {
       row: 10,
@@ -19,7 +19,7 @@ class TablePicker {
   }
 
   init () {
-    const { eventCenter } = this
+    const { eventCenter } = this.muya
     const { row, column } = this.checkerCount
     const container = document.createElement('div')
     container.innerHTML = template
@@ -113,7 +113,8 @@ class TablePicker {
   }
 
   handlerHover () {
-    const { eventCenter, checker, rowInput, columnInput } = this
+    const { checker, rowInput, columnInput } = this
+    const { eventCenter } = this.muya
     const hander = event => {
       const target = event.target
       if (target.classList.contains('ag-table-picker-cell')) {
@@ -128,7 +129,8 @@ class TablePicker {
   }
 
   handerClick () {
-    const { rowInput, columnInput, container, eventCenter } = this
+    const { rowInput, columnInput, container } = this
+    const { eventCenter } = this.muya
 
     const hander = event => {
       const { cb } = this
@@ -156,7 +158,7 @@ class TablePicker {
   }
 
   destroy () {
-    this.container.parentNode.removeChild(this.container)
+    this.container.remove()
   }
 }
 

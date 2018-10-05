@@ -7,11 +7,11 @@ import './index.css'
 const ITEM_HEIGHT = 28
 
 class FloatBox {
-  constructor (eventCenter) {
+  constructor (muya) {
     this.list = []
     this.index = 0
     this.position = null
-    this.eventCenter = eventCenter
+    this.muya = muya
     this.show = false
     this.box = null
     this.cb = null
@@ -39,7 +39,7 @@ class FloatBox {
       box.id = CLASS_OR_ID['AG_FLOAT_BOX_ID']
       box.classList.add(CLASS_OR_ID['AG_FLOAT_BOX'])
       document.body.appendChild(box)
-      this.eventId = this.eventCenter.attachDOMEvent(box, 'click', this.clickHandler.bind(this))
+      this.eventId = this.muya.eventCenter.attachDOMEvent(box, 'click', this.clickHandler.bind(this))
     }
     this.box = box
   }
@@ -158,7 +158,7 @@ class FloatBox {
   }
 
   destroy () {
-    this.eventCenter.detachDOMEvent(this.eventId)
+    this.muya.eventCenter.detachDOMEvent(this.eventId)
     this.box.remove()
   }
 }

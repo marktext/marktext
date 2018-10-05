@@ -1,5 +1,10 @@
+import { filter } from 'fuzzaldrin'
 import emojis from './emojisJson'
 import { CLASS_OR_ID } from '../config'
+
+const emojisForSearch = emojis.map(emoji => {
+  return Object.assign({}, emoji, { search: [...emoji.aliases, ...emoji.tags].join(' ') })
+})
 
 /**
  * check if one emoji code is in emojis, return undefined or found emoji
@@ -40,12 +45,7 @@ class Emoji {
 
     if (cache.has(text)) return cache.get(text)
 
-    const SEARCH_REG = new RegExp(`^${text}`, 'i')
-    const result = emojis.filter(emoji => {
-      return [...emoji.aliases, ...emoji.tags].some(name => {
-        return SEARCH_REG.test(name)
-      })
-    })
+    const result = filter(emojisForSearch, text, { key: 'search' })
     cache.set(text, result)
     return result
   }

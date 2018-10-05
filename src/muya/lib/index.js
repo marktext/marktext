@@ -1,7 +1,7 @@
 import ContentState from './contentState'
 import selection from './selection'
 import EventCenter from './event'
-import { LOWERCASE_TAGS, EVENT_KEYS, CLASS_OR_ID, codeMirrorConfig } from './config'
+import { EVENT_KEYS, CLASS_OR_ID, codeMirrorConfig } from './config'
 import { throttle, wordCount } from './utils'
 import { search } from './codeMirror'
 import { checkEditLanguage } from './codeMirror/language'
@@ -25,10 +25,12 @@ class Muya {
       autoPairBracket = true, autoPairMarkdownSyntax = true, autoPairQuote = true,
       bulletListMarker = '-', tabSize = 4
     } = options
-    this.container = container
+    this.container = this.getContainer(container)
     const eventCenter = this.eventCenter = new EventCenter()
-    const floatBox = this.floatBox = new FloatBox(eventCenter)
-    const tablePicker = this.tablePicker = new TablePicker(eventCenter)
+    // init tooltip
+    this.tooltip = new ToolTip(this)
+    const floatBox = this.floatBox = new FloatBox(this)
+    const tablePicker = this.tablePicker = new TablePicker(this)
     this.contentState = new ContentState({
       eventCenter,
       floatBox,
@@ -55,12 +57,8 @@ class Muya {
   }
 
   init () {
-    this.ensureContainerDiv()
     const { container, contentState, eventCenter } = this
     contentState.stateRender.setContainer(container.children[0])
-
-    // init tooltip
-    this.tooltip = new ToolTip(this)
 
     eventCenter.subscribe('editEmoji', throttle(this.subscribeEditEmoji.bind(this), 200))
     this.dispatchEditEmoji()
@@ -109,21 +107,18 @@ class Muya {
   /**
    * [ensureContainerDiv ensure container element is div]
    */
-  ensureContainerDiv () {
-    const { container } = this
-    const div = document.createElement(LOWERCASE_TAGS.div)
-    const rootDom = document.createElement(LOWERCASE_TAGS.div)
-    const attrs = container.attributes
-    const parentNode = container.parentNode
+  getContainer (originContainer) {
+    const container = document.createElement('div')
+    const rootDom = document.createElement('div')
+    const attrs = originContainer.attributes
     // copy attrs from origin container to new div element
     Array.from(attrs).forEach(attr => {
-      div.setAttribute(attr.name, attr.value)
+      container.setAttribute(attr.name, attr.value)
     })
-    div.setAttribute('contenteditable', true)
-    div.appendChild(rootDom)
-    parentNode.insertBefore(div, container)
-    parentNode.removeChild(container)
-    this.container = div
+    container.setAttribute('contenteditable', true)
+    container.appendChild(rootDom)
+    originContainer.replaceWith(container)
+    return container
   }
 
   dispatchChange () {
