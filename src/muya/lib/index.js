@@ -7,7 +7,7 @@ import { search } from './codeMirror'
 import { checkEditLanguage } from './codeMirror/language'
 import Emoji, { checkEditEmoji, setInlineEmoji } from './emojis'
 import FloatBox from './floatBox'
-import { findNearestParagraph, operateClassName, isInElement } from './utils/domManipulate'
+import { findNearestParagraph, operateClassName } from './utils/domManipulate'
 import ExportMarkdown from './utils/exportMarkdown'
 import ExportHtml from './utils/exportHtml'
 import { checkEditImage } from './utils/checkEditImage'
@@ -407,7 +407,7 @@ class Muya {
     const handler = event => {
       const target = event.target
       const markedImageText = target.previousElementSibling
-      const mathRender = isInElement(target, CLASS_OR_ID['AG_MATH_RENDER'])
+      const mathRender = target.closest(`.${CLASS_OR_ID['AG_MATH_RENDER']}`)
       const mathText = mathRender && mathRender.previousElementSibling
       if (markedImageText && markedImageText.classList.contains(CLASS_OR_ID['AG_IMAGE_MARKED_TEXT'])) {
         selectionText(markedImageText)
@@ -422,8 +422,8 @@ class Muya {
   htmlPreviewClick () {
     const { eventCenter, container } = this
     const handler = event => {
-      const target = event.target
-      const htmlPreview = isInElement(target, 'ag-function-html')
+      const { target } = event
+      const htmlPreview = target.closest(`.ag-function-html`)
       if (htmlPreview && !htmlPreview.classList.contains(CLASS_OR_ID['AG_ACTIVE'])) {
         event.preventDefault()
         event.stopPropagation()
@@ -437,8 +437,8 @@ class Muya {
   mathPreviewClick () {
     const { eventCenter, container } = this
     const handler = event => {
-      const target = event.target
-      const mathFigure = isInElement(target, 'ag-multiple-math-block')
+      const { target } = event
+      const mathFigure = target.closest('.ag-multiple-math-block')
       if (mathFigure && !mathFigure.classList.contains(CLASS_OR_ID['AG_ACTIVE'])) {
         event.preventDefault()
         event.stopPropagation()

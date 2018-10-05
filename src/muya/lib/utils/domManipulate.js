@@ -178,16 +178,6 @@ export const getTextContent = (node, blackList) => {
   return text
 }
 
-export const isInElement = (node, className) => {
-  if (!node || !node.classList) return false
-  if (node.classList.contains(className)) {
-    return node
-  } else {
-    const parentNode = node.parentNode
-    return parentNode ? isInElement(parentNode, className) : false
-  }
-}
-
 export const insertBefore = (newNode, originNode) => {
   const parentNode = originNode.parentNode
   parentNode.insertBefore(newNode, originNode)
