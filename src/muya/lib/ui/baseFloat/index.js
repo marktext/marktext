@@ -3,7 +3,9 @@ import { noop } from '../../utils'
 import './index.css'
 
 class BaseFloat {
-  constructor () {
+  constructor (muya, name) {
+    this.name = name
+    this.muya = muya
     this.status = false
     this.container = null
     this.popper = null
@@ -18,17 +20,30 @@ class BaseFloat {
     this.container = floatBox
   }
 
+  listen () {
+    const { eventCenter } = this.muya
+    const { container } = this
+    eventCenter.attachDOMEvent(document, 'click', this.hide.bind(this))
+    eventCenter.attachDOMEvent(container, 'click', event => {
+      event.stopPropagation()
+      event.preventDefault()
+    })
+  }
+
   hide () {
+    const { eventCenter } = this.muya
     if (!this.status) return
     this.status = false
     if (this.popper && this.popper.destroy) {
       this.popper.destroy()
     }
     this.cb = noop
+    eventCenter.dispatch('muya-float', this.name, false)
   }
 
   show (reference, cb = noop) {
     const { container } = this
+    const { eventCenter } = this.muya
     if (this.popper && this.popper.destroy) {
       this.popper.destroy()
     }
@@ -42,6 +57,7 @@ class BaseFloat {
       }
     })
     this.status = true
+    eventCenter.dispatch('muya-float', this.name, true)
   }
 }
 

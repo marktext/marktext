@@ -462,10 +462,14 @@ const updateCtrl = ContentState => {
 
     this.cursor = lastCursor = { start, end }
     const checkMarkedUpdate = this.checkNeedRender(block)
-    const checkQuickInsert = this.checkQuickInsert(block)
+
+    if (event.type === 'input') {
+      const checkQuickInsert = this.checkQuickInsert(block)
+      const reference = getPositionReference(paragraph)
+      this.muya.eventCenter.dispatch('muya-quick-insert', reference, block, checkQuickInsert)
+    }
+
     const inlineUpdatedBlock = this.isCollapse() && !/frontmatter|multiplemath/.test(block.functionType) && this.checkInlineUpdate(block)
-    const reference = getPositionReference(paragraph)
-    this.muya.eventCenter.dispatch('muya-quick-insert', reference, block.text, checkQuickInsert)
     if (checkMarkedUpdate || inlineUpdatedBlock || needRender) {
       needRenderAll ? this.render() : this.partialRender()
     }

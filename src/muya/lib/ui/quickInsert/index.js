@@ -7,19 +7,33 @@ import './index.css'
 
 class QuickInsert extends BaseFloat {
   constructor (muya) {
-    super()
+    const name = 'ag-quick-insert'
+    super(muya, name)
     // Use to remember whick float container is shown.
-    this.name = 'ag-quick-insert'
     this.container.classList.add(this.name)
-    this.muya = muya
     this.reference = null
     this.scrollElement = null
     this.oldVnode = null
-    this.renderList = null
+    this._renderObj = null
+    this.renderArray = null
     this.activeItem = null
+    this.block = null
     this.createScrollElement()
     this.render(quicInsertList)
     this.listen()
+  }
+
+  set renderObj (obj) {
+    this._renderObj = obj
+    const renderArray = []
+    Object.keys(obj).forEach(key => {
+      renderArray.push(...obj[key])
+    })
+    this.renderArray = renderArray
+    if (this.renderArray.length > 0) {
+      this.activeItem = this.renderArray[0]
+      this.activeEleScrollIntoView()
+    }
   }
 
   createScrollElement () {
@@ -29,9 +43,12 @@ class QuickInsert extends BaseFloat {
     this.scrollElement = scrollElement
   }
 
-  render (list) {
-    this.renderList = list
-    const { scrollElement } = this
+  render (list = this._renderObj, needSet = true) {
+    if (needSet) {
+      this.renderObj = list
+    }
+
+    const { scrollElement, activeItem } = this
     let children = Object.keys(list).filter(key => {
       return list[key].length !== 0
     })
@@ -71,7 +88,8 @@ class QuickInsert extends BaseFloat {
             h('div.big-title', title),
             h('div.sub-title', subTitle)
           ])
-          items.push(h('div.item', { dataSet: { label } }, [iconVnode, description]))
+          const selector = activeItem.label === label ? 'div.item.active' : 'div.item'
+          items.push(h(selector, { dataset: { label } }, [iconVnode, description]))
         }
 
         return h('section', [titleVnode, ...items])
@@ -91,11 +109,13 @@ class QuickInsert extends BaseFloat {
   }
 
   listen () {
+    super.listen()
     const { eventCenter, container } = this.muya
-    eventCenter.subscribe('muya-quick-insert', (reference, text, status) => {
+    eventCenter.subscribe('muya-quick-insert', (reference, block, status) => {
       if (status) {
         this.show(reference)
-        this.search(text.substring(1)) // remove `@` char
+        this.search(block.text.substring(1)) // remove `@` char
+        this.block = block
       } else {
         this.hide()
       }
@@ -103,7 +123,6 @@ class QuickInsert extends BaseFloat {
 
     const handler = event => {
       if (!this.status) return
-      console.log(event)
       switch (event.key) {
         case EVENT_KEYS.Escape:
           this.hide()
@@ -132,11 +151,9 @@ class QuickInsert extends BaseFloat {
   }
 
   show (reference) {
-    const { eventCenter } = this.muya
     if (this.reference && this.reference.id === reference.id && this.status) return
     this.reference = reference
     super.show(reference)
-    eventCenter.dispatch('muya-show-float', this.name)
   }
 
   search (text) {
@@ -153,7 +170,43 @@ class QuickInsert extends BaseFloat {
 
   selectItem (item) {
     const { contentState } = this.muya
+    this.block.text = ''
+    const { key } = this.block
+    const offset = 0
+    contentState.cursor = {
+      start: { key, offset },
+      end: { key, offset }
+    }
     contentState.updateParagraph(item.label)
+    // delay hide to avoid dispatch enter hander
+    setTimeout(this.hide.bind(this))
+  }
+
+  step (direction) {
+    let index = this.renderArray.findIndex(item => {
+      return item.label === this.activeItem.label
+    })
+    index = direction === 'next' ? index + 1 : index - 1
+    if (index < 0 || index >= this.renderArray.length) {
+      return
+    }
+    this.activeItem = this.renderArray[index]
+    this.render(undefined, false)
+    this.activeEleScrollIntoView()
+  }
+
+  getItemElement (item) {
+    const { label } = item
+    return this.scrollElement.querySelector(`[data-label="${label}"]`)
+  }
+
+  activeEleScrollIntoView () {
+    const activeEle = this.getItemElement(this.activeItem)
+    if (activeEle) {
+      activeEle.scrollIntoView({
+        behavior: 'auto'
+      })
+    }
   }
 }
 

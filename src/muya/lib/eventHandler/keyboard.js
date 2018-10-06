@@ -13,8 +13,8 @@ class Keyboard {
 
   listen () {
     // cache shown float box
-    this.muya.eventCenter.subscribe('muya-show-float', name => {
-      this.shownFloat.add(name)
+    this.muya.eventCenter.subscribe('muya-float', (name, status) => {
+      status ? this.shownFloat.add(name) : this.shownFloat.delete(name)
     })
   }
 
@@ -67,13 +67,11 @@ class Keyboard {
       if (
         this.shownFloat.size > 0 &&
         (
-          event === EVENT_KEYS.Enter ||
-          event === EVENT_KEYS.Escape ||
-          event === EVENT_KEYS.Tab ||
-          event === EVENT_KEYS.ArrowUp ||
-          event === EVENT_KEYS.ArrowDown ||
-          event === EVENT_KEYS.ArrowRight ||
-          event === EVENT_KEYS.ArrowLeft
+          event.key === EVENT_KEYS.Enter ||
+          event.key === EVENT_KEYS.Escape ||
+          event.key === EVENT_KEYS.Tab ||
+          event.key === EVENT_KEYS.ArrowUp ||
+          event.key === EVENT_KEYS.ArrowDown
         )
       ) {
         event.stopPropagation()

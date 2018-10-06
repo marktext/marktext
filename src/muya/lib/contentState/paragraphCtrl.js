@@ -340,7 +340,7 @@ const paragraphCtrl = ContentState => {
   }
 
   ContentState.prototype.updateParagraph = function (paraType) {
-    const { start, end } = selection.getCursorRange()
+    const { start, end } = this.cursor
     const block = this.getBlock(start.key)
     const { type, text } = block
 
