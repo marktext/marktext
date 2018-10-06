@@ -301,7 +301,7 @@ const updateCtrl = ContentState => {
   }
 
   ContentState.prototype.updateState = function (event) {
-    const { floatBox } = this
+    const { floatBox } = this.muya
     const { start, end } = selection.getCursorRange()
     const key = start.key
     const block = this.getBlock(key)
@@ -459,12 +459,13 @@ const updateCtrl = ContentState => {
     if (oldKey !== key || oldStart.offset !== start.offset || oldEnd.offset !== end.offset) {
       needRender = true
     }
+
     this.cursor = lastCursor = { start, end }
     const checkMarkedUpdate = this.checkNeedRender(block)
     const checkQuickInsert = this.checkQuickInsert(block)
     const inlineUpdatedBlock = this.isCollapse() && !/frontmatter|multiplemath/.test(block.functionType) && this.checkInlineUpdate(block)
     const reference = getPositionReference(paragraph)
-    this.eventCenter.dispatch('muya-quick-insert', reference, block.text, checkQuickInsert)
+    this.muya.eventCenter.dispatch('muya-quick-insert', reference, block.text, checkQuickInsert)
     if (checkMarkedUpdate || inlineUpdatedBlock || needRender) {
       needRenderAll ? this.render() : this.partialRender()
     }

@@ -55,7 +55,7 @@ const tableBlockCtrl = ContentState => {
       start: { key, offset },
       end: { key, offset }
     }
-    this.eventCenter.dispatch('stateChange')
+    this.muya.eventCenter.dispatch('stateChange')
     this.partialRender()
   }
 
@@ -114,7 +114,7 @@ const tableBlockCtrl = ContentState => {
             row.children[column].align = newAlign
           })
         })
-        this.eventCenter.dispatch('stateChange')
+        this.muya.eventCenter.dispatch('stateChange')
         this.partialRender()
         break
       }
@@ -130,12 +130,12 @@ const tableBlockCtrl = ContentState => {
           start: { key, offset },
           end: { key, offset }
         }
-        this.eventCenter.dispatch('stateChange')
+        this.muya.eventCenter.dispatch('stateChange')
         this.partialRender()
         break
       }
       case 'table': {
-        const { tablePicker } = this
+        const { tablePicker } = this.muya
         const figureKey = figure.key
         const tableLable = document.querySelector(`#${figureKey} [data-label=table]`)
         const { row = 1, column = 1 } = table // zero base
@@ -191,7 +191,7 @@ const tableBlockCtrl = ContentState => {
             start: { key, offset },
             end: { key, offset }
           }
-          this.eventCenter.dispatch('stateChange')
+          this.muya.eventCenter.dispatch('stateChange')
           this.partialRender()
         }
 
@@ -340,7 +340,7 @@ const tableBlockCtrl = ContentState => {
     }
 
     this.partialRender()
-    this.eventCenter.dispatch('stateChange')
+    this.muya.eventCenter.dispatch('stateChange')
   }
 
   ContentState.prototype.getTableBlock = function () {

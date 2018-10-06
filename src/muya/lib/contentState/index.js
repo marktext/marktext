@@ -45,8 +45,11 @@ const prototypes = [
 ]
 
 class ContentState {
-  constructor (options) {
-    const { eventCenter, bulletListMarker } = options
+  constructor (muya, options) {
+    const { eventCenter } = muya
+    const { bulletListMarker } = options
+
+    this.muya = muya
     Object.assign(this, options)
 
     // Use to cache the keys which you don't want to remove.
@@ -54,7 +57,6 @@ class ContentState {
     this.blocks = [ this.createBlockP() ]
     this.stateRender = new StateRender(eventCenter)
     this.codeBlocks = new Map()
-    this.shownFloat = new Set()
     this.renderRange = [ null, null ]
     this.currentCursor = null
     this.prevCursor = null
@@ -120,10 +122,6 @@ class ContentState {
       start: { key, offset },
       end: { key, offset }
     }
-    // cache shown float box
-    this.eventCenter.subscribe('muya-show-float', name => {
-      this.shownFloat.add(name)
-    })
   }
 
   getHistory () {

@@ -72,7 +72,7 @@ const codeBlockCtrl = ContentState => {
   }
 
   ContentState.prototype.pre2CodeMirror = function (isRenderCursor, blocks) {
-    const { eventCenter } = this
+    const { eventCenter } = this.muya
     let selector = ''
     if (blocks) {
       selector = blocks.map(({ type, key }) => {

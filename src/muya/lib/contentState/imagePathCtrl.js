@@ -18,7 +18,7 @@ const imagePathCtrl = ContentState => {
   }
 
   ContentState.prototype.showAutoImagePath = function (list) {
-    const { floatBox } = this
+    const { floatBox } = this.muya
     const node = this.getImageTextNode()
 
     if (!node || list.length === 0) {
@@ -47,7 +47,7 @@ const imagePathCtrl = ContentState => {
   }
 
   ContentState.prototype.listenForPathChange = function () {
-    const { eventCenter, floatBox } = this
+    const { eventCenter, floatBox } = this.muya
 
     eventCenter.subscribe('image-path', src => {
       const node = this.getImageTextNode()

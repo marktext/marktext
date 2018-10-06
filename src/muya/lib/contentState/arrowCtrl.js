@@ -50,7 +50,7 @@ const arrowCtrl = ContentState => {
 
   ContentState.prototype.arrowHandler = function (event) {
     // when the float box is show, use up and down to select item.
-    const { floatBox } = this
+    const { floatBox } = this.muya
     const { list, index, show } = floatBox
     const node = selection.getSelectionStart()
     const paragraph = findNearestParagraph(node)

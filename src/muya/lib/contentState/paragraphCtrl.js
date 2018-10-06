@@ -479,7 +479,7 @@ const paragraphCtrl = ContentState => {
     }
     // update menu status
     const selectionChanges = this.selectionChange()
-    this.eventCenter.dispatch('selectionChange', selectionChanges)
+    this.muya.eventCenter.dispatch('selectionChange', selectionChanges)
   }
 
   ContentState.prototype.insertParagraph = function (location) {

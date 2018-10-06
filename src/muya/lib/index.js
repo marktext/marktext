@@ -2,13 +2,14 @@ import ContentState from './contentState'
 import selection from './selection'
 import EventCenter from './eventHandler/event'
 import Clipboard from './eventHandler/clipboard'
+import Keyboard from './eventHandler/keyboard'
+import ClickEvent from './eventHandler/clickEvent'
 import { EVENT_KEYS, CLASS_OR_ID, codeMirrorConfig } from './config'
 import { throttle, wordCount } from './utils'
 import { search } from './codeMirror'
 import { checkEditLanguage } from './codeMirror/language'
 import Emoji, { checkEditEmoji, setInlineEmoji } from './emojis'
 import FloatBox from './ui/floatBox'
-import { operateClassName } from './utils/domManipulate'
 import { findNearestParagraph } from './selection/dom'
 import ExportMarkdown from './utils/exportMarkdown'
 import ExportHtml from './utils/exportHtml'
@@ -28,18 +29,14 @@ class Muya {
       autoPairBracket = true, autoPairMarkdownSyntax = true, autoPairQuote = true,
       bulletListMarker = '-', tabSize = 4
     } = options
-    this.container = this.getContainer(container)
+    this.container = getContainer(container)
     this.emoji = new Emoji() // emoji instance: has search(text) clear() methods.
-    const eventCenter = this.eventCenter = new EventCenter()
-    // init tooltip
+    this.eventCenter = new EventCenter()
     this.tooltip = new ToolTip(this)
     this.quickInsert = new QuickInsert(this)
-    const floatBox = this.floatBox = new FloatBox(this)
-    const tablePicker = this.tablePicker = new TablePicker(this)
-    this.contentState = new ContentState({
-      eventCenter,
-      floatBox,
-      tablePicker,
+    this.floatBox = new FloatBox(this)
+    this.tablePicker = new TablePicker(this)
+    this.contentState = new ContentState(this, {
       preferLooseListItem,
       autoPairBracket,
       autoPairMarkdownSyntax,
@@ -48,13 +45,13 @@ class Muya {
       tabSize
     })
     this.clipboard = new Clipboard(this)
+    this.clickEvent = new ClickEvent(this)
+    this.keyboard = new Keyboard(this)
     this.focusMode = focusMode
     this.theme = theme
     this.markdown = markdown
     this.fontSize = 16
     this.lineHeight = 1.6
-    // private property
-    this._isEditChinese = false // true or false
     this.init()
   }
 
@@ -79,42 +76,12 @@ class Muya {
       eventCenter.dispatch('contextmenu', event, sectionChanges)
     })
 
-    this.recordEditChinese()
-    this.imageClick()
-    this.listItemCheckBoxClick()
-    this.dispatchArrow()
-    this.dispatchBackspace()
-    this.dispatchEnter()
-    this.dispatchSelection()
-    this.dispatchUpdateState()
-    this.dispatchTableToolBar()
-    this.dispatchCodeBlockClick()
-    this.htmlPreviewClick()
-    this.mathPreviewClick()
-
     contentState.listenForPathChange()
 
     const { theme, focusMode, markdown } = this
     this.setTheme(theme)
     this.setMarkdown(markdown)
     this.setFocusMode(focusMode)
-  }
-
-  /**
-   * [ensureContainerDiv ensure container element is div]
-   */
-  getContainer (originContainer) {
-    const container = document.createElement('div')
-    const rootDom = document.createElement('div')
-    const attrs = originContainer.attributes
-    // copy attrs from origin container to new div element
-    Array.from(attrs).forEach(attr => {
-      container.setAttribute(attr.name, attr.value)
-    })
-    container.setAttribute('contenteditable', true)
-    container.appendChild(rootDom)
-    originContainer.replaceWith(container)
-    return container
   }
 
   dispatchChange () {
@@ -233,214 +200,6 @@ class Muya {
     }
   }
 
-  dispatchBackspace () {
-    const { container, eventCenter } = this
-
-    const handler = event => {
-      if (event.key === EVENT_KEYS.Backspace) {
-        this.contentState.backspaceHandler(event)
-      } else if (event.key === EVENT_KEYS.Delete) {
-        this.contentState.deleteHandler(event)
-      }
-    }
-
-    eventCenter.attachDOMEvent(container, 'keydown', handler)
-  }
-
-  recordEditChinese () {
-    const { container, eventCenter } = this
-    const handler = event => {
-      if (event.type === 'compositionstart') {
-        this._isEditChinese = true
-      } else if (event.type === 'compositionend') {
-        this._isEditChinese = false
-      }
-    }
-
-    eventCenter.attachDOMEvent(container, 'compositionend', handler)
-    eventCenter.attachDOMEvent(container, 'compositionstart', handler)
-  }
-
-  dispatchEnter (event) {
-    const { container, eventCenter } = this
-
-    const handler = event => {
-      if (event.key === EVENT_KEYS.Enter && !this._isEditChinese) {
-        this.contentState.enterHandler(event)
-      }
-    }
-
-    eventCenter.attachDOMEvent(container, 'keydown', handler)
-  }
-
-  dispatchSelection (event) {
-    const { container, eventCenter } = this
-    const handler = event => {
-      if (event.ctrlKey && event.key === 'a') {
-        this.contentState.tableCellHandler(event)
-      }
-    }
-
-    eventCenter.attachDOMEvent(container, 'keydown', handler)
-  }
-
-  // dispatch arrow event
-  dispatchArrow () {
-    const { container, eventCenter } = this
-    const handler = event => {
-      if (this._isEditChinese) return
-      switch (event.key) {
-        case EVENT_KEYS.ArrowUp: // fallthrough
-        case EVENT_KEYS.ArrowDown: // fallthrough
-        case EVENT_KEYS.ArrowLeft: // fallthrough
-        case EVENT_KEYS.ArrowRight: // fallthrough
-          this.contentState.arrowHandler(event)
-          break
-        case EVENT_KEYS.Tab:
-          this.contentState.tabHandler(event)
-          break
-      }
-    }
-    eventCenter.attachDOMEvent(container, 'keydown', handler)
-  }
-
-  dispatchCodeBlockClick () {
-    const { container, eventCenter } = this
-    const handler = event => {
-      const target = event.target
-      if (target.tagName === 'PRE' && target.classList.contains(CLASS_OR_ID['AG_CODE_BLOCK'])) {
-        this.contentState.focusCodeBlock(event)
-      }
-    }
-
-    eventCenter.attachDOMEvent(container, 'click', handler)
-  }
-
-  dispatchTableToolBar () {
-    const { container, eventCenter } = this
-    const getToolItem = target => {
-      // poor implement， fix me @jocs
-      const parent = target.parentNode
-      const grandPa = parent && parent.parentNode
-      if (target.hasAttribute('data-label')) return target
-      if (parent && parent.hasAttribute('data-label')) return parent
-      if (grandPa && grandPa.hasAttribute('data-label')) return grandPa
-      return null
-    }
-    const handler = event => {
-      const target = event.target
-      const toolItem = getToolItem(target)
-      if (toolItem) {
-        event.preventDefault()
-        event.stopPropagation()
-        const type = toolItem.getAttribute('data-label')
-        const grandPa = toolItem.parentNode.parentNode
-        if (grandPa.classList.contains('ag-tool-table')) {
-          this.contentState.tableToolBarClick(type)
-        } else if (grandPa.classList.contains('ag-tool-html')) {
-          this.contentState.htmlToolBarClick(type)
-        }
-      }
-    }
-
-    eventCenter.attachDOMEvent(container, 'click', handler)
-  }
-
-  dispatchUpdateState () {
-    const { container, eventCenter } = this
-    let timer = null
-    const changeHandler = event => {
-      const target = event.target
-      if (event.type === 'click' && target.classList.contains(CLASS_OR_ID['AG_FUNCTION_HTML'])) return
-      if (!this._isEditChinese) {
-        this.contentState.updateState(event)
-      }
-      if (event.type === 'click' || event.type === 'keyup') {
-        if (timer) clearTimeout(timer)
-        timer = setTimeout(() => {
-          const selectionChanges = this.getSelection()
-          const { formats } = this.contentState.selectionFormats()
-          eventCenter.dispatch('selectionChange', selectionChanges)
-          eventCenter.dispatch('selectionFormats', formats)
-          this.dispatchChange()
-        })
-      }
-    }
-
-    eventCenter.attachDOMEvent(container, 'click', changeHandler)
-    eventCenter.attachDOMEvent(container, 'keyup', changeHandler)
-    eventCenter.attachDOMEvent(container, 'input', changeHandler)
-  }
-
-  imageClick () {
-    const { container, eventCenter } = this
-    const selectionText = node => {
-      const textLen = node.textContent.length
-      operateClassName(node, 'remove', CLASS_OR_ID['AG_HIDE'])
-      operateClassName(node, 'add', CLASS_OR_ID['AG_GRAY'])
-      selection.importSelection({
-        start: textLen,
-        end: textLen
-      }, node)
-    }
-
-    const handler = event => {
-      const target = event.target
-      const markedImageText = target.previousElementSibling
-      const mathRender = target.closest(`.${CLASS_OR_ID['AG_MATH_RENDER']}`)
-      const mathText = mathRender && mathRender.previousElementSibling
-      if (markedImageText && markedImageText.classList.contains(CLASS_OR_ID['AG_IMAGE_MARKED_TEXT'])) {
-        selectionText(markedImageText)
-      } else if (mathText) {
-        selectionText(mathText)
-      }
-    }
-
-    eventCenter.attachDOMEvent(container, 'click', handler)
-  }
-
-  htmlPreviewClick () {
-    const { eventCenter, container } = this
-    const handler = event => {
-      const { target } = event
-      const htmlPreview = target.closest(`.ag-function-html`)
-      if (htmlPreview && !htmlPreview.classList.contains(CLASS_OR_ID['AG_ACTIVE'])) {
-        event.preventDefault()
-        event.stopPropagation()
-        this.contentState.handleHtmlBlockClick(htmlPreview)
-      }
-    }
-
-    eventCenter.attachDOMEvent(container, 'click', handler)
-  }
-
-  mathPreviewClick () {
-    const { eventCenter, container } = this
-    const handler = event => {
-      const { target } = event
-      const mathFigure = target.closest('.ag-multiple-math-block')
-      if (mathFigure && !mathFigure.classList.contains(CLASS_OR_ID['AG_ACTIVE'])) {
-        event.preventDefault()
-        event.stopPropagation()
-        this.contentState.handleMathBlockClick(mathFigure)
-      }
-    }
-
-    eventCenter.attachDOMEvent(container, 'click', handler)
-  }
-
-  listItemCheckBoxClick () {
-    const { container, eventCenter } = this
-    const handler = event => {
-      const target = event.target
-      if (target.tagName === 'INPUT' && target.classList.contains(CLASS_OR_ID['AG_TASK_LIST_ITEM_CHECKBOX'])) {
-        this.contentState.listItemCheckBoxClick(target)
-      }
-    }
-
-    eventCenter.attachDOMEvent(container, 'click', handler)
-  }
-
   getMarkdown () {
     const blocks = this.contentState.getBlocks()
     return new ExportMarkdown(blocks).generate()
@@ -489,9 +248,9 @@ class Muya {
 
   createTable (tableChecker) {
     const { eventCenter } = this
-    const selectionChanges = this.getSelection()
 
     this.contentState.createFigure(tableChecker)
+    const selectionChanges = this.getSelection()
     eventCenter.dispatch('selectionChange', selectionChanges)
   }
 
@@ -645,6 +404,23 @@ class Muya {
     this.eventCenter.detachAllDomEvents()
     this.eventCenter = null
   }
+}
+
+/**
+  * [ensureContainerDiv ensure container element is div]
+  */
+function getContainer (originContainer) {
+  const container = document.createElement('div')
+  const rootDom = document.createElement('div')
+  const attrs = originContainer.attributes
+  // copy attrs from origin container to new div element
+  Array.from(attrs).forEach(attr => {
+    container.setAttribute(attr.name, attr.value)
+  })
+  container.setAttribute('contenteditable', true)
+  container.appendChild(rootDom)
+  originContainer.replaceWith(container)
+  return container
 }
 
 export default Muya

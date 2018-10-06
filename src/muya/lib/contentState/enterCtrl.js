@@ -138,7 +138,7 @@ const enterCtrl = ContentState => {
     let block = this.getBlock(start.key)
     const endBlock = this.getBlock(end.key)
     let parent = this.getParent(block)
-    const { floatBox } = this
+    const { floatBox } = this.muya
     const { list, index, show } = floatBox
 
     // handle float box
