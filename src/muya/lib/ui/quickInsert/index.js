@@ -87,7 +87,6 @@ class QuickInsert extends BaseFloat {
   listen () {
     const { eventCenter } = this.muya
     eventCenter.subscribe('muya-quick-insert', (reference, text, status) => {
-
       if (status) {
         this.show(reference)
         this.search(text.substring(1)) // remove `@` char

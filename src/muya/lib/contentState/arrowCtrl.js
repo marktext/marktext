@@ -7,7 +7,7 @@ import {
   getBeginPosition,
   getEndPosition
 } from '../codeMirror'
-import { findNearestParagraph } from '../utils/domManipulate'
+import { findNearestParagraph } from '../selection/dom'
 import selection from '../selection'
 
 const arrowCtrl = ContentState => {

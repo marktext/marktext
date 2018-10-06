@@ -9,14 +9,14 @@ import {
   getFirstSelectableLeafNode,
   isElementAtBeginningOfBlock,
   findPreviousSibling,
-  findNearestParagraph,
   getClosestBlockContainer,
   getCursorPositionWithinMarkedText,
   compareParagraphsOrder,
+  findNearestParagraph,
   getTextContent
-} from './utils/domManipulate'
+} from './dom'
 
-import { CLASS_OR_ID } from './config'
+import { CLASS_OR_ID } from '../config'
 
 const filterOnlyParentElements = node => {
   return isBlockContainer(node) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP

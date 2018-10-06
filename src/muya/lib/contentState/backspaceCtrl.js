@@ -1,5 +1,5 @@
 import selection from '../selection'
-import { findNearestParagraph, findOutMostParagraph } from '../utils/domManipulate'
+import { findNearestParagraph, findOutMostParagraph } from '../selection/dom'
 import { isCursorAtBegin, onlyHaveOneLine, getEndPosition } from '../codeMirror'
 
 const backspaceCtrl = ContentState => {

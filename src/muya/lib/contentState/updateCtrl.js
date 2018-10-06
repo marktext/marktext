@@ -1,7 +1,7 @@
 import selection from '../selection'
 import { tokenizer } from '../parser/parse'
 import { conflict, getPositionReference } from '../utils'
-import { getTextContent } from '../utils/domManipulate'
+import { getTextContent } from '../selection/dom'
 import { CLASS_OR_ID, EVENT_KEYS, DEFAULT_TURNDOWN_CONFIG } from '../config'
 import { beginRules } from '../parser/rules'
 
