@@ -1,5 +1,5 @@
 import Popper from 'popper.js/dist/esm/popper'
-import fileIcons from '../../fileIcons'
+import fileIcons from '../fileIcons'
 import { CLASS_OR_ID } from '../../config'
 
 import './index.css'

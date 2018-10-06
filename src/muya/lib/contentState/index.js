@@ -54,6 +54,7 @@ class ContentState {
     this.blocks = [ this.createBlockP() ]
     this.stateRender = new StateRender(eventCenter)
     this.codeBlocks = new Map()
+    this.shownFloat = new Set()
     this.renderRange = [ null, null ]
     this.currentCursor = null
     this.prevCursor = null
@@ -119,6 +120,10 @@ class ContentState {
       start: { key, offset },
       end: { key, offset }
     }
+    // cache shown float box
+    this.eventCenter.subscribe('muya-show-float', name => {
+      this.shownFloat.add(name)
+    })
   }
 
   getHistory () {

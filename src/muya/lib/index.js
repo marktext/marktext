@@ -1,6 +1,7 @@
 import ContentState from './contentState'
 import selection from './selection'
 import EventCenter from './eventHandler/event'
+import Clipboard from './eventHandler/clipboard'
 import { EVENT_KEYS, CLASS_OR_ID, codeMirrorConfig } from './config'
 import { throttle, wordCount } from './utils'
 import { search } from './codeMirror'
@@ -28,6 +29,7 @@ class Muya {
       bulletListMarker = '-', tabSize = 4
     } = options
     this.container = this.getContainer(container)
+    this.emoji = new Emoji() // emoji instance: has search(text) clear() methods.
     const eventCenter = this.eventCenter = new EventCenter()
     // init tooltip
     this.tooltip = new ToolTip(this)
@@ -45,7 +47,7 @@ class Muya {
       bulletListMarker,
       tabSize
     })
-    this.emoji = new Emoji() // emoji instance: has search(text) clear() methods.
+    this.clipboard = new Clipboard(this)
     this.focusMode = focusMode
     this.theme = theme
     this.markdown = markdown
@@ -53,8 +55,6 @@ class Muya {
     this.lineHeight = 1.6
     // private property
     this._isEditChinese = false // true or false
-    this._copyType = 'normal' // `normal` or `copyAsMarkdown` or `copyAsHtml`
-    this._pasteType = 'normal' // `normal` or `pasteAsPlainText`
     this.init()
   }
 
@@ -72,11 +72,6 @@ class Muya {
 
     eventCenter.subscribe('stateChange', this.dispatchChange.bind(this))
 
-    eventCenter.attachDOMEvent(container, 'paste', event => {
-      contentState.pasteHandler(event, this._pasteType)
-      this._pasteType = 'normal'
-    })
-
     eventCenter.attachDOMEvent(container, 'contextmenu', event => {
       event.preventDefault()
       event.stopPropagation()
@@ -92,7 +87,6 @@ class Muya {
     this.dispatchEnter()
     this.dispatchSelection()
     this.dispatchUpdateState()
-    this.dispatchCopyCut()
     this.dispatchTableToolBar()
     this.dispatchCodeBlockClick()
     this.htmlPreviewClick()
@@ -130,21 +124,6 @@ class Muya {
     const cursor = this.getCursor()
     const history = this.getHistory()
     eventCenter.dispatch('change', { markdown, wordCount, cursor, history })
-  }
-
-  dispatchCopyCut () {
-    const { container, eventCenter, contentState } = this
-    const handler = event => {
-      contentState.copyHandler(event, this._copyType)
-      if (event.type === 'cut') {
-        // when user use `cut` function, the dom has been deleted by default.
-        // But should update content state manually.
-        contentState.cutHandler()
-      }
-      this._copyType = 'normal'
-    }
-    eventCenter.attachDOMEvent(container, 'cut', handler)
-    eventCenter.attachDOMEvent(container, 'copy', handler)
   }
 
   /**
@@ -638,29 +617,19 @@ class Muya {
   }
 
   copyAsMarkdown () {
-    this._copyType = 'copyAsMarkdown'
-    document.execCommand('copy')
+    this.clipboard.copyAsMarkdown()
   }
 
   copyAsHtml () {
-    this._copyType = 'copyAsHtml'
-    document.execCommand('copy')
+    this.clipboard.copyAsHtml()
   }
 
   pasteAsPlainText () {
-    this._pasteType = 'pasteAsPlainText'
-    document.execCommand('paste')
+    this.clipboard.pasteAsPlainText()
   }
 
   copy (name) {
-    switch (name) {
-      case 'table':
-        this._copyType = 'copyTable'
-        document.execCommand('copy')
-        break
-      default:
-        break
-    }
+    this.clipboard.copy(name)
   }
 
   destroy () {

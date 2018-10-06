@@ -2,16 +2,21 @@ import { filter } from 'fuzzaldrin'
 import { patch, h } from '../../parser/render/snabbdom'
 import BaseFloat from '../baseFloat'
 import { quicInsertList } from './config'
+import { EVENT_KEYS } from '../../config'
 import './index.css'
 
 class QuickInsert extends BaseFloat {
   constructor (muya) {
     super()
-    this.container.classList.add('ag-quick-insert')
+    // Use to remember whick float container is shown.
+    this.name = 'ag-quick-insert'
+    this.container.classList.add(this.name)
     this.muya = muya
     this.reference = null
     this.scrollElement = null
     this.oldVnode = null
+    this.renderList = null
+    this.activeItem = null
     this.createScrollElement()
     this.render(quicInsertList)
     this.listen()
@@ -25,6 +30,7 @@ class QuickInsert extends BaseFloat {
   }
 
   render (list) {
+    this.renderList = list
     const { scrollElement } = this
     let children = Object.keys(list).filter(key => {
       return list[key].length !== 0
@@ -85,7 +91,7 @@ class QuickInsert extends BaseFloat {
   }
 
   listen () {
-    const { eventCenter } = this.muya
+    const { eventCenter, container } = this.muya
     eventCenter.subscribe('muya-quick-insert', (reference, text, status) => {
       if (status) {
         this.show(reference)
@@ -94,6 +100,30 @@ class QuickInsert extends BaseFloat {
         this.hide()
       }
     })
+
+    const handler = event => {
+      if (!this.status) return
+      console.log(event)
+      switch (event.key) {
+        case EVENT_KEYS.Escape:
+          this.hide()
+          break
+        case EVENT_KEYS.ArrowUp:
+          this.step('previous')
+          break
+        case EVENT_KEYS.ArrowDown:
+        case EVENT_KEYS.Tab:
+          this.step('next')
+          break
+        case EVENT_KEYS.Enter:
+          this.selectItem(this.activeItem)
+          break
+        default:
+          break
+      }
+    }
+
+    eventCenter.attachDOMEvent(container, 'keydown', handler)
   }
 
   hide () {
@@ -102,9 +132,11 @@ class QuickInsert extends BaseFloat {
   }
 
   show (reference) {
+    const { eventCenter } = this.muya
     if (this.reference && this.reference.id === reference.id && this.status) return
     this.reference = reference
     super.show(reference)
+    eventCenter.dispatch('muya-show-float', this.name)
   }
 
   search (text) {
@@ -117,6 +149,11 @@ class QuickInsert extends BaseFloat {
     }
 
     this.render(result)
+  }
+
+  selectItem (item) {
+    const { contentState } = this.muya
+    contentState.updateParagraph(item.label)
   }
 }
 

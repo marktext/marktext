@@ -22,7 +22,15 @@
 .ag-quick-insert .item {
   display: flex;
   flex-direction: row;
-  padding: 4px 0;
+  padding: 8px 0;
+  cursor: pointer;
+}
+
+.ag-quick-insert:hover .item.active {
+  background: #fff;
+}
+.item.active, .ag-quick-insert .item:hover {
+ background-color: #ecf5ff;
 }
 
 .ag-quick-insert .no-result {

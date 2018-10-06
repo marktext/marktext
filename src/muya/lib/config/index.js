@@ -52,7 +52,8 @@ export const EVENT_KEYS = generateKeyHash([
   'ArrowDown',
   'ArrowLeft',
   'ArrowRight',
-  'Tab'
+  'Tab',
+  'Escape'
 ])
 
 export const LOWERCASE_TAGS = generateKeyHash([
