@@ -6,13 +6,14 @@ import { throttle, wordCount } from './utils'
 import { search } from './codeMirror'
 import { checkEditLanguage } from './codeMirror/language'
 import Emoji, { checkEditEmoji, setInlineEmoji } from './emojis'
-import FloatBox from './floatBox'
+import FloatBox from './ui/floatBox'
 import { findNearestParagraph, operateClassName } from './utils/domManipulate'
 import ExportMarkdown from './utils/exportMarkdown'
 import ExportHtml from './utils/exportHtml'
 import { checkEditImage } from './utils/checkEditImage'
-import TablePicker from './tablePicker'
+import TablePicker from './ui/tablePicker'
 import ToolTip from './ui/tooltip'
+import QuickInsert from './ui/quickInsert'
 
 import './assets/symbolIcon' // import symbol icons
 import './assets/symbolIcon/index.css'
@@ -29,6 +30,7 @@ class Muya {
     const eventCenter = this.eventCenter = new EventCenter()
     // init tooltip
     this.tooltip = new ToolTip(this)
+    this.quickInsert = new QuickInsert(this)
     const floatBox = this.floatBox = new FloatBox(this)
     const tablePicker = this.tablePicker = new TablePicker(this)
     this.contentState = new ContentState({
@@ -48,7 +50,6 @@ class Muya {
     this.markdown = markdown
     this.fontSize = 16
     this.lineHeight = 1.6
-    this.preferLooseListItem = preferLooseListItem
     // private property
     this._isEditChinese = false // true or false
     this._copyType = 'normal' // `normal` or `copyAsMarkdown` or `copyAsHtml`
@@ -473,6 +474,10 @@ class Muya {
     return this.contentState.setHistory(history)
   }
 
+  clearHistory () {
+    return this.contentState.history.clearHistory()
+  }
+
   exportStyledHTML (filename) {
     const { markdown } = this
     return new ExportHtml(markdown).generate(filename)
@@ -491,10 +496,6 @@ class Muya {
     return this.contentState.getCodeMirrorCursor()
   }
 
-  clearHistory () {
-    this.contentState.history.clearHistory()
-  }
-
   setMarkdown (markdown, cursor, isRenderCursor = true) {
     let newMarkdown = markdown
     if (cursor) {
@@ -508,8 +509,9 @@ class Muya {
 
   createTable (tableChecker) {
     const { eventCenter } = this
-    this.contentState.createFigure(tableChecker)
     const selectionChanges = this.getSelection()
+
+    this.contentState.createFigure(tableChecker)
     eventCenter.dispatch('selectionChange', selectionChanges)
   }
 
@@ -546,7 +548,6 @@ class Muya {
   }
 
   setListItemPreference (preferLooseListItem) {
-    this.preferLooseListItem = preferLooseListItem
     this.contentState.preferLooseListItem = preferLooseListItem
   }
 
@@ -556,7 +557,7 @@ class Muya {
     } else if (tabSize < 1) {
       tabSize = 1
     }
-    this.tabSize = tabSize
+
     this.contentState.tabSize = tabSize
   }
 
@@ -564,12 +565,16 @@ class Muya {
     this.contentState.updateParagraph(type)
   }
 
-  insertParagraph (location) {
+  insertParagraph (location/* before or after */) {
     this.contentState.insertParagraph(location)
   }
 
   editTable (data) {
     this.contentState.editTable(data)
+  }
+
+  focus () {
+    this.container.focus()
   }
 
   blur () {
@@ -613,6 +618,14 @@ class Muya {
 
   on (event, listener) {
     this.eventCenter.subscribe(event, listener)
+  }
+
+  off (event, listener) {
+    this.eventCenter.unsubscribe(event, listener)
+  }
+
+  once (event, listener) {
+    this.eventCenter.subscribeOnce(event, listener)
   }
 
   undo () {

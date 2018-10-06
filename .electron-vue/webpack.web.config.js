@@ -9,6 +9,7 @@ const CopyWebpackPlugin = require('copy-webpack-plugin')
 const MiniCssExtractPlugin = require("mini-css-extract-plugin")
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const VueLoaderPlugin = require('vue-loader/lib/plugin')
+const SpritePlugin = require('svg-sprite-loader/plugin')
 const postcssPresetEnv = require('postcss-preset-env')
 
 const proMode = process.env.NODE_ENV === 'production'
@@ -74,7 +75,20 @@ const webConfig = {
         }
       },
       {
-        test: /\.(png|jpe?g|gif|svg)(\?.*)?$/,
+        test: /\.svg$/,
+        use: [
+          {
+            loader: 'svg-sprite-loader',
+            options: {
+              extract: true,
+              publicPath: '/static/'
+            }
+          },
+          'svgo-loader'
+        ]
+      },
+      {
+        test: /\.(png|jpe?g|gif)(\?.*)?$/,
         use: {
           loader: 'url-loader',
           query: {
@@ -96,6 +110,7 @@ const webConfig = {
     ]
   },
   plugins: [
+    new SpritePlugin(),
     new HtmlWebpackPlugin({
       filename: 'index.html',
       template: path.resolve(__dirname, '../src/index.ejs'),

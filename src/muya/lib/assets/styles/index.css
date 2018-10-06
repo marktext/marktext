@@ -57,6 +57,11 @@ pre {
   font-style: italic;
 }
 
+p.ag-paragraph.ag-active > span.ag-line:first-of-type:empty::after {
+  content: 'Type @ to insert';
+  color: var(--placeholerColor);
+}
+
 .ag-paragraph:empty::after,
 .ag-line:empty::after {
   content: '\200B'
@@ -635,12 +640,12 @@ span.ag-warn.ag-emoji-marked-text {
   height: 1.1em;
   display: inline-block;
   vertical-align: middle;
-  background: url(../icons/image.svg);
+  background: url(../icons/image.png);
   background-size: contain;
 }
 
 .ag-image-marked-text.ag-image-fail::before {
-  background-image: url(../icons/imagefail.svg);
+  background-image: url(../icons/image_fail.png);
 }
 
 span[data-role="link"], a[data-role="link"], span[data-role="link"] .ag-backlash {

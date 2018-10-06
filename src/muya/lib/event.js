@@ -41,15 +41,38 @@ class EventCenter {
     this.events.forEach(event => this.detachDOMEvent(event.eventId))
   }
   /**
+   * inner method for subscribe and subscribeOnce
+   */
+  _subscribe (event, listener, once = false) {
+    const listeners = this.listeners[event]
+    const handler = { listener, once }
+    if (listeners && Array.isArray(listeners)) {
+      listeners.push(handler)
+    } else {
+      this.listeners[event] = [ handler ]
+    }
+  }
+  /**
    * [subscribe] subscribe custom event
    */
   subscribe (event, listener) {
-    const eventListener = this.listeners[event]
-    if (eventListener && Array.isArray(eventListener)) {
-      eventListener.push(listener)
-    } else {
-      this.listeners[event] = [listener]
+    this._subscribe(event, listener)
+  }
+  /**
+   * [unsubscribe] unsubscribe custom event
+   */
+  unsubscribe (event, listener) {
+    const listeners = this.listeners[event]
+    if (Array.isArray(listeners) && listeners.find(l => l.listener === listener)) {
+      const index = listeners.findIndex(l => l.listener === listener)
+      listeners.splice(index, 1)
     }
+  }
+  /**
+   * [subscribeOnce] usbscribe event and listen once
+   */
+  subscribeOnce (event, listener) {
+    this._subscribe(event, listener, true)
   }
   /**
    * dispatch custom event
@@ -57,7 +80,12 @@ class EventCenter {
   dispatch (event, ...data) {
     const eventListener = this.listeners[event]
     if (eventListener && Array.isArray(eventListener)) {
-      eventListener.forEach(listener => listener(...data))
+      eventListener.forEach(({ listener, once }) => {
+        listener(...data)
+        if (once) {
+          this.unsubscribe(event, listener)
+        }
+      })
     }
   }
   // Determine whether the event has been bind

@@ -1,6 +1,6 @@
 import selection from '../selection'
 import { tokenizer } from '../parser/parse'
-import { conflict } from '../utils'
+import { conflict, getPositionReference } from '../utils'
 import { getTextContent } from '../utils/domManipulate'
 import { CLASS_OR_ID, EVENT_KEYS, DEFAULT_TURNDOWN_CONFIG } from '../config'
 import { beginRules } from '../parser/rules'
@@ -88,6 +88,13 @@ const updateCtrl = ContentState => {
       default:
         return this.updateToParagraph(block)
     }
+  }
+
+  // Input @ to quick insert paragraph
+  ContentState.prototype.checkQuickInsert = function (block) {
+    const { type, text } = block
+    if (type !== 'span') return false
+    return /^@[a-zA-Z\d]*$/.test(text)
   }
 
   // thematic break
@@ -454,7 +461,10 @@ const updateCtrl = ContentState => {
     }
     this.cursor = lastCursor = { start, end }
     const checkMarkedUpdate = this.checkNeedRender(block)
+    const checkQuickInsert = this.checkQuickInsert(block)
     const inlineUpdatedBlock = this.isCollapse() && !/frontmatter|multiplemath/.test(block.functionType) && this.checkInlineUpdate(block)
+    const reference = getPositionReference(paragraph)
+    this.eventCenter.dispatch('muya-quick-insert', reference, block.text, checkQuickInsert)
     if (checkMarkedUpdate || inlineUpdatedBlock || needRender) {
       needRenderAll ? this.render() : this.partialRender()
     }

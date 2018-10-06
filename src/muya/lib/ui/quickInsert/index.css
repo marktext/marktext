@@ -1,0 +1,67 @@
+.ag-quick-insert {
+  width: 324px;
+  max-height: 307px;
+  padding: 10px 0;
+  overflow-y: auto;
+}
+
+.ag-quick-insert .title {
+  color: rgba(55, 53, 47, 0.6);
+  line-height: 120%;
+  font-size: 11px;
+  padding-left: 14px;
+  padding-right: 14px;
+  margin-top: 6px;
+  margin-bottom: 8px;
+  display: flex;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: 500;
+}
+
+.ag-quick-insert .item {
+  display: flex;
+  flex-direction: row;
+  padding: 4px 0;
+}
+
+.ag-quick-insert .no-result {
+  padding: 0 20px;
+  font-size: 14px;
+  color: #999;
+}
+
+.ag-quick-insert .icon-container {
+  width: 46px;
+  height: 46px;
+  box-shadow: rgba(15, 15, 15, 0.1) 0px 0px 0px 1px;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  border-radius: 3px;
+  margin-left: 14px;
+}
+
+.ag-quick-insert .icon-container img {
+  width: 30px;
+  height: 30px;
+  opacity: .6;
+}
+
+.ag-quick-insert .description {
+  margin-left: 8px;
+}
+
+.ag-quick-insert .big-title {
+  font-size: 14px;
+  color: #333333;
+}
+
+.ag-quick-insert .sub-title {
+  font-size: 12px;
+  color: rgba(55, 53, 47, 0.6);
+}
+
+.ag-quick-insert .hide {
+  display: none;
+}

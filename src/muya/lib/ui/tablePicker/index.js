@@ -1,5 +1,5 @@
 import Popper from 'popper.js/dist/esm/popper'
-import { noop } from '../utils'
+import { noop } from '../../utils'
 import template from './index.tpl.html'
 import './index.css'
 

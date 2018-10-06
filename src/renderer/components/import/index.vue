@@ -16,7 +16,7 @@
           @drop="dropHandler"
         >
           <div class="img-wrapper">
-            <img src="@/assets/icons/import_file.svg" alt="">
+            <img :src="importIcon.url" alt="import file">
           </div>
           <div>Import or Open</div>
           <p> Drop here to get you stuff into Mark Text</p>
@@ -36,9 +36,11 @@
 <script>
 import bus from '@/bus'
 import { ipcRenderer } from 'electron'
+import importIcon from '@/assets/icons/import_file.svg'
 
 export default {
   data () {
+    this.importIcon = importIcon
     return {
       showImport: false,
       isOver: false
@@ -94,6 +96,10 @@ export default {
   width: 70px;
   height: 100px;
   margin: 40px auto 0 auto;
+  & img {
+    width: 100%;
+    height: 100%;
+  }
 }
 .file-list {
   margin-top: 20px;

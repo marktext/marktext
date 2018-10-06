@@ -1,0 +1,23 @@
+.ag-float-container {
+  position: absolute;
+  font-size: 12px;
+  opacity: 0;
+  width: 110px;
+  height: auto;
+  background: #fff;
+  top: -1000px;
+  right: -1000px;
+  border: 1px solid #ebeef5;
+  border-radius: 4px;
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, .1);
+  transition: opacity .25s ease-in-out;
+  transform-origin: top;
+  box-sizing: border-box;
+}
+.ag-float-container::-webkit-scrollbar:vertical {
+  width: 5px;
+}
+
+[x-placement] {
+  opacity: 1;
+}
