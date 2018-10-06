@@ -171,13 +171,34 @@ class QuickInsert extends BaseFloat {
   selectItem (item) {
     const { contentState } = this.muya
     this.block.text = ''
-    const { key } = this.block
-    const offset = 0
+    let { key } = this.block
+    let offset = 0
     contentState.cursor = {
       start: { key, offset },
       end: { key, offset }
     }
-    contentState.updateParagraph(item.label)
+    switch (item.label) {
+      case 'paragraph':
+        contentState.partialRender()
+        break
+      case 'table':
+        this.muya.createTable({ rows: 4, columns: 3 })
+        break
+      case 'html':
+        const parentBlock = contentState.getParent(this.block)
+        this.block.text = '<div>'
+        const cursorBlock = contentState.initHtmlBlock(parentBlock, 'div')
+        key = cursorBlock.key
+        contentState.cursor = {
+          start: { key, offset },
+          end: { key, offset }
+        }
+        contentState.partialRender()
+        break
+      default:
+        contentState.updateParagraph(item.label)
+        break
+    }
     // delay hide to avoid dispatch enter hander
     setTimeout(this.hide.bind(this))
   }

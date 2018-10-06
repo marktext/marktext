@@ -88,7 +88,7 @@ export const quicInsertList = {
   }, {
     title: 'HTML Block',
     subTitle: 'Insert block HTML into text.',
-    label: 'html-block',
+    label: 'html',
     icon: htmlIcon,
     color: 'rgb(13, 23, 64)'
   }, {
