@@ -555,8 +555,12 @@ span.ag-emoji-marked-text {
   position: absolute;
   content: attr(data-emoji);
   color: #000;
-  top: 0;
+  top: -3px;
   left: -1.15em;
+}
+
+.ag-hide.ag-emoji-marked-text::before {
+  top: -14px;
 }
 
 .ag-html-escape {

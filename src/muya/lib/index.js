@@ -17,7 +17,6 @@ import { checkEditImage } from './utils/checkEditImage'
 import TablePicker from './ui/tablePicker'
 import ToolTip from './ui/tooltip'
 import QuickInsert from './ui/quickInsert'
-
 import './assets/symbolIcon' // import symbol icons
 import './assets/symbolIcon/index.css'
 import './assets/styles/index.css'
