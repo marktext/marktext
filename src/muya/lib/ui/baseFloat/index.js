@@ -32,6 +32,7 @@ class BaseFloat {
       for (const entry of entries) {
         const { clientWidth, clientHight } = entry.target
         Object.assign(floatBox.style, { width: `${clientWidth}px`, height: `${clientHight}px` })
+        this.popper && this.popper.update()
       }
     })
     ro.observe(container)

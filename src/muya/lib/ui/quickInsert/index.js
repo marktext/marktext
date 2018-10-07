@@ -88,7 +88,14 @@ class QuickInsert extends BaseFloat {
             h('div.sub-title', subTitle)
           ])
           const selector = activeItem.label === label ? 'div.item.active' : 'div.item'
-          items.push(h(selector, { dataset: { label } }, [iconVnode, description]))
+          items.push(h(selector, {
+            dataset: { label },
+            on: {
+              click: () => {
+                this.selectItem(item)
+              }
+            }
+          }, [iconVnode, description]))
         }
 
         return h('section', [titleVnode, ...items])

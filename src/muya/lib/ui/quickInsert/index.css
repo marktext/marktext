@@ -24,12 +24,14 @@
   flex-direction: row;
   padding: 8px 0;
   cursor: pointer;
+  user-select: none;
 }
 
-.ag-quick-insert:hover .item.active {
+.ag-quick-insert:hover .active {
   background: #fff;
 }
-.item.active, .ag-quick-insert .item:hover {
+.ag-quick-insert .active,
+.ag-quick-insert div.item:hover {
  background-color: #ecf5ff;
 }
 
