@@ -5,8 +5,7 @@ import Clipboard from './eventHandler/clipboard'
 import Keyboard from './eventHandler/keyboard'
 import ClickEvent from './eventHandler/clickEvent'
 import { EVENT_KEYS, CLASS_OR_ID, codeMirrorConfig } from './config'
-import { throttle, wordCount } from './utils'
-import { search } from './codeMirror'
+import { throttle, wordCount, getParagraphReference } from './utils'
 import { checkEditLanguage } from './codeMirror/language'
 import Emoji, { checkEditEmoji, setInlineEmoji } from './emojis'
 import FloatBox from './ui/floatBox'
@@ -17,6 +16,7 @@ import { checkEditImage } from './utils/checkEditImage'
 import TablePicker from './ui/tablePicker'
 import ToolTip from './ui/tooltip'
 import QuickInsert from './ui/quickInsert'
+import CodePicker from './ui/codePicker'
 import './assets/symbolIcon' // import symbol icons
 import './assets/symbolIcon/index.css'
 import './assets/styles/index.css'
@@ -33,6 +33,7 @@ class Muya {
     this.eventCenter = new EventCenter()
     this.tooltip = new ToolTip(this)
     this.quickInsert = new QuickInsert(this)
+    this.codePicker = new CodePicker(this)
     this.floatBox = new FloatBox(this)
     this.tablePicker = new TablePicker(this)
     this.contentState = new ContentState(this, {
@@ -58,7 +59,7 @@ class Muya {
 
     eventCenter.subscribe('editEmoji', throttle(this.subscribeEditEmoji.bind(this), 200))
     this.dispatchEditEmoji()
-    eventCenter.subscribe('editLanguage', throttle(this.subscribeEditLanguage.bind(this)))
+
     this.dispatchEditLanguage()
 
     eventCenter.subscribe('hideFloatBox', this.subscribeHideFloatBox.bind(this))
@@ -174,27 +175,17 @@ class Muya {
       const selectionState = selection.exportSelection(paragraph)
       const lang = checkEditLanguage(paragraph, selectionState)
       if (lang) {
-        eventCenter.dispatch('editLanguage', paragraph, lang)
+        eventCenter.dispatch('muya-code-picker', {
+          reference: getParagraphReference(paragraph, paragraph.id),
+          lang,
+          cb: item => {
+            this.contentState.selectLanguage(paragraph, item.name)
+          }
+        })
       }
     }
 
     eventCenter.attachDOMEvent(container, 'input', inputHandler)
-  }
-
-  subscribeEditLanguage (paragraph, lang, cb) {
-    const modes = search(lang).map(mode => {
-      return Object.assign(mode, { text: mode.name })
-    })
-
-    const callback = item => {
-      this.contentState.selectLanguage(paragraph, item.name)
-    }
-    if (modes.length) {
-      this.floatBox.showIfNeeded(paragraph, cb || callback)
-      this.floatBox.setOptions(modes)
-    } else {
-      this.floatBox.hideIfNeeded()
-    }
   }
 
   getMarkdown () {

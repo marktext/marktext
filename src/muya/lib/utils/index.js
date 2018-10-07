@@ -280,3 +280,15 @@ export const sanitize = (html, options) => {
   const DOMPurify = createDOMPurify(window)
   return DOMPurify.sanitize(escapeInBlockHtml(html), options)
 }
+
+export const getParagraphReference = (ele, id) => {
+  const { x, y, left, top, bottom, height } = ele.getBoundingClientRect()
+  return {
+    getBoundingClientRect () {
+      return { x, y, left, top, bottom, height, width: 0, right: left }
+    },
+    clientWidth: 0,
+    clientHeight: height,
+    id
+  }
+}

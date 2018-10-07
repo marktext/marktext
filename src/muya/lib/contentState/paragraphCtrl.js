@@ -514,7 +514,7 @@ const paragraphCtrl = ContentState => {
     this.muya.eventCenter.dispatch('selectionChange', selectionChanges)
   }
 
-  ContentState.prototype.insertParagraph = function (location) {
+  ContentState.prototype.insertParagraph = function (location, text = '') {
     const { start, end } = this.cursor
     // if cursor is not in one line or paragraph, can not insert paragraph
     if (start.key !== end.key) return
@@ -525,14 +525,14 @@ const paragraphCtrl = ContentState => {
       // get figure block from table cell
       block = this.getParent(this.getParent(this.getParent(this.getParent(block))))
     }
-    const newBlock = this.createBlockP()
+    const newBlock = this.createBlockP(text)
     if (location === 'before') {
       this.insertBefore(newBlock, block)
     } else {
       this.insertAfter(newBlock, block)
     }
     const { key } = newBlock.children[0]
-    const offset = 0
+    const offset = text.length
     this.cursor = {
       start: { key, offset },
       end: { key, offset }

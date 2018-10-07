@@ -13,6 +13,7 @@
   transition: opacity .25s ease-in-out;
   transform-origin: top;
   box-sizing: border-box;
+  z-index: 1000;
 }
 .ag-float-container::-webkit-scrollbar:vertical {
   width: 0px;

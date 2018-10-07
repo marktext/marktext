@@ -1,6 +1,6 @@
 import codeMirror, { setMode, setCursorAtLastLine } from '../codeMirror'
 import { createInputInCodeBlock } from '../utils/domManipulate'
-import { sanitize } from '../utils'
+import { sanitize, getParagraphReference } from '../utils'
 import { codeMirrorConfig, BLOCK_TYPE7, PREVIEW_DOMPURIFY_CONFIG, CLASS_OR_ID } from '../config'
 
 const CODE_UPDATE_REP = /^`{3,}(.*)/
@@ -149,9 +149,13 @@ const codeBlockCtrl = ContentState => {
       }
 
       if (input) {
-        eventCenter.attachDOMEvent(input, 'keyup', () => {
+        eventCenter.attachDOMEvent(input, 'input', () => {
           const value = input.value
-          eventCenter.dispatch('editLanguage', input, value.trim(), handler)
+          eventCenter.dispatch('muya-code-picker', {
+            reference: getParagraphReference(input, id),
+            lang: value.trim(),
+            cb: handler
+          })
         })
       }
 

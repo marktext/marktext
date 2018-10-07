@@ -1,0 +1,46 @@
+.ag-code-picker {
+  width: 150px;
+  max-height: 230px;
+  padding: 10px 0;
+  overflow-y: auto;
+  box-sizing: border-box;
+}
+
+.ag-code-picker ul,
+.ag-code-picker li {
+  margin: 0;
+  padding: 0;
+}
+
+.ag-code-picker .item {
+  height: 35px;
+  display: flex;
+  list-style: none;
+}
+
+.ag-code-picker:hover .active {
+  background: #fff;
+  color: #606266;
+}
+.ag-code-picker .active, .ag-code-picker .item:hover {
+ background-color: #ecf5ff;
+ color: var(--activeColor);
+}
+
+.ag-code-picker .item .icon-wrapper {
+  width: 35px;
+  height: 35px;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+}
+
+.ag-code-picker .item .icon-wrapper span:before {
+  font-size: 18px;
+}
+
+.ag-code-picker .item .language {
+  font-size: 14px;
+  line-height: 35px;
+  margin-left: 10px;
+}

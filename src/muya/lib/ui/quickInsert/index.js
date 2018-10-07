@@ -1,23 +1,20 @@
 import { filter } from 'fuzzaldrin'
 import { patch, h } from '../../parser/render/snabbdom'
 import { deepCopy } from '../../utils'
-import BaseFloat from '../baseFloat'
+import BaseScrollFloat from '../baseScrollFloat'
 import { quicInsertList } from './config'
-import { EVENT_KEYS } from '../../config'
 import './index.css'
 
-class QuickInsert extends BaseFloat {
+class QuickInsert extends BaseScrollFloat {
   constructor (muya) {
     const name = 'ag-quick-insert'
     super(muya, name)
     this.reference = null
-    this.scrollElement = null
     this.oldVnode = null
     this._renderObj = null
     this.renderArray = null
     this.activeItem = null
     this.block = null
-    this.createScrollElement()
     this.render(quicInsertList)
     this.listen()
   }
@@ -31,15 +28,9 @@ class QuickInsert extends BaseFloat {
     this.renderArray = renderArray
     if (this.renderArray.length > 0) {
       this.activeItem = this.renderArray[0]
-      this.activeEleScrollIntoView()
+      const activeEle = this.getItemElement(this.activeItem)
+      this.activeEleScrollIntoView(activeEle)
     }
-  }
-
-  createScrollElement () {
-    const { container } = this
-    const scrollElement = document.createElement('div')
-    container.appendChild(scrollElement)
-    this.scrollElement = scrollElement
   }
 
   render (list = this._renderObj, needSet = true) {
@@ -116,7 +107,7 @@ class QuickInsert extends BaseFloat {
 
   listen () {
     super.listen()
-    const { eventCenter, container } = this.muya
+    const { eventCenter } = this.muya
     eventCenter.subscribe('muya-quick-insert', (reference, block, status) => {
       if (status) {
         this.block = block
@@ -126,37 +117,6 @@ class QuickInsert extends BaseFloat {
         this.hide()
       }
     })
-
-    const handler = event => {
-      if (!this.status) return
-      switch (event.key) {
-        case EVENT_KEYS.ArrowUp:
-          this.step('previous')
-          break
-        case EVENT_KEYS.ArrowDown:
-        case EVENT_KEYS.Tab:
-          this.step('next')
-          break
-        case EVENT_KEYS.Enter:
-          this.selectItem(this.activeItem)
-          break
-        default:
-          break
-      }
-    }
-
-    eventCenter.attachDOMEvent(container, 'keydown', handler)
-  }
-
-  hide () {
-    super.hide()
-    this.reference = null
-  }
-
-  show (reference) {
-    if (this.reference && this.reference.id === reference.id && this.status) return
-    this.reference = reference
-    super.show(reference)
   }
 
   search (text) {
@@ -208,21 +168,13 @@ class QuickInsert extends BaseFloat {
     }
     this.activeItem = this.renderArray[index]
     this.render(undefined, false)
-    this.activeEleScrollIntoView()
+    const activeEle = this.getItemElement(this.activeItem)
+    this.activeEleScrollIntoView(activeEle)
   }
 
   getItemElement (item) {
     const { label } = item
     return this.scrollElement.querySelector(`[data-label="${label}"]`)
-  }
-
-  activeEleScrollIntoView () {
-    const activeEle = this.getItemElement(this.activeItem)
-    if (activeEle) {
-      activeEle.scrollIntoView({
-        behavior: 'auto'
-      })
-    }
   }
 }
 
