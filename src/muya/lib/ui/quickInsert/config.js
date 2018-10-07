@@ -38,37 +38,37 @@ export const quicInsertList = {
   }],
   'header': [{
     title: 'Header 1',
-    subTitle: 'header rendered by &lt;h1&gt;.',
+    subTitle: 'header rendered by h1.',
     label: 'heading 1',
     icon: header1Icon,
     color: 'rgb(86, 163, 108)'
   }, {
     title: 'Header 2',
-    subTitle: 'header rendered by &lt;h2&gt;.',
+    subTitle: 'header rendered by h2.',
     label: 'heading 2',
     icon: header2Icon,
     color: 'rgb(94, 133, 121)'
   }, {
     title: 'Header 3',
-    subTitle: 'header rendered by &lt;h3&gt;.',
+    subTitle: 'header rendered by h3.',
     label: 'heading 3',
     icon: header3Icon,
     color: 'rgb(119, 195, 79)'
   }, {
     title: 'Header 4',
-    subTitle: 'header rendered by  &lt;h4&gt;.',
+    subTitle: 'header rendered by  h4.',
     label: 'heading 4',
     icon: header4Icon,
     color: 'rgb(46, 104, 170)'
   }, {
     title: 'Header 5',
-    subTitle: 'header rendered by &lt;h5&gt;.',
+    subTitle: 'header rendered by h5.',
     label: 'heading 5',
     icon: header5Icon,
     color: 'rgb(126, 136, 79)'
   }, {
     title: 'Header 6',
-    subTitle: 'header rendered by &lt;h6&gt;.',
+    subTitle: 'header rendered by h6.',
     label: 'heading 6',
     icon: header6Icon,
     color: 'rgb(29, 176, 184)'
