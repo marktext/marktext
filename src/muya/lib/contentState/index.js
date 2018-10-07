@@ -63,6 +63,8 @@ class ContentState {
     this.historyTimer = null
     this.history = new History(this)
     this.turndownConfig = Object.assign(DEFAULT_TURNDOWN_CONFIG, { bulletListMarker })
+    this.fontSize = 16
+    this.lineHeight = 1.6
     this.init()
   }
 
@@ -585,6 +587,28 @@ class ContentState {
       return this.findNextBlockInLocation(parent)
     } else {
       return null
+    }
+  }
+
+  getPositionReference () {
+    const { fontSize, lineHeight } = this
+    const { start } = this.cursor
+    const block = this.getBlock(start.key)
+    const { x, y } = selection.getCursorCoords()
+    const height = fontSize * lineHeight
+    const width = 0
+    const bottom = y + height
+    const right = x + width
+    const left = x
+    const top = y
+    return {
+      getBoundingClientRect () {
+        console.log('zzz')
+        return { x, y, top, left, right, bottom, height, width }
+      },
+      clientWidth: width,
+      clientHeight: height,
+      id: block ? block.key : null
     }
   }
 

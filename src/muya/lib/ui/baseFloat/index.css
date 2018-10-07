@@ -1,4 +1,4 @@
-.ag-float-container {
+.ag-float-wrapper {
   position: absolute;
   font-size: 12px;
   opacity: 0;
@@ -15,9 +15,35 @@
   box-sizing: border-box;
 }
 .ag-float-container::-webkit-scrollbar:vertical {
-  width: 5px;
+  width: 0px;
 }
 
 [x-placement] {
   opacity: 1;
+}
+
+.ag-popper-arrow {
+  width: 16px;
+  height: 16px;
+  background: inherit;
+  border: 1px solid #ebeef5;
+  display: inline-block;
+  position: absolute;
+  transform: rotate(45deg);
+}
+
+[x-placement="bottom-start"] > .ag-popper-arrow {
+  border-right: none;
+  border-bottom: none;
+  top: -9px;
+}
+
+[x-placement="top-start"] > .ag-popper-arrow {
+  border-left: none;
+  border-top: none;
+  bottom: -9px;
+}
+
+[x-out-of-boundaries] {
+  display: none;
 }

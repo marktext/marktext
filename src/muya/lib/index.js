@@ -49,8 +49,6 @@ class Muya {
     this.focusMode = focusMode
     this.theme = theme
     this.markdown = markdown
-    this.fontSize = 16
-    this.lineHeight = 1.6
     this.init()
   }
 
@@ -71,7 +69,7 @@ class Muya {
     eventCenter.attachDOMEvent(container, 'contextmenu', event => {
       event.preventDefault()
       event.stopPropagation()
-      const sectionChanges = this.contentState.selectionChange(undefined, undefined, this.contentState.cursor)
+      const sectionChanges = this.contentState.selectionChange(this.contentState.cursor)
       eventCenter.dispatch('contextmenu', event, sectionChanges)
     })
 
@@ -254,8 +252,7 @@ class Muya {
   }
 
   getSelection () {
-    const { fontSize, lineHeight } = this
-    return this.contentState.selectionChange(fontSize, lineHeight)
+    return this.contentState.selectionChange()
   }
 
   setFocusMode (bool) {
@@ -281,8 +278,8 @@ class Muya {
   }
 
   setFont ({ fontSize, lineHeight }) {
-    if (fontSize) this.fontSize = parseInt(fontSize, 10)
-    if (lineHeight) this.lineHeight = lineHeight
+    if (fontSize) this.contentState.fontSize = parseInt(fontSize, 10)
+    if (lineHeight) this.contentState.lineHeight = lineHeight
   }
 
   setListItemPreference (preferLooseListItem) {

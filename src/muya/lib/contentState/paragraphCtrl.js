@@ -16,7 +16,8 @@ const getCurrentLevel = type => {
 }
 
 const paragraphCtrl = ContentState => {
-  ContentState.prototype.selectionChange = function (fontSize = 16, lineHeight = 1.6, cursor) {
+  ContentState.prototype.selectionChange = function (cursor) {
+    const { fontSize, lineHeight } = this
     const { start, end } = cursor || selection.getCursorRange()
     const cursorCoords = selection.getCursorCoords()
     const startBlock = this.getBlock(start.key)

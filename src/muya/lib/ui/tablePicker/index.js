@@ -1,29 +1,38 @@
-import Popper from 'popper.js/dist/esm/popper'
-import { noop } from '../../utils'
+import BaseFloat from '../baseFloat'
 import template from './index.tpl.html'
+// import tableIcon from '../../assets/icons/table'
 import './index.css'
 
-class TablePicker {
+class TablePicker extends BaseFloat {
   constructor (muya) {
-    this.muya = muya
-    this.status = false
+    const name = 'ag-table-picker'
+    super(muya, name)
     this.checkerCount = {
-      row: 10,
-      column: 6
+      row: 6,
+      column: 8
     }
-    this.container = null
-    this.cb = noop
-    this.init()
-    this.handlerHover()
-    this.handerClick()
+    this.render()
+    this.listen()
   }
 
-  init () {
+  listen () {
     const { eventCenter } = this.muya
+    super.listen()
+    this.handlerHover()
+    this.handerClick()
+    eventCenter.subscribe('muya-table-picker', (data, reference, cb) => {
+      if (!this.status) {
+        this.show(data, reference, cb)
+      } else {
+        this.hide()
+      }
+    })
+  }
+
+  render () {
     const { row, column } = this.checkerCount
-    const container = document.createElement('div')
-    container.innerHTML = template
-    const checker = container.querySelector('.checker')
+    this.container.innerHTML += template
+    const checker = this.container.querySelector('.checker')
     let i
     let j
 
@@ -40,55 +49,19 @@ class TablePicker {
         rowContainer.appendChild(cell)
       }
     }
-    const arrow = this.arrow = document.createElement('div')
-    arrow.setAttribute('x-arrow', '')
-    arrow.classList.add('ag-popper-arrow')
-    this.container = container.children[0]
-    this.container.appendChild(arrow)
-    document.body.appendChild(this.container)
 
-    const rowInput = document.querySelector('.ag-table-picker .row-input')
-    const columnInput = document.querySelector('.ag-table-picker .column-input')
+    const rowInput = this.container.querySelector('.ag-table-picker .row-input')
+    const columnInput = this.container.querySelector('.ag-table-picker .column-input')
     Object.assign(this, { rowInput, columnInput, checker })
-
-    const handler = event => {
-      this.hide()
-    }
-
-    eventCenter.attachDOMEvent(document, 'click', handler)
   }
 
-  hide () {
-    this.status = false
-    if (this.popper && this.popper.destroy) {
-      this.popper.destroy()
-    }
-    this.cb = noop
-  }
-
-  toggle ({ row, column }, reference, cb) {
-    const { container, status, rowInput, columnInput } = this
-    if (status) {
-      this.hide()
-    } else {
-      this.cb = cb
-      this.setClassName(-1, -1, 'selected')
-      this.setClassName(row, column, 'current')
-      rowInput.value = row + 1
-      columnInput.value = column + 1
-      if (this.popper && this.popper.destroy) {
-        this.popper.destroy()
-      }
-      this.popper = new Popper(reference, container, {
-        placement: 'bottom-start',
-        modifiers: {
-          offset: {
-            offset: '-20, 12'
-          }
-        }
-      })
-      this.status = true
-    }
+  show ({ row, column }, reference, cb) {
+    const { rowInput, columnInput } = this
+    this.setClassName(-1, -1, 'selected')
+    this.setClassName(row, column, 'current')
+    rowInput.value = row + 1
+    columnInput.value = column + 1
+    super.show(reference, cb)
   }
 
   setClassName (rawRow, rawColumn, className) {
@@ -155,10 +128,6 @@ class TablePicker {
     }
 
     eventCenter.attachDOMEvent(container, 'click', hander)
-  }
-
-  destroy () {
-    this.container.remove()
   }
 }
 

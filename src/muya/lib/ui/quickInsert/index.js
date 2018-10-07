@@ -9,8 +9,6 @@ class QuickInsert extends BaseFloat {
   constructor (muya) {
     const name = 'ag-quick-insert'
     super(muya, name)
-    // Use to remember whick float container is shown.
-    this.container.classList.add(this.name)
     this.reference = null
     this.scrollElement = null
     this.oldVnode = null
@@ -124,9 +122,6 @@ class QuickInsert extends BaseFloat {
     const handler = event => {
       if (!this.status) return
       switch (event.key) {
-        case EVENT_KEYS.Escape:
-          this.hide()
-          break
         case EVENT_KEYS.ArrowUp:
           this.step('previous')
           break

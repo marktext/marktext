@@ -1,6 +1,6 @@
 import selection from '../selection'
 import { tokenizer } from '../parser/parse'
-import { conflict, getPositionReference } from '../utils'
+import { conflict } from '../utils'
 import { getTextContent } from '../selection/dom'
 import { CLASS_OR_ID, EVENT_KEYS, DEFAULT_TURNDOWN_CONFIG } from '../config'
 import { beginRules } from '../parser/rules'
@@ -464,8 +464,23 @@ const updateCtrl = ContentState => {
     const checkMarkedUpdate = this.checkNeedRender(block)
 
     if (event.type === 'input') {
+      const rect = paragraph.getBoundingClientRect()
       const checkQuickInsert = this.checkQuickInsert(block)
-      const reference = getPositionReference(paragraph)
+      const reference = this.getPositionReference()
+      reference.getBoundingClientRect = function () {
+        const { x, y, left, top, height, bottom } = rect
+
+        return Object.assign({}, {
+          left,
+          x,
+          top,
+          y,
+          bottom,
+          height,
+          width: 0,
+          right: left
+        })
+      }
       this.muya.eventCenter.dispatch('muya-quick-insert', reference, block, checkQuickInsert)
     }
 

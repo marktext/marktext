@@ -1,49 +1,8 @@
 .ag-table-picker {
-  position: absolute;
-  font-size: 12px;
-  opacity: 0;
-  width: 110px;
-  height: auto;
-  padding: 10px;
-  background: #fff;
-  top: -1000px;
-  right: -1000px;
-  border: 1px solid #ebeef5;
-  border-radius: 4px;
-  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, .1);
-  transition: opacity .25s ease-in-out;
-  transform-origin: top;
   box-sizing: border-box;
-}
-
-[x-placement] {
-  opacity: 1;
-}
-
-.ag-popper-arrow {
-  width: 15px;
-  height: 15px;
-  background: inherit;
-  border: 1px solid #ebeef5;
-  display: inline-block;
-  position: absolute;
-  transform: rotate(45deg);
-}
-
-[x-placement="bottom-start"] > .ag-popper-arrow {
-  border-right: none;
-  border-bottom: none;
-  top: -9px;
-}
-
-[x-placement="top-start"] > .ag-popper-arrow {
-  border-left: none;
-  border-top: none;
-  bottom: -9px;
-}
-
-[x-out-of-boundaries] {
-  display: none;
+  font-size: 12px;
+  width: 153px;
+  padding: 10px;
 }
 
 .ag-table-picker .checker {
@@ -55,8 +14,8 @@
   display: flex;
 }
 .ag-table-picker-cell {
-  width: 14px;
-  height: 14px;
+  width: 16px;
+  height: 16px;
   box-sizing: border-box;
   margin-right: 1px;
   margin-bottom: 1px;
@@ -73,10 +32,10 @@
   background: #666;
 }
 .ag-table-picker-cell.selected {
-  background: aliceblue;
+  background: #ecf5ff;
 }
 .ag-table-picker-header .selected {
-  background: aliceblue;
+  background: #ecf5ff;
 }
 .ag-table-picker-cell:last-of-type {
   margin-right: 0;

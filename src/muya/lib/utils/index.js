@@ -280,18 +280,3 @@ export const sanitize = (html, options) => {
   const DOMPurify = createDOMPurify(window)
   return DOMPurify.sanitize(escapeInBlockHtml(html), options)
 }
-
-export const getPositionReference = paragraph => {
-  const rect = paragraph.getBoundingClientRect()
-  const { clientWidth, clientHeight, id } = paragraph
-  const reference = {
-    getBoundingClientRect () {
-      return rect
-    },
-    clientWidth,
-    clientHeight,
-    id
-  }
-
-  return reference
-}

@@ -135,7 +135,7 @@ const tableBlockCtrl = ContentState => {
         break
       }
       case 'table': {
-        const { tablePicker } = this.muya
+        const { eventCenter } = this.muya
         const figureKey = figure.key
         const tableLable = document.querySelector(`#${figureKey} [data-label=table]`)
         const { row = 1, column = 1 } = table // zero base
@@ -194,8 +194,7 @@ const tableBlockCtrl = ContentState => {
           this.muya.eventCenter.dispatch('stateChange')
           this.partialRender()
         }
-
-        tablePicker.toggle({ row, column }, tableLable, handler.bind(this))
+        eventCenter.dispatch('muya-table-picker', { row, column }, tableLable, handler.bind(this))
       }
     }
   }
