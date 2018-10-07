@@ -9,14 +9,15 @@
   color: rgba(55, 53, 47, 0.6);
   line-height: 120%;
   font-size: 11px;
-  padding-left: 14px;
-  padding-right: 14px;
-  margin-top: 6px;
-  margin-bottom: 8px;
+  padding: 10px 14px 12px 14px;
   display: flex;
   text-transform: uppercase;
   letter-spacing: 1px;
-  font-weight: 500;
+  font-weight: 600;
+  position: sticky;
+  top: 0;
+  background: #fff;
+  z-index: 1001;
 }
 
 .ag-quick-insert .item {
