@@ -3,6 +3,7 @@ import selection from '../selection'
 import { findNearestParagraph } from '../selection/dom'
 import { getParagraphReference } from '../utils'
 import { checkEditLanguage } from '../codeMirror/language'
+import { checkEditEmoji } from '../ui/emojis'
 
 class Keyboard {
   constructor (muya) {
@@ -12,6 +13,7 @@ class Keyboard {
     this.recordEditChinese()
     this.dispatchUpdateState()
     this.keydownBinding()
+    this.keyupBinding()
     this.inputBinding()
     this.listen()
   }
@@ -44,7 +46,7 @@ class Keyboard {
     const changeHandler = event => {
       const target = event.target
       if (event.type === 'click' && target.classList.contains(CLASS_OR_ID['AG_FUNCTION_HTML'])) return
-
+      if (event.type === 'keyup' && (event.key === EVENT_KEYS.ArrowUp || event.key === EVENT_KEYS.ArrowDown) && this.shownFloat.size > 0) return
       if (!this._isEditChinese) {
         contentState.updateState(event)
       }
@@ -138,6 +140,36 @@ class Keyboard {
     }
 
     eventCenter.attachDOMEvent(container, 'input', inputHandler)
+  }
+
+  keyupBinding () {
+    const { container, eventCenter } = this.muya
+    const handler = event => {
+      // check if edit emoji
+      const node = selection.getSelectionStart()
+      const paragraph = findNearestParagraph(node)
+      const emojiNode = checkEditEmoji(node)
+      if (
+        paragraph &&
+        emojiNode &&
+        event.key !== EVENT_KEYS.Enter &&
+        event.key !== EVENT_KEYS.ArrowDown &&
+        event.key !== EVENT_KEYS.ArrowUp
+      ) {
+        const reference = getParagraphReference(emojiNode, paragraph.id)
+        eventCenter.dispatch('muya-emoji-picker', {
+          reference,
+          emojiNode
+        })
+      }
+      if (!emojiNode) {
+        eventCenter.dispatch('muya-emoji-picker', {
+          emojiNode
+        })
+      }
+    }
+
+    eventCenter.attachDOMEvent(container, 'keyup', handler) // temp use input event
   }
 }
 

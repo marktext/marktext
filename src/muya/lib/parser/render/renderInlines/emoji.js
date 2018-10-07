@@ -1,5 +1,5 @@
 import { CLASS_OR_ID } from '../../../config'
-import { validEmoji } from '../../../emojis'
+import { validEmoji } from '../../../ui/emojis'
 
 // render token of emoji to vdom
 export default function emoji (h, cursor, block, token, outerClass) {

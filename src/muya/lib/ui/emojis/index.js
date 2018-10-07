@@ -1,10 +1,19 @@
 import { filter } from 'fuzzaldrin'
 import emojis from './emojisJson'
-import { CLASS_OR_ID } from '../config'
+import { CLASS_OR_ID } from '../../config'
+import selection from '../../selection'
 
-const emojisForSearch = emojis.map(emoji => {
-  return Object.assign({}, emoji, { search: [...emoji.aliases, ...emoji.tags].join(' ') })
-})
+const emojisForSearch = {}
+
+for (const emoji of emojis) {
+  if (emoji.emoji.length > 2) continue
+  const newEmoji = Object.assign({}, emoji, { search: [...emoji.aliases, ...emoji.tags].join(' ') })
+  if (emojisForSearch[newEmoji.category]) {
+    emojisForSearch[newEmoji.category].push(newEmoji)
+  } else {
+    emojisForSearch[newEmoji.category] = [ newEmoji ]
+  }
+}
 
 /**
  * check if one emoji code is in emojis, return undefined or found emoji
@@ -29,8 +38,8 @@ export const checkEditEmoji = node => {
   return false
 }
 
-export const setInlineEmoji = (node, emoji, selection) => {
-  node.textContent = `${emoji.text}`
+export const setInlineEmoji = (node, emoji) => {
+  node.textContent = `${emoji.aliases[0]}`
   node.setAttribute('data-emoji', emoji.emoji)
   selection.moveCursor(node.nextElementSibling, 1)
 }
@@ -42,20 +51,21 @@ class Emoji {
 
   search (text) {
     const { cache } = this
-
     if (cache.has(text)) return cache.get(text)
+    const result = {}
 
-    const result = filter(emojisForSearch, text, { key: 'search' })
+    Object.keys(emojisForSearch).forEach(category => {
+      const list = filter(emojisForSearch[category], text, { key: 'search' })
+      if (list.length) {
+        result[category] = list
+      }
+    })
     cache.set(text, result)
     return result
   }
 
-  clear () {
+  destroy () {
     return this.cache.clear()
-  }
-
-  checkValidation (text) {
-    validEmoji(text)
   }
 }
 

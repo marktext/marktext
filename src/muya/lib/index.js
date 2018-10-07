@@ -1,15 +1,11 @@
 import ContentState from './contentState'
-import selection from './selection'
 import EventCenter from './eventHandler/event'
 import Clipboard from './eventHandler/clipboard'
 import Keyboard from './eventHandler/keyboard'
 import ClickEvent from './eventHandler/clickEvent'
-import { EVENT_KEYS, CLASS_OR_ID, codeMirrorConfig } from './config'
-import { throttle, wordCount } from './utils'
-import { checkEditLanguage } from './codeMirror/language'
-import Emoji, { checkEditEmoji, setInlineEmoji } from './emojis'
+import { CLASS_OR_ID, codeMirrorConfig } from './config'
+import { wordCount } from './utils'
 import FloatBox from './ui/floatBox'
-import { findNearestParagraph } from './selection/dom'
 import ExportMarkdown from './utils/exportMarkdown'
 import ExportHtml from './utils/exportHtml'
 import { checkEditImage } from './utils/checkEditImage'
@@ -17,6 +13,7 @@ import TablePicker from './ui/tablePicker'
 import ToolTip from './ui/tooltip'
 import QuickInsert from './ui/quickInsert'
 import CodePicker from './ui/codePicker'
+import EmojiPicker from './ui/emojiPicker'
 import './assets/symbolIcon' // import symbol icons
 import './assets/symbolIcon/index.css'
 import './assets/styles/index.css'
@@ -29,21 +26,14 @@ class Muya {
       bulletListMarker = '-', tabSize = 4
     } = options
     this.container = getContainer(container)
-    this.emoji = new Emoji() // emoji instance: has search(text) clear() methods.
     this.eventCenter = new EventCenter()
     this.tooltip = new ToolTip(this)
     this.quickInsert = new QuickInsert(this)
     this.codePicker = new CodePicker(this)
     this.floatBox = new FloatBox(this)
     this.tablePicker = new TablePicker(this)
-    this.contentState = new ContentState(this, {
-      preferLooseListItem,
-      autoPairBracket,
-      autoPairMarkdownSyntax,
-      autoPairQuote,
-      bulletListMarker,
-      tabSize
-    })
+    this.emojiPicker = new EmojiPicker(this)
+    this.contentState = new ContentState(this, { preferLooseListItem, autoPairBracket, autoPairMarkdownSyntax, autoPairQuote, bulletListMarker, tabSize })
     this.clipboard = new Clipboard(this)
     this.clickEvent = new ClickEvent(this)
     this.keyboard = new Keyboard(this)
@@ -56,24 +46,16 @@ class Muya {
   init () {
     const { container, contentState, eventCenter } = this
     contentState.stateRender.setContainer(container.children[0])
-
-    eventCenter.subscribe('editEmoji', throttle(this.subscribeEditEmoji.bind(this), 200))
-    this.dispatchEditEmoji()
-
     eventCenter.subscribe('hideFloatBox', this.subscribeHideFloatBox.bind(this))
     this.dispatchHideFloatBox()
-
     eventCenter.subscribe('stateChange', this.dispatchChange.bind(this))
-
     eventCenter.attachDOMEvent(container, 'contextmenu', event => {
       event.preventDefault()
       event.stopPropagation()
       const sectionChanges = this.contentState.selectionChange(this.contentState.cursor)
       eventCenter.dispatch('contextmenu', event, sectionChanges)
     })
-
     contentState.listenForPathChange()
-
     const { theme, focusMode, markdown } = this
     this.setTheme(theme)
     this.setMarkdown(markdown)
@@ -89,73 +71,22 @@ class Muya {
     eventCenter.dispatch('change', { markdown, wordCount, cursor, history })
   }
 
-  /**
-   * dispatchEditEmoji
-  */
-  dispatchEditEmoji () {
-    const { container, eventCenter } = this
-    const changeHandler = event => {
-      const node = selection.getSelectionStart()
-      const emojiNode = checkEditEmoji(node)
-      if (emojiNode && event.key !== EVENT_KEYS.Enter) {
-        eventCenter.dispatch('editEmoji', emojiNode)
-      }
-    }
-    eventCenter.attachDOMEvent(container, 'keyup', changeHandler) // don't listen `input` event
-  }
-
-  subscribeEditEmoji (emojiNode) {
-    const text = emojiNode.textContent.trim()
-    if (text) {
-      const list = this.emoji.search(text).map(l => {
-        return Object.assign(l, { text: l.aliases[0] })
-      })
-      const cb = item => {
-        setInlineEmoji(emojiNode, item, selection)
-        this.floatBox.hideIfNeeded()
-      }
-      if (list.length) {
-        this.floatBox.showIfNeeded(emojiNode, cb)
-        this.floatBox.setOptions(list)
-      } else {
-        this.floatBox.hideIfNeeded()
-      }
-    }
-  }
-
   dispatchHideFloatBox () {
     const { container, eventCenter } = this
-    let cacheTop = null
     const handler = event => {
-      if (event.type === 'scroll') {
-        const scrollTop = container.scrollTop
-        if (cacheTop && Math.abs(scrollTop - cacheTop) > 10) {
-          cacheTop = null
-          return eventCenter.dispatch('hideFloatBox')
-        } else {
-          cacheTop = scrollTop
-          return
-        }
-      }
       if (event.target && event.target.classList.contains(CLASS_OR_ID['AG_LANGUAGE_INPUT'])) {
         return
       }
       if (event.type === 'click') return eventCenter.dispatch('hideFloatBox')
-      const node = selection.getSelectionStart()
-      const paragraph = findNearestParagraph(node)
-      const selectionState = selection.exportSelection(paragraph)
-      const lang = checkEditLanguage(paragraph, selectionState)
-      const emojiNode = node && checkEditEmoji(node)
       const editImage = checkEditImage()
 
-      if (!emojiNode && !lang && !editImage) {
+      if (!editImage) {
         eventCenter.dispatch('hideFloatBox')
       }
     }
 
     eventCenter.attachDOMEvent(container, 'click', handler)
     eventCenter.attachDOMEvent(container, 'keyup', handler)
-    eventCenter.attachDOMEvent(container, 'scroll', throttle(handler, 200))
   }
 
   subscribeHideFloatBox () {
@@ -349,13 +280,11 @@ class Muya {
   }
 
   destroy () {
-    this.emoji.clear() // clear emoji cache for memory recycle
     this.contentState.clear()
     this.floatBox.destroy()
     this.tablePicker.destroy()
     this.container = null
     this.contentState = null
-    this.emoji = null
     this.floatBox = null
     this.tablePicker = null
     this.eventCenter.detachAllDomEvents()

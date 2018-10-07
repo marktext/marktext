@@ -93,13 +93,6 @@ class CodePicker extends BaseFloatFloat {
     this.activeEleScrollIntoView(activeEle)
   }
 
-  selectItem (item) {
-    const { cb } = this
-    cb(item)
-    // delay hide to avoid dispatch enter hander
-    setTimeout(this.hide.bind(this))
-  }
-
   getItemElement (item) {
     const { name } = item
     return this.floatBox.querySelector(`[data-label="${name}"]`)

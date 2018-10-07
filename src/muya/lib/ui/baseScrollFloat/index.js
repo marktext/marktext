@@ -55,6 +55,7 @@ class BaseScrollFloat extends BaseFloat {
   }
 
   show (reference, cb) {
+    this.cb = cb
     if (reference instanceof HTMLElement) {
       if (this.reference && this.reference === reference && this.status) return
     } else {
@@ -65,9 +66,26 @@ class BaseScrollFloat extends BaseFloat {
     super.show(reference, cb)
   }
 
-  step () {}
+  step (direction) {
+    let index = this.renderArray.findIndex(item => {
+      return item === this.activeItem
+    })
+    index = direction === 'next' ? index + 1 : index - 1
+    if (index < 0 || index >= this.renderArray.length) {
+      return
+    }
+    this.activeItem = this.renderArray[index]
+    this.render()
+    const activeEle = this.getItemElement(this.activeItem)
+    this.activeEleScrollIntoView(activeEle)
+  }
 
-  selectItem () {}
+  selectItem (item) {
+    const { cb } = this
+    cb(item)
+    // delay hide to avoid dispatch enter hander
+    setTimeout(this.hide.bind(this))
+  }
 
   getItemElement () {}
 }

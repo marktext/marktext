@@ -2,7 +2,7 @@ import selection from '../selection'
 import { tokenizer } from '../parser/parse'
 import { conflict } from '../utils'
 import { getTextContent } from '../selection/dom'
-import { CLASS_OR_ID, EVENT_KEYS, DEFAULT_TURNDOWN_CONFIG } from '../config'
+import { CLASS_OR_ID, DEFAULT_TURNDOWN_CONFIG } from '../config'
 import { beginRules } from '../parser/rules'
 
 const INLINE_UPDATE_FRAGMENTS = [
@@ -301,21 +301,12 @@ const updateCtrl = ContentState => {
   }
 
   ContentState.prototype.updateState = function (event) {
-    const { floatBox } = this.muya
     const { start, end } = selection.getCursorRange()
     const key = start.key
     const block = this.getBlock(key)
 
     // bugfix: #67 problem 1
     if (block && block.icon) return event.preventDefault()
-
-    // if (isMetaKey(event)) {
-    //   return
-    // }
-
-    if (event.type === 'keyup' && (event.key === EVENT_KEYS.ArrowUp || event.key === EVENT_KEYS.ArrowDown) && floatBox.show) {
-      return
-    }
 
     if (event.type === 'click' && start.key !== end.key) {
       setTimeout(() => {

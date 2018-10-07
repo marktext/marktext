@@ -2,7 +2,7 @@ import { filter } from 'fuzzaldrin'
 import { patch, h } from '../../parser/render/snabbdom'
 import { deepCopy } from '../../utils'
 import BaseScrollFloat from '../baseScrollFloat'
-import { quicInsertList } from './config'
+import { quicInsertObj } from './config'
 import './index.css'
 
 class QuickInsert extends BaseScrollFloat {
@@ -15,7 +15,8 @@ class QuickInsert extends BaseScrollFloat {
     this.renderArray = null
     this.activeItem = null
     this.block = null
-    this.render(quicInsertList)
+    this.renderObj = quicInsertObj
+    this.render()
     this.listen()
   }
 
@@ -33,19 +34,15 @@ class QuickInsert extends BaseScrollFloat {
     }
   }
 
-  render (list = this._renderObj, needSet = true) {
-    if (needSet) {
-      this.renderObj = list
-    }
-
-    const { scrollElement, activeItem } = this
-    let children = Object.keys(list).filter(key => {
-      return list[key].length !== 0
+  render () {
+    const { scrollElement, activeItem, _renderObj } = this
+    let children = Object.keys(_renderObj).filter(key => {
+      return _renderObj[key].length !== 0
     })
       .map(key => {
         const titleVnode = h('div.title', key.toUpperCase())
         const items = []
-        for (const item of list[key]) {
+        for (const item of _renderObj[key]) {
           const { title, subTitle, label, icon } = item
           const iconVnode = h('div.icon-container', h('img', {
             attrs: {
@@ -122,7 +119,7 @@ class QuickInsert extends BaseScrollFloat {
   search (text) {
     const { contentState } = this.muya
     const canInserFrontMatter = contentState.canInserFrontMatter(this.block)
-    const obj = deepCopy(quicInsertList)
+    const obj = deepCopy(quicInsertObj)
     if (!canInserFrontMatter) {
       obj['basic block'].splice(2, 1)
     }
@@ -133,8 +130,8 @@ class QuickInsert extends BaseScrollFloat {
         result[key] = filter(obj[key], text, { key: 'title' })
       })
     }
-
-    this.render(result)
+    this.renderObj = result
+    this.render()
   }
 
   selectItem (item) {
@@ -156,20 +153,6 @@ class QuickInsert extends BaseScrollFloat {
     }
     // delay hide to avoid dispatch enter hander
     setTimeout(this.hide.bind(this))
-  }
-
-  step (direction) {
-    let index = this.renderArray.findIndex(item => {
-      return item.label === this.activeItem.label
-    })
-    index = direction === 'next' ? index + 1 : index - 1
-    if (index < 0 || index >= this.renderArray.length) {
-      return
-    }
-    this.activeItem = this.renderArray[index]
-    this.render(undefined, false)
-    const activeEle = this.getItemElement(this.activeItem)
-    this.activeEleScrollIntoView(activeEle)
   }
 
   getItemElement (item) {

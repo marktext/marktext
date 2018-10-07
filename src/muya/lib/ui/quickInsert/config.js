@@ -16,7 +16,7 @@ import todoListIcon from '../../assets/icons/todolist.svg'
 import mathblockIcon from '../../assets/icons/math.svg'
 import orderListIcon from '../../assets/icons/order_list.svg'
 
-export const quicInsertList = {
+export const quicInsertObj = {
   'basic block': [{
     title: 'Text',
     subTitle: 'Just start write plain text.',
