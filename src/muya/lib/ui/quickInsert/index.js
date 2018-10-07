@@ -176,9 +176,6 @@ class QuickInsert extends BaseFloat {
       case 'paragraph':
         contentState.partialRender()
         break
-      case 'table':
-        this.muya.createTable({ rows: 4, columns: 3 })
-        break
       case 'html':
         const parentBlock = contentState.getParent(this.block)
         this.block.text = '<div>'

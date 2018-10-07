@@ -31,7 +31,6 @@ class BaseFloat {
     const ro = new ResizeObserver(entries => {
       for (const entry of entries) {
         const { clientWidth, clientHight } = entry.target
-        console.log(entry)
         Object.assign(floatBox.style, { width: `${clientWidth}px`, height: `${clientHight}px` })
       }
     })

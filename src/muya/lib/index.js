@@ -244,11 +244,7 @@ class Muya {
   }
 
   createTable (tableChecker) {
-    const { eventCenter } = this
-
-    this.contentState.createFigure(tableChecker)
-    const selectionChanges = this.getSelection()
-    eventCenter.dispatch('selectionChange', selectionChanges)
+    return this.contentState.createTable(tableChecker)
   }
 
   getSelection () {

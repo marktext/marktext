@@ -603,7 +603,6 @@ class ContentState {
     const top = y
     return {
       getBoundingClientRect () {
-        console.log('zzz')
         return { x, y, top, left, right, bottom, height, width }
       },
       clientWidth: width,

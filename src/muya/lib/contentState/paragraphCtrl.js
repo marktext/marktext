@@ -340,6 +340,16 @@ const paragraphCtrl = ContentState => {
     }
   }
 
+  ContentState.prototype.showTablePicker = function () {
+    const { eventCenter } = this.muya
+    const reference = this.getPositionReference()
+
+    const handler = (rows, columns) => {
+      this.createTable({ rows, columns })
+    }
+    eventCenter.dispatch('muya-table-picker', { row: -1, column: -1 }, reference, handler.bind(this))
+  }
+
   ContentState.prototype.updateParagraph = function (paraType) {
     const { start, end } = this.cursor
     const block = this.getBlock(start.key)
@@ -370,6 +380,10 @@ const paragraphCtrl = ContentState => {
       }
       case 'mathblock': {
         this.insertMathBlock()
+        break
+      }
+      case 'table': {
+        this.showTablePicker()
         break
       }
       case 'heading 1':

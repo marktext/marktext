@@ -46,7 +46,7 @@ class Keyboard {
       if (event.type === 'click' || event.type === 'keyup') {
         if (timer) clearTimeout(timer)
         timer = setTimeout(() => {
-          const selectionChanges = this.muya.getSelection()
+          const selectionChanges = contentState.selectionChange()
           const { formats } = contentState.selectionFormats()
           eventCenter.dispatch('selectionChange', selectionChanges)
           eventCenter.dispatch('selectionFormats', formats)

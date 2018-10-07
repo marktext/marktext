@@ -4,7 +4,7 @@ import { TABLE_TOOLS } from '../config'
 const TABLE_BLOCK_REG = /^\|.*?(\\*)\|.*?(\\*)\|/
 
 const tableBlockCtrl = ContentState => {
-  ContentState.prototype.createTable = function ({ rows, columns }, headerTexts) {
+  ContentState.prototype.createTableInFigure = function ({ rows, columns }, headerTexts) {
     const table = this.createBlock('table')
     const tHead = this.createBlock('thead')
     const tBody = this.createBlock('tbody')
@@ -31,7 +31,7 @@ const tableBlockCtrl = ContentState => {
   ContentState.prototype.createFigure = function ({ rows, columns }) {
     const { start, end } = this.cursor
     const toolBar = this.createToolBar(TABLE_TOOLS, 'table')
-    const table = this.createTable({ rows, columns })
+    const table = this.createTableInFigure({ rows, columns })
     let figureBlock
     if (start.key === end.key) {
       const startBlock = this.getBlock(start.key)
@@ -59,6 +59,14 @@ const tableBlockCtrl = ContentState => {
     this.partialRender()
   }
 
+  ContentState.prototype.createTable = function (tableChecker) {
+    const { eventCenter } = this.muya
+
+    this.createFigure(tableChecker)
+    const selectionChanges = this.selectionChange()
+    eventCenter.dispatch('selectionChange', selectionChanges)
+  }
+
   ContentState.prototype.initTable = function (block) {
     const { text } = block.children[0]
     const rowHeader = []
@@ -79,7 +87,7 @@ const tableBlockCtrl = ContentState => {
     const columns = rowHeader.length
     const rows = 2
 
-    const table = this.createTable({ rows, columns }, rowHeader)
+    const table = this.createTableInFigure({ rows, columns }, rowHeader)
     const toolBar = this.createToolBar(TABLE_TOOLS, 'table')
 
     block.type = 'figure'
