@@ -70,11 +70,6 @@
   import Printer from '@/services/printService'
 
   const STANDAR_Y = 320
-  const PARAGRAPH_CMD = [
-    'ul-bullet', 'ul-task', 'ol-order', 'pre', 'blockquote', 'mathblock', 'heading 1', 'heading 2',
-    'heading 3', 'heading 4', 'heading 5', 'heading 6', 'upgrade heading', 'degrade heading',
-    'paragraph', 'hr', 'loose-list-item', 'front-matter'
-  ]
 
   export default {
     props: {
@@ -384,7 +379,7 @@
           this.$nextTick(() => {
             this.$refs.rowInput.focus()
           })
-        } else if (PARAGRAPH_CMD.indexOf(type) > -1) {
+        } else {
           this.editor && this.editor.updateParagraph(type)
         }
       },

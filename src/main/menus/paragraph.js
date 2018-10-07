@@ -102,6 +102,14 @@ export default {
       actions.paragraph(browserWindow, 'mathblock')
     }
   }, {
+    id: 'htmlBlockMenuItem',
+    label: 'Html Block',
+    type: 'checkbox',
+    accelerator: 'Alt+CmdOrCtrl+L',
+    click (menuItem, browserWindow) {
+      actions.paragraph(browserWindow, 'html')
+    }
+  }, {
     type: 'separator'
   }, {
     id: 'orderListMenuItem',

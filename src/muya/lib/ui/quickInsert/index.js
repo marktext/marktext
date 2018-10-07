@@ -176,17 +176,6 @@ class QuickInsert extends BaseFloat {
       case 'paragraph':
         contentState.partialRender()
         break
-      case 'html':
-        const parentBlock = contentState.getParent(this.block)
-        this.block.text = '<div>'
-        const cursorBlock = contentState.initHtmlBlock(parentBlock, 'div')
-        key = cursorBlock.key
-        contentState.cursor = {
-          start: { key, offset },
-          end: { key, offset }
-        }
-        contentState.partialRender()
-        break
       default:
         contentState.updateParagraph(item.label)
         break
