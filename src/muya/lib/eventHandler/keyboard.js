@@ -1,4 +1,8 @@
 import { EVENT_KEYS, CLASS_OR_ID } from '../config'
+import selection from '../selection'
+import { findNearestParagraph } from '../selection/dom'
+import { getParagraphReference } from '../utils'
+import { checkEditLanguage } from '../codeMirror/language'
 
 class Keyboard {
   constructor (muya) {
@@ -8,6 +12,7 @@ class Keyboard {
     this.recordEditChinese()
     this.dispatchUpdateState()
     this.keydownBinding()
+    this.inputBinding()
     this.listen()
   }
 
@@ -112,6 +117,27 @@ class Keyboard {
     }
 
     eventCenter.attachDOMEvent(container, 'keydown', handler)
+  }
+
+  inputBinding () {
+    const { container, eventCenter, contentState } = this.muya
+    const inputHandler = _ => {
+      const node = selection.getSelectionStart()
+      const paragraph = findNearestParagraph(node)
+      const selectionState = selection.exportSelection(paragraph)
+      const lang = checkEditLanguage(paragraph, selectionState)
+      if (lang) {
+        eventCenter.dispatch('muya-code-picker', {
+          reference: getParagraphReference(paragraph, paragraph.id),
+          lang,
+          cb: item => {
+            contentState.selectLanguage(paragraph, item.name)
+          }
+        })
+      }
+    }
+
+    eventCenter.attachDOMEvent(container, 'input', inputHandler)
   }
 }
 

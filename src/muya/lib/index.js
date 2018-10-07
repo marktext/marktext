@@ -5,7 +5,7 @@ import Clipboard from './eventHandler/clipboard'
 import Keyboard from './eventHandler/keyboard'
 import ClickEvent from './eventHandler/clickEvent'
 import { EVENT_KEYS, CLASS_OR_ID, codeMirrorConfig } from './config'
-import { throttle, wordCount, getParagraphReference } from './utils'
+import { throttle, wordCount } from './utils'
 import { checkEditLanguage } from './codeMirror/language'
 import Emoji, { checkEditEmoji, setInlineEmoji } from './emojis'
 import FloatBox from './ui/floatBox'
@@ -59,8 +59,6 @@ class Muya {
 
     eventCenter.subscribe('editEmoji', throttle(this.subscribeEditEmoji.bind(this), 200))
     this.dispatchEditEmoji()
-
-    this.dispatchEditLanguage()
 
     eventCenter.subscribe('hideFloatBox', this.subscribeHideFloatBox.bind(this))
     this.dispatchHideFloatBox()
@@ -162,30 +160,6 @@ class Muya {
 
   subscribeHideFloatBox () {
     this.floatBox.hideIfNeeded()
-  }
-
-  /**
-   * dispatchIsEditLanguage
-   */
-  dispatchEditLanguage () {
-    const { container, eventCenter } = this
-    const inputHandler = event => {
-      const node = selection.getSelectionStart()
-      const paragraph = findNearestParagraph(node)
-      const selectionState = selection.exportSelection(paragraph)
-      const lang = checkEditLanguage(paragraph, selectionState)
-      if (lang) {
-        eventCenter.dispatch('muya-code-picker', {
-          reference: getParagraphReference(paragraph, paragraph.id),
-          lang,
-          cb: item => {
-            this.contentState.selectLanguage(paragraph, item.name)
-          }
-        })
-      }
-    }
-
-    eventCenter.attachDOMEvent(container, 'input', inputHandler)
   }
 
   getMarkdown () {
