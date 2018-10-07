@@ -35,7 +35,6 @@ export default function renderLeafBlock (block, cursor, activeBlocks, matches, u
     dataset: {}
   }
   let children = ''
-
   if (text) {
     let tokens = null
     if (highlights.length === 0 && this.tokenCache.has(text)) {

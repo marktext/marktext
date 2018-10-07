@@ -1,5 +1,6 @@
 import { filter } from 'fuzzaldrin'
 import { patch, h } from '../../parser/render/snabbdom'
+import { deepCopy } from '../../utils'
 import BaseFloat from '../baseFloat'
 import { quicInsertList } from './config'
 import { EVENT_KEYS } from '../../config'
@@ -111,9 +112,9 @@ class QuickInsert extends BaseFloat {
     const { eventCenter, container } = this.muya
     eventCenter.subscribe('muya-quick-insert', (reference, block, status) => {
       if (status) {
+        this.block = block
         this.show(reference)
         this.search(block.text.substring(1)) // remove `@` char
-        this.block = block
       } else {
         this.hide()
       }
@@ -152,11 +153,17 @@ class QuickInsert extends BaseFloat {
   }
 
   search (text) {
-    let result = quicInsertList
+    const { contentState } = this.muya
+    const canInserFrontMatter = contentState.canInserFrontMatter(this.block)
+    const obj = deepCopy(quicInsertList)
+    if (!canInserFrontMatter) {
+      obj['basic block'].splice(2, 1)
+    }
+    let result = obj
     if (text !== '') {
       result = {}
-      Object.keys(quicInsertList).forEach(key => {
-        result[key] = filter(quicInsertList[key], text, { key: 'title' })
+      Object.keys(obj).forEach(key => {
+        result[key] = filter(obj[key], text, { key: 'title' })
       })
     }
 
