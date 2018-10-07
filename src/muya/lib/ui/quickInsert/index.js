@@ -191,7 +191,7 @@ class QuickInsert extends BaseFloat {
         contentState.partialRender()
         break
       default:
-        contentState.updateParagraph(item.label)
+        contentState.updateParagraph(item.label, true)
         break
     }
     // delay hide to avoid dispatch enter hander

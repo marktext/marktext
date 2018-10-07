@@ -86,13 +86,13 @@ const paragraphCtrl = ContentState => {
     }
   }
 
-  ContentState.prototype.handleListMenu = function (paraType) {
+  ContentState.prototype.handleListMenu = function (paraType, insertMode) {
     const { start, end, affiliation } = this.selectionChange()
     const [blockType, listType] = paraType.split('-')
     const isListed = affiliation.slice(0, 3).filter(b => /ul|ol/.test(b.type))
     const { preferLooseListItem } = this
 
-    if (isListed.length) {
+    if (isListed.length && !insertMode) {
       const listBlock = isListed[0]
       if (listType === isListed[0].listType) {
         const listItems = listBlock.children
@@ -212,7 +212,7 @@ const paragraphCtrl = ContentState => {
       }
 
       const { key } = codeBlock.children[codeBlock.selection.anchor.line]
-      const offset = codeBlock.selection.ahchor.ch
+      const offset = codeBlock.selection.anchor.ch
       delete codeBlock.selection
       delete codeBlock.history
       delete codeBlock.lang
@@ -278,12 +278,12 @@ const paragraphCtrl = ContentState => {
     }
   }
 
-  ContentState.prototype.handleQuoteMenu = function () {
+  ContentState.prototype.handleQuoteMenu = function (insertMode) {
     const { start, end, affiliation } = this.selectionChange()
     let startBlock = this.getBlock(start.key)
     const isBlockQuote = affiliation.slice(0, 2).filter(b => /blockquote/.test(b.type))
     // change blockquote to paragraph
-    if (isBlockQuote.length) {
+    if (isBlockQuote.length && !insertMode) {
       const quoteBlock = isBlockQuote[0]
       const children = quoteBlock.children
       for (const child of children) {
@@ -362,7 +362,7 @@ const paragraphCtrl = ContentState => {
     }
   }
 
-  ContentState.prototype.updateParagraph = function (paraType) {
+  ContentState.prototype.updateParagraph = function (paraType, insertMode = false) {
     const { start, end } = this.cursor
     const block = this.getBlock(start.key)
     const { type, text } = block
@@ -375,7 +375,7 @@ const paragraphCtrl = ContentState => {
       case 'ul-bullet':
       case 'ul-task':
       case 'ol-order': {
-        this.handleListMenu(paraType)
+        this.handleListMenu(paraType, insertMode)
         break
       }
       case 'loose-list-item': {
@@ -387,7 +387,7 @@ const paragraphCtrl = ContentState => {
         break
       }
       case 'blockquote': {
-        this.handleQuoteMenu()
+        this.handleQuoteMenu(insertMode)
         break
       }
       case 'mathblock': {
