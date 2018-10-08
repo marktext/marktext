@@ -21,10 +21,8 @@ class BaseFloat {
     const arrow = document.createElement('div')
     // Use to remember whick float container is shown.
     container.classList.add(this.name)
-    container.classList.add(this.muya.theme)
     container.classList.add('ag-float-container')
     floatBox.classList.add('ag-float-wrapper')
-    floatBox.classList.add(this.muya.theme)
     arrow.setAttribute('x-arrow', '')
     arrow.classList.add('ag-popper-arrow')
     floatBox.appendChild(arrow)
@@ -56,6 +54,16 @@ class BaseFloat {
       }
     }
 
+    const themeChange = theme => {
+      const { container, floatBox } = this
+      ;[container, floatBox].forEach(ele => {
+        if (!ele.classList.contains(theme)) {
+          ele.classList.remove(theme === 'dark' ? 'light' : 'dark')
+          ele.classList.add(theme)
+        }
+      })
+    }
+
     eventCenter.attachDOMEvent(document, 'click', this.hide.bind(this))
     eventCenter.attachDOMEvent(floatBox, 'click', event => {
       event.stopPropagation()
@@ -63,6 +71,7 @@ class BaseFloat {
     })
     eventCenter.attachDOMEvent(container, 'keydown', keydownHandler)
     eventCenter.attachDOMEvent(container, 'scroll', scrollHandler)
+    eventCenter.subscribe('theme-change', themeChange)
   }
 
   hide () {

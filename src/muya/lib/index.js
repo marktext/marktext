@@ -159,6 +159,7 @@ class Muya {
 
   setTheme (name) {
     if (!name) return
+    const { eventCenter } = this
     if (name === 'dark') {
       codeMirrorConfig.theme = 'railscasts'
     } else {
@@ -167,6 +168,7 @@ class Muya {
     this.theme = name
     // Render cursor and refresh code block
     this.contentState.render(true, true)
+    eventCenter.dispatch('theme-change', name)
   }
 
   setFont ({ fontSize, lineHeight }) {
