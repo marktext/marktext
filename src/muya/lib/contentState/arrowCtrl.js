@@ -49,9 +49,6 @@ const arrowCtrl = ContentState => {
   }
 
   ContentState.prototype.arrowHandler = function (event) {
-    // when the float box is show, use up and down to select item.
-    const { floatBox } = this.muya
-    const { list, index, show } = floatBox
     const node = selection.getSelectionStart()
     const paragraph = findNearestParagraph(node)
     const id = paragraph.id
@@ -87,24 +84,6 @@ const arrowCtrl = ContentState => {
       if (block.type !== 'pre') {
         return
       }
-    }
-
-    if (show && (event.key === EVENT_KEYS.ArrowUp || event.key === EVENT_KEYS.ArrowDown)) {
-      event.preventDefault()
-      event.stopPropagation()
-      switch (event.key) {
-        case EVENT_KEYS.ArrowDown:
-          if (index < list.length - 1) {
-            floatBox.setOptions(list, index + 1)
-          }
-          break
-        case EVENT_KEYS.ArrowUp:
-          if (index > 0) {
-            floatBox.setOptions(list, index - 1)
-          }
-          break
-      }
-      return
     }
 
     // handle `html` and `code` block when press arrow key

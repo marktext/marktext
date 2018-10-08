@@ -5,15 +5,14 @@ import Keyboard from './eventHandler/keyboard'
 import ClickEvent from './eventHandler/clickEvent'
 import { CLASS_OR_ID, codeMirrorConfig } from './config'
 import { wordCount } from './utils'
-import FloatBox from './ui/floatBox'
 import ExportMarkdown from './utils/exportMarkdown'
 import ExportHtml from './utils/exportHtml'
-import { checkEditImage } from './utils/checkEditImage'
 import TablePicker from './ui/tablePicker'
 import ToolTip from './ui/tooltip'
 import QuickInsert from './ui/quickInsert'
 import CodePicker from './ui/codePicker'
 import EmojiPicker from './ui/emojiPicker'
+import ImagePathPicker from './ui/imagePicker'
 import './assets/symbolIcon' // import symbol icons
 import './assets/symbolIcon/index.css'
 import './assets/styles/index.css'
@@ -33,9 +32,9 @@ class Muya {
     this.tooltip = new ToolTip(this)
     this.quickInsert = new QuickInsert(this)
     this.codePicker = new CodePicker(this)
-    this.floatBox = new FloatBox(this)
     this.tablePicker = new TablePicker(this)
     this.emojiPicker = new EmojiPicker(this)
+    this.imagePathPicker = new ImagePathPicker(this)
     this.contentState = new ContentState(this, { preferLooseListItem, autoPairBracket, autoPairMarkdownSyntax, autoPairQuote, bulletListMarker, tabSize })
     this.clipboard = new Clipboard(this)
     this.clickEvent = new ClickEvent(this)
@@ -46,8 +45,6 @@ class Muya {
   init () {
     const { container, contentState, eventCenter } = this
     contentState.stateRender.setContainer(container.children[0])
-    eventCenter.subscribe('hideFloatBox', this.subscribeHideFloatBox.bind(this))
-    this.dispatchHideFloatBox()
     eventCenter.subscribe('stateChange', this.dispatchChange.bind(this))
     eventCenter.attachDOMEvent(container, 'contextmenu', event => {
       event.preventDefault()
@@ -69,28 +66,6 @@ class Muya {
     const cursor = this.getCursor()
     const history = this.getHistory()
     eventCenter.dispatch('change', { markdown, wordCount, cursor, history })
-  }
-
-  dispatchHideFloatBox () {
-    const { container, eventCenter } = this
-    const handler = event => {
-      if (event.target && event.target.classList.contains(CLASS_OR_ID['AG_LANGUAGE_INPUT'])) {
-        return
-      }
-      if (event.type === 'click') return eventCenter.dispatch('hideFloatBox')
-      const editImage = checkEditImage()
-
-      if (!editImage) {
-        eventCenter.dispatch('hideFloatBox')
-      }
-    }
-
-    eventCenter.attachDOMEvent(container, 'click', handler)
-    eventCenter.attachDOMEvent(container, 'keyup', handler)
-  }
-
-  subscribeHideFloatBox () {
-    this.floatBox.hideIfNeeded()
   }
 
   getMarkdown () {
@@ -283,14 +258,12 @@ class Muya {
 
   destroy () {
     this.contentState.clear()
-    this.floatBox.destroy()
+    this.quickInsert.destroy()
+    this.codePicker.destroy()
     this.tablePicker.destroy()
-    this.container = null
-    this.contentState = null
-    this.floatBox = null
-    this.tablePicker = null
+    this.emojiPicker.destroy()
+    this.imagePathPicker.destroy()
     this.eventCenter.detachAllDomEvents()
-    this.eventCenter = null
   }
 }
 

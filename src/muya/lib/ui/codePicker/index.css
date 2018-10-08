@@ -1,4 +1,4 @@
-.ag-code-picker {
+.ag-list-picker {
   width: 150px;
   max-height: 230px;
   padding: 10px 0;
@@ -6,28 +6,28 @@
   box-sizing: border-box;
 }
 
-.ag-code-picker ul,
-.ag-code-picker li {
+.ag-list-picker ul,
+.ag-list-picker li {
   margin: 0;
   padding: 0;
 }
 
-.ag-code-picker .item {
+.ag-list-picker .item {
   height: 35px;
   display: flex;
   list-style: none;
 }
 
-.ag-code-picker:hover .active {
+.ag-list-picker:hover .active {
   background: transparent;
   color: #606266;
 }
-.ag-code-picker .active, .ag-code-picker .item:hover {
+.ag-list-picker .active, .ag-list-picker .item:hover {
  background-color: #ecf5ff;
  color: var(--activeColor);
 }
 
-.ag-code-picker .item .icon-wrapper {
+.ag-list-picker .item .icon-wrapper {
   width: 35px;
   height: 35px;
   display: flex;
@@ -35,21 +35,26 @@
   align-items: center;
 }
 
-.ag-code-picker .item .icon-wrapper span:before {
+.ag-list-picker .item .icon-wrapper span:before {
   font-size: 18px;
 }
 
-.ag-code-picker .item .language {
+.ag-list-picker .item .icon-wrapper img {
+  width: 20px;
+  height: 20px;
+}
+
+.ag-list-picker .item .language {
   font-size: 14px;
   line-height: 35px;
   margin-left: 10px;
 }
 
-.ag-code-picker.dark:hover .active {
+.ag-list-picker.dark:hover .active {
   background: transparent;
   color: currentColor;
 }
-.ag-code-picker.dark .active, .ag-code-picker.dark .item:hover {
+.ag-list-picker.dark .active, .ag-list-picker.dark .item:hover {
  background-color: rgb(71, 72, 66);
  color: var(--activeColor);
 }

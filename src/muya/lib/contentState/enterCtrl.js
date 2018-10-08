@@ -138,17 +138,7 @@ const enterCtrl = ContentState => {
     let block = this.getBlock(start.key)
     const endBlock = this.getBlock(end.key)
     let parent = this.getParent(block)
-    const { floatBox } = this.muya
-    const { list, index, show } = floatBox
 
-    // handle float box
-    if (show) {
-      event.preventDefault()
-      floatBox.cb(list[index])
-      const isUpdated = this.codeBlockUpdate(block)
-      isUpdated && this.partialRender()
-      return
-    }
     // handle cursor in code block
     if (block.type === 'pre' && block.functionType === 'code') {
       return

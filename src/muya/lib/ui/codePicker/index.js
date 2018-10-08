@@ -1,13 +1,13 @@
-import BaseFloatFloat from '../baseScrollFloat'
+import BaseScrollFloat from '../baseScrollFloat'
 import { patch, h } from '../../parser/render/snabbdom'
 import { search } from '../../codeMirror'
 import fileIcons from '../fileIcons'
 
 import './index.css'
 
-class CodePicker extends BaseFloatFloat {
+class CodePicker extends BaseScrollFloat {
   constructor (muya) {
-    const name = 'ag-code-picker'
+    const name = 'ag-list-picker'
     super(muya, name)
     this.renderArray = []
     this.oldVnode = null
@@ -78,19 +78,6 @@ class CodePicker extends BaseFloatFloat {
       patch(scrollElement, vnode)
     }
     this.oldVnode = vnode
-  }
-
-  step (direction) {
-    const { renderArray, activeItem } = this
-    let index = renderArray.findIndex(item => item === activeItem)
-    index = direction === 'next' ? index + 1 : index - 1
-    if (index < 0 || index >= renderArray.length) {
-      return
-    }
-    this.activeItem = this.renderArray[index]
-    this.render()
-    const activeEle = this.getItemElement(this.activeItem)
-    this.activeEleScrollIntoView(activeEle)
   }
 
   getItemElement (item) {

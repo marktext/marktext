@@ -1,5 +1,7 @@
 import selection from '../selection'
+import { findNearestParagraph } from '../selection/dom'
 import { CLASS_OR_ID } from '../config'
+import { getParagraphReference } from '../utils'
 
 const imagePathCtrl = ContentState => {
   ContentState.prototype.getImageTextNode = function () {
@@ -18,16 +20,16 @@ const imagePathCtrl = ContentState => {
   }
 
   ContentState.prototype.showAutoImagePath = function (list) {
-    const { floatBox } = this.muya
+    const { eventCenter } = this.muya
     const node = this.getImageTextNode()
 
-    if (!node || list.length === 0) {
-      return floatBox.hideIfNeeded()
+    if (!node) {
+      return eventCenter.dispatch('muya-image-picker', { list: [] })
     }
 
     const cb = item => {
       const { text } = item
-      const { start: { key, offset } } = selection.getCursorRange()
+      const { start: { key, offset } } = this.cursor
       const block = this.getBlock(key)
       const { text: oldText } = block
       let chop = ''
@@ -39,15 +41,16 @@ const imagePathCtrl = ContentState => {
         start: { key, offset: offset + (text.length - chop.length) },
         end: { key, offset: offset + (text.length - chop.length) }
       }
-      floatBox.hideIfNeeded()
       this.partialRender()
     }
-    floatBox.showIfNeeded(node, cb)
-    floatBox.setOptions(list)
+    const paragraph = findNearestParagraph(node)
+    const reference = getParagraphReference(node, paragraph.id)
+
+    eventCenter.dispatch('muya-image-picker', { reference, list, cb })
   }
 
   ContentState.prototype.listenForPathChange = function () {
-    const { eventCenter, floatBox } = this.muya
+    const { eventCenter } = this.muya
 
     eventCenter.subscribe('image-path', src => {
       const node = this.getImageTextNode()
@@ -58,7 +61,6 @@ const imagePathCtrl = ContentState => {
         const cb = item => {
           const type = item.text === 'Absolute Path' ? 'absolute' : (item.text === 'Upload Image' ? 'upload' : 'relative')
           eventCenter.dispatch('insert-image', type)
-          floatBox.hideIfNeeded()
         }
 
         const list = [{
@@ -72,8 +74,13 @@ const imagePathCtrl = ContentState => {
           iconClass: 'icon-upload'
         }]
 
-        floatBox.showIfNeeded(node, cb)
-        floatBox.setOptions(list)
+        const paragraph = findNearestParagraph(node)
+        const reference = getParagraphReference(node, paragraph.id)
+        eventCenter.dispatch('muya-image-picker', {
+          reference,
+          list,
+          cb
+        })
       } else if (src && typeof src === 'string' && src.length) {
         eventCenter.dispatch('image-path-autocomplement', src)
       }
