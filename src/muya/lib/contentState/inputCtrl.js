@@ -1,6 +1,6 @@
 const inputCtrl = ContentState => {
   ContentState.prototype.inputHandler = function (event) {
-    // todo  
+    // todo
   }
 }
 
