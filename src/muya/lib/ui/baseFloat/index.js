@@ -30,8 +30,8 @@ class BaseFloat {
     document.body.appendChild(floatBox)
     const ro = new ResizeObserver(entries => {
       for (const entry of entries) {
-        const { clientWidth, clientHight } = entry.target
-        Object.assign(floatBox.style, { width: `${clientWidth}px`, height: `${clientHight}px` })
+        const { offsetWidth, offsetHeight } = entry.target
+        Object.assign(floatBox.style, { width: `${offsetWidth + 2}px`, height: `${offsetHeight + 2}px` })
         this.popper && this.popper.update()
       }
     })

@@ -1,9 +1,9 @@
 .ag-tooltip {
-  transition: opacity .2s, transform .2s;
+  transition: opacity .2s ease-in;
   position: absolute;
   font-size: 12px;
   padding: 5px 7px;
-  border-radius: 5px;
+  border-radius: 3px;
   background: rgb(50, 50, 50);
   color: rgb(255, 255, 255);
   z-index: 1000;

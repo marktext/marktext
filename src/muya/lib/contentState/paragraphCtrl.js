@@ -434,7 +434,7 @@ const paragraphCtrl = ContentState => {
 
         const startOffset = start.offset + newLevel - hash.length + 1
         const endOffset = end.offset + newLevel - hash.length + 1
-        const newText = '#'.repeat(newLevel) + ` ${partText}`
+        const newText = '#'.repeat(newLevel) + `${String.fromCharCode(160)}${partText}` // &nbsp; code: 160
 
         if (block.type === 'span' && newType !== 'p') {
           const header = this.createBlock(newType, newText)
