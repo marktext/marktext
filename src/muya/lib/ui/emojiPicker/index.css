@@ -39,9 +39,10 @@
 }
 
 .ag-emoji-picker:hover .active {
-  background: #fff;
-  border-color: #fff;
+  background: transparent;
+  border-color: transparent;
 }
+
 .ag-emoji-picker .active, .ag-emoji-picker .item:hover {
  background-color: #ecf5ff;
  border: 1px solid var(--activeColor);
@@ -61,3 +62,19 @@
 .ag-emoji-picker .active span, .ag-emoji-picker .item:hover span {
   transform: scale(1.1);
  }
+
+ .ag-emoji-picker.dark .title {
+  background: var(--primaryColor);
+  color: var(--placeholerColor);
+}
+
+.ag-emoji-picker.dark:hover .active {
+  background: transparent;
+  border-color: transparent;
+}
+
+.ag-emoji-picker.dark .active, .ag-emoji-picker.dark .item:hover {
+  background-color: rgb(72, 71, 66);
+  border: 1px solid var(--primaryColor);
+ }
+ 

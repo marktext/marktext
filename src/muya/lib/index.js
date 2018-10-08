@@ -25,6 +25,9 @@ class Muya {
       autoPairBracket = true, autoPairMarkdownSyntax = true, autoPairQuote = true,
       bulletListMarker = '-', tabSize = 4
     } = options
+    this.focusMode = focusMode
+    this.theme = theme
+    this.markdown = markdown
     this.container = getContainer(container)
     this.eventCenter = new EventCenter()
     this.tooltip = new ToolTip(this)
@@ -37,9 +40,6 @@ class Muya {
     this.clipboard = new Clipboard(this)
     this.clickEvent = new ClickEvent(this)
     this.keyboard = new Keyboard(this)
-    this.focusMode = focusMode
-    this.theme = theme
-    this.markdown = markdown
     this.init()
   }
 

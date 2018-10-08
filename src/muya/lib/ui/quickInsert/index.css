@@ -29,7 +29,7 @@
 }
 
 .ag-quick-insert:hover .active {
-  background: #fff;
+  background: transparent;
 }
 .ag-quick-insert .active,
 .ag-quick-insert div.item:hover {
@@ -76,3 +76,23 @@
 .ag-quick-insert .hide {
   display: none;
 }
+
+.ag-quick-insert.dark .title {
+  background: var(--primaryColor);
+  color: var(--placeholerColor);
+}
+
+.ag-quick-insert.dark .big-title {
+  color: var(--lightBorder);
+}
+
+.ag-quick-insert.dark .sub-title {
+  color: var(--baseBorder);
+}
+
+.ag-quick-insert.dark .active,
+.ag-quick-insert.dark div.item:hover {
+  background-color: rgb(71, 72, 66);
+}
+
+

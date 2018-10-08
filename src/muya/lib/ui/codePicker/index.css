@@ -19,7 +19,7 @@
 }
 
 .ag-code-picker:hover .active {
-  background: #fff;
+  background: transparent;
   color: #606266;
 }
 .ag-code-picker .active, .ag-code-picker .item:hover {
@@ -43,4 +43,13 @@
   font-size: 14px;
   line-height: 35px;
   margin-left: 10px;
+}
+
+.ag-code-picker.dark:hover .active {
+  background: transparent;
+  color: currentColor;
+}
+.ag-code-picker.dark .active, .ag-code-picker.dark .item:hover {
+ background-color: rgb(71, 72, 66);
+ color: var(--activeColor);
 }

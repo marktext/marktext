@@ -15,6 +15,12 @@
   box-sizing: border-box;
   z-index: 1000;
 }
+
+.ag-float-wrapper.dark {
+  background: var(--primaryColor);
+  border-color: var(--primaryColor);
+}
+
 .ag-float-container::-webkit-scrollbar:vertical {
   width: 0px;
 }
@@ -31,6 +37,10 @@
   display: inline-block;
   position: absolute;
   transform: rotate(45deg);
+}
+
+.dark[x-placement] .ag-popper-arrow {
+  border-color: var(--primaryColor);
 }
 
 [x-placement="bottom-start"] > .ag-popper-arrow {
