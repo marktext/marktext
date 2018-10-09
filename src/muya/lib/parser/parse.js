@@ -530,7 +530,6 @@ export const tokenizer = (src, highlights = []) => {
   if (highlights.length) {
     postTokenizer(tokens)
   }
-
   return tokens
 }
 

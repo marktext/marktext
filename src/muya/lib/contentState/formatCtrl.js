@@ -57,6 +57,7 @@ const clearFormat = (token, { start, end }) => {
       break
     case 'inline_code':
       token.type = 'text'
+      token.raw = token.content
       delete token.marker
       break
   }
@@ -99,7 +100,7 @@ const formatCtrl = ContentState => {
     const neighbors = []
     let tokens = []
     if (start.key === end.key) {
-      const text = startBlock.text
+      const { text } = startBlock
       tokens = tokenizer(text)
       ;(function iterator (tks) {
         for (const token of tks) {

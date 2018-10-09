@@ -3,10 +3,21 @@ import { noop } from '../../utils'
 import { EVENT_KEYS } from '../../config'
 import './index.css'
 
+const defaultOptions = {
+  placement: 'bottom-start',
+  modifiers: {
+    offset: {
+      offset: '-20, 12'
+    }
+  },
+  showArrow: true
+}
+
 class BaseFloat {
-  constructor (muya, name) {
+  constructor (muya, name, options = {}) {
     this.name = name
     this.muya = muya
+    this.options = Object.assign({}, defaultOptions, options)
     this.status = false
     this.floatBox = null
     this.container = null
@@ -16,16 +27,21 @@ class BaseFloat {
   }
 
   init () {
+    const { showArrow } = this.options
     const floatBox = document.createElement('div')
     const container = document.createElement('div')
-    const arrow = document.createElement('div')
     // Use to remember whick float container is shown.
     container.classList.add(this.name)
     container.classList.add('ag-float-container')
     floatBox.classList.add('ag-float-wrapper')
-    arrow.setAttribute('x-arrow', '')
-    arrow.classList.add('ag-popper-arrow')
-    floatBox.appendChild(arrow)
+
+    if (showArrow) {
+      const arrow = document.createElement('div')
+      arrow.setAttribute('x-arrow', '')
+      arrow.classList.add('ag-popper-arrow')
+      floatBox.appendChild(arrow)
+    }
+
     floatBox.appendChild(container)
     document.body.appendChild(floatBox)
     const ro = new ResizeObserver(entries => {
@@ -88,17 +104,14 @@ class BaseFloat {
   show (reference, cb = noop) {
     const { floatBox } = this
     const { eventCenter } = this.muya
+    const { placement, modifiers } = this.options
     if (this.popper && this.popper.destroy) {
       this.popper.destroy()
     }
     this.cb = cb
     this.popper = new Popper(reference, floatBox, {
-      placement: 'bottom-start',
-      modifiers: {
-        offset: {
-          offset: '-20, 12'
-        }
-      }
+      placement,
+      modifiers
     })
     this.status = true
     eventCenter.dispatch('muya-float', this.name, true)

@@ -13,6 +13,7 @@ import QuickInsert from './ui/quickInsert'
 import CodePicker from './ui/codePicker'
 import EmojiPicker from './ui/emojiPicker'
 import ImagePathPicker from './ui/imagePicker'
+import FormatPicker from './ui/formatPicker'
 import './assets/symbolIcon' // import symbol icons
 import './assets/symbolIcon/index.css'
 import './assets/styles/index.css'
@@ -35,6 +36,7 @@ class Muya {
     this.tablePicker = new TablePicker(this)
     this.emojiPicker = new EmojiPicker(this)
     this.imagePathPicker = new ImagePathPicker(this)
+    this.formatPicker = new FormatPicker(this)
     this.contentState = new ContentState(this, { preferLooseListItem, autoPairBracket, autoPairMarkdownSyntax, autoPairQuote, bulletListMarker, tabSize })
     this.clipboard = new Clipboard(this)
     this.clickEvent = new ClickEvent(this)
