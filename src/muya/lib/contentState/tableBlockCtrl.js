@@ -1,4 +1,4 @@
-import { isLengthEven } from '../utils'
+import { isLengthEven, getParagraphReference } from '../utils'
 import { TABLE_TOOLS } from '../config'
 
 const TABLE_BLOCK_REG = /^\|.*?(\\*)\|.*?(\\*)\|/
@@ -202,7 +202,8 @@ const tableBlockCtrl = ContentState => {
           this.muya.eventCenter.dispatch('stateChange')
           this.partialRender()
         }
-        eventCenter.dispatch('muya-table-picker', { row, column }, tableLable, handler.bind(this))
+        const reference = getParagraphReference(tableLable, tableLable.id)
+        eventCenter.dispatch('muya-table-picker', { row, column }, reference, handler.bind(this))
       }
     }
   }

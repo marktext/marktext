@@ -1,7 +1,7 @@
 import BaseFloat from '../baseFloat'
-import template from './index.tpl.html'
-// import tableIcon from '../../assets/icons/table'
+import { patch, h } from '../../parser/render/snabbdom'
 import './index.css'
+import { EVENT_KEYS } from '../../config'
 
 class TablePicker extends BaseFloat {
   constructor (muya) {
@@ -11,18 +11,21 @@ class TablePicker extends BaseFloat {
       row: 6,
       column: 8
     }
-    this.render()
+    this.oldVnode = null
+    this.current = null
+    this.select = null
+    const tableContainer = this.tableContainer = document.createElement('div')
+    this.container.appendChild(tableContainer)
     this.listen()
   }
 
   listen () {
     const { eventCenter } = this.muya
     super.listen()
-    this.handlerHover()
-    this.handerClick()
     eventCenter.subscribe('muya-table-picker', (data, reference, cb) => {
       if (!this.status) {
         this.show(data, reference, cb)
+        this.render()
       } else {
         this.hide()
       }
@@ -31,103 +34,121 @@ class TablePicker extends BaseFloat {
 
   render () {
     const { row, column } = this.checkerCount
-    this.container.innerHTML += template
-    const checker = this.container.querySelector('.checker')
+    const { row: cRow, column: cColumn } = this.current
+    const { row: sRow, column: sColumn } = this.select
+    const { tableContainer, oldVnode } = this
+    const tableRows = []
     let i
     let j
-
     for (i = 0; i < row; i++) {
-      const rowContainer = document.createElement('div')
-      rowContainer.classList.add('ag-table-picker-row')
-      if (i === 0) rowContainer.classList.add('ag-table-picker-header')
-      checker.appendChild(rowContainer)
-      for (j = 0; j < column; j++) {
-        const cell = document.createElement('span')
-        cell.classList.add('ag-table-picker-cell')
-        cell.setAttribute('data-row', i)
-        cell.setAttribute('data-column', j)
-        rowContainer.appendChild(cell)
+      let rowSelector = 'div.ag-table-picker-row'
+      if (i === 0) {
+        rowSelector += '.ag-table-picker-header'
       }
+      const cells = []
+      for (j = 0; j < column; j++) {
+        let cellSelector = 'span.ag-table-picker-cell'
+        if (i <= cRow && j <= cColumn) {
+          cellSelector += '.current'
+        }
+        if (i <= sRow && j <= sColumn) {
+          cellSelector += '.selected'
+        }
+        cells.push(h(cellSelector, {
+          key: j.toString(),
+          dataset: {
+            row: i.toString(),
+            column: j.toString()
+          },
+          on: {
+            mouseenter: event => {
+              const { target } = event
+              const r = target.getAttribute('data-row')
+              const c = target.getAttribute('data-column')
+              this.select = { row: r, column: c }
+              this.render()
+            },
+            click: _ => {
+              this.selectItem()
+            }
+          }
+        }))
+      }
+
+      tableRows.push(h(rowSelector, cells))
     }
 
-    const rowInput = this.container.querySelector('.ag-table-picker .row-input')
-    const columnInput = this.container.querySelector('.ag-table-picker .column-input')
-    Object.assign(this, { rowInput, columnInput, checker })
+    const tableFooter = h('div.footer', [
+      h('input.row-input', {
+        props: {
+          type: 'text',
+          value: +this.select.row + 1
+        },
+        on: {
+          keyup: event => {
+            this.keyupHandler(event, 'row')
+          }
+        }
+      }),
+      'x',
+      h('input.column-input', {
+        props: {
+          type: 'text',
+          value: +this.select.column + 1
+        },
+        on: {
+          keyup: event => {
+            this.keyupHandler(event, 'column')
+          }
+        }
+      }),
+      h('button', {
+        on: {
+          click: _ => {
+            this.selectItem()
+          }
+        }
+      }, 'OK')
+    ])
+
+    const vnode = h('div', [h('div.checker', tableRows), tableFooter])
+
+    if (oldVnode) {
+      patch(oldVnode, vnode)
+    } else {
+      patch(tableContainer, vnode)
+    }
+    this.oldVnode = vnode
   }
 
-  show ({ row, column }, reference, cb) {
-    const { rowInput, columnInput } = this
-    this.setClassName(-1, -1, 'selected')
-    this.setClassName(row, column, 'current')
-    rowInput.value = row + 1
-    columnInput.value = column + 1
+  keyupHandler (event, type) {
+    let number = +this.select[type]
+    let value = +event.target.value
+    if (event.key === EVENT_KEYS.ArrowUp) {
+      number++
+    } else if (event.key === EVENT_KEYS.ArrowDown) {
+      number--
+    } else if (event.key === EVENT_KEYS.Enter) {
+      this.selectItem()
+    } else if (typeof value === 'number') {
+      number = value - 1
+    }
+    if (number !== +this.select[type]) {
+      this.select[type] = Math.max(number, 0)
+      this.render()
+    }
+  }
+
+  show (current, reference, cb) { // current { row, column } zero base
+    this.current = this.select = current
     super.show(reference, cb)
   }
 
-  setClassName (rawRow, rawColumn, className) {
-    const { row: MaxRow, column: MaxColumn } = this.checkerCount // not zero base
-    const row = Math.min(rawRow, MaxRow - 1)
-    const column = Math.min(rawColumn, MaxColumn - 1)
-
-    let i
-    let j
-    const rows = document.querySelectorAll('.ag-table-picker-row')
-    const cells = document.querySelectorAll('.ag-table-picker-cell')
-    for (const c of cells) {
-      c.classList.remove(className)
-    }
-    for (i = 0; i < row + 1; i++) {
-      const rowContainer = rows[i]
-      for (j = 0; j < column + 1; j++) {
-        const cell = rowContainer.children[j]
-        cell.classList.add(className)
-      }
-    }
-  }
-
-  handlerHover () {
-    const { checker, rowInput, columnInput } = this
-    const { eventCenter } = this.muya
-    const hander = event => {
-      const target = event.target
-      if (target.classList.contains('ag-table-picker-cell')) {
-        const row = +target.getAttribute('data-row')
-        const column = +target.getAttribute('data-column')
-        this.setClassName(row, column, 'selected')
-        rowInput.value = row + 1
-        columnInput.value = column + 1
-      }
-    }
-    eventCenter.attachDOMEvent(checker, 'mouseover', hander)
-  }
-
-  handerClick () {
-    const { rowInput, columnInput, container } = this
-    const { eventCenter } = this.muya
-
-    const hander = event => {
-      const { cb } = this
-      let row
-      let column
-      event.preventDefault()
-      event.stopPropagation()
-      const target = event.target
-      if (target.tagName === 'BUTTON') {
-        row = rowInput.value - 1
-        column = columnInput.value - 1
-      } else if (target.classList.contains('ag-table-picker-cell')) {
-        row = +target.getAttribute('data-row')
-        column = +target.getAttribute('data-column')
-      }
-      if (target.tagName === 'BUTTON' || target.classList.contains('ag-table-picker-cell')) {
-        row = Math.max(row, 1)
-        column = Math.max(column, 1)
-        cb(row, column)
-        this.hide()
-      }
-    }
-
-    eventCenter.attachDOMEvent(container, 'click', hander)
+  selectItem () {
+    const { cb } = this
+    const { row, column } = this.select
+    cb(Math.max(row, 1), Math.max(column, 1))
+    this.hide()
   }
 }
 

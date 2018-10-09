@@ -16,7 +16,7 @@ class ClickEvent {
       if (target.tagName === 'PRE' && target.classList.contains(CLASS_OR_ID['AG_CODE_BLOCK'])) {
         contentState.focusCodeBlock(event)
       }
-      // handler table toolbar click
+      // handler table | html toolbar click
       const toolItem = getToolItem(target)
       if (toolItem) {
         event.preventDefault()
