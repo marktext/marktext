@@ -92,8 +92,8 @@ const updateCtrl = ContentState => {
 
   // Input @ to quick insert paragraph
   ContentState.prototype.checkQuickInsert = function (block) {
-    const { type, text } = block
-    if (type !== 'span') return false
+    const { type, text, functionType } = block
+    if (type !== 'span' || functionType) return false
     return /^@[a-zA-Z\d]*$/.test(text)
   }
 

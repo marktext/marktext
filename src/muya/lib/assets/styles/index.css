@@ -345,6 +345,11 @@ li.ag-task-list-item > input.ag-checkbox-checked ~ * {
   color: var(--regularColor);
 }
 
+li.ag-task-list-item > input.ag-checkbox-checked ~ p {
+  text-decoration: line-through;
+  color: var(--secondaryColor);
+}
+
 li.ag-task-list-item > input[type=checkbox]::before {
   content: '';
   width: 16px;
@@ -475,9 +480,10 @@ pre.ag-active.ag-code-block::before,
 pre.ag-active.ag-code-block::after,
 pre.ag-active.ag-multiple-math::before,
 pre.ag-active.ag-multiple-math::after {
-  color: var(--placeholerColor);
+  color: var(--regularColor);
   font-family: monospace;
   position: absolute;
+  font-weight: 600;
   left: 0;
 }
 
@@ -590,7 +596,8 @@ span.ag-emoji-marked-text {
   left: 30px;
   font-size: 14px;
   font-family: monospace;
-  color: var(--secondaryColor);
+  font-weight: 600;
+  color: var(--activeColor);
   background: transparent;
   border: none;
   z-index: 10;
