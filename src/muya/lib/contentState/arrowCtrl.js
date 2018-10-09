@@ -12,7 +12,9 @@ import selection from '../selection'
 
 const arrowCtrl = ContentState => {
   ContentState.prototype.findNextRowCell = function (cell) {
-    if (!/th|td/.test(cell.type)) throw new Error(`block with type ${cell && cell.type} is not a table cell`)
+    if (!/th|td/.test(cell.type)) {
+      throw new Error(`block with type ${cell && cell.type} is not a table cell`)
+    }
     const row = this.getParent(cell)
     const rowContainer = this.getParent(row) // thead or tbody
     const column = row.children.indexOf(cell)
@@ -53,6 +55,7 @@ const arrowCtrl = ContentState => {
     const paragraph = findNearestParagraph(node)
     const id = paragraph.id
     const block = this.getBlock(id)
+
     const preBlock = this.findPreBlockInLocation(block)
     const nextBlock = this.findNextBlockInLocation(block)
 
@@ -81,7 +84,7 @@ const arrowCtrl = ContentState => {
       (event.key === EVENT_KEYS.ArrowUp && topOffset > 0) ||
       (event.key === EVENT_KEYS.ArrowDown && bottomOffset > 0)
     ) {
-      if (block.type !== 'pre') {
+      if (!/pre|th|td/.test(block.type)) {
         return
       }
     }
@@ -144,7 +147,7 @@ const arrowCtrl = ContentState => {
       let activeBlock
       const cellInNextRow = this.findNextRowCell(block)
       const cellInPrevRow = this.findPrevRowCell(block)
-
+      console.log(cellInNextRow, cellInPrevRow)
       if (event.key === EVENT_KEYS.ArrowUp) {
         if (cellInPrevRow) {
           activeBlock = cellInPrevRow
