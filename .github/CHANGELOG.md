@@ -1,4 +1,4 @@
-### 0.13.42
+### 0.13.43
 
 **:cactus:Feature**
 
@@ -22,10 +22,11 @@
 - feature: vscode debug config support (#446)
 - Exclude hard-line-break from printing. (#454)
 - export styled HTML with heading id's (#460)
-- fix: #485 Open Project command. Maybe rename to Open folder
+- opti: #485 Open Project command. Maybe rename to Open folder
 - Added Spanish translation (#499)
 - feat: add tooltip to editor
-- fix: #429 Support DataURL images (#480)
+- opti: #429 Support DataURL images (#480)
+- opti: rewrite image picker
 
 **:beetle:Bug fix**
 
