@@ -3,11 +3,12 @@ import selection from '../selection'
 const enterCtrl = ContentState => {
   ContentState.prototype.chopBlockByCursor = function (block, key, offset) {
     const newBlock = this.createBlock('p')
-    const children = block.children
+    const { children } = block
     const index = children.findIndex(child => child.key === key)
     const activeLine = this.getBlock(key)
-    const text = activeLine.text
+    const { text } = activeLine
     newBlock.children = children.splice(index + 1)
+    newBlock.children.forEach(c => (c.parent = newBlock.key))
     children[index].nextSibling = null
     if (newBlock.children.length) {
       newBlock.children[0].preSibling = null

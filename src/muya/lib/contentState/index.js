@@ -478,12 +478,12 @@ class ContentState {
   }
 
   prependChild (parent, block) {
+    block.parent = parent.key
+    block.preSibling = null
     if (parent.children.length) {
-      const firstChild = parent.children[0]
-      this.insertBefore(block, firstChild)
-    } else {
-      this.appendChild(parent, block)
+      block.nextSibling = parent.children[0].key
     }
+    parent.children.unshift(block)
   }
 
   appendChild (parent, block) {
