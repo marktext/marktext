@@ -7,7 +7,7 @@ const defaultOptions = {
   placement: 'bottom-start',
   modifiers: {
     offset: {
-      offset: '-20, 12'
+      offset: '0, 12'
     }
   },
   showArrow: true

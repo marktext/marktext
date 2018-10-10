@@ -59,13 +59,18 @@ export default function renderLeafBlock (block, cursor, activeBlocks, matches, u
   } else if (type === 'div') {
     if (typeof htmlContent === 'string') {
       selector += `.${CLASS_OR_ID['AG_HTML_PREVIEW']}`
-      children = htmlToVNode(htmlContent)
+      // handle empty html bock
+      if (/<([a-z][a-z\d]*).*>\s*<\/\1>/.test(htmlContent)) {
+        children = htmlToVNode('<div class="ag-empty">&lt;Empty HTML Block&gt;</div>')
+      } else {
+        children = htmlToVNode(htmlContent)
+      }
     } else if (typeof math === 'string') {
       const key = `${math}_display_math`
       selector += `.${CLASS_OR_ID['AG_MATH_PREVIEW']}`
       if (math === '') {
         children = '< Empty Mathematical Formula >'
-        selector += `.${CLASS_OR_ID['AG_MATH_EMPTY']}`
+        selector += `.${CLASS_OR_ID['AG_EMPTY']}`
       } else if (loadMathMap.has(key)) {
         children = loadMathMap.get(key)
       } else {

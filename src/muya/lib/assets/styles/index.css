@@ -166,7 +166,8 @@ span.ag-math {
   z-index: 10;
 }
 
-div.ag-math-empty {
+div.ag-empty {
+  text-align: center;
   color: var(--regularColor);
   font-size: 14px;
   font-style: italic;

@@ -11,7 +11,7 @@ const icons = [
     type: 'strong',
     icon: strongIcon
   }, {
-    type: 'emphasis',
+    type: 'em',
     icon: emphasisIcon
   }, {
     type: 'del',

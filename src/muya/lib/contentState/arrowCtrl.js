@@ -147,7 +147,7 @@ const arrowCtrl = ContentState => {
       let activeBlock
       const cellInNextRow = this.findNextRowCell(block)
       const cellInPrevRow = this.findPrevRowCell(block)
-      console.log(cellInNextRow, cellInPrevRow)
+
       if (event.key === EVENT_KEYS.ArrowUp) {
         if (cellInPrevRow) {
           activeBlock = cellInPrevRow

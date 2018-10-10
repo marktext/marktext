@@ -32,11 +32,15 @@ class FormatPicker extends BaseFloat {
     const { eventCenter } = this.muya
     super.listen()
     eventCenter.subscribe('muya-format-picker', ({ reference, formats }) => {
-      this.formats = formats
-      setTimeout(() => {
-        this.show(reference)
-        this.render()
-      }, 0)
+      if (reference) {
+        this.formats = formats
+        setTimeout(() => {
+          this.show(reference)
+          this.render()
+        }, 0)
+      } else {
+        this.hide()
+      }
     })
   }
 
@@ -84,9 +88,13 @@ class FormatPicker extends BaseFloat {
     const { contentState } = this.muya
     contentState.render()
     contentState.format(item.type)
-    const { formats } = contentState.selectionFormats()
-    this.formats = formats
-    this.render()
+    if (/link|image/.test(item.type)) {
+      this.hide()
+    } else {
+      const { formats } = contentState.selectionFormats()
+      this.formats = formats
+      this.render()
+    }
   }
 }
 

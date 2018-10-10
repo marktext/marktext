@@ -143,7 +143,7 @@ class Keyboard {
   }
 
   keyupBinding () {
-    const { container, eventCenter } = this.muya
+    const { container, eventCenter, contentState } = this.muya
     const handler = event => {
       // check if edit emoji
       const node = selection.getSelectionStart()
@@ -166,6 +166,15 @@ class Keyboard {
         eventCenter.dispatch('muya-emoji-picker', {
           emojiNode
         })
+      }
+      // is show format float box?
+      const { start, end } = selection.getCursorRange()
+      if (start.key === end.key && start.offset !== end.offset) {
+        const reference = contentState.getPositionReference()
+        const { formats } = contentState.selectionFormats()
+        eventCenter.dispatch('muya-format-picker', { reference, formats })
+      } else {
+        eventCenter.dispatch('muya-format-picker', { reference: null })
       }
     }
 

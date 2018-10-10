@@ -1,10 +1,55 @@
-### 0.13.0
+### 0.13.42
 
 **:cactus:Feature**
 
+- (#421) Add experiment function RTL support (#439)
+- feat: #487 Show filename while hovering over marktext file on dock
+- feat: export files in file menu
+- feat: drag to import
+- feat: quick insert paragraph
+- feat: inline format float box
+
 **:butterfly:Optimization**
 
+- Update linux documentation and remove snappy build (#381)
+- Update Japanese Document Latest Release Update.
+- add alfred workflow into readme (#394)
+- French translation of README.md (#398)
+- optimization: add gauss blur effect when open a modal (#407)
+- Improvement math preview styles (#419) (#424)
+- Turkish language translation for README.md (#427)
+- Improvement: #414 Add functional bracket auto-completion (#428)
+- feature: vscode debug config support (#446)
+- Exclude hard-line-break from printing. (#454)
+- export styled HTML with heading id's (#460)
+- fix: #485 Open Project command. Maybe rename to Open folder
+- Added Spanish translation (#499)
+- feat: add tooltip to editor
+- fix: #429 Support DataURL images (#480)
+
 **:beetle:Bug fix**
+
+- fix download url in docs. (#379)
+- fix: #371 wrong paste behavior
+- fix: #380 wrong action of list shortcut
+- bugfix: inline math style error in list item (#405)
+- bugfix: #406 relative image path not display (#411)
+- bugfix: #400 (#410)
+- fix: wrong mouse click position #416 (#423)
+- fix: title bar resizing in north direction (#455)
+- fix: #441 #451 empty list item has no paragraph (#456)
+- fix: task list item centering (#457)
+- fix: #402 table of contents sidebar scroll bug (#461)
+- fix: recommend filename can be empty (#462)
+- Formatting cleanups (#463)
+- Arrow key up/down navigation in a table (#470)
+- fix: #481 add missing dot to parser markdown files only (#483)
+- fix: YAML frontmatter duplicates a new line on each opening of the file #494
+- fix(#431): broken math expression
+- fix(#434): no need to auto pair in math block
+- fix(#450) style error when render inline math
+- fix: #399 #476 #490 math render with style miss
+- fix: #393
 
 ### 0.12.25
 
