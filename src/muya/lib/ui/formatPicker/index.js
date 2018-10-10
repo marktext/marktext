@@ -54,7 +54,7 @@ class FormatPicker extends BaseFloat {
         }
       }, [h('use', {
         attrs: {
-          'xlink:href': i.icon.url
+          'xlink:href': `.${i.icon.url}`
         }
       })]
       )

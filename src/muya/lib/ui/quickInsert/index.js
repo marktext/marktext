@@ -46,7 +46,7 @@ class QuickInsert extends BaseScrollFloat {
           const { title, subTitle, label, icon } = item
           const iconVnode = h('div.icon-container', h('img', {
             attrs: {
-              src: icon.url
+              src: `.${icon.url}`
             }
           })
             // h('svg', {
