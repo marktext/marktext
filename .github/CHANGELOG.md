@@ -8,6 +8,7 @@
 - feat: drag to import
 - feat: quick insert paragraph
 - feat: inline format float box
+- feat: import files: TEX\ WIKI\ DOCX etc
 
 **:butterfly:Optimization**
 
