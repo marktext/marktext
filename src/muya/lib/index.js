@@ -179,7 +179,12 @@ class Muya {
     this.contentState.editTable(data)
   }
 
+  hasFocus () {
+    return document.activeElement === this.container
+  }
+
   focus () {
+    this.contentState.setCursor()
     this.container.focus()
   }
 
