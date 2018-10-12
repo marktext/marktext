@@ -1,6 +1,8 @@
+import path from 'path'
 import { shell } from 'electron'
 import * as actions from '../actions/help'
 import { checkUpdates } from '../actions/marktext'
+import { isFile } from '../utils'
 
 const helpMenu = {
   label: 'Help',
@@ -47,7 +49,8 @@ const helpMenu = {
   }]
 }
 
-if (process.platform === 'win32' || !!process.env.APPIMAGE) {
+if (isFile(path.join(process.resourcesPath, 'app-update.yml')) &&
+  (process.platform === 'win32' || !!process.env.APPIMAGE)) {
   helpMenu.submenu.push({
     type: 'separator'
   }, {
