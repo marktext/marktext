@@ -98,6 +98,13 @@
             "ia32",
             "x64"
           ]
+        },
+        {
+          "target": "portable",
+          "arch": [
+            "ia32",
+            "x64"
+          ]
         }
       ],
       "requestedExecutionLevel": "asInvoker"

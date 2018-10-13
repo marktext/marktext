@@ -9,6 +9,7 @@
 - feat: quick insert paragraph
 - feat: inline format float box
 - feat: import files: TEX\ WIKI\ DOCX etc
+- feat: portable Windows application (#369)
 
 **:butterfly:Optimization**
 
