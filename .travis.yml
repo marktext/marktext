@@ -46,23 +46,23 @@ before_install:
 install:
   #- if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then export DISPLAY=':99.0' ; fi
   #- if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 & ; fi
-  - curl -o- -L https://yarnpkg.com/install.sh | bash
+  #- curl -o- -L https://yarnpkg.com/install.sh | bash
   - source ~/.bashrc
   - npm install -g xvfb-maybe
 
   - $CC --version
   - $CXX --version
   - npm --version
-  - yarn --version
+  #- yarn --version
 
-  - yarn
+  - npm install
 
 script:
   #- xvfb-maybe node_modules/.bin/karma start test/unit/karma.conf.js
   #- yarn run pack && xvfb-maybe node_modules/.bin/mocha test/e2e
-  - yarn run lint
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then yarn run release:linux ; fi
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then yarn run release ; fi
+  - npm run lint
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then npm run release:linux ; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then npm run release ; fi
 
 branches:
   only:
