@@ -460,7 +460,6 @@
 
 <style>
   .editor-wrapper {
-    height: 100%;
     position: relative;
     flex: 1;
   }
