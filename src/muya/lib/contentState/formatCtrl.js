@@ -2,7 +2,7 @@ import selection from '../selection'
 import { tokenizer, generator } from '../parser/parse'
 import { FORMAT_MARKER_MAP, FORMAT_TYPES } from '../config'
 
-const getOffset = (offset, { range: { start, end }, type, anchor, title }) => {
+const getOffset = (offset, { range: { start, end }, type, anchor, alt }) => {
   const dis = offset - start
   const len = end - start
   switch (type) {
@@ -29,8 +29,8 @@ const getOffset = (offset, { range: { start, end }, type, anchor, title }) => {
       const MARKER_LEN = 1
       if (dis < MARKER_LEN) return 0
       if (dis >= MARKER_LEN && dis < MARKER_LEN * 2) return -1
-      if (dis >= MARKER_LEN * 2 && dis <= MARKER_LEN * 2 + title.length) return -2
-      if (dis > MARKER_LEN * 2 + title.length) return title.length - dis
+      if (dis >= MARKER_LEN * 2 && dis <= MARKER_LEN * 2 + alt.length) return -2
+      if (dis > MARKER_LEN * 2 + alt.length) return alt.length - dis
       break
     }
   }
@@ -50,10 +50,15 @@ const clearFormat = (token, { start, end }) => {
     case 'del':
     case 'em':
     case 'link':
-    case 'image':
-      const parent = token.parent
+      const { parent } = token
       const index = parent.indexOf(token)
       parent.splice(index, 1, ...token.children)
+      break
+    case 'image':
+      token.type = 'text'
+      token.raw = token.alt
+      delete token.marker
+      delete token.src
       break
     case 'inline_code':
       token.type = 'text'
