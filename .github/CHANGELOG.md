@@ -1,4 +1,4 @@
-### 0.13.43
+### 0.13.44
 
 **:cactus:Feature**
 
@@ -8,6 +8,7 @@
 - feat: drag to import
 - feat: quick insert paragraph
 - feat: inline format float box
+- feat: import files: TEX\ WIKI\ DOCX etc
 
 **:butterfly:Optimization**
 
