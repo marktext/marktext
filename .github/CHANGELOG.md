@@ -1,4 +1,4 @@
-### 0.13.44
+### 0.13.45
 
 **:cactus:Feature**
 
@@ -29,6 +29,7 @@
 - feat: add tooltip to editor
 - opti: #429 Support DataURL images (#480)
 - opti: rewrite image picker
+- opti: notify the user about the deletion url of the uploaded image
 
 **:beetle:Bug fix**
 
