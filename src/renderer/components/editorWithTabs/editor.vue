@@ -207,6 +207,7 @@
         bus.$on('replaceValue', this.handReplace)
         bus.$on('find', this.handleFind)
         bus.$on('insert-image', this.handleSelect)
+        bus.$on('image-uploaded', this.handleUploadedImage)
         bus.$on('file-changed', this.handleMarkdownChange)
         bus.$on('editor-blur', this.blurEditor)
         bus.$on('image-auto-path', this.handleImagePath)
@@ -312,6 +313,11 @@
       handReplace (value, opt) {
         const searchMatches = this.editor.replace(value, opt)
         this.$store.dispatch('SEARCH', searchMatches)
+      },
+
+      handleUploadedImage (url, deletionUrl) {
+        this.handleSelect(url)
+        this.$store.dispatch('SHOW_IMAGE_DELETION_URL', deletionUrl)
       },
 
       scrollToCursor () {

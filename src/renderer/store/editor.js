@@ -1,4 +1,4 @@
-import { ipcRenderer, shell } from 'electron'
+import { clipboard, ipcRenderer, shell } from 'electron'
 import path from 'path'
 import bus from '../bus'
 import { hasKeys } from '../util'
@@ -159,6 +159,18 @@ const actions = {
 
   SEARCH ({ commit }, value) {
     commit('SET_SEARCH', value)
+  },
+
+  SHOW_IMAGE_DELETION_URL ({ commit }, deletionUrl) {
+    notice.notify({
+      title: 'Image deletion URL',
+      message: `Click to copy the deletion URL of the uploaded image to the clipboard (${deletionUrl}).`,
+      showConfirm: true,
+      time: 20000
+    })
+      .then(() => {
+        clipboard.writeText(deletionUrl)
+      })
   },
 
   REMOVE_FILE_IN_TABS ({ commit }, file) {
