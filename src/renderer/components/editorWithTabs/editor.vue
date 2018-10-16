@@ -163,6 +163,7 @@
     },
     created () {
       this.$nextTick(() => {
+        this.printer = new Printer()
         const ele = this.$refs.editor
         const {
           theme,
@@ -369,9 +370,8 @@
           }
 
           case 'pdf': {
-            const html = this.editor.exportHtml()
-            const printer = new Printer(html)
-            printer.renderMarkdown()
+            const html = this.editor.exportStyledHTML()
+            this.printer.renderMarkdown(html)
             this.$store.dispatch('EXPORT', { type, markdown })
             break
           }

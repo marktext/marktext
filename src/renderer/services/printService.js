@@ -1,11 +1,6 @@
 class MarkdownPrint {
-  constructor (html) {
-    this.html = html
-  }
-
-  renderMarkdown () {
+  renderMarkdown (html) {
     this.clearup()
-    const { html } = this
     const printContainer = document.createElement('article')
     printContainer.classList.add('print-container')
     printContainer.classList.add('markdown-body')
@@ -14,8 +9,8 @@ class MarkdownPrint {
     printContainer.innerHTML = html
   }
 
-  print () {
-    this.renderMarkdown()
+  print (html) {
+    this.renderMarkdown(html)
     window.print()
     this.clearup()
   }

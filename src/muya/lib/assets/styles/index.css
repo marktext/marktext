@@ -101,9 +101,14 @@ p.ag-paragraph.ag-active > span.ag-line:first-of-type:empty::after {
   opacity: .5;
 }
 
-*::selection, .ag-selection {
+*:not(.ag-hide)::selection, .ag-selection {
   background: var(--baseBorder);
   color: var(--primaryColor);
+}
+
+.ag-hide::selection {
+  background: none;
+  color: transparent;
 }
 
 figure pre.ag-multiple-math,
@@ -548,7 +553,7 @@ span.ag-emoji-marked-text {
 }
 
 .ag-emoji-marked-text[data-emoji] {
-  margin-left: 1.3em;
+  margin-left: 1.7em;
 }
 
 .ag-hide.ag-emoji-marked-text[data-emoji],
@@ -562,12 +567,13 @@ span.ag-emoji-marked-text {
   position: absolute;
   content: attr(data-emoji);
   color: #000;
-  top: -3px;
-  left: -1.15em;
+  top: -6px;
+  left: -1.1em;
+  font-size: 1.5em;
 }
 
 .ag-hide.ag-emoji-marked-text::before {
-  top: -14px;
+  top: -19px;
 }
 
 .ag-html-escape {
