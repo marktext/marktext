@@ -29,6 +29,14 @@ Renderer.prototype.inlineMath = function (math) {
   return output || math
 }
 
+Renderer.prototype.emoji = function (text, emoji) {
+  if (this.options.emojiRenderer) {
+    return this.options.emojiRenderer(emoji)
+  } else {
+    return text
+  }
+}
+
 Renderer.prototype.code = function (code, lang, escaped, codeBlockStyle) {
   if (this.options.highlight) {
     let out = this.options.highlight(code, lang)

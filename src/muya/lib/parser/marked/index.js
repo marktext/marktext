@@ -14,6 +14,7 @@ const defaults = {
   silent: false,
   highlight: null,
   mathRenderer: null,
+  emojiRenderer: null,
   langPrefix: 'lang-',
   smartypants: false,
   headerPrefix: '',

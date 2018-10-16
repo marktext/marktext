@@ -6,6 +6,7 @@ import highlightCss from 'highlight.js/styles/default.css'
 import katexCss from 'katex/dist/katex.css'
 import { EXPORT_DOMPURIFY_CONFIG } from '../config'
 import { sanitize } from '../utils'
+import { validEmoji } from '../ui/emojis'
 
 export const getSanitizeHtml = markdown => {
   const html = marked(markdown)
@@ -21,6 +22,14 @@ class ExportHtml {
     return marked(this.markdown, {
       highlight (code) {
         return highlight.highlightAuto(code).value
+      },
+      emojiRenderer (emoji) {
+        const validate = validEmoji(emoji)
+        if (validate) {
+          return validate.emoji
+        } else {
+          return `:${emoji}:`
+        }
       },
       mathRenderer (math, displayMode) {
         return katex.renderToString(math, {

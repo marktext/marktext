@@ -75,6 +75,14 @@ InlineLexer.prototype.output = function (src) {
       out += this.renderer.inlineMath(text)
     }
 
+    // emoji
+    cap = this.rules.emoji.exec(src)
+    if (cap) {
+      src = src.substring(cap[0].length)
+      text = cap[0]
+      out += this.renderer.emoji(text, cap[2])
+    }
+
     // url (gfm)
     cap = this.rules.url.exec(src)
     if (!this.inLink && cap) {

@@ -50,6 +50,7 @@ export const gfm = Object.assign({}, normal, {
   escape: replace(inline.escape)('])', '~|])')(),
   url: /^(https?:\/\/[^\s<]+[^<.,:;"')\]\s])/,
   del: /^~~(?=\S)([\s\S]*?\S)~~/,
+  emoji: /^(:)([a-z_]+?)\1/,
   text: replace(inline.text)(']|', '~]|')('|', '|https?://|')()
 })
 
