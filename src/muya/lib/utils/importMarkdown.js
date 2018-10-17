@@ -45,11 +45,10 @@ const importRegister = ContentState => {
     }
 
     const htmlText = marked(markdown, { disableInline: true })
-    const domAst = parse5.parseFragment(htmlText)
+    const { childNodes } = parse5.parseFragment(htmlText)
     // console.log(markdown)
     // console.log(htmlText)
     // console.log(domAst)
-    const childNodes = domAst.childNodes
 
     const getLangAndType = node => {
       let lang = ''
