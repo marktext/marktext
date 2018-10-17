@@ -140,9 +140,9 @@ class ContentState {
     const block = this.getBlock(key)
     if (block.type === 'pre' && /code|html/.test(block.functionType)) {
       const cm = this.codeBlocks.get(key)
-      const { selection } = block
-      if (selection) {
-        const { anchor, head } = selection
+      const { selection: codeSel } = block
+      if (codeSel) {
+        const { anchor, head } = codeSel
         cm.focus()
         cm.setSelection(anchor, head)
       } else {

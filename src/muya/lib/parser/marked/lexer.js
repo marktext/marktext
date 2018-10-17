@@ -1,12 +1,13 @@
 import { normal, gfm, tables } from './blockRules'
+import { options } from './utils'
 /**
  * Block Lexer
  */
 
-function Lexer (options) {
+function Lexer (opts) {
   this.tokens = []
   this.tokens.links = {}
-  this.options = options
+  this.options = Object.assign({}, options, opts)
   this.rules = normal
 
   if (this.options.gfm) {
@@ -28,7 +29,6 @@ Lexer.prototype.lex = function (src) {
     .replace(/\t/g, '    ')
     .replace(/\u00a0/g, ' ')
     .replace(/\u2424/g, '\n')
-
   return this.token(src, true)
 }
 

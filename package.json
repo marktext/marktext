@@ -137,7 +137,6 @@
     "html-tags": "^2.0.0",
     "katex": "^0.10.0-rc.1",
     "markdown-toc": "^1.2.0",
-    "parse5": "^5.1.0",
     "popper.js": "^1.14.4",
     "snabbdom": "^0.7.2",
     "snabbdom-to-html": "^5.1.1",
