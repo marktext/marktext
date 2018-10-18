@@ -1,4 +1,3 @@
-import cheerio from 'cheerio'
 import selection from '../selection'
 import { CLASS_OR_ID } from '../config'
 import { getSanitizeHtml } from '../utils/exportHtml'
@@ -35,90 +34,79 @@ const copyCutCtrl = ContentState => {
 
   ContentState.prototype.getClipBoradData = function () {
     const html = selection.getSelectionHtml()
-    const $ = cheerio.load(html)
-    // console.log(html)
-    $(
+    const wrapper = document.createElement('div')
+    wrapper.innerHTML = html
+    const removedElements = wrapper.querySelectorAll(
       `.${CLASS_OR_ID['AG_TOOL_BAR']},
       .${CLASS_OR_ID['AG_MATH_RENDER']},
       .${CLASS_OR_ID['AG_HTML_PREVIEW']},
       .${CLASS_OR_ID['AG_MATH_PREVIEW']},
       .${CLASS_OR_ID['AG_COPY_REMOVE']}`
-    ).remove()
+    )
+    ;[...removedElements].forEach(e => e.remove())
 
-    $(`[data-role=hr]`).replaceWith('<hr>')
-    const headers = $(`[data-head]`)
-    if (headers.length > 0) {
-      headers.each((i, a) => {
-        const e = $(a)
-        const text = e.text()
-        e.replaceWith(`<p>${text}</p>`)
-      })
-    }
+    const hrs = wrapper.querySelectorAll(`[data-role=hr]`)
+    ;[...hrs].forEach(hr => hr.replaceWith(document.createElement('hr')))
+
+    const headers = wrapper.querySelectorAll(`[data-head]`)
+    ;[...headers].forEach(header => {
+      const p = document.createElement('p')
+      p.textContent = header.textContent
+      header.replaceWith(p)
+    })
 
     // replace inline rule element: code, a, strong, em, del to span element
     // in order to escape turndown translation
-    const inlineRuleElements = $(
+
+    const inlineRuleElements = wrapper.querySelectorAll(
       `a.${CLASS_OR_ID['AG_INLINE_RULE']},
       code.${CLASS_OR_ID['AG_INLINE_RULE']},
       strong.${CLASS_OR_ID['AG_INLINE_RULE']},
       em.${CLASS_OR_ID['AG_INLINE_RULE']},
       del.${CLASS_OR_ID['AG_INLINE_RULE']}`
     )
-    if (inlineRuleElements.length > 0) {
-      inlineRuleElements.each((i, a) => {
-        const e = $(a)
-        const text = e.text()
-        e.replaceWith(`<span>${text}</span>`)
-      })
-    }
+    ;[...inlineRuleElements].forEach(e => {
+      const span = document.createElement('span')
+      span.textContent = e.textContent
+      e.replaceWith(span)
+    })
 
-    const aLink = $(`.${CLASS_OR_ID['AG_A_LINK']}`)
-    if (aLink.length > 0) {
-      aLink.each((i, a) => {
-        const anchor = $(a)
-        const html = anchor.html()
-        anchor.replaceWith(`<span>${html}</span>`)
-      })
-    }
+    const aLinks = wrapper.querySelectorAll(`.${CLASS_OR_ID['AG_A_LINK']}`)
+    ;[...aLinks].forEach(l => {
+      const span = document.createElement('span')
+      span.innerHTML = l.innerHTML
+      l.replaceWith(span)
+    })
 
-    const codefense = $(`pre.${CLASS_OR_ID['AG_CODE_BLOCK']}`)
-    if (codefense.length > 0) {
-      codefense.each((i, cf) => {
-        const ele = $(cf)
-        const id = ele.attr('id')
-        const language = ele.attr('data-lang') || ''
-        const cm = this.codeBlocks.get(id)
-        const codeText = cm.getValue()
-        ele.empty()
-        ele.html(`<code class="language-${language}" lang="${language}">${codeText}</code>`)
-      })
-    }
+    const codefense = wrapper.querySelectorAll(`pre.${CLASS_OR_ID['AG_CODE_BLOCK']}`)
+    ;[...codefense].forEach(cf => {
+      const id = cf.id
+      const language = cf.getAttribute('data-lang') || ''
+      const cm = this.codeBlocks.get(id)
+      const value = cm.getValue()
+      cf.innerHTML = `<code class="language-${language}" lang="${language}">${value}</code>`
+    })
 
-    const htmlBlock = $(`figure[data-role='HTML']`)
-    if (htmlBlock.length > 0) {
-      htmlBlock.each((i, hb) => {
-        const ele = $(hb)
-        const id = ele.attr('id')
-        const { text } = this.getBlock(id)
-        const pre = $('<pre></pre>')
-        pre.text(text)
-        ele.replaceWith(pre)
-      })
-    }
+    const htmlBlock = wrapper.querySelectorAll(`figure[data-role='HTML']`)
+    ;[...htmlBlock].forEach(hb => {
+      const id = hb.id
+      const { text } = this.getBlock(id)
+      const pre = document.createElement('pre')
+      pre.textContent = text
+      hb.replaceWith(pre)
+    })
 
-    const mathBlock = $(`figure.ag-multiple-math-block`)
-    if (mathBlock.length > 0) {
-      mathBlock.each((i, hb) => {
-        const ele = $(hb)
-        const id = ele.attr('id')
-        const { math } = this.getBlock(id).children[1]
-        const pre = $('<pre class="multiple-math"></pre>')
-        pre.text(math)
-        ele.replaceWith(pre)
-      })
-    }
+    const mathBlock = wrapper.querySelectorAll(`figure.ag-multiple-math-block`)
+    ;[...mathBlock].forEach(mb => {
+      const id = mb.id
+      const { math } = this.getBlock(id).children[1]
+      const pre = document.createElement('pre')
+      pre.classList.add('multiple-math')
+      pre.textContent = math
+      mb.replaceWith(pre)
+    })
 
-    const htmlData = $('body').html()
+    const htmlData = wrapper.innerHTML
     const textData = this.htmlToMarkdown(htmlData)
 
     return { html: htmlData, text: textData }

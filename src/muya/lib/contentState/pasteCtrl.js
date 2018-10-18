@@ -1,4 +1,3 @@
-import cheerio from 'cheerio'
 import { sanitize } from '../utils'
 import { PARAGRAPH_TYPES, PREVIEW_DOMPURIFY_CONFIG } from '../config'
 
@@ -41,30 +40,28 @@ const pasteCtrl = ContentState => {
   }
 
   ContentState.prototype.standardizeHTML = function (html) {
-    const $ = cheerio.load(sanitize(html, PREVIEW_DOMPURIFY_CONFIG))
-    // convert un-standard table to standard table which can be identified by turndown.
-    // These un-standard table mainly copy from Number app.
-    const tables = $('table')
-    if (tables.length > 0) {
-      tables.each((i, t) => {
-        const table = $(t)
-        table.find('tr').each((i, tr) => {
-          if (i === 0 && $(tr).children().first().tagName !== 'th') {
-            $(tr).children().each((i, td) => {
-              const html = $(td).html()
-              $(td).replaceWith($(`<th>${html}</th>`))
-            })
-          }
+    const sanitizedHtml = sanitize(html, PREVIEW_DOMPURIFY_CONFIG)
+    const tempWrapper = document.createElement('div')
+    tempWrapper.innerHTML = sanitizedHtml
+    const tables = Array.from(tempWrapper.querySelectorAll('table'))
+    for (const table of tables) {
+      const row = table.querySelector('tr')
+      if (row.firstElementChild.tagName !== 'TH') {
+        [...row.children].forEach(cell => {
+          const th = document.createElement('th')
+          th.innerHTML = cell.innerHTML
+          cell.replaceWith(th)
         })
-
-        table.find('p').each((i, p) => {
-          const html = $(p).html()
-          $(p).replaceWith($(`<span>${html}</span>`))
-        })
-      })
+      }
+      const paragraphs = Array.from(table.querySelectorAll('p'))
+      for (const p of paragraphs) {
+        const span = document.createElement('span')
+        span.innerHTML = p.innerHTML
+        p.replaceWith(span)
+      }
     }
 
-    return $('body').html()
+    return tempWrapper.innerHTML
   }
 
   // handle `normal` and `pasteAsPlainText` paste
