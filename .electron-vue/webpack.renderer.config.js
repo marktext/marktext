@@ -10,6 +10,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin')
 const VueLoaderPlugin = require('vue-loader/lib/plugin')
 const SpritePlugin = require('svg-sprite-loader/plugin')
 const postcssPresetEnv = require('postcss-preset-env')
+const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer')
 
 const { dependencies } = require('../package.json')
 const proMode = process.env.NODE_ENV === 'production'
@@ -171,6 +172,7 @@ const rendererConfig = {
  */
 if (process.env.NODE_ENV !== 'production') {
   rendererConfig.plugins.push(
+    new BundleAnalyzerPlugin(),
     new webpack.DefinePlugin({
       '__static': `"${path.join(__dirname, '../static').replace(/\\/g, '\\\\')}"`
     })

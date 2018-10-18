@@ -267,7 +267,6 @@ class ExportMarkdown {
     let itemMarker
 
     if (listInfo.type === 'ul') {
-      // console.log(block)
       itemMarker = bulletListItemMarker ? `${bulletListItemMarker} ` : '- '
       if (block.listItemType === 'task') {
         const firstChild = children[0]

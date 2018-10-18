@@ -156,25 +156,6 @@ export const DAED_REMOVE_SELECTOR = new Set([
   '.ag-warn'
 ])
 
-export const htmlBeautifyConfig = {
-  'indent_size': 2,
-  'html': {
-    'end_with_newline': false,
-    'js': {
-      'indent_size': 2
-    },
-    'css': {
-      'indent_size': 2
-    }
-  },
-  'css': {
-    'indent_size': 1
-  },
-  'js': {
-    'preserve-newlines': true
-  }
-}
-
 export const CURSOR_DNA = getLongUniqueId()
 
 export const DEFAULT_TURNDOWN_CONFIG = {
