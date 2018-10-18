@@ -89,11 +89,11 @@
 - Renderizado em tempo real, e utiliza [snabbdom](https://github.com/snabbdom/snabbdom) como motor de renderização.
 - Soporta [CommonMark Spec](https://spec.commonmark.org/0.28/) e [GitHub Flavored Markdown Spec](https://github.github.com/gfm/).
 - Suporta parágrafos e atalhos no meio da linha para melhorar a eficiência da escrita
-- Exporta arquivos markdown para **HTML** y **PDF**.
-- Temas claro e oscuro.
+- Exporta arquivos markdown para **HTML** e **PDF**.
+- Temas claro e escuro.
 - Varios modos de edição: **Modo código fonte**, **Modo máquina de escrever**, **Modo contração**.
 
-<h4 align="center">:crescent_moon:Temas claro e oscuro:high_brightness:</h4>
+<h4 align="center">:crescent_moon:Temas claro e escuro:high_brightness:</h4>
 
 | Escuro :crescent_moon:                                               | Claro :high_brightness:                                             |
 |:------------------------------------------------------------------:|:-------------------------------------------------------------------:|
@@ -187,7 +187,7 @@ Se você patrocinar esse projeto tera sua logo aqui com um link :) [[Quero patro
 
 ## Contribuidores
 
-Obrigado a todos os contribuidores que apoiam o desenvolvimento do  Mark Text! [[Contribuidores](https://github.com/marktext/marktext/graphs/contributors)]
+Obrigado a todos os contribuidores que apoiam o desenvolvimento do  MarkText! [[Contribuidores](https://github.com/marktext/marktext/graphs/contributors)]
 
 Agradecimentos especiais ao  @[Yasujizr](https://github.com/Yasujizr) por criar a logo do Mark Text.
 
