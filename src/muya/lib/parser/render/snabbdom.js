@@ -10,6 +10,6 @@ export const patch = snabbdom.init([ // Init patch function with chosen modules
   require('snabbdom/modules/eventlisteners').default // attaches event listeners
 ])
 export const h = require('snabbdom/h').default // helper function for creating vnodes
-export const toHTML = require('snabbdom-to-html') // helper function for convert DOM to HTML string
+export const toHTML = require('snabbdom-to-html') // helper function for convert vnode to HTML string
 export const toVNode = require('snabbdom/tovnode').default // helper function for convert DOM to vnode
-export const htmlToVNode = virtualize // helper function for convert HTML string to vnode
+export const htmlToVNode = virtualize // helper function for convert HTML/DOM string to vnode

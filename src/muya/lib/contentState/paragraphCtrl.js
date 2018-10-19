@@ -17,7 +17,6 @@ const getCurrentLevel = type => {
 
 const paragraphCtrl = ContentState => {
   ContentState.prototype.selectionChange = function (cursor) {
-    const { fontSize, lineHeight } = this
     const { start, end } = cursor || selection.getCursorRange()
     const cursorCoords = selection.getCursorCoords()
     const startBlock = this.getBlock(start.key)
@@ -32,13 +31,6 @@ const paragraphCtrl = ContentState => {
     start.block = startBlock
     end.type = endBlock.type
     end.block = endBlock
-
-    if (start.type === 'pre' && end.type === 'pre' && startBlock.functionType !== 'frontmatter') {
-      const preElement = document.querySelector(`#${start.key}`)
-      const { top } = preElement.getBoundingClientRect()
-      const { line } = start.block.selection.anchor
-      cursorCoords.y = top + line * lineHeight * fontSize
-    }
 
     return {
       start,

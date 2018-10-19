@@ -1,17 +1,12 @@
 import katex from 'katex'
+import prism from '../../../prism/'
 import { CLASS_OR_ID, DEVICE_MEMORY, isInElectron } from '../../../config'
 import { tokenizer } from '../../parse'
 import { snakeToCamel } from '../../../utils'
 import { h, htmlToVNode } from '../snabbdom'
 
-const PRE_BLOCK_HASH = {
-  'code': `.${CLASS_OR_ID['AG_CODE_BLOCK']}`,
-  'html': `.${CLASS_OR_ID['AG_HTML_BLOCK']}`,
-  'frontmatter': `.${CLASS_OR_ID['AG_FRONT_MATTER']}`
-}
-
 export default function renderLeafBlock (block, cursor, activeBlocks, matches, useCache = false) {
-  const { loadMathMap, refreshCodeBlock } = this
+  const { loadMathMap } = this
   let selector = this.getSelector(block, cursor, activeBlocks)
   // highlight search key in block
   const highlights = matches.filter(m => m.key === block.key)
@@ -26,11 +21,11 @@ export default function renderLeafBlock (block, cursor, activeBlocks, matches, u
     key,
     lang,
     functionType,
-    codeBlockStyle,
     math,
     editable
   } = block
   const data = {
+    props: {},
     attrs: {},
     dataset: {}
   }
@@ -122,41 +117,18 @@ export default function renderLeafBlock (block, cursor, activeBlocks, matches, u
       selector += `.${CLASS_OR_ID['AG_CHECKBOX_CHECKED']}`
     }
     children = ''
-  } else if (type === 'pre') {
-    selector += `.${CLASS_OR_ID['AG_CODEMIRROR_BLOCK']}`
-    selector += PRE_BLOCK_HASH[functionType]
-    Object.assign(data.attrs, { contenteditable: 'false' })
-    data.hook = {
-      prepatch (oldvnode, vnode) {
-        // cheat snabbdom that the pre block is not changed!!!
-        if (!refreshCodeBlock) {
-          vnode.children = oldvnode.children
-        }
-      }
+  } else if (type === 'span' && functionType === 'codeLine') {
+    selector += `.${CLASS_OR_ID['AG_CODE_LINE']}`
+    if (lang && /\S/.test(text)) {
+      const highlightedCode = prism.highlight(text, prism.languages[lang], lang)
+      const vnode = htmlToVNode(`<code>${highlightedCode}</code>`)
+      selector += `.language-${lang}`
+      children = vnode.children
+    } else {
+      children = text
     }
-    if (lang) {
-      Object.assign(data.dataset, {
-        lang
-      })
-    }
-
-    if (codeBlockStyle) {
-      Object.assign(data.dataset, {
-        codeBlockStyle
-      })
-    }
-
-    if (/code|html/.test(functionType)) {
-      // do not set it to '' (empty string)
-      children = []
-    }
-  } else if (type === 'span' && /frontmatter|multiplemath/.test(functionType)) {
-    if (functionType === 'frontmatter') {
-      selector += `.${CLASS_OR_ID['AG_FRONT_MATTER_LINE']}`
-    }
-    if (functionType === 'multiplemath') {
-      selector += `.${CLASS_OR_ID['AG_MULTIPLE_MATH_LINE']}`
-    }
+  } else if (type === 'span' && functionType === 'languageInput') {
+    selector += `.${CLASS_OR_ID['AG_LANGUAGE_INPUT']}`
     children = text
   }
 

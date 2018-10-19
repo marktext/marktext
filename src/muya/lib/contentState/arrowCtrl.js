@@ -3,9 +3,7 @@ import {
   isCursorAtFirstLine,
   isCursorAtLastLine,
   isCursorAtBegin,
-  isCursorAtEnd,
-  getBeginPosition,
-  getEndPosition
+  isCursorAtEnd
 } from '../codeMirror'
 import { findNearestParagraph } from '../selection/dom'
 import selection from '../selection'
@@ -205,9 +203,6 @@ const arrowCtrl = ContentState => {
         end: { key, offset }
       }
 
-      const cm = this.codeBlocks.get(preBlock.key)
-      preBlock.selection = getEndPosition(cm)
-
       return this.partialRender()
     } else if (
       (nextBlock && nextBlock.type === 'pre' && /code|html/.test(nextBlock.functionType) && event.key === EVENT_KEYS.ArrowDown) ||
@@ -221,8 +216,6 @@ const arrowCtrl = ContentState => {
         start: { key, offset },
         end: { key, offset }
       }
-
-      nextBlock.selection = getBeginPosition()
 
       return this.partialRender()
     } else if (

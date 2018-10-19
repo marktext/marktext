@@ -6,7 +6,7 @@ import voidHtmlTags from 'html-tags/void'
 // Electron 2.0.2 not support yet! So give a default value 4
 export const DEVICE_MEMORY = navigator.deviceMemory || 4 // Get the divice memory number(Chrome >= 63)
 export const UNDO_DEPTH = DEVICE_MEMORY >= 4 ? 100 : 50
-export const HAS_TEXT_BLOCK_REG = /^(h\d|span|th|td|hr|pre)/i
+export const HAS_TEXT_BLOCK_REG = /^(h\d|span|th|td|hr)/i
 export const VOID_HTML_TAGS = voidHtmlTags
 export const HTML_TAGS = htmlTags
 // TYPE1 ~ TYPE7 according to https://github.github.com/gfm/#html-blocks
@@ -76,13 +76,12 @@ export const CLASS_OR_ID = genUpper2LowerKeyHash([
   'AG_FLOAT_ITEM_ACTIVE',
   'AG_FLOAT_ITEM_ICON', // icon wrapper in li
   'AG_EMOJI_MARKED_TEXT',
-  'AG_CODE_BLOCK',
+  'AG_FENCE_CODE',
+  'AG_INDENT_CODE',
   'AG_HTML_BLOCK',
   'AG_HTML_ESCAPE',
   'AG_FRONT_MATTER',
-  'AG_FRONT_MATTER_LINE',
-  'AG_MULTIPLE_MATH_LINE',
-  'AG_CODEMIRROR_BLOCK',
+  'AG_CODE_LINE',
   'AG_SHOW_PREVIEW',
   'AG_HTML_PREVIEW',
   'AG_LANGUAGE',

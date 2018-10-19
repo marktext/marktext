@@ -1,5 +1,4 @@
 import { HAS_TEXT_BLOCK_REG, DEFAULT_TURNDOWN_CONFIG } from '../config'
-import { setCursorAtLastLine } from '../codeMirror'
 import { getUniqueId } from '../utils'
 import selection from '../selection'
 import StateRender from '../parser/render'
@@ -21,6 +20,7 @@ import searchCtrl from './searchCtrl'
 import mathCtrl from './mathCtrl'
 import imagePathCtrl from './imagePathCtrl'
 import htmlBlockCtrl from './htmlBlock'
+import clickCtrl from './clickCtrl'
 import importMarkdown from '../utils/importMarkdown'
 
 const prototypes = [
@@ -41,6 +41,7 @@ const prototypes = [
   mathCtrl,
   imagePathCtrl,
   htmlBlockCtrl,
+  clickCtrl,
   importMarkdown
 ]
 
@@ -69,18 +70,6 @@ class ContentState {
   }
 
   set cursor (cursor) {
-    // if (this.currentCursor) {
-    //   const { start, end } = this.currentCursor
-    //   if (
-    //     start.key === cursor.start.key &&
-    //     start.offset === cursor.start.offset &&
-    //     end.key === cursor.end.key &&
-    //     end.offset === cursor.end.offset
-    //   ) {
-    //     return
-    //   }
-    // }
-
     const handler = () => {
       const { blocks, renderRange, currentCursor } = this
       this.history.push({
@@ -136,21 +125,7 @@ class ContentState {
   }
 
   setCursor () {
-    const { start: { key } } = this.cursor
-    const block = this.getBlock(key)
-    if (block.type === 'pre' && /code|html/.test(block.functionType)) {
-      const cm = this.codeBlocks.get(key)
-      const { selection: codeSel } = block
-      if (codeSel) {
-        const { anchor, head } = codeSel
-        cm.focus()
-        cm.setSelection(anchor, head)
-      } else {
-        setCursorAtLastLine(cm)
-      }
-    } else {
-      selection.setCursorRange(this.cursor)
-    }
+    selection.setCursorRange(this.cursor)
   }
 
   setNextRenderRange () {
@@ -172,14 +147,12 @@ class ContentState {
     this.setNextRenderRange()
     this.stateRender.collectLabels(blocks)
     this.stateRender.render(blocks, cursor, activeBlocks, matches, refreshCodeBlock)
-    this.pre2CodeMirror(isRenderCursor)
     if (isRenderCursor) this.setCursor()
   }
 
   partialRender () {
     const { blocks, cursor, searchMatches: { matches, index } } = this
     const activeBlocks = this.getActiveBlocks()
-    const cursorOutMostBlock = activeBlocks[activeBlocks.length - 1]
     const [ startKey, endKey ] = this.renderRange
     matches.forEach((m, i) => {
       m.active = i === index
@@ -191,7 +164,6 @@ class ContentState {
     this.setNextRenderRange()
     this.stateRender.collectLabels(blocks)
     this.stateRender.partialRender(needRenderBlocks, cursor, activeBlocks, matches, startKey, endKey)
-    this.pre2CodeMirror(true, [...new Set([cursorOutMostBlock, ...needRenderBlocks])])
     this.setCursor()
   }
 
@@ -577,7 +549,13 @@ class ContentState {
   findPreBlockInLocation (block) {
     const parent = this.getParent(block)
     const preBlock = this.getPreSibling(block)
-    if (block.preSibling && preBlock.type !== 'input' && preBlock.type !== 'div' && preBlock.editable !== false) { // handle task item and table
+    if (
+      block.preSibling &&
+      preBlock.type !== 'input' &&
+      preBlock.type !== 'div' &&
+      preBlock.editable !== false &&
+      preBlock.functionType !== 'languageInput'
+    ) { // handle task item and table
       return this.lastInDescendant(preBlock)
     } else if (parent) {
       return this.findPreBlockInLocation(parent)

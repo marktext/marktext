@@ -2,7 +2,7 @@ import { EVENT_KEYS, CLASS_OR_ID } from '../config'
 import selection from '../selection'
 import { findNearestParagraph } from '../selection/dom'
 import { getParagraphReference } from '../utils'
-import { checkEditLanguage } from '../codeMirror/language'
+import { checkEditLanguage } from '../prism/index'
 import { checkEditEmoji } from '../ui/emojis'
 
 class Keyboard {

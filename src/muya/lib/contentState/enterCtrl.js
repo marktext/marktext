@@ -140,25 +140,15 @@ const enterCtrl = ContentState => {
     const endBlock = this.getBlock(end.key)
     let parent = this.getParent(block)
 
-    // handle cursor in code block
-    if (block.type === 'pre' && block.functionType === 'code') {
-      return
-    }
-
     event.preventDefault()
-
     // handle select multiple blocks
     if (start.key !== end.key) {
       const key = start.key
       const offset = start.offset
 
-      const startRemainText = block.type === 'pre'
-        ? block.text.substring(0, start.offset - 1)
-        : block.text.substring(0, start.offset)
+      const startRemainText = block.text.substring(0, start.offset)
 
-      const endRemainText = endBlock.type === 'pre'
-        ? endBlock.text.substring(end.offset - 1)
-        : endBlock.text.substring(end.offset)
+      const endRemainText = endBlock.text.substring(end.offset)
 
       block.text = startRemainText + endRemainText
 
@@ -186,15 +176,17 @@ const enterCtrl = ContentState => {
 
     // handle `shift + enter` insert `soft line break` or `hard line break`
     // only cursor in `line block` can create `soft line break` and `hard line break`
+    // handle line in code block
     if (
       (event.shiftKey && block.type === 'span') ||
-      (block.type === 'span' && /frontmatter|multiplemath/.test(block.functionType))
+      (block.type === 'span' && block.functionType === 'codeLine')
     ) {
       const { text } = block
       const newLineText = text.substring(start.offset)
       block.text = text.substring(0, start.offset)
       const newLine = this.createBlock('span', newLineText)
       newLine.functionType = block.functionType
+      newLine.lang = block.lang
       this.insertAfter(newLine, block)
       const { key } = newLine
       const offset = 0

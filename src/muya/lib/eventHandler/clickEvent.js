@@ -12,10 +12,6 @@ class ClickEvent {
     const { container, eventCenter, contentState } = this.muya
     const handler = event => {
       const { target } = event
-      // handler code block click.
-      if (target.tagName === 'PRE' && target.classList.contains(CLASS_OR_ID['AG_CODE_BLOCK'])) {
-        contentState.focusCodeBlock(event)
-      }
       // handler table | html toolbar click
       const toolItem = getToolItem(target)
       if (toolItem) {
@@ -56,13 +52,7 @@ class ClickEvent {
       if (target.tagName === 'INPUT' && target.classList.contains(CLASS_OR_ID['AG_TASK_LIST_ITEM_CHECKBOX'])) {
         contentState.listItemCheckBoxClick(target)
       }
-      // is show format float box?
-      const { start, end } = selection.getCursorRange()
-      if (start.key === end.key && start.offset !== end.offset) {
-        const reference = contentState.getPositionReference()
-        const { formats } = contentState.selectionFormats()
-        eventCenter.dispatch('muya-format-picker', { reference, formats })
-      }
+      contentState.clickHandler(event)
     }
 
     eventCenter.attachDOMEvent(container, 'click', handler)

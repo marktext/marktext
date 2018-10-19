@@ -55,6 +55,7 @@ const updateCtrl = ContentState => {
   ContentState.prototype.checkInlineUpdate = function (block) {
     // table cell can not have blocks in it
     if (/th|td|figure/.test(block.type)) return false
+    if (/codeLine|languageInput/.test(block.functionType)) return false
     // only first line block can update to other block
     if (block.type === 'span' && block.preSibling) return false
     if (block.type === 'span') {
@@ -307,7 +308,6 @@ const updateCtrl = ContentState => {
 
     // bugfix: #67 problem 1
     if (block && block.icon) return event.preventDefault()
-
     if (event.type === 'click' && start.key !== end.key) {
       setTimeout(() => {
         this.updateState(event)
@@ -319,27 +319,6 @@ const updateCtrl = ContentState => {
       const startBlock = this.getBlock(oldStart.key)
       const endBlock = this.getBlock(oldEnd.key)
       this.removeBlocks(startBlock, endBlock)
-      // there still has little bug, when the oldstart block is `pre`, the input value will be ignored.
-      // and act as `backspace`
-      if (startBlock.type === 'pre' && /code|html/.test(startBlock.functionType)) {
-        event.preventDefault()
-        const startRemainText = startBlock.type === 'pre'
-          ? startBlock.text.substring(0, oldStart.offset - 1)
-          : startBlock.text.substring(0, oldStart.offset)
-
-        const endRemainText = endBlock.type === 'pre'
-          ? endBlock.text.substring(oldEnd.offset - 1)
-          : endBlock.text.substring(oldEnd.offset)
-
-        startBlock.text = startRemainText + endRemainText
-        const key = oldStart.key
-        const offset = oldStart.offset
-        this.cursor = {
-          start: { key, offset },
-          end: { key, offset }
-        }
-        return this.partialRender()
-      }
     }
 
     if (start.key !== end.key) {
@@ -375,16 +354,6 @@ const updateCtrl = ContentState => {
     if (block && key !== oldKey) {
       const oldBlock = this.getBlock(oldKey)
       if (oldBlock) this.codeBlockUpdate(oldBlock)
-    }
-
-    if (block && block.type === 'pre' && /code|html/.test(block.functionType)) {
-      if (block.key !== oldKey) {
-        this.cursor = lastCursor = { start, end }
-        if (event.type === 'click' && oldKey) {
-          this.partialRender()
-        }
-      }
-      return
     }
 
     // auto pair (not need to auto pair in math block)
@@ -447,7 +416,7 @@ const updateCtrl = ContentState => {
       this.updateMathContent(block)
     }
 
-    if (oldKey !== key || oldStart.offset !== start.offset || oldEnd.offset !== end.offset) {
+    if (oldKey !== key || block.functionType === 'codeLine') {
       needRender = true
     }
 
@@ -475,7 +444,7 @@ const updateCtrl = ContentState => {
       this.muya.eventCenter.dispatch('muya-quick-insert', reference, block, checkQuickInsert)
     }
 
-    const inlineUpdatedBlock = this.isCollapse() && !/frontmatter|multiplemath/.test(block.functionType) && this.checkInlineUpdate(block)
+    const inlineUpdatedBlock = this.isCollapse() && this.checkInlineUpdate(block)
     if (checkMarkedUpdate || inlineUpdatedBlock || needRender) {
       needRenderAll ? this.render() : this.partialRender()
     }

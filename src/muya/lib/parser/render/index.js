@@ -81,9 +81,6 @@ class StateRender {
     if (type === 'span') {
       selector += `.${CLASS_OR_ID['AG_LINE']}`
     }
-    if (block.temp) {
-      selector += `.${CLASS_OR_ID['AG_TEMP']}`
-    }
     return selector
   }
 
