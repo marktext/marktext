@@ -9,7 +9,7 @@ const mathCtrl = ContentState => {
     const { preBlock, mathPreview } = this.createMathAndPreview(value)
     this.appendChild(mathBlock, preBlock)
     this.appendChild(mathBlock, mathPreview)
-
+    this.codeBlocks.set(preBlock.key, value)
     return mathBlock
   }
 

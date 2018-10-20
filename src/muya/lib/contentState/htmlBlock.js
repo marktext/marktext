@@ -39,7 +39,7 @@ const htmlBlock = ContentState => {
     preBlock.lang = 'html'
     codeBlock.lang = 'html'
     preBlock.functionType = 'html'
-
+    this.codeBlocks.set(preBlock.key, code)
     this.appendChild(preBlock, codeBlock)
     this.appendChild(codeContainer, preBlock)
     this.appendChild(codeContainer, preview)
@@ -87,7 +87,6 @@ const htmlBlock = ContentState => {
   ContentState.prototype.createHtmlBlock = function (code) {
     const block = this.createBlock('figure')
     block.functionType = 'html'
-    block.text = code
     const toolBar = this.createToolBar(HTML_TOOLS, 'html')
     const htmlBlock = this.createCodeInHtml(code)
     this.appendChild(block, toolBar)

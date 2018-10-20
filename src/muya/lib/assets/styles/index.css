@@ -435,12 +435,12 @@ pre.ag-front-matter {
   margin: 1rem 0;
 }
 
-span.ag-front-matter-line:first-of-type:empty::after {
+pre.ag-front-matter span.ag-code-line:first-of-type:empty::after {
   content: 'Input YAML Front Matter...';
   color: var(--placeholerColor);
 }
 
-span.ag-multiple-math-line:first-of-type:empty::after {
+pre.ag-multiple-math span.ag-code-line:first-of-type:empty::after {
   content: 'Input Mathematical Formula...';
   color: var(--placeholerColor);
 }

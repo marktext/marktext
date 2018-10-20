@@ -8,9 +8,10 @@ const codeBlockCtrl = ContentState => {
     loadLanguage(name)
     if (block.functionType === 'languageInput') {
       block.text = name
-      const parent = this.getParent(block)
+      const preBlock = this.getParent(block)
       const nextSibling = this.getNextSibling(block)
-      parent.lang = name
+      preBlock.lang = name
+      preBlock.functionType = 'fencecode'
       nextSibling.lang = name
       nextSibling.children.forEach(c => (c.lang = name))
       const { key } = nextSibling.children[0]
@@ -47,7 +48,7 @@ const codeBlockCtrl = ContentState => {
       loadLanguage(language)
       inputBlock.functionType = 'languageInput'
       block.type = 'pre'
-      block.functionType = 'fenceCode'
+      block.functionType = 'fencecode'
       block.lang = language
       block.text = ''
       block.history = null
