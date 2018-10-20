@@ -106,7 +106,7 @@ const htmlBlock = ContentState => {
     const codeContainer = this.createCodeInHtml(htmlContent)
     this.appendChild(block, toolBar)
     this.appendChild(block, codeContainer)
-    return codeContainer.children[0]
+    return codeContainer.children[0] // preBlock
   }
 
   ContentState.prototype.updateHtmlBlock = function (block) {
