@@ -32,6 +32,10 @@ const search = text => {
   return filter(langs, text, { key: 'name' })
 }
 
+// pre load latex and yaml
+loadLanguage('latex')
+loadLanguage('yaml')
+
 export {
   search,
   loadLanguage,

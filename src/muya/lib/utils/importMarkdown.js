@@ -278,7 +278,6 @@ const importRegister = ContentState => {
   }
 
   ContentState.prototype.importMarkdown = function (markdown) {
-    // empty the blocks and codeBlocks
     this.codeBlocks = new Map()
     this.blocks = this.markdownToState(markdown)
   }

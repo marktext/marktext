@@ -65,10 +65,13 @@ const paragraphCtrl = ContentState => {
     const firstBlock = this.blocks[0]
     if (firstBlock.type === 'pre' && firstBlock.functionType === 'frontmatter') return
     const frontMatter = this.createBlock('pre')
+    const codeBlock = this.createBlock('code')
     const emptyLine = this.createBlock('span')
-    emptyLine.functionType = 'frontmatter'
+    frontMatter.lang = codeBlock.lang = emptyLine.lang = 'yaml'
+    emptyLine.functionType = 'codeLine'
     frontMatter.functionType = 'frontmatter'
-    this.appendChild(frontMatter, emptyLine)
+    this.appendChild(codeBlock, emptyLine)
+    this.appendChild(frontMatter, codeBlock)
     this.insertBefore(frontMatter, firstBlock)
     const { key } = emptyLine
     const offset = 0

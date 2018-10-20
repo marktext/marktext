@@ -1,8 +1,8 @@
 import katex from 'katex'
 import prism from '../../../prism/'
-import { CLASS_OR_ID, DEVICE_MEMORY, isInElectron } from '../../../config'
+import { CLASS_OR_ID, DEVICE_MEMORY, isInElectron, PREVIEW_DOMPURIFY_CONFIG } from '../../../config'
 import { tokenizer } from '../../parse'
-import { snakeToCamel } from '../../../utils'
+import { snakeToCamel, sanitize } from '../../../utils'
 import { h, htmlToVNode } from '../snabbdom'
 
 export default function renderLeafBlock (block, cursor, activeBlocks, matches, useCache = false) {
@@ -15,13 +15,11 @@ export default function renderLeafBlock (block, cursor, activeBlocks, matches, u
     type,
     headingStyle,
     align,
-    htmlContent,
     icon,
     checked,
     key,
     lang,
     functionType,
-    math,
     editable
   } = block
   const data = {
@@ -52,15 +50,17 @@ export default function renderLeafBlock (block, cursor, activeBlocks, matches, u
       style: `text-align:${align}`
     })
   } else if (type === 'div') {
-    if (typeof htmlContent === 'string') {
+    if (functionType === 'preview') {
       selector += `.${CLASS_OR_ID['AG_HTML_PREVIEW']}`
+      const htmlContent = sanitize(this.muya.contentState.codeBlocks.get(block.preSibling), PREVIEW_DOMPURIFY_CONFIG)
       // handle empty html bock
       if (/<([a-z][a-z\d]*).*>\s*<\/\1>/.test(htmlContent)) {
         children = htmlToVNode('<div class="ag-empty">&lt;Empty HTML Block&gt;</div>')
       } else {
         children = htmlToVNode(htmlContent)
       }
-    } else if (typeof math === 'string') {
+    } else if (functionType === 'multiplemath') {
+      const math = this.muya.contentState.codeBlocks.get(block.preSibling)
       const key = `${math}_display_math`
       selector += `.${CLASS_OR_ID['AG_MATH_PREVIEW']}`
       if (math === '') {

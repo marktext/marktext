@@ -7,8 +7,9 @@ import renderInlines from './renderInlines'
 import renderBlock from './renderBlock'
 
 class StateRender {
-  constructor (eventCenter) {
-    this.eventCenter = eventCenter
+  constructor (muya) {
+    this.muya = muya
+    this.eventCenter = muya.eventCenter
     this.loadImageMap = new Map()
     this.loadMathMap = new Map()
     this.tokenCache = new Map()

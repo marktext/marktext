@@ -34,6 +34,7 @@ const copyCutCtrl = ContentState => {
 
   ContentState.prototype.getClipBoradData = function () {
     const html = selection.getSelectionHtml()
+    console.log(html)
     const wrapper = document.createElement('div')
     wrapper.innerHTML = html
     const removedElements = wrapper.querySelectorAll(
@@ -41,7 +42,9 @@ const copyCutCtrl = ContentState => {
       .${CLASS_OR_ID['AG_MATH_RENDER']},
       .${CLASS_OR_ID['AG_HTML_PREVIEW']},
       .${CLASS_OR_ID['AG_MATH_PREVIEW']},
-      .${CLASS_OR_ID['AG_COPY_REMOVE']}`
+      .${CLASS_OR_ID['AG_COPY_REMOVE']},
+      .${CLASS_OR_ID['AG_LANGUAGE_INPUT']}`
+
     )
     ;[...removedElements].forEach(e => e.remove())
 
@@ -76,15 +79,6 @@ const copyCutCtrl = ContentState => {
       const span = document.createElement('span')
       span.innerHTML = l.innerHTML
       l.replaceWith(span)
-    })
-
-    const codefense = wrapper.querySelectorAll(`pre.${CLASS_OR_ID['AG_CODE_BLOCK']}`)
-    ;[...codefense].forEach(cf => {
-      const id = cf.id
-      const language = cf.getAttribute('data-lang') || ''
-      const cm = this.codeBlocks.get(id)
-      const value = cm.getValue()
-      cf.innerHTML = `<code class="language-${language}" lang="${language}">${value}</code>`
     })
 
     const htmlBlock = wrapper.querySelectorAll(`figure[data-role='HTML']`)

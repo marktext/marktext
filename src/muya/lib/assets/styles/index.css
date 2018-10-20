@@ -120,6 +120,9 @@ div.ag-function-html pre.ag-html-block {
   opacity: 0;
   z-index: -1;
   position: absolute;
+  margin-top: 0;
+  margin-bottom: 0;
+  overflow: visible;
 }
 
 div.ag-function-html.ag-active pre.ag-html-block,
@@ -469,6 +472,7 @@ pre.ag-indent-code {
 
 pre > code {
   width: 100%;
+  display: block;
 }
 
 pre.ag-active.ag-front-matter::before,
@@ -532,7 +536,7 @@ figure.ag-active div.ag-math-preview {
   top: calc(100% + 8px);
   left: 50%;
   width: auto;
-  z-index: 1;
+  z-index: 10000;
   transform: translateX(-50%);
   padding: .5rem;
   background: #fff;
@@ -543,10 +547,6 @@ figure.ag-active div.ag-math-preview {
 
 div.ag-html-preview {
   pointer-events: none;
-  width: 100%;
-}
-
-pre .CodeMirror {
   width: 100%;
 }
 

@@ -13,22 +13,12 @@ export class History {
       this.index = this.index - 1
 
       const state = deepCopy(this.stack[this.index])
-      switch (state.type) {
-        case 'normal':
-          const { blocks, cursor, renderRange } = state
-          cursor.noHistory = true
-          this.contentState.blocks = blocks
-          this.contentState.renderRange = renderRange
-          this.contentState.cursor = cursor
-          this.contentState.render()
-          break
-        case 'codeBlock':
-          const id = state.id
-          const codeBlock = this.contentState.codeBlocks.get(id)
-          codeBlock.focus()
-          codeBlock.undo()
-          break
-      }
+      const { blocks, cursor, renderRange } = state
+      cursor.noHistory = true
+      this.contentState.blocks = blocks
+      this.contentState.renderRange = renderRange
+      this.contentState.cursor = cursor
+      this.contentState.render()
     }
   }
 
@@ -38,22 +28,12 @@ export class History {
     if (index < len - 1) {
       this.index = index + 1
       const state = deepCopy(stack[this.index])
-      switch (state.type) {
-        case 'normal':
-          const { blocks, cursor, renderRange } = state
-          cursor.noHistory = true
-          this.contentState.blocks = blocks
-          this.contentState.renderRange = renderRange
-          this.contentState.cursor = cursor
-          this.contentState.render()
-          break
-        case 'codeBlock':
-          const id = state.id
-          const codeBlock = this.contentState.codeBlocks.get(id)
-          codeBlock.focus()
-          codeBlock.redo()
-          break
-      }
+      const { blocks, cursor, renderRange } = state
+      cursor.noHistory = true
+      this.contentState.blocks = blocks
+      this.contentState.renderRange = renderRange
+      this.contentState.cursor = cursor
+      this.contentState.render()
     }
   }
 

@@ -175,7 +175,7 @@ class ExportMarkdown {
 
   normalizeCodeBlock (block, indent) {
     const result = []
-    const textList = block.children[0].text.split(LINE_BREAKS)
+    const textList = block.children[1].children.map(codeLine => codeLine.text)
     const { codeBlockStyle } = block
     if (codeBlockStyle === 'fenced') {
       result.push(`${indent}${block.lang ? '```' + block.lang + '\n' : '```\n'}`)

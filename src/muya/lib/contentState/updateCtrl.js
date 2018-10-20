@@ -14,6 +14,16 @@ const INLINE_UPDATE_FRAGMENTS = [
   '^\\s{0,3}((?:\\*\\s*\\*\\s*\\*|-\\s*-\\s*-|_\\s*_\\s*_)[\\s\\*\\-\\_]*)$' // Thematic break
 ]
 
+const BRACKET_HASH = {
+  '{': '}',
+  '[': ']',
+  '(': ')',
+  '*': '*',
+  '_': '_',
+  '"': '"',
+  '\'': '\''
+}
+
 const INLINE_UPDATE_REG = new RegExp(INLINE_UPDATE_FRAGMENTS.join('|'), 'i')
 
 let lastCursor = null
@@ -89,13 +99,6 @@ const updateCtrl = ContentState => {
       default:
         return this.updateToParagraph(block)
     }
-  }
-
-  // Input @ to quick insert paragraph
-  ContentState.prototype.checkQuickInsert = function (block) {
-    const { type, text, functionType } = block
-    if (type !== 'span' || functionType) return false
-    return /^@[a-zA-Z\d]*$/.test(text)
   }
 
   // thematic break
@@ -294,17 +297,19 @@ const updateCtrl = ContentState => {
     return null
   }
 
-  ContentState.prototype.updateMathContent = function (block) {
-    const preBlock = this.getParent(block)
-    const mathPreview = this.getNextSibling(preBlock)
-    const math = preBlock.children.map(line => line.text).join('\n')
-    mathPreview.math = math
+  ContentState.prototype.updateCodeBlocks = function (block) {
+    const codeBlock = this.getParent(block)
+    const preBlock = this.getParent(codeBlock)
+    const code = codeBlock.children.map(line => line.text).join('\n')
+    this.codeBlocks.set(preBlock.key, code)
   }
 
   ContentState.prototype.updateState = function (event) {
     const { start, end } = selection.getCursorRange()
     const key = start.key
     const block = this.getBlock(key)
+    let needRender = false
+    let needRenderAll = false
 
     // bugfix: #67 problem 1
     if (block && block.icon) return event.preventDefault()
@@ -319,6 +324,7 @@ const updateCtrl = ContentState => {
       const startBlock = this.getBlock(oldStart.key)
       const endBlock = this.getBlock(oldEnd.key)
       this.removeBlocks(startBlock, endBlock)
+      needRender = true
     }
 
     if (start.key !== end.key) {
@@ -336,8 +342,6 @@ const updateCtrl = ContentState => {
     const oldKey = lastCursor ? lastCursor.start.key : null
     const paragraph = document.querySelector(`#${key}`)
     let text = getTextContent(paragraph, [ CLASS_OR_ID['AG_MATH_RENDER'] ])
-    let needRender = false
-    let needRenderAll = false
     if (event.type === 'click' && block.type === 'figure' && block.functionType === 'table') {
       // first cell in thead
       const cursorBlock = block.children[1].children[0].children[0].children[0]
@@ -358,17 +362,12 @@ const updateCtrl = ContentState => {
 
     // auto pair (not need to auto pair in math block)
     if (block && block.text !== text) {
-      const BRACKET_HASH = {
-        '{': '}',
-        '[': ']',
-        '(': ')',
-        '*': '*',
-        '_': '_',
-        '"': '"',
-        '\'': '\''
-      }
-
-      if (start.key === end.key && start.offset === end.offset && event.type === 'input' && block.functionType !== 'multiplemath') {
+      if (
+        start.key === end.key &&
+        start.offset === end.offset &&
+        event.type === 'input' &&
+        block.functionType !== 'multiplemath'
+      ) {
         const { offset } = start
         const { autoPairBracket, autoPairMarkdownSyntax, autoPairQuote } = this
         const inputChar = text.charAt(+offset - 1)
@@ -395,6 +394,7 @@ const updateCtrl = ContentState => {
             (autoPairBracket && /[\{\[\(]{1}/.test(inputChar)) ||
             (autoPairMarkdownSyntax && /[*_]{1}/.test(inputChar))
           ) {
+            needRender = true
             text = BRACKET_HASH[event.data]
               ? text.substring(0, offset) + BRACKET_HASH[inputChar] + text.substring(offset)
               : text
@@ -412,8 +412,8 @@ const updateCtrl = ContentState => {
     }
 
     // Update preview content of math block
-    if (block && block.type === 'span' && block.functionType === 'multiplemath') {
-      this.updateMathContent(block)
+    if (block && block.type === 'span' && block.functionType === 'codeLine') {
+      this.updateCodeBlocks(block)
     }
 
     if (oldKey !== key || block.functionType === 'codeLine') {
@@ -422,27 +422,6 @@ const updateCtrl = ContentState => {
 
     this.cursor = lastCursor = { start, end }
     const checkMarkedUpdate = this.checkNeedRender(block)
-
-    if (event.type === 'input') {
-      const rect = paragraph.getBoundingClientRect()
-      const checkQuickInsert = this.checkQuickInsert(block)
-      const reference = this.getPositionReference()
-      reference.getBoundingClientRect = function () {
-        const { x, y, left, top, height, bottom } = rect
-
-        return Object.assign({}, {
-          left,
-          x,
-          top,
-          y,
-          bottom,
-          height,
-          width: 0,
-          right: left
-        })
-      }
-      this.muya.eventCenter.dispatch('muya-quick-insert', reference, block, checkQuickInsert)
-    }
 
     const inlineUpdatedBlock = this.isCollapse() && this.checkInlineUpdate(block)
     if (checkMarkedUpdate || inlineUpdatedBlock || needRender) {

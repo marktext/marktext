@@ -68,13 +68,6 @@ export const CLASS_OR_ID = genUpper2LowerKeyHash([
   'AG_LINE',
   'AG_ACTIVE',
   'AG_EDITOR_ID',
-  'AG_FLOAT_BOX_ID',
-  'AG_FUNCTION_HTML',
-  'AG_FLOAT_BOX',
-  'AG_SHOW_FLOAT_BOX',
-  'AG_FLOAT_ITEM', // LI element
-  'AG_FLOAT_ITEM_ACTIVE',
-  'AG_FLOAT_ITEM_ICON', // icon wrapper in li
   'AG_EMOJI_MARKED_TEXT',
   'AG_FENCE_CODE',
   'AG_INDENT_CODE',

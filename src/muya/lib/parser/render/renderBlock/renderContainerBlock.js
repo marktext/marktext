@@ -5,8 +5,8 @@ const PRE_BLOCK_HASH = {
   'fenceCode': `.${CLASS_OR_ID['AG_FENCE_CODE']}`,
   'indentCode': `.${CLASS_OR_ID['AG_INDENT_CODE']}`,
   'html': `.${CLASS_OR_ID['AG_HTML_BLOCK']}`,
-  'frontMatter': `.${CLASS_OR_ID['AG_FRONT_MATTER']}`,
-  'multipleMath': `.${CLASS_OR_ID['AG_MULTIPLE_MATH']}`
+  'frontmatter': `.${CLASS_OR_ID['AG_FRONT_MATTER']}`,
+  'multiplemath': `.${CLASS_OR_ID['AG_MULTIPLE_MATH']}`
 }
 
 export default function renderContainerBlock (block, cursor, activeBlocks, matches, useCache = false) {

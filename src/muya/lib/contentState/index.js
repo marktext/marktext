@@ -21,6 +21,7 @@ import mathCtrl from './mathCtrl'
 import imagePathCtrl from './imagePathCtrl'
 import htmlBlockCtrl from './htmlBlock'
 import clickCtrl from './clickCtrl'
+import inputCtrl from './inputCtrl'
 import importMarkdown from '../utils/importMarkdown'
 
 const prototypes = [
@@ -42,12 +43,12 @@ const prototypes = [
   imagePathCtrl,
   htmlBlockCtrl,
   clickCtrl,
+  inputCtrl,
   importMarkdown
 ]
 
 class ContentState {
   constructor (muya, options) {
-    const { eventCenter } = muya
     const { bulletListMarker } = options
 
     this.muya = muya
@@ -56,7 +57,7 @@ class ContentState {
     // Use to cache the keys which you don't want to remove.
     this.exemption = new Set()
     this.blocks = [ this.createBlockP() ]
-    this.stateRender = new StateRender(eventCenter)
+    this.stateRender = new StateRender(muya)
     this.codeBlocks = new Map()
     this.renderRange = [ null, null ]
     this.currentCursor = null
@@ -73,7 +74,6 @@ class ContentState {
     const handler = () => {
       const { blocks, renderRange, currentCursor } = this
       this.history.push({
-        type: 'normal',
         blocks,
         renderRange,
         cursor: currentCursor
@@ -271,6 +271,7 @@ class ContentState {
   }
 
   removeTextOrBlock (block) {
+    if (block.functionType === 'languageInput') return
     const checkerIn = block => {
       if (this.exemption.has(block.key)) {
         return true
@@ -354,7 +355,7 @@ class ContentState {
     if (!afterEnd) {
       const parent = this.getParent(after)
       if (parent) {
-        const removeAfter = isRemoveAfter && this.isOnlyEditableChild(after)
+        const removeAfter = isRemoveAfter && (this.isOnlyRemoveableChild(after))
         this.removeBlocks(before, parent, removeAfter, true)
       }
     }
@@ -367,12 +368,6 @@ class ContentState {
   }
 
   removeBlock (block, fromBlocks = this.blocks) {
-    if (block.type === 'pre') {
-      const codeBlockId = block.key
-      if (this.codeBlocks.has(codeBlockId)) {
-        this.codeBlocks.delete(codeBlockId)
-      }
-    }
     const remove = (blocks, block) => {
       const len = blocks.length
       let i
@@ -503,11 +498,11 @@ class ContentState {
     return !block.nextSibling && !block.preSibling
   }
 
-  isOnlyEditableChild (block) {
+  isOnlyRemoveableChild (block) {
     if (block.editable === false) return false
     const parent = this.getParent(block)
-    if (!parent) throw new Error('isOnlyEditableChild method only apply for child block')
-    return parent.children.filter(child => child.editable).length === 1
+    if (!parent) throw new Error('isOnlyRemoveableChild method only apply for child block')
+    return parent.children.filter(child => child.editable && child.functionType !== 'languageInput').length === 1
   }
 
   getLastChild (block) {
@@ -611,7 +606,7 @@ class ContentState {
   }
 
   clear () {
-    this.codeBlocks.clear()
+    this.history.clearHistory()
   }
 }
 

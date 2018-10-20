@@ -1,4 +1,4 @@
-import { EVENT_KEYS, CLASS_OR_ID } from '../config'
+import { EVENT_KEYS } from '../config'
 import selection from '../selection'
 import { findNearestParagraph } from '../selection/dom'
 import { getParagraphReference } from '../utils'
@@ -44,8 +44,6 @@ class Keyboard {
 
     let timer = null
     const changeHandler = event => {
-      const target = event.target
-      if (event.type === 'click' && target.classList.contains(CLASS_OR_ID['AG_FUNCTION_HTML'])) return
       if (event.type === 'keyup' && (event.key === EVENT_KEYS.ArrowUp || event.key === EVENT_KEYS.ArrowDown) && this.shownFloat.size > 0) return
       if (!this._isEditChinese) {
         contentState.updateState(event)
@@ -123,7 +121,7 @@ class Keyboard {
 
   inputBinding () {
     const { container, eventCenter, contentState } = this.muya
-    const inputHandler = _ => {
+    const inputHandler = event => {
       const node = selection.getSelectionStart()
       const paragraph = findNearestParagraph(node)
       const selectionState = selection.exportSelection(paragraph)
@@ -136,6 +134,9 @@ class Keyboard {
             contentState.selectLanguage(paragraph, item.name)
           }
         })
+      }
+      if (!this._isEditChinese) {
+        contentState.inputHandler(event)
       }
     }
 

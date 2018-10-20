@@ -366,7 +366,7 @@ const enterCtrl = ContentState => {
         cursorBlock = tableNeedFocus
         break
       case !!htmlNeedFocus:
-        cursorBlock = htmlNeedFocus
+        cursorBlock = htmlNeedFocus.children[0].children[1] // the second line
         break
       case !!mathNeedFocus:
         cursorBlock = mathNeedFocus

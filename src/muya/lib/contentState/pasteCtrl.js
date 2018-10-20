@@ -234,8 +234,8 @@ const pasteCtrl = ContentState => {
       cursorBlock = startBlock
     }
     // TODO @Jocs duplicate with codes in updateCtrl.js
-    if (cursorBlock && cursorBlock.type === 'span' && cursorBlock.functionType === 'multiplemath') {
-      this.updateMathContent(cursorBlock)
+    if (cursorBlock && cursorBlock.type === 'span' && cursorBlock.functionType === 'codeLine') {
+      this.updateCodeBlocks(cursorBlock)
     }
     this.cursor = {
       start: {
