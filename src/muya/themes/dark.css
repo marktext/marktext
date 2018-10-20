@@ -503,8 +503,7 @@ pre[class*="language-"] {
  .token.property,
  .token.tag,
  .token.constant,
- .token.symbol,
- .token.deleted {
+ .token.symbol {
    color: #f92672;
  }
  
@@ -517,10 +516,19 @@ pre[class*="language-"] {
  .token.attr-name,
  .token.string,
  .token.char,
- .token.builtin,
- .token.inserted {
+ .token.builtin {
    color: #a6e22e;
  }
+
+ .token.inserted {
+  color: #22863a;
+  background: #f0fff4;
+}
+
+.token.deleted {
+  color: #b31d28;
+  background: #ffeef0;
+}
  
  .token.operator,
  .token.entity,

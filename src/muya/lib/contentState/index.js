@@ -138,7 +138,7 @@ class ContentState {
     this.renderRange = [ startOutMostBlock.preSibling, endOutMostBlock.nextSibling ]
   }
 
-  render (isRenderCursor = true, refreshCodeBlock = false) {
+  render (isRenderCursor = true) {
     const { blocks, cursor, searchMatches: { matches, index } } = this
     const activeBlocks = this.getActiveBlocks()
     matches.forEach((m, i) => {
@@ -146,7 +146,7 @@ class ContentState {
     })
     this.setNextRenderRange()
     this.stateRender.collectLabels(blocks)
-    this.stateRender.render(blocks, cursor, activeBlocks, matches, refreshCodeBlock)
+    this.stateRender.render(blocks, cursor, activeBlocks, matches)
     if (isRenderCursor) this.setCursor()
   }
 
@@ -525,7 +525,11 @@ class ContentState {
     if (block.children.length === 0 && HAS_TEXT_BLOCK_REG.test(block.type)) {
       return block
     } else if (children.length) {
-      if (children[0].type === 'input' || (children[0].type === 'div' && children[0].editable === false)) { // handle task item
+      if (
+        children[0].type === 'input' ||
+        (children[0].type === 'div' && children[0].editable === false) ||
+        (children[0].type === 'span' && children[0].functionType === 'languageInput')
+      ) { // handle task item
         return this.firstInDescendant(children[1])
       } else {
         return this.firstInDescendant(children[0])
@@ -568,7 +572,9 @@ class ContentState {
     const parent = this.getParent(block)
     const nextBlock = this.getNextSibling(block)
 
-    if (nextBlock && nextBlock.editable !== false) {
+    if (
+      nextBlock && nextBlock.editable !== false
+    ) {
       return this.firstInDescendant(nextBlock)
     } else if (parent) {
       return this.findNextBlockInLocation(parent)

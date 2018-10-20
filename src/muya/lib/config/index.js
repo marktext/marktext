@@ -82,6 +82,8 @@ export const CLASS_OR_ID = genUpper2LowerKeyHash([
   'AG_HTML_ESCAPE',
   'AG_FRONT_MATTER',
   'AG_CODE_LINE',
+  'AG_CODE_LINE_ADD',
+  'AG_CODE_LINE_MINUS',
   'AG_SHOW_PREVIEW',
   'AG_HTML_PREVIEW',
   'AG_LANGUAGE',
@@ -132,20 +134,6 @@ export const CLASS_OR_ID = genUpper2LowerKeyHash([
   'AG_REFERENCE_MARKER',
   'AG_REFERENCE_LINK'
 ])
-
-export const codeMirrorConfig = {
-  // theme: 'railscasts',
-  lineWrapping: true,
-  autoCloseBrackets: true,
-  lineWiseCopyCut: false,
-  autoCloseTags: true,
-  autofocus: true,
-  tabSize: 2,
-  extraKeys: {
-    'Cmd-Z': false,
-    'Cmd-Y': false
-  }
-}
 
 export const DAED_REMOVE_SELECTOR = new Set([
   '.ag-image-marked-text::before',

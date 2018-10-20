@@ -3,7 +3,7 @@ import EventCenter from './eventHandler/event'
 import Clipboard from './eventHandler/clipboard'
 import Keyboard from './eventHandler/keyboard'
 import ClickEvent from './eventHandler/clickEvent'
-import { CLASS_OR_ID, codeMirrorConfig } from './config'
+import { CLASS_OR_ID } from './config'
 import { wordCount } from './utils'
 import ExportMarkdown from './utils/exportMarkdown'
 import ExportHtml from './utils/exportHtml'
@@ -137,14 +137,10 @@ class Muya {
   setTheme (name) {
     if (!name) return
     const { eventCenter } = this
-    if (name === 'dark') {
-      codeMirrorConfig.theme = 'railscasts'
-    } else {
-      delete codeMirrorConfig.theme
-    }
     this.theme = name
     // Render cursor and refresh code block
-    this.contentState.render(true, true)
+    this.contentState.render(true)
+    // notice the ui components to change theme
     eventCenter.dispatch('theme-change', name)
   }
 

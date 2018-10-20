@@ -122,6 +122,7 @@ export default function renderLeafBlock (block, cursor, activeBlocks, matches, u
     if (lang && /\S/.test(text)) {
       const highlightedCode = prism.highlight(text, prism.languages[lang], lang)
       const vnode = htmlToVNode(`<code>${highlightedCode}</code>`)
+
       selector += `.language-${lang}`
       children = vnode.children
     } else {
