@@ -81,22 +81,32 @@ const copyCutCtrl = ContentState => {
       l.replaceWith(span)
     })
 
+    const codefense = wrapper.querySelectorAll(`pre[data-role$='code']`)
+    ;[...codefense].forEach(cf => {
+      const id = cf.id
+      const block = this.getBlock(id)
+      const language = block.lang || ''
+      const selectedCodeLines = cf.querySelectorAll('.ag-code-line')
+      const value = [...selectedCodeLines].map(codeLine => codeLine.textContent).join('\n')
+      cf.innerHTML = `<code class="language-${language}">${value}</code>`
+    })
+
     const htmlBlock = wrapper.querySelectorAll(`figure[data-role='HTML']`)
     ;[...htmlBlock].forEach(hb => {
-      const id = hb.id
-      const { text } = this.getBlock(id)
+      const selectedCodeLines = hb.querySelectorAll('span.ag-code-line')
+      const value = [...selectedCodeLines].map(codeLine => codeLine.textContent).join('\n')
       const pre = document.createElement('pre')
-      pre.textContent = text
+      pre.textContent = value
       hb.replaceWith(pre)
     })
 
     const mathBlock = wrapper.querySelectorAll(`figure.ag-multiple-math-block`)
     ;[...mathBlock].forEach(mb => {
-      const id = mb.id
-      const { math } = this.getBlock(id).children[1]
+      const selectedCodeLines = mb.querySelectorAll('span.ag-code-line')
+      const value = [...selectedCodeLines].map(codeLine => codeLine.textContent).join('\n')
       const pre = document.createElement('pre')
       pre.classList.add('multiple-math')
-      pre.textContent = math
+      pre.textContent = value
       mb.replaceWith(pre)
     })
 

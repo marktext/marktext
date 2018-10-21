@@ -335,7 +335,7 @@ span code {
 }
 
 :not(pre) > code[class*="language-"],
-pre[class*="language-"] {
+pre {
   font-size: 90%;
   line-height: 1.6;
   background: #f6f8fa;

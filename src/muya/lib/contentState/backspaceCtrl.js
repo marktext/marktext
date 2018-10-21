@@ -161,14 +161,28 @@ const backspaceCtrl = ContentState => {
       if (
         !block.nextSibling
       ) {
+        const preBlock = this.getParent(parent)
         const pBlock = this.createBlock('p')
         const lineBlock = this.createBlock('span', block.text)
         const key = lineBlock.key
         const offset = 0
         this.appendChild(pBlock, lineBlock)
-        const codeBlock = this.getParent(parent)
-        this.insertBefore(pBlock, codeBlock)
-        this.removeBlock(codeBlock)
+        let referenceBlock = null
+        switch (preBlock.functionType) {
+          case 'fencecode':
+          case 'indentcode':
+          case 'frontmatter':
+            referenceBlock = preBlock
+            break
+          case 'multiplemath':
+            referenceBlock = this.getParent(preBlock)
+            break
+          case 'html':
+            referenceBlock = this.getParent(this.getParent(preBlock))
+            break
+        }
+        this.insertBefore(pBlock, referenceBlock)
+        this.removeBlock(referenceBlock)
 
         this.cursor = {
           start: { key, offset },

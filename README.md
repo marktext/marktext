@@ -93,7 +93,7 @@
     <span>:es:</span>
   </a>
   <a href="https://github.com/marktext/marktext/blob/master/doc/i18n/pt.md#readme">
-    <span>Portuguese</span>
+    <span>:portugal:</span>
   </a>
 </div>
 

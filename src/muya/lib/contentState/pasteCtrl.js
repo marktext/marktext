@@ -43,6 +43,7 @@ const pasteCtrl = ContentState => {
     const sanitizedHtml = sanitize(html, PREVIEW_DOMPURIFY_CONFIG)
     const tempWrapper = document.createElement('div')
     tempWrapper.innerHTML = sanitizedHtml
+    // special process for Number app in macOs
     const tables = Array.from(tempWrapper.querySelectorAll('table'))
     for (const table of tables) {
       const row = table.querySelector('tr')
@@ -73,8 +74,8 @@ const pasteCtrl = ContentState => {
     const text = event.clipboardData.getData('text/plain')
     let html = event.clipboardData.getData('text/html')
     html = this.standardizeHTML(html)
-    // console.log(text)
-    // console.log(html)
+    console.log(text)
+    console.log(html)
     const copyType = this.checkCopyType(html, text)
     const { start, end } = this.cursor
     const startBlock = this.getBlock(start.key)
