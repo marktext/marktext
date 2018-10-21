@@ -450,7 +450,7 @@ const actions = {
         value
       })
     }
-
+    console.log(changes)
     ipcRenderer.send('AGANI::selection-change', changes)
   },
 
