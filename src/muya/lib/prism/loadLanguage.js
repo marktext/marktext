@@ -1,6 +1,6 @@
 import languages from './languages'
 let peerDependentsMap = null
-const loadedCache = new Set()
+export const loadedCache = new Set()
 
 function getPeerDependentsMap () {
   const peerDependentsMap = {}
@@ -55,7 +55,7 @@ function initLoadLanguage (Prism) {
       if (loadedCache.has(language)) {
         return
       }
-      loadedCache.add(language)
+
       // Load dependencies first
       if (!withoutDependencies && languages[language].require) {
         loadLanguages(languages[language].require)
@@ -63,6 +63,9 @@ function initLoadLanguage (Prism) {
 
       delete Prism.languages[language]
       import('prismjs/components/prism-' + language)
+        .then(_ => {
+          loadedCache.add(language)
+        })
 
       // Reload dependents
       const dependents = getPeerDependents(language).filter(function (dependent) {

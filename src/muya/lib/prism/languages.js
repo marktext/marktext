@@ -15,7 +15,7 @@ const languages = {
     },
     'option': 'default',
     'name': 'markup',
-    'ext': []
+    'ext': ['html']
   },
   'css': {
     'title': 'CSS',

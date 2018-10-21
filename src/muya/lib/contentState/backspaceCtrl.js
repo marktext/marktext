@@ -127,6 +127,10 @@ const backspaceCtrl = ContentState => {
       return this.render()
     }
 
+    if (startBlock.functionType === 'languageInput' && start.offset === 0) {
+      return event.preventDefault()
+    }
+
     // If select multiple paragraph or multiple characters in one paragraph, just let
     // updateCtrl to handle this case.
     if (start.key !== end.key || start.offset !== end.offset) {

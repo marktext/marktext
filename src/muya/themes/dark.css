@@ -350,26 +350,11 @@ table tr td:last-child {
   margin-bottom: 0;
 }
 
-.CodeMirror-gutters {
-  border-right: 1px solid #ddd;
-}
-
-code,
-tt {
-  border: 1px solid #ddd;
-  background-color: #606266;
-  border-radius: 3px;
-  padding: 0;
-  font-family: Consolas, "Liberation Mono", Courier, monospace;
-  padding: 2px 4px 0px 4px;
-  font-size: 0.9em;
-}
-
-
 /* custom add */
-code {
+span.ag-line code {
   border: none;
   padding: 2px 4px;
+  border-radius: 3px;
   font-size: 90%;
   color: #efefef;
   background-color: #606266;
@@ -428,7 +413,6 @@ code {
   border-color: #333;
 }
 
-#ag-editor-id pre.ag-code-block,
 #ag-editor-id pre.ag-html-block {
   font-size: 90%;
   line-height: 1.6;
@@ -447,7 +431,7 @@ code {
  */
 
 code[class*="language-"],
-pre[class*="language-"] {
+pre.ag-paragraph {
    color: #f8f8f2;
    font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
    text-align: left;
@@ -463,18 +447,18 @@ pre[class*="language-"] {
    -moz-hyphens: none;
    -ms-hyphens: none;
    hyphens: none;
+   overflow: visible;
  }
  
  /* Code blocks */
- pre[class*="language-"] {
+ pre.ag-paragraph {
    padding: 1em;
-   margin: .5em 0;
-   overflow: auto;
+   margin: 1em 0;
    border-radius: 0.3em;
  }
  
  :not(pre) > code[class*="language-"],
- pre[class*="language-"] {
+ pre.ag-paragraph {
    background: #272822;
  }
  

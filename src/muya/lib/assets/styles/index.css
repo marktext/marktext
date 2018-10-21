@@ -440,6 +440,11 @@ pre.ag-front-matter span.ag-code-line:first-of-type:empty::after {
   color: var(--placeholerColor);
 }
 
+pre[data-role$='code'] span.ag-language-input:empty::after {
+  content: 'Input Language...';
+  color: var(--placeholerColor);
+}
+
 pre.ag-multiple-math span.ag-code-line:first-of-type:empty::after {
   content: 'Input Mathematical Formula...';
   color: var(--placeholerColor);

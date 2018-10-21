@@ -1,5 +1,5 @@
 import katex from 'katex'
-import prism from '../../../prism/'
+import prism, { loadedCache } from '../../../prism/'
 import { CLASS_OR_ID, DEVICE_MEMORY, isInElectron, PREVIEW_DOMPURIFY_CONFIG } from '../../../config'
 import { tokenizer } from '../../parse'
 import { snakeToCamel, sanitize } from '../../../utils'
@@ -119,7 +119,7 @@ export default function renderLeafBlock (block, cursor, activeBlocks, matches, u
     children = ''
   } else if (type === 'span' && functionType === 'codeLine') {
     selector += `.${CLASS_OR_ID['AG_CODE_LINE']}`
-    if (lang && /\S/.test(text)) {
+    if (lang && /\S/.test(text) && loadedCache.has(lang)) {
       const highlightedCode = prism.highlight(text, prism.languages[lang], lang)
       const vnode = htmlToVNode(`<code>${highlightedCode}</code>`)
 

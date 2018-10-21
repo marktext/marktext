@@ -1,6 +1,6 @@
 import Prism from 'prismjs'
 import { filter } from 'fuzzaldrin'
-import initLoadLanguage from './loadLanguage'
+import initLoadLanguage, { loadedCache } from './loadLanguage'
 import languages from './languages'
 
 const prism = Prism
@@ -32,13 +32,15 @@ const search = text => {
   return filter(langs, text, { key: 'name' })
 }
 
-// pre load latex and yaml
+// pre load latex and yaml and html for `math block` \ `front matter` and `html block`
 loadLanguage('latex')
 loadLanguage('yaml')
+loadLanguage('markup')
 
 export {
   search,
   loadLanguage,
+  loadedCache,
   languages,
   checkEditLanguage
 }
