@@ -20,7 +20,7 @@ class CodePicker extends BaseScrollFloat {
     const { eventCenter } = this.muya
     eventCenter.subscribe('muya-code-picker', ({ reference, lang, cb }) => {
       const modes = search(lang)
-      if (modes.length) {
+      if (modes.length && reference) {
         this.show(reference, cb)
         this.renderArray = modes
         this.activeItem = modes[0]

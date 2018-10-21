@@ -4,6 +4,8 @@ import initLoadLanguage, { loadedCache } from './loadLanguage'
 import languages from './languages'
 
 const prism = Prism
+window.Prism = Prism
+import('prismjs/plugins/keep-markup/prism-keep-markup')
 const langs = Object.keys(languages).map(name => (languages[name]))
 const loadLanguage = initLoadLanguage(Prism)
 
@@ -14,7 +16,7 @@ const checkEditLanguage = (paragraph, selectionState) => {
   const text = paragraph.textContent
   const { start } = selectionState
   const token = text.match(/(^`{3,})([^`]+)/)
-
+  if (paragraph.tagName !== 'SPAN') return false
   if (token) {
     const len = token[1].length
     const lang = token[2].trim()

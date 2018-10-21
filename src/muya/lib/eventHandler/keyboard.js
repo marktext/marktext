@@ -134,6 +134,9 @@ class Keyboard {
             contentState.selectLanguage(paragraph, item.name)
           }
         })
+      } else {
+        // hide code picker float box
+        eventCenter.dispatch('muya-code-picker', { reference: null })
       }
       if (!this._isEditChinese) {
         contentState.inputHandler(event)

@@ -34,7 +34,6 @@ const copyCutCtrl = ContentState => {
 
   ContentState.prototype.getClipBoradData = function () {
     const html = selection.getSelectionHtml()
-    console.log(html)
     const wrapper = document.createElement('div')
     wrapper.innerHTML = html
     const removedElements = wrapper.querySelectorAll(

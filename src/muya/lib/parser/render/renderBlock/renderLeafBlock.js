@@ -118,13 +118,30 @@ export default function renderLeafBlock (block, cursor, activeBlocks, matches, u
     }
     children = ''
   } else if (type === 'span' && functionType === 'codeLine') {
-    selector += `.${CLASS_OR_ID['AG_CODE_LINE']}`
-    if (lang && /\S/.test(text) && loadedCache.has(lang)) {
-      const highlightedCode = prism.highlight(text, prism.languages[lang], lang)
-      const vnode = htmlToVNode(`<code>${highlightedCode}</code>`)
+    let code = ''
+    let pos = 0
+    for (const highlight of highlights) {
+      const { start, end, active } = highlight
+      code += text.substring(pos, start)
+      const className = active ? 'ag-highlight' : 'ag-selection'
+      code += `<span class="${className}">${text.substring(start, end)}</span>`
+      pos = end
+    }
+    if (pos !== text.length - 1) {
+      code += text.substring(pos)
+    }
 
-      selector += `.language-${lang}`
-      children = vnode.children
+    selector += `.${CLASS_OR_ID['AG_CODE_LINE']}`
+    if (lang && /\S/.test(code) && loadedCache.has(lang)) {
+      const wrapper = document.createElement('div')
+      wrapper.classList.add(`language-${lang}`)
+      wrapper.innerHTML = code
+      prism.highlightElement(wrapper, false, function () {
+        const highlightedCode = this.innerHTML
+        const vnode = htmlToVNode(`<code>${highlightedCode}</code>`)
+        selector += `.language-${lang}`
+        children = vnode.children
+      })
     } else {
       children = text
     }
