@@ -2,7 +2,7 @@ import katex from 'katex'
 import prism, { loadedCache } from '../../../prism/'
 import { CLASS_OR_ID, DEVICE_MEMORY, isInElectron, PREVIEW_DOMPURIFY_CONFIG } from '../../../config'
 import { tokenizer } from '../../parse'
-import { snakeToCamel, sanitize } from '../../../utils'
+import { snakeToCamel, sanitize, escapeHtml } from '../../../utils'
 import { h, htmlToVNode } from '../snabbdom'
 
 const getHighlightHtml = (text, highlights) => {
@@ -134,7 +134,13 @@ export default function renderLeafBlock (block, cursor, activeBlocks, matches, u
     }
     children = ''
   } else if (type === 'span' && functionType === 'codeLine') {
-    const code = getHighlightHtml(text, highlights)
+    let code
+    if (lang && lang === 'markup') {
+      code = getHighlightHtml(escapeHtml(text), highlights)
+    } else {
+      code = getHighlightHtml(text, highlights)
+    }
+
     selector += `.${CLASS_OR_ID['AG_CODE_LINE']}`
 
     if (lang && /\S/.test(code) && loadedCache.has(lang)) {

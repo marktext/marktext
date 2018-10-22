@@ -1,6 +1,6 @@
 import languages from './languages'
 let peerDependentsMap = null
-export const loadedCache = new Set()
+export const loadedCache = new Set(['markup', 'css', 'clike', 'javascript'])
 
 function getPeerDependentsMap () {
   const peerDependentsMap = {}
