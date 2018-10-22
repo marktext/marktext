@@ -519,8 +519,30 @@ const paragraphCtrl = ContentState => {
     // if cursor is not in one line or paragraph, can not insert paragraph
     if (start.key !== end.key) return
     let block = this.getBlock(start.key)
-    if (block.type === 'span') {
+    if (block.type === 'span' && !block.functionType) {
       block = this.getParent(block)
+    } else if (block.type === 'span' && block.functionType === 'codeLine') {
+      const preBlock = this.getParent(this.getParent(block))
+      switch (preBlock.functionType) {
+        case 'fencecode':
+        case 'indentcode':
+        case 'frontmatter': {
+          // You can not insert paragraph before frontmatter
+          if (preBlock.functionType === 'frontmatter' && location === 'before') {
+            return
+          }
+          block = preBlock
+          break
+        }
+        case 'html': {
+          block = this.getParent(this.getParent(preBlock))
+          break
+        }
+        case 'multiplemath': {
+          block = this.getParent(preBlock)
+          break
+        }
+      }
     } else if (/th|td/.test(block.type)) {
       // get figure block from table cell
       block = this.getParent(this.getParent(this.getParent(this.getParent(block))))
