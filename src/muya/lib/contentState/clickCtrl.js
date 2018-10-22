@@ -41,6 +41,14 @@ const clickCtrl = ContentState => {
       }
     }
 
+    // change active status when paragraph changed
+    if (
+      start.key !== this.cursor.start.key ||
+      end.key !== this.cursor.end.key
+    ) {
+      needRender = true
+    }
+
     const needMarkedUpdate = this.checkNeedRender(this.cursor) || this.checkNeedRender({ start, end })
     this.cursor = { start, end }
     if (needMarkedUpdate || needRender) {

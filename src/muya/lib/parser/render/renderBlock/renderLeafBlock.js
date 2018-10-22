@@ -5,6 +5,22 @@ import { tokenizer } from '../../parse'
 import { snakeToCamel, sanitize } from '../../../utils'
 import { h, htmlToVNode } from '../snabbdom'
 
+const getHighlightHtml = (text, highlights) => {
+  let code = ''
+  let pos = 0
+  for (const highlight of highlights) {
+    const { start, end, active } = highlight
+    code += text.substring(pos, start)
+    const className = active ? 'ag-highlight' : 'ag-selection'
+    code += `<span class="${className}">${text.substring(start, end)}</span>`
+    pos = end
+  }
+  if (pos !== text.length) {
+    code += text.substring(pos)
+  }
+  return code
+}
+
 export default function renderLeafBlock (block, cursor, activeBlocks, matches, useCache = false) {
   const { loadMathMap } = this
   let selector = this.getSelector(block, cursor, activeBlocks)
@@ -118,20 +134,9 @@ export default function renderLeafBlock (block, cursor, activeBlocks, matches, u
     }
     children = ''
   } else if (type === 'span' && functionType === 'codeLine') {
-    let code = ''
-    let pos = 0
-    for (const highlight of highlights) {
-      const { start, end, active } = highlight
-      code += text.substring(pos, start)
-      const className = active ? 'ag-highlight' : 'ag-selection'
-      code += `<span class="${className}">${text.substring(start, end)}</span>`
-      pos = end
-    }
-    if (pos !== text.length - 1) {
-      code += text.substring(pos)
-    }
-
+    const code = getHighlightHtml(text, highlights)
     selector += `.${CLASS_OR_ID['AG_CODE_LINE']}`
+
     if (lang && /\S/.test(code) && loadedCache.has(lang)) {
       const wrapper = document.createElement('div')
       wrapper.classList.add(`language-${lang}`)
@@ -143,11 +148,12 @@ export default function renderLeafBlock (block, cursor, activeBlocks, matches, u
         children = vnode.children
       })
     } else {
-      children = text
+      children = htmlToVNode(`<code>${code}</code>`).children
     }
   } else if (type === 'span' && functionType === 'languageInput') {
+    const html = getHighlightHtml(text, highlights)
     selector += `.${CLASS_OR_ID['AG_LANGUAGE_INPUT']}`
-    children = text
+    children = htmlToVNode(`<code>${html}</code>`).children
   }
 
   return h(selector, data, children)
