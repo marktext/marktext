@@ -168,7 +168,8 @@ class Keyboard {
       }
       // is show format float box?
       const { start, end } = selection.getCursorRange()
-      if (start.key === end.key && start.offset !== end.offset) {
+      const block = contentState.getBlock(start.key)
+      if (start.key === end.key && start.offset !== end.offset && block.functionType !== 'codeLine') {
         const reference = contentState.getPositionReference()
         const { formats } = contentState.selectionFormats()
         eventCenter.dispatch('muya-format-picker', { reference, formats })
