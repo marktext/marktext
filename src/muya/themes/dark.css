@@ -346,7 +346,9 @@ table tr td:last-child {
 }
 
 /* custom add */
-span.ag-line code {
+span.ag-line code,
+th code,
+td code {
   border: none;
   padding: 2px 4px;
   border-radius: 3px;
