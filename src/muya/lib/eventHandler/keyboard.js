@@ -153,7 +153,9 @@ class Keyboard {
         emojiNode &&
         event.key !== EVENT_KEYS.Enter &&
         event.key !== EVENT_KEYS.ArrowDown &&
-        event.key !== EVENT_KEYS.ArrowUp
+        event.key !== EVENT_KEYS.ArrowUp &&
+        event.key !== EVENT_KEYS.Tab &&
+        event.key !== EVENT_KEYS.Escape
       ) {
         const reference = getParagraphReference(emojiNode, paragraph.id)
         eventCenter.dispatch('muya-emoji-picker', {
