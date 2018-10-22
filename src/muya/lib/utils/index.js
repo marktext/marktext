@@ -161,17 +161,6 @@ export const checkImageContentType = async url => {
   }
 }
 
-export const collectImportantComments = css => {
-  const once = new Set()
-  const cleaned = css.replace(/(\/\*![\s\S]*?\*\/)\n*/gm, (match, p1) => {
-    once.add(p1)
-    return ''
-  })
-  const combined = Array.from(once)
-  combined.push(cleaned)
-  return combined.join('\n')
-}
-
 export const getImageInfo = src => {
   const EXT_REG = /\.(jpeg|jpg|png|gif|svg|webp)(?=\?|$)/i
   // http[s] (domain or IPv4 or localhost or IPv6) [port] /not-white-space
