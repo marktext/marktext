@@ -11,7 +11,7 @@ class Keyboard {
     this._isEditChinese = false
     this.shownFloat = new Set()
     this.recordEditChinese()
-    this.dispatchUpdateState()
+    this.dispatchEditorState()
     this.keydownBinding()
     this.keyupBinding()
     this.inputBinding()
@@ -39,30 +39,25 @@ class Keyboard {
     eventCenter.attachDOMEvent(container, 'compositionstart', handler)
   }
 
-  dispatchUpdateState () {
+  dispatchEditorState () {
     const { container, eventCenter, contentState } = this.muya
 
     let timer = null
     const changeHandler = event => {
       if (event.type === 'keyup' && (event.key === EVENT_KEYS.ArrowUp || event.key === EVENT_KEYS.ArrowDown) && this.shownFloat.size > 0) return
-      if (!this._isEditChinese) {
-        contentState.updateState(event)
-      }
-      if (event.type === 'click' || event.type === 'keyup') {
-        if (timer) clearTimeout(timer)
-        timer = setTimeout(() => {
-          const selectionChanges = contentState.selectionChange()
-          const { formats } = contentState.selectionFormats()
-          eventCenter.dispatch('selectionChange', selectionChanges)
-          eventCenter.dispatch('selectionFormats', formats)
-          this.muya.dispatchChange()
-        })
-      }
+
+      if (timer) clearTimeout(timer)
+      timer = setTimeout(() => {
+        const selectionChanges = contentState.selectionChange()
+        const { formats } = contentState.selectionFormats()
+        eventCenter.dispatch('selectionChange', selectionChanges)
+        eventCenter.dispatch('selectionFormats', formats)
+        this.muya.dispatchChange()
+      })
     }
 
     eventCenter.attachDOMEvent(container, 'click', changeHandler)
     eventCenter.attachDOMEvent(container, 'keyup', changeHandler)
-    eventCenter.attachDOMEvent(container, 'input', changeHandler)
   }
 
   keydownBinding () {

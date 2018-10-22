@@ -130,15 +130,16 @@ class ContentState {
 
   setNextRenderRange () {
     const { start, end } = this.cursor
-    // console.log(JSON.stringify(this.cursor, null, 2))
     const startBlock = this.getBlock(start.key)
     const endBlock = this.getBlock(end.key)
     const startOutMostBlock = this.findOutMostBlock(startBlock)
     const endOutMostBlock = this.findOutMostBlock(endBlock)
+
     this.renderRange = [ startOutMostBlock.preSibling, endOutMostBlock.nextSibling ]
   }
 
   render (isRenderCursor = true) {
+    console.log('render')
     const { blocks, cursor, searchMatches: { matches, index } } = this
     const activeBlocks = this.getActiveBlocks()
     matches.forEach((m, i) => {
@@ -151,6 +152,7 @@ class ContentState {
   }
 
   partialRender () {
+    console.log('partialRender')
     const { blocks, cursor, searchMatches: { matches, index } } = this
     const activeBlocks = this.getActiveBlocks()
     const [ startKey, endKey ] = this.renderRange

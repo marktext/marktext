@@ -1,9 +1,6 @@
-import selection from '../selection'
 import { tokenizer } from '../parser/parse'
 import { conflict } from '../utils'
-import { getTextContent } from '../selection/dom'
 import { CLASS_OR_ID, DEFAULT_TURNDOWN_CONFIG } from '../config'
-import { beginRules } from '../parser/rules'
 
 const INLINE_UPDATE_FRAGMENTS = [
   '^([*+-]\\s)', // Bullet list
@@ -14,19 +11,7 @@ const INLINE_UPDATE_FRAGMENTS = [
   '^\\s{0,3}((?:\\*\\s*\\*\\s*\\*|-\\s*-\\s*-|_\\s*_\\s*_)[\\s\\*\\-\\_]*)$' // Thematic break
 ]
 
-const BRACKET_HASH = {
-  '{': '}',
-  '[': ']',
-  '(': ')',
-  '*': '*',
-  '_': '_',
-  '"': '"',
-  '\'': '\''
-}
-
 const INLINE_UPDATE_REG = new RegExp(INLINE_UPDATE_FRAGMENTS.join('|'), 'i')
-
-let lastCursor = null
 
 const updateCtrl = ContentState => {
   // handle task list item checkbox click
@@ -42,23 +27,34 @@ const updateCtrl = ContentState => {
     return list.children[0].isLooseListItem === isLooseType
   }
 
-  ContentState.prototype.checkNeedRender = function (block) {
-    const { start: cStart, end: cEnd } = this.cursor
+  ContentState.prototype.checkNeedRender = function (cursor = this.cursor) {
+    const { start: cStart, end: cEnd } = cursor
+    const startBlock = this.getBlock(cStart.key)
+    const endBlock = this.getBlock(cEnd.key)
     const startOffset = cStart.offset
     const endOffset = cEnd.offset
-    const tokens = tokenizer(block.text)
-    const textLen = block.text.length
 
-    for (const token of tokens) {
+    for (const token of tokenizer(startBlock.text)) {
       if (token.type === 'text') continue
       const { start, end } = token.range
+      const textLen = startBlock.text.length
       if (
-        conflict([Math.max(0, start - 1), Math.min(textLen, end + 1)], [startOffset, startOffset]) ||
+        conflict([Math.max(0, start - 1), Math.min(textLen, end + 1)], [startOffset, startOffset])
+      ) {
+        return true
+      }
+    }
+    for (const token of tokenizer(endBlock.text)) {
+      if (token.type === 'text') continue
+      const { start, end } = token.range
+      const textLen = endBlock.text.length
+      if (
         conflict([Math.max(0, start - 1), Math.min(textLen, end + 1)], [endOffset, endOffset])
       ) {
         return true
       }
     }
+
     return false
   }
 
@@ -302,131 +298,6 @@ const updateCtrl = ContentState => {
     const preBlock = this.getParent(codeBlock)
     const code = codeBlock.children.map(line => line.text).join('\n')
     this.codeBlocks.set(preBlock.key, code)
-  }
-
-  ContentState.prototype.updateState = function (event) {
-    const { start, end } = selection.getCursorRange()
-    const key = start.key
-    const block = this.getBlock(key)
-    let needRender = false
-    let needRenderAll = false
-
-    // bugfix: #67 problem 1
-    if (block && block.icon) return event.preventDefault()
-    if (event.type === 'click' && start.key !== end.key) {
-      setTimeout(() => {
-        this.updateState(event)
-      })
-    }
-
-    const { start: oldStart, end: oldEnd } = this.cursor
-    if (event.type === 'input' && oldStart.key !== oldEnd.key) {
-      const startBlock = this.getBlock(oldStart.key)
-      const endBlock = this.getBlock(oldEnd.key)
-      this.removeBlocks(startBlock, endBlock)
-      needRender = true
-    }
-
-    if (start.key !== end.key) {
-      if (
-        start.key !== oldStart.key ||
-        end.key !== oldEnd.key ||
-        start.offset !== oldStart.offset ||
-        end.offset !== oldEnd.offset
-      ) {
-        this.cursor = { start, end }
-        return this.partialRender()
-      }
-    }
-
-    const oldKey = lastCursor ? lastCursor.start.key : null
-    const paragraph = document.querySelector(`#${key}`)
-    let text = getTextContent(paragraph, [ CLASS_OR_ID['AG_MATH_RENDER'] ])
-    if (event.type === 'click' && block.type === 'figure' && block.functionType === 'table') {
-      // first cell in thead
-      const cursorBlock = block.children[1].children[0].children[0].children[0]
-      const offset = cursorBlock.text.length
-      const key = cursorBlock.key
-      this.cursor = {
-        start: { key, offset },
-        end: { key, offset }
-      }
-      return this.partialRender()
-    }
-
-    // update '```xxx' to code block when you click other place or use press arrow key.
-    if (block && key !== oldKey) {
-      const oldBlock = this.getBlock(oldKey)
-      if (oldBlock) this.codeBlockUpdate(oldBlock)
-    }
-
-    // auto pair (not need to auto pair in math block)
-    if (block && block.text !== text) {
-      if (
-        start.key === end.key &&
-        start.offset === end.offset &&
-        event.type === 'input' &&
-        block.functionType !== 'multiplemath'
-      ) {
-        const { offset } = start
-        const { autoPairBracket, autoPairMarkdownSyntax, autoPairQuote } = this
-        const inputChar = text.charAt(+offset - 1)
-        const preInputChar = text.charAt(+offset - 2)
-        const postInputChar = text.charAt(+offset)
-        /* eslint-disable no-useless-escape */
-        if (
-          (event.inputType.indexOf('delete') === -1) &&
-          (inputChar === postInputChar) &&
-          (
-            (autoPairQuote && /[']{1}/.test(inputChar)) ||
-            (autoPairQuote && /["]{1}/.test(inputChar)) ||
-            (autoPairBracket && /[\}\]\)]{1}/.test(inputChar)) ||
-            (autoPairMarkdownSyntax && /[*_]{1}/.test(inputChar))
-          )
-        ) {
-          text = text.substring(0, offset) + text.substring(offset + 1)
-        } else {
-          /* eslint-disable no-useless-escape */
-          // Not Unicode aware, since things like \p{Alphabetic} or \p{L} are not supported yet
-          if (
-            (autoPairQuote && /[']{1}/.test(inputChar) && !(/[a-zA-Z\d]{1}/.test(preInputChar))) ||
-            (autoPairQuote && /["]{1}/.test(inputChar)) ||
-            (autoPairBracket && /[\{\[\(]{1}/.test(inputChar)) ||
-            (autoPairMarkdownSyntax && /[*_]{1}/.test(inputChar))
-          ) {
-            needRender = true
-            text = BRACKET_HASH[event.data]
-              ? text.substring(0, offset) + BRACKET_HASH[inputChar] + text.substring(offset)
-              : text
-          }
-          /* eslint-enable no-useless-escape */
-          if (/\s/.test(event.data) && preInputChar === '*' && postInputChar === '*') {
-            text = text.substring(0, offset) + text.substring(offset + 1)
-          }
-        }
-      }
-      block.text = text
-      if (beginRules['reference_definition'].test(text)) {
-        needRenderAll = true
-      }
-    }
-
-    // Update preview content of math block
-    if (block && block.type === 'span' && block.functionType === 'codeLine') {
-      this.updateCodeBlocks(block)
-    }
-
-    if (oldKey !== key || block.functionType === 'codeLine') {
-      needRender = true
-    }
-
-    this.cursor = lastCursor = { start, end }
-    const checkMarkedUpdate = this.checkNeedRender(block)
-
-    const inlineUpdatedBlock = this.isCollapse() && this.checkInlineUpdate(block)
-    if (checkMarkedUpdate || inlineUpdatedBlock || needRender) {
-      needRenderAll ? this.render() : this.partialRender()
-    }
   }
 }
 
