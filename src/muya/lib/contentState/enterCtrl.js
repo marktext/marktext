@@ -1,5 +1,10 @@
 import selection from '../selection'
 
+const checkAutoIndent = (text, offset) => {
+  const pairStr = text.substring(offset - 1, offset + 1)
+  return /^(\{\}|\[\]|\(\))$/.test(pairStr)
+}
+
 const enterCtrl = ContentState => {
   ContentState.prototype.chopBlockByCursor = function (block, key, offset) {
     const newBlock = this.createBlock('p')
@@ -183,13 +188,23 @@ const enterCtrl = ContentState => {
     ) {
       const { text } = block
       const newLineText = text.substring(start.offset)
+      const autoIndent = checkAutoIndent(text, start.offset)
       block.text = text.substring(0, start.offset)
       const newLine = this.createBlock('span', newLineText)
       newLine.functionType = block.functionType
       newLine.lang = block.lang
       this.insertAfter(newLine, block)
-      const { key } = newLine
-      const offset = 0
+      let { key } = newLine
+      let offset = 0
+      if (autoIndent) {
+        const emptyLine = this.createBlock('span', ' '.repeat(this.tabSize))
+        emptyLine.functionType = block.functionType
+        emptyLine.lang = block.lang
+        this.insertAfter(emptyLine, block)
+        key = emptyLine.key
+        offset = this.tabSize
+      }
+
       this.cursor = {
         start: { key, offset },
         end: { key, offset }
