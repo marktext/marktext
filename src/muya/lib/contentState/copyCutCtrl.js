@@ -5,9 +5,6 @@ import ExportMarkdown from '../utils/exportMarkdown'
 
 const copyCutCtrl = ContentState => {
   ContentState.prototype.cutHandler = function () {
-    if (this.checkInCodeBlock()) {
-      return
-    }
     const { start, end } = this.cursor
     const startBlock = this.getBlock(start.key)
     const endBlock = this.getBlock(end.key)
@@ -20,16 +17,6 @@ const copyCutCtrl = ContentState => {
       end: start
     }
     this.partialRender()
-  }
-
-  ContentState.prototype.checkInCodeBlock = function () {
-    const { start, end } = selection.getCursorRange()
-    const { type, functionType } = this.getBlock(start.key)
-
-    if (start.key === end.key && type === 'pre' && /code|html/.test(functionType)) {
-      return true
-    }
-    return false
   }
 
   ContentState.prototype.getClipBoradData = function () {
@@ -116,9 +103,6 @@ const copyCutCtrl = ContentState => {
   }
 
   ContentState.prototype.copyHandler = function (event, type) {
-    if (this.checkInCodeBlock()) {
-      return
-    }
     event.preventDefault()
 
     const { html, text } = this.getClipBoradData()

@@ -32,12 +32,12 @@ const htmlBlock = ContentState => {
     code.split(LINE_BREAKS).forEach(line => {
       const codeLine = this.createBlock('span', line)
       codeLine.functionType = 'codeLine'
-      codeLine.lang = 'html'
+      codeLine.lang = 'markup'
       this.appendChild(codeBlock, codeLine)
     })
     this.codeBlocks.set(preBlock.key, code)
-    preBlock.lang = 'html'
-    codeBlock.lang = 'html'
+    preBlock.lang = 'markup'
+    codeBlock.lang = 'markup'
     preBlock.functionType = 'html'
     this.codeBlocks.set(preBlock.key, code)
     this.appendChild(preBlock, codeBlock)

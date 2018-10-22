@@ -67,12 +67,10 @@ const pasteCtrl = ContentState => {
 
   // handle `normal` and `pasteAsPlainText` paste
   ContentState.prototype.pasteHandler = function (event, type) {
-    if (this.checkInCodeBlock()) {
-      return
-    }
     event.preventDefault()
     const text = event.clipboardData.getData('text/plain')
     let html = event.clipboardData.getData('text/html')
+
     html = this.standardizeHTML(html)
     const copyType = this.checkCopyType(html, text)
     const { start, end } = this.cursor
@@ -92,6 +90,31 @@ const pasteCtrl = ContentState => {
         start: { key, offset },
         end: { key, offset }
       }
+    }
+
+    if (startBlock.type === 'span' && startBlock.functionType === 'codeLine') {
+      let referenceBlock = startBlock
+      const textList = text.split(LINE_BREAKS_REG)
+      textList.forEach((line, i) => {
+        if (i === 0) {
+          startBlock.text += line
+        } else {
+          const lineBlock = this.createBlock('span', line)
+          lineBlock.functionType = startBlock.functionType
+          lineBlock.lang = startBlock.lang
+          this.insertAfter(lineBlock, referenceBlock)
+          referenceBlock = lineBlock
+          if (i === textList.length - 1) {
+            const { key } = lineBlock
+            const offset = line.length
+            this.cursor = {
+              start: { key, offset },
+              end: { key, offset }
+            }
+          }
+        }
+      })
+      return this.partialRender()
     }
 
     // handle copyAsHtml

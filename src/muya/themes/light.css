@@ -65,11 +65,6 @@ body {
   caret-color: #000000;
 }
 
-#ag-editor-id>ul:first-child,
-#ag-editor-id>ol:first-child {
-  margin-top: 30px;
-}
-
 .ag-gray {
   color: #C0C4CC;
   text-decoration: none;

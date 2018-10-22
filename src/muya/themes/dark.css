@@ -64,11 +64,6 @@ body {
   caret-color: #efefef;
 }
 
-#ag-editor-id>ul:first-child,
-#ag-editor-id>ol:first-child {
-  margin-top: 30px;
-}
-
 .ag-float-box {
   background: #303133;
   border: 1px solid #303133;
