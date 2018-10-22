@@ -149,17 +149,16 @@ export default function renderLeafBlock (block, cursor, activeBlocks, matches, u
       wrapper.innerHTML = code
       prism.highlightElement(wrapper, false, function () {
         const highlightedCode = this.innerHTML
-        const vnode = htmlToVNode(`<code>${highlightedCode}</code>`)
         selector += `.language-${lang}`
-        children = vnode.children
+        children = htmlToVNode(highlightedCode)
       })
     } else {
-      children = htmlToVNode(`<code>${code}</code>`).children
+      children = htmlToVNode(code)
     }
   } else if (type === 'span' && functionType === 'languageInput') {
     const html = getHighlightHtml(text, highlights)
     selector += `.${CLASS_OR_ID['AG_LANGUAGE_INPUT']}`
-    children = htmlToVNode(`<code>${html}</code>`).children
+    children = htmlToVNode(html)
   }
 
   return h(selector, data, children)
