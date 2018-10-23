@@ -71,6 +71,7 @@ p.ag-paragraph.ag-active > span.ag-line:first-of-type:empty::after {
 .ag-line {
   display: block;
   white-space: pre-wrap;
+  word-break: break-all;
 }
 
 .ag-gray {

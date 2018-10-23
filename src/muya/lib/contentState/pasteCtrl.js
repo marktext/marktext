@@ -94,26 +94,42 @@ const pasteCtrl = ContentState => {
 
     if (startBlock.type === 'span' && startBlock.functionType === 'codeLine') {
       let referenceBlock = startBlock
+      const blockText = startBlock.text
+      const prePartText = blockText.substring(0, start.offset)
+      const postPartText = blockText.substring(end.offset)
+      console.log(prePartText, '|', postPartText)
       const textList = text.split(LINE_BREAKS_REG)
-      textList.forEach((line, i) => {
-        if (i === 0) {
-          startBlock.text += line
-        } else {
-          const lineBlock = this.createBlock('span', line)
-          lineBlock.functionType = startBlock.functionType
-          lineBlock.lang = startBlock.lang
-          this.insertAfter(lineBlock, referenceBlock)
-          referenceBlock = lineBlock
-          if (i === textList.length - 1) {
-            const { key } = lineBlock
-            const offset = line.length
-            this.cursor = {
-              start: { key, offset },
-              end: { key, offset }
+      if (textList.length > 1) {
+        textList.forEach((line, i) => {
+          if (i === 0) {
+            startBlock.text = prePartText + line
+          } else {
+            line = i === textList.length - 1 ? line + postPartText : line
+            const lineBlock = this.createBlock('span', line)
+            lineBlock.functionType = startBlock.functionType
+            lineBlock.lang = startBlock.lang
+            this.insertAfter(lineBlock, referenceBlock)
+            referenceBlock = lineBlock
+            if (i === textList.length - 1) {
+              const { key } = lineBlock
+              const offset = line.length
+              this.cursor = {
+                start: { key, offset },
+                end: { key, offset }
+              }
             }
           }
+        })
+      } else {
+        startBlock.text = prePartText + text + postPartText
+        const key = startBlock.key
+        const offset = start.offset + text.length
+        this.cursor = {
+          start: { key, offset },
+          end: { key, offset }
         }
-      })
+      }
+
       return this.partialRender()
     }
 
