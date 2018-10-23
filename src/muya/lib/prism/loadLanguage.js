@@ -62,7 +62,7 @@ function initLoadLanguage (Prism) {
       }
 
       delete Prism.languages[language]
-      import('prismjs/components/prism-' + language)
+      import('prismjs2/components/prism-' + language)
         .then(_ => {
           loadedCache.add(language)
         })

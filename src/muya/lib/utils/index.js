@@ -1,4 +1,5 @@
 // DOTO: Don't use Node API in editor folder, remove `path` @jocs
+// todo@jocs: remove the use of `axios` in muya
 import axios from 'axios'
 import createDOMPurify from 'dompurify'
 

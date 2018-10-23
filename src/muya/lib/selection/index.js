@@ -842,7 +842,6 @@ class Selection {
       if (range.getClientRects) {
         range.collapse(true)
         const rects = range.getClientRects()
-
         if (rects.length) {
           const { left, top, x: rectX, y: rectY } = rects[0]
           x = rectX || left
