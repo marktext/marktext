@@ -1,6 +1,5 @@
 import marked from '../parser/marked'
 import Prism from 'prismjs'
-// import loadLanguages from 'prismjs/components/index.js'
 import katex from 'katex'
 import githubMarkdownCss from 'github-markdown-css/github-markdown.css'
 import highlightCss from 'prismjs/themes/prism.css'
@@ -13,8 +12,6 @@ export const getSanitizeHtml = markdown => {
   const html = marked(markdown)
   return sanitize(html, EXPORT_DOMPURIFY_CONFIG)
 }
-
-// loadLanguages()
 
 class ExportHtml {
   constructor (markdown) {
