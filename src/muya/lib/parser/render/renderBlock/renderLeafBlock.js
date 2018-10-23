@@ -1,17 +1,28 @@
 import katex from 'katex'
-import { CLASS_OR_ID, DEVICE_MEMORY, isInElectron } from '../../../config'
+import prism, { loadedCache } from '../../../prism/'
+import { CLASS_OR_ID, DEVICE_MEMORY, isInElectron, PREVIEW_DOMPURIFY_CONFIG } from '../../../config'
 import { tokenizer } from '../../parse'
-import { snakeToCamel } from '../../../utils'
+import { snakeToCamel, sanitize, escapeHtml } from '../../../utils'
 import { h, htmlToVNode } from '../snabbdom'
 
-const PRE_BLOCK_HASH = {
-  'code': `.${CLASS_OR_ID['AG_CODE_BLOCK']}`,
-  'html': `.${CLASS_OR_ID['AG_HTML_BLOCK']}`,
-  'frontmatter': `.${CLASS_OR_ID['AG_FRONT_MATTER']}`
+const getHighlightHtml = (text, highlights) => {
+  let code = ''
+  let pos = 0
+  for (const highlight of highlights) {
+    const { start, end, active } = highlight
+    code += text.substring(pos, start)
+    const className = active ? 'ag-highlight' : 'ag-selection'
+    code += `<span class="${className}">${text.substring(start, end)}</span>`
+    pos = end
+  }
+  if (pos !== text.length) {
+    code += text.substring(pos)
+  }
+  return code
 }
 
 export default function renderLeafBlock (block, cursor, activeBlocks, matches, useCache = false) {
-  const { loadMathMap, refreshCodeBlock } = this
+  const { loadMathMap } = this
   let selector = this.getSelector(block, cursor, activeBlocks)
   // highlight search key in block
   const highlights = matches.filter(m => m.key === block.key)
@@ -20,17 +31,15 @@ export default function renderLeafBlock (block, cursor, activeBlocks, matches, u
     type,
     headingStyle,
     align,
-    htmlContent,
     icon,
     checked,
     key,
     lang,
     functionType,
-    codeBlockStyle,
-    math,
     editable
   } = block
   const data = {
+    props: {},
     attrs: {},
     dataset: {}
   }
@@ -57,15 +66,17 @@ export default function renderLeafBlock (block, cursor, activeBlocks, matches, u
       style: `text-align:${align}`
     })
   } else if (type === 'div') {
-    if (typeof htmlContent === 'string') {
+    if (functionType === 'preview') {
       selector += `.${CLASS_OR_ID['AG_HTML_PREVIEW']}`
+      const htmlContent = sanitize(this.muya.contentState.codeBlocks.get(block.preSibling), PREVIEW_DOMPURIFY_CONFIG)
       // handle empty html bock
       if (/<([a-z][a-z\d]*).*>\s*<\/\1>/.test(htmlContent)) {
         children = htmlToVNode('<div class="ag-empty">&lt;Empty HTML Block&gt;</div>')
       } else {
         children = htmlToVNode(htmlContent)
       }
-    } else if (typeof math === 'string') {
+    } else if (functionType === 'multiplemath') {
+      const math = this.muya.contentState.codeBlocks.get(block.preSibling)
       const key = `${math}_display_math`
       selector += `.${CLASS_OR_ID['AG_MATH_PREVIEW']}`
       if (math === '') {
@@ -122,42 +133,32 @@ export default function renderLeafBlock (block, cursor, activeBlocks, matches, u
       selector += `.${CLASS_OR_ID['AG_CHECKBOX_CHECKED']}`
     }
     children = ''
-  } else if (type === 'pre') {
-    selector += `.${CLASS_OR_ID['AG_CODEMIRROR_BLOCK']}`
-    selector += PRE_BLOCK_HASH[functionType]
-    Object.assign(data.attrs, { contenteditable: 'false' })
-    data.hook = {
-      prepatch (oldvnode, vnode) {
-        // cheat snabbdom that the pre block is not changed!!!
-        if (!refreshCodeBlock) {
-          vnode.children = oldvnode.children
-        }
-      }
-    }
-    if (lang) {
-      Object.assign(data.dataset, {
-        lang
-      })
+  } else if (type === 'span' && functionType === 'codeLine') {
+    let code
+    if (lang && lang === 'markup') {
+      code = getHighlightHtml(escapeHtml(text), highlights)
+    } else {
+      code = getHighlightHtml(text, highlights)
     }
 
-    if (codeBlockStyle) {
-      Object.assign(data.dataset, {
-        codeBlockStyle
-      })
-    }
+    selector += `.${CLASS_OR_ID['AG_CODE_LINE']}`
 
-    if (/code|html/.test(functionType)) {
-      // do not set it to '' (empty string)
-      children = []
+    if (lang && /\S/.test(code) && loadedCache.has(lang)) {
+      const wrapper = document.createElement('div')
+      wrapper.classList.add(`language-${lang}`)
+      wrapper.innerHTML = code
+      prism.highlightElement(wrapper, false, function () {
+        const highlightedCode = this.innerHTML
+        selector += `.language-${lang}`
+        children = htmlToVNode(highlightedCode)
+      })
+    } else {
+      children = htmlToVNode(code)
     }
-  } else if (type === 'span' && /frontmatter|multiplemath/.test(functionType)) {
-    if (functionType === 'frontmatter') {
-      selector += `.${CLASS_OR_ID['AG_FRONT_MATTER_LINE']}`
-    }
-    if (functionType === 'multiplemath') {
-      selector += `.${CLASS_OR_ID['AG_MULTIPLE_MATH_LINE']}`
-    }
-    children = text
+  } else if (type === 'span' && functionType === 'languageInput') {
+    const html = getHighlightHtml(text, highlights)
+    selector += `.${CLASS_OR_ID['AG_LANGUAGE_INPUT']}`
+    children = htmlToVNode(html)
   }
 
   return h(selector, data, children)

@@ -1,0 +1,1135 @@
+{
+  "markup": {
+    "title": "Markup",
+    "alias": [
+      "html",
+      "xml",
+      "svg",
+      "mathml"
+    ],
+    "aliasTitles": {
+      "html": "HTML",
+      "xml": "XML",
+      "svg": "SVG",
+      "mathml": "MathML"
+    },
+    "option": "default",
+    "name": "markup",
+    "ext": ["html"]
+  },
+  "css": {
+    "title": "CSS",
+    "option": "default",
+    "peerDependencies": "markup",
+    "name": "css",
+    "ext": [
+      "css"
+    ]
+  },
+  "clike": {
+    "title": "C-like",
+    "option": "default",
+    "overrideExampleHeader": true,
+    "name": "clike",
+    "ext": [
+      "c",
+      "h",
+      "ino"
+    ]
+  },
+  "javascript": {
+    "title": "JavaScript",
+    "require": "clike",
+    "peerDependencies": "markup",
+    "alias": "js",
+    "option": "default",
+    "name": "javascript",
+    "ext": [
+      "js"
+    ]
+  },
+  "abap": {
+    "title": "ABAP",
+    "name": "abap",
+    "ext": ["absp"]
+  },
+  "actionscript": {
+    "title": "ActionScript",
+    "require": "javascript",
+    "peerDependencies": "markup",
+    "name": "actionscript",
+    "ext": ["as"]
+  },
+  "ada": {
+    "title": "Ada",
+    "name": "ada",
+    "ext": []
+  },
+  "apacheconf": {
+    "title": "Apache Configuration",
+    "name": "apacheconf",
+    "ext": []
+  },
+  "apl": {
+    "title": "APL",
+    "name": "apl",
+    "ext": [
+      "dyalog",
+      "apl"
+    ]
+  },
+  "applescript": {
+    "title": "AppleScript",
+    "name": "applescript",
+    "ext": []
+  },
+  "arduino": {
+    "title": "Arduino",
+    "require": "cpp",
+    "name": "arduino",
+    "ext": []
+  },
+  "arff": {
+    "title": "ARFF",
+    "name": "arff",
+    "ext": []
+  },
+  "asciidoc": {
+    "title": "AsciiDoc",
+    "name": "asciidoc",
+    "ext": []
+  },
+  "asm6502": {
+    "title": "6502 Assembly",
+    "name": "asm6502",
+    "ext": []
+  },
+  "aspnet": {
+    "title": "ASP.NET (C#)",
+    "require": [
+      "markup",
+      "csharp"
+    ],
+    "name": "aspnet",
+    "ext": []
+  },
+  "autohotkey": {
+    "title": "AutoHotkey",
+    "name": "autohotkey",
+    "ext": []
+  },
+  "autoit": {
+    "title": "AutoIt",
+    "name": "autoit",
+    "ext": []
+  },
+  "bash": {
+    "title": "Bash",
+    "name": "bash",
+    "ext": [
+      "sh",
+      "ksh",
+      "bash"
+    ]
+  },
+  "basic": {
+    "title": "BASIC",
+    "name": "basic",
+    "ext": []
+  },
+  "batch": {
+    "title": "Batch",
+    "alias": "shell",
+    "name": "batch",
+    "ext": []
+  },
+  "bison": {
+    "title": "Bison",
+    "require": "c",
+    "name": "bison",
+    "ext": []
+  },
+  "brainfuck": {
+    "title": "Brainfuck",
+    "name": "brainfuck",
+    "ext": [
+      "b",
+      "bf"
+    ]
+  },
+  "bro": {
+    "title": "Bro",
+    "name": "bro",
+    "ext": []
+  },
+  "c": {
+    "title": "C",
+    "require": "clike",
+    "name": "c",
+    "ext": [
+      "c",
+      "h",
+      "ino"
+    ]
+  },
+  "csharp": {
+    "title": "C#",
+    "require": "clike",
+    "alias": "dotnet",
+    "name": "csharp",
+    "ext": [
+      "cs"
+    ]
+  },
+  "cpp": {
+    "title": "C++",
+    "require": "c",
+    "name": "cpp",
+    "ext": [
+      "cpp",
+      "c++",
+      "cc",
+      "cxx",
+      "hpp",
+      "h++",
+      "hh",
+      "hxx"
+    ]
+  },
+  "coffeescript": {
+    "title": "CoffeeScript",
+    "require": "javascript",
+    "name": "coffeescript",
+    "ext": [
+      "coffee"
+    ]
+  },
+  "clojure": {
+    "title": "Clojure",
+    "name": "clojure",
+    "ext": [
+      "clj",
+      "cljc",
+      "cljx"
+    ]
+  },
+  "crystal": {
+    "title": "Crystal",
+    "require": "ruby",
+    "name": "crystal",
+    "ext": [
+      "cr"
+    ]
+  },
+  "csp": {
+    "title": "Content-Security-Policy",
+    "name": "csp",
+    "ext": []
+  },
+  "css-extras": {
+    "title": "CSS Extras",
+    "require": "css",
+    "name": "css-extras",
+    "ext": []
+  },
+  "d": {
+    "title": "D",
+    "require": "clike",
+    "name": "d",
+    "ext": [
+      "d"
+    ]
+  },
+  "dart": {
+    "title": "Dart",
+    "require": "clike",
+    "name": "dart",
+    "ext": [
+      "dart"
+    ]
+  },
+  "diff": {
+    "title": "Diff",
+    "name": "diff",
+    "ext": [
+      "diff",
+      "patch"
+    ]
+  },
+  "django": {
+    "title": "Django/Jinja2",
+    "require": "markup",
+    "peerDependencies": [
+      "css",
+      "javascript"
+    ],
+    "alias": "jinja2",
+    "name": "django",
+    "ext": []
+  },
+  "docker": {
+    "title": "Docker",
+    "name": "docker",
+    "ext": []
+  },
+  "eiffel": {
+    "title": "Eiffel",
+    "name": "eiffel",
+    "ext": [
+      "e"
+    ]
+  },
+  "elixir": {
+    "title": "Elixir",
+    "name": "elixir",
+    "ext": []
+  },
+  "elm": {
+    "title": "Elm",
+    "name": "elm",
+    "ext": [
+      "elm"
+    ]
+  },
+  "erb": {
+    "title": "ERB",
+    "require": [
+      "ruby",
+      "markup-templating"
+    ],
+    "name": "erb",
+    "ext": [
+      "erb"
+    ]
+  },
+  "erlang": {
+    "title": "Erlang",
+    "name": "erlang",
+    "ext": [
+      "erl"
+    ]
+  },
+  "fsharp": {
+    "title": "F#",
+    "require": "clike",
+    "name": "fsharp",
+    "ext": [
+      "fs"
+    ]
+  },
+  "flow": {
+    "title": "Flow",
+    "require": "javascript",
+    "name": "flow",
+    "ext": []
+  },
+  "fortran": {
+    "title": "Fortran",
+    "name": "fortran",
+    "ext": [
+      "f",
+      "for",
+      "f77",
+      "f90"
+    ]
+  },
+  "gedcom": {
+    "title": "GEDCOM",
+    "name": "gedcom",
+    "ext": []
+  },
+  "gherkin": {
+    "title": "Gherkin",
+    "name": "gherkin",
+    "ext": [
+      "feature"
+    ]
+  },
+  "git": {
+    "title": "Git",
+    "name": "git",
+    "ext": []
+  },
+  "glsl": {
+    "title": "GLSL",
+    "require": "clike",
+    "name": "glsl",
+    "ext": []
+  },
+  "go": {
+    "title": "Go",
+    "require": "clike",
+    "name": "go",
+    "ext": [
+      "go"
+    ]
+  },
+  "graphql": {
+    "title": "GraphQL",
+    "name": "graphql",
+    "ext": []
+  },
+  "groovy": {
+    "title": "Groovy",
+    "require": "clike",
+    "name": "groovy",
+    "ext": [
+      "groovy",
+      "gradle"
+    ]
+  },
+  "haml": {
+    "title": "Haml",
+    "require": "ruby",
+    "peerDependencies": [
+      "css",
+      "coffeescript",
+      "erb",
+      "javascript",
+      "less",
+      "markdown",
+      "ruby",
+      "scss",
+      "textile"
+    ],
+    "name": "haml",
+    "ext": [
+      "haml"
+    ]
+  },
+  "handlebars": {
+    "title": "Handlebars",
+    "require": "markup-templating",
+    "name": "handlebars",
+    "ext": [
+      "html",
+      "htm",
+      "handlebars",
+      "hbs"
+    ]
+  },
+  "haskell": {
+    "title": "Haskell",
+    "name": "haskell",
+    "ext": [
+      "hs"
+    ]
+  },
+  "haxe": {
+    "title": "Haxe",
+    "require": "clike",
+    "name": "haxe",
+    "ext": [
+      "hx"
+    ]
+  },
+  "http": {
+    "title": "HTTP",
+    "peerDependencies": [
+      "javascript",
+      "markup"
+    ],
+    "name": "http",
+    "ext": []
+  },
+  "hpkp": {
+    "title": "HTTP Public-Key-Pins",
+    "name": "hpkp",
+    "ext": []
+  },
+  "hsts": {
+    "title": "HTTP Strict-Transport-Security",
+    "name": "hsts",
+    "ext": []
+  },
+  "ichigojam": {
+    "title": "IchigoJam",
+    "name": "ichigojam",
+    "ext": []
+  },
+  "icon": {
+    "title": "Icon",
+    "name": "icon",
+    "ext": []
+  },
+  "inform7": {
+    "title": "Inform 7",
+    "name": "inform7",
+    "ext": []
+  },
+  "ini": {
+    "title": "Ini",
+    "name": "ini",
+    "ext": [
+      "properties",
+      "ini",
+      "in"
+    ]
+  },
+  "io": {
+    "title": "Io",
+    "name": "io",
+    "ext": []
+  },
+  "j": {
+    "title": "J",
+    "name": "j",
+    "ext": []
+  },
+  "java": {
+    "title": "Java",
+    "require": "clike",
+    "name": "java",
+    "ext": [
+      "java"
+    ]
+  },
+  "jolie": {
+    "title": "Jolie",
+    "require": "clike",
+    "name": "jolie",
+    "ext": []
+  },
+  "json": {
+    "title": "JSON",
+    "name": "json",
+    "ext": [
+      "json",
+      "map"
+    ]
+  },
+  "julia": {
+    "title": "Julia",
+    "name": "julia",
+    "ext": [
+      "jl"
+    ]
+  },
+  "keyman": {
+    "title": "Keyman",
+    "name": "keyman",
+    "ext": []
+  },
+  "kotlin": {
+    "title": "Kotlin",
+    "require": "clike",
+    "name": "kotlin",
+    "ext": [
+      "kt"
+    ]
+  },
+  "latex": {
+    "title": "LaTeX",
+    "name": "latex",
+    "ext": [
+      "text",
+      "ltx",
+      "tex"
+    ]
+  },
+  "less": {
+    "title": "Less",
+    "require": "css",
+    "name": "less",
+    "ext": [
+      "less"
+    ]
+  },
+  "liquid": {
+    "title": "Liquid",
+    "name": "liquid",
+    "ext": []
+  },
+  "lisp": {
+    "title": "Lisp",
+    "alias": [
+      "emacs",
+      "elisp",
+      "emacs-lisp"
+    ],
+    "name": "lisp",
+    "ext": [
+      "cl",
+      "lisp",
+      "el"
+    ]
+  },
+  "livescript": {
+    "title": "LiveScript",
+    "name": "livescript",
+    "ext": [
+      "ls"
+    ]
+  },
+  "lolcode": {
+    "title": "LOLCODE",
+    "name": "lolcode",
+    "ext": []
+  },
+  "lua": {
+    "title": "Lua",
+    "name": "lua",
+    "ext": [
+      "lua"
+    ]
+  },
+  "makefile": {
+    "title": "Makefile",
+    "name": "makefile",
+    "ext": []
+  },
+  "markdown": {
+    "title": "Markdown",
+    "require": "markup",
+    "name": "markdown",
+    "ext": [
+      "markdown",
+      "md",
+      "mkd"
+    ]
+  },
+  "markup-templating": {
+    "title": "Markup templating",
+    "require": "markup",
+    "name": "markup-templating",
+    "ext": []
+  },
+  "matlab": {
+    "title": "MATLAB",
+    "name": "matlab",
+    "ext": []
+  },
+  "mel": {
+    "title": "MEL",
+    "name": "mel",
+    "ext": []
+  },
+  "mizar": {
+    "title": "Mizar",
+    "name": "mizar",
+    "ext": []
+  },
+  "monkey": {
+    "title": "Monkey",
+    "name": "monkey",
+    "ext": []
+  },
+  "n4js": {
+    "title": "N4JS",
+    "require": "javascript",
+    "name": "n4js",
+    "ext": []
+  },
+  "nasm": {
+    "title": "NASM",
+    "name": "nasm",
+    "ext": []
+  },
+  "nginx": {
+    "title": "nginx",
+    "require": "clike",
+    "name": "nginx",
+    "ext": []
+  },
+  "nim": {
+    "title": "Nim",
+    "name": "nim",
+    "ext": []
+  },
+  "nix": {
+    "title": "Nix",
+    "name": "nix",
+    "ext": []
+  },
+  "nsis": {
+    "title": "NSIS",
+    "name": "nsis",
+    "ext": [
+      "nsh",
+      "nsi"
+    ]
+  },
+  "objectivec": {
+    "title": "Objective-C",
+    "require": "c",
+    "name": "objectivec",
+    "ext": [
+      "m",
+      "mm"
+    ]
+  },
+  "ocaml": {
+    "title": "OCaml",
+    "name": "ocaml",
+    "ext": [
+      "ml",
+      "mli",
+      "mll",
+      "mly"
+    ]
+  },
+  "opencl": {
+    "title": "OpenCL",
+    "require": "cpp",
+    "peerDependencies": [
+      "c",
+      "cpp"
+    ],
+    "overrideExampleHeader": true,
+    "name": "opencl",
+    "ext": []
+  },
+  "oz": {
+    "title": "Oz",
+    "name": "oz",
+    "ext": [
+      "oz"
+    ]
+  },
+  "parigp": {
+    "title": "PARI/GP",
+    "name": "parigp",
+    "ext": []
+  },
+  "parser": {
+    "title": "Parser",
+    "require": "markup",
+    "name": "parser",
+    "ext": []
+  },
+  "pascal": {
+    "title": "Pascal",
+    "alias": "objectpascal",
+    "aliasTitles": {
+      "objectpascal": "Object Pascal"
+    },
+    "name": "pascal",
+    "ext": [
+      "p",
+      "pas"
+    ]
+  },
+  "perl": {
+    "title": "Perl",
+    "name": "perl",
+    "ext": [
+      "pl",
+      "pm"
+    ]
+  },
+  "php": {
+    "title": "PHP",
+    "require": [
+      "clike",
+      "markup-templating"
+    ],
+    "name": "php",
+    "ext": [
+      "php",
+      "php3",
+      "php4",
+      "php5",
+      "php7",
+      "phtml"
+    ]
+  },
+  "php-extras": {
+    "title": "PHP Extras",
+    "require": "php",
+    "name": "php-extras",
+    "ext": []
+  },
+  "plsql": {
+    "title": "PL/SQL",
+    "require": "sql",
+    "name": "plsql",
+    "ext": [
+      "pls"
+    ]
+  },
+  "powershell": {
+    "title": "PowerShell",
+    "name": "powershell",
+    "ext": [
+      "ps1",
+      "psd1",
+      "psm1"
+    ]
+  },
+  "processing": {
+    "title": "Processing",
+    "require": "clike",
+    "name": "processing",
+    "ext": []
+  },
+  "prolog": {
+    "title": "Prolog",
+    "name": "prolog",
+    "ext": []
+  },
+  "properties": {
+    "title": ".properties",
+    "name": "properties",
+    "ext": [
+      "properties",
+      "ini",
+      "in"
+    ]
+  },
+  "protobuf": {
+    "title": "Protocol Buffers",
+    "require": "clike",
+    "name": "protobuf",
+    "ext": [
+      "proto"
+    ]
+  },
+  "pug": {
+    "title": "Pug",
+    "require": "javascript",
+    "peerDependencies": [
+      "coffeescript",
+      "ejs",
+      "handlebars",
+      "hogan",
+      "less",
+      "livescript",
+      "markdown",
+      "mustache",
+      "plates",
+      "scss",
+      "stylus",
+      "swig"
+    ],
+    "name": "pug",
+    "ext": [
+      "jade",
+      "pug"
+    ]
+  },
+  "puppet": {
+    "title": "Puppet",
+    "name": "puppet",
+    "ext": [
+      "pp"
+    ]
+  },
+  "pure": {
+    "title": "Pure",
+    "peerDependencies": [
+      "c",
+      "cpp",
+      "fortran",
+      "ats",
+      "dsp"
+    ],
+    "name": "pure",
+    "ext": []
+  },
+  "python": {
+    "title": "Python",
+    "name": "python",
+    "ext": [
+      "pyx",
+      "pxd",
+      "pxi"
+    ]
+  },
+  "q": {
+    "title": "Q (kdb+ database)",
+    "name": "q",
+    "ext": [
+      "q"
+    ]
+  },
+  "qore": {
+    "title": "Qore",
+    "require": "clike",
+    "name": "qore",
+    "ext": []
+  },
+  "r": {
+    "title": "R",
+    "name": "r",
+    "ext": [
+      "r",
+      "R"
+    ]
+  },
+  "jsx": {
+    "title": "React JSX",
+    "require": [
+      "markup",
+      "javascript"
+    ],
+    "name": "jsx",
+    "ext": [
+      "jsx"
+    ]
+  },
+  "tsx": {
+    "title": "React TSX",
+    "require": [
+      "jsx",
+      "typescript"
+    ],
+    "name": "tsx",
+    "ext": [
+      "tsx"
+    ]
+  },
+  "renpy": {
+    "title": "Ren\"py",
+    "name": "renpy",
+    "ext": []
+  },
+  "reason": {
+    "title": "Reason",
+    "require": "clike",
+    "name": "reason",
+    "ext": []
+  },
+  "rest": {
+    "title": "reST (reStructuredText)",
+    "name": "rest",
+    "ext": []
+  },
+  "rip": {
+    "title": "Rip",
+    "name": "rip",
+    "ext": []
+  },
+  "roboconf": {
+    "title": "Roboconf",
+    "name": "roboconf",
+    "ext": []
+  },
+  "ruby": {
+    "title": "Ruby",
+    "require": "clike",
+    "name": "ruby",
+    "ext": [
+      "rb"
+    ]
+  },
+  "rust": {
+    "title": "Rust",
+    "name": "rust",
+    "ext": [
+      "rs"
+    ]
+  },
+  "sas": {
+    "title": "SAS",
+    "name": "sas",
+    "ext": [
+      "sas"
+    ]
+  },
+  "sass": {
+    "title": "Sass (Sass)",
+    "require": "css",
+    "name": "sass",
+    "ext": [
+      "sass"
+    ]
+  },
+  "scss": {
+    "title": "Sass (Scss)",
+    "require": "css",
+    "name": "scss",
+    "ext": [
+      "scss"
+    ]
+  },
+  "scala": {
+    "title": "Scala",
+    "require": "java",
+    "name": "scala",
+    "ext": [
+      "scala"
+    ]
+  },
+  "scheme": {
+    "title": "Scheme",
+    "name": "scheme",
+    "ext": [
+      "scm",
+      "ss"
+    ]
+  },
+  "smalltalk": {
+    "title": "Smalltalk",
+    "name": "smalltalk",
+    "ext": [
+      "st"
+    ]
+  },
+  "smarty": {
+    "title": "Smarty",
+    "require": "markup-templating",
+    "name": "smarty",
+    "ext": [
+      "tpl"
+    ]
+  },
+  "sql": {
+    "title": "SQL",
+    "name": "sql",
+    "ext": [
+      "cql"
+    ]
+  },
+  "soy": {
+    "title": "Soy (Closure Template)",
+    "require": "markup-templating",
+    "name": "soy",
+    "ext": [
+      "soy"
+    ]
+  },
+  "stylus": {
+    "title": "Stylus",
+    "name": "stylus",
+    "ext": [
+      "styl"
+    ]
+  },
+  "swift": {
+    "title": "Swift",
+    "require": "clike",
+    "name": "swift",
+    "ext": [
+      "swift"
+    ]
+  },
+  "tap": {
+    "title": "TAP",
+    "require": "yaml",
+    "name": "tap",
+    "ext": []
+  },
+  "tcl": {
+    "title": "Tcl",
+    "name": "tcl",
+    "ext": [
+      "tcl"
+    ]
+  },
+  "textile": {
+    "title": "Textile",
+    "require": "markup",
+    "peerDependencies": "css",
+    "name": "textile",
+    "ext": [
+      "textile"
+    ]
+  },
+  "tt2": {
+    "title": "Template Toolkit 2",
+    "require": [
+      "clike",
+      "markup-templating"
+    ],
+    "name": "tt2",
+    "ext": []
+  },
+  "twig": {
+    "title": "Twig",
+    "require": "markup",
+    "name": "twig",
+    "ext": []
+  },
+  "typescript": {
+    "title": "TypeScript",
+    "require": "javascript",
+    "alias": "ts",
+    "name": "typescript",
+    "ext": [
+      "ts"
+    ]
+  },
+  "vbnet": {
+    "title": "VB.Net",
+    "require": "basic",
+    "name": "vbnet",
+    "ext": [
+      "vb"
+    ]
+  },
+  "velocity": {
+    "title": "Velocity",
+    "require": "markup",
+    "name": "velocity",
+    "ext": [
+      "vtl"
+    ]
+  },
+  "verilog": {
+    "title": "Verilog",
+    "name": "verilog",
+    "ext": [
+      "v",
+      "sv",
+      "svh"
+    ]
+  },
+  "vhdl": {
+    "title": "VHDL",
+    "name": "vhdl",
+    "ext": [
+      "vhd",
+      "vhdl"
+    ]
+  },
+  "vim": {
+    "title": "vim",
+    "name": "vim",
+    "ext": []
+  },
+  "visual-basic": {
+    "title": "Visual Basic",
+    "alias": "vb",
+    "name": "visual-basic",
+    "ext": []
+  },
+  "wasm": {
+    "title": "WebAssembly",
+    "name": "wasm",
+    "ext": []
+  },
+  "wiki": {
+    "title": "Wiki markup",
+    "require": "markup",
+    "name": "wiki",
+    "ext": []
+  },
+  "xeora": {
+    "title": "Xeora",
+    "require": "markup",
+    "name": "xeora",
+    "ext": []
+  },
+  "xojo": {
+    "title": "Xojo (REALbasic)",
+    "name": "xojo",
+    "ext": []
+  },
+  "xquery": {
+    "title": "XQuery",
+    "require": "markup",
+    "name": "xquery",
+    "ext": [
+      "xy",
+      "xquery"
+    ]
+  },
+  "yaml": {
+    "title": "YAML",
+    "name": "yaml",
+    "ext": [
+      "yaml",
+      "yml"
+    ]
+  }
+}

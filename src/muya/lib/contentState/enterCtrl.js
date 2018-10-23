@@ -1,5 +1,13 @@
 import selection from '../selection'
 
+const checkAutoIndent = (text, offset) => {
+  const pairStr = text.substring(offset - 1, offset + 1)
+  return /^(\{\}|\[\]|\(\)|><)$/.test(pairStr)
+}
+const getIndentSpace = text => {
+  return /^(\s*)\S/.exec(text)[1]
+}
+
 const enterCtrl = ContentState => {
   ContentState.prototype.chopBlockByCursor = function (block, key, offset) {
     const newBlock = this.createBlock('p')
@@ -140,25 +148,15 @@ const enterCtrl = ContentState => {
     const endBlock = this.getBlock(end.key)
     let parent = this.getParent(block)
 
-    // handle cursor in code block
-    if (block.type === 'pre' && block.functionType === 'code') {
-      return
-    }
-
     event.preventDefault()
-
     // handle select multiple blocks
     if (start.key !== end.key) {
       const key = start.key
       const offset = start.offset
 
-      const startRemainText = block.type === 'pre'
-        ? block.text.substring(0, start.offset - 1)
-        : block.text.substring(0, start.offset)
+      const startRemainText = block.text.substring(0, start.offset)
 
-      const endRemainText = endBlock.type === 'pre'
-        ? endBlock.text.substring(end.offset - 1)
-        : endBlock.text.substring(end.offset)
+      const endRemainText = endBlock.text.substring(end.offset)
 
       block.text = startRemainText + endRemainText
 
@@ -186,18 +184,31 @@ const enterCtrl = ContentState => {
 
     // handle `shift + enter` insert `soft line break` or `hard line break`
     // only cursor in `line block` can create `soft line break` and `hard line break`
+    // handle line in code block
     if (
       (event.shiftKey && block.type === 'span') ||
-      (block.type === 'span' && /frontmatter|multiplemath/.test(block.functionType))
+      (block.type === 'span' && block.functionType === 'codeLine')
     ) {
       const { text } = block
       const newLineText = text.substring(start.offset)
+      const autoIndent = checkAutoIndent(text, start.offset)
+      const indent = getIndentSpace(text)
       block.text = text.substring(0, start.offset)
-      const newLine = this.createBlock('span', newLineText)
+      const newLine = this.createBlock('span', `${indent}${newLineText}`)
       newLine.functionType = block.functionType
+      newLine.lang = block.lang
       this.insertAfter(newLine, block)
-      const { key } = newLine
-      const offset = 0
+      let { key } = newLine
+      let offset = indent.length
+      if (autoIndent) {
+        const emptyLine = this.createBlock('span', indent + ' '.repeat(this.tabSize))
+        emptyLine.functionType = block.functionType
+        emptyLine.lang = block.lang
+        this.insertAfter(emptyLine, block)
+        key = emptyLine.key
+        offset = indent.length + this.tabSize
+      }
+
       this.cursor = {
         start: { key, offset },
         end: { key, offset }
@@ -374,7 +385,7 @@ const enterCtrl = ContentState => {
         cursorBlock = tableNeedFocus
         break
       case !!htmlNeedFocus:
-        cursorBlock = htmlNeedFocus
+        cursorBlock = htmlNeedFocus.children[0].children[1] // the second line
         break
       case !!mathNeedFocus:
         cursorBlock = mathNeedFocus

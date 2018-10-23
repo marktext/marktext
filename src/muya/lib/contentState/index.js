@@ -1,5 +1,4 @@
 import { HAS_TEXT_BLOCK_REG, DEFAULT_TURNDOWN_CONFIG } from '../config'
-import { setCursorAtLastLine } from '../codeMirror'
 import { getUniqueId } from '../utils'
 import selection from '../selection'
 import StateRender from '../parser/render'
@@ -21,6 +20,8 @@ import searchCtrl from './searchCtrl'
 import mathCtrl from './mathCtrl'
 import imagePathCtrl from './imagePathCtrl'
 import htmlBlockCtrl from './htmlBlock'
+import clickCtrl from './clickCtrl'
+import inputCtrl from './inputCtrl'
 import importMarkdown from '../utils/importMarkdown'
 
 const prototypes = [
@@ -41,12 +42,13 @@ const prototypes = [
   mathCtrl,
   imagePathCtrl,
   htmlBlockCtrl,
+  clickCtrl,
+  inputCtrl,
   importMarkdown
 ]
 
 class ContentState {
   constructor (muya, options) {
-    const { eventCenter } = muya
     const { bulletListMarker } = options
 
     this.muya = muya
@@ -55,7 +57,7 @@ class ContentState {
     // Use to cache the keys which you don't want to remove.
     this.exemption = new Set()
     this.blocks = [ this.createBlockP() ]
-    this.stateRender = new StateRender(eventCenter)
+    this.stateRender = new StateRender(muya)
     this.codeBlocks = new Map()
     this.renderRange = [ null, null ]
     this.currentCursor = null
@@ -69,22 +71,9 @@ class ContentState {
   }
 
   set cursor (cursor) {
-    // if (this.currentCursor) {
-    //   const { start, end } = this.currentCursor
-    //   if (
-    //     start.key === cursor.start.key &&
-    //     start.offset === cursor.start.offset &&
-    //     end.key === cursor.end.key &&
-    //     end.offset === cursor.end.offset
-    //   ) {
-    //     return
-    //   }
-    // }
-
     const handler = () => {
       const { blocks, renderRange, currentCursor } = this
       this.history.push({
-        type: 'normal',
         blocks,
         renderRange,
         cursor: currentCursor
@@ -136,34 +125,20 @@ class ContentState {
   }
 
   setCursor () {
-    const { start: { key } } = this.cursor
-    const block = this.getBlock(key)
-    if (block.type === 'pre' && /code|html/.test(block.functionType)) {
-      const cm = this.codeBlocks.get(key)
-      const { selection: codeSel } = block
-      if (codeSel) {
-        const { anchor, head } = codeSel
-        cm.focus()
-        cm.setSelection(anchor, head)
-      } else {
-        setCursorAtLastLine(cm)
-      }
-    } else {
-      selection.setCursorRange(this.cursor)
-    }
+    selection.setCursorRange(this.cursor)
   }
 
   setNextRenderRange () {
     const { start, end } = this.cursor
-    // console.log(JSON.stringify(this.cursor, null, 2))
     const startBlock = this.getBlock(start.key)
     const endBlock = this.getBlock(end.key)
     const startOutMostBlock = this.findOutMostBlock(startBlock)
     const endOutMostBlock = this.findOutMostBlock(endBlock)
+
     this.renderRange = [ startOutMostBlock.preSibling, endOutMostBlock.nextSibling ]
   }
 
-  render (isRenderCursor = true, refreshCodeBlock = false) {
+  render (isRenderCursor = true) {
     const { blocks, cursor, searchMatches: { matches, index } } = this
     const activeBlocks = this.getActiveBlocks()
     matches.forEach((m, i) => {
@@ -171,15 +146,13 @@ class ContentState {
     })
     this.setNextRenderRange()
     this.stateRender.collectLabels(blocks)
-    this.stateRender.render(blocks, cursor, activeBlocks, matches, refreshCodeBlock)
-    this.pre2CodeMirror(isRenderCursor)
+    this.stateRender.render(blocks, cursor, activeBlocks, matches)
     if (isRenderCursor) this.setCursor()
   }
 
   partialRender () {
     const { blocks, cursor, searchMatches: { matches, index } } = this
     const activeBlocks = this.getActiveBlocks()
-    const cursorOutMostBlock = activeBlocks[activeBlocks.length - 1]
     const [ startKey, endKey ] = this.renderRange
     matches.forEach((m, i) => {
       m.active = i === index
@@ -191,7 +164,6 @@ class ContentState {
     this.setNextRenderRange()
     this.stateRender.collectLabels(blocks)
     this.stateRender.partialRender(needRenderBlocks, cursor, activeBlocks, matches, startKey, endKey)
-    this.pre2CodeMirror(true, [...new Set([cursorOutMostBlock, ...needRenderBlocks])])
     this.setCursor()
   }
 
@@ -299,6 +271,7 @@ class ContentState {
   }
 
   removeTextOrBlock (block) {
+    if (block.functionType === 'languageInput') return
     const checkerIn = block => {
       if (this.exemption.has(block.key)) {
         return true
@@ -382,7 +355,7 @@ class ContentState {
     if (!afterEnd) {
       const parent = this.getParent(after)
       if (parent) {
-        const removeAfter = isRemoveAfter && this.isOnlyEditableChild(after)
+        const removeAfter = isRemoveAfter && (this.isOnlyRemoveableChild(after))
         this.removeBlocks(before, parent, removeAfter, true)
       }
     }
@@ -395,12 +368,6 @@ class ContentState {
   }
 
   removeBlock (block, fromBlocks = this.blocks) {
-    if (block.type === 'pre') {
-      const codeBlockId = block.key
-      if (this.codeBlocks.has(codeBlockId)) {
-        this.codeBlocks.delete(codeBlockId)
-      }
-    }
     const remove = (blocks, block) => {
       const len = blocks.length
       let i
@@ -531,11 +498,11 @@ class ContentState {
     return !block.nextSibling && !block.preSibling
   }
 
-  isOnlyEditableChild (block) {
+  isOnlyRemoveableChild (block) {
     if (block.editable === false) return false
     const parent = this.getParent(block)
-    if (!parent) throw new Error('isOnlyEditableChild method only apply for child block')
-    return parent.children.filter(child => child.editable).length === 1
+    if (!parent) throw new Error('isOnlyRemoveableChild method only apply for child block')
+    return parent.children.filter(child => child.editable && child.functionType !== 'languageInput').length === 1
   }
 
   getLastChild (block) {
@@ -553,7 +520,11 @@ class ContentState {
     if (block.children.length === 0 && HAS_TEXT_BLOCK_REG.test(block.type)) {
       return block
     } else if (children.length) {
-      if (children[0].type === 'input' || (children[0].type === 'div' && children[0].editable === false)) { // handle task item
+      if (
+        children[0].type === 'input' ||
+        (children[0].type === 'div' && children[0].editable === false) ||
+        (children[0].type === 'span' && children[0].functionType === 'languageInput')
+      ) { // handle task item
         return this.firstInDescendant(children[1])
       } else {
         return this.firstInDescendant(children[0])
@@ -577,7 +548,13 @@ class ContentState {
   findPreBlockInLocation (block) {
     const parent = this.getParent(block)
     const preBlock = this.getPreSibling(block)
-    if (block.preSibling && preBlock.type !== 'input' && preBlock.type !== 'div' && preBlock.editable !== false) { // handle task item and table
+    if (
+      block.preSibling &&
+      preBlock.type !== 'input' &&
+      preBlock.type !== 'div' &&
+      preBlock.editable !== false &&
+      preBlock.functionType !== 'languageInput'
+    ) { // handle task item and table
       return this.lastInDescendant(preBlock)
     } else if (parent) {
       return this.findPreBlockInLocation(parent)
@@ -590,7 +567,9 @@ class ContentState {
     const parent = this.getParent(block)
     const nextBlock = this.getNextSibling(block)
 
-    if (nextBlock && nextBlock.editable !== false) {
+    if (
+      nextBlock && nextBlock.editable !== false
+    ) {
       return this.firstInDescendant(nextBlock)
     } else if (parent) {
       return this.findNextBlockInLocation(parent)
@@ -627,7 +606,7 @@ class ContentState {
   }
 
   clear () {
-    this.codeBlocks.clear()
+    this.history.clearHistory()
   }
 }
 

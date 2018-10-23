@@ -1,4 +1,4 @@
-import virtualize from 'snabbdom-virtualize/strings'
+// import virtualize from 'snabbdom-virtualize/strings'
 const snabbdom = require('snabbdom')
 
 export const patch = snabbdom.init([ // Init patch function with chosen modules
@@ -10,6 +10,10 @@ export const patch = snabbdom.init([ // Init patch function with chosen modules
   require('snabbdom/modules/eventlisteners').default // attaches event listeners
 ])
 export const h = require('snabbdom/h').default // helper function for creating vnodes
-export const toHTML = require('snabbdom-to-html') // helper function for convert DOM to HTML string
+export const toHTML = require('snabbdom-to-html') // helper function for convert vnode to HTML string
 export const toVNode = require('snabbdom/tovnode').default // helper function for convert DOM to vnode
-export const htmlToVNode = virtualize // helper function for convert HTML string to vnode
+export const htmlToVNode = html => { // helper function for convert html to vnode
+  const wrapper = document.createElement('div')
+  wrapper.innerHTML = html
+  return toVNode(wrapper).children
+}

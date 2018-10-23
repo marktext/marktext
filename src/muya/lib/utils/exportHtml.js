@@ -1,8 +1,8 @@
 import marked from '../parser/marked'
-import highlight from 'highlight.js'
+import Prism from 'prismjs2'
 import katex from 'katex'
 import githubMarkdownCss from 'github-markdown-css/github-markdown.css'
-import highlightCss from 'highlight.js/styles/default.css'
+import highlightCss from 'prismjs2/themes/prism.css'
 import katexCss from 'katex/dist/katex.css'
 import { EXPORT_DOMPURIFY_CONFIG } from '../config'
 import { sanitize } from '../utils'
@@ -20,8 +20,8 @@ class ExportHtml {
   // render pure html by marked
   renderHtml () {
     return marked(this.markdown, {
-      highlight (code) {
-        return highlight.highlightAuto(code).value
+      highlight (code, lang) {
+        return Prism.highlight(code, Prism.languages[lang], lang)
       },
       emojiRenderer (emoji) {
         const validate = validEmoji(emoji)

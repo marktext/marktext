@@ -5,44 +5,54 @@ const mathCtrl = ContentState => {
   ContentState.prototype.createMathBlock = function (value = '') {
     const FUNCTION_TYPE = 'multiplemath'
     const mathBlock = this.createBlock('figure')
-    const textArea = this.createBlock('pre')
-    const mathPreview = this.createBlock('div', '', false)
+    mathBlock.functionType = FUNCTION_TYPE
+    const { preBlock, mathPreview } = this.createMathAndPreview(value)
+    this.appendChild(mathBlock, preBlock)
+    this.appendChild(mathBlock, mathPreview)
+    this.codeBlocks.set(preBlock.key, value)
+    return mathBlock
+  }
+
+  ContentState.prototype.createMathAndPreview = function (value = '') {
+    const FUNCTION_TYPE = 'multiplemath'
+    const preBlock = this.createBlock('pre')
+    const codeBlock = this.createBlock('code')
+    preBlock.functionType = FUNCTION_TYPE
+    preBlock.lang = codeBlock.lang = 'latex'
+    this.appendChild(preBlock, codeBlock)
+
     if (typeof value === 'string' && value) {
-      const lines = value.replace(/^\s+/, '').split(LINE_BREAKS_REG).map(line => this.createBlock('span', line))
-      for (const line of lines) {
-        line.functionType = FUNCTION_TYPE
-        this.appendChild(textArea, line)
-      }
+      value.replace(/^\s+/, '').split(LINE_BREAKS_REG).forEach(line => {
+        const codeLine = this.createBlock('span', line)
+        codeLine.functionType = 'codeLine'
+        codeLine.lang = 'latex'
+        this.appendChild(codeBlock, codeLine)
+      })
     } else {
       const emptyLine = this.createBlock('span')
-      emptyLine.functionType = FUNCTION_TYPE
-      this.appendChild(textArea, emptyLine)
+      emptyLine.functionType = 'codeLine'
+      emptyLine.lang = 'latex'
+      this.appendChild(codeBlock, emptyLine)
     }
 
-    mathBlock.functionType = textArea.functionType = mathPreview.functionType = FUNCTION_TYPE
-    mathPreview.math = value
-    this.appendChild(mathBlock, textArea)
-    this.appendChild(mathBlock, mathPreview)
-    return mathBlock
+    const mathPreview = this.createBlock('div', '', false)
+    this.codeBlocks.set(preBlock.key, '')
+    mathPreview.functionType = FUNCTION_TYPE
+
+    return { preBlock, mathPreview }
   }
 
   ContentState.prototype.initMathBlock = function (block) { // p block
     const FUNCTION_TYPE = 'multiplemath'
-    const textArea = this.createBlock('pre')
-    const emptyLine = this.createBlock('span')
-    textArea.functionType = emptyLine.functionType = FUNCTION_TYPE
-    this.appendChild(textArea, emptyLine)
     block.type = 'figure'
     block.functionType = FUNCTION_TYPE
     block.children = []
 
-    const mathPreview = this.createBlock('div', '', false)
-    mathPreview.math = ''
-    mathPreview.functionType = FUNCTION_TYPE
+    const { preBlock, mathPreview } = this.createMathAndPreview()
 
-    this.appendChild(block, textArea)
+    this.appendChild(block, preBlock)
     this.appendChild(block, mathPreview)
-    return emptyLine
+    return preBlock.children[0].children[0]
   }
 
   ContentState.prototype.handleMathBlockClick = function (mathFigure) {

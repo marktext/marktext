@@ -43,6 +43,7 @@ const pasteCtrl = ContentState => {
     const sanitizedHtml = sanitize(html, PREVIEW_DOMPURIFY_CONFIG)
     const tempWrapper = document.createElement('div')
     tempWrapper.innerHTML = sanitizedHtml
+    // special process for Number app in macOs
     const tables = Array.from(tempWrapper.querySelectorAll('table'))
     for (const table of tables) {
       const row = table.querySelector('tr')
@@ -66,15 +67,11 @@ const pasteCtrl = ContentState => {
 
   // handle `normal` and `pasteAsPlainText` paste
   ContentState.prototype.pasteHandler = function (event, type) {
-    if (this.checkInCodeBlock()) {
-      return
-    }
     event.preventDefault()
     const text = event.clipboardData.getData('text/plain')
     let html = event.clipboardData.getData('text/html')
+
     html = this.standardizeHTML(html)
-    // console.log(text)
-    // console.log(html)
     const copyType = this.checkCopyType(html, text)
     const { start, end } = this.cursor
     const startBlock = this.getBlock(start.key)
@@ -93,6 +90,31 @@ const pasteCtrl = ContentState => {
         start: { key, offset },
         end: { key, offset }
       }
+    }
+
+    if (startBlock.type === 'span' && startBlock.functionType === 'codeLine') {
+      let referenceBlock = startBlock
+      const textList = text.split(LINE_BREAKS_REG)
+      textList.forEach((line, i) => {
+        if (i === 0) {
+          startBlock.text += line
+        } else {
+          const lineBlock = this.createBlock('span', line)
+          lineBlock.functionType = startBlock.functionType
+          lineBlock.lang = startBlock.lang
+          this.insertAfter(lineBlock, referenceBlock)
+          referenceBlock = lineBlock
+          if (i === textList.length - 1) {
+            const { key } = lineBlock
+            const offset = line.length
+            this.cursor = {
+              start: { key, offset },
+              end: { key, offset }
+            }
+          }
+        }
+      })
+      return this.partialRender()
     }
 
     // handle copyAsHtml
@@ -196,6 +218,7 @@ const pasteCtrl = ContentState => {
             startBlock.text += firstFragment.children[0].text
             firstFragment.children.slice(1).forEach(line => {
               if (startBlock.functionType) line.functionType = startBlock.functionType
+              if (startBlock.lang) line.lang = startBlock.lang
               this.appendChild(parent, line)
             })
           } else if (/^h\d$/.test(firstFragment.type)) {
@@ -234,8 +257,8 @@ const pasteCtrl = ContentState => {
       cursorBlock = startBlock
     }
     // TODO @Jocs duplicate with codes in updateCtrl.js
-    if (cursorBlock && cursorBlock.type === 'span' && cursorBlock.functionType === 'multiplemath') {
-      this.updateMathContent(cursorBlock)
+    if (cursorBlock && cursorBlock.type === 'span' && cursorBlock.functionType === 'codeLine') {
+      this.updateCodeBlocks(cursorBlock)
     }
     this.cursor = {
       start: {

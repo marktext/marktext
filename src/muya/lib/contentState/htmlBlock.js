@@ -1,7 +1,7 @@
-import { sanitize } from '../utils'
-import { VOID_HTML_TAGS, HTML_TAGS, HTML_TOOLS, PREVIEW_DOMPURIFY_CONFIG } from '../config'
+import { VOID_HTML_TAGS, HTML_TAGS, HTML_TOOLS } from '../config'
 
 const HTML_BLOCK_REG = /^<([a-zA-Z\d-]+)(?=\s|>)[^<>]*?>$/
+const LINE_BREAKS = /\n/
 
 const htmlBlock = ContentState => {
   ContentState.prototype.createToolBar = function (tools, toolBarType) {
@@ -22,28 +22,36 @@ const htmlBlock = ContentState => {
     return toolBar
   }
 
-  ContentState.prototype.createCodeInHtml = function (code, selection) {
+  ContentState.prototype.createCodeInHtml = function (code) {
     const codeContainer = this.createBlock('div')
     codeContainer.functionType = 'html'
     const preview = this.createBlock('div', '', false)
-    preview.htmlContent = sanitize(code, PREVIEW_DOMPURIFY_CONFIG)
     preview.functionType = 'preview'
-    const codePre = this.createBlock('pre')
-    codePre.lang = 'html'
-    codePre.functionType = 'html'
-    codePre.text = code
-    if (selection) {
-      codePre.selection = selection
-    }
-    this.appendChild(codeContainer, codePre)
+    const preBlock = this.createBlock('pre')
+    const codeBlock = this.createBlock('code')
+    code.split(LINE_BREAKS).forEach(line => {
+      const codeLine = this.createBlock('span', line)
+      codeLine.functionType = 'codeLine'
+      codeLine.lang = 'markup'
+      this.appendChild(codeBlock, codeLine)
+    })
+    this.codeBlocks.set(preBlock.key, code)
+    preBlock.lang = 'markup'
+    codeBlock.lang = 'markup'
+    preBlock.functionType = 'html'
+    this.codeBlocks.set(preBlock.key, code)
+    this.appendChild(preBlock, codeBlock)
+    this.appendChild(codeContainer, preBlock)
     this.appendChild(codeContainer, preview)
     return codeContainer
   }
 
   ContentState.prototype.htmlToolBarClick = function (type) {
     const { start: { key } } = this.cursor
-    const block = this.getBlock(key)
-    const codeBlockContainer = this.getParent(block)
+    const codeLine = this.getBlock(key)
+    const codeBlock = this.getParent(codeLine)
+    const preBlock = this.getParent(codeBlock)
+    const codeBlockContainer = this.getParent(preBlock)
     const htmlBlock = this.getParent(codeBlockContainer)
 
     switch (type) {
@@ -79,7 +87,6 @@ const htmlBlock = ContentState => {
   ContentState.prototype.createHtmlBlock = function (code) {
     const block = this.createBlock('figure')
     block.functionType = 'html'
-    block.text = code
     const toolBar = this.createToolBar(HTML_TOOLS, 'html')
     const htmlBlock = this.createCodeInHtml(code)
     this.appendChild(block, toolBar)
@@ -91,24 +98,15 @@ const htmlBlock = ContentState => {
     const isVoidTag = VOID_HTML_TAGS.indexOf(tagName) > -1
     const { text } = block.children[0]
     const htmlContent = isVoidTag ? text : `${text}\n\n</${tagName}>`
-
-    const pos = {
-      line: isVoidTag ? 0 : 1,
-      ch: isVoidTag ? text.length : 0
-    }
-    const range = {
-      anchor: pos,
-      head: pos
-    }
     block.type = 'figure'
     block.functionType = 'html'
     block.text = htmlContent
     block.children = []
     const toolBar = this.createToolBar(HTML_TOOLS, 'html')
-    const codeContainer = this.createCodeInHtml(htmlContent, range)
+    const codeContainer = this.createCodeInHtml(htmlContent)
     this.appendChild(block, toolBar)
     this.appendChild(block, codeContainer)
-    return codeContainer.children[0]
+    return codeContainer.children[0] // preBlock
   }
 
   ContentState.prototype.updateHtmlBlock = function (block) {

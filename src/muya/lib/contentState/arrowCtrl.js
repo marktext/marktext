@@ -1,12 +1,4 @@
 import { EVENT_KEYS, CLASS_OR_ID } from '../config'
-import {
-  isCursorAtFirstLine,
-  isCursorAtLastLine,
-  isCursorAtBegin,
-  isCursorAtEnd,
-  getBeginPosition,
-  getEndPosition
-} from '../codeMirror'
 import { findNearestParagraph } from '../selection/dom'
 import selection from '../selection'
 
@@ -59,7 +51,6 @@ const arrowCtrl = ContentState => {
     const preBlock = this.findPreBlockInLocation(block)
     const nextBlock = this.findNextBlockInLocation(block)
 
-    const { left, right } = selection.getCaretOffsets(paragraph)
     const { start, end } = selection.getCursorRange()
     const { topOffset, bottomOffset } = selection.getCursorYOffset(paragraph)
 
@@ -87,60 +78,6 @@ const arrowCtrl = ContentState => {
       if (!/pre|th|td/.test(block.type)) {
         return
       }
-    }
-
-    // handle `html` and `code` block when press arrow key
-    if (block.type === 'pre' && /code|html/.test(block.functionType)) {
-      // handle cursor in code block. the case at firstline or lastline.
-      const cm = this.codeBlocks.get(id)
-      const anchorBlock = block.functionType === 'html' ? this.getParent(this.getParent(block)) : block
-      let activeBlock
-      event.preventDefault()
-      event.stopPropagation()
-      switch (event.key) {
-        case EVENT_KEYS.ArrowLeft: // fallthrough
-        case EVENT_KEYS.ArrowUp:
-          if (
-            (event.key === EVENT_KEYS.ArrowUp && isCursorAtFirstLine(cm) && preBlock) ||
-            (event.key === EVENT_KEYS.ArrowLeft && isCursorAtBegin(cm) && preBlock)
-          ) {
-            activeBlock = preBlock
-          }
-          break
-        case EVENT_KEYS.ArrowRight: // fallthrough
-        case EVENT_KEYS.ArrowDown:
-          if (
-            (event.key === EVENT_KEYS.ArrowDown && isCursorAtLastLine(cm)) ||
-            (event.key === EVENT_KEYS.ArrowRight && isCursorAtEnd(cm))
-          ) {
-            if (nextBlock) {
-              activeBlock = nextBlock
-            } else {
-              activeBlock = this.createBlockP()
-              this.insertAfter(activeBlock, anchorBlock)
-            }
-          }
-          break
-      }
-
-      if (activeBlock) {
-        const cursorBlock = activeBlock.type === 'p' ? activeBlock.children[0] : activeBlock
-        const offset = cursorBlock.text.length
-        const key = cursorBlock.key
-        this.cursor = {
-          start: {
-            key,
-            offset
-          },
-          end: {
-            key,
-            offset
-          }
-        }
-
-        return this.partialRender()
-      }
-      return
     }
 
     if (/th|td/.test(block.type)) {
@@ -193,39 +130,6 @@ const arrowCtrl = ContentState => {
     }
 
     if (
-      (preBlock && preBlock.type === 'pre' && /code|html/.test(preBlock.functionType) && event.key === EVENT_KEYS.ArrowUp) ||
-      (preBlock && preBlock.type === 'pre' && /code|html/.test(preBlock.functionType) && event.key === EVENT_KEYS.ArrowLeft && left === 0)
-    ) {
-      event.preventDefault()
-      event.stopPropagation()
-      const key = preBlock.key
-      const offset = 0
-      this.cursor = {
-        start: { key, offset },
-        end: { key, offset }
-      }
-
-      const cm = this.codeBlocks.get(preBlock.key)
-      preBlock.selection = getEndPosition(cm)
-
-      return this.partialRender()
-    } else if (
-      (nextBlock && nextBlock.type === 'pre' && /code|html/.test(nextBlock.functionType) && event.key === EVENT_KEYS.ArrowDown) ||
-      (nextBlock && nextBlock.type === 'pre' && /code|html/.test(nextBlock.functionType) && event.key === EVENT_KEYS.ArrowRight && right === 0)
-    ) {
-      event.preventDefault()
-      event.stopPropagation()
-      const key = nextBlock.key
-      const offset = 0
-      this.cursor = {
-        start: { key, offset },
-        end: { key, offset }
-      }
-
-      nextBlock.selection = getBeginPosition()
-
-      return this.partialRender()
-    } else if (
       (event.key === EVENT_KEYS.ArrowUp) ||
       (event.key === EVENT_KEYS.ArrowLeft && start.offset === 0)
     ) {

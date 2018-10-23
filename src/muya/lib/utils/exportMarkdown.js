@@ -7,7 +7,7 @@
  * and GitHub Flavored Markdown Spec: https://github.github.com/gfm/
  * The output markdown needs to obey the standards of the two Spec.
  */
-const LINE_BREAKS = /\n/
+// const LINE_BREAKS = /\n/
 
 class ExportMarkdown {
   constructor (blocks) {
@@ -153,10 +153,10 @@ class ExportMarkdown {
     return this.translateBlocks2Markdown(children, newIndent)
   }
 
-  normalizeFrontMatter (block, indent) {
+  normalizeFrontMatter (block, indent) { // preBlock
     const result = []
     result.push('---\n')
-    for (const line of block.children) {
+    for (const line of block.children[0].children) {
       result.push(`${line.text}\n`)
     }
     result.push('---\n')
@@ -166,7 +166,7 @@ class ExportMarkdown {
   normalizeMultipleMath (block, /* figure */ indent) {
     const result = []
     result.push('$$\n')
-    for (const line of block.children[0].children) {
+    for (const line of block.children[0].children[0].children) {
       result.push(`${line.text}\n`)
     }
     result.push('$$\n')
@@ -175,9 +175,9 @@ class ExportMarkdown {
 
   normalizeCodeBlock (block, indent) {
     const result = []
-    const textList = block.text.split(LINE_BREAKS)
-    const { codeBlockStyle } = block
-    if (codeBlockStyle === 'fenced') {
+    const textList = block.children[1].children.map(codeLine => codeLine.text)
+    const { functionType } = block
+    if (functionType === 'fencecode') {
       result.push(`${indent}${block.lang ? '```' + block.lang + '\n' : '```\n'}`)
       textList.forEach(text => {
         result.push(`${indent}${text}\n`)
@@ -192,12 +192,11 @@ class ExportMarkdown {
     return result.join('')
   }
 
-  normalizeHTML (block, indent) {
+  normalizeHTML (block, indent) { // figure
     const result = []
-    const codeContent = block.children[1].children[0].text
-    const textList = codeContent.split(LINE_BREAKS)
-    for (const text of textList) {
-      result.push(`${indent}${text}\n`)
+    const codeLines = block.children[1].children[0].children[0].children
+    for (const line of codeLines) {
+      result.push(`${indent}${line.text}\n`)
     }
     return result.join('')
   }

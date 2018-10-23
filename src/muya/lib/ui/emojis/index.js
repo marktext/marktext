@@ -29,11 +29,8 @@ export const validEmoji = text => {
  */
 
 export const checkEditEmoji = node => {
-  const preSibling = node.previousElementSibling
   if (node.classList.contains(CLASS_OR_ID['AG_EMOJI_MARKED_TEXT'])) {
     return node
-  } else if (preSibling && preSibling.classList.contains(CLASS_OR_ID['AG_EMOJI_MARKED_TEXT'])) {
-    return preSibling
   }
   return false
 }

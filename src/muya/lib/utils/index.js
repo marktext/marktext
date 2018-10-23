@@ -1,4 +1,5 @@
 // DOTO: Don't use Node API in editor folder, remove `path` @jocs
+// todo@jocs: remove the use of `axios` in muya
 import axios from 'axios'
 import createDOMPurify from 'dompurify'
 
@@ -159,17 +160,6 @@ export const checkImageContentType = async url => {
   } catch (err) {
     return false
   }
-}
-
-export const collectImportantComments = css => {
-  const once = new Set()
-  const cleaned = css.replace(/(\/\*![\s\S]*?\*\/)\n*/gm, (match, p1) => {
-    once.add(p1)
-    return ''
-  })
-  const combined = Array.from(once)
-  combined.push(cleaned)
-  return combined.join('\n')
 }
 
 export const getImageInfo = src => {

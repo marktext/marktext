@@ -1,6 +1,5 @@
 import selection from '../selection'
 import { findNearestParagraph, findOutMostParagraph } from '../selection/dom'
-import { isCursorAtBegin, onlyHaveOneLine, getEndPosition } from '../codeMirror'
 
 const backspaceCtrl = ContentState => {
   ContentState.prototype.checkBackspaceCase = function () {
@@ -128,6 +127,10 @@ const backspaceCtrl = ContentState => {
       return this.render()
     }
 
+    if (startBlock.functionType === 'languageInput' && start.offset === 0) {
+      return event.preventDefault()
+    }
+
     // If select multiple paragraph or multiple characters in one paragraph, just let
     // updateCtrl to handle this case.
     if (start.key !== end.key || start.offset !== end.offset) {
@@ -151,19 +154,39 @@ const backspaceCtrl = ContentState => {
       return tHeadHasContent || tBodyHasContent
     }
 
-    if (block.type === 'pre' && /code|html/.test(block.functionType)) {
-      const cm = this.codeBlocks.get(id)
-      // if event.preventDefault(), you can not use backspace in language input.
-      if (isCursorAtBegin(cm) && onlyHaveOneLine(cm)) {
-        const anchorBlock = block.functionType === 'html' ? this.getParent(this.getParent(block)) : block
-        event.preventDefault()
-        const value = cm.getValue()
-        const newBlock = this.createBlockP(value)
-        this.insertBefore(newBlock, anchorBlock)
-        this.removeBlock(anchorBlock)
-        this.codeBlocks.delete(id)
-        const key = newBlock.children[0].key
+    if (
+      block.type === 'span' &&
+      block.functionType === 'codeLine' &&
+      left === 0 &&
+      !block.preSibling
+    ) {
+      event.preventDefault()
+      event.stopPropagation()
+      if (
+        !block.nextSibling
+      ) {
+        const preBlock = this.getParent(parent)
+        const pBlock = this.createBlock('p')
+        const lineBlock = this.createBlock('span', block.text)
+        const key = lineBlock.key
         const offset = 0
+        this.appendChild(pBlock, lineBlock)
+        let referenceBlock = null
+        switch (preBlock.functionType) {
+          case 'fencecode':
+          case 'indentcode':
+          case 'frontmatter':
+            referenceBlock = preBlock
+            break
+          case 'multiplemath':
+            referenceBlock = this.getParent(preBlock)
+            break
+          case 'html':
+            referenceBlock = this.getParent(this.getParent(preBlock))
+            break
+        }
+        this.insertBefore(pBlock, referenceBlock)
+        this.removeBlock(referenceBlock)
 
         this.cursor = {
           start: { key, offset },
@@ -171,31 +194,6 @@ const backspaceCtrl = ContentState => {
         }
         this.partialRender()
       }
-    } else if (
-      block.type === 'span' && /frontmatter|multiplemath/.test(block.functionType) &&
-      left === 0 && !block.preSibling
-    ) {
-      const isMathLine = block.functionType === 'multiplemath'
-      event.preventDefault()
-      event.stopPropagation()
-      const { key } = block
-      const offset = 0
-      const pBlock = this.createBlock('p')
-      for (const line of parent.children) {
-        delete line.functionType
-        this.appendChild(pBlock, line)
-      }
-      if (isMathLine) {
-        parent = this.getParent(parent)
-      }
-      this.insertBefore(pBlock, parent)
-      this.removeBlock(parent)
-
-      this.cursor = {
-        start: { key, offset },
-        end: { key, offset }
-      }
-      this.partialRender()
     } else if (left === 0 && /th|td/.test(block.type)) {
       event.preventDefault()
       event.stopPropagation()
@@ -298,19 +296,7 @@ const backspaceCtrl = ContentState => {
       const { text } = block
       const key = preBlock.key
       const offset = preBlock.text.length
-      if (preBlock.type === 'pre' && /code|html/.test(preBlock.functionType)) {
-        const cm = this.codeBlocks.get(key)
-        const value = cm.getValue() + text
-        cm.setValue(value)
-        const { line, ch } = getEndPosition(cm).anchor
-
-        preBlock.selection = {
-          anchor: { line, ch: ch - text.length },
-          head: { line, ch: ch - text.length }
-        }
-      } else {
-        preBlock.text += text
-      }
+      preBlock.text += text
       // If block is a line block and its parent paragraph only has one text line,
       // also need to remove the paragrah
       if (this.isOnlyChild(block) && block.type === 'span') {

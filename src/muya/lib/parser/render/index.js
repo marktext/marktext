@@ -7,9 +7,9 @@ import renderInlines from './renderInlines'
 import renderBlock from './renderBlock'
 
 class StateRender {
-  constructor (eventCenter) {
-    this.eventCenter = eventCenter
-    this.refreshCodeBlock = false
+  constructor (muya) {
+    this.muya = muya
+    this.eventCenter = muya.eventCenter
     this.loadImageMap = new Map()
     this.loadMathMap = new Map()
     this.tokenCache = new Map()
@@ -81,14 +81,10 @@ class StateRender {
     if (type === 'span') {
       selector += `.${CLASS_OR_ID['AG_LINE']}`
     }
-    if (block.temp) {
-      selector += `.${CLASS_OR_ID['AG_TEMP']}`
-    }
     return selector
   }
 
-  render (blocks, cursor, activeBlocks, matches, refreshCodeBlock) {
-    this.refreshCodeBlock = refreshCodeBlock
+  render (blocks, cursor, activeBlocks, matches) {
     const selector = `div#${CLASS_OR_ID['AG_EDITOR_ID']}`
 
     const children = blocks.map(block => {

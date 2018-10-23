@@ -1,8 +1,8 @@
-import { EVENT_KEYS, CLASS_OR_ID } from '../config'
+import { EVENT_KEYS } from '../config'
 import selection from '../selection'
 import { findNearestParagraph } from '../selection/dom'
 import { getParagraphReference } from '../utils'
-import { checkEditLanguage } from '../codeMirror/language'
+import { checkEditLanguage } from '../prism/index'
 import { checkEditEmoji } from '../ui/emojis'
 
 class Keyboard {
@@ -11,7 +11,7 @@ class Keyboard {
     this._isEditChinese = false
     this.shownFloat = new Set()
     this.recordEditChinese()
-    this.dispatchUpdateState()
+    this.dispatchEditorState()
     this.keydownBinding()
     this.keyupBinding()
     this.inputBinding()
@@ -39,32 +39,25 @@ class Keyboard {
     eventCenter.attachDOMEvent(container, 'compositionstart', handler)
   }
 
-  dispatchUpdateState () {
+  dispatchEditorState () {
     const { container, eventCenter, contentState } = this.muya
 
     let timer = null
     const changeHandler = event => {
-      const target = event.target
-      if (event.type === 'click' && target.classList.contains(CLASS_OR_ID['AG_FUNCTION_HTML'])) return
       if (event.type === 'keyup' && (event.key === EVENT_KEYS.ArrowUp || event.key === EVENT_KEYS.ArrowDown) && this.shownFloat.size > 0) return
-      if (!this._isEditChinese) {
-        contentState.updateState(event)
-      }
-      if (event.type === 'click' || event.type === 'keyup') {
-        if (timer) clearTimeout(timer)
-        timer = setTimeout(() => {
-          const selectionChanges = contentState.selectionChange()
-          const { formats } = contentState.selectionFormats()
-          eventCenter.dispatch('selectionChange', selectionChanges)
-          eventCenter.dispatch('selectionFormats', formats)
-          this.muya.dispatchChange()
-        })
-      }
+
+      if (timer) clearTimeout(timer)
+      timer = setTimeout(() => {
+        const selectionChanges = contentState.selectionChange()
+        const { formats } = contentState.selectionFormats()
+        eventCenter.dispatch('selectionChange', selectionChanges)
+        eventCenter.dispatch('selectionFormats', formats)
+        this.muya.dispatchChange()
+      })
     }
 
     eventCenter.attachDOMEvent(container, 'click', changeHandler)
     eventCenter.attachDOMEvent(container, 'keyup', changeHandler)
-    eventCenter.attachDOMEvent(container, 'input', changeHandler)
   }
 
   keydownBinding () {
@@ -123,7 +116,7 @@ class Keyboard {
 
   inputBinding () {
     const { container, eventCenter, contentState } = this.muya
-    const inputHandler = _ => {
+    const inputHandler = event => {
       const node = selection.getSelectionStart()
       const paragraph = findNearestParagraph(node)
       const selectionState = selection.exportSelection(paragraph)
@@ -136,6 +129,12 @@ class Keyboard {
             contentState.selectLanguage(paragraph, item.name)
           }
         })
+      } else {
+        // hide code picker float box
+        eventCenter.dispatch('muya-code-picker', { reference: null })
+      }
+      if (!this._isEditChinese) {
+        contentState.inputHandler(event)
       }
     }
 
@@ -154,7 +153,9 @@ class Keyboard {
         emojiNode &&
         event.key !== EVENT_KEYS.Enter &&
         event.key !== EVENT_KEYS.ArrowDown &&
-        event.key !== EVENT_KEYS.ArrowUp
+        event.key !== EVENT_KEYS.ArrowUp &&
+        event.key !== EVENT_KEYS.Tab &&
+        event.key !== EVENT_KEYS.Escape
       ) {
         const reference = getParagraphReference(emojiNode, paragraph.id)
         eventCenter.dispatch('muya-emoji-picker', {
@@ -169,7 +170,8 @@ class Keyboard {
       }
       // is show format float box?
       const { start, end } = selection.getCursorRange()
-      if (start.key === end.key && start.offset !== end.offset) {
+      const block = contentState.getBlock(start.key)
+      if (start.key === end.key && start.offset !== end.offset && block.functionType !== 'codeLine') {
         const reference = contentState.getPositionReference()
         const { formats } = contentState.selectionFormats()
         eventCenter.dispatch('muya-format-picker', { reference, formats })

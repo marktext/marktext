@@ -1,6 +1,6 @@
 import BaseScrollFloat from '../baseScrollFloat'
 import { patch, h } from '../../parser/render/snabbdom'
-import { search } from '../../codeMirror'
+import { search } from '../../prism/index'
 import fileIcons from '../fileIcons'
 
 import './index.css'
@@ -19,10 +19,8 @@ class CodePicker extends BaseScrollFloat {
     super.listen()
     const { eventCenter } = this.muya
     eventCenter.subscribe('muya-code-picker', ({ reference, lang, cb }) => {
-      const modes = search(lang).map(mode => {
-        return Object.assign(mode, { text: mode.name })
-      })
-      if (modes.length) {
+      const modes = search(lang)
+      if (modes.length && reference) {
         this.show(reference, cb)
         this.renderArray = modes
         this.activeItem = modes[0]
@@ -37,19 +35,19 @@ class CodePicker extends BaseScrollFloat {
     const { renderArray, oldVnode, scrollElement, activeItem } = this
     let children = renderArray.map(item => {
       let iconClassNames
-      if (item.mode.ext && Array.isArray(item.mode.ext)) {
-        for (const ext of item.mode.ext) {
+      if (item.ext && Array.isArray(item.ext)) {
+        for (const ext of item.ext) {
           iconClassNames = fileIcons.getClassWithColor(`fackname.${ext}`)
           if (iconClassNames) break
         }
-      } else if (item.mode.name) {
-        iconClassNames = fileIcons.getClassWithColor(item.mode.name)
+      } else if (item.name) {
+        iconClassNames = fileIcons.getClassWithColor(item.name)
       }
 
       // Because `markdown mode in Codemirror` don't have extensions.
       // if still can not get the className, add a common className 'atom-icon light-cyan'
       if (!iconClassNames) {
-        iconClassNames = item.text === 'markdown' ? fileIcons.getClassWithColor('fackname.md') : 'atom-icon light-cyan'
+        iconClassNames = item.name === 'markdown' ? fileIcons.getClassWithColor('fackname.md') : 'atom-icon light-cyan'
       }
       const iconSelector = 'span' + iconClassNames.split(/\s/).map(s => `.${s}`).join('')
       const icon = h('div.icon-wrapper', h(iconSelector))

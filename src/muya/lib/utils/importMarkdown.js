@@ -6,6 +6,7 @@
 import { Lexer } from '../parser/marked'
 import ExportMarkdown from './exportMarkdown'
 import TurndownService, { usePluginAddRules } from './turndownService'
+import { loadLanguage } from '../prism/index'
 
 // To be disabled rules when parse markdown, Because content state don't need to parse inline rules
 import { CURSOR_DNA, TABLE_TOOLS } from '../config'
@@ -27,7 +28,6 @@ const importRegister = ContentState => {
     }
 
     const tokens = new Lexer({ disableInline: true }).lex(markdown)
-    console.log(JSON.stringify(tokens, null, 2))
 
     let token
     let block
@@ -39,15 +39,21 @@ const importRegister = ContentState => {
         case 'frontmatter': {
           value = token.text
           block = this.createBlock('pre')
-          const lines = value
+          const codeBlock = this.createBlock('code')
+          value
             .replace(/^\s+/, '')
             .replace(/\s$/, '')
-            .split(LINE_BREAKS_REG).map(line => this.createBlock('span', line))
-          for (const line of lines) {
-            line.functionType = token.type
-            this.appendChild(block, line)
-          }
+            .split(LINE_BREAKS_REG).forEach(line => {
+              const codeLine = this.createBlock('span', line)
+              codeLine.functionType = 'codeLine'
+              codeLine.lang = 'yaml'
+              this.appendChild(codeBlock, codeLine)
+            })
+
           block.functionType = token.type
+          block.lang = codeBlock.lang = 'yaml'
+          this.codeBlocks.set(block.key, value)
+          this.appendChild(block, codeBlock)
           this.appendChild(parentList[0], block)
           break
         }
@@ -72,14 +78,29 @@ const importRegister = ContentState => {
           break
         }
         case 'code': {
-          const { codeBlockStyle, text, lang, type } = token
+          const { codeBlockStyle, text, lang = '' } = token
           value = text
           if (value.endsWith('\n')) {
             value = value.replace(/\n+$/, '')
           }
-          block = this.createBlock('pre', value)
-          block.functionType = type
-          Object.assign(block, { lang, codeBlockStyle })
+          block = this.createBlock('pre')
+          const codeBlock = this.createBlock('code')
+          value.split(LINE_BREAKS_REG).forEach(line => {
+            const codeLine = this.createBlock('span', line)
+            codeLine.lang = lang
+            codeLine.functionType = 'codeLine'
+            this.appendChild(codeBlock, codeLine)
+          })
+          const inputBlock = this.createBlock('span', lang)
+          if (lang) {
+            loadLanguage(lang)
+          }
+          inputBlock.functionType = 'languageInput'
+          this.codeBlocks.set(block.key, value)
+          block.functionType = codeBlockStyle === 'fenced' ? 'fencecode' : 'indentcode'
+          block.lang = codeBlock.lang = lang
+          this.appendChild(block, inputBlock)
+          this.appendChild(block, codeBlock)
           this.appendChild(parentList[0], block)
           break
         }
@@ -249,12 +270,14 @@ const importRegister = ContentState => {
                 end: { key, offset }
               }
               // handle cursor in Math block, need to remove `CURSOR_DNA` in preview block
-              if (type === 'span' && functionType === 'multiplemath') {
-                const mathPreview = this.getNextSibling(this.getParent(block))
-                const { math } = mathPreview
-                const offset = math.indexOf(CURSOR_DNA)
+              if (type === 'span' && functionType === 'codeLine') {
+                const preBlock = this.getParent(this.getParent(block))
+                const code = this.codeBlocks.get(preBlock.key)
+                if (!code) return
+                const offset = code.indexOf(CURSOR_DNA)
                 if (offset > -1) {
-                  mathPreview.math = math.substring(0, offset) + math.substring(offset + CURSOR_DNA.length)
+                  const newCode = code.substring(0, offset) + code.substring(offset + CURSOR_DNA.length)
+                  this.codeBlocks.set(preBlock.key, newCode)
                 }
               }
               return
@@ -279,7 +302,6 @@ const importRegister = ContentState => {
   }
 
   ContentState.prototype.importMarkdown = function (markdown) {
-    // empty the blocks and codeBlocks
     this.codeBlocks = new Map()
     this.blocks = this.markdownToState(markdown)
   }

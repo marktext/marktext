@@ -4,28 +4,28 @@
     font-family: 'Open Sans';
     font-style: normal;
     font-weight: normal;
-    src: local('Open Sans Regular'),url('./github/400.woff') format('woff')
+    src: local('Open Sans Regular'),url('./github/400.woff') format('woff');
 }
 
 @font-face {
     font-family: 'Open Sans';
     font-style: italic;
     font-weight: normal;
-    src: local('Open Sans Italic'),url('./github/400i.woff') format('woff')
+    src: local('Open Sans Italic'),url('./github/400i.woff') format('woff');
 }
 
 @font-face {
     font-family: 'Open Sans';
     font-style: normal;
     font-weight: bold;
-    src: local('Open Sans Bold'),url('./github/700.woff') format('woff')
+    src: local('Open Sans Bold'),url('./github/700.woff') format('woff');
 }
 
 @font-face {
     font-family: 'Open Sans';
     font-style: italic;
     font-weight: bold;
-    src: local('Open Sans Bold Italic'),url('./github/700i.woff') format('woff')
+    src: local('Open Sans Bold Italic'),url('./github/700i.woff') format('woff');
 }
 
 html, body {
@@ -63,11 +63,6 @@ body {
 #ag-editor-id, [contenteditable] {
   outline: none;
   caret-color: #000000;
-}
-
-#ag-editor-id>ul:first-child,
-#ag-editor-id>ol:first-child {
-  margin-top: 30px;
 }
 
 .ag-gray {
@@ -322,32 +317,28 @@ table tr td:last-child {
   margin-bottom: 0;
 }
 
-.CodeMirror-gutters {
-  border-right: 1px solid #ddd;
-}
-
-code,
-tt {
-  border: 1px solid #ddd;
-  background-color: #f8f8f8;
+span code,
+td code,
+th code {
+  background-color: rgba(27, 31, 35, 0.05);
   border-radius: 3px;
   padding: 0;
-  font-family: Consolas, "Liberation Mono", Courier, monospace;
+  font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
   padding: 2px 4px 0px 4px;
-  font-size: 0.9em;
+  font-size: 85%;
+  margin: 0;
+  padding: 0.2em 0.4em;
+  color: #24292e;
 }
 
-
-/* custom add */
-code {
-  padding: 0.2em 0.4em;
-  margin: 0;
-  font-size: 85%;
-  background-color: rgba(27,31,35,0.05);
+:not(pre) > code[class*="language-"],
+pre {
+  font-size: 90%;
+  line-height: 1.6;
+  background: #f6f8fa;
+  border: 0;
   border-radius: 3px;
-  border: none;
-  color: #24292e;
-  font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
+  color: #777777;
 }
 
 @media print {
@@ -376,16 +367,6 @@ code {
   border-bottom-color: #333333;
 }
 
-#ag-editor-id pre.ag-code-block,
-#ag-editor-id pre.ag-html-block {
-  font-size: 90%;
-  line-height: 1.6;
-  background: #f6f8fa;
-  border: 0;
-  border-radius: 3px;
-  color: #777777;
-}
-
 #ag-editor-id pre.ag-html-block {
   background: transparent;
   padding: 0 .5rem;
@@ -403,3 +384,116 @@ p:not(.ag-active)[data-role="hr"]::before {
 .fg-color-dark {
   color: #303133;
 }
+
+/* prismjs default theme */
+
+code[class*="language-"],
+pre.ag-paragraph {
+   color: black;
+   font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+   text-align: left;
+   white-space: pre;
+   word-spacing: normal;
+   word-break: normal;
+   word-wrap: normal;
+   -moz-tab-size: 4;
+   -o-tab-size: 4;
+   tab-size: 4;
+ 
+   -webkit-hyphens: none;
+   -moz-hyphens: none;
+   -ms-hyphens: none;
+   hyphens: none;
+ }
+ 
+ /* Code blocks */
+ pre.ag-paragraph {
+   padding: 1em;
+   margin: 1em 0;
+ }
+ 
+ /* Inline code */
+ :not(pre) > code[class*="language-"] {
+   padding: .1em;
+   border-radius: .3em;
+   white-space: normal;
+ }
+ 
+ .token.comment,
+ .token.prolog,
+ .token.doctype,
+ .token.cdata {
+   color: slategray;
+ }
+ 
+ .token.punctuation {
+   color: #999;
+ }
+ 
+ .namespace {
+   opacity: .7;
+ }
+ 
+ .token.property,
+ .token.tag,
+ .token.boolean,
+ .token.number,
+ .token.constant,
+ .token.symbol {
+   color: #905;
+ }
+ 
+ .token.selector,
+ .token.attr-name,
+ .token.string,
+ .token.char,
+ .token.builtin {
+   color: #690;
+ }
+
+ .token.inserted {
+  color: #22863a;
+  background: #f0fff4;
+}
+
+.token.deleted {
+  color: #b31d28;
+  background: #ffeef0;
+}
+ 
+ .token.operator,
+ .token.entity,
+ .token.url,
+ .language-css .token.string,
+ .style .token.string {
+   color: #9a6e3a;
+ }
+ 
+ .token.atrule,
+ .token.attr-value,
+ .token.keyword {
+   color: #07a;
+ }
+ 
+ .token.function,
+ .token.class-name {
+   color: #DD4A68;
+ }
+ 
+ .token.regex,
+ .token.important,
+ .token.variable {
+   color: #e90;
+ }
+ 
+ .token.important,
+ .token.bold {
+   font-weight: bold;
+ }
+ .token.italic {
+   font-style: italic;
+ }
+ 
+ .token.entity {
+   cursor: help;
+ }

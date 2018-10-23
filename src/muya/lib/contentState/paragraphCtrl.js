@@ -17,7 +17,6 @@ const getCurrentLevel = type => {
 
 const paragraphCtrl = ContentState => {
   ContentState.prototype.selectionChange = function (cursor) {
-    const { fontSize, lineHeight } = this
     const { start, end } = cursor || selection.getCursorRange()
     const cursorCoords = selection.getCursorCoords()
     const startBlock = this.getBlock(start.key)
@@ -32,13 +31,6 @@ const paragraphCtrl = ContentState => {
     start.block = startBlock
     end.type = endBlock.type
     end.block = endBlock
-
-    if (start.type === 'pre' && end.type === 'pre' && startBlock.functionType !== 'frontmatter') {
-      const preElement = document.querySelector(`#${start.key}`)
-      const { top } = preElement.getBoundingClientRect()
-      const { line } = start.block.selection.anchor
-      cursorCoords.y = top + line * lineHeight * fontSize
-    }
 
     return {
       start,
@@ -73,10 +65,13 @@ const paragraphCtrl = ContentState => {
     const firstBlock = this.blocks[0]
     if (firstBlock.type === 'pre' && firstBlock.functionType === 'frontmatter') return
     const frontMatter = this.createBlock('pre')
+    const codeBlock = this.createBlock('code')
     const emptyLine = this.createBlock('span')
-    emptyLine.functionType = 'frontmatter'
+    frontMatter.lang = codeBlock.lang = emptyLine.lang = 'yaml'
+    emptyLine.functionType = 'codeLine'
     frontMatter.functionType = 'frontmatter'
-    this.appendChild(frontMatter, emptyLine)
+    this.appendChild(codeBlock, emptyLine)
+    this.appendChild(frontMatter, codeBlock)
     this.insertBefore(frontMatter, firstBlock)
     const { key } = emptyLine
     const offset = 0
@@ -197,70 +192,75 @@ const paragraphCtrl = ContentState => {
     const startParents = this.getParents(startBlock)
     const endParents = this.getParents(endBlock)
     const hasFencedCodeBlockParent = () => {
-      return startParents.some(b => b.type === 'pre' && b.functionType === 'code') ||
-        endParents.some(b => b.type === 'pre' && b.functionType === 'code')
+      return startParents.some(b => b.type === 'pre' && /code/.test(b.functionType)) ||
+        endParents.some(b => b.type === 'pre' && /code/.test(b.functionType))
     }
     // change fenced code block to p paragraph
-    if (affiliation.length && affiliation[0].type === 'pre' && affiliation[0].functionType === 'code') {
-      const codeBlock = affiliation[0]
-      this.codeBlocks.delete(codeBlock.key)
-      codeBlock.type = 'p'
-      codeBlock.children = []
-      const lines = codeBlock.text.split(LINE_BREAKS_REG).map(line => this.createBlock('span', line))
-      for (const line of lines) {
-        this.appendChild(codeBlock, line)
+    if (affiliation.length && affiliation[0].type === 'pre' && /code/.test(affiliation[0].functionType)) {
+      const preBlock = affiliation[0]
+      const codeLines = preBlock.children[1].children
+      this.codeBlocks.delete(preBlock.key)
+      preBlock.type = 'p'
+      preBlock.children = []
+
+      for (const line of codeLines) {
+        delete line.lang
+        delete line.functionType
+        this.appendChild(preBlock, line)
       }
 
-      const { key } = codeBlock.children[codeBlock.selection.anchor.line]
-      const offset = codeBlock.selection.anchor.ch
-      delete codeBlock.selection
-      delete codeBlock.history
-      delete codeBlock.lang
-      delete codeBlock.coords
-      delete codeBlock.text
-      delete codeBlock.codeBlockStyle
-      delete codeBlock.functionType
+      delete preBlock.lang
+      delete preBlock.functionType
       this.cursor = {
-        start: { key, offset },
-        end: { key, offset }
+        start: this.cursor.start,
+        end: this.cursor.end
       }
     } else {
       if (start.key === end.key) {
         if (startBlock.type === 'span') {
           startBlock = this.getParent(startBlock)
-          startBlock.text = startBlock.children.map(line => line.text).join('\n')
-          const line = startBlock.children.findIndex(line => line.key === start.key)
-          const ch = start.offset
-          startBlock.selection = {
-            anchor: { line, ch },
-            head: { line, ch }
-          }
+          startBlock.type = 'pre'
+          const codeBlock = this.createBlock('code')
+          const inputBlock = this.createBlock('span', '')
+          inputBlock.functionType = 'languageInput'
+          startBlock.functionType = 'fencecode'
+          startBlock.lang = codeBlock.lang = ''
+          const codeLines = startBlock.children
           startBlock.children = []
+          codeLines.forEach(line => {
+            line.functionType = 'codeLine'
+            line.lang = ''
+            this.appendChild(codeBlock, line)
+          })
+          this.appendChild(startBlock, inputBlock)
+          this.appendChild(startBlock, codeBlock)
         }
-        const { key } = startBlock
-        const offset = 0
-        startBlock.type = 'pre'
-        startBlock.codeBlockStyle = 'fenced'
-        startBlock.functionType = 'code'
-        startBlock.history = null
-        startBlock.lang = ''
+
         this.cursor = {
-          start: { key, offset },
-          end: { key, offset }
+          start: this.cursor.start,
+          end: this.cursor.end
         }
       } else if (!hasFencedCodeBlockParent()) {
         const { parent, startIndex, endIndex } = this.getCommonParent()
         const children = parent ? parent.children : this.blocks
         const referBlock = children[endIndex]
-        const codeBlock = this.createBlock('pre')
-        codeBlock.codeBlockStyle = 'fenced'
-        codeBlock.functionType = 'code'
-        codeBlock.history = null
-        codeBlock.lang = ''
+        const preBlock = this.createBlock('pre')
+        const codeBlock = this.createBlock('code')
+        preBlock.functionType = 'fencecode'
+        preBlock.lang = codeBlock.lang = ''
         const markdown = new ExportMarkdown(children.slice(startIndex, endIndex + 1)).generate()
 
-        codeBlock.text = markdown
-        this.insertAfter(codeBlock, referBlock)
+        markdown.split(LINE_BREAKS_REG).forEach(text => {
+          const codeLine = this.createBlock('span', text)
+          codeLine.lang = ''
+          codeLine.functionType = 'codeLine'
+          this.appendChild(codeBlock, codeLine)
+        })
+        const inputBlock = this.createBlock('span', '')
+        inputBlock.functionType = 'languageInput'
+        this.appendChild(preBlock, inputBlock)
+        this.appendChild(preBlock, codeBlock)
+        this.insertAfter(preBlock, referBlock)
         let i
         const removeCache = []
         for (i = startIndex; i <= endIndex; i++) {
@@ -268,7 +268,7 @@ const paragraphCtrl = ContentState => {
           removeCache.push(child)
         }
         removeCache.forEach(b => this.removeBlock(b))
-        const key = codeBlock.key
+        const key = codeBlock.children[0].key
         const offset = 0
         this.cursor = {
           start: { key, offset },
@@ -353,8 +353,8 @@ const paragraphCtrl = ContentState => {
   ContentState.prototype.insertHtmlBlock = function (block) {
     const parentBlock = this.getParent(block)
     block.text = '<div>'
-    const cursorBlock = this.initHtmlBlock(parentBlock, 'div')
-    const key = cursorBlock.key
+    const preBlock = this.initHtmlBlock(parentBlock, 'div')
+    const key = preBlock.children[0].children[1].key
     const offset = 0
     this.cursor = {
       start: { key, offset },
@@ -519,8 +519,30 @@ const paragraphCtrl = ContentState => {
     // if cursor is not in one line or paragraph, can not insert paragraph
     if (start.key !== end.key) return
     let block = this.getBlock(start.key)
-    if (block.type === 'span') {
+    if (block.type === 'span' && !block.functionType) {
       block = this.getParent(block)
+    } else if (block.type === 'span' && block.functionType === 'codeLine') {
+      const preBlock = this.getParent(this.getParent(block))
+      switch (preBlock.functionType) {
+        case 'fencecode':
+        case 'indentcode':
+        case 'frontmatter': {
+          // You can not insert paragraph before frontmatter
+          if (preBlock.functionType === 'frontmatter' && location === 'before') {
+            return
+          }
+          block = preBlock
+          break
+        }
+        case 'html': {
+          block = this.getParent(this.getParent(preBlock))
+          break
+        }
+        case 'multiplemath': {
+          block = this.getParent(preBlock)
+          break
+        }
+      }
     } else if (/th|td/.test(block.type)) {
       // get figure block from table cell
       block = this.getParent(this.getParent(this.getParent(this.getParent(block))))

@@ -5,9 +5,6 @@ import ExportMarkdown from '../utils/exportMarkdown'
 
 const copyCutCtrl = ContentState => {
   ContentState.prototype.cutHandler = function () {
-    if (this.checkInCodeBlock()) {
-      return
-    }
     const { start, end } = this.cursor
     const startBlock = this.getBlock(start.key)
     const endBlock = this.getBlock(end.key)
@@ -22,16 +19,6 @@ const copyCutCtrl = ContentState => {
     this.partialRender()
   }
 
-  ContentState.prototype.checkInCodeBlock = function () {
-    const { start, end } = selection.getCursorRange()
-    const { type, functionType } = this.getBlock(start.key)
-
-    if (start.key === end.key && type === 'pre' && /code|html/.test(functionType)) {
-      return true
-    }
-    return false
-  }
-
   ContentState.prototype.getClipBoradData = function () {
     const html = selection.getSelectionHtml()
     const wrapper = document.createElement('div')
@@ -41,7 +28,9 @@ const copyCutCtrl = ContentState => {
       .${CLASS_OR_ID['AG_MATH_RENDER']},
       .${CLASS_OR_ID['AG_HTML_PREVIEW']},
       .${CLASS_OR_ID['AG_MATH_PREVIEW']},
-      .${CLASS_OR_ID['AG_COPY_REMOVE']}`
+      .${CLASS_OR_ID['AG_COPY_REMOVE']},
+      .${CLASS_OR_ID['AG_LANGUAGE_INPUT']}`
+
     )
     ;[...removedElements].forEach(e => e.remove())
 
@@ -78,31 +67,32 @@ const copyCutCtrl = ContentState => {
       l.replaceWith(span)
     })
 
-    const codefense = wrapper.querySelectorAll(`pre.${CLASS_OR_ID['AG_CODE_BLOCK']}`)
+    const codefense = wrapper.querySelectorAll(`pre[data-role$='code']`)
     ;[...codefense].forEach(cf => {
       const id = cf.id
-      const language = cf.getAttribute('data-lang') || ''
-      const cm = this.codeBlocks.get(id)
-      const value = cm.getValue()
-      cf.innerHTML = `<code class="language-${language}" lang="${language}">${value}</code>`
+      const block = this.getBlock(id)
+      const language = block.lang || ''
+      const selectedCodeLines = cf.querySelectorAll('.ag-code-line')
+      const value = [...selectedCodeLines].map(codeLine => codeLine.textContent).join('\n')
+      cf.innerHTML = `<code class="language-${language}">${value}</code>`
     })
 
     const htmlBlock = wrapper.querySelectorAll(`figure[data-role='HTML']`)
     ;[...htmlBlock].forEach(hb => {
-      const id = hb.id
-      const { text } = this.getBlock(id)
+      const selectedCodeLines = hb.querySelectorAll('span.ag-code-line')
+      const value = [...selectedCodeLines].map(codeLine => codeLine.textContent).join('\n')
       const pre = document.createElement('pre')
-      pre.textContent = text
+      pre.textContent = value
       hb.replaceWith(pre)
     })
 
     const mathBlock = wrapper.querySelectorAll(`figure.ag-multiple-math-block`)
     ;[...mathBlock].forEach(mb => {
-      const id = mb.id
-      const { math } = this.getBlock(id).children[1]
+      const selectedCodeLines = mb.querySelectorAll('span.ag-code-line')
+      const value = [...selectedCodeLines].map(codeLine => codeLine.textContent).join('\n')
       const pre = document.createElement('pre')
       pre.classList.add('multiple-math')
-      pre.textContent = math
+      pre.textContent = value
       mb.replaceWith(pre)
     })
 
@@ -113,9 +103,6 @@ const copyCutCtrl = ContentState => {
   }
 
   ContentState.prototype.copyHandler = function (event, type) {
-    if (this.checkInCodeBlock()) {
-      return
-    }
     event.preventDefault()
 
     const { html, text } = this.getClipBoradData()

@@ -1,6 +1,14 @@
 import { CLASS_OR_ID } from '../../../config'
 import { h } from '../snabbdom'
 
+const PRE_BLOCK_HASH = {
+  'fencecode': `.${CLASS_OR_ID['AG_FENCE_CODE']}`,
+  'indentcode': `.${CLASS_OR_ID['AG_INDENT_CODE']}`,
+  'html': `.${CLASS_OR_ID['AG_HTML_BLOCK']}`,
+  'frontmatter': `.${CLASS_OR_ID['AG_FRONT_MATTER']}`,
+  'multiplemath': `.${CLASS_OR_ID['AG_MULTIPLE_MATH']}`
+}
+
 export default function renderContainerBlock (block, cursor, activeBlocks, matches, useCache = false) {
   let selector = this.getSelector(block, cursor, activeBlocks)
   const data = {
@@ -76,11 +84,19 @@ export default function renderContainerBlock (block, cursor, activeBlocks, match
   if (block.type === 'ol') {
     Object.assign(data.attrs, { start: block.start })
   }
-  if (block.type === 'pre' && /frontmatter|multiplemath/.test(block.functionType)) {
-    const role = block.functionType === 'frontmatter' ? 'YAML' : 'MATH'
-    const className = block.functionType === 'frontmatter' ? CLASS_OR_ID['AG_FRONT_MATTER'] : CLASS_OR_ID['AG_MULTIPLE_MATH']
-    Object.assign(data.dataset, { role })
-    selector += `.${className}`
+  if (block.type === 'code') {
+    const { lang } = block
+    if (lang) {
+      selector += `.language-${lang}`
+    }
+  }
+  if (block.type === 'pre') {
+    const { lang, functionType } = block
+    if (lang) {
+      selector += `.language-${lang}`
+    }
+    Object.assign(data.dataset, { role: functionType })
+    selector += PRE_BLOCK_HASH[block.functionType]
   }
 
   return h(selector, data, block.children.map(child => this.renderBlock(child, cursor, activeBlocks, matches, useCache)))

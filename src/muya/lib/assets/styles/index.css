@@ -1,3 +1,4 @@
+/* Common CSS use by both light and dark themes */
 :root {
   --brandColor: #5b3cc4;
   --successColor: rgb(23, 201, 100);
@@ -119,6 +120,9 @@ div.ag-function-html pre.ag-html-block {
   opacity: 0;
   z-index: -1;
   position: absolute;
+  margin-top: 0;
+  margin-bottom: 0;
+  overflow: visible;
 }
 
 div.ag-function-html.ag-active pre.ag-html-block,
@@ -431,12 +435,17 @@ pre.ag-front-matter {
   margin: 1rem 0;
 }
 
-span.ag-front-matter-line:first-of-type:empty::after {
+pre.ag-front-matter span.ag-code-line:first-of-type:empty::after {
   content: 'Input YAML Front Matter...';
   color: var(--placeholerColor);
 }
 
-span.ag-multiple-math-line:first-of-type:empty::after {
+pre[data-role$='code'] span.ag-language-input:empty::after {
+  content: 'Input Language...';
+  color: var(--placeholerColor);
+}
+
+pre.ag-multiple-math span.ag-code-line:first-of-type:empty::after {
   content: 'Input Mathematical Formula...';
   color: var(--placeholerColor);
 }
@@ -444,7 +453,8 @@ span.ag-multiple-math-line:first-of-type:empty::after {
 figure,
 pre.ag-html-block,
 div.ag-function-html,
-pre.ag-code-block,
+pre.ag-fence-code,
+pre.ag-indent-code,
 li.ag-list-item > p.ag-paragraph {
   position: relative;
   display: inline-flex;
@@ -460,9 +470,14 @@ li.ag-list-item > p.ag-paragraph > span {
   width: 100%;
 }
 
-pre.ag-code-block {
+pre.ag-fence-code,
+pre.ag-indent-code {
   margin: 1rem 0;
-  padding: 0 .5rem;
+}
+
+pre > code {
+  width: 100%;
+  display: block;
 }
 
 pre.ag-active.ag-front-matter::before,
@@ -475,15 +490,19 @@ pre.ag-active.ag-multiple-math::after {
   content: '$$';
 }
 
-pre.ag-active.ag-code-block::before,
-pre.ag-active.ag-code-block::after {
+pre.ag-active.ag-fence-code::before,
+pre.ag-active.ag-indent-code::after,
+pre.ag-active.ag-fence-code::after,
+pre.ag-active.ag-indent-code::before {
   content: '```';
 }
 
 pre.ag-active.ag-front-matter::before,
 pre.ag-active.ag-front-matter::after,
-pre.ag-active.ag-code-block::before,
-pre.ag-active.ag-code-block::after,
+pre.ag-active.ag-fence-code::before,
+pre.ag-active.ag-fence-code::after,
+pre.ag-active.ag-indent-code::before,
+pre.ag-active.ag-indent-code::after,
 pre.ag-active.ag-multiple-math::before,
 pre.ag-active.ag-multiple-math::after {
   color: var(--regularColor);
@@ -495,13 +514,15 @@ pre.ag-active.ag-multiple-math::after {
 
 pre.ag-active.ag-front-matter::before,
 pre.ag-active.ag-multiple-math::before,
-pre.ag-active.ag-code-block::before {
+pre.ag-active.ag-indent-code::before,
+pre.ag-active.ag-fence-code::before {
   top: -20px;
 }
 
 pre.ag-active.ag-front-matter::after,
 pre.ag-active.ag-multiple-math::after,
-pre.ag-active.ag-code-block::after {
+pre.ag-active.ag-fence-code::after,
+pre.ag-active.ag-indent-code::after {
   bottom: -23px;
 }
 
@@ -520,7 +541,7 @@ figure.ag-active div.ag-math-preview {
   top: calc(100% + 8px);
   left: 50%;
   width: auto;
-  z-index: 1;
+  z-index: 10000;
   transform: translateX(-50%);
   padding: .5rem;
   background: #fff;
@@ -531,10 +552,6 @@ figure.ag-active div.ag-math-preview {
 
 div.ag-html-preview {
   pointer-events: none;
-  width: 100%;
-}
-
-pre .CodeMirror {
   width: 100%;
 }
 
@@ -595,12 +612,12 @@ span.ag-emoji-marked-text {
 }
 
 .ag-language-input {
-  outline: none;
+  padding: 0 1rem;
   display: none;
   min-width: 80px;
   position: absolute;
-  top: -20px;
-  left: 30px;
+  top: -23px;
+  left: 20px;
   font-size: 14px;
   font-family: monospace;
   font-weight: 600;
@@ -618,6 +635,13 @@ pre.ag-active .ag-language-input {
   display: block;
 }
 
+.ag-language {
+  color: var(--activeColor);
+  font-weight: 600;
+  text-decoration: none;
+  font-family: monospace;
+}
+
 span.ag-image-marked-text, span.ag-link-in-bracket, span.ag-link-in-bracket .ag-backlash {
   color: var(--regularColor);
   font-size: 16px;
@@ -625,11 +649,6 @@ span.ag-image-marked-text, span.ag-link-in-bracket, span.ag-link-in-bracket .ag-
   font-family: monospace;
 }
 
-.ag-language {
-  color: var(--dangerColor);
-  text-decoration: none;
-  font-family: monospace;
-}
 .ag-backlash {
   text-decoration: none;
   color: rgb(51, 51, 51);

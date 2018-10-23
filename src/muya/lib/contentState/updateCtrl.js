@@ -1,9 +1,6 @@
-import selection from '../selection'
 import { tokenizer } from '../parser/parse'
 import { conflict } from '../utils'
-import { getTextContent } from '../selection/dom'
 import { CLASS_OR_ID, DEFAULT_TURNDOWN_CONFIG } from '../config'
-import { beginRules } from '../parser/rules'
 
 const INLINE_UPDATE_FRAGMENTS = [
   '^([*+-]\\s)', // Bullet list
@@ -15,8 +12,6 @@ const INLINE_UPDATE_FRAGMENTS = [
 ]
 
 const INLINE_UPDATE_REG = new RegExp(INLINE_UPDATE_FRAGMENTS.join('|'), 'i')
-
-let lastCursor = null
 
 const updateCtrl = ContentState => {
   // handle task list item checkbox click
@@ -32,29 +27,41 @@ const updateCtrl = ContentState => {
     return list.children[0].isLooseListItem === isLooseType
   }
 
-  ContentState.prototype.checkNeedRender = function (block) {
-    const { start: cStart, end: cEnd } = this.cursor
+  ContentState.prototype.checkNeedRender = function (cursor = this.cursor) {
+    const { start: cStart, end: cEnd } = cursor
+    const startBlock = this.getBlock(cStart.key)
+    const endBlock = this.getBlock(cEnd.key)
     const startOffset = cStart.offset
     const endOffset = cEnd.offset
-    const tokens = tokenizer(block.text)
-    const textLen = block.text.length
 
-    for (const token of tokens) {
+    for (const token of tokenizer(startBlock.text)) {
       if (token.type === 'text') continue
       const { start, end } = token.range
+      const textLen = startBlock.text.length
       if (
-        conflict([Math.max(0, start - 1), Math.min(textLen, end + 1)], [startOffset, startOffset]) ||
+        conflict([Math.max(0, start - 1), Math.min(textLen, end + 1)], [startOffset, startOffset])
+      ) {
+        return true
+      }
+    }
+    for (const token of tokenizer(endBlock.text)) {
+      if (token.type === 'text') continue
+      const { start, end } = token.range
+      const textLen = endBlock.text.length
+      if (
         conflict([Math.max(0, start - 1), Math.min(textLen, end + 1)], [endOffset, endOffset])
       ) {
         return true
       }
     }
+
     return false
   }
 
   ContentState.prototype.checkInlineUpdate = function (block) {
     // table cell can not have blocks in it
     if (/th|td|figure/.test(block.type)) return false
+    if (/codeLine|languageInput/.test(block.functionType)) return false
     // only first line block can update to other block
     if (block.type === 'span' && block.preSibling) return false
     if (block.type === 'span') {
@@ -88,13 +95,6 @@ const updateCtrl = ContentState => {
       default:
         return this.updateToParagraph(block)
     }
-  }
-
-  // Input @ to quick insert paragraph
-  ContentState.prototype.checkQuickInsert = function (block) {
-    const { type, text, functionType } = block
-    if (type !== 'span' || functionType) return false
-    return /^@[a-zA-Z\d]*$/.test(text)
   }
 
   // thematic break
@@ -293,192 +293,11 @@ const updateCtrl = ContentState => {
     return null
   }
 
-  ContentState.prototype.updateMathContent = function (block) {
-    const preBlock = this.getParent(block)
-    const mathPreview = this.getNextSibling(preBlock)
-    const math = preBlock.children.map(line => line.text).join('\n')
-    mathPreview.math = math
-  }
-
-  ContentState.prototype.updateState = function (event) {
-    const { start, end } = selection.getCursorRange()
-    const key = start.key
-    const block = this.getBlock(key)
-
-    // bugfix: #67 problem 1
-    if (block && block.icon) return event.preventDefault()
-
-    if (event.type === 'click' && start.key !== end.key) {
-      setTimeout(() => {
-        this.updateState(event)
-      })
-    }
-
-    const { start: oldStart, end: oldEnd } = this.cursor
-    if (event.type === 'input' && oldStart.key !== oldEnd.key) {
-      const startBlock = this.getBlock(oldStart.key)
-      const endBlock = this.getBlock(oldEnd.key)
-      this.removeBlocks(startBlock, endBlock)
-      // there still has little bug, when the oldstart block is `pre`, the input value will be ignored.
-      // and act as `backspace`
-      if (startBlock.type === 'pre' && /code|html/.test(startBlock.functionType)) {
-        event.preventDefault()
-        const startRemainText = startBlock.type === 'pre'
-          ? startBlock.text.substring(0, oldStart.offset - 1)
-          : startBlock.text.substring(0, oldStart.offset)
-
-        const endRemainText = endBlock.type === 'pre'
-          ? endBlock.text.substring(oldEnd.offset - 1)
-          : endBlock.text.substring(oldEnd.offset)
-
-        startBlock.text = startRemainText + endRemainText
-        const key = oldStart.key
-        const offset = oldStart.offset
-        this.cursor = {
-          start: { key, offset },
-          end: { key, offset }
-        }
-        return this.partialRender()
-      }
-    }
-
-    if (start.key !== end.key) {
-      if (
-        start.key !== oldStart.key ||
-        end.key !== oldEnd.key ||
-        start.offset !== oldStart.offset ||
-        end.offset !== oldEnd.offset
-      ) {
-        this.cursor = { start, end }
-        return this.partialRender()
-      }
-    }
-
-    const oldKey = lastCursor ? lastCursor.start.key : null
-    const paragraph = document.querySelector(`#${key}`)
-    let text = getTextContent(paragraph, [ CLASS_OR_ID['AG_MATH_RENDER'] ])
-    let needRender = false
-    let needRenderAll = false
-    if (event.type === 'click' && block.type === 'figure' && block.functionType === 'table') {
-      // first cell in thead
-      const cursorBlock = block.children[1].children[0].children[0].children[0]
-      const offset = cursorBlock.text.length
-      const key = cursorBlock.key
-      this.cursor = {
-        start: { key, offset },
-        end: { key, offset }
-      }
-      return this.partialRender()
-    }
-
-    // update '```xxx' to code block when you click other place or use press arrow key.
-    if (block && key !== oldKey) {
-      const oldBlock = this.getBlock(oldKey)
-      if (oldBlock) this.codeBlockUpdate(oldBlock)
-    }
-
-    if (block && block.type === 'pre' && /code|html/.test(block.functionType)) {
-      if (block.key !== oldKey) {
-        this.cursor = lastCursor = { start, end }
-        if (event.type === 'click' && oldKey) {
-          this.partialRender()
-        }
-      }
-      return
-    }
-
-    // auto pair (not need to auto pair in math block)
-    if (block && block.text !== text) {
-      const BRACKET_HASH = {
-        '{': '}',
-        '[': ']',
-        '(': ')',
-        '*': '*',
-        '_': '_',
-        '"': '"',
-        '\'': '\''
-      }
-
-      if (start.key === end.key && start.offset === end.offset && event.type === 'input' && block.functionType !== 'multiplemath') {
-        const { offset } = start
-        const { autoPairBracket, autoPairMarkdownSyntax, autoPairQuote } = this
-        const inputChar = text.charAt(+offset - 1)
-        const preInputChar = text.charAt(+offset - 2)
-        const postInputChar = text.charAt(+offset)
-        /* eslint-disable no-useless-escape */
-        if (
-          (event.inputType.indexOf('delete') === -1) &&
-          (inputChar === postInputChar) &&
-          (
-            (autoPairQuote && /[']{1}/.test(inputChar)) ||
-            (autoPairQuote && /["]{1}/.test(inputChar)) ||
-            (autoPairBracket && /[\}\]\)]{1}/.test(inputChar)) ||
-            (autoPairMarkdownSyntax && /[*_]{1}/.test(inputChar))
-          )
-        ) {
-          text = text.substring(0, offset) + text.substring(offset + 1)
-        } else {
-          /* eslint-disable no-useless-escape */
-          // Not Unicode aware, since things like \p{Alphabetic} or \p{L} are not supported yet
-          if (
-            (autoPairQuote && /[']{1}/.test(inputChar) && !(/[a-zA-Z\d]{1}/.test(preInputChar))) ||
-            (autoPairQuote && /["]{1}/.test(inputChar)) ||
-            (autoPairBracket && /[\{\[\(]{1}/.test(inputChar)) ||
-            (autoPairMarkdownSyntax && /[*_]{1}/.test(inputChar))
-          ) {
-            text = BRACKET_HASH[event.data]
-              ? text.substring(0, offset) + BRACKET_HASH[inputChar] + text.substring(offset)
-              : text
-          }
-          /* eslint-enable no-useless-escape */
-          if (/\s/.test(event.data) && preInputChar === '*' && postInputChar === '*') {
-            text = text.substring(0, offset) + text.substring(offset + 1)
-          }
-        }
-      }
-      block.text = text
-      if (beginRules['reference_definition'].test(text)) {
-        needRenderAll = true
-      }
-    }
-
-    // Update preview content of math block
-    if (block && block.type === 'span' && block.functionType === 'multiplemath') {
-      this.updateMathContent(block)
-    }
-
-    if (oldKey !== key || oldStart.offset !== start.offset || oldEnd.offset !== end.offset) {
-      needRender = true
-    }
-
-    this.cursor = lastCursor = { start, end }
-    const checkMarkedUpdate = this.checkNeedRender(block)
-
-    if (event.type === 'input') {
-      const rect = paragraph.getBoundingClientRect()
-      const checkQuickInsert = this.checkQuickInsert(block)
-      const reference = this.getPositionReference()
-      reference.getBoundingClientRect = function () {
-        const { x, y, left, top, height, bottom } = rect
-
-        return Object.assign({}, {
-          left,
-          x,
-          top,
-          y,
-          bottom,
-          height,
-          width: 0,
-          right: left
-        })
-      }
-      this.muya.eventCenter.dispatch('muya-quick-insert', reference, block, checkQuickInsert)
-    }
-
-    const inlineUpdatedBlock = this.isCollapse() && !/frontmatter|multiplemath/.test(block.functionType) && this.checkInlineUpdate(block)
-    if (checkMarkedUpdate || inlineUpdatedBlock || needRender) {
-      needRenderAll ? this.render() : this.partialRender()
-    }
+  ContentState.prototype.updateCodeBlocks = function (block) {
+    const codeBlock = this.getParent(block)
+    const preBlock = this.getParent(codeBlock)
+    const code = codeBlock.children.map(line => line.text).join('\n')
+    this.codeBlocks.set(preBlock.key, code)
   }
 }
 

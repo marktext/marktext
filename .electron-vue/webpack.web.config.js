@@ -34,7 +34,7 @@ const webConfig = {
         }
       },
       {
-        test: /(katex|github\-markdown|highlight\.js\/styles\/default)\.css$/,
+        test: /(katex|github\-markdown|prism[\-a-z]*)\.css$/,
         use: [
           'to-string-loader',
           'css-loader'
@@ -42,7 +42,7 @@ const webConfig = {
       },
       {
         test: /\.css$/,
-        exclude: /(katex|github\-markdown|highlight\.js\/styles\/default)\.css$/,
+        exclude: /(katex|github\-markdown|prism[\-a-z]*)\.css$/,
         use: [
           proMode ? MiniCssExtractPlugin.loader : 'style-loader',
           { loader: 'css-loader', options: { importLoader: 1 } },

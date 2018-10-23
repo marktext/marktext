@@ -6,7 +6,7 @@ import voidHtmlTags from 'html-tags/void'
 // Electron 2.0.2 not support yet! So give a default value 4
 export const DEVICE_MEMORY = navigator.deviceMemory || 4 // Get the divice memory number(Chrome >= 63)
 export const UNDO_DEPTH = DEVICE_MEMORY >= 4 ? 100 : 50
-export const HAS_TEXT_BLOCK_REG = /^(h\d|span|th|td|hr|pre)/i
+export const HAS_TEXT_BLOCK_REG = /^(h\d|span|th|td|hr)/i
 export const VOID_HTML_TAGS = voidHtmlTags
 export const HTML_TAGS = htmlTags
 // TYPE1 ~ TYPE7 according to https://github.github.com/gfm/#html-blocks
@@ -68,21 +68,15 @@ export const CLASS_OR_ID = genUpper2LowerKeyHash([
   'AG_LINE',
   'AG_ACTIVE',
   'AG_EDITOR_ID',
-  'AG_FLOAT_BOX_ID',
-  'AG_FUNCTION_HTML',
-  'AG_FLOAT_BOX',
-  'AG_SHOW_FLOAT_BOX',
-  'AG_FLOAT_ITEM', // LI element
-  'AG_FLOAT_ITEM_ACTIVE',
-  'AG_FLOAT_ITEM_ICON', // icon wrapper in li
   'AG_EMOJI_MARKED_TEXT',
-  'AG_CODE_BLOCK',
+  'AG_FENCE_CODE',
+  'AG_INDENT_CODE',
   'AG_HTML_BLOCK',
   'AG_HTML_ESCAPE',
   'AG_FRONT_MATTER',
-  'AG_FRONT_MATTER_LINE',
-  'AG_MULTIPLE_MATH_LINE',
-  'AG_CODEMIRROR_BLOCK',
+  'AG_CODE_LINE',
+  'AG_CODE_LINE_ADD',
+  'AG_CODE_LINE_MINUS',
   'AG_SHOW_PREVIEW',
   'AG_HTML_PREVIEW',
   'AG_LANGUAGE',
@@ -133,20 +127,6 @@ export const CLASS_OR_ID = genUpper2LowerKeyHash([
   'AG_REFERENCE_MARKER',
   'AG_REFERENCE_LINK'
 ])
-
-export const codeMirrorConfig = {
-  // theme: 'railscasts',
-  lineWrapping: true,
-  autoCloseBrackets: true,
-  lineWiseCopyCut: false,
-  autoCloseTags: true,
-  autofocus: true,
-  tabSize: 2,
-  extraKeys: {
-    'Cmd-Z': false,
-    'Cmd-Y': false
-  }
-}
 
 export const DAED_REMOVE_SELECTOR = new Set([
   '.ag-image-marked-text::before',
@@ -209,7 +189,8 @@ export const HTML_TOOLS = [{
 export const LINE_BREAK = '\n'
 
 export const PREVIEW_DOMPURIFY_CONFIG = {
-  FORBID_ATTR: ['style', 'class', 'contenteditable'],
+  // do not forbit `class` because `code` element use class to present language
+  FORBID_ATTR: ['style', 'contenteditable'],
   ALLOW_DATA_ATTR: false,
   USE_PROFILES: {
     html: true,
