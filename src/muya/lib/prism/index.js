@@ -16,7 +16,7 @@ const checkEditLanguage = (paragraph, selectionState) => {
   const text = paragraph.textContent
   const { start } = selectionState
   const token = text.match(/(^`{3,})([^`]+)/)
-  if (paragraph.tagName !== 'SPAN') return false
+  if (paragraph.tagName !== 'SPAN' || paragraph.classList.contains('ag-code-line')) return false
   if (token) {
     const len = token[1].length
     const lang = token[2].trim()
