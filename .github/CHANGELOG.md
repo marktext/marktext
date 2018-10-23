@@ -1,4 +1,4 @@
-### 0.13.46
+### 0.13.50
 
 **:cactus:Feature**
 
@@ -10,6 +10,9 @@
 - feat: inline format float box
 - feat: import files: TEX\ WIKI\ DOCX etc
 - feat: portable Windows application (#369)
+- feat: support search and replace in code block
+- feat: support GFM diff in code block
+- feat: suppoet quick input html in html block, eg: input div, press `tab` will auto input \<div\><\/div>
 
 **:butterfly:Optimization**
 
@@ -30,6 +33,7 @@
 - opti: #429 Support DataURL images (#480)
 - opti: rewrite image picker
 - opti: notify the user about the deletion url of the uploaded image
+- rewrite code block, html block, math block, front matter
 
 **:beetle:Bug fix**
 
