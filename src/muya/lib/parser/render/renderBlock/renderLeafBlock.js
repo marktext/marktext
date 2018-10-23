@@ -134,12 +134,7 @@ export default function renderLeafBlock (block, cursor, activeBlocks, matches, u
     }
     children = ''
   } else if (type === 'span' && functionType === 'codeLine') {
-    let code
-    if (lang && lang === 'markup') {
-      code = getHighlightHtml(escapeHtml(text), highlights)
-    } else {
-      code = getHighlightHtml(text, highlights)
-    }
+    const code = getHighlightHtml(escapeHtml(text), highlights)
 
     selector += `.${CLASS_OR_ID['AG_CODE_LINE']}`
 
