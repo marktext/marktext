@@ -2,8 +2,16 @@ import katex from 'katex'
 import prism, { loadedCache } from '../../../prism/'
 import { CLASS_OR_ID, DEVICE_MEMORY, isInElectron, PREVIEW_DOMPURIFY_CONFIG } from '../../../config'
 import { tokenizer } from '../../parse'
-import { snakeToCamel, sanitize, escapeHtml } from '../../../utils'
+import { snakeToCamel, sanitize, escapeHtml, getLongUniqueId } from '../../../utils'
 import { h, htmlToVNode } from '../snabbdom'
+
+// todo@jocs any better solutions?
+const MARKER_HASK = {
+  '<': `%${getLongUniqueId()}%`,
+  '>': `%${getLongUniqueId()}%`,
+  '"': `%${getLongUniqueId()}%`,
+  "'": `%${getLongUniqueId()}%`
+}
 
 const getHighlightHtml = (text, highlights) => {
   let code = ''
@@ -12,7 +20,7 @@ const getHighlightHtml = (text, highlights) => {
     const { start, end, active } = highlight
     code += text.substring(pos, start)
     const className = active ? 'ag-highlight' : 'ag-selection'
-    code += `<span class="${className}">${text.substring(start, end)}</span>`
+    code += `${MARKER_HASK['<']}span class=${MARKER_HASK['"']}${className}${MARKER_HASK['"']}${MARKER_HASK['>']}${text.substring(start, end)}${MARKER_HASK['<']}/span${MARKER_HASK['>']}`
     pos = end
   }
   if (pos !== text.length) {
@@ -134,7 +142,11 @@ export default function renderLeafBlock (block, cursor, activeBlocks, matches, u
     }
     children = ''
   } else if (type === 'span' && functionType === 'codeLine') {
-    const code = getHighlightHtml(escapeHtml(text), highlights)
+    const code = escapeHtml(getHighlightHtml(text, highlights))
+      .replace(new RegExp(MARKER_HASK['<'], 'g'), '<')
+      .replace(new RegExp(MARKER_HASK['>'], 'g'), '>')
+      .replace(new RegExp(MARKER_HASK['"'], 'g'), '"')
+      .replace(new RegExp(MARKER_HASK["'"], 'g'), "'")
 
     selector += `.${CLASS_OR_ID['AG_CODE_LINE']}`
 
