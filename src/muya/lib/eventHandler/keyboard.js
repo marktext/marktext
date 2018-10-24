@@ -2,7 +2,6 @@ import { EVENT_KEYS } from '../config'
 import selection from '../selection'
 import { findNearestParagraph } from '../selection/dom'
 import { getParagraphReference } from '../utils'
-import { checkEditLanguage } from '../prism/index'
 import { checkEditEmoji } from '../ui/emojis'
 
 class Keyboard {
@@ -117,10 +116,11 @@ class Keyboard {
   inputBinding () {
     const { container, eventCenter, contentState } = this.muya
     const inputHandler = event => {
-      const node = selection.getSelectionStart()
-      const paragraph = findNearestParagraph(node)
-      const selectionState = selection.exportSelection(paragraph)
-      const lang = checkEditLanguage(paragraph, selectionState)
+      if (!this._isEditChinese) {
+        contentState.inputHandler(event)
+      }
+
+      const { lang, paragraph } = contentState.checkEditLanguage()
       if (lang) {
         eventCenter.dispatch('muya-code-picker', {
           reference: getParagraphReference(paragraph, paragraph.id),
@@ -132,9 +132,6 @@ class Keyboard {
       } else {
         // hide code picker float box
         eventCenter.dispatch('muya-code-picker', { reference: null })
-      }
-      if (!this._isEditChinese) {
-        contentState.inputHandler(event)
       }
     }
 

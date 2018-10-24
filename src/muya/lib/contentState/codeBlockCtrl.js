@@ -1,8 +1,34 @@
 import { loadLanguage } from '../prism/index'
+import selection from '../selection'
 
 const CODE_UPDATE_REP = /^`{3,}(.*)/
 
 const codeBlockCtrl = ContentState => {
+  /**
+  * check edit language
+  */
+  ContentState.prototype.checkEditLanguage = function () {
+    const { start } = selection.getCursorRange()
+    const startBlock = this.getBlock(start.key)
+    const paragraph = document.querySelector(`#${start.key}`)
+    let lang = ''
+    const { text } = startBlock
+    if (startBlock.type === 'span') {
+      if (startBlock.functionType === 'languageInput') {
+        lang = text.trim()
+      } else {
+        const token = text.match(/(^`{3,})([^`]+)/)
+        if (token) {
+          const len = token[1].length
+          if (start.offset >= len) {
+            lang = token[2].trim()
+          }
+        }
+      }
+    }
+    return { lang, paragraph }
+  }
+
   ContentState.prototype.selectLanguage = function (paragraph, name) {
     const block = this.getBlock(paragraph.id)
     loadLanguage(name)
