@@ -7,9 +7,9 @@ import { checkEditEmoji } from '../ui/emojis'
 class Keyboard {
   constructor (muya) {
     this.muya = muya
-    this._isEditChinese = false
+    this.isComposed = false
     this.shownFloat = new Set()
-    this.recordEditChinese()
+    this.recordIsComposed()
     this.dispatchEditorState()
     this.keydownBinding()
     this.keyupBinding()
@@ -24,13 +24,15 @@ class Keyboard {
     })
   }
 
-  recordEditChinese () {
-    const { container, eventCenter } = this.muya
+  recordIsComposed () {
+    const { container, eventCenter, contentState } = this.muya
     const handler = event => {
       if (event.type === 'compositionstart') {
-        this._isEditChinese = true
+        this.isComposed = true
       } else if (event.type === 'compositionend') {
-        this._isEditChinese = false
+        this.isComposed = false
+        // Because the compose event will not cause `input` event, So need call `inputHandler` by ourself
+        contentState.inputHandler(event)
       }
     }
 
@@ -85,7 +87,7 @@ class Keyboard {
           contentState.deleteHandler(event)
           break
         case EVENT_KEYS.Enter:
-          if (!this._isEditChinese) {
+          if (!this.isComposed) {
             contentState.enterHandler(event)
           }
           break
@@ -98,7 +100,7 @@ class Keyboard {
         case EVENT_KEYS.ArrowDown: // fallthrough
         case EVENT_KEYS.ArrowLeft: // fallthrough
         case EVENT_KEYS.ArrowRight: // fallthrough
-          if (!this._isEditChinese) {
+          if (!this.isComposed) {
             contentState.arrowHandler(event)
           }
           break
@@ -116,7 +118,7 @@ class Keyboard {
   inputBinding () {
     const { container, eventCenter, contentState } = this.muya
     const inputHandler = event => {
-      if (!this._isEditChinese) {
+      if (!this.isComposed) {
         contentState.inputHandler(event)
       }
 

@@ -41,7 +41,8 @@ const inputCtrl = ContentState => {
     if (block && block.text !== text) {
       if (
         start.key === end.key &&
-        start.offset === end.offset
+        start.offset === end.offset &&
+        event.type === 'input'
       ) {
         const { offset } = start
         const { autoPairBracket, autoPairMarkdownSyntax, autoPairQuote } = this
