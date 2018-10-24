@@ -194,11 +194,6 @@ if (proMode) {
     }),
     new CopyWebpackPlugin([
       {
-        from: path.resolve(__dirname, '../src/muya/themes'),
-        to: path.join(__dirname, '../static/themes'),
-        force: true
-      },
-      {
         from: path.join(__dirname, '../static'),
         to: path.join(__dirname, '../dist/electron/static'),
         ignore: ['.*']

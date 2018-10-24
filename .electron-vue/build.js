@@ -3,9 +3,10 @@
 process.env.NODE_ENV = 'production'
 
 const { say } = require('cfonts')
+const path = require('path')
 const chalk = require('chalk')
 const del = require('del')
-const { spawn } = require('child_process')
+const fs = require('fs-extra')
 const webpack = require('webpack')
 const Multispinner = require('multispinner')
 
@@ -29,10 +30,15 @@ function clean () {
   process.exit()
 }
 
-function build () {
+async function build () {
   greeting()
 
   del.sync(['dist/electron/*', '!.gitkeep'])
+  del.sync(['static/themes/*'])
+
+  const from = path.resolve(__dirname, '../src/muya/themes')
+  const to = path.resolve(__dirname, '../static/themes')
+  await fs.copy(from, to)
 
   const tasks = ['main', 'renderer']
   const m = new Multispinner(tasks, {
