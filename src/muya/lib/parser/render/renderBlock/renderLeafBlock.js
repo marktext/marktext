@@ -13,14 +13,16 @@ const MARKER_HASK = {
   "'": `%${getLongUniqueId()}%`
 }
 
-const getHighlightHtml = (text, highlights) => {
+const getHighlightHtml = (text, highlights, escape = false) => {
   let code = ''
   let pos = 0
   for (const highlight of highlights) {
     const { start, end, active } = highlight
     code += text.substring(pos, start)
     const className = active ? 'ag-highlight' : 'ag-selection'
-    code += `${MARKER_HASK['<']}span class=${MARKER_HASK['"']}${className}${MARKER_HASK['"']}${MARKER_HASK['>']}${text.substring(start, end)}${MARKER_HASK['<']}/span${MARKER_HASK['>']}`
+    code += escape
+      ? `${MARKER_HASK['<']}span class=${MARKER_HASK['"']}${className}${MARKER_HASK['"']}${MARKER_HASK['>']}${text.substring(start, end)}${MARKER_HASK['<']}/span${MARKER_HASK['>']}`
+      : `<span class="${className}">${text.substring(start, end)}</span>`
     pos = end
   }
   if (pos !== text.length) {
@@ -142,7 +144,7 @@ export default function renderLeafBlock (block, cursor, activeBlocks, matches, u
     }
     children = ''
   } else if (type === 'span' && functionType === 'codeLine') {
-    const code = escapeHtml(getHighlightHtml(text, highlights))
+    const code = escapeHtml(getHighlightHtml(text, highlights, true))
       .replace(new RegExp(MARKER_HASK['<'], 'g'), '<')
       .replace(new RegExp(MARKER_HASK['>'], 'g'), '>')
       .replace(new RegExp(MARKER_HASK['"'], 'g'), '"')
