@@ -295,8 +295,15 @@ Lexer.prototype.token = function (src, top, bq) {
           type: loose ? 'loose_item_start' : 'list_item_start'
         })
 
-        // Recurse.
-        this.token(item, false, bq)
+        if (/^\s*$/.test(item)) {
+          this.tokens.push({
+            type: 'text',
+            text: ''
+          })
+        } else {
+          // Recurse.
+          this.token(item, false, bq)
+        }
 
         this.tokens.push({
           type: 'list_item_end'
