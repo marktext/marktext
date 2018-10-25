@@ -34,8 +34,6 @@ const importRegister = ContentState => {
     let value
     let parentList = [ rootState ]
 
-    console.log(JSON.stringify(tokens, null, 2))
-
     while ((token = tokens.shift())) {
       switch (token.type) {
         case 'frontmatter': {

@@ -280,8 +280,8 @@ figure {
   right: 0;
 }
 
-.ag-tool-bar ul li.active {
-  color: #409eff;
+.ag-tool-bar ul li.active svg {
+  fill: #409eff;
 }
 
 .ag-tool-bar ul li svg {

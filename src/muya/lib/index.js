@@ -14,8 +14,6 @@ import CodePicker from './ui/codePicker'
 import EmojiPicker from './ui/emojiPicker'
 import ImagePathPicker from './ui/imagePicker'
 import FormatPicker from './ui/formatPicker'
-import './assets/symbolIcon' // import symbol icons
-import './assets/symbolIcon/index.css'
 import './assets/styles/index.css'
 
 class Muya {
