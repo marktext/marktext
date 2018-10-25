@@ -56,13 +56,13 @@
 
 ##### Optimizations
 
-- [ ] Search and Replace in Source Code mode.
+- [x] Search and Replace in Source Code mode.
 
 - [x] Copy as Markdown
 
 - [x] Copy as HTML
 
-- [ ] Redesign the float box, refactor with [popper](https://github.com/FezVrasta/popper.js)
+- [x] Redesign the float box, refactor with [popper](https://github.com/FezVrasta/popper.js)
 
 - [ ] Translate cursor between source code mode and realtime preview mode
 
