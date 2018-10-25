@@ -70,7 +70,6 @@ const pasteCtrl = ContentState => {
     event.preventDefault()
     const text = event.clipboardData.getData('text/plain')
     let html = event.clipboardData.getData('text/html')
-
     html = this.standardizeHTML(html)
     const copyType = this.checkCopyType(html, text)
     const { start, end } = this.cursor
@@ -97,7 +96,6 @@ const pasteCtrl = ContentState => {
       const blockText = startBlock.text
       const prePartText = blockText.substring(0, start.offset)
       const postPartText = blockText.substring(end.offset)
-      console.log(prePartText, '|', postPartText)
       const textList = text.split(LINE_BREAKS_REG)
       if (textList.length > 1) {
         textList.forEach((line, i) => {
@@ -190,7 +188,9 @@ const pasteCtrl = ContentState => {
         return getLastBlock(lastBlock.children)
       }
     }
+
     const lastBlock = getLastBlock(stateFragments)
+
     let key = lastBlock.key
     let offset = lastBlock.text.length
     lastBlock.text += cacheText

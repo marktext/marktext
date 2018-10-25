@@ -133,7 +133,7 @@ const enterCtrl = ContentState => {
       }
     }
 
-    const { key } = newBlock
+    const { key } = newBlock.children[0]
     const offset = 0
     this.cursor = {
       start: { key, offset },
