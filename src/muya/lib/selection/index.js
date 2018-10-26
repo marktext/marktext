@@ -841,7 +841,10 @@ class Selection {
       range = sel.getRangeAt(0).cloneRange()
       if (range.getClientRects) {
         range.collapse(true)
-        const rects = range.getClientRects()
+        let rects = range.getClientRects()
+        if (rects.length === 0) {
+          rects = range.startContainer ? range.startContainer.getClientRects() : []
+        }
         if (rects.length) {
           const { left, top, x: rectX, y: rectY } = rects[0]
           x = rectX || left

@@ -37,6 +37,7 @@
 }
 
 .ag-quick-insert .no-result {
+  margin-top: 20px;
   padding: 0 20px;
   font-size: 14px;
   color: #999;
