@@ -28,15 +28,13 @@ You cannot really install an AppImage. It's just a file which can be integrated 
    DESKTOPINTEGRATION=0 ~/bin/marktext.AppImage
    ```
 
-### Extract application (not recommended)
-
-1. `./marktext-%version%-x86_64.AppImage --appimage-extract`
-2. Move Mark Text into another location: `mkdir ~/bin/marktext && mv squashfs-root/app/* ~/bin/marktext`
-3. Delete `squashfs-root` folder
-
 ### Known issues
 
 - Mark Text is always integrated into desktop environment after updating
+
+## Binary
+
+You can download the latest `marktext-%version%.tar.gz` package from the [release page](https://github.com/marktext/marktext/releases/latest). You may need to install electron dependencies.
 
 ## Flatpak
 
