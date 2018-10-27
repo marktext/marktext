@@ -118,7 +118,14 @@
     "linux": {
       "category": "Office;TextEditor;Utility",
       "icon": "resources/icons",
-      "target": "AppImage"
+      "target": [
+        {
+          "target": "AppImage"
+        },
+        {
+          "target": "tar.gz"
+        }
+      ]
     }
   },
   "dependencies": {
