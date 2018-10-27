@@ -1,3 +1,11 @@
+### 0.13.53
+
+**:beetle:Bug fix**
+
+- fix: #451 empty list item error
+- fix: #522 paste bug when paste into empty line
+- fix: #521
+
 ### 0.13.50
 
 **:cactus:Feature**
