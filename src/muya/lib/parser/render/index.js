@@ -1,3 +1,4 @@
+import mermaid from 'mermaid'
 import { CLASS_OR_ID } from '../../config'
 import { conflict, mixins } from '../../utils'
 import { patch, toVNode, toHTML, h } from './snabbdom'
@@ -12,6 +13,7 @@ class StateRender {
     this.eventCenter = muya.eventCenter
     this.loadImageMap = new Map()
     this.loadMathMap = new Map()
+    this.mermaidCache = new Set()
     this.tokenCache = new Map()
     this.labels = new Map()
     this.container = null
@@ -84,6 +86,13 @@ class StateRender {
     return selector
   }
 
+  renderMermaid () {
+    if (this.mermaidCache.size) {
+      mermaid.init(undefined, document.querySelectorAll([...this.mermaidCache].join(', ')))
+      this.mermaidCache.clear()
+    }
+  }
+
   render (blocks, cursor, activeBlocks, matches) {
     const selector = `div#${CLASS_OR_ID['AG_EDITOR_ID']}`
 
@@ -96,6 +105,7 @@ class StateRender {
     const oldVdom = toVNode(rootDom)
 
     patch(oldVdom, newVdom)
+    this.renderMermaid()
   }
 
   // Only render the blocks which you updated
@@ -133,6 +143,7 @@ class StateRender {
         patch(oldCursorVnode, newCursorVnode)
       }
     }
+    this.renderMermaid()
   }
 }
 

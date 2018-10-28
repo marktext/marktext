@@ -86,7 +86,7 @@ const copyCutCtrl = ContentState => {
       hb.replaceWith(pre)
     })
 
-    const mathBlock = wrapper.querySelectorAll(`figure.ag-multiple-math-block`)
+    const mathBlock = wrapper.querySelectorAll(`figure.ag-container-block`)
     ;[...mathBlock].forEach(mb => {
       const selectedCodeLines = mb.querySelectorAll('span.ag-code-line')
       const value = [...selectedCodeLines].map(codeLine => codeLine.textContent).join('\n')

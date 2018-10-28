@@ -41,12 +41,12 @@ class ClickEvent {
         event.stopPropagation()
         contentState.handleHtmlBlockClick(htmlPreview)
       }
-      // handler math block preview click
-      const mathFigure = target.closest('.ag-multiple-math-block')
-      if (mathFigure && !mathFigure.classList.contains(CLASS_OR_ID['AG_ACTIVE'])) {
+      // handler container block preview click
+      const container = target.closest('.ag-container-block')
+      if (container && !container.classList.contains(CLASS_OR_ID['AG_ACTIVE'])) {
         event.preventDefault()
         event.stopPropagation()
-        contentState.handleMathBlockClick(mathFigure)
+        contentState.handleContainerBlockClick(container)
       }
       // handler to-do checkbox click
       if (target.tagName === 'INPUT' && target.classList.contains(CLASS_OR_ID['AG_TASK_LIST_ITEM_CHECKBOX'])) {
