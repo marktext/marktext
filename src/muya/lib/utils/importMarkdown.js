@@ -73,7 +73,7 @@ const importRegister = ContentState => {
         }
         case 'multiplemath': {
           value = token.text
-          block = this.createMathBlock(value)
+          block = this.createContainerBlock(token.type, value)
           this.appendChild(parentList[0], block)
           break
         }
