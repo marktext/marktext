@@ -2,6 +2,7 @@ import * as actions from '../actions/edit'
 import userPreference from '../preference'
 
 const { aidou } = userPreference.getAll()
+const isWindows = process.platform === 'win32'
 
 export default {
   label: 'Edit',
@@ -66,7 +67,7 @@ export default {
     }
   }, {
     label: 'Find Next',
-    accelerator: 'Alt+CmdOrCtrl+U',
+    accelerator: (isWindows ? 'Alt+AltGr+CmdOrCtrl' : 'Alt+CmdOrCtrl') + '+U', //  WORKAROUND: #523
     click (menuItem, browserWindow) {
       actions.edit(browserWindow, 'fineNext')
     }
@@ -78,7 +79,7 @@ export default {
     }
   }, {
     label: 'Replace',
-    accelerator: 'Alt+CmdOrCtrl+F',
+    accelerator: (isWindows ? 'Alt+AltGr+CmdOrCtrl' : 'Alt+CmdOrCtrl') + '+F', // WORKAROUND: #523
     click (menuItem, browserWindow) {
       actions.edit(browserWindow, 'replace')
     }

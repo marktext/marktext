@@ -1,5 +1,7 @@
 import * as actions from '../actions/view'
 
+const isWindows = process.platform === 'win32'
+
 let viewMenu = {
   label: 'View',
   submenu: [{
@@ -29,7 +31,7 @@ let viewMenu = {
   }, {
     id: 'sourceCodeModeMenuItem',
     label: 'Source Code Mode',
-    accelerator: 'Alt+CmdOrCtrl+S',
+    accelerator: (isWindows ? 'Alt+AltGr+CmdOrCtrl' : 'Alt+CmdOrCtrl') + '+S', // WORKAROUND: #523
     type: 'checkbox',
     checked: false,
     click (item, browserWindow) {
@@ -38,7 +40,7 @@ let viewMenu = {
   }, {
     id: 'typewriterModeMenuItem',
     label: 'Typewriter Mode',
-    accelerator: 'Alt+CmdOrCtrl+T',
+    accelerator: (isWindows ? 'Alt+AltGr+CmdOrCtrl' : 'Alt+CmdOrCtrl') + '+T', // WORKAROUND: #523
     type: 'checkbox',
     checked: false,
     click (item, browserWindow) {
@@ -67,7 +69,7 @@ let viewMenu = {
   }, {
     label: 'Toggle Tab Bar',
     id: 'tabBarMenuItem',
-    accelerator: 'Alt+CmdOrCtrl+B',
+    accelerator: (isWindows ? 'Alt+AltGr+CmdOrCtrl' : 'Alt+CmdOrCtrl') + '+B', // WORKAROUND: #523
     type: 'checkbox',
     checked: false,
     click (item, browserWindow) {
