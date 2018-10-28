@@ -58,8 +58,9 @@ const mathCtrl = ContentState => {
   ContentState.prototype.handleMathBlockClick = function (mathFigure) {
     const { id } = mathFigure
     const mathBlock = this.getBlock(id)
-    const textAreaBlock = mathBlock.children[0]
-    const firstLine = textAreaBlock.children[0]
+    const preBlock = mathBlock.children[0]
+    const firstLine = preBlock.children[0].children[0]
+
     const { key } = firstLine
     const offset = 0
     this.cursor = {
