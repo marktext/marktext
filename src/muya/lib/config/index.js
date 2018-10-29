@@ -214,4 +214,8 @@ export const EXPORT_DOMPURIFY_CONFIG = {
   }
 }
 
+// export const DIAGRAM_TEMPLATE = {
+//   'mermaid': `graph LR;\nYou-->|Mark Text|Me;`
+// }
+
 export const isInElectron = window && window.process && window.process.type === 'renderer'

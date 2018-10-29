@@ -1,4 +1,5 @@
 import mermaid from 'mermaid'
+import flowchart from 'flowchart.js'
 import { CLASS_OR_ID } from '../../config'
 import { conflict, mixins } from '../../utils'
 import { patch, toVNode, toHTML, h } from './snabbdom'
@@ -14,6 +15,7 @@ class StateRender {
     this.loadImageMap = new Map()
     this.loadMathMap = new Map()
     this.mermaidCache = new Set()
+    this.flowChartCache = new Map()
     this.tokenCache = new Map()
     this.labels = new Map()
     this.container = null
@@ -93,6 +95,21 @@ class StateRender {
     }
   }
 
+  renderFlowChart () {
+    if (this.flowChartCache.size) {
+      try {
+        for (const [key, value] of this.flowChartCache.entries()) {
+          const target = document.querySelector(key)
+          const diagram = flowchart.parse(value)
+          diagram.drawSVG(target)
+        }
+        this.flowChartCache.clear()
+      } catch (err) {
+        console.log(err)
+      }
+    }
+  }
+
   render (blocks, cursor, activeBlocks, matches) {
     const selector = `div#${CLASS_OR_ID['AG_EDITOR_ID']}`
 
@@ -106,6 +123,7 @@ class StateRender {
 
     patch(oldVdom, newVdom)
     this.renderMermaid()
+    this.renderFlowChart()
   }
 
   // Only render the blocks which you updated
@@ -144,6 +162,7 @@ class StateRender {
       }
     }
     this.renderMermaid()
+    this.renderFlowChart()
   }
 }
 
