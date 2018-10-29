@@ -10,6 +10,7 @@ import services from './services'
 
 import './assets/styles/index.css'
 import './assets/styles/printService.css'
+import '@fortawesome/fontawesome-free/js/all.js'
 
 // import notice from './services/notification'
 // In the renderer process:

@@ -319,14 +319,14 @@ const paragraphCtrl = ContentState => {
     }
   }
 
-  ContentState.prototype.insertContainerBlock = function (functionType) {
+  ContentState.prototype.insertContainerBlock = function (functionType, value = '') {
     const { start, end } = selection.getCursorRange()
     if (start.key !== end.key) return
     let block = this.getBlock(start.key)
     if (block.type === 'span') {
       block = this.getParent(block)
     }
-    const mathBlock = this.createContainerBlock(functionType)
+    const mathBlock = this.createContainerBlock(functionType, value)
     this.insertAfter(mathBlock, block)
     if (block.type === 'p' && block.children.length === 1 && !block.children[0].text) {
       this.removeBlock(block)
