@@ -1,6 +1,7 @@
 import mermaid from 'mermaid'
 import flowchart from 'flowchart.js'
 import Diagram from './sequence'
+import vegaEmbed from 'vega-embed'
 import { CLASS_OR_ID } from '../../config'
 import { conflict, mixins } from '../../utils'
 import { patch, toVNode, toHTML, h } from './snabbdom'
@@ -15,8 +16,7 @@ class StateRender {
     this.loadImageMap = new Map()
     this.loadMathMap = new Map()
     this.mermaidCache = new Set()
-    this.flowChartCache = new Map()
-    this.sequenceCache = new Map()
+    this.diagramCache = new Map()
     this.tokenCache = new Map()
     this.labels = new Map()
     this.container = null
@@ -96,17 +96,33 @@ class StateRender {
     }
   }
 
-  renderDiagram (type) {
-    const cache = type === 'flowchart' ? this.flowChartCache : this.sequenceCache
+  async renderDiagram () {
+    const cache = this.diagramCache
+    const RENDER_MAP = {
+      'flowchart': flowchart,
+      'sequence': Diagram,
+      'vega-lite': vegaEmbed
+    }
     if (cache.size) {
       for (const [key, value] of cache.entries()) {
         const target = document.querySelector(key)
-        const render = type === 'flowchart' ? flowchart : Diagram
+        const { code, functionType } = value
+        const render = RENDER_MAP[functionType]
+        const options = {}
+        if (functionType === 'sequence') {
+          Object.assign(options, { theme: this.muya.options.sequenceTheme })
+        } else if (functionType === 'vega-lite') {
+          Object.assign(options, { actions: false, tooltip: false })
+        }
         try {
-          const diagram = render.parse(value)
-          diagram.drawSVG(target, { theme: this.muya.options.sequenceTheme })
+          if (functionType === 'flowchart' || functionType === 'sequence') {
+            const diagram = render.parse(code)
+            diagram.drawSVG(target, options)
+          } else if (functionType === 'vega-lite') {
+            await vegaEmbed(key, JSON.parse(code), options)
+          }
         } catch (err) {
-          target.innerHTML = `< Invalid ${type === 'flowchart' ? 'Flow Chart' : 'Sequence'} Codes >`
+          target.innerHTML = `< Invalid ${functionType === 'flowchart' ? 'Flow Chart' : 'Sequence'} Codes >`
           target.classList.add(CLASS_OR_ID['AG_MATH_ERROR'])
         }
       }
@@ -127,8 +143,7 @@ class StateRender {
 
     patch(oldVdom, newVdom)
     this.renderMermaid()
-    this.renderDiagram('flowchart')
-    this.renderDiagram('sequence')
+    this.renderDiagram()
   }
 
   // Only render the blocks which you updated
@@ -167,8 +182,7 @@ class StateRender {
       }
     }
     this.renderMermaid()
-    this.renderDiagram('flowchart')
-    this.renderDiagram('sequence')
+    this.renderDiagram()
   }
 }
 

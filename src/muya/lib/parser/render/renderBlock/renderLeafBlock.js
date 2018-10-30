@@ -138,16 +138,22 @@ export default function renderLeafBlock (block, cursor, activeBlocks, matches, u
           selector += `.${CLASS_OR_ID['AG_MATH_ERROR']}`
         }
       }
-    } else if (functionType === 'flowchart' || functionType === 'sequence') {
+    } else if (
+      functionType === 'flowchart' ||
+      functionType === 'sequence' ||
+      functionType === 'vega-lite'
+    ) {
       const code = this.muya.contentState.codeBlocks.get(block.preSibling)
-      const cache = functionType === 'flowchart' ? this.flowChartCache : this.sequenceCache
       selector += `.${CLASS_OR_ID['AG_CONTAINER_PREVIEW']}`
       if (code === '') {
         children = '< Empty Diagram Block >'
         selector += `.${CLASS_OR_ID['AG_EMPTY']}`
       } else {
         children = ''
-        cache.set(`#${block.key}`, code)
+        this.diagramCache.set(`#${block.key}`, {
+          code,
+          functionType
+        })
       }
     }
   } else if (type === 'svg' && icon) {
