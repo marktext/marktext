@@ -1,6 +1,5 @@
 import katex from 'katex'
 import mermaid from 'mermaid'
-import flowchart from 'flowchart.js'
 import prism, { loadedCache } from '../../../prism/'
 import { CLASS_OR_ID, DEVICE_MEMORY, isInElectron, PREVIEW_DOMPURIFY_CONFIG } from '../../../config'
 import { tokenizer } from '../../parse'
@@ -146,14 +145,8 @@ export default function renderLeafBlock (block, cursor, activeBlocks, matches, u
         children = '< Empty Flow Cart Block >'
         selector += `.${CLASS_OR_ID['AG_EMPTY']}`
       } else {
-        try {
-          flowchart.parse(code)
-          children = ''
-          this.flowChartCache.set(`#${block.key}`, code)
-        } catch (err) {
-          children = '< Invalid Flow Chart Codes >'
-          selector += `.${CLASS_OR_ID['AG_MATH_ERROR']}`
-        }
+        children = ''
+        this.flowChartCache.set(`#${block.key}`, code)
       }
     }
   } else if (type === 'svg' && icon) {

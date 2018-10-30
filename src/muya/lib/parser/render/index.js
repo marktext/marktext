@@ -97,16 +97,17 @@ class StateRender {
 
   renderFlowChart () {
     if (this.flowChartCache.size) {
-      try {
-        for (const [key, value] of this.flowChartCache.entries()) {
-          const target = document.querySelector(key)
+      for (const [key, value] of this.flowChartCache.entries()) {
+        const target = document.querySelector(key)
+        try {
           const diagram = flowchart.parse(value)
           diagram.drawSVG(target)
+        } catch (err) {
+          target.innerHTML = '< Invalid Flow Chart Codes >'
+          target.classList.add(CLASS_OR_ID['AG_MATH_ERROR'])
         }
-        this.flowChartCache.clear()
-      } catch (err) {
-        console.log(err)
       }
+      this.flowChartCache.clear()
     }
   }
 
