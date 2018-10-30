@@ -214,6 +214,20 @@ export const EXPORT_DOMPURIFY_CONFIG = {
   }
 }
 
+export const MUYA_DEFAULT_OPTION = {
+  focusMode: false,
+  theme: 'light',
+  markdown: '',
+  preferLooseListItem: true,
+  autoPairBracket: true,
+  autoPairMarkdownSyntax: true,
+  autoPairQuote: true,
+  bulletListMarker: '-',
+  tabSize: 4,
+  sequenceTheme: 'hand', // hand or simple
+  mermaidTheme: 'forest' // dark or forest
+}
+
 // export const DIAGRAM_TEMPLATE = {
 //   'mermaid': `graph LR;\nYou-->|Mark Text|Me;`
 // }

@@ -499,12 +499,17 @@ pre.ag-active[data-role="flowchart"]::before {
   content: '``` flowchart';
 }
 
+pre.ag-active[data-role="sequence"]::before {
+  content: '``` sequence';
+}
+
 pre.ag-active.ag-fence-code::before,
 pre.ag-active.ag-indent-code::after,
 pre.ag-active.ag-fence-code::after,
 pre.ag-active.ag-indent-code::before,
 pre.ag-active[data-role="mermaid"]::after,
-pre.ag-active[data-role="flowchart"]::after {
+pre.ag-active[data-role="flowchart"]::after,
+pre.ag-active[data-role="sequence"]::after {
   content: '```';
 }
 
@@ -514,6 +519,8 @@ pre.ag-active[data-role="mermaid"]::before,
 pre.ag-active[data-role="mermaid"]::after,
 pre.ag-active[data-role="flowchart"]::before,
 pre.ag-active[data-role="flowchart"]::after,
+pre.ag-active[data-role="sequence"]::before,
+pre.ag-active[data-role="sequence"]::after,
 pre.ag-active.ag-fence-code::before,
 pre.ag-active.ag-fence-code::after,
 pre.ag-active.ag-indent-code::before,
@@ -530,6 +537,7 @@ pre.ag-active.ag-multiple-math::after {
 pre.ag-active.ag-front-matter::before,
 pre.ag-active[data-role="mermaid"]::before,
 pre.ag-active[data-role="flowchart"]::before,
+pre.ag-active[data-role="sequence"]::before,
 pre.ag-active.ag-multiple-math::before,
 pre.ag-active.ag-indent-code::before,
 pre.ag-active.ag-fence-code::before {
@@ -539,6 +547,7 @@ pre.ag-active.ag-fence-code::before {
 pre.ag-active.ag-front-matter::after,
 pre.ag-active[data-role="mermaid"]::after,
 pre.ag-active[data-role="flowchart"]::after,
+pre.ag-active[data-role="sequence"]::after,
 pre.ag-active.ag-multiple-math::after,
 pre.ag-active.ag-fence-code::after,
 pre.ag-active.ag-indent-code::after {
