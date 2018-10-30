@@ -9,7 +9,8 @@ const PRE_BLOCK_HASH = {
   'multiplemath': `.${CLASS_OR_ID['AG_MULTIPLE_MATH']}`,
   'flowchart': `.${CLASS_OR_ID['AG_FLOWCHART']}`,
   'sequence': `.${CLASS_OR_ID['AG_SEQUENCE']}`,
-  'mermaid': `.${CLASS_OR_ID['AG_MERMAID']}`
+  'mermaid': `.${CLASS_OR_ID['AG_MERMAID']}`,
+  'vega-lite': `.${CLASS_OR_ID['AG_VEGA_LITE']}`
 }
 
 export default function renderContainerBlock (block, cursor, activeBlocks, matches, useCache = false) {
@@ -37,7 +38,7 @@ export default function renderContainerBlock (block, cursor, activeBlocks, match
     }
 
     if (
-      /multiplemath|flowchart|mermaid|sequence/.test(block.functionType)
+      /multiplemath|flowchart|mermaid|sequence|vega-lite/.test(block.functionType)
     ) {
       selector += `.${CLASS_OR_ID['AG_CONTAINER_BLOCK']}`
     }

@@ -116,6 +116,7 @@ export const CLASS_OR_ID = genUpper2LowerKeyHash([
   'AG_FLOWCHART',
   'AG_SEQUENCE',
   'AG_MERMAID',
+  'AG_VEGA_LITE',
   'AG_CONTAINER_BLOCK',
   'AG_MULTIPLE_MATH',
   'AG_LOOSE_LIST_ITEM',

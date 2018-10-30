@@ -18,9 +18,16 @@ import orderListIcon from '../../assets/icons/order_list.svg'
 import flowchartIcon from '../../assets/icons/flowchart.svg'
 import sequenceIcon from '../../assets/icons/sequence.svg'
 import mermaidIcon from '../../assets/icons/mermaid.svg'
+import vegaIcon from '../../assets/icons/chart.svg'
 
 export const quicInsertObj = {
   'diagram': [{
+    title: 'Vega Chart',
+    subTitle: 'Render flow chart by vega-lite.js.',
+    label: 'vega-lite',
+    icon: vegaIcon,
+    color: 'rgb(224, 54, 54)'
+  }, {
     title: 'Flow Chart',
     subTitle: 'Render flow chart by flowchart.js.',
     label: 'flowchart',

@@ -3,7 +3,8 @@ const FUNCTION_TYPE_LANG = {
   'multiplemath': 'latex',
   'flowchart': 'yaml',
   'mermaid': 'yaml',
-  'sequence': 'yaml'
+  'sequence': 'yaml',
+  'vega-lite': 'yaml'
 }
 
 const containerCtrl = ContentState => {
