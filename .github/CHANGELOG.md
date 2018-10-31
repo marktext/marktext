@@ -1,10 +1,11 @@
-### 0.13.53
+### 0.13.54
 
 **:beetle:Bug fix**
 
 - fix: #451 empty list item error
 - fix: #522 paste bug when paste into empty line
 - fix: #521
+- fix: #534
 
 ### 0.13.50
 
