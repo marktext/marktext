@@ -112,11 +112,12 @@ class StateRender {
         if (functionType === 'sequence') {
           Object.assign(options, { theme: this.muya.options.sequenceTheme })
         } else if (functionType === 'vega-lite') {
-          Object.assign(options, { actions: false, tooltip: false })
+          Object.assign(options, { actions: false, tooltip: false, renderer: 'svg' })
         }
         try {
           if (functionType === 'flowchart' || functionType === 'sequence') {
             const diagram = render.parse(code)
+            target.innerHTML = ''
             diagram.drawSVG(target, options)
           } else if (functionType === 'vega-lite') {
             await vegaEmbed(key, JSON.parse(code), options)
@@ -126,7 +127,7 @@ class StateRender {
           target.classList.add(CLASS_OR_ID['AG_MATH_ERROR'])
         }
       }
-      this.flowChartCache.clear()
+      this.diagramCache.clear()
     }
   }
 

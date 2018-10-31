@@ -91,69 +91,75 @@ export default function renderLeafBlock (block, cursor, activeBlocks, matches, u
       style: `text-align:${align}`
     })
   } else if (type === 'div') {
-    if (functionType === 'preview') {
-      selector += `.${CLASS_OR_ID['AG_HTML_PREVIEW']}`
-      const htmlContent = sanitize(this.muya.contentState.codeBlocks.get(block.preSibling), PREVIEW_DOMPURIFY_CONFIG)
-      // handle empty html bock
-      if (/<([a-z][a-z\d]*).*>\s*<\/\1>/.test(htmlContent)) {
-        children = htmlToVNode('<div class="ag-empty">&lt;Empty HTML Block&gt;</div>')
-      } else {
-        children = htmlToVNode(htmlContent)
+    const code = this.muya.contentState.codeBlocks.get(block.preSibling)
+    switch (functionType) {
+      case 'preview': {
+        selector += `.${CLASS_OR_ID['AG_HTML_PREVIEW']}`
+        const htmlContent = sanitize(code, PREVIEW_DOMPURIFY_CONFIG)
+        // handle empty html bock
+        if (/<([a-z][a-z\d]*).*>\s*<\/\1>/.test(htmlContent)) {
+          children = htmlToVNode('<div class="ag-empty">&lt;Empty HTML Block&gt;</div>')
+        } else {
+          children = htmlToVNode(htmlContent)
+        }
+        break
       }
-    } else if (functionType === 'multiplemath') {
-      const math = this.muya.contentState.codeBlocks.get(block.preSibling)
-      const key = `${math}_display_math`
-      selector += `.${CLASS_OR_ID['AG_CONTAINER_PREVIEW']}`
-      if (math === '') {
-        children = '< Empty Mathematical Formula >'
-        selector += `.${CLASS_OR_ID['AG_EMPTY']}`
-      } else if (loadMathMap.has(key)) {
-        children = loadMathMap.get(key)
-      } else {
-        try {
-          const html = katex.renderToString(math, {
-            displayMode: true
-          })
+      case 'multiplemath': {
+        const key = `${code}_display_math`
+        selector += `.${CLASS_OR_ID['AG_CONTAINER_PREVIEW']}`
+        if (code === '') {
+          children = '< Empty Mathematical Formula >'
+          selector += `.${CLASS_OR_ID['AG_EMPTY']}`
+        } else if (loadMathMap.has(key)) {
+          children = loadMathMap.get(key)
+        } else {
+          try {
+            const html = katex.renderToString(code, {
+              displayMode: true
+            })
 
-          children = htmlToVNode(html)
-          loadMathMap.set(key, children)
-        } catch (err) {
-          children = '< Invalid Mathematical Formula >'
-          selector += `.${CLASS_OR_ID['AG_MATH_ERROR']}`
+            children = htmlToVNode(html)
+            loadMathMap.set(key, children)
+          } catch (err) {
+            children = '< Invalid Mathematical Formula >'
+            selector += `.${CLASS_OR_ID['AG_MATH_ERROR']}`
+          }
         }
+        break
       }
-    } else if (functionType === 'mermaid') {
-      const code = this.muya.contentState.codeBlocks.get(block.preSibling)
-      selector += `.${CLASS_OR_ID['AG_CONTAINER_PREVIEW']}`
-      if (code === '') {
-        children = '< Empty Mermaid Block >'
-        selector += `.${CLASS_OR_ID['AG_EMPTY']}`
-      } else {
-        try {
-          mermaid.parse(code)
-          children = code
-          this.mermaidCache.add(`#${block.key}`)
-        } catch (err) {
-          children = '< Invalid Mermaid Codes >'
-          selector += `.${CLASS_OR_ID['AG_MATH_ERROR']}`
+      case 'mermaid': {
+        selector += `.${CLASS_OR_ID['AG_CONTAINER_PREVIEW']}`
+        if (code === '') {
+          children = '< Empty Mermaid Block >'
+          selector += `.${CLASS_OR_ID['AG_EMPTY']}`
+        } else {
+          try {
+            mermaid.parse(code)
+            children = code
+            this.mermaidCache.add(`#${block.key}`)
+          } catch (err) {
+            children = '< Invalid Mermaid Codes >'
+            selector += `.${CLASS_OR_ID['AG_MATH_ERROR']}`
+          }
         }
+        break
       }
-    } else if (
-      functionType === 'flowchart' ||
-      functionType === 'sequence' ||
-      functionType === 'vega-lite'
-    ) {
-      const code = this.muya.contentState.codeBlocks.get(block.preSibling)
-      selector += `.${CLASS_OR_ID['AG_CONTAINER_PREVIEW']}`
-      if (code === '') {
-        children = '< Empty Diagram Block >'
-        selector += `.${CLASS_OR_ID['AG_EMPTY']}`
-      } else {
-        children = ''
-        this.diagramCache.set(`#${block.key}`, {
-          code,
-          functionType
-        })
+      case 'flowchart':
+      case 'sequence':
+      case 'vega-lite': {
+        const code = this.muya.contentState.codeBlocks.get(block.preSibling)
+        selector += `.${CLASS_OR_ID['AG_CONTAINER_PREVIEW']}`
+        if (code === '') {
+          children = '< Empty Diagram Block >'
+          selector += `.${CLASS_OR_ID['AG_EMPTY']}`
+        } else {
+          children = ''
+          this.diagramCache.set(`#${block.key}`, {
+            code,
+            functionType
+          })
+        }
+        break
       }
     }
   } else if (type === 'svg' && icon) {
