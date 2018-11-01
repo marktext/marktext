@@ -3,7 +3,7 @@ import EventCenter from './eventHandler/event'
 import Clipboard from './eventHandler/clipboard'
 import Keyboard from './eventHandler/keyboard'
 import ClickEvent from './eventHandler/clickEvent'
-import { CLASS_OR_ID } from './config'
+import { CLASS_OR_ID, MUYA_DEFAULT_OPTION } from './config'
 import { wordCount } from './utils'
 import ExportMarkdown from './utils/exportMarkdown'
 import ExportHtml from './utils/exportHtml'
@@ -18,11 +18,8 @@ import './assets/styles/index.css'
 
 class Muya {
   constructor (container, options) {
-    const {
-      focusMode = false, theme = 'light', markdown = '', preferLooseListItem = true,
-      autoPairBracket = true, autoPairMarkdownSyntax = true, autoPairQuote = true,
-      bulletListMarker = '-', tabSize = 4
-    } = options
+    this.options = Object.assign({}, MUYA_DEFAULT_OPTION, options)
+    const { focusMode, theme, markdown } = this.options
     this.focusMode = focusMode
     this.theme = theme
     this.markdown = markdown
@@ -35,7 +32,7 @@ class Muya {
     this.emojiPicker = new EmojiPicker(this)
     this.imagePathPicker = new ImagePathPicker(this)
     this.formatPicker = new FormatPicker(this)
-    this.contentState = new ContentState(this, { preferLooseListItem, autoPairBracket, autoPairMarkdownSyntax, autoPairQuote, bulletListMarker, tabSize })
+    this.contentState = new ContentState(this, this.options)
     this.clipboard = new Clipboard(this)
     this.clickEvent = new ClickEvent(this)
     this.keyboard = new Keyboard(this)

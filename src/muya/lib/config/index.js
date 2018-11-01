@@ -112,8 +112,12 @@ export const CLASS_OR_ID = genUpper2LowerKeyHash([
   'AG_MATH_ERROR',
   'AG_EMPTY',
   'AG_MATH_MARKER',
-  'AG_MATH_PREVIEW',
-  'AG_MULTIPLE_MATH_BLOCK',
+  'AG_CONTAINER_PREVIEW',
+  'AG_FLOWCHART',
+  'AG_SEQUENCE',
+  'AG_MERMAID',
+  'AG_VEGA_LITE',
+  'AG_CONTAINER_BLOCK',
   'AG_MULTIPLE_MATH',
   'AG_LOOSE_LIST_ITEM',
   'AG_TIGHT_LIST_ITEM',
@@ -210,5 +214,23 @@ export const EXPORT_DOMPURIFY_CONFIG = {
     mathMl: true
   }
 }
+
+export const MUYA_DEFAULT_OPTION = {
+  focusMode: false,
+  theme: 'light',
+  markdown: '',
+  preferLooseListItem: true,
+  autoPairBracket: true,
+  autoPairMarkdownSyntax: true,
+  autoPairQuote: true,
+  bulletListMarker: '-',
+  tabSize: 4,
+  sequenceTheme: 'hand', // hand or simple
+  mermaidTheme: 'forest' // dark or forest
+}
+
+// export const DIAGRAM_TEMPLATE = {
+//   'mermaid': `graph LR;\nYou-->|Mark Text|Me;`
+// }
 
 export const isInElectron = window && window.process && window.process.type === 'renderer'

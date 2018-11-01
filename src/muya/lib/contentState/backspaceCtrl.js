@@ -179,6 +179,10 @@ const backspaceCtrl = ContentState => {
             referenceBlock = preBlock
             break
           case 'multiplemath':
+          case 'flowchart':
+          case 'mermaid':
+          case 'sequence':
+          case 'vega-lite':
             referenceBlock = this.getParent(preBlock)
             break
           case 'html':

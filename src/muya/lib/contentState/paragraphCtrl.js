@@ -319,19 +319,19 @@ const paragraphCtrl = ContentState => {
     }
   }
 
-  ContentState.prototype.insertMathBlock = function () {
+  ContentState.prototype.insertContainerBlock = function (functionType, value = '') {
     const { start, end } = selection.getCursorRange()
     if (start.key !== end.key) return
     let block = this.getBlock(start.key)
     if (block.type === 'span') {
       block = this.getParent(block)
     }
-    const mathBlock = this.createMathBlock()
+    const mathBlock = this.createContainerBlock(functionType, value)
     this.insertAfter(mathBlock, block)
     if (block.type === 'p' && block.children.length === 1 && !block.children[0].text) {
       this.removeBlock(block)
     }
-    const cursorBlock = mathBlock.children[0].children[0]
+    const cursorBlock = mathBlock.children[0].children[0].children[0]
     const { key } = cursorBlock
     const offset = 0
     this.cursor = {
@@ -391,7 +391,7 @@ const paragraphCtrl = ContentState => {
         break
       }
       case 'mathblock': {
-        this.insertMathBlock()
+        this.insertContainerBlock('multiplemath')
         break
       }
       case 'table': {
@@ -402,6 +402,12 @@ const paragraphCtrl = ContentState => {
         this.insertHtmlBlock(block)
         break
       }
+      case 'flowchart':
+      case 'sequence':
+      case 'mermaid':
+      case 'vega-lite':
+        this.insertContainerBlock(paraType)
+        break
       case 'heading 1':
       case 'heading 2':
       case 'heading 3':

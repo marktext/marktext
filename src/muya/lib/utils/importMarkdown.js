@@ -73,7 +73,7 @@ const importRegister = ContentState => {
         }
         case 'multiplemath': {
           value = token.text
-          block = this.createMathBlock(value)
+          block = this.createContainerBlock(token.type, value)
           this.appendChild(parentList[0], block)
           break
         }
@@ -83,25 +83,30 @@ const importRegister = ContentState => {
           if (value.endsWith('\n')) {
             value = value.replace(/\n+$/, '')
           }
-          block = this.createBlock('pre')
-          const codeBlock = this.createBlock('code')
-          value.split(LINE_BREAKS_REG).forEach(line => {
-            const codeLine = this.createBlock('span', line)
-            codeLine.lang = lang
-            codeLine.functionType = 'codeLine'
-            this.appendChild(codeBlock, codeLine)
-          })
-          const inputBlock = this.createBlock('span', lang)
-          if (lang) {
-            loadLanguage(lang)
+          if (/mermaid|flowchart|vega-lite|sequence/.test(lang)) {
+            block = this.createContainerBlock(lang, value)
+            this.appendChild(parentList[0], block)
+          } else {
+            block = this.createBlock('pre')
+            const codeBlock = this.createBlock('code')
+            value.split(LINE_BREAKS_REG).forEach(line => {
+              const codeLine = this.createBlock('span', line)
+              codeLine.lang = lang
+              codeLine.functionType = 'codeLine'
+              this.appendChild(codeBlock, codeLine)
+            })
+            const inputBlock = this.createBlock('span', lang)
+            if (lang) {
+              loadLanguage(lang)
+            }
+            inputBlock.functionType = 'languageInput'
+            this.codeBlocks.set(block.key, value)
+            block.functionType = codeBlockStyle === 'fenced' ? 'fencecode' : 'indentcode'
+            block.lang = codeBlock.lang = lang
+            this.appendChild(block, inputBlock)
+            this.appendChild(block, codeBlock)
+            this.appendChild(parentList[0], block)
           }
-          inputBlock.functionType = 'languageInput'
-          this.codeBlocks.set(block.key, value)
-          block.functionType = codeBlockStyle === 'fenced' ? 'fencecode' : 'indentcode'
-          block.lang = codeBlock.lang = lang
-          this.appendChild(block, inputBlock)
-          this.appendChild(block, codeBlock)
-          this.appendChild(parentList[0], block)
           break
         }
         case 'table': {

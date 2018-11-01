@@ -52,13 +52,23 @@ class ExportMarkdown {
 
         case 'figure':
           this.insertLineBreak(result, indent, true)
-          if (block.functionType === 'table') {
-            const table = block.children[1]
-            result.push(this.normalizeTable(table, indent))
-          } else if (block.functionType === 'html') {
-            result.push(this.normalizeHTML(block, indent))
-          } else if (block.functionType === 'multiplemath') {
-            result.push(this.normalizeMultipleMath(block, indent))
+          switch (block.functionType) {
+            case 'table':
+              const table = block.children[1]
+              result.push(this.normalizeTable(table, indent))
+              break
+            case 'html':
+              result.push(this.normalizeHTML(block, indent))
+              break
+            case 'multiplemath':
+              result.push(this.normalizeMultipleMath(block, indent))
+              break
+            case 'mermaid':
+            case 'flowchart':
+            case 'sequence':
+            case 'vega-lite':
+              result.push(this.normalizeContainer(block, indent))
+              break
           }
           break
 
@@ -170,6 +180,18 @@ class ExportMarkdown {
       result.push(`${line.text}\n`)
     }
     result.push('$$\n')
+    return result.join('')
+  }
+
+  // `mermaid` `flowchart` `sequence` `vega-lite`
+  normalizeContainer (block, indent) {
+    const result = []
+    const diagramType = block.children[0].functionType
+    result.push('```' + diagramType + '\n')
+    for (const line of block.children[0].children[0].children) {
+      result.push(`${line.text}\n`)
+    }
+    result.push('```\n')
     return result.join('')
   }
 

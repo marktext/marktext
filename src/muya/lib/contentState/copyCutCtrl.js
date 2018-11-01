@@ -86,14 +86,29 @@ const copyCutCtrl = ContentState => {
       hb.replaceWith(pre)
     })
 
-    const mathBlock = wrapper.querySelectorAll(`figure.ag-multiple-math-block`)
+    const mathBlock = wrapper.querySelectorAll(`figure.ag-container-block`)
     ;[...mathBlock].forEach(mb => {
+      const preElement = mb.querySelector('pre[data-role]')
+      const functionType = preElement.getAttribute('data-role')
       const selectedCodeLines = mb.querySelectorAll('span.ag-code-line')
       const value = [...selectedCodeLines].map(codeLine => codeLine.textContent).join('\n')
-      const pre = document.createElement('pre')
-      pre.classList.add('multiple-math')
-      pre.textContent = value
-      mb.replaceWith(pre)
+      let pre
+      switch (functionType) {
+        case 'multiplemath':
+          pre = document.createElement('pre')
+          pre.classList.add('multiple-math')
+          pre.textContent = value
+          mb.replaceWith(pre)
+          break
+        case 'mermaid':
+        case 'flowchart':
+        case 'sequence':
+        case 'vega-lite':
+          pre = document.createElement('pre')
+          pre.innerHTML = `<code class="language-${functionType}">${value}</code>`
+          mb.replaceWith(pre)
+          break
+      }
     })
 
     const htmlData = wrapper.innerHTML

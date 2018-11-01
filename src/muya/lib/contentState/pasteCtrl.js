@@ -127,7 +127,7 @@ const pasteCtrl = ContentState => {
           end: { key, offset }
         }
       }
-
+      this.updateCodeBlocks(startBlock)
       return this.partialRender()
     }
 

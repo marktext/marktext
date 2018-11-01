@@ -1,4 +1,5 @@
 import katex from 'katex'
+import mermaid from 'mermaid'
 import prism, { loadedCache } from '../../../prism/'
 import { CLASS_OR_ID, DEVICE_MEMORY, isInElectron, PREVIEW_DOMPURIFY_CONFIG } from '../../../config'
 import { tokenizer } from '../../parse'
@@ -90,36 +91,75 @@ export default function renderLeafBlock (block, cursor, activeBlocks, matches, u
       style: `text-align:${align}`
     })
   } else if (type === 'div') {
-    if (functionType === 'preview') {
-      selector += `.${CLASS_OR_ID['AG_HTML_PREVIEW']}`
-      const htmlContent = sanitize(this.muya.contentState.codeBlocks.get(block.preSibling), PREVIEW_DOMPURIFY_CONFIG)
-      // handle empty html bock
-      if (/<([a-z][a-z\d]*).*>\s*<\/\1>/.test(htmlContent)) {
-        children = htmlToVNode('<div class="ag-empty">&lt;Empty HTML Block&gt;</div>')
-      } else {
-        children = htmlToVNode(htmlContent)
-      }
-    } else if (functionType === 'multiplemath') {
-      const math = this.muya.contentState.codeBlocks.get(block.preSibling)
-      const key = `${math}_display_math`
-      selector += `.${CLASS_OR_ID['AG_MATH_PREVIEW']}`
-      if (math === '') {
-        children = '< Empty Mathematical Formula >'
-        selector += `.${CLASS_OR_ID['AG_EMPTY']}`
-      } else if (loadMathMap.has(key)) {
-        children = loadMathMap.get(key)
-      } else {
-        try {
-          const html = katex.renderToString(math, {
-            displayMode: true
-          })
-
-          children = htmlToVNode(html)
-          loadMathMap.set(key, children)
-        } catch (err) {
-          children = '< Invalid Mathematical Formula >'
-          selector += `.${CLASS_OR_ID['AG_MATH_ERROR']}`
+    const code = this.muya.contentState.codeBlocks.get(block.preSibling)
+    switch (functionType) {
+      case 'preview': {
+        selector += `.${CLASS_OR_ID['AG_HTML_PREVIEW']}`
+        const htmlContent = sanitize(code, PREVIEW_DOMPURIFY_CONFIG)
+        // handle empty html bock
+        if (/<([a-z][a-z\d]*).*>\s*<\/\1>/.test(htmlContent)) {
+          children = htmlToVNode('<div class="ag-empty">&lt;Empty HTML Block&gt;</div>')
+        } else {
+          children = htmlToVNode(htmlContent)
         }
+        break
+      }
+      case 'multiplemath': {
+        const key = `${code}_display_math`
+        selector += `.${CLASS_OR_ID['AG_CONTAINER_PREVIEW']}`
+        if (code === '') {
+          children = '< Empty Mathematical Formula >'
+          selector += `.${CLASS_OR_ID['AG_EMPTY']}`
+        } else if (loadMathMap.has(key)) {
+          children = loadMathMap.get(key)
+        } else {
+          try {
+            const html = katex.renderToString(code, {
+              displayMode: true
+            })
+
+            children = htmlToVNode(html)
+            loadMathMap.set(key, children)
+          } catch (err) {
+            children = '< Invalid Mathematical Formula >'
+            selector += `.${CLASS_OR_ID['AG_MATH_ERROR']}`
+          }
+        }
+        break
+      }
+      case 'mermaid': {
+        selector += `.${CLASS_OR_ID['AG_CONTAINER_PREVIEW']}`
+        if (code === '') {
+          children = '< Empty Mermaid Block >'
+          selector += `.${CLASS_OR_ID['AG_EMPTY']}`
+        } else {
+          try {
+            mermaid.parse(code)
+            children = code
+            this.mermaidCache.add(`#${block.key}`)
+          } catch (err) {
+            children = '< Invalid Mermaid Codes >'
+            selector += `.${CLASS_OR_ID['AG_MATH_ERROR']}`
+          }
+        }
+        break
+      }
+      case 'flowchart':
+      case 'sequence':
+      case 'vega-lite': {
+        const code = this.muya.contentState.codeBlocks.get(block.preSibling)
+        selector += `.${CLASS_OR_ID['AG_CONTAINER_PREVIEW']}`
+        if (code === '') {
+          children = '< Empty Diagram Block >'
+          selector += `.${CLASS_OR_ID['AG_EMPTY']}`
+        } else {
+          children = ''
+          this.diagramCache.set(`#${block.key}`, {
+            code,
+            functionType
+          })
+        }
+        break
       }
     }
   } else if (type === 'svg' && icon) {

@@ -321,15 +321,14 @@ table tr:nth-child(2n) {
 
 table tr th {
   font-weight: bold;
-  border-top: 2px solid #606266;
-  border-bottom: 2px solid #606266;
+  border: 2px solid #606266;
   text-align: left;
   margin: 0;
   padding: 6px 13px;
 }
 
 table tr td {
-  border-bottom: 1px solid #606266;
+  border: 1px solid #606266;
   text-align: left;
   margin: 0;
   padding: 6px 13px;

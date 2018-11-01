@@ -1,8 +1,11 @@
+import mermaid from 'mermaid'
+import flowchart from 'flowchart.js'
+import Diagram from './sequence'
+import vegaEmbed from 'vega-embed'
 import { CLASS_OR_ID } from '../../config'
 import { conflict, mixins } from '../../utils'
 import { patch, toVNode, toHTML, h } from './snabbdom'
 import { beginRules } from '../rules'
-
 import renderInlines from './renderInlines'
 import renderBlock from './renderBlock'
 
@@ -12,6 +15,8 @@ class StateRender {
     this.eventCenter = muya.eventCenter
     this.loadImageMap = new Map()
     this.loadMathMap = new Map()
+    this.mermaidCache = new Set()
+    this.diagramCache = new Map()
     this.tokenCache = new Map()
     this.labels = new Map()
     this.container = null
@@ -84,6 +89,48 @@ class StateRender {
     return selector
   }
 
+  renderMermaid () {
+    if (this.mermaidCache.size) {
+      mermaid.init(undefined, document.querySelectorAll([...this.mermaidCache].join(', ')))
+      this.mermaidCache.clear()
+    }
+  }
+
+  async renderDiagram () {
+    const cache = this.diagramCache
+    const RENDER_MAP = {
+      'flowchart': flowchart,
+      'sequence': Diagram,
+      'vega-lite': vegaEmbed
+    }
+    if (cache.size) {
+      for (const [key, value] of cache.entries()) {
+        const target = document.querySelector(key)
+        const { code, functionType } = value
+        const render = RENDER_MAP[functionType]
+        const options = {}
+        if (functionType === 'sequence') {
+          Object.assign(options, { theme: this.muya.options.sequenceTheme })
+        } else if (functionType === 'vega-lite') {
+          Object.assign(options, { actions: false, tooltip: false, renderer: 'svg' })
+        }
+        try {
+          if (functionType === 'flowchart' || functionType === 'sequence') {
+            const diagram = render.parse(code)
+            target.innerHTML = ''
+            diagram.drawSVG(target, options)
+          } else if (functionType === 'vega-lite') {
+            await vegaEmbed(key, JSON.parse(code), options)
+          }
+        } catch (err) {
+          target.innerHTML = `< Invalid ${functionType === 'flowchart' ? 'Flow Chart' : 'Sequence'} Codes >`
+          target.classList.add(CLASS_OR_ID['AG_MATH_ERROR'])
+        }
+      }
+      this.diagramCache.clear()
+    }
+  }
+
   render (blocks, cursor, activeBlocks, matches) {
     const selector = `div#${CLASS_OR_ID['AG_EDITOR_ID']}`
 
@@ -96,6 +143,8 @@ class StateRender {
     const oldVdom = toVNode(rootDom)
 
     patch(oldVdom, newVdom)
+    this.renderMermaid()
+    this.renderDiagram()
   }
 
   // Only render the blocks which you updated
@@ -133,6 +182,8 @@ class StateRender {
         patch(oldCursorVnode, newCursorVnode)
       }
     }
+    this.renderMermaid()
+    this.renderDiagram()
   }
 }
 
