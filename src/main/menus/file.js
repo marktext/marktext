@@ -1,6 +1,7 @@
 import { app } from 'electron'
 import * as actions from '../actions/file'
 import { userSetting } from '../actions/marktext'
+import { showTabBar } from '../actions/view'
 import userPreference from '../preference'
 
 export default function (recentlyUsedFiles) {
@@ -13,6 +14,7 @@ export default function (recentlyUsedFiles) {
       accelerator: 'Shift+CmdOrCtrl+T',
       click (menuItem, browserWindow) {
         actions.newTab(browserWindow)
+        showTabBar(browserWindow)
       }
     }, {
       label: 'New Window',
