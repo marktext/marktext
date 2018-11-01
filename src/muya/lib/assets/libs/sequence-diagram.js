@@ -4,7 +4,7 @@
  *  @license Simplified BSD license.
  */
 import _ from 'underscore'
-import Raphael from './raphael'
+import './raphael'
 import './webFontLoader'
 
 function Diagram() {
