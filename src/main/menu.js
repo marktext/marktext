@@ -82,10 +82,23 @@ class AppMenu {
     const { windowMenus } = this
     windowMenus.set(window.id, this.buildDefaultMenu(window))
 
-    //
-    // TODO(#535): Copy `view` state from the current menu or rewrite parts of the editor because the editor
-    //             opens a new file/window in source code mode if the previous mode was source code.
-    //
+    const { menu } = windowMenus.get(window.id)
+    const currentMenu = Menu.getApplicationMenu() // the menu may be null
+    updateMenuItemSafe(currentMenu, menu, 'sourceCodeModeMenuItem', false)
+    updateMenuItemSafe(currentMenu, menu, 'typewriterModeMenuItem', false)
+
+    // FIXME: Focus mode is being ignored when you open a new window - inconsistency.
+    // updateMenuItemSafe(currentMenu, menu, 'focusModeMenuItem', false)
+
+    const { checked: isSourceMode } = menu.getMenuItemById('sourceCodeModeMenuItem')
+    if (isSourceMode) {
+      // BUG: When opening a file `typewriterMode` and `focusMode` will be reset by editor.
+      //      If source code mode is set the editor must not change the values.
+      const typewriterModeMenuItem = menu.getMenuItemById('typewriterModeMenuItem')
+      const focusModeMenuItem = menu.getMenuItemById('focusModeMenuItem')
+      typewriterModeMenuItem.enabled = false
+      focusModeMenuItem.enabled = false
+    }
 
     // TODO(fxha): Initialize ShortcutHandler and register shortcuts for the given window (GH project 6)
   }
@@ -102,17 +115,14 @@ class AppMenu {
   getWindowMenuById (windowId) {
     const { menu } = this.windowMenus.get(windowId)
     if (!menu) {
-      console.error(`Cannot find window menu for id ${windowId}.`)
-      log(`setActiveWindow: Cannot find window menu for id ${windowId}.`)
-
-      // TODO(#535): Should we throw an exeption or return null?
-      return null
+      log(`getWindowMenuById: Cannot find window menu for id ${windowId}.`)
+      throw new Error(`Cannot find window menu for id ${windowId}.`)
     }
     return menu
   }
 
   setActiveWindow (windowId) {
-    // Change application menu to the current window menu
+    // change application menu to the current window menu
     Menu.setApplicationMenu(this.getWindowMenuById(windowId))
     this.activeWindowId = windowId
   }
@@ -153,12 +163,16 @@ class AppMenu {
 
     // rebuild all window menus
     this.windowMenus.forEach((value, key) => {
-      // let { menu: newMenu } = this.buildDefaultMenu(null, recentUsedDocuments)
+      const { menu: oldMenu } = value
+      // const { menu: newMenu } = this.buildDefaultMenu(null, recentUsedDocuments)
       const { menu: newMenu } = this.buildDefaultMenu({ id: key }, recentUsedDocuments) // #DEBUG show window id
 
-      //
-      // TODO(#535): Update menu checkboxes and radiobutton
-      //
+      // all other menu items are set automatically
+      updateMenuItem(oldMenu, newMenu, 'sourceCodeModeMenuItem')
+      updateMenuItem(oldMenu, newMenu, 'typewriterModeMenuItem')
+      updateMenuItem(oldMenu, newMenu, 'focusModeMenuItem')
+      updateMenuItem(oldMenu, newMenu, 'sideBarMenuItem')
+      updateMenuItem(oldMenu, newMenu, 'tabBarMenuItem')
 
       // TODO(fxha): Update `shortcutMap` callback function  (GH project 6)
 
@@ -194,6 +208,24 @@ class AppMenu {
       rtlMenu.checked = true
     }
   }
+}
+
+const updateMenuItem = (oldMenus, newMenus, id) => {
+  const oldItem = oldMenus.getMenuItemById(id)
+  const newItem = newMenus.getMenuItemById(id)
+  newItem.checked = oldItem.checked
+}
+
+const updateMenuItemSafe = (oldMenus, newMenus, id, defaultValue) => {
+  let checked = defaultValue
+  if (oldMenus) {
+    const oldItem = oldMenus.getMenuItemById(id)
+    if (oldItem) {
+      checked = oldItem.checked
+    }
+  }
+  const newItem = newMenus.getMenuItemById(id)
+  newItem.checked = checked
 }
 
 export default new AppMenu()

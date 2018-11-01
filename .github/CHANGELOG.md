@@ -1,3 +1,14 @@
+### 0.14.x
+
+**:butterfly:Optimization**
+
+- Show tab bar when opening a new tab
+
+**:beetle:Bug fix**
+
+- fix: #535 Application menu is not updated when switching windows
+
+
 ### 0.13.54
 
 **:beetle:Bug fix**
