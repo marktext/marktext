@@ -1,7 +1,7 @@
 import { app } from 'electron'
-import appMenu from './menu'
 import appWindow from './window'
 import { isOsx } from './config'
+import { dockMenu } from './menus'
 import { isMarkdownFile } from './utils'
 import { watchers } from './utils/imagePathAutoComplement'
 
@@ -56,13 +56,17 @@ class App {
       }
     }
 
+    // Set dock on macOS
+    if (process.platform === 'darwin') {
+      app.dock.setMenu(dockMenu)
+    }
+
     if (this.openFilesCache.length) {
       this.openFilesCache.forEach(path => appWindow.createWindow(path))
       this.openFilesCache.length = 0 // empty the open file path cache
     } else {
       appWindow.createWindow()
     }
-    appMenu.updateAppMenu()
   }
 
   openFile (event, path) {

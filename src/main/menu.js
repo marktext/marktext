@@ -1,18 +1,19 @@
 import fs from 'fs'
 import path from 'path'
 import { Menu, app } from 'electron'
-import configureMenu, { dockMenu } from './menus'
+import configureMenu from './menus'
 import { isFile, ensureDir, getPath, log } from './utils'
 
 class AppMenu {
   constructor () {
     const FILE_NAME = 'recently-used-documents.json'
 
-    this.initMacDock = false
     this.MAX_RECENTLY_USED_DOCUMENTS = 12
     this.RECENTS_PATH = path.join(getPath('userData'), FILE_NAME)
     this.isOsxOrWindows = /darwin|win32/.test(process.platform)
     this.isOsx = process.platform === 'darwin'
+    this.activeWindowId = -1
+    this.windowMenus = new Map()
   }
 
   addRecentlyUsedDocument (filePath) {
@@ -77,9 +78,71 @@ class AppMenu {
     fs.writeFileSync(RECENTS_PATH, json, 'utf-8')
   }
 
-  updateAppMenu (recentUsedDocuments) {
-    const { initMacDock } = this
+  addWindowMenuWithListener (window) {
+    const { windowMenus } = this
+    windowMenus.set(window.id, this.buildDefaultMenu(window))
 
+    //
+    // TODO(#535): Copy `view` state from the current menu or rewrite parts of the editor because the editor
+    //             opens a new file/window in source code mode if the previous mode was source code.
+    //
+
+    // TODO(fxha): Initialize ShortcutHandler and register shortcuts for the given window (GH project 6)
+  }
+
+  removeWindowMenu (windowId) {
+    // NOTE: Shortcut handler is automatically unregistered
+    const { activeWindowId } = this
+    this.windowMenus.delete(windowId)
+    if (activeWindowId === windowId) {
+      this.activeWindowId = -1
+    }
+  }
+
+  getWindowMenuById (windowId) {
+    const { menu } = this.windowMenus.get(windowId)
+    if (!menu) {
+      console.error(`Cannot find window menu for id ${windowId}.`)
+      log(`setActiveWindow: Cannot find window menu for id ${windowId}.`)
+
+      // TODO(#535): Should we throw an exeption or return null?
+      return null
+    }
+    return menu
+  }
+
+  setActiveWindow (windowId) {
+    // Change application menu to the current window menu
+    Menu.setApplicationMenu(this.getWindowMenuById(windowId))
+    this.activeWindowId = windowId
+  }
+
+  buildDefaultMenu (window, recentUsedDocuments) {
+    if (!recentUsedDocuments) {
+      recentUsedDocuments = this.getRecentlyUsedDocuments()
+    }
+
+    // const menuTemplate = configureMenu(recentUsedDocuments)
+    // #DEBUG
+    let menuTemplate = configureMenu(recentUsedDocuments)
+    menuTemplate.push({
+      label: `Window id: ${window.id}`
+    })
+    // END #DEBUG
+    const menu = Menu.buildFromTemplate(menuTemplate)
+
+    let shortcutMap = null
+    if (window) {
+      // TODO(fxha): Build accelerator/function shortcut map from template (GH project 6)
+    }
+
+    return {
+      shortcutMap, // reserved for shortcut fixes (GH project 6)
+      menu
+    }
+  }
+
+  updateAppMenu (recentUsedDocuments) {
     if (!recentUsedDocuments) {
       recentUsedDocuments = this.getRecentlyUsedDocuments()
     }
@@ -88,13 +151,26 @@ class AppMenu {
     // is undefined if user does that." That means we have to recreate the
     // application menu each time.
 
-    const menu = Menu.buildFromTemplate(configureMenu(recentUsedDocuments))
-    Menu.setApplicationMenu(menu)
-    if (!initMacDock && process.platform === 'darwin') {
-      // app.dock is only for macosx
-      app.dock.setMenu(dockMenu)
-    }
-    this.initMacDock = true
+    // rebuild all window menus
+    this.windowMenus.forEach((value, key) => {
+      // let { menu: newMenu } = this.buildDefaultMenu(null, recentUsedDocuments)
+      const { menu: newMenu } = this.buildDefaultMenu({ id: key }, recentUsedDocuments) // #DEBUG show window id
+
+      //
+      // TODO(#535): Update menu checkboxes and radiobutton
+      //
+
+      // TODO(fxha): Update `shortcutMap` callback function  (GH project 6)
+
+      // update window menu
+      value.menu = newMenu
+
+      // update application menu if necessary
+      const { activeWindowId } = this
+      if (activeWindowId === key) {
+        Menu.setApplicationMenu(newMenu)
+      }
+    })
   }
 
   updateLineEndingnMenu (lineEnding) {

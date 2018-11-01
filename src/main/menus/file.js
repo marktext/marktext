@@ -9,16 +9,16 @@ export default function (recentlyUsedFiles) {
   let fileMenu = {
     label: 'File',
     submenu: [{
-      label: 'New File',
-      accelerator: 'CmdOrCtrl+N',
-      click (menuItem, browserWindow) {
-        actions.newFile()
-      }
-    }, {
       label: 'New Tab',
       accelerator: 'Shift+CmdOrCtrl+T',
       click (menuItem, browserWindow) {
         actions.newTab(browserWindow)
+      }
+    }, {
+      label: 'New Window',
+      accelerator: 'CmdOrCtrl+N',
+      click (menuItem, browserWindow) {
+        actions.newFile()
       }
     }, {
       type: 'separator'

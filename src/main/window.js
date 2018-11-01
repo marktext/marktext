@@ -62,6 +62,12 @@ class AppWindow {
       watchers: []
     })
 
+    // create a menu for the current window
+    appMenu.addWindowMenuWithListener(win)
+    if (windows.size === 1) {
+      appMenu.setActiveWindow(win.id)
+    }
+
     win.once('ready-to-show', async () => {
       mainWindowState.manage(win)
       win.show()
@@ -130,6 +136,9 @@ class AppWindow {
         win.webContents.send('AGANI::req-update-line-ending-menu')
         win.webContents.send('AGANI::request-for-view-layout')
         win.webContents.send('AGANI::req-update-text-direction-menu')
+
+        // update application menu
+        appMenu.setActiveWindow(win.id)
       }
     })
 
@@ -176,6 +185,7 @@ class AppWindow {
       }
       windows.delete(win.id)
     }
+    appMenu.removeWindowMenu(win.id)
     win.destroy() // if use win.close(), it will cause a endless loop.
     if (windows.size === 0) {
       app.quit()
