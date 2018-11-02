@@ -1,7 +1,5 @@
 import * as actions from '../actions/paragraph'
 
-const isWindows = process.platform === 'win32'
-
 export default {
   id: 'paragraphMenuEntry',
   label: 'Paragraph',
@@ -83,7 +81,7 @@ export default {
     id: 'codeFencesMenuItem',
     label: 'Code Fences',
     type: 'checkbox',
-    accelerator: (isWindows ? 'Alt+AltGr+CmdOrCtrl' : 'Alt+CmdOrCtrl') + '+C', // WORKAROUND: #523
+    accelerator: 'Alt+CmdOrCtrl+C',
     click (menuItem, browserWindow) {
       actions.paragraph(browserWindow, 'pre')
     }
@@ -91,7 +89,7 @@ export default {
     id: 'quoteBlockMenuItem',
     label: 'Quote Block',
     type: 'checkbox',
-    accelerator: (isWindows ? 'Alt+AltGr+CmdOrCtrl' : 'Alt+CmdOrCtrl') + '+Q', // WORKAROUND: #523
+    accelerator: 'Alt+CmdOrCtrl+Q',
     click (menuItem, browserWindow) {
       actions.paragraph(browserWindow, 'blockquote')
     }
@@ -99,7 +97,7 @@ export default {
     id: 'mathBlockMenuItem',
     label: 'Math Block',
     type: 'checkbox',
-    accelerator: (isWindows ? 'Alt+AltGr+CmdOrCtrl' : 'Alt+CmdOrCtrl') + '+M', // WORKAROUND: #523
+    accelerator: 'Alt+CmdOrCtrl+M',
     click (menuItem, browserWindow) {
       actions.paragraph(browserWindow, 'mathblock')
     }
@@ -107,7 +105,7 @@ export default {
     id: 'htmlBlockMenuItem',
     label: 'Html Block',
     type: 'checkbox',
-    accelerator: (isWindows ? 'Alt+AltGr+CmdOrCtrl' : 'Alt+CmdOrCtrl') + '+L', // WORKAROUND: #523
+    accelerator: 'Alt+CmdOrCtrl+L',
     click (menuItem, browserWindow) {
       actions.paragraph(browserWindow, 'html')
     }
@@ -117,7 +115,7 @@ export default {
     id: 'orderListMenuItem',
     label: 'Order List',
     type: 'checkbox',
-    accelerator: (isWindows ? 'Alt+AltGr+CmdOrCtrl' : 'Alt+CmdOrCtrl') + '+O', // WORKAROUND: #523
+    accelerator: 'Alt+CmdOrCtrl+O',
     click (menuItem, browserWindow) {
       actions.paragraph(browserWindow, 'ol-order')
     }
@@ -125,7 +123,7 @@ export default {
     id: 'bulletListMenuItem',
     label: 'Bullet List',
     type: 'checkbox',
-    accelerator: (isWindows ? 'Alt+AltGr+CmdOrCtrl' : 'Alt+CmdOrCtrl') + '+U', // WORKAROUND: #523
+    accelerator: 'Alt+CmdOrCtrl+U',
     click (menuItem, browserWindow) {
       actions.paragraph(browserWindow, 'ul-bullet')
     }
@@ -133,7 +131,7 @@ export default {
     id: 'taskListMenuItem',
     label: 'Task List',
     type: 'checkbox',
-    accelerator: (isWindows ? 'Alt+AltGr+CmdOrCtrl' : 'Alt+CmdOrCtrl') + '+X', // WORKAROUND: #523
+    accelerator: 'Alt+CmdOrCtrl+X',
     click (menuItem, browserWindow) {
       actions.paragraph(browserWindow, 'ul-task')
     }
@@ -143,7 +141,7 @@ export default {
     id: 'looseListItemMenuItem',
     label: 'Loose List Item',
     type: 'checkbox',
-    accelerator: (isWindows ? 'Alt+AltGr+CmdOrCtrl' : 'Alt+CmdOrCtrl') + '+L', // WORKAROUND: #523
+    accelerator: 'Alt+CmdOrCtrl+L',
     click (menuItem, browserWindow) {
       actions.paragraph(browserWindow, 'loose-list-item')
     }
@@ -161,7 +159,7 @@ export default {
     id: 'horizontalLineMenuItem',
     label: 'Horizontal Line',
     type: 'checkbox',
-    accelerator: (isWindows ? 'Alt+AltGr+CmdOrCtrl' : 'Alt+CmdOrCtrl') + '+-', // WORKAROUND: #523
+    accelerator: 'Alt+CmdOrCtrl+-',
     click (menuItem, browserWindow) {
       actions.paragraph(browserWindow, 'hr')
     }
@@ -169,7 +167,7 @@ export default {
     id: 'frontMatterMenuItem',
     label: 'YAML Front Matter',
     type: 'checkbox',
-    accelerator: (isWindows ? 'Alt+AltGr+CmdOrCtrl' : 'Alt+CmdOrCtrl') + '+Y', // WORKAROUND: #523
+    accelerator: 'Alt+CmdOrCtrl+Y',
     click (menuItem, browserWindow) {
       actions.paragraph(browserWindow, 'front-matter')
     }
