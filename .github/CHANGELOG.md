@@ -1,4 +1,4 @@
-### 0.14.x
+### 0.13.55
 
 **:butterfly:Optimization**
 
@@ -6,17 +6,11 @@
 
 **:beetle:Bug fix**
 
-- fix: #535 Application menu is not updated when switching windows
-
-
-### 0.13.54
-
-**:beetle:Bug fix**
-
 - fix: #451 empty list item error
 - fix: #522 paste bug when paste into empty line
 - fix: #521
 - fix: #534
+- fix: #535 Application menu is not updated when switching windows
 
 ### 0.13.50
 

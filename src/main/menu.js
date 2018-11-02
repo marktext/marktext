@@ -132,13 +132,7 @@ class AppMenu {
       recentUsedDocuments = this.getRecentlyUsedDocuments()
     }
 
-    // const menuTemplate = configureMenu(recentUsedDocuments)
-    // #DEBUG
-    let menuTemplate = configureMenu(recentUsedDocuments)
-    menuTemplate.push({
-      label: `Window id: ${window.id}`
-    })
-    // END #DEBUG
+    const menuTemplate = configureMenu(recentUsedDocuments)
     const menu = Menu.buildFromTemplate(menuTemplate)
 
     let shortcutMap = null
@@ -164,8 +158,7 @@ class AppMenu {
     // rebuild all window menus
     this.windowMenus.forEach((value, key) => {
       const { menu: oldMenu } = value
-      // const { menu: newMenu } = this.buildDefaultMenu(null, recentUsedDocuments)
-      const { menu: newMenu } = this.buildDefaultMenu({ id: key }, recentUsedDocuments) // #DEBUG show window id
+      const { menu: newMenu } = this.buildDefaultMenu(null, recentUsedDocuments)
 
       // all other menu items are set automatically
       updateMenuItem(oldMenu, newMenu, 'sourceCodeModeMenuItem')
