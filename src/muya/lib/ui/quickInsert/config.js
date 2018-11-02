@@ -15,37 +15,37 @@ import quoteIcon from '../../assets/icons/quote.svg'
 import todoListIcon from '../../assets/icons/todolist.svg'
 import mathblockIcon from '../../assets/icons/math.svg'
 import orderListIcon from '../../assets/icons/order_list.svg'
-import flowchartIcon from '../../assets/icons/flowchart.svg'
-import sequenceIcon from '../../assets/icons/sequence.svg'
-import mermaidIcon from '../../assets/icons/mermaid.svg'
-import vegaIcon from '../../assets/icons/chart.svg'
+// import flowchartIcon from '../../assets/icons/flowchart.svg'
+// import sequenceIcon from '../../assets/icons/sequence.svg'
+// import mermaidIcon from '../../assets/icons/mermaid.svg'
+// import vegaIcon from '../../assets/icons/chart.svg'
 
 export const quicInsertObj = {
-  'diagram': [{
-    title: 'Vega Chart',
-    subTitle: 'Render flow chart by vega-lite.js.',
-    label: 'vega-lite',
-    icon: vegaIcon,
-    color: 'rgb(224, 54, 54)'
-  }, {
-    title: 'Flow Chart',
-    subTitle: 'Render flow chart by flowchart.js.',
-    label: 'flowchart',
-    icon: flowchartIcon,
-    color: 'rgb(224, 54, 54)'
-  }, {
-    title: 'Sequence Diagram',
-    subTitle: 'Render sequence diagram by js-sequence.',
-    label: 'sequence',
-    icon: sequenceIcon,
-    color: 'rgb(224, 54, 54)'
-  }, {
-    title: 'Mermaid',
-    subTitle: 'Render Diagram by mermaid.',
-    label: 'mermaid',
-    icon: mermaidIcon,
-    color: 'rgb(224, 54, 54)'
-  }],
+  // 'diagram': [{
+  //   title: 'Vega Chart',
+  //   subTitle: 'Render flow chart by vega-lite.js.',
+  //   label: 'vega-lite',
+  //   icon: vegaIcon,
+  //   color: 'rgb(224, 54, 54)'
+  // }, {
+  //   title: 'Flow Chart',
+  //   subTitle: 'Render flow chart by flowchart.js.',
+  //   label: 'flowchart',
+  //   icon: flowchartIcon,
+  //   color: 'rgb(224, 54, 54)'
+  // }, {
+  //   title: 'Sequence Diagram',
+  //   subTitle: 'Render sequence diagram by js-sequence.',
+  //   label: 'sequence',
+  //   icon: sequenceIcon,
+  //   color: 'rgb(224, 54, 54)'
+  // }, {
+  //   title: 'Mermaid',
+  //   subTitle: 'Render Diagram by mermaid.',
+  //   label: 'mermaid',
+  //   icon: mermaidIcon,
+  //   color: 'rgb(224, 54, 54)'
+  // }],
   'basic block': [{
     title: 'Text',
     subTitle: 'Just start write plain text.',
