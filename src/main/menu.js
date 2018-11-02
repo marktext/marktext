@@ -1,18 +1,19 @@
 import fs from 'fs'
 import path from 'path'
 import { Menu, app } from 'electron'
-import configureMenu, { dockMenu } from './menus'
+import configureMenu from './menus'
 import { isFile, ensureDir, getPath, log } from './utils'
 
 class AppMenu {
   constructor () {
     const FILE_NAME = 'recently-used-documents.json'
 
-    this.initMacDock = false
     this.MAX_RECENTLY_USED_DOCUMENTS = 12
     this.RECENTS_PATH = path.join(getPath('userData'), FILE_NAME)
     this.isOsxOrWindows = /darwin|win32/.test(process.platform)
     this.isOsx = process.platform === 'darwin'
+    this.activeWindowId = -1
+    this.windowMenus = new Map()
   }
 
   addRecentlyUsedDocument (filePath) {
@@ -77,9 +78,75 @@ class AppMenu {
     fs.writeFileSync(RECENTS_PATH, json, 'utf-8')
   }
 
-  updateAppMenu (recentUsedDocuments) {
-    const { initMacDock } = this
+  addWindowMenuWithListener (window) {
+    const { windowMenus } = this
+    windowMenus.set(window.id, this.buildDefaultMenu(window))
 
+    const { menu } = windowMenus.get(window.id)
+    const currentMenu = Menu.getApplicationMenu() // the menu may be null
+    updateMenuItemSafe(currentMenu, menu, 'sourceCodeModeMenuItem', false)
+    updateMenuItemSafe(currentMenu, menu, 'typewriterModeMenuItem', false)
+
+    // FIXME: Focus mode is being ignored when you open a new window - inconsistency.
+    // updateMenuItemSafe(currentMenu, menu, 'focusModeMenuItem', false)
+
+    const { checked: isSourceMode } = menu.getMenuItemById('sourceCodeModeMenuItem')
+    if (isSourceMode) {
+      // BUG: When opening a file `typewriterMode` and `focusMode` will be reset by editor.
+      //      If source code mode is set the editor must not change the values.
+      const typewriterModeMenuItem = menu.getMenuItemById('typewriterModeMenuItem')
+      const focusModeMenuItem = menu.getMenuItemById('focusModeMenuItem')
+      typewriterModeMenuItem.enabled = false
+      focusModeMenuItem.enabled = false
+    }
+
+    // TODO(fxha): Initialize ShortcutHandler and register shortcuts for the given window (GH project 6)
+  }
+
+  removeWindowMenu (windowId) {
+    // NOTE: Shortcut handler is automatically unregistered
+    const { activeWindowId } = this
+    this.windowMenus.delete(windowId)
+    if (activeWindowId === windowId) {
+      this.activeWindowId = -1
+    }
+  }
+
+  getWindowMenuById (windowId) {
+    const { menu } = this.windowMenus.get(windowId)
+    if (!menu) {
+      log(`getWindowMenuById: Cannot find window menu for id ${windowId}.`)
+      throw new Error(`Cannot find window menu for id ${windowId}.`)
+    }
+    return menu
+  }
+
+  setActiveWindow (windowId) {
+    // change application menu to the current window menu
+    Menu.setApplicationMenu(this.getWindowMenuById(windowId))
+    this.activeWindowId = windowId
+  }
+
+  buildDefaultMenu (window, recentUsedDocuments) {
+    if (!recentUsedDocuments) {
+      recentUsedDocuments = this.getRecentlyUsedDocuments()
+    }
+
+    const menuTemplate = configureMenu(recentUsedDocuments)
+    const menu = Menu.buildFromTemplate(menuTemplate)
+
+    let shortcutMap = null
+    if (window) {
+      // TODO(fxha): Build accelerator/function shortcut map from template (GH project 6)
+    }
+
+    return {
+      shortcutMap, // reserved for shortcut fixes (GH project 6)
+      menu
+    }
+  }
+
+  updateAppMenu (recentUsedDocuments) {
     if (!recentUsedDocuments) {
       recentUsedDocuments = this.getRecentlyUsedDocuments()
     }
@@ -88,13 +155,29 @@ class AppMenu {
     // is undefined if user does that." That means we have to recreate the
     // application menu each time.
 
-    const menu = Menu.buildFromTemplate(configureMenu(recentUsedDocuments))
-    Menu.setApplicationMenu(menu)
-    if (!initMacDock && process.platform === 'darwin') {
-      // app.dock is only for macosx
-      app.dock.setMenu(dockMenu)
-    }
-    this.initMacDock = true
+    // rebuild all window menus
+    this.windowMenus.forEach((value, key) => {
+      const { menu: oldMenu } = value
+      const { menu: newMenu } = this.buildDefaultMenu(null, recentUsedDocuments)
+
+      // all other menu items are set automatically
+      updateMenuItem(oldMenu, newMenu, 'sourceCodeModeMenuItem')
+      updateMenuItem(oldMenu, newMenu, 'typewriterModeMenuItem')
+      updateMenuItem(oldMenu, newMenu, 'focusModeMenuItem')
+      updateMenuItem(oldMenu, newMenu, 'sideBarMenuItem')
+      updateMenuItem(oldMenu, newMenu, 'tabBarMenuItem')
+
+      // TODO(fxha): Update `shortcutMap` callback function  (GH project 6)
+
+      // update window menu
+      value.menu = newMenu
+
+      // update application menu if necessary
+      const { activeWindowId } = this
+      if (activeWindowId === key) {
+        Menu.setApplicationMenu(newMenu)
+      }
+    })
   }
 
   updateLineEndingnMenu (lineEnding) {
@@ -118,6 +201,24 @@ class AppMenu {
       rtlMenu.checked = true
     }
   }
+}
+
+const updateMenuItem = (oldMenus, newMenus, id) => {
+  const oldItem = oldMenus.getMenuItemById(id)
+  const newItem = newMenus.getMenuItemById(id)
+  newItem.checked = oldItem.checked
+}
+
+const updateMenuItemSafe = (oldMenus, newMenus, id, defaultValue) => {
+  let checked = defaultValue
+  if (oldMenus) {
+    const oldItem = oldMenus.getMenuItemById(id)
+    if (oldItem) {
+      checked = oldItem.checked
+    }
+  }
+  const newItem = newMenus.getMenuItemById(id)
+  newItem.checked = checked
 }
 
 export default new AppMenu()

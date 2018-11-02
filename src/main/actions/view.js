@@ -25,6 +25,13 @@ export const layout = (item, win, type) => {
   win.webContents.send('AGANI::listen-for-view-layout', { [type]: item.checked })
 }
 
+export const showTabBar = win => {
+  const tabBarMenuItem = getMenuItemById('tabBarMenuItem')
+  if (tabBarMenuItem && !tabBarMenuItem.checked && tabBarMenuItem.click) {
+    tabBarMenuItem.click(tabBarMenuItem, win)
+  }
+}
+
 ipcMain.on('AGANI::ask-for-mode', e => {
   const sourceCodeModeMenuItem = getMenuItemById(sourceCodeModeMenuItemId)
   const typewriterModeMenuItem = getMenuItemById(typewriterModeMenuItemId)

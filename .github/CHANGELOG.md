@@ -1,4 +1,8 @@
-### 0.13.54
+### 0.13.55
+
+**:butterfly:Optimization**
+
+- Show tab bar when opening a new tab
 
 **:beetle:Bug fix**
 
@@ -6,6 +10,7 @@
 - fix: #522 paste bug when paste into empty line
 - fix: #521
 - fix: #534
+- fix: #535 Application menu is not updated when switching windows
 
 ### 0.13.50
 
