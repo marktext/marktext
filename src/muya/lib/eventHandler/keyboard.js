@@ -45,7 +45,13 @@ class Keyboard {
 
     let timer = null
     const changeHandler = event => {
-      if (event.type === 'keyup' && (event.key === EVENT_KEYS.ArrowUp || event.key === EVENT_KEYS.ArrowDown) && this.shownFloat.size > 0) return
+      if (
+        event.type === 'keyup' &&
+        (event.key === EVENT_KEYS.ArrowUp || event.key === EVENT_KEYS.ArrowDown) &&
+        this.shownFloat.size > 0
+      ) {
+        return
+      }
 
       if (timer) clearTimeout(timer)
       timer = setTimeout(() => {
@@ -169,6 +175,20 @@ class Keyboard {
       }
       // is show format float box?
       const { start, end } = selection.getCursorRange()
+      const { start: oldStart, end: oldEnd } = contentState.cursor
+
+      if (
+        start.key !== oldStart.key ||
+        start.offset !== oldStart.offset ||
+        end.key !== oldEnd.key ||
+        end.offset !== oldEnd.offset
+      ) {
+        contentState.cursor = {
+          start,
+          end
+        }
+      }
+
       const block = contentState.getBlock(start.key)
       if (start.key === end.key && start.offset !== end.offset && block.functionType !== 'codeLine') {
         const reference = contentState.getPositionReference()

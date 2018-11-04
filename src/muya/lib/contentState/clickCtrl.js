@@ -21,7 +21,7 @@ const clickCtrl = ContentState => {
     // bugfix: #67 problem 1
     if (block && block.icon) return event.preventDefault()
     // bugfix: figure block click
-    if (event.type === 'click' && block.type === 'figure' && block.functionType === 'table') {
+    if (block.type === 'figure' && block.functionType === 'table') {
       // first cell in thead
       const cursorBlock = block.children[1].children[0].children[0].children[0]
       const offset = cursorBlock.text.length

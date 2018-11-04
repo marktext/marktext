@@ -84,7 +84,11 @@ class ContentState {
 
     if (!cursor.noHistory) {
       if (
-        this.prevCursor && (this.prevCursor.start.key !== cursor.start.key || this.prevCursor.end.key !== cursor.end.key)
+        this.prevCursor &&
+        (
+          this.prevCursor.start.key !== cursor.start.key ||
+          this.prevCursor.end.key !== cursor.end.key
+        )
       ) {
         handler()
       } else {
