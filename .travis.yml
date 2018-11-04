@@ -39,6 +39,7 @@ before_install:
   #    sudo apt-add-repository https://dl.winehq.org/wine-builds/ubuntu/;
   #  fi
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get -qq update ; fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get install libx11-dev libxkbfile-dev # atom/keyboard-layout
   #- if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get install --install-recommends winehq-stable ; fi
 
   #- if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew update ; fi

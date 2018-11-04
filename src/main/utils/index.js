@@ -90,3 +90,13 @@ export const isFile = filepath => {
 export const isMarkdownFile = filepath => {
   return isFile(filepath) && hasMarkdownExtension(filepath)
 }
+
+export const readJson = (filePath, printError) => {
+  try {
+    const content = fs.readFileSync(filePath, 'utf-8')
+    return JSON.parse(content)
+  } catch (e) {
+    if (printError) console.log(e)
+    return null
+  }
+}

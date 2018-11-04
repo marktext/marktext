@@ -25,9 +25,10 @@
     "pack:renderer": "cross-env NODE_ENV=production webpack --progress --colors --config .electron-vue/webpack.renderer.config.js",
     "test": "npm run unit && npm run e2e",
     "unit": "karma start test/unit/karma.conf.js",
-    "postinstall": "npm run lint:fix",
+    "postinstall": "npm run rebuild && npm run lint:fix",
     "build:muya": "cd src/muya && webpack --progress --colors --config webpack.config.js",
-    "release:muya": "npm run build:muya && cd src/muya && npm publish"
+    "release:muya": "npm run build:muya && cd src/muya && npm publish",
+    "rebuild": "electron-rebuild -f -w keyboard-layout -o keyboard-layout"
   },
   "build": {
     "productName": "Mark Text",
@@ -129,11 +130,13 @@
     }
   },
   "dependencies": {
+    "@hfelix/electron-localshortcut": "^3.1.0",
     "axios": "^0.18.0",
     "chokidar": "^2.0.4",
     "codemirror": "^5.40.2",
     "command-exists": "^1.2.7",
     "dompurify": "^1.0.8",
+    "electron-is-accelerator": "^0.1.2",
     "element-ui": "^2.4.7",
     "file-icons-js": "^1.0.3",
     "flowchart.js": "^1.11.3",
@@ -142,6 +145,7 @@
     "github-markdown-css": "^2.10.0",
     "html-tags": "^2.0.0",
     "katex": "^0.10.0",
+    "keyboard-layout": "^2.0.14",
     "markdown-toc": "^1.2.0",
     "mermaid": "^8.0.0-rc.8",
     "popper.js": "^1.14.4",
@@ -181,6 +185,7 @@
     "electron-builder": "^20.29.0",
     "electron-debug": "^2.0.0",
     "electron-devtools-installer": "^2.2.4",
+    "electron-rebuild": "^1.8.2",
     "electron-updater": "^3.1.6",
     "electron-window-state": "^5.0.2",
     "eslint": "^4.19.1",

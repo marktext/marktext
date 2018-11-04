@@ -74,6 +74,12 @@ Before you can get started developing, you need set up your build envoriment:
 
 - git
 - Node.js and npm
+- C++ compiler and development tools
+
+**Additional development dependencies on Linux:**
+
+On Debian-based Linux: `sudo apt-get install libx11-dev libxkbfile-dev`
+On Red Hat-based Linux: `sudo yum install libx11-devel libxkbfile-devel`
 
 **Let's build:**
 

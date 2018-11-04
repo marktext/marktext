@@ -1,4 +1,5 @@
 import './globalSetting'
+import './cli'
 import { checkSystem } from './utils/checkSystem'
 import App from './app'
 

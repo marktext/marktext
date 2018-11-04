@@ -3,6 +3,7 @@ import path from 'path'
 import { Menu, app } from 'electron'
 import configureMenu from './menus'
 import { isFile, ensureDir, getPath, log } from './utils'
+import { parseMenu, registerKeyHandler } from './shortcutHandler'
 
 class AppMenu {
   constructor () {
@@ -80,9 +81,9 @@ class AppMenu {
 
   addWindowMenuWithListener (window) {
     const { windowMenus } = this
-    windowMenus.set(window.id, this.buildDefaultMenu(window))
+    windowMenus.set(window.id, this.buildDefaultMenu(true))
 
-    const { menu } = windowMenus.get(window.id)
+    const { menu, shortcutMap } = windowMenus.get(window.id)
     const currentMenu = Menu.getApplicationMenu() // the menu may be null
     updateMenuItemSafe(currentMenu, menu, 'sourceCodeModeMenuItem', false)
     updateMenuItemSafe(currentMenu, menu, 'typewriterModeMenuItem', false)
@@ -99,8 +100,7 @@ class AppMenu {
       typewriterModeMenuItem.enabled = false
       focusModeMenuItem.enabled = false
     }
-
-    // TODO(fxha): Initialize ShortcutHandler and register shortcuts for the given window (GH project 6)
+    registerKeyHandler(window, shortcutMap)
   }
 
   removeWindowMenu (windowId) {
@@ -127,7 +127,7 @@ class AppMenu {
     this.activeWindowId = windowId
   }
 
-  buildDefaultMenu (window, recentUsedDocuments) {
+  buildDefaultMenu (createShortcutMap, recentUsedDocuments) {
     if (!recentUsedDocuments) {
       recentUsedDocuments = this.getRecentlyUsedDocuments()
     }
@@ -136,12 +136,12 @@ class AppMenu {
     const menu = Menu.buildFromTemplate(menuTemplate)
 
     let shortcutMap = null
-    if (window) {
-      // TODO(fxha): Build accelerator/function shortcut map from template (GH project 6)
+    if (createShortcutMap) {
+      shortcutMap = parseMenu(menuTemplate)
     }
 
     return {
-      shortcutMap, // reserved for shortcut fixes (GH project 6)
+      shortcutMap,
       menu
     }
   }
@@ -158,7 +158,7 @@ class AppMenu {
     // rebuild all window menus
     this.windowMenus.forEach((value, key) => {
       const { menu: oldMenu } = value
-      const { menu: newMenu } = this.buildDefaultMenu(null, recentUsedDocuments)
+      const { menu: newMenu } = this.buildDefaultMenu(false, recentUsedDocuments)
 
       // all other menu items are set automatically
       updateMenuItem(oldMenu, newMenu, 'sourceCodeModeMenuItem')
@@ -166,8 +166,6 @@ class AppMenu {
       updateMenuItem(oldMenu, newMenu, 'focusModeMenuItem')
       updateMenuItem(oldMenu, newMenu, 'sideBarMenuItem')
       updateMenuItem(oldMenu, newMenu, 'tabBarMenuItem')
-
-      // TODO(fxha): Update `shortcutMap` callback function  (GH project 6)
 
       // update window menu
       value.menu = newMenu

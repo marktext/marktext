@@ -1,16 +1,12 @@
 import * as actions from '../actions/view'
+import { isOsx } from '../config'
+import keybindings from '../shortcutHandler'
 
 let viewMenu = {
   label: 'View',
   submenu: [{
     label: 'Toggle Full Screen',
-    accelerator: (function () {
-      if (process.platform === 'darwin') {
-        return 'Ctrl+Command+F'
-      } else {
-        return 'F11'
-      }
-    })(),
+    accelerator: keybindings.get('viewToggleFullScreen'),
     click (item, focusedWindow) {
       if (focusedWindow) {
         focusedWindow.setFullScreen(!focusedWindow.isFullScreen())
@@ -20,7 +16,7 @@ let viewMenu = {
     type: 'separator'
   }, {
     label: 'Font...',
-    accelerator: 'CmdOrCtrl+.',
+    accelerator: keybindings.get('viewChangeFont'),
     click (item, browserWindow) {
       actions.changeFont(browserWindow)
     }
@@ -29,36 +25,48 @@ let viewMenu = {
   }, {
     id: 'sourceCodeModeMenuItem',
     label: 'Source Code Mode',
-    accelerator: 'Alt+CmdOrCtrl+S',
+    accelerator: keybindings.get('viewSourceCodeMode'),
     type: 'checkbox',
     checked: false,
-    click (item, browserWindow) {
-      actions.typeMode(browserWindow, item, 'sourceCode')
+    click (item, browserWindow, event) {
+      // if we call this function, the checked state is not set
+      if (!event) {
+        item.checked = !item.checked
+      }
+      actions.typeMode(browserWindow, 'sourceCode', item)
     }
   }, {
     id: 'typewriterModeMenuItem',
     label: 'Typewriter Mode',
-    accelerator: 'Alt+CmdOrCtrl+T',
+    accelerator: keybindings.get('viewTypewriterMode'),
     type: 'checkbox',
     checked: false,
-    click (item, browserWindow) {
-      actions.typeMode(browserWindow, item, 'typewriter')
+    click (item, browserWindow, event) {
+      // if we call this function, the checked state is not set
+      if (!event) {
+        item.checked = !item.checked
+      }
+      actions.typeMode(browserWindow, 'typewriter', item)
     }
   }, {
     id: 'focusModeMenuItem',
     label: 'Focus Mode',
-    accelerator: 'Shift+CmdOrCtrl+F',
+    accelerator: keybindings.get('viewFocusMode'),
     type: 'checkbox',
     checked: false,
-    click (item, browserWindow) {
-      actions.typeMode(browserWindow, item, 'focus')
+    click (item, browserWindow, event) {
+      // if we call this function, the checked state is not set
+      if (!event) {
+        item.checked = !item.checked
+      }
+      actions.typeMode(browserWindow, 'focus', item)
     }
   }, {
     type: 'separator'
   }, {
     label: 'Toggle Side Bar',
     id: 'sideBarMenuItem',
-    accelerator: 'CmdOrCtrl+J',
+    accelerator: keybindings.get('viewToggleSideBar'),
     type: 'checkbox',
     checked: false,
     click (item, browserWindow) {
@@ -67,7 +75,7 @@ let viewMenu = {
   }, {
     label: 'Toggle Tab Bar',
     id: 'tabBarMenuItem',
-    accelerator: 'Alt+CmdOrCtrl+B',
+    accelerator: keybindings.get('viewToggleTabBar'),
     type: 'checkbox',
     checked: false,
     click (item, browserWindow) {
@@ -78,17 +86,11 @@ let viewMenu = {
   }]
 }
 
-if (process.env.NODE_ENV !== 'production' || process.env.NODE_ENV === 'development') {
+if (global.MARKTEXT_DEBUG) {
   // add devtool when development
   viewMenu.submenu.push({
     label: 'Toggle Developer Tools',
-    accelerator: (function () {
-      if (process.platform === 'darwin') {
-        return 'Alt+Command+I'
-      } else {
-        return 'Ctrl+Shift+I'
-      }
-    })(),
+    accelerator: keybindings.get('viewDevToggleDeveloperTools'),
     click (item, focusedWindow) {
       if (focusedWindow) {
         focusedWindow.webContents.toggleDevTools()
@@ -98,7 +100,7 @@ if (process.env.NODE_ENV !== 'production' || process.env.NODE_ENV === 'developme
   // add reload when development
   viewMenu.submenu.push({
     label: 'Reload',
-    accelerator: 'CmdOrCtrl+R',
+    accelerator: keybindings.get('viewDevReload'),
     click (item, focusedWindow) {
       if (focusedWindow) {
         focusedWindow.reload()
@@ -107,7 +109,7 @@ if (process.env.NODE_ENV !== 'production' || process.env.NODE_ENV === 'developme
   })
 }
 
-if (process.platform === 'darwin') {
+if (isOsx) {
   viewMenu.submenu.push({
     type: 'separator'
   }, {
