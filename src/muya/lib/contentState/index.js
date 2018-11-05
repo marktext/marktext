@@ -505,8 +505,7 @@ class ContentState {
   isOnlyRemoveableChild (block) {
     if (block.editable === false) return false
     const parent = this.getParent(block)
-    if (!parent) throw new Error('isOnlyRemoveableChild method only apply for child block')
-    return parent.children.filter(child => child.editable && child.functionType !== 'languageInput').length === 1
+    return (parent ? parent.children : this.blocks).filter(child => child.editable && child.functionType !== 'languageInput').length === 1
   }
 
   getLastChild (block) {

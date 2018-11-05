@@ -21,6 +21,10 @@ const deleteCtrl = ContentState => {
     ) {
       event.preventDefault()
       if (nextBlock && /h\d|span/.test(nextBlock.type)) {
+        if (nextBlock.functionType === 'codeLine' && nextBlock.nextSibling) {
+          // if code block more than one line, do nothing!
+          return
+        }
         startBlock.text += nextBlock.text
 
         const toBeRemoved = [ nextBlock ]
@@ -28,7 +32,7 @@ const deleteCtrl = ContentState => {
         let parent = this.getParent(nextBlock)
         let target = nextBlock
 
-        while (this.isOnlyChild(target)) {
+        while (this.isOnlyRemoveableChild(target)) {
           toBeRemoved.push(parent)
           target = parent
           parent = this.getParent(parent)
