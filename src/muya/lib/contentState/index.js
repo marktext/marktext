@@ -156,7 +156,6 @@ class ContentState {
 
   partialRender () {
     const { blocks, cursor, searchMatches: { matches, index } } = this
-    console.log(JSON.stringify(this.blocks, null, 2))
     const activeBlocks = this.getActiveBlocks()
     const [ startKey, endKey ] = this.renderRange
     matches.forEach((m, i) => {
