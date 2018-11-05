@@ -12,14 +12,14 @@ export default function (recentlyUsedFiles) {
     label: 'File',
     submenu: [{
       label: 'New Tab',
-      accelerator: keybindings.get('fileNewFile'),
+      accelerator: keybindings.getAccelerator('fileNewFile'),
       click (menuItem, browserWindow) {
         actions.newTab(browserWindow)
         showTabBar(browserWindow)
       }
     }, {
       label: 'New Window',
-      accelerator: keybindings.get('fileNewTab'),
+      accelerator: keybindings.getAccelerator('fileNewTab'),
       click (menuItem, browserWindow) {
         actions.newFile()
       }
@@ -27,13 +27,13 @@ export default function (recentlyUsedFiles) {
       type: 'separator'
     }, {
       label: 'Open File',
-      accelerator: keybindings.get('fileOpenFile'),
+      accelerator: keybindings.getAccelerator('fileOpenFile'),
       click (menuItem, browserWindow) {
         actions.open(browserWindow)
       }
     }, {
       label: 'Open Folder',
-      accelerator: keybindings.get('fileOpenFolder'),
+      accelerator: keybindings.getAccelerator('fileOpenFolder'),
       click (menuItem, browserWindow) {
         actions.openProject(browserWindow)
       }
@@ -81,7 +81,7 @@ export default function (recentlyUsedFiles) {
     type: 'separator'
   }, {
     label: 'Close Tab',
-    accelerator: keybindings.get('fileCloseTab'),
+    accelerator: keybindings.getAccelerator('fileCloseTab'),
     click (menuItem, browserWindow) {
       actions.closeTab(browserWindow)
     }
@@ -89,13 +89,13 @@ export default function (recentlyUsedFiles) {
     type: 'separator'
   }, {
     label: 'Save',
-    accelerator: keybindings.get('fileSave'),
+    accelerator: keybindings.getAccelerator('fileSave'),
     click (menuItem, browserWindow) {
       actions.save(browserWindow)
     }
   }, {
     label: 'Save As...',
-    accelerator: keybindings.get('fileSaveAs'),
+    accelerator: keybindings.getAccelerator('fileSaveAs'),
     click (menuItem, browserWindow) {
       actions.saveAs(browserWindow)
     }
@@ -144,7 +144,7 @@ export default function (recentlyUsedFiles) {
     type: 'separator'
   }, {
     label: 'Print',
-    accelerator: keybindings.get('filePrint'),
+    accelerator: keybindings.getAccelerator('filePrint'),
     click (menuItem, browserWindow) {
       actions.print(browserWindow)
     }
@@ -153,7 +153,7 @@ export default function (recentlyUsedFiles) {
     visible: notOsx
   }, {
     label: 'Preferences',
-    accelerator: keybindings.get('filePreferences'),
+    accelerator: keybindings.getAccelerator('filePreferences'),
     visible: notOsx,
     click (menuItem, browserWindow) {
       userSetting(menuItem, browserWindow)
@@ -163,7 +163,7 @@ export default function (recentlyUsedFiles) {
     visible: notOsx
   }, {
     label: 'Quit',
-    accelerator: keybindings.get('fileQuit'),
+    accelerator: keybindings.getAccelerator('fileQuit'),
     visible: notOsx,
     click: app.quit
   })

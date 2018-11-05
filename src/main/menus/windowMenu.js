@@ -5,11 +5,11 @@ export default {
   role: 'window',
   submenu: [{
     label: 'Minimize',
-    accelerator: keybindings.get('windowMinimize'),
+    accelerator: keybindings.getAccelerator('windowMinimize'),
     role: 'minimize'
   }, {
     label: 'Close Window',
-    accelerator: keybindings.get('windowCloseWindow'),
+    accelerator: keybindings.getAccelerator('windowCloseWindow'),
     role: 'close'
   }]
 }

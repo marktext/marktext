@@ -17,7 +17,7 @@ export default {
     }
   }, {
     label: 'Preferences',
-    accelerator: keybindings.get('filePreferences'),
+    accelerator: keybindings.getAccelerator('filePreferences'),
     click (menuItem, browserWindow) {
       actions.userSetting(menuItem, browserWindow)
     }
@@ -31,11 +31,11 @@ export default {
     type: 'separator'
   }, {
     label: 'Hide Mark Text',
-    accelerator: keybindings.get('mtHide'),
+    accelerator: keybindings.getAccelerator('mtHide'),
     role: 'hide'
   }, {
     label: 'Hide Others',
-    accelerator: keybindings.get('mtHideOthers'),
+    accelerator: keybindings.getAccelerator('mtHideOthers'),
     role: 'hideothers'
   }, {
     label: 'Show All',
@@ -44,7 +44,7 @@ export default {
     type: 'separator'
   }, {
     label: 'Quit Mark Text',
-    accelerator: keybindings.get('fileQuit'),
+    accelerator: keybindings.getAccelerator('fileQuit'),
     click: app.quit
   }]
 }

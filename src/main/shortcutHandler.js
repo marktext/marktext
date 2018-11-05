@@ -57,10 +57,10 @@ class Keybindings {
       ['paragraphUpgradeHeading', 'CmdOrCtrl+='],
       ['paragraphDegradeHeading', 'CmdOrCtrl+-'],
       ['paragraphTable', 'CmdOrCtrl+T'],
-      ['paragraphCodeFences', 'CmdOrCtrl+Alt+C'],
+      ['paragraphCodeFence', 'CmdOrCtrl+Alt+C'],
       ['paragraphQuoteBlock', 'CmdOrCtrl+Alt+Q'],
       ['paragraphMathBlock', 'CmdOrCtrl+Alt+M'],
-      ['paragraphHtmlBlock', 'CmdOrCtrl+Alt+H'],
+      ['paragraphHtmlBlock', isOsx ? 'CmdOrCtrl+Alt+J' : 'CmdOrCtrl+Alt+H'],
       ['paragraphOrderList', 'CmdOrCtrl+Alt+O'],
       ['paragraphBulletList', 'CmdOrCtrl+Alt+U'],
       ['paragraphTaskList', 'CmdOrCtrl+Alt+X'],
@@ -168,9 +168,14 @@ class Keybindings {
     for (const key in json) {
       if (this.keys.has(key)) {
         const value = json[key]
-        if (typeof value === 'string' && isAccelerator(value)) {
-          // id / accelerator
-          userAccelerators.set(key, value)
+        if (typeof value === 'string') {
+          if (value.length === 0) {
+            // unset key
+            this.keys.set(key, '')
+          } else if (isAccelerator(value)) {
+            // id / accelerator
+            userAccelerators.set(key, value)
+          }
         }
       }
     }
@@ -188,7 +193,7 @@ class Keybindings {
     // check for duplicate shortcuts
     for (const [userKey, userValue] of userAccelerators) {
       for (const [key, value] of accelerators) {
-        if (this.equalsAccelerators(value, userValue)) {
+        if (this.isEqualAccelerator(value, userValue)) {
           const err = `Invalid keybindings.json configuration: Duplicate key ${userKey} - ${key}`
           console.log(err)
           log(err)
@@ -202,7 +207,7 @@ class Keybindings {
     this.keys = accelerators
   }
 
-  get (id) {
+  getAccelerator (id) {
     const name = this.keys.get(id)
     if (!name) {
       return ''
@@ -210,7 +215,7 @@ class Keybindings {
     return name
   }
 
-  equalsAccelerators (a, b) {
+  isEqualAccelerator (a, b) {
     a = a.toLowerCase().replace('cmdorctrl', 'ctrl').replace('command', 'ctrl')
     b = b.toLowerCase().replace('cmdorctrl', 'ctrl').replace('command', 'ctrl')
     const i1 = a.indexOf('+')

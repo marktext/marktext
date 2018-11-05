@@ -6,7 +6,7 @@ let viewMenu = {
   label: 'View',
   submenu: [{
     label: 'Toggle Full Screen',
-    accelerator: keybindings.get('viewToggleFullScreen'),
+    accelerator: keybindings.getAccelerator('viewToggleFullScreen'),
     click (item, focusedWindow) {
       if (focusedWindow) {
         focusedWindow.setFullScreen(!focusedWindow.isFullScreen())
@@ -16,7 +16,7 @@ let viewMenu = {
     type: 'separator'
   }, {
     label: 'Font...',
-    accelerator: keybindings.get('viewChangeFont'),
+    accelerator: keybindings.getAccelerator('viewChangeFont'),
     click (item, browserWindow) {
       actions.changeFont(browserWindow)
     }
@@ -25,7 +25,7 @@ let viewMenu = {
   }, {
     id: 'sourceCodeModeMenuItem',
     label: 'Source Code Mode',
-    accelerator: keybindings.get('viewSourceCodeMode'),
+    accelerator: keybindings.getAccelerator('viewSourceCodeMode'),
     type: 'checkbox',
     checked: false,
     click (item, browserWindow, event) {
@@ -38,7 +38,7 @@ let viewMenu = {
   }, {
     id: 'typewriterModeMenuItem',
     label: 'Typewriter Mode',
-    accelerator: keybindings.get('viewTypewriterMode'),
+    accelerator: keybindings.getAccelerator('viewTypewriterMode'),
     type: 'checkbox',
     checked: false,
     click (item, browserWindow, event) {
@@ -51,7 +51,7 @@ let viewMenu = {
   }, {
     id: 'focusModeMenuItem',
     label: 'Focus Mode',
-    accelerator: keybindings.get('viewFocusMode'),
+    accelerator: keybindings.getAccelerator('viewFocusMode'),
     type: 'checkbox',
     checked: false,
     click (item, browserWindow, event) {
@@ -66,7 +66,7 @@ let viewMenu = {
   }, {
     label: 'Toggle Side Bar',
     id: 'sideBarMenuItem',
-    accelerator: keybindings.get('viewToggleSideBar'),
+    accelerator: keybindings.getAccelerator('viewToggleSideBar'),
     type: 'checkbox',
     checked: false,
     click (item, browserWindow) {
@@ -75,7 +75,7 @@ let viewMenu = {
   }, {
     label: 'Toggle Tab Bar',
     id: 'tabBarMenuItem',
-    accelerator: keybindings.get('viewToggleTabBar'),
+    accelerator: keybindings.getAccelerator('viewToggleTabBar'),
     type: 'checkbox',
     checked: false,
     click (item, browserWindow) {
@@ -90,7 +90,7 @@ if (global.MARKTEXT_DEBUG) {
   // add devtool when development
   viewMenu.submenu.push({
     label: 'Toggle Developer Tools',
-    accelerator: keybindings.get('viewDevToggleDeveloperTools'),
+    accelerator: keybindings.getAccelerator('viewDevToggleDeveloperTools'),
     click (item, focusedWindow) {
       if (focusedWindow) {
         focusedWindow.webContents.toggleDevTools()
@@ -100,7 +100,7 @@ if (global.MARKTEXT_DEBUG) {
   // add reload when development
   viewMenu.submenu.push({
     label: 'Reload',
-    accelerator: keybindings.get('viewDevReload'),
+    accelerator: keybindings.getAccelerator('viewDevReload'),
     click (item, focusedWindow) {
       if (focusedWindow) {
         focusedWindow.reload()

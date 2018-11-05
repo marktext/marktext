@@ -8,13 +8,13 @@ export default {
   label: 'Edit',
   submenu: [{
     label: 'Undo',
-    accelerator: keybindings.get('editUndo'),
+    accelerator: keybindings.getAccelerator('editUndo'),
     click: (menuItem, browserWindow) => {
       actions.edit(browserWindow, 'undo')
     }
   }, {
     label: 'Redo',
-    accelerator: keybindings.get('editRedo'),
+    accelerator: keybindings.getAccelerator('editRedo'),
     click: (menuItem, browserWindow) => {
       actions.edit(browserWindow, 'redo')
     }
@@ -22,21 +22,21 @@ export default {
     type: 'separator'
   }, {
     label: 'Cut',
-    accelerator: keybindings.get('editCut'),
+    accelerator: keybindings.getAccelerator('editCut'),
     role: 'cut'
   }, {
     label: 'Copy',
-    accelerator: keybindings.get('editCopy'),
+    accelerator: keybindings.getAccelerator('editCopy'),
     role: 'copy'
   }, {
     label: 'Paste',
-    accelerator: keybindings.get('editPaste'),
+    accelerator: keybindings.getAccelerator('editPaste'),
     role: 'paste'
   }, {
     type: 'separator'
   }, {
     label: 'Copy As Markdown',
-    accelerator: keybindings.get('editCopyAsMarkdown'),
+    accelerator: keybindings.getAccelerator('editCopyAsMarkdown'),
     click (menuItem, browserWindow) {
       actions.edit(browserWindow, 'copyAsMarkdown')
     }
@@ -47,7 +47,7 @@ export default {
     }
   }, {
     label: 'Paste As Plain Text',
-    accelerator: keybindings.get('editCopyAsPlaintext'),
+    accelerator: keybindings.getAccelerator('editCopyAsPlaintext'),
     click (menuItem, browserWindow) {
       actions.edit(browserWindow, 'pasteAsPlainText')
     }
@@ -55,31 +55,31 @@ export default {
     type: 'separator'
   }, {
     label: 'Select All',
-    accelerator: keybindings.get('editSelectAll'),
+    accelerator: keybindings.getAccelerator('editSelectAll'),
     role: 'selectall'
   }, {
     type: 'separator'
   }, {
     label: 'Find',
-    accelerator: keybindings.get('editFind'),
+    accelerator: keybindings.getAccelerator('editFind'),
     click (menuItem, browserWindow) {
       actions.edit(browserWindow, 'find')
     }
   }, {
     label: 'Find Next',
-    accelerator: keybindings.get('editFindNext'),
+    accelerator: keybindings.getAccelerator('editFindNext'),
     click (menuItem, browserWindow) {
       actions.edit(browserWindow, 'fineNext')
     }
   }, {
     label: 'Find Previous',
-    accelerator: keybindings.get('editFindPrevious'),
+    accelerator: keybindings.getAccelerator('editFindPrevious'),
     click (menuItem, browserWindow) {
       actions.edit(browserWindow, 'findPrev')
     }
   }, {
     label: 'Replace',
-    accelerator: keybindings.get('editReplace'),
+    accelerator: keybindings.getAccelerator('editReplace'),
     click (menuItem, browserWindow) {
       actions.edit(browserWindow, 'replace')
     }
@@ -88,7 +88,7 @@ export default {
   }, {
     label: 'Aidou',
     visible: aidou,
-    accelerator: keybindings.get('editAidou'),
+    accelerator: keybindings.getAccelerator('editAidou'),
     click (menuItem, browserWindow) {
       actions.edit(browserWindow, 'aidou')
     }

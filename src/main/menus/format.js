@@ -8,7 +8,7 @@ export default {
     id: 'strongMenuItem',
     label: 'Strong',
     type: 'checkbox',
-    accelerator: keybindings.get('formatStrong'),
+    accelerator: keybindings.getAccelerator('formatStrong'),
     click (menuItem, browserWindow) {
       actions.format(browserWindow, 'strong')
     }
@@ -16,7 +16,7 @@ export default {
     id: 'emphasisMenuItem',
     label: 'Emphasis',
     type: 'checkbox',
-    accelerator: keybindings.get('formatEmphasis'),
+    accelerator: keybindings.getAccelerator('formatEmphasis'),
     click (menuItem, browserWindow) {
       actions.format(browserWindow, 'em')
     }
@@ -24,7 +24,7 @@ export default {
     id: 'inlineCodeMenuItem',
     label: 'Inline Code',
     type: 'checkbox',
-    accelerator: keybindings.get('formatInlineCode'),
+    accelerator: keybindings.getAccelerator('formatInlineCode'),
     click (menuItem, browserWindow) {
       actions.format(browserWindow, 'inline_code')
     }
@@ -34,7 +34,7 @@ export default {
     id: 'strikeMenuItem',
     label: 'Strike',
     type: 'checkbox',
-    accelerator: keybindings.get('formatStrike'),
+    accelerator: keybindings.getAccelerator('formatStrike'),
     click (menuItem, browserWindow) {
       actions.format(browserWindow, 'del')
     }
@@ -42,7 +42,7 @@ export default {
     id: 'hyperlinkMenuItem',
     label: 'Hyperlink',
     type: 'checkbox',
-    accelerator: keybindings.get('formatHyperlink'),
+    accelerator: keybindings.getAccelerator('formatHyperlink'),
     click (menuItem, browserWindow) {
       actions.format(browserWindow, 'link')
     }
@@ -50,7 +50,7 @@ export default {
     id: 'imageMenuItem',
     label: 'Image',
     type: 'checkbox',
-    accelerator: keybindings.get('formatImage'),
+    accelerator: keybindings.getAccelerator('formatImage'),
     click (menuItem, browserWindow) {
       actions.format(browserWindow, 'image')
     }
@@ -58,7 +58,7 @@ export default {
     type: 'separator'
   }, {
     label: 'Clear Format',
-    accelerator: keybindings.get('formatClearFormat'),
+    accelerator: keybindings.getAccelerator('formatClearFormat'),
     click (menuItem, browserWindow) {
       actions.format(browserWindow, 'clear')
     }
