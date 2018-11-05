@@ -24,7 +24,7 @@ Chromium: ${process.versions.chrome}
 Available commands:
 
   --debug                     Enable debug mode
-  --safe                      Disables plugins and other user configuration
+  --safe                      Disable plugins and other user configuration
   --dump-keyboard-layout      Dump keyboard information
   --version                   Print version information
   --help                      Print this help message

@@ -164,16 +164,42 @@ class Keybindings {
     //   "fileSaveAs": "CmdOrCtrl+Shift+S"
     // }
 
-    // TODO: should we check for duplicate shortcuts
-
+    const userAccelerators = new Map()
     for (const key in json) {
       if (this.keys.has(key)) {
         const value = json[key]
-        if (isAccelerator(value)) {
-          this.keys.set(key, value)
+        if (typeof value === 'string' && isAccelerator(value)) {
+          // id / accelerator
+          userAccelerators.set(key, value)
         }
       }
     }
+
+    if (userAccelerators.size === 0) {
+      return
+    }
+
+    // deep clone shortcuts and unset user shortcuts
+    const accelerators = new Map(this.keys)
+    userAccelerators.forEach((value, key) => {
+      accelerators.set(key, '')
+    })
+
+    // check for duplicate shortcuts
+    for (const [userKey, userValue] of userAccelerators) {
+      for (const [key, value] of accelerators) {
+        if (this.equalsAccelerators(value, userValue)) {
+          const err = `Invalid keybindings.json configuration: Duplicate key ${userKey} - ${key}`
+          console.log(err)
+          log(err)
+          return
+        }
+      }
+      accelerators.set(userKey, userValue)
+    }
+
+    // update key bindings
+    this.keys = accelerators
   }
 
   get (id) {
@@ -182,6 +208,23 @@ class Keybindings {
       return ''
     }
     return name
+  }
+
+  equalsAccelerators (a, b) {
+    a = a.toLowerCase().replace('cmdorctrl', 'ctrl').replace('command', 'ctrl')
+    b = b.toLowerCase().replace('cmdorctrl', 'ctrl').replace('command', 'ctrl')
+    const i1 = a.indexOf('+')
+    const i2 = b.indexOf('+')
+    if (i1 === -1 && i2 === -1) {
+      return a === b
+    } else if (i1 === -1 || i2 === -1) {
+      return false
+    }
+
+    const keysA = a.split('+')
+    const keysB = b.split('+')
+    const intersection = new Set([...keysA, ...keysB])
+    return intersection.size === keysB.length
   }
 }
 
@@ -212,18 +255,25 @@ export const registerKeyHandler = (win, acceleratorMap) => {
   for (const item of acceleratorMap) {
     let { accelerator } = item
 
-    // fix broken shortcuts because of dead keys or non-US keyboard problems
+    // Fix broken shortcuts because of dead keys or non-US keyboard problems. We bind the
+    // shortcut to another accelerator because of key mapping issues. E.g: 'Alt+/' is not
+    // available on a German keyboard, because you have to press 'Shift+7' to produce '/'.
+    // In this case we can remap the accelerator to 'Alt+7' or 'Ctrl+Shift+7'.
     const acceleratorFix = keybindings.mnemonics.get(accelerator)
     if (acceleratorFix) {
       accelerator = acceleratorFix
     }
 
+    // Regisiter shortcuts on the BrowserWindow instead of using Chromium's native menu.
+    // This makes it possible to receive key down events before Chromium/Electron and we
+    // can handle reserved Chromium shortcuts. Afterwards prevent the default action of
+    // the event so the native menu is not triggered.
     electronLocalshortcut.register(win, accelerator, () => {
       if (global.MARKTEXT_DEBUG && process.env.MARKTEXT_DEBUG_KEYBOARD) {
         console.log(`You pressed ${accelerator}`)
       }
       callMenuCallback(item, win)
-      return true
+      return true // prevent default action
     })
   }
 }
