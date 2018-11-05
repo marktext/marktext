@@ -159,7 +159,10 @@ class StateRender {
     const firstOldDom = startKey
       ? document.querySelector(`#${startKey}`)
       : document.querySelector(`div#${CLASS_OR_ID['AG_EDITOR_ID']}`).firstElementChild
-
+    if (!firstOldDom) {
+      // TODO@Jocs Just for fix #541, Because I'll rewrite block and render method, it will nolonger have this issue.
+      return
+    }
     needToRemoved.push(firstOldDom)
     let nextSibling = firstOldDom.nextElementSibling
     while (nextSibling && nextSibling.id !== endKey) {
