@@ -4,6 +4,7 @@
 
 - Show tab bar when opening a new tab
 - Use default bold (`CmdOrCtrl+B`) and italics (`CmdOrCtrl+I`) key binding (#346)
+- Don't show save dialog for an empty document (#422)
 
 **:beetle:Bug fix**
 
