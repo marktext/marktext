@@ -1,6 +1,6 @@
 # Key Bindings
 
-All key bindings can be overwritten with the `keybindings.json` file. Each entry consists of a `id`/`accelerator` pair in JSON format.
+All key bindings can be overwritten with the `keybindings.json` file. The file is located in the [application data directory](APPLICATION_DATA_DIRECTORY.md). Each entry consists of a `id`/`accelerator` pair in JSON format.
 
 Here is an example:
 
@@ -112,3 +112,4 @@ Here is an example:
 | `viewToggleTabBar`            | Toggle tabbar                            |
 | `viewDevToggleDeveloperTools` | Toggle developer tools (debug mode only) |
 | `viewDevReload`               | Reload window (debug mode only)          |
+

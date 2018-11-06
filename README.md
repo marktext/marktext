@@ -163,7 +163,7 @@ Simply download and install Mark Text via setup wizard.
 
 #### Linux
 
-Please follow the [Linux installation instructions](https://github.com/marktext/marktext/blob/master/doc/linux.md).
+Please follow the [Linux installation instructions](https://github.com/marktext/marktext/blob/master/doc/LINUX.md).
 
 ## Development
 
