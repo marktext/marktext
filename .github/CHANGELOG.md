@@ -1,8 +1,9 @@
-### 0.13.55
+### 0.13.58
 
 **:butterfly:Optimization**
 
 - Show tab bar when opening a new tab
+- Use default bold (`CmdOrCtrl+B`) and italics (`CmdOrCtrl+I`) key binding (#346)
 
 **:beetle:Bug fix**
 
@@ -11,6 +12,7 @@
 - fix: #521
 - fix: #534
 - fix: #535 Application menu is not updated when switching windows
+- fix #216 and #311 key binding issues on Linux and Windows
 
 ### 0.13.50
 

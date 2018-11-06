@@ -82,7 +82,7 @@ export default {
     id: 'codeFencesMenuItem',
     label: 'Code Fences',
     type: 'checkbox',
-    accelerator: keybindings.getAccelerator('paragraphCodeFences'),
+    accelerator: keybindings.getAccelerator('paragraphCodeFence'),
     click (menuItem, browserWindow) {
       actions.paragraph(browserWindow, 'pre')
     }
