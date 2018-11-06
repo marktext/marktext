@@ -1,6 +1,7 @@
 import { app } from 'electron'
 import { showAboutDialog } from '../actions/help'
 import * as actions from '../actions/marktext'
+import keybindings from '../shortcutHandler'
 
 export default {
   label: 'Mark Text',
@@ -16,7 +17,7 @@ export default {
     }
   }, {
     label: 'Preferences',
-    accelerator: 'Cmd+,',
+    accelerator: keybindings.getAccelerator('filePreferences'),
     click (menuItem, browserWindow) {
       actions.userSetting(menuItem, browserWindow)
     }
@@ -30,11 +31,11 @@ export default {
     type: 'separator'
   }, {
     label: 'Hide Mark Text',
-    accelerator: 'Command+H',
+    accelerator: keybindings.getAccelerator('mtHide'),
     role: 'hide'
   }, {
     label: 'Hide Others',
-    accelerator: 'Command+Alt+H',
+    accelerator: keybindings.getAccelerator('mtHideOthers'),
     role: 'hideothers'
   }, {
     label: 'Show All',
@@ -43,7 +44,7 @@ export default {
     type: 'separator'
   }, {
     label: 'Quit Mark Text',
-    accelerator: 'Command+Q',
+    accelerator: keybindings.getAccelerator('fileQuit'),
     click: app.quit
   }]
 }

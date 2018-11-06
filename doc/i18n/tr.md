@@ -141,7 +141,7 @@ Basitçe indirin ve Mark Text kurulum sihirbazı ile kurulumu tamamlayın.
 
 #### Linux
 
-Lütfen [Linux kurulum talimatını](https://github.com/marktext/marktext/blob/master/doc/linux.md) takip ediniz.
+Lütfen [Linux kurulum talimatını](https://github.com/marktext/marktext/blob/master/doc/LINUX.md) takip ediniz.
 
 ## Geliştirme
 

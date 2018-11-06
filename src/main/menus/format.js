@@ -1,4 +1,5 @@
 import * as actions from '../actions/format'
+import keybindings from '../shortcutHandler'
 
 export default {
   id: 'formatMenuItem',
@@ -7,7 +8,7 @@ export default {
     id: 'strongMenuItem',
     label: 'Strong',
     type: 'checkbox',
-    accelerator: 'Shift+CmdOrCtrl+B',
+    accelerator: keybindings.getAccelerator('formatStrong'),
     click (menuItem, browserWindow) {
       actions.format(browserWindow, 'strong')
     }
@@ -15,7 +16,7 @@ export default {
     id: 'emphasisMenuItem',
     label: 'Emphasis',
     type: 'checkbox',
-    accelerator: 'CmdOrCtrl+E',
+    accelerator: keybindings.getAccelerator('formatEmphasis'),
     click (menuItem, browserWindow) {
       actions.format(browserWindow, 'em')
     }
@@ -23,7 +24,7 @@ export default {
     id: 'inlineCodeMenuItem',
     label: 'Inline Code',
     type: 'checkbox',
-    accelerator: 'CmdOrCtrl+`',
+    accelerator: keybindings.getAccelerator('formatInlineCode'),
     click (menuItem, browserWindow) {
       actions.format(browserWindow, 'inline_code')
     }
@@ -33,7 +34,7 @@ export default {
     id: 'strikeMenuItem',
     label: 'Strike',
     type: 'checkbox',
-    accelerator: 'CmdOrCtrl+D',
+    accelerator: keybindings.getAccelerator('formatStrike'),
     click (menuItem, browserWindow) {
       actions.format(browserWindow, 'del')
     }
@@ -41,7 +42,7 @@ export default {
     id: 'hyperlinkMenuItem',
     label: 'Hyperlink',
     type: 'checkbox',
-    accelerator: 'CmdOrCtrl+L',
+    accelerator: keybindings.getAccelerator('formatHyperlink'),
     click (menuItem, browserWindow) {
       actions.format(browserWindow, 'link')
     }
@@ -49,7 +50,7 @@ export default {
     id: 'imageMenuItem',
     label: 'Image',
     type: 'checkbox',
-    accelerator: 'Shift+CmdOrCtrl+I',
+    accelerator: keybindings.getAccelerator('formatImage'),
     click (menuItem, browserWindow) {
       actions.format(browserWindow, 'image')
     }
@@ -57,7 +58,7 @@ export default {
     type: 'separator'
   }, {
     label: 'Clear Format',
-    accelerator: 'Shift+CmdOrCtrl+R',
+    accelerator: keybindings.getAccelerator('formatClearFormat'),
     click (menuItem, browserWindow) {
       actions.format(browserWindow, 'clear')
     }

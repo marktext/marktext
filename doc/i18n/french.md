@@ -137,7 +137,7 @@ Télécharger et installer simplement Mark Text via le client d'installation.
 
 #### Linux
 
-Veuillez suivre [les instructions d'installations Linux](https://github.com/marktext/marktext/blob/master/doc/linux.md).
+Veuillez suivre [les instructions d'installations Linux](https://github.com/marktext/marktext/blob/master/doc/LINUX.md).
 
 ## Development
 

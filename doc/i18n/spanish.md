@@ -136,7 +136,7 @@ Descarga e instala Mart Text a partir del asistente de instalación
 
 #### Linux
 
-Sigue las [instrucciones de instalación de Linux]	(https://github.com/marktext/marktext/blob/master/doc/linux.md).
+Sigue las [instrucciones de instalación de Linux]	(https://github.com/marktext/marktext/blob/master/doc/LINUX.md).
 
 ## Desarrollo
 

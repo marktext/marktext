@@ -5,7 +5,7 @@ const sourceCodeModeMenuItemId = 'sourceCodeModeMenuItem'
 const typewriterModeMenuItemId = 'typewriterModeMenuItem'
 const focusModeMenuItemId = 'focusModeMenuItem'
 
-export const typeMode = (win, item, type) => {
+export const typeMode = (win, type, item) => {
   const { checked } = item
   win.webContents.send('AGANI::view', { type, checked })
 

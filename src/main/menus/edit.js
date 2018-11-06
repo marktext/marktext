@@ -1,5 +1,6 @@
 import * as actions from '../actions/edit'
 import userPreference from '../preference'
+import keybindings from '../shortcutHandler'
 
 const { aidou } = userPreference.getAll()
 
@@ -7,13 +8,13 @@ export default {
   label: 'Edit',
   submenu: [{
     label: 'Undo',
-    accelerator: 'CmdOrCtrl+Z',
+    accelerator: keybindings.getAccelerator('editUndo'),
     click: (menuItem, browserWindow) => {
       actions.edit(browserWindow, 'undo')
     }
   }, {
     label: 'Redo',
-    accelerator: 'Shift+CmdOrCtrl+Z',
+    accelerator: keybindings.getAccelerator('editRedo'),
     click: (menuItem, browserWindow) => {
       actions.edit(browserWindow, 'redo')
     }
@@ -21,21 +22,21 @@ export default {
     type: 'separator'
   }, {
     label: 'Cut',
-    accelerator: 'CmdOrCtrl+X',
+    accelerator: keybindings.getAccelerator('editCut'),
     role: 'cut'
   }, {
     label: 'Copy',
-    accelerator: 'CmdOrCtrl+C',
+    accelerator: keybindings.getAccelerator('editCopy'),
     role: 'copy'
   }, {
     label: 'Paste',
-    accelerator: 'CmdOrCtrl+V',
+    accelerator: keybindings.getAccelerator('editPaste'),
     role: 'paste'
   }, {
     type: 'separator'
   }, {
     label: 'Copy As Markdown',
-    accelerator: 'Shift+CmdOrCtrl+C',
+    accelerator: keybindings.getAccelerator('editCopyAsMarkdown'),
     click (menuItem, browserWindow) {
       actions.edit(browserWindow, 'copyAsMarkdown')
     }
@@ -46,7 +47,7 @@ export default {
     }
   }, {
     label: 'Paste As Plain Text',
-    accelerator: 'Shift+CmdOrCtrl+V',
+    accelerator: keybindings.getAccelerator('editCopyAsPlaintext'),
     click (menuItem, browserWindow) {
       actions.edit(browserWindow, 'pasteAsPlainText')
     }
@@ -54,31 +55,31 @@ export default {
     type: 'separator'
   }, {
     label: 'Select All',
-    accelerator: 'CmdOrCtrl+A',
+    accelerator: keybindings.getAccelerator('editSelectAll'),
     role: 'selectall'
   }, {
     type: 'separator'
   }, {
     label: 'Find',
-    accelerator: 'CmdOrCtrl+F',
+    accelerator: keybindings.getAccelerator('editFind'),
     click (menuItem, browserWindow) {
       actions.edit(browserWindow, 'find')
     }
   }, {
     label: 'Find Next',
-    accelerator: 'Alt+CmdOrCtrl+U',
+    accelerator: keybindings.getAccelerator('editFindNext'),
     click (menuItem, browserWindow) {
       actions.edit(browserWindow, 'fineNext')
     }
   }, {
     label: 'Find Previous',
-    accelerator: 'Shift+CmdOrCtrl+U',
+    accelerator: keybindings.getAccelerator('editFindPrevious'),
     click (menuItem, browserWindow) {
       actions.edit(browserWindow, 'findPrev')
     }
   }, {
     label: 'Replace',
-    accelerator: 'Alt+CmdOrCtrl+F',
+    accelerator: keybindings.getAccelerator('editReplace'),
     click (menuItem, browserWindow) {
       actions.edit(browserWindow, 'replace')
     }
@@ -87,7 +88,7 @@ export default {
   }, {
     label: 'Aidou',
     visible: aidou,
-    accelerator: 'CmdOrCtrl+/',
+    accelerator: keybindings.getAccelerator('editAidou'),
     click (menuItem, browserWindow) {
       actions.edit(browserWindow, 'aidou')
     }

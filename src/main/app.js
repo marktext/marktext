@@ -49,7 +49,9 @@ class App {
   ready () {
     if (!isOsx && process.argv.length >= 2) {
       for (const arg of process.argv) {
-        if (isMarkdownFile(arg)) {
+        if (arg.startsWith('--')) {
+          continue
+        } else if (isMarkdownFile(arg)) {
           this.openFilesCache = [arg]
           break
         }

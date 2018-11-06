@@ -31,6 +31,9 @@ addons:
     - graphicsmagick
     - xz-utils
     #- xvfb
+    # atom/keyboard-layout
+    - libx11-dev
+    - libxkbfile-dev
 
 before_install:
   #- if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get -qq update ; fi
@@ -62,7 +65,7 @@ script:
   #- yarn run pack && xvfb-maybe node_modules/.bin/mocha test/e2e
   - yarn run lint
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then yarn run release:linux ; fi
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then yarn run release ; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then yarn run release:mac ; fi
 
 branches:
   only:

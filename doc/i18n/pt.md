@@ -137,7 +137,7 @@ Baixe e instale a partir do assistente de instalação.
 
 #### Linux
 
-Siga as instruções: [Clique aqui](https://github.com/marktext/marktext/blob/master/doc/linux.md).
+Siga as instruções: [Clique aqui](https://github.com/marktext/marktext/blob/master/doc/LINUX.md).
 
 ## Desenvolvimento
 
