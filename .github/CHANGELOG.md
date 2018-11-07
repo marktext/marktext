@@ -1,4 +1,4 @@
-### 0.13.58
+### 0.13.61
 
 **:butterfly:Optimization**
 
@@ -15,6 +15,7 @@
 - fix: #535 Application menu is not updated when switching windows
 - fix #216 and #311 key binding issues on Linux and Windows
 - fix #546 paste issue in table
+- fix: Blank document was always encoded as `LF`
 
 ### 0.13.50
 

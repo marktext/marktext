@@ -7,7 +7,7 @@ export const defaultFileState = {
   markdown: '',
   isUtf8BomEncoded: false,
   lineEnding: 'lf', // lf or crlf
-  adjustLineEndingOnSave: false,
+  adjustLineEndingOnSave: false, // convert editor buffer (LF) to CRLF when saving
   textDirection: 'ltr',
   history: {
     stack: [],
@@ -45,6 +45,8 @@ export const getFileStateFromData = data => {
   } = data
   const id = getUniqueId()
 
+  assertLineEnding(adjustLineEndingOnSave, lineEnding)
+
   return Object.assign(fileState, {
     id,
     markdown,
@@ -71,6 +73,7 @@ export const getBlankFileState = (tabs, lineEnding = 'lf', markdown = '') => {
 
   return Object.assign(fileState, {
     lineEnding,
+    adjustLineEndingOnSave: lineEnding.toLowerCase() === 'crlf',
     id,
     filename: `Untitled-${++untitleId}`,
     markdown
@@ -81,6 +84,8 @@ export const getSingleFileState = ({ id = getUniqueId(), markdown, filename, pat
   const fileState = JSON.parse(JSON.stringify(defaultFileState))
   const { isUtf8BomEncoded, lineEnding, adjustLineEndingOnSave } = options
 
+  assertLineEnding(adjustLineEndingOnSave, lineEnding)
+
   return Object.assign(fileState, {
     id,
     markdown,
@@ -90,4 +95,12 @@ export const getSingleFileState = ({ id = getUniqueId(), markdown, filename, pat
     lineEnding,
     adjustLineEndingOnSave
   })
+}
+
+const assertLineEnding = (adjustLineEndingOnSave, lineEnding) => {
+  lineEnding = lineEnding.toLowerCase()
+  if ((adjustLineEndingOnSave && lineEnding !== 'crlf') ||
+    (!adjustLineEndingOnSave && lineEnding === 'crlf')) {
+    console.error('Assertion failed: Line ending is "CRLF" but document is saved as "LF".')
+  }
 }
