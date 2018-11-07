@@ -241,7 +241,7 @@ const actions = {
 
   LISTEN_FOR_CLOSE ({ commit, state }) {
     ipcRenderer.on('AGANI::ask-for-close', e => {
-      const unSavedFiles = state.tabs.filter(file => !(file.isSaved && /[^\n]/.test(file.markdown)))
+      const unSavedFiles = state.tabs.filter(file => !file.isSaved)
         .map(file => {
           const { id, filename, pathname, markdown } = file
           const options = getOptionsFromState(file)
@@ -421,12 +421,19 @@ const actions = {
     const { pathname, markdown: oldMarkdown, id } = state.currentFile
     const options = getOptionsFromState(state.currentFile)
     commit('SET_MARKDOWN', markdown)
+
+    // ignore new line which is added if the editor text is empty (#422)
+    if (oldMarkdown.length === 0 && markdown.length === 1 && markdown[0] === '\n') {
+      return
+    }
+
     // set word count
     if (wordCount) commit('SET_WORD_COUNT', wordCount)
     // set cursor
     if (cursor) commit('SET_CURSOR', cursor)
     // set history
     if (history) commit('SET_HISTORY', history)
+
     // change save status/save to file only when the markdown changed!
     if (markdown !== oldMarkdown) {
       if (projectTree) {
