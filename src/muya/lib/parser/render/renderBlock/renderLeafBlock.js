@@ -1,7 +1,7 @@
 import katex from 'katex'
 import mermaid from 'mermaid'
 import prism, { loadedCache } from '../../../prism/'
-import { CLASS_OR_ID, DEVICE_MEMORY, isInElectron, PREVIEW_DOMPURIFY_CONFIG } from '../../../config'
+import { CLASS_OR_ID, DEVICE_MEMORY, isInElectron, PREVIEW_DOMPURIFY_CONFIG, HAS_TEXT_BLOCK_REG } from '../../../config'
 import { tokenizer } from '../../parse'
 import { snakeToCamel, sanitize, escapeHtml, getLongUniqueId } from '../../../utils'
 import { h, htmlToVNode } from '../snabbdom'
@@ -70,12 +70,19 @@ export default function renderLeafBlock (block, cursor, activeBlocks, matches, u
   }
   let children = ''
   if (text) {
-    let tokens = null
+    let tokens = []
     if (highlights.length === 0 && this.tokenCache.has(text)) {
       tokens = this.tokenCache.get(text)
-    } else {
-      tokens = tokenizer(text, highlights)
-      if (highlights.length === 0 && useCache && DEVICE_MEMORY >= 4) this.tokenCache.set(text, tokens)
+    } else if (
+      HAS_TEXT_BLOCK_REG.test(type) &&
+      functionType !== 'codeLine' &&
+      functionType !== 'languageInput'
+    ) {
+      const hasBeginRules = /^(h\d|span|hr)/.test(type)
+      tokens = tokenizer(text, highlights, hasBeginRules)
+      if (highlights.length === 0 && useCache && DEVICE_MEMORY >= 4) {
+        this.tokenCache.set(text, tokens)
+      }
     }
     children = tokens.reduce((acc, token) => [...acc, ...this[snakeToCamel(token.type)](h, cursor, block, token)], [])
   }

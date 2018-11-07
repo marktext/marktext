@@ -508,8 +508,8 @@ const tokenizerFac = (src, beginRules, inlineRules, pos = 0, top) => {
   return tokens
 }
 
-export const tokenizer = (src, highlights = []) => {
-  const tokens = tokenizerFac(src, beginRules, inlineRules, 0, true)
+export const tokenizer = (src, highlights = [], hasBeginRules = true) => {
+  const tokens = tokenizerFac(src, hasBeginRules ? beginRules : null, inlineRules, 0, true)
   const postTokenizer = tokens => {
     for (const token of tokens) {
       for (const light of highlights) {

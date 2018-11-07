@@ -131,6 +131,18 @@ const pasteCtrl = ContentState => {
       return this.partialRender()
     }
 
+    if (/th|td/.test(startBlock.type)) {
+      const pendingText = text.trim().replace(/\n/g, '<br/>')
+      startBlock.text += pendingText
+      const { key } = startBlock
+      const offset = start.offset + pendingText.length
+      this.cursor = {
+        start: { key, offset },
+        end: { key, offset }
+      }
+      return this.partialRender()
+    }
+
     // handle copyAsHtml
     if (copyType === 'copyAsHtml') {
       switch (type) {
