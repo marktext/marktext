@@ -4,6 +4,7 @@ import './index.css'
 import { EVENT_KEYS } from '../../config'
 
 class TablePicker extends BaseFloat {
+  static pluginName = 'tablePicker'
   constructor (muya) {
     const name = 'ag-table-picker'
     super(muya, name)

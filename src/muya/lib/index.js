@@ -7,16 +7,14 @@ import { CLASS_OR_ID, MUYA_DEFAULT_OPTION } from './config'
 import { wordCount } from './utils'
 import ExportMarkdown from './utils/exportMarkdown'
 import ExportHtml from './utils/exportHtml'
-import TablePicker from './ui/tablePicker'
 import ToolTip from './ui/tooltip'
-import QuickInsert from './ui/quickInsert'
-import CodePicker from './ui/codePicker'
-import EmojiPicker from './ui/emojiPicker'
-import ImagePathPicker from './ui/imagePicker'
-import FormatPicker from './ui/formatPicker'
 import './assets/styles/index.css'
 
 class Muya {
+  static plugins = []
+  static use (plugin) {
+    this.plugins.push(plugin)
+  }
   constructor (container, options) {
     this.options = Object.assign({}, MUYA_DEFAULT_OPTION, options)
     const { focusMode, theme, markdown } = this.options
@@ -26,12 +24,13 @@ class Muya {
     this.container = getContainer(container)
     this.eventCenter = new EventCenter()
     this.tooltip = new ToolTip(this)
-    this.quickInsert = new QuickInsert(this)
-    this.codePicker = new CodePicker(this)
-    this.tablePicker = new TablePicker(this)
-    this.emojiPicker = new EmojiPicker(this)
-    this.imagePathPicker = new ImagePathPicker(this)
-    this.formatPicker = new FormatPicker(this)
+    // UI plugins
+    if (Muya.plugins.length) {
+      for (const Plugin of Muya.plugins) {
+        this[Plugin.pluginName] = new Plugin(this)
+      }
+    }
+
     this.contentState = new ContentState(this, this.options)
     this.clipboard = new Clipboard(this)
     this.clickEvent = new ClickEvent(this)
@@ -276,7 +275,11 @@ function getContainer (originContainer) {
   Array.from(attrs).forEach(attr => {
     container.setAttribute(attr.name, attr.value)
   })
+
   container.setAttribute('contenteditable', true)
+  container.setAttribute('autocorrect', false)
+  container.setAttribute('autocomplete', 'off')
+  container.setAttribute('spellcheck', false)
   container.appendChild(rootDom)
   originContainer.replaceWith(container)
   return container

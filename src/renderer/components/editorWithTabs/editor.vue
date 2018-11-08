@@ -64,6 +64,12 @@
 <script>
   import { mapState } from 'vuex'
   import Muya from 'muya/lib'
+  import TablePicker from 'muya/lib/ui/tablePicker'
+  import QuickInsert from 'muya/lib/ui/quickInsert'
+  import CodePicker from 'muya/lib/ui/codePicker'
+  import EmojiPicker from 'muya/lib/ui/emojiPicker'
+  import ImagePathPicker from 'muya/lib/ui/imagePicker'
+  import FormatPicker from 'muya/lib/ui/formatPicker'
   import bus from '../../bus'
   import { animatedScrollTo } from '../../util'
   import { showContextMenu } from '../../contextMenu/editor'
@@ -177,7 +183,13 @@
           bulletListMarker,
           tabSize
         } = this
-
+        // use muya UI plugins
+        Muya.use(TablePicker)
+        Muya.use(QuickInsert)
+        Muya.use(CodePicker)
+        Muya.use(EmojiPicker)
+        Muya.use(ImagePathPicker)
+        Muya.use(FormatPicker)
         const { container } = this.editor = new Muya(ele, {
           theme,
           focusMode,

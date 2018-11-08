@@ -6,6 +6,7 @@ import { quicInsertObj } from './config'
 import './index.css'
 
 class QuickInsert extends BaseScrollFloat {
+  static pluginName = 'quickInsert'
   constructor (muya) {
     const name = 'ag-quick-insert'
     super(muya, name)

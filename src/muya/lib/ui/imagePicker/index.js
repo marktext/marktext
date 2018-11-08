@@ -11,6 +11,7 @@ const iconhash = {
 }
 
 class ImagePathPicker extends BaseScrollFloat {
+  static pluginName = 'imagePathPicker'
   constructor (muya) {
     const name = 'ag-list-picker'
     super(muya, name)

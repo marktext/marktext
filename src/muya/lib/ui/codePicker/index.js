@@ -6,6 +6,7 @@ import fileIcons from '../fileIcons'
 import './index.css'
 
 class CodePicker extends BaseScrollFloat {
+  static pluginName = 'codePicker'
   constructor (muya) {
     const name = 'ag-list-picker'
     super(muya, name)

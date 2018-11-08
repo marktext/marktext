@@ -15,6 +15,7 @@ const defaultOptions = {
 }
 
 class FormatPicker extends BaseFloat {
+  static pluginName = 'formatPicker'
   constructor (muya, options = {}) {
     const name = 'ag-format-picker'
     const opts = Object.assign({}, defaultOptions, options)
