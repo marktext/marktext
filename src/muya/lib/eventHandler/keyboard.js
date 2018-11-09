@@ -175,18 +175,14 @@ class Keyboard {
       }
       // is show format float box?
       const { start, end } = selection.getCursorRange()
-      const { start: oldStart, end: oldEnd } = contentState.cursor
 
       if (
-        start.key !== oldStart.key ||
-        start.offset !== oldStart.offset ||
-        end.key !== oldEnd.key ||
-        end.offset !== oldEnd.offset
+        event.key === EVENT_KEYS.ArrowDown ||
+        event.key === EVENT_KEYS.ArrowUp ||
+        event.key === EVENT_KEYS.ArrowLeft ||
+        event.key === EVENT_KEYS.ArrowRight
       ) {
-        contentState.cursor = {
-          start,
-          end
-        }
+        contentState.inputHandler(event)
       }
 
       const block = contentState.getBlock(start.key)
