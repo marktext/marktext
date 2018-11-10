@@ -296,6 +296,7 @@ const pasteCtrl = ContentState => {
         key, offset
       }
     }
+    this.checkInlineUpdate(cursorBlock)
     this.partialRender()
   }
 }
