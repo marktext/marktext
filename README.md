@@ -23,24 +23,23 @@
     <img src="https://badge.fury.io/gh/jocs%2Fmarktext.svg" alt="website">
   </a>
   <!-- License -->
-  <a href="https://marktext.github.io/website">
+  <a href="https://github.com/marktext/marktext/blob/master/LICENSE">
     <img src="https://img.shields.io/github/license/marktext/marktext.svg" alt="LICENSE">
   </a>
   <!-- Build Status -->
-  <a href="https://marktext.github.io/website">
+  <a href="https://travis-ci.org/marktext/marktext/">
     <img src="https://travis-ci.org/marktext/marktext.svg?branch=master" alt="build">
   </a>
+  <a href="https://ci.appveyor.com/project/marktext/marktext/branch/master">
+    <img src="https://ci.appveyor.com/api/projects/status/l4gxgydj0i95hmxg/branch/master?svg=true" alt="build">
+  </a>
   <!-- Downloads total -->
-  <a href="https://marktext.github.io/website">
+  <a href="https://github.com/marktext/marktext/releases">
     <img src="https://img.shields.io/github/downloads/marktext/marktext/total.svg" alt="total download">
   </a>
   <!-- Downloads latest release -->
-  <a href="https://marktext.github.io/website">
+  <a href="https://github.com/marktext/marktext/releases/latest">
     <img src="https://img.shields.io/github/downloads/marktext/marktext/v0.13.53/total.svg" alt="latest download">
-  </a>
-  <!-- deps -->
-  <a href="https://marktext.github.io/website">
-    <img src="https://img.shields.io/hackage-deps/v/lens.svg" alt="dependencies">
   </a>
   <!-- sponsors -->
   <a href="https://opencollective.com/marktext">
