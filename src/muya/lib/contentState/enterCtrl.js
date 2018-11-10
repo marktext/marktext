@@ -120,9 +120,10 @@ const enterCtrl = ContentState => {
       const blocksInListItem = parent.children.splice(index + 1)
       blocksInListItem.forEach(b => this.appendChild(newBlock, b))
       this.removeBlock(block)
+
       newBlock = newBlock.listItemType === 'task'
-        ? newBlock.children[1].children[0]
-        : newBlock.children[0].children[0]
+        ? newBlock.children[1]
+        : newBlock.children[0]
     } else {
       newBlock = this.createBlockP()
       if (block.type === 'li') {
