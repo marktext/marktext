@@ -1,0 +1,40 @@
+version: 0.1.{build}
+
+image: Visual Studio 2017
+platform:
+  - x64
+  - x86
+
+clone_folder: c:\projects\marktext
+
+branches:
+  only:
+    - master
+skip_tags: true
+
+init:
+  - git config --global core.autocrlf input
+
+install:
+  - ps: Install-Product node 8 $env:PLATFORM
+  - choco install yarn --ignore-dependencies
+
+  - node --version
+  - npm --version
+  - yarn --version
+
+  - yarn
+
+cache:
+  - node_modules
+  - '%APPDATA%\npm-cache'
+  - '%USERPROFILE%\.electron'
+  - '%USERPROFILE%\AppData\Local\Yarn\cache'
+
+build_script:
+  - yarn run lint
+  - yarn run release:win
+
+test: off
+# test_script:
+#   - yarn test
