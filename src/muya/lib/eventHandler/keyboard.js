@@ -177,10 +177,13 @@ class Keyboard {
       const { start, end } = selection.getCursorRange()
 
       if (
-        event.key === EVENT_KEYS.ArrowDown ||
-        event.key === EVENT_KEYS.ArrowUp ||
-        event.key === EVENT_KEYS.ArrowLeft ||
-        event.key === EVENT_KEYS.ArrowRight
+        this.shownFloat.size === 0 &&
+        (
+          event.key === EVENT_KEYS.ArrowDown ||
+          event.key === EVENT_KEYS.ArrowUp ||
+          event.key === EVENT_KEYS.ArrowLeft ||
+          event.key === EVENT_KEYS.ArrowRight
+        )
       ) {
         contentState.inputHandler(event)
       }

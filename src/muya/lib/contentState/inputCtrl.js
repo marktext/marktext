@@ -105,6 +105,7 @@ const inputCtrl = ContentState => {
         right: left
       })
     }
+
     this.muya.eventCenter.dispatch('muya-quick-insert', reference, block, checkQuickInsert)
 
     // Update preview content of math block

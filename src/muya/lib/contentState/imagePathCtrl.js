@@ -55,8 +55,9 @@ const imagePathCtrl = ContentState => {
     eventCenter.subscribe('image-path', src => {
       const node = this.getImageTextNode()
 
-      if (!node) return
-
+      if (!node) {
+        return eventCenter.dispatch('muya-image-picker', { list: [] })
+      }
       if (src === '') {
         const cb = item => {
           const type = item.text === 'Absolute Path' ? 'absolute' : (item.text === 'Upload Image' ? 'upload' : 'relative')
@@ -82,6 +83,9 @@ const imagePathCtrl = ContentState => {
           cb
         })
       } else if (src && typeof src === 'string' && src.length) {
+        eventCenter.dispatch('muya-image-picker', {
+          list: []
+        })
         eventCenter.dispatch('image-path-autocomplement', src)
       }
     })
