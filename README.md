@@ -178,28 +178,15 @@ If you have any questions regarding **Mark Text**, you are welcome to write an i
 
 Mark Text is in full development, please make sure to read the [Contributing Guide](https://github.com/marktext/marktext/blob/master/.github/CONTRIBUTING.md) before making a pull request. Want to add some features to Mark Text? Refer to [TODO LIST](https://github.com/marktext/marktext/blob/master/.github/TODOLIST.md) and open issues.
 
-## Backers
-
-Thank you to all our backers! 🙏 [[Become a backer](https://opencollective.com/marktext#backers)]
-
-<a href="https://opencollective.com/marktext#backers">
-  <img src="https://opencollective.com/marktext/tiers/backer.svg?avatarHeight=36&width=600">
-</a>
-
 ## Sponsors
 
 Support this project by becoming a sponsor. Your logo will show up here with a link to your website. [[Become a sponsor](https://opencollective.com/marktext#platinum-sponsors)]
 
-**Bronze Sponsors**
+**Platinum Sponsors**
 
+<a href="https://readme.io" target="_blank"><img src="https://github.com/marktext/marktext/blob/master/doc/sponsor/readme.png" /></a>
 <a href="https://opencollective.com/marktext#platinum-sponsors">
-  <img src="https://opencollective.com/marktext/tiers/bronze-sponsors.svg?avatarHeight=36&width=600">
-</a>
-
-**Silver Sponsors**
-
-<a href="https://opencollective.com/marktext#platinum-sponsors">
-  <img src="https://opencollective.com/marktext/tiers/silver-sponsors.svg?avatarHeight=36&width=600">
+  <img src="https://opencollective.com/marktext/tiers/platinum-sponsors.svg?avatarHeight=36&width=600">
 </a>
 
 **Gold Sponsors**
@@ -208,9 +195,25 @@ Support this project by becoming a sponsor. Your logo will show up here with a l
   <img src="https://opencollective.com/marktext/tiers/gold-sponsors.svg?avatarHeight=36&width=600">
 </a>
 
-**Platinum Sponsors**
+**Silver Sponsors**
 
-<a href="https://readme.io" target="_blank"><img src="https://github.com/marktext/marktext/blob/master/doc/sponsor/readme.png" /></a>
+<a href="https://opencollective.com/marktext#platinum-sponsors">
+  <img src="https://opencollective.com/marktext/tiers/silver-sponsors.svg?avatarHeight=36&width=600">
+</a>
+
+**Bronze Sponsors**
+
+<a href="https://opencollective.com/marktext#platinum-sponsors">
+  <img src="https://opencollective.com/marktext/tiers/bronze-sponsors.svg?avatarHeight=36&width=600">
+</a>
+
+## Backers
+
+Thank you to all our backers! 🙏 [[Become a backer](https://opencollective.com/marktext#backers)]
+
+<a href="https://opencollective.com/marktext#backers">
+  <img src="https://opencollective.com/marktext/tiers/backer.svg?avatarHeight=36&width=600">
+</a>
 
 ## Contributors
 
