@@ -188,6 +188,12 @@ class Keyboard {
         contentState.inputHandler(event)
       }
 
+      // hide image-path float box
+      const imageTextNode = contentState.getImageTextNode()
+      if (!imageTextNode) {
+        eventCenter.dispatch('muya-image-picker', { list: [] })
+      }
+
       const block = contentState.getBlock(start.key)
       if (start.key === end.key && start.offset !== end.offset && block.functionType !== 'codeLine') {
         const reference = contentState.getPositionReference()
