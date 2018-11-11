@@ -42,7 +42,7 @@ class ImagePathPicker extends BaseScrollFloat {
       const { text, iconClass } = item
       const icon = h('div.icon-wrapper', h('img', {
         attrs: {
-          'src': iconhash[iconClass].url
+          'src': `.${iconhash[iconClass].url}`
         }
       }))
       const textEle = h('div.language', text)
