@@ -12,3 +12,9 @@ Available commands:
   --help                      Print this help message
 ```
 
+`marktext` should point to your installation of Mark Text. The exact location will vary from platform to platform. Since I'm on macOS, I created convenient alias for the version of Mark Text that I have installed.
+
+```sh
+alias marktext="/Applications/Mark\ Text.app/Contents/MacOS/Mark\ Text"
+```
+
