@@ -26,7 +26,7 @@
 }
 
 .ag-format-picker li.item:hover {
-  background: rgb(243, 243, 243);;
+  background: rgb(243, 243, 243);
 }
 
 .ag-format-picker li.item:last-of-type {
@@ -54,4 +54,13 @@
 .ag-format-picker li.item .icon-wrapper {
   width: 16px;
   height: 16px;
+}
+
+/* dark theme */
+.ag-format-picker.dark li.item:hover {
+  background: rgb(60, 60, 60);
+}
+
+.ag-format-picker.dark li.item:last-of-type:before {
+  background: rgb(71, 71, 71);
 }
