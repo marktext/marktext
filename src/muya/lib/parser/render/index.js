@@ -1,7 +1,7 @@
 import mermaid from 'mermaid'
 import flowchart from 'flowchart.js'
 import Diagram from './sequence'
-import vegaEmbed from 'vega-embed'
+// import vegaEmbed from 'vega-embed'
 import { CLASS_OR_ID } from '../../config'
 import { conflict, mixins } from '../../utils'
 import { patch, toVNode, toHTML, h } from './snabbdom'
@@ -100,8 +100,8 @@ class StateRender {
     const cache = this.diagramCache
     const RENDER_MAP = {
       'flowchart': flowchart,
-      'sequence': Diagram,
-      'vega-lite': vegaEmbed
+      'sequence': Diagram// ,
+      // 'vega-lite': vegaEmbed
     }
     if (cache.size) {
       for (const [key, value] of cache.entries()) {
@@ -120,7 +120,7 @@ class StateRender {
             target.innerHTML = ''
             diagram.drawSVG(target, options)
           } else if (functionType === 'vega-lite') {
-            await vegaEmbed(key, JSON.parse(code), options)
+            await render(key, JSON.parse(code), options)
           }
         } catch (err) {
           target.innerHTML = `< Invalid ${functionType === 'flowchart' ? 'Flow Chart' : 'Sequence'} Codes >`
