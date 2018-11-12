@@ -327,4 +327,8 @@
   .dark .frameless-titlebar-close:hover svg {
     fill: #ffffff
   }
+  /* exclude titlebar so we can apply a custom sidebar background color */
+  .title-bar.dark {
+    background: transparent;
+  }
 </style>
