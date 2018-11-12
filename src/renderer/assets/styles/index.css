@@ -10,6 +10,8 @@
   --darkInputColor: rgb(255, 255, 255);
   --darkHoverColor: rgb(70, 70, 70);
   --titleBarHeight: 25px;
+  --lightBgHighlightColor: rgb(246, 248, 249);
+  --darkBgHighlightColor: rgb(40, 40, 40);
 }
 .icon {
   width: 1em; height: 1em;

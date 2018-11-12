@@ -68,15 +68,23 @@
       display: none;
     }
     & > li {
+      position: relative;
       padding: 0 8px;
       color: var(--secondaryColor);
       font-size: 12px;
       line-height: 35px;
       height: 35px;
-      border-right: 1px solid #fff;
       background: var(--lightTabColor);
       display: flex;
       align-items: center;
+      &:not(:last-child):before {
+        content: '';
+        position: absolute;
+        top: 20%;
+        right: 0;
+        border-right: 1px solid #fff;
+        height: 60%;
+      }
       & > svg {
         opacity: 0;
       }
@@ -92,6 +100,15 @@
     }
     & > li.active {
       background: #fff;
+      &:not(:last-child):after {
+        content: '';
+        position: absolute;
+        left: 0;
+        bottom: 0;
+        right: 0;
+        height: 2px;
+        background: var(--primary);
+      }
       & > svg {
         opacity: 1;
       }
@@ -113,9 +130,10 @@
   }
   .editor-tabs.dark ul li {
     background: var(--darkBgColor);
-    border-right-color: var(--darkHoverColor);
+    &:not(:last-child):before {
+      border-right-color: var(--darkHoverColor);
+    }
     &.active {
-      background: var(--darkHoverColor);
       color: var(--lightBorder);
     }
   }
