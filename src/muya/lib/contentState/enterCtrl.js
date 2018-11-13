@@ -5,7 +5,8 @@ const checkAutoIndent = (text, offset) => {
   return /^(\{\}|\[\]|\(\)|><)$/.test(pairStr)
 }
 const getIndentSpace = text => {
-  return /^(\s*)\S/.exec(text)[1]
+  const match = /^(\s*)\S/.exec(text)
+  return match ? match[1] : ''
 }
 
 const enterCtrl = ContentState => {
