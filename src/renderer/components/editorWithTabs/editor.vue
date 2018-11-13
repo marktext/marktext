@@ -99,7 +99,7 @@
         'autoPairBracket': state => state.preferences.autoPairBracket,
         'autoPairMarkdownSyntax': state => state.preferences.autoPairMarkdownSyntax,
         'autoPairQuote': state => state.preferences.autoPairQuote,
-        'bulletListItemMarker': state => state.preferences.bulletListItemMarker,
+        'bulletListMarker': state => state.preferences.bulletListMarker,
         'tabSize': state => state.preferences.tabSize,
         'lineHeight': state => state.preferences.lineHeight,
         'fontSize': state => state.preferences.fontSize,
@@ -183,6 +183,7 @@
           bulletListMarker,
           tabSize
         } = this
+
         // use muya UI plugins
         Muya.use(TablePicker)
         Muya.use(QuickInsert)
