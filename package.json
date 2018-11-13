@@ -8,9 +8,9 @@
   "scripts": {
     "release:win:linux": "node .electron-vue/build.js && electron-builder --win --linux",
     "release": "node .electron-vue/build.js && electron-builder -mwl",
-    "release:linux": "node .electron-vue/build.js && electron-builder --linux --always",
-    "release:mac": "node .electron-vue/build.js && electron-builder --mac --always",
-    "release:win": "node .electron-vue/build.js && electron-builder --win --always",
+    "release:linux": "node .electron-vue/build.js && electron-builder build --linux --publish always",
+    "release:mac": "node .electron-vue/build.js && electron-builder build --mac --publish always",
+    "release:win": "node .electron-vue/build.js && electron-builder build --win --publish always",
     "build": "node .electron-vue/build.js && electron-builder",
     "build:dir": "node .electron-vue/build.js && electron-builder --dir",
     "build:clean": "cross-env BUILD_TARGET=clean node .electron-vue/build.js",
