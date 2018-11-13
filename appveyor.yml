@@ -9,7 +9,6 @@ clone_folder: c:\projects\marktext
 branches:
   only:
     - master
-    - PublishArtifactsToGithub
 skip_tags: true
 
 environment:
