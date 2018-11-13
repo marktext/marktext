@@ -178,6 +178,7 @@ class Keyboard {
 
       if (
         this.shownFloat.size === 0 &&
+        contentState.isCollapse() &&
         (
           event.key === EVENT_KEYS.ArrowDown ||
           event.key === EVENT_KEYS.ArrowUp ||
