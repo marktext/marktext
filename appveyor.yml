@@ -3,7 +3,6 @@ version: 0.1.{build}
 image: Visual Studio 2017
 platform:
   - x64
-  - x86
 
 clone_folder: c:\projects\marktext
 
@@ -11,6 +10,10 @@ branches:
   only:
     - master
 skip_tags: true
+
+environment:
+  GH_TOKEN:
+    secure: Ki5AJWygDYhzMJxl0b0rDx3bhAYmar2aPdwVHiai9IigqsvZpWHLeI3qpTiiaOWL
 
 init:
   - git config --global core.autocrlf input
@@ -27,9 +30,9 @@ install:
 
 cache:
   - node_modules
-  - '%APPDATA%\npm-cache'
-  - '%USERPROFILE%\.electron'
-  - '%USERPROFILE%\AppData\Local\Yarn\cache'
+  - '%LOCALAPPDATA%\electron\Cache'
+  - '%LOCALAPPDATA%\electron-builder\cache'
+  - '%LOCALAPPDATA%\Yarn\cache'
 
 build_script:
   - yarn run lint

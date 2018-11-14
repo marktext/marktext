@@ -1,10 +1,11 @@
-### 0.13.61
+### 0.13.62
 
 **:butterfly:Optimization**
 
 - Show tab bar when opening a new tab
 - Use default bold (`CmdOrCtrl+B`) and italics (`CmdOrCtrl+I`) key binding (#346)
 - Don't show save dialog for an empty document (#422)
+- Sidebar and tab redesign
 
 **:beetle:Bug fix**
 
