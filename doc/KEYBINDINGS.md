@@ -76,7 +76,7 @@ Here is an example:
 | `paragraphBulletList`      | Insert a unordered list                  |
 | `paragraphTaskList`        | Insert a task list                       |
 | `paragraphLooseListItem`   | Convert a list item to a loose list item |
-| `paragraphParagraph`       | Convet a heading to a paragraph          |
+| `paragraphParagraph`       | Convert a heading to a paragraph          |
 | `paragraphHorizontalLine`  | Add a horizontal line                    |
 | `paragraphYAMLFrontMatter` | Insert a YAML frontmatter block          |
 
