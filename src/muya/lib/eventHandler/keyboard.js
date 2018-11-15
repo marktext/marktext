@@ -37,6 +37,7 @@ class Keyboard {
     }
 
     eventCenter.attachDOMEvent(container, 'compositionend', handler)
+    // eventCenter.attachDOMEvent(container, 'compositionupdate', handler)
     eventCenter.attachDOMEvent(container, 'compositionstart', handler)
   }
 
@@ -177,7 +178,8 @@ class Keyboard {
       const { start, end } = selection.getCursorRange()
 
       if (
-        this.shownFloat.size === 0
+        this.shownFloat.size === 0 &&
+        !this.isComposed
       ) {
         const { start: oldStart, end: oldEnd } = contentState.cursor
         if (
