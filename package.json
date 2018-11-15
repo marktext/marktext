@@ -129,7 +129,7 @@
     }
   },
   "dependencies": {
-    "@hfelix/electron-localshortcut": "^3.1.0",
+    "@hfelix/electron-localshortcut": "^3.1.1",
     "axios": "^0.18.0",
     "chokidar": "^2.0.4",
     "codemirror": "^5.40.2",
