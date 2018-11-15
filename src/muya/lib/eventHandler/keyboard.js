@@ -177,16 +177,21 @@ class Keyboard {
       const { start, end } = selection.getCursorRange()
 
       if (
-        this.shownFloat.size === 0 &&
-        contentState.isCollapse() &&
-        (
-          event.key === EVENT_KEYS.ArrowDown ||
-          event.key === EVENT_KEYS.ArrowUp ||
-          event.key === EVENT_KEYS.ArrowLeft ||
-          event.key === EVENT_KEYS.ArrowRight
-        )
+        this.shownFloat.size === 0
       ) {
-        contentState.inputHandler(event)
+        const { start: oldStart, end: oldEnd } = contentState.cursor
+        if (
+          start.key !== oldStart.key ||
+          start.offset !== oldStart.offset ||
+          end.key !== oldEnd.key ||
+          end.offset !== oldEnd.offset
+        ) {
+          const needRender = contentState.checkNeedRender(contentState.cursor) || contentState.checkNeedRender({ start, end })
+          contentState.cursor = { start, end }
+          if (needRender) {
+            return contentState.partialRender()
+          }
+        }
       }
 
       // hide image-path float box

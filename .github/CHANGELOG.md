@@ -1,4 +1,4 @@
-### 0.13.62
+### 0.13.63
 
 **:butterfly:Optimization**
 
@@ -17,6 +17,7 @@
 - fix #216 and #311 key binding issues on Linux and Windows
 - fix #546 paste issue in table
 - fix: Blank document was always encoded as `LF`
+- fix: #541
 
 ### 0.13.50
 

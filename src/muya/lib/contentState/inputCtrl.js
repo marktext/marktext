@@ -20,6 +20,7 @@ const inputCtrl = ContentState => {
     if (type !== 'span' || functionType) return false
     return /^@[a-zA-Z\d]*$/.test(text)
   }
+
   ContentState.prototype.inputHandler = function (event) {
     const { start, end } = selection.getCursorRange()
     const { start: oldStart, end: oldEnd } = this.cursor
