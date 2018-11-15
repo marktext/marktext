@@ -26,7 +26,7 @@ export const getVirtualLetters = () => {
     }
     const unmodifiedKey = currentKeymap[key].unmodified
     if (unmodifiedKey) {
-      // uppercase character / vkey name (A: KEY_A)
+      // uppercase character / vkey name (A: KeyA)
       vkeys[unmodifiedKey.toUpperCase()] = key
     }
   }
