@@ -3,7 +3,7 @@ import path from 'path'
 import isAccelerator from 'electron-is-accelerator'
 import electronLocalshortcut from '@hfelix/electron-localshortcut'
 import { isOsx } from './config'
-import { getKeyboardLanguage } from './keyboardUtils'
+import { getKeyboardLanguage, getVirtualLetters } from './keyboardUtils'
 import { isFile, getPath, log, readJson } from './utils'
 
 // Problematic key bindings:
@@ -103,6 +103,10 @@ class Keybindings {
   }
 
   fixLayout () {
+    // fix wrong virtual key mapping on non-QWERTY layouts
+    electronLocalshortcut.updateVirtualKeys(getVirtualLetters())
+
+    // fix broken shortcuts and dead keys
     const lang = getKeyboardLanguage()
     switch (lang) {
       // fix aidou and inline code
@@ -121,6 +125,7 @@ class Keybindings {
 
       // fix aidou only
       case 'es':
+      case 'fr':
       case 'hr':
       case 'it':
       case 'pl':
@@ -132,8 +137,10 @@ class Keybindings {
 
       // custom layouts
       case 'bg':
-        this.mnemonics.set('CmdOrCtrl+/', 'CmdOrCtrl+8')
-        this.fixInlineCode()
+        if (!isOsx) {
+          this.mnemonics.set('CmdOrCtrl+/', 'CmdOrCtrl+8')
+          this.fixInlineCode()
+        }
         break
     }
   }
