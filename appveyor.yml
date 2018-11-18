@@ -38,6 +38,10 @@ build_script:
   - yarn run lint
   - yarn run release:win
 
+  # calculate checksums
+  - ps: get-filehash -Algorithm SHA256 "build\Mark Text *.exe"
+  - ps: get-filehash -Algorithm SHA256 "build\Mark Text Setup *.exe"
+
 test: off
 # test_script:
 #   - yarn test
