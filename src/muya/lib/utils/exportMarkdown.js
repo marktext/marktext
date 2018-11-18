@@ -118,6 +118,7 @@ class ExportMarkdown {
 
         case 'blockquote':
           this.insertLineBreak(result, indent, true)
+          console.log(block)
           result.push(this.normalizeBlockquote(block, indent))
           break
         default:

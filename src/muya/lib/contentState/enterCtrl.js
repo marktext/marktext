@@ -1,4 +1,5 @@
 import selection from '../selection'
+import { isMacOs } from '../config'
 
 const checkAutoIndent = (text, offset) => {
   const pairStr = text.substring(offset - 1, offset + 1)
@@ -257,7 +258,10 @@ const enterCtrl = ContentState => {
       const rowContainer = this.getBlock(row.parent)
       const table = this.getBlock(rowContainer.parent)
 
-      if (event.metaKey) {
+      if (
+        (isMacOs && event.metaKey) ||
+        (!isMacOs && event.ctrlKey)
+      ) {
         const nextRow = this.createRow(row)
         if (rowContainer.type === 'thead') {
           const tBody = this.getBlock(rowContainer.nextSibling)
