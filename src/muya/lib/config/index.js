@@ -234,4 +234,4 @@ export const MUYA_DEFAULT_OPTION = {
 // }
 
 export const isInElectron = window && window.process && window.process.type === 'renderer'
-export const isMacOs = window && window.navigator && /Mac/.test(window.navigator.platform)
+export const isOsx = window && window.navigator && /Mac/.test(window.navigator.platform)
