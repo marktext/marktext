@@ -1,4 +1,4 @@
-### 0.13.63
+### 0.13.65
 
 **:butterfly:Optimization**
 
@@ -6,6 +6,8 @@
 - Use default bold (`CmdOrCtrl+B`) and italics (`CmdOrCtrl+I`) key binding (#346)
 - Don't show save dialog for an empty document (#422)
 - Sidebar and tab redesign
+- Calculate artifact checksum after uploading (#566)
+- Use `CmdOrCltr+Enter` to add table row bellow.
 
 **:beetle:Bug fix**
 
