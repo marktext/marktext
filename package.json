@@ -136,6 +136,7 @@
     "command-exists": "^1.2.8",
     "dompurify": "^1.0.8",
     "electron-is-accelerator": "^0.1.2",
+    "element-resize-detector": "^1.1.14",
     "element-ui": "^2.4.9",
     "file-icons-js": "^1.0.3",
     "flowchart.js": "^1.11.3",

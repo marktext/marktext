@@ -1,4 +1,5 @@
 import Popper from 'popper.js/dist/esm/popper'
+import resezeDetector from 'element-resize-detector'
 import { noop } from '../../utils'
 import { EVENT_KEYS } from '../../config'
 import './index.css'
@@ -44,14 +45,25 @@ class BaseFloat {
 
     floatBox.appendChild(container)
     document.body.appendChild(floatBox)
-    const ro = new ResizeObserver(entries => {
-      for (const entry of entries) {
-        const { offsetWidth, offsetHeight } = entry.target
-        Object.assign(floatBox.style, { width: `${offsetWidth + 2}px`, height: `${offsetHeight + 2}px` })
-        this.popper && this.popper.update()
-      }
+    const erd = resezeDetector({
+      strategy: 'scroll'
     })
-    ro.observe(container)
+
+    // use polyfill
+    erd.listenTo(container, ele => {
+      const { offsetWidth, offsetHeight } = ele
+      Object.assign(floatBox.style, { width: `${offsetWidth + 2}px`, height: `${offsetHeight + 2}px` })
+      this.popper && this.popper.update()
+    })
+
+    // const ro = new ResizeObserver(entries => {
+    //   for (const entry of entries) {
+    //     const { offsetWidth, offsetHeight } = entry.target
+    //     Object.assign(floatBox.style, { width: `${offsetWidth + 2}px`, height: `${offsetHeight + 2}px` })
+    //     this.popper && this.popper.update()
+    //   }
+    // })
+    // ro.observe(container)
     this.floatBox = floatBox
     this.container = container
   }
