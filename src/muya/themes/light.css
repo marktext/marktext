@@ -332,7 +332,9 @@ th code {
 }
 
 :not(pre) > code[class*="language-"],
-pre {
+pre,
+pre[class*="language-"] {
+  overflow: visible;
   font-size: 90%;
   line-height: 1.6;
   background: #f6f8fa;
