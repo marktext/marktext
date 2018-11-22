@@ -400,9 +400,9 @@ li.ag-task-list-item > input.ag-checkbox-checked::after {
   transform: rotate(-45deg) scale(1);
 }
 
-li p .ag-hide:first-child {
+/* li p .ag-hide:first-child {
   display: none;
-}
+} */
 
 p:not(.ag-active)[data-role="hr"] {
   position: relative;
@@ -639,7 +639,7 @@ span.ag-emoji-marked-text {
 .ag-html-escape::before {
   position: absolute;
   content: attr(data-character);
-  top: 0;
+  top: -2px;
   left: -1rem;
   width: 1rem;
   color: var(--secondaryColor);
