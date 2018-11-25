@@ -325,8 +325,9 @@ const tableBlockCtrl = ContentState => {
             ? this.getPreSibling(targetCell)
             : (location === 'current' ? targetCell : this.getNextSibling(targetCell))
           if (removeCell === block) {
-            cursorBlock = this.getNextSibling(block)
+            cursorBlock = this.findNextBlockInLocation(block)
           }
+
           if (removeCell) this.removeBlock(removeCell)
           tableRow.children.forEach((cell, i) => {
             cell.column = i
