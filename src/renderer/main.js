@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import axios from 'axios'
+import { ipcRenderer } from 'electron'
 import lang from 'element-ui/lib/locale/lang/en'
 import locale from 'element-ui/lib/locale'
 import App from './app'
@@ -10,6 +11,17 @@ import services from './services'
 
 import './assets/styles/index.css'
 import './assets/styles/printService.css'
+
+window.addEventListener('error', event => {
+  const { message, name, stack } = event.error
+  const copy = {
+    message,
+    name,
+    stack
+  }
+  // pass error to error handler
+  ipcRenderer.send('AGANI::handle-renderer-error', copy)
+})
 
 // import notice from './services/notification'
 // In the renderer process:
