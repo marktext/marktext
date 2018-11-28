@@ -70,14 +70,15 @@ const handleError = (title, error) => {
         clipboard.writeText(`${title}\n${stack}`)
         break
       case 2:
-        const issueTitle = message ? `Unexpected error: ${message}` : `${title}.`
+        const issueTitle = message ? `Unexpected error: ${message}` : title
+        const gitInfo = global.MARKTEXT_IS_OFFICIAL_RELEASE ? `(${global.MARKTEXT_GIT_INFO} - git)` : global.MARKTEXT_GIT_INFO
         createAndOpenGitHubIssueUrl(
           issueTitle,
           `### Description
 
-${title}
+${title}.
 
-<!-- Please describe, how the bug occurred (optional) -->
+<!-- Please describe, how the bug occurred -->
 
 ### Stack Trace
 
@@ -85,7 +86,8 @@ ${title}
 
 ### Version
 
-Mark Text: ${app.getVersion()} (${process.platform})`)
+Mark Text: ${app.getVersion()} (${gitInfo})
+Operating system: ${process.platform}`)
         break
     }
   } else {

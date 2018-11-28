@@ -11,10 +11,10 @@ node_js:
 matrix:
   include:
   - os: osx
-    env: CC=clang CXX=clang++ npm_config_clang=1
+    env: CC=clang CXX=clang++ npm_config_clang=1 MARKTEXT_IS_OFFICIAL_RELEASE=1
     compiler: clang
   - os: linux
-    env: CC=clang CXX=clang++ npm_config_clang=1
+    env: CC=clang CXX=clang++ npm_config_clang=1 MARKTEXT_IS_OFFICIAL_RELEASE=1
     compiler: clang
 
 cache:
@@ -76,3 +76,4 @@ script:
 branches:
   only:
   - master
+  - /^release-v[0-9.]+$/

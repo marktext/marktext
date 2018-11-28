@@ -12,7 +12,8 @@ for (const arg of process.argv) {
     global.MARKTEXT_SAFE_MODE = true
     continue
   } else if (arg === '--version') {
-    console.log(`Mark Text: ${app.getVersion()}
+    const gitInfo = global.MARKTEXT_IS_OFFICIAL_RELEASE ? '' : `(${global.MARKTEXT_GIT_INFO})`
+    console.log(`Mark Text: ${app.getVersion()} ${gitInfo}
 Node.js: ${process.versions.node}
 Electron: ${process.versions.electron}
 Chromium: ${process.versions.chrome}
