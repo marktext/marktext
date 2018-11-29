@@ -68,7 +68,7 @@ script:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then yarn run release:mac ; fi
 
   # calculate checksums
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sha256sum build/marktext-*.tar.gz ; fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sha256sum build/marktext-*-x64.tar.gz ; fi
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sha256sum build/marktext-*-x86_64.AppImage ; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then shasum -a 256 build/Mark\ Text-*-mac.zip ; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then shasum -a 256 build/Mark\ Text-*.dmg ; fi

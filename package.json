@@ -118,6 +118,7 @@
     "linux": {
       "category": "Office;TextEditor;Utility",
       "icon": "resources/icons",
+      "artifactName": "marktext-${version}-${arch}.${ext}",
       "target": [
         {
           "target": "AppImage"
@@ -182,11 +183,11 @@
     "del": "^3.0.0",
     "devtron": "^1.4.0",
     "electron": "^3.0.10",
-    "electron-builder": "^20.36.2",
+    "electron-builder": "^20.38.1",
     "electron-debug": "^2.0.0",
     "electron-devtools-installer": "^2.2.4",
     "electron-rebuild": "^1.8.2",
-    "electron-updater": "^4.0.4",
+    "electron-updater": "^4.0.5",
     "electron-window-state": "^5.0.2",
     "eslint": "^4.19.1",
     "eslint-config-standard": "^11.0.0",
