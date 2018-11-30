@@ -9,9 +9,11 @@ clone_folder: c:\projects\marktext
 branches:
   only:
     - master
+    - /^release-v[0-9.]+$/
 skip_tags: true
 
 environment:
+  MARKTEXT_IS_OFFICIAL_RELEASE: 1
   GH_TOKEN:
     secure: Ki5AJWygDYhzMJxl0b0rDx3bhAYmar2aPdwVHiai9IigqsvZpWHLeI3qpTiiaOWL
 

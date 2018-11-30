@@ -5,7 +5,9 @@ process.env.BABEL_ENV = 'main'
 const path = require('path')
 const { dependencies } = require('../package.json')
 const webpack = require('webpack')
+const GitRevisionPlugin = require('git-revision-webpack-plugin')
 const proMode = process.env.NODE_ENV === 'production'
+const isOfficialRelease = !!process.env.MARKTEXT_IS_OFFICIAL_RELEASE
 
 const mainConfig = {
   mode: 'development',
@@ -77,5 +79,17 @@ if (proMode) {
     // new BabiliWebpackPlugin()
   )
 }
+
+/**
+ * Add git information
+ */
+const gitRevisionPlugin = new GitRevisionPlugin()
+mainConfig.plugins.push(
+  new webpack.DefinePlugin({
+    'global.MARKTEXT_GIT_INFO': JSON.stringify(gitRevisionPlugin.version()),
+    'global.MARKTEXT_GIT_HASH': JSON.stringify(gitRevisionPlugin.commithash()),
+    'global.MARKTEXT_IS_OFFICIAL_RELEASE': isOfficialRelease
+  })
+)
 
 module.exports = mainConfig
