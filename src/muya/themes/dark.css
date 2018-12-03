@@ -89,6 +89,11 @@ body {
   border-bottom: none;
 }
 
+figure.ag-active.ag-container-block > div.ag-container-preview {
+  background: rgb(50, 50, 50);
+  border: 1px solid rgb(43, 43, 43);
+}
+
 .ag-gray {
   color: #909399;
   text-decoration: none;
