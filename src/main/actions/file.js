@@ -29,7 +29,7 @@ const handleResponseForExport = async (e, { type, content, pathname, markdown })
     let data = content
     try {
       if (!content && type === 'pdf') {
-        data = await promisify(win.webContents.printToPDF.bind(win.webContents))({ printBackground: true })
+        data = await promisify(win.webContents.printToPDF.bind(win.webContents))({ printBackground: false })
       }
       if (data) {
         await writeFile(filePath, data, extension)
