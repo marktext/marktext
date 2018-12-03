@@ -14,6 +14,7 @@ skip_tags: true
 
 environment:
   MARKTEXT_IS_OFFICIAL_RELEASE: 1
+  MARKTEXT_EXIT_ON_ERROR: 1
   GH_TOKEN:
     secure: Ki5AJWygDYhzMJxl0b0rDx3bhAYmar2aPdwVHiai9IigqsvZpWHLeI3qpTiiaOWL
 
@@ -38,6 +39,8 @@ cache:
 
 build_script:
   - yarn run lint
+  - yarn run test
+
   - yarn run release:win
 
   # calculate checksums
@@ -46,4 +49,4 @@ build_script:
 
 test: off
 # test_script:
-#   - yarn test
+#   - yarn run test

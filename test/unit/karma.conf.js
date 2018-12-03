@@ -24,13 +24,15 @@ delete webpackConfig.entry
 delete webpackConfig.externals
 delete webpackConfig.output.libraryTarget
 
-// apply vue option to apply isparta-loader on js
-webpackConfig.module.rules
-  .find(rule => rule.use.loader === 'vue-loader').use.options.loaders.js = 'babel-loader'
+// BUG: TypeError: Cannot read property 'loaders' of undefined
+// // apply vue option to apply isparta-loader on js
+// webpackConfig.module.rules
+//   .find(rule => rule.use.loader === 'vue-loader').use.options.loaders.js = 'babel-loader'
 
 module.exports = config => {
   config.set({
     browsers: ['visibleElectron'],
+    mode: 'development',
     client: {
       useIframe: false
     },

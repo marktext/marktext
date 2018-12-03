@@ -14,8 +14,8 @@ export default {
     this.app = new Application({
       path: electron,
       args: ['dist/electron/main.js'],
-      startTimeout: 10000,
-      waitTimeout: 10000
+      startTimeout: 20000,
+      waitTimeout: 20000
     })
 
     return this.app.start()
