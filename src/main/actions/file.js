@@ -29,7 +29,9 @@ const handleResponseForExport = async (e, { type, content, pathname, markdown })
     let data = content
     try {
       if (!content && type === 'pdf') {
-        data = await promisify(win.webContents.printToPDF.bind(win.webContents))({ printBackground: false })
+        data = await promisify(win.webContents.printToPDF.bind(win.webContents))({ printBackground: true })
+        // remove print service content and restore GUI
+        win.webContents.send('AGANI::export-clearup')
       }
       if (data) {
         await writeFile(filePath, data, extension)

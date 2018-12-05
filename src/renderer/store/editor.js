@@ -481,6 +481,12 @@ const actions = {
     ipcRenderer.send('AGANI::response-export', { type, content, filename, pathname, markdown })
   },
 
+  LINTEN_FOR_EXPORT_CLEARUP ({ commit }) {
+    ipcRenderer.on('AGANI::export-clearup', e => {
+      bus.$emit('export-clearup')
+    })
+  },
+
   LINTEN_FOR_EXPORT_SUCCESS ({ commit }) {
     ipcRenderer.on('AGANI::export-success', (e, { type, filePath }) => {
       notice.notify({

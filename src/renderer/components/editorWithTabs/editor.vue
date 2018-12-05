@@ -215,6 +215,7 @@
         bus.$on('undo', this.handleUndo)
         bus.$on('redo', this.handleRedo)
         bus.$on('export', this.handleExport)
+        bus.$on('export-clearup', this.handleExportClearup)
         bus.$on('paragraph', this.handleEditParagraph)
         bus.$on('format', this.handleInlineFormat)
         bus.$on('searchValue', this.handleSearch)
@@ -388,6 +389,10 @@
             break
           }
         }
+      },
+
+      handleExportClearup () {
+        this.printer.clearup()
       },
 
       handleEditParagraph (type) {
