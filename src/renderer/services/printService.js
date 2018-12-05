@@ -9,12 +9,6 @@ class MarkdownPrint {
     printContainer.innerHTML = html
   }
 
-  print (html) {
-    this.renderMarkdown(html)
-    window.print()
-    this.clearup()
-  }
-
   clearup () {
     if (this.container) {
       this.container.remove()

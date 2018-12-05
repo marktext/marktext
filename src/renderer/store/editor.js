@@ -481,6 +481,10 @@ const actions = {
     ipcRenderer.send('AGANI::response-export', { type, content, filename, pathname, markdown })
   },
 
+  PRINT_RESPONSE ({ commit }) {
+    ipcRenderer.send('AGANI::response-print')
+  },
+
   LINTEN_FOR_EXPORT_CLEARUP ({ commit }) {
     ipcRenderer.on('AGANI::export-clearup', e => {
       bus.$emit('export-clearup')

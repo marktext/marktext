@@ -368,9 +368,10 @@
       },
 
       handlePrint () {
-        const html = this.editor.exportHtml()
-        const printer = new Printer(html)
-        printer.print()
+        // generate styled HTML with empty title tag
+        const html = this.editor.exportStyledHTML('')
+        this.printer.renderMarkdown(html)
+        this.$store.dispatch('PRINT_RESPONSE')
       },
 
       handleExport (type) {
