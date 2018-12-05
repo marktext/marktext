@@ -81,9 +81,9 @@ class Muya {
     return this.contentState.history.clearHistory()
   }
 
-  exportStyledHTML (filename) {
+  exportStyledHTML (title = '', printOptimization = false) {
     const { markdown } = this
-    return new ExportHtml(markdown).generate(filename)
+    return new ExportHtml(markdown).generate(title, printOptimization)
   }
 
   exportHtml () {

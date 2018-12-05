@@ -215,7 +215,7 @@
         bus.$on('undo', this.handleUndo)
         bus.$on('redo', this.handleRedo)
         bus.$on('export', this.handleExport)
-        bus.$on('export-clearup', this.handleExportClearup)
+        bus.$on('print-service-clearup', this.handlePrintServiceClearup)
         bus.$on('paragraph', this.handleEditParagraph)
         bus.$on('format', this.handleInlineFormat)
         bus.$on('searchValue', this.handleSearch)
@@ -368,8 +368,8 @@
       },
 
       handlePrint () {
-        // generate styled HTML with empty title tag
-        const html = this.editor.exportStyledHTML('')
+        // generate styled HTML with empty title and optimized for printing
+        const html = this.editor.exportStyledHTML('', true)
         this.printer.renderMarkdown(html)
         this.$store.dispatch('PRINT_RESPONSE')
       },
@@ -384,7 +384,8 @@
           }
 
           case 'pdf': {
-            const html = this.editor.exportStyledHTML()
+            // generate styled HTML with empty title and optimized for printing
+            const html = this.editor.exportStyledHTML('', true)
             this.printer.renderMarkdown(html)
             this.$store.dispatch('EXPORT', { type, markdown })
             break
@@ -392,7 +393,7 @@
         }
       },
 
-      handleExportClearup () {
+      handlePrintServiceClearup () {
         this.printer.clearup()
       },
 

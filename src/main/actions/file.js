@@ -128,7 +128,7 @@ const pandocFile = async pathname => {
 
 const removePrintServiceFromWindow = win => {
   // remove print service content and restore GUI
-  win.webContents.send('AGANI::export-clearup')
+  win.webContents.send('AGANI::print-service-clearup')
 }
 
 ipcMain.on('AGANI::save-all', (e, unSavedFiles) => {
