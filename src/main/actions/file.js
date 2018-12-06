@@ -29,7 +29,8 @@ const handleResponseForExport = async (e, { type, content, pathname, markdown })
     let data = content
     try {
       if (!content && type === 'pdf') {
-        data = await promisify(win.webContents.printToPDF.bind(win.webContents))({ printBackground: false })
+        data = await promisify(win.webContents.printToPDF.bind(win.webContents))({ printBackground: true })
+        removePrintServiceFromWindow(win)
       }
       if (data) {
         await writeFile(filePath, data, extension)
@@ -44,7 +45,19 @@ const handleResponseForExport = async (e, { type, content, pathname, markdown })
         message: ERROR_MSG
       })
     }
+  } else {
+    // User canceled save dialog
+    if (type === 'pdf') {
+      removePrintServiceFromWindow(win)
+    }
   }
+}
+
+const handleResponseForPrint = e => {
+  const win = BrowserWindow.fromWebContents(e.sender)
+  win.webContents.print({ printBackground: true }, () => {
+    removePrintServiceFromWindow(win)
+  })
 }
 
 const handleResponseForSave = (e, { id, markdown, pathname, options }) => {
@@ -113,6 +126,11 @@ const pandocFile = async pathname => {
   }
 }
 
+const removePrintServiceFromWindow = win => {
+  // remove print service content and restore GUI
+  win.webContents.send('AGANI::print-service-clearup')
+}
+
 ipcMain.on('AGANI::save-all', (e, unSavedFiles) => {
   Promise.all(unSavedFiles.map(file => handleResponseForSave(e, file)))
     .catch(log)
@@ -177,6 +195,8 @@ ipcMain.on('AGANI::response-close-confirm', async (e, unSavedFiles) => {
 ipcMain.on('AGANI::response-file-save', handleResponseForSave)
 
 ipcMain.on('AGANI::response-export', handleResponseForExport)
+
+ipcMain.on('AGANI::response-print', handleResponseForPrint)
 
 ipcMain.on('AGANI::close-window', e => {
   const win = BrowserWindow.fromWebContents(e.sender)

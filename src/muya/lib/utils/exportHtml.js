@@ -38,20 +38,27 @@ class ExportHtml {
       }
     })
   }
-  // get html with style
-  generate (filename = '') {
+  /**
+   * Get HTML with style
+   *
+   * @param {*} title Page title
+   * @param {*} printOptimization Optimize HTML and CSS for printing
+   */
+  generate (title = '', printOptimization = false) {
+    // WORKAROUND: Hide Prism.js style when exporting or printing. Otherwise the background color is white in the dark theme.
+    const highlightCssStyle = printOptimization ? `@media print { ${highlightCss} }` : highlightCss
     const html = this.renderHtml()
     return `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>${filename}</title>
+  <title>${title}</title>
   <style>
   ${githubMarkdownCss}
   </style>
   <style>
-  ${highlightCss}
+  ${highlightCssStyle}
   </style>
   <style>
   ${katexCss}

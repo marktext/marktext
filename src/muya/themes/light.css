@@ -29,14 +29,11 @@
 }
 
 html, body {
-  font-size: 16px;
-  background: rgb(252, 252, 252);
-}
-
-body {
   font-family: "Open Sans", "Clear Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 16px;
   color: #303133;
   line-height: 1.6;
+  background: rgb(252, 252, 252);
 }
 
 ::-webkit-scrollbar {

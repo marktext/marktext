@@ -139,6 +139,7 @@
       dispatch('LINTEN_FOR_SET_LINE_ENDING')
       dispatch('LISTEN_FOR_NEW_TAB')
       dispatch('LISTEN_FOR_CLOSE_TAB')
+      dispatch('LINTEN_FOR_PRINT_SERVICE_CLEARUP')
       dispatch('LINTEN_FOR_EXPORT_SUCCESS')
       dispatch('LISTEN_FOR_SET_TEXT_DIRECTION')
       dispatch('LISTEN_FOR_TEXT_DIRECTION_MENU')

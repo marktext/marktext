@@ -494,6 +494,16 @@ const actions = {
     })
   },
 
+  PRINT_RESPONSE ({ commit }) {
+    ipcRenderer.send('AGANI::response-print')
+  },
+
+  LINTEN_FOR_PRINT_SERVICE_CLEARUP ({ commit }) {
+    ipcRenderer.on('AGANI::print-service-clearup', e => {
+      bus.$emit('print-service-clearup')
+    })
+  },
+
   LISTEN_FOR_INSERT_IMAGE ({ commit, state }) {
     ipcRenderer.on('AGANI::INSERT_IMAGE', (e, { filename: imagePath, type }) => {
       if (!hasKeys(state.currentFile)) return

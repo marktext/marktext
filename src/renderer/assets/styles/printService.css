@@ -3,8 +3,8 @@ body article.print-container {
 }
 @media print {
   /* General rules for printing. */
-  body {
-    background: transparent none;
+  html, body {
+    background: transparent !important;
   }
 
   body > div {
