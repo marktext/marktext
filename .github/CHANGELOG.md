@@ -1,3 +1,20 @@
+### [unreleased]
+
+**:cactus:Feature**
+
+- Added an error handler
+
+**:butterfly:Optimization**
+
+**:beetle:Bug fix**
+
+- Fix dark preview box background color (#587)
+- Use white PDF background color (#583)
+- Fix document printing
+- Restore default Mark Text style after exporting/printing
+- Prevent enter key as language identifier (#569)
+- Allow pasting text into the code block language text-box (#553)
+
 ### 0.13.65
 
 **:butterfly:Optimization**
