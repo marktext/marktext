@@ -152,6 +152,14 @@ const enterCtrl = ContentState => {
     let parent = this.getParent(block)
 
     event.preventDefault()
+
+    // Don't allow new lines in language identifiers (GH#569)
+    if (block.functionType && block.functionType === 'languageInput') {
+      // Jump inside the code block and update code language if necessary
+      this.updateCodeLanguage(block, block.text.trim())
+      return
+    }
+
     // handle select multiple blocks
     if (start.key !== end.key) {
       const key = start.key

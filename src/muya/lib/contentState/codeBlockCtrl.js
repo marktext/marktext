@@ -29,17 +29,33 @@ const codeBlockCtrl = ContentState => {
     return { lang, paragraph }
   }
 
-  ContentState.prototype.selectLanguage = function (paragraph, name) {
+  ContentState.prototype.selectLanguage = function (paragraph, lang) {
     const block = this.getBlock(paragraph.id)
-    loadLanguage(name)
+    this.updateCodeLanguage(block, lang)
+  }
+
+  /**
+   * Update the code block language or creates a new code block.
+   *
+   * @param block Language-input block or paragraph
+   * @param lang Language identifier
+   */
+  ContentState.prototype.updateCodeLanguage = function (block, lang) {
+    loadLanguage(lang)
     if (block.functionType === 'languageInput') {
-      block.text = name
       const preBlock = this.getParent(block)
       const nextSibling = this.getNextSibling(block)
-      preBlock.lang = name
-      preBlock.functionType = 'fencecode'
-      nextSibling.lang = name
-      nextSibling.children.forEach(c => (c.lang = name))
+
+      // Only update code language if necessary
+      if (block.text !== lang || preBlock.text !== lang || nextSibling.text !== lang) {
+        block.text = lang
+        preBlock.lang = lang
+        preBlock.functionType = 'fencecode'
+        nextSibling.lang = lang
+        nextSibling.children.forEach(c => (c.lang = lang))
+      }
+
+      // Set cursor at the first line
       const { key } = nextSibling.children[0]
       const offset = 0
       this.cursor = {
@@ -47,7 +63,7 @@ const codeBlockCtrl = ContentState => {
         end: { key, offset }
       }
     } else {
-      block.text = block.text.replace(/^(`+)([^`]+$)/g, `$1${name}`)
+      block.text = block.text.replace(/^(`+)([^`]+$)/g, `$1${lang}`)
       this.codeBlockUpdate(block)
     }
     this.partialRender()
