@@ -12,7 +12,8 @@ const clickCtrl = ContentState => {
       start.key === end.key &&
       start.offset !== end.offset &&
       HAS_TEXT_BLOCK_REG.test(block.type) &&
-      block.functionType !== 'codeLine'
+      block.functionType !== 'codeLine' &&
+      block.functionType !== 'languageInput'
     ) {
       const reference = this.getPositionReference()
       const { formats } = this.selectionFormats()

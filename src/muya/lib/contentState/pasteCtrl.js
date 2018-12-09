@@ -91,6 +91,39 @@ const pasteCtrl = ContentState => {
       }
     }
 
+    // Extract the first line from the language identifier (GH#553)
+    if (startBlock.type === 'span' && startBlock.functionType === 'languageInput') {
+      let language = text.trim().match(/^.*$/m)[0] || ''
+      const oldLanguageLength = startBlock.text.length
+      let offset = 0
+      if (start.offset !== 0 || end.offset !== oldLanguageLength) {
+        const prePartText = startBlock.text.substring(0, start.offset)
+        const postPartText = startBlock.text.substring(end.offset)
+
+        // Expect that the language doesn't contain new lines
+        language = prePartText + language + postPartText
+        offset = prePartText.length + language.length
+      } else {
+        offset = language.length
+      }
+
+      startBlock.text = language
+
+      const key = startBlock.key
+      this.cursor = {
+        start: { key, offset },
+        end: { key, offset }
+      }
+
+      // Hide code picker float box
+      const { eventCenter } = this.muya
+      eventCenter.dispatch('muya-code-picker', { reference: null })
+
+      // Update code block language and render
+      this.updateCodeLanguage(startBlock, language)
+      return
+    }
+
     if (startBlock.type === 'span' && startBlock.functionType === 'codeLine') {
       let referenceBlock = startBlock
       const blockText = startBlock.text
