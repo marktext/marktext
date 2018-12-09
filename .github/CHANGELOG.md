@@ -6,6 +6,8 @@
 
 **:butterfly:Optimization**
 
+- Respect existing image title if no source is specified (#562)
+
 **:beetle:Bug fix**
 
 - Fix dark preview box background color (#587)

@@ -176,6 +176,7 @@ const formatCtrl = ContentState => {
 
   ContentState.prototype.insertImage = function (url) {
     const title = /\/?([^./]+)\.[a-z]+$/.exec(url)[1] || ''
+    const encodeUrl = encodeURI(url)
     const { start, end } = this.cursor
     const { formats } = this.selectionFormats({ start, end })
     const { key, offset: startOffset } = start
@@ -185,29 +186,38 @@ const formatCtrl = ContentState => {
     const imageFormat = formats.filter(f => f.type === 'image')
 
     if (imageFormat.length === 1) {
-      // replace pre image
+      // Replace already existing image
+      let imageTitle = title
+
+      // Extract title from image if there isn't an image source already (GH#562). E.g: ![old-title]()
+      if (imageFormat[0].alt && !imageFormat[0].src) {
+        imageTitle = imageFormat[0].alt
+      }
+
       const { start, end } = imageFormat[0].range
       block.text = text.substring(0, start) +
-        `![${title}](${url})` +
+        `![${imageTitle}](${encodeUrl})` +
         text.substring(end)
 
       this.cursor = {
         start: { key, offset: start + 2 },
-        end: { key, offset: start + 2 + title.length }
+        end: { key, offset: start + 2 + imageTitle.length }
       }
     } else if (key !== end.key) {
+      // Replace multi-line text
       const endBlock = this.getBlock(end.key)
       const { text } = endBlock
-      endBlock.text = text.substring(0, endOffset) + `![${title}](${url})` + text.substring(endOffset)
+      endBlock.text = text.substring(0, endOffset) + `![${title}](${encodeUrl})` + text.substring(endOffset)
       const offset = endOffset + 2
       this.cursor = {
         start: { key: end.key, offset },
         end: { key: end.key, offset: offset + title.length }
       }
     } else {
+      // Replace single-line text
       const imageTitle = startOffset !== endOffset ? text.substring(startOffset, endOffset) : title
       block.text = text.substring(0, start.offset) +
-        `![${imageTitle}](${url})` +
+        `![${imageTitle}](${encodeUrl})` +
         text.substring(end.offset)
 
       this.cursor = {
