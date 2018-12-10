@@ -3,19 +3,19 @@ import { Application } from 'spectron'
 
 export default {
   afterEach () {
-    this.timeout(10000)
+    this.timeout(30000)
 
     if (this.app && this.app.isRunning()) {
       return this.app.stop()
     }
   },
   beforeEach () {
-    this.timeout(10000)
+    this.timeout(30000)
     this.app = new Application({
       path: electron,
       args: ['dist/electron/main.js'],
-      startTimeout: 20000,
-      waitTimeout: 20000
+      startTimeout: 30000,
+      waitTimeout: 30000
     })
 
     return this.app.start()
