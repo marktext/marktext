@@ -23,7 +23,6 @@ init:
 
 install:
   - ps: Install-Product node 8 $env:PLATFORM
-  - choco install yarn --ignore-dependencies
 
   - node --version
   - npm --version
