@@ -172,10 +172,15 @@ const rendererConfig = {
  */
 if (process.env.NODE_ENV !== 'production') {
   rendererConfig.plugins.push(
-    new BundleAnalyzerPlugin(),
     new webpack.DefinePlugin({
       '__static': `"${path.join(__dirname, '../static').replace(/\\/g, '\\\\')}"`
     })
+  )
+}
+
+if (process.env.NODE_ENV !== 'production' && process.env.NODE_ENV !== 'test') {
+  rendererConfig.plugins.push(
+    new BundleAnalyzerPlugin()
   )
 }
 

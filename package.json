@@ -23,7 +23,7 @@
     "pack:main": "cross-env NODE_ENV=production webpack --progress --colors --config .electron-vue/webpack.main.config.js",
     "pack:renderer": "cross-env NODE_ENV=production webpack --progress --colors --config .electron-vue/webpack.renderer.config.js",
     "test": "npm run unit && npm run e2e",
-    "unit": "karma start test/unit/karma.conf.js",
+    "unit": "cross-env NODE_ENV=test karma start test/unit/karma.conf.js",
     "postinstall": "npm run rebuild && npm run lint:fix",
     "build:muya": "cd src/muya && webpack --progress --colors --config webpack.config.js",
     "release:muya": "npm run build:muya && cd src/muya && npm publish",
