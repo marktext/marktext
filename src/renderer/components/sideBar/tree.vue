@@ -40,9 +40,10 @@
       </div>
       <div class="opened-files-list">
         <transition-group name="list">
+          <!-- tab.id := mt-1, mt-2, ... -->
           <opened-file
-            v-for="(tab, index) of tabs"
-            :key="index"
+            v-for="tab of tabs"
+            :key="tab.id"
             :file="tab"
           ></opened-file>
         </transition-group>
