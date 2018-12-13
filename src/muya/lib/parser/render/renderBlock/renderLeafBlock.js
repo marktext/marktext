@@ -188,6 +188,7 @@ export default function renderLeafBlock (block, cursor, activeBlocks, matches, u
     if (/^h\d$/.test(type)) {
       Object.assign(data.dataset, {
         head: type,
+        // TODO(#590): Slugify heading
         id: '' // isInElectron ? require('markdown-toc').slugify(text.replace(/^#+\s(.*)/, (_, p1) => p1)) : ''
       })
       selector += `.${headingStyle}`

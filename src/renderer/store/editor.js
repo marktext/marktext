@@ -15,6 +15,7 @@ const state = {
 
 const getters = {
   toc: state => {
+    // TODO(#590): Create necessary data while parsing the document.
     // const { currentFile } = state
     // console.log(toc(currentFile.markdown).json) // #DEBUG
     // content: "GitHub Flavored Markdown"
