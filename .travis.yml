@@ -51,8 +51,8 @@ install:
 script:
   - yarn run lint
 
-  # Run (GUI) tests only on Linux because we run in an non-interactive terminal and need a screen.
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then xvfb-run --server-args="-screen 0 1024x768x24" yarn run test ; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then yarn run test ; fi
 
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then yarn run release:linux ; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then yarn run release:mac ; fi
