@@ -5,7 +5,7 @@ import { hasKeys } from '../util'
 import { getOptionsFromState, getSingleFileState, getBlankFileState } from './help'
 import notice from '../services/notification'
 
-const toc = require('markdown-toc')
+// const toc = require('markdown-toc')
 const state = {
   lineEnding: 'lf',
   currentFile: {},
@@ -15,8 +15,14 @@ const state = {
 
 const getters = {
   toc: state => {
-    const { currentFile } = state
-    return toc(currentFile.markdown).json
+    // const { currentFile } = state
+    // console.log(toc(currentFile.markdown).json) // #DEBUG
+    // content: "GitHub Flavored Markdown"
+    // i: 0
+    // lvl: 1
+    // seen: 0
+    // slug: "github-flavored-markdown"
+    return [] // toc(currentFile.markdown).json
   }
 }
 

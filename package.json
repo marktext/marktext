@@ -147,7 +147,6 @@
     "html-tags": "^2.0.0",
     "katex": "^0.10.0",
     "keyboard-layout": "^2.0.14",
-    "markdown-toc": "^1.2.0",
     "mermaid": "^8.0.0-rc.8",
     "popper.js": "^1.14.6",
     "prismjs2": "^1.15.0",
