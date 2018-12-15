@@ -1,7 +1,8 @@
 import katex from 'katex'
 import mermaid from 'mermaid'
 import prism, { loadedCache } from '../../../prism/'
-import { CLASS_OR_ID, DEVICE_MEMORY, PREVIEW_DOMPURIFY_CONFIG, HAS_TEXT_BLOCK_REG } from '../../../config'
+import { slugify } from '../../../utils/dirtyToc'
+import { CLASS_OR_ID, DEVICE_MEMORY, isInElectron, PREVIEW_DOMPURIFY_CONFIG, HAS_TEXT_BLOCK_REG } from '../../../config'
 import { tokenizer } from '../../parse'
 import { snakeToCamel, sanitize, escapeHtml, getLongUniqueId } from '../../../utils'
 import { h, htmlToVNode } from '../snabbdom'
@@ -186,10 +187,11 @@ export default function renderLeafBlock (block, cursor, activeBlocks, matches, u
     ]
   } else if (/^h/.test(type)) {
     if (/^h\d$/.test(type)) {
+      // TODO: This should be the best place to create and update the TOC.
+      //       Cache `block.key` and title and update only if necessary.
       Object.assign(data.dataset, {
         head: type,
-        // TODO(#590): Slugify heading
-        id: '' // isInElectron ? require('markdown-toc').slugify(text.replace(/^#+\s(.*)/, (_, p1) => p1)) : ''
+        id: isInElectron ? slugify(text.replace(/^#+\s(.*)/, (_, p1) => p1)) : ''
       })
       selector += `.${headingStyle}`
     }

@@ -5,7 +5,9 @@ import { hasKeys } from '../util'
 import { getOptionsFromState, getSingleFileState, getBlankFileState } from './help'
 import notice from '../services/notification'
 
-// const toc = require('markdown-toc')
+// HACK: When rewriting muya, create and update muya's TOC during heading parsing and pass it to the renderer process.
+import { getTocFromMarkdown } from 'muya/lib/utils/dirtyToc'
+
 const state = {
   lineEnding: 'lf',
   currentFile: {},
@@ -16,14 +18,8 @@ const state = {
 const getters = {
   toc: state => {
     // TODO(#590): Create necessary data while parsing the document.
-    // const { currentFile } = state
-    // console.log(toc(currentFile.markdown).json) // #DEBUG
-    // content: "GitHub Flavored Markdown"
-    // i: 0
-    // lvl: 1
-    // seen: 0
-    // slug: "github-flavored-markdown"
-    return [] // toc(currentFile.markdown).json
+    const { markdown } = state.currentFile
+    return getTocFromMarkdown(markdown)
   }
 }
 
