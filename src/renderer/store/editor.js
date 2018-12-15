@@ -17,7 +17,6 @@ const state = {
 
 const getters = {
   toc: state => {
-    // TODO(#590): Create necessary data while parsing the document.
     const { markdown } = state.currentFile
     return getTocFromMarkdown(markdown)
   }
@@ -261,15 +260,13 @@ const actions = {
 
   LISTEN_FOR_SAVE_CLOSE ({ commit, state }) {
     ipcRenderer.on('AGANI::save-all-response', (e, { err, data }) => {
-      if (err) {
-      } else if (Array.isArray(data)) {
+      if (!err && Array.isArray(data)) {
         const toBeClosedTabs = [...state.tabs.filter(f => f.isSaved), ...data]
         commit('CLOSE_TABS', toBeClosedTabs)
       }
     })
     ipcRenderer.on('AGANI::save-single-response', (e, { err, data }) => {
-      if (err) {
-      } else if (Array.isArray(data) && data.length) {
+      if (!err && Array.isArray(data) && data.length) {
         commit('CLOSE_TABS', data)
       }
     })
