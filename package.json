@@ -155,6 +155,7 @@
     "snabbdom": "^0.7.2",
     "snabbdom-to-html": "^5.1.1",
     "snapsvg": "^0.5.1",
+    "source-map-support": "^0.5.9",
     "turndown": "^5.0.1",
     "turndown-plugin-gfm": "^1.0.2",
     "underscore": "^1.9.1",
