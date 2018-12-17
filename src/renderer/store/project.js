@@ -119,7 +119,7 @@ const actions = {
   LISTEN_FOR_UPDATE_PROJECT ({ commit, state, dispatch }) {
     ipcRenderer.on('AGANI::update-object-tree', (e, { type, change }) => {
       switch (type) {
-        case 'add':
+        case 'add': {
           const { pathname, data, isMarkdown } = change
           commit('ADD_FILE', change)
           if (isMarkdown && state.newFileNameCache && pathname === state.newFileNameCache) {
@@ -128,6 +128,7 @@ const actions = {
             commit('SET_NEWFILENAME', '')
           }
           break
+        }
         case 'unlink':
           commit('UNLINK_FILE', change)
           commit('SET_SAVE_STATUS_WHEN_REMOVE', change)

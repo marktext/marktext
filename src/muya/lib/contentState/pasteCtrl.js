@@ -241,7 +241,7 @@ const pasteCtrl = ContentState => {
     lastBlock.text += cacheText
 
     switch (pasteType) {
-      case 'MERGE':
+      case 'MERGE': {
         if (LIST_REG.test(firstFragment.type)) {
           const listItems = firstFragment.children
           const firstListItem = listItems[0]
@@ -295,8 +295,8 @@ const pasteCtrl = ContentState => {
           })
         }
         break
-
-      case 'NEWLINE':
+      }
+      case 'NEWLINE': {
         let target = startBlock.type === 'span' ? parent : startBlock
         stateFragments.forEach(block => {
           this.insertAfter(block, target)
@@ -307,8 +307,10 @@ const pasteCtrl = ContentState => {
           if (this.isOnlyChild(startBlock) && startBlock.type === 'span') this.removeBlock(parent)
         }
         break
-      default:
+      }
+      default: {
         throw new Error('unknown paste type')
+      }
     }
     // step 3: set cursor and render
     let cursorBlock = this.getBlock(key)

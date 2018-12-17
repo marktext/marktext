@@ -49,22 +49,25 @@ const clearFormat = (token, { start, end }) => {
     case 'strong':
     case 'del':
     case 'em':
-    case 'link':
+    case 'link': {
       const { parent } = token
       const index = parent.indexOf(token)
       parent.splice(index, 1, ...token.children)
       break
-    case 'image':
+    }
+    case 'image': {
       token.type = 'text'
       token.raw = token.alt
       delete token.marker
       delete token.src
       break
-    case 'inline_code':
+    }
+    case 'inline_code': {
       token.type = 'text'
       token.raw = token.content
       delete token.marker
       break
+    }
   }
 }
 

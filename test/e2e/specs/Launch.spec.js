@@ -7,7 +7,8 @@ describe('Launch', function () {
   it('shows the proper application title', function () {
     return this.app.client.getTitle()
       .then(title => {
-        expect(title).to.equal('aganippe')
+        const expectedTitle = process.platform === 'darwin' ? 'Mark Text' : 'Untitled-1'
+        expect(title).to.equal(expectedTitle)
       })
   })
 })

@@ -5,7 +5,9 @@ import { hasKeys } from '../util'
 import { getOptionsFromState, getSingleFileState, getBlankFileState } from './help'
 import notice from '../services/notification'
 
-const toc = require('markdown-toc')
+// HACK: When rewriting muya, create and update muya's TOC during heading parsing and pass it to the renderer process.
+import { getTocFromMarkdown } from 'muya/lib/utils/dirtyToc'
+
 const state = {
   lineEnding: 'lf',
   currentFile: {},
@@ -15,8 +17,8 @@ const state = {
 
 const getters = {
   toc: state => {
-    const { currentFile } = state
-    return toc(currentFile.markdown).json
+    const { markdown } = state.currentFile
+    return getTocFromMarkdown(markdown)
   }
 }
 
@@ -258,15 +260,13 @@ const actions = {
 
   LISTEN_FOR_SAVE_CLOSE ({ commit, state }) {
     ipcRenderer.on('AGANI::save-all-response', (e, { err, data }) => {
-      if (err) {
-      } else if (Array.isArray(data)) {
+      if (!err && Array.isArray(data)) {
         const toBeClosedTabs = [...state.tabs.filter(f => f.isSaved), ...data]
         commit('CLOSE_TABS', toBeClosedTabs)
       }
     })
     ipcRenderer.on('AGANI::save-single-response', (e, { err, data }) => {
-      if (err) {
-      } else if (Array.isArray(data) && data.length) {
+      if (!err && Array.isArray(data) && data.length) {
         commit('CLOSE_TABS', data)
       }
     })

@@ -55,7 +55,7 @@ const htmlBlock = ContentState => {
     const htmlBlock = this.getParent(codeBlockContainer)
 
     switch (type) {
-      case 'delete':
+      case 'delete': {
         htmlBlock.type = 'p'
         htmlBlock.text = ''
         htmlBlock.children = []
@@ -69,6 +69,7 @@ const htmlBlock = ContentState => {
         }
         this.partialRender()
         break
+      }
     }
   }
 

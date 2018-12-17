@@ -307,7 +307,8 @@ const enterCtrl = ContentState => {
     let newBlock
 
     switch (true) {
-      case left !== 0 && right !== 0: // cursor in the middle
+      case left !== 0 && right !== 0: {
+        // cursor in the middle
         let { pre, post } = selection.chopHtmlByCursor(paragraph)
 
         if (/^h\d$/.test(block.type)) {
@@ -335,10 +336,14 @@ const enterCtrl = ContentState => {
         }
         this.insertAfter(newBlock, block)
         break
-      case left === 0 && right === 0: // paragraph is empty
-        return this.enterInEmptyParagraph(block)
-      case left !== 0 && right === 0: // cursor at end of paragraph
-      case left === 0 && right !== 0: // cursor at begin of paragraph
+      }
+      case left === 0 && right === 0: {
+         // paragraph is empty
+         return this.enterInEmptyParagraph(block)
+      }
+      case left !== 0 && right === 0: 
+      case left === 0 && right !== 0: {
+        // cursor at end of paragraph or at begin of paragraph
         if (type === 'li') {
           if (block.listItemType === 'task') {
             const { checked } = block.children[0]
@@ -368,10 +373,12 @@ const enterCtrl = ContentState => {
           this.insertAfter(newBlock, block)
         }
         break
-      default:
+      }
+      default: {
         newBlock = this.createBlockP()
         this.insertAfter(newBlock, block)
         break
+      }
     }
 
     const getParagraphBlock = block => {

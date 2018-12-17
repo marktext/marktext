@@ -26,52 +26,56 @@ class ExportMarkdown {
 
     for (const block of blocks) {
       switch (block.type) {
-        case 'p':
+        case 'p': {
           this.insertLineBreak(result, indent, true)
           result.push(this.translateBlocks2Markdown(block.children, indent))
           break
-
-        case 'span':
+        }
+        case 'span': {
           result.push(this.normalizeParagraphText(block, indent))
           break
-
-        case 'hr':
+        }
+        case 'hr': {
           this.insertLineBreak(result, indent, true)
           result.push(this.normalizeParagraphText(block, indent))
           break
-
+        }
         case 'h1':
         case 'h2':
         case 'h3':
         case 'h4':
         case 'h5':
-        case 'h6':
+        case 'h6': {
           this.insertLineBreak(result, indent, true)
           result.push(this.normalizeHeaderText(block, indent))
           break
-
-        case 'figure':
+        }
+        case 'figure': {
           this.insertLineBreak(result, indent, true)
           switch (block.functionType) {
-            case 'table':
+            case 'table': {
               const table = block.children[1]
               result.push(this.normalizeTable(table, indent))
               break
-            case 'html':
+            }
+            case 'html': {
               result.push(this.normalizeHTML(block, indent))
               break
-            case 'multiplemath':
+            }
+            case 'multiplemath': {
               result.push(this.normalizeMultipleMath(block, indent))
               break
+            }
             case 'mermaid':
             case 'flowchart':
             case 'sequence':
-            case 'vega-lite':
+            case 'vega-lite': {
               result.push(this.normalizeContainer(block, indent))
               break
+            }
           }
           break
-
+        }
         case 'li': {
           const insertNewLine = block.isLooseListItem
 
@@ -83,7 +87,6 @@ class ExportMarkdown {
           this.isLooseParentList = true
           break
         }
-
         case 'ul': {
           const insertNewLine = this.isLooseParentList
           this.isLooseParentList = true
@@ -94,7 +97,6 @@ class ExportMarkdown {
           this.listType.pop()
           break
         }
-
         case 'ol': {
           const insertNewLine = this.isLooseParentList
           this.isLooseParentList = true
@@ -106,8 +108,7 @@ class ExportMarkdown {
           this.listType.pop()
           break
         }
-
-        case 'pre':
+        case 'pre': {
           this.insertLineBreak(result, indent, true)
           if (block.functionType === 'frontmatter') {
             result.push(this.normalizeFrontMatter(block, indent))
@@ -115,14 +116,16 @@ class ExportMarkdown {
             result.push(this.normalizeCodeBlock(block, indent))
           }
           break
-
-        case 'blockquote':
+        }
+        case 'blockquote': {
           this.insertLineBreak(result, indent, true)
           result.push(this.normalizeBlockquote(block, indent))
           break
-        default:
+        }
+        default: {
           console.log(block.type)
           break
+        }
       }
     }
     return result.join('')

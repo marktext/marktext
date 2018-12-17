@@ -157,13 +157,14 @@
       handleInput (event) {
         let historyIndex = this.historyIndex
         switch (event.key) {
-          case 'Enter':
+          case 'Enter': {
             const query = this.historyIndex !== -1 ? this.history[this.historyIndex] : this.query
             if (!this.aiLoading) {
               this.search(query)
             }
             break
-          case 'ArrowUp':
+          }
+          case 'ArrowUp': {
             historyIndex = historyIndex - 1
             if (historyIndex === -1 || historyIndex === -2) {
               this.historyIndex = this.history.length - 1
@@ -171,7 +172,8 @@
               this.historyIndex = historyIndex
             }
             break
-          case 'ArrowDown':
+          }
+          case 'ArrowDown': {
             historyIndex = historyIndex + 1
             if (historyIndex >= this.history.length) {
               this.historyIndex = 0
@@ -179,6 +181,7 @@
               this.historyIndex = historyIndex
             }
             break
+          }
         }
       },
       handleShowAiDou () {

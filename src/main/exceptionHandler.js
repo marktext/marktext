@@ -66,10 +66,11 @@ const handleError = (title, error) => {
     })
 
     switch (result) {
-      case 1:
+      case 1: {
         clipboard.writeText(`${title}\n${stack}`)
         break
-      case 2:
+      }
+      case 2: {
         const issueTitle = message ? `Unexpected error: ${message}` : title
         const gitInfo = global.MARKTEXT_IS_OFFICIAL_RELEASE ? `(${global.MARKTEXT_GIT_INFO} - git)` : global.MARKTEXT_GIT_INFO
         createAndOpenGitHubIssueUrl(
@@ -89,6 +90,7 @@ ${title}.
 Mark Text: ${app.getVersion()} (${gitInfo})
 Operating system: ${process.platform}`)
         break
+      }
     }
   } else {
     // error during Electron initialization
