@@ -28,7 +28,7 @@ install:
   - npm --version
   - yarn --version
 
-  - yarn
+  - yarn install --frozen-lockfile
 
 cache:
   - node_modules
