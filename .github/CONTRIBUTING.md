@@ -73,18 +73,18 @@ If there are conflicts or you want to update your local branch, please do the fo
 Before you can get started developing, you need set up your build envoriment:
 
 - git
-- Node.js and npm
+- Node.js, npm and yarn
 - C++ compiler and development tools
 
 **Additional development dependencies on Linux:**
 
 On Debian-based Linux: `sudo apt-get install libx11-dev libxkbfile-dev`
-On Red Hat-based Linux: `sudo yum install libx11-devel libxkbfile-devel`
+On Red Hat-based Linux: `sudo dnf install libx11-devel libxkbfile-devel`
 
 **Let's build:**
 
 1. Go to `marktext` folder
-2. Install dependencies: `npm install`
+2. Install dependencies: `yarn install` or `yarn install --frozen-lockfile`
 3. Build Mark Text: `npm run build`
 4. Mark Text binary is located under `build` folder
 

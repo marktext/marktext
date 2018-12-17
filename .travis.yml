@@ -46,7 +46,7 @@ install:
   - npm --version
   - yarn --version
 
-  - yarn
+  - yarn install --frozen-lockfile
 
 script:
   - yarn run lint
