@@ -89,37 +89,6 @@ export const getFirstSelectableLeafNode = element => {
   return element
 }
 
-export const isElementAtBeginningOfBlock = node => {
-  let textVal
-  let sibling
-  while (!isBlockContainer(node) && !isAganippeEditorElement(node)) {
-    sibling = node.previousSibling
-    while (sibling) {
-      textVal = sibling.nodeType === 3 ? sibling.nodeValue : sibling.textContent
-      if (textVal.length > 0) {
-        return false
-      }
-      sibling = sibling.previousSibling
-    }
-    node = node.parentNode
-  }
-  return true
-}
-
-export const findPreviousSibling = node => {
-  if (!node || isAganippeEditorElement(node)) {
-    return false
-  }
-
-  let previousSibling = node.previousSibling
-  while (!previousSibling && !isAganippeEditorElement(node.parentNode)) {
-    node = node.parentNode
-    previousSibling = node.previousSibling
-  }
-
-  return previousSibling
-}
-
 export const getClosestBlockContainer = node => {
   return traverseUp(node, node => {
     return isBlockContainer(node) || isAganippeEditorElement(node)
