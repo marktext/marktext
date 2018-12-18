@@ -257,10 +257,9 @@ const tabCtrl = ContentState => {
     }
     if (nextCell) {
       const key = nextCell.key
-      const textLength = nextCell.text.length
       this.cursor = {
         start: { key, offset: 0 },
-        end: { key, offset: textLength }
+        end: { key, offset: 0 }
       }
 
       return this.partialRender()

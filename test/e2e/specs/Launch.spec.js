@@ -7,8 +7,15 @@ describe('Launch', function () {
   it('shows the proper application title', function () {
     return this.app.client.getTitle()
       .then(title => {
-        const expectedTitle = process.platform === 'darwin' ? 'Mark Text' : 'Untitled-1'
-        expect(title).to.equal(expectedTitle)
+        if (process.platform === 'darwin') {
+          const result = /^Mark Text|Untitled-1$/.test(title)
+          if (!result) {
+            console.error(`AssertionError: expected '${title}' to equal 'Mark Text' or 'Untitled-1'`)
+            expect(false).to.equal(true)
+          }
+        } else {
+          expect(title).to.equal('Untitled-1')
+        }
       })
   })
 })
