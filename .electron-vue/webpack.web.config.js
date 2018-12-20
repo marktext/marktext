@@ -71,7 +71,10 @@ const webConfig = {
       {
         test: /\.vue$/,
         use: {
-          loader: 'vue-loader'
+          loader: 'vue-loader',
+          options: {
+            sourceMap: true
+          }
         }
       },
       {
@@ -146,7 +149,7 @@ const webConfig = {
  * Adjust webConfig for production settings
  */
 if (proMode) {
-  webConfig.devtool = ''
+  webConfig.devtool = '#nosources-source-map'
   webConfig.mode ='production'
 
   webConfig.plugins.push(

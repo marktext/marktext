@@ -11,6 +11,7 @@ const isOfficialRelease = !!process.env.MARKTEXT_IS_OFFICIAL_RELEASE
 
 const mainConfig = {
   mode: 'development',
+  devtool: '#cheap-module-eval-source-map',
   entry: {
     main: path.join(__dirname, '../src/main/index.js')
   },
@@ -26,7 +27,8 @@ const mainConfig = {
         use: {
           loader: 'eslint-loader',
           options: {
-            formatter: require('eslint-friendly-formatter')
+            formatter: require('eslint-friendly-formatter'),
+            failOnError: true
           }
         }
       },
@@ -74,6 +76,7 @@ if (!proMode) {
  * Adjust mainConfig for production settings
  */
 if (proMode) {
+  mainConfig.devtool = '#nosources-source-map'
   mainConfig.mode = 'production'
   mainConfig.plugins.push(
     // new BabiliWebpackPlugin()

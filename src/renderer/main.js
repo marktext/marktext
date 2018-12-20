@@ -12,6 +12,13 @@ import services from './services'
 import './assets/styles/index.css'
 import './assets/styles/printService.css'
 
+import sourceMapSupport from 'source-map-support'
+sourceMapSupport.install({
+  environment: 'node',
+  handleUncaughtExceptions: false,
+  hookRequire: false
+})
+
 window.addEventListener('error', event => {
   const { message, name, stack } = event.error
   const copy = {

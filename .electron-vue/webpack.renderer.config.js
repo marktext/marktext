@@ -40,7 +40,8 @@ const rendererConfig = {
         use: {
           loader: 'eslint-loader',
           options: {
-            formatter: require('eslint-friendly-formatter')
+            formatter: require('eslint-friendly-formatter'),
+            failOnError: true
           }
         }
       },
@@ -83,7 +84,10 @@ const rendererConfig = {
       {
         test: /\.vue$/,
         use: {
-          loader: 'vue-loader'
+          loader: 'vue-loader',
+          options: {
+            sourceMap: true
+          }
         }
       },
       {
@@ -130,8 +134,8 @@ const rendererConfig = {
     ]
   },
   node: {
-    __dirname: process.env.NODE_ENV !== 'production',
-    __filename: process.env.NODE_ENV !== 'production'
+    __dirname: !proMode,
+    __filename: !proMode
   },
   plugins: [
     new SpritePlugin(),
@@ -169,7 +173,7 @@ const rendererConfig = {
 /**
  * Adjust rendererConfig for development settings
  */
-if (process.env.NODE_ENV !== 'production') {
+if (!proMode) {
   rendererConfig.plugins.push(
     new webpack.DefinePlugin({
       '__static': `"${path.join(__dirname, '../static').replace(/\\/g, '\\\\')}"`
@@ -188,7 +192,7 @@ if (process.env.NODE_ENV !== 'production' && process.env.NODE_ENV !== 'test') {
  * Adjust rendererConfig for production settings
  */
 if (proMode) {
-  rendererConfig.devtool = ''
+  rendererConfig.devtool = '#nosources-source-map'
   rendererConfig.mode = 'production'
   rendererConfig.plugins.push(
     new MiniCssExtractPlugin({
