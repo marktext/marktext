@@ -15,7 +15,12 @@
     },
     computed: {
       className () {
-        return fileIcons.getClassWithColor(this.name ? this.name : 'mock.md').split(/\s/)
+        let icon = fileIcons.getClassWithColor(this.name ? this.name : 'mock.md')
+        if (!icon) {
+          // Use fallback icon when the icon is unknown.
+          icon = fileIcons.getClassWithColor('mock.md')
+        }
+        return icon.split(/\s/)
       }
     }
   }

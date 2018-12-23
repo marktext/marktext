@@ -6,6 +6,8 @@ const state = {
   theme: 'light',
   editorFontFamily: 'Open Sans',
   fontSize: '16px',
+  codeFontFamily: 'DejaVu Sans Mono',
+  codeFontSize: '14px',
   lineHeight: 1.6,
   lightColor: '#303133', // color in light theme
   darkColor: 'rgb(217, 217, 217)', // color in dark theme
@@ -16,6 +18,7 @@ const state = {
   autoPairMarkdownSyntax: true,
   autoPairQuote: true,
   tabSize: 4,
+  hideQuickInsertHint: false,
   // edit modes (they are not in preference.md, but still put them here)
   typewriter: false, // typewriter mode
   focus: false, // focus mode

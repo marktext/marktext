@@ -7,6 +7,9 @@
 **:butterfly:Optimization**
 
 - Respect existing image title if no source is specified (#562)
+- Separate font and font size for code blocks and source code mode (#373, #467)
+- Opened files and opened directories/files can now be folded (#475, #602)
+- You can now hide the quick insert hint (#621)
 
 **:beetle:Bug fix**
 
@@ -16,6 +19,8 @@
 - Restore default Mark Text style after exporting/printing
 - Prevent enter key as language identifier (#569)
 - Allow pasting text into the code block language text-box (#553)
+- Fixed a crash when opening a directory with an unknown file extension
+- Fixed an issue with `Save all` and `Delete all` buttons in the side bar
 
 ### 0.13.65
 

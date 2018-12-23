@@ -1,7 +1,7 @@
 <template>
   <div
     class="editor-wrapper"
-    :class="[{ 'typewriter': typewriter, 'focus': focus, 'source': sourceCode }, theme]"
+    :class="[{ 'typewriter': typewriter, 'focus': focus, 'source': sourceCode, 'hide-quick-insert-hint': hideQuickInsertHint }, theme]"
     :style="{ 'color': theme === 'dark' ? darkColor : lightColor, 'lineHeight': lineHeight, 'fontSize': fontSize,
     'font-family': editorFontFamily ? `${editorFontFamily}, ${defaultFontFamily}` : `${defaultFontFamily}` }"
     :dir="textDirection"
@@ -74,6 +74,8 @@
   import { animatedScrollTo } from '../../util'
   import { showContextMenu } from '../../contextMenu/editor'
   import Printer from '@/services/printService'
+  import { DEFAULT_EDITOR_FONT_FAMILY } from '@/config'
+  import { addThemeStyle } from '@/util/theme'
 
   const STANDAR_Y = 320
 
@@ -106,6 +108,7 @@
         'lightColor': state => state.preferences.lightColor,
         'darkColor': state => state.preferences.darkColor,
         'editorFontFamily': state => state.preferences.editorFontFamily,
+        'hideQuickInsertHint': state => state.preferences.hideQuickInsertHint,
         // edit modes
         'typewriter': state => state.preferences.typewriter,
         'focus': state => state.preferences.focus,
@@ -113,7 +116,7 @@
       })
     },
     data () {
-      this.defaultFontFamily = '"Open Sans", "Clear Sans", "Helvetica Neue", Helvetica, Arial, sans-serif'
+      this.defaultFontFamily = DEFAULT_EDITOR_FONT_FAMILY
       return {
         selectionChange: null,
         editor: null,
@@ -139,7 +142,7 @@
         const { editor } = this
         if (value !== oldValue && editor) {
           editor.setTheme(value)
-          this.addThemeStyle(value)
+          addThemeStyle(value)
         }
       },
       fontSize: function (value, oldValue) {
@@ -208,7 +211,7 @@
         }
 
         // the default theme is light write in the store
-        this.addThemeStyle(theme)
+        addThemeStyle(theme)
 
         // listen for bus events.
         bus.$on('file-loaded', this.setMarkdownToEditor)
@@ -275,22 +278,6 @@
       handleImagePath (files) {
         const { editor } = this
         editor && editor.showAutoImagePath(files)
-      },
-
-      addThemeStyle (theme) {
-        const linkId = 'ag-theme'
-        const href = process.env.NODE_ENV !== 'production'
-          ? `./src/muya/themes/${theme}.css`
-          : `./static/themes/${theme}.css`
-        let link = document.querySelector(`#${linkId}`)
-
-        if (!link) {
-          link = document.createElement('link')
-          link.setAttribute('rel', 'stylesheet')
-          link.id = linkId
-          document.head.appendChild(link)
-        }
-        link.href = href
       },
 
       handleUndo () {
