@@ -43,6 +43,8 @@
 </template>
 
 <script>
+  import { remote } from 'electron'
+  import { addStyles } from '@/util/theme'
   import Recent from '@/components/recent'
   import EditorWithTabs from '@/components/editorWithTabs'
   import TitleBar from '@/components/titleBar'
@@ -57,6 +59,7 @@
   import ImportModal from '@/components/import'
   import { mapState } from 'vuex'
   import bus from '@/bus'
+  import { DEFAULT_STYLE } from '@/config'
 
   export default {
     name: 'marktext',
@@ -167,6 +170,12 @@
           e.dataTransfer.dropEffect = 'none'
         }
       }, false)
+
+      this.$nextTick(() => {
+        const win = remote.getCurrentWindow()
+        const style = win.stylePrefs || DEFAULT_STYLE
+        addStyles(style)
+      })
     }
   }
 </script>

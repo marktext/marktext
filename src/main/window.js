@@ -6,6 +6,7 @@ import appMenu from './menu'
 import Watcher from './watcher'
 import { isMarkdownFile, isDirectory, log } from './utils'
 import { TITLE_BAR_HEIGHT, defaultWinOptions, isLinux } from './config'
+import userPreference from './preference'
 
 class AppWindow {
   constructor () {
@@ -151,12 +152,20 @@ class AppWindow {
       win.webContents.send('AGANI::ask-for-close')
     })
 
+    // set renderer arguments
+    const { codeFontFamily, codeFontSize, theme } = userPreference.getAll()
+    win.stylePrefs = {
+      codeFontFamily,
+      codeFontSize,
+      theme
+    }
+
     const winURL = process.env.NODE_ENV === 'development'
       ? `http://localhost:9080`
       : `file://${__dirname}/index.html`
 
     win.loadURL(winURL)
-    win.setSheetOffset(TITLE_BAR_HEIGHT) // 21 is the title bar height
+    win.setSheetOffset(TITLE_BAR_HEIGHT)
 
     return win
   }
