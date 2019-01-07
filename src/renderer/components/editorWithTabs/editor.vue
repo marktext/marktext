@@ -1,7 +1,7 @@
 <template>
   <div
     class="editor-wrapper"
-    :class="[{ 'typewriter': typewriter, 'focus': focus, 'source': sourceCode, 'hide-quick-insert-hint': hideQuickInsertHint }, theme]"
+    :class="[{ 'typewriter': typewriter, 'focus': focus, 'source': sourceCode }, theme]"
     :style="{ 'color': theme === 'dark' ? darkColor : lightColor, 'lineHeight': lineHeight, 'fontSize': fontSize,
     'font-family': editorFontFamily ? `${editorFontFamily}, ${defaultFontFamily}` : `${defaultFontFamily}` }"
     :dir="textDirection"
@@ -184,7 +184,8 @@
           autoPairMarkdownSyntax,
           autoPairQuote,
           bulletListMarker,
-          tabSize
+          tabSize,
+          hideQuickInsertHint
         } = this
 
         // use muya UI plugins
@@ -203,7 +204,8 @@
           autoPairMarkdownSyntax,
           autoPairQuote,
           bulletListMarker,
-          tabSize
+          tabSize,
+          hideQuickInsertHint
         })
 
         if (typewriter) {

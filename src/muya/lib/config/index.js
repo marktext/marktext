@@ -226,7 +226,8 @@ export const MUYA_DEFAULT_OPTION = {
   bulletListMarker: '-',
   tabSize: 4,
   sequenceTheme: 'hand', // hand or simple
-  mermaidTheme: 'forest' // dark or forest
+  mermaidTheme: 'forest', // dark or forest
+  hideQuickInsertHint: false
 }
 
 // export const DIAGRAM_TEMPLATE = {

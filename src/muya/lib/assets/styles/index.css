@@ -58,7 +58,7 @@ pre {
   font-style: italic;
 }
 
-div.editor-wrapper:not(.hide-quick-insert-hint) p.ag-paragraph.ag-active > span.ag-line:first-of-type:empty::after {
+div.ag-show-quick-insert-hint p.ag-paragraph.ag-active > span.ag-line:first-of-type:empty::after {
   content: 'Type @ to insert';
   color: var(--placeholerColor);
 }
