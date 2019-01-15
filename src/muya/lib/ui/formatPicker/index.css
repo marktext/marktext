@@ -65,6 +65,10 @@
   margin-top: 7px; 
 }
 
+.ag-format-picker li.item.active .icon-wrapper.icon-is-text {
+  color: var(--activeColor);
+}
+
 /* dark theme */
 .ag-format-picker.dark li.item:hover {
   background: rgb(60, 60, 60);
