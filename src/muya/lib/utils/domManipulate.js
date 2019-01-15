@@ -1,7 +1,3 @@
-import {
-  CLASS_OR_ID
-} from '../config'
-
 /**
  * [description `add` or `remove` className of element
  */
