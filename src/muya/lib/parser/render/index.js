@@ -52,7 +52,7 @@ class StateRender {
 
   checkConflicted (block, token, cursor) {
     const { start, end } = cursor
-    const { key } = block
+    const key = block.key
     const { start: tokenStart, end: tokenEnd } = token.range
 
     if (key !== start.key && key !== end.key) {
