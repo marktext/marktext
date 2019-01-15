@@ -7,7 +7,8 @@ const MENU_ID_FORMAT_MAP = {
   'inlineCodeMenuItem': 'inline_code',
   'strikeMenuItem': 'del',
   'hyperlinkMenuItem': 'link',
-  'imageMenuItem': 'image'
+  'imageMenuItem': 'image',
+  'mathMenuItem': 'inline_math'
 }
 
 const selectFormat = formats => {

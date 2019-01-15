@@ -155,10 +155,11 @@ export const FORMAT_MARKER_MAP = {
   'em': '*',
   'inline_code': '`',
   'strong': '**',
-  'del': '~~'
+  'del': '~~',
+  'inline_math': '$'
 }
 
-export const FORMAT_TYPES = ['strong', 'em', 'del', 'inline_code', 'link', 'image']
+export const FORMAT_TYPES = ['strong', 'em', 'del', 'inline_code', 'link', 'image', 'inline_math']
 
 export const punctuation = ['!', '"', '#', '$', '%', '&', "'", '(', ')', '*', '+', ',', '-', '.', '/', ':', ';', '<', '=', '>', '?', '@', '[', '\\', ']', '^', '_', '`', '{', '|', '}', '~']
 

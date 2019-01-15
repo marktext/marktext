@@ -29,6 +29,14 @@ export default {
       actions.format(browserWindow, 'inline_code')
     }
   }, {
+    id: 'inlineMathMenuItem',
+    label: 'Inline Math',
+    type: 'checkbox',
+    accelerator: keybindings.getAccelerator('formatInlineMath'),
+    click (menuItem, browserWindow) {
+      actions.format(browserWindow, 'inline_math')
+    }
+  }, {
     type: 'separator'
   }, {
     id: 'strikeMenuItem',
