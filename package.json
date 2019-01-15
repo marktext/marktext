@@ -118,6 +118,7 @@
     },
     "linux": {
       "category": "Office;TextEditor;Utility",
+      "mimeTypes": [ "text/markdown" ],
       "icon": "resources/icons",
       "artifactName": "marktext-${version}-${arch}.${ext}",
       "target": [
