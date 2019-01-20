@@ -1,3 +1,4 @@
+import path from 'path'
 import { app } from 'electron'
 import appWindow from './window'
 import { isOsx } from './config'
@@ -52,7 +53,8 @@ class App {
         if (arg.startsWith('--')) {
           continue
         } else if (isDirectory(arg) || isMarkdownFile(arg)) {
-          this.openFilesCache = [arg]
+          // Normalize path into an absolute path.
+          this.openFilesCache = [ path.resolve(arg) ]
           break
         }
       }
