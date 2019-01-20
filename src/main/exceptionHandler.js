@@ -6,7 +6,7 @@
 // The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import { app, clipboard, dialog, ipcMain } from 'electron'
+import { app, clipboard, crashReporter, dialog, ipcMain } from 'electron'
 import { log } from './utils'
 import { createAndOpenGitHubIssueUrl } from './utils/createGitHubIssue'
 
@@ -23,6 +23,14 @@ process.on('uncaughtException', error => {
 // renderer process error handler
 ipcMain.on('AGANI::handle-renderer-error', (e, error) => {
   handleError(ERROR_MSG_RENDERER, error)
+})
+
+// start crashReporter to save core dumps to temporary folder
+crashReporter.start({
+  companyName: 'marktext',
+  productName: 'marktext',
+  submitURL: 'http://0.0.0.0/',
+  uploadToServer: false
 })
 
 const bundleException = (error, type) => {

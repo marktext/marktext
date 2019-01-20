@@ -8,6 +8,7 @@ import { wordCount } from './utils'
 import ExportMarkdown from './utils/exportMarkdown'
 import ExportHtml from './utils/exportHtml'
 import ToolTip from './ui/tooltip'
+import selection from './selection'
 import './assets/styles/index.css'
 
 class Muya {
@@ -45,7 +46,18 @@ class Muya {
     eventCenter.attachDOMEvent(container, 'contextmenu', event => {
       event.preventDefault()
       event.stopPropagation()
-      const sectionChanges = this.contentState.selectionChange(this.contentState.cursor)
+
+      // Hide format box
+      this.eventCenter.dispatch('muya-format-picker', { reference: null })
+
+      // Commit native cursor position because right-clicking doesn't update the cursor postion.
+      const cursor = selection.getCursorRange()
+      this.contentState.cursor = cursor
+
+      // TODO: Should we render to update the cursor or is this not necessary because we'll render
+      //       when leaving or clicking on the context menu?
+
+      const sectionChanges = this.contentState.selectionChange(cursor)
       eventCenter.dispatch('contextmenu', event, sectionChanges)
     })
     contentState.listenForPathChange()
