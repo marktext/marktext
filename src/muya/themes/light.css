@@ -434,6 +434,10 @@ pre[class*="language-"] {
   color: #333333;
 }
 
+blockquote .ag-hide.ag-math > .ag-math-render {
+  color: #777777;
+}
+
 .ag-gray.ag-math > .ag-math-render {
   color: #f6f8fa;
   background: #333333;
