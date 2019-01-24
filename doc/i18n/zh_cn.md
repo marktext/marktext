@@ -86,9 +86,9 @@
 
 ### 特性
 
-- Mark Text 所输及所见，摒弃了众多 markdown 编辑器左边写作右边预览的写作方式，巧妙的将编辑和预览融为一体。
+- Mark Text 所输及所见，摒弃了众多 Markdown 编辑器左边写作右边预览的写作方式，巧妙的将编辑和预览融为一体。
 - [snabbdom](https://github.com/snabbdom/snabbdom) 作为 Mark Text 的渲染引擎，保证了极速渲染编辑页面，带来流畅的书写体验。
-- 支持 [CommonMark Spec](https://spec.commonmark.org/0.28/) 和 [GitHub Flavored Markdown Spec](https://github.github.com/gfm/) 语法格式，生成的 Markdown 可以复制到任何支持 markdown 格式的社区、网站。
+- 支持 [CommonMark Spec](https://spec.commonmark.org/0.28/) 和 [GitHub Flavored Markdown Spec](https://github.github.com/gfm/) 语法格式，生成的 Markdown 可以复制到任何支持 Markdown 格式的社区、网站。
 - 段落及行内样式快捷键提升您的编辑效率。
 - 输出 HTML 和 PDF 格式文件，方便在浏览器中预览。
 - 黑、白两款主题，自由切换。
@@ -96,13 +96,13 @@
 
 <h4 align="center">:crescent_moon:Dark and Light themes:high_brightness:</h4>
 
-|                     Dark :crescent_moon:                     |                    Light:high_brightness:                    |
+|                     黑色主题 :crescent_moon:                     |                    白色主题 :high_brightness:                    |
 | :----------------------------------------------------------: | :----------------------------------------------------------: |
 | ![](https://github.com/marktext/marktext/blob/master/doc/dark.jpg) | ![](https://github.com/marktext/marktext/blob/master/doc/light.jpg) |
 
 <h4 align="center">:smile_cat:​Edit modes:dog:​</h4>
 
-|                         Source Code                          |                          Typewriter                          |                            Focus                             |
+|                         源代码模式                          |                          打字机模式                          |                            专注模式                             |
 | :----------------------------------------------------------: | :----------------------------------------------------------: | :----------------------------------------------------------: |
 | ![](https://github.com/marktext/marktext/blob/master/doc/source.gif) | ![](https://github.com/marktext/marktext/blob/master/doc/typewriter.gif) | ![](https://github.com/marktext/marktext/blob/master/doc/focus.gif) |
 
