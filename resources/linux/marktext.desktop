@@ -6,3 +6,4 @@ Terminal=false
 Type=Application
 Icon=marktext
 Categories=Office;TextEditor;Utility;
+MimeType=text/markdown;
