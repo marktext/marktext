@@ -192,11 +192,15 @@ span.ag-math > .ag-math-render.ag-math-error {
   font-family: monospace;
 }
 
+/* (Preview) math block */
+/* TODO: DOM path should be wrong. Correct path should be: 'ag-container-preview > .katex-display'. */
 .ag-math > .ag-math-render .katex-display {
   margin: 0;
 }
 
+/* Inline math */
 .ag-math > .ag-math-render .katex {
+  vertical-align: middle;
   white-space: nowrap;
 }
 

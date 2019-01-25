@@ -455,6 +455,10 @@ td code {
   color: #efefef;
 }
 
+blockquote .ag-hide.ag-math > .ag-math-render {
+  color: #999999;
+}
+
 .ag-gray.ag-math > .ag-math-render {
   color: #333333;
   background: #f6f8fa;

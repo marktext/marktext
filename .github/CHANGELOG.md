@@ -2,7 +2,7 @@
 
 **:cactus:Feature**
 
-- Added an error handler
+- Improve exception and error handling
 
 **:butterfly:Optimization**
 
@@ -10,6 +10,8 @@
 - Separate font and font size for code blocks and source code mode (#373, #467)
 - Opened files and opened directories/files can now be folded (#475, #602)
 - You can now hide the quick insert hint (#621)
+- Adjusted quote inline math color (#592)
+- Fix inline math text align (#593)
 
 **:beetle:Bug fix**
 
