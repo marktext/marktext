@@ -45,12 +45,14 @@ class FormatPicker extends BaseFloat {
     })
   }
 
-  render() {
+  render () {
     const { icons, oldVnode, formatContainer, formats } = this
     const children = icons.map(i => {
       let icon;
+      let iconWrapperSelector;
       if (i.icon) {
         // SVG icon Asset
+        iconWrapperSelector = 'div.icon-wrapper'
         icon = h('svg', {
           attrs: {
             'viewBox': i.icon.viewBox,
@@ -64,16 +66,13 @@ class FormatPicker extends BaseFloat {
         )
       } else if (i.iconText) {
         // Unicode icon in source
+        iconWrapperSelector = 'div.icon-wrapper.icon-is-text'
         icon = h('span', {
           attrs: {
             'aria-hidden': 'true'
           }
         }, [i.iconText]
         )
-      }
-      let iconWrapperSelector = 'div.icon-wrapper'
-      if (i.iconText) {
-        iconWrapperSelector += '.icon-is-text'
       }
       const iconWrapper = h(iconWrapperSelector, icon)
       let itemSelector = `li.item.${i.type}`
