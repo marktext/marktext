@@ -9,7 +9,7 @@ const getOffset = (offset, { range: { start, end }, type, anchor, alt }) => {
     case 'strong':
     case 'del':
     case 'em':
-    case 'inline_code': 
+    case 'inline_code':
     case 'inline_math': {
       const MARKER_LEN = (type === 'strong' || type === 'del') ? 2 : 1
       if (dis < 0) return 0
@@ -79,7 +79,7 @@ const addFormat = (type, block, { start, end }) => {
     case 'em':
     case 'del':
     case 'inline_code':
-    case 'strong': 
+    case 'strong':
     case 'inline_math': {
       const MARKER = FORMAT_MARKER_MAP[type]
       const oldText = block.text

@@ -62,7 +62,7 @@
   font-weight: bold;
   /* For vertical centering. Is this consistent/sane? User zoom?. */
   line-height: 0px;
-  margin-top: 7px; 
+  margin-top: 7px;
 }
 
 .ag-format-picker li.item.active .icon-wrapper.icon-is-text {
