@@ -73,7 +73,7 @@ class Keybindings {
       ['formatStrong', 'CmdOrCtrl+B'],
       ['formatEmphasis', 'CmdOrCtrl+I'],
       ['formatInlineCode', 'CmdOrCtrl+`'],
-      ['formatInlineMath', 'CmdOrCtrl+M'],
+      ['formatInlineMath', 'Ctrl+M'],
       ['formatStrike', 'CmdOrCtrl+D'],
       ['formatHyperlink', 'CmdOrCtrl+L'],
       ['formatImage', 'CmdOrCtrl+Shift+I'],
