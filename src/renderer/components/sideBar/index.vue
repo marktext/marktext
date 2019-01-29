@@ -6,6 +6,7 @@
     ref="sideBar"
     :style="{ 'width': `${finalSideBarWidth}px` }"
   >
+    <div class="title-bar-bg" :class="[theme]"></div>
     <div class="left-column">
       <ul>
         <li
@@ -142,12 +143,26 @@
 <style scoped>
   .side-bar {
     display: flex;
-    height: calc(100vh - 25px);
+    height: calc(100vh - var(--titleBarHeight));
     position: relative;
     color: var(--secondaryColor);
   }
-  .side-bar.dark {
-    background: var(--darkBgColor);
+  .side-bar.light,
+  .title-bar-bg.light {
+    background: var(--lightBgHighlightColor);
+    border-right: 1px solid rgb(242, 242, 242);
+  }
+  .side-bar.dark,
+  .title-bar-bg.dark {
+    background: var(--darkBgHighlightColor);
+  }
+
+  .title-bar-bg {
+    position: absolute;
+    top: calc(-1 * var(--titleBarHeight));
+    left: 0;
+    height: var(--titleBarHeight);
+    width: 100%;
   }
 
   .left-column {
@@ -199,6 +214,7 @@
   .right-column {
     flex: 1;
     width: calc(100% - 50px);
+    overflow: hidden;
   }
   .drag-bar {
     position: absolute;

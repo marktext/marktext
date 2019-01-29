@@ -1,7 +1,9 @@
 import { app } from 'electron'
 import * as actions from '../actions/file'
 import { userSetting } from '../actions/marktext'
+import { showTabBar } from '../actions/view'
 import userPreference from '../preference'
+import keybindings from '../shortcutHandler'
 
 export default function (recentlyUsedFiles) {
   const { autoSave } = userPreference.getAll()
@@ -9,28 +11,29 @@ export default function (recentlyUsedFiles) {
   let fileMenu = {
     label: 'File',
     submenu: [{
-      label: 'New File',
-      accelerator: 'CmdOrCtrl+N',
-      click (menuItem, browserWindow) {
-        actions.newFile()
-      }
-    }, {
       label: 'New Tab',
-      accelerator: 'Shift+CmdOrCtrl+T',
+      accelerator: keybindings.getAccelerator('fileNewFile'),
       click (menuItem, browserWindow) {
         actions.newTab(browserWindow)
+        showTabBar(browserWindow)
+      }
+    }, {
+      label: 'New Window',
+      accelerator: keybindings.getAccelerator('fileNewTab'),
+      click (menuItem, browserWindow) {
+        actions.newFile()
       }
     }, {
       type: 'separator'
     }, {
       label: 'Open File',
-      accelerator: 'CmdOrCtrl+O',
+      accelerator: keybindings.getAccelerator('fileOpenFile'),
       click (menuItem, browserWindow) {
         actions.open(browserWindow)
       }
     }, {
-      label: 'Open Project',
-      accelerator: 'Shift+CmdOrCtrl+O',
+      label: 'Open Folder',
+      accelerator: keybindings.getAccelerator('fileOpenFolder'),
       click (menuItem, browserWindow) {
         actions.openProject(browserWindow)
       }
@@ -78,7 +81,7 @@ export default function (recentlyUsedFiles) {
     type: 'separator'
   }, {
     label: 'Close Tab',
-    accelerator: 'CmdOrCtrl+W',
+    accelerator: keybindings.getAccelerator('fileCloseTab'),
     click (menuItem, browserWindow) {
       actions.closeTab(browserWindow)
     }
@@ -86,13 +89,13 @@ export default function (recentlyUsedFiles) {
     type: 'separator'
   }, {
     label: 'Save',
-    accelerator: 'CmdOrCtrl+S',
+    accelerator: keybindings.getAccelerator('fileSave'),
     click (menuItem, browserWindow) {
       actions.save(browserWindow)
     }
   }, {
     label: 'Save As...',
-    accelerator: 'Shift+CmdOrCtrl+S',
+    accelerator: keybindings.getAccelerator('fileSaveAs'),
     click (menuItem, browserWindow) {
       actions.saveAs(browserWindow)
     }
@@ -118,25 +121,30 @@ export default function (recentlyUsedFiles) {
   }, {
     type: 'separator'
   }, {
-    label: 'Export Styled HTML',
+    label: 'Import...',
     click (menuItem, browserWindow) {
-      actions.exportFile(browserWindow, 'styledHtml')
+      actions.importFile(browserWindow)
     }
   }, {
-    label: 'Export HTML',
-    click (menuItem, browserWindow) {
-      actions.exportFile(browserWindow, 'html')
-    }
-  }, {
-    label: 'Export PDF',
-    click (menuItem, browserWindow) {
-      actions.exportFile(browserWindow, 'pdf')
-    }
+    label: 'Export',
+    submenu: [
+      {
+        label: 'HTML',
+        click (menuItem, browserWindow) {
+          actions.exportFile(browserWindow, 'styledHtml')
+        }
+      }, {
+        label: 'PDF',
+        click (menuItem, browserWindow) {
+          actions.exportFile(browserWindow, 'pdf')
+        }
+      }
+    ]
   }, {
     type: 'separator'
   }, {
     label: 'Print',
-    accelerator: 'CmdOrCtrl+P',
+    accelerator: keybindings.getAccelerator('filePrint'),
     click (menuItem, browserWindow) {
       actions.print(browserWindow)
     }
@@ -145,7 +153,7 @@ export default function (recentlyUsedFiles) {
     visible: notOsx
   }, {
     label: 'Preferences',
-    accelerator: 'Ctrl+,',
+    accelerator: keybindings.getAccelerator('filePreferences'),
     visible: notOsx,
     click (menuItem, browserWindow) {
       userSetting(menuItem, browserWindow)
@@ -155,7 +163,7 @@ export default function (recentlyUsedFiles) {
     visible: notOsx
   }, {
     label: 'Quit',
-    accelerator: 'Ctrl+Q',
+    accelerator: keybindings.getAccelerator('fileQuit'),
     visible: notOsx,
     click: app.quit
   })

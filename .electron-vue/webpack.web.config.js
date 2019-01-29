@@ -9,6 +9,7 @@ const CopyWebpackPlugin = require('copy-webpack-plugin')
 const MiniCssExtractPlugin = require("mini-css-extract-plugin")
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const VueLoaderPlugin = require('vue-loader/lib/plugin')
+const SpritePlugin = require('svg-sprite-loader/plugin')
 const postcssPresetEnv = require('postcss-preset-env')
 
 const proMode = process.env.NODE_ENV === 'production'
@@ -33,7 +34,15 @@ const webConfig = {
         }
       },
       {
+        test: /(katex|github\-markdown|prism[\-a-z]*)\.css$/,
+        use: [
+          'to-string-loader',
+          'css-loader'
+        ]
+      },
+      {
         test: /\.css$/,
+        exclude: /(katex|github\-markdown|prism[\-a-z]*)\.css$/,
         use: [
           proMode ? MiniCssExtractPlugin.loader : 'style-loader',
           { loader: 'css-loader', options: { importLoader: 1 } },
@@ -62,11 +71,27 @@ const webConfig = {
       {
         test: /\.vue$/,
         use: {
-          loader: 'vue-loader'
+          loader: 'vue-loader',
+          options: {
+            sourceMap: true
+          }
         }
       },
       {
-        test: /\.(png|jpe?g|gif|svg)(\?.*)?$/,
+        test: /\.svg$/,
+        use: [
+          {
+            loader: 'svg-sprite-loader',
+            options: {
+              extract: true,
+              publicPath: '/static/'
+            }
+          },
+          'svgo-loader'
+        ]
+      },
+      {
+        test: /\.(png|jpe?g|gif)(\?.*)?$/,
         use: {
           loader: 'url-loader',
           query: {
@@ -80,7 +105,7 @@ const webConfig = {
         use: {
           loader: 'url-loader',
           query: {
-            limit: 10000,
+            limit: 100000,
             name: 'fonts/[name].[ext]'
           }
         }
@@ -88,6 +113,7 @@ const webConfig = {
     ]
   },
   plugins: [
+    new SpritePlugin(),
     new HtmlWebpackPlugin({
       filename: 'index.html',
       template: path.resolve(__dirname, '../src/index.ejs'),
@@ -123,7 +149,7 @@ const webConfig = {
  * Adjust webConfig for production settings
  */
 if (proMode) {
-  webConfig.devtool = ''
+  webConfig.devtool = '#nosources-source-map'
   webConfig.mode ='production'
 
   webConfig.plugins.push(

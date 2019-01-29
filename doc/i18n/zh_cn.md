@@ -35,7 +35,7 @@
   </a>
   <!-- Downloads latest release -->
   <a href="https://marktext.github.io/website">
-    <img src="https://img.shields.io/github/downloads/marktext/marktext/v0.9.25/total.svg" alt="latest download">
+    <img src="https://img.shields.io/github/downloads/marktext/marktext/v0.13.65/total.svg" alt="latest download">
   </a>
   <!-- deps -->
   <a href="https://marktext.github.io/website">
@@ -51,22 +51,6 @@
   <h3>
     <a href="https://marktext.github.io/website">
       Website
-    </a>
-    <span> | </span>
-    <a href="https://github.com/marktext/marktext/blob/master/doc/i18n/zh_cn.md#readme">
-      中文
-    </a>
-    <span> | </span>
-    <a href="https://github.com/marktext/marktext/blob/master/doc/i18n/pl.md#readme">
-      Polski
-    </a>
-    <span> | </span>
-    <a href="https://github.com/marktext/marktext/blob/master/doc/i18n/ja.md#readme">
-      日本語
-    </a>
-    <span> | </span>
-    <a href="https://github.com/marktext/marktext/blob/master/doc/i18n/french.md#readme">
-      Français
     </a>
     <span> | </span>
     <a href="https://github.com/marktext/marktext#features">
@@ -102,9 +86,9 @@
 
 ### 特性
 
-- Mark Text 所输及所见，摒弃了众多 markdown 编辑器左边写作右边预览的写作方式，巧妙的将编辑和预览融为一体。
+- Mark Text 所输及所见，摒弃了众多 Markdown 编辑器左边写作右边预览的写作方式，巧妙的将编辑和预览融为一体。
 - [snabbdom](https://github.com/snabbdom/snabbdom) 作为 Mark Text 的渲染引擎，保证了极速渲染编辑页面，带来流畅的书写体验。
-- 支持 [CommonMark Spec](https://spec.commonmark.org/0.28/) 和 [GitHub Flavored Markdown Spec](https://github.github.com/gfm/) 语法格式，生成的 Markdown 可以复制到任何支持 markdown 格式的社区、网站。
+- 支持 [CommonMark Spec](https://spec.commonmark.org/0.28/) 和 [GitHub Flavored Markdown Spec](https://github.github.com/gfm/) 语法格式，生成的 Markdown 可以复制到任何支持 Markdown 格式的社区、网站。
 - 段落及行内样式快捷键提升您的编辑效率。
 - 输出 HTML 和 PDF 格式文件，方便在浏览器中预览。
 - 黑、白两款主题，自由切换。
@@ -112,13 +96,13 @@
 
 <h4 align="center">:crescent_moon:Dark and Light themes:high_brightness:</h4>
 
-|                     Dark :crescent_moon:                     |                    Light:high_brightness:                    |
+|                     黑色主题 :crescent_moon:                     |                    白色主题 :high_brightness:                    |
 | :----------------------------------------------------------: | :----------------------------------------------------------: |
 | ![](https://github.com/marktext/marktext/blob/master/doc/dark.jpg) | ![](https://github.com/marktext/marktext/blob/master/doc/light.jpg) |
 
 <h4 align="center">:smile_cat:​Edit modes:dog:​</h4>
 
-|                         Source Code                          |                          Typewriter                          |                            Focus                             |
+|                         源代码模式                          |                          打字机模式                          |                            专注模式                             |
 | :----------------------------------------------------------: | :----------------------------------------------------------: | :----------------------------------------------------------: |
 | ![](https://github.com/marktext/marktext/blob/master/doc/source.gif) | ![](https://github.com/marktext/marktext/blob/master/doc/typewriter.gif) | ![](https://github.com/marktext/marktext/blob/master/doc/focus.gif) |
 
@@ -134,7 +118,7 @@
 
 | ![]( https://github.com/ryanoasis/nerd-fonts/wiki/screenshots/v1.0.x/mac-pass-sm.png)                                                                                                             | ![]( https://github.com/ryanoasis/nerd-fonts/wiki/screenshots/v1.0.x/windows-pass-sm.png)                                                                                                                     | ![]( https://github.com/ryanoasis/nerd-fonts/wiki/screenshots/v1.0.x/linux-pass-sm.png)                                                                                                                                   |
 |:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
-| [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-0.12.25.dmg.svg)](https://github.com/marktext/marktext/releases/download/v0.12.25/marktext-0.12.25.dmg) | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-setup-0.12.25.exe.svg)](https://github.com/marktext/marktext/releases/download/v0.12.25/marktext-setup-0.12.25.exe) | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-0.12.25-x86_64.AppImage.svg)](https://github.com/marktext/marktext/releases/download/v0.12.25/marktext-0.12.25-x86_64.AppImage) |
+| [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-0.13.65.dmg.svg)](https://github.com/marktext/marktext/releases/download/v0.13.65/marktext-0.13.65.dmg) | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-setup-0.13.65.exe.svg)](https://github.com/marktext/marktext/releases/download/v0.13.65/marktext-setup-0.13.65.exe) | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-0.13.65-x86_64.AppImage.svg)](https://github.com/marktext/marktext/releases/download/v0.13.65/marktext-0.13.65-x86_64.AppImage) |
 
 如果你依然没有找到适合你的版本，请直接从 [release](https://github.com/marktext/marktext/releases) 页面下载。
 

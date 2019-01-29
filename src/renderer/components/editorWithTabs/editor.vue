@@ -4,6 +4,7 @@
     :class="[{ 'typewriter': typewriter, 'focus': focus, 'source': sourceCode }, theme]"
     :style="{ 'color': theme === 'dark' ? darkColor : lightColor, 'lineHeight': lineHeight, 'fontSize': fontSize,
     'font-family': editorFontFamily ? `${editorFontFamily}, ${defaultFontFamily}` : `${defaultFontFamily}` }"
+    :dir="textDirection"
   >
     <div
       ref="editor"
@@ -16,6 +17,7 @@
       custom-class="ag-dialog-table"
       width="454px"
       center
+      dir='ltr'
     >
       <div slot="title" class="dialog-title">
         <svg class="icon" aria-hidden="true">
@@ -61,26 +63,37 @@
 
 <script>
   import { mapState } from 'vuex'
-  import Aganippe from '../../../editor'
+  import Muya from 'muya/lib'
+  import TablePicker from 'muya/lib/ui/tablePicker'
+  import QuickInsert from 'muya/lib/ui/quickInsert'
+  import CodePicker from 'muya/lib/ui/codePicker'
+  import EmojiPicker from 'muya/lib/ui/emojiPicker'
+  import ImagePathPicker from 'muya/lib/ui/imagePicker'
+  import FormatPicker from 'muya/lib/ui/formatPicker'
   import bus from '../../bus'
   import { animatedScrollTo } from '../../util'
   import { showContextMenu } from '../../contextMenu/editor'
+  import Printer from '@/services/printService'
+  import { DEFAULT_EDITOR_FONT_FAMILY } from '@/config'
+  import { addThemeStyle } from '@/util/theme'
 
   const STANDAR_Y = 320
-  const PARAGRAPH_CMD = [
-    'ul-bullet', 'ul-task', 'ol-order', 'pre', 'blockquote', 'mathblock', 'heading 1', 'heading 2',
-    'heading 3', 'heading 4', 'heading 5', 'heading 6', 'upgrade heading', 'degrade heading',
-    'paragraph', 'hr', 'loose-list-item', 'front-matter'
-  ]
 
   export default {
     props: {
+      filename: {
+        type: String
+      },
       theme: {
         type: String,
         required: true
       },
       markdown: String,
-      cursor: Object
+      cursor: Object,
+      textDirection: {
+        type: String,
+        required: true
+      }
     },
     computed: {
       ...mapState({
@@ -88,13 +101,14 @@
         'autoPairBracket': state => state.preferences.autoPairBracket,
         'autoPairMarkdownSyntax': state => state.preferences.autoPairMarkdownSyntax,
         'autoPairQuote': state => state.preferences.autoPairQuote,
-        'bulletListItemMarker': state => state.preferences.bulletListItemMarker,
+        'bulletListMarker': state => state.preferences.bulletListMarker,
         'tabSize': state => state.preferences.tabSize,
         'lineHeight': state => state.preferences.lineHeight,
         'fontSize': state => state.preferences.fontSize,
         'lightColor': state => state.preferences.lightColor,
         'darkColor': state => state.preferences.darkColor,
         'editorFontFamily': state => state.preferences.editorFontFamily,
+        'hideQuickInsertHint': state => state.preferences.hideQuickInsertHint,
         // edit modes
         'typewriter': state => state.preferences.typewriter,
         'focus': state => state.preferences.focus,
@@ -102,7 +116,7 @@
       })
     },
     data () {
-      this.defaultFontFamily = '"Open Sans", "Clear Sans", "Helvetica Neue", Helvetica, Arial, sans-serif'
+      this.defaultFontFamily = DEFAULT_EDITOR_FONT_FAMILY
       return {
         selectionChange: null,
         editor: null,
@@ -128,7 +142,7 @@
         const { editor } = this
         if (value !== oldValue && editor) {
           editor.setTheme(value)
-          this.addThemeStyle(value)
+          addThemeStyle(value)
         }
       },
       fontSize: function (value, oldValue) {
@@ -158,6 +172,7 @@
     },
     created () {
       this.$nextTick(() => {
+        this.printer = new Printer()
         const ele = this.$refs.editor
         const {
           theme,
@@ -169,10 +184,18 @@
           autoPairMarkdownSyntax,
           autoPairQuote,
           bulletListMarker,
-          tabSize
+          tabSize,
+          hideQuickInsertHint
         } = this
 
-        const { container } = this.editor = new Aganippe(ele, {
+        // use muya UI plugins
+        Muya.use(TablePicker)
+        Muya.use(QuickInsert)
+        Muya.use(CodePicker)
+        Muya.use(EmojiPicker)
+        Muya.use(ImagePathPicker)
+        Muya.use(FormatPicker)
+        const { container } = this.editor = new Muya(ele, {
           theme,
           focusMode,
           markdown,
@@ -181,7 +204,8 @@
           autoPairMarkdownSyntax,
           autoPairQuote,
           bulletListMarker,
-          tabSize
+          tabSize,
+          hideQuickInsertHint
         })
 
         if (typewriter) {
@@ -189,19 +213,21 @@
         }
 
         // the default theme is light write in the store
-        this.addThemeStyle(theme)
+        addThemeStyle(theme)
 
         // listen for bus events.
         bus.$on('file-loaded', this.setMarkdownToEditor)
         bus.$on('undo', this.handleUndo)
         bus.$on('redo', this.handleRedo)
         bus.$on('export', this.handleExport)
+        bus.$on('print-service-clearup', this.handlePrintServiceClearup)
         bus.$on('paragraph', this.handleEditParagraph)
         bus.$on('format', this.handleInlineFormat)
         bus.$on('searchValue', this.handleSearch)
         bus.$on('replaceValue', this.handReplace)
         bus.$on('find', this.handleFind)
         bus.$on('insert-image', this.handleSelect)
+        bus.$on('image-uploaded', this.handleUploadedImage)
         bus.$on('file-changed', this.handleMarkdownChange)
         bus.$on('editor-blur', this.blurEditor)
         bus.$on('image-auto-path', this.handleImagePath)
@@ -212,6 +238,7 @@
         bus.$on('editTable', this.handleEditTable)
         bus.$on('scroll-to-header', this.scrollToHeader)
         bus.$on('copy-block', this.handleCopyBlock)
+        bus.$on('print', this.handlePrint)
 
         // when cursor is in `![](cursor)` will emit `insert-image`
         this.editor.on('insert-image', type => {
@@ -232,7 +259,6 @@
 
         this.editor.on('selectionChange', changes => {
           const { y } = changes.cursorCoords
-
           if (this.typewriter) {
             animatedScrollTo(container, container.scrollTop + y - STANDAR_Y, 100)
           }
@@ -254,20 +280,6 @@
       handleImagePath (files) {
         const { editor } = this
         editor && editor.showAutoImagePath(files)
-      },
-
-      addThemeStyle (theme) {
-        const linkId = 'ag-theme'
-        const href = `./static/themes/${theme}.css`
-        let link = document.querySelector(`#${linkId}`)
-
-        if (!link) {
-          link = document.createElement('link')
-          link.setAttribute('rel', 'stylesheet')
-          link.id = linkId
-          document.head.appendChild(link)
-        }
-        link.href = href
       },
 
       handleUndo () {
@@ -306,6 +318,11 @@
         this.$store.dispatch('SEARCH', searchMatches)
       },
 
+      handleUploadedImage (url, deletionUrl) {
+        this.handleSelect(url)
+        this.$store.dispatch('SHOW_IMAGE_DELETION_URL', deletionUrl)
+      },
+
       scrollToCursor () {
         this.$nextTick(() => {
           const { container } = this.editor
@@ -339,28 +356,34 @@
         this.scrollToHighlight()
       },
 
-      async handleExport (type) {
+      handlePrint () {
+        // generate styled HTML with empty title and optimized for printing
+        const html = this.editor.exportStyledHTML('', true)
+        this.printer.renderMarkdown(html)
+        this.$store.dispatch('PRINT_RESPONSE')
+      },
+
+      handleExport (type) {
+        const markdown = this.editor.getMarkdown()
         switch (type) {
           case 'styledHtml': {
-            const content = await this.editor.exportStyledHTML()
-            const markdown = this.editor.getMarkdown()
-            this.$store.dispatch('EXPORT', { type, content, markdown })
-            break
-          }
-
-          case 'html': {
-            const content = this.editor.exportUnstylishHtml()
-            const markdown = this.editor.getMarkdown()
+            const content = this.editor.exportStyledHTML(this.filename)
             this.$store.dispatch('EXPORT', { type, content, markdown })
             break
           }
 
           case 'pdf': {
-            const markdown = this.editor.getMarkdown()
+            // generate styled HTML with empty title and optimized for printing
+            const html = this.editor.exportStyledHTML('', true)
+            this.printer.renderMarkdown(html)
             this.$store.dispatch('EXPORT', { type, markdown })
             break
           }
         }
+      },
+
+      handlePrintServiceClearup () {
+        this.printer.clearup()
       },
 
       handleEditParagraph (type) {
@@ -370,7 +393,7 @@
           this.$nextTick(() => {
             this.$refs.rowInput.focus()
           })
-        } else if (PARAGRAPH_CMD.indexOf(type) > -1) {
+        } else {
           this.editor && this.editor.updateParagraph(type)
         }
       },
@@ -397,8 +420,10 @@
       handleMarkdownChange ({ markdown, cursor, renderCursor, history }) {
         const { editor } = this
         if (editor) {
-          if (history) editor.setHistory(history)
-          this.editor.setMarkdown(markdown, cursor, renderCursor)
+          if (history) {
+            editor.setHistory(history)
+          }
+          editor.setMarkdown(markdown, cursor, renderCursor)
         }
       },
 
@@ -441,6 +466,7 @@
       bus.$off('editTable', this.handleEditTable)
       bus.$off('scroll-to-header', this.scrollToHeader)
       bus.$off('copy-block', this.handleCopyBlock)
+      bus.$off('print', this.handlePrint)
 
       this.editor.destroy()
       this.editor = null
@@ -449,7 +475,6 @@
 </script>
 
 <style>
-  @import '../../../editor/index.css';
   .editor-wrapper {
     height: 100%;
     position: relative;

@@ -9,6 +9,7 @@ export const defaultWinOptions = {
   minWidth: 450,
   minHeight: 220,
   webPreferences: {
+    nodeIntegration: true,
     webSecurity: false
   },
   useContentSize: true,
@@ -39,6 +40,22 @@ export const IMAGE_EXTENSIONS = [
   'webp'
 ]
 
+export const PANDOC_EXTENSIONS = [
+  'html',
+  'docx',
+  'latex',
+  'tex',
+  'ltx',
+  'rst',
+  'rest',
+  'org',
+  'wiki',
+  'dokuwiki',
+  'textile',
+  'opml',
+  'epub'
+]
+
 // export const PROJECT_BLACK_LIST = [
 //   'node_modules',
 //   '.git',
@@ -51,7 +68,6 @@ export const BLACK_LIST = [
 
 export const EXTENSION_HASN = {
   styledHtml: '.html',
-  html: '.html',
   pdf: '.pdf'
 }
 
@@ -59,3 +75,5 @@ export const TITLE_BAR_HEIGHT = isOsx ? 21 : 25
 export const LINE_ENDING_REG = /(?:\r\n|\n)/g
 export const LF_LINE_ENDING_REG = /(?:[^\r]\n)|(?:^\n$)/
 export const CRLF_LINE_ENDING_REG = /\r\n/
+
+export const GITHUB_REPO_URL = 'https://github.com/marktext/marktext'

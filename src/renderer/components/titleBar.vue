@@ -19,7 +19,7 @@
         <span class="save-dot" :class="{'show': !isSaved}"></span>
       </span>
     </div>
-    <div :class="platform !== 'darwin' ? 'left-toolbar' : 'right-toolbar'">
+    <div :class="platform !== 'darwin' ? 'left-toolbar title-no-drag' : 'right-toolbar'">
       <div
         v-if="platform !== 'darwin'"
         class="frameless-titlebar-menu title-no-drag"
@@ -91,6 +91,7 @@
       })
     },
     props: {
+      project: Object,
       filename: String,
       pathname: String,
       active: Boolean,
@@ -104,6 +105,13 @@
         if (!this.pathname) return []
         const pathnameToken = this.pathname.split('/').filter(i => i)
         return pathnameToken.slice(0, pathnameToken.length - 1).slice(-3)
+      }
+    },
+    watch: {
+      filename: function (value) {
+        // Set filename when hover on dock
+        const title = this.project && this.project.name ? `${value} - ${this.project.name}` : value
+        document.querySelector('title').textContent = title
       }
     },
     methods: {
@@ -167,7 +175,7 @@
     -webkit-app-region: drag;
     user-select: none;
     width: 100%;
-    height: 25px;
+    height: var(--titleBarHeight);
     box-sizing: border-box;
     color: #F2F6FC;
     position: fixed;
@@ -189,12 +197,21 @@
   .title {
     padding: 0 100px;
     height: 100%;
-    line-height: 25px;
+    line-height: var(--titleBarHeight);
     font-size: 14px;
     text-align: center;
     transition: all .25s ease-in-out;
     & .filename {
       transition: all .25s ease-in-out;
+    }
+    &::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      height: 1px;
+      width: 100%;
+      z-index: 1;
+      -webkit-app-region: no-drag;
     }
   }
 
@@ -266,8 +283,8 @@
   .frameless-titlebar-button {
     position: relative;
     display: block;
-    width: 25px;
-    height: 25px;
+    width: var(--titleBarHeight);
+    height: var(--titleBarHeight);
   }
   .frameless-titlebar-button > div {
     position: absolute;
@@ -309,5 +326,9 @@
   }
   .dark .frameless-titlebar-close:hover svg {
     fill: #ffffff
+  }
+  /* exclude titlebar so we can apply a custom sidebar background color */
+  .title-bar.dark {
+    background: transparent;
   }
 </style>

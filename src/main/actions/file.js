@@ -1,53 +1,74 @@
 import fs from 'fs'
 // import chokidar from 'chokidar'
 import path from 'path'
+import { promisify } from 'util'
 import { BrowserWindow, dialog, ipcMain } from 'electron'
 import appWindow from '../window'
-import { EXTENSION_HASN, EXTENSIONS } from '../config'
+import { EXTENSION_HASN, EXTENSIONS, PANDOC_EXTENSIONS } from '../config'
 import { writeFile, writeMarkdownFile } from '../utils/filesystem'
 import appMenu from '../menu'
 import { getPath, isMarkdownFile, log, isFile, isDirectory, getRecommendTitle } from '../utils'
 import userPreference from '../preference'
+import pandoc from '../utils/pandoc'
 
 // handle the response from render process.
-const handleResponseForExport = (e, { type, content, pathname, markdown }) => {
+const handleResponseForExport = async (e, { type, content, pathname, markdown }) => {
   const win = BrowserWindow.fromWebContents(e.sender)
   const extension = EXTENSION_HASN[type]
   const dirname = pathname ? path.dirname(pathname) : getPath('documents')
-  const nakedFilename = getRecommendTitle(markdown) || (pathname ? path.basename(pathname, '.md') : 'untitled')
+  let nakedFilename = getRecommendTitle(markdown)
+  if (!nakedFilename) {
+    nakedFilename = pathname ? path.basename(pathname, '.md') : 'Untitled'
+  }
   const defaultPath = `${dirname}/${nakedFilename}${extension}`
   const filePath = dialog.showSaveDialog(win, {
     defaultPath
   })
 
   if (filePath) {
-    if (!content && type === 'pdf') {
-      // when export for PDF, the conent is undefined
-      win.webContents.printToPDF({ printBackground: true }, (err, data) => {
-        if (err) log(err)
-        else {
-          writeFile(filePath, data, extension)
-            .then(() => {
-              win.webContents.send('AGANI::export-success', { type, filePath })
-            })
-            .catch(log)
-        }
+    let data = content
+    try {
+      if (!content && type === 'pdf') {
+        data = await promisify(win.webContents.printToPDF.bind(win.webContents))({ printBackground: true })
+        removePrintServiceFromWindow(win)
+      }
+      if (data) {
+        await writeFile(filePath, data, extension)
+        win.webContents.send('AGANI::export-success', { type, filePath })
+      }
+    } catch (err) {
+      log(err)
+      const ERROR_MSG = err.message || `Error happened when export ${filePath}`
+      win.webContents.send('AGANI::show-notification', {
+        title: 'Export File Error',
+        type: 'error',
+        message: ERROR_MSG
       })
-    } else {
-      writeFile(filePath, content, extension)
-        .then(() => {
-          win.webContents.send('AGANI::export-success', { type, filePath })
-        })
-        .catch(log)
+    }
+  } else {
+    // User canceled save dialog
+    if (type === 'pdf') {
+      removePrintServiceFromWindow(win)
     }
   }
 }
 
+const handleResponseForPrint = e => {
+  const win = BrowserWindow.fromWebContents(e.sender)
+  win.webContents.print({ printBackground: true }, () => {
+    removePrintServiceFromWindow(win)
+  })
+}
+
 const handleResponseForSave = (e, { id, markdown, pathname, options }) => {
   const win = BrowserWindow.fromWebContents(e.sender)
+  let recommendFilename = getRecommendTitle(markdown)
+  if (!recommendFilename) {
+    recommendFilename = 'Untitled'
+  }
 
   pathname = pathname || dialog.showSaveDialog(win, {
-    defaultPath: getPath('documents') + (`/${getRecommendTitle(markdown)}.md` || '/Untitled.md')
+    defaultPath: getPath('documents') + `/${recommendFilename}.md`
   })
 
   if (pathname && typeof pathname === 'string') {
@@ -86,6 +107,29 @@ const showUnsavedFilesMessage = (win, files) => {
     })
   })
 }
+const noticePandocNotFound = win => {
+  return win.webContents.send('AGANI::pandoc-not-exists', {
+    title: 'Import Warning',
+    type: 'warning',
+    message: 'Install pandoc before you want to import files.',
+    time: 10000
+  })
+}
+
+const pandocFile = async pathname => {
+  try {
+    const converter = pandoc(pathname, 'markdown')
+    const data = await converter()
+    appWindow.createWindow(undefined, data)
+  } catch (err) {
+    log(err)
+  }
+}
+
+const removePrintServiceFromWindow = win => {
+  // remove print service content and restore GUI
+  win.webContents.send('AGANI::print-service-clearup')
+}
 
 ipcMain.on('AGANI::save-all', (e, unSavedFiles) => {
   Promise.all(unSavedFiles.map(file => handleResponseForSave(e, file)))
@@ -114,8 +158,12 @@ ipcMain.on('AGANI::save-close', async (e, unSavedFiles, isSingle) => {
 
 ipcMain.on('AGANI::response-file-save-as', (e, { id, markdown, pathname, options }) => {
   const win = BrowserWindow.fromWebContents(e.sender)
+  let recommendFilename = getRecommendTitle(markdown)
+  if (!recommendFilename) {
+    recommendFilename = 'Untitled'
+  }
   const filePath = dialog.showSaveDialog(win, {
-    defaultPath: pathname || getPath('documents') + '/Untitled.md'
+    defaultPath: pathname || getPath('documents') + `/${recommendFilename}.md`
   })
   if (filePath) {
     writeMarkdownFile(filePath, markdown, options, win)
@@ -148,16 +196,29 @@ ipcMain.on('AGANI::response-file-save', handleResponseForSave)
 
 ipcMain.on('AGANI::response-export', handleResponseForExport)
 
+ipcMain.on('AGANI::response-print', handleResponseForPrint)
+
 ipcMain.on('AGANI::close-window', e => {
   const win = BrowserWindow.fromWebContents(e.sender)
   appWindow.forceClose(win)
 })
 
-ipcMain.on('AGANI::window::drop', (e, fileList) => {
+ipcMain.on('AGANI::window::drop', async (e, fileList) => {
+  const win = BrowserWindow.fromWebContents(e.sender)
   for (const file of fileList) {
     if (isMarkdownFile(file)) {
       appWindow.createWindow(file)
       break
+    }
+    // handle import file
+    if (PANDOC_EXTENSIONS.some(ext => file.endsWith(ext))) {
+      const existsPandoc = pandoc.exists()
+      if (!existsPandoc) {
+        noticePandocNotFound(win)
+      } else {
+        pandocFile(file)
+        break
+      }
     }
   }
 })
@@ -218,8 +279,27 @@ export const exportFile = (win, type) => {
   win.webContents.send('AGANI::export', { type })
 }
 
+export const importFile = async win => {
+  const existsPandoc = pandoc.exists()
+
+  if (!existsPandoc) {
+    return noticePandocNotFound(win)
+  }
+  const filename = dialog.showOpenDialog(win, {
+    properties: [ 'openFile' ],
+    filters: [{
+      name: 'All Files',
+      extensions: PANDOC_EXTENSIONS
+    }]
+  })
+
+  if (filename && filename[0]) {
+    pandocFile(filename[0])
+  }
+}
+
 export const print = win => {
-  win.webContents.print({ silent: false, printBackground: true, deviceName: '' })
+  win.webContents.send('AGANI::print')
 }
 
 export const openFileOrProject = pathname => {

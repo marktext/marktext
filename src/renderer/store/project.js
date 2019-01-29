@@ -85,6 +85,21 @@ const mutations = {
   },
   SET_RENAME_CACHE (state, cache) {
     state.renameCache = cache
+  },
+  UPDATE_PROJECT_CONTENT (state, { markdown, pathname }) {
+    if (!state.projectTree) return
+    const travel = folder => {
+      folder.files.filter(file => file.isMarkdown)
+        .forEach(file => {
+          if (file.pathname === pathname) {
+            file.data.markdown = markdown
+          }
+        })
+      for (const childFolder of folder.folders) {
+        travel(childFolder)
+      }
+    }
+    travel(state.projectTree)
   }
 }
 
@@ -104,7 +119,7 @@ const actions = {
   LISTEN_FOR_UPDATE_PROJECT ({ commit, state, dispatch }) {
     ipcRenderer.on('AGANI::update-object-tree', (e, { type, change }) => {
       switch (type) {
-        case 'add':
+        case 'add': {
           const { pathname, data, isMarkdown } = change
           commit('ADD_FILE', change)
           if (isMarkdown && state.newFileNameCache && pathname === state.newFileNameCache) {
@@ -113,6 +128,7 @@ const actions = {
             commit('SET_NEWFILENAME', '')
           }
           break
+        }
         case 'unlink':
           commit('UNLINK_FILE', change)
           commit('SET_SAVE_STATUS_WHEN_REMOVE', change)

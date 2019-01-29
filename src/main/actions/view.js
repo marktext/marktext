@@ -5,7 +5,7 @@ const sourceCodeModeMenuItemId = 'sourceCodeModeMenuItem'
 const typewriterModeMenuItemId = 'typewriterModeMenuItem'
 const focusModeMenuItemId = 'focusModeMenuItem'
 
-export const typeMode = (win, item, type) => {
+export const typeMode = (win, type, item) => {
   const { checked } = item
   win.webContents.send('AGANI::view', { type, checked })
 
@@ -23,6 +23,13 @@ export const changeFont = win => {
 
 export const layout = (item, win, type) => {
   win.webContents.send('AGANI::listen-for-view-layout', { [type]: item.checked })
+}
+
+export const showTabBar = win => {
+  const tabBarMenuItem = getMenuItemById('tabBarMenuItem')
+  if (tabBarMenuItem && !tabBarMenuItem.checked && tabBarMenuItem.click) {
+    tabBarMenuItem.click(tabBarMenuItem, win)
+  }
 }
 
 ipcMain.on('AGANI::ask-for-mode', e => {

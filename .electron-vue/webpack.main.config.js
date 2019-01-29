@@ -5,10 +5,13 @@ process.env.BABEL_ENV = 'main'
 const path = require('path')
 const { dependencies } = require('../package.json')
 const webpack = require('webpack')
+const GitRevisionPlugin = require('git-revision-webpack-plugin')
 const proMode = process.env.NODE_ENV === 'production'
+const isOfficialRelease = !!process.env.MARKTEXT_IS_OFFICIAL_RELEASE
 
 const mainConfig = {
   mode: 'development',
+  devtool: '#cheap-module-eval-source-map',
   entry: {
     main: path.join(__dirname, '../src/main/index.js')
   },
@@ -24,7 +27,8 @@ const mainConfig = {
         use: {
           loader: 'eslint-loader',
           options: {
-            formatter: require('eslint-friendly-formatter')
+            formatter: require('eslint-friendly-formatter'),
+            failOnError: true
           }
         }
       },
@@ -72,10 +76,23 @@ if (!proMode) {
  * Adjust mainConfig for production settings
  */
 if (proMode) {
+  mainConfig.devtool = '#nosources-source-map'
   mainConfig.mode = 'production'
   mainConfig.plugins.push(
     // new BabiliWebpackPlugin()
   )
 }
+
+/**
+ * Add git information
+ */
+const gitRevisionPlugin = new GitRevisionPlugin()
+mainConfig.plugins.push(
+  new webpack.DefinePlugin({
+    'global.MARKTEXT_GIT_INFO': JSON.stringify(gitRevisionPlugin.version()),
+    'global.MARKTEXT_GIT_HASH': JSON.stringify(gitRevisionPlugin.commithash()),
+    'global.MARKTEXT_IS_OFFICIAL_RELEASE': isOfficialRelease
+  })
+)
 
 module.exports = mainConfig

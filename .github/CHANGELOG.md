@@ -1,3 +1,113 @@
+### [unreleased]
+
+**:cactus:Feature**
+
+- Improve exception and error handling
+
+**:butterfly:Optimization**
+
+- Respect existing image title if no source is specified (#562)
+- Separate font and font size for code blocks and source code mode (#373, #467)
+- Opened files and opened directories/files can now be folded (#475, #602)
+- You can now hide the quick insert hint (#621)
+- Adjusted quote inline math color (#592)
+- Fix inline math text align (#593)
+
+**:beetle:Bug fix**
+
+- Fix dark preview box background color (#587)
+- Use white PDF background color (#583)
+- Fix document printing
+- Restore default Mark Text style after exporting/printing
+- Prevent enter key as language identifier (#569)
+- Allow pasting text into the code block language text-box (#553)
+- Fixed a crash when opening a directory with an unknown file extension
+- Fixed an issue with `Save all` and `Delete all` buttons in the side bar
+
+### 0.13.65
+
+**:butterfly:Optimization**
+
+- Show tab bar when opening a new tab
+- Use default bold (`CmdOrCtrl+B`) and italics (`CmdOrCtrl+I`) key binding (#346)
+- Don't show save dialog for an empty document (#422)
+- Sidebar and tab redesign
+- Calculate artifact checksum after uploading (#566)
+- Use `CmdOrCltr+Enter` to add table row bellow.
+
+**:beetle:Bug fix**
+
+- fix: #451 empty list item error
+- fix: #522 paste bug when paste into empty line
+- fix: #521
+- fix: #534
+- fix: #535 Application menu is not updated when switching windows
+- fix #216 and #311 key binding issues on Linux and Windows
+- fix #546 paste issue in table
+- fix: Blank document was always encoded as `LF`
+- fix: #541
+
+### 0.13.50
+
+**:cactus:Feature**
+
+- (#421) Add experiment function RTL support (#439)
+- feat: #487 Show filename while hovering over marktext file on dock
+- feat: export files in file menu
+- feat: drag to import
+- feat: quick insert paragraph
+- feat: inline format float box
+- feat: import files: TEX\ WIKI\ DOCX etc
+- feat: portable Windows application (#369)
+- feat: support search and replace in code block
+- feat: support GFM diff in code block
+- feat: suppoet quick input html in html block, eg: input div, press `tab` will auto input \<div\><\/div>
+
+**:butterfly:Optimization**
+
+- Update linux documentation and remove snappy build (#381)
+- Update Japanese Document Latest Release Update.
+- add alfred workflow into readme (#394)
+- French translation of README.md (#398)
+- optimization: add gauss blur effect when open a modal (#407)
+- Improvement math preview styles (#419) (#424)
+- Turkish language translation for README.md (#427)
+- Improvement: #414 Add functional bracket auto-completion (#428)
+- feature: vscode debug config support (#446)
+- Exclude hard-line-break from printing. (#454)
+- export styled HTML with heading id's (#460)
+- opti: #485 Open Project command. Maybe rename to Open folder
+- Added Spanish translation (#499)
+- feat: add tooltip to editor
+- opti: #429 Support DataURL images (#480)
+- opti: rewrite image picker
+- opti: notify the user about the deletion url of the uploaded image
+- rewrite code block, html block, math block, front matter
+
+**:beetle:Bug fix**
+
+- fix download url in docs. (#379)
+- fix: #371 wrong paste behavior
+- fix: #380 wrong action of list shortcut
+- bugfix: inline math style error in list item (#405)
+- bugfix: #406 relative image path not display (#411)
+- bugfix: #400 (#410)
+- fix: wrong mouse click position #416 (#423)
+- fix: title bar resizing in north direction (#455)
+- fix: #441 #451 empty list item has no paragraph (#456)
+- fix: task list item centering (#457)
+- fix: #402 table of contents sidebar scroll bug (#461)
+- fix: recommend filename can be empty (#462)
+- Formatting cleanups (#463)
+- Arrow key up/down navigation in a table (#470)
+- fix: #481 add missing dot to parser markdown files only (#483)
+- fix: YAML frontmatter duplicates a new line on each opening of the file #494
+- fix(#431): broken math expression
+- fix(#434): no need to auto pair in math block
+- fix(#450) style error when render inline math
+- fix: #399 #476 #490 math render with style miss
+- fix: #393
+
 ### 0.12.25
 
 **:cactus:Feature**

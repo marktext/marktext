@@ -67,15 +67,17 @@
         this.error = false
       },
       handleUpload () {
-        this.showUpload = true
-        bus.$emit('editor-blur')
+        if (!this.showUpload) {
+          this.showUpload = true
+          bus.$emit('editor-blur')
+        }
       },
       handleResponse (res) {
         if (res.code === 'success') {
           // handle success
-          const { url } = res.data
+          const { url, delete: deletionUrl } = res.data
           this.showUpload = false
-          bus.$emit('insert-image', url)
+          bus.$emit('image-uploaded', url, deletionUrl)
         } else if (res.code === 'error') {
           // handle error
           this.message = res.msg

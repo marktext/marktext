@@ -6,3 +6,6 @@
 if (process.env.NODE_ENV !== 'development') {
   global.__static = require('path').join(__dirname, '/static').replace(/\\/g, '\\\\')
 }
+
+global.MARKTEXT_DEBUG = process.env.NODE_ENV !== 'production'
+global.MARKTEXT_SAFE_MODE = false

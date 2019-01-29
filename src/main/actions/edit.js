@@ -42,6 +42,10 @@ ipcMain.on('AGANI::update-line-ending-menu', (e, lineEnding) => {
   appMenu.updateLineEndingnMenu(lineEnding)
 })
 
+ipcMain.on('AGANI::update-text-direction-menu', (e, textDirection) => {
+  appMenu.updateTextDirectionMenu(textDirection)
+})
+
 export const edit = (win, type) => {
   win.webContents.send('AGANI::edit', { type })
 }
@@ -56,4 +60,8 @@ export const insertImage = (win, type) => {
   } else {
     win.webContents.send('AGANI::INSERT_IMAGE', { type })
   }
+}
+
+export const textDirection = (win, textDirection) => {
+  win.webContents.send('AGANI::set-text-direction', { textDirection })
 }

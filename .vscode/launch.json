@@ -1,0 +1,35 @@
+{
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Marktext: Main",
+      "program": "${workspaceFolder}/.electron-vue/dev-runner.js",
+      "windows": {
+        "runtimeExecutable": "${workspaceFolder}/node_modules/.bin/electron.cmd"
+      }
+    },
+    {
+      "name": "Marktext: Renderer",
+      "type": "chrome",
+      "request": "attach",
+      "port": 8315,
+      "webRoot": "${workspaceFolder}/src",
+      "timeout": 30000,
+      "urlFilter": "localhost:*"
+    }
+  ],
+  "compounds": [
+    {
+      "name": "Marktext: All",
+      "configurations": [
+        "Marktext: Main",
+        "Marktext: Renderer"
+      ]
+    }
+  ]
+}

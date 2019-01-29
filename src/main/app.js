@@ -1,7 +1,7 @@
 import { app } from 'electron'
-import appMenu from './menu'
 import appWindow from './window'
 import { isOsx } from './config'
+import { dockMenu } from './menus'
 import { isMarkdownFile } from './utils'
 import { watchers } from './utils/imagePathAutoComplement'
 
@@ -11,6 +11,16 @@ class App {
   }
 
   init () {
+    // Enable these features to use `backdrop-filter` css rules!
+    if (isOsx) {
+      app.commandLine.appendSwitch('enable-experimental-web-platform-features', 'true')
+    }
+
+    // Enable vscode chrome extension debugger connection
+    if (process.env.NODE_ENV === 'development') {
+      app.commandLine.appendSwitch('remote-debugging-port', '8315')
+    }
+
     app.on('open-file', this.openFile.bind(this))
 
     app.on('ready', this.ready.bind(this))
@@ -34,16 +44,39 @@ class App {
         this.ready()
       }
     })
+
+    // Prevent to load webview and opening links or new windows via HTML/JS.
+    app.on('web-contents-created', (event, contents) => {
+      contents.on('will-attach-webview', (event, webPreferences, params) => {
+        console.warn('Prevented webview creation.')
+        event.preventDefault()
+      })
+      contents.on('will-navigate', event => {
+        console.warn('Prevented opening a link.')
+        event.preventDefault();
+      });
+      contents.on('new-window', (event, url) => {
+        console.warn('Prevented opening a new window.')
+        event.preventDefault()
+      })
+    })
   }
 
   ready () {
     if (!isOsx && process.argv.length >= 2) {
       for (const arg of process.argv) {
-        if (isMarkdownFile(arg)) {
+        if (arg.startsWith('--')) {
+          continue
+        } else if (isMarkdownFile(arg)) {
           this.openFilesCache = [arg]
           break
         }
       }
+    }
+
+    // Set dock on macOS
+    if (process.platform === 'darwin') {
+      app.dock.setMenu(dockMenu)
     }
 
     if (this.openFilesCache.length) {
@@ -52,7 +85,6 @@ class App {
     } else {
       appWindow.createWindow()
     }
-    appMenu.updateAppMenu()
   }
 
   openFile (event, path) {

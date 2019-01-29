@@ -3,6 +3,7 @@
     class="editor-container"
   >
     <title-bar
+      :project="projectTree"
       :pathname="pathname"
       :filename="filename"
       :active="windowActive"
@@ -19,10 +20,12 @@
       <editor-with-tabs
         v-if="hasCurrentFile && init"
         :markdown="markdown"
+        :filename="filename"
         :cursor="cursor"
         :theme="theme"
         :source-code="sourceCode"
         :show-tab-bar="showTabBar"
+        :text-direction="textDirection"
       ></editor-with-tabs>
     </div>
     <bottom-bar
@@ -35,10 +38,13 @@
     <font></font>
     <rename></rename>
     <tweet></tweet>
+    <import-modal></import-modal>
   </div>
 </template>
 
 <script>
+  import { remote } from 'electron'
+  import { addStyles } from '@/util/theme'
   import Recent from '@/components/recent'
   import EditorWithTabs from '@/components/editorWithTabs'
   import TitleBar from '@/components/titleBar'
@@ -50,7 +56,10 @@
   import Font from '@/components/font'
   import Rename from '@/components/rename'
   import Tweet from '@/components/tweet'
+  import ImportModal from '@/components/import'
   import { mapState } from 'vuex'
+  import bus from '@/bus'
+  import { DEFAULT_STYLE } from '@/config'
 
   export default {
     name: 'marktext',
@@ -65,10 +74,12 @@
       AboutDialog,
       Font,
       Rename,
-      Tweet
+      Tweet,
+      ImportModal
     },
     data () {
-      return {}
+      return {
+      }
     },
     computed: {
       ...mapState({
@@ -77,12 +88,14 @@
         'theme': state => state.preferences.theme
       }),
       ...mapState({
+        'projectTree': state => state.project.projectTree,
         'pathname': state => state.editor.currentFile.pathname,
         'filename': state => state.editor.currentFile.filename,
         'isSaved': state => state.editor.currentFile.isSaved,
         'markdown': state => state.editor.currentFile.markdown,
         'cursor': state => state.editor.currentFile.cursor,
-        'wordCount': state => state.editor.currentFile.wordCount
+        'wordCount': state => state.editor.currentFile.wordCount,
+        'textDirection': state => state.editor.currentFile.textDirection
       }),
       ...mapState([
         'windowActive', 'platform', 'init'
@@ -123,22 +136,53 @@
       dispatch('LISTEN_FOR_OPEN_SINGLE_FILE')
       dispatch('LISTEN_FOR_OPEN_BLANK_WINDOW')
       dispatch('LISTEN_FOR_SAVE_CLOSE')
-      dispatch('LISTEN_FOR_EXPORT')
+      dispatch('LISTEN_FOR_EXPORT_PRINT')
       dispatch('LISTEN_FOR_INSERT_IMAGE')
       dispatch('LISTEN_FOR_RENAME')
       dispatch('LINTEN_FOR_SET_LINE_ENDING')
       dispatch('LISTEN_FOR_NEW_TAB')
       dispatch('LISTEN_FOR_CLOSE_TAB')
+      dispatch('LINTEN_FOR_PRINT_SERVICE_CLEARUP')
       dispatch('LINTEN_FOR_EXPORT_SUCCESS')
+      dispatch('LISTEN_FOR_SET_TEXT_DIRECTION')
+      dispatch('LISTEN_FOR_TEXT_DIRECTION_MENU')
       // module: notification
       dispatch('LISTEN_FOR_NOTIFICATION')
+
+      // prevent Chromium's default behavior and try to open the first file
+      window.addEventListener('dragover', e => {
+        e.preventDefault()
+        if (e.dataTransfer.types.indexOf('Files') >= 0) {
+          if (e.dataTransfer.items.length === 1 && /png|jpg|jpeg|gif/.test(e.dataTransfer.items[0].type)) {
+            bus.$emit('upload-image')
+          } else {
+            if (this.timer) {
+              clearTimeout(this.timer)
+            }
+            this.timer = setTimeout(() => {
+              bus.$emit('importDialog', false)
+            }, 300)
+            bus.$emit('importDialog', true)
+          }
+          e.dataTransfer.dropEffect = 'copy'
+        } else {
+          e.stopPropagation()
+          e.dataTransfer.dropEffect = 'none'
+        }
+      }, false)
+
+      this.$nextTick(() => {
+        const win = remote.getCurrentWindow()
+        const style = win.stylePrefs || DEFAULT_STYLE
+        addStyles(style)
+      })
     }
   }
 </script>
 
 <style scoped>
   .editor-container {
-    padding-top: 25px;
+    padding-top: var(--titleBarHeight);
   }
   .editor-container .hide {
     z-index: -1;
@@ -148,7 +192,7 @@
   }
   .editor-middle {
     display: flex;
-    min-height: calc(100vh - 25px);
+    min-height: calc(100vh - var(--titleBarHeight));
     & > .editor {
       flex: 1;
     }

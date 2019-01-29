@@ -11,6 +11,11 @@ export const getOsLineEndingName = () => {
   return endOfLine === 'crlf' || isWindows ? 'crlf' : 'lf'
 }
 
+export const getDefaultTextDirection = () => {
+  const { textDirection } = userPreference.getAll()
+  return textDirection
+}
+
 const getLineEnding = lineEnding => {
   if (lineEnding === 'lf') {
     return '\n'
@@ -78,6 +83,8 @@ export const loadMarkdownFile = async pathname => {
 
   const filename = path.basename(pathname)
 
+  const textDirection = getDefaultTextDirection()
+
   return {
     markdown,
     filename,
@@ -85,6 +92,7 @@ export const loadMarkdownFile = async pathname => {
     isUtf8BomEncoded,
     lineEnding,
     adjustLineEndingOnSave,
-    isMixed
+    isMixed,
+    textDirection
   }
 }

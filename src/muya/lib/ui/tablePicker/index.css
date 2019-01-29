@@ -1,0 +1,64 @@
+.ag-table-picker {
+  box-sizing: border-box;
+  font-size: 12px;
+  width: 153px;
+  padding: 10px;
+}
+
+.ag-table-picker .checker {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 5px;
+}
+.ag-table-picker-row {
+  display: flex;
+}
+.ag-table-picker-cell {
+  width: 16px;
+  height: 16px;
+  box-sizing: border-box;
+  margin-right: 1px;
+  margin-bottom: 1px;
+  border: 1px solid #ccc;
+  cursor: pointer;
+}
+.ag-table-picker-header span {
+  background: #ddd;
+}
+.ag-table-picker-cell.current {
+  background: darkgray;
+}
+.ag-table-picker-header .current {
+  background: #666;
+}
+.ag-table-picker-cell.selected {
+  background: #ecf5ff;
+}
+.ag-table-picker-header .selected {
+  background: #ecf5ff;
+}
+.ag-table-picker-cell:last-of-type {
+  margin-right: 0;
+}
+.ag-table-picker .footer {
+  padding-top: 5px;
+  border-top: 1px solid #ccc;
+  text-align: center;
+}
+.ag-table-picker .footer input {
+  text-align: center;
+  border: none;
+  padding: 0;
+  height: 16px;
+  width: 16px;
+}
+.ag-table-picker .footer button {
+  outline: none;
+  cursor: pointer;
+  border-radius: 2px;
+  line-height: 12px;
+  border: none;
+  height: 16px;
+  background: #409eff;
+  color: #fff;
+}

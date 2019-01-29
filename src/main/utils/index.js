@@ -56,7 +56,7 @@ export const log = data => {
 // returns true if the filename matches one of the markdown extensions
 export const hasMarkdownExtension = filename => {
   if (!filename || typeof filename !== 'string') return false
-  return EXTENSIONS.some(ext => filename.endsWith(ext))
+  return EXTENSIONS.some(ext => filename.endsWith(`.${ext}`))
 }
 
 export const hasSameKeys = (a, b) => {
@@ -89,4 +89,14 @@ export const isFile = filepath => {
 // returns true if the file is a supported markdown file.
 export const isMarkdownFile = filepath => {
   return isFile(filepath) && hasMarkdownExtension(filepath)
+}
+
+export const readJson = (filePath, printError) => {
+  try {
+    const content = fs.readFileSync(filePath, 'utf-8')
+    return JSON.parse(content)
+  } catch (e) {
+    if (printError) console.log(e)
+    return null
+  }
 }

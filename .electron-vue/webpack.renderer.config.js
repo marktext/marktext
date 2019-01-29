@@ -8,13 +8,14 @@ const CopyWebpackPlugin = require('copy-webpack-plugin')
 const MiniCssExtractPlugin = require("mini-css-extract-plugin")
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const VueLoaderPlugin = require('vue-loader/lib/plugin')
+const SpritePlugin = require('svg-sprite-loader/plugin')
 const postcssPresetEnv = require('postcss-preset-env')
+const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer')
 
 const { dependencies } = require('../package.json')
 const proMode = process.env.NODE_ENV === 'production'
 /**
  * List of node_modules to include in webpack bundle
- *
  * Required for specific packages like Vue UI libraries
  * that provide pure *.vue files that need compiling
  * https://simulatedgreg.gitbooks.io/electron-vue/content/en/webpack-configurations.html#white-listing-externals
@@ -39,12 +40,21 @@ const rendererConfig = {
         use: {
           loader: 'eslint-loader',
           options: {
-            formatter: require('eslint-friendly-formatter')
+            formatter: require('eslint-friendly-formatter'),
+            failOnError: true
           }
         }
       },
       {
+        test: /(katex|github\-markdown|prism[\-a-z]*)\.css$/,
+        use: [
+          'to-string-loader',
+          'css-loader'
+        ]
+      },
+      {
         test: /\.css$/,
+        exclude: /(katex|github\-markdown|prism[\-a-z]*)\.css$/,
         use: [
           proMode ? MiniCssExtractPlugin.loader : 'style-loader',
           { loader: 'css-loader', options: { importLoader: 1 } },
@@ -74,11 +84,27 @@ const rendererConfig = {
       {
         test: /\.vue$/,
         use: {
-          loader: 'vue-loader'
+          loader: 'vue-loader',
+          options: {
+            sourceMap: true
+          }
         }
       },
       {
-        test: /\.(png|jpe?g|gif|svg)(\?.*)?$/,
+        test: /\.svg$/,
+        use: [
+          {
+            loader: 'svg-sprite-loader',
+            options: {
+              extract: true,
+              publicPath: '/static/'
+            }
+          },
+          'svgo-loader'
+        ]
+      },
+      {
+        test: /\.(png|jpe?g|gif)(\?.*)?$/,
         use: {
           loader: 'url-loader',
           query: {
@@ -100,7 +126,7 @@ const rendererConfig = {
         use: {
           loader: 'url-loader',
           query: {
-            limit: 10000,
+            limit: 100000,
             name: 'fonts/[name]--[folder].[ext]'
           }
         }
@@ -108,10 +134,11 @@ const rendererConfig = {
     ]
   },
   node: {
-    __dirname: process.env.NODE_ENV !== 'production',
-    __filename: process.env.NODE_ENV !== 'production'
+    __dirname: !proMode,
+    __filename: !proMode
   },
   plugins: [
+    new SpritePlugin(),
     new HtmlWebpackPlugin({
       filename: 'index.html',
       template: path.resolve(__dirname, '../src/index.ejs'),
@@ -124,7 +151,6 @@ const rendererConfig = {
         ? path.resolve(__dirname, '../node_modules')
         : false
     }),
-    new webpack.HotModuleReplacementPlugin(),
     new webpack.NoEmitOnErrorsPlugin(),
     new VueLoaderPlugin()
   ],
@@ -136,6 +162,7 @@ const rendererConfig = {
   resolve: {
     alias: {
       '@': path.join(__dirname, '../src/renderer'),
+      'muya': path.join(__dirname, '../src/muya'),
       'vue$': 'vue/dist/vue.esm.js'
     },
     extensions: ['.js', '.vue', '.json', '.css', '.node']
@@ -146,11 +173,18 @@ const rendererConfig = {
 /**
  * Adjust rendererConfig for development settings
  */
-if (process.env.NODE_ENV !== 'production') {
+if (!proMode) {
   rendererConfig.plugins.push(
     new webpack.DefinePlugin({
       '__static': `"${path.join(__dirname, '../static').replace(/\\/g, '\\\\')}"`
-    })
+    }),
+    new webpack.HotModuleReplacementPlugin()
+  )
+}
+
+if (process.env.NODE_ENV !== 'production' && process.env.NODE_ENV !== 'test') {
+  rendererConfig.plugins.push(
+    new BundleAnalyzerPlugin()
   )
 }
 
@@ -158,7 +192,7 @@ if (process.env.NODE_ENV !== 'production') {
  * Adjust rendererConfig for production settings
  */
 if (proMode) {
-  rendererConfig.devtool = ''
+  rendererConfig.devtool = '#nosources-source-map'
   rendererConfig.mode = 'production'
   rendererConfig.plugins.push(
     new MiniCssExtractPlugin({

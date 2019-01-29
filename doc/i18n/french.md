@@ -35,7 +35,7 @@
   </a>
   <!-- Downloads latest release -->
   <a href="https://marktext.github.io/website">
-    <img src="https://img.shields.io/github/downloads/marktext/marktext/v0.12.25/total.svg" alt="latest download">
+    <img src="https://img.shields.io/github/downloads/marktext/marktext/v0.13.65/total.svg" alt="latest download">
   </a>
   <!-- deps -->
   <a href="https://marktext.github.io/website">
@@ -51,18 +51,6 @@
   <h3>
     <a href="https://marktext.github.io/website">
       Site web
-    </a>
-    <span> | </span>
-    <a href="https://github.com/marktext/marktext/blob/master/doc/i18n/zh_cn.md#readme">
-      Chinois
-    </a>
-    <span> | </span>
-    <a href="https://github.com/marktext/marktext/blob/master/doc/i18n/pl.md#readme">
-      Polonais
-    </a>
-    <span> | </span>
-    <a href="https://github.com/marktext/marktext/blob/master/doc/i18n/ja.md#readme">
-      Japonais
     </a>
     <span> | </span>
     <a href="https://github.com/marktext/marktext#features">
@@ -129,7 +117,7 @@
 
 | ![]( https://github.com/ryanoasis/nerd-fonts/wiki/screenshots/v1.0.x/mac-pass-sm.png)                                                                                                             | ![]( https://github.com/ryanoasis/nerd-fonts/wiki/screenshots/v1.0.x/windows-pass-sm.png)                                                                                                                     | ![]( https://github.com/ryanoasis/nerd-fonts/wiki/screenshots/v1.0.x/linux-pass-sm.png)                                                                                                                                   |
 |:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
-| [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-0.12.25.dmg.svg)](https://github.com/marktext/marktext/releases/download/v0.12.25/marktext-0.12.25.dmg) | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-setup-0.12.25.exe.svg)](https://github.com/marktext/marktext/releases/download/v0.12.25/marktext-setup-0.12.25.exe) | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-0.12.25-x86_64.AppImage.svg)](https://github.com/marktext/marktext/releases/download/v0.12.25/marktext-0.12.25-x86_64.AppImage) |
+| [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-0.13.65.dmg.svg)](https://github.com/marktext/marktext/releases/download/v0.13.65/marktext-0.13.65.dmg) | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-setup-0.13.65.exe.svg)](https://github.com/marktext/marktext/releases/download/v0.13.65/marktext-setup-0.13.65.exe) | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-0.13.65-x86_64.AppImage.svg)](https://github.com/marktext/marktext/releases/download/v0.13.65/marktext-0.13.65-x86_64.AppImage) |
 
 Vous ne trouvez pas votre système? Aller sur la [page des releases](https://github.com/marktext/marktext/releases). Toujours pas? Ouvrez une [issue](https://github.com/marktext/marktext/issues).
 
@@ -149,7 +137,7 @@ Télécharger et installer simplement Mark Text via le client d'installation.
 
 #### Linux
 
-Veuillez suivre [les instructions d'installations Linux](https://github.com/marktext/marktext/blob/master/doc/linux.md).
+Veuillez suivre [les instructions d'installations Linux](https://github.com/marktext/marktext/blob/master/doc/LINUX.md).
 
 ## Development
 

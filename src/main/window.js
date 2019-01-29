@@ -1,11 +1,12 @@
 import path from 'path'
 import { app, BrowserWindow, screen } from 'electron'
 import windowStateKeeper from 'electron-window-state'
-import { getOsLineEndingName, loadMarkdownFile } from './utils/filesystem'
+import { getOsLineEndingName, loadMarkdownFile, getDefaultTextDirection } from './utils/filesystem'
 import appMenu from './menu'
 import Watcher from './watcher'
 import { isMarkdownFile, isDirectory, log } from './utils'
 import { TITLE_BAR_HEIGHT, defaultWinOptions, isLinux } from './config'
+import userPreference from './preference'
 
 class AppWindow {
   constructor () {
@@ -47,7 +48,7 @@ class AppWindow {
     }
   }
 
-  createWindow (pathname, options = {}) {
+  createWindow (pathname, markdown = '', options = {}) {
     const { windows } = this
     const mainWindowState = windowStateKeeper({
       defaultWidth: 1200,
@@ -61,6 +62,12 @@ class AppWindow {
       win,
       watchers: []
     })
+
+    // create a menu for the current window
+    appMenu.addWindowMenuWithListener(win)
+    if (windows.size === 1) {
+      appMenu.setActiveWindow(win.id)
+    }
 
     win.once('ready-to-show', async () => {
       mainWindowState.manage(win)
@@ -78,10 +85,12 @@ class AppWindow {
               isUtf8BomEncoded,
               lineEnding,
               adjustLineEndingOnSave,
-              isMixed
+              isMixed,
+              textDirection
             } = data
 
             appMenu.updateLineEndingnMenu(lineEnding)
+            appMenu.updateTextDirectionMenu(textDirection)
             win.webContents.send('AGANI::open-single-file', {
               markdown,
               filename,
@@ -95,9 +104,11 @@ class AppWindow {
 
             // Notify user about mixed endings
             if (isMixed) {
-              win.webContents.send('AGANI::show-info-notification', {
-                msg: `The document has mixed line endings which are automatically normalized to ${lineEnding.toUpperCase()}.`,
-                timeout: 20000
+              win.webContents.send('AGANI::show-notification', {
+                title: 'Mixed Line Endings',
+                type: 'error',
+                message: `The document has mixed line endings which are automatically normalized to ${lineEnding.toUpperCase()}.`,
+                time: 20000
               })
             }
           })
@@ -108,11 +119,13 @@ class AppWindow {
         // open a window but do not open a file or directory
       } else {
         const lineEnding = getOsLineEndingName()
+        const textDirection = getDefaultTextDirection()
         win.webContents.send('AGANI::open-blank-window', {
           lineEnding,
-          ignoreSaveStatus: true
+          markdown
         })
         appMenu.updateLineEndingnMenu(lineEnding)
+        appMenu.updateTextDirectionMenu(textDirection)
       }
     })
 
@@ -123,6 +136,10 @@ class AppWindow {
         this.focusedWindowId = win.id
         win.webContents.send('AGANI::req-update-line-ending-menu')
         win.webContents.send('AGANI::request-for-view-layout')
+        win.webContents.send('AGANI::req-update-text-direction-menu')
+
+        // update application menu
+        appMenu.setActiveWindow(win.id)
       }
     })
 
@@ -135,12 +152,20 @@ class AppWindow {
       win.webContents.send('AGANI::ask-for-close')
     })
 
+    // set renderer arguments
+    const { codeFontFamily, codeFontSize, theme } = userPreference.getAll()
+    win.stylePrefs = {
+      codeFontFamily,
+      codeFontSize,
+      theme
+    }
+
     const winURL = process.env.NODE_ENV === 'development'
       ? `http://localhost:9080`
       : `file://${__dirname}/index.html`
 
     win.loadURL(winURL)
-    win.setSheetOffset(TITLE_BAR_HEIGHT) // 21 is the title bar height
+    win.setSheetOffset(TITLE_BAR_HEIGHT)
 
     return win
   }
@@ -169,6 +194,7 @@ class AppWindow {
       }
       windows.delete(win.id)
     }
+    appMenu.removeWindowMenu(win.id)
     win.destroy() // if use win.close(), it will cause a endless loop.
     if (windows.size === 0) {
       app.quit()

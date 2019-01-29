@@ -23,10 +23,10 @@
     <!-- opened files -->
     <div class="opened-files">
       <div class="title">
-        <svg class="icon" aria-hidden="true">
+        <svg class="icon" aria-hidden="true" @click.stop="toggleOpenedFiles()">
           <use xlink:href="#icon-arrow"></use>
         </svg>
-        <span class="text-overflow">Opened files</span>
+        <span class="default-cursor text-overflow" @click.stop="toggleOpenedFiles()">Opened files</span>
         <a href="javascript:;" @click.stop="saveAll(false)" title="Save All">
           <svg class="icon" aria-hidden="true">
             <use xlink:href="#icon-save-all"></use>
@@ -38,11 +38,12 @@
           </svg>
         </a>
       </div>
-      <div class="opened-files-list">
+      <div class="opened-files-list" v-show="showOpenedFiles">
         <transition-group name="list">
+          <!-- tab.id := mt-1, mt-2, ... -->
           <opened-file
-            v-for="(tab, index) of tabs"
-            :key="index"
+            v-for="tab of tabs"
+            :key="tab.id"
             :file="tab"
           ></opened-file>
         </transition-group>
@@ -53,12 +54,12 @@
       class="project-tree" v-if="projectTree"
     >
       <div class="title">
-        <svg class="icon" aria-hidden="true">
+        <svg class="icon" aria-hidden="true" @click.stop="toggleDirectories()">
           <use xlink:href="#icon-arrow"></use>
         </svg>
-        <span class="text-overflow">{{ projectTree.name }}</span>
+        <span class="default-cursor text-overflow" @click.stop="toggleDirectories()">{{ projectTree.name }}</span>
       </div>
-      <div class="tree-wrapper" v-show="active === 'tree'">
+      <div class="tree-wrapper" v-show="showDirectories && active === 'tree'">
         <folder
           v-for="(folder, index) of projectTree.folders" :key="index + 'folder'"
           :folder="folder"
@@ -90,7 +91,7 @@
       </div>
     </div>
     <div v-else class="open-project">
-      <a href="javascript:;" @click="openProject" title="Open Project">
+      <a href="javascript:;" @click="openProject" title="Open Folder">
         <svg class="icon" aria-hidden="true">
           <use xlink:href="#icon-create-project"></use>
         </svg>
@@ -114,7 +115,9 @@
       this.depth = 0
       return {
         active: 'tree', // tree or list
+        showDirectories: true,
         showNewInput: false,
+        showOpenedFiles: true,
         createName: ''
       }
     },
@@ -180,6 +183,12 @@
       createFile () {
         this.$store.dispatch('CHANGE_ACTIVE_ITEM', this.projectTree)
         bus.$emit('SIDEBAR::new', 'file')
+      },
+      toggleOpenedFiles () {
+        this.showOpenedFiles = !this.showOpenedFiles
+      },
+      toggleDirectories () {
+        this.showDirectories = !this.showDirectories
       }
     }
   }
@@ -256,7 +265,8 @@
       margin-left: 8px;
     }
   }
-  .opened-files div.title:hover > a {
+  .opened-files div.title:hover > a,
+  .opened-files div.title > a:hover {
     display: block;
     &:hover {
       color: var(--primary);
@@ -265,6 +275,9 @@
   .opened-files {
     display: flex;
     flex-direction: column;
+  }
+  .default-cursor {
+    cursor: default;
   }
   .opened-files .opened-files-list {
     max-height: 200px;

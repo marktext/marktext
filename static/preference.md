@@ -10,23 +10,29 @@ Edit and save to update preferences. You can only change the JSON below!
 
 - **bulletListMarker**: *String* `+`,`-` or `*`
 
+- **textDirection**: *String* `ltr` or `rtl`
+
 ```json
 {
   "fontSize": "16px",
   "editorFontFamily": "Open Sans",
+  "codeFontFamily": "DejaVu Sans Mono",
+  "codeFontSize": "14px",
   "lightColor": "#303133",
   "darkColor": "rgb(217, 217, 217)",
   "lineHeight": "1.6",
   "theme": "light",
   "autoSave": false,
   "aidou": false,
+  "hideQuickInsertHint": false,
   "preferLooseListItem": true,
   "bulletListMarker": "-",
   "autoPairBracket": true,
   "autoPairMarkdownSyntax": true,
   "autoPairQuote": true,
   "endOfLine": "default",
-  "tabSize": 4
+  "tabSize": 4,
+  "textDirection": "ltr"
 }
 ```
 

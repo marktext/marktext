@@ -1,22 +1,24 @@
-import { ipcRenderer, shell } from 'electron'
+import { clipboard, ipcRenderer, shell } from 'electron'
 import path from 'path'
 import bus from '../bus'
 import { hasKeys } from '../util'
 import { getOptionsFromState, getSingleFileState, getBlankFileState } from './help'
 import notice from '../services/notification'
 
-const toc = require('markdown-toc')
+// HACK: When rewriting muya, create and update muya's TOC during heading parsing and pass it to the renderer process.
+import { getTocFromMarkdown } from 'muya/lib/utils/dirtyToc'
 
 const state = {
   lineEnding: 'lf',
   currentFile: {},
-  tabs: []
+  tabs: [],
+  textDirection: 'ltr'
 }
 
 const getters = {
   toc: state => {
-    const { currentFile } = state
-    return toc(currentFile.markdown).json
+    const { markdown } = state.currentFile
+    return getTocFromMarkdown(markdown)
   }
 }
 
@@ -28,7 +30,8 @@ const mutations = {
   SET_CURRENT_FILE (state, currentFile) {
     const oldCurrentFile = state.currentFile
     if (!oldCurrentFile.id || oldCurrentFile.id !== currentFile.id) {
-      const { markdown, cursor, history } = currentFile
+      const { markdown, cursor, history, pathname } = currentFile
+      window.DIRNAME = pathname ? path.dirname(pathname) : ''
       // set state first, then emit file changed event
       state.currentFile = currentFile
       bus.$emit('file-changed', { markdown, cursor, renderCursor: true, history })
@@ -53,8 +56,8 @@ const mutations = {
   },
   SET_PATHNAME (state, file) {
     const { filename, pathname, id } = file
-    if (id === state.currentFile.id) {
-      window.__dirname = path.dirname(pathname)
+    if (id === state.currentFile.id && pathname) {
+      window.DIRNAME = path.dirname(pathname)
     }
 
     const targetFile = state.tabs.filter(f => f.id === id)[0]
@@ -135,6 +138,11 @@ const mutations = {
   },
   SET_GLOBAL_LINE_ENDING (state, ending) {
     state.lineEnding = ending
+  },
+  SET_TEXT_DIRECTION (state, textDirection) {
+    if (hasKeys(state.currentFile)) {
+      state.currentFile.textDirection = textDirection
+    }
   }
 }
 
@@ -155,6 +163,18 @@ const actions = {
     commit('SET_SEARCH', value)
   },
 
+  SHOW_IMAGE_DELETION_URL ({ commit }, deletionUrl) {
+    notice.notify({
+      title: 'Image deletion URL',
+      message: `Click to copy the deletion URL of the uploaded image to the clipboard (${deletionUrl}).`,
+      showConfirm: true,
+      time: 20000
+    })
+      .then(() => {
+        clipboard.writeText(deletionUrl)
+      })
+  },
+
   REMOVE_FILE_IN_TABS ({ commit }, file) {
     commit('REMOVE_FILE_WITHIN_TABS', file)
   },
@@ -171,6 +191,19 @@ const actions = {
     const { lineEnding } = state.currentFile
     if (lineEnding) {
       ipcRenderer.send('AGANI::update-line-ending-menu', lineEnding)
+    }
+  },
+
+  LISTEN_FOR_TEXT_DIRECTION_MENU ({ commit, state, dispatch }) {
+    ipcRenderer.on('AGANI::req-update-text-direction-menu', e => {
+      dispatch('UPDATE_TEXT_DIRECTION_MENU')
+    })
+  },
+
+  UPDATE_TEXT_DIRECTION_MENU ({ commit, state }) {
+    const { textDirection } = state.currentFile
+    if (textDirection) {
+      ipcRenderer.send('AGANI::update-text-direction-menu', textDirection)
     }
   },
 
@@ -210,7 +243,7 @@ const actions = {
 
   LISTEN_FOR_CLOSE ({ commit, state }) {
     ipcRenderer.on('AGANI::ask-for-close', e => {
-      const unSavedFiles = state.tabs.filter(file => !(file.isSaved && /[^\n]/.test(file.markdown)))
+      const unSavedFiles = state.tabs.filter(file => !file.isSaved)
         .map(file => {
           const { id, filename, pathname, markdown } = file
           const options = getOptionsFromState(file)
@@ -227,15 +260,13 @@ const actions = {
 
   LISTEN_FOR_SAVE_CLOSE ({ commit, state }) {
     ipcRenderer.on('AGANI::save-all-response', (e, { err, data }) => {
-      if (err) {
-      } else if (Array.isArray(data)) {
+      if (!err && Array.isArray(data)) {
         const toBeClosedTabs = [...state.tabs.filter(f => f.isSaved), ...data]
         commit('CLOSE_TABS', toBeClosedTabs)
       }
     })
     ipcRenderer.on('AGANI::save-single-response', (e, { err, data }) => {
-      if (err) {
-      } else if (Array.isArray(data) && data.length) {
+      if (!err && Array.isArray(data) && data.length) {
         commit('CLOSE_TABS', data)
       }
     })
@@ -299,8 +330,9 @@ const actions = {
     }
   },
 
-  UPDATE_CURRENT_FILE ({ commit, state }, currentFile) {
+  UPDATE_CURRENT_FILE ({ commit, state, dispatch }, currentFile) {
     commit('SET_CURRENT_FILE', currentFile)
+    dispatch('UPDATE_TEXT_DIRECTION_MENU', state)
     const { tabs } = state
     if (!tabs.some(file => file.id === currentFile.id)) {
       commit('ADD_FILE_TO_TABS', currentFile)
@@ -352,9 +384,9 @@ const actions = {
   },
 
   LISTEN_FOR_OPEN_BLANK_WINDOW ({ commit, state, dispatch }) {
-    ipcRenderer.on('AGANI::open-blank-window', (e, { lineEnding }) => {
+    ipcRenderer.on('AGANI::open-blank-window', (e, { lineEnding, markdown: source }) => {
       const { tabs } = state
-      const fileState = getBlankFileState(tabs, lineEnding)
+      const fileState = getBlankFileState(tabs, lineEnding, source)
       const { markdown } = fileState
       commit('SET_GLOBAL_LINE_ENDING', lineEnding)
       dispatch('INIT_STATUS', true)
@@ -385,17 +417,28 @@ const actions = {
   // Content change from realtime preview editor and source code editor
   LISTEN_FOR_CONTENT_CHANGE ({ commit, state, rootState }, { markdown, wordCount, cursor, history }) {
     const { autoSave } = rootState.preferences
+    const { projectTree } = rootState.project
     const { pathname, markdown: oldMarkdown, id } = state.currentFile
     const options = getOptionsFromState(state.currentFile)
     commit('SET_MARKDOWN', markdown)
+
+    // ignore new line which is added if the editor text is empty (#422)
+    if (oldMarkdown.length === 0 && markdown.length === 1 && markdown[0] === '\n') {
+      return
+    }
+
     // set word count
     if (wordCount) commit('SET_WORD_COUNT', wordCount)
     // set cursor
     if (cursor) commit('SET_CURSOR', cursor)
     // set history
     if (history) commit('SET_HISTORY', history)
+
     // change save status/save to file only when the markdown changed!
     if (markdown !== oldMarkdown) {
+      if (projectTree) {
+        commit('UPDATE_PROJECT_CONTENT', { markdown, pathname })
+      }
       if (pathname && autoSave) {
         ipcRenderer.send('AGANI::response-file-save', { id, pathname, markdown, options })
       } else {
@@ -423,9 +466,12 @@ const actions = {
   },
 
   // listen for export from main process
-  LISTEN_FOR_EXPORT ({ commit, state }) {
+  LISTEN_FOR_EXPORT_PRINT ({ commit, state }) {
     ipcRenderer.on('AGANI::export', (e, { type }) => {
       bus.$emit('export', type)
+    })
+    ipcRenderer.on('AGANI::print', e => {
+      bus.$emit('print')
     })
   },
 
@@ -445,6 +491,16 @@ const actions = {
         .then(() => {
           shell.showItemInFolder(filePath)
         })
+    })
+  },
+
+  PRINT_RESPONSE ({ commit }) {
+    ipcRenderer.send('AGANI::response-print')
+  },
+
+  LINTEN_FOR_PRINT_SERVICE_CLEARUP ({ commit }) {
+    ipcRenderer.on('AGANI::print-service-clearup', e => {
+      bus.$emit('print-service-clearup')
     })
   },
 
@@ -473,6 +529,15 @@ const actions = {
         if (!ignoreSaveStatus) {
           commit('SET_SAVE_STATUS', false)
         }
+      }
+    })
+  },
+
+  LISTEN_FOR_SET_TEXT_DIRECTION ({ commit, state }) {
+    ipcRenderer.on('AGANI::set-text-direction', (e, { textDirection }) => {
+      const { textDirection: oldTextDirection } = state.currentFile
+      if (textDirection !== oldTextDirection) {
+        commit('SET_TEXT_DIRECTION', textDirection)
       }
     })
   }
