@@ -1,8 +1,9 @@
+import path from 'path'
 import { app } from 'electron'
 import appWindow from './window'
 import { isOsx } from './config'
 import { dockMenu } from './menus'
-import { isMarkdownFile } from './utils'
+import { isDirectory, isMarkdownFile } from './utils'
 import { watchers } from './utils/imagePathAutoComplement'
 
 class App {
@@ -67,8 +68,9 @@ class App {
       for (const arg of process.argv) {
         if (arg.startsWith('--')) {
           continue
-        } else if (isMarkdownFile(arg)) {
-          this.openFilesCache = [arg]
+        } else if (isDirectory(arg) || isMarkdownFile(arg)) {
+          // Normalize path into an absolute path.
+          this.openFilesCache = [ path.resolve(arg) ]
           break
         }
       }
