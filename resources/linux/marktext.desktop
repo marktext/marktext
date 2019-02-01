@@ -1,7 +1,7 @@
 [Desktop Entry]
 Name=Mark Text
 Comment=Next generation markdown editor
-Exec=marktext
+Exec=marktext %F
 Terminal=false
 Type=Application
 Icon=marktext
