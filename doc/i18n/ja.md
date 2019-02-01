@@ -72,6 +72,31 @@
 </div>
 
 <div align="center">
+  <sub>Translations:</sub>
+  <a href="https://github.com/marktext/marktext/blob/master/readme.md#readme">
+    <span>:en:</span>
+  </a>
+  <a href="https://github.com/marktext/marktext/blob/master/doc/i18n/zh_cn.md#readme">
+    <span>:cn:</span>    
+  </a>
+  <a href="https://github.com/marktext/marktext/blob/master/doc/i18n/pl.md#readme">
+    <span>:poland:</span>
+  </a>  
+  <a href="https://github.com/marktext/marktext/blob/master/doc/i18n/french.md#readme">
+    <span>:fr:</span>
+  </a>
+  <a href="https://github.com/marktext/marktext/blob/master/doc/i18n/tr.md#readme">
+    <span>:tr:</span>
+  </a>
+  <a href="https://github.com/marktext/marktext/blob/master/doc/i18n/spanish.md#readme">
+    <span>:es:</span>
+  </a>
+  <a href="https://github.com/marktext/marktext/blob/master/doc/i18n/pt.md#readme">
+    <span>:portugal:</span>
+  </a>
+</div>
+
+<div align="center">
   <sub>This Markdown editor that could. Built with ❤︎ by
     <a href="https://github.com/Jocs">Jocs</a> and
     <a href="https://github.com/marktext/marktext/graphs/contributors">
