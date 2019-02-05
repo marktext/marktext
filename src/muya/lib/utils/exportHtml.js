@@ -21,7 +21,17 @@ class ExportHtml {
   renderHtml () {
     return marked(this.markdown, {
       highlight (code, lang) {
-        return Prism.highlight(code, Prism.languages[lang], lang)
+        // Language may be undefined (GH#591)
+        if (!lang) {
+          return code
+        }
+
+        const grammar = Prism.languages[lang]
+        if (!grammar) {
+          console.warn(`Unable to find grammar for "${lang}".`)
+          return code
+        }
+        return Prism.highlight(code, grammar, lang)
       },
       emojiRenderer (emoji) {
         const validate = validEmoji(emoji)
