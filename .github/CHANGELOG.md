@@ -1,5 +1,9 @@
 ### [unreleased]
 
+**:warning:Breaking Changes:**
+
+- Minimum supported macOS version is 10.10 (Yosemite)
+
 **:cactus:Feature**
 
 - Improve exception and error handling
