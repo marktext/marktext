@@ -13,7 +13,7 @@
           <h3 class="text fg-color-dark">{{ name }}</h3>
         </el-col>
         <el-col :span="24">
-          <div class="text">{{ `${versionPrefix} ${appVersion}` }}</div>
+          <div class="text">{{ appVersion }}</div>
         </el-col>
         <el-col :span="24">
           <div class="text">{{ copyright }}</div>
@@ -30,7 +30,6 @@
   export default {
     data () {
       this.name = 'Mark Text'
-      this.versionPrefix = 'v'
       this.copyright = `Copyright © 2017-${new Date().getFullYear()} Jocs`
       return {
         showAboutDialog: false
