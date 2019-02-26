@@ -17,12 +17,12 @@ const ERROR_MSG_RENDERER = 'An unexpected error occurred in the renderer process
 
 // main process error handler
 process.on('uncaughtException', error => {
-  handleError(ERROR_MSG_MAIN, error)
+  handleError(ERROR_MSG_MAIN, error, 'main')
 })
 
 // renderer process error handler
 ipcMain.on('AGANI::handle-renderer-error', (e, error) => {
-  handleError(ERROR_MSG_RENDERER, error)
+  handleError(ERROR_MSG_RENDERER, error, 'renderer')
 })
 
 // start crashReporter to save core dumps to temporary folder
@@ -44,16 +44,19 @@ const bundleException = (error, type) => {
   }
 }
 
-const handleError = (title, error) => {
+const handleError = (title, error, type) => {
   const { message, stack } = error
 
   // log error
-  const info = bundleException(error, 'renderer')
+  const info = bundleException(error, type)
   console.error(info)
   log(JSON.stringify(info, null, 2))
 
   if (EXIT_ON_ERROR) {
+    console.log('Mark Text was terminated due to an unexpected error (MARKTEXT_EXIT_ON_ERROR variable was set)!')
     process.exit(1)
+    // eslint, don't lie to me, the return statement is important!
+    return // eslint-disable-line no-unreachable
   } else if (!SHOW_ERROR_DIALOG) {
     return
   }
