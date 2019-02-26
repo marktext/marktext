@@ -144,7 +144,7 @@ InlineLexer.prototype.output = function (src) {
     cap = this.rules.strong.exec(src)
     if (cap) {
       src = src.substring(cap[0].length)
-      out += this.renderer.strong(this.output(cap[2] || cap[1]))
+      out += this.renderer.strong(this.output(cap[4] || cap[3] || cap[2] || cap[1]))
       continue
     }
 
@@ -152,7 +152,7 @@ InlineLexer.prototype.output = function (src) {
     cap = this.rules.em.exec(src)
     if (cap) {
       src = src.substring(cap[0].length)
-      out += this.renderer.em(this.output(cap[2] || cap[1]))
+      out += this.renderer.em(this.output(cap[6] || cap[5] || cap[4] || cap[3] || cap[2] || cap[1]))
       continue
     }
 
@@ -160,7 +160,7 @@ InlineLexer.prototype.output = function (src) {
     cap = this.rules.code.exec(src)
     if (cap) {
       src = src.substring(cap[0].length)
-      out += this.renderer.codespan(escape(cap[2], true))
+      out += this.renderer.codespan(escape(cap[2].trim(), true))
       continue
     }
 

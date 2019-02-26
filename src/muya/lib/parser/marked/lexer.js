@@ -154,19 +154,6 @@ Lexer.prototype.token = function (src, top, bq) {
       }
     }
 
-    // lheading
-    cap = this.rules.lheading.exec(src)
-    if (cap) {
-      src = src.substring(cap[0].length)
-      this.tokens.push({
-        type: 'heading',
-        headingStyle: 'setext',
-        depth: cap[2] === '=' ? 1 : 2,
-        text: cap[1]
-      })
-      continue
-    }
-
     // hr
     cap = this.rules.hr.exec(src)
     if (cap) {
@@ -390,6 +377,19 @@ Lexer.prototype.token = function (src, top, bq) {
 
         continue
       }
+    }
+
+    // lheading
+    cap = this.rules.lheading.exec(src)
+    if (cap) {
+      src = src.substring(cap[0].length)
+      this.tokens.push({
+        type: 'heading',
+        headingStyle: 'setext',
+        depth: cap[2] === '=' ? 1 : 2,
+        text: cap[1]
+      })
+      continue
     }
 
     // top-level paragraph
