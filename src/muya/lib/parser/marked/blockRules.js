@@ -9,7 +9,7 @@ const block = {
   code: /^( {4}[^\n]+\n*)+/,
   fences: noop,
   hr: /^( *[-*_]){3,} *(?:\n+|$)/,
-  heading: /^ *(#{1,6}) *([^\n]+?) *#* *(?:\n+|$)/,
+  heading: /^ *(#{1,6}) *([^\n]+?) *(?:#+ *)?(?:\n+|$)/,
   nptable: noop,
   // DOTO(@Jocs) need to support multiple line in setext heading?
   lheading: /^([^\n]+)\n *(=|-){2,} *(?:\n+|$)/,
