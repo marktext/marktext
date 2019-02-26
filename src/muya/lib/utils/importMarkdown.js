@@ -78,7 +78,11 @@ const importRegister = ContentState => {
           break
         }
         case 'code': {
-          const { codeBlockStyle, text, lang = '' } = token
+          const { codeBlockStyle, text, lang: infostring = '' } = token
+
+          // GH#697, markedjs#1387
+          const lang = (infostring || '').match(/\S*/)[0]
+
           value = text
           if (value.endsWith('\n')) {
             value = value.replace(/\n+$/, '')

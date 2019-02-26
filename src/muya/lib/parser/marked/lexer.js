@@ -100,8 +100,8 @@ Lexer.prototype.token = function (src, top, bq) {
       this.tokens.push({
         type: 'code',
         codeBlockStyle: 'fenced',
-        lang: cap[2],
-        text: cap[3]
+        lang: cap[2] ? cap[2].trim() : cap[2],
+        text: cap[3] || ''
       })
       continue
     }

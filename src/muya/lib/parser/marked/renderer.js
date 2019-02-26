@@ -37,7 +37,8 @@ Renderer.prototype.emoji = function (text, emoji) {
   }
 }
 
-Renderer.prototype.code = function (code, lang, escaped, codeBlockStyle) {
+Renderer.prototype.code = function (code, infostring, escaped, codeBlockStyle) {
+  const lang = (infostring || '').match(/\S*/)[0]
   if (this.options.highlight) {
     let out = this.options.highlight(code, lang)
     if (out !== null && out !== code) {
