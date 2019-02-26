@@ -126,13 +126,12 @@ Renderer.prototype.paragraph = function (text) {
 }
 
 Renderer.prototype.table = function (header, body) {
+  if (body) body = '<tbody>' + body + '</tbody>'
   return '<table>\n' +
     '<thead>\n' +
     header +
     '</thead>\n' +
-    '<tbody>\n' +
     body +
-    '</tbody>\n' +
     '</table>\n'
 }
 
@@ -143,7 +142,7 @@ Renderer.prototype.tablerow = function (content) {
 Renderer.prototype.tablecell = function (content, flags) {
   const type = flags.header ? 'th' : 'td'
   const tag = flags.align
-    ? '<' + type + ' style="text-align:' + flags.align + '">'
+    ? '<' + type + ' align="' + flags.align + '">'
     : '<' + type + '>'
   return tag + content + '</' + type + '>\n'
 }

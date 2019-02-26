@@ -122,34 +122,36 @@ Lexer.prototype.token = function (src, top, bq) {
     // table no leading pipe (gfm)
     cap = this.rules.nptable.exec(src)
     if (top && cap) {
-      src = src.substring(cap[0].length)
-
       item = {
         type: 'table',
         header: splitCells(cap[1].replace(/^ *| *\| *$/g, '')),
         align: cap[2].replace(/^ *|\| *$/g, '').split(/ *\| */),
-        cells: cap[3].replace(/\n$/, '').split('\n')
+        cells: cap[3] ? cap[3].replace(/\n$/, '').split('\n') : []
       }
 
-      for (i = 0; i < item.align.length; i++) {
-        if (/^ *-+: *$/.test(item.align[i])) {
-          item.align[i] = 'right'
-        } else if (/^ *:-+: *$/.test(item.align[i])) {
-          item.align[i] = 'center'
-        } else if (/^ *:-+ *$/.test(item.align[i])) {
-          item.align[i] = 'left'
-        } else {
-          item.align[i] = null
+      if (item.header.length === item.align.length) {
+        src = src.substring(cap[0].length)
+
+        for (i = 0; i < item.align.length; i++) {
+          if (/^ *-+: *$/.test(item.align[i])) {
+            item.align[i] = 'right'
+          } else if (/^ *:-+: *$/.test(item.align[i])) {
+            item.align[i] = 'center'
+          } else if (/^ *:-+ *$/.test(item.align[i])) {
+            item.align[i] = 'left'
+          } else {
+            item.align[i] = null
+          }
         }
+
+        for (i = 0; i < item.cells.length; i++) {
+          item.cells[i] = splitCells(item.cells[i], item.header.length)
+        }
+
+        this.tokens.push(item)
+
+        continue
       }
-
-      for (i = 0; i < item.cells.length; i++) {
-        item.cells[i] = splitCells(item.cells[i])
-      }
-
-      this.tokens.push(item)
-
-      continue
     }
 
     // lheading
@@ -356,35 +358,38 @@ Lexer.prototype.token = function (src, top, bq) {
     // table (gfm)
     cap = this.rules.table.exec(src)
     if (cap) {
-      src = src.substring(cap[0].length)
-
       item = {
         type: 'table',
         header: splitCells(cap[1].replace(/^ *| *\| *$/g, '')),
         align: cap[2].replace(/^ *|\| *$/g, '').split(/ *\| */),
-        cells: cap[3].replace(/\n$/, '').split('\n')
+        cells: cap[3] ? cap[3].replace(/(?: *\| *)?\n$/, '').split('\n') : []
       }
 
-      for (i = 0; i < item.align.length; i++) {
-        if (/^ *-+: *$/.test(item.align[i])) {
-          item.align[i] = 'right'
-        } else if (/^ *:-+: *$/.test(item.align[i])) {
-          item.align[i] = 'center'
-        } else if (/^ *:-+ *$/.test(item.align[i])) {
-          item.align[i] = 'left'
-        } else {
-          item.align[i] = null
+      if (item.header.length === item.align.length) {
+        src = src.substring(cap[0].length)
+
+        for (i = 0; i < item.align.length; i++) {
+          if (/^ *-+: *$/.test(item.align[i])) {
+            item.align[i] = 'right'
+          } else if (/^ *:-+: *$/.test(item.align[i])) {
+            item.align[i] = 'center'
+          } else if (/^ *:-+ *$/.test(item.align[i])) {
+            item.align[i] = 'left'
+          } else {
+            item.align[i] = null
+          }
         }
+
+        for (i = 0; i < item.cells.length; i++) {
+          item.cells[i] = splitCells(
+            item.cells[i].replace(/^ *\| *| *\| *$/g, ''),
+            item.header.length)
+        }
+
+        this.tokens.push(item)
+
+        continue
       }
-
-      for (i = 0; i < item.cells.length; i++) {
-        item.cells[i] = splitCells(
-          item.cells[i].replace(/^ *\| *| *\| *$/g, ''))
-      }
-
-      this.tokens.push(item)
-
-      continue
     }
 
     // top-level paragraph
