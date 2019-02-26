@@ -126,7 +126,7 @@ Lexer.prototype.token = function (src, top, bq) {
 
       item = {
         type: 'table',
-        header: cap[1].replace(/^ *| *\| *$/g, '').split(/ *\| */),
+        header: splitCells(cap[1].replace(/^ *| *\| *$/g, '')),
         align: cap[2].replace(/^ *|\| *$/g, '').split(/ *\| */),
         cells: cap[3].replace(/\n$/, '').split('\n')
       }
@@ -144,7 +144,7 @@ Lexer.prototype.token = function (src, top, bq) {
       }
 
       for (i = 0; i < item.cells.length; i++) {
-        item.cells[i] = item.cells[i].split(/ *\| */)
+        item.cells[i] = splitCells(item.cells[i])
       }
 
       this.tokens.push(item)
@@ -360,7 +360,7 @@ Lexer.prototype.token = function (src, top, bq) {
 
       item = {
         type: 'table',
-        header: cap[1].replace(/^ *| *\| *$/g, '').split(/ *\| */),
+        header: splitCells(cap[1].replace(/^ *| *\| *$/g, '')),
         align: cap[2].replace(/^ *|\| *$/g, '').split(/ *\| */),
         cells: cap[3].replace(/\n$/, '').split('\n')
       }
@@ -378,9 +378,8 @@ Lexer.prototype.token = function (src, top, bq) {
       }
 
       for (i = 0; i < item.cells.length; i++) {
-        item.cells[i] = item.cells[i]
-          .replace(/^ *\| *| *\| *$/g, '')
-          .split(/ *\| */)
+        item.cells[i] = splitCells(
+          item.cells[i].replace(/^ *\| *| *\| *$/g, ''))
       }
 
       this.tokens.push(item)
@@ -419,6 +418,37 @@ Lexer.prototype.token = function (src, top, bq) {
   }
 
   return this.tokens
+}
+
+function splitCells (tableRow, count) {
+  // ensure that every cell-delimiting pipe has a space
+  // before it to distinguish it from an escaped pipe
+  let row = tableRow.replace(/\|/g, function (match, offset, str) {
+    let escaped = false
+    let curr = offset
+    while (--curr >= 0 && str[curr] === '\\') escaped = !escaped
+    if (escaped) {
+      // odd number of slashes means | is escaped
+      // so we leave it alone
+      return '|'
+    } else {
+      // add space before unescaped |
+      return ' |'
+    }
+  })
+
+  let cells = row.split(/ \|/)
+  if (cells.length > count) {
+    cells.splice(count)
+  } else {
+    while (cells.length < count) cells.push('')
+  }
+
+  for (let i = 0; i < cells.length; i++) {
+    // leading or trailing whitespace is ignored per the gfm spec
+    cells[i] = cells[i].trim().replace(/\\\|/g, '|')
+  }
+  return cells
 }
 
 export default Lexer
