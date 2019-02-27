@@ -26,6 +26,9 @@ const icons = [
     type: 'image',
     icon: imageIcon
   }, {
+    type: 'inline_math',
+    iconText: '𝑥'
+  }, {
     type: 'clear',
     icon: clearIcon
   }

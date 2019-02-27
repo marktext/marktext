@@ -9,7 +9,8 @@ const getOffset = (offset, { range: { start, end }, type, anchor, alt }) => {
     case 'strong':
     case 'del':
     case 'em':
-    case 'inline_code': {
+    case 'inline_code':
+    case 'inline_math': {
       const MARKER_LEN = (type === 'strong' || type === 'del') ? 2 : 1
       if (dis < 0) return 0
       if (dis >= 0 && dis < MARKER_LEN) return -dis
@@ -62,6 +63,7 @@ const clearFormat = (token, { start, end }) => {
       delete token.src
       break
     }
+    case 'inline_math':
     case 'inline_code': {
       token.type = 'text'
       token.raw = token.content
@@ -77,7 +79,8 @@ const addFormat = (type, block, { start, end }) => {
     case 'em':
     case 'del':
     case 'inline_code':
-    case 'strong': {
+    case 'strong':
+    case 'inline_math': {
       const MARKER = FORMAT_MARKER_MAP[type]
       const oldText = block.text
       block.text = oldText.substring(0, start.offset) +

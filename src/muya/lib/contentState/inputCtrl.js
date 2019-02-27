@@ -58,7 +58,7 @@ const inputCtrl = ContentState => {
             (autoPairQuote && /[']{1}/.test(inputChar)) ||
             (autoPairQuote && /["]{1}/.test(inputChar)) ||
             (autoPairBracket && /[\}\]\)]{1}/.test(inputChar)) ||
-            (autoPairMarkdownSyntax && /[*_]{1}/.test(inputChar))
+            (autoPairMarkdownSyntax && /[*$`~_]{1}/.test(inputChar))
           )
         ) {
           text = text.substring(0, offset) + text.substring(offset + 1)

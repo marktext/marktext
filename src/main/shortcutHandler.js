@@ -73,13 +73,14 @@ class Keybindings {
       ['formatStrong', 'CmdOrCtrl+B'],
       ['formatEmphasis', 'CmdOrCtrl+I'],
       ['formatInlineCode', 'CmdOrCtrl+`'],
+      ['formatInlineMath', 'Ctrl+M'],
       ['formatStrike', 'CmdOrCtrl+D'],
       ['formatHyperlink', 'CmdOrCtrl+L'],
       ['formatImage', 'CmdOrCtrl+Shift+I'],
       ['formatClearFormat', 'Shift+CmdOrCtrl+R'],
 
       // window menu
-      ['windowMinimize', 'CmdOrCtrl+M'],
+      // ['windowMinimize', 'CmdOrCtrl+M'], deprecated for math.
       ['windowCloseWindow', 'CmdOrCtrl+Shift+W'],
 
       // view menu
