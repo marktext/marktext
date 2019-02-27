@@ -94,6 +94,9 @@
   <a href="https://github.com/marktext/marktext/blob/master/doc/i18n/pt.md#readme">
     <span>:portugal:</span>
   </a>
+  <a href="https://github.com/marktext/marktext/blob/master/doc/i18n/ko.md#readme">
+    <span>:kr:</span>
+  </a>
 </div>
 
 <div align="center">
