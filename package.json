@@ -16,7 +16,7 @@
     "build:dev": "node .electron-vue/build.js",
     "build:web": "cross-env BUILD_TARGET=web node .electron-vue/build.js",
     "dev": "node .electron-vue/dev-runner.js",
-    "e2e": "npm run pack && mocha --timeout 10000 test/e2e",
+    "e2e": "npm run pack && cross-env MARKTEXT_EXIT_ON_ERROR=1 mocha --timeout 10000 test/e2e",
     "lint": "eslint --ext .js,.vue -f ./node_modules/eslint-friendly-formatter src test",
     "lint:fix": "eslint --ext .js,.vue -f ./node_modules/eslint-friendly-formatter --fix src test",
     "pack": "npm run pack:main && npm run pack:renderer",

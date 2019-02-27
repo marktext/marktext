@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import axios from 'axios'
-import { ipcRenderer } from 'electron'
+import { crashReporter, ipcRenderer } from 'electron'
 import lang from 'element-ui/lib/locale/lang/en'
 import locale from 'element-ui/lib/locale'
 import App from './app'
@@ -18,6 +18,14 @@ sourceMapSupport.install({
   environment: 'node',
   handleUncaughtExceptions: false,
   hookRequire: false
+})
+
+// Start crash reporter to save core dumps for the renderer process
+crashReporter.start({
+  companyName: 'marktext',
+  productName: 'marktext',
+  submitURL: 'http://0.0.0.0/',
+  uploadToServer: false
 })
 
 // Register renderer error handler
