@@ -83,7 +83,6 @@ const handleError = (title, error, type) => {
       }
       case 2: {
         const issueTitle = message ? `Unexpected error: ${message}` : title
-        const gitInfo = global.MARKTEXT_IS_OFFICIAL_RELEASE ? `(${global.MARKTEXT_GIT_INFO} - git)` : global.MARKTEXT_GIT_INFO
         createAndOpenGitHubIssueUrl(
           issueTitle,
           `### Description
@@ -98,7 +97,7 @@ ${title}.
 
 ### Version
 
-Mark Text: ${app.getVersion()} (${gitInfo})
+Mark Text: ${global.MARKTEXT_VERSION_STRING}
 Operating system: ${process.platform}`)
         break
       }

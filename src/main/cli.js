@@ -1,4 +1,3 @@
-import { app } from 'electron'
 import { dumpKeyboardInformation } from './keyboardUtils'
 
 for (const arg of process.argv) {
@@ -12,8 +11,7 @@ for (const arg of process.argv) {
     global.MARKTEXT_SAFE_MODE = true
     continue
   } else if (arg === '--version') {
-    const gitInfo = global.MARKTEXT_IS_OFFICIAL_RELEASE ? '' : `(${global.MARKTEXT_GIT_INFO})`
-    console.log(`Mark Text: ${app.getVersion()} ${gitInfo}
+    console.log(`Mark Text: ${global.MARKTEXT_VERSION_STRING}
 Node.js: ${process.versions.node}
 Electron: ${process.versions.electron}
 Chromium: ${process.versions.chrome}

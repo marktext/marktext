@@ -12,6 +12,7 @@ const SpritePlugin = require('svg-sprite-loader/plugin')
 const postcssPresetEnv = require('postcss-preset-env')
 const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer')
 
+const { getRendererEnvironmentDefinitions } = require('./marktextEnvironment')
 const { dependencies } = require('../package.json')
 const proMode = process.env.NODE_ENV === 'production'
 /**
@@ -152,6 +153,7 @@ const rendererConfig = {
         : false
     }),
     new webpack.NoEmitOnErrorsPlugin(),
+    new webpack.DefinePlugin(getRendererEnvironmentDefinitions()),
     new VueLoaderPlugin()
   ],
   output: {

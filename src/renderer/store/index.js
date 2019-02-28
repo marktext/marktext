@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-import { ipcRenderer, remote } from 'electron'
+import { ipcRenderer } from 'electron'
 
 import listenForMain from './listenForMain'
 import project from './project'
@@ -17,7 +17,7 @@ Vue.use(Vuex)
 // global states
 const state = {
   platform: process.platform, // platform of system `darwin` | `win32` | `linux`
-  appVersion: remote.app.getVersion(), // electron version in develop and Mark Text version in production
+  appVersion: process.versions.MARKTEXT_VERSION_STRING, // Mark Text version string
   windowActive: true, // weather current window is active or focused
   init: process.env.NODE_ENV === 'development' // weather Mark Text is inited
 }

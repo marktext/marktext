@@ -3,11 +3,10 @@
 process.env.BABEL_ENV = 'main'
 
 const path = require('path')
+const { getEnvironmentDefinitions } = require('./marktextEnvironment')
 const { dependencies } = require('../package.json')
 const webpack = require('webpack')
-const GitRevisionPlugin = require('git-revision-webpack-plugin')
 const proMode = process.env.NODE_ENV === 'production'
-const isOfficialRelease = !!process.env.MARKTEXT_IS_OFFICIAL_RELEASE
 
 const mainConfig = {
   mode: 'development',
@@ -53,7 +52,9 @@ const mainConfig = {
     path: path.join(__dirname, '../dist/electron')
   },
   plugins: [
-    new webpack.NoEmitOnErrorsPlugin()
+    new webpack.NoEmitOnErrorsPlugin(),
+    // Add global environment definitions.
+    new webpack.DefinePlugin(getEnvironmentDefinitions())
   ],
   resolve: {
     extensions: ['.js', '.json', '.node']
@@ -78,21 +79,6 @@ if (!proMode) {
 if (proMode) {
   mainConfig.devtool = '#nosources-source-map'
   mainConfig.mode = 'production'
-  mainConfig.plugins.push(
-    // new BabiliWebpackPlugin()
-  )
 }
-
-/**
- * Add git information
- */
-const gitRevisionPlugin = new GitRevisionPlugin()
-mainConfig.plugins.push(
-  new webpack.DefinePlugin({
-    'global.MARKTEXT_GIT_INFO': JSON.stringify(gitRevisionPlugin.version()),
-    'global.MARKTEXT_GIT_HASH': JSON.stringify(gitRevisionPlugin.commithash()),
-    'global.MARKTEXT_IS_OFFICIAL_RELEASE': isOfficialRelease
-  })
-)
 
 module.exports = mainConfig
