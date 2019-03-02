@@ -236,6 +236,7 @@ const importRegister = ContentState => {
     // fix #752, but I don't know why the &nbsp; vanlished.
     html = html.replace(/&nbsp;/g, ' ')
     const markdown = turndownService.turndown(html) // .replace(/(\\)\\/g, '$1')
+    console.log(html, markdown)
     return markdown
   }
 

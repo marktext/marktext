@@ -30,8 +30,8 @@ const copyCutCtrl = ContentState => {
       .${CLASS_OR_ID['AG_MATH_PREVIEW']},
       .${CLASS_OR_ID['AG_COPY_REMOVE']},
       .${CLASS_OR_ID['AG_LANGUAGE_INPUT']}`
-
     )
+
     ;[...removedElements].forEach(e => e.remove())
 
     const hrs = wrapper.querySelectorAll(`[data-role=hr]`)
@@ -75,6 +75,13 @@ const copyCutCtrl = ContentState => {
       const selectedCodeLines = cf.querySelectorAll('.ag-code-line')
       const value = [...selectedCodeLines].map(codeLine => codeLine.textContent).join('\n')
       cf.innerHTML = `<code class="language-${language}">${value}</code>`
+    })
+
+    const tightListItem = wrapper.querySelectorAll(`.ag-tight-list-item`)
+    ;[...tightListItem].forEach(li => {
+      if (li.childElementCount === 1) {
+        li.innerHTML = li.firstElementChild.innerHTML
+      }
     })
 
     const htmlBlock = wrapper.querySelectorAll(`figure[data-role='HTML']`)
