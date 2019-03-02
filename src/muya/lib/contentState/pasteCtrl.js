@@ -166,7 +166,7 @@ const pasteCtrl = ContentState => {
 
     if (/th|td/.test(startBlock.type)) {
       const pendingText = text.trim().replace(/\n/g, '<br/>')
-      startBlock.text += pendingText
+      startBlock.text = startBlock.text.substring(0, start.offset) + pendingText + startBlock.text.substring(end.offset)
       const { key } = startBlock
       const offset = start.offset + pendingText.length
       this.cursor = {
