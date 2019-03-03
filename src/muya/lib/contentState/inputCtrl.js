@@ -1,6 +1,7 @@
 import selection from '../selection'
 import { getTextContent } from '../selection/dom'
 import { beginRules } from '../parser/rules'
+import { tokenizer } from '../parser/parse'
 import { CLASS_OR_ID } from '../config'
 
 const BRACKET_HASH = {
@@ -19,6 +20,11 @@ const inputCtrl = ContentState => {
     const { type, text, functionType } = block
     if (type !== 'span' || functionType) return false
     return /^@[a-zA-Z\d]*$/.test(text)
+  }
+
+  ContentState.prototype.checkCursorInInlineMath = function (text, offset) {
+    const tokens = tokenizer(text, [], false)
+    return tokens.filter(t => t.type === 'inline_math').some(t => offset >= t.range.start && offset <= t.range.end)
   }
 
   ContentState.prototype.inputHandler = function (event) {
@@ -65,11 +71,12 @@ const inputCtrl = ContentState => {
         } else {
           /* eslint-disable no-useless-escape */
           // Not Unicode aware, since things like \p{Alphabetic} or \p{L} are not supported yet
+          const isInInlineMath = this.checkCursorInInlineMath(text, start.offset)
           if (
             (autoPairQuote && /[']{1}/.test(inputChar) && !(/[a-zA-Z\d]{1}/.test(preInputChar))) ||
             (autoPairQuote && /["]{1}/.test(inputChar)) ||
             (autoPairBracket && /[\{\[\(]{1}/.test(inputChar)) ||
-            (block.functionType !== 'codeLine' && autoPairMarkdownSyntax && /[*_]{1}/.test(inputChar))
+            (block.functionType !== 'codeLine' && !isInInlineMath && autoPairMarkdownSyntax && /[*_]{1}/.test(inputChar))
           ) {
             needRender = true
             text = BRACKET_HASH[event.data]
