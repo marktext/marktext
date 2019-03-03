@@ -248,6 +248,17 @@ const pasteCtrl = ContentState => {
           const liChildren = firstListItem.children
           const originListItem = this.getParent(parent)
           const originList = this.getParent(originListItem)
+          const targetListType = firstFragment.children[0].isLooseListItem
+          const originListType = originList.children[0].isLooseListItem
+          // No matter copy loose list to tight list or vice versa, the result is one loose list.
+          if (targetListType !== originListType) {
+            if (!targetListType) {
+              firstFragment.children.forEach(item => item.isLooseListItem = true)
+            } else {
+              originList.children.forEach(item => item.isLooseListItem = true)
+            }
+          }
+
           if (liChildren[0].type === 'p') {
             // TODO @JOCS
             startBlock.text += liChildren[0].children[0].text
