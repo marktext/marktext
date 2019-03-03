@@ -69,7 +69,6 @@ export default {
       if (e.dataTransfer.files) {
         const fileList = []
         for (const file of e.dataTransfer.files) {
-          // console.log(file)
           fileList.push(file.path)
         }
         ipcRenderer.send('AGANI::window::drop', fileList)

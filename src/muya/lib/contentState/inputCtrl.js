@@ -40,7 +40,11 @@ const inputCtrl = ContentState => {
     if (oldStart.key !== oldEnd.key) {
       const startBlock = this.getBlock(oldStart.key)
       const endBlock = this.getBlock(oldEnd.key)
+
       this.removeBlocks(startBlock, endBlock)
+      if (this.blocks.length === 1) {
+        needRenderAll = true
+      }
       needRender = true
     }
 
