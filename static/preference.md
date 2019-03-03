@@ -12,6 +12,8 @@ Edit and save to update preferences. You can only change the JSON below!
 
 - **textDirection**: *String* `ltr` or `rtl`
 
+- **titleBarStyle**: *String* `csd` (macOS only), `custom` or `native`
+
 ```json
 {
   "fontSize": "16px",
@@ -32,7 +34,8 @@ Edit and save to update preferences. You can only change the JSON below!
   "autoPairQuote": true,
   "endOfLine": "default",
   "tabSize": 4,
-  "textDirection": "ltr"
+  "textDirection": "ltr",
+  "titleBarStyle": "csd"
 }
 ```
 

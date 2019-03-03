@@ -57,6 +57,16 @@ class AppWindow {
 
     const { x, y, width, height } = this.ensureWindowPosition(mainWindowState)
     const winOpt = Object.assign({ x, y, width, height }, defaultWinOptions, options)
+
+    // Enable native or custom window
+    const { titleBarStyle } = userPreference.getAll()
+    if (titleBarStyle === 'custom') {
+      winOpt.titleBarStyle = ''
+    } else if (titleBarStyle === 'native') {
+      winOpt.frame = true
+      winOpt.titleBarStyle = ''
+    }
+
     const win = new BrowserWindow(winOpt)
     windows.set(win.id, {
       win,
