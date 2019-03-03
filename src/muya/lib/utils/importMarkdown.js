@@ -120,9 +120,14 @@ const importRegister = ContentState => {
           const thead = this.createBlock('thead')
           const tbody = this.createBlock('tbody')
           const theadRow = this.createBlock('tr')
+          const restoreTableEscapeCharacters = text => {
+            // NOTE: markedjs replaces all escaped "|" ("\|") characters inside a cell with "|".
+            //       We have to re-escape the chraracter to not break the table.
+            return text.replace(/\|/g, '\\|')
+          }
           for (const headText of header) {
             const i = header.indexOf(headText)
-            const th = this.createBlock('th', headText)
+            const th = this.createBlock('th', restoreTableEscapeCharacters(headText))
             Object.assign(th, { align: align[i] || '', column: i })
             this.appendChild(theadRow, th)
           }
@@ -130,7 +135,7 @@ const importRegister = ContentState => {
             const rowBlock = this.createBlock('tr')
             for (const cell of row) {
               const i = row.indexOf(cell)
-              const td = this.createBlock('td', cell)
+              const td = this.createBlock('td', restoreTableEscapeCharacters(cell))
               Object.assign(td, { align: align[i] || '', column: i })
               this.appendChild(rowBlock, td)
             }
