@@ -100,8 +100,8 @@ Lexer.prototype.token = function (src, top, bq) {
       this.tokens.push({
         type: 'code',
         codeBlockStyle: 'fenced',
-        lang: cap[2],
-        text: cap[3]
+        lang: cap[2] ? cap[2].trim() : cap[2],
+        text: cap[3] || ''
       })
       continue
     }
@@ -122,47 +122,36 @@ Lexer.prototype.token = function (src, top, bq) {
     // table no leading pipe (gfm)
     cap = this.rules.nptable.exec(src)
     if (top && cap) {
-      src = src.substring(cap[0].length)
-
       item = {
         type: 'table',
-        header: cap[1].replace(/^ *| *\| *$/g, '').split(/ *\| */),
+        header: splitCells(cap[1].replace(/^ *| *\| *$/g, '')),
         align: cap[2].replace(/^ *|\| *$/g, '').split(/ *\| */),
-        cells: cap[3].replace(/\n$/, '').split('\n')
+        cells: cap[3] ? cap[3].replace(/\n$/, '').split('\n') : []
       }
 
-      for (i = 0; i < item.align.length; i++) {
-        if (/^ *-+: *$/.test(item.align[i])) {
-          item.align[i] = 'right'
-        } else if (/^ *:-+: *$/.test(item.align[i])) {
-          item.align[i] = 'center'
-        } else if (/^ *:-+ *$/.test(item.align[i])) {
-          item.align[i] = 'left'
-        } else {
-          item.align[i] = null
+      if (item.header.length === item.align.length) {
+        src = src.substring(cap[0].length)
+
+        for (i = 0; i < item.align.length; i++) {
+          if (/^ *-+: *$/.test(item.align[i])) {
+            item.align[i] = 'right'
+          } else if (/^ *:-+: *$/.test(item.align[i])) {
+            item.align[i] = 'center'
+          } else if (/^ *:-+ *$/.test(item.align[i])) {
+            item.align[i] = 'left'
+          } else {
+            item.align[i] = null
+          }
         }
+
+        for (i = 0; i < item.cells.length; i++) {
+          item.cells[i] = splitCells(item.cells[i], item.header.length)
+        }
+
+        this.tokens.push(item)
+
+        continue
       }
-
-      for (i = 0; i < item.cells.length; i++) {
-        item.cells[i] = item.cells[i].split(/ *\| */)
-      }
-
-      this.tokens.push(item)
-
-      continue
-    }
-
-    // lheading
-    cap = this.rules.lheading.exec(src)
-    if (cap) {
-      src = src.substring(cap[0].length)
-      this.tokens.push({
-        type: 'heading',
-        headingStyle: 'setext',
-        depth: cap[2] === '=' ? 1 : 2,
-        text: cap[1]
-      })
-      continue
     }
 
     // hr
@@ -356,35 +345,50 @@ Lexer.prototype.token = function (src, top, bq) {
     // table (gfm)
     cap = this.rules.table.exec(src)
     if (cap) {
-      src = src.substring(cap[0].length)
-
       item = {
         type: 'table',
-        header: cap[1].replace(/^ *| *\| *$/g, '').split(/ *\| */),
+        header: splitCells(cap[1].replace(/^ *| *\| *$/g, '')),
         align: cap[2].replace(/^ *|\| *$/g, '').split(/ *\| */),
-        cells: cap[3].replace(/\n$/, '').split('\n')
+        cells: cap[3] ? cap[3].replace(/(?: *\| *)?\n$/, '').split('\n') : []
       }
 
-      for (i = 0; i < item.align.length; i++) {
-        if (/^ *-+: *$/.test(item.align[i])) {
-          item.align[i] = 'right'
-        } else if (/^ *:-+: *$/.test(item.align[i])) {
-          item.align[i] = 'center'
-        } else if (/^ *:-+ *$/.test(item.align[i])) {
-          item.align[i] = 'left'
-        } else {
-          item.align[i] = null
+      if (item.header.length === item.align.length) {
+        src = src.substring(cap[0].length)
+
+        for (i = 0; i < item.align.length; i++) {
+          if (/^ *-+: *$/.test(item.align[i])) {
+            item.align[i] = 'right'
+          } else if (/^ *:-+: *$/.test(item.align[i])) {
+            item.align[i] = 'center'
+          } else if (/^ *:-+ *$/.test(item.align[i])) {
+            item.align[i] = 'left'
+          } else {
+            item.align[i] = null
+          }
         }
+
+        for (i = 0; i < item.cells.length; i++) {
+          item.cells[i] = splitCells(
+            item.cells[i].replace(/^ *\| *| *\| *$/g, ''),
+            item.header.length)
+        }
+
+        this.tokens.push(item)
+
+        continue
       }
+    }
 
-      for (i = 0; i < item.cells.length; i++) {
-        item.cells[i] = item.cells[i]
-          .replace(/^ *\| *| *\| *$/g, '')
-          .split(/ *\| */)
-      }
-
-      this.tokens.push(item)
-
+    // lheading
+    cap = this.rules.lheading.exec(src)
+    if (cap) {
+      src = src.substring(cap[0].length)
+      this.tokens.push({
+        type: 'heading',
+        headingStyle: 'setext',
+        depth: cap[2] === '=' ? 1 : 2,
+        text: cap[1]
+      })
       continue
     }
 
@@ -419,6 +423,37 @@ Lexer.prototype.token = function (src, top, bq) {
   }
 
   return this.tokens
+}
+
+function splitCells (tableRow, count) {
+  // ensure that every cell-delimiting pipe has a space
+  // before it to distinguish it from an escaped pipe
+  let row = tableRow.replace(/\|/g, function (match, offset, str) {
+    let escaped = false
+    let curr = offset
+    while (--curr >= 0 && str[curr] === '\\') escaped = !escaped
+    if (escaped) {
+      // odd number of slashes means | is escaped
+      // so we leave it alone
+      return '|'
+    } else {
+      // add space before unescaped |
+      return ' |'
+    }
+  })
+
+  let cells = row.split(/ \|/)
+  if (cells.length > count) {
+    cells.splice(count)
+  } else {
+    while (cells.length < count) cells.push('')
+  }
+
+  for (let i = 0; i < cells.length; i++) {
+    // leading or trailing whitespace is ignored per the gfm spec
+    cells[i] = cells[i].trim().replace(/\\\|/g, '|')
+  }
+  return cells
 }
 
 export default Lexer
