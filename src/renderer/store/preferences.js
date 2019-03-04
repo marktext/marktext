@@ -19,6 +19,7 @@ const state = {
   autoPairQuote: true,
   tabSize: 4,
   hideQuickInsertHint: false,
+  titleBarStyle: 'csd',
   // edit modes (they are not in preference.md, but still put them here)
   typewriter: false, // typewriter mode
   focus: false, // focus mode

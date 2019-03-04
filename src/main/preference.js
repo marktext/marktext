@@ -1,6 +1,7 @@
 import fs from 'fs'
 import path from 'path'
 import { ipcMain, BrowserWindow } from 'electron'
+import { isOsx } from './config'
 import appWindow from './window'
 import { getPath, hasSameKeys, log, ensureDir } from './utils'
 
@@ -18,18 +19,23 @@ class Preference {
   }
 
   init () {
-    // If the preference.md is not existed or can not load json from it.
-    // Rebuild the preference.md
     const { userDataPath, staticPath } = this
+    const defaultSettings = this.loadJson(staticPath)
     let userSetting = null
+
+    // Try to load settings or write default settings if file doesn't exists.
     if (!fs.existsSync(userDataPath) || !this.loadJson(userDataPath)) {
       ensureDir(getPath('userData'))
       const content = fs.readFileSync(staticPath, 'utf-8')
       fs.writeFileSync(userDataPath, content, 'utf-8')
-    } else {
-      const defaultSettings = this.loadJson(staticPath)
+
       userSetting = this.loadJson(userDataPath)
       this.validateSettings(userSetting)
+    } else {
+      userSetting = this.loadJson(userDataPath)
+      this.validateSettings(userSetting)
+
+      // Update outdated settings
       const requiresUpdate = !hasSameKeys(defaultSettings, userSetting)
       if (requiresUpdate) {
         // remove outdated settings
@@ -48,7 +54,13 @@ class Preference {
           .catch(log)
       }
     }
-    if (!userSetting) userSetting = this.loadJson(userDataPath)
+
+    if (!userSetting) {
+      console.error('ERROR: Cannot load settings.')
+      userSetting = defaultSettings
+      this.validateSettings(userSetting)
+    }
+
     this.cache = userSetting
   }
 
@@ -108,17 +120,26 @@ class Preference {
     }
 
     let brokenSettings = false
-    if (!settings.theme || (settings.theme && !/dark|light/.test(settings.theme))) {
+    if (!settings.theme || (settings.theme && !/^(dark|light)$/.test(settings.theme))) {
       brokenSettings = true
       settings.theme = 'light'
     }
     if (!settings.bulletListMarker ||
-      (settings.bulletListMarker && !/\+|-|\*/.test(settings.bulletListMarker))) {
+      (settings.bulletListMarker && !/^(\+|-|\*)$/.test(settings.bulletListMarker))) {
       brokenSettings = true
       settings.bulletListMarker = '-'
     }
+    if (!settings.titleBarStyle || !/^(native|csd|custom)$/.test(settings.titleBarStyle)) {
+      settings.titleBarStyle = 'csd'
+    }
     if (brokenSettings) {
       log('Broken settings detected; fallback to default value(s).')
+    }
+
+    // Currently no CSD is available on Linux and Windows (GH#690)
+    const titleBarStyle = settings.titleBarStyle.toLowerCase()
+    if (!isOsx && titleBarStyle === 'csd') {
+      settings.titleBarStyle = 'custom'
     }
   }
 }
