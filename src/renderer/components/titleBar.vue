@@ -35,7 +35,8 @@
         class="item"
         effect="dark"
         :content="`${wordCount[show]} ${HASH[show].full + (wordCount[show] > 1 ? 's' : '')}`"
-        :open-delay="500" placement="bottom-end"
+        :open-delay="500"
+        placement="bottom-end"
       >
         <div
           v-if="wordCount"
