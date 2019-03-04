@@ -192,8 +192,7 @@ const paragraphCtrl = ContentState => {
     const startParents = this.getParents(startBlock)
     const endParents = this.getParents(endBlock)
     const hasFencedCodeBlockParent = () => {
-      return startParents.some(b => b.type === 'pre' && /code/.test(b.functionType)) ||
-        endParents.some(b => b.type === 'pre' && /code/.test(b.functionType))
+      return [...startParents, ...endParents].some(b => b.type === 'pre' && /code/.test(b.functionType))
     }
     // change fenced code block to p paragraph
     if (affiliation.length && affiliation[0].type === 'pre' && /code/.test(affiliation[0].functionType)) {
@@ -234,11 +233,18 @@ const paragraphCtrl = ContentState => {
           })
           this.appendChild(startBlock, inputBlock)
           this.appendChild(startBlock, codeBlock)
-        }
-
-        this.cursor = {
-          start: this.cursor.start,
-          end: this.cursor.end
+          const { key } = inputBlock
+          const offset = 0
+  
+          this.cursor = {
+            start: { key, offset },
+            end: { key, offset }
+          }
+        } else {
+          this.cursor = {
+            start: this.cursor.start,
+            end: this.cursor.end
+          }
         }
       } else if (!hasFencedCodeBlockParent()) {
         const { parent, startIndex, endIndex } = this.getCommonParent()
@@ -268,7 +274,7 @@ const paragraphCtrl = ContentState => {
           removeCache.push(child)
         }
         removeCache.forEach(b => this.removeBlock(b))
-        const key = codeBlock.children[0].key
+        const key = inputBlock.key
         const offset = 0
         this.cursor = {
           start: { key, offset },
