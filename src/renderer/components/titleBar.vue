@@ -31,12 +31,20 @@
         class="frameless-titlebar-menu title-no-drag"
         @click.stop="handleMenuClick"
       >&#9776;</div>
-      <div
-        v-if="wordCount"
-        class="word-count"
-        :class="[{ 'title-no-drag': titleBarStyle === 'custom' }]"
-        @click.stop="handleWordClick"
-      >{{ `${HASH[show]} ${wordCount[show]}` }}</div>
+      <el-tooltip
+        class="item"
+        effect="dark"
+        :content="`${wordCount[show]} ${HASH[show].full + (wordCount[show] > 1 ? 's' : '')}`"
+        :open-delay="500"
+        placement="bottom-end"
+      >
+        <div
+          v-if="wordCount"
+          class="word-count"
+          :class="[{ 'title-no-drag': platform !== 'darwin' }]"
+          @click.stop="handleWordClick"
+        >{{ `${HASH[show].short} ${wordCount[show]}` }}</div>
+      </el-tooltip>
     </div>
     <div
       v-if="titleBarStyle === 'custom'"
@@ -77,10 +85,22 @@
   export default {
     data () {
       this.HASH = {
-        'word': 'W',
-        'character': 'C',
-        'paragraph': 'P',
-        'all': 'A'
+        'word': {
+          short: 'W',
+          full: 'word'
+        },
+        'character': {
+          short: 'C',
+          full: 'character'
+        },
+        'paragraph': {
+          short: 'P',
+          full: 'paragraph'
+        },
+        'all': {
+          short: 'A',
+          full: '(with space)character'
+        }
       }
       this.windowIconMinimize = minimizePath
       this.windowIconRestore = restorePath
