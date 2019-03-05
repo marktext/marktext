@@ -19,7 +19,13 @@ const BRACKET_HASH = {
 const BACK_HASH = {
   '}': '{',
   ']': '[',
-  ')': '('
+  ')': '(',
+  '*': '*',
+  '_': '_',
+  '"': '"',
+  '\'': '\'',
+  '$': '$',
+  '~': '~'
 }
 
 const inputCtrl = ContentState => {
@@ -79,7 +85,6 @@ const inputCtrl = ContentState => {
           }
           if (event.inputType === 'deleteContentForward' && inputChar === BACK_HASH[deletedChar]) {
             needRender = true
-            // todo move cursor backward
             start.offset -= 1
             end.offset -= 1
             text = text.substring(0, offset - 1) + text.substring(offset)
