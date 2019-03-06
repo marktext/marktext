@@ -184,7 +184,8 @@ if (!proMode) {
   )
 }
 
-if (process.env.NODE_ENV !== 'production' && process.env.NODE_ENV !== 'test') {
+if (process.env.NODE_ENV !== 'production' && process.env.NODE_ENV !== 'test' &&
+  !process.env.MARKTEXT_DEV_HIDE_BROWSER_ANALYZER) {
   rendererConfig.plugins.push(
     new BundleAnalyzerPlugin()
   )
