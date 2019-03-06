@@ -32,8 +32,7 @@ export const getRecommendTitle = markdown => {
       content: matches[2].trim()
     }
   })
-
-  return headers.sort((a, b) => a.level > b.level)[0].content
+  return headers.sort((a, b) => a.level - b.level)[0].content
 }
 
 export const getPath = directory => {
