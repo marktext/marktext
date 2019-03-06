@@ -1,11 +1,16 @@
 import path from 'path'
 import { getUniqueId } from '../util'
 
+const pathSeparator = path.sep
+const isWindows = process.platform === 'win32'
+
 const getPathArr = (projectName, pathname) => {
+  const reUnix = /^\/+(.*)/
+  const reWindows = /^\\+(.*)/
   let [prePath, partPath] = pathname.split(projectName)
-  partPath = partPath.replace(/^\/+(.*)/, (_, p1) => p1)
+  partPath = partPath.replace(isWindows ? reWindows : reUnix, (_, p1) => p1)
   prePath += projectName
-  const tokens = partPath ? partPath.split('/') : []
+  const tokens = partPath ? partPath.split(pathSeparator) : []
 
   return { prePath, tokens }
 }
@@ -22,7 +27,7 @@ export const addFile = (tree, file) => {
     if (!childFolder) {
       childFolder = {
         id: getUniqueId(),
-        pathname: `${prePath}/${token}`,
+        pathname: `${prePath}${pathSeparator}${token}`,
         name: token,
         isCollapsed: true,
         isDirectory: true,
@@ -33,7 +38,7 @@ export const addFile = (tree, file) => {
       }
       folders.push(childFolder)
     }
-    prePath = `${prePath}/${token}`
+    prePath = `${prePath}${pathSeparator}${token}`
     folder = childFolder
     folders = childFolder.folders
   }
@@ -53,7 +58,7 @@ export const addDirectory = (tree, dir) => {
     if (!childFolder) {
       childFolder = {
         id: getUniqueId(),
-        pathname: `${prePath}/${token}`,
+        pathname: `${prePath}${pathSeparator}${token}`,
         name: token,
         isCollapsed: true,
         isDirectory: true,
@@ -64,7 +69,7 @@ export const addDirectory = (tree, dir) => {
       }
       folders.push(childFolder)
     }
-    prePath = `${prePath}/${token}`
+    prePath = `${prePath}${pathSeparator}${token}`
     folders = childFolder.folders
   }
 }
