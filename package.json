@@ -122,6 +122,10 @@
         "text/markdown"
       ],
       "icon": "resources/icons",
+      "desktop": {
+        "StartupWMClass": "marktext",
+        "Keywords": "marktext;"
+      },
       "artifactName": "marktext-${version}-${arch}.${ext}",
       "target": [
         {
