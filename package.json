@@ -1,7 +1,7 @@
 {
   "name": "marktext",
   "version": "0.13.65",
-  "author": "Jocs <ransixi@gmail.com>",
+  "homepage": "https://marktext.github.io/website",
   "description": "Next generation markdown editor",
   "license": "MIT",
   "main": "./dist/electron/main.js",
@@ -244,5 +244,29 @@
     "webpack-dev-server": "^3.1.14",
     "webpack-hot-middleware": "^2.24.3",
     "webpack-merge": "^4.2.1"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:marktext/marktext.git"
+  },
+  "bugs": {
+    "url": "https://github.com/marktext/marktext/issues"
+  },
+  "author": {
+    "name": "Jocs",
+    "email": "ransixi@gmail.com",
+    "url": "https://github.com/Jocs"
+  },
+  "maintainer": [
+    {
+      "name": "Jocs",
+      "email": "ransixi@gmail.com",
+      "url": "https://github.com/Jocs"
+    },
+    {
+      "name": "Felix Häusler",
+      "email": "hfelix@protonmail.ch",
+      "url": "https://github.com/fxha"
+    }
+  ]
 }
