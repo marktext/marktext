@@ -104,7 +104,7 @@ export const quicInsertObj = {
   }],
   'advanced block': [{
     title: 'Table Block',
-    subTitle: 'Create a table in you page.',
+    subTitle: 'Create a table in your page.',
     label: 'table',
     icon: tableIcon,
     color: 'rgb(13, 23, 64)'
