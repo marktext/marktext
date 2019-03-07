@@ -77,6 +77,7 @@
         if (theme === 'dark') codeMirrorConfig.theme = 'railscasts'
         const editor = this.editor = codeMirror(container, codeMirrorConfig)
         bus.$on('file-loaded', this.setMarkdown)
+        bus.$on('file-changed', this.handleMarkdownChange)
         bus.$on('dotu-select', this.handleSelectDoutu)
 
         setMode(editor, 'markdown')
@@ -120,12 +121,18 @@
       },
       setMarkdown (markdown) {
         const { editor, cursor } = this
-        this.editor.setValue(markdown)
+        editor.setValue(markdown)
         if (cursor) {
           editor.setCursor(cursor)
         } else {
           setCursorAtLastLine(editor)
         }
+      },
+      // Only listen to get changes. Do not set history or other things.
+      handleMarkdownChange({ markdown, cursor, renderCursor, history }) {
+        const { editor } = this
+        editor.setValue(markdown)
+        editor.setCursor(cursor)
       }
     }
   }
