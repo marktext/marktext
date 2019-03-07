@@ -1,3 +1,4 @@
+import { ipcRenderer } from 'electron'
 import { getFileStateFromData } from '../store/help.js'
 
 export const tabsMixins = {
@@ -28,6 +29,8 @@ export const fileMixins = {
 
       const fileState = isOpened || getFileStateFromData(data)
       this.$store.dispatch('UPDATE_CURRENT_FILE', fileState)
+
+      ipcRenderer.send("AGANI::add-recently-used-document", pathname)
 
       if (isMixedLineEndings && !isOpened) {
         this.$notify({

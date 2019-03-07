@@ -6,7 +6,9 @@ import { getUniqueId, cloneObj } from '../util'
  * @type {IDocumentState} Internel markdown document
  */
 export const defaultFileState = {
+  // Indicates whether there are unsaved changes.
   isSaved: true,
+  // Full path to the file or empty. If the value is empty the file doesn't exist on disk.
   pathname: '',
   filename: 'Untitled-1',
   markdown: '',

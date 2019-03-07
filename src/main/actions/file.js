@@ -67,11 +67,17 @@ const handleResponseForSave = (e, { id, markdown, pathname, options }) => {
     recommendFilename = 'Untitled'
   }
 
+  // If the file doesn't exist on disk add it to the recently used documents later.
+  const alreadyExistOnDisk = !!pathname
   pathname = pathname || dialog.showSaveDialog(win, {
     defaultPath: getPath('documents') + `/${recommendFilename}.md`
   })
 
   if (pathname && typeof pathname === 'string') {
+    if (!alreadyExistOnDisk) {
+      appMenu.addRecentlyUsedDocument(pathname)
+    }
+
     return writeMarkdownFile(pathname, markdown, options, win)
       .then(() => {
         const filename = path.basename(pathname)
