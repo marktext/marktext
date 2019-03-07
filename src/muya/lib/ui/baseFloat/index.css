@@ -4,16 +4,17 @@
   opacity: 0;
   width: 110px;
   height: auto;
-  background: #fff;
   top: -1000px;
   right: -1000px;
-  border: 1px solid #ebeef5;
-  border-radius: 4px;
-  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, .1);
+  border-radius: 8px;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  background-color: #ffffff;
   transition: opacity .25s ease-in-out;
   transform-origin: top;
   box-sizing: border-box;
   z-index: 1000;
+  overflow: hidden;
 }
 
 .ag-float-wrapper.dark {
