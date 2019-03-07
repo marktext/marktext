@@ -130,6 +130,7 @@ class AppWindow {
           .catch(log)
         // open directory / folder
       } else if (pathname && isDirectory(pathname)) {
+        appMenu.addRecentlyUsedDocument(pathname)
         this.openFolder(win, pathname)
         // open a window but do not open a file or directory
       } else {
