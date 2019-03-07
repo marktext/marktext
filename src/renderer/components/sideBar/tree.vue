@@ -91,7 +91,7 @@
       </div>
     </div>
     <div v-else class="open-project">
-      <a href="javascript:;" @click="openProject" title="Open Folder">
+      <a href="javascript:;" @click="openFolder" title="Open Folder">
         <svg class="icon" aria-hidden="true">
           <use xlink:href="#icon-create-project"></use>
         </svg>
@@ -174,7 +174,7 @@
       titleIconClick (active) {
         //
       },
-      openProject () {
+      openFolder () {
         this.$store.dispatch('ASK_FOR_OPEN_PROJECT')
       },
       saveAll (isClose) {

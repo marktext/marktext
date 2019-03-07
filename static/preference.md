@@ -35,7 +35,8 @@ Edit and save to update preferences. You can only change the JSON below!
   "endOfLine": "default",
   "tabSize": 4,
   "textDirection": "ltr",
-  "titleBarStyle": "csd"
+  "titleBarStyle": "csd",
+  "openFilesInNewWindow": true
 }
 ```
 

@@ -29,13 +29,13 @@ export default function (recentlyUsedFiles) {
       label: 'Open File',
       accelerator: keybindings.getAccelerator('fileOpenFile'),
       click (menuItem, browserWindow) {
-        actions.open(browserWindow)
+        actions.openFile(browserWindow)
       }
     }, {
       label: 'Open Folder',
       accelerator: keybindings.getAccelerator('fileOpenFolder'),
       click (menuItem, browserWindow) {
-        actions.openProject(browserWindow)
+        actions.openFolder(browserWindow)
       }
     }]
   }
@@ -50,7 +50,7 @@ export default function (recentlyUsedFiles) {
       recentlyUsedMenu.submenu.push({
         label: item,
         click (menuItem, browserWindow) {
-          actions.openFileOrProject(menuItem.label)
+          actions.openFileOrFolder(menuItem.label)
         }
       })
     }

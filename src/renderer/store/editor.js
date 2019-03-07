@@ -2,7 +2,7 @@ import { clipboard, ipcRenderer, shell } from 'electron'
 import path from 'path'
 import bus from '../bus'
 import { hasKeys } from '../util'
-import { getOptionsFromState, getSingleFileState, getBlankFileState } from './help'
+import { createDocumentState, getOptionsFromState, getSingleFileState, getBlankFileState } from './help'
 import notice from '../services/notification'
 
 // HACK: When rewriting muya, create and update muya's TOC during heading parsing and pass it to the renderer process.
@@ -357,8 +357,14 @@ const actions = {
   },
 
   LISTEN_FOR_NEW_TAB ({ dispatch }) {
-    ipcRenderer.on('AGANI::new-tab', e => {
-      dispatch('NEW_BLANK_FILE')
+    ipcRenderer.on('AGANI::new-tab', (e, markdownDocument) => {
+      if (markdownDocument) {
+        // Create tab with content.
+        dispatch('NEW_TAB_WITH_CONTENT', markdownDocument)
+      } else {
+        // Create an empty tab
+        dispatch('NEW_BLANK_FILE')
+      }
     })
   },
 
@@ -381,6 +387,36 @@ const actions = {
     const { markdown } = fileState
     dispatch('UPDATE_CURRENT_FILE', fileState)
     bus.$emit('file-loaded', markdown)
+  },
+
+  /**
+   * Create a new tab from the given markdown document
+   *
+   * @param {*} context Store context
+   * @param {IMarkdownDocumentRaw} markdownDocument Class that represent a markdown document
+   */
+  NEW_TAB_WITH_CONTENT ({ commit, state, dispatch }, markdownDocument) {
+    if (!markdownDocument) {
+      console.warn('Cannot create a file tab without a markdown document!')
+      dispatch('NEW_BLANK_FILE')
+      return
+    }
+
+    const { markdown, isMixedLineEndings } = markdownDocument
+    const docState = createDocumentState(markdownDocument)
+    dispatch('UPDATE_CURRENT_FILE', docState)
+    bus.$emit('file-loaded', markdown)
+
+    if (isMixedLineEndings) {
+      const { filename, lineEnding } = markdownDocument
+      notice({
+        title: 'Line Ending',
+        message: `${filename} has mixed line endings which are automatically normalized to ${lineEnding.toUpperCase()}.`,
+        type: 'primary',
+        time: 20000,
+        showConfirm: false
+      })
+    }
   },
 
   LISTEN_FOR_OPEN_BLANK_WINDOW ({ commit, state, dispatch }) {
