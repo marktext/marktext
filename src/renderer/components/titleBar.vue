@@ -32,6 +32,7 @@
         @click.stop="handleMenuClick"
       >&#9776;</div>
       <el-tooltip
+        v-if="wordCount"
         class="item"
         effect="dark"
         :content="`${wordCount[show]} ${HASH[show].full + (wordCount[show] > 1 ? 's' : '')}`"
