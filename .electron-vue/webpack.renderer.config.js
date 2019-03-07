@@ -58,7 +58,7 @@ const rendererConfig = {
         exclude: /(katex|github\-markdown|prism[\-a-z]*)\.css$/,
         use: [
           proMode ? MiniCssExtractPlugin.loader : 'style-loader',
-          { loader: 'css-loader', options: { importLoader: 1 } },
+          { loader: 'css-loader', options: { importLoaders: 1 } },
           { loader: 'postcss-loader', options: {
             ident: 'postcss',
             plugins: () => [
