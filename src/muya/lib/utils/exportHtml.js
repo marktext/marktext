@@ -88,10 +88,6 @@ class ExportHtml {
       margin-top: 0;
       display: inline-block;
     }
-    .markdown-body pre code.fenced-code-block {
-      white-space: pre-wrap;
-      word-break: break-word;
-    }
     @media (max-width: 767px) {
       .markdown-body {
         padding: 15px;
