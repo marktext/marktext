@@ -1,8 +1,8 @@
 import fs from 'fs'
 import path from 'path'
-import { Menu, app } from 'electron'
+import { app, ipcMain, Menu } from 'electron'
 import configureMenu from './menus'
-import { isFile, ensureDir, getPath, log } from './utils'
+import { isDirectory, isFile, ensureDir, getPath, log } from './utils'
 import { parseMenu, registerKeyHandler } from './shortcutHandler'
 
 class AppMenu {
@@ -55,7 +55,7 @@ class AppMenu {
 
     try {
       let recentDocuments = JSON.parse(fs.readFileSync(RECENTS_PATH, 'utf-8'))
-        .filter(f => f && isFile(f))
+        .filter(f => f && (isFile(f) || isDirectory(f)))
 
       if (recentDocuments.length > MAX_RECENTLY_USED_DOCUMENTS) {
         recentDocuments.splice(MAX_RECENTLY_USED_DOCUMENTS, recentDocuments.length - MAX_RECENTLY_USED_DOCUMENTS)
@@ -219,4 +219,10 @@ const updateMenuItemSafe = (oldMenus, newMenus, id, defaultValue) => {
   newItem.checked = checked
 }
 
-export default new AppMenu()
+const appMenu = new AppMenu()
+
+ipcMain.on('AGANI::add-recently-used-document', (e, pathname) => {
+  appMenu.addRecentlyUsedDocument(pathname)
+})
+
+export default appMenu
