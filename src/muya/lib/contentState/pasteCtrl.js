@@ -76,6 +76,7 @@ const pasteCtrl = ContentState => {
     const startBlock = this.getBlock(start.key)
     const endBlock = this.getBlock(end.key)
     const parent = this.getParent(startBlock)
+
     if (start.key !== end.key) {
       this.cutHandler()
       return this.pasteHandler(event, type)
@@ -166,7 +167,7 @@ const pasteCtrl = ContentState => {
 
     if (/th|td/.test(startBlock.type)) {
       const pendingText = text.trim().replace(/\n/g, '<br/>')
-      startBlock.text += pendingText
+      startBlock.text = startBlock.text.substring(0, start.offset) + pendingText + startBlock.text.substring(end.offset)
       const { key } = startBlock
       const offset = start.offset + pendingText.length
       this.cursor = {
@@ -248,6 +249,17 @@ const pasteCtrl = ContentState => {
           const liChildren = firstListItem.children
           const originListItem = this.getParent(parent)
           const originList = this.getParent(originListItem)
+          const targetListType = firstFragment.children[0].isLooseListItem
+          const originListType = originList.children[0].isLooseListItem
+          // No matter copy loose list to tight list or vice versa, the result is one loose list.
+          if (targetListType !== originListType) {
+            if (!targetListType) {
+              firstFragment.children.forEach(item => item.isLooseListItem = true)
+            } else {
+              originList.children.forEach(item => item.isLooseListItem = true)
+            }
+          }
+
           if (liChildren[0].type === 'p') {
             // TODO @JOCS
             startBlock.text += liChildren[0].children[0].text
@@ -276,19 +288,31 @@ const pasteCtrl = ContentState => {
           })
         } else {
           if (firstFragment.type === 'p') {
-            startBlock.text += firstFragment.children[0].text
-            firstFragment.children.slice(1).forEach(line => {
-              if (startBlock.functionType) line.functionType = startBlock.functionType
-              if (startBlock.lang) line.lang = startBlock.lang
-              this.appendChild(parent, line)
-            })
+            if (/^h\d$/.test(startBlock.type)) {
+              // handle paste into header
+              startBlock.text += firstFragment.children[0].text
+              if (firstFragment.children.length > 1) {
+                const newParagraph = this.createBlock('p')
+                firstFragment.children.slice(1).forEach(line => {
+                  this.appendChild(newParagraph, line)
+                })
+                this.insertAfter(newParagraph, startBlock)
+              }
+            } else {
+              startBlock.text += firstFragment.children[0].text
+              firstFragment.children.slice(1).forEach(line => {
+                if (startBlock.functionType) line.functionType = startBlock.functionType
+                if (startBlock.lang) line.lang = startBlock.lang
+                this.appendChild(parent, line)
+              })
+            }
           } else if (/^h\d$/.test(firstFragment.type)) {
             startBlock.text += firstFragment.text.split(/\s+/)[1]
           } else {
             startBlock.text += firstFragment.text
           }
 
-          let target = parent
+          let target = /^h\d$/.test(startBlock.type) ? startBlock : parent
           tailFragments.forEach(block => {
             this.insertAfter(block, target)
             target = block

@@ -106,6 +106,9 @@ const mutations = {
 const actions = {
   LISTEN_FOR_LOAD_PROJECT ({ commit, dispatch }) {
     ipcRenderer.on('AGANI::open-project', (e, { pathname, name }) => {
+      // Initialize editor and show empty/new tab
+      dispatch('NEW_BLANK_FILE')
+
       dispatch('INIT_STATUS', true)
       commit('SET_PROJECT_TREE', { pathname, name })
       commit('SET_LAYOUT', {

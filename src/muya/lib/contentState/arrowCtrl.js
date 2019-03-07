@@ -47,10 +47,8 @@ const arrowCtrl = ContentState => {
     const paragraph = findNearestParagraph(node)
     const id = paragraph.id
     const block = this.getBlock(id)
-
     const preBlock = this.findPreBlockInLocation(block)
     const nextBlock = this.findNextBlockInLocation(block)
-
     const { start, end } = selection.getCursorRange()
     const { topOffset, bottomOffset } = selection.getCursorYOffset(paragraph)
 

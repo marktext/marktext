@@ -5,7 +5,7 @@ import { promisify } from 'util'
 import { BrowserWindow, dialog, ipcMain } from 'electron'
 import appWindow from '../window'
 import { EXTENSION_HASN, EXTENSIONS, PANDOC_EXTENSIONS } from '../config'
-import { writeFile, writeMarkdownFile } from '../utils/filesystem'
+import { loadMarkdownFile, writeFile, writeMarkdownFile } from '../utils/filesystem'
 import appMenu from '../menu'
 import { getPath, isMarkdownFile, log, isFile, isDirectory, getRecommendTitle } from '../utils'
 import userPreference from '../preference'
@@ -271,7 +271,7 @@ ipcMain.on('AGANI::ask-for-open-project-in-sidebar', e => {
     properties: ['openDirectory', 'createDirectory']
   })
   if (pathname && pathname[0]) {
-    appWindow.openProject(win, pathname[0])
+    appWindow.openFolder(win, pathname[0])
   }
 })
 
@@ -302,31 +302,46 @@ export const print = win => {
   win.webContents.send('AGANI::print')
 }
 
-export const openFileOrProject = pathname => {
+export const openFileOrFolder = pathname => {
   if (isFile(pathname) || isDirectory(pathname)) {
     appWindow.createWindow(pathname)
   }
 }
 
-export const openProject = win => {
+export const openFolder = win => {
   const pathname = dialog.showOpenDialog(win, {
     properties: ['openDirectory', 'createDirectory']
   })
   if (pathname && pathname[0]) {
-    openFileOrProject(pathname[0])
+    openFileOrFolder(pathname[0])
   }
 }
 
-export const open = win => {
-  const filename = dialog.showOpenDialog(win, {
+export const openFile = win => {
+  const fileList = dialog.showOpenDialog(win, {
     properties: ['openFile'],
     filters: [{
       name: 'text',
       extensions: EXTENSIONS
     }]
   })
-  if (filename && filename[0]) {
-    openFileOrProject(filename[0])
+
+  if (!fileList || !fileList[0]) {
+    return
+  }
+
+  const filename = fileList[0]
+  const { openFilesInNewWindow } = userPreference.getAll()
+  if (openFilesInNewWindow) {
+    openFileOrFolder(filename)
+  } else {
+    loadMarkdownFile(filename).then(rawDocument => {
+      newTab(win, rawDocument)
+    }).catch(err => {
+      // TODO: Handle error --> create a end-user error handler.
+      console.error('[ERROR] Cannot open file.')
+      log(err)
+    })
   }
 }
 
@@ -334,8 +349,14 @@ export const newFile = () => {
   appWindow.createWindow()
 }
 
-export const newTab = win => {
-  win.webContents.send('AGANI::new-tab')
+/**
+ * Creates a new tab.
+ *
+ * @param {BrowserWindow} win Browser window
+ * @param {IMarkdownDocumentRaw} [rawDocument] Optional markdown document. If null a blank tab is created.
+ */
+export const newTab = (win, rawDocument = null) => {
+  win.webContents.send('AGANI::new-tab', rawDocument)
 }
 
 export const closeTab = win => {

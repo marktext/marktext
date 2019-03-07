@@ -57,8 +57,8 @@ InlineLexer.prototype.output = function (src) {
     if (cap) {
       src = src.substring(cap[0].length)
       if (cap[2] === '@') {
-        text = cap[1].charAt(6) === ':' ? this.mangle(cap[1].substring(7)) : this.mangle(cap[1])
-        href = this.mangle('mailto:') + text
+        text = escape(this.mangle(cap[1]))
+        href = 'mailto:' + text
       } else {
         text = escape(cap[1])
         href = text
@@ -86,9 +86,19 @@ InlineLexer.prototype.output = function (src) {
     // url (gfm)
     cap = this.rules.url.exec(src)
     if (!this.inLink && cap) {
+      cap[0] = this.rules._backpedal.exec(cap[0])[0]
       src = src.substring(cap[0].length)
-      text = escape(cap[1])
-      href = text
+      if (cap[2] === '@') {
+        text = escape(cap[0])
+        href = 'mailto:' + text
+      } else {
+        text = escape(cap[0])
+        if (cap[1] === 'www.') {
+          href = 'http://' + text
+        } else {
+          href = text
+        }
+      }
       out += this.renderer.link(href, null, text)
       continue
     }
@@ -144,7 +154,7 @@ InlineLexer.prototype.output = function (src) {
     cap = this.rules.strong.exec(src)
     if (cap) {
       src = src.substring(cap[0].length)
-      out += this.renderer.strong(this.output(cap[2] || cap[1]))
+      out += this.renderer.strong(this.output(cap[4] || cap[3] || cap[2] || cap[1]))
       continue
     }
 
@@ -152,7 +162,7 @@ InlineLexer.prototype.output = function (src) {
     cap = this.rules.em.exec(src)
     if (cap) {
       src = src.substring(cap[0].length)
-      out += this.renderer.em(this.output(cap[2] || cap[1]))
+      out += this.renderer.em(this.output(cap[6] || cap[5] || cap[4] || cap[3] || cap[2] || cap[1]))
       continue
     }
 
@@ -160,7 +170,7 @@ InlineLexer.prototype.output = function (src) {
     cap = this.rules.code.exec(src)
     if (cap) {
       src = src.substring(cap[0].length)
-      out += this.renderer.codespan(escape(cap[2], true))
+      out += this.renderer.codespan(escape(cap[2].trim(), true))
       continue
     }
 

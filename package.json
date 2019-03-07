@@ -122,6 +122,10 @@
         "text/markdown"
       ],
       "icon": "resources/icons",
+      "desktop": {
+        "StartupWMClass": "marktext",
+        "Keywords": "marktext;"
+      },
       "artifactName": "marktext-${version}-${arch}.${ext}",
       "target": [
         {
@@ -154,7 +158,7 @@
     "keyboard-layout": "^2.0.15",
     "mermaid": "^8.0.0",
     "popper.js": "^1.14.7",
-    "prismjs2": "^1.15.0",
+    "prismjs2": "^1.15.1",
     "snabbdom": "^0.7.3",
     "snabbdom-to-html": "^5.1.1",
     "snapsvg": "^0.5.1",

@@ -31,8 +31,7 @@ const convertLineEndings = (text, lineEnding) => {
 
 export const writeFile = (pathname, content, extension) => {
   if (!pathname) {
-    const errMsg = '[ERROR] Cannot save file without path.'
-    return Promise.reject(errMsg)
+    return Promise.reject('[ERROR] Cannot save file without path.')
   }
   pathname = !extension || pathname.endsWith(extension) ? pathname : `${pathname}${extension}`
 
@@ -54,6 +53,12 @@ export const writeMarkdownFile = (pathname, content, options, win) => {
   return writeFile(pathname, content, extension)
 }
 
+/**
+ * Reads the contents of a markdown file.
+ *
+ * @param {String} The path to the markdown file.
+ * @returns {IMarkdownDocumentRaw} Returns a raw markdown document.
+ */
 export const loadMarkdownFile = async pathname => {
   let markdown = await fse.readFile(path.resolve(pathname), 'utf-8')
   // Check UTF-8 BOM (EF BB BF) encoding
@@ -65,7 +70,7 @@ export const loadMarkdownFile = async pathname => {
   // Detect line ending
   const isLf = LF_LINE_ENDING_REG.test(markdown)
   const isCrlf = CRLF_LINE_ENDING_REG.test(markdown)
-  const isMixed = isLf && isCrlf
+  const isMixedLineEndings = isLf && isCrlf
   const isUnknownEnding = !isLf && !isCrlf
   let lineEnding = getOsLineEndingName()
   if (isLf && !isCrlf) {
@@ -75,7 +80,7 @@ export const loadMarkdownFile = async pathname => {
   }
 
   let adjustLineEndingOnSave = false
-  if (isMixed || isUnknownEnding || lineEnding !== 'lf') {
+  if (isMixedLineEndings || isUnknownEnding || lineEnding !== 'lf') {
     adjustLineEndingOnSave = lineEnding !== 'lf'
     // Convert to LF for internal use.
     markdown = convertLineEndings(markdown, 'lf')
@@ -83,16 +88,24 @@ export const loadMarkdownFile = async pathname => {
 
   const filename = path.basename(pathname)
 
+  // TODO(refactor:renderer/editor): Remove this entry! This should be loaded separately if needed.
   const textDirection = getDefaultTextDirection()
 
   return {
+    // document information
     markdown,
     filename,
     pathname,
+
+    // options
     isUtf8BomEncoded,
     lineEnding,
     adjustLineEndingOnSave,
-    isMixed,
+
+    // raw file information
+    isMixedLineEndings,
+
+    // TODO(refactor:renderer/editor): see above
     textDirection
   }
 }

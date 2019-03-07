@@ -1,7 +1,7 @@
 <template>
   <div
     class="title-bar"
-    :class="[{ 'active': active }, theme, { 'frameless': platform !== 'darwin' }]"
+    :class="[{ 'active': active }, theme, { 'frameless': titleBarStyle === 'custom' }, { 'isOsx': platform === 'darwin' }]"
   >
     <div class="title">
       <span v-if="!filename">Mark Text</span>
@@ -15,27 +15,42 @@
             <use xlink:href="#icon-arrow-right"></use>
           </svg>
         </span>
-        <span @click="rename" class="filename">{{ filename }}</span>
+        <span
+          class="filename"
+          :class="{'isOsx': platform === 'darwin'}"
+          @click="rename"
+        >
+          {{ filename }}
+        </span>
         <span class="save-dot" :class="{'show': !isSaved}"></span>
       </span>
     </div>
-    <div :class="platform !== 'darwin' ? 'left-toolbar title-no-drag' : 'right-toolbar'">
+    <div :class="titleBarStyle === 'custom' ? 'left-toolbar title-no-drag' : 'right-toolbar'">
       <div
-        v-if="platform !== 'darwin'"
+        v-if="titleBarStyle === 'custom'"
         class="frameless-titlebar-menu title-no-drag"
         @click.stop="handleMenuClick"
       >&#9776;</div>
-      <div
+      <el-tooltip
         v-if="wordCount"
-        class="word-count"
-        :class="[{ 'title-no-drag': platform !== 'darwin' }]"
-        @click.stop="handleWordClick"
-      >{{ `${HASH[show]} ${wordCount[show]}` }}</div>
+        class="item"
+        effect="dark"
+        :content="`${wordCount[show]} ${HASH[show].full + (wordCount[show] > 1 ? 's' : '')}`"
+        :open-delay="500"
+        placement="bottom-end"
+      >
+        <div
+          v-if="wordCount"
+          class="word-count"
+          :class="[{ 'title-no-drag': platform !== 'darwin' }]"
+          @click.stop="handleWordClick"
+        >{{ `${HASH[show].short} ${wordCount[show]}` }}</div>
+      </el-tooltip>
     </div>
     <div
-      v-if="platform !== 'darwin'"
+      v-if="titleBarStyle === 'custom'"
       class="right-toolbar"
-      :class="[{ 'title-no-drag': platform !== 'darwin' }]"
+      :class="[{ 'title-no-drag': titleBarStyle === 'custom' }]"
     >
       <div class="frameless-titlebar-button frameless-titlebar-close" @click.stop="handleCloseClick">
         <div>
@@ -65,15 +80,28 @@
 
 <script>
   import { remote } from 'electron'
+  import { mapState } from 'vuex'
   import { minimizePath, restorePath, maximizePath, closePath } from '../assets/window-controls.js'
 
   export default {
     data () {
       this.HASH = {
-        'word': 'W',
-        'character': 'C',
-        'paragraph': 'P',
-        'all': 'A'
+        'word': {
+          short: 'W',
+          full: 'word'
+        },
+        'character': {
+          short: 'C',
+          full: 'character'
+        },
+        'paragraph': {
+          short: 'P',
+          full: 'paragraph'
+        },
+        'all': {
+          short: 'A',
+          full: '(with space)character'
+        }
       }
       this.windowIconMinimize = minimizePath
       this.windowIconRestore = restorePath
@@ -101,6 +129,9 @@
       isSaved: Boolean
     },
     computed: {
+      ...mapState({
+        'titleBarStyle': state => state.preferences.titleBarStyle,
+      }),
       paths () {
         if (!this.pathname) return []
         const pathnameToken = this.pathname.split('/').filter(i => i)
@@ -215,7 +246,7 @@
     }
   }
 
-  .title-bar:not(.frameless) .title .filename:hover {
+  .title-bar .title .filename.isOsx:hover {
     color: var(--primary);
   }
 
