@@ -48,7 +48,12 @@ class AppWindow {
     }
   }
 
-  createWindow (pathname, markdown = '', options = {}) {
+  createWindow (pathname = null, markdown = '', options = {}) {
+    // Ensure path is normalized
+    if (pathname) {
+      pathname = path.resolve(pathname)
+    }
+
     const { windows } = this
     const mainWindowState = windowStateKeeper({
       defaultWidth: 1200,
@@ -95,7 +100,7 @@ class AppWindow {
               isUtf8BomEncoded,
               lineEnding,
               adjustLineEndingOnSave,
-              isMixed,
+              isMixedLineEndings,
               textDirection
             } = data
 
@@ -113,7 +118,7 @@ class AppWindow {
             })
 
             // Notify user about mixed endings
-            if (isMixed) {
+            if (isMixedLineEndings) {
               win.webContents.send('AGANI::show-notification', {
                 title: 'Mixed Line Endings',
                 type: 'error',
@@ -125,7 +130,7 @@ class AppWindow {
           .catch(log)
         // open directory / folder
       } else if (pathname && isDirectory(pathname)) {
-        this.openProject(win, pathname)
+        this.openFolder(win, pathname)
         // open a window but do not open a file or directory
       } else {
         const lineEnding = getOsLineEndingName()
@@ -180,11 +185,10 @@ class AppWindow {
     return win
   }
 
-  openProject (win, pathname) {
+  openFolder (win, pathname) {
     const unwatcher = this.watcher.watch(win, pathname)
     this.windows.get(win.id).watchers.push(unwatcher)
     try {
-      // const tree = await loadProject(pathname)
       win.webContents.send('AGANI::open-project', {
         name: path.basename(pathname),
         pathname

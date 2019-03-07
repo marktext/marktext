@@ -176,3 +176,13 @@ export const getUniqueId = () => {
 }
 
 export const hasKeys = obj => Object.keys(obj).length > 0
+
+/**
+ * Clone an object as a shallow or deep copy.
+ *
+ * @param {*} obj Object to clone
+ * @param {Boolean} deepCopy Create a shallow (false) or deep copy (true)
+ */
+export const cloneObj = (obj, deepCopy=true) => {
+  return deepCopy ? JSON.parse(JSON.stringify(obj)) : Object.assign({}, obj)
+}
