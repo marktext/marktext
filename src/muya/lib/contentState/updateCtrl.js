@@ -111,6 +111,7 @@ const updateCtrl = ContentState => {
   }
 
   ContentState.prototype.updateList = function (block, type, marker = '') {
+    // ensure the block is a paragraph
     if (block.type === 'span') {
       block = this.getParent(block)
     }
@@ -167,19 +168,25 @@ const updateCtrl = ContentState => {
     }
 
     this.appendChild(newBlock, block)
-
-    const key = block.children[0].key
-    this.cursor = {
-      start: {
-        key,
-        offset: Math.max(0, startOffset - marker.length)
-      },
-      end: {
-        key,
-        offset: Math.max(0, endOffset - marker.length)
+    const TASK_LIST_REG = /^\[[x ]\] /i
+    const listItemText = block.children[0].text
+    if (TASK_LIST_REG.test(listItemText)) {
+      const [,,tasklist,,,,] = listItemText.match(INLINE_UPDATE_REG) || []
+      return this.updateTaskListItem(block, 'tasklist', tasklist)
+    } else {
+      const { key } = block.children[0]
+      this.cursor = {
+        start: {
+          key,
+          offset: Math.max(0, startOffset - marker.length)
+        },
+        end: {
+          key,
+          offset: Math.max(0, endOffset - marker.length)
+        }
       }
+      return block
     }
-    return block
   }
 
   ContentState.prototype.updateTaskListItem = function (block, type, marker = '') {
