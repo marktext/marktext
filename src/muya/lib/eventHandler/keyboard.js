@@ -176,9 +176,8 @@ class Keyboard {
       }
       // is show format float box?
       const { start, end } = selection.getCursorRange()
-
+ 
       if (
-        this.shownFloat.size === 0 &&
         !this.isComposed
       ) {
         const { start: oldStart, end: oldEnd } = contentState.cursor
