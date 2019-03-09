@@ -10,15 +10,27 @@ delete validateRules.strong
 delete validateRules['tail_header']
 delete validateRules['backlash']
 
+const validWidthAndHeight = value => {
+  if (!/^\d{1,}$/.test(value)) return ''
+  value = parseInt(value)
+  return value >= 0 ? value : ''
+}
+
 const getSrcAlt = text => {
   const SRC_REG = /src\s*=\s*("|')([^\1]+?)\1/
   const ALT_REG = /alt\s*=\s*("|')([^\1]+?)\1/
+  const WIDTH_REG = /width\s*=\s*("|')([^\1]+?)\1/
+  const HEIGHT_REG = /height\s*=\s*("|')([^\1]+?)\1/
   const srcMatch = SRC_REG.exec(text)
   const src = srcMatch ? srcMatch[2] : ''
   const altMatch = ALT_REG.exec(text)
   const alt = altMatch ? altMatch[2] : ''
+  const widthMatch = WIDTH_REG.exec(text)
+  const width = widthMatch ? validWidthAndHeight(widthMatch[2]) : ''
+  const heightMatch = HEIGHT_REG.exec(text)
+  const height = heightMatch ? validWidthAndHeight(heightMatch[2]) : ''
 
-  return { src, alt }
+  return { src, alt, width, height }
 }
 
 const lowerPriority = (src, offset) => {
@@ -380,7 +392,7 @@ const tokenizerFac = (src, beginRules, inlineRules, pos = 0, top) => {
     const htmlImageTo = inlineRules['html_image'].exec(src)
     if (htmlImageTo) {
       const rawAttr = htmlImageTo[2]
-      const { src: imageSrc, alt } = getSrcAlt(rawAttr)
+      const { src: imageSrc, alt, width, height } = getSrcAlt(rawAttr)
       if (imageSrc) {
         pushPending()
         tokens.push({
@@ -389,6 +401,8 @@ const tokenizerFac = (src, beginRules, inlineRules, pos = 0, top) => {
           tag: htmlImageTo[1],
           parent: tokens,
           src: imageSrc,
+          width,
+          height,
           alt,
           range: {
             start: pos,
