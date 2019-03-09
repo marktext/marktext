@@ -254,9 +254,8 @@
     height: auto;
     padding: 5px;
     background: #fff;
-    box-shadow: 0 3px 8px rgba(0, 0, 0, .1);
     border: 1px solid #eeeeee;
-    border-radius: 3px;
+    border-radius: 14px;
   }
   .input-wrapper {
     display: flex;

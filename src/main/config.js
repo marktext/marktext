@@ -9,6 +9,7 @@ export const defaultWinOptions = {
   minWidth: 450,
   minHeight: 220,
   webPreferences: {
+    experimentalFeatures: true,
     nodeIntegration: true,
     webSecurity: false
   },

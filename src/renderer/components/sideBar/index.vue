@@ -154,7 +154,7 @@
   }
   .side-bar.dark,
   .title-bar-bg.dark {
-    background: var(--darkBgHighlightColor);
+    background: var(--darkSidBarBgColor);
   }
 
   .title-bar-bg {

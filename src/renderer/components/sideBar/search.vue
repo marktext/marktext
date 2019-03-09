@@ -106,8 +106,8 @@
     text-align: center;
   }
   .dark.side-bar-search .search-wrapper {
-    background: rgb(54, 55, 49);
-    border-color: transparent;
+    background: rgba(0, 0, 0, 0.1);
+    border-color: rgba(0, 0, 0, 0.1);
     & > input,
     & > svg {
       background: transparent;

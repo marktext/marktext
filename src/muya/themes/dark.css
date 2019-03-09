@@ -97,9 +97,9 @@
 html, body {
   font-family: "Open Sans", "Clear Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-size: 16px;
-  color: rgb(217, 217, 217);
+  color: rgba(255, 255, 255, .6);
   line-height: 1.6;
-  background: rgb(45, 45, 45);
+  background: #222a32;
 }
 
 span code,
@@ -114,13 +114,13 @@ pre.ag-paragraph {
 }
 
 ::-webkit-scrollbar {
-  background: rgb(43, 43, 43);
+  background: rgba(255, 255, 255, 0.03);
 }
 ::-webkit-scrollbar:vertical {
   width: 12px;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgb(55, 55, 55);
+  background: rgba(255, 255, 255, 0.05);
 }
 ::-webkit-scrollbar-thumb:hover {
   background: #3F3F3F;
@@ -153,8 +153,10 @@ pre.ag-paragraph {
 }
 
 .ag-table-picker {
-  background: #606266;
-  border: 1px solid #606266;
+  border-radius: 2px;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.1);
+  border: solid 1px rgba(0, 0, 0, 0.1);
+  background-color: #3c4650;
 }
 
 [x-placement] > .ag-popper-arrow {
@@ -174,7 +176,7 @@ figure.ag-active.ag-container-block > div.ag-container-preview {
 }
 
 .el-dialog {
-  background: rgb(43, 43, 43);
+  background: #222a32;
 }
 
 .v-modal {
@@ -396,7 +398,7 @@ table tr {
 
 table thead tr,
 table tr:nth-child(2n) {
-  background-color: #303133;
+  background-color: rgba(255, 255, 255, .06);
 }
 
 table tr th {
@@ -539,7 +541,7 @@ pre.ag-paragraph {
  
  :not(pre) > code[class*="language-"],
  pre.ag-paragraph {
-   background: #272822;
+   background: rgba(255, 255, 255, 0.05);
  }
  
  /* Inline code */

@@ -5,13 +5,13 @@
   --error: rgb(242, 19, 93); 
   --lightBarColor: rgb(245, 245, 245);
   --lightTabColor: rgb(243, 243, 243);
-  --darkBgColor: rgb(45, 45, 45);
-  --darkInputBgColor: rgb(54, 55, 49);
+  --darkBgColor: #222a32;
+  --darkSidBarBgColor: #3c4650;
+  --darkInputBgColor: rgba(0, 0, 0, 0.1);
   --darkInputColor: rgb(255, 255, 255);
   --darkHoverColor: rgb(70, 70, 70);
   --titleBarHeight: 25px;
   --lightBgHighlightColor: rgb(246, 248, 249);
-  --darkBgHighlightColor: rgb(40, 40, 40);
 }
 .icon {
   width: 1em; height: 1em;
