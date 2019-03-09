@@ -80,14 +80,14 @@ const updateCtrl = ContentState => {
         return this.updateHr(block, hr)
 
       case !!bullet:
-        return this.updateList(block, 'bullet', bullet)
+        return this.updateList(block, 'bullet', bullet, line)
 
       // only `bullet` list item can be update to `task` list item
       case !!tasklist && parent && parent.listItemType === 'bullet':
         return this.updateTaskListItem(block, 'tasklist', tasklist)
 
       case !!order:
-        return this.updateList(block, 'order', order)
+        return this.updateList(block, 'order', order, line)
 
       case !!atxHeader:
         return this.updateAtxHeader(block, atxHeader, line)
@@ -96,7 +96,7 @@ const updateCtrl = ContentState => {
         return this.updateSetextHeader(block, setextHeader, line)
 
       case !!blockquote:
-        return this.updateBlockQuote(block)
+        return this.updateBlockQuote(block, line)
 
       case !match:
       default:
@@ -117,15 +117,12 @@ const updateCtrl = ContentState => {
     return null
   }
 
-  ContentState.prototype.updateList = function (block, type, marker = '') {
-    // ensure the block is a paragraph
+  ContentState.prototype.updateList = function (block, type, marker = '', line) {
     if (block.type === 'span') {
       block = this.getParent(block)
     }
     const { preferLooseListItem } = this
     const parent = this.getParent(block)
-    const preSibling = this.getPreSibling(block)
-    const nextSibling = this.getNextSibling(block)
     const wrapperTag = type === 'order' ? 'ol' : 'ul' // `bullet` => `ul` and `order` => `ol`
     const { start, end } = this.cursor
     const startOffset = start.offset
@@ -140,9 +137,24 @@ const updateCtrl = ContentState => {
       block.text = ''
       this.appendChild(block, line)
     } else {
-      block.children[0].text = block.children[0].text.substring(marker.length)
+      line.text = line.text.substring(marker.length)
+      const paragraphBefore = this.createBlock('p')
+      const index = block.children.indexOf(line)
+      if (index !== 0) {
+        const removeCache = []
+        for (const child of block.children) {
+          if (child === line) break
+          removeCache.push(child)
+        }
+        removeCache.forEach(c => {
+          this.removeBlock(c)
+          this.appendChild(paragraphBefore, c)
+        })
+        this.insertBefore(paragraphBefore, block)
+      }
     }
-
+    const preSibling = this.getPreSibling(block)
+    const nextSibling = this.getNextSibling(block)
     newBlock.listItemType = type
     newBlock.isLooseListItem = preferLooseListItem
 
@@ -153,23 +165,38 @@ const updateCtrl = ContentState => {
     }
 
     if (
-      preSibling && preSibling.listType === type && this.checkSameLooseType(preSibling, preferLooseListItem) &&
-      nextSibling && nextSibling.listType === type && this.checkSameLooseType(nextSibling, preferLooseListItem)
+      preSibling &&
+      preSibling.listType === type &&
+      this.checkSameLooseType(preSibling, preferLooseListItem) &&
+      nextSibling &&
+      nextSibling.listType === type &&
+      this.checkSameLooseType(nextSibling, preferLooseListItem)
     ) {
       this.appendChild(preSibling, newBlock)
       const partChildren = nextSibling.children.splice(0)
       partChildren.forEach(b => this.appendChild(preSibling, b))
       this.removeBlock(nextSibling)
       this.removeBlock(block)
-    } else if (preSibling && preSibling.type === wrapperTag && this.checkSameLooseType(preSibling, preferLooseListItem)) {
+    } else if (
+      preSibling &&
+      preSibling.type === wrapperTag &&
+      this.checkSameLooseType(preSibling, preferLooseListItem)
+    ) {
       this.appendChild(preSibling, newBlock)
 
       this.removeBlock(block)
-    } else if (nextSibling && nextSibling.listType === type && this.checkSameLooseType(nextSibling, preferLooseListItem)) {
+    } else if (
+      nextSibling &&
+      nextSibling.listType === type &&
+      this.checkSameLooseType(nextSibling, preferLooseListItem)
+    ) {
       this.insertBefore(newBlock, nextSibling.children[0])
-
       this.removeBlock(block)
-    } else if (parent && parent.listType === type && this.checkSameLooseType(parent, preferLooseListItem)) {
+    } else if (
+      parent &&
+      parent.listType === type &&
+      this.checkSameLooseType(parent, preferLooseListItem)
+    ) {
       this.insertBefore(newBlock, block)
 
       this.removeBlock(block)
@@ -185,6 +212,7 @@ const updateCtrl = ContentState => {
       this.removeBlock(block)
     }
 
+    // key point
     this.appendChild(newBlock, block)
     const TASK_LIST_REG = /^\[[x ]\] /i
     const listItemText = block.children[0].text
@@ -315,7 +343,6 @@ const updateCtrl = ContentState => {
   }
 
   ContentState.prototype.updateSetextHeader = function (block, marker, line) {
-    console.log(JSON.stringify(block, null, 2))
     const newType = /=/.test(marker) ? 'h1' : 'h2'
     const header = this.createBlock(newType)
     header.headingStyle = 'setext'
@@ -345,8 +372,32 @@ const updateCtrl = ContentState => {
     return header
   }
 
-  ContentState.prototype.updateBlockQuote = function (block) {
-    block.children[0].text = block.children[0].text.substring(1).trim()
+  ContentState.prototype.updateBlockQuote = function (block, line) {
+    if (line && !this.isFirstChild(line)) {
+      const paragraphBefore = this.createBlock('p')
+      const removeCache = []
+      for (const child of block.children) {
+        if (child === line) break
+        removeCache.push(child)
+      }
+      removeCache.forEach(c => {
+        this.removeBlock(c)
+        this.appendChild(paragraphBefore, c)
+      })
+      this.insertBefore(paragraphBefore, block)
+    }
+    if (!line && /^h\d/.test(block.type)) {
+      block.text = block.text.substring(1).trim()
+      delete block.headingStyle
+      delete block.marker
+      block.type = 'p'
+      block.children = []
+      const line = this.createBlock('span', block.text.substring(1))
+      block.text = ''
+      this.appendChild(block, line)
+    } else {
+      line.text = line.text.substring(1).trim()
+    }
     const quoteBlock = this.createBlock('blockquote')
     this.insertBefore(quoteBlock, block)
     this.removeBlock(block)
