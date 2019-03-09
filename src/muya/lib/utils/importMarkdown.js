@@ -64,10 +64,14 @@ const importRegister = ContentState => {
           break
         }
         case 'heading': {
-          const { headingStyle, depth, text } = token
-          value = '#'.repeat(+depth) + ` ${text}`
+          const { headingStyle, depth, text, marker } = token
+          value = headingStyle === 'atx' ? '#'.repeat(+depth) + ` ${text}` : text
           block = this.createBlock(`h${depth}`, value)
           block.headingStyle = headingStyle
+          if (marker) {
+            block.marker = marker
+          }
+
           this.appendChild(parentList[0], block)
           break
         }
