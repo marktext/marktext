@@ -391,7 +391,6 @@ const tokenizerFac = (src, beginRules, inlineRules, pos = 0, top) => {
     // html-image
     const htmlImageTo = inlineRules['html_image'].exec(src)
     if (htmlImageTo) {
-      console.log(htmlImageTo)
       const rawAttr = htmlImageTo[2]
       const { src: imageSrc, alt, width, height } = getSrcAlt(rawAttr)
       if (imageSrc) {
