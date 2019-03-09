@@ -19,6 +19,25 @@ import orderListIcon from '../../assets/icons/order_list.svg'
 // import sequenceIcon from '../../assets/icons/sequence.svg'
 // import mermaidIcon from '../../assets/icons/mermaid.svg'
 // import vegaIcon from '../../assets/icons/chart.svg'
+import { isOsx } from '../../config'
+
+const COMMAND_KEY = isOsx ? '⌘' : '⌃'
+
+// Command (or Cmd) ⌘
+// Shift ⇧
+// Option (or Alt) ⌥
+// Control (or Ctrl) ⌃
+// Caps Lock ⇪
+// Fn
+
+
+// Command (or Cmd) ⌘
+// Shift ⇧
+// Option (or Alt) ⌥
+// Control (or Ctrl) ⌃
+// Caps Lock ⇪
+// Fn
+
 
 export const quicInsertObj = {
   // 'diagram': [{
@@ -47,108 +66,125 @@ export const quicInsertObj = {
   //   color: 'rgb(224, 54, 54)'
   // }],
   'basic block': [{
-    title: 'Text',
-    subTitle: 'Just start write plain text.',
+    title: 'Paragraph',
+    subTitle: 'Lorem Ipsum is simply dummy text',
     label: 'paragraph',
+    shortCut: `${COMMAND_KEY}0`,
     icon: paragraphIcon,
     color: 'rgb(224, 54, 54)'
   }, {
     title: 'Horizontal Line',
-    subTitle: 'A horizontal line inserted.',
+    subTitle: '---',
     label: 'hr',
+    shortCut: `⌥${COMMAND_KEY}-`,
     icon: hrIcon,
     color: 'rgb(255, 83, 77)'
   }, {
     title: 'Front Matter',
-    subTitle: 'Just like Front Matter in hexo.io.',
+    subTitle: '--- Lorem Ipsum ---',
     label: 'front-matter',
+    shortCut: `⌥${COMMAND_KEY}Y`,
     icon: frontMatterIcon,
     color: 'rgb(37, 198, 252)'
   }],
   'header': [{
     title: 'Header 1',
-    subTitle: 'Header rendered by h1.',
+    subTitle: '# Lorem Ipsum is simply ...',
     label: 'heading 1',
+    shortCut: `${COMMAND_KEY}1`,
     icon: header1Icon,
     color: 'rgb(86, 163, 108)'
   }, {
     title: 'Header 2',
-    subTitle: 'Header rendered by h2.',
+    subTitle: '## Lorem Ipsum is simply ...',
     label: 'heading 2',
+    shortCut: `${COMMAND_KEY}2`,
     icon: header2Icon,
     color: 'rgb(94, 133, 121)'
   }, {
     title: 'Header 3',
-    subTitle: 'Header rendered by h3.',
+    subTitle: '### Lorem Ipsum is simply ...',
     label: 'heading 3',
+    shortCut: `${COMMAND_KEY}3`,
     icon: header3Icon,
     color: 'rgb(119, 195, 79)'
   }, {
     title: 'Header 4',
-    subTitle: 'Header rendered by  h4.',
+    subTitle: '#### Lorem Ipsum is simply ...',
     label: 'heading 4',
+    shortCut: `${COMMAND_KEY}4`,
     icon: header4Icon,
     color: 'rgb(46, 104, 170)'
   }, {
     title: 'Header 5',
-    subTitle: 'Header rendered by h5.',
+    subTitle: '##### Lorem Ipsum is simply ...',
     label: 'heading 5',
+    shortCut: `${COMMAND_KEY}5`,
     icon: header5Icon,
     color: 'rgb(126, 136, 79)'
   }, {
     title: 'Header 6',
-    subTitle: 'Header rendered by h6.',
+    subTitle: '###### Lorem Ipsum is simply ...',
     label: 'heading 6',
+    shortCut: `${COMMAND_KEY}6`,
     icon: header6Icon,
     color: 'rgb(29, 176, 184)'
   }],
   'advanced block': [{
     title: 'Table Block',
-    subTitle: 'Create a table in your page.',
+    subTitle: '|Lorem | Ipsum is simply |',
     label: 'table',
+    shortCut: `${COMMAND_KEY}T`,
     icon: tableIcon,
     color: 'rgb(13, 23, 64)'
   }, {
     title: 'Mathematical Formula',
-    subTitle: 'Formula are rendered by Katex.',
+    subTitle: '$$ Lorem Ipsum is simply $$',
     label: 'mathblock',
+    shortCut: `⌥${COMMAND_KEY}M`,
     icon: mathblockIcon,
     color: 'rgb(252, 214, 146)'
   }, {
     title: 'HTML Block',
-    subTitle: 'Insert block HTML into text.',
+    subTitle: '<div> Lorem Ipsum is simply </div>',
     label: 'html',
+    shortCut: `⌥${COMMAND_KEY}J`,
     icon: htmlIcon,
     color: 'rgb(13, 23, 64)'
   }, {
     title: 'Code Block',
-    subTitle: 'Insert Code block into article.',
+    subTitle: '```java Lorem Ipsum is simply ```',
     label: 'pre',
+    shortCut: `⌥${COMMAND_KEY}C`,
     icon: codeIcon,
     color: 'rgb(164, 159, 147)'
   }, {
     title: 'Quote Block',
-    subTitle: 'Capture a quote.',
+    subTitle: '>Lorem Ipsum is simply ...',
     label: 'blockquote',
+    shortCut: `⌥${COMMAND_KEY}Q`,
     icon: quoteIcon,
     color: 'rgb(31, 111, 181)'
   }],
   'list block': [{
     title: 'Order List',
-    subTitle: 'Just numbered list.',
+    subTitle: '1. Lorem Ipsum is simply ...',
     label: 'ol-order',
+    shortCut: `⌥${COMMAND_KEY}O`,
     icon: orderListIcon,
     color: 'rgb(242, 159, 63)'
   }, {
     title: 'Bullet List',
-    subTitle: 'Simple bullet list.',
+    subTitle: '- Lorem Ipsum is simply ...',
     label: 'ul-bullet',
+    shortCut: `⌥${COMMAND_KEY}U`,
     icon: bulletListIcon,
     color: 'rgb(242, 117, 63)'
   }, {
     title: 'To-do List',
-    subTitle: 'Track tasks with to-do list.',
+    subTitle: '- [x] Lorem Ipsum is simply ...',
     label: 'ul-task',
+    shortCut: `⌥${COMMAND_KEY}X`,
     icon: todoListIcon,
     color: 'rgb(222, 140, 124)'
   }]

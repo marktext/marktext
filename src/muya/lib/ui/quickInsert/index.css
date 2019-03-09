@@ -6,14 +6,13 @@
 }
 
 .ag-quick-insert .title {
-  color: rgba(55, 53, 47, 0.6);
+  color: rgba(0, 0, 0, .6);
   line-height: 120%;
-  font-size: 11px;
-  padding: 10px 14px 12px 14px;
+  font-size: 14px;
+  padding: 10px 14px 10px 14px;
   display: flex;
   text-transform: uppercase;
   letter-spacing: 1px;
-  font-weight: 600;
   position: sticky;
   top: 0;
   background: #fff;
@@ -23,7 +22,7 @@
 .ag-quick-insert .item {
   display: flex;
   flex-direction: row;
-  padding: 8px 0;
+  padding: 6px 0;
   cursor: pointer;
   user-select: none;
 }
@@ -33,7 +32,7 @@
 }
 .ag-quick-insert .active,
 .ag-quick-insert div.item:hover {
- background-color: rgb(243, 243, 243);
+ background-color: rgba(0, 0, 0, .04);
 }
 
 .ag-quick-insert .no-result {
@@ -44,34 +43,45 @@
 }
 
 .ag-quick-insert .icon-container {
-  width: 46px;
-  height: 46px;
-  box-shadow: rgba(15, 15, 15, 0.1) 0px 0px 0px 1px;
+  width: 40px;
+  height: 40px;
+  border: 1px solid rgb(0, 0, 0, .1);
   display: flex;
   justify-content: space-around;
   align-items: center;
-  border-radius: 3px;
+  border-radius: 6px;
   margin-left: 14px;
 }
 
 .ag-quick-insert .icon-container img {
-  width: 30px;
-  height: 30px;
+  width: 20px;
+  height: 20px;
   opacity: .6;
 }
 
 .ag-quick-insert .description {
   margin-left: 8px;
+  flex: 1;
+}
+
+.ag-quick-insert .short-cut {
+  width: 40px;
+  margin-right: 20px;
+  flex-shrink: 1;
+  text-align: right;
+  color: rgba(0, 0, 0, .3);
+  font-size: 14px;
+  letter-spacing: 1px;
 }
 
 .ag-quick-insert .big-title {
   font-size: 14px;
-  color: #333333;
+  color: rgba(0, 0, 0, .6);
 }
 
 .ag-quick-insert .sub-title {
   font-size: 12px;
-  color: rgba(55, 53, 47, 0.6);
+  color: rgba(0, 0, 0, .4);
 }
 
 .ag-quick-insert .hide {
