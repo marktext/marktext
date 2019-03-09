@@ -76,8 +76,11 @@ const updateCtrl = ContentState => {
     const [match, bullet, tasklist, order, atxHeader, setextHeader, blockquote, hr] = text.match(INLINE_UPDATE_REG) || []
 
     switch (true) {
-      case (hr && new Set(hr.split('').filter(i => /\S/.test(i))).size === 1):
-        return this.updateHr(block, hr)
+      case (
+        (!!hr && new Set(hr.split('').filter(i => /\S/.test(i))).size === 1) ||
+        (!!setextHeader && !hasPreLine)
+      ):
+        return this.updateHr(block, hr || setextHeader)
 
       case !!bullet:
         return this.updateList(block, 'bullet', bullet, line)
