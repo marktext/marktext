@@ -10,6 +10,12 @@ delete validateRules.strong
 delete validateRules['tail_header']
 delete validateRules['backlash']
 
+const validWidthAndHeight = value => {
+  if (!/^\d{1,}$/.test(value)) return ''
+  value = parseInt(value)
+  return value >= 0 ? value : ''
+}
+
 const getSrcAlt = text => {
   const SRC_REG = /src\s*=\s*("|')([^\1]+?)\1/
   const ALT_REG = /alt\s*=\s*("|')([^\1]+?)\1/
@@ -20,9 +26,9 @@ const getSrcAlt = text => {
   const altMatch = ALT_REG.exec(text)
   const alt = altMatch ? altMatch[2] : ''
   const widthMatch = WIDTH_REG.exec(text)
-  const width = widthMatch ? widthMatch[2] : ''
+  const width = widthMatch ? validWidthAndHeight(widthMatch[2]) : ''
   const heightMatch = HEIGHT_REG.exec(text)
-  const height = heightMatch ? heightMatch[2] : ''
+  const height = heightMatch ? validWidthAndHeight(heightMatch[2]) : ''
 
   return { src, alt, width, height }
 }

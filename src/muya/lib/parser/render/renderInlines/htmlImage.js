@@ -24,10 +24,10 @@ export default function htmlImage (h, cursor, block, token, outerClass) {
     selector += `.${CLASS_OR_ID['AG_IMAGE_FAIL']}`
   }
   const props = { alt, src }
-  if (width) {
+  if (typeof width === 'number') {
     props.width = width
   }
-  if (height) {
+  if (typeof height === 'number') {
     props.height = height
   }
   return isSuccess
