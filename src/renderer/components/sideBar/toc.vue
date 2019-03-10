@@ -4,7 +4,7 @@
         :key="index"
         :style="{'padding-left': `${(item.lvl - startLvl) * 20}px`}"
         @click="handleClick(item)"
-        :class="{ 'active': item.i === activeIndex }"
+        :class="{ 'active': item === activeItem }"
       >
         {{ item.content }}
       </li>
@@ -18,7 +18,7 @@
   export default {
     data () {
       return {
-        activeIndex: -1
+        activeItem: null
       }
     },
     computed: {
@@ -29,7 +29,8 @@
     },
     methods: {
       handleClick (item) {
-        this.activeIndex = item.i
+        console.log(item)
+        this.activeItem = item
         bus.$emit('scroll-to-header', item.slug)
       }
     }
@@ -37,13 +38,16 @@
 </script>
 
 <style scoped>
+  ::-webkit-scrollbar:vertical {
+    width: 8px;
+  }
   .side-bar-toc {
     height: calc(100% - 35px);
+    overflow: auto;
     margin: 0;
     margin-top: 35px;
     padding: 0;
     list-style: none;
-    overflow: scroll;
     & > li {
       font-size: 14px;
       margin-bottom: 15px;

@@ -123,7 +123,7 @@ pre.ag-paragraph {
   background: rgba(255, 255, 255, 0.05);
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #3F3F3F;
+  background: rgba(255, 255, 255, 0.07);
 }
 
 #ag-editor-id {

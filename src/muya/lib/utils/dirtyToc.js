@@ -30,7 +30,8 @@ export const slugify = str => {
   })
 
   return str
-    .replace(/[^a-z0-9 -]/g, '') // remove invalid chars
+    // add support Chinese \u4e00-\u9fa5
+    .replace(/[^a-z0-9\u4e00-\u9fa5 -]/g, '') // remove invalid chars
     .replace(/\t/g, '--') // collapse tabs and replace by --
     .replace(/\s+/g, '-') // collapse whitespace and replace by -
     .replace(/^-+/, '') // trim - from start of text
