@@ -53,7 +53,8 @@
   margin-left: 14px;
 }
 
-.ag-quick-insert .icon-container img {
+.ag-quick-insert .icon-container img,
+.ag-quick-insert .icon-container svg {
   width: 20px;
   height: 20px;
   opacity: .6;
@@ -101,9 +102,14 @@
   color: var(--baseBorder);
 }
 
+.ag-quick-insert.dark .short-cut {
+  color: var(--lightBorder);
+  opacity: .5;
+}
+
 .ag-quick-insert.dark .active,
 .ag-quick-insert.dark div.item:hover {
-  background-color: rgb(71, 72, 66);
+  background-color: rgba(255, 255, 255, .2);
 }
 
 

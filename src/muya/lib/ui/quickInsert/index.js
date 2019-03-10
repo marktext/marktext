@@ -44,32 +44,33 @@ class QuickInsert extends BaseScrollFloat {
         const titleVnode = h('div.title', key.toUpperCase())
         const items = []
         for (const item of _renderObj[key]) {
-          const { title, subTitle, label, icon, shortCut } = item
-          const iconVnode = h('div.icon-container', h('img', {
-            attrs: {
-              src: `.${icon.url}`
-            }
-          })
-            // h('svg', {
-            //   attrs: {
-            //     viewBox: icon.viewBox,
-            //     'aria-hidden': 'true'
-            //   },
-            //   style: {
-            //     fill: color
-            //   },
-            //   hook: {
-            //     prepatch (oldvnode, vnode) {
-            //       // cheat snabbdom that the pre block is changed!!!
-            //       oldvnode.children = []
-            //       oldvnode.elm.innerHTML = ''
-            //     }
-            //   }
-            // }, h('use', {
-            //   attrs: {
-            //     'xlink:href': icon.url
-            //   }
-            // }))
+          const { title, subTitle, label, icon, shortCut, color } = item
+          const iconVnode = h('div.icon-container',
+          // h('img', {
+          //   attrs: {
+          //     src: `.${icon.url}`
+          //   }
+          // })
+            h('svg', {
+              attrs: {
+                viewBox: icon.viewBox,
+                'aria-hidden': 'true'
+              },
+              style: {
+                fill: color
+              },
+              hook: {
+                prepatch (oldvnode, vnode) {
+                  // cheat snabbdom that the pre block is changed!!!
+                  oldvnode.children = []
+                  oldvnode.elm.innerHTML = ''
+                }
+              }
+            }, h('use', {
+              attrs: {
+                'xlink:href': icon.url
+              }
+            }))
           )
 
           const description = h('div.description', [

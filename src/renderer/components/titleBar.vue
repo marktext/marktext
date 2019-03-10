@@ -32,6 +32,8 @@
         @click.stop="handleMenuClick"
       >&#9776;</div>
       <el-tooltip
+        :hide-after="200"
+        :visible-arrow="false"
         v-if="wordCount"
         class="item"
         effect="dark"
@@ -297,8 +299,9 @@
     line-height: 17px;
     margin-top: 4px;
     padding: 1px 5px;
-    border-radius: 1px;
+    border-radius: 3px;
     transition: all .25s ease-in-out;
+    outline: none;
   }
   .active .word-count {
     color: #DCDFE6;
@@ -349,7 +352,7 @@
     color: #F2F6FC;
   }
   .dark .word-count:hover {
-    background: rgb(71, 72, 66);
+    background: var(--darkSidBarBgColor);
     color: #C0C4CC;
   }
   .dark .frameless-titlebar-button svg {

@@ -68,7 +68,7 @@
   .search-wrapper {
     display: flex;
     margin: 35px 20px;
-    border-radius: 3px;
+    border-radius: 14px;
     height: 30px;
     border: 1px solid var(--lightBorder);
     box-sizing: border-box;

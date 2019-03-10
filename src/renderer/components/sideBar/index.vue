@@ -146,6 +146,7 @@
     height: calc(100vh - var(--titleBarHeight));
     position: relative;
     color: var(--secondaryColor);
+    transition: width .2s ease-out;
   }
   .side-bar.light,
   .title-bar-bg.light {

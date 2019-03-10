@@ -8,6 +8,7 @@ export const defaultWinOptions = {
   icon: path.join(__static, 'logo-96px.png'),
   minWidth: 450,
   minHeight: 220,
+  vibrancy: 'dark',
   webPreferences: {
     experimentalFeatures: true,
     nodeIntegration: true,

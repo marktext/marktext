@@ -209,7 +209,7 @@
   }
   .tree-view {
     font-size: 14px;
-    color: var(--regularColor);
+    color: var(--info);
     display: flex;
     flex-direction: column;
     height: 100%;

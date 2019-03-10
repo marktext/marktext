@@ -20,6 +20,10 @@
   overflow: hidden;
 }
 
+.el-tooltip__popper.is-dark {
+  background: var(--darkSidBarBgColor);
+}
+
 .text-overflow {
   text-overflow: ellipsis;
   overflow: hidden;

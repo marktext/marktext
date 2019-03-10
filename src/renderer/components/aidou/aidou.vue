@@ -255,7 +255,6 @@
     padding: 5px;
     background: #fff;
     border: 1px solid #eeeeee;
-    border-radius: 14px;
   }
   .input-wrapper {
     display: flex;
