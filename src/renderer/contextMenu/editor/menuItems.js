@@ -69,7 +69,7 @@ export const INSERT_AFTER = {
 export const INSERT_ROW = {
   label: 'Insert Row',
   submenu: [{
-    label: 'Preview Row',
+    label: 'Previous Row',
     click (menuItem, browserWindow) {
       contextMenu.editTable({
         location: 'previous',
