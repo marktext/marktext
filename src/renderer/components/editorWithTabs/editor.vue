@@ -359,7 +359,7 @@
       handlePrint () {
         // generate styled HTML with empty title and optimized for printing
         const html = this.editor.exportStyledHTML('', true)
-        this.printer.renderMarkdown(html)
+        this.printer.renderMarkdown(html, true)
         this.$store.dispatch('PRINT_RESPONSE')
       },
 
@@ -375,7 +375,7 @@
           case 'pdf': {
             // generate styled HTML with empty title and optimized for printing
             const html = this.editor.exportStyledHTML('', true)
-            this.printer.renderMarkdown(html)
+            this.printer.renderMarkdown(html, true)
             this.$store.dispatch('EXPORT', { type, markdown })
             break
           }

@@ -2,6 +2,7 @@
 // todo@jocs: remove the use of `axios` in muya
 import axios from 'axios'
 import createDOMPurify from 'dompurify'
+import { isInElectron } from '../config'
 
 const ID_PREFIX = 'ag-'
 let id = 0
@@ -162,43 +163,62 @@ export const checkImageContentType = async url => {
   }
 }
 
-export const getImageInfo = src => {
+/**
+ * Return image information and correct the relative image path if needed.
+ *
+ * @param {string} src Image url
+ * @param {string} baseUrl Base path; used on desktop to fix the relative image path.
+ */
+export const getImageInfo = (src, baseUrl = window.DIRNAME) => {
   const EXT_REG = /\.(jpeg|jpg|png|gif|svg|webp)(?=\?|$)/i
   // http[s] (domain or IPv4 or localhost or IPv6) [port] /not-white-space
   const URL_REG = /^http(s)?:\/\/([a-z0-9\-._~]+\.[a-z]{2,}|[0-9.]+|localhost|\[[a-f0-9.:]+\])(:[0-9]{1,5})?\/[\S]+/i
+  // data:[<MIME-type>][;charset=<encoding>][;base64],<data>
   const DATA_URL_REG = /^data:image\/[\w+-]+(;[\w-]+=[\w-]+|;base64)*,[a-zA-Z0-9+/]+={0,2}$/
+
   const imageExtension = EXT_REG.test(src)
   const isUrl = URL_REG.test(src)
+
+  // Treat an URL with valid extension as image
   if (imageExtension) {
-    if (isUrl || !window.DIRNAME) {
+    if (isUrl || !baseUrl) {
+      if (!baseUrl && isInElectron) {
+        console.warn('"baseUrl" is not defined!')
+      }
+
       return {
         isUnknownType: false,
         src
       }
-    } else if (window && window.process && window.process.type === 'renderer') {
+    } else if (isInElectron) {
+      // Correct relative path on desktop
       return {
         isUnknownType: false,
-        src: 'file://' + require('path').resolve(window.DIRNAME, src)
+        src: 'file://' + require('path').resolve(baseUrl, src)
       }
     }
+    // else: Forbid the request due absolute or relative path in browser
   } else if (isUrl && !imageExtension) {
+    // Assume it's a valid image and make a http request later
     return {
       isUnknownType: true,
       src
     }
-  } else {
-    const isDataUrl = DATA_URL_REG.test(src)
-    if (isDataUrl) {
-      return {
-        isUnknownType: false,
-        src
-      }
-    } else {
-      return {
-        isUnknownType: false,
-        src: ''
-      }
+  }
+
+  // Data url
+  if (DATA_URL_REG.test(src)) {
+    return {
+      isUnknownType: false,
+      src
     }
+  }
+
+  // Url type is unknown
+  console.error(`Invalid image url: "${src}"`)
+  return {
+    isUnknownType: false,
+    src: ''
   }
 }
 

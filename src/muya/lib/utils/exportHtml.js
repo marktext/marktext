@@ -17,6 +17,7 @@ class ExportHtml {
   constructor (markdown) {
     this.markdown = markdown
   }
+
   // render pure html by marked
   renderHtml () {
     return marked(this.markdown, {
@@ -48,6 +49,7 @@ class ExportHtml {
       }
     })
   }
+
   /**
    * Get HTML with style
    *
