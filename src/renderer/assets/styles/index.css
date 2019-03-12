@@ -10,6 +10,7 @@
   --darkInputColor: rgb(255, 255, 255);
   --darkHoverColor: rgb(70, 70, 70);
   --titleBarHeight: 25px;
+  --editorAreaWidth: 700px;
   --lightBgHighlightColor: rgb(246, 248, 249);
   --darkBgHighlightColor: rgb(40, 40, 40);
 }

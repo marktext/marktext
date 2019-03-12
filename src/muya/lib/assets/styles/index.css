@@ -14,6 +14,7 @@
   --lightBorder: #E4E7ED;
   --lighterBorder: #EBEEF5;
   --extraLightBorder: #F2F6FC;
+  --editorAreaWidth: 700px;
 }
 
 html {

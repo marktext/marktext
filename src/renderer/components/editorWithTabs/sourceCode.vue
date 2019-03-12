@@ -146,7 +146,7 @@
   }
   .source-code .CodeMirror {
     margin: 50px auto;
-    max-width: 860px;
+    max-width: var(--editorAreaWidth);
   }
   .source-code .CodeMirror-gutters {
     border-right: none;
