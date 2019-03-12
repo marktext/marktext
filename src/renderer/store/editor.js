@@ -382,6 +382,8 @@ const actions = {
   },
 
   NEW_BLANK_FILE ({ commit, state, dispatch }) {
+    dispatch('SHOW_TAB_VIEW', false)
+
     const { tabs, lineEnding } = state
     const fileState = getBlankFileState(tabs, lineEnding)
     const { markdown } = fileState
@@ -402,6 +404,8 @@ const actions = {
       return
     }
 
+    dispatch('SHOW_TAB_VIEW', false)
+
     const { markdown, isMixedLineEndings } = markdownDocument
     const docState = createDocumentState(markdownDocument)
     dispatch('UPDATE_CURRENT_FILE', docState)
@@ -416,6 +420,14 @@ const actions = {
         time: 20000,
         showConfirm: false
       })
+    }
+  },
+
+  SHOW_TAB_VIEW ({ commit, state, dispatch }, always) {
+    const { tabs } = state
+    if (always || tabs.length <= 1) {
+      commit('SET_LAYOUT', { showTabBar: true })
+      dispatch('SET_LAYOUT_MENU_ITEM')
     }
   },
 

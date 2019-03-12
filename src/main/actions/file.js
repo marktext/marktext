@@ -308,18 +308,33 @@ export const print = win => {
   win.webContents.send('AGANI::print')
 }
 
-export const openFileOrFolder = pathname => {
-  if (isFile(pathname) || isDirectory(pathname)) {
+export const openFileOrFolder = (win, pathname) => {
+  if (isFile(pathname)) {
+    const { openFilesInNewWindow } = userPreference.getAll()
+    if (openFilesInNewWindow) {
+      appWindow.createWindow(pathname)
+    } else {
+      loadMarkdownFile(pathname).then(rawDocument => {
+        newTab(win, rawDocument)
+      }).catch(err => {
+        // TODO: Handle error --> create a end-user error handler.
+        console.error('[ERROR] Cannot open file or directory.')
+        log(err)
+      })
+    }
+  } else if (isDirectory(pathname)) {
     appWindow.createWindow(pathname)
+  } else {
+    console.error(`[ERROR] Cannot open unknown file: "${pathname}"`)
   }
 }
 
 export const openFolder = win => {
-  const pathname = dialog.showOpenDialog(win, {
+  const dirList = dialog.showOpenDialog(win, {
     properties: ['openDirectory', 'createDirectory']
   })
-  if (pathname && pathname[0]) {
-    openFileOrFolder(pathname[0])
+  if (dirList && dirList[0]) {
+    openFileOrFolder(win, dirList[0])
   }
 }
 
@@ -331,23 +346,8 @@ export const openFile = win => {
       extensions: EXTENSIONS
     }]
   })
-
-  if (!fileList || !fileList[0]) {
-    return
-  }
-
-  const filename = fileList[0]
-  const { openFilesInNewWindow } = userPreference.getAll()
-  if (openFilesInNewWindow) {
-    openFileOrFolder(filename)
-  } else {
-    loadMarkdownFile(filename).then(rawDocument => {
-      newTab(win, rawDocument)
-    }).catch(err => {
-      // TODO: Handle error --> create a end-user error handler.
-      console.error('[ERROR] Cannot open file.')
-      log(err)
-    })
+  if (fileList && fileList[0]) {
+    openFileOrFolder(win, fileList[0])
   }
 }
 
