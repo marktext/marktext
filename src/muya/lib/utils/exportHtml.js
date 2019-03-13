@@ -57,7 +57,7 @@ class ExportHtml {
   generate (title = '', printOptimization = false) {
     // WORKAROUND: Hide Prism.js style when exporting or printing. Otherwise the background color is white in the dark theme.
     const highlightCssStyle = printOptimization ? `@media print { ${highlightCss} }` : highlightCss
-    const html = this.renderHtml()
+    const html = sanitize(this.renderHtml(), EXPORT_DOMPURIFY_CONFIG)
     return `<!DOCTYPE html>
 <html lang="en">
 <head>
