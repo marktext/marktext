@@ -256,7 +256,7 @@ figure {
   display: none;
 }
 .ag-tool-bar ul {
-  height: 18px;
+  height: 20px;
   list-style: none;
   margin: 0;
   padding: 0;
@@ -266,8 +266,8 @@ figure {
 .ag-tool-bar ul li {
   box-sizing: border-box;
   display: flex;
-  width: 18px;
-  height: 18px;
+  width: 20px;
+  height: 20px;
   padding: 2px;
   margin-right: 3px;
   cursor: pointer;
