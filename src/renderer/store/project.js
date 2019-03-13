@@ -3,6 +3,7 @@ import { ipcRenderer, shell } from 'electron'
 import { addFile, unlinkFile, changeFile, addDirectory, unlinkDirectory } from './treeCtrl'
 import bus from '../bus'
 import { create, paste, rename } from '../util/fileSystem'
+import { PATH_SEPARATOR } from '../config'
 import notice from '../services/notification'
 import { getFileStateFromData } from './help'
 
@@ -36,9 +37,17 @@ const getters = {
 }
 
 const mutations = {
-  SET_PROJECT_TREE (state, { pathname, name }) {
+  SET_PROJECT_TREE (state, pathname) {
+    let name = path.basename(pathname)
+    if (!name) {
+      // Root directory such "/" or "C:\"
+      name = pathname
+    }
+
     state.projectTree = {
-      pathname,
+      // Root full path
+      pathname: path.normalize(pathname),
+      // Root directory name
       name,
       isDirectory: true,
       isFile: false,
@@ -105,12 +114,12 @@ const mutations = {
 
 const actions = {
   LISTEN_FOR_LOAD_PROJECT ({ commit, dispatch }) {
-    ipcRenderer.on('AGANI::open-project', (e, { pathname, name }) => {
+    ipcRenderer.on('AGANI::open-project', (e, pathname) => {
       // Initialize editor and show empty/new tab
       dispatch('NEW_BLANK_FILE')
 
       dispatch('INIT_STATUS', true)
-      commit('SET_PROJECT_TREE', { pathname, name })
+      commit('SET_PROJECT_TREE', pathname)
       commit('SET_LAYOUT', {
         rightColumn: 'files',
         showSideBar: true,
@@ -189,7 +198,7 @@ const actions = {
       const { pathname, isDirectory } = state.activeItem
       const dirname = isDirectory ? pathname : path.dirname(pathname)
       if (clipboard) {
-        clipboard.dest = dirname + '/' + path.basename(clipboard.src)
+        clipboard.dest = dirname + PATH_SEPARATOR + path.basename(clipboard.src)
         paste(clipboard)
           .then(() => {
             commit('SET_CLIPBOARD', null)
@@ -232,7 +241,7 @@ const actions = {
   RENAME_IN_SIDEBAR ({ commit, state }, name) {
     const src = state.renameCache
     const dirname = path.dirname(src)
-    const dest = dirname + '/' + name
+    const dest = dirname + PATH_SEPARATOR + name
     rename(src, dest)
       .then(() => {
         commit('RENAME_IF_NEEDED', { src, dest })

@@ -1,34 +1,43 @@
 import path from 'path'
 import { getUniqueId } from '../util'
+import { PATH_SEPARATOR } from '../config'
 
-const pathSeparator = path.sep
-const isWindows = process.platform === 'win32'
-
-const getPathArr = (projectName, pathname) => {
-  const reUnix = /^\/+(.*)/
-  const reWindows = /^\\+(.*)/
-  let [prePath, partPath] = pathname.split(projectName)
-  partPath = partPath.replace(isWindows ? reWindows : reUnix, (_, p1) => p1)
-  prePath += projectName
-  const tokens = partPath ? partPath.split(pathSeparator) : []
-
-  return { prePath, tokens }
+/**
+ * Return all sub-directories relative to the root directory.
+ *
+ * @param {string} rootPath Root directory path
+ * @param {string} pathname Full directory path
+ * @returns {Array<string>} Sub-directories relative to root.
+ */
+const getSubdirectoriesFromRoot = (rootPath, pathname) => {
+  if (!path.isAbsolute(pathname)) {
+    throw new Error('Invalid path!')
+  }
+  const relativePath = path.relative(rootPath, pathname)
+  return relativePath ? relativePath.split(PATH_SEPARATOR) : []
 }
 
+/**
+ * Add a new file to the tree list.
+ *
+ * @param {*} tree Root file tree
+ * @param {*} file The file that should be added
+ */
 export const addFile = (tree, file) => {
   const { pathname, name } = file
   const dirname = path.dirname(pathname)
-  let { prePath, tokens } = getPathArr(tree.name, dirname)
-  let folder = tree
-  let folders = tree.folders
+  const subDirectories = getSubdirectoriesFromRoot(tree.pathname, dirname)
 
-  for (const token of tokens) {
-    let childFolder = folders.find(f => f.name === token)
+  let currentPath = tree.pathname
+  let currentFolder = tree
+  let currentSubFolders = tree.folders
+  for (const directoryName of subDirectories) {
+    let childFolder = currentSubFolders.find(f => f.name === directoryName)
     if (!childFolder) {
       childFolder = {
         id: getUniqueId(),
-        pathname: `${prePath}${pathSeparator}${token}`,
-        name: token,
+        pathname: `${currentPath}${PATH_SEPARATOR}${directoryName}`,
+        name: directoryName,
         isCollapsed: true,
         isDirectory: true,
         isFile: false,
@@ -36,30 +45,39 @@ export const addFile = (tree, file) => {
         folders: [],
         files: []
       }
-      folders.push(childFolder)
+      currentSubFolders.push(childFolder)
     }
-    prePath = `${prePath}${pathSeparator}${token}`
-    folder = childFolder
-    folders = childFolder.folders
+
+    currentPath = `${currentPath}${PATH_SEPARATOR}${directoryName}`
+    currentFolder = childFolder
+    currentSubFolders = childFolder.folders
   }
 
-  if (!folder.files.find(f => f.name === name)) {
+  // Add file to related directory
+  if (!currentFolder.files.find(f => f.name === name)) {
     file.id = getUniqueId()
-    folder.files.push(file)
+    currentFolder.files.push(file)
   }
 }
 
+/**
+ * Add a new directory to the tree list.
+ *
+ * @param {*} tree Root file tree
+ * @param {*} dir The directory that should be added
+ */
 export const addDirectory = (tree, dir) => {
-  let { prePath, tokens } = getPathArr(tree.name, dir.pathname)
-  let folders = tree.folders
+  const subDirectories = getSubdirectoriesFromRoot(tree.pathname, dir.pathname)
 
-  for (const token of tokens) {
-    let childFolder = folders.find(f => f.name === token)
+  let currentPath = tree.pathname
+  let currentSubFolders = tree.folders
+  for (const directoryName of subDirectories) {
+    let childFolder = currentSubFolders.find(f => f.name === directoryName)
     if (!childFolder) {
       childFolder = {
         id: getUniqueId(),
-        pathname: `${prePath}${pathSeparator}${token}`,
-        name: token,
+        pathname: `${currentPath}${PATH_SEPARATOR}${directoryName}`,
+        name: directoryName,
         isCollapsed: true,
         isDirectory: true,
         isFile: false,
@@ -67,70 +85,86 @@ export const addDirectory = (tree, dir) => {
         folders: [],
         files: []
       }
-      folders.push(childFolder)
+      currentSubFolders.push(childFolder)
     }
-    prePath = `${prePath}${pathSeparator}${token}`
-    folders = childFolder.folders
+
+    currentPath = `${currentPath}${PATH_SEPARATOR}${directoryName}`
+    currentSubFolders = childFolder.folders
   }
 }
 
+/**
+ * Remove the given file from the tree list.
+ *
+ * @param {*} tree Root file tree
+ * @param {*} file The file that should be deleted
+ */
 export const unlinkFile = (tree, file) => {
   const { pathname } = file
   const dirname = path.dirname(pathname)
-  let { tokens } = getPathArr(tree.name, dirname)
+  const subDirectories = getSubdirectoriesFromRoot(tree.pathname, dirname)
 
-  let folder = tree
-  let folders = tree.folders
-
-  for (const token of tokens) {
-    const childFolder = folders.find(f => f.name === token)
+  let currentFolder = tree
+  let currentSubFolders = tree.folders
+  for (const directoryName of subDirectories) {
+    const childFolder = currentSubFolders.find(f => f.name === directoryName)
     if (!childFolder) return
-    folder = childFolder
-    folders = childFolder.folders
+    currentFolder = childFolder
+    currentSubFolders = childFolder.folders
   }
 
-  const index = folder.files.findIndex(f => f.pathname === pathname)
-
-  if (index > -1) {
-    folder.files.splice(index, 1)
+  const index = currentFolder.files.findIndex(f => f.pathname === pathname)
+  if (index !== -1) {
+    currentFolder.files.splice(index, 1)
   }
 }
 
+/**
+ * Update a given file in the tree list.
+ *
+ * @param {*} tree Root file tree
+ * @param {*} file The file that was changed
+ */
 export const changeFile = (tree, file) => {
   const { pathname, data } = file
   const dirname = path.dirname(pathname)
-  let { tokens } = getPathArr(tree.name, dirname)
+  const subDirectories = getSubdirectoriesFromRoot(tree.pathname, dirname)
 
-  let folder = tree
-  let folders = tree.folders
-
-  for (const token of tokens) {
-    const childFolder = folders.find(f => f.name === token)
+  let currentFolder = tree
+  let currentSubFolders = tree.folders
+  for (const directoryName of subDirectories) {
+    const childFolder = currentSubFolders.find(f => f.name === directoryName)
     if (!childFolder) return
-    folder = childFolder
-    folders = childFolder.folders
+    currentFolder = childFolder
+    currentSubFolders = childFolder.folders
   }
 
-  const index = folder.files.findIndex(f => f.pathname === pathname)
-  folder.files[index].data = data
+  const index = currentFolder.files.findIndex(f => f.pathname === pathname)
+  if (index !== -1) {
+    currentFolder.files[index].data = data
+  }
 }
 
+/**
+ * Remove the given directory from the tree list.
+ *
+ * @param {*} tree Root file tree
+ * @param {*} dir The directory that should be deleted
+ */
 export const unlinkDirectory = (tree, dir) => {
   const { pathname } = dir
-  const { tokens } = getPathArr(tree.name, pathname)
+  const subDirectories = getSubdirectoriesFromRoot(tree.pathname, pathname)
 
-  tokens.pop()
-  let folders = tree.folders
-
-  for (const token of tokens) {
-    const childFolder = folders.find(f => f.name === token)
+  subDirectories.pop()
+  let currentFolder = tree.folders
+  for (const directoryName of subDirectories) {
+    const childFolder = currentFolder.find(f => f.name === directoryName)
     if (!childFolder) return
-    folders = childFolder.folders
+    currentFolder = childFolder.folders
   }
 
-  const index = folders.findIndex(f => f.pathname === pathname)
-
-  if (index > -1) {
-    folders.splice(index, 1)
+  const index = currentFolder.findIndex(f => f.pathname === pathname)
+  if (index !== -1) {
+    currentFolder.splice(index, 1)
   }
 }

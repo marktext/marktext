@@ -190,10 +190,7 @@ class AppWindow {
     const unwatcher = this.watcher.watch(win, pathname)
     this.windows.get(win.id).watchers.push(unwatcher)
     try {
-      win.webContents.send('AGANI::open-project', {
-        name: path.basename(pathname),
-        pathname
-      })
+      win.webContents.send('AGANI::open-project', pathname)
     } catch (err) {
       log(err)
     }
