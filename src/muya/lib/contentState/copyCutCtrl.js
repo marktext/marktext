@@ -79,8 +79,10 @@ const copyCutCtrl = ContentState => {
 
     const tightListItem = wrapper.querySelectorAll(`.ag-tight-list-item`)
     ;[...tightListItem].forEach(li => {
-      if (li.childElementCount === 1) {
-        li.innerHTML = li.firstElementChild.innerHTML
+      for (const item of li.childNodes) {
+        if (item.tagName === 'P' && item.childElementCount === 1 && item.classList.contains('ag-paragraph')) {
+          li.replaceChild(item.firstElementChild, item)
+        }
       }
     })
 
