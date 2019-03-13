@@ -73,12 +73,15 @@ If there are conflicts or you want to update your local branch, please do the fo
 Before you can get started developing, you need set up your build envoriment:
 
 - git
-- Node.js, npm and yarn
+- Node.js `>=v8.12.0`, npm and yarn
 - C++ compiler and development tools
 
 **Additional development dependencies on Linux:**
 
-On Debian-based Linux: `sudo apt-get install libx11-dev libxkbfile-dev`
+- libx11 (dev)
+- libxkbfile (dev)
+
+On Debian-based Linux: `sudo apt-get install libx11-dev libxkbfile-dev`  
 On Red Hat-based Linux: `sudo dnf install libx11-devel libxkbfile-devel`
 
 **Let's build:**

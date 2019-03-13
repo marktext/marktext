@@ -1,5 +1,4 @@
-
-<p align="center"><img src="https://github.com/marktext/marktext/blob/master/static/logo-small.png" alt="mark text" width="100" height="100"></p>
+<p align="center"><img src="https://raw.githubusercontent.com/marktext/marktext/master/static/logo-small.png" alt="Mark Text" width="100" height="100"></p>
 
 <h1 align="center">Mark Text</h1>
 
@@ -110,7 +109,7 @@
 
 <br />
 
-![](https://github.com/marktext/marktext/blob/master/doc/marktext.gif)
+![](https://raw.githubusercontent.com/marktext/marktext/master/doc/marktext.gif)
 
 ## Features
 
@@ -125,13 +124,13 @@
 
 | Dark :crescent_moon:                                               | Light :high_brightness:                                             |
 |:------------------------------------------------------------------:|:-------------------------------------------------------------------:|
-| ![](https://github.com/marktext/marktext/blob/master/doc/dark.jpg) | ![](https://github.com/marktext/marktext/blob/master/doc/light.jpg) |
+| ![](https://raw.githubusercontent.com/marktext/marktext/master/doc/dark.jpg) | ![](https://raw.githubusercontent.com/marktext/marktext/master/doc/light.jpg) |
 
 <h4 align="center">:smile_cat:Edit modes:dog:</h4>
 
 | Source Code                                                          | Typewriter                                                               | Focus                                                               |
 |:--------------------------------------------------------------------:|:------------------------------------------------------------------------:|:-------------------------------------------------------------------:|
-| ![](https://github.com/marktext/marktext/blob/master/doc/source.gif) | ![](https://github.com/marktext/marktext/blob/master/doc/typewriter.gif) | ![](https://github.com/marktext/marktext/blob/master/doc/focus.gif) |
+| ![](https://raw.githubusercontent.com/marktext/marktext/master/doc/source.gif) | ![](https://raw.githubusercontent.com/marktext/marktext/master/doc/typewriter.gif) | ![](https://raw.githubusercontent.com/marktext/marktext/master/doc/focus.gif) |
 
 ## Why write another editor?
 
@@ -143,7 +142,7 @@
 
 ![Conda](https://img.shields.io/conda/pn/conda-forge/python.svg?style=for-the-badge)
 
-| ![]( https://github.com/ryanoasis/nerd-fonts/wiki/screenshots/v1.0.x/mac-pass-sm.png)                                                                                                             | ![]( https://github.com/ryanoasis/nerd-fonts/wiki/screenshots/v1.0.x/windows-pass-sm.png)                                                                                                                     | ![]( https://github.com/ryanoasis/nerd-fonts/wiki/screenshots/v1.0.x/linux-pass-sm.png)                                                                                                                                   |
+| ![](https://raw.githubusercontent.com/wiki/ryanoasis/nerd-fonts/screenshots/v1.0.x/mac-pass-sm.png)                                                                                                             | ![](https://raw.githubusercontent.com/wiki/ryanoasis/nerd-fonts/screenshots/v1.0.x/windows-pass-sm.png)                                                                                                                     | ![](https://raw.githubusercontent.com/wiki/ryanoasis/nerd-fonts/screenshots/v1.0.x/linux-pass-sm.png)                                                                                                                                   |
 |:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
 | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-0.13.65.dmg.svg)](https://github.com/marktext/marktext/releases/download/v0.13.65/marktext-0.13.65.dmg) | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-setup-0.13.65.exe.svg)](https://github.com/marktext/marktext/releases/download/v0.13.65/marktext-setup-0.13.65.exe) | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-0.13.65-x86_64.AppImage.svg)](https://github.com/marktext/marktext/releases/download/v0.13.65/marktext-0.13.65-x86_64.AppImage) |
 
@@ -157,7 +156,7 @@ If you use macOS, you can install Mark Text using [**homebrew cask**](https://gi
 brew cask install mark-text
 ```
 
-![](https://github.com/marktext/marktext/blob/master/doc/brew-cask.gif)
+![](https://raw.githubusercontent.com/marktext/marktext/master/doc/brew-cask.gif)
 
 #### macOS and Windows
 
@@ -187,7 +186,7 @@ Support this project by becoming a sponsor. Your logo will show up here with a l
 
 **Platinum Sponsors**
 
-<a href="https://readme.io" target="_blank"><img src="https://github.com/marktext/marktext/blob/master/doc/sponsor/readme.png" /></a>
+<a href="https://readme.io" target="_blank"><img src="https://raw.githubusercontent.com/marktext/marktext/master/doc/sponsor/readme.png" /></a>
 <a href="https://opencollective.com/marktext#platinum-sponsors">
   <img src="https://opencollective.com/marktext/tiers/platinum-sponsors.svg?avatarHeight=36&width=600">
 </a>
