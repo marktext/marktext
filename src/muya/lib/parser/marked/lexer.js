@@ -1,16 +1,20 @@
-import { normal, gfm, tables } from './blockRules'
-import { options } from './utils'
+import { normal, gfm, tables, pedantic } from './blockRules'
+import options from './options'
+import { splitCells, rtrim } from './utils'
+
 /**
  * Block Lexer
  */
 
 function Lexer (opts) {
   this.tokens = []
-  this.tokens.links = {}
+  this.tokens.links = Object.create(null)
   this.options = Object.assign({}, options, opts)
   this.rules = normal
 
-  if (this.options.gfm) {
+  if (this.options.pedantic) {
+    this.rules = pedantic
+  } else if (this.options.gfm) {
     if (this.options.tables) {
       this.rules = tables
     } else {
@@ -29,6 +33,7 @@ Lexer.prototype.lex = function (src) {
     .replace(/\t/g, '    ')
     .replace(/\u00a0/g, ' ')
     .replace(/\u2424/g, '\n')
+  this.checkFrontmatter = true
   return this.token(src, true)
 }
 
@@ -36,7 +41,7 @@ Lexer.prototype.lex = function (src) {
  * Lexing
  */
 
-Lexer.prototype.token = function (src, top, bq) {
+Lexer.prototype.token = function (src, top) {
   src = src.replace(/^ +$/gm, '')
   let loose
   let cap
@@ -45,17 +50,21 @@ Lexer.prototype.token = function (src, top, bq) {
   let item
   let space
   let i
+  let tag
   let l
   let checked
-  // Only check front matter at the begining of markdown file
+
+  // Only check front matter at the begining of a markdown file.
+  // Why "checkFrontmatter" and "top"? See note in "blockquote".
   cap = this.rules.frontmatter.exec(src)
-  if (!bq && top && cap) {
+  if (this.checkFrontmatter && top && cap) {
     src = src.substring(cap[0].length)
     this.tokens.push({
       type: 'frontmatter',
       text: cap[1]
     })
   }
+  this.checkFrontmatter = false
 
   while (src) {
     // newline
@@ -77,7 +86,9 @@ Lexer.prototype.token = function (src, top, bq) {
       this.tokens.push({
         type: 'code',
         codeBlockStyle: 'indented',
-        text: !this.options.pedantic ? cap.replace(/\n+$/, '') : cap
+        text: !this.options.pedantic
+          ? rtrim(cap, '\n')
+          : cap
       })
       continue
     }
@@ -121,7 +132,7 @@ Lexer.prototype.token = function (src, top, bq) {
 
     // table no leading pipe (gfm)
     cap = this.rules.nptable.exec(src)
-    if (top && cap) {
+    if (cap) {
       item = {
         type: 'table',
         header: splitCells(cap[1].replace(/^ *| *\| *$/g, '')),
@@ -178,7 +189,7 @@ Lexer.prototype.token = function (src, top, bq) {
       // Pass `top` to keep the current
       // "toplevel" state. This is exactly
       // how markdown.pl works.
-      this.token(cap, top, true)
+      this.token(cap, top)
 
       this.tokens.push({
         type: 'blockquote_end'
@@ -188,17 +199,17 @@ Lexer.prototype.token = function (src, top, bq) {
     }
 
     // list
-    cap = this.rules.tasklist.exec(src) || this.rules.orderlist.exec(src) || this.rules.bulletlist.exec(src)
+    cap = this.rules.list.exec(src)
     if (cap) {
       src = src.substring(cap[0].length)
       bull = cap[2]
-      const ordered = bull.length > 1 && /\d/.test(bull)
+      const isordered = bull.length > 1 && /\d/.test(bull)
 
       this.tokens.push({
         type: 'list_start',
-        ordered,
+        ordered: isordered,
         listType: bull.length > 1 ? (/\d/.test(bull) ? 'order' : 'task') : 'bullet',
-        start: ordered ? +bull : ''
+        start: isordered ? +bull : ''
       })
 
       let next = false
@@ -217,12 +228,12 @@ Lexer.prototype.token = function (src, top, bq) {
         // Remove the list item's bullet
         // so it is seen as the next token.
         space = item.length
-        item = item.replace(/^ *([*+-]|\d+\.) +/, '')
+        item = item.replace(/^ *([*+-]|\d+\.) */, '')
 
         if (this.options.gfm) {
           checked = this.rules.checkbox.exec(item)
           if (checked) {
-            checked = checked[1] === 'x'
+            checked = checked[1] === 'x' || checked[1] === 'X'
             item = item.replace(this.rules.checkbox, '')
           } else {
             checked = undefined
@@ -240,9 +251,10 @@ Lexer.prototype.token = function (src, top, bq) {
 
         // Determine whether the next list item belongs here.
         // Backpedal if it does not belong in this list.
-        if (this.options.smartLists && i !== l - 1) {
+        if (i !== l - 1) {
           b = this.rules.bullet.exec(cap[i + 1])[0]
-          if (bull !== b && !(bull.length > 1 && b.length > 1)) {
+          if (bull.length > 1 ? b.length === 1
+            : (b.length > 1 || (this.options.smartLists && b !== bull))) {
             src = cap.slice(i + 1).join('\n') + src
             i = l - 1
           }
@@ -257,14 +269,14 @@ Lexer.prototype.token = function (src, top, bq) {
 
         // Determine whether item is loose or not. If previous item is loose
         // this item is also loose.
-        loose = next = next || /^ *([*+-]|\d+\.) +\S+\n\n(?!\s*$)/.test(itemWithBullet)
+        loose = next = next || /^ *([*+-]|\d+\.)( +\S+\n\n(?!\s*$)|\n\n(?!\s*$))/.test(itemWithBullet)
 
         // Check if previous line ends with a new line.
         if (!loose && (i !== 0 || l > 1) && prevItem.length !== 0 && prevItem.charAt(prevItem.length - 1) === '\n') {
           loose = next = true
         }
 
-        // A list is either loose or tight, so update previous list items.
+        // A list is either loose or tight, so update previous list items but not nested list items.
         if (next && prevNext !== next) {
           for (const index of listItemIndices) {
             this.tokens[index].type = 'loose_item_start'
@@ -291,7 +303,7 @@ Lexer.prototype.token = function (src, top, bq) {
           })
         } else {
           // Recurse.
-          this.token(item, false, bq)
+          this.token(item, false)
         }
 
         this.tokens.push({
@@ -311,8 +323,11 @@ Lexer.prototype.token = function (src, top, bq) {
     if (cap) {
       src = src.substring(cap[0].length)
       this.tokens.push({
-        type: this.options.sanitize ? 'paragraph' : 'html',
-        pre: !this.options.sanitizer && (cap[1] === 'pre' || cap[1] === 'script' || cap[1] === 'style'),
+        type: this.options.sanitize
+          ? 'paragraph'
+          : 'html',
+        pre: !this.options.sanitizer
+          && (cap[1] === 'pre' || cap[1] === 'script' || cap[1] === 'style'),
         text: cap[0]
       })
       continue
@@ -320,14 +335,19 @@ Lexer.prototype.token = function (src, top, bq) {
 
     // def
     cap = this.rules.def.exec(src)
-    if (!bq && top && cap) {
+    if (top && cap) {
       let text = ''
       do {
         src = src.substring(cap[0].length)
-        this.tokens.links[cap[1].toLowerCase()] = {
-          href: cap[2],
-          title: cap[3]
+        if (cap[3]) cap[3] = cap[3].substring(1, cap[3].length - 1)
+        tag = cap[1].toLowerCase().replace(/\s+/g, ' ')
+        if (!this.tokens.links[tag]) {
+          this.tokens.links[tag] = {
+            href: cap[2],
+            title: cap[3]
+          }
         }
+
         text += cap[0]
         if (cap[0].endsWith('\n\n')) break
         cap = this.rules.def.exec(src)
@@ -349,7 +369,7 @@ Lexer.prototype.token = function (src, top, bq) {
         type: 'table',
         header: splitCells(cap[1].replace(/^ *| *\| *$/g, '')),
         align: cap[2].replace(/^ *|\| *$/g, '').split(/ *\| */),
-        cells: cap[3] ? cap[3].replace(/(?: *\| *)?\n$/, '').split('\n') : []
+        cells: cap[3] ? cap[3].replace(/\n$/, '').split('\n') : []
       }
 
       if (item.header.length === item.align.length) {
@@ -426,37 +446,6 @@ Lexer.prototype.token = function (src, top, bq) {
   }
 
   return this.tokens
-}
-
-function splitCells (tableRow, count) {
-  // ensure that every cell-delimiting pipe has a space
-  // before it to distinguish it from an escaped pipe
-  let row = tableRow.replace(/\|/g, function (match, offset, str) {
-    let escaped = false
-    let curr = offset
-    while (--curr >= 0 && str[curr] === '\\') escaped = !escaped
-    if (escaped) {
-      // odd number of slashes means | is escaped
-      // so we leave it alone
-      return '|'
-    } else {
-      // add space before unescaped |
-      return ' |'
-    }
-  })
-
-  let cells = row.split(/ \|/)
-  if (cells.length > count) {
-    cells.splice(count)
-  } else {
-    while (cells.length < count) cells.push('')
-  }
-
-  for (let i = 0; i < cells.length; i++) {
-    // leading or trailing whitespace is ignored per the gfm spec
-    cells[i] = cells[i].trim().replace(/\\\|/g, '|')
-  }
-  return cells
 }
 
 export default Lexer
