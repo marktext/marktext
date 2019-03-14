@@ -1,5 +1,7 @@
 ### [unreleased]
 
+This update **fixes a XSS security vulnerability** when exporting a document.
+
 **:warning:Breaking Changes:**
 
 - Minimum supported macOS version is 10.10 (Yosemite)
@@ -7,6 +9,8 @@
 **:cactus:Feature**
 
 - Improve exception and error handling
+- Support for user-defined titlebar style
+- Support to open files in a new tab instead a new window (#574)
 
 **:butterfly:Optimization**
 
@@ -16,6 +20,7 @@
 - You can now hide the quick insert hint (#621)
 - Adjusted quote inline math color (#592)
 - Fix inline math text align (#593)
+- Added MIME type to Linux desktop file
 
 **:beetle:Bug fix**
 
@@ -27,6 +32,11 @@
 - Allow pasting text into the code block language text-box (#553)
 - Fixed a crash when opening a directory with an unknown file extension
 - Fixed an issue with `Save all` and `Delete all` buttons in the side bar
+- Fixed exception when exporting a code block (#591)
+- Fixed recommended filename
+- Fixed multiple sidebar issues
+- Fixed wrong font and theme when opening a directory (#696)
+- Switching to another tab will now work in source-code mode too (#606)
 
 ### 0.13.65
 
