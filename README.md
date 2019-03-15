@@ -8,13 +8,12 @@
   </a>
 </div>
 <div align="center">
-  <strong>:high_brightness:Next generation markdown editor:crescent_moon:</strong>
-</div>
-<div align="center">
-  An <code>Electron</code> app for platforms of macOS, Windows and Linux
+  <strong>:high_brightness: Next generation markdown editor :crescent_moon:</strong><br>
+  A simple and elegant open-source markdown editor that focused on speed and usability.<br>
+  <sub>Available for Linux, macOS and Windows.</sub>
 </div>
 
-<br />
+<br>
 
 <div align="center">
   <!-- Version -->
@@ -113,8 +112,9 @@
 
 ## Features
 
-- Realtime preview and use [snabbdom](https://github.com/snabbdom/snabbdom) as its render engine.
+- Realtime preview (WYSIWYG) and a clean and simple interface to get a distraction-free writing experience.
 - Support [CommonMark Spec](https://spec.commonmark.org/0.28/) and [GitHub Flavored Markdown Spec](https://github.github.com/gfm/).
+- Markdown extensions such as math expressions (KaTeX), front matter and emojis.
 - Support paragraphs and inline style shortcuts to improve your writing efficiency.
 - Output **HTML** and **PDF** files.
 - Dark and Light themes.
@@ -135,36 +135,38 @@
 ## Why write another editor?
 
 1. I love writing. I have used a lot of markdown editors, yet there is still not an editor that can fully meet my needs. I don't like to be disturbed when I write by some unbearable bug. **Mark Text** uses virtual DOM to render pages which has the added benefits of being highly efficient and being open source. That way anyone who loves markdown and writing can use Mark Text.
-2. As mentioned above, **Mark Text** is open source and will be open source forever. We hope that all markdown lovers will contribute their own code and help develop **Mark Text** into a popular markdown editor.
+2. As mentioned above, **Mark Text** is completely free and open source and will be open source forever. We hope that all markdown lovers will contribute their own code and help develop **Mark Text** into a popular markdown editor.
 3. There are many markdown editors and all have their own merits, some have feautures which others don't. It's difficult to satisfy each markdown users needs but we hope **Mark Text** will be able to satisfy each markdown users' needs as much as possible. Although the latest **Mark Text** is still not perfect, we will try to make it as best as we possibly can.
 
 ## Download and Install
 
-![Conda](https://img.shields.io/conda/pn/conda-forge/python.svg?style=for-the-badge)
+![platform](https://img.shields.io/static/v1.svg?label=Platform&message=Linux-64%20|%20macOS-64%20|%20Win-32%20|%20Win-64&style=for-the-badge)
 
 | ![](https://raw.githubusercontent.com/wiki/ryanoasis/nerd-fonts/screenshots/v1.0.x/mac-pass-sm.png)                                                                                                             | ![](https://raw.githubusercontent.com/wiki/ryanoasis/nerd-fonts/screenshots/v1.0.x/windows-pass-sm.png)                                                                                                                     | ![](https://raw.githubusercontent.com/wiki/ryanoasis/nerd-fonts/screenshots/v1.0.x/linux-pass-sm.png)                                                                                                                                   |
 |:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
 | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-0.13.65.dmg.svg)](https://github.com/marktext/marktext/releases/download/v0.13.65/marktext-0.13.65.dmg) | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-setup-0.13.65.exe.svg)](https://github.com/marktext/marktext/releases/download/v0.13.65/marktext-setup-0.13.65.exe) | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-0.13.65-x86_64.AppImage.svg)](https://github.com/marktext/marktext/releases/download/v0.13.65/marktext-0.13.65-x86_64.AppImage) |
 
-Can't find your system? Go to the [release page](https://github.com/marktext/marktext/releases/latest). Is a version for your system unavailable? Than open an [issue](https://github.com/marktext/marktext/issues).
+Want to see new features of the latest version? Please refer to [CHANGELOG](https://github.com/marktext/marktext/blob/master/.github/CHANGELOG.md).
 
-Want to see new features of the latest version? Refer to [CHANGELOG](https://github.com/marktext/marktext/blob/master/.github/CHANGELOG.md)
+#### macOS
 
-If you use macOS, you can install Mark Text using [**homebrew cask**](https://github.com/caskroom/homebrew-cask). To use Homebrew-Cask you just need to have [Homebrew](https://brew.sh/) installed.
+You can either download the latest `marktext-%version%.dmg` from the [release page](https://github.com/marktext/marktext/releases/latest) or install Mark Text using [**homebrew cask**](https://github.com/caskroom/homebrew-cask). To use Homebrew-Cask you just need to have [Homebrew](https://brew.sh/) installed.
 
 ```bash
 brew cask install mark-text
 ```
 
-![](https://raw.githubusercontent.com/marktext/marktext/master/doc/brew-cask.gif)
+#### Windows
 
-#### macOS and Windows
-
-Simply download and install Mark Text via setup wizard.
+Simply download and install Mark Text via setup wizard (`marktext-setup-%version%.exe`) or download a portable version `marktext-%version%.exe`.
 
 #### Linux
 
 Please follow the [Linux installation instructions](https://github.com/marktext/marktext/blob/master/doc/LINUX.md).
+
+#### Other
+
+All binaries for Linux, macOS and Windows can be downloaded from the [release page](https://github.com/marktext/marktext/releases/latest). Is a version for your system unavailable, then open an [issue](https://github.com/marktext/marktext/issues).
 
 ## Development
 
@@ -178,7 +180,7 @@ If you have any questions regarding **Mark Text**, you are welcome to write an i
 
 ## Contribution
 
-Mark Text is in full development, please make sure to read the [Contributing Guide](https://github.com/marktext/marktext/blob/master/.github/CONTRIBUTING.md) before making a pull request. Want to add some features to Mark Text? Refer to [TODO LIST](https://github.com/marktext/marktext/blob/master/.github/TODOLIST.md) and open issues.
+Mark Text is in full development, please make sure to read the [Contributing Guide](https://github.com/marktext/marktext/blob/master/.github/CONTRIBUTING.md) before making a pull request. Want to add some features to Mark Text? Refer to [ROADMAP](https://github.com/marktext/marktext/blob/master/.github/ROADMAP.md) and open issues.
 
 ## Sponsors
 
