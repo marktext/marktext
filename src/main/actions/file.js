@@ -126,6 +126,7 @@ const pandocFile = async pathname => {
   try {
     const converter = pandoc(pathname, 'markdown')
     const data = await converter()
+    // TODO: allow to open data also in a new tab instead window.
     appWindow.createWindow(undefined, data)
   } catch (err) {
     log(err)
@@ -213,7 +214,7 @@ ipcMain.on('AGANI::window::drop', async (e, fileList) => {
   const win = BrowserWindow.fromWebContents(e.sender)
   for (const file of fileList) {
     if (isMarkdownFile(file)) {
-      appWindow.createWindow(file)
+      openFileOrFolder(win, file)
       break
     }
     // handle import file
@@ -223,8 +224,8 @@ ipcMain.on('AGANI::window::drop', async (e, fileList) => {
         noticePandocNotFound(win)
       } else {
         pandocFile(file)
-        break
       }
+      break
     }
   }
 })
