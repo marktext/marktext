@@ -181,7 +181,7 @@ export default function renderLeafBlock (block, cursor, activeBlocks, matches, u
     children = [
       h('use', {
         attrs: {
-          'xlink:href': `.${iconSvg.url}`
+          'xlink:href': `${iconSvg.url}`
         }
       })
     ]
