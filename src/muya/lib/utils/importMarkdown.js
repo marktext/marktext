@@ -218,6 +218,9 @@ const importRegister = ContentState => {
           parentList.shift()
           break
         }
+        case 'space': {
+          break
+        }
         default:
           console.warn(`Unknown type ${token.type}`)
           break
