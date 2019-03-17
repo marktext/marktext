@@ -50,7 +50,7 @@ export default function (recentlyUsedFiles) {
       recentlyUsedMenu.submenu.push({
         label: item,
         click (menuItem, browserWindow) {
-          actions.openFileOrFolder(menuItem.label)
+          actions.openFileOrFolder(browserWindow, menuItem.label)
         }
       })
     }
