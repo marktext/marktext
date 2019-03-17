@@ -19,8 +19,10 @@
 </template>
 
 <script>
+  import path from 'path'
   import { mapState } from 'vuex'
   import { fileMixins } from '../../mixins'
+  import { PATH_SEPARATOR } from '../../config'
 
   export default {
     mixins: [fileMixins],
@@ -36,14 +38,21 @@
         tabs: state => state.editor.tabs,
         currentFile: state => state.editor.currentFile
       }),
+
+      // Return filename without extension.
       filename () {
-        return this.file.name.split('.')[0]
+        return path.basename(this.file.name, path.extname(this.file.name))
       },
+
+      // Return the filename extension or null.
       extension () {
-        return `.${this.file.name.split('.')[1]}`
+        return path.extname(this.file.name)
       },
+
+      // Return the parent directory with trailing path separator.
+      //   NOTE: Parent from "Z:\" is "Z:\" on Windows!
       parent () {
-        return this.file.pathname.match(/(?:^|\/)([^/]+)\/[^/]+\.[^/]+$/)[1] + '/'
+        return path.join(path.dirname(this.file.pathname), PATH_SEPARATOR)
       }
     }
   }

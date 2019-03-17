@@ -82,6 +82,7 @@
   import { remote } from 'electron'
   import { mapState } from 'vuex'
   import { minimizePath, restorePath, maximizePath, closePath } from '../assets/window-controls.js'
+  import { PATH_SEPARATOR } from '../config'
 
   export default {
     data () {
@@ -134,7 +135,7 @@
       }),
       paths () {
         if (!this.pathname) return []
-        const pathnameToken = this.pathname.split('/').filter(i => i)
+        const pathnameToken = this.pathname.split(PATH_SEPARATOR).filter(i => i)
         return pathnameToken.slice(0, pathnameToken.length - 1).slice(-3)
       }
     },

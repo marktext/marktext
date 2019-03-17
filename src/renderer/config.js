@@ -1,3 +1,7 @@
+import path from 'path'
+
+export const PATH_SEPARATOR = path.sep
+
 export const THEME_LINK_ID = 'ag-theme'
 export const COMMON_STYLE_ID = 'ag-common-style'
 
