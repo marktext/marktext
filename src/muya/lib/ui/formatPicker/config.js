@@ -4,6 +4,7 @@ import codeIcon from '../../assets/icons/format_code.svg'
 import imageIcon from '../../assets/icons/format_image.svg'
 import linkIcon from '../../assets/icons/format_link.svg'
 import strikeIcon from '../../assets/icons/format_strike.svg'
+import mathIcon from '../../assets/icons/format_math.svg'
 import clearIcon from '../../assets/icons/format_clear.svg'
 
 const icons = [
@@ -27,7 +28,7 @@ const icons = [
     icon: imageIcon
   }, {
     type: 'inline_math',
-    iconText: '𝑥'
+    icon: mathIcon
   }, {
     type: 'clear',
     icon: clearIcon
