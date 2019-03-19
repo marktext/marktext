@@ -98,7 +98,7 @@ const rendererConfig = {
             loader: 'svg-sprite-loader',
             options: {
               extract: true,
-              publicPath: '/static/'
+              publicPath: './static/'
             }
           },
           'svgo-loader'

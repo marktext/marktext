@@ -290,6 +290,8 @@ figure {
 }
 
 .ag-tool-bar ul li svg {
+  width: 100%;
+  height: 100%;
   will-change: transform;
   transition: transform .2s ease-in-out;
 }
