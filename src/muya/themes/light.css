@@ -561,3 +561,15 @@ pre.ag-paragraph {
  .token.entity {
    cursor: help;
  }
+
+ .ag-front-icon {
+   fill: rgba(255, 255, 255, .8);
+ }
+
+ .ag-front-icon::before {
+  border: 3px solid rgba(255, 255, 255, .8);
+  border-bottom: none;
+  border-left-color: transparent;
+  border-right-color: transparent;
+ }
+ 

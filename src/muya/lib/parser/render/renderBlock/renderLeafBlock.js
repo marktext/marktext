@@ -243,6 +243,9 @@ export default function renderLeafBlock (block, cursor, activeBlocks, matches, u
     selector += `.${CLASS_OR_ID['AG_LANGUAGE_INPUT']}`
     children = htmlToVNode(html)
   }
-
-  return h(selector, data, children)
+  if (!block.parent) {
+    return h(selector, data, [this.renderIcon(block), ...children])
+  } else {
+    return h(selector, data, children)
+  } 
 }
