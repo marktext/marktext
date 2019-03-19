@@ -64,15 +64,6 @@ class FormatPicker extends BaseFloat {
           }
         })]
         )
-      } else if (i.iconText) {
-        // Unicode icon in source
-        iconWrapperSelector = 'div.icon-wrapper.icon-is-text'
-        icon = h('span', {
-          attrs: {
-            'aria-hidden': 'true'
-          }
-        }, [i.iconText]
-        )
       }
       const iconWrapper = h(iconWrapperSelector, icon)
       let itemSelector = `li.item.${i.type}`

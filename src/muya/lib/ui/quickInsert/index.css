@@ -53,10 +53,11 @@
   margin-left: 14px;
 }
 
-.ag-quick-insert .icon-container img {
+.ag-quick-insert .icon-container > svg{
   width: 20px;
   height: 20px;
   opacity: .6;
+  fill: rgba(0, 0, 0, .6);
 }
 
 .ag-quick-insert .description {
@@ -98,12 +99,20 @@
 }
 
 .ag-quick-insert.dark .sub-title {
-  color: var(--baseBorder);
+  color: rgba(255, 255, 255, .6);
 }
 
 .ag-quick-insert.dark .active,
 .ag-quick-insert.dark div.item:hover {
   background-color: rgb(71, 72, 66);
+}
+
+.ag-quick-insert.dark .icon-container > svg {
+  fill: rgba(255, 255, 255, .5);
+}
+
+.ag-quick-insert.dark .short-cut {
+  color: rgba(255, 255, 255, .5);
 }
 
 
