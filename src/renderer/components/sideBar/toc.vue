@@ -4,7 +4,7 @@
         :key="index"
         :style="{'padding-left': `${(item.lvl - startLvl) * 20}px`}"
         @click="handleClick(item)"
-        :class="{ 'active': item.i === activeIndex }"
+        :class="{ 'active': item.slug === activeIndex }"
       >
         {{ item.content }}
       </li>
@@ -12,7 +12,7 @@
 </template>
 
 <script>
-  import { mapGetters } from 'vuex'
+  import { mapState } from 'vuex'
   import bus from '../../bus'
 
   export default {
@@ -22,15 +22,17 @@
       }
     },
     computed: {
-      ...mapGetters(['toc']),
+      ...mapState({
+        'toc': state => state.editor.toc
+      }),
       startLvl () {
         return Math.min(...this.toc.map(h => h.lvl))
       }
     },
     methods: {
-      handleClick (item) {
-        this.activeIndex = item.i
-        bus.$emit('scroll-to-header', item.slug)
+      handleClick ({ slug }) {
+        this.activeIndex = slug
+        bus.$emit('scroll-to-header', slug)
       }
     }
   }

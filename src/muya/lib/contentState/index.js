@@ -22,6 +22,7 @@ import imagePathCtrl from './imagePathCtrl'
 import htmlBlockCtrl from './htmlBlock'
 import clickCtrl from './clickCtrl'
 import inputCtrl from './inputCtrl'
+import tocCtrl from './tocCtrl'
 import importMarkdown from '../utils/importMarkdown'
 
 const prototypes = [
@@ -44,6 +45,7 @@ const prototypes = [
   htmlBlockCtrl,
   clickCtrl,
   inputCtrl,
+  tocCtrl,
   importMarkdown
 ]
 

@@ -336,7 +336,7 @@
       },
 
       scrollToHeader (slug) {
-        return this.scrollToElement(`[data-id="${slug}"]`)
+        return this.scrollToElement(`#${slug}`)
       },
 
       scrollToElement (selector) {
