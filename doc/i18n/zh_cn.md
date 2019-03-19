@@ -8,10 +8,10 @@
   </a>
 </div>
 <div align="center">
-  <strong>:high_brightness:Next generation markdown editor:crescent_moon:</strong>
+  <strong>:high_brightness:下一代 Markdown 编辑器:crescent_moon:</strong>
 </div>
 <div align="center">
-  An <code>Electron</code> app for platforms of OS X Windows and Linux
+  一个用于 OS X、Windows 和 Linux 平台的 <code>Electron</code> 应用程序
 </div>
 
 <br />
@@ -50,23 +50,23 @@
 <div align="center">
   <h3>
     <a href="https://marktext.github.io/website">
-      Website
+      网站
     </a>
     <span> | </span>
     <a href="https://github.com/marktext/marktext#features">
-      Features
+      特性
     </a>
     <span> | </span>
     <a href="https://github.com/marktext/marktext#download-and-install">
-      Downloads
+      下载
     </a>
     <span> | </span>
     <a href="https://github.com/marktext/marktext#development">
-      Development
+      开发
     </a>
     <span> | </span>
     <a href="https://github.com/marktext/marktext#contribution">
-      Contribution
+      贡献
     </a>
   </h3>
 </div>
@@ -94,13 +94,13 @@
 - 黑、白两款主题，自由切换。
 - 多种编辑模式：**源代码模式**、**打字机模式**、**专注模式**。
 
-<h4 align="center">:crescent_moon:Dark and Light themes:high_brightness:</h4>
+<h4 align="center">:crescent_moon:黑色和白色主题:high_brightness:</h4>
 
 |                     黑色主题 :crescent_moon:                     |                    白色主题 :high_brightness:                    |
 | :----------------------------------------------------------: | :----------------------------------------------------------: |
 | ![](https://github.com/marktext/marktext/blob/master/doc/dark.jpg) | ![](https://github.com/marktext/marktext/blob/master/doc/light.jpg) |
 
-<h4 align="center">:smile_cat:​Edit modes:dog:​</h4>
+<h4 align="center">:smile_cat:​编辑模式:dog:​</h4>
 
 |                         源代码模式                          |                          打字机模式                          |                            专注模式                             |
 | :----------------------------------------------------------: | :----------------------------------------------------------: | :----------------------------------------------------------: |
@@ -135,7 +135,7 @@
 - 首先 clone 仓库到本地
 - 运行 `npm install`
 - 运行 `npm run build`
-- 复制 app 到 Applications 文件夹，如果是 windows 系统直接点击相应软件安装。
+- 复制 app 到 Applications 文件夹，如果是 Windows 系统直接点击相应软件安装。
 
 ### 贡献
 
