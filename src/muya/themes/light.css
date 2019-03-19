@@ -129,7 +129,7 @@ pre.ag-paragraph {
 #ag-editor-id {
   max-width: var(--editorAreaWidth);
   margin: 0 auto;
-  padding: 20px 30px 40px 30px;
+  padding: 20px 50px 40px 50px;
   padding-top: 20px;
   padding-bottom: 100px;
 }

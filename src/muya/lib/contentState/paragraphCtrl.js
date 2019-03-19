@@ -128,16 +128,17 @@ const paragraphCtrl = ContentState => {
     } else {
       if (start.key === end.key || (start.block.parent && start.block.parent === end.block.parent)) {
         const block = this.getBlock(start.key)
+        const paragraph = this.getBlock(block.parent)
         if (listType === 'task') {
           // 1. first update the block to bullet list
-          const listItemParagraph = this.updateList(block, 'bullet')
+          const listItemParagraph = this.updateList(paragraph, 'bullet', undefined, block)
           // 2. second update bullet list to task list
           setTimeout(() => {
             this.updateTaskListItem(listItemParagraph, listType)
             this.partialRender()
           })
         } else {
-          this.updateList(block, listType)
+          this.updateList(paragraph, listType, undefined, block)
         }
       } else {
         const { parent, startIndex, endIndex } = this.getCommonParent()

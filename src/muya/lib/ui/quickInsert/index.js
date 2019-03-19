@@ -59,7 +59,7 @@ class QuickInsert extends BaseScrollFloat {
               }
             }, h('use', {
               attrs: {
-                'xlink:href': `.${icon.url}`
+                'xlink:href': icon.url
               }
             }))
           )
