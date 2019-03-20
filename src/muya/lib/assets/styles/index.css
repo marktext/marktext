@@ -262,7 +262,7 @@ table {
   margin-top: 0;
 }
 
-#ag-editor-id a {
+#ag-editor-id a:not(.ag-front-icon) {
   pointer-events: none;
 }
 
