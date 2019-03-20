@@ -294,7 +294,9 @@ li.ag-paragraph {
   color: var(--themeColor);
 }
 
-li > p {
+li > p,
+li th,
+li td {
   color: var(--editorColor);
 }
 
