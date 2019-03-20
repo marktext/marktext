@@ -1,7 +1,6 @@
 <template>
   <div
     class="side-bar-folder"
-    :class="theme"
   >
     <div
       class="folder-name" @click="folderNameClick"
@@ -80,7 +79,6 @@
     },
     computed: {
       ...mapState({
-        'theme': state => state.preferences.theme,
         'renameCache': state => state.project.renameCache,
         'createCache': state => state.project.createCache,
         'activeItem': state => state.project.activeItem,
@@ -132,11 +130,11 @@
       padding-right: 15px;
       & > svg {
         flex-shrink: 0;
-        color: darkgray;
+        color: var(--iconColor);
         margin-right: 5px;
       }
       &:hover {
-        background: var(--extraLightBorder);
+        background: var(--sideBarItemHoverBgColor);
       }
     }
   }
@@ -144,12 +142,10 @@
     outline: none;
     height: 22px;
     margin: 5px 0;
-    border: 1px solid var(--lightBorder);
-    width: 100%;
+    padding: 0 8px;
+    border: 1px solid var(--floatBorderColor);
+    background: var(--floatBorderColor);
+    width: 70%;
     border-radius: 3px;
-  }
-  .dark.side-bar-folder > .folder-name:hover {
-    background-color: var(--darkHoverColor);
-    color: var(--lightTabColor);
   }
 </style>

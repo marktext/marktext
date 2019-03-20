@@ -14,6 +14,51 @@
   --lightBgHighlightColor: rgb(246, 248, 249);
   --darkBgHighlightColor: rgb(40, 40, 40);
 }
+/* Common CSS use by both light and dark themes */
+:root {
+  /*editor*/
+  --themeColor: rgba(33, 181, 111, 1);
+  --highlightColor: rgba(33, 181, 111, .7);
+  --selectionColor: rgba(33, 181, 111, .4);
+  --editorColor: rgba(0, 0, 0, .8);
+  --editorBgColor: rgba(255, 255, 255, 1);
+  --deleteColor: #ff6969;
+  --iconColor: #333;
+  --codeBgColor: rgba(33, 181, 111, 0.08);
+  --codeBlockBgColor: #f6f8fa;
+  /*marktext*/
+  --sideBarColor: rgba(0, 0, 0, .6);
+  --sideBarTitleColor: rgba(0, 0, 0, 1);
+  --sideBarTextColor: rgba(0, 0, 0, .4);
+  --sideBarBgColor: rgba(242, 242, 242, 0.9);
+  --sideBarItemHoverBgColor: rgba(0, 0, 0, .03);
+  --itemBgColor: rgba(255, 255, 255, 0.6);
+  --floatBgColor: #fff;
+  --floatHoverColor: rgba(0, 0, 0, .04);
+  --floatBorderColor: rgba(0, 0, 0, .1);
+  --editorAreaWidth: 700px;
+}
+
+::-webkit-scrollbar {
+  background: var(--floatHoverColor);
+}
+::-webkit-scrollbar:vertical {
+  width: 12px;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--itemBgColor);
+}
+::-webkit-scrollbar-thumb:hover {
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: transparent !important;
+  caret-color: var(--editorColor);
+}
+
+
 .icon {
   width: 1em; height: 1em;
   vertical-align: -0.15em;
@@ -25,4 +70,36 @@
   text-overflow: ellipsis;
   overflow: hidden;
   white-space: nowrap;
+}
+
+/* cover Element style*/
+.el-tooltip__popper.is-dark {
+  background: var(--floatBgColor);
+  color: var(--sideBarColor);
+  box-shadow: 0 4px 8px 0 var(--floatBorderColor);
+  border: solid 1px var(--floatBorderColor);
+}
+
+.el-tooltip__popper.is-dark .popper__arrow {
+  display: none;
+}
+
+.el-slider__button {
+  border-color: var(--themeColor);
+}
+
+.el-slider__bar {
+  background-color: var(--themeColor);
+}
+
+.ag-dialog-table {
+  border-radius: 8px;
+  box-shadow: 0 4px 8px 0 var(--floatBorderColor);
+  border: solid 1px var(--floatBorderColor);
+  background-color: var(--floatBgColor);
+}
+
+.ag-dialog-table .dialog-title svg {
+  width: 1.5em;
+  height: 1.5em;
 }

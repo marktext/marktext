@@ -10,7 +10,7 @@
       <img class="logo" src="../../assets/images/logo.png" />
       <el-row>
         <el-col :span="24">
-          <h3 class="text fg-color-dark">{{ name }}</h3>
+          <h3 class="title fg-color-dark">{{ name }}</h3>
         </el-col>
         <el-col :span="24">
           <div class="text">{{ appVersion }}</div>
@@ -69,8 +69,17 @@
     margin: 0 auto;
   }
 
+  .about-dialog .title,
   .about-dialog .text {
-    text-align: center;
     min-height: 32px;
+    text-align: center;
+  }
+
+  .about-dialog .title {
+    color: var(--sideBarTitleColor);
+  }
+
+  .about-dialog .text {
+    color: var(--sideBarTextColor);
   }
 </style>

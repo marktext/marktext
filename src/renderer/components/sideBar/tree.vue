@@ -209,7 +209,7 @@
   }
   .tree-view {
     font-size: 14px;
-    color: var(--regularColor);
+    color: var(--sideBarColor);
     display: flex;
     flex-direction: column;
     height: 100%;
@@ -228,14 +228,14 @@
       pointer-events: auto;
       cursor: pointer;
       margin-left: 8px;
-      color: var(--secondaryColor);
+      color: var(--iconColor);
       opacity: 0;
     }
     & > a:hover {
-      color: var(--primary);
+      color: var(--themeColor);
     }
     & > a.active {
-      color: var(--primary);
+      color: var(--themeColor);
     }
   }
   .tree-view:hover .title a {
@@ -261,7 +261,7 @@
     & > a {
       display: none;
       text-decoration: none;
-      color: var(--secondaryColor);
+      color: var(--sideBarColor);
       margin-left: 8px;
     }
   }
@@ -269,7 +269,7 @@
   .opened-files div.title > a:hover {
     display: block;
     &:hover {
-      color: var(--primary);
+      color: var(--sideBarTitleColor);
     }
   }
   .opened-files {
@@ -327,7 +327,7 @@
         color: #fff;
       }
       &:hover {
-        background: var(--primary);
+        background: var(--themeColor);
       }
     }
   }
@@ -335,7 +335,7 @@
     outline: none;
     height: 22px;
     margin: 5px 0;
-    border: 1px solid var(--lightBorder);
+    border: 1px solid var(--themeColor);
     width: calc(100% - 45px);
     border-radius: 3px;
   }
@@ -352,7 +352,7 @@
     padding-top: 40px;
     align-items: center;
     & > a {
-      color: var(--primary);
+      color: var(--themeColor);
       text-align: center;
       margin-top: 15px;
       text-decoration: none;

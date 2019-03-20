@@ -77,6 +77,8 @@
   import { DEFAULT_EDITOR_FONT_FAMILY } from '@/config'
   import { addThemeStyle } from '@/util/theme'
 
+  import 'muya/themes/light.css'
+
   const STANDAR_Y = 320
 
   export default {
@@ -496,26 +498,4 @@
     padding-top: calc(50vh - 136px);
     padding-bottom: calc(50vh - 54px);
   }
-  /* for dark theme */
-  .dark.editor-wrapper,
-  .dark.editor-wrapper #ag-editor-id {
-    background: var(--darkBgColor);
-  }
 </style>
-
-<style>
-  .ag-dialog-table {
-    border-radius: 5px;
-    box-shadow: 0 1px 3px rgba(230, 230, 230, .3);
-  }
-
-  .dark .ag-dialog-table {
-    box-shadow: 0 1px 3px rgba(0, 0, 0, .3);
-  }
-
-  .ag-dialog-table .dialog-title svg {
-    width: 1.5em;
-    height: 1.5em;
-  }
-</style>
-

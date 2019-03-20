@@ -32,7 +32,7 @@
 }
 .ag-quick-insert .active,
 .ag-quick-insert div.item:hover {
- background-color: rgba(0, 0, 0, .04);
+ background-color: var(--floatHoverColor);
 }
 
 .ag-quick-insert .no-result {

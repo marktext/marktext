@@ -1,22 +1,3 @@
-/* Common CSS use by both light and dark themes */
-:root {
-  --brandColor: #5b3cc4;
-  --successColor: rgb(23, 201, 100);
-  --warningColor: rgb(255, 130, 0);
-  --dangerColor: rgb(242, 19, 93);
-  --activeColor: #409eff;
-  --infoColor: #909399;
-  --primaryColor: #303133;
-  --regularColor: #606266;
-  --secondaryColor: #909399;
-  --placeholerColor: #C0C4CC;
-  --baseBorder: #DCDFE6;
-  --lightBorder: #E4E7ED;
-  --lighterBorder: #EBEEF5;
-  --extraLightBorder: #F2F6FC;
-  --editorAreaWidth: 700px;
-}
-
 html {
   -webkit-font-smoothing: antialiased;
 }
@@ -54,14 +35,14 @@ pre {
   top: 0;
   left: -25px;
   font-size: 14px;
-  color: var(--secondaryColor);
+  color: var(--iconColor);
   font-weight: 400;
   font-style: italic;
 }
 
 div.ag-show-quick-insert-hint p.ag-paragraph.ag-active > span.ag-line:first-of-type:empty::after {
   content: 'Type @ to insert';
-  color: var(--placeholerColor);
+  color: var(--sideBarTextColor);
 }
 
 .ag-paragraph:empty::after,
@@ -81,7 +62,7 @@ div.ag-show-quick-insert-hint p.ag-paragraph.ag-active > span.ag-line:first-of-t
 
 .ag-reference-marker {
   font-size: .9em;
-  color: var(--secondaryColor);
+  color: var(--sideBarTextColor);
 }
 
 .ag-reference-title {
@@ -94,19 +75,14 @@ div.ag-show-quick-insert-hint p.ag-paragraph.ag-active > span.ag-line:first-of-t
   margin: 0 5px;
 }
 
-/* .ag-soft-line-break::after {
-  content: '↓';
-  opacity: .5;
-} */
-
 .ag-hard-line-break::after {
   content: '↩';
   opacity: .5;
 }
 
 *:not(.ag-hide)::selection, .ag-selection {
-  background: var(--baseBorder);
-  color: var(--primaryColor);
+  background: var(--selectionColor);
+  color: var(--editorColor);
 }
 
 .ag-hide::selection {
@@ -149,19 +125,18 @@ div.ag-function-html.ag-active .ag-html-preview {
   animation-name: highlight;
   animation-duration: .25s;
   display: inline-block;
-  background: rgb(249, 226, 153);
-  color: var(--primaryColor);
+  background: var(--highlightColor);
 }
 
 span.ag-html-tag {
-  color: var(--secondaryColor);
+  color: var(--sideBarTextColor);
   font-weight: 200;
   font-family: monospace;
 }
 
 span.ag-math {
   position: relative;
-  color: rebeccapurple;
+  color: var(--sideBarColor);
   font-family: monospace;
   display: inline-block;
   vertical-align: bottom;
@@ -179,7 +154,7 @@ span.ag-math {
 
 div.ag-empty {
   text-align: center;
-  color: var(--regularColor);
+  color: var(--sideBarTitleColor);
   font-size: 14px;
   font-style: italic;
   font-family: monospace;
@@ -187,7 +162,7 @@ div.ag-empty {
 
 div.ag-math-error,
 span.ag-math > .ag-math-render.ag-math-error {
-  color: var(--warningColor);
+  color: var(--themeColor);
   font-size: 14px;
   font-style: italic;
   font-family: monospace;
@@ -272,7 +247,7 @@ figure {
   margin-right: 3px;
   cursor: pointer;
   border-radius: 3px;
-  color: var(--regularColor);
+  color: var(--iconColor);
 }
 
 .ag-tool-bar ul li[data-label=delete] {
@@ -281,12 +256,12 @@ figure {
 }
 
 .ag-tool-bar ul li[data-label=delete] {
-  color: var(--dangerColor);
+  color: var(--deleteColor);
   right: 0;
 }
 
 .ag-tool-bar ul li.active svg {
-  fill: #409eff;
+  fill: var(--themeColor);
 }
 
 .ag-tool-bar ul li svg {
@@ -313,7 +288,7 @@ figure.ag-active[data-role=HTML]::before {
   top: 0;
   left: -45px;
   font-size: 12px;
-  color: var(--secondaryColor);
+  color: var(--sideBarColor);
   font-weight: 400;
   font-style: italic;
 }
@@ -354,12 +329,12 @@ li.ag-task-list-item > input[type=checkbox] {
 }
 
 li.ag-task-list-item > input.ag-checkbox-checked ~ * {
-  color: var(--regularColor);
+  color: var(--sideBarTextColor);
 }
 
 li.ag-task-list-item > input.ag-checkbox-checked ~ p {
   text-decoration: line-through;
-  color: var(--secondaryColor);
+  color: var(--sideBarTextColor);
 }
 
 li.ag-task-list-item > input[type=checkbox]::before {
@@ -368,9 +343,9 @@ li.ag-task-list-item > input[type=checkbox]::before {
   height: 14px;
   box-sizing: border-box;
   display: inline-block;
-  border: 1px solid var(--infoColor);
+  border: 1px solid var(--iconColor);
   border-radius: 50%;
-  background-color: #fff;
+  background-color: var(--editorBgColor);
   position: absolute;
   top: -2px;
   left: -2px;
@@ -382,7 +357,7 @@ li.ag-task-list-item > input::after {
   transform: rotate(-28deg) skew(0, -25deg) scale(0);
   width: 8px;
   height: 4px;
-  border: 1px solid var(--infoColor);
+  border: 1px solid var(--iconColor);
   border-top: none;
   border-right: none;
   position: absolute;
@@ -409,8 +384,8 @@ p:not(.ag-active)[data-role="hr"] {
 p:not(.ag-active)[data-role="hr"]::before {
   content: '';
   width: 100%;
-  height: 5px;
-  background: gainsboro;
+  height: 2px;
+  background: var(--selectionColor);
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
@@ -423,7 +398,7 @@ p:not(.ag-active)[data-role="hr"] * {
 pre.ag-multiple-math,
 pre.ag-front-matter {
   position: relative;
-  background: #f6f8fa;
+  background: var(--selectionColor);
   padding: .5rem;
   border: 5px;
   font-size: 14px;
@@ -435,17 +410,17 @@ pre.ag-front-matter {
 
 pre.ag-front-matter span.ag-code-line:first-of-type:empty::after {
   content: 'Input YAML Front Matter...';
-  color: var(--placeholerColor);
+  color: var(--sideBarTextColor);
 }
 
 pre[data-role$='code'] span.ag-language-input:empty::after {
   content: 'Input Language...';
-  color: var(--placeholerColor);
+  color: var(--sideBarTextColor);
 }
 
 pre.ag-multiple-math span.ag-code-line:first-of-type:empty::after {
   content: 'Input Mathematical Formula...';
-  color: var(--placeholerColor);
+  color: var(--sideBarTextColor);
 }
 
 figure,
@@ -535,7 +510,7 @@ pre.ag-active.ag-indent-code::before,
 pre.ag-active.ag-indent-code::after,
 pre.ag-active.ag-multiple-math::before,
 pre.ag-active.ag-multiple-math::after {
-  color: var(--regularColor);
+  color: var(--sideBarTextColor);
   font-family: monospace;
   position: absolute;
   font-weight: 600;
@@ -564,11 +539,6 @@ pre.ag-active.ag-indent-code::after {
   bottom: -23px;
 }
 
-span.ag-multiple-math-line {
-  color: purple;
-  font-family: monospace;
-}
-
 figure.ag-container-block div.ag-container-preview {
   width: 100%;
   text-align: center;
@@ -583,7 +553,7 @@ figure.ag-active.ag-container-block > div.ag-container-preview {
   z-index: 10000;
   transform: translateX(-50%);
   padding: .5rem;
-  background: #fff;
+  background: var(--codeBgColor);
   border: 1px solid var(--lightBorder);
   border-radius: 4px;
   box-shadow: 0 2px 12px 0 rgba(0, 0, 0, .1);
@@ -604,7 +574,7 @@ hr {
 
 span.ag-emoji-marked-text {
   position: relative;
-  color: var(--regularColor);
+  color: var(--themeColor);
   text-decoration: none;
 }
 
@@ -622,7 +592,7 @@ span.ag-emoji-marked-text {
 .ag-emoji-marked-text::before {
   position: absolute;
   content: attr(data-emoji);
-  color: #000;
+  color: var(--editorColor);
   top: -6px;
   left: -1.1em;
   font-size: 1.5em;
@@ -643,7 +613,7 @@ span.ag-emoji-marked-text {
   top: -2px;
   left: -1rem;
   width: 1rem;
-  color: var(--secondaryColor);
+  color: var(--sideBarTextColor);
   height: 100%;
   display: flex;
   justify-content: space-around;
@@ -660,14 +630,14 @@ span.ag-emoji-marked-text {
   font-size: 14px;
   font-family: monospace;
   font-weight: 600;
-  color: var(--activeColor);
+  color: var(--themeColor);
   background: transparent;
   border: none;
   z-index: 10;
 }
 
 .ag-language-input::placeholder {
-  color: var(--placeholerColor);
+  color: var(--sideBarTextColor);
 }
 
 pre.ag-active .ag-language-input {
@@ -675,14 +645,14 @@ pre.ag-active .ag-language-input {
 }
 
 .ag-language {
-  color: var(--activeColor);
+  color: var(--themeColor);
   font-weight: 600;
   text-decoration: none;
   font-family: monospace;
 }
 
 span.ag-image-marked-text, span.ag-link-in-bracket, span.ag-link-in-bracket .ag-backlash {
-  color: var(--regularColor);
+  color: var(--sideBarTextColor);
   font-size: 16px;
   text-decoration: none;
   font-family: monospace;
@@ -693,7 +663,7 @@ span.ag-image-marked-text, span.ag-link-in-bracket, span.ag-link-in-bracket .ag-
   color: rgb(51, 51, 51);
 }
 span.ag-warn.ag-emoji-marked-text {
-  color: var(--warningColor);
+  color: var(--deleteColor);
   text-decoration: none;
 }
 
@@ -725,12 +695,12 @@ span.ag-warn.ag-emoji-marked-text {
 }
 
 span[data-role="link"], a[data-role="link"], span[data-role="link"] .ag-backlash {
-  color: #0366d6;
+  color: var(--themeColor);
   text-decoration: none;
 }
 
 span.ag-reference-link {
-  color: var(--warningColor);
+  color: var(--deleteColor);
 }
 
 .ag-focus-mode p.ag-paragraph,

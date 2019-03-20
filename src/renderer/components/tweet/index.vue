@@ -128,13 +128,16 @@
 <style>
   .tweet-dialog {
     width: 450px;
-    color: var(--regularColor);
+    color: var(--sideBarColor);
     & .title {
       font-size: 24px;
     }
     & .el-dialog__header {
       border-top-left-radius: 5px;
       border-top-right-radius: 5px;
+    }
+    & .el-dialog__body {
+      color: var(--sideBarColor);
     }
   }
   .feeling, .feedback {
@@ -171,7 +174,9 @@
       padding: .5rem;
       resize: none;
       outline: none;
-      border-color: var(--lightBorder);
+      border: 1px solid var(--floatBorderColor);
+      background: var(--floatBorderColor);
+      color: var(--editorColor);
       border-radius: 5px;
       font-size: 14px;
       height: 80px;
@@ -183,7 +188,7 @@
     align-items: center;
   }
   .button a.twitter {
-    color: var(--secondaryColor);
+    color: var(--themeColor);
     text-decoration: none;
     width: auto;
     height: 30px;
@@ -196,17 +201,17 @@
     cursor: not-allowed;
   }
   .button a.active {
-    background: var(--primary);
+    background: var(--themeColor);
     color: #fff;
   }
   .button a.active {
     cursor: pointer;
   }
   .button a.github {
-    color: var(--secondaryColor);
+    color: var(--iconColor);
     text-decoration: none;
     &:hover {
-      color: #1da1f2;
+      color: var(--themeColor);
     }
     & > svg {
       width: 1.4rem;
@@ -214,13 +219,8 @@
       vertical-align: bottom;
     }
   }
-  .tweet-dialog.dark textarea {
-    background: var(--darkInputBgColor);
-    border-color: transparent;
-    color: var(--darkInputColor);
-  }
-  .tweet-dialog.light .el-dialog__header {
-    background: var(--primary);
+  .tweet-dialog .el-dialog__header {
+    background: var(--themeColor);
     color: #fff;
   }
 </style>

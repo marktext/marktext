@@ -74,6 +74,7 @@
     flex-direction: column;
     height: calc(100vh - var(--titleBarHeight));
     overflow: hidden;
+    background: var(--editorBgColor);
     & > .container {
       flex: 1;
       overflow: hidden;

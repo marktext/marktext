@@ -26,12 +26,7 @@
 
 <style scoped>
   .recent-files-projects {
+    background: var(--editorBgColor);
     flex: 1;
-  }
-  .dark.recent-files-projects {
-    background: var(--darkBgColor);
-    & > div {
-      color: var(--baseBorder);
-    }
   }
 </style>

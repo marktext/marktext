@@ -70,10 +70,13 @@
     margin: 35px 20px;
     border-radius: 3px;
     height: 30px;
-    border: 1px solid var(--lightBorder);
+    border: 1px solid var(--floatBorderColor);
+    background: var(--floatBorderColor);
     box-sizing: border-box;
     align-items: center;
     & > input {
+      color: var(--sideBarColor);
+      background: transparent;
       height: 100%;
       flex: 1;
       border: none;
@@ -89,14 +92,15 @@
       height: 20px;
       margin-right: 5px;
       &:hover {
-        color: var(--brandColor);
+        color: var(--iconColor);
       }
     }
   }
   .empty,
   .search-result {
     flex: 1;
-    overflow: auto;
+    overflow-y: auto;
+    overflow-x: hidden;
     &::-webkit-scrollbar:vertical {
       width: 5px;
     }
@@ -104,14 +108,5 @@
   .empty {
     font-size: 14px;
     text-align: center;
-  }
-  .dark.side-bar-search .search-wrapper {
-    background: rgb(54, 55, 49);
-    border-color: transparent;
-    & > input,
-    & > svg {
-      background: transparent;
-      color: #C0C4CC;
-    }
   }
 </style>

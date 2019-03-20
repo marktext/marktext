@@ -34,9 +34,7 @@
       <el-tooltip
         v-if="wordCount"
         class="item"
-        effect="dark"
         :content="`${wordCount[show]} ${HASH[show].full + (wordCount[show] > 1 ? 's' : '')}`"
-        :open-delay="500"
         placement="bottom-end"
       >
         <div
@@ -206,10 +204,11 @@
   .title-bar {
     -webkit-app-region: drag;
     user-select: none;
+    background: var(--editorBgColor);
     width: 100%;
     height: var(--titleBarHeight);
     box-sizing: border-box;
-    color: #F2F6FC;
+    color: var(--sideBarColor);
     position: fixed;
     top: 0;
     left: 0;
@@ -219,7 +218,7 @@
     cursor: default;
   }
   .active {
-    color: #909399;
+    color: var(--sideBarTitleColor);
   }
   img {
     height: 90%;
@@ -248,7 +247,7 @@
   }
 
   .title-bar .title .filename.isOsx:hover {
-    color: var(--primary);
+    color: var(--themeColor);
   }
 
   .active .save-dot {
@@ -257,7 +256,7 @@
     height: 7px;
     display: inline-block;
     border-radius: 50%;
-    background: var(--warning);
+    background: var(--themeColor);
     opacity: .7;
     visibility: hidden;
   }
@@ -265,11 +264,9 @@
     visibility: visible;
   }
   .title:hover {
-    color: #303133;
+    color: var(sideBarTitleColor);
   }
-  .title:hover .save-dot {
-    background: var(--warning);
-  }
+
   .right-toolbar {
     padding: 0 10px;
     height: 100%;
@@ -293,7 +290,7 @@
   .word-count {
     cursor: pointer;
     font-size: 14px;
-    color: #F2F6FC;
+    color: var(--sideBarTextColor);
     height: 17px;
     line-height: 17px;
     margin-top: 4px;
@@ -301,12 +298,10 @@
     border-radius: 1px;
     transition: all .25s ease-in-out;
   }
-  .active .word-count {
-    color: #DCDFE6;
-  }
+
   .word-count:hover {
-    background: #F2F6FC;
-    color: #606266;
+    background: var(--sideBarBgColor);
+    color: var(--sideBarTitleColor);
   }
   .title-no-drag {
     -webkit-app-region: no-drag;
@@ -326,7 +321,7 @@
     transform: translateX(-50%) translateY(-50%);
   }
   .frameless-titlebar-menu {
-    color: #606266;
+    color: var(--sideBarColor);
   }
   .frameless-titlebar-close:hover {
     background-color: rgb(228, 79, 79);
@@ -340,27 +335,5 @@
   }
   .frameless-titlebar-close:hover svg {
     fill: #ffffff
-  }
-  /* css for dark theme */
-  .dark {
-    background: var(--darkBgColor);
-    color: #909399;
-  }
-  .dark .title:hover {
-    color: #F2F6FC;
-  }
-  .dark .word-count:hover {
-    background: rgb(71, 72, 66);
-    color: #C0C4CC;
-  }
-  .dark .frameless-titlebar-button svg {
-    fill: #909399
-  }
-  .dark .frameless-titlebar-close:hover svg {
-    fill: #ffffff
-  }
-  /* exclude titlebar so we can apply a custom sidebar background color */
-  .title-bar.dark {
-    background: transparent;
   }
 </style>

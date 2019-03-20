@@ -7,19 +7,14 @@
   top: -1000px;
   right: -1000px;
   border-radius: 8px;
-  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.1);
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  background-color: #ffffff;
+  box-shadow: 0 4px 8px 0 var(--floatBorderColor);
+  border: 1px solid var(--floatBorderColor);
+  background-color: var(--floatBgColor);
   transition: opacity .25s ease-in-out;
   transform-origin: top;
   box-sizing: border-box;
   z-index: 1000;
   overflow: hidden;
-}
-
-.ag-float-wrapper.dark {
-  background: var(--primaryColor);
-  border-color: var(--primaryColor);
 }
 
 .ag-float-container::-webkit-scrollbar:vertical {
@@ -38,10 +33,6 @@
   display: inline-block;
   position: absolute;
   transform: rotate(45deg);
-}
-
-.dark[x-placement] .ag-popper-arrow {
-  border-color: var(--primaryColor);
 }
 
 [x-placement="bottom-start"] > .ag-popper-arrow {

@@ -154,14 +154,6 @@
   }
   .source-code .CodeMirror-activeline-background,
   .source-code .CodeMirror-activeline-gutter {
-    background: #F2F6FC;
-  }
-  .source-code.dark,
-  .source-code.dark .CodeMirror {
-    background: var(--darkBgColor);
-  }
-  .dark.source-code .CodeMirror-activeline-background,
-  .dark.source-code .CodeMirror-activeline-gutter {
-    background: #333;
+    background: var(--floatHoverColor);
   }
 </style>
