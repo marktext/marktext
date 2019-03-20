@@ -342,7 +342,7 @@ ol:last-child {
 }
 
 blockquote {
-  border-left: 4px solid #dddddd;
+  border-left: 2px solid #dddddd;
   padding: 0 15px;
   color: #777777;
 }
