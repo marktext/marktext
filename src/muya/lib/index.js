@@ -42,7 +42,7 @@ class Muya {
   init () {
     const { container, contentState, eventCenter } = this
     contentState.stateRender.setContainer(container.children[0])
-    eventCenter.subscribe('stateChange', this.dispatchChange.bind(this))
+    eventCenter.subscribe('stateChange', this.dispatchChange)
     eventCenter.attachDOMEvent(container, 'contextmenu', event => {
       event.preventDefault()
       event.stopPropagation()
@@ -67,7 +67,7 @@ class Muya {
     this.setFocusMode(focusMode)
   }
 
-  dispatchChange () {
+  dispatchChange = () => {
     const { eventCenter } = this
     const markdown = this.markdown = this.getMarkdown()
     const wordCount = this.getWordCount(markdown)
@@ -124,7 +124,9 @@ class Muya {
     this.contentState.importMarkdown(newMarkdown)
     this.contentState.importCursor(cursor)
     this.contentState.render(isRenderCursor)
-    this.dispatchChange()
+    setTimeout(() => {
+      this.dispatchChange()
+    }, 0)
   }
 
   createTable (tableChecker) {
