@@ -2,6 +2,7 @@ import { clipboard, ipcRenderer, shell } from 'electron'
 import path from 'path'
 import bus from '../bus'
 import { hasKeys } from '../util'
+import listToTree from '../util/listToTree'
 import { createDocumentState, getOptionsFromState, getSingleFileState, getBlankFileState } from './help'
 import notice from '../services/notification'
 
@@ -19,7 +20,7 @@ const mutations = {
     state.currentFile.searchMatches = value
   },
   SET_TOC (state, toc) {
-    state.toc = toc
+    state.toc = listToTree(toc)
   },
   SET_CURRENT_FILE (state, currentFile) {
     const oldCurrentFile = state.currentFile

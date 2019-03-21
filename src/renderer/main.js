@@ -6,7 +6,20 @@ import locale from 'element-ui/lib/locale'
 import App from './app'
 import store from './store'
 import './assets/symbolIcon'
-import { Dialog, Form, FormItem, InputNumber, Button, Tooltip, Upload, Slider, ColorPicker, Col, Row } from 'element-ui'
+import {
+  Dialog,
+  Form,
+  FormItem,
+  InputNumber,
+  Button,
+  Tooltip,
+  Upload,
+  Slider,
+  ColorPicker,
+  Col,
+  Row,
+  Tree
+} from 'element-ui'
 import services from './services'
 
 import './assets/styles/index.css'
@@ -54,6 +67,7 @@ Vue.use(Slider)
 Vue.use(ColorPicker)
 Vue.use(Col)
 Vue.use(Row)
+Vue.use(Tree)
 
 if (!process.env.IS_WEB) Vue.use(require('vue-electron'))
 Vue.http = Vue.prototype.$http = axios
