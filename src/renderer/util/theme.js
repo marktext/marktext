@@ -1,5 +1,5 @@
 import { THEME_STYLE_ID, COMMON_STYLE_ID, DEFAULT_CODE_FONT_FAMILY, railscastsThemes } from '../config'
-import { dark } from './themeColor'
+import { dark, ulysses } from './themeColor'
 
 export const addThemeStyle = theme => {
   let themeStyleEle = document.querySelector(`#${THEME_STYLE_ID}`)
@@ -14,6 +14,9 @@ export const addThemeStyle = theme => {
       break
     case 'dark':
       themeStyleEle.innerHTML = dark
+      break
+    case 'ulysses':
+      themeStyleEle.innerHTML = ulysses
       break
     default:
       console.log('unknown theme')

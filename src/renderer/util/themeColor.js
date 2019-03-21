@@ -152,3 +152,49 @@ pre.ag-paragraph {
    cursor: help;
  }
 `
+
+
+export const ulysses = `
+:root {
+  --themeColor: rgb(12, 139, 186);
+  --highlightColor: rgba(12, 139, 186, .9);
+  --selectionColor: rgba(12, 139, 186, .4);
+  --editorColor: rgba(101, 101, 101, .8);
+  --editorColor50: rgba(101, 101, 101, .5);
+  --editorColor30: rgba(101, 101, 101, .3);
+  --editorColor10: rgba(101, 101, 101, .1);
+  --editorBgColor: #f3f3f3;
+  --deleteColor: #ff6969;
+  --iconColor: rgba(101, 101, 101, .8);
+  --codeBgColor: #d8d8d869;
+  --codeBlockBgColor: rgba(12, 139, 186, .04);
+  --sideBarColor: rgba(101, 101, 101, .6);
+  --sideBarTitleColor: rgba(101, 101, 101, 1);
+  --sideBarTextColor: rgba(101, 101, 101, .4);
+  --sideBarBgColor: rgba(248, 248, 248, 0.9);
+  --sideBarItemHoverBgColor: rgba(101, 101, 101, .03);
+  --itemBgColor: rgba(245, 245, 245, 0.6);
+  --floatBgColor: #ffffff;
+  --floatHoverColor: rgba(101, 101, 101, .04);
+  --floatBorderColor: rgba(0, 0, 0, .03);
+  --editorAreaWidth: 700px;
+}
+h1, h2, h3, h4, h5, h6 {
+  color: var(--themeColor);
+  text-align: center;
+}
+li.ag-bullet-list-item {
+  position: relative;
+  list-style: none;
+}
+li.ag-bullet-list-item::before {
+  content: '';
+  display: block;
+  position: absolute;
+  width: 5px;
+  height: 2px;
+  left: -18px;
+  top: 15px;
+  background: var(--themeColor);
+}
+`
