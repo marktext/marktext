@@ -67,11 +67,11 @@
     & > li {
       position: relative;
       padding: 0 8px;
-      color: var(--sideBarColor);
+      color: var(--editorColor50);
       font-size: 12px;
       line-height: 35px;
       height: 35px;
-      background: var(--itemBgColor);
+      background: var(--floatBgColor);
       display: flex;
       align-items: center;
       & > svg {
@@ -88,7 +88,7 @@
       }
     }
     & > li.active {
-      background: var(--sideBarBgColor);
+      background: var(--itemBgColor);
       &:not(:last-child):after {
         content: '';
         position: absolute;

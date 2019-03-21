@@ -57,7 +57,7 @@
     flex-direction: column;
     & .title {
       padding: 5px 0;
-      color: var(--editorColor);
+      color: var(--sideBarTitleColor);
       font-weight: 600px;
       font-size: 16px;
       margin: 20px 0;

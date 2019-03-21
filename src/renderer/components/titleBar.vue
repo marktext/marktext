@@ -218,7 +218,7 @@
     width: 100%;
     height: var(--titleBarHeight);
     box-sizing: border-box;
-    color: var(--sideBarColor);
+    color: var(--editorColor50);
     position: absolute;
     top: 0;
     right: 0;
@@ -227,7 +227,7 @@
     cursor: default;
   }
   .active {
-    color: var(--sideBarTitleColor);
+    color: var(--editorColor);
   }
   img {
     height: 90%;
@@ -299,7 +299,7 @@
   .word-count {
     cursor: pointer;
     font-size: 14px;
-    color: var(--sideBarTextColor);
+    color: var(--editorColor30);
     height: 20px;
     line-height: 20px;
     margin-top: 10px;

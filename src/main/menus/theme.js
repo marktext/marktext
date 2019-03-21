@@ -26,5 +26,12 @@ export default {
     click (menuItem, browserWindow) {
       actions.selectTheme('ulysses')
     }
+  }, {
+    label: 'Graphite Light',
+    type: 'radio',
+    checked: theme === 'graphite',
+    click (menuItem, browserWindow) {
+      actions.selectTheme('graphite')
+    }
   }]
 }

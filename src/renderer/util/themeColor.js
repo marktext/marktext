@@ -198,3 +198,30 @@ li.ag-bullet-list-item::before {
   background: var(--themeColor);
 }
 `
+
+export const graphite = `
+:root {
+  --themeColor: rgb(104, 134, 170);
+  --highlightColor: rgba(104, 134, 170, .9);
+  --selectionColor: rgba(104, 134, 170, .4);
+  --editorColor: rgba(43, 48, 50, .8);
+  --editorColor50: rgba(43, 48, 50, .5);
+  --editorColor30: rgba(43, 48, 50, .3);
+  --editorColor10: rgba(43, 48, 50, .1);
+  --editorBgColor: #f7f7f7;
+  --deleteColor: #ff6969;
+  --iconColor: rgba(135, 135, 135, .8);
+  --codeBgColor: #d8d8d869;
+  --codeBlockBgColor: rgba(104, 134, 170, .04);
+  --sideBarColor: rgba(188, 193, 197, .8);
+  --sideBarTitleColor: rgba(255, 255, 255, 1);
+  --sideBarTextColor: rgba(188, 193, 197, .4);
+  --sideBarBgColor: rgba(69, 75, 80, 1);
+  --sideBarItemHoverBgColor: rgba(255, 255, 255, .03);
+  --itemBgColor: rgba(43, 48, 50, .5);
+  --floatBgColor: rgb(237, 237, 238);
+  --floatHoverColor: rgba(43, 48, 50, .04);
+  --floatBorderColor: rgba(0, 0, 0, .03);
+  --editorAreaWidth: 700px;
+}
+`
