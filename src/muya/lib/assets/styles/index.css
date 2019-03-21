@@ -589,11 +589,11 @@ span.ag-emoji-marked-text {
   color: var(--editorColor);
   top: -6px;
   left: -1.1em;
-  font-size: 1.5em;
+  font-size: 1em;
 }
 
 .ag-hide.ag-emoji-marked-text::before {
-  top: -19px;
+  top: -15px;
 }
 
 .ag-html-escape {
