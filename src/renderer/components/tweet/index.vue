@@ -212,7 +212,7 @@
       vertical-align: bottom;
     }
   }
-  .tweet-dialog .tweet-dialog .el-dialog__header {
+  .tweet-dialog .el-dialog__header {
     background: var(--themeColor);
     color: #fff;
   }
