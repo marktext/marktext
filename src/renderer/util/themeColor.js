@@ -197,6 +197,12 @@ li.ag-bullet-list-item::before {
   top: 15px;
   background: var(--themeColor);
 }
+blockquote.ag-paragraph {
+  background: rgb(233, 233, 233);
+}
+blockquote.ag-paragraph::before {
+  content: none;
+}
 `
 
 export const graphite = `
