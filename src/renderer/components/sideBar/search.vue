@@ -5,7 +5,7 @@
       <div class="search-wrapper">
         <input
           type="text" v-model="keyword"
-          placeholder="Search in project..."
+          placeholder="Search in folder..."
           @keyup="search"
         >
         <svg class="icon" aria-hidden="true">

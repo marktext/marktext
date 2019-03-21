@@ -69,10 +69,13 @@
 
 <style scoped>
   .editor-with-tabs {
+    width: 100%;
+    height: 100%;
+    padding-top: var(--titleBarHeight);
     flex: 1;
     display: flex;
     flex-direction: column;
-    height: calc(100vh - var(--titleBarHeight));
+    
     overflow: hidden;
     background: var(--editorBgColor);
     & > .container {

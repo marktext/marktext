@@ -208,11 +208,10 @@
     height: var(--titleBarHeight);
     box-sizing: border-box;
     color: var(--sideBarColor);
-    position: fixed;
+    position: absolute;
     top: 0;
-    left: 0;
     right: 0;
-    z-index: 1;
+    z-index: 2;
     transition: color .4s ease-in-out;
     cursor: default;
   }

@@ -15,7 +15,7 @@ export const defaultWinOptions = {
   useContentSize: true,
   show: false,
   frame: false,
-  titleBarStyle: 'hidden'
+  titleBarStyle: 'hiddenInset'
 }
 
 export const EXTENSIONS = [

@@ -121,7 +121,6 @@
 
 <style>
   .tweet-dialog {
-    width: 450px;
     color: var(--sideBarColor);
     & .title {
       font-size: 24px;
@@ -134,10 +133,10 @@
       color: var(--sideBarColor);
     }
   }
-  .feeling, .feedback {
+  .tweet-dialog .feeling, .tweet-dialog .feedback {
     font-size: 16px;
   }
-  .feeling {
+  .tweet-dialog .feeling {
     & ul {
       display: flex;
       list-style: none;
@@ -160,7 +159,7 @@
       color: rgb(255, 204, 0);
     }
   }
-  .feedback {
+  .tweet-dialog .feedback {
     & > textarea {
       width: 100%;
       box-sizing: border-box;
@@ -176,12 +175,12 @@
       height: 80px;
     }
   }
-  .button {
+  .tweet-dialog .button {
     display: flex;
     justify-content: space-between;
     align-items: center;
   }
-  .button a.twitter {
+  .tweet-dialog .button a.twitter {
     color: var(--themeColor);
     text-decoration: none;
     width: auto;
@@ -194,14 +193,14 @@
     background: #eee;
     cursor: not-allowed;
   }
-  .button a.active {
+  .tweet-dialog .button a.active {
     background: var(--themeColor);
     color: #fff;
   }
-  .button a.active {
+  .tweet-dialog .button a.active {
     cursor: pointer;
   }
-  .button a.github {
+  .tweet-dialog .button a.github {
     color: var(--iconColor);
     text-decoration: none;
     &:hover {
@@ -213,7 +212,7 @@
       vertical-align: bottom;
     }
   }
-  .tweet-dialog .el-dialog__header {
+  .tweet-dialog .tweet-dialog .el-dialog__header {
     background: var(--themeColor);
     color: #fff;
   }

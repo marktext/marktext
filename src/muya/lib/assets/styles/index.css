@@ -243,7 +243,6 @@ figure {
   display: flex;
   width: 20px;
   height: 20px;
-  padding: 2px;
   margin-right: 3px;
   cursor: pointer;
   border-radius: 3px;
@@ -268,11 +267,6 @@ figure {
   width: 100%;
   height: 100%;
   will-change: transform;
-  transition: transform .2s ease-in-out;
-}
-
-.ag-tool-bar ul li:hover svg {
-  transform: scale(1.1);
 }
 
 figure.ag-active .ag-tool-bar {

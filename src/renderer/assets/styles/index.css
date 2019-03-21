@@ -1,6 +1,6 @@
 /* Common CSS use by both light and dark themes */
 :root {
-  --titleBarHeight: 25px;
+  --titleBarHeight: 40px;
   --editorAreaWidth: 700px;
   /*editor*/
   --themeColor: rgba(33, 181, 111, 1);
@@ -47,6 +47,15 @@ html, body {
   caret-color: var(--editorColor);
 }
 
+body {
+  position: fixed;
+  width: 100vw;
+  height: 100vh;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
 
 .icon {
   width: 1em; height: 1em;

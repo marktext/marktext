@@ -68,5 +68,5 @@
   border: none;
   height: 20px;
   background: var(--themeColor);
-  color: var(--editorColor);
+  color: #fff;
 }

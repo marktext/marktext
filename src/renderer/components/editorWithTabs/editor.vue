@@ -20,9 +20,7 @@
       dir='ltr'
     >
       <div slot="title" class="dialog-title">
-        <svg class="icon" aria-hidden="true">
-          <use xlink:href="#icon-table-3d"></use>
-        </svg>
+        Insert Table
       </div>
       <el-form :model="tableChecker" :inline="true">
         <el-form-item label="Rows">
@@ -47,14 +45,10 @@
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogTableVisible = false" size="mini">
-          <svg class="icon" aria-hidden="true">
-            <use xlink:href="#icon-close"></use>
-          </svg>
+          Cancel
         </el-button>
         <el-button type="primary" @click="handleDialogTableConfirm" size="mini">
-          <svg class="icon" aria-hidden="true">
-            <use xlink:href="#icon-gou"></use>
-          </svg>
+          Ok
         </el-button>
       </div>
     </el-dialog>
@@ -486,6 +480,30 @@
     height: 100%;
     position: relative;
     flex: 1;
+    & .ag-dialog-table {
+      & .el-button {
+        width: 70px;
+      }
+      & .el-button:focus,
+      & .el-button:hover {
+        color: var(--themeColor);
+        border-color: var(--highlightColor);
+        background-color: var(--selectionColor);
+      }
+      & .el-button--primary {
+        color: #fff;
+        background: var(--themeColor);
+        border-color: var(--highlightColor);
+
+      }
+      & .el-input-number.is-controls-right .el-input__inner {
+        background: var(--itemBgColor);
+        color: var(--editorColor);
+      }
+      & .el-input-number.is-controls-right .el-input__inner:focus {
+        border-color: var(--themeColor);
+      }
+    }
   }
   .editor-wrapper.source {
     position: absolute;

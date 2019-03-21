@@ -141,22 +141,13 @@
 <style scoped>
   .side-bar {
     display: flex;
-    height: calc(100vh - var(--titleBarHeight));
+    height: 100vh;
     position: relative;
     color: var(--sideBarColor);
   }
-  .side-bar,
-  .title-bar-bg {
+  .side-bar {
     background: var(--sideBarBgColor);
     border-right: 1px solid var(--itemBgColor);
-  }
-
-  .title-bar-bg {
-    position: absolute;
-    top: calc(-1 * var(--titleBarHeight));
-    left: 0;
-    height: var(--titleBarHeight);
-    width: 100%;
   }
 
   .left-column {
@@ -165,6 +156,8 @@
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    padding-top: 40px;
+    box-sizing: border-box;
     & > ul {
       opacity: 1;
     }
