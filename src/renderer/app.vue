@@ -193,6 +193,7 @@
   }
   .editor-middle {
     display: flex;
+    flex: 1;
     min-height: 100vh;
     position: relative;
     & > .editor {
