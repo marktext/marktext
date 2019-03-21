@@ -42,7 +42,7 @@ pre {
 
 div.ag-show-quick-insert-hint p.ag-paragraph.ag-active > span.ag-line:first-of-type:empty::after {
   content: 'Type @ to insert';
-  color: var(--sideBarTextColor);
+  color: var(--editorColor10);
 }
 
 .ag-paragraph:empty::after,
@@ -62,7 +62,7 @@ div.ag-show-quick-insert-hint p.ag-paragraph.ag-active > span.ag-line:first-of-t
 
 .ag-reference-marker {
   font-size: .9em;
-  color: var(--sideBarTextColor);
+  color: var(--editorColor10);
 }
 
 .ag-reference-title {
@@ -129,14 +129,14 @@ div.ag-function-html.ag-active .ag-html-preview {
 }
 
 span.ag-html-tag {
-  color: var(--sideBarTextColor);
+  color: var(--editorColor50);
   font-weight: 200;
   font-family: monospace;
 }
 
 span.ag-math {
   position: relative;
-  color: var(--sideBarColor);
+  color: var(--editorColor);
   font-family: monospace;
   display: inline-block;
   vertical-align: bottom;
@@ -154,7 +154,7 @@ span.ag-math {
 
 div.ag-empty {
   text-align: center;
-  color: var(--sideBarTitleColor);
+  color: var(--editorColor50);
   font-size: 14px;
   font-style: italic;
   font-family: monospace;
@@ -162,7 +162,7 @@ div.ag-empty {
 
 div.ag-math-error,
 span.ag-math > .ag-math-render.ag-math-error {
-  color: var(--themeColor);
+  color: var(--deleteColor);
   font-size: 14px;
   font-style: italic;
   font-family: monospace;
@@ -288,7 +288,7 @@ figure.ag-active[data-role=HTML]::before {
   top: 0;
   left: -45px;
   font-size: 12px;
-  color: var(--sideBarColor);
+  color: var(--editorColor50);
   font-weight: 400;
   font-style: italic;
 }
@@ -329,12 +329,12 @@ li.ag-task-list-item > input[type=checkbox] {
 }
 
 li.ag-task-list-item > input.ag-checkbox-checked ~ * {
-  color: var(--sideBarTextColor);
+  color: var(--editorColor50);
 }
 
 li.ag-task-list-item > input.ag-checkbox-checked ~ p {
   text-decoration: line-through;
-  color: var(--sideBarTextColor);
+  color: var(--editorColor50);
 }
 
 li.ag-task-list-item > input[type=checkbox]::before {
@@ -410,17 +410,17 @@ pre.ag-front-matter {
 
 pre.ag-front-matter span.ag-code-line:first-of-type:empty::after {
   content: 'Input YAML Front Matter...';
-  color: var(--sideBarTextColor);
+  color: var(--editorColor10);
 }
 
 pre[data-role$='code'] span.ag-language-input:empty::after {
   content: 'Input Language...';
-  color: var(--sideBarTextColor);
+  color: var(--editorColor10);
 }
 
 pre.ag-multiple-math span.ag-code-line:first-of-type:empty::after {
   content: 'Input Mathematical Formula...';
-  color: var(--sideBarTextColor);
+  color: var(--editorColor10);
 }
 
 figure,
@@ -510,7 +510,7 @@ pre.ag-active.ag-indent-code::before,
 pre.ag-active.ag-indent-code::after,
 pre.ag-active.ag-multiple-math::before,
 pre.ag-active.ag-multiple-math::after {
-  color: var(--sideBarTextColor);
+  color: var(--editorColor30);
   font-family: monospace;
   position: absolute;
   font-weight: 600;
@@ -553,8 +553,8 @@ figure.ag-active.ag-container-block > div.ag-container-preview {
   z-index: 10000;
   transform: translateX(-50%);
   padding: .5rem;
-  background: var(--codeBgColor);
-  border: 1px solid var(--lightBorder);
+  background: var(--floatBgColor);
+  border: 1px solid var(--floatBorderColor);
   border-radius: 4px;
   box-shadow: 0 2px 12px 0 rgba(0, 0, 0, .1);
 }
@@ -613,7 +613,7 @@ span.ag-emoji-marked-text {
   top: -2px;
   left: -1rem;
   width: 1rem;
-  color: var(--sideBarTextColor);
+  color: var(--editorColor30);
   height: 100%;
   display: flex;
   justify-content: space-around;
@@ -637,7 +637,7 @@ span.ag-emoji-marked-text {
 }
 
 .ag-language-input::placeholder {
-  color: var(--sideBarTextColor);
+  color: var(--editorColor10);
 }
 
 pre.ag-active .ag-language-input {
@@ -652,7 +652,7 @@ pre.ag-active .ag-language-input {
 }
 
 span.ag-image-marked-text, span.ag-link-in-bracket, span.ag-link-in-bracket .ag-backlash {
-  color: var(--sideBarTextColor);
+  color: var(--editorColor50);
   font-size: 16px;
   text-decoration: none;
   font-family: monospace;

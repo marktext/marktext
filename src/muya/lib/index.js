@@ -18,9 +18,8 @@ class Muya {
   }
   constructor (container, options) {
     this.options = Object.assign({}, MUYA_DEFAULT_OPTION, options)
-    const { focusMode, theme, markdown } = this.options
+    const { focusMode, markdown } = this.options
     this.focusMode = focusMode
-    this.theme = theme
     this.markdown = markdown
     this.container = getContainer(container, this.options)
     this.eventCenter = new EventCenter()
@@ -61,8 +60,7 @@ class Muya {
       eventCenter.dispatch('contextmenu', event, sectionChanges)
     })
     contentState.listenForPathChange()
-    const { theme, focusMode, markdown } = this
-    this.setTheme(theme)
+    const { focusMode, markdown } = this
     this.setMarkdown(markdown)
     this.setFocusMode(focusMode)
   }
@@ -145,16 +143,6 @@ class Muya {
       container.classList.remove(CLASS_OR_ID['AG_FOCUS_MODE'])
     }
     this.focusMode = bool
-  }
-
-  setTheme (name) {
-    if (!name) return
-    const { eventCenter } = this
-    this.theme = name
-    // Render cursor and refresh code block
-    this.contentState.render(true)
-    // notice the ui components to change theme
-    eventCenter.dispatch('theme-change', name)
   }
 
   setFont ({ fontSize, lineHeight }) {

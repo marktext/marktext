@@ -125,7 +125,7 @@ pre.ag-paragraph {
 }
 
 .ag-gray {
-  color: var(--sideBarTextColor);
+  color: var(--editorColor30);
   text-decoration: none;
 }
 
@@ -327,7 +327,7 @@ ol:last-child {
 blockquote {
   position: relative;
   padding: 0 30px;
-  color: var(--sideBarColor);
+  color: var(--editorColor50);
 }
 
 blockquote::before {
@@ -357,19 +357,19 @@ table tr {
 
 table thead tr,
 table tr:nth-child(2n) {
-  background-color: var(--codeBgColor);
+  background-color: var(--codeBlockBgColor);
 }
 
 table tr th {
   font-weight: bold;
-  border: 1px solid var(--themeColor);
+  border: 1px solid var(--selectionColor);
   text-align: left;
   margin: 0;
   padding: 6px 13px;
 }
 
 table tr td {
-  border: 1px solid var(--themeColor);
+  border: 1px solid var(--selectionColor);
   text-align: left;
   margin: 0;
   padding: 6px 13px;
@@ -388,7 +388,7 @@ table tr td:last-child {
 span code,
 td code,
 th code {
-  background-color: #d8d8d8;
+  background-color: var(--codeBlockBgColor);
   border-radius: 3px;
   padding: 0;
   /*font-family: Menlo, Monaco, Consolas, "Courier New", monospace;*/
@@ -396,7 +396,7 @@ th code {
   font-size: 85%;
   margin: 0;
   padding: 0.2em 0.4em;
-  color: var(--codeColor);
+  color: var(--editorColor);
 }
 
 :not(pre) > code[class*="language-"],
@@ -405,10 +405,10 @@ pre[class*="language-"] {
   overflow: visible;
   font-size: 90%;
   line-height: 1.6;
-  background: var(--codeBgColor);
+  background: var(--codeBlockBgColor);
   border: 0;
   border-radius: 3px;
-  color: var(--editorColor);
+  color: var(--editorColor50);
 }
 
 @media print {
@@ -425,20 +425,20 @@ pre[class*="language-"] {
 }
 
 .ag-hide.ag-math > .ag-math-render {
-  color: #333333;
+  color: var(--editorColor);
 }
 
 blockquote .ag-hide.ag-math > .ag-math-render {
-  color: #777777;
+  color: var(--editorColor50);
 }
 
 .ag-gray.ag-math > .ag-math-render {
-  color: #f6f8fa;
-  background: #333333;
-  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.3);
+  color: var(--editorColor);
+  background: var(--floatBgColor);
+  box-shadow: 0 4px 8px 0 var(--floatBorderColor);
 }
 .ag-gray.ag-math > .ag-math-render::before {
-  border-bottom-color: #333333;
+  border-bottom-color: var(--floatBgColor);
 }
 
 #ag-editor-id pre.ag-html-block {
@@ -448,7 +448,7 @@ blockquote .ag-hide.ag-math > .ag-math-render {
 }
 
 #ag-editor-id pre.ag-active.ag-html-block {
-  background: var(--codeBgColor);
+  background: var(--codeBlockBgColor);
 }
 
 .ag-color-dark {

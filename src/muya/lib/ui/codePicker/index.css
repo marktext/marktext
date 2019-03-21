@@ -20,11 +20,14 @@
 
 .ag-list-picker:hover .active {
   background: transparent;
-  color: #606266;
 }
+
+.ag-list-picker .item .language {
+  color: var(--editorColor);
+}
+
 .ag-list-picker .active, .ag-list-picker .item:hover {
- background-color: #ecf5ff;
- color: var(--activeColor);
+ background-color: var(--floatHoverColor);
 }
 
 .ag-list-picker .item .icon-wrapper {
@@ -48,13 +51,4 @@
   font-size: 14px;
   line-height: 35px;
   margin-left: 10px;
-}
-
-.ag-list-picker.dark:hover .active {
-  background: transparent;
-  color: currentColor;
-}
-.ag-list-picker.dark .active, .ag-list-picker.dark .item:hover {
- background-color: rgb(71, 72, 66);
- color: var(--activeColor);
 }

@@ -6,11 +6,14 @@ export const dark = `
   --highlightColor: rgba(244, 130, 55, .9);
   --selectionColor: rgba(244, 130, 55, .4);
   --editorColor: rgba(255, 255, 255, .8);
+  --editorColor50: rgba(255, 255, 255, .5);
+  --editorColor30: rgba(255, 255, 255, .3);
+  --editorColor10: rgba(255, 255, 255, .1);
   --editorBgColor: #34393f;
   --deleteColor: #ff6969;
   --iconColor: rgba(255, 255, 255, .8);
-  --codeBgColor: rgba(244, 130, 55, .04);
-  --codeBlockBgColor: rgba(45, 54, 62, 1);
+  --codeBgColor: #d8d8d869;
+  --codeBlockBgColor: rgba(244, 130, 55, .04);
   --sideBarColor: rgba(255, 255, 255, .6);
   --sideBarTitleColor: rgba(255, 255, 255, 1);
   --sideBarTextColor: rgba(255, 255, 255, .4);

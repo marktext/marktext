@@ -143,7 +143,6 @@
       theme: function (value, oldValue) {
         const { editor } = this
         if (value !== oldValue && editor) {
-          editor.setTheme(value)
           addThemeStyle(value)
         }
       },
