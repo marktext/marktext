@@ -21,7 +21,6 @@
         :markdown="markdown"
         :filename="filename"
         :cursor="cursor"
-        :theme="theme"
         :source-code="sourceCode"
         :show-tab-bar="showTabBar"
         :text-direction="textDirection"
@@ -39,7 +38,7 @@
 
 <script>
   import { remote } from 'electron'
-  import { addStyles } from '@/util/theme'
+  import { addStyles, addThemeStyle } from '@/util/theme'
   import Recent from '@/components/recent'
   import EditorWithTabs from '@/components/editorWithTabs'
   import TitleBar from '@/components/titleBar'
@@ -95,6 +94,13 @@
       ]),
       hasCurrentFile () {
         return this.markdown !== undefined
+      }
+    },
+    watch: {
+      theme: function (value, oldValue) {
+        if (value !== oldValue) {
+          addThemeStyle(value)
+        }
       }
     },
     created () {

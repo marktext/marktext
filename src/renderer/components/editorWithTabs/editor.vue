@@ -1,8 +1,8 @@
 <template>
   <div
     class="editor-wrapper"
-    :class="[{ 'typewriter': typewriter, 'focus': focus, 'source': sourceCode }, theme]"
-    :style="{ 'color': theme === 'dark' ? darkColor : lightColor, 'lineHeight': lineHeight, 'fontSize': fontSize,
+    :class="[{ 'typewriter': typewriter, 'focus': focus, 'source': sourceCode }]"
+    :style="{ 'lineHeight': lineHeight, 'fontSize': fontSize,
     'font-family': editorFontFamily ? `${editorFontFamily}, ${defaultFontFamily}` : `${defaultFontFamily}` }"
     :dir="textDirection"
   >
@@ -73,7 +73,6 @@
   import { showContextMenu } from '../../contextMenu/editor'
   import Printer from '@/services/printService'
   import { DEFAULT_EDITOR_FONT_FAMILY } from '@/config'
-  import { addThemeStyle } from '@/util/theme'
 
   import 'muya/themes/light.css'
 
@@ -86,10 +85,6 @@
     props: {
       filename: {
         type: String
-      },
-      theme: {
-        type: String,
-        required: true
       },
       markdown: String,
       cursor: Object,
@@ -141,12 +136,6 @@
       focus: function (value) {
         this.editor.setFocusMode(value)
       },
-      theme: function (value, oldValue) {
-        const { editor } = this
-        if (value !== oldValue && editor) {
-          addThemeStyle(value)
-        }
-      },
       fontSize: function (value, oldValue) {
         const { editor } = this
         if (value !== oldValue && editor) {
@@ -177,7 +166,6 @@
         this.printer = new Printer()
         const ele = this.$refs.editor
         const {
-          theme,
           focus: focusMode,
           markdown,
           preferLooseListItem,
@@ -198,7 +186,6 @@
         Muya.use(ImagePathPicker)
         Muya.use(FormatPicker)
         const { container } = this.editor = new Muya(ele, {
-          theme,
           focusMode,
           markdown,
           preferLooseListItem,
@@ -213,9 +200,6 @@
         if (typewriter) {
           this.scrollToCursor()
         }
-
-        // the default theme is light write in the store
-        addThemeStyle(theme)
 
         // listen for bus events.
         bus.$on('file-loaded', this.setMarkdownToEditor)
@@ -480,6 +464,7 @@
     height: 100%;
     position: relative;
     flex: 1;
+    color: var(--editorColor);
     & .ag-dialog-table {
       & .el-button {
         width: 70px;

@@ -2,7 +2,7 @@ const listToTree = list => {
   const result = []
   let parent = null
   let child = null
-  let tempLvl = 7 // any number great 6
+  let tempLvl = 7 // any number great than 6
 
   for (const { lvl, content, slug } of list) {
     const item = {

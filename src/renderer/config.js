@@ -12,3 +12,5 @@ export const DEFAULT_STYLE = {
   codeFontSize: '14px',
   theme: 'light'
 }
+
+export const railscastsThemes = ['dark']

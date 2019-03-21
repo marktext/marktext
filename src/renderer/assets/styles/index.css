@@ -25,7 +25,6 @@
   --floatBgColor: #fff;
   --floatHoverColor: rgba(0, 0, 0, .04);
   --floatBorderColor: rgba(0, 0, 0, .1);
-  --editorAreaWidth: 700px;
 }
 
 ::-webkit-scrollbar {

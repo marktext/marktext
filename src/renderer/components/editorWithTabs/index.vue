@@ -5,7 +5,6 @@
       <tabs v-show="showTabBar"></tabs>
       <div class="container">
         <editor
-          :theme="theme"
           :fileanme="filename"
           :markdown="markdown"
           :cursor="cursor"
@@ -13,7 +12,6 @@
         ></editor>
         <source-code
           v-if="sourceCode"
-          :theme="theme"
           :markdown="markdown"
           :cursor="cursor"
           :text-direction="textDirection"
@@ -29,10 +27,6 @@
 
   export default {
     props: {
-      theme: {
-        type: String,
-        required: true
-      },
       filename: {
         type: String
       },

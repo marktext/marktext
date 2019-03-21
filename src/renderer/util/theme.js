@@ -1,4 +1,4 @@
-import { THEME_STYLE_ID, COMMON_STYLE_ID, DEFAULT_CODE_FONT_FAMILY } from '../config'
+import { THEME_STYLE_ID, COMMON_STYLE_ID, DEFAULT_CODE_FONT_FAMILY, railscastsThemes } from '../config'
 import { dark } from './themeColor'
 
 export const addThemeStyle = theme => {
@@ -18,6 +18,18 @@ export const addThemeStyle = theme => {
     default:
       console.log('unknown theme')
       break
+  }
+
+  // change codeMirror theme
+  const cm = document.querySelector('.CodeMirror')
+  if (cm) {
+    if (railscastsThemes.includes(theme)) {
+      cm.classList.remove('cm-s-default')
+      cm.classList.add('cm-s-railscasts')
+    } else {
+      cm.classList.add('cm-s-default')
+      cm.classList.remove('cm-s-railscasts')
+    }
   }
 }
 

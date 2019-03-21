@@ -9,21 +9,25 @@
 <script>
   import codeMirror, { setMode, setCursorAtLastLine, setTextDirection } from '../../codeMirror'
   import { wordCount as getWordCount } from 'muya/lib/utils'
+  import { mapState } from 'vuex'
   import { adjustCursor } from '../../util'
   import bus from '../../bus'
+  import { railscastsThemes } from '@/config'
 
   export default {
     props: {
-      theme: {
-        type: String,
-        required: true
-      },
       markdown: String,
       cursor: Object,
       textDirection: {
         type: String,
         required: true
       }
+    },
+
+    computed: {
+      ...mapState({
+        'theme': state => state.preferences.theme
+      })
     },
 
     data () {
@@ -34,18 +38,6 @@
     },
 
     watch: {
-      theme: function (value, oldValue) {
-        const cm = this.$refs.sourceCode.querySelector('.CodeMirror')
-        if (value !== oldValue) {
-          if (value === 'dark') {
-            cm.classList.remove('cm-s-default')
-            cm.classList.add('cm-s-railscasts')
-          } else {
-            cm.classList.add('cm-s-default')
-            cm.classList.remove('cm-s-railscasts')
-          }
-        }
-      },
       textDirection: function (value, oldValue) {
         const { editor } = this
         if (value !== oldValue && editor) {
@@ -73,7 +65,9 @@
             }
           }
         }
-        if (theme === 'dark') codeMirrorConfig.theme = 'railscasts'
+        if (railscastsThemes.includes(theme)) {
+          codeMirrorConfig.theme = 'railscasts'
+        }
         const editor = this.editor = codeMirror(container, codeMirrorConfig)
         bus.$on('file-loaded', this.setMarkdown)
         bus.$on('file-changed', this.handleMarkdownChange)
