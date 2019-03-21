@@ -105,7 +105,7 @@ export default function renderLeafBlock (block, cursor, activeBlocks, matches, u
         selector += `.${CLASS_OR_ID['AG_HTML_PREVIEW']}`
         const htmlContent = sanitize(code, PREVIEW_DOMPURIFY_CONFIG)
         // handle empty html bock
-        if (/<([a-z][a-z\d]*).*>\s*<\/\1>/.test(htmlContent)) {
+        if (/^<([a-z][a-z\d]*)[^>]*?>(\s*)<\/\1>$/.test(htmlContent.trim())) {
           children = htmlToVNode('<div class="ag-empty">&lt;Empty HTML Block&gt;</div>')
         } else {
           children = htmlToVNode(htmlContent)
