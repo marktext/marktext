@@ -27,9 +27,6 @@
         :text-direction="textDirection"
       ></editor-with-tabs>
     </div>
-    <bottom-bar
-      :source-code="sourceCode"
-    ></bottom-bar>
     <aidou></aidou>
     <upload-image></upload-image>
     <about-dialog></about-dialog>
@@ -47,7 +44,6 @@
   import EditorWithTabs from '@/components/editorWithTabs'
   import TitleBar from '@/components/titleBar'
   import SideBar from '@/components/sideBar'
-  import BottomBar from '@/components/bottomBar'
   import Aidou from '@/components/aidou/aidou'
   import UploadImage from '@/components/uploadImage'
   import AboutDialog from '@/components/about'
@@ -67,7 +63,6 @@
       EditorWithTabs,
       TitleBar,
       SideBar,
-      BottomBar,
       UploadImage,
       AboutDialog,
       Font,

@@ -28,7 +28,7 @@
         :visible-arrow="false"
         :open-delay="1000"
       >
-        <button class="button" @click="caseClick" :class="{ 'active': caseSensitive }">
+        <button class="button left" @click="caseClick" :class="{ 'active': caseSensitive }">
           <svg class="icon" aria-hidden="true">
             <use xlink:href="#icon-case"></use>
           </svg>
@@ -45,19 +45,19 @@
         >
         <span class="search-result">{{`${highlightIndex + 1} / ${highlightCount}`}}</span>
       </div>
-      <button class="button" @click="find('prev')">
+      <button class="button right" @click="find('prev')">
         <svg class="icon" aria-hidden="true">
           <use xlink:href="#icon-arrow-up"></use>
         </svg>
       </button>
-      <button class="button" @click="find('next')">
+      <button class="button right" @click="find('next')">
         <svg class="icon" aria-hidden="true">
           <use xlink:href="#icon-arrowdown"></use>
         </svg>
       </button>
     </section>
     <section class="replace" v-if="type === 'replace'">
-      <button class="button active" @click="typeClick">
+      <button class="button active left" @click="typeClick">
         <svg class="icon" aria-hidden="true">
           <use xlink:href="#icon-findreplace"></use>
         </svg>
@@ -72,7 +72,7 @@
         :visible-arrow="false"
         :open-delay="1000"
       >
-        <button class="button" @click="replace(false)">
+        <button class="button right" @click="replace(false)">
           <svg class="icon" aria-hidden="true">
             <use xlink:href="#icon-all-inclusive"></use>
           </svg>
@@ -85,7 +85,7 @@
         :visible-arrow="false"
         :open-delay="1000"
       >
-        <button class="button" @click="replace(true)">
+        <button class="button right" @click="replace(true)">
           <svg class="icon" aria-hidden="true">
             <use xlink:href="#icon-replace"></use>
           </svg>
@@ -215,8 +215,15 @@
 
 <style scoped>
   .search-bar {
-    width: 100%;
+    position: absolute;
+    width: 400px;
     padding: 5px;
+    top: 0;
+    right: 20px;
+    box-shadow: 0 4px 8px 0 var(--floatBorderColor);
+    border: 1px solide var(--floatBorderColor);
+    border-radius: 5px;
+    background: var(--floatBgColor);
   }
   .search {
     margin-bottom: 5px;
@@ -224,6 +231,7 @@
   .search, .replace {
     height: 30px;
     display: flex;
+    padding: 0 10px;
   }
   .search-bar .button {
     outline: none;
@@ -232,20 +240,25 @@
     background: transparent;
     box-sizing: border-box;
     height: 30px;
-    width: 50px;
+    width: 30px;
     text-align: center;
-    padding: 3px 5px;
+    padding: 5px;
     display: inline-block;
-    margin-right: 5px;
     font-weight: 500;
     color: var(--iconColor);
+    &.left {
+      margin-right: 10px;
+    }
+    &.right {
+      margin-left: 10px;
+    }
   }
   .button.active {
     color: var(--themeColor);
   }
   .search-bar .button > svg {
-    width: 1.6em;
-    height: 1.6em;
+    width: 20px;
+    height: 20px;
   }
   .search-bar .button:active {
     opacity: .5;
@@ -255,14 +268,14 @@
     flex: 1;
     position: relative;
     margin-right: 5px;
-    background: var(--floatBorderColor);
+    background: var(--floatHoverColor);
     border-radius: 4px;
     overflow: hidden;
   }
   .input-wrapper .search-result {
     position: absolute;
     top: 6px;
-    right: 5px;
+    right: 10px;
     font-size: 12px;
     color: var(--sideBarTitleColor);
   }

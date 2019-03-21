@@ -58,6 +58,9 @@
         </el-button>
       </div>
     </el-dialog>
+    <search
+      v-if="!sourceCode"
+    ></search>
   </div>
 </template>
 
@@ -71,6 +74,7 @@
   import ImagePathPicker from 'muya/lib/ui/imagePicker'
   import FormatPicker from 'muya/lib/ui/formatPicker'
   import bus from '../../bus'
+  import Search from '../search.vue'
   import { animatedScrollTo } from '../../util'
   import { showContextMenu } from '../../contextMenu/editor'
   import Printer from '@/services/printService'
@@ -82,6 +86,9 @@
   const STANDAR_Y = 320
 
   export default {
+    components: {
+      Search
+    },
     props: {
       filename: {
         type: String
@@ -446,7 +453,6 @@
         this.editor.copy(name)
       }
     },
-
     beforeDestroy () {
       bus.$off('file-loaded', this.setMarkdownToEditor)
       bus.$off('undo', this.handleUndo)
