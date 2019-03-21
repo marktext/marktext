@@ -37,6 +37,17 @@
         :content="`${wordCount[show]} ${HASH[show].full + (wordCount[show] > 1 ? 's' : '')}`"
         placement="bottom-end"
       >
+        <div slot="content">
+          <div class="title-item">
+            <span class="front">Words:</span><span class="text">{{wordCount['word']}}</span>
+          </div>
+          <div class="title-item">
+            <span class="front">Characters:</span><span class="text">{{wordCount['character']}}</span>
+          </div>
+          <div class="title-item">
+            <span class="front">Paragraph:</span><span class="text">{{wordCount['paragraph']}}</span>
+          </div>
+        </div>
         <div
           v-if="wordCount"
           class="word-count"
@@ -289,11 +300,12 @@
     cursor: pointer;
     font-size: 14px;
     color: var(--sideBarTextColor);
-    height: 17px;
-    line-height: 17px;
-    margin-top: 4px;
-    padding: 1px 5px;
-    border-radius: 1px;
+    height: 20px;
+    line-height: 20px;
+    margin-top: 10px;
+    padding: 0px 5px;
+    box-sizing: border-box;
+    border-radius: 4px;
     transition: all .25s ease-in-out;
   }
 
@@ -335,3 +347,18 @@
     fill: #ffffff
   }
 </style>
+
+<style>
+.title-item {
+  height: 28px;
+  line-height: 28px;
+  & .front {
+    color: var(--editorColor50);
+  }
+  & .text {
+    margin-left: 10px;
+    color: var(--editorColor30);
+  }
+}
+</style>
+

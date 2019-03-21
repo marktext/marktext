@@ -23,7 +23,7 @@
     <!-- opened files -->
     <div class="opened-files">
       <div class="title">
-        <svg class="icon" aria-hidden="true" @click.stop="toggleOpenedFiles()">
+        <svg class="icon icon-arrow" :class="{'fold': !showOpenedFiles}" aria-hidden="true" @click.stop="toggleOpenedFiles()">
           <use xlink:href="#icon-arrow"></use>
         </svg>
         <span class="default-cursor text-overflow" @click.stop="toggleOpenedFiles()">Opened files</span>
@@ -54,7 +54,7 @@
       class="project-tree" v-if="projectTree"
     >
       <div class="title">
-        <svg class="icon" aria-hidden="true" @click.stop="toggleDirectories()">
+        <svg class="icon icon-arrow" :class="{'fold': !showDirectories}" aria-hidden="true" @click.stop="toggleDirectories()">
           <use xlink:href="#icon-arrow"></use>
         </svg>
         <span class="default-cursor text-overflow" @click.stop="toggleDirectories()">{{ projectTree.name }}</span>
@@ -204,6 +204,7 @@
     display: inline-block;
     margin-right: 10px;
   }
+
   .list-enter-active, .list-leave-active {
     transition: all .2s;
   }
@@ -247,6 +248,17 @@
     opacity: 1;
   }
 
+  .icon-arrow {
+    margin-right: 5px;
+    transition: all .25s ease-out;
+    transform: rotate(90deg);
+    fill: var(--sideBarTextColor);
+  }
+
+  .icon-arrow.fold {
+    transform: rotate(0);
+  }
+
   .opened-files,
   .project-tree {
     & > .title {
@@ -282,7 +294,7 @@
     flex-direction: column;
   }
   .default-cursor {
-    cursor: default;
+    cursor: pointer;
   }
   .opened-files .opened-files-list {
     max-height: 200px;
