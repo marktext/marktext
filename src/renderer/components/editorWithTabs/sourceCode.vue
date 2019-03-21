@@ -1,7 +1,6 @@
 <template>
   <div
     class="source-code"
-    :class="[theme]"
     ref="sourceCode"
   >
   </div>
@@ -147,6 +146,7 @@
   .source-code .CodeMirror {
     margin: 50px auto;
     max-width: var(--editorAreaWidth);
+    background: transparent;
   }
   .source-code .CodeMirror-gutters {
     border-right: none;

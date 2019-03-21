@@ -1,5 +1,5 @@
 <template>
-  <div class="about-dialog" :class="theme">
+  <div class="about-dialog">
     <el-dialog
       :visible.sync="showAboutDialog"
       :show-close="false"
@@ -10,7 +10,7 @@
       <img class="logo" src="../../assets/images/logo.png" />
       <el-row>
         <el-col :span="24">
-          <h3 class="title fg-color-dark">{{ name }}</h3>
+          <h3 class="title">{{ name }}</h3>
         </el-col>
         <el-col :span="24">
           <div class="text">{{ appVersion }}</div>
@@ -37,8 +37,7 @@
     },
     computed: {
       ...mapState({
-        'appVersion': state => state.appVersion,
-        'theme': state => state.preferences.theme
+        'appVersion': state => state.appVersion
       })
     },
     created () {
@@ -62,9 +61,9 @@
     display: block;
   }
 
-  .about-dialog .logo {
-    width: 100px;
-    height: 100px;
+  .about-dialog img.logo {
+    width: 80px;
+    height: 80px;
     display: inherit;
     margin: 0 auto;
   }

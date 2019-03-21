@@ -316,7 +316,7 @@
       height: 35px;
       border-radius: 50%;
       text-decoration: none;
-      background: rgba(31, 116, 255, .5);
+      background: var(--selectionColor);
       transition: all .3s ease;
       display: flex;
       justify-content: space-around;

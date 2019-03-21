@@ -1,7 +1,6 @@
 <template>
     <div
       class="editor-tabs"
-      :class="theme"
     >
       <ul class="tabs-container">
         <li
@@ -37,7 +36,6 @@
     mixins: [tabsMixins],
     computed: {
       ...mapState({
-        theme: state => state.preferences.theme,
         currentFile: state => state.editor.currentFile,
         tabs: state => state.editor.tabs
       })

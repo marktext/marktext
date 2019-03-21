@@ -1,6 +1,6 @@
 <template>
-    <div class="side-bar-search"
-      :class="theme"
+    <div
+      class="side-bar-search"
     >
       <div class="search-wrapper">
         <input
@@ -26,7 +26,7 @@
 </template>
 
 <script>
-  import { mapGetters, mapState } from 'vuex'
+  import { mapGetters } from 'vuex'
   import ListFile from './listFile.vue'
 
   export default {
@@ -40,9 +40,6 @@
       ListFile
     },
     computed: {
-      ...mapState({
-        'theme': state => state.preferences.theme
-      }),
       ...mapGetters(['fileList'])
     },
     methods: {

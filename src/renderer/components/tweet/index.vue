@@ -1,5 +1,5 @@
 <template>
-  <div class="tweet-dialog" :class="theme">
+  <div class="tweet-dialog">
     <el-dialog
       :visible.sync="showTweetDialog"
       :show-close="false"
@@ -68,7 +68,6 @@
 
 <script>
   import { shell } from 'electron'
-  import { mapState } from 'vuex'
   import bus from '../../bus'
 
   export default {
@@ -78,11 +77,6 @@
         value: '',
         selectedFace: 'smile'
       }
-    },
-    computed: {
-      ...mapState({
-        'theme': state => state.preferences.theme
-      })
     },
     created () {
       bus.$on('tweetDialog', this.showDialog)

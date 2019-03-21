@@ -8,7 +8,6 @@
       :filename="filename"
       :active="windowActive"
       :word-count="wordCount"
-      :theme="theme"
       :platform="platform"
       :is-saved="isSaved"
     ></title-bar>
@@ -30,7 +29,6 @@
     </div>
     <bottom-bar
       :source-code="sourceCode"
-      :theme="theme"
     ></bottom-bar>
     <aidou></aidou>
     <upload-image></upload-image>

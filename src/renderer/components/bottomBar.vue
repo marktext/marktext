@@ -1,8 +1,7 @@
 <template>
-  <div class="bottom-bar" :class="theme">
+  <div class="bottom-bar">
     <search
       v-if="!sourceCode"
-      :theme="theme"
     ></search>
   </div>
 </template>
@@ -15,8 +14,7 @@
       Search
     },
     props: {
-      sourceCode: Boolean,
-      theme: String
+      sourceCode: Boolean
     }
   }
 </script>
@@ -27,10 +25,6 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgb(245, 245, 245);
-  }
-  /* dark theme */
-  .dark {
-    background: rgb(43, 43, 43);
+    background: var(--itemBgColor);
   }
 </style>

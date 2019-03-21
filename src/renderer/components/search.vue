@@ -1,6 +1,5 @@
 <template>
   <div class="search-bar"
-    :class="theme"
     @click.stop="noop"
     v-show="showSearch"
   >
@@ -101,9 +100,6 @@
   import { mapState } from 'vuex'
 
   export default {
-    props: {
-      theme: String
-    },
     data () {
       return {
         showSearch: false,
@@ -242,59 +238,44 @@
     display: inline-block;
     margin-right: 5px;
     font-weight: 500;
-    color: #606266;
+    color: var(--iconColor);
   }
   .button.active {
-    color: rgb(242, 134, 94);
+    color: var(--themeColor);
   }
   .search-bar .button > svg {
     width: 1.6em;
     height: 1.6em;
   }
-  .search-bar .button:hover {
-    background: #EBEEF5;
-  }
   .search-bar .button:active {
-    background: #DCDFE6;
+    opacity: .5;
   }
   .input-wrapper {
     display: flex;
     flex: 1;
     position: relative;
     margin-right: 5px;
+    background: var(--floatBorderColor);
+    border-radius: 4px;
+    overflow: hidden;
   }
   .input-wrapper .search-result {
     position: absolute;
     top: 6px;
     right: 5px;
     font-size: 12px;
-    color: #C0C4CC;
+    color: var(--sideBarTitleColor);
   }
   .input-wrapper input {
     flex: 1;
+    padding: 0 8px;
     height: 30px;
     outline: none;
     border: none;
     box-sizing: border-box;
     font-size: 14px;
-    color: #606266;
+    color: var(--editorColor);
     padding: 0 8px;
-    background: rgb(252, 252, 252);
-  }
-  /* css for dark theme*/
-  .dark {
-    caret-color: #efefef;
-    color: #606266;
-  }
-  .dark input {
-    background: rgb(54, 55, 49);
-    color: #C0C4CC;
-  }
-  .dark .button:hover {
-    background: rgb(71, 72, 66);
-    color: #C0C4CC;
-  }
-  .dark .button:active {
-    background: #303133;
+    background: transparent;
   }
 </style>

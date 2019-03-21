@@ -1,5 +1,5 @@
 <template>
-  <div class="aidou" :class="theme">
+  <div class="aidou">
     <el-dialog
       :visible.sync="showUpload"
       :show-close="false"
@@ -27,7 +27,6 @@
 </template>
 
 <script>
-  import { mapState } from 'vuex'
   import bus from '../../bus'
 
   const msg = 'jpg | png | gif | jpeg only, max size 5M'
@@ -39,11 +38,6 @@
         message: msg,
         error: false
       }
-    },
-    computed: {
-      ...mapState({
-        'theme': state => state.preferences.theme
-      })
     },
     created () {
       this.$nextTick(() => {
@@ -92,11 +86,21 @@
 <style>
   .el-upload__tip {
     text-align: center;
+    color: var(--sideBarColor);
   }
   .el-upload__tip.error {
     color: #E6A23C;
   }
-  .dark .el-upload-dragger {
-    background: rgb(39, 39, 39);
+  .el-upload-dragger {
+    background: var(--itemBgColor);
+    & .el-upload__text {
+      color: var(--sideBarColor);
+      & em {
+        color: var(--themeColor);
+      }
+    }
+  }
+  .el-upload-dragger:hover {
+    border-color: var(--themeColor);
   }
 </style>

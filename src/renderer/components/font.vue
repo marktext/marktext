@@ -1,5 +1,5 @@
 <template>
-  <div class="font" :class="theme">
+  <div class="font">
     <el-dialog 
       :visible.sync="showFontSetting"
       :show-close="false"
@@ -56,7 +56,6 @@
     },
     computed: {
       ...mapState({
-        'theme': state => state.preferences.theme,
         'fontSize': state => state.preferences.fontSize,
         'lightColor': state => state.preferences.lightColor,
         'darkColor': state => state.preferences.darkColor,

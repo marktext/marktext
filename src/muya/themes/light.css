@@ -294,9 +294,7 @@ li.ag-paragraph {
   color: var(--themeColor);
 }
 
-li > p,
-li th,
-li td {
+li > * {
   color: var(--editorColor);
 }
 
@@ -449,10 +447,6 @@ blockquote .ag-hide.ag-math > .ag-math-render {
 
 #ag-editor-id pre.ag-active.ag-html-block {
   background: var(--codeBlockBgColor);
-}
-
-.ag-color-dark {
-  color: #303133;
 }
 
 /* prismjs default theme */

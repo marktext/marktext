@@ -1,7 +1,7 @@
 <template>
   <div
     class="title-bar"
-    :class="[{ 'active': active }, theme, { 'frameless': titleBarStyle === 'custom' }, { 'isOsx': platform === 'darwin' }]"
+    :class="[{ 'active': active }, { 'frameless': titleBarStyle === 'custom' }, { 'isOsx': platform === 'darwin' }]"
   >
     <div class="title">
       <span v-if="!filename">Mark Text</span>
@@ -123,7 +123,6 @@
       pathname: String,
       active: Boolean,
       wordCount: Object,
-      theme: String,
       platform: String,
       isSaved: Boolean
     },

@@ -50,15 +50,15 @@ export default {
       animation: 3s infinite linear;
   }
   .loader span:nth-child(1) {
-    background: #F2F6FC;
+    background: var(--themeColor);
     animation: kiri 1.2s infinite linear;
   }
   .loader span:nth-child(2) {
     z-index: 100;
-    background: #EBEEF5;
+    background: var(--highlightColor);
   }
   .loader span:nth-child(3) {
-    background: #C0C4CC;
+    background: var(--selectionColor);
     animation: kanan 1.2s infinite linear;
   }
 
