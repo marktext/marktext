@@ -22,7 +22,7 @@ export const dark = `
   --itemBgColor: rgba(71, 78, 86, 0.6);
   --floatBgColor: #3c4650;
   --floatHoverColor: rgba(255, 255, 255, .04);
-  --floatBorderColor: rgba(0, 0, 0, .1);
+  --floatBorderColor: rgba(0, 0, 0, .03);
   --editorAreaWidth: 700px;
 }
 /**

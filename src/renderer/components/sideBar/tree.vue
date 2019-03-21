@@ -91,11 +91,14 @@
       </div>
     </div>
     <div v-else class="open-project">
-      <a href="javascript:;" @click="openFolder" title="Open Folder">
-        <svg class="icon" aria-hidden="true">
-          <use xlink:href="#icon-create-project"></use>
+      <div class="button-group">
+        <svg aria-hidden="true" :viewBox="FolderIcon.viewBox">
+          <use :xlink:href="FolderIcon.url"></use>
         </svg>
-      </a>
+        <a href="javascript:;" @click="openFolder">
+          Open Folder
+        </a>
+      </div>
     </div>
   </div>
 </template>
@@ -108,11 +111,13 @@
   import { mapState } from 'vuex'
   import bus from '../../bus'
   import { createFileOrDirectoryMixins } from '../../mixins'
+  import FolderIcon from '@/assets/icons/undraw_folder.svg'
 
   export default {
     mixins: [createFileOrDirectoryMixins],
     data () {
       this.depth = 0
+      this.FolderIcon = FolderIcon
       return {
         active: 'tree', // tree or list
         showDirectories: true,
@@ -308,26 +313,29 @@
   .open-project {
     flex: 1;
     display: flex;
+    flex-direction: column;
     justify-content: space-around;
     align-items: center;
-    margin-top: -100px;
-    & > a {
-      width: 35px;
-      height: 35px;
-      border-radius: 50%;
-      text-decoration: none;
-      background: var(--selectionColor);
-      transition: all .3s ease;
+    padding-bottom: 100px;
+    & .button-group {
       display: flex;
-      justify-content: space-around;
+      flex-direction: column;
       align-items: center;
-      & > svg {
-        width: 18px;
-        height: 18px;
-        color: #fff;
-      }
-      &:hover {
-        background: var(--themeColor);
+    }
+    & svg {
+      width: 120px;
+    }
+    & a {
+      text-decoration: none;
+      background: var(--themeColor);
+      box-shadow: 0 0 8px 0 var(--selectionColor);
+      display: block;
+      padding: 4px 7px;
+      border-radius: 5px;
+      margin-top: 20px;
+      color: #fff;
+      &:active {
+        opacity: .5;
       }
     }
   }

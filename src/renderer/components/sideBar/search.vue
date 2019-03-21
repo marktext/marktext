@@ -20,7 +20,11 @@
         ></list-file>
       </div>
       <div class="empty" v-else>
-        <span>{{ !keyword ? 'Input search keyword' : 'No matched files' }}</span>
+        <div class="no-data">
+          <svg :viewBox="EmptyIcon.viewBox" aria-hidden="true">
+            <use :xlink:href="EmptyIcon.url" />
+          </svg>
+        </div>
       </div>
     </div>
 </template>
@@ -28,9 +32,11 @@
 <script>
   import { mapGetters } from 'vuex'
   import ListFile from './listFile.vue'
+  import EmptyIcon from '@/assets/icons/undraw_empty.svg'
 
   export default {
     data () {
+      this.EmptyIcon = EmptyIcon
       return {
         keyword: '',
         searchResult: []
@@ -69,6 +75,7 @@
     height: 30px;
     border: 1px solid var(--floatBorderColor);
     background: var(--floatBorderColor);
+    border-radius: 15px;
     box-sizing: border-box;
     align-items: center;
     & > input {
@@ -87,7 +94,7 @@
       flex-shrink: 0;
       width: 20px;
       height: 20px;
-      margin-right: 5px;
+      margin-right: 10px;
       &:hover {
         color: var(--iconColor);
       }
@@ -105,5 +112,13 @@
   .empty {
     font-size: 14px;
     text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    padding-bottom: 100px;
+    & .no-data svg {
+      fill: var(--themeColr);
+      width: 120px;
+    }
   }
 </style>
