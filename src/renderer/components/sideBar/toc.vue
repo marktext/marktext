@@ -90,6 +90,7 @@
       padding-bottom: 50px;
       & svg {
         width: 120px;
+        fill: var(--themeColor);
       }
     }
   }

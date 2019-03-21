@@ -324,6 +324,7 @@
     }
     & svg {
       width: 120px;
+      fill: var(--themeColor);
     }
     & a {
       text-decoration: none;

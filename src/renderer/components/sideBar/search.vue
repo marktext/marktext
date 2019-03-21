@@ -117,7 +117,7 @@
     justify-content: space-around;
     padding-bottom: 100px;
     & .no-data svg {
-      fill: var(--themeColr);
+      fill: var(--themeColor);
       width: 120px;
     }
   }

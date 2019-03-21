@@ -42,6 +42,7 @@
       align-items: center;
       & svg {
         width: 200px;
+        fill: var(--themeColor);
       }
       & a {
         text-decoration: none;
