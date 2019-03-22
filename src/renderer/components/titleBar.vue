@@ -302,7 +302,8 @@
     font-size: 14px;
     color: var(--editorColor30);
     height: 20px;
-    line-height: 20px;
+    text-align: center;
+    line-height: 24px;
     padding: 0px 5px;
     box-sizing: border-box;
     border-radius: 4px;

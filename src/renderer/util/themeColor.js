@@ -195,13 +195,91 @@ li.ag-bullet-list-item::before {
   height: 2px;
   left: -18px;
   top: 15px;
-  background: var(--themeColor);
+  background: var(--editorColor);
 }
 blockquote.ag-paragraph {
   background: rgb(233, 233, 233);
 }
 blockquote.ag-paragraph::before {
   content: none;
+}
+li.ag-paragraph {
+  color: var(--editorColor);
+}
+/*task list*/
+li.ag-task-list-item {
+  list-style-type: none;
+  position: relative;
+}
+
+li.ag-task-list-item > input[type=checkbox] {
+  position: absolute;
+  cursor: pointer;
+  width: 16px;
+  height: 16px;
+  margin: 4px 0px 0px;
+  top: 2px;
+  left: -22px;
+  transform-origin: center;
+  transform: rotate(-90deg);
+  transition: all .2s ease;
+}
+
+li.ag-task-list-item > input.ag-checkbox-checked {
+  transform: rotate(0);
+  opacity: .5;
+}
+
+li.ag-task-list-item > input[type=checkbox]::before {
+  content: '';
+  width: 16px;
+  height: 16px;
+  box-sizing: border-box;
+  display: inline-block;
+  border: 2px solid var(--editorColor);
+  border-radius: 2px;
+  background-color: var(--editorBgColor);
+  position: absolute;
+  top: 0;
+  left: 0;
+  transition: all .2s ease;
+}
+
+li.ag-task-list-item > input.ag-checkbox-checked::before {
+  border: transparent;
+  background-color: var(--editorColor);
+}
+
+li.ag-task-list-item > input::after {
+  content: '';
+  transform: rotate(-45deg) scale(0);
+  width: 9px;
+  height: 5px;
+  border: 2px solid #fff;
+  border-top: none;
+  border-right: none;
+  position: absolute;
+  display: inline-block;
+  top: 1px;
+  left: 5px;
+  transition: all .2s ease;
+}
+
+li.ag-task-list-item > input.ag-checkbox-checked::after {
+  transform: rotate(-45deg) scale(1);
+}
+/*horizontal line*/
+p:not(.ag-active)[data-role="hr"]::before {
+  content: '';
+  position: absolute;
+  width: 50%;
+  display: block;
+  left: 50%;
+  top: 50%;
+  height: 2px;
+  box-sizing: border-box;
+  border-bottom: 2px dashed var(--editorColor50);
+  transform: translateX(-50%) translateY(-50%);
 }
 `
 
@@ -229,5 +307,83 @@ export const graphite = `
   --floatHoverColor: rgba(43, 48, 50, .04);
   --floatBorderColor: rgba(0, 0, 0, .03);
   --editorAreaWidth: 700px;
+}
+li.ag-paragraph {
+  color: var(--editorColor);
+}
+/*task list*/
+li.ag-task-list-item {
+  list-style-type: none;
+  position: relative;
+}
+
+li.ag-task-list-item > input[type=checkbox] {
+  position: absolute;
+  cursor: pointer;
+  width: 16px;
+  height: 16px;
+  margin: 4px 0px 0px;
+  top: 2px;
+  left: -22px;
+  transform-origin: center;
+  transform: rotate(-90deg);
+  transition: all .2s ease;
+}
+
+li.ag-task-list-item > input.ag-checkbox-checked {
+  transform: rotate(0);
+  opacity: .5;
+}
+
+li.ag-task-list-item > input[type=checkbox]::before {
+  content: '';
+  width: 16px;
+  height: 16px;
+  box-sizing: border-box;
+  display: inline-block;
+  border: 2px solid var(--editorColor);
+  border-radius: 2px;
+  background-color: var(--editorBgColor);
+  position: absolute;
+  top: 0;
+  left: 0;
+  transition: all .2s ease;
+}
+
+li.ag-task-list-item > input.ag-checkbox-checked::before {
+  border: transparent;
+  background-color: var(--editorColor);
+}
+
+li.ag-task-list-item > input::after {
+  content: '';
+  transform: rotate(-45deg) scale(0);
+  width: 9px;
+  height: 5px;
+  border: 2px solid #fff;
+  border-top: none;
+  border-right: none;
+  position: absolute;
+  display: inline-block;
+  top: 1px;
+  left: 5px;
+  transition: all .2s ease;
+}
+
+li.ag-task-list-item > input.ag-checkbox-checked::after {
+  transform: rotate(-45deg) scale(1);
+}
+/*horizontal line*/
+p:not(.ag-active)[data-role="hr"]::before {
+  content: '';
+  position: absolute;
+  width: 100%;
+  display: block;
+  left: 50%;
+  top: 50%;
+  height: 2px;
+  box-sizing: border-box;
+  border-bottom: 2px dashed var(--editorColor50);
+  transform: translateX(-50%) translateY(-50%);
 }
 `

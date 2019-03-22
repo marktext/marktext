@@ -221,7 +221,7 @@
     top: 0;
     right: 20px;
     box-shadow: 0 4px 8px 0 var(--floatBorderColor);
-    border: 1px solide var(--floatBorderColor);
+    border: 1px solid var(--floatBorderColor);
     border-radius: 5px;
     background: var(--floatBgColor);
   }
