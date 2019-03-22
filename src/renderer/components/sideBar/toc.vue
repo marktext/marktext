@@ -6,7 +6,6 @@
       :data="toc"
       :props="defaultProps"
       @node-click="handleClick"
-      default-expand-all
       :expand-on-click-node="false"
       :indent="10"
     ></el-tree>
