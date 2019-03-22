@@ -1,6 +1,6 @@
 /* Common CSS use by both light and dark themes */
 :root {
-  --titleBarHeight: 40px;
+  --titleBarHeight: 32px;
   --editorAreaWidth: 700px;
   /*editor*/
   --themeColor: rgba(33, 181, 111, 1);

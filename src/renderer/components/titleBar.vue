@@ -284,6 +284,7 @@
     right: 0;
     width: 100px;
     display: flex;
+    align-items: center;
     flex-direction: row-reverse;
   }
   .left-toolbar {
@@ -302,7 +303,6 @@
     color: var(--editorColor30);
     height: 20px;
     line-height: 20px;
-    margin-top: 10px;
     padding: 0px 5px;
     box-sizing: border-box;
     border-radius: 4px;
