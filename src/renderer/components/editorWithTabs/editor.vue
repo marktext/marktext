@@ -564,6 +564,7 @@
     left: 0;
     bottom: 0;
     background: rgba(0, 0, 0, .8);
+    z-index: 11;
     & .icon-close {
       z-index: 1000;
       width: 30px;
