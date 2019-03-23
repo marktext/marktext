@@ -82,8 +82,10 @@ class Keyboard {
           event.key === EVENT_KEYS.ArrowDown
         )
       ) {
+        if (!this.shownFloat.has('ag-format-picker') && !this.shownFloat.has('ag-table-picker')) {
+          event.preventDefault()
+        }
         event.stopPropagation()
-        event.preventDefault()
         return
       }
       switch (event.key) {
