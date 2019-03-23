@@ -264,9 +264,11 @@
         })
 
         this.editor.on('format-click', ({ event, formatType, data }) => {
-          if (formatType === 'link' && event.metaKey === true) {
+          const isOsx = this.platform === 'darwin'
+          const ctrlOrMeta = (isOsx && event.metaKey) || (!isOsx && event.ctrlKey)
+          if (formatType === 'link' && ctrlOrMeta) {
             this.$store.dispatch('FORMAT_LINK_CLICK', { data, dirname: window.DIRNAME })
-          } else if (formatType === 'image' && event.metaKey === true) {
+          } else if (formatType === 'image' && ctrlOrMeta) {
             if (this.imageViewer) {
               this.imageViewer.destroy()
             }
