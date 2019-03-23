@@ -1,7 +1,6 @@
 <template>
     <div
       class="editor-tabs"
-      :class="theme"
     >
       <ul class="tabs-container">
         <li
@@ -37,7 +36,6 @@
     mixins: [tabsMixins],
     computed: {
       ...mapState({
-        theme: state => state.preferences.theme,
         currentFile: state => state.editor.currentFile,
         tabs: state => state.editor.tabs
       })
@@ -54,7 +52,6 @@
   .editor-tabs {
     width: 100%;
     height: 35px;
-    background: var(--lightBarColor);
     user-select: none;
   }
   .tabs-container {
@@ -70,21 +67,13 @@
     & > li {
       position: relative;
       padding: 0 8px;
-      color: var(--secondaryColor);
+      color: var(--editorColor50);
       font-size: 12px;
       line-height: 35px;
       height: 35px;
-      background: var(--lightTabColor);
+      background: var(--floatBgColor);
       display: flex;
       align-items: center;
-      &:not(:last-child):before {
-        content: '';
-        position: absolute;
-        top: 20%;
-        right: 0;
-        border-right: 1px solid #fff;
-        height: 60%;
-      }
       & > svg {
         opacity: 0;
       }
@@ -99,7 +88,7 @@
       }
     }
     & > li.active {
-      background: #fff;
+      background: var(--itemBgColor);
       &:not(:last-child):after {
         content: '';
         position: absolute;
@@ -107,7 +96,7 @@
         bottom: 0;
         right: 0;
         height: 2px;
-        background: var(--primary);
+        background: var(--themeColor);
       }
       & > svg {
         opacity: 1;
@@ -123,18 +112,6 @@
       align-items: center;
       justify-content: space-around;
       cursor: pointer;
-    }
-  }
-  .editor-tabs.dark {
-    background: var(--darkBgColor);
-  }
-  .editor-tabs.dark ul li {
-    background: var(--darkBgColor);
-    &:not(:last-child):before {
-      border-right-color: var(--darkHoverColor);
-    }
-    &.active {
-      color: var(--lightBorder);
     }
   }
 </style>

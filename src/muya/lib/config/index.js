@@ -218,7 +218,6 @@ export const EXPORT_DOMPURIFY_CONFIG = {
 
 export const MUYA_DEFAULT_OPTION = {
   focusMode: false,
-  theme: 'light',
   markdown: '',
   preferLooseListItem: true,
   autoPairBracket: true,

@@ -2,18 +2,17 @@
   <div
     class="editor-container"
   >
-    <title-bar
-      :project="projectTree"
-      :pathname="pathname"
-      :filename="filename"
-      :active="windowActive"
-      :word-count="wordCount"
-      :theme="theme"
-      :platform="platform"
-      :is-saved="isSaved"
-    ></title-bar>
+    <side-bar></side-bar>
     <div class="editor-middle">
-      <side-bar></side-bar>
+      <title-bar
+        :project="projectTree"
+        :pathname="pathname"
+        :filename="filename"
+        :active="windowActive"
+        :word-count="wordCount"
+        :platform="platform"
+        :is-saved="isSaved"
+      ></title-bar>
       <recent
         v-if="!hasCurrentFile && init"
       ></recent>
@@ -22,34 +21,28 @@
         :markdown="markdown"
         :filename="filename"
         :cursor="cursor"
-        :theme="theme"
         :source-code="sourceCode"
         :show-tab-bar="showTabBar"
         :text-direction="textDirection"
       ></editor-with-tabs>
+      <aidou></aidou>
+      <upload-image></upload-image>
+      <about-dialog></about-dialog>
+      <font></font>
+      <rename></rename>
+      <tweet></tweet>
+      <import-modal></import-modal>
     </div>
-    <bottom-bar
-      :source-code="sourceCode"
-      :theme="theme"
-    ></bottom-bar>
-    <aidou></aidou>
-    <upload-image></upload-image>
-    <about-dialog></about-dialog>
-    <font></font>
-    <rename></rename>
-    <tweet></tweet>
-    <import-modal></import-modal>
   </div>
 </template>
 
 <script>
   import { remote } from 'electron'
-  import { addStyles } from '@/util/theme'
+  import { addStyles, addThemeStyle } from '@/util/theme'
   import Recent from '@/components/recent'
   import EditorWithTabs from '@/components/editorWithTabs'
   import TitleBar from '@/components/titleBar'
   import SideBar from '@/components/sideBar'
-  import BottomBar from '@/components/bottomBar'
   import Aidou from '@/components/aidou/aidou'
   import UploadImage from '@/components/uploadImage'
   import AboutDialog from '@/components/about'
@@ -69,7 +62,6 @@
       EditorWithTabs,
       TitleBar,
       SideBar,
-      BottomBar,
       UploadImage,
       AboutDialog,
       Font,
@@ -102,6 +94,13 @@
       ]),
       hasCurrentFile () {
         return this.markdown !== undefined
+      }
+    },
+    watch: {
+      theme: function (value, oldValue) {
+        if (value !== oldValue) {
+          addThemeStyle(value)
+        }
       }
     },
     created () {
@@ -182,7 +181,15 @@
 
 <style scoped>
   .editor-container {
-    padding-top: var(--titleBarHeight);
+    display: flex;
+    flex-direction: row;
+    position: absolute;
+    width: 100vw;
+    height: 100vh;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
   }
   .editor-container .hide {
     z-index: -1;
@@ -192,7 +199,9 @@
   }
   .editor-middle {
     display: flex;
-    min-height: calc(100vh - var(--titleBarHeight));
+    flex: 1;
+    min-height: 100vh;
+    position: relative;
     & > .editor {
       flex: 1;
     }

@@ -88,16 +88,6 @@ class BaseFloat {
       }
     }
 
-    const themeChange = theme => {
-      const { container, floatBox } = this
-      ;[container, floatBox].forEach(ele => {
-        if (!ele.classList.contains(theme)) {
-          ele.classList.remove(theme === 'dark' ? 'light' : 'dark')
-          ele.classList.add(theme)
-        }
-      })
-    }
-
     eventCenter.attachDOMEvent(document, 'click', this.hide.bind(this))
     eventCenter.attachDOMEvent(floatBox, 'click', event => {
       event.stopPropagation()
@@ -105,7 +95,6 @@ class BaseFloat {
     })
     eventCenter.attachDOMEvent(container, 'keydown', keydownHandler)
     eventCenter.attachDOMEvent(container, 'scroll', scrollHandler)
-    eventCenter.subscribe('theme-change', themeChange)
   }
 
   hide () {

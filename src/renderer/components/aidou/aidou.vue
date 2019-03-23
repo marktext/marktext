@@ -1,5 +1,5 @@
 <template>
-  <div class="aidou" :class="theme">
+  <div class="aidou">
     <el-dialog 
       :visible.sync="showAiDou"
       :show-close="false"
@@ -104,9 +104,6 @@
       ...mapState({
         'aiList': state => state.aidou.aiList,
         'aiLoading': state => state.aidou.aiLoading
-      }),
-      ...mapState({
-        'theme': state => state.preferences.theme
       }),
       emojis () {
         return this.aiList.map(e => {
@@ -253,14 +250,17 @@
     align-items: center;
     height: auto;
     padding: 5px;
-    background: #fff;
-    box-shadow: 0 3px 8px rgba(0, 0, 0, .1);
-    border: 1px solid #eeeeee;
+    color: var(--editorColor);
+    background: var(--floatBgColor);
+    box-shadow: 0 3px 8px 3px var(--floatHoverColor);
+    border: 1px solid var(--floatBorderColor);
     border-radius: 3px;
   }
   .input-wrapper {
     display: flex;
     width: 100%;
+    border: 1px solid var(--sideBarTextColor);
+    border-radius: 14px;
   }
   .search {
     width: 100%;
@@ -270,18 +270,19 @@
     font-size: 14px;
     padding: 0 8px;
     margin: 0 10px;
-    color: #606266;
+    color: var(--editorColor);
+    background: transparent;
   }
   .search-wrapper svg {
     cursor: pointer;
     margin: 0 5px;
     width: 30px;
     height: 30px;
-    color: #606266;
+    color: var(--iconColor);
     transition: all .3s ease-in-out;
   }
   .search-wrapper svg:hover {
-    color: var(--activeColor);
+    color: var(--themeColor);
   }
   ul.history {
     display: flex;
@@ -312,12 +313,12 @@
   }
   ul.history .clear-history span {
     font-size: 12px;
-    color: #C0C4CC;
+    color: var(--themeColor);
     text-align: center;
     cursor: pointer;
   }
   ul.history li.active {
-    background: #EBEEF5;
+    background: var(--floatHoverColor);
   }
   ul.history:hover li {
     background: transparent;
@@ -326,7 +327,7 @@
     display: block;
   }
   ul.history li:hover {
-    background: #EBEEF5;
+    background: var(--floatHoverColor);
   }
   .image-container {
     height: 410px;
@@ -358,7 +359,7 @@
     display: none;
   }
   .image-container .img-wrapper > svg.active {
-    color: var(--activeColor);
+    color: var(--themeColor);
   }
   .image-container .img-wrapper:hover > svg {
     display: block;
@@ -378,20 +379,4 @@
   .fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
     opacity: 0;
   }
-  /* style for dark theme */
-  .dark .search-wrapper {
-    background: var(--darkInputBgColor);
-    border-color: transparent;
-    & input {
-      background: transparent;
-      color: var(--darkInputColor);
-    }
-  }
-  .dark ul.history li.active {
-    background: rgb(39, 39, 39);
-  }
-  .dark ul.history li:hover {
-    background: rgb(39, 39, 39);
-  }
-
 </style>

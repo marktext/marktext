@@ -88,7 +88,8 @@
       ]
     },
     "mac": {
-      "icon": "resources/icons/icon.icns"
+      "icon": "resources/icons/icon.icns",
+      "darkModeSupport": true
     },
     "win": {
       "icon": "resources/icons/icon.ico",
@@ -143,7 +144,7 @@
     "chokidar": "^2.1.2",
     "codemirror": "^5.44.0",
     "command-exists": "^1.2.8",
-    "diacritics-map": "^0.1.0",
+    "dayjs": "^1.8.10",
     "dompurify": "^1.0.10",
     "electron-is-accelerator": "^0.1.2",
     "element-resize-detector": "^1.2.0",

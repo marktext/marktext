@@ -1,6 +1,5 @@
 <template>
   <div class="search-bar"
-    :class="theme"
     @click.stop="noop"
     v-show="showSearch"
   >
@@ -29,7 +28,7 @@
         :visible-arrow="false"
         :open-delay="1000"
       >
-        <button class="button" @click="caseClick" :class="{ 'active': caseSensitive }">
+        <button class="button left" @click="caseClick" :class="{ 'active': caseSensitive }">
           <svg class="icon" aria-hidden="true">
             <use xlink:href="#icon-case"></use>
           </svg>
@@ -46,19 +45,19 @@
         >
         <span class="search-result">{{`${highlightIndex + 1} / ${highlightCount}`}}</span>
       </div>
-      <button class="button" @click="find('prev')">
+      <button class="button right" @click="find('prev')">
         <svg class="icon" aria-hidden="true">
           <use xlink:href="#icon-arrow-up"></use>
         </svg>
       </button>
-      <button class="button" @click="find('next')">
+      <button class="button right" @click="find('next')">
         <svg class="icon" aria-hidden="true">
           <use xlink:href="#icon-arrowdown"></use>
         </svg>
       </button>
     </section>
     <section class="replace" v-if="type === 'replace'">
-      <button class="button active" @click="typeClick">
+      <button class="button active left" @click="typeClick">
         <svg class="icon" aria-hidden="true">
           <use xlink:href="#icon-findreplace"></use>
         </svg>
@@ -73,7 +72,7 @@
         :visible-arrow="false"
         :open-delay="1000"
       >
-        <button class="button" @click="replace(false)">
+        <button class="button right" @click="replace(false)">
           <svg class="icon" aria-hidden="true">
             <use xlink:href="#icon-all-inclusive"></use>
           </svg>
@@ -86,7 +85,7 @@
         :visible-arrow="false"
         :open-delay="1000"
       >
-        <button class="button" @click="replace(true)">
+        <button class="button right" @click="replace(true)">
           <svg class="icon" aria-hidden="true">
             <use xlink:href="#icon-replace"></use>
           </svg>
@@ -101,9 +100,6 @@
   import { mapState } from 'vuex'
 
   export default {
-    props: {
-      theme: String
-    },
     data () {
       return {
         showSearch: false,
@@ -219,8 +215,15 @@
 
 <style scoped>
   .search-bar {
-    width: 100%;
+    position: absolute;
+    width: 400px;
     padding: 5px;
+    top: 0;
+    right: 20px;
+    box-shadow: 0 4px 8px 0 var(--floatBorderColor);
+    border: 1px solid var(--floatBorderColor);
+    border-radius: 5px;
+    background: var(--floatBgColor);
   }
   .search {
     margin-bottom: 5px;
@@ -228,6 +231,7 @@
   .search, .replace {
     height: 30px;
     display: flex;
+    padding: 0 10px;
   }
   .search-bar .button {
     outline: none;
@@ -236,65 +240,55 @@
     background: transparent;
     box-sizing: border-box;
     height: 30px;
-    width: 50px;
+    width: 30px;
     text-align: center;
-    padding: 3px 5px;
+    padding: 5px;
     display: inline-block;
-    margin-right: 5px;
     font-weight: 500;
-    color: #606266;
+    color: var(--iconColor);
+    &.left {
+      margin-right: 10px;
+    }
+    &.right {
+      margin-left: 10px;
+    }
   }
   .button.active {
-    color: rgb(242, 134, 94);
+    color: var(--themeColor);
   }
   .search-bar .button > svg {
-    width: 1.6em;
-    height: 1.6em;
-  }
-  .search-bar .button:hover {
-    background: #EBEEF5;
+    width: 20px;
+    height: 20px;
   }
   .search-bar .button:active {
-    background: #DCDFE6;
+    opacity: .5;
   }
   .input-wrapper {
     display: flex;
     flex: 1;
     position: relative;
     margin-right: 5px;
+    background: var(--floatHoverColor);
+    border-radius: 4px;
+    overflow: hidden;
   }
   .input-wrapper .search-result {
     position: absolute;
     top: 6px;
-    right: 5px;
+    right: 10px;
     font-size: 12px;
-    color: #C0C4CC;
+    color: var(--sideBarTitleColor);
   }
   .input-wrapper input {
     flex: 1;
+    padding: 0 8px;
     height: 30px;
     outline: none;
     border: none;
     box-sizing: border-box;
     font-size: 14px;
-    color: #606266;
+    color: var(--editorColor);
     padding: 0 8px;
-    background: rgb(252, 252, 252);
-  }
-  /* css for dark theme*/
-  .dark {
-    caret-color: #efefef;
-    color: #606266;
-  }
-  .dark input {
-    background: rgb(54, 55, 49);
-    color: #C0C4CC;
-  }
-  .dark .button:hover {
-    background: rgb(71, 72, 66);
-    color: #C0C4CC;
-  }
-  .dark .button:active {
-    background: #303133;
+    background: transparent;
   }
 </style>

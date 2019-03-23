@@ -4,7 +4,7 @@
     class="side-bar-file"
     :style="{'padding-left': `${depth * 5 + 15}px`, 'opacity': file.isMarkdown ? 1 : 0.75 }"
     @click="handleFileClick()"
-    :class="[{'current': currentFile.pathname === file.pathname, 'active': file.id === activeItem.id }, theme]"
+    :class="[{'current': currentFile.pathname === file.pathname, 'active': file.id === activeItem.id }]"
     ref="file"
   >
     <file-icon
@@ -53,7 +53,6 @@
     },
     computed: {
       ...mapState({
-        'theme': state => state.preferences.theme,
         'renameCache': state => state.project.renameCache,
         'activeItem': state => state.project.activeItem,
         'clipboard': state => state.project.clipboard,
@@ -103,7 +102,7 @@
     box-sizing: border-box;
     padding-right: 15px;
     &:hover {
-      background: var(--extraLightBorder);
+      background: var(--sideBarItemHoverBgColor);
     }
     & > span {
       overflow: hidden;
@@ -115,7 +114,7 @@
       position: absolute;
       display: block;
       left: 0;
-      background: var(--activeColor);
+      background: var(--themeColor);
       width: 2px;
       height: 0;
       top: 50%;
@@ -126,19 +125,21 @@
   .side-bar-file.current::before {
     height: 100%;
   }
-  .side-bar-file.active {
-    background: var(--lightBorder);
+  .side-bar-file.current > span {
+    color: var(--themeColor);
+  }
+  .side-bar-file.active > span {
+    color: var(--sideBarTitleColor);
   }
   input.rename {
     height: 22px;
     outline: none;
     margin: 5px 0;
-    border: 1px solid var(--lightBorder);
+    padding: 0 8px;
+    color: var(--sideBarColor);
+    border: 1px solid var(--floatBorderColor);
+    background: var(--floatBorderColor);
     width: 100%;
     border-radius: 3px;
-  }
-  .dark.side-bar-file:hover {
-    background: var(--darkHoverColor);
-    color: var(--lightTabColor);
   }
 </style>

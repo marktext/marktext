@@ -1,5 +1,5 @@
 <template>
-  <div class="tweet-dialog" :class="theme">
+  <div class="tweet-dialog">
     <el-dialog
       :visible.sync="showTweetDialog"
       :show-close="false"
@@ -68,7 +68,6 @@
 
 <script>
   import { shell } from 'electron'
-  import { mapState } from 'vuex'
   import bus from '../../bus'
 
   export default {
@@ -78,11 +77,6 @@
         value: '',
         selectedFace: 'smile'
       }
-    },
-    computed: {
-      ...mapState({
-        'theme': state => state.preferences.theme
-      })
     },
     created () {
       bus.$on('tweetDialog', this.showDialog)
@@ -127,8 +121,7 @@
 
 <style>
   .tweet-dialog {
-    width: 450px;
-    color: var(--regularColor);
+    color: var(--sideBarColor);
     & .title {
       font-size: 24px;
     }
@@ -136,11 +129,14 @@
       border-top-left-radius: 5px;
       border-top-right-radius: 5px;
     }
+    & .el-dialog__body {
+      color: var(--sideBarColor);
+    }
   }
-  .feeling, .feedback {
+  .tweet-dialog .feeling, .tweet-dialog .feedback {
     font-size: 16px;
   }
-  .feeling {
+  .tweet-dialog .feeling {
     & ul {
       display: flex;
       list-style: none;
@@ -163,7 +159,7 @@
       color: rgb(255, 204, 0);
     }
   }
-  .feedback {
+  .tweet-dialog .feedback {
     & > textarea {
       width: 100%;
       box-sizing: border-box;
@@ -171,19 +167,21 @@
       padding: .5rem;
       resize: none;
       outline: none;
-      border-color: var(--lightBorder);
+      border: 1px solid var(--floatBorderColor);
+      background: var(--floatBorderColor);
+      color: var(--editorColor);
       border-radius: 5px;
       font-size: 14px;
       height: 80px;
     }
   }
-  .button {
+  .tweet-dialog .button {
     display: flex;
     justify-content: space-between;
     align-items: center;
   }
-  .button a.twitter {
-    color: var(--secondaryColor);
+  .tweet-dialog .button a.twitter {
+    color: var(--themeColor);
     text-decoration: none;
     width: auto;
     height: 30px;
@@ -195,18 +193,18 @@
     background: #eee;
     cursor: not-allowed;
   }
-  .button a.active {
-    background: var(--primary);
+  .tweet-dialog .button a.active {
+    background: var(--themeColor);
     color: #fff;
   }
-  .button a.active {
+  .tweet-dialog .button a.active {
     cursor: pointer;
   }
-  .button a.github {
-    color: var(--secondaryColor);
+  .tweet-dialog .button a.github {
+    color: var(--iconColor);
     text-decoration: none;
     &:hover {
-      color: #1da1f2;
+      color: var(--themeColor);
     }
     & > svg {
       width: 1.4rem;
@@ -214,13 +212,8 @@
       vertical-align: bottom;
     }
   }
-  .tweet-dialog.dark textarea {
-    background: var(--darkInputBgColor);
-    border-color: transparent;
-    color: var(--darkInputColor);
-  }
-  .tweet-dialog.light .el-dialog__header {
-    background: var(--primary);
+  .tweet-dialog .el-dialog__header {
+    background: var(--themeColor);
     color: #fff;
   }
 </style>

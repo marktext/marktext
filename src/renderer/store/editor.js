@@ -2,30 +2,25 @@ import { clipboard, ipcRenderer, shell } from 'electron'
 import path from 'path'
 import bus from '../bus'
 import { hasKeys } from '../util'
+import listToTree from '../util/listToTree'
 import { createDocumentState, getOptionsFromState, getSingleFileState, getBlankFileState } from './help'
 import notice from '../services/notification'
-
-// HACK: When rewriting muya, create and update muya's TOC during heading parsing and pass it to the renderer process.
-import { getTocFromMarkdown } from 'muya/lib/utils/dirtyToc'
 
 const state = {
   lineEnding: 'lf',
   currentFile: {},
   tabs: [],
-  textDirection: 'ltr'
-}
-
-const getters = {
-  toc: state => {
-    const { markdown } = state.currentFile
-    return getTocFromMarkdown(markdown)
-  }
+  textDirection: 'ltr',
+  toc: []
 }
 
 const mutations = {
   // set search key and matches also index
   SET_SEARCH (state, value) {
     state.currentFile.searchMatches = value
+  },
+  SET_TOC (state, toc) {
+    state.toc = listToTree(toc)
   },
   SET_CURRENT_FILE (state, currentFile) {
     const oldCurrentFile = state.currentFile
@@ -463,7 +458,7 @@ const actions = {
   // },
 
   // Content change from realtime preview editor and source code editor
-  LISTEN_FOR_CONTENT_CHANGE ({ commit, state, rootState }, { markdown, wordCount, cursor, history }) {
+  LISTEN_FOR_CONTENT_CHANGE ({ commit, state, rootState }, { markdown, wordCount, cursor, history, toc }) {
     const { autoSave } = rootState.preferences
     const { projectTree } = rootState.project
     const { pathname, markdown: oldMarkdown, id } = state.currentFile
@@ -481,6 +476,8 @@ const actions = {
     if (cursor) commit('SET_CURSOR', cursor)
     // set history
     if (history) commit('SET_HISTORY', history)
+    // set toc
+    if (toc) commit('SET_TOC', toc)
 
     // change save status/save to file only when the markdown changed!
     if (markdown !== oldMarkdown) {
@@ -591,4 +588,4 @@ const actions = {
   }
 }
 
-export default { state, getters, mutations, actions }
+export default { state, mutations, actions }

@@ -1,8 +1,8 @@
 <template>
   <div
     class="editor-wrapper"
-    :class="[{ 'typewriter': typewriter, 'focus': focus, 'source': sourceCode }, theme]"
-    :style="{ 'color': theme === 'dark' ? darkColor : lightColor, 'lineHeight': lineHeight, 'fontSize': fontSize,
+    :class="[{ 'typewriter': typewriter, 'focus': focus, 'source': sourceCode }]"
+    :style="{ 'lineHeight': lineHeight, 'fontSize': fontSize,
     'font-family': editorFontFamily ? `${editorFontFamily}, ${defaultFontFamily}` : `${defaultFontFamily}` }"
     :dir="textDirection"
   >
@@ -20,9 +20,7 @@
       dir='ltr'
     >
       <div slot="title" class="dialog-title">
-        <svg class="icon" aria-hidden="true">
-          <use xlink:href="#icon-table-3d"></use>
-        </svg>
+        Insert Table
       </div>
       <el-form :model="tableChecker" :inline="true">
         <el-form-item label="Rows">
@@ -47,17 +45,16 @@
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogTableVisible = false" size="mini">
-          <svg class="icon" aria-hidden="true">
-            <use xlink:href="#icon-close"></use>
-          </svg>
+          Cancel
         </el-button>
         <el-button type="primary" @click="handleDialogTableConfirm" size="mini">
-          <svg class="icon" aria-hidden="true">
-            <use xlink:href="#icon-gou"></use>
-          </svg>
+          Ok
         </el-button>
       </div>
     </el-dialog>
+    <search
+      v-if="!sourceCode"
+    ></search>
   </div>
 </template>
 
@@ -71,22 +68,23 @@
   import ImagePathPicker from 'muya/lib/ui/imagePicker'
   import FormatPicker from 'muya/lib/ui/formatPicker'
   import bus from '../../bus'
+  import Search from '../search.vue'
   import { animatedScrollTo } from '../../util'
   import { showContextMenu } from '../../contextMenu/editor'
   import Printer from '@/services/printService'
   import { DEFAULT_EDITOR_FONT_FAMILY } from '@/config'
-  import { addThemeStyle } from '@/util/theme'
+
+  import 'muya/themes/light.css'
 
   const STANDAR_Y = 320
 
   export default {
+    components: {
+      Search
+    },
     props: {
       filename: {
         type: String
-      },
-      theme: {
-        type: String,
-        required: true
       },
       markdown: String,
       cursor: Object,
@@ -138,13 +136,6 @@
       focus: function (value) {
         this.editor.setFocusMode(value)
       },
-      theme: function (value, oldValue) {
-        const { editor } = this
-        if (value !== oldValue && editor) {
-          editor.setTheme(value)
-          addThemeStyle(value)
-        }
-      },
       fontSize: function (value, oldValue) {
         const { editor } = this
         if (value !== oldValue && editor) {
@@ -175,7 +166,6 @@
         this.printer = new Printer()
         const ele = this.$refs.editor
         const {
-          theme,
           focus: focusMode,
           markdown,
           preferLooseListItem,
@@ -196,7 +186,6 @@
         Muya.use(ImagePathPicker)
         Muya.use(FormatPicker)
         const { container } = this.editor = new Muya(ele, {
-          theme,
           focusMode,
           markdown,
           preferLooseListItem,
@@ -211,9 +200,6 @@
         if (typewriter) {
           this.scrollToCursor()
         }
-
-        // the default theme is light write in the store
-        addThemeStyle(theme)
 
         // listen for bus events.
         bus.$on('file-loaded', this.setMarkdownToEditor)
@@ -336,7 +322,7 @@
       },
 
       scrollToHeader (slug) {
-        return this.scrollToElement(`[data-id="${slug}"]`)
+        return this.scrollToElement(`#${slug}`)
       },
 
       scrollToElement (selector) {
@@ -445,7 +431,6 @@
         this.editor.copy(name)
       }
     },
-
     beforeDestroy () {
       bus.$off('file-loaded', this.setMarkdownToEditor)
       bus.$off('undo', this.handleUndo)
@@ -479,6 +464,31 @@
     height: 100%;
     position: relative;
     flex: 1;
+    color: var(--editorColor);
+    & .ag-dialog-table {
+      & .el-button {
+        width: 70px;
+      }
+      & .el-button:focus,
+      & .el-button:hover {
+        color: var(--themeColor);
+        border-color: var(--highlightColor);
+        background-color: var(--selectionColor);
+      }
+      & .el-button--primary {
+        color: #fff;
+        background: var(--themeColor);
+        border-color: var(--highlightColor);
+
+      }
+      & .el-input-number.is-controls-right .el-input__inner {
+        background: var(--itemBgColor);
+        color: var(--editorColor);
+      }
+      & .el-input-number.is-controls-right .el-input__inner:focus {
+        border-color: var(--themeColor);
+      }
+    }
   }
   .editor-wrapper.source {
     position: absolute;
@@ -496,26 +506,4 @@
     padding-top: calc(50vh - 136px);
     padding-bottom: calc(50vh - 54px);
   }
-  /* for dark theme */
-  .dark.editor-wrapper,
-  .dark.editor-wrapper #ag-editor-id {
-    background: var(--darkBgColor);
-  }
 </style>
-
-<style>
-  .ag-dialog-table {
-    border-radius: 5px;
-    box-shadow: 0 1px 3px rgba(230, 230, 230, .3);
-  }
-
-  .dark .ag-dialog-table {
-    box-shadow: 0 1px 3px rgba(0, 0, 0, .3);
-  }
-
-  .ag-dialog-table .dialog-title svg {
-    width: 1.5em;
-    height: 1.5em;
-  }
-</style>
-

@@ -99,7 +99,6 @@ html, body {
   font-size: 16px;
   color: #303133;
   line-height: 1.6;
-  background: rgb(252, 252, 252);
 }
 
 span code,
@@ -113,19 +112,6 @@ pre.ag-paragraph {
   font-size: 14px;
 }
 
-::-webkit-scrollbar {
-  background: rgb(252, 252, 252);
-}
-::-webkit-scrollbar:vertical {
-  width: 12px;
-}
-::-webkit-scrollbar-thumb {
-  background: #EBEEF5;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: #E1E4EA;
-}
-
 #ag-editor-id {
   max-width: var(--editorAreaWidth);
   margin: 0 auto;
@@ -136,17 +122,16 @@ pre.ag-paragraph {
 
 #ag-editor-id, [contenteditable] {
   outline: none;
-  caret-color: #000000;
 }
 
 .ag-gray {
-  color: #C0C4CC;
+  color: var(--editorColor30);
   text-decoration: none;
 }
 
 .v-modal {
   backdrop-filter: blur(5px);
-  background: rgba(230, 230, 230, .9);
+  background: var(--floatBorderColor);
 }
 
 body>*:first-child {
@@ -158,7 +143,7 @@ body>*:last-child {
 }
 
 a {
-  color: #4183C4;
+  color: var(--themeColor);
 }
 
 h1,
@@ -216,35 +201,27 @@ h6 code {
 }
 
 h1 {
-  padding-bottom: .3em;
-  font-size: 2.25em;
-  line-height: 1.2;
-  border-bottom: 1px solid #eee;
+  font-size: 40px;
 }
 
 h2 {
-  padding-bottom: .3em;
-  font-size: 1.75em;
-  line-height: 1.225;
-  border-bottom: 1px solid #eee;
+  font-size: 32px;
 }
 
 h3 {
-  font-size: 1.5em;
-  line-height: 1.43;
+  font-size: 28px;
 }
 
 h4 {
-  font-size: 1.25em;
+  font-size: 24px;
 }
 
 h5 {
-  font-size: 1em;
+  font-size: 20px;
 }
 
 h6 {
-  font-size: 1em;
-  color: #777;
+  font-size: 16px;
 }
 
 p,
@@ -269,10 +246,6 @@ hr {
   border: 0 none;
   overflow: hidden;
   box-sizing: content-box;
-}
-
-p:not(.ag-active)[data-role="hr"]::before {
-  background: gainsboro;
 }
 
 body>h2:first-child {
@@ -317,6 +290,14 @@ h6 p {
   margin-top: 0;
 }
 
+li.ag-paragraph {
+  color: var(--themeColor);
+}
+
+li > * {
+  color: var(--editorColor);
+}
+
 li p.first {
   display: inline-block;
 }
@@ -342,9 +323,20 @@ ol:last-child {
 }
 
 blockquote {
-  border-left: 4px solid #dddddd;
-  padding: 0 15px;
-  color: #777777;
+  position: relative;
+  padding: 0 30px;
+  color: var(--editorColor50);
+}
+
+blockquote::before {
+  content: '';
+  display: block;
+  height: 100%;
+  width: 2px;
+  position: absolute;
+  left: 13px;
+  top: 0;
+  background: var(--themeColor);
 }
 
 blockquote blockquote {
@@ -363,19 +355,19 @@ table tr {
 
 table thead tr,
 table tr:nth-child(2n) {
-  background-color: #fafafa;
+  background-color: var(--codeBlockBgColor);
 }
 
 table tr th {
   font-weight: bold;
-  border: 1px solid #ebeef5;
+  border: 1px solid var(--editorColor10);
   text-align: left;
   margin: 0;
   padding: 6px 13px;
 }
 
 table tr td {
-  border: 1px solid #ebeef5;
+  border: 1px solid var(--editorColor10);
   text-align: left;
   margin: 0;
   padding: 6px 13px;
@@ -394,7 +386,7 @@ table tr td:last-child {
 span code,
 td code,
 th code {
-  background-color: rgba(27, 31, 35, 0.05);
+  background-color: var(--codeBlockBgColor);
   border-radius: 3px;
   padding: 0;
   /*font-family: Menlo, Monaco, Consolas, "Courier New", monospace;*/
@@ -402,7 +394,7 @@ th code {
   font-size: 85%;
   margin: 0;
   padding: 0.2em 0.4em;
-  color: #24292e;
+  color: var(--editorColor);
 }
 
 :not(pre) > code[class*="language-"],
@@ -411,10 +403,10 @@ pre[class*="language-"] {
   overflow: visible;
   font-size: 90%;
   line-height: 1.6;
-  background: #f6f8fa;
+  background: var(--codeBlockBgColor);
   border: 0;
   border-radius: 3px;
-  color: #777777;
+  color: var(--editorColor50);
 }
 
 @media print {
@@ -431,20 +423,20 @@ pre[class*="language-"] {
 }
 
 .ag-hide.ag-math > .ag-math-render {
-  color: #333333;
+  color: var(--editorColor);
 }
 
 blockquote .ag-hide.ag-math > .ag-math-render {
-  color: #777777;
+  color: var(--editorColor50);
 }
 
 .ag-gray.ag-math > .ag-math-render {
-  color: #f6f8fa;
-  background: #333333;
-  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.3);
+  color: var(--editorColor);
+  background: var(--floatBgColor);
+  box-shadow: 0 4px 8px 0 var(--floatBorderColor);
 }
 .ag-gray.ag-math > .ag-math-render::before {
-  border-bottom-color: #333333;
+  border-bottom-color: var(--floatBgColor);
 }
 
 #ag-editor-id pre.ag-html-block {
@@ -454,15 +446,7 @@ blockquote .ag-hide.ag-math > .ag-math-render {
 }
 
 #ag-editor-id pre.ag-active.ag-html-block {
-  background: #f6f8fa;
-}
-
-p:not(.ag-active)[data-role="hr"]::before {
-  background: gainsboro;
-}
-
-.fg-color-dark {
-  color: #303133;
+  background: var(--codeBlockBgColor);
 }
 
 /* prismjs default theme */

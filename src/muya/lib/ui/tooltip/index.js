@@ -6,7 +6,7 @@ const position = (source, ele) => {
 
   Object.assign(ele.style, {
     top: `${top + height + 10}px`,
-    left: `${right - ele.offsetWidth / 2 - 3}px`
+    left: `${right - ele.offsetWidth / 2 - 5}px`
   })
 }
 

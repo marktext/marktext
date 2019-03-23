@@ -23,7 +23,7 @@
     <!-- opened files -->
     <div class="opened-files">
       <div class="title">
-        <svg class="icon" aria-hidden="true" @click.stop="toggleOpenedFiles()">
+        <svg class="icon icon-arrow" :class="{'fold': !showOpenedFiles}" aria-hidden="true" @click.stop="toggleOpenedFiles()">
           <use xlink:href="#icon-arrow"></use>
         </svg>
         <span class="default-cursor text-overflow" @click.stop="toggleOpenedFiles()">Opened files</span>
@@ -54,7 +54,7 @@
       class="project-tree" v-if="projectTree"
     >
       <div class="title">
-        <svg class="icon" aria-hidden="true" @click.stop="toggleDirectories()">
+        <svg class="icon icon-arrow" :class="{'fold': !showDirectories}" aria-hidden="true" @click.stop="toggleDirectories()">
           <use xlink:href="#icon-arrow"></use>
         </svg>
         <span class="default-cursor text-overflow" @click.stop="toggleDirectories()">{{ projectTree.name }}</span>
@@ -91,11 +91,14 @@
       </div>
     </div>
     <div v-else class="open-project">
-      <a href="javascript:;" @click="openFolder" title="Open Folder">
-        <svg class="icon" aria-hidden="true">
-          <use xlink:href="#icon-create-project"></use>
+      <div class="button-group">
+        <svg aria-hidden="true" :viewBox="FolderIcon.viewBox">
+          <use :xlink:href="FolderIcon.url"></use>
         </svg>
-      </a>
+        <a href="javascript:;" @click="openFolder">
+          Open Folder
+        </a>
+      </div>
     </div>
   </div>
 </template>
@@ -108,11 +111,13 @@
   import { mapState } from 'vuex'
   import bus from '../../bus'
   import { createFileOrDirectoryMixins } from '../../mixins'
+  import FolderIcon from '@/assets/icons/undraw_folder.svg'
 
   export default {
     mixins: [createFileOrDirectoryMixins],
     data () {
       this.depth = 0
+      this.FolderIcon = FolderIcon
       return {
         active: 'tree', // tree or list
         showDirectories: true,
@@ -199,6 +204,7 @@
     display: inline-block;
     margin-right: 10px;
   }
+
   .list-enter-active, .list-leave-active {
     transition: all .2s;
   }
@@ -209,7 +215,7 @@
   }
   .tree-view {
     font-size: 14px;
-    color: var(--regularColor);
+    color: var(--sideBarColor);
     display: flex;
     flex-direction: column;
     height: 100%;
@@ -228,18 +234,29 @@
       pointer-events: auto;
       cursor: pointer;
       margin-left: 8px;
-      color: var(--secondaryColor);
+      color: var(--iconColor);
       opacity: 0;
     }
     & > a:hover {
-      color: var(--primary);
+      color: var(--themeColor);
     }
     & > a.active {
-      color: var(--primary);
+      color: var(--themeColor);
     }
   }
   .tree-view:hover .title a {
     opacity: 1;
+  }
+
+  .icon-arrow {
+    margin-right: 5px;
+    transition: all .25s ease-out;
+    transform: rotate(90deg);
+    fill: var(--sideBarTextColor);
+  }
+
+  .icon-arrow.fold {
+    transform: rotate(0);
   }
 
   .opened-files,
@@ -261,7 +278,7 @@
     & > a {
       display: none;
       text-decoration: none;
-      color: var(--secondaryColor);
+      color: var(--sideBarColor);
       margin-left: 8px;
     }
   }
@@ -269,7 +286,7 @@
   .opened-files div.title > a:hover {
     display: block;
     &:hover {
-      color: var(--primary);
+      color: var(--sideBarTitleColor);
     }
   }
   .opened-files {
@@ -277,7 +294,7 @@
     flex-direction: column;
   }
   .default-cursor {
-    cursor: default;
+    cursor: pointer;
   }
   .opened-files .opened-files-list {
     max-height: 200px;
@@ -308,26 +325,30 @@
   .open-project {
     flex: 1;
     display: flex;
+    flex-direction: column;
     justify-content: space-around;
     align-items: center;
-    margin-top: -100px;
-    & > a {
-      width: 35px;
-      height: 35px;
-      border-radius: 50%;
-      text-decoration: none;
-      background: rgba(31, 116, 255, .5);
-      transition: all .3s ease;
+    padding-bottom: 100px;
+    & .button-group {
       display: flex;
-      justify-content: space-around;
+      flex-direction: column;
       align-items: center;
-      & > svg {
-        width: 18px;
-        height: 18px;
-        color: #fff;
-      }
-      &:hover {
-        background: var(--primary);
+    }
+    & svg {
+      width: 120px;
+      fill: var(--themeColor);
+    }
+    & a {
+      text-decoration: none;
+      background: var(--themeColor);
+      box-shadow: 0 0 8px 0 var(--selectionColor);
+      display: block;
+      padding: 4px 7px;
+      border-radius: 5px;
+      margin-top: 20px;
+      color: #fff;
+      &:active {
+        opacity: .5;
       }
     }
   }
@@ -335,7 +356,7 @@
     outline: none;
     height: 22px;
     margin: 5px 0;
-    border: 1px solid var(--lightBorder);
+    border: 1px solid var(--themeColor);
     width: calc(100% - 45px);
     border-radius: 3px;
   }
@@ -352,7 +373,7 @@
     padding-top: 40px;
     align-items: center;
     & > a {
-      color: var(--primary);
+      color: var(--themeColor);
       text-align: center;
       margin-top: 15px;
       text-decoration: none;

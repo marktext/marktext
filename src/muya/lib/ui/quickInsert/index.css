@@ -6,7 +6,7 @@
 }
 
 .ag-quick-insert .title {
-  color: rgba(0, 0, 0, .6);
+  color: var(--editorColor);
   line-height: 120%;
   font-size: 14px;
   padding: 10px 14px 10px 14px;
@@ -15,7 +15,7 @@
   letter-spacing: 1px;
   position: sticky;
   top: 0;
-  background: #fff;
+  background: var(--floatBgColor);
   z-index: 1001;
 }
 
@@ -32,20 +32,21 @@
 }
 .ag-quick-insert .active,
 .ag-quick-insert div.item:hover {
- background-color: rgba(0, 0, 0, .04);
+ background-color: var(--floatHoverColor);
 }
 
 .ag-quick-insert .no-result {
   margin-top: 20px;
   padding: 0 20px;
   font-size: 14px;
-  color: #999;
+  text-align: center;
+  color: var(--themeColor);
 }
 
 .ag-quick-insert .icon-container {
   width: 40px;
   height: 40px;
-  border: 1px solid rgb(0, 0, 0, .1);
+  border: 1px solid var(--floatBorderColor);
   display: flex;
   justify-content: space-around;
   align-items: center;
@@ -57,7 +58,7 @@
   width: 20px;
   height: 20px;
   opacity: .6;
-  fill: rgba(0, 0, 0, .6);
+  fill: var(--iconColor);
 }
 
 .ag-quick-insert .description {
@@ -70,49 +71,21 @@
   margin-right: 20px;
   flex-shrink: 1;
   text-align: right;
-  color: rgba(0, 0, 0, .3);
+  color: var(--editorColor50);
   font-size: 14px;
   letter-spacing: 1px;
 }
 
 .ag-quick-insert .big-title {
   font-size: 14px;
-  color: rgba(0, 0, 0, .6);
+  color: var(--editorColor);
 }
 
 .ag-quick-insert .sub-title {
   font-size: 12px;
-  color: rgba(0, 0, 0, .4);
+  color: var(--editorColor50);
 }
 
 .ag-quick-insert .hide {
   display: none;
 }
-
-.ag-quick-insert.dark .title {
-  background: var(--primaryColor);
-  color: var(--placeholerColor);
-}
-
-.ag-quick-insert.dark .big-title {
-  color: var(--lightBorder);
-}
-
-.ag-quick-insert.dark .sub-title {
-  color: rgba(255, 255, 255, .6);
-}
-
-.ag-quick-insert.dark .active,
-.ag-quick-insert.dark div.item:hover {
-  background-color: rgb(71, 72, 66);
-}
-
-.ag-quick-insert.dark .icon-container > svg {
-  fill: rgba(255, 255, 255, .5);
-}
-
-.ag-quick-insert.dark .short-cut {
-  color: rgba(255, 255, 255, .5);
-}
-
-

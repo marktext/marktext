@@ -26,7 +26,7 @@
 }
 
 .ag-format-picker li.item:hover {
-  background: rgb(243, 243, 243);
+  background: var(--floatHoverColor);
 }
 
 .ag-format-picker li.item:last-of-type {
@@ -38,29 +38,20 @@
   width: 2px;
   position: absolute;
   height: 18px;
-  background: #eee;
+  background: var(--editorColor10);
   left: -4px;
   top: 6px;
 }
 
 .ag-format-picker li.item svg {
-  fill: #666;
+  fill: var(--iconColor);
 }
 
 .ag-format-picker li.item.active svg {
-  fill: var(--activeColor);
+  fill: var(--themeColor);
 }
 
 .ag-format-picker li.item .icon-wrapper {
   width: 16px;
   height: 16px;
-}
-
-/* dark theme */
-.ag-format-picker.dark li.item:hover {
-  background: rgb(60, 60, 60);
-}
-
-.ag-format-picker.dark li.item:last-of-type:before {
-  background: rgb(71, 71, 71);
 }

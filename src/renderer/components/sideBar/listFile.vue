@@ -2,15 +2,14 @@
     <div
       class="side-bar-list-file"
       @click="handleFileClick"
-      :class="[{ 'active': file.pathname === currentFile.pathname }, theme]"
+      :class="[{ 'active': file.pathname === currentFile.pathname }]"
     >
       <div class="title">
-        <span class="filename">{{ filename }}</span>
-        <span>{{ extension }}</span>
+        <span class="filename">{{ filename + extension }}</span>
+        <span class="birth-time">{{ relativeTime }}</span>
       </div>
       <div class="folder-date">
         <span class="folder">{{parent}}</span>
-        <span class="birth-time">{{ new Date(file.birthTime).toLocaleString().split(/\s/)[0] }}</span>
       </div>
       <div class="content">
         {{ file.data.markdown.substring(0, 50) }}
@@ -23,6 +22,7 @@
   import { mapState } from 'vuex'
   import { fileMixins } from '../../mixins'
   import { PATH_SEPARATOR } from '../../config'
+  import dayjs from '@/util/day'
 
   export default {
     mixins: [fileMixins],
@@ -34,7 +34,6 @@
     },
     computed: {
       ...mapState({
-        theme: state => state.preferences.theme,
         tabs: state => state.editor.tabs,
         currentFile: state => state.editor.currentFile
       }),
@@ -42,6 +41,10 @@
       // Return filename without extension.
       filename () {
         return path.basename(this.file.name, path.extname(this.file.name))
+      },
+
+      relativeTime () {
+        return dayjs(+new Date(this.file.birthTime)).fromNow()
       },
 
       // Return the filename extension or null.
@@ -63,20 +66,20 @@
     position: relative;
     user-select: none;
     padding: 10px 20px;
-    color: var(--secondaryColor);
+    color: var(--sideBarColor);
     font-size: 14px;
     & .title .filename {
       font-size: 15px;
     }
     &:hover {
-      background: var(--extraLightBorder);
+      background: var(--sideBarItemHoverBgColor);
     }
     &::before {
       content: '';
       position: absolute;
       display: block;
       left: 0;
-      background: var(--activeColor);
+      background: var(--themeColor);
       width: 2px;
       height: 0;
       top: 50%;
@@ -86,28 +89,33 @@
   }
   .side-bar-list-file.active {
     font-weight: 600;
-    color: var(--regularColor);
+    .title {
+      color: var(--themeColor);
+    }
   }
   .side-bar-list-file.active::before {
     height: 100%;
   }
+  .title {
+    display: flex;
+    color: var(--sideBarTitleColor);
+    & .filename {
+      flex: 1;
+    }
+    & .birth-time {
+      color: var(--sideBarTextColor);
+    }
+  }
   .folder-date {
     margin-top: 5px;
-    display: flex;
-    justify-content: space-between;
   }
+  .folder-date .folder,
   .content {
     width: 100%;
     margin-top: 5px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-  }
-  .dark.side-bar-list-file.active {
-    color: var(--lightTabColor);
-  }
-  .dark.side-bar-list-file:hover {
-    background: var(--darkHoverColor);
-    color: var(--lightTabColor);
+    color: var(--sideBarTextColor);
   }
 </style>

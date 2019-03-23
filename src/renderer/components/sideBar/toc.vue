@@ -1,56 +1,96 @@
 <template>
-    <ul class="side-bar-toc">
-      <li v-for="(item, index) of toc"
-        :key="index"
-        :style="{'padding-left': `${(item.lvl - startLvl) * 20}px`}"
-        @click="handleClick(item)"
-        :class="{ 'active': item.i === activeIndex }"
-      >
-        {{ item.content }}
-      </li>
-    </ul>
+  <div class="side-bar-toc">
+    <div class="title">Table Of Content</div>
+    <el-tree
+      v-if="toc.length"
+      :data="toc"
+      :props="defaultProps"
+      @node-click="handleClick"
+      :expand-on-click-node="false"
+      :indent="10"
+    ></el-tree>
+    <div class="no-data" v-else>
+      <svg aria-hidden="true" :viewBox="EmptyIcon.viewBox">
+        <use :xlink:href="EmptyIcon.url"></use>
+      </svg>
+    </div>
+  </div>
 </template>
 
 <script>
-  import { mapGetters } from 'vuex'
+  import { mapState } from 'vuex'
   import bus from '../../bus'
+  import EmptyIcon from '@/assets/icons/undraw_toc_empty.svg'
 
   export default {
     data () {
+      this.EmptyIcon = EmptyIcon
       return {
-        activeIndex: -1
+         defaultProps: {
+          children: 'children',
+          label: 'label'
+        }
       }
     },
     computed: {
-      ...mapGetters(['toc']),
-      startLvl () {
-        return Math.min(...this.toc.map(h => h.lvl))
-      }
+      ...mapState({
+        'toc': state => state.editor.toc
+      })
     },
     methods: {
-      handleClick (item) {
-        this.activeIndex = item.i
-        bus.$emit('scroll-to-header', item.slug)
+      handleClick ({ slug }) {
+        bus.$emit('scroll-to-header', slug)
       }
     }
   }
 </script>
 
-<style scoped>
+<style>
   .side-bar-toc {
     height: calc(100% - 35px);
     margin: 0;
-    margin-top: 35px;
     padding: 0;
     list-style: none;
-    overflow: scroll;
+    overflow: auto;
+    display: flex;
+    flex-direction: column;
+    & .title {
+      padding: 5px 0;
+      color: var(--sideBarTitleColor);
+      font-weight: 600px;
+      font-size: 16px;
+      margin: 20px 0;
+      text-align: center;
+    }
+    & .el-tree-node {
+      margin-top: 8px;
+    }
+    & .el-tree {
+      background: transparent;
+      color: var(--sideBarColor);
+    }
+    & .el-tree-node:focus > .el-tree-node__content {
+      background-color: var(--sideBarItemHoverBgColor);
+      }
+    & .el-tree-node__content:hover {
+      background: var(--sideBarItemHoverBgColor);
+    }
     & > li {
       font-size: 14px;
       margin-bottom: 15px;
       cursor: pointer;
     }
-    & > li.active {
-      color: var(--primary);
+    & .no-data {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-around;
+      padding-bottom: 50px;
+      & svg {
+        width: 120px;
+        fill: var(--themeColor);
+      }
     }
   }
 </style>

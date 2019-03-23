@@ -18,9 +18,8 @@ class Muya {
   }
   constructor (container, options) {
     this.options = Object.assign({}, MUYA_DEFAULT_OPTION, options)
-    const { focusMode, theme, markdown } = this.options
+    const { focusMode, markdown } = this.options
     this.focusMode = focusMode
-    this.theme = theme
     this.markdown = markdown
     this.container = getContainer(container, this.options)
     this.eventCenter = new EventCenter()
@@ -42,7 +41,7 @@ class Muya {
   init () {
     const { container, contentState, eventCenter } = this
     contentState.stateRender.setContainer(container.children[0])
-    eventCenter.subscribe('stateChange', this.dispatchChange.bind(this))
+    eventCenter.subscribe('stateChange', this.dispatchChange)
     eventCenter.attachDOMEvent(container, 'contextmenu', event => {
       event.preventDefault()
       event.stopPropagation()
@@ -61,19 +60,19 @@ class Muya {
       eventCenter.dispatch('contextmenu', event, sectionChanges)
     })
     contentState.listenForPathChange()
-    const { theme, focusMode, markdown } = this
-    this.setTheme(theme)
+    const { focusMode, markdown } = this
     this.setMarkdown(markdown)
     this.setFocusMode(focusMode)
   }
 
-  dispatchChange () {
+  dispatchChange = () => {
     const { eventCenter } = this
     const markdown = this.markdown = this.getMarkdown()
     const wordCount = this.getWordCount(markdown)
     const cursor = this.getCursor()
     const history = this.getHistory()
-    eventCenter.dispatch('change', { markdown, wordCount, cursor, history })
+    const toc = this.getTOC()
+    eventCenter.dispatch('change', { markdown, wordCount, cursor, history, toc })
   }
 
   getMarkdown () {
@@ -83,6 +82,10 @@ class Muya {
 
   getHistory () {
     return this.contentState.getHistory()
+  }
+
+  getTOC () {
+    return this.contentState.getTOC()
   }
 
   setHistory (history) {
@@ -119,7 +122,9 @@ class Muya {
     this.contentState.importMarkdown(newMarkdown)
     this.contentState.importCursor(cursor)
     this.contentState.render(isRenderCursor)
-    this.dispatchChange()
+    setTimeout(() => {
+      this.dispatchChange()
+    }, 0)
   }
 
   createTable (tableChecker) {
@@ -138,16 +143,6 @@ class Muya {
       container.classList.remove(CLASS_OR_ID['AG_FOCUS_MODE'])
     }
     this.focusMode = bool
-  }
-
-  setTheme (name) {
-    if (!name) return
-    const { eventCenter } = this
-    this.theme = name
-    // Render cursor and refresh code block
-    this.contentState.render(true)
-    // notice the ui components to change theme
-    eventCenter.dispatch('theme-change', name)
   }
 
   setFont ({ fontSize, lineHeight }) {

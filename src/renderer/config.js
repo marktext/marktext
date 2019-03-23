@@ -2,7 +2,7 @@ import path from 'path'
 
 export const PATH_SEPARATOR = path.sep
 
-export const THEME_LINK_ID = 'ag-theme'
+export const THEME_STYLE_ID = 'ag-theme'
 export const COMMON_STYLE_ID = 'ag-common-style'
 
 export const DEFAULT_EDITOR_FONT_FAMILY = '"Open Sans", "Clear Sans", "Helvetica Neue", Helvetica, Arial, sans-serif'
@@ -12,3 +12,5 @@ export const DEFAULT_STYLE = {
   codeFontSize: '14px',
   theme: 'light'
 }
+
+export const railscastsThemes = ['dark']

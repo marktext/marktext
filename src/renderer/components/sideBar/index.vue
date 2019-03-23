@@ -2,11 +2,10 @@
   <div
     v-show="showSideBar"
     class="side-bar"
-    :class="[theme]"
     ref="sideBar"
     :style="{ 'width': `${finalSideBarWidth}px` }"
   >
-    <div class="title-bar-bg" :class="[theme]"></div>
+    <div class="title-bar-bg"></div>
     <div class="left-column">
       <ul>
         <li
@@ -75,7 +74,6 @@
     },
     computed: {
       ...mapState({
-        'theme': state => state.preferences.theme,
         'rightColumn': state => state.layout.rightColumn,
         'showSideBar': state => state.layout.showSideBar,
         'projectTree': state => state.project.projectTree,
@@ -143,26 +141,13 @@
 <style scoped>
   .side-bar {
     display: flex;
-    height: calc(100vh - var(--titleBarHeight));
+    height: 100vh;
     position: relative;
-    color: var(--secondaryColor);
+    color: var(--sideBarColor);
   }
-  .side-bar.light,
-  .title-bar-bg.light {
-    background: var(--lightBgHighlightColor);
-    border-right: 1px solid rgb(242, 242, 242);
-  }
-  .side-bar.dark,
-  .title-bar-bg.dark {
-    background: var(--darkBgHighlightColor);
-  }
-
-  .title-bar-bg {
-    position: absolute;
-    top: calc(-1 * var(--titleBarHeight));
-    left: 0;
-    height: var(--titleBarHeight);
-    width: 100%;
+  .side-bar {
+    background: var(--sideBarBgColor);
+    border-right: 1px solid var(--itemBgColor);
   }
 
   .left-column {
@@ -171,6 +156,8 @@
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    padding-top: 40px;
+    box-sizing: border-box;
     & > ul {
       opacity: 1;
     }
@@ -195,15 +182,14 @@
         width: 18px;
         height: 18px;
         opacity: 1;
-        color: var(--secondaryColor);
+        color: var(--iconColor);
         transition: transform .25s ease-in-out;
       }
       &:hover > svg {
-        color: var(--primary);
-        transform: scale(1.2);
+        color: var(--themeColor);
       }
       &.active > svg {
-        color: var(--primary);
+        color: var(--themeColor);
       }
     }
   }
@@ -222,10 +208,10 @@
     right: 0;
     bottom: 0;
     height: 100%;
-    width: 2px;
+    width: 8px;
     cursor: col-resize;
     &:hover {
-      background: var(--secondaryColor);
+      border-right: 2px solid var(--sideBarTextColor);
     }
   }
 </style>

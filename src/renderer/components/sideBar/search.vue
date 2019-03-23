@@ -1,11 +1,11 @@
 <template>
-    <div class="side-bar-search"
-      :class="theme"
+    <div
+      class="side-bar-search"
     >
       <div class="search-wrapper">
         <input
           type="text" v-model="keyword"
-          placeholder="Search in project..."
+          placeholder="Search in folder..."
           @keyup="search"
         >
         <svg class="icon" aria-hidden="true">
@@ -20,17 +20,23 @@
         ></list-file>
       </div>
       <div class="empty" v-else>
-        <span>{{ !keyword ? 'Input search keyword' : 'No matched files' }}</span>
+        <div class="no-data">
+          <svg :viewBox="EmptyIcon.viewBox" aria-hidden="true">
+            <use :xlink:href="EmptyIcon.url" />
+          </svg>
+        </div>
       </div>
     </div>
 </template>
 
 <script>
-  import { mapGetters, mapState } from 'vuex'
+  import { mapGetters } from 'vuex'
   import ListFile from './listFile.vue'
+  import EmptyIcon from '@/assets/icons/undraw_empty.svg'
 
   export default {
     data () {
+      this.EmptyIcon = EmptyIcon
       return {
         keyword: '',
         searchResult: []
@@ -40,9 +46,6 @@
       ListFile
     },
     computed: {
-      ...mapState({
-        'theme': state => state.preferences.theme
-      }),
       ...mapGetters(['fileList'])
     },
     methods: {
@@ -70,10 +73,14 @@
     margin: 35px 20px;
     border-radius: 3px;
     height: 30px;
-    border: 1px solid var(--lightBorder);
+    border: 1px solid var(--floatBorderColor);
+    background: var(--floatBorderColor);
+    border-radius: 15px;
     box-sizing: border-box;
     align-items: center;
     & > input {
+      color: var(--sideBarColor);
+      background: transparent;
       height: 100%;
       flex: 1;
       border: none;
@@ -87,16 +94,17 @@
       flex-shrink: 0;
       width: 20px;
       height: 20px;
-      margin-right: 5px;
+      margin-right: 10px;
       &:hover {
-        color: var(--brandColor);
+        color: var(--iconColor);
       }
     }
   }
   .empty,
   .search-result {
     flex: 1;
-    overflow: auto;
+    overflow-y: auto;
+    overflow-x: hidden;
     &::-webkit-scrollbar:vertical {
       width: 5px;
     }
@@ -104,14 +112,13 @@
   .empty {
     font-size: 14px;
     text-align: center;
-  }
-  .dark.side-bar-search .search-wrapper {
-    background: rgb(54, 55, 49);
-    border-color: transparent;
-    & > input,
-    & > svg {
-      background: transparent;
-      color: #C0C4CC;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    padding-bottom: 100px;
+    & .no-data svg {
+      fill: var(--themeColor);
+      width: 120px;
     }
   }
 </style>

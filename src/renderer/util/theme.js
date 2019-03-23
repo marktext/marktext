@@ -1,18 +1,42 @@
-import { THEME_LINK_ID, COMMON_STYLE_ID, DEFAULT_CODE_FONT_FAMILY } from '../config'
+import { THEME_STYLE_ID, COMMON_STYLE_ID, DEFAULT_CODE_FONT_FAMILY, railscastsThemes } from '../config'
+import { dark, ulysses, graphite } from './themeColor'
 
 export const addThemeStyle = theme => {
-  const href = process.env.NODE_ENV !== 'production'
-    ? `./src/muya/themes/${theme}.css`
-    : `./static/themes/${theme}.css`
+  let themeStyleEle = document.querySelector(`#${THEME_STYLE_ID}`)
+  if (!themeStyleEle) {
+    themeStyleEle = document.createElement('style')
+    themeStyleEle.id = THEME_STYLE_ID
+    document.head.appendChild(themeStyleEle)
+  }
+  switch (theme) {
+    case 'light':
+      themeStyleEle.innerHTML = ''
+      break
+    case 'dark':
+      themeStyleEle.innerHTML = dark
+      break
+    case 'ulysses':
+      themeStyleEle.innerHTML = ulysses
+      break
+    case 'graphite':
+      themeStyleEle.innerHTML = graphite
+      break
+    default:
+      console.log('unknown theme')
+      break
+  }
 
-    let link = document.querySelector(`#${THEME_LINK_ID}`)
-    if (!link) {
-      link = document.createElement('link')
-      link.setAttribute('rel', 'stylesheet')
-      link.id = THEME_LINK_ID
-      document.head.appendChild(link)
+  // change codeMirror theme
+  const cm = document.querySelector('.CodeMirror')
+  if (cm) {
+    if (railscastsThemes.includes(theme)) {
+      cm.classList.remove('cm-s-default')
+      cm.classList.add('cm-s-railscasts')
+    } else {
+      cm.classList.add('cm-s-default')
+      cm.classList.remove('cm-s-railscasts')
     }
-    link.href = href
+  }
 }
 
 export const addCommonStyle = style => {

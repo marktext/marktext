@@ -19,46 +19,54 @@
   box-sizing: border-box;
   margin-right: 1px;
   margin-bottom: 1px;
-  border: 1px solid #ccc;
+  border: 1px solid var(--editorColor10);
   cursor: pointer;
 }
 .ag-table-picker-header span {
-  background: #ddd;
+  background: var(--editorColor10);
 }
 .ag-table-picker-cell.current {
-  background: darkgray;
+  background: var(--editorColor30);
 }
 .ag-table-picker-header .current {
-  background: #666;
+  background: var(--editorColor50);
 }
 .ag-table-picker-cell.selected {
-  background: #ecf5ff;
+  background: var(--selectionColor);
 }
 .ag-table-picker-header .selected {
-  background: #ecf5ff;
+  background: var(--selectionColor);
 }
 .ag-table-picker-cell:last-of-type {
   margin-right: 0;
 }
 .ag-table-picker .footer {
-  padding-top: 5px;
-  border-top: 1px solid #ccc;
+  padding: 10px 0 0 0;
+  border-top: 1px solid var(--floatBorderColor);
   text-align: center;
+  display: flex;
+  justify-content: space-around;
 }
 .ag-table-picker .footer input {
+  color: var(--editorColor);
+  background: var(--floatBorderColor);
+  outline: none;
+  border-radius: 3px;
   text-align: center;
   border: none;
+  box-sizing: border-box;
   padding: 0;
-  height: 16px;
-  width: 16px;
+  height: 20px;
+  width: 30px;
+  border: none;
 }
 .ag-table-picker .footer button {
   outline: none;
   cursor: pointer;
-  border-radius: 2px;
-  line-height: 12px;
+  border-radius: 3px;
+  line-height: 20px;
   border: none;
-  height: 16px;
-  background: #409eff;
+  height: 20px;
+  background: var(--themeColor);
   color: #fff;
 }

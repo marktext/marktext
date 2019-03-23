@@ -1,5 +1,5 @@
 <template>
-  <div class="rename" :class="theme">
+  <div class="rename">
     <el-dialog 
       :visible.sync="showRename"
       :show-close="false"
@@ -44,8 +44,7 @@
     },
     computed: {
       ...mapState({
-        filename: state => state.editor.currentFile.filename,
-        theme: state => state.preferences.theme
+        filename: state => state.editor.currentFile.filename
       })
     },
     methods: {
@@ -63,6 +62,10 @@
 </script>
 
 <style>
+  .rename .el-dialog__header {
+    height: 42px;
+    box-sizing: border-box;
+  }
   .rename .el-dialog__body {
     display: none;
   }
@@ -84,13 +87,16 @@
     align-items: center;
     height: auto;
     padding: 5px;
-    background: #fff;
-    box-shadow: 0 3px 8px rgba(0, 0, 0, .1);
-    border: 1px solid #eeeeee;
+    background: var(--floatBorderColor);
+    box-shadow: 0 3px 8px var(--floatBorderColor);
+    border: 1px solid var(--floatBorderColor);
     border-radius: 3px;
     & .input-wrapper {
       display: flex;
       width: 100%;
+      & input {
+        background: transparent;
+      }
     }
   }
   .search {
@@ -101,28 +107,17 @@
     font-size: 14px;
     padding: 0 8px;
     margin: 0 10px;
-    color: #606266;
+    color: var(--sideBarColor);
   }
   .search-wrapper svg {
     cursor: pointer;
     margin: 0 5px;
     width: 30px;
     height: 30px;
-    color: #606266;
+    color: var(--iconColor);
     transition: all .3s ease-in-out;
   }
   .search-wrapper svg:hover {
-    color: var(--activeColor);
+    color: var(--themeColor);
   }
-
-  /* style for dark theme */
-  .dark .search-wrapper {
-    background: var(--darkInputBgColor);
-    border-color: transparent;
-    & input {
-      background: transparent;
-      color: var(--darkInputColor);
-    }
-  }
-
 </style>
