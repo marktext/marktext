@@ -25,6 +25,9 @@ export const dark = `
   --floatBorderColor: rgba(0, 0, 0, .03);
   --editorAreaWidth: 700px;
 }
+div.title-bar .frameless-titlebar-button > div > svg {
+  fill: #ffffff;
+}
 /**
  * okaidia theme for JavaScript, CSS and HTML
  * Loosely based on Monokai textmate theme by http://www.monokai.nl/
