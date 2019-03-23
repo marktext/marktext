@@ -4,7 +4,7 @@ import prism, { loadedCache } from '../../../prism/'
 import { slugify } from '../../../utils/dirtyToc'
 import { CLASS_OR_ID, DEVICE_MEMORY, isInElectron, PREVIEW_DOMPURIFY_CONFIG, HAS_TEXT_BLOCK_REG } from '../../../config'
 import { tokenizer } from '../../parse'
-import { snakeToCamel, sanitize, escapeHtml, getLongUniqueId } from '../../../utils'
+import { snakeToCamel, sanitize, escapeHtml, getLongUniqueId, getImageInfo } from '../../../utils'
 import { h, htmlToVNode } from '../snabbdom'
 import alignLeftIcon from '../../../assets/icons/align_left.svg'
 import alignRightIcon from '../../../assets/icons/align_right.svg'
@@ -108,7 +108,16 @@ export default function renderLeafBlock (block, cursor, activeBlocks, matches, u
         if (/^<([a-z][a-z\d]*)[^>]*?>(\s*)<\/\1>$/.test(htmlContent.trim())) {
           children = htmlToVNode('<div class="ag-empty">&lt;Empty HTML Block&gt;</div>')
         } else {
-          children = htmlToVNode(htmlContent)
+          const parser = new DOMParser()
+          const doc = parser.parseFromString(htmlContent, 'text/html')
+          const imgs = doc.documentElement.querySelectorAll('img')
+          for (const img of imgs) {
+            const src = img.getAttribute('src')
+            const imageInfo = getImageInfo(src)
+            img.setAttribute('src', imageInfo.src)
+          }
+
+          children = htmlToVNode(doc.documentElement.querySelector('body').innerHTML)
         }
         break
       }
