@@ -236,3 +236,5 @@ export const MUYA_DEFAULT_OPTION = {
 
 export const isInElectron = window && window.process && window.process.type === 'renderer'
 export const isOsx = window && window.navigator && /Mac/.test(window.navigator.platform)
+// http[s] (domain or IPv4 or localhost or IPv6) [port] /not-white-space
+export const URL_REG = /^http(s)?:\/\/([a-z0-9\-._~]+\.[a-z]{2,}|[0-9.]+|localhost|\[[a-f0-9.:]+\])(:[0-9]{1,5})?\/[\S]+/i

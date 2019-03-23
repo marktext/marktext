@@ -146,6 +146,9 @@ const actions = {
   ASK_FOR_INSERT_IMAGE ({ commit }, type) {
     ipcRenderer.send('AGANI::ask-for-insert-image', type)
   },
+  FORMAT_LINK_CLICK ({ commit }, { data, dirname }) {
+    ipcRenderer.send('AGANI::format-link-click', { data, dirname })
+  },
   // image path auto complement
   ASK_FOR_IMAGE_AUTO_PATH ({ commit, state }, src) {
     const { pathname } = state.currentFile

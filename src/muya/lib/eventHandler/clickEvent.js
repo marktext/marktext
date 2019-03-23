@@ -30,7 +30,12 @@ class ClickEvent {
       const mathRender = target.closest(`.${CLASS_OR_ID['AG_MATH_RENDER']}`)
       const mathText = mathRender && mathRender.previousElementSibling
       if (markedImageText && markedImageText.classList.contains(CLASS_OR_ID['AG_IMAGE_MARKED_TEXT'])) {
-        selectionText(markedImageText)
+        eventCenter.dispatch('format-click', {
+          event,
+          formatType: 'image',
+          data: event.target.getAttribute('src')
+        })
+        selectionText(markedImageText)  
       } else if (mathText) {
         selectionText(mathText)
       }
