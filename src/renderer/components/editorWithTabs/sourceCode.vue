@@ -164,4 +164,7 @@
   .dark.source-code .CodeMirror-activeline-gutter {
     background: #333;
   }
+  .CodeMirror {
+    height: 100%;
+  }
 </style>
