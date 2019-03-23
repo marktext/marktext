@@ -700,22 +700,22 @@ span.ag-reference-link {
   height: 20px;
   top: 2px;
   left: -40px;
-  fill: rgba(0, 0, 0, .4);
   display: none;
-  cursor: pointer;
+  /* cursor: pointer; */
 }
 
 .ag-front-icon::before {
   content: '';
   width: 0;
   height: 0;
-  border: 3px solid rgba(0, 0, 0, .4);
   border-bottom: none;
   border-left-color: transparent;
   border-right-color: transparent;
   position: absolute;
   top: 13px;
   right: -8px;
+  /*temp hide it*/
+  display: none;
 }
 
 .ag-paragraph.ag-active .ag-front-icon {
