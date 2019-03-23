@@ -10,6 +10,15 @@
       ref="editor"
       class="editor-component"
     ></div>
+    <div
+      class="image-viewer"
+      v-show="imageViewerVisible"
+    >
+      <div
+        ref="imageViewer"
+      >
+      </div>
+    </div>
     <el-dialog
       :visible.sync="dialogTableVisible"
       :show-close="isShowClose"
@@ -60,6 +69,7 @@
 
 <script>
   import { mapState } from 'vuex'
+  import ViewImage from 'view-image'
   import Muya from 'muya/lib'
   import TablePicker from 'muya/lib/ui/tablePicker'
   import QuickInsert from 'muya/lib/ui/quickInsert'
@@ -76,6 +86,7 @@
   import { DEFAULT_EDITOR_FONT_FAMILY } from '@/config'
 
   import 'muya/themes/light.css'
+  import 'view-image/lib/imgViewer.css'
 
   const STANDAR_Y = 320
 
@@ -92,7 +103,8 @@
       textDirection: {
         type: String,
         required: true
-      }
+      },
+      platform: String
     },
     computed: {
       ...mapState({
@@ -122,6 +134,7 @@
         pathname: '',
         isShowClose: false,
         dialogTableVisible: false,
+        imageViewerVisible: false,
         tableChecker: {
           rows: 4,
           columns: 3
@@ -164,6 +177,11 @@
     },
     created () {
       this.$nextTick(() => {
+        this.imageViewer = new ViewImage(this.$refs.imageViewer, {
+          url: 'http://img2.imgtn.bdimg.com/it/u=4135477902,3355939884&fm=26&gp=0.jpg',
+          snapView: true
+        })
+
         this.printer = new Printer()
         const ele = this.$refs.editor
         const {
@@ -275,6 +293,10 @@
       handleImagePath (files) {
         const { editor } = this
         editor && editor.showAutoImagePath(files)
+      },
+
+      setImageViewerVisible (status) {
+        this.imageViewerVisible = status
       },
 
       handleUndo () {

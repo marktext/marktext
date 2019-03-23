@@ -10856,6 +10856,11 @@ verror@1.10.0:
     core-util-is "1.0.2"
     extsprintf "^1.2.0"
 
+view-image@^0.0.1:
+  version "0.0.1"
+  resolved "https://registry.yarnpkg.com/view-image/-/view-image-0.0.1.tgz#f97a6c23e881caa173d83b148ef7ee8adbb890e5"
+  integrity sha512-xo6/w370OxBo9QLMZOXmRa0gSXNr9PfMQv4hFMZa6z8YFoyi77Q7/FRghANnPF9bILkX18fJDsC9fT1KlRzSDA==
+
 vm-browserify@0.0.4:
   version "0.0.4"
   resolved "https://registry.yarnpkg.com/vm-browserify/-/vm-browserify-0.0.4.tgz#5d7ea45bbef9e4a6ff65f95438e0a87c357d5a73"
