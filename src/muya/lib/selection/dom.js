@@ -21,10 +21,14 @@ export const getTextContent = (node, blackList) => {
 }
 
 export const findNearestParagraph = node => {
+  if (!node) {
+    return null
+  }
   do {
     if (isAganippeParagraph(node)) return node
     node = node.parentNode
   } while (node)
+  return null
 }
 
 export const findOutMostParagraph = node => {
