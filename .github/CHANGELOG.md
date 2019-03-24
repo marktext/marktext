@@ -5,7 +5,7 @@ This update **fixes a XSS security vulnerability** when exporting a document.
 **:warning:Breaking Changes:**
 
 - Minimum supported macOS version is 10.10 (Yosemite)
-- remove `lightColor` and `darkColor` in user preference(color change in view menu does not work any, and will remove when add custom theme.)
+- Remove `lightColor` and `darkColor` in user preference (color change in view menu does not work any, and will remove when add custom theme.)
 
 **:cactus:Feature**
 
@@ -18,7 +18,7 @@ This update **fixes a XSS security vulnerability** when exporting a document.
 - Making images display smaller (#659)
 - Open local markdown file when you click on it in another tab (#359)
 - Clicking a link should open it in the browser (#425)
-- Support maxOs `dark mode`, when you change `mode dark or light` in system, Mark Text will change its theme.
+- Support maxOS `dark mode`, when you change `mode dark or light` in system, Mark Text will change its theme.
 - Add two new themes  Ulysses Light and Graphite Light theme.
 
 **:butterfly:Optimization**
@@ -35,7 +35,6 @@ This update **fixes a XSS security vulnerability** when exporting a document.
 - Upstream: prismjs highlighting issues (#709)
 - Improvements for "Open Recent" (#616)
 - [feature request] make table of contents in sidebar collapsible (#404)
-
 
 **:beetle:Bug fix**
 
@@ -77,6 +76,7 @@ This update **fixes a XSS security vulnerability** when exporting a document.
 - Selection cannot be cancelled by up / down keys (#630)
 - Cannot create table while in typewriter mode (#679)
 - Emojis don't work properly (#769)
+- Fixed multiple parser issues (update marked.js to v0.6.1)
 
 
 ### 0.13.65
