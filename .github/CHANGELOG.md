@@ -78,6 +78,7 @@ This update **fixes a XSS security vulnerability** when exporting a document.
 - Emojis don't work properly (#769)
 - Fixed multiple parser issues (update marked.js to v0.6.1)
 - Fixed nest math block issue (#586)
+- Can't make a comma-separated list of dollar ($) amounts (#740)
 
 
 ### 0.13.65
