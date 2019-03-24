@@ -445,10 +445,11 @@
 
       // listen for `open-single-file` event, it will call this method only when open a new file.
       setMarkdownToEditor (markdown) {
-        const { cursor, editor } = this
+        const { editor } = this
         if (editor) {
           editor.clearHistory()
-          editor.setMarkdown(markdown, cursor)
+          // NOTE: Don't set the cursor because we load a new file - no tab switch.
+          editor.setMarkdown(markdown)
         }
       },
 
