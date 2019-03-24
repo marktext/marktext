@@ -561,3 +561,15 @@ pre.ag-paragraph {
  .token.entity {
    cursor: help;
  }
+
+ .ag-front-icon {
+   fill: var(--editorColor50);
+ }
+
+ .ag-front-icon::before {
+  border: 3px solid var(--editorColor50);
+  border-bottom: none;
+  border-left-color: transparent;
+  border-right-color: transparent;
+ }
+ 
