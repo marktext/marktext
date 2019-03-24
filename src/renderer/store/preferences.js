@@ -52,7 +52,7 @@ const actions = {
       if (autoSave) {
         const { pathname, markdown } = state
         const options = getOptionsFromState(rootState.editor)
-        if (autoSave && pathname) {
+        if (pathname) {
           commit('SET_SAVE_STATUS', true)
           ipcRenderer.send('AGANI::response-file-save', { pathname, markdown, options })
         }

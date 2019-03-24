@@ -91,7 +91,7 @@ export const getSingleFileState = ({ id = getUniqueId(), markdown, filename, pat
   // TODO(refactor:renderer/editor): Replace this function with `createDocumentState`.
 
   const fileState = JSON.parse(JSON.stringify(defaultFileState))
-  const { isUtf8BomEncoded, lineEnding, adjustLineEndingOnSave } = options
+  const { isUtf8BomEncoded, lineEnding, adjustLineEndingOnSave, textDirection = 'ltr' } = options
 
   assertLineEnding(adjustLineEndingOnSave, lineEnding)
 
@@ -102,6 +102,7 @@ export const getSingleFileState = ({ id = getUniqueId(), markdown, filename, pat
     pathname,
     isUtf8BomEncoded,
     lineEnding,
+    textDirection,
     adjustLineEndingOnSave
   })
 }

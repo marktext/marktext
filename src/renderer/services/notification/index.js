@@ -1,4 +1,5 @@
 import template from './index.html'
+import { getUniqueId } from '../../util'
 import './index.css'
 
 const INON_HASH = {
@@ -8,8 +9,22 @@ const INON_HASH = {
   info: 'icon-info'
 }
 
+const COLOR_HASH = {
+  primary: 'var(--themeColor)',
+  error: 'var(--deleteColor)',
+  warning: 'var(--deleteColor)',
+  info: '#999999'
+}
+
 const notification = {
   name: 'notify',
+  noticeCache: {},
+  // it's a dirty implement of clear, because not remove all the event listeners. need refactor.
+  clear () {
+    Object.keys(this.noticeCache).forEach(key => {
+      this.noticeCache[key].remove()
+    })
+  },
   notify ({
     time = 10000,
     title = '',
@@ -20,6 +35,7 @@ const notification = {
     let rs
     let rj
     let timer = null
+    const id = getUniqueId()
 
     const fragment = document.createElement('div')
     fragment.innerHTML = template
@@ -40,7 +56,7 @@ const notification = {
       target = noticeContainer.querySelector('.confirm')
     }
 
-    bgNotice.style.backgroundColor = `var(--${type})`
+    bgNotice.style.backgroundColor = `${COLOR_HASH[type]}`
 
     fluent.style.height = offsetHeight * 2 + 'px'
     fluent.style.width = offsetHeight * 2 + 'px'
@@ -117,8 +133,13 @@ const notification = {
         close.removeEventListener('click', closeHandler)
         noticeContainer.remove()
         rePositionNotices()
+        if (this.noticeCache[id]) {
+          delete this.noticeCache[id]
+        }
       }, 100)
     }
+
+    this.noticeCache[id] = { remove }
 
     noticeContainer.addEventListener('mousemove', mousemoveHandler)
     noticeContainer.addEventListener('mouseleave', mouseleaveHandler)

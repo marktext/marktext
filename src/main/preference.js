@@ -155,7 +155,7 @@ ipcMain.on('AGANI::set-user-preference', (e, pre) => {
   Object.keys(pre).map(key => {
     preference.setItem(key, pre[key])
       .then(() => {
-        for (const win of appWindow.windows.values()) {
+        for (const { win } of appWindow.windows.values()) {
           win.webContents.send('AGANI::user-preference', { [key]: pre[key] })
         }
       })
