@@ -9,6 +9,7 @@
           :markdown="markdown"
           :cursor="cursor"
           :text-direction="textDirection"
+          :platform="platform"
         ></editor>
         <source-code
           v-if="sourceCode"
@@ -49,6 +50,10 @@
         required: true
       },
       textDirection: {
+        type: String,
+        required: true
+      },
+      platform: {
         type: String,
         required: true
       }

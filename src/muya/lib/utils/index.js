@@ -2,7 +2,7 @@
 // todo@jocs: remove the use of `axios` in muya
 import axios from 'axios'
 import createDOMPurify from 'dompurify'
-import { isInElectron } from '../config'
+import { isInElectron, URL_REG } from '../config'
 
 const ID_PREFIX = 'ag-'
 let id = 0
@@ -171,8 +171,6 @@ export const checkImageContentType = async url => {
  */
 export const getImageInfo = (src, baseUrl = window.DIRNAME) => {
   const EXT_REG = /\.(jpeg|jpg|png|gif|svg|webp)(?=\?|$)/i
-  // http[s] (domain or IPv4 or localhost or IPv6) [port] /not-white-space
-  const URL_REG = /^http(s)?:\/\/([a-z0-9\-._~]+\.[a-z]{2,}|[0-9.]+|localhost|\[[a-f0-9.:]+\])(:[0-9]{1,5})?\/[\S]+/i
   // data:[<MIME-type>][;charset=<encoding>][;base64],<data>
   const DATA_URL_REG = /^data:image\/[\w+-]+(;[\w-]+=[\w-]+|;base64)*,[a-zA-Z0-9+/]+={0,2}$/
 

@@ -24,6 +24,7 @@
         :source-code="sourceCode"
         :show-tab-bar="showTabBar"
         :text-direction="textDirection"
+        :platform="platform"
       ></editor-with-tabs>
       <aidou></aidou>
       <upload-image></upload-image>

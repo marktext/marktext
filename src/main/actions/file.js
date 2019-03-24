@@ -2,9 +2,9 @@ import fs from 'fs'
 // import chokidar from 'chokidar'
 import path from 'path'
 import { promisify } from 'util'
-import { BrowserWindow, dialog, ipcMain } from 'electron'
+import { BrowserWindow, dialog, ipcMain, shell } from 'electron'
 import appWindow from '../window'
-import { EXTENSION_HASN, EXTENSIONS, PANDOC_EXTENSIONS } from '../config'
+import { EXTENSION_HASN, EXTENSIONS, PANDOC_EXTENSIONS, URL_REG } from '../config'
 import { loadMarkdownFile, writeFile, writeMarkdownFile } from '../utils/filesystem'
 import appMenu from '../menu'
 import { getPath, isMarkdownFile, log, isFile, isDirectory, getRecommendTitle } from '../utils'
@@ -279,6 +279,23 @@ ipcMain.on('AGANI::ask-for-open-project-in-sidebar', e => {
   })
   if (pathname && pathname[0]) {
     appWindow.openFolder(win, pathname[0])
+  }
+})
+
+ipcMain.on('AGANI::format-link-click', (e, { data, dirname }) => {
+  if (URL_REG.test(data.href)) {
+    return shell.openExternal(data.href)
+  }
+  let pathname = null
+  if (path.isAbsolute(data.href) && isMarkdownFile(data.href)) {
+    pathname = data.href
+  }
+  if (!path.isAbsolute(data.href) && isMarkdownFile(path.join(dirname, data.href))) {
+    pathname = path.join(dirname, data.href)
+  }
+  if (pathname) {
+    const win = BrowserWindow.fromWebContents(e.sender)
+    return openFileOrFolder(win, pathname)
   }
 })
 

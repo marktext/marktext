@@ -5,6 +5,59 @@ const clickCtrl = ContentState => {
   ContentState.prototype.clickHandler = function (event) {
     const { eventCenter } = this.muya
     const { start, end } = selection.getCursorRange()
+    // format-click
+    const node = selection.getSelectionStart()
+    if (node.classList.contains('ag-inline-rule')) {
+      let formatType = null
+      let data = null
+      switch (node.tagName) {
+        case 'SPAN': {
+          if (node.hasAttribute('data-emoji')) {
+            formatType = 'emoji'
+            data = node.getAttribute('data-emoji')
+          } else if (node.classList.contains('ag-math-text')) {
+            formatType = 'inline_math'
+            data = node.innerHTML
+          }
+          break
+        }
+        case 'A': {
+          formatType = 'link' // auto link or []() link
+          data = {
+            text: node.innerHTML,
+            href: node.getAttribute('href')
+          }
+          break
+        }
+        case 'STRONG': {
+          formatType = 'strong'
+          data = node.innerHTML
+          break
+        }
+        case 'EM': {
+          formatType = 'em'
+          data = node.innerHTML
+          break
+        }
+        case 'DEL': {
+          formatType = 'del'
+          data = node.innerHTML
+          break
+        }
+        case 'CODE': {
+          formatType = 'inline_code'
+          data = node.innerHTML
+          break
+        }
+      }
+      if (formatType) {
+        eventCenter.dispatch('format-click', {
+          event,
+          formatType,
+          data,
+        })
+      }
+    }
     const block = this.getBlock(start.key)
     let needRender = false
     // is show format float box?

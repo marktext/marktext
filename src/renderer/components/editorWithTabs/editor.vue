@@ -10,6 +10,20 @@
       ref="editor"
       class="editor-component"
     ></div>
+    <div
+      class="image-viewer"
+      v-show="imageViewerVisible"
+    >
+      <span class="icon-close" @click="setImageViewerVisible(false)">
+        <svg :viewBox="CloseIcon.viewBox">
+          <use :xlink:href="CloseIcon.url"></use>
+        </svg>
+      </span>
+      <div
+        ref="imageViewer"
+      >
+      </div>
+    </div>
     <el-dialog
       :visible.sync="dialogTableVisible"
       :show-close="isShowClose"
@@ -60,6 +74,7 @@
 
 <script>
   import { mapState } from 'vuex'
+  import ViewImage from 'view-image'
   import Muya from 'muya/lib'
   import TablePicker from 'muya/lib/ui/tablePicker'
   import QuickInsert from 'muya/lib/ui/quickInsert'
@@ -75,6 +90,8 @@
   import { DEFAULT_EDITOR_FONT_FAMILY } from '@/config'
 
   import 'muya/themes/light.css'
+  import CloseIcon from '@/assets/icons/close.svg'
+  import 'view-image/lib/imgViewer.css'
 
   const STANDAR_Y = 320
 
@@ -91,7 +108,8 @@
       textDirection: {
         type: String,
         required: true
-      }
+      },
+      platform: String
     },
     computed: {
       ...mapState({
@@ -115,12 +133,14 @@
     },
     data () {
       this.defaultFontFamily = DEFAULT_EDITOR_FONT_FAMILY
+      this.CloseIcon = CloseIcon
       return {
         selectionChange: null,
         editor: null,
         pathname: '',
         isShowClose: false,
         dialogTableVisible: false,
+        imageViewerVisible: false,
         tableChecker: {
           rows: 4,
           columns: 3
@@ -243,6 +263,25 @@
           this.$store.dispatch('LISTEN_FOR_CONTENT_CHANGE', changes)
         })
 
+        this.editor.on('format-click', ({ event, formatType, data }) => {
+          const isOsx = this.platform === 'darwin'
+          const ctrlOrMeta = (isOsx && event.metaKey) || (!isOsx && event.ctrlKey)
+          if (formatType === 'link' && ctrlOrMeta) {
+            this.$store.dispatch('FORMAT_LINK_CLICK', { data, dirname: window.DIRNAME })
+          } else if (formatType === 'image' && ctrlOrMeta) {
+            if (this.imageViewer) {
+              this.imageViewer.destroy()
+            }
+
+            this.imageViewer = new ViewImage(this.$refs.imageViewer, {
+              url: data,
+              snapView: true
+            })
+
+            this.setImageViewerVisible(true)
+          }
+        })
+
         this.editor.on('selectionChange', changes => {
           const { y } = changes.cursorCoords
           if (this.typewriter) {
@@ -260,12 +299,23 @@
         this.editor.on('contextmenu', (event, selectionChanges) => {
           showContextMenu(event, selectionChanges)
         })
+        document.addEventListener('keyup', this.keyup)
       })
     },
     methods: {
+      keyup (event) {
+        if (event.key === 'Escape') {
+          this.setImageViewerVisible(false)
+        }
+      },
+
       handleImagePath (files) {
         const { editor } = this
         editor && editor.showAutoImagePath(files)
+      },
+
+      setImageViewerVisible (status) {
+        this.imageViewerVisible = status
       },
 
       handleUndo () {
@@ -453,6 +503,8 @@
       bus.$off('copy-block', this.handleCopyBlock)
       bus.$off('print', this.handlePrint)
 
+      document.removeEventListener('keyup', this.keyup)
+
       this.editor.destroy()
       this.editor = null
     }
@@ -505,5 +557,40 @@
   .typewriter .editor-component {
     padding-top: calc(50vh - 136px);
     padding-bottom: calc(50vh - 54px);
+  }
+  .image-viewer {
+    position: fixed;
+    backdrop-filter: blur(5px);
+    top: 0;
+    right: 0;
+    left: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, .8);
+    z-index: 11;
+    & .icon-close {
+      z-index: 1000;
+      width: 30px;
+      height: 30px;
+      position: absolute;
+      top: 50px;
+      left: 50px;
+      display: block;
+      & svg {
+        fill: #efefef;
+        width: 100%;
+        height: 100%;
+      }
+    }
+  }
+  .iv-container {
+    width: 100%;
+    height: 100%;
+  }
+  .iv-snap-view {
+    opacity: 1;
+    bottom: 20px;
+    right: 20px;
+    top: auto;
+    left: auto;
   }
 </style>
