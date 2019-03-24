@@ -1,10 +1,9 @@
-import path from 'path'
 import { app, BrowserWindow, screen } from 'electron'
 import windowStateKeeper from 'electron-window-state'
 import { getOsLineEndingName, loadMarkdownFile, getDefaultTextDirection } from './utils/filesystem'
 import appMenu from './menu'
 import Watcher from './watcher'
-import { isMarkdownFile, isDirectory, log } from './utils'
+import { isMarkdownFile, isDirectory, normalizeAndResolvePath, log } from './utils'
 import { TITLE_BAR_HEIGHT, defaultWinOptions, isLinux } from './config'
 import userPreference from './preference'
 
@@ -48,10 +47,17 @@ class AppWindow {
     }
   }
 
+  /**
+   * Creates a new editor window.
+   *
+   * @param {string} [pathname] Path to a file, directory or link.
+   * @param {string} [markdown] Markdown content.
+   * @param {*} [options] BrowserWindow options.
+   */
   createWindow (pathname = null, markdown = '', options = {}) {
     // Ensure path is normalized
     if (pathname) {
-      pathname = path.resolve(pathname)
+      pathname = normalizeAndResolvePath(pathname)
     }
 
     const { windows } = this
@@ -88,7 +94,7 @@ class AppWindow {
       mainWindowState.manage(win)
       win.show()
 
-      // open single mrkdown file
+      // open single markdown file
       if (pathname && isMarkdownFile(pathname)) {
         appMenu.addRecentlyUsedDocument(pathname)
         loadMarkdownFile(pathname)
