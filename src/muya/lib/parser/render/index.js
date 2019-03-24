@@ -26,6 +26,7 @@ class StateRender {
     this.container = container
   }
 
+  // collect link reference definition
   collectLabels (blocks) {
     this.labels.clear()
 

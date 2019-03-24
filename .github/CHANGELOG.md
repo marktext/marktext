@@ -77,6 +77,7 @@ This update **fixes a XSS security vulnerability** when exporting a document.
 - Cannot create table while in typewriter mode (#679)
 - Emojis don't work properly (#769)
 - Fixed multiple parser issues (update marked.js to v0.6.1)
+- Fixed [...] is displayed in gray and orange (#432)
 
 
 ### 0.13.65

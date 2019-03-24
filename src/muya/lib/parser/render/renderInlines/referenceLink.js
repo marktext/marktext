@@ -20,6 +20,9 @@ export default function referenceLink (h, cursor, block, token, outerClass) {
   const key = (label + backlash.second).toLowerCase()
   if (this.labels.has(key)) {
     ({ href, title } = this.labels.get(key))
+  } else {
+    // if the link's reference definition is not defined, just show as normal text.#432
+    return this.highlight(h, block, start, end, token)
   }
   const backlashStart = start + MARKER.length + anchor.length
   const startMarker = this.highlight(
