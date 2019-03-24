@@ -1,5 +1,9 @@
 import Renderer from './renderer'
 import InlineLexer from './inlineLexer'
+import Slugger from './slugger'
+import TextRenderer from  './textRenderer'
+import defaultOptions from './options'
+
 /**
  * Parsing & Compiling
  */
@@ -7,10 +11,11 @@ import InlineLexer from './inlineLexer'
 function Parser (options) {
   this.tokens = []
   this.token = null
-  this.options = options
+  this.options = options || defaultOptions
   this.options.renderer = this.options.renderer || new Renderer()
   this.renderer = this.options.renderer
   this.renderer.options = this.options
+  this.slugger = new Slugger()
 }
 
 /**
@@ -19,6 +24,11 @@ function Parser (options) {
 
 Parser.prototype.parse = function (src) {
   this.inline = new InlineLexer(src.links, this.options)
+  // use an InlineLexer with a TextRenderer to extract pure text
+  this.inlineText = new InlineLexer(
+    src.links,
+    Object.assign({}, this.options, {renderer: new TextRenderer()})
+  )
   this.tokens = src.reverse()
 
   let out = ''
@@ -79,7 +89,8 @@ Parser.prototype.tok = function () {
       return this.renderer.heading(
         this.inline.output(this.token.text),
         this.token.depth,
-        this.token.text,
+        unescape(this.inlineText.output(this.token.text)),
+        this.slugger,
         this.token.headingStyle
       )
     }
@@ -97,16 +108,11 @@ Parser.prototype.tok = function () {
       let i
       let row
       let cell
-      // let flags
       let j
 
       // header
       cell = ''
       for (i = 0; i < this.token.header.length; i++) {
-        // flags = {
-        //   header: true,
-        //   align: this.token.align[i]
-        // }
         cell += this.renderer.tablecell(
           this.inline.output(this.token.header[i]), {
             header: true,
@@ -178,17 +184,22 @@ Parser.prototype.tok = function () {
       return this.renderer.listitem(body, checked, listItemType, bulletListItemMarker, true)
     }
     case 'html': {
-      const html = !this.token.pre && !this.options.pedantic
-        ? this.inline.output(this.token.text)
-        : this.token.text
-
-      return this.renderer.html(html)
+      // TODO parse inline content if parameter markdown=1
+      return this.renderer.html(this.token.text)
     }
     case 'paragraph': {
       return this.renderer.paragraph(this.inline.output(this.token.text))
     }
     case 'text': {
       return this.renderer.paragraph(this.parseText())
+    }
+    default: {
+      let errMsg = 'Token with "' + this.token.type + '" type was not found.'
+      if (this.options.silent) {
+        console.error(errMsg)
+      } else {
+        throw new Error(errMsg)
+      }
     }
   }
 }

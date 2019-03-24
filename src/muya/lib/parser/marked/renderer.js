@@ -1,10 +1,12 @@
-import { escape, unescape } from './utils'
+import defaultOptions from './options'
+import { cleanUrl, escape } from './utils'
+
 /**
  * Renderer
  */
 
 function Renderer (options = {}) {
-  this.options = options
+  this.options = options || defaultOptions
 }
 
 Renderer.prototype.frontmatter = function (text) {
@@ -65,19 +67,23 @@ Renderer.prototype.html = function (html) {
   return html
 }
 
-Renderer.prototype.heading = function (text, level, raw, headingStyle) {
-  return '<h' +
-    level +
-    ' id="' +
-    this.options.headerPrefix +
-    raw.toLowerCase().replace(/[^\w]+/g, '-') +
-    '" class="' +
-    headingStyle +
-    '">' +
-    text +
-    '</h' +
-    level +
-    '>\n'
+Renderer.prototype.heading = function (text, level, raw, slugger, headingStyle) {
+  if (this.options.headerIds) {
+    return '<h' +
+      level +
+      ' id="' +
+      this.options.headerPrefix +
+      slugger.slug(raw) +
+      '" class="' +
+      headingStyle +
+      '">' +
+      text +
+      '</h' +
+      level +
+      '>\n'
+  }
+  // ignore IDs
+  return '<h' + level + '>' + text + '</h' + level + '>\n'
 }
 
 Renderer.prototype.hr = function () {
@@ -86,37 +92,21 @@ Renderer.prototype.hr = function () {
 
 Renderer.prototype.list = function (body, ordered, start, taskList) {
   const type = ordered ? 'ol' : 'ul'
-  const classes = !ordered ? (taskList ? ' class="task-list"' : ' class="bullet-list"') : ' class="order-list"'
   const startatt = (ordered && start !== 1) ? (' start="' + start + '"') : ''
-  return '<' + type + classes + startatt + '>\n' + body + '</' + type + '>\n'
+  return '<' + type + startatt + '>\n' + body + '</' + type + '>\n'
 }
 
 Renderer.prototype.listitem = function (text, checked, listItemType, bulletListItemMarker, loose) {
-  let classes
-  switch (listItemType) {
-    case 'order':
-      classes = ' class="order-list-item'
-      break
-    case 'task':
-      classes = ' class="task-list-item'
-      break
-    case 'bullet':
-      classes = ' class="bullet-list-item'
-      break
-    default:
-      throw new Error('Invalid state')
-  }
-
-  // "tight-list-item" is only used to remove <p> padding
-  classes += loose ? ` loose-list-item"` : ` tight-list-item"`
-
+  // normal list
   if (checked === undefined) {
-    return '<li ' + classes + ' data-marker="' + bulletListItemMarker + '">' + text + '</li>\n'
+    return '<li>' + text + '</li>\n'
   }
 
-  return '<li ' + classes + ' data-marker="' + bulletListItemMarker + '">' +
-    '<input type="checkbox" class="task-list-item-checkbox"' +
-    (checked ? ' checked' : '') +
+  // task list
+  return '<li><input type="checkbox"' +
+    (checked ? ' checked=""' : '') +
+    'disabled=""' +
+    (this.options.xhtml ? ' /' : '') +
     '> ' +
     text +
     '</li>\n'
@@ -128,6 +118,7 @@ Renderer.prototype.paragraph = function (text) {
 
 Renderer.prototype.table = function (header, body) {
   if (body) body = '<tbody>' + body + '</tbody>'
+
   return '<table>\n' +
     '<thead>\n' +
     header +
@@ -170,20 +161,11 @@ Renderer.prototype.del = function (text) {
 }
 
 Renderer.prototype.link = function (href, title, text) {
-  if (this.options.sanitize) {
-    let prot
-    try {
-      prot = decodeURIComponent(unescape(href))
-        .replace(/[^\w:]/g, '')
-        .toLowerCase()
-    } catch (e) {
-      return ''
-    }
-    if (prot.indexOf('javascript:') === 0 || prot.indexOf('vbscript:') === 0) {
-      return ''
-    }
+  href = cleanUrl(this.options.sanitize, this.options.baseUrl, href)
+  if (href === null) {
+    return text
   }
-  let out = '<a href="' + href + '"'
+  let out = '<a href="' + escape(href) + '"'
   if (title) {
     out += ' title="' + title + '"'
   }
@@ -192,6 +174,11 @@ Renderer.prototype.link = function (href, title, text) {
 }
 
 Renderer.prototype.image = function (href, title, text) {
+  href = cleanUrl(this.options.sanitize, this.options.baseUrl, href)
+  if (href === null) {
+    return text
+  }
+
   let out = '<img src="' + href + '" alt="' + text + '"'
   if (title) {
     out += ' title="' + title + '"'

@@ -1,0 +1,22 @@
+export default {
+  baseUrl: null,
+  breaks: false,
+  gfm: true,
+  headerIds: true,
+  headerPrefix: '',
+  highlight: null,
+  mathRenderer: null,
+  emojiRenderer: null,
+  langPrefix: 'language-',
+  mangle: true,
+  pedantic: false,
+  renderer: null, // new Renderer(),
+  sanitize: false,
+  sanitizer: null,
+  silent: false,
+  smartLists: false,
+  smartypants: false,
+  tables: true,
+  xhtml: false,
+  disableInline: false
+}
