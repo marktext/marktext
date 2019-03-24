@@ -4,8 +4,8 @@ import { CLASS_OR_ID } from '../config'
 
 const INLINE_UPDATE_FRAGMENTS = [
   '^([*+-]\\s)', // Bullet list
-  '^(\\[[x\\s]{1}\\]\\s)', // Task list
-  '^(\\d+\\.\\s)', // Order list
+  '^(\\[[xX\\s]{1}\\]\\s)', // Task list
+  '^(\\d{1,9}(?:\\.|\\))\\s)', // Order list
   '^\\s{0,3}(#{1,6})(?=\\s{1,}|$)', // ATX headings
   '^\\s{0,3}(\\={3,}|\\-{3,})(?=\\s{1,}|$)', // Setext headings
   '^(>).+', // Block quote
@@ -161,11 +161,14 @@ const updateCtrl = ContentState => {
     newBlock.listItemType = type
     newBlock.isLooseListItem = preferLooseListItem
 
-    if (type === 'task' || type === 'bullet') {
+    let bulletMarkerOrDelimiter
+    if (type === 'order') {
+      bulletMarkerOrDelimiter = (marker && marker.length >= 2) ? marker.slice(-1) : '.'
+    } else {
       const { bulletListMarker } = this
-      const bulletListItemMarker = marker ? marker.charAt(0) : bulletListMarker
-      newBlock.bulletListItemMarker = bulletListItemMarker
+      bulletMarkerOrDelimiter = marker ? marker.charAt(0) : bulletListMarker
     }
+    newBlock.bulletMarkerOrDelimiter = bulletMarkerOrDelimiter
 
     if (
       preSibling &&

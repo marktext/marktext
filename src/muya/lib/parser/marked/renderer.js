@@ -96,7 +96,7 @@ Renderer.prototype.list = function (body, ordered, start, taskList) {
   return '<' + type + startatt + '>\n' + body + '</' + type + '>\n'
 }
 
-Renderer.prototype.listitem = function (text, checked, listItemType, bulletListItemMarker, loose) {
+Renderer.prototype.listitem = function (text, checked) {
   // normal list
   if (checked === undefined) {
     return '<li>' + text + '</li>\n'
