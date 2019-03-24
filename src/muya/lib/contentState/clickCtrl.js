@@ -5,6 +5,10 @@ const clickCtrl = ContentState => {
   ContentState.prototype.clickHandler = function (event) {
     const { eventCenter } = this.muya
     const { start, end } = selection.getCursorRange()
+    // fix #625, the selection maybe not in edit area.
+    if (!start || !end) {
+      return
+    }
     // format-click
     const node = selection.getSelectionStart()
     if (node.classList.contains('ag-inline-rule')) {

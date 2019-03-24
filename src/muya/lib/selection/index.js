@@ -455,7 +455,12 @@ class Selection {
 
     let startParagraph = findNearestParagraph(anchorNode)
     let endParagraph = findNearestParagraph(focusNode)
-
+    if (!startParagraph || !endParagraph) {
+      return {
+        start: null,
+        end: null
+      }
+    }
     const getOffsetOfParagraph = (node, paragraph) => {
       let offset = 0
       let preSibling = node
