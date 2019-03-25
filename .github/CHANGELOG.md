@@ -34,7 +34,8 @@ This update **fixes a XSS security vulnerability** when exporting a document.
 - Inserting Codeblock should automatically set cursor into language field (#684)
 - Upstream: prismjs highlighting issues (#709)
 - Improvements for "Open Recent" (#616)
-- [feature request] make table of contents in sidebar collapsible (#404)
+- Make table of contents in sidebar collapsible (#404)
+- Hide titlebar control buttons in custom titlebar style
 
 **:beetle:Bug fix**
 
