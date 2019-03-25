@@ -165,6 +165,6 @@
     background: #333;
   }
   .CodeMirror {
-    height: 100%;
+    height: calc(100vh - (var(--titleBarHeight) + 100px));
   }
 </style>
