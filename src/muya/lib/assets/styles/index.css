@@ -132,7 +132,7 @@ span.ag-math {
   position: absolute;
   top: 100%;
   left: 0;
-  z-index: 10;
+  z-index: 1;
 }
 
 div.ag-empty {
@@ -250,6 +250,7 @@ figure {
   width: 100%;
   height: 100%;
   will-change: transform;
+  fill: currentColor;
 }
 
 figure.ag-active .ag-tool-bar {
@@ -596,7 +597,7 @@ span.ag-emoji-marked-text {
   color: var(--themeColor);
   background: transparent;
   border: none;
-  z-index: 10;
+  z-index: 1;
 }
 
 .ag-language-input::placeholder {
@@ -649,12 +650,9 @@ span.ag-warn.ag-emoji-marked-text {
   height: 1.1em;
   display: inline-block;
   vertical-align: middle;
-  background: url(../icons/image.png);
   background-size: contain;
-}
-
-.ag-image-marked-text.ag-image-fail::before {
-  background-image: url(../icons/image_fail.png);
+  position: relative;
+  top: -3px;
 }
 
 span[data-role="link"], a[data-role="link"], span[data-role="link"] .ag-backlash {

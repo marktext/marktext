@@ -174,11 +174,11 @@ class ExportMarkdown {
 
   normalizeMultipleMath (block, /* figure */ indent) {
     const result = []
-    result.push('$$\n')
+    result.push(`${indent}$$\n`)
     for (const line of block.children[0].children[0].children) {
-      result.push(`${line.text}\n`)
+      result.push(`${indent}${line.text}\n`)
     }
-    result.push('$$\n')
+    result.push(`${indent}$$\n`)
     return result.join('')
   }
 

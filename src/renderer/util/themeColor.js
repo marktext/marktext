@@ -1,7 +1,10 @@
 // we can load custom theme from userData folder, we also can write this theme in userData folder.
+import imageDark from '../../muya/lib/assets/icons/image_dark.png'
+import imageDarkFail from '../../muya/lib/assets/icons/image_dark_fail.png'
 
 export const dark = `
 :root {
+  /*editor*/
   --themeColor: #f48237;
   --highlightColor: rgba(244, 130, 55, .9);
   --selectionColor: rgba(244, 130, 55, .4);
@@ -14,6 +17,7 @@ export const dark = `
   --iconColor: rgba(255, 255, 255, .8);
   --codeBgColor: #d8d8d869;
   --codeBlockBgColor: rgba(244, 130, 55, .04);
+  /*marktext*/
   --sideBarColor: rgba(255, 255, 255, .6);
   --sideBarTitleColor: rgba(255, 255, 255, 1);
   --sideBarTextColor: rgba(255, 255, 255, .4);
@@ -72,6 +76,14 @@ pre.ag-paragraph {
    border-radius: .3em;
    white-space: normal;
  }
+
+.ag-image-marked-text::before {
+  background: url(${imageDark});
+}
+
+.ag-image-marked-text.ag-image-fail::before {
+  background-image: url(${imageDarkFail});
+}
  
  .token.comment,
  .token.prolog,

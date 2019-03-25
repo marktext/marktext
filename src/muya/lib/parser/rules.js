@@ -5,12 +5,13 @@ export const beginRules = {
   'hr': /^(\*{3,}$|^\-{3,}$|^\_{3,}$)/,
   'code_fense': /^(`{3,})([^`]*)$/,
   'header': /(^\s{0,3}#{1,6}(\s{1,}|$))/,
-  'multiple_math': /^(\$\$)$/,
-  'reference_definition': /^( {0,3}\[)([^\]]+?)(\\*)(\]: *)(<?)([^\s>]+)(>?)(?:( +)(["'(]?)([^\n"'\(\)]+)\9)?( *)$/
+  'reference_definition': /^( {0,3}\[)([^\]]+?)(\\*)(\]: *)(<?)([^\s>]+)(>?)(?:( +)(["'(]?)([^\n"'\(\)]+)\9)?( *)$/,
+
+  // extra syntax (not belogs to GFM)
+  'multiple_math': /^(\$\$)$/
 }
 
 export const inlineRules = {
-  'backlash': /^(\\)([\\`*{}\[\]()#+\-.!_>~:\|\<\>]{1})/,
   'strong': /^(\*\*|__)(?=\S)([\s\S]*?[^\s\\])(\\*)\1(?!(\*|_))/, // can nest
   'em': /^(\*|_)(?=\S)([\s\S]*?[^\s\*\\])(\\*)\1(?!\1)/, // can nest
   'inline_code': /^(`{1,3})([^`]+?|.{2,})\1/,
@@ -21,12 +22,17 @@ export const inlineRules = {
   'auto_link': /^(https?:\/\/[^\s]+)(?=\s|$)/,
   'reference_link': /^\[([^\]]+?)(\\*)\](?:\[([^\]]*?)(\\*)\])?/,
   'reference_image': /^\!\[([^\]]+?)(\\*)\](?:\[([^\]]*?)(\\*)\])?/,
-  'inline_math': /^(\$)([^\$]*?[^\$\\])(\\*)\1(?!\1)/,
   'tail_header': /^(\s{1,}#{1,})(\s*)$/,
   'a_link': /^(<a[\s\S]*href\s*=\s*("|')(.+?)\2(?=\s|>)[\s\S]*(?!\\)>)([\s\S]*)(<\/a>)/, // can nest
   'html_image': /^(<img\s([\s\S]*?src[\s\S]+?)(?!\\)>)/,
   'html_tag': /^(<!--[\s\S]*?-->|<\/?[a-zA-Z\d-]+[\s\S]*?(?!\\)>)/,
   'html_escape': new RegExp(`^(${escapeCharacters.join('|')})`, 'i'),
-  'hard_line_break': /^(\s{2,})$/
+  'hard_line_break': /^(\s{2,})$/,
+
+  // patched math marker `$`
+  'backlash': /^(\\)([\\`*{}\[\]()#+\-.!_>~:\|\<\>$]{1})/,
+
+  // extra (not belongs to GFM)
+  'inline_math': /^(\$)([^\$]*?[^\$\\])(\\*)\1(?!\1)/
 }
 /* eslint-enable no-useless-escape */
