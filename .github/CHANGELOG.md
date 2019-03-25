@@ -79,6 +79,7 @@ This update **fixes a XSS security vulnerability** when exporting a document.
 - Fixed multiple parser issues (update marked.js to v0.6.1)
 - Fixed nest math block issue (#586)
 - Can't make a comma-separated list of dollar ($) amounts (#740)
+- Fixed [...] is displayed in gray and orange (#432)
 
 
 ### 0.13.65

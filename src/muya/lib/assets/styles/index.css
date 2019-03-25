@@ -19,30 +19,13 @@ pre {
   }
 }
 
-#ag-editor-id > h1.ag-active::before,
-#ag-editor-id > h2.ag-active::before,
-#ag-editor-id > h3.ag-active::before,
-#ag-editor-id > h4.ag-active::before,
-#ag-editor-id > h5.ag-active::before,
-#ag-editor-id > h6.ag-active::before {
-  content: attr(data-head);
-  width: 20px;
-  height: 20px;
-  text-align: center;
-  line-height: 22px;
-  display: block;
-  position: absolute;
-  top: 0;
-  left: -25px;
-  font-size: 14px;
-  color: var(--iconColor);
-  font-weight: 400;
-  font-style: italic;
-}
-
 div.ag-show-quick-insert-hint p.ag-paragraph.ag-active > span.ag-line:first-of-type:empty::after {
   content: 'Type @ to insert';
   color: var(--editorColor10);
+}
+
+.ag-paragraph {
+  position: relative;
 }
 
 .ag-paragraph:empty::after,
@@ -273,27 +256,13 @@ figure.ag-active .ag-tool-bar {
   display: block;
 }
 
-figure.ag-active[data-role=HTML]::before {
-  content: attr(data-role);
-  height: 20px;
-  text-align: center;
-  display: block;
-  position: absolute;
-  top: 0;
-  left: -45px;
-  font-size: 12px;
-  color: var(--editorColor50);
-  font-weight: 400;
-  font-style: italic;
-}
-
 table {
   width: 100%;
   border-collapse: collapse;
   margin-top: 0;
 }
 
-#ag-editor-id a {
+#ag-editor-id a:not(.ag-front-icon) {
   pointer-events: none;
 }
 
@@ -723,4 +692,32 @@ span.ag-reference-link {
 .ag-focus-mode td.ag-active,
 .ag-focus-mode pre.ag-active {
   opacity: 1;
+}
+
+.ag-front-icon {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  top: 2px;
+  left: -40px;
+  display: none;
+  /* cursor: pointer; */
+}
+
+.ag-front-icon::before {
+  content: '';
+  width: 0;
+  height: 0;
+  border-bottom: none;
+  border-left-color: transparent;
+  border-right-color: transparent;
+  position: absolute;
+  top: 13px;
+  right: -8px;
+  /*temp hide it*/
+  display: none;
+}
+
+.ag-paragraph.ag-active .ag-front-icon {
+  display: block;
 }

@@ -12,7 +12,6 @@ export const beginRules = {
 }
 
 export const inlineRules = {
-  'backlash': /^(\\)([\\`*{}\[\]()#+\-.!_>~:\|\<\>$]{1})/,
   'strong': /^(\*\*|__)(?=\S)([\s\S]*?[^\s\\])(\\*)\1(?!(\*|_))/, // can nest
   'em': /^(\*|_)(?=\S)([\s\S]*?[^\s\*\\])(\\*)\1(?!\1)/, // can nest
   'inline_code': /^(`{1,3})([^`]+?|.{2,})\1/,
@@ -29,6 +28,9 @@ export const inlineRules = {
   'html_tag': /^(<!--[\s\S]*?-->|<\/?[a-zA-Z\d-]+[\s\S]*?(?!\\)>)/,
   'html_escape': new RegExp(`^(${escapeCharacters.join('|')})`, 'i'),
   'hard_line_break': /^(\s{2,})$/,
+
+  // patched math marker `$`
+  'backlash': /^(\\)([\\`*{}\[\]()#+\-.!_>~:\|\<\>$]{1})/,
 
   // extra (not belongs to GFM)
   'inline_math': /^(\$)([^\$]*?[^\$\\])(\\*)\1(?!\1)/
