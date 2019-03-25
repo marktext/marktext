@@ -113,19 +113,21 @@
         })
       },
       setMarkdown (markdown) {
-        const { editor, cursor } = this
+        const { editor } = this
         editor.setValue(markdown)
-        if (cursor) {
-          editor.setCursor(cursor)
-        } else {
-          setCursorAtLastLine(editor)
-        }
+        // // NOTE: Don't set the cursor because we load a new file - no tab switch.
+        setCursorAtLastLine(editor)
       },
       // Only listen to get changes. Do not set history or other things.
       handleMarkdownChange({ markdown, cursor, renderCursor, history }) {
         const { editor } = this
         editor.setValue(markdown)
-        editor.setCursor(cursor)
+        // Cursor is null when loading a file or creating a new tab in source code mode.
+        if (cursor) {
+          editor.setCursor(cursor)
+        } else {
+          setCursorAtLastLine(editor)
+        }
       }
     }
   }
