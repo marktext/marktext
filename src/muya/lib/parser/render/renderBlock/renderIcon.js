@@ -28,6 +28,7 @@ export default function renderIcon (block) {
   const { type, functionType, listType } = block
   const selector = `a.ag-front-icon`
   let icon = null
+
   switch (type) {
     case 'p': {
       icon = paragraphIcon
@@ -44,7 +45,7 @@ export default function renderIcon (block) {
       break
     }
     case 'pre': {
-      if (functionType === 'fencecode') {
+      if (functionType === 'fencecode' || functionType === 'indentcode') {
         icon = codeIcon
       } else if (functionType === 'frontmatter') {
         icon = frontMatterIcon
