@@ -124,8 +124,6 @@ class Watcher {
 
   // unWatch some single watch
   unWatch (win, watchPath, type = 'dir') {
-    let watcher = null
-    let watcherId = null
     for (const id of Object.keys(this.watchers)) {
       const w = this.watchers[id]
       if (
@@ -133,18 +131,14 @@ class Watcher {
         w.pathname === watchPath &&
         w.type === type
       ) {
-        watcher = w.watcher
-        watcherId = id
+        w.watcher.close()
+        delete this.watchers[id]
         break
       }
     }
-    if (watcher) {
-      delete this.watchers[watcherId]
-      watcher.close()
-    }
   }
 
-  // unwatch for ome window, (remove all the watchers in one window)
+  // unwatch for one window, (remove all the watchers in one window)
   unWatchWin (win) {
     const watchers = []
     const watchIds = []

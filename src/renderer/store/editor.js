@@ -637,7 +637,7 @@ const actions = {
     ipcRenderer.on('AGANI::update-file', (e, { type, change }) => {
       if (type === 'unlink') {
         return notice.notify({
-          title: 'File Removed on Dish',
+          title: 'File Removed on Disk',
           message: `${change.pathname} has been removed or moved to other place`,
           type: 'warning',
           time: 0,

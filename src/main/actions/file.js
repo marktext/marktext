@@ -182,6 +182,8 @@ ipcMain.on('AGANI::response-file-save-as', (e, { id, markdown, pathname, options
         // need watch file after `save as`
         if (pathname !== filePath) {
           appWindow.watcher.watch(win, filePath, 'file')
+          // unWatch the old file.
+          appWindow.watcher.unWatch(win, pathname, 'file')
         }
         const filename = path.basename(filePath)
         win.webContents.send('AGANI::set-pathname', { id, pathname: filePath, filename })
