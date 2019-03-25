@@ -57,7 +57,7 @@
       </el-tooltip>
     </div>
     <div
-      v-if="titleBarStyle === 'custom'"
+      v-if="titleBarStyle === 'custom' && !isFullScreen"
       class="right-toolbar"
       :class="[{ 'title-no-drag': titleBarStyle === 'custom' }]"
     >
@@ -118,6 +118,7 @@
       this.windowIconMaximize = maximizePath
       this.windowIconClose = closePath
       return {
+        isFullScreen: remote.getCurrentWindow().isFullScreen(),
         isMaximized: remote.getCurrentWindow().isMaximized() || remote.getCurrentWindow().isFullScreen(),
         show: 'word'
       }
@@ -192,7 +193,8 @@
       },
 
       handleWindowStateChanged () {
-        this.isMaximized = remote.getCurrentWindow().isMaximized() || remote.getCurrentWindow().isFullScreen()
+        this.isFullScreen = remote.getCurrentWindow().isFullScreen()
+        this.isMaximized = remote.getCurrentWindow().isMaximized() || this.isFullScreen
       },
 
       rename () {
