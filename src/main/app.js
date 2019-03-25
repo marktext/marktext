@@ -1,9 +1,8 @@
-import path from 'path'
 import { app, systemPreferences } from 'electron'
 import appWindow from './window'
 import { isOsx } from './config'
 import { dockMenu } from './menus'
-import { isDirectory, isMarkdownFile, getMenuItemById } from './utils'
+import { isDirectory, isMarkdownFileOrLink, getMenuItemById, normalizeAndResolvePath } from './utils'
 import { watchers } from './utils/imagePathAutoComplement'
 import { selectTheme } from './actions/theme'
 import preference from './preference'
@@ -70,10 +69,16 @@ class App {
       for (const arg of process.argv) {
         if (arg.startsWith('--')) {
           continue
-        } else if (isDirectory(arg) || isMarkdownFile(arg)) {
-          // Normalize path into an absolute path.
-          this.openFilesCache = [ path.resolve(arg) ]
-          break
+        } else if (isDirectory(arg) || isMarkdownFileOrLink(arg)) {
+          // Normalize and resolve the path or link target.
+          const resolved = normalizeAndResolvePath(arg)
+          if (resolved) {
+            // TODO: Allow to open multiple files.
+            this.openFilesCache = [ resolved ]
+            break
+          } else {
+            console.error(`[ERROR] Cannot resolve "${arg}".`)
+          }
         }
       }
     }

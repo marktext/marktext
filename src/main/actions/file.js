@@ -7,7 +7,7 @@ import appWindow from '../window'
 import { EXTENSION_HASN, EXTENSIONS, PANDOC_EXTENSIONS, URL_REG } from '../config'
 import { loadMarkdownFile, writeFile, writeMarkdownFile } from '../utils/filesystem'
 import appMenu from '../menu'
-import { getPath, isMarkdownFile, log, isFile, isDirectory, getRecommendTitle } from '../utils'
+import { getPath, isMarkdownFile, isMarkdownFileOrLink, normalizeAndResolvePath, log, isFile, isDirectory, getRecommendTitle } from '../utils'
 import userPreference from '../preference'
 import pandoc from '../utils/pandoc'
 
@@ -213,7 +213,7 @@ ipcMain.on('AGANI::close-window', e => {
 ipcMain.on('AGANI::window::drop', async (e, fileList) => {
   const win = BrowserWindow.fromWebContents(e.sender)
   for (const file of fileList) {
-    if (isMarkdownFile(file)) {
+    if (isMarkdownFileOrLink(file)) {
       openFileOrFolder(win, file)
       break
     }
@@ -327,12 +327,13 @@ export const print = win => {
 }
 
 export const openFileOrFolder = (win, pathname) => {
-  if (isFile(pathname)) {
+  const resolvedPath = normalizeAndResolvePath(pathname)
+  if (isFile(resolvedPath)) {
     const { openFilesInNewWindow } = userPreference.getAll()
     if (openFilesInNewWindow) {
-      appWindow.createWindow(pathname)
+      appWindow.createWindow(resolvedPath)
     } else {
-      loadMarkdownFile(pathname).then(rawDocument => {
+      loadMarkdownFile(resolvedPath).then(rawDocument => {
         newTab(win, rawDocument)
       }).catch(err => {
         // TODO: Handle error --> create a end-user error handler.
@@ -340,10 +341,10 @@ export const openFileOrFolder = (win, pathname) => {
         log(err)
       })
     }
-  } else if (isDirectory(pathname)) {
-    appWindow.createWindow(pathname)
+  } else if (isDirectory(resolvedPath)) {
+    appWindow.createWindow(resolvedPath)
   } else {
-    console.error(`[ERROR] Cannot open unknown file: "${pathname}"`)
+    console.error(`[ERROR] Cannot open unknown file: "${resolvedPath}"`)
   }
 }
 
