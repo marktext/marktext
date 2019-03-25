@@ -132,7 +132,7 @@ span.ag-math {
   position: absolute;
   top: 100%;
   left: 0;
-  z-index: 10;
+  z-index: 1;
 }
 
 div.ag-empty {
@@ -596,7 +596,7 @@ span.ag-emoji-marked-text {
   color: var(--themeColor);
   background: transparent;
   border: none;
-  z-index: 10;
+  z-index: 1;
 }
 
 .ag-language-input::placeholder {
