@@ -650,12 +650,9 @@ span.ag-warn.ag-emoji-marked-text {
   height: 1.1em;
   display: inline-block;
   vertical-align: middle;
-  background: url(../icons/image.png);
   background-size: contain;
-}
-
-.ag-image-marked-text.ag-image-fail::before {
-  background-image: url(../icons/image_fail.png);
+  position: relative;
+  top: -3px;
 }
 
 span[data-role="link"], a[data-role="link"], span[data-role="link"] .ag-backlash {
