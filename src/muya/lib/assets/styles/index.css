@@ -250,6 +250,7 @@ figure {
   width: 100%;
   height: 100%;
   will-change: transform;
+  fill: currentColor;
 }
 
 figure.ag-active .ag-tool-bar {
