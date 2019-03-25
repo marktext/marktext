@@ -44,7 +44,8 @@ const mutations = {
       const fileState = state.tabs[index] || state.tabs[index - 1] || {}
       state.currentFile = fileState
       if (typeof fileState.markdown === 'string') {
-        const { markdown, cursor, history } = fileState
+        const { markdown, cursor, history, pathname } = fileState
+        window.DIRNAME = pathname ? path.dirname(pathname) : ''
         bus.$emit('file-changed', { markdown, cursor, renderCursor: true, history })
       }
     }
@@ -112,12 +113,16 @@ const mutations = {
     arr.forEach(id => {
       const index = state.tabs.findIndex(f => f.id === id)
       state.tabs.splice(index, 1)
-      if (state.currentFile.id === id) state.currentFile = {}
+      if (state.currentFile.id === id) {
+        state.currentFile = {}
+        window.DIRNAME = ''
+      }
     })
     if (!state.currentFile.id && state.tabs.length) {
       state.currentFile = state.tabs[0]
       if (typeof state.currentFile.markdown === 'string') {
-        const { markdown, cursor, history } = state.currentFile
+        const { markdown, cursor, history, pathname } = state.currentFile
+        window.DIRNAME = pathname ? path.dirname(pathname) : ''
         bus.$emit('file-changed', { markdown, cursor, renderCursor: true, history })
       }
     }
