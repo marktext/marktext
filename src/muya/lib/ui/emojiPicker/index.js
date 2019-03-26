@@ -1,7 +1,6 @@
 import BaseScrollFloat from '../baseScrollFloat'
-import Emoji, { setInlineEmoji } from '../emojis'
+import Emoji from '../emojis'
 import { patch, h } from '../../parser/render/snabbdom'
-import selection from '../../selection'
 import './index.css'
 
 class EmojiPicker extends BaseScrollFloat {
@@ -41,13 +40,7 @@ class EmojiPicker extends BaseScrollFloat {
         const renderObj = this.emoji.search(text)
         this.renderObj = renderObj
         const cb = item => {
-          // Because the selection will change when you click emoji picker. So set cursor back.
-          selection.setCursorRange(this.muya.contentState.cursor)
-          // find the emojiNode
-          const startNode = selection.getSelectionStart()
-          if (startNode.classList.contains('ag-emoji-marked-text')) {
-            setInlineEmoji(startNode, item)
-          }
+          this.muya.contentState.setEmoji(item)
         }
         if (this.renderArray.length) {
           this.show(reference, cb)

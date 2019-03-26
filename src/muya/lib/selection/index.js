@@ -434,7 +434,6 @@ class Selection {
     let { node: endNode, offset: endOffset } = getNodeAndOffset(endParagraph, end.offset)
     startOffset = Math.min(startOffset, startNode.textContent.length)
     endOffset = Math.min(endOffset, endNode.textContent.length)
-
     this.select(startNode, startOffset, endNode, endOffset)
   }
 
