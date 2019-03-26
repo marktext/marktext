@@ -29,6 +29,11 @@ export const fileMixins = {
 
       const fileState = isOpened || getFileStateFromData(data)
       this.$store.dispatch('UPDATE_CURRENT_FILE', fileState)
+      // ask main process to watch this file changes
+      this.$store.dispatch('ASK_FILE_WATCH', {
+        pathname,
+        watch: true
+      })
 
       ipcRenderer.send("AGANI::add-recently-used-document", pathname)
 

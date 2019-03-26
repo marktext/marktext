@@ -1,4 +1,4 @@
-import { app, BrowserWindow, screen } from 'electron'
+import { app, BrowserWindow, screen, ipcMain } from 'electron'
 import windowStateKeeper from 'electron-window-state'
 import { getOsLineEndingName, loadMarkdownFile, getDefaultTextDirection } from './utils/filesystem'
 import appMenu from './menu'
@@ -6,12 +6,31 @@ import Watcher from './watcher'
 import { isMarkdownFile, isDirectory, normalizeAndResolvePath, log } from './utils'
 import { TITLE_BAR_HEIGHT, defaultWinOptions, isLinux } from './config'
 import userPreference from './preference'
+import { newTab } from './actions/file'
 
 class AppWindow {
   constructor () {
     this.focusedWindowId = -1
     this.windows = new Map()
     this.watcher = new Watcher()
+    this.listen()
+  }
+
+  listen () {
+    // listen for file watch from renderer process eg
+    // 1. click file in folder.
+    // 2. new tab and save it.
+    // 3. close tab(s) need unwatch.
+    ipcMain.on('AGANI::file-watch', (e, { pathname, watch }) => {
+      const win = BrowserWindow.fromWebContents(e.sender)
+      if (watch) {
+        // listen for file `change` and `unlink`
+        this.watcher.watch(win, pathname, 'file')
+      } else {
+        // unlisten for file `change` and `unlink`
+        this.watcher.unWatch(win, pathname, 'file')
+      }
+    })
   }
 
   ensureWindowPosition (mainWindowState) {
@@ -79,10 +98,7 @@ class AppWindow {
     }
 
     const win = new BrowserWindow(winOpt)
-    windows.set(win.id, {
-      win,
-      watchers: []
-    })
+    windows.set(win.id, { win })
 
     // create a menu for the current window
     appMenu.addWindowMenuWithListener(win)
@@ -97,43 +113,11 @@ class AppWindow {
       // open single markdown file
       if (pathname && isMarkdownFile(pathname)) {
         appMenu.addRecentlyUsedDocument(pathname)
-        loadMarkdownFile(pathname)
-          .then(data => {
-            const {
-              markdown,
-              filename,
-              pathname,
-              isUtf8BomEncoded,
-              lineEnding,
-              adjustLineEndingOnSave,
-              isMixedLineEndings,
-              textDirection
-            } = data
-
-            appMenu.updateLineEndingnMenu(lineEnding)
-            appMenu.updateTextDirectionMenu(textDirection)
-            win.webContents.send('AGANI::open-single-file', {
-              markdown,
-              filename,
-              pathname,
-              options: {
-                isUtf8BomEncoded,
-                lineEnding,
-                adjustLineEndingOnSave
-              }
-            })
-
-            // Notify user about mixed endings
-            if (isMixedLineEndings) {
-              win.webContents.send('AGANI::show-notification', {
-                title: 'Mixed Line Endings',
-                type: 'error',
-                message: `The document has mixed line endings which are automatically normalized to ${lineEnding.toUpperCase()}.`,
-                time: 20000
-              })
-            }
-          })
-          .catch(log)
+        try {
+          this.openFile(win, pathname)
+        } catch (err) {
+          log(err)
+        }
         // open directory / folder
       } else if (pathname && isDirectory(pathname)) {
         appMenu.addRecentlyUsedDocument(pathname)
@@ -176,6 +160,7 @@ class AppWindow {
 
     // set renderer arguments
     const { codeFontFamily, codeFontSize, theme } = userPreference.getAll()
+    // wow, this can be accessesed in renderer process.
     win.stylePrefs = {
       codeFontFamily,
       codeFontSize,
@@ -192,9 +177,57 @@ class AppWindow {
     return win
   }
 
+  openFile = async (win, filePath) => {
+    const data = await loadMarkdownFile(filePath)
+    const {
+      markdown,
+      filename,
+      pathname,
+      isUtf8BomEncoded,
+      lineEnding,
+      adjustLineEndingOnSave,
+      isMixedLineEndings,
+      textDirection
+    } = data
+
+    appMenu.updateLineEndingnMenu(lineEnding)
+    appMenu.updateTextDirectionMenu(textDirection)
+    win.webContents.send('AGANI::open-single-file', {
+      markdown,
+      filename,
+      pathname,
+      options: {
+        isUtf8BomEncoded,
+        lineEnding,
+        adjustLineEndingOnSave
+      }
+    })
+    // listen for file `change` and `unlink`
+    this.watcher.watch(win, filePath, 'file')
+    // Notify user about mixed endings
+    if (isMixedLineEndings) {
+      win.webContents.send('AGANI::show-notification', {
+        title: 'Mixed Line Endings',
+        type: 'error',
+        message: `The document has mixed line endings which are automatically normalized to ${lineEnding.toUpperCase()}.`,
+        time: 20000
+      })
+    }
+  }
+
+  newTab (win, filePath) {
+    this.watcher.watch(win, filePath, 'file')
+    loadMarkdownFile(filePath).then(rawDocument => {
+      newTab(win, rawDocument)
+    }).catch(err => {
+      // TODO: Handle error --> create a end-user error handler.
+      console.error('[ERROR] Cannot open file or directory.')
+      log(err)
+    })
+  }
+
   openFolder (win, pathname) {
-    const unwatcher = this.watcher.watch(win, pathname)
-    this.windows.get(win.id).watchers.push(unwatcher)
+    this.watcher.watch(win, pathname, 'dir')
     try {
       win.webContents.send('AGANI::open-project', pathname)
     } catch (err) {
@@ -206,10 +239,7 @@ class AppWindow {
     if (!win) return
     const { windows } = this
     if (windows.has(win.id)) {
-      const { watchers } = windows.get(win.id)
-      if (watchers && watchers.length) {
-        watchers.forEach(w => w())
-      }
+      this.watcher.unWatchWin(win)
       windows.delete(win.id)
     }
     appMenu.removeWindowMenu(win.id)

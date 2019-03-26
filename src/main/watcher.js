@@ -5,6 +5,11 @@ import chokidar from 'chokidar'
 import { getUniqueId, log, hasMarkdownExtension } from './utils'
 import { loadMarkdownFile } from './utils/filesystem'
 
+const EVENT_NAME = {
+  dir: 'AGANI::update-object-tree',
+  file: 'AGANI::update-file'
+}
+
 const add = async (win, pathname) => {
   const stats = await promisify(fs.stat)(pathname)
   const birthTime = stats.birthtime
@@ -28,15 +33,15 @@ const add = async (win, pathname) => {
   })
 }
 
-const unlink = (win, pathname) => {
+const unlink = (win, pathname, type) => {
   const file = { pathname }
-  win.webContents.send('AGANI::update-object-tree', {
+  win.webContents.send(EVENT_NAME[type], {
     type: 'unlink',
     change: file
   })
 }
 
-const change = async (win, pathname) => {
+const change = async (win, pathname, type) => {
   const isMarkdown = hasMarkdownExtension(pathname)
 
   if (isMarkdown) {
@@ -45,7 +50,7 @@ const change = async (win, pathname) => {
       pathname,
       data
     }
-    win.webContents.send('AGANI::update-object-tree', {
+    win.webContents.send(EVENT_NAME[type], {
       type: 'change',
       change: file
     })
@@ -83,18 +88,18 @@ class Watcher {
     this.watchers = {}
   }
   // return a unwatch function
-  watch (win, dir) {
+  watch (win, watchPath, type = 'dir'/* file or dir */) {
     const id = getUniqueId()
-    const watcher = chokidar.watch(dir, {
+    const watcher = chokidar.watch(watchPath, {
       ignored: /node_modules|\.git/,
-      ignoreInitial: false,
+      ignoreInitial: type === 'file',
       persistent: true
     })
 
     watcher
       .on('add', pathname => add(win, pathname))
-      .on('change', pathname => change(win, pathname))
-      .on('unlink', pathname => unlink(win, pathname))
+      .on('change', pathname => change(win, pathname, type))
+      .on('unlink', pathname => unlink(win, pathname, type))
       .on('addDir', pathname => addDir(win, pathname))
       .on('unlinkDir', pathname => unlinkDir(win, pathname))
       .on('error', error => {
@@ -103,7 +108,9 @@ class Watcher {
 
     this.watchers[id] = {
       win,
-      watcher
+      watcher,
+      pathname: watchPath,
+      type
     }
 
     // unwatcher function
@@ -112,6 +119,39 @@ class Watcher {
         delete this.watchers[id]
       }
       watcher.close()
+    }
+  }
+
+  // unWatch some single watch
+  unWatch (win, watchPath, type = 'dir') {
+    for (const id of Object.keys(this.watchers)) {
+      const w = this.watchers[id]
+      if (
+        w.win === win &&
+        w.pathname === watchPath &&
+        w.type === type
+      ) {
+        w.watcher.close()
+        delete this.watchers[id]
+        break
+      }
+    }
+  }
+
+  // unwatch for one window, (remove all the watchers in one window)
+  unWatchWin (win) {
+    const watchers = []
+    const watchIds = []
+    for (const id of Object.keys(this.watchers)) {
+      const w = this.watchers[id]
+      if (w.win === win) {
+        watchers.push(w.watcher)
+        watchIds.push(id)
+      }
+    }
+    if (watchers.length) {
+      watchIds.forEach(id => delete this.watchers[id])
+      watchers.forEach(watcher => watcher.close())
     }
   }
 

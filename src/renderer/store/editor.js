@@ -50,6 +50,35 @@ const mutations = {
       }
     }
   },
+  LOAD_CHANGE (state, change) {
+    const { tabs, currentFile } = state
+    const { data, pathname } = change
+    const { isMixedLineEndings, lineEnding, adjustLineEndingOnSave, isUtf8BomEncoded, markdown, textDirection, filename } = data
+    const options = { isUtf8BomEncoded, lineEnding, adjustLineEndingOnSave, textDirection }
+    const fileState = getSingleFileState({ markdown, filename, pathname, options })
+    if (isMixedLineEndings) {
+      notice.notify({
+        title: 'Line Ending',
+        message: `${filename} has mixed line endings which are automatically normalized to ${lineEnding.toUpperCase()}.`,
+        type: 'primary',
+        time: 20000,
+        showConfirm: false
+      }) 
+    }
+    for (const tab of tabs) {
+      if (tab.pathname === pathname) {
+        Object.assign(tab, fileState)
+        break
+      }
+    }
+    state.tabs = tabs
+    if (pathname === currentFile.pathname) {
+      Object.assign(currentFile, fileState)
+      state.currentFile = currentFile
+      const { cursor, history } = currentFile
+      bus.$emit('file-changed', { markdown, cursor, renderCursor: true, history })
+    }
+  },
   SET_PATHNAME (state, file) {
     const { filename, pathname, id } = file
     if (id === state.currentFile.id && pathname) {
@@ -112,6 +141,12 @@ const mutations = {
   CLOSE_TABS (state, arr) {
     arr.forEach(id => {
       const index = state.tabs.findIndex(f => f.id === id)
+      const { pathname } = state.tabs.find(f => f.id === id)
+      if (pathname) {
+        // close tab and unwatch this file
+        ipcRenderer.send('AGANI::file-watch', { pathname, watch: false })
+      }
+
       state.tabs.splice(index, 1)
       if (state.currentFile.id === id) {
         state.currentFile = {}
@@ -178,8 +213,11 @@ const actions = {
       })
   },
 
-  REMOVE_FILE_IN_TABS ({ commit }, file) {
+  REMOVE_FILE_IN_TABS ({ commit, dispatch }, file) {
     commit('REMOVE_FILE_WITHIN_TABS', file)
+    // unwatch this file
+    const { pathname } = file
+    dispatch('ASK_FILE_WATCH', { pathname, watch: false })
   },
 
   // need update line ending when change between windows.
@@ -416,7 +454,7 @@ const actions = {
 
     if (isMixedLineEndings) {
       const { filename, lineEnding } = markdownDocument
-      notice({
+      notice.notify({
         title: 'Line Ending',
         message: `${filename} has mixed line endings which are automatically normalized to ${lineEnding.toUpperCase()}.`,
         type: 'primary',
@@ -593,6 +631,43 @@ const actions = {
         commit('SET_TEXT_DIRECTION', textDirection)
       }
     })
+  },
+
+  LISTEN_FOR_FILE_CHANGE ({ commit, state, rootState }) {
+    ipcRenderer.on('AGANI::update-file', (e, { type, change }) => {
+      if (type === 'unlink') {
+        return notice.notify({
+          title: 'File Removed on Disk',
+          message: `${change.pathname} has been removed or moved to other place`,
+          type: 'warning',
+          time: 0,
+          showConfirm: false
+        })
+      } else {
+        const { autoSave } = rootState.preferences
+        const { windowActive } = rootState
+        const { filename } = change.data
+        if (windowActive) return
+        if (autoSave) {
+          commit('LOAD_CHANGE', change)
+        } else {
+          notice.clear()
+          notice.notify({
+            title: 'File Changed on Disk',
+            message: `${filename} has been changed on disk, do you want to reload it?`,
+            showConfirm: true,
+            time: 0
+          })
+            .then(() => {
+              commit('LOAD_CHANGE', change)
+            })
+        }
+      }
+    })
+  },
+
+  ASK_FILE_WATCH ({ commit }, { pathname, watch }) {
+    ipcRenderer.send('AGANI::file-watch', { pathname, watch })
   }
 }
 

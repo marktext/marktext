@@ -5,7 +5,7 @@ import { promisify } from 'util'
 import { BrowserWindow, dialog, ipcMain, shell } from 'electron'
 import appWindow from '../window'
 import { EXTENSION_HASN, EXTENSIONS, PANDOC_EXTENSIONS, URL_REG } from '../config'
-import { loadMarkdownFile, writeFile, writeMarkdownFile } from '../utils/filesystem'
+import { writeFile, writeMarkdownFile } from '../utils/filesystem'
 import appMenu from '../menu'
 import { getPath, isMarkdownFile, isMarkdownFileOrLink, normalizeAndResolvePath, log, isFile, isDirectory, getRecommendTitle } from '../utils'
 import userPreference from '../preference'
@@ -80,6 +80,10 @@ const handleResponseForSave = (e, { id, markdown, pathname, options }) => {
 
     return writeMarkdownFile(pathname, markdown, options, win)
       .then(() => {
+        if (!alreadyExistOnDisk) {
+          // it's a new created file, need watch
+          appWindow.watcher.watch(win, pathname, 'file')
+        }
         const filename = path.basename(pathname)
         win.webContents.send('AGANI::set-pathname', { id, pathname, filename })
         return id
@@ -175,6 +179,12 @@ ipcMain.on('AGANI::response-file-save-as', (e, { id, markdown, pathname, options
   if (filePath) {
     writeMarkdownFile(filePath, markdown, options, win)
       .then(() => {
+        // need watch file after `save as`
+        if (pathname !== filePath) {
+          appWindow.watcher.watch(win, filePath, 'file')
+          // unWatch the old file.
+          appWindow.watcher.unWatch(win, pathname, 'file')
+        }
         const filename = path.basename(filePath)
         win.webContents.send('AGANI::set-pathname', { id, pathname: filePath, filename })
       })
@@ -333,13 +343,7 @@ export const openFileOrFolder = (win, pathname) => {
     if (openFilesInNewWindow) {
       appWindow.createWindow(resolvedPath)
     } else {
-      loadMarkdownFile(resolvedPath).then(rawDocument => {
-        newTab(win, rawDocument)
-      }).catch(err => {
-        // TODO: Handle error --> create a end-user error handler.
-        console.error('[ERROR] Cannot open file or directory.')
-        log(err)
-      })
+      appWindow.newTab(win, pathname)
     }
   } else if (isDirectory(resolvedPath)) {
     appWindow.createWindow(resolvedPath)
@@ -400,7 +404,7 @@ export const autoSave = (menuItem, browserWindow) => {
   const { checked } = menuItem
   userPreference.setItem('autoSave', checked)
     .then(() => {
-      for (const win of appWindow.windows.values()) {
+      for (const { win } of appWindow.windows.values()) {
         win.webContents.send('AGANI::user-preference', { autoSave: checked })
       }
     })
