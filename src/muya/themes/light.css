@@ -355,7 +355,7 @@ table tr {
 
 table thead tr,
 table tr:nth-child(2n) {
-  background-color: var(--codeBlockBgColor);
+  background-color: var(--editorColor04);
 }
 
 table tr th {
