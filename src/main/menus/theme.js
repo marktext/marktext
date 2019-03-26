@@ -7,7 +7,7 @@ export default {
   label: 'Theme',
   id: 'themeMenu',
   submenu: [{
-    label: 'Mateial Dark',
+    label: 'Material Dark',
     type: 'radio',
     id: 'dark',
     checked: theme === 'dark',
