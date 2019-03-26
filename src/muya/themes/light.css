@@ -334,7 +334,7 @@ blockquote::before {
   height: 100%;
   width: 2px;
   position: absolute;
-  left: 13px;
+  left: 15px;
   top: 0;
   background: var(--themeColor);
 }

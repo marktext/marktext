@@ -28,27 +28,59 @@ const tableBlockCtrl = ContentState => {
     return table
   }
 
+  ContentState.prototype.closest = function (block, type) {
+    if (!block) {
+      return null
+    }
+    if (block.type === type) {
+      return block
+    } else {
+      const parent = this.getParent(block)
+      return this.closest(parent, type)
+    }
+  }
+
+  ContentState.prototype.getAnchor = function (block) {
+    const { type, functionType } = block
+    switch (true) {
+      case /^span$/.test(type): {
+        if (!functionType) {
+          return this.closest(block, 'p')
+        } else if (functionType === 'codeLine') {
+          return this.closest(block, 'figure') || this.closest(block, 'pre')
+        }
+        return null
+      }
+      case /^(th|td)$/.test(type): {
+        return this.closest(block, 'figure')
+      }
+      case /^h\d$/.test(type): {
+        return block
+      }
+      case /hr/.test(type): {
+        return block
+      }
+      default:
+        return null
+    }
+  }
+
   ContentState.prototype.createFigure = function ({ rows, columns }) {
-    const { start, end } = this.cursor
+    const { end } = this.cursor
     const toolBar = this.createToolBar(TABLE_TOOLS, 'table')
     const table = this.createTableInFigure({ rows, columns })
-    let figureBlock
-    if (start.key === end.key) {
-      const startBlock = this.getBlock(start.key)
-      const anchor = startBlock.type === 'span' ? this.getParent(startBlock) : startBlock
-      if (startBlock.text) {
-        figureBlock = this.createBlock('figure')
-        this.insertAfter(figureBlock, anchor)
-      } else {
-        figureBlock = anchor
-        figureBlock.type = 'figure'
-        figureBlock.functionType = 'table'
-        figureBlock.text = ''
-        figureBlock.children = []
-      }
-      this.appendChild(figureBlock, toolBar)
-      this.appendChild(figureBlock, table)
+    const figureBlock = this.createBlock('figure')
+    figureBlock.functionType = 'table'
+    const endBlock = this.getBlock(end.key)
+    const anchor = this.getAnchor(endBlock)
+
+    if (!anchor) return
+    this.insertAfter(figureBlock, anchor)
+    if (anchor.type === 'p' && !endBlock.text) {
+      this.removeBlock(anchor)
     }
+    this.appendChild(figureBlock, toolBar)
+    this.appendChild(figureBlock, table)
     const key = table.children[0].children[0].children[0].key // fist cell key in thead
     const offset = 0
     this.cursor = {
