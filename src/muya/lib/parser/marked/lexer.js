@@ -205,13 +205,13 @@ Lexer.prototype.token = function (src, top) {
     if (cap) {
       src = src.substring(cap[0].length)
       bull = cap[2]
-      let isordered = bull.length > 1 && /\d{1,9}/.test(bull)
+      let isOrdered = bull.length > 1 && /\d{1,9}/.test(bull)
 
       this.tokens.push({
         type: 'list_start',
-        ordered: isordered,
+        ordered: isOrdered,
         listType: bull.length > 1 ? (/\d{1,9}/.test(bull) ? 'order' : 'task') : 'bullet',
-        start: isordered ? +(bull.slice(0, -1)) : ''
+        start: isOrdered ? +(bull.slice(0, -1)) : ''
       })
 
       let next = false
@@ -241,27 +241,27 @@ Lexer.prototype.token = function (src, top) {
         //   - unordered, unordered --> bull !== newBull --> new list (e.g "-" --> "*")
         //   - ordered, ordered --> lastChar !== lastChar --> new list (e.g "." --> ")")
         //   - else --> new list (e.g. ordered --> unordered)
-        let newIsOrdered = bull.length > 1 && /\d{1,9}/.test(newBull)
+        const newIsOrdered = bull.length > 1 && /\d{1,9}/.test(newBull)
         if (i !== 0 &&
-          ((!isordered && !newIsOrdered && bull !== newBull) ||
-          (isordered && newIsOrdered && bull.slice(-1) !== newBull.slice(-1)) ||
-          ((isordered && !newIsOrdered) || (!isordered && newIsOrdered)))) {
+          ((!isOrdered && !newIsOrdered && bull !== newBull) ||
+          (isOrdered && newIsOrdered && bull.slice(-1) !== newBull.slice(-1)) ||
+          ((isOrdered && !newIsOrdered) || (!isOrdered && newIsOrdered)))) {
           this.tokens.push({
             type: 'list_end'
           })
 
           // Start a new list
           bull = newBull
-          isordered = newIsOrdered
+          isOrdered = newIsOrdered
           this.tokens.push({
             type: 'list_start',
-            ordered: isordered,
+            ordered: isOrdered,
             listType: bull.length > 1 ? (/\d{1,9}/.test(bull) ? 'order' : 'task') : 'bullet',
-            start: isordered ? +(bull.slice(0, -1)) : ''
+            start: isOrdered ? +(bull.slice(0, -1)) : ''
           })
         }
 
-        if (!isordered && this.options.gfm) {
+        if (!isOrdered && this.options.gfm) {
           checked = this.rules.checkbox.exec(item)
           if (checked) {
             checked = checked[1] === 'x' || checked[1] === 'X'
