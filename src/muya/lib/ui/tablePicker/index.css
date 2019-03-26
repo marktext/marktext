@@ -46,6 +46,7 @@
   text-align: center;
   display: flex;
   justify-content: space-around;
+  color: var(--editorColor);
 }
 .ag-table-picker .footer input {
   color: var(--editorColor);
