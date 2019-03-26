@@ -57,7 +57,7 @@ const handleError = (title, error, type) => {
     process.exit(1)
     // eslint, don't lie to me, the return statement is important!
     return // eslint-disable-line no-unreachable
-  } else if (!SHOW_ERROR_DIALOG) {
+  } else if (!SHOW_ERROR_DIALOG || (global.MARKTEXT_IS_OFFICIAL_RELEASE && type === 'renderer')) {
     return
   }
 
