@@ -198,18 +198,20 @@ Lexer.prototype.token = function (src, top) {
       continue
     }
 
+    // NOTE: Complete list lexer part is a custom implementation based on an older marked.js version.
+
     // list
     cap = this.rules.list.exec(src)
     if (cap) {
       src = src.substring(cap[0].length)
       bull = cap[2]
-      const isordered = bull.length > 1 && /\d/.test(bull)
+      let isOrdered = bull.length > 1 && /\d{1,9}/.test(bull)
 
       this.tokens.push({
         type: 'list_start',
-        ordered: isordered,
-        listType: bull.length > 1 ? (/\d/.test(bull) ? 'order' : 'task') : 'bullet',
-        start: isordered ? +bull : ''
+        ordered: isOrdered,
+        listType: bull.length > 1 ? (/\d{1,9}/.test(bull) ? 'order' : 'task') : 'bullet',
+        start: isOrdered ? +(bull.slice(0, -1)) : ''
       })
 
       let next = false
@@ -228,9 +230,38 @@ Lexer.prototype.token = function (src, top) {
         // Remove the list item's bullet
         // so it is seen as the next token.
         space = item.length
-        item = item.replace(/^ *([*+-]|\d+\.) */, '')
+        let newBull
+        item = item.replace(/^ *([*+-]|\d+(?:\.|\))) */, function (m, p1) {
+          // Get and remove list item bullet
+          newBull = p1 || bull
+          return ''
+        })
 
-        if (this.options.gfm) {
+        // Changing the bullet or ordered list delimiter starts a new list (CommonMark 264 and 265)
+        //   - unordered, unordered --> bull !== newBull --> new list (e.g "-" --> "*")
+        //   - ordered, ordered --> lastChar !== lastChar --> new list (e.g "." --> ")")
+        //   - else --> new list (e.g. ordered --> unordered)
+        const newIsOrdered = bull.length > 1 && /\d{1,9}/.test(newBull)
+        if (i !== 0 &&
+          ((!isOrdered && !newIsOrdered && bull !== newBull) ||
+          (isOrdered && newIsOrdered && bull.slice(-1) !== newBull.slice(-1)) ||
+          ((isOrdered && !newIsOrdered) || (!isOrdered && newIsOrdered)))) {
+          this.tokens.push({
+            type: 'list_end'
+          })
+
+          // Start a new list
+          bull = newBull
+          isOrdered = newIsOrdered
+          this.tokens.push({
+            type: 'list_start',
+            ordered: isOrdered,
+            listType: bull.length > 1 ? (/\d{1,9}/.test(bull) ? 'order' : 'task') : 'bullet',
+            start: isOrdered ? +(bull.slice(0, -1)) : ''
+          })
+        }
+
+        if (!isOrdered && this.options.gfm) {
           checked = this.rules.checkbox.exec(item)
           if (checked) {
             checked = checked[1] === 'x' || checked[1] === 'X'
@@ -269,7 +300,7 @@ Lexer.prototype.token = function (src, top) {
 
         // Determine whether item is loose or not. If previous item is loose
         // this item is also loose.
-        loose = next = next || /^ *([*+-]|\d+\.)( +\S+\n\n(?!\s*$)|\n\n(?!\s*$))/.test(itemWithBullet)
+        loose = next = next || /^ *([*+-]|\d{1,9}(?:\.|\)))( +\S+\n\n(?!\s*$)|\n\n(?!\s*$))/.test(itemWithBullet)
 
         // Check if previous line ends with a new line.
         if (!loose && (i !== 0 || l > 1) && prevItem.length !== 0 && prevItem.charAt(prevItem.length - 1) === '\n') {
@@ -289,10 +320,11 @@ Lexer.prototype.token = function (src, top) {
           listItemIndices.push(this.tokens.length)
         }
 
+        const isOrderedListItem = /\d/.test(bull)
         this.tokens.push({
           checked: checked,
-          listItemType: bull.length > 1 ? (/\d/.test(bull) ? 'order' : 'task') : 'bullet',
-          bulletListItemMarker: /\d/.test(bull) ? '' : bull.charAt(0),
+          listItemType: bull.length > 1 ? (isOrderedListItem ? 'order' : 'task') : 'bullet',
+          bulletMarkerOrDelimiter: isOrderedListItem ? bull.slice(-1) : bull.charAt(0),
           type: loose ? 'loose_item_start' : 'list_item_start'
         })
 

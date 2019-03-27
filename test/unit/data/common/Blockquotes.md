@@ -12,6 +12,10 @@ foo
 - > bar
 - baz
 
+> Use it if you're quoting a person, a song or whatever.
+
+> You can use *italic* or lists inside them also.
+
 ## Failing Tests
 
 ```
@@ -36,11 +40,5 @@ paragraph.
   > This is a blockquote
   > inside a list item.
 
-* bar`
-```
-
-```
-> Use it if you're quoting a person, a song or whatever.
-
-> You can use *italic* or lists inside them also.
+* bar
 ```

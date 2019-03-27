@@ -23,8 +23,14 @@ class ExportMarkdown {
 
   translateBlocks2Markdown (blocks, indent = '') {
     const result = []
+    // helper for CommonMark 264
+    let lastListBullet = ''
 
     for (const block of blocks) {
+      if (block.type !== 'ul' && block.type !== 'ol') {
+        lastListBullet = ''
+      }
+
       switch (block.type) {
         case 'p': {
           this.insertLineBreak(result, indent, true)
@@ -88,8 +94,15 @@ class ExportMarkdown {
           break
         }
         case 'ul': {
-          const insertNewLine = this.isLooseParentList
+          let insertNewLine = this.isLooseParentList
           this.isLooseParentList = true
+
+          // Start a new list without separation due changing the bullet or ordered list delimiter starts a new list.
+          const { bulletMarkerOrDelimiter } = block.children[0]
+          if (lastListBullet && lastListBullet !== bulletMarkerOrDelimiter) {
+            insertNewLine = false
+          }
+          lastListBullet = bulletMarkerOrDelimiter
 
           this.insertLineBreak(result, indent, insertNewLine)
           this.listType.push({ type: 'ul' })
@@ -98,8 +111,15 @@ class ExportMarkdown {
           break
         }
         case 'ol': {
-          const insertNewLine = this.isLooseParentList
+          let insertNewLine = this.isLooseParentList
           this.isLooseParentList = true
+
+          // Start a new list without separation due changing the bullet or ordered list delimiter starts a new list.
+          const { bulletMarkerOrDelimiter } = block.children[0]
+          if (lastListBullet && lastListBullet !== bulletMarkerOrDelimiter) {
+            insertNewLine = false
+          }
+          lastListBullet = bulletMarkerOrDelimiter
 
           this.insertLineBreak(result, indent, insertNewLine)
           const listCount = block.start !== undefined ? block.start : 1
@@ -283,18 +303,19 @@ class ExportMarkdown {
   normalizeListItem (block, indent) {
     const result = []
     const listInfo = this.listType[this.listType.length - 1]
-    let { children, bulletListItemMarker } = block
+    let { children, bulletMarkerOrDelimiter } = block
     let itemMarker
 
     if (listInfo.type === 'ul') {
-      itemMarker = bulletListItemMarker ? `${bulletListItemMarker} ` : '- '
+      itemMarker = bulletMarkerOrDelimiter ? `${bulletMarkerOrDelimiter} ` : '- '
       if (block.listItemType === 'task') {
         const firstChild = children[0]
         itemMarker += firstChild.checked ? '[x] ' : '[ ] '
         children = children.slice(1)
       }
     } else {
-      itemMarker = `${listInfo.listCount++}. `
+      const delimiter = bulletMarkerOrDelimiter ? bulletMarkerOrDelimiter : '.'
+      itemMarker = `${listInfo.listCount++}${delimiter} `
     }
 
     const newIndent = indent + ' '.repeat(itemMarker.length)

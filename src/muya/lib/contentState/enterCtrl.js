@@ -112,9 +112,7 @@ const enterCtrl = ContentState => {
       } else {
         newBlock = this.createBlockLi()
         newBlock.listItemType = parent.listItemType
-        if (parent.listItemType === 'bullet') {
-          newBlock.bulletListItemMarker = parent.bulletListItemMarker
-        }
+        newBlock.bulletMarkerOrDelimiter = parent.bulletMarkerOrDelimiter
       }
       newBlock.isLooseListItem = parent.isLooseListItem
       this.insertAfter(newBlock, parent)
@@ -334,9 +332,7 @@ const enterCtrl = ContentState => {
             newBlock = this.chopBlockByCursor(block.children[0], start.key, start.offset)
             newBlock = this.createBlockLi(newBlock)
             newBlock.listItemType = block.listItemType
-            if (block.listItemType === 'bullet') {
-              newBlock.bulletListItemMarker = block.bulletListItemMarker
-            }
+            newBlock.bulletMarkerOrDelimiter = block.bulletMarkerOrDelimiter
           }
           newBlock.isLooseListItem = block.isLooseListItem
         }
@@ -357,9 +353,7 @@ const enterCtrl = ContentState => {
           } else {
             newBlock = this.createBlockLi()
             newBlock.listItemType = block.listItemType
-            if (block.listItemType === 'bullet') {
-              newBlock.bulletListItemMarker = block.bulletListItemMarker
-            }
+            newBlock.bulletMarkerOrDelimiter = block.bulletMarkerOrDelimiter
           }
           newBlock.isLooseListItem = block.isLooseListItem
         } else {

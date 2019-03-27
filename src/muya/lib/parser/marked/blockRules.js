@@ -44,7 +44,7 @@ block.def = edit(block.def).
   getRegex()
 
 block.checkbox = /^\[([ xX])\] +/
-block.bullet = /(?:[*+-]|\d{1,9}\.)/
+block.bullet = /(?:[*+-]|\d{1,9}(?:\.|\)))/ // patched: support "(" as ordered list delimiter too
 block.item = /^( *)(bull) ?[^\n]*(?:\n(?!\1bull ?)[^\n]*)*/
 block.item = edit(block.item, 'gm').
   replace(/bull/g, block.bullet).

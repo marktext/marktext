@@ -18,6 +18,12 @@ To start an ordered list, write this:
 
 ---
 
+1) this starts a list *with* numbers
+2) this will show as number "2"
+3) this will show as number "3"
+
+---
+
 - foo
   - bar
     - baz
@@ -61,14 +67,75 @@ To start an ordered list, write this:
 
 ---
 
-## Failing Tests
+- foo
+- bar
++ baz
+* foobar
+* qux
 
-```
-* an asterisk starts an unordered list
-* and this is another item in the list
-+ or you can also use the + character
-- or the - character
-```
+---
+
+1. foo
+2. bar
+4) baz
+
+---
+
+1. foo
+2. bar
+1) baz
+
+---
+
+- foo
+- bar
++ foobar
++ baz
+
+---
+
+- foo
+- bar
+* foobar
+* baz
+
+---
+
+- foo
+- bar
+* foobar
+* baz
++ qux
++ quux
+
+---
+
+- foo
+- bar
+1. foobar
+2. baz
+
+---
+
+1. foo
+2. bar
+- foobar
+- baz
+
+---
+
+1. foo
+2. bar
+1) foobar
+2) baz
+
+---
+
+- foo
+- 
+- bar
+
+## Failing Tests
 
 ```
 1. this starts a list *with* numbers
