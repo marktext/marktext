@@ -54,6 +54,11 @@ class Keyboard {
         return
       }
 
+      // prevent dispatch `selectionChange` and `selectionFormats` by click the toolbar of table/html block and front icons
+      if (event.target.closest('[contenteditable=false]')) {
+        return
+      }
+
       if (timer) clearTimeout(timer)
       timer = setTimeout(() => {
         const selectionChanges = contentState.selectionChange()
