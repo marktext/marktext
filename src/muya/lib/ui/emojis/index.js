@@ -1,7 +1,6 @@
 import { filter } from 'fuzzaldrin'
 import emojis from './emojisJson'
 import { CLASS_OR_ID } from '../../config'
-import selection from '../../selection'
 
 const emojisForSearch = {}
 
@@ -33,12 +32,6 @@ export const checkEditEmoji = node => {
     return node
   }
   return false
-}
-
-export const setInlineEmoji = (node, emoji) => {
-  node.textContent = `${emoji.aliases[0]}`
-  node.setAttribute('data-emoji', emoji.emoji)
-  selection.moveCursor(node.nextElementSibling, 1)
 }
 
 class Emoji {

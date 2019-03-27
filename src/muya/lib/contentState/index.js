@@ -23,6 +23,7 @@ import htmlBlockCtrl from './htmlBlock'
 import clickCtrl from './clickCtrl'
 import inputCtrl from './inputCtrl'
 import tocCtrl from './tocCtrl'
+import emojiCtrl from './emojiCtrl'
 import importMarkdown from '../utils/importMarkdown'
 
 const prototypes = [
@@ -46,6 +47,7 @@ const prototypes = [
   clickCtrl,
   inputCtrl,
   tocCtrl,
+  emojiCtrl,
   importMarkdown
 ]
 

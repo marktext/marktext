@@ -156,6 +156,7 @@ class Keyboard {
       const node = selection.getSelectionStart()
       const paragraph = findNearestParagraph(node)
       const emojiNode = checkEditEmoji(node)
+
       if (
         paragraph &&
         emojiNode &&

@@ -130,8 +130,7 @@ pre.ag-paragraph {
 }
 
 .v-modal {
-  backdrop-filter: blur(5px);
-  background: var(--floatBorderColor);
+  background: var(--editorColor30);
 }
 
 body>*:first-child {
