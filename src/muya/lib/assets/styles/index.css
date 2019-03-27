@@ -543,7 +543,7 @@ span.ag-emoji-marked-text {
 }
 
 .ag-emoji-marked-text[data-emoji] {
-  margin-left: 1.7em;
+  margin-left: 1.2em;
 }
 
 .ag-hide.ag-emoji-marked-text[data-emoji],
@@ -557,8 +557,8 @@ span.ag-emoji-marked-text {
   position: absolute;
   content: attr(data-emoji);
   color: var(--editorColor);
-  top: -6px;
-  left: -1.1em;
+  top: -2px;
+  left: -22px;
   font-size: 1em;
 }
 

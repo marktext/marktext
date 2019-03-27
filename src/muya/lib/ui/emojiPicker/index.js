@@ -1,5 +1,5 @@
 import BaseScrollFloat from '../baseScrollFloat'
-import Emoji, { setInlineEmoji } from '../emojis'
+import Emoji from '../emojis'
 import { patch, h } from '../../parser/render/snabbdom'
 import './index.css'
 
@@ -40,7 +40,7 @@ class EmojiPicker extends BaseScrollFloat {
         const renderObj = this.emoji.search(text)
         this.renderObj = renderObj
         const cb = item => {
-          setInlineEmoji(emojiNode, item)
+          this.muya.contentState.setEmoji(item)
         }
         if (this.renderArray.length) {
           this.show(reference, cb)

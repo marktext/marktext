@@ -5,7 +5,7 @@ import { CLASS_OR_ID } from '../config'
 const INLINE_UPDATE_FRAGMENTS = [
   '^([*+-]\\s)', // Bullet list
   '^(\\[[x\\s]{1}\\]\\s)', // Task list
-  '^(\\d+\\.\\s)', // Order list
+  '^(\\d{1,9}(?:\\.|\\))\\s)', // Order list
   '^\\s{0,3}(#{1,6})(?=\\s{1,}|$)', // ATX headings
   '^\\s{0,3}(\\={3,}|\\-{3,})(?=\\s{1,}|$)', // Setext headings
   '^(>).+', // Block quote
@@ -124,6 +124,8 @@ const updateCtrl = ContentState => {
     if (block.type === 'span') {
       block = this.getParent(block)
     }
+
+    const cleanMarker = marker ? marker.trim() : null
     const { preferLooseListItem } = this
     const parent = this.getParent(block)
     const wrapperTag = type === 'order' ? 'ol' : 'ul' // `bullet` => `ul` and `order` => `ol`
@@ -131,6 +133,7 @@ const updateCtrl = ContentState => {
     const startOffset = start.offset
     const endOffset = end.offset
     const newBlock = this.createBlock('li')
+
     if (/^h\d$/.test(block.type)) {
       delete block.marker
       delete block.headingStyle
@@ -156,18 +159,47 @@ const updateCtrl = ContentState => {
         this.insertBefore(paragraphBefore, block)
       }
     }
+
     const preSibling = this.getPreSibling(block)
     const nextSibling = this.getNextSibling(block)
     newBlock.listItemType = type
     newBlock.isLooseListItem = preferLooseListItem
 
-    if (type === 'task' || type === 'bullet') {
+    let bulletMarkerOrDelimiter
+    if (type === 'order') {
+      bulletMarkerOrDelimiter = (cleanMarker && cleanMarker.length >= 2) ? cleanMarker.slice(-1) : '.'
+    } else {
       const { bulletListMarker } = this
-      const bulletListItemMarker = marker ? marker.charAt(0) : bulletListMarker
-      newBlock.bulletListItemMarker = bulletListItemMarker
+      bulletMarkerOrDelimiter = marker ? marker.charAt(0) : bulletListMarker
+    }
+    newBlock.bulletMarkerOrDelimiter = bulletMarkerOrDelimiter
+
+    // Special cases for CommonMark 264 and 265: Changing the bullet or ordered list delimiter starts a new list.
+    let startNewList = false
+    if (preSibling && /^(ol|ul)$/.test(preSibling.type)) {
+      const bullet = preSibling.children[0].bulletMarkerOrDelimiter
+      startNewList = bulletMarkerOrDelimiter !== bullet
+    }
+    if (nextSibling && /^(ol|ul)$/.test(nextSibling.type)) {
+      const bullet = nextSibling.children[0].bulletMarkerOrDelimiter
+      startNewList = startNewList || bulletMarkerOrDelimiter !== bullet
     }
 
-    if (
+    if (startNewList) {
+      // Create a new list when changing list type, bullet or list delimiter
+      const listBlock = this.createBlock(wrapperTag)
+      listBlock.listType = type
+      if (wrapperTag === 'ol') {
+        const start = cleanMarker ? cleanMarker.slice(0, -1) : 1
+        listBlock.start = /^\d+$/.test(start) ? start : 1
+      }
+      this.appendChild(listBlock, newBlock)
+      this.insertBefore(listBlock, block)
+      this.removeBlock(block)
+
+    // --------------------------------
+    // Same list type or new list
+    } else if (
       preSibling &&
       preSibling.listType === type &&
       this.checkSameLooseType(preSibling, preferLooseListItem) &&
@@ -186,7 +218,6 @@ const updateCtrl = ContentState => {
       this.checkSameLooseType(preSibling, preferLooseListItem)
     ) {
       this.appendChild(preSibling, newBlock)
-
       this.removeBlock(block)
     } else if (
       nextSibling &&
@@ -201,13 +232,12 @@ const updateCtrl = ContentState => {
       this.checkSameLooseType(parent, preferLooseListItem)
     ) {
       this.insertBefore(newBlock, block)
-
       this.removeBlock(block)
     } else {
       const listBlock = this.createBlock(wrapperTag)
       listBlock.listType = type
       if (wrapperTag === 'ol') {
-        const start = marker.split('.')[0]
+        const start = cleanMarker ? cleanMarker.slice(0, -1) : 1
         listBlock.start = /^\d+$/.test(start) ? start : 1
       }
       this.appendChild(listBlock, newBlock)

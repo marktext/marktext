@@ -200,10 +200,10 @@ const importRegister = ContentState => {
         }
         case 'loose_item_start':
         case 'list_item_start': {
-          const { listItemType, bulletListItemMarker, checked, type } = token
+          const { listItemType, bulletMarkerOrDelimiter, checked, type } = token
           block = this.createBlock('li')
           block.listItemType = checked !== undefined ? 'task' : listItemType
-          block.bulletListItemMarker = bulletListItemMarker
+          block.bulletMarkerOrDelimiter = bulletMarkerOrDelimiter
           block.isLooseListItem = type === 'loose_item_start'
           if (checked !== undefined) {
             const input = this.createBlock('input')

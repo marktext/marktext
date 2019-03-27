@@ -165,23 +165,23 @@ Parser.prototype.tok = function () {
     }
     case 'list_item_start': {
       let body = ''
-      const { checked, listItemType, bulletListItemMarker } = this.token
+      const { checked } = this.token
 
       while (this.next().type !== 'list_item_end') {
         body += this.token.type === 'text' ? this.parseText() : this.tok()
       }
 
-      return this.renderer.listitem(body, checked, listItemType, bulletListItemMarker, false)
+      return this.renderer.listitem(body, checked)
     }
     case 'loose_item_start': {
       let body = ''
-      const { checked, listItemType, bulletListItemMarker } = this.token
+      const { checked } = this.token
 
       while (this.next().type !== 'list_item_end') {
         body += this.tok()
       }
 
-      return this.renderer.listitem(body, checked, listItemType, bulletListItemMarker, true)
+      return this.renderer.listitem(body, checked)
     }
     case 'html': {
       // TODO parse inline content if parameter markdown=1
