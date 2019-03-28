@@ -407,7 +407,6 @@ class Selection {
     const { start, end } = cursorRange
     const startParagraph = document.querySelector(`#${start.key}`)
     const endParagraph = document.querySelector(`#${end.key}`)
-
     const getNodeAndOffset = (node, offset) => {
       if (node.nodeType === 3) {
         return {
