@@ -50,13 +50,18 @@ class Muya {
       this.eventCenter.dispatch('muya-format-picker', { reference: null })
 
       // Commit native cursor position because right-clicking doesn't update the cursor postion.
-      const cursor = selection.getCursorRange()
-      this.contentState.cursor = cursor
+      const { start } = selection.getCursorRange()
+      // I don't know why the start.key is not equal end.key when I `right-click` in table cell.
+      // So I set the cursor at `start` -- @jocs
+      this.contentState.cursor = {
+        start,
+        end: start
+      }
 
       // TODO: Should we render to update the cursor or is this not necessary because we'll render
-      //       when leaving or clicking on the context menu?
+      // when leaving or clicking on the context menu?
 
-      const sectionChanges = this.contentState.selectionChange(cursor)
+      const sectionChanges = this.contentState.selectionChange(this.contentState.cursor)
       eventCenter.dispatch('contextmenu', event, sectionChanges)
     })
     contentState.listenForPathChange()

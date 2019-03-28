@@ -33,7 +33,7 @@ const inputCtrl = ContentState => {
   ContentState.prototype.checkQuickInsert = function (block) {
     const { type, text, functionType } = block
     if (type !== 'span' || functionType) return false
-    return /^@[a-zA-Z\d]*$/.test(text)
+    return /^@\S*$/.test(text)
   }
 
   ContentState.prototype.checkCursorInInlineMath = function (text, offset) {
@@ -97,6 +97,7 @@ const inputCtrl = ContentState => {
             (autoPairQuote && /[']{1}/.test(inputChar)) ||
             (autoPairQuote && /["]{1}/.test(inputChar)) ||
             (autoPairBracket && /[\}\]\)]{1}/.test(inputChar)) ||
+            (autoPairMarkdownSyntax && /[$]{1}/.test(inputChar)) ||
             (autoPairMarkdownSyntax && /[*$`~_]{1}/.test(inputChar)) && /[_*~]{1}/.test(prePreInputChar)
           )
         ) {
@@ -107,10 +108,11 @@ const inputCtrl = ContentState => {
           // Not Unicode aware, since things like \p{Alphabetic} or \p{L} are not supported yet
           const isInInlineMath = this.checkCursorInInlineMath(text, offset)
           if (
-            (autoPairQuote && /[']{1}/.test(inputChar) && !(/[a-zA-Z\d]{1}/.test(preInputChar))) ||
+            !/\\/.test(preInputChar) &&
+            ((autoPairQuote && /[']{1}/.test(inputChar) && !(/[a-zA-Z\d]{1}/.test(preInputChar))) ||
             (autoPairQuote && /["]{1}/.test(inputChar)) ||
             (autoPairBracket && /[\{\[\(]{1}/.test(inputChar)) ||
-            (block.functionType !== 'codeLine' && !isInInlineMath && autoPairMarkdownSyntax && /[*$`~_]{1}/.test(inputChar))
+            (block.functionType !== 'codeLine' && !isInInlineMath && autoPairMarkdownSyntax && /[*$`~_]{1}/.test(inputChar)))
           ) {
             needRender = true
             text = BRACKET_HASH[event.data]
@@ -155,7 +157,7 @@ const inputCtrl = ContentState => {
       })
     }
 
-    this.muya.eventCenter.dispatch('muya-quick-insert', reference, block, checkQuickInsert)
+    this.muya.eventCenter.dispatch('muya-quick-insert', reference, block, !!checkQuickInsert)
 
     // Update preview content of math block
     if (block && block.type === 'span' && block.functionType === 'codeLine') {
