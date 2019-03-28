@@ -439,7 +439,6 @@ class Selection {
 
   getCursorRange () {
     let { anchorNode, anchorOffset, focusNode, focusOffset } = this.doc.getSelection()
-
     // when the first paragraph is task list, press ctrl + a, then press backspace will cause bug
     // use code bellow to fix the bug
     const findFirstTextNode = anchor => {

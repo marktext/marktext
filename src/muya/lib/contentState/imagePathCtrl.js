@@ -60,19 +60,22 @@ const imagePathCtrl = ContentState => {
       }
       if (src === '') {
         const cb = item => {
-          const type = item.text === 'Absolute Path' ? 'absolute' : (item.text === 'Upload Image' ? 'upload' : 'relative')
+          const type = item.label
           eventCenter.dispatch('insert-image', type)
         }
 
         const list = [{
           text: 'Absolute Path',
-          iconClass: 'icon-folder'
+          iconClass: 'icon-folder',
+          label: 'absolute'
         }, {
           text: 'Relative Path',
-          iconClass: 'icon-folder'
+          iconClass: 'icon-folder',
+          label: 'relative'
         }, {
           text: 'Upload Image',
-          iconClass: 'icon-upload'
+          iconClass: 'icon-upload',
+          label: 'upload'
         }]
 
         const paragraph = findNearestParagraph(node)

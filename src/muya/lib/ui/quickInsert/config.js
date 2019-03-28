@@ -8,7 +8,7 @@ import header3Icon from '../../assets/icons/header_3.svg'
 import header4Icon from '../../assets/icons/header_4.svg'
 import header5Icon from '../../assets/icons/header_5.svg'
 import header6Icon from '../../assets/icons/header_6.svg'
-import tableIcon from '../../assets/icons/table.svg'
+import newTableIcon from '../../assets/icons/new_table.svg'
 import bulletListIcon from '../../assets/icons/bullet_list.svg'
 import codeIcon from '../../assets/icons/code.svg'
 import quoteIcon from '../../assets/icons/quote.svg'
@@ -135,7 +135,7 @@ export const quicInsertObj = {
     subTitle: '|Lorem | Ipsum is simply |',
     label: 'table',
     shortCut: `${COMMAND_KEY}T`,
-    icon: tableIcon,
+    icon: newTableIcon,
     color: 'rgb(13, 23, 64)'
   }, {
     title: 'Mathematical Formula',

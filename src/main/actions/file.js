@@ -54,10 +54,19 @@ const handleResponseForExport = async (e, { type, content, pathname, markdown })
 }
 
 const handleResponseForPrint = e => {
-  const win = BrowserWindow.fromWebContents(e.sender)
-  win.webContents.print({ printBackground: true }, () => {
-    removePrintServiceFromWindow(win)
+  // See GH#749, Electron#16085 and Electron#17523.
+  dialog.showMessageBox({
+    type: 'info',
+    buttons: ['OK'],
+    defaultId: 0,
+    noLink: true,
+    message: 'Printing doesn\'t work',
+    detail: 'Printing is disabled due to an Electron upstream issue. Please export the document as PDF and print the PDF file. We apologize for the inconvenience!'
   })
+  // const win = BrowserWindow.fromWebContents(e.sender)
+  // win.webContents.print({ printBackground: true }, () => {
+  //   removePrintServiceFromWindow(win)
+  // })
 }
 
 const handleResponseForSave = (e, { id, markdown, pathname, options }) => {

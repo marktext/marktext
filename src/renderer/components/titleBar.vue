@@ -185,11 +185,17 @@
       },
 
       handleMenuClick () {
+        let offsetX = 23
+        const elems = document.getElementsByClassName('side-bar')
+        if (elems) {
+          offsetX += elems[0].clientWidth
+        }
+
         const win = remote.getCurrentWindow()
         remote
           .Menu
           .getApplicationMenu()
-          .popup({ window: win, x: 23, y: 20 })
+          .popup({ window: win, x: offsetX, y: 20 })
       },
 
       handleWindowStateChanged () {
