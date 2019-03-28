@@ -10,6 +10,7 @@
   --editorColor50: rgba(0, 0, 0, .5);
   --editorColor30: rgba(0, 0, 0, .3);
   --editorColor10: rgba(0, 0, 0, .1);
+  --editorColor04: rgba(0, 0, 0, .03); /* on purpose to set it to .03*/
   --editorBgColor: rgba(255, 255, 255, 1);
   --deleteColor: #ff6969;
   --iconColor: #333;

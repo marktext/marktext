@@ -12,6 +12,7 @@ export const dark = `
   --editorColor50: rgba(255, 255, 255, .5);
   --editorColor30: rgba(255, 255, 255, .3);
   --editorColor10: rgba(255, 255, 255, .1);
+  --editorColor04: rgba(255, 255, 255, .04);
   --editorBgColor: #34393f;
   --deleteColor: #ff6969;
   --iconColor: rgba(255, 255, 255, .8);
@@ -179,6 +180,7 @@ export const ulysses = `
   --editorColor50: rgba(101, 101, 101, .5);
   --editorColor30: rgba(101, 101, 101, .3);
   --editorColor10: rgba(101, 101, 101, .1);
+  --editorColor04: rgba(101, 101, 101, .04);
   --editorBgColor: #f3f3f3;
   --deleteColor: #ff6969;
   --iconColor: rgba(101, 101, 101, .8);
@@ -309,6 +311,7 @@ export const graphite = `
   --editorColor50: rgba(43, 48, 50, .5);
   --editorColor30: rgba(43, 48, 50, .3);
   --editorColor10: rgba(43, 48, 50, .1);
+  --editorColor04: rgba(43, 48, 50, .04);
   --editorBgColor: #f7f7f7;
   --deleteColor: #ff6969;
   --iconColor: rgba(135, 135, 135, .8);
