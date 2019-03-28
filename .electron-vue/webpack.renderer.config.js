@@ -47,7 +47,7 @@ const rendererConfig = {
         }
       },
       {
-        test: /(katex|github\-markdown|prism[\-a-z]*)\.css$/,
+        test: /(katex|github\-markdown|prism[\-a-z]*|\.theme)\.css$/,
         use: [
           'to-string-loader',
           'css-loader'
@@ -55,7 +55,7 @@ const rendererConfig = {
       },
       {
         test: /\.css$/,
-        exclude: /(katex|github\-markdown|prism[\-a-z]*)\.css$/,
+        exclude: /(katex|github\-markdown|prism[\-a-z]*|\.theme)\.css$/,
         use: [
           proMode ? MiniCssExtractPlugin.loader : 'style-loader',
           { loader: 'css-loader', options: { importLoaders: 1 } },

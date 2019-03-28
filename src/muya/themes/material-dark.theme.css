@@ -1,0 +1,62 @@
+:root {
+  /*editor*/
+  --themeColor: #f48237;
+  --highlightColor: rgba(244, 130, 55, .4);
+  --selectionColor: rgba(255, 255, 255, .2);
+  --editorColor: rgba(171, 178, 191, 1);
+  --editorColor50: rgba(171, 178, 191, .9);
+  --editorColor30: rgba(171, 178, 191, .8);
+  --editorColor10: rgba(171, 178, 191, .5);
+  --editorColor04: rgba(171, 178, 191, .04);
+  --editorBgColor: #34393f;
+  --deleteColor: #ff6969;
+  --iconColor: rgba(255, 255, 255, .8);
+  --codeBgColor: #d8d8d869;
+  --codeBlockBgColor: #3f454c;
+
+  /*marktext*/
+  --sideBarColor: rgba(255, 255, 255, .6);
+  --sideBarTitleColor: rgba(255, 255, 255, 1);
+  --sideBarTextColor: rgba(255, 255, 255, .4);
+  --sideBarBgColor: rgba(26, 33, 41, 0.9);
+  --sideBarItemHoverBgColor: rgba(255, 255, 255, .03);
+  --itemBgColor: rgba(71, 78, 86, 0.6);
+  --floatBgColor: #3c4650;
+  --floatHoverColor: rgba(255, 255, 255, .04);
+  --floatBorderColor: rgba(0, 0, 0, .03);
+  --editorAreaWidth: 700px;
+}
+
+.title-bar .frameless-titlebar-button > div > svg {
+  fill: #ffffff;
+}
+
+.tabs-container > li {
+  background: none !important;
+}
+.tabs-container > li.active {
+  background: var(--floatBgColor) !important;
+}
+
+/* ------------------------------------ */
+
+:not(pre) > code[class*="language-"],
+pre.ag-paragraph {
+  background: var(--codeBlockBgColor) !important;
+}
+
+/*.ag-image-marked-text::before {
+  background: url(../lib/assets/icons/image_dark.png);
+}
+
+.ag-image-marked-text.ag-image-fail::before {
+  background-image: url(../lib/assets/icons/image_dark_fail.png);
+}*/
+
+/*
+ * Prism.js theme (override light theme)
+ */
+
+/*
+@import url("prismjs/dark.theme.css");
+*/

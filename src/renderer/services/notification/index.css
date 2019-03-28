@@ -23,6 +23,19 @@
     left: 50%;
   }
 
+  & > .notice-bg.icon-message {
+    background: var(--themeColor);
+  }
+  & > .notice-bg.icon-error {
+    background: var(--deleteColor);
+  }
+  & > .notice-bg.icon-warn {
+    background: var(--deleteColor);
+  }
+  & > .notice-bg.icon-info {
+    background: #999999;
+  }
+
   & .content {
     z-index: 100;
     color: #fff;
