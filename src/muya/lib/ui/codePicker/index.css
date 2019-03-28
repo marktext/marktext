@@ -42,6 +42,13 @@
   font-size: 18px;
 }
 
+.ag-list-picker .icon-wrapper > svg{
+  width: 20px;
+  height: 20px;
+  opacity: .6;
+  fill: var(--iconColor);
+}
+
 .ag-list-picker .item .icon-wrapper img {
   width: 20px;
   height: 20px;
