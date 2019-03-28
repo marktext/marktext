@@ -202,31 +202,34 @@ const updateCtrl = ContentState => {
     } else if (
       preSibling &&
       preSibling.listType === type &&
-      this.checkSameLooseType(preSibling, preferLooseListItem) &&
       nextSibling &&
-      nextSibling.listType === type &&
-      this.checkSameLooseType(nextSibling, preferLooseListItem)
+      nextSibling.listType === type
     ) {
       this.appendChild(preSibling, newBlock)
       const partChildren = nextSibling.children.splice(0)
       partChildren.forEach(b => this.appendChild(preSibling, b))
       this.removeBlock(nextSibling)
       this.removeBlock(block)
+      const isLooseListItem = preSibling.children.some(c => c.isLooseListItem)
+      preSibling.children.forEach(c => c.isLooseListItem = isLooseListItem)
     } else if (
       preSibling &&
-      preSibling.type === wrapperTag &&
-      this.checkSameLooseType(preSibling, preferLooseListItem)
+      preSibling.type === wrapperTag
     ) {
       this.appendChild(preSibling, newBlock)
       this.removeBlock(block)
+      const isLooseListItem = preSibling.children.some(c => c.isLooseListItem)
+      preSibling.children.forEach(c => c.isLooseListItem = isLooseListItem)
     } else if (
       nextSibling &&
-      nextSibling.listType === type &&
-      this.checkSameLooseType(nextSibling, preferLooseListItem)
+      nextSibling.listType === type
     ) {
       this.insertBefore(newBlock, nextSibling.children[0])
       this.removeBlock(block)
+      const isLooseListItem = nextSibling.children.some(c => c.isLooseListItem)
+      nextSibling.children.forEach(c => c.isLooseListItem = isLooseListItem)
     } else if (
+      // @fxha hi, I don't know how this if statement will be true? how can a parent to be a list?
       parent &&
       parent.listType === type &&
       this.checkSameLooseType(parent, preferLooseListItem)
