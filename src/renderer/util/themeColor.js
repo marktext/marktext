@@ -27,6 +27,7 @@ export const dark = `
   --floatBgColor: #3c4650;
   --floatHoverColor: rgba(255, 255, 255, .04);
   --floatBorderColor: rgba(0, 0, 0, .03);
+  --floatShadow: rgba(0, 0, 0, 0.1);
   --editorAreaWidth: 700px;
 }
 div.title-bar .frameless-titlebar-button > div > svg {
@@ -192,6 +193,7 @@ export const ulysses = `
   --floatBgColor: #ffffff;
   --floatHoverColor: rgba(101, 101, 101, .04);
   --floatBorderColor: rgba(0, 0, 0, .03);
+  --floatShadow: rgba(0, 0, 0, 0.1);
   --editorAreaWidth: 700px;
 }
 h1, h2, h3, h4, h5, h6 {
@@ -321,6 +323,7 @@ export const graphite = `
   --floatBgColor: rgb(237, 237, 238);
   --floatHoverColor: rgba(43, 48, 50, .04);
   --floatBorderColor: rgba(0, 0, 0, .03);
+  --floatShadow: rgba(0, 0, 0, 0.1);
   --editorAreaWidth: 700px;
 }
 li.ag-paragraph {
