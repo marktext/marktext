@@ -171,7 +171,7 @@ const inputCtrl = ContentState => {
     // just for fix #707,need render All if in combines pre list and next list into one list.
     if (inlineUpdatedBlock) {
       const liBlock = this.getParent(inlineUpdatedBlock)
-      if (liBlock.type === 'li' && liBlock.preSibling && liBlock.nextSibling) {
+      if (liBlock && liBlock.type === 'li' && liBlock.preSibling && liBlock.nextSibling) {
         needRenderAll = true
       }
     }
