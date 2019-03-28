@@ -33,7 +33,7 @@ const inputCtrl = ContentState => {
   ContentState.prototype.checkQuickInsert = function (block) {
     const { type, text, functionType } = block
     if (type !== 'span' || functionType) return false
-    return /^@[a-zA-Z\d]*$/.test(text)
+    return /^@\S*$/.test(text)
   }
 
   ContentState.prototype.checkCursorInInlineMath = function (text, offset) {
@@ -157,7 +157,7 @@ const inputCtrl = ContentState => {
       })
     }
 
-    this.muya.eventCenter.dispatch('muya-quick-insert', reference, block, checkQuickInsert)
+    this.muya.eventCenter.dispatch('muya-quick-insert', reference, block, !!checkQuickInsert)
 
     // Update preview content of math block
     if (block && block.type === 'span' && block.functionType === 'codeLine') {
