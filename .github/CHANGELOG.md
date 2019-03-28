@@ -37,6 +37,7 @@ This update **fixes a XSS security vulnerability** when exporting a document.
 - Improvements for "Open Recent" (#616)
 - Make table of contents in sidebar collapsible (#404)
 - Hide titlebar control buttons in custom titlebar style
+- Corrected hamburger menu offset
 
 **:beetle:Bug fix**
 
