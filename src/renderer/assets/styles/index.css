@@ -4,12 +4,13 @@
   --editorAreaWidth: 700px;
   /*editor*/
   --themeColor: rgba(33, 181, 111, 1);
-  --highlightColor: rgba(33, 181, 111, .7);
-  --selectionColor: rgba(33, 181, 111, .4);
+  --highlightColor: rgba(33, 181, 111, .4);
+  --selectionColor: rgba(0, 0, 0, .1);
   --editorColor: rgba(0, 0, 0, .8);
   --editorColor50: rgba(0, 0, 0, .5);
   --editorColor30: rgba(0, 0, 0, .3);
   --editorColor10: rgba(0, 0, 0, .1);
+  --editorColor04: rgba(0, 0, 0, .03); /* on purpose to set it to .03*/
   --editorBgColor: rgba(255, 255, 255, 1);
   --deleteColor: #ff6969;
   --iconColor: #333;

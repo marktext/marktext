@@ -28,6 +28,11 @@ const updateCtrl = ContentState => {
     return list.children[0].isLooseListItem === isLooseType
   }
 
+  ContentState.prototype.checkSameMarkerOrDelimiter = function (list, markerOrDelimiter) {
+    if (!/ol|ul/.test(list.type)) return false
+    return list.children[0].bulletMarkerOrDelimiter === markerOrDelimiter
+  }
+
   ContentState.prototype.checkNeedRender = function (cursor = this.cursor) {
     const { start: cStart, end: cEnd } = cursor
     const startBlock = this.getBlock(cStart.key)
@@ -175,58 +180,38 @@ const updateCtrl = ContentState => {
     newBlock.bulletMarkerOrDelimiter = bulletMarkerOrDelimiter
 
     // Special cases for CommonMark 264 and 265: Changing the bullet or ordered list delimiter starts a new list.
-    let startNewList = false
-    if (preSibling && /^(ol|ul)$/.test(preSibling.type)) {
-      const bullet = preSibling.children[0].bulletMarkerOrDelimiter
-      startNewList = bulletMarkerOrDelimiter !== bullet
-    }
-    if (nextSibling && /^(ol|ul)$/.test(nextSibling.type)) {
-      const bullet = nextSibling.children[0].bulletMarkerOrDelimiter
-      startNewList = startNewList || bulletMarkerOrDelimiter !== bullet
-    }
-
-    if (startNewList) {
-      // Create a new list when changing list type, bullet or list delimiter
-      const listBlock = this.createBlock(wrapperTag)
-      listBlock.listType = type
-      if (wrapperTag === 'ol') {
-        const start = cleanMarker ? cleanMarker.slice(0, -1) : 1
-        listBlock.start = /^\d+$/.test(start) ? start : 1
-      }
-      this.appendChild(listBlock, newBlock)
-      this.insertBefore(listBlock, block)
-      this.removeBlock(block)
-
-    // --------------------------------
     // Same list type or new list
-    } else if (
+    if (
       preSibling &&
-      preSibling.listType === type &&
-      this.checkSameLooseType(preSibling, preferLooseListItem) &&
+      this.checkSameMarkerOrDelimiter(preSibling, bulletMarkerOrDelimiter) &&
       nextSibling &&
-      nextSibling.listType === type &&
-      this.checkSameLooseType(nextSibling, preferLooseListItem)
+      this.checkSameMarkerOrDelimiter(nextSibling, bulletMarkerOrDelimiter)
     ) {
       this.appendChild(preSibling, newBlock)
       const partChildren = nextSibling.children.splice(0)
       partChildren.forEach(b => this.appendChild(preSibling, b))
       this.removeBlock(nextSibling)
       this.removeBlock(block)
+      const isLooseListItem = preSibling.children.some(c => c.isLooseListItem)
+      preSibling.children.forEach(c => c.isLooseListItem = isLooseListItem)
     } else if (
       preSibling &&
-      preSibling.type === wrapperTag &&
-      this.checkSameLooseType(preSibling, preferLooseListItem)
+      this.checkSameMarkerOrDelimiter(preSibling, bulletMarkerOrDelimiter)
     ) {
       this.appendChild(preSibling, newBlock)
       this.removeBlock(block)
+      const isLooseListItem = preSibling.children.some(c => c.isLooseListItem)
+      preSibling.children.forEach(c => c.isLooseListItem = isLooseListItem)
     } else if (
       nextSibling &&
-      nextSibling.listType === type &&
-      this.checkSameLooseType(nextSibling, preferLooseListItem)
+      this.checkSameMarkerOrDelimiter(nextSibling, bulletMarkerOrDelimiter)
     ) {
       this.insertBefore(newBlock, nextSibling.children[0])
       this.removeBlock(block)
+      const isLooseListItem = nextSibling.children.some(c => c.isLooseListItem)
+      nextSibling.children.forEach(c => c.isLooseListItem = isLooseListItem)
     } else if (
+      // todo@jocs remove this if in 0.15.xx
       parent &&
       parent.listType === type &&
       this.checkSameLooseType(parent, preferLooseListItem)
@@ -234,6 +219,7 @@ const updateCtrl = ContentState => {
       this.insertBefore(newBlock, block)
       this.removeBlock(block)
     } else {
+      // Create a new list when changing list type, bullet or list delimiter
       const listBlock = this.createBlock(wrapperTag)
       listBlock.listType = type
       if (wrapperTag === 'ol') {
