@@ -32,17 +32,21 @@ const copyCutCtrl = ContentState => {
       .${CLASS_OR_ID['AG_LANGUAGE_INPUT']}`
     )
 
-    ;[...removedElements].forEach(e => e.remove())
+    for (const e of removedElements) {
+      e.remove()
+    }
 
     const hrs = wrapper.querySelectorAll(`[data-role=hr]`)
-    ;[...hrs].forEach(hr => hr.replaceWith(document.createElement('hr')))
+    for (const hr of hrs) {
+      hr.replaceWith(document.createElement('hr'))
+    }
 
     const headers = wrapper.querySelectorAll(`[data-head]`)
-    ;[...headers].forEach(header => {
+    for (const header of headers) {
       const p = document.createElement('p')
       p.textContent = header.textContent
       header.replaceWith(p)
-    })
+    }
 
     // replace inline rule element: code, a, strong, em, del to span element
     // in order to escape turndown translation
@@ -54,49 +58,49 @@ const copyCutCtrl = ContentState => {
       em.${CLASS_OR_ID['AG_INLINE_RULE']},
       del.${CLASS_OR_ID['AG_INLINE_RULE']}`
     )
-    ;[...inlineRuleElements].forEach(e => {
+    for (const e of inlineRuleElements) {
       const span = document.createElement('span')
       span.textContent = e.textContent
       e.replaceWith(span)
-    })
+    }
 
     const aLinks = wrapper.querySelectorAll(`.${CLASS_OR_ID['AG_A_LINK']}`)
-    ;[...aLinks].forEach(l => {
+    for (const l of aLinks) {
       const span = document.createElement('span')
       span.innerHTML = l.innerHTML
       l.replaceWith(span)
-    })
+    }
 
     const codefense = wrapper.querySelectorAll(`pre[data-role$='code']`)
-    ;[...codefense].forEach(cf => {
+    for (const cf of codefense) {
       const id = cf.id
       const block = this.getBlock(id)
       const language = block.lang || ''
       const selectedCodeLines = cf.querySelectorAll('.ag-code-line')
       const value = [...selectedCodeLines].map(codeLine => codeLine.textContent).join('\n')
       cf.innerHTML = `<code class="language-${language}">${value}</code>`
-    })
+    }
 
     const tightListItem = wrapper.querySelectorAll(`.ag-tight-list-item`)
-    ;[...tightListItem].forEach(li => {
+    for (const li of tightListItem) {
       for (const item of li.childNodes) {
         if (item.tagName === 'P' && item.childElementCount === 1 && item.classList.contains('ag-paragraph')) {
           li.replaceChild(item.firstElementChild, item)
         }
       }
-    })
+    }
 
     const htmlBlock = wrapper.querySelectorAll(`figure[data-role='HTML']`)
-    ;[...htmlBlock].forEach(hb => {
+    for (const hb of htmlBlock) {
       const selectedCodeLines = hb.querySelectorAll('span.ag-code-line')
       const value = [...selectedCodeLines].map(codeLine => codeLine.textContent).join('\n')
       const pre = document.createElement('pre')
       pre.textContent = value
       hb.replaceWith(pre)
-    })
+    }
 
     const mathBlock = wrapper.querySelectorAll(`figure.ag-container-block`)
-    ;[...mathBlock].forEach(mb => {
+    for (const mb of mathBlock) {
       const preElement = mb.querySelector('pre[data-role]')
       const functionType = preElement.getAttribute('data-role')
       const selectedCodeLines = mb.querySelectorAll('span.ag-code-line')
@@ -118,7 +122,7 @@ const copyCutCtrl = ContentState => {
           mb.replaceWith(pre)
           break
       }
-    })
+    }
 
     const htmlData = wrapper.innerHTML
     const textData = this.htmlToMarkdown(htmlData)
