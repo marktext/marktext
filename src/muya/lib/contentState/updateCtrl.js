@@ -211,7 +211,7 @@ const updateCtrl = ContentState => {
       const isLooseListItem = nextSibling.children.some(c => c.isLooseListItem)
       nextSibling.children.forEach(c => c.isLooseListItem = isLooseListItem)
     } else if (
-      // @fxha hi, I don't know how this if statement will be true? how can a parent to be a list?
+      // todo@jocs remove this if in 0.15.xx
       parent &&
       parent.listType === type &&
       this.checkSameLooseType(parent, preferLooseListItem)
