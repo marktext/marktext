@@ -71,6 +71,7 @@
       font-size: 12px;
       line-height: 35px;
       height: 35px;
+      max-width: 280px;
       background: var(--floatBgColor);
       display: flex;
       align-items: center;
