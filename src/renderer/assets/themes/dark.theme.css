@@ -11,7 +11,7 @@
   --editorBgColor: #282828;
   --deleteColor: #409eff;
   --iconColor: rgba(255, 255, 255, .8);
-  --codeBgColor: #424344; /* TODO: not used? */
+  --codeBgColor: #424344;
   --codeBlockBgColor: #424344;
 
   /*marktext*/
@@ -58,21 +58,9 @@ p:not(.ag-active)[data-role="hr"]::before {
   background: none !important;
 }
 
-/* ------------------------------------ */
-
-/*.ag-image-marked-text::before {
-  background: url(../lib/assets/icons/image_dark.png);
-}
-
-.ag-image-marked-text.ag-image-fail::before {
-  background-image: url(../lib/assets/icons/image_dark_fail.png);
-}*/
-
 /*
  * Prism.js theme (override light theme)
  */
 
-/*
-@import url("prismjs/dark.theme.css");
-*/
+/* @import url("prismjs/dark.theme.css"); */
 

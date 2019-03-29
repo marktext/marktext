@@ -112,6 +112,8 @@ pre.ag-paragraph {
   font-size: 14px;
 }
 
+@media not print {
+
 #ag-editor-id {
   max-width: var(--editorAreaWidth);
   margin: 0 auto;
@@ -408,19 +410,6 @@ pre[class*="language-"] {
   color: var(--editorColor50);
 }
 
-@media print {
-  html {
-    font-size: 13px;
-  }
-  table,
-  pre {
-    page-break-inside: avoid;
-  }
-  pre {
-    word-wrap: break-word;
-  }
-}
-
 .ag-hide.ag-math > .ag-math-render {
   color: var(--editorColor);
 }
@@ -473,6 +462,21 @@ body.dark .ag-image-marked-text.ag-image-fail::before {
   border-bottom: none;
   border-left-color: transparent;
   border-right-color: transparent;
+}
+
+} /* end not print */
+
+@media print {
+  html {
+    font-size: 13px;
+  }
+  table,
+  pre {
+    page-break-inside: avoid;
+  }
+  pre {
+    word-wrap: break-word;
+  }
 }
 
 /*

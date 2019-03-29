@@ -33,10 +33,10 @@ export default {
   }, {
     label: 'Material Dark',
     type: 'radio',
-    id: 'dark.material',
-    checked: theme === 'dark.material',
+    id: 'material-dark',
+    checked: theme === 'material-dark',
     click (menuItem, browserWindow) {
-      actions.selectTheme('dark.material')
+      actions.selectTheme('material-dark')
     }
   }, {
     label: 'One Dark',

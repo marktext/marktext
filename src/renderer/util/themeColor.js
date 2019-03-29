@@ -1,11 +1,11 @@
-import darkTheme from '../../muya/themes/dark.theme.css'
-import graphiteTheme from '../../muya/themes/graphite.theme.css'
-import materialDarkTheme from '../../muya/themes/material-dark.theme.css'
-import oneDarkTheme from '../../muya/themes/one-dark.theme.css'
-import ulyssesTheme from '../../muya/themes/ulysses.theme.css'
+import darkTheme from  '../assets/themes/dark.theme.css'
+import graphiteTheme from '../assets/themes/graphite.theme.css'
+import materialDarkTheme from '../assets/themes/material-dark.theme.css'
+import oneDarkTheme from '../assets/themes/one-dark.theme.css'
+import ulyssesTheme from '../assets/themes/ulysses.theme.css'
 
-import darkPrismTheme from '../../muya/themes/prismjs/dark.theme.css'
-import oneDarkPrismTheme from '../../muya/themes/prismjs/one-dark.theme.css'
+import darkPrismTheme from '../assets/themes/prismjs/dark.theme.css'
+import oneDarkPrismTheme from '../assets/themes/prismjs/one-dark.theme.css'
 
 export const dark = () => {
   return darkTheme + '\n' + darkPrismTheme
@@ -26,5 +26,3 @@ export const oneDark = () => {
 export const ulysses = () => {
   return ulyssesTheme
 }
-
-// ------------

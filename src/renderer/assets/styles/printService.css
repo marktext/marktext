@@ -2,13 +2,27 @@ body article.print-container {
   display: none;
 }
 @media print {
+  .editor-container {
+    display: none !important;
+  }
+
   /* General rules for printing. */
   html, body {
+    position: relative !important;
+    width: 100% !important;
+    display: block !important;
+    height: auto !important;
     background: transparent !important;
+    overflow: hidden;
+  }
+
+  body {
+    position: relative !important;
+    height: auto !important;
   }
 
   body > div {
-    display: none;
+    display: none !important;
   }
 
   body article.print-container {

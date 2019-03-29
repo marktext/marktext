@@ -183,16 +183,8 @@ li.ag-task-list-item > input.ag-checkbox-checked::after {
 
 /* ------------------------------------ */
 
-/*.ag-image-marked-text::before {
-  background: url(../lib/assets/icons/image_dark.png);
-}
-
-.ag-image-marked-text.ag-image-fail::before {
-  background-image: url(../lib/assets/icons/image_dark_fail.png);
-}*/
-
 /*
  * Prism.js theme (override light theme)
  */
 
-@import url("prismjs/one-dark.theme.css");
+/* @import url("prismjs/one-dark.theme.css"); */

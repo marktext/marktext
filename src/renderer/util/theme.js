@@ -1,6 +1,10 @@
 import { THEME_STYLE_ID, COMMON_STYLE_ID, DEFAULT_CODE_FONT_FAMILY, oneDarkThemes, railscastsThemes } from '../config'
 import { dark, graphite, materialDark, oneDark, ulysses } from './themeColor'
 
+const patchTheme = css => {
+  return `@media not print {\n${css}\n}`
+}
+
 export const addThemeStyle = theme => {
   const isCmRailscasts = railscastsThemes.includes(theme)
   const isCmOneDark = oneDarkThemes.includes(theme)
@@ -17,19 +21,19 @@ export const addThemeStyle = theme => {
       themeStyleEle.innerHTML = ''
       break
     case 'dark':
-      themeStyleEle.innerHTML = dark()
+      themeStyleEle.innerHTML = patchTheme(dark())
       break
-    case 'dark.material':
-      themeStyleEle.innerHTML = materialDark()
+    case 'material-dark':
+      themeStyleEle.innerHTML = patchTheme(materialDark())
       break
     case 'ulysses':
-      themeStyleEle.innerHTML = ulysses()
+      themeStyleEle.innerHTML = patchTheme(ulysses())
       break
     case 'graphite':
-      themeStyleEle.innerHTML = graphite()
+      themeStyleEle.innerHTML = patchTheme(graphite())
       break
     case 'one-dark':
-      themeStyleEle.innerHTML = oneDark()
+      themeStyleEle.innerHTML = patchTheme(oneDark())
       break
     default:
       console.log('unknown theme')

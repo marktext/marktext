@@ -19,7 +19,6 @@ const INON_HASH = {
 const notification = {
   name: 'notify',
   noticeCache: {},
-  // TODO: it's a dirty implement of clear, because not remove all the event listeners. need refactor.
   clear () {
     Object.keys(this.noticeCache).forEach(key => {
       this.noticeCache[key].remove()

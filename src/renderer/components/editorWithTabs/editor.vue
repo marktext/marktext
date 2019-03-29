@@ -90,7 +90,7 @@
   import { DEFAULT_EDITOR_FONT_FAMILY } from '@/config'
 
   import 'muya/themes/default.css'
-  import 'muya/themes/codemirror/one-dark.css'
+  import '@/assets/themes/codemirror/one-dark.css'
   import 'view-image/lib/imgViewer.css'
   import CloseIcon from '@/assets/icons/close.svg'
 

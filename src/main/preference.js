@@ -120,7 +120,7 @@ class Preference {
     }
 
     let brokenSettings = false
-    if (!settings.theme || (settings.theme && !/^(?:dark|dark\.material|graphite|one-dark|light|ulysses)$/.test(settings.theme))) {
+    if (!settings.theme || (settings.theme && !/^(?:dark|graphite|material-dark|one-dark|light|ulysses)$/.test(settings.theme))) {
       brokenSettings = true
       settings.theme = 'light'
     }
