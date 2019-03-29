@@ -168,6 +168,13 @@ const inputCtrl = ContentState => {
     this.cursor = { start, end }
     const checkMarkedUpdate = this.checkNeedRender()
     const inlineUpdatedBlock = this.isCollapse() && this.checkInlineUpdate(block)
+    // just for fix #707,need render All if in combines pre list and next list into one list.
+    if (inlineUpdatedBlock) {
+      const liBlock = this.getParent(inlineUpdatedBlock)
+      if (liBlock && liBlock.type === 'li' && liBlock.preSibling && liBlock.nextSibling) {
+        needRenderAll = true
+      }
+    }
     if (checkMarkedUpdate || inlineUpdatedBlock || needRender) {
       return needRenderAll ? this.render() : this.partialRender()
     }

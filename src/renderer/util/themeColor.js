@@ -6,8 +6,8 @@ export const dark = `
 :root {
   /*editor*/
   --themeColor: #f48237;
-  --highlightColor: rgba(244, 130, 55, .9);
-  --selectionColor: rgba(244, 130, 55, .4);
+  --highlightColor: rgba(244, 130, 55, .4);
+  --selectionColor: rgba(255, 255, 255, .2);
   --editorColor: rgba(255, 255, 255, .8);
   --editorColor50: rgba(255, 255, 255, .5);
   --editorColor30: rgba(255, 255, 255, .3);
@@ -174,8 +174,8 @@ pre.ag-paragraph {
 export const ulysses = `
 :root {
   --themeColor: rgb(12, 139, 186);
-  --highlightColor: rgba(12, 139, 186, .9);
-  --selectionColor: rgba(12, 139, 186, .4);
+  --highlightColor: rgba(12, 139, 186, .4);
+  --selectionColor: rgba(0, 0, 0, .1);
   --editorColor: rgba(101, 101, 101, .8);
   --editorColor50: rgba(101, 101, 101, .5);
   --editorColor30: rgba(101, 101, 101, .3);
@@ -305,8 +305,8 @@ p:not(.ag-active)[data-role="hr"]::before {
 export const graphite = `
 :root {
   --themeColor: rgb(104, 134, 170);
-  --highlightColor: rgba(104, 134, 170, .9);
-  --selectionColor: rgba(104, 134, 170, .4);
+  --highlightColor: rgba(104, 134, 170, .4);
+  --selectionColor: rgba(0, 0, 0, .1);
   --editorColor: rgba(43, 48, 50, .8);
   --editorColor50: rgba(43, 48, 50, .5);
   --editorColor30: rgba(43, 48, 50, .3);
