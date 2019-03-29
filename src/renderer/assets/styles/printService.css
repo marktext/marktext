@@ -7,12 +7,12 @@ body article.print-container {
     background: transparent !important;
   }
 
-  body > *:not(.print-container) {
-    display: none !important;
+  body > div {
+    display: none;
   }
 
   body article.print-container {
-    display: block !important;
+    display: block;
   }
   body article.print-container {
     height: 100%;
