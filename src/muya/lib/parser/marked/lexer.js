@@ -43,6 +43,7 @@ Lexer.prototype.lex = function (src) {
 
 Lexer.prototype.token = function (src, top) {
   src = src.replace(/^ +$/gm, '')
+
   let loose
   let cap
   let bull
