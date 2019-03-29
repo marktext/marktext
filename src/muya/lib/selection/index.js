@@ -438,8 +438,6 @@ class Selection {
 
   getCursorRange () {
     let { anchorNode, anchorOffset, focusNode, focusOffset } = this.doc.getSelection()
-<<<<<<< HEAD
-=======
     let startParagraph = findNearestParagraph(anchorNode)
     let endParagraph = findNearestParagraph(focusNode)
     if (!startParagraph || !endParagraph) {
@@ -449,7 +447,6 @@ class Selection {
       }
     }
 
->>>>>>> also fix double click front icon and error happen
     // when the first paragraph is task list, press ctrl + a, then press backspace will cause bug
     // use code bellow to fix the bug
     const findFirstTextNode = anchor => {
