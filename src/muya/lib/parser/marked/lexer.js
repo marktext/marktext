@@ -298,7 +298,6 @@ Lexer.prototype.token = function (src, top) {
         } else {
           prevItem = cap[i - 1]
         }
-
         // Determine whether item is loose or not. If previous item is loose
         // this item is also loose.
         loose = next = next || /^ *([*+-]|\d{1,9}(?:\.|\)))( +\S+\n\n(?!\s*$)|\n\n(?!\s*$))/.test(itemWithBullet)
