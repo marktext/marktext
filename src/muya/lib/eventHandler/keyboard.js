@@ -72,6 +72,9 @@ class Keyboard {
     const { container, eventCenter, contentState } = this.muya
 
     const handler = event => {
+      if (event.metaKey || event.ctrlKey) {
+        container.classList.add('ag-meta-or-ctrl')
+      }
       if (
         this.shownFloat.size > 0 &&
         (
@@ -152,6 +155,7 @@ class Keyboard {
   keyupBinding () {
     const { container, eventCenter, contentState } = this.muya
     const handler = event => {
+      container.classList.remove('ag-meta-or-ctrl')
       // check if edit emoji
       const node = selection.getSelectionStart()
       const paragraph = findNearestParagraph(node)

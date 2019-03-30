@@ -263,10 +263,6 @@ table {
   margin-top: 0;
 }
 
-#ag-editor-id a:not(.ag-front-icon) {
-  pointer-events: none;
-}
-
 li > h1,
 li > h2,
 li > h3,
@@ -718,4 +714,9 @@ span.ag-reference-link {
 
 .ag-paragraph.ag-active .ag-front-icon {
   display: block;
+}
+
+.ag-meta-or-ctrl img,
+.ag-meta-or-ctrl a.ag-inline-rule {
+  cursor: pointer !important;
 }
