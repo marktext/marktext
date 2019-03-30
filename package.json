@@ -14,7 +14,6 @@
     "build:dir": "node .electron-vue/build.js && electron-builder --dir",
     "build:clean": "cross-env BUILD_TARGET=clean node .electron-vue/build.js",
     "build:dev": "node .electron-vue/build.js",
-    "build:web": "cross-env BUILD_TARGET=web node .electron-vue/build.js",
     "dev": "node .electron-vue/dev-runner.js",
     "e2e": "npm run pack && cross-env MARKTEXT_EXIT_ON_ERROR=1 mocha --timeout 10000 test/e2e",
     "lint": "eslint --ext .js,.vue -f ./node_modules/eslint-friendly-formatter src test",
@@ -28,7 +27,9 @@
     "postinstall": "npm run rebuild && npm run lint:fix",
     "build:muya": "cd src/muya && webpack --progress --colors --config webpack.config.js",
     "release:muya": "npm run build:muya && cd src/muya && npm publish",
-    "rebuild": "electron-rebuild -f -w keyboard-layout -o keyboard-layout"
+    "rebuild": "electron-rebuild -f -w keyboard-layout -o keyboard-layout",
+    "gen-third-party": "node tools/generateThirdPartyLicense.js",
+    "validate-licenses": "node tools/validateLicenses.js"
   },
   "build": {
     "productName": "Mark Text",
@@ -77,6 +78,13 @@
     ],
     "files": [
       "dist/electron/**/*"
+    ],
+    "extraFiles": [
+      "LICENSE",
+      {
+        "from": "resources/THIRD-PARTY-LICENSES.txt",
+        "to": "THIRD-PARTY-LICENSES.txt"
+      }
     ],
     "dmg": {
       "contents": [
@@ -228,6 +236,7 @@
     "karma-sourcemap-loader": "^0.3.7",
     "karma-spec-reporter": "0.0.32",
     "karma-webpack": "^3.0.5",
+    "license-checker": "^25.0.1",
     "mini-css-extract-plugin": "^0.5.0",
     "mocha": "^6.0.2",
     "multispinner": "^0.2.1",
