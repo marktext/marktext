@@ -86,6 +86,7 @@ This update **fixes a XSS security vulnerability** when exporting a document.
 - Fixed an issue that relative images are not loaded after closing a tab
 - Add symbolic link support
 - Fixed bug when combine pre list and next list into one when inline update #707
+- Fixed list parse error https://github.com/marktext/marktext/issues/831#issuecomment-477719256
 
 ### 0.13.65
 
