@@ -50,6 +50,7 @@ install:
 
 script:
   - yarn run lint
+  - yarn run validate-licenses
 
   # Unit and e2e tests
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then xvfb-run --server-args="-screen 0 1024x768x24" yarn run test ; fi
