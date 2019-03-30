@@ -3,6 +3,9 @@ import selection from '../selection'
 const deleteCtrl = ContentState => {
   ContentState.prototype.deleteHandler = function (event) {
     const { start, end } = selection.getCursorRange()
+    if (!start || !end) {
+      return
+    }
     const startBlock = this.getBlock(start.key)
     const nextBlock = this.findNextBlockInLocation(startBlock)
 

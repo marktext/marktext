@@ -188,6 +188,9 @@ class Keyboard {
       }
       // is show format float box?
       const { start, end } = selection.getCursorRange()
+      if (!start || !end) {
+        return
+      }
  
       if (
         !this.isComposed

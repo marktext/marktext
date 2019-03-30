@@ -3,6 +3,9 @@ import { CLASS_OR_ID, IMAGE_EXT_REG } from '../config'
 
 export const checkEditImage = () => {
   const { start, end } = selection.getCursorRange()
+  if (!start || !end) {
+    return false
+  }
   if (start.key === end.key && start.offset === end.offset) {
     const node = selection.getSelectionStart()
     const { right } = selection.getCaretOffsets(node)
