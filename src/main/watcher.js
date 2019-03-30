@@ -4,6 +4,7 @@ import { promisify } from 'util'
 import chokidar from 'chokidar'
 import { getUniqueId, log, hasMarkdownExtension } from './utils'
 import { loadMarkdownFile } from './utils/filesystem'
+import { isLinux } from './config'
 
 const EVENT_NAME = {
   dir: 'AGANI::update-object-tree',
@@ -102,8 +103,23 @@ class Watcher {
       .on('unlink', pathname => unlink(win, pathname, type))
       .on('addDir', pathname => addDir(win, pathname))
       .on('unlinkDir', pathname => unlinkDir(win, pathname))
+      .on('raw', (event, path, details) => {
+        if (global.MARKTEXT_DEBUG_VERBOSE) {
+          console.log(event, path, details)
+        }
+
+        // rename syscall on Linux (chokidar#591)
+        if (isLinux && event === 'rename') {
+          const { watchedPath } = details
+          // Use the same watcher and re-watch the file.
+          watcher.unwatch(watchedPath)
+          watcher.add(watchedPath)
+        }
+      })
       .on('error', error => {
-        log(`Watcher error: ${error}`)
+        const msg = `Watcher error: ${error}`
+        console.log(msg)
+        log(msg)
       })
 
     this.watchers[id] = {
