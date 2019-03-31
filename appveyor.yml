@@ -38,6 +38,7 @@ cache:
 
 build_script:
   - yarn run lint
+  - yarn run validate-licenses
   - yarn run test
 
   - yarn run release:win

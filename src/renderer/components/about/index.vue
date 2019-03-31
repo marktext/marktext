@@ -16,7 +16,10 @@
           <div class="text">{{ appVersion }}</div>
         </el-col>
         <el-col :span="24">
-          <div class="text">{{ copyright }}</div>
+          <div class="text" style="min-height: auto">{{ copyright }}</div>
+        </el-col>
+        <el-col :span="24">
+          <div class="text">Copyright © 2018 Mark Text Contributors</div>
         </el-col>
       </el-row>
     </el-dialog>
@@ -30,7 +33,7 @@
   export default {
     data () {
       this.name = 'Mark Text'
-      this.copyright = `Copyright © 2017-${new Date().getFullYear()} Jocs`
+      this.copyright = `Copyright © 2017-${new Date().getFullYear()} Luo Ran`
       return {
         showAboutDialog: false
       }

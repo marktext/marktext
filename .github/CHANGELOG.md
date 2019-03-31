@@ -19,7 +19,7 @@ This update **fixes a XSS security vulnerability** when exporting a document.
 - Open local markdown file when you click on it in another tab (#359)
 - Clicking a link should open it in the browser (#425)
 - Support maxOS `dark mode`, when you change `mode dark or light` in system, Mark Text will change its theme.
-- Add two new themes  Ulysses Light and Graphite Light theme.
+- Add new themes: Ulysses Light, Graphite Light, Material Dark and One Dark.
 - Watch file changed in tabs and show a notice(autoSave is `false`) or update the file(autoSave is `true`)
 
 **:butterfly:Optimization**
@@ -87,7 +87,7 @@ This update **fixes a XSS security vulnerability** when exporting a document.
 - Add symbolic link support
 - Fixed bug when combine pre list and next list into one when inline update #707
 - Fix renderer error when selection in sidebar (#625)
-
+- Fixed list parse error [more info](https://github.com/marktext/marktext/issues/831#issuecomment-477719256)
 
 ### 0.13.65
 

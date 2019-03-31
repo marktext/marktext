@@ -26,7 +26,6 @@ const importRegister = ContentState => {
       nextSibling: null,
       children: []
     }
-
     const tokens = new Lexer({ disableInline: true }).lex(markdown)
     let token
     let block

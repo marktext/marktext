@@ -635,6 +635,8 @@ const actions = {
 
   LISTEN_FOR_FILE_CHANGE ({ commit, state, rootState }) {
     ipcRenderer.on('AGANI::update-file', (e, { type, change }) => {
+      // TODO: Set `isSaved` to false.
+      // TODO: A new "changed" notification from different files overwrite the old notification - the old notification disappears.
       if (type === 'unlink') {
         return notice.notify({
           title: 'File Removed on Disk',

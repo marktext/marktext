@@ -12,7 +12,7 @@
   import { mapState } from 'vuex'
   import { adjustCursor } from '../../util'
   import bus from '../../bus'
-  import { railscastsThemes } from '@/config'
+  import { oneDarkThemes, railscastsThemes } from '@/config'
 
   export default {
     props: {
@@ -67,6 +67,8 @@
         }
         if (railscastsThemes.includes(theme)) {
           codeMirrorConfig.theme = 'railscasts'
+        } else if (oneDarkThemes.includes(theme)) {
+          codeMirrorConfig.theme = 'one-dark'
         }
         const editor = this.editor = codeMirror(container, codeMirrorConfig)
         bus.$on('file-loaded', this.setMarkdown)
