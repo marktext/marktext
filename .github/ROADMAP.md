@@ -18,39 +18,37 @@
 
 **New Features**
 
-- [ ] Rewrite Mark Text UI, and the toolbar is added at the top. It can be switched between simple mode and full function mode.
+- [ ] Rewrite Mark Text Side Bar UI.
+
+- [x] Add More Themes.
 
 - [ ] User settings page, color theme, editor settings, markdown preferences, security settings, etc.
 
-- [ ] Add notebook features, users can create notebooks in Mark Text, such as work notes, study notebooks, and more. Can I also open an external folder or import the entire folder as a notebook?
-
-- [ ] Different notes can be referenced, jumped, and opened via a browser.
+- [x] Different file can be referenced, jumped, and opened via a browser.
 
 - [ ] Print page settings.
 
-- [ ] Support for the selection of different style themes when exporting PDFs and HTML. Support for more format output and input.
+- [ ] Support for the selection of different style themes when exporting PDFs and HTML. 
 
-- [ ] When you open the software, the last edited note and cursor position are automatically opened.
+- [ ] Support for more format output and input.
+
+- [ ] When you open the software, the last edited file or folder are automatically opened.
 
 - [ ] Picture management function, uploaded pictures for unified management, image management will probably have these functions, local pictures, uploaded pictures, search pictures and upload.
-
-- [ ] Note history, a copy of markdown will be stored locally for recovery, and text diff comparison is possible for recovery.
 
 - [ ] Support slideshow function, we can write Markdown directly, then Markdown will automatically generate slideshows, transition animations, thumbnails, preview playback.
 
 - [ ] Add a paragraph menu. Add paragraphs, delete, copy, and more.
 
-- [ ] Paragraph drag and drop sorting, image drag and drop switching position, list item support drag and drop, tables row and column support drag and drop sorting.
-
-- [ ] Supports the extensibility of paragraphs or inline styles, such as adding reminders, calendars, videos, maps, and inserting files (requires storage services).
-
-- [ ] Support charts, flowcharts, Gantt charts, etc.
+- [ ] Support `charts`, `flowcharts`, `Gantt charts`, etc.
 
 - [ ] When entering mathematical formulas, smart tips, support more mathematical, chemical and other formulas.
 
 - [ ] spell checking.
 
 - [ ] novice tutorial for newbies or new features.
+
+- [ ] More custom markdown syntax, `subscript` and `superscript` etc.
 
 **Mark Text and Muya websites**
 
