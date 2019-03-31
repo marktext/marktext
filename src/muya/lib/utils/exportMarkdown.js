@@ -318,7 +318,6 @@ class ExportMarkdown {
     }
 
     const newIndent = indent + ' '.repeat(itemMarker.length)
-    console.log(newIndent)
     result.push(`${indent}${itemMarker}`)
     result.push(this.translateBlocks2Markdown(children, newIndent).substring(newIndent.length))
     return result.join('')
