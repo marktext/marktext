@@ -263,6 +263,14 @@
       -webkit-app-region: no-drag;
     }
   }
+  div.title > span {
+    /* Workaround for GH#339 */
+    display: block;
+    direction: rtl;
+    overflow: hidden;
+    text-overflow: clip;
+    white-space: nowrap;
+  }
 
   .title-bar .title .filename.isOsx:hover {
     color: var(--themeColor);
