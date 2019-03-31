@@ -22,6 +22,7 @@
   --floatBgColor: #ffffff;
   --floatHoverColor: rgba(101, 101, 101, .04);
   --floatBorderColor: rgba(0, 0, 0, .03);
+  --maskColor: rgba(255, 255, 255, .7);
   --editorAreaWidth: 700px;
 }
 
