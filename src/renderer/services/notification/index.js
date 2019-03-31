@@ -9,17 +9,16 @@ const INON_HASH = {
   info: 'icon-info'
 }
 
-const COLOR_HASH = {
-  primary: 'var(--themeColor)',
-  error: 'var(--deleteColor)',
-  warning: 'var(--deleteColor)',
-  info: '#999999'
-}
+// const COLOR_HASH = {
+//   primary: 'var(--themeColor)',
+//   error: 'var(--deleteColor)',
+//   warning: 'var(--deleteColor)',
+//   info: '#999999'
+// }
 
 const notification = {
   name: 'notify',
   noticeCache: {},
-  // it's a dirty implement of clear, because not remove all the event listeners. need refactor.
   clear () {
     Object.keys(this.noticeCache).forEach(key => {
       this.noticeCache[key].remove()
@@ -56,7 +55,7 @@ const notification = {
       target = noticeContainer.querySelector('.confirm')
     }
 
-    bgNotice.style.backgroundColor = `${COLOR_HASH[type]}`
+    bgNotice.classList.add(INON_HASH[type])
 
     fluent.style.height = offsetHeight * 2 + 'px'
     fluent.style.width = offsetHeight * 2 + 'px'

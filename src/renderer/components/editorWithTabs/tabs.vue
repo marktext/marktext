@@ -53,6 +53,7 @@
     width: 100%;
     height: 35px;
     user-select: none;
+    box-shadow: 0px 0px 9px 2px rgba(0, 0, 0, .1);
   }
   .tabs-container {
     list-style: none;

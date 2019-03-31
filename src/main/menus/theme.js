@@ -7,14 +7,6 @@ export default {
   label: 'Theme',
   id: 'themeMenu',
   submenu: [{
-    label: 'Material Dark',
-    type: 'radio',
-    id: 'dark',
-    checked: theme === 'dark',
-    click (menuItem, browserWindow) {
-      actions.selectTheme('dark')
-    }
-  }, {
     label: 'Cadmium Light',
     type: 'radio',
     id: 'light',
@@ -23,12 +15,12 @@ export default {
       actions.selectTheme('light')
     }
   }, {
-    label: 'Ulysses Light',
+    label: 'Dark',
     type: 'radio',
-    id: 'ulysses',
-    checked: theme === 'ulysses',
+    id: 'dark',
+    checked: theme === 'dark',
     click (menuItem, browserWindow) {
-      actions.selectTheme('ulysses')
+      actions.selectTheme('dark')
     }
   }, {
     label: 'Graphite Light',
@@ -37,6 +29,30 @@ export default {
     checked: theme === 'graphite',
     click (menuItem, browserWindow) {
       actions.selectTheme('graphite')
+    }
+  }, {
+    label: 'Material Dark',
+    type: 'radio',
+    id: 'material-dark',
+    checked: theme === 'material-dark',
+    click (menuItem, browserWindow) {
+      actions.selectTheme('material-dark')
+    }
+  }, {
+    label: 'One Dark',
+    type: 'radio',
+    id: 'one-dark',
+    checked: theme === 'one-dark',
+    click (menuItem, browserWindow) {
+      actions.selectTheme('one-dark')
+    }
+  }, {
+    label: 'Ulysses Light',
+    type: 'radio',
+    id: 'ulysses',
+    checked: theme === 'ulysses',
+    click (menuItem, browserWindow) {
+      actions.selectTheme('ulysses')
     }
   }]
 }

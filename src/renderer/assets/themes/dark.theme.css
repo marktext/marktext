@@ -1,0 +1,66 @@
+:root {
+  /*editor*/
+  --themeColor: #409eff;
+  --highlightColor: rgba(102, 177, 255, .6);
+  --selectionColor: rgba(102, 177, 255, .3);
+  --editorColor: rgba(255, 255, 255, .8);
+  --editorColor50: rgba(255, 255, 255, .5);
+  --editorColor30: rgba(255, 255, 255, .3);
+  --editorColor10: rgba(255, 255, 255, .1);
+  --editorColor04: rgba(255, 255, 255, .04);
+  --editorBgColor: #282828;
+  --deleteColor: #409eff;
+  --iconColor: rgba(255, 255, 255, .8);
+  --codeBgColor: #424344;
+  --codeBlockBgColor: #424344;
+
+  /*marktext*/
+  --sideBarColor: rgba(255, 255, 255, .6);
+  --sideBarTitleColor: rgba(255, 255, 255, .8);
+  --sideBarTextColor: rgba(255, 255, 255, .4);
+  --sideBarBgColor: #1e1e1e;
+  --sideBarItemHoverBgColor: rgba(255, 255, 255, .03);
+  --itemBgColor: #3f3f3f;
+  --floatBgColor: #3f3f3f;
+  --floatHoverColor: rgba(255, 255, 255, .04);
+  --floatBorderColor: rgba(0, 0, 0, .05);
+  --editorAreaWidth: 700px;
+}
+
+::-webkit-scrollbar {
+  background: var(--editorBgColor);
+}
+
+.title-bar .frameless-titlebar-button > div > svg {
+  fill: #ffffff;
+}
+
+.side-bar {
+  border-right: 1px solid #1d1d1d !important;
+}
+
+.editor-tabs {
+  border-bottom: 1px solid #1d1d1d;
+  box-shadow: none !important;
+}
+.tabs-container > li,
+.tabs-container > li.active {
+  background: var(--editorBgColor) !important;
+}
+
+:not(pre) > code[class*="language-"],
+pre.ag-paragraph {
+  background: var(--codeBlockBgColor) !important;
+}
+
+p:not(.ag-active)[data-role="hr"]::before {
+  border-top: 2px dashed var(--editorColor10) !important;
+  background: none !important;
+}
+
+/*
+ * Prism.js theme (override light theme)
+ */
+
+/* @import url("prismjs/dark.theme.css"); */
+

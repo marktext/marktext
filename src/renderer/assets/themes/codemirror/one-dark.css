@@ -1,0 +1,110 @@
+/*
+    Name:       one-dark 1.1.1
+    Author:     Török Ádám (http://github.com/Aerobird98)
+    Original Atom One Dark Theme (https://github.com/atom/one-dark-ui & https://github.com/atom/one-dark-syntax)
+
+MIT License
+
+Copyright (c) 2016-2017 Aerobird98
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
+
+/* basic */
+.cm-s-one-dark {
+  font-family: Menlo, Consolas, 'DejaVu Sans Mono', monospace;
+  font-weight: 350;
+  font-size: 18px;
+  color: #abb2bf;
+  background-color: #282c34;
+}
+.cm-s-one-dark .CodeMirror-selected {background-color: #3e4451;}
+.cm-s-one-dark .CodeMirror-gutter,
+.cm-s-one-dark .CodeMirror-gutters {
+  border: none;
+  background-color: #282c34;
+}
+.cm-s-one-dark .CodeMirror-linenumber,
+.cm-s-one-dark .CodeMirror-linenumbers {
+  color: #5c6370 !important;
+  background-color: transparent;
+}
+.cm-s-one-dark .CodeMirror-lines {
+  color: #abb2bf !important;
+  background-color: transparent;
+}
+.cm-s-one-dark .CodeMirror-cursor {border-left: 2px solid #56b6c2 !important;}
+/* addon: edit/machingbrackets.js & addon: edit/matchtags.js */
+.cm-s-one-dark .CodeMirror-matchingbracket,
+.cm-s-one-dark .CodeMirror-matchingtag {
+  border-bottom: 2px solid #56b6c2;
+  color: #abb2bf !important;
+  background-color: transparent;
+}
+.cm-s-one-dark .CodeMirror-nonmatchingbracket {
+  border-bottom: 2px solid #e06c75;
+  color: #abb2bf !important;
+  background-color: transparent;
+}
+/* addon: fold/foldgutter.js */
+.cm-s-one-dark .CodeMirror-foldmarker,
+.cm-s-one-dark .CodeMirror-foldgutter,
+.cm-s-one-dark .CodeMirror-foldgutter-open,
+.cm-s-one-dark .CodeMirror-foldgutter-folded {
+  border: none;
+  text-shadow: none;
+  color: #5c6370 !important;
+  background-color: transparent;
+}
+/* addon: selection/active-line.js */
+.cm-s-one-dark .CodeMirror-activeline-background {background-color: rgba(153, 187, 255, 0.04);}
+/* basic syntax */
+.cm-s-one-dark .cm-header {color: #e06c75;}
+.cm-s-one-dark .cm-quote {color: #5c6370;font-style: italic;}
+.cm-s-one-dark .cm-negative {color: #e06c75;}
+.cm-s-one-dark .cm-positive {color: #e06c75;}
+.cm-s-one-dark .cm-strong {color: #d19a66;font-weight: bold;}
+.cm-s-one-dark .cm-header .cm-strong {color: #d19a66;font-weight: bold;}
+.cm-s-one-dark .cm-em {color: #c678dd;font-style: italic;}
+.cm-s-one-dark .cm-header .cm-em {color: #c678dd;font-style: italic;}
+.cm-s-one-dark .cm-tag {color: #e06c75;}
+.cm-s-one-dark .cm-attribute {color: #d19a66;}
+.cm-s-one-dark .cm-link {color: #98c379;border-bottom: solid 1px #98c379;}
+.cm-s-one-dark .cm-builtin {color: #e06c75;}
+.cm-s-one-dark .cm-keyword {color: #c678dd;}
+.cm-s-one-dark .cm-def {color: #e5c07b;} /* original:  #d19a66; */
+.cm-s-one-dark .cm-atom {color: #d19a66;}
+.cm-s-one-dark .cm-number {color: #d19a66;}
+.cm-s-one-dark .cm-property {color: #56b6c2;} /* original: #abb2bf */
+.cm-s-one-dark .cm-qualifier {color: #d19a66;}
+.cm-s-one-dark .cm-variable {color: #e06c75;}
+.cm-s-one-dark .cm-string {color: #98c379;}
+.cm-s-one-dark .cm-punctuation {color: #abb2bf;}
+.cm-s-one-dark .cm-operator {color: #56b6c2;} /* original: #abb2bf */
+.cm-s-one-dark .cm-meta {color: #abb2bf;}
+.cm-s-one-dark .cm-bracket {color: #abb2bf;}
+.cm-s-one-dark .cm-comment {color: #5c6370;font-style: italic;}
+.cm-s-one-dark .cm-error {color: #e06c75;}
+/* css syntax corrections */
+.cm-s-one-dark .cm-m-css.cm-variable {color: #828997;}
+.cm-s-one-dark .cm-m-css.cm-property  {color: #abb2bf;}
+.cm-s-one-dark .cm-m-css.cm-atom  {color: #56b6c2;}
+.cm-s-one-dark .cm-m-css.cm-builtin {color: #56b6c2;}
+/* lua syntax corrections */
+.cm-s-one-dark .cm-m-lua.cm-variable {color: #56b6c2;}

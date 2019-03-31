@@ -1,7 +1,7 @@
 <template>
   <div
     class="title-bar"
-    :class="[{ 'active': active }, { 'frameless': titleBarStyle === 'custom' }, { 'isOsx': platform === 'darwin' }]"
+    :class="[{ 'active': active }, { 'tabs-visible': showTabBar }, { 'frameless': titleBarStyle === 'custom' }, { 'isOsx': platform === 'darwin' }]"
   >
     <div class="title">
       <span v-if="!filename">Mark Text</span>
@@ -141,6 +141,7 @@
     computed: {
       ...mapState({
         'titleBarStyle': state => state.preferences.titleBarStyle,
+        'showTabBar': state => state.layout.showTabBar
       }),
       paths () {
         if (!this.pathname) return []

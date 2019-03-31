@@ -89,9 +89,10 @@
   import Printer from '@/services/printService'
   import { DEFAULT_EDITOR_FONT_FAMILY } from '@/config'
 
-  import 'muya/themes/light.css'
-  import CloseIcon from '@/assets/icons/close.svg'
+  import 'muya/themes/default.css'
+  import '@/assets/themes/codemirror/one-dark.css'
   import 'view-image/lib/imgViewer.css'
+  import CloseIcon from '@/assets/icons/close.svg'
 
   const STANDAR_Y = 320
 

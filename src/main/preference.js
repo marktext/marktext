@@ -120,16 +120,16 @@ class Preference {
     }
 
     let brokenSettings = false
-    if (!settings.theme || (settings.theme && !/^(dark|light)$/.test(settings.theme))) {
+    if (!settings.theme || (settings.theme && !/^(?:dark|graphite|material-dark|one-dark|light|ulysses)$/.test(settings.theme))) {
       brokenSettings = true
       settings.theme = 'light'
     }
     if (!settings.bulletListMarker ||
-      (settings.bulletListMarker && !/^(\+|-|\*)$/.test(settings.bulletListMarker))) {
+      (settings.bulletListMarker && !/^(?:\+|-|\*)$/.test(settings.bulletListMarker))) {
       brokenSettings = true
       settings.bulletListMarker = '-'
     }
-    if (!settings.titleBarStyle || !/^(native|csd|custom)$/.test(settings.titleBarStyle)) {
+    if (!settings.titleBarStyle || !/^(?:native|csd|custom)$/.test(settings.titleBarStyle)) {
       settings.titleBarStyle = 'csd'
     }
     if (brokenSettings) {

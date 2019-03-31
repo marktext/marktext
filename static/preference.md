@@ -2,7 +2,7 @@
 
 Edit and save to update preferences. You can only change the JSON below!
 
-- **theme**: *String* `dark` or `light`
+- **theme**: *String* `dark`, `graphite`, `material-dark`, `one-dark`, `light` or `ulysses`
 
 - **autoSave**: *Boolean* `true` or `false`
 
