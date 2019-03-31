@@ -54,6 +54,11 @@ class Keyboard {
         return
       }
 
+      // prevent dispatch `selectionChange` and `selectionFormats` by click the toolbar of table/html block and front icons
+      if (event.target.closest('[contenteditable=false]')) {
+        return
+      }
+
       if (timer) clearTimeout(timer)
       timer = setTimeout(() => {
         const selectionChanges = contentState.selectionChange()
@@ -183,6 +188,9 @@ class Keyboard {
       }
       // is show format float box?
       const { start, end } = selection.getCursorRange()
+      if (!start || !end) {
+        return
+      }
  
       if (
         !this.isComposed

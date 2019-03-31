@@ -106,6 +106,9 @@ const addFormat = (type, block, { start, end }) => {
 
 const formatCtrl = ContentState => {
   ContentState.prototype.selectionFormats = function ({ start, end } = selection.getCursorRange()) {
+    if (!start || !end) {
+      return { formats: [], tokens: [], neighbors: [] }
+    }
     const startBlock = this.getBlock(start.key)
     const formats = []
     const neighbors = []
@@ -141,6 +144,9 @@ const formatCtrl = ContentState => {
   }
 
   ContentState.prototype.clearBlockFormat = function (block, { start, end } = selection.getCursorRange(), type) {
+    if (!start || !end) {
+      return
+    }
     if (block.type === 'pre') return false
     const { key } = block
     let tokens
@@ -242,6 +248,9 @@ const formatCtrl = ContentState => {
 
   ContentState.prototype.format = function (type) {
     const { start, end } = selection.getCursorRange()
+    if (!start || !end) {
+      return
+    }
     const startBlock = this.getBlock(start.key)
     const endBlock = this.getBlock(end.key)
     start.delata = end.delata = 0

@@ -51,6 +51,9 @@ const arrowCtrl = ContentState => {
     const nextBlock = this.findNextBlockInLocation(block)
     const { start, end } = selection.getCursorRange()
     const { topOffset, bottomOffset } = selection.getCursorYOffset(paragraph)
+    if (!start || !end) {
+      return
+    }
 
     // fix #101
     if (event.key === EVENT_KEYS.ArrowRight && node && node.classList && node.classList.contains(CLASS_OR_ID['AG_MATH_TEXT'])) {

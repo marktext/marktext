@@ -24,6 +24,7 @@
   --floatBgColor: #21252b;
   --floatHoverColor: #3a3f4b;
   --floatBorderColor: #181a1f;
+  --maskColor: rgba(0, 0, 0, .7);
   --editorAreaWidth: 700px;
 }
 

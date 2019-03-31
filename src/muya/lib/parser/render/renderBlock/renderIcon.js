@@ -116,5 +116,9 @@ export default function renderIcon (block) {
     }
   }, children)
 
-  return h(selector, svg)
+  return h(selector, {
+    attrs: {
+      contenteditable: 'false'
+    }
+  }, svg)
 }

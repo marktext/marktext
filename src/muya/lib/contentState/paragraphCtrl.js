@@ -328,6 +328,9 @@ const paragraphCtrl = ContentState => {
 
   ContentState.prototype.insertContainerBlock = function (functionType, value = '') {
     const { start, end } = selection.getCursorRange()
+    if (!start || !end) {
+      return
+    }
     if (start.key !== end.key) return
     let block = this.getBlock(start.key)
     if (block.type === 'span') {

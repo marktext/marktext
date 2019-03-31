@@ -101,6 +101,9 @@ const backspaceCtrl = ContentState => {
 
   ContentState.prototype.backspaceHandler = function (event) {
     const { start, end } = selection.getCursorRange()
+    if (!start || !end) {
+      return
+    }
     const startBlock = this.getBlock(start.key)
     const endBlock = this.getBlock(end.key)
     // fix: #67 problem 1

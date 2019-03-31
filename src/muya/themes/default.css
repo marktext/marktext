@@ -132,7 +132,7 @@ pre.ag-paragraph {
 }
 
 .v-modal {
-  background: var(--editorColor30);
+  background: var(--maskColor);
 }
 
 body>*:first-child {

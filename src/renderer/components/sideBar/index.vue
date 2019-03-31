@@ -144,6 +144,7 @@
     height: 100vh;
     position: relative;
     color: var(--sideBarColor);
+    user-select: none;
   }
   .side-bar {
     background: var(--sideBarBgColor);

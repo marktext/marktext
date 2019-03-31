@@ -9,6 +9,9 @@ const codeBlockCtrl = ContentState => {
   */
   ContentState.prototype.checkEditLanguage = function () {
     const { start } = selection.getCursorRange()
+    if (!start) {
+      return { lang: '', paragraph: null }
+    }
     const startBlock = this.getBlock(start.key)
     const paragraph = document.querySelector(`#${start.key}`)
     let lang = ''

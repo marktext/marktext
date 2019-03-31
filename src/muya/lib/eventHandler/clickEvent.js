@@ -6,6 +6,37 @@ class ClickEvent {
   constructor (muya) {
     this.muya = muya
     this.clickBinding()
+    this.contextClickBingding()
+  }
+
+  contextClickBingding () {
+    const { container, eventCenter, contentState } = this.muya
+    const handler = event => {
+      event.preventDefault()
+      event.stopPropagation()
+
+      // Hide format box
+      eventCenter.dispatch('muya-format-picker', { reference: null })
+
+      // Commit native cursor position because right-clicking doesn't update the cursor postion.
+      const { start, end } = selection.getCursorRange()
+      if (!start || !end) {
+        // right click on paragraph icons
+        return
+      }
+      // if you want to show `insert row or column`, you need to put cursor on cell text...
+      contentState.cursor = {
+        start,
+        end
+      }
+
+      // TODO: Should we render to update the cursor or is this not necessary because we'll render
+      // when leaving or clicking on the context menu?
+
+      const sectionChanges = contentState.selectionChange(contentState.cursor)
+      eventCenter.dispatch('contextmenu', event, sectionChanges)
+    }
+    eventCenter.attachDOMEvent(container, 'contextmenu', handler)
   }
 
   clickBinding () {
