@@ -1,6 +1,6 @@
 <template>
   <div class="side-bar-toc">
-    <div class="title">Table Of Content</div>
+    <div class="title">Table Of Contents</div>
     <el-tree
       v-if="toc.length"
       :data="toc"
