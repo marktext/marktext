@@ -150,6 +150,8 @@ Sponsored by Patreon, it will be directly sponsored to Luo Ran (@jocs), who crea
   <img src="https://opencollective.com/marktext/tiers/backer.svg?avatarHeight=36&width=600">
 </a>
 
+![](https://raw.githubusercontent.com/marktext/marktext/master/doc/marktext.png)
+
 ## Features
 
 - Realtime preview (WYSIWYG) and a clean and simple interface to get a distraction-free writing experience.
