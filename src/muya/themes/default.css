@@ -344,6 +344,10 @@ blockquote blockquote {
   padding-right: 0;
 }
 
+blockquote li > * {
+  color: var(--editorColor50);
+}
+
 table {
   padding: 0;
   word-break: initial;
