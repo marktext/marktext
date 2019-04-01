@@ -150,7 +150,9 @@ Sponsored by Patreon, it will be directly sponsored to Luo Ran (@jocs), who crea
   <img src="https://opencollective.com/marktext/tiers/backer.svg?avatarHeight=36&width=600">
 </a>
 
-![](https://raw.githubusercontent.com/marktext/marktext/master/doc/marktext.png)
+## Screenshot
+
+![](https://github.com/marktext/marktext/blob/update-sponsors/doc/marktext.png?raw=true)
 
 ## Features
 
@@ -159,14 +161,18 @@ Sponsored by Patreon, it will be directly sponsored to Luo Ran (@jocs), who crea
 - Markdown extensions such as math expressions (KaTeX), front matter and emojis.
 - Support paragraphs and inline style shortcuts to improve your writing efficiency.
 - Output **HTML** and **PDF** files.
-- Dark and Light themes.
+- Various themes: **Cadmium Light**, **Material Dark** etc.
 - Various editing modes: **Source Code mode**, **Typewriter mode**, **Focus mode**.
 
-<h4 align="center">:crescent_moon:Dark and Light themes:high_brightness:</h4>
+<h4 align="center">:crescent_moon:themes:high_brightness:</h4>
 
-| Dark :crescent_moon:                                                         | Light :high_brightness:                                                       |
-|:----------------------------------------------------------------------------:|:-----------------------------------------------------------------------------:|
-| ![](https://raw.githubusercontent.com/marktext/marktext/master/doc/dark.jpg) | ![](https://raw.githubusercontent.com/marktext/marktext/master/doc/light.jpg) |
+| Cadmium Light                                                                                              | Dark                                                                                                     |
+|:----------------------------------------------------------------------------------------------------------:|:--------------------------------------------------------------------------------------------------------:|
+| ![](https://github.com/marktext/marktext/blob/update-sponsors/doc/themeImages/cadmium-light.png?raw=true)  | ![](https://github.com/marktext/marktext/blob/update-sponsors/doc/themeImages/dark.png?raw=true)         |
+| Graphite Light                                                                                             | Materal Dark                                                                                             |
+| ![](https://github.com/marktext/marktext/blob/update-sponsors/doc/themeImages/graphite-light.png?raw=true) | ![](https://github.com/marktext/marktext/blob/update-sponsors/doc/themeImages/materal-dark.png?raw=true) |
+| Ulysses Light                                                                                              | One Dark                                                                                                 |
+| ![](https://github.com/marktext/marktext/blob/update-sponsors/doc/themeImages/ulysses-light.png?raw=true)  | ![](https://github.com/marktext/marktext/blob/update-sponsors/doc/themeImages/one-dark.png?raw=true)     |
 
 <h4 align="center">:smile_cat:Edit modes:dog:</h4>
 
