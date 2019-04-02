@@ -12,6 +12,10 @@ foo
 - > bar
 - baz
 
+> 1. Lorem Ipsum is simply dummy text 1
+> 2. Lorem Ipsum is simply dummy text 2
+> 3. Lorem Ipsum is simply dummy text 3
+
 > Use it if you're quoting a person, a song or whatever.
 
 > You can use *italic* or lists inside them also.
@@ -26,12 +30,6 @@ part of the blockquote, even without the > character in front.
 
 To end the blockquote, just put a blank line before the following
 paragraph.
-```
-
-```
-> - 1
-> - 1
-> - 1
 ```
 
 ```

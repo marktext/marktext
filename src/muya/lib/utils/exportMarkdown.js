@@ -33,7 +33,7 @@ class ExportMarkdown {
 
       switch (block.type) {
         case 'p': {
-          this.insertLineBreak(result, indent, true)
+          this.insertLineBreak(result, indent)
           result.push(this.translateBlocks2Markdown(block.children, indent))
           break
         }
@@ -42,7 +42,7 @@ class ExportMarkdown {
           break
         }
         case 'hr': {
-          this.insertLineBreak(result, indent, true)
+          this.insertLineBreak(result, indent)
           result.push(this.normalizeParagraphText(block, indent))
           break
         }
@@ -52,12 +52,12 @@ class ExportMarkdown {
         case 'h4':
         case 'h5':
         case 'h6': {
-          this.insertLineBreak(result, indent, true)
+          this.insertLineBreak(result, indent)
           result.push(this.normalizeHeaderText(block, indent))
           break
         }
         case 'figure': {
-          this.insertLineBreak(result, indent, true)
+          this.insertLineBreak(result, indent)
           switch (block.functionType) {
             case 'table': {
               const table = block.children[1]
@@ -87,8 +87,9 @@ class ExportMarkdown {
 
           // helper variable to correct the first tight item in a nested list
           this.isLooseParentList = insertNewLine
-
-          this.insertLineBreak(result, indent, insertNewLine)
+          if (insertNewLine) {
+            this.insertLineBreak(result, indent)
+          }
           result.push(this.normalizeListItem(block, indent))
           this.isLooseParentList = true
           break
@@ -103,8 +104,10 @@ class ExportMarkdown {
             insertNewLine = false
           }
           lastListBullet = bulletMarkerOrDelimiter
+          if (insertNewLine) {
+            this.insertLineBreak(result, indent)
+          }
 
-          this.insertLineBreak(result, indent, insertNewLine)
           this.listType.push({ type: 'ul' })
           result.push(this.normalizeList(block, indent))
           this.listType.pop()
@@ -120,8 +123,9 @@ class ExportMarkdown {
             insertNewLine = false
           }
           lastListBullet = bulletMarkerOrDelimiter
-
-          this.insertLineBreak(result, indent, insertNewLine)
+          if (insertNewLine) {
+            this.insertLineBreak(result, indent)
+          }
           const listCount = block.start !== undefined ? block.start : 1
           this.listType.push({ type: 'ol', listCount })
           result.push(this.normalizeList(block, indent))
@@ -129,7 +133,7 @@ class ExportMarkdown {
           break
         }
         case 'pre': {
-          this.insertLineBreak(result, indent, true)
+          this.insertLineBreak(result, indent)
           if (block.functionType === 'frontmatter') {
             result.push(this.normalizeFrontMatter(block, indent))
           } else {
@@ -138,7 +142,7 @@ class ExportMarkdown {
           break
         }
         case 'blockquote': {
-          this.insertLineBreak(result, indent, true)
+          this.insertLineBreak(result, indent)
           result.push(this.normalizeBlockquote(block, indent))
           break
         }
@@ -151,14 +155,9 @@ class ExportMarkdown {
     return result.join('')
   }
 
-  insertLineBreak (result, indent, insertNewLine) {
+  insertLineBreak (result, indent) {
     if (!result.length) return
-    const newLine = insertNewLine ? '\n' : ''
-    if (/\S/.test(indent)) {
-      result.push(`${indent}${newLine}`)
-    } else if (insertNewLine) {
-      result.push(newLine)
-    }
+    result.push(`${indent}\n`)
   }
 
   normalizeParagraphText (block, indent) {
