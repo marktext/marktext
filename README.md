@@ -108,7 +108,51 @@
 
 <br />
 
-![](https://raw.githubusercontent.com/marktext/marktext/master/doc/marktext.gif)
+<h2 align="center">Supporting Mark Text</h2>
+
+Mark Text is an MIT licensed open source project, you will always be able to download the latest version for free from the GitHub release page. Mark Text is still in development, and its development is inseparable from all sponsors. I hope you join them:
+
+- [Become a backer or sponsor on Patreon](https://www.patreon.com/ranluo) or [one time donation](https://github.com/Jocs/sponsor.me)
+- [Become a backer or sponsor on Open Collective](https://opencollective.com/marktext)
+
+##### What's the difference between Patreon and OpenCollective?
+
+Sponsored by Patreon, it will be directly sponsored to Luo Ran (@jocs), who create Mark Text and continue to maintain Mark Text. Sponsored by Open Collective, all expenses are transparent, and these sponsorship funds will be used for the development of Mark Text. , maintenance, online and offline activities, and some of the necessary resources, whether sponsored by Patreon or Open Collective, your name or company logo will appear in Mark Text's readme and official website.
+
+**Platinum Sponsors**
+
+<a href="https://readme.io" target="_blank"><img src="https://raw.githubusercontent.com/marktext/marktext/master/doc/sponsor/readme.png" /></a>
+<a href="https://opencollective.com/marktext#platinum-sponsors">
+ <img src="https://opencollective.com/marktext/tiers/platinum-sponsors.svg?avatarHeight=36&width=600">
+</a>
+
+**Gold Sponsors**
+
+<a href="https://opencollective.com/marktext#platinum-sponsors">
+  <img src="https://opencollective.com/marktext/tiers/gold-sponsors.svg?avatarHeight=36&width=600">
+</a>
+
+**Silver Sponsors**
+
+<a href="https://opencollective.com/marktext#platinum-sponsors">
+  <img src="https://opencollective.com/marktext/tiers/silver-sponsors.svg?avatarHeight=36&width=600">
+</a>
+
+**Bronze Sponsors**
+
+<a href="https://opencollective.com/marktext#platinum-sponsors">
+  <img src="https://opencollective.com/marktext/tiers/bronze-sponsors.svg?avatarHeight=36&width=600">
+</a>
+
+**Backers**
+
+<a href="https://opencollective.com/marktext#backers">
+  <img src="https://opencollective.com/marktext/tiers/backer.svg?avatarHeight=36&width=600">
+</a>
+
+## Screenshot
+
+![](https://github.com/marktext/marktext/blob/update-sponsors/doc/marktext.png?raw=true)
 
 ## Features
 
@@ -117,19 +161,23 @@
 - Markdown extensions such as math expressions (KaTeX), front matter and emojis.
 - Support paragraphs and inline style shortcuts to improve your writing efficiency.
 - Output **HTML** and **PDF** files.
-- Dark and Light themes.
+- Various themes: **Cadmium Light**, **Material Dark** etc.
 - Various editing modes: **Source Code mode**, **Typewriter mode**, **Focus mode**.
 
-<h4 align="center">:crescent_moon:Dark and Light themes:high_brightness:</h4>
+<h4 align="center">:crescent_moon:themes:high_brightness:</h4>
 
-| Dark :crescent_moon:                                               | Light :high_brightness:                                             |
-|:------------------------------------------------------------------:|:-------------------------------------------------------------------:|
-| ![](https://raw.githubusercontent.com/marktext/marktext/master/doc/dark.jpg) | ![](https://raw.githubusercontent.com/marktext/marktext/master/doc/light.jpg) |
+| Cadmium Light                                                                                              | Dark                                                                                                     |
+|:----------------------------------------------------------------------------------------------------------:|:--------------------------------------------------------------------------------------------------------:|
+| ![](https://github.com/marktext/marktext/blob/update-sponsors/doc/themeImages/cadmium-light.png?raw=true)  | ![](https://github.com/marktext/marktext/blob/update-sponsors/doc/themeImages/dark.png?raw=true)         |
+| Graphite Light                                                                                             | Materal Dark                                                                                             |
+| ![](https://github.com/marktext/marktext/blob/update-sponsors/doc/themeImages/graphite-light.png?raw=true) | ![](https://github.com/marktext/marktext/blob/update-sponsors/doc/themeImages/materal-dark.png?raw=true) |
+| Ulysses Light                                                                                              | One Dark                                                                                                 |
+| ![](https://github.com/marktext/marktext/blob/update-sponsors/doc/themeImages/ulysses-light.png?raw=true)  | ![](https://github.com/marktext/marktext/blob/update-sponsors/doc/themeImages/one-dark.png?raw=true)     |
 
 <h4 align="center">:smile_cat:Edit modes:dog:</h4>
 
-| Source Code                                                          | Typewriter                                                               | Focus                                                               |
-|:--------------------------------------------------------------------:|:------------------------------------------------------------------------:|:-------------------------------------------------------------------:|
+| Source Code                                                                    | Typewriter                                                                         | Focus                                                                         |
+|:------------------------------------------------------------------------------:|:----------------------------------------------------------------------------------:|:-----------------------------------------------------------------------------:|
 | ![](https://raw.githubusercontent.com/marktext/marktext/master/doc/source.gif) | ![](https://raw.githubusercontent.com/marktext/marktext/master/doc/typewriter.gif) | ![](https://raw.githubusercontent.com/marktext/marktext/master/doc/focus.gif) |
 
 ## Why write another editor?
@@ -142,8 +190,8 @@
 
 ![platform](https://img.shields.io/static/v1.svg?label=Platform&message=Linux-64%20|%20macOS-64%20|%20Win-32%20|%20Win-64&style=for-the-badge)
 
-| ![](https://raw.githubusercontent.com/wiki/ryanoasis/nerd-fonts/screenshots/v1.0.x/mac-pass-sm.png)                                                                                                             | ![](https://raw.githubusercontent.com/wiki/ryanoasis/nerd-fonts/screenshots/v1.0.x/windows-pass-sm.png)                                                                                                                     | ![](https://raw.githubusercontent.com/wiki/ryanoasis/nerd-fonts/screenshots/v1.0.x/linux-pass-sm.png)                                                                                                                                   |
-|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
+| ![](https://raw.githubusercontent.com/wiki/ryanoasis/nerd-fonts/screenshots/v1.0.x/mac-pass-sm.png)                                                                                                  | ![](https://raw.githubusercontent.com/wiki/ryanoasis/nerd-fonts/screenshots/v1.0.x/windows-pass-sm.png)                                                                                                          | ![](https://raw.githubusercontent.com/wiki/ryanoasis/nerd-fonts/screenshots/v1.0.x/linux-pass-sm.png)                                                                                                                        |
+|:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
 | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-0.13.65.dmg.svg)](https://github.com/marktext/marktext/releases/download/v0.13.65/marktext-0.13.65.dmg) | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-setup-0.13.65.exe.svg)](https://github.com/marktext/marktext/releases/download/v0.13.65/marktext-setup-0.13.65.exe) | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-0.13.65-x86_64.AppImage.svg)](https://github.com/marktext/marktext/releases/download/v0.13.65/marktext-0.13.65-x86_64.AppImage) |
 
 Want to see new features of the latest version? Please refer to [CHANGELOG](https://github.com/marktext/marktext/blob/master/.github/CHANGELOG.md).
@@ -182,43 +230,6 @@ If you have any questions regarding **Mark Text**, you are welcome to write an i
 
 Mark Text is in full development, please make sure to read the [Contributing Guide](https://github.com/marktext/marktext/blob/master/.github/CONTRIBUTING.md) before making a pull request. Want to add some features to Mark Text? Refer to [ROADMAP](https://github.com/marktext/marktext/blob/master/.github/ROADMAP.md) and open issues.
 
-## Sponsors
-
-Support this project by becoming a sponsor. Your logo will show up here with a link to your website. [[Become a sponsor](https://opencollective.com/marktext#platinum-sponsors)]
-
-**Platinum Sponsors**
-
-<a href="https://readme.io" target="_blank"><img src="https://raw.githubusercontent.com/marktext/marktext/master/doc/sponsor/readme.png" /></a>
-<a href="https://opencollective.com/marktext#platinum-sponsors">
-  <img src="https://opencollective.com/marktext/tiers/platinum-sponsors.svg?avatarHeight=36&width=600">
-</a>
-
-**Gold Sponsors**
-
-<a href="https://opencollective.com/marktext#platinum-sponsors">
-  <img src="https://opencollective.com/marktext/tiers/gold-sponsors.svg?avatarHeight=36&width=600">
-</a>
-
-**Silver Sponsors**
-
-<a href="https://opencollective.com/marktext#platinum-sponsors">
-  <img src="https://opencollective.com/marktext/tiers/silver-sponsors.svg?avatarHeight=36&width=600">
-</a>
-
-**Bronze Sponsors**
-
-<a href="https://opencollective.com/marktext#platinum-sponsors">
-  <img src="https://opencollective.com/marktext/tiers/bronze-sponsors.svg?avatarHeight=36&width=600">
-</a>
-
-## Backers
-
-Thank you to all our backers! 🙏 [[Become a backer](https://opencollective.com/marktext#backers)]
-
-<a href="https://opencollective.com/marktext#backers">
-  <img src="https://opencollective.com/marktext/tiers/backer.svg?avatarHeight=36&width=600">
-</a>
-
 ## Contributors
 
 Thank you to all the people who have already contributed to Mark Text[[contributors](https://github.com/marktext/marktext/graphs/contributors)]
@@ -226,7 +237,6 @@ Thank you to all the people who have already contributed to Mark Text[[contribut
 Special thanks to @[Yasujizr](https://github.com/Yasujizr) who designed the logo of Mark Text.
 
 <a href="https://github.com/marktext/marktext/graphs/contributors"><img src="https://opencollective.com/marktext/contributors.svg?width=890" /></a>
-
 
 ## License
 
