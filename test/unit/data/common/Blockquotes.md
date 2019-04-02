@@ -33,12 +33,6 @@ paragraph.
 ```
 
 ```
-> - 1
-> - 1
-> - 1
-```
-
-```
 * foo
 
   > This is a blockquote
