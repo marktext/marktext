@@ -152,7 +152,7 @@ Sponsored by Patreon, it will be directly sponsored to Luo Ran (@jocs), who crea
 
 ## Screenshot
 
-![](https://github.com/marktext/marktext/blob/update-sponsors/doc/marktext.png?raw=true)
+![](https://github.com/marktext/marktext/blob/master/doc/marktext.png?raw=true)
 
 ## Features
 
@@ -168,11 +168,11 @@ Sponsored by Patreon, it will be directly sponsored to Luo Ran (@jocs), who crea
 
 | Cadmium Light                                                                                              | Dark                                                                                                     |
 |:----------------------------------------------------------------------------------------------------------:|:--------------------------------------------------------------------------------------------------------:|
-| ![](https://github.com/marktext/marktext/blob/update-sponsors/doc/themeImages/cadmium-light.png?raw=true)  | ![](https://github.com/marktext/marktext/blob/update-sponsors/doc/themeImages/dark.png?raw=true)         |
+| ![](https://github.com/marktext/marktext/blob/master/doc/themeImages/cadmium-light.png?raw=true)  | ![](https://github.com/marktext/marktext/blob/master/doc/themeImages/dark.png?raw=true)         |
 | Graphite Light                                                                                             | Materal Dark                                                                                             |
-| ![](https://github.com/marktext/marktext/blob/update-sponsors/doc/themeImages/graphite-light.png?raw=true) | ![](https://github.com/marktext/marktext/blob/update-sponsors/doc/themeImages/materal-dark.png?raw=true) |
+| ![](https://github.com/marktext/marktext/blob/master/doc/themeImages/graphite-light.png?raw=true) | ![](https://github.com/marktext/marktext/blob/master/doc/themeImages/materal-dark.png?raw=true) |
 | Ulysses Light                                                                                              | One Dark                                                                                                 |
-| ![](https://github.com/marktext/marktext/blob/update-sponsors/doc/themeImages/ulysses-light.png?raw=true)  | ![](https://github.com/marktext/marktext/blob/update-sponsors/doc/themeImages/one-dark.png?raw=true)     |
+| ![](https://github.com/marktext/marktext/blob/master/doc/themeImages/ulysses-light.png?raw=true)  | ![](https://github.com/marktext/marktext/blob/master/doc/themeImages/one-dark.png?raw=true)     |
 
 <h4 align="center">:smile_cat:Edit modes:dog:</h4>
 
