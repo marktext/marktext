@@ -7,7 +7,7 @@ export default function htmlImage (h, cursor, block, token, outerClass) {
   const imageClass = CLASS_OR_ID['AG_IMAGE_MARKED_TEXT']
   const { start, end } = token.range
   const tag = this.highlight(h, block, start, end, token)
-  const { src: rawSrc, alt, width, height } = token
+  const { src: rawSrc, alt = '', width, height } = token.attrs
   const imageInfo = getImageInfo(rawSrc)
   const { src } = imageInfo
   let id

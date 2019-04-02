@@ -109,6 +109,8 @@ export const CLASS_OR_ID = genUpper2LowerKeyHash([
   'AG_MATH',
   'AG_MATH_TEXT',
   'AG_MATH_RENDER',
+  'AG_RUBY',
+  'AG_RUBY_RENDER',
   'AG_MATH_ERROR',
   'AG_EMPTY',
   'AG_MATH_MARKER',
