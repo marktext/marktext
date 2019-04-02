@@ -109,7 +109,7 @@ class Watcher {
         }
 
         // rename syscall on Linux (chokidar#591)
-        if (isLinux && event === 'rename') {
+        if (isLinux && type === 'file' && event === 'rename') {
           const { watchedPath } = details
           // Use the same watcher and re-watch the file.
           watcher.unwatch(watchedPath)
