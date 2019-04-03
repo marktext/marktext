@@ -92,7 +92,7 @@ class Watcher {
   watch (win, watchPath, type = 'dir'/* file or dir */) {
     const id = getUniqueId()
     const watcher = chokidar.watch(watchPath, {
-      ignored: /node_modules|\.git/,
+      ignored: /(^|[/\\])(\..|node_modules)/,
       ignoreInitial: type === 'file',
       persistent: true
     })
