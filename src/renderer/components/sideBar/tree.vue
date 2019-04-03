@@ -356,7 +356,10 @@
     outline: none;
     height: 22px;
     margin: 5px 0;
-    border: 1px solid var(--themeColor);
+    padding: 0 6px;
+    color: var(--sideBarColor);
+    border: 1px solid var(--floatBorderColor);
+    background: var(--floatBorderColor);
     width: calc(100% - 45px);
     border-radius: 3px;
   }

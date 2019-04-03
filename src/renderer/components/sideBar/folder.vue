@@ -142,7 +142,8 @@
     outline: none;
     height: 22px;
     margin: 5px 0;
-    padding: 0 8px;
+    padding: 0 6px;
+    color: var(--sideBarColor);
     border: 1px solid var(--floatBorderColor);
     background: var(--floatBorderColor);
     width: 70%;
