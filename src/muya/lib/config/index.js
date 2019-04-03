@@ -109,6 +109,9 @@ export const CLASS_OR_ID = genUpper2LowerKeyHash([
   'AG_MATH',
   'AG_MATH_TEXT',
   'AG_MATH_RENDER',
+  'AG_RUBY',
+  'AG_RUBY_TEXT',
+  'AG_RUBY_RENDER',
   'AG_MATH_ERROR',
   'AG_EMPTY',
   'AG_MATH_MARKER',
@@ -238,3 +241,10 @@ export const isInElectron = window && window.process && window.process.type === 
 export const isOsx = window && window.navigator && /Mac/.test(window.navigator.platform)
 // http[s] (domain or IPv4 or localhost or IPv6) [port] /not-white-space
 export const URL_REG = /^http(s)?:\/\/([a-z0-9\-._~]+\.[a-z]{2,}|[0-9.]+|localhost|\[[a-f0-9.:]+\])(:[0-9]{1,5})?\/[\S]+/i
+
+// selected from https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes
+export const WHITELIST_ATTRIBUTES = [
+  'align', 'alt', 'checked', 'class', 'color', 'dir', 'disabled', 'for', 'height', 'hidden',
+  'href', 'id', 'lang', 'lazyload', 'rel', 'spellcheck', 'src', 'srcset', 'start', 'style',
+  'target', 'title', 'type', 'value', 'width'
+]

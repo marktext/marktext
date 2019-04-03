@@ -420,10 +420,10 @@ class Selection {
       let count = 0
       for (i = 0; i < len; i++) {
         const child = childNodes[i]
-        if (count + getTextContent(child, [ CLASS_OR_ID['AG_MATH_RENDER'] ]).length >= offset) {
+        if (count + getTextContent(child, [ CLASS_OR_ID['AG_MATH_RENDER'], CLASS_OR_ID['AG_RUBY_RENDER'] ]).length >= offset) {
           return getNodeAndOffset(child, offset - count)
         } else {
-          count += getTextContent(child, [ CLASS_OR_ID['AG_MATH_RENDER'] ]).length
+          count += getTextContent(child, [ CLASS_OR_ID['AG_MATH_RENDER'], CLASS_OR_ID['AG_RUBY_RENDER'] ]).length
         }
       }
       return { node, offset }
@@ -471,7 +471,7 @@ class Selection {
       do {
         preSibling = preSibling.previousSibling
         if (preSibling) {
-          offset += getTextContent(preSibling, [ CLASS_OR_ID['AG_MATH_RENDER'] ]).length
+          offset += getTextContent(preSibling, [ CLASS_OR_ID['AG_MATH_RENDER'], CLASS_OR_ID['AG_RUBY_RENDER'] ]).length
         }
       } while (preSibling)
       return (node === paragraph || node.parentNode === paragraph)

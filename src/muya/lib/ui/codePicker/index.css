@@ -26,7 +26,8 @@
   color: var(--editorColor);
 }
 
-.ag-list-picker .active, .ag-list-picker .item:hover {
+.ag-list-picker .item:hover,
+.ag-list-picker .item.active {
  background-color: var(--floatHoverColor);
 }
 

@@ -59,7 +59,9 @@ class ClickEvent {
       // handler image and inline math preview click
       const markedImageText = target.previousElementSibling
       const mathRender = target.closest(`.${CLASS_OR_ID['AG_MATH_RENDER']}`)
+      const rubyRender = target.closest(`.${CLASS_OR_ID['AG_RUBY_RENDER']}`)
       const mathText = mathRender && mathRender.previousElementSibling
+      const rubyText = rubyRender && rubyRender.previousElementSibling
       if (markedImageText && markedImageText.classList.contains(CLASS_OR_ID['AG_IMAGE_MARKED_TEXT'])) {
         eventCenter.dispatch('format-click', {
           event,
@@ -69,6 +71,8 @@ class ClickEvent {
         selectionText(markedImageText)  
       } else if (mathText) {
         selectionText(mathText)
+      } else if (rubyText) {
+        selectionText(rubyText)
       }
       // handler html preview click
       const htmlPreview = target.closest(`.ag-function-html`)

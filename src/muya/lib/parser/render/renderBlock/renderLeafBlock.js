@@ -84,6 +84,7 @@ export default function renderLeafBlock (block, cursor, activeBlocks, matches, u
         this.tokenCache.set(text, tokens)
       }
     }
+
     children = tokens.reduce((acc, token) => [...acc, ...this[snakeToCamel(token.type)](h, cursor, block, token)], [])
   }
 

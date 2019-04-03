@@ -6,6 +6,25 @@ This update **fixes a XSS security vulnerability** when exporting a document.
 
 - Minimum supported macOS version is 10.10 (Yosemite)
 - Remove `lightColor` and `darkColor` in user preference (color change in view menu does not work any, and will remove when add custom theme.)
+- We recommand user not use block element in paragraph, please use block element in html block.
+
+*Not Recommand*
+
+```md
+foo<section>bar</section>zar
+```
+
+*Recommand*
+
+```md
+<div>
+  foo
+  <section>
+    bar
+  </section>
+  zar
+</div>
+```
 
 **:cactus:Feature**
 
@@ -21,6 +40,7 @@ This update **fixes a XSS security vulnerability** when exporting a document.
 - Support maxOS `dark mode`, when you change `mode dark or light` in system, Mark Text will change its theme.
 - Add new themes: Ulysses Light, Graphite Light, Material Dark and One Dark.
 - Watch file changed in tabs and show a notice(autoSave is `false`) or update the file(autoSave is `true`)
+- Support input inline Ruby charactors as raw html (#257)
 
 **:butterfly:Optimization**
 
@@ -38,6 +58,7 @@ This update **fixes a XSS security vulnerability** when exporting a document.
 - Make table of contents in sidebar collapsible (#404)
 - Hide titlebar control buttons in custom titlebar style
 - Corrected hamburger menu offset
+- Optimization of inline html displa, now you can nest other inline syntax in inline html(#849)
 
 **:beetle:Bug fix**
 

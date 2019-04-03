@@ -117,6 +117,10 @@ span.ag-html-tag {
   font-family: monospace;
 }
 
+span.ag-ruby {
+  position: relative;
+  vertical-align: bottom;
+}
 span.ag-math {
   position: relative;
   color: var(--editorColor);
@@ -125,7 +129,8 @@ span.ag-math {
   vertical-align: bottom;
 }
 
-.ag-math > .ag-math-render {
+.ag-math > .ag-math-render,
+.ag-ruby > .ag-ruby-render {
   display: inline-block;
   padding: .5rem;
   border-radius: 4px;
@@ -133,6 +138,12 @@ span.ag-math {
   top: 100%;
   left: 0;
   z-index: 1;
+}
+
+.ag-ruby > .ag-ruby-render {
+  padding-bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
 }
 
 div.ag-empty {
@@ -163,18 +174,19 @@ span.ag-math > .ag-math-render.ag-math-error {
   white-space: nowrap;
 }
 
+.ag-hide.ag-ruby,
 .ag-hide.ag-math {
   width: auto;
   height: auto;
 }
-
+.ag-hide.ag-ruby > .ag-ruby-text,
 .ag-hide.ag-math > .ag-math-text {
   display: inline-block;
   width: 0;
   height: 0;
   overflow: hidden;
 }
-
+.ag-hide.ag-ruby > .ag-ruby-render,
 .ag-hide.ag-math > .ag-math-render {
   padding: 0;
   top: 0;
@@ -184,6 +196,7 @@ span.ag-math > .ag-math-render.ag-math-error {
   background: transparent;
 }
 
+.ag-gray.ag-ruby > .ag-ruby-render::before
 .ag-gray.ag-math > .ag-math-render::before {
   border-width: 5px;
   border-style: solid;
@@ -195,6 +208,7 @@ span.ag-math > .ag-math-render.ag-math-error {
   content: "";
 }
 
+.ag-hide.ag-ruby > .ag-ruby-render::before
 .ag-hide.ag-math > .ag-math-render::before {
   content: none;
 }
@@ -209,7 +223,7 @@ figure {
   width: 100%;
   user-select: none;
   position: absolute;
-  top: -15px;
+  top: -20px;
   left: 0;
   display: none;
 }
@@ -719,4 +733,8 @@ span.ag-reference-link {
 .ag-meta-or-ctrl img,
 .ag-meta-or-ctrl a.ag-inline-rule {
   cursor: pointer !important;
+}
+
+.ag-ruby-render {
+  user-select: none;
 }

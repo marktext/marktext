@@ -1,9 +1,10 @@
 import { beginRules, inlineRules } from './rules'
 import { isLengthEven, union } from '../utils'
-import { punctuation } from '../config'
+import { punctuation, WHITELIST_ATTRIBUTES } from '../config'
 
 const CAN_NEST_RULES = ['strong', 'em', 'link', 'del', 'image', 'a_link'] // image can not nest but it has children
-
+// disallowed html tags in https://github.github.com/gfm/#raw-html
+const disallowedHtmlTag = /(?:title|textarea|style|xmp|iframe|noembed|noframes|script|plaintext)/i
 const validateRules = Object.assign({}, inlineRules)
 delete validateRules.em
 delete validateRules.strong
@@ -16,21 +17,22 @@ const validWidthAndHeight = value => {
   return value >= 0 ? value : ''
 }
 
-const getSrcAlt = text => {
-  const SRC_REG = /src\s*=\s*("|')([^\1]+?)\1/
-  const ALT_REG = /alt\s*=\s*("|')([^\1]+?)\1/
-  const WIDTH_REG = /width\s*=\s*("|')([^\1]+?)\1/
-  const HEIGHT_REG = /height\s*=\s*("|')([^\1]+?)\1/
-  const srcMatch = SRC_REG.exec(text)
-  const src = srcMatch ? srcMatch[2] : ''
-  const altMatch = ALT_REG.exec(text)
-  const alt = altMatch ? altMatch[2] : ''
-  const widthMatch = WIDTH_REG.exec(text)
-  const width = widthMatch ? validWidthAndHeight(widthMatch[2]) : ''
-  const heightMatch = HEIGHT_REG.exec(text)
-  const height = heightMatch ? validWidthAndHeight(heightMatch[2]) : ''
+const getAttributes = html => {
+  const parser = new DOMParser()
+  const doc = parser.parseFromString(html, 'text/html')
+  const target = doc.querySelector('body').firstElementChild
+  if (!target) return null
+  const attrs = {}
+  for (const attr of target.getAttributeNames()) {
+    if (!WHITELIST_ATTRIBUTES.includes(attr)) continue
+    if (/width|height/.test(attr)) {
+      attrs[attr] = validWidthAndHeight(target.getAttribute(attr))
+    } else {
+      attrs[attr] = target.getAttribute(attr)
+    }
+  }
 
-  return { src, alt, width, height }
+  return attrs
 }
 
 const lowerPriority = (src, offset) => {
@@ -364,57 +366,6 @@ const tokenizerFac = (src, beginRules, inlineRules, pos = 0, top) => {
       continue
     }
 
-    // a_link `<a href="url">Anchor</a>`
-    const aLinkTo = inlineRules['a_link'].exec(src)
-    if (aLinkTo) {
-      pushPending()
-      tokens.push({
-        type: 'a_link',
-        raw: aLinkTo[0],
-        href: aLinkTo[3],
-        openTag: aLinkTo[1],
-        closeTag: aLinkTo[5],
-        anchor: aLinkTo[4],
-        parent: tokens,
-        range: {
-          start: pos,
-          end: pos + aLinkTo[0].length
-        },
-        children: tokenizerFac(aLinkTo[4], undefined, inlineRules, pos + aLinkTo[1].length, false)
-      })
-
-      src = src.substring(aLinkTo[0].length)
-      pos = pos + aLinkTo[0].length
-      continue
-    }
-
-    // html-image
-    const htmlImageTo = inlineRules['html_image'].exec(src)
-    if (htmlImageTo) {
-      const rawAttr = htmlImageTo[2]
-      const { src: imageSrc, alt, width, height } = getSrcAlt(rawAttr)
-      if (imageSrc) {
-        pushPending()
-        tokens.push({
-          type: 'html_image',
-          raw: htmlImageTo[0],
-          tag: htmlImageTo[1],
-          parent: tokens,
-          src: imageSrc,
-          width,
-          height,
-          alt,
-          range: {
-            start: pos,
-            end: pos + htmlImageTo[0].length
-          }
-        })
-        src = src.substring(htmlImageTo[0].length)
-        pos = pos + htmlImageTo[0].length
-        continue
-      }
-    }
-
     // html escape
     const htmlEscapeTo = inlineRules['html_escape'].exec(src)
     if (htmlEscapeTo) {
@@ -437,14 +388,43 @@ const tokenizerFac = (src, beginRules, inlineRules, pos = 0, top) => {
 
     // html-tag
     const htmlTo = inlineRules['html_tag'].exec(src)
-    if (htmlTo) {
+    let attrs
+    // handle comment
+    if (htmlTo && htmlTo[1] && !htmlTo[3]) {
       const len = htmlTo[0].length
       pushPending()
       tokens.push({
         type: 'html_tag',
         raw: htmlTo[0],
-        tag: htmlTo[1],
+        tag: '<!---->',
+        openTag: htmlTo[1],
         parent: tokens,
+        attrs: {},
+        range: {
+          start: pos,
+          end: pos + len
+        }
+      })
+      src = src.substring(len)
+      pos = pos + len
+      continue
+    }
+    if (htmlTo && !(disallowedHtmlTag.test(htmlTo[3])) && (attrs = getAttributes(htmlTo[0]))) {
+      const tag = htmlTo[3]
+      const html = htmlTo[0]
+      const len = htmlTo[0].length
+
+      pushPending()
+      tokens.push({
+        type: 'html_tag',
+        raw: html,
+        tag,
+        openTag: htmlTo[2],
+        closeTag: htmlTo[5],
+        parent: tokens,
+        attrs,
+        content: htmlTo[4],
+        children: htmlTo[4] ? tokenizerFac(htmlTo[4], undefined, inlineRules, pos + htmlTo[2].length, false) : '',
         range: {
           start: pos,
           end: pos + len

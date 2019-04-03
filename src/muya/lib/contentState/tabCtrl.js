@@ -198,8 +198,7 @@ const tabCtrl = ContentState => {
       start.key === end.key &&
       start.offset === end.offset &&
       startBlock.type === 'span' &&
-      startBlock.functionType === 'codeLine' &&
-      startBlock.lang === 'markup'
+      (!startBlock.functionType || startBlock.functionType === 'codeLine' && startBlock.lang === 'markup')
     ) {
       const { text } = startBlock
       const lastWord = text.split(/\s+/).pop()
