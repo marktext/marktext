@@ -35,6 +35,7 @@ export default function htmlTag (h, cursor, block, token, outerClass) {
         // Because we can not nest a block level element in span element(line is span element)
         // we also recommand user not use block level element in paragraph. use block element in html block.
         let selector = BLOCK_TYPE6.includes(tag) ? 'span' : tag
+        selector += `.${CLASS_OR_ID['AG_INLINE_RULE']}`
         const data = {
           attrs: {},
           dataset: {}
