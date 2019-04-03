@@ -103,7 +103,7 @@ Renderer.prototype.listitem = function (text, checked) {
   }
 
   // task list
-  return '<li><input type="checkbox"' +
+  return '<li class="task-list-item"><input type="checkbox"' +
     (checked ? ' checked=""' : '') +
     'disabled=""' +
     (this.options.xhtml ? ' /' : '') +
