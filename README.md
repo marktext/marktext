@@ -122,6 +122,7 @@ Sponsored by Patreon, it will be directly sponsored to Luo Ran (@jocs), who crea
 **Platinum Sponsors**
 
 <a href="https://readme.io" target="_blank"><img src="https://raw.githubusercontent.com/marktext/marktext/master/doc/sponsor/readme.png" /></a>
+<a href="https://qordoba.com" target="_blank"><img src="https://raw.githubusercontent.com/marktext/marktext/master/doc/sponsor/qordoba.png" /></a>
 <a href="https://opencollective.com/marktext#platinum-sponsors">
  <img src="https://opencollective.com/marktext/tiers/platinum-sponsors.svg?avatarHeight=36&width=600">
 </a>
