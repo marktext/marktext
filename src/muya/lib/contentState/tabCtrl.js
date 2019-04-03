@@ -201,7 +201,7 @@ const tabCtrl = ContentState => {
       (!startBlock.functionType || startBlock.functionType === 'codeLine' && startBlock.lang === 'markup')
     ) {
       const { text } = startBlock
-      const lastWord = text.split(/\s+/).pop()
+      const lastWord = text.split(/\b/).pop()
       const preText = text.substring(0, text.length - lastWord.length)
       if (lastWord !== '') {
         const { tag, isVoid, id, className } = parseSelector(lastWord)
