@@ -241,3 +241,9 @@ export const isInElectron = window && window.process && window.process.type === 
 export const isOsx = window && window.navigator && /Mac/.test(window.navigator.platform)
 // http[s] (domain or IPv4 or localhost or IPv6) [port] /not-white-space
 export const URL_REG = /^http(s)?:\/\/([a-z0-9\-._~]+\.[a-z]{2,}|[0-9.]+|localhost|\[[a-f0-9.:]+\])(:[0-9]{1,5})?\/[\S]+/i
+
+export const WHITELIST_ATTRIBUTES = [
+  'align', 'alt', 'checked', 'class', 'color', 'dir', 'disabled', 'for', 'height', 'hidden',
+  'href', 'id', 'lang', 'lazyload', 'rel', 'spellcheck', 'src', 'srcset', 'start', 'style',
+  'target', 'title', 'type', 'value', 'width'
+]

@@ -1,6 +1,6 @@
 import { beginRules, inlineRules } from './rules'
 import { isLengthEven, union } from '../utils'
-import { punctuation } from '../config'
+import { punctuation, WHITELIST_ATTRIBUTES } from '../config'
 
 const CAN_NEST_RULES = ['strong', 'em', 'link', 'del', 'image', 'a_link'] // image can not nest but it has children
 // disallowed html tags in https://github.github.com/gfm/#raw-html
@@ -24,6 +24,7 @@ const getAttributes = html => {
   if (!target) return null
   const attrs = {}
   for (const attr of target.getAttributeNames()) {
+    if (!WHITELIST_ATTRIBUTES.includes(attr)) continue
     if (/width|height/.test(attr)) {
       attrs[attr] = validWidthAndHeight(target.getAttribute(attr))
     } else {
