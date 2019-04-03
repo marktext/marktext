@@ -414,19 +414,22 @@ pre[class*="language-"] {
   color: var(--editorColor50);
 }
 
+.ag-hide.ag-ruby > .ag-ruby-render,
 .ag-hide.ag-math > .ag-math-render {
   color: var(--editorColor);
 }
-
+blockquote .ag-hide.ag-ruby > .ag-ruby-render,
 blockquote .ag-hide.ag-math > .ag-math-render {
   color: var(--editorColor50);
 }
 
+.ag-gray.ag-ruby > .ag-ruby-render,
 .ag-gray.ag-math > .ag-math-render {
   color: var(--editorColor);
   background: var(--floatBgColor);
   box-shadow: 0 4px 8px 0 var(--floatBorderColor);
 }
+.ag-gray.ag-ruby > .ag-ruby-render::before,
 .ag-gray.ag-math > .ag-math-render::before {
   border-bottom-color: var(--floatBgColor);
 }
@@ -458,7 +461,7 @@ body.dark .ag-image-marked-text.ag-image-fail::before {
 }
 
 .ag-front-icon {
-  fill: var(--editorColor50);
+  fill: var(--editorColor30);
 }
 
 .ag-front-icon::before {
