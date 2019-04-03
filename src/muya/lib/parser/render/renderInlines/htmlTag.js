@@ -10,7 +10,7 @@ export default function htmlTag (h, cursor, block, token, outerClass) {
   const closeContent = closeTag
     ? this.highlight(h, block, end - closeTag.length, end, token)
     : ''
-  console.log(token)
+
   const anchor = Array.isArray(children) && tag !== 'ruby' // important
     ? children.reduce((acc, to) => {
         const chunk = this[snakeToCamel(to.type)](h, cursor, block, to, className)

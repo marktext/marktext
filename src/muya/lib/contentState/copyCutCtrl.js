@@ -26,6 +26,7 @@ const copyCutCtrl = ContentState => {
     const removedElements = wrapper.querySelectorAll(
       `.${CLASS_OR_ID['AG_TOOL_BAR']},
       .${CLASS_OR_ID['AG_MATH_RENDER']},
+      .${CLASS_OR_ID['AG_RUBY_RENDER']},
       .${CLASS_OR_ID['AG_HTML_PREVIEW']},
       .${CLASS_OR_ID['AG_MATH_PREVIEW']},
       .${CLASS_OR_ID['AG_COPY_REMOVE']},
