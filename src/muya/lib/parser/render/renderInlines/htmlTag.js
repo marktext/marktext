@@ -1,4 +1,4 @@
-import { CLASS_OR_ID } from '../../../config'
+import { CLASS_OR_ID, BLOCK_TYPE6 } from '../../../config'
 import { snakeToCamel } from '../../../utils'
 
 export default function htmlTag (h, cursor, block, token, outerClass) {
@@ -31,7 +31,10 @@ export default function htmlTag (h, cursor, block, token, outerClass) {
       } else if (tag === 'ruby') {
         return this.htmlRuby(h, cursor, block, token, outerClass)
       } else {
-        let selector = tag
+        // if  tag is a block level element, use a inline element `span` to instead.
+        // Because we can not nest a block level element in span element(line is span element)
+        // we also recommand user not use block level element in paragraph. use block element in html block.
+        let selector = BLOCK_TYPE6.includes(tag) ? 'span' : tag
         const data = {
           attrs: {},
           dataset: {}

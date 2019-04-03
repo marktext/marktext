@@ -6,6 +6,25 @@ This update **fixes a XSS security vulnerability** when exporting a document.
 
 - Minimum supported macOS version is 10.10 (Yosemite)
 - Remove `lightColor` and `darkColor` in user preference (color change in view menu does not work any, and will remove when add custom theme.)
+- We recommand user not use block element in paragraph, please use block element in html block.
+
+*Not Recommand*
+
+```md
+foo<section>bar</section>zar
+```
+
+*Recommand*
+
+```md
+<div>
+  foo
+  <section>
+    bar
+  </section>
+  zar
+</div>
+```
 
 **:cactus:Feature**
 
