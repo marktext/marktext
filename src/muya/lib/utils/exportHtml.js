@@ -86,6 +86,12 @@ class ExportHtml {
     .markdown-body table {
       display: table;
     }
+    .markdown-body li.task-list-item {
+      list-style-type: none;
+    }
+    .markdown-body li > [type=checkbox] {
+      margin: 0 0 0 -1.3em;
+    }
     .markdown-body input[type="checkbox"] ~ p {
       margin-top: 0;
       display: inline-block;
