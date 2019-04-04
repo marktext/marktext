@@ -118,7 +118,7 @@ kbd {
   border: 1px solid var(--floatBorderColor);
   border-radius: 4px;
   display: inline-block;
-  transform: scale(.8);
+  font-size: .8em;
   padding: 0px 5px;
   box-shadow: inset 0 -1px 0 var(--floatBorderColor);
 }

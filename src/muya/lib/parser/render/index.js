@@ -186,6 +186,7 @@ class StateRender {
         patch(oldCursorVnode, newCursorVnode)
       }
     }
+
     this.renderMermaid()
     this.renderDiagram()
   }

@@ -93,7 +93,7 @@ const validateEmphasize = (src, offset, marker, pending) => {
   return lowerPriority(src, offset)
 }
 
-const tokenizerFac = (src, beginRules, inlineRules, pos = 0, top) => {
+const tokenizerFac = (src, beginRules, inlineRules, pos = 0, top, labels) => {
   const tokens = []
   let pending = ''
   let pendingStartPos = pos
@@ -211,7 +211,7 @@ const tokenizerFac = (src, beginRules, inlineRules, pos = 0, top) => {
             range,
             marker,
             parent: tokens,
-            children: tokenizerFac(to[2], undefined, inlineRules, pos + to[1].length, false),
+            children: tokenizerFac(to[2], undefined, inlineRules, pos + to[1].length, false, labels),
             backlash: to[3]
           })
           src = src.substring(to[0].length)
@@ -252,7 +252,7 @@ const tokenizerFac = (src, beginRules, inlineRules, pos = 0, top) => {
             range,
             marker,
             parent: tokens,
-            children: tokenizerFac(to[2], undefined, inlineRules, pos + to[1].length, false),
+            children: tokenizerFac(to[2], undefined, inlineRules, pos + to[1].length, false, labels),
             backlash: to[3]
           })
         }
@@ -301,7 +301,7 @@ const tokenizerFac = (src, beginRules, inlineRules, pos = 0, top) => {
           start: pos,
           end: pos + linkTo[0].length
         },
-        children: tokenizerFac(linkTo[2], undefined, inlineRules, pos + linkTo[1].length, false),
+        children: tokenizerFac(linkTo[2], undefined, inlineRules, pos + linkTo[1].length, false, labels),
         backlash: {
           first: linkTo[3],
           second: linkTo[5]
@@ -314,9 +314,8 @@ const tokenizerFac = (src, beginRules, inlineRules, pos = 0, top) => {
     }
 
     const rLinkTo = inlineRules['reference_link'].exec(src)
-    if (rLinkTo && isLengthEven(rLinkTo[2]) && isLengthEven(rLinkTo[4])) {
+    if (rLinkTo && labels.has(rLinkTo[3] || rLinkTo[1]) && isLengthEven(rLinkTo[2]) && isLengthEven(rLinkTo[4])) {
       pushPending()
-
       tokens.push({
         type: 'reference_link',
         raw: rLinkTo[0],
@@ -332,7 +331,7 @@ const tokenizerFac = (src, beginRules, inlineRules, pos = 0, top) => {
           start: pos,
           end: pos + rLinkTo[0].length
         },
-        children: tokenizerFac(rLinkTo[1], undefined, inlineRules, pos + 1, false)
+        children: tokenizerFac(rLinkTo[1], undefined, inlineRules, pos + 1, false, labels)
       })
 
       src = src.substring(rLinkTo[0].length)
@@ -424,7 +423,7 @@ const tokenizerFac = (src, beginRules, inlineRules, pos = 0, top) => {
         parent: tokens,
         attrs,
         content: htmlTo[4],
-        children: htmlTo[4] ? tokenizerFac(htmlTo[4], undefined, inlineRules, pos + htmlTo[2].length, false) : '',
+        children: htmlTo[4] ? tokenizerFac(htmlTo[4], undefined, inlineRules, pos + htmlTo[2].length, false, labels) : '',
         range: {
           start: pos,
           end: pos + len
@@ -502,8 +501,8 @@ const tokenizerFac = (src, beginRules, inlineRules, pos = 0, top) => {
   return tokens
 }
 
-export const tokenizer = (src, highlights = [], hasBeginRules = true) => {
-  const tokens = tokenizerFac(src, hasBeginRules ? beginRules : null, inlineRules, 0, true)
+export const tokenizer = (src, highlights = [], hasBeginRules = true, labels = new Map()) => {
+  const tokens = tokenizerFac(src, hasBeginRules ? beginRules : null, inlineRules, 0, true, labels)
   const postTokenizer = tokens => {
     for (const token of tokens) {
       for (const light of highlights) {

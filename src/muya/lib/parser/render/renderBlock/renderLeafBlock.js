@@ -79,7 +79,7 @@ export default function renderLeafBlock (block, cursor, activeBlocks, matches, u
       functionType !== 'languageInput'
     ) {
       const hasBeginRules = /^(h\d|span|hr)/.test(type)
-      tokens = tokenizer(text, highlights, hasBeginRules)
+      tokens = tokenizer(text, highlights, hasBeginRules, this.labels)
       if (highlights.length === 0 && useCache && DEVICE_MEMORY >= 4) {
         this.tokenCache.set(text, tokens)
       }
