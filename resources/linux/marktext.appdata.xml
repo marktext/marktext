@@ -11,9 +11,10 @@
         </p>
         <p>Features:</p>
         <ul>
-            <li>GitHub Flavored Markdown like task-lists, tables, links and emoji</li>
+            <li>GitHub Flavored Markdown like task-lists, tables, links and emojis</li>
+            <li>Markdown extensions such as math expressions (KaTeX) and front matter</li>
             <li>Code fence for all the popular languages</li>
-            <li>Various edit mode: source code mode, typewriter mode, focus mode</li>
+            <li>Various edit modes and themes: source code mode, typewriter mode, focus mode</li>
     ​    </ul>
     </description>
     <url type="homepage">https://marktext.github.io/website/</url>
@@ -24,16 +25,24 @@
             <image>https://raw.githubusercontent.com/marktext/marktext/master/resources/linux/img/img1.png</image>
         </screenshot>
         <screenshot>
-            <caption>Dark theme</caption>
+            <caption>Sidebar</caption>
             <image>https://raw.githubusercontent.com/marktext/marktext/master/resources/linux/img/img2.png</image>
         </screenshot>
         <screenshot>
-            <caption>Source Code mode</caption>
+            <caption>Image and math equations</caption>
             <image>https://raw.githubusercontent.com/marktext/marktext/master/resources/linux/img/img3.png</image>
         </screenshot>
         <screenshot>
-            <caption>Focus mode</caption>
+            <caption>Dark theme</caption>
             <image>https://raw.githubusercontent.com/marktext/marktext/master/resources/linux/img/img4.png</image>
+        </screenshot>
+        <screenshot>
+            <caption>Sidebar and tabs</caption>
+            <image>https://raw.githubusercontent.com/marktext/marktext/master/resources/linux/img/img5.png</image>
+        </screenshot>
+        <screenshot>
+            <caption>Source code mode</caption>
+            <image>https://raw.githubusercontent.com/marktext/marktext/master/resources/linux/img/img6.png</image>
         </screenshot>
     </screenshots>
     <categories>
