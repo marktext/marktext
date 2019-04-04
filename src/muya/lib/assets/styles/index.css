@@ -45,7 +45,7 @@ div.ag-show-quick-insert-hint p.ag-paragraph.ag-active > span.ag-line:first-of-t
 
 .ag-reference-marker {
   font-size: .9em;
-  color: var(--editorColor10);
+  color: var(--editorColor50);
 }
 
 .ag-reference-title {
