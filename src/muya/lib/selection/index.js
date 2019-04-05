@@ -420,6 +420,7 @@ class Selection {
       let count = 0
       for (i = 0; i < len; i++) {
         const child = childNodes[i]
+        if (child.classList && child.classList.contains(CLASS_OR_ID['AG_FRONT_ICON'])) continue
         if (count + getTextContent(child, [ CLASS_OR_ID['AG_MATH_RENDER'], CLASS_OR_ID['AG_RUBY_RENDER'] ]).length >= offset) {
           return getNodeAndOffset(child, offset - count)
         } else {

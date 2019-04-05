@@ -81,6 +81,7 @@ export const CLASS_OR_ID = genUpper2LowerKeyHash([
   'AG_FLOWCHART',
   'AG_FOCUS_MODE',
   'AG_FRONT_MATTER',
+  'AG_FRONT_ICON',
   'AG_GRAY',
   'AG_HARD_LINE_BREAK',
   'AG_HEADER_TIGHT_SPACE',
