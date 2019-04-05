@@ -42,6 +42,7 @@ foo<section>bar</section>zar
 - Watch file changed in tabs and show a notice(autoSave is `false`) or update the file(autoSave is `true`)
 - Support input inline Ruby charactors as raw html (#257)
 - Added unsaved tab indicator
+- Add front Menu by click the front menu icon (#875)
 
 **:butterfly:Optimization**
 
