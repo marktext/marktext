@@ -83,6 +83,7 @@ export const CLASS_OR_ID = genUpper2LowerKeyHash([
   'AG_FRONT_MATTER',
   'AG_GRAY',
   'AG_HARD_LINE_BREAK',
+  'AG_HEADER_TIGHT_SPACE',
   'AG_HIDE',
   'AG_HIGHLIGHT',
   'AG_HTML_BLOCK',
