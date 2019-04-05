@@ -86,7 +86,7 @@ const paragraphCtrl = ContentState => {
   }
 
   ContentState.prototype.handleListMenu = function (paraType, insertMode) {
-    const { start, end, affiliation } = this.selectionChange()
+    const { start, end, affiliation } = this.selectionChange(this.cursor)
     const [blockType, listType] = paraType.split('-')
     const isListed = affiliation.slice(0, 3).filter(b => /ul|ol/.test(b.type))
     const { preferLooseListItem } = this
@@ -175,7 +175,7 @@ const paragraphCtrl = ContentState => {
   }
 
   ContentState.prototype.handleLooseListItem = function () {
-    const { affiliation } = this.selectionChange()
+    const { affiliation } = this.selectionChange(this.cursor)
     let listContainer = []
     if (affiliation.length >= 1 && /ul|ol/.test(affiliation[0].type)) {
       listContainer = affiliation[0].children
@@ -191,7 +191,7 @@ const paragraphCtrl = ContentState => {
   }
 
   ContentState.prototype.handleCodeBlockMenu = function () {
-    const { start, end, affiliation } = this.selectionChange()
+    const { start, end, affiliation } = this.selectionChange(this.cursor)
     let startBlock = this.getBlock(start.key)
     const endBlock = this.getBlock(end.key)
     const startParents = this.getParents(startBlock)
@@ -290,7 +290,7 @@ const paragraphCtrl = ContentState => {
   }
 
   ContentState.prototype.handleQuoteMenu = function (insertMode) {
-    const { start, end, affiliation } = this.selectionChange()
+    const { start, end, affiliation } = this.selectionChange(this.cursor)
     let startBlock = this.getBlock(start.key)
     const isBlockQuote = affiliation.slice(0, 2).filter(b => /blockquote/.test(b.type))
     // change blockquote to paragraph
@@ -331,10 +331,7 @@ const paragraphCtrl = ContentState => {
   }
 
   ContentState.prototype.insertContainerBlock = function (functionType, value = '') {
-    const { start, end } = selection.getCursorRange()
-    if (!start || !end) {
-      return
-    }
+    const { start, end } = this.cursor
     if (start.key !== end.key) return
     let block = this.getBlock(start.key)
     if (block.type === 'span') {
@@ -530,16 +527,18 @@ const paragraphCtrl = ContentState => {
       this.partialRender()
     }
     // update menu status
-    const selectionChanges = this.selectionChange()
+    const selectionChanges = this.selectionChange(this.cursor)
     this.muya.eventCenter.dispatch('selectionChange', selectionChanges)
   }
 
-  ContentState.prototype.insertParagraph = function (location, text = '') {
+  ContentState.prototype.insertParagraph = function (location, text = '', outMost = false) {
     const { start, end } = this.cursor
     // if cursor is not in one line or paragraph, can not insert paragraph
     if (start.key !== end.key) return
     let block = this.getBlock(start.key)
-    if (block.type === 'span' && !block.functionType) {
+    if (outMost) {
+      block = this.findOutMostBlock(block)
+    } else if (block.type === 'span' && !block.functionType) {
       block = this.getParent(block)
     } else if (block.type === 'span' && block.functionType === 'codeLine') {
       const preBlock = this.getParent(this.getParent(block))
@@ -580,6 +579,57 @@ const paragraphCtrl = ContentState => {
       end: { key, offset }
     }
     this.partialRender()
+  }
+
+  // make a dulication of the current block
+  ContentState.prototype.duplicate = function () {
+    const { start, end } = this.cursor
+    const startOutmostBlock = this.findOutMostBlock(this.getBlock(start.key))
+    const endOutmostBlock = this.findOutMostBlock(this.getBlock(end.key))
+    if (startOutmostBlock !== endOutmostBlock) {
+      // if the cursor is not in one paragraph, just return
+      return
+    }
+    const copiedBlock = this.copyBlock(startOutmostBlock)
+    this.insertAfter(copiedBlock, startOutmostBlock)
+    const cursorBlock = this.firstInDescendant(copiedBlock)
+    const { key } = cursorBlock
+    const offset = 0
+    this.cursor = {
+      start: { key, offset },
+      end: { key, offset }
+    }
+    return this.partialRender()
+  }
+  // delete current paragraph
+  ContentState.prototype.deleteParagraph = function () {
+    const { start, end } = this.cursor
+    const startOutmostBlock = this.findOutMostBlock(this.getBlock(start.key))
+    const endOutmostBlock = this.findOutMostBlock(this.getBlock(end.key))
+    if (startOutmostBlock !== endOutmostBlock) {
+      // if the cursor is not in one paragraph, just return
+      return
+    }
+    const preBlock = this.getBlock(startOutmostBlock.preSibling)
+    const nextBlock = this.getBlock(startOutmostBlock.nextSibling)
+    let cursorBlock = null
+    if (nextBlock) {
+      cursorBlock = this.firstInDescendant(nextBlock)
+    } else if (preBlock) {
+      cursorBlock = this.lastInDescendant(preBlock)
+    } else {
+      const newBlock = this.createBlockP()
+      this.insertAfter(newBlock, startOutmostBlock)
+      cursorBlock = this.firstInDescendant(newBlock)
+    }
+    this.removeBlock(startOutmostBlock)
+    const { key } = cursorBlock
+    const offset = 0
+    this.cursor = {
+      start: { key, offset },
+      end: { key, offset }
+    }
+    return this.partialRender()
   }
 }
 

@@ -4,6 +4,25 @@ import { HAS_TEXT_BLOCK_REG } from '../config'
 const clickCtrl = ContentState => {
   ContentState.prototype.clickHandler = function (event) {
     const { eventCenter } = this.muya
+    const { target } = event
+    // handle front menu click
+    if (target.closest('.ag-front-icon')) {
+      const currentInnerBlock = this.getBlock(this.cursor.start.key)
+      const currentBlock = this.findOutMostBlock(currentInnerBlock)
+      const frontIcon = target.closest('.ag-front-icon')
+      const rect = frontIcon.getBoundingClientRect()
+      const reference = {
+        getBoundingClientRect () {
+          return rect
+        },
+        clientWidth: rect.width,
+        clientHeight: rect.height,
+        id: currentBlock.key
+      }
+      this.selectedBlock = currentBlock
+      eventCenter.dispatch('muya-front-menu', { reference, block: currentBlock })
+      return this.partialRender()
+    }
     const { start, end } = selection.getCursorRange()
     // fix #625, the selection maybe not in edit area.
     if (!start || !end) {

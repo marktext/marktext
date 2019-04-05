@@ -82,6 +82,7 @@
   import EmojiPicker from 'muya/lib/ui/emojiPicker'
   import ImagePathPicker from 'muya/lib/ui/imagePicker'
   import FormatPicker from 'muya/lib/ui/formatPicker'
+  import FrontMenu from 'muya/lib/ui/frontMenu'
   import bus from '../../bus'
   import Search from '../search.vue'
   import { animatedScrollTo } from '../../util'
@@ -206,6 +207,8 @@
         Muya.use(EmojiPicker)
         Muya.use(ImagePathPicker)
         Muya.use(FormatPicker)
+        Muya.use(FrontMenu)
+
         const { container } = this.editor = new Muya(ele, {
           focusMode,
           markdown,
