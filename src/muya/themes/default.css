@@ -140,6 +140,22 @@ kbd {
 .ag-gray {
   color: var(--editorColor30);
   text-decoration: none;
+  font-size: 14px;
+  vertical-align: middle;
+}
+
+h1 .ag-gray,
+h2 .ag-gray,
+h3 .ag-gray {
+  font-size: .6em;
+}
+
+.ag-header-tight-space {
+  margin-left: -.3em;
+}
+
+.ag-image-src {
+  word-break: break-all;
 }
 
 .v-modal {

@@ -1,4 +1,5 @@
 import { h } from '../snabbdom'
+import { CLASS_OR_ID } from '../../../config'
 import paragraphIcon from '../../../assets/icons/paragraph.svg'
 import htmlIcon from '../../../assets/icons/html.svg'
 import hrIcon from '../../../assets/icons/horizontal_line.svg'
@@ -26,7 +27,7 @@ export default function renderIcon (block) {
     console.error('Only top most block can render front icon button.')
   }
   const { type, functionType, listType } = block
-  const selector = `a.ag-front-icon`
+  const selector = `span.${CLASS_OR_ID['AG_FRONT_ICON']}`
   let icon = null
 
   switch (type) {
