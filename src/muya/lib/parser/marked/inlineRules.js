@@ -29,8 +29,8 @@ const inline = {
   // ------------------------
   // patched
 
-  // allow inline math (text: /^(`+|[^`])[\s\S]*?(?=[\\<!\[`*]|\b_| {2,}\n|$)/,)
-  text: /^(`+|[^`])[\s\S]*?(?=[\\<!\[`*\$]|\b_| {2,}\n|$)/, // emoji is patched in gfm
+  // allow inline math "$" ("?=[\\<!\[`*]" to "?=[\\<!\[`*\$]")
+  text: /^(`+|[^`])(?:[\s\S]*?(?:(?=[\\<!\[`*\$]|\b_|$)|[^ ](?= {2,}\n))|(?= {2,}\n))/, // emoji is patched in gfm
 
   // ------------------------
   // extra
@@ -106,11 +106,12 @@ export const gfm = Object.assign({}, normal, {
   url: /^((?:ftp|https?):\/\/|www\.)(?:[a-zA-Z0-9\-]+\.?)+[^\s<]*|^email/,
   _backpedal: /(?:[^?!.,:;*_~()&]+|\([^)]*\)|&(?![a-zA-Z0-9]+;$)|[?!.,:;*_~)]+(?!$))+/,
   del: /^~+(?=\S)([\s\S]*?\S)~+/,
-  text: edit(inline.text)
-    .replace(']|', ':]|') // patched: allow emojis
-    .replace(']|', '~]|')
-    .replace('|$', '|https?://|ftp://|www\\.|[a-zA-Z0-9.!#$%&\'*+/=?^_`{\\|}~-]+@|$')
-    .getRegex(),
+
+  // ------------------------
+  // patched
+
+  // allow inline math "$" and emoji ":" ("?=[\\<!\[`*~]|" to "?=[\\<!\[`*~:\$]|")
+  text: /^(`+|[^`])(?:[\s\S]*?(?:(?=[\\<!\[`*~:\$]|\b_|https?:\/\/|ftp:\/\/|www\.|$)|[^ ](?= {2,}\n)|[^a-zA-Z0-9.!#$%&'*+\/=?_`{\|}~-](?=[a-zA-Z0-9.!#$%&'*+\/=?_`{\|}~-]+@))|(?= {2,}\n|[a-zA-Z0-9.!#$%&'*+\/=?_`{\|}~-]+@))/,
 
   // ------------------------
   // extra
@@ -128,7 +129,7 @@ gfm.url = edit(gfm.url, 'i').
 
 export const breaks = Object.assign({}, gfm, {
   br: edit(inline.br).replace('{2,}', '*').getRegex(),
-  text: edit(gfm.text).replace('{2,}', '*').getRegex()
+  text: edit(gfm.text).replace(/\{2,\}/g, '*').getRegex()
 })
 
 /* eslint-ensable no-useless-escape */
