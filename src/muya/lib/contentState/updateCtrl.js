@@ -346,7 +346,6 @@ const updateCtrl = ContentState => {
       }
       this.removeBlock(block)
       this.cursor.start.key = this.cursor.end.key = header.key
-      this.cursor.start.offset = this.cursor.end.offset = header.text.length
       return header
     } else {
       if (block.type === newType && block.headingStyle === 'atx') {

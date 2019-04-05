@@ -39,10 +39,6 @@ div.ag-show-quick-insert-hint p.ag-paragraph.ag-active > span.ag-line:first-of-t
   word-break: break-word;
 }
 
-.ag-gray {
-  font-family: monospace;
-}
-
 .ag-reference-marker {
   font-size: .9em;
   color: var(--editorColor50);
@@ -704,10 +700,10 @@ span.ag-reference-link {
 
 .ag-front-icon {
   position: absolute;
-  width: 20px;
-  height: 20px;
+  width: 16px;
+  height: 16px;
   top: 2px;
-  left: -40px;
+  left: -30px;
   display: none;
   /* cursor: pointer; */
 }
