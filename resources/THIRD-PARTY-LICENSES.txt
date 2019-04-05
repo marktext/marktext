@@ -10,417 +10,420 @@ This file contains all third-party packages which are bundled and shipped with M
 1. @hfelix/electron-localshortcut@3.1.1 (MIT)
 2. @hfelix/keyboardevent-from-electron-accelerator@1.1.1 (MIT)
 3. @types/clone@0.1.30 (MIT)
-4. abab@2.0.0 (BSD*)
-5. acorn-globals@4.3.0 (MIT)
-6. acorn-walk@6.1.1 (MIT)
-7. acorn@5.7.3 (MIT)
-8. acorn@6.1.1 (MIT)
-9. ajv@6.10.0 (MIT)
-10. ansi-regex@2.1.1 (MIT)
-11. ansi-regex@3.0.0 (MIT)
-12. ansi-regex@4.1.0 (MIT)
-13. anymatch@2.0.0 (ISC)
-14. arr-diff@4.0.0 (MIT)
-15. arr-flatten@1.1.0 (MIT)
-16. arr-union@3.1.0 (MIT)
-17. array-equal@1.0.0 (MIT)
-18. array-unique@0.3.2 (MIT)
-19. asn1@0.2.4 (MIT)
-20. assert-plus@1.0.0 (MIT)
-21. assign-symbols@1.0.0 (MIT)
-22. async-each@1.0.1 (MIT)
-23. async-limiter@1.0.0 (MIT)
-24. async-validator@1.8.5 (MIT)
-25. asynckit@0.4.0 (MIT)
-26. atob@2.1.2 ((MIT OR Apache-2.0))
-27. aws-sign2@0.7.0 (Apache-2.0)
-28. aws4@1.8.0 (MIT)
-29. axios@0.18.0 (MIT)
-30. babel-runtime@6.26.0 (MIT)
-31. base@0.11.2 (MIT)
-32. batch-processor@1.0.0 (MIT)
-33. bcrypt-pbkdf@1.0.2 (BSD-3-Clause)
-34. binary-extensions@1.13.0 (MIT)
-35. braces@2.3.2 (MIT)
-36. browser-process-hrtime@0.1.3 (BSD-2-Clause)
-37. browser-split@0.0.1 (MIT)
-38. buffer-from@1.1.1 (MIT)
-39. cache-base@1.0.1 (MIT)
-40. camelcase@5.2.0 (MIT)
-41. caseless@0.12.0 (Apache-2.0)
-42. chokidar@2.1.2 (MIT)
-43. class-utils@0.3.6 (MIT)
-44. clipboard@2.0.4 (MIT)
-45. cliui@4.1.0 (ISC)
-46. clone@2.1.2 (MIT)
-47. code-point-at@1.1.0 (MIT)
-48. codemirror@5.45.0 (MIT)
-49. collection-visit@1.0.0 (MIT)
-50. combined-stream@1.0.7 (MIT)
-51. command-exists@1.2.8 (MIT)
-52. commander@2.19.0 (MIT)
-53. component-emitter@1.2.1 (MIT)
-54. copy-descriptor@0.1.1 (MIT)
-55. core-js@2.6.5 (MIT)
-56. core-util-is@1.0.2 (MIT)
-57. cross-spawn@6.0.5 (MIT)
-58. cssom@0.3.6 (MIT)
-59. cssstyle@1.2.1 (MIT)
-60. d3-array@1.2.4 (BSD-3-Clause)
-61. d3-array@2.0.3 (BSD-3-Clause)
-62. d3-axis@1.0.12 (BSD-3-Clause)
-63. d3-brush@1.0.6 (BSD-3-Clause)
-64. d3-chord@1.0.6 (BSD-3-Clause)
-65. d3-collection@1.0.7 (BSD-3-Clause)
-66. d3-color@1.2.3 (BSD-3-Clause)
-67. d3-contour@1.3.2 (BSD-3-Clause)
-68. d3-dispatch@1.0.5 (BSD-3-Clause)
-69. d3-drag@1.2.3 (BSD-3-Clause)
-70. d3-dsv@1.1.1 (BSD-3-Clause)
-71. d3-ease@1.0.5 (BSD-3-Clause)
-72. d3-fetch@1.1.2 (BSD-3-Clause)
-73. d3-force@1.2.0 (BSD-3-Clause)
-74. d3-force@2.0.0 (BSD-3-Clause)
-75. d3-format@1.3.2 (BSD-3-Clause)
-76. d3-geo@1.11.3 (BSD-3-Clause)
-77. d3-hierarchy@1.1.8 (BSD-3-Clause)
-78. d3-interpolate@1.3.2 (BSD-3-Clause)
-79. d3-path@1.0.7 (BSD-3-Clause)
-80. d3-polygon@1.0.5 (BSD-3-Clause)
-81. d3-quadtree@1.0.6 (BSD-3-Clause)
-82. d3-random@1.1.2 (BSD-3-Clause)
-83. d3-scale-chromatic@1.3.3 (BSD-3-Clause)
-84. d3-scale@2.2.2 (BSD-3-Clause)
-85. d3-selection@1.4.0 (BSD-3-Clause)
-86. d3-shape@1.3.4 (BSD-3-Clause)
-87. d3-time-format@2.1.3 (BSD-3-Clause)
-88. d3-time@1.0.11 (BSD-3-Clause)
-89. d3-timer@1.0.9 (BSD-3-Clause)
-90. d3-transition@1.2.0 (BSD-3-Clause)
-91. d3-voronoi@1.1.4 (BSD-3-Clause)
-92. d3-zoom@1.7.3 (BSD-3-Clause)
-93. d3@5.9.1 (BSD-3-Clause)
-94. dagre-d3-renderer@0.5.8 (MIT)
-95. dagre-layout@0.8.8 (MIT)
-96. dashdash@1.14.1 (MIT)
-97. data-urls@1.1.0 (MIT)
-98. dayjs@1.8.11 (MIT)
-99. debug@2.6.9 (MIT)
-100. debug@3.2.6 (MIT)
-101. debug@4.1.1 (MIT)
-102. decamelize@1.2.0 (MIT)
-103. decode-uri-component@0.2.0 (MIT)
-104. deep-is@0.1.3 (MIT)
-105. deepmerge@1.5.2 (MIT)
-106. define-property@0.2.5 (MIT)
-107. define-property@1.0.0 (MIT)
-108. define-property@2.0.2 (MIT)
-109. delayed-stream@1.0.0 (MIT)
-110. delegate@3.2.0 (MIT)
-111. domexception@1.0.1 (MIT)
-112. dompurify@1.0.10 (MPL-2.0 OR Apache-2.0)
-113. ecc-jsbn@0.1.2 (MIT)
-114. electron-is-accelerator@0.1.2 (MIT)
-115. element-resize-detector@1.2.0 (MIT)
-116. element-ui@2.6.1 (MIT)
-117. emoji-regex@7.0.3 (MIT)
-118. end-of-stream@1.4.1 (MIT)
-119. escaper@2.5.3 (MIT)
-120. escodegen@1.11.1 (BSD-2-Clause)
-121. esprima@3.1.3 (BSD-2-Clause)
-122. estraverse@4.2.0 (BSD-2-Clause)
-123. esutils@2.0.2 (BSD)
-124. eve-raphael@0.5.0 (Apache*)
-125. eve@0.5.4 (Apache-2.0)
-126. event-kit@2.5.3 (MIT)
-127. execa@1.0.0 (MIT)
-128. expand-brackets@2.1.4 (MIT)
-129. extend-shallow@2.0.1 (MIT)
-130. extend-shallow@3.0.2 (MIT)
-131. extend@3.0.2 (MIT)
-132. extglob@2.0.4 (MIT)
-133. extsprintf@1.3.0 (MIT)
-134. extsprintf@1.4.0 (MIT)
-135. fast-deep-equal@2.0.1 (MIT)
-136. fast-json-stable-stringify@2.0.0 (MIT)
-137. fast-levenshtein@2.0.6 (MIT)
-138. file-icons-js@1.0.3 (MIT)
-139. fill-range@4.0.0 (MIT)
-140. find-up@3.0.0 (MIT)
-141. flowchart.js@1.11.3 (MIT)
-142. follow-redirects@1.7.0 (MIT)
-143. for-in@1.0.2 (MIT)
-144. forever-agent@0.6.1 (Apache-2.0)
-145. form-data@2.3.3 (MIT)
-146. fragment-cache@0.2.1 (MIT)
-147. fs-extra@7.0.1 (MIT)
-148. fuzzaldrin@2.1.0 (MIT)
-149. get-caller-file@2.0.5 (ISC)
-150. get-stream@4.1.0 (MIT)
-151. get-value@2.0.6 (MIT)
-152. getpass@0.1.7 (MIT)
-153. github-markdown-css@3.0.1 (MIT)
-154. glob-parent@3.1.0 (ISC)
-155. good-listener@1.2.2 (MIT)
-156. graceful-fs@4.1.15 (ISC)
-157. graphlibrary@2.2.0 (MIT)
-158. har-schema@2.0.0 (ISC)
-159. har-validator@5.1.3 (MIT)
-160. has-value@0.3.1 (MIT)
-161. has-value@1.0.0 (MIT)
-162. has-values@0.1.4 (MIT)
-163. has-values@1.0.0 (MIT)
-164. he@1.2.0 (MIT)
-165. html-encoding-sniffer@1.0.2 (MIT)
-166. html-tags@2.0.0 (MIT)
-167. http-signature@1.2.0 (MIT)
-168. iconv-lite@0.4.24 (MIT)
-169. inherits@2.0.3 (ISC)
-170. invert-kv@2.0.0 (MIT)
-171. is-accessor-descriptor@0.1.6 (MIT)
-172. is-accessor-descriptor@1.0.0 (MIT)
-173. is-binary-path@1.0.1 (MIT)
-174. is-buffer@1.1.6 (MIT)
-175. is-data-descriptor@0.1.4 (MIT)
-176. is-data-descriptor@1.0.0 (MIT)
-177. is-descriptor@0.1.6 (MIT)
-178. is-descriptor@1.0.2 (MIT)
-179. is-extendable@0.1.1 (MIT)
-180. is-extendable@1.0.1 (MIT)
-181. is-extglob@2.1.1 (MIT)
-182. is-fullwidth-code-point@1.0.0 (MIT)
-183. is-fullwidth-code-point@2.0.0 (MIT)
-184. is-glob@3.1.0 (MIT)
-185. is-glob@4.0.0 (MIT)
-186. is-number@3.0.0 (MIT)
-187. is-plain-object@2.0.4 (MIT)
-188. is-regexp@1.0.0 (MIT)
-189. is-stream@1.1.0 (MIT)
-190. is-typedarray@1.0.0 (MIT)
-191. is-windows@1.0.2 (MIT)
-192. isarray@1.0.0 (MIT)
-193. isexe@2.0.0 (ISC)
-194. isobject@2.1.0 (MIT)
-195. isobject@3.0.1 (MIT)
-196. isstream@0.1.2 (MIT)
-197. jsbn@0.1.1 (MIT)
-198. jsdom@11.12.0 (MIT)
-199. json-schema-traverse@0.4.1 (MIT)
-200. json-schema@0.2.3 (AFLv2.1,BSD)
-201. json-stringify-pretty-compact@2.0.0 (MIT)
-202. json-stringify-safe@5.0.1 (ISC)
-203. jsonfile@4.0.0 (MIT)
-204. jsprim@1.4.1 (MIT)
-205. katex@0.10.1 (MIT)
-206. keyboard-layout@2.0.15 (MIT)
-207. keyboardevents-areequal@0.2.2 (MIT)
-208. kind-of@3.2.2 (MIT)
-209. kind-of@4.0.0 (MIT)
-210. kind-of@5.1.0 (MIT)
-211. kind-of@6.0.2 (MIT)
-212. lcid@2.0.0 (MIT)
-213. left-pad@1.3.0 (WTFPL)
-214. levn@0.3.0 (MIT)
-215. locate-path@3.0.0 (MIT)
-216. lodash.escape@4.0.1 (MIT)
-217. lodash.forown@4.4.0 (MIT)
-218. lodash.kebabcase@4.1.1 (MIT)
-219. lodash.remove@4.7.0 (MIT)
-220. lodash.sortby@4.7.0 (MIT)
-221. lodash.uniq@4.5.0 (MIT)
-222. lodash@4.17.11 (MIT)
-223. map-age-cleaner@0.1.3 (MIT)
-224. map-cache@0.2.2 (MIT)
-225. map-visit@1.0.0 (MIT)
-226. marktext@0.13.65 (MIT)
-227. mem@4.2.0 (MIT)
-228. mermaid@8.0.0 (MIT)
-229. micromatch@3.1.10 (MIT)
-230. mime-db@1.38.0 (MIT)
-231. mime-types@2.1.22 (MIT)
-232. mimic-fn@2.0.0 (MIT)
-233. mixin-deep@1.3.1 (MIT)
-234. moment@2.24.0 (MIT)
-235. ms@2.0.0 (MIT)
-236. ms@2.1.1 (MIT)
-237. nan@2.12.1 (MIT)
-238. nanomatch@1.2.13 (MIT)
-239. nice-try@1.0.5 (MIT)
-240. node-fetch@2.3.0 (MIT)
-241. normalize-path@2.1.1 (MIT)
-242. normalize-path@3.0.0 (MIT)
-243. normalize-wheel@1.0.1 (BSD-3-Clause)
-244. npm-run-path@2.0.2 (MIT)
-245. number-is-nan@1.0.1 (MIT)
-246. nwsapi@2.1.1 (MIT)
-247. oauth-sign@0.9.0 (Apache-2.0)
-248. object-assign@4.1.1 (MIT)
-249. object-copy@0.1.0 (MIT)
-250. object-visit@1.0.1 (MIT)
-251. object.pick@1.3.0 (MIT)
-252. once@1.4.0 (ISC)
-253. optionator@0.8.2 (MIT)
-254. os-locale@3.1.0 (MIT)
-255. p-defer@1.0.0 (MIT)
-256. p-finally@1.0.0 (MIT)
-257. p-is-promise@2.0.0 (MIT)
-258. p-limit@2.2.0 (MIT)
-259. p-locate@3.0.0 (MIT)
-260. p-try@2.0.0 (MIT)
-261. parse-sel@1.0.0 (MIT)
-262. parse5@4.0.0 (MIT)
-263. pascalcase@0.1.1 (MIT)
-264. path-dirname@1.0.2 (MIT)
-265. path-exists@3.0.0 (MIT)
-266. path-is-absolute@1.0.1 (MIT)
-267. path-key@2.0.1 (MIT)
-268. performance-now@2.1.0 (MIT)
-269. pn@1.1.0 (MIT)
-270. popper.js@1.14.7 (MIT)
-271. posix-character-classes@0.1.1 (MIT)
-272. prelude-ls@1.1.2 (MIT)
-273. prismjs2@1.15.1 (MIT)
-274. process-nextick-args@2.0.0 (MIT)
-275. psl@1.1.31 (MIT)
-276. pump@3.0.0 (MIT)
-277. punycode@1.4.1 (MIT)
-278. punycode@2.1.1 (MIT)
-279. qs@6.5.2 (BSD-3-Clause)
-280. raphael@2.2.7 (MIT)
-281. readable-stream@2.3.6 (MIT)
-282. readdirp@2.2.1 (MIT)
-283. regenerator-runtime@0.11.1 (MIT)
-284. regex-not@1.0.2 (MIT)
-285. remove-trailing-separator@1.1.0 (ISC)
-286. repeat-element@1.1.3 (MIT)
-287. repeat-string@1.6.1 (MIT)
-288. request-promise-core@1.1.2 (ISC)
-289. request-promise-native@1.0.7 (ISC)
-290. request@2.88.0 (Apache-2.0)
-291. require-directory@2.1.1 (MIT)
-292. require-main-filename@2.0.0 (ISC)
-293. resize-observer-polyfill@1.5.1 (MIT)
-294. resolve-url@0.2.1 (MIT)
-295. ret@0.1.15 (MIT)
-296. rw@1.3.3 (BSD-3-Clause)
-297. safe-buffer@5.1.2 (MIT)
-298. safe-regex@1.1.0 (MIT)
-299. safer-buffer@2.1.2 (MIT)
-300. sax@1.2.4 (ISC)
-301. scope-css@1.2.1 (MIT)
-302. select@1.1.2 (MIT)
-303. semver@5.6.0 (ISC)
-304. set-blocking@2.0.0 (ISC)
-305. set-value@0.4.3 (MIT)
-306. set-value@2.0.0 (MIT)
-307. shebang-command@1.2.0 (MIT)
-308. shebang-regex@1.0.0 (MIT)
-309. signal-exit@3.0.2 (ISC)
-310. slugify@1.3.4 (MIT)
-311. snabbdom-to-html@5.1.1 (MIT)
-312. snabbdom@0.7.3 (MIT)
-313. snapdragon-node@2.1.1 (MIT)
-314. snapdragon-util@3.0.1 (MIT)
-315. snapdragon@0.8.2 (MIT)
-316. snapsvg@0.5.1 (Apache-2.0)
-317. source-map-resolve@0.5.2 (MIT)
-318. source-map-support@0.5.11 (MIT)
-319. source-map-url@0.4.0 (MIT)
-320. source-map@0.5.7 (BSD-3-Clause)
-321. source-map@0.6.1 (BSD-3-Clause)
-322. split-string@3.1.0 (MIT)
-323. sshpk@1.16.1 (MIT)
-324. static-extend@0.1.2 (MIT)
-325. stealthy-require@1.1.1 (ISC)
-326. string-width@1.0.2 (MIT)
-327. string-width@2.1.1 (MIT)
-328. string-width@3.1.0 (MIT)
-329. string_decoder@1.1.1 (MIT)
-330. strip-ansi@3.0.1 (MIT)
-331. strip-ansi@4.0.0 (MIT)
-332. strip-ansi@5.1.0 (MIT)
-333. strip-css-comments@3.0.0 (MIT)
-334. strip-eof@1.0.0 (MIT)
-335. symbol-tree@3.2.2 (MIT)
-336. throttle-debounce@1.1.0 (MIT)
-337. tiny-emitter@2.1.0 (MIT)
-338. to-object-path@0.3.0 (MIT)
-339. to-regex-range@2.1.1 (MIT)
-340. to-regex@3.0.2 (MIT)
-341. topojson-client@3.0.0 (BSD-3-Clause)
-342. tough-cookie@2.4.3 (BSD-3-Clause)
-343. tough-cookie@2.5.0 (BSD-3-Clause)
-344. tr46@1.0.1 (MIT)
-345. tslib@1.9.3 (Apache-2.0)
-346. tunnel-agent@0.6.0 (Apache-2.0)
-347. turndown-plugin-gfm@1.0.2 (MIT)
-348. turndown@5.0.3 (MIT)
-349. tweetnacl@0.14.5 (Unlicense)
-350. type-check@0.3.2 (MIT)
-351. underscore@1.9.1 (MIT)
-352. union-value@1.0.0 (MIT)
-353. universalify@0.1.2 (MIT)
-354. unset-value@1.0.0 (MIT)
-355. upath@1.1.2 (MIT)
-356. uri-js@4.2.2 (BSD-2-Clause)
-357. urix@0.1.0 (MIT)
-358. use@3.1.1 (MIT)
-359. util-deprecate@1.0.2 (MIT)
-360. uuid@3.3.2 (MIT)
-361. vega-canvas@1.2.1 (BSD-3-Clause)
-362. vega-crossfilter@4.0.1 (BSD-3-Clause)
-363. vega-dataflow@5.2.0 (BSD-3-Clause)
-364. vega-embed@4.0.0-rc1 (BSD-3-Clause)
-365. vega-encode@4.2.0 (BSD-3-Clause)
-366. vega-event-selector@2.0.0 (BSD-3-Clause)
-367. vega-expression@2.5.0 (BSD-3-Clause)
-368. vega-force@4.0.1 (BSD-3-Clause)
-369. vega-functions@5.1.1 (BSD-3-Clause)
-370. vega-geo@4.0.1 (BSD-3-Clause)
-371. vega-hierarchy@4.0.1 (BSD-3-Clause)
-372. vega-lite@3.0.0-rc15 (BSD-3-Clause)
-373. vega-loader@4.0.0 (BSD-3-Clause)
-374. vega-parser@5.6.0 (BSD-3-Clause)
-375. vega-projection@1.2.1 (BSD-3-Clause)
-376. vega-runtime@5.0.1 (BSD-3-Clause)
-377. vega-scale@4.1.0 (BSD-3-Clause)
-378. vega-scenegraph@4.1.0 (BSD-3-Clause)
-379. vega-schema-url-parser@1.1.0 (BSD-3-Clause)
-380. vega-selections@5.0.0 (BSD-3-Clause)
-381. vega-statistics@1.3.0 (BSD-3-Clause)
-382. vega-themes@2.2.0 (BSD-3-Clause)
-383. vega-tooltip@0.16.0 (BSD-3-Clause)
-384. vega-transforms@4.0.1 (BSD-3-Clause)
-385. vega-typings@0.3.53 (BSD*)
-386. vega-typings@0.5.7 (BSD-3-Clause)
-387. vega-typings@0.6.0 (BSD-3-Clause)
-388. vega-util@1.10.0 (BSD-3-Clause)
-389. vega-view-transforms@4.3.0 (BSD-3-Clause)
-390. vega-view@5.2.0 (BSD-3-Clause)
-391. vega-voronoi@4.0.1 (BSD-3-Clause)
-392. vega-wordcloud@4.0.1 (BSD-3-Clause)
-393. vega@5.2.0 (BSD-3-Clause)
-394. verror@1.10.0 (MIT)
-395. view-image@0.0.1 (MIT)
-396. vue-electron@1.0.6 (ISC)
-397. vue@2.6.8 (MIT)
-398. vuex@3.1.0 (MIT)
-399. w3c-hr-time@1.0.1 (MIT)
-400. webidl-conversions@4.0.2 (BSD-2-Clause)
-401. whatwg-encoding@1.0.5 (MIT)
-402. whatwg-mimetype@2.3.0 (MIT)
-403. whatwg-url@6.5.0 (MIT)
-404. whatwg-url@7.0.0 (MIT)
-405. which-module@2.0.0 (ISC)
-406. which@1.3.1 (ISC)
-407. wordwrap@1.0.0 (MIT)
-408. wrap-ansi@2.1.0 (MIT)
-409. wrappy@1.0.2 (ISC)
-410. ws@5.2.2 (MIT)
-411. xml-name-validator@3.0.0 (Apache-2.0)
-412. y18n@4.0.0 (ISC)
-413. yargs-parser@13.0.0 (ISC)
-414. yargs@13.2.2 (MIT)
+4. @types/fast-json-stable-stringify@2.0.0 (MIT)
+5. abab@2.0.0 (BSD*)
+6. acorn-globals@4.3.0 (MIT)
+7. acorn-walk@6.1.1 (MIT)
+8. acorn@5.7.3 (MIT)
+9. acorn@6.1.1 (MIT)
+10. ajv@6.10.0 (MIT)
+11. ansi-regex@2.1.1 (MIT)
+12. ansi-regex@3.0.0 (MIT)
+13. ansi-regex@4.1.0 (MIT)
+14. anymatch@2.0.0 (ISC)
+15. arr-diff@4.0.0 (MIT)
+16. arr-flatten@1.1.0 (MIT)
+17. arr-union@3.1.0 (MIT)
+18. array-equal@1.0.0 (MIT)
+19. array-unique@0.3.2 (MIT)
+20. asn1@0.2.4 (MIT)
+21. assert-plus@1.0.0 (MIT)
+22. assign-symbols@1.0.0 (MIT)
+23. async-each@1.0.1 (MIT)
+24. async-limiter@1.0.0 (MIT)
+25. async-validator@1.8.5 (MIT)
+26. asynckit@0.4.0 (MIT)
+27. atob@2.1.2 ((MIT OR Apache-2.0))
+28. aws-sign2@0.7.0 (Apache-2.0)
+29. aws4@1.8.0 (MIT)
+30. axios@0.18.0 (MIT)
+31. babel-runtime@6.26.0 (MIT)
+32. base@0.11.2 (MIT)
+33. batch-processor@1.0.0 (MIT)
+34. bcrypt-pbkdf@1.0.2 (BSD-3-Clause)
+35. binary-extensions@1.13.0 (MIT)
+36. braces@2.3.2 (MIT)
+37. browser-process-hrtime@0.1.3 (BSD-2-Clause)
+38. browser-split@0.0.1 (MIT)
+39. buffer-from@1.1.1 (MIT)
+40. cache-base@1.0.1 (MIT)
+41. camelcase@5.2.0 (MIT)
+42. caseless@0.12.0 (Apache-2.0)
+43. chokidar@2.1.5 (MIT)
+44. class-utils@0.3.6 (MIT)
+45. clipboard@2.0.4 (MIT)
+46. cliui@4.1.0 (ISC)
+47. clone@2.1.2 (MIT)
+48. code-point-at@1.1.0 (MIT)
+49. codemirror@5.45.0 (MIT)
+50. collection-visit@1.0.0 (MIT)
+51. combined-stream@1.0.7 (MIT)
+52. command-exists@1.2.8 (MIT)
+53. commander@2.19.0 (MIT)
+54. component-emitter@1.2.1 (MIT)
+55. copy-descriptor@0.1.1 (MIT)
+56. core-js@2.6.5 (MIT)
+57. core-util-is@1.0.2 (MIT)
+58. cross-spawn@6.0.5 (MIT)
+59. cssom@0.3.6 (MIT)
+60. cssstyle@1.2.1 (MIT)
+61. d3-array@1.2.4 (BSD-3-Clause)
+62. d3-array@2.0.3 (BSD-3-Clause)
+63. d3-axis@1.0.12 (BSD-3-Clause)
+64. d3-brush@1.0.6 (BSD-3-Clause)
+65. d3-chord@1.0.6 (BSD-3-Clause)
+66. d3-collection@1.0.7 (BSD-3-Clause)
+67. d3-color@1.2.3 (BSD-3-Clause)
+68. d3-contour@1.3.2 (BSD-3-Clause)
+69. d3-dispatch@1.0.5 (BSD-3-Clause)
+70. d3-drag@1.2.3 (BSD-3-Clause)
+71. d3-dsv@1.1.1 (BSD-3-Clause)
+72. d3-ease@1.0.5 (BSD-3-Clause)
+73. d3-fetch@1.1.2 (BSD-3-Clause)
+74. d3-force@1.2.0 (BSD-3-Clause)
+75. d3-force@2.0.0 (BSD-3-Clause)
+76. d3-format@1.3.2 (BSD-3-Clause)
+77. d3-geo@1.11.3 (BSD-3-Clause)
+78. d3-hierarchy@1.1.8 (BSD-3-Clause)
+79. d3-interpolate@1.3.2 (BSD-3-Clause)
+80. d3-path@1.0.7 (BSD-3-Clause)
+81. d3-polygon@1.0.5 (BSD-3-Clause)
+82. d3-quadtree@1.0.6 (BSD-3-Clause)
+83. d3-random@1.1.2 (BSD-3-Clause)
+84. d3-scale-chromatic@1.3.3 (BSD-3-Clause)
+85. d3-scale@2.2.2 (BSD-3-Clause)
+86. d3-scale@3.0.0 (BSD-3-Clause)
+87. d3-selection@1.4.0 (BSD-3-Clause)
+88. d3-shape@1.3.4 (BSD-3-Clause)
+89. d3-time-format@2.1.3 (BSD-3-Clause)
+90. d3-time@1.0.11 (BSD-3-Clause)
+91. d3-timer@1.0.9 (BSD-3-Clause)
+92. d3-transition@1.2.0 (BSD-3-Clause)
+93. d3-voronoi@1.1.4 (BSD-3-Clause)
+94. d3-zoom@1.7.3 (BSD-3-Clause)
+95. d3@5.9.1 (BSD-3-Clause)
+96. dagre-d3-renderer@0.5.8 (MIT)
+97. dagre-layout@0.8.8 (MIT)
+98. dashdash@1.14.1 (MIT)
+99. data-urls@1.1.0 (MIT)
+100. dayjs@1.8.11 (MIT)
+101. debug@2.6.9 (MIT)
+102. debug@3.2.6 (MIT)
+103. debug@4.1.1 (MIT)
+104. decamelize@1.2.0 (MIT)
+105. decode-uri-component@0.2.0 (MIT)
+106. deep-is@0.1.3 (MIT)
+107. deepmerge@1.5.2 (MIT)
+108. define-property@0.2.5 (MIT)
+109. define-property@1.0.0 (MIT)
+110. define-property@2.0.2 (MIT)
+111. delayed-stream@1.0.0 (MIT)
+112. delegate@3.2.0 (MIT)
+113. domexception@1.0.1 (MIT)
+114. dompurify@1.0.10 (MPL-2.0 OR Apache-2.0)
+115. ecc-jsbn@0.1.2 (MIT)
+116. electron-is-accelerator@0.1.2 (MIT)
+117. element-resize-detector@1.2.0 (MIT)
+118. element-ui@2.7.0 (MIT)
+119. emoji-regex@7.0.3 (MIT)
+120. end-of-stream@1.4.1 (MIT)
+121. escaper@2.5.3 (MIT)
+122. escodegen@1.11.1 (BSD-2-Clause)
+123. esprima@3.1.3 (BSD-2-Clause)
+124. estraverse@4.2.0 (BSD-2-Clause)
+125. esutils@2.0.2 (BSD)
+126. eve-raphael@0.5.0 (Apache*)
+127. eve@0.5.4 (Apache-2.0)
+128. event-kit@2.5.3 (MIT)
+129. execa@1.0.0 (MIT)
+130. expand-brackets@2.1.4 (MIT)
+131. extend-shallow@2.0.1 (MIT)
+132. extend-shallow@3.0.2 (MIT)
+133. extend@3.0.2 (MIT)
+134. extglob@2.0.4 (MIT)
+135. extsprintf@1.3.0 (MIT)
+136. extsprintf@1.4.0 (MIT)
+137. fast-deep-equal@2.0.1 (MIT)
+138. fast-json-stable-stringify@2.0.0 (MIT)
+139. fast-levenshtein@2.0.6 (MIT)
+140. file-icons-js@1.0.3 (MIT)
+141. fill-range@4.0.0 (MIT)
+142. find-up@3.0.0 (MIT)
+143. flowchart.js@1.11.3 (MIT)
+144. follow-redirects@1.7.0 (MIT)
+145. for-in@1.0.2 (MIT)
+146. forever-agent@0.6.1 (Apache-2.0)
+147. form-data@2.3.3 (MIT)
+148. fragment-cache@0.2.1 (MIT)
+149. fs-extra@7.0.1 (MIT)
+150. fuzzaldrin@2.1.0 (MIT)
+151. get-caller-file@2.0.5 (ISC)
+152. get-stream@4.1.0 (MIT)
+153. get-value@2.0.6 (MIT)
+154. getpass@0.1.7 (MIT)
+155. github-markdown-css@3.0.1 (MIT)
+156. glob-parent@3.1.0 (ISC)
+157. good-listener@1.2.2 (MIT)
+158. graceful-fs@4.1.15 (ISC)
+159. graphlibrary@2.2.0 (MIT)
+160. har-schema@2.0.0 (ISC)
+161. har-validator@5.1.3 (MIT)
+162. has-value@0.3.1 (MIT)
+163. has-value@1.0.0 (MIT)
+164. has-values@0.1.4 (MIT)
+165. has-values@1.0.0 (MIT)
+166. he@1.2.0 (MIT)
+167. html-encoding-sniffer@1.0.2 (MIT)
+168. html-tags@2.0.0 (MIT)
+169. http-signature@1.2.0 (MIT)
+170. iconv-lite@0.4.24 (MIT)
+171. inherits@2.0.3 (ISC)
+172. invert-kv@2.0.0 (MIT)
+173. is-accessor-descriptor@0.1.6 (MIT)
+174. is-accessor-descriptor@1.0.0 (MIT)
+175. is-binary-path@1.0.1 (MIT)
+176. is-buffer@1.1.6 (MIT)
+177. is-data-descriptor@0.1.4 (MIT)
+178. is-data-descriptor@1.0.0 (MIT)
+179. is-descriptor@0.1.6 (MIT)
+180. is-descriptor@1.0.2 (MIT)
+181. is-extendable@0.1.1 (MIT)
+182. is-extendable@1.0.1 (MIT)
+183. is-extglob@2.1.1 (MIT)
+184. is-fullwidth-code-point@1.0.0 (MIT)
+185. is-fullwidth-code-point@2.0.0 (MIT)
+186. is-glob@3.1.0 (MIT)
+187. is-glob@4.0.0 (MIT)
+188. is-number@3.0.0 (MIT)
+189. is-plain-object@2.0.4 (MIT)
+190. is-regexp@1.0.0 (MIT)
+191. is-stream@1.1.0 (MIT)
+192. is-typedarray@1.0.0 (MIT)
+193. is-windows@1.0.2 (MIT)
+194. isarray@1.0.0 (MIT)
+195. isexe@2.0.0 (ISC)
+196. isobject@2.1.0 (MIT)
+197. isobject@3.0.1 (MIT)
+198. isstream@0.1.2 (MIT)
+199. jsbn@0.1.1 (MIT)
+200. jsdom@11.12.0 (MIT)
+201. json-schema-traverse@0.4.1 (MIT)
+202. json-schema@0.2.3 (AFLv2.1,BSD)
+203. json-stringify-pretty-compact@2.0.0 (MIT)
+204. json-stringify-safe@5.0.1 (ISC)
+205. jsonfile@4.0.0 (MIT)
+206. jsprim@1.4.1 (MIT)
+207. katex@0.10.1 (MIT)
+208. keyboard-layout@2.0.15 (MIT)
+209. keyboardevents-areequal@0.2.2 (MIT)
+210. kind-of@3.2.2 (MIT)
+211. kind-of@4.0.0 (MIT)
+212. kind-of@5.1.0 (MIT)
+213. kind-of@6.0.2 (MIT)
+214. lcid@2.0.0 (MIT)
+215. left-pad@1.3.0 (WTFPL)
+216. levn@0.3.0 (MIT)
+217. locate-path@3.0.0 (MIT)
+218. lodash.escape@4.0.1 (MIT)
+219. lodash.forown@4.4.0 (MIT)
+220. lodash.kebabcase@4.1.1 (MIT)
+221. lodash.remove@4.7.0 (MIT)
+222. lodash.sortby@4.7.0 (MIT)
+223. lodash.uniq@4.5.0 (MIT)
+224. lodash@4.17.11 (MIT)
+225. map-age-cleaner@0.1.3 (MIT)
+226. map-cache@0.2.2 (MIT)
+227. map-visit@1.0.0 (MIT)
+228. mem@4.2.0 (MIT)
+229. mermaid@8.0.0 (MIT)
+230. micromatch@3.1.10 (MIT)
+231. mime-db@1.38.0 (MIT)
+232. mime-types@2.1.22 (MIT)
+233. mimic-fn@2.0.0 (MIT)
+234. mixin-deep@1.3.1 (MIT)
+235. moment@2.24.0 (MIT)
+236. ms@2.0.0 (MIT)
+237. ms@2.1.1 (MIT)
+238. nan@2.12.1 (MIT)
+239. nanomatch@1.2.13 (MIT)
+240. nice-try@1.0.5 (MIT)
+241. node-fetch@2.3.0 (MIT)
+242. normalize-path@2.1.1 (MIT)
+243. normalize-path@3.0.0 (MIT)
+244. normalize-wheel@1.0.1 (BSD-3-Clause)
+245. npm-run-path@2.0.2 (MIT)
+246. number-is-nan@1.0.1 (MIT)
+247. nwsapi@2.1.1 (MIT)
+248. oauth-sign@0.9.0 (Apache-2.0)
+249. object-assign@4.1.1 (MIT)
+250. object-copy@0.1.0 (MIT)
+251. object-visit@1.0.1 (MIT)
+252. object.pick@1.3.0 (MIT)
+253. once@1.4.0 (ISC)
+254. optionator@0.8.2 (MIT)
+255. os-locale@3.1.0 (MIT)
+256. p-defer@1.0.0 (MIT)
+257. p-finally@1.0.0 (MIT)
+258. p-is-promise@2.0.0 (MIT)
+259. p-limit@2.2.0 (MIT)
+260. p-locate@3.0.0 (MIT)
+261. p-try@2.0.0 (MIT)
+262. parse-sel@1.0.0 (MIT)
+263. parse5@4.0.0 (MIT)
+264. pascalcase@0.1.1 (MIT)
+265. path-dirname@1.0.2 (MIT)
+266. path-exists@3.0.0 (MIT)
+267. path-is-absolute@1.0.1 (MIT)
+268. path-key@2.0.1 (MIT)
+269. performance-now@2.1.0 (MIT)
+270. pn@1.1.0 (MIT)
+271. popper.js@1.14.7 (MIT)
+272. posix-character-classes@0.1.1 (MIT)
+273. prelude-ls@1.1.2 (MIT)
+274. prismjs2@1.15.1 (MIT)
+275. process-nextick-args@2.0.0 (MIT)
+276. psl@1.1.31 (MIT)
+277. pump@3.0.0 (MIT)
+278. punycode@1.4.1 (MIT)
+279. punycode@2.1.1 (MIT)
+280. qs@6.5.2 (BSD-3-Clause)
+281. raphael@2.2.7 (MIT)
+282. readable-stream@2.3.6 (MIT)
+283. readdirp@2.2.1 (MIT)
+284. regenerator-runtime@0.11.1 (MIT)
+285. regex-not@1.0.2 (MIT)
+286. remove-trailing-separator@1.1.0 (ISC)
+287. repeat-element@1.1.3 (MIT)
+288. repeat-string@1.6.1 (MIT)
+289. request-promise-core@1.1.2 (ISC)
+290. request-promise-native@1.0.7 (ISC)
+291. request@2.88.0 (Apache-2.0)
+292. require-directory@2.1.1 (MIT)
+293. require-main-filename@2.0.0 (ISC)
+294. resize-observer-polyfill@1.5.1 (MIT)
+295. resolve-url@0.2.1 (MIT)
+296. ret@0.1.15 (MIT)
+297. rw@1.3.3 (BSD-3-Clause)
+298. safe-buffer@5.1.2 (MIT)
+299. safe-regex@1.1.0 (MIT)
+300. safer-buffer@2.1.2 (MIT)
+301. sax@1.2.4 (ISC)
+302. scope-css@1.2.1 (MIT)
+303. select@1.1.2 (MIT)
+304. semver@5.6.0 (ISC)
+305. set-blocking@2.0.0 (ISC)
+306. set-value@0.4.3 (MIT)
+307. set-value@2.0.0 (MIT)
+308. shebang-command@1.2.0 (MIT)
+309. shebang-regex@1.0.0 (MIT)
+310. signal-exit@3.0.2 (ISC)
+311. slugify@1.3.4 (MIT)
+312. snabbdom-to-html@5.1.1 (MIT)
+313. snabbdom@0.7.3 (MIT)
+314. snapdragon-node@2.1.1 (MIT)
+315. snapdragon-util@3.0.1 (MIT)
+316. snapdragon@0.8.2 (MIT)
+317. snapsvg@0.5.1 (Apache-2.0)
+318. source-map-resolve@0.5.2 (MIT)
+319. source-map-support@0.5.11 (MIT)
+320. source-map-url@0.4.0 (MIT)
+321. source-map@0.5.7 (BSD-3-Clause)
+322. source-map@0.6.1 (BSD-3-Clause)
+323. split-string@3.1.0 (MIT)
+324. sshpk@1.16.1 (MIT)
+325. static-extend@0.1.2 (MIT)
+326. stealthy-require@1.1.1 (ISC)
+327. string-width@1.0.2 (MIT)
+328. string-width@2.1.1 (MIT)
+329. string-width@3.1.0 (MIT)
+330. string_decoder@1.1.1 (MIT)
+331. strip-ansi@3.0.1 (MIT)
+332. strip-ansi@4.0.0 (MIT)
+333. strip-ansi@5.1.0 (MIT)
+334. strip-css-comments@3.0.0 (MIT)
+335. strip-eof@1.0.0 (MIT)
+336. symbol-tree@3.2.2 (MIT)
+337. throttle-debounce@1.1.0 (MIT)
+338. tiny-emitter@2.1.0 (MIT)
+339. to-object-path@0.3.0 (MIT)
+340. to-regex-range@2.1.1 (MIT)
+341. to-regex@3.0.2 (MIT)
+342. topojson-client@3.0.0 (BSD-3-Clause)
+343. tough-cookie@2.4.3 (BSD-3-Clause)
+344. tough-cookie@2.5.0 (BSD-3-Clause)
+345. tr46@1.0.1 (MIT)
+346. tslib@1.9.3 (Apache-2.0)
+347. tunnel-agent@0.6.0 (Apache-2.0)
+348. turndown-plugin-gfm@1.0.2 (MIT)
+349. turndown@5.0.3 (MIT)
+350. tweetnacl@0.14.5 (Unlicense)
+351. type-check@0.3.2 (MIT)
+352. underscore@1.9.1 (MIT)
+353. union-value@1.0.0 (MIT)
+354. universalify@0.1.2 (MIT)
+355. unset-value@1.0.0 (MIT)
+356. upath@1.1.2 (MIT)
+357. uri-js@4.2.2 (BSD-2-Clause)
+358. urix@0.1.0 (MIT)
+359. use@3.1.1 (MIT)
+360. util-deprecate@1.0.2 (MIT)
+361. uuid@3.3.2 (MIT)
+362. vega-canvas@1.2.1 (BSD-3-Clause)
+363. vega-crossfilter@4.0.1 (BSD-3-Clause)
+364. vega-dataflow@5.2.0 (BSD-3-Clause)
+365. vega-dataflow@5.2.1 (BSD-3-Clause)
+366. vega-embed@4.0.0 (BSD-3-Clause)
+367. vega-encode@4.2.1 (BSD-3-Clause)
+368. vega-event-selector@2.0.0 (BSD-3-Clause)
+369. vega-expression@2.5.0 (BSD-3-Clause)
+370. vega-expression@2.6.0 (BSD-3-Clause)
+371. vega-force@4.0.1 (BSD-3-Clause)
+372. vega-functions@5.2.0 (BSD-3-Clause)
+373. vega-geo@4.0.1 (BSD-3-Clause)
+374. vega-hierarchy@4.0.1 (BSD-3-Clause)
+375. vega-lite@3.0.3 (BSD-3-Clause)
+376. vega-loader@4.0.0 (BSD-3-Clause)
+377. vega-parser@5.6.2 (BSD-3-Clause)
+378. vega-projection@1.2.1 (BSD-3-Clause)
+379. vega-runtime@5.0.1 (BSD-3-Clause)
+380. vega-scale@4.1.0 (BSD-3-Clause)
+381. vega-scale@4.1.1 (BSD-3-Clause)
+382. vega-scenegraph@4.1.0 (BSD-3-Clause)
+383. vega-schema-url-parser@1.1.0 (BSD-3-Clause)
+384. vega-selections@5.0.0 (BSD-3-Clause)
+385. vega-statistics@1.3.0 (BSD-3-Clause)
+386. vega-statistics@1.3.1 (BSD-3-Clause)
+387. vega-themes@2.3.0 (BSD-3-Clause)
+388. vega-tooltip@0.17.0 (BSD-3-Clause)
+389. vega-transforms@4.0.2 (BSD-3-Clause)
+390. vega-typings@0.6.2 (BSD-3-Clause)
+391. vega-util@1.10.0 (BSD-3-Clause)
+392. vega-view-transforms@4.3.0 (BSD-3-Clause)
+393. vega-view@5.2.1 (BSD-3-Clause)
+394. vega-voronoi@4.0.1 (BSD-3-Clause)
+395. vega-wordcloud@4.0.2 (BSD-3-Clause)
+396. vega@5.3.2 (BSD-3-Clause)
+397. verror@1.10.0 (MIT)
+398. view-image@0.0.1 (MIT)
+399. vue-electron@1.0.6 (ISC)
+400. vue@2.6.10 (MIT)
+401. vuex@3.1.0 (MIT)
+402. w3c-hr-time@1.0.1 (MIT)
+403. webidl-conversions@4.0.2 (BSD-2-Clause)
+404. whatwg-encoding@1.0.5 (MIT)
+405. whatwg-mimetype@2.3.0 (MIT)
+406. whatwg-url@6.5.0 (MIT)
+407. whatwg-url@7.0.0 (MIT)
+408. which-module@2.0.0 (ISC)
+409. which@1.3.1 (ISC)
+410. wordwrap@1.0.0 (MIT)
+411. wrap-ansi@2.1.0 (MIT)
+412. wrappy@1.0.2 (ISC)
+413. ws@5.2.2 (MIT)
+414. xml-name-validator@3.0.0 (Apache-2.0)
+415. y18n@4.0.0 (ISC)
+416. yargs-parser@13.0.0 (ISC)
+417. yargs@13.2.2 (MIT)
 
 
 -------------------------------------------------
@@ -499,6 +502,32 @@ Additional Details
 
 # Credits
 These definitions were written by Kieran Simpson <https://github.com/kierans/DefinitelyTyped>.
+
+
+
+# @types/fast-json-stable-stringify@2.0.0 (MIT)
+-------------------------------------------------
+MIT License
+
+    Copyright (c) Microsoft Corporation. All rights reserved.
+
+    Permission is hereby granted, free of charge, to any person obtaining a copy
+    of this software and associated documentation files (the "Software"), to deal
+    in the Software without restriction, including without limitation the rights
+    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+    copies of the Software, and to permit persons to whom the Software is
+    furnished to do so, subject to the following conditions:
+
+    The above copyright notice and this permission notice shall be included in all
+    copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+    SOFTWARE
 
 
 
@@ -1864,19 +1893,19 @@ END OF TERMS AND CONDITIONS
 
 
 
-# chokidar@2.1.2 (MIT)
+# chokidar@2.1.5 (MIT)
 -------------------------------------------------
 # Chokidar [![Weekly downloads](https://img.shields.io/npm/dw/chokidar.svg)](https://github.com/paulmillr/chokidar) [![Yearly downloads](https://img.shields.io/npm/dy/chokidar.svg)](https://github.com/paulmillr/chokidar) [![Mac/Linux Build Status](https://img.shields.io/travis/paulmillr/chokidar/master.svg?label=Mac%20OSX%20%26%20Linux)](https://travis-ci.org/paulmillr/chokidar) [![Windows Build status](https://img.shields.io/appveyor/ci/paulmillr/chokidar/master.svg?label=Windows)](https://ci.appveyor.com/project/paulmillr/chokidar/branch/master) [![Coverage Status](https://coveralls.io/repos/paulmillr/chokidar/badge.svg)](https://coveralls.io/r/paulmillr/chokidar)
 
-> A neat wrapper around node.js fs.watch / fs.watchFile / fsevents.
+> A neat wrapper around node.js fs.watch / fs.watchFile / FSEvents.
 
 [![NPM](https://nodei.co/npm/chokidar.png)](https://www.npmjs.com/package/chokidar)
 
 ## Why?
 Node.js `fs.watch`:
 
-* Doesn't report filenames on OS X.
-* Doesn't report events at all when using editors like Sublime on OS X.
+* Doesn't report filenames on MacOS.
+* Doesn't report events at all when using editors like Sublime on MacOS.
 * Often reports events twice.
 * Emits most changes as `rename`.
 * Has [a lot of other issues](https://github.com/nodejs/node/search?q=fs.watch&type=Issues)
@@ -1906,7 +1935,7 @@ Chokidar does still rely on the Node.js core `fs` module, but when using
 `fs.watch` and `fs.watchFile` for watching, it normalizes the events it
 receives, often checking for truth by getting file stats and/or dir contents.
 
-On Mac OS X, chokidar by default uses a native extension exposing the Darwin
+On MacOS, chokidar by default uses a native extension exposing the Darwin
 `FSEvents` API. This provides very efficient recursive watching compared with
 implementations like `kqueue` available on most \*nix platforms. Chokidar still
 does have to do some work to normalize the events received that way as well.
@@ -1920,7 +1949,9 @@ more than needed.
 ## Getting started
 Install with npm:
 
-    npm install chokidar --save
+```sh
+npm install chokidar
+```
 
 Then `require` and use it in your code:
 
@@ -2046,7 +2077,7 @@ Whether to use fs.watchFile (backed by polling), or fs.watch. If polling
 leads to high CPU utilization, consider setting this to `false`. It is
 typically necessary to **set this to `true` to successfully watch files over
 a network**, and it may be necessary to successfully watch files in other
-non-standard situations. Setting to `true` explicitly on OS X overrides the
+non-standard situations. Setting to `true` explicitly on MacOS overrides the
 `useFsEvents` default. You may also set the CHOKIDAR_USEPOLLING env variable
 to true (1) or false (0) in order to override this option.
 * _Polling-specific settings_ (effective when `usePolling: true`)
@@ -2055,10 +2086,10 @@ to true (1) or false (0) in order to override this option.
   * `binaryInterval` (default: `300`). Interval of file system
   polling for binary files.
   ([see list of binary extensions](https://github.com/sindresorhus/binary-extensions/blob/master/binary-extensions.json))
-* `useFsEvents` (default: `true` on OS X). Whether to use the
+* `useFsEvents` (default: `true` on MacOS). Whether to use the
 `fsevents` watching interface if available. When set to `true` explicitly
 and `fsevents` is available this supercedes the `usePolling` setting. When
-set to `false` on OS X, `usePolling: true` becomes the default.
+set to `false` on MacOS, `usePolling: true` becomes the default.
 * `alwaysStat` (default: `false`). If relying upon the
 [`fs.Stats`](http://nodejs.org/api/fs.html#fs_class_fs_stats)
 object that may get passed with `add`, `addDir`, and `change` events, set
@@ -3603,6 +3634,38 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 
+# d3-scale@3.0.0 (BSD-3-Clause)
+-------------------------------------------------
+Copyright 2010-2015 Mike Bostock
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without modification,
+are permitted provided that the following conditions are met:
+
+* Redistributions of source code must retain the above copyright notice, this
+  list of conditions and the following disclaimer.
+
+* Redistributions in binary form must reproduce the above copyright notice,
+  this list of conditions and the following disclaimer in the documentation
+  and/or other materials provided with the distribution.
+
+* Neither the name of the author nor the names of contributors may be used to
+  endorse or promote products derived from this software without specific prior
+  written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
+ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
+ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+
+
 # d3-selection@1.4.0 (BSD-3-Clause)
 -------------------------------------------------
 Copyright (c) 2010-2018, Michael Bostock
@@ -4912,7 +4975,7 @@ SOFTWARE.
 
 
 
-# element-ui@2.6.1 (MIT)
+# element-ui@2.7.0 (MIT)
 -------------------------------------------------
 The MIT License (MIT)
 
@@ -8216,33 +8279,6 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
-
-
-
-# marktext@0.13.65 (MIT)
--------------------------------------------------
-MIT License
-
-Copyright (c) 2017-Present Luo Ran
-Copyright (c) 2018 Mark Text Contributors
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
 
 
 
@@ -12967,7 +13003,39 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 
-# vega-embed@4.0.0-rc1 (BSD-3-Clause)
+# vega-dataflow@5.2.1 (BSD-3-Clause)
+-------------------------------------------------
+Copyright (c) 2015-2018, University of Washington Interactive Data Lab
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+
+1. Redistributions of source code must retain the above copyright notice, this
+   list of conditions and the following disclaimer.
+
+2. Redistributions in binary form must reproduce the above copyright notice,
+   this list of conditions and the following disclaimer in the documentation
+   and/or other materials provided with the distribution.
+
+3. Neither the name of the copyright holder nor the names of its contributors
+  may be used to endorse or promote products derived from this software
+  without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+
+
+# vega-embed@4.0.0 (BSD-3-Clause)
 -------------------------------------------------
 Copyright (c) 2015, University of Washington Interactive Data Lab
 All rights reserved.
@@ -12999,7 +13067,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 
-# vega-encode@4.2.0 (BSD-3-Clause)
+# vega-encode@4.2.1 (BSD-3-Clause)
 -------------------------------------------------
 Copyright (c) 2015-2018, University of Washington Interactive Data Lab
 All rights reserved.
@@ -13095,6 +13163,38 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 
+# vega-expression@2.6.0 (BSD-3-Clause)
+-------------------------------------------------
+Copyright (c) 2015-2018, University of Washington Interactive Data Lab
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+
+1. Redistributions of source code must retain the above copyright notice, this
+   list of conditions and the following disclaimer.
+
+2. Redistributions in binary form must reproduce the above copyright notice,
+   this list of conditions and the following disclaimer in the documentation
+   and/or other materials provided with the distribution.
+
+3. Neither the name of the copyright holder nor the names of its contributors
+  may be used to endorse or promote products derived from this software
+  without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+
+
 # vega-force@4.0.1 (BSD-3-Clause)
 -------------------------------------------------
 # vega-force
@@ -13107,7 +13207,7 @@ This package provides the following Vega data transform:
 
 
 
-# vega-functions@5.1.1 (BSD-3-Clause)
+# vega-functions@5.2.0 (BSD-3-Clause)
 -------------------------------------------------
 Copyright (c) 2015-2018, University of Washington Interactive Data Lab
 All rights reserved.
@@ -13180,7 +13280,7 @@ This pacakge provides the following Vega data transforms:
 
 
 
-# vega-lite@3.0.0-rc15 (BSD-3-Clause)
+# vega-lite@3.0.3 (BSD-3-Clause)
 -------------------------------------------------
 Copyright (c) 2015, University of Washington Interactive Data Lab.
 All rights reserved.
@@ -13244,7 +13344,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 
-# vega-parser@5.6.0 (BSD-3-Clause)
+# vega-parser@5.6.2 (BSD-3-Clause)
 -------------------------------------------------
 Copyright (c) 2015-2018, University of Washington Interactive Data Lab
 All rights reserved.
@@ -13341,6 +13441,38 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 # vega-scale@4.1.0 (BSD-3-Clause)
+-------------------------------------------------
+Copyright (c) 2015-2018, University of Washington Interactive Data Lab
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+
+1. Redistributions of source code must retain the above copyright notice, this
+   list of conditions and the following disclaimer.
+
+2. Redistributions in binary form must reproduce the above copyright notice,
+   this list of conditions and the following disclaimer in the documentation
+   and/or other materials provided with the distribution.
+
+3. Neither the name of the copyright holder nor the names of its contributors
+  may be used to endorse or promote products derived from this software
+  without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+
+
+# vega-scale@4.1.1 (BSD-3-Clause)
 -------------------------------------------------
 Copyright (c) 2015-2018, University of Washington Interactive Data Lab
 All rights reserved.
@@ -13502,140 +13634,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 
-# vega-themes@2.2.0 (BSD-3-Clause)
--------------------------------------------------
-Copyright (c) 2016, University of Washington Interactive Data Lab
-All rights reserved.
-
-Redistribution and use in source and binary forms, with or without
-modification, are permitted provided that the following conditions are met:
-
-1. Redistributions of source code must retain the above copyright notice, this
-   list of conditions and the following disclaimer.
-
-2. Redistributions in binary form must reproduce the above copyright notice,
-   this list of conditions and the following disclaimer in the documentation
-   and/or other materials provided with the distribution.
-
-3. Neither the name of the copyright holder nor the names of its contributors
-  may be used to endorse or promote products derived from this software
-  without specific prior written permission.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE
-FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
-
-
-# vega-tooltip@0.16.0 (BSD-3-Clause)
--------------------------------------------------
-Copyright 2016 Interactive Data Lab and contributors
-
-Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
-
-1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
-
-2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
-
-3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
-
-
-# vega-transforms@4.0.1 (BSD-3-Clause)
--------------------------------------------------
-# vega-transforms
-
-Data processing transforms for Vega dataflows.
-
-This package provides the following Vega data transforms:
-
-- [**Aggregate**](https://vega.github.io/vega/docs/transforms/aggregate/) [&lt;&gt;](https://github.com/vega/vega/blob/master/packages/vega-transforms/src/Aggregate.js "Source")
-- [**Bin**](https://vega.github.io/vega/docs/transforms/bin/) [&lt;&gt;](https://github.com/vega/vega/blob/master/packages/vega-transforms/src/Bin.js "Source")
-- [**Collect**](https://vega.github.io/vega/docs/transforms/collect/) [&lt;&gt;](https://github.com/vega/vega/blob/master/packages/vega-transforms/src/Collect.js "Source")
-- [**CountPattern**](https://vega.github.io/vega/docs/transforms/countpattern/) [&lt;&gt;](https://github.com/vega/vega/blob/master/packages/vega-transforms/src/CountPattern.js "Source")
-- [**Cross**](https://vega.github.io/vega/docs/transforms/cross/) [&lt;&gt;](https://github.com/vega/vega/blob/master/packages/vega-transforms/src/Cross.js "Source")
-- [**Density**](https://vega.github.io/vega/docs/transforms/density/) [&lt;&gt;](https://github.com/vega/vega/blob/master/packages/vega-transforms/src/Density.js "Source")
-- [**Extent**](https://vega.github.io/vega/docs/transforms/extent/) [&lt;&gt;](https://github.com/vega/vega/blob/master/packages/vega-transforms/src/Extent.js "Source")
-- [**Filter**](https://vega.github.io/vega/docs/transforms/filter/) [&lt;&gt;](https://github.com/vega/vega/blob/master/packages/vega-transforms/src/Filter.js "Source")
-- [**Flatten**](https://vega.github.io/vega/docs/transforms/flatten/) [&lt;&gt;](https://github.com/vega/vega/blob/master/packages/vega-transforms/src/Flatten.js "Source")
-- [**Fold**](https://vega.github.io/vega/docs/transforms/fold/) [&lt;&gt;](https://github.com/vega/vega/blob/master/packages/vega-transforms/src/Fold.js "Source")
-- [**Formula**](https://vega.github.io/vega/docs/transforms/formula/) [&lt;&gt;](https://github.com/vega/vega/blob/master/packages/vega-transforms/src/Formula.js "Source")
-- [**Impute**](https://vega.github.io/vega/docs/transforms/Impute/) [&lt;&gt;](https://github.com/vega/vega/blob/master/packages/vega-transforms/src/impute.js "Source")
-- [**JoinAggregate**](https://vega.github.io/vega/docs/transforms/joinaggregate/) [&lt;&gt;](https://github.com/vega/vega/blob/master/packages/vega-transforms/src/JoinAggregate.js "Source")
-- [**Lookup**](https://vega.github.io/vega/docs/transforms/lookup/) [&lt;&gt;](https://github.com/vega/vega/blob/master/packages/vega-transforms/src/Lookup.js "Source")
-- [**Pivot**](https://vega.github.io/vega/docs/transforms/pivot/) [&lt;&gt;](https://github.com/vega/vega/blob/master/packages/vega-transforms/src/Pivot.js "Source")
-- [**Project**](https://vega.github.io/vega/docs/transforms/project/) [&lt;&gt;](https://github.com/vega/vega/blob/master/packages/vega-transforms/src/Project.js "Source")
-- [**Sample**](https://vega.github.io/vega/docs/transforms/sample/) [&lt;&gt;](https://github.com/vega/vega/blob/master/packages/vega-transforms/src/Sample.js "Source")
-- [**Sequence**](https://vega.github.io/vega/docs/transforms/sequence/) [&lt;&gt;](https://github.com/vega/vega/blob/master/packages/vega-transforms/src/Sequence.js "Source")
-- [**Window**](https://vega.github.io/vega/docs/transforms/window/) [&lt;&gt;](https://github.com/vega/vega/blob/master/packages/vega-transforms/src/Window.js "Source")
-
-And provides the following internal transforms:
-
-- **Compare** [&lt;&gt;](https://github.com/vega/vega/blob/master/packages/vega-transforms/src/Compare.js "Source")
-- **Expression** [&lt;&gt;](https://github.com/vega/vega/blob/master/packages/vega-transforms/src/Expression.js "Source")
-- **Facet** [&lt;&gt;](https://github.com/vega/vega/blob/master/packages/vega-transforms/src/Facet.js "Source")
-- **Field** [&lt;&gt;](https://github.com/vega/vega/blob/master/packages/vega-transforms/src/Field.js "Source")
-- **Generate** [&lt;&gt;](https://github.com/vega/vega/blob/master/packages/vega-transforms/src/Generate.js "Source")
-- **Key** [&lt;&gt;](https://github.com/vega/vega/blob/master/packages/vega-transforms/src/Key.js "Source")
-- **MultiExtent** [&lt;&gt;](https://github.com/vega/vega/blob/master/packages/vega-transforms/src/MultiExtent.js "Source")
-- **MultiValues** [&lt;&gt;](https://github.com/vega/vega/blob/master/packages/vega-transforms/src/MultiValues.js "Source")
-- **Params** [&lt;&gt;](https://github.com/vega/vega/blob/master/packages/vega-transforms/src/Params.js "Source")
-- **PreFacet** [&lt;&gt;](https://github.com/vega/vega/blob/master/packages/vega-transforms/src/PreFacet.js "Source")
-- **Proxy** [&lt;&gt;](https://github.com/vega/vega/blob/master/packages/vega-transforms/src/Proxy.js "Source")
-- **Relay** [&lt;&gt;](https://github.com/vega/vega/blob/master/packages/vega-transforms/src/Relay.js "Source")
-- **Sieve** [&lt;&gt;](https://github.com/vega/vega/blob/master/packages/vega-transforms/src/Sieve.js "Source")
-- **Subflow** [&lt;&gt;](https://github.com/vega/vega/blob/master/packages/vega-transforms/src/Subflow.js "Source")
-- **TupleIndex** [&lt;&gt;](https://github.com/vega/vega/blob/master/packages/vega-transforms/src/TupleIndex.js "Source")
-- **Values** [&lt;&gt;](https://github.com/vega/vega/blob/master/packages/vega-transforms/src/Values.js "Source")
-
-For more information about data stream transforms, see the [Vega transform documentation](https://vega.github.io/vega/docs/transforms/).
-
-
-
-# vega-typings@0.3.53 (BSD*)
--------------------------------------------------
-BSD 3-Clause License
-
-Copyright (c) 2018, Vega
-All rights reserved.
-
-Redistribution and use in source and binary forms, with or without
-modification, are permitted provided that the following conditions are met:
-
-* Redistributions of source code must retain the above copyright notice, this
-  list of conditions and the following disclaimer.
-
-* Redistributions in binary form must reproduce the above copyright notice,
-  this list of conditions and the following disclaimer in the documentation
-  and/or other materials provided with the distribution.
-
-* Neither the name of the copyright holder nor the names of its
-  contributors may be used to endorse or promote products derived from
-  this software without specific prior written permission.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
-
-
-# vega-typings@0.5.7 (BSD-3-Clause)
+# vega-statistics@1.3.1 (BSD-3-Clause)
 -------------------------------------------------
 Copyright (c) 2015-2018, University of Washington Interactive Data Lab
 All rights reserved.
@@ -13667,7 +13666,87 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 
-# vega-typings@0.6.0 (BSD-3-Clause)
+# vega-themes@2.3.0 (BSD-3-Clause)
+-------------------------------------------------
+Copyright (c) 2016, University of Washington Interactive Data Lab
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+
+1. Redistributions of source code must retain the above copyright notice, this
+   list of conditions and the following disclaimer.
+
+2. Redistributions in binary form must reproduce the above copyright notice,
+   this list of conditions and the following disclaimer in the documentation
+   and/or other materials provided with the distribution.
+
+3. Neither the name of the copyright holder nor the names of its contributors
+  may be used to endorse or promote products derived from this software
+  without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+
+
+# vega-tooltip@0.17.0 (BSD-3-Clause)
+-------------------------------------------------
+Copyright 2016 Interactive Data Lab and contributors
+
+Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+
+1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+
+2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+
+3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+
+
+# vega-transforms@4.0.2 (BSD-3-Clause)
+-------------------------------------------------
+Copyright (c) 2015-2018, University of Washington Interactive Data Lab
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+
+1. Redistributions of source code must retain the above copyright notice, this
+   list of conditions and the following disclaimer.
+
+2. Redistributions in binary form must reproduce the above copyright notice,
+   this list of conditions and the following disclaimer in the documentation
+   and/or other materials provided with the distribution.
+
+3. Neither the name of the copyright holder nor the names of its contributors
+  may be used to endorse or promote products derived from this software
+  without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+
+
+# vega-typings@0.6.2 (BSD-3-Clause)
 -------------------------------------------------
 Copyright (c) 2015-2018, University of Washington Interactive Data Lab
 All rights reserved.
@@ -13763,7 +13842,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 
-# vega-view@5.2.0 (BSD-3-Clause)
+# vega-view@5.2.1 (BSD-3-Clause)
 -------------------------------------------------
 Copyright (c) 2015-2018, University of Washington Interactive Data Lab
 All rights reserved.
@@ -13827,7 +13906,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 
-# vega-wordcloud@4.0.1 (BSD-3-Clause)
+# vega-wordcloud@4.0.2 (BSD-3-Clause)
 -------------------------------------------------
 Copyright (c) 2015-2018, University of Washington Interactive Data Lab
 All rights reserved.
@@ -13859,7 +13938,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 
-# vega@5.2.0 (BSD-3-Clause)
+# vega@5.3.2 (BSD-3-Clause)
 -------------------------------------------------
 Copyright (c) 2015-2018, University of Washington Interactive Data Lab
 All rights reserved.
@@ -14124,7 +14203,7 @@ THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH RE
 
 
 
-# vue@2.6.8 (MIT)
+# vue@2.6.10 (MIT)
 -------------------------------------------------
 The MIT License (MIT)
 
