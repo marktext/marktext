@@ -2,7 +2,7 @@ import { beginRules, inlineRules } from './rules'
 import { isLengthEven, union } from '../utils'
 import { punctuation, WHITELIST_ATTRIBUTES } from '../config'
 
-const CAN_NEST_RULES = ['strong', 'em', 'link', 'del', 'image', 'a_link'] // image can not nest but it has children
+// const CAN_NEST_RULES = ['strong', 'em', 'link', 'del', 'a_link', 'reference_link', 'html_tag']
 // disallowed html tags in https://github.github.com/gfm/#raw-html
 const disallowedHtmlTag = /(?:title|textarea|style|xmp|iframe|noembed|noframes|script|plaintext)/i
 const validateRules = Object.assign({}, inlineRules)
@@ -503,6 +503,7 @@ const tokenizerFac = (src, beginRules, inlineRules, pos = 0, top, labels) => {
 
 export const tokenizer = (src, highlights = [], hasBeginRules = true, labels = new Map()) => {
   const tokens = tokenizerFac(src, hasBeginRules ? beginRules : null, inlineRules, 0, true, labels)
+
   const postTokenizer = tokens => {
     for (const token of tokens) {
       for (const light of highlights) {
@@ -515,7 +516,7 @@ export const tokenizer = (src, highlights = [], hasBeginRules = true, labels = n
           }
         }
       }
-      if (CAN_NEST_RULES.indexOf(token.type) > -1) {
+      if (token.children && Array.isArray(token.children)) {
         postTokenizer(token.children)
       }
     }
