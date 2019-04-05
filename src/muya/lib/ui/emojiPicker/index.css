@@ -53,6 +53,7 @@
   font-size: 26px;
   text-align: center;
   line-height: 42px;
+  color: var(--editorColor);
   transition: transform .2s ease-in;
   transform-origin: center;
 }
