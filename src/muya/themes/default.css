@@ -318,14 +318,6 @@ h6 p {
   margin-top: 0;
 }
 
-li.ag-paragraph {
-  color: var(--themeColor);
-}
-
-li > * {
-  color: var(--editorColor);
-}
-
 li p.first {
   display: inline-block;
 }
@@ -369,10 +361,6 @@ blockquote::before {
 
 blockquote blockquote {
   padding-right: 0;
-}
-
-blockquote li > * {
-  color: var(--editorColor50);
 }
 
 table {
