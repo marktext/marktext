@@ -7,13 +7,15 @@
     <summary>Next generation markdown editor</summary>
     <description>
         <p>
-            Mark Text is a free and open-source realtime preview markdown editor which support both CommonMark Spec and GitHub Flavored Markdown Spec. It is a concise text editor, dedicated to improving your editing efficiency.
+            Mark Text is a free and open-source realtime preview markdown editor which support both CommonMark Spec and GitHub Flavored Markdown Spec. It is a concise text editor, dedicated to improving your writing efficiency.
         </p>
         <p>Features:</p>
         <ul>
+            <li>Realtime preview (WYSIWYG) and a clean and simple interface to get a distraction-free writing experience</li>
             <li>GitHub Flavored Markdown like task-lists, tables, links and emojis</li>
             <li>Markdown extensions such as math expressions (KaTeX) and front matter</li>
             <li>Code fence for all the popular languages</li>
+            <li>Support paragraphs and inline style shortcuts to improve your writing efficiency</li>
             <li>Various edit modes and themes: source code mode, typewriter mode, focus mode</li>
     ​    </ul>
     </description>
