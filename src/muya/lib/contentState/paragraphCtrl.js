@@ -87,6 +87,7 @@ const paragraphCtrl = ContentState => {
 
   ContentState.prototype.handleListMenu = function (paraType, insertMode) {
     const { start, end, affiliation } = this.selectionChange(this.cursor)
+    const { orderListMarker, bulletListMarker } = this
     const [blockType, listType] = paraType.split('-')
     const isListed = affiliation.slice(0, 3).filter(b => /ul|ol/.test(b.type))
     const { preferLooseListItem } = this
@@ -113,13 +114,23 @@ const paragraphCtrl = ContentState => {
           inputBlock && this.removeBlock(inputBlock)
         })
       }
+      const oldListType = listBlock.listType
       listBlock.type = blockType
       listBlock.listType = listType
       listBlock.children.forEach(b => (b.listItemType = listType))
 
       if (listType === 'order') {
         listBlock.start = listBlock.start || 1
+        listBlock.children.forEach(b => (b.bulletMarkerOrDelimiter = orderListMarker))
       }
+      if (
+        (listType === 'bullet' && oldListType === 'order') ||
+        (listType === 'task' && oldListType === 'order')
+      ) {
+        delete listBlock.start
+        listBlock.children.forEach(b => (b.bulletMarkerOrDelimiter = bulletListMarker))
+      }
+
       // if the new block is task list, add checkbox
       if (listType === 'task') {
         const listItems = listBlock.children

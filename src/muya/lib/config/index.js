@@ -234,6 +234,7 @@ export const MUYA_DEFAULT_OPTION = {
   autoPairMarkdownSyntax: true,
   autoPairQuote: true,
   bulletListMarker: '-',
+  orderListMarker: '.',
   tabSize: 4,
   sequenceTheme: 'hand', // hand or simple
   mermaidTheme: 'forest', // dark or forest
