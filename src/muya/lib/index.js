@@ -150,8 +150,16 @@ class Muya {
     this.contentState.updateParagraph(type)
   }
 
-  insertParagraph (location/* before or after */) {
-    this.contentState.insertParagraph(location)
+  duplicate () {
+    this.contentState.duplicate()
+  }
+
+  deleteParagraph () {
+    this.contentState.deleteParagraph()
+  }
+
+  insertParagraph (location/* before or after */, text = '', outMost = false) {
+    this.contentState.insertParagraph(location, text, outMost)
   }
 
   editTable (data) {

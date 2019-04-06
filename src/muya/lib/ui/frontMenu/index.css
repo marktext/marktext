@@ -22,6 +22,7 @@
   align-items: center;
   cursor: pointer;
   position: relative;
+  user-select: none;
 }
 
 .ag-front-menu > ul li:hover {

@@ -83,6 +83,7 @@ class FrontMenu extends BaseFloat {
 
   render () {
     const { oldVnode, frontMenuContainer, block } = this
+    const { type, functionType } = block
     const children = menu.map(({ icon, label, text, shortCut }) => {
       const subMenu = getSubMenu(block)
       const iconWrapperSelector = 'div.icon-wrapper'
@@ -109,6 +110,10 @@ class FrontMenu extends BaseFloat {
       if (label === 'turnInto' && subMenu.length === 0) {
         itemSelector += `.disabled`
       }
+      // front matter can not be duplicated.
+      if (label === 'duplicate' && type === 'pre' && functionType === 'frontmatter') {
+        itemSelector += `.disabled`
+      }
       return h(itemSelector, {
         on: {
           click: event => {
@@ -131,6 +136,11 @@ class FrontMenu extends BaseFloat {
   selectItem (event, { label }) {
     event.preventDefault()
     event.stopPropagation()
+    const { type, functionType } = this.block
+    // front matter can not be duplicated.
+    if (label === 'duplicate' && type === 'pre' && functionType === 'frontmatter') {
+      return
+    }
     const { contentState } = this.muya
     contentState.selectedBlock = null
     switch (label) {
@@ -147,8 +157,8 @@ class FrontMenu extends BaseFloat {
         break
       }
       case 'turnInto':
-        // do nothing
-        break
+        // do nothing, do not hide float box.
+        return
       default:
         contentState.updateParagraph(label)
         break

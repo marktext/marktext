@@ -244,6 +244,9 @@
         bus.$on('copyAsMarkdown', this.handleCopyPaste)
         bus.$on('copyAsHtml', this.handleCopyPaste)
         bus.$on('pasteAsPlainText', this.handleCopyPaste)
+        bus.$on('duplicate', this.handleParagraph)
+        bus.$on('createParagraph', this.handleParagraph)
+        bus.$on('deleteParagraph', this.handleParagraph)
         bus.$on('insertParagraph', this.handleInsertParagraph)
         bus.$on('editTable', this.handleEditTable)
         bus.$on('scroll-to-header', this.scrollToHeader)
@@ -439,6 +442,27 @@
         }
       },
 
+      // handle `duplicate`, `delete`, `create paragraph bellow`
+      handleParagraph (type) {
+        const { editor } = this
+        if (editor) {
+          switch (type) {
+            case 'duplicate': {
+              return editor.duplicate()
+            }
+            case 'createParagraph': {
+              return editor.insertParagraph('after', '', true)
+            }
+            case 'deleteParagraph': {
+              return editor.deleteParagraph()
+            }
+            default:
+              console.error(`unknow paragraph edit type: ${type}`)
+              return
+          }
+        }
+      },
+
       handleInlineFormat (type) {
         this.editor && this.editor.format(type)
       },
@@ -506,6 +530,9 @@
       bus.$off('copyAsMarkdown', this.handleCopyPaste)
       bus.$off('copyAsHtml', this.handleCopyPaste)
       bus.$off('pasteAsPlainText', this.handleCopyPaste)
+      bus.$off('duplicate', this.handleParagraph)
+      bus.$off('createParagraph', this.handleParagraph)
+      bus.$off('deleteParagraph', this.handleParagraph)
       bus.$off('insertParagraph', this.handleInsertParagraph)
       bus.$off('editTable', this.handleEditTable)
       bus.$off('scroll-to-header', this.scrollToHeader)

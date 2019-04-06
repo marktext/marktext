@@ -376,7 +376,7 @@ const paragraphCtrl = ContentState => {
   ContentState.prototype.updateParagraph = function (paraType, insertMode = false) {
     const { start, end } = this.cursor
     const block = this.getBlock(start.key)
-    const { type, text } = block
+    const { type, text, functionType } = block
 
     switch (paraType) {
       case 'front-matter': {
@@ -485,6 +485,9 @@ const paragraphCtrl = ContentState => {
           key = pBlock.children[0].key
           this.insertAfter(pBlock, block)
           this.removeBlock(block)
+        } else if (type === 'span' && !functionType && newType === 'p') {
+          // The original is a paragraph, the new type is also paragraph, no need to update.
+          return
         } else {
           const newHeader = this.createBlock(newType, newText)
           newHeader.headingStyle = DEFAULT_TURNDOWN_CONFIG.headingStyle
@@ -593,8 +596,9 @@ const paragraphCtrl = ContentState => {
     const copiedBlock = this.copyBlock(startOutmostBlock)
     this.insertAfter(copiedBlock, startOutmostBlock)
     const cursorBlock = this.firstInDescendant(copiedBlock)
-    const { key } = cursorBlock
-    const offset = 0
+    // set cursor at the end of the first descendant of the duplicated block.
+    const { key, text } = cursorBlock
+    const offset = text.length
     this.cursor = {
       start: { key, offset },
       end: { key, offset }
@@ -623,8 +627,8 @@ const paragraphCtrl = ContentState => {
       cursorBlock = this.firstInDescendant(newBlock)
     }
     this.removeBlock(startOutmostBlock)
-    const { key } = cursorBlock
-    const offset = 0
+    const { key, text } = cursorBlock
+    const offset = text.length
     this.cursor = {
       start: { key, offset },
       end: { key, offset }
