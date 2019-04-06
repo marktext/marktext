@@ -564,12 +564,12 @@ span.ag-emoji-marked-text {
   content: attr(data-emoji);
   color: var(--editorColor);
   top: -2px;
-  left: -22px;
+  left: -1em;
   font-size: 1em;
 }
 
 .ag-hide.ag-emoji-marked-text::before {
-  top: -15px;
+  top: -.8em;
 }
 
 .ag-html-escape {
