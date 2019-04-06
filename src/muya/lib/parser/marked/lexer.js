@@ -206,12 +206,11 @@ Lexer.prototype.token = function (src, top) {
     if (cap) {
       src = src.substring(cap[0].length)
       bull = cap[2]
-      let isOrdered = bull.length > 1 && /\d{1,9}/.test(bull)
-      console.log(bull.length, cap)
+      let isOrdered = bull.length > 1
       this.tokens.push({
         type: 'list_start',
         ordered: isOrdered,
-        listType: bull.length > 1 ? 'order' : (/^( {0,3})([-*+]) \[([xX]{1}| )\]/.test(cap[0]) ? 'task' : 'bullet'),
+        listType: bull.length > 1 ? 'order' : (/^( {0,3})([-*+]) \[[xX ]\]/.test(cap[0]) ? 'task' : 'bullet'),
         start: isOrdered ? +(bull.slice(0, -1)) : ''
       })
 
@@ -258,7 +257,7 @@ Lexer.prototype.token = function (src, top) {
           this.tokens.push({
             type: 'list_start',
             ordered: isOrdered,
-            listType: bull.length > 1 ? 'order' : (/^( {0,3})([-*+]) \[([xX]{1}| )\]/.test(itemWithBullet) ? 'task' : 'bullet'),
+            listType: bull.length > 1 ? 'order' : (/^( {0,3})([-*+]) \[[xX ]\]/.test(itemWithBullet) ? 'task' : 'bullet'),
             start: isOrdered ? +(bull.slice(0, -1)) : ''
           })
         }

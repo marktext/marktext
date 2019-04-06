@@ -114,7 +114,9 @@ export const getSubMenu = block => {
   const { type } = block
   switch (type) {
     case 'p': {
-      return wholeSubMenu
+      return wholeSubMenu.filter(menuItem => {
+        return !/front-matter|hr|table/.test(menuItem.label)
+      })
     }
     case 'h1':
     case 'h2':

@@ -1,4 +1,5 @@
 import { VOID_HTML_TAGS, HTML_TAGS, HTML_TOOLS } from '../config'
+import { inlineRules } from '../parser/rules'
 
 const HTML_BLOCK_REG = /^<([a-zA-Z\d-]+)(?=\s|>)[^<>]*?>$/
 const LINE_BREAKS = /\n/
@@ -95,10 +96,36 @@ const htmlBlock = ContentState => {
     return block
   }
 
-  ContentState.prototype.initHtmlBlock = function (block, tagName) {
-    const isVoidTag = VOID_HTML_TAGS.indexOf(tagName) > -1
-    const { text } = block.children[0]
-    const htmlContent = isVoidTag ? text : `${text}\n\n</${tagName}>`
+  ContentState.prototype.initHtmlBlock = function (block) {
+    let htmlContent = ''
+    const text = block.type === 'p'
+    ? block.children.map((child => {
+        return child.text
+      })).join('\n').trim()
+    : block.text
+
+    const matches = inlineRules.html_tag.exec(text)
+    if (matches) {
+      const tag = matches[3]
+      const content = matches[4] || ''
+      const openTag = matches[2]
+      const closeTag = matches[5]
+      const isVoidTag = VOID_HTML_TAGS.indexOf(tag) > -1
+      if (closeTag) {
+        htmlContent = text
+      } else if (isVoidTag) {
+        htmlContent = text
+        if (content) {
+          // TODO: @jocs notice user that the html is not valid.
+          console.warn('Invalid html content.')
+        }
+      } else {
+        htmlContent = `${openTag}\n${content}\n</${tag}>`
+      }
+    } else {
+      htmlContent = `<div>\n${text}\n</div>`
+    }
+
     block.type = 'figure'
     block.functionType = 'html'
     block.text = htmlContent
@@ -116,7 +143,7 @@ const htmlBlock = ContentState => {
     const { text } = block.children[0]
     const match = HTML_BLOCK_REG.exec(text)
     const tagName = match && match[1] && HTML_TAGS.find(t => t === match[1])
-    return VOID_HTML_TAGS.indexOf(tagName) === -1 && tagName ? this.initHtmlBlock(block, tagName) : false
+    return VOID_HTML_TAGS.indexOf(tagName) === -1 && tagName ? this.initHtmlBlock(block) : false
   }
 }
 

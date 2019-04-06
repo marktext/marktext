@@ -341,19 +341,19 @@ const paragraphCtrl = ContentState => {
     }
   }
 
-  ContentState.prototype.insertContainerBlock = function (functionType, value = '') {
-    const { start, end } = this.cursor
-    if (start.key !== end.key) return
-    let block = this.getBlock(start.key)
+  ContentState.prototype.insertContainerBlock = function (functionType, block) {
     if (block.type === 'span') {
       block = this.getParent(block)
     }
-    const mathBlock = this.createContainerBlock(functionType, value)
-    this.insertAfter(mathBlock, block)
-    if (block.type === 'p' && block.children.length === 1 && !block.children[0].text) {
-      this.removeBlock(block)
-    }
-    const cursorBlock = mathBlock.children[0].children[0].children[0]
+    const value = block.type === 'p'
+      ? block.children.map(child => child.text).join('\n').trim()
+      : block.text
+
+    const containerBlock = this.createContainerBlock(functionType, value)
+    this.insertAfter(containerBlock, block)
+    this.removeBlock(block)
+
+    const cursorBlock = containerBlock.children[0].children[0].children[0]
     const { key } = cursorBlock
     const offset = 0
     this.cursor = {
@@ -373,10 +373,14 @@ const paragraphCtrl = ContentState => {
   }
 
   ContentState.prototype.insertHtmlBlock = function (block) {
-    const parentBlock = this.getParent(block)
-    block.text = '<div>'
-    const preBlock = this.initHtmlBlock(parentBlock, 'div')
-    const key = preBlock.children[0].children[1].key
+    if (block.type === 'span') {
+      block = this.getParent(block)
+    }
+    const preBlock = this.initHtmlBlock(block)
+    const key = preBlock.children[0].children[1]
+      ? preBlock.children[0].children[1].key
+      : preBlock.children[0].children[0].key
+
     const offset = 0
     this.cursor = {
       start: { key, offset },
@@ -413,7 +417,7 @@ const paragraphCtrl = ContentState => {
         break
       }
       case 'mathblock': {
-        this.insertContainerBlock('multiplemath')
+        this.insertContainerBlock('multiplemath', block)
         break
       }
       case 'table': {
@@ -428,7 +432,7 @@ const paragraphCtrl = ContentState => {
       case 'sequence':
       case 'mermaid':
       case 'vega-lite':
-        this.insertContainerBlock(paraType)
+        this.insertContainerBlock(paraType, block)
         break
       case 'heading 1':
       case 'heading 2':
