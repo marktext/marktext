@@ -25,11 +25,11 @@ const mutations = {
   SET_CURRENT_FILE (state, currentFile) {
     const oldCurrentFile = state.currentFile
     if (!oldCurrentFile.id || oldCurrentFile.id !== currentFile.id) {
-      const { markdown, cursor, history, pathname } = currentFile
+      const { id, markdown, cursor, history, pathname } = currentFile
       window.DIRNAME = pathname ? path.dirname(pathname) : ''
       // set state first, then emit file changed event
       state.currentFile = currentFile
-      bus.$emit('file-changed', { markdown, cursor, renderCursor: true, history })
+      bus.$emit('file-changed', { id, markdown, cursor, renderCursor: true, history })
     }
   },
   ADD_FILE_TO_TABS (state, currentFile) {
@@ -41,12 +41,12 @@ const mutations = {
     tabs.splice(index, 1)
     state.tabs = tabs
     if (file.id === currentFile.id) {
-      const fileState = state.tabs[index] || state.tabs[index - 1] || {}
+      const fileState = state.tabs[index] || state.tabs[index - 1] || state.tabs[0] || {}
       state.currentFile = fileState
       if (typeof fileState.markdown === 'string') {
-        const { markdown, cursor, history, pathname } = fileState
+        const { id, markdown, cursor, history, pathname } = fileState
         window.DIRNAME = pathname ? path.dirname(pathname) : ''
-        bus.$emit('file-changed', { markdown, cursor, renderCursor: true, history })
+        bus.$emit('file-changed', { id, markdown, cursor, renderCursor: true, history })
       }
     }
   },
@@ -55,7 +55,7 @@ const mutations = {
     const { data, pathname } = change
     const { isMixedLineEndings, lineEnding, adjustLineEndingOnSave, isUtf8BomEncoded, markdown, textDirection, filename } = data
     const options = { isUtf8BomEncoded, lineEnding, adjustLineEndingOnSave, textDirection }
-    const fileState = getSingleFileState({ markdown, filename, pathname, options })
+    const newFileState = getSingleFileState({ markdown, filename, pathname, options })
     if (isMixedLineEndings) {
       notice.notify({
         title: 'Line Ending',
@@ -65,18 +65,26 @@ const mutations = {
         showConfirm: false
       }) 
     }
+
+    let fileState = null
     for (const tab of tabs) {
       if (tab.pathname === pathname) {
-        Object.assign(tab, fileState)
+        const oldId = tab.id
+        Object.assign(tab, newFileState)
+        tab.id = oldId
+        fileState = tab
         break
       }
     }
-    state.tabs = tabs
+
+    if (!fileState) {
+      throw new Error('LOAD_CHANGE: Cannot find tab in tab list.')
+    }
+
     if (pathname === currentFile.pathname) {
-      Object.assign(currentFile, fileState)
-      state.currentFile = currentFile
-      const { cursor, history } = currentFile
-      bus.$emit('file-changed', { markdown, cursor, renderCursor: true, history })
+      state.currentFile = fileState
+      const { id, cursor, history } = fileState
+      bus.$emit('file-changed', { id, markdown, cursor, renderCursor: true, history })
     }
   },
   SET_PATHNAME (state, file) {
@@ -139,6 +147,7 @@ const mutations = {
     }
   },
   CLOSE_TABS (state, arr) {
+    let tabIndex = 0
     arr.forEach(id => {
       const index = state.tabs.findIndex(f => f.id === id)
       const { pathname } = state.tabs.find(f => f.id === id)
@@ -151,14 +160,17 @@ const mutations = {
       if (state.currentFile.id === id) {
         state.currentFile = {}
         window.DIRNAME = ''
+        if (arr.length === 1) {
+          tabIndex = index
+        }
       }
     })
     if (!state.currentFile.id && state.tabs.length) {
-      state.currentFile = state.tabs[0]
+      state.currentFile = state.tabs[tabIndex] || state.tabs[tabIndex - 1] || state.tabs[0] || {}
       if (typeof state.currentFile.markdown === 'string') {
-        const { markdown, cursor, history, pathname } = state.currentFile
+        const { id, markdown, cursor, history, pathname } = state.currentFile
         window.DIRNAME = pathname ? path.dirname(pathname) : ''
-        bus.$emit('file-changed', { markdown, cursor, renderCursor: true, history })
+        bus.$emit('file-changed', { id, markdown, cursor, renderCursor: true, history })
       }
     }
   },
@@ -383,11 +395,12 @@ const actions = {
   LISTEN_FOR_OPEN_SINGLE_FILE ({ commit, state, dispatch }) {
     ipcRenderer.on('AGANI::open-single-file', (e, { markdown, filename, pathname, options }) => {
       const fileState = getSingleFileState({ markdown, filename, pathname, options })
+      const { id } = fileState
       const { lineEnding } = options
       commit('SET_GLOBAL_LINE_ENDING', lineEnding)
       dispatch('INIT_STATUS', true)
       dispatch('UPDATE_CURRENT_FILE', fileState)
-      bus.$emit('file-loaded', markdown)
+      bus.$emit('file-loaded', { id, markdown })
       commit('SET_LAYOUT', {
         rightColumn: 'files',
         showSideBar: false,
@@ -424,12 +437,11 @@ const actions = {
 
   NEW_BLANK_FILE ({ commit, state, dispatch }) {
     dispatch('SHOW_TAB_VIEW', false)
-
     const { tabs, lineEnding } = state
     const fileState = getBlankFileState(tabs, lineEnding)
-    const { markdown } = fileState
+    const { id, markdown } = fileState
     dispatch('UPDATE_CURRENT_FILE', fileState)
-    bus.$emit('file-loaded', markdown)
+    bus.$emit('file-loaded', { id, markdown })
   },
 
   /**
@@ -449,8 +461,9 @@ const actions = {
 
     const { markdown, isMixedLineEndings } = markdownDocument
     const docState = createDocumentState(markdownDocument)
+    const { id } = docState
     dispatch('UPDATE_CURRENT_FILE', docState)
-    bus.$emit('file-loaded', markdown)
+    bus.$emit('file-loaded', { id, markdown })
 
     if (isMixedLineEndings) {
       const { filename, lineEnding } = markdownDocument
@@ -476,11 +489,11 @@ const actions = {
     ipcRenderer.on('AGANI::open-blank-window', (e, { lineEnding, markdown: source }) => {
       const { tabs } = state
       const fileState = getBlankFileState(tabs, lineEnding, source)
-      const { markdown } = fileState
+      const { id, markdown } = fileState
       commit('SET_GLOBAL_LINE_ENDING', lineEnding)
       dispatch('INIT_STATUS', true)
       dispatch('UPDATE_CURRENT_FILE', fileState)
-      bus.$emit('file-loaded', markdown)
+      bus.$emit('file-loaded', { id, markdown })
       commit('SET_LAYOUT', {
         rightColumn: 'files',
         showSideBar: false,
@@ -490,24 +503,34 @@ const actions = {
     })
   },
 
-  // LISTEN_FOR_FILE_CHANGE ({ commit, state }) {
-  //   ipcRenderer.on('AGANI::file-change', (e, { file, filename, pathname }) => {
-  //     const { windowActive } = state
-  //     commit('SET_FILENAME', filename)
-  //     commit('SET_PATHNAME', pathname)
-  //     commit('SET_MARKDOWN', file)
-  //     commit('SET_SAVE_STATUS', true)
-  //     if (!windowActive) {
-  //       bus.$emit('file-loaded', file)
-  //     }
-  //   })
-  // },
-
   // Content change from realtime preview editor and source code editor
-  LISTEN_FOR_CONTENT_CHANGE ({ commit, state, rootState }, { markdown, wordCount, cursor, history, toc }) {
+  // WORKAROUND: id is "muya" if changes come from muya and not source code editor! So we don't have to apply the workaround.
+  LISTEN_FOR_CONTENT_CHANGE ({ commit, state, rootState }, { id, markdown, wordCount, cursor, history, toc }) {
     const { autoSave } = rootState.preferences
     const { projectTree } = rootState.project
-    const { pathname, markdown: oldMarkdown, id } = state.currentFile
+    const { id: currentId, pathname, markdown: oldMarkdown } = state.currentFile
+
+    if (!id) {
+      throw new Error(`Listen for document change but id was not set!`)
+    } else if (!currentId || state.tabs.length === 0) {
+      // Discard changes - this case should normally not occur.
+      return
+    } else if (id !== 'muya' && currentId !== id) {
+      // WORKAROUND: We commit changes after switching the tab in source code mode.
+      // Update old tab or discard changes
+      for (const tab of state.tabs) {
+        if (tab.id && tab.id === id) {
+          tab.markdown = markdown
+          // set cursor
+          if (cursor) tab.cursor = cursor
+          // set history
+          if (history) tab.history = history
+          break
+        }
+      }
+      return
+    }
+
     const options = getOptionsFromState(state.currentFile)
     commit('SET_MARKDOWN', markdown)
 
@@ -531,7 +554,7 @@ const actions = {
         commit('UPDATE_PROJECT_CONTENT', { markdown, pathname })
       }
       if (pathname && autoSave) {
-        ipcRenderer.send('AGANI::response-file-save', { id, pathname, markdown, options })
+        ipcRenderer.send('AGANI::response-file-save', { id: currentId, pathname, markdown, options })
       } else {
         commit('SET_SAVE_STATUS', false)
       }

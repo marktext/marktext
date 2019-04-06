@@ -218,6 +218,7 @@ class AppWindow {
   newTab (win, filePath) {
     this.watcher.watch(win, filePath, 'file')
     loadMarkdownFile(filePath).then(rawDocument => {
+      appMenu.addRecentlyUsedDocument(filePath)
       newTab(win, rawDocument)
     }).catch(err => {
       // TODO: Handle error --> create a end-user error handler.

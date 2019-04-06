@@ -11,10 +11,11 @@
           @click.stop="selectFile(file)"
         >
           <span>{{ file.filename }}</span>
-          <svg class="icon" aria-hidden="true"
+          <svg class="close-icon icon" aria-hidden="true"
             @click.stop="removeFileInTab(file)"
           >
-            <use xlink:href="#icon-close-small"></use>
+            <circle id="unsaved-circle-icon" cx="6" cy="6" r="3"></circle>
+            <use id="default-close-icon" xlink:href="#icon-close-small"></use>
           </svg>
         </li>
         <li class="new-file">
@@ -49,6 +50,9 @@
 </script>
 
 <style scoped>
+  svg.close-icon #unsaved-circle-icon {
+    fill: var(--themeColor);
+  }
   .editor-tabs {
     width: 100%;
     height: 35px;
@@ -82,11 +86,28 @@
       &:hover > svg {
         opacity: 1;
       }
+      &:hover > svg.close-icon #default-close-icon {
+        display: block !important;
+      }
+      &:hover > svg.close-icon #unsaved-circle-icon {
+        display: none !important;
+      }
       & > span {
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
         margin-right: 3px;
+      }
+    }
+    & > li.unsaved:not(.active) {
+      & > svg.close-icon {
+        opacity: 1;
+      }
+      & > svg.close-icon #unsaved-circle-icon {
+        display: block;
+      }
+      & > svg.close-icon #default-close-icon {
+        display: none;
       }
     }
     & > li.active {
@@ -102,6 +123,9 @@
       }
       & > svg {
         opacity: 1;
+      }
+      & > svg.close-icon #unsaved-circle-icon {
+        display: none;
       }
     }
 
