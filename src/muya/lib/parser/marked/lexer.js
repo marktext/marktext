@@ -207,11 +207,11 @@ Lexer.prototype.token = function (src, top) {
       src = src.substring(cap[0].length)
       bull = cap[2]
       let isOrdered = bull.length > 1 && /\d{1,9}/.test(bull)
-
+      console.log(bull.length, cap)
       this.tokens.push({
         type: 'list_start',
         ordered: isOrdered,
-        listType: bull.length > 1 ? (/\d{1,9}/.test(bull) ? 'order' : 'task') : 'bullet',
+        listType: bull.length > 1 ? 'order' : (/^( {0,3})([-*+]) \[([xX]{1}| )\]/.test(cap[0]) ? 'task' : 'bullet'),
         start: isOrdered ? +(bull.slice(0, -1)) : ''
       })
 
@@ -226,6 +226,7 @@ Lexer.prototype.token = function (src, top) {
 
       for (; i < l; i++) {
         const itemWithBullet = cap[i]
+        let isTaskListItem = false
         item = itemWithBullet
 
         // Remove the list item's bullet
@@ -257,7 +258,7 @@ Lexer.prototype.token = function (src, top) {
           this.tokens.push({
             type: 'list_start',
             ordered: isOrdered,
-            listType: bull.length > 1 ? (/\d{1,9}/.test(bull) ? 'order' : 'task') : 'bullet',
+            listType: bull.length > 1 ? 'order' : (/^( {0,3})([-*+]) \[([xX]{1}| )\]/.test(itemWithBullet) ? 'task' : 'bullet'),
             start: isOrdered ? +(bull.slice(0, -1)) : ''
           })
         }
@@ -267,6 +268,7 @@ Lexer.prototype.token = function (src, top) {
           if (checked) {
             checked = checked[1] === 'x' || checked[1] === 'X'
             item = item.replace(this.rules.checkbox, '')
+            isTaskListItem = true
           } else {
             checked = undefined
           }
@@ -323,7 +325,7 @@ Lexer.prototype.token = function (src, top) {
         const isOrderedListItem = /\d/.test(bull)
         this.tokens.push({
           checked: checked,
-          listItemType: bull.length > 1 ? (isOrderedListItem ? 'order' : 'task') : 'bullet',
+          listItemType: bull.length > 1 ? 'order' : (isTaskListItem ? 'task' : 'bullet'),
           bulletMarkerOrDelimiter: isOrderedListItem ? bull.slice(-1) : bull.charAt(0),
           type: loose ? 'loose_item_start' : 'list_item_start'
         })
