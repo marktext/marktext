@@ -24,6 +24,7 @@ export default function referenceLink (h, cursor, block, token, outerClass) {
     }, []),
     ...this.backlashInToken(h, backlash.first, className, backlashStart, token)
   ]
+
   const { href, title } = this.labels.get(key)
   const startMarker = this.highlight(
     h,
