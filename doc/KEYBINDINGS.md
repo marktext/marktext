@@ -49,6 +49,9 @@ Here is an example:
 | `editCopyAsMarkdown`  | Copy selected text as markdown                  |
 | `editCopyAsPlaintext` | Copy selected text as plaintext                 |
 | `editSelectAll`       | Select all text of the document                 |
+| `editDuplicate`       | Duplicate the current paragraph                 |
+| `editCreateParagraph` | Create a new paragraph after the current one    |
+| `editDeleteParagraph` | Delete current paragraph                        |
 | `editFind`            | Find information in the document                |
 | `editFindNext`        | Continue the search and find the next match     |
 | `editFindPrevious`    | Continue the search and find the previous match |
