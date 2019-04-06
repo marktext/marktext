@@ -76,6 +76,11 @@
   transform: scale(0);
 }
 
+.ag-front-menu .submenu.align-bottom {
+  top: unset;
+  bottom: -82px;
+}
+
 .ag-front-menu li.turnInto > .short-cut {
   width: 40px;
   height: 20px;

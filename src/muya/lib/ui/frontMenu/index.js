@@ -4,6 +4,10 @@ import { menu, getSubMenu, getLabel } from './config'
 
 import './index.css'
 
+const MAX_SUBMENU_HEIGHT = 400
+const ITEM_HEIGHT = 36
+const PADDING = 10
+
 const defaultOptions = {
   placement: 'right',
   modifiers: {
@@ -23,6 +27,7 @@ class FrontMenu extends BaseFloat {
     this.oldVnode = null
     this.block = null
     this.options = opts
+    this.reference = null
     const frontMenuContainer = this.frontMenuContainer = document.createElement('div')
     Object.assign(this.container.parentNode.style, {
       overflow: 'visible'
@@ -37,17 +42,22 @@ class FrontMenu extends BaseFloat {
     eventCenter.subscribe('muya-front-menu', ({ reference, block }) => {
       if (reference) {
         this.block = block
+        this.reference = reference
         setTimeout(() => {
           this.show(reference)
           this.render()
         }, 0)
       } else {
         this.hide()
+        this.reference = null
       }
     })
   }
 
   renderSubMenu (subMenu) {
+    const { reference } = this
+    const rect = reference.getBoundingClientRect()
+    const windowHeight = document.documentElement.clientHeight
     const children = subMenu.map(menuItem => {
       const { icon, title, label, shortCut } = menuItem
       const iconWrapperSelector = 'div.icon-wrapper'
@@ -78,7 +88,11 @@ class FrontMenu extends BaseFloat {
         }
       }, [iconWrapper, textWrapper, shortCutWrapper])
     })
-    return h('div.submenu', h('ul', children))
+    let subMenuSelector = 'div.submenu'
+    if (windowHeight - rect.bottom < MAX_SUBMENU_HEIGHT - (ITEM_HEIGHT + PADDING)) {
+      subMenuSelector += '.align-bottom'
+    }
+    return h(subMenuSelector, h('ul', children))
   }
 
   render () {
