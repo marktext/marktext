@@ -26,14 +26,18 @@
 
     computed: {
       ...mapState({
-        'theme': state => state.preferences.theme
+        'theme': state => state.preferences.theme,
+        'currentTab': state => state.editor.currentFile,
       })
     },
 
     data () {
       return {
         contentState: null,
-        editor: null
+        editor: null,
+        commitTimer: null,
+        viewDestroyed: false,
+        tabId: null
       }
     },
 
@@ -48,6 +52,8 @@
 
     created () {
       this.$nextTick(() => {
+        // TODO: Should we load markdown from the tab or mapped vue property?
+        const { id } = this.currentTab
         const { markdown = '', theme, cursor, textDirection } = this
         const container = this.$refs.sourceCode
         const codeMirrorConfig = {
@@ -71,6 +77,7 @@
           codeMirrorConfig.theme = 'one-dark'
         }
         const editor = this.editor = codeMirror(container, codeMirrorConfig)
+
         bus.$on('file-loaded', this.setMarkdown)
         bus.$on('file-changed', this.handleMarkdownChange)
         bus.$on('dotu-select', this.handleSelectDoutu)
@@ -82,13 +89,22 @@
         } else {
           setCursorAtLastLine(editor)
         }
+        this.tabId = id
       })
     },
     beforeDestroy () {
+      // NOTE: Clear timer and manually commit changes. After mode switching and cleanup may follow
+      // further key inputs, so ignore all inputs.
+      this.viewDestroyed = true
+      if (this.commitTimer) clearTimeout(this.commitTimer)
+
       bus.$off('file-loaded', this.setMarkdown)
+      bus.$off('file-changed', this.handleMarkdownChange)
       bus.$off('dotu-select', this.handleSelectDoutu)
-      const { markdown, cursor } = this
-      bus.$emit('file-changed', { markdown, cursor, renderCursor: true })
+
+      const { editor } = this
+      const { cursor, markdown } = this.getMarkdownAndCursor(editor)
+      bus.$emit('file-changed', { id: this.tabId, markdown, cursor, renderCursor: true })
     },
     methods: {
       handleSelectDoutu (url) {
@@ -99,29 +115,37 @@
       },
       listenChange () {
         const { editor } = this
-        let timer = null
-        editor.on('cursorActivity', (cm, event) => {
-          let cursor = cm.getCursor()
-          const markdown = cm.getValue()
+        editor.on('cursorActivity', cm => {
+          const { cursor, markdown } = this.getMarkdownAndCursor(cm)
           const wordCount = getWordCount(markdown)
-          const line = cm.getLine(cursor.line)
-          const preLine = cm.getLine(cursor.line - 1)
-          const nextLine = cm.getLine(cursor.line + 1)
-          cursor = adjustCursor(cursor, preLine, line, nextLine)
-          if (timer) clearTimeout(timer)
-          timer = setTimeout(() => {
-            this.$store.dispatch('LISTEN_FOR_CONTENT_CHANGE', { markdown, wordCount, cursor })
+          if (this.commitTimer) clearTimeout(this.commitTimer)
+          this.commitTimer = setTimeout(() => {
+            // See "beforeDestroy" note
+            if (!this.viewDestroyed) {
+              if (this.tabId) {
+                this.$store.dispatch('LISTEN_FOR_CONTENT_CHANGE', { id: this.tabId, markdown, wordCount, cursor })
+              } else {
+                // This may occur during tab switching but should not occur otherwise.
+                console.warn(`LISTEN_FOR_CONTENT_CHANGE: Cannot commit changes because not tab id was set!`)
+              }
+            }
           }, 1000)
         })
       },
-      setMarkdown (markdown) {
+      // A new file was opened or new tab was added.
+      setMarkdown ({ id, markdown }) {
+        this.prepareTabSwitch()
+
         const { editor } = this
         editor.setValue(markdown)
-        // // NOTE: Don't set the cursor because we load a new file - no tab switch.
+        // NOTE: Don't set the cursor because we load a new file.
         setCursorAtLastLine(editor)
+        this.tabId = id
       },
-      // Only listen to get changes. Do not set history or other things.
-      handleMarkdownChange({ markdown, cursor, renderCursor, history }) {
+      // Another tab was selected - only listen to get changes but don't set history or other things.
+      handleMarkdownChange ({ id, markdown, cursor, renderCursor, history }) {
+        this.prepareTabSwitch()
+
         const { editor } = this
         editor.setValue(markdown)
         // Cursor is null when loading a file or creating a new tab in source code mode.
@@ -129,6 +153,27 @@
           editor.setCursor(cursor)
         } else {
           setCursorAtLastLine(editor)
+        }
+        this.tabId = id
+      },
+      // Get markdown and cursor from CodeMirror.
+      getMarkdownAndCursor (cm) {
+        let cursor = cm.getCursor()
+        const markdown = cm.getValue()
+        const line = cm.getLine(cursor.line)
+        const preLine = cm.getLine(cursor.line - 1)
+        const nextLine = cm.getLine(cursor.line + 1)
+        cursor = adjustCursor(cursor, preLine, line, nextLine)
+        return { cursor, markdown }
+      },
+      // Commit changes from old tab. Problem: tab was already switched, so commit changes with old tab id.
+      prepareTabSwitch () {
+        if (this.commitTimer) clearTimeout(this.commitTimer)
+        if (this.tabId) {
+          const { editor } = this
+          const { cursor, markdown } = this.getMarkdownAndCursor(editor)
+          this.$store.dispatch('LISTEN_FOR_CONTENT_CHANGE', { id: this.tabId, markdown, cursor })
+          this.tabId = null // invalidate tab id
         }
       }
     }

@@ -261,7 +261,8 @@
         })
 
         this.editor.on('change', changes => {
-          this.$store.dispatch('LISTEN_FOR_CONTENT_CHANGE', changes)
+          // WORKAROUND: "id: 'muya'"
+          this.$store.dispatch('LISTEN_FOR_CONTENT_CHANGE', Object.assign(changes, { id: 'muya' }))
         })
 
         this.editor.on('format-click', ({ event, formatType, data }) => {
@@ -445,7 +446,7 @@
       },
 
       // listen for `open-single-file` event, it will call this method only when open a new file.
-      setMarkdownToEditor (markdown) {
+      setMarkdownToEditor ({id, markdown}) {
         const { editor } = this
         if (editor) {
           editor.clearHistory()
@@ -455,7 +456,7 @@
       },
 
       // listen for markdown change form source mode or change tabs etc
-      handleMarkdownChange ({ markdown, cursor, renderCursor, history }) {
+      handleMarkdownChange ({ id, markdown, cursor, renderCursor, history }) {
         const { editor } = this
         if (editor) {
           if (history) {
@@ -488,12 +489,15 @@
       bus.$off('undo', this.handleUndo)
       bus.$off('redo', this.handleRedo)
       bus.$off('export', this.handleExport)
+      bus.$off('print-service-clearup', this.handlePrintServiceClearup)
       bus.$off('paragraph', this.handleEditParagraph)
       bus.$off('format', this.handleInlineFormat)
       bus.$off('searchValue', this.handleSearch)
       bus.$off('replaceValue', this.handReplace)
       bus.$off('find', this.handleFind)
-      bus.$off('dotu-select', this.handleSelect)
+      bus.$off('insert-image', this.handleSelect)
+      bus.$off('image-uploaded', this.handleUploadedImage)
+      bus.$off('file-changed', this.handleMarkdownChange)
       bus.$off('editor-blur', this.blurEditor)
       bus.$off('image-auto-path', this.handleImagePath)
       bus.$off('copyAsMarkdown', this.handleCopyPaste)

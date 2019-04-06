@@ -41,6 +41,7 @@ foo<section>bar</section>zar
 - Add new themes: Ulysses Light, Graphite Light, Material Dark and One Dark.
 - Watch file changed in tabs and show a notice(autoSave is `false`) or update the file(autoSave is `true`)
 - Support input inline Ruby charactors as raw html (#257)
+- Added unsaved tab indicator
 
 **:butterfly:Optimization**
 
@@ -109,6 +110,8 @@ foo<section>bar</section>zar
 - Fixed bug when combine pre list and next list into one when inline update #707
 - Fix renderer error when selection in sidebar (#625)
 - Fixed list parse error [more info](https://github.com/marktext/marktext/issues/831#issuecomment-477719256)
+- Fixed source code mode tab switching
+- Fixed source code mode to preview switching
 
 ### 0.13.65
 

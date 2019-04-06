@@ -59,6 +59,10 @@
   background: #4d78cc !important;
 }
 
+.drop-container.active {
+  border: 1px dashed #4d78cc !important;
+}
+
 .title-bar .frameless-titlebar-button > div > svg {
   fill: #ffffff;
 }
@@ -84,12 +88,19 @@
 .side-bar-toc .no-data svg {
   fill: #4d78cc !important;
 }
+
+.recent-files-projects a,
 .open-project a {
   color: #9da5b4 !important;
   border: 1px solid #181a1f !important;
   background-color: #353b45 !important;
   background-image: linear-gradient(#3a3f4b, #353b45) !important;
   box-shadow: none !important;
+}
+.recent-files-projects a:hover,
+.open-project a:hover {
+  color: #d7dae0 !important;
+  background-image: linear-gradient(#3e4451, #3a3f4b) !important;
 }
 
 .editor-tabs {
@@ -110,6 +121,9 @@
   width: 2px !important;
   height: auto !important;
   background: #4d78cc !important;
+}
+.tabs-container svg.close-icon #unsaved-circle-icon {
+  fill: #4d78cc;
 }
 
 :not(pre) > code[class*="language-"],
