@@ -340,7 +340,7 @@ const tokenizerFac = (src, beginRules, inlineRules, pos = 0, top, labels) => {
     }
 
     const rImageTo = inlineRules['reference_image'].exec(src)
-    if (rImageTo && isLengthEven(rImageTo[2]) && isLengthEven(rImageTo[4])) {
+    if (rImageTo && labels.has(rImageTo[3] || rImageTo[1]) && isLengthEven(rImageTo[2]) && isLengthEven(rImageTo[4])) {
       pushPending()
 
       tokens.push({
