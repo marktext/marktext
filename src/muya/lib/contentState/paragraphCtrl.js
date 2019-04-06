@@ -543,6 +543,8 @@ const paragraphCtrl = ContentState => {
     // update menu status
     const selectionChanges = this.selectionChange(this.cursor)
     this.muya.eventCenter.dispatch('selectionChange', selectionChanges)
+    // emit change event
+    this.muya.eventCenter.dispatch('stateChange')
   }
 
   ContentState.prototype.insertParagraph = function (location, text = '', outMost = false) {
@@ -593,6 +595,7 @@ const paragraphCtrl = ContentState => {
       end: { key, offset }
     }
     this.partialRender()
+    this.muya.eventCenter.dispatch('stateChange')
   }
 
   // make a dulication of the current block
@@ -614,7 +617,8 @@ const paragraphCtrl = ContentState => {
       start: { key, offset },
       end: { key, offset }
     }
-    return this.partialRender()
+    this.partialRender()
+    return this.muya.eventCenter.dispatch('stateChange')
   }
   // delete current paragraph
   ContentState.prototype.deleteParagraph = function () {
@@ -644,7 +648,8 @@ const paragraphCtrl = ContentState => {
       start: { key, offset },
       end: { key, offset }
     }
-    return this.partialRender()
+    this.partialRender()
+    return this.muya.eventCenter.dispatch('stateChange')
   }
 }
 
