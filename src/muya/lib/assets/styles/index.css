@@ -40,7 +40,8 @@ div.ag-show-quick-insert-hint p.ag-paragraph.ag-active > span.ag-line:first-of-t
 }
 
 .ag-selected {
-  background: var(--floatBorderColor);
+  background: linear-gradient(17deg, var(--editorBgColor) 36.65%, var(--editorColor04));
+  border-radius: 3px;
 }
 
 .ag-gray {
