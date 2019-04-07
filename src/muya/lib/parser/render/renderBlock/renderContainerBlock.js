@@ -13,8 +13,8 @@ const PRE_BLOCK_HASH = {
   'vega-lite': `.${CLASS_OR_ID['AG_VEGA_LITE']}`
 }
 
-export default function renderContainerBlock (block, cursor, activeBlocks, matches, useCache = false) {
-  let selector = this.getSelector(block, cursor, activeBlocks)
+export default function renderContainerBlock (block, cursor, activeBlocks, selectedBlock, matches, useCache = false) {
+  let selector = this.getSelector(block, cursor, activeBlocks, selectedBlock)
   const data = {
     attrs: {},
     dataset: {}
@@ -104,8 +104,8 @@ export default function renderContainerBlock (block, cursor, activeBlocks, match
     selector += PRE_BLOCK_HASH[block.functionType]
   }
   if (!block.parent) {
-    return h(selector, data, [this.renderIcon(block), ...block.children.map(child => this.renderBlock(child, cursor, activeBlocks, matches, useCache))])
+    return h(selector, data, [this.renderIcon(block), ...block.children.map(child => this.renderBlock(child, cursor, activeBlocks, selectedBlock, matches, useCache))])
   } else {
-    return h(selector, data, block.children.map(child => this.renderBlock(child, cursor, activeBlocks, matches, useCache)))
+    return h(selector, data, block.children.map(child => this.renderBlock(child, cursor, activeBlocks, selectedBlock, matches, useCache)))
   }
 }

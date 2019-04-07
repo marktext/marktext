@@ -112,7 +112,7 @@
 
 Mark Text is an MIT licensed open source project, you will always be able to download the latest version for free from the GitHub release page. Mark Text is still in development, and its development is inseparable from all sponsors. I hope you join them:
 
-- [Become a backer or sponsor on Patreon](https://www.patreon.com/ranluo) or [one time donation](https://github.com/Jocs/sponsor.me)
+- [Become a backer or sponsor on Patreon](https://www.patreon.com/ranluo) or [One time donation](https://github.com/Jocs/sponsor.me)
 - [Become a backer or sponsor on Open Collective](https://opencollective.com/marktext)
 
 ##### What's the difference between Patreon and OpenCollective?

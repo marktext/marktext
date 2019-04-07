@@ -104,6 +104,12 @@ export const CLASS_OR_ID = genUpper2LowerKeyHash([
   'AG_LIST_ITEM',
   'AG_LOOSE_LIST_ITEM',
   'AG_MATH',
+  'AG_MATH_TEXT',
+  'AG_MATH_RENDER',
+  'AG_RUBY',
+  'AG_RUBY_TEXT',
+  'AG_RUBY_RENDER',
+  'AG_SELECTED',
   'AG_MATH_ERROR',
   'AG_MATH_MARKER',
   'AG_MATH_RENDER',
@@ -228,6 +234,7 @@ export const MUYA_DEFAULT_OPTION = {
   autoPairMarkdownSyntax: true,
   autoPairQuote: true,
   bulletListMarker: '-',
+  orderListMarker: '.',
   tabSize: 4,
   sequenceTheme: 'hand', // hand or simple
   mermaidTheme: 'forest', // dark or forest

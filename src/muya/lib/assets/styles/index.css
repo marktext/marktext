@@ -39,6 +39,15 @@ div.ag-show-quick-insert-hint p.ag-paragraph.ag-active > span.ag-line:first-of-t
   word-break: break-word;
 }
 
+.ag-selected {
+  background: linear-gradient(17deg, var(--editorBgColor) 36.65%, var(--editorColor04));
+  border-radius: 3px;
+}
+
+.ag-gray {
+  font-family: monospace;
+}
+
 .ag-reference-marker {
   font-size: .9em;
   color: var(--editorColor50);
@@ -290,10 +299,10 @@ li.ag-task-list-item {
 li.ag-task-list-item > input[type=checkbox] {
   position: absolute;
   cursor: pointer;
-  width: 10px;
-  height: 10px;
+  width: 12px;
+  height: 12px;
   top: 5px;
-  left: -22px;
+  left: -23px;
   transform-origin: center;
   transition: all .2s ease;
 }
@@ -309,37 +318,44 @@ li.ag-task-list-item > input.ag-checkbox-checked ~ p {
 
 li.ag-task-list-item > input[type=checkbox]::before {
   content: '';
-  width: 14px;
-  height: 14px;
+  width: 18px;
+  height: 18px;
   box-sizing: border-box;
   display: inline-block;
-  border: 1px solid var(--iconColor);
+  border: 2px solid var(--editorColor50);
   border-radius: 50%;
   background-color: var(--editorBgColor);
   position: absolute;
   top: -2px;
   left: -2px;
+  box-sizing: border-box;
   transition: all .2s ease;
 }
 
 li.ag-task-list-item > input::after {
   content: '';
-  transform: rotate(-28deg) skew(0, -25deg) scale(0);
+  transform: rotate(-45deg) scale(0);
   width: 8px;
   height: 4px;
-  border: 1px solid var(--iconColor);
+  border: 2px solid var(--editorBgColor);
   border-top: none;
   border-right: none;
   position: absolute;
   display: inline-block;
-  top: 0px;
-  left: 2px;
+  top: 1px;
+  left: 4px;
   transform-origin: bottom;
   transition: all .2s ease;
 }
 
 li.ag-task-list-item > input.ag-checkbox-checked::after {
-  transform: rotate(-28deg) skew(0, -25deg) scale(1);
+  transform: rotate(-45deg)  scale(1);
+}
+
+li.ag-task-list-item > input.ag-checkbox-checked::before {
+  background: var(--themeColor);
+  border-color: var(--themeColor);
+  box-shadow: 0 3px 12px 0 var(--highlightColor);
 }
 
 /* li p .ag-hide:first-child {
@@ -705,7 +721,7 @@ span.ag-reference-link {
   top: 2px;
   left: -30px;
   display: none;
-  /* cursor: pointer; */
+  cursor: pointer;
 }
 
 .ag-front-icon::before {

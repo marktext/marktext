@@ -21,6 +21,14 @@ class Keyboard {
     // cache shown float box
     this.muya.eventCenter.subscribe('muya-float', (name, status) => {
       status ? this.shownFloat.add(name) : this.shownFloat.delete(name)
+      if (name === 'ag-front-menu' && !status) {
+        const seletedParagraph = this.muya.container.querySelector('.ag-selected')
+        if (seletedParagraph) {
+          this.muya.contentState.selectedBlock = null
+          // prevent rerender, so change the class manually.
+          seletedParagraph.classList.toggle('ag-selected')
+        }
+      }
     })
   }
 

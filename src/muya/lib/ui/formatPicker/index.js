@@ -48,8 +48,8 @@ class FormatPicker extends BaseFloat {
   render () {
     const { icons, oldVnode, formatContainer, formats } = this
     const children = icons.map(i => {
-      let icon;
-      let iconWrapperSelector;
+      let icon
+      let iconWrapperSelector
       if (i.icon) {
         // SVG icon Asset
         iconWrapperSelector = 'div.icon-wrapper'

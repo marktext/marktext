@@ -60,6 +60,26 @@ export default {
   }, {
     type: 'separator'
   }, {
+    label: 'Duplicate',
+    accelerator: keybindings.getAccelerator('editDuplicate'),
+    click (menuItem, browserWindow) {
+      actions.edit(browserWindow, 'duplicate')
+    }
+  }, {
+    label: 'Create Paragraph',
+    accelerator: keybindings.getAccelerator('editCreateParagraph'),
+    click (menuItem, browserWindow) {
+      actions.edit(browserWindow, 'createParagraph')
+    }
+  }, {
+    label: 'Delete Paragraph',
+    accelerator: keybindings.getAccelerator('editDeleteParagraph'),
+    click (menuItem, browserWindow) {
+      actions.edit(browserWindow, 'deleteParagraph')
+    }
+  }, {
+    type: 'separator'
+  }, {
     label: 'Find',
     accelerator: keybindings.getAccelerator('editFind'),
     click (menuItem, browserWindow) {

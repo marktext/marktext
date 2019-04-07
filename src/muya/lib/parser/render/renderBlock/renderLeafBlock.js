@@ -62,9 +62,9 @@ const hasReferenceToken = tokens => {
   return result
 }
 
-export default function renderLeafBlock (block, cursor, activeBlocks, matches, useCache = false) {
+export default function renderLeafBlock (block, cursor, activeBlocks, selectedBlock, matches, useCache = false) {
   const { loadMathMap } = this
-  let selector = this.getSelector(block, cursor, activeBlocks)
+  let selector = this.getSelector(block, cursor, activeBlocks, selectedBlock)
   // highlight search key in block
   const highlights = matches.filter(m => m.key === block.key)
   const {
