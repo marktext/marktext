@@ -25,7 +25,9 @@ class FrontMenu extends BaseFloat {
     const opts = Object.assign({}, defaultOptions, options)
     super(muya, name, opts)
     this.oldVnode = null
-    this.block = null
+    this.outmostBlock = null
+    this.startBlock = null
+    this.endBlock = null
     this.options = opts
     this.reference = null
     const frontMenuContainer = this.frontMenuContainer = document.createElement('div')
@@ -39,9 +41,11 @@ class FrontMenu extends BaseFloat {
   listen () {
     const { eventCenter } = this.muya
     super.listen()
-    eventCenter.subscribe('muya-front-menu', ({ reference, block }) => {
+    eventCenter.subscribe('muya-front-menu', ({ reference, outmostBlock, startBlock, endBlock }) => {
       if (reference) {
-        this.block = block
+        this.outmostBlock = outmostBlock
+        this.startBlock = startBlock
+        this.endBlock = endBlock
         this.reference = reference
         setTimeout(() => {
           this.show(reference)
@@ -84,7 +88,7 @@ class FrontMenu extends BaseFloat {
         h('span', shortCut)
       ])
       let itemSelector = `li.item.${label}`
-      if (label === getLabel(this.block)) {
+      if (label === getLabel(this.outmostBlock)) {
         itemSelector += `.active`
       }
       return h(itemSelector, {
@@ -103,10 +107,10 @@ class FrontMenu extends BaseFloat {
   }
 
   render () {
-    const { oldVnode, frontMenuContainer, block } = this
-    const { type, functionType } = block
+    const { oldVnode, frontMenuContainer, outmostBlock, startBlock, endBlock } = this
+    const { type, functionType } = outmostBlock
     const children = menu.map(({ icon, label, text, shortCut }) => {
-      const subMenu = getSubMenu(block)
+      const subMenu = getSubMenu(outmostBlock, startBlock, endBlock)
       const iconWrapperSelector = 'div.icon-wrapper'
       const iconWrapper = h(iconWrapperSelector, h('svg', {
         attrs: {
@@ -157,7 +161,7 @@ class FrontMenu extends BaseFloat {
   selectItem (event, { label }) {
     event.preventDefault()
     event.stopPropagation()
-    const { type, functionType } = this.block
+    const { type, functionType } = this.outmostBlock
     // front matter can not be duplicated.
     if (label === 'duplicate' && type === 'pre' && functionType === 'frontmatter') {
       return

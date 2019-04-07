@@ -110,12 +110,16 @@ export const getLabel = block => {
   return label
 }
 
-export const getSubMenu = block => {
+export const getSubMenu = (block, startBlock, endBlock) => {
   const { type } = block
   switch (type) {
     case 'p': {
       return wholeSubMenu.filter(menuItem => {
-        return !/front-matter|hr|table/.test(menuItem.label)
+        const REG_EXP = startBlock.key === endBlock.key
+          ? /front-matter|hr|table/
+          : /front-matter|hr|table|heading/
+
+        return !REG_EXP.test(menuItem.label)
       })
     }
     case 'h1':
