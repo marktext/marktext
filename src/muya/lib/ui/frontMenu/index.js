@@ -65,6 +65,13 @@ class FrontMenu extends BaseFloat {
         attrs: {
           'viewBox': icon.viewBox,
           'aria-hidden': 'true'
+        },
+        hook: {
+          prepatch (oldvnode, vnode) {
+            // cheat snabbdom that the pre block is changed!!!
+            oldvnode.children = []
+            oldvnode.elm.innerHTML = ''
+          }
         }
         }, [h('use', {
           attrs: {

@@ -444,7 +444,7 @@ const paragraphCtrl = ContentState => {
       case 'degrade heading':
       case 'paragraph': {
         if (start.key !== end.key) return
-        const [, hash, partText] = /(^#*)(.*)/.exec(text)
+        const [, hash, partText] = /(^#*\s*)(.*)/.exec(text)
         let newLevel = 0 // 1, 2, 3, 4, 5, 6
         let newType = 'p'
         let key
@@ -464,11 +464,15 @@ const paragraphCtrl = ContentState => {
           newType = newLevel === 0 ? 'p' : `h${newLevel}`
         }
 
-        const startOffset = start.offset + newLevel - hash.length + 1
-        const endOffset = end.offset + newLevel - hash.length + 1
+        const startOffset = newLevel > 0
+          ? start.offset + newLevel - hash.length + 1
+          : start.offset - hash.length // no need to add `1`, because we didn't add `String.fromCharCode(160)` to text paragraph
+        const endOffset = newLevel > 0
+          ? end.offset + newLevel - hash.length + 1
+          : end.offset - hash.length
         const newText = newLevel > 0
-          ? '#'.repeat(newLevel) + `${String.fromCharCode(160)}${partText.trimLeft()}` // &nbsp; code: 160
-          : partText.trimLeft()
+          ? '#'.repeat(newLevel) + `${String.fromCharCode(160)}${partText}` // &nbsp; code: 160
+          : partText
 
         if (block.type === 'span' && newType !== 'p') {
           const header = this.createBlock(newType, newText)
