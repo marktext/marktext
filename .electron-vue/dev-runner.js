@@ -73,7 +73,7 @@ function startRenderer () {
       }
     )
 
-    server.listen(9080)
+    server.listen(9091)
   })
 }
 
@@ -114,7 +114,12 @@ function startMain () {
 }
 
 function startElectron () {
-  electronProcess = spawn(electron, ['--inspect=5858', path.join(__dirname, '../dist/electron/main.js')])
+  electronProcess = spawn(electron, [
+    '--inspect=5861',
+    '--remote-debugging-port=8315',
+    '--nolazy',
+    path.join(__dirname, '../dist/electron/main.js')
+  ])
 
   electronProcess.stdout.on('data', data => {
     electronLog(data, 'blue')

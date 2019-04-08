@@ -1,0 +1,20 @@
+{
+  "editor.insertSpaces": true,
+  "editor.tabSize": 2,
+  "editor.trimAutoWhitespace": true,
+  "files.eol": "\n",
+  "files.insertFinalNewline": true,
+
+  "search.exclude": {
+    "**/.git": true,
+    "**/build": true,
+    "**/node_modules": true,
+    "**/dist": true
+  },
+  "files.watcherExclude": {
+    "**/.git": true,
+    "**/build": true,
+    "**/node_modules": true,
+    "**/dist": true
+  }
+}

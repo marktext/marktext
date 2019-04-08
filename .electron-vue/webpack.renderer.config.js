@@ -191,6 +191,11 @@ if (process.env.NODE_ENV !== 'production' && process.env.NODE_ENV !== 'test' &&
   )
 }
 
+// Fix debugger breakpoints
+if (!proMode && process.env.MARKTEXT_BUILD_VSCODE_DEBUG) {
+  rendererConfig.devtool = '#inline-source-map'
+}
+
 /**
  * Adjust rendererConfig for production settings
  */
