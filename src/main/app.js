@@ -18,11 +18,6 @@ class App {
       app.commandLine.appendSwitch('enable-experimental-web-platform-features', 'true')
     }
 
-    // Enable vscode chrome extension debugger connection
-    if (process.env.NODE_ENV === 'development') {
-      app.commandLine.appendSwitch('remote-debugging-port', '8315')
-    }
-
     app.on('open-file', this.openFile)
 
     app.on('ready', this.ready)

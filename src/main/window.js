@@ -168,7 +168,7 @@ class AppWindow {
     }
 
     const winURL = process.env.NODE_ENV === 'development'
-      ? `http://localhost:9080`
+      ? `http://localhost:9091`
       : `file://${__dirname}/index.html`
 
     win.loadURL(winURL)
