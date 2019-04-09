@@ -113,6 +113,8 @@ foo<section>bar</section>zar
 - Fixed list parse error [more info](https://github.com/marktext/marktext/issues/831#issuecomment-477719256)
 - Fixed source code mode tab switching
 - Fixed source code mode to preview switching
+- Mark Text didn't remove highlight when I delete the markdown symbol like * or `. (#893)
+- After delete ``` at the beginning to paragraph by backspace, then type other text foo, the color will be strange, if you type 1. bar. error happened. (#892)
 
 ### 0.13.65
 
