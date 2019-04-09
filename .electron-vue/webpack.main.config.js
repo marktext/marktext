@@ -62,6 +62,11 @@ const mainConfig = {
   target: 'electron-main'
 }
 
+// Fix debugger breakpoints
+if (!proMode && process.env.MARKTEXT_BUILD_VSCODE_DEBUG) {
+  mainConfig.devtool = '#inline-source-map'
+}
+
 /**
  * Adjust mainConfig for development settings
  */
