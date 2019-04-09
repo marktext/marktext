@@ -127,10 +127,10 @@ kbd {
 
 #ag-editor-id {
   max-width: var(--editorAreaWidth);
+  min-height: 100%;
   margin: 0 auto;
-  padding: 20px 50px 40px 50px;
-  padding-top: 20px;
-  padding-bottom: 100px;
+  padding: 20px 50px 100px 50px;
+  box-sizing: border-box;
 }
 
 #ag-editor-id, [contenteditable] {

@@ -103,6 +103,7 @@ export default function renderContainerBlock (block, cursor, activeBlocks, selec
     Object.assign(data.dataset, { role: functionType })
     selector += PRE_BLOCK_HASH[block.functionType]
   }
+
   if (!block.parent) {
     return h(selector, data, [this.renderIcon(block), ...block.children.map(child => this.renderBlock(child, cursor, activeBlocks, selectedBlock, matches, useCache))])
   } else {

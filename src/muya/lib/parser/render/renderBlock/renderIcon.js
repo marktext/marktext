@@ -27,7 +27,7 @@ export default function renderIcon (block) {
     console.error('Only top most block can render front icon button.')
   }
   const { type, functionType, listType } = block
-  const selector = `span.${CLASS_OR_ID['AG_FRONT_ICON']}`
+  const selector = `a.${CLASS_OR_ID['AG_FRONT_ICON']}`
   let icon = null
 
   switch (type) {
