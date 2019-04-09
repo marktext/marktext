@@ -1,5 +1,6 @@
 import selection from '../selection'
 import { findNearestParagraph, findOutMostParagraph } from '../selection/dom'
+import { MARKDOWN_SYMBOL_REG } from '../config'
 
 const backspaceCtrl = ContentState => {
   ContentState.prototype.checkBackspaceCase = function () {
@@ -132,6 +133,14 @@ const backspaceCtrl = ContentState => {
 
     if (startBlock.functionType === 'languageInput' && start.offset === 0) {
       return event.preventDefault()
+    }
+    // fix #892. I don't think it's a good solution, but it works.
+    // Because the browser remove the <span class="line"><span class="ag-gray">`</span></span> element, when it start with a symbol below.
+    // So we need to rerender this paragraph prevent it been removed.
+    if (startBlock.type === 'span' && startBlock.text.length === 1) {
+      if (MARKDOWN_SYMBOL_REG.test(startBlock.text)) {
+        this.partialRender()
+      }
     }
 
     // If select multiple paragraph or multiple characters in one paragraph, just let

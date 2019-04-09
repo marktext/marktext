@@ -2,7 +2,7 @@ import selection from '../selection'
 import { getTextContent } from '../selection/dom'
 import { beginRules } from '../parser/rules'
 import { tokenizer } from '../parser/parse'
-import { CLASS_OR_ID } from '../config'
+import { CLASS_OR_ID, MARKDOWN_SYMBOL_REG } from '../config'
 
 const BRACKET_HASH = {
   '{': '}',
@@ -91,6 +91,13 @@ const inputCtrl = ContentState => {
             start.offset -= 1
             end.offset -= 1
             text = text.substring(0, offset - 1) + text.substring(offset)
+          }
+          // Not every time you delete the following characters,
+          // you need to re-render, but it is not good to judge
+          // whether you need to re-render, so in order to ensure no error,
+          // re-render each time you delete the following characters.
+          if (MARKDOWN_SYMBOL_REG.test(deletedChar)) {
+            needRender = true
           }
           /* eslint-disable no-useless-escape */
         } else if (

@@ -27,7 +27,7 @@ export const inlineRules = {
   'html_escape': new RegExp(`^(${escapeCharacters.join('|')})`, 'i'),
   'hard_line_break': /^(\s{2,})$/,
 
-  // patched math marker `$`
+  // patched math marker `$`, this is also used in `MARKDOWN_SYMBOL_REG`.
   'backlash': /^(\\)([\\`*{}\[\]()#+\-.!_>~:\|\<\>$]{1})/,
 
   // extra (not belongs to GFM)
