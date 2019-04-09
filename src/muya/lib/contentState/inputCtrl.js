@@ -41,6 +41,42 @@ const inputCtrl = ContentState => {
     return tokens.filter(t => t.type === 'inline_math').some(t => offset >= t.range.start && offset <= t.range.end)
   }
 
+  ContentState.prototype.checkNotSameToken = function (oldText, text) {
+    const oldTokens = tokenizer(oldText)
+    const tokens = tokenizer(text)
+
+    const oldCache = {}
+    const cache = {}
+
+    for (const { type } of oldTokens) {
+      if (oldCache[type]) {
+        oldCache[type]++
+      } else {
+        oldCache[type] = 1
+      }
+    }
+
+    for (const { type } of tokens) {
+      if (cache[type]) {
+        cache[type]++
+      } else {
+        cache[type] = 1
+      }
+    }
+
+    if (Object.keys(oldCache).length !== Object.keys(cache).length) {
+      return true
+    }
+
+    for (const key of Object.keys(oldCache)) {
+      if (!cache[key] || oldCache[key] !== cache[key]) {
+        return true
+      }
+    }
+
+    return false
+  }
+
   ContentState.prototype.inputHandler = function (event) {
     const { start, end } = selection.getCursorRange()
     if (!start || !end) {
@@ -134,6 +170,10 @@ const inputCtrl = ContentState => {
             needRender = true
           }
         }
+      }
+
+      if (this.checkNotSameToken(block.text, text)) {
+        needRender = true
       }
       block.text = text
       if (beginRules['reference_definition'].test(text)) {
