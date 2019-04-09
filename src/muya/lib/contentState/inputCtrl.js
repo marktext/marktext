@@ -146,6 +146,10 @@ const inputCtrl = ContentState => {
       if (beginRules['reference_definition'].test(text)) {
         needRenderAll = true
       }
+      // Prevent input `$$foo` and foo still highlighted. `^\$\$$` need to be highlighted.
+      if (/^([\s\S]\${2}|\${2}[\s\S])$/.test(text)) {
+        needRender = true
+      }
     }
 
     // show quick insert
