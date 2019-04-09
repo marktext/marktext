@@ -59,7 +59,8 @@ class Muya {
 
   getMarkdown () {
     const blocks = this.contentState.getBlocks()
-    return new ExportMarkdown(blocks).generate()
+    const listIndentation = this.contentState.listIndentation
+    return new ExportMarkdown(blocks, listIndentation).generate()
   }
 
   getHistory () {
@@ -141,9 +142,21 @@ class Muya {
       tabSize = 4
     } else if (tabSize < 1) {
       tabSize = 1
+    } else if (tabSize > 4) {
+      tabSize = 4
     }
-
     this.contentState.tabSize = tabSize
+  }
+
+  setListIndentation (listIndentation) {
+    if (typeof listIndentation === 'number') {
+      if (listIndentation < 1 || listIndentation > 4) {
+        listIndentation = 1
+      }
+    } else if (listIndentation !== 'tab' && listIndentation !== 'dfm') {
+      listIndentation = 1
+    }
+    this.contentState.listIndentation = listIndentation
   }
 
   updateParagraph (type) {

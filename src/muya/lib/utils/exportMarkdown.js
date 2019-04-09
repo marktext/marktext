@@ -7,14 +7,29 @@
  * and GitHub Flavored Markdown Spec: https://github.github.com/gfm/
  * The output markdown needs to obey the standards of the two Spec.
  */
-// const LINE_BREAKS = /\n/
 
 class ExportMarkdown {
-  constructor (blocks) {
+  constructor (blocks, listIndentation = 1) {
     this.blocks = blocks
     this.listType = [] // 'ul' or 'ol'
     // helper to translate the first tight item in a nested list
     this.isLooseParentList = true
+
+    // set and validate settings
+    if (listIndentation === 'tab') {
+      this.listIndentation = '\t'
+      this.listIndentationCount = null
+    } else if (listIndentation === 'dfm') {
+      // static 4 spaces
+      this.listIndentation = '    '
+      this.listIndentationCount = null
+    } else if (typeof listIndentation === 'number') {
+      this.listIndentation = null
+      this.listIndentationCount = Math.min(Math.max(listIndentation, 1), 4)
+    } else {
+      this.listIndentation = null
+      this.listIndentationCount = 1
+    }
   }
 
   generate () {
@@ -302,25 +317,44 @@ class ExportMarkdown {
   normalizeListItem (block, indent) {
     const result = []
     const listInfo = this.listType[this.listType.length - 1]
+    const isUnorderedList = listInfo.type === 'ul'
     let { children, bulletMarkerOrDelimiter } = block
     let itemMarker
 
-    if (listInfo.type === 'ul') {
+    if (isUnorderedList) {
       itemMarker = bulletMarkerOrDelimiter ? `${bulletMarkerOrDelimiter} ` : '- '
-      if (block.listItemType === 'task') {
-        const firstChild = children[0]
-        itemMarker += firstChild.checked ? '[x] ' : '[ ] '
-        children = children.slice(1)
-      }
     } else {
       const delimiter = bulletMarkerOrDelimiter ? bulletMarkerOrDelimiter : '.'
       itemMarker = `${listInfo.listCount++}${delimiter} `
     }
 
-    const newIndent = indent + ' '.repeat(itemMarker.length)
+    // We already added one space to the indentation
+    const listIndent = this.getListIndentation(itemMarker.length - 1)
+    const newIndent = indent + listIndent
+
+    if (isUnorderedList && block.listItemType === 'task') {
+      const firstChild = children[0]
+      itemMarker += firstChild.checked ? '[x] ' : '[ ] '
+      children = children.slice(1)
+    }
+
     result.push(`${indent}${itemMarker}`)
     result.push(this.translateBlocks2Markdown(children, newIndent).substring(newIndent.length))
     return result.join('')
+  }
+
+  getListIndentation (listMarkerWidth) {
+    // listIndentation:
+    //   tab:    Indent subsequent paragraphs by one tab.
+    //   dfm:    Each subsequent paragraph in a list item must be indented by either 4 spaces or one tab (used by Bitbucket and Daring Fireball).
+    //   number: Dynamic indent subsequent paragraphs by the given number (1-4) plus list marker width.
+
+    if (this.listIndentation) {
+      return this.listIndentation
+    } else if (this.listIndentationCount) {
+      return ' '.repeat(listMarkerWidth + this.listIndentationCount)
+    }
+    return ' '.repeat(listMarkerWidth)
   }
 }
 

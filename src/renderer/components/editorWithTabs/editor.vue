@@ -121,6 +121,7 @@
         'autoPairQuote': state => state.preferences.autoPairQuote,
         'bulletListMarker': state => state.preferences.bulletListMarker,
         'tabSize': state => state.preferences.tabSize,
+        'listIndentation': state => state.preferences.listIndentation,
         'lineHeight': state => state.preferences.lineHeight,
         'fontSize': state => state.preferences.fontSize,
         'lightColor': state => state.preferences.lightColor,
@@ -181,6 +182,12 @@
         if (value !== oldValue && editor) {
           editor.setTabSize(value)
         }
+      },
+      listIndentation: function (value, oldValue) {
+        const { editor } = this
+        if (value !== oldValue && editor) {
+          editor.setListIndentation(value)
+        }
       }
     },
     created () {
@@ -197,6 +204,7 @@
           autoPairQuote,
           bulletListMarker,
           tabSize,
+          listIndentation,
           hideQuickInsertHint
         } = this
 
@@ -218,6 +226,7 @@
           autoPairQuote,
           bulletListMarker,
           tabSize,
+          listIndentation,
           hideQuickInsertHint
         })
 

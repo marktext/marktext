@@ -8,6 +8,8 @@ Edit and save to update preferences. You can only change the JSON below!
 
 - **endOfLine**: *String* `lf`, `crlf` or `default`
 
+- **listIndentation**: `"dfm"`, `"tab"` or number (`1-4`)
+
 - **bulletListMarker**: *String* `+`,`-` or `*`
 
 - **textDirection**: *String* `ltr` or `rtl`
@@ -34,6 +36,7 @@ Edit and save to update preferences. You can only change the JSON below!
   "autoPairQuote": true,
   "endOfLine": "default",
   "tabSize": 4,
+  "listIndentation": 1,
   "textDirection": "ltr",
   "titleBarStyle": "csd",
   "openFilesInNewWindow": true

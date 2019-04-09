@@ -155,7 +155,8 @@ const copyCutCtrl = ContentState => {
       case 'copyTable': {
         const table = this.getTableBlock()
         if (!table) return
-        const markdown = new ExportMarkdown([ table ]).generate()
+        const listIndentation = this.listIndentation
+        const markdown = new ExportMarkdown([ table ], listIndentation).generate()
         event.clipboardData.setData('text/html', '')
         event.clipboardData.setData('text/plain', markdown)
         break

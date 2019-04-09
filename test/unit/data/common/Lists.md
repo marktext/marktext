@@ -165,6 +165,8 @@ Foo
 - baz
 ```
 
+Issue `-` is replaced by `- `:
+
 ```
 - foo
 -

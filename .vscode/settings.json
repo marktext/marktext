@@ -1,7 +1,8 @@
 {
   "editor.insertSpaces": true,
   "editor.tabSize": 2,
-  "editor.trimAutoWhitespace": true,
+  // Issues with unit test files
+  //"editor.trimAutoWhitespace": false,
   "files.eol": "\n",
   "files.insertFinalNewline": true,
 
