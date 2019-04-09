@@ -135,6 +135,10 @@ const inputCtrl = ContentState => {
           }
         }
       }
+      const oldText = block.text
+      if (tokenizer(oldText).length !== tokenizer(text)) {
+        needRender = true
+      }
       block.text = text
       if (beginRules['reference_definition'].test(text)) {
         needRenderAll = true
