@@ -1,9 +1,21 @@
 import fs from 'fs'
 import path from 'path'
-import { ipcMain, BrowserWindow } from 'electron'
-import { isOsx } from './config'
+import { ipcMain, BrowserWindow, systemPreferences } from 'electron'
+import { isOsx, isWindows } from './config'
 import appWindow from './window'
 import { getPath, hasSameKeys, log, ensureDir } from './utils'
+import { getStringRegKey, winHKEY } from './platform/win32/registry.js'
+
+const isDarkSystemMode = () => {
+  if (isOsx) {
+    return systemPreferences.isDarkMode()
+  } else if (isWindows) {
+    // NOTE: This key is a 32-Bit DWORD but converted to JS string!
+    const buf = getStringRegKey(winHKEY.HKCU, 'Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize', 'AppsUseLightTheme')
+    return buf === '' // zero (0)
+  }
+  return false
+}
 
 class Preference {
   constructor () {
@@ -30,6 +42,9 @@ class Preference {
       fs.writeFileSync(userDataPath, content, 'utf-8')
 
       userSetting = this.loadJson(userDataPath)
+      if (isDarkSystemMode()) {
+        userSetting.theme = 'dark'
+      }
       this.validateSettings(userSetting)
     } else {
       userSetting = this.loadJson(userDataPath)

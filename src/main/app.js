@@ -82,9 +82,9 @@ class App {
     if (process.platform === 'darwin') {
       app.dock.setMenu(dockMenu)
 
-      // listen for system theme change and change Mark Text own `dark` and `light`,
-      //  In macOS 10.14 Mojave, 
-      // Apple introduced a new system-wide dark mode for all macOS computers. 
+      // Listen for system theme change and change Mark Text own `dark` and `light`.
+      // In macOS 10.14 Mojave,  Apple introduced a new system-wide dark mode for
+      // all macOS computers.
       systemPreferences.subscribeNotification(
         'AppleInterfaceThemeChangedNotification',
         () => {

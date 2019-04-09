@@ -27,7 +27,7 @@
     "postinstall": "npm run rebuild && npm run lint:fix",
     "build:muya": "cd src/muya && webpack --progress --colors --config webpack.config.js",
     "release:muya": "npm run build:muya && cd src/muya && npm publish",
-    "rebuild": "electron-rebuild -f -w keyboard-layout -o keyboard-layout",
+    "rebuild": "electron-rebuild -f -o keyboard-layout,vscode-windows-registry",
     "gen-third-party": "node tools/generateThirdPartyLicense.js",
     "validate-licenses": "node tools/validateLicenses.js"
   },
@@ -261,6 +261,9 @@
     "webpack-dev-server": "^3.2.1",
     "webpack-hot-middleware": "^2.24.3",
     "webpack-merge": "^4.2.1"
+  },
+  "optionalDependencies": {
+    "vscode-windows-registry": "1.0.1"
   },
   "repository": {
     "type": "git",
