@@ -1,5 +1,6 @@
 import selection from '../selection'
 import { findNearestParagraph, findOutMostParagraph } from '../selection/dom'
+import { tokenizer, generator } from '../parser/parse'
 
 const backspaceCtrl = ContentState => {
   ContentState.prototype.checkBackspaceCase = function () {
@@ -101,11 +102,51 @@ const backspaceCtrl = ContentState => {
 
   ContentState.prototype.backspaceHandler = function (event) {
     const { start, end } = selection.getCursorRange()
+
     if (!start || !end) {
       return
     }
     const startBlock = this.getBlock(start.key)
     const endBlock = this.getBlock(end.key)
+    // fix: #897
+    const { text } = startBlock
+    const tokens = tokenizer(text)
+    let needRender = false
+    let preToken = null
+    for (const token of tokens) {
+      // handle delete the second $ in inline_math.
+      if (
+        token.range.end === start.offset &&
+        token.type === 'inline_math'
+      ) {
+        needRender = true
+        token.raw = token.raw.substr(0, token.raw.length - 1)
+        break
+      }
+      // handle pre token is a <ruby> html tag, need preventdefault.
+      if (
+        token.range.start + 1 === start.offset &&
+        preToken &&
+        preToken.type === 'html_tag' &&
+        preToken.tag === 'ruby'
+      ) {
+        needRender = true
+        token.raw = token.raw.substr(1)
+        break
+      }
+      preToken = token
+    }
+    if (needRender) {
+      startBlock.text = generator(tokens)
+      event.preventDefault()
+      start.offset--
+      end.offset--
+      this.cursor = {
+        start,
+        end
+      }
+      return this.partialRender()
+    }
     // fix: #67 problem 1
     if (startBlock.icon) return event.preventDefault()
     // fix: unexpect remove all editor html. #67 problem 4
