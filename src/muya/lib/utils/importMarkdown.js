@@ -106,7 +106,7 @@ const importRegister = ContentState => {
               loadLanguage(lang)
                 .then(infoList => {
                   if (!Array.isArray(infoList)) return
-                  // There three status `loaded`, `noexist` and `cached`.
+                  // There are three status `loaded`, `noexist` and `cached`.
                   // if the status is `loaded`, indicated that it's a new loaded language
                   const needRender = infoList.some(({ status }) => status === 'loaded')
                   if (needRender) {
