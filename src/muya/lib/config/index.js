@@ -256,5 +256,5 @@ export const WHITELIST_ATTRIBUTES = [
   'href', 'id', 'lang', 'lazyload', 'rel', 'spellcheck', 'src', 'srcset', 'start', 'style',
   'target', 'title', 'type', 'value', 'width'
 ]
-// This RegExp is part of backlash.backlash, if `backlash.backlash` updated, need update this.
+// This RegExp is part of inlineRules.backlash, if `inlineRules.backlash` updated, need update this.
 export const MARKDOWN_SYMBOL_REG = /(?:[\\`*{}[\]()#+\-.!_>~:|<>$]{1})/
