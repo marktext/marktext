@@ -10,7 +10,7 @@ const helpMenu = {
   submenu: [{
     label: 'Learn More',
     click () {
-      shell.openExternal('https://github.com/marktext/marktext')
+      shell.openExternal('https://marktext.app')
     }
   }, {
     label: 'Source Code on GitHub',
