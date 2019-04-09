@@ -104,6 +104,19 @@ const importRegister = ContentState => {
             const inputBlock = this.createBlock('span', lang)
             if (lang) {
               loadLanguage(lang)
+                .then(infoList => {
+                  if (!Array.isArray(infoList)) return
+                  // There are three status `loaded`, `noexist` and `cached`.
+                  // if the status is `loaded`, indicated that it's a new loaded language
+                  const needRender = infoList.some(({ status }) => status === 'loaded')
+                  if (needRender) {
+                    this.render()
+                  }
+                })
+                .catch(err => {
+                  // if no parameter provided, will cause error.
+                  console.warn(err)
+                })
             }
             inputBlock.functionType = 'languageInput'
             this.codeBlocks.set(block.key, value)

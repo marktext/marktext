@@ -441,6 +441,7 @@ class Selection {
     let { anchorNode, anchorOffset, focusNode, focusOffset } = this.doc.getSelection()
     let startParagraph = findNearestParagraph(anchorNode)
     let endParagraph = findNearestParagraph(focusNode)
+
     if (!startParagraph || !endParagraph) {
       return {
         start: null,
