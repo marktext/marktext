@@ -195,12 +195,6 @@ export const TABLE_TOOLS = [{
   icon: 'icon-del'
 }]
 
-export const HTML_TOOLS = [{
-  label: 'delete',
-  title: 'Delete HTML',
-  icon: 'icon-del'
-}]
-
 export const LINE_BREAK = '\n'
 
 export const PREVIEW_DOMPURIFY_CONFIG = {

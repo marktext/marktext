@@ -1,28 +1,10 @@
-import { VOID_HTML_TAGS, HTML_TAGS, HTML_TOOLS } from '../config'
+import { VOID_HTML_TAGS, HTML_TAGS } from '../config'
 import { inlineRules } from '../parser/rules'
 
 const HTML_BLOCK_REG = /^<([a-zA-Z\d-]+)(?=\s|>)[^<>]*?>$/
 const LINE_BREAKS = /\n/
 
 const htmlBlock = ContentState => {
-  ContentState.prototype.createToolBar = function (tools, toolBarType) {
-    const toolBar = this.createBlock('div', '', false)
-    toolBar.toolBarType = toolBarType
-    const ul = this.createBlock('ul')
-
-    tools.forEach(tool => {
-      const toolBlock = this.createBlock('li')
-      const svgBlock = this.createBlock('svg')
-      svgBlock.icon = tool.icon
-      toolBlock.label = tool.label
-      toolBlock.title = tool.title
-      this.appendChild(toolBlock, svgBlock)
-      this.appendChild(ul, toolBlock)
-    })
-    this.appendChild(toolBar, ul)
-    return toolBar
-  }
-
   ContentState.prototype.createCodeInHtml = function (code) {
     const codeContainer = this.createBlock('div')
     codeContainer.functionType = 'html'
@@ -89,9 +71,7 @@ const htmlBlock = ContentState => {
   ContentState.prototype.createHtmlBlock = function (code) {
     const block = this.createBlock('figure')
     block.functionType = 'html'
-    const toolBar = this.createToolBar(HTML_TOOLS, 'html')
     const htmlBlock = this.createCodeInHtml(code)
-    this.appendChild(block, toolBar)
     this.appendChild(block, htmlBlock)
     return block
   }
@@ -130,9 +110,7 @@ const htmlBlock = ContentState => {
     block.functionType = 'html'
     block.text = htmlContent
     block.children = []
-    const toolBar = this.createToolBar(HTML_TOOLS, 'html')
     const codeContainer = this.createCodeInHtml(htmlContent)
-    this.appendChild(block, toolBar)
     this.appendChild(block, codeContainer)
     return codeContainer.children[0] // preBlock
   }
