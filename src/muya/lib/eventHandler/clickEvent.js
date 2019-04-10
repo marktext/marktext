@@ -18,20 +18,18 @@ class ClickEvent {
       // Hide format box
       eventCenter.dispatch('muya-format-picker', { reference: null })
 
-      // Commit native cursor position because right-clicking doesn't update the cursor postion.
       const { start, end } = selection.getCursorRange()
+
+      // Cursor out of editor
       if (!start || !end) {
-        // right click on paragraph icons
         return
       }
-      // if you want to show `insert row or column`, you need to put cursor on cell text...
+
+      // Commit native cursor position because right-clicking doesn't update the cursor postion.
       contentState.cursor = {
         start,
         end
       }
-
-      // TODO: Should we render to update the cursor or is this not necessary because we'll render
-      // when leaving or clicking on the context menu?
 
       const sectionChanges = contentState.selectionChange(contentState.cursor)
       eventCenter.dispatch('contextmenu', event, sectionChanges)
@@ -68,7 +66,7 @@ class ClickEvent {
           formatType: 'image',
           data: event.target.getAttribute('src')
         })
-        selectionText(markedImageText)  
+        selectionText(markedImageText)
       } else if (mathText) {
         selectionText(mathText)
       } else if (rubyText) {
