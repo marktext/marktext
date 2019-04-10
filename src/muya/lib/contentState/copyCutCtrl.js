@@ -2,6 +2,7 @@ import selection from '../selection'
 import { CLASS_OR_ID } from '../config'
 import { getSanitizeHtml } from '../utils/exportHtml'
 import ExportMarkdown from '../utils/exportMarkdown'
+import marked from '../parser/marked'
 
 const copyCutCtrl = ContentState => {
   ContentState.prototype.cutHandler = function () {
@@ -125,9 +126,9 @@ const copyCutCtrl = ContentState => {
       }
     }
 
-    const htmlData = wrapper.innerHTML
+    let htmlData = wrapper.innerHTML
     const textData = this.htmlToMarkdown(htmlData)
-
+    htmlData = marked(textData)
     return { html: htmlData, text: textData }
   }
 
