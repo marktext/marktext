@@ -62,8 +62,12 @@ class Keyboard {
         return
       }
 
-      // prevent dispatch `selectionChange` and `selectionFormats` by click the toolbar of table/html block and front icons
+      // Cursor outside editor area or over not editable elements.
       if (event.target.closest('[contenteditable=false]')) {
+        return
+      }
+      const { start, end } = selection.getCursorRange()
+      if (!start || !end) {
         return
       }
 
@@ -199,7 +203,7 @@ class Keyboard {
       if (!start || !end) {
         return
       }
- 
+
       if (
         !this.isComposed
       ) {
