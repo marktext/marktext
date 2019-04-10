@@ -29,33 +29,6 @@ const htmlBlock = ContentState => {
     return codeContainer
   }
 
-  ContentState.prototype.htmlToolBarClick = function (type) {
-    const { start: { key } } = this.cursor
-    const codeLine = this.getBlock(key)
-    const codeBlock = this.getParent(codeLine)
-    const preBlock = this.getParent(codeBlock)
-    const codeBlockContainer = this.getParent(preBlock)
-    const htmlBlock = this.getParent(codeBlockContainer)
-
-    switch (type) {
-      case 'delete': {
-        htmlBlock.type = 'p'
-        htmlBlock.text = ''
-        htmlBlock.children = []
-        const emptyLine = this.createBlock('span')
-        this.appendChild(htmlBlock, emptyLine)
-        const key = emptyLine.key
-        const offset = 0
-        this.cursor = {
-          start: { key, offset },
-          end: { key, offset }
-        }
-        this.partialRender()
-        break
-      }
-    }
-  }
-
   ContentState.prototype.handleHtmlBlockClick = function (codeWrapper) {
     const id = codeWrapper.id
     const codeBlock = this.getBlock(id).children[0]
