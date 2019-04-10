@@ -128,6 +128,7 @@
         'darkColor': state => state.preferences.darkColor,
         'editorFontFamily': state => state.preferences.editorFontFamily,
         'hideQuickInsertHint': state => state.preferences.hideQuickInsertHint,
+        'theme': state => state.preferences.theme,
         // edit modes
         'typewriter': state => state.preferences.typewriter,
         'focus': state => state.preferences.focus,
@@ -181,6 +182,22 @@
         const { editor } = this
         if (value !== oldValue && editor) {
           editor.setTabSize(value)
+        }
+      },
+      theme: function (value, oldValue) {
+        if (value !== oldValue && this.editor) {
+          // Agreement：Any black series theme needs to contain dark `word`.
+          if (/dark/i.test(value)) {
+            this.editor.setOptions({
+              mermaidTheme: 'dark',
+              vegaTheme: 'dark'
+            }, true)
+          } else {
+            this.editor.setOptions({
+              mermaidTheme: 'default',
+              vegaTheme: 'latimes'
+            }, true)
+          }
         }
       },
       listIndentation: function (value, oldValue) {

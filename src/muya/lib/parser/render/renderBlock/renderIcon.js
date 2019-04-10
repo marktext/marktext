@@ -17,10 +17,23 @@ import quoteIcon from '../../../assets/icons/quote.svg'
 import todoListIcon from '../../../assets/icons/todolist.svg'
 import mathblockIcon from '../../../assets/icons/math.svg'
 import orderListIcon from '../../../assets/icons/order_list.svg'
-// import flowchartIcon from '../../../assets/icons/flowchart.svg'
-// import sequenceIcon from '../../../assets/icons/sequence.svg'
-// import mermaidIcon from '../../../assets/icons/mermaid.svg'
-// import vegaIcon from '../../../assets/icons/chart.svg'
+import flowchartIcon from '../../../assets/icons/flowchart.svg'
+import sequenceIcon from '../../../assets/icons/sequence.svg'
+import mermaidIcon from '../../../assets/icons/mermaid.svg'
+import vegaIcon from '../../../assets/icons/chart.svg'
+
+const FUNCTION_TYPE_HASH = {
+  'mermaid': mermaidIcon,
+  'flowchart': flowchartIcon,
+  'sequence': sequenceIcon,
+  'vega-lite': vegaIcon,
+  'table': newTableIcon,
+  'html': htmlIcon,
+  'multiplemath': mathblockIcon,
+  'fencecode': codeIcon,
+  'indentcode': codeIcon,
+  'frontmatter': frontMatterIcon
+}
 
 export default function renderIcon (block) {
   if (block.parent) {
@@ -35,21 +48,12 @@ export default function renderIcon (block) {
       icon = paragraphIcon
       break
     }
-    case 'figure': {
-      if (functionType === 'table') {
-        icon = newTableIcon
-      } else if (functionType === 'html') {
-        icon = htmlIcon
-      } else if (functionType === 'multiplemath') {
-        icon = mathblockIcon
-      }
-      break
-    }
+    case 'figure':
     case 'pre': {
-      if (functionType === 'fencecode' || functionType === 'indentcode') {
-        icon = codeIcon
-      } else if (functionType === 'frontmatter') {
-        icon = frontMatterIcon
+      icon = FUNCTION_TYPE_HASH[functionType]
+      if (!icon) {
+        console.warn(`Unhandled functionType ${functionType}`)
+        icon = paragraphIcon
       }
       break
     }

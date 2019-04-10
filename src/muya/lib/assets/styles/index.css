@@ -530,6 +530,10 @@ figure.ag-container-block div.ag-container-preview {
   text-align: center;
 }
 
+figure.ag-container-block div.ag-container-preview > svg {
+  width: 100%;
+}
+
 figure.ag-active.ag-container-block > div.ag-container-preview {
   position: absolute;
   top: calc(100% + 20px);
@@ -749,4 +753,8 @@ span.ag-reference-link {
 
 .ag-ruby-render {
   user-select: none;
+}
+
+.vega-embed {
+  padding-right: 0;
 }
