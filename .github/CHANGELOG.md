@@ -61,6 +61,7 @@ foo<section>bar</section>zar
 - Hide titlebar control buttons in custom titlebar style
 - Corrected hamburger menu offset
 - Optimization of inline html displa, now you can nest other inline syntax in inline html(#849)
+- Use CmdOrCtrl + C/V to copy rich text to `word`(Windows) or `page`(macOS) (#885)
 
 **:beetle:Bug fix**
 
@@ -115,6 +116,7 @@ foo<section>bar</section>zar
 - Fixed source code mode to preview switching
 - Mark Text didn't remove highlight when I delete the markdown symbol like * or `. (#893)
 - After delete ``` at the beginning to paragraph by backspace, then type other text foo, the color will be strange, if you type 1. bar. error happened. (#892)
+- Fix highlight error in code block (#545 #890)
 
 ### 0.13.65
 
