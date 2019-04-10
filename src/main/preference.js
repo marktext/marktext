@@ -48,7 +48,6 @@ class Preference {
       this.validateSettings(userSetting)
     } else {
       userSetting = this.loadJson(userDataPath)
-      this.validateSettings(userSetting)
 
       // Update outdated settings
       const requiresUpdate = !hasSameKeys(defaultSettings, userSetting)
@@ -65,8 +64,11 @@ class Preference {
             userSetting[key] = defaultSettings[key]
           }
         }
+        this.validateSettings(userSetting)
         this.writeJson(userSetting, false)
           .catch(log)
+      } else {
+        this.validateSettings(userSetting)
       }
     }
 
@@ -75,7 +77,6 @@ class Preference {
       userSetting = defaultSettings
       this.validateSettings(userSetting)
     }
-
     this.cache = userSetting
   }
 
@@ -104,7 +105,7 @@ class Preference {
   writeJson (json, async = true) {
     const { userDataPath } = this
     return new Promise((resolve, reject) => {
-      const content = fs.readFileSync(userDataPath, 'utf-8')
+      const content = fs.readFileSync(this.staticPath, 'utf-8')
       const tokens = content.split('```')
       const newContent = tokens[0] +
         '```json\n' +
@@ -139,14 +140,35 @@ class Preference {
       brokenSettings = true
       settings.theme = 'light'
     }
+
     if (!settings.bulletListMarker ||
       (settings.bulletListMarker && !/^(?:\+|-|\*)$/.test(settings.bulletListMarker))) {
       brokenSettings = true
       settings.bulletListMarker = '-'
     }
+
     if (!settings.titleBarStyle || !/^(?:native|csd|custom)$/.test(settings.titleBarStyle)) {
       settings.titleBarStyle = 'csd'
     }
+
+    if (!settings.tabSize || typeof settings.tabSize !== 'number') {
+      settings.tabSize = 4
+    } else if (settings.tabSize < 1) {
+      settings.tabSize = 1
+    } else if (settings.tabSize > 4) {
+      settings.tabSize = 4
+    }
+
+    if (!settings.listIndentation) {
+      settings.listIndentation = 1
+    } else if (typeof settings.listIndentation === 'number') {
+      if (settings.listIndentation < 1 || settings.listIndentation > 4) {
+        settings.listIndentation = 1
+      }
+    } else if (settings.listIndentation !== 'tab' && settings.listIndentation !== 'dfm') {
+      settings.listIndentation = 1
+    }
+
     if (brokenSettings) {
       log('Broken settings detected; fallback to default value(s).')
     }

@@ -273,7 +273,8 @@ const importRegister = ContentState => {
     const block = this.getBlock(key)
     const { text } = block
     block.text = text.substring(0, offset) + CURSOR_DNA + text.substring(offset)
-    const markdown = new ExportMarkdown(blocks).generate()
+    const listIndentation = this.listIndentation
+    const markdown = new ExportMarkdown(blocks, listIndentation).generate()
     const cursor = markdown.split('\n').reduce((acc, line, index) => {
       const ch = line.indexOf(CURSOR_DNA)
       if (ch > -1) {

@@ -236,6 +236,8 @@ export const MUYA_DEFAULT_OPTION = {
   bulletListMarker: '-',
   orderListMarker: '.',
   tabSize: 4,
+  // bullet/list marker width + listIndentation, tab or Daring Fireball Markdown (4 spaces) --> list indentation
+  listIndentation: 1,
   sequenceTheme: 'hand', // hand or simple
   mermaidTheme: 'forest', // dark or forest
   hideQuickInsertHint: false

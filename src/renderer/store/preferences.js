@@ -18,6 +18,8 @@ const state = {
   autoPairMarkdownSyntax: true,
   autoPairQuote: true,
   tabSize: 4,
+  // bullet/list marker width + listIndentation, tab or Daring Fireball Markdown (4 spaces) --> list indentation
+  listIndentation: 1,
   hideQuickInsertHint: false,
   titleBarStyle: 'csd',
   // edit modes (they are not in preference.md, but still put them here)

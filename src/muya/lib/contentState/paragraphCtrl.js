@@ -251,7 +251,7 @@ const paragraphCtrl = ContentState => {
           this.appendChild(startBlock, codeBlock)
           const { key } = inputBlock
           const offset = 0
-  
+
           this.cursor = {
             start: { key, offset },
             end: { key, offset }
@@ -270,7 +270,8 @@ const paragraphCtrl = ContentState => {
         const codeBlock = this.createBlock('code')
         preBlock.functionType = 'fencecode'
         preBlock.lang = codeBlock.lang = ''
-        const markdown = new ExportMarkdown(children.slice(startIndex, endIndex + 1)).generate()
+        const listIndentation = this.listIndentation
+        const markdown = new ExportMarkdown(children.slice(startIndex, endIndex + 1), listIndentation).generate()
 
         markdown.split(LINE_BREAKS_REG).forEach(text => {
           const codeLine = this.createBlock('span', text)

@@ -9,3 +9,9 @@
 \`\`\`
 This isn't a code block without language identifier.
 \`\`\`
+
+\$ You can also escape math \$.
+
+\$\$
+This isn't a math block.
+\$\$
