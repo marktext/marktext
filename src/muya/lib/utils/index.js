@@ -179,7 +179,8 @@ export const getImageInfo = (src, baseUrl = window.DIRNAME) => {
 
   // Treat an URL with valid extension as image
   if (imageExtension) {
-    if (isUrl || !baseUrl) {
+    const isAbsoluteLocal = /^(?:\/|\\\\|[a-zA-Z]:\\).+/.test(src)
+    if (isUrl || (!isAbsoluteLocal && !baseUrl)) {
       if (!baseUrl && isInElectron) {
         console.warn('"baseUrl" is not defined!')
       }
@@ -189,7 +190,7 @@ export const getImageInfo = (src, baseUrl = window.DIRNAME) => {
         src
       }
     } else if (isInElectron) {
-      // Correct relative path on desktop
+      // Correct relative path on desktop. If we resolve a absolute path "path.resolve" doesn't do anything.
       return {
         isUnknownType: false,
         src: 'file://' + require('path').resolve(baseUrl, src)
@@ -213,7 +214,6 @@ export const getImageInfo = (src, baseUrl = window.DIRNAME) => {
   }
 
   // Url type is unknown
-  console.error(`Invalid image url: "${src}"`)
   return {
     isUnknownType: false,
     src: ''
