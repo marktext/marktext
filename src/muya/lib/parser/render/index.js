@@ -1,7 +1,7 @@
 import mermaid from 'mermaid'
 import flowchart from 'flowchart.js'
 import Diagram from './sequence'
-// import vegaEmbed from 'vega-embed'
+import vegaEmbed from 'vega-embed'
 import { CLASS_OR_ID } from '../../config'
 import { conflict, mixins } from '../../utils'
 import { patch, toVNode, toHTML, h } from './snabbdom'
@@ -95,6 +95,9 @@ class StateRender {
 
   renderMermaid () {
     if (this.mermaidCache.size) {
+      mermaid.initialize({
+        theme: this.muya.options.mermaidTheme
+      })
       mermaid.init(undefined, document.querySelectorAll([...this.mermaidCache].join(', ')))
       this.mermaidCache.clear()
     }
@@ -104,8 +107,8 @@ class StateRender {
     const cache = this.diagramCache
     const RENDER_MAP = {
       'flowchart': flowchart,
-      'sequence': Diagram// ,
-      // 'vega-lite': vegaEmbed
+      'sequence': Diagram,
+      'vega-lite': vegaEmbed
     }
     if (cache.size) {
       for (const [key, value] of cache.entries()) {
@@ -116,7 +119,10 @@ class StateRender {
         if (functionType === 'sequence') {
           Object.assign(options, { theme: this.muya.options.sequenceTheme })
         } else if (functionType === 'vega-lite') {
-          Object.assign(options, { actions: false, tooltip: false, renderer: 'svg' })
+          Object.assign(options, {
+            actions: false, tooltip: false, renderer: 'svg',
+            theme: this.muya.options.vegaTheme
+          })
         }
         try {
           if (functionType === 'flowchart' || functionType === 'sequence') {

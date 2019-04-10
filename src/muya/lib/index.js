@@ -263,6 +263,13 @@ class Muya {
     this.clipboard.copy(name)
   }
 
+  setOptions (options, needRender = false) {
+    Object.assign(this.options, options)
+    if (needRender) {
+      this.contentState.render()
+    }
+  }
+
   destroy () {
     this.contentState.clear()
     this.quickInsert.destroy()

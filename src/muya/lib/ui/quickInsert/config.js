@@ -15,10 +15,10 @@ import quoteIcon from '../../assets/icons/quote.svg'
 import todoListIcon from '../../assets/icons/todolist.svg'
 import mathblockIcon from '../../assets/icons/math.svg'
 import orderListIcon from '../../assets/icons/order_list.svg'
-// import flowchartIcon from '../../assets/icons/flowchart.svg'
-// import sequenceIcon from '../../assets/icons/sequence.svg'
-// import mermaidIcon from '../../assets/icons/mermaid.svg'
-// import vegaIcon from '../../assets/icons/chart.svg'
+import flowchartIcon from '../../assets/icons/flowchart.svg'
+import sequenceIcon from '../../assets/icons/sequence.svg'
+import mermaidIcon from '../../assets/icons/mermaid.svg'
+import vegaIcon from '../../assets/icons/chart.svg'
 import { isOsx } from '../../config'
 
 const COMMAND_KEY = isOsx ? '⌘' : '⌃'
@@ -40,27 +40,6 @@ const COMMAND_KEY = isOsx ? '⌘' : '⌃'
 
 
 export const quicInsertObj = {
-  // 'diagram': [{
-  //   title: 'Vega Chart',
-  //   subTitle: 'Render flow chart by vega-lite.js.',
-  //   label: 'vega-lite',
-  //   icon: vegaIcon
-  // }, {
-  //   title: 'Flow Chart',
-  //   subTitle: 'Render flow chart by flowchart.js.',
-  //   label: 'flowchart',
-  //   icon: flowchartIcon
-  // }, {
-  //   title: 'Sequence Diagram',
-  //   subTitle: 'Render sequence diagram by js-sequence.',
-  //   label: 'sequence',
-  //   icon: sequenceIcon
-  // }, {
-  //   title: 'Mermaid',
-  //   subTitle: 'Render Diagram by mermaid.',
-  //   label: 'mermaid',
-  //   icon: mermaidIcon
-  // }],
   'basic block': [{
     title: 'Paragraph',
     subTitle: 'Lorem Ipsum is simply dummy text',
@@ -166,5 +145,26 @@ export const quicInsertObj = {
     label: 'ul-task',
     shortCut: `⌥${COMMAND_KEY}X`,
     icon: todoListIcon
+  }],
+  'diagram': [{
+    title: 'Vega Chart',
+    subTitle: 'Render flow chart by vega-lite.js.',
+    label: 'vega-lite',
+    icon: vegaIcon
+  }, {
+    title: 'Flow Chart',
+    subTitle: 'Render flow chart by flowchart.js.',
+    label: 'flowchart',
+    icon: flowchartIcon
+  }, {
+    title: 'Sequence Diagram',
+    subTitle: 'Render sequence diagram by js-sequence.',
+    label: 'sequence',
+    icon: sequenceIcon
+  }, {
+    title: 'Mermaid',
+    subTitle: 'Render Diagram by mermaid.',
+    label: 'mermaid',
+    icon: mermaidIcon
   }]
 }
