@@ -1,28 +1,10 @@
-import { VOID_HTML_TAGS, HTML_TAGS, HTML_TOOLS } from '../config'
+import { VOID_HTML_TAGS, HTML_TAGS } from '../config'
 import { inlineRules } from '../parser/rules'
 
 const HTML_BLOCK_REG = /^<([a-zA-Z\d-]+)(?=\s|>)[^<>]*?>$/
 const LINE_BREAKS = /\n/
 
 const htmlBlock = ContentState => {
-  ContentState.prototype.createToolBar = function (tools, toolBarType) {
-    const toolBar = this.createBlock('div', '', false)
-    toolBar.toolBarType = toolBarType
-    const ul = this.createBlock('ul')
-
-    tools.forEach(tool => {
-      const toolBlock = this.createBlock('li')
-      const svgBlock = this.createBlock('svg')
-      svgBlock.icon = tool.icon
-      toolBlock.label = tool.label
-      toolBlock.title = tool.title
-      this.appendChild(toolBlock, svgBlock)
-      this.appendChild(ul, toolBlock)
-    })
-    this.appendChild(toolBar, ul)
-    return toolBar
-  }
-
   ContentState.prototype.createCodeInHtml = function (code) {
     const codeContainer = this.createBlock('div')
     codeContainer.functionType = 'html'
@@ -47,33 +29,6 @@ const htmlBlock = ContentState => {
     return codeContainer
   }
 
-  ContentState.prototype.htmlToolBarClick = function (type) {
-    const { start: { key } } = this.cursor
-    const codeLine = this.getBlock(key)
-    const codeBlock = this.getParent(codeLine)
-    const preBlock = this.getParent(codeBlock)
-    const codeBlockContainer = this.getParent(preBlock)
-    const htmlBlock = this.getParent(codeBlockContainer)
-
-    switch (type) {
-      case 'delete': {
-        htmlBlock.type = 'p'
-        htmlBlock.text = ''
-        htmlBlock.children = []
-        const emptyLine = this.createBlock('span')
-        this.appendChild(htmlBlock, emptyLine)
-        const key = emptyLine.key
-        const offset = 0
-        this.cursor = {
-          start: { key, offset },
-          end: { key, offset }
-        }
-        this.partialRender()
-        break
-      }
-    }
-  }
-
   ContentState.prototype.handleHtmlBlockClick = function (codeWrapper) {
     const id = codeWrapper.id
     const codeBlock = this.getBlock(id).children[0]
@@ -89,9 +44,7 @@ const htmlBlock = ContentState => {
   ContentState.prototype.createHtmlBlock = function (code) {
     const block = this.createBlock('figure')
     block.functionType = 'html'
-    const toolBar = this.createToolBar(HTML_TOOLS, 'html')
     const htmlBlock = this.createCodeInHtml(code)
-    this.appendChild(block, toolBar)
     this.appendChild(block, htmlBlock)
     return block
   }
@@ -130,9 +83,7 @@ const htmlBlock = ContentState => {
     block.functionType = 'html'
     block.text = htmlContent
     block.children = []
-    const toolBar = this.createToolBar(HTML_TOOLS, 'html')
     const codeContainer = this.createCodeInHtml(htmlContent)
-    this.appendChild(block, toolBar)
     this.appendChild(block, codeContainer)
     return codeContainer.children[0] // preBlock
   }

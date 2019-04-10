@@ -41,7 +41,7 @@ class ClickEvent {
     const { container, eventCenter, contentState } = this.muya
     const handler = event => {
       const { target } = event
-      // handler table | html toolbar click
+      // handler table click
       const toolItem = getToolItem(target)
       if (toolItem) {
         event.preventDefault()
@@ -50,8 +50,6 @@ class ClickEvent {
         const grandPa = toolItem.parentNode.parentNode
         if (grandPa.classList.contains('ag-tool-table')) {
           contentState.tableToolBarClick(type)
-        } else if (grandPa.classList.contains('ag-tool-html')) {
-          contentState.htmlToolBarClick(type)
         }
       }
       // handler image and inline math preview click

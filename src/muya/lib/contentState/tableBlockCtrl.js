@@ -4,6 +4,24 @@ import { TABLE_TOOLS } from '../config'
 const TABLE_BLOCK_REG = /^\|.*?(\\*)\|.*?(\\*)\|/
 
 const tableBlockCtrl = ContentState => {
+  ContentState.prototype.createToolBar = function (tools, toolBarType) {
+    const toolBar = this.createBlock('div', '', false)
+    toolBar.toolBarType = toolBarType
+    const ul = this.createBlock('ul')
+
+    tools.forEach(tool => {
+      const toolBlock = this.createBlock('li')
+      const svgBlock = this.createBlock('svg')
+      svgBlock.icon = tool.icon
+      toolBlock.label = tool.label
+      toolBlock.title = tool.title
+      this.appendChild(toolBlock, svgBlock)
+      this.appendChild(ul, toolBlock)
+    })
+    this.appendChild(toolBar, ul)
+    return toolBar
+  }
+
   ContentState.prototype.createTableInFigure = function ({ rows, columns }, headerTexts) {
     const table = this.createBlock('table')
     const tHead = this.createBlock('thead')
