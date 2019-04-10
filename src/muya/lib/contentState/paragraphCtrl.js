@@ -609,6 +609,19 @@ const paragraphCtrl = ContentState => {
     this.muya.eventCenter.dispatch('stateChange')
   }
 
+  ContentState.prototype.getPreBlock = function (block) {
+    const { children } = block
+    if (!children || !children.length) return null
+    for (const child of children) {
+      if (child.type === 'pre') {
+        return child
+      } else {
+        return this.getPreBlock(child)
+      }
+    }
+    return null
+  }
+
   // make a dulication of the current block
   ContentState.prototype.duplicate = function () {
     const { start, end } = this.cursor
@@ -618,8 +631,15 @@ const paragraphCtrl = ContentState => {
       // if the cursor is not in one paragraph, just return
       return
     }
+    // if copied block has pre block: html, multiplemath, vega-light, mermaid, flowchart, sequence...
     const copiedBlock = this.copyBlock(startOutmostBlock)
     this.insertAfter(copiedBlock, startOutmostBlock)
+    if (copiedBlock.type === 'figure' && copiedBlock.functionType) {
+      const preBlock = this.getPreBlock(copiedBlock)
+      if (preBlock) {
+        this.updateCodeBlocks(preBlock.children[0].children[0])
+      }
+    }
     const cursorBlock = this.firstInDescendant(copiedBlock)
     // set cursor at the end of the first descendant of the duplicated block.
     const { key, text } = cursorBlock
