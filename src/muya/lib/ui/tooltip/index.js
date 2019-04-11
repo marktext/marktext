@@ -5,8 +5,8 @@ const position = (source, ele) => {
   const { top, right, height } = rect
 
   Object.assign(ele.style, {
-    top: `${top + height + 10}px`,
-    left: `${right - ele.offsetWidth / 2 - 5}px`
+    top: `${top + height + 20}px`,
+    left: `${right - ele.offsetWidth / 2 - 10}px`
   })
 }
 
