@@ -261,6 +261,7 @@ figure {
   right: 0;
 }
 
+.ag-front-icon i.icon,
 .ag-tool-bar ul li i.icon {
   display: inline-block;
   position: relative;
@@ -272,6 +273,7 @@ figure {
   transition: all .25s ease-in-out;
 }
 
+.ag-front-icon i.icon > i[class^=icon-],
 .ag-tool-bar ul li i.icon > i[class^=icon-] {
   display: inline-block;
   width: 100%;
@@ -740,10 +742,11 @@ span.ag-reference-link {
   position: absolute;
   width: 16px;
   height: 16px;
-  top: 2px;
+  top: 0.4em;
   left: -30px;
   display: none;
   cursor: pointer;
+  opacity: .6;
 }
 
 .ag-front-icon::before {
@@ -758,6 +761,20 @@ span.ag-reference-link {
   right: -8px;
   /*temp hide it*/
   display: none;
+}
+
+.ag-front-icon i.icon {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 16px;
+  height: 16px;
+}
+
+.ag-front-icon i.icon > i[class^=icon-] {
+  filter: drop-shadow(16px 0 currentColor); 
+  position: absolute;
+  left: -16px;
 }
 
 .ag-paragraph.ag-active .ag-front-icon {

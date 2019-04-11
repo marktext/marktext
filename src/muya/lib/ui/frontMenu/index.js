@@ -65,24 +65,13 @@ class FrontMenu extends BaseFloat {
     const children = subMenu.map(menuItem => {
       const { icon, title, label, shortCut } = menuItem
       const iconWrapperSelector = 'div.icon-wrapper'
-      const iconWrapper = h(iconWrapperSelector, h('svg', {
-        attrs: {
-          'viewBox': icon.viewBox,
-          'aria-hidden': 'true'
-        },
-        hook: {
-          prepatch (oldvnode, vnode) {
-            // cheat snabbdom that the pre block is changed!!!
-            oldvnode.children = []
-            oldvnode.elm.innerHTML = ''
-          }
+      const iconWrapper = h(iconWrapperSelector, h('i.icon', h(`i.icon-${label.replace(/\s/g, '-')}`, {
+        style: {
+          background: `url(${icon}) no-repeat`,
+          'background-size': '100%'
         }
-        }, [h('use', {
-          attrs: {
-            'xlink:href': `${icon.url}`
-          }
-        })]
-      ))
+      }, '')))
+
       const textWrapper = h('span', title)
       const shortCutWrapper = h('div.short-cut', [
         h('span', shortCut)
