@@ -222,7 +222,8 @@
           bulletListMarker,
           tabSize,
           listIndentation,
-          hideQuickInsertHint
+          hideQuickInsertHint,
+          theme
         } = this
 
         // use muya UI plugins
@@ -234,7 +235,7 @@
         Muya.use(FormatPicker)
         Muya.use(FrontMenu)
 
-        const { container } = this.editor = new Muya(ele, {
+        const options = {
           focusMode,
           markdown,
           preferLooseListItem,
@@ -245,7 +246,20 @@
           tabSize,
           listIndentation,
           hideQuickInsertHint
-        })
+        }
+        if (/dark/i.test(theme)) {
+          Object.assign(options, {
+            mermaidTheme: 'dark',
+            vegaTheme: 'dark'
+          })
+        } else {
+          Object.assign(options, {
+            mermaidTheme: 'default',
+            vegaTheme: 'latimes'
+          })
+        }
+
+        const { container } = this.editor = new Muya(ele, options)
 
         if (typewriter) {
           this.scrollToCursor()
