@@ -16,18 +16,13 @@ class ExportMarkdown {
     this.isLooseParentList = true
 
     // set and validate settings
-    if (listIndentation === 'tab') {
-      this.listIndentation = '\t'
-      this.listIndentationCount = null
-    } else if (listIndentation === 'dfm') {
-      // static 4 spaces
-      this.listIndentation = '    '
-      this.listIndentationCount = null
+    this.listIndentation = 'number'
+    if (listIndentation === 'dfm') {
+      this.listIndentation = 'dfm'
+      this.listIndentationCount = 4
     } else if (typeof listIndentation === 'number') {
-      this.listIndentation = null
       this.listIndentationCount = Math.min(Math.max(listIndentation, 1), 4)
     } else {
-      this.listIndentation = null
       this.listIndentationCount = 1
     }
   }
@@ -36,7 +31,7 @@ class ExportMarkdown {
     return this.translateBlocks2Markdown(this.blocks)
   }
 
-  translateBlocks2Markdown (blocks, indent = '') {
+  translateBlocks2Markdown (blocks, indent = '', listIndent = '') {
     const result = []
     // helper for CommonMark 264
     let lastListBullet = ''
@@ -105,7 +100,7 @@ class ExportMarkdown {
           if (insertNewLine) {
             this.insertLineBreak(result, indent)
           }
-          result.push(this.normalizeListItem(block, indent))
+          result.push(this.normalizeListItem(block, indent + listIndent))
           this.isLooseParentList = true
           break
         }
@@ -124,7 +119,7 @@ class ExportMarkdown {
           }
 
           this.listType.push({ type: 'ul' })
-          result.push(this.normalizeList(block, indent))
+          result.push(this.normalizeList(block, indent, listIndent))
           this.listType.pop()
           break
         }
@@ -143,7 +138,7 @@ class ExportMarkdown {
           }
           const listCount = block.start !== undefined ? block.start : 1
           this.listType.push({ type: 'ol', listCount })
-          result.push(this.normalizeList(block, indent))
+          result.push(this.normalizeList(block, indent, listIndent))
           this.listType.pop()
           break
         }
@@ -309,9 +304,9 @@ class ExportMarkdown {
     return result.join('\n') + '\n'
   }
 
-  normalizeList (block, indent) {
+  normalizeList (block, indent, listIndent) {
     const { children } = block
-    return this.translateBlocks2Markdown(children, indent)
+    return this.translateBlocks2Markdown(children, indent, listIndent)
   }
 
   normalizeListItem (block, indent) {
@@ -324,13 +319,34 @@ class ExportMarkdown {
     if (isUnorderedList) {
       itemMarker = bulletMarkerOrDelimiter ? `${bulletMarkerOrDelimiter} ` : '- '
     } else {
+      // NOTE: GitHub and Bitbucket limit the list count to 99 but this is nowhere defined.
+      //  We limit the number to 99 for Daring Fireball Markdown to prevent indentation issues.
+      let n = listInfo.listCount
+      if ((this.listIndentation === 'dfm' && n > 99) || n > 999999999) {
+        n = 1
+      }
+      listInfo.listCount++
+
       const delimiter = bulletMarkerOrDelimiter ? bulletMarkerOrDelimiter : '.'
-      itemMarker = `${listInfo.listCount++}${delimiter} `
+      itemMarker = `${n}${delimiter} `
     }
 
-    // We already added one space to the indentation
-    const listIndent = this.getListIndentation(itemMarker.length - 1)
-    const newIndent = indent + listIndent
+    // Subsequent paragraph indentation
+    const newIndent = indent + ' '.repeat(itemMarker.length)
+
+    // New list indentation. We already added one space to the indentation
+    let listIndent = ''
+    const { listIndentation } = this
+    if (listIndentation === 'dfm') {
+      listIndent = ' '.repeat(4 - itemMarker.length)
+    } else if (listIndentation === 'number') {
+      listIndent = ' '.repeat(this.listIndentationCount - 1)
+    }
+
+    // TODO: Indent subsequent paragraphs by one tab. - not important
+    //  Problem: "translateBlocks2Markdown" use "indent" in spaces to indent elements. How should
+    //  we integrate tabs in blockquotes and subsequent paragraphs and how to combine with spaces?
+    //  I don't know how to combine tabs and spaces and it seems not specified, so work for another day.
 
     if (isUnorderedList && block.listItemType === 'task') {
       const firstChild = children[0]
@@ -339,22 +355,8 @@ class ExportMarkdown {
     }
 
     result.push(`${indent}${itemMarker}`)
-    result.push(this.translateBlocks2Markdown(children, newIndent).substring(newIndent.length))
+    result.push(this.translateBlocks2Markdown(children, newIndent, listIndent).substring(newIndent.length))
     return result.join('')
-  }
-
-  getListIndentation (listMarkerWidth) {
-    // listIndentation:
-    //   tab:    Indent subsequent paragraphs by one tab.
-    //   dfm:    Each subsequent paragraph in a list item must be indented by either 4 spaces or one tab (used by Bitbucket and Daring Fireball).
-    //   number: Dynamic indent subsequent paragraphs by the given number (1-4) plus list marker width.
-
-    if (this.listIndentation) {
-      return this.listIndentation
-    } else if (this.listIndentationCount) {
-      return ' '.repeat(listMarkerWidth + this.listIndentationCount)
-    }
-    return ' '.repeat(listMarkerWidth)
   }
 }
 

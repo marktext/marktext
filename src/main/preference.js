@@ -165,7 +165,7 @@ class Preference {
       if (settings.listIndentation < 1 || settings.listIndentation > 4) {
         settings.listIndentation = 1
       }
-    } else if (settings.listIndentation !== 'tab' && settings.listIndentation !== 'dfm') {
+    } else if (settings.listIndentation !== 'dfm') {
       settings.listIndentation = 1
     }
 
