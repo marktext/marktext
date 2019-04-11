@@ -101,17 +101,12 @@ class FrontMenu extends BaseFloat {
     const children = menu.map(({ icon, label, text, shortCut }) => {
       const subMenu = getSubMenu(outmostBlock, startBlock, endBlock)
       const iconWrapperSelector = 'div.icon-wrapper'
-      const iconWrapper = h(iconWrapperSelector, h('svg', {
-        attrs: {
-          'viewBox': icon.viewBox,
-          'aria-hidden': 'true'
+      const iconWrapper = h(iconWrapperSelector, h('i.icon', h(`i.icon-${label.replace(/\s/g, '-')}`, {
+        style: {
+          background: `url(${icon}) no-repeat`,
+          'background-size': '100%'
         }
-        }, [h('use', {
-          attrs: {
-            'xlink:href': `${icon.url}`
-          }
-        })]
-      ))
+      }, '')))
       const textWrapper = h('span', text)
       const shortCutWrapper = h('div.short-cut', [
         h('span', shortCut)

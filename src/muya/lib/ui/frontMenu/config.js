@@ -1,7 +1,7 @@
-import copyIcon from '../../assets/icons/copy.svg'
-import newIcon from '../../assets/icons/paragraph.svg'
-import deleteIcon from '../../assets/icons/delete.svg'
-import turnIcon from '../../assets/icons/turn.svg'
+import copyIcon from '../../assets/pngicon/copy/2.png'
+import newIcon from '../../assets/pngicon/paragraph/2.png'
+import deleteIcon from '../../assets/pngicon/delete/delete@2x.png'
+import turnIcon from '../../assets/pngicon/turninto/2.png'
 import { isOsx } from '../../config'
 import { quicInsertObj } from '../quickInsert/config'
 

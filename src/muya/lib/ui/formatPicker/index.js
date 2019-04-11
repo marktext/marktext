@@ -53,17 +53,12 @@ class FormatPicker extends BaseFloat {
       if (i.icon) {
         // SVG icon Asset
         iconWrapperSelector = 'div.icon-wrapper'
-        icon = h('svg', {
-          attrs: {
-            'viewBox': i.icon.viewBox,
-            'aria-hidden': 'true'
+        icon = h('i.icon', h(`i.icon-inner`, {
+          style: {
+            background: `url(${i.icon}) no-repeat`,
+            'background-size': '100%'
           }
-        }, [h('use', {
-          attrs: {
-            'xlink:href': `${i.icon.url}`
-          }
-        })]
-        )
+        }, ''))
       }
       const iconWrapper = h(iconWrapperSelector, icon)
       let itemSelector = `li.item.${i.type}`
