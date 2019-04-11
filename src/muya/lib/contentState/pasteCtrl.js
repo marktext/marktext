@@ -82,7 +82,7 @@ const pasteCtrl = ContentState => {
       return this.pasteHandler(event, type)
     }
 
-    const appendHtml = () => {
+    const appendHtml = (text) => {
       startBlock.text = startBlock.text.substring(0, start.offset) + text + startBlock.text.substring(start.offset)
       const { key } = start
       const offset = start.offset + text.length
@@ -179,30 +179,67 @@ const pasteCtrl = ContentState => {
 
     // handle copyAsHtml
     if (copyType === 'copyAsHtml') {
+      // already handle code block above
+      if (startBlock.type === 'span' && startBlock.nextSibling) {
+        const afterParagraph = this.createBlock('p')
+        let temp = startBlock
+        const removeCache = []
+        while (temp.nextSibling) {
+          temp = this.getBlock(temp.nextSibling)
+          this.appendChild(afterParagraph, temp)
+          removeCache.push(temp)
+        }
+        removeCache.forEach(b => this.removeBlock(b))
+        this.insertAfter(afterParagraph, parent)
+        startBlock.nextSibling = null
+      }
       switch (type) {
         case 'normal': {
-          if (startBlock.type === 'span' && this.isOnlyChild(startBlock) && !startBlock.text) {
-            this.codeBlockUpdate(startBlock, text.trim(), 'html')
-          } else {
-            appendHtml()
+          const htmlBlock = this.createBlock('p')
+          const lines = text.trim().split(LINE_BREAKS_REG).map(line => this.createBlock('span', line))
+          for (const line of lines) {
+            this.appendChild(htmlBlock, line)
           }
+          if (startBlock.type === 'span') {
+            this.insertAfter(htmlBlock, parent)
+          } else {
+            this.insertAfter(htmlBlock, startBlock)
+          }
+          if (
+            startBlock.type === 'span' && startBlock.text.length === 0 && this.isOnlyChild(startBlock)
+          ) {
+            this.removeBlock(parent)
+          }
+          // handler heading
+          if (startBlock.text.length === 0 && startBlock.type !== 'span') {
+            this.removeBlock(startBlock)
+          }
+          this.insertHtmlBlock(htmlBlock)
           break
         }
         case 'pasteAsPlainText': {
-          if (startBlock.type === 'span') {
-            const lines = text.trim().split(LINE_BREAKS_REG).map(line => this.createBlock('span', line))
-            for (const line of lines) {
-              this.appendChild(parent, line)
+          const lines = text.trim().split(LINE_BREAKS_REG)
+          let htmlBlock = null
+          
+          if (!startBlock.text || lines.length > 1) {
+            htmlBlock = this.createBlock('p')
+            ;(startBlock.text ? lines.slice(1) : lines).map(line => this.createBlock('span', line))
+              .forEach(l => {
+                this.appendChild(htmlBlock, l)
+              })
+          }
+          if (htmlBlock) {
+            if (startBlock.type === 'span') {
+              this.insertAfter(htmlBlock, parent)
+            } else {
+              this.insertAfter(htmlBlock, startBlock)
             }
-            const lastLine = lines[lines.length - 1]
-            const { key } = lastLine
-            const offset = lastLine.text.length
-            this.cursor = {
-              start: { key, offset },
-              end: { key, offset }
-            }
+            this.insertHtmlBlock(htmlBlock)
+          }
+          if (startBlock.text) {
+            appendHtml(lines[0])
           } else {
-            appendHtml()
+            this.removeBlock(startBlock.type === 'span' ? parent : startBlock)
           }
           break
         }
