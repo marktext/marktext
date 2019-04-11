@@ -668,13 +668,13 @@ span.ag-warn.ag-emoji-marked-text {
 
 .ag-image-marked-text::before {
   content: '';
-  width: 1.1em;
-  height: 1.1em;
+  width: 1em;
+  height: 1em;
   display: inline-block;
   vertical-align: middle;
-  background-size: contain;
+  background-size: 1em;
   position: relative;
-  top: -3px;
+  top: -0.05em;
 }
 
 span[data-role="link"], a[data-role="link"], span[data-role="link"] .ag-backlash {
