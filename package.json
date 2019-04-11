@@ -40,40 +40,18 @@
     },
     "fileAssociations": [
       {
-        "ext": "md",
+        "ext": [
+          "md",
+          "markdown",
+          "mmd",
+          "mdown",
+          "mdtxt",
+          "mdtext"
+        ],
         "name": "Markdown",
         "description": "Markdown document",
-        "role": "Editor"
-      },
-      {
-        "ext": "markdown",
-        "name": "Markdown",
-        "description": "Markdown document",
-        "role": "Editor"
-      },
-      {
-        "ext": "mmd",
-        "name": "Markdown",
-        "description": "Markdown document",
-        "role": "Editor"
-      },
-      {
-        "ext": "mdown",
-        "name": "Markdown",
-        "description": "Markdown document",
-        "role": "Editor"
-      },
-      {
-        "ext": "mdtxt",
-        "name": "Markdown",
-        "description": "Markdown document",
-        "role": "Editor"
-      },
-      {
-        "ext": "mdtext",
-        "name": "Markdown",
-        "description": "Markdown document",
-        "role": "Editor"
+        "role": "Editor",
+        "icon": "../resources/icons/md.icns"
       }
     ],
     "files": [
