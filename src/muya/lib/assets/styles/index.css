@@ -740,13 +740,18 @@ span.ag-reference-link {
 
 .ag-front-icon {
   position: absolute;
-  width: 16px;
-  height: 16px;
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
   top: 0.4em;
   left: -30px;
   display: none;
   cursor: pointer;
   opacity: .6;
+}
+
+.ag-front-icon:hover {
+  background: var(--selectionColor);
 }
 
 .ag-front-icon::before {
@@ -765,8 +770,8 @@ span.ag-reference-link {
 
 .ag-front-icon i.icon {
   position: absolute;
-  top: 0;
-  left: 0;
+  top: 2px;
+  left: 2px;
   width: 16px;
   height: 16px;
 }
