@@ -261,15 +261,33 @@ figure {
   right: 0;
 }
 
-.ag-tool-bar ul li.active svg {
-  fill: var(--themeColor);
+.ag-tool-bar ul li i.icon {
+  display: inline-block;
+  position: relative;
+  height:20px;
+  width: 20px;
+  overflow: hidden;
+  color: var(--iconColor);
+  opacity: .5;
+  transition: all .25s ease-in-out;
 }
 
-.ag-tool-bar ul li svg {
+.ag-tool-bar ul li i.icon > i[class^=icon-] {
+  display: inline-block;
   width: 100%;
   height: 100%;
-  will-change: transform;
-  fill: currentColor;
+  filter: drop-shadow(20px 0 currentColor); 
+  position: relative;
+  left: -20px;
+}
+
+.ag-tool-bar ul li.active i.icon {
+  color: var(--themeColor);
+}
+
+.ag-tool-bar ul li[data-label=delete] i.icon {
+  color: var(--deleteColor);
+  opacity: 1;
 }
 
 figure.ag-active .ag-tool-bar {

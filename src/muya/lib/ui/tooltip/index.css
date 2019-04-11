@@ -3,7 +3,7 @@
   position: absolute;
   font-size: 12px;
   padding: 5px 7px;
-  border-radius: 3px;
+  border-radius: 5px;
   background: var(--floatBgColor);
   color: var(--editorColor);
   box-shadow: 0 4px 8px 0 var(--floatBorderColor);

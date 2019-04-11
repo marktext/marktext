@@ -9,7 +9,7 @@ import TurndownService, { usePluginAddRules } from './turndownService'
 import { loadLanguage } from '../prism/index'
 
 // To be disabled rules when parse markdown, Because content state don't need to parse inline rules
-import { CURSOR_DNA, TABLE_TOOLS } from '../config'
+import { CURSOR_DNA } from '../config'
 
 const LINE_BREAKS_REG = /\n/
 
@@ -130,7 +130,6 @@ const importRegister = ContentState => {
         }
         case 'table': {
           const { header, align, cells } = token
-          const toolBar = this.createToolBar(TABLE_TOOLS, 'table')
           const table = this.createBlock('table')
           const thead = this.createBlock('thead')
           const tbody = this.createBlock('tbody')
@@ -160,7 +159,6 @@ const importRegister = ContentState => {
           block = this.createBlock('figure')
           block.functionType = 'table'
           this.appendChild(thead, theadRow)
-          this.appendChild(block, toolBar)
           this.appendChild(block, table)
           this.appendChild(table, thead)
           this.appendChild(table, tbody)
