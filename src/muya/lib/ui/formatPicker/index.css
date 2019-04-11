@@ -44,18 +44,18 @@
 }
 
 .ag-format-picker li.item .icon-wrapper {
-  width: 20px;
-  height: 20px;
+  width: 18px;
+  height: 18px;
 }
 
 .ag-format-picker li.item .icon-wrapper i.icon {
   display: inline-block;
   position: relative;
-  height:20px;
-  width: 20px;
+  height: 100%;
+  width: 100%;
   overflow: hidden;
   color: var(--iconColor);
-  opacity: .6;
+  opacity: .7;
   transition: all .25s ease-in-out;
 }
 
@@ -63,9 +63,9 @@
   display: inline-block;
   width: 100%;
   height: 100%;
-  filter: drop-shadow(20px 0 currentColor); 
+  filter: drop-shadow(18px 0 currentColor); 
   position: relative;
-  left: -20px;
+  left: -18px;
 }
 
 .ag-format-picker li.item.active .icon-wrapper i.icon {
