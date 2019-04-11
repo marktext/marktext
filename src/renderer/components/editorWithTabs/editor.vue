@@ -440,25 +440,25 @@
         this.scrollToHighlight()
       },
 
-      handlePrint () {
+      async handlePrint () {
         // generate styled HTML with empty title and optimized for printing
-        const html = this.editor.exportStyledHTML('', true)
+        const html = await this.editor.exportStyledHTML('', true)
         this.printer.renderMarkdown(html, true)
         this.$store.dispatch('PRINT_RESPONSE')
       },
 
-      handleExport (type) {
+      async handleExport (type) {
         const markdown = this.editor.getMarkdown()
         switch (type) {
           case 'styledHtml': {
-            const content = this.editor.exportStyledHTML(this.filename)
+            const content = await this.editor.exportStyledHTML(this.filename)
             this.$store.dispatch('EXPORT', { type, content, markdown })
             break
           }
 
           case 'pdf': {
             // generate styled HTML with empty title and optimized for printing
-            const html = this.editor.exportStyledHTML('', true)
+            const html = await this.editor.exportStyledHTML('', true)
             this.printer.renderMarkdown(html, true)
             this.$store.dispatch('EXPORT', { type, markdown })
             break

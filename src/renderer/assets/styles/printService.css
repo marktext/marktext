@@ -49,6 +49,18 @@ body article.print-container {
     white-space: pre-wrap;
     word-break: break-word;
   }
+  body article.markdown-body .flowchart,
+  body article.markdown-body .sequence,
+  body article.markdown-body .mermaid,
+  body article.markdown-body .vega-embed {
+    text-align: center;
+  }
+  body article.markdown-body .flowchart > svg,
+  body article.markdown-body .sequence > svg,
+  body article.markdown-body .mermaid > svg,
+  body article.markdown-body .vega-embed > svg {
+    max-width: 100%;
+  }
   @media (max-width: 767px) {
     body article.markdown-body {
       padding: 15px;
