@@ -1,4 +1,4 @@
-### [unreleased]
+### 0.14.0
 
 This update **fixes a XSS security vulnerability** when exporting a document.
 
