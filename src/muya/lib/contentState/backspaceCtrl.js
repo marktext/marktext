@@ -1,6 +1,6 @@
 import selection from '../selection'
 import { findNearestParagraph, findOutMostParagraph } from '../selection/dom'
-import { tokenizer, generator } from '../parser/parse'
+import { tokenizer, generator } from '../parser/'
 
 const backspaceCtrl = ContentState => {
   ContentState.prototype.checkBackspaceCase = function () {
