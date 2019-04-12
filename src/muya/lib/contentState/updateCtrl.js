@@ -1,4 +1,4 @@
-import { tokenizer } from '../parser/parse'
+import { tokenizer } from '../parser/'
 import { conflict } from '../utils'
 import { CLASS_OR_ID } from '../config'
 

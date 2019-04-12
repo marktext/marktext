@@ -35,6 +35,18 @@ const getAttributes = html => {
   return attrs
 }
 
+const parseSrcAndTitle = (text = '') => {
+  const parts = text.split(/\s+/)
+  const src = parts[0]
+  const rawTitle = text.substring(src.length).trim()
+  const TITLE_REG = /^('|")(.*?)\1$/ // we only support use `'` and `"` to indicate a title now.
+  let title = ''
+  if (rawTitle && TITLE_REG.test(rawTitle)) {
+    title = rawTitle.replace(TITLE_REG, '$2')
+  }
+  return { src, title }
+}
+
 const lowerPriority = (src, offset) => {
   let i
   for (i = 0; i < offset; i++) {
@@ -265,18 +277,23 @@ const tokenizerFac = (src, beginRules, inlineRules, pos = 0, top, labels) => {
     // image
     const imageTo = inlineRules.image.exec(src)
     if (imageTo && isLengthEven(imageTo[3]) && isLengthEven(imageTo[5])) {
+      const { src: imageSrc, title } = parseSrcAndTitle(imageTo[4])
       pushPending()
       tokens.push({
         type: 'image',
         raw: imageTo[0],
         marker: imageTo[1],
-        src: imageTo[4],
+        srcAndTitle: imageTo[4],
+        src: imageSrc,
+        title,
         parent: tokens,
         range: {
           start: pos,
           end: pos + imageTo[0].length
         },
-        alt: imageTo[2],
+        // An image description has inline elements as its contents.
+        // When an image is rendered to HTML, this is standardly used as the image’s alt attribute.
+        alt: imageTo[2].replace(/[`*{}[\]()#+\-.!_>~:|<>$]/g, ''),
         backlash: {
           first: imageTo[3],
           second: imageTo[5]
@@ -289,12 +306,15 @@ const tokenizerFac = (src, beginRules, inlineRules, pos = 0, top, labels) => {
     // link
     const linkTo = inlineRules.link.exec(src)
     if (linkTo && isLengthEven(linkTo[3]) && isLengthEven(linkTo[5])) {
+      const { src: href, title } = parseSrcAndTitle(linkTo[4])
       pushPending()
       tokens.push({
         type: 'link',
         raw: linkTo[0],
         marker: linkTo[1],
-        href: linkTo[4],
+        hrefAndTitle: linkTo[4],
+        href,
+        title,
         parent: tokens,
         anchor: linkTo[2],
         range: {

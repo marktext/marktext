@@ -1,7 +1,7 @@
 import selection from '../selection'
 import { getTextContent } from '../selection/dom'
 import { beginRules } from '../parser/rules'
-import { tokenizer } from '../parser/parse'
+import { tokenizer } from '../parser/'
 import { CLASS_OR_ID } from '../config'
 
 const BRACKET_HASH = {
