@@ -18,12 +18,12 @@ export default function link (h, cursor, block, token, outerClass) {
   const hrefContent = this.highlight(
     h, block,
     start + 1 + token.anchor.length + token.backlash.first.length + 2,
-    start + 1 + token.anchor.length + token.backlash.first.length + 2 + token.href.length,
+    start + 1 + token.anchor.length + token.backlash.first.length + 2 + token.hrefAndTitle.length,
     token
   )
   const middleHref = this.highlight(
     h, block, start + 1 + token.anchor.length + token.backlash.first.length,
-    block, start + 1 + token.anchor.length + token.backlash.first.length + 2 + token.href.length,
+    block, start + 1 + token.anchor.length + token.backlash.first.length + 2 + token.hrefAndTitle.length,
     token
   )
 
@@ -39,7 +39,8 @@ export default function link (h, cursor, block, token, outerClass) {
         h(`a.${CLASS_OR_ID['AG_NOTEXT_LINK']}.${CLASS_OR_ID['AG_INLINE_RULE']}`, {
           props: {
             href: token.href + encodeURI(token.backlash.second),
-            target: '_blank'
+            target: '_blank',
+            title: token.title
           }
         }, [
           ...hrefContent,
@@ -53,7 +54,8 @@ export default function link (h, cursor, block, token, outerClass) {
         h(`a.${CLASS_OR_ID['AG_INLINE_RULE']}`, {
           props: {
             href: token.href + encodeURI(token.backlash.second),
-            target: '_blank'
+            target: '_blank',
+            title: token.title
           }
         }, [
           ...token.children.reduce((acc, to) => {

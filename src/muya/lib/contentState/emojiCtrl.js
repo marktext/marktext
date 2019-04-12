@@ -1,4 +1,4 @@
-import { tokenizer, generator } from '../parser/parse'
+import { tokenizer, generator } from '../parser/'
 
 const emojiCtrl = ContentState => {
   ContentState.prototype.setEmoji = function (item) {

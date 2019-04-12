@@ -6,7 +6,7 @@ import { HTML_TAGS, VOID_HTML_TAGS } from '../config'
  * div#id.className => {tag: 'div', id: 'id', className: 'className', isVoid: false}
  */
 
-const parseSelector = str => {
+const parseSelector = (str = '') => {
   const REG_EXP = /(#|\.)([^#.]+)/
   let tag = ''
   let id = ''
@@ -201,10 +201,12 @@ const tabCtrl = ContentState => {
       (!startBlock.functionType || startBlock.functionType === 'codeLine' && startBlock.lang === 'markup')
     ) {
       const { text } = startBlock
-      const lastWord = text.split(/\s+/).pop()
-      const preText = text.substring(0, text.length - lastWord.length)
-      if (lastWord !== '') {
-        const { tag, isVoid, id, className } = parseSelector(lastWord)
+      const lastWordBeforeCursor = text.substring(0, start.offset).split(/\s+/).pop()
+      const { tag, isVoid, id, className } = parseSelector(lastWordBeforeCursor)
+
+      if (tag) {
+        const preText = text.substring(0, start.offset - lastWordBeforeCursor.length)
+        const postText = text.substring(end.offset)
         if (!tag) return
         let html = `<${tag}`
         const key = startBlock.key
@@ -242,7 +244,7 @@ const tabCtrl = ContentState => {
         if (!isVoid) {
           html += `</${tag}>`
         }
-        startBlock.text = preText + html
+        startBlock.text = preText + html + postText
         this.cursor = {
           start: { key, offset: startOffset + preText.length },
           end: { key, offset: endOffset + preText.length }
