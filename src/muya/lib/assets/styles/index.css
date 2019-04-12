@@ -437,6 +437,23 @@ pre.ag-fence-code,
 pre.ag-indent-code {
   margin: 1rem 0;
 }
+pre.ag-indent-code > code::before,
+pre.ag-fence-code > code::before {
+  content: '';
+  position: absolute;
+  top: -10px;
+  right: -5px;
+  color: var(--editorColor30);
+  font-size: 12px;
+}
+
+pre.ag-fence-code > code::before {
+  content: 'fence';
+}
+
+pre.ag-indent-code > code::before {
+  content: 'indent';
+}
 
 pre > code {
   width: 100%;
@@ -470,9 +487,7 @@ pre.ag-active[data-role="vega-lite"]::before {
 }
 
 pre.ag-active.ag-fence-code::before,
-pre.ag-active.ag-indent-code::after,
 pre.ag-active.ag-fence-code::after,
-pre.ag-active.ag-indent-code::before,
 pre.ag-active[data-role="mermaid"]::after,
 pre.ag-active[data-role="flowchart"]::after,
 pre.ag-active[data-role="sequence"]::after,
@@ -492,8 +507,6 @@ pre.ag-active[data-role="vega-lite"]::before,
 pre.ag-active[data-role="vega-lite"]::after,
 pre.ag-active.ag-fence-code::before,
 pre.ag-active.ag-fence-code::after,
-pre.ag-active.ag-indent-code::before,
-pre.ag-active.ag-indent-code::after,
 pre.ag-active.ag-multiple-math::before,
 pre.ag-active.ag-multiple-math::after {
   color: var(--editorColor30);
@@ -509,7 +522,6 @@ pre.ag-active[data-role="flowchart"]::before,
 pre.ag-active[data-role="sequence"]::before,
 pre.ag-active[data-role="vega-lite"]::before,
 pre.ag-active.ag-multiple-math::before,
-pre.ag-active.ag-indent-code::before,
 pre.ag-active.ag-fence-code::before {
   top: -20px;
 }
@@ -520,8 +532,7 @@ pre.ag-active[data-role="flowchart"]::after,
 pre.ag-active[data-role="sequence"]::after,
 pre.ag-active[data-role="vega-lite"]::after,
 pre.ag-active.ag-multiple-math::after,
-pre.ag-active.ag-fence-code::after,
-pre.ag-active.ag-indent-code::after {
+pre.ag-active.ag-fence-code::after {
   bottom: -23px;
 }
 
@@ -607,12 +618,11 @@ span.ag-emoji-marked-text {
 }
 
 .ag-language-input {
-  padding: 0 1rem;
+  padding: 0 1em;
   display: none;
   min-width: 80px;
   position: absolute;
   top: -23px;
-  left: 20px;
   font-size: 14px;
   font-family: monospace;
   font-weight: 600;
@@ -620,6 +630,14 @@ span.ag-emoji-marked-text {
   background: transparent;
   border: none;
   z-index: 1;
+}
+
+.ag-fence-code .ag-language-input {
+  left: 20px;
+}
+
+.ag-indent-code .ag-language-input {
+  left: 0;
 }
 
 .ag-language-input::placeholder {
