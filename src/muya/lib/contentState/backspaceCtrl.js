@@ -147,8 +147,7 @@ const backspaceCtrl = ContentState => {
       }
       return this.partialRender()
     }
-    // fix: #67 problem 1
-    if (startBlock.icon) return event.preventDefault()
+
     // fix: unexpect remove all editor html. #67 problem 4
     if (startBlock.type === 'figure' && !startBlock.preSibling) {
       event.preventDefault()
@@ -169,10 +168,6 @@ const backspaceCtrl = ContentState => {
         end: { key, offset }
       }
       return this.render()
-    }
-
-    if (startBlock.functionType === 'languageInput' && start.offset === 0) {
-      return event.preventDefault()
     }
 
     // If select multiple paragraph or multiple characters in one paragraph, just let

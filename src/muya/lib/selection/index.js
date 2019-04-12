@@ -439,16 +439,6 @@ class Selection {
 
   getCursorRange () {
     let { anchorNode, anchorOffset, focusNode, focusOffset } = this.doc.getSelection()
-    let startParagraph = findNearestParagraph(anchorNode)
-    let endParagraph = findNearestParagraph(focusNode)
-
-    if (!startParagraph || !endParagraph) {
-      return {
-        start: null,
-        end: null
-      }
-    }
-
     // when the first paragraph is task list, press ctrl + a, then press backspace will cause bug
     // use code bellow to fix the bug
     const findFirstTextNode = anchor => {
@@ -462,6 +452,16 @@ class Selection {
     }
     if (anchorNode.nodeName === 'LI') {
       anchorNode = findFirstTextNode(anchorNode)
+    }
+
+    let startParagraph = findNearestParagraph(anchorNode)
+    let endParagraph = findNearestParagraph(focusNode)
+
+    if (!startParagraph || !endParagraph) {
+      return {
+        start: null,
+        end: null
+      }
     }
 
     const getOffsetOfParagraph = (node, paragraph) => {
