@@ -82,6 +82,7 @@ const inputCtrl = ContentState => {
     if (!start || !end) {
       return
     }
+
     const { start: oldStart, end: oldEnd } = this.cursor
     const key = start.key
     const block = this.getBlock(key)
@@ -92,9 +93,20 @@ const inputCtrl = ContentState => {
 
     if (oldStart.key !== oldEnd.key) {
       const startBlock = this.getBlock(oldStart.key)
+      const startOutmostBlock = this.findOutMostBlock(startBlock)
       const endBlock = this.getBlock(oldEnd.key)
-
-      this.removeBlocks(startBlock, endBlock)
+      const endOutmostBlock = this.findOutMostBlock(endBlock)
+      if (
+        // fix #918.
+        startBlock.functionType === 'languageInput' &&
+        startOutmostBlock === endOutmostBlock &&
+        !endBlock.nextSibling
+      ) {
+        this.removeBlocks(startBlock, endBlock, false)
+        endBlock.text = ''
+      } else {
+        this.removeBlocks(startBlock, endBlock)
+      }
       if (this.blocks.length === 1) {
         needRenderAll = true
       }
