@@ -15,8 +15,9 @@ const createMuyaContext = listIdentation => {
 // Muya parser (Markdown to HTML to Markdown)
 //
 
-const verifyMarkdown = (expectedMarkdown, listIdentation) => {
-  const markdown = `start
+const verifyMarkdown = (expectedMarkdown, listIdentation, markdown = '') => {
+  if (!markdown) {
+    markdown = `start
 
 - foo
 - foo
@@ -41,6 +42,7 @@ sep
        141. foo
             1. foo
 `
+  }
 
   const ctx = createMuyaContext(listIdentation)
   ctx.contentState.importMarkdown(markdown)
@@ -50,7 +52,7 @@ sep
   expect(exportedMarkdown).to.equal(expectedMarkdown)
 }
 
-describe('Muya tab identation', () => {
+describe('Muya list identation', () => {
   it('Indent by 1 space', () => {
     const md = `start
 
@@ -164,7 +166,7 @@ sep
 
     verifyMarkdown(md, 4)
   })
-  it('Indent by one tab', () => {
+/*  it('Indent by one tab', () => {
     const md = `start
 
 - foo
@@ -191,7 +193,7 @@ sep
 \t\t\t1. foo
 `
     verifyMarkdown(md, "tab")
-  })
+  })*/
   it('Indent using Daring Fireball Markdown Spec', () => {
     const md = `start
 
@@ -215,9 +217,10 @@ sep
     3. foo
 3. foo
     20. foo
-        141. foo
+        99. foo
             1. foo
 `
-    verifyMarkdown(md, "dfm")
+
+    verifyMarkdown(md, "dfm", md)
   })
 })
