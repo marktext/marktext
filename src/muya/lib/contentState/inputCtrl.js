@@ -79,7 +79,6 @@ const inputCtrl = ContentState => {
 
   ContentState.prototype.inputHandler = function (event) {
     const { start, end } = selection.getCursorRange()
-    console.log(start, end)
     if (!start || !end) {
       return
     }

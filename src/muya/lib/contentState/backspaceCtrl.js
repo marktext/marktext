@@ -102,7 +102,7 @@ const backspaceCtrl = ContentState => {
 
   ContentState.prototype.backspaceHandler = function (event) {
     const { start, end } = selection.getCursorRange()
-    console.log(start, end)
+
     if (!start || !end) {
       return
     }
