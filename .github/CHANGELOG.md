@@ -43,6 +43,7 @@ foo<section>bar</section>zar
 - Support input inline Ruby charactors as raw html (#257)
 - Added unsaved tab indicator
 - Add front Menu by click the front menu icon (#875)
+- Support create indent code block in preview mode.(#920)
 
 **:butterfly:Optimization**
 
