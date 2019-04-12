@@ -1,6 +1,6 @@
 {
   "name": "marktext",
-  "version": "0.14.0-rc.1",
+  "version": "0.14.0",
   "homepage": "https://marktext.github.io/website",
   "description": "Next generation markdown editor",
   "license": "MIT",

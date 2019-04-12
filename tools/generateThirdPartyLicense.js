@@ -14,6 +14,7 @@ thirdPartyChecker.getLicenses(rootDir, (err, packages, checker) => {
   let summary = ''
   let licenseList = ''
   let index = 1
+  const addedKeys = {}
   Object.keys(packages).forEach(key => {
     if (/^babel-helper-vue-jsx-merge-props/.test(key) ||
       /^marktext/.test(key)) {
@@ -21,9 +22,21 @@ thirdPartyChecker.getLicenses(rootDir, (err, packages, checker) => {
       return
     }
 
+    let packageName = key
+    const nameRegex = /(^.+)(?:@)/.exec(key)
+    if (nameRegex && nameRegex[1]) {
+      packageName = nameRegex[1]
+    }
+
+    // Check if we already added this package
+    if (addedKeys.hasOwnProperty(packageName)) {
+      return
+    }
+    addedKeys[packageName] = 1
+
     const { licenses, licenseText } = packages[key]
-    summary += `${index++}. ${key} (${licenses})\n`
-    licenseList += `# ${key} (${licenses})
+    summary += `${index++}. ${packageName} (${licenses})\n`
+    licenseList += `# ${packageName} (${licenses})
 -------------------------------------------------\
 
 ${licenseText}
@@ -35,7 +48,7 @@ ${licenseText}
   const output = `# Third Party Notices
 -------------------------------------------------
 
-This file contains all third-party packages which are bundled and shipped with Mark Text.
+This file contains all third-party packages that are bundled and shipped with Mark Text.
 
 -------------------------------------------------
 # Summary

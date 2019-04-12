@@ -35,7 +35,7 @@
   </a>
   <!-- Downloads latest release -->
   <a href="https://marktext.github.io/website">
-    <img src="https://img.shields.io/github/downloads/marktext/marktext/v0.13.65/total.svg" alt="latest download">
+    <img src="https://img.shields.io/github/downloads/marktext/marktext/v0.14.0/total.svg" alt="latest download">
   </a>
   <!-- deps -->
   <a href="https://marktext.github.io/website">
@@ -108,7 +108,7 @@
 ## ¿Por qué hacer otro editor ?
 
 1. Me encanta escribir. He usado un montón de editores de markdown, y todavía no he encontrado ninguno que cumpla todas mis necesidades. No me gusta que me moleste ningún bug cuando escribo. **Mark Text** usa virtual DOM para renderizar páginas, la cual tiene el beneficio de ser muy eficiente y de código abierto. Así, a cualquiera que le guste escribir y use markdown puede usar Mark Text
-2. Como se ha mencionado arriba, **Mark Text** es de código abierto, y lo será para siempre. Esperamos que todos los amantes de markdown contribuyan y ayuden al desarrollo de **Mark Text**, para que sea popular. 
+2. Como se ha mencionado arriba, **Mark Text** es de código abierto, y lo será para siempre. Esperamos que todos los amantes de markdown contribuyan y ayuden al desarrollo de **Mark Text**, para que sea popular.
 3. Hay muchos editores de markdown, y todos tienen sus méritos. Algunos tienen funcionalidades que otros no. Es difícil satisfacer los gustos de todo el mundo, pero esperamos que **Mark Text** cubra las necesidades de todos lo máximo posible. Aunque lo último de **Mark Text** no sea perfecto, lo damos todo para intentar que sea lo mejor
 
 ## Descarga e instalación
@@ -117,7 +117,7 @@
 
 | ![]( https://github.com/ryanoasis/nerd-fonts/wiki/screenshots/v1.0.x/mac-pass-sm.png)                                                                                                             | ![]( https://github.com/ryanoasis/nerd-fonts/wiki/screenshots/v1.0.x/windows-pass-sm.png)                                                                                                                     | ![]( https://github.com/ryanoasis/nerd-fonts/wiki/screenshots/v1.0.x/linux-pass-sm.png)                                                                                                                                   |
 |:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
-| [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-0.13.65.dmg.svg)](https://github.com/marktext/marktext/releases/download/v0.13.65/marktext-0.13.65.dmg) | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-setup-0.13.65.exe.svg)](https://github.com/marktext/marktext/releases/download/v0.13.65/marktext-setup-0.13.65.exe) | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-0.13.65-x86_64.AppImage.svg)](https://github.com/marktext/marktext/releases/download/v0.13.65/marktext-0.13.65-x86_64.AppImage) |
+| [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-0.14.0.dmg.svg)](https://github.com/marktext/marktext/releases/download/v0.14.0/marktext-0.14.0.dmg) | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-setup-0.14.0.exe.svg)](https://github.com/marktext/marktext/releases/download/v0.14.0/marktext-setup-0.14.0.exe) | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-0.14.0-x86_64.AppImage.svg)](https://github.com/marktext/marktext/releases/download/v0.14.0/marktext-0.14.0-x86_64.AppImage) |
 
 ¿No encuentras tu sistema? Ve a la [página de descargas](https://github.com/marktext/marktext/releases). ¿No se encuentra disponible tu versión? Abre una [issue](https://github.com/marktext/marktext/issues).
 
