@@ -44,6 +44,7 @@ foo<section>bar</section>zar
 - Added unsaved tab indicator
 - Add front Menu by click the front menu icon (#875)
 - Support diagram: [flowchart](https://github.com/adrai/flowchart.js), [vega-lite](https://github.com/vega/vega-lite), [mermaid](https://github.com/knsv/mermaid), [sequence](https://github.com/bramp/js-sequence-diagrams) (#914)
+- Support create indent code block in preview mode.(#920)
 
 **:butterfly:Optimization**
 

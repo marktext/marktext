@@ -1,5 +1,5 @@
 import selection from '../selection'
-import { tokenizer, generator } from '../parser/parse'
+import { tokenizer, generator } from '../parser/'
 import { FORMAT_MARKER_MAP, FORMAT_TYPES, URL_REG } from '../config'
 
 const getOffset = (offset, { range: { start, end }, type, anchor, alt }) => {

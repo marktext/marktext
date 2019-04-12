@@ -6,6 +6,7 @@ export default function image (h, cursor, block, token, outerClass) {
   const { eventCenter } = this
   const { start: cursorStart, end: cursorEnd } = cursor
   const { start, end } = token.range
+
   if (
     cursorStart.key === cursorEnd.key &&
     cursorStart.offset === cursorEnd.offset &&
@@ -22,7 +23,7 @@ export default function image (h, cursor, block, token, outerClass) {
   const srcContent = this.highlight(
     h, block,
     start + 2 + token.alt.length + token.backlash.first.length + 2,
-    start + 2 + token.alt.length + token.backlash.first.length + 2 + token.src.length,
+    start + 2 + token.alt.length + token.backlash.first.length + 2 + token.srcAndTitle.length,
     token
   )
 
@@ -45,6 +46,7 @@ export default function image (h, cursor, block, token, outerClass) {
   const imageInfo = getImageInfo(token.src + encodeURI(token.backlash.second))
   const { src } = imageInfo
   const alt = token.alt + encodeURI(token.backlash.first)
+  const { title } = token
 
   if (src) {
     ({ id, isSuccess } = this.loadImageAsync(imageInfo, alt, className))
@@ -69,7 +71,7 @@ export default function image (h, cursor, block, token, outerClass) {
   return isSuccess
     ? [
       h(selector, children),
-      h('img', { props: { alt, src } })
+      h('img', { props: { alt, src, title } })
     ]
     : [h(selector, children)]
 }

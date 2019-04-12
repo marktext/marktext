@@ -10,8 +10,7 @@
 - **codeFontFamily**: The code block font family name.
 - **lineHeight**: The line height of the editor.
 - **tabSize**: The number of spaces a tab is equal to.
-- **listIndentation**: The list indentation of list items (`"dfm"`, `"tab"` or number `1-4`)
-  - `tab`: Indent subsequent paragraphs by one tab.
+- **listIndentation**: The list indentation of sub list items or paragraphs (`"dfm"`, `"tab"` or number `1-4`)
   - `dfm`: Each subsequent paragraph in a list item must be indented by either 4 spaces or one tab, we are using 4 spaces (used by Bitbucket and Daring Fireball Markdown Spec).
   - `number`: Dynamic indent subsequent paragraphs by the given number (1-4) plus list marker width (default).
 - **autoPairBracket**: If `true` the editor automatically closes brackets.

@@ -153,7 +153,7 @@ class Muya {
       if (listIndentation < 1 || listIndentation > 4) {
         listIndentation = 1
       }
-    } else if (listIndentation !== 'tab' && listIndentation !== 'dfm') {
+    } else if (listIndentation !== 'dfm') {
       listIndentation = 1
     }
     this.contentState.listIndentation = listIndentation
