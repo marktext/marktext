@@ -525,12 +525,14 @@
       // listen for markdown change form source mode or change tabs etc
       handleMarkdownChange ({ id, markdown, cursor, renderCursor, history }) {
         const { editor } = this
-        if (editor) {
-          if (history) {
-            editor.setHistory(history)
+        this.$nextTick(() => {
+          if (editor) {
+            if (history) {
+              editor.setHistory(history)
+            }
+            editor.setMarkdown(markdown, cursor, renderCursor)
           }
-          editor.setMarkdown(markdown, cursor, renderCursor)
-        }
+        })
       },
 
       handleInsertParagraph (location) {

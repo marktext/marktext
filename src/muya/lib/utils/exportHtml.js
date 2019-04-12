@@ -17,6 +17,13 @@ export const getSanitizeHtml = markdown => {
   return sanitize(html, EXPORT_DOMPURIFY_CONFIG)
 }
 
+const DIAGRAM_TYPE = [
+  'mermaid',
+  'flowchart',
+  'sequence',
+  'vega-lite'
+]
+
 class ExportHtml {
   constructor (markdown, muya) {
     this.markdown = markdown
@@ -91,6 +98,10 @@ class ExportHtml {
       highlight (code, lang) {
         // Language may be undefined (GH#591)
         if (!lang) {
+          return code
+        }
+
+        if (DIAGRAM_TYPE.includes(lang)) {
           return code
         }
 

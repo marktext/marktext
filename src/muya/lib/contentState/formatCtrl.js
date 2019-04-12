@@ -1,6 +1,6 @@
 import selection from '../selection'
 import { tokenizer, generator } from '../parser/parse'
-import { FORMAT_MARKER_MAP, FORMAT_TYPES } from '../config'
+import { FORMAT_MARKER_MAP, FORMAT_TYPES, URL_REG } from '../config'
 
 const getOffset = (offset, { range: { start, end }, type, anchor, alt }) => {
   const dis = offset - start
@@ -188,7 +188,6 @@ const formatCtrl = ContentState => {
 
   ContentState.prototype.insertImage = function (url) {
     const title = /\/?([^./]+)\.[a-z]+$/.exec(url)[1] || ''
-    const encodeUrl = encodeURI(url)
     const { start, end } = this.cursor
     const { formats } = this.selectionFormats({ start, end })
     const { key, offset: startOffset } = start
@@ -196,6 +195,14 @@ const formatCtrl = ContentState => {
     const block = this.getBlock(key)
     const { text } = block
     const imageFormat = formats.filter(f => f.type === 'image')
+
+    // Only encode URLs but not local paths or data URLs
+    let imgUrl
+    if (URL_REG.test(url)) {
+      imgUrl = encodeURI(url)
+    } else {
+      imgUrl = url
+    }
 
     if (imageFormat.length === 1) {
       // Replace already existing image
@@ -208,7 +215,7 @@ const formatCtrl = ContentState => {
 
       const { start, end } = imageFormat[0].range
       block.text = text.substring(0, start) +
-        `![${imageTitle}](${encodeUrl})` +
+        `![${imageTitle}](${imgUrl})` +
         text.substring(end)
 
       this.cursor = {
@@ -219,7 +226,7 @@ const formatCtrl = ContentState => {
       // Replace multi-line text
       const endBlock = this.getBlock(end.key)
       const { text } = endBlock
-      endBlock.text = text.substring(0, endOffset) + `![${title}](${encodeUrl})` + text.substring(endOffset)
+      endBlock.text = text.substring(0, endOffset) + `![${title}](${imgUrl})` + text.substring(endOffset)
       const offset = endOffset + 2
       this.cursor = {
         start: { key: end.key, offset },
@@ -229,7 +236,7 @@ const formatCtrl = ContentState => {
       // Replace single-line text
       const imageTitle = startOffset !== endOffset ? text.substring(startOffset, endOffset) : title
       block.text = text.substring(0, start.offset) +
-        `![${imageTitle}](${encodeUrl})` +
+        `![${imageTitle}](${imgUrl})` +
         text.substring(end.offset)
 
       this.cursor = {
