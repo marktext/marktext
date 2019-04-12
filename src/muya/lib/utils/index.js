@@ -181,7 +181,7 @@ export const getImageInfo = (src, baseUrl = window.DIRNAME) => {
   if (imageExtension) {
     const isAbsoluteLocal = /^(?:\/|\\\\|[a-zA-Z]:\\).+/.test(src)
     if (isUrl || (!isAbsoluteLocal && !baseUrl)) {
-      if (!baseUrl && isInElectron) {
+      if (!isUrl && !baseUrl && isInElectron) {
         console.warn('"baseUrl" is not defined!')
       }
 
