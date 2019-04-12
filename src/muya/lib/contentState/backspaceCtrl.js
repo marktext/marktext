@@ -102,7 +102,7 @@ const backspaceCtrl = ContentState => {
 
   ContentState.prototype.backspaceHandler = function (event) {
     const { start, end } = selection.getCursorRange()
-
+    console.log(start, end)
     if (!start || !end) {
       return
     }
@@ -171,7 +171,7 @@ const backspaceCtrl = ContentState => {
     }
 
     // If select multiple paragraph or multiple characters in one paragraph, just let
-    // updateCtrl to handle this case.
+    // inputCtrl to handle this case.
     if (start.key !== end.key || start.offset !== end.offset) {
       return
     }

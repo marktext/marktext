@@ -445,18 +445,28 @@ class Selection {
       if (anchor.nodeType === 3) return anchor
       const children = anchor.childNodes
       for (const node of children) {
-        if (node.nodeName !== 'INPUT') {
-          return findFirstTextNode(node)
+        if (
+          /input/i.test(node.nodeName) ||
+          node.nodeType === 1 && node.getAttribute('contenteditable') === 'false'
+        ) {
+          continue
         }
+        return findFirstTextNode(node)
       }
     }
+    let needFix = false
     if (anchorNode.nodeName === 'LI') {
+      needFix = true
       anchorNode = findFirstTextNode(anchorNode)
+    }
+
+    if (focusNode.nodeName === 'LI') {
+      needFix = true
+      focusNode = findFirstTextNode(focusNode)
     }
 
     let startParagraph = findNearestParagraph(anchorNode)
     let endParagraph = findNearestParagraph(focusNode)
-
     if (!startParagraph || !endParagraph) {
       return {
         start: null,
@@ -481,11 +491,13 @@ class Selection {
         : offset + getOffsetOfParagraph(node.parentNode, paragraph)
     }
 
+    let result = null
+
     if (startParagraph === endParagraph) {
       const key = startParagraph.id
       const offset1 = getOffsetOfParagraph(anchorNode, startParagraph) + anchorOffset
       const offset2 = getOffsetOfParagraph(focusNode, endParagraph) + focusOffset
-      return {
+      result = {
         start: { key, offset: Math.min(offset1, offset2) },
         end: { key, offset: Math.max(offset1, offset2) }
       }
@@ -503,11 +515,15 @@ class Selection {
         }
       }
       if (order) {
-        return rawCursor
+        result = rawCursor
       } else {
-        return { start: rawCursor.end, end: rawCursor.start }
+        result = { start: rawCursor.end, end: rawCursor.start }
       }
     }
+    if (needFix) {
+      this.setCursorRange(result)
+    }
+    return result
   }
 
   // topOffset is the line counts above cursor, and bottomOffset is line counts bellow cursor.

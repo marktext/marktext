@@ -79,9 +79,11 @@ const inputCtrl = ContentState => {
 
   ContentState.prototype.inputHandler = function (event) {
     const { start, end } = selection.getCursorRange()
+    console.log(start, end)
     if (!start || !end) {
       return
     }
+
     const { start: oldStart, end: oldEnd } = this.cursor
     const key = start.key
     const block = this.getBlock(key)
@@ -95,7 +97,6 @@ const inputCtrl = ContentState => {
       const startOutmostBlock = this.findOutMostBlock(startBlock)
       const endBlock = this.getBlock(oldEnd.key)
       const endOutmostBlock = this.findOutMostBlock(endBlock)
-
       if (
         // fix #918.
         startBlock.functionType === 'languageInput' &&
