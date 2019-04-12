@@ -461,18 +461,22 @@ blockquote .ag-hide.ag-math > .ag-math-render {
 
 .ag-image-marked-text::before {
   background: url(../lib/assets/icons/image_light.png);
+  background-size: cover;
 }
 
 .ag-image-marked-text.ag-image-fail::before {
   background-image: url(../lib/assets/icons/image_light_fail.png);
+  background-size: cover;
 }
 
 body.dark .ag-image-marked-text::before {
   background: url(../lib/assets/icons/image_dark.png);
+  background-size: cover;
 }
 
 body.dark .ag-image-marked-text.ag-image-fail::before {
   background-image: url(../lib/assets/icons/image_dark_fail.png);
+  background-size: cover;
 }
 
 .ag-front-icon {

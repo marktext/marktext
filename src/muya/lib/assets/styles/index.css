@@ -691,14 +691,12 @@ span.ag-warn.ag-emoji-marked-text {
 }
 
 .ag-image-marked-text::before {
+  background-size: cover;
   content: '';
   width: 1em;
   height: 1em;
   display: inline-block;
-  vertical-align: middle;
-  background-size: 1em;
-  position: relative;
-  top: -0.05em;
+  vertical-align: text-top;
 }
 
 span[data-role="link"], a[data-role="link"], span[data-role="link"] .ag-backlash {

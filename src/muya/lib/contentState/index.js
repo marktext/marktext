@@ -149,7 +149,6 @@ class ContentState {
   }
 
   render (isRenderCursor = true) {
-    console.log('render')
     const { blocks, cursor, searchMatches: { matches, index }, selectedBlock } = this
     const activeBlocks = this.getActiveBlocks()
     matches.forEach((m, i) => {
