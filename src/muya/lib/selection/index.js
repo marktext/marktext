@@ -443,6 +443,15 @@ class Selection {
     // use code bellow to fix the bug
     const findFirstTextNode = anchor => {
       if (anchor.nodeType === 3) return anchor
+      // if it's a empty line, just return the span element.
+      if (
+        anchor.nodeType === 1 &&
+        anchor.nodeName === 'SPAN' &&
+        anchor.textContent === '' &&
+        anchor.classList.contains('ag-line')
+      ) {
+        return anchor
+      }
       const children = anchor.childNodes
       for (const node of children) {
         if (
