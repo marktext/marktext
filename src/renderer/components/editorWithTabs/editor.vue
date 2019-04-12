@@ -128,6 +128,7 @@
         'darkColor': state => state.preferences.darkColor,
         'editorFontFamily': state => state.preferences.editorFontFamily,
         'hideQuickInsertHint': state => state.preferences.hideQuickInsertHint,
+        'theme': state => state.preferences.theme,
         // edit modes
         'typewriter': state => state.preferences.typewriter,
         'focus': state => state.preferences.focus,
@@ -183,6 +184,22 @@
           editor.setTabSize(value)
         }
       },
+      theme: function (value, oldValue) {
+        if (value !== oldValue && this.editor) {
+          // Agreement：Any black series theme needs to contain dark `word`.
+          if (/dark/i.test(value)) {
+            this.editor.setOptions({
+              mermaidTheme: 'dark',
+              vegaTheme: 'dark'
+            }, true)
+          } else {
+            this.editor.setOptions({
+              mermaidTheme: 'default',
+              vegaTheme: 'latimes'
+            }, true)
+          }
+        }
+      },
       listIndentation: function (value, oldValue) {
         const { editor } = this
         if (value !== oldValue && editor) {
@@ -205,7 +222,8 @@
           bulletListMarker,
           tabSize,
           listIndentation,
-          hideQuickInsertHint
+          hideQuickInsertHint,
+          theme
         } = this
 
         // use muya UI plugins
@@ -217,7 +235,7 @@
         Muya.use(FormatPicker)
         Muya.use(FrontMenu)
 
-        const { container } = this.editor = new Muya(ele, {
+        const options = {
           focusMode,
           markdown,
           preferLooseListItem,
@@ -228,7 +246,20 @@
           tabSize,
           listIndentation,
           hideQuickInsertHint
-        })
+        }
+        if (/dark/i.test(theme)) {
+          Object.assign(options, {
+            mermaidTheme: 'dark',
+            vegaTheme: 'dark'
+          })
+        } else {
+          Object.assign(options, {
+            mermaidTheme: 'default',
+            vegaTheme: 'latimes'
+          })
+        }
+
+        const { container } = this.editor = new Muya(ele, options)
 
         if (typewriter) {
           this.scrollToCursor()
@@ -409,25 +440,25 @@
         this.scrollToHighlight()
       },
 
-      handlePrint () {
+      async handlePrint () {
         // generate styled HTML with empty title and optimized for printing
-        const html = this.editor.exportStyledHTML('', true)
+        const html = await this.editor.exportStyledHTML('', true)
         this.printer.renderMarkdown(html, true)
         this.$store.dispatch('PRINT_RESPONSE')
       },
 
-      handleExport (type) {
+      async handleExport (type) {
         const markdown = this.editor.getMarkdown()
         switch (type) {
           case 'styledHtml': {
-            const content = this.editor.exportStyledHTML(this.filename)
+            const content = await this.editor.exportStyledHTML(this.filename)
             this.$store.dispatch('EXPORT', { type, content, markdown })
             break
           }
 
           case 'pdf': {
             // generate styled HTML with empty title and optimized for printing
-            const html = this.editor.exportStyledHTML('', true)
+            const html = await this.editor.exportStyledHTML('', true)
             this.printer.renderMarkdown(html, true)
             this.$store.dispatch('EXPORT', { type, markdown })
             break
@@ -494,12 +525,14 @@
       // listen for markdown change form source mode or change tabs etc
       handleMarkdownChange ({ id, markdown, cursor, renderCursor, history }) {
         const { editor } = this
-        if (editor) {
-          if (history) {
-            editor.setHistory(history)
+        this.$nextTick(() => {
+          if (editor) {
+            if (history) {
+              editor.setHistory(history)
+            }
+            editor.setMarkdown(markdown, cursor, renderCursor)
           }
-          editor.setMarkdown(markdown, cursor, renderCursor)
-        }
+        })
       },
 
       handleInsertParagraph (location) {

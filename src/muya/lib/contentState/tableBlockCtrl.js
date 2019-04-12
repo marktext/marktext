@@ -1,27 +1,8 @@
 import { isLengthEven, getParagraphReference } from '../utils'
-import { TABLE_TOOLS } from '../config'
 
 const TABLE_BLOCK_REG = /^\|.*?(\\*)\|.*?(\\*)\|/
 
 const tableBlockCtrl = ContentState => {
-  ContentState.prototype.createToolBar = function (tools, toolBarType) {
-    const toolBar = this.createBlock('div', '', false)
-    toolBar.toolBarType = toolBarType
-    const ul = this.createBlock('ul')
-
-    tools.forEach(tool => {
-      const toolBlock = this.createBlock('li')
-      const svgBlock = this.createBlock('svg')
-      svgBlock.icon = tool.icon
-      toolBlock.label = tool.label
-      toolBlock.title = tool.title
-      this.appendChild(toolBlock, svgBlock)
-      this.appendChild(ul, toolBlock)
-    })
-    this.appendChild(toolBar, ul)
-    return toolBar
-  }
-
   ContentState.prototype.createTableInFigure = function ({ rows, columns }, headerTexts) {
     const table = this.createBlock('table')
     const tHead = this.createBlock('thead')
@@ -85,7 +66,6 @@ const tableBlockCtrl = ContentState => {
 
   ContentState.prototype.createFigure = function ({ rows, columns }) {
     const { end } = this.cursor
-    const toolBar = this.createToolBar(TABLE_TOOLS, 'table')
     const table = this.createTableInFigure({ rows, columns })
     const figureBlock = this.createBlock('figure')
     figureBlock.functionType = 'table'
@@ -97,7 +77,6 @@ const tableBlockCtrl = ContentState => {
     if (anchor.type === 'p' && !endBlock.text) {
       this.removeBlock(anchor)
     }
-    this.appendChild(figureBlock, toolBar)
     this.appendChild(figureBlock, table)
     const key = table.children[0].children[0].children[0].key // fist cell key in thead
     const offset = 0
@@ -138,13 +117,11 @@ const tableBlockCtrl = ContentState => {
     const rows = 2
 
     const table = this.createTableInFigure({ rows, columns }, rowHeader)
-    const toolBar = this.createToolBar(TABLE_TOOLS, 'table')
 
     block.type = 'figure'
     block.text = ''
     block.children = []
     block.functionType = 'table'
-    this.appendChild(block, toolBar)
     this.appendChild(block, table)
 
     return table.children[1].children[0].children[0] // first cell in tbody

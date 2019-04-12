@@ -81,12 +81,12 @@ class Muya {
 
   exportStyledHTML (title = '', printOptimization = false) {
     const { markdown } = this
-    return new ExportHtml(markdown).generate(title, printOptimization)
+    return new ExportHtml(markdown, this).generate(title, printOptimization)
   }
 
   exportHtml () {
     const { markdown } = this
-    return new ExportHtml(markdown).renderHtml()
+    return new ExportHtml(markdown, this).renderHtml()
   }
 
   getWordCount (markdown) {
@@ -261,6 +261,13 @@ class Muya {
 
   copy (name) {
     this.clipboard.copy(name)
+  }
+
+  setOptions (options, needRender = false) {
+    Object.assign(this.options, options)
+    if (needRender) {
+      this.contentState.render()
+    }
   }
 
   destroy () {

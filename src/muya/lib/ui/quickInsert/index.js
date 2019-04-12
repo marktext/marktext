@@ -45,24 +45,12 @@ class QuickInsert extends BaseScrollFloat {
         const items = []
         for (const item of _renderObj[key]) {
           const { title, subTitle, label, icon, shortCut } = item
-          const iconVnode = h('div.icon-container', h('svg', {
-              attrs: {
-                viewBox: icon.viewBox,
-                'aria-hidden': 'true'
-              },
-              hook: {
-                prepatch (oldvnode, vnode) {
-                  // cheat snabbdom that the pre block is changed!!!
-                  oldvnode.children = []
-                  oldvnode.elm.innerHTML = ''
-                }
-              }
-            }, h('use', {
-              attrs: {
-                'xlink:href': icon.url
-              }
-            }))
-          )
+          const iconVnode = h('div.icon-container', h('i.icon', h(`i.icon-${label.replace(/\s/g, '-')}`, {
+            style: {
+              background: `url(${icon}) no-repeat`,
+              'background-size': '100%'
+            }
+          }, '')))
 
           const description = h('div.description', [
             h('div.big-title', title),

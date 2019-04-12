@@ -1,11 +1,11 @@
-import strongIcon from '../../assets/icons/format_strong.svg'
-import emphasisIcon from '../../assets/icons/format_emphasis.svg'
-import codeIcon from '../../assets/icons/format_code.svg'
-import imageIcon from '../../assets/icons/format_image.svg'
-import linkIcon from '../../assets/icons/format_link.svg'
-import strikeIcon from '../../assets/icons/format_strike.svg'
-import mathIcon from '../../assets/icons/format_math.svg'
-import clearIcon from '../../assets/icons/format_clear.svg'
+import strongIcon from '../../assets/pngicon/format_strong/2.png'
+import emphasisIcon from '../../assets/pngicon/format_emphasis/2.png'
+import codeIcon from '../../assets/pngicon/code/2.png'
+import imageIcon from '../../assets/pngicon/format_image/2.png'
+import linkIcon from '../../assets/pngicon/format_link/2.png'
+import strikeIcon from '../../assets/pngicon/format_strike/2.png'
+import mathIcon from '../../assets/pngicon/format_math/2.png'
+import clearIcon from '../../assets/pngicon/format_clear/2.png'
 
 const icons = [
   {

@@ -1,11 +1,15 @@
 import marked from '../parser/marked'
 import Prism from 'prismjs2'
 import katex from 'katex'
+import mermaid from 'mermaid'
+import flowchart from 'flowchart.js'
+import Diagram from '../parser/render/sequence'
+import vegaEmbed from 'vega-embed'
 import githubMarkdownCss from 'github-markdown-css/github-markdown.css'
 import highlightCss from 'prismjs2/themes/prism.css'
 import katexCss from 'katex/dist/katex.css'
 import { EXPORT_DOMPURIFY_CONFIG } from '../config'
-import { sanitize } from '../utils'
+import { sanitize, unescapeHtml } from '../utils'
 import { validEmoji } from '../ui/emojis'
 
 export const getSanitizeHtml = markdown => {
@@ -13,17 +17,91 @@ export const getSanitizeHtml = markdown => {
   return sanitize(html, EXPORT_DOMPURIFY_CONFIG)
 }
 
+const DIAGRAM_TYPE = [
+  'mermaid',
+  'flowchart',
+  'sequence',
+  'vega-lite'
+]
+
 class ExportHtml {
-  constructor (markdown) {
+  constructor (markdown, muya) {
     this.markdown = markdown
+    this.muya = muya
+    this.exportContainer = null
+  }
+
+  renderMermaid () {
+    const codes = this.exportContainer.querySelectorAll('code.language-mermaid')
+    for (const code of codes) {
+      const preEle = code.parentNode
+      const mermaidContainer = document.createElement('div')
+      mermaidContainer.innerHTML = code.innerHTML
+      mermaidContainer.classList.add('mermaid')
+      preEle.replaceWith(mermaidContainer)
+    }
+    // We only export light theme, so set mermaid theme to `default`, in the future, we can choose whick theme to export.
+    mermaid.initialize({
+      theme: 'default'
+    })
+    mermaid.init(undefined, this.exportContainer.querySelectorAll('div.mermaid'))
+    if (this.muya){
+      mermaid.initialize({
+        theme: this.muya.options.mermaidTheme
+      })
+    }
+  }
+
+  async renderDiagram () {
+    const selector = 'code.language-vega-lite, code.language-flowchart, code.language-sequence'
+    const RENDER_MAP = {
+      'flowchart': flowchart,
+      'sequence': Diagram,
+      'vega-lite': vegaEmbed
+    }
+    const codes = this.exportContainer.querySelectorAll(selector)
+    for (const code of codes) {
+      const rawCode = unescapeHtml(code.innerHTML)
+      const functionType = /sequence/.test(code.className) ? 'sequence' : (/flowchart/.test(code.className) ? 'flowchart' : 'vega-lite')
+      const render = RENDER_MAP[functionType]
+      const preParent = code.parentNode
+      const diagramContainer = document.createElement('div')
+      diagramContainer.classList.add(functionType)
+      preParent.replaceWith(diagramContainer)
+      const options = {}
+      if (functionType === 'sequence') {
+        Object.assign(options, { theme: 'hand' })
+      } else if (functionType === 'vega-lite') {
+        Object.assign(options, {
+          actions: false, tooltip: false, renderer: 'svg',
+          theme: 'latimes' // only render light theme
+        })
+      }
+      try {
+        if (functionType === 'flowchart' || functionType === 'sequence') {
+          const diagram = render.parse(rawCode)
+          diagramContainer.innerHTML = ''
+          diagram.drawSVG(diagramContainer, options)
+        } if (functionType === 'vega-lite') {
+          await render(diagramContainer, JSON.parse(rawCode), options)
+        }
+      } catch (err) {
+        console.log(err)
+        diagramContainer.innerHTML = `< Invalid Diagram >`
+      }
+    }
   }
 
   // render pure html by marked
-  renderHtml () {
-    return marked(this.markdown, {
+  async renderHtml () {
+    let html = marked(this.markdown, {
       highlight (code, lang) {
         // Language may be undefined (GH#591)
         if (!lang) {
+          return code
+        }
+
+        if (DIAGRAM_TYPE.includes(lang)) {
           return code
         }
 
@@ -48,6 +126,28 @@ class ExportHtml {
         })
       }
     })
+    html = sanitize(html, EXPORT_DOMPURIFY_CONFIG)
+    const exportContainer = this.exportContainer = document.createElement('div')
+    exportContainer.classList.add('ag-render-container')
+    exportContainer.innerHTML = html
+    document.body.appendChild(exportContainer)
+    // render only render the light theme of mermaid and diragram...
+    this.renderMermaid()
+    await this.renderDiagram()
+    let result = exportContainer.innerHTML
+    exportContainer.remove()
+    // hack to add arrow marker to output html
+    const pathes = document.querySelectorAll('path[id^=raphael-marker-]')
+    const def = '<defs style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">'
+    result = result.replace(def, () => {
+      let str = ''
+      for (const path of pathes) {
+        str += path.outerHTML
+      }
+      return `${def}${str}`
+    })
+    this.exportContainer = null
+    return result
   }
 
   /**
@@ -56,10 +156,10 @@ class ExportHtml {
    * @param {*} title Page title
    * @param {*} printOptimization Optimize HTML and CSS for printing
    */
-  generate (title = '', printOptimization = false) {
+  async generate (title = '', printOptimization = false) {
     // WORKAROUND: Hide Prism.js style when exporting or printing. Otherwise the background color is white in the dark theme.
     const highlightCssStyle = printOptimization ? `@media print { ${highlightCss} }` : highlightCss
-    const html = sanitize(this.renderHtml(), EXPORT_DOMPURIFY_CONFIG)
+    const html = await this.renderHtml()
     return `<!DOCTYPE html>
 <html lang="en">
 <head>

@@ -5,11 +5,6 @@ import { CLASS_OR_ID, DEVICE_MEMORY, PREVIEW_DOMPURIFY_CONFIG, HAS_TEXT_BLOCK_RE
 import { tokenizer } from '../../'
 import { snakeToCamel, sanitize, escapeHtml, getLongUniqueId, getImageInfo } from '../../../utils'
 import { h, htmlToVNode } from '../snabbdom'
-import alignLeftIcon from '../../../assets/icons/align_left.svg'
-import alignRightIcon from '../../../assets/icons/align_right.svg'
-import alignCenterIcon from '../../../assets/icons/align_center.svg'
-import tableIcon from '../../../assets/icons/table.svg'
-import deleteIcon from '../../../assets/icons/delete.svg'
 
 // todo@jocs any better solutions?
 const MARKER_HASK = {
@@ -17,14 +12,6 @@ const MARKER_HASK = {
   '>': `%${getLongUniqueId()}%`,
   '"': `%${getLongUniqueId()}%`,
   "'": `%${getLongUniqueId()}%`
-}
-
-const ICON_MAP = {
-  'icon-alignright': alignRightIcon,
-  'icon-alignleft': alignLeftIcon,
-  'icon-del': deleteIcon,
-  'icon-table': tableIcon,
-  'icon-aligncenter': alignCenterIcon
 }
 
 const getHighlightHtml = (text, highlights, escape = false) => {
@@ -72,7 +59,6 @@ export default function renderLeafBlock (block, cursor, activeBlocks, selectedBl
     type,
     headingStyle,
     align,
-    icon,
     checked,
     key,
     lang,
@@ -197,21 +183,6 @@ export default function renderLeafBlock (block, cursor, activeBlocks, selectedBl
         break
       }
     }
-  } else if (type === 'svg' && icon) {
-    selector += '.icon'
-    const iconSvg = ICON_MAP[icon]
-    Object.assign(data.attrs, {
-      'viewBox': iconSvg.viewBox,
-      'aria-hidden': 'true'
-    })
-
-    children = [
-      h('use', {
-        attrs: {
-          'xlink:href': `${iconSvg.url}`
-        }
-      })
-    ]
   } else if (/^h/.test(type)) {
     if (/^h\d$/.test(type)) {
       // TODO: This should be the best place to create and update the TOC.

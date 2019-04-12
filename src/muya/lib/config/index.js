@@ -173,28 +173,6 @@ export const FORMAT_TYPES = ['strong', 'em', 'del', 'inline_code', 'link', 'imag
 
 export const punctuation = ['!', '"', '#', '$', '%', '&', "'", '(', ')', '*', '+', ',', '-', '.', '/', ':', ';', '<', '=', '>', '?', '@', '[', '\\', ']', '^', '_', '`', '{', '|', '}', '~']
 
-export const TABLE_TOOLS = [{
-  label: 'table',
-  title: 'Resize Table',
-  icon: 'icon-table'
-}, {
-  label: 'left',
-  title: 'Align Left',
-  icon: 'icon-alignleft'
-}, {
-  label: 'center',
-  title: 'Align Center',
-  icon: 'icon-aligncenter'
-}, {
-  label: 'right',
-  title: 'Align Right',
-  icon: 'icon-alignright'
-}, {
-  label: 'delete',
-  title: 'Delete Table',
-  icon: 'icon-del'
-}]
-
 export const LINE_BREAK = '\n'
 
 export const PREVIEW_DOMPURIFY_CONFIG = {
@@ -233,7 +211,8 @@ export const MUYA_DEFAULT_OPTION = {
   // bullet/list marker width + listIndentation, tab or Daring Fireball Markdown (4 spaces) --> list indentation
   listIndentation: 1,
   sequenceTheme: 'hand', // hand or simple
-  mermaidTheme: 'forest', // dark or forest
+  mermaidTheme: 'default', // dark / forest / default
+  vegaTheme: 'latimes', // excel / ggplot2 / quartz / vox / fivethirtyeight / dark / latimes
   hideQuickInsertHint: false
 }
 

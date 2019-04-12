@@ -43,15 +43,31 @@
   top: 6px;
 }
 
-.ag-format-picker li.item svg {
-  fill: var(--iconColor);
-}
-
-.ag-format-picker li.item.active svg {
-  fill: var(--themeColor);
-}
-
 .ag-format-picker li.item .icon-wrapper {
-  width: 16px;
-  height: 16px;
+  width: 18px;
+  height: 18px;
+}
+
+.ag-format-picker li.item .icon-wrapper i.icon {
+  display: inline-block;
+  position: relative;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  color: var(--iconColor);
+  opacity: .7;
+  transition: all .25s ease-in-out;
+}
+
+.ag-format-picker li.item .icon-wrapper i.icon > i[class^=icon-] {
+  display: inline-block;
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(18px 0 currentColor); 
+  position: relative;
+  left: -18px;
+}
+
+.ag-format-picker li.item.active .icon-wrapper i.icon {
+  color: var(--themeColor);
 }

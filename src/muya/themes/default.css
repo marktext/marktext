@@ -461,18 +461,22 @@ blockquote .ag-hide.ag-math > .ag-math-render {
 
 .ag-image-marked-text::before {
   background: url(../lib/assets/icons/image_light.png);
+  background-size: cover;
 }
 
 .ag-image-marked-text.ag-image-fail::before {
   background-image: url(../lib/assets/icons/image_light_fail.png);
+  background-size: cover;
 }
 
 body.dark .ag-image-marked-text::before {
   background: url(../lib/assets/icons/image_dark.png);
+  background-size: cover;
 }
 
 body.dark .ag-image-marked-text.ag-image-fail::before {
   background-image: url(../lib/assets/icons/image_dark_fail.png);
+  background-size: cover;
 }
 
 .ag-front-icon {
@@ -499,6 +503,38 @@ body.dark .ag-image-marked-text.ag-image-fail::before {
   pre {
     word-wrap: break-word;
   }
+}
+/* cover default flowchart.js and sequence style */
+figure[data-role] svg rect[fill="#ffffff"] {
+  fill: var(--editorBgColor);
+}
+
+figure[data-role] svg rect[stroke="#000000"] {
+  stroke: var(--editorColor);
+}
+
+figure[data-role] svg text[fill="#000000"] {
+  fill: var(--editorColor);
+}
+
+figure[data-role] svg path[stroke="#000000"] {
+  stroke: var(--editorColor);
+}
+
+figure[data-role] svg path[fill="#ffffff"] {
+  fill: var(--editorBgColor);
+}
+
+figure[data-role] svg path[fill="#000000"] {
+  fill: var(--editorColor);
+}
+
+figure[data-role] svg use[fill="black"] {
+  fill: var(--editorColor);
+}
+
+figure[data-role] svg use[fill="#000000"] {
+  fill: var(--editorColor);
 }
 
 /*

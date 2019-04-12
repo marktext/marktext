@@ -261,15 +261,35 @@ figure {
   right: 0;
 }
 
-.ag-tool-bar ul li.active svg {
-  fill: var(--themeColor);
+.ag-front-icon i.icon,
+.ag-tool-bar ul li i.icon {
+  display: inline-block;
+  position: relative;
+  height:20px;
+  width: 20px;
+  overflow: hidden;
+  color: var(--iconColor);
+  opacity: .5;
+  transition: all .25s ease-in-out;
 }
 
-.ag-tool-bar ul li svg {
+.ag-front-icon i.icon > i[class^=icon-],
+.ag-tool-bar ul li i.icon > i[class^=icon-] {
+  display: inline-block;
   width: 100%;
   height: 100%;
-  will-change: transform;
-  fill: currentColor;
+  filter: drop-shadow(20px 0 currentColor); 
+  position: relative;
+  left: -20px;
+}
+
+.ag-tool-bar ul li.active i.icon {
+  color: var(--themeColor);
+}
+
+.ag-tool-bar ul li[data-label=delete] i.icon {
+  color: var(--deleteColor);
+  opacity: 1;
 }
 
 figure.ag-active .ag-tool-bar {
@@ -541,6 +561,10 @@ figure.ag-container-block div.ag-container-preview {
   text-align: center;
 }
 
+figure.ag-container-block div.ag-container-preview > svg {
+  width: 100%;
+}
+
 figure.ag-active.ag-container-block > div.ag-container-preview {
   position: absolute;
   top: calc(100% + 20px);
@@ -685,14 +709,12 @@ span.ag-warn.ag-emoji-marked-text {
 }
 
 .ag-image-marked-text::before {
+  background-size: cover;
   content: '';
-  width: 1.1em;
-  height: 1.1em;
+  width: 1em;
+  height: 1em;
   display: inline-block;
-  vertical-align: middle;
-  background-size: contain;
-  position: relative;
-  top: -3px;
+  vertical-align: text-top;
 }
 
 span[data-role="link"], a[data-role="link"], span[data-role="link"] .ag-backlash {
@@ -734,12 +756,18 @@ span.ag-reference-link {
 
 .ag-front-icon {
   position: absolute;
-  width: 16px;
-  height: 16px;
-  top: 2px;
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  top: 0.2em;
   left: -30px;
   display: none;
   cursor: pointer;
+  opacity: .6;
+}
+
+.ag-front-icon:hover {
+  background: var(--selectionColor);
 }
 
 .ag-front-icon::before {
@@ -756,6 +784,20 @@ span.ag-reference-link {
   display: none;
 }
 
+.ag-front-icon i.icon {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+}
+
+.ag-front-icon i.icon > i[class^=icon-] {
+  filter: drop-shadow(16px 0 currentColor); 
+  position: absolute;
+  left: -16px;
+}
+
 .ag-paragraph.ag-active .ag-front-icon {
   display: block;
 }
@@ -767,4 +809,8 @@ span.ag-reference-link {
 
 .ag-ruby-render {
   user-select: none;
+}
+
+.vega-embed {
+  padding-right: 0;
 }

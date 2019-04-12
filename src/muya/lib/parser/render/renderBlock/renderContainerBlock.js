@@ -1,4 +1,5 @@
 import { CLASS_OR_ID } from '../../../config'
+import { renderTableTools } from './renderToolBar'
 import { h } from '../snabbdom'
 
 const PRE_BLOCK_HASH = {
@@ -15,6 +16,7 @@ const PRE_BLOCK_HASH = {
 
 export default function renderContainerBlock (block, cursor, activeBlocks, selectedBlock, matches, useCache = false) {
   let selector = this.getSelector(block, cursor, activeBlocks, selectedBlock)
+  const children = block.children.map(child => this.renderBlock(child, cursor, activeBlocks, selectedBlock, matches, useCache))
   const data = {
     attrs: {},
     dataset: {}
@@ -35,6 +37,9 @@ export default function renderContainerBlock (block, cursor, activeBlocks, selec
   if (block.type === 'figure') {
     if (block.functionType) {
       Object.assign(data.dataset, { role: block.functionType.toUpperCase() })
+      if (block.functionType === 'table') {
+        children.unshift(renderTableTools(activeBlocks))
+      }
     }
 
     if (
@@ -58,15 +63,6 @@ export default function renderContainerBlock (block, cursor, activeBlocks, selec
       default:
         break
     }
-  }
-  if (block.type === 'li' && block.label) {
-    const { label, title: tooltip } = block
-    const { align } = activeBlocks[0]
-
-    if (align && block.label === align) {
-      selector += '.active'
-    }
-    Object.assign(data.dataset, { label, tooltip })
   }
   if (block.type === 'li' && block.listItemType) {
     selector += `.${CLASS_OR_ID['AG_LIST_ITEM']}`
@@ -105,8 +101,8 @@ export default function renderContainerBlock (block, cursor, activeBlocks, selec
   }
 
   if (!block.parent) {
-    return h(selector, data, [this.renderIcon(block), ...block.children.map(child => this.renderBlock(child, cursor, activeBlocks, selectedBlock, matches, useCache))])
-  } else {
-    return h(selector, data, block.children.map(child => this.renderBlock(child, cursor, activeBlocks, selectedBlock, matches, useCache)))
+    children.unshift(this.renderIcon(block))
   }
+
+  return h(selector, data, children)
 }
