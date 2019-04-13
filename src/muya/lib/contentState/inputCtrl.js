@@ -90,7 +90,6 @@ const inputCtrl = ContentState => {
     let text = getTextContent(paragraph, [ CLASS_OR_ID['AG_MATH_RENDER'], CLASS_OR_ID['AG_RUBY_RENDER'] ])
     let needRender = false
     let needRenderAll = false
-
     if (oldStart.key !== oldEnd.key) {
       const startBlock = this.getBlock(oldStart.key)
       const startOutmostBlock = this.findOutMostBlock(startBlock)
@@ -98,12 +97,22 @@ const inputCtrl = ContentState => {
       const endOutmostBlock = this.findOutMostBlock(endBlock)
       if (
         // fix #918.
-        startBlock.functionType === 'languageInput' &&
-        startOutmostBlock === endOutmostBlock &&
-        !endBlock.nextSibling
+        startBlock.functionType === 'languageInput'
       ) {
-        this.removeBlocks(startBlock, endBlock, false)
-        endBlock.text = ''
+        if (startOutmostBlock === endOutmostBlock && !endBlock.nextSibling) {
+          this.removeBlocks(startBlock, endBlock, false)
+          endBlock.text = ''
+        } else if (startOutmostBlock !== endOutmostBlock) {
+          const preBlock = this.getParent(startBlock)
+          const pBlock = this.createBlock('p')
+          this.removeBlocks(startBlock, endBlock)
+          delete startBlock.functionType
+          this.appendChild(pBlock, startBlock)
+          this.insertBefore(pBlock, preBlock)
+          this.removeBlock(preBlock)
+        } else {
+          this.removeBlocks(startBlock, endBlock)
+        }
       } else {
         this.removeBlocks(startBlock, endBlock)
       }

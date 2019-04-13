@@ -631,6 +631,10 @@ class ContentState {
     }
   }
 
+  getFirstBlock () {
+    return this.firstInDescendant(this.blocks[0])
+  }
+
   getLastBlock () {
     const { blocks } = this
     const len = blocks.length
