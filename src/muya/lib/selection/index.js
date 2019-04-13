@@ -441,6 +441,7 @@ class Selection {
     let { anchorNode, anchorOffset, focusNode, focusOffset } = this.doc.getSelection()
     // when the first paragraph is task list, press ctrl + a, then press backspace will cause bug
     // use code bellow to fix the bug
+    console.log(anchorNode, anchorOffset, focusNode, focusOffset)
     const findFirstTextNode = anchor => {
       if (anchor.nodeType === 3) return anchor
       // if it's a empty line, just return the span element.
