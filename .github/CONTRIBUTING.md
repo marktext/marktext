@@ -17,7 +17,7 @@ Please search for similar issues before opening an issue and always follow the [
 
 ## Pull Request Guidelines
 
-- Submit PRs directly to the `master` branch.
+- Submit PRs directly to the `develop` branch.
 
 - Work in the `src` folder and **DO NOT** checkin `dist` in commits.
 
@@ -56,14 +56,14 @@ Other ways to help:
 2. Clone your fork: `git clone git@github.com:<username>/marktext.git`
 3. Create a feature branch: `git checkout -b feature`
 4. Make you changes and push your branch.
-5. Create a PR against `master` and describe your changes.
+5. Create a PR against `develop` and describe your changes.
 
 **Rebase your PR:**
 
 If there are conflicts or you want to update your local branch, please do the following:
 
 1. `git fetch upstream`
-2. `git rebase upstream/master`
+2. `git rebase upstream/develop`
 3. Please [resolve](https://help.github.com/articles/resolving-merge-conflicts-after-a-git-rebase/) all conflicts and force push your feature branch: `git push -f`
 
 ### Build Instructions
