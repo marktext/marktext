@@ -112,7 +112,7 @@
 ## 特徴
 
 - リアルタイムプレビューと[snabbdom](https://github.com/snabbdom/snabbdom) を用いたレンダリング。
-- [CommonMark Spec](https://spec.commonmark.org/0.28/) と [GitHub Flavored Markdown Spec](https://github.github.com/gfm/)をサポート。
+- [CommonMark Spec](https://spec.commonmark.org/0.29/) と [GitHub Flavored Markdown Spec](https://github.github.com/gfm/)をサポート。
 - 段落とインラインショートカットを利用することで編集効率を向上。
 - **HTML** ファイルと **PDF** ファイルを出力可能.
 - ダークテーマとライトテーマが利用可能.

@@ -87,7 +87,7 @@
 ## 기능
 
 - 실시간 미리보기 및 렌더링 엔진으로 [snabbdom](https://github.com/snabbdom/snabbdom) 사용.
-- [CommonMark Spec](https://spec.commonmark.org/0.28/) 및 [GitHub Flavored Markdown Spec](https://github.github.com/gfm/) 지원.
+- [CommonMark Spec](https://spec.commonmark.org/0.29/) 및 [GitHub Flavored Markdown Spec](https://github.github.com/gfm/) 지원.
 - 단락 및 인라인 스타일 단축키를 지원하여 문서 작성의 효율을 향상.
 - **HTML** 및 **PDF** 파일 출력.
 - 어두운 테마와 밝은 테마 지원.

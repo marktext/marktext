@@ -91,7 +91,7 @@
 ## Özellikler
 
 - Gerçek zamanlı önizleme ve render motoru olarak [snabbdom](https://github.com/snabbdom/snabbdom) kullanıldı.
-- [CommonMark Spec](https://spec.commonmark.org/0.28/) ve [GitHub Flavored Markdown Spec](https://github.github.com/gfm/) destekliyor.
+- [CommonMark Spec](https://spec.commonmark.org/0.29/) ve [GitHub Flavored Markdown Spec](https://github.github.com/gfm/) destekliyor.
 - Yazım verimliliğinizi artırmak için paragraf ve satır içi stil kısayollarını destekliyor.
 - **HTML** ve **PDF** dosya çıktısı alınabiliyor.
 - Dark ve Light olarak iki tema seçeneği bulunuyor.

@@ -25,7 +25,7 @@ const helpMenu = {
   }, {
     label: 'Markdown syntax',
     click () {
-      shell.openExternal('https://spec.commonmark.org/0.28/')
+      shell.openExternal('https://spec.commonmark.org/0.29/')
     }
   }, {
     type: 'separator'
