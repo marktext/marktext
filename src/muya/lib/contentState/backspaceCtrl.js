@@ -159,14 +159,25 @@ const backspaceCtrl = ContentState => {
         end.offset === endBlock.text.length && startOutmostBlock === endOutmostBlock && !endBlock.nextSibling && !maybeLastRow.nextSibling ||
         startOutmostBlock !== endOutmostBlock
       ) {
+        event.preventDefault()
         // need remove the figure block.
         const figureBlock = this.getBlock(this.findFigure(startBlock))
         // if table is the only block, need create a p block.
-        if (!figureBlock.nextSibling && !figureBlock.preSibling && !figureBlock.parent) {
-          const p = this.createBlockP()
-          this.insertBefore(p, figureBlock)
+        const p = this.createBlockP(endBlock.text.substring(end.offset))
+        this.insertBefore(p, figureBlock)
+        const cursorBlock = p.children[0]
+        if (startOutmostBlock !== endOutmostBlock) {
+          this.removeBlocks(figureBlock, endBlock)
         }
+
         this.removeBlock(figureBlock)
+        const { key } = cursorBlock
+        const offset = 0
+        this.cursor = {
+          start: { key, offset },
+          end: { key, offset }
+        }
+        return this.render()
       }
     }
 
