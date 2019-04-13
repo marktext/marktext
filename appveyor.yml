@@ -9,7 +9,8 @@ clone_folder: c:\projects\marktext
 branches:
   only:
     - master
-    - /^release-v[0-9.]+$/
+    - develop
+    - /^release-v[0-9.]+(?:-[0-9a-zA-Z\.]+)?$/
 skip_tags: true
 
 environment:
