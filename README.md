@@ -158,7 +158,7 @@ Sponsored by Patreon, it will be directly sponsored to Luo Ran (@jocs), who crea
 ## Features
 
 - Realtime preview (WYSIWYG) and a clean and simple interface to get a distraction-free writing experience.
-- Support [CommonMark Spec](https://spec.commonmark.org/0.28/) and [GitHub Flavored Markdown Spec](https://github.github.com/gfm/).
+- Support [CommonMark Spec](https://spec.commonmark.org/0.29/) and [GitHub Flavored Markdown Spec](https://github.github.com/gfm/).
 - Markdown extensions such as math expressions (KaTeX), front matter and emojis.
 - Support paragraphs and inline style shortcuts to improve your writing efficiency.
 - Output **HTML** and **PDF** files.

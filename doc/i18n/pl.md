@@ -87,7 +87,7 @@
 ### Cechy programu
 
 - Podgląd na żywo - użycie [snabbdom](https://github.com/snabbdom/snabbdom) jako swojego silnika renderującego.
-- Wsparcie specyfikacji [CommonMark](https://spec.commonmark.org/0.28/) i [GitHub Flavored Markdown](https://github.github.com/gfm/).
+- Wsparcie specyfikacji [CommonMark](https://spec.commonmark.org/0.29/) i [GitHub Flavored Markdown](https://github.github.com/gfm/).
 - Wsparcie paragrafów i skrótów klawiatowych dla stylów wbudowanych w celu zwiększenia twojej wydajności podczas pisania.
 - Zapis do plików **HTML** i **PDF**.
 - Ciemny i jasny motyw.

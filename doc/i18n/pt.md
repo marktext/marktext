@@ -87,7 +87,7 @@
 ## Características
 
 - Renderizado em tempo real, e utiliza [snabbdom](https://github.com/snabbdom/snabbdom) como motor de renderização.
-- Soporta [CommonMark Spec](https://spec.commonmark.org/0.28/) e [GitHub Flavored Markdown Spec](https://github.github.com/gfm/).
+- Soporta [CommonMark Spec](https://spec.commonmark.org/0.29/) e [GitHub Flavored Markdown Spec](https://github.github.com/gfm/).
 - Suporta parágrafos e atalhos no meio da linha para melhorar a eficiência da escrita
 - Exporta arquivos markdown para **HTML** e **PDF**.
 - Temas claro e escuro.

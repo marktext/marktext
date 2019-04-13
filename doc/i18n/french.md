@@ -87,7 +87,7 @@
 ## Features
 
 - Rendu en temps réelle et utilise [snabbdom](https://github.com/snabbdom/snabbdom) en tant que moteur de rendu.
-- Supporte [CommonMark Spec](https://spec.commonmark.org/0.28/) et [GitHub Flavored Markdown Spec](https://github.github.com/gfm/).
+- Supporte [CommonMark Spec](https://spec.commonmark.org/0.29/) et [GitHub Flavored Markdown Spec](https://github.github.com/gfm/).
 - Supporte les paragraphes et raccourices clavier afin d'améliorer votre productivité.
 - Export de votre markdown en **HTML** et **PDF**.
 - Thèmes Sombre et Clair.
