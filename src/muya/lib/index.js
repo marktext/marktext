@@ -58,7 +58,7 @@ class Muya {
     // Callback function to execute when mutations are observed
     const callback = function(mutationsList, observer) {
       for(const mutation of mutationsList) {
-        if (mutation.type == 'childList') {
+        if (mutation.type === 'childList') {
           const { removedNodes, target } = mutation
           // If the code executes any of the following `if` statements, the editor has gone wrong.
           // need to report bugs.

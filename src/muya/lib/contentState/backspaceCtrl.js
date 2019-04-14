@@ -181,8 +181,6 @@ const backspaceCtrl = ContentState => {
       }
     }
 
-
-
     // If select multiple paragraph or multiple characters in one paragraph, just let
     // inputCtrl to handle this case.
     if (start.key !== end.key || start.offset !== end.offset) {

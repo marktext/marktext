@@ -564,7 +564,7 @@
       bus.$off('file-loaded', this.setMarkdownToEditor)
       bus.$off('undo', this.handleUndo)
       bus.$off('redo', this.handleRedo)
-      bus.$on('selectAll', this.handleSelectAll)
+      bus.$off('selectAll', this.handleSelectAll)
       bus.$off('export', this.handleExport)
       bus.$off('print-service-clearup', this.handlePrintServiceClearup)
       bus.$off('paragraph', this.handleEditParagraph)
