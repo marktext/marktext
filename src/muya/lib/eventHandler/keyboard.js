@@ -203,7 +203,6 @@ class Keyboard {
       if (!start || !end) {
         return
       }
-
       if (
         !this.isComposed
       ) {

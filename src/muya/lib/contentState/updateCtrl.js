@@ -34,13 +34,14 @@ const updateCtrl = ContentState => {
   }
 
   ContentState.prototype.checkNeedRender = function (cursor = this.cursor) {
+    const { labels } = this.stateRender
     const { start: cStart, end: cEnd } = cursor
     const startBlock = this.getBlock(cStart.key)
     const endBlock = this.getBlock(cEnd.key)
     const startOffset = cStart.offset
     const endOffset = cEnd.offset
 
-    for (const token of tokenizer(startBlock.text)) {
+    for (const token of tokenizer(startBlock.text, undefined, undefined, labels)) {
       if (token.type === 'text') continue
       const { start, end } = token.range
       const textLen = startBlock.text.length
@@ -50,7 +51,7 @@ const updateCtrl = ContentState => {
         return true
       }
     }
-    for (const token of tokenizer(endBlock.text)) {
+    for (const token of tokenizer(endBlock.text, undefined, undefined, labels)) {
       if (token.type === 'text') continue
       const { start, end } = token.range
       const textLen = endBlock.text.length
