@@ -459,8 +459,7 @@
     "example": 57,
     "start_line": 1108,
     "end_line": 1114,
-    "section": "Setext headings",
-    "shouldFail": true
+    "section": "Setext headings"
   },
   {
     "markdown": "Foo\n= =\n\nFoo\n--- -\n",
