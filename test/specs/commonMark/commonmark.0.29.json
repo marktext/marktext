@@ -1807,8 +1807,7 @@
     "example": 224,
     "start_line": 3801,
     "end_line": 3820,
-    "section": "List items",
-    "shouldFail": true
+    "section": "List items"
   },
   {
     "markdown": "- one\n\n two\n",
@@ -2074,8 +2073,7 @@
     "example": 256,
     "start_line": 4368,
     "end_line": 4387,
-    "section": "List items",
-    "shouldFail": true
+    "section": "List items"
   },
   {
     "markdown": "  1.  A paragraph\n      with two lines.\n\n          indented code\n\n      > A block quote.\n",
@@ -2083,8 +2081,7 @@
     "example": 257,
     "start_line": 4392,
     "end_line": 4411,
-    "section": "List items",
-    "shouldFail": true
+    "section": "List items"
   },
   {
     "markdown": "   1.  A paragraph\n       with two lines.\n\n           indented code\n\n       > A block quote.\n",
@@ -2092,8 +2089,7 @@
     "example": 258,
     "start_line": 4416,
     "end_line": 4435,
-    "section": "List items",
-    "shouldFail": true
+    "section": "List items"
   },
   {
     "markdown": "    1.  A paragraph\n        with two lines.\n\n            indented code\n\n        > A block quote.\n",
@@ -2109,8 +2105,7 @@
     "example": 260,
     "start_line": 4470,
     "end_line": 4489,
-    "section": "List items",
-    "shouldFail": true
+    "section": "List items"
   },
   {
     "markdown": "  1.  A paragraph\n    with two lines.\n",
@@ -2354,7 +2349,8 @@
     "example": 289,
     "start_line": 5335,
     "end_line": 5353,
-    "section": "Lists"
+    "section": "Lists",
+    "shouldFail": true
   },
   {
     "markdown": "* a\n  > b\n  >\n* c\n",
@@ -2395,8 +2391,7 @@
     "example": 294,
     "start_line": 5428,
     "end_line": 5442,
-    "section": "Lists",
-    "shouldFail": true
+    "section": "Lists"
   },
   {
     "markdown": "* foo\n  * bar\n\n  baz\n",
@@ -2404,8 +2399,7 @@
     "example": 295,
     "start_line": 5447,
     "end_line": 5462,
-    "section": "Lists",
-    "shouldFail": true
+    "section": "Lists"
   },
   {
     "markdown": "- a\n  - b\n  - c\n\n- d\n  - e\n  - f\n",
