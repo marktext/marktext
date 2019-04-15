@@ -1,5 +1,6 @@
 import { CLASS_OR_ID } from '../../../config'
 import { renderTableTools } from './renderToolBar'
+import { renderEditIcon } from './renderContainerEditIcon'
 import { h } from '../snabbdom'
 
 const PRE_BLOCK_HASH = {
@@ -39,6 +40,8 @@ export default function renderContainerBlock (block, cursor, activeBlocks, selec
       Object.assign(data.dataset, { role: block.functionType.toUpperCase() })
       if (block.functionType === 'table') {
         children.unshift(renderTableTools(activeBlocks))
+      } else {
+        children.unshift(renderEditIcon())
       }
     }
 
