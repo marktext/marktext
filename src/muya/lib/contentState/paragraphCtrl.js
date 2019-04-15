@@ -682,6 +682,73 @@ const paragraphCtrl = ContentState => {
     this.partialRender()
     return this.muya.eventCenter.dispatch('stateChange')
   }
+
+  ContentState.prototype.selectAll = function () {
+    const { start } = this.cursor
+    const startBlock = this.getBlock(start.key)
+    // const endBlock = this.getBlock(end.key)
+    // handle selectAll in table. only select the startBlock cell...
+    if (/th|td/.test(startBlock.type)) {
+      const { key } = start
+      const textLength = startBlock.text.length
+      this.cursor = {
+        start: {
+          key,
+          offset: 0
+        },
+        end: {
+          key,
+          offset: textLength
+        }
+      }
+      return this.partialRender()
+    }
+    // Handler selectAll in code block. only select all the code block conent.
+    // `code block` here is Math, HTML, BLOCK CODE, Mermaid, vega-lite, flowchart, front-matter etc...
+    if (startBlock.type === 'span' && startBlock.functionType === 'codeLine') {
+      const codeBlock = this.getParent(startBlock)
+      const firstCodeLine = this.firstInDescendant(codeBlock)
+      const lastCodeLine = this.lastInDescendant(codeBlock)
+      this.cursor = {
+        start: {
+          key: firstCodeLine.key,
+          offset: 0
+        },
+        end: {
+          key: lastCodeLine.key,
+          offset: lastCodeLine.text.length
+        }
+      }
+      return this.partialRender()
+    }
+    // Handler language input, only select language info only...
+    if (startBlock.type === 'span' && startBlock.functionType === 'languageInput') {
+      this.cursor = {
+        start: {
+          key: startBlock.key,
+          offset: 0
+        },
+        end: {
+          key: startBlock.key,
+          offset: startBlock.text.length
+        }
+      }
+      return this.partialRender()
+    }
+    const firstTextBlock = this.getFirstBlock()
+    const lastTextBlock = this.getLastBlock()
+    this.cursor = {
+      start: {
+        key: firstTextBlock.key,
+        offset: 0
+      },
+      end: {
+        key: lastTextBlock.key,
+        offset: lastTextBlock.text.length
+      }
+    }
+    this.render()
+  }
 }
 
 export default paragraphCtrl

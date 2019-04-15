@@ -108,6 +108,9 @@ const backspaceCtrl = ContentState => {
     }
     const startBlock = this.getBlock(start.key)
     const endBlock = this.getBlock(end.key)
+    const maybeLastRow = this.getParent(endBlock)
+    const startOutmostBlock = this.findOutMostBlock(startBlock)
+    const endOutmostBlock = this.findOutMostBlock(endBlock)
     // fix: #897
     const { text } = startBlock
     const tokens = tokenizer(text)
@@ -148,26 +151,34 @@ const backspaceCtrl = ContentState => {
       return this.partialRender()
     }
 
-    // fix: unexpect remove all editor html. #67 problem 4
-    if (startBlock.type === 'figure' && !startBlock.preSibling) {
-      event.preventDefault()
-      this.removeBlock(startBlock)
-      if (start.key !== end.key) {
-        this.removeBlocks(startBlock, endBlock)
-      }
-      let newBlock = this.findNextBlockInLocation(startBlock)
-      if (!newBlock) {
-        this.blocks = [this.createBlockP()]
-        newBlock = this.blocks[0].children[0]
-      }
-      const key = newBlock.key
-      const offset = 0
+    // fix bug when the first block is table, these two ways will cause bugs.
+    // 1. one paragraph bollow table, selectAll, press backspace.
+    // 2. select table from the first cell to the last cell, press backsapce.
+    if (/th/.test(startBlock.type) && start.offset === 0 && !startBlock.preSibling) {
+      if (
+        end.offset === endBlock.text.length && startOutmostBlock === endOutmostBlock && !endBlock.nextSibling && !maybeLastRow.nextSibling ||
+        startOutmostBlock !== endOutmostBlock
+      ) {
+        event.preventDefault()
+        // need remove the figure block.
+        const figureBlock = this.getBlock(this.findFigure(startBlock))
+        // if table is the only block, need create a p block.
+        const p = this.createBlockP(endBlock.text.substring(end.offset))
+        this.insertBefore(p, figureBlock)
+        const cursorBlock = p.children[0]
+        if (startOutmostBlock !== endOutmostBlock) {
+          this.removeBlocks(figureBlock, endBlock)
+        }
 
-      this.cursor = {
-        start: { key, offset },
-        end: { key, offset }
+        this.removeBlock(figureBlock)
+        const { key } = cursorBlock
+        const offset = 0
+        this.cursor = {
+          start: { key, offset },
+          end: { key, offset }
+        }
+        return this.render()
       }
-      return this.render()
     }
 
     // If select multiple paragraph or multiple characters in one paragraph, just let

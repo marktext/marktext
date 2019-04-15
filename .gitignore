@@ -14,3 +14,4 @@ yarn-error.log
 thumbs.db
 !.gitkeep
 .idea
+.env

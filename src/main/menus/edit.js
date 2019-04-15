@@ -56,7 +56,9 @@ export default {
   }, {
     label: 'Select All',
     accelerator: keybindings.getAccelerator('editSelectAll'),
-    role: 'selectall'
+    click (menuItem, browserWindow) {
+      actions.edit(browserWindow, 'selectAll')
+    }
   }, {
     type: 'separator'
   }, {

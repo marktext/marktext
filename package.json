@@ -207,6 +207,7 @@
     "css-loader": "^2.1.1",
     "del": "^4.1.0",
     "devtron": "^1.4.0",
+    "dotenv": "^7.0.0",
     "electron": "^4.1.4",
     "electron-builder": "^20.39.0",
     "electron-debug": "^2.1.0",

@@ -437,51 +437,42 @@ class Selection {
     this.select(startNode, startOffset, endNode, endOffset)
   }
 
+  isValidCursorNode (node) {
+    if (!node) return false
+    if (node.nodeType === 3) {
+      node = node.parentNode
+    }
+    return node.closest('p[data-role=hr]') ||
+      node.closest('span.ag-paragraph.ag-line') ||
+      node.closest('th.ag-paragraph') ||
+      node.closest('td.ag-paragraph') ||
+      node.closest('.ag-paragraph[data-head]')
+  }
+
   getCursorRange () {
     let { anchorNode, anchorOffset, focusNode, focusOffset } = this.doc.getSelection()
-    // when the first paragraph is task list, press ctrl + a, then press backspace will cause bug
-    // use code bellow to fix the bug
-    const findFirstTextNode = anchor => {
-      if (anchor.nodeType === 3) return anchor
-      // if it's a empty line, just return the span element.
-      if (
-        anchor.nodeType === 1 &&
-        anchor.nodeName === 'SPAN' &&
-        anchor.textContent === '' &&
-        anchor.classList.contains('ag-line')
-      ) {
-        return anchor
-      }
-      const children = anchor.childNodes
-      for (const node of children) {
-        if (
-          /input/i.test(node.nodeName) ||
-          node.nodeType === 1 && node.getAttribute('contenteditable') === 'false'
-        ) {
-          continue
-        }
-        return findFirstTextNode(node)
-      }
-    }
+    const isAnchorValid = this.isValidCursorNode(anchorNode)
+    const isFocusValid = this.isValidCursorNode(focusNode)
     let needFix = false
-    if (anchorNode.nodeName === 'LI') {
+    if (!isAnchorValid && isFocusValid) {
       needFix = true
-      anchorNode = findFirstTextNode(anchorNode)
-    }
-
-    if (focusNode.nodeName === 'LI') {
+      anchorNode = focusNode
+      anchorOffset = focusOffset
+    } else if (isAnchorValid && !isFocusValid) {
       needFix = true
-      focusNode = findFirstTextNode(focusNode)
-    }
-
-    let startParagraph = findNearestParagraph(anchorNode)
-    let endParagraph = findNearestParagraph(focusNode)
-    if (!startParagraph || !endParagraph) {
+      focusNode = anchorNode
+      focusOffset = anchorOffset
+    } else if (!isAnchorValid && !isFocusValid) {
+      const editor = document.querySelector('#ag-editor-id').parentNode
+      editor.blur()
       return {
         start: null,
         end: null
       }
     }
+
+    const startParagraph = findNearestParagraph(anchorNode)
+    const endParagraph = findNearestParagraph(focusNode)
 
     const getOffsetOfParagraph = (node, paragraph) => {
       let offset = 0
@@ -529,9 +520,11 @@ class Selection {
         result = { start: rawCursor.end, end: rawCursor.start }
       }
     }
+
     if (needFix) {
       this.setCursorRange(result)
     }
+
     return result
   }
 

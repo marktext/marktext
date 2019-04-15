@@ -269,6 +269,7 @@
         bus.$on('file-loaded', this.setMarkdownToEditor)
         bus.$on('undo', this.handleUndo)
         bus.$on('redo', this.handleRedo)
+        bus.$on('selectAll', this.handleSelectAll)
         bus.$on('export', this.handleExport)
         bus.$on('print-service-clearup', this.handlePrintServiceClearup)
         bus.$on('paragraph', this.handleEditParagraph)
@@ -375,6 +376,12 @@
       handleRedo () {
         if (this.editor) {
           this.editor.redo()
+        }
+      },
+
+      handleSelectAll () {
+        if (this.editor) {
+          this.editor.selectAll()
         }
       },
 
@@ -557,6 +564,7 @@
       bus.$off('file-loaded', this.setMarkdownToEditor)
       bus.$off('undo', this.handleUndo)
       bus.$off('redo', this.handleRedo)
+      bus.$off('selectAll', this.handleSelectAll)
       bus.$off('export', this.handleExport)
       bus.$off('print-service-clearup', this.handlePrintServiceClearup)
       bus.$off('paragraph', this.handleEditParagraph)

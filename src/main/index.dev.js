@@ -6,7 +6,7 @@
  */
 
 /* eslint-disable */
-
+require('dotenv').config()
 // Install `electron-debug` with `devtron`
 require('electron-debug')({ showDevTools: false })
 
