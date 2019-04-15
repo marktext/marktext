@@ -173,7 +173,20 @@ const importRegister = ContentState => {
           this.appendChild(parentList[0], block)
           break
         }
-        case 'text':
+        case 'text': {
+          value = token.text
+          while (tokens[0].type === 'text') {
+            token = tokens.shift()
+            value += `\n${token.text}`
+          }
+          block = this.createBlock('p')
+          const lines = value.split(LINE_BREAKS_REG).map(line => this.createBlock('span', line))
+          for (const line of lines) {
+            this.appendChild(block, line)
+          }
+          this.appendChild(parentList[0], block)
+          break
+        }
         case 'paragraph': {
           value = token.text
           block = this.createBlock('p')
