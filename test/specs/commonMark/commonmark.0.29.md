@@ -1,6 +1,6 @@
 ## Test Result
 
-Total test 649 examples, and failed 136 examples:
+Total test 649 examples, and failed 135 examples:
 
 **Example7**
 
@@ -206,32 +206,6 @@ Bar</h2>
 Actural Html
 <p>Foo</p>
 <h2>Bar</h2>
-
-```
-
-**Example66**
-
-```markdown
-Markdown content
----
-Foo
----
-Bar
----
-Baz
-
-Expected Html
-<hr />
-<h2>Foo</h2>
-<h2>Bar</h2>
-<p>Baz</p>
-
-Actural Html
-<pre class="front-matter">
-Foo
-</pre>
-<h2>Bar</h2>
-<p>Baz</p>
 
 ```
 

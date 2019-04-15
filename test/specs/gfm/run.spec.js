@@ -2,6 +2,7 @@
 // And for custom use.
 import { removeCustomClass } from '../help'
 import { writeResult } from '../commonMark/run.spec'
+import { MT_MARKED_OPTIONS } from '../config'
 const fetch = require('node-fetch')
 const cheerio = require('cheerio')
 const marked = require('../../../src/muya/lib/parser/marked/index.js').default
@@ -51,7 +52,7 @@ const diffAndGenerateResult = async () => {
   const [version, specs] = await getSpecs()
   const markedSpecs = await getMarkedSpecs(version)
   specs.forEach(spec => {
-    const html = removeCustomClass(marked(spec.markdown, { gfm: true }))
+    const html = removeCustomClass(marked(spec.markdown, MT_MARKED_OPTIONS))
     if (!htmlDiffer.isEqual(html, spec.html)) {
       spec.shouldFail = true
     }

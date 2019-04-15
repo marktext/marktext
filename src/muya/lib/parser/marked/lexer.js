@@ -42,6 +42,7 @@ Lexer.prototype.lex = function (src) {
  */
 
 Lexer.prototype.token = function (src, top) {
+  const { frontMatter, math } = this.options
   src = src.replace(/^ +$/gm, '')
 
   let loose
@@ -57,15 +58,17 @@ Lexer.prototype.token = function (src, top) {
 
   // Only check front matter at the begining of a markdown file.
   // Why "checkFrontmatter" and "top"? See note in "blockquote".
-  cap = this.rules.frontmatter.exec(src)
-  if (this.checkFrontmatter && top && cap) {
-    src = src.substring(cap[0].length)
-    this.tokens.push({
-      type: 'frontmatter',
-      text: cap[1]
-    })
+  if (frontMatter) {
+    cap = this.rules.frontmatter.exec(src)
+    if (this.checkFrontmatter && top && cap) {
+      src = src.substring(cap[0].length)
+      this.tokens.push({
+        type: 'frontmatter',
+        text: cap[1]
+      })
+    }
+    this.checkFrontmatter = false
   }
-  this.checkFrontmatter = false
 
   while (src) {
     // newline
@@ -95,14 +98,16 @@ Lexer.prototype.token = function (src, top) {
     }
 
     // multiple line math
-    cap = this.rules.multiplemath.exec(src)
-    if (cap) {
-      src = src.substring(cap[0].length)
-      this.tokens.push({
-        type: 'multiplemath',
-        text: cap[1]
-      })
-      continue
+    if (math) {
+      cap = this.rules.multiplemath.exec(src)
+      if (cap) {
+        src = src.substring(cap[0].length)
+        this.tokens.push({
+          type: 'multiplemath',
+          text: cap[1]
+        })
+        continue
+      }
     }
 
     // fences (gfm)

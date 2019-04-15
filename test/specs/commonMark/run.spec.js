@@ -1,5 +1,6 @@
 // This file is copy from marked and modified.
 import { removeCustomClass } from '../help'
+import { MT_MARKED_OPTIONS } from '../config'
 const fetch = require('node-fetch')
 const markedJs = require('marked')
 const marked = require('../../../src/muya/lib/parser/marked/index.js').default
@@ -35,7 +36,7 @@ export const writeResult = (version, specs, markedSpecs, type = 'commonmark') =>
   specs.filter(s => s.shouldFail)
     .forEach(spec => {
       const expectedHtml = spec.html
-      const acturalHtml = marked(spec.markdown, { headerIds: false })
+      const acturalHtml = marked(spec.markdown, MT_MARKED_OPTIONS)
       result += `**Example${spec.example}**\n\n`
       result += '```markdown\n'
       result += `Markdown content\n`
@@ -56,7 +57,7 @@ export const writeResult = (version, specs, markedSpecs, type = 'commonmark') =>
   specs.forEach((spec, i) => {
     if (spec.shouldFail !== markedSpecs[i].shouldFail) {
       count++
-      const acturalHtml = marked(spec.markdown, { headerIds: false })
+      const acturalHtml = marked(spec.markdown, MT_MARKED_OPTIONS)
 
       compareResult += `**Example${spec.example}**\n\n`
       compareResult += `Mark Text ${spec.shouldFail ? 'fail' : 'success'} and marked.js ${markedSpecs[i].shouldFail ? 'fail' : 'success'}\n\n`
@@ -83,7 +84,7 @@ const diffAndGenerateResult = async () => {
   const markedSpecs = await getMarkedSpecs(version)
 
   specs.forEach(spec => {
-    const html = removeCustomClass(marked(spec.markdown, { headerIds: false }))
+    const html = removeCustomClass(marked(spec.markdown, MT_MARKED_OPTIONS))
     if (!htmlDiffer.isEqual(html, spec.html)) {
       spec.shouldFail = true
     }

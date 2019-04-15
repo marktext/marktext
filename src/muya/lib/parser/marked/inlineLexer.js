@@ -34,7 +34,7 @@ function InlineLexer (links, options) {
  */
 
 InlineLexer.prototype.output = function (src) {
-  const { disableInline } = this.options
+  const { disableInline, emoji, math } = this.options
   if (disableInline) {
     return escape(src)
   }
@@ -131,19 +131,23 @@ InlineLexer.prototype.output = function (src) {
     }
 
     // math
-    cap = this.rules.math.exec(src)
-    if (cap) {
-      src = src.substring(cap[0].length)
-      text = cap[1]
-      out += this.renderer.inlineMath(text)
+    if (math) {
+      cap = this.rules.math.exec(src)
+      if (cap) {
+        src = src.substring(cap[0].length)
+        text = cap[1]
+        out += this.renderer.inlineMath(text)
+      }
     }
 
     // emoji
-    cap = this.rules.emoji.exec(src)
-    if (cap) {
-      src = src.substring(cap[0].length)
-      text = cap[0]
-      out += this.renderer.emoji(text, cap[2])
+    if (emoji) {
+      cap = this.rules.emoji.exec(src)
+      if (cap) {
+        src = src.substring(cap[0].length)
+        text = cap[0]
+        out += this.renderer.emoji(text, cap[2])
+      }
     }
 
     // strong

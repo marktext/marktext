@@ -536,8 +536,7 @@
     "example": 66,
     "start_line": 1227,
     "end_line": 1239,
-    "section": "Setext headings",
-    "shouldFail": true
+    "section": "Setext headings"
   },
   {
     "markdown": "\n====\n",
