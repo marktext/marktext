@@ -75,6 +75,7 @@ class Keybindings {
       // format menu
       ['formatStrong', 'CmdOrCtrl+B'],
       ['formatEmphasis', 'CmdOrCtrl+I'],
+      ['formatUnderline', 'CmdOrCtrl+U'],
       ['formatInlineCode', 'CmdOrCtrl+`'],
       ['formatInlineMath', 'Ctrl+M'],
       ['formatStrike', 'CmdOrCtrl+D'],

@@ -21,6 +21,14 @@ export default {
       actions.format(browserWindow, 'em')
     }
   }, {
+    id: 'underlineMenuItem',
+    label: 'Underline',
+    type: 'checkbox',
+    accelerator: keybindings.getAccelerator('formatUnderline'),
+    click (menuItem, browserWindow) {
+      actions.format(browserWindow, 'u')
+    }
+  }, {
     id: 'inlineCodeMenuItem',
     label: 'Inline Code',
     type: 'checkbox',

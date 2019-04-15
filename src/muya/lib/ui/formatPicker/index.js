@@ -62,7 +62,7 @@ class FormatPicker extends BaseFloat {
       }
       const iconWrapper = h(iconWrapperSelector, icon)
       let itemSelector = `li.item.${i.type}`
-      if (formats.some(f => f.type === i.type)) {
+      if (formats.some(f => f.type === i.type || f.type === 'html_tag' && f.tag === i.type)) {
         itemSelector += '.active'
       }
       return h(itemSelector, {

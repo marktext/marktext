@@ -166,7 +166,11 @@ export const FORMAT_MARKER_MAP = {
   'inline_code': '`',
   'strong': '**',
   'del': '~~',
-  'inline_math': '$'
+  'inline_math': '$',
+  'u': {
+    open: '<u>',
+    close: '</u>'
+  }
 }
 
 export const FORMAT_TYPES = ['strong', 'em', 'del', 'inline_code', 'link', 'image', 'inline_math']
