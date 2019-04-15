@@ -106,8 +106,7 @@ const clickCtrl = ContentState => {
       const { formats } = this.selectionFormats()
       eventCenter.dispatch('muya-format-picker', { reference, formats })
     }
-    // bugfix: #67 problem 1
-    if (block && block.icon) return event.preventDefault()
+
     // bugfix: figure block click
     if (block.type === 'figure' && block.functionType === 'table') {
       // first cell in thead

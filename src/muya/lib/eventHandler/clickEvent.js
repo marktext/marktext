@@ -70,20 +70,22 @@ class ClickEvent {
       } else if (rubyText) {
         selectionText(rubyText)
       }
+      if (target.closest('div.ag-container-preview') || target.closest('div.ag-html-preview')) {
+        return event.stopPropagation()
+      }
       // handler html preview click
-      const htmlPreview = target.closest(`.ag-function-html`)
-      if (htmlPreview && !htmlPreview.classList.contains(CLASS_OR_ID['AG_ACTIVE'])) {
+      const editIcon = target.closest(`.ag-container-icon`)
+      if (editIcon) {
         event.preventDefault()
         event.stopPropagation()
-        contentState.handleHtmlBlockClick(htmlPreview)
+        const nextElement = editIcon.nextElementSibling
+        if (nextElement && nextElement.classList.contains('ag-function-html')) {
+          contentState.handleHtmlBlockClick(nextElement)
+        } else if (editIcon.parentNode.classList.contains('ag-container-block')) {
+          contentState.handleContainerBlockClick(editIcon.parentNode)
+        }
       }
-      // handler container block preview click
-      const container = target.closest('.ag-container-block')
-      if (container && !container.classList.contains(CLASS_OR_ID['AG_ACTIVE'])) {
-        event.preventDefault()
-        event.stopPropagation()
-        contentState.handleContainerBlockClick(container)
-      }
+
       // handler to-do checkbox click
       if (target.tagName === 'INPUT' && target.classList.contains(CLASS_OR_ID['AG_TASK_LIST_ITEM_CHECKBOX'])) {
         contentState.listItemCheckBoxClick(target)
