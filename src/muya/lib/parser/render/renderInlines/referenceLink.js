@@ -6,6 +6,7 @@ export default function referenceLink (h, cursor, block, token, outerClass) {
   const labelClass = className === CLASS_OR_ID['AG_GRAY']
     ? CLASS_OR_ID['AG_REFERENCE_LABEL']
     : className
+
   const { start, end } = token.range
   const {
     anchor,
