@@ -1,24 +1,6 @@
 ## Test Result
 
-Total test 649 examples, and failed 128 examples:
-
-**Example40**
-
-```markdown
-Markdown content
-foo
-    # bar
-
-Expected Html
-<p>foo
-# bar</p>
-
-Actural Html
-<p>foo</p>
-<pre><code class="indented-code-block"># bar
-</code></pre>
-
-```
+Total test 649 examples, and failed 127 examples:
 
 **Example45**
 

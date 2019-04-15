@@ -84,17 +84,23 @@ Lexer.prototype.token = function (src, top) {
     }
 
     // code
+    // An indented code block cannot interrupt a paragraph.
     cap = this.rules.code.exec(src)
     if (cap) {
+      const lastToken = this.tokens[this.tokens.length - 1]
       src = src.substring(cap[0].length)
-      cap = cap[0].replace(/^ {4}/gm, '')
-      this.tokens.push({
-        type: 'code',
-        codeBlockStyle: 'indented',
-        text: !this.options.pedantic
-          ? rtrim(cap, '\n')
-          : cap
-      })
+      if (lastToken && lastToken.type === 'paragraph') {
+        lastToken.text += `\n${cap[0].trimRight()}`
+      } else {
+        cap = cap[0].replace(/^ {4}/gm, '')
+        this.tokens.push({
+          type: 'code',
+          codeBlockStyle: 'indented',
+          text: !this.options.pedantic
+            ? rtrim(cap, '\n')
+            : cap
+        })
+      }
       continue
     }
 

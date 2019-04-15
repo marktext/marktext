@@ -317,8 +317,7 @@
     "example": 40,
     "start_line": 862,
     "end_line": 868,
-    "section": "ATX headings",
-    "shouldFail": true
+    "section": "ATX headings"
   },
   {
     "markdown": "## foo ##\n  ###   bar    ###\n",
