@@ -1,27 +1,6 @@
 ## Test Result
 
-Total test 649 examples, and failed 129 examples:
-
-**Example7**
-
-```markdown
-Markdown content
--		foo
-
-Expected Html
-<ul>
-<li>
-<pre><code>  foo
-</code></pre>
-</li>
-</ul>
-
-Actural Html
-<ul>
-<li>foo</li>
-</ul>
-
-```
+Total test 649 examples, and failed 128 examples:
 
 **Example40**
 
@@ -488,7 +467,7 @@ Actural Html
 <ol>
 <li><p>indented code</p>
 <p>paragraph</p>
-<p>more code</p>
+<p> more code</p>
 </li>
 </ol>
 
@@ -519,7 +498,7 @@ Actural Html
 <ol>
 <li><p>indented code</p>
 <p>paragraph</p>
-<p>more code</p>
+<p> more code</p>
 </li>
 </ol>
 

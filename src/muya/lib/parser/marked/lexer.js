@@ -30,6 +30,7 @@ function Lexer (opts) {
 Lexer.prototype.lex = function (src) {
   src = src
     .replace(/\r\n|\r/g, '\n')
+    // replace `\t` to four space.
     .replace(/\t/g, '    ')
     .replace(/\u00a0/g, ' ')
     .replace(/\u2424/g, '\n')
@@ -237,7 +238,7 @@ Lexer.prototype.token = function (src, top) {
         // so it is seen as the next token.
         space = item.length
         let newBull
-        item = item.replace(/^ *([*+-]|\d+(?:\.|\))) */, function (m, p1) {
+        item = item.replace(/^ *([*+-]|\d+(?:\.|\))) {0,4}/, function (m, p1) {
           // Get and remove list item bullet
           newBull = p1 || bull
           return ''

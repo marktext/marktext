@@ -53,8 +53,7 @@
     "example": 7,
     "start_line": 424,
     "end_line": 433,
-    "section": "Tabs",
-    "shouldFail": true
+    "section": "Tabs"
   },
   {
     "markdown": "    foo\n\tbar\n",
