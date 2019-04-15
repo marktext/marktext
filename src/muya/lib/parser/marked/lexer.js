@@ -313,9 +313,9 @@ Lexer.prototype.token = function (src, top) {
         }
         // Determine whether item is loose or not. If previous item is loose
         // this item is also loose.
-        loose = next = next || /^ *([*+-]|\d{1,9}(?:\.|\)))( +\S+\n\n(?!\s*$)|\n\n(?!\s*$))/.test(itemWithBullet)
         // A list is loose if any of its constituent list items are separated by blank lines,
         // or if any of its constituent list items directly contain two block-level elements with a blank line between them. 
+        // loose = next = next || /^ *([*+-]|\d{1,9}(?:\.|\)))( +\S+\n\n(?!\s*$)|\n\n(?!\s*$))/.test(itemWithBullet)
         loose = next = next || /\n\n(?!\s*$)/.test(item)
         // Check if previous line ends with a new line.
         if (!loose && (i !== 0 || l > 1) && prevItem.length !== 0 && prevItem.charAt(prevItem.length - 1) === '\n') {
