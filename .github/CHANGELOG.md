@@ -1,3 +1,18 @@
+## [unrelease]
+
+**:warning:Breaking Changes:**
+
+**:cactus:Feature**
+
+**:butterfly:Optimization**
+
+- Rewrite `select all` when press `CtrlOrCmd + A` (#937)
+
+**:beetle:Bug fix**
+
+- Fixed some commonmark failed examples and add test case (#943)
+- Fixed some bugs after press `backspace` (#934, #938)
+
 ### 0.14.0
 
 This update **fixes a XSS security vulnerability** when exporting a document.
