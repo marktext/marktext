@@ -40,40 +40,18 @@
     },
     "fileAssociations": [
       {
-        "ext": "md",
+        "ext": [
+          "md",
+          "markdown",
+          "mmd",
+          "mdown",
+          "mdtxt",
+          "mdtext"
+        ],
         "name": "Markdown",
         "description": "Markdown document",
-        "role": "Editor"
-      },
-      {
-        "ext": "markdown",
-        "name": "Markdown",
-        "description": "Markdown document",
-        "role": "Editor"
-      },
-      {
-        "ext": "mmd",
-        "name": "Markdown",
-        "description": "Markdown document",
-        "role": "Editor"
-      },
-      {
-        "ext": "mdown",
-        "name": "Markdown",
-        "description": "Markdown document",
-        "role": "Editor"
-      },
-      {
-        "ext": "mdtxt",
-        "name": "Markdown",
-        "description": "Markdown document",
-        "role": "Editor"
-      },
-      {
-        "ext": "mdtext",
-        "name": "Markdown",
-        "description": "Markdown document",
-        "role": "Editor"
+        "role": "Editor",
+        "icon": "../resources/icons/md.icns"
       }
     ],
     "files": [
@@ -148,6 +126,38 @@
         },
         {
           "target": "tar.gz"
+        }
+      ],
+      "fileAssociations": [
+        {
+          "ext": "md",
+          "name": "Markdown",
+          "description": "Markdown document"
+        },
+        {
+          "ext": "markdown",
+          "name": "Markdown",
+          "description": "Markdown document"
+        },
+        {
+          "ext": "mmd",
+          "name": "Markdown",
+          "description": "Markdown document"
+        },
+        {
+          "ext": "mdown",
+          "name": "Markdown",
+          "description": "Markdown document"
+        },
+        {
+          "ext": "mdtxt",
+          "name": "Markdown",
+          "description": "Markdown document"
+        },
+        {
+          "ext": "mdtext",
+          "name": "Markdown",
+          "description": "Markdown document"
         }
       ]
     }
