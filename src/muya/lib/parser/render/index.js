@@ -2,8 +2,8 @@ import mermaid from 'mermaid'
 import flowchart from 'flowchart.js'
 import Diagram from './sequence'
 import vegaEmbed from 'vega-embed'
-import { CLASS_OR_ID } from '../../config'
-import { conflict, mixins } from '../../utils'
+import { CLASS_OR_ID, PREVIEW_DOMPURIFY_CONFIG } from '../../config'
+import { conflict, mixins, sanitize, getImageInfo } from '../../utils'
 import { patch, toVNode, toHTML, h } from './snabbdom'
 import { beginRules } from '../rules'
 import renderInlines from './renderInlines'
@@ -17,6 +17,7 @@ class StateRender {
     this.loadMathMap = new Map()
     this.mermaidCache = new Set()
     this.diagramCache = new Map()
+    this.htmlCache = new Map()
     this.tokenCache = new Map()
     this.labels = new Map()
     this.container = null
@@ -102,6 +103,31 @@ class StateRender {
       this.mermaidCache.clear()
     }
   }
+  // Because snabbdom will remove the `controls` attribute, so I did not use htmlToVnode to render HTML.
+  renderHTMLPreview () {
+    const cache = this.htmlCache
+    if (cache.size) {
+      for (const [key, value] of cache.entries()) {
+        const target = document.querySelector(key)
+        const htmlContent = sanitize(value.code, PREVIEW_DOMPURIFY_CONFIG)
+        // handle empty html bock
+        if (/^<([a-z][a-z\d]*)[^>]*?>(\s*)<\/\1>$/.test(htmlContent.trim())) {
+          target.innerHTML = '&lt;Empty HTML Block&gt;'
+          target.classList.add('ag-empty')
+        } else {
+          const parser = new DOMParser()
+          const doc = parser.parseFromString(htmlContent, 'text/html')
+          const imgs = doc.documentElement.querySelectorAll('img')
+          for (const img of imgs) {
+            const src = img.getAttribute('src')
+            const imageInfo = getImageInfo(src)
+            img.setAttribute('src', imageInfo.src)
+          }
+          target.innerHTML = doc.documentElement.querySelector('body').innerHTML
+        }
+      }
+    }
+  }
 
   async renderDiagram () {
     const cache = this.diagramCache
@@ -155,6 +181,7 @@ class StateRender {
     patch(oldVdom, newVdom)
     this.renderMermaid()
     this.renderDiagram()
+    this.renderHTMLPreview()
   }
 
   // Only render the blocks which you updated
@@ -198,6 +225,7 @@ class StateRender {
 
     this.renderMermaid()
     this.renderDiagram()
+    this.renderHTMLPreview()
   }
 }
 
