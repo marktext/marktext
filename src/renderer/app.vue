@@ -152,6 +152,9 @@
 
       // prevent Chromium's default behavior and try to open the first file
       window.addEventListener('dragover', e => {
+        // Cancel to allow tab drag&drop.
+        if (!e.dataTransfer.types.length) return
+
         e.preventDefault()
         if (e.dataTransfer.types.indexOf('Files') >= 0) {
           if (e.dataTransfer.items.length === 1 && /png|jpg|jpeg|gif/.test(e.dataTransfer.items[0].type)) {
@@ -201,6 +204,7 @@
   }
   .editor-middle {
     display: flex;
+    flex-direction: column;
     flex: 1;
     min-height: 100vh;
     position: relative;

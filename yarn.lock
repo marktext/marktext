@@ -11422,6 +11422,11 @@ vscode-windows-registry@1.0.1:
   dependencies:
     nan "^2.12.1"
 
+vue-draggable@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/vue-draggable/-/vue-draggable-2.0.0.tgz#c7f6119658e5421b0ec95b969adcc9c9c13a4787"
+  integrity sha512-vsb3N56CJ3MjB2BME0ug4Pfs9uQEoNP9P2rRcH0YHJSRtR0B8F5sF6B+xPwkoXx0HkyMzJMcfX15m4MZ31OKdg==
+
 vue-electron@^1.0.6:
   version "1.0.6"
   resolved "https://registry.yarnpkg.com/vue-electron/-/vue-electron-1.0.6.tgz#e798e03180b8933539defe31f92e53b9242b9406"

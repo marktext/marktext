@@ -48,9 +48,27 @@
 }
 
 .editor-tabs {
-  border-bottom: 1px solid #1d1d1d;
   box-shadow: none !important;
 }
+.editor-tabs:after {
+  position: absolute;
+  content: '';
+  border-bottom: 1px solid #1d1d1d;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 1;
+}
+.editor-tabs ul.tabs-container:after {
+  position: absolute;
+  content: '';
+  border-bottom: 1px solid #1d1d1d;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 2;
+}
+
 .tabs-container > li,
 .tabs-container > li.active {
   background: var(--editorBgColor) !important;

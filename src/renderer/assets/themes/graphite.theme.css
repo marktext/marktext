@@ -27,15 +27,32 @@
   --editorAreaWidth: 700px;
 }
 
-.title-bar.tabs-visible {
+.editor-tabs {
+  background: #f3f3f3 !important;
+  box-shadow: none !important;
+}
+.editor-tabs:after {
+  position: absolute;
+  content: '';
+  border-bottom: 1px solid #dddddd;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 1;
+}
+.editor-tabs ul.tabs-container:after {
+  position: absolute;
+  content: '';
+  border-bottom: 1px solid #dddddd;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 2;
+}
+.title-bar-editor-bg.tabs-visible {
   background: #f3f3f3 !important;
 }
 
-.editor-tabs {
-  background: #f3f3f3 !important;
-  border-bottom: 1px solid #dddddd !important;
-  box-shadow: none !important;
-}
 .tabs-container > li {
   background: none !important;
 }
@@ -45,7 +62,7 @@
   border-bottom: none;
   background: var(--floatBgColor) !important;
 }
-.tabs-container > li.active:not(:last-child):after {
+.tabs-container > li.active:after {
   top: 0 !important;
   bottom: auto !important;
   background: var(--themeColor) !important;

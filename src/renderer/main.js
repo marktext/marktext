@@ -3,6 +3,7 @@ import axios from 'axios'
 import { crashReporter, ipcRenderer } from 'electron'
 import lang from 'element-ui/lib/locale/lang/en'
 import locale from 'element-ui/lib/locale'
+import VueDraggable from 'vue-draggable'
 import App from './app'
 import store from './store'
 import './assets/symbolIcon'
@@ -68,6 +69,7 @@ Vue.use(ColorPicker)
 Vue.use(Col)
 Vue.use(Row)
 Vue.use(Tree)
+Vue.use(VueDraggable)
 
 if (!process.env.IS_WEB) Vue.use(require('vue-electron'))
 Vue.http = Vue.prototype.$http = axios
