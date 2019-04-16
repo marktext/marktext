@@ -2,7 +2,7 @@ import selection from '../selection'
 import { tokenizer, generator } from '../parser/'
 import { FORMAT_MARKER_MAP, FORMAT_TYPES, URL_REG } from '../config'
 
-const getOffset = (offset, { range: { start, end }, type, anchor, alt }) => {
+const getOffset = (offset, { range: { start, end }, type, tag, anchor, alt }) => {
   const dis = offset - start
   const len = end - start
   switch (type) {
@@ -17,6 +17,16 @@ const getOffset = (offset, { range: { start, end }, type, anchor, alt }) => {
       if (dis >= MARKER_LEN && dis <= len - MARKER_LEN) return -MARKER_LEN
       if (dis > len - MARKER_LEN && dis <= len) return len - dis - 2 * MARKER_LEN
       if (dis > len) return -2 * MARKER_LEN
+      break
+    }
+    case 'html_tag': { // handle underline, sup, sub
+      const OPEN_MARKER_LEN = FORMAT_MARKER_MAP[tag].open.length
+      const CLOSE_MARKER_LEN = FORMAT_MARKER_MAP[tag].close.length
+      if (dis < 0) return 0
+      if (dis >= 0 && dis < OPEN_MARKER_LEN) return -dis
+      if (dis >= OPEN_MARKER_LEN && dis <= len - CLOSE_MARKER_LEN) return -OPEN_MARKER_LEN
+      if (dis > len - CLOSE_MARKER_LEN && dis <= len) return len - dis - OPEN_MARKER_LEN - CLOSE_MARKER_LEN
+      if (dis > len) return - OPEN_MARKER_LEN - CLOSE_MARKER_LEN
       break
     }
     case 'link': {
@@ -50,7 +60,8 @@ const clearFormat = (token, { start, end }) => {
     case 'strong':
     case 'del':
     case 'em':
-    case 'link': {
+    case 'link':
+    case 'html_tag': { // underline, sub, sup
       const { parent } = token
       const index = parent.indexOf(token)
       parent.splice(index, 1, ...token.children)
@@ -90,6 +101,18 @@ const addFormat = (type, block, { start, end }) => {
       end.offset += MARKER.length
       break
     }
+    case 'sub':
+    case 'sup':
+    case 'u': {
+      const MARKER = FORMAT_MARKER_MAP[type]
+      const oldText = block.text
+      block.text = oldText.substring(0, start.offset) +
+        MARKER.open + oldText.substring(start.offset, end.offset) +
+        MARKER.close + oldText.substring(end.offset)
+      start.offset += MARKER.open.length
+      end.offset += MARKER.open.length
+      break
+    }
     case 'link':
     case 'image': {
       const oldText = block.text
@@ -102,6 +125,13 @@ const addFormat = (type, block, { start, end }) => {
       break
     }
   }
+}
+
+const checkTokenIsInlineFormat = token => {
+  const { type, tag } = token
+  if (FORMAT_TYPES.includes(type)) return true
+  if (type === 'html_tag' && /^(?:u|sub|sup)$/i.test(tag)) return true
+  return false
 }
 
 const formatCtrl = ContentState => {
@@ -119,14 +149,14 @@ const formatCtrl = ContentState => {
       ;(function iterator (tks) {
         for (const token of tks) {
           if (
-            FORMAT_TYPES.includes(token.type) &&
+            checkTokenIsInlineFormat(token) &&
             start.offset >= token.range.start &&
             end.offset <= token.range.end
           ) {
             formats.push(token)
           }
           if (
-            FORMAT_TYPES.includes(token.type) &&
+            checkTokenIsInlineFormat(token) &&
             ((start.offset >= token.range.start && start.offset <= token.range.end) ||
             (end.offset >= token.range.start && end.offset <= token.range.end) ||
             (start.offset <= token.range.start && token.range.end <= end.offset))
@@ -176,7 +206,10 @@ const formatCtrl = ContentState => {
       }))
     }
 
-    neighbors = type ? neighbors.filter(n => n.type === type) : neighbors
+    neighbors = type ? neighbors.filter(n => {
+      return n.type === type ||
+      n.type === 'html_tag' && n.tag === type
+    }) : neighbors
 
     for (const neighbor of neighbors) {
       clearFormat(neighbor, { start, end })
@@ -263,8 +296,14 @@ const formatCtrl = ContentState => {
     start.delata = end.delata = 0
     if (start.key === end.key) {
       const { formats, tokens, neighbors } = this.selectionFormats()
-      const currentFormats = formats.filter(format => format.type === type).reverse()
-      const currentNeightbors = neighbors.filter(format => format.type === type).reverse()
+      const currentFormats = formats.filter(format => {
+        return format.type === type ||
+          format.type === 'html_tag' && format.tag === type
+      }).reverse()
+      const currentNeightbors = neighbors.filter(format => {
+        return format.type === type ||
+        format.type === 'html_tag' && format.tag === type
+      }).reverse()
       // cache delata
       if (type === 'clear') {
         for (const neighbor of neighbors) {

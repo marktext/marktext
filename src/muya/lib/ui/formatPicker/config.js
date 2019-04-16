@@ -1,5 +1,6 @@
 import strongIcon from '../../assets/pngicon/format_strong/2.png'
 import emphasisIcon from '../../assets/pngicon/format_emphasis/2.png'
+import underlineIcon from '../../assets/pngicon/format_underline/2.png'
 import codeIcon from '../../assets/pngicon/code/2.png'
 import imageIcon from '../../assets/pngicon/format_image/2.png'
 import linkIcon from '../../assets/pngicon/format_link/2.png'
@@ -14,6 +15,9 @@ const icons = [
   }, {
     type: 'em',
     icon: emphasisIcon
+  }, {
+    type: 'u',
+    icon: underlineIcon
   }, {
     type: 'del',
     icon: strikeIcon

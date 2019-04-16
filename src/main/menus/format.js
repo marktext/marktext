@@ -21,6 +21,32 @@ export default {
       actions.format(browserWindow, 'em')
     }
   }, {
+    id: 'underlineMenuItem',
+    label: 'Underline',
+    type: 'checkbox',
+    accelerator: keybindings.getAccelerator('formatUnderline'),
+    click (menuItem, browserWindow) {
+      actions.format(browserWindow, 'u')
+    }
+  }, {
+    type: 'separator'
+  }, {
+    id: 'superscriptMenuItem',
+    label: 'Superscript',
+    type: 'checkbox',
+    click (menuItem, browserWindow) {
+      actions.format(browserWindow, 'sup')
+    }
+  }, {
+    id: 'subscriptMenuItem',
+    label: 'Subscript',
+    type: 'checkbox',
+    click (menuItem, browserWindow) {
+      actions.format(browserWindow, 'sub')
+    }
+  }, {
+    type: 'separator'
+  }, {
     id: 'inlineCodeMenuItem',
     label: 'Inline Code',
     type: 'checkbox',

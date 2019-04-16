@@ -89,6 +89,7 @@ Here is an example:
 | ------------------- | ------------------------------------------- |
 | `formatStrong`      | Set the font of the selected text to bold   |
 | `formatEmphasis`    | Set the font of the selected text to italic |
+| `formatUnderline`   | Change the selected text to underline       |
 | `formatInlineCode`  | Change the selected text to inline code     |
 | `formatStrike`      | Strike through the selected text            |
 | `formatHyperlink`   | Insert a hyperlink                          |
