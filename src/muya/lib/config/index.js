@@ -170,6 +170,14 @@ export const FORMAT_MARKER_MAP = {
   'u': {
     open: '<u>',
     close: '</u>'
+  },
+  'sub': {
+    open: '<sub>',
+    close: '</sub>'
+  },
+  'sup': {
+    open: '<sup>',
+    close: '</sup>'
   }
 }
 

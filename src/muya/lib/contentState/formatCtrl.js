@@ -2,7 +2,7 @@ import selection from '../selection'
 import { tokenizer, generator } from '../parser/'
 import { FORMAT_MARKER_MAP, FORMAT_TYPES, URL_REG } from '../config'
 
-const getOffset = (offset, { range: { start, end }, type, anchor, alt }) => {
+const getOffset = (offset, { range: { start, end }, type, tag, anchor, alt }) => {
   const dis = offset - start
   const len = end - start
   switch (type) {
@@ -19,9 +19,9 @@ const getOffset = (offset, { range: { start, end }, type, anchor, alt }) => {
       if (dis > len) return -2 * MARKER_LEN
       break
     }
-    case 'html_tag': { // handle underline
-      const OPEN_MARKER_LEN = 3
-      const CLOSE_MARKER_LEN = 4
+    case 'html_tag': { // handle underline, sup, sub
+      const OPEN_MARKER_LEN = FORMAT_MARKER_MAP[tag].open.length
+      const CLOSE_MARKER_LEN = FORMAT_MARKER_MAP[tag].close.length
       if (dis < 0) return 0
       if (dis >= 0 && dis < OPEN_MARKER_LEN) return -dis
       if (dis >= OPEN_MARKER_LEN && dis <= len - CLOSE_MARKER_LEN) return -OPEN_MARKER_LEN
@@ -61,7 +61,7 @@ const clearFormat = (token, { start, end }) => {
     case 'del':
     case 'em':
     case 'link':
-    case 'html_tag': { // underline
+    case 'html_tag': { // underline, sub, sup
       const { parent } = token
       const index = parent.indexOf(token)
       parent.splice(index, 1, ...token.children)
@@ -101,6 +101,8 @@ const addFormat = (type, block, { start, end }) => {
       end.offset += MARKER.length
       break
     }
+    case 'sub':
+    case 'sup':
     case 'u': {
       const MARKER = FORMAT_MARKER_MAP[type]
       const oldText = block.text
@@ -128,7 +130,7 @@ const addFormat = (type, block, { start, end }) => {
 const checkTokenIsInlineFormat = token => {
   const { type, tag } = token
   if (FORMAT_TYPES.includes(type)) return true
-  if (type === 'html_tag' && tag === 'u') return true
+  if (type === 'html_tag' && /^(?:u|sub|sup)$/i.test(tag)) return true
   return false
 }
 
@@ -204,7 +206,10 @@ const formatCtrl = ContentState => {
       }))
     }
 
-    neighbors = type ? neighbors.filter(n => n.type === type) : neighbors
+    neighbors = type ? neighbors.filter(n => {
+      return n.type === type ||
+      n.type === 'html_tag' && n.tag === type
+    }) : neighbors
 
     for (const neighbor of neighbors) {
       clearFormat(neighbor, { start, end })
