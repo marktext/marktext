@@ -114,7 +114,6 @@ const tokenizerFac = (src, beginRules, inlineRules, pos = 0, top, labels) => {
     for (const rule of emRules) {
       const to = inlineRules[rule].exec(src)
       if (to && isLengthEven(to[3])) {
-        console.log(to)
         const isValid = validateEmphasize(src, to[0].length, to[1], pending, validateRules)
         if (isValid) {
           inChunk = true
