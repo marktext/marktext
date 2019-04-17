@@ -8,8 +8,8 @@
       ref="tabContainer"
     >
       <ul
+        ref="tabDropContainer"
         class="tabs-container"
-        v-drag-and-drop:options="tabDragOptions"
       >
         <li
           :title="file.pathname"
@@ -43,20 +43,12 @@
 
 <script>
   import { mapState } from 'vuex'
+  import dragula from 'dragula'
   import { tabsMixins } from '../../mixins'
 
   export default {
     data () {
-      return {
-        tabDragOptions: {
-          dropzoneSelector: 'ul.tabs-container',
-          draggableSelector: 'li',
-          handlerSelector: null,
-          reactivityEnabled: false,
-          multipleDropzonesItemsDraggingEnabled: false,
-          showDropzoneAreas: true
-        }
-      }
+      return {}
     },
     mixins: [tabsMixins],
     computed: {
@@ -81,6 +73,13 @@
       this.$nextTick(() => {
         const tabs = this.$refs.tabContainer
         tabs.addEventListener('wheel', this.handleTabScroll)
+
+        dragula([ this.$refs.tabDropContainer ], {
+          direction: 'horizontal',
+          revertOnSpill: true,
+          mirrorContainer: this.$refs.tabDropContainer,
+          ignoreInputTextSelection: false
+        })
       })
     },
     beforeDestroy () {
@@ -207,25 +206,22 @@
       opacity: 1;
     }
   }
-</style>
-<style>
-  .item-dropzone-area {
-    position: relative;
-    color: var(--editorColor50);
-    height: 35px;
-    width: 2px;
-    background: var(--themeColor);
+
+  /* dragula effects */
+  .gu-mirror {
+    position: fixed !important;
+    margin: 0 !important;
+    z-index: 9999 !important;
+    opacity: 0.8;
+    cursor: grabbing;
   }
-  .item-dropzone-area:after {
-    content: '';
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%,-50%) rotate(45deg);
-    width: 8px;
-    height: 8px;
-    background: var(--themeColor);
-    z-index: 99;
-    animation-name: none;
+  .gu-hide {
+    display: none !important;
+  }
+  .gu-unselectable {
+    user-select: none !important;
+  }
+  .gu-transit {
+    opacity: 0.2;
   }
 </style>

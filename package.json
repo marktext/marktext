@@ -171,6 +171,7 @@
     "command-exists": "^1.2.8",
     "dayjs": "^1.8.13",
     "dompurify": "^1.0.10",
+    "dragula": "^3.7.2",
     "electron-is-accelerator": "^0.1.2",
     "element-resize-detector": "^1.2.0",
     "element-ui": "^2.8.2",
@@ -197,7 +198,6 @@
     "vega-lite": "^3.1.0",
     "view-image": "^0.0.1",
     "vue": "^2.6.10",
-    "vue-draggable": "^2.0.0",
     "vue-electron": "^1.0.6",
     "vuex": "^3.1.0"
   },
