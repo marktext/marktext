@@ -1,7 +1,7 @@
 <template>
   <div
     class="editor-tabs"
-    :style="[ showSideBar ? { 'max-width': `calc(100vw - ${sideBarWidth}px` } : '' ]"
+    :style="{'max-width': showSideBar ? `calc(100vw - ${sideBarWidth}px` : '100vw' }"
   >
     <div
       class="scrollable-tabs"
