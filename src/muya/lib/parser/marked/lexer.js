@@ -30,6 +30,7 @@ function Lexer (opts) {
 Lexer.prototype.lex = function (src) {
   src = src
     .replace(/\r\n|\r/g, '\n')
+    // replace `\t` to four space.
     .replace(/\t/g, '    ')
     .replace(/\u00a0/g, ' ')
     .replace(/\u2424/g, '\n')
@@ -42,6 +43,7 @@ Lexer.prototype.lex = function (src) {
  */
 
 Lexer.prototype.token = function (src, top) {
+  const { frontMatter, math } = this.options
   src = src.replace(/^ +$/gm, '')
 
   let loose
@@ -57,15 +59,17 @@ Lexer.prototype.token = function (src, top) {
 
   // Only check front matter at the begining of a markdown file.
   // Why "checkFrontmatter" and "top"? See note in "blockquote".
-  cap = this.rules.frontmatter.exec(src)
-  if (this.checkFrontmatter && top && cap) {
-    src = src.substring(cap[0].length)
-    this.tokens.push({
-      type: 'frontmatter',
-      text: cap[1]
-    })
+  if (frontMatter) {
+    cap = this.rules.frontmatter.exec(src)
+    if (this.checkFrontmatter && top && cap) {
+      src = src.substring(cap[0].length)
+      this.tokens.push({
+        type: 'frontmatter',
+        text: cap[1]
+      })
+    }
+    this.checkFrontmatter = false
   }
-  this.checkFrontmatter = false
 
   while (src) {
     // newline
@@ -80,29 +84,37 @@ Lexer.prototype.token = function (src, top) {
     }
 
     // code
+    // An indented code block cannot interrupt a paragraph.
     cap = this.rules.code.exec(src)
     if (cap) {
+      const lastToken = this.tokens[this.tokens.length - 1]
       src = src.substring(cap[0].length)
-      cap = cap[0].replace(/^ {4}/gm, '')
-      this.tokens.push({
-        type: 'code',
-        codeBlockStyle: 'indented',
-        text: !this.options.pedantic
-          ? rtrim(cap, '\n')
-          : cap
-      })
+      if (lastToken && lastToken.type === 'paragraph') {
+        lastToken.text += `\n${cap[0].trimRight()}`
+      } else {
+        cap = cap[0].replace(/^ {4}/gm, '')
+        this.tokens.push({
+          type: 'code',
+          codeBlockStyle: 'indented',
+          text: !this.options.pedantic
+            ? rtrim(cap, '\n')
+            : cap
+        })
+      }
       continue
     }
 
     // multiple line math
-    cap = this.rules.multiplemath.exec(src)
-    if (cap) {
-      src = src.substring(cap[0].length)
-      this.tokens.push({
-        type: 'multiplemath',
-        text: cap[1]
-      })
-      continue
+    if (math) {
+      cap = this.rules.multiplemath.exec(src)
+      if (cap) {
+        src = src.substring(cap[0].length)
+        this.tokens.push({
+          type: 'multiplemath',
+          text: cap[1]
+        })
+        continue
+      }
     }
 
     // fences (gfm)
@@ -232,7 +244,7 @@ Lexer.prototype.token = function (src, top) {
         // so it is seen as the next token.
         space = item.length
         let newBull
-        item = item.replace(/^ *([*+-]|\d+(?:\.|\))) */, function (m, p1) {
+        item = item.replace(/^ *([*+-]|\d+(?:\.|\))) {0,4}/, function (m, p1) {
           // Get and remove list item bullet
           newBull = p1 || bull
           return ''
@@ -301,8 +313,10 @@ Lexer.prototype.token = function (src, top) {
         }
         // Determine whether item is loose or not. If previous item is loose
         // this item is also loose.
-        loose = next = next || /^ *([*+-]|\d{1,9}(?:\.|\)))( +\S+\n\n(?!\s*$)|\n\n(?!\s*$))/.test(itemWithBullet)
-
+        // A list is loose if any of its constituent list items are separated by blank lines,
+        // or if any of its constituent list items directly contain two block-level elements with a blank line between them. 
+        // loose = next = next || /^ *([*+-]|\d{1,9}(?:\.|\)))( +\S+\n\n(?!\s*$)|\n\n(?!\s*$))/.test(itemWithBullet)
+        loose = next = next || /\n\n(?!\s*$)/.test(item)
         // Check if previous line ends with a new line.
         if (!loose && (i !== 0 || l > 1) && prevItem.length !== 0 && prevItem.charAt(prevItem.length - 1) === '\n') {
           loose = next = true

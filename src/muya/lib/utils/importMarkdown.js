@@ -31,6 +31,7 @@ const importRegister = ContentState => {
     let block
     let value
     let parentList = [ rootState ]
+    const languageLoaded = new Set()
 
     while ((token = tokens.shift())) {
       switch (token.type) {
@@ -102,7 +103,8 @@ const importRegister = ContentState => {
               this.appendChild(codeBlock, codeLine)
             })
             const inputBlock = this.createBlock('span', lang)
-            if (lang) {
+            if (lang && !languageLoaded.has(lang)) {
+              languageLoaded.add(lang)
               loadLanguage(lang)
                 .then(infoList => {
                   if (!Array.isArray(infoList)) return
@@ -171,7 +173,20 @@ const importRegister = ContentState => {
           this.appendChild(parentList[0], block)
           break
         }
-        case 'text':
+        case 'text': {
+          value = token.text
+          while (tokens[0].type === 'text') {
+            token = tokens.shift()
+            value += `\n${token.text}`
+          }
+          block = this.createBlock('p')
+          const lines = value.split(LINE_BREAKS_REG).map(line => this.createBlock('span', line))
+          for (const line of lines) {
+            this.appendChild(block, line)
+          }
+          this.appendChild(parentList[0], block)
+          break
+        }
         case 'paragraph': {
           value = token.text
           block = this.createBlock('p')
@@ -235,7 +250,7 @@ const importRegister = ContentState => {
           break
       }
     }
-
+    languageLoaded.clear()
     return rootState.children.length ? rootState.children : [this.createBlockP()]
   }
 
