@@ -1,7 +1,7 @@
 ## Compare with `marked.js`
 
 Marked.js failed examples count: 133
-Mark Text failed examples count: 126
+Mark Text failed examples count: 117
 
 **Example7**
 
@@ -272,4 +272,175 @@ marked.js html
 
 ```
 
-There are 9 examples are different with marked.js.
+**Example341**
+
+Mark Text success and marked.js fail
+
+```markdown
+Markdown content
+*foo\`*\`
+
+Expected Html
+<p>*foo<code>*</code></p>
+
+Actural Html
+<p>*foo<code>*</code></p>
+
+marked.js html
+<p><em>foo`</em>`</p>
+
+```
+
+**Example367**
+
+Mark Text success and marked.js fail
+
+```markdown
+Markdown content
+*(*foo)
+
+Expected Html
+<p>*(*foo)</p>
+
+Actural Html
+<p>*(*foo)</p>
+
+marked.js html
+<p><em>(</em>foo)</p>
+
+```
+
+**Example371**
+
+Mark Text success and marked.js fail
+
+```markdown
+Markdown content
+_(_foo)
+
+Expected Html
+<p>_(_foo)</p>
+
+Actural Html
+<p>_(_foo)</p>
+
+marked.js html
+<p><em>(</em>foo)</p>
+
+```
+
+**Example379**
+
+Mark Text success and marked.js fail
+
+```markdown
+Markdown content
+a**"foo"**
+
+Expected Html
+<p>a**&quot;foo&quot;**</p>
+
+Actural Html
+<p>a**&quot;foo&quot;**</p>
+
+marked.js html
+<p>a<strong>&quot;foo&quot;</strong></p>
+
+```
+
+**Example391**
+
+Mark Text success and marked.js fail
+
+```markdown
+Markdown content
+**(**foo)
+
+Expected Html
+<p>**(**foo)</p>
+
+Actural Html
+<p>**(**foo)</p>
+
+marked.js html
+<p><strong>(</strong>foo)</p>
+
+```
+
+**Example397**
+
+Mark Text success and marked.js fail
+
+```markdown
+Markdown content
+__(__foo)
+
+Expected Html
+<p>__(__foo)</p>
+
+Actural Html
+<p>__(__foo)</p>
+
+marked.js html
+<p><strong>(</strong>foo)</p>
+
+```
+
+**Example399**
+
+Mark Text success and marked.js fail
+
+```markdown
+Markdown content
+__foo__bar
+
+Expected Html
+<p>__foo__bar</p>
+
+Actural Html
+<p>__foo__bar</p>
+
+marked.js html
+<p><strong>foo</strong>bar</p>
+
+```
+
+**Example475**
+
+Mark Text success and marked.js fail
+
+```markdown
+Markdown content
+**<a href="**">
+
+Expected Html
+<p>**<a href="**"></p>
+
+Actural Html
+<p>**<a href="**"></p>
+
+marked.js html
+<p><strong>&lt;a href=&quot;</strong>&quot;&gt;</p>
+
+```
+
+**Example476**
+
+Mark Text success and marked.js fail
+
+```markdown
+Markdown content
+__<a href="__">
+
+Expected Html
+<p>__<a href="__"></p>
+
+Actural Html
+<p>__<a href="__"></p>
+
+marked.js html
+<p><strong>&lt;a href=&quot;</strong>&quot;&gt;</p>
+
+```
+
+There are 18 examples are different with marked.js.

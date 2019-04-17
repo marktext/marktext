@@ -1,6 +1,6 @@
 ## Test Result
 
-Total test 649 examples, and failed 126 examples:
+Total test 649 examples, and failed 117 examples:
 
 **Example45**
 
@@ -1115,20 +1115,6 @@ Actural Html
 
 ```
 
-**Example341**
-
-```markdown
-Markdown content
-*foo\`*\`
-
-Expected Html
-<p>*foo<code>*</code></p>
-
-Actural Html
-<p><em>foo`</em>`</p>
-
-```
-
 **Example342**
 
 ```markdown
@@ -1173,20 +1159,6 @@ Actural Html
 
 ```
 
-**Example367**
-
-```markdown
-Markdown content
-*(*foo)
-
-Expected Html
-<p>*(*foo)</p>
-
-Actural Html
-<p><em>(</em>foo)</p>
-
-```
-
 **Example368**
 
 ```markdown
@@ -1197,21 +1169,7 @@ Expected Html
 <p><em>(<em>foo</em>)</em></p>
 
 Actural Html
-<p><em>(</em>foo<em>)</em></p>
-
-```
-
-**Example371**
-
-```markdown
-Markdown content
-_(_foo)
-
-Expected Html
-<p>_(_foo)</p>
-
-Actural Html
-<p><em>(</em>foo)</p>
+<p>*(<em>foo</em>)*</p>
 
 ```
 
@@ -1225,21 +1183,7 @@ Expected Html
 <p><em>(<em>foo</em>)</em></p>
 
 Actural Html
-<p><em>(</em>foo_)_</p>
-
-```
-
-**Example379**
-
-```markdown
-Markdown content
-a**"foo"**
-
-Expected Html
-<p>a**&quot;foo&quot;**</p>
-
-Actural Html
-<p>a<strong>&quot;foo&quot;</strong></p>
+<p>_(<em>foo</em>)_</p>
 
 ```
 
@@ -1285,48 +1229,6 @@ Actural Html
 
 ```
 
-**Example391**
-
-```markdown
-Markdown content
-**(**foo)
-
-Expected Html
-<p>**(**foo)</p>
-
-Actural Html
-<p><strong>(</strong>foo)</p>
-
-```
-
-**Example397**
-
-```markdown
-Markdown content
-__(__foo)
-
-Expected Html
-<p>__(__foo)</p>
-
-Actural Html
-<p><strong>(</strong>foo)</p>
-
-```
-
-**Example399**
-
-```markdown
-Markdown content
-__foo__bar
-
-Expected Html
-<p>__foo__bar</p>
-
-Actural Html
-<p><strong>foo</strong>bar</p>
-
-```
-
 **Example400**
 
 ```markdown
@@ -1351,7 +1253,7 @@ Expected Html
 <p><strong>foo__bar__baz</strong></p>
 
 Actural Html
-<p><strong>foo</strong>bar__baz__</p>
+<p>__foo__bar__baz__</p>
 
 ```
 
@@ -1407,7 +1309,7 @@ Expected Html
 <p><em>foo <strong>bar</strong></em></p>
 
 Actural Html
-<p><em>foo *</em>bar***</p>
+<p>*foo <strong>bar*</strong></p>
 
 ```
 
@@ -1421,7 +1323,7 @@ Expected Html
 <p><em>foo<strong>bar</strong></em></p>
 
 Actural Html
-<p><em>foo*</em>bar***</p>
+<p>*foo<strong>bar*</strong></p>
 
 ```
 
@@ -1435,7 +1337,7 @@ Expected Html
 <p>foo<em><strong>bar</strong></em>baz</p>
 
 Actural Html
-<p>foo<strong><em>bar</em></strong>baz</p>
+<p>foo***bar***baz</p>
 
 ```
 
@@ -1449,7 +1351,7 @@ Expected Html
 <p>foo<strong><strong><strong>bar</strong></strong></strong>***baz</p>
 
 Actural Html
-<p>foo<strong>**</strong>bar<strong>*****</strong>baz</p>
+<p>foo******bar*********baz</p>
 
 ```
 
@@ -1477,7 +1379,7 @@ Expected Html
 <p><em>foo <a href="/url"><em>bar</em></a></em></p>
 
 Actural Html
-<p><em>foo [</em>bar<em>](/url)</em></p>
+<p>*foo <a href="/url"><em>bar</em></a>*</p>
 
 ```
 
@@ -1521,7 +1423,7 @@ Expected Html
 bim</em> bop</strong></p>
 
 Actural Html
-<p><strong>foo <em>bar *</em>baz</strong>
+<p><strong>foo *bar **baz</strong>
 bim* bop**</p>
 
 ```
@@ -1704,7 +1606,7 @@ Expected Html
 <p><strong><strong><strong>foo</strong></strong></strong></p>
 
 Actural Html
-<p><strong>**</strong>foo<strong>**</strong></p>
+<p>*<strong><strong><em>foo*</em></strong></strong></p>
 
 ```
 
@@ -1764,34 +1666,6 @@ Actural Html
 
 ```
 
-**Example475**
-
-```markdown
-Markdown content
-**<a href="**">
-
-Expected Html
-<p>**<a href="**"></p>
-
-Actural Html
-<p><strong>&lt;a href=&quot;</strong>&quot;&gt;</p>
-
-```
-
-**Example476**
-
-```markdown
-Markdown content
-__<a href="__">
-
-Expected Html
-<p>__<a href="__"></p>
-
-Actural Html
-<p><strong>&lt;a href=&quot;</strong>&quot;&gt;</p>
-
-```
-
 **Example477**
 
 ```markdown
@@ -1802,7 +1676,7 @@ Expected Html
 <p><em>a <code>*</code></em></p>
 
 Actural Html
-<p><em>a `</em>`*</p>
+<p>*a <code>*</code>*</p>
 
 ```
 
