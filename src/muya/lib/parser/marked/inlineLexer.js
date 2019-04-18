@@ -2,6 +2,7 @@ import Renderer from './renderer'
 import { normal, breaks, gfm, pedantic } from './inlineRules'
 import defaultOptions from './options'
 import { escape, findClosingBracket } from './utils'
+import { validateEmphasize, lowerPriority } from '../utils'
 
 /**
  * Inline Lexer & Compiler
@@ -27,6 +28,18 @@ function InlineLexer (links, options) {
       this.rules = gfm
     }
   }
+  this.highPriorityEmpRules = {}
+  this.highPriorityLinkRules = {}
+  for (const key of Object.keys(this.rules)) {
+    if (/^(?:autolink|link|code|tag)$/.test(key) && this.rules[key] instanceof RegExp) {
+      this.highPriorityEmpRules[key] = this.rules[key]
+    }
+  }
+  for (const key of Object.keys(this.rules)) {
+    if (/^(?:autolink|code|tag)$/.test(key) && this.rules[key] instanceof RegExp) {
+      this.highPriorityLinkRules[key] = this.rules[key]
+    }
+  } 
 }
 
 /**
@@ -34,6 +47,8 @@ function InlineLexer (links, options) {
  */
 
 InlineLexer.prototype.output = function (src) {
+  // src = src
+    // .replace(/\u00a0/g, ' ')
   const { disableInline, emoji, math } = this.options
   if (disableInline) {
     return escape(src)
@@ -46,12 +61,14 @@ InlineLexer.prototype.output = function (src) {
   let title
   let cap
   let prevCapZero
+  let lastChar = ''
 
   while (src) {
     // escape
     cap = this.rules.escape.exec(src)
     if (cap) {
       src = src.substring(cap[0].length)
+      lastChar = cap[0].charAt(cap[0].length - 1)
       out += escape(cap[1])
       continue
     }
@@ -71,6 +88,7 @@ InlineLexer.prototype.output = function (src) {
       }
 
       src = src.substring(cap[0].length)
+      lastChar = cap[0].charAt(cap[0].length - 1)
       out += this.options.sanitize
         ? this.options.sanitizer
           ? this.options.sanitizer(cap[0])
@@ -81,7 +99,7 @@ InlineLexer.prototype.output = function (src) {
 
     // link
     cap = this.rules.link.exec(src)
-    if (cap) {
+    if (cap && lowerPriority(src, cap[0].length, this.highPriorityLinkRules)) {
       const lastParenIndex = findClosingBracket(cap[2], '()')
       if (lastParenIndex > -1) {
         const linkLen = cap[0].length - (cap[2].length - lastParenIndex) - (cap[3] || '').length
@@ -90,6 +108,7 @@ InlineLexer.prototype.output = function (src) {
         cap[3] = ''
       }
       src = src.substring(cap[0].length)
+      lastChar = cap[0].charAt(cap[0].length - 1)
       this.inLink = true
       href = cap[2]
       if (this.options.pedantic) {
@@ -117,6 +136,7 @@ InlineLexer.prototype.output = function (src) {
     cap = this.rules.reflink.exec(src) || this.rules.nolink.exec(src)
     if (cap) {
       src = src.substring(cap[0].length)
+      lastChar = cap[0].charAt(cap[0].length - 1)
       link = (cap[2] || cap[1]).replace(/\s+/g, ' ')
       link = this.links[link.toLowerCase()]
       if (!link || !link.href) {
@@ -135,6 +155,7 @@ InlineLexer.prototype.output = function (src) {
       cap = this.rules.math.exec(src)
       if (cap) {
         src = src.substring(cap[0].length)
+        lastChar = cap[0].charAt(cap[0].length - 1)
         text = cap[1]
         out += this.renderer.inlineMath(text)
       }
@@ -145,6 +166,7 @@ InlineLexer.prototype.output = function (src) {
       cap = this.rules.emoji.exec(src)
       if (cap) {
         src = src.substring(cap[0].length)
+        lastChar = cap[0].charAt(cap[0].length - 1)
         text = cap[0]
         out += this.renderer.emoji(text, cap[2])
       }
@@ -153,23 +175,34 @@ InlineLexer.prototype.output = function (src) {
     // strong
     cap = this.rules.strong.exec(src)
     if (cap) {
-      src = src.substring(cap[0].length)
-      out += this.renderer.strong(this.output(cap[4] || cap[3] || cap[2] || cap[1]))
-      continue
+      const marker = cap[0].match(/^(?:_{1,2}|\*{1,2})/)[0]
+      const isValid = validateEmphasize(src, cap[0].length, marker, lastChar, this.highPriorityEmpRules)
+      if (isValid) {
+        src = src.substring(cap[0].length)
+        lastChar = cap[0].charAt(cap[0].length - 1)
+        out += this.renderer.strong(this.output(cap[4] || cap[3] || cap[2] || cap[1]))
+        continue
+      }
     }
 
     // em
     cap = this.rules.em.exec(src)
     if (cap) {
-      src = src.substring(cap[0].length)
-      out += this.renderer.em(this.output(cap[6] || cap[5] || cap[4] || cap[3] || cap[2] || cap[1]))
-      continue
+      const marker = cap[0].match(/^(?:_{1,2}|\*{1,2})/)[0]
+      const isValid = validateEmphasize(src, cap[0].length, marker, lastChar, this.highPriorityEmpRules)
+      if (isValid) {
+        src = src.substring(cap[0].length)
+        lastChar = cap[0].charAt(cap[0].length - 1)
+        out += this.renderer.em(this.output(cap[6] || cap[5] || cap[4] || cap[3] || cap[2] || cap[1]))
+        continue
+      }
     }
 
     // code
     cap = this.rules.code.exec(src)
     if (cap) {
       src = src.substring(cap[0].length)
+      lastChar = cap[0].charAt(cap[0].length - 1)
       out += this.renderer.codespan(escape(cap[2].trim(), true))
       continue
     }
@@ -178,6 +211,7 @@ InlineLexer.prototype.output = function (src) {
     cap = this.rules.br.exec(src)
     if (cap) {
       src = src.substring(cap[0].length)
+      lastChar = cap[0].charAt(cap[0].length - 1)
       out += this.renderer.br()
       continue
     }
@@ -186,6 +220,7 @@ InlineLexer.prototype.output = function (src) {
     cap = this.rules.del.exec(src)
     if (cap) {
       src = src.substring(cap[0].length)
+      lastChar = cap[0].charAt(cap[0].length - 1)
       out += this.renderer.del(this.output(cap[1]))
       continue
     }
@@ -194,6 +229,7 @@ InlineLexer.prototype.output = function (src) {
     cap = this.rules.autolink.exec(src)
     if (cap) {
       src = src.substring(cap[0].length)
+      lastChar = cap[0].charAt(cap[0].length - 1)
       if (cap[2] === '@') {
         text = escape(this.mangle(cap[1]))
         href = 'mailto:' + text
@@ -225,6 +261,7 @@ InlineLexer.prototype.output = function (src) {
         }
       }
       src = src.substring(cap[0].length)
+      lastChar = cap[0].charAt(cap[0].length - 1)
       out += this.renderer.link(href, null, text)
       continue
     }
@@ -233,6 +270,7 @@ InlineLexer.prototype.output = function (src) {
     cap = this.rules.text.exec(src)
     if (cap) {
       src = src.substring(cap[0].length)
+      lastChar = cap[0].charAt(cap[0].length - 1)
       if (this.inRawBlock) {
         out += this.renderer.text(cap[0])
       } else {

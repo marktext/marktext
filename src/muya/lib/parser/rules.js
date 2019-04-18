@@ -4,7 +4,7 @@ import { escapeCharacters } from './escapeCharacter'
 export const beginRules = {
   'hr': /^(\*{3,}$|^\-{3,}$|^\_{3,}$)/,
   'code_fense': /^(`{3,})([^`]*)$/,
-  'header': /(^\s{0,3}#{1,6}(\s{1,}|$))/,
+  'header': /(^ {0,3}#{1,6}(\s{1,}|$))/,
   'reference_definition': /^( {0,3}\[)([^\]]+?)(\\*)(\]: *)(<?)([^\s>]+)(>?)(?:( +)(["'(]?)([^\n"'\(\)]+)\9)?( *)$/,
 
   // extra syntax (not belogs to GFM)
@@ -23,7 +23,7 @@ export const inlineRules = {
   'reference_link': /^\[([^\]]+?)(\\*)\](?:\[([^\]]*?)(\\*)\])?/,
   'reference_image': /^\!\[([^\]]+?)(\\*)\](?:\[([^\]]*?)(\\*)\])?/,
   'tail_header': /^(\s{1,}#{1,})(\s*)$/,
-  'html_tag': /^(<!--[\s\S]*?-->|(<([a-zA-Z]{1}[a-zA-Z\d-]*) *[_\.\-/:a-zA-Z\d='";\? ]* *(?:\/)?>)(?:([\s\S]*?)(<\/\3 *>))?)/, // row html
+  'html_tag': /^(<!--[\s\S]*?-->|(<([a-zA-Z]{1}[a-zA-Z\d-]*) *[_\.\-/:a-zA-Z\d='";\? *]* *(?:\/)?>)(?:([\s\S]*?)(<\/\3 *>))?)/, // row html
   'html_escape': new RegExp(`^(${escapeCharacters.join('|')})`, 'i'),
   'hard_line_break': /^(\s{2,})$/,
 

@@ -357,8 +357,7 @@
     "example": 45,
     "start_line": 915,
     "end_line": 919,
-    "section": "ATX headings",
-    "shouldFail": true
+    "section": "ATX headings"
   },
   {
     "markdown": "### foo \\###\n## foo #\\##\n# foo \\#\n",
@@ -366,8 +365,7 @@
     "example": 46,
     "start_line": 925,
     "end_line": 933,
-    "section": "ATX headings",
-    "shouldFail": true
+    "section": "ATX headings"
   },
   {
     "markdown": "****\n## foo\n****\n",
@@ -391,8 +389,7 @@
     "example": 49,
     "start_line": 963,
     "end_line": 971,
-    "section": "ATX headings",
-    "shouldFail": true
+    "section": "ATX headings"
   },
   {
     "markdown": "Foo *bar*\n=========\n\nFoo *bar*\n---------\n",
@@ -408,8 +405,7 @@
     "example": 51,
     "start_line": 1020,
     "end_line": 1027,
-    "section": "Setext headings",
-    "shouldFail": true
+    "section": "Setext headings"
   },
   {
     "markdown": "  Foo *bar\nbaz*\t\n====\n",
@@ -417,8 +413,7 @@
     "example": 52,
     "start_line": 1034,
     "end_line": 1041,
-    "section": "Setext headings",
-    "shouldFail": true
+    "section": "Setext headings"
   },
   {
     "markdown": "Foo\n-------------------------\n\nFoo\n=\n",
@@ -524,8 +519,7 @@
     "example": 65,
     "start_line": 1214,
     "end_line": 1221,
-    "section": "Setext headings",
-    "shouldFail": true
+    "section": "Setext headings"
   },
   {
     "markdown": "---\nFoo\n---\nBar\n---\nBaz\n",
@@ -2768,8 +2762,7 @@
     "example": 341,
     "start_line": 6003,
     "end_line": 6007,
-    "section": "Code spans",
-    "shouldFail": true
+    "section": "Code spans"
   },
   {
     "markdown": "[not a `link](/foo`)\n",
@@ -2866,8 +2859,7 @@
     "example": 353,
     "start_line": 6322,
     "end_line": 6326,
-    "section": "Emphasis and strong emphasis",
-    "shouldFail": true
+    "section": "Emphasis and strong emphasis"
   },
   {
     "markdown": "foo*bar*\n",
@@ -2931,8 +2923,7 @@
     "example": 361,
     "start_line": 6390,
     "end_line": 6394,
-    "section": "Emphasis and strong emphasis",
-    "shouldFail": true
+    "section": "Emphasis and strong emphasis"
   },
   {
     "markdown": "aa_\"bb\"_cc\n",
@@ -2980,8 +2971,7 @@
     "example": 367,
     "start_line": 6455,
     "end_line": 6459,
-    "section": "Emphasis and strong emphasis",
-    "shouldFail": true
+    "section": "Emphasis and strong emphasis"
   },
   {
     "markdown": "*(*foo*)*\n",
@@ -3014,8 +3004,7 @@
     "example": 371,
     "start_line": 6497,
     "end_line": 6501,
-    "section": "Emphasis and strong emphasis",
-    "shouldFail": true
+    "section": "Emphasis and strong emphasis"
   },
   {
     "markdown": "_(_foo_)_\n",
@@ -3080,8 +3069,7 @@
     "example": 379,
     "start_line": 6570,
     "end_line": 6574,
-    "section": "Emphasis and strong emphasis",
-    "shouldFail": true
+    "section": "Emphasis and strong emphasis"
   },
   {
     "markdown": "foo**bar**\n",
@@ -3145,8 +3133,7 @@
     "example": 387,
     "start_line": 6641,
     "end_line": 6645,
-    "section": "Emphasis and strong emphasis",
-    "shouldFail": true
+    "section": "Emphasis and strong emphasis"
   },
   {
     "markdown": "__foo, __bar__, baz__\n",
@@ -3180,8 +3167,7 @@
     "example": 391,
     "start_line": 6685,
     "end_line": 6689,
-    "section": "Emphasis and strong emphasis",
-    "shouldFail": true
+    "section": "Emphasis and strong emphasis"
   },
   {
     "markdown": "*(**foo**)*\n",
@@ -3229,8 +3215,7 @@
     "example": 397,
     "start_line": 6742,
     "end_line": 6746,
-    "section": "Emphasis and strong emphasis",
-    "shouldFail": true
+    "section": "Emphasis and strong emphasis"
   },
   {
     "markdown": "_(__foo__)_\n",
@@ -3246,8 +3231,7 @@
     "example": 399,
     "start_line": 6761,
     "end_line": 6765,
-    "section": "Emphasis and strong emphasis",
-    "shouldFail": true
+    "section": "Emphasis and strong emphasis"
   },
   {
     "markdown": "__пристаням__стремятся\n",
@@ -3255,8 +3239,7 @@
     "example": 400,
     "start_line": 6768,
     "end_line": 6772,
-    "section": "Emphasis and strong emphasis",
-    "shouldFail": true
+    "section": "Emphasis and strong emphasis"
   },
   {
     "markdown": "__foo__bar__baz__\n",
@@ -3886,8 +3869,7 @@
     "example": 475,
     "start_line": 7385,
     "end_line": 7389,
-    "section": "Emphasis and strong emphasis",
-    "shouldFail": true
+    "section": "Emphasis and strong emphasis"
   },
   {
     "markdown": "__<a href=\"__\">\n",
@@ -3895,8 +3877,7 @@
     "example": 476,
     "start_line": 7392,
     "end_line": 7396,
-    "section": "Emphasis and strong emphasis",
-    "shouldFail": true
+    "section": "Emphasis and strong emphasis"
   },
   {
     "markdown": "*a `*`*\n",
@@ -3921,8 +3902,7 @@
     "example": 479,
     "start_line": 7413,
     "end_line": 7417,
-    "section": "Emphasis and strong emphasis",
-    "shouldFail": true
+    "section": "Emphasis and strong emphasis"
   },
   {
     "markdown": "__a<http://foo.bar/?q=__>\n",
@@ -3930,8 +3910,7 @@
     "example": 480,
     "start_line": 7420,
     "end_line": 7424,
-    "section": "Emphasis and strong emphasis",
-    "shouldFail": true
+    "section": "Emphasis and strong emphasis"
   },
   {
     "markdown": "[link](/uri \"title\")\n",
@@ -4261,8 +4240,7 @@
     "example": 520,
     "start_line": 7880,
     "end_line": 7884,
-    "section": "Links",
-    "shouldFail": true
+    "section": "Links"
   },
   {
     "markdown": "[foo`](/uri)`\n",
@@ -4270,8 +4248,7 @@
     "example": 521,
     "start_line": 7887,
     "end_line": 7891,
-    "section": "Links",
-    "shouldFail": true
+    "section": "Links"
   },
   {
     "markdown": "[foo<http://example.com/?search=](uri)>\n",
@@ -4279,8 +4256,7 @@
     "example": 522,
     "start_line": 7894,
     "end_line": 7898,
-    "section": "Links",
-    "shouldFail": true
+    "section": "Links"
   },
   {
     "markdown": "[foo][bar]\n\n[bar]: /url \"title\"\n",
@@ -4662,8 +4638,7 @@
     "example": 569,
     "start_line": 8490,
     "end_line": 8496,
-    "section": "Images",
-    "shouldFail": true
+    "section": "Images"
   },
   {
     "markdown": "![foo ![bar](/url)](/url2)\n",
@@ -4689,8 +4664,7 @@
     "example": 572,
     "start_line": 8520,
     "end_line": 8526,
-    "section": "Images",
-    "shouldFail": true
+    "section": "Images"
   },
   {
     "markdown": "![foo *bar*][foobar]\n\n[FOOBAR]: train.jpg \"train & tracks\"\n",
@@ -4698,8 +4672,7 @@
     "example": 573,
     "start_line": 8529,
     "end_line": 8535,
-    "section": "Images",
-    "shouldFail": true
+    "section": "Images"
   },
   {
     "markdown": "![foo](train.jpg)\n",
@@ -4763,8 +4736,7 @@
     "example": 581,
     "start_line": 8597,
     "end_line": 8603,
-    "section": "Images",
-    "shouldFail": true
+    "section": "Images"
   },
   {
     "markdown": "![Foo][]\n\n[foo]: /url \"title\"\n",
@@ -4796,8 +4768,7 @@
     "example": 585,
     "start_line": 8642,
     "end_line": 8648,
-    "section": "Images",
-    "shouldFail": true
+    "section": "Images"
   },
   {
     "markdown": "![[foo]]\n\n[[foo]]: /url \"title\"\n",

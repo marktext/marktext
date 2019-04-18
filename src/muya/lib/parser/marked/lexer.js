@@ -32,7 +32,7 @@ Lexer.prototype.lex = function (src) {
     .replace(/\r\n|\r/g, '\n')
     // replace `\t` to four space.
     .replace(/\t/g, '    ')
-    .replace(/\u00a0/g, ' ')
+    // .replace(/\u00a0/g, ' ')
     .replace(/\u2424/g, '\n')
   this.checkFrontmatter = true
   return this.token(src, true)
@@ -134,11 +134,15 @@ Lexer.prototype.token = function (src, top) {
     cap = this.rules.heading.exec(src)
     if (cap) {
       src = src.substring(cap[0].length)
+      let text = cap[2] || ''
+      if (cap[3] && !cap[3].startsWith(' ') && !/ +#+ *(?:\n+|$)/.test(cap[0])) {
+        text = (text + cap[3]).trim()
+      }
       this.tokens.push({
         type: 'heading',
         headingStyle: 'atx',
         depth: cap[1].length,
-        text: cap[2]
+        text
       })
       continue
     }
@@ -449,16 +453,29 @@ Lexer.prototype.token = function (src, top) {
     // lheading
     cap = this.rules.lheading.exec(src)
     if (cap) {
+      const precededToken = this.tokens[this.tokens.length - 1]
       const chops = cap[0].trim().split(/\n/)
       const marker = chops[chops.length - 1]
       src = src.substring(cap[0].length)
-      this.tokens.push({
-        type: 'heading',
-        headingStyle: 'setext',
-        depth: cap[2] === '=' ? 1 : 2,
-        text: cap[1],
-        marker
-      })
+
+      if (precededToken && precededToken.type === 'paragraph') {
+        this.tokens.pop()
+        this.tokens.push({
+          type: 'heading',
+          headingStyle: 'setext',
+          depth: cap[2] === '=' ? 1 : 2,
+          text: precededToken.text + '\n' + cap[1],
+          marker
+        })
+      } else {
+        this.tokens.push({
+          type: 'heading',
+          headingStyle: 'setext',
+          depth: cap[2] === '=' ? 1 : 2,
+          text: cap[1],
+          marker
+        })
+      }
       continue
     }
 
