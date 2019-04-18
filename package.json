@@ -182,6 +182,7 @@
     "html-tags": "^2.0.0",
     "katex": "^0.10.1",
     "keyboard-layout": "^2.0.15",
+    "medium-zoom": "^1.0.4",
     "mermaid": "^8.0.0",
     "popper.js": "^1.15.0",
     "prismjs2": "^1.15.1",
@@ -195,7 +196,6 @@
     "vega": "^5.3.4",
     "vega-embed": "^3.30.0",
     "vega-lite": "^3.1.0",
-    "view-image": "^0.0.1",
     "vue": "^2.6.10",
     "vue-electron": "^1.0.6",
     "vuex": "^3.1.0"

@@ -10,20 +10,6 @@
       ref="editor"
       class="editor-component"
     ></div>
-    <div
-      class="image-viewer"
-      v-show="imageViewerVisible"
-    >
-      <span class="icon-close" @click="setImageViewerVisible(false)">
-        <svg :viewBox="CloseIcon.viewBox">
-          <use :xlink:href="CloseIcon.url"></use>
-        </svg>
-      </span>
-      <div
-        ref="imageViewer"
-      >
-      </div>
-    </div>
     <el-dialog
       :visible.sync="dialogTableVisible"
       :show-close="isShowClose"
@@ -74,7 +60,7 @@
 
 <script>
   import { mapState } from 'vuex'
-  import ViewImage from 'view-image'
+  import mediumZoom from 'medium-zoom'
   import Muya from 'muya/lib'
   import TablePicker from 'muya/lib/ui/tablePicker'
   import QuickInsert from 'muya/lib/ui/quickInsert'
@@ -144,7 +130,6 @@
         pathname: '',
         isShowClose: false,
         dialogTableVisible: false,
-        imageViewerVisible: false,
         tableChecker: {
           rows: 4,
           columns: 3
@@ -312,22 +297,23 @@
           this.$store.dispatch('LISTEN_FOR_CONTENT_CHANGE', Object.assign(changes, { id: 'muya' }))
         })
 
-        this.editor.on('format-click', ({ event, formatType, data }) => {
+        this.editor.on('format-click', ({ event, formatType, data, preEleId }) => {
           const isOsx = this.platform === 'darwin'
           const ctrlOrMeta = (isOsx && event.metaKey) || (!isOsx && event.ctrlKey)
           if (formatType === 'link' && ctrlOrMeta) {
             this.$store.dispatch('FORMAT_LINK_CLICK', { data, dirname: window.DIRNAME })
           } else if (formatType === 'image' && ctrlOrMeta) {
-            if (this.imageViewer) {
-              this.imageViewer.destroy()
-            }
-
-            this.imageViewer = new ViewImage(this.$refs.imageViewer, {
-              url: data,
-              snapView: true
+            const selector = `span#${preEleId} ~ img`
+            const zoom = mediumZoom(selector, {
+              background: '#212530',
+              scrollOffset: 50,
+              container: 'div.editor-component',
             })
 
-            this.setImageViewerVisible(true)
+            zoom.open()
+            zoom.on('closed', () => {
+              zoom.detach(selector)
+            })
           }
         })
 
@@ -348,23 +334,12 @@
         this.editor.on('contextmenu', (event, selectionChanges) => {
           showContextMenu(event, selectionChanges)
         })
-        document.addEventListener('keyup', this.keyup)
       })
     },
     methods: {
-      keyup (event) {
-        if (event.key === 'Escape') {
-          this.setImageViewerVisible(false)
-        }
-      },
-
       handleImagePath (files) {
         const { editor } = this
         editor && editor.showAutoImagePath(files)
-      },
-
-      setImageViewerVisible (status) {
-        this.imageViewerVisible = status
       },
 
       handleUndo () {
@@ -644,39 +619,10 @@
     padding-top: calc(50vh - 136px);
     padding-bottom: calc(50vh - 54px);
   }
-  .image-viewer {
-    position: fixed;
-    backdrop-filter: blur(5px);
-    top: 0;
-    right: 0;
-    left: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, .8);
-    z-index: 11;
-    & .icon-close {
-      z-index: 1000;
-      width: 30px;
-      height: 30px;
-      position: absolute;
-      top: 50px;
-      left: 50px;
-      display: block;
-      & svg {
-        fill: #efefef;
-        width: 100%;
-        height: 100%;
-      }
-    }
+  .medium-zoom-overlay {
+    z-index: 2;
   }
-  .iv-container {
-    width: 100%;
-    height: 100%;
-  }
-  .iv-snap-view {
-    opacity: 1;
-    bottom: 20px;
-    right: 20px;
-    top: auto;
-    left: auto;
+  .medium-zoom-image {
+    z-index: 3;
   }
 </style>

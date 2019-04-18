@@ -62,7 +62,8 @@ class ClickEvent {
         eventCenter.dispatch('format-click', {
           event,
           formatType: 'image',
-          data: event.target.getAttribute('src')
+          data: event.target.getAttribute('src'),
+          preEleId: markedImageText.id
         })
         selectionText(markedImageText)
       } else if (mathText) {

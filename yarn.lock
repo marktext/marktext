@@ -6940,6 +6940,11 @@ media-typer@0.3.0:
   resolved "https://registry.yarnpkg.com/media-typer/-/media-typer-0.3.0.tgz#8710d7af0aa626f8fffa1ce00168545263255748"
   integrity sha1-hxDXrwqmJvj/+hzgAWhUUmMlV0g=
 
+medium-zoom@^1.0.4:
+  version "1.0.4"
+  resolved "https://registry.yarnpkg.com/medium-zoom/-/medium-zoom-1.0.4.tgz#b1063093f81151a19989489589edf28e6090630c"
+  integrity sha512-BjE+00gQku3XQfgHDcqyYwQaBtFddzh6Lnj1RZOliqJ9HS0mh/P2IaqVJ25/j9EbnjAUf27mLeLZBRxnd00bfA==
+
 mem@^4.0.0:
   version "4.2.0"
   resolved "https://registry.yarnpkg.com/mem/-/mem-4.2.0.tgz#5ee057680ed9cb8dad8a78d820f9a8897a102025"
@@ -11324,11 +11329,6 @@ verror@1.10.0:
     assert-plus "^1.0.0"
     core-util-is "1.0.2"
     extsprintf "^1.2.0"
-
-view-image@^0.0.1:
-  version "0.0.1"
-  resolved "https://registry.yarnpkg.com/view-image/-/view-image-0.0.1.tgz#f97a6c23e881caa173d83b148ef7ee8adbb890e5"
-  integrity sha512-xo6/w370OxBo9QLMZOXmRa0gSXNr9PfMQv4hFMZa6z8YFoyi77Q7/FRghANnPF9bILkX18fJDsC9fT1KlRzSDA==
 
 vm-browserify@0.0.4:
   version "0.0.4"
