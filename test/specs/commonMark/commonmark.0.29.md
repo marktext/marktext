@@ -1,42 +1,6 @@
 ## Test Result
 
-Total test 649 examples, and failed 108 examples:
-
-**Example51**
-
-```markdown
-Markdown content
-Foo *bar
-baz*
-====
-
-Expected Html
-<h1>Foo <em>bar
-baz</em></h1>
-
-Actural Html
-<p>Foo *bar</p>
-<h1>baz*</h1>
-
-```
-
-**Example52**
-
-```markdown
-Markdown content
-  Foo *bar
-baz*	
-====
-
-Expected Html
-<h1>Foo <em>bar
-baz</em></h1>
-
-Actural Html
-<p>  Foo *bar</p>
-<h1>baz*    </h1>
-
-```
+Total test 649 examples, and failed 100 examples:
 
 **Example53**
 
@@ -79,24 +43,6 @@ Actural Html
 <p>foo</p>
 </blockquote>
 <h1>bar</h1>
-
-```
-
-**Example65**
-
-```markdown
-Markdown content
-Foo
-Bar
----
-
-Expected Html
-<h2>Foo
-Bar</h2>
-
-Actural Html
-<p>Foo</p>
-<h2>Bar</h2>
 
 ```
 
@@ -1852,22 +1798,6 @@ Actural Html
 
 ```
 
-**Example569**
-
-```markdown
-Markdown content
-![foo *bar*]
-
-[foo *bar*]: train.jpg "train & tracks"
-
-Expected Html
-<p><img src="train.jpg" alt="foo bar" title="train &amp; tracks" /></p>
-
-Actural Html
-<p><img src="train.jpg" alt="foo *bar*" title="train &amp; tracks"></p>
-
-```
-
 **Example570**
 
 ```markdown
@@ -1893,70 +1823,6 @@ Expected Html
 
 Actural Html
 <p><img src="/url2" alt="foo [bar](/url)"></p>
-
-```
-
-**Example572**
-
-```markdown
-Markdown content
-![foo *bar*][]
-
-[foo *bar*]: train.jpg "train & tracks"
-
-Expected Html
-<p><img src="train.jpg" alt="foo bar" title="train &amp; tracks" /></p>
-
-Actural Html
-<p><img src="train.jpg" alt="foo *bar*" title="train &amp; tracks"></p>
-
-```
-
-**Example573**
-
-```markdown
-Markdown content
-![foo *bar*][foobar]
-
-[FOOBAR]: train.jpg "train & tracks"
-
-Expected Html
-<p><img src="train.jpg" alt="foo bar" title="train &amp; tracks" /></p>
-
-Actural Html
-<p><img src="train.jpg" alt="foo *bar*" title="train &amp; tracks"></p>
-
-```
-
-**Example581**
-
-```markdown
-Markdown content
-![*foo* bar][]
-
-[*foo* bar]: /url "title"
-
-Expected Html
-<p><img src="/url" alt="foo bar" title="title" /></p>
-
-Actural Html
-<p><img src="/url" alt="*foo* bar" title="title"></p>
-
-```
-
-**Example585**
-
-```markdown
-Markdown content
-![*foo* bar]
-
-[*foo* bar]: /url "title"
-
-Expected Html
-<p><img src="/url" alt="foo bar" title="title" /></p>
-
-Actural Html
-<p><img src="/url" alt="*foo* bar" title="title"></p>
 
 ```
 

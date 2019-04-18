@@ -179,7 +179,7 @@ Renderer.prototype.image = function (href, title, text) {
     return text
   }
 
-  let out = '<img src="' + href + '" alt="' + text + '"'
+  let out = '<img src="' + href + '" alt="' + text.replace(/\*/g, '') + '"'
   if (title) {
     out += ' title="' + title + '"'
   }

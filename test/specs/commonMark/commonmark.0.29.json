@@ -405,8 +405,7 @@
     "example": 51,
     "start_line": 1020,
     "end_line": 1027,
-    "section": "Setext headings",
-    "shouldFail": true
+    "section": "Setext headings"
   },
   {
     "markdown": "  Foo *bar\nbaz*\t\n====\n",
@@ -414,8 +413,7 @@
     "example": 52,
     "start_line": 1034,
     "end_line": 1041,
-    "section": "Setext headings",
-    "shouldFail": true
+    "section": "Setext headings"
   },
   {
     "markdown": "Foo\n-------------------------\n\nFoo\n=\n",
@@ -521,8 +519,7 @@
     "example": 65,
     "start_line": 1214,
     "end_line": 1221,
-    "section": "Setext headings",
-    "shouldFail": true
+    "section": "Setext headings"
   },
   {
     "markdown": "---\nFoo\n---\nBar\n---\nBaz\n",
@@ -4644,8 +4641,7 @@
     "example": 569,
     "start_line": 8490,
     "end_line": 8496,
-    "section": "Images",
-    "shouldFail": true
+    "section": "Images"
   },
   {
     "markdown": "![foo ![bar](/url)](/url2)\n",
@@ -4671,8 +4667,7 @@
     "example": 572,
     "start_line": 8520,
     "end_line": 8526,
-    "section": "Images",
-    "shouldFail": true
+    "section": "Images"
   },
   {
     "markdown": "![foo *bar*][foobar]\n\n[FOOBAR]: train.jpg \"train & tracks\"\n",
@@ -4680,8 +4675,7 @@
     "example": 573,
     "start_line": 8529,
     "end_line": 8535,
-    "section": "Images",
-    "shouldFail": true
+    "section": "Images"
   },
   {
     "markdown": "![foo](train.jpg)\n",
@@ -4745,8 +4739,7 @@
     "example": 581,
     "start_line": 8597,
     "end_line": 8603,
-    "section": "Images",
-    "shouldFail": true
+    "section": "Images"
   },
   {
     "markdown": "![Foo][]\n\n[foo]: /url \"title\"\n",
@@ -4778,8 +4771,7 @@
     "example": 585,
     "start_line": 8642,
     "end_line": 8648,
-    "section": "Images",
-    "shouldFail": true
+    "section": "Images"
   },
   {
     "markdown": "![[foo]]\n\n[[foo]]: /url \"title\"\n",

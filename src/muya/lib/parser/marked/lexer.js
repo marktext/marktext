@@ -453,16 +453,29 @@ Lexer.prototype.token = function (src, top) {
     // lheading
     cap = this.rules.lheading.exec(src)
     if (cap) {
+      const precededToken = this.tokens[this.tokens.length - 1]
       const chops = cap[0].trim().split(/\n/)
       const marker = chops[chops.length - 1]
       src = src.substring(cap[0].length)
-      this.tokens.push({
-        type: 'heading',
-        headingStyle: 'setext',
-        depth: cap[2] === '=' ? 1 : 2,
-        text: cap[1],
-        marker
-      })
+
+      if (precededToken && precededToken.type === 'paragraph') {
+        this.tokens.pop()
+        this.tokens.push({
+          type: 'heading',
+          headingStyle: 'setext',
+          depth: cap[2] === '=' ? 1 : 2,
+          text: precededToken.text + '\n' + cap[1],
+          marker
+        })
+      } else {
+        this.tokens.push({
+          type: 'heading',
+          headingStyle: 'setext',
+          depth: cap[2] === '=' ? 1 : 2,
+          text: cap[1],
+          marker
+        })
+      }
       continue
     }
 

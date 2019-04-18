@@ -1,7 +1,7 @@
 ## Compare with `marked.js`
 
-Marked.js failed examples count: 133
-Mark Text failed examples count: 108
+Marked.js failed examples count: 131
+Mark Text failed examples count: 100
 
 **Example7**
 
@@ -31,28 +31,6 @@ marked.js html
 <li>foo</li>
 </ul>
 
-```
-
-**Example40**
-
-Mark Text success and marked.js fail
-
-```markdown
-Markdown content
-foo
-    # bar
-
-Expected Html
-<p>foo
-# bar</p>
-
-Actural Html
-<p>foo
-    # bar</p>
-
-marked.js html
-<p>foo</p>
-<pre><code># bar</code></pre>
 ```
 
 **Example45**
@@ -128,25 +106,75 @@ marked.js html
 
 ```
 
-**Example57**
+**Example51**
+
+Mark Text success and marked.js fail
+
+```markdown
+Markdown content
+Foo *bar
+baz*
+====
+
+Expected Html
+<h1>Foo <em>bar
+baz</em></h1>
+
+Actural Html
+<h1>Foo <em>bar
+baz</em></h1>
+
+marked.js html
+<p>Foo *bar</p>
+<h1>baz*</h1>
+
+```
+
+**Example52**
+
+Mark Text success and marked.js fail
+
+```markdown
+Markdown content
+  Foo *bar
+baz*	
+====
+
+Expected Html
+<h1>Foo <em>bar
+baz</em></h1>
+
+Actural Html
+<h1>  Foo <em>bar
+baz</em>    </h1>
+
+marked.js html
+<p>  Foo *bar</p>
+<h1>baz*    </h1>
+
+```
+
+**Example65**
 
 Mark Text success and marked.js fail
 
 ```markdown
 Markdown content
 Foo
-    ---
+Bar
+---
 
 Expected Html
-<p>Foo
----</p>
+<h2>Foo
+Bar</h2>
 
 Actural Html
-<p>Foo
-    ---</p>
+<h2>Foo
+Bar</h2>
 
 marked.js html
-<h2>Foo</h2>
+<p>Foo</p>
+<h2>Bar</h2>
 
 ```
 
@@ -632,4 +660,109 @@ marked.js html
 
 ```
 
-There are 27 examples are different with marked.js.
+**Example569**
+
+Mark Text success and marked.js fail
+
+```markdown
+Markdown content
+![foo *bar*]
+
+[foo *bar*]: train.jpg "train & tracks"
+
+Expected Html
+<p><img src="train.jpg" alt="foo bar" title="train &amp; tracks" /></p>
+
+Actural Html
+<p><img src="train.jpg" alt="foo bar" title="train &amp; tracks"></p>
+
+marked.js html
+<p><img src="train.jpg" alt="foo *bar*" title="train &amp; tracks"></p>
+
+```
+
+**Example572**
+
+Mark Text success and marked.js fail
+
+```markdown
+Markdown content
+![foo *bar*][]
+
+[foo *bar*]: train.jpg "train & tracks"
+
+Expected Html
+<p><img src="train.jpg" alt="foo bar" title="train &amp; tracks" /></p>
+
+Actural Html
+<p><img src="train.jpg" alt="foo bar" title="train &amp; tracks"></p>
+
+marked.js html
+<p><img src="train.jpg" alt="foo *bar*" title="train &amp; tracks"></p>
+
+```
+
+**Example573**
+
+Mark Text success and marked.js fail
+
+```markdown
+Markdown content
+![foo *bar*][foobar]
+
+[FOOBAR]: train.jpg "train & tracks"
+
+Expected Html
+<p><img src="train.jpg" alt="foo bar" title="train &amp; tracks" /></p>
+
+Actural Html
+<p><img src="train.jpg" alt="foo bar" title="train &amp; tracks"></p>
+
+marked.js html
+<p><img src="train.jpg" alt="foo *bar*" title="train &amp; tracks"></p>
+
+```
+
+**Example581**
+
+Mark Text success and marked.js fail
+
+```markdown
+Markdown content
+![*foo* bar][]
+
+[*foo* bar]: /url "title"
+
+Expected Html
+<p><img src="/url" alt="foo bar" title="title" /></p>
+
+Actural Html
+<p><img src="/url" alt="foo bar" title="title"></p>
+
+marked.js html
+<p><img src="/url" alt="*foo* bar" title="title"></p>
+
+```
+
+**Example585**
+
+Mark Text success and marked.js fail
+
+```markdown
+Markdown content
+![*foo* bar]
+
+[*foo* bar]: /url "title"
+
+Expected Html
+<p><img src="/url" alt="foo bar" title="title" /></p>
+
+Actural Html
+<p><img src="/url" alt="foo bar" title="title"></p>
+
+marked.js html
+<p><img src="/url" alt="*foo* bar" title="title"></p>
+
+```
+
+There are 33 examples are different with marked.js.
