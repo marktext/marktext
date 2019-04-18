@@ -4,7 +4,7 @@ import { escapeCharacters } from './escapeCharacter'
 export const beginRules = {
   'hr': /^(\*{3,}$|^\-{3,}$|^\_{3,}$)/,
   'code_fense': /^(`{3,})([^`]*)$/,
-  'header': /(^\s{0,3}#{1,6}(\s{1,}|$))/,
+  'header': /(^ {0,3}#{1,6}(\s{1,}|$))/,
   'reference_definition': /^( {0,3}\[)([^\]]+?)(\\*)(\]: *)(<?)([^\s>]+)(>?)(?:( +)(["'(]?)([^\n"'\(\)]+)\9)?( *)$/,
 
   // extra syntax (not belogs to GFM)

@@ -357,8 +357,7 @@
     "example": 45,
     "start_line": 915,
     "end_line": 919,
-    "section": "ATX headings",
-    "shouldFail": true
+    "section": "ATX headings"
   },
   {
     "markdown": "### foo \\###\n## foo #\\##\n# foo \\#\n",
@@ -366,8 +365,7 @@
     "example": 46,
     "start_line": 925,
     "end_line": 933,
-    "section": "ATX headings",
-    "shouldFail": true
+    "section": "ATX headings"
   },
   {
     "markdown": "****\n## foo\n****\n",
@@ -391,8 +389,7 @@
     "example": 49,
     "start_line": 963,
     "end_line": 971,
-    "section": "ATX headings",
-    "shouldFail": true
+    "section": "ATX headings"
   },
   {
     "markdown": "Foo *bar*\n=========\n\nFoo *bar*\n---------\n",

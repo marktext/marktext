@@ -134,11 +134,15 @@ Lexer.prototype.token = function (src, top) {
     cap = this.rules.heading.exec(src)
     if (cap) {
       src = src.substring(cap[0].length)
+      let text = cap[2] || ''
+      if (cap[3] && !cap[3].startsWith(' ') && !/ +#+ *(?:\n+|$)/.test(cap[0])) {
+        text = (text + cap[3]).trim()
+      }
       this.tokens.push({
         type: 'heading',
         headingStyle: 'atx',
         depth: cap[1].length,
-        text: cap[2]
+        text
       })
       continue
     }

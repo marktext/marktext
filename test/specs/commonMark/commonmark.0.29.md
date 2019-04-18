@@ -1,60 +1,6 @@
 ## Test Result
 
-Total test 649 examples, and failed 111 examples:
-
-**Example45**
-
-```markdown
-Markdown content
-# foo#
-
-Expected Html
-<h1>foo#</h1>
-
-Actural Html
-<h1>foo</h1>
-
-```
-
-**Example46**
-
-```markdown
-Markdown content
-### foo \###
-## foo #\##
-# foo \#
-
-Expected Html
-<h3>foo ###</h3>
-<h2>foo ###</h2>
-<h1>foo #</h1>
-
-Actural Html
-<h3>foo \</h3>
-<h2>foo #\</h2>
-<h1>foo \</h1>
-
-```
-
-**Example49**
-
-```markdown
-Markdown content
-## 
-#
-### ###
-
-Expected Html
-<h2></h2>
-<h1></h1>
-<h3></h3>
-
-Actural Html
-<p>## 
-#</p>
-<h3>#</h3>
-
-```
+Total test 649 examples, and failed 108 examples:
 
 **Example51**
 
