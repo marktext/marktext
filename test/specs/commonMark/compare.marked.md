@@ -1,7 +1,7 @@
 ## Compare with `marked.js`
 
 Marked.js failed examples count: 133
-Mark Text failed examples count: 117
+Mark Text failed examples count: 114
 
 **Example7**
 
@@ -291,6 +291,27 @@ marked.js html
 
 ```
 
+**Example353**
+
+Mark Text success and marked.js fail
+
+```markdown
+Markdown content
+* a *
+
+Expected Html
+<p>* a *</p>
+
+Actural Html
+<p>* a *</p>
+
+marked.js html
+<ul>
+<li>a *</li>
+</ul>
+
+```
+
 **Example367**
 
 Mark Text success and marked.js fail
@@ -443,4 +464,42 @@ marked.js html
 
 ```
 
-There are 18 examples are different with marked.js.
+**Example479**
+
+Mark Text success and marked.js fail
+
+```markdown
+Markdown content
+**a<http://foo.bar/?q=**>
+
+Expected Html
+<p>**a<a href="http://foo.bar/?q=**">http://foo.bar/?q=**</a></p>
+
+Actural Html
+<p>**a<a href="http://foo.bar/?q=**">http://foo.bar/?q=**</a></p>
+
+marked.js html
+<p><strong>a&lt;<a href="http://foo.bar/?q=">http://foo.bar/?q=</a></strong>&gt;</p>
+
+```
+
+**Example480**
+
+Mark Text success and marked.js fail
+
+```markdown
+Markdown content
+__a<http://foo.bar/?q=__>
+
+Expected Html
+<p>__a<a href="http://foo.bar/?q=__">http://foo.bar/?q=__</a></p>
+
+Actural Html
+<p>__a<a href="http://foo.bar/?q=__">http://foo.bar/?q=__</a></p>
+
+marked.js html
+<p><strong>a&lt;<a href="http://foo.bar/?q=">http://foo.bar/?q=</a></strong>&gt;</p>
+
+```
+
+There are 21 examples are different with marked.js.

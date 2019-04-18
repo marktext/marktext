@@ -30,7 +30,7 @@ function InlineLexer (links, options) {
   }
   this.highPriorityRules = {}
   for (const key of Object.keys(this.rules)) {
-    if (/^(?:link|code|tag)$/.test(key) && this.rules[key] instanceof RegExp) {
+    if (/^(?:autolink|link|code|tag)$/.test(key) && this.rules[key] instanceof RegExp) {
       this.highPriorityRules[key] = this.rules[key]
     }
   } 
@@ -41,6 +41,8 @@ function InlineLexer (links, options) {
  */
 
 InlineLexer.prototype.output = function (src) {
+  src = src
+    .replace(/\u00a0/g, ' ')
   const { disableInline, emoji, math } = this.options
   if (disableInline) {
     return escape(src)

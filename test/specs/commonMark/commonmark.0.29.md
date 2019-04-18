@@ -1,6 +1,6 @@
 ## Test Result
 
-Total test 649 examples, and failed 117 examples:
+Total test 649 examples, and failed 114 examples:
 
 **Example45**
 
@@ -1129,22 +1129,6 @@ Actural Html
 
 ```
 
-**Example353**
-
-```markdown
-Markdown content
-* a *
-
-Expected Html
-<p>* a *</p>
-
-Actural Html
-<ul>
-<li>a *</li>
-</ul>
-
-```
-
 **Example361**
 
 ```markdown
@@ -1677,34 +1661,6 @@ Expected Html
 
 Actural Html
 <p>*a <code>*</code>*</p>
-
-```
-
-**Example479**
-
-```markdown
-Markdown content
-**a<http://foo.bar/?q=**>
-
-Expected Html
-<p>**a<a href="http://foo.bar/?q=**">http://foo.bar/?q=**</a></p>
-
-Actural Html
-<p><strong>a&lt;<a href="http://foo.bar/?q=">http://foo.bar/?q=</a></strong>&gt;</p>
-
-```
-
-**Example480**
-
-```markdown
-Markdown content
-__a<http://foo.bar/?q=__>
-
-Expected Html
-<p>__a<a href="http://foo.bar/?q=__">http://foo.bar/?q=__</a></p>
-
-Actural Html
-<p><strong>a&lt;<a href="http://foo.bar/?q=">http://foo.bar/?q=</a></strong>&gt;</p>
 
 ```
 

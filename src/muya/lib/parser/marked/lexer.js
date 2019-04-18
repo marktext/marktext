@@ -32,7 +32,7 @@ Lexer.prototype.lex = function (src) {
     .replace(/\r\n|\r/g, '\n')
     // replace `\t` to four space.
     .replace(/\t/g, '    ')
-    .replace(/\u00a0/g, ' ')
+    // .replace(/\u00a0/g, ' ')
     .replace(/\u2424/g, '\n')
   this.checkFrontmatter = true
   return this.token(src, true)
