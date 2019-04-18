@@ -103,7 +103,7 @@ const canOpenEmphasis = (src, marker, pending) => {
   return true
 }
 
-const canCloseEmphasis = (src, offset, marker, pending) => {
+const canCloseEmphasis = (src, offset, marker) => {
   const precededChar = src[offset - marker.length - 1]
   const followedChar = src[offset] || ''
   // not preceded by Unicode whitespace, 
@@ -125,7 +125,7 @@ export const validateEmphasize = (src, offset, marker, pending, rules) => {
   if (!canOpenEmphasis(src, marker, pending)) {
     return false
   }
-  if (!canCloseEmphasis(src, offset, marker, pending)) {
+  if (!canCloseEmphasis(src, offset, marker)) {
     return false
   }
 
