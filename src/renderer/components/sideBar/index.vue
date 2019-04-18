@@ -146,7 +146,6 @@
     widows: 280px;
     height: 100vh;
     min-width: 180px;
-    max-width: 50vw;
     position: relative;
     color: var(--sideBarColor);
     user-select: none;
