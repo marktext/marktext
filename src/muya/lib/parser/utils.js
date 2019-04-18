@@ -1,11 +1,37 @@
 // These utils only used for this folder.
 // Move punctuation and WHITELIST_ATTRIBUTES here just to prevent `navigator is not defined` error when run test.
+// ASCII PUNCTUATION character
 export const punctuation = ['!', '"', '#', '$', '%', '&', "'", '(', ')', '*', '+', ',', '-', '.', '/', ':', ';', '<', '=', '>', '?', '@', '[', '\\', ']', '^', '_', '`', '{', '|', '}', '~']
 // selected from https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes
 export const WHITELIST_ATTRIBUTES = [
   'align', 'alt', 'checked', 'class', 'color', 'dir', 'disabled', 'for', 'height', 'hidden',
   'href', 'id', 'lang', 'lazyload', 'rel', 'spellcheck', 'src', 'srcset', 'start', 'style',
   'target', 'title', 'type', 'value', 'width'
+]
+
+export const unicodeZsCategory = [
+  '\u0020', '\u00A0', '\u1680', '\u2000', '\u2001', '\u2001',
+  '\u2002', '\u2003', '\u2004', '\u2005', '\u2006', '\u2007',
+  '\u2008', '\u2009', '\u200A', '\u202F', '\u205F', '\u3000'
+]
+
+export const space = ['\u0020'] // space
+
+export const whitespaceCharacter = [
+  ...space, // space
+  '\u0009', // tab
+  '\u000A', // newline
+  '\u000B', // tabulation
+  '\u000C', // form feed
+  '\u000D' // carriage return
+]
+
+export const unicodeWhitespaceCharacter = [
+  ...unicodeZsCategory,
+  '\u0009', // tab
+  '\u000D', // carriage return
+  '\u000A', // newline
+  '\u000C' // form feed
 ]
 
 const validWidthAndHeight = value => {
@@ -58,32 +84,53 @@ export const parseSrcAndTitle = (text = '') => {
   return { src, title }
 }
 
-export const validateEmphasize = (src, offset, marker, pending, rules) => {
-  /**
-   * Intraword emphasis is disallowed for _
-   */
-  const lastChar = pending.charAt(pending.length - 1) || ''
-  const followedChar = src[offset]
-  const ALPHA_REG = /[a-zA-Z]{1}/
-  if (/_/.test(marker)) {
-    if (ALPHA_REG.test(lastChar)) return false
-    if (followedChar && ALPHA_REG.test(followedChar)) return false
+const canOpenEmphasis = (src, marker, pending) => {
+  const precededChar = pending.charAt(pending.length - 1) || ''
+  const followedChar = src[marker.length]
+  // not followed by Unicode whitespace, 
+  if (unicodeWhitespaceCharacter.includes(followedChar)) {
+    return false
   }
-  /**
-   * 1. This is not emphasis, because the second * is preceded by punctuation and followed by an alphanumeric
-   * (hence it is not part of a right-flanking delimiter run:
-   * 2. This is not emphasis, because the opening * is preceded by an alphanumeric and followed by punctuation,
-   * and hence not part of a left-flanking delimiter run:
-   */
-  if (ALPHA_REG.test(lastChar) && punctuation.indexOf(src[marker.length]) > -1) {
+  // and either (2a) not followed by a punctuation character,
+  // or (2b) followed by a punctuation character and preceded by Unicode whitespace or a punctuation character.
+  // For purposes of this definition, the beginning and the end of the line count as Unicode whitespace.
+  if (punctuation.includes(followedChar) && !(!precededChar || unicodeWhitespaceCharacter.includes(precededChar) || punctuation.includes(precededChar))) {
+    return false
+  }
+  if (/_/.test(marker) && !(!precededChar || unicodeWhitespaceCharacter.includes(precededChar) || punctuation.includes(precededChar))) {
+    return false
+  }
+  return true
+}
+
+const canCloseEmphasis = (src, offset, marker, pending) => {
+  const precededChar = src[offset - marker.length - 1]
+  const followedChar = src[offset] || ''
+  // not preceded by Unicode whitespace, 
+  if (unicodeWhitespaceCharacter.includes(precededChar)) {
+    return false
+  }
+  // either (2a) not preceded by a punctuation character,
+  // or (2b) preceded by a punctuation character and followed by Unicode whitespace or a punctuation character.
+  if (punctuation.includes(precededChar) && !(!followedChar || unicodeWhitespaceCharacter.includes(followedChar) || punctuation.includes(followedChar))) {
+    return false
+  }
+  if (/_/.test(marker) && !(!followedChar || unicodeWhitespaceCharacter.includes(followedChar) || punctuation.includes(followedChar))) {
+    return false
+  }
+  return true
+}
+
+export const validateEmphasize = (src, offset, marker, pending, rules) => {
+  if (!canOpenEmphasis(src, marker, pending)) {
+    return false
+  }
+  if (!canCloseEmphasis(src, offset, marker, pending)) {
     return false
   }
 
-  if (followedChar && ALPHA_REG.test(followedChar) && punctuation.indexOf(src[offset - marker.length - 1]) > -1) {
-    return false
-  }
   /**
-   * When there are two potential emphasis or strong emphasis spans with the same closing delimiter,
+   * 16.When there are two potential emphasis or strong emphasis spans with the same closing delimiter,
    * the shorter one (the one that opens later) takes precedence. Thus, for example, **foo **bar baz**
    * is parsed as **foo <strong>bar baz</strong> rather than <strong>foo **bar baz</strong>.
    */
@@ -95,7 +142,7 @@ export const validateEmphasize = (src, offset, marker, pending, rules) => {
     return false
   }
   /**
-   * Inline code spans, links, images, and HTML tags group more tightly than emphasis.
+   * 17.Inline code spans, links, images, and HTML tags group more tightly than emphasis.
    * So, when there is a choice between an interpretation that contains one of these elements
    * and one that does not, the former always wins. Thus, for example, *[foo*](bar) is parsed
    * as *<a href="bar">foo*</a> rather than as <em>[foo</em>](bar).

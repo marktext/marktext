@@ -1,6 +1,6 @@
 ## Test Result
 
-Total test 649 examples, and failed 114 examples:
+Total test 649 examples, and failed 111 examples:
 
 **Example45**
 
@@ -1129,20 +1129,6 @@ Actural Html
 
 ```
 
-**Example361**
-
-```markdown
-Markdown content
-пристаням_стремятся_
-
-Expected Html
-<p>пристаням_стремятся_</p>
-
-Actural Html
-<p>пристаням<em>стремятся</em></p>
-
-```
-
 **Example368**
 
 ```markdown
@@ -1171,20 +1157,6 @@ Actural Html
 
 ```
 
-**Example387**
-
-```markdown
-Markdown content
-пристаням__стремятся__
-
-Expected Html
-<p>пристаням__стремятся__</p>
-
-Actural Html
-<p>пристаням<strong>стремятся</strong></p>
-
-```
-
 **Example388**
 
 ```markdown
@@ -1210,20 +1182,6 @@ Expected Html
 
 Actural Html
 <p>*<em>foo bar *</em></p>
-
-```
-
-**Example400**
-
-```markdown
-Markdown content
-__пристаням__стремятся
-
-Expected Html
-<p>__пристаням__стремятся</p>
-
-Actural Html
-<p><strong>пристаням</strong>стремятся</p>
 
 ```
 
@@ -1349,7 +1307,7 @@ Expected Html
 <p><em>foo <strong>bar <em>baz</em> bim</strong> bop</em></p>
 
 Actural Html
-<p><em>foo **bar *baz</em> bim<em>* bop</em></p>
+<p><em>foo **bar *baz</em> bim** bop*</p>
 
 ```
 
