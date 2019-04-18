@@ -1,6 +1,6 @@
 ## Test Result
 
-Total test 649 examples, and failed 100 examples:
+Total test 649 examples, and failed 97 examples:
 
 **Example53**
 
@@ -1657,48 +1657,6 @@ Expected Html
 
 Actural Html
 <p>![<a href="uri2"><a href="uri1">foo</a></a>](uri3)</p>
-
-```
-
-**Example520**
-
-```markdown
-Markdown content
-[foo <bar attr="](baz)">
-
-Expected Html
-<p>[foo <bar attr="](baz)"></p>
-
-Actural Html
-<p><a href="baz">foo &lt;bar attr=&quot;</a>&quot;&gt;</p>
-
-```
-
-**Example521**
-
-```markdown
-Markdown content
-[foo\`](/uri)\`
-
-Expected Html
-<p>[foo<code>](/uri)</code></p>
-
-Actural Html
-<p><a href="/uri">foo`</a>`</p>
-
-```
-
-**Example522**
-
-```markdown
-Markdown content
-[foo<http://example.com/?search=](uri)>
-
-Expected Html
-<p>[foo<a href="http://example.com/?search=%5D(uri)">http://example.com/?search=](uri)</a></p>
-
-Actural Html
-<p><a href="uri">foo&lt;http://example.com/?search=</a>&gt;</p>
 
 ```
 

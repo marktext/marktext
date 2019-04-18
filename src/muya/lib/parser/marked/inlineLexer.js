@@ -2,7 +2,7 @@ import Renderer from './renderer'
 import { normal, breaks, gfm, pedantic } from './inlineRules'
 import defaultOptions from './options'
 import { escape, findClosingBracket } from './utils'
-import { validateEmphasize } from '../utils'
+import { validateEmphasize, lowerPriority } from '../utils'
 
 /**
  * Inline Lexer & Compiler
@@ -28,10 +28,16 @@ function InlineLexer (links, options) {
       this.rules = gfm
     }
   }
-  this.highPriorityRules = {}
+  this.highPriorityEmpRules = {}
+  this.highPriorityLinkRules = {}
   for (const key of Object.keys(this.rules)) {
     if (/^(?:autolink|link|code|tag)$/.test(key) && this.rules[key] instanceof RegExp) {
-      this.highPriorityRules[key] = this.rules[key]
+      this.highPriorityEmpRules[key] = this.rules[key]
+    }
+  }
+  for (const key of Object.keys(this.rules)) {
+    if (/^(?:autolink|code|tag)$/.test(key) && this.rules[key] instanceof RegExp) {
+      this.highPriorityLinkRules[key] = this.rules[key]
     }
   } 
 }
@@ -41,8 +47,8 @@ function InlineLexer (links, options) {
  */
 
 InlineLexer.prototype.output = function (src) {
-  src = src
-    .replace(/\u00a0/g, ' ')
+  // src = src
+    // .replace(/\u00a0/g, ' ')
   const { disableInline, emoji, math } = this.options
   if (disableInline) {
     return escape(src)
@@ -93,7 +99,7 @@ InlineLexer.prototype.output = function (src) {
 
     // link
     cap = this.rules.link.exec(src)
-    if (cap) {
+    if (cap && lowerPriority(src, cap[0].length, this.highPriorityLinkRules)) {
       const lastParenIndex = findClosingBracket(cap[2], '()')
       if (lastParenIndex > -1) {
         const linkLen = cap[0].length - (cap[2].length - lastParenIndex) - (cap[3] || '').length
@@ -170,7 +176,7 @@ InlineLexer.prototype.output = function (src) {
     cap = this.rules.strong.exec(src)
     if (cap) {
       const marker = cap[0].match(/^(?:_{1,2}|\*{1,2})/)[0]
-      const isValid = validateEmphasize(src, cap[0].length, marker, lastChar, this.highPriorityRules)
+      const isValid = validateEmphasize(src, cap[0].length, marker, lastChar, this.highPriorityEmpRules)
       if (isValid) {
         src = src.substring(cap[0].length)
         lastChar = cap[0].charAt(cap[0].length - 1)
@@ -183,7 +189,7 @@ InlineLexer.prototype.output = function (src) {
     cap = this.rules.em.exec(src)
     if (cap) {
       const marker = cap[0].match(/^(?:_{1,2}|\*{1,2})/)[0]
-      const isValid = validateEmphasize(src, cap[0].length, marker, lastChar, this.highPriorityRules)
+      const isValid = validateEmphasize(src, cap[0].length, marker, lastChar, this.highPriorityEmpRules)
       if (isValid) {
         src = src.substring(cap[0].length)
         lastChar = cap[0].charAt(cap[0].length - 1)

@@ -1,7 +1,7 @@
 ## Compare with `marked.js`
 
 Marked.js failed examples count: 131
-Mark Text failed examples count: 100
+Mark Text failed examples count: 97
 
 **Example7**
 
@@ -404,7 +404,7 @@ Expected Html
 <p>* a *</p>
 
 Actural Html
-<p>* a *</p>
+<p>* a *</p>
 
 marked.js html
 <ul>
@@ -660,6 +660,63 @@ marked.js html
 
 ```
 
+**Example520**
+
+Mark Text success and marked.js fail
+
+```markdown
+Markdown content
+[foo <bar attr="](baz)">
+
+Expected Html
+<p>[foo <bar attr="](baz)"></p>
+
+Actural Html
+<p>[foo <bar attr="](baz)"></p>
+
+marked.js html
+<p><a href="baz">foo &lt;bar attr=&quot;</a>&quot;&gt;</p>
+
+```
+
+**Example521**
+
+Mark Text success and marked.js fail
+
+```markdown
+Markdown content
+[foo\`](/uri)\`
+
+Expected Html
+<p>[foo<code>](/uri)</code></p>
+
+Actural Html
+<p>[foo<code>](/uri)</code></p>
+
+marked.js html
+<p><a href="/uri">foo`</a>`</p>
+
+```
+
+**Example522**
+
+Mark Text success and marked.js fail
+
+```markdown
+Markdown content
+[foo<http://example.com/?search=](uri)>
+
+Expected Html
+<p>[foo<a href="http://example.com/?search=%5D(uri)">http://example.com/?search=](uri)</a></p>
+
+Actural Html
+<p>[foo<a href="http://example.com/?search=%5D(uri)">http://example.com/?search=](uri)</a></p>
+
+marked.js html
+<p><a href="uri">foo&lt;http://example.com/?search=</a>&gt;</p>
+
+```
+
 **Example569**
 
 Mark Text success and marked.js fail
@@ -765,4 +822,4 @@ marked.js html
 
 ```
 
-There are 33 examples are different with marked.js.
+There are 36 examples are different with marked.js.
