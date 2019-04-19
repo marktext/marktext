@@ -78,7 +78,6 @@
 
   import 'muya/themes/default.css'
   import '@/assets/themes/codemirror/one-dark.css'
-  import 'view-image/lib/imgViewer.css'
   import CloseIcon from '@/assets/icons/close.svg'
 
   const STANDAR_Y = 320
