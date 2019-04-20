@@ -3,6 +3,7 @@ import { CLASS_OR_ID } from '../config'
 import { getSanitizeHtml } from '../utils/exportHtml'
 import ExportMarkdown from '../utils/exportMarkdown'
 import marked from '../parser/marked'
+import Cursor from '../selection/cursor'
 
 const copyCutCtrl = ContentState => {
   ContentState.prototype.cutHandler = function () {
@@ -13,10 +14,10 @@ const copyCutCtrl = ContentState => {
     if (start.key !== end.key) {
       this.removeBlocks(startBlock, endBlock)
     }
-    this.cursor = {
+    this.cursor = new Cursor({
       start,
       end: start
-    }
+    })
     this.partialRender()
   }
 

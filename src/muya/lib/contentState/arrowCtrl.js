@@ -1,5 +1,6 @@
 import { EVENT_KEYS, CLASS_OR_ID } from '../config'
 import { findNearestParagraph } from '../selection/dom'
+import Cursor from '../selection/cursor'
 import selection from '../selection'
 
 const arrowCtrl = ContentState => {
@@ -64,10 +65,10 @@ const arrowCtrl = ContentState => {
       }
     }
 
-    // Just do nothing if the cursor is not collapsed
+    // Just do nothing if the cursor is not collapsed or `shiftKey` pressed
     if (
       (start.key === end.key && start.offset !== end.offset) ||
-      start.key !== end.key
+      start.key !== end.key || event.shiftKey
     ) {
       return
     }
@@ -115,7 +116,7 @@ const arrowCtrl = ContentState => {
           ? activeBlock.children[0].key
           : activeBlock.key
 
-        this.cursor = {
+        this.cursor = new Cursor({
           start: {
             key,
             offset
@@ -124,7 +125,7 @@ const arrowCtrl = ContentState => {
             key,
             offset
           }
-        }
+        })
 
         return this.partialRender()
       }
@@ -139,10 +140,10 @@ const arrowCtrl = ContentState => {
       if (!preBlock) return
       const key = preBlock.key
       const offset = preBlock.text.length
-      this.cursor = {
+      this.cursor = new Cursor({
         start: { key, offset },
         end: { key, offset }
-      }
+      })
 
       return this.partialRender()
     } else if (
@@ -162,10 +163,10 @@ const arrowCtrl = ContentState => {
         key = newBlock.children[0].key
       }
       const offset = 0
-      this.cursor = {
+      this.cursor = new Cursor({
         start: { key, offset },
         end: { key, offset }
-      }
+      })
 
       return this.partialRender()
     }

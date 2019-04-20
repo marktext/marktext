@@ -1,4 +1,5 @@
 import { isLengthEven, getParagraphReference } from '../utils'
+import Cursor from '../selection/cursor'
 
 const TABLE_BLOCK_REG = /^\|.*?(\\*)\|.*?(\\*)\|/
 
@@ -80,10 +81,10 @@ const tableBlockCtrl = ContentState => {
     this.appendChild(figureBlock, table)
     const key = table.children[0].children[0].children[0].key // fist cell key in thead
     const offset = 0
-    this.cursor = {
+    this.cursor = new Cursor({
       start: { key, offset },
       end: { key, offset }
-    }
+    })
     this.muya.eventCenter.dispatch('stateChange')
     this.partialRender()
   }
@@ -161,10 +162,10 @@ const tableBlockCtrl = ContentState => {
         figure.text = ''
         const key = newLine.key
         const offset = 0
-        this.cursor = {
+        this.cursor = new Cursor({
           start: { key, offset },
           end: { key, offset }
-        }
+        })
         this.muya.eventCenter.dispatch('stateChange')
         this.partialRender()
         break
@@ -222,10 +223,10 @@ const tableBlockCtrl = ContentState => {
           const cursorBlock = headerRow.children[0]
           const key = cursorBlock.key
           const offset = cursorBlock.text.length
-          this.cursor = {
+          this.cursor = new Cursor({
             start: { key, offset },
             end: { key, offset }
-          }
+          })
           this.muya.eventCenter.dispatch('stateChange')
           this.partialRender()
         }
@@ -370,9 +371,9 @@ const tableBlockCtrl = ContentState => {
     if (cursorBlock) {
       const { key } = cursorBlock
       const offset = 0
-      this.cursor = { start: { key, offset }, end: { key, offset } }
+      this.cursor = new Cursor({ start: { key, offset }, end: { key, offset } })
     } else {
-      this.cursor = { start, end }
+      this.cursor = new Cursor({ start, end })
     }
 
     this.partialRender()

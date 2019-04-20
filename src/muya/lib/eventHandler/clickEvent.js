@@ -1,6 +1,7 @@
 import { operateClassName } from '../utils/domManipulate'
 import { CLASS_OR_ID } from '../config'
 import selection from '../selection'
+import Cursor from '../selection/cursor'
 
 class ClickEvent {
   constructor (muya) {
@@ -26,10 +27,10 @@ class ClickEvent {
       }
 
       // Commit native cursor position because right-clicking doesn't update the cursor postion.
-      contentState.cursor = {
+      contentState.cursor = new Cursor({
         start,
         end
-      }
+      })
 
       const sectionChanges = contentState.selectionChange(contentState.cursor)
       eventCenter.dispatch('contextmenu', event, sectionChanges)

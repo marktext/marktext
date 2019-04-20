@@ -2,6 +2,7 @@ import selection from '../selection'
 import { findNearestParagraph } from '../selection/dom'
 import { CLASS_OR_ID } from '../config'
 import { getParagraphReference } from '../utils'
+import Cursor from '../selection/cursor'
 
 const imagePathCtrl = ContentState => {
   ContentState.prototype.getImageTextNode = function () {
@@ -37,10 +38,10 @@ const imagePathCtrl = ContentState => {
         chop = p2
         return p1
       }) + text + oldText.substring(offset)
-      this.cursor = {
+      this.cursor = new Cursor({
         start: { key, offset: offset + (text.length - chop.length) },
         end: { key, offset: offset + (text.length - chop.length) }
-      }
+      })
       this.partialRender()
     }
     const paragraph = findNearestParagraph(node)

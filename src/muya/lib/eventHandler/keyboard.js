@@ -3,6 +3,7 @@ import selection from '../selection'
 import { findNearestParagraph } from '../selection/dom'
 import { getParagraphReference } from '../utils'
 import { checkEditEmoji } from '../ui/emojis'
+import Cursor from '../selection/cursor'
 
 class Keyboard {
   constructor (muya) {
@@ -198,23 +199,23 @@ class Keyboard {
           emojiNode
         })
       }
-      // is show format float box?
-      const { start, end } = selection.getCursorRange()
-      if (!start || !end) {
+
+      const { anchor, focus } = selection.getCursorRange()
+      if (!anchor || !focus) {
         return
       }
       if (
         !this.isComposed
       ) {
-        const { start: oldStart, end: oldEnd } = contentState.cursor
+        const { anchor: oldAnchor, focus: oldFocus } = contentState.cursor
         if (
-          start.key !== oldStart.key ||
-          start.offset !== oldStart.offset ||
-          end.key !== oldEnd.key ||
-          end.offset !== oldEnd.offset
+          anchor.key !== oldAnchor.key ||
+          anchor.offset !== oldAnchor.offset ||
+          focus.key !== oldFocus.key ||
+          focus.offset !== oldFocus.offset
         ) {
-          const needRender = contentState.checkNeedRender(contentState.cursor) || contentState.checkNeedRender({ start, end })
-          contentState.cursor = { start, end }
+          const needRender = contentState.checkNeedRender(contentState.cursor) || contentState.checkNeedRender({ anchor, focus })
+          contentState.cursor = new Cursor({ anchor, focus })
           if (needRender) {
             return contentState.partialRender()
           }
@@ -227,8 +228,8 @@ class Keyboard {
         eventCenter.dispatch('muya-image-picker', { list: [] })
       }
 
-      const block = contentState.getBlock(start.key)
-      if (start.key === end.key && start.offset !== end.offset && block.functionType !== 'codeLine') {
+      const block = contentState.getBlock(anchor.key)
+      if (anchor.key === focus.key && anchor.offset !== focus.offset && block.functionType !== 'codeLine') {
         const reference = contentState.getPositionReference()
         const { formats } = contentState.selectionFormats()
         eventCenter.dispatch('muya-format-picker', { reference, formats })

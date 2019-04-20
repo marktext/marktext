@@ -1,3 +1,5 @@
+import Cursor from "../selection/cursor";
+
 const selectionCtrl = ContentState => {
   // Returns the table from the table cell:
   //   table <-- thead or tbody <-- tr <-- th or td (cell)
@@ -18,10 +20,10 @@ const selectionCtrl = ContentState => {
     if (/th|td/.test(startType) && /th|td/.test(endType)) {
       if (start.key === end.key) {
         const { text, key } = startBlock
-        this.cursor = {
+        this.cursor = new Cursor({
           start: { key, offset: 0 },
           end: { key, offset: text.length }
-        }
+        })
       } else {
         const startTable = this.getTableFromTableCell(startBlock)
         const endTable = this.getTableFromTableCell(endBlock)
@@ -42,10 +44,10 @@ const selectionCtrl = ContentState => {
         }
         const { key: startKey } = firstTableCell
         const { key: endKey, text } = lastTableCell
-        this.cursor = {
+        this.cursor = new Cursor({
           start: { key: startKey, offset: 0 },
           end: { key: endKey, offset: text.length }
-        }
+        })
       }
 
       event.preventDefault()

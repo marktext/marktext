@@ -10,6 +10,7 @@ import { loadLanguage } from '../prism/index'
 
 // To be disabled rules when parse markdown, Because content state don't need to parse inline rules
 import { CURSOR_DNA } from '../config'
+import Cursor from '../selection/cursor'
 
 const LINE_BREAKS_REG = /\n/
 
@@ -313,10 +314,10 @@ const importRegister = ContentState => {
           if (offset > -1) {
             block.text = text.substring(0, offset) + text.substring(offset + CURSOR_DNA.length)
             if (editable) {
-              this.cursor = {
+              this.cursor = new Cursor({
                 start: { key, offset },
                 end: { key, offset }
-              }
+              })
               // handle cursor in Math block, need to remove `CURSOR_DNA` in preview block
               if (type === 'span' && functionType === 'codeLine') {
                 const preBlock = this.getParent(this.getParent(block))
@@ -342,10 +343,10 @@ const importRegister = ContentState => {
       const lastBlock = this.getLastBlock()
       const key = lastBlock.key
       const offset = lastBlock.text.length
-      this.cursor = {
+      this.cursor = new Cursor({
         start: { key, offset },
         end: { key, offset }
-      }
+      })
     }
   }
 

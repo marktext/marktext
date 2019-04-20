@@ -1,5 +1,6 @@
 import selection from '../selection'
 import { HTML_TAGS, VOID_HTML_TAGS } from '../config'
+import Cursor from '../selection/cursor'
 
 /**
  * parseSelector
@@ -167,10 +168,10 @@ const tabCtrl = ContentState => {
         tabCharacter + endBlock.text.substring(end.offset)
       const key = start.key
       const offset = start.offset + tabCharacter.length
-      this.cursor = {
+      this.cursor = new Cursor({
         start: { key, offset },
         end: { key, offset }
-      }
+      })
       return this.partialRender()
     }
   }
@@ -245,10 +246,10 @@ const tabCtrl = ContentState => {
           html += `</${tag}>`
         }
         startBlock.text = preText + html + postText
-        this.cursor = {
+        this.cursor = new Cursor({
           start: { key, offset: startOffset + preText.length },
           end: { key, offset: endOffset + preText.length }
-        }
+        })
         return this.partialRender()
       }
     }
@@ -261,10 +262,10 @@ const tabCtrl = ContentState => {
     }
     if (nextCell) {
       const key = nextCell.key
-      this.cursor = {
+      this.cursor = new Cursor({
         start: { key, offset: 0 },
         end: { key, offset: 0 }
-      }
+      })
 
       return this.partialRender()
     }

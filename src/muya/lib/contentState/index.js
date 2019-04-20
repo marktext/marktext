@@ -25,6 +25,7 @@ import inputCtrl from './inputCtrl'
 import tocCtrl from './tocCtrl'
 import emojiCtrl from './emojiCtrl'
 import importMarkdown from '../utils/importMarkdown'
+import Cursor from '../selection/cursor'
 
 const prototypes = [
   tabCtrl,
@@ -101,8 +102,6 @@ class ContentState {
         if (this.historyTimer) clearTimeout(this.historyTimer)
         this.historyTimer = setTimeout(handler, 2000)
       }
-    } else {
-      cursor.noHistory && delete cursor.noHistory
     }
   }
 
@@ -119,10 +118,10 @@ class ContentState {
       matches: [], // matches
       index: -1 // active match
     }
-    this.cursor = {
+    this.cursor = new Cursor({
       start: { key, offset },
       end: { key, offset }
-    }
+    })
   }
 
   getHistory () {
@@ -160,7 +159,7 @@ class ContentState {
     if (isRenderCursor) this.setCursor()
   }
 
-  partialRender () {
+  partialRender (isRenderCursor = true) {
     const { blocks, cursor, searchMatches: { matches, index }, selectedBlock } = this
     const activeBlocks = this.getActiveBlocks()
     const [ startKey, endKey ] = this.renderRange
@@ -174,7 +173,7 @@ class ContentState {
     this.setNextRenderRange()
     this.stateRender.collectLabels(blocks)
     this.stateRender.partialRender(needRenderBlocks, cursor, activeBlocks, matches, startKey, endKey, selectedBlock)
-    this.setCursor()
+    if (isRenderCursor) this.setCursor()
   }
 
   /**

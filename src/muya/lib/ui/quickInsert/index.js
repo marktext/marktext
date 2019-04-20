@@ -4,6 +4,7 @@ import { deepCopy } from '../../utils'
 import BaseScrollFloat from '../baseScrollFloat'
 import { quicInsertObj } from './config'
 import './index.css'
+import Cursor from '../../selection/cursor'
 
 class QuickInsert extends BaseScrollFloat {
   static pluginName = 'quickInsert'
@@ -123,10 +124,10 @@ class QuickInsert extends BaseScrollFloat {
     this.block.text = ''
     let { key } = this.block
     let offset = 0
-    contentState.cursor = {
+    contentState.cursor = new Cursor({
       start: { key, offset },
       end: { key, offset }
-    }
+    })
     switch (item.label) {
       case 'paragraph':
         contentState.partialRender()

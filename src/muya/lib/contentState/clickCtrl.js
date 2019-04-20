@@ -1,5 +1,6 @@
 import selection from '../selection'
 import { HAS_TEXT_BLOCK_REG } from '../config'
+import Cursor from '../selection/cursor'
 
 const clickCtrl = ContentState => {
   ContentState.prototype.clickHandler = function (event) {
@@ -113,10 +114,10 @@ const clickCtrl = ContentState => {
       const cursorBlock = block.children[1].children[0].children[0].children[0]
       const offset = cursorBlock.text.length
       const key = cursorBlock.key
-      this.cursor = {
+      this.cursor = new Cursor({
         start: { key, offset },
         end: { key, offset }
-      }
+      })
       needRender = true
     }
 
@@ -137,7 +138,7 @@ const clickCtrl = ContentState => {
     }
 
     const needMarkedUpdate = this.checkNeedRender(this.cursor) || this.checkNeedRender({ start, end })
-    this.cursor = { start, end }
+    this.cursor = new Cursor({ start, end })
     if (needMarkedUpdate || needRender) {
       return this.partialRender()
     }
