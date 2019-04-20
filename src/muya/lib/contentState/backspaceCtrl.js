@@ -156,7 +156,9 @@ const backspaceCtrl = ContentState => {
     // 2. select table from the first cell to the last cell, press backsapce.
     if (/th/.test(startBlock.type) && start.offset === 0 && !startBlock.preSibling) {
       if (
-        end.offset === endBlock.text.length && startOutmostBlock === endOutmostBlock && !endBlock.nextSibling && !maybeLastRow.nextSibling ||
+        end.offset === endBlock.text.length &&
+        startOutmostBlock === endOutmostBlock &&
+        !endBlock.nextSibling && !maybeLastRow.nextSibling ||
         startOutmostBlock !== endOutmostBlock
       ) {
         event.preventDefault()
