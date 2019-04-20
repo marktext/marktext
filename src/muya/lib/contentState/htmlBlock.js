@@ -1,6 +1,5 @@
 import { VOID_HTML_TAGS, HTML_TAGS } from '../config'
 import { inlineRules } from '../parser/rules'
-import Cursor from '../selection/cursor'
 
 const HTML_BLOCK_REG = /^<([a-zA-Z\d-]+)(?=\s|>)[^<>]*?>$/
 const LINE_BREAKS = /\n/
@@ -35,10 +34,10 @@ const htmlBlock = ContentState => {
     const codeBlock = this.getBlock(id).children[0]
     const key = codeBlock.key
     const offset = 0
-    this.cursor = new Cursor({
+    this.cursor = {
       start: { key, offset },
       end: { key, offset }
-    })
+    }
     this.partialRender()
   }
 

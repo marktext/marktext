@@ -1,5 +1,3 @@
-import Cursor from "../selection/cursor";
-
 const defaultSearchOption = {
   caseSensitive: false,
   selectHighlight: false,
@@ -45,7 +43,7 @@ const searchCtrl = ContentState => {
     if (!match) return
     const { key, start, end } = match
 
-    this.cursor = new Cursor({
+    this.cursor = {
       noHistory: true,
       start: {
         key,
@@ -55,7 +53,7 @@ const searchCtrl = ContentState => {
         key,
         offset: end
       }
-    })
+    }
   }
 
   ContentState.prototype.find = function (action/* prev next */) {

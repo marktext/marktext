@@ -1,6 +1,5 @@
 import { sanitize } from '../utils'
 import { PARAGRAPH_TYPES, PREVIEW_DOMPURIFY_CONFIG } from '../config'
-import Cursor from '../selection/cursor'
 
 const LIST_REG = /ul|ol/
 const LINE_BREAKS_REG = /\n/
@@ -87,10 +86,10 @@ const pasteCtrl = ContentState => {
       startBlock.text = startBlock.text.substring(0, start.offset) + text + startBlock.text.substring(start.offset)
       const { key } = start
       const offset = start.offset + text.length
-      this.cursor = new Cursor({
+      this.cursor = {
         start: { key, offset },
         end: { key, offset }
-      })
+      }
     }
 
     // Extract the first line from the language identifier (GH#553)
@@ -112,10 +111,10 @@ const pasteCtrl = ContentState => {
       startBlock.text = language
 
       const key = startBlock.key
-      this.cursor = new Cursor({
+      this.cursor = {
         start: { key, offset },
         end: { key, offset }
-      })
+      }
 
       // Hide code picker float box
       const { eventCenter } = this.muya
@@ -146,10 +145,10 @@ const pasteCtrl = ContentState => {
             if (i === textList.length - 1) {
               const { key } = lineBlock
               const offset = line.length
-              this.cursor = new Cursor({
+              this.cursor = {
                 start: { key, offset },
                 end: { key, offset }
-              })
+              }
             }
           }
         })
@@ -157,10 +156,10 @@ const pasteCtrl = ContentState => {
         startBlock.text = prePartText + text + postPartText
         const key = startBlock.key
         const offset = start.offset + text.length
-        this.cursor = new Cursor({
+        this.cursor = {
           start: { key, offset },
           end: { key, offset }
-        })
+        }
       }
       this.updateCodeBlocks(startBlock)
       return this.partialRender()
@@ -171,10 +170,10 @@ const pasteCtrl = ContentState => {
       startBlock.text = startBlock.text.substring(0, start.offset) + pendingText + startBlock.text.substring(end.offset)
       const { key } = startBlock
       const offset = start.offset + pendingText.length
-      this.cursor = new Cursor({
+      this.cursor = {
         start: { key, offset },
         end: { key, offset }
-      })
+      }
       return this.partialRender()
     }
 
@@ -385,14 +384,14 @@ const pasteCtrl = ContentState => {
     if (cursorBlock && cursorBlock.type === 'span' && cursorBlock.functionType === 'codeLine') {
       this.updateCodeBlocks(cursorBlock)
     }
-    this.cursor = new Cursor({
+    this.cursor = {
       start: {
         key, offset
       },
       end: {
         key, offset
       }
-    })
+    }
     this.checkInlineUpdate(cursorBlock)
     this.partialRender()
   }

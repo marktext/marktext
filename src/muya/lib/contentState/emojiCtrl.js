@@ -1,5 +1,4 @@
 import { tokenizer, generator } from '../parser/'
-import Cursor from '../selection/cursor'
 
 const emojiCtrl = ContentState => {
   ContentState.prototype.setEmoji = function (item) {
@@ -28,10 +27,10 @@ const emojiCtrl = ContentState => {
       token.content = emojiText
       token.raw = `:${emojiText}:`
       startBlock.text = generator(tokens)
-      this.cursor = new Cursor({
+      this.cursor = {
         start: { key, offset },
         end: { key, offset }
-      })
+      }
       return this.partialRender()
     }
   }

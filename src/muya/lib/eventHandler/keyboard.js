@@ -3,7 +3,6 @@ import selection from '../selection'
 import { findNearestParagraph } from '../selection/dom'
 import { getParagraphReference } from '../utils'
 import { checkEditEmoji } from '../ui/emojis'
-import Cursor from '../selection/cursor'
 
 class Keyboard {
   constructor (muya) {
@@ -200,7 +199,7 @@ class Keyboard {
         })
       }
 
-      const { anchor, focus } = selection.getCursorRange()
+      const { anchor, focus, start, end } = selection.getCursorRange()
       if (!anchor || !focus) {
         return
       }
@@ -214,8 +213,8 @@ class Keyboard {
           focus.key !== oldFocus.key ||
           focus.offset !== oldFocus.offset
         ) {
-          const needRender = contentState.checkNeedRender(contentState.cursor) || contentState.checkNeedRender({ anchor, focus })
-          contentState.cursor = new Cursor({ anchor, focus })
+          const needRender = contentState.checkNeedRender(contentState.cursor) || contentState.checkNeedRender({ start, end })
+          contentState.cursor = { anchor, focus }
           if (needRender) {
             return contentState.partialRender()
           }

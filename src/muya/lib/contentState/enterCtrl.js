@@ -1,6 +1,5 @@
 import selection from '../selection'
 import { isOsx } from '../config'
-import Cursor from '../selection/cursor'
 
 const checkAutoIndent = (text, offset) => {
   const pairStr = text.substring(offset - 1, offset + 1)
@@ -137,10 +136,10 @@ const enterCtrl = ContentState => {
 
     const { key } = newBlock.children[0]
     const offset = 0
-    this.cursor = new Cursor({
+    this.cursor = {
       start: { key, offset },
       end: { key, offset }
-    })
+    }
     return this.partialRender()
   }
 
@@ -174,10 +173,10 @@ const enterCtrl = ContentState => {
       block.text = startRemainText + endRemainText
 
       this.removeBlocks(block, endBlock)
-      this.cursor = new Cursor({
+      this.cursor = {
         start: { key, offset },
         end: { key, offset }
-      })
+      }
       this.partialRender()
       return this.enterHandler(event)
     }
@@ -187,10 +186,10 @@ const enterCtrl = ContentState => {
       const key = start.key
       const offset = start.offset
       block.text = block.text.substring(0, start.offset) + block.text.substring(end.offset)
-      this.cursor = new Cursor({
+      this.cursor = {
         start: { key, offset },
         end: { key, offset }
-      })
+      }
       this.partialRender()
       return this.enterHandler(event)
     }
@@ -227,10 +226,10 @@ const enterCtrl = ContentState => {
         offset = offset - 4
       }
 
-      this.cursor = new Cursor({
+      this.cursor = {
         start: { key, offset },
         end: { key, offset }
-      })
+      }
       return this.partialRender()
     }
 
@@ -242,10 +241,10 @@ const enterCtrl = ContentState => {
       const brTag = '<br/>'
       block.text = text.substring(0, start.offset) + brTag + text.substring(start.offset)
       const offset = start.offset + brTag.length
-      this.cursor = new Cursor({
+      this.cursor = {
         start: { key, offset },
         end: { key, offset }
-      })
+      }
       return this.partialRender([ block ])
     }
 
@@ -290,10 +289,10 @@ const enterCtrl = ContentState => {
       const { key } = getFirstBlockInNextRow(row)
       const offset = 0
 
-      this.cursor = new Cursor({
+      this.cursor = {
         start: { key, offset },
         end: { key, offset }
-      })
+      }
       return this.partialRender()
     }
 
@@ -428,10 +427,10 @@ const enterCtrl = ContentState => {
     cursorBlock = getParagraphBlock(cursorBlock)
     const key = cursorBlock.type === 'p' ? cursorBlock.children[0].key : cursorBlock.key
     const offset = 0
-    this.cursor = new Cursor({
+    this.cursor = {
       start: { key, offset },
       end: { key, offset }
-    })
+    }
     this.partialRender()
   }
 }

@@ -1,7 +1,6 @@
 import selection from '../selection'
 import { PARAGRAPH_TYPES, DEFAULT_TURNDOWN_CONFIG } from '../config'
 import ExportMarkdown from '../utils/exportMarkdown'
-import Cursor from '../selection/cursor'
 
 const LINE_BREAKS_REG = /\n/
 
@@ -80,10 +79,10 @@ const paragraphCtrl = ContentState => {
     this.insertBefore(frontMatter, firstBlock)
     const { key } = emptyLine
     const offset = 0
-    this.cursor = new Cursor({
+    this.cursor = {
       start: { key, offset },
       end: { key, offset }
-    })
+    }
   }
 
   ContentState.prototype.handleListMenu = function (paraType, insertMode) {
@@ -227,10 +226,10 @@ const paragraphCtrl = ContentState => {
 
       delete preBlock.lang
       delete preBlock.functionType
-      this.cursor = new Cursor({
+      this.cursor = {
         start: this.cursor.start,
         end: this.cursor.end
-      })
+      }
     } else {
       if (start.key === end.key) {
         if (startBlock.type === 'span') {
@@ -253,15 +252,15 @@ const paragraphCtrl = ContentState => {
           const { key } = inputBlock
           const offset = 0
 
-          this.cursor = new Cursor({
+          this.cursor = {
             start: { key, offset },
             end: { key, offset }
-          })
+          }
         } else {
-          this.cursor = new Cursor({
+          this.cursor = {
             start: this.cursor.start,
             end: this.cursor.end
-          })
+          }
         }
       } else if (!hasFencedCodeBlockParent()) {
         const { parent, startIndex, endIndex } = this.getCommonParent()
@@ -294,10 +293,10 @@ const paragraphCtrl = ContentState => {
         removeCache.forEach(b => this.removeBlock(b))
         const key = inputBlock.key
         const offset = 0
-        this.cursor = new Cursor({
+        this.cursor = {
           start: { key, offset },
           end: { key, offset }
-        })
+        }
       }
     }
   }
@@ -358,10 +357,10 @@ const paragraphCtrl = ContentState => {
     const cursorBlock = containerBlock.children[0].children[0].children[0]
     const { key } = cursorBlock
     const offset = 0
-    this.cursor = new Cursor({
+    this.cursor = {
       start: { key, offset },
       end: { key, offset }
-    })
+    }
   }
 
   ContentState.prototype.showTablePicker = function () {
@@ -384,10 +383,10 @@ const paragraphCtrl = ContentState => {
       : preBlock.children[0].children[0].key
 
     const offset = 0
-    this.cursor = new Cursor({
+    this.cursor = {
       start: { key, offset },
       end: { key, offset }
-    })
+    }
   }
 
   ContentState.prototype.updateParagraph = function (paraType, insertMode = false) {
@@ -518,10 +517,10 @@ const paragraphCtrl = ContentState => {
           this.insertAfter(newHeader, block)
           this.removeBlock(block)
         }
-        this.cursor = new Cursor({
+        this.cursor = {
           start: { key, offset: startOffset },
           end: { key, offset: endOffset }
-        })
+        }
         break
       }
       case 'hr': {
@@ -540,10 +539,10 @@ const paragraphCtrl = ContentState => {
         }
         const { key } = pBlock.children[0]
         const offset = 0
-        this.cursor = new Cursor({
+        this.cursor = {
           start: { key, offset },
           end: { key, offset }
-        })
+        }
         break
       }
     }
@@ -602,10 +601,10 @@ const paragraphCtrl = ContentState => {
     }
     const { key } = newBlock.children[0]
     const offset = text.length
-    this.cursor = new Cursor({
+    this.cursor = {
       start: { key, offset },
       end: { key, offset }
-    })
+    }
     this.partialRender()
     this.muya.eventCenter.dispatch('stateChange')
   }
@@ -645,10 +644,10 @@ const paragraphCtrl = ContentState => {
     // set cursor at the end of the first descendant of the duplicated block.
     const { key, text } = cursorBlock
     const offset = text.length
-    this.cursor = new Cursor({
+    this.cursor = {
       start: { key, offset },
       end: { key, offset }
-    })
+    }
     this.partialRender()
     return this.muya.eventCenter.dispatch('stateChange')
   }
@@ -676,10 +675,10 @@ const paragraphCtrl = ContentState => {
     this.removeBlock(startOutmostBlock)
     const { key, text } = cursorBlock
     const offset = text.length
-    this.cursor = new Cursor({
+    this.cursor = {
       start: { key, offset },
       end: { key, offset }
-    })
+    }
     this.partialRender()
     return this.muya.eventCenter.dispatch('stateChange')
   }
@@ -692,7 +691,7 @@ const paragraphCtrl = ContentState => {
     if (/th|td/.test(startBlock.type)) {
       const { key } = start
       const textLength = startBlock.text.length
-      this.cursor = new Cursor({
+      this.cursor = {
         start: {
           key,
           offset: 0
@@ -701,7 +700,7 @@ const paragraphCtrl = ContentState => {
           key,
           offset: textLength
         }
-      })
+      }
       return this.partialRender()
     }
     // Handler selectAll in code block. only select all the code block conent.
@@ -710,7 +709,7 @@ const paragraphCtrl = ContentState => {
       const codeBlock = this.getParent(startBlock)
       const firstCodeLine = this.firstInDescendant(codeBlock)
       const lastCodeLine = this.lastInDescendant(codeBlock)
-      this.cursor = new Cursor({
+      this.cursor = {
         start: {
           key: firstCodeLine.key,
           offset: 0
@@ -719,12 +718,12 @@ const paragraphCtrl = ContentState => {
           key: lastCodeLine.key,
           offset: lastCodeLine.text.length
         }
-      })
+      }
       return this.partialRender()
     }
     // Handler language input, only select language info only...
     if (startBlock.type === 'span' && startBlock.functionType === 'languageInput') {
-      this.cursor = new Cursor({
+      this.cursor = {
         start: {
           key: startBlock.key,
           offset: 0
@@ -733,12 +732,12 @@ const paragraphCtrl = ContentState => {
           key: startBlock.key,
           offset: startBlock.text.length
         }
-      })
+      }
       return this.partialRender()
     }
     const firstTextBlock = this.getFirstBlock()
     const lastTextBlock = this.getLastBlock()
-    this.cursor = new Cursor({
+    this.cursor = {
       start: {
         key: firstTextBlock.key,
         offset: 0
@@ -747,7 +746,7 @@ const paragraphCtrl = ContentState => {
         key: lastTextBlock.key,
         offset: lastTextBlock.text.length
       }
-    })
+    }
     this.render()
   }
 }

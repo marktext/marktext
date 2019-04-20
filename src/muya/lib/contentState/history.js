@@ -1,6 +1,5 @@
 import { deepCopy } from '../utils'
 import { UNDO_DEPTH } from '../config'
-import Cursor from '../selection/cursor'
 
 export class History {
   constructor (contentState) {
@@ -18,7 +17,7 @@ export class History {
       cursor.noHistory = true
       this.contentState.blocks = blocks
       this.contentState.renderRange = renderRange
-      this.contentState.cursor = new Cursor(cursor)
+      this.contentState.cursor = cursor
       this.contentState.render()
     }
   }
@@ -33,7 +32,7 @@ export class History {
       cursor.noHistory = true
       this.contentState.blocks = blocks
       this.contentState.renderRange = renderRange
-      this.contentState.cursor = new Cursor(cursor)
+      this.contentState.cursor = cursor
       this.contentState.render()
     }
   }

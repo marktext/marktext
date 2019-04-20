@@ -1,7 +1,6 @@
 import selection from '../selection'
 import { tokenizer, generator } from '../parser/'
 import { FORMAT_MARKER_MAP, FORMAT_TYPES, URL_REG } from '../config'
-import Cursor from '../selection/cursor'
 
 const getOffset = (offset, { range: { start, end }, type, tag, anchor, alt }) => {
   const dis = offset - start
@@ -252,20 +251,20 @@ const formatCtrl = ContentState => {
         `![${imageTitle}](${imgUrl})` +
         text.substring(end)
 
-      this.cursor = new Cursor({
+      this.cursor = {
         start: { key, offset: start + 2 },
         end: { key, offset: start + 2 + imageTitle.length }
-      })
+      }
     } else if (key !== end.key) {
       // Replace multi-line text
       const endBlock = this.getBlock(end.key)
       const { text } = endBlock
       endBlock.text = text.substring(0, endOffset) + `![${title}](${imgUrl})` + text.substring(endOffset)
       const offset = endOffset + 2
-      this.cursor = new Cursor({
+      this.cursor = {
         start: { key: end.key, offset },
         end: { key: end.key, offset: offset + title.length }
-      })
+      }
     } else {
       // Replace single-line text
       const imageTitle = startOffset !== endOffset ? text.substring(startOffset, endOffset) : title
@@ -273,7 +272,7 @@ const formatCtrl = ContentState => {
         `![${imageTitle}](${imgUrl})` +
         text.substring(end.offset)
 
-      this.cursor = new Cursor({
+      this.cursor = {
         start: {
           key,
           offset: startOffset + 2
@@ -282,7 +281,7 @@ const formatCtrl = ContentState => {
           key,
           offset: startOffset + 2 + imageTitle.length
         }
-      })
+      }
     }
     this.partialRender()
   }
@@ -331,7 +330,7 @@ const formatCtrl = ContentState => {
         startBlock.text = generator(tokens)
         addFormat(type, startBlock, { start, end })
       }
-      this.cursor = new Cursor({ start, end })
+      this.cursor = { start, end }
       this.partialRender()
     } else {
       let nextBlock = startBlock
@@ -361,7 +360,7 @@ const formatCtrl = ContentState => {
         })
       }
 
-      this.cursor = new Cursor({ start, end })
+      this.cursor = { start, end }
       this.partialRender()
     }
   }

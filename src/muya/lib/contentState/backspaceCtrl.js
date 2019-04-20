@@ -1,7 +1,6 @@
 import selection from '../selection'
 import { findNearestParagraph, findOutMostParagraph } from '../selection/dom'
 import { tokenizer, generator } from '../parser/'
-import Cursor from '../selection/cursor'
 
 const backspaceCtrl = ContentState => {
   ContentState.prototype.checkBackspaceCase = function () {
@@ -145,10 +144,10 @@ const backspaceCtrl = ContentState => {
       event.preventDefault()
       start.offset--
       end.offset--
-      this.cursor = new Cursor({
+      this.cursor = {
         start,
         end
-      })
+      }
       return this.partialRender()
     }
 
@@ -174,10 +173,10 @@ const backspaceCtrl = ContentState => {
         this.removeBlock(figureBlock)
         const { key } = cursorBlock
         const offset = 0
-        this.cursor = new Cursor({
+        this.cursor = {
           start: { key, offset },
           end: { key, offset }
-        })
+        }
         return this.render()
       }
     }
@@ -243,10 +242,10 @@ const backspaceCtrl = ContentState => {
         this.insertBefore(pBlock, referenceBlock)
         this.removeBlock(referenceBlock)
 
-        this.cursor = new Cursor({
+        this.cursor = {
           start: { key, offset },
           end: { key, offset }
-        })
+        }
         this.partialRender()
       }
     } else if (left === 0 && /th|td/.test(block.type)) {
@@ -274,10 +273,10 @@ const backspaceCtrl = ContentState => {
       }
 
       if (key !== undefined && offset !== undefined) {
-        this.cursor = new Cursor({
+        this.cursor = {
           start: { key, offset },
           end: { key, offset }
-        })
+        }
 
         this.partialRender()
       }
@@ -338,10 +337,10 @@ const backspaceCtrl = ContentState => {
 
       const key = block.type === 'p' ? block.children[0].key : block.key
       const offset = 0
-      this.cursor = new Cursor({
+      this.cursor = {
         start: { key, offset },
         end: { key, offset }
-      })
+      }
 
       if (inlineDegrade.type !== 'STOP') {
         this.partialRender()
@@ -360,10 +359,10 @@ const backspaceCtrl = ContentState => {
         this.removeBlock(block)
       }
 
-      this.cursor = new Cursor({
+      this.cursor = {
         start: { key, offset },
         end: { key, offset }
-      })
+      }
       this.partialRender()
     }
   }

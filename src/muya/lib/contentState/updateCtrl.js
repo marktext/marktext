@@ -1,7 +1,6 @@
 import { tokenizer } from '../parser/'
 import { conflict } from '../utils'
 import { CLASS_OR_ID } from '../config'
-import Cursor from '../selection/cursor'
 
 const INLINE_UPDATE_FRAGMENTS = [
   '^([*+-]\\s)', // Bullet list
@@ -36,11 +35,11 @@ const updateCtrl = ContentState => {
 
   ContentState.prototype.checkNeedRender = function (cursor = this.cursor) {
     const { labels } = this.stateRender
-    const { start: cStart, end: cEnd } = cursor
-    const startBlock = this.getBlock(cStart.key)
-    const endBlock = this.getBlock(cEnd.key)
-    const startOffset = cStart.offset
-    const endOffset = cEnd.offset
+    const { start: cStart, end: cEnd, anchor, focus } = cursor
+    const startBlock = this.getBlock(cStart ? cStart.key : anchor.key)
+    const endBlock = this.getBlock(cEnd ? cEnd.key : focus.key)
+    const startOffset = cStart ? cStart.offset : anchor.offset
+    const endOffset = cEnd ? cEnd.offset : focus.offset
 
     for (const token of tokenizer(startBlock.text, undefined, undefined, labels)) {
       if (token.type === 'text') continue
@@ -242,7 +241,7 @@ const updateCtrl = ContentState => {
       return this.updateTaskListItem(block, 'tasklist', tasklist)
     } else {
       const { key } = block.children[0]
-      this.cursor = new Cursor({
+      this.cursor = {
         start: {
           key,
           offset: Math.max(0, startOffset - marker.length)
@@ -251,7 +250,7 @@ const updateCtrl = ContentState => {
           key,
           offset: Math.max(0, endOffset - marker.length)
         }
-      })
+      }
       return block
     }
   }
@@ -307,7 +306,7 @@ const updateCtrl = ContentState => {
       this.insertBefore(bulletListWrapper, taskListWrapper)
     }
 
-    this.cursor = new Cursor({
+    this.cursor = {
       start: {
         key: start.key,
         offset: Math.max(0, start.offset - marker.length)
@@ -316,7 +315,7 @@ const updateCtrl = ContentState => {
         key: end.key,
         offset: Math.max(0, end.offset - marker.length)
       }
-    })
+    }
     return taskListWrapper || grandpa
   }
 
@@ -424,7 +423,7 @@ const updateCtrl = ContentState => {
     this.appendChild(quoteBlock, block)
 
     const { start, end } = this.cursor
-    this.cursor = new Cursor({
+    this.cursor = {
       start: {
         key: start.key,
         offset: start.offset - 1
@@ -433,7 +432,7 @@ const updateCtrl = ContentState => {
         key: end.key,
         offset: end.offset - 1
       }
-    })
+    }
     return quoteBlock
   }
 

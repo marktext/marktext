@@ -1,5 +1,4 @@
 import selection from '../selection'
-import Cursor from '../selection/cursor'
 
 const deleteCtrl = ContentState => {
   ContentState.prototype.deleteHandler = function (event) {
@@ -45,10 +44,10 @@ const deleteCtrl = ContentState => {
         toBeRemoved.forEach(b => this.removeBlock(b))
 
         const offset = start.offset
-        this.cursor = new Cursor({
+        this.cursor = {
           start: { key, offset },
           end: { key, offset }
-        })
+        }
         this.render()
       }
     }

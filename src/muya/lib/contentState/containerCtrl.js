@@ -1,5 +1,3 @@
-import Cursor from "../selection/cursor";
-
 const LINE_BREAKS_REG = /\n/
 const FUNCTION_TYPE_LANG = {
   'multiplemath': 'latex',
@@ -68,10 +66,10 @@ const containerCtrl = ContentState => {
 
     const { key } = firstLine
     const offset = 0
-    this.cursor = new Cursor({
+    this.cursor = {
       start: { key, offset },
       end: { key, offset }
-    })
+    }
     this.partialRender()
   }
 

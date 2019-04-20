@@ -78,6 +78,9 @@ class ContentState {
   }
 
   set cursor (cursor) {
+    if (!(cursor instanceof Cursor)) {
+      cursor = new Cursor(cursor)
+    }
     const handler = () => {
       const { blocks, renderRange, currentCursor } = this
       this.history.push({
@@ -118,10 +121,10 @@ class ContentState {
       matches: [], // matches
       index: -1 // active match
     }
-    this.cursor = new Cursor({
+    this.cursor = {
       start: { key, offset },
       end: { key, offset }
-    })
+    }
   }
 
   getHistory () {

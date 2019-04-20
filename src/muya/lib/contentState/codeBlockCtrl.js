@@ -1,6 +1,5 @@
 import { loadLanguage } from '../prism/index'
 import selection from '../selection'
-import Cursor from '../selection/cursor'
 
 const CODE_UPDATE_REP = /^`{3,}(.*)/
 
@@ -62,10 +61,10 @@ const codeBlockCtrl = ContentState => {
       // Set cursor at the first line
       const { key } = nextSibling.children[0]
       const offset = 0
-      this.cursor = new Cursor({
+      this.cursor = {
         start: { key, offset },
         end: { key, offset }
-      })
+      }
     } else {
       block.text = block.text.replace(/^(`+)([^`]+$)/g, `$1${lang}`)
       this.codeBlockUpdate(block)
@@ -128,10 +127,10 @@ const codeBlockCtrl = ContentState => {
       this.appendChild(block, codeBlock)
       const { key } = firstLine
       const offset = code.length
-      this.cursor = new Cursor({
+      this.cursor = {
         start: { key, offset },
         end: { key, offset }
-      })
+      }
       return true
     }
     return false

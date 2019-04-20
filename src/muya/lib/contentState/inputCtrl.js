@@ -3,7 +3,6 @@ import { getTextContent } from '../selection/dom'
 import { beginRules } from '../parser/rules'
 import { tokenizer } from '../parser/'
 import { CLASS_OR_ID } from '../config'
-import Cursor from '../selection/cursor'
 
 const BRACKET_HASH = {
   '{': '}',
@@ -230,7 +229,7 @@ const inputCtrl = ContentState => {
       this.updateCodeBlocks(block)
     }
 
-    this.cursor = new Cursor({ start, end })
+    this.cursor = { start, end }
     const checkMarkedUpdate = this.checkNeedRender()
     const inlineUpdatedBlock = this.isCollapse() && this.checkInlineUpdate(block)
     // just for fix #707,need render All if in combines pre list and next list into one list.
