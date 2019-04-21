@@ -50,8 +50,8 @@ class App {
       })
       contents.on('will-navigate', event => {
         console.warn('Prevented opening a link.')
-        event.preventDefault();
-      });
+        event.preventDefault()
+      })
       contents.on('new-window', (event, url) => {
         console.warn('Prevented opening a new window.')
         event.preventDefault()
