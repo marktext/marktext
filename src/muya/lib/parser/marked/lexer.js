@@ -233,6 +233,7 @@ Lexer.prototype.token = function (src, top) {
       let next = false
       let prevNext = true
       let listItemIndices = []
+      let isTaskListItem = false
 
       // Get each top-level item.
       cap = cap[0].match(this.rules.item)
@@ -241,9 +242,8 @@ Lexer.prototype.token = function (src, top) {
 
       for (; i < l; i++) {
         const itemWithBullet = cap[i]
-        let isTaskListItem = false
         item = itemWithBullet
-
+        let newIsTaskListItem = false
         // Remove the list item's bullet
         // so it is seen as the next token.
         space = item.length
@@ -255,14 +255,33 @@ Lexer.prototype.token = function (src, top) {
         })
 
         // Changing the bullet or ordered list delimiter starts a new list (CommonMark 264 and 265)
+        // Changing to/from task list item from/to bullet, starts a new lit(work for marktext)
         //   - unordered, unordered --> bull !== newBull --> new list (e.g "-" --> "*")
         //   - ordered, ordered --> lastChar !== lastChar --> new list (e.g "." --> ")")
         //   - else --> new list (e.g. ordered --> unordered)
         const newIsOrdered = bull.length > 1 && /\d{1,9}/.test(newBull)
-        if (i !== 0 &&
-          ((!isOrdered && !newIsOrdered && bull !== newBull) ||
-          (isOrdered && newIsOrdered && bull.slice(-1) !== newBull.slice(-1)) ||
-          ((isOrdered && !newIsOrdered) || (!isOrdered && newIsOrdered)))) {
+
+        if (!newIsOrdered && this.options.gfm) {
+          checked = this.rules.checkbox.exec(item)
+          if (checked) {
+            checked = checked[1] === 'x' || checked[1] === 'X'
+            item = item.replace(this.rules.checkbox, '')
+            newIsTaskListItem = true
+          } else {
+            checked = undefined
+          }
+        }
+        if (i === 0) {
+          isTaskListItem = newIsTaskListItem
+        } else if (
+          i !== 0 &&
+          (
+            (!isOrdered && !newIsOrdered && bull !== newBull) ||
+            (isOrdered && newIsOrdered && bull.slice(-1) !== newBull.slice(-1)) ||
+            (isOrdered !== newIsOrdered) ||
+            (isTaskListItem !== newIsTaskListItem)
+          )
+        ) {
           this.tokens.push({
             type: 'list_end'
           })
@@ -270,23 +289,13 @@ Lexer.prototype.token = function (src, top) {
           // Start a new list
           bull = newBull
           isOrdered = newIsOrdered
+          isTaskListItem = newIsTaskListItem
           this.tokens.push({
             type: 'list_start',
             ordered: isOrdered,
             listType: bull.length > 1 ? 'order' : (/^( {0,3})([-*+]) \[[xX ]\]/.test(itemWithBullet) ? 'task' : 'bullet'),
             start: isOrdered ? +(bull.slice(0, -1)) : ''
           })
-        }
-
-        if (!isOrdered && this.options.gfm) {
-          checked = this.rules.checkbox.exec(item)
-          if (checked) {
-            checked = checked[1] === 'x' || checked[1] === 'X'
-            item = item.replace(this.rules.checkbox, '')
-            isTaskListItem = true
-          } else {
-            checked = undefined
-          }
         }
 
         // Outdent whatever the
