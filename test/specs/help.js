@@ -12,3 +12,16 @@ export const removeCustomClass = html => {
   })
   return html
 }
+
+export const padding = (str, len, marker = ' ') => {
+  const spaceLen = len - str.length
+  let preLen = 0
+  let postLen = 0
+  if (spaceLen % 2 === 0) {
+    preLen = postLen = spaceLen / 2
+  } else {
+    preLen = (spaceLen - 1) / 2
+    postLen = (spaceLen + 1) / 2
+  }
+  return marker.repeat(preLen) + str + marker.repeat(postLen)
+}
