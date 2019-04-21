@@ -55,7 +55,7 @@ export const writeResult = (version, specs, markedSpecs, type = 'commonmark') =>
   }
   result += `Total test ${totalCount} examples, and failed ${failedCount} examples:\n\n`
 
-  // |section|failed/total|percentage|failed examples|
+  // |section|failed/total|percentage|
   const sectionMaxLen = Math.max(...Object.keys(classifiedResult).map(key => key.length))
   const failedTotalLen = 15
   const percentageLen = 15
