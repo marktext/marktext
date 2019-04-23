@@ -131,7 +131,11 @@ const clickCtrl = ContentState => {
     } else if (needMarkedUpdate) {
       // Fix: whole select can not be canceled #613
       requestAnimationFrame(() => {
-        this.cursor = selection.getCursorRange()
+        const cursor = selection.getCursorRange()
+        if (!cursor.start || !cursor.end) {
+          return
+        }
+        this.cursor = cursor
         return this.partialRender()
       })
     } else {
