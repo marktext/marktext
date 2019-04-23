@@ -107,19 +107,6 @@ const clickCtrl = ContentState => {
       eventCenter.dispatch('muya-format-picker', { reference, formats })
     }
 
-    // bugfix: figure block click
-    if (block.type === 'figure' && block.functionType === 'table') {
-      // first cell in thead
-      const cursorBlock = block.children[1].children[0].children[0].children[0]
-      const offset = cursorBlock.text.length
-      const key = cursorBlock.key
-      this.cursor = {
-        start: { key, offset },
-        end: { key, offset }
-      }
-      needRender = true
-    }
-
     // update '```xxx' to code block when you click other place or use press arrow key.
     if (block && start.key !== this.cursor.start.key) {
       const oldBlock = this.getBlock(this.cursor.start.key)
@@ -137,9 +124,22 @@ const clickCtrl = ContentState => {
     }
 
     const needMarkedUpdate = this.checkNeedRender(this.cursor) || this.checkNeedRender({ start, end })
-    this.cursor = { start, end }
-    if (needMarkedUpdate || needRender) {
+
+    if (needRender) {
+      this.cursor = { start, end }
       return this.partialRender()
+    } else if (needMarkedUpdate) {
+      // Fix: whole select can not be canceled #613
+      requestAnimationFrame(() => {
+        const cursor = selection.getCursorRange()
+        if (!cursor.start || !cursor.end) {
+          return
+        }
+        this.cursor = cursor
+        return this.partialRender()
+      })
+    } else {
+      this.cursor = { start, end }
     }
   }
 }
