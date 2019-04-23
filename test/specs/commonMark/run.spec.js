@@ -1,5 +1,5 @@
 // This file is copy from marked and modified.
-import { removeCustomClass } from '../help'
+import { removeCustomClass, padding } from '../help'
 import { MT_MARKED_OPTIONS } from '../config'
 const fetch = require('node-fetch')
 const markedJs = require('marked')
@@ -31,7 +31,46 @@ export const writeResult = (version, specs, markedSpecs, type = 'commonmark') =>
   let result = '## Test Result\n\n'
   const totalCount = specs.length
   const failedCount = specs.filter(s => s.shouldFail).length
+  const classifiedResult = {}
+  for (const spec of specs) {
+    const { example, section, shouldFail } = spec
+    const item = classifiedResult[section]
+    if (item) {
+      item.count++
+      if (shouldFail) {
+        item.failed++
+        item.failedExamples.push(example)
+      }
+    } else {
+      classifiedResult[section] = {
+        count: 1,
+        failed: 0,
+        failedExamples: []
+      }
+      if (shouldFail) {
+        classifiedResult[section].failed++
+        classifiedResult[section].failedExamples.push(example)
+      }
+    }
+  }
   result += `Total test ${totalCount} examples, and failed ${failedCount} examples:\n\n`
+
+  // |section|failed/total|percentage|
+  const sectionMaxLen = Math.max(...Object.keys(classifiedResult).map(key => key.length))
+  const failedTotalLen = 15
+  const percentageLen = 15
+  result += `|${padding('Section', sectionMaxLen)}|${padding('Failed/Total', failedTotalLen)}|${padding('Percentage', percentageLen)}|\n`
+  result += `|${padding('-'.repeat(sectionMaxLen - 2), sectionMaxLen, ':')}|${padding('-'.repeat(failedTotalLen - 2), failedTotalLen, ':')}|${padding('-'.repeat(percentageLen - 2), percentageLen, ':')}|\n`
+
+  for (const key of Object.keys(classifiedResult)) {
+    const { count, failed } = classifiedResult[key]
+
+    result += `|${padding(key, sectionMaxLen)}`
+    result += `|${padding(failed + '/' + count, failedTotalLen)}`
+    result += `|${padding(((count - failed) / count * 100).toFixed(2) + '%', percentageLen)}|\n`
+  }
+
+  result += '\n'
 
   specs.filter(s => s.shouldFail)
     .forEach(spec => {

@@ -2,6 +2,35 @@
 
 Total test 649 examples, and failed 97 examples:
 
+|                Section                | Failed/Total  |  Percentage   |
+|:-------------------------------------:|:-------------:|:-------------:|
+|                 Tabs                  |     0/11      |    100.00%    |
+|              Precedence               |      0/1      |    100.00%    |
+|            Thematic breaks            |     0/19      |    100.00%    |
+|             ATX headings              |     0/18      |    100.00%    |
+|            Setext headings            |     2/27      |    92.59%     |
+|         Indented code blocks          |     0/12      |    100.00%    |
+|          Fenced code blocks           |     1/29      |    96.55%     |
+|              HTML blocks              |     0/43      |    100.00%    |
+|      Link reference definitions       |     3/28      |    89.29%     |
+|              Paragraphs               |      0/8      |    100.00%    |
+|              Blank lines              |      0/1      |    100.00%    |
+|             Block quotes              |     3/25      |    88.00%     |
+|              List items               |     12/48     |    75.00%     |
+|                 Lists                 |     12/26     |    53.85%     |
+|                Inlines                |      0/1      |    100.00%    |
+|           Backslash escapes           |     1/13      |    92.31%     |
+|Entity and numeric character references|     3/17      |    82.35%     |
+|              Code spans               |     1/22      |    95.45%     |
+|     Emphasis and strong emphasis      |    35/131     |    73.28%     |
+|                 Links                 |     16/87     |    81.61%     |
+|                Images                 |     2/22      |    90.91%     |
+|               Autolinks               |     4/19      |    78.95%     |
+|               Raw HTML                |     2/21      |    90.48%     |
+|           Hard line breaks            |     0/15      |    100.00%    |
+|           Soft line breaks            |      0/2      |    100.00%    |
+|            Textual content            |      0/3      |    100.00%    |
+
 **Example53**
 
 ```markdown
