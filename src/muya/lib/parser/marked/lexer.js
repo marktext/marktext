@@ -254,11 +254,6 @@ Lexer.prototype.token = function (src, top) {
           return ''
         })
 
-        // Changing the bullet or ordered list delimiter starts a new list (CommonMark 264 and 265)
-        // Changing to/from task list item from/to bullet, starts a new lit(work for marktext)
-        //   - unordered, unordered --> bull !== newBull --> new list (e.g "-" --> "*")
-        //   - ordered, ordered --> lastChar !== lastChar --> new list (e.g "." --> ")")
-        //   - else --> new list (e.g. ordered --> unordered)
         const newIsOrdered = bull.length > 1 && /\d{1,9}/.test(newBull)
 
         if (!newIsOrdered && this.options.gfm) {
@@ -271,14 +266,23 @@ Lexer.prototype.token = function (src, top) {
             checked = undefined
           }
         }
+
         if (i === 0) {
           isTaskListItem = newIsTaskListItem
         } else if (
+          // Changing the bullet or ordered list delimiter starts a new list (CommonMark 264 and 265)
+          //   - unordered, unordered --> bull !== newBull --> new list (e.g "-" --> "*")
+          //   - ordered, ordered --> lastChar !== lastChar --> new list (e.g "." --> ")")
+          //   - else --> new list (e.g. ordered --> unordered)
           i !== 0 &&
           (
             (!isOrdered && !newIsOrdered && bull !== newBull) ||
             (isOrdered && newIsOrdered && bull.slice(-1) !== newBull.slice(-1)) ||
             (isOrdered !== newIsOrdered) ||
+            // Changing to/from task list item from/to bullet, starts a new list(work for marktext issue #870)
+            // Because we distinguish between task list and bullet list in Mark Text,
+            // the parsing here is somewhat different from the commonmark Spec,
+            // and the task list needs to be a separate list.
             (isTaskListItem !== newIsTaskListItem)
           )
         ) {
