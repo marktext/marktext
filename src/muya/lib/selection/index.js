@@ -2,18 +2,17 @@
  * This file is copy from [medium-editor](https://github.com/yabwe/medium-editor)
  * and customize for specialized use.
  */
+import Cursor from './cursor'
+import { CLASS_OR_ID } from '../config'
 import {
   isBlockContainer,
   traverseUp,
   getFirstSelectableLeafNode,
   getClosestBlockContainer,
   getCursorPositionWithinMarkedText,
-  compareParagraphsOrder,
   findNearestParagraph,
   getTextContent
 } from './dom'
-
-import { CLASS_OR_ID } from '../config'
 
 const filterOnlyParentElements = node => {
   return isBlockContainer(node) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP
@@ -353,6 +352,11 @@ class Selection {
     return range
   }
 
+  setFocus (focusNode, focusOffset) {
+    const selection = this.doc.getSelection()
+    selection.extend(focusNode, focusOffset)
+  }
+
   /**
    *  Clear the current highlighted selection and set the caret to the start or the end of that prior selection, defaults to end.
    *
@@ -404,9 +408,9 @@ class Selection {
   }
 
   setCursorRange (cursorRange) {
-    const { start, end } = cursorRange
-    const startParagraph = document.querySelector(`#${start.key}`)
-    const endParagraph = document.querySelector(`#${end.key}`)
+    const { anchor, focus } = cursorRange
+    const anchorParagraph = document.querySelector(`#${anchor.key}`)
+    const focusParagraph = document.querySelector(`#${focus.key}`)
     const getNodeAndOffset = (node, offset) => {
       if (node.nodeType === 3) {
         return {
@@ -430,11 +434,14 @@ class Selection {
       return { node, offset }
     }
 
-    let { node: startNode, offset: startOffset } = getNodeAndOffset(startParagraph, start.offset)
-    let { node: endNode, offset: endOffset } = getNodeAndOffset(endParagraph, end.offset)
-    startOffset = Math.min(startOffset, startNode.textContent.length)
-    endOffset = Math.min(endOffset, endNode.textContent.length)
-    this.select(startNode, startOffset, endNode, endOffset)
+    let { node: anchorNode, offset: anchorOffset } = getNodeAndOffset(anchorParagraph, anchor.offset)
+    let { node: focusNode, offset: focusOffset } = getNodeAndOffset(focusParagraph, focus.offset)
+    anchorOffset = Math.min(anchorOffset, anchorNode.textContent.length)
+    focusOffset = Math.min(focusOffset, focusNode.textContent.length)
+    // First set the anchor node and anchor offeet, make it collapsed
+    this.select(anchorNode, anchorOffset)
+    // Secondly, set the focus node and focus offset.
+    this.setFocus(focusNode, focusOffset)
   }
 
   isValidCursorNode (node) {
@@ -465,14 +472,16 @@ class Selection {
     } else if (!isAnchorValid && !isFocusValid) {
       const editor = document.querySelector('#ag-editor-id').parentNode
       editor.blur()
-      return {
+      return new Cursor({
         start: null,
-        end: null
-      }
+        end: null,
+        anchor: null,
+        focus: null
+      })
     }
 
-    const startParagraph = findNearestParagraph(anchorNode)
-    const endParagraph = findNearestParagraph(focusNode)
+    const anchorParagraph = findNearestParagraph(anchorNode)
+    const focusParagraph = findNearestParagraph(focusNode)
 
     const getOffsetOfParagraph = (node, paragraph) => {
       let offset = 0
@@ -491,35 +500,11 @@ class Selection {
         : offset + getOffsetOfParagraph(node.parentNode, paragraph)
     }
 
-    let result = null
-
-    if (startParagraph === endParagraph) {
-      const key = startParagraph.id
-      const offset1 = getOffsetOfParagraph(anchorNode, startParagraph) + anchorOffset
-      const offset2 = getOffsetOfParagraph(focusNode, endParagraph) + focusOffset
-      result = {
-        start: { key, offset: Math.min(offset1, offset2) },
-        end: { key, offset: Math.max(offset1, offset2) }
-      }
-    } else {
-      const order = compareParagraphsOrder(startParagraph, endParagraph)
-
-      const rawCursor = {
-        start: {
-          key: startParagraph.id,
-          offset: getOffsetOfParagraph(anchorNode, startParagraph) + anchorOffset
-        },
-        end: {
-          key: endParagraph.id,
-          offset: getOffsetOfParagraph(focusNode, endParagraph) + focusOffset
-        }
-      }
-      if (order) {
-        result = rawCursor
-      } else {
-        result = { start: rawCursor.end, end: rawCursor.start }
-      }
-    }
+    const aOffset = getOffsetOfParagraph(anchorNode, anchorParagraph) + anchorOffset
+    const fOffset = getOffsetOfParagraph(focusNode, focusParagraph) + focusOffset
+    const anchor = { key: anchorParagraph.id, offset: aOffset }
+    const focus = { key: focusParagraph.id, offset: fOffset }
+    const result = new Cursor({ anchor, focus })
 
     if (needFix) {
       this.setCursorRange(result)

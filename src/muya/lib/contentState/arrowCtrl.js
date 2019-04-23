@@ -64,10 +64,10 @@ const arrowCtrl = ContentState => {
       }
     }
 
-    // Just do nothing if the cursor is not collapsed
+    // Just do nothing if the cursor is not collapsed or `shiftKey` pressed
     if (
       (start.key === end.key && start.offset !== end.offset) ||
-      start.key !== end.key
+      start.key !== end.key || event.shiftKey
     ) {
       return
     }
