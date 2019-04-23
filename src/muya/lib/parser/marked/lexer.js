@@ -233,7 +233,7 @@ Lexer.prototype.token = function (src, top) {
       let next = false
       let prevNext = true
       let listItemIndices = []
-      let isTaskListItem = false
+      let isTaskList = false
 
       // Get each top-level item.
       cap = cap[0].match(this.rules.item)
@@ -268,7 +268,7 @@ Lexer.prototype.token = function (src, top) {
         }
 
         if (i === 0) {
-          isTaskListItem = newIsTaskListItem
+          isTaskList = newIsTaskListItem
         } else if (
           // Changing the bullet or ordered list delimiter starts a new list (CommonMark 264 and 265)
           //   - unordered, unordered --> bull !== newBull --> new list (e.g "-" --> "*")
@@ -283,7 +283,7 @@ Lexer.prototype.token = function (src, top) {
             // Because we distinguish between task list and bullet list in Mark Text,
             // the parsing here is somewhat different from the commonmark Spec,
             // and the task list needs to be a separate list.
-            (isTaskListItem !== newIsTaskListItem)
+            (isTaskList !== newIsTaskListItem)
           )
         ) {
           this.tokens.push({
@@ -293,7 +293,7 @@ Lexer.prototype.token = function (src, top) {
           // Start a new list
           bull = newBull
           isOrdered = newIsOrdered
-          isTaskListItem = newIsTaskListItem
+          isTaskList = newIsTaskListItem
           this.tokens.push({
             type: 'list_start',
             ordered: isOrdered,
@@ -355,7 +355,7 @@ Lexer.prototype.token = function (src, top) {
         const isOrderedListItem = /\d/.test(bull)
         this.tokens.push({
           checked: checked,
-          listItemType: bull.length > 1 ? 'order' : (isTaskListItem ? 'task' : 'bullet'),
+          listItemType: bull.length > 1 ? 'order' : (isTaskList ? 'task' : 'bullet'),
           bulletMarkerOrDelimiter: isOrderedListItem ? bull.slice(-1) : bull.charAt(0),
           type: loose ? 'loose_item_start' : 'list_item_start'
         })
