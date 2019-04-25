@@ -142,6 +142,7 @@ kbd {
   text-decoration: none;
   font-size: 14px;
   vertical-align: middle;
+  letter-spacing: -.1em;
 }
 
 h1 .ag-gray,
@@ -186,6 +187,7 @@ h6 {
   font-weight: bold;
   line-height: 1.4;
   cursor: text;
+  color: var(--editorColor80);
 }
 
 h1:hover a.anchor,

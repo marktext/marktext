@@ -2,7 +2,8 @@
   --themeColor: rgb(12, 139, 186);
   --highlightColor: rgba(12, 139, 186, .4);
   --selectionColor: rgba(0, 0, 0, .1);
-  --editorColor: rgba(101, 101, 101, .8);
+  --editorColor: rgba(101, 101, 101, .7);
+  --editorColor80: rgba(101, 101, 101, .8);
   --editorColor50: rgba(101, 101, 101, .5);
   --editorColor30: rgba(101, 101, 101, .3);
   --editorColor10: rgba(101, 101, 101, .1);
