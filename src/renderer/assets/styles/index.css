@@ -17,7 +17,7 @@
   --deleteColor: #ff6969;
   --iconColor: #333;
   --codeBgColor: #d8d8d869;
-  --codeBlockBgColor: rgba(33, 181, 111, 0.08);
+  --codeBlockBgColor: rgba(0, 0, 0, 0.03);
 
   /*marktext*/
   --sideBarColor: rgba(0, 0, 0, .6);

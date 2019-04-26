@@ -422,7 +422,7 @@ kbd {
     font-size: 90%;
     line-height: 1.6;
     background: var(--codeBlockBgColor);
-    border: 0;
+    border: 1px solid var(--editorColor10);
     border-radius: 3px;
     color: var(--editorColor50);
   }
