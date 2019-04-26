@@ -25,12 +25,18 @@
   --floatBgColor: #3f3f3f;
   --floatHoverColor: rgba(255, 255, 255, .04);
   --floatBorderColor: rgba(0, 0, 0, .05);
+  --floatShadow: rgba(0, 0, 0, 0.2);
   --maskColor: rgba(0, 0, 0, .7);
   --editorAreaWidth: 700px;
 }
 
 ::-webkit-scrollbar {
   background: var(--editorBgColor);
+}
+
+.ag-front-menu .submenu,
+.ag-float-wrapper {
+  box-shadow: 0 4px 8px 0 var(--floatShadow) !important;
 }
 
 .title-bar .frameless-titlebar-button > div > svg {
@@ -51,13 +57,18 @@
 }
 
 :not(pre) > code[class*="language-"],
+pre,
+pre[class*="language-"],
 pre.ag-paragraph {
   background: var(--codeBlockBgColor) !important;
+  border: none !important;
 }
-
 p:not(.ag-active)[data-role="hr"]::before {
   border-top: 2px dashed var(--editorColor10) !important;
   background: none !important;
+}
+figure.ag-active.ag-container-block > div.ag-container-preview {
+  box-shadow: 0 3px 8px 0 var(--floatShadow) !important;
 }
 
 /*
