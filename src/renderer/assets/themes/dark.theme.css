@@ -3,7 +3,8 @@
   --themeColor: #409eff;
   --highlightColor: rgba(102, 177, 255, .6);
   --selectionColor: rgba(102, 177, 255, .3);
-  --editorColor: rgba(255, 255, 255, .8);
+  --editorColor: rgba(255, 255, 255, .7);
+  --editorColor80: rgba(255, 255, 255, .8);
   --editorColor50: rgba(255, 255, 255, .5);
   --editorColor30: rgba(255, 255, 255, .3);
   --editorColor10: rgba(255, 255, 255, .1);

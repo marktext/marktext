@@ -55,7 +55,9 @@ export default function image (h, cursor, block, token, outerClass) {
   selector = id ? `span#${id}.${imageClass}.${CLASS_OR_ID['AG_REMOVE']}` : `span.${imageClass}.${CLASS_OR_ID['AG_REMOVE']}`
 
   if (isSuccess) {
-    selector += `.${className}`
+    if (className === CLASS_OR_ID['AG_HIDE']) {
+      selector += `.${className}`
+    }
   } else {
     selector += `.${CLASS_OR_ID['AG_IMAGE_FAIL']}`
   }

@@ -47,10 +47,6 @@ div.ag-show-quick-insert-hint p.ag-paragraph.ag-active > span.ag-line:first-of-t
   border-radius: 3px;
 }
 
-.ag-gray {
-  font-family: monospace;
-}
-
 .ag-reference-marker {
   font-size: .9em;
   color: var(--editorColor50);
@@ -140,7 +136,7 @@ span.ag-math {
 .ag-math > .ag-math-render,
 .ag-ruby > .ag-ruby-render {
   display: inline-block;
-  padding: .5rem;
+  padding: .3em .5em;
   border-radius: 4px;
   position: absolute;
   top: 100%;
@@ -422,7 +418,7 @@ li.ag-task-list-item > input.ag-checkbox-checked::after {
 li.ag-task-list-item > input.ag-checkbox-checked::before {
   background: var(--themeColor);
   border-color: var(--themeColor);
-  box-shadow: 0 3px 12px 0 var(--highlightColor);
+  box-shadow: 0 3px 12px 0 var(--selectionColor);
 }
 
 /* li p .ag-hide:first-child {
@@ -577,9 +573,8 @@ pre.ag-active.ag-fence-code::after,
 pre.ag-active.ag-multiple-math::before,
 pre.ag-active.ag-multiple-math::after {
   color: var(--editorColor30);
-  font-family: monospace;
   position: absolute;
-  font-weight: 600;
+  font-weight: 100;
   left: 0;
 }
 
@@ -660,8 +655,8 @@ span.ag-emoji-marked-text {
   position: absolute;
   content: attr(data-emoji);
   color: var(--editorColor);
-  top: -2px;
-  left: -1em;
+  top: 0;
+  left: -1.3em;
   font-size: 1em;
 }
 
@@ -729,7 +724,6 @@ span.ag-image-marked-text, span.ag-link-in-bracket, span.ag-link-in-bracket .ag-
   color: var(--editorColor50);
   font-size: 16px;
   text-decoration: none;
-  font-family: monospace;
 }
 
 .ag-backlash {
@@ -760,7 +754,7 @@ span.ag-warn.ag-emoji-marked-text {
   width: 1em;
   height: 1em;
   display: inline-block;
-  vertical-align: text-top;
+  vertical-align: sub;
 }
 
 span[data-role="link"], a[data-role="link"], span[data-role="link"] .ag-backlash {

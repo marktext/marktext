@@ -79,7 +79,7 @@ const copyCutCtrl = ContentState => {
       const block = this.getBlock(id)
       const language = block.lang || ''
       const selectedCodeLines = cf.querySelectorAll('.ag-code-line')
-      const value = [...selectedCodeLines].map(codeLine => codeLine.textContent).join('\n')
+      const value = Array.from(selectedCodeLines).map(codeLine => codeLine.textContent).join('\n')
       cf.innerHTML = `<code class="language-${language}">${value}</code>`
     }
 
@@ -95,7 +95,7 @@ const copyCutCtrl = ContentState => {
     const htmlBlock = wrapper.querySelectorAll(`figure[data-role='HTML']`)
     for (const hb of htmlBlock) {
       const selectedCodeLines = hb.querySelectorAll('span.ag-code-line')
-      const value = [...selectedCodeLines].map(codeLine => codeLine.textContent).join('\n')
+      const value = Array.from(selectedCodeLines).map(codeLine => codeLine.textContent).join('\n')
       const pre = document.createElement('pre')
       pre.textContent = value
       hb.replaceWith(pre)
@@ -106,7 +106,7 @@ const copyCutCtrl = ContentState => {
       const preElement = mb.querySelector('pre[data-role]')
       const functionType = preElement.getAttribute('data-role')
       const selectedCodeLines = mb.querySelectorAll('span.ag-code-line')
-      const value = [...selectedCodeLines].map(codeLine => codeLine.textContent).join('\n')
+      const value = Array.from(selectedCodeLines).map(codeLine => codeLine.textContent).join('\n')
       let pre
       switch (functionType) {
         case 'multiplemath':

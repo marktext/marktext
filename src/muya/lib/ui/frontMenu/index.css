@@ -79,7 +79,7 @@
   left: calc(100% + 5px);
   top: -46px;
   border-radius: 8px;
-  box-shadow: 0 4px 8px 0 var(--floatShadow);
+  box-shadow: var(--floatShadow);
   border: 1px solid var(--floatBorderColor);
   background-color: var(--floatBgColor);
   transition: all .25s ease-in-out;
