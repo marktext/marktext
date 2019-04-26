@@ -98,7 +98,7 @@ class StateRender {
       mermaid.initialize({
         theme: this.muya.options.mermaidTheme
       })
-      mermaid.init(undefined, document.querySelectorAll([...this.mermaidCache].join(', ')))
+      mermaid.init(undefined, document.querySelectorAll(Array.from(this.mermaidCache).join(', ')))
       this.mermaidCache.clear()
     }
   }
