@@ -573,9 +573,8 @@ pre.ag-active.ag-fence-code::after,
 pre.ag-active.ag-multiple-math::before,
 pre.ag-active.ag-multiple-math::after {
   color: var(--editorColor30);
-  font-family: monospace;
   position: absolute;
-  font-weight: 600;
+  font-weight: 100;
   left: 0;
 }
 
