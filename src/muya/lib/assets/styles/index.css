@@ -755,7 +755,7 @@ span.ag-warn.ag-emoji-marked-text {
   width: 1em;
   height: 1em;
   display: inline-block;
-  vertical-align: text-top;
+  vertical-align: sub;
 }
 
 span[data-role="link"], a[data-role="link"], span[data-role="link"] .ag-backlash {
