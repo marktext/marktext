@@ -25,6 +25,7 @@
   --floatBgColor: #21252b;
   --floatHoverColor: #3a3f4b;
   --floatBorderColor: #181a1f;
+  --floatShadow: rgba(0, 0, 0, 0.3);
   --maskColor: rgba(0, 0, 0, .7);
   --editorAreaWidth: 700px;
 }
@@ -54,6 +55,10 @@
 .el-dialog {
   box-shadow: 0 1px 3px rgba(0,0,0,.3) !important;
   border: 1px solid #181a1f !important;
+}
+.ag-front-menu .submenu,
+.ag-float-wrapper {
+  box-shadow: 0 4px 8px 0 var(--floatShadow) !important;
 }
 
 .mt-notification > .notice-bg.icon-message {
@@ -128,8 +133,11 @@
 }
 
 :not(pre) > code[class*="language-"],
+pre,
+pre[class*="language-"],
 pre.ag-paragraph {
   background: var(--codeBlockBgColor) !important;
+  border: none !important;
 }
 
 p:not(.ag-active)[data-role="hr"]::before {
@@ -195,6 +203,9 @@ li.ag-task-list-item > input::after {
 }
 li.ag-task-list-item > input.ag-checkbox-checked::after {
   transform: rotate(-45deg) scale(1);
+}
+figure.ag-active.ag-container-block > div.ag-container-preview {
+  box-shadow: 0 3px 8px 0 var(--floatShadow) !important;
 }
 
 /* ------------------------------------ */
