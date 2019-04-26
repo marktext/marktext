@@ -136,7 +136,7 @@ span.ag-math {
 .ag-math > .ag-math-render,
 .ag-ruby > .ag-ruby-render {
   display: inline-block;
-  padding: .5rem;
+  padding: .3em .5em;
   border-radius: 4px;
   position: absolute;
   top: 100%;
@@ -656,8 +656,8 @@ span.ag-emoji-marked-text {
   position: absolute;
   content: attr(data-emoji);
   color: var(--editorColor);
-  top: -2px;
-  left: -1em;
+  top: 0;
+  left: -1.3em;
   font-size: 1em;
 }
 
