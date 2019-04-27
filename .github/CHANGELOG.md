@@ -4,6 +4,8 @@
 
 **:cactus:Feature**
 
+- The cursor jump to the end of format or to the next brackets when press `tab`(#976)
+
 **:butterfly:Optimization**
 
 - Rewrite `select all` when press `CtrlOrCmd + A` (#937)
