@@ -2,6 +2,7 @@ import { EVENT_KEYS, CLASS_OR_ID } from '../config'
 import { findNearestParagraph } from '../selection/dom'
 import selection from '../selection'
 
+// If the next block is header, put cursor after the `#{1,6} *` 
 const adjustOffset = (offset, block, event) => {
   if (/^h\d$/.test(block.type) && event.key === EVENT_KEYS.ArrowDown) {
     const match = /^\s{0,3}(?:#{1,6})(?:\s{1,}|$)/.exec(block.text)
