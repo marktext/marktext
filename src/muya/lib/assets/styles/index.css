@@ -130,7 +130,7 @@ span.ag-math {
   color: var(--editorColor);
   font-family: monospace;
   display: inline-block;
-  vertical-align: bottom;
+  vertical-align: top;
 }
 
 .ag-math > .ag-math-render,

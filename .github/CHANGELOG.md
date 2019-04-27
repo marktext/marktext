@@ -14,6 +14,7 @@
 
 - Fixed some commonmark failed examples and add test case (#943)
 - Fixed some bugs after press `backspace` (#934, #938)
+- Change `inline math` vertical align to `top` (#977)
 
 ### 0.14.0
 
