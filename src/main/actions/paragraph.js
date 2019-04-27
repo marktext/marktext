@@ -105,6 +105,9 @@ ipcMain.on('AGANI::selection-change', (e, { start, end, affiliation }) => {
     (end.type === 'span' && end.block.functionType === 'codeLine')
   ) {
     setParagraphMenuItemStatus(false)
+    if (start.block.functionType === 'codeLine' || end.block.functionType === 'codeLine') {
+      formatMenuItem.submenu.items.forEach(item => (item.enabled = false))
+    }
   } else if (start.key !== end.key) {
     formatMenuItem.submenu.items
       .filter(item => item.id && DISABLE_LABELS.includes(item.id))
