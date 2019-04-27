@@ -303,7 +303,8 @@ const callMenuCallback = (menuInfo, win) => {
       const menus = Menu.getApplicationMenu()
       menuItem = menus.getMenuItemById(id)
     }
-    if (menuItem && menuItem.enabled !== false) {
+    // Allow all shortcuts/menus without id and only enabled menus with id (GH#980).
+    if (!menuItem || menuItem.enabled !== false) {
       click(menuItem, win)
     }
   } else {
