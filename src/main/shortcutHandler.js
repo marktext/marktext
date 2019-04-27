@@ -303,7 +303,9 @@ const callMenuCallback = (menuInfo, win) => {
       const menus = Menu.getApplicationMenu()
       menuItem = menus.getMenuItemById(id)
     }
-    click(menuItem, win)
+    if (menuItem && menuItem.enabled !== false) {
+      click(menuItem, win)
+    }
   } else {
     console.error('ERROR: callback function is not defined.')
   }
