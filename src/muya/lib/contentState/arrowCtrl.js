@@ -2,6 +2,17 @@ import { EVENT_KEYS, CLASS_OR_ID } from '../config'
 import { findNearestParagraph } from '../selection/dom'
 import selection from '../selection'
 
+// If the next block is header, put cursor after the `#{1,6} *` 
+const adjustOffset = (offset, block, event) => {
+  if (/^h\d$/.test(block.type) && event.key === EVENT_KEYS.ArrowDown) {
+    const match = /^\s{0,3}(?:#{1,6})(?:\s{1,}|$)/.exec(block.text)
+    if (match) {
+      return match[0].length
+    }
+  }
+  return offset
+}
+
 const arrowCtrl = ContentState => {
   ContentState.prototype.findNextRowCell = function (cell) {
     if (!/th|td/.test(cell.type)) {
@@ -105,11 +116,13 @@ const arrowCtrl = ContentState => {
       if (activeBlock) {
         event.preventDefault()
         event.stopPropagation()
-        const offset = activeBlock.type === 'p'
+        let offset = activeBlock.type === 'p'
           ? 0
           : (event.key === EVENT_KEYS.ArrowUp
             ? activeBlock.text.length
             : 0)
+        
+        offset = adjustOffset(offset, activeBlock, event)
 
         const key = activeBlock.type === 'p'
           ? activeBlock.children[0].key
@@ -161,7 +174,7 @@ const arrowCtrl = ContentState => {
         this.insertAfter(newBlock, lastBlock)
         key = newBlock.children[0].key
       }
-      const offset = 0
+      const offset = adjustOffset(0, nextBlock || newBlock, event)
       this.cursor = {
         start: { key, offset },
         end: { key, offset }

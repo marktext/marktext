@@ -9,6 +9,7 @@
 **:butterfly:Optimization**
 
 - Rewrite `select all` when press `CtrlOrCmd + A` (#937)
+- Set the cursor at the end of `#` in header when press arrow down to jump to the next paragraph.(#978)
 
 **:beetle:Bug fix**
 
