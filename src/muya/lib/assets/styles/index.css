@@ -724,6 +724,7 @@ span.ag-image-marked-text, span.ag-link-in-bracket, span.ag-link-in-bracket .ag-
   color: var(--editorColor50);
   font-size: 16px;
   text-decoration: none;
+  word-break: break-all;
 }
 
 .ag-backlash {
