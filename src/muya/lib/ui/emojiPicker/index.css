@@ -1,6 +1,6 @@
 .ag-emoji-picker {
   width: 348px;
-  max-height: 307px;
+  max-height: 350px;
   overflow-y: auto;
 }
 
@@ -15,7 +15,7 @@
   font-weight: 600;
   position: sticky;
   top: 0;
-  background: var(--floatBgColor);
+  background: var(--itemBgColor);
   z-index: 1001;
 }
 
