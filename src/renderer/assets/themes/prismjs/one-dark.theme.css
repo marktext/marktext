@@ -56,7 +56,7 @@ pre.ag-paragraph {
 /* Inline Code */
 :not(pre) > code[class*="language-"],
 pre.ag-paragraph {
-  background: #282c34;
+  background: #3a3f4b;
 }
 
 /* Inline Code */

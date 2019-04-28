@@ -416,8 +416,9 @@ kbd {
   }
 
   :not(pre) > code[class*="language-"],
-  pre,
-  pre[class*="language-"] {
+  pre:not(.CodeMirror-line),
+  pre[class*="language-"],
+  pre.ag-paragraph {
     overflow: visible;
     font-size: 90%;
     line-height: 1.6;
