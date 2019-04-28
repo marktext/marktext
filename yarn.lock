@@ -2458,7 +2458,7 @@ commander@2.8.x:
   dependencies:
     graceful-readlink ">= 1.0.0"
 
-commander@2.9.x, commander@~2.9.0:
+commander@2.9.x:
   version "2.9.0"
   resolved "https://registry.yarnpkg.com/commander/-/commander-2.9.0.tgz#9c99094176e12240cb22d6c5146098400fe0f7d4"
   integrity sha1-nJkJQXbhIkDLItbFFGCYQA/g99Q=
@@ -2627,7 +2627,7 @@ contra@1.9.4:
     atoa "1.0.0"
     ticky "1.0.1"
 
-convert-source-map@^1.5.1:
+convert-source-map@^1.5.1, convert-source-map@~1.6.0:
   version "1.6.0"
   resolved "https://registry.yarnpkg.com/convert-source-map/-/convert-source-map-1.6.0.tgz#51b537a8c43e0f04dec1993bffcdd504e758ac20"
   integrity sha512-eFu7XigvxdZ1ETfbgPBohgyQ/Z++C0eEhTor0qRwBw9unw+L0/6V8wkSuGgzdThkiS5lSpdptOQPD8Ak40a+7A==
@@ -2638,11 +2638,6 @@ convert-source-map@~1.1.0:
   version "1.1.3"
   resolved "https://registry.yarnpkg.com/convert-source-map/-/convert-source-map-1.1.3.tgz#4829c877e9fe49b3161f3bf3673888e204699860"
   integrity sha1-SCnId+n+SbMWHzvzZziI4gRpmGA=
-
-convert-source-map@~1.2.0:
-  version "1.2.0"
-  resolved "https://registry.yarnpkg.com/convert-source-map/-/convert-source-map-1.2.0.tgz#44c08c2506f10fb3ca6fd888d5a3444cf8d6a669"
-  integrity sha1-RMCMJQbxD7PKb9iI1aNETPjWpmk=
 
 cookie-signature@1.0.6:
   version "1.0.6"
@@ -6197,7 +6192,7 @@ js-base64@^2.1.9:
   resolved "https://registry.yarnpkg.com/js-base64/-/js-base64-2.5.1.tgz#1efa39ef2c5f7980bb1784ade4a8af2de3291121"
   integrity sha512-M7kLczedRMYX4L8Mdh4MzyAMM9O5osx+4FcOQuTvr3A9F2D9S5JXheN0ewNbrvK2UatkTRhL5ejGmGSjNMiZuw==
 
-js-string-escape@~1.0.0:
+js-string-escape@~1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/js-string-escape/-/js-string-escape-1.0.1.tgz#e2625badbc0d67c7533e9edc1068c587ae4137ef"
   integrity sha1-4mJbrbwNZ8dTPp7cEGjFh65BN+8=
@@ -6364,15 +6359,13 @@ karma-coverage@^1.1.2:
     minimatch "^3.0.0"
     source-map "^0.5.1"
 
-karma-electron@^6.0.0:
+"karma-electron@file:packages/karma-electron":
   version "6.0.0"
-  resolved "https://registry.yarnpkg.com/karma-electron/-/karma-electron-6.0.0.tgz#c824dda46f49f7fc744b6b9b60e6413979947362"
-  integrity sha1-yCTdpG9J9/x0S2ubYOZBOXmUc2I=
   dependencies:
     combine-source-map "~0.8.0"
-    commander "~2.9.0"
-    convert-source-map "~1.2.0"
-    js-string-escape "~1.0.0"
+    commander "~2.20.0"
+    convert-source-map "~1.6.0"
+    js-string-escape "~1.0.1"
     minstache "~1.2.0"
     xtend "~4.0.1"
 
