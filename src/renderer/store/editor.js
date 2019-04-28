@@ -2,6 +2,7 @@ import { clipboard, ipcRenderer, shell } from 'electron'
 import path from 'path'
 import bus from '../bus'
 import { hasKeys } from '../util'
+import { isSameFileSync } from '../util/fileSystem'
 import listToTree from '../util/listToTree'
 import { createDocumentState, getOptionsFromState, getSingleFileState, getBlankFileState } from './help'
 import notice from '../services/notification'
@@ -63,7 +64,7 @@ const mutations = {
         type: 'primary',
         time: 20000,
         showConfirm: false
-      }) 
+      })
     }
 
     let fileState = null
@@ -392,6 +393,7 @@ const actions = {
     }
   },
 
+  // This event is only used when loading a file during window creation.
   LISTEN_FOR_OPEN_SINGLE_FILE ({ commit, state, dispatch }) {
     ipcRenderer.on('AGANI::open-single-file', (e, { markdown, filename, pathname, options }) => {
       const fileState = getSingleFileState({ markdown, filename, pathname, options })
@@ -410,6 +412,7 @@ const actions = {
     })
   },
 
+  // Open a new tab, optionally with content.
   LISTEN_FOR_NEW_TAB ({ dispatch }) {
     ipcRenderer.on('AGANI::new-tab', (e, markdownDocument) => {
       if (markdownDocument) {
@@ -454,6 +457,15 @@ const actions = {
     if (!markdownDocument) {
       console.warn('Cannot create a file tab without a markdown document!')
       dispatch('NEW_BLANK_FILE')
+      return
+    }
+
+    // Check if tab already exist and select existing tab if so.
+    const { tabs } = state
+    const { pathname } = markdownDocument
+    const existingTab = tabs.find(t => isSameFileSync(t.pathname, pathname))
+    if (existingTab) {
+      dispatch('UPDATE_CURRENT_FILE', existingTab)
       return
     }
 
