@@ -133,7 +133,7 @@
 }
 
 :not(pre) > code[class*="language-"],
-pre,
+pre:not(.CodeMirror-line),
 pre[class*="language-"],
 pre.ag-paragraph {
   background: var(--codeBlockBgColor) !important;
