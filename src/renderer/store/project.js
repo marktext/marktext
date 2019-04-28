@@ -7,11 +7,7 @@ import { PATH_SEPARATOR } from '../config'
 import notice from '../services/notification'
 import { getFileStateFromData } from './help'
 
-const width = localStorage.getItem('side-bar-width')
-const sideBarWidth = typeof +width === 'number' ? Math.max(+width, 180) : 280
-
 const state = {
-  sideBarWidth,
   activeItem: {},
   createCache: {},
   // Use to cache newly created filename, for open iimmediately.
@@ -55,10 +51,6 @@ const mutations = {
       folders: [],
       files: []
     }
-  },
-  SET_SIDE_BAR_WIDTH (state, width) {
-    localStorage.setItem('side-bar-width', Math.max(+width, 180))
-    state.sideBarWidth = width
   },
   SET_NEWFILENAME (state, name) {
     state.newFileNameCache = name
@@ -161,9 +153,6 @@ const actions = {
           break
       }
     })
-  },
-  CHANGE_SIDE_BAR_WIDTH ({ commit }, width) {
-    commit('SET_SIDE_BAR_WIDTH', width)
   },
   CHANGE_ACTIVE_ITEM ({ commit }, activeItem) {
     commit('SET_ACTIVE_ITEM', activeItem)

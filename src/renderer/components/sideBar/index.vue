@@ -77,7 +77,7 @@
         'rightColumn': state => state.layout.rightColumn,
         'showSideBar': state => state.layout.showSideBar,
         'projectTree': state => state.project.projectTree,
-        'sideBarWidth': state => state.project.sideBarWidth,
+        'sideBarWidth': state => state.layout.sideBarWidth,
         'tabs': state => state.editor.tabs
       }),
       ...mapGetters(['fileList']),
@@ -101,7 +101,7 @@
         const mouseUpHandler = event => {
           document.removeEventListener('mousemove', mouseMoveHandler, false)
           document.removeEventListener('mouseup', mouseUpHandler, false)
-          this.$store.dispatch('CHANGE_SIDE_BAR_WIDTH', sideBarWidth)
+          this.$store.dispatch('CHANGE_SIDE_BAR_WIDTH', sideBarWidth < 180 ? 180 : sideBarWidth)
         }
 
         const mouseMoveHandler = event => {
@@ -141,7 +141,11 @@
 <style scoped>
   .side-bar {
     display: flex;
+    flex-shrink: 0;
+    flex-grow: 0;
+    widows: 280px;
     height: 100vh;
+    min-width: 180px;
     position: relative;
     color: var(--sideBarColor);
     user-select: none;

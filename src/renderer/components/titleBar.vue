@@ -1,86 +1,96 @@
 <template>
-  <div
-    class="title-bar"
-    :class="[{ 'active': active }, { 'tabs-visible': showTabBar }, { 'frameless': titleBarStyle === 'custom' }, { 'isOsx': platform === 'darwin' }]"
-  >
-    <div class="title">
-      <span v-if="!filename">Mark Text</span>
-      <span v-else>
-        <span
-          v-for="(path, index) of paths"
-          :key="index"
-        >
-          {{ path }}
-          <svg class="icon" aria-hidden="true">
-            <use xlink:href="#icon-arrow-right"></use>
-          </svg>
-        </span>
-        <span
-          class="filename"
-          :class="{'isOsx': platform === 'darwin'}"
-          @click="rename"
-        >
-          {{ filename }}
-        </span>
-        <span class="save-dot" :class="{'show': !isSaved}"></span>
-      </span>
-    </div>
-    <div :class="titleBarStyle === 'custom' ? 'left-toolbar title-no-drag' : 'right-toolbar'">
-      <div
-        v-if="titleBarStyle === 'custom'"
-        class="frameless-titlebar-menu title-no-drag"
-        @click.stop="handleMenuClick"
-      >&#9776;</div>
-      <el-tooltip
-        v-if="wordCount"
-        class="item"
-        :content="`${wordCount[show]} ${HASH[show].full + (wordCount[show] > 1 ? 's' : '')}`"
-        placement="bottom-end"
-      >
-        <div slot="content">
-          <div class="title-item">
-            <span class="front">Words:</span><span class="text">{{wordCount['word']}}</span>
-          </div>
-          <div class="title-item">
-            <span class="front">Characters:</span><span class="text">{{wordCount['character']}}</span>
-          </div>
-          <div class="title-item">
-            <span class="front">Paragraph:</span><span class="text">{{wordCount['paragraph']}}</span>
-          </div>
-        </div>
-        <div
-          v-if="wordCount"
-          class="word-count"
-          :class="[{ 'title-no-drag': platform !== 'darwin' }]"
-          @click.stop="handleWordClick"
-        >{{ `${HASH[show].short} ${wordCount[show]}` }}</div>
-      </el-tooltip>
-    </div>
+  <div>
     <div
-      v-if="titleBarStyle === 'custom' && !isFullScreen"
-      class="right-toolbar"
-      :class="[{ 'title-no-drag': titleBarStyle === 'custom' }]"
+      class="title-bar-editor-bg"
+      :class="{ 'tabs-visible': showTabBar }"
+    ></div>
+    <div
+      class="title-bar"
+      :class="[{ 'active': active }, { 'tabs-visible': showTabBar }, { 'frameless': titleBarStyle === 'custom' }, { 'isOsx': platform === 'darwin' }]"
     >
-      <div class="frameless-titlebar-button frameless-titlebar-close" @click.stop="handleCloseClick">
-        <div>
-          <svg width="10" height="10">
-            <path :d="windowIconClose" />
-          </svg>
-        </div>
+      <div class="title">
+        <span v-if="!filename">Mark Text</span>
+        <span v-else>
+          <span
+            v-for="(path, index) of paths"
+            :key="index"
+          >
+            {{ path }}
+            <svg class="icon" aria-hidden="true">
+              <use xlink:href="#icon-arrow-right"></use>
+            </svg>
+          </span>
+          <span
+            class="filename"
+            :class="{'isOsx': platform === 'darwin'}"
+            @click="rename"
+          >
+            {{ filename }}
+          </span>
+          <span class="save-dot" :class="{'show': !isSaved}"></span>
+        </span>
       </div>
-      <div class="frameless-titlebar-button frameless-titlebar-toggle" @click.stop="handleMaximizeClick">
-        <div>
-          <svg width="10" height="10">
-            <path v-show="!isMaximized" :d="windowIconMaximize" />
-            <path v-show="isMaximized" :d="windowIconRestore" />
-          </svg>
+      <div :class="titleBarStyle === 'custom' ? 'left-toolbar title-no-drag' : 'right-toolbar'">
+        <div
+          v-if="titleBarStyle === 'custom'"
+          class="frameless-titlebar-menu title-no-drag"
+          @click.stop="handleMenuClick"
+        >
+          <span class="text-center-vertical">&#9776;</span>
         </div>
+        <el-tooltip
+          v-if="wordCount"
+          class="item"
+          :content="`${wordCount[show]} ${HASH[show].full + (wordCount[show] > 1 ? 's' : '')}`"
+          placement="bottom-end"
+        >
+          <div slot="content">
+            <div class="title-item">
+              <span class="front">Words:</span><span class="text">{{wordCount['word']}}</span>
+            </div>
+            <div class="title-item">
+              <span class="front">Characters:</span><span class="text">{{wordCount['character']}}</span>
+            </div>
+            <div class="title-item">
+              <span class="front">Paragraph:</span><span class="text">{{wordCount['paragraph']}}</span>
+            </div>
+          </div>
+          <div
+            v-if="wordCount"
+            class="word-count"
+            :class="[{ 'title-no-drag': platform !== 'darwin' }]"
+            @click.stop="handleWordClick"
+          >
+            <span class="text-center-vertical">{{ `${HASH[show].short} ${wordCount[show]}` }}</span>
+          </div>
+        </el-tooltip>
       </div>
-      <div class="frameless-titlebar-button frameless-titlebar-minimize" @click.stop="handleMinimizeClick">
-        <div>
-          <svg width="10" height="10">
-            <path :d="windowIconMinimize" />
-          </svg>
+      <div
+        v-if="titleBarStyle === 'custom' && !isFullScreen"
+        class="right-toolbar"
+        :class="[{ 'title-no-drag': titleBarStyle === 'custom' }]"
+      >
+        <div class="frameless-titlebar-button frameless-titlebar-close" @click.stop="handleCloseClick">
+          <div>
+            <svg width="10" height="10">
+              <path :d="windowIconClose" />
+            </svg>
+          </div>
+        </div>
+        <div class="frameless-titlebar-button frameless-titlebar-toggle" @click.stop="handleMaximizeClick">
+          <div>
+            <svg width="10" height="10">
+              <path v-show="!isMaximized" :d="windowIconMaximize" />
+              <path v-show="isMaximized" :d="windowIconRestore" />
+            </svg>
+          </div>
+        </div>
+        <div class="frameless-titlebar-button frameless-titlebar-minimize" @click.stop="handleMinimizeClick">
+          <div>
+            <svg width="10" height="10">
+              <path :d="windowIconMinimize" />
+            </svg>
+          </div>
         </div>
       </div>
     </div>
@@ -186,17 +196,11 @@
       },
 
       handleMenuClick () {
-        let offsetX = 23
-        const elems = document.getElementsByClassName('side-bar')
-        if (elems) {
-          offsetX += elems[0].clientWidth
-        }
-
         const win = remote.getCurrentWindow()
         remote
           .Menu
           .getApplicationMenu()
-          .popup({ window: win, x: offsetX, y: 20 })
+          .popup({ window: win, x: 23, y: 20 })
       },
 
       handleWindowStateChanged () {
@@ -220,15 +224,23 @@
 </script>
 
 <style scoped>
+  .title-bar-editor-bg {
+    height: var(--titleBarHeight);
+    background: var(--editorBgColor);
+    position: relative;
+    left: 0;
+    top: 0;
+    right: 0;
+  }
   .title-bar {
     -webkit-app-region: drag;
     user-select: none;
-    background: var(--editorBgColor);
-    width: 100%;
+    background: transparent;
     height: var(--titleBarHeight);
     box-sizing: border-box;
     color: var(--editorColor50);
-    position: absolute;
+    position: fixed;
+    left: 0;
     top: 0;
     right: 0;
     z-index: 2;
@@ -244,7 +256,7 @@
     vertical-align: top;
   }
   .title {
-    padding: 0 100px;
+    padding: 0 142px;
     height: 100%;
     line-height: var(--titleBarHeight);
     font-size: 14px;
@@ -293,27 +305,27 @@
     color: var(sideBarTitleColor);
   }
 
-  .right-toolbar {
-    padding: 0 10px;
-    height: 100%;
-    position: absolute;
-    top: 0;
-    right: 0;
-    width: 100px;
-    display: flex;
-    align-items: center;
-    flex-direction: row-reverse;
-  }
   .left-toolbar {
     padding: 0 10px;
     height: 100%;
     position: absolute;
     top: 0;
     left: 0;
-    width: 100px;
+    width: 118px; /* + 2*10px padding*/
     display: flex;
     flex-direction: row;
   }
+  .right-toolbar {
+    height: 100%;
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 138px;
+    display: flex;
+    align-items: center;
+    flex-direction: row-reverse;
+  }
+
   .word-count {
     cursor: pointer;
     font-size: 14px;
@@ -326,11 +338,11 @@
     border-radius: 4px;
     transition: all .25s ease-in-out;
   }
-
   .word-count:hover {
     background: var(--sideBarBgColor);
     color: var(--sideBarTitleColor);
   }
+
   .title-no-drag {
     -webkit-app-region: no-drag;
   }
@@ -338,7 +350,7 @@
   .frameless-titlebar-button {
     position: relative;
     display: block;
-    width: var(--titleBarHeight);
+    width: 46px;
     height: var(--titleBarHeight);
   }
   .frameless-titlebar-button > div {
@@ -363,6 +375,12 @@
   }
   .frameless-titlebar-close:hover svg {
     fill: #ffffff
+  }
+
+  .text-center-vertical {
+    display: inline-block;
+    vertical-align: middle;
+    line-height: normal;
   }
 </style>
 

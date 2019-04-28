@@ -110,9 +110,27 @@
 }
 
 .editor-tabs {
-  border-bottom: 1px solid #181a1f;
   box-shadow: none !important;
 }
+.editor-tabs:after {
+  position: absolute;
+  content: '';
+  border-bottom: 1px solid #181a1f;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 1;
+}
+.editor-tabs ul.tabs-container:after {
+  position: absolute;
+  content: '';
+  border-bottom: 1px solid #181a1f;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 2;
+}
+
 .tabs-container > li,
 .tabs-container > li.active {
   background: var(--editorBgColor) !important;
@@ -121,7 +139,7 @@
   border: 1px solid #181a1f;
   border-bottom: none;
 }
-.tabs-container > li.active:not(:last-child):after {
+.tabs-container > li.active:after {
   top: 0 !important;
   right: auto !important;
   width: 2px !important;

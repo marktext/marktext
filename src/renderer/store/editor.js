@@ -51,6 +51,31 @@ const mutations = {
       }
     }
   },
+  // Exchange from with to and move from to the end if to is null or empty.
+  EXCHANGE_TABS_BY_ID (state, tabIDs) {
+    const { fromId } = tabIDs
+    const toId = tabIDs.toId // may be null
+
+    const { tabs } = state
+    const moveItem = (arr, from, to) => {
+      if (from === to) return true
+      const len = arr.length
+      const item = arr.splice(from, 1)
+      if (item.length === 0) return false
+
+      arr.splice(to, 0, item[0])
+      return arr.length === len
+    }
+
+    const fromIndex = tabs.findIndex(t => t.id === fromId)
+    if (!toId) {
+      moveItem(tabs, fromIndex, tabs.length - 1)
+    } else {
+      const toIndex = tabs.findIndex(t => t.id === toId)
+      const realToIndex = fromIndex < toIndex ? toIndex - 1 : toIndex
+      moveItem(tabs, fromIndex, realToIndex)
+    }
+  },
   LOAD_CHANGE (state, change) {
     const { tabs, currentFile } = state
     const { data, pathname } = change
@@ -231,6 +256,10 @@ const actions = {
     // unwatch this file
     const { pathname } = file
     dispatch('ASK_FILE_WATCH', { pathname, watch: false })
+  },
+
+  EXCHANGE_TABS_BY_ID ({ commit }, tabIDs) {
+    commit('EXCHANGE_TABS_BY_ID', tabIDs)
   },
 
   // need update line ending when change between windows.

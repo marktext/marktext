@@ -5,6 +5,8 @@
 **:cactus:Feature**
 
 - The cursor jump to the end of format or to the next brackets when press `tab`(#976)
+- Tab drag & drop inside the window
+- Scrollable tabs
 
 **:butterfly:Optimization**
 

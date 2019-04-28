@@ -1,24 +1,7 @@
 <template>
   <div class="tree-view">
     <div class="title">
-      <a
-        href="javascript:;"
-        :class="{'active': active === 'tree'}"
-        title="Tree View"
-      >
-        <svg class="icon" aria-hidden="true" @click="active = 'tree'">
-          <use xlink:href="#icon-tree"></use>
-        </svg>       
-      </a>
-      <a
-        href="javascript:;"
-        :class="{'active': active === 'list'}"
-        title="List View"
-      >
-        <svg class="icon" aria-hidden="true" @click="active = 'list'">
-          <use xlink:href="#icon-list"></use>
-        </svg>        
-      </a>
+      <!-- Placeholder -->
     </div>
     <!-- opened files -->
     <div class="opened-files">
@@ -50,7 +33,7 @@
       </div>
     </div>
     <!-- project tree view -->
-    <div 
+    <div
       class="project-tree" v-if="projectTree"
     >
       <div class="title">
@@ -58,6 +41,24 @@
           <use xlink:href="#icon-arrow"></use>
         </svg>
         <span class="default-cursor text-overflow" @click.stop="toggleDirectories()">{{ projectTree.name }}</span>
+        <a
+          href="javascript:;"
+          :class="{'active': active === 'tree'}"
+          title="Tree View"
+        >
+          <svg class="icon" aria-hidden="true" @click="active = 'tree'">
+            <use xlink:href="#icon-tree"></use>
+          </svg>
+        </a>
+        <a
+          href="javascript:;"
+          :class="{'active': active === 'list'}"
+          title="List View"
+        >
+          <svg class="icon" aria-hidden="true" @click="active = 'list'">
+            <use xlink:href="#icon-list"></use>
+          </svg>
+        </a>
       </div>
       <div class="tree-wrapper" v-show="showDirectories && active === 'tree'">
         <folder
@@ -226,26 +227,6 @@
     padding: 0 15px;
     display: flex;
     flex-direction: row-reverse;
-    & > span {
-      flex: 1;
-      user-select: none;
-    }
-    & > a {
-      pointer-events: auto;
-      cursor: pointer;
-      margin-left: 8px;
-      color: var(--iconColor);
-      opacity: 0;
-    }
-    & > a:hover {
-      color: var(--themeColor);
-    }
-    & > a.active {
-      color: var(--themeColor);
-    }
-  }
-  .tree-view:hover .title a {
-    opacity: 1;
   }
 
   .icon-arrow {
@@ -309,8 +290,26 @@
     display: flex;
     flex-direction: column;
     & > .title {
+      padding-right: 15px;
       display: flex;
       align-items: center;
+      & > span {
+        flex: 1;
+        user-select: none;
+      }
+      & > a {
+        pointer-events: auto;
+        cursor: pointer;
+        margin-left: 8px;
+        color: var(--iconColor);
+        opacity: 0;
+      }
+      & > a:hover {
+        color: var(--themeColor);
+      }
+      & > a.active {
+        color: var(--themeColor);
+      }
     }
     & > .tree-wrapper,
     & > .list-wrapper {
@@ -321,6 +320,9 @@
       }
     }
     flex: 1;
+  }
+  .project-tree div.title:hover > a {
+    opacity: 1;
   }
   .open-project {
     flex: 1;
