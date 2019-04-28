@@ -116,7 +116,7 @@ export const gfm = Object.assign({}, normal, {
   // ------------------------
   // extra
 
-  emoji: /^(:)([a-z_]+?)\1/ // not real GFM but put it in here
+  emoji: /^(:)([a-z_\d+-]+?)\1/ // not real GFM but put it in here
 })
 
 gfm.url = edit(gfm.url, 'i').
