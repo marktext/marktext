@@ -4,18 +4,6 @@ import { inlineRules } from '../parser/rules'
 const HTML_BLOCK_REG = /^<([a-zA-Z\d-]+)(?=\s|>)[^<>]*?>$/
 
 const htmlBlock = ContentState => {
-  // ContentState.prototype.handleHtmlBlockClick = function (codeWrapper) {
-  //   const id = codeWrapper.id
-  //   const codeBlock = this.getBlock(id).children[0]
-  //   const key = codeBlock.key
-  //   const offset = 0
-  //   this.cursor = {
-  //     start: { key, offset },
-  //     end: { key, offset }
-  //   }
-  //   this.partialRender()
-  // }
-
   ContentState.prototype.createHtmlBlock = function (code) {
     const block = this.createBlock('figure')
     block.functionType = 'html'
