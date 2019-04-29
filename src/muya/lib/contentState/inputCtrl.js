@@ -88,8 +88,7 @@ const inputCtrl = ContentState => {
     const block = this.getBlock(key)
     const paragraph = document.querySelector(`#${key}`)
     let text = getTextContent(paragraph, [ CLASS_OR_ID['AG_MATH_RENDER'], CLASS_OR_ID['AG_RUBY_RENDER'] ])
-    console.log(block.text.endsWith('\n'))
-    console.log(text)
+
     let needRender = false
     let needRenderAll = false
     if (oldStart.key !== oldEnd.key) {
@@ -198,7 +197,25 @@ const inputCtrl = ContentState => {
       if (this.checkNotSameToken(block.text, text)) {
         needRender = true
       }
-      block.text = text
+      if (
+        block.text.endsWith('\n') &&
+        start.offset === text.length &&
+        event.inputType === 'insertText'
+      ) {
+        block.text += event.data
+        start.offset++
+        end.offset++
+      } else if (
+        block.text.length === oldStart.offset &&
+        block.text[oldStart.offset - 2] === '\n' &&
+        event.inputType === 'deleteContentBackward'
+      ) {
+        block.text = block.text.substring(0, oldStart.offset - 1)
+        start.offset = block.text.length
+        end.offset = block.text.length
+      } else {
+        block.text = text
+      }
       if (beginRules['reference_definition'].test(text)) {
         needRenderAll = true
       }

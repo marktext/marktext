@@ -66,10 +66,6 @@ class Keyboard {
       if (event.target.closest('[contenteditable=false]')) {
         return
       }
-      const { start, end } = selection.getCursorRange()
-      if (!start || !end) {
-        return
-      }
 
       if (timer) clearTimeout(timer)
       timer = setTimeout(() => {

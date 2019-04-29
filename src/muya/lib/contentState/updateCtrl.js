@@ -42,7 +42,7 @@ const updateCtrl = ContentState => {
     const endOffset = cEnd ? cEnd.offset : focus.offset
 
     for (const token of tokenizer(startBlock.text, undefined, undefined, labels)) {
-      if (token.type === 'text') continue
+      if (/text|hard_line_break|soft_line_break/.test(token.type)) continue
       const { start, end } = token.range
       const textLen = startBlock.text.length
       if (
@@ -52,7 +52,7 @@ const updateCtrl = ContentState => {
       }
     }
     for (const token of tokenizer(endBlock.text, undefined, undefined, labels)) {
-      if (token.type === 'text') continue
+      if (/text|hard_line_break|soft_line_break/.test(token.type)) continue
       const { start, end } = token.range
       const textLen = endBlock.text.length
       if (

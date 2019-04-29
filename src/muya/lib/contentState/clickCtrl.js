@@ -136,6 +136,7 @@ const clickCtrl = ContentState => {
           return
         }
         this.cursor = cursor
+
         return this.partialRender()
       })
     } else {

@@ -436,6 +436,7 @@ class Selection {
 
     let { node: anchorNode, offset: anchorOffset } = getNodeAndOffset(anchorParagraph, anchor.offset)
     let { node: focusNode, offset: focusOffset } = getNodeAndOffset(focusParagraph, focus.offset)
+
     anchorOffset = Math.min(anchorOffset, anchorNode.textContent.length)
     focusOffset = Math.min(focusOffset, focusNode.textContent.length)
     // First set the anchor node and anchor offeet, make it collapsed
@@ -458,7 +459,6 @@ class Selection {
 
   getCursorRange () {
     let { anchorNode, anchorOffset, focusNode, focusOffset } = this.doc.getSelection()
-    console.log(anchorNode, anchorOffset, focusNode, focusOffset)
     const isAnchorValid = this.isValidCursorNode(anchorNode)
     const isFocusValid = this.isValidCursorNode(focusNode)
     let needFix = false
@@ -479,6 +479,16 @@ class Selection {
         anchor: null,
         focus: null
       })
+    }
+
+    // fix bug click empty line, the cursor will jump to the end of pre line.
+    if (
+      anchorNode === focusNode &&
+      anchorOffset === focusOffset &&
+      anchorNode.textContent === '\n' &&
+      focusOffset === 0
+    ) {
+      focusOffset = anchorOffset = 1
     }
 
     const anchorParagraph = findNearestParagraph(anchorNode)
@@ -503,6 +513,7 @@ class Selection {
 
     const aOffset = getOffsetOfParagraph(anchorNode, anchorParagraph) + anchorOffset
     const fOffset = getOffsetOfParagraph(focusNode, focusParagraph) + focusOffset
+
     const anchor = { key: anchorParagraph.id, offset: aOffset }
     const focus = { key: focusParagraph.id, offset: fOffset }
     const result = new Cursor({ anchor, focus })

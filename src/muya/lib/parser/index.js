@@ -380,7 +380,7 @@ const tokenizerFac = (src, beginRules, inlineRules, pos = 0, top, labels) => {
     }
     // soft line break
     const softTo = inlineRules['soft_line_break'].exec(src)
-    if (softTo && top) {
+    if (softTo) {
       const len = softTo[0].length
       pushPending()
       tokens.push({
@@ -400,7 +400,7 @@ const tokenizerFac = (src, beginRules, inlineRules, pos = 0, top, labels) => {
     }
     // hard line break
     const hardTo = inlineRules['hard_line_break'].exec(src)
-    if (hardTo && top) {
+    if (hardTo) {
       const len = hardTo[0].length
       pushPending()
       tokens.push({
@@ -408,7 +408,7 @@ const tokenizerFac = (src, beginRules, inlineRules, pos = 0, top, labels) => {
         raw: hardTo[0],
         spaces: hardTo[1],
         lineBreak: hardTo[2],
-        isAtEnd: softTo.input.length === softTo[0].length,
+        isAtEnd: hardTo.input.length === hardTo[0].length,
         parent: tokens,
         range: {
           start: pos,
