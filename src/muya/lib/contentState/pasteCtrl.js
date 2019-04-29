@@ -195,12 +195,11 @@ const pasteCtrl = ContentState => {
       switch (type) {
         case 'normal': {
           const htmlBlock = this.createBlock('p')
-          const lines = text.trim().split(LINE_BREAKS_REG).map(line => this.createBlock('span', {
-            text: line
-          }))
-          for (const line of lines) {
-            this.appendChild(htmlBlock, line)
-          }
+          const contentBlock = this.createBlock('span', {
+            text: text.trim()
+          })
+          this.appendChild(htmlBlock, contentBlock)
+
           if (startBlock.type === 'span') {
             this.insertAfter(htmlBlock, parent)
           } else {
