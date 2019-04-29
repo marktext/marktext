@@ -88,6 +88,8 @@ const inputCtrl = ContentState => {
     const block = this.getBlock(key)
     const paragraph = document.querySelector(`#${key}`)
     let text = getTextContent(paragraph, [ CLASS_OR_ID['AG_MATH_RENDER'], CLASS_OR_ID['AG_RUBY_RENDER'] ])
+    console.log(block.text.endsWith('\n'))
+    console.log(text)
     let needRender = false
     let needRenderAll = false
     if (oldStart.key !== oldEnd.key) {

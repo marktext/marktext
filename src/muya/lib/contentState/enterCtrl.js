@@ -197,9 +197,19 @@ const enterCtrl = ContentState => {
     // handle `shift + enter` insert `soft line break` or `hard line break`
     // only cursor in `line block` can create `soft line break` and `hard line break`
     // handle line in code block
-    if (
-      (event.shiftKey && block.type === 'span') ||
-      (block.type === 'span' && block.functionType === 'codeLine')
+    if (event.shiftKey && block.type === 'span' && block.functionType === 'paragraphContent') {
+      let { offset } = start
+      const { text, key } = block
+      block.text = text.substring(0, offset) + '\n' + text.substring(offset)
+
+      offset++
+      this.cursor = {
+        start: { key, offset },
+        end: { key, offset }
+      }
+      return this.partialRender()
+    } else if (
+      block.type === 'span' && block.functionType === 'codeLine'
     ) {
       const { text } = block
       const newLineText = text.substring(start.offset)
@@ -207,10 +217,11 @@ const enterCtrl = ContentState => {
       const indent = getIndentSpace(text)
       block.text = text.substring(0, start.offset)
       const newLine = this.createBlock('span', {
-        text: `${indent}${newLineText}`
+        text: `${indent}${newLineText}`,
+        functionType: block.functionType,
+        lang: block.lang
       })
-      newLine.functionType = block.functionType
-      newLine.lang = block.lang
+
       this.insertAfter(newLine, block)
       let { key } = newLine
       let offset = indent.length
@@ -225,7 +236,7 @@ const enterCtrl = ContentState => {
         offset = indent.length + this.tabSize
       }
 
-      if (indent.length >= 4 && !block.preSibling) {
+      if (block.functionType === 'paragraphContent' && indent.length >= 4 && !block.preSibling) {
         this.indentCodeBlockUpdate(block)
         offset = offset - 4
       }

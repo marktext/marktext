@@ -25,7 +25,8 @@ export const inlineRules = {
   'tail_header': /^(\s{1,}#{1,})(\s*)$/,
   'html_tag': /^(<!--[\s\S]*?-->|(<([a-zA-Z]{1}[a-zA-Z\d-]*) *[_\.\-/:a-zA-Z\d='";\? *]* *(?:\/)?>)(?:([\s\S]*?)(<\/\3 *>))?)/, // row html
   'html_escape': new RegExp(`^(${escapeCharacters.join('|')})`, 'i'),
-  'hard_line_break': /^(\s{2,})$/,
+  'soft_line_break': /^(\n)(?!\n)/,
+  'hard_line_break': /^( {2,})(\n)(?!\n)/,
 
   // patched math marker `$`
   'backlash': /^(\\)([\\`*{}\[\]()#+\-.!_>~:\|\<\>$]{1})/,

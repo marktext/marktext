@@ -106,6 +106,7 @@ const backspaceCtrl = ContentState => {
     if (!start || !end) {
       return
     }
+
     const startBlock = this.getBlock(start.key)
     const endBlock = this.getBlock(end.key)
     const maybeLastRow = this.getParent(endBlock)

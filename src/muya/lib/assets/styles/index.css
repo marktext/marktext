@@ -34,7 +34,7 @@ div.ag-show-quick-insert-hint p.ag-paragraph.ag-active > span.ag-paragraph-conte
 .ag-paragraph:empty::after,
 .ag-code-line:empty::after,
 .ag-paragraph-content:empty::after {
-  content: '\200B'
+  content: '\200B';
 }
 
 .ag-paragraph-content,
@@ -64,9 +64,13 @@ div.ag-show-quick-insert-hint p.ag-paragraph.ag-active > span.ag-paragraph-conte
   margin: 0 5px;
 }
 
-.ag-hard-line-break::after {
+.ag-hard-line-break-space::after {
   content: '↩';
   opacity: .5;
+}
+
+.ag-line-end {
+  display: block;
 }
 
 *:not(.ag-hide)::selection, .ag-selection {
