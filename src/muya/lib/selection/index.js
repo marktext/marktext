@@ -450,7 +450,7 @@ class Selection {
       node = node.parentNode
     }
     return node.closest('p[data-role=hr]') ||
-      node.closest('span.ag-paragraph.ag-line') ||
+      node.closest('span.ag-paragraph') ||
       node.closest('th.ag-paragraph') ||
       node.closest('td.ag-paragraph') ||
       node.closest('.ag-paragraph[data-head]')

@@ -216,8 +216,6 @@ export default function renderLeafBlock (block, cursor, activeBlocks, selectedBl
       .replace(new RegExp(MARKER_HASK['"'], 'g'), '"')
       .replace(new RegExp(MARKER_HASK["'"], 'g'), "'")
 
-    selector += `.${CLASS_OR_ID['AG_CODE_LINE']}`
-
     if (lang && /\S/.test(code) && loadedCache.has(lang)) {
       const wrapper = document.createElement('div')
       wrapper.classList.add(`language-${lang}`)
@@ -232,7 +230,6 @@ export default function renderLeafBlock (block, cursor, activeBlocks, selectedBl
     }
   } else if (type === 'span' && functionType === 'languageInput') {
     const html = getHighlightHtml(text, highlights)
-    selector += `.${CLASS_OR_ID['AG_LANGUAGE_INPUT']}`
     children = htmlToVNode(html)
   }
   if (!block.parent) {

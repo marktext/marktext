@@ -22,7 +22,7 @@ pre {
   outline: none;
 }
 
-div.ag-show-quick-insert-hint p.ag-paragraph.ag-active > span.ag-line:first-of-type:empty::after {
+div.ag-show-quick-insert-hint p.ag-paragraph.ag-active > span.ag-paragraph-content:first-of-type:empty::after {
   content: 'Type @ to insert';
   color: var(--editorColor10);
 }
@@ -32,11 +32,13 @@ div.ag-show-quick-insert-hint p.ag-paragraph.ag-active > span.ag-line:first-of-t
 }
 
 .ag-paragraph:empty::after,
-.ag-line:empty::after {
+.ag-code-line:empty::after,
+.ag-paragraph-content:empty::after {
   content: '\200B'
 }
 
-.ag-line {
+.ag-paragraph-content,
+.ag-code-line {
   display: block;
   white-space: pre-wrap;
   word-break: break-word;

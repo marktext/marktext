@@ -28,9 +28,10 @@ export const usePluginAddRules = turndownService => {
 
   // handle `soft line break` and `hard line break`
   // add `LINE_BREAK` to the end of soft line break and hard line break.
+  // TODO: remove `AG_LINE`
   turndownService.addRule('lineBreak', {
     filter (node, options) {
-      return node.nodeName === 'SPAN' && node.classList.contains(CLASS_OR_ID['AG_LINE']) && node.nextElementSibling
+      return node.nodeName === 'SPAN' && node.classList.contains(CLASS_OR_ID['AG_CODE_LINE']) && node.nextElementSibling
     },
     replacement (content, node, options) {
       return content + LINE_BREAK

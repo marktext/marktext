@@ -3,7 +3,7 @@ import flowchart from 'flowchart.js'
 import Diagram from './sequence'
 import vegaEmbed from 'vega-embed'
 import { CLASS_OR_ID } from '../../config'
-import { conflict, mixins } from '../../utils'
+import { conflict, mixins, camelToSnake } from '../../utils'
 import { patch, toVNode, toHTML, h } from './snabbdom'
 import { beginRules } from '../rules'
 import renderInlines from './renderInlines'
@@ -86,7 +86,7 @@ class StateRender {
       selector += `.${CLASS_OR_ID['AG_ACTIVE']}`
     }
     if (type === 'span') {
-      selector += `.${CLASS_OR_ID['AG_LINE']}`
+      selector += `.ag-${camelToSnake(block.functionType)}`
     }
     if (!block.parent && selectedBlock && block.key === selectedBlock.key) {
       selector += `.${CLASS_OR_ID['AG_SELECTED']}`

@@ -99,7 +99,6 @@ export const CLASS_OR_ID = genUpper2LowerKeyHash([
   'AG_INLINE_RULE',
   'AG_LANGUAGE',
   'AG_LANGUAGE_INPUT',
-  'AG_LINE',
   'AG_LINK',
   'AG_LINK_IN_BRACKET',
   'AG_LIST_ITEM',

@@ -195,6 +195,11 @@ class ContentState {
       children: []
     }
 
+    // give span block a default functionType `paragraphContent`
+    if (type === 'span' && !extras.functionType) {
+      blockData.functionType = 'paragraphContent'
+    }
+
     Object.assign(blockData, extras)
     return blockData
   }
