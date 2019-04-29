@@ -7,7 +7,7 @@ const INLINE_UPDATE_FRAGMENTS = [
   '^(\\[[x\\s]{1}\\]\\s)', // Task list
   '^(\\d{1,9}(?:\\.|\\))\\s)', // Order list
   '^\\s{0,3}(#{1,6})(?=\\s{1,}|$)', // ATX headings
-  '^\\s{0,3}(\\={3,}|\\-{3,})(?=\\s{1,}|$)', // Setext headings
+  '^([^\\n]+)\\n\\s{0,3}(\\={3,}|\\-{3,})(?=\\s{1,}|$)', // Setext headings
   '^(>).+', // Block quote
   '^\\s{0,3}((?:\\*\\s*\\*\\s*\\*|-\\s*-\\s*-|_\\s*_\\s*_)[\\s\\*\\-\\_]*)$' // Thematic break
 ]
@@ -40,9 +40,10 @@ const updateCtrl = ContentState => {
     const endBlock = this.getBlock(cEnd ? cEnd.key : focus.key)
     const startOffset = cStart ? cStart.offset : anchor.offset
     const endOffset = cEnd ? cEnd.offset : focus.offset
+    const NO_NEED_TOKEN_REG = /text|hard_line_break|soft_line_break/
 
     for (const token of tokenizer(startBlock.text, undefined, undefined, labels)) {
-      if (/text|hard_line_break|soft_line_break/.test(token.type)) continue
+      if (NO_NEED_TOKEN_REG.test(token.type)) continue
       const { start, end } = token.range
       const textLen = startBlock.text.length
       if (
@@ -52,7 +53,7 @@ const updateCtrl = ContentState => {
       }
     }
     for (const token of tokenizer(endBlock.text, undefined, undefined, labels)) {
-      if (/text|hard_line_break|soft_line_break/.test(token.type)) continue
+      if (NO_NEED_TOKEN_REG.test(token.type)) continue
       const { start, end } = token.range
       const textLen = endBlock.text.length
       if (
@@ -71,7 +72,6 @@ const updateCtrl = ContentState => {
     if (/codeLine|languageInput/.test(block.functionType)) return false
     // line in paragraph can also update to other block. So comment bellow code.
     // if (block.type === 'span' && block.preSibling) return false
-    const hasPreLine = !!(block.type === 'span' && block.preSibling)
     let line = null
     const { text } = block
     if (block.type === 'span') {
@@ -82,10 +82,7 @@ const updateCtrl = ContentState => {
     const [match, bullet, tasklist, order, atxHeader, setextHeader, blockquote, hr] = text.match(INLINE_UPDATE_REG) || []
 
     switch (true) {
-      case (
-        (!!hr && new Set(hr.split('').filter(i => /\S/.test(i))).size === 1) ||
-        (!!setextHeader && !hasPreLine)
-      ):
+      case (!!hr && new Set(hr.split('').filter(i => /\S/.test(i))).size === 1):
         return this.updateHr(block, hr || setextHeader)
 
       case !!bullet:
@@ -101,7 +98,7 @@ const updateCtrl = ContentState => {
       case !!atxHeader:
         return this.updateAtxHeader(block, atxHeader, line)
 
-      case !!setextHeader && hasPreLine:
+      case !!setextHeader:
         return this.updateSetextHeader(block, setextHeader, line)
 
       case !!blockquote:
