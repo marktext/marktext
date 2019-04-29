@@ -28,7 +28,7 @@ const enterCtrl = ContentState => {
       this.prependChild(newBlock, activeLine)
     } else if (offset < text.length) {
       activeLine.text = text.substring(0, offset)
-      const newLine = this.createBlock('span', text.substring(offset))
+      const newLine = this.createBlock('span', { text: text.substring(offset) })
       this.prependChild(newBlock, newLine)
     }
     return newBlock
@@ -206,14 +206,18 @@ const enterCtrl = ContentState => {
       const autoIndent = checkAutoIndent(text, start.offset)
       const indent = getIndentSpace(text)
       block.text = text.substring(0, start.offset)
-      const newLine = this.createBlock('span', `${indent}${newLineText}`)
+      const newLine = this.createBlock('span', {
+        text: `${indent}${newLineText}`
+      })
       newLine.functionType = block.functionType
       newLine.lang = block.lang
       this.insertAfter(newLine, block)
       let { key } = newLine
       let offset = indent.length
       if (autoIndent) {
-        const emptyLine = this.createBlock('span', indent + ' '.repeat(this.tabSize))
+        const emptyLine = this.createBlock('span', {
+          text: indent + ' '.repeat(this.tabSize)
+        })
         emptyLine.functionType = block.functionType
         emptyLine.lang = block.lang
         this.insertAfter(emptyLine, block)
@@ -323,7 +327,9 @@ const enterCtrl = ContentState => {
             post = `${PREFIX} ${post}`
           }
           block.text = pre
-          newBlock = this.createBlock(type, post)
+          newBlock = this.createBlock(type, {
+            text: post
+          })
           newBlock.headingStyle = block.headingStyle
           if (block.marker) {
             newBlock.marker = block.marker

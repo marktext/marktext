@@ -137,7 +137,7 @@ const pasteCtrl = ContentState => {
             startBlock.text = prePartText + line
           } else {
             line = i === textList.length - 1 ? line + postPartText : line
-            const lineBlock = this.createBlock('span', line)
+            const lineBlock = this.createBlock('span', { text: line })
             lineBlock.functionType = startBlock.functionType
             lineBlock.lang = startBlock.lang
             this.insertAfter(lineBlock, referenceBlock)
@@ -195,7 +195,9 @@ const pasteCtrl = ContentState => {
       switch (type) {
         case 'normal': {
           const htmlBlock = this.createBlock('p')
-          const lines = text.trim().split(LINE_BREAKS_REG).map(line => this.createBlock('span', line))
+          const lines = text.trim().split(LINE_BREAKS_REG).map(line => this.createBlock('span', {
+            text: line
+          }))
           for (const line of lines) {
             this.appendChild(htmlBlock, line)
           }
@@ -222,7 +224,9 @@ const pasteCtrl = ContentState => {
           
           if (!startBlock.text || lines.length > 1) {
             htmlBlock = this.createBlock('p')
-            ;(startBlock.text ? lines.slice(1) : lines).map(line => this.createBlock('span', line))
+            ;(startBlock.text ? lines.slice(1) : lines).map(line => this.createBlock('span', {
+              text: line
+            }))
               .forEach(l => {
                 this.appendChild(htmlBlock, l)
               })

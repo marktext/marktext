@@ -145,7 +145,9 @@ const updateCtrl = ContentState => {
       delete block.headingStyle
       block.type = 'p'
       block.children = []
-      const line = this.createBlock('span', block.text.substring(marker.length))
+      const line = this.createBlock('span', {
+        text: block.text.substring(marker.length)
+      })
       block.text = ''
       this.appendChild(block, line)
     } else {
@@ -221,8 +223,10 @@ const updateCtrl = ContentState => {
       this.removeBlock(block)
     } else {
       // Create a new list when changing list type, bullet or list delimiter
-      const listBlock = this.createBlock(wrapperTag)
-      listBlock.listType = type
+      const listBlock = this.createBlock(wrapperTag, {
+        listType: type
+      })
+
       if (wrapperTag === 'ol') {
         const start = cleanMarker ? cleanMarker.slice(0, -1) : 1
         listBlock.start = /^\d+$/.test(start) ? start : 1
@@ -264,10 +268,11 @@ const updateCtrl = ContentState => {
     const parent = this.getParent(block)
     const grandpa = this.getParent(parent)
     const checked = /\[x\]\s/i.test(marker) // use `i` flag to ignore upper case or lower case
-    const checkbox = this.createBlock('input')
+    const checkbox = this.createBlock('input', {
+      checked
+    })
     const { start, end } = this.cursor
 
-    checkbox.checked = checked
     this.insertBefore(checkbox, block)
     block.children[0].text = block.children[0].text.substring(marker.length)
     parent.listItemType = 'task'
@@ -277,16 +282,21 @@ const updateCtrl = ContentState => {
     if (this.isOnlyChild(parent)) {
       grandpa.listType = 'task'
     } else if (this.isFirstChild(parent) || this.isLastChild(parent)) {
-      taskListWrapper = this.createBlock('ul')
-      taskListWrapper.listType = 'task'
+      taskListWrapper = this.createBlock('ul', {
+        listType: 'task'
+      })
+
       this.isFirstChild(parent) ? this.insertBefore(taskListWrapper, grandpa) : this.insertAfter(taskListWrapper, grandpa)
       this.removeBlock(parent)
       this.appendChild(taskListWrapper, parent)
     } else {
-      taskListWrapper = this.createBlock('ul')
-      taskListWrapper.listType = 'task'
-      const bulletListWrapper = this.createBlock('ul')
-      bulletListWrapper.listType = 'bullet'
+      taskListWrapper = this.createBlock('ul', {
+        listType: 'task'
+      })
+
+      const bulletListWrapper = this.createBlock('ul', {
+        listType: 'bullet'
+      })
 
       let preSibling = this.getPreSibling(parent)
       while (preSibling) {
@@ -324,8 +334,11 @@ const updateCtrl = ContentState => {
     const text = line ? line.text : block.text
     if (line) {
       const index = block.children.indexOf(line)
-      const header = this.createBlock(newType, text)
-      header.headingStyle = 'atx'
+      const header = this.createBlock(newType, {
+        text,
+        headingStyle: 'atx'
+      })
+
       this.insertBefore(header, block)
       const paragraphBefore = this.createBlock('p')
       const paragraphAfter = this.createBlock('p')
@@ -363,9 +376,11 @@ const updateCtrl = ContentState => {
 
   ContentState.prototype.updateSetextHeader = function (block, marker, line) {
     const newType = /=/.test(marker) ? 'h1' : 'h2'
-    const header = this.createBlock(newType)
-    header.headingStyle = 'setext'
-    header.marker = marker
+    const header = this.createBlock(newType, {
+      headingStyle: 'setext',
+      marker
+    })
+
     const index = block.children.indexOf(line)
     let i = 0
     let text = ''
@@ -411,7 +426,9 @@ const updateCtrl = ContentState => {
       delete block.marker
       block.type = 'p'
       block.children = []
-      const line = this.createBlock('span', block.text.substring(1))
+      const line = this.createBlock('span', {
+        text: block.text.substring(1)
+      })
       block.text = ''
       this.appendChild(block, line)
     } else {
@@ -443,7 +460,9 @@ const updateCtrl = ContentState => {
     const newType = 'p'
     if (block.type !== newType) {
       block.type = newType // updateP
-      const newLine = this.createBlock('span', block.text)
+      const newLine = this.createBlock('span', {
+        text: block.text
+      })
       this.appendChild(block, newLine)
       block.text = ''
       this.cursor.start.key = this.cursor.end.key = newLine.key

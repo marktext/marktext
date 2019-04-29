@@ -2,7 +2,7 @@
  * [renderBlock render one block, no matter it is a container block or text block]
  */
 export default function renderBlock (block, cursor, activeBlocks, selectedBlock, matches, useCache = false) {
-  const method = block.children.length > 0
+  const method = Array.isArray(block.children) && block.children.length > 0
     ? 'renderContainerBlock'
     : 'renderLeafBlock'
 

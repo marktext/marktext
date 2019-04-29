@@ -235,7 +235,7 @@ const paragraphCtrl = ContentState => {
           startBlock = this.getParent(startBlock)
           startBlock.type = 'pre'
           const codeBlock = this.createBlock('code')
-          const inputBlock = this.createBlock('span', '')
+          const inputBlock = this.createBlock('span')
           inputBlock.functionType = 'languageInput'
           startBlock.functionType = 'fencecode'
           startBlock.lang = codeBlock.lang = ''
@@ -273,12 +273,12 @@ const paragraphCtrl = ContentState => {
         const markdown = new ExportMarkdown(children.slice(startIndex, endIndex + 1), listIndentation).generate()
 
         markdown.split(LINE_BREAKS_REG).forEach(text => {
-          const codeLine = this.createBlock('span', text)
+          const codeLine = this.createBlock('span', { text })
           codeLine.lang = ''
           codeLine.functionType = 'codeLine'
           this.appendChild(codeBlock, codeLine)
         })
-        const inputBlock = this.createBlock('span', '')
+        const inputBlock = this.createBlock('span')
         inputBlock.functionType = 'languageInput'
         this.appendChild(preBlock, inputBlock)
         this.appendChild(preBlock, codeBlock)
@@ -475,7 +475,9 @@ const paragraphCtrl = ContentState => {
           : partText
 
         if (block.type === 'span' && newType !== 'p') {
-          const header = this.createBlock(newType, newText)
+          const header = this.createBlock(newType, {
+            text: newText
+          })
           header.headingStyle = DEFAULT_TURNDOWN_CONFIG.headingStyle
           key = header.key
           const parent = this.getParent(block)
@@ -510,7 +512,9 @@ const paragraphCtrl = ContentState => {
           // The original is a paragraph, the new type is also paragraph, no need to update.
           return
         } else {
-          const newHeader = this.createBlock(newType, newText)
+          const newHeader = this.createBlock(newType, {
+            text: newText
+          })
           newHeader.headingStyle = DEFAULT_TURNDOWN_CONFIG.headingStyle
           key = newHeader.key
           this.insertAfter(newHeader, block)

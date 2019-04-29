@@ -219,7 +219,7 @@ const backspaceCtrl = ContentState => {
       ) {
         const preBlock = this.getParent(parent)
         const pBlock = this.createBlock('p')
-        const lineBlock = this.createBlock('span', block.text)
+        const lineBlock = this.createBlock('span', { text: block.text })
         const key = lineBlock.key
         const offset = 0
         this.appendChild(pBlock, lineBlock)

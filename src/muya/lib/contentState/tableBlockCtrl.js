@@ -18,7 +18,9 @@ const tableBlockCtrl = ContentState => {
       const rowBlock = this.createBlock('tr')
       i === 0 ? this.appendChild(tHead, rowBlock) : this.appendChild(tBody, rowBlock)
       for (j = 0; j < columns; j++) {
-        const cell = this.createBlock(i === 0 ? 'th' : 'td', headerTexts && i === 0 ? headerTexts[j] : '')
+        const cell = this.createBlock(i === 0 ? 'th' : 'td', {
+          text: headerTexts && i === 0 ? headerTexts[j] : ''
+        })
         this.appendChild(rowBlock, cell)
         cell.align = ''
         cell.column = j

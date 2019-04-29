@@ -37,36 +37,48 @@ const importRegister = ContentState => {
     while ((token = tokens.shift())) {
       switch (token.type) {
         case 'frontmatter': {
+          const lang = 'yaml'
           value = token.text
-          block = this.createBlock('pre')
-          const codeBlock = this.createBlock('code')
+          block = this.createBlock('pre', {
+            functionType: token.type,
+            lang
+          })
+          const codeBlock = this.createBlock('code', {
+            lang
+          })
           value
             .replace(/^\s+/, '')
             .replace(/\s$/, '')
             .split(LINE_BREAKS_REG).forEach(line => {
-              const codeLine = this.createBlock('span', line)
-              codeLine.functionType = 'codeLine'
-              codeLine.lang = 'yaml'
+              const codeLine = this.createBlock('span', {
+                text: line,
+                lang,
+                functionType: 'codeLine'
+              })
+
               this.appendChild(codeBlock, codeLine)
             })
 
-          block.functionType = token.type
-          block.lang = codeBlock.lang = 'yaml'
           this.appendChild(block, codeBlock)
           this.appendChild(parentList[0], block)
           break
         }
         case 'hr': {
           value = '---'
-          block = this.createBlock('hr', value)
+          block = this.createBlock('hr', {
+            text: value
+          })
           this.appendChild(parentList[0], block)
           break
         }
         case 'heading': {
           const { headingStyle, depth, text, marker } = token
           value = headingStyle === 'atx' ? '#'.repeat(+depth) + ` ${text}` : text
-          block = this.createBlock(`h${depth}`, value)
-          block.headingStyle = headingStyle
+          block = this.createBlock(`h${depth}`, {
+            text: value,
+            headingStyle
+          })
+
           if (marker) {
             block.marker = marker
           }
@@ -94,15 +106,25 @@ const importRegister = ContentState => {
             block = this.createContainerBlock(lang, value)
             this.appendChild(parentList[0], block)
           } else {
-            block = this.createBlock('pre')
-            const codeBlock = this.createBlock('code')
+            block = this.createBlock('pre', {
+              functionType: codeBlockStyle === 'fenced' ? 'fencecode' : 'indentcode',
+              lang
+            })
+            const codeBlock = this.createBlock('code', {
+              lang
+            })
             value.split(LINE_BREAKS_REG).forEach(line => {
-              const codeLine = this.createBlock('span', line)
+              const codeLine = this.createBlock('span', {
+                text: line
+              })
               codeLine.lang = lang
               codeLine.functionType = 'codeLine'
               this.appendChild(codeBlock, codeLine)
             })
-            const inputBlock = this.createBlock('span', lang)
+            const inputBlock = this.createBlock('span', {
+              text: lang,
+              functionType: 'languageInput'
+            })
             if (lang && !languageLoaded.has(lang)) {
               languageLoaded.add(lang)
               loadLanguage(lang)
@@ -120,9 +142,7 @@ const importRegister = ContentState => {
                   console.warn(err)
                 })
             }
-            inputBlock.functionType = 'languageInput'
-            block.functionType = codeBlockStyle === 'fenced' ? 'fencecode' : 'indentcode'
-            block.lang = codeBlock.lang = lang
+
             this.appendChild(block, inputBlock)
             this.appendChild(block, codeBlock)
             this.appendChild(parentList[0], block)
@@ -142,7 +162,9 @@ const importRegister = ContentState => {
           }
           for (const headText of header) {
             const i = header.indexOf(headText)
-            const th = this.createBlock('th', restoreTableEscapeCharacters(headText))
+            const th = this.createBlock('th', {
+              text: restoreTableEscapeCharacters(headText)
+            })
             Object.assign(th, { align: align[i] || '', column: i })
             this.appendChild(theadRow, th)
           }
@@ -150,7 +172,9 @@ const importRegister = ContentState => {
             const rowBlock = this.createBlock('tr')
             for (const cell of row) {
               const i = row.indexOf(cell)
-              const td = this.createBlock('td', restoreTableEscapeCharacters(cell))
+              const td = this.createBlock('td', {
+                text: restoreTableEscapeCharacters(cell)
+              })
               Object.assign(td, { align: align[i] || '', column: i })
               this.appendChild(rowBlock, td)
             }
@@ -179,7 +203,7 @@ const importRegister = ContentState => {
             value += `\n${token.text}`
           }
           block = this.createBlock('p')
-          const lines = value.split(LINE_BREAKS_REG).map(line => this.createBlock('span', line))
+          const lines = value.split(LINE_BREAKS_REG).map(line => this.createBlock('span', { text: line }))
           for (const line of lines) {
             this.appendChild(block, line)
           }
@@ -189,7 +213,7 @@ const importRegister = ContentState => {
         case 'paragraph': {
           value = token.text
           block = this.createBlock('p')
-          const lines = value.split(LINE_BREAKS_REG).map(line => this.createBlock('span', line))
+          const lines = value.split(LINE_BREAKS_REG).map(line => this.createBlock('span', { text: line }))
           for (const line of lines) {
             this.appendChild(block, line)
           }
@@ -224,13 +248,17 @@ const importRegister = ContentState => {
         case 'loose_item_start':
         case 'list_item_start': {
           const { listItemType, bulletMarkerOrDelimiter, checked, type } = token
-          block = this.createBlock('li')
-          block.listItemType = checked !== undefined ? 'task' : listItemType
-          block.bulletMarkerOrDelimiter = bulletMarkerOrDelimiter
-          block.isLooseListItem = type === 'loose_item_start'
+          block = this.createBlock('li', {
+            listItemType: checked !== undefined ? 'task' : listItemType,
+            bulletMarkerOrDelimiter,
+            isLooseListItem: type === 'loose_item_start'
+          })
+
           if (checked !== undefined) {
-            const input = this.createBlock('input')
-            input.checked = checked
+            const input = this.createBlock('input', {
+              checked
+            })
+
             this.appendChild(block, input)
           }
           this.appendChild(parentList[0], block)

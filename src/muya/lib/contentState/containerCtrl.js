@@ -10,8 +10,10 @@ const FUNCTION_TYPE_LANG = {
 
 const containerCtrl = ContentState => {
   ContentState.prototype.createContainerBlock = function (functionType, value = '') {
-    const figureBlock = this.createBlock('figure')
-    figureBlock.functionType = functionType
+    const figureBlock = this.createBlock('figure', {
+      functionType
+    })
+
     const { preBlock, preview } = this.createPreAndPreview(functionType, value)
     this.appendChild(figureBlock, preBlock)
     this.appendChild(figureBlock, preview)
@@ -19,28 +21,40 @@ const containerCtrl = ContentState => {
   }
 
   ContentState.prototype.createPreAndPreview = function (functionType, value = '') {
-    const preBlock = this.createBlock('pre')
-    const codeBlock = this.createBlock('code')
-    preBlock.functionType = functionType
-    preBlock.lang = codeBlock.lang = FUNCTION_TYPE_LANG[functionType]
+    const lang = FUNCTION_TYPE_LANG[functionType]
+    const preBlock = this.createBlock('pre', {
+      functionType,
+      lang
+    })
+    const codeBlock = this.createBlock('code', {
+      lang
+    })
+
     this.appendChild(preBlock, codeBlock)
 
     if (typeof value === 'string' && value) {
       value.replace(/^\s+/, '').split(LINE_BREAKS_REG).forEach(line => {
-        const codeLine = this.createBlock('span', line)
-        codeLine.functionType = 'codeLine'
-        codeLine.lang = FUNCTION_TYPE_LANG[functionType]
+        const codeLine = this.createBlock('span', {
+          text: line,
+          functionType: 'codeLine',
+          lang
+        })
+
         this.appendChild(codeBlock, codeLine)
       })
     } else {
-      const emptyLine = this.createBlock('span')
-      emptyLine.functionType = 'codeLine'
-      emptyLine.lang = FUNCTION_TYPE_LANG[functionType]
+      const emptyLine = this.createBlock('span', {
+        functionType: 'codeLine',
+        lang
+      })
+
       this.appendChild(codeBlock, emptyLine)
     }
 
-    const preview = this.createBlock('div', '', false)
-    preview.functionType = functionType
+    const preview = this.createBlock('div', {
+      editable: false,
+      functionType
+    })
 
     return { preBlock, preview }
   }

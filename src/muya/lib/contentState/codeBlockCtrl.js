@@ -75,7 +75,7 @@ const codeBlockCtrl = ContentState => {
   ContentState.prototype.indentCodeBlockUpdate = function (block) {
     const oldPBlock = this.getParent(block)
     const codeBlock = this.createBlock('code')
-    const inputBlock = this.createBlock('span', '')
+    const inputBlock = this.createBlock('span')
     const preBlock = this.createBlock('pre')
 
     oldPBlock.children.forEach(child => {
@@ -108,9 +108,9 @@ const codeBlockCtrl = ContentState => {
     const match = CODE_UPDATE_REP.exec(text)
     if (match || lang) {
       const codeBlock = this.createBlock('code')
-      const firstLine = this.createBlock('span', code)
+      const firstLine = this.createBlock('span', { text: code })
       const language = lang || (match ? match[1] : '')
-      const inputBlock = this.createBlock('span', language)
+      const inputBlock = this.createBlock('span', { text: language })
       loadLanguage(language)
       inputBlock.functionType = 'languageInput'
       block.type = 'pre'

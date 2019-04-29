@@ -143,3 +143,15 @@ Used for `html`,`block math`,`mermaid`,`flowchart`,`vega-lite`,`sequence` `code 
   - true
   
   - false
+
+##### table
+
+- row
+
+- column
+
+##### th/td
+
+- align
+
+- column

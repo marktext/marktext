@@ -182,23 +182,26 @@ class ContentState {
    * A block in Mark Text present a paragraph(block syntax in GFM) or a line in paragraph.
    * a `span` block must in a `p block` or `pre block` and `p block`'s children must be `span` blocks.
    */
-  createBlock (type = 'span', text = '', editable = true) {
+  createBlock (type = 'span', extras = {}) {
     const key = getUniqueId()
-    return {
+    const blockData = {
       key,
+      text: '',
       type,
-      text,
-      editable,
+      editable: true,
       parent: null,
       preSibling: null,
       nextSibling: null,
       children: []
     }
+
+    Object.assign(blockData, extras)
+    return blockData
   }
 
   createBlockP (text = '') {
     const pBlock = this.createBlock('p')
-    const contentBlock = this.createBlock('span', text)
+    const contentBlock = this.createBlock('span', { text })
     this.appendChild(pBlock, contentBlock)
     return pBlock
   }
