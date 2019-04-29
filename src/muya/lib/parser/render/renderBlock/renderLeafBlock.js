@@ -65,13 +65,16 @@ export default function renderLeafBlock (block, cursor, activeBlocks, selectedBl
     functionType,
     editable
   } = block
+
   const data = {
     props: {},
     attrs: {},
     dataset: {},
     style: {}
   }
+
   let children = ''
+
   if (text) {
     let tokens = []
     if (highlights.length === 0 && this.tokenCache.has(text)) {
@@ -103,9 +106,9 @@ export default function renderLeafBlock (block, cursor, activeBlocks, selectedBl
       style: `text-align:${align}`
     })
   } else if (type === 'div') {
-    const code = this.muya.contentState.codeBlocks.get(block.preSibling)
+    const code = this.codeCache.get(block.preSibling)
     switch (functionType) {
-      case 'preview': {
+      case 'html': {
         selector += `.${CLASS_OR_ID['AG_HTML_PREVIEW']}`
         const htmlContent = sanitize(code, PREVIEW_DOMPURIFY_CONFIG)
         // handle empty html bock
@@ -168,7 +171,6 @@ export default function renderLeafBlock (block, cursor, activeBlocks, selectedBl
       case 'flowchart':
       case 'sequence':
       case 'vega-lite': {
-        const code = this.muya.contentState.codeBlocks.get(block.preSibling)
         selector += `.${CLASS_OR_ID['AG_CONTAINER_PREVIEW']}`
         if (code === '') {
           children = '< Empty Diagram Block >'

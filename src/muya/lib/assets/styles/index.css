@@ -77,8 +77,7 @@ div.ag-show-quick-insert-hint p.ag-paragraph.ag-active > span.ag-line:first-of-t
   color: transparent;
 }
 
-figure.ag-container-block pre,
-div.ag-function-html pre.ag-html-block {
+figure.ag-container-block pre {
   width: 0;
   height: 0;
   overflow: hidden;
@@ -90,7 +89,6 @@ div.ag-function-html pre.ag-html-block {
   overflow: visible;
 }
 
-div.ag-function-html.ag-active pre.ag-html-block,
 figure.ag-active.ag-container-block pre {
   position: static;
   width: 100%;
@@ -100,11 +98,11 @@ figure.ag-active.ag-container-block pre {
   display: block;
 }
 
-div.ag-function-html .ag-html-preview {
+figure[data-role="HTML"] .ag-html-preview {
   display: block;
 }
 
-div.ag-function-html.ag-active .ag-html-preview {
+figure[data-role="HTML"].ag-active .ag-html-preview {
   display: none;
 }
 
@@ -474,7 +472,6 @@ pre.ag-multiple-math span.ag-code-line:first-of-type:empty::after {
 
 figure,
 pre.ag-html-block,
-div.ag-function-html,
 pre.ag-fence-code,
 pre.ag-indent-code,
 li.ag-list-item > p.ag-paragraph {

@@ -13,6 +13,7 @@ class StateRender {
   constructor (muya) {
     this.muya = muya
     this.eventCenter = muya.eventCenter
+    this.codeCache = new Map()
     this.loadImageMap = new Map()
     this.loadMathMap = new Map()
     this.mermaidCache = new Set()

@@ -235,10 +235,8 @@ const backspaceCtrl = ContentState => {
           case 'mermaid':
           case 'sequence':
           case 'vega-lite':
-            referenceBlock = this.getParent(preBlock)
-            break
           case 'html':
-            referenceBlock = this.getParent(this.getParent(preBlock))
+            referenceBlock = this.getParent(preBlock)
             break
         }
         this.insertBefore(pBlock, referenceBlock)

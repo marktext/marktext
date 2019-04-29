@@ -451,13 +451,6 @@ const updateCtrl = ContentState => {
     }
     return null
   }
-
-  ContentState.prototype.updateCodeBlocks = function (block) {
-    const codeBlock = this.getParent(block)
-    const preBlock = this.getParent(codeBlock)
-    const code = codeBlock.children.map(line => line.text).join('\n')
-    this.codeBlocks.set(preBlock.key, code)
-  }
 }
 
 export default updateCtrl

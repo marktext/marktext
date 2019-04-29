@@ -52,7 +52,6 @@ const importRegister = ContentState => {
 
           block.functionType = token.type
           block.lang = codeBlock.lang = 'yaml'
-          this.codeBlocks.set(block.key, value)
           this.appendChild(block, codeBlock)
           this.appendChild(parentList[0], block)
           break
@@ -122,7 +121,6 @@ const importRegister = ContentState => {
                 })
             }
             inputBlock.functionType = 'languageInput'
-            this.codeBlocks.set(block.key, value)
             block.functionType = codeBlockStyle === 'fenced' ? 'fencecode' : 'indentcode'
             block.lang = codeBlock.lang = lang
             this.appendChild(block, inputBlock)
@@ -308,7 +306,7 @@ const importRegister = ContentState => {
     // set cursor
     const travel = blocks => {
       for (const block of blocks) {
-        const { key, text, children, editable, type, functionType } = block
+        const { key, text, children, editable } = block
         if (text) {
           const offset = text.indexOf(CURSOR_DNA)
           if (offset > -1) {
@@ -317,17 +315,6 @@ const importRegister = ContentState => {
               this.cursor = {
                 start: { key, offset },
                 end: { key, offset }
-              }
-              // handle cursor in Math block, need to remove `CURSOR_DNA` in preview block
-              if (type === 'span' && functionType === 'codeLine') {
-                const preBlock = this.getParent(this.getParent(block))
-                const code = this.codeBlocks.get(preBlock.key)
-                if (!code) return
-                const offset = code.indexOf(CURSOR_DNA)
-                if (offset > -1) {
-                  const newCode = code.substring(0, offset) + code.substring(offset + CURSOR_DNA.length)
-                  this.codeBlocks.set(preBlock.key, newCode)
-                }
               }
               return
             }
@@ -351,7 +338,6 @@ const importRegister = ContentState => {
   }
 
   ContentState.prototype.importMarkdown = function (markdown) {
-    this.codeBlocks = new Map()
     this.blocks = this.markdownToState(markdown)
   }
 }

@@ -22,16 +22,15 @@ export default function renderContainerBlock (block, cursor, activeBlocks, selec
     attrs: {},
     dataset: {}
   }
+
+  if (block.editable === false) {
+    Object.assign(data.attrs, { contenteditable: 'false' })
+  }
+
   // handle `div` block
   if (/div/.test(block.type)) {
     if (block.toolBarType) {
       selector += `.${'ag-tool-' + block.toolBarType}.${CLASS_OR_ID['AG_TOOL_BAR']}`
-    }
-    if (block.functionType) {
-      selector += `.${'ag-function-' + block.functionType}`
-    }
-    if (block.editable !== undefined && !block.editable) {
-      Object.assign(data.attrs, { contenteditable: 'false' })
     }
   }
   // handle `figure` block
@@ -46,7 +45,7 @@ export default function renderContainerBlock (block, cursor, activeBlocks, selec
     }
 
     if (
-      /multiplemath|flowchart|mermaid|sequence|vega-lite/.test(block.functionType)
+      /html|multiplemath|flowchart|mermaid|sequence|vega-lite/.test(block.functionType)
     ) {
       selector += `.${CLASS_OR_ID['AG_CONTAINER_BLOCK']}`
     }
@@ -101,6 +100,12 @@ export default function renderContainerBlock (block, cursor, activeBlocks, selec
     }
     Object.assign(data.dataset, { role: functionType })
     selector += PRE_BLOCK_HASH[block.functionType]
+
+    if (/html|multiplemath|mermaid|flowchart|wega-lite|sequence/.test(functionType)) {
+      const codeBlock = block.children[0]
+      const code = codeBlock.children.map(line => line.text).join('\n')
+      this.codeCache.set(block.key, code)
+    }
   }
 
   if (!block.parent) {

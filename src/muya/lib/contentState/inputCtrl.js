@@ -226,7 +226,6 @@ const inputCtrl = ContentState => {
     // Update preview content of math block
     if (block && block.type === 'span' && block.functionType === 'codeLine') {
       needRender = true
-      this.updateCodeBlocks(block)
     }
 
     this.cursor = { start, end }

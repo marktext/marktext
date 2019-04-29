@@ -244,7 +244,7 @@ class ExportMarkdown {
 
   normalizeHTML (block, indent) { // figure
     const result = []
-    const codeLines = block.children[0].children[0].children[0].children
+    const codeLines = block.children[0].children[0].children
     for (const line of codeLines) {
       result.push(`${indent}${line.text}\n`)
     }

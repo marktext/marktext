@@ -161,7 +161,6 @@ const pasteCtrl = ContentState => {
           end: { key, offset }
         }
       }
-      this.updateCodeBlocks(startBlock)
       return this.partialRender()
     }
 
@@ -380,10 +379,7 @@ const pasteCtrl = ContentState => {
       offset = startBlock.text.length - cacheText.length
       cursorBlock = startBlock
     }
-    // TODO @Jocs duplicate with codes in updateCtrl.js
-    if (cursorBlock && cursorBlock.type === 'span' && cursorBlock.functionType === 'codeLine') {
-      this.updateCodeBlocks(cursorBlock)
-    }
+
     this.cursor = {
       start: {
         key, offset

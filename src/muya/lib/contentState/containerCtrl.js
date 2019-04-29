@@ -4,7 +4,8 @@ const FUNCTION_TYPE_LANG = {
   'flowchart': 'yaml',
   'mermaid': 'yaml',
   'sequence': 'yaml',
-  'vega-lite': 'yaml'
+  'vega-lite': 'yaml',
+  'html': 'markup'
 }
 
 const containerCtrl = ContentState => {
@@ -14,7 +15,6 @@ const containerCtrl = ContentState => {
     const { preBlock, preview } = this.createPreAndPreview(functionType, value)
     this.appendChild(figureBlock, preBlock)
     this.appendChild(figureBlock, preview)
-    this.codeBlocks.set(preBlock.key, value)
     return figureBlock
   }
 
@@ -40,7 +40,6 @@ const containerCtrl = ContentState => {
     }
 
     const preview = this.createBlock('div', '', false)
-    this.codeBlocks.set(preBlock.key, '')
     preview.functionType = functionType
 
     return { preBlock, preview }

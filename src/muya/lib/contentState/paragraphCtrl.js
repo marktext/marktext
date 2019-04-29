@@ -214,7 +214,6 @@ const paragraphCtrl = ContentState => {
     if (affiliation.length && affiliation[0].type === 'pre' && /code/.test(affiliation[0].functionType)) {
       const preBlock = affiliation[0]
       const codeLines = preBlock.children[1].children
-      this.codeBlocks.delete(preBlock.key)
       preBlock.type = 'p'
       preBlock.children = []
 
@@ -634,12 +633,7 @@ const paragraphCtrl = ContentState => {
     // if copied block has pre block: html, multiplemath, vega-light, mermaid, flowchart, sequence...
     const copiedBlock = this.copyBlock(startOutmostBlock)
     this.insertAfter(copiedBlock, startOutmostBlock)
-    if (copiedBlock.type === 'figure' && copiedBlock.functionType) {
-      const preBlock = this.getPreBlock(copiedBlock)
-      if (preBlock) {
-        this.updateCodeBlocks(preBlock.children[0].children[0])
-      }
-    }
+
     const cursorBlock = this.firstInDescendant(copiedBlock)
     // set cursor at the end of the first descendant of the duplicated block.
     const { key, text } = cursorBlock

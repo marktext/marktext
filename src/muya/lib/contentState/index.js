@@ -63,7 +63,6 @@ class ContentState {
     this.exemption = new Set()
     this.blocks = [ this.createBlockP() ]
     this.stateRender = new StateRender(muya)
-    this.codeBlocks = new Map()
     this.renderRange = [ null, null ]
     this.currentCursor = null
     // you'll select the outmost block of current cursor when you click the front icon.
@@ -199,8 +198,8 @@ class ContentState {
 
   createBlockP (text = '') {
     const pBlock = this.createBlock('p')
-    const lineBlock = this.createBlock('span', text)
-    this.appendChild(pBlock, lineBlock)
+    const contentBlock = this.createBlock('span', text)
+    this.appendChild(pBlock, contentBlock)
     return pBlock
   }
 
