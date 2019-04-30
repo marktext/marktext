@@ -15,12 +15,7 @@ const htmlBlock = ContentState => {
 
   ContentState.prototype.initHtmlBlock = function (block) {
     let htmlContent = ''
-    const text = block.type === 'p'
-    ? block.children.map((child => {
-        return child.text
-      })).join('\n').trim()
-    : block.text
-
+    const text = block.children[0].text
     const matches = inlineRules.html_tag.exec(text)
     if (matches) {
       const tag = matches[3]

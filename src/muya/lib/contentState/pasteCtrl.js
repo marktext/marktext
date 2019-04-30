@@ -8,21 +8,33 @@ const pasteCtrl = ContentState => {
   // check paste type: `MERGE` or `NEWLINE`
   ContentState.prototype.checkPasteType = function (start, fragment) {
     const fragmentType = fragment.type
-    if (start.type === 'span') {
-      start = this.getParent(start)
-    }
-    if (fragmentType === 'p') return 'MERGE'
-    if (fragmentType === 'blockquote') return 'NEWLINE'
-    let parent = this.getParent(start)
-    if (parent && parent.type === 'li') parent = this.getParent(parent)
-    let startType = start.type
-    if (start.type === 'p') {
-      startType = parent ? parent.type : startType
-    }
-    if (LIST_REG.test(fragmentType) && LIST_REG.test(startType)) {
+    const parent = this.getParent(start)
+
+    if (fragmentType === 'p') {
       return 'MERGE'
+    } else if (/^h\d/.test(fragmentType)) {
+      if (start.text) {
+        return 'MERGE'
+      } else {
+        return 'NEWLINE'
+      }
+    } else if (LIST_REG.test(fragmentType)) {
+      const listItem = this.getParent(parent)
+      const list = listItem && listItem.type === 'li' ? this.getParent(listItem) : null
+      if (list) {
+        if (
+          list.listType === fragment.listType &&
+          listItem.bulletMarkerOrDelimiter === fragment.children[0].bulletMarkerOrDelimiter  
+        ) {
+          return 'MERGE'
+        } else {
+          return 'NEWLINE'
+        }
+      } else {
+        return 'NEWLINE'
+      }
     } else {
-      return startType === fragmentType ? 'MERGE' : 'NEWLINE'
+      return 'NEWLINE'
     }
   }
 
@@ -178,42 +190,12 @@ const pasteCtrl = ContentState => {
 
     // handle copyAsHtml
     if (copyType === 'copyAsHtml') {
-      // already handle code block above
-      if (startBlock.type === 'span' && startBlock.nextSibling) {
-        const afterParagraph = this.createBlock('p')
-        let temp = startBlock
-        const removeCache = []
-        while (temp.nextSibling) {
-          temp = this.getBlock(temp.nextSibling)
-          this.appendChild(afterParagraph, temp)
-          removeCache.push(temp)
-        }
-        removeCache.forEach(b => this.removeBlock(b))
-        this.insertAfter(afterParagraph, parent)
-        startBlock.nextSibling = null
-      }
       switch (type) {
         case 'normal': {
-          const htmlBlock = this.createBlock('p')
-          const contentBlock = this.createBlock('span', {
-            text: text.trim()
-          })
-          this.appendChild(htmlBlock, contentBlock)
-
-          if (startBlock.type === 'span') {
-            this.insertAfter(htmlBlock, parent)
-          } else {
-            this.insertAfter(htmlBlock, startBlock)
-          }
-          if (
-            startBlock.type === 'span' && startBlock.text.length === 0 && this.isOnlyChild(startBlock)
-          ) {
-            this.removeBlock(parent)
-          }
+          const htmlBlock = this.createBlockP(text.trim())
+          this.insertAfter(htmlBlock, parent)
+          this.removeBlock(parent)
           // handler heading
-          if (startBlock.text.length === 0 && startBlock.type !== 'span') {
-            this.removeBlock(startBlock)
-          }
           this.insertHtmlBlock(htmlBlock)
           break
         }
@@ -222,26 +204,16 @@ const pasteCtrl = ContentState => {
           let htmlBlock = null
           
           if (!startBlock.text || lines.length > 1) {
-            htmlBlock = this.createBlock('p')
-            ;(startBlock.text ? lines.slice(1) : lines).map(line => this.createBlock('span', {
-              text: line
-            }))
-              .forEach(l => {
-                this.appendChild(htmlBlock, l)
-              })
+            htmlBlock = this.createBlockP((startBlock.text ? lines.slice(1) : lines).join('\n'))
           }
           if (htmlBlock) {
-            if (startBlock.type === 'span') {
-              this.insertAfter(htmlBlock, parent)
-            } else {
-              this.insertAfter(htmlBlock, startBlock)
-            }
+            this.insertAfter(htmlBlock, parent)
             this.insertHtmlBlock(htmlBlock)
           }
           if (startBlock.text) {
             appendHtml(lines[0])
           } else {
-            this.removeBlock(startBlock.type === 'span' ? parent : startBlock)
+            this.removeBlock(parent)
           }
           break
         }
@@ -302,7 +274,6 @@ const pasteCtrl = ContentState => {
           if (liChildren[0].type === 'p') {
             // TODO @JOCS
             startBlock.text += liChildren[0].children[0].text
-            liChildren[0].children.slice(1).forEach(c => this.appendChild(parent, c))
             const tail = liChildren.slice(1)
             if (tail.length) {
               tail.forEach(t => {
@@ -325,33 +296,21 @@ const pasteCtrl = ContentState => {
             this.insertAfter(block, target)
             target = block
           })
-        } else {
-          if (firstFragment.type === 'p') {
-            if (/^h\d$/.test(startBlock.type)) {
-              // handle paste into header
-              startBlock.text += firstFragment.children[0].text
-              if (firstFragment.children.length > 1) {
-                const newParagraph = this.createBlock('p')
-                firstFragment.children.slice(1).forEach(line => {
-                  this.appendChild(newParagraph, line)
-                })
-                this.insertAfter(newParagraph, startBlock)
-              }
-            } else {
-              startBlock.text += firstFragment.children[0].text
-              firstFragment.children.slice(1).forEach(line => {
-                if (startBlock.functionType) line.functionType = startBlock.functionType
-                if (startBlock.lang) line.lang = startBlock.lang
-                this.appendChild(parent, line)
-              })
+        } else if (firstFragment.type === 'p' || /^h\d/.test(firstFragment.type)) {
+          const text = firstFragment.children[0].text
+          const lines = text.split('\n')
+          let target = parent
+          if (parent.headingStyle === 'atx') {
+            startBlock.text += lines[0]
+            if (lines.length > 1) {
+              const pBlock = this.createBlockP(lines.slice(1).join('\n'))
+              this.insertAfter(parent, pBlock)
+              target = pBlock
             }
-          } else if (/^h\d$/.test(firstFragment.type)) {
-            startBlock.text += firstFragment.text.split(/\s+/)[1]
           } else {
-            startBlock.text += firstFragment.text
+            startBlock.text += text
           }
-
-          let target = /^h\d$/.test(startBlock.type) ? startBlock : parent
+          
           tailFragments.forEach(block => {
             this.insertAfter(block, target)
             target = block
@@ -360,14 +319,13 @@ const pasteCtrl = ContentState => {
         break
       }
       case 'NEWLINE': {
-        let target = startBlock.type === 'span' ? parent : startBlock
+        let target = parent
         stateFragments.forEach(block => {
           this.insertAfter(block, target)
           target = block
         })
         if (startBlock.text.length === 0) {
-          this.removeBlock(startBlock)
-          if (this.isOnlyChild(startBlock) && startBlock.type === 'span') this.removeBlock(parent)
+          this.removeBlock(parent)
         }
         break
       }
