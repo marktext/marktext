@@ -200,9 +200,10 @@ const enterCtrl = ContentState => {
     if (event.shiftKey && block.type === 'span' && block.functionType === 'paragraphContent') {
       let { offset } = start
       const { text, key } = block
-      block.text = text.substring(0, offset) + '\n' + text.substring(offset)
+      const indent = getIndentSpace(text)
+      block.text = text.substring(0, offset) + '\n' + indent + text.substring(offset)
 
-      offset++
+      offset += 1 + indent.length
       this.cursor = {
         start: { key, offset },
         end: { key, offset }
