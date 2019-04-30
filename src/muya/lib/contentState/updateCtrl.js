@@ -3,14 +3,14 @@ import { conflict } from '../utils'
 import { CLASS_OR_ID } from '../config'
 
 const INLINE_UPDATE_FRAGMENTS = [
-  '^([*+-]\\s)', // Bullet list
+  '(?:^|\n)([*+-]\\s)', // Bullet list
   '^(\\[[x\\s]{1}\\]\\s)', // Task list
   '^(\\d{1,9}(?:\\.|\\))\\s)', // Order list
-  '^\\s{0,3}(#{1,6})(?=\\s{1,}|$)', // ATX headings
+  '(?:^|\n) {0,3}(#{1,6})(?= {1,}|$)', // ATX headings
   '^(?:[^\\n]+)\\n\\s{0,3}(\\={3,}|\\-{3,})(?=\\s{1,}|$)', // Setext headings
   '^(>).+', // Block quote
-  '^(\\s{4,})', // indent code
-  '^\\s{0,3}((?:\\*\\s*\\*\\s*\\*|-\\s*-\\s*-|_\\s*_\\s*_)[\\s\\*\\-\\_]*)$' // Thematic break
+  '^( {4,})', // Indent code
+  '(?:^|\n) {0,3}((?:\\* *\\* *\\*|- *- *-|_ *_ *_)[ \\*\\-\\_]*)$' // Thematic break
 ]
 
 const INLINE_UPDATE_REG = new RegExp(INLINE_UPDATE_FRAGMENTS.join('|'), 'i')
@@ -22,7 +22,6 @@ const updateCtrl = ContentState => {
     const block = this.getBlock(id)
     block.checked = checked
     checkbox.classList.toggle(CLASS_OR_ID['AG_CHECKBOX_CHECKED'])
-    // this.render()
   }
 
   ContentState.prototype.checkSameLooseType = function (list, isLooseType) {
@@ -67,12 +66,14 @@ const updateCtrl = ContentState => {
     return false
   }
 
+  /**
+   * block must be span block.
+   */
   ContentState.prototype.checkInlineUpdate = function (block) {
     // table cell can not have blocks in it
     if (/th|td|figure/.test(block.type)) return false
     if (/codeLine|languageInput/.test(block.functionType)) return false
-    // line in paragraph can also update to other block. So comment bellow code.
-    // if (block.type === 'span' && block.preSibling) return false
+
     let line = null
     const { text } = block
     if (block.type === 'span') {
@@ -84,7 +85,7 @@ const updateCtrl = ContentState => {
 
     switch (true) {
       case (!!hr && new Set(hr.split('').filter(i => /\S/.test(i))).size === 1):
-        return this.updateHr(block, hr || setextHeader)
+        return this.updateHr(block, hr, line)
 
       case !!bullet:
         return this.updateList(block, 'bullet', bullet, line)
@@ -114,24 +115,56 @@ const updateCtrl = ContentState => {
     }
   }
 
-  // thematic break
-  ContentState.prototype.updateHr = function (block, marker) {
-    if (block.type !== 'hr') {
-      block.type = 'hr'
-      block.text = marker
-      block.children.length = 0
-      const { key } = block
-      this.cursor.start.key = this.cursor.end.key = key
-      return block
+  // Thematic break
+  ContentState.prototype.updateHr = function (block, marker, line) {
+    console.log(block, line, marker)
+    // If the block is already thematic break, no need to update.
+    if (block.type === 'hr') return null
+    const text = line.text
+    const lines = text.split('\n')
+    const preParagraphLines = []
+    let thematicLine = ''
+    const postParagraphLines = []
+    let thematicLineHasPushed = false
+
+    for (const l of lines) {
+      if (/ {0,3}(?:\\* *\\* *\\*|- *- *-|_ *_ *_)[ \\*\\-\\_]*$/.test(l) && !thematicLineHasPushed) {
+        thematicLine = l
+        thematicLineHasPushed = true
+      } else if (!thematicLineHasPushed) {
+        preParagraphLines.push(l)
+      } else {
+        postParagraphLines.push(l)
+      }
     }
-    return null
+
+    const thematicBlock = this.createBlock('hr')
+    const thematicLineBlock = this.createBlock('span', {
+      text: thematicLine,
+      functionType: 'thematicBreakLine'
+    })
+    this.appendChild(thematicBlock, thematicLineBlock)
+    this.insertBefore(thematicBlock, block)
+    if (preParagraphLines.length) {
+      const preBlock = this.createBlockP(preParagraphLines.join('\n'))
+      this.insertBefore(preBlock, thematicBlock)
+    }
+    if (postParagraphLines.length) {
+      const postBlock = this.createBlockP(postParagraphLines.join('\n'))
+      this.insertAfter(postBlock, thematicBlock)
+    }
+
+    this.removeBlock(block)
+    const { start, end } = this.cursor
+    const key = thematicBlock.children[0].key
+    this.cursor = {
+      start: { key, offset: start.offset },
+      end: { key, offset: end.offset }
+    }
+    return thematicBlock
   }
 
   ContentState.prototype.updateList = function (block, type, marker = '', line) {
-    if (block.type === 'span') {
-      block = this.getParent(block)
-    }
-
     const cleanMarker = marker ? marker.trim() : null
     const { preferLooseListItem } = this
     const parent = this.getParent(block)
@@ -330,8 +363,10 @@ const updateCtrl = ContentState => {
     return taskListWrapper || grandpa
   }
 
+  // ATX heading doesn't support soft line break and hard line break.
   ContentState.prototype.updateAtxHeader = function (block, header, line) {
     const newType = `h${header.length}`
+    // const headingStyle = 'atx'
     const text = line ? line.text : block.text
     if (line) {
       const index = block.children.indexOf(line)
@@ -467,12 +502,16 @@ const updateCtrl = ContentState => {
       lang: ''
     })
 
-    const lines = line.text.split('\n')
+    const text = line ? line.text : block.text
+
+    const lines = text.split('\n')
     const codeLines = []
     const paragraphLines = []
     let canBeCodeLine = true
 
     for (const l of lines) {
+      console.log(/^ {4,}/.test(l))
+      console.log('xx' + l + 'xx')
       if (/^ {4,}/.test(l) && canBeCodeLine) {
         codeLines.push(l.replace(/^ {4}/, ''))
       } else {
@@ -480,7 +519,7 @@ const updateCtrl = ContentState => {
         paragraphLines.push(l)
       }
     }
-
+    console.log(lines, codeLines)
     codeLines.forEach(text => {
       const codeLine = this.createBlock('span', {
         text,
@@ -494,7 +533,7 @@ const updateCtrl = ContentState => {
     this.appendChild(preBlock, codeBlock)
     this.insertBefore(preBlock, block)
 
-    if (paragraphLines.length > 0) {
+    if (paragraphLines.length > 0 && line) {
       const newLine = this.createBlock('span', {
         text: paragraphLines.join('\n')
       })

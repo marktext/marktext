@@ -7,8 +7,12 @@
   - languageInput
   
   - codeLine
+
+  - atxLine (can not contain soft line break and hard line break use in atx heading)
+
+  - thematicBreakLine (can not contain soft line break and hard line break use in thematic break)
   
-  - paragraphContent (defaultValue)
+  - paragraphContent (defaultValue use in paragraph and setext heading)
 
 - lang - only when it's code line
   

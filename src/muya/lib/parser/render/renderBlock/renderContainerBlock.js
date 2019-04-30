@@ -17,27 +17,47 @@ const PRE_BLOCK_HASH = {
 
 export default function renderContainerBlock (block, cursor, activeBlocks, selectedBlock, matches, useCache = false) {
   let selector = this.getSelector(block, cursor, activeBlocks, selectedBlock)
+  const {
+    type,
+    headingStyle,
+    editable,
+    functionType,
+    listType,
+    listItemType,
+    bulletMarkerOrDelimiter,
+    isLooseListItem,
+    lang
+  } = block
   const children = block.children.map(child => this.renderBlock(child, cursor, activeBlocks, selectedBlock, matches, useCache))
   const data = {
     attrs: {},
     dataset: {}
   }
 
-  if (block.editable === false) {
+  if (editable === false) {
     Object.assign(data.attrs, { contenteditable: 'false' })
   }
 
-  // handle `div` block
-  if (/div/.test(block.type)) {
-    if (block.toolBarType) {
-      selector += `.${'ag-tool-' + block.toolBarType}.${CLASS_OR_ID['AG_TOOL_BAR']}`
-    }
+  if (/code|pre/.test(type) && typeof lang === 'string' && !!lang) {
+    selector += `.language-${lang}`
   }
-  // handle `figure` block
-  if (block.type === 'figure') {
-    if (block.functionType) {
-      Object.assign(data.dataset, { role: block.functionType.toUpperCase() })
-      if (block.functionType === 'table') {
+
+  if (/^h/.test(type)) {
+    if (/^h\d$/.test(type)) {
+      // TODO: This should be the best place to create and update the TOC.
+      //       Cache `block.key` and title and update only if necessary.
+      Object.assign(data.dataset, {
+        head: type
+      })
+      selector += `.${headingStyle}`
+    }
+    Object.assign(data.dataset, {
+      role: type
+    })
+  } else if (type === 'figure') {
+    if (functionType) {
+      Object.assign(data.dataset, { role: functionType.toUpperCase() })
+      if (functionType === 'table') {
         children.unshift(renderTableTools(activeBlocks))
       } else {
         children.unshift(renderEditIcon())
@@ -45,59 +65,21 @@ export default function renderContainerBlock (block, cursor, activeBlocks, selec
     }
 
     if (
-      /html|multiplemath|flowchart|mermaid|sequence|vega-lite/.test(block.functionType)
+      /html|multiplemath|flowchart|mermaid|sequence|vega-lite/.test(functionType)
     ) {
       selector += `.${CLASS_OR_ID['AG_CONTAINER_BLOCK']}`
     }
-  }
-  // hanle list block
-  if (/ul|ol/.test(block.type) && block.listType) {
-    switch (block.listType) {
-      case 'order':
-        selector += `.${CLASS_OR_ID['AG_ORDER_LIST']}`
-        break
-      case 'bullet':
-        selector += `.${CLASS_OR_ID['AG_BULLET_LIST']}`
-        break
-      case 'task':
-        selector += `.${CLASS_OR_ID['AG_TASK_LIST']}`
-        break
-      default:
-        break
+  } else if (/ul|ol/.test(type) && listType) {
+    selector += `.ag-${listType}-list`
+    if (type === 'ol') {
+      Object.assign(data.attrs, { start: block.start })
     }
-  }
-  if (block.type === 'li' && block.listItemType) {
+  } else if (type === 'li' && listItemType) {
+    Object.assign(data.dataset, { marker: bulletMarkerOrDelimiter })
     selector += `.${CLASS_OR_ID['AG_LIST_ITEM']}`
-    switch (block.listItemType) {
-      case 'order':
-        selector += `.${CLASS_OR_ID['AG_ORDER_LIST_ITEM']}`
-        break
-      case 'bullet':
-        selector += `.${CLASS_OR_ID['AG_BULLET_LIST_ITEM']}`
-        break
-      case 'task':
-        selector += `.${CLASS_OR_ID['AG_TASK_LIST_ITEM']}`
-        break
-      default:
-        break
-    }
-    Object.assign(data.dataset, { marker: block.bulletMarkerOrDelimiter })
-    selector += block.isLooseListItem ? `.${CLASS_OR_ID['AG_LOOSE_LIST_ITEM']}` : `.${CLASS_OR_ID['AG_TIGHT_LIST_ITEM']}`
-  }
-  if (block.type === 'ol') {
-    Object.assign(data.attrs, { start: block.start })
-  }
-  if (block.type === 'code') {
-    const { lang } = block
-    if (lang) {
-      selector += `.language-${lang}`
-    }
-  }
-  if (block.type === 'pre') {
-    const { lang, functionType } = block
-    if (lang) {
-      selector += `.language-${lang}`
-    }
+    selector += `.ag-${listItemType}-list-item`
+    selector += isLooseListItem ? `.${CLASS_OR_ID['AG_LOOSE_LIST_ITEM']}` : `.${CLASS_OR_ID['AG_TIGHT_LIST_ITEM']}`
+  } else if (type === 'pre') {
     Object.assign(data.dataset, { role: functionType })
     selector += PRE_BLOCK_HASH[block.functionType]
 

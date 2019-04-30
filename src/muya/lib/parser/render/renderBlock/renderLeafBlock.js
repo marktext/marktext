@@ -57,7 +57,6 @@ export default function renderLeafBlock (block, cursor, activeBlocks, selectedBl
   const {
     text,
     type,
-    headingStyle,
     align,
     checked,
     key,
@@ -84,7 +83,7 @@ export default function renderLeafBlock (block, cursor, activeBlocks, selectedBl
       functionType !== 'codeLine' &&
       functionType !== 'languageInput'
     ) {
-      const hasBeginRules = /^(h\d|span|hr)/.test(type)
+      const hasBeginRules = type === 'span'
       tokens = tokenizer(text, highlights, hasBeginRules, this.labels)
       const hasReferenceTokens = hasReferenceToken(tokens)
       if (highlights.length === 0 && useCache && DEVICE_MEMORY >= 4 && !hasReferenceTokens) {
@@ -185,18 +184,6 @@ export default function renderLeafBlock (block, cursor, activeBlocks, selectedBl
         break
       }
     }
-  } else if (/^h/.test(type)) {
-    if (/^h\d$/.test(type)) {
-      // TODO: This should be the best place to create and update the TOC.
-      //       Cache `block.key` and title and update only if necessary.
-      Object.assign(data.dataset, {
-        head: type
-      })
-      selector += `.${headingStyle}`
-    }
-    Object.assign(data.dataset, {
-      role: type
-    })
   } else if (type === 'input') {
     Object.assign(data.attrs, {
       type: 'checkbox'

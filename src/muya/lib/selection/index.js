@@ -453,8 +453,7 @@ class Selection {
     return node.closest('p[data-role=hr]') ||
       node.closest('span.ag-paragraph') ||
       node.closest('th.ag-paragraph') ||
-      node.closest('td.ag-paragraph') ||
-      node.closest('.ag-paragraph[data-head]')
+      node.closest('td.ag-paragraph')
   }
 
   getCursorRange () {
