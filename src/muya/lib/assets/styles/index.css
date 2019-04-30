@@ -31,7 +31,8 @@ div.ag-show-quick-insert-hint p.ag-paragraph.ag-active > span.ag-paragraph-conte
   position: relative;
 }
 
-.ag-paragraph:empty::after,
+.ag-atx-line:empty::after,
+.ag-thematic-breakLine:empty::after,
 .ag-code-line:empty::after,
 .ag-paragraph-content:empty::after {
   content: '\200B';

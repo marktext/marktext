@@ -141,12 +141,6 @@ kbd {
     text-decoration: none;
   }
 
-  h1 .ag-gray,
-  h2 .ag-gray,
-  h3 .ag-gray {
-    font-size: .6em;
-  }
-
   .ag-header-tight-space {
     margin-left: -.3em;
   }
@@ -227,26 +221,45 @@ kbd {
   }
 
   h1 {
-    font-size: 40px;
+    font-size: 30px;
   }
 
   h2 {
-    font-size: 32px;
-  }
-
-  h3 {
-    font-size: 28px;
-  }
-
-  h4 {
     font-size: 24px;
   }
 
-  h5 {
+  h3 {
+    font-size: 22px;
+  }
+
+  h4 {
     font-size: 20px;
   }
 
+  h5 {
+    font-size: 18px;
+  }
+
   h6 {
+    font-size: 16px;
+  }
+
+  h1 .ag-gray {
+    font-size: 21px;
+  }
+  h2 .ag-gray {
+    font-size: 20px;
+  }
+  h3 .ag-gray {
+    font-size: 19px;
+  }
+  h4 .ag-gray {
+    font-size: 18px;
+  }
+  h5 .ag-gray {
+    font-size: 17px;
+  }
+  h6 .ag-gray {
     font-size: 16px;
   }
 

@@ -450,8 +450,7 @@ class Selection {
     if (node.nodeType === 3) {
       node = node.parentNode
     }
-    return node.closest('p[data-role=hr]') ||
-      node.closest('span.ag-paragraph') ||
+    return node.closest('span.ag-paragraph') ||
       node.closest('th.ag-paragraph') ||
       node.closest('td.ag-paragraph')
   }
