@@ -35,11 +35,11 @@ const setParagraphMenuItemStatus = bool => {
     .forEach(item => (item.enabled = bool))
 }
 
-const disableNoMultiple = disableLabels => {
+const setMultipleStatus = (list, status) => {
   const paragraphMenuItem = getMenuItemById('paragraphMenuEntry')
   paragraphMenuItem.submenu.items
-    .filter(item => item.id && disableLabels.includes(item.id))
-    .forEach(item => (item.enabled = false))
+    .filter(item => item.id && list.includes(item.id))
+    .forEach(item => (item.enabled = status))
 }
 
 const setCheckedMenuItem = affiliation => {
@@ -105,15 +105,17 @@ ipcMain.on('AGANI::selection-change', (e, { start, end, affiliation }) => {
     (end.type === 'span' && end.block.functionType === 'codeLine')
   ) {
     setParagraphMenuItemStatus(false)
+
     if (start.block.functionType === 'codeLine' || end.block.functionType === 'codeLine') {
+      setMultipleStatus(['codeFencesMenuItem'], true)
       formatMenuItem.submenu.items.forEach(item => (item.enabled = false))
     }
   } else if (start.key !== end.key) {
     formatMenuItem.submenu.items
       .filter(item => item.id && DISABLE_LABELS.includes(item.id))
       .forEach(item => (item.enabled = false))
-    disableNoMultiple(DISABLE_LABELS)
+    setMultipleStatus(DISABLE_LABELS, false)
   } else if (!affiliation.slice(0, 3).some(p => /ul|ol/.test(p.type))) {
-    disableNoMultiple(['looseListItemMenuItem'])
+    setMultipleStatus(['looseListItemMenuItem'], false)
   }
 })
