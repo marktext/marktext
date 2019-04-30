@@ -75,9 +75,15 @@ const importRegister = ContentState => {
           const { headingStyle, depth, text, marker } = token
           value = headingStyle === 'atx' ? '#'.repeat(+depth) + ` ${text}` : text
           block = this.createBlock(`h${depth}`, {
-            text: value,
             headingStyle
           })
+
+          const headingContent = this.createBlock('span', {
+            text: value,
+            functionType: headingStyle === 'atx'? 'atxLine' : 'paragraphContent'
+          })
+
+          this.appendChild(block, headingContent)
 
           if (marker) {
             block.marker = marker

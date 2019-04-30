@@ -177,11 +177,11 @@ class ExportMarkdown {
   normalizeHeaderText (block, indent) {
     const { headingStyle, marker } = block
     if (headingStyle === 'atx') {
-      const match = block.text.match(/(#{1,6})(.*)/)
+      const match = block.children[0].text.match(/(#{1,6})(.*)/)
       const text = `${match[1]} ${match[2].trim()}`
       return `${indent}${text}\n`
     } else if (headingStyle === 'setext') {
-      return `${indent}${block.text}\n${indent}${marker.trim()}\n`
+      return `${indent}${block.children[0].text}\n${indent}${marker.trim()}\n`
     }
   }
 

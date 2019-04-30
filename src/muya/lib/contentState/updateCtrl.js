@@ -6,8 +6,8 @@ const INLINE_UPDATE_FRAGMENTS = [
   '(?:^|\n) {0,3}([*+-] {1,4})', // Bullet list
   '(?:^|\n)(\\[[x ]{1}\\] {1,4})', // Task list
   '(?:^|\n) {0,3}(\\d{1,9}(?:\\.|\\)) {1,4})', // Order list
-  '(?:^|\n) {0,3}(#{1,6})(?= {1,}|$)', // ATX headings
-  '^(?:[^\\n]+)\\n\\s{0,3}(\\={3,}|\\-{3,})(?= {1,}|$)', // Setext headings **match from beginning**
+  '(?:^|\n) {0,3}(#{1,6})(?=\\s{1,}|$)', // ATX headings
+  '^(?:[\\s\\S]+?)\\n {0,3}(\\={3,}|\\-{3,})(?= {1,}|$)', // Setext headings **match from beginning**
   '(?:^|\n)(>).+', // Block quote
   '^( {4,})', // Indent code **match from beginning**
   '(?:^|\n) {0,3}((?:\\* *\\* *\\*|- *- *-|_ *_ *_)[ \\*\\-\\_]*)$' // Thematic break
@@ -116,7 +116,6 @@ const updateCtrl = ContentState => {
 
   // Thematic break
   ContentState.prototype.updateHr = function (block, marker, line) {
-    console.log(block, line, marker)
     // If the block is already thematic break, no need to update.
     if (block.type === 'hr') return null
     const text = line.text
@@ -355,80 +354,107 @@ const updateCtrl = ContentState => {
   // ATX heading doesn't support soft line break and hard line break.
   ContentState.prototype.updateAtxHeader = function (block, header, line) {
     const newType = `h${header.length}`
-    // const headingStyle = 'atx'
-    const text = line ? line.text : block.text
-    if (line) {
-      const index = block.children.indexOf(line)
-      const header = this.createBlock(newType, {
-        text,
-        headingStyle: 'atx'
-      })
-
-      this.insertBefore(header, block)
-      const paragraphBefore = this.createBlock('p')
-      const paragraphAfter = this.createBlock('p')
-      let i = 0
-      const len = block.children.length
-      for (i; i < len; i++) {
-        const child = block.children[i]
-        if (i < index) {
-          this.appendChild(paragraphBefore, child)
-        } else if (i > index) {
-          this.appendChild(paragraphAfter, child)
-        }
-      }
-      if (paragraphBefore.children.length) {
-        this.insertBefore(paragraphBefore, header)
-      }
-      if (paragraphAfter.children.length) {
-        this.insertAfter(paragraphAfter, header)
-      }
-      this.removeBlock(block)
-      this.cursor.start.key = this.cursor.end.key = header.key
-      return header
-    } else {
-      if (block.type === newType && block.headingStyle === 'atx') {
-        return null
-      }
-      block.headingStyle = 'atx'
-      block.type = newType
-      block.text = text
-      block.children.length = 0
-      this.cursor.start.key = this.cursor.end.key = block.key
-      return block
+    const headingStyle = 'atx'
+    if (block.type === newType && block.headingStyle === headingStyle) {
+      return null
     }
+    const text = line.text
+    const lines = text.split('\n')
+    const preParagraphLines = []
+    let atxLine = ''
+    const postParagraphLines = []
+    let atxLineHasPushed = false
+
+    for (const l of lines) {
+      if (/^ {0,3}#{1,6}(?=\s{1,}|$)/.test(l) && !atxLineHasPushed) {
+        atxLine = l
+        atxLineHasPushed = true
+      } else if (!atxLineHasPushed) {
+        preParagraphLines.push(l)
+      } else {
+        postParagraphLines.push(l)
+      }
+    }
+
+    const atxBlock = this.createBlock(newType, {
+      headingStyle
+    })
+    const atxLineBlock = this.createBlock('span', {
+      text: atxLine,
+      functionType: 'atxLine'
+    })
+    this.appendChild(atxBlock, atxLineBlock)
+    this.insertBefore(atxBlock, block)
+    if (preParagraphLines.length) {
+      const preBlock = this.createBlockP(preParagraphLines.join('\n'))
+      this.insertBefore(preBlock, atxBlock)
+    }
+    if (postParagraphLines.length) {
+      const postBlock = this.createBlockP(postParagraphLines.join('\n'))
+      this.insertAfter(postBlock, atxBlock)
+    }
+
+    this.removeBlock(block)
+
+    const { start, end } = this.cursor
+    const key = atxBlock.children[0].key
+    this.cursor = {
+      start: { key, offset: start.offset },
+      end: { key, offset: end.offset }
+    }
+    return atxBlock
   }
 
   ContentState.prototype.updateSetextHeader = function (block, marker, line) {
     const newType = /=/.test(marker) ? 'h1' : 'h2'
-    const header = this.createBlock(newType, {
-      headingStyle: 'setext',
+    const headingStyle = 'setext'
+    if (block.type === newType && block.headingStyle === headingStyle) {
+      return null
+    }
+
+    const text = line.text
+    const lines = text.split('\n')
+    let setextLines = []
+    const postParagraphLines = []
+    let setextLinesLineHasPushed = false
+
+    for (const l of lines) {
+      if (/^ {0,3}(?:={3,}|-{3,})(?= {1,}|$)/.test(l) && !setextLinesLineHasPushed) {
+        setextLinesLineHasPushed = true
+      } else if (!setextLinesLineHasPushed) {
+        setextLines.push(l)
+      } else {
+        postParagraphLines.push(l)
+      }
+    }
+
+    const setextBlock = this.createBlock(newType, {
+      headingStyle,
       marker
     })
+    const setextLineBlock = this.createBlock('span', {
+      text: setextLines.join('\n'),
+      functionType: 'paragraphContent'
+    })
+    this.appendChild(setextBlock, setextLineBlock)
+    this.insertBefore(setextBlock, block)
 
-    const index = block.children.indexOf(line)
-    let i = 0
-    let text = ''
-    for (i; i < index; i++) {
-      text += `${block.children[i].text}\n`
+    if (postParagraphLines.length) {
+      const postBlock = this.createBlockP(postParagraphLines.join('\n'))
+      this.insertAfter(postBlock, setextBlock)
     }
-    header.text = text.trimRight()
-    this.insertBefore(header, block)
-    if (line.nextSibling) {
-      const removedCache = []
-      for (const child of block.children) {
-        removedCache.push(child)
-        if (child === line) {
-          break 
-        }
-      }
-      removedCache.forEach(child => this.removeBlock(child))
-    } else {
-      this.removeBlock(block)
+
+    this.removeBlock(block)
+
+    const key = setextBlock.children[0].key
+    const offset = setextBlock.children[0].text.length
+
+    this.cursor = {
+      start: { key, offset },
+      end: { key, offset }
     }
-    this.cursor.start.key = this.cursor.end.key = header.key
-    this.cursor.start.offset = this.cursor.end.offset = header.text.length
-    return header
+
+    return setextBlock
   }
 
   ContentState.prototype.updateBlockQuote = function (block, line) {
@@ -499,8 +525,6 @@ const updateCtrl = ContentState => {
     let canBeCodeLine = true
 
     for (const l of lines) {
-      console.log(/^ {4,}/.test(l))
-      console.log('xx' + l + 'xx')
       if (/^ {4,}/.test(l) && canBeCodeLine) {
         codeLines.push(l.replace(/^ {4}/, ''))
       } else {
