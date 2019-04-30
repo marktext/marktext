@@ -579,7 +579,7 @@ const updateCtrl = ContentState => {
 
     const newType = 'p'
     if (block.type !== newType) {
-      const newBlock = this.createBlockP(newType, line.text)
+      const newBlock = this.createBlockP(line.text)
       this.insertBefore(newBlock, block)
       this.removeBlock(block)
       const { start, end } = this.cursor

@@ -11,6 +11,7 @@ const getIndentSpace = text => {
 }
 
 const enterCtrl = ContentState => {
+  // TODO@jocs this function need opti.
   ContentState.prototype.chopBlockByCursor = function (block, key, offset) {
     const newBlock = this.createBlock('p')
     const { children } = block
