@@ -3,9 +3,9 @@ import { conflict } from '../utils'
 import { CLASS_OR_ID } from '../config'
 
 const INLINE_UPDATE_FRAGMENTS = [
-  '(?:^|\n)([*+-] )', // Bullet list
-  '(?:^|\n)(\\[[x ]{1}\\] )', // Task list
-  '(?:^|\n)(\\d{1,9}(?:\\.|\\)) )', // Order list
+  '(?:^|\n) {0,3}([*+-] {1,4})', // Bullet list
+  '(?:^|\n)(\\[[x ]{1}\\] {1,4})', // Task list
+  '(?:^|\n) {0,3}(\\d{1,9}(?:\\.|\\)) {1,4})', // Order list
   '(?:^|\n) {0,3}(#{1,6})(?= {1,}|$)', // ATX headings
   '^(?:[^\\n]+)\\n\\s{0,3}(\\={3,}|\\-{3,})(?= {1,}|$)', // Setext headings **match from beginning**
   '(?:^|\n)(>).+', // Block quote
@@ -22,10 +22,6 @@ const updateCtrl = ContentState => {
     const block = this.getBlock(id)
     block.checked = checked
     checkbox.classList.toggle(CLASS_OR_ID['AG_CHECKBOX_CHECKED'])
-  }
-
-  ContentState.prototype.checkSameLooseType = function (list, isLooseType) {
-    return list.children[0].isLooseListItem === isLooseType
   }
 
   ContentState.prototype.checkSameMarkerOrDelimiter = function (list, markerOrDelimiter) {
@@ -80,8 +76,11 @@ const updateCtrl = ContentState => {
       line = block
       block = this.getParent(block)
     }
-    const parent = this.getParent(block)
-    const [match, bullet, tasklist, order, atxHeader, setextHeader, blockquote, indentCode, hr] = text.match(INLINE_UPDATE_REG) || []
+    const listItem = this.getParent(block)
+    const [
+      match, bullet, tasklist, order, atxHeader,
+      setextHeader, blockquote, indentCode, hr
+    ] = text.match(INLINE_UPDATE_REG) || []
 
     switch (true) {
       case (!!hr && new Set(hr.split('').filter(i => /\S/.test(i))).size === 1):
@@ -91,7 +90,7 @@ const updateCtrl = ContentState => {
         return this.updateList(block, 'bullet', bullet, line)
 
       // only `bullet` list item can be update to `task` list item
-      case !!tasklist && parent && parent.listItemType === 'bullet':
+      case !!tasklist && listItem && listItem.listItemType === 'bullet':
         return this.updateTaskListItem(block, 'tasklist', tasklist)
 
       case !!order:
@@ -167,45 +166,46 @@ const updateCtrl = ContentState => {
   ContentState.prototype.updateList = function (block, type, marker = '', line) {
     const cleanMarker = marker ? marker.trim() : null
     const { preferLooseListItem } = this
-    const parent = this.getParent(block)
     const wrapperTag = type === 'order' ? 'ol' : 'ul' // `bullet` => `ul` and `order` => `ol`
     const { start, end } = this.cursor
     const startOffset = start.offset
     const endOffset = end.offset
-    const newBlock = this.createBlock('li')
+    const newListItemBlock = this.createBlock('li')
+    const LIST_ITEM_REG = /^ {0,3}(?:[*+-]|\d{1,9}(?:\.|\))) {0,4}/
+    const text = line.text
+    const lines = text.split('\n')
 
-    if (/^h\d$/.test(block.type)) {
-      delete block.marker
-      delete block.headingStyle
-      block.type = 'p'
-      block.children = []
-      const line = this.createBlock('span', {
-        text: block.text.substring(marker.length)
-      })
-      block.text = ''
-      this.appendChild(block, line)
-    } else {
-      line.text = line.text.substring(marker.length)
-      const paragraphBefore = this.createBlock('p')
-      const index = block.children.indexOf(line)
-      if (index !== 0) {
-        const removeCache = []
-        for (const child of block.children) {
-          if (child === line) break
-          removeCache.push(child)
-        }
-        removeCache.forEach(c => {
-          this.removeBlock(c)
-          this.appendChild(paragraphBefore, c)
-        })
-        this.insertBefore(paragraphBefore, block)
+    const preParagraphLines = []
+    const listItemLines = []
+    let isPushedListItemLine = false
+    for (const l of lines) {
+      if (LIST_ITEM_REG.test(l) && !isPushedListItemLine) {
+        listItemLines.push(l.replace(LIST_ITEM_REG, ''))
+        isPushedListItemLine = true
+      } else if (!isPushedListItemLine) {
+        preParagraphLines.push(l)
+      } else {
+        listItemLines.push(l)
       }
     }
 
+    const pBlock = this.createBlockP(listItemLines.join('\n'))
+    this.insertBefore(pBlock, block)
+
+    if (preParagraphLines.length > 0) {
+      const preParagraphBlock = this.createBlockP(preParagraphLines.join('\n'))
+      this.insertBefore(preParagraphBlock, pBlock)
+    }
+
+    this.removeBlock(block)
+
+    // important!
+    block = pBlock
+
     const preSibling = this.getPreSibling(block)
     const nextSibling = this.getNextSibling(block)
-    newBlock.listItemType = type
-    newBlock.isLooseListItem = preferLooseListItem
+    newListItemBlock.listItemType = type
+    newListItemBlock.isLooseListItem = preferLooseListItem
 
     let bulletMarkerOrDelimiter
     if (type === 'order') {
@@ -214,7 +214,7 @@ const updateCtrl = ContentState => {
       const { bulletListMarker } = this
       bulletMarkerOrDelimiter = marker ? marker.charAt(0) : bulletListMarker
     }
-    newBlock.bulletMarkerOrDelimiter = bulletMarkerOrDelimiter
+    newListItemBlock.bulletMarkerOrDelimiter = bulletMarkerOrDelimiter
 
     // Special cases for CommonMark 264 and 265: Changing the bullet or ordered list delimiter starts a new list.
     // Same list type or new list
@@ -224,7 +224,7 @@ const updateCtrl = ContentState => {
       nextSibling &&
       this.checkSameMarkerOrDelimiter(nextSibling, bulletMarkerOrDelimiter)
     ) {
-      this.appendChild(preSibling, newBlock)
+      this.appendChild(preSibling, newListItemBlock)
       const partChildren = nextSibling.children.splice(0)
       partChildren.forEach(b => this.appendChild(preSibling, b))
       this.removeBlock(nextSibling)
@@ -235,7 +235,7 @@ const updateCtrl = ContentState => {
       preSibling &&
       this.checkSameMarkerOrDelimiter(preSibling, bulletMarkerOrDelimiter)
     ) {
-      this.appendChild(preSibling, newBlock)
+      this.appendChild(preSibling, newListItemBlock)
       this.removeBlock(block)
       const isLooseListItem = preSibling.children.some(c => c.isLooseListItem)
       preSibling.children.forEach(c => c.isLooseListItem = isLooseListItem)
@@ -243,18 +243,10 @@ const updateCtrl = ContentState => {
       nextSibling &&
       this.checkSameMarkerOrDelimiter(nextSibling, bulletMarkerOrDelimiter)
     ) {
-      this.insertBefore(newBlock, nextSibling.children[0])
+      this.insertBefore(newListItemBlock, nextSibling.children[0])
       this.removeBlock(block)
       const isLooseListItem = nextSibling.children.some(c => c.isLooseListItem)
       nextSibling.children.forEach(c => c.isLooseListItem = isLooseListItem)
-    } else if (
-      // todo@jocs remove this if in 0.15.xx
-      parent &&
-      parent.listType === type &&
-      this.checkSameLooseType(parent, preferLooseListItem)
-    ) {
-      this.insertBefore(newBlock, block)
-      this.removeBlock(block)
     } else {
       // Create a new list when changing list type, bullet or list delimiter
       const listBlock = this.createBlock(wrapperTag, {
@@ -265,39 +257,36 @@ const updateCtrl = ContentState => {
         const start = cleanMarker ? cleanMarker.slice(0, -1) : 1
         listBlock.start = /^\d+$/.test(start) ? start : 1
       }
-      this.appendChild(listBlock, newBlock)
+      this.appendChild(listBlock, newListItemBlock)
       this.insertBefore(listBlock, block)
       this.removeBlock(block)
     }
 
     // key point
-    this.appendChild(newBlock, block)
-    const TASK_LIST_REG = /^\[[x ]\] /i
+    this.appendChild(newListItemBlock, block)
+    const TASK_LIST_REG = /^\[[x ]\] {1,4}/i
     const listItemText = block.children[0].text
+    const { key } = block.children[0]
+    const delta = marker.length + preParagraphLines.join('\n').length + 1
+    this.cursor = {
+      start: {
+        key,
+        offset: Math.max(0, startOffset - delta)
+      },
+      end: {
+        key,
+        offset: Math.max(0, endOffset - delta)
+      }
+    }
     if (TASK_LIST_REG.test(listItemText)) {
       const [,,tasklist,,,,] = listItemText.match(INLINE_UPDATE_REG) || []
       return this.updateTaskListItem(block, 'tasklist', tasklist)
     } else {
-      const { key } = block.children[0]
-      this.cursor = {
-        start: {
-          key,
-          offset: Math.max(0, startOffset - marker.length)
-        },
-        end: {
-          key,
-          offset: Math.max(0, endOffset - marker.length)
-        }
-      }
       return block
     }
   }
 
   ContentState.prototype.updateTaskListItem = function (block, type, marker = '') {
-    if (block.type === 'span') {
-      block = this.getParent(block)
-    }
-
     const { preferLooseListItem } = this
     const parent = this.getParent(block)
     const grandpa = this.getParent(parent)
