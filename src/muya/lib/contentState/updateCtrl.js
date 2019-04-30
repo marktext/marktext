@@ -8,7 +8,7 @@ const INLINE_UPDATE_FRAGMENTS = [
   '(?:^|\n) {0,3}(\\d{1,9}(?:\\.|\\)) {1,4})', // Order list
   '(?:^|\n) {0,3}(#{1,6})(?=\\s{1,}|$)', // ATX headings
   '^(?:[\\s\\S]+?)\\n {0,3}(\\={3,}|\\-{3,})(?= {1,}|$)', // Setext headings **match from beginning**
-  '(?:^|\n)(>).+', // Block quote
+  '(?:^|\n) {0,3}(>).+', // Block quote
   '^( {4,})', // Indent code **match from beginning**
   '(?:^|\n) {0,3}((?:\\* *\\* *\\*|- *- *-|_ *_ *_)[ \\*\\-\\_]*)$' // Thematic break
 ]
@@ -416,12 +416,12 @@ const updateCtrl = ContentState => {
     const lines = text.split('\n')
     let setextLines = []
     const postParagraphLines = []
-    let setextLinesLineHasPushed = false
+    let setextLineHasPushed = false
 
     for (const l of lines) {
-      if (/^ {0,3}(?:={3,}|-{3,})(?= {1,}|$)/.test(l) && !setextLinesLineHasPushed) {
-        setextLinesLineHasPushed = true
-      } else if (!setextLinesLineHasPushed) {
+      if (/^ {0,3}(?:={3,}|-{3,})(?= {1,}|$)/.test(l) && !setextLineHasPushed) {
+        setextLineHasPushed = true
+      } else if (!setextLineHasPushed) {
         setextLines.push(l)
       } else {
         postParagraphLines.push(l)
@@ -458,54 +458,62 @@ const updateCtrl = ContentState => {
   }
 
   ContentState.prototype.updateBlockQuote = function (block, line) {
-    if (line && !this.isFirstChild(line)) {
-      const paragraphBefore = this.createBlock('p')
-      const removeCache = []
-      for (const child of block.children) {
-        if (child === line) break
-        removeCache.push(child)
-      }
-      removeCache.forEach(c => {
-        this.removeBlock(c)
-        this.appendChild(paragraphBefore, c)
-      })
-      this.insertBefore(paragraphBefore, block)
-    }
-    if (!line && /^h\d/.test(block.type)) {
-      block.text = block.text.substring(1).trim()
-      delete block.headingStyle
-      delete block.marker
-      block.type = 'p'
-      block.children = []
-      const line = this.createBlock('span', {
-        text: block.text.substring(1)
-      })
-      block.text = ''
-      this.appendChild(block, line)
-    } else {
-      line.text = line.text.substring(1).trim()
-    }
-    const quoteBlock = this.createBlock('blockquote')
-    this.insertBefore(quoteBlock, block)
-    this.removeBlock(block)
-    this.appendChild(quoteBlock, block)
+    const text = line.text
+    const lines = text.split('\n')
+    const preParagraphLines = []
+    let quoteLines = []
+    let quoteLinesHasPushed = false
 
-    const { start, end } = this.cursor
-    this.cursor = {
-      start: {
-        key: start.key,
-        offset: start.offset - 1
-      },
-      end: {
-        key: end.key,
-        offset: end.offset - 1
+    for (const l of lines) {
+      if (/^ {0,3}>/.test(l) && !quoteLinesHasPushed) {
+        quoteLinesHasPushed = true
+        quoteLines.push(l.trimStart().substring(1).trimStart())
+      } else if (!quoteLinesHasPushed) {
+        preParagraphLines.push(l)
+      } else {
+        quoteLines.push(l)
       }
     }
+    let quoteParagraphBlock
+    if (/^h\d/.test(block.type)) {
+      quoteParagraphBlock = this.createBlock(block.type, {
+        headingStyle: block.headingStyle
+      })
+      if (block.headingStyle === 'setext') {
+        quoteParagraphBlock.marker = block.marker
+      }
+      const headerContent = this.createBlock('span', {
+        text: quoteLines.join('\n'),
+        functionType: block.headingStyle === 'setext'? 'paragraphContent' : 'atxLine'
+      })
+      this.appendChild(quoteParagraphBlock, headerContent)
+    } else {
+      quoteParagraphBlock = this.createBlockP(quoteLines.join('\n'))
+    }
+
+    const quoteBlock = this.createBlock('blockquote')
+    this.appendChild(quoteBlock, quoteParagraphBlock)
+    this.insertBefore(quoteBlock, block)
+
+    if (preParagraphLines.length) {
+      const preParagraphBlock = this.createBlockP(preParagraphLines.join('\n'))
+      this.insertBefore(preParagraphBlock, quoteBlock)
+    }
+
+    this.removeBlock(block)
+
+    const key = quoteParagraphBlock.children[0].key
+    const offset = 0
+
+    this.cursor = {
+      start: { key, offset },
+      end: { key, offset }
+    }
+
     return quoteBlock
   }
 
   ContentState.prototype.updateIndentCode = function (block, line) {
-    console.log(block, line)
     const codeBlock = this.createBlock('code', {
       lang: ''
     })
@@ -532,7 +540,6 @@ const updateCtrl = ContentState => {
         paragraphLines.push(l)
       }
     }
-    console.log(lines, codeLines)
     codeLines.forEach(text => {
       const codeLine = this.createBlock('span', {
         text,
