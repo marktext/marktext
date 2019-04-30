@@ -541,7 +541,7 @@ const paragraphCtrl = ContentState => {
             headingStyle
           })
           const headerContent = this.createBlock('span', {
-            text: newText,
+            text: headingStyle === 'atx'? newText.replace(/\n/g, ' ') : newText,
             functionType: headingStyle === 'atx'? 'atxLine' : 'paragraphContent'
           })
           this.appendChild(header, headerContent)
