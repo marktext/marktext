@@ -112,23 +112,25 @@ const backspaceCtrl = ContentState => {
     const maybeLastRow = this.getParent(endBlock)
     const startOutmostBlock = this.findOutMostBlock(startBlock)
     const endOutmostBlock = this.findOutMostBlock(endBlock)
-    // Just for fix delete the last `#` cause error @fixme
+    // Just for fix delete the last `#` or all the atx heading cause error @fixme
     if (
       start.key === end.key &&
-      start.offset === end.offset &&
       startBlock.type === 'span' &&
-      startBlock.functionType === 'atxLine' &&
-      startBlock.text === '#' &&
-      start.offset === 1
+      startBlock.functionType === 'atxLine'
     ) {
-      event.preventDefault()
-      startBlock.text = ''
-      this.cursor = {
-        start: { key: start.key, offset: 0 },
-        end: { key: end.key, offset: 0 }
+      if (
+        start.offset === 0 && end.offset === startBlock.text.length ||
+        start.offset === end.offset && start.offset === 1 && startBlock.text === '#'
+      ) {
+        event.preventDefault()
+        startBlock.text = ''
+        this.cursor = {
+          start: { key: start.key, offset: 0 },
+          end: { key: end.key, offset: 0 }
+        }
+        this.updateToParagraph(this.getParent(startBlock), startBlock)
+        return this.partialRender()
       }
-      this.updateToParagraph(this.getParent(startBlock), startBlock)
-      return this.partialRender()
     }
     // fix: #897
     const { text } = startBlock

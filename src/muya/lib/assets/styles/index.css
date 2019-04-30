@@ -32,12 +32,14 @@ div.ag-show-quick-insert-hint p.ag-paragraph.ag-active > span.ag-paragraph-conte
 }
 
 .ag-atx-line:empty::after,
-.ag-thematic-breakLine:empty::after,
+.ag-thematic-break-line:empty::after,
 .ag-code-line:empty::after,
 .ag-paragraph-content:empty::after {
   content: '\200B';
 }
 
+.ag-atx-line,
+.ag-thematic-break-line,
 .ag-paragraph-content,
 .ag-code-line {
   display: block;
