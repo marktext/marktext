@@ -161,7 +161,14 @@ export const DEFAULT_TURNDOWN_CONFIG = {
   codeBlockStyle: 'fenced', // fenced or indented
   fence: '```', // ``` or ~~~
   emDelimiter: '*', // _ or *
-  strongDelimiter: '**' // ** or __
+  strongDelimiter: '**', // ** or __
+  blankReplacement (content, node, options) {
+    if (node && node.classList.contains('ag-soft-line-break')) {
+      return LINE_BREAK
+    } else if (node && node.classList.contains('ag-hard-line-break')) {
+      return '  ' + LINE_BREAK
+    }
+  }
 }
 
 export const FORMAT_MARKER_MAP = {

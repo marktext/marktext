@@ -295,7 +295,9 @@ const importRegister = ContentState => {
     // remove double `\\` in Math but I dont know why there are two '\' when paste. @jocs
     // fix #752, but I don't know why the &nbsp; vanlished.
     html = html.replace(/&nbsp;/g, ' ')
+    console.log(html)
     const markdown = turndownService.turndown(html) // .replace(/(\\)\\/g, '$1')
+    console.log(markdown)
     return markdown
   }
 

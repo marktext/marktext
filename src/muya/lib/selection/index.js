@@ -457,7 +457,7 @@ class Selection {
 
   getCursorRange () {
     let { anchorNode, anchorOffset, focusNode, focusOffset } = this.doc.getSelection()
-    console.log(anchorNode, anchorOffset, focusNode, focusOffset)
+
     const isAnchorValid = this.isValidCursorNode(anchorNode)
     const isFocusValid = this.isValidCursorNode(focusNode)
     let needFix = false
