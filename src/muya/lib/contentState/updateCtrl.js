@@ -110,7 +110,7 @@ const updateCtrl = ContentState => {
 
       case !match:
       default:
-        return this.updateToParagraph(block)
+        return this.updateToParagraph(block, line)
     }
   }
 
@@ -565,19 +565,22 @@ const updateCtrl = ContentState => {
     return preBlock
   }
 
-  ContentState.prototype.updateToParagraph = function (block) {
+  ContentState.prototype.updateToParagraph = function (block, line) {
     if (/^h\d$/.test(block.type) && block.headingStyle === 'setext') {
       return null
     }
+
     const newType = 'p'
     if (block.type !== newType) {
-      block.type = newType // updateP
-      const newLine = this.createBlock('span', {
-        text: block.text
-      })
-      this.appendChild(block, newLine)
-      block.text = ''
-      this.cursor.start.key = this.cursor.end.key = newLine.key
+      const newBlock = this.createBlockP(newType, line.text)
+      this.insertBefore(newBlock, block)
+      this.removeBlock(block)
+      const { start, end } = this.cursor
+      const key = newBlock.children[0].key
+      this.cursor = {
+        start: { key, offset: start.offset },
+        end: { key, offset: end.offset }
+      }
       return block
     }
     return null
