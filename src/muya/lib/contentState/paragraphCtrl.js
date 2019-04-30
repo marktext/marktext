@@ -496,7 +496,8 @@ const paragraphCtrl = ContentState => {
         if (start.key !== end.key) return
         const headingStyle = DEFAULT_TURNDOWN_CONFIG.headingStyle
         const parent = this.getParent(block)
-        const [, hash, partText] = /(^#*\s*)(.*)/.exec(text)
+        // \u00A0 is &nbsp;
+        const [, hash, partText] = /(^ {0,3}#*[ \u00A0]*)([\s\S]*)/.exec(text)
         let newLevel = 0 // 1, 2, 3, 4, 5, 6
         let newType = 'p'
         let key
