@@ -72,32 +72,6 @@ const codeBlockCtrl = ContentState => {
     this.partialRender()
   }
 
-  ContentState.prototype.indentCodeBlockUpdate = function (block) {
-    const oldPBlock = this.getParent(block)
-    const codeBlock = this.createBlock('code', {
-      lang: ''
-    })
-    const inputBlock = this.createBlock('span', {
-      functionType: 'languageInput'
-    })
-    const preBlock = this.createBlock('pre', {
-      functionType: 'indentcode',
-      lang: ''
-    })
-
-    oldPBlock.children.forEach(child => {
-      child.lang = ''
-      child.functionType = 'codeLine'
-      child.text = child.text.replace(/^ {4}/, '')
-      this.appendChild(codeBlock, child)
-    })
-
-    this.appendChild(preBlock, inputBlock)
-    this.appendChild(preBlock, codeBlock)
-    this.insertBefore(preBlock, oldPBlock)
-    this.removeBlock(oldPBlock)
-  }
-
   /**
    * [codeBlockUpdate if block updated to `pre` return true, else return false]
    */

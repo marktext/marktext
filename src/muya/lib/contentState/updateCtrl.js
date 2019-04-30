@@ -7,8 +7,9 @@ const INLINE_UPDATE_FRAGMENTS = [
   '^(\\[[x\\s]{1}\\]\\s)', // Task list
   '^(\\d{1,9}(?:\\.|\\))\\s)', // Order list
   '^\\s{0,3}(#{1,6})(?=\\s{1,}|$)', // ATX headings
-  '^([^\\n]+)\\n\\s{0,3}(\\={3,}|\\-{3,})(?=\\s{1,}|$)', // Setext headings
+  '^(?:[^\\n]+)\\n\\s{0,3}(\\={3,}|\\-{3,})(?=\\s{1,}|$)', // Setext headings
   '^(>).+', // Block quote
+  '^(\\s{4,})', // indent code
   '^\\s{0,3}((?:\\*\\s*\\*\\s*\\*|-\\s*-\\s*-|_\\s*_\\s*_)[\\s\\*\\-\\_]*)$' // Thematic break
 ]
 
@@ -79,7 +80,7 @@ const updateCtrl = ContentState => {
       block = this.getParent(block)
     }
     const parent = this.getParent(block)
-    const [match, bullet, tasklist, order, atxHeader, setextHeader, blockquote, hr] = text.match(INLINE_UPDATE_REG) || []
+    const [match, bullet, tasklist, order, atxHeader, setextHeader, blockquote, indentCode, hr] = text.match(INLINE_UPDATE_REG) || []
 
     switch (true) {
       case (!!hr && new Set(hr.split('').filter(i => /\S/.test(i))).size === 1):
@@ -103,6 +104,9 @@ const updateCtrl = ContentState => {
 
       case !!blockquote:
         return this.updateBlockQuote(block, line)
+
+      case !!indentCode:
+        return this.updateIndentCode(block, line)
 
       case !match:
       default:
@@ -448,6 +452,65 @@ const updateCtrl = ContentState => {
       }
     }
     return quoteBlock
+  }
+
+  ContentState.prototype.updateIndentCode = function (block, line) {
+    console.log(block, line)
+    const codeBlock = this.createBlock('code', {
+      lang: ''
+    })
+    const inputBlock = this.createBlock('span', {
+      functionType: 'languageInput'
+    })
+    const preBlock = this.createBlock('pre', {
+      functionType: 'indentcode',
+      lang: ''
+    })
+
+    const lines = line.text.split('\n')
+    const codeLines = []
+    const paragraphLines = []
+    let canBeCodeLine = true
+
+    for (const l of lines) {
+      if (/^ {4,}/.test(l) && canBeCodeLine) {
+        codeLines.push(l.replace(/^ {4}/, ''))
+      } else {
+        canBeCodeLine = false
+        paragraphLines.push(l)
+      }
+    }
+
+    codeLines.forEach(text => {
+      const codeLine = this.createBlock('span', {
+        text,
+        functionType: 'codeLine',
+        lang: ''
+      })
+      this.appendChild(codeBlock, codeLine)
+    })
+
+    this.appendChild(preBlock, inputBlock)
+    this.appendChild(preBlock, codeBlock)
+    this.insertBefore(preBlock, block)
+
+    if (paragraphLines.length > 0) {
+      const newLine = this.createBlock('span', {
+        text: paragraphLines.join('\n')
+      })
+      this.insertBefore(newLine, line)
+      this.removeBlock(line)
+    } else {
+      this.removeBlock(block)
+    }
+
+    const key = codeBlock.children[0].key
+    const { start, end } = this.cursor
+    this.cursor = {
+      start: { key, offset: start.offset - 4 },
+      end: { key, offset: end.offset - 4 }
+    }
+    return preBlock
   }
 
   ContentState.prototype.updateToParagraph = function (block) {

@@ -236,11 +236,6 @@ const enterCtrl = ContentState => {
         offset = indent.length + this.tabSize
       }
 
-      if (block.functionType === 'paragraphContent' && indent.length >= 4 && !block.preSibling) {
-        this.indentCodeBlockUpdate(block)
-        offset = offset - 4
-      }
-
       this.cursor = {
         start: { key, offset },
         end: { key, offset }
