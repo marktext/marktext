@@ -3,13 +3,13 @@ import { conflict } from '../utils'
 import { CLASS_OR_ID } from '../config'
 
 const INLINE_UPDATE_FRAGMENTS = [
-  '(?:^|\n)([*+-]\\s)', // Bullet list
-  '^(\\[[x\\s]{1}\\]\\s)', // Task list
-  '^(\\d{1,9}(?:\\.|\\))\\s)', // Order list
+  '(?:^|\n)([*+-] )', // Bullet list
+  '(?:^|\n)(\\[[x ]{1}\\] )', // Task list
+  '(?:^|\n)(\\d{1,9}(?:\\.|\\)) )', // Order list
   '(?:^|\n) {0,3}(#{1,6})(?= {1,}|$)', // ATX headings
-  '^(?:[^\\n]+)\\n\\s{0,3}(\\={3,}|\\-{3,})(?=\\s{1,}|$)', // Setext headings
-  '^(>).+', // Block quote
-  '^( {4,})', // Indent code
+  '^(?:[^\\n]+)\\n\\s{0,3}(\\={3,}|\\-{3,})(?= {1,}|$)', // Setext headings **match from beginning**
+  '(?:^|\n)(>).+', // Block quote
+  '^( {4,})', // Indent code **match from beginning**
   '(?:^|\n) {0,3}((?:\\* *\\* *\\*|- *- *-|_ *_ *_)[ \\*\\-\\_]*)$' // Thematic break
 ]
 
