@@ -4,7 +4,7 @@ import selection from '../selection'
 
 // If the next block is header, put cursor after the `#{1,6} *` 
 const adjustOffset = (offset, block, event) => {
-  if (/^h\d$/.test(block.type) && event.key === EVENT_KEYS.ArrowDown) {
+  if (/^span$/.test(block.type) && block.functionType === 'atxLine' && event.key === EVENT_KEYS.ArrowDown) {
     const match = /^\s{0,3}(?:#{1,6})(?:\s{1,}|$)/.exec(block.text)
     if (match) {
       return match[0].length

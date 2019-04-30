@@ -335,9 +335,13 @@ const enterCtrl = ContentState => {
           }
           block.text = pre
           newBlock = this.createBlock(type, {
-            text: post
+            headingStyle: block.headingStyle
           })
-          newBlock.headingStyle = block.headingStyle
+          const headerContent = this.createBlock('span', {
+            text: post,
+            functionType: block.headingStyle === 'atx'? 'atxLine' : 'paragraphContent'
+          })
+          this.appendChild(newBlock, headerContent)
           if (block.marker) {
             newBlock.marker = block.marker
           }
