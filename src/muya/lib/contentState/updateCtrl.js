@@ -503,11 +503,10 @@ const updateCtrl = ContentState => {
     this.removeBlock(block)
 
     const key = quoteParagraphBlock.children[0].key
-    const offset = 0
-
+    const { start, end } = this.cursor
     this.cursor = {
-      start: { key, offset },
-      end: { key, offset }
+      start: { key, offset: start.offset - 1 },
+      end: { key, offset: end.offset - 1 }
     }
 
     return quoteBlock
