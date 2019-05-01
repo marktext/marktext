@@ -1,0 +1,30 @@
+{
+  "eqeqeq": true,
+  "freeze": true,
+  "immed": true,
+  "latedef": true,
+  "nonbsp": true,
+  "undef": true,
+  "strict": false,
+  "browser": true,
+  "node": true,
+  "sub": false,
+  "globals": {
+    "exports": true,
+    "describe": true,
+    "before": true,
+    "beforeEach": true,
+    "after": true,
+    "afterEach": true,
+    "it": true,
+    "Set": true
+  },
+  "curly": true,
+  "indent": 2,
+  "newcap": true,
+  "noarg": true,
+  "quotmark": "single",
+  "unused": "vars",
+  "maxparams": 4,
+  "maxdepth": 5
+}
