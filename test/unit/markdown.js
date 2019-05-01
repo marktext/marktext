@@ -2,7 +2,8 @@ import fs from 'fs'
 import path from 'path'
 
 const loadMarkdownContent = pathname => {
-  return fs.readFileSync(path.resolve('test/unit/data', pathname), 'utf-8')
+  // Load file and ensure LF line endings.
+  return fs.readFileSync(path.resolve('test/unit/data', pathname), 'utf-8').replace(/(?:\r\n|\n)/g, '\n')
 }
 
 export const BasicTextFormattingTemplate = () => {
