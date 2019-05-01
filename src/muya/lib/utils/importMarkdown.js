@@ -115,9 +115,12 @@ const importRegister = ContentState => {
         }
         case 'hr': {
           value = '---'
-          block = this.createBlock('hr', {
-            text: value
+          block = this.createBlock('hr')
+          const thematicBreakContent = this.createBlock('span', {
+            text: value,
+            functionType: 'thematicBreakLine'
           })
+          this.appendChild(block, thematicBreakContent)
           this.appendChild(parentList[0], block)
           break
         }
