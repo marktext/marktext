@@ -114,7 +114,7 @@ const importRegister = ContentState => {
           break
         }
         case 'hr': {
-          value = '---'
+          value = token.marker
           block = this.createBlock('hr')
           const thematicBreakContent = this.createBlock('span', {
             text: value,

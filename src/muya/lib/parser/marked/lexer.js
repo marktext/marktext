@@ -185,9 +185,11 @@ Lexer.prototype.token = function (src, top) {
     // hr
     cap = this.rules.hr.exec(src)
     if (cap) {
+      const marker = cap[0].replace(/\n*$/, '')
       src = src.substring(cap[0].length)
       this.tokens.push({
-        type: 'hr'
+        type: 'hr',
+        marker
       })
       continue
     }

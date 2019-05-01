@@ -168,7 +168,7 @@ class ExportMarkdown {
 
   normalizeParagraphText (block, indent) {
     const { text } = block
-    const lines = text.trim().split('\n')
+    const lines = text.split('\n')
     return lines.map(line => `${indent}${line}`).join('\n') + '\n'
   }
 

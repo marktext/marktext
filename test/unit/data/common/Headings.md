@@ -1,5 +1,7 @@
 # Headings
 
+## Setext heading
+
 This is a huge header
 ===
 
@@ -8,6 +10,14 @@ this is a smaller header
 
 header
 ---
+
+This is a huge header
+==================
+
+this is a smaller header
+------------------
+
+## Atx heading
 
 ## ATX Headings
 
@@ -53,20 +63,6 @@ foo
 
 bar
 
-## Failing Tests
-
-Headings and horizontal rules are shrinked to three characters because this simplify the parsing - maybe we should change this.
-
-```
-This is a huge header
-==================
-
-this is a smaller header
-------------------
-```
-
-```
 ## Horizontal Rule
 
-----------------
-```
+   - - -  - --   --- --- ----
