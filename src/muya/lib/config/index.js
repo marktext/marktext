@@ -169,6 +169,8 @@ export const DEFAULT_TURNDOWN_CONFIG = {
       return '  ' + LINE_BREAK
     } else if (node && node.classList.contains('ag-hard-line-break-sapce')) {
       return ''
+    } else {
+      return node.isBlock ? '\n\n' : ''
     }
   }
 }

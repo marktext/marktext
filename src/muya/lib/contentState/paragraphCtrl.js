@@ -606,46 +606,23 @@ const paragraphCtrl = ContentState => {
     const { start, end } = this.cursor
     // if cursor is not in one line or paragraph, can not insert paragraph
     if (start.key !== end.key) return
-    let block = this.getBlock(start.key)
+    const block = this.getBlock(start.key)
+    let anchor = null
     if (outMost) {
-      block = this.findOutMostBlock(block)
-    } else if (block.type === 'span' && /paragraphContent|atxLine|thematicBreakLine/.test(block.functionType)) {
-      block = this.getParent(block)
-    } else if (block.type === 'span' && /languageInput|codeLine/.test(block.functionType)) {
-      const preBlock = block.functionType === 'codeLine'
-        ? this.getParent(this.getParent(block))
-        : this.getParent(block)
-
-      switch (preBlock.functionType) {
-        case 'fencecode':
-        case 'indentcode':
-        case 'frontmatter': {
-          // You can not insert paragraph before frontmatter
-          if (preBlock.functionType === 'frontmatter' && location === 'before') {
-            return
-          }
-          block = preBlock
-          break
-        }
-        case 'mermaid':
-        case 'flowchart':
-        case 'vega-lite':
-        case 'sequence':
-        case 'html':
-        case 'multiplemath': {
-          block = this.getParent(preBlock)
-          break
-        }
-      }
-    } else if (/th|td/.test(block.type)) {
-      // get figure block from table cell
-      block = this.getParent(this.getParent(this.getParent(this.getParent(block))))
+      anchor = this.findOutMostBlock(block)
+    } else {
+      anchor = this.getAnchor(block)
     }
+    // You can not insert paragraph before frontmatter
+    if (!anchor || anchor && anchor.functionType === 'frontmatter' && location === 'before') {
+      return
+    }
+
     const newBlock = this.createBlockP(text)
     if (location === 'before') {
-      this.insertBefore(newBlock, block)
+      this.insertBefore(newBlock, anchor)
     } else {
-      this.insertAfter(newBlock, block)
+      this.insertAfter(newBlock, anchor)
     }
     const { key } = newBlock.children[0]
     const offset = text.length

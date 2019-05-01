@@ -43,24 +43,18 @@ const tableBlockCtrl = ContentState => {
 
   ContentState.prototype.getAnchor = function (block) {
     const { type, functionType } = block
-    switch (true) {
-      case /^span$/.test(type): {
-        if (!functionType) {
-          return this.closest(block, 'p')
-        } else if (functionType === 'codeLine') {
+    switch (type) {
+      case 'span':
+        if (functionType === 'codeLine') {
           return this.closest(block, 'figure') || this.closest(block, 'pre')
+        } else {
+          return this.getParent(block)
         }
-        return null
-      }
-      case /^(th|td)$/.test(type): {
+
+      case 'th':
+      case 'td':
         return this.closest(block, 'figure')
-      }
-      case /^h\d$/.test(type): {
-        return block
-      }
-      case /hr/.test(type): {
-        return block
-      }
+
       default:
         return null
     }
@@ -76,7 +70,7 @@ const tableBlockCtrl = ContentState => {
 
     if (!anchor) return
     this.insertAfter(figureBlock, anchor)
-    if (anchor.type === 'p' && !endBlock.text) {
+    if (/p|h\d/.test(anchor.type) && !endBlock.text) {
       this.removeBlock(anchor)
     }
     this.appendChild(figureBlock, table)

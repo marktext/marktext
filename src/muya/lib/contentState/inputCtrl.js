@@ -32,7 +32,7 @@ const inputCtrl = ContentState => {
   // Input @ to quick insert paragraph
   ContentState.prototype.checkQuickInsert = function (block) {
     const { type, text, functionType } = block
-    if (type !== 'span' || functionType) return false
+    if (type !== 'span' || functionType !== 'paragraphContent') return false
     return /^@\S*$/.test(text)
   }
 
@@ -197,6 +197,7 @@ const inputCtrl = ContentState => {
       if (this.checkNotSameToken(block.text, text)) {
         needRender = true
       }
+      // Just work for `Shift + Enter` to create a soft and hard line break.
       if (
         block.text.endsWith('\n') &&
         start.offset === text.length &&
