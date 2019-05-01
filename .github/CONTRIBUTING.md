@@ -72,7 +72,6 @@ If there are conflicts or you want to update your local branch, please do the fo
 
 Before you can get started developing, you need set up your build environment:
 
-- Git
 - Node.js `>=v8.12.0`, npm and yarn
 - Python `v2.7.x` for node-gyp
 - C++ compiler and development tools
