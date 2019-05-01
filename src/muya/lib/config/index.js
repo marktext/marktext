@@ -167,6 +167,8 @@ export const DEFAULT_TURNDOWN_CONFIG = {
       return LINE_BREAK
     } else if (node && node.classList.contains('ag-hard-line-break')) {
       return '  ' + LINE_BREAK
+    } else if (node && node.classList.contains('ag-hard-line-break-sapce')) {
+      return ''
     }
   }
 }
