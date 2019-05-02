@@ -70,10 +70,10 @@ If there are conflicts or you want to update your local branch, please do the fo
 
 **Prerequisites:**
 
-Before you can get started developing, you need set up your build envoriment:
+Before you can get started developing, you need set up your build environment:
 
-- git
 - Node.js `>=v8.12.0`, npm and yarn
+- Python `v2.7.x` for node-gyp
 - C++ compiler and development tools
 
 **Additional development dependencies on Linux:**
@@ -81,7 +81,7 @@ Before you can get started developing, you need set up your build envoriment:
 - libx11 (dev)
 - libxkbfile (dev)
 
-On Debian-based Linux: `sudo apt-get install libx11-dev libxkbfile-dev`  
+On Debian-based Linux: `sudo apt-get install libx11-dev libxkbfile-dev`
 On Red Hat-based Linux: `sudo dnf install libx11-devel libxkbfile-devel`
 
 **Let's build:**
@@ -117,21 +117,11 @@ For more scripts please see `package.json`.
 ## Project Structure
 
 - root: Configuration files
-
 - `package.json`: Project settings
-
 - `build`: Contains generated binaries
-
 - `dist`: Build files for deployment
-
 - `doc`: Documentation and assets
-
 - `node_modules`: Dependencies
-
 - `src`: Mark Text source code
-
-  - TBD
-
 - `static`: Application assets (images, themes, etc)
-
 - `test`: Contains (unit) tests
