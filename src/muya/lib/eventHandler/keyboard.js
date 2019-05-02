@@ -67,6 +67,13 @@ class Keyboard {
         return
       }
 
+      // We need check cursor is null, because we may copy the html preview content,
+      // and no need to dispatch change.
+      const { start, end } = selection.getCursorRange()
+      if (!start || !end) {
+        return
+      }
+
       if (timer) clearTimeout(timer)
       timer = setTimeout(() => {
         const selectionChanges = contentState.selectionChange()
