@@ -156,6 +156,7 @@ class StateRender {
     patch(oldVdom, newVdom)
     this.renderMermaid()
     this.renderDiagram()
+    this.codeCache.clear()
   }
 
   // Only render the blocks which you updated
@@ -199,6 +200,7 @@ class StateRender {
 
     this.renderMermaid()
     this.renderDiagram()
+    this.codeCache.clear()
   }
 }
 
