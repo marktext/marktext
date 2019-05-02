@@ -180,10 +180,10 @@ class ContentState {
   }
 
   /**
-   * A block in Aganippe present a paragraph(block syntax in GFM) or a line in paragraph.
-   * a line block must in a `p block` or `pre block(frontmatter)` and `p block`'s children must be line blocks.
+   * A block in Mark Text present a paragraph(block syntax in GFM) or a line in paragraph.
+   * a `span` block must in a `p block` or `pre block` and `p block`'s children must be `span` blocks.
    */
-  createBlock (type = 'span', text = '', editable = true) { // span type means it is a line block.
+  createBlock (type = 'span', text = '', editable = true) {
     const key = getUniqueId()
     return {
       key,

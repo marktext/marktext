@@ -1,21 +1,21 @@
 .ag-emoji-picker {
-  width: 324px;
-  max-height: 307px;
+  width: 348px;
+  max-height: 350px;
   overflow-y: auto;
 }
 
 .ag-emoji-picker .title {
-  color: var(--editorColor);
-  line-height: 120%;
-  font-size: 11px;
-  padding: 10px 14px 12px 14px;
+  color: var(--editorColor80);
+  line-height: 1.15;
+  font-size: 12px;
+  padding: 10px 12px 12px 12px;
   display: flex;
   text-transform: uppercase;
   letter-spacing: 1px;
   font-weight: 600;
   position: sticky;
   top: 0;
-  background: var(--floatBgColor);
+  background: var(--itemBgColor);
   z-index: 1001;
 }
 
@@ -23,18 +23,19 @@
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
-  padding: 0 15px;
+  padding: 0 12px;
 }
 
 .ag-emoji-picker section .emoji-wrapper .item {
-  width: 42px;
-  height: 42px;
+  width: 36px;
+  height: 36px;
   flex-shrink: 0;
   cursor: pointer;
   display: flex;
   justify-content: space-around;
   align-items: center;
   box-sizing: border-box;
+  border-radius: 50%;
 }
 
 .ag-emoji-picker:hover .active {
@@ -47,13 +48,13 @@
 }
 
 .ag-emoji-picker section .emoji-wrapper .item span {
-  width: 42px;
-  height: 42px;
+  width: 24px;
+  height: 24px;
   display: block;
-  font-size: 26px;
+  font-size: 24px;
   text-align: center;
-  line-height: 42px;
-  color: var(--editorColor);
+  line-height: 1.15;
+  color: #000;
   transition: transform .2s ease-in;
   transform-origin: center;
 }
