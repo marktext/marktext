@@ -4,8 +4,11 @@ import {
 const CHOP_TEXT_REG = /(\*{1,3})([^*]+)(\1)/g
 
 export const getTextContent = (node, blackList) => {
-  if (node.nodeType === 3) return node.textContent
-  else if (!blackList || node.querySelectorAll(blackList.map(c => `.${c}`).join(', ')).length === 0) return node.textContent
+  if (node.nodeType === 3) {
+    return node.textContent
+  } else if (!blackList) {
+    return node.textContent
+  }
 
   let text = ''
   if (blackList.some(className => node.classList && node.classList.contains(className))) {
