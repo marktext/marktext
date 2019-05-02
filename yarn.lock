@@ -3963,10 +3963,10 @@ electron-window-state@^5.0.3:
     jsonfile "^4.0.0"
     mkdirp "^0.5.1"
 
-electron@^4.1.4:
-  version "4.1.5"
-  resolved "https://registry.yarnpkg.com/electron/-/electron-4.1.5.tgz#d1873147d5be36ab0c8bb9db3a54297a82ee8fef"
-  integrity sha512-0VZzUd4vZaUeSLdxJI/XMrMnPN7AROjPFZOiNgZZkYRUUEjGHfaSAbCJyxuXtii52KGhzGL0JgW0q5QmQ3ykKQ==
+electron@^5.0.0:
+  version "5.0.0"
+  resolved "https://registry.yarnpkg.com/electron/-/electron-5.0.0.tgz#d8352e2c9625b3be0112ce0c1bf5c9b6f692557e"
+  integrity sha512-++emIe4vLihiYiAVL+E8DT5vSNVFEIuQCRxA+VfpDRVBcog85UB28vi4ogRmMOK3UffzKdWV6e1jqp3T0KpBoA==
   dependencies:
     "@types/node" "^10.12.18"
     electron-download "^4.1.0"
@@ -7432,7 +7432,12 @@ node-environment-flags@1.0.5:
     object.getownpropertydescriptors "^2.0.3"
     semver "^5.7.0"
 
-node-fetch@^2.3.0, node-fetch@^2.4.1:
+node-fetch@^2.3.0:
+  version "2.4.0"
+  resolved "https://registry.yarnpkg.com/node-fetch/-/node-fetch-2.4.0.tgz#125ae2b0c2a75cb3b2ed141bf73e106cfe1f0ca8"
+  integrity sha512-1mt8bw5JQWWTcwUM1FGjFJLFo5lB/jz6zbm+qwdEh2iqYobKS4aHWgz1d+mvho5cqCaShFDF+hnpgraIi/5tqA==
+
+node-fetch@^2.4.1:
   version "2.4.1"
   resolved "https://registry.yarnpkg.com/node-fetch/-/node-fetch-2.4.1.tgz#b2e38f1117b8acbedbe0524f041fb3177188255d"
   integrity sha512-P9UbpFK87NyqBZzUuDBDz4f6Yiys8xm8j7ACDbi6usvFm6KItklQUKjeoqTrYS/S1k6I8oaOC2YLLDr/gg26Mw==
@@ -10627,15 +10632,7 @@ type-func@^1.0.1:
   resolved "https://registry.yarnpkg.com/type-func/-/type-func-1.0.3.tgz#ab184234ae80d8d50057cefeff3b2d97d08ae9b0"
   integrity sha1-qxhCNK6A2NUAV87+/zstl9CK6bA=
 
-type-is@~1.6.16:
-  version "1.6.16"
-  resolved "https://registry.yarnpkg.com/type-is/-/type-is-1.6.16.tgz#f89ce341541c672b25ee7ae3c73dee3b2be50194"
-  integrity sha512-HRkVv/5qY2G6I8iab9cI7v1bOIdhm94dVjQCPFElW9W+3GeDOSHmy2EBYe4VTApuzolPcmgFTN3ftVJRKR2J9Q==
-  dependencies:
-    media-typer "0.3.0"
-    mime-types "~2.1.18"
-
-type-is@~1.6.17:
+type-is@~1.6.16, type-is@~1.6.17:
   version "1.6.18"
   resolved "https://registry.yarnpkg.com/type-is/-/type-is-1.6.18.tgz#4e552cd05df09467dcbc4ef739de89f2cf37c131"
   integrity sha512-TkRKr9sUTxEH8MdfuCSP7VizJyzRNMjj2J2do2Jr3Kym598JVdEksuzPQCnlFPW4ky9Q+iA+ma9BGm06XQBy8g==
