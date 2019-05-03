@@ -5,7 +5,9 @@ import sourceMapSupport from 'source-map-support'
 import lang from 'element-ui/lib/locale/lang/en'
 import locale from 'element-ui/lib/locale'
 import bootstrapRenderer from './bootstrap'
-import App from './app'
+import VueRouter from 'vue-router'
+import lang from 'element-ui/lib/locale/lang/en'
+import locale from 'element-ui/lib/locale'
 import store from './store'
 import './assets/symbolIcon'
 import {
@@ -20,9 +22,13 @@ import {
   ColorPicker,
   Col,
   Row,
-  Tree
+  Tree,
+  Autocomplete,
+  Switch
 } from 'element-ui'
 import services from './services'
+import routes from './router'
+import { addElementStyle } from '@/util/theme'
 
 import './assets/styles/index.css'
 import './assets/styles/printService.css'
@@ -30,6 +36,9 @@ import './assets/styles/printService.css'
 // -----------------------------------------------
 
 // Decode source map in production - must be registered first
+
+addElementStyle()
+
 sourceMapSupport.install({
   environment: 'node',
   handleUncaughtExceptions: false,
@@ -57,6 +66,10 @@ Vue.use(ColorPicker)
 Vue.use(Col)
 Vue.use(Row)
 Vue.use(Tree)
+Vue.use(Autocomplete)
+Vue.use(Switch)
+
+Vue.use(VueRouter)
 
 Vue.use(VueElectron)
 Vue.http = Vue.prototype.$http = axios
@@ -66,9 +79,13 @@ services.forEach(s => {
   Vue.prototype['$' + s.name] = s[s.name]
 })
 
+const router = new VueRouter({
+  routes
+})
+
 /* eslint-disable no-new */
 new Vue({
-  components: { App },
   store,
-  template: '<App/>'
+  router,
+  template: '<router-view class="view"></router-view>'
 }).$mount('#app')

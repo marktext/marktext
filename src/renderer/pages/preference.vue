@@ -1,0 +1,43 @@
+<template>
+  <div class="pref-container">
+    <side-bar></side-bar>
+    <div class="pref-content">
+      <div class="title-bar"></div>
+      <router-view class="pref-setting"></router-view>
+    </div>
+  </div>
+</template>
+
+<script>
+import SideBar from '@/prefComponents/sideBar'
+export default {
+  components: {
+    SideBar
+  }
+}
+</script>
+
+<style scoped>
+.pref-container {
+  width: 100vw;
+  height: 100vh;
+  position: fixed;
+  top: 0;
+  left: 0;
+  display: flex;
+  & .pref-content {
+    position: relative;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    & .title-bar {
+      width: 100%;
+      height: var(--titleBarHeight);
+    }
+    & .pref-setting {
+      padding: 10px 20px;
+      flex: 1;
+    }
+  }
+}
+</style>

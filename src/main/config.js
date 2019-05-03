@@ -15,6 +15,22 @@ export const defaultWinOptions = {
   titleBarStyle: 'hiddenInset'
 }
 
+export const defaultPreferenceWinOptions = {
+  icon: path.join(__static, 'logo-96px.png'),
+  width: 950,
+  height: 650,
+  webPreferences: {
+    nodeIntegration: true,
+    webSecurity: false,
+  },
+  useContentSize: true,
+  show: false,
+  frame: false,
+  thickFrame: false,
+  titleBarStyle: 'hiddenInset',
+  center: true
+}
+
 export const EXTENSIONS = [
   'markdown',
   'mdown',
