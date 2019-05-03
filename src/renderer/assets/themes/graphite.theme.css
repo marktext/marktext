@@ -1,5 +1,15 @@
 :root {
   --themeColor: rgb(104, 134, 170);
+  --themeColor90: rgba(104, 134, 170, .9);
+  --themeColor80: rgba(104, 134, 170, .8);
+  --themeColor70: rgba(104, 134, 170, .7);
+  --themeColor60: rgba(104, 134, 170, .6);
+  --themeColor50: rgba(104, 134, 170, .5);
+  --themeColor40: rgba(104, 134, 170, .4);
+  --themeColor30: rgba(104, 134, 170, .3);
+  --themeColor20: rgba(104, 134, 170, .2);
+  --themeColor10: rgba(104, 134, 170, .1);
+
   --highlightColor: rgba(104, 134, 170, .4);
   --selectionColor: rgba(0, 0, 0, .1);
   --editorColor: rgba(43, 48, 50, .7);

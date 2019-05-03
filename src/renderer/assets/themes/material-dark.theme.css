@@ -1,6 +1,16 @@
 :root {
   /*editor*/
   --themeColor: #f48237;
+  --themeColor90: rgba(244, 130, 55, .9);
+  --themeColor80: rgba(244, 130, 55, .8);
+  --themeColor70: rgba(244, 130, 55, .7);
+  --themeColor60: rgba(244, 130, 55, .6);
+  --themeColor50: rgba(244, 130, 55, .5);
+  --themeColor40: rgba(244, 130, 55, .4);
+  --themeColor30: rgba(244, 130, 55, .3);
+  --themeColor20: rgba(244, 130, 55, .2);
+  --themeColor10: rgba(244, 130, 55, .1);
+
   --highlightColor: rgba(244, 130, 55, .4);
   --selectionColor: rgba(255, 255, 255, .2);
   --editorColor: rgba(171, 178, 191, .8);

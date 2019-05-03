@@ -607,24 +607,10 @@
       & .el-button {
         width: 70px;
       }
-      & .el-button:focus,
-      & .el-button:hover {
+      & .el-button:focus {
         color: var(--themeColor);
         border-color: var(--highlightColor);
         background-color: var(--selectionColor);
-      }
-      & .el-button--primary {
-        color: #fff;
-        background: var(--themeColor);
-        border-color: var(--highlightColor);
-
-      }
-      & .el-input-number.is-controls-right .el-input__inner {
-        background: var(--itemBgColor);
-        color: var(--editorColor);
-      }
-      & .el-input-number.is-controls-right .el-input__inner:focus {
-        border-color: var(--themeColor);
       }
     }
   }

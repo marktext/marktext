@@ -389,11 +389,10 @@
   height: 28px;
   line-height: 28px;
   & .front {
-    color: var(--editorColor50);
+    opacity: .7;
   }
   & .text {
     margin-left: 10px;
-    color: var(--editorColor30);
   }
 }
 </style>
