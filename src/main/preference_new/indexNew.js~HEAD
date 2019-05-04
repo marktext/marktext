@@ -4,7 +4,7 @@ import Store from 'electron-store'
 import { ipcMain, BrowserWindow, systemPreferences } from 'electron'
 import { isOsx, isWindows } from './config'
 import { hasSameKeys, log } from './utils'
-import { getStringRegKey, winHKEY } from './platform/win32/registry.js'
+import { getStringRegKey, winHKEY } from './platform/win32/registry.js.js'
 import schema from './schema'
 
 const isDarkSystemMode = () => {
