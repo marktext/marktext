@@ -1,5 +1,7 @@
 # Code Blocks
 
+## Indent Code Block
+
     This line won't *have any markdown* formatting applied.
     I can even write <b>HTML</b> and it will show up as text.
     This is great for showing program source code, or HTML or even
@@ -8,6 +10,8 @@
 
 Within a paragraph, you can use backquotes to do the same thing.
 `This won't be *italic* or **bold** at all.`
+
+## Fence Code Block
 
 ```cpp
 #include <iostream>

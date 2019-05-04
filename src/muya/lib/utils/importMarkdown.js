@@ -13,6 +13,56 @@ import { CURSOR_DNA } from '../config'
 
 const LINE_BREAKS_REG = /\n/
 
+// Just because turndown change `\n`(soft line break) to space, So we add `span.ag-soft-line-break` to workaround.
+const turnSoftBreakToSpan = html => {
+  const parser = new DOMParser()
+  const doc = parser.parseFromString(
+    `<x-mt id="turn-root">${html}</x-mt>`,
+    'text/html'
+  )
+  const root = doc.querySelector(`#turn-root`)
+  const travel = childNodes => {
+    for (const node of childNodes) {
+      if (node.nodeType === 3) {
+        let startLen = 0
+        let endLen = 0
+        const text = node.nodeValue.replace(/^(\n+)/, (_, p) => {
+          startLen = p.length
+          return ''
+        }).replace(/(\n+)$/, (_, p) => {
+          endLen = p.length
+          return ''
+        })
+        if (/\n/.test(text)) {
+          const tokens = text.split('\n')
+          const params = []
+          let i = 0
+          const len = tokens.length
+          for (; i< len; i++) {
+            let text = tokens[i]
+            if (i === 0 && startLen !== 0) {
+              text = '\n'.repeat(startLen) + text
+            } else if (i === len - 1 && endLen !== 0) {
+              text = text + '\n'.repeat(endLen)
+            } 
+            params.push(document.createTextNode(text))
+            if (i !== len - 1) {
+              const softBreak = document.createElement('span')
+              softBreak.classList.add('ag-soft-line-break')
+              params.push(softBreak)
+            }
+          }
+          node.replaceWith(...params)
+        }
+      } else if (node.nodeType === 1) {
+        travel(node.childNodes)
+      }
+    }
+  }
+  travel(root.childNodes)
+  return root.innerHTML.trim()
+}
+
 const importRegister = ContentState => {
   // turn markdown to blocks
   ContentState.prototype.markdownToState = function (markdown) {
@@ -37,37 +87,57 @@ const importRegister = ContentState => {
     while ((token = tokens.shift())) {
       switch (token.type) {
         case 'frontmatter': {
+          const lang = 'yaml'
           value = token.text
-          block = this.createBlock('pre')
-          const codeBlock = this.createBlock('code')
+          block = this.createBlock('pre', {
+            functionType: token.type,
+            lang
+          })
+          const codeBlock = this.createBlock('code', {
+            lang
+          })
           value
             .replace(/^\s+/, '')
             .replace(/\s$/, '')
             .split(LINE_BREAKS_REG).forEach(line => {
-              const codeLine = this.createBlock('span', line)
-              codeLine.functionType = 'codeLine'
-              codeLine.lang = 'yaml'
+              const codeLine = this.createBlock('span', {
+                text: line,
+                lang,
+                functionType: 'codeLine'
+              })
+
               this.appendChild(codeBlock, codeLine)
             })
 
-          block.functionType = token.type
-          block.lang = codeBlock.lang = 'yaml'
-          this.codeBlocks.set(block.key, value)
           this.appendChild(block, codeBlock)
           this.appendChild(parentList[0], block)
           break
         }
         case 'hr': {
-          value = '---'
-          block = this.createBlock('hr', value)
+          value = token.marker
+          block = this.createBlock('hr')
+          const thematicBreakContent = this.createBlock('span', {
+            text: value,
+            functionType: 'thematicBreakLine'
+          })
+          this.appendChild(block, thematicBreakContent)
           this.appendChild(parentList[0], block)
           break
         }
         case 'heading': {
           const { headingStyle, depth, text, marker } = token
           value = headingStyle === 'atx' ? '#'.repeat(+depth) + ` ${text}` : text
-          block = this.createBlock(`h${depth}`, value)
-          block.headingStyle = headingStyle
+          block = this.createBlock(`h${depth}`, {
+            headingStyle
+          })
+
+          const headingContent = this.createBlock('span', {
+            text: value,
+            functionType: headingStyle === 'atx'? 'atxLine' : 'paragraphContent'
+          })
+
+          this.appendChild(block, headingContent)
+
           if (marker) {
             block.marker = marker
           }
@@ -95,15 +165,25 @@ const importRegister = ContentState => {
             block = this.createContainerBlock(lang, value)
             this.appendChild(parentList[0], block)
           } else {
-            block = this.createBlock('pre')
-            const codeBlock = this.createBlock('code')
+            block = this.createBlock('pre', {
+              functionType: codeBlockStyle === 'fenced' ? 'fencecode' : 'indentcode',
+              lang
+            })
+            const codeBlock = this.createBlock('code', {
+              lang
+            })
             value.split(LINE_BREAKS_REG).forEach(line => {
-              const codeLine = this.createBlock('span', line)
+              const codeLine = this.createBlock('span', {
+                text: line
+              })
               codeLine.lang = lang
               codeLine.functionType = 'codeLine'
               this.appendChild(codeBlock, codeLine)
             })
-            const inputBlock = this.createBlock('span', lang)
+            const inputBlock = this.createBlock('span', {
+              text: lang,
+              functionType: 'languageInput'
+            })
             if (lang && !languageLoaded.has(lang)) {
               languageLoaded.add(lang)
               loadLanguage(lang)
@@ -121,10 +201,7 @@ const importRegister = ContentState => {
                   console.warn(err)
                 })
             }
-            inputBlock.functionType = 'languageInput'
-            this.codeBlocks.set(block.key, value)
-            block.functionType = codeBlockStyle === 'fenced' ? 'fencecode' : 'indentcode'
-            block.lang = codeBlock.lang = lang
+
             this.appendChild(block, inputBlock)
             this.appendChild(block, codeBlock)
             this.appendChild(parentList[0], block)
@@ -144,7 +221,9 @@ const importRegister = ContentState => {
           }
           for (const headText of header) {
             const i = header.indexOf(headText)
-            const th = this.createBlock('th', restoreTableEscapeCharacters(headText))
+            const th = this.createBlock('th', {
+              text: restoreTableEscapeCharacters(headText)
+            })
             Object.assign(th, { align: align[i] || '', column: i })
             this.appendChild(theadRow, th)
           }
@@ -152,7 +231,9 @@ const importRegister = ContentState => {
             const rowBlock = this.createBlock('tr')
             for (const cell of row) {
               const i = row.indexOf(cell)
-              const td = this.createBlock('td', restoreTableEscapeCharacters(cell))
+              const td = this.createBlock('td', {
+                text: restoreTableEscapeCharacters(cell)
+              })
               Object.assign(td, { align: align[i] || '', column: i })
               this.appendChild(rowBlock, td)
             }
@@ -181,20 +262,20 @@ const importRegister = ContentState => {
             value += `\n${token.text}`
           }
           block = this.createBlock('p')
-          const lines = value.split(LINE_BREAKS_REG).map(line => this.createBlock('span', line))
-          for (const line of lines) {
-            this.appendChild(block, line)
-          }
+          const contentBlock = this.createBlock('span', {
+            text: value
+          })
+          this.appendChild(block, contentBlock)
           this.appendChild(parentList[0], block)
           break
         }
         case 'paragraph': {
           value = token.text
           block = this.createBlock('p')
-          const lines = value.split(LINE_BREAKS_REG).map(line => this.createBlock('span', line))
-          for (const line of lines) {
-            this.appendChild(block, line)
-          }
+          const contentBlock = this.createBlock('span', {
+            text: value
+          })
+          this.appendChild(block, contentBlock)
           this.appendChild(parentList[0], block)
           break
         }
@@ -226,13 +307,17 @@ const importRegister = ContentState => {
         case 'loose_item_start':
         case 'list_item_start': {
           const { listItemType, bulletMarkerOrDelimiter, checked, type } = token
-          block = this.createBlock('li')
-          block.listItemType = checked !== undefined ? 'task' : listItemType
-          block.bulletMarkerOrDelimiter = bulletMarkerOrDelimiter
-          block.isLooseListItem = type === 'loose_item_start'
+          block = this.createBlock('li', {
+            listItemType: checked !== undefined ? 'task' : listItemType,
+            bulletMarkerOrDelimiter,
+            isLooseListItem: type === 'loose_item_start'
+          })
+
           if (checked !== undefined) {
-            const input = this.createBlock('input')
-            input.checked = checked
+            const input = this.createBlock('input', {
+              checked
+            })
+
             this.appendChild(block, input)
           }
           this.appendChild(parentList[0], block)
@@ -260,10 +345,10 @@ const importRegister = ContentState => {
     const { turndownConfig } = this
     const turndownService = new TurndownService(turndownConfig)
     usePluginAddRules(turndownService)
-    // remove double `\\` in Math but I dont know why there are two '\' when paste. @jocs
     // fix #752, but I don't know why the &nbsp; vanlished.
     html = html.replace(/&nbsp;/g, ' ')
-    const markdown = turndownService.turndown(html) // .replace(/(\\)\\/g, '$1')
+    html = turnSoftBreakToSpan(html)
+    const markdown = turndownService.turndown(html)
     return markdown
   }
 
@@ -308,7 +393,7 @@ const importRegister = ContentState => {
     // set cursor
     const travel = blocks => {
       for (const block of blocks) {
-        const { key, text, children, editable, type, functionType } = block
+        const { key, text, children, editable } = block
         if (text) {
           const offset = text.indexOf(CURSOR_DNA)
           if (offset > -1) {
@@ -317,17 +402,6 @@ const importRegister = ContentState => {
               this.cursor = {
                 start: { key, offset },
                 end: { key, offset }
-              }
-              // handle cursor in Math block, need to remove `CURSOR_DNA` in preview block
-              if (type === 'span' && functionType === 'codeLine') {
-                const preBlock = this.getParent(this.getParent(block))
-                const code = this.codeBlocks.get(preBlock.key)
-                if (!code) return
-                const offset = code.indexOf(CURSOR_DNA)
-                if (offset > -1) {
-                  const newCode = code.substring(0, offset) + code.substring(offset + CURSOR_DNA.length)
-                  this.codeBlocks.set(preBlock.key, newCode)
-                }
               }
               return
             }
@@ -351,7 +425,6 @@ const importRegister = ContentState => {
   }
 
   ContentState.prototype.importMarkdown = function (markdown) {
-    this.codeBlocks = new Map()
     this.blocks = this.markdownToState(markdown)
   }
 }

@@ -1,13 +1,17 @@
 import { CLASS_OR_ID } from '../../../config'
 
-export default function hardLineBreak (h, cursor, block, token, outerClass) {
+export default function softLineBreak (h, cursor, block, token, outerClass) {
+  const { spaces, lineBreak, isAtEnd } = token
   const className = CLASS_OR_ID['AG_HARD_LINE_BREAK']
-  const content = [token.spaces]
-  if (block.type === 'span' && block.nextSibling) {
+  const spaceClass = CLASS_OR_ID['AG_HARD_LINE_BREAK_SPACE']
+  if (isAtEnd) {
     return [
-      h(`span.${className}`, content)
+      h(`span.${className}`, h(`span.${spaceClass}`, spaces)),
+      h(`span.${CLASS_OR_ID['AG_LINE_END']}`, lineBreak)
     ]
   } else {
-    return content
+    return [
+      h(`span.${className}`, [ h(`span.${spaceClass}`, spaces), lineBreak ])
+    ]
   }
 }

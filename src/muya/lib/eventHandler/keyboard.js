@@ -66,6 +66,9 @@ class Keyboard {
       if (event.target.closest('[contenteditable=false]')) {
         return
       }
+
+      // We need check cursor is null, because we may copy the html preview content,
+      // and no need to dispatch change.
       const { start, end } = selection.getCursorRange()
       if (!start || !end) {
         return

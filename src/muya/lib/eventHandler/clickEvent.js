@@ -73,15 +73,12 @@ class ClickEvent {
       if (target.closest('div.ag-container-preview') || target.closest('div.ag-html-preview')) {
         return event.stopPropagation()
       }
-      // handler html preview click
+      // handler container preview click
       const editIcon = target.closest(`.ag-container-icon`)
       if (editIcon) {
         event.preventDefault()
         event.stopPropagation()
-        const nextElement = editIcon.nextElementSibling
-        if (nextElement && nextElement.classList.contains('ag-function-html')) {
-          contentState.handleHtmlBlockClick(nextElement)
-        } else if (editIcon.parentNode.classList.contains('ag-container-block')) {
+        if (editIcon.parentNode.classList.contains('ag-container-block')) {
           contentState.handleContainerBlockClick(editIcon.parentNode)
         }
       }

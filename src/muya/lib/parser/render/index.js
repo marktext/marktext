@@ -3,7 +3,7 @@ import flowchart from 'flowchart.js'
 import Diagram from './sequence'
 import vegaEmbed from 'vega-embed'
 import { CLASS_OR_ID } from '../../config'
-import { conflict, mixins } from '../../utils'
+import { conflict, mixins, camelToSnake } from '../../utils'
 import { patch, toVNode, toHTML, h } from './snabbdom'
 import { beginRules } from '../rules'
 import renderInlines from './renderInlines'
@@ -13,6 +13,7 @@ class StateRender {
   constructor (muya) {
     this.muya = muya
     this.eventCenter = muya.eventCenter
+    this.codeCache = new Map()
     this.loadImageMap = new Map()
     this.loadMathMap = new Map()
     this.mermaidCache = new Set()
@@ -85,7 +86,7 @@ class StateRender {
       selector += `.${CLASS_OR_ID['AG_ACTIVE']}`
     }
     if (type === 'span') {
-      selector += `.${CLASS_OR_ID['AG_LINE']}`
+      selector += `.ag-${camelToSnake(block.functionType)}`
     }
     if (!block.parent && selectedBlock && block.key === selectedBlock.key) {
       selector += `.${CLASS_OR_ID['AG_SELECTED']}`
@@ -155,6 +156,7 @@ class StateRender {
     patch(oldVdom, newVdom)
     this.renderMermaid()
     this.renderDiagram()
+    this.codeCache.clear()
   }
 
   // Only render the blocks which you updated
@@ -198,6 +200,7 @@ class StateRender {
 
     this.renderMermaid()
     this.renderDiagram()
+    this.codeCache.clear()
   }
 }
 

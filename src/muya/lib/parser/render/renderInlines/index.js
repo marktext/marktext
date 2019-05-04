@@ -7,6 +7,7 @@ import htmlTag from './htmlTag'
 import hr from './hr'
 import tailHeader from './tailHeader'
 import hardLineBreak from './hardLineBreak'
+import softLineBreak from './softLineBreak'
 import codeFense from './codeFense'
 import inlineMath from './inlineMath'
 import autoLink from './autoLink'
@@ -37,6 +38,7 @@ export default {
   hr,
   tailHeader,
   hardLineBreak,
+  softLineBreak,
   codeFense,
   inlineMath,
   autoLink,

@@ -57,7 +57,6 @@ export default function renderLeafBlock (block, cursor, activeBlocks, selectedBl
   const {
     text,
     type,
-    headingStyle,
     align,
     checked,
     key,
@@ -65,13 +64,16 @@ export default function renderLeafBlock (block, cursor, activeBlocks, selectedBl
     functionType,
     editable
   } = block
+
   const data = {
     props: {},
     attrs: {},
     dataset: {},
     style: {}
   }
+
   let children = ''
+
   if (text) {
     let tokens = []
     if (highlights.length === 0 && this.tokenCache.has(text)) {
@@ -81,7 +83,7 @@ export default function renderLeafBlock (block, cursor, activeBlocks, selectedBl
       functionType !== 'codeLine' &&
       functionType !== 'languageInput'
     ) {
-      const hasBeginRules = /^(h\d|span|hr)/.test(type)
+      const hasBeginRules = type === 'span'
       tokens = tokenizer(text, highlights, hasBeginRules, this.labels)
       const hasReferenceTokens = hasReferenceToken(tokens)
       if (highlights.length === 0 && useCache && DEVICE_MEMORY >= 4 && !hasReferenceTokens) {
@@ -103,9 +105,9 @@ export default function renderLeafBlock (block, cursor, activeBlocks, selectedBl
       style: `text-align:${align}`
     })
   } else if (type === 'div') {
-    const code = this.muya.contentState.codeBlocks.get(block.preSibling)
+    const code = this.codeCache.get(block.preSibling)
     switch (functionType) {
-      case 'preview': {
+      case 'html': {
         selector += `.${CLASS_OR_ID['AG_HTML_PREVIEW']}`
         const htmlContent = sanitize(code, PREVIEW_DOMPURIFY_CONFIG)
         // handle empty html bock
@@ -168,7 +170,6 @@ export default function renderLeafBlock (block, cursor, activeBlocks, selectedBl
       case 'flowchart':
       case 'sequence':
       case 'vega-lite': {
-        const code = this.muya.contentState.codeBlocks.get(block.preSibling)
         selector += `.${CLASS_OR_ID['AG_CONTAINER_PREVIEW']}`
         if (code === '') {
           children = '< Empty Diagram Block >'
@@ -183,18 +184,6 @@ export default function renderLeafBlock (block, cursor, activeBlocks, selectedBl
         break
       }
     }
-  } else if (/^h/.test(type)) {
-    if (/^h\d$/.test(type)) {
-      // TODO: This should be the best place to create and update the TOC.
-      //       Cache `block.key` and title and update only if necessary.
-      Object.assign(data.dataset, {
-        head: type
-      })
-      selector += `.${headingStyle}`
-    }
-    Object.assign(data.dataset, {
-      role: type
-    })
   } else if (type === 'input') {
     Object.assign(data.attrs, {
       type: 'checkbox'
@@ -214,8 +203,6 @@ export default function renderLeafBlock (block, cursor, activeBlocks, selectedBl
       .replace(new RegExp(MARKER_HASK['"'], 'g'), '"')
       .replace(new RegExp(MARKER_HASK["'"], 'g'), "'")
 
-    selector += `.${CLASS_OR_ID['AG_CODE_LINE']}`
-
     if (lang && /\S/.test(code) && loadedCache.has(lang)) {
       const wrapper = document.createElement('div')
       wrapper.classList.add(`language-${lang}`)
@@ -230,7 +217,6 @@ export default function renderLeafBlock (block, cursor, activeBlocks, selectedBl
     }
   } else if (type === 'span' && functionType === 'languageInput') {
     const html = getHighlightHtml(text, highlights)
-    selector += `.${CLASS_OR_ID['AG_LANGUAGE_INPUT']}`
     children = htmlToVNode(html)
   }
   if (!block.parent) {

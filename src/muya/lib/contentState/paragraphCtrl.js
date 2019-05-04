@@ -68,12 +68,19 @@ const paragraphCtrl = ContentState => {
   ContentState.prototype.handleFrontMatter = function () {
     const firstBlock = this.blocks[0]
     if (firstBlock.type === 'pre' && firstBlock.functionType === 'frontmatter') return
-    const frontMatter = this.createBlock('pre')
-    const codeBlock = this.createBlock('code')
-    const emptyLine = this.createBlock('span')
-    frontMatter.lang = codeBlock.lang = emptyLine.lang = 'yaml'
-    emptyLine.functionType = 'codeLine'
-    frontMatter.functionType = 'frontmatter'
+    const lang = 'yaml'
+    const frontMatter = this.createBlock('pre', {
+      functionType: 'frontmatter',
+      lang
+    })
+    const codeBlock = this.createBlock('code', {
+      lang
+    })
+    const emptyLine = this.createBlock('span', {
+      functionType: 'codeLine',
+      lang
+    })
+
     this.appendChild(codeBlock, emptyLine)
     this.appendChild(frontMatter, codeBlock)
     this.insertBefore(frontMatter, firstBlock)
@@ -87,14 +94,13 @@ const paragraphCtrl = ContentState => {
 
   ContentState.prototype.handleListMenu = function (paraType, insertMode) {
     const { start, end, affiliation } = this.selectionChange(this.cursor)
-    const { orderListMarker, bulletListMarker } = this
+    const { orderListMarker, bulletListMarker, preferLooseListItem } = this
     const [blockType, listType] = paraType.split('-')
     const isListed = affiliation.slice(0, 3).filter(b => /ul|ol/.test(b.type))
-    const { preferLooseListItem } = this
 
     if (isListed.length && !insertMode) {
       const listBlock = isListed[0]
-      if (listType === isListed[0].listType) {
+      if (listType === listBlock.listType) {
         const listItems = listBlock.children
         listItems.forEach(listItem => {
           listItem.children.forEach(itemParagraph => {
@@ -214,41 +220,74 @@ const paragraphCtrl = ContentState => {
     if (affiliation.length && affiliation[0].type === 'pre' && /code/.test(affiliation[0].functionType)) {
       const preBlock = affiliation[0]
       const codeLines = preBlock.children[1].children
-      this.codeBlocks.delete(preBlock.key)
       preBlock.type = 'p'
       preBlock.children = []
 
+      const newParagraphBlock = this.createBlockP(codeLines.map(l => l.text).join('\n'))
+      this.insertBefore(newParagraphBlock, preBlock)
+
+      this.removeBlock(preBlock)
+      const { start, end } = this.cursor
+
+      const key = newParagraphBlock.children[0].key
+      let startOffset = 0
+      let endOffset = 0
+      let startStop = false
+      let endStop = false
       for (const line of codeLines) {
-        delete line.lang
-        delete line.functionType
-        this.appendChild(preBlock, line)
+        if (line.key !== start.key && !startStop) {
+          startOffset += line.text.length + 1
+        } else {
+          startOffset += start.offset
+          startStop = true
+        }
+        if (line.key !== end.key && !endStop) {
+          endOffset += line.text.length + 1
+        } else {
+          endOffset += end.offset
+          endStop = true
+        }
       }
 
-      delete preBlock.lang
-      delete preBlock.functionType
       this.cursor = {
-        start: this.cursor.start,
-        end: this.cursor.end
+        start: { key, offset: startOffset },
+        end: { key, offset: endOffset }
       }
     } else {
       if (start.key === end.key) {
         if (startBlock.type === 'span') {
-          startBlock = this.getParent(startBlock)
-          startBlock.type = 'pre'
-          const codeBlock = this.createBlock('code')
-          const inputBlock = this.createBlock('span', '')
-          inputBlock.functionType = 'languageInput'
-          startBlock.functionType = 'fencecode'
-          startBlock.lang = codeBlock.lang = ''
-          const codeLines = startBlock.children
-          startBlock.children = []
-          codeLines.forEach(line => {
-            line.functionType = 'codeLine'
-            line.lang = ''
-            this.appendChild(codeBlock, line)
+          const anchorBlock = this.getParent(startBlock)
+          const lang = ''
+          const preBlock = this.createBlock('pre', {
+            functionType: 'fencecode',
+            lang
           })
-          this.appendChild(startBlock, inputBlock)
-          this.appendChild(startBlock, codeBlock)
+
+          const codeBlock = this.createBlock('code', {
+            lang: ''
+          })
+
+          const inputBlock = this.createBlock('span', {
+            functionType: 'languageInput'
+          })
+
+          const codes = startBlock.text.split('\n')
+
+          for (const code of codes) {
+            const codeLine = this.createBlock('span', {
+              text: code,
+              functionType: 'codeLine',
+              lang
+            })
+            this.appendChild(codeBlock, codeLine)
+          }
+
+          this.appendChild(preBlock, inputBlock)
+          this.appendChild(preBlock, codeBlock)
+          this.insertBefore(preBlock, anchorBlock)
+
+          this.removeBlock(anchorBlock)
+
           const { key } = inputBlock
           const offset = 0
 
@@ -266,21 +305,31 @@ const paragraphCtrl = ContentState => {
         const { parent, startIndex, endIndex } = this.getCommonParent()
         const children = parent ? parent.children : this.blocks
         const referBlock = children[endIndex]
-        const preBlock = this.createBlock('pre')
-        const codeBlock = this.createBlock('code')
-        preBlock.functionType = 'fencecode'
-        preBlock.lang = codeBlock.lang = ''
+        const lang = ''
+        const preBlock = this.createBlock('pre', {
+          functionType: 'fencecode',
+          lang
+        })
+        const codeBlock = this.createBlock('code', {
+          lang
+        })
+
         const listIndentation = this.listIndentation
         const markdown = new ExportMarkdown(children.slice(startIndex, endIndex + 1), listIndentation).generate()
 
         markdown.split(LINE_BREAKS_REG).forEach(text => {
-          const codeLine = this.createBlock('span', text)
-          codeLine.lang = ''
-          codeLine.functionType = 'codeLine'
+          const codeLine = this.createBlock('span', {
+            text,
+            lang,
+            functionType: 'codeLine'
+          })
+ 
           this.appendChild(codeBlock, codeLine)
         })
-        const inputBlock = this.createBlock('span', '')
-        inputBlock.functionType = 'languageInput'
+        const inputBlock = this.createBlock('span', {
+          functionType: 'languageInput'
+        })
+
         this.appendChild(preBlock, inputBlock)
         this.appendChild(preBlock, codeBlock)
         this.insertAfter(preBlock, referBlock)
@@ -392,7 +441,7 @@ const paragraphCtrl = ContentState => {
   ContentState.prototype.updateParagraph = function (paraType, insertMode = false) {
     const { start, end } = this.cursor
     const block = this.getBlock(start.key)
-    const { type, text, functionType } = block
+    const { text } = block
 
     switch (paraType) {
       case 'front-matter': {
@@ -445,15 +494,19 @@ const paragraphCtrl = ContentState => {
       case 'degrade heading':
       case 'paragraph': {
         if (start.key !== end.key) return
-        const [, hash, partText] = /(^#*\s*)(.*)/.exec(text)
+        const headingStyle = DEFAULT_TURNDOWN_CONFIG.headingStyle
+        const parent = this.getParent(block)
+        // \u00A0 is &nbsp;
+        const [, hash, partText] = /(^ {0,3}#*[ \u00A0]*)([\s\S]*)/.exec(text)
         let newLevel = 0 // 1, 2, 3, 4, 5, 6
         let newType = 'p'
         let key
+
         if (/\d/.test(paraType)) {
           newLevel = Number(paraType.split(/\s/)[1])
           newType = `h${newLevel}`
         } else if (paraType === 'upgrade heading' || paraType === 'degrade heading') {
-          const currentLevel = getCurrentLevel(type)
+          const currentLevel = getCurrentLevel(parent.type)
           newLevel = currentLevel
           if (paraType === 'upgrade heading' && currentLevel !== 1) {
             if (currentLevel === 0) newLevel = 6
@@ -475,48 +528,35 @@ const paragraphCtrl = ContentState => {
           ? '#'.repeat(newLevel) + `${String.fromCharCode(160)}${partText}` // &nbsp; code: 160
           : partText
 
-        if (block.type === 'span' && newType !== 'p') {
-          const header = this.createBlock(newType, newText)
-          header.headingStyle = DEFAULT_TURNDOWN_CONFIG.headingStyle
-          key = header.key
-          const parent = this.getParent(block)
-          if (this.isOnlyChild(block)) {
-            this.insertBefore(header, parent)
-            this.removeBlock(parent)
-          } else if (this.isFirstChild(block)) {
-            this.insertBefore(header, parent)
-            this.removeBlock(block)
-          } else if (this.isLastChild(block)) {
-            this.insertAfter(header, parent)
-            this.removeBlock(block)
-          } else {
-            const pBlock = this.createBlock('p')
-            let nextSibling = this.getNextSibling(block)
-            while (nextSibling) {
-              this.appendChild(pBlock, nextSibling)
-              const oldNextSibling = nextSibling
-              nextSibling = this.getNextSibling(nextSibling)
-              this.removeBlock(oldNextSibling)
-            }
-            this.removeBlock(block)
-            this.insertAfter(header, parent)
-            this.insertAfter(pBlock, header)
-          }
-        } else if (/^h/.test(block.type) && newType === 'p') {
+        // No change
+        if (newType === 'p' && parent.type === newType) {
+          return
+        }
+        // No change
+        if (newType !== 'p' && parent.type === newType && parent.headingStyle === headingStyle) {
+          return
+        }
+
+        if (newType !== 'p') {
+          const header = this.createBlock(newType, {
+            headingStyle
+          })
+          const headerContent = this.createBlock('span', {
+            text: headingStyle === 'atx'? newText.replace(/\n/g, ' ') : newText,
+            functionType: headingStyle === 'atx'? 'atxLine' : 'paragraphContent'
+          })
+          this.appendChild(header, headerContent)
+          key = headerContent.key
+          
+          this.insertBefore(header, parent)
+          this.removeBlock(parent)
+        } else {
           const pBlock = this.createBlockP(newText)
           key = pBlock.children[0].key
-          this.insertAfter(pBlock, block)
-          this.removeBlock(block)
-        } else if (type === 'span' && !functionType && newType === 'p') {
-          // The original is a paragraph, the new type is also paragraph, no need to update.
-          return
-        } else {
-          const newHeader = this.createBlock(newType, newText)
-          newHeader.headingStyle = DEFAULT_TURNDOWN_CONFIG.headingStyle
-          key = newHeader.key
-          this.insertAfter(newHeader, block)
-          this.removeBlock(block)
+          this.insertAfter(pBlock, parent)
+          this.removeBlock(parent)
         }
+
         this.cursor = {
           start: { key, offset: startOffset },
           end: { key, offset: endOffset }
@@ -527,7 +567,11 @@ const paragraphCtrl = ContentState => {
         const pBlock = this.createBlockP()
         const archor = block.type === 'span' ? this.getParent(block) : block
         const hrBlock = this.createBlock('hr')
-        hrBlock.text = '---'
+        const thematicContent = this.createBlock('span', {
+          functionType: 'thematicBreakLine',
+          text: '---'
+        })
+        this.appendChild(hrBlock, thematicContent)
         this.insertAfter(hrBlock, archor)
         this.insertAfter(pBlock, hrBlock)
         if (!text) {
@@ -562,42 +606,23 @@ const paragraphCtrl = ContentState => {
     const { start, end } = this.cursor
     // if cursor is not in one line or paragraph, can not insert paragraph
     if (start.key !== end.key) return
-    let block = this.getBlock(start.key)
+    const block = this.getBlock(start.key)
+    let anchor = null
     if (outMost) {
-      block = this.findOutMostBlock(block)
-    } else if (block.type === 'span' && !block.functionType) {
-      block = this.getParent(block)
-    } else if (block.type === 'span' && block.functionType === 'codeLine') {
-      const preBlock = this.getParent(this.getParent(block))
-      switch (preBlock.functionType) {
-        case 'fencecode':
-        case 'indentcode':
-        case 'frontmatter': {
-          // You can not insert paragraph before frontmatter
-          if (preBlock.functionType === 'frontmatter' && location === 'before') {
-            return
-          }
-          block = preBlock
-          break
-        }
-        case 'html': {
-          block = this.getParent(this.getParent(preBlock))
-          break
-        }
-        case 'multiplemath': {
-          block = this.getParent(preBlock)
-          break
-        }
-      }
-    } else if (/th|td/.test(block.type)) {
-      // get figure block from table cell
-      block = this.getParent(this.getParent(this.getParent(this.getParent(block))))
+      anchor = this.findOutMostBlock(block)
+    } else {
+      anchor = this.getAnchor(block)
     }
+    // You can not insert paragraph before frontmatter
+    if (!anchor || anchor && anchor.functionType === 'frontmatter' && location === 'before') {
+      return
+    }
+
     const newBlock = this.createBlockP(text)
     if (location === 'before') {
-      this.insertBefore(newBlock, block)
+      this.insertBefore(newBlock, anchor)
     } else {
-      this.insertAfter(newBlock, block)
+      this.insertAfter(newBlock, anchor)
     }
     const { key } = newBlock.children[0]
     const offset = text.length
@@ -634,12 +659,7 @@ const paragraphCtrl = ContentState => {
     // if copied block has pre block: html, multiplemath, vega-light, mermaid, flowchart, sequence...
     const copiedBlock = this.copyBlock(startOutmostBlock)
     this.insertAfter(copiedBlock, startOutmostBlock)
-    if (copiedBlock.type === 'figure' && copiedBlock.functionType) {
-      const preBlock = this.getPreBlock(copiedBlock)
-      if (preBlock) {
-        this.updateCodeBlocks(preBlock.children[0].children[0])
-      }
-    }
+
     const cursorBlock = this.firstInDescendant(copiedBlock)
     // set cursor at the end of the first descendant of the duplicated block.
     const { key, text } = cursorBlock

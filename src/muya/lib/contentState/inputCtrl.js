@@ -32,7 +32,7 @@ const inputCtrl = ContentState => {
   // Input @ to quick insert paragraph
   ContentState.prototype.checkQuickInsert = function (block) {
     const { type, text, functionType } = block
-    if (type !== 'span' || functionType) return false
+    if (type !== 'span' || functionType !== 'paragraphContent') return false
     return /^@\S*$/.test(text)
   }
 
@@ -88,6 +88,7 @@ const inputCtrl = ContentState => {
     const block = this.getBlock(key)
     const paragraph = document.querySelector(`#${key}`)
     let text = getTextContent(paragraph, [ CLASS_OR_ID['AG_MATH_RENDER'], CLASS_OR_ID['AG_RUBY_RENDER'] ])
+
     let needRender = false
     let needRenderAll = false
     if (oldStart.key !== oldEnd.key) {
@@ -196,7 +197,26 @@ const inputCtrl = ContentState => {
       if (this.checkNotSameToken(block.text, text)) {
         needRender = true
       }
-      block.text = text
+      // Just work for `Shift + Enter` to create a soft and hard line break.
+      if (
+        block.text.endsWith('\n') &&
+        start.offset === text.length &&
+        event.inputType === 'insertText'
+      ) {
+        block.text += event.data
+        start.offset++
+        end.offset++
+      } else if (
+        block.text.length === oldStart.offset &&
+        block.text[oldStart.offset - 2] === '\n' &&
+        event.inputType === 'deleteContentBackward'
+      ) {
+        block.text = block.text.substring(0, oldStart.offset - 1)
+        start.offset = block.text.length
+        end.offset = block.text.length
+      } else {
+        block.text = text
+      }
       if (beginRules['reference_definition'].test(text)) {
         needRenderAll = true
       }
@@ -226,7 +246,6 @@ const inputCtrl = ContentState => {
     // Update preview content of math block
     if (block && block.type === 'span' && block.functionType === 'codeLine') {
       needRender = true
-      this.updateCodeBlocks(block)
     }
 
     this.cursor = { start, end }

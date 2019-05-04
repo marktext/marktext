@@ -6,7 +6,7 @@ import voidHtmlTags from 'html-tags/void'
 // Electron 2.0.2 not support yet! So give a default value 4
 export const DEVICE_MEMORY = navigator.deviceMemory || 4 // Get the divice memory number(Chrome >= 63)
 export const UNDO_DEPTH = DEVICE_MEMORY >= 4 ? 100 : 50
-export const HAS_TEXT_BLOCK_REG = /^(h\d|span|th|td|hr)/i
+export const HAS_TEXT_BLOCK_REG = /^(span|th|td)/i
 export const VOID_HTML_TAGS = voidHtmlTags
 export const HTML_TAGS = htmlTags
 // TYPE1 ~ TYPE7 according to https://github.github.com/gfm/#html-blocks
@@ -85,6 +85,8 @@ export const CLASS_OR_ID = genUpper2LowerKeyHash([
   'AG_FRONT_ICON',
   'AG_GRAY',
   'AG_HARD_LINE_BREAK',
+  'AG_HARD_LINE_BREAK_SPACE',
+  'AG_LINE_END',
   'AG_HEADER_TIGHT_SPACE',
   'AG_HIDE',
   'AG_HIGHLIGHT',
@@ -99,7 +101,6 @@ export const CLASS_OR_ID = genUpper2LowerKeyHash([
   'AG_INLINE_RULE',
   'AG_LANGUAGE',
   'AG_LANGUAGE_INPUT',
-  'AG_LINE',
   'AG_LINK',
   'AG_LINK_IN_BRACKET',
   'AG_LIST_ITEM',
@@ -111,6 +112,7 @@ export const CLASS_OR_ID = genUpper2LowerKeyHash([
   'AG_RUBY_TEXT',
   'AG_RUBY_RENDER',
   'AG_SELECTED',
+  'AG_SOFT_LINE_BREAK',
   'AG_MATH_ERROR',
   'AG_MATH_MARKER',
   'AG_MATH_RENDER',
@@ -159,7 +161,18 @@ export const DEFAULT_TURNDOWN_CONFIG = {
   codeBlockStyle: 'fenced', // fenced or indented
   fence: '```', // ``` or ~~~
   emDelimiter: '*', // _ or *
-  strongDelimiter: '**' // ** or __
+  strongDelimiter: '**', // ** or __
+  blankReplacement (content, node, options) {
+    if (node && node.classList.contains('ag-soft-line-break')) {
+      return LINE_BREAK
+    } else if (node && node.classList.contains('ag-hard-line-break')) {
+      return '  ' + LINE_BREAK
+    } else if (node && node.classList.contains('ag-hard-line-break-sapce')) {
+      return ''
+    } else {
+      return node.isBlock ? '\n\n' : ''
+    }
+  }
 }
 
 export const FORMAT_MARKER_MAP = {

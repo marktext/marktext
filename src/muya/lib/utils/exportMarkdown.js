@@ -42,17 +42,13 @@ class ExportMarkdown {
       }
 
       switch (block.type) {
-        case 'p': {
+        case 'p':
+        case 'hr': {
           this.insertLineBreak(result, indent)
           result.push(this.translateBlocks2Markdown(block.children, indent))
           break
         }
         case 'span': {
-          result.push(this.normalizeParagraphText(block, indent))
-          break
-        }
-        case 'hr': {
-          this.insertLineBreak(result, indent)
           result.push(this.normalizeParagraphText(block, indent))
           break
         }
@@ -171,17 +167,21 @@ class ExportMarkdown {
   }
 
   normalizeParagraphText (block, indent) {
-    return `${indent}${block.text}\n`
+    const { text } = block
+    const lines = text.split('\n')
+    return lines.map(line => `${indent}${line}`).join('\n') + '\n'
   }
 
   normalizeHeaderText (block, indent) {
     const { headingStyle, marker } = block
+    const { text } = block.children[0]
     if (headingStyle === 'atx') {
-      const match = block.text.match(/(#{1,6})(.*)/)
-      const text = `${match[1]} ${match[2].trim()}`
-      return `${indent}${text}\n`
+      const match = text.match(/(#{1,6})(.*)/)
+      const atxHeadingText = `${match[1]} ${match[2].trim()}`
+      return `${indent}${atxHeadingText}\n`
     } else if (headingStyle === 'setext') {
-      return `${indent}${block.text}\n${indent}${marker.trim()}\n`
+      const lines = text.trim().split('\n')
+      return lines.map(line => `${indent}${line}`).join('\n') + `\n${indent}${marker.trim()}\n`
     }
   }
 
@@ -244,7 +244,7 @@ class ExportMarkdown {
 
   normalizeHTML (block, indent) { // figure
     const result = []
-    const codeLines = block.children[0].children[0].children[0].children
+    const codeLines = block.children[0].children[0].children
     for (const line of codeLines) {
       result.push(`${indent}${line.text}\n`)
     }

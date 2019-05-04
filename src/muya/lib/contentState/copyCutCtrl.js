@@ -101,6 +101,12 @@ const copyCutCtrl = ContentState => {
       hb.replaceWith(pre)
     }
 
+    // Just work for turndown, turndown will add `leading` and `traling` space in line-break.
+    const lineBreaks = wrapper.querySelectorAll('span.ag-soft-line-break, span.ag-hard-line-break')
+    for (const b of lineBreaks) {
+      b.innerHTML = ''
+    }
+
     const mathBlock = wrapper.querySelectorAll(`figure.ag-container-block`)
     for (const mb of mathBlock) {
       const preElement = mb.querySelector('pre[data-role]')
@@ -128,6 +134,7 @@ const copyCutCtrl = ContentState => {
 
     let htmlData = wrapper.innerHTML
     const textData = this.htmlToMarkdown(htmlData)
+
     htmlData = marked(textData)
     return { html: htmlData, text: textData }
   }

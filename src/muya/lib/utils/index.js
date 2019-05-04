@@ -23,6 +23,8 @@ export const isEven = number => Math.abs(number) % 2 === 0
 export const isLengthEven = (str = '') => str.length % 2 === 0
 
 export const snakeToCamel = name => name.replace(/_([a-z])/g, (p0, p1) => p1.toUpperCase())
+
+export const camelToSnake = name => name.replace(/([A-Z])/g, (_, p) => `-${p.toLowerCase()}`)
 /**
  *  Are two arrays have intersection
  */

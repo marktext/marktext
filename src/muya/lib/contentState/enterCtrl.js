@@ -11,6 +11,7 @@ const getIndentSpace = text => {
 }
 
 const enterCtrl = ContentState => {
+  // TODO@jocs this function need opti.
   ContentState.prototype.chopBlockByCursor = function (block, key, offset) {
     const newBlock = this.createBlock('p')
     const { children } = block
@@ -28,7 +29,7 @@ const enterCtrl = ContentState => {
       this.prependChild(newBlock, activeLine)
     } else if (offset < text.length) {
       activeLine.text = text.substring(0, offset)
-      const newLine = this.createBlock('span', text.substring(offset))
+      const newLine = this.createBlock('span', { text: text.substring(offset) })
       this.prependChild(newBlock, newLine)
     }
     return newBlock
@@ -197,33 +198,44 @@ const enterCtrl = ContentState => {
     // handle `shift + enter` insert `soft line break` or `hard line break`
     // only cursor in `line block` can create `soft line break` and `hard line break`
     // handle line in code block
-    if (
-      (event.shiftKey && block.type === 'span') ||
-      (block.type === 'span' && block.functionType === 'codeLine')
+    if (event.shiftKey && block.type === 'span' && block.functionType === 'paragraphContent') {
+      let { offset } = start
+      const { text, key } = block
+      const indent = getIndentSpace(text)
+      block.text = text.substring(0, offset) + '\n' + indent + text.substring(offset)
+
+      offset += 1 + indent.length
+      this.cursor = {
+        start: { key, offset },
+        end: { key, offset }
+      }
+      return this.partialRender()
+    } else if (
+      block.type === 'span' && block.functionType === 'codeLine'
     ) {
       const { text } = block
       const newLineText = text.substring(start.offset)
       const autoIndent = checkAutoIndent(text, start.offset)
       const indent = getIndentSpace(text)
       block.text = text.substring(0, start.offset)
-      const newLine = this.createBlock('span', `${indent}${newLineText}`)
-      newLine.functionType = block.functionType
-      newLine.lang = block.lang
+      const newLine = this.createBlock('span', {
+        text: `${indent}${newLineText}`,
+        functionType: block.functionType,
+        lang: block.lang
+      })
+
       this.insertAfter(newLine, block)
       let { key } = newLine
       let offset = indent.length
       if (autoIndent) {
-        const emptyLine = this.createBlock('span', indent + ' '.repeat(this.tabSize))
+        const emptyLine = this.createBlock('span', {
+          text: indent + ' '.repeat(this.tabSize)
+        })
         emptyLine.functionType = block.functionType
         emptyLine.lang = block.lang
         this.insertAfter(emptyLine, block)
         key = emptyLine.key
         offset = indent.length + this.tabSize
-      }
-
-      if (indent.length >= 4 && !block.preSibling) {
-        this.indentCodeBlockUpdate(block)
-        offset = offset - 4
       }
 
       this.cursor = {
@@ -323,8 +335,14 @@ const enterCtrl = ContentState => {
             post = `${PREFIX} ${post}`
           }
           block.text = pre
-          newBlock = this.createBlock(type, post)
-          newBlock.headingStyle = block.headingStyle
+          newBlock = this.createBlock(type, {
+            headingStyle: block.headingStyle
+          })
+          const headerContent = this.createBlock('span', {
+            text: post,
+            functionType: block.headingStyle === 'atx'? 'atxLine' : 'paragraphContent'
+          })
+          this.appendChild(newBlock, headerContent)
           if (block.marker) {
             newBlock.marker = block.marker
           }

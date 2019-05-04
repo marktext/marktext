@@ -2,61 +2,20 @@ import { VOID_HTML_TAGS, HTML_TAGS } from '../config'
 import { inlineRules } from '../parser/rules'
 
 const HTML_BLOCK_REG = /^<([a-zA-Z\d-]+)(?=\s|>)[^<>]*?>$/
-const LINE_BREAKS = /\n/
 
 const htmlBlock = ContentState => {
-  ContentState.prototype.createCodeInHtml = function (code) {
-    const codeContainer = this.createBlock('div')
-    codeContainer.functionType = 'html'
-    const preview = this.createBlock('div', '', false)
-    preview.functionType = 'preview'
-    const preBlock = this.createBlock('pre')
-    const codeBlock = this.createBlock('code')
-    code.split(LINE_BREAKS).forEach(line => {
-      const codeLine = this.createBlock('span', line)
-      codeLine.functionType = 'codeLine'
-      codeLine.lang = 'markup'
-      this.appendChild(codeBlock, codeLine)
-    })
-    this.codeBlocks.set(preBlock.key, code)
-    preBlock.lang = 'markup'
-    codeBlock.lang = 'markup'
-    preBlock.functionType = 'html'
-    this.codeBlocks.set(preBlock.key, code)
-    this.appendChild(preBlock, codeBlock)
-    this.appendChild(codeContainer, preBlock)
-    this.appendChild(codeContainer, preview)
-    return codeContainer
-  }
-
-  ContentState.prototype.handleHtmlBlockClick = function (codeWrapper) {
-    const id = codeWrapper.id
-    const codeBlock = this.getBlock(id).children[0]
-    const key = codeBlock.key
-    const offset = 0
-    this.cursor = {
-      start: { key, offset },
-      end: { key, offset }
-    }
-    this.partialRender()
-  }
-
   ContentState.prototype.createHtmlBlock = function (code) {
     const block = this.createBlock('figure')
     block.functionType = 'html'
-    const htmlBlock = this.createCodeInHtml(code)
-    this.appendChild(block, htmlBlock)
+    const { preBlock, preview } = this.createPreAndPreview('html', code)
+    this.appendChild(block, preBlock)
+    this.appendChild(block, preview)
     return block
   }
 
   ContentState.prototype.initHtmlBlock = function (block) {
     let htmlContent = ''
-    const text = block.type === 'p'
-    ? block.children.map((child => {
-        return child.text
-      })).join('\n').trim()
-    : block.text
-
+    const text = block.children[0].text
     const matches = inlineRules.html_tag.exec(text)
     if (matches) {
       const tag = matches[3]
@@ -83,9 +42,11 @@ const htmlBlock = ContentState => {
     block.functionType = 'html'
     block.text = htmlContent
     block.children = []
-    const codeContainer = this.createCodeInHtml(htmlContent)
-    this.appendChild(block, codeContainer)
-    return codeContainer.children[0] // preBlock
+    const { preBlock, preview } = this.createPreAndPreview('html', htmlContent)
+    this.appendChild(block, preBlock)
+    this.appendChild(block, preview)
+
+    return preBlock // preBlock
   }
 
   ContentState.prototype.updateHtmlBlock = function (block) {

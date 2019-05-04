@@ -22,7 +22,7 @@ pre {
   outline: none;
 }
 
-div.ag-show-quick-insert-hint p.ag-paragraph.ag-active > span.ag-line:first-of-type:empty::after {
+div.ag-show-quick-insert-hint p.ag-paragraph.ag-active > span.ag-paragraph-content:first-of-type:empty::after {
   content: 'Type @ to insert';
   color: var(--editorColor10);
 }
@@ -31,12 +31,17 @@ div.ag-show-quick-insert-hint p.ag-paragraph.ag-active > span.ag-line:first-of-t
   position: relative;
 }
 
-.ag-paragraph:empty::after,
-.ag-line:empty::after {
-  content: '\200B'
+.ag-atx-line:empty::after,
+.ag-thematic-break-line:empty::after,
+.ag-code-line:empty::after,
+.ag-paragraph-content:empty::after {
+  content: '\200B';
 }
 
-.ag-line {
+.ag-atx-line,
+.ag-thematic-break-line,
+.ag-paragraph-content,
+.ag-code-line {
   display: block;
   white-space: pre-wrap;
   word-break: break-word;
@@ -62,9 +67,13 @@ div.ag-show-quick-insert-hint p.ag-paragraph.ag-active > span.ag-line:first-of-t
   margin: 0 5px;
 }
 
-.ag-hard-line-break::after {
+.ag-hard-line-break-space::after {
   content: '↩';
   opacity: .5;
+}
+
+.ag-line-end {
+  display: block;
 }
 
 *:not(.ag-hide)::selection, .ag-selection {
@@ -77,8 +86,7 @@ div.ag-show-quick-insert-hint p.ag-paragraph.ag-active > span.ag-line:first-of-t
   color: transparent;
 }
 
-figure.ag-container-block pre,
-div.ag-function-html pre.ag-html-block {
+figure.ag-container-block pre {
   width: 0;
   height: 0;
   overflow: hidden;
@@ -90,7 +98,6 @@ div.ag-function-html pre.ag-html-block {
   overflow: visible;
 }
 
-div.ag-function-html.ag-active pre.ag-html-block,
 figure.ag-active.ag-container-block pre {
   position: static;
   width: 100%;
@@ -100,11 +107,11 @@ figure.ag-active.ag-container-block pre {
   display: block;
 }
 
-div.ag-function-html .ag-html-preview {
+figure[data-role="HTML"] .ag-html-preview {
   display: block;
 }
 
-div.ag-function-html.ag-active .ag-html-preview {
+figure[data-role="HTML"].ag-active .ag-html-preview {
   display: none;
 }
 
@@ -474,7 +481,6 @@ pre.ag-multiple-math span.ag-code-line:first-of-type:empty::after {
 
 figure,
 pre.ag-html-block,
-div.ag-function-html,
 pre.ag-fence-code,
 pre.ag-indent-code,
 li.ag-list-item > p.ag-paragraph {

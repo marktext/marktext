@@ -106,11 +106,32 @@ const backspaceCtrl = ContentState => {
     if (!start || !end) {
       return
     }
+
     const startBlock = this.getBlock(start.key)
     const endBlock = this.getBlock(end.key)
     const maybeLastRow = this.getParent(endBlock)
     const startOutmostBlock = this.findOutMostBlock(startBlock)
     const endOutmostBlock = this.findOutMostBlock(endBlock)
+    // Just for fix delete the last `#` or all the atx heading cause error @fixme
+    if (
+      start.key === end.key &&
+      startBlock.type === 'span' &&
+      startBlock.functionType === 'atxLine'
+    ) {
+      if (
+        start.offset === 0 && end.offset === startBlock.text.length ||
+        start.offset === end.offset && start.offset === 1 && startBlock.text === '#'
+      ) {
+        event.preventDefault()
+        startBlock.text = ''
+        this.cursor = {
+          start: { key: start.key, offset: 0 },
+          end: { key: end.key, offset: 0 }
+        }
+        this.updateToParagraph(this.getParent(startBlock), startBlock)
+        return this.partialRender()
+      }
+    }
     // fix: #897
     const { text } = startBlock
     const tokens = tokenizer(text)
@@ -219,7 +240,7 @@ const backspaceCtrl = ContentState => {
       ) {
         const preBlock = this.getParent(parent)
         const pBlock = this.createBlock('p')
-        const lineBlock = this.createBlock('span', block.text)
+        const lineBlock = this.createBlock('span', { text: block.text })
         const key = lineBlock.key
         const offset = 0
         this.appendChild(pBlock, lineBlock)
@@ -235,10 +256,8 @@ const backspaceCtrl = ContentState => {
           case 'mermaid':
           case 'sequence':
           case 'vega-lite':
-            referenceBlock = this.getParent(preBlock)
-            break
           case 'html':
-            referenceBlock = this.getParent(this.getParent(preBlock))
+            referenceBlock = this.getParent(preBlock)
             break
         }
         this.insertBefore(pBlock, referenceBlock)
