@@ -74,7 +74,7 @@ function initLoadLanguage (Prism) {
       }
 
       delete Prism.languages[language]
-      await import('prismjs/components/prism-' + language)
+      await import('prismjs2/components/prism-' + language)
       loadedCache.add(language)
       promises.push(Promise.resolve({
         status: 'loaded',
