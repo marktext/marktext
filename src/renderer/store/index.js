@@ -19,7 +19,8 @@ const state = {
   platform: process.platform, // platform of system `darwin` | `win32` | `linux`
   appVersion: process.versions.MARKTEXT_VERSION_STRING, // Mark Text version string
   windowActive: true, // weather current window is active or focused
-  init: process.env.NODE_ENV === 'development' // weather Mark Text is inited
+  // TODO: "init" is nowhere used
+  init: process.env.NODE_ENV === 'development' // whether Mark Text is inited
 }
 
 const getters = {}

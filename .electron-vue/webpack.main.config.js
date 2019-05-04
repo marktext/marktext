@@ -57,6 +57,9 @@ const mainConfig = {
     new webpack.DefinePlugin(getEnvironmentDefinitions())
   ],
   resolve: {
+    alias: {
+      'common': path.join(__dirname, '../src/common')
+    },
     extensions: ['.js', '.json', '.node']
   },
   target: 'electron-main'

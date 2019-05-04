@@ -16,8 +16,8 @@ interface IMarkdownDocumentRaw
   // Full path (may be empty?)
   pathname: string,
 
-  // Indicates whether the document is UTF8 or UTF8-DOM encoded.
-  isUtf8BomEncoded: boolean,
+  // Document encoding
+  encoding: string,
   // "lf" or "crlf"
   lineEnding: string,
   // Convert document ("lf") to `lineEnding` when saving
@@ -25,9 +25,6 @@ interface IMarkdownDocumentRaw
 
   // Whether the document has mixed line endings (lf and crlf) and was converted to lf.
   isMixedLineEndings: boolean
-
-  // TODO(refactor:renderer/editor): Remove this entry! This should be loaded separately if needed.
-  textDirection: boolean
 }
 ```
 
@@ -45,8 +42,20 @@ interface IMarkdownDocument
   // Full path (may be empty?)
   pathname: string,
 
-  // Indicates whether the document is UTF8 or UTF8-DOM encoded.
-  isUtf8BomEncoded: boolean,
+  // Document encoding
+  encoding: string,
+  // "lf" or "crlf"
+  lineEnding: string,
+  // Convert document ("lf") to `lineEnding` when saving
+  adjustLineEndingOnSave: boolean
+}
+```
+
+```typescript
+interface IMarkdownDocumentOptions
+{
+  // Document encoding
+  encoding: string,
   // "lf" or "crlf"
   lineEnding: string,
   // Convert document ("lf") to `lineEnding` when saving
@@ -65,10 +74,9 @@ interface IDocumentState
   pathname: string,
   filename: string,
   markdown: string,
-  isUtf8BomEncoded: boolean,
+  encoding: string,
   lineEnding: string,
   adjustLineEndingOnSave: boolean,
-  textDirection: string,
   history: {
     stack: Array<any>,
     index: number

@@ -165,6 +165,7 @@
   },
   "dependencies": {
     "@hfelix/electron-localshortcut": "^3.1.1",
+    "arg": "^4.1.0",
     "axios": "^0.18.0",
     "chokidar": "^2.1.5",
     "codemirror": "^5.46.0",
@@ -174,6 +175,7 @@
     "dompurify": "^1.0.10",
     "dragula": "^3.7.2",
     "electron-is-accelerator": "^0.1.2",
+    "electron-log": "^3.0.5",
     "electron-window-state": "^5.0.3",
     "element-resize-detector": "^1.2.0",
     "element-ui": "^2.8.2",
@@ -233,6 +235,7 @@
     "eslint": "^5.16.0",
     "eslint-config-standard": "^12.0.0",
     "eslint-friendly-formatter": "^4.0.1",
+    "eslint-import-resolver-alias": "^1.1.2",
     "eslint-loader": "^2.1.2",
     "eslint-plugin-html": "^4.0.6",
     "eslint-plugin-import": "^2.16.0",

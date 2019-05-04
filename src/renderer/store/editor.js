@@ -11,7 +11,6 @@ const state = {
   lineEnding: 'lf',
   currentFile: {},
   tabs: [],
-  textDirection: 'ltr',
   toc: []
 }
 
@@ -79,8 +78,8 @@ const mutations = {
   LOAD_CHANGE (state, change) {
     const { tabs, currentFile } = state
     const { data, pathname } = change
-    const { isMixedLineEndings, lineEnding, adjustLineEndingOnSave, isUtf8BomEncoded, markdown, textDirection, filename } = data
-    const options = { isUtf8BomEncoded, lineEnding, adjustLineEndingOnSave, textDirection }
+    const { isMixedLineEndings, lineEnding, adjustLineEndingOnSave, encoding, markdown, filename } = data
+    const options = { encoding, lineEnding, adjustLineEndingOnSave }
     const newFileState = getSingleFileState({ markdown, filename, pathname, options })
     if (isMixedLineEndings) {
       notice.notify({
@@ -142,9 +141,9 @@ const mutations = {
       state.currentFile.markdown = markdown
     }
   },
-  SET_IS_UTF8_BOM_ENCODED (state, isUtf8BomEncoded) {
+  SET_DOCUMENT_ENCODING (state, encoding) {
     if (hasKeys(state.currentFile)) {
-      state.currentFile.isUtf8BomEncoded = isUtf8BomEncoded
+      state.currentFile.encoding = encoding
     }
   },
   SET_LINE_ENDING (state, lineEnding) {
@@ -209,13 +208,10 @@ const mutations = {
       }
     })
   },
+
+  // TODO: Remove "SET_GLOBAL_LINE_ENDING" because nowhere used.
   SET_GLOBAL_LINE_ENDING (state, ending) {
     state.lineEnding = ending
-  },
-  SET_TEXT_DIRECTION (state, textDirection) {
-    if (hasKeys(state.currentFile)) {
-      state.currentFile.textDirection = textDirection
-    }
   }
 }
 
@@ -274,19 +270,6 @@ const actions = {
     const { lineEnding } = state.currentFile
     if (lineEnding) {
       ipcRenderer.send('AGANI::update-line-ending-menu', lineEnding)
-    }
-  },
-
-  LISTEN_FOR_TEXT_DIRECTION_MENU ({ commit, state, dispatch }) {
-    ipcRenderer.on('AGANI::req-update-text-direction-menu', e => {
-      dispatch('UPDATE_TEXT_DIRECTION_MENU')
-    })
-  },
-
-  UPDATE_TEXT_DIRECTION_MENU ({ commit, state }) {
-    const { textDirection } = state.currentFile
-    if (textDirection) {
-      ipcRenderer.send('AGANI::update-text-direction-menu', textDirection)
     }
   },
 
@@ -415,19 +398,34 @@ const actions = {
 
   UPDATE_CURRENT_FILE ({ commit, state, dispatch }, currentFile) {
     commit('SET_CURRENT_FILE', currentFile)
-    dispatch('UPDATE_TEXT_DIRECTION_MENU', state)
     const { tabs } = state
     if (!tabs.some(file => file.id === currentFile.id)) {
       commit('ADD_FILE_TO_TABS', currentFile)
     }
   },
 
-  // This event is only used when loading a file during window creation.
-  LISTEN_FOR_OPEN_SINGLE_FILE ({ commit, state, dispatch }) {
-    ipcRenderer.on('AGANI::open-single-file', (e, { markdown, filename, pathname, options }) => {
+  // This events are only used during window creation.
+  LISTEN_FOR_BOOTSTRAP_WINDOW ({ commit, state, dispatch }) {
+    ipcRenderer.on('mt::bootstrap-window', (e, { markdown, filename, pathname, options }) => {
       const fileState = getSingleFileState({ markdown, filename, pathname, options })
       const { id } = fileState
       const { lineEnding } = options
+      commit('SET_GLOBAL_LINE_ENDING', lineEnding)
+      dispatch('INIT_STATUS', true)
+      dispatch('UPDATE_CURRENT_FILE', fileState)
+      bus.$emit('file-loaded', { id, markdown })
+      commit('SET_LAYOUT', {
+        rightColumn: 'files',
+        showSideBar: false,
+        showTabBar: false
+      })
+      dispatch('SET_LAYOUT_MENU_ITEM')
+    })
+
+    ipcRenderer.on('mt::bootstrap-blank-window', (e, { lineEnding, markdown: source }) => {
+      const { tabs } = state
+      const fileState = getBlankFileState(tabs, lineEnding, source)
+      const { id, markdown } = fileState
       commit('SET_GLOBAL_LINE_ENDING', lineEnding)
       dispatch('INIT_STATUS', true)
       dispatch('UPDATE_CURRENT_FILE', fileState)
@@ -443,14 +441,21 @@ const actions = {
 
   // Open a new tab, optionally with content.
   LISTEN_FOR_NEW_TAB ({ dispatch }) {
-    ipcRenderer.on('AGANI::new-tab', (e, markdownDocument) => {
+    ipcRenderer.on('AGANI::new-tab', (e, markdownDocument, selectTab=true) => {
+      // TODO: allow to add a tab without selecting it
       if (markdownDocument) {
         // Create tab with content.
         dispatch('NEW_TAB_WITH_CONTENT', markdownDocument)
       } else {
-        // Create an empty tab
-        dispatch('NEW_BLANK_FILE')
+        // Fallback: create a blank tab
+        dispatch('NEW_UNTITLED_TAB')
       }
+    })
+
+    ipcRenderer.on('mt::new-untitled-tab', (e, selectTab=true, markdownString='', ) => {
+      // TODO: allow to add a tab without selecting it
+      // Create a blank tab
+      dispatch('NEW_UNTITLED_TAB', markdownString)
     })
   },
 
@@ -467,10 +472,11 @@ const actions = {
     })
   },
 
-  NEW_BLANK_FILE ({ commit, state, dispatch }) {
+  // Create a new  untitled tab optional with markdown string.
+  NEW_UNTITLED_TAB ({ commit, state, dispatch }, markdownString) {
     dispatch('SHOW_TAB_VIEW', false)
     const { tabs, lineEnding } = state
-    const fileState = getBlankFileState(tabs, lineEnding)
+    const fileState = getBlankFileState(tabs, lineEnding, markdownString)
     const { id, markdown } = fileState
     dispatch('UPDATE_CURRENT_FILE', fileState)
     bus.$emit('file-loaded', { id, markdown })
@@ -485,7 +491,7 @@ const actions = {
   NEW_TAB_WITH_CONTENT ({ commit, state, dispatch }, markdownDocument) {
     if (!markdownDocument) {
       console.warn('Cannot create a file tab without a markdown document!')
-      dispatch('NEW_BLANK_FILE')
+      dispatch('NEW_UNTITLED_TAB')
       return
     }
 
@@ -524,24 +530,6 @@ const actions = {
       commit('SET_LAYOUT', { showTabBar: true })
       dispatch('SET_LAYOUT_MENU_ITEM')
     }
-  },
-
-  LISTEN_FOR_OPEN_BLANK_WINDOW ({ commit, state, dispatch }) {
-    ipcRenderer.on('AGANI::open-blank-window', (e, { lineEnding, markdown: source }) => {
-      const { tabs } = state
-      const fileState = getBlankFileState(tabs, lineEnding, source)
-      const { id, markdown } = fileState
-      commit('SET_GLOBAL_LINE_ENDING', lineEnding)
-      dispatch('INIT_STATUS', true)
-      dispatch('UPDATE_CURRENT_FILE', fileState)
-      bus.$emit('file-loaded', { id, markdown })
-      commit('SET_LAYOUT', {
-        rightColumn: 'files',
-        showSideBar: false,
-        showTabBar: false
-      })
-      dispatch('SET_LAYOUT_MENU_ITEM')
-    })
   },
 
   // Content change from realtime preview editor and source code editor
@@ -684,15 +672,6 @@ const actions = {
         if (!ignoreSaveStatus) {
           commit('SET_SAVE_STATUS', false)
         }
-      }
-    })
-  },
-
-  LISTEN_FOR_SET_TEXT_DIRECTION ({ commit, state }) {
-    ipcRenderer.on('AGANI::set-text-direction', (e, { textDirection }) => {
-      const { textDirection: oldTextDirection } = state.currentFile
-      if (textDirection !== oldTextDirection) {
-        commit('SET_TEXT_DIRECTION', textDirection)
       }
     })
   },

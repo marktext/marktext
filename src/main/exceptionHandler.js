@@ -7,7 +7,8 @@
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import { app, clipboard, crashReporter, dialog, ipcMain } from 'electron'
-import { log } from './utils'
+import os from 'os'
+import log from 'electron-log'
 import { createAndOpenGitHubIssueUrl } from './utils/createGitHubIssue'
 
 const EXIT_ON_ERROR = !!process.env.MARKTEXT_EXIT_ON_ERROR
@@ -15,28 +16,17 @@ const SHOW_ERROR_DIALOG = !process.env.MARKTEXT_ERROR_INTERACTION
 const ERROR_MSG_MAIN = 'An unexpected error occurred in the main process'
 const ERROR_MSG_RENDERER = 'An unexpected error occurred in the renderer process'
 
-// main process error handler
-process.on('uncaughtException', error => {
-  handleError(ERROR_MSG_MAIN, error, 'main')
-})
+let logger = s => console.error(s)
 
-// renderer process error handler
-ipcMain.on('AGANI::handle-renderer-error', (e, error) => {
-  handleError(ERROR_MSG_RENDERER, error, 'renderer')
-})
-
-// start crashReporter to save core dumps to temporary folder
-crashReporter.start({
-  companyName: 'marktext',
-  productName: 'marktext',
-  submitURL: 'http://0.0.0.0/',
-  uploadToServer: false
-})
+const getOSInformation = () => {
+  return `${os.type()} ${os.arch()} ${os.release()} (${os.platform()})`
+}
 
 const bundleException = (error, type) => {
   const { message, stack } = error
   return {
-    version: app.getVersion(),
+    version: global.MARKTEXT_VERSION_STRING || app.getVersion(),
+    os: getOSInformation(),
     type,
     date: new Date().toGMTString(),
     message,
@@ -47,10 +37,11 @@ const bundleException = (error, type) => {
 const handleError = (title, error, type) => {
   const { message, stack } = error
 
-  // log error
-  const info = bundleException(error, type)
-  console.error(info)
-  log(JSON.stringify(info, null, 2))
+  // Write error into file
+  if (type === 'main') {
+    const info = bundleException(error, type)
+    logger(JSON.stringify(info, null, 2))
+  }
 
   if (EXIT_ON_ERROR) {
     console.log('Mark Text was terminated due to an unexpected error (MARKTEXT_EXIT_ON_ERROR variable was set)!')
@@ -98,7 +89,7 @@ ${title}.
 ### Version
 
 Mark Text: ${global.MARKTEXT_VERSION_STRING}
-Operating system: ${process.platform}`)
+Operating system: ${getOSInformation()}`)
         break
       }
     }
@@ -108,3 +99,30 @@ Operating system: ${process.platform}`)
     process.exit(1)
   }
 }
+
+const setupExceptionHandler = () => {
+  // main process error handler
+  process.on('uncaughtException', error => {
+    handleError(ERROR_MSG_MAIN, error, 'main')
+  })
+
+  // renderer process error handler
+  ipcMain.on('AGANI::handle-renderer-error', (e, error) => {
+    handleError(ERROR_MSG_RENDERER, error, 'renderer')
+  })
+
+  // start crashReporter to save core dumps to temporary folder
+  crashReporter.start({
+    companyName: 'marktext',
+    productName: 'marktext',
+    submitURL: 'http://0.0.0.0/',
+    uploadToServer: false
+  })
+}
+
+export const initExceptionLogger = () => {
+  // replace placeholder logger
+  logger = log.error
+}
+
+export default setupExceptionHandler

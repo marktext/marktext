@@ -108,7 +108,7 @@ const actions = {
   LISTEN_FOR_LOAD_PROJECT ({ commit, dispatch }) {
     ipcRenderer.on('AGANI::open-project', (e, pathname) => {
       // Initialize editor and show empty/new tab
-      dispatch('NEW_BLANK_FILE')
+      dispatch('NEW_UNTITLED_TAB')
 
       dispatch('INIT_STATUS', true)
       commit('SET_PROJECT_TREE', pathname)
