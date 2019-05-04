@@ -48,6 +48,10 @@
           "description": "Editor preference setting in Mark Text",
           "type": "object",
           "properties": {
+            "editorFontFamily": {
+              "description": "editor font family",
+              "enum": ["Open Sans", "Clear Sans", "Helvetica Neue", "Helvetica", "Arial", "sans-serif"]
+            },
             "fontSize": {
               "description": "Font size in pixels",
               "type": "number",
@@ -68,6 +72,10 @@
               "maximum": 18,
               "minimum": 12,
               "default": 14
+            },
+            "codeFontFamily": {
+              "description": "Font family used in code block",
+              "enum": ["DejaVu Sans Mono", "Source Code Pro", "Droid Sans Mono", "monospace"]
             },
             "autoPairBracket": {
               "description": "Automatically brackets when editing",

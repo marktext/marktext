@@ -10,9 +10,11 @@
     "language": "en"
   },
   "editor": {
+    "editorFontFamily": "Open Sans",
     "fontSize": 16,
     "lineHeight": 1.6,
     "codeFontSize": 14,
+    "codeFontFamily": "DejaVu Sans Mono",
     "autoPairBracket": true,
     "autoPairMarkdownSyntax": true,
     "autoPairQuote": true,

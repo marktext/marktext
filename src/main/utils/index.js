@@ -1,4 +1,12 @@
+<<<<<<< HEAD
 import { app } from 'electron'
+=======
+import fs from 'fs'
+import path from 'path'
+import fse from 'fs-extra'
+import electronLog from 'electron-log'
+import { app, Menu } from 'electron'
+>>>>>>> update preference.json and schema.json
 import { EXTENSIONS } from '../config'
 
 const ID_PREFIX = 'mt-'
