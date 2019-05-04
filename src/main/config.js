@@ -16,7 +16,6 @@ export const defaultWinOptions = {
 }
 
 export const defaultPreferenceWinOptions = {
-  icon: path.join(__static, 'logo-96px.png'),
   width: 950,
   height: 650,
   webPreferences: {
