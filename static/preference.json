@@ -1,0 +1,33 @@
+{
+  "general": {
+    "autoSave": true,
+    "autoSaveDelay": 3000,
+    "titleBarStyle": "csd",
+    "openFileInNewWindow": false,
+    "aidou": true,
+    "fileSortBy": "created",
+    "startUp": "folder",
+    "language": "en"
+  },
+  "editor": {
+    "fontSize": 16,
+    "lineHeight": 1.6,
+    "codeFontSize": 14,
+    "autoPairBracket": true,
+    "autoPairMarkdownSyntax": true,
+    "autoPairQuote": true,
+    "endOfLine": "default",
+    "textDirection": "ltr",
+    "hideQuickInsertHint": false,
+    "imageDropAction": "folder"
+  },
+  "markdown": {
+    "preferLooseListItem": true,
+    "bulletListMarker": "-",
+    "orderListDelimiter": ".",
+    "preferHeadingStyle": "atx",
+    "tabSize": 4,
+    "listIndentation": "1" 
+  },
+  "theme": "light"
+}

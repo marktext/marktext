@@ -33,7 +33,7 @@ export default {
   .pref-switch-item .description {
     margin-bottom: 10px;
   }
-  .el-switch__core:after {
+  span.el-switch__core::after {
     top: 3px;
     left: 7px;
     width: 10px;
@@ -44,7 +44,7 @@ export default {
     background: transparent;
     box-sizing: border-box;
   }
-  .el-switch:not(.is-checked) .el-switch__core:after {
+  .el-switch:not(.is-checked) .el-switch__core::after {
     background: var(--iconColor);
   }
 </style>
