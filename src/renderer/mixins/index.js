@@ -35,7 +35,7 @@ export const fileMixins = {
         watch: true
       })
 
-      ipcRenderer.send("AGANI::add-recently-used-document", pathname)
+      ipcRenderer.send('mt::add-recently-used-document', pathname)
 
       if (isMixedLineEndings && !isOpened) {
         this.$notify({

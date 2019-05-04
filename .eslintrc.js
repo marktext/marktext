@@ -15,7 +15,9 @@ module.exports = {
   extends: [
     'standard',
     'eslint:recommended',
-    'plugin:vue/base' // 'plugin:vue/essential'
+    'plugin:vue/base',
+    'plugin:import/errors',
+    'plugin:import/warnings'
   ],
   globals: {
     __static: true
@@ -33,5 +35,18 @@ module.exports = {
     'no-console': 0,
     // allow debugger during development
     'no-debugger': process.env.NODE_ENV === 'production' ? 2 : 0
+  },
+  settings: {
+    'import/resolver': {
+      alias: {
+        map: [
+          ['common', './src/common'],
+          // Normally only valid for renderer/
+          ['@', './src/renderer'],
+          ['muya', './src/muya']
+        ],
+        extensions: ['.js', '.vue', '.json', '.css', '.node']
+      }
+    }
   }
 }

@@ -22,5 +22,7 @@ require('electron').app.on('ready', () => {
     })
 })
 
+/* eslint-enable */
+
 // Require `main` process to boot app
 require('./index')

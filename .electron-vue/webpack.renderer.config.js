@@ -164,6 +164,7 @@ const rendererConfig = {
   resolve: {
     alias: {
       '@': path.join(__dirname, '../src/renderer'),
+      'common': path.join(__dirname, '../src/common'),
       'muya': path.join(__dirname, '../src/muya'),
       'vue$': 'vue/dist/vue.esm.js'
     },

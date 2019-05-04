@@ -56,6 +56,9 @@
           this.searchResult = []
           return
         }
+
+        // TODO(need::refactor): See TODO in src/main/filesystem/watcher.js.
+
         this.searchResult = this.fileList.filter(f => f.data.markdown.indexOf(keyword) >= 0)
       }
     }

@@ -9,6 +9,7 @@ const state = {
   codeFontFamily: 'DejaVu Sans Mono',
   codeFontSize: '14px',
   lineHeight: 1.6,
+  textDirection: 'ltr',
   lightColor: '#303133', // color in light theme
   darkColor: 'rgb(217, 217, 217)', // color in dark theme
   autoSave: false,
@@ -45,7 +46,8 @@ const mutations = {
 
 const actions = {
   ASK_FOR_USER_PREFERENCE ({ commit, state, rootState }) {
-    ipcRenderer.send('AGANI::ask-for-user-preference')
+    ipcRenderer.send('mt::ask-for-user-preference')
+
     ipcRenderer.on('AGANI::user-preference', (e, preference) => {
       const { autoSave } = preference
       commit('SET_USER_PREFERENCE', preference)
@@ -77,7 +79,7 @@ const actions = {
   CHANGE_FONT ({ commit }, { type, value }) {
     commit('SET_USER_PREFERENCE', { [type]: value })
     // save to preference.md
-    ipcRenderer.send('AGANI::set-user-preference', { [type]: value })
+    ipcRenderer.send('mt::set-user-preference', { [type]: value })
   }
 }
 

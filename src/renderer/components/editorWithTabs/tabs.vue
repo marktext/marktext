@@ -64,7 +64,7 @@
     },
     methods: {
       newFile () {
-        this.$store.dispatch('NEW_BLANK_FILE')
+        this.$store.dispatch('NEW_UNTITLED_TAB')
       },
       handleTabScroll (event) {
         // Use mouse wheel value first but prioritize X value more (e.g. touchpad input).

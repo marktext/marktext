@@ -38,7 +38,6 @@
 </template>
 
 <script>
-  import { remote } from 'electron'
   import { addStyles, addThemeStyle } from '@/util/theme'
   import Recent from '@/components/recent'
   import EditorWithTabs from '@/components/editorWithTabs'
@@ -78,7 +77,8 @@
       ...mapState({
         'showTabBar': state => state.layout.showTabBar,
         'sourceCode': state => state.preferences.sourceCode,
-        'theme': state => state.preferences.theme
+        'theme': state => state.preferences.theme,
+        'textDirection': state => state.preferences.textDirection
       }),
       ...mapState({
         'projectTree': state => state.project.projectTree,
@@ -87,8 +87,7 @@
         'isSaved': state => state.editor.currentFile.isSaved,
         'markdown': state => state.editor.currentFile.markdown,
         'cursor': state => state.editor.currentFile.cursor,
-        'wordCount': state => state.editor.currentFile.wordCount,
-        'textDirection': state => state.editor.currentFile.textDirection
+        'wordCount': state => state.editor.currentFile.wordCount
       }),
       ...mapState([
         'windowActive', 'platform', 'init'
@@ -105,7 +104,13 @@
       }
     },
     created () {
-      const { dispatch } = this.$store
+      const { commit, dispatch } = this.$store
+
+      // Apply initial state (theme and titleBarStyle) and delay load other values.
+      if (global.marktext.initialState) {
+        commit('SET_USER_PREFERENCE', global.marktext.initialState)
+      }
+
       // store/index.js
       dispatch('LINTEN_WIN_STATUS')
       // module: tweet
@@ -133,8 +138,7 @@
       dispatch('LISTEN_FOR_MOVE_TO')
       dispatch('LISTEN_FOR_SAVE')
       dispatch('LISTEN_FOR_SET_PATHNAME')
-      dispatch('LISTEN_FOR_OPEN_SINGLE_FILE')
-      dispatch('LISTEN_FOR_OPEN_BLANK_WINDOW')
+      dispatch('LISTEN_FOR_BOOTSTRAP_WINDOW')
       dispatch('LISTEN_FOR_SAVE_CLOSE')
       dispatch('LISTEN_FOR_EXPORT_PRINT')
       dispatch('LISTEN_FOR_INSERT_IMAGE')
@@ -144,9 +148,7 @@
       dispatch('LISTEN_FOR_CLOSE_TAB')
       dispatch('LINTEN_FOR_PRINT_SERVICE_CLEARUP')
       dispatch('LINTEN_FOR_EXPORT_SUCCESS')
-      dispatch('LISTEN_FOR_SET_TEXT_DIRECTION')
       dispatch('LISTEN_FOR_FILE_CHANGE')
-      dispatch('LISTEN_FOR_TEXT_DIRECTION_MENU')
       // module: notification
       dispatch('LISTEN_FOR_NOTIFICATION')
 
@@ -176,8 +178,7 @@
       }, false)
 
       this.$nextTick(() => {
-        const win = remote.getCurrentWindow()
-        const style = win.stylePrefs || DEFAULT_STYLE
+        const style = global.marktext.initialState || DEFAULT_STYLE
         addStyles(style)
       })
     }
