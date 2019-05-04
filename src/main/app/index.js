@@ -130,7 +130,7 @@ class App {
     event.preventDefault()
     const info = this.normalizePath(pathname)
     if (info) {
-      this._openFilesCache.push(info.path)
+      this._openFilesCache.push(info)
 
       if (app.isReady()) {
         // It might come more files
@@ -147,7 +147,7 @@ class App {
 
   openFileCache = () => {
     // TODO: Allow to open multiple files in the same window.
-    this._openFilesCache.forEach(path => this.createEditorWindow(path))
+    this._openFilesCache.forEach(fileInfo => this.createEditorWindow(fileInfo.path))
     this._openFilesCache.length = 0 // empty the open file path cache
   }
 
