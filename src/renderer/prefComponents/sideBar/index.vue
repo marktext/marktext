@@ -107,7 +107,8 @@ export default {
   }
   .el-autocomplete {
     width: 280px;
-    & .el-input_inner {
+    & .el-input__inner {
+      background: transparent;
       height: 35px;
       line-height: 35px;
     }
