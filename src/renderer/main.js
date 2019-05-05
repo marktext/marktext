@@ -24,7 +24,8 @@ import {
   Autocomplete,
   Switch,
   Select,
-  Option
+  Option,
+  Radio
 } from 'element-ui'
 import services from './services'
 import routes from './router'
@@ -70,6 +71,7 @@ Vue.use(Autocomplete)
 Vue.use(Switch)
 Vue.use(Select)
 Vue.use(Option)
+Vue.use(Radio)
 
 Vue.use(VueRouter)
 

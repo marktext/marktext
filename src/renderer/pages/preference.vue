@@ -58,10 +58,17 @@ export default {
     & .title-bar {
       width: 100%;
       height: var(--titleBarHeight);
+      position: fixed;
+      top: 0;
+      right: 0;
+      -webkit-app-region: drag;
     }
     & .pref-setting {
-      padding: 10px 20px;
+      padding: 50px 20px;
+      padding-top: var(--titleBarHeight);
       flex: 1;
+      height: calc(100vh - var(--titleBarHeight));
+      overflow: auto;
     }
   }
 }

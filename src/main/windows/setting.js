@@ -21,7 +21,7 @@ class SettingWindow extends BaseWindow {
    * @param {*} [options] BrowserWindow options.
    */
   createWindow (options = {}) {
-    const { env, preferences } = this._accessor
+    const { menu: appMenu, env, preferences } = this._accessor
     const winOptions = Object.assign({}, defaultPreferenceWinOptions, options)
     if (isLinux) {
       winOptions.icon = path.join(__static, 'logo-96px.png')
@@ -38,6 +38,9 @@ class SettingWindow extends BaseWindow {
 
     let win = this.browserWindow = new BrowserWindow(winOptions)
     this.id = win.id
+
+    // Create a menu for the current window
+    appMenu.addEditorMenu(win)
 
     win.once('ready-to-show', async () => {
       win.show()

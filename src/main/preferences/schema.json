@@ -104,7 +104,7 @@
         "description": "The newline character used at the end of each line. The default value is default, which will be selected according to your system intelligence.",
         "enum": [
           "default",
-          "lr",
+          "lf",
           "crlf"
         ]
       },
@@ -120,7 +120,7 @@
         "type": "boolean"
       },
       "imageDropAction": {
-        "description": "The default behavior after paste or drag the image to Mark Text,",
+        "description": "The default behavior after paste or drag the image to Mark Text",
         "enum": [
           "upload",
           "folder",
