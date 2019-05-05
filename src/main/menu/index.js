@@ -92,6 +92,11 @@ class AppMenu {
     fs.writeFileSync(RECENTS_PATH, json, 'utf-8')
   }
 
+  addMenu (windowId, menu=null) {
+    const { windowMenus } = this
+    windowMenus.set(windowId, { menu })
+  }
+
   addEditorMenu (window) {
     const { windowMenus } = this
     windowMenus.set(window.id, this.buildDefaultMenu(true))
@@ -126,12 +131,16 @@ class AppMenu {
   }
 
   getWindowMenuById (windowId) {
-    const { menu } = this.windowMenus.get(windowId)
+    const menu = this.windowMenus.get(windowId)
     if (!menu) {
       log.error(`getWindowMenuById: Cannot find window menu for id ${windowId}.`)
       throw new Error(`Cannot find window menu for id ${windowId}.`)
     }
-    return menu
+    return menu.menu
+  }
+
+  has (windowId) {
+    return this.windowMenus.has(windowId)
   }
 
   setActiveWindow (windowId) {
