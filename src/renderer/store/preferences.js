@@ -59,6 +59,7 @@ const actions = {
     ipcRenderer.send('mt::ask-for-user-preference')
 
     ipcRenderer.on('AGANI::user-preference', (e, preference) => {
+      console.log(preference)
       const { autoSave } = preference
       commit('SET_USER_PREFERENCE', preference)
 
@@ -86,9 +87,9 @@ const actions = {
     })
   },
 
-  CHANGE_FONT ({ commit }, { type, value }) {
-    commit('SET_USER_PREFERENCE', { [type]: value })
-    // save to preference.md
+  SET_SINGLE_PREFERENCE ({ commit }, { type, value }) {
+    // commit('SET_USER_PREFERENCE', { [type]: value })
+    // save to electron-store
     ipcRenderer.send('mt::set-user-preference', { [type]: value })
   }
 }

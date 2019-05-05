@@ -9,10 +9,34 @@
 </template>
 
 <script>
+import { mapState } from 'vuex'
 import SideBar from '@/prefComponents/sideBar'
+import { addThemeStyle } from '@/util/theme'
+import { DEFAULT_STYLE } from '@/config'
+
 export default {
   components: {
     SideBar
+  },
+  computed: {
+    ...mapState({
+      'theme': state => state.preferences.theme
+    })
+  },
+  watch: {
+    theme: function (value, oldValue) {
+      if (value !== oldValue) {
+        addThemeStyle(value)
+      }
+    }
+  },
+  created () {
+    this.$nextTick(() => {
+      const state = global.marktext.initialState || DEFAULT_STYLE
+      addThemeStyle(state.theme)
+
+      this.$store.dispatch('ASK_FOR_USER_PREFERENCE')
+    })
   }
 }
 </script>
@@ -25,6 +49,7 @@ export default {
   top: 0;
   left: 0;
   display: flex;
+  background: var(--editorBgColor);
   & .pref-content {
     position: relative;
     flex: 1;

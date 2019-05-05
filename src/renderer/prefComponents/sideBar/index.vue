@@ -91,7 +91,7 @@ export default {
 }
 </script>
 
-<style scoped>
+<style>
   .pref-sidebar {
     -webkit-app-region: drag;
     background: var(--sideBarBgColor);
@@ -103,6 +103,7 @@ export default {
       margin: 0;
       font-weight: 100;
       text-align: center;
+      color: var(--sideBarColor);
     }
   }
   .search-wrapper {
@@ -117,22 +118,32 @@ export default {
       line-height: 35px;
     }
   }
-  .pref-autocomplete {
+  .pref-autocomplete.el-autocomplete-suggestion {
+    background: var(--floatBgColor);
+    border-color: var(--floatBorderColor);
+    & .el-autocomplete-suggestion__wrap li:hover {
+      background: var(--floatHoverColor);
+    }
+    & .popper__arrow {
+      display: none;
+    }
     & li {
       line-height: normal;
       padding: 7px;
+      opacity: .8;
 
       & .name {
         text-overflow: ellipsis;
         overflow: hidden;
+        color: var(--editorColor80);
       }
       & .addr {
         font-size: 12px;
-        color: #b4b4b4;
+        color: var(--editorColor);
       }
 
       & .highlighted .addr {
-        color: #ddd;
+        color: var(--editorColor);
       }
     }
   }
@@ -142,7 +153,7 @@ export default {
       width: 100%;
       height: 50px;
       font-size: 18px;
-      color: var(--editorColor);
+      color: var(--sideBarColor);
       padding-left: 20px;
       box-sizing: border-box;
       display: flex;
@@ -150,6 +161,7 @@ export default {
       align-items: center;
       cursor: pointer;
       position: relative;
+      user-select: none;
       & > svg {
         width: 28px;
         height: 28px;
@@ -173,7 +185,7 @@ export default {
         transform: translateY(-50%);
       }
       &.active {
-        color: var(--editorColor80);
+        color: var(--sideBarTitleColor);
       }
       &.active::before {
         height: 100%;

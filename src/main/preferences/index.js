@@ -100,10 +100,12 @@ class Preference extends EventEmitter {
 
   setItem (key, value) {
     ipcMain.emit('broadcast-preferences-changed', { [key]: value })
+    key = key.startsWith('preference.') ? key : `preference.${key}`
     return this.store.set(key, value)
   }
 
   getItem (key) {
+    key = key.startsWith('preference.') ? key : `preference.${key}`
     return this.store.get(key)
   }
 
@@ -124,7 +126,7 @@ class Preference extends EventEmitter {
   }
 
   getPreferedEOL () {
-    const endOfLine = this.getItem('preference.endOfLine')
+    const endOfLine = this.getItem('endOfLine')
     if (endOfLine === 'lf') {
       return 'lf'
     }

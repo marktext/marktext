@@ -101,7 +101,7 @@
         return (value) => {
           if (!value) return
           if (type === 'fontSize') value = value + 'px'
-          this.$store.dispatch('CHANGE_FONT', { type, value })
+          this.$store.dispatch('SET_SINGLE_PREFERENCE', { type, value })
         }
       }
     }

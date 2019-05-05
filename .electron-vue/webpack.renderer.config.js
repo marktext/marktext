@@ -131,6 +131,12 @@ const rendererConfig = {
             name: 'fonts/[name]--[folder].[ext]'
           }
         }
+      },
+      {
+        test: /\.md$/,
+        use: [
+          'raw-loader'
+        ]
       }
     ]
   },

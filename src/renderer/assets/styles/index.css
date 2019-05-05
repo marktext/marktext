@@ -114,3 +114,9 @@ body {
   width: 1.5em;
   height: 1.5em;
 }
+
+.ag-underdevelop {
+  opacity: .3;
+  pointer-events: none;
+  cursor: not-allowed;
+}
