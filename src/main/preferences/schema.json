@@ -4,15 +4,15 @@
     "type": "object",
     "properties": {
       "autoSave": {
-        "description": "Automatically save the content being edited.",
+        "description": "General--Automatically save the content being edited.",
         "type": "boolean"
       },
       "autoSaveDelay": {
-        "description": "How long do you want to save your document(ms)?",
+        "description": "General--How long do you want to save your document(ms)?",
         "type": "number"
       },
       "titleBarStyle": {
-        "description": "The title bar style. the native option will result in a standard gray opaque title bar. `",
+        "description": "General--The title bar style. the native option will result in a standard gray opaque title bar.",
         "enum": [
           "csd",
           "custom",
@@ -20,15 +20,15 @@
         ]
       },
       "openFileInNewWindow": {
-        "description": "Open file in new window",
+        "description": "General--Open file in new window",
         "type": "boolean"
       },
       "aidou": {
-        "description": "Enable aidou",
+        "description": "General--Enable aidou",
         "type": "boolean"
       },
       "fileSortBy": {
-        "description": "Sort files in opened folder by created time, modified time and title.",
+        "description": "General--Sort files in opened folder by created time, modified time and title.",
         "enum": [
           "modified",
           "created",
@@ -36,7 +36,7 @@
         ]
       },
       "startUp": {
-        "description": "The action after Mark Text startup, open the last edited content, open the specified folder or blank page",
+        "description": "General--The action after Mark Text startup, open the last edited content, open the specified folder or blank page",
         "enum": [
           "folder",
           "lastState",
@@ -44,11 +44,11 @@
         ]
       },
       "language": {
-        "description": "The language Mark Text use.",
+        "description": "General--The language Mark Text use.",
         "type": "string"
       },
       "editorFontFamily": {
-        "description": "editor font family",
+        "description": "Editor--editor font family",
         "enum": [
           "Open Sans",
           "Clear Sans",
@@ -59,28 +59,28 @@
         ]
       },
       "fontSize": {
-        "description": "Font size in pixels",
+        "description": "Editor--Font size in pixels",
         "type": "number",
         "maximum": 20,
         "minimum": 12,
         "default": 16
       },
       "lineHeight": {
-        "description": "Line Height",
+        "description": "Editor--Line Height",
         "type": "number",
         "maximum": 2,
         "minimum": 1.2,
         "default": 1.6
       },
       "codeFontSize": {
-        "description": "Font size in code Block, the range is 12 ~ 18",
+        "description": "Editor--Font size in code Block, the range is 12 ~ 18",
         "type": "number",
         "maximum": 18,
         "minimum": 12,
         "default": 14
       },
       "codeFontFamily": {
-        "description": "Font family used in code block",
+        "description": "Editor--Font family used in code block",
         "enum": [
           "DejaVu Sans Mono",
           "Source Code Pro",
@@ -89,19 +89,19 @@
         ]
       },
       "autoPairBracket": {
-        "description": "Automatically brackets when editing",
+        "description": "Editor--Automatically brackets when editing",
         "type": "boolean"
       },
       "autoPairMarkdownSyntax": {
-        "description": "Autocomplete markdown syntax",
+        "description": "Editor--Autocomplete markdown syntax",
         "type": "boolean"
       },
       "autoPairQuote": {
-        "description": "Automatic completion of quotes",
+        "description": "Editor--Automatic completion of quotes",
         "type": "boolean"
       },
       "endOfLine": {
-        "description": "The newline character used at the end of each line. The default value is default, which will be selected according to your system intelligence.",
+        "description": "Editor--The newline character used at the end of each line. The default value is default, which will be selected according to your system intelligence.",
         "enum": [
           "default",
           "lf",
@@ -109,18 +109,18 @@
         ]
       },
       "textDirection": {
-        "description": "The writing text direction",
+        "description": "Editor--The writing text direction",
         "enum": [
           "ltr",
           "rtl"
         ]
       },
       "hideQuickInsertHint": {
-        "description": "Hide hint for quickly creating paragraphs",
+        "description": "Editor--Hide hint for quickly creating paragraphs",
         "type": "boolean"
       },
       "imageDropAction": {
-        "description": "The default behavior after paste or drag the image to Mark Text",
+        "description": "Editor--The default behavior after paste or drag the image to Mark Text",
         "enum": [
           "upload",
           "folder",
@@ -128,11 +128,11 @@
         ]
       },
       "preferLooseListItem": {
-        "description": "Mark Text supports create loose and tight lists.",
+        "description": "Markdown--Mark Text supports create loose and tight lists.",
         "type": "boolean"
       },
       "bulletListMarker": {
-        "description": "The marker used in bullet list",
+        "description": "Markdown--The marker used in bullet list",
         "enum": [
           "-",
           "*",
@@ -140,25 +140,25 @@
         ]
       },
       "orderListDelimiter": {
-        "description": "The dilimiter used in order list",
+        "description": "Markdown--The dilimiter used in order list",
         "enum": [
           ".",
           ")"
         ]
       },
       "preferHeadingStyle": {
-        "description": "The prefer heading style in Mark Text",
+        "description": "Markdown--The prefer heading style in Mark Text",
         "enum": [
           "atx",
           "setext"
         ]
       },
       "tabSize": {
-        "description": "Replace the tab with x spaces",
+        "description": "Markdown--Replace the tab with x spaces",
         "type": "number"
       },
       "listIndentation": {
-        "description": "Select the indent of list",
+        "description": "Markdown--Select the indent of list",
         "enum": [
           "dfm",
           "tab",
@@ -169,7 +169,7 @@
         ]
       },
       "theme": {
-        "description": "Select the theme used in Mark Text",
+        "description": "Theme--Select the theme used in Mark Text",
         "type": "string"
       }
     }

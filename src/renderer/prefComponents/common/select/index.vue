@@ -65,7 +65,7 @@ export default {
   font-size: 14px;
   color: var(--editorColor);
   & .el-select {
-    width: 150px;
+    width: 180px;
   }
   & input.el-input__inner {
     height: 30px;
