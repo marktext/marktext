@@ -58,7 +58,7 @@ export const addFile = (tree, file) => {
     file.id = getUniqueId()
 
     const idx = currentFolder.files.findIndex(f => {
-      return f.name.toLowerCase() > name.toLowerCase()
+      return f.name.localeCompare(name) > 0
     })
     if (idx !== -1) {
       currentFolder.files.splice(idx, 0, file)

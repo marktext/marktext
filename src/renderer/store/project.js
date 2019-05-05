@@ -28,18 +28,7 @@ const getters = {
     }
 
     if (state.projectTree) travel(state.projectTree)
-    files.sort((f1, f2) => {
-      const lowerName1 = f1.name.toLowerCase()
-      const lowerName2 = f2.name.toLowerCase()
-
-      if (lowerName1 < lowerName2) {
-        return -1
-      } else if (lowerName1 === lowerName2) {
-        return 0
-      } else {
-        return 1
-      }
-    })
+    files.sort((f1, f2) => f1.name.localeCompare(f2.name))
 
     return files
   }
