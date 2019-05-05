@@ -1,6 +1,6 @@
 import path from 'path'
 import BaseWindow from './base'
-import { BrowserWindow } from 'electron'
+import { BrowserWindow, ipcMain } from 'electron'
 import { WindowType } from '../app/windowManager'
 import { TITLE_BAR_HEIGHT, defaultPreferenceWinOptions, isLinux } from '../config'
 
@@ -57,6 +57,13 @@ class SettingWindow extends BaseWindow {
     win.on('blur', () => {
       this.emit('window-blur')
       win.webContents.send('AGANI::window-active-status', { status: false })
+    })
+
+    win.on('close', event => {
+      this.emit('window-close')
+    
+      event.preventDefault()
+      ipcMain.emit('window-close-by-id', win.id)
     })
 
     // The window is now destroyed.
