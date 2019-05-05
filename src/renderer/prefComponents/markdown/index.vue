@@ -7,9 +7,36 @@
       more="https://spec.commonmark.org/0.29/#loose"
     ></bool>
     <cus-select
-      description="Bullet list item marker"
+      description="The prefer marker used in bullet list"
       :value="bulletListMarker"
       :options="bulletListMarkerOptions"
+      :onChange="value => onSelectChange('bulletListMarker', value)"
+      more="https://spec.commonmark.org/0.29/#bullet-list-marker"
+    ></cus-select>
+    <cus-select
+      description="The prefer dilimiter used in order list"
+      :value="orderListDelimiter"
+      :options="orderListDelimiterOptions"
+      :onChange="value => onSelectChange('orderListDelimiter', value)"
+      more="https://spec.commonmark.org/0.29/#ordered-list"
+    ></cus-select>
+    <cus-select
+      description="The prefer heading style"
+      :value="preferHeadingStyle"
+      :options="preferHeadingStyleOptions"
+      :onChange="value => onSelectChange('preferHeadingStyle', value)"
+    ></cus-select>
+    <cus-select
+      description="The number of spaces a tab is equal to"
+      :value="tabSize"
+      :options="tabSizeOptions"
+      :onChange="value => onSelectChange('tabSize', value)"
+    ></cus-select>
+    <cus-select
+      description="The list indentation of sub list items or paragraphs"
+      :value="listIndentation"
+      :options="listIndentationOptions"
+      :onChange="value => onSelectChange('listIndentation', value)"
     ></cus-select>
   </div>
 </template>
@@ -18,7 +45,13 @@
 import { mapState } from 'vuex'
 import Bool from '../common/bool'
 import CusSelect from '../common/select'
-import { bulletListMarkerOptions } from './config'
+import {
+  bulletListMarkerOptions,
+  orderListDelimiterOptions,
+  preferHeadingStyleOptions,
+  tabSizeOptions,
+  listIndentationOptions
+} from './config'
 
 export default {
   components: {
@@ -27,6 +60,10 @@ export default {
   },
   data () {
     this.bulletListMarkerOptions = bulletListMarkerOptions
+    this.orderListDelimiterOptions = orderListDelimiterOptions
+    this.preferHeadingStyleOptions = preferHeadingStyleOptions
+    this.tabSizeOptions = tabSizeOptions
+    this.listIndentationOptions = listIndentationOptions
     return {}
   },
   computed: {
@@ -40,7 +77,9 @@ export default {
     })
   },
   methods: {
-    // todo
+    onSelectChange (type, value) {
+      this.$store.dispatch('SET_SINGLE_PREFERENCE', { type, value })
+    }
   }
 }
 </script>

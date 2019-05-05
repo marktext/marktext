@@ -50,6 +50,8 @@ export default {
     margin-bottom: 10px;
     & i {
       cursor: pointer;
+      opacity: .7;
+      color: var(--iconColor);
     }
     & i:hover {
       color: var(--themeColor);

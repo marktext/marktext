@@ -35,11 +35,11 @@
 | Key                 | Type    | Default | Description                                                                                                                       |
 | ------------------- | ------- | ------- | --------------------------------------------------------------------------------------------------------------------------------- |
 | preferLooseListItem | Boolean | true    | Mark Text supports create loose and tight lists.                                                                                  |
-| bulletListMarker    | String  | `-`     | The marker used in bullet list, optional value: `-`, `*` `+`                                                                      |
-| orderListDelimiter  | String  | `.`     | The dilimiter used in order list, optional value: `.` `)`                                                                         |
+| bulletListMarker    | String  | `-`     | The prefer marker used in bullet list, optional value: `-`, `*` `+`                                                               |
+| orderListDelimiter  | String  | `.`     | The prefer dilimiter used in order list, optional value: `.` `)`                                                                  |
 | preferHeadingStyle  | String  | `atx`   | The prefer heading style in Mark Text, optional value `atx` `setext`, [more info](https://spec.commonmark.org/0.29/#atx-headings) |
-| tabSize             | Number  | 4       | Replace the tab with 4 spaces                                                                                                     |
-| listIndentation     | String  | 1       | Select the indent of list, optional value `dfm`, `tab` or number 1~4                                                              |
+| tabSize             | Number  | 4       | The number of spaces a tab is equal to                                                                                            |
+| listIndentation     | String  | 1       | The list indentation of sub list items or paragraphs, optional value `dfm`, `tab` or number 1~4                                   |
 
 #### Theme
 

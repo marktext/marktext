@@ -6,7 +6,9 @@
         @click="handleMoreClick"
       ></i>
     </div>
-    <el-select v-model="value">
+    <el-select v-model="selectValue"
+      @change="select"
+    >
       <el-option
         v-for="item in options"
         :key="item.value"
@@ -23,12 +25,12 @@ import { shell } from 'electron'
 export default {
   data () {
     return {
-      status: this.bool
+      selectValue: this.value
     }
   },
   props: {
     description: String,
-    value: Boolean,
+    value: String | Number,
     options: Array,
     onChange: Function,
     more: String
@@ -38,6 +40,9 @@ export default {
       if (typeof this.more === 'string') {
         shell.openExternal(this.more)
       }
+    },
+    select (value) {
+      this.onChange(value)
     }
   }
 }
@@ -57,6 +62,7 @@ export default {
     color: var(--editorColor);
     border-color: var(--editorColor10);
   }
+  & .el-input__icon,
   & .el-input__inner {
     line-height: 30px;
   }
@@ -65,6 +71,8 @@ export default {
   margin-bottom: 10px;
   & i {
     cursor: pointer;
+    opacity: .7;
+    color: var(--iconColor);
   }
   & i:hover {
     color: var(--themeColor);
