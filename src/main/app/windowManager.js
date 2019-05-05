@@ -11,10 +11,12 @@ import Watcher from '../filesystem/watcher'
  * @property {WindowType} type The window type.
  */
 
-// Currently it makes no sense because we have only one (editor) window but we
+// ~~Currently it makes no sense because we have only one (editor) window~~ but we
 // will add more windows like settings and worker windows.
 export const WindowType = {
-  EDITOR: 0
+  BASE: 'base', // You shold never create a `BASE` window.
+  EDITOR: 'editor',
+  SETTING: 'setting'
 }
 
 class WindowActivityList {

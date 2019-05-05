@@ -1,7 +1,7 @@
 import path from 'path'
 import { crashReporter, ipcRenderer } from 'electron'
 import log from 'electron-log'
-import EnvPaths from "common/envPaths";
+import EnvPaths from 'common/envPaths'
 
 let exceptionLogger = s => console.error(s)
 
@@ -25,7 +25,9 @@ const parseUrlArgs = () => {
   const titleBarStyle = params.get('tbs')
   const userDataPath = params.get('udp')
   const windowId = params.get('wid')
+  const type = params.get('type')
   return {
+    type,
     debug,
     userDataPath,
     windowId,
@@ -62,13 +64,14 @@ const bootstrapRenderer = () => {
     ipcRenderer.send('AGANI::handle-renderer-error', copy)
   })
 
-  const { debug, initialState, userDataPath, windowId } = parseUrlArgs()
+  const { debug, initialState, userDataPath, windowId, type } = parseUrlArgs()
   const marktext = {
     initialState,
     env: {
       debug,
       paths: new EnvPaths(userDataPath),
-      windowId
+      windowId,
+      type
     }
   }
   global.marktext = marktext

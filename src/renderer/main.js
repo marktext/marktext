@@ -78,7 +78,7 @@ services.forEach(s => {
 })
 
 const router = new VueRouter({
-  routes
+  routes: routes(global.marktext.env.type)
 })
 
 /* eslint-disable no-new */

@@ -1,5 +1,5 @@
 import path from 'path'
-import EventEmitter from 'events'
+import BaseWindow from './base'
 import { BrowserWindow, ipcMain } from 'electron'
 import log from 'electron-log'
 import windowStateKeeper from 'electron-window-state'
@@ -9,20 +9,14 @@ import { isDirectory, isMarkdownFile, normalizeAndResolvePath } from '../filesys
 import { loadMarkdownFile } from '../filesystem/markdown'
 import { ensureWindowPosition } from './utils'
 
-class EditorWindow extends EventEmitter {
+class EditorWindow extends BaseWindow {
 
   /**
    * @param {Accessor} accessor The application accessor for application instances.
    */
   constructor (accessor) {
-    super()
-
-    this._accessor = accessor
-
-    this.id = null
-    this.browserWindow = null
+    super(accessor)
     this.type = WindowType.EDITOR
-    this.quitting = false
   }
 
   /**
@@ -160,16 +154,6 @@ class EditorWindow extends EventEmitter {
     browserWindow.webContents.send('AGANI::open-project', pathname)
   }
 
-  destroy () {
-    this.quitting = true
-    this.emit('bye')
-
-    this.removeAllListeners()
-    this.browserWindow.destroy()
-    this.browserWindow = null
-    this.id = null
-  }
-
   // --- private ---------------------------------
 
   // Only called once during window bootstrapping.
@@ -212,30 +196,6 @@ class EditorWindow extends EventEmitter {
         time: 20000
       })
     }
-  }
-
-  _buildUrlWithSettings (windowId, env, userPreference) {
-    // NOTE: Only send absolutely necessary values. Theme and titlebar settings
-    //  are sended because we delay load the preferences.
-    const { debug, paths } = env
-    const { codeFontFamily, codeFontSize, theme, titleBarStyle } = userPreference.getAll()
-
-    const baseUrl = process.env.NODE_ENV === 'development'
-      ? `http://localhost:9091`
-      : `file://${__dirname}/index.html`
-
-    const url = new URL(baseUrl)
-    url.searchParams.set('udp', paths.userDataPath)
-    url.searchParams.set('debug', debug ? '1' : '0')
-    url.searchParams.set('wid', windowId)
-
-    // Settings
-    url.searchParams.set('cff', codeFontFamily)
-    url.searchParams.set('cfs', codeFontSize)
-    url.searchParams.set('theme', theme)
-    url.searchParams.set('tbs', titleBarStyle)
-
-    return url.toString()
   }
 }
 

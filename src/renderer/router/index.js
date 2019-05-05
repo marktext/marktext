@@ -1,4 +1,3 @@
-import { remote } from 'electron'
 import App from '@/pages/app'
 import Preference from '@/pages/preference'
 import General from '@/prefComponents/general'
@@ -6,9 +5,8 @@ import Editor from '@/prefComponents/editor'
 import Markdown from '@/prefComponents/markdown'
 import Theme from '@/prefComponents/theme'
 
-const win = remote.getCurrentWindow()
-const routes = [{
-  path: '/', redirect: win.pageType === 'editor'? '/editor' : '/preference'
+const routes = type => ([{
+  path: '/', redirect: type === 'editor'? '/editor' : '/preference'
 }, {
   path: '/editor', component: App 
 }, {
@@ -24,6 +22,6 @@ const routes = [{
   }, {
     path: 'theme', component: Theme, name: 'theme'
   }]
-}]
+}])
 
 export default routes

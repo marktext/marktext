@@ -6,6 +6,7 @@ import { selectTheme } from '../menu/actions/theme'
 import { dockMenu } from '../menu/templates'
 import { watchers } from '../utils/imagePathAutoComplement'
 import EditorWindow from '../windows/editor'
+import SettingWindow from '../windows/setting'
 
 class App {
 
@@ -182,6 +183,17 @@ class App {
       this._accessor.menu.setActiveWindow(editor.id)
     }
   }
+  /**
+   * Create a new setting window.
+   */
+  createSettingWindow () {
+    const setting = new SettingWindow(this._accessor)
+    setting.createWindow()
+    this._windowManager.add(setting)
+    if (this._windowManager.windowCount === 1) {
+      this._accessor.menu.setActiveWindow(setting.id)
+    }
+  }
 
   // TODO(sessions): ...
   // // Make Mark Text a single instance application.
@@ -205,8 +217,7 @@ class App {
     })
 
     ipcMain.on('app-create-settings-window', () => {
-      const { paths } = this._accessor
-      this.createEditorWindow(paths.preferencesFilePath)
+      this.createSettingWindow()
     })
 
     // ipcMain.on('app-open-file', filePath => {
