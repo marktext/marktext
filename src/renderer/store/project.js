@@ -28,7 +28,9 @@ const getters = {
     }
 
     if (state.projectTree) travel(state.projectTree)
-    return files.sort()
+    files.sort((f1, f2) => f1.name.localeCompare(f2.name))
+
+    return files
   }
 }
 

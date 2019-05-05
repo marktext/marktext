@@ -141,6 +141,7 @@ foo<section>bar</section>zar
 - Mark Text didn't remove highlight when I delete the markdown symbol like * or `. (#893)
 - After delete ``` at the beginning to paragraph by backspace, then type other text foo, the color will be strange, if you type 1. bar. error happened. (#892)
 - Fix highlight error in code block (#545 #890)
+- Fix files sorting in folder (#438)
 
 ### 0.13.65
 

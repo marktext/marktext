@@ -56,7 +56,15 @@ export const addFile = (tree, file) => {
   // Add file to related directory
   if (!currentFolder.files.find(f => f.name === name)) {
     file.id = getUniqueId()
-    currentFolder.files.push(file)
+
+    const idx = currentFolder.files.findIndex(f => {
+      return f.name.localeCompare(name) > 0
+    })
+    if (idx !== -1) {
+      currentFolder.files.splice(idx, 0, file)
+    } else {
+      currentFolder.files.push(file)
+    }
   }
 }
 
