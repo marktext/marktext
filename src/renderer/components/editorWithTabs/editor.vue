@@ -2,7 +2,7 @@
   <div
     class="editor-wrapper"
     :class="[{ 'typewriter': typewriter, 'focus': focus, 'source': sourceCode }]"
-    :style="{ 'lineHeight': lineHeight, 'fontSize': fontSize,
+    :style="{ 'lineHeight': lineHeight, 'fontSize': `${fontSize}px`,
     'font-family': editorFontFamily ? `${editorFontFamily}, ${defaultFontFamily}` : `${defaultFontFamily}` }"
     :dir="textDirection"
   >

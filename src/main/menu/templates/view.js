@@ -15,14 +15,6 @@ export default function (keybindings) {
     }, {
       type: 'separator'
     }, {
-      label: 'Font...',
-      accelerator: keybindings.getAccelerator('viewChangeFont'),
-      click (item, browserWindow) {
-        actions.changeFont(browserWindow)
-      }
-    }, {
-      type: 'separator'
-    }, {
       id: 'sourceCodeModeMenuItem',
       label: 'Source Code Mode',
       accelerator: keybindings.getAccelerator('viewSourceCodeMode'),

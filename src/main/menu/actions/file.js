@@ -8,6 +8,7 @@ import { isDirectory, isFile, isMarkdownFile, isMarkdownFileOrLink, normalizeAnd
 import { writeMarkdownFile } from '../../filesystem/markdown'
 import { getPath, getRecommendTitleFromMarkdownString } from '../../utils'
 import pandoc from '../../utils/pandoc'
+import { updateAutoSaveMenu } from '../index'
 
 // TODO:
 //  - use async dialog version to not block the main process.
@@ -325,6 +326,12 @@ ipcMain.on('AGANI::format-link-click', (e, { data, dirname }) => {
   if (pathname) {
     const win = BrowserWindow.fromWebContents(e.sender)
     return openFileOrFolder(win, pathname)
+  }
+})
+
+ipcMain.on('broadcast-preferences-changed', prefs => {
+  if (prefs.autoSave !== undefined) {
+    updateAutoSaveMenu(prefs.autoSave)
   }
 })
 

@@ -17,10 +17,6 @@ export const typeMode = (win, type, item) => {
   }
 }
 
-export const changeFont = win => {
-  win.webContents.send('AGANI::font-setting')
-}
-
 export const layout = (item, win, type) => {
   win.webContents.send('AGANI::listen-for-view-layout', { [type]: item.checked })
 }

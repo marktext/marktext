@@ -268,4 +268,20 @@ export const updateLineEndingMenu = lineEnding => {
   }
 }
 
+export const updateAutoSaveMenu = autoSave => {
+  const menu = getMenuItemById('autoSaveMenuItem')
+  menu.checked = autoSave
+}
+
+export const updateThemeMenu = theme => {
+  const themeMenus = getMenuItemById('themeMenu')
+  themeMenus.submenu.items.forEach(item => (item.checked = false))
+  themeMenus.submenu.items
+    .forEach(item => {
+      if (item.id && item.id === theme) {
+        item.checked = true
+      }
+    })
+}
+
 export default AppMenu
