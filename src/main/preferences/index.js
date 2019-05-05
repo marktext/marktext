@@ -49,10 +49,10 @@ class Preference extends EventEmitter {
     this.init()
   }
 
-  init = async () => {
+  init = () => {
     let defaultSettings = null
     try {
-      defaultSettings = await fse.readJSON(this.staticPath)
+      defaultSettings = fse.readJsonSync(this.staticPath)
       if (isDarkSystemMode()) {
         defaultSettings.theme = 'dark'
       }
