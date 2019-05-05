@@ -3,7 +3,8 @@
     <h4>markdown</h4>
     <bool
       description="Prefer loose list item"
-      :bool="true"
+      :bool="preferLooseListItem"
+      :onChange="value => onSelectChange('preferLooseListItem', value)"
       more="https://spec.commonmark.org/0.29/#loose"
     ></bool>
     <cus-select

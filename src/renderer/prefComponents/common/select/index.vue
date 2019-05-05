@@ -35,6 +35,13 @@ export default {
     onChange: Function,
     more: String
   },
+  watch: {
+    value: function (value, oldValue) {
+      if (value !== oldValue) {
+        this.selectValue = value
+      }
+    }
+  },
   methods: {
     handleMoreClick () {
       if (typeof this.more === 'string') {

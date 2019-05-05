@@ -9,6 +9,7 @@
     <el-switch
       style="display: block"
       v-model="status"
+      @change="handleSwitchChange"
       :active-text="status ? 'On': 'Off'">
     </el-switch>
   </section>
@@ -29,11 +30,21 @@ export default {
     onChange: Function,
     more: String
   },
+  watch: {
+    bool: function (value, oldValue) {
+      if (value !== oldValue) {
+        this.status = value
+      }
+    }
+  },
   methods: {
     handleMoreClick () {
       if (typeof this.more === 'string') {
         shell.openExternal(this.more)
       }
+    },
+    handleSwitchChange (value) {
+      this.onChange(value)
     }
   }
 }
