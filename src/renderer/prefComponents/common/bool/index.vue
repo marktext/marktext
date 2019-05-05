@@ -1,6 +1,11 @@
 <template>
   <section class="pref-switch-item">
-    <div class="description">{{description}}</div>
+    <div class="description">
+      <span>{{description}}</span>
+      <i class="el-icon-info" v-if="more"
+        @click="handleMoreClick"
+      ></i>
+    </div>
     <el-switch
       style="display: block"
       v-model="status"
@@ -10,6 +15,8 @@
 </template>
 
 <script>
+import { shell } from 'electron'
+
 export default {
   data () {
     return {
@@ -20,6 +27,14 @@ export default {
     description: String,
     bool: Boolean,
     onChange: Function,
+    more: String
+  },
+  methods: {
+    handleMoreClick () {
+      if (typeof this.more === 'string') {
+        shell.openExternal(this.more)
+      }
+    }
   }
 }
 </script>
@@ -29,9 +44,16 @@ export default {
     font-size: 14px;
     user-select: none;
     margin: 20px 0;
+    color: var(--editorColor);
   }
   .pref-switch-item .description {
     margin-bottom: 10px;
+    & i {
+      cursor: pointer;
+    }
+    & i:hover {
+      color: var(--themeColor);
+    }
   }
   span.el-switch__core::after {
     top: 3px;
@@ -43,6 +65,9 @@ export default {
     border: 2px solid var(--iconColor);
     background: transparent;
     box-sizing: border-box;
+  }
+  span.el-switch__label {
+    color: var(--editorColor50);
   }
   .el-switch:not(.is-checked) .el-switch__core::after {
     background: var(--iconColor);

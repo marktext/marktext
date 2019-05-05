@@ -22,7 +22,9 @@ import {
   Row,
   Tree,
   Autocomplete,
-  Switch
+  Switch,
+  Select,
+  Option
 } from 'element-ui'
 import services from './services'
 import routes from './router'
@@ -66,6 +68,8 @@ Vue.use(Row)
 Vue.use(Tree)
 Vue.use(Autocomplete)
 Vue.use(Switch)
+Vue.use(Select)
+Vue.use(Option)
 
 Vue.use(VueRouter)
 

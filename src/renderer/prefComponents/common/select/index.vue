@@ -1,0 +1,88 @@
+<template>
+  <section class="pref-select-item">
+    <div class="description">
+      <span>{{description}}</span>
+      <i class="el-icon-info" v-if="more"
+        @click="handleMoreClick"
+      ></i>
+    </div>
+    <el-select v-model="value">
+      <el-option
+        v-for="item in options"
+        :key="item.value"
+        :label="item.label"
+        :value="item.value">
+      </el-option>
+    </el-select>
+  </section>
+</template>
+
+<script>
+import { shell } from 'electron'
+
+export default {
+  data () {
+    return {
+      status: this.bool
+    }
+  },
+  props: {
+    description: String,
+    value: Boolean,
+    options: Array,
+    onChange: Function,
+    more: String
+  },
+  methods: {
+    handleMoreClick () {
+      if (typeof this.more === 'string') {
+        shell.openExternal(this.more)
+      }
+    }
+  }
+}
+</script>
+
+<style>
+.pref-select-item {
+  margin: 20px 0;
+  font-size: 14px;
+  color: var(--editorColor);
+  & .el-select {
+    width: 150px;
+  }
+  & input.el-input__inner {
+    height: 30px;
+    background: transparent;
+    color: var(--editorColor);
+    border-color: var(--editorColor10);
+  }
+  & .el-input__inner {
+    line-height: 30px;
+  }
+}
+.pref-select-item .description {
+  margin-bottom: 10px;
+  & i {
+    cursor: pointer;
+  }
+  & i:hover {
+    color: var(--themeColor);
+  }
+}
+li.el-select-dropdown__item {
+  color: var(--editorColor);
+  height: 30px;
+}
+li.el-select-dropdown__item.hover, li.el-select-dropdown__item:hover {
+  background: var(--floatHoverColor);
+}
+div.el-select-dropdown {
+  background: var(--floatBgColor);
+  border-color: var(--floatBorderColor);
+  & .popper__arrow {
+    display: none;
+  }
+}
+</style>
+
