@@ -1,6 +1,6 @@
 {
   "autoSave": true,
-  "autoSaveDelay": 3000,
+  "autoSaveDelay": 5000,
   "titleBarStyle": "csd",
   "openFileInNewWindow": false,
   "aidou": true,

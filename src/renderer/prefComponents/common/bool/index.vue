@@ -1,5 +1,5 @@
 <template>
-  <section class="pref-switch-item">
+  <section class="pref-switch-item" :class="{'ag-underdevelop': disable}">
     <div class="description">
       <span>{{description}}</span>
       <i class="el-icon-info" v-if="more"
@@ -28,7 +28,11 @@ export default {
     description: String,
     bool: Boolean,
     onChange: Function,
-    more: String
+    more: String,
+    disable: {
+      type: Boolean,
+      default: false
+    }
   },
   watch: {
     bool: function (value, oldValue) {

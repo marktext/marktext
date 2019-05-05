@@ -1,5 +1,5 @@
 <template>
-  <section class="pref-range-item">
+  <section class="pref-range-item" :class="{'ag-underdevelop': disable}">
     <div class="description">
       <span>{{description}}: <span class="value">{{selectValue + (unit ? unit : '')}}</span></span>
       <i class="el-icon-info" v-if="more"
@@ -34,7 +34,11 @@ export default {
     onChange: Function,
     unit: String,
     step: Number,
-    more: String
+    more: String,
+    disable: {
+      type: Boolean,
+      default: false
+    }
   },
   watch: {
     value: function (value, oldValue) {

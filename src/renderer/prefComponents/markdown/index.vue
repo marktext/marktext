@@ -20,12 +20,14 @@
       :options="orderListDelimiterOptions"
       :onChange="value => onSelectChange('orderListDelimiter', value)"
       more="https://spec.commonmark.org/0.29/#ordered-list"
+      :disable="true"
     ></cus-select>
     <cus-select
       description="The prefer heading style"
       :value="preferHeadingStyle"
       :options="preferHeadingStyleOptions"
       :onChange="value => onSelectChange('preferHeadingStyle', value)"
+      :disable="true"
     ></cus-select>
     <cus-select
       description="The number of spaces a tab is equal to"

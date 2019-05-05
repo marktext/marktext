@@ -1,5 +1,5 @@
 <template>
-  <section class="pref-select-item">
+  <section class="pref-select-item" :class="{'ag-underdevelop': disable}">
     <div class="description">
       <span>{{description}}</span>
       <i class="el-icon-info" v-if="more"
@@ -33,7 +33,11 @@ export default {
     value: String | Number,
     options: Array,
     onChange: Function,
-    more: String
+    more: String,
+    disable: {
+      type: Boolean,
+      default: false
+    }
   },
   watch: {
     value: function (value, oldValue) {
