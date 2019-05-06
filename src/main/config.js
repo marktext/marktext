@@ -30,7 +30,7 @@ export const defaultPreferenceWinOptions = {
   useContentSize: true,
   show: false,
   frame: false,
-  thickFrame: false,
+  thickFrame: !isOsx,
   titleBarStyle: 'hiddenInset',
   center: true
 }
