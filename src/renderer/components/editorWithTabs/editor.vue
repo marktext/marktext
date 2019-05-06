@@ -205,6 +205,12 @@
         if (value !== oldValue && editor) {
           editor.setListIndentation(value)
         }
+      },
+      hideQuickInsertHint: function (value, oldValue) {
+        const { editor } = this
+        if (value !== oldValue && editor) {
+          editor.setOptions({ hideQuickInsertHint: value })
+        }
       }
     },
     created () {

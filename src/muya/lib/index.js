@@ -310,6 +310,17 @@ class Muya {
     if (needRender) {
       this.contentState.render()
     }
+    // Set quick insert hint visibility
+    const hideQuickInsertHint = options['hideQuickInsertHint']
+    if (typeof hideQuickInsertHint !== 'undefined') {
+      const hasClass = this.container.classList.contains('ag-show-quick-insert-hint')
+      if (hideQuickInsertHint && hasClass) {
+        this.container.classList.remove('ag-show-quick-insert-hint')
+      } else if (!hideQuickInsertHint && !hasClass) {
+        this.container.classList.add('ag-show-quick-insert-hint')
+      }
+      
+    }
   }
 
   destroy () {
