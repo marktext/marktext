@@ -157,11 +157,14 @@ export const CURSOR_DNA = getLongUniqueId()
 
 export const DEFAULT_TURNDOWN_CONFIG = {
   headingStyle: 'atx', // setext or atx
+  hr: '---',
   bulletListMarker: '-', // -, +, or *
   codeBlockStyle: 'fenced', // fenced or indented
   fence: '```', // ``` or ~~~
   emDelimiter: '*', // _ or *
   strongDelimiter: '**', // ** or __
+  linkStyle: 'inlined',
+  linkReferenceStyle: 'full',
   blankReplacement (content, node, options) {
     if (node && node.classList.contains('ag-soft-line-break')) {
       return LINE_BREAK
@@ -230,7 +233,7 @@ export const MUYA_DEFAULT_OPTION = {
   autoPairMarkdownSyntax: true,
   autoPairQuote: true,
   bulletListMarker: '-',
-  orderListMarker: '.',
+  orderListDelimiter: '.',
   tabSize: 4,
   // bullet/list marker width + listIndentation, tab or Daring Fireball Markdown (4 spaces) --> list indentation
   listIndentation: 1,

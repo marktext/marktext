@@ -94,7 +94,7 @@ const paragraphCtrl = ContentState => {
 
   ContentState.prototype.handleListMenu = function (paraType, insertMode) {
     const { start, end, affiliation } = this.selectionChange(this.cursor)
-    const { orderListMarker, bulletListMarker, preferLooseListItem } = this
+    const { orderListDelimiter, bulletListMarker, preferLooseListItem } = this.muya.options
     const [blockType, listType] = paraType.split('-')
     const isListed = affiliation.slice(0, 3).filter(b => /ul|ol/.test(b.type))
 
@@ -127,7 +127,7 @@ const paragraphCtrl = ContentState => {
 
       if (listType === 'order') {
         listBlock.start = listBlock.start || 1
-        listBlock.children.forEach(b => (b.bulletMarkerOrDelimiter = orderListMarker))
+        listBlock.children.forEach(b => (b.bulletMarkerOrDelimiter = orderListDelimiter))
       }
       if (
         (listType === 'bullet' && oldListType === 'order') ||

@@ -164,7 +164,7 @@ const updateCtrl = ContentState => {
 
   ContentState.prototype.updateList = function (block, type, marker = '', line) {
     const cleanMarker = marker ? marker.trim() : null
-    const { preferLooseListItem } = this
+    const { preferLooseListItem } = this.muya.options
     const wrapperTag = type === 'order' ? 'ol' : 'ul' // `bullet` => `ul` and `order` => `ol`
     const { start, end } = this.cursor
     const startOffset = start.offset
@@ -210,7 +210,7 @@ const updateCtrl = ContentState => {
     if (type === 'order') {
       bulletMarkerOrDelimiter = (cleanMarker && cleanMarker.length >= 2) ? cleanMarker.slice(-1) : '.'
     } else {
-      const { bulletListMarker } = this
+      const { bulletListMarker } = this.muya.options
       bulletMarkerOrDelimiter = marker ? marker.charAt(0) : bulletListMarker
     }
     newListItemBlock.bulletMarkerOrDelimiter = bulletMarkerOrDelimiter
@@ -286,7 +286,7 @@ const updateCtrl = ContentState => {
   }
 
   ContentState.prototype.updateTaskListItem = function (block, type, marker = '') {
-    const { preferLooseListItem } = this
+    const { preferLooseListItem } = this.muya.options
     const parent = this.getParent(block)
     const grandpa = this.getParent(parent)
     const checked = /\[x\]\s/i.test(marker) // use `i` flag to ignore upper case or lower case

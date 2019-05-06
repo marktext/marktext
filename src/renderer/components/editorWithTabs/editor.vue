@@ -121,6 +121,7 @@
         'autoPairMarkdownSyntax': state => state.preferences.autoPairMarkdownSyntax,
         'autoPairQuote': state => state.preferences.autoPairQuote,
         'bulletListMarker': state => state.preferences.bulletListMarker,
+        'orderListDelimiter': state => state.preferences.orderListDelimiter,
         'tabSize': state => state.preferences.tabSize,
         'listIndentation': state => state.preferences.listIndentation,
         'lineHeight': state => state.preferences.lineHeight,
@@ -178,7 +179,9 @@
       preferLooseListItem: function (value, oldValue) {
         const { editor } = this
         if (value !== oldValue && editor) {
-          editor.setListItemPreference(value)
+          editor.setOptions({
+            preferLooseListItem: value
+          })
         }
       },
       tabSize: function (value, oldValue) {
@@ -233,6 +236,18 @@
           editor.setOptions({ autoPairQuote: value })
         }
       },
+      bulletListMarker: function (value, oldValue) {
+        const { editor } = this
+        if (value !== oldValue && editor) {
+          editor.setOptions({ bulletListMarker: value })
+        }
+      },
+      orderListDelimiter: function (value, oldValue) {
+        const { editor } = this
+        if (value !== oldValue && editor) {
+          editor.setOptions({ orderListDelimiter: value })
+        }
+      },
       codeFontSize: function (value, oldValue) {
         if (value !== oldValue) {
           addCommonStyle({
@@ -263,6 +278,7 @@
           autoPairMarkdownSyntax,
           autoPairQuote,
           bulletListMarker,
+          orderListDelimiter,
           tabSize,
           listIndentation,
           hideQuickInsertHint,
@@ -286,6 +302,7 @@
           autoPairMarkdownSyntax,
           autoPairQuote,
           bulletListMarker,
+          orderListDelimiter,
           tabSize,
           listIndentation,
           hideQuickInsertHint

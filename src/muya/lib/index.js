@@ -171,10 +171,6 @@ class Muya {
     if (lineHeight) this.contentState.lineHeight = lineHeight
   }
 
-  setListItemPreference (preferLooseListItem) {
-    this.contentState.preferLooseListItem = preferLooseListItem
-  }
-
   setTabSize (tabSize) {
     if (!tabSize || typeof tabSize !== 'number') {
       tabSize = 4
@@ -319,6 +315,9 @@ class Muya {
       } else if (!hideQuickInsertHint && !hasClass) {
         this.container.classList.add('ag-show-quick-insert-hint')
       }
+    }
+    if (options.bulletListMarker) {
+      this.contentState.turndownConfig.bulletListMarker = options.bulletListMarker
     }
   }
 
