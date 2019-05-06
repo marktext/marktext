@@ -284,4 +284,9 @@ export const updateThemeMenu = theme => {
     })
 }
 
+export const updateAidouMenu = bool => {
+  const aidouMenu = getMenuItemById('aidou')
+  aidouMenu.visible = bool
+}
+
 export default AppMenu
