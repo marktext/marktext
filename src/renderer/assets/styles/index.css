@@ -103,7 +103,7 @@ body {
   background-color: var(--themeColor);
 }
 
-.ag-dialog-table {
+.el-dialog.ag-dialog-table {
   border-radius: 8px;
   box-shadow: 0 4px 8px 0 var(--floatBorderColor);
   border: solid 1px var(--floatBorderColor);
