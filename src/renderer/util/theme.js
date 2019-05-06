@@ -120,7 +120,7 @@ code[class*="language-"],
 .CodeMirror,
 pre.ag-paragraph {
 font-family: ${codeFontFamily}, ${DEFAULT_CODE_FONT_FAMILY};
-font-size: ${codeFontSize};
+font-size: ${codeFontSize}px;
 }
 
 ${getEmojiPickerPatch()}

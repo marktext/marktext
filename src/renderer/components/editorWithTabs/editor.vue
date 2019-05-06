@@ -86,6 +86,7 @@
   import bus from '../../bus'
   import Search from '../search.vue'
   import { animatedScrollTo } from '../../util'
+  import { addCommonStyle } from '../../util/theme'
   import { showContextMenu } from '../../contextMenu/editor'
   import Printer from '@/services/printService'
   import { DEFAULT_EDITOR_FONT_FAMILY } from '@/config'
@@ -124,6 +125,8 @@
         'listIndentation': state => state.preferences.listIndentation,
         'lineHeight': state => state.preferences.lineHeight,
         'fontSize': state => state.preferences.fontSize,
+        'codeFontSize': state => state.preferences.codeFontSize,
+        'codeFontFamily': state => state.preferences.codeFontFamily,
         'lightColor': state => state.preferences.lightColor,
         'darkColor': state => state.preferences.darkColor,
         'editorFontFamily': state => state.preferences.editorFontFamily,
@@ -228,6 +231,23 @@
         const { editor } = this
         if (value !== oldValue && editor) {
           editor.setOptions({ autoPairQuote: value })
+        }
+      },
+      codeFontSize: function (value, oldValue) {
+        if (value !== oldValue) {
+          console.log(value)
+          addCommonStyle({
+            codeFontSize: value,
+            codeFontFamily: this.codeFontFamily
+          })
+        }
+      },
+      codeFontFamily: function (value, oldValue) {
+        if (value !== oldValue) {
+          addCommonStyle({
+            codeFontSize: this.codeFontSize,
+            codeFontFamily: value
+          })
         }
       }
     },
