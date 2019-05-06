@@ -2,9 +2,8 @@ import path from 'path'
 import { dialog, ipcMain, BrowserWindow } from 'electron'
 import log from 'electron-log'
 import { IMAGE_EXTENSIONS } from '../../config'
-import { updateLineEndingMenu } from '../../menu'
+import { updateLineEndingMenu , updateAidouMenu } from '../../menu'
 import { searchFilesAndDir } from '../../utils/imagePathAutoComplement'
-import { updateAidouMenu } from '../index'
 
 const getAndSendImagePath = (win, type) => {
   // TODO(need::refactor): use async dialog version

@@ -1,5 +1,5 @@
 import { app, ipcMain, systemPreferences } from 'electron'
-import { isOsx } from '../config'
+import { isLinux, isOsx } from '../config'
 import { isDirectory, isMarkdownFileOrLink, normalizeAndResolvePath } from '../filesystem'
 import { getMenuItemById } from '../menu'
 import { selectTheme } from '../menu/actions/theme'
@@ -222,8 +222,12 @@ class App {
       if (settingWins.length >= 1) {
         // A setting window is already created
         const browserSettingWindow = settingWins[0].win.browserWindow
-        this._windowManager.setActiveWindow(browserSettingWindow.id)
-        return browserSettingWindow.moveTop()
+        if (isLinux) {
+          browserSettingWindow.focus()
+        } else {
+          browserSettingWindow.moveTop()
+        }
+        return
       }
       this.createSettingWindow()
     })

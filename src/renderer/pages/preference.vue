@@ -1,8 +1,12 @@
 <template>
   <div class="pref-container">
+    <title-bar v-if="titleBarStyle === 'custom'"></title-bar>
+    <div v-if="titleBarStyle !== 'custom'" class="title-bar"></div>
     <side-bar></side-bar>
-    <div class="pref-content">
-      <div class="title-bar"></div>
+    <div
+      class="pref-content"
+      :class="{ 'frameless': titleBarStyle === 'custom' }"
+    >
       <router-view class="pref-setting"></router-view>
     </div>
   </div>
@@ -10,17 +14,20 @@
 
 <script>
 import { mapState } from 'vuex'
+import TitleBar from '@/prefComponents/common/titlebar'
 import SideBar from '@/prefComponents/sideBar'
 import { addThemeStyle } from '@/util/theme'
 import { DEFAULT_STYLE } from '@/config'
 
 export default {
   components: {
+    TitleBar,
     SideBar
   },
   computed: {
     ...mapState({
-      'theme': state => state.preferences.theme
+      'theme': state => state.preferences.theme,
+      'titleBarStyle': state => state.preferences.titleBarStyle
     })
   },
   watch: {
@@ -70,6 +77,11 @@ export default {
       height: calc(100vh - var(--titleBarHeight));
       overflow: auto;
     }
+  }
+  & .pref-content.frameless .pref-setting {
+    /* Move the scrollbar below the titlebar */
+    margin-top: var(--titleBarHeight);
+    padding-top: 0;
   }
 }
 </style>

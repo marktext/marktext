@@ -61,7 +61,7 @@ class SettingWindow extends BaseWindow {
 
     win.on('close', event => {
       this.emit('window-close')
-    
+
       event.preventDefault()
       ipcMain.emit('window-close-by-id', win.id)
     })
