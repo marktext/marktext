@@ -319,7 +319,6 @@ class Muya {
       } else if (!hideQuickInsertHint && !hasClass) {
         this.container.classList.add('ag-show-quick-insert-hint')
       }
-      
     }
   }
 

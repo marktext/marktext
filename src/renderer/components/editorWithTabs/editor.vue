@@ -211,6 +211,24 @@
         if (value !== oldValue && editor) {
           editor.setOptions({ hideQuickInsertHint: value })
         }
+      },
+      autoPairBracket: function (value, oldValue) {
+        const { editor } = this
+        if (value !== oldValue && editor) {
+          editor.setOptions({ autoPairBracket: value })
+        }
+      },
+      autoPairMarkdownSyntax: function (value, oldValue) {
+        const { editor } = this
+        if (value !== oldValue && editor) {
+          editor.setOptions({ autoPairMarkdownSyntax: value })
+        }
+      },
+      autoPairQuote: function (value, oldValue) {
+        const { editor } = this
+        if (value !== oldValue && editor) {
+          editor.setOptions({ autoPairQuote: value })
+        }
       }
     },
     created () {
