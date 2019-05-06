@@ -235,7 +235,6 @@
       },
       codeFontSize: function (value, oldValue) {
         if (value !== oldValue) {
-          console.log(value)
           addCommonStyle({
             codeFontSize: value,
             codeFontFamily: this.codeFontFamily
