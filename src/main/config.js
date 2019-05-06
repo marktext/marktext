@@ -27,7 +27,6 @@ export const defaultPreferenceWinOptions = {
   resizable: false,
   minimizable: false,
   maximizable: false,
-  alwaysOnTop: true,
   useContentSize: true,
   show: false,
   frame: false,

@@ -177,6 +177,28 @@ class WindowManager extends EventEmitter {
     return this._windows.size
   }
 
+  /**
+   * 
+   * @param {type} type the WindowType one of ['base', 'editor', 'setting']
+   * Return the windows of the given {type}
+   */
+  windowsOfType (type) {
+    if (!WindowType[type.toUpperCase()]) {
+      console.error(`${type} is not a valid window type.`)
+    }
+    const { windows } = this
+    const result = []
+    for (var [key, value] of windows) {
+      if (value.type === type) {
+        result.push({
+          id: key,
+          win: value
+        })
+      }
+    }
+    return result
+  }
+
   // --- helper ---------------------------------
 
   closeWatcher () {

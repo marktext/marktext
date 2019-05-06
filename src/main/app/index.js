@@ -7,6 +7,7 @@ import { dockMenu } from '../menu/templates'
 import { watchers } from '../utils/imagePathAutoComplement'
 import EditorWindow from '../windows/editor'
 import SettingWindow from '../windows/setting'
+import { WindowType } from './windowManager'
 
 class App {
 
@@ -217,6 +218,13 @@ class App {
     })
 
     ipcMain.on('app-create-settings-window', () => {
+      const settingWins = this._windowManager.windowsOfType(WindowType.SETTING)
+      if (settingWins.length >= 1) {
+        // A setting window is already created
+        const browserSettingWindow = settingWins[0].win.browserWindow
+        this._windowManager.setActiveWindow(browserSettingWindow.id)
+        return browserSettingWindow.moveTop()
+      }
       this.createSettingWindow()
     })
 
