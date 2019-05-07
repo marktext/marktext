@@ -1,12 +1,14 @@
-import Prism from 'prismjs2'
+import Prism from 'prismjs'
 import { filter } from 'fuzzaldrin'
 import initLoadLanguage, { loadedCache } from './loadLanguage'
 import languages from './languages'
 
 const prism = Prism
 window.Prism = Prism
-import('prismjs2/plugins/keep-markup/prism-keep-markup')
-const langs = Object.keys(languages).map(name => (languages[name]))
+import('prismjs/plugins/keep-markup/prism-keep-markup')
+const langs = Object.keys(languages).map(name => {
+  return Object.assign({}, languages[name], { name })
+})
 const loadLanguage = initLoadLanguage(Prism)
 
 const search = text => {

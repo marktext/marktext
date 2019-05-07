@@ -8754,10 +8754,10 @@ pretty-error@^2.0.2:
     renderkid "^2.0.1"
     utila "~0.4"
 
-prismjs2@^1.15.1:
-  version "1.15.1"
-  resolved "https://registry.yarnpkg.com/prismjs2/-/prismjs2-1.15.1.tgz#6dda1b9aa7e8ecddf55b145f2189b605f89e2738"
-  integrity sha512-tDYrcjuYxi5VceNCniF7YjxFTHJv7unA5KbN9EVZh0hnKmEaxdSSe43Gagobvue5UnbnUSB0y+l5b8Y3C1cXkA==
+prismjs@^1.16.0:
+  version "1.16.0"
+  resolved "https://registry.yarnpkg.com/prismjs/-/prismjs-1.16.0.tgz#406eb2c8aacb0f5f0f1167930cb83835d10a4308"
+  integrity sha512-OA4MKxjFZHSvZcisLGe14THYsug/nF6O1f0pAJc0KN0wTyAcLqmsbE+lTGKSpyh+9pEW57+k6pg2AfYR+coyHA==
   optionalDependencies:
     clipboard "^2.0.0"
 

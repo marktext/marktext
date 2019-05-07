@@ -189,7 +189,7 @@
     "keyboard-layout": "^2.0.15",
     "mermaid": "^8.0.0",
     "popper.js": "^1.15.0",
-    "prismjs2": "^1.15.1",
+    "prismjs": "^1.16.0",
     "snabbdom": "^0.7.3",
     "snabbdom-to-html": "^5.1.1",
     "snapsvg": "^0.5.1",
