@@ -2,16 +2,16 @@
 
 #### General
 
-| Key                 | Type    | Default Value | Description                                                                                                                                                |
-| ------------------- | ------- | ------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| autoSave            | Boolean | ture          | Automatically save the content being edited. option value: true, false                                                                                     |
-| autoSaveDelay       | Number  | 3000          | The delay in milliseconds after a changed file is saved automatically? 3000 ~10000                                                                         |
-| titleBarStyle       | String  | csd           | The title bar style. the native option will result in a standard gray opaque title bar. `csd` (macOS only), `custom`, `native`                             |
+| Key                  | Type    | Default Value | Description                                                                                                                                                |
+| -------------------- | ------- | ------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| autoSave             | Boolean | ture          | Automatically save the content being edited. option value: true, false                                                                                     |
+| autoSaveDelay        | Number  | 3000          | The delay in milliseconds after a changed file is saved automatically? 3000 ~10000                                                                         |
+| titleBarStyle        | String  | csd           | The title bar style. the native option will result in a standard gray opaque title bar. `csd` (macOS only), `custom`, `native`                             |
 | openFilesInNewWindow | Boolean | false         | true, false                                                                                                                                                |
-| aidou               | Boolean | true          | Enable aidou. Optional value: true, false                                                                                                                  |
-| fileSortBy          | String  | modified      | Sort files in opened folder by `created` time, modified time and title.                                                                                    |
-| startUp             | String  | lastState     | The action after Mark Text startup, open the last edited content, open the specified folder or blank page, optional value: `lasteState`, `folder`, `blank` |
-| language            | String  | en            | The language Mark Text use.                                                                                                                                |
+| aidou                | Boolean | true          | Enable aidou. Optional value: true, false                                                                                                                  |
+| fileSortBy           | String  | modified      | Sort files in opened folder by `created` time, modified time and title.                                                                                    |
+| startUp              | String  | lastState     | The action after Mark Text startup, open the last edited content, open the specified folder or blank page, optional value: `lasteState`, `folder`, `blank` |
+| language             | String  | en            | The language Mark Text use.                                                                                                                                |
 
 #### Editor
 
