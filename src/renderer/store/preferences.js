@@ -6,7 +6,7 @@ const state = {
   autoSave: true,
   autoSaveDelay: 3000,
   titleBarStyle: 'csd',
-  openFileInNewWindow: false,
+  openFilesInNewWindow: false,
   aidou: true,
   fileSortBy: 'created',
   startUp: 'folder',

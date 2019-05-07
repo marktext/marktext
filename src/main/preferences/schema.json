@@ -1,6 +1,6 @@
 {
   "preference": {
-    "description": "Mark Text preference",
+    "description": "Mark Text preferences",
     "type": "object",
     "properties": {
       "autoSave": {
@@ -9,7 +9,8 @@
       },
       "autoSaveDelay": {
         "description": "General--How long do you want to save your document(ms)?",
-        "type": "number"
+        "type": "number",
+        "minimum": 500
       },
       "titleBarStyle": {
         "description": "General--The title bar style. the native option will result in a standard gray opaque title bar.",
@@ -19,7 +20,7 @@
           "native"
         ]
       },
-      "openFileInNewWindow": {
+      "openFilesInNewWindow": {
         "description": "General--Open file in new window",
         "type": "boolean"
       },
@@ -61,7 +62,7 @@
       "fontSize": {
         "description": "Editor--Font size in pixels",
         "type": "number",
-        "maximum": 20,
+        "maximum": 32,
         "minimum": 12,
         "default": 16
       },
@@ -75,7 +76,7 @@
       "codeFontSize": {
         "description": "Editor--Font size in code Block, the range is 12 ~ 18",
         "type": "number",
-        "maximum": 18,
+        "maximum": 28,
         "minimum": 12,
         "default": 14
       },
@@ -128,7 +129,7 @@
         ]
       },
       "preferLooseListItem": {
-        "description": "Markdown--Mark Text supports create loose and tight lists.",
+        "description": "Markdown--The preferred list type",
         "type": "boolean"
       },
       "bulletListMarker": {

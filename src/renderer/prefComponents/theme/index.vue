@@ -17,8 +17,8 @@
       </div>
       
       <div>
-        <span>Import Custom themes</span>
-        <el-button size="small">Import Theme</el-button>
+        <span>Import custom themes</span>
+        <el-button size="small">Import theme</el-button>
       </div>
     </section>
   </div>

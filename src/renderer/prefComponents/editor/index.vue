@@ -5,7 +5,7 @@
       description="Font size in editor"
       :value="fontSize"
       :min="12"
-      :max="20"
+      :max="32"
       unit="px"
       :step="1"
       :onChange="value => onSelectChange('fontSize', value)"
@@ -58,7 +58,7 @@
       description="Code block font size in editor"
       :value="codeFontSize"
       :min="12"
-      :max="18"
+      :max="28"
       unit="px"
       :step="1"
       :onChange="value => onSelectChange('codeFontSize', value)"
@@ -80,7 +80,7 @@
       <div>The default behavior after paste or drag the image to Mark Text</div>
       <el-radio v-model="imageDropAction" label="upload">Upload image to cloud</el-radio>
       <el-radio v-model="imageDropAction" label="folder">Move image to sepcial folder</el-radio>
-      <el-radio v-model="imageDropAction" label="path">Insert absolute or relative path of iamge</el-radio>
+      <el-radio v-model="imageDropAction" label="path">Insert absolute or relative path of image</el-radio>
     </section>
   </div>
 </template>

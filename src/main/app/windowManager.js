@@ -11,8 +11,7 @@ import Watcher from '../filesystem/watcher'
  * @property {WindowType} type The window type.
  */
 
-// ~~Currently it makes no sense because we have only one (editor) window~~ but we
-// will add more windows like settings and worker windows.
+// Window type marktext support.
 export const WindowType = {
   BASE: 'base', // You shold never create a `BASE` window.
   EDITOR: 'editor',

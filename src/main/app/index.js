@@ -238,8 +238,8 @@ class App {
     // })
 
     ipcMain.on('app-open-file-by-id', (windowId, filePath) => {
-      const { openFileInNewWindow } = this._accessor.preferences.getAll()
-      if (openFileInNewWindow) {
+      const { openFilesInNewWindow } = this._accessor.preferences.getAll()
+      if (openFilesInNewWindow) {
         this.createEditorWindow(filePath)
       } else {
         const editor = this._windowManager.get(windowId)
@@ -250,8 +250,8 @@ class App {
     })
 
     ipcMain.on('app-open-markdown-by-id', (windowId, data) => {
-      const { openFileInNewWindow } = this._accessor.preferences.getAll()
-      if (openFileInNewWindow) {
+      const { openFilesInNewWindow } = this._accessor.preferences.getAll()
+      if (openFilesInNewWindow) {
         this.createEditorWindow(undefined, data)
       } else {
         const editor = this._windowManager.get(windowId)

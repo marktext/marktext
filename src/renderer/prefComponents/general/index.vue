@@ -25,8 +25,8 @@
     <separator></separator>
     <bool
       description="Open file in new window"
-      :bool="openFileInNewWindow"
-      :onChange="value => onSelectChange('openFileInNewWindow', value)"
+      :bool="openFilesInNewWindow"
+      :onChange="value => onSelectChange('openFilesInNewWindow', value)"
     ></bool>
     <bool
       description="Enable Aidou"
@@ -44,7 +44,7 @@
     <section class="startup-ctrl ag-underdevelop">
       <div>The action after Mark Text startup, open the last edited content, open the specified folder or blank page</div>
       <el-radio v-model="startUp" label="lastState">Open the last closed folder and files</el-radio>
-      <el-radio v-model="startUp" label="folder">Open the special folder</el-radio>
+      <el-radio v-model="startUp" label="folder">Open the subfolder</el-radio>
       <el-button size="small">Select Folder</el-button>
       <el-radio v-model="startUp" label="blank">Open blank page</el-radio>
     </section>
@@ -89,7 +89,7 @@ export default {
       autoSave: state => state.preferences.autoSave,
       autoSaveDelay: state => state.preferences.autoSaveDelay,
       titleBarStyle: state => state.preferences.titleBarStyle,
-      openFileInNewWindow: state => state.preferences.openFileInNewWindow,
+      openFilesInNewWindow: state => state.preferences.openFilesInNewWindow,
       aidou: state => state.preferences.aidou,
       fileSortBy: state => state.preferences.fileSortBy,
       startUp: state => state.preferences.startUp,
