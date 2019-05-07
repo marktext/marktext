@@ -87,8 +87,7 @@ class WindowManager extends EventEmitter {
     this._windows.set(window.id, window)
 
     if (!this._appMenu.has(window.id)) {
-      // TODO: Build a default menu for macOS.
-      this._appMenu.addMenu(window.id, null)
+      this._appMenu.addDefaultMenu(window.id)
     }
 
     if (this.windowCount === 1) {

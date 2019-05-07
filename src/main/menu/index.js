@@ -4,7 +4,7 @@ import { app, ipcMain, Menu } from 'electron'
 import log from 'electron-log'
 import { ensureDirSync, isDirectory, isFile } from '../filesystem'
 import { parseMenu } from '../keyboard/shortcutHandler'
-import configureMenu from '../menu/templates'
+import configureMenu, { configSettingMenu } from '../menu/templates'
 
 class AppMenu {
 
@@ -92,9 +92,19 @@ class AppMenu {
     fs.writeFileSync(RECENTS_PATH, json, 'utf-8')
   }
 
-  addMenu (windowId, menu=null) {
+  addDefaultMenu (windowId) {
     const { windowMenus } = this
-    windowMenus.set(windowId, { menu })
+    let menu = { menu: null }
+    if (this.isOsx) {
+      menu = this.buildSettingMenu() // Setting menu is also the fallback menu.
+    }
+    windowMenus.set(windowId, menu)
+  }
+
+  addSettingMenu (window) {
+    const { windowMenus } = this
+    const menu = this.buildSettingMenu()
+    windowMenus.set(window.id, menu)
   }
 
   addEditorMenu (window) {
@@ -168,6 +178,13 @@ class AppMenu {
       shortcutMap,
       menu
     }
+  }
+
+  buildSettingMenu () {
+    const menuTemplate = configSettingMenu(this._keybindings)
+    const menu = Menu.buildFromTemplate(menuTemplate)
+
+    return { menu }
   }
 
   updateAppMenu (recentUsedDocuments) {

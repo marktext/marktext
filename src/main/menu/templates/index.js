@@ -11,6 +11,18 @@ import theme from './theme'
 export dockMenu from './dock'
 
 /**
+ * Create the setting window menu.
+ * 
+ * @param {Keybindings} keybindings The keybindings instance
+ */
+export const configSettingMenu = (keybindings) => {
+  return [
+    ...(process.platform === 'darwin' ? [ marktext(keybindings) ] : []),
+    help()
+  ]
+}
+
+/**
  * Create the application menu for the editor window.
  *
  * @param {Keybindings} keybindings The keybindings instance.

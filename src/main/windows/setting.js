@@ -40,7 +40,7 @@ class SettingWindow extends BaseWindow {
     this.id = win.id
 
     // Create a menu for the current window
-    appMenu.addEditorMenu(win)
+    appMenu.addSettingMenu(win)
 
     win.once('ready-to-show', async () => {
       win.show()
