@@ -2,7 +2,7 @@ import path from 'path'
 import { dialog, ipcMain, BrowserWindow } from 'electron'
 import log from 'electron-log'
 import { IMAGE_EXTENSIONS } from '../../config'
-import { updateLineEndingMenu , updateAidouMenu } from '../../menu'
+import { updateLineEndingMenu } from '../../menu'
 import { searchFilesAndDir } from '../../utils/imagePathAutoComplement'
 
 const getAndSendImagePath = (win, type) => {
@@ -41,12 +41,6 @@ ipcMain.on('AGANI::ask-for-image-auto-path', (e, { pathname, src }) => {
 
 ipcMain.on('AGANI::update-line-ending-menu', (e, lineEnding) => {
   updateLineEndingMenu(lineEnding)
-})
-
-ipcMain.on('broadcast-preferences-changed', prefs => {
-  if (prefs.aidou !== undefined) {
-    updateAidouMenu(prefs.aidou)
-  }
 })
 
 export const edit = (win, type) => {

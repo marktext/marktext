@@ -229,6 +229,45 @@ class AppMenu {
     menu.checked = flag
   }
 
+  updateThemeMenu = theme => {
+    this.windowMenus.forEach((value, key) => {
+      const { menu } = value
+      const themeMenus = menu.getMenuItemById('themeMenu')
+      if (!themeMenus) {
+        return
+      }
+      themeMenus.submenu.items.forEach(item => (item.checked = false))
+      themeMenus.submenu.items
+        .forEach(item => {
+          if (item.id && item.id === theme) {
+            item.checked = true
+          }
+        })
+    })
+  }
+
+  updateAutoSaveMenu = autoSave => {
+    this.windowMenus.forEach((value, key) => {
+      const { menu } = value
+      const autoSaveMenu = menu.getMenuItemById('autoSaveMenuItem')
+      if (!autoSaveMenu) {
+        return
+      }
+      autoSaveMenu.checked = autoSave
+    })
+  }
+  
+  updateAidouMenu = bool => {
+    this.windowMenus.forEach((value, key) => {
+      const { menu } = value
+      const aidouMenu = menu.getMenuItemById('aidou')
+      if (!aidouMenu) {
+        return
+      }
+      aidouMenu.visible = bool
+    })
+  }
+
   _listenForIpcMain () {
     ipcMain.on('mt::add-recently-used-document', (e, pathname) => {
       this.addRecentlyUsedDocument(pathname)
@@ -236,6 +275,18 @@ class AppMenu {
 
     ipcMain.on('menu-clear-recently-used', () => {
       this.clearRecentlyUsedDocuments()
+    })
+
+    ipcMain.on('broadcast-preferences-changed', prefs => {
+      if (prefs.theme !== undefined) {
+        this.updateThemeMenu(prefs.theme)
+      }
+      if (prefs.autoSave !== undefined) {
+        this.updateAutoSaveMenu(prefs.autoSave)
+      }
+      if (prefs.aidou !== undefined) {
+        this.updateAidouMenu(prefs.aidou)
+      }
     })
   }
 }
@@ -283,27 +334,6 @@ export const updateLineEndingMenu = lineEnding => {
   } else {
     lfMenu.checked = true
   }
-}
-
-export const updateAutoSaveMenu = autoSave => {
-  const menu = getMenuItemById('autoSaveMenuItem')
-  menu.checked = autoSave
-}
-
-export const updateThemeMenu = theme => {
-  const themeMenus = getMenuItemById('themeMenu')
-  themeMenus.submenu.items.forEach(item => (item.checked = false))
-  themeMenus.submenu.items
-    .forEach(item => {
-      if (item.id && item.id === theme) {
-        item.checked = true
-      }
-    })
-}
-
-export const updateAidouMenu = bool => {
-  const aidouMenu = getMenuItemById('aidou')
-  aidouMenu.visible = bool
 }
 
 export default AppMenu
