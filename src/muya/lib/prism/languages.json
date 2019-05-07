@@ -53,7 +53,8 @@
     ]
   },
   "abnf": {
-    "title": "Augmented Backus–Naur form"
+    "title": "Augmented Backus–Naur form",
+    "ext": []
   },
   "actionscript": {
     "title": "ActionScript",
@@ -146,7 +147,8 @@
     "alias": "rbnf",
     "aliasTitles": {
       "rbnf": "Routing Backus–Naur form"
-    }
+    },
+    "ext": []
   },
   "brainfuck": {
     "title": "Brainfuck",
@@ -191,7 +193,8 @@
     ]
   },
   "cil": {
-    "title": "CIL"
+    "title": "CIL",
+    "ext": []
   },
   "coffeescript": {
     "title": "CoffeeScript",
@@ -202,7 +205,8 @@
     ]
   },
   "cmake": {
-    "title": "CMake"
+    "title": "CMake",
+    "ext": []
   },
   "clojure": {
     "title": "Clojure",
@@ -261,7 +265,8 @@
     "ext": []
   },
   "ebnf": {
-    "title": "Extended Backus–Naur form"
+    "title": "Extended Backus–Naur form",
+    "ext": []
   },
   "eiffel": {
     "title": "Eiffel",
@@ -274,7 +279,8 @@
     "require": [
       "javascript",
       "markup-templating"
-    ]
+    ],
+    "ext": []
   },
   "elixir": {
     "title": "Elixir",
@@ -324,7 +330,8 @@
     ]
   },
   "gcode": {
-    "title": "G-code"
+    "title": "G-code",
+    "ext": []
   },
   "gedcom": {
     "title": "GEDCOM",
@@ -348,7 +355,8 @@
   "gml": {
     "title": "GameMaker Language",
     "alias": "gamemakerlanguage",
-    "require": "clike"
+    "require": "clike",
+    "ext": []
   },
   "go": {
     "title": "Go",
@@ -412,7 +420,8 @@
     ]
   },
   "hcl": {
-    "title": "HCL"
+    "title": "HCL",
+    "ext": []
   },
   "http": {
     "title": "HTTP",
@@ -474,7 +483,8 @@
     ],
     "peerDependencies": [
       "scala"
-    ]
+    ],
+    "ext": []
   },
   "javadoclike": {
     "title": "JavaDoc-like",
@@ -482,10 +492,12 @@
       "java",
       "javascript",
       "php"
-    ]
+    ],
+    "ext": []
   },
   "javastacktrace": {
-    "title": "Java stack trace"
+    "title": "Java stack trace",
+    "ext": []
   },
   "jolie": {
     "title": "Jolie",
@@ -501,7 +513,8 @@
     "peerDependencies": [
       "actionscript",
       "coffeescript"
-    ]
+    ],
+    "ext": []
   },
   "js-extras": {
     "title": "JS Extras",
@@ -512,7 +525,8 @@
       "flow",
       "n4js",
       "typescript"
-    ]
+    ],
+    "ext": []
   },
   "json": {
     "title": "JSON",
@@ -523,11 +537,13 @@
   },
   "jsonp": {
     "title": "JSONP",
-    "require": "json"
+    "require": "json",
+    "ext": []
   },
   "json5": {
     "title": "JSON5",
-    "require": "json"
+    "require": "json",
+    "ext": []
   },
   "julia": {
     "title": "Julia",
@@ -630,7 +646,8 @@
     "ext": []
   },
   "n1ql": {
-    "title": "N1QL"
+    "title": "N1QL",
+    "ext": []
   },
   "n4js": {
     "title": "N4JS",
@@ -642,7 +659,8 @@
     "ext": []
   },
   "nand2tetris-hdl": {
-    "title": "Nand To Tetris HDL"
+    "title": "Nand To Tetris HDL",
+    "ext": []
   },
   "nasm": {
     "title": "NASM",
@@ -748,7 +766,8 @@
     "require": [
       "php",
       "javadoclike"
-    ]
+    ],
+    "ext": []
   },
   "php-extras": {
     "title": "PHP Extras",
@@ -900,7 +919,8 @@
       "javascript",
       "typescript",
       "vala"
-    ]
+    ],
+    "ext": []
   },
   "rest": {
     "title": "reST (reStructuredText)",
@@ -1021,7 +1041,8 @@
     ]
   },
   "toml": {
-    "title": "TOML"
+    "title": "TOML",
+    "ext": []
   },
   "tt2": {
     "title": "Template Toolkit 2",
@@ -1050,21 +1071,25 @@
       "t4-templating",
       "csharp"
     ],
-    "alias": "t4"
+    "alias": "t4",
+    "ext": []
   },
   "t4-vb": {
     "title": "T4 Text Templates (VB)",
     "require": [
       "t4-templating",
       "visual-basic"
-    ]
+    ],
+    "ext": []
   },
   "t4-templating": {
-    "title": "T4 templating"
+    "title": "T4 templating",
+    "ext": []
   },
   "vala": {
     "title": "Vala",
-    "require": "clike"
+    "require": "clike",
+    "ext": []
   },
   "vbnet": {
     "title": "VB.Net",
