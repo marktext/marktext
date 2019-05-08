@@ -25,7 +25,7 @@ export const endOfLineOptions = [{
   label: 'Carriage return and Line feed(CRLF)',
   value: 'crlf'
 }, {
-  label: 'Lne feed(Lf)',
+  label: 'Line feed(Lf)',
   value: 'lf'
 }]
 
