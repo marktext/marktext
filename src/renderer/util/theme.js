@@ -1,8 +1,14 @@
-import { THEME_STYLE_ID, COMMON_STYLE_ID, DEFAULT_CODE_FONT_FAMILY, oneDarkThemes, railscastsThemes } from '../config'
+import { isLinux, THEME_STYLE_ID, COMMON_STYLE_ID, DEFAULT_CODE_FONT_FAMILY, oneDarkThemes, railscastsThemes } from '../config'
 import { dark, graphite, materialDark, oneDark, ulysses } from './themeColor'
 
 const patchTheme = css => {
   return `@media not print {\n${css}\n}`
+}
+
+const getEmojiPickerPatch = () => {
+  return isLinux ? `.ag-emoji-picker section .emoji-wrapper .item span {
+  font-family: sans-serif, "Noto Color Emoji";
+}` : ''
 }
 
 export const addThemeStyle = theme => {
@@ -70,6 +76,7 @@ export const addCommonStyle = style => {
     sheet.id = COMMON_STYLE_ID
     document.head.appendChild(sheet)
   }
+
   sheet.innerHTML = `
 span code,
 td code,
@@ -81,6 +88,8 @@ pre.ag-paragraph {
 font-family: ${codeFontFamily}, ${DEFAULT_CODE_FONT_FAMILY};
 font-size: ${codeFontSize};
 }
+
+${getEmojiPickerPatch()}
 `
 }
 
