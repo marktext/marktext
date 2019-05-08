@@ -1,4 +1,5 @@
 import fse from 'fs-extra'
+import fs from 'fs'
 import path from 'path'
 import EventEmitter from 'events'
 import Store from 'electron-store'
@@ -20,16 +21,7 @@ const isDarkSystemMode = () => {
   return false
 }
 
-const validate = settings => {
-  // Currently no CSD is available on Linux and Windows (GH#690)
-  const titleBarStyle = settings.titleBarStyle.toLowerCase()
-  if (!isOsx && titleBarStyle === 'csd') {
-    settings.titleBarStyle = 'custom'
-  }
-  return settings
-}
-
-const PREFERENCE_KEY = 'preference'
+const PREFERENCES_FILE_NAME = 'preferences'
 
 class Preference extends EventEmitter {
 
@@ -41,8 +33,10 @@ class Preference extends EventEmitter {
 
     const { userDataPath } = paths
     this._userDataPath = userDataPath
+    this.hasPreferencesFile = fs.existsSync(path.join(this._userDataPath, `./${PREFERENCES_FILE_NAME}.json`))
     this.store = new Store({
-      schema
+      schema,
+      name: PREFERENCES_FILE_NAME
     })
 
     this.staticPath = path.join(__static, 'preference.json')
@@ -56,7 +50,6 @@ class Preference extends EventEmitter {
       if (isDarkSystemMode()) {
         defaultSettings.theme = 'dark'
       }
-      defaultSettings = validate(defaultSettings)
     } catch (err) {
       log(err)
     }
@@ -65,9 +58,10 @@ class Preference extends EventEmitter {
       console.error('Can not load static preference.json file')
       return
     }
-    // first time user Mark Text
-    if (!this.store.get(PREFERENCE_KEY)) {
-      this.store.set(PREFERENCE_KEY, defaultSettings)
+
+    // I don't know why `this.store.size` is 3 when first load, so I just check file existed.
+    if (!this.hasPreferencesFile) {
+      this.store.set(defaultSettings)
     } else {
       let userSetting = this.getAll()
 
@@ -86,8 +80,7 @@ class Preference extends EventEmitter {
             userSetting[key] = defaultSettings[key]
           }
         }
-        userSetting = validate(userSetting)
-        this.store.set(PREFERENCE_KEY, userSetting)
+        this.store.set(userSetting)
       }
     }
 
@@ -95,17 +88,15 @@ class Preference extends EventEmitter {
   }
 
   getAll () {
-    return this.store.get(PREFERENCE_KEY)
+    return this.store.store
   }
 
   setItem (key, value) {
     ipcMain.emit('broadcast-preferences-changed', { [key]: value })
-    key = key.startsWith('preference.') ? key : `preference.${key}`
     return this.store.set(key, value)
   }
 
   getItem (key) {
-    key = key.startsWith('preference.') ? key : `preference.${key}`
     return this.store.get(key)
   }
 

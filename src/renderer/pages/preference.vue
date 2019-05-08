@@ -1,11 +1,10 @@
 <template>
   <div class="pref-container">
-    <title-bar v-if="titleBarStyle === 'custom'"></title-bar>
-    <div v-if="titleBarStyle !== 'custom'" class="title-bar"></div>
+    <title-bar v-if="titleBarStyle === 'custom' && !isOsx"></title-bar>
     <side-bar></side-bar>
     <div
       class="pref-content"
-      :class="{ 'frameless': titleBarStyle === 'custom' }"
+      :class="{ 'frameless': titleBarStyle === 'custom' || isOsx }"
     >
       <router-view class="pref-setting"></router-view>
     </div>
@@ -18,8 +17,13 @@ import TitleBar from '@/prefComponents/common/titlebar'
 import SideBar from '@/prefComponents/sideBar'
 import { addThemeStyle } from '@/util/theme'
 import { DEFAULT_STYLE } from '@/config'
+import { isOsx } from '@/util'
 
 export default {
+  data () {
+    this.isOsx = isOsx
+    return {}
+  },
   components: {
     TitleBar,
     SideBar

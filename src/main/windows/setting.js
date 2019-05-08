@@ -2,7 +2,7 @@ import path from 'path'
 import BaseWindow from './base'
 import { BrowserWindow, ipcMain } from 'electron'
 import { WindowType } from '../app/windowManager'
-import { TITLE_BAR_HEIGHT, defaultPreferenceWinOptions, isLinux } from '../config'
+import { TITLE_BAR_HEIGHT, defaultPreferenceWinOptions, isLinux, isOsx } from '../config'
 
 
 class SettingWindow extends BaseWindow {
@@ -29,11 +29,11 @@ class SettingWindow extends BaseWindow {
 
     // Enable native or custom/frameless window and titlebar
     const { titleBarStyle } = preferences.getAll()
-    if (titleBarStyle === 'custom') {
-      winOptions.titleBarStyle = ''
-    } else if (titleBarStyle === 'native') {
-      winOptions.frame = true
-      winOptions.titleBarStyle = ''
+    if (!isOsx) {
+      winOptions.titleBarStyle = 'default'
+      if (titleBarStyle === 'native') {
+        winOptions.frame = true
+      }
     }
 
     let win = this.browserWindow = new BrowserWindow(winOptions)

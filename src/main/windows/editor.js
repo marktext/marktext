@@ -4,7 +4,7 @@ import { BrowserWindow, ipcMain } from 'electron'
 import log from 'electron-log'
 import windowStateKeeper from 'electron-window-state'
 import { WindowType } from '../app/windowManager'
-import { TITLE_BAR_HEIGHT, defaultWinOptions, isLinux } from '../config'
+import { TITLE_BAR_HEIGHT, defaultWinOptions, isLinux, isOsx } from '../config'
 import { isDirectory, isMarkdownFile, normalizeAndResolvePath } from '../filesystem'
 import { loadMarkdownFile } from '../filesystem/markdown'
 import { ensureWindowPosition } from './utils'
@@ -47,11 +47,11 @@ class EditorWindow extends BaseWindow {
 
     // Enable native or custom/frameless window and titlebar
     const { titleBarStyle } = preferences.getAll()
-    if (titleBarStyle === 'custom') {
-      winOptions.titleBarStyle = ''
-    } else if (titleBarStyle === 'native') {
-      winOptions.frame = true
-      winOptions.titleBarStyle = ''
+    if (!isOsx) {
+      winOptions.titleBarStyle = 'default'
+      if (titleBarStyle === 'native') {
+        winOptions.frame = true
+      }
     }
 
     let win = this.browserWindow = new BrowserWindow(winOptions)

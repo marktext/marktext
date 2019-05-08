@@ -1,21 +1,10 @@
-import { isOsx } from '@/util'
-
-const rawTitleBarStyleOptions = [{
+export const titleBarStyleOptions = [{
   label: 'Custom',
   value: 'custom'
 }, {
   label: 'Native',
   value: 'native'
 }]
-
-if (isOsx) {
-  rawTitleBarStyleOptions.push({
-    label: 'csd(macOS only)',
-    value: 'csd'
-  })
-}
-
-export const titleBarStyleOptions = rawTitleBarStyleOptions
 
 export const fileSortByOptions = [{
   label: 'Create time',

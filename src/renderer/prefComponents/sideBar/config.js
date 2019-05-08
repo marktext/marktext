@@ -3,8 +3,7 @@ import EditorIcon from '@/assets/icons/pref_editor.svg'
 import MarkdownIcon from '@/assets/icons/pref_markdown.svg'
 import ThemeIcon from '@/assets/icons/pref_theme.svg'
 
-import SCHEMA_JSON from '../../../main/preferences/schema'
-const preferences = SCHEMA_JSON.preference.properties
+import preferences from '../../../main/preferences/schema'
 
 export const category = [{
   name: 'General',

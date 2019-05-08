@@ -17,6 +17,7 @@
       :disable="true"
     ></range>
     <cur-select
+      v-if="!isOsx"
       description="The title bar style. the native option will result in a standard gray opaque title bar"
       :value="titleBarStyle"
       :options="titleBarStyleOptions"
@@ -64,6 +65,7 @@ import Range from '../common/range'
 import CurSelect from '../common/select'
 import Bool from '../common/bool'
 import Separator from '../common/separator'
+import { isOsx } from '@/util'
 
 import {
   titleBarStyleOptions,
@@ -82,6 +84,7 @@ export default {
     this.titleBarStyleOptions = titleBarStyleOptions
     this.fileSortByOptions = fileSortByOptions
     this.languageOptions = languageOptions
+    this.isOsx = isOsx
     return {}
   },
   computed: {
