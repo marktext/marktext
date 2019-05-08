@@ -37,7 +37,7 @@ const inline = {
   emoji: noop,
 
   // TODO: make math optional GH#740
-  math: /^\$([\s\S]+?)\$(?!\$)/
+  math: /^\$([^$]{1}[\s\S]+?[^$]{1})\$(?!\$)/
 }
 
 // list of punctuation marks from common mark spec
