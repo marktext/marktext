@@ -18,7 +18,7 @@
     ></range>
     <cur-select
       v-if="!isOsx"
-      description="The title bar style. the native option will result in a standard gray opaque title bar"
+      description="The title bar style, frameless or not. (You need to restart Mark Text to enable it)"
       :value="titleBarStyle"
       :options="titleBarStyleOptions"
       :onChange="value => onSelectChange('titleBarStyle', value)"

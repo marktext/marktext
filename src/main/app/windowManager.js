@@ -302,8 +302,14 @@ class WindowManager extends EventEmitter {
     })
 
     ipcMain.on('broadcast-preferences-changed', prefs => {
-      for (const { browserWindow } of this._windows.values()) {
-        browserWindow.webContents.send('AGANI::user-preference', prefs)
+      // We can not dynamic change the title bar style, so do not need to send it to renderer.
+      if (typeof prefs.titleBarStyle !== 'undefined') {
+        delete prefs.titleBarStyle
+      }
+      if (Object.keys(prefs).length > 0) {
+        for (const { browserWindow } of this._windows.values()) {
+          browserWindow.webContents.send('AGANI::user-preference', prefs)
+        }
       }
     })
   }
