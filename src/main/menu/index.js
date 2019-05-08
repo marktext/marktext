@@ -2,6 +2,7 @@ import fs from 'fs'
 import path from 'path'
 import { app, ipcMain, Menu } from 'electron'
 import log from 'electron-log'
+import { isLinux } from '../config'
 import { ensureDirSync, isDirectory, isFile } from '../filesystem'
 import { parseMenu } from '../keyboard/shortcutHandler'
 import configureMenu, { configSettingMenu } from '../menu/templates'
@@ -94,10 +95,7 @@ class AppMenu {
 
   addDefaultMenu (windowId) {
     const { windowMenus } = this
-    let menu = { menu: null }
-    if (this.isOsx) {
-      menu = this.buildSettingMenu() // Setting menu is also the fallback menu.
-    }
+    const menu = this.buildSettingMenu() // Setting menu is also the fallback menu.
     windowMenus.set(windowId, menu)
   }
 
@@ -156,7 +154,7 @@ class AppMenu {
   setActiveWindow (windowId) {
     if (this.activeWindowId !== windowId) {
       // Change application menu to the current window menu.
-      Menu.setApplicationMenu(this.getWindowMenuById(windowId))
+      this._setApplicationMenu(this.getWindowMenuById(windowId))
       this.activeWindowId = windowId
     }
   }
@@ -181,10 +179,12 @@ class AppMenu {
   }
 
   buildSettingMenu () {
-    const menuTemplate = configSettingMenu(this._keybindings)
-    const menu = Menu.buildFromTemplate(menuTemplate)
-
-    return { menu }
+    if (this.isOsx) {
+      const menuTemplate = configSettingMenu(this._keybindings)
+      const menu = Menu.buildFromTemplate(menuTemplate)
+      return { menu }
+    }
+    return { menu: null }
   }
 
   updateAppMenu (recentUsedDocuments) {
@@ -214,7 +214,7 @@ class AppMenu {
       // update application menu if necessary
       const { activeWindowId } = this
       if (activeWindowId === key) {
-        Menu.setApplicationMenu(newMenu)
+        this._setApplicationMenu(newMenu)
       }
     })
   }
@@ -256,7 +256,7 @@ class AppMenu {
       autoSaveMenu.checked = autoSave
     })
   }
-  
+
   updateAidouMenu = bool => {
     this.windowMenus.forEach((value, key) => {
       const { menu } = value
@@ -266,6 +266,16 @@ class AppMenu {
       }
       aidouMenu.visible = bool
     })
+  }
+
+  _setApplicationMenu (menu) {
+    if (isLinux && !menu) {
+      // WORKAROUND for Electron#16521: We cannot hide the (application) menu on Linux.
+      const dummyMenu = Menu.buildFromTemplate([])
+      Menu.setApplicationMenu(dummyMenu)
+    } else {
+      Menu.setApplicationMenu(menu)
+    }
   }
 
   _listenForIpcMain () {
