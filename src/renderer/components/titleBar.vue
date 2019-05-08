@@ -30,9 +30,9 @@
           <span class="save-dot" :class="{'show': !isSaved}"></span>
         </span>
       </div>
-      <div :class="titleBarStyle === 'custom' && !isOsx ? 'left-toolbar title-no-drag' : 'right-toolbar'">
+      <div :class="showCustomTitleBar ? 'left-toolbar title-no-drag' : 'right-toolbar'">
         <div
-          v-if="titleBarStyle === 'custom' && !isOsx"
+          v-if="showCustomTitleBar"
           class="frameless-titlebar-menu title-no-drag"
           @click.stop="handleMenuClick"
         >
@@ -159,6 +159,9 @@
         if (!this.pathname) return []
         const pathnameToken = this.pathname.split(PATH_SEPARATOR).filter(i => i)
         return pathnameToken.slice(0, pathnameToken.length - 1).slice(-3)
+      },
+      showCustomTitleBar () {
+        return this.titleBarStyle === 'custom' && !this.isOsx
       }
     },
     watch: {

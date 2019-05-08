@@ -1,11 +1,12 @@
 <template>
   <div class="pref-container">
-    <title-bar v-if="titleBarStyle === 'custom' && !isOsx"></title-bar>
+    <title-bar v-if="showCustomTitleBar"></title-bar>
     <side-bar></side-bar>
     <div
       class="pref-content"
       :class="{ 'frameless': titleBarStyle === 'custom' || isOsx }"
     >
+      <div class="title-bar" v-if="!showCustomTitleBar"></div>
       <router-view class="pref-setting"></router-view>
     </div>
   </div>
@@ -32,7 +33,10 @@ export default {
     ...mapState({
       'theme': state => state.preferences.theme,
       'titleBarStyle': state => state.preferences.titleBarStyle
-    })
+    }),
+    showCustomTitleBar () {
+      return this.titleBarStyle === 'custom' && !this.isOsx
+    }
   },
   watch: {
     theme: function (value, oldValue) {
