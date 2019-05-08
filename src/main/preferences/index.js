@@ -55,8 +55,7 @@ class Preference extends EventEmitter {
     }
 
     if (!defaultSettings) {
-      console.error('Can not load static preference.json file')
-      return
+      throw new Error('Can not load static preference.json file')
     }
 
     // I don't know why `this.store.size` is 3 when first load, so I just check file existed.
