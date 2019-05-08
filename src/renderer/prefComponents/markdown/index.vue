@@ -2,27 +2,27 @@
   <div class="pref-markdown">
     <h4>markdown</h4>
     <bool
-      description="Prefer loose list item"
+      description="Preferred loose list item"
       :bool="preferLooseListItem"
       :onChange="value => onSelectChange('preferLooseListItem', value)"
       more="https://spec.commonmark.org/0.29/#loose"
     ></bool>
     <cus-select
-      description="The prefer marker used in bullet list"
+      description="The preferred marker used in bullet list"
       :value="bulletListMarker"
       :options="bulletListMarkerOptions"
       :onChange="value => onSelectChange('bulletListMarker', value)"
       more="https://spec.commonmark.org/0.29/#bullet-list-marker"
     ></cus-select>
     <cus-select
-      description="The prefer dilimiter used in order list"
+      description="The preferred dilimiter used in order list"
       :value="orderListDelimiter"
       :options="orderListDelimiterOptions"
       :onChange="value => onSelectChange('orderListDelimiter', value)"
       more="https://spec.commonmark.org/0.29/#ordered-list"
     ></cus-select>
     <cus-select
-      description="The prefer heading style"
+      description="The preferred heading style"
       :value="preferHeadingStyle"
       :options="preferHeadingStyleOptions"
       :onChange="value => onSelectChange('preferHeadingStyle', value)"

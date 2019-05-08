@@ -35,9 +35,9 @@
 | Key                 | Type    | Default | Description                                                                                                                       |
 | ------------------- | ------- | ------- | --------------------------------------------------------------------------------------------------------------------------------- |
 | preferLooseListItem | Boolean | true    | The preferred list type.                                                                                                          |
-| bulletListMarker    | String  | `-`     | The prefer marker used in bullet list, optional value: `-`, `*` `+`                                                               |
+| bulletListMarker    | String  | `-`     | The preferred marker used in bullet list, optional value: `-`, `*` `+`                                                               |
 | orderListDelimiter  | String  | `.`     | The preferred delimiter used in order list, optional value: `.` `)`                                                               |
-| preferHeadingStyle  | String  | `atx`   | The prefer heading style in Mark Text, optional value `atx` `setext`, [more info](https://spec.commonmark.org/0.29/#atx-headings) |
+| preferHeadingStyle  | String  | `atx`   | The preferred heading style in Mark Text, optional value `atx` `setext`, [more info](https://spec.commonmark.org/0.29/#atx-headings) |
 | tabSize             | Number  | 4       | The number of spaces a tab is equal to                                                                                            |
 | listIndentation     | String  | 1       | The list indentation of sub list items or paragraphs, optional value `dfm`, `tab` or number 1~4                                   |
 

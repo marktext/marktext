@@ -148,7 +148,7 @@
         ]
       },
       "preferHeadingStyle": {
-        "description": "Markdown--The prefer heading style in Mark Text",
+        "description": "Markdown--The preferred heading style in Mark Text",
         "enum": [
           "atx",
           "setext"
