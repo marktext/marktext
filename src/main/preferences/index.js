@@ -31,9 +31,9 @@ class Preference extends EventEmitter {
   constructor (paths) {
     super()
 
-    const { userDataPath } = paths
-    this._userDataPath = userDataPath
-    this.hasPreferencesFile = fs.existsSync(path.join(this._userDataPath, `./${PREFERENCES_FILE_NAME}.json`))
+    const { preferencesPath } = paths
+    this.preferencesPath = preferencesPath
+    this.hasPreferencesFile = fs.existsSync(path.join(this.preferencesPath, `./${PREFERENCES_FILE_NAME}.json`))
     this.store = new Store({
       schema,
       name: PREFERENCES_FILE_NAME
