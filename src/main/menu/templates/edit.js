@@ -108,6 +108,7 @@ export default function (keybindings, userPreference) {
     }, {
       label: 'Aidou',
       visible: aidou,
+      id: 'aidou',
       accelerator: keybindings.getAccelerator('editAidou'),
       click (menuItem, browserWindow) {
         actions.edit(browserWindow, 'aidou')

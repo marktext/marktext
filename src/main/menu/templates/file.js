@@ -101,6 +101,7 @@ export default function (keybindings, userPreference, recentlyUsedFiles) {
     label: 'Auto Save',
     type: 'checkbox',
     checked: autoSave,
+    id: 'autoSaveMenuItem',
     click (menuItem, browserWindow) {
       actions.autoSave(menuItem, browserWindow)
     }

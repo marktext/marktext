@@ -1,11 +1,13 @@
 import { app, ipcMain, systemPreferences } from 'electron'
-import { isOsx } from '../config'
+import { isLinux, isOsx } from '../config'
 import { isDirectory, isMarkdownFileOrLink, normalizeAndResolvePath } from '../filesystem'
 import { getMenuItemById } from '../menu'
 import { selectTheme } from '../menu/actions/theme'
 import { dockMenu } from '../menu/templates'
 import { watchers } from '../utils/imagePathAutoComplement'
 import EditorWindow from '../windows/editor'
+import SettingWindow from '../windows/setting'
+import { WindowType } from './windowManager'
 
 class App {
 
@@ -182,6 +184,17 @@ class App {
       this._accessor.menu.setActiveWindow(editor.id)
     }
   }
+  /**
+   * Create a new setting window.
+   */
+  createSettingWindow () {
+    const setting = new SettingWindow(this._accessor)
+    setting.createWindow()
+    this._windowManager.add(setting)
+    if (this._windowManager.windowCount === 1) {
+      this._accessor.menu.setActiveWindow(setting.id)
+    }
+  }
 
   // TODO(sessions): ...
   // // Make Mark Text a single instance application.
@@ -205,8 +218,18 @@ class App {
     })
 
     ipcMain.on('app-create-settings-window', () => {
-      const { paths } = this._accessor
-      this.createEditorWindow(paths.preferencesFilePath)
+      const settingWins = this._windowManager.windowsOfType(WindowType.SETTING)
+      if (settingWins.length >= 1) {
+        // A setting window is already created
+        const browserSettingWindow = settingWins[0].win.browserWindow
+        if (isLinux) {
+          browserSettingWindow.focus()
+        } else {
+          browserSettingWindow.moveTop()
+        }
+        return
+      }
+      this.createSettingWindow()
     })
 
     // ipcMain.on('app-open-file', filePath => {

@@ -29,7 +29,6 @@
       <aidou></aidou>
       <upload-image></upload-image>
       <about-dialog></about-dialog>
-      <font></font>
       <rename></rename>
       <tweet></tweet>
       <import-modal></import-modal>
@@ -46,7 +45,6 @@
   import Aidou from '@/components/aidou/aidou'
   import UploadImage from '@/components/uploadImage'
   import AboutDialog from '@/components/about'
-  import Font from '@/components/font'
   import Rename from '@/components/rename'
   import Tweet from '@/components/tweet'
   import ImportModal from '@/components/import'
@@ -64,7 +62,6 @@
       SideBar,
       UploadImage,
       AboutDialog,
-      Font,
       Rename,
       Tweet,
       ImportModal

@@ -1,10 +1,21 @@
 /* Common CSS use by both light and dark themes */
 :root {
   --titleBarHeight: 32px;
-  --editorAreaWidth: 700px;
+  --editorAreaWidth: 750px;
 
   /*editor*/
+  /*Theme color cluster*/
   --themeColor: rgba(33, 181, 111, 1);
+  --themeColor90: rgba(33, 181, 111, .9);
+  --themeColor80: rgba(33, 181, 111, .8);
+  --themeColor70: rgba(33, 181, 111, .7);
+  --themeColor60: rgba(33, 181, 111, .6);
+  --themeColor50: rgba(33, 181, 111, .5);
+  --themeColor40: rgba(33, 181, 111, .4);
+  --themeColor30: rgba(33, 181, 111, .3);
+  --themeColor20: rgba(33, 181, 111, .2);
+  --themeColor10: rgba(33, 181, 111, .1);
+
   --highlightColor: rgba(33, 181, 111, .4);
   --selectionColor: rgba(0, 0, 0, .1);
   --editorColor: rgba(0, 0, 0, .7);
@@ -84,10 +95,6 @@ body {
   border: solid 1px var(--floatBorderColor);
 }
 
-.el-tooltip__popper.is-dark .popper__arrow {
-  display: none;
-}
-
 .el-slider__button {
   border-color: var(--themeColor);
 }
@@ -96,7 +103,7 @@ body {
   background-color: var(--themeColor);
 }
 
-.ag-dialog-table {
+.el-dialog.ag-dialog-table {
   border-radius: 8px;
   box-shadow: 0 4px 8px 0 var(--floatBorderColor);
   border: solid 1px var(--floatBorderColor);
@@ -106,4 +113,10 @@ body {
 .ag-dialog-table .dialog-title svg {
   width: 1.5em;
   height: 1.5em;
+}
+
+.ag-underdevelop {
+  opacity: .3;
+  pointer-events: none;
+  cursor: not-allowed;
 }

@@ -176,6 +176,7 @@
     "dragula": "^3.7.2",
     "electron-is-accelerator": "^0.1.2",
     "electron-log": "^3.0.5",
+    "electron-store": "^3.2.0",
     "electron-window-state": "^5.0.3",
     "element-resize-detector": "^1.2.0",
     "element-ui": "^2.8.2",
@@ -203,6 +204,7 @@
     "view-image": "^0.0.1",
     "vue": "^2.6.10",
     "vue-electron": "^1.0.6",
+    "vue-router": "^3.0.6",
     "vuex": "^3.1.0"
   },
   "devDependencies": {
@@ -265,6 +267,7 @@
     "node-loader": "^0.6.0",
     "postcss-loader": "^3.0.0",
     "postcss-preset-env": "^6.6.0",
+    "raw-loader": "^2.0.0",
     "require-dir": "^1.2.0",
     "spectron": "^5.0.0",
     "style-loader": "^0.23.1",

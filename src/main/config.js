@@ -15,6 +15,26 @@ export const defaultWinOptions = {
   titleBarStyle: 'hiddenInset'
 }
 
+export const defaultPreferenceWinOptions = {
+  width: 950,
+  height: 650,
+  webPreferences: {
+    nodeIntegration: true,
+    webSecurity: false,
+  },
+  fullscreenable: false,
+  fullscreen: false,
+  resizable: false,
+  minimizable: false,
+  maximizable: false,
+  useContentSize: true,
+  show: false,
+  frame: false,
+  thickFrame: !isOsx,
+  titleBarStyle: 'hiddenInset',
+  center: true
+}
+
 export const EXTENSIONS = [
   'markdown',
   'mdown',
@@ -68,7 +88,7 @@ export const EXTENSION_HASN = {
   pdf: '.pdf'
 }
 
-export const TITLE_BAR_HEIGHT = isOsx ? 21 : 25
+export const TITLE_BAR_HEIGHT = isOsx ? 21 : 32
 export const LINE_ENDING_REG = /(?:\r\n|\n)/g
 export const LF_LINE_ENDING_REG = /(?:[^\r]\n)|(?:^\n$)/
 export const CRLF_LINE_ENDING_REG = /\r\n/

@@ -3,26 +3,36 @@ import { getOptionsFromState } from './help'
 
 // user preference
 const state = {
-  theme: 'light',
+  autoSave: true,
+  autoSaveDelay: 3000,
+  titleBarStyle: 'csd',
+  openFilesInNewWindow: false,
+  aidou: true,
+  fileSortBy: 'created',
+  startUp: 'folder',
+  language: 'en',
+
   editorFontFamily: 'Open Sans',
-  fontSize: '16px',
-  codeFontFamily: 'DejaVu Sans Mono',
-  codeFontSize: '14px',
+  fontSize: 16,
   lineHeight: 1.6,
-  textDirection: 'ltr',
-  lightColor: '#303133', // color in light theme
-  darkColor: 'rgb(217, 217, 217)', // color in dark theme
-  autoSave: false,
-  preferLooseListItem: true, // prefer loose or tight list items
-  bulletListMarker: '-',
+  codeFontSize: 14,
+  codeFontFamily: 'DejaVu Sans Mono',
   autoPairBracket: true,
   autoPairMarkdownSyntax: true,
   autoPairQuote: true,
-  tabSize: 4,
-  // bullet/list marker width + listIndentation, tab or Daring Fireball Markdown (4 spaces) --> list indentation
-  listIndentation: 1,
+  endOfLine: 'default',
+  textDirection: 'ltr',
   hideQuickInsertHint: false,
-  titleBarStyle: 'csd',
+  imageDropAction: 'folder',
+
+  preferLooseListItem: true,
+  bulletListMarker: '-',
+  orderListDelimiter: '.',
+  preferHeadingStyle: 'atx',
+  tabSize: 4,
+  listIndentation: 1,
+
+  theme: 'light',
   // edit modes (they are not in preference.md, but still put them here)
   typewriter: false, // typewriter mode
   focus: false, // focus mode
@@ -49,6 +59,7 @@ const actions = {
     ipcRenderer.send('mt::ask-for-user-preference')
 
     ipcRenderer.on('AGANI::user-preference', (e, preference) => {
+      console.log(preference)
       const { autoSave } = preference
       commit('SET_USER_PREFERENCE', preference)
 
@@ -76,9 +87,9 @@ const actions = {
     })
   },
 
-  CHANGE_FONT ({ commit }, { type, value }) {
-    commit('SET_USER_PREFERENCE', { [type]: value })
-    // save to preference.md
+  SET_SINGLE_PREFERENCE ({ commit }, { type, value }) {
+    // commit('SET_USER_PREFERENCE', { [type]: value })
+    // save to electron-store
     ipcRenderer.send('mt::set-user-preference', { [type]: value })
   }
 }

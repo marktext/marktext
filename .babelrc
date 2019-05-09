@@ -42,8 +42,8 @@
     }
   },
   "plugins": [["component", {
-      "libraryName": "element-ui",
-      "styleLibraryName": "theme-chalk"
+      "style": false,
+      "libraryName": "element-ui"
     }
   ], "transform-runtime"]
 }

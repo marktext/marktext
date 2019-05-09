@@ -11,10 +11,11 @@ import Watcher from '../filesystem/watcher'
  * @property {WindowType} type The window type.
  */
 
-// Currently it makes no sense because we have only one (editor) window but we
-// will add more windows like settings and worker windows.
+// Window type marktext support.
 export const WindowType = {
-  EDITOR: 0
+  BASE: 'base', // You shold never create a `BASE` window.
+  EDITOR: 'editor',
+  SETTING: 'setting'
 }
 
 class WindowActivityList {
@@ -86,8 +87,7 @@ class WindowManager extends EventEmitter {
     this._windows.set(window.id, window)
 
     if (!this._appMenu.has(window.id)) {
-      // TODO: Build a default menu for macOS.
-      this._appMenu.addMenu(window.id, null)
+      this._appMenu.addDefaultMenu(window.id)
     }
 
     if (this.windowCount === 1) {
@@ -173,6 +173,28 @@ class WindowManager extends EventEmitter {
 
   get windowCount () {
     return this._windows.size
+  }
+
+  /**
+   * 
+   * @param {type} type the WindowType one of ['base', 'editor', 'setting']
+   * Return the windows of the given {type}
+   */
+  windowsOfType (type) {
+    if (!WindowType[type.toUpperCase()]) {
+      console.error(`${type} is not a valid window type.`)
+    }
+    const { windows } = this
+    const result = []
+    for (var [key, value] of windows) {
+      if (value.type === type) {
+        result.push({
+          id: key,
+          win: value
+        })
+      }
+    }
+    return result
   }
 
   // --- helper ---------------------------------
@@ -280,8 +302,14 @@ class WindowManager extends EventEmitter {
     })
 
     ipcMain.on('broadcast-preferences-changed', prefs => {
-      for (const { browserWindow } of this._windows.values()) {
-        browserWindow.webContents.send('AGANI::user-preference', prefs)
+      // We can not dynamic change the title bar style, so do not need to send it to renderer.
+      if (typeof prefs.titleBarStyle !== 'undefined') {
+        delete prefs.titleBarStyle
+      }
+      if (Object.keys(prefs).length > 0) {
+        for (const { browserWindow } of this._windows.values()) {
+          browserWindow.webContents.send('AGANI::user-preference', prefs)
+        }
       }
     })
   }

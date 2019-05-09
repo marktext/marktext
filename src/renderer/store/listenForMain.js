@@ -25,9 +25,6 @@ const actions = {
     ipcRenderer.on('AGANI::view', (e, data) => {
       commit('SET_MODE', data)
     })
-    ipcRenderer.on('AGANI::font-setting', e => {
-      bus.$emit('font-setting')
-    })
   },
 
   LISTEN_FOR_ABOUT_DIALOG ({ commit }) {

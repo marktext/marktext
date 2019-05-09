@@ -186,3 +186,7 @@ export const hasKeys = obj => Object.keys(obj).length > 0
 export const cloneObj = (obj, deepCopy=true) => {
   return deepCopy ? JSON.parse(JSON.stringify(obj)) : Object.assign({}, obj)
 }
+
+export const isOsx = process.platform === 'darwin'
+export const isWindows = process.platform === 'win32'
+export const isLinux = process.platform === 'linux'

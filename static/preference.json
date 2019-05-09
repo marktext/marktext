@@ -1,0 +1,32 @@
+{
+  "autoSave": false,
+  "autoSaveDelay": 5000,
+  "titleBarStyle": "custom",
+  "openFilesInNewWindow": false,
+  "aidou": true,
+  "fileSortBy": "created",
+  "startUp": "folder",
+  "language": "en",
+
+  "editorFontFamily": "Open Sans",
+  "fontSize": 16,
+  "lineHeight": 1.6,
+  "codeFontSize": 14,
+  "codeFontFamily": "DejaVu Sans Mono",
+  "autoPairBracket": true,
+  "autoPairMarkdownSyntax": true,
+  "autoPairQuote": true,
+  "endOfLine": "default",
+  "textDirection": "ltr",
+  "hideQuickInsertHint": false,
+  "imageDropAction": "folder",
+
+  "preferLooseListItem": true,
+  "bulletListMarker": "-",
+  "orderListDelimiter": ".",
+  "preferHeadingStyle": "atx",
+  "tabSize": 4,
+  "listIndentation": 1,
+
+  "theme": "light"
+}

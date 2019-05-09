@@ -2,9 +2,10 @@ import fs from 'fs'
 import path from 'path'
 import { app, ipcMain, Menu } from 'electron'
 import log from 'electron-log'
+import { isLinux } from '../config'
 import { ensureDirSync, isDirectory, isFile } from '../filesystem'
 import { parseMenu } from '../keyboard/shortcutHandler'
-import configureMenu from '../menu/templates'
+import configureMenu, { configSettingMenu } from '../menu/templates'
 
 class AppMenu {
 
@@ -92,9 +93,16 @@ class AppMenu {
     fs.writeFileSync(RECENTS_PATH, json, 'utf-8')
   }
 
-  addMenu (windowId, menu=null) {
+  addDefaultMenu (windowId) {
     const { windowMenus } = this
-    windowMenus.set(windowId, { menu })
+    const menu = this.buildSettingMenu() // Setting menu is also the fallback menu.
+    windowMenus.set(windowId, menu)
+  }
+
+  addSettingMenu (window) {
+    const { windowMenus } = this
+    const menu = this.buildSettingMenu()
+    windowMenus.set(window.id, menu)
   }
 
   addEditorMenu (window) {
@@ -146,7 +154,7 @@ class AppMenu {
   setActiveWindow (windowId) {
     if (this.activeWindowId !== windowId) {
       // Change application menu to the current window menu.
-      Menu.setApplicationMenu(this.getWindowMenuById(windowId))
+      this._setApplicationMenu(this.getWindowMenuById(windowId))
       this.activeWindowId = windowId
     }
   }
@@ -168,6 +176,15 @@ class AppMenu {
       shortcutMap,
       menu
     }
+  }
+
+  buildSettingMenu () {
+    if (this.isOsx) {
+      const menuTemplate = configSettingMenu(this._keybindings)
+      const menu = Menu.buildFromTemplate(menuTemplate)
+      return { menu }
+    }
+    return { menu: null }
   }
 
   updateAppMenu (recentUsedDocuments) {
@@ -197,7 +214,7 @@ class AppMenu {
       // update application menu if necessary
       const { activeWindowId } = this
       if (activeWindowId === key) {
-        Menu.setApplicationMenu(newMenu)
+        this._setApplicationMenu(newMenu)
       }
     })
   }
@@ -212,6 +229,55 @@ class AppMenu {
     menu.checked = flag
   }
 
+  updateThemeMenu = theme => {
+    this.windowMenus.forEach((value, key) => {
+      const { menu } = value
+      const themeMenus = menu.getMenuItemById('themeMenu')
+      if (!themeMenus) {
+        return
+      }
+      themeMenus.submenu.items.forEach(item => (item.checked = false))
+      themeMenus.submenu.items
+        .forEach(item => {
+          if (item.id && item.id === theme) {
+            item.checked = true
+          }
+        })
+    })
+  }
+
+  updateAutoSaveMenu = autoSave => {
+    this.windowMenus.forEach((value, key) => {
+      const { menu } = value
+      const autoSaveMenu = menu.getMenuItemById('autoSaveMenuItem')
+      if (!autoSaveMenu) {
+        return
+      }
+      autoSaveMenu.checked = autoSave
+    })
+  }
+
+  updateAidouMenu = bool => {
+    this.windowMenus.forEach((value, key) => {
+      const { menu } = value
+      const aidouMenu = menu.getMenuItemById('aidou')
+      if (!aidouMenu) {
+        return
+      }
+      aidouMenu.visible = bool
+    })
+  }
+
+  _setApplicationMenu (menu) {
+    if (isLinux && !menu) {
+      // WORKAROUND for Electron#16521: We cannot hide the (application) menu on Linux.
+      const dummyMenu = Menu.buildFromTemplate([])
+      Menu.setApplicationMenu(dummyMenu)
+    } else {
+      Menu.setApplicationMenu(menu)
+    }
+  }
+
   _listenForIpcMain () {
     ipcMain.on('mt::add-recently-used-document', (e, pathname) => {
       this.addRecentlyUsedDocument(pathname)
@@ -219,6 +285,18 @@ class AppMenu {
 
     ipcMain.on('menu-clear-recently-used', () => {
       this.clearRecentlyUsedDocuments()
+    })
+
+    ipcMain.on('broadcast-preferences-changed', prefs => {
+      if (prefs.theme !== undefined) {
+        this.updateThemeMenu(prefs.theme)
+      }
+      if (prefs.autoSave !== undefined) {
+        this.updateAutoSaveMenu(prefs.autoSave)
+      }
+      if (prefs.aidou !== undefined) {
+        this.updateAidouMenu(prefs.aidou)
+      }
     })
   }
 }

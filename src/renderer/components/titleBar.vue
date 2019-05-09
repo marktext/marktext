@@ -6,7 +6,7 @@
     ></div>
     <div
       class="title-bar"
-      :class="[{ 'active': active }, { 'tabs-visible': showTabBar }, { 'frameless': titleBarStyle === 'custom' }, { 'isOsx': platform === 'darwin' }]"
+      :class="[{ 'active': active }, { 'tabs-visible': showTabBar }, { 'frameless': titleBarStyle === 'custom' }, { 'isOsx': isOsx }]"
     >
       <div class="title">
         <span v-if="!filename">Mark Text</span>
@@ -30,9 +30,9 @@
           <span class="save-dot" :class="{'show': !isSaved}"></span>
         </span>
       </div>
-      <div :class="titleBarStyle === 'custom' ? 'left-toolbar title-no-drag' : 'right-toolbar'">
+      <div :class="showCustomTitleBar ? 'left-toolbar title-no-drag' : 'right-toolbar'">
         <div
-          v-if="titleBarStyle === 'custom'"
+          v-if="showCustomTitleBar"
           class="frameless-titlebar-menu title-no-drag"
           @click.stop="handleMenuClick"
         >
@@ -66,7 +66,7 @@
         </el-tooltip>
       </div>
       <div
-        v-if="titleBarStyle === 'custom' && !isFullScreen"
+        v-if="titleBarStyle === 'custom' && !isFullScreen && !isOsx"
         class="right-toolbar"
         :class="[{ 'title-no-drag': titleBarStyle === 'custom' }]"
       >
@@ -102,9 +102,11 @@
   import { mapState } from 'vuex'
   import { minimizePath, restorePath, maximizePath, closePath } from '../assets/window-controls.js'
   import { PATH_SEPARATOR } from '../config'
+  import { isOsx } from '@/util'
 
   export default {
     data () {
+      this.isOsx = isOsx
       this.HASH = {
         'word': {
           short: 'W',
@@ -157,6 +159,9 @@
         if (!this.pathname) return []
         const pathnameToken = this.pathname.split(PATH_SEPARATOR).filter(i => i)
         return pathnameToken.slice(0, pathnameToken.length - 1).slice(-3)
+      },
+      showCustomTitleBar () {
+        return this.titleBarStyle === 'custom' && !this.isOsx
       }
     },
     watch: {
@@ -324,6 +329,9 @@
     display: flex;
     align-items: center;
     flex-direction: row-reverse;
+    & .item {
+      margin-right: 10px;
+    }
   }
 
   .word-count {
@@ -389,11 +397,10 @@
   height: 28px;
   line-height: 28px;
   & .front {
-    color: var(--editorColor50);
+    opacity: .7;
   }
   & .text {
     margin-left: 10px;
-    color: var(--editorColor30);
   }
 }
 </style>

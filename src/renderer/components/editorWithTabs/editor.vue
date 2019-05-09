@@ -2,7 +2,7 @@
   <div
     class="editor-wrapper"
     :class="[{ 'typewriter': typewriter, 'focus': focus, 'source': sourceCode }]"
-    :style="{ 'lineHeight': lineHeight, 'fontSize': fontSize,
+    :style="{ 'lineHeight': lineHeight, 'fontSize': `${fontSize}px`,
     'font-family': editorFontFamily ? `${editorFontFamily}, ${defaultFontFamily}` : `${defaultFontFamily}` }"
     :dir="textDirection"
   >
@@ -86,6 +86,7 @@
   import bus from '../../bus'
   import Search from '../search.vue'
   import { animatedScrollTo } from '../../util'
+  import { addCommonStyle } from '../../util/theme'
   import { showContextMenu } from '../../contextMenu/editor'
   import Printer from '@/services/printService'
   import { DEFAULT_EDITOR_FONT_FAMILY } from '@/config'
@@ -120,10 +121,13 @@
         'autoPairMarkdownSyntax': state => state.preferences.autoPairMarkdownSyntax,
         'autoPairQuote': state => state.preferences.autoPairQuote,
         'bulletListMarker': state => state.preferences.bulletListMarker,
+        'orderListDelimiter': state => state.preferences.orderListDelimiter,
         'tabSize': state => state.preferences.tabSize,
         'listIndentation': state => state.preferences.listIndentation,
         'lineHeight': state => state.preferences.lineHeight,
         'fontSize': state => state.preferences.fontSize,
+        'codeFontSize': state => state.preferences.codeFontSize,
+        'codeFontFamily': state => state.preferences.codeFontFamily,
         'lightColor': state => state.preferences.lightColor,
         'darkColor': state => state.preferences.darkColor,
         'editorFontFamily': state => state.preferences.editorFontFamily,
@@ -175,7 +179,9 @@
       preferLooseListItem: function (value, oldValue) {
         const { editor } = this
         if (value !== oldValue && editor) {
-          editor.setListItemPreference(value)
+          editor.setOptions({
+            preferLooseListItem: value
+          })
         }
       },
       tabSize: function (value, oldValue) {
@@ -205,6 +211,58 @@
         if (value !== oldValue && editor) {
           editor.setListIndentation(value)
         }
+      },
+      hideQuickInsertHint: function (value, oldValue) {
+        const { editor } = this
+        if (value !== oldValue && editor) {
+          editor.setOptions({ hideQuickInsertHint: value })
+        }
+      },
+      autoPairBracket: function (value, oldValue) {
+        const { editor } = this
+        if (value !== oldValue && editor) {
+          editor.setOptions({ autoPairBracket: value })
+        }
+      },
+      autoPairMarkdownSyntax: function (value, oldValue) {
+        const { editor } = this
+        if (value !== oldValue && editor) {
+          editor.setOptions({ autoPairMarkdownSyntax: value })
+        }
+      },
+      autoPairQuote: function (value, oldValue) {
+        const { editor } = this
+        if (value !== oldValue && editor) {
+          editor.setOptions({ autoPairQuote: value })
+        }
+      },
+      bulletListMarker: function (value, oldValue) {
+        const { editor } = this
+        if (value !== oldValue && editor) {
+          editor.setOptions({ bulletListMarker: value })
+        }
+      },
+      orderListDelimiter: function (value, oldValue) {
+        const { editor } = this
+        if (value !== oldValue && editor) {
+          editor.setOptions({ orderListDelimiter: value })
+        }
+      },
+      codeFontSize: function (value, oldValue) {
+        if (value !== oldValue) {
+          addCommonStyle({
+            codeFontSize: value,
+            codeFontFamily: this.codeFontFamily
+          })
+        }
+      },
+      codeFontFamily: function (value, oldValue) {
+        if (value !== oldValue) {
+          addCommonStyle({
+            codeFontSize: this.codeFontSize,
+            codeFontFamily: value
+          })
+        }
       }
     },
     created () {
@@ -220,6 +278,7 @@
           autoPairMarkdownSyntax,
           autoPairQuote,
           bulletListMarker,
+          orderListDelimiter,
           tabSize,
           listIndentation,
           hideQuickInsertHint,
@@ -243,6 +302,7 @@
           autoPairMarkdownSyntax,
           autoPairQuote,
           bulletListMarker,
+          orderListDelimiter,
           tabSize,
           listIndentation,
           hideQuickInsertHint
@@ -607,24 +667,10 @@
       & .el-button {
         width: 70px;
       }
-      & .el-button:focus,
-      & .el-button:hover {
+      & .el-button:focus {
         color: var(--themeColor);
         border-color: var(--highlightColor);
         background-color: var(--selectionColor);
-      }
-      & .el-button--primary {
-        color: #fff;
-        background: var(--themeColor);
-        border-color: var(--highlightColor);
-
-      }
-      & .el-input-number.is-controls-right .el-input__inner {
-        background: var(--itemBgColor);
-        color: var(--editorColor);
-      }
-      & .el-input-number.is-controls-right .el-input__inner:focus {
-        border-color: var(--themeColor);
       }
     }
   }

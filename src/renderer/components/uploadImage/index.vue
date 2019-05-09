@@ -92,7 +92,7 @@
     color: #E6A23C;
   }
   .el-upload-dragger {
-    background: var(--itemBgColor);
+    background: var(--itemBgColor) !important;
     & .el-upload__text {
       color: var(--sideBarColor);
       & em {

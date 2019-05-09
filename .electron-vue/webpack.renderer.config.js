@@ -47,7 +47,7 @@ const rendererConfig = {
         }
       },
       {
-        test: /(katex|github\-markdown|prism[\-a-z]*|\.theme)\.css$/,
+        test: /(theme\-chalk(?:\/|\\)index|katex|github\-markdown|prism[\-a-z]*|\.theme)\.css$/,
         use: [
           'to-string-loader',
           'css-loader'
@@ -55,7 +55,7 @@ const rendererConfig = {
       },
       {
         test: /\.css$/,
-        exclude: /(katex|github\-markdown|prism[\-a-z]*|\.theme)\.css$/,
+        exclude: /(theme\-chalk(?:\/|\\)index|katex|github\-markdown|prism[\-a-z]*|\.theme)\.css$/,
         use: [
           proMode ? MiniCssExtractPlugin.loader : 'style-loader',
           { loader: 'css-loader', options: { importLoaders: 1 } },
@@ -131,6 +131,12 @@ const rendererConfig = {
             name: 'fonts/[name]--[folder].[ext]'
           }
         }
+      },
+      {
+        test: /\.md$/,
+        use: [
+          'raw-loader'
+        ]
       }
     ]
   },

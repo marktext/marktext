@@ -131,7 +131,7 @@ const inputCtrl = ContentState => {
         event.type === 'input'
       ) {
         const { offset } = start
-        const { autoPairBracket, autoPairMarkdownSyntax, autoPairQuote } = this
+        const { autoPairBracket, autoPairMarkdownSyntax, autoPairQuote } = this.muya.options
         const inputChar = text.charAt(+offset - 1)
         const preInputChar = text.charAt(+offset - 2)
         const prePreInputChar = text.charAt(+offset - 3)

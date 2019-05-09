@@ -17,8 +17,7 @@ class Muya {
   }
   constructor (container, options) {
     this.options = Object.assign({}, MUYA_DEFAULT_OPTION, options)
-    const { focusMode, markdown } = this.options
-    this.focusMode = focusMode
+    const { markdown } = this.options
     this.markdown = markdown
     this.container = getContainer(container, this.options)
     this.eventCenter = new EventCenter()
@@ -42,7 +41,8 @@ class Muya {
     contentState.stateRender.setContainer(container.children[0])
     eventCenter.subscribe('stateChange', this.dispatchChange)
     contentState.listenForPathChange()
-    const { focusMode, markdown } = this
+    const { markdown } = this
+    const { focusMode } = this.options
     this.setMarkdown(markdown)
     this.setFocusMode(focusMode)
     this.mutationObserver()
@@ -156,22 +156,19 @@ class Muya {
   }
 
   setFocusMode (bool) {
-    const { container, focusMode } = this
+    const { container } = this
+    const { focusMode } = this.options
     if (bool && !focusMode) {
       container.classList.add(CLASS_OR_ID['AG_FOCUS_MODE'])
     } else {
       container.classList.remove(CLASS_OR_ID['AG_FOCUS_MODE'])
     }
-    this.focusMode = bool
+    this.options.focusMode = bool
   }
 
   setFont ({ fontSize, lineHeight }) {
     if (fontSize) this.contentState.fontSize = parseInt(fontSize, 10)
     if (lineHeight) this.contentState.lineHeight = lineHeight
-  }
-
-  setListItemPreference (preferLooseListItem) {
-    this.contentState.preferLooseListItem = preferLooseListItem
   }
 
   setTabSize (tabSize) {
@@ -308,6 +305,19 @@ class Muya {
     Object.assign(this.options, options)
     if (needRender) {
       this.contentState.render()
+    }
+    // Set quick insert hint visibility
+    const hideQuickInsertHint = options['hideQuickInsertHint']
+    if (typeof hideQuickInsertHint !== 'undefined') {
+      const hasClass = this.container.classList.contains('ag-show-quick-insert-hint')
+      if (hideQuickInsertHint && hasClass) {
+        this.container.classList.remove('ag-show-quick-insert-hint')
+      } else if (!hideQuickInsertHint && !hasClass) {
+        this.container.classList.add('ag-show-quick-insert-hint')
+      }
+    }
+    if (options.bulletListMarker) {
+      this.contentState.turndownConfig.bulletListMarker = options.bulletListMarker
     }
   }
 
