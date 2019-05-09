@@ -2,6 +2,8 @@
 
 **:warning:Breaking Changes:**
 
+- `preference.md` is deprecated and no longer supported. Please use the GUI or edit `preferences.json` manually.
+
 **:cactus:Feature**
 
 - The cursor jump to the end of format or to the next brackets when press `tab`(#976)
@@ -12,6 +14,7 @@
 
 - Rewrite `select all` when press `CtrlOrCmd + A` (#937)
 - Set the cursor at the end of `#` in header when press arrow down to jump to the next paragraph.(#978)
+- Improved startup time
 
 **:beetle:Bug fix**
 

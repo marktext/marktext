@@ -59,7 +59,6 @@ const actions = {
     ipcRenderer.send('mt::ask-for-user-preference')
 
     ipcRenderer.on('AGANI::user-preference', (e, preference) => {
-      console.log(preference)
       const { autoSave } = preference
       commit('SET_USER_PREFERENCE', preference)
 
