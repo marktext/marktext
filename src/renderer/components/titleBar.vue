@@ -98,7 +98,7 @@
 </template>
 
 <script>
-  import { remote } from 'electron'
+  import { ipcRenderer, remote } from 'electron'
   import { mapState } from 'vuex'
   import { minimizePath, restorePath, maximizePath, closePath } from '../assets/window-controls.js'
   import { PATH_SEPARATOR } from '../config'
@@ -131,15 +131,15 @@
       this.windowIconClose = closePath
       return {
         isFullScreen: remote.getCurrentWindow().isFullScreen(),
-        isMaximized: remote.getCurrentWindow().isMaximized() || remote.getCurrentWindow().isFullScreen(),
+        isMaximized: remote.getCurrentWindow().isMaximized(),
         show: 'word'
       }
     },
     created () {
-      const win = remote.getCurrentWindow()
-      ;['maximize', 'unmaximize', 'enter-full-screen', 'leave-full-screen'].forEach(type => {
-        win.on(type, this.handleWindowStateChanged)
-      })
+      ipcRenderer.on('mt::window-maximize', this.onMaximize)
+      ipcRenderer.on('mt::window-unmaximize', this.onUnmaximize)
+      ipcRenderer.on('mt::window-enter-full-screen', this.onEnterFullScreen)
+      ipcRenderer.on('mt::window-leave-full-screen', this.onLeaveFullScreen)
     },
     props: {
       project: Object,
@@ -208,22 +208,30 @@
           .popup({ window: win, x: 23, y: 20 })
       },
 
-      handleWindowStateChanged () {
-        this.isFullScreen = remote.getCurrentWindow().isFullScreen()
-        this.isMaximized = remote.getCurrentWindow().isMaximized() || this.isFullScreen
-      },
-
       rename () {
         if (this.platform === 'darwin') {
           this.$store.dispatch('RESPONSE_FOR_RENAME')
         }
+      },
+
+      onMaximize () {
+        this.isMaximized = true
+      },
+      onUnmaximize () {
+        this.isMaximized = false
+      },
+      onEnterFullScreen () {
+        this.isFullScreen = true
+      },
+      onLeaveFullScreen  () {
+        this.isFullScreen = false
       }
     },
     beforeDestroy () {
-      const win = remote.getCurrentWindow()
-      ;['maximize', 'unmaximize', 'enter-full-screen', 'leave-full-screen'].forEach(type => {
-        win.removeListener(type, this.handleWindowStateChanged)
-      })
+      ipcRenderer.off('window-maximize', this.onMaximize)
+      ipcRenderer.off('window-unmaximize', this.onUnmaximize)
+      ipcRenderer.off('window-enter-full-screen', this.onEnterFullScreen)
+      ipcRenderer.off('window-leave-full-screen', this.onLeaveFullScreen)
     }
   }
 </script>

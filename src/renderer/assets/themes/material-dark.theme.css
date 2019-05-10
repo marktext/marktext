@@ -48,6 +48,10 @@
 .title-bar .frameless-titlebar-button > div > svg {
   fill: #ffffff;
 }
+.title-bar .frameless-titlebar-minimize:hover,
+.title-bar .frameless-titlebar-toggle:hover {
+  background-color: rgb(255, 255, 255, .05);
+}
 
 .tabs-container > li {
   background: none !important;

@@ -96,6 +96,12 @@ class EditorWindow extends BaseWindow {
       win.webContents.send('AGANI::window-active-status', { status: false })
     })
 
+    ;['maximize', 'unmaximize', 'enter-full-screen', 'leave-full-screen'].forEach(channel => {
+      win.on(channel, () => {
+        win.webContents.send(`mt::window-${channel}`)
+      })
+    })
+
     // Before closed. We cancel the action and ask the editor further instructions.
     win.on('close', event => {
       this.emit('window-close')
