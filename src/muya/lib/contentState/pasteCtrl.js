@@ -1,5 +1,10 @@
 import { sanitize } from '../utils'
+<<<<<<< HEAD
 import { PARAGRAPH_TYPES, PREVIEW_DOMPURIFY_CONFIG, HAS_TEXT_BLOCK_REG } from '../config'
+=======
+import { PARAGRAPH_TYPES, PREVIEW_DOMPURIFY_CONFIG } from '../config'
+const { clipboard } = require('electron')
+>>>>>>> feat: image setting
 
 const LIST_REG = /ul|ol/
 const LINE_BREAKS_REG = /\n/
@@ -79,6 +84,20 @@ const pasteCtrl = ContentState => {
 
   // handle `normal` and `pasteAsPlainText` paste
   ContentState.prototype.pasteHandler = function (event, type) {
+    var items = event.clipboardData && event.clipboardData.items
+    var file = null
+    if (items && items.length) {
+      // 检索剪切板items
+      for (var i = 0; i < items.length; i++) {
+        if (items[i].type.indexOf('image') !== -1) {
+          file = items[i].getAsFile()
+          break
+        }
+      }
+    }
+    const image = clipboard.readImage()
+    console.log(image)
+    console.log(file)
     event.preventDefault()
     const text = event.clipboardData.getData('text/plain')
     let html = event.clipboardData.getData('text/html')

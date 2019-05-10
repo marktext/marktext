@@ -4,6 +4,7 @@ import General from '@/prefComponents/general'
 import Editor from '@/prefComponents/editor'
 import Markdown from '@/prefComponents/markdown'
 import Theme from '@/prefComponents/theme'
+import Image from '@/prefComponents/image'
 
 const routes = type => ([{
   path: '/', redirect: type === 'editor'? '/editor' : '/preference'
@@ -21,6 +22,8 @@ const routes = type => ([{
     path: 'markdown', component: Markdown, name: 'markdown'
   }, {
     path: 'theme', component: Theme, name: 'theme'
+  }, {
+    path: 'image', component: Image, name: 'image'
   }]
 }])
 

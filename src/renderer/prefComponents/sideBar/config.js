@@ -2,6 +2,7 @@ import GeneralIcon from '@/assets/icons/pref_general.svg'
 import EditorIcon from '@/assets/icons/pref_editor.svg'
 import MarkdownIcon from '@/assets/icons/pref_markdown.svg'
 import ThemeIcon from '@/assets/icons/pref_theme.svg'
+import ImageIcon from '@/assets/icons/pref_image.svg'
 
 import preferences from '../../../main/preferences/schema'
 
@@ -21,6 +22,10 @@ export const category = [{
   name: 'Theme',
   icon: ThemeIcon,
   path: '/preference/theme'
+}, {
+  name: 'Image',
+  icon: ImageIcon,
+  path: '/preference/image'
 }]
 
 export const searchContent = Object.keys(preferences).map(k => {
