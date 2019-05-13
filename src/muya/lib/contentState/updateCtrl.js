@@ -175,17 +175,22 @@ const updateCtrl = ContentState => {
     const lines = text.split('\n')
 
     const preParagraphLines = []
-    const listItemLines = []
+    let listItemLines = []
     let isPushedListItemLine = false
-    for (const l of lines) {
-      if (LIST_ITEM_REG.test(l) && !isPushedListItemLine) {
-        listItemLines.push(l.replace(LIST_ITEM_REG, ''))
-        isPushedListItemLine = true
-      } else if (!isPushedListItemLine) {
-        preParagraphLines.push(l)
-      } else {
-        listItemLines.push(l)
+    if (marker) {
+      for (const l of lines) {
+        if (LIST_ITEM_REG.test(l) && !isPushedListItemLine) {
+          listItemLines.push(l.replace(LIST_ITEM_REG, ''))
+          isPushedListItemLine = true
+        } else if (!isPushedListItemLine) {
+          preParagraphLines.push(l)
+        } else {
+          listItemLines.push(l)
+        }
       }
+    } else {
+      // From front menu click.
+      listItemLines = lines
     }
 
     const pBlock = this.createBlockP(listItemLines.join('\n'))
@@ -256,6 +261,7 @@ const updateCtrl = ContentState => {
         const start = cleanMarker ? cleanMarker.slice(0, -1) : 1
         listBlock.start = /^\d+$/.test(start) ? start : 1
       }
+
       this.appendChild(listBlock, newListItemBlock)
       this.insertBefore(listBlock, block)
       this.removeBlock(block)

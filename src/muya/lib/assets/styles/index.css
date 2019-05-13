@@ -352,15 +352,6 @@ table {
   margin-top: 0;
 }
 
-li > h1,
-li > h2,
-li > h3,
-li > h4,
-li > h5,
-li > h6 {
-  display: initial;
-}
-
 li.ag-task-list-item {
   list-style-type: none;
   position: relative;
