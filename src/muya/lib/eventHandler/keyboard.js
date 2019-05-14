@@ -180,7 +180,7 @@ class Keyboard {
       const node = selection.getSelectionStart()
       const paragraph = findNearestParagraph(node)
       const emojiNode = checkEditEmoji(node)
-
+      contentState.selectedImage = null
       if (
         paragraph &&
         emojiNode &&

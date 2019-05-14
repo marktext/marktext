@@ -481,6 +481,16 @@ kbd {
     background-size: cover;
   }
 
+  .ag-inline-image.ag-image-success .ag-image-marked-text::before {
+    background: url(../lib/assets/icons/image_dark.png);
+    background-size: cover;
+  }
+
+  .ag-inline-image.ag-image-success .ag-image-marked-text.ag-image-fail::before {
+    background-image: url(../lib/assets/icons/image_dark_fail.png);
+    background-size: cover;
+  }
+
   body.dark .ag-image-marked-text::before {
     background: url(../lib/assets/icons/image_dark.png);
     background-size: cover;

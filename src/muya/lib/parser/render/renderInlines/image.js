@@ -6,6 +6,8 @@ export default function image (h, cursor, block, token, outerClass) {
   const { eventCenter } = this
   const { start: cursorStart, end: cursorEnd } = cursor
   const { start, end } = token.range
+  let wrapperSelector = `span.${CLASS_OR_ID['AG_INLINE_IMAGE']}`
+  const { selectedImage } = this.muya.contentState
 
   if (
     cursorStart.key === cursorEnd.key &&
@@ -19,7 +21,7 @@ export default function image (h, cursor, block, token, outerClass) {
 
   const className = this.getClassName(outerClass, block, token, cursor)
   const imageClass = CLASS_OR_ID['AG_IMAGE_MARKED_TEXT']
-  const titleContent = this.highlight(h, block, start, start + 2 + token.alt.length, token)
+  const altContent = this.highlight(h, block, start, start + 2 + token.alt.length, token)
   const srcContent = this.highlight(
     h, block,
     start + 2 + token.alt.length + token.backlash.first.length + 2,
@@ -57,12 +59,27 @@ export default function image (h, cursor, block, token, outerClass) {
   if (isSuccess) {
     if (className === CLASS_OR_ID['AG_HIDE']) {
       selector += `.${className}`
+    } else {
+      wrapperSelector += `.${CLASS_OR_ID['AG_INLINE_IMAGE_IS_EDIT']}`
     }
+    if (selectedImage) {
+      const { key, offset, src: selectedSrc } = selectedImage
+      if (
+        key === cursorStart.key &&
+        offset <= end &&
+        offset >= start &&
+        selectedSrc === src
+      ) {
+        wrapperSelector += `.${CLASS_OR_ID['AG_INLINE_IMAGE_SELECTED']}`
+      }
+    }
+    wrapperSelector += `.${CLASS_OR_ID['AG_IMAGE_SUCCESS']}`
   } else {
     selector += `.${CLASS_OR_ID['AG_IMAGE_FAIL']}`
   }
+
   const children = [
-    ...titleContent,
+    ...altContent,
     ...this.backlashInToken(h, token.backlash.first, className, firstBacklashStart, token),
     ...secondBracketContent,
     h(`span.${CLASS_OR_ID['AG_IMAGE_SRC']}`, srcContent),
@@ -72,8 +89,12 @@ export default function image (h, cursor, block, token, outerClass) {
 
   return isSuccess
     ? [
-      h(selector, children),
-      h('img', { props: { alt, src, title } })
+      h(wrapperSelector, [
+        h(selector, children),
+        h('img', { props: { alt, src, title } })
+      ])
     ]
-    : [h(selector, children)]
+    : [
+      h(wrapperSelector, h(selector, children))
+    ]
 }

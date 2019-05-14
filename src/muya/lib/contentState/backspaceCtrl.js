@@ -172,6 +172,41 @@ const backspaceCtrl = ContentState => {
       return this.partialRender()
     }
 
+    // handle delete selected image
+    if (this.selectedImage) {
+      const { key, offset } = this.selectedImage
+      if (key === start.key) {
+        let curToken = null
+        const walkTokens = tokens => {
+          for (const token of tokens) {
+            const { start, end } = token.range
+            if (offset <= end && offset >= start && token.type === 'image') {
+              curToken = token
+              break
+            } else if (token.children && Array.isArray(token.children)) {
+              walkTokens(token.children)
+            }
+          }
+        }
+        walkTokens(tokens)
+        if (curToken) {
+          const { start, end } = curToken.range
+          startBlock.text = text.substring(0, start) + text.substring(end)
+          this.cursor = {
+            start: {
+              key,
+              offset: start
+            },
+            end: {
+              key,
+              offset: start
+            }
+          }
+          return this.partialRender()
+        } 
+      }
+    }
+
     // fix bug when the first block is table, these two ways will cause bugs.
     // 1. one paragraph bollow table, selectAll, press backspace.
     // 2. select table from the first cell to the last cell, press backsapce.

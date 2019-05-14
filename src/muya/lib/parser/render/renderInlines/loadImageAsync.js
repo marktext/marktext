@@ -11,16 +11,16 @@ export default function loadImageAsync (imageInfo, alt, className, imageClass) {
     id = getUniqueId()
     loadImage(src, isUnknownType)
       .then(url => {
-        const imageWrapper = document.querySelector(`#${id}`)
+        const imageText = document.querySelector(`#${id}`)
         const img = document.createElement('img')
         img.src = url
         if (alt) img.alt = alt
         if (imageClass) {
           img.classList.add(imageClass)
         }
-        if (imageWrapper) {
-          insertAfter(img, imageWrapper)
-          operateClassName(imageWrapper, 'add', className)
+        if (imageText) {
+          insertAfter(img, imageText)
+          operateClassName(imageText, 'add', className)
         }
         this.loadImageMap.set(src, {
           id,
@@ -28,9 +28,9 @@ export default function loadImageAsync (imageInfo, alt, className, imageClass) {
         })
       })
       .catch(() => {
-        const imageWrapper = document.querySelector(`#${id}`)
-        if (imageWrapper) {
-          operateClassName(imageWrapper, 'add', CLASS_OR_ID['AG_IMAGE_FAIL'])
+        const imageText = document.querySelector(`#${id}`)
+        if (imageText) {
+          operateClassName(imageText, 'add', CLASS_OR_ID['AG_IMAGE_FAIL'])
         }
         this.loadImageMap.set(src, {
           id,

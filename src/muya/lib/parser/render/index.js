@@ -77,7 +77,8 @@ class StateRender {
     return active ? CLASS_OR_ID['AG_HIGHLIGHT'] : CLASS_OR_ID['AG_SELECTION']
   }
 
-  getSelector (block, cursor, activeBlocks, selectedBlock) {
+  getSelector (block, activeBlocks) {
+    const { cursor, selectedBlock } = this.muya.contentState
     const type = block.type === 'hr' ? 'p' : block.type
     const isActive = activeBlocks.some(b => b.key === block.key) || block.key === cursor.start.key
 
@@ -142,11 +143,10 @@ class StateRender {
     }
   }
 
-  render (blocks, cursor, activeBlocks, matches, selectedBlock) {
+  render (blocks, activeBlocks, matches) {
     const selector = `div#${CLASS_OR_ID['AG_EDITOR_ID']}`
-
     const children = blocks.map(block => {
-      return this.renderBlock(block, cursor, activeBlocks, selectedBlock, matches, true)
+      return this.renderBlock(block, activeBlocks, matches, true)
     })
 
     const newVdom = h(selector, children)
@@ -160,11 +160,11 @@ class StateRender {
   }
 
   // Only render the blocks which you updated
-  partialRender (blocks, cursor, activeBlocks, matches, startKey, endKey, selectedBlock) {
+  partialRender (blocks, activeBlocks, matches, startKey, endKey) {
     const cursorOutMostBlock = activeBlocks[activeBlocks.length - 1]
     // If cursor is not in render blocks, need to render cursor block independently
     const needRenderCursorBlock = blocks.indexOf(cursorOutMostBlock) === -1
-    const newVnode = h('section', blocks.map(block => this.renderBlock(block, cursor, activeBlocks, selectedBlock, matches)))
+    const newVnode = h('section', blocks.map(block => this.renderBlock(block, activeBlocks, matches)))
     const html = toHTML(newVnode).replace(/^<section>([\s\S]+?)<\/section>$/, '$1')
 
     const needToRemoved = []
@@ -193,7 +193,7 @@ class StateRender {
       const cursorDom = document.querySelector(`#${key}`)
       if (cursorDom) {
         const oldCursorVnode = toVNode(cursorDom)
-        const newCursorVnode = this.renderBlock(cursorOutMostBlock, cursor, activeBlocks, selectedBlock, matches)
+        const newCursorVnode = this.renderBlock(cursorOutMostBlock, activeBlocks, matches)
         patch(oldCursorVnode, newCursorVnode)
       }
     }

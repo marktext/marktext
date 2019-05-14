@@ -67,6 +67,7 @@ class ContentState {
     this.currentCursor = null
     // you'll select the outmost block of current cursor when you click the front icon.
     this.selectedBlock = null
+    this.selectedImage = null
     this.prevCursor = null
     this.historyTimer = null
     this.history = new History(this)
@@ -150,19 +151,19 @@ class ContentState {
   }
 
   render (isRenderCursor = true) {
-    const { blocks, cursor, searchMatches: { matches, index }, selectedBlock } = this
+    const { blocks, searchMatches: { matches, index } } = this
     const activeBlocks = this.getActiveBlocks()
     matches.forEach((m, i) => {
       m.active = i === index
     })
     this.setNextRenderRange()
     this.stateRender.collectLabels(blocks)
-    this.stateRender.render(blocks, cursor, activeBlocks, matches, selectedBlock)
+    this.stateRender.render(blocks, activeBlocks, matches)
     if (isRenderCursor) this.setCursor()
   }
 
   partialRender (isRenderCursor = true) {
-    const { blocks, cursor, searchMatches: { matches, index }, selectedBlock } = this
+    const { blocks, searchMatches: { matches, index } } = this
     const activeBlocks = this.getActiveBlocks()
     const [ startKey, endKey ] = this.renderRange
     matches.forEach((m, i) => {
@@ -174,7 +175,7 @@ class ContentState {
 
     this.setNextRenderRange()
     this.stateRender.collectLabels(blocks)
-    this.stateRender.partialRender(needRenderBlocks, cursor, activeBlocks, matches, startKey, endKey, selectedBlock)
+    this.stateRender.partialRender(needRenderBlocks, activeBlocks, matches, startKey, endKey)
     if (isRenderCursor) this.setCursor()
   }
 
