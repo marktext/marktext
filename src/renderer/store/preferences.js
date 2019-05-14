@@ -24,6 +24,7 @@ const state = {
   textDirection: 'ltr',
   hideQuickInsertHint: false,
   imageDropAction: 'folder',
+  imageSelectAction: 'folder',
 
   preferLooseListItem: true,
   bulletListMarker: '-',
