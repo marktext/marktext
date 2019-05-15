@@ -1,6 +1,4 @@
 // DOTO: Don't use Node API in editor folder, remove `path` @jocs
-// todo@jocs: remove the use of `axios` in muya
-import axios from 'axios'
 import createDOMPurify from 'dompurify'
 import { isInElectron, URL_REG } from '../config'
 
@@ -135,9 +133,10 @@ export const deepCopy = object => {
   return obj
 }
 
-export const loadImage = async (url, detectContentType) => {
+export const loadImage = async (url, detectContentType = false) => {
   if (detectContentType) {
     const isImage = await checkImageContentType(url)
+    console.log(isImage)
     if (!isImage) throw new Error('not an image')
   }
   return new Promise((resolve, reject) => {
@@ -152,17 +151,35 @@ export const loadImage = async (url, detectContentType) => {
   })
 }
 
-export const checkImageContentType = async url => {
-  try {
-    const res = await axios.head(url)
-    const contentType = res.headers['content-type']
-    if (res.status === 200 && /^image\/(?:jpeg|png|gif|svg\+xml|webp)$/.test(contentType)) {
-      return true
+export const checkImageContentType = url => {
+  const req = new XMLHttpRequest()
+  let settle
+  const promise = new Promise((resolve, reject) => {
+    settle = resolve
+  })
+  const handler = () => {
+    if (req.readyState === XMLHttpRequest.DONE) {
+      if (req.status === 200) {
+        const contentType = req.getResponseHeader('Content-Type')
+        if (/^image\/(?:jpeg|png|gif|svg\+xml|webp)$/.test(contentType)) {
+          settle(true)
+        } else {
+          settle(false)
+        }
+      } else {
+        settle(false)
+      }
     }
-    return false
-  } catch (err) {
-    return false
   }
+  const handleError = () => {
+    settle(false)
+  }
+  req.open('HEAD', url)
+  req.onreadystatechange = handler
+  req.onerror = handleError
+  req.send()
+
+  return promise
 }
 
 /**
