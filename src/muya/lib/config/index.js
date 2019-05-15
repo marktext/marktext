@@ -78,6 +78,7 @@ export const CLASS_OR_ID = genUpper2LowerKeyHash([
   'AG_EMOJI_MARKED_TEXT',
   'AG_EMOJI_MARKER',
   'AG_EMPTY',
+  'AG_EMPTY_IMAGE',
   'AG_FENCE_CODE',
   'AG_FLOWCHART',
   'AG_FOCUS_MODE',

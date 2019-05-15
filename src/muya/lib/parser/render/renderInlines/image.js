@@ -1,100 +1,55 @@
-import { CLASS_OR_ID, IMAGE_EXT_REG, isInElectron } from '../../../config'
+import { CLASS_OR_ID } from '../../../config'
 import { getImageInfo } from '../../../utils'
+import ImageIcon from '../../../assets/pngicon/image/2.png'
+import ImageFailIcon from '../../../assets/pngicon/image_fail/2.png'
+
+const renderIcon = (h, className, icon) => {
+  const selector = `a.${className}`
+  const iconVnode = h('i.icon', h(`i.icon-inner`, {
+    style: {
+      background: `url(${icon}) no-repeat`,
+      'background-size': '100%'
+    }
+  }, ''))
+
+  return h(selector, {
+    attrs: {
+      contenteditable: 'false'
+    }
+  }, iconVnode)
+}
 
 // I dont want operate dom directly, is there any better method? need help!
 export default function image (h, cursor, block, token, outerClass) {
-  const { eventCenter } = this
-  const { start: cursorStart, end: cursorEnd } = cursor
-  const { start, end } = token.range
-  let wrapperSelector = `span.${CLASS_OR_ID['AG_INLINE_IMAGE']}`
-  const { selectedImage } = this.muya.contentState
-
-  if (
-    cursorStart.key === cursorEnd.key &&
-    cursorStart.offset === cursorEnd.offset &&
-    cursorStart.offset === end - 1 &&
-    !IMAGE_EXT_REG.test(token.src) &&
-    isInElectron
-  ) {
-    eventCenter.dispatch('image-path', token.src)
+  const imageInfo = getImageInfo(token.src + encodeURI(token.backlash.second))
+  const data = {
+    attrs: {
+      contenteditable: 'false'
+    }
   }
-
-  const className = this.getClassName(outerClass, block, token, cursor)
-  const imageClass = CLASS_OR_ID['AG_IMAGE_MARKED_TEXT']
-  const altContent = this.highlight(h, block, start, start + 2 + token.alt.length, token)
-  const srcContent = this.highlight(
-    h, block,
-    start + 2 + token.alt.length + token.backlash.first.length + 2,
-    start + 2 + token.alt.length + token.backlash.first.length + 2 + token.srcAndTitle.length,
-    token
-  )
-
-  const secondBracketContent = this.highlight(
-    h, block,
-    start + 2 + token.alt.length + token.backlash.first.length,
-    start + 2 + token.alt.length + token.backlash.first.length + 2,
-    token
-  )
-
-  const lastBracketContent = this.highlight(h, block, end - 1, end, token)
-
-  const firstBacklashStart = start + 2 + token.alt.length
-
-  const secondBacklashStart = end - 1 - token.backlash.second.length
-
   let id
   let isSuccess
-  let selector
-  const imageInfo = getImageInfo(token.src + encodeURI(token.backlash.second))
   const { src } = imageInfo
   const alt = token.alt + encodeURI(token.backlash.first)
   const { title } = token
-
   if (src) {
-    ({ id, isSuccess } = this.loadImageAsync(imageInfo, alt, className))
+    ({ id, isSuccess } = this.loadImageAsync(imageInfo, alt))
   }
-
-  selector = id ? `span#${id}.${imageClass}.${CLASS_OR_ID['AG_REMOVE']}` : `span.${imageClass}.${CLASS_OR_ID['AG_REMOVE']}`
-
-  if (isSuccess) {
-    if (className === CLASS_OR_ID['AG_HIDE']) {
-      selector += `.${className}`
-    } else {
-      wrapperSelector += `.${CLASS_OR_ID['AG_INLINE_IMAGE_IS_EDIT']}`
-    }
-    if (selectedImage) {
-      const { key, offset, src: selectedSrc } = selectedImage
-      if (
-        key === cursorStart.key &&
-        offset <= end &&
-        offset >= start &&
-        selectedSrc === src
-      ) {
-        wrapperSelector += `.${CLASS_OR_ID['AG_INLINE_IMAGE_SELECTED']}`
-      }
-    }
-    wrapperSelector += `.${CLASS_OR_ID['AG_IMAGE_SUCCESS']}`
+  let wrapperSelector = id
+    ? `span#image-wrapper-${id}.${CLASS_OR_ID['AG_INLINE_IMAGE']}`
+    : `span.${CLASS_OR_ID['AG_INLINE_IMAGE']}`
+  
+  if (src) {
+    // to
+    console.log(isSuccess)
+    console.log(title)
   } else {
-    selector += `.${CLASS_OR_ID['AG_IMAGE_FAIL']}`
-  }
-
-  const children = [
-    ...altContent,
-    ...this.backlashInToken(h, token.backlash.first, className, firstBacklashStart, token),
-    ...secondBracketContent,
-    h(`span.${CLASS_OR_ID['AG_IMAGE_SRC']}`, srcContent),
-    ...this.backlashInToken(h, token.backlash.second, className, secondBacklashStart, token),
-    ...lastBracketContent
-  ]
-
-  return isSuccess
-    ? [
-      h(wrapperSelector, [
-        h(selector, children),
-        h('img', { props: { alt, src, title } })
+    wrapperSelector += `.${CLASS_OR_ID['AG_EMPTY_IMAGE']}`
+    return [
+      h(wrapperSelector, data, [
+        renderIcon(h, 'ag-image-icon-success', ImageIcon),
+        renderIcon(h, 'ag-image-icon-fail', ImageFailIcon)
       ])
     ]
-    : [
-      h(wrapperSelector, h(selector, children))
-    ]
+  }
 }

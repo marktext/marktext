@@ -81,6 +81,7 @@
   import CodePicker from 'muya/lib/ui/codePicker'
   import EmojiPicker from 'muya/lib/ui/emojiPicker'
   import ImagePathPicker from 'muya/lib/ui/imagePicker'
+  import ImageSelector from 'muya/lib/ui/imageSelector'
   import FormatPicker from 'muya/lib/ui/formatPicker'
   import FrontMenu from 'muya/lib/ui/frontMenu'
   import bus from '../../bus'
@@ -291,6 +292,7 @@
         Muya.use(CodePicker)
         Muya.use(EmojiPicker)
         Muya.use(ImagePathPicker)
+        Muya.use(ImageSelector)
         Muya.use(FormatPicker)
         Muya.use(FrontMenu)
 

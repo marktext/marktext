@@ -57,6 +57,7 @@ class ClickEvent {
       const markedImageText = target.previousElementSibling
       const mathRender = target.closest(`.${CLASS_OR_ID['AG_MATH_RENDER']}`)
       const rubyRender = target.closest(`.${CLASS_OR_ID['AG_RUBY_RENDER']}`)
+      const imageWrapper = target.closest(`.${CLASS_OR_ID['AG_INLINE_IMAGE']}`)
       const mathText = mathRender && mathRender.previousElementSibling
       const rubyText = rubyRender && rubyRender.previousElementSibling
       if (markedImageText && markedImageText.classList.contains(CLASS_OR_ID['AG_IMAGE_MARKED_TEXT'])) {
@@ -70,6 +71,26 @@ class ClickEvent {
         selectionText(mathText)
       } else if (rubyText) {
         selectionText(rubyText)
+      }
+      if (
+        imageWrapper && 
+        (
+          imageWrapper.classList.contains('ag-empty-image') ||
+          imageWrapper.classList.contains('ag-fail-image')
+        )
+      ) {
+        const reference = {
+          getBoundingClientRect () {
+            return imageWrapper.getBoundingClientRect()
+          }
+        }
+        console.log(reference)
+        eventCenter.dispatch('muya-image-selector', {
+          reference,
+          cb: () => {}
+        })
+        event.preventDefault()
+        return event.stopPropagation()
       }
       if (target.closest('div.ag-container-preview') || target.closest('div.ag-html-preview')) {
         return event.stopPropagation()

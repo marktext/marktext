@@ -8,7 +8,6 @@
   right: -1000px;
   border-radius: 8px;
   box-shadow: var(--floatShadow);
-  border: 1px solid var(--floatBorderColor);
   background-color: var(--floatBgColor);
   transition: opacity .25s ease-in-out;
   transform-origin: top;

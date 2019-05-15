@@ -24,6 +24,11 @@
   --iconColor: rgba(255, 255, 255, .8);
   --codeBgColor: #424344;
   --codeBlockBgColor: #424344;
+  --buttonBgColor: #2f3236;
+  --buttonBorderColor: rgba(0, 0, 0, 0.2);
+  --buttonShadow: rgba(0, 0, 0, 0.12);
+  --buttonHover: #2c2f33;
+  --buttonActive: #2a2c30;
 
   /*marktext*/
   --sideBarColor: rgba(255, 255, 255, .6);

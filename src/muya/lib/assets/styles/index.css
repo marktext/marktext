@@ -741,9 +741,68 @@ span.ag-warn.ag-emoji-marked-text {
   vertical-align: middle;
 }
 
-.ag-inline-image.ag-image-success {
+.ag-inline-image {
   display: block;
   position: relative;
+  background: var(--codeBlockBgColor);
+  border-radius: 3px;
+  margin: 0 auto;
+}
+
+.ag-inline-image a.ag-image-icon-success,
+.ag-inline-image a.ag-image-icon-fail {
+  display: none;
+  width: 20px;
+  height: 20px;
+  position: absolute;
+  top: 15px;
+  left: 15px;
+}
+
+.ag-inline-image i.icon {
+  display: inline-block;
+  position: relative;
+  overflow: hidden;
+  width: 20px;
+  height: 20px;
+  color: var(--iconColor);
+}
+
+.ag-inline-image i.icon > i[class^=icon-] {
+  width: 100%;
+  height: 100%;
+  display: inline-block;
+  filter: drop-shadow(20px 0 currentColor); 
+  position: absolute;
+  left: -20px;
+}
+
+.ag-inline-image.ag-empty-image {
+  width: 100%;
+  height: 50px;
+  cursor: pointer;
+}
+
+.ag-inline-image.ag-fail-image::before,
+.ag-inline-image.ag-empty-image::before {
+  display: block;
+  position: absolute;
+  top: 15px;
+  left: 50px;
+  color: var(--editorColor);
+  font-size: 14px;
+}
+
+.ag-inline-image.ag-empty-image::before {
+  content: 'Click to add an image';
+}
+
+.ag-inline-image.ag-fail-image::before {
+  content: 'Load image failed';
+}
+
+.ag-inline-image.ag-empty-image a.ag-image-icon-success {
+  display: block;
 }
 
 .ag-inline-image.ag-image-success.ag-inline-image-is-edit::after {
