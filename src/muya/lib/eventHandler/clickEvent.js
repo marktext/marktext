@@ -76,7 +76,7 @@ class ClickEvent {
         imageWrapper && 
         (
           imageWrapper.classList.contains('ag-empty-image') ||
-          imageWrapper.classList.contains('ag-fail-image')
+          imageWrapper.classList.contains('ag-image-fail')
         )
       ) {
         const reference = {

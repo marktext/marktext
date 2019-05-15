@@ -19,8 +19,14 @@ export default function loadImageAsync (imageInfo, alt, className, imageClass) {
           img.classList.add(imageClass)
         }
         if (imageText) {
-          insertAfter(img, imageText)
-          operateClassName(imageText, 'add', className)
+          if (imageText.classList.contains('ag-inline-image')) {
+            imageText.appendChild(img)
+            imageText.classList.remove('ag-image-loading')
+            imageText.classList.add('ag-image-success')
+          } else {
+            insertAfter(img, imageText)
+            operateClassName(imageText, 'add', className)
+          }
         }
         this.loadImageMap.set(src, {
           id,
@@ -30,6 +36,7 @@ export default function loadImageAsync (imageInfo, alt, className, imageClass) {
       .catch(() => {
         const imageText = document.querySelector(`#${id}`)
         if (imageText) {
+          operateClassName(imageText, 'remove', CLASS_OR_ID['AG_IMAGE_LOADING'])
           operateClassName(imageText, 'add', CLASS_OR_ID['AG_IMAGE_FAIL'])
         }
         this.loadImageMap.set(src, {
