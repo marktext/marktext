@@ -23,6 +23,12 @@
   --iconColor: rgba(135, 135, 135, .8);
   --codeBgColor: #d8d8d869;
   --codeBlockBgColor: rgba(104, 134, 170, .04);
+  --inputBgColor: rgba(0, 0, 0, .06);
+  --buttonBgColor: #ffffff;
+  --buttonBorderColor: rgba(0, 0, 0, 0.2);
+  --buttonShadow: rgba(0, 0, 0, 0.12);
+  --buttonHover: #f2f2f2;
+  --buttonActive: #e5e5e5;
 
   --sideBarColor: rgba(188, 193, 197, .8);
   --sideBarTitleColor: rgba(255, 255, 255, 1);

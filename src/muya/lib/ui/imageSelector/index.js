@@ -20,7 +20,7 @@ class ImageSelector extends BaseFloat {
     this.renderArray = []
     this.oldVnode = null
     this.tab = 'link' // select or link
-    this.isFullMode = true // is show title and alt input
+    this.isFullMode = false // is show title and alt input
     this.state = {
       alt: '',
       src: '',
@@ -44,6 +44,16 @@ class ImageSelector extends BaseFloat {
     const { value } = tab
     this.tab = value
     return this.render()
+  }
+
+  toggleMode () {
+    this.isFullMode = !this.isFullMode
+    return this.render()
+  }
+
+  inputHandler (event, type) {
+    const value = event.target.value
+    this.state[type] = value
   }
 
   renderHeader () {
@@ -73,7 +83,10 @@ class ImageSelector extends BaseFloat {
     const { alt, title, src } = state
     let bodyContent = null
     if (tab === 'select') {
-      bodyContent = h('span.role-button', 'Choose a File')
+      bodyContent = [
+        h('span.role-button.select', 'Choose an Image'),
+        h('span.description', 'Choose image from you computer.')
+      ]
     } else {
       const altInput = h('input.alt', {
         props: {
@@ -113,10 +126,16 @@ class ImageSelector extends BaseFloat {
         ? h('div.input-wrapper', [altInput, srcInput, titleInput])
         : h('div.input-wrapper', [srcInput])
       
-      const embedButton = h('span.role-button', 'Embed Image')
+      const embedButton = h('span.role-button.link', 'Embed Image')
       const bottomDes = h('span.description', [
         h('span', 'Paste web image or local image path, '),
-        h('a', `${isFullMode ? 'simple mode' : 'full mode'}`)
+        h('a', {
+          on: {
+            click: event => {
+              this.toggleMode()
+            }
+          }
+        }, `${isFullMode ? 'simple mode' : 'full mode'}`)
       ])
       bodyContent = [inputWrapper, embedButton, bottomDes]
     }

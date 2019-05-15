@@ -66,7 +66,7 @@
   padding: 0 12px;
   border: none;
   font-size: 14px;
-  background: var(--editorColor04);
+  background: var(--inputBgColor);
   color: var(--editorColor);
   margin-right: 10px;
 }
@@ -90,8 +90,8 @@
   width: 280px;
   height: 32px;
   border-radius: 8px;
-  color: var(--editorColor);
-  line-height: 32px;
+  color: var(--editorColor80);
+  line-height: 28px;
   font-size: 16px;
   text-align: center;
   border: 1px solid var(--buttonBorderColor);
@@ -101,6 +101,11 @@
   margin: 0 auto;
   margin-bottom: 16px;
   box-sizing: border-box;
+  user-select: none;
+}
+
+.ag-image-selector span.role-button.select {
+  margin-top: 35px;
 }
 
 .ag-image-selector span.role-button:hover {
@@ -118,5 +123,6 @@
 }
 
 .ag-image-selector span.description a {
+  cursor: pointer;
   color: #4ca4f5;
 }
