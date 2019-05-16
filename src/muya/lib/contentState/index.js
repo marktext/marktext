@@ -161,7 +161,11 @@ class ContentState {
     this.setNextRenderRange()
     this.stateRender.collectLabels(blocks)
     this.stateRender.render(blocks, activeBlocks, matches)
-    if (isRenderCursor) this.setCursor()
+    if (isRenderCursor) {
+      this.setCursor()
+    } else {
+      this.muya.blur()
+    }
   }
 
   partialRender (isRenderCursor = true) {
@@ -178,7 +182,11 @@ class ContentState {
     this.setNextRenderRange()
     this.stateRender.collectLabels(blocks)
     this.stateRender.partialRender(needRenderBlocks, activeBlocks, matches, startKey, endKey)
-    if (isRenderCursor) this.setCursor()
+    if (isRenderCursor) {
+      this.setCursor()
+    } else {
+      this.muya.blur()
+    }
   }
 
   singleRender (block, isRenderCursor = true) {
@@ -190,7 +198,11 @@ class ContentState {
     this.setNextRenderRange()
     this.stateRender.collectLabels(blocks)
     this.stateRender.singleRender(block, activeBlocks, matches)
-    if (isRenderCursor) this.setCursor()
+    if (isRenderCursor) {
+      this.setCursor()
+    } else {
+      this.muya.blur()
+    }
   }
 
   /**

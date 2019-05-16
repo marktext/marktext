@@ -409,6 +409,7 @@ class Selection {
   }
 
   setCursorRange (cursorRange) {
+    console.log(cursorRange)
     const { anchor, focus } = cursorRange
     const anchorParagraph = document.querySelector(`#${anchor.key}`)
     const focusParagraph = document.querySelector(`#${focus.key}`)
@@ -426,6 +427,10 @@ class Selection {
       for (i = 0; i < len; i++) {
         const child = childNodes[i]
         if (child.classList && child.classList.contains(CLASS_OR_ID['AG_FRONT_ICON'])) continue
+        if (child.classList && child.classList.contains(CLASS_OR_ID['AG_INLINE_IMAGE'])) {
+          count += getTextContent(child, [ CLASS_OR_ID['AG_MATH_RENDER'], CLASS_OR_ID['AG_RUBY_RENDER'] ]).length
+          continue
+        }
         if (count + getTextContent(child, [ CLASS_OR_ID['AG_MATH_RENDER'], CLASS_OR_ID['AG_RUBY_RENDER'] ]).length >= offset) {
           return getNodeAndOffset(child, offset - count)
         } else {
@@ -458,7 +463,7 @@ class Selection {
 
   getCursorRange () {
     let { anchorNode, anchorOffset, focusNode, focusOffset } = this.doc.getSelection()
-
+    console.log(anchorNode, anchorOffset, focusNode, focusOffset)
     const isAnchorValid = this.isValidCursorNode(anchorNode)
     const isFocusValid = this.isValidCursorNode(focusNode)
     let needFix = false

@@ -774,6 +774,12 @@ span.ag-warn.ag-emoji-marked-text {
 
 .ag-inline-image a.ag-image-icon-turninto i.icon,
 .ag-inline-image a.ag-image-icon-delete i.icon {
+  color: #ccc;
+  transition: color .25s ease-in-out;
+}
+
+.ag-inline-image a.ag-image-icon-turninto i.icon:hover,
+.ag-inline-image a.ag-image-icon-delete i.icon:hover {
   color: #fff;
 }
 
@@ -874,7 +880,7 @@ span.ag-warn.ag-emoji-marked-text {
 }
 
 .ag-inline-image.ag-image-success.ag-inline-image-selected .ag-image-container img {
-  filter: brightness(50%);
+  filter: brightness(80%);
 }
 
 span.ag-inline-image.ag-image-success span.ag-image-marked-text {
