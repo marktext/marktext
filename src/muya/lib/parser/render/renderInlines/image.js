@@ -41,13 +41,18 @@ export default function image (h, cursor, block, token, outerClass) {
     ? `span#${id}.${CLASS_OR_ID['AG_INLINE_IMAGE']}`
     : `span.${CLASS_OR_ID['AG_INLINE_IMAGE']}`
   
-  const content = h(`span.${CLASS_OR_ID['AG_HIDE']}.${CLASS_OR_ID['AG_REMOVE']}`, token.raw)
-  const icons = [
-    renderIcon(h, 'ag-image-icon-turninto', TurnIntoIcon),
-    renderIcon(h, 'ag-image-icon-delete', DeleteIcon),
+  const content = h(`span.${CLASS_OR_ID['AG_IMAGE_RAW']}.${CLASS_OR_ID['AG_HIDE']}.${CLASS_OR_ID['AG_REMOVE']}`, token.raw)
+  const imageIcons = [
     renderIcon(h, 'ag-image-icon-success', ImageIcon),
     renderIcon(h, 'ag-image-icon-fail', ImageFailIcon)
   ]
+  const toolIcons = [
+    renderIcon(h, 'ag-image-icon-turninto', TurnIntoIcon),
+    renderIcon(h, 'ag-image-icon-delete', DeleteIcon)
+  ]
+  const renderImageContainer = (...args) => {
+    return h(`span.${CLASS_OR_ID['AG_IMAGE_CONTAINER']}`, args)
+  }
   if (src) {
     // image is loading...
     if (typeof isSuccess === 'undefined') {
@@ -62,15 +67,20 @@ export default function image (h, cursor, block, token, outerClass) {
       ? [
         h(wrapperSelector, data, [
           content,
-          ...icons,
-          h('img', { props: { alt, src, title } })
+          ...imageIcons,
+          renderImageContainer(
+            ...toolIcons,
+            h('img', { props: { alt, src, title } })
+          )
         ])
       ]
       : [
         h(wrapperSelector, data, [
           content,
-          renderIcon(h, 'ag-image-icon-success', ImageIcon),
-          renderIcon(h, 'ag-image-icon-fail', ImageFailIcon)
+          ...imageIcons,
+          renderImageContainer(
+            ...toolIcons
+          )
         ])
       ]
   } else {
@@ -78,7 +88,10 @@ export default function image (h, cursor, block, token, outerClass) {
     return [
       h(wrapperSelector, data, [
         content,
-        ...icons
+        ...imageIcons,
+        renderImageContainer(
+          ...toolIcons
+        )
       ])
     ]
   }

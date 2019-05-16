@@ -1,4 +1,5 @@
 import { operateClassName } from '../utils/domManipulate'
+import { getImageInfo } from '../utils/checkEditImage'
 import { CLASS_OR_ID } from '../config'
 import selection from '../selection'
 
@@ -58,6 +59,8 @@ class ClickEvent {
       const mathRender = target.closest(`.${CLASS_OR_ID['AG_MATH_RENDER']}`)
       const rubyRender = target.closest(`.${CLASS_OR_ID['AG_RUBY_RENDER']}`)
       const imageWrapper = target.closest(`.${CLASS_OR_ID['AG_INLINE_IMAGE']}`)
+      const imageTurnInto = target.closest('.ag-image-icon-turninto')
+      const imageDelete = target.closest('.ag-image-icon-delete')
       const mathText = mathRender && mathRender.previousElementSibling
       const rubyText = rubyRender && rubyRender.previousElementSibling
       if (markedImageText && markedImageText.classList.contains(CLASS_OR_ID['AG_IMAGE_MARKED_TEXT'])) {
@@ -72,21 +75,37 @@ class ClickEvent {
       } else if (rubyText) {
         selectionText(rubyText)
       }
+      // Handle delete inline iamge by click delete icon.
+      if (imageDelete && imageWrapper) {
+        const imageInfo = getImageInfo(imageWrapper)
+        event.preventDefault()
+        event.stopPropagation()
+        return contentState.deleteImage(imageInfo)
+      }
+
+      // Handle click imagewrapper when it's empty or image load failed.
       if (
-        imageWrapper && 
+        (imageTurnInto && imageWrapper) ||
+        (imageWrapper &&
         (
           imageWrapper.classList.contains('ag-empty-image') ||
           imageWrapper.classList.contains('ag-image-fail')
-        )
+        ))
       ) {
+        const rect = imageWrapper.getBoundingClientRect()
         const reference = {
           getBoundingClientRect () {
-            return imageWrapper.getBoundingClientRect()
+            if (imageTurnInto) {
+              rect.height = 0
+            }
+            return rect
           }
         }
-        console.log(reference)
+        const imageInfo = getImageInfo(imageWrapper)
+        console.log(imageInfo)
         eventCenter.dispatch('muya-image-selector', {
           reference,
+          imageInfo,
           cb: () => {}
         })
         event.preventDefault()

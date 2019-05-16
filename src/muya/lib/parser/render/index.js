@@ -202,6 +202,24 @@ class StateRender {
     this.renderDiagram()
     this.codeCache.clear()
   }
+
+  /**
+   * Only render one block.
+   * 
+   * @param {object} block 
+   * @param {array} activeBlocks 
+   * @param {array} matches 
+   */
+  singleRender (block, activeBlocks, matches) {
+    const selector = `#${block.key}`
+    const newVdom = this.renderBlock(block, activeBlocks, matches, true)
+    const rootDom = document.querySelector(selector)
+    const oldVdom = toVNode(rootDom)
+    patch(oldVdom, newVdom)
+    this.renderMermaid()
+    this.renderDiagram()
+    this.codeCache.clear()
+  }
 }
 
 mixins(StateRender, renderInlines, renderBlock)

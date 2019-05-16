@@ -11,7 +11,8 @@ import {
   getClosestBlockContainer,
   getCursorPositionWithinMarkedText,
   findNearestParagraph,
-  getTextContent
+  getTextContent,
+  getOffsetOfParagraph
 } from './dom'
 
 const filterOnlyParentElements = node => {
@@ -492,24 +493,6 @@ class Selection {
 
     const anchorParagraph = findNearestParagraph(anchorNode)
     const focusParagraph = findNearestParagraph(focusNode)
-
-    const getOffsetOfParagraph = (node, paragraph) => {
-      let offset = 0
-      let preSibling = node
-
-      if (node === paragraph) return offset
-
-      do {
-        preSibling = preSibling.previousSibling
-        if (preSibling) {
-          offset += getTextContent(preSibling, [ CLASS_OR_ID['AG_MATH_RENDER'], CLASS_OR_ID['AG_RUBY_RENDER'] ]).length
-        }
-      } while (preSibling)
-      return (node === paragraph || node.parentNode === paragraph)
-        ? offset
-        : offset + getOffsetOfParagraph(node.parentNode, paragraph)
-    }
-
     const aOffset = getOffsetOfParagraph(anchorNode, anchorParagraph) + anchorOffset
     const fOffset = getOffsetOfParagraph(focusNode, focusParagraph) + focusOffset
 

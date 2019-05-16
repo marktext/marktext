@@ -742,11 +742,27 @@ span.ag-warn.ag-emoji-marked-text {
 }
 
 .ag-inline-image {
-  display: block;
+  display: flex;
   position: relative;
   background: var(--codeBlockBgColor);
   border-radius: 3px;
+  overflow: hidden;
   margin: 0 auto;
+  justify-content: space-around;
+}
+
+.ag-inline-image .ag-image-raw {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.ag-inline-image .ag-image-container {
+  position: relative;
+}
+
+.ag-inline-image.ag-image-success {
+  background: transparent;
 }
 
 .ag-inline-image a.ag-image-icon-turninto,

@@ -20,7 +20,8 @@ export default function loadImageAsync (imageInfo, alt, className, imageClass) {
         }
         if (imageText) {
           if (imageText.classList.contains('ag-inline-image')) {
-            imageText.appendChild(img)
+            const imageContainer = imageText.querySelector('.ag-image-container')
+            imageContainer.appendChild(img)
             imageText.classList.remove('ag-image-loading')
             imageText.classList.add('ag-image-success')
           } else {

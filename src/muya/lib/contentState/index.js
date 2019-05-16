@@ -24,6 +24,7 @@ import clickCtrl from './clickCtrl'
 import inputCtrl from './inputCtrl'
 import tocCtrl from './tocCtrl'
 import emojiCtrl from './emojiCtrl'
+import imageCtrl from './imageCtrl'
 import importMarkdown from '../utils/importMarkdown'
 import Cursor from '../selection/cursor'
 
@@ -49,6 +50,7 @@ const prototypes = [
   inputCtrl,
   tocCtrl,
   emojiCtrl,
+  imageCtrl,
   importMarkdown
 ]
 
@@ -176,6 +178,18 @@ class ContentState {
     this.setNextRenderRange()
     this.stateRender.collectLabels(blocks)
     this.stateRender.partialRender(needRenderBlocks, activeBlocks, matches, startKey, endKey)
+    if (isRenderCursor) this.setCursor()
+  }
+
+  singleRender (block, isRenderCursor = true) {
+    const { blocks, searchMatches: { matches, index } } = this
+    const activeBlocks = this.getActiveBlocks()
+    matches.forEach((m, i) => {
+      m.active = i === index
+    })
+    this.setNextRenderRange()
+    this.stateRender.collectLabels(blocks)
+    this.stateRender.singleRender(block, activeBlocks, matches)
     if (isRenderCursor) this.setCursor()
   }
 

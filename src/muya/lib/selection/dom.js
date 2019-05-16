@@ -25,6 +25,23 @@ export const getTextContent = (node, blackList) => {
   return text
 }
 
+export const getOffsetOfParagraph = (node, paragraph) => {
+  let offset = 0
+  let preSibling = node
+
+  if (node === paragraph) return offset
+
+  do {
+    preSibling = preSibling.previousSibling
+    if (preSibling) {
+      offset += getTextContent(preSibling, [ CLASS_OR_ID['AG_MATH_RENDER'], CLASS_OR_ID['AG_RUBY_RENDER'] ]).length
+    }
+  } while (preSibling)
+  return (node === paragraph || node.parentNode === paragraph)
+    ? offset
+    : offset + getOffsetOfParagraph(node.parentNode, paragraph)
+}
+
 export const findNearestParagraph = node => {
   if (!node) {
     return null

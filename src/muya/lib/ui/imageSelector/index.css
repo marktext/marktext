@@ -50,7 +50,7 @@
   position: absolute;
 }
 
-.ag-image-selector .input-wrapper {
+.ag-image-selector .input-container {
   width: 100%;
   height: 30px;
   margin: 20px 0 15px 0;
@@ -59,11 +59,11 @@
   display: flex;
 }
 
-.ag-image-selector .input-wrapper input {
+.ag-image-selector .input-container input {
   height: 30px;
   border-radius: 15px;
   outline: none;
-  padding: 0 12px;
+  padding: 0 15px;
   border: none;
   font-size: 14px;
   background: var(--inputBgColor);
@@ -71,16 +71,16 @@
   margin-right: 10px;
 }
 
-.ag-image-selector .input-wrapper input:last-of-type {
+.ag-image-selector .input-container input:last-of-type {
   margin-right: 0;
 }
 
-.ag-image-selector .input-wrapper input.src {
+.ag-image-selector .input-container input.src {
   flex: 1;
 }
 
-.ag-image-selector .input-wrapper input.title,
-.ag-image-selector .input-wrapper input.alt {
+.ag-image-selector .input-container input.title,
+.ag-image-selector .input-container input.alt {
   flex: 0;
   max-width: 100px;
 }

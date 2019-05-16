@@ -19,6 +19,7 @@ class ImageSelector extends BaseFloat {
     super(muya, name, options)
     this.renderArray = []
     this.oldVnode = null
+    this.imageInfo = null
     this.tab = 'link' // select or link
     this.isFullMode = false // is show title and alt input
     this.state = {
@@ -34,7 +35,11 @@ class ImageSelector extends BaseFloat {
   listen () {
     super.listen()
     const { eventCenter } = this.muya
-    eventCenter.subscribe('muya-image-selector', ({ reference, cb }) => {
+    eventCenter.subscribe('muya-image-selector', ({ reference, cb, imageInfo }) => {
+      let { alt, backlash, src, title } = imageInfo.token
+      alt += encodeURI(backlash.first)
+      Object.assign(this.state, { alt, title, src })
+      this.imageInfo = imageInfo
       this.show(reference, cb)
       this.render()
     })
@@ -54,6 +59,11 @@ class ImageSelector extends BaseFloat {
   inputHandler (event, type) {
     const value = event.target.value
     this.state[type] = value
+  }
+
+  handleLinkButtonClick () {
+    this.muya.contentState.replaceImage(this.imageInfo, this.state)
+    return this.hide()
   }
 
   renderHeader () {
@@ -123,10 +133,16 @@ class ImageSelector extends BaseFloat {
       })
 
       const inputWrapper = isFullMode
-        ? h('div.input-wrapper', [altInput, srcInput, titleInput])
-        : h('div.input-wrapper', [srcInput])
+        ? h('div.input-container', [altInput, srcInput, titleInput])
+        : h('div.input-container', [srcInput])
       
-      const embedButton = h('span.role-button.link', 'Embed Image')
+      const embedButton = h('span.role-button.link', {
+        on: {
+          click: event => {
+            this.handleLinkButtonClick()
+          }
+        }
+      }, 'Embed Image')
       const bottomDes = h('span.description', [
         h('span', 'Paste web image or local image path, '),
         h('a', {
