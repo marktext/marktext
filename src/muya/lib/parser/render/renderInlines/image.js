@@ -30,7 +30,7 @@ export default function image (h, cursor, block, token, outerClass) {
       raw: token.raw
     },
     attrs: {
-      contenteditable: 'false'
+      contenteditable: 'true'
     }
   }
   let id
@@ -54,7 +54,11 @@ export default function image (h, cursor, block, token, outerClass) {
     renderIcon(h, 'ag-image-icon-delete', DeleteIcon)
   ]
   const renderImageContainer = (...args) => {
-    return h(`span.${CLASS_OR_ID['AG_IMAGE_CONTAINER']}`, args)
+    return h(`span.${CLASS_OR_ID['AG_IMAGE_CONTAINER']}`, {
+      attrs: {
+        contenteditable: 'false'
+      }
+    }, args)
   }
   if (src) {
     // image is loading...
