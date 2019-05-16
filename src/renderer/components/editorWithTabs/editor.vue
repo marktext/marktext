@@ -393,6 +393,19 @@
           }
         })
 
+        this.editor.on('preview-image', ({ data }) => {
+          if (this.imageViewer) {
+            this.imageViewer.destroy()
+          }
+
+          this.imageViewer = new ViewImage(this.$refs.imageViewer, {
+            url: data,
+            snapView: true
+          })
+
+          this.setImageViewerVisible(true)
+        })
+
         this.editor.on('selectionChange', changes => {
           const { y } = changes.cursorCoords
           if (this.typewriter) {

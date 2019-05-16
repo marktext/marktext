@@ -47,6 +47,7 @@ export const emptyElementNames = ['br', 'col', 'colgroup', 'hr', 'img', 'input',
 export const EVENT_KEYS = generateKeyHash([
   'Enter',
   'Backspace',
+  'Space',
   'Delete',
   'ArrowUp',
   'ArrowDown',

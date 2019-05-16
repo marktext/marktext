@@ -91,8 +91,17 @@ class Keyboard {
   keydownBinding () {
     const { container, eventCenter, contentState } = this.muya
     const docHandler = event => {
-      if (event.key === EVENT_KEYS.Enter) {
-        contentState.docEnterHandler(event)
+      switch (event.code) {
+        case EVENT_KEYS.Enter:
+          return contentState.docEnterHandler(event)
+        case EVENT_KEYS.Space: {
+          if (contentState.selectedImage) {
+            eventCenter.dispatch('preview-image', {
+              data: contentState.selectedImage.token.src
+            })
+          }
+          break
+        }
       }
     }
     const handler = event => {
