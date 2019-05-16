@@ -24,7 +24,11 @@ const renderIcon = (h, className, icon) => {
 // I dont want operate dom directly, is there any better method? need help!
 export default function image (h, cursor, block, token, outerClass) {
   const imageInfo = getImageInfo(token.src + encodeURI(token.backlash.second))
+  const { selectedImage } = this.muya.contentState
   const data = {
+    dataset: {
+      raw: token.raw
+    },
     attrs: {
       contenteditable: 'false'
     }
@@ -40,8 +44,7 @@ export default function image (h, cursor, block, token, outerClass) {
   let wrapperSelector = id
     ? `span#${id}.${CLASS_OR_ID['AG_INLINE_IMAGE']}`
     : `span.${CLASS_OR_ID['AG_INLINE_IMAGE']}`
-  
-  const content = h(`span.${CLASS_OR_ID['AG_IMAGE_RAW']}.${CLASS_OR_ID['AG_HIDE']}.${CLASS_OR_ID['AG_REMOVE']}`, token.raw)
+
   const imageIcons = [
     renderIcon(h, 'ag-image-icon-success', ImageIcon),
     renderIcon(h, 'ag-image-icon-fail', ImageFailIcon)
@@ -63,10 +66,20 @@ export default function image (h, cursor, block, token, outerClass) {
       wrapperSelector += `.${CLASS_OR_ID['AG_IMAGE_FAIL']}`
     }
 
+    if (selectedImage) {
+      const { key, token: selectToken } = selectedImage
+      if (
+        key === block.key &&
+        selectToken.range.start === token.range.start &&
+        selectToken.range.end === token.range.end
+      ) {
+        wrapperSelector += `.${CLASS_OR_ID['AG_INLINE_IMAGE_SELECTED']}`
+      }
+    }
+
     return isSuccess
       ? [
         h(wrapperSelector, data, [
-          content,
           ...imageIcons,
           renderImageContainer(
             ...toolIcons,
@@ -76,7 +89,6 @@ export default function image (h, cursor, block, token, outerClass) {
       ]
       : [
         h(wrapperSelector, data, [
-          content,
           ...imageIcons,
           renderImageContainer(
             ...toolIcons
@@ -87,7 +99,6 @@ export default function image (h, cursor, block, token, outerClass) {
     wrapperSelector += `.${CLASS_OR_ID['AG_EMPTY_IMAGE']}`
     return [
       h(wrapperSelector, data, [
-        content,
         ...imageIcons,
         renderImageContainer(
           ...toolIcons

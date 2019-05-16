@@ -751,12 +751,6 @@ span.ag-warn.ag-emoji-marked-text {
   justify-content: space-around;
 }
 
-.ag-inline-image .ag-image-raw {
-  position: absolute;
-  top: 0;
-  left: 0;
-}
-
 .ag-inline-image .ag-image-container {
   position: relative;
 }
@@ -879,15 +873,8 @@ span.ag-warn.ag-emoji-marked-text {
   background: linear-gradient(180deg, rgba(170, 175, 187, 0), rgba(8, 11, 17, .8));
 }
 
-.ag-inline-image.ag-image-success.ag-inline-image-selected::before {
-  content: '';
-  display: block;
-  width: 100%;
-  height: 100%;
-  position: absolute;
-  top: 0;
-  left: 0;
-  background: rgba(22, 24, 28, .6);
+.ag-inline-image.ag-image-success.ag-inline-image-selected .ag-image-container img {
+  filter: brightness(50%);
 }
 
 span.ag-inline-image.ag-image-success span.ag-image-marked-text {

@@ -83,6 +83,15 @@ class ClickEvent {
         return contentState.deleteImage(imageInfo)
       }
 
+      // Handle image click, to select the current image
+      if (target.tagName === 'IMG' && imageWrapper) {
+        // Handle select image
+        const imageInfo = getImageInfo(imageWrapper)
+        contentState.selectedImage = imageInfo
+        event.preventDefault()
+        return contentState.selectImage(imageInfo)
+      }
+
       // Handle click imagewrapper when it's empty or image load failed.
       if (
         (imageTurnInto && imageWrapper) ||

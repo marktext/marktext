@@ -107,17 +107,6 @@ const clickCtrl = ContentState => {
       eventCenter.dispatch('muya-format-picker', { reference, formats })
     }
 
-    if (target.tagName === 'IMG' && target.closest('.ag-inline-image')) {
-      // Handle select image
-      const src = target.getAttribute('src')
-      this.selectedImage = {
-        src,
-        key: start.key,
-        offset: start.offset
-      }
-      needRender = true
-    }
-
     // update '```xxx' to code block when you click other place or use press arrow key.
     if (block && start.key !== this.cursor.start.key) {
       const oldBlock = this.getBlock(this.cursor.start.key)

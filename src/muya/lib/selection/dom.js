@@ -16,6 +16,10 @@ export const getTextContent = (node, blackList) => {
   }
   if (node.nodeType === 3) {
     text += node.textContent
+  } else if (node.nodeType === 1 && node.classList.contains('ag-inline-image')) {
+    // handle inline image
+    const raw = node.getAttribute('data-raw')
+    text += raw
   } else {
     const childNodes = node.childNodes
     for (const n of childNodes) {

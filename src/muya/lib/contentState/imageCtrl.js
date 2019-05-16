@@ -31,6 +31,11 @@ const imageCtrl = ContentState => {
     }
     return this.singleRender(block)
   }
+
+  ContentState.prototype.selectImage = function ({ key }) {
+    const block = this.getBlock(key)
+    return this.singleRender(block, false)
+  }
 }
 
 export default imageCtrl
