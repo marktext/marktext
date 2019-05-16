@@ -32,8 +32,9 @@ const imageCtrl = ContentState => {
     return this.singleRender(block)
   }
 
-  ContentState.prototype.selectImage = function ({ key }) {
-    const block = this.getBlock(key)
+  ContentState.prototype.selectImage = function (imageInfo) {
+    this.selectedImage = imageInfo
+    const block = this.getBlock(imageInfo.key)
     return this.singleRender(block, false)
   }
 }

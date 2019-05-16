@@ -34,6 +34,7 @@ export const getImageInfo = image => {
   }
   return {
     key: paragraph.id,
-    token
+    token,
+    imageId: image.id
   }
 }

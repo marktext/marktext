@@ -1,6 +1,7 @@
 import selection from '../selection'
 import { findNearestParagraph, findOutMostParagraph } from '../selection/dom'
 import { tokenizer, generator } from '../parser/'
+import { getImageInfo } from '../utils/checkEditImage'
 
 const backspaceCtrl = ContentState => {
   ContentState.prototype.checkBackspaceCase = function () {
@@ -100,11 +101,14 @@ const backspaceCtrl = ContentState => {
     }
   }
 
-  ContentState.prototype.backspaceHandler = function (event) {
+  ContentState.prototype.docBackspaceHandler = function (event) {
     // handle delete selected image
     if (this.selectedImage) {
       return this.deleteImage(this.selectedImage)
     }
+  }
+
+  ContentState.prototype.backspaceHandler = function (event) {
     const { start, end } = selection.getCursorRange()
 
     if (!start || !end) {
@@ -215,6 +219,7 @@ const backspaceCtrl = ContentState => {
     }
 
     const node = selection.getSelectionStart()
+    const preEleSibling = node && node.nodeType === 1 ? node.previousElementSibling : null
     const paragraph = findNearestParagraph(node)
     const id = paragraph.id
     let block = this.getBlock(id)
@@ -222,6 +227,15 @@ const backspaceCtrl = ContentState => {
     const preBlock = this.findPreBlockInLocation(block)
     const { left } = selection.getCaretOffsets(paragraph)
     const inlineDegrade = this.checkBackspaceCase()
+
+    if (preEleSibling && preEleSibling.classList.contains('ag-inline-image')) {
+      if (selection.getCaretOffsets(node).left === 0) {
+        event.preventDefault()
+        event.stopPropagation()
+        const imageInfo = getImageInfo(preEleSibling)
+        return this.selectImage(imageInfo)
+      }
+    }
 
     const tableHasContent = table => {
       const tHead = table.children[0]

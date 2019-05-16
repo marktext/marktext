@@ -102,8 +102,12 @@ class Keyboard {
           }
           break
         }
+        case EVENT_KEYS.Backspace: {
+          return contentState.docBackspaceHandler(event)
+        }
       }
     }
+
     const handler = event => {
       if (event.metaKey || event.ctrlKey) {
         container.classList.add('ag-meta-or-ctrl')
