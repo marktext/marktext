@@ -1,10 +1,30 @@
 import selection from '../selection'
+import { isMuyaEditorElement } from '../selection/dom'
 import { HAS_TEXT_BLOCK_REG } from '../config'
 
 const clickCtrl = ContentState => {
   ContentState.prototype.clickHandler = function (event) {
     const { eventCenter } = this.muya
     const { target } = event
+    if (isMuyaEditorElement(target)) {
+      const lastBlock = this.getLastBlock()
+      const archor = this.findOutMostBlock(lastBlock)
+      const archorParagraph = document.querySelector(`#${archor.key}`)
+      const rect = archorParagraph.getBoundingClientRect()
+      // If click below the last paragraph
+      // and the last paragraph is not empty, create a new empty paragraph
+      if (/\S/.test(lastBlock.text) && event.clientY > rect.top + rect.height) {
+        const paragraphBlock = this.createBlockP()
+        this.insertAfter(paragraphBlock, archor)
+        const key = paragraphBlock.key
+        const offset = 0
+        this.cursor = {
+          start: { key, offset },
+          end: { key, offset }
+        }
+        return this.partialRender()
+      }
+    }
     // handle front menu click
     const { start: oldStart, end: oldEnd } = this.cursor
     if (oldStart && oldEnd) {

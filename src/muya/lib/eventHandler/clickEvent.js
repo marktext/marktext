@@ -54,7 +54,6 @@ class ClickEvent {
           contentState.tableToolBarClick(type)
         }
       }
-
       // handler image and inline math preview click
       const markedImageText = target.previousElementSibling
       const mathRender = target.closest(`.${CLASS_OR_ID['AG_MATH_RENDER']}`)

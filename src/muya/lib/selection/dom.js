@@ -20,8 +20,9 @@ export const getTextContent = (node, blackList) => {
     // handle inline image
     const raw = node.getAttribute('data-raw')
     const imageContainer = node.querySelector('.ag-image-container')
+    const hasImg = imageContainer.querySelector('img')
     const childNodes = imageContainer.childNodes
-    if (childNodes.length) {
+    if (childNodes.length && hasImg) {
       for (const child of childNodes) {
         if (child.nodeType === 1 && child.nodeName === 'IMG') {
           text += raw
@@ -72,7 +73,7 @@ export const findNearestParagraph = node => {
 export const findOutMostParagraph = node => {
   do {
     let parentNode = node.parentNode
-    if (isAganippeEditorElement(parentNode) && isAganippeParagraph(node)) return node
+    if (isMuyaEditorElement(parentNode) && isAganippeParagraph(node)) return node
     node = parentNode
   } while (node)
 }
@@ -86,7 +87,7 @@ export const isBlockContainer = element => {
   blockContainerElementNames.indexOf(element.nodeName.toLowerCase()) !== -1
 }
 
-export const isAganippeEditorElement = element => {
+export const isMuyaEditorElement = element => {
   return element && element.id === CLASS_OR_ID['AG_EDITOR_ID']
 }
 
@@ -101,7 +102,7 @@ export const traverseUp = (current, testElementFunction) => {
         return current
       }
       // do not traverse upwards past the nearest containing editor
-      if (isAganippeEditorElement(current)) {
+      if (isMuyaEditorElement(current)) {
         return false
       }
     }
@@ -133,7 +134,7 @@ export const getFirstSelectableLeafNode = element => {
 
 export const getClosestBlockContainer = node => {
   return traverseUp(node, node => {
-    return isBlockContainer(node) || isAganippeEditorElement(node)
+    return isBlockContainer(node) || isMuyaEditorElement(node)
   })
 }
 

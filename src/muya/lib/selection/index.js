@@ -432,6 +432,13 @@ class Selection {
             child.classList && child.classList.contains('ag-inline-image')
           ) {
             const imageContainer = child.querySelector('.ag-image-container')
+            const hasImg = imageContainer.querySelector('img')
+            if (!hasImg) {
+              return {
+                node: child,
+                offset: 0
+              }
+            }
             if (count + textLength === offset) {
               if (child.nextElementSibling) {
                 return {
