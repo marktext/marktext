@@ -144,6 +144,32 @@ const enterCtrl = ContentState => {
     return this.partialRender()
   }
 
+  ContentState.prototype.docEnterHandler = function (event) {
+    const { eventCenter } = this.muya
+    const { selectedImage } = this
+    if (selectedImage) {
+      event.preventDefault()
+      event.stopPropagation()
+      const { imageId, ...imageInfo } = selectedImage
+      console.log(imageInfo)
+      const imageWrapper = document.querySelector(`#${imageId}`)
+      const rect = imageWrapper.getBoundingClientRect()
+      const reference = {
+        getBoundingClientRect () {
+          rect.height = 0
+          return rect
+        }
+      }
+
+      eventCenter.dispatch('muya-image-selector', {
+        reference,
+        imageInfo,
+        cb: () => {}
+      })
+      return
+    }
+  }
+
   ContentState.prototype.enterHandler = function (event) {
     const { start, end } = selection.getCursorRange()
     if (!start || !end) {

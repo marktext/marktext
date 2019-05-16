@@ -87,7 +87,7 @@ class ClickEvent {
       if (target.tagName === 'IMG' && imageWrapper) {
         // Handle select image
         const imageInfo = getImageInfo(imageWrapper)
-        contentState.selectedImage = imageInfo
+        contentState.selectedImage = Object.assign({}, imageInfo, { imageId: imageWrapper.id })
         event.preventDefault()
         return contentState.selectImage(imageInfo)
       }

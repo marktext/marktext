@@ -90,7 +90,11 @@ class Keyboard {
 
   keydownBinding () {
     const { container, eventCenter, contentState } = this.muya
-
+    const docHandler = event => {
+      if (event.key === EVENT_KEYS.Enter) {
+        contentState.docEnterHandler(event)
+      }
+    }
     const handler = event => {
       if (event.metaKey || event.ctrlKey) {
         container.classList.add('ag-meta-or-ctrl')
@@ -145,6 +149,7 @@ class Keyboard {
     }
 
     eventCenter.attachDOMEvent(container, 'keydown', handler)
+    eventCenter.attachDOMEvent(document, 'keydown', docHandler)
   }
 
   inputBinding () {

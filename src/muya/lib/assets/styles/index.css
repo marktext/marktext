@@ -868,33 +868,8 @@ span.ag-warn.ag-emoji-marked-text {
   z-index: 1;
 }
 
-.ag-inline-image.ag-image-success.ag-inline-image-is-edit::after {
-  content: '';
-  display: block;
-  width: 100%;
-  height: 60px;
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  background: linear-gradient(180deg, rgba(170, 175, 187, 0), rgba(8, 11, 17, .8));
-}
-
 .ag-inline-image.ag-image-success.ag-inline-image-selected .ag-image-container img {
   filter: brightness(80%);
-}
-
-span.ag-inline-image.ag-image-success span.ag-image-marked-text {
-  position: absolute;
-  display: block;
-  width: 100%;
-  max-height: 60px;
-  overflow: hidden;
-  bottom: 0;
-  color: rgba(255, 255, 255, .8);
-  caret-color: var(--editorBgColor);
-  padding: 5px 10px;
-  box-sizing: border-box;
-  z-index: 1;
 }
 
 .ag-image-marked-text ~ img {

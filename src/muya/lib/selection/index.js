@@ -409,7 +409,6 @@ class Selection {
   }
 
   setCursorRange (cursorRange) {
-    console.log(cursorRange)
     const { anchor, focus } = cursorRange
     const anchorParagraph = document.querySelector(`#${anchor.key}`)
     const focusParagraph = document.querySelector(`#${focus.key}`)
@@ -463,7 +462,6 @@ class Selection {
 
   getCursorRange () {
     let { anchorNode, anchorOffset, focusNode, focusOffset } = this.doc.getSelection()
-    console.log(anchorNode, anchorOffset, focusNode, focusOffset)
     const isAnchorValid = this.isValidCursorNode(anchorNode)
     const isFocusValid = this.isValidCursorNode(focusNode)
     let needFix = false
