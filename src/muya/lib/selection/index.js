@@ -425,15 +425,41 @@ class Selection {
       let count = 0
       for (i = 0; i < len; i++) {
         const child = childNodes[i]
+        const textLength = getTextContent(child, [ CLASS_OR_ID['AG_MATH_RENDER'], CLASS_OR_ID['AG_RUBY_RENDER'] ]).length
         if (child.classList && child.classList.contains(CLASS_OR_ID['AG_FRONT_ICON'])) continue
-        if (child.classList && child.classList.contains(CLASS_OR_ID['AG_INLINE_IMAGE'])) {
-          count += getTextContent(child, [ CLASS_OR_ID['AG_MATH_RENDER'], CLASS_OR_ID['AG_RUBY_RENDER'] ]).length
-          continue
-        }
-        if (count + getTextContent(child, [ CLASS_OR_ID['AG_MATH_RENDER'], CLASS_OR_ID['AG_RUBY_RENDER'] ]).length >= offset) {
-          return getNodeAndOffset(child, offset - count)
+        if (count + textLength >= offset) {
+          if (
+            child.classList && child.classList.contains('ag-inline-image')
+          ) {
+            const imageContainer = child.querySelector('.ag-image-container')
+            if (count + textLength === offset) {
+              if (child.nextElementSibling) {
+                return {
+                  node: child.nextElementSibling,
+                  offset: 0
+                }
+              } else {
+                return {
+                  node: imageContainer,
+                  offset: 3
+                }
+              }
+            } else if (count === offset && count === 0) {
+              return {
+                node: imageContainer,
+                offset: 2
+              }
+            } else {
+              return {
+                node: child,
+                offset: 0
+              }
+            }
+          } else {
+            return getNodeAndOffset(child, offset - count)
+          }
         } else {
-          count += getTextContent(child, [ CLASS_OR_ID['AG_MATH_RENDER'], CLASS_OR_ID['AG_RUBY_RENDER'] ]).length
+          count += textLength
         }
       }
       return { node, offset }
@@ -441,10 +467,12 @@ class Selection {
 
     let { node: anchorNode, offset: anchorOffset } = getNodeAndOffset(anchorParagraph, anchor.offset)
     let { node: focusNode, offset: focusOffset } = getNodeAndOffset(focusParagraph, focus.offset)
+    if (anchorNode.nodeType === 3 || anchorNode.nodeType === 1 && !anchorNode.classList.contains('ag-image-container')) {
+      anchorOffset = Math.min(anchorOffset, anchorNode.textContent.length)
+      focusOffset = Math.min(focusOffset, focusNode.textContent.length)
+    }
 
-    anchorOffset = Math.min(anchorOffset, anchorNode.textContent.length)
-    focusOffset = Math.min(focusOffset, focusNode.textContent.length)
-    // First set the anchor node and anchor offeet, make it collapsed
+    // First set the anchor node and anchor offset, make it collapsed
     this.select(anchorNode, anchorOffset)
     // Secondly, set the focus node and focus offset.
     this.setFocus(focusNode, focusOffset)
@@ -496,8 +524,44 @@ class Selection {
 
     const anchorParagraph = findNearestParagraph(anchorNode)
     const focusParagraph = findNearestParagraph(focusNode)
-    const aOffset = getOffsetOfParagraph(anchorNode, anchorParagraph) + anchorOffset
-    const fOffset = getOffsetOfParagraph(focusNode, focusParagraph) + focusOffset
+    let aOffset = getOffsetOfParagraph(anchorNode, anchorParagraph) + anchorOffset
+    let fOffset = getOffsetOfParagraph(focusNode, focusParagraph) + focusOffset
+    // fix input after image.
+    if (
+      anchorNode === focusNode &&
+      anchorOffset === focusOffset &&
+      anchorNode.parentNode.classList.contains('ag-image-container') &&
+      anchorNode.previousElementSibling &&
+      anchorNode.previousElementSibling.nodeName === 'IMG'
+    ) {
+      const imageWrapper = anchorNode.parentNode.parentNode
+      const preElement = imageWrapper.previousElementSibling
+      aOffset = 0
+      if (preElement) {
+        aOffset += getOffsetOfParagraph(preElement, anchorParagraph)
+        aOffset += getTextContent(preElement, [ CLASS_OR_ID['AG_MATH_RENDER'], CLASS_OR_ID['AG_RUBY_RENDER'] ]).length
+      }
+      aOffset += getTextContent(imageWrapper, [ CLASS_OR_ID['AG_MATH_RENDER'], CLASS_OR_ID['AG_RUBY_RENDER'] ]).length
+      fOffset = aOffset
+    }
+
+    if (
+      anchorNode === focusNode &&
+      anchorNode.nodeType === 1 &&
+      anchorNode.classList.contains('ag-image-container')
+    ) {
+      const imageWrapper = anchorNode.parentNode
+      const preElement = imageWrapper.previousElementSibling
+      aOffset = 0
+      if (preElement) {
+        aOffset += getOffsetOfParagraph(preElement, anchorParagraph)
+        aOffset += getTextContent(preElement, [ CLASS_OR_ID['AG_MATH_RENDER'], CLASS_OR_ID['AG_RUBY_RENDER'] ]).length
+      }
+      if (anchorOffset === 3) {
+        aOffset += getTextContent(imageWrapper, [ CLASS_OR_ID['AG_MATH_RENDER'], CLASS_OR_ID['AG_RUBY_RENDER'] ]).length
+      }
+      fOffset = aOffset
+    }
 
     const anchor = { key: anchorParagraph.id, offset: aOffset }
     const focus = { key: focusParagraph.id, offset: fOffset }

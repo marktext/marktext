@@ -47,7 +47,8 @@ export default function image (h, cursor, block, token, outerClass) {
 
   const imageIcons = [
     renderIcon(h, 'ag-image-icon-success', ImageIcon),
-    renderIcon(h, 'ag-image-icon-fail', ImageFailIcon)
+    renderIcon(h, 'ag-image-icon-fail', ImageFailIcon),
+    renderIcon(h, 'ag-image-icon-close', DeleteIcon)
   ]
   const toolIcons = [
     renderIcon(h, 'ag-image-icon-turninto', TurnIntoIcon),
@@ -56,7 +57,7 @@ export default function image (h, cursor, block, token, outerClass) {
   const renderImageContainer = (...args) => {
     return h(`span.${CLASS_OR_ID['AG_IMAGE_CONTAINER']}`, {
       attrs: {
-        contenteditable: 'false'
+        contenteditable: 'true'
       }
     }, args)
   }

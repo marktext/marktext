@@ -792,12 +792,17 @@ span.ag-warn.ag-emoji-marked-text {
 }
 
 .ag-inline-image a.ag-image-icon-success,
-.ag-inline-image a.ag-image-icon-fail {
+.ag-inline-image a.ag-image-icon-fail,
+.ag-inline-image a.ag-image-icon-close {
   display: none;
   width: 20px;
   height: 20px;
   position: absolute;
   top: 15px;
+}
+
+.ag-inline-image a.ag-image-icon-success,
+.ag-inline-image a.ag-image-icon-fail {
   left: 15px;
 }
 
@@ -866,6 +871,16 @@ span.ag-warn.ag-emoji-marked-text {
   align-items: center;
   justify-content: space-around;
   z-index: 1;
+}
+
+.ag-inline-image.ag-empty-image:hover a.ag-image-icon-close,
+.ag-inline-image.ag-image-fail:hover a.ag-image-icon-close {
+  opacity: .5;
+  display: block;
+  align-items: center;
+  justify-content: space-around;
+  z-index: 1;
+  right: 15px;
 }
 
 .ag-inline-image.ag-image-success.ag-inline-image-selected .ag-image-container img {

@@ -19,7 +19,19 @@ export const getTextContent = (node, blackList) => {
   } else if (node.nodeType === 1 && node.classList.contains('ag-inline-image')) {
     // handle inline image
     const raw = node.getAttribute('data-raw')
-    text += raw
+    const imageContainer = node.querySelector('.ag-image-container')
+    const childNodes = imageContainer.childNodes
+    if (childNodes.length) {
+      for (const child of childNodes) {
+        if (child.nodeType === 1 && child.nodeName === 'IMG') {
+          text += raw
+        } else if (child.nodeType === 3) {
+          text += child.textContent
+        }
+      }
+    } else {
+      text += raw
+    }
   } else {
     const childNodes = node.childNodes
     for (const n of childNodes) {

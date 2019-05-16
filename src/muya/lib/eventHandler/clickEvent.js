@@ -54,13 +54,14 @@ class ClickEvent {
           contentState.tableToolBarClick(type)
         }
       }
+
       // handler image and inline math preview click
       const markedImageText = target.previousElementSibling
       const mathRender = target.closest(`.${CLASS_OR_ID['AG_MATH_RENDER']}`)
       const rubyRender = target.closest(`.${CLASS_OR_ID['AG_RUBY_RENDER']}`)
       const imageWrapper = target.closest(`.${CLASS_OR_ID['AG_INLINE_IMAGE']}`)
       const imageTurnInto = target.closest('.ag-image-icon-turninto')
-      const imageDelete = target.closest('.ag-image-icon-delete')
+      const imageDelete = target.closest('.ag-image-icon-delete') || target.closest('.ag-image-icon-close')
       const mathText = mathRender && mathRender.previousElementSibling
       const rubyText = rubyRender && rubyRender.previousElementSibling
       if (markedImageText && markedImageText.classList.contains(CLASS_OR_ID['AG_IMAGE_MARKED_TEXT'])) {
@@ -80,6 +81,8 @@ class ClickEvent {
         const imageInfo = getImageInfo(imageWrapper)
         event.preventDefault()
         event.stopPropagation()
+        // hide image selector if needed.
+        eventCenter.dispatch('muya-image-selector', { reference: null })
         return contentState.deleteImage(imageInfo)
       }
 
@@ -110,7 +113,6 @@ class ClickEvent {
           }
         }
         const imageInfo = getImageInfo(imageWrapper)
-        console.log(imageInfo)
         eventCenter.dispatch('muya-image-selector', {
           reference,
           imageInfo,

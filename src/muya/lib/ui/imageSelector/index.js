@@ -36,12 +36,16 @@ class ImageSelector extends BaseFloat {
     super.listen()
     const { eventCenter } = this.muya
     eventCenter.subscribe('muya-image-selector', ({ reference, cb, imageInfo }) => {
-      let { alt, backlash, src, title } = imageInfo.token
-      alt += encodeURI(backlash.first)
-      Object.assign(this.state, { alt, title, src })
-      this.imageInfo = imageInfo
-      this.show(reference, cb)
-      this.render()
+      if (reference) {
+        let { alt, backlash, src, title } = imageInfo.token
+        alt += encodeURI(backlash.first)
+        Object.assign(this.state, { alt, title, src })
+        this.imageInfo = imageInfo
+        this.show(reference, cb)
+        this.render()
+      } else {
+        this.hide()
+      }
     })
   }
 

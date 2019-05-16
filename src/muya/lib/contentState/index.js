@@ -26,6 +26,7 @@ import tocCtrl from './tocCtrl'
 import emojiCtrl from './emojiCtrl'
 import imageCtrl from './imageCtrl'
 import importMarkdown from '../utils/importMarkdown'
+import { getImageInfo } from '../utils/checkEditImage'
 import Cursor from '../selection/cursor'
 
 const prototypes = [
@@ -152,6 +153,22 @@ class ContentState {
     this.renderRange = [ startOutMostBlock.preSibling, endOutMostBlock.nextSibling ]
   }
 
+  postRender () {
+    // Show image selector when create a inline image by menu/shortcut/or just input `![]()`
+    const startNode = selection.getSelectionStart()
+    if (startNode) {
+      const imageWrapper = startNode.closest('.ag-inline-image')
+      if (imageWrapper && imageWrapper.classList.contains('ag-empty-image')) {
+        const imageInfo = getImageInfo(imageWrapper)
+        this.muya.eventCenter.dispatch('muya-image-selector', {
+          reference: imageWrapper,
+          imageInfo,
+          cb: () => {}
+        })
+      }
+    }
+  }
+
   render (isRenderCursor = true) {
     const { blocks, searchMatches: { matches, index } } = this
     const activeBlocks = this.getActiveBlocks()
@@ -166,6 +183,7 @@ class ContentState {
     } else {
       this.muya.blur()
     }
+    this.postRender()
   }
 
   partialRender (isRenderCursor = true) {
@@ -187,6 +205,7 @@ class ContentState {
     } else {
       this.muya.blur()
     }
+    this.postRender()
   }
 
   singleRender (block, isRenderCursor = true) {
@@ -203,6 +222,7 @@ class ContentState {
     } else {
       this.muya.blur()
     }
+    this.postRender()
   }
 
   /**
