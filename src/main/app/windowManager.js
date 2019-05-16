@@ -49,9 +49,9 @@ class WindowActivityList {
 
   delete (id) {
     const { _buf } = this
-    const index = _buf.indexOf(id);
+    const index = _buf.indexOf(id)
     if (index !== -1) {
-      _buf.splice(index, 1);
+      _buf.splice(index, 1)
     }
   }
 }
@@ -176,7 +176,7 @@ class WindowManager extends EventEmitter {
   }
 
   /**
-   * 
+   *
    * @param {type} type the WindowType one of ['base', 'editor', 'setting']
    * Return the windows of the given {type}
    */

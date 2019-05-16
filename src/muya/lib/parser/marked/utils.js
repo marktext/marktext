@@ -5,11 +5,11 @@
 export const escape = function escape (html, encode) {
   if (encode) {
     if (escape.escapeTest.test(html)) {
-      return html.replace(escape.escapeReplace, function (ch) { return escape.replacements[ch]; })
+      return html.replace(escape.escapeReplace, function (ch) { return escape.replacements[ch] })
     }
   } else {
     if (escape.escapeTestNoEncode.test(html)) {
-      return html.replace(escape.escapeReplaceNoEncode, function (ch) { return escape.replacements[ch]; })
+      return html.replace(escape.escapeReplaceNoEncode, function (ch) { return escape.replacements[ch] })
     }
   }
 

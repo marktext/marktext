@@ -1,7 +1,8 @@
 module.exports = {
   root: true,
-  parser: 'babel-eslint',
   parserOptions: {
+    parser: 'babel-eslint',
+    ecmaVersion: 8,
     ecmaFeatures: {
       impliedStrict: true
     },
@@ -34,7 +35,9 @@ module.exports = {
     // allow console
     'no-console': 0,
     // allow debugger during development
-    'no-debugger': process.env.NODE_ENV === 'production' ? 2 : 0
+    'no-debugger': process.env.NODE_ENV === 'production' ? 2 : 0,
+    // disallow semicolons
+    semi: [2, "never"]
   },
   settings: {
     'import/resolver': {
