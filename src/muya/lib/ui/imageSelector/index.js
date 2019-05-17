@@ -1,8 +1,10 @@
 import BaseFloat from '../baseFloat'
 import { patch, h } from '../../parser/render/snabbdom'
-
-import './index.css'
 import { EVENT_KEYS } from '../../config'
+import { getUniqueId } from '../../utils'
+import { getImageInfo } from '../../utils/checkEditImage'
+/*URL_REG,*/
+import './index.css'
 
 class ImageSelector extends BaseFloat {
   static pluginName = 'imageSelector'
@@ -80,18 +82,48 @@ class ImageSelector extends BaseFloat {
   }
 
   handleLinkButtonClick () {
-    const { alt: oldAlt, src: oldSrc, title: oldTitle } = this.imageInfo.token
-    const { alt, src, title } = this.state
-    if (alt !== oldAlt || src !== oldSrc || title !== oldTitle) {
-      this.muya.contentState.replaceImage(this.imageInfo, this.state)
-    }
-    this.muya.options.imageAction(src)
-      .then(s =>{
-        console.log(s)
-      })
+    return this.replaceImageAsync(this.state)
+  }
 
-    return requestAnimationFrame(() => {
-      this.hide()
+  async replaceImageAsync ({ alt, src, title }) {
+    if (!this.muya.options.imageAction) {
+      const { alt: oldAlt, src: oldSrc, title: oldTitle } = this.imageInfo.token
+      if (alt !== oldAlt || src !== oldSrc || title !== oldTitle) {
+        this.muya.contentState.replaceImage(this.imageInfo, { alt, src, title })
+      }
+    } else {
+      if (src) {
+        const id = `loading-${getUniqueId()}`
+        this.muya.contentState.replaceImage(this.imageInfo, {
+          alt,
+          src,
+          title: id
+        })
+        this.hide()
+        const nSrc = await this.muya.options.imageAction(src)
+        const imageWrapper = this.muya.container.querySelector(`span[data-id=${id}]`)
+  
+        if (imageWrapper) {
+          const imageInfo = getImageInfo(imageWrapper)
+          this.muya.contentState.replaceImage(imageInfo, {
+            alt,
+            src: nSrc,
+            title
+          })
+        }
+      } else {
+        this.hide()
+      }
+    }
+  }
+
+  async handleSelectButtonClick  () {
+    const path = await this.muya.options.imagePathPicker()
+    const { alt, title } = this.state
+    return this.replaceImageAsync({
+      alt,
+      title,
+      src: path
     })
   }
 
@@ -123,7 +155,13 @@ class ImageSelector extends BaseFloat {
     let bodyContent = null
     if (tab === 'select') {
       bodyContent = [
-        h('span.role-button.select', 'Choose an Image'),
+        h('span.role-button.select', {
+          on: {
+            click: event => {
+              this.handleSelectButtonClick()
+            }
+          }
+        }, 'Choose an Image'),
         h('span.description', 'Choose image from you computer.')
       ]
     } else {

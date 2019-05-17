@@ -23,6 +23,7 @@ const renderIcon = (h, className, icon) => {
 
 // I dont want operate dom directly, is there any better method? need help!
 export default function image (h, cursor, block, token, outerClass) {
+  console.log(token)
   const imageInfo = getImageInfo(token.src + encodeURI(token.backlash.second))
   const { selectedImage } = this.muya.contentState
   const data = {
@@ -69,6 +70,13 @@ export default function image (h, cursor, block, token, outerClass) {
       wrapperSelector += `.${CLASS_OR_ID['AG_IMAGE_SUCCESS']}`
     } else {
       wrapperSelector += `.${CLASS_OR_ID['AG_IMAGE_FAIL']}`
+    }
+
+    if (title.startsWith('loading-')) {
+      wrapperSelector += `.${CLASS_OR_ID['AG_IMAGE_UPLOADING']}`
+      Object.assign(data.dataset, {
+        id: title
+      })
     }
 
     if (selectedImage) {

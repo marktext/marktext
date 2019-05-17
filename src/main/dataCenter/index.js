@@ -5,6 +5,7 @@ import { BrowserWindow, ipcMain, dialog } from 'electron'
 import schema from './schema'
 import Store from 'electron-store'
 import { ensureDirSync } from '../filesystem'
+import { IMAGE_EXTENSIONS } from '../config'
 
 const DATA_CENTER_NAME = 'dataCenter'
 
@@ -101,6 +102,22 @@ class DataCenter extends EventEmitter {
       })
       if (folder && folder[0]) {
         this.changeImageFolderPath(folder[0])
+      }
+    })
+
+    ipcMain.on('mt::ask-for-image-path', e => {
+      const win = BrowserWindow.fromWebContents(e.sender)
+      const files = dialog.showOpenDialog(win, {
+        properties: [ 'openFile' ],
+        filters: [{
+          name: 'Images',
+          extensions: IMAGE_EXTENSIONS
+        }]
+      })
+      if (files && files[0]) {
+        e.returnValue = files[0]
+      } else {
+        e.returnValue = ''
       }
     })
   }

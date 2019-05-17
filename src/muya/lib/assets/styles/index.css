@@ -887,6 +887,24 @@ span.ag-warn.ag-emoji-marked-text {
   filter: brightness(80%);
 }
 
+.ag-inline-image.ag-image-uploading .ag-image-container img {
+  opacity: .3;
+}
+
+.ag-inline-image.ag-image-uploading .ag-image-container a.ag-image-icon-turninto,
+.ag-inline-image.ag-image-uploading .ag-image-container a.ag-image-icon-delete {
+  display: none;
+}
+
+.ag-inline-image.ag-image-uploading .ag-image-container::before {
+  content: 'Loading ...';
+  top: 50%;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%) translateY(-50%);
+  color: var(--iconColor);
+}
+
 .ag-image-marked-text ~ img {
   display: block;
   margin: 0 auto;

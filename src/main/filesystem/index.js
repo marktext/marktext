@@ -72,7 +72,10 @@ export const isMarkdownFile = filepath => {
  */
 export const isImageFile = filepath => {
   const extname = path.extname(filepath)
-  return isFile(filepath) && IMAGE_EXTENSIONS.some(ext => extname.endsWith(ext))
+  return isFile(filepath) && IMAGE_EXTENSIONS.some(ext => {
+    const EXT_REG = new RegExp(ext, 'i')
+    return EXT_REG.test(extname)
+  })
 }
 
 /**

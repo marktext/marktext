@@ -313,7 +313,8 @@
           tabSize,
           listIndentation,
           hideQuickInsertHint,
-          imageAction: this.imageAction.bind(this)
+          imageAction: this.imageAction.bind(this),
+          imagePathPicker: this.imagePathPicker.bind(this)
         }
         if (/dark/i.test(theme)) {
           Object.assign(options, {
@@ -448,6 +449,9 @@
             break
           }
         }
+      },
+      imagePathPicker () {
+        return this.$store.dispatch('ASK_FOR_IMAGE_PATH')
       },
       keyup (event) {
         if (event.key === 'Escape') {

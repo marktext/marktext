@@ -54,6 +54,9 @@ export const moveImageToFolder = async (pathname, image, dir) => {
     if (isImage) {
       const filename = path.basename(image)
       const distPath = path.join(dir, filename)
+      if (distPath === imagePath) {
+        return imagePath
+      }
       await fse.copy(imagePath, distPath)
       return distPath
     } else {

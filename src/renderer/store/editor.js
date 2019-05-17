@@ -713,6 +713,10 @@ const actions = {
 
   ASK_FILE_WATCH ({ commit }, { pathname, watch }) {
     ipcRenderer.send('AGANI::file-watch', { pathname, watch })
+  },
+
+  ASK_FOR_IMAGE_PATH ({ commit }) {
+    return ipcRenderer.sendSync('mt::ask-for-image-path')
   }
 }
 

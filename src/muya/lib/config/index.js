@@ -103,6 +103,7 @@ export const CLASS_OR_ID = genUpper2LowerKeyHash([
   'AG_IMAGE_CONTAINER',
   'AG_INLINE_IMAGE',
   'AG_IMAGE_SUCCESS',
+  'AG_IMAGE_UPLOADING',
   'AG_INLINE_IMAGE_SELECTED',
   'AG_INLINE_IMAGE_IS_EDIT',
   'AG_INDENT_CODE',
@@ -250,7 +251,9 @@ export const MUYA_DEFAULT_OPTION = {
   vegaTheme: 'latimes', // excel / ggplot2 / quartz / vox / fivethirtyeight / dark / latimes
   hideQuickInsertHint: false,
   // transform the image to local folder, cloud or just return the local path
-  imageAction: null
+  imageAction: null,
+  // Call Electron open dialog or input element type is file.
+  imagePathPicker: null
 }
 
 // export const DIAGRAM_TEMPLATE = {
