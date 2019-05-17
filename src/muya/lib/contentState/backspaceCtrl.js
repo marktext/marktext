@@ -252,6 +252,17 @@ const backspaceCtrl = ContentState => {
       }
     }
 
+    // handle backspace when cursor at the end of inline image.
+    if (node.classList.contains('ag-image-container')) {
+      const imageWrapper = node.parentNode
+      const imageInfo = getImageInfo(imageWrapper)
+      if (start.offset === imageInfo.token.range.end) {
+        event.preventDefault()
+        event.stopPropagation()
+        return this.selectImage(imageInfo)
+      }
+    }
+
     const tableHasContent = table => {
       const tHead = table.children[0]
       const tBody = table.children[1]

@@ -1,6 +1,7 @@
 import selection from '../selection'
 import { tokenizer, generator } from '../parser/'
 import { FORMAT_MARKER_MAP, FORMAT_TYPES, URL_REG } from '../config'
+import { getImageInfo } from '../utils/checkEditImage'
 
 const getOffset = (offset, { range: { start, end }, type, tag, anchor, alt }) => {
   const dis = offset - start
@@ -331,6 +332,23 @@ const formatCtrl = ContentState => {
         end.offset += end.delata
         startBlock.text = generator(tokens)
         addFormat(type, startBlock, { start, end })
+        if (type === 'image') {
+          // Show image selector when create a inline image by menu/shortcut/or just input `![]()`
+          requestAnimationFrame(() => {
+            const startNode = selection.getSelectionStart()
+            if (startNode) {
+              const imageWrapper = startNode.closest('.ag-inline-image')
+              if (imageWrapper && imageWrapper.classList.contains('ag-empty-image')) {
+                const imageInfo = getImageInfo(imageWrapper)
+                this.muya.eventCenter.dispatch('muya-image-selector', {
+                  reference: imageWrapper,
+                  imageInfo,
+                  cb: () => {}
+                })
+              }
+            }
+          })
+        }
       }
       this.cursor = { start, end }
       this.partialRender()
