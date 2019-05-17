@@ -70,7 +70,7 @@ class ContentState {
     this.currentCursor = null
     // you'll select the outmost block of current cursor when you click the front icon.
     this.selectedBlock = null
-    this.selectedImage = null
+    this._selectedImage = null
     this.prevCursor = null
     this.historyTimer = null
     this.history = new History(this)
@@ -78,6 +78,22 @@ class ContentState {
     this.fontSize = 16
     this.lineHeight = 1.6
     this.init()
+  }
+
+  set selectedImage (image) {
+    const oldSelectedImage = this._selectedImage
+    // if there is no selected image, remove selected status of current selected image.
+    if (!image && oldSelectedImage) {
+      const selectedImages = this.muya.container.querySelectorAll('.ag-inline-image-selected')
+      for (const img of selectedImages) {
+        img.classList.remove('ag-inline-image-selected')
+      }
+    }
+    this._selectedImage = image
+  }
+
+  get selectedImage () {
+    return this._selectedImage
   }
 
   set cursor (cursor) {

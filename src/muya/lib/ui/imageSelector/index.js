@@ -2,6 +2,7 @@ import BaseFloat from '../baseFloat'
 import { patch, h } from '../../parser/render/snabbdom'
 
 import './index.css'
+import { EVENT_KEYS } from '../../config'
 
 class ImageSelector extends BaseFloat {
   static pluginName = 'imageSelector'
@@ -43,6 +44,12 @@ class ImageSelector extends BaseFloat {
         this.imageInfo = imageInfo
         this.show(reference, cb)
         this.render()
+        // Auto focus and select all content of the `src.input` element.
+        const input = this.imageSelectorContainer.querySelector('input.src')
+        if (input) {
+          input.focus()
+          input.select()
+        }
       } else {
         this.hide()
       }
@@ -65,9 +72,22 @@ class ImageSelector extends BaseFloat {
     this.state[type] = value
   }
 
+  handleKeyDown (event) {
+    if (event.key === EVENT_KEYS.Enter) {
+      event.stopPropagation()
+      this.handleLinkButtonClick()
+    }
+  }
+
   handleLinkButtonClick () {
-    this.muya.contentState.replaceImage(this.imageInfo, this.state)
-    return this.hide()
+    const { alt: oldAlt, src: oldSrc, title: oldTitle } = this.imageInfo.token
+    const { alt, src, title } = this.state
+    if (alt !== oldAlt || src !== oldSrc || title !== oldTitle) {
+      this.muya.contentState.replaceImage(this.imageInfo, this.state)
+    }
+    return requestAnimationFrame(() => {
+      this.hide()
+    })
   }
 
   renderHeader () {
@@ -108,8 +128,14 @@ class ImageSelector extends BaseFloat {
           value: alt
         },
         on: {
-          change: event => {
+          input: event => {
             this.inputHandler(event, 'alt')
+          },
+          paste: event => {
+            this.inputHandler(event, 'alt')
+          },
+          keydown: event => {
+            this.handleKeyDown(event)
           }
         }
       })
@@ -119,8 +145,14 @@ class ImageSelector extends BaseFloat {
           value: src
         },
         on: {
-          change: event => {
+          input: event => {
             this.inputHandler(event, 'src')
+          },
+          paste: event => {
+            this.inputHandler(event, 'src')
+          },
+          keydown: event => {
+            this.handleKeyDown(event)
           }
         }
       })
@@ -130,8 +162,14 @@ class ImageSelector extends BaseFloat {
           value: title
         },
         on: {
-          change: event => {
+          input: event => {
             this.inputHandler(event, 'title')
+          },
+          paste: event => {
+            this.inputHandler(event, 'title')
+          },
+          keydown: event => {
+            this.handleKeyDown(event)
           }
         }
       })

@@ -151,7 +151,6 @@ const enterCtrl = ContentState => {
       event.preventDefault()
       event.stopPropagation()
       const { imageId, ...imageInfo } = selectedImage
-      console.log(imageInfo)
       const imageWrapper = document.querySelector(`#${imageId}`)
       const rect = imageWrapper.getBoundingClientRect()
       const reference = {
@@ -166,6 +165,7 @@ const enterCtrl = ContentState => {
         imageInfo,
         cb: () => {}
       })
+      this.selectedImage = null
       return
     }
   }
