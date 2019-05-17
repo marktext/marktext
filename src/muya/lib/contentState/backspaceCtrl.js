@@ -104,6 +104,7 @@ const backspaceCtrl = ContentState => {
   ContentState.prototype.docBackspaceHandler = function (event) {
     // handle delete selected image
     if (this.selectedImage) {
+      event.preventDefault()
       return this.deleteImage(this.selectedImage)
     }
   }
@@ -225,15 +226,29 @@ const backspaceCtrl = ContentState => {
     let block = this.getBlock(id)
     let parent = this.getBlock(block.parent)
     const preBlock = this.findPreBlockInLocation(block)
-    const { left } = selection.getCaretOffsets(paragraph)
+    const { left, right } = selection.getCaretOffsets(paragraph)
     const inlineDegrade = this.checkBackspaceCase()
 
+    // Handle backspace when the previous is an inline image.
     if (preEleSibling && preEleSibling.classList.contains('ag-inline-image')) {
       if (selection.getCaretOffsets(node).left === 0) {
         event.preventDefault()
         event.stopPropagation()
         const imageInfo = getImageInfo(preEleSibling)
         return this.selectImage(imageInfo)
+      }
+      if (selection.getCaretOffsets(node).left === 1 && right === 0) {
+        event.stopPropagation()
+        event.preventDefault()
+        const key = startBlock.key
+        const len = startBlock.text.length
+        startBlock.text = startBlock.text.substring(0, len - 1)
+        const offset = startBlock.text.length
+        this.cursor = {
+          start: { key, offset },
+          end: { key, offset }
+        }
+        return this.singleRender(startBlock)
       }
     }
 
