@@ -63,6 +63,17 @@ export const moveImageToFolder = async (pathname, image, dir) => {
       return Promise.resolve(image)
     }
   } else {
-    // @jocs todo
+    const imagePath = path.join(dir, `${+new Date()}${image.name}`)
+
+    const binaryString = await new Promise((resolve, reject) => {
+      const fileReader = new FileReader()
+      fileReader.onload = () => {
+        resolve(fileReader.result)
+      }
+
+      fileReader.readAsBinaryString(image)
+    })
+    await fse.writeFile(imagePath, binaryString, 'binary')
+    return imagePath
   }
 }

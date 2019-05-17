@@ -1,6 +1,6 @@
 import selection from '../selection'
 import { tokenizer, generator } from '../parser/'
-import { FORMAT_MARKER_MAP, FORMAT_TYPES, URL_REG } from '../config'
+import { FORMAT_MARKER_MAP, FORMAT_TYPES } from '../config'
 import { getImageInfo } from '../utils/checkEditImage'
 
 const getOffset = (offset, { range: { start, end }, type, tag, anchor, alt }) => {
@@ -220,73 +220,6 @@ const formatCtrl = ContentState => {
     start.offset += start.delata
     end.offset += end.delata
     block.text = generator(tokens)
-  }
-
-  ContentState.prototype.insertImage = function (url) {
-    const title = /\/?([^./]+)\.[a-z]+$/.exec(url)[1] || ''
-    const { start, end } = this.cursor
-    const { formats } = this.selectionFormats({ start, end })
-    const { key, offset: startOffset } = start
-    const { offset: endOffset } = end
-    const block = this.getBlock(key)
-    const { text } = block
-    const imageFormat = formats.filter(f => f.type === 'image')
-
-    // Only encode URLs but not local paths or data URLs
-    let imgUrl
-    if (URL_REG.test(url)) {
-      imgUrl = encodeURI(url)
-    } else {
-      imgUrl = url
-    }
-
-    if (imageFormat.length === 1) {
-      // Replace already existing image
-      let imageTitle = title
-
-      // Extract title from image if there isn't an image source already (GH#562). E.g: ![old-title]()
-      if (imageFormat[0].alt && !imageFormat[0].src) {
-        imageTitle = imageFormat[0].alt
-      }
-
-      const { start, end } = imageFormat[0].range
-      block.text = text.substring(0, start) +
-        `![${imageTitle}](${imgUrl})` +
-        text.substring(end)
-
-      this.cursor = {
-        start: { key, offset: start + 2 },
-        end: { key, offset: start + 2 + imageTitle.length }
-      }
-    } else if (key !== end.key) {
-      // Replace multi-line text
-      const endBlock = this.getBlock(end.key)
-      const { text } = endBlock
-      endBlock.text = text.substring(0, endOffset) + `![${title}](${imgUrl})` + text.substring(endOffset)
-      const offset = endOffset + 2
-      this.cursor = {
-        start: { key: end.key, offset },
-        end: { key: end.key, offset: offset + title.length }
-      }
-    } else {
-      // Replace single-line text
-      const imageTitle = startOffset !== endOffset ? text.substring(startOffset, endOffset) : title
-      block.text = text.substring(0, start.offset) +
-        `![${imageTitle}](${imgUrl})` +
-        text.substring(end.offset)
-
-      this.cursor = {
-        start: {
-          key,
-          offset: startOffset + 2
-        },
-        end: {
-          key,
-          offset: startOffset + 2 + imageTitle.length
-        }
-      }
-    }
-    this.partialRender()
   }
 
   ContentState.prototype.format = function (type) {

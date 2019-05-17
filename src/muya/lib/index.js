@@ -244,8 +244,8 @@ class Muya {
     this.contentState.format(type)
   }
 
-  insertImage (url) {
-    this.contentState.insertImage(url)
+  insertImage (imageInfo) {
+    this.contentState.insertImage(imageInfo)
   }
 
   search (value, opt) {

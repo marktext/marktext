@@ -753,6 +753,7 @@ span.ag-warn.ag-emoji-marked-text {
 
 .ag-inline-image .ag-image-container {
   position: relative;
+  overflow: hidden;
 }
 
 .ag-inline-image.ag-image-success {

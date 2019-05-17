@@ -443,6 +443,7 @@
           }
           case 'folder': {
             const { pathname } = this.currentFile
+
             return await moveImageToFolder(pathname, image, imageFolderPath)
           }
           case 'path': {
@@ -493,9 +494,9 @@
         }
       },
 
-      handleSelect (url) {
+      handleSelect (src) {
         if (!this.sourceCode) {
-          this.editor && this.editor.insertImage(url)
+          this.editor && this.editor.insertImage({ src })
         }
       },
 

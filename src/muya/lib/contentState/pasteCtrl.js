@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { sanitize } from '../utils'
 <<<<<<< HEAD
 import { PARAGRAPH_TYPES, PREVIEW_DOMPURIFY_CONFIG, HAS_TEXT_BLOCK_REG } from '../config'
@@ -5,6 +6,11 @@ import { PARAGRAPH_TYPES, PREVIEW_DOMPURIFY_CONFIG, HAS_TEXT_BLOCK_REG } from '.
 import { PARAGRAPH_TYPES, PREVIEW_DOMPURIFY_CONFIG } from '../config'
 const { clipboard } = require('electron')
 >>>>>>> feat: image setting
+=======
+import { sanitize, getUniqueId } from '../utils'
+import { getImageInfo } from '../utils/checkEditImage'
+import { PARAGRAPH_TYPES, PREVIEW_DOMPURIFY_CONFIG, SMALLEST_BASE64 } from '../config'
+>>>>>>> handle paste image
 
 const LIST_REG = /ul|ol/
 const LINE_BREAKS_REG = /\n/
@@ -82,22 +88,69 @@ const pasteCtrl = ContentState => {
     return tempWrapper.innerHTML
   }
 
-  // handle `normal` and `pasteAsPlainText` paste
-  ContentState.prototype.pasteHandler = function (event, type) {
-    var items = event.clipboardData && event.clipboardData.items
-    var file = null
+  ContentState.prototype.pasteImage = async function (event) {
+    const items = event.clipboardData && event.clipboardData.items
+    let file = null
     if (items && items.length) {
-      // 检索剪切板items
-      for (var i = 0; i < items.length; i++) {
+      for (let i = 0; i < items.length; i++) {
         if (items[i].type.indexOf('image') !== -1) {
           file = items[i].getAsFile()
           break
         }
       }
     }
-    const image = clipboard.readImage()
-    console.log(image)
-    console.log(file)
+
+    // handle paste to create inline image
+    if (file) {
+      const now = +new Date()
+      const id = `loading-${getUniqueId()}`
+      if (this.selectedImage) {
+        this.replaceImage(this.selectedImage, {
+          src: SMALLEST_BASE64,
+          title: id
+        })
+      } else {
+        this.insertImage({
+          src: SMALLEST_BASE64,
+          title: id
+        })
+      }
+
+      console.log('insert', +new Date() - now)
+      const reader = new FileReader()
+      reader.onload = (event) => {
+        const base64 = event.target.result
+        const image = this.muya.container.querySelector(`span[data-id=${id}] .ag-image-container img`)
+        console.log('base64', +new Date() - now)
+        if (image) {
+          image.src = base64
+        }
+      }
+      reader.readAsDataURL(file)
+      const nSrc = await this.muya.options.imageAction(file)
+      console.log('copy', +new Date() - now)
+      const imageWrapper = this.muya.container.querySelector(`span[data-id=${id}]`)
+
+      if (imageWrapper) {
+        const imageInfo = getImageInfo(imageWrapper)
+        this.replaceImage(imageInfo, {
+          src: nSrc
+        })
+      }
+      return file
+    }
+    return null
+  }
+
+  ContentState.prototype.docPasteHandler = async function (event) {
+    const file = this.pasteImage(event)
+    if (file) {
+      return event.preventDefault()
+    }
+  }
+
+  // handle `normal` and `pasteAsPlainText` paste
+  ContentState.prototype.pasteHandler = async function (event, type) {
     event.preventDefault()
     const text = event.clipboardData.getData('text/plain')
     let html = event.clipboardData.getData('text/html')
@@ -112,6 +165,9 @@ const pasteCtrl = ContentState => {
       this.cutHandler()
       return this.pasteHandler(event, type)
     }
+
+    const file = this.pasteImage(event)
+    if (file) return
 
     const appendHtml = (text) => {
       startBlock.text = startBlock.text.substring(0, start.offset) + text + startBlock.text.substring(start.offset)

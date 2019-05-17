@@ -8,6 +8,9 @@ class Clipboard {
 
   listen () {
     const { container, eventCenter, contentState } = this.muya
+    const docPasteHandler = event => {
+      contentState.docPasteHandler(event)
+    }
     const copyCutHandler = event => {
       contentState.copyHandler(event, this._copyType)
       if (event.type === 'cut') {
@@ -22,6 +25,7 @@ class Clipboard {
       this._pasteType = 'normal'
     }
 
+    eventCenter.attachDOMEvent(document, 'paste', docPasteHandler)
     eventCenter.attachDOMEvent(container, 'paste', pasteHandler)
     eventCenter.attachDOMEvent(container, 'cut', copyCutHandler)
     eventCenter.attachDOMEvent(container, 'copy', copyCutHandler)
