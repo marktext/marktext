@@ -1,5 +1,6 @@
 import path from 'path'
 import fse from 'fs-extra'
+import { isImageFile } from '../../main/filesystem'
 
 export const create = (pathname, type) => {
   if (type === 'directory') {
@@ -42,4 +43,23 @@ export const isSameFileSync = (pathA, pathB, isNormalized=false) => {
     }
   }
   return false
+}
+
+export const moveImageToFolder = async (pathname, image, dir) => {
+  const isPath = typeof image === 'string'
+  if (isPath) {
+    const dirname = path.dirname(pathname)
+    const imagePath = path.resolve(dirname, image)
+    const isImage = isImageFile(imagePath)
+    if (isImage) {
+      const filename = path.basename(image)
+      const distPath = path.join(dir, filename)
+      await fse.copy(imagePath, distPath)
+      return distPath
+    } else {
+      return Promise.resolve(image)
+    }
+  } else {
+    // @jocs todo
+  }
 }

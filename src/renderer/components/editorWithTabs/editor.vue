@@ -91,6 +91,7 @@
   import { showContextMenu } from '../../contextMenu/editor'
   import Printer from '@/services/printService'
   import { DEFAULT_EDITOR_FONT_FAMILY } from '@/config'
+  import { moveImageToFolder } from '@/util/fileSystem'
 
   import 'muya/themes/default.css'
   import '@/assets/themes/codemirror/one-dark.css'
@@ -133,7 +134,11 @@
         'darkColor': state => state.preferences.darkColor,
         'editorFontFamily': state => state.preferences.editorFontFamily,
         'hideQuickInsertHint': state => state.preferences.hideQuickInsertHint,
+        'imageInsertAction': state => state.preferences.imageInsertAction,
+        'imageFolderPath': state => state.preferences.imageFolderPath,
         'theme': state => state.preferences.theme,
+
+        'currentFile': state => state.editor.currentFile,
         // edit modes
         'typewriter': state => state.preferences.typewriter,
         'focus': state => state.preferences.focus,
@@ -307,7 +312,8 @@
           orderListDelimiter,
           tabSize,
           listIndentation,
-          hideQuickInsertHint
+          hideQuickInsertHint,
+          imageAction: this.imageAction.bind(this)
         }
         if (/dark/i.test(theme)) {
           Object.assign(options, {
@@ -427,6 +433,22 @@
       })
     },
     methods: {
+      async imageAction (image) {
+        const { imageInsertAction, imageFolderPath } = this
+        switch (imageInsertAction) {
+          case 'upload': {
+            // @jocs todo
+            break
+          }
+          case 'folder': {
+            const { pathname } = this.currentFile
+            return await moveImageToFolder(pathname, image, imageFolderPath)
+          }
+          case 'path': {
+            break
+          }
+        }
+      },
       keyup (event) {
         if (event.key === 'Escape') {
           this.setImageViewerVisible(false)

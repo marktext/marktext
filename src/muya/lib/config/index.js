@@ -248,7 +248,9 @@ export const MUYA_DEFAULT_OPTION = {
   sequenceTheme: 'hand', // hand or simple
   mermaidTheme: 'default', // dark / forest / default
   vegaTheme: 'latimes', // excel / ggplot2 / quartz / vox / fivethirtyeight / dark / latimes
-  hideQuickInsertHint: false
+  hideQuickInsertHint: false,
+  // transform the image to local folder, cloud or just return the local path
+  imageAction: null
 }
 
 // export const DIAGRAM_TEMPLATE = {

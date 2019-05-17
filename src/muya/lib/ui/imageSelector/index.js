@@ -85,6 +85,11 @@ class ImageSelector extends BaseFloat {
     if (alt !== oldAlt || src !== oldSrc || title !== oldTitle) {
       this.muya.contentState.replaceImage(this.imageInfo, this.state)
     }
+    this.muya.options.imageAction(src)
+      .then(s =>{
+        console.log(s)
+      })
+
     return requestAnimationFrame(() => {
       this.hide()
     })

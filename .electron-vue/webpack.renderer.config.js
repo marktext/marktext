@@ -169,6 +169,7 @@ const rendererConfig = {
   },
   resolve: {
     alias: {
+      'main': path.join(__dirname, '../src/main'),
       '@': path.join(__dirname, '../src/renderer'),
       'common': path.join(__dirname, '../src/common'),
       'muya': path.join(__dirname, '../src/muya'),
