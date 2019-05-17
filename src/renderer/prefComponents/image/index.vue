@@ -2,26 +2,32 @@
   <div class="pref-image">
     <h4>Image</h4>
     <section class="image-ctrl">
-      <div>The default behavior after paste or drag the image to Mark Text</div>
-      <el-radio-group v-model="imageDropAction" @change="this.handleImageChange">
-        <el-radio label="upload">Upload image to cloud</el-radio>
-        <el-radio label="folder">Move image to sepcial folder</el-radio>
-      </el-radio-group>
-    </section>
-    <section class="image-ctrl">
-      <div>The default behavior after select image from local folder</div>
-      <el-radio-group v-model="imageSelectAction" @change="this.handleImageChange">
+      <div>The default behavior after insert image from local folder.
+        <el-tooltip class='item' effect='dark' content='Mark Text can not get image path from paste event.' placement='top-start'>
+          <i class="el-icon-info"></i>
+        </el-tooltip>
+      </div>
+      <el-radio-group v-model="imageInsertAction" @change="this.handleImageChange">
         <el-radio label="upload">Upload image to cloud</el-radio>
         <el-radio label="folder">Move image to sepcial folder</el-radio>
         <el-radio label="path">Insert absolute or relative path of image</el-radio>
       </el-radio-group>
     </section>
     <separator></separator>
+    <section class="image-folder">
+      <div class="description">The local image folder.</div>
+      <div class="path">{{imageFolderPath}}</div>
+      <div class="button-group">
+        <el-button size="small" @click="modifyImageFolderPath">Modify</el-button>
+        <el-button size="small" @click="openImageFolder">Open Folder</el-button>
+      </div>
+    </section>
   </div>
 </template>
 
 <script>
 import Separator from '../common/separator'
+import { shell } from 'electron'
 
 export default {
   components: {
@@ -32,28 +38,30 @@ export default {
     }
   },
   computed: {
-    imageDropAction: {
+    imageInsertAction: {
       get: function () {
-        return this.$store.state.preferences.imageDropAction
+        return this.$store.state.preferences.imageInsertAction
       },
       set: function (value) {
-        const type = 'imageDropAction'
+        const type = 'imageInsertAction'
         this.$store.dispatch('SET_SINGLE_PREFERENCE', { type, value })
       }
     },
-    imageSelectAction: {
+    imageFolderPath: {
       get: function () {
-        return this.$store.state.preferences.imageSelectAction
-      },
-      set: function (value) {
-        const type = 'imageSelectAction'
-        this.$store.dispatch('SET_SINGLE_PREFERENCE', { type, value })
+        return this.$store.state.preferences.imageFolderPath
       }
     }
   },
   methods: {
     handleImageChange (value) {
       // console.log(value)
+    },
+    openImageFolder () {
+      shell.openItem(this.imageFolderPath)
+    },
+    modifyImageFolderPath () {
+      return this.$store.dispatch('SET_IMAGE_FOLDER_PATH')
     }
   }
 }
@@ -73,6 +81,18 @@ export default {
     & label {
       display: block;
       margin: 20px 0;
+    }
+  }
+  & .image-folder {
+    & div.description {
+      font-size: 14px;
+      color: var(--editorColor);
+    }
+    & div.path {
+      font-size: 14px;
+      color: var(--editorColor50);
+      margin-top: 15px;
+      margin-bottom: 15px;
     }
   }
 }

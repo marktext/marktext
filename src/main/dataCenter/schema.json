@@ -1,0 +1,14 @@
+{
+  "imageFolderPath": {
+    "description": "The image folder to store local images.",
+    "type": "string"
+  },
+  "webImages": {
+    "description": "Images from web which you used in Mark Text",
+    "type": "array"
+  },
+  "cloudImages": {
+    "description": "Images which you upload to cloud",
+    "type": "array"
+  }
+}

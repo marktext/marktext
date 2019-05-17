@@ -312,6 +312,12 @@ class WindowManager extends EventEmitter {
         }
       }
     })
+
+    ipcMain.on('broadcast-image-folder-path-changed', ({ path: newImageFolderPath }) => {
+      for (const { browserWindow } of this._windows.values()) {
+        browserWindow.webContents.send('mt::image-folder-path', newImageFolderPath)
+      }
+    })
   }
 }
 

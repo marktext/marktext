@@ -23,8 +23,7 @@ const state = {
   endOfLine: 'default',
   textDirection: 'ltr',
   hideQuickInsertHint: false,
-  imageDropAction: 'folder',
-  imageSelectAction: 'folder',
+  imageInsertAction: 'folder',
 
   preferLooseListItem: true,
   bulletListMarker: '-',
@@ -37,7 +36,9 @@ const state = {
   // edit modes (they are not in preference.md, but still put them here)
   typewriter: false, // typewriter mode
   focus: false, // focus mode
-  sourceCode: false // source code mode
+  sourceCode: false, // source code mode
+
+  imageFolderPath: ''
 }
 
 const getters = {}
@@ -58,6 +59,7 @@ const mutations = {
 const actions = {
   ASK_FOR_USER_PREFERENCE ({ commit, state, rootState }) {
     ipcRenderer.send('mt::ask-for-user-preference')
+    ipcRenderer.send('mt::ask-for-image-folder-path')
 
     ipcRenderer.on('AGANI::user-preference', (e, preference) => {
       const { autoSave } = preference
@@ -72,6 +74,10 @@ const actions = {
           ipcRenderer.send('AGANI::response-file-save', { pathname, markdown, options })
         }
       }
+    })
+
+    ipcRenderer.on('mt::image-folder-path', (e, imageFolderPath) => {
+      commit('SET_USER_PREFERENCE', { imageFolderPath })
     })
   },
 
@@ -91,6 +97,10 @@ const actions = {
     // commit('SET_USER_PREFERENCE', { [type]: value })
     // save to electron-store
     ipcRenderer.send('mt::set-user-preference', { [type]: value })
+  },
+
+  SET_IMAGE_FOLDER_PATH ({ commit }) {
+    ipcRenderer.send('mt::ask-for-modify-image-folder-path')
   }
 }
 
