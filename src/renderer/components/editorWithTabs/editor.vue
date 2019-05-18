@@ -91,7 +91,7 @@
   import { showContextMenu } from '../../contextMenu/editor'
   import Printer from '@/services/printService'
   import { DEFAULT_EDITOR_FONT_FAMILY } from '@/config'
-  import { moveImageToFolder } from '@/util/fileSystem'
+  import { moveImageToFolder, uploadImageByPicGo } from '@/util/fileSystem'
 
   import 'muya/themes/default.css'
   import '@/assets/themes/codemirror/one-dark.css'
@@ -436,14 +436,18 @@
     methods: {
       async imageAction (image) {
         const { imageInsertAction, imageFolderPath } = this
+        const { pathname } = this.currentFile
         switch (imageInsertAction) {
           case 'upload': {
-            // @jocs todo
-            break
+            const result = await uploadImageByPicGo(image)
+            console.log(result)
+            if (Array.isArray(result) && result.length) {
+              return result[0].imgUrl
+            } else {
+              return await moveImageToFolder(pathname, image, imageFolderPath)
+            }
           }
           case 'folder': {
-            const { pathname } = this.currentFile
-
             return await moveImageToFolder(pathname, image, imageFolderPath)
           }
           case 'path': {

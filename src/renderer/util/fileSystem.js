@@ -1,6 +1,8 @@
 import path from 'path'
 import fse from 'fs-extra'
+import { ipcRenderer } from 'electron'
 import { isImageFile } from '../../main/filesystem'
+import { getUniqueId } from './index'
 
 export const create = (pathname, type) => {
   if (type === 'directory') {
@@ -76,4 +78,37 @@ export const moveImageToFolder = async (pathname, image, dir) => {
     await fse.writeFile(imagePath, binaryString, 'binary')
     return imagePath
   }
+}
+
+export const uploadImageByPicGo = async (image) => {
+  const id = getUniqueId()
+  let re
+  const promise = new Promise((resolve, reject) => {
+    re = resolve
+  })
+  ipcRenderer.on(`mt::picgo-response-${id}`, (e, result) => {
+    re(result)
+  })
+  
+  if (typeof image === 'string') {
+    ipcRenderer.send('mt::upload-image-by-picgo', { imageList: [ image ], id })
+  } else {
+    console.log(image)
+    const reader = new FileReader()
+    reader.onload = event => {
+      const params = {
+        base64Image: event.target.result,
+        fileName: image.name,
+        extname: `.${image.type.split('/')[1]}`
+      }
+      console.log(params)
+      ipcRenderer.send('mt::upload-image-by-picgo', { imageList: [ params ], id })
+    }
+    reader.onerror = (err) => {
+      re(null)
+    }
+    reader.readAsDataURL(image)
+  }
+
+  return promise
 }

@@ -127,6 +127,7 @@ const pasteCtrl = ContentState => {
         }
       }
       reader.readAsDataURL(file)
+
       const nSrc = await this.muya.options.imageAction(file)
       console.log('copy', +new Date() - now)
       const imageWrapper = this.muya.container.querySelector(`span[data-id=${id}]`)

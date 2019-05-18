@@ -189,6 +189,7 @@
     "katex": "^0.10.2",
     "keyboard-layout": "^2.0.15",
     "mermaid": "^8.0.0",
+    "picgo": "^1.3.7",
     "popper.js": "^1.15.0",
     "prismjs": "^1.16.0",
     "snabbdom": "^0.7.3",

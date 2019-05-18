@@ -5,6 +5,7 @@ import { BrowserWindow, ipcMain, dialog } from 'electron'
 import schema from './schema'
 import Store from 'electron-store'
 import { ensureDirSync } from '../filesystem'
+import PicGo from 'picgo'
 import { IMAGE_EXTENSIONS } from '../config'
 
 const DATA_CENTER_NAME = 'dataCenter'
@@ -118,6 +119,19 @@ class DataCenter extends EventEmitter {
         e.returnValue = files[0]
       } else {
         e.returnValue = ''
+      }
+    })
+
+    ipcMain.on('mt::upload-image-by-picgo', async (e, { imageList, id }) => {
+      const win = BrowserWindow.fromWebContents(e.sender)
+
+      const picGo = new PicGo()
+      try {
+        picGo.config.picBed.transformer = 'base64'
+        await picGo.upload(imageList)
+        win.webContents.send(`mt::picgo-response-${id}`, picGo.output)
+      } catch (err) {
+        win.webContents.send(`mt::picgo-response-${id}`, err)
       }
     })
   }
