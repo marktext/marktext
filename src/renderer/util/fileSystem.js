@@ -1,8 +1,9 @@
 import path from 'path'
 import fse from 'fs-extra'
-import { ipcRenderer } from 'electron'
+import dayjs from 'dayjs'
 import { isImageFile } from '../../main/filesystem'
-import { getUniqueId } from './index'
+import { dataURItoBlob } from './index'
+import axios from 'axios'
 
 export const create = (pathname, type) => {
   if (type === 'directory') {
@@ -65,7 +66,7 @@ export const moveImageToFolder = async (pathname, image, dir) => {
       return Promise.resolve(image)
     }
   } else {
-    const imagePath = path.join(dir, `${+new Date()}${image.name}`)
+    const imagePath = path.join(dir, `${dayjs().format('YYYY-MM-DD-HH-mm-ss')}-${image.name}`)
 
     const binaryString = await new Promise((resolve, reject) => {
       const fileReader = new FileReader()
@@ -80,34 +81,61 @@ export const moveImageToFolder = async (pathname, image, dir) => {
   }
 }
 
-export const uploadImageByPicGo = async (image) => {
-  const id = getUniqueId()
+export const uploadImage = async (pathname, image) => {
+  const isPath = typeof image === 'string'
+  const MAX_SIZE = 5 * 1024 * 1024
   let re
+  let rj
   const promise = new Promise((resolve, reject) => {
     re = resolve
+    rj = reject
   })
-  ipcRenderer.on(`mt::picgo-response-${id}`, (e, result) => {
-    re(result)
-  })
-  
-  if (typeof image === 'string') {
-    ipcRenderer.send('mt::upload-image-by-picgo', { imageList: [ image ], id })
-  } else {
-    console.log(image)
-    const reader = new FileReader()
-    reader.onload = event => {
-      const params = {
-        base64Image: event.target.result,
-        fileName: image.name,
-        extname: `.${image.type.split('/')[1]}`
+
+  const uploadToSMMS = file => {
+    const api = 'https://sm.ms/api/upload'
+    const formData = new window.FormData()
+    formData.append('smfile', file)
+      axios.post(api, formData).then((res) => {
+        re(res.data.data.url)
+      })
+      .catch(err => {
+        rj('Upload failed, the image will be copied to the image folder')
+      })
+  }
+
+  const notification = () => {
+    rj('Cannot upload more than 5M image, the image will be copied to the image folder')
+  }
+
+  if (isPath) {
+    const dirname = path.dirname(pathname)
+    const imagePath = path.resolve(dirname, image)
+    const isImage = isImageFile(imagePath)
+    if (isImage) {
+      const { size } = await fse.stat(imagePath)
+      if (size > MAX_SIZE) {
+        notification()
+      } else {
+        const imageFile = await fse.readFile(imagePath)
+        const blobFile = new Blob([imageFile])
+        uploadToSMMS(blobFile)
       }
-      console.log(params)
-      ipcRenderer.send('mt::upload-image-by-picgo', { imageList: [ params ], id })
+    } else {
+      re(image)
     }
-    reader.onerror = (err) => {
-      re(null)
+  } else {
+    const { size } = image
+    if (size > MAX_SIZE) {
+      notification()
+    } else {
+      const reader = new FileReader()
+      reader.onload = () => {
+        const blobFile = dataURItoBlob(reader.result, image.name)
+        uploadToSMMS(blobFile)
+      }
+  
+      reader.readAsDataURL(image)
     }
-    reader.readAsDataURL(image)
   }
 
   return promise

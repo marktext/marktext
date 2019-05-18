@@ -88,10 +88,12 @@
   import Search from '../search.vue'
   import { animatedScrollTo } from '../../util'
   import { addCommonStyle } from '../../util/theme'
+  import { guessClipboardFilePath } from '../../util/guessClipBoardFilePath'
   import { showContextMenu } from '../../contextMenu/editor'
   import Printer from '@/services/printService'
   import { DEFAULT_EDITOR_FONT_FAMILY } from '@/config'
-  import { moveImageToFolder, uploadImageByPicGo } from '@/util/fileSystem'
+  import { moveImageToFolder, uploadImage } from '@/util/fileSystem'
+  import notice from '@/services/notification'
 
   import 'muya/themes/default.css'
   import '@/assets/themes/codemirror/one-dark.css'
@@ -314,7 +316,8 @@
           listIndentation,
           hideQuickInsertHint,
           imageAction: this.imageAction.bind(this),
-          imagePathPicker: this.imagePathPicker.bind(this)
+          imagePathPicker: this.imagePathPicker.bind(this),
+          clipboardFilePath: guessClipboardFilePath
         }
         if (/dark/i.test(theme)) {
           Object.assign(options, {
@@ -439,11 +442,16 @@
         const { pathname } = this.currentFile
         switch (imageInsertAction) {
           case 'upload': {
-            const result = await uploadImageByPicGo(image)
-            console.log(result)
-            if (Array.isArray(result) && result.length) {
-              return result[0].imgUrl
-            } else {
+            try {
+              const result = await uploadImage(pathname, image)
+              return result
+            } catch (err) {
+              console.log(err)
+              notice.notify({
+                title: 'Upload Image',
+                type: 'info',
+                message: err
+              })
               return await moveImageToFolder(pathname, image, imageFolderPath)
             }
           }
