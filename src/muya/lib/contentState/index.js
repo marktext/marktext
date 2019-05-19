@@ -25,6 +25,7 @@ import inputCtrl from './inputCtrl'
 import tocCtrl from './tocCtrl'
 import emojiCtrl from './emojiCtrl'
 import imageCtrl from './imageCtrl'
+import dragDropCtrl from './dragDropCtrl'
 import importMarkdown from '../utils/importMarkdown'
 import Cursor from '../selection/cursor'
 
@@ -51,6 +52,7 @@ const prototypes = [
   tocCtrl,
   emojiCtrl,
   imageCtrl,
+  dragDropCtrl,
   importMarkdown
 ]
 
@@ -70,6 +72,7 @@ class ContentState {
     // you'll select the outmost block of current cursor when you click the front icon.
     this.selectedBlock = null
     this._selectedImage = null
+    this.dropAnchor = null
     this.prevCursor = null
     this.historyTimer = null
     this.history = new History(this)

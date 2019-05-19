@@ -154,11 +154,12 @@
         // Cancel to allow tab drag&drop.
         if (!e.dataTransfer.types.length) return
 
-        e.preventDefault()
         if (e.dataTransfer.types.indexOf('Files') >= 0) {
-          if (e.dataTransfer.items.length === 1 && /png|jpg|jpeg|gif/.test(e.dataTransfer.items[0].type)) {
-            bus.$emit('upload-image')
+          if (e.dataTransfer.items.length === 1 && e.dataTransfer.items[0].type.indexOf('image') > -1) {
+            // bus.$emit('upload-image')
+            // Do nothing, because we already drag/drop image in muya.
           } else {
+            e.preventDefault()
             if (this.timer) {
               clearTimeout(this.timer)
             }
@@ -167,6 +168,7 @@
             }, 300)
             bus.$emit('importDialog', true)
           }
+
           e.dataTransfer.dropEffect = 'copy'
         } else {
           e.stopPropagation()

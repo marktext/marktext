@@ -22,6 +22,12 @@ pre {
   outline: none;
 }
 
+#mu-dragover-ghost {
+  height: 3px;
+  position: absolute;
+  background: var(--highlightColor);
+}
+
 div.ag-show-quick-insert-hint p.ag-paragraph.ag-active > span.ag-paragraph-content:first-of-type:empty::after {
   content: 'Type @ to insert';
   color: var(--editorColor10);

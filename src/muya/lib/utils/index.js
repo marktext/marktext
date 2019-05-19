@@ -319,3 +319,9 @@ export const getParagraphReference = (ele, id) => {
     id
   }
 }
+
+export const verticalPositionInRect = (event, rect) => {
+  const { clientY } = event
+  const { top, height } = rect
+  return (clientY - top) > (height / 2) ? 'down' : 'up'
+}

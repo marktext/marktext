@@ -2,6 +2,7 @@ import ContentState from './contentState'
 import EventCenter from './eventHandler/event'
 import Clipboard from './eventHandler/clipboard'
 import Keyboard from './eventHandler/keyboard'
+import DragDrop from './eventHandler/dragDrop'
 import ClickEvent from './eventHandler/clickEvent'
 import { CLASS_OR_ID, MUYA_DEFAULT_OPTION } from './config'
 import { wordCount } from './utils'
@@ -33,6 +34,7 @@ class Muya {
     this.clipboard = new Clipboard(this)
     this.clickEvent = new ClickEvent(this)
     this.keyboard = new Keyboard(this)
+    this.dragdrop = new DragDrop(this)
     this.init()
   }
 

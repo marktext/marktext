@@ -98,7 +98,6 @@ const pasteCtrl = ContentState => {
         })
       }
       const nSrc = await this.muya.options.imageAction(imagePath)
-      console.log(nSrc)
       const imageWrapper = this.muya.container.querySelector(`span[data-id=${id}]`)
 
       if (imageWrapper) {
