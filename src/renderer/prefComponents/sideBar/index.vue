@@ -23,7 +23,7 @@
     <section class="category">
       <div v-for="c of category" :key="c.name" class="item"
         @click="handleCategoryItemClick(c)"
-        :class="{active: c.name.toLowerCase() === currentCategory}"
+        :class="{active: c.label === currentCategory}"
       >
         <svg :viewBox="c.icon.viewBox">
           <use :xlink:href="c.icon.url"></use>

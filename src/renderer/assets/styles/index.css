@@ -116,6 +116,23 @@ body {
   background-color: var(--floatBgColor);
 }
 
+input.el-input__inner {
+  background: var(--inputBgColor);
+}
+
+.el-tabs__nav-wrap::after {
+  background: var(--editorColor04);
+}
+
+div.el-tabs__item {
+  color: var(--editorColor);
+}
+
+div.el-tab-pane {
+  color: var(--editorColor);
+  font-size: 14px;
+}
+
 .ag-dialog-table .dialog-title svg {
   width: 1.5em;
   height: 1.5em;

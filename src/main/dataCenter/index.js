@@ -4,6 +4,7 @@ import EventEmitter from 'events'
 import { BrowserWindow, ipcMain, dialog } from 'electron'
 import schema from './schema'
 import Store from 'electron-store'
+import log from 'electron-log'
 import { ensureDirSync } from '../filesystem'
 import { IMAGE_EXTENSIONS } from '../config'
 
@@ -28,7 +29,15 @@ class DataCenter extends EventEmitter {
     const defaltData = {
       imageFolderPath: path.join(this.userDataPath, 'images/'),
       webImages: [],
-      cloudImages: []
+      cloudImages: [],
+      currentUploader: 'smms',
+      imageBed: {
+        github: {
+          token: '',
+          owner: '',
+          repo: ''
+        }
+      }
     }
     if (!this.hasDataCenterFile) {
       this.store.set(defaltData)
@@ -44,7 +53,7 @@ class DataCenter extends EventEmitter {
   }
 
   changeImageFolderPath (newPath) {
-    ipcMain.emit('broadcast-image-folder-path-changed', { path: newPath })
+    ipcMain.emit('broadcast-user-data-changed', { 'imageFolderPath': newPath })
     this.store.set('imageFolderPath', newPath)
     ensureDirSync(newPath)
     return newPath
@@ -83,6 +92,27 @@ class DataCenter extends EventEmitter {
     return this.store.get(key)
   }
 
+  setItem (key, value) {
+    ipcMain.emit('broadcast-user-data-changed', { [key]: value })
+    return this.store.set(key, value)
+  }
+
+  /**
+   * Change multiple setting entries.
+   *
+   * @param {Object.<string, *>} settings A settings object or subset object with key/value entries.
+   */
+  setItems (settings) {
+    if (!settings) {
+      log.error('Cannot change settings without entires: object is undefined or null.')
+      return
+    }
+
+    Object.keys(settings).map(key => {
+      this.setItem(key, settings[key])
+    })
+  }
+
   _listenForIpcMain () {
     // local main events
     ipcMain.on('set-image-folder-path', newPath => {
@@ -90,9 +120,9 @@ class DataCenter extends EventEmitter {
     })
 
     // events from renderer process
-    ipcMain.on('mt::ask-for-image-folder-path', e => {
+    ipcMain.on('mt::ask-for-user-data', e => {
       const win = BrowserWindow.fromWebContents(e.sender)
-      win.webContents.send('mt::image-folder-path', this.getItem('imageFolderPath'))
+      win.webContents.send('AGANI::user-preference', this.getAll())
     })
 
     ipcMain.on('mt::ask-for-modify-image-folder-path', e => {
@@ -103,6 +133,10 @@ class DataCenter extends EventEmitter {
       if (folder && folder[0]) {
         this.changeImageFolderPath(folder[0])
       }
+    })
+
+    ipcMain.on('mt::set-user-data', (e, userData) =>{
+      this.setItems(userData)
     })
 
     ipcMain.on('mt::ask-for-image-path', e => {

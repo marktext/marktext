@@ -38,7 +38,18 @@ const state = {
   focus: false, // focus mode
   sourceCode: false, // source code mode
 
-  imageFolderPath: ''
+  // user configration
+  imageFolderPath: '',
+  webImages: [],
+  cloudImages: [],
+  currentUploader: 'smms',
+  imageBed: {
+    github: {
+      token: '',
+      owner: '',
+      repo: ''
+    }
+  }
 }
 
 const getters = {}
@@ -59,9 +70,10 @@ const mutations = {
 const actions = {
   ASK_FOR_USER_PREFERENCE ({ commit, state, rootState }) {
     ipcRenderer.send('mt::ask-for-user-preference')
-    ipcRenderer.send('mt::ask-for-image-folder-path')
+    ipcRenderer.send('mt::ask-for-user-data')
 
     ipcRenderer.on('AGANI::user-preference', (e, preference) => {
+      console.log(preference)
       const { autoSave } = preference
       commit('SET_USER_PREFERENCE', preference)
 
@@ -74,10 +86,6 @@ const actions = {
           ipcRenderer.send('AGANI::response-file-save', { pathname, markdown, options })
         }
       }
-    })
-
-    ipcRenderer.on('mt::image-folder-path', (e, imageFolderPath) => {
-      commit('SET_USER_PREFERENCE', { imageFolderPath })
     })
   },
 
@@ -97,6 +105,10 @@ const actions = {
     // commit('SET_USER_PREFERENCE', { [type]: value })
     // save to electron-store
     ipcRenderer.send('mt::set-user-preference', { [type]: value })
+  },
+
+  SET_USER_DATA ({ commit }, { type, value }) {
+    ipcRenderer.send('mt::set-user-data', { [type]: value })
   },
 
   SET_IMAGE_FOLDER_PATH ({ commit }) {

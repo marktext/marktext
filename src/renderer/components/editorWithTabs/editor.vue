@@ -120,6 +120,7 @@
     },
     computed: {
       ...mapState({
+        'preferences': state => state.preferences,
         'preferLooseListItem': state => state.preferences.preferLooseListItem,
         'autoPairBracket': state => state.preferences.autoPairBracket,
         'autoPairMarkdownSyntax': state => state.preferences.autoPairMarkdownSyntax,
@@ -438,12 +439,12 @@
     },
     methods: {
       async imageAction (image) {
-        const { imageInsertAction, imageFolderPath } = this
+        const { imageInsertAction, imageFolderPath, preferences } = this
         const { pathname } = this.currentFile
         switch (imageInsertAction) {
           case 'upload': {
             try {
-              const result = await uploadImage(pathname, image)
+              const result = await uploadImage(pathname, image, preferences)
               return result
             } catch (err) {
               console.log(err)

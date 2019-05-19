@@ -1,6 +1,7 @@
 import path from 'path'
 import fse from 'fs-extra'
 import dayjs from 'dayjs'
+import Octokit from '@octokit/rest'
 import { isImageFile } from '../../main/filesystem'
 import { dataURItoBlob } from './index'
 import axios from 'axios'
@@ -81,7 +82,12 @@ export const moveImageToFolder = async (pathname, image, dir) => {
   }
 }
 
-export const uploadImage = async (pathname, image) => {
+/**
+ * @jocs todo, rewrite it use class
+ */
+export const uploadImage = async (pathname, image, preferences) => {
+  const { currentUploader } = preferences
+  const { token, owner, repo } = preferences.imageBed.github
   const isPath = typeof image === 'string'
   const MAX_SIZE = 5 * 1024 * 1024
   let re
@@ -103,6 +109,27 @@ export const uploadImage = async (pathname, image) => {
       })
   }
 
+  const uploadByGithub = (content, filename) => {
+    const octokit = new Octokit({
+      auth: `token ${token}`
+
+    })
+    const path = dayjs().format('YYYY/MM') + `/${dayjs().format('DD-HH-mm-ss')}-${filename}`
+    const message = `Upload by Mark Text at ${dayjs().format('YYYY-MM-DD HH:mm:ss')}`
+    octokit.repos.createFile({
+      owner,
+      repo,
+      path,
+      message,
+      content
+    }).then(result => {
+      re(result.data.content.download_url)
+    })
+    .catch(err => {
+      rj('Upload failed, the image will be copied to the image folder')
+    })
+  }
+
   const notification = () => {
     rj('Cannot upload more than 5M image, the image will be copied to the image folder')
   }
@@ -118,7 +145,12 @@ export const uploadImage = async (pathname, image) => {
       } else {
         const imageFile = await fse.readFile(imagePath)
         const blobFile = new Blob([imageFile])
-        uploadToSMMS(blobFile)
+        if (currentUploader === 'smms') {
+          uploadToSMMS(blobFile)
+        } else {
+          const base64 = Buffer.from(imageFile).toString('base64')
+          uploadByGithub(base64, path.basename(imagePath))
+        }
       }
     } else {
       re(image)
@@ -129,9 +161,13 @@ export const uploadImage = async (pathname, image) => {
       notification()
     } else {
       const reader = new FileReader()
-      reader.onload = () => {
+      reader.onload = async () => {
         const blobFile = dataURItoBlob(reader.result, image.name)
-        uploadToSMMS(blobFile)
+        if (currentUploader === 'smms') {
+          uploadToSMMS(blobFile)
+        } else {
+          uploadByGithub(reader.result, image.name)
+        }
       }
   
       reader.readAsDataURL(image)

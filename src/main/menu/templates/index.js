@@ -1,4 +1,5 @@
 import edit from './edit'
+import prefEdit from './prefEdit'
 import file from './file'
 import help from './help'
 import marktext from './marktext'
@@ -18,6 +19,7 @@ export dockMenu from './dock'
 export const configSettingMenu = (keybindings) => {
   return [
     ...(process.platform === 'darwin' ? [ marktext(keybindings) ] : []),
+    prefEdit(keybindings),
     help()
   ]
 }

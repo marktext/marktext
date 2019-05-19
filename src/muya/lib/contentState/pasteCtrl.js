@@ -160,7 +160,7 @@ const pasteCtrl = ContentState => {
   }
 
   ContentState.prototype.docPasteHandler = async function (event) {
-    const file = this.pasteImage(event)
+    const file = await this.pasteImage(event)
     if (file) {
       return event.preventDefault()
     }
@@ -169,6 +169,7 @@ const pasteCtrl = ContentState => {
   // handle `normal` and `pasteAsPlainText` paste
   ContentState.prototype.pasteHandler = async function (event, type) {
     event.preventDefault()
+    event.stopPropagation()
     const text = event.clipboardData.getData('text/plain')
     let html = event.clipboardData.getData('text/html')
     html = this.standardizeHTML(html)
@@ -183,8 +184,10 @@ const pasteCtrl = ContentState => {
       return this.pasteHandler(event, type)
     }
 
-    const file = this.pasteImage(event)
-    if (file) return event.stopPropagation()
+    const file = await this.pasteImage(event)
+    if (file) {
+      return
+    }
 
     const appendHtml = (text) => {
       startBlock.text = startBlock.text.substring(0, start.offset) + text + startBlock.text.substring(start.offset)

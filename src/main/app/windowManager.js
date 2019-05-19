@@ -313,9 +313,9 @@ class WindowManager extends EventEmitter {
       }
     })
 
-    ipcMain.on('broadcast-image-folder-path-changed', ({ path: newImageFolderPath }) => {
+    ipcMain.on('broadcast-user-data-changed', userData => {
       for (const { browserWindow } of this._windows.values()) {
-        browserWindow.webContents.send('mt::image-folder-path', newImageFolderPath)
+        browserWindow.webContents.send('AGANI::user-preference', userData)
       }
     })
   }

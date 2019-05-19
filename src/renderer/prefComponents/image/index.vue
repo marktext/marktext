@@ -8,7 +8,7 @@
         </el-tooltip>
       </div>
       <el-radio-group v-model="imageInsertAction" @change="this.handleImageChange">
-        <el-radio label="upload">Upload image to cloud</el-radio>
+        <el-radio label="upload">Upload image to cloud by image uploader</el-radio>
         <el-radio label="folder">Move image to sepcial folder</el-radio>
         <el-radio label="path">Insert absolute or relative path of image</el-radio>
       </el-radio-group>
@@ -18,8 +18,8 @@
       <div class="description">The local image folder.</div>
       <div class="path">{{imageFolderPath}}</div>
       <div class="button-group">
-        <el-button size="small" @click="modifyImageFolderPath">Modify</el-button>
-        <el-button size="small" @click="openImageFolder">Open Folder</el-button>
+        <el-button size="mini" @click="modifyImageFolderPath">Modify</el-button>
+        <el-button size="mini" @click="openImageFolder">Open Folder</el-button>
       </div>
     </section>
   </div>
