@@ -73,6 +73,11 @@ export default {
       }
     }
   },
+  created () {
+    this.$nextTick(() => {
+      this.github = this.imageBed.github
+    })
+  },
   methods: {
     handleImageChange (value) {
       // console.log(value)
@@ -113,6 +118,7 @@ export default {
   }
   & .link {
     color: var(--themeColor);
+    cursor: pointer;
   }
   & .description {
     margin-top: 20px;
