@@ -75,13 +75,6 @@
       :bool="hideQuickInsertHint"
       :onChange="value => onSelectChange('hideQuickInsertHint', value)"
     ></bool>
-    <separator></separator>
-    <section class="image-ctrl ag-underdevelop">
-      <div>The default behavior after paste or drag the image to Mark Text</div>
-      <el-radio v-model="imageDropAction" label="upload">Upload image to cloud</el-radio>
-      <el-radio v-model="imageDropAction" label="folder">Move image to sepcial folder</el-radio>
-      <el-radio v-model="imageDropAction" label="path">Insert absolute or relative path of image</el-radio>
-    </section>
   </div>
 </template>
 
@@ -124,8 +117,7 @@ export default {
       textDirection: state => state.preferences.textDirection,
       codeFontSize: state => state.preferences.codeFontSize,
       codeFontFamily: state => state.preferences.codeFontFamily,
-      hideQuickInsertHint: state => state.preferences.hideQuickInsertHint,
-      imageDropAction: state => state.preferences.imageDropAction
+      hideQuickInsertHint: state => state.preferences.hideQuickInsertHint
     })
   },
   methods: {
