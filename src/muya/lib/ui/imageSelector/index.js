@@ -129,6 +129,7 @@ class ImageSelector extends BaseFloat {
       }) + text
       const len = newValue.length
       reference.value = newValue
+      this.state.src = newValue
       reference.focus()
       reference.setSelectionRange(
         len,

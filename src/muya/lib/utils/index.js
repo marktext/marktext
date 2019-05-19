@@ -136,7 +136,6 @@ export const deepCopy = object => {
 export const loadImage = async (url, detectContentType = false) => {
   if (detectContentType) {
     const isImage = await checkImageContentType(url)
-    console.log(isImage)
     if (!isImage) throw new Error('not an image')
   }
   return new Promise((resolve, reject) => {
