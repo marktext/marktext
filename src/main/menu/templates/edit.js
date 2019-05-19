@@ -114,24 +114,6 @@ export default function (keybindings, userPreference) {
         actions.edit(browserWindow, 'aidou')
       }
     }, {
-      label: 'Insert Image',
-      submenu: [{
-        label: 'Absolute Path',
-        click (menuItem, browserWindow) {
-          actions.insertImage(browserWindow, 'absolute')
-        }
-      }, {
-        label: 'Relative Path',
-        click (menuItem, browserWindow) {
-          actions.insertImage(browserWindow, 'relative')
-        }
-      }, {
-        label: 'Upload to Cloud (EXP)',
-        click (menuItem, browserWindow) {
-          actions.insertImage(browserWindow, 'upload')
-        }
-      }]
-    }, {
       type: 'separator'
     }, {
       label: 'Line Ending',

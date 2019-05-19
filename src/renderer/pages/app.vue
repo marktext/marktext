@@ -27,7 +27,6 @@
         :platform="platform"
       ></editor-with-tabs>
       <aidou></aidou>
-      <upload-image></upload-image>
       <about-dialog></about-dialog>
       <rename></rename>
       <tweet></tweet>
@@ -43,7 +42,6 @@
   import TitleBar from '@/components/titleBar'
   import SideBar from '@/components/sideBar'
   import Aidou from '@/components/aidou/aidou'
-  import UploadImage from '@/components/uploadImage'
   import AboutDialog from '@/components/about'
   import Rename from '@/components/rename'
   import Tweet from '@/components/tweet'
@@ -60,7 +58,6 @@
       EditorWithTabs,
       TitleBar,
       SideBar,
-      UploadImage,
       AboutDialog,
       Rename,
       Tweet,
@@ -138,7 +135,6 @@
       dispatch('LISTEN_FOR_BOOTSTRAP_WINDOW')
       dispatch('LISTEN_FOR_SAVE_CLOSE')
       dispatch('LISTEN_FOR_EXPORT_PRINT')
-      dispatch('LISTEN_FOR_INSERT_IMAGE')
       dispatch('LISTEN_FOR_RENAME')
       dispatch('LINTEN_FOR_SET_LINE_ENDING')
       dispatch('LISTEN_FOR_NEW_TAB')
@@ -156,7 +152,6 @@
 
         if (e.dataTransfer.types.indexOf('Files') >= 0) {
           if (e.dataTransfer.items.length === 1 && e.dataTransfer.items[0].type.indexOf('image') > -1) {
-            // bus.$emit('upload-image')
             // Do nothing, because we already drag/drop image in muya.
           } else {
             e.preventDefault()

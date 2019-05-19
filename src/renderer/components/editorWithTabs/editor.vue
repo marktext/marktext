@@ -367,15 +367,6 @@
         bus.$on('copy-block', this.handleCopyBlock)
         bus.$on('print', this.handlePrint)
 
-        // when cursor is in `![](cursor)` will emit `insert-image`
-        this.editor.on('insert-image', type => {
-          if (type === 'absolute' || type === 'relative') {
-            this.$store.dispatch('ASK_FOR_INSERT_IMAGE', type)
-          } else if (type === 'upload') {
-            bus.$emit('upload-image')
-          }
-        })
-
         this.editor.on('image-path-autocomplement', src => {
           this.$store.dispatch('ASK_FOR_IMAGE_AUTO_PATH', src)
         })

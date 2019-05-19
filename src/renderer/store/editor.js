@@ -216,10 +216,6 @@ const mutations = {
 }
 
 const actions = {
-  // when cursor in `![](cursor)`, insert image popup will be shown! `absolute` or `relative`
-  ASK_FOR_INSERT_IMAGE ({ commit }, type) {
-    ipcRenderer.send('AGANI::ask-for-insert-image', type)
-  },
   FORMAT_LINK_CLICK ({ commit }, { data, dirname }) {
     ipcRenderer.send('AGANI::format-link-click', { data, dirname })
   },
@@ -644,22 +640,6 @@ const actions = {
   LINTEN_FOR_PRINT_SERVICE_CLEARUP ({ commit }) {
     ipcRenderer.on('AGANI::print-service-clearup', e => {
       bus.$emit('print-service-clearup')
-    })
-  },
-
-  LISTEN_FOR_INSERT_IMAGE ({ commit, state }) {
-    ipcRenderer.on('AGANI::INSERT_IMAGE', (e, { filename: imagePath, type }) => {
-      if (!hasKeys(state.currentFile)) return
-      if (type === 'absolute' || type === 'relative') {
-        const { pathname } = state.currentFile
-        if (type === 'relative' && pathname) {
-          imagePath = path.relative(path.dirname(pathname), imagePath)
-        }
-        bus.$emit('insert-image', imagePath)
-      } else {
-        // upload to CM
-        bus.$emit('upload-image')
-      }
     })
   },
 

@@ -1,28 +1,8 @@
 import path from 'path'
-import { dialog, ipcMain, BrowserWindow } from 'electron'
+import { ipcMain, BrowserWindow } from 'electron'
 import log from 'electron-log'
-import { IMAGE_EXTENSIONS } from '../../config'
 import { updateLineEndingMenu } from '../../menu'
 import { searchFilesAndDir } from '../../utils/imagePathAutoComplement'
-
-const getAndSendImagePath = (win, type) => {
-  // TODO(need::refactor): use async dialog version
-  const filename = dialog.showOpenDialog(win, {
-    properties: [ 'openFile' ],
-    filters: [{
-      name: 'Images',
-      extensions: IMAGE_EXTENSIONS
-    }]
-  })
-  if (filename && filename[0]) {
-    win.webContents.send('AGANI::INSERT_IMAGE', { filename: filename[0], type })
-  }
-}
-
-ipcMain.on('AGANI::ask-for-insert-image', (e, type) => {
-  const win = BrowserWindow.fromWebContents(e.sender)
-  getAndSendImagePath(win, type)
-})
 
 ipcMain.on('AGANI::ask-for-image-auto-path', (e, { pathname, src }) => {
   const win = BrowserWindow.fromWebContents(e.sender)
@@ -49,12 +29,4 @@ export const edit = (win, type) => {
 
 export const lineEnding = (win, lineEnding) => {
   win.webContents.send('AGANI::set-line-ending', { lineEnding, ignoreSaveStatus: false })
-}
-
-export const insertImage = (win, type) => {
-  if (type === 'absolute' || type === 'relative') {
-    getAndSendImagePath(win, type)
-  } else {
-    win.webContents.send('AGANI::INSERT_IMAGE', { type })
-  }
 }

@@ -3,11 +3,11 @@
     <h4>Image</h4>
     <section class="image-ctrl">
       <div>The default behavior after insert image from local folder.
-        <el-tooltip class='item' effect='dark' content='Mark Text can not get image path from paste event.' placement='top-start'>
+        <el-tooltip class='item' effect='dark' content='Mark Text can not get image path from paste event in Linux system.' placement='top-start'>
           <i class="el-icon-info"></i>
         </el-tooltip>
       </div>
-      <el-radio-group v-model="imageInsertAction" @change="this.handleImageChange">
+      <el-radio-group v-model="imageInsertAction">
         <el-radio label="upload">Upload image to cloud by image uploader</el-radio>
         <el-radio label="folder">Move image to sepcial folder</el-radio>
         <el-radio label="path">Insert absolute or relative path of image</el-radio>
@@ -54,9 +54,6 @@ export default {
     }
   },
   methods: {
-    handleImageChange (value) {
-      // console.log(value)
-    },
     openImageFolder () {
       shell.openItem(this.imageFolderPath)
     },
