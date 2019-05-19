@@ -18,7 +18,6 @@ import tabCtrl from './tabCtrl'
 import formatCtrl from './formatCtrl'
 import searchCtrl from './searchCtrl'
 import containerCtrl from './containerCtrl'
-import imagePathCtrl from './imagePathCtrl'
 import htmlBlockCtrl from './htmlBlock'
 import clickCtrl from './clickCtrl'
 import inputCtrl from './inputCtrl'
@@ -45,7 +44,6 @@ const prototypes = [
   formatCtrl,
   searchCtrl,
   containerCtrl,
-  imagePathCtrl,
   htmlBlockCtrl,
   clickCtrl,
   inputCtrl,

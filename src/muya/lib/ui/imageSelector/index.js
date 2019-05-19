@@ -81,6 +81,70 @@ class ImageSelector extends BaseFloat {
     }
   }
 
+  srcInputKeyDown (event) {
+    const { imagePathPicker } = this.muya
+    if (!imagePathPicker.status) {
+      if (event.key === EVENT_KEYS.Enter) {
+        event.stopPropagation()
+        this.handleLinkButtonClick()
+      }
+      return
+    }
+    switch (event.key) {
+      case EVENT_KEYS.ArrowUp:
+        event.preventDefault()
+        imagePathPicker.step('previous')
+        break
+      case EVENT_KEYS.ArrowDown:
+      case EVENT_KEYS.Tab:
+        event.preventDefault()
+        imagePathPicker.step('next')
+        break
+      case EVENT_KEYS.Enter:
+        event.preventDefault()
+        imagePathPicker.selectItem(imagePathPicker.activeItem)
+        break
+      default:
+        break
+    }
+  }
+
+  async handleKeyUp (event) {
+    const { key } = event
+    if (
+      key === EVENT_KEYS.ArrowUp ||
+      key === EVENT_KEYS.ArrowDown ||
+      key === EVENT_KEYS.Tab ||
+      key === EVENT_KEYS.Enter
+    ) {
+      return
+    }
+    const value = event.target.value
+    const { eventCenter } = this.muya
+    const reference = this.imageSelectorContainer.querySelector('input.src')
+    const cb = item => {
+      const { text } = item
+      const newValue = value.replace(/(\/)([^/]+)$/, (m, p1, p2) => {
+        return p1
+      }) + text
+      const len = newValue.length
+      reference.value = newValue
+      reference.focus()
+      reference.setSelectionRange(
+        len,
+        len
+      )
+    }
+
+    let list
+    if (!value) {
+      list = []
+    } else {
+      list = await this.muya.options.imagePathAutoComplete(value)
+    }
+    eventCenter.dispatch('muya-image-picker', { reference, list, cb })
+  }
+
   handleLinkButtonClick () {
     return this.replaceImageAsync(this.state)
   }
@@ -195,7 +259,10 @@ class ImageSelector extends BaseFloat {
             this.inputHandler(event, 'src')
           },
           keydown: event => {
-            this.handleKeyDown(event)
+            this.srcInputKeyDown(event)
+          },
+          keyup: event => {
+            this.handleKeyUp(event)
           }
         }
       })

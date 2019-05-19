@@ -318,7 +318,8 @@
           hideQuickInsertHint,
           imageAction: this.imageAction.bind(this),
           imagePathPicker: this.imagePathPicker.bind(this),
-          clipboardFilePath: guessClipboardFilePath
+          clipboardFilePath: guessClipboardFilePath,
+          imagePathAutoComplete: this.imagePathAutoComplete.bind(this)
         }
         if (/dark/i.test(theme)) {
           Object.assign(options, {
@@ -354,7 +355,6 @@
         bus.$on('image-uploaded', this.handleUploadedImage)
         bus.$on('file-changed', this.handleMarkdownChange)
         bus.$on('editor-blur', this.blurEditor)
-        bus.$on('image-auto-path', this.handleImagePath)
         bus.$on('copyAsMarkdown', this.handleCopyPaste)
         bus.$on('copyAsHtml', this.handleCopyPaste)
         bus.$on('pasteAsPlainText', this.handleCopyPaste)
@@ -366,10 +366,6 @@
         bus.$on('scroll-to-header', this.scrollToHeader)
         bus.$on('copy-block', this.handleCopyBlock)
         bus.$on('print', this.handlePrint)
-
-        this.editor.on('image-path-autocomplement', src => {
-          this.$store.dispatch('ASK_FOR_IMAGE_AUTO_PATH', src)
-        })
 
         this.editor.on('change', changes => {
           // WORKAROUND: "id: 'muya'"
@@ -429,6 +425,13 @@
       })
     },
     methods: {
+      async imagePathAutoComplete (src) {
+        const files = await this.$store.dispatch('ASK_FOR_IMAGE_AUTO_PATH', src)
+        return files.map(f => {
+          const iconClass = f.type === 'directory' ? 'icon-folder' : 'icon-image'
+          return Object.assign(f, { iconClass, text: f.file + (f.type === 'directory' ? '/' : '') })
+        })
+      },
       async imageAction (image) {
         const { imageInsertAction, imageFolderPath, preferences } = this
         const { pathname } = this.currentFile
@@ -462,11 +465,6 @@
         if (event.key === 'Escape') {
           this.setImageViewerVisible(false)
         }
-      },
-
-      handleImagePath (files) {
-        const { editor } = this
-        editor && editor.showAutoImagePath(files)
       },
 
       setImageViewerVisible (status) {
@@ -682,7 +680,6 @@
       bus.$off('image-uploaded', this.handleUploadedImage)
       bus.$off('file-changed', this.handleMarkdownChange)
       bus.$off('editor-blur', this.blurEditor)
-      bus.$off('image-auto-path', this.handleImagePath)
       bus.$off('copyAsMarkdown', this.handleCopyPaste)
       bus.$off('copyAsHtml', this.handleCopyPaste)
       bus.$off('pasteAsPlainText', this.handleCopyPaste)

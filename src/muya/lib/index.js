@@ -42,7 +42,6 @@ class Muya {
     const { container, contentState, eventCenter } = this
     contentState.stateRender.setContainer(container.children[0])
     eventCenter.subscribe('stateChange', this.dispatchChange)
-    contentState.listenForPathChange()
     const { markdown } = this
     const { focusMode } = this.options
     this.setMarkdown(markdown)
@@ -232,14 +231,6 @@ class Muya {
 
   blur () {
     this.container.blur()
-  }
-
-  showAutoImagePath (files) {
-    const list = files.map(f => {
-      const iconClass = f.type === 'directory' ? 'icon-folder' : 'icon-image'
-      return Object.assign(f, { iconClass, text: f.file + (f.type === 'directory' ? '/' : '') })
-    })
-    this.contentState.showAutoImagePath(list)
   }
 
   format (type) {

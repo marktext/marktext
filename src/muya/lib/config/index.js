@@ -254,7 +254,9 @@ export const MUYA_DEFAULT_OPTION = {
   imageAction: null,
   // Call Electron open dialog or input element type is file.
   imagePathPicker: null,
-  clipboardFilePath: () => {}
+  clipboardFilePath: () => {},
+  // image path auto completed when you input in image selector.
+  imagePathAutoComplete: () => []
 }
 
 // export const DIAGRAM_TEMPLATE = {

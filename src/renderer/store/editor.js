@@ -1,7 +1,7 @@
 import { clipboard, ipcRenderer, shell } from 'electron'
 import path from 'path'
 import bus from '../bus'
-import { hasKeys } from '../util'
+import { hasKeys, getUniqueId } from '../util'
 import { isSameFileSync } from '../util/fileSystem'
 import listToTree from '../util/listToTree'
 import { createDocumentState, getOptionsFromState, getSingleFileState, getBlankFileState } from './help'
@@ -219,11 +219,23 @@ const actions = {
   FORMAT_LINK_CLICK ({ commit }, { data, dirname }) {
     ipcRenderer.send('AGANI::format-link-click', { data, dirname })
   },
+
   // image path auto complement
   ASK_FOR_IMAGE_AUTO_PATH ({ commit, state }, src) {
     const { pathname } = state.currentFile
     if (pathname) {
-      ipcRenderer.send('AGANI::ask-for-image-auto-path', { pathname, src })
+      let rs
+      const promise = new Promise((resolve, reject) => {
+        rs = resolve
+      })
+      const id = getUniqueId()
+      ipcRenderer.once(`mt::response-of-image-path-${id}`, (e, files) => {
+        rs(files)
+      })
+      ipcRenderer.send('mt::ask-for-image-auto-path', { pathname, src, id })
+      return promise
+    } else {
+      return []
     }
   },
 
