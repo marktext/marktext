@@ -1,9 +1,9 @@
 import BaseFloat from '../baseFloat'
 import { patch, h } from '../../parser/render/snabbdom'
-import { EVENT_KEYS } from '../../config'
+import { EVENT_KEYS, URL_REG } from '../../config'
 import { getUniqueId } from '../../utils'
 import { getImageInfo } from '../../utils/getImageInfo'
-/*URL_REG,*/
+
 import './index.css'
 
 class ImageSelector extends BaseFloat {
@@ -150,7 +150,7 @@ class ImageSelector extends BaseFloat {
   }
 
   async replaceImageAsync ({ alt, src, title }) {
-    if (!this.muya.options.imageAction) {
+    if (!this.muya.options.imageAction || URL_REG.test(src)) {
       const { alt: oldAlt, src: oldSrc, title: oldTitle } = this.imageInfo.token
       if (alt !== oldAlt || src !== oldSrc || title !== oldTitle) {
         this.muya.contentState.replaceImage(this.imageInfo, { alt, src, title })

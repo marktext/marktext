@@ -441,7 +441,6 @@
               const result = await uploadImage(pathname, image, preferences)
               return result
             } catch (err) {
-              console.log(err)
               notice.notify({
                 title: 'Upload Image',
                 type: 'info',
@@ -454,7 +453,12 @@
             return await moveImageToFolder(pathname, image, imageFolderPath)
           }
           case 'path': {
-            break
+            if (typeof image === 'string') {
+              return image
+            } else {
+              // Move image to image folder if it's Blob object.
+              return await moveImageToFolder(pathname, image, imageFolderPath)
+            }
           }
         }
       },
