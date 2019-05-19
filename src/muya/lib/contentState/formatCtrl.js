@@ -1,7 +1,7 @@
 import selection from '../selection'
 import { tokenizer, generator } from '../parser/'
 import { FORMAT_MARKER_MAP, FORMAT_TYPES } from '../config'
-import { getImageInfo } from '../utils/checkEditImage'
+import { getImageInfo } from '../utils/getImageInfo'
 
 const getOffset = (offset, { range: { start, end }, type, tag, anchor, alt }) => {
   const dis = offset - start

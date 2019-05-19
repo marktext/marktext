@@ -2,7 +2,7 @@ import BaseFloat from '../baseFloat'
 import { patch, h } from '../../parser/render/snabbdom'
 import { EVENT_KEYS } from '../../config'
 import { getUniqueId } from '../../utils'
-import { getImageInfo } from '../../utils/checkEditImage'
+import { getImageInfo } from '../../utils/getImageInfo'
 /*URL_REG,*/
 import './index.css'
 

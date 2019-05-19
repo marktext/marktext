@@ -247,12 +247,6 @@ class Keyboard {
         }
       }
 
-      // hide image-path float box
-      const imageTextNode = contentState.getImageTextNode()
-      if (!imageTextNode) {
-        eventCenter.dispatch('muya-image-picker', { list: [] })
-      }
-
       const block = contentState.getBlock(anchor.key)
       if (anchor.key === focus.key && anchor.offset !== focus.offset && block.functionType !== 'codeLine') {
         const reference = contentState.getPositionReference()

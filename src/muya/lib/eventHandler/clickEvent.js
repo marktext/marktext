@@ -1,5 +1,5 @@
 import { operateClassName } from '../utils/domManipulate'
-import { getImageInfo } from '../utils/checkEditImage'
+import { getImageInfo } from '../utils/getImageInfo'
 import { CLASS_OR_ID } from '../config'
 import selection from '../selection'
 

@@ -1,7 +1,7 @@
 import selection from '../selection'
 import { findNearestParagraph, findOutMostParagraph } from '../selection/dom'
 import { tokenizer, generator } from '../parser/'
-import { getImageInfo } from '../utils/checkEditImage'
+import { getImageInfo } from '../utils/getImageInfo'
 
 const backspaceCtrl = ContentState => {
   ContentState.prototype.checkBackspaceCase = function () {

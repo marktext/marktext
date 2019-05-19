@@ -1,6 +1,6 @@
 import { findNearestParagraph, findOutMostParagraph } from '../selection/dom'
 import { verticalPositionInRect, getUniqueId } from '../utils'
-import { getImageInfo } from '../utils/checkEditImage'
+import { getImageInfo } from '../utils/getImageInfo'
 
 const GHOST_ID = 'mu-dragover-ghost'
 const GHOST_HEIGHT = 3
