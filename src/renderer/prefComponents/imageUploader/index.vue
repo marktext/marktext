@@ -17,7 +17,7 @@
             <el-input v-model="github.token" placeholder="Input token" size="mini"></el-input>
           </div>
           <div class="form-group">
-            <div class="label">owner name:</div>
+            <div class="label">Owner name:</div>
             <el-input v-model="github.owner" placeholder="owner" size="mini"></el-input>
           </div>
           <div class="form-group">
