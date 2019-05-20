@@ -166,11 +166,11 @@ const pasteCtrl = ContentState => {
   }
 
   // handle `normal` and `pasteAsPlainText` paste
-  ContentState.prototype.pasteHandler = async function (event, type) {
+  ContentState.prototype.pasteHandler = async function (event, type = 'normal', rawText, rawHtml) {
     event.preventDefault()
     event.stopPropagation()
-    const text = event.clipboardData.getData('text/plain')
-    let html = event.clipboardData.getData('text/html')
+    const text = rawText || event.clipboardData.getData('text/plain')
+    let html = rawHtml || event.clipboardData.getData('text/html')
     html = this.standardizeHTML(html)
     const copyType = this.checkCopyType(html, text)
     const { start, end } = this.cursor

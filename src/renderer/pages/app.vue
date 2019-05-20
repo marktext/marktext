@@ -113,7 +113,6 @@
       dispatch('LISTEN_FOR_LAYOUT')
       dispatch('LISTEN_FOR_REQUEST_LAYOUT')
       // module: listenForMain
-      dispatch('LISTEN_FOR_IMAGE_PATH')
       dispatch('LISTEN_FOR_EDIT')
       dispatch('LISTEN_FOR_VIEW')
       dispatch('LISTEN_FOR_ABOUT_DIALOG')

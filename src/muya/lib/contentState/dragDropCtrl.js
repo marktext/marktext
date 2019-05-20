@@ -1,6 +1,7 @@
 import { findNearestParagraph, findOutMostParagraph } from '../selection/dom'
 import { verticalPositionInRect, getUniqueId } from '../utils'
 import { getImageInfo } from '../utils/getImageInfo'
+import { URL_REG, IMAGE_EXT_REG } from '../config'
 
 const GHOST_ID = 'mu-dragover-ghost'
 const GHOST_HEIGHT = 3
@@ -58,7 +59,20 @@ const dragDropCtrl = ContentState => {
 
   ContentState.prototype.dragoverHandler = function (event) {
     // Cancel to allow tab drag&drop.
-    if (!event.dataTransfer.types.length) return
+    if (!event.dataTransfer.types.length) {
+      return event.dataTransfer.dropEffect = 'none'
+    }
+
+    if (event.dataTransfer.types.includes('text/uri-list')) {
+      const items = Array.from(event.dataTransfer.items)
+      const hasUriItem = items.some(i => i.type === 'text/uri-list')
+      const hasTextItem = items.some(i => i.type === 'text/plain')
+      const hasHtmlItem = items.some(i => i.type === 'text/html')
+      if (hasUriItem && hasHtmlItem && !hasTextItem) {
+        this.createGhost(event)
+        event.dataTransfer.dropEffect = 'copy'
+      }
+    }
 
     if (event.dataTransfer.types.indexOf('Files') >= 0) {
       if (event.dataTransfer.items.length === 1 && event.dataTransfer.items[0].type.indexOf('image') > -1) {
@@ -77,6 +91,36 @@ const dragDropCtrl = ContentState => {
   }
 
   ContentState.prototype.dropHandler = async function (event) {
+    event.preventDefault()
+
+    if (event.dataTransfer.items.length) {
+      for (const item of event.dataTransfer.items) {
+        if (item.kind === 'string' && item.type === 'text/uri-list') {
+          const { dropAnchor } = this
+          item.getAsString(str => {
+            if (IMAGE_EXT_REG.test(str) && URL_REG.test(str) && dropAnchor) {
+              const text = `![](${str})`
+              const imageBlock = this.createBlockP(text)
+              const { anchor, position } = dropAnchor
+              if (position === 'up') {
+                this.insertBefore(imageBlock, anchor)
+              } else {
+                this.insertAfter(imageBlock, anchor)
+              }
+
+              const key = imageBlock.children[0].key
+              const offset = 0
+              this.cursor = {
+                start: { key, offset },
+                end: { key, offset }
+              }
+              this.render()
+            }
+          })
+        }
+      }
+    }
+
     if (event.dataTransfer.files) {
       const fileList = []
       for (const file of event.dataTransfer.files) {
