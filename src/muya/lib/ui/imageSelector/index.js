@@ -156,6 +156,7 @@ class ImageSelector extends BaseFloat {
       if (alt !== oldAlt || src !== oldSrc || title !== oldTitle) {
         this.muya.contentState.replaceImage(this.imageInfo, { alt, src, title })
       }
+      this.hide()
     } else {
       if (src) {
         const id = `loading-${getUniqueId()}`
