@@ -124,6 +124,7 @@ const dragDropCtrl = ContentState => {
                 end: { key, offset }
               }
               this.render()
+              this.muya.eventCenter.dispatch('stateChange')
             }
           })
         }
@@ -171,6 +172,7 @@ const dragDropCtrl = ContentState => {
           })
         }
       }
+      this.muya.eventCenter.dispatch('stateChange')
     }
     return this.hideGhost()
   }

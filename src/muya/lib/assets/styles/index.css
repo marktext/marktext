@@ -842,6 +842,10 @@ span.ag-warn.ag-emoji-marked-text {
 .ag-inline-image.ag-image-loading::before,
 .ag-inline-image.ag-image-fail::before,
 .ag-inline-image.ag-empty-image::before {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  width: calc(100% - 50px);
   display: block;
   position: absolute;
   top: 15px;

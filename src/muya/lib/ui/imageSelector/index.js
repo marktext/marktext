@@ -181,6 +181,7 @@ class ImageSelector extends BaseFloat {
         this.hide()
       }
     }
+    this.muya.eventCenter.dispatch('stateChange')
   }
 
   async handleSelectButtonClick  () {
