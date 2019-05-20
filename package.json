@@ -193,6 +193,7 @@
     "plist": "^3.0.1",
     "popper.js": "^1.15.0",
     "prismjs": "^1.16.0",
+    "shortcut-capture": "^1.1.4",
     "snabbdom": "^0.7.3",
     "snabbdom-to-html": "^5.1.1",
     "snapsvg": "^0.5.1",

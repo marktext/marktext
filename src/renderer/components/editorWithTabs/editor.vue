@@ -366,6 +366,7 @@
         bus.$on('scroll-to-header', this.scrollToHeader)
         bus.$on('copy-block', this.handleCopyBlock)
         bus.$on('print', this.handlePrint)
+        bus.$on('screenshot-captured', this.handleScreenShot)
 
         this.editor.on('change', changes => {
           // WORKAROUND: "id: 'muya'"
@@ -666,6 +667,12 @@
 
       handleCopyBlock (name) {
         this.editor.copy(name)
+      },
+
+      handleScreenShot () {
+        if (this.editor) {
+          document.execCommand('paste')
+        }
       }
     },
     beforeDestroy () {
@@ -695,6 +702,7 @@
       bus.$off('scroll-to-header', this.scrollToHeader)
       bus.$off('copy-block', this.handleCopyBlock)
       bus.$off('print', this.handlePrint)
+      bus.$off('screenshot-captured', this.handleScreenShot)
 
       document.removeEventListener('keyup', this.keyup)
 

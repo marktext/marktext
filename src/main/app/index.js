@@ -1,3 +1,4 @@
+import path from 'path'
 import { app, ipcMain, systemPreferences } from 'electron'
 import { isLinux, isOsx } from '../config'
 import { isDirectory, isMarkdownFileOrLink, normalizeAndResolvePath } from '../filesystem'
@@ -8,6 +9,7 @@ import { watchers } from '../utils/imagePathAutoComplement'
 import EditorWindow from '../windows/editor'
 import SettingWindow from '../windows/setting'
 import { WindowType } from './windowManager'
+import ShortcutCapture from 'shortcut-capture'
 
 class App {
 
@@ -21,6 +23,8 @@ class App {
     this._openFilesCache = []
     this._openFilesTimer = null
     this._windowManager = this._accessor.windowManager
+    this.lanchScreenshotWin = null // The window whick call the screenshot.
+    this.shortcutCapture = null
 
     this._listenForIpcMain()
   }
@@ -126,6 +130,16 @@ class App {
     } else {
       this.createEditorWindow()
     }
+    this.shortcutCapture = new ShortcutCapture()
+    if (process.env.NODE_ENV === 'development') {
+      this.shortcutCapture.dirname = path.resolve(path.join(__dirname, '../../../node_modules/shortcut-capture'))
+    }
+    this.shortcutCapture.on('capture', () => {
+      if (this.lanchScreenshotWin) {
+        this.lanchScreenshotWin.webContents.send('mt::screenshot-captured')
+        this.lanchScreenshotWin = null
+      }
+    })
   }
 
   openFile = (event, pathname) => {
@@ -215,6 +229,13 @@ class App {
   _listenForIpcMain () {
     ipcMain.on('app-create-editor-window', () => {
       this.createEditorWindow()
+    })
+
+    ipcMain.on('screen-capture', win => {
+      if (this.shortcutCapture) {
+        this.lanchScreenshotWin = win
+        this.shortcutCapture.shortcutCapture()
+      }
     })
 
     ipcMain.on('app-create-settings-window', () => {

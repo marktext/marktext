@@ -30,6 +30,10 @@ export const edit = (win, type) => {
   win.webContents.send('AGANI::edit', { type })
 }
 
+export const screenshot = (win, type) => {
+  ipcMain.emit('screen-capture', win)
+}
+
 export const lineEnding = (win, lineEnding) => {
   win.webContents.send('AGANI::set-line-ending', { lineEnding, ignoreSaveStatus: false })
 }

@@ -114,6 +114,13 @@ export default function (keybindings, userPreference) {
         actions.edit(browserWindow, 'aidou')
       }
     }, {
+      label: 'Screenshot',
+      id: 'screenshot',
+      accelerator: keybindings.getAccelerator('editScreenshot'),
+      click (menuItem, browserWindow) {
+        actions.screenshot(browserWindow, 'screenshot')
+      }
+    }, {
       type: 'separator'
     }, {
       label: 'Line Ending',

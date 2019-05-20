@@ -220,6 +220,12 @@ const actions = {
     ipcRenderer.send('AGANI::format-link-click', { data, dirname })
   },
 
+  LISTEN_SCREEN_SHOT ({ commit }) {
+    ipcRenderer.on('mt::screenshot-captured', e => {
+      bus.$emit('screenshot-captured')
+    })
+  },
+
   // image path auto complement
   ASK_FOR_IMAGE_AUTO_PATH ({ commit, state }, src) {
     const { pathname } = state.currentFile

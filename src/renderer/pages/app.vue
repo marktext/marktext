@@ -124,6 +124,7 @@
       // module: autoUpdates
       dispatch('LISTEN_FOR_UPDATE')
       // module: editor
+      dispatch('LISTEN_SCREEN_SHOT')
       dispatch('ASK_FOR_USER_PREFERENCE')
       dispatch('ASK_FOR_MODE')
       dispatch('LISTEN_FOR_CLOSE')

@@ -55,6 +55,7 @@ class Keybindings {
       ['editFindPrevious', 'CmdOrCtrl+Shift+U'],
       ['editReplace', 'CmdOrCtrl+Alt+F'],
       ['editAidou', 'CmdOrCtrl+/'],
+      ['editScreenshot', 'CmdOrCtrl+Alt+A'],
 
       // paragraph menu
       ['paragraphHeading1', 'CmdOrCtrl+1'],
