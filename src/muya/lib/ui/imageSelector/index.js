@@ -1,7 +1,7 @@
 import BaseFloat from '../baseFloat'
 import { patch, h } from '../../parser/render/snabbdom'
 import { EVENT_KEYS, URL_REG } from '../../config'
-import { getUniqueId } from '../../utils'
+import { getUniqueId, getImageInfo as getImageSrc } from '../../utils'
 import { getImageInfo } from '../../utils/getImageInfo'
 
 import './index.css'
@@ -167,6 +167,10 @@ class ImageSelector extends BaseFloat {
         })
         this.hide()
         const nSrc = await this.muya.options.imageAction(src)
+        const { src: localPath } = getImageSrc(src)
+        if (localPath) {
+          this.muya.contentState.stateRender.urlMap.set(nSrc, localPath)
+        }
         const imageWrapper = this.muya.container.querySelector(`span[data-id=${id}]`)
   
         if (imageWrapper) {
