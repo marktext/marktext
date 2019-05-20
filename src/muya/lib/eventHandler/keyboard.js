@@ -1,7 +1,7 @@
 import { EVENT_KEYS } from '../config'
 import selection from '../selection'
 import { findNearestParagraph } from '../selection/dom'
-import { getParagraphReference } from '../utils'
+import { getParagraphReference, getImageInfo } from '../utils'
 import { checkEditEmoji } from '../ui/emojis'
 
 class Keyboard {
@@ -96,9 +96,12 @@ class Keyboard {
           return contentState.docEnterHandler(event)
         case EVENT_KEYS.Space: {
           if (contentState.selectedImage) {
-            eventCenter.dispatch('preview-image', {
-              data: contentState.selectedImage.token.src
-            })
+            const { src } = getImageInfo(contentState.selectedImage.token.src)
+            if (src) {
+              eventCenter.dispatch('preview-image', {
+                data: src
+              })
+            }
           }
           break
         }
