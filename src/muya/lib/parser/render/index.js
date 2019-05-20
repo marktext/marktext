@@ -20,6 +20,7 @@ class StateRender {
     this.diagramCache = new Map()
     this.tokenCache = new Map()
     this.labels = new Map()
+    this.urlMap = new Map()
     this.container = null
   }
 

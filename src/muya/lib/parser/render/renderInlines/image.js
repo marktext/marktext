@@ -35,7 +35,7 @@ export default function image (h, cursor, block, token, outerClass) {
   }
   let id
   let isSuccess
-  const { src } = imageInfo
+  let { src } = imageInfo
   const alt = token.alt + encodeURI(token.backlash.first)
   const { title } = token
   if (src) {
@@ -61,6 +61,23 @@ export default function image (h, cursor, block, token, outerClass) {
       }
     }, args)
   }
+
+  // the src image is still loading, so use the url Map base64.
+  if (this.urlMap.has(src)) {
+    src = this.urlMap.get(src)
+    isSuccess = true
+  }
+
+  if (alt.startsWith('loading-')) {
+    wrapperSelector += `.${CLASS_OR_ID['AG_IMAGE_UPLOADING']}`
+    Object.assign(data.dataset, {
+      id: alt
+    })
+    if (this.urlMap.has(alt)) {
+      src = this.urlMap.get(alt)
+      isSuccess = true
+    }
+  }
   if (src) {
     // image is loading...
     if (typeof isSuccess === 'undefined') {
@@ -69,13 +86,6 @@ export default function image (h, cursor, block, token, outerClass) {
       wrapperSelector += `.${CLASS_OR_ID['AG_IMAGE_SUCCESS']}`
     } else {
       wrapperSelector += `.${CLASS_OR_ID['AG_IMAGE_FAIL']}`
-    }
-
-    if (title.startsWith('loading-')) {
-      wrapperSelector += `.${CLASS_OR_ID['AG_IMAGE_UPLOADING']}`
-      Object.assign(data.dataset, {
-        id: title
-      })
     }
 
     if (selectedImage) {
@@ -95,7 +105,9 @@ export default function image (h, cursor, block, token, outerClass) {
           ...imageIcons,
           renderImageContainer(
             ...toolIcons,
-            h('img', { props: { alt, src, title } })
+            // An image description has inline elements as its contents.
+            // When an image is rendered to HTML, this is standardly used as the image’s alt attribute.
+            h('img', { props: { alt: alt.replace(/[`*{}[\]()#+\-.!_>~:|<>$]/g, ''), src, title } })
           )
         ])
       ]

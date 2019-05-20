@@ -160,9 +160,9 @@ class ImageSelector extends BaseFloat {
       if (src) {
         const id = `loading-${getUniqueId()}`
         this.muya.contentState.replaceImage(this.imageInfo, {
-          alt,
+          alt: id,
           src,
-          title: id
+          title
         })
         this.hide()
         const nSrc = await this.muya.options.imageAction(src)

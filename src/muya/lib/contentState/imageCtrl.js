@@ -109,7 +109,7 @@ const imageCtrl = ContentState => {
     }
     imageText += ')'
     block.text = oldText.substring(0, start) + imageText + oldText.substring(end)
-    return this.singleRender(block, false)
+    return this.singleRender(block)
   }
   
   ContentState.prototype.deleteImage = function ({ key, token }) {

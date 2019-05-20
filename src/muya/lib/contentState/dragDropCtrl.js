@@ -1,5 +1,5 @@
 import { findNearestParagraph, findOutMostParagraph } from '../selection/dom'
-import { verticalPositionInRect, getUniqueId } from '../utils'
+import { verticalPositionInRect, getUniqueId, getImageInfo as getImageSrc } from '../utils'
 import { getImageInfo } from '../utils/getImageInfo'
 import { URL_REG, IMAGE_EXT_REG } from '../config'
 
@@ -131,7 +131,7 @@ const dragDropCtrl = ContentState => {
       if (image && this.dropAnchor) {
         const { name, path } = image
         const id = `loading-${getUniqueId()}`
-        const text = `![${name}](${path} "${id}")`
+        const text = `![${id}](${path})`
         const imageBlock = this.createBlockP(text)
         const { anchor, position } = this.dropAnchor
         if (position === 'up') {
@@ -149,6 +149,10 @@ const dragDropCtrl = ContentState => {
         this.render()
 
         const nSrc = await this.muya.options.imageAction(path)
+        const { src } = getImageSrc(path)
+        if (src) {
+          this.stateRender.urlMap.set(nSrc, src)
+        }
         const imageWrapper = this.muya.container.querySelector(`span[data-id=${id}]`)
   
         if (imageWrapper) {
