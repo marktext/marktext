@@ -91,10 +91,17 @@ export default {
         type: 'imageBed',
         value: newImageBedConfig
       })
+      new Notification('Save Image Uploader', {
+        body: `The Github configration has been saved.`
+      })
     },
     setCurrentUploader (value) {
       const type = 'currentUploader'
       this.$store.dispatch('SET_USER_DATA', { type, value })
+
+      new Notification('Set Image Uploader', {
+        body: `Set ${value} as the default image uploader successfully.`
+      })
     }
   }
 }

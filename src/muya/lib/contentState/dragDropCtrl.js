@@ -93,6 +93,7 @@ const dragDropCtrl = ContentState => {
   ContentState.prototype.dropHandler = async function (event) {
     event.preventDefault()
 
+    // handle drag/drop web link image.
     if (event.dataTransfer.items.length) {
       for (const item of event.dataTransfer.items) {
         if (item.kind === 'string' && item.type === 'text/uri-list') {
