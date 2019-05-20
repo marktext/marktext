@@ -1,5 +1,5 @@
 import { findNearestParagraph, findOutMostParagraph } from '../selection/dom'
-import { verticalPositionInRect, getUniqueId, getImageInfo as getImageSrc } from '../utils'
+import { verticalPositionInRect, getUniqueId, getImageInfo as getImageSrc, checkImageContentType } from '../utils'
 import { getImageInfo } from '../utils/getImageInfo'
 import { URL_REG, IMAGE_EXT_REG } from '../config'
 
@@ -98,8 +98,16 @@ const dragDropCtrl = ContentState => {
       for (const item of event.dataTransfer.items) {
         if (item.kind === 'string' && item.type === 'text/uri-list') {
           const { dropAnchor } = this
-          item.getAsString(str => {
-            if (IMAGE_EXT_REG.test(str) && URL_REG.test(str) && dropAnchor) {
+          item.getAsString(async str => {
+            if (URL_REG.test(str) && dropAnchor) {
+              let isImage = false
+              if (IMAGE_EXT_REG.test(str)) {
+                isImage = true
+              }
+              if (!isImage) {
+                isImage = await checkImageContentType(str)
+              }
+              if (!isImage) return
               const text = `![](${str})`
               const imageBlock = this.createBlockP(text)
               const { anchor, position } = dropAnchor
