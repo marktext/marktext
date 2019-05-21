@@ -189,6 +189,10 @@ class ImageSelector extends BaseFloat {
   }
 
   async handleSelectButtonClick  () {
+    if (!this.muya.options.imagePathPicker) {
+      console.warn('You need to add a imagePathPicker option')
+      return
+    }
     const path = await this.muya.options.imagePathPicker()
     const { alt, title } = this.state
     return this.replaceImageAsync({
