@@ -158,7 +158,7 @@ class App {
         // write screenshot image into screenshot folder.
         await fse.writeFile(screenshotFileName, bufferImage)
       } catch (err) {
-        log(err)
+        log.error(err)
       }
     })
   }
@@ -257,7 +257,7 @@ class App {
         const { screenshotFileName } = this
         exec(`screencapture -i -c`, async (err) => {
           if (err) {
-            log(err)
+            log.error(err)
             return
           }
           try {
@@ -266,7 +266,7 @@ class App {
             const bufferImage = image.toPNG()
             await fse.writeFile(screenshotFileName, bufferImage)
           } catch (err) {
-            log(err)
+            log.error(err)
           }
           win.webContents.send('mt::screenshot-captured')
         })

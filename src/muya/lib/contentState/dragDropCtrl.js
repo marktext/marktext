@@ -92,12 +92,12 @@ const dragDropCtrl = ContentState => {
 
   ContentState.prototype.dropHandler = async function (event) {
     event.preventDefault()
-
+    const { dropAnchor } = this
+    this.hideGhost()
     // handle drag/drop web link image.
     if (event.dataTransfer.items.length) {
       for (const item of event.dataTransfer.items) {
         if (item.kind === 'string' && item.type === 'text/uri-list') {
-          const { dropAnchor } = this
           item.getAsString(async str => {
             if (URL_REG.test(str) && dropAnchor) {
               let isImage = false
@@ -137,12 +137,12 @@ const dragDropCtrl = ContentState => {
         fileList.push(file)
       }
       const image = fileList.find(file => /image/.test(file.type))
-      if (image && this.dropAnchor) {
+      if (image && dropAnchor) {
         const { name, path } = image
         const id = `loading-${getUniqueId()}`
         const text = `![${id}](${path})`
         const imageBlock = this.createBlockP(text)
-        const { anchor, position } = this.dropAnchor
+        const { anchor, position } = dropAnchor
         if (position === 'up') {
           this.insertBefore(imageBlock, anchor)
         } else {
@@ -174,7 +174,6 @@ const dragDropCtrl = ContentState => {
       }
       this.muya.eventCenter.dispatch('stateChange')
     }
-    return this.hideGhost()
   }
 }
 
