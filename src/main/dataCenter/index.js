@@ -28,6 +28,7 @@ class DataCenter extends EventEmitter {
   init () {
     const defaltData = {
       imageFolderPath: path.join(this.userDataPath, 'images/'),
+      screenshotFolderPath: path.join(this.userDataPath, 'screenshot/'),
       webImages: [],
       cloudImages: [],
       currentUploader: 'smms',
@@ -42,7 +43,9 @@ class DataCenter extends EventEmitter {
     if (!this.hasDataCenterFile) {
       this.store.set(defaltData)
       const imageFolderPath = this.store.get('imageFolderPath')
+      const screenshotFolderPath = this.store.get('screenshotFolderPath')
       ensureDirSync(imageFolderPath)
+      ensureDirSync(screenshotFolderPath)
     }
 
     this._listenForIpcMain()
@@ -50,13 +53,6 @@ class DataCenter extends EventEmitter {
 
   getAll () {
     return this.store.store
-  }
-
-  changeImageFolderPath (newPath) {
-    ipcMain.emit('broadcast-user-data-changed', { 'imageFolderPath': newPath })
-    this.store.set('imageFolderPath', newPath)
-    ensureDirSync(newPath)
-    return newPath
   }
 
   addImage (key, url) {
@@ -93,6 +89,12 @@ class DataCenter extends EventEmitter {
   }
 
   setItem (key, value) {
+    if (
+      key === 'imageFolderPath' ||
+      key === 'screenshotFolderPath'
+    ) {
+      ensureDirSync(value)
+    }
     ipcMain.emit('broadcast-user-data-changed', { [key]: value })
     return this.store.set(key, value)
   }
@@ -116,7 +118,7 @@ class DataCenter extends EventEmitter {
   _listenForIpcMain () {
     // local main events
     ipcMain.on('set-image-folder-path', newPath => {
-      this.changeImageFolderPath(newPath)
+      this.setItem('imageFolderPath', newPath)
     })
 
     // events from renderer process
@@ -131,7 +133,7 @@ class DataCenter extends EventEmitter {
         properties: [ 'openDirectory', 'createDirectory' ]
       })
       if (folder && folder[0]) {
-        this.changeImageFolderPath(folder[0])
+        this.setItem('imageFolderPath', folder[0])
       }
     })
 

@@ -3,6 +3,10 @@
     "description": "The image folder to store local images.",
     "type": "string"
   },
+  "screenshotFolderPath": {
+    "description": "The place to store screen capture images.",
+    "type": "string"
+  },
   "webImages": {
     "description": "Images from web which you used in Mark Text",
     "type": "array"
