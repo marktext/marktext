@@ -31,6 +31,32 @@ function getPeerDependents (mainLanguage) {
   return peerDependentsMap[mainLanguage] || []
 }
 
+// Look for the origin languge by alias
+export const transfromAliasToOrigin = arr => {
+  const result = []
+  for (const lang of arr) {
+    if (languages[lang]) {
+      result.push(lang)
+    } else {
+      const language = Object.keys(languages).find(name => {
+        const l = languages[name]
+        if (l.alias) {
+          return l.alias === lang || Array.isArray(l.alias) && l.alias.includes(lang)
+        }
+        return false
+      })
+
+      if (language) {
+        result.push(language)
+      } else {
+        // The lang is not exist, the will handle in `initLoadLanguage`
+        result.push(lang)
+      }
+    }
+  }
+  return result
+}
+
 function initLoadLanguage (Prism) {
   return async function loadLanguages (arr, withoutDependencies) {
     // If no argument is passed, load all components
@@ -48,8 +74,8 @@ function initLoadLanguage (Prism) {
     }
 
     const promises = []
-
-    for (const language of arr) {
+    const transformedLangs = transfromAliasToOrigin(arr)
+    for (const language of transformedLangs) {
       // handle not existed
       if (!languages[language]) {
         promises.push(Promise.resolve({
