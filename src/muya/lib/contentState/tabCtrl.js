@@ -313,7 +313,7 @@ const tabCtrl = ContentState => {
       start.key === end.key &&
       start.offset === end.offset &&
       startBlock.type === 'span' &&
-      (!startBlock.functionType || startBlock.functionType === 'codeLine' && startBlock.lang === 'markup')
+      (!startBlock.functionType || startBlock.functionType === 'codeLine' && /markup|html|xml|svg|mathml/.test(startBlock.lang))
     ) {
       const { text } = startBlock
       const lastWordBeforeCursor = text.substring(0, start.offset).split(/\s+/).pop()

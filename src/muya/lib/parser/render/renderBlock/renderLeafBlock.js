@@ -1,6 +1,6 @@
 import katex from 'katex'
 import mermaid from 'mermaid'
-import prism, { loadedCache } from '../../../prism/'
+import prism, { loadedCache, transfromAliasToOrigin } from '../../../prism/'
 import { CLASS_OR_ID, DEVICE_MEMORY, PREVIEW_DOMPURIFY_CONFIG, HAS_TEXT_BLOCK_REG } from '../../../config'
 import { tokenizer } from '../../'
 import { snakeToCamel, sanitize, escapeHtml, getLongUniqueId, getImageInfo } from '../../../utils'
@@ -202,14 +202,16 @@ export default function renderLeafBlock (block, cursor, activeBlocks, selectedBl
       .replace(new RegExp(MARKER_HASK['>'], 'g'), '>')
       .replace(new RegExp(MARKER_HASK['"'], 'g'), '"')
       .replace(new RegExp(MARKER_HASK["'"], 'g'), "'")
+    // transfrom alias to original language
+    const transformedLang = transfromAliasToOrigin([lang])[0]
 
-    if (lang && /\S/.test(code) && loadedCache.has(lang)) {
+    if (transformedLang && /\S/.test(code) && loadedCache.has(transformedLang)) {
       const wrapper = document.createElement('div')
-      wrapper.classList.add(`language-${lang}`)
+      wrapper.classList.add(`language-${transformedLang}`)
       wrapper.innerHTML = code
       prism.highlightElement(wrapper, false, function () {
         const highlightedCode = this.innerHTML
-        selector += `.language-${lang}`
+        selector += `.language-${transformedLang}`
         children = htmlToVNode(highlightedCode)
       })
     } else {
