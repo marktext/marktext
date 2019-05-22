@@ -116,12 +116,14 @@ const addFormat = (type, block, { start, end }) => {
     case 'link':
     case 'image': {
       const oldText = block.text
+      const anchorTextLen = end.offset - start.offset
       block.text = oldText.substring(0, start.offset) +
         (type === 'link' ? '[' : '![') +
         oldText.substring(start.offset, end.offset) + ']()' +
         oldText.substring(end.offset)
-      start.offset += type === 'link' ? 1 : 2
-      end.offset += type === 'link' ? 1 : 2
+      // put cursor between `()`
+      start.offset += type === 'link' ? 3 + anchorTextLen : 4 + anchorTextLen
+      end.offset = start.offset
       break
     }
   }
