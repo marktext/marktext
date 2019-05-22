@@ -69,8 +69,7 @@ class Preference extends EventEmitter {
       const requiresUpdate = !hasSameKeys(defaultSettings, userSetting)
       const userSettingKeys = Object.keys(userSetting)
       const defaultSettingKeys = Object.keys(defaultSettings)
-      console.log(userSetting, defaultSettings)
-      console.log(requiresUpdate)
+
       if (requiresUpdate) {
         // remove outdated settings
         for (const key of userSettingKeys) {
