@@ -147,6 +147,7 @@ const enterCtrl = ContentState => {
   ContentState.prototype.docEnterHandler = function (event) {
     const { eventCenter } = this.muya
     const { selectedImage } = this
+    // Show image selector when you press Enter key and there is already one image selected.
     if (selectedImage) {
       event.preventDefault()
       event.stopPropagation()
@@ -155,7 +156,7 @@ const enterCtrl = ContentState => {
       const rect = imageWrapper.getBoundingClientRect()
       const reference = {
         getBoundingClientRect () {
-          rect.height = 0
+          rect.height = 0 // Put image selector bellow the top border of image.
           return rect
         }
       }
@@ -172,10 +173,12 @@ const enterCtrl = ContentState => {
 
   ContentState.prototype.enterHandler = function (event) {
     const { start, end } = selection.getCursorRange()
+
     if (!start || !end) {
       return event.preventDefault()
     }
     let block = this.getBlock(start.key)
+    const { text } = block
     const endBlock = this.getBlock(end.key)
     let parent = this.getParent(block)
 
@@ -187,7 +190,6 @@ const enterCtrl = ContentState => {
       this.updateCodeLanguage(block, block.text.trim())
       return
     }
-
     // handle select multiple blocks
     if (start.key !== end.key) {
       const key = start.key
@@ -346,7 +348,8 @@ const enterCtrl = ContentState => {
       block = parent
       parent = this.getParent(block)
     }
-    const { left, right } = selection.getCaretOffsets(paragraph)
+    const left = start.offset
+    const right = text.length - left
     const type = block.type
     let newBlock
 

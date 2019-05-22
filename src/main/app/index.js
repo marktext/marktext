@@ -254,6 +254,7 @@ class App {
 
     ipcMain.on('screen-capture', win => {
       if (isOsx) {
+        // Use macOs `screencapture` command line when in macOs system.
         const { screenshotFileName } = this
         exec(`screencapture -i -c`, async (err) => {
           if (err) {
@@ -261,7 +262,7 @@ class App {
             return
           }
           try {
-            // write screenshot image into screenshot folder.
+            // Write screenshot image into screenshot folder.
             const image = clipboard.readImage()
             const bufferImage = image.toPNG()
             await fse.writeFile(screenshotFileName, bufferImage)
