@@ -241,9 +241,10 @@ const backspaceCtrl = ContentState => {
         event.stopPropagation()
         event.preventDefault()
         const key = startBlock.key
-        const len = startBlock.text.length
-        startBlock.text = startBlock.text.substring(0, len - 1)
-        const offset = startBlock.text.length
+        const text = startBlock.text
+
+        startBlock.text = text.substring(0, start.offset - 1) + text.substring(start.offset)
+        const offset = start.offset - 1
         this.cursor = {
           start: { key, offset },
           end: { key, offset }
