@@ -27,7 +27,7 @@ class App {
     this._openFilesCache = []
     this._openFilesTimer = null
     this._windowManager = this._accessor.windowManager
-    this.lanchScreenshotWin = null // The window whick call the screenshot.
+    this.launchScreenshotWin = null // The window which call the screenshot.
     this.shortcutCapture = null
 
     this._listenForIpcMain()
@@ -149,9 +149,9 @@ class App {
       const image = nativeImage.createFromDataURL(dataURL)
       const bufferImage = image.toPNG()
 
-      if (this.lanchScreenshotWin) {
-        this.lanchScreenshotWin.webContents.send('mt::screenshot-captured')
-        this.lanchScreenshotWin = null
+      if (this.launchScreenshotWin) {
+        this.launchScreenshotWin.webContents.send('mt::screenshot-captured')
+        this.launchScreenshotWin = null
       }
 
       try {
@@ -273,7 +273,7 @@ class App {
         })
       } else {
         if (this.shortcutCapture) {
-          this.lanchScreenshotWin = win
+          this.launchScreenshotWin = win
           this.shortcutCapture.shortcutCapture()
         }
       }
