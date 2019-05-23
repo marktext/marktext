@@ -1,8 +1,5 @@
 import path from 'path'
-export const isOsx = window && window.navigator && /Mac/.test(window.navigator.platform)
-export const isWin = window && window.navigator.userAgent && /win32|wow32|win64|wow64/i.test(window.navigator.userAgent)
-export const isLinux = process.platform === 'linux'
-
+import { isLinux } from './util'
 export const PATH_SEPARATOR = path.sep
 
 export const THEME_STYLE_ID = 'ag-theme'

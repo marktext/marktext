@@ -1,4 +1,4 @@
-import { isLinux, isOsx, isWin } from '../config'
+import { isLinux, isOsx, isWindows } from './index'
 import plist from 'plist'
 import { remote } from 'electron'
 
@@ -16,7 +16,7 @@ export const guessClipboardFilePath = () => {
   if (isOsx) {
     const result = getClipboardFiles()
     return Array.isArray(result) && result.length ? result[0] : ''
-  } else if (isWin) {
+  } else if (isWindows) {
     const rawFilePath = remote.clipboard.read('FileNameW')
     const filePath = rawFilePath.replace(new RegExp(String.fromCharCode(0), 'g'), '')
     return filePath && typeof filePath === 'string' ? filePath : ''

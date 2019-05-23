@@ -3,7 +3,7 @@ import fse from 'fs-extra'
 import dayjs from 'dayjs'
 import Octokit from '@octokit/rest'
 import { isImageFile } from '../../main/filesystem'
-import { dataURItoBlob } from './index'
+import { dataURItoBlob, getContentHash } from './index'
 import axios from 'axios'
 
 export const create = (pathname, type) => {
@@ -56,13 +56,17 @@ export const moveImageToFolder = async (pathname, image, dir) => {
     const imagePath = path.resolve(dirname, image)
     const isImage = isImageFile(imagePath)
     if (isImage) {
-      const filename = path.basename(image)
-      const distPath = path.join(dir, filename)
-      if (distPath === imagePath) {
+      const filename = path.basename(imagePath)
+      const extname = path.extname(imagePath)
+      const noHashPath = path.join(dir, filename)
+      if (noHashPath === imagePath) {
         return imagePath
       }
-      await fse.copy(imagePath, distPath)
-      return distPath
+      const hash = getContentHash(imagePath)
+      // To avoid name conflict.
+      const hashFilePath = path.join(dir, `${hash}${extname}`)
+      await fse.copy(imagePath, hashFilePath)
+      return hashFilePath
     } else {
       return Promise.resolve(image)
     }
