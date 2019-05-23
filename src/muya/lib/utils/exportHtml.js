@@ -29,6 +29,7 @@ class ExportHtml {
     this.markdown = markdown
     this.muya = muya
     this.exportContainer = null
+    this.mathRendererCalled = false
   }
 
   renderMermaid () {
@@ -92,8 +93,16 @@ class ExportHtml {
     }
   }
 
+  mathRenderer = (math, displayMode) => {
+    this.mathRendererCalled = true
+    return katex.renderToString(math, {
+      displayMode
+    })
+  }
+
   // render pure html by marked
   async renderHtml () {
+    this.mathRendererCalled = false
     let html = marked(this.markdown, {
       highlight (code, lang) {
         // Language may be undefined (GH#591)
@@ -120,11 +129,7 @@ class ExportHtml {
           return `:${emoji}:`
         }
       },
-      mathRenderer (math, displayMode) {
-        return katex.renderToString(math, {
-          displayMode
-        })
-      }
+      mathRenderer: this.mathRenderer
     })
     html = sanitize(html, EXPORT_DOMPURIFY_CONFIG)
     const exportContainer = this.exportContainer = document.createElement('div')
@@ -160,6 +165,7 @@ class ExportHtml {
     // WORKAROUND: Hide Prism.js style when exporting or printing. Otherwise the background color is white in the dark theme.
     const highlightCssStyle = printOptimization ? `@media print { ${highlightCss} }` : highlightCss
     const html = await this.renderHtml()
+    const katexCssStyle = this.mathRendererCalled ? katexCss : ''
     return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -173,7 +179,7 @@ class ExportHtml {
   ${highlightCssStyle}
   </style>
   <style>
-  ${katexCss}
+  ${katexCssStyle}
   </style>
   <style>
     .markdown-body {
