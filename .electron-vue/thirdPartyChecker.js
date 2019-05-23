@@ -8,13 +8,14 @@ const getLicenses = (rootDir, callback) => {
     production: true,
     development: false,
     direct: true,
+    excludePackages: 'xmldom@0.1.27', // xmldom@0.1.27 is under MIT License, but license-checker show it's under LGPL License.
     json: true,
     onlyAllow: 'Unlicense;WTFPL;ISC;MIT;BSD;ISC;Apache-2.0;MIT*;Apache*;BSD*',
     customPath: {
-      "licenses": "",
-      "licenseText": "none"
+      licenses: '',
+      licenseText: 'none'
     }
-  }, function(err, packages) {
+  }, function (err, packages) {
     callback(err, packages, checker)
   })
 }
