@@ -46,6 +46,12 @@ class Muya {
     this.setMarkdown(markdown)
     this.setFocusMode(focusMode)
     this.mutationObserver()
+    eventCenter.attachDOMEvent(container, 'focus', () => {
+      eventCenter.dispatch('focus')
+    })
+    eventCenter.attachDOMEvent(container, 'blur', () => {
+      eventCenter.dispatch('blur')
+    })
   }
 
   mutationObserver () {
