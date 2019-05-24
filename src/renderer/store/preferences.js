@@ -43,9 +43,9 @@ const state = {
   webImages: [],
   cloudImages: [],
   currentUploader: 'smms',
+  githubToken: '',
   imageBed: {
     github: {
-      token: '',
       owner: '',
       repo: ''
     }

@@ -2,6 +2,7 @@ import fs from 'fs'
 import path from 'path'
 import EventEmitter from 'events'
 import { BrowserWindow, ipcMain, dialog } from 'electron'
+import keytar from 'keytar'
 import schema from './schema'
 import Store from 'electron-store'
 import log from 'electron-log'
@@ -17,6 +18,8 @@ class DataCenter extends EventEmitter {
     const { dataCenterPath, userDataPath } = paths
     this.dataCenterPath = dataCenterPath
     this.userDataPath = userDataPath
+    this.serviceName = 'marktext'
+    this.encryptKeys = ['githubToken']
     this.hasDataCenterFile = fs.existsSync(path.join(this.dataCenterPath, `./${DATA_CENTER_NAME}.json`))
     this.store = new Store({
       schema,
@@ -51,8 +54,25 @@ class DataCenter extends EventEmitter {
     this._listenForIpcMain()
   }
 
-  getAll () {
-    return this.store.store
+  async getAll () {
+    const { serviceName, encryptKeys } = this
+    const data = this.store.store
+    try {
+      const encryptData = await Promise.all(encryptKeys.map(key => {
+        return keytar.getPassword(serviceName, key)
+      }))
+      const encryptObj = encryptKeys.reduce((acc, k, i) => {
+        return {
+          ...acc,
+          [k]: encryptData[i]
+        }
+      }, {})
+
+      return Object.assign(data, encryptObj)
+    } catch (err) {
+      log.error(err)
+      return data
+    }
   }
 
   addImage (key, url) {
@@ -84,11 +104,18 @@ class DataCenter extends EventEmitter {
     return this.store.set(type, items)
   }
 
-  getItem (key) {
-    return this.store.get(key)
+  async getItem (key) {
+    const { encryptKeys, serviceName } = this
+    if (encryptKeys.includes(key)) {
+      const value = await keytar.getPassword(serviceName, key)
+      return value
+    } else {
+      return this.store.get(key)
+    }
   }
 
-  setItem (key, value) {
+  async setItem (key, value) {
+    const { encryptKeys, serviceName } = this
     if (
       key === 'imageFolderPath' ||
       key === 'screenshotFolderPath'
@@ -96,7 +123,15 @@ class DataCenter extends EventEmitter {
       ensureDirSync(value)
     }
     ipcMain.emit('broadcast-user-data-changed', { [key]: value })
-    return this.store.set(key, value)
+    if (encryptKeys.includes(key)) {
+      try {
+        return await keytar.setPassword(serviceName, key, value)
+      } catch (err) {
+        log.error(err)
+      }
+    } else {
+      return this.store.set(key, value)
+    }
   }
 
   /**
@@ -122,9 +157,10 @@ class DataCenter extends EventEmitter {
     })
 
     // events from renderer process
-    ipcMain.on('mt::ask-for-user-data', e => {
+    ipcMain.on('mt::ask-for-user-data', async e => {
       const win = BrowserWindow.fromWebContents(e.sender)
-      win.webContents.send('AGANI::user-preference', this.getAll())
+      const userData = await this.getAll()
+      win.webContents.send('AGANI::user-preference', userData)
     })
 
     ipcMain.on('mt::ask-for-modify-image-folder-path', e => {

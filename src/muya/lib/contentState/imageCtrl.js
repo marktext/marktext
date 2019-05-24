@@ -5,7 +5,7 @@ const imageCtrl = ContentState => {
    * insert inline image at the cursor position.
    */
   ContentState.prototype.insertImage = function ({ alt = '', src = '', title = '' }) {
-    const match = /\/?([^./]+)\.[a-z]+$/.exec(src)
+    const match = /(?:\/|\\)?([^./\\]+)\.[a-z]+$/.exec(src)
     if (!alt) {
       alt = match && match[1] ? match[1] : ''
     }

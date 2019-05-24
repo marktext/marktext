@@ -14,7 +14,7 @@
         <el-tab-pane label="Github" name="github">
           <div class="form-group">
             <div class="label">GitHub token:</div>
-            <el-input v-model="github.token" placeholder="Input token" size="mini"></el-input>
+            <el-input v-model="githubToken" placeholder="Input token" size="mini"></el-input>
           </div>
           <div class="form-group">
             <div class="label">Owner name:</div>
@@ -44,8 +44,8 @@ export default {
   data () {
     return {
       activeTab: 'smms',
+      githubToken: '',
       github: {
-        token: '',
         owner: '',
         repo: ''
       }
@@ -62,8 +62,13 @@ export default {
         return this.$store.state.preferences.imageBed
       }
     },
+    prefGithubToken: {
+      get: function () {
+        return this.$store.state.preferences.githubToken
+      }
+    },
     githubDisable () {
-      return !this.github.token || !this.github.owner || !this.github.repo
+      return !this.githubToken || !this.github.owner || !this.github.repo
     }
   },
   watch: {
@@ -76,6 +81,7 @@ export default {
   created () {
     this.$nextTick(() => {
       this.github = this.imageBed.github
+      this.githubToken = this.prefGithubToken
     })
   },
   methods: {
@@ -91,6 +97,12 @@ export default {
         type: 'imageBed',
         value: newImageBedConfig
       })
+      if (type === 'github') {
+        this.$store.dispatch('SET_USER_DATA', {
+          type: 'githubToken',
+          value: this.githubToken
+        })
+      }
       new Notification('Save Image Uploader', {
         body: `The Github configration has been saved.`
       })

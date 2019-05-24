@@ -91,7 +91,8 @@ export const moveImageToFolder = async (pathname, image, dir) => {
  */
 export const uploadImage = async (pathname, image, preferences) => {
   const { currentUploader } = preferences
-  const { token, owner, repo } = preferences.imageBed.github
+  const { owner, repo } = preferences.imageBed.github
+  const token = preferences.githubToken
   const isPath = typeof image === 'string'
   const MAX_SIZE = 5 * 1024 * 1024
   let re

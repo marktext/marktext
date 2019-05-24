@@ -64,6 +64,11 @@ export default function image (h, cursor, block, token, outerClass) {
 
   // the src image is still loading, so use the url Map base64.
   if (this.urlMap.has(src)) {
+    // fix: it will generate a new id if the image is not loaded.
+    const { selectedImage } = this.muya.contentState
+    if (selectedImage && selectedImage.token.src === src && selectedImage.imageId !== id) {
+      selectedImage.imageId = id
+    }
     src = this.urlMap.get(src)
     isSuccess = true
   }
