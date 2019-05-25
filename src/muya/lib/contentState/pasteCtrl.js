@@ -1,9 +1,8 @@
 
-import { PARAGRAPH_TYPES, PREVIEW_DOMPURIFY_CONFIG, HAS_TEXT_BLOCK_REG } from '../config'
-
-import { sanitize, getUniqueId } from '../utils'
+import { PARAGRAPH_TYPES, PREVIEW_DOMPURIFY_CONFIG, HAS_TEXT_BLOCK_REG, IMAGE_EXT_REG } from '../config'
+import { sanitize, getUniqueId, getImageInfo as getImageSrc } from '../utils'
 import { getImageInfo } from '../utils/getImageInfo'
-// import electron from 'electron'
+
 const LIST_REG = /ul|ol/
 const LINE_BREAKS_REG = /\n/
 
