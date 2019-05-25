@@ -1,5 +1,5 @@
 import { sanitize } from '../utils'
-import { PARAGRAPH_TYPES, PREVIEW_DOMPURIFY_CONFIG } from '../config'
+import { PARAGRAPH_TYPES, PREVIEW_DOMPURIFY_CONFIG, HAS_TEXT_BLOCK_REG } from '../config'
 
 const LIST_REG = /ul|ol/
 const LINE_BREAKS_REG = /\n/
@@ -239,15 +239,18 @@ const pasteCtrl = ContentState => {
       const len = blocks.length
       const lastBlock = blocks[len - 1]
 
-      if (lastBlock.children.length === 0) {
+      if (lastBlock.children.length === 0 && HAS_TEXT_BLOCK_REG.test(lastBlock.type)) {
         return lastBlock
       } else {
-        return getLastBlock(lastBlock.children)
+        if (lastBlock.editable === false) {
+          return getLastBlock(blocks[len - 2].children)
+        } else {
+          return getLastBlock(lastBlock.children)
+        }
       }
     }
 
     const lastBlock = getLastBlock(stateFragments)
-
     let key = lastBlock.key
     let offset = lastBlock.text.length
     lastBlock.text += cacheText
