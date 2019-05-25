@@ -81,8 +81,8 @@ Before you can get started developing, you need set up your build environment:
 - libx11 (dev)
 - libxkbfile (dev)
 
-On Debian-based Linux: `sudo apt-get install libx11-dev libxkbfile-dev`
-On Red Hat-based Linux: `sudo dnf install libx11-devel libxkbfile-devel`
+On Debian-based Linux: `sudo apt-get install libx11-dev libxkbfile-dev libsecret-1-dev`
+On Red Hat-based Linux: `sudo dnf install libx11-devel libxkbfile-devel libsecret-devel`
 
 **Let's build:**
 

@@ -37,7 +37,6 @@ class DataCenter extends EventEmitter {
       currentUploader: 'smms',
       imageBed: {
         github: {
-          token: '',
           owner: '',
           repo: ''
         }
@@ -104,13 +103,18 @@ class DataCenter extends EventEmitter {
     return this.store.set(type, items)
   }
 
-  async getItem (key) {
+  /**
+   * 
+   * @param {string} key
+   * return a promise
+   */
+  getItem (key) {
     const { encryptKeys, serviceName } = this
     if (encryptKeys.includes(key)) {
-      const value = await keytar.getPassword(serviceName, key)
-      return value
+      return keytar.getPassword(serviceName, key)
     } else {
-      return this.store.get(key)
+      const value = this.store.get(key)
+      return Promise.resolve(value)
     }
   }
 
