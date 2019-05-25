@@ -63,19 +63,21 @@ class Preference extends EventEmitter {
       this.store.set(defaultSettings)
     } else {
       let userSetting = this.getAll()
+      const userSettingKeys = Object.keys(userSetting)
+      const defaultSettingKeys = Object.keys(defaultSettings)
 
       // Update outdated settings
       const requiresUpdate = !hasSameKeys(defaultSettings, userSetting)
       if (requiresUpdate) {
         // remove outdated settings
-        for (const key in userSetting) {
-          if (userSetting.hasOwnProperty(key) && !defaultSettings.hasOwnProperty(key)) {
+        for (const key of userSettingKeys) {
+          if (!defaultSettingKeys.includes(key)) {
             delete userSetting[key]
           }
         }
         // add new setting options
         for (const key in defaultSettings) {
-          if (defaultSettings.hasOwnProperty(key) && !userSetting.hasOwnProperty(key)) {
+          if (!userSettingKeys.includes(key)) {
             userSetting[key] = defaultSettings[key]
           }
         }

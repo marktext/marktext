@@ -22,7 +22,7 @@ const mainConfig = {
       {
         test: /\.(js)$/,
         enforce: 'pre',
-        exclude: /node_modules/,
+        include: [path.join(__dirname, 'src/main')],
         use: {
           loader: 'eslint-loader',
           options: {

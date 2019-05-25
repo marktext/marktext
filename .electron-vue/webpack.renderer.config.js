@@ -11,7 +11,7 @@ const VueLoaderPlugin = require('vue-loader/lib/plugin')
 const SpritePlugin = require('svg-sprite-loader/plugin')
 const postcssPresetEnv = require('postcss-preset-env')
 const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer')
-
+const AutoDllPlugin = require('autodll-webpack-plugin');
 const { getRendererEnvironmentDefinitions } = require('./marktextEnvironment')
 const { dependencies } = require('../package.json')
 const proMode = process.env.NODE_ENV === 'production'
@@ -22,7 +22,54 @@ const proMode = process.env.NODE_ENV === 'production'
  * https://simulatedgreg.gitbooks.io/electron-vue/content/en/webpack-configurations.html#white-listing-externals
  */
 const whiteListedModules = ['vue']
-
+const autoDllModules = [
+  // "@hfelix/electron-localshortcut",
+  // "arg",
+  "axios",
+  // "chokidar",
+  "codemirror",
+  // "command-exists",
+  "dayjs",
+  "dom-autoscroller",
+  "dompurify",
+  "dragula",
+  // "electron-is-accelerator",
+  // "electron-log",
+  // "electron-store",
+  // "electron-window-state",
+  "element-resize-detector",
+  "element-ui",
+  "file-icons-js",
+  "flowchart.js",
+  // "fs-extra",
+  "fuzzaldrin",
+  // "github-markdown-css",
+  "html-tags",
+  "katex",
+  // "keyboard-layout",
+  //"mermaid",
+  "popper.js",
+  "prismjs",
+  "snabbdom",
+  "snabbdom-to-html",
+  // "snapsvg",
+  "source-map-support",
+  "turndown",
+  "turndown-plugin-gfm",
+  "underscore",
+  "vega",
+  "vega-embed",
+  "vega-lite",
+  "view-image",
+  // "vue-electron",
+  "vue-router",
+  "vuex"
+]
+/* const autoDllMuyaLib = [
+  path.join(__dirname, '../src/muya/lib/assets/libs/raphael.js'),
+  path.join(__dirname, '../src/muya/lib/assets/libs/sequence-diagram.js'),
+  path.join(__dirname, '../src/muya/lib/assets/libs/webFontLoader.js')
+] */
 const rendererConfig = {
   mode: 'development',
   devtool: '#cheap-module-eval-source-map',
@@ -37,7 +84,8 @@ const rendererConfig = {
       {
         test: /\.(js|vue)$/,
         enforce: 'pre',
-        exclude: /node_modules/,
+        exclude: [path.join(__dirname, 'src/main')],
+        include: [path.join(__dirname, 'src')],
         use: {
           loader: 'eslint-loader',
           options: {
@@ -59,14 +107,16 @@ const rendererConfig = {
         use: [
           proMode ? MiniCssExtractPlugin.loader : 'style-loader',
           { loader: 'css-loader', options: { importLoaders: 1 } },
-          { loader: 'postcss-loader', options: {
-            ident: 'postcss',
-            plugins: () => [
-              postcssPresetEnv({
-                stage: 0
-              })
-            ]
-          } }
+          {
+            loader: 'postcss-loader', options: {
+              ident: 'postcss',
+              plugins: () => [
+                postcssPresetEnv({
+                  stage: 0
+                })
+              ]
+            }
+          }
         ]
       },
       {
@@ -76,7 +126,7 @@ const rendererConfig = {
       {
         test: /\.js$/,
         use: 'babel-loader',
-        exclude: /node_modules/
+        exclude: [/node_modules/, path.join(__dirname, 'src/main')]
       },
       {
         test: /\.node$/,
@@ -84,6 +134,7 @@ const rendererConfig = {
       },
       {
         test: /\.vue$/,
+        exclude: [/node_modules/, path.join(__dirname, 'src/main')],
         use: {
           loader: 'vue-loader',
           options: {
@@ -147,6 +198,7 @@ const rendererConfig = {
   plugins: [
     new SpritePlugin(),
     new HtmlWebpackPlugin({
+      inject: true,
       filename: 'index.html',
       template: path.resolve(__dirname, '../src/index.ejs'),
       minify: {
@@ -160,12 +212,23 @@ const rendererConfig = {
     }),
     new webpack.NoEmitOnErrorsPlugin(),
     new webpack.DefinePlugin(getRendererEnvironmentDefinitions()),
-    new VueLoaderPlugin()
+    new VueLoaderPlugin(),
+    new AutoDllPlugin({
+      context: path.join(__dirname, '..'),
+      inject: true, // will inject the DLL bundles to index.html
+      debug: true,
+      filename: '[name].js',
+      entry: {
+        vendor: autoDllModules
+        // muyaLib: autoDllMuyaLib
+      }
+    })
   ],
   output: {
     filename: '[name].js',
     libraryTarget: 'commonjs2',
-    path: path.join(__dirname, '../dist/electron')
+    path: path.join(__dirname, '../dist/electron'),
+    publicPath: ''
   },
   resolve: {
     alias: {
