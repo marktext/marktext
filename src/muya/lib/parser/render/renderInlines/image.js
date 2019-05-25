@@ -2,7 +2,7 @@ import { CLASS_OR_ID } from '../../../config'
 import { getImageInfo } from '../../../utils'
 import ImageIcon from '../../../assets/pngicon/image/2.png'
 import ImageFailIcon from '../../../assets/pngicon/image_fail/2.png'
-import TurnIntoIcon from '../../../assets/pngicon/turninto/2.png'
+import ImageEditIcon from '../../../assets/pngicon/imageEdit/2.png'
 import DeleteIcon from '../../../assets/pngicon/delete/delete@2x.png'
 
 const renderIcon = (h, className, icon) => {
@@ -51,7 +51,7 @@ export default function image (h, cursor, block, token, outerClass) {
     renderIcon(h, 'ag-image-icon-close', DeleteIcon)
   ]
   const toolIcons = [
-    renderIcon(h, 'ag-image-icon-turninto', TurnIntoIcon),
+    renderIcon(h, 'ag-image-icon-turninto', ImageEditIcon),
     renderIcon(h, 'ag-image-icon-delete', DeleteIcon)
   ]
   const renderImageContainer = (...args) => {
