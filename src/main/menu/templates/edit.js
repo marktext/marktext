@@ -1,4 +1,5 @@
 import * as actions from '../actions/edit'
+import { isOsx } from '../../config'
 
 export default function (keybindings, userPreference) {
   const { aidou } = userPreference.getAll()
@@ -116,6 +117,7 @@ export default function (keybindings, userPreference) {
     }, {
       label: 'Screenshot',
       id: 'screenshot',
+      visible: isOsx,
       accelerator: keybindings.getAccelerator('editScreenshot'),
       click (menuItem, browserWindow) {
         actions.screenshot(browserWindow, 'screenshot')

@@ -2,7 +2,7 @@ import path from 'path'
 import fse from 'fs-extra'
 import log from 'electron-log'
 import { exec } from 'child_process'
-import { app, ipcMain, systemPreferences, nativeImage, clipboard } from 'electron'
+import { app, ipcMain, systemPreferences, clipboard } from 'electron'
 import dayjs from 'dayjs'
 import { isLinux, isOsx } from '../config'
 import { isDirectory, isMarkdownFileOrLink, normalizeAndResolvePath } from '../filesystem'
@@ -13,7 +13,7 @@ import { watchers } from '../utils/imagePathAutoComplement'
 import EditorWindow from '../windows/editor'
 import SettingWindow from '../windows/setting'
 import { WindowType } from './windowManager'
-import ShortcutCapture from 'shortcut-capture'
+// import ShortcutCapture from 'shortcut-capture'
 
 class App {
 
@@ -27,8 +27,8 @@ class App {
     this._openFilesCache = []
     this._openFilesTimer = null
     this._windowManager = this._accessor.windowManager
-    this.launchScreenshotWin = null // The window which call the screenshot.
-    this.shortcutCapture = null
+    // this.launchScreenshotWin = null // The window which call the screenshot.
+    // this.shortcutCapture = null
 
     this._listenForIpcMain()
   }
@@ -140,27 +140,27 @@ class App {
     } else {
       this.createEditorWindow()
     }
-    this.shortcutCapture = new ShortcutCapture()
-    if (process.env.NODE_ENV === 'development') {
-      this.shortcutCapture.dirname = path.resolve(path.join(__dirname, '../../../node_modules/shortcut-capture'))
-    }
-    this.shortcutCapture.on('capture', async ({ dataURL }) => {
-      const { screenshotFileName } = this
-      const image = nativeImage.createFromDataURL(dataURL)
-      const bufferImage = image.toPNG()
+    // this.shortcutCapture = new ShortcutCapture()
+    // if (process.env.NODE_ENV === 'development') {
+    //   this.shortcutCapture.dirname = path.resolve(path.join(__dirname, '../../../node_modules/shortcut-capture'))
+    // }
+    // this.shortcutCapture.on('capture', async ({ dataURL }) => {
+    //   const { screenshotFileName } = this
+    //   const image = nativeImage.createFromDataURL(dataURL)
+    //   const bufferImage = image.toPNG()
 
-      if (this.launchScreenshotWin) {
-        this.launchScreenshotWin.webContents.send('mt::screenshot-captured')
-        this.launchScreenshotWin = null
-      }
+    //   if (this.launchScreenshotWin) {
+    //     this.launchScreenshotWin.webContents.send('mt::screenshot-captured')
+    //     this.launchScreenshotWin = null
+    //   }
 
-      try {
-        // write screenshot image into screenshot folder.
-        await fse.writeFile(screenshotFileName, bufferImage)
-      } catch (err) {
-        log.error(err)
-      }
-    })
+    //   try {
+    //     // write screenshot image into screenshot folder.
+    //     await fse.writeFile(screenshotFileName, bufferImage)
+    //   } catch (err) {
+    //     log.error(err)
+    //   }
+    // })
   }
 
   openFile = (event, pathname) => {
@@ -272,10 +272,11 @@ class App {
           win.webContents.send('mt::screenshot-captured')
         })
       } else {
-        if (this.shortcutCapture) {
-          this.launchScreenshotWin = win
-          this.shortcutCapture.shortcutCapture()
-        }
+        // Do nothing, maybe we'll add screenCapture later on Linux and Windows.
+        // if (this.shortcutCapture) {
+        //   this.launchScreenshotWin = win
+        //   this.shortcutCapture.shortcutCapture()
+        // }
       }
     })
 
