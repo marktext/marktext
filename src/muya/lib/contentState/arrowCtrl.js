@@ -53,6 +53,36 @@ const arrowCtrl = ContentState => {
     return null
   }
 
+  ContentState.prototype.docArrowHandler = function (event) {
+    const { selectedImage } = this
+    if (selectedImage) {
+      const { key, token } = selectedImage
+      const { start, end } = token.range
+      event.preventDefault()
+      event.stopPropagation()
+      const block = this.getBlock(key)
+      switch (event.key) {
+        case EVENT_KEYS.ArrowUp:
+        case EVENT_KEYS.ArrowLeft: {
+          this.cursor = {
+            start: { key, offset: start },
+            end: { key, offset: start }
+          }
+          break
+        }
+        case EVENT_KEYS.ArrowDown:
+        case EVENT_KEYS.ArrowRight: {
+          this.cursor = {
+            start: { key, offset: end },
+            end: { key, offset: end }
+          }
+          break
+        }
+      }
+      return this.singleRender(block)
+    }
+  }
+
   ContentState.prototype.arrowHandler = function (event) {
     const node = selection.getSelectionStart()
     const paragraph = findNearestParagraph(node)

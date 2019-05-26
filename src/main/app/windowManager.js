@@ -312,6 +312,12 @@ class WindowManager extends EventEmitter {
         }
       }
     })
+
+    ipcMain.on('broadcast-user-data-changed', userData => {
+      for (const { browserWindow } of this._windows.values()) {
+        browserWindow.webContents.send('AGANI::user-preference', userData)
+      }
+    })
   }
 }
 

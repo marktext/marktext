@@ -24,6 +24,12 @@
   --iconColor: rgba(255, 255, 255, .8);
   --codeBgColor: #3a3f4b;
   --codeBlockBgColor: #3a3f4b;
+  --inputBgColor: rgba(0, 0, 0, .1);
+  --buttonBgColor: #58606a;
+  --buttonBorderColor: rgba(0, 0, 0, 0.2);
+  --buttonShadow: rgba(0, 0, 0, 0.12);
+  --buttonHover: #4a5058;
+  --buttonActive: #434a53;
 
   /*marktext*/
   --sideBarColor: #9da5b4;
@@ -37,7 +43,7 @@
   --floatBorderColor: #181a1f;
   --floatShadow: rgba(0, 0, 0, 0.3);
   --maskColor: rgba(0, 0, 0, .7);
-  --editorAreaWidth: 700px;
+  --editorAreaWidth: 750px;
 }
 
 ::-webkit-scrollbar {

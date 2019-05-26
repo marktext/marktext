@@ -18,12 +18,13 @@ import tabCtrl from './tabCtrl'
 import formatCtrl from './formatCtrl'
 import searchCtrl from './searchCtrl'
 import containerCtrl from './containerCtrl'
-import imagePathCtrl from './imagePathCtrl'
 import htmlBlockCtrl from './htmlBlock'
 import clickCtrl from './clickCtrl'
 import inputCtrl from './inputCtrl'
 import tocCtrl from './tocCtrl'
 import emojiCtrl from './emojiCtrl'
+import imageCtrl from './imageCtrl'
+import dragDropCtrl from './dragDropCtrl'
 import importMarkdown from '../utils/importMarkdown'
 import Cursor from '../selection/cursor'
 
@@ -43,12 +44,13 @@ const prototypes = [
   formatCtrl,
   searchCtrl,
   containerCtrl,
-  imagePathCtrl,
   htmlBlockCtrl,
   clickCtrl,
   inputCtrl,
   tocCtrl,
   emojiCtrl,
+  imageCtrl,
+  dragDropCtrl,
   importMarkdown
 ]
 
@@ -67,6 +69,8 @@ class ContentState {
     this.currentCursor = null
     // you'll select the outmost block of current cursor when you click the front icon.
     this.selectedBlock = null
+    this._selectedImage = null
+    this.dropAnchor = null
     this.prevCursor = null
     this.historyTimer = null
     this.history = new History(this)
@@ -74,6 +78,22 @@ class ContentState {
     this.fontSize = 16
     this.lineHeight = 1.6
     this.init()
+  }
+
+  set selectedImage (image) {
+    const oldSelectedImage = this._selectedImage
+    // if there is no selected image, remove selected status of current selected image.
+    if (!image && oldSelectedImage) {
+      const selectedImages = this.muya.container.querySelectorAll('.ag-inline-image-selected')
+      for (const img of selectedImages) {
+        img.classList.remove('ag-inline-image-selected')
+      }
+    }
+    this._selectedImage = image
+  }
+
+  get selectedImage () {
+    return this._selectedImage
   }
 
   set cursor (cursor) {
@@ -149,20 +169,29 @@ class ContentState {
     this.renderRange = [ startOutMostBlock.preSibling, endOutMostBlock.nextSibling ]
   }
 
+  postRender () {
+    // do nothing.
+  }
+
   render (isRenderCursor = true) {
-    const { blocks, cursor, searchMatches: { matches, index }, selectedBlock } = this
+    const { blocks, searchMatches: { matches, index } } = this
     const activeBlocks = this.getActiveBlocks()
     matches.forEach((m, i) => {
       m.active = i === index
     })
     this.setNextRenderRange()
     this.stateRender.collectLabels(blocks)
-    this.stateRender.render(blocks, cursor, activeBlocks, matches, selectedBlock)
-    if (isRenderCursor) this.setCursor()
+    this.stateRender.render(blocks, activeBlocks, matches)
+    if (isRenderCursor) {
+      this.setCursor()
+    } else {
+      this.muya.blur()
+    }
+    this.postRender()
   }
 
   partialRender (isRenderCursor = true) {
-    const { blocks, cursor, searchMatches: { matches, index }, selectedBlock } = this
+    const { blocks, searchMatches: { matches, index } } = this
     const activeBlocks = this.getActiveBlocks()
     const [ startKey, endKey ] = this.renderRange
     matches.forEach((m, i) => {
@@ -174,8 +203,30 @@ class ContentState {
 
     this.setNextRenderRange()
     this.stateRender.collectLabels(blocks)
-    this.stateRender.partialRender(needRenderBlocks, cursor, activeBlocks, matches, startKey, endKey, selectedBlock)
-    if (isRenderCursor) this.setCursor()
+    this.stateRender.partialRender(needRenderBlocks, activeBlocks, matches, startKey, endKey)
+    if (isRenderCursor) {
+      this.setCursor()
+    } else {
+      this.muya.blur()
+    }
+    this.postRender()
+  }
+
+  singleRender (block, isRenderCursor = true) {
+    const { blocks, searchMatches: { matches, index } } = this
+    const activeBlocks = this.getActiveBlocks()
+    matches.forEach((m, i) => {
+      m.active = i === index
+    })
+    this.setNextRenderRange()
+    this.stateRender.collectLabels(blocks)
+    this.stateRender.singleRender(block, activeBlocks, matches)
+    if (isRenderCursor) {
+      this.setCursor()
+    } else {
+      this.muya.blur()
+    }
+    this.postRender()
   }
 
   /**

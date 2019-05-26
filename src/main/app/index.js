@@ -1,4 +1,9 @@
-import { app, ipcMain, systemPreferences } from 'electron'
+import path from 'path'
+import fse from 'fs-extra'
+import log from 'electron-log'
+import { exec } from 'child_process'
+import { app, ipcMain, systemPreferences, clipboard } from 'electron'
+import dayjs from 'dayjs'
 import { isLinux, isOsx } from '../config'
 import { isDirectory, isMarkdownFileOrLink, normalizeAndResolvePath } from '../filesystem'
 import { getMenuItemById } from '../menu'
@@ -8,6 +13,7 @@ import { watchers } from '../utils/imagePathAutoComplement'
 import EditorWindow from '../windows/editor'
 import SettingWindow from '../windows/setting'
 import { WindowType } from './windowManager'
+// import ShortcutCapture from 'shortcut-capture'
 
 class App {
 
@@ -21,6 +27,8 @@ class App {
     this._openFilesCache = []
     this._openFilesTimer = null
     this._windowManager = this._accessor.windowManager
+    // this.launchScreenshotWin = null // The window which call the screenshot.
+    // this.shortcutCapture = null
 
     this._listenForIpcMain()
   }
@@ -72,6 +80,12 @@ class App {
         event.preventDefault()
       })
     })
+  }
+
+  get screenshotFileName () {
+    const screenshotFolderPath = this._accessor.dataCenter.getItem('screenshotFolderPath')
+    const fileName = `${dayjs().format('YYYY-MM-DD-HH-mm-ss')}-screenshot.png`
+    return path.join(screenshotFolderPath, fileName)
   }
 
   ready = () => {
@@ -126,6 +140,27 @@ class App {
     } else {
       this.createEditorWindow()
     }
+    // this.shortcutCapture = new ShortcutCapture()
+    // if (process.env.NODE_ENV === 'development') {
+    //   this.shortcutCapture.dirname = path.resolve(path.join(__dirname, '../../../node_modules/shortcut-capture'))
+    // }
+    // this.shortcutCapture.on('capture', async ({ dataURL }) => {
+    //   const { screenshotFileName } = this
+    //   const image = nativeImage.createFromDataURL(dataURL)
+    //   const bufferImage = image.toPNG()
+
+    //   if (this.launchScreenshotWin) {
+    //     this.launchScreenshotWin.webContents.send('mt::screenshot-captured')
+    //     this.launchScreenshotWin = null
+    //   }
+
+    //   try {
+    //     // write screenshot image into screenshot folder.
+    //     await fse.writeFile(screenshotFileName, bufferImage)
+    //   } catch (err) {
+    //     log.error(err)
+    //   }
+    // })
   }
 
   openFile = (event, pathname) => {
@@ -215,6 +250,34 @@ class App {
   _listenForIpcMain () {
     ipcMain.on('app-create-editor-window', () => {
       this.createEditorWindow()
+    })
+
+    ipcMain.on('screen-capture', win => {
+      if (isOsx) {
+        // Use macOs `screencapture` command line when in macOs system.
+        const { screenshotFileName } = this
+        exec(`screencapture -i -c`, async (err) => {
+          if (err) {
+            log.error(err)
+            return
+          }
+          try {
+            // Write screenshot image into screenshot folder.
+            const image = clipboard.readImage()
+            const bufferImage = image.toPNG()
+            await fse.writeFile(screenshotFileName, bufferImage)
+          } catch (err) {
+            log.error(err)
+          }
+          win.webContents.send('mt::screenshot-captured')
+        })
+      } else {
+        // Do nothing, maybe we'll add screenCapture later on Linux and Windows.
+        // if (this.shortcutCapture) {
+        //   this.launchScreenshotWin = win
+        //   this.shortcutCapture.shortcutCapture()
+        // }
+      }
     })
 
     ipcMain.on('app-create-settings-window', () => {

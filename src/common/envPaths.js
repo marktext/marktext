@@ -17,7 +17,9 @@ class EnvPaths {
     this._logPath = path.join(this._userDataPath, 'logs', `${currentDate.getFullYear()}${currentDate.getMonth() + 1}`)
     this._preferencesPath = userDataPath // path.join(this._userDataPath, 'preferences')
 
-    this._preferencesFilePath = path.join(this._preferencesPath, 'preference.md')
+    this._dataCenterPath = userDataPath
+
+    this._preferencesFilePath = path.join(this._preferencesPath, 'preference.json')
 
     // TODO(sessions): enable this...
     // this._globalStorage = path.join(this._userDataPath, 'globalStorage')
@@ -40,6 +42,10 @@ class EnvPaths {
 
   get preferencesPath () {
     return this._preferencesPath
+  }
+
+  get dataCenterPath () {
+    return this._dataCenterPath
   }
 
   get preferencesFilePath () {

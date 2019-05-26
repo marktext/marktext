@@ -115,14 +115,6 @@
     "description": "Editor--Hide hint for quickly creating paragraphs",
     "type": "boolean"
   },
-  "imageDropAction": {
-    "description": "Editor--The default behavior after paste or drag the image to Mark Text",
-    "enum": [
-      "upload",
-      "folder",
-      "path"
-    ]
-  },
   "preferLooseListItem": {
     "description": "Markdown--The preferred list type",
     "type": "boolean"
@@ -167,5 +159,14 @@
   "theme": {
     "description": "Theme--Select the theme used in Mark Text",
     "type": "string"
+  },
+
+  "imageInsertAction": {
+    "description": "Image--The default behavior after insert image from local folder",
+    "enum": [
+      "upload",
+      "folder",
+      "path"
+    ]
   }
 }

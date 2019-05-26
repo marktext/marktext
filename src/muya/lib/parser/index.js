@@ -197,9 +197,7 @@ const tokenizerFac = (src, beginRules, inlineRules, pos = 0, top, labels) => {
           start: pos,
           end: pos + imageTo[0].length
         },
-        // An image description has inline elements as its contents.
-        // When an image is rendered to HTML, this is standardly used as the image’s alt attribute.
-        alt: imageTo[2].replace(/[`*{}[\]()#+\-.!_>~:|<>$]/g, ''),
+        alt: imageTo[2],
         backlash: {
           first: imageTo[3],
           second: imageTo[5]

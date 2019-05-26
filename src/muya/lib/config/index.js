@@ -47,6 +47,7 @@ export const emptyElementNames = ['br', 'col', 'colgroup', 'hr', 'img', 'input',
 export const EVENT_KEYS = generateKeyHash([
   'Enter',
   'Backspace',
+  'Space',
   'Delete',
   'ArrowUp',
   'ArrowDown',
@@ -95,8 +96,16 @@ export const CLASS_OR_ID = genUpper2LowerKeyHash([
   'AG_HTML_PREVIEW',
   'AG_HTML_TAG',
   'AG_IMAGE_FAIL',
+  'AG_IMAGE_LOADING',
+  'AG_EMPTY_IMAGE',
   'AG_IMAGE_MARKED_TEXT',
   'AG_IMAGE_SRC',
+  'AG_IMAGE_CONTAINER',
+  'AG_INLINE_IMAGE',
+  'AG_IMAGE_SUCCESS',
+  'AG_IMAGE_UPLOADING',
+  'AG_INLINE_IMAGE_SELECTED',
+  'AG_INLINE_IMAGE_IS_EDIT',
   'AG_INDENT_CODE',
   'AG_INLINE_RULE',
   'AG_LANGUAGE',
@@ -240,7 +249,14 @@ export const MUYA_DEFAULT_OPTION = {
   sequenceTheme: 'hand', // hand or simple
   mermaidTheme: 'default', // dark / forest / default
   vegaTheme: 'latimes', // excel / ggplot2 / quartz / vox / fivethirtyeight / dark / latimes
-  hideQuickInsertHint: false
+  hideQuickInsertHint: false,
+  // transform the image to local folder, cloud or just return the local path
+  imageAction: null,
+  // Call Electron open dialog or input element type is file.
+  imagePathPicker: null,
+  clipboardFilePath: () => {},
+  // image path auto completed when you input in image selector.
+  imagePathAutoComplete: () => []
 }
 
 // export const DIAGRAM_TEMPLATE = {
@@ -249,5 +265,8 @@ export const MUYA_DEFAULT_OPTION = {
 
 export const isInElectron = window && window.process && window.process.type === 'renderer'
 export const isOsx = window && window.navigator && /Mac/.test(window.navigator.platform)
+export const isWin = window && window.navigator.userAgent && /win32|wow32|win64|wow64/i.test(window.navigator.userAgent)
 // http[s] (domain or IPv4 or localhost or IPv6) [port] /not-white-space
 export const URL_REG = /^http(s)?:\/\/([a-z0-9\-._~]+\.[a-z]{2,}|[0-9.]+|localhost|\[[a-f0-9.:]+\])(:[0-9]{1,5})?\/[\S]+/i
+// The smallest transparent gif base64 image.
+export const SMALLEST_BASE64 = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'

@@ -23,7 +23,7 @@ const state = {
   endOfLine: 'default',
   textDirection: 'ltr',
   hideQuickInsertHint: false,
-  imageDropAction: 'folder',
+  imageInsertAction: 'folder',
 
   preferLooseListItem: true,
   bulletListMarker: '-',
@@ -36,7 +36,20 @@ const state = {
   // edit modes (they are not in preference.md, but still put them here)
   typewriter: false, // typewriter mode
   focus: false, // focus mode
-  sourceCode: false // source code mode
+  sourceCode: false, // source code mode
+
+  // user configration
+  imageFolderPath: '',
+  webImages: [],
+  cloudImages: [],
+  currentUploader: 'smms',
+  githubToken: '',
+  imageBed: {
+    github: {
+      owner: '',
+      repo: ''
+    }
+  }
 }
 
 const getters = {}
@@ -57,6 +70,7 @@ const mutations = {
 const actions = {
   ASK_FOR_USER_PREFERENCE ({ commit, state, rootState }) {
     ipcRenderer.send('mt::ask-for-user-preference')
+    ipcRenderer.send('mt::ask-for-user-data')
 
     ipcRenderer.on('AGANI::user-preference', (e, preference) => {
       const { autoSave } = preference
@@ -90,6 +104,14 @@ const actions = {
     // commit('SET_USER_PREFERENCE', { [type]: value })
     // save to electron-store
     ipcRenderer.send('mt::set-user-preference', { [type]: value })
+  },
+
+  SET_USER_DATA ({ commit }, { type, value }) {
+    ipcRenderer.send('mt::set-user-data', { [type]: value })
+  },
+
+  SET_IMAGE_FOLDER_PATH ({ commit }) {
+    ipcRenderer.send('mt::ask-for-modify-image-folder-path')
   }
 }
 

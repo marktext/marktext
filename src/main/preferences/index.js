@@ -62,20 +62,24 @@ class Preference extends EventEmitter {
     if (!this.hasPreferencesFile) {
       this.store.set(defaultSettings)
     } else {
-      let userSetting = this.getAll()
-
+      // Because `this.getAll()` will return a plainObject, so we can not use `hasOwnProperty` method
+      // const plainObject = () => Object.create(null)
+      const userSetting = this.getAll()
       // Update outdated settings
       const requiresUpdate = !hasSameKeys(defaultSettings, userSetting)
+      const userSettingKeys = Object.keys(userSetting)
+      const defaultSettingKeys = Object.keys(defaultSettings)
+
       if (requiresUpdate) {
         // remove outdated settings
-        for (const key in userSetting) {
-          if (userSetting.hasOwnProperty(key) && !defaultSettings.hasOwnProperty(key)) {
+        for (const key of userSettingKeys) {
+          if (!defaultSettingKeys.includes(key)) {
             delete userSetting[key]
           }
         }
         // add new setting options
         for (const key in defaultSettings) {
-          if (defaultSettings.hasOwnProperty(key) && !userSetting.hasOwnProperty(key)) {
+          if (!userSettingKeys.includes(key)) {
             userSetting[key] = defaultSettings[key]
           }
         }

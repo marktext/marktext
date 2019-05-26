@@ -57,6 +57,7 @@ Here is an example:
 | `editFindPrevious`    | Continue the search and find the previous match |
 | `editReplace`         | Replace the information with a replacement      |
 | `editAidou`           | Show Aidou dialog                               |
+| `editScreenshot`      | Get the screenshot                              |
 
 **Paragraph menu:**
 

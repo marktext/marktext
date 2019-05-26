@@ -1,0 +1,128 @@
+.ag-image-selector-wrapper {
+  border-radius: 3px;
+}
+.ag-image-selector {
+  width: 500px;
+  height: 190px;
+}
+
+.ag-image-selector ul.header {
+  margin: 0;
+  padding: 0;
+  height: 40px;
+  border-bottom: 1px solid var(--editorColor10);
+  padding-left: 40px;
+  display: flex;
+}
+
+.ag-image-selector ul.header li {
+  font-size: 14px;
+  color: var(--editorColor);
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  position: relative;
+}
+
+.ag-image-selector ul.header li span {
+  display: inline-block;
+  padding: 0 8px;
+  width: 100%;
+  height: 30px;
+  line-height: 30px;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.ag-image-selector ul.header li span:hover {
+  background: var(--editorColor04);
+}
+
+.ag-image-selector ul.header li.active::before {
+  content: '';
+  width: 100%;
+  height: 3px;
+  display: block;
+  background: var(--themeColor);
+  bottom: 0;
+  left: 0;
+  position: absolute;
+}
+
+.ag-image-selector .input-container {
+  width: 100%;
+  height: 30px;
+  margin: 20px 0 15px 0;
+  padding: 0 25px;
+  box-sizing: border-box;
+  display: flex;
+}
+
+.ag-image-selector .input-container input {
+  height: 30px;
+  border-radius: 15px;
+  outline: none;
+  padding: 0 15px;
+  border: none;
+  font-size: 14px;
+  background: var(--inputBgColor);
+  color: var(--editorColor);
+  margin-right: 10px;
+}
+
+.ag-image-selector .input-container input:last-of-type {
+  margin-right: 0;
+}
+
+.ag-image-selector .input-container input.src {
+  flex: 1;
+}
+
+.ag-image-selector .input-container input.title,
+.ag-image-selector .input-container input.alt {
+  flex: 0;
+  max-width: 80px;
+}
+
+.ag-image-selector span.role-button {
+  display: block;
+  width: 280px;
+  height: 32px;
+  border-radius: 8px;
+  color: var(--editorColor80);
+  line-height: 28px;
+  font-size: 16px;
+  text-align: center;
+  border: 1px solid var(--buttonBorderColor);
+  box-shadow: 0 2px 4px 0 var(--buttonShadowColor);
+  background: var(--buttonBgColor);
+  cursor: pointer;
+  margin: 0 auto;
+  margin-bottom: 16px;
+  box-sizing: border-box;
+  user-select: none;
+}
+
+.ag-image-selector span.role-button.select {
+  margin-top: 35px;
+}
+
+.ag-image-selector span.role-button:hover {
+  background: var(--buttonHover);
+}
+
+.ag-image-selector span.role-button:active {
+  background: var(--buttonActive);
+}
+
+.ag-image-selector span.description {
+  text-align: center;
+  display: block;
+  color: var(--editorColor30);
+}
+
+.ag-image-selector span.description a {
+  cursor: pointer;
+  color: #4ca4f5;
+}

@@ -81,15 +81,19 @@
   import CodePicker from 'muya/lib/ui/codePicker'
   import EmojiPicker from 'muya/lib/ui/emojiPicker'
   import ImagePathPicker from 'muya/lib/ui/imagePicker'
+  import ImageSelector from 'muya/lib/ui/imageSelector'
   import FormatPicker from 'muya/lib/ui/formatPicker'
   import FrontMenu from 'muya/lib/ui/frontMenu'
   import bus from '../../bus'
   import Search from '../search.vue'
   import { animatedScrollTo } from '../../util'
   import { addCommonStyle } from '../../util/theme'
+  import { guessClipboardFilePath } from '../../util/guessClipBoardFilePath'
   import { showContextMenu } from '../../contextMenu/editor'
   import Printer from '@/services/printService'
   import { DEFAULT_EDITOR_FONT_FAMILY } from '@/config'
+  import { moveImageToFolder, uploadImage } from '@/util/fileSystem'
+  import notice from '@/services/notification'
 
   import 'muya/themes/default.css'
   import '@/assets/themes/codemirror/one-dark.css'
@@ -116,6 +120,7 @@
     },
     computed: {
       ...mapState({
+        'preferences': state => state.preferences,
         'preferLooseListItem': state => state.preferences.preferLooseListItem,
         'autoPairBracket': state => state.preferences.autoPairBracket,
         'autoPairMarkdownSyntax': state => state.preferences.autoPairMarkdownSyntax,
@@ -132,7 +137,11 @@
         'darkColor': state => state.preferences.darkColor,
         'editorFontFamily': state => state.preferences.editorFontFamily,
         'hideQuickInsertHint': state => state.preferences.hideQuickInsertHint,
+        'imageInsertAction': state => state.preferences.imageInsertAction,
+        'imageFolderPath': state => state.preferences.imageFolderPath,
         'theme': state => state.preferences.theme,
+
+        'currentFile': state => state.editor.currentFile,
         // edit modes
         'typewriter': state => state.preferences.typewriter,
         'focus': state => state.preferences.focus,
@@ -291,6 +300,7 @@
         Muya.use(CodePicker)
         Muya.use(EmojiPicker)
         Muya.use(ImagePathPicker)
+        Muya.use(ImageSelector)
         Muya.use(FormatPicker)
         Muya.use(FrontMenu)
 
@@ -305,7 +315,11 @@
           orderListDelimiter,
           tabSize,
           listIndentation,
-          hideQuickInsertHint
+          hideQuickInsertHint,
+          imageAction: this.imageAction.bind(this),
+          imagePathPicker: this.imagePathPicker.bind(this),
+          clipboardFilePath: guessClipboardFilePath,
+          imagePathAutoComplete: this.imagePathAutoComplete.bind(this)
         }
         if (/dark/i.test(theme)) {
           Object.assign(options, {
@@ -341,7 +355,6 @@
         bus.$on('image-uploaded', this.handleUploadedImage)
         bus.$on('file-changed', this.handleMarkdownChange)
         bus.$on('editor-blur', this.blurEditor)
-        bus.$on('image-auto-path', this.handleImagePath)
         bus.$on('copyAsMarkdown', this.handleCopyPaste)
         bus.$on('copyAsHtml', this.handleCopyPaste)
         bus.$on('pasteAsPlainText', this.handleCopyPaste)
@@ -353,19 +366,7 @@
         bus.$on('scroll-to-header', this.scrollToHeader)
         bus.$on('copy-block', this.handleCopyBlock)
         bus.$on('print', this.handlePrint)
-
-        // when cursor is in `![](cursor)` will emit `insert-image`
-        this.editor.on('insert-image', type => {
-          if (type === 'absolute' || type === 'relative') {
-            this.$store.dispatch('ASK_FOR_INSERT_IMAGE', type)
-          } else if (type === 'upload') {
-            bus.$emit('upload-image')
-          }
-        })
-
-        this.editor.on('image-path-autocomplement', src => {
-          this.$store.dispatch('ASK_FOR_IMAGE_AUTO_PATH', src)
-        })
+        bus.$on('screenshot-captured', this.handleScreenShot)
 
         this.editor.on('change', changes => {
           // WORKAROUND: "id: 'muya'"
@@ -391,6 +392,19 @@
           }
         })
 
+        this.editor.on('preview-image', ({ data }) => {
+          if (this.imageViewer) {
+            this.imageViewer.destroy()
+          }
+
+          this.imageViewer = new ViewImage(this.$refs.imageViewer, {
+            url: data,
+            snapView: true
+          })
+
+          this.setImageViewerVisible(true)
+        })
+
         this.editor.on('selectionChange', changes => {
           const { y } = changes.cursorCoords
           if (this.typewriter) {
@@ -412,15 +426,50 @@
       })
     },
     methods: {
+      async imagePathAutoComplete (src) {
+        const files = await this.$store.dispatch('ASK_FOR_IMAGE_AUTO_PATH', src)
+        return files.map(f => {
+          const iconClass = f.type === 'directory' ? 'icon-folder' : 'icon-image'
+          return Object.assign(f, { iconClass, text: f.file + (f.type === 'directory' ? '/' : '') })
+        })
+      },
+      async imageAction (image) {
+        const { imageInsertAction, imageFolderPath, preferences } = this
+        const { pathname } = this.currentFile
+        switch (imageInsertAction) {
+          case 'upload': {
+            try {
+              const result = await uploadImage(pathname, image, preferences)
+              return result
+            } catch (err) {
+              notice.notify({
+                title: 'Upload Image',
+                type: 'info',
+                message: err
+              })
+              return await moveImageToFolder(pathname, image, imageFolderPath)
+            }
+          }
+          case 'folder': {
+            return await moveImageToFolder(pathname, image, imageFolderPath)
+          }
+          case 'path': {
+            if (typeof image === 'string') {
+              return image
+            } else {
+              // Move image to image folder if it's Blob object.
+              return await moveImageToFolder(pathname, image, imageFolderPath)
+            }
+          }
+        }
+      },
+      imagePathPicker () {
+        return this.$store.dispatch('ASK_FOR_IMAGE_PATH')
+      },
       keyup (event) {
         if (event.key === 'Escape') {
           this.setImageViewerVisible(false)
         }
-      },
-
-      handleImagePath (files) {
-        const { editor } = this
-        editor && editor.showAutoImagePath(files)
       },
 
       setImageViewerVisible (status) {
@@ -452,9 +501,9 @@
         }
       },
 
-      handleSelect (url) {
+      handleSelect (src) {
         if (!this.sourceCode) {
-          this.editor && this.editor.insertImage(url)
+          this.editor && this.editor.insertImage({ src })
         }
       },
 
@@ -618,6 +667,12 @@
 
       handleCopyBlock (name) {
         this.editor.copy(name)
+      },
+
+      handleScreenShot () {
+        if (this.editor) {
+          document.execCommand('paste')
+        }
       }
     },
     beforeDestroy () {
@@ -636,7 +691,6 @@
       bus.$off('image-uploaded', this.handleUploadedImage)
       bus.$off('file-changed', this.handleMarkdownChange)
       bus.$off('editor-blur', this.blurEditor)
-      bus.$off('image-auto-path', this.handleImagePath)
       bus.$off('copyAsMarkdown', this.handleCopyPaste)
       bus.$off('copyAsHtml', this.handleCopyPaste)
       bus.$off('pasteAsPlainText', this.handleCopyPaste)
@@ -648,6 +702,7 @@
       bus.$off('scroll-to-header', this.scrollToHeader)
       bus.$off('copy-block', this.handleCopyBlock)
       bus.$off('print', this.handlePrint)
+      bus.$off('screenshot-captured', this.handleScreenShot)
 
       document.removeEventListener('keyup', this.keyup)
 

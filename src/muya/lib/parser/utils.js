@@ -77,12 +77,23 @@ export const getAttributes = html => {
 
 export const parseSrcAndTitle = (text = '') => {
   const parts = text.split(/\s+/)
-  const src = parts[0]
-  const rawTitle = text.substring(src.length).trim()
+  if (parts.length === 1) {
+    return {
+      src: text.trim(),
+      title: ''
+    }
+  }
+  const rawTitle = parts.pop()
+  let src = ''
   const TITLE_REG = /^('|")(.*?)\1$/ // we only support use `'` and `"` to indicate a title now.
   let title = ''
   if (rawTitle && TITLE_REG.test(rawTitle)) {
     title = rawTitle.replace(TITLE_REG, '$2')
+  }
+  if (title) {
+    src = text.substring(0, text.length - rawTitle.length).trim()
+  } else {
+    src = text.trim()
   }
   return { src, title }
 }

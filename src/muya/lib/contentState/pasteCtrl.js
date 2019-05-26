@@ -1,5 +1,7 @@
-import { sanitize } from '../utils'
-import { PARAGRAPH_TYPES, PREVIEW_DOMPURIFY_CONFIG, HAS_TEXT_BLOCK_REG } from '../config'
+
+import { PARAGRAPH_TYPES, PREVIEW_DOMPURIFY_CONFIG, HAS_TEXT_BLOCK_REG, IMAGE_EXT_REG } from '../config'
+import { sanitize, getUniqueId, getImageInfo as getImageSrc } from '../utils'
+import { getImageInfo } from '../utils/getImageInfo'
 
 const LIST_REG = /ul|ol/
 const LINE_BREAKS_REG = /\n/
@@ -77,11 +79,113 @@ const pasteCtrl = ContentState => {
     return tempWrapper.innerHTML
   }
 
+  ContentState.prototype.pasteImage = async function (event) {
+    // Try to guess the clipboard file path.
+    const imagePath = this.muya.options.clipboardFilePath()
+    if (imagePath && typeof imagePath === 'string' && IMAGE_EXT_REG.test(imagePath)) {
+      const id = `loading-${getUniqueId()}`
+      if (this.selectedImage) {
+        this.replaceImage(this.selectedImage, {
+          alt: id,
+          src: imagePath,
+        })
+      } else {
+        this.insertImage({
+          alt: id,
+          src: imagePath
+        })
+      }
+      const nSrc = await this.muya.options.imageAction(imagePath)
+      const { src } = getImageSrc(imagePath)
+      if (src) {
+        this.stateRender.urlMap.set(nSrc, src)
+      }
+
+      const imageWrapper = this.muya.container.querySelector(`span[data-id=${id}]`)
+
+      if (imageWrapper) {
+        const imageInfo = getImageInfo(imageWrapper)
+        this.replaceImage(imageInfo, {
+          src: nSrc
+        })
+      }
+      return imagePath
+    }
+
+    const items = event.clipboardData && event.clipboardData.items
+    let file = null
+    if (items && items.length) {
+      for (let i = 0; i < items.length; i++) {
+        if (items[i].type.indexOf('image') !== -1) {
+          file = items[i].getAsFile()
+          break
+        }
+      }
+    }
+
+    // handle paste to create inline image
+    if (file) {
+      const id = `loading-${getUniqueId()}`
+      if (this.selectedImage) {
+        this.replaceImage(this.selectedImage, {
+          alt: id,
+          src: ''
+        })
+      } else {
+        this.insertImage({
+          alt: id,
+          src: ''
+        })
+      }
+
+      const reader = new FileReader()
+      reader.onload = event => {
+        const base64 = event.target.result
+        const imageWrapper = this.muya.container.querySelector(`span[data-id=${id}]`)
+        const imageContainer = this.muya.container.querySelector(`span[data-id=${id}] .ag-image-container`)
+        this.stateRender.urlMap.set(id, base64)
+        if (imageContainer) {
+          imageWrapper.classList.remove('ag-empty-image')
+          imageWrapper.classList.add('ag-image-success')
+          const image = document.createElement('img')
+          image.src = base64
+          imageContainer.appendChild(image)
+        }
+      }
+      reader.readAsDataURL(file)
+
+      const nSrc = await this.muya.options.imageAction(file)
+      const base64 = this.stateRender.urlMap.get(id)
+      if (base64) {
+        this.stateRender.urlMap.set(nSrc, base64)
+        this.stateRender.urlMap.delete(id)
+      }
+      const imageWrapper = this.muya.container.querySelector(`span[data-id=${id}]`)
+
+      if (imageWrapper) {
+        const imageInfo = getImageInfo(imageWrapper)
+        this.replaceImage(imageInfo, {
+          src: nSrc
+        })
+      }
+      return file
+    }
+    return null
+  }
+
+  ContentState.prototype.docPasteHandler = async function (event) {
+    const file = await this.pasteImage(event)
+    if (file) {
+      return event.preventDefault()
+    }
+  }
+
   // handle `normal` and `pasteAsPlainText` paste
-  ContentState.prototype.pasteHandler = function (event, type) {
+  ContentState.prototype.pasteHandler = async function (event, type = 'normal', rawText, rawHtml) {
     event.preventDefault()
-    const text = event.clipboardData.getData('text/plain')
-    let html = event.clipboardData.getData('text/html')
+    event.stopPropagation()
+    const text = rawText || event.clipboardData.getData('text/plain')
+    let html = rawHtml || event.clipboardData.getData('text/html')
     html = this.standardizeHTML(html)
     const copyType = this.checkCopyType(html, text)
     const { start, end } = this.cursor
@@ -92,6 +196,11 @@ const pasteCtrl = ContentState => {
     if (start.key !== end.key) {
       this.cutHandler()
       return this.pasteHandler(event, type)
+    }
+
+    const file = await this.pasteImage(event)
+    if (file) {
+      return
     }
 
     const appendHtml = (text) => {

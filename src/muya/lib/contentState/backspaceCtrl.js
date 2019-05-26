@@ -1,6 +1,7 @@
 import selection from '../selection'
 import { findNearestParagraph, findOutMostParagraph } from '../selection/dom'
 import { tokenizer, generator } from '../parser/'
+import { getImageInfo } from '../utils/getImageInfo'
 
 const backspaceCtrl = ContentState => {
   ContentState.prototype.checkBackspaceCase = function () {
@@ -97,6 +98,14 @@ const backspaceCtrl = ContentState => {
     }
     if (!outBlock.preSibling && outLeft === 0) {
       return { type: 'STOP' }
+    }
+  }
+
+  ContentState.prototype.docBackspaceHandler = function (event) {
+    // handle delete selected image
+    if (this.selectedImage) {
+      event.preventDefault()
+      return this.deleteImage(this.selectedImage)
     }
   }
 
@@ -211,13 +220,49 @@ const backspaceCtrl = ContentState => {
     }
 
     const node = selection.getSelectionStart()
+    const preEleSibling = node && node.nodeType === 1 ? node.previousElementSibling : null
     const paragraph = findNearestParagraph(node)
     const id = paragraph.id
     let block = this.getBlock(id)
     let parent = this.getBlock(block.parent)
     const preBlock = this.findPreBlockInLocation(block)
-    const { left } = selection.getCaretOffsets(paragraph)
+    const { left, right } = selection.getCaretOffsets(paragraph)
     const inlineDegrade = this.checkBackspaceCase()
+
+    // Handle backspace when the previous is an inline image.
+    if (preEleSibling && preEleSibling.classList.contains('ag-inline-image')) {
+      if (selection.getCaretOffsets(node).left === 0) {
+        event.preventDefault()
+        event.stopPropagation()
+        const imageInfo = getImageInfo(preEleSibling)
+        return this.selectImage(imageInfo)
+      }
+      if (selection.getCaretOffsets(node).left === 1 && right === 0) {
+        event.stopPropagation()
+        event.preventDefault()
+        const key = startBlock.key
+        const text = startBlock.text
+
+        startBlock.text = text.substring(0, start.offset - 1) + text.substring(start.offset)
+        const offset = start.offset - 1
+        this.cursor = {
+          start: { key, offset },
+          end: { key, offset }
+        }
+        return this.singleRender(startBlock)
+      }
+    }
+
+    // handle backspace when cursor at the end of inline image.
+    if (node.classList.contains('ag-image-container')) {
+      const imageWrapper = node.parentNode
+      const imageInfo = getImageInfo(imageWrapper)
+      if (start.offset === imageInfo.token.range.end) {
+        event.preventDefault()
+        event.stopPropagation()
+        return this.selectImage(imageInfo)
+      }
+    }
 
     const tableHasContent = table => {
       const tHead = table.children[0]

@@ -9,12 +9,6 @@ const getters = {}
 const mutations = {}
 
 const actions = {
-  LISTEN_FOR_IMAGE_PATH ({ commit }) {
-    ipcRenderer.on('AGANI::image-auto-path', (e, files) => {
-      bus.$emit('image-auto-path', files)
-    })
-  },
-
   LISTEN_FOR_EDIT ({ commit }) {
     ipcRenderer.on('AGANI::edit', (e, { type }) => {
       bus.$emit(type, type)

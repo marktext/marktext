@@ -1,6 +1,7 @@
 import fs from 'fs-extra'
 import path from 'path'
 import { hasMarkdownExtension } from '../utils'
+import { IMAGE_EXTENSIONS } from '../config'
 
 /**
  * Ensure that a directory exist.
@@ -63,6 +64,18 @@ export const isSymbolicLink = filepath => {
  */
 export const isMarkdownFile = filepath => {
   return isFile(filepath) && hasMarkdownExtension(filepath)
+}
+/**
+ * Returns ture if the path is an image file.
+ * 
+ * @param {string} filepath The path
+ */
+export const isImageFile = filepath => {
+  const extname = path.extname(filepath)
+  return isFile(filepath) && IMAGE_EXTENSIONS.some(ext => {
+    const EXT_REG = new RegExp(ext, 'i')
+    return EXT_REG.test(extname)
+  })
 }
 
 /**

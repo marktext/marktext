@@ -28,7 +28,7 @@
     "postinstall": "npm run rebuild && npm run lint:fix",
     "build:muya": "cd src/muya && webpack --progress --colors --config webpack.config.js",
     "release:muya": "npm run build:muya && cd src/muya && npm publish",
-    "rebuild": "electron-rebuild -f -o keyboard-layout,vscode-windows-registry",
+    "rebuild": "electron-rebuild -f -o keytar,keyboard-layout,vscode-windows-registry",
     "gen-third-party": "node tools/generateThirdPartyLicense.js",
     "validate-licenses": "node tools/validateLicenses.js"
   },
@@ -165,6 +165,7 @@
   },
   "dependencies": {
     "@hfelix/electron-localshortcut": "^3.1.1",
+    "@octokit/rest": "^16.26.0",
     "arg": "^4.1.0",
     "axios": "^0.18.0",
     "chokidar": "^3.0.0",
@@ -188,7 +189,9 @@
     "html-tags": "^3.0.0",
     "katex": "^0.10.2",
     "keyboard-layout": "^2.0.15",
+    "keytar": "^4.7.0",
     "mermaid": "^8.0.0",
+    "plist": "^3.0.1",
     "popper.js": "^1.15.0",
     "prismjs": "^1.16.0",
     "snabbdom": "^0.7.3",

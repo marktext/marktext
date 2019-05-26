@@ -1,7 +1,5 @@
 import path from 'path'
-
-export const isLinux = process.platform === 'linux'
-
+import { isLinux } from './util'
 export const PATH_SEPARATOR = path.sep
 
 export const THEME_STYLE_ID = 'ag-theme'

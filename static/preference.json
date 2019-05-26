@@ -19,7 +19,7 @@
   "endOfLine": "default",
   "textDirection": "ltr",
   "hideQuickInsertHint": false,
-  "imageDropAction": "folder",
+  "imageInsertAction": "path",
 
   "preferLooseListItem": true,
   "bulletListMarker": "-",

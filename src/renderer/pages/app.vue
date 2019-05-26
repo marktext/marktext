@@ -27,7 +27,6 @@
         :platform="platform"
       ></editor-with-tabs>
       <aidou></aidou>
-      <upload-image></upload-image>
       <about-dialog></about-dialog>
       <rename></rename>
       <tweet></tweet>
@@ -43,7 +42,6 @@
   import TitleBar from '@/components/titleBar'
   import SideBar from '@/components/sideBar'
   import Aidou from '@/components/aidou/aidou'
-  import UploadImage from '@/components/uploadImage'
   import AboutDialog from '@/components/about'
   import Rename from '@/components/rename'
   import Tweet from '@/components/tweet'
@@ -60,7 +58,6 @@
       EditorWithTabs,
       TitleBar,
       SideBar,
-      UploadImage,
       AboutDialog,
       Rename,
       Tweet,
@@ -116,7 +113,6 @@
       dispatch('LISTEN_FOR_LAYOUT')
       dispatch('LISTEN_FOR_REQUEST_LAYOUT')
       // module: listenForMain
-      dispatch('LISTEN_FOR_IMAGE_PATH')
       dispatch('LISTEN_FOR_EDIT')
       dispatch('LISTEN_FOR_VIEW')
       dispatch('LISTEN_FOR_ABOUT_DIALOG')
@@ -128,6 +124,7 @@
       // module: autoUpdates
       dispatch('LISTEN_FOR_UPDATE')
       // module: editor
+      dispatch('LISTEN_SCREEN_SHOT')
       dispatch('ASK_FOR_USER_PREFERENCE')
       dispatch('ASK_FOR_MODE')
       dispatch('LISTEN_FOR_CLOSE')
@@ -138,7 +135,6 @@
       dispatch('LISTEN_FOR_BOOTSTRAP_WINDOW')
       dispatch('LISTEN_FOR_SAVE_CLOSE')
       dispatch('LISTEN_FOR_EXPORT_PRINT')
-      dispatch('LISTEN_FOR_INSERT_IMAGE')
       dispatch('LISTEN_FOR_RENAME')
       dispatch('LINTEN_FOR_SET_LINE_ENDING')
       dispatch('LISTEN_FOR_NEW_TAB')
@@ -154,11 +150,11 @@
         // Cancel to allow tab drag&drop.
         if (!e.dataTransfer.types.length) return
 
-        e.preventDefault()
         if (e.dataTransfer.types.indexOf('Files') >= 0) {
-          if (e.dataTransfer.items.length === 1 && /png|jpg|jpeg|gif/.test(e.dataTransfer.items[0].type)) {
-            bus.$emit('upload-image')
+          if (e.dataTransfer.items.length === 1 && e.dataTransfer.items[0].type.indexOf('image') > -1) {
+            // Do nothing, because we already drag/drop image in muya.
           } else {
+            e.preventDefault()
             if (this.timer) {
               clearTimeout(this.timer)
             }
@@ -167,6 +163,7 @@
             }, 300)
             bus.$emit('importDialog', true)
           }
+
           e.dataTransfer.dropEffect = 'copy'
         } else {
           e.stopPropagation()

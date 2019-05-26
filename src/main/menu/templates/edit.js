@@ -1,4 +1,5 @@
 import * as actions from '../actions/edit'
+import { isOsx } from '../../config'
 
 export default function (keybindings, userPreference) {
   const { aidou } = userPreference.getAll()
@@ -114,23 +115,13 @@ export default function (keybindings, userPreference) {
         actions.edit(browserWindow, 'aidou')
       }
     }, {
-      label: 'Insert Image',
-      submenu: [{
-        label: 'Absolute Path',
-        click (menuItem, browserWindow) {
-          actions.insertImage(browserWindow, 'absolute')
-        }
-      }, {
-        label: 'Relative Path',
-        click (menuItem, browserWindow) {
-          actions.insertImage(browserWindow, 'relative')
-        }
-      }, {
-        label: 'Upload to Cloud (EXP)',
-        click (menuItem, browserWindow) {
-          actions.insertImage(browserWindow, 'upload')
-        }
-      }]
+      label: 'Screenshot',
+      id: 'screenshot',
+      visible: isOsx,
+      accelerator: keybindings.getAccelerator('editScreenshot'),
+      click (menuItem, browserWindow) {
+        actions.screenshot(browserWindow, 'screenshot')
+      }
     }, {
       type: 'separator'
     }, {

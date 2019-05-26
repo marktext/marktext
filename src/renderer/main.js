@@ -25,7 +25,11 @@ import {
   Switch,
   Select,
   Option,
-  Radio
+  Radio,
+  RadioGroup,
+  Tabs,
+  TabPane,
+  Input
 } from 'element-ui'
 import services from './services'
 import routes from './router'
@@ -72,6 +76,10 @@ Vue.use(Switch)
 Vue.use(Select)
 Vue.use(Option)
 Vue.use(Radio)
+Vue.use(RadioGroup)
+Vue.use(Tabs)
+Vue.use(TabPane)
+Vue.use(Input)
 
 Vue.use(VueRouter)
 

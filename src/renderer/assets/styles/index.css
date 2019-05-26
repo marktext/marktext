@@ -29,6 +29,12 @@
   --iconColor: #333;
   --codeBgColor: #d8d8d869;
   --codeBlockBgColor: rgba(0, 0, 0, 0.03);
+  --inputBgColor: rgba(0, 0, 0, .06);
+  --buttonBgColor: #ffffff;
+  --buttonBorderColor: rgba(0, 0, 0, 0.2);
+  --buttonShadow: rgba(0, 0, 0, 0.12);
+  --buttonHover: #f2f2f2;
+  --buttonActive: #e5e5e5;
 
   /*marktext*/
   --sideBarColor: rgba(0, 0, 0, .6);
@@ -108,6 +114,23 @@ body {
   box-shadow: 0 4px 8px 0 var(--floatBorderColor);
   border: solid 1px var(--floatBorderColor);
   background-color: var(--floatBgColor);
+}
+
+input.el-input__inner {
+  background: var(--inputBgColor);
+}
+
+.el-tabs__nav-wrap::after {
+  background: var(--editorColor04);
+}
+
+div.el-tabs__item {
+  color: var(--editorColor);
+}
+
+div.el-tab-pane {
+  color: var(--editorColor);
+  font-size: 14px;
 }
 
 .ag-dialog-table .dialog-title svg {

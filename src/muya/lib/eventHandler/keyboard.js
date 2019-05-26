@@ -1,7 +1,7 @@
 import { EVENT_KEYS } from '../config'
 import selection from '../selection'
 import { findNearestParagraph } from '../selection/dom'
-import { getParagraphReference } from '../utils'
+import { getParagraphReference, getImageInfo } from '../utils'
 import { checkEditEmoji } from '../ui/emojis'
 
 class Keyboard {
@@ -90,6 +90,31 @@ class Keyboard {
 
   keydownBinding () {
     const { container, eventCenter, contentState } = this.muya
+    const docHandler = event => {
+      switch (event.code) {
+        case EVENT_KEYS.Enter:
+          return contentState.docEnterHandler(event)
+        case EVENT_KEYS.Space: {
+          if (contentState.selectedImage) {
+            const { src } = getImageInfo(contentState.selectedImage.token.src)
+            if (src) {
+              eventCenter.dispatch('preview-image', {
+                data: src
+              })
+            }
+          }
+          break
+        }
+        case EVENT_KEYS.Backspace: {
+          return contentState.docBackspaceHandler(event)
+        }
+        case EVENT_KEYS.ArrowUp: // fallthrough
+        case EVENT_KEYS.ArrowDown: // fallthrough
+        case EVENT_KEYS.ArrowLeft: // fallthrough
+        case EVENT_KEYS.ArrowRight: // fallthrough
+          return contentState.docArrowHandler(event)
+      }
+    }
 
     const handler = event => {
       if (event.metaKey || event.ctrlKey) {
@@ -145,6 +170,7 @@ class Keyboard {
     }
 
     eventCenter.attachDOMEvent(container, 'keydown', handler)
+    eventCenter.attachDOMEvent(document, 'keydown', docHandler)
   }
 
   inputBinding () {
@@ -180,7 +206,7 @@ class Keyboard {
       const node = selection.getSelectionStart()
       const paragraph = findNearestParagraph(node)
       const emojiNode = checkEditEmoji(node)
-
+      contentState.selectedImage = null
       if (
         paragraph &&
         emojiNode &&
@@ -222,12 +248,6 @@ class Keyboard {
             return contentState.partialRender()
           }
         }
-      }
-
-      // hide image-path float box
-      const imageTextNode = contentState.getImageTextNode()
-      if (!imageTextNode) {
-        eventCenter.dispatch('muya-image-picker', { list: [] })
       }
 
       const block = contentState.getBlock(anchor.key)

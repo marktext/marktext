@@ -22,6 +22,12 @@ pre {
   outline: none;
 }
 
+#mu-dragover-ghost {
+  height: 3px;
+  position: absolute;
+  background: var(--highlightColor);
+}
+
 div.ag-show-quick-insert-hint p.ag-paragraph.ag-active > span.ag-paragraph-content:first-of-type:empty::after {
   content: 'Type @ to insert';
   color: var(--editorColor10);
@@ -741,6 +747,175 @@ span.ag-warn.ag-emoji-marked-text {
   vertical-align: middle;
 }
 
+.ag-inline-image {
+  display: flex;
+  position: relative;
+  background: var(--codeBlockBgColor);
+  border-radius: 3px;
+  overflow: hidden;
+  margin: 0 auto;
+  justify-content: space-around;
+}
+
+.ag-inline-image .ag-image-container {
+  position: relative;
+  overflow: hidden;
+}
+
+.ag-inline-image.ag-image-success {
+  background: transparent;
+}
+
+.ag-inline-image a.ag-image-icon-turninto,
+.ag-inline-image a.ag-image-icon-delete {
+  opacity: 0;
+  display: none;
+  width: 30px;
+  height: 30px;
+  position: absolute;
+  top: 15px;
+  background: rgba(50, 54, 58, .5);
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.ag-inline-image a.ag-image-icon-turninto i.icon,
+.ag-inline-image a.ag-image-icon-delete i.icon {
+  color: #ccc;
+  transition: color .25s ease-in-out;
+}
+
+.ag-inline-image a.ag-image-icon-turninto i.icon:hover,
+.ag-inline-image a.ag-image-icon-delete i.icon:hover {
+  color: #fff;
+}
+
+.ag-inline-image a.ag-image-icon-turninto {
+  right: 60px;
+}
+
+.ag-inline-image a.ag-image-icon-delete {
+  right: 15px;
+}
+
+.ag-inline-image a.ag-image-icon-success,
+.ag-inline-image a.ag-image-icon-fail,
+.ag-inline-image a.ag-image-icon-close {
+  display: none;
+  width: 20px;
+  height: 20px;
+  position: absolute;
+  top: 15px;
+}
+
+.ag-inline-image a.ag-image-icon-success,
+.ag-inline-image a.ag-image-icon-fail {
+  left: 15px;
+}
+
+.ag-inline-image i.icon {
+  display: inline-block;
+  position: relative;
+  overflow: hidden;
+  width: 20px;
+  height: 20px;
+  color: var(--iconColor);
+}
+
+.ag-inline-image i.icon > i[class^=icon-] {
+  width: 100%;
+  height: 100%;
+  display: inline-block;
+  filter: drop-shadow(20px 0 currentColor); 
+  position: absolute;
+  left: -20px;
+}
+
+.ag-inline-image.ag-image-fail,
+.ag-inline-image.ag-image-loading,
+.ag-inline-image.ag-empty-image {
+  width: 100%;
+  height: 50px;
+  cursor: pointer;
+}
+
+.ag-inline-image.ag-image-loading::before,
+.ag-inline-image.ag-image-fail::before,
+.ag-inline-image.ag-empty-image::before {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  width: calc(100% - 50px);
+  display: block;
+  position: absolute;
+  top: 15px;
+  left: 50px;
+  color: var(--editorColor);
+  font-size: 14px;
+}
+
+.ag-inline-image.ag-empty-image::before {
+  content: 'Click to add an image';
+}
+
+.ag-inline-image.ag-image-fail::before {
+  content: 'Load image failed';
+}
+
+.ag-inline-image.ag-image-loading::before {
+  content: 'Loading image...';
+}
+
+.ag-inline-image.ag-image-loading a.ag-image-icon-success,
+.ag-inline-image.ag-empty-image a.ag-image-icon-success {
+  display: block;
+}
+
+.ag-inline-image.ag-image-fail a.ag-image-icon-fail {
+  display: block;
+}
+
+.ag-inline-image.ag-image-success:hover a.ag-image-icon-turninto,
+.ag-inline-image.ag-image-success:hover a.ag-image-icon-delete {
+  opacity: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  z-index: 1;
+}
+
+.ag-inline-image.ag-empty-image:hover a.ag-image-icon-close,
+.ag-inline-image.ag-image-fail:hover a.ag-image-icon-close {
+  opacity: .5;
+  display: block;
+  align-items: center;
+  justify-content: space-around;
+  z-index: 1;
+  right: 15px;
+}
+
+.ag-inline-image.ag-image-success.ag-inline-image-selected .ag-image-container img {
+  filter: brightness(80%);
+}
+
+.ag-inline-image.ag-image-uploading .ag-image-container img {
+  opacity: .3;
+}
+
+.ag-inline-image.ag-image-uploading .ag-image-container a.ag-image-icon-turninto,
+.ag-inline-image.ag-image-uploading .ag-image-container a.ag-image-icon-delete {
+  display: none;
+}
+
+.ag-inline-image.ag-image-uploading .ag-image-container::before {
+  content: 'Loading ...';
+  top: 50%;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%) translateY(-50%);
+  color: var(--iconColor);
+}
+
 .ag-image-marked-text ~ img {
   display: block;
   margin: 0 auto;
@@ -749,8 +924,9 @@ span.ag-warn.ag-emoji-marked-text {
 .ag-image-marked-text::before {
   background-size: cover;
   content: '';
-  width: 1em;
-  height: 1em;
+  width: 1.2em;
+  height: 1.2em;
+  margin-right: 5px;
   display: inline-block;
   vertical-align: sub;
 }

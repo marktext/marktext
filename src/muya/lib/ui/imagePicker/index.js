@@ -4,6 +4,8 @@ import FolderIcon from '../../assets/icons/folder.svg'
 import ImageIcon from '../../assets/icons/image.svg'
 import UploadIcon from '../../assets/icons/upload.svg'
 
+import './index.css'
+
 const iconhash = {
   'icon-image': ImageIcon,
   'icon-folder': FolderIcon,
@@ -18,6 +20,7 @@ class ImagePathPicker extends BaseScrollFloat {
     this.renderArray = []
     this.oldVnode = null
     this.activeItem = null
+    this.floatBox.classList.add('ag-image-picker-wrapper')
     this.listen()
   }
 

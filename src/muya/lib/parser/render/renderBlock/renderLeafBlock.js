@@ -49,9 +49,10 @@ const hasReferenceToken = tokens => {
   return result
 }
 
-export default function renderLeafBlock (block, cursor, activeBlocks, selectedBlock, matches, useCache = false) {
+export default function renderLeafBlock (block, activeBlocks, matches, useCache = false) {
   const { loadMathMap } = this
-  let selector = this.getSelector(block, cursor, activeBlocks, selectedBlock)
+  const { cursor } = this.muya.contentState
+  let selector = this.getSelector(block, activeBlocks)
   // highlight search key in block
   const highlights = matches.filter(m => m.key === block.key)
   const {
