@@ -28,7 +28,6 @@ const imageCtrl = ContentState => {
     }
     const { text } = block
     const imageFormat = formats.filter(f => f.type === 'image')
-
     // Only encode URLs but not local paths or data URLs
     let imgUrl
     if (URL_REG.test(src)) {
@@ -43,7 +42,11 @@ const imageCtrl = ContentState => {
       srcAndTitle += ` "${title}"`
     }
 
-    if (imageFormat.length === 1) {
+    if (
+      imageFormat.length === 1 &&
+      imageFormat[0].range.start !== startOffset &&
+      imageFormat[0].range.end !== endOffset
+    ) {
       // Replace already existing image
       let imageAlt = alt
 
