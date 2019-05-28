@@ -17,6 +17,7 @@ const copyCutCtrl = ContentState => {
       start,
       end: start
     }
+    this.checkInlineUpdate(startBlock)
     this.partialRender()
   }
 
