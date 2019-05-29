@@ -18,9 +18,8 @@ Vue.use(Vuex)
 const state = {
   platform: process.platform, // platform of system `darwin` | `win32` | `linux`
   appVersion: process.versions.MARKTEXT_VERSION_STRING, // Mark Text version string
-  windowActive: true, // weather current window is active or focused
-  // TODO: "init" is nowhere used
-  init: process.env.NODE_ENV === 'development' // whether Mark Text is inited
+  windowActive: true, // whether current window is active or focused
+  init: false, // whether Mark Text is initialized
 }
 
 const getters = {}
@@ -29,8 +28,8 @@ const mutations = {
   SET_WIN_STATUS (state, status) {
     state.windowActive = status
   },
-  SET_INIT_STATUS (state, status) {
-    state.init = status
+  SET_INITIALIZED (state) {
+    state.init = true
   }
 }
 
@@ -40,8 +39,9 @@ const actions = {
       commit('SET_WIN_STATUS', status)
     })
   },
-  INIT_STATUS ({ commit }, status) {
-    commit('SET_INIT_STATUS', status)
+
+  SEND_INITIALIZED ({ commit }) {
+    commit('SET_INITIALIZED')
   }
 }
 

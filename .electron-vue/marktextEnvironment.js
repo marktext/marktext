@@ -11,16 +11,16 @@ const getEnvironmentDefinitions = function () {
   } catch(_) {
     // Ignore error if we build without git.
   }
-  const isOfficialRelease = !!process.env.MARKTEXT_IS_OFFICIAL_RELEASE
-  const versionSuffix = isOfficialRelease ? '' : ` (${shortHash})`
 
+  const isStableRelease = !!process.env.MARKTEXT_IS_STABLE
+  const versionSuffix = isStableRelease ? '' : ` (${shortHash})`
   return {
     'global.MARKTEXT_GIT_SHORT_HASH': JSON.stringify(shortHash),
     'global.MARKTEXT_GIT_HASH': JSON.stringify(fullHash),
 
     'global.MARKTEXT_VERSION': JSON.stringify(version),
     'global.MARKTEXT_VERSION_STRING': JSON.stringify(`v${version}${versionSuffix}`),
-    'global.MARKTEXT_IS_OFFICIAL_RELEASE': JSON.stringify(isOfficialRelease)
+    'global.MARKTEXT_IS_STABLE': JSON.stringify(isStableRelease)
   }
 }
 

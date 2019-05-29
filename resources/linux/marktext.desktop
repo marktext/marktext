@@ -9,3 +9,9 @@ Categories=Office;TextEditor;Utility;
 MimeType=text/markdown;
 Keywords=marktext;
 StartupWMClass=marktext
+Actions=NewWindow;
+
+[Desktop Action NewWindow]
+Name=New Window
+Exec=marktext --new-window %F
+Icon=marktext

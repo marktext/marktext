@@ -1,20 +1,10 @@
+import { ipcMain } from 'electron'
 import * as actions from '../actions/view'
-import { isOsx } from '../../config'
 
 export default function (keybindings) {
   let viewMenu = {
     label: 'View',
     submenu: [{
-      label: 'Toggle Full Screen',
-      accelerator: keybindings.getAccelerator('viewToggleFullScreen'),
-      click (item, focusedWindow) {
-        if (focusedWindow) {
-          focusedWindow.setFullScreen(!focusedWindow.isFullScreen())
-        }
-      }
-    }, {
-      type: 'separator'
-    }, {
       id: 'sourceCodeModeMenuItem',
       label: 'Source Code Mode',
       accelerator: keybindings.getAccelerator('viewSourceCodeMode'),
@@ -89,7 +79,6 @@ export default function (keybindings) {
   }
 
   if (global.MARKTEXT_DEBUG) {
-    // add devtool when development
     viewMenu.submenu.push({
       label: 'Toggle Developer Tools',
       accelerator: keybindings.getAccelerator('viewDevToggleDeveloperTools'),
@@ -99,24 +88,14 @@ export default function (keybindings) {
         }
       }
     })
-    // add reload when development
     viewMenu.submenu.push({
       label: 'Reload',
       accelerator: keybindings.getAccelerator('viewDevReload'),
       click (item, focusedWindow) {
         if (focusedWindow) {
-          focusedWindow.reload()
+          ipcMain.emit('window-reload-by-id', focusedWindow.id)
         }
       }
-    })
-  }
-
-  if (isOsx) {
-    viewMenu.submenu.push({
-      type: 'separator'
-    }, {
-      label: 'Bring All to Front',
-      role: 'front'
     })
   }
   return viewMenu

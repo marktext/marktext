@@ -7,11 +7,11 @@ matrix:
   include:
   - os: osx
     osx_image: xcode9.2
-    env: CC=clang CXX=clang++ npm_config_clang=1 MARKTEXT_IS_OFFICIAL_RELEASE=1 MARKTEXT_EXIT_ON_ERROR=1
+    env: CC=clang CXX=clang++ npm_config_clang=1 MARKTEXT_IS_STABLE=1 MARKTEXT_EXIT_ON_ERROR=1
     compiler: clang
   - os: linux
     dist: trusty
-    env: CC=clang CXX=clang++ npm_config_clang=1 MARKTEXT_IS_OFFICIAL_RELEASE=1 MARKTEXT_EXIT_ON_ERROR=1 DISPLAY=:99.0
+    env: CC=clang CXX=clang++ npm_config_clang=1 MARKTEXT_IS_STABLE=1 MARKTEXT_EXIT_ON_ERROR=1 DISPLAY=:99.0
     compiler: clang
 
 cache:

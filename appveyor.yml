@@ -14,7 +14,7 @@ branches:
 skip_tags: true
 
 environment:
-  MARKTEXT_IS_OFFICIAL_RELEASE: 1
+  MARKTEXT_IS_STABLE: 1
   MARKTEXT_EXIT_ON_ERROR: 1
   GH_TOKEN:
     secure: Ki5AJWygDYhzMJxl0b0rDx3bhAYmar2aPdwVHiai9IigqsvZpWHLeI3qpTiiaOWL

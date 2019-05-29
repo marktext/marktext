@@ -11,9 +11,9 @@ export const tabsMixins = {
     removeFileInTab (file) {
       const { isSaved } = file
       if (isSaved) {
-        this.$store.dispatch('REMOVE_FILE_IN_TABS', file)
+        this.$store.dispatch('FORCE_CLOSE_TAB', file)
       } else {
-        this.$store.dispatch('CLOSE_SINGLE_FILE', file)
+        this.$store.dispatch('CLOSE_UNSAVED_TAB', file)
       }
     }
   }
@@ -22,19 +22,17 @@ export const tabsMixins = {
 export const fileMixins = {
   methods: {
     handleFileClick () {
+      // HACK: Please see #1034 and #1035
       const { data, isMarkdown, pathname } = this.file
       if (!isMarkdown || this.currentFile.pathname === pathname) return
       const { isMixedLineEndings, filename, lineEnding } = data
-      const isOpened = this.tabs.filter(file => file.pathname === pathname)[0]
+      const isOpened = this.tabs.find(file => file.pathname === pathname)
 
       const fileState = isOpened || getFileStateFromData(data)
       this.$store.dispatch('UPDATE_CURRENT_FILE', fileState)
-      // ask main process to watch this file changes
-      this.$store.dispatch('ASK_FILE_WATCH', {
-        pathname,
-        watch: true
-      })
 
+      // HACK: notify main process. Main process should notify the browser window.
+      ipcRenderer.send('AGANI::window-add-file-path', pathname)
       ipcRenderer.send('mt::add-recently-used-document', pathname)
 
       if (isMixedLineEndings && !isOpened) {

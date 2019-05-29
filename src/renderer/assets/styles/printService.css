@@ -12,7 +12,7 @@ body article.print-container {
     width: 100% !important;
     display: block !important;
     height: auto !important;
-    background: transparent !important;
+    background: #ffffff !important;
     overflow: hidden;
   }
 

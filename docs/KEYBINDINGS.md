@@ -32,10 +32,27 @@ Here is an example:
 
 **Mark Text menu (macOS only):**
 
-| Id             | Description                             |
-| -------------- | --------------------------------------- |
-| `mtHide`       | Hide Mark Text                          |
-| `mtHideOthers` | Hide all other windows except Mark Text |
+| Id                | Description                             |
+| ----------------- | --------------------------------------- |
+| `mtHide`          | Hide Mark Text                          |
+| `mtHideOthers`    | Hide all other windows except Mark Text |
+| `filePreferences` | Open settings window                    |
+| `fileQuit`        | Quit Mark Text                          |
+
+**File menu:**
+
+| Id                | Description                               |
+|:----------------- | ----------------------------------------- |
+| `fileNewFile`     | New file                                  |
+| `fileNewTab`      | New tab                                   |
+| `fileOpenFile`    | Open markdown file                        |
+| `fileOpenFolder`  | Open folder                               |
+| `fileSave`        | Save                                      |
+| `fileSaveAs`      | Save as...                                |
+| `filePreferences` | Open settings window (Linux/Windows only) |
+| `fileCloseTab`    | Close tab                                 |
+| `fileCloseWindow` | Close window                              |
+| `fileQuit`        | Quit Mark Text (Linux/Windows only)       |
 
 **Edit menu:**
 
@@ -80,7 +97,7 @@ Here is an example:
 | `paragraphBulletList`      | Insert a unordered list                  |
 | `paragraphTaskList`        | Insert a task list                       |
 | `paragraphLooseListItem`   | Convert a list item to a loose list item |
-| `paragraphParagraph`       | Convert a heading to a paragraph          |
+| `paragraphParagraph`       | Convert a heading to a paragraph         |
 | `paragraphHorizontalLine`  | Add a horizontal line                    |
 | `paragraphYAMLFrontMatter` | Insert a YAML frontmatter block          |
 
@@ -99,17 +116,15 @@ Here is an example:
 
 **Window menu:**
 
-| Id                  | Description         |
-| ------------------- | ------------------- |
-| `windowMinimize`    | Minimize the window |
-| `windowCloseWindow` | Close the window    |
+| Id                       | Description            |
+| ------------------------ | ---------------------- |
+| `windowMinimize`         | Minimize the window    |
+| `windowToggleFullScreen` | Toggle fullscreen mode |
 
 **View menu:**
 
 | Id                            | Description                              |
 | ----------------------------- | ---------------------------------------- |
-| `viewToggleFullScreen`        | Toggle fullscreen mode                   |
-| `viewChangeFont`              | Open font dialog                         |
 | `viewSourceCodeMode`          | Switch to source code mode               |
 | `viewTypewriterMode`          | Enable typewriter mode                   |
 | `viewFocusMode`               | Enable focus mode                        |
@@ -117,4 +132,3 @@ Here is an example:
 | `viewToggleTabBar`            | Toggle tabbar                            |
 | `viewDevToggleDeveloperTools` | Toggle developer tools (debug mode only) |
 | `viewDevReload`               | Reload window (debug mode only)          |
-

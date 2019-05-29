@@ -52,7 +52,8 @@
   --maskColor: rgba(255, 255, 255, .7);
 }
 
-::-webkit-scrollbar {
+::-webkit-scrollbar,
+::-webkit-scrollbar-corner {
   background: var(--floatHoverColor);
 }
 ::-webkit-scrollbar:vertical {

@@ -64,6 +64,12 @@ const bootstrapRenderer = () => {
     ipcRenderer.send('AGANI::handle-renderer-error', copy)
   })
 
+  // Remove the initial drag area.
+  const initDragRegion = document.getElementById('init-drag-region')
+  if (initDragRegion) {
+    initDragRegion.remove()
+  }
+
   const { debug, initialState, userDataPath, windowId, type } = parseUrlArgs()
   const marktext = {
     initialState,

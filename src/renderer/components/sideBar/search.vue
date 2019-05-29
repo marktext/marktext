@@ -57,7 +57,7 @@
           return
         }
 
-        // TODO(need::refactor): See TODO in src/main/filesystem/watcher.js.
+        // TODO(need::refactor): Please see #1034.
 
         this.searchResult = this.fileList.filter(f => f.data.markdown.indexOf(keyword) >= 0)
       }

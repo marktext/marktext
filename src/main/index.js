@@ -1,5 +1,6 @@
 import './globalSetting'
 import path from 'path'
+import { app } from 'electron'
 import cli from './cli'
 import setupExceptionHandler, { initExceptionLogger } from './exceptionHandler'
 import log from 'electron-log'
@@ -32,6 +33,19 @@ const args = cli()
 const appEnvironment = setupEnvironment(args)
 initializeLogger(appEnvironment)
 
+if (args['--disable-gpu']) {
+  app.disableHardwareAcceleration()
+}
+
+// Make Mark Text a single instance application.
+if (!process.mas && process.env.NODE_ENV !== 'development') {
+  const gotSingleInstanceLock = app.requestSingleInstanceLock()
+  if (!gotSingleInstanceLock) {
+    process.stdout.write('Other Mark Text instance detected: exiting...\n')
+    app.exit()
+  }
+}
+
 // Mark Text environment is configured successfully. You can now access paths, use the logger etc.
 // Create other instances that need access to the modules from above.
 const accessor = new Accessor(appEnvironment)
@@ -40,5 +54,5 @@ const accessor = new Accessor(appEnvironment)
 // Be careful when changing code before this line!
 // NOTE: Do not create classes or other code before this line!
 
-const app = new App(accessor, args)
-app.init()
+const marktext = new App(accessor, args)
+marktext.init()

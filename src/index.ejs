@@ -5,7 +5,6 @@
     <title>Mark Text</title>
     <style>
       html, body {
-        background: #ffffff;
         margin: 0;
         padding: 0;
       }
@@ -18,6 +17,7 @@
     <% } %>
   </head>
   <body>
+    <div id="init-drag-region" style="position: absolute;-webkit-app-region: drag;left: 0;right: 0;top: 0;height: 25px;"></div>
     <div id="app"></div>
     <!-- Set `__static` path to static files in production -->
     <script>

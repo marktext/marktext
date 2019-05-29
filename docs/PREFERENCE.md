@@ -10,7 +10,7 @@
 | openFilesInNewWindow | Boolean | false         | true, false                                                                                                                                                |
 | aidou                | Boolean | true          | Enable aidou. Optional value: true, false                                                                                                                  |
 | fileSortBy           | String  | modified      | Sort files in opened folder by `created` time, modified time and title.                                                                                    |
-| startUp              | String  | lastState     | The action after Mark Text startup, open the last edited content, open the specified folder or blank page, optional value: `lasteState`, `folder`, `blank` |
+| startUpAction        | String  | lastState     | The action after Mark Text startup, open the last edited content, open the specified folder or blank page, optional value: `lasteState`, `folder`, `blank` |
 | language             | String  | en            | The language Mark Text use.                                                                                                                                |
 
 #### Editor

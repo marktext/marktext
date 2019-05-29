@@ -23,7 +23,7 @@
     },
     methods: {
       newFile () {
-        this.$store.dispatch('NEW_UNTITLED_TAB')
+        this.$store.dispatch('NEW_UNTITLED_TAB', {})
       }
     }
   }

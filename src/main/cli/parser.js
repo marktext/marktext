@@ -16,6 +16,10 @@ const parseArgs = (argv=null, permissive=true) => {
     '--safe': Boolean,
     '--dump-keyboard-layout': Boolean,
 
+    '--new-window': Boolean,
+    '-n': '--new-window',
+
+    '--disable-gpu': Boolean,
     '--user-data-dir': String,
 
     // Misc

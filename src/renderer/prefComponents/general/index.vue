@@ -42,12 +42,12 @@
       :onChange="value => onSelectChange('fileSortBy', value)"
       :disable="true"
     ></cur-select>
-    <section class="startup-ctrl ag-underdevelop">
+    <section class="startup-action-ctrl">
       <div>The action after Mark Text startup, open the last edited content, open the specified folder or blank page</div>
-      <el-radio v-model="startUp" label="lastState">Open the last closed folder and files</el-radio>
-      <el-radio v-model="startUp" label="folder">Open the subfolder</el-radio>
-      <el-button size="small">Select Folder</el-button>
-      <el-radio v-model="startUp" label="blank">Open blank page</el-radio>
+      <el-radio class="ag-underdevelop" v-model="startUpAction" label="lastState">Open the last window state</el-radio>
+      <el-radio v-model="startUpAction" label="folder">Open a default directory</el-radio>
+      <el-button size="small" @click="selectDefaultDirectoryToOpen">Select Folder</el-button>
+      <el-radio v-model="startUpAction" label="blank">Open blank page</el-radio>
     </section>
     <cur-select
       description="The language Mark Text use"
@@ -95,13 +95,16 @@ export default {
       openFilesInNewWindow: state => state.preferences.openFilesInNewWindow,
       aidou: state => state.preferences.aidou,
       fileSortBy: state => state.preferences.fileSortBy,
-      startUp: state => state.preferences.startUp,
+      startUpAction: state => state.preferences.startUpAction,
       language: state => state.preferences.language
     })
   },
   methods: {
     onSelectChange (type, value) {
       this.$store.dispatch('SET_SINGLE_PREFERENCE', { type, value })
+    },
+    selectDefaultDirectoryToOpen () {
+      this.$store.dispatch('SELECT_DEFAULT_DIRECTORY_TO_OPEN')
     }
   }
 }
@@ -114,7 +117,7 @@ export default {
       margin: 0;
       font-weight: 100;
     }
-    & .startup-ctrl {
+    & .startup-action-ctrl {
       font-size: 14px;
       user-select: none;
       margin: 20px 0;

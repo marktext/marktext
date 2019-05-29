@@ -2,7 +2,7 @@
 
 - Create a release candidate
   - Create branch `release-v%version%`
-  - Set environment variable `MARKTEXT_IS_OFFICIAL_RELEASE` to `1` (default on AppVeyor and Travis CI)
+  - Set environment variable `MARKTEXT_IS_STABLE` to `1` (default on AppVeyor and Travis CI)
   - Ensure [changelog](https://github.com/marktext/marktext/blob/master/.github/CHANGELOG.md) is up-to-date
   - Bump version in `package.json` and changelog
   - Update all `README.md` files

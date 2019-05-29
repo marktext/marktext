@@ -41,9 +41,6 @@ import './assets/styles/printService.css'
 // -----------------------------------------------
 
 // Decode source map in production - must be registered first
-
-addElementStyle()
-
 sourceMapSupport.install({
   environment: 'node',
   handleUncaughtExceptions: false,
@@ -52,6 +49,8 @@ sourceMapSupport.install({
 
 global.marktext = {}
 bootstrapRenderer()
+
+addElementStyle()
 
 // -----------------------------------------------
 // Be careful when changing code before this line!
