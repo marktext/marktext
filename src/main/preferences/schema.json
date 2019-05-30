@@ -177,23 +177,15 @@
     ]
   },
   "sideBarVisibility": {
-    "description": "Window--Whether the side bar is visible.",
+    "description": "View--Whether the side bar is visible.",
     "type": "boolean"
   },
   "tabBarVisibility": {
-    "description": "Window--Whether the tabs are shown.",
-    "type": "boolean"
-  },
-  "focusModeEnabled": {
-    "description": "Window--Whether the focus mode is enabled by default.",
+    "description": "View--Whether the tabs are shown.",
     "type": "boolean"
   },
   "sourceCodeModeEnabled": {
-    "description": "Window--Whether the source-code mode is enabled by default.",
-    "type": "boolean"
-  },
-  "typewriterModeEnabled": {
-    "description": "Window--Whether the typewriter mode is enabled by default.",
+    "description": "View--Whether the source-code mode is enabled by default.",
     "type": "boolean"
   }
 }

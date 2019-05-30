@@ -39,9 +39,7 @@ const state = {
   // Default values that are overwritten with the entries below.
   sideBarVisibility: false,
   tabBarVisibility: false,
-  focusModeEnabled: false,
   sourceCodeModeEnabled: false,
-  typewriterModeEnabled: false,
 
   // Edit modes of the current window (not part of persistent settings)
   typewriter: false, // typewriter mode

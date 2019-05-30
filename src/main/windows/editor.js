@@ -52,7 +52,13 @@ class EditorWindow extends BaseWindow {
     }
 
     // Enable native or custom/frameless window and titlebar
-    const { titleBarStyle, theme } = preferences.getAll()
+    const {
+      titleBarStyle,
+      theme,
+      sideBarVisibility,
+      tabBarVisibility,
+      sourceCodeModeEnabled
+    } = preferences.getAll()
     if (!isOsx) {
       winOptions.titleBarStyle = 'default'
       if (titleBarStyle === 'native') {
@@ -66,7 +72,7 @@ class EditorWindow extends BaseWindow {
     this.id = win.id
 
     // Create a menu for the current window
-    appMenu.addEditorMenu(win)
+    appMenu.addEditorMenu(win, { sourceCodeModeEnabled })
 
     win.webContents.once('did-finish-load', () => {
       this.lifecycle = WindowLifecycle.READY
@@ -75,7 +81,6 @@ class EditorWindow extends BaseWindow {
       // Restore and focus window
       this.bringToFront()
 
-      const { sideBarVisibility, tabBarVisibility } = preferences.getAll()
       const lineEnding = preferences.getPreferedEOL()
       appMenu.updateLineEndingMenu(lineEnding)
 
@@ -84,7 +89,8 @@ class EditorWindow extends BaseWindow {
         markdownList: this._markdownToOpen,
         lineEnding,
         sideBarVisibility,
-        tabBarVisibility
+        tabBarVisibility,
+        sourceCodeModeEnabled
       })
 
       this._doOpenFilesToOpen()
@@ -343,14 +349,15 @@ class EditorWindow extends BaseWindow {
     browserWindow.webContents.once('did-finish-load', () => {
       this.lifecycle = WindowLifecycle.READY
       const { preferences } = this._accessor
-      const { sideBarVisibility, tabBarVisibility } = preferences.getAll()
+      const { sideBarVisibility, tabBarVisibility, sourceCodeModeEnabled } = preferences.getAll()
       const lineEnding = preferences.getPreferedEOL()
       browserWindow.webContents.send('mt::bootstrap-editor', {
         addBlankTab: true,
         markdownList: [],
         lineEnding,
         sideBarVisibility,
-        tabBarVisibility
+        tabBarVisibility,
+        sourceCodeModeEnabled
       })
     })
 

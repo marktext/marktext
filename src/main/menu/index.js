@@ -111,13 +111,13 @@ class AppMenu {
     windowMenus.set(window.id, menu)
   }
 
-  addEditorMenu (window) {
+  addEditorMenu (window, options = {}) {
     const { windowMenus } = this
     windowMenus.set(window.id, this.buildEditorMenu(true))
 
     const { menu, shortcutMap } = windowMenus.get(window.id)
     const currentMenu = Menu.getApplicationMenu() // the menu may be null
-    updateMenuItemSafe(currentMenu, menu, 'sourceCodeModeMenuItem', false)
+    updateMenuItemSafe(currentMenu, menu, 'sourceCodeModeMenuItem', !!options.sourceCodeModeEnabled)
     updateMenuItemSafe(currentMenu, menu, 'typewriterModeMenuItem', false)
 
     // FIXME: Focus mode is being ignored when you open a new window - inconsistency.

@@ -34,7 +34,5 @@
 
   "sideBarVisibility": false,
   "tabBarVisibility": false,
-  "focusModeEnabled": false,
-  "sourceCodeModeEnabled": false,
-  "typewriterModeEnabled": false
+  "sourceCodeModeEnabled": false
 }

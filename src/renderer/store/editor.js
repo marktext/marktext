@@ -470,7 +470,8 @@ const actions = {
         markdownList,
         lineEnding,
         sideBarVisibility,
-        tabBarVisibility
+        tabBarVisibility,
+        sourceCodeModeEnabled
       } = config
 
       commit('SET_GLOBAL_LINE_ENDING', lineEnding)
@@ -481,6 +482,11 @@ const actions = {
         showTabBar: !!tabBarVisibility
       })
       dispatch('SET_LAYOUT_MENU_ITEM')
+
+      commit('SET_MODE', {
+        type: 'sourceCode',
+        checked: !!sourceCodeModeEnabled
+      })
 
       if (addBlankTab) {
         dispatch('NEW_UNTITLED_TAB', {})
