@@ -126,7 +126,7 @@ class Watcher {
    */
   constructor (preferences) {
     this._preferences = preferences
-    this._ignoreChangeList = new Map()
+    this._ignoreChangeEvents = []
     this.watchers = {}
   }
 
@@ -267,7 +267,7 @@ class Watcher {
   close () {
     Object.keys(this.watchers).forEach(id => this.watchers[id].close())
     this.watchers = {}
-    this._ignoreChangeList = new Map()
+    this._ignoreChangeEvents = []
   }
 
   /**
@@ -280,9 +280,7 @@ class Watcher {
    * @param {number} [duration] The duration in ms to ignore the changed event.
    */
   ignoreChangedEvent (windowId, pathname, duration=WATCHER_STABILITY_THRESHOLD + WATCHER_STABILITY_POLL_INTERVAL + 1000) {
-    const id = getUniqueId()
-    this._ignoreChangeList.set(id, { id, windowId, pathname, duration, start: new Date(), size: undefined })
-    return id
+    this._ignoreChangeEvents.push({ windowId, pathname, duration, start: new Date() })
   }
 
   /**
@@ -294,12 +292,13 @@ class Watcher {
    */
   _shouldIgnoreEvent (winId, pathname, type) {
     if (type === 'file') {
-      const { _ignoreChangeList } = this
+      const { _ignoreChangeEvents } = this
       const currentTime = new Date()
-      for (const item of _ignoreChangeList.values()) {
-        const { id, windowId, pathname: pathToIgnore, start, duration } = item
+      for (let i = 0; i < _ignoreChangeEvents.length; ++i) {
+        const { windowId, pathname: pathToIgnore, start, duration } = _ignoreChangeEvents[i]
         if (windowId === winId && pathToIgnore === pathname) {
-          _ignoreChangeList.delete(id)
+          _ignoreChangeEvents.splice(i)
+          --i
           if (currentTime - start < duration) {
             return true
           }
