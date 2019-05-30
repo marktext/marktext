@@ -1,7 +1,7 @@
 import { app, BrowserWindow, ipcMain } from 'electron'
 import EventEmitter from 'events'
 import log from 'electron-log'
-import Watcher from '../filesystem/watcher'
+import Watcher, { WATCHER_STABILITY_THRESHOLD, WATCHER_STABILITY_POLL_INTERVAL } from '../filesystem/watcher'
 import { WindowType } from '../windows/base'
 
 class WindowActivityList {
@@ -404,6 +404,12 @@ class WindowManager extends EventEmitter {
         return
       }
       editor.changeOpenedFilePath(pathname, oldPathname)
+    })
+
+    ipcMain.on('window-file-saved', (windowId, pathname) => {
+      // A changed event is emitted earliest after the stability threshold.
+      const duration = WATCHER_STABILITY_THRESHOLD + (WATCHER_STABILITY_POLL_INTERVAL * 2)
+      this._watcher.ignoreChangedEvent(windowId, pathname, duration)
     })
 
     ipcMain.on('window-close-by-id', id => {

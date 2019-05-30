@@ -7,6 +7,11 @@ import { exists } from '../filesystem'
 import { loadMarkdownFile } from '../filesystem/markdown'
 import { isLinux } from '../config'
 
+// TODO(refactor): Please see GH#1035.
+
+export const WATCHER_STABILITY_THRESHOLD = 1000
+export const WATCHER_STABILITY_POLL_INTERVAL = 150
+
 const EVENT_NAME = {
   dir: 'AGANI::update-object-tree',
   file: 'AGANI::update-file'
@@ -121,6 +126,7 @@ class Watcher {
    */
   constructor (preferences) {
     this._preferences = preferences
+    this._ignoreChangeList = new Map()
     this.watchers = {}
   }
 
@@ -138,17 +144,26 @@ class Watcher {
 
       // Please see GH#1043
       awaitWriteFinish: {
-        stabilityThreshold: 1000,
-        pollInterval: 150
+        stabilityThreshold: WATCHER_STABILITY_THRESHOLD,
+        pollInterval: WATCHER_STABILITY_POLL_INTERVAL
       }
     })
 
+    let disposed = false
     let enospcReached = false
     let renameTimeout = null
 
     watcher
-      .on('add', pathname => add(win, pathname, type, this._preferences.getPreferedEOL()))
-      .on('change', pathname => change(win, pathname, type, this._preferences.getPreferedEOL()))
+      .on('add', pathname => {
+        if (!this._shouldIgnoreEvent(win.id, pathname, type)) {
+          add(win, pathname, type, this._preferences.getPreferedEOL())
+        }
+      })
+      .on('change', pathname => {
+        if (!this._shouldIgnoreEvent(win.id, pathname, type)) {
+          change(win, pathname, type, this._preferences.getPreferedEOL())
+        }
+      })
       .on('unlink', pathname => unlink(win, pathname, type))
       .on('addDir', pathname => addDir(win, pathname, type))
       .on('unlinkDir', pathname => unlinkDir(win, pathname, type))
@@ -163,13 +178,15 @@ class Watcher {
         if (isLinux && type === 'file' && event === 'rename') {
           clearTimeout(renameTimeout)
           renameTimeout = setTimeout(async () => {
+            renameTimeout = null
+            if (disposed) return
+
             const fileExists = await exists(watchPath)
             if (fileExists) {
               // File still exists but we need to rewatch the file because the inode has changed.
               watcher.unwatch(watchPath)
               watcher.add(watchPath)
             }
-            renameTimeout = null
           }, 150)
         }
       })
@@ -192,6 +209,7 @@ class Watcher {
       })
 
     const closeFn = () => {
+      disposed = true
       if (this.watchers[id]) {
         delete this.watchers[id]
       }
@@ -249,6 +267,46 @@ class Watcher {
   close () {
     Object.keys(this.watchers).forEach(id => this.watchers[id].close())
     this.watchers = {}
+    this._ignoreChangeList = new Map()
+  }
+
+  /**
+   * Ignore the next changed event within a certain time for the current file and window.
+   *
+   * NOTE: Only valid for files and "add"/"change" event!
+   *
+   * @param {number} windowId The window id.
+   * @param {string} pathname The path to ignore.
+   * @param {number} [duration] The duration in ms to ignore the changed event.
+   */
+  ignoreChangedEvent (windowId, pathname, duration=WATCHER_STABILITY_THRESHOLD + WATCHER_STABILITY_POLL_INTERVAL + 1000) {
+    const id = getUniqueId()
+    this._ignoreChangeList.set(id, { id, windowId, pathname, duration, start: new Date(), size: undefined })
+    return id
+  }
+
+  /**
+   * Check whether we should ignore the current event because the file may be changed from Mark Text itself.
+   *
+   * @param {number} winId
+   * @param {string} pathname
+   * @param {string} type
+   */
+  _shouldIgnoreEvent (winId, pathname, type) {
+    if (type === 'file') {
+      const { _ignoreChangeList } = this
+      const currentTime = new Date()
+      for (const item of _ignoreChangeList.values()) {
+        const { id, windowId, pathname: pathToIgnore, start, duration } = item
+        if (windowId === winId && pathToIgnore === pathname) {
+          _ignoreChangeList.delete(id)
+          if (currentTime - start < duration) {
+            return true
+          }
+        }
+      }
+    }
+    return false
   }
 }
 

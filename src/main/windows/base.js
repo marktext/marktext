@@ -24,8 +24,6 @@ export const WindowLifecycle = {
   QUITTING: 3
 }
 
-// TODO: WindowEventNames
-
 class BaseWindow extends EventEmitter {
 
   /**

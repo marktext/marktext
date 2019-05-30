@@ -9,6 +9,10 @@ import { writeMarkdownFile } from '../../filesystem/markdown'
 import { getPath, getRecommendTitleFromMarkdownString } from '../../utils'
 import pandoc from '../../utils/pandoc'
 
+// TODO(refactor): "save" and "save as" should be moved to the editor window (editor.js) and
+// the renderer should communicate only with the editor window for file relevant stuff.
+// E.g. "mt::save-tabs" --> "mt::window-save-tabs$wid:<windowId>"
+
 // Handle the export response from renderer process.
 const handleResponseForExport = async (e, { type, content, pathname, markdown }) => {
   const win = BrowserWindow.fromWebContents(e.sender)
@@ -75,7 +79,9 @@ const handleResponseForSave = async (e, { id, markdown, pathname, options }) => 
     recommendFilename = 'Untitled'
   }
 
-  // If the file doesn't exist on disk add it to the recently used documents later.
+  // If the file doesn't exist on disk add it to the recently used documents later
+  // and execute file from filesystem watcher for a short time. The file may exists
+  // on disk nevertheless but is already tracked by Mark Text.
   const alreadyExistOnDisk = !!pathname
 
   let filePath = pathname
@@ -93,17 +99,17 @@ const handleResponseForSave = async (e, { id, markdown, pathname, options }) => 
     return Promise.resolve()
   }
 
+  filePath = path.resolve(filePath)
   return writeMarkdownFile(filePath, markdown, options, win)
     .then(() => {
       if (!alreadyExistOnDisk) {
-        ipcMain.emit('window-add-file-path', win.id, path.resolve(filePath))
-        ipcMain.emit('menu-add-recently-used', path.resolve(filePath))
-      }
+        ipcMain.emit('window-add-file-path', win.id, filePath)
+        ipcMain.emit('menu-add-recently-used', filePath)
 
-      if (!alreadyExistOnDisk || filePath !== pathname) {
         const filename = path.basename(filePath)
         win.webContents.send('mt::set-pathname', { id, pathname: filePath, filename })
       } else {
+        ipcMain.emit('window-file-saved', win.id, filePath)
         win.webContents.send('mt::tab-saved', id)
       }
       return id
@@ -195,20 +201,33 @@ ipcMain.on('AGANI::response-file-save-as', (e, { id, markdown, pathname, options
     recommendFilename = 'Untitled'
   }
 
+  // If the file doesn't exist on disk add it to the recently used documents later
+  // and execute file from filesystem watcher for a short time. The file may exists
+  // on disk nevertheless but is already tracked by Mark Text.
+  const alreadyExistOnDisk = !!pathname
+
   dialog.showSaveDialog(win, {
     defaultPath: pathname || getPath('documents') + `/${recommendFilename}.md`
   }, filePath => {
     if (filePath) {
+      filePath = path.resolve(filePath)
       writeMarkdownFile(filePath, markdown, options, win)
         .then(() => {
-          if (pathname === filePath) {
-            win.webContents.send('mt::tab-saved', id)
-          } else {
+          if (!alreadyExistOnDisk) {
+            ipcMain.emit('window-add-file-path', win.id, filePath)
+            ipcMain.emit('menu-add-recently-used', filePath)
+
+            const filename = path.basename(filePath)
+            win.webContents.send('mt::set-pathname', { id, pathname: filePath, filename })
+          } else if (pathname !== filePath) {
             // Update window file list and watcher.
             ipcMain.emit('window-change-file-path', win.id, filePath, pathname)
 
             const filename = path.basename(filePath)
             win.webContents.send('mt::set-pathname', { id, pathname: filePath, filename })
+          } else {
+            ipcMain.emit('window-file-saved', win.id, filePath)
+            win.webContents.send('mt::tab-saved', id)
           }
         })
         .catch(err => {
