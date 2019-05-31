@@ -428,9 +428,9 @@ export const openFile = win => {
 export const openFolder = win => {
   dialog.showOpenDialog(win, {
     properties: ['openDirectory', 'createDirectory']
-  }, dirname => {
-    if (dirname) {
-      openFileOrFolder(win, dirname)
+  }, directories => {
+    if (directories && directories[0]) {
+      openFileOrFolder(win, directories[0])
     }
   })
 }
