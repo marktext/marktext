@@ -357,9 +357,9 @@ ipcMain.on('mt::ask-for-open-project-in-sidebar', e => {
   const win = BrowserWindow.fromWebContents(e.sender)
   dialog.showOpenDialog(win, {
     properties: ['openDirectory', 'createDirectory']
-  }, dirname => {
-    if (dirname) {
-      ipcMain.emit('app-open-directory-by-id', win.id, dirname, true)
+  }, directories => {
+    if (directories && directories[0]) {
+      ipcMain.emit('app-open-directory-by-id', win.id, directories[0], true)
     }
   })
 })
