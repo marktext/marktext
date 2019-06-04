@@ -51,6 +51,7 @@ const handleError = (title, error, type) => {
 
   // show error dialog
   if (app.isReady()) {
+    // Blocking message box
     const result = dialog.showMessageBox({
       type: 'error',
       buttons: [
