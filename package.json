@@ -93,19 +93,12 @@
             "ia32",
             "x64"
           ]
-        },
-        {
-          "target": "portable",
-          "arch": [
-            "ia32",
-            "x64"
-          ]
         }
       ],
       "requestedExecutionLevel": "asInvoker"
     },
     "nsis": {
-      "perMachine": true,
+      "perMachine": false,
       "oneClick": false,
       "allowToChangeInstallationDirectory": true,
       "include": "resources/windows/installer.nsh"

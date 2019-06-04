@@ -3,6 +3,7 @@
 **:warning:Breaking Changes:**
 
 - `preference.md` is deprecated and no longer supported. Please use the GUI or edit `preferences.json` manually.
+- Removed portable Windows executable. NSIS installer can now be used to install per-user or machine wide.
 
 **:cactus:Feature**
 
