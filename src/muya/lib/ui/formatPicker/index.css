@@ -55,7 +55,6 @@
   width: 100%;
   overflow: hidden;
   color: var(--iconColor);
-  opacity: .7;
   transition: all .25s ease-in-out;
 }
 
