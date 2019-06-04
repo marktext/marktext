@@ -15,7 +15,9 @@
   --selectionColor: rgba(255, 255, 255, .2);
   --editorColor: rgba(171, 178, 191, .8);
   --editorColor80: rgba(171, 178, 191, 1);
+  --editorColor60: rgba(171, 178, 191, .9);
   --editorColor50: rgba(171, 178, 191, .9);
+  --editorColor40: rgba(171, 178, 191, .9);
   --editorColor30: rgba(171, 178, 191, .8);
   --editorColor10: rgba(171, 178, 191, .5);
   --editorColor04: rgba(171, 178, 191, .04);

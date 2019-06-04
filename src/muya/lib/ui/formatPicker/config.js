@@ -25,14 +25,14 @@ const icons = [
     type: 'inline_code',
     icon: codeIcon
   }, {
+    type: 'inline_math',
+    icon: mathIcon
+  }, {
     type: 'link',
     icon: linkIcon
   }, {
     type: 'image',
     icon: imageIcon
-  }, {
-    type: 'inline_math',
-    icon: mathIcon
   }, {
     type: 'clear',
     icon: clearIcon
