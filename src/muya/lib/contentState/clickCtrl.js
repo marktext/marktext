@@ -61,46 +61,47 @@ const clickCtrl = ContentState => {
     }
     // format-click
     const node = selection.getSelectionStart()
-    if (node.classList.contains('ag-inline-rule')) {
+    const inlineNode = node ? node.closest('.ag-inline-rule') : null
+    if (inlineNode) {
       let formatType = null
       let data = null
-      switch (node.tagName) {
+      switch (inlineNode.tagName) {
         case 'SPAN': {
-          if (node.hasAttribute('data-emoji')) {
+          if (inlineNode.hasAttribute('data-emoji')) {
             formatType = 'emoji'
-            data = node.getAttribute('data-emoji')
-          } else if (node.classList.contains('ag-math-text')) {
+            data = inlineNode.getAttribute('data-emoji')
+          } else if (inlineNode.classList.contains('ag-math-text')) {
             formatType = 'inline_math'
-            data = node.innerHTML
+            data = inlineNode.textContent
           }
           break
         }
         case 'A': {
           formatType = 'link' // auto link or []() link
           data = {
-            text: node.innerHTML,
-            href: node.getAttribute('href')
+            text: inlineNode.textContent,
+            href: inlineNode.getAttribute('href')
           }
           break
         }
         case 'STRONG': {
           formatType = 'strong'
-          data = node.innerHTML
+          data = inlineNode.textContent
           break
         }
         case 'EM': {
           formatType = 'em'
-          data = node.innerHTML
+          data = inlineNode.textContent
           break
         }
         case 'DEL': {
           formatType = 'del'
-          data = node.innerHTML
+          data = inlineNode.textContent
           break
         }
         case 'CODE': {
           formatType = 'inline_code'
-          data = node.innerHTML
+          data = inlineNode.textContent
           break
         }
       }
