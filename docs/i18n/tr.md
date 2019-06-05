@@ -1,3 +1,5 @@
+> **This documentation is outdated, based on the original readme from 19 June 2018!**
+
 <p align="center"><img src="https://github.com/marktext/marktext/blob/master/static/logo-small.png" alt="mark text" width="100" height="100"></p>
 
 <h1 align="center">Mark Text</h1>
@@ -53,7 +55,7 @@
       Web sitesi
     </a>
      <span> | </span>
-    <a href="https://github.com/marktext/marktext/blob/master/doc/i18n/tr.md#readme">
+    <a href="https://github.com/marktext/marktext/blob/master/docs/i18n/tr.md#readme">
       Türkçe
     </a>
     <span> | </span>
@@ -86,7 +88,7 @@
 
 <br />
 
-![](https://github.com/marktext/marktext/blob/master/doc/marktext.gif)
+![](https://github.com/marktext/marktext/blob/master/docs/marktext.gif)
 
 ## Özellikler
 
@@ -101,13 +103,13 @@
 
 |                        Dark :crescent_moon:                        |                       Light :high_brightness:                       |
 | :----------------------------------------------------------------: | :-----------------------------------------------------------------: |
-| ![](https://github.com/marktext/marktext/blob/master/doc/dark.jpg) | ![](https://github.com/marktext/marktext/blob/master/doc/light.jpg) |
+| ![](https://github.com/marktext/marktext/blob/master/docs/dark.jpg) | ![](https://github.com/marktext/marktext/blob/master/docs/light.jpg) |
 
 <h4 align="center">:smile_cat:Düzenleme modları:dog:</h4>
 
 |                              Kaynak Kod                              |                                 Daktilo                                  |                              Odaklama                               |
 | :------------------------------------------------------------------: | :----------------------------------------------------------------------: | :-----------------------------------------------------------------: |
-| ![](https://github.com/marktext/marktext/blob/master/doc/source.gif) | ![](https://github.com/marktext/marktext/blob/master/doc/typewriter.gif) | ![](https://github.com/marktext/marktext/blob/master/doc/focus.gif) |
+| ![](https://github.com/marktext/marktext/blob/master/docs/source.gif) | ![](https://github.com/marktext/marktext/blob/master/docs/typewriter.gif) | ![](https://github.com/marktext/marktext/blob/master/docs/focus.gif) |
 
 ## Neden başka editör yazıyoruz?
 
@@ -133,7 +135,7 @@ Eğer OSX sistemi kullanıyorsan, [**homebrew cask**](https://github.com/caskroo
 brew cask install mark-text
 ```
 
-![](https://github.com/marktext/marktext/blob/master/doc/brew-cask.gif)
+![](https://github.com/marktext/marktext/blob/master/docs/brew-cask.gif)
 
 #### macOS ve Windows
 
@@ -141,7 +143,7 @@ Basitçe indirin ve Mark Text kurulum sihirbazı ile kurulumu tamamlayın.
 
 #### Linux
 
-Lütfen [Linux kurulum talimatını](https://github.com/marktext/marktext/blob/master/doc/LINUX.md) takip ediniz.
+Lütfen [Linux kurulum talimatını](https://github.com/marktext/marktext/blob/master/docs/LINUX.md) takip ediniz.
 
 ## Geliştirme
 
@@ -169,7 +171,7 @@ Sponsor olarak bu projeye desktek verin. Logonuz burada websitenizin linki veril
 
 **Platinum Sponsorlar**
 
-<a href="https://readme.io" target="_blank"><img src="https://github.com/marktext/marktext/blob/master/doc/sponsor/readme.png" /></a>
+<a href="https://readme.io" target="_blank"><img src="https://github.com/marktext/marktext/blob/master/docs/sponsor/readme.png" /></a>
 
 ## Katkıda bulunanlar
 

@@ -1,3 +1,5 @@
+> **This documentation is outdated, based on the original readme from 22 June 2018!**
+
 <p align="center"><img src="https://github.com/marktext/marktext/blob/master/static/logo-small.png" alt="mark text" width="100" height="100"></p>
 
 <h1 align="center">Mark Text</h1>
@@ -82,7 +84,7 @@
 
 <br />
 
-![](https://github.com/marktext/marktext/blob/master/doc/marktext.gif)
+![](https://github.com/marktext/marktext/blob/master/docs/marktext.gif)
 
 ## Features
 
@@ -97,13 +99,13 @@
 
 | Sombre :crescent_moon:                                               | Clair :high_brightness:                                             |
 |:------------------------------------------------------------------:|:-------------------------------------------------------------------:|
-| ![](https://github.com/marktext/marktext/blob/master/doc/dark.jpg) | ![](https://github.com/marktext/marktext/blob/master/doc/light.jpg) |
+| ![](https://github.com/marktext/marktext/blob/master/docs/dark.jpg) | ![](https://github.com/marktext/marktext/blob/master/docs/light.jpg) |
 
 <h4 align="center">:smile_cat:Mode d'édition:dog:</h4>
 
 | Code Source                                                          | Machine à écrire                                                               | Focus                                                               |
 |:--------------------------------------------------------------------:|:------------------------------------------------------------------------:|:-------------------------------------------------------------------:|
-| ![](https://github.com/marktext/marktext/blob/master/doc/source.gif) | ![](https://github.com/marktext/marktext/blob/master/doc/typewriter.gif) | ![](https://github.com/marktext/marktext/blob/master/doc/focus.gif) |
+| ![](https://github.com/marktext/marktext/blob/master/docs/source.gif) | ![](https://github.com/marktext/marktext/blob/master/docs/typewriter.gif) | ![](https://github.com/marktext/marktext/blob/master/docs/focus.gif) |
 
 ## Pourquoi écrire un nouvel éditeur?
 
@@ -129,7 +131,7 @@ Si vous êtes sur OS X, vous pouvez installer Mark Text via [**homebrew cask**](
 brew cask install mark-text
 ```
 
-![](https://github.com/marktext/marktext/blob/master/doc/brew-cask.gif)
+![](https://github.com/marktext/marktext/blob/master/docs/brew-cask.gif)
 
 #### macOS and Windows
 
@@ -137,7 +139,7 @@ Télécharger et installer simplement Mark Text via le client d'installation.
 
 #### Linux
 
-Veuillez suivre [les instructions d'installations Linux](https://github.com/marktext/marktext/blob/master/doc/LINUX.md).
+Veuillez suivre [les instructions d'installations Linux](https://github.com/marktext/marktext/blob/master/docs/LINUX.md).
 
 ## Development
 
@@ -161,7 +163,7 @@ Supporter ce projet en devenant sponsor de celui-ci. Votre logo sera affiché ic
 
 **Platinum Sponsors**
 
-<a href="https://readme.io" target="_blank"><img src="https://github.com/marktext/marktext/blob/master/doc/sponsor/readme.png" /></a>
+<a href="https://readme.io" target="_blank"><img src="https://github.com/marktext/marktext/blob/master/docs/sponsor/readme.png" /></a>
 
 ## Contributors
 

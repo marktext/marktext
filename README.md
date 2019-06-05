@@ -71,28 +71,28 @@
 
 <div align="center">
   <sub>Translations:</sub>
-  <a href="https://github.com/marktext/marktext/blob/master/doc/i18n/zh_cn.md#readme">
+  <a href="https://github.com/marktext/marktext/blob/master/docs/i18n/zh_cn.md#readme">
     <span>:cn:</span>
   </a>
-  <a href="https://github.com/marktext/marktext/blob/master/doc/i18n/pl.md#readme">
+  <a href="https://github.com/marktext/marktext/blob/master/docs/i18n/pl.md#readme">
     <span>:poland:</span>
   </a>
-  <a href="https://github.com/marktext/marktext/blob/master/doc/i18n/ja.md#readme">
+  <a href="https://github.com/marktext/marktext/blob/master/docs/i18n/ja.md#readme">
     <span>:jp:</span>
   </a>
-  <a href="https://github.com/marktext/marktext/blob/master/doc/i18n/french.md#readme">
+  <a href="https://github.com/marktext/marktext/blob/master/docs/i18n/french.md#readme">
     <span>:fr:</span>
   </a>
-  <a href="https://github.com/marktext/marktext/blob/master/doc/i18n/tr.md#readme">
+  <a href="https://github.com/marktext/marktext/blob/master/docs/i18n/tr.md#readme">
     <span>:tr:</span>
   </a>
-  <a href="https://github.com/marktext/marktext/blob/master/doc/i18n/spanish.md#readme">
+  <a href="https://github.com/marktext/marktext/blob/master/docs/i18n/spanish.md#readme">
     <span>:es:</span>
   </a>
-  <a href="https://github.com/marktext/marktext/blob/master/doc/i18n/pt.md#readme">
+  <a href="https://github.com/marktext/marktext/blob/master/docs/i18n/pt.md#readme">
     <span>:portugal:</span>
   </a>
-  <a href="https://github.com/marktext/marktext/blob/master/doc/i18n/ko.md#readme">
+  <a href="https://github.com/marktext/marktext/blob/master/docs/i18n/ko.md#readme">
     <span>:kr:</span>
   </a>
 </div>
@@ -121,8 +121,8 @@ Sponsored by Patreon, it will be directly sponsored to Luo Ran (@jocs), who crea
 
 **Platinum Sponsors**
 
-<a href="https://readme.io" target="_blank"><img src="https://raw.githubusercontent.com/marktext/marktext/master/doc/sponsor/readme.png" /></a>
-<a href="https://qordoba.com" target="_blank"><img src="https://raw.githubusercontent.com/marktext/marktext/master/doc/sponsor/qordoba.png" /></a>
+<a href="https://readme.io" target="_blank"><img src="https://raw.githubusercontent.com/marktext/marktext/master/docs/sponsor/readme.png" /></a>
+<a href="https://qordoba.com" target="_blank"><img src="https://raw.githubusercontent.com/marktext/marktext/master/docs/sponsor/qordoba.png" /></a>
 <a href="https://opencollective.com/marktext#platinum-sponsors">
  <img src="https://opencollective.com/marktext/tiers/platinum-sponsors.svg?avatarHeight=36&width=600">
 </a>
@@ -153,7 +153,7 @@ Sponsored by Patreon, it will be directly sponsored to Luo Ran (@jocs), who crea
 
 ## Screenshot
 
-![](https://github.com/marktext/marktext/blob/master/doc/marktext.png?raw=true)
+![](https://github.com/marktext/marktext/blob/master/docs/marktext.png?raw=true)
 
 ## Features
 
@@ -169,17 +169,17 @@ Sponsored by Patreon, it will be directly sponsored to Luo Ran (@jocs), who crea
 
 | Cadmium Light                                                                                              | Dark                                                                                                     |
 |:----------------------------------------------------------------------------------------------------------:|:--------------------------------------------------------------------------------------------------------:|
-| ![](https://github.com/marktext/marktext/blob/master/doc/themeImages/cadmium-light.png?raw=true)  | ![](https://github.com/marktext/marktext/blob/master/doc/themeImages/dark.png?raw=true)         |
+| ![](https://github.com/marktext/marktext/blob/master/docs/themeImages/cadmium-light.png?raw=true)  | ![](https://github.com/marktext/marktext/blob/master/docs/themeImages/dark.png?raw=true)         |
 | Graphite Light                                                                                             | Materal Dark                                                                                             |
-| ![](https://github.com/marktext/marktext/blob/master/doc/themeImages/graphite-light.png?raw=true) | ![](https://github.com/marktext/marktext/blob/master/doc/themeImages/materal-dark.png?raw=true) |
+| ![](https://github.com/marktext/marktext/blob/master/docs/themeImages/graphite-light.png?raw=true) | ![](https://github.com/marktext/marktext/blob/master/docs/themeImages/materal-dark.png?raw=true) |
 | Ulysses Light                                                                                              | One Dark                                                                                                 |
-| ![](https://github.com/marktext/marktext/blob/master/doc/themeImages/ulysses-light.png?raw=true)  | ![](https://github.com/marktext/marktext/blob/master/doc/themeImages/one-dark.png?raw=true)     |
+| ![](https://github.com/marktext/marktext/blob/master/docs/themeImages/ulysses-light.png?raw=true)  | ![](https://github.com/marktext/marktext/blob/master/docs/themeImages/one-dark.png?raw=true)     |
 
 <h4 align="center">:smile_cat:Edit modes:dog:</h4>
 
 | Source Code                                                                    | Typewriter                                                                         | Focus                                                                         |
 |:------------------------------------------------------------------------------:|:----------------------------------------------------------------------------------:|:-----------------------------------------------------------------------------:|
-| ![](https://raw.githubusercontent.com/marktext/marktext/master/doc/source.gif) | ![](https://raw.githubusercontent.com/marktext/marktext/master/doc/typewriter.gif) | ![](https://raw.githubusercontent.com/marktext/marktext/master/doc/focus.gif) |
+| ![](https://raw.githubusercontent.com/marktext/marktext/master/docs/source.gif) | ![](https://raw.githubusercontent.com/marktext/marktext/master/docs/typewriter.gif) | ![](https://raw.githubusercontent.com/marktext/marktext/master/docs/focus.gif) |
 
 ## Why write another editor?
 
@@ -207,11 +207,11 @@ brew cask install mark-text
 
 #### Windows
 
-Simply download and install Mark Text via setup wizard (`marktext-setup-%version%.exe`) or download a portable version `marktext-%version%.exe`.
+Simply download and install Mark Text via setup wizard (`marktext-setup-%version%.exe`) and choose whether to install per-user or machine wide.
 
 #### Linux
 
-Please follow the [Linux installation instructions](https://github.com/marktext/marktext/blob/master/doc/LINUX.md).
+Please follow the [Linux installation instructions](https://github.com/marktext/marktext/blob/master/docs/LINUX.md).
 
 #### Other
 

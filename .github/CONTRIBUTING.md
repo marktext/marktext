@@ -1,6 +1,6 @@
 # Mark Text Contributing Guide
 
-Hi, I'm really excited that you are interested in contributing to Mark Text :tada:. Before submitting your contribution though, please make sure to take a moment and read through the following guidelines.
+We are really excited that you are interested in contributing to Mark Text :tada:. Before submitting your contribution though, please make sure to take a moment and read through the following guidelines.
 
 - [Code of Conduct](https://github.com/marktext/marktext/blob/master/.github/CODE_OF_CONDUCT.md)
 - [Issue Reporting Guidelines](#issue-reporting-guidelines)
@@ -80,8 +80,10 @@ Before you can get started developing, you need set up your build environment:
 
 - libx11 (dev)
 - libxkbfile (dev)
+- libsecret (dev)
 
 On Debian-based Linux: `sudo apt-get install libx11-dev libxkbfile-dev libsecret-1-dev`
+
 On Red Hat-based Linux: `sudo dnf install libx11-devel libxkbfile-devel libsecret-devel`
 
 **Let's build:**
@@ -120,7 +122,7 @@ For more scripts please see `package.json`.
 - `package.json`: Project settings
 - `build`: Contains generated binaries
 - `dist`: Build files for deployment
-- `doc`: Documentation and assets
+- `docs`: Documentation and assets
 - `node_modules`: Dependencies
 - `src`: Mark Text source code
 - `static`: Application assets (images, themes, etc)

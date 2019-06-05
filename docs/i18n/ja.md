@@ -1,3 +1,5 @@
+> **This documentation is outdated, based on the original readme from 19 April 2018!**
+
 <p align="center"><img src="https://github.com/marktext/marktext/blob/master/static/logo-small.png" alt="mark text" width="100" height="100"></p>
 
 <h1 align="center">Mark Text</h1>
@@ -76,22 +78,22 @@
   <a href="https://github.com/marktext/marktext/blob/master/readme.md#readme">
     <span>:en:</span>
   </a>
-  <a href="https://github.com/marktext/marktext/blob/master/doc/i18n/zh_cn.md#readme">
+  <a href="https://github.com/marktext/marktext/blob/master/docs/i18n/zh_cn.md#readme">
     <span>:cn:</span>
   </a>
-  <a href="https://github.com/marktext/marktext/blob/master/doc/i18n/pl.md#readme">
+  <a href="https://github.com/marktext/marktext/blob/master/docs/i18n/pl.md#readme">
     <span>:poland:</span>
   </a>
-  <a href="https://github.com/marktext/marktext/blob/master/doc/i18n/french.md#readme">
+  <a href="https://github.com/marktext/marktext/blob/master/docs/i18n/french.md#readme">
     <span>:fr:</span>
   </a>
-  <a href="https://github.com/marktext/marktext/blob/master/doc/i18n/tr.md#readme">
+  <a href="https://github.com/marktext/marktext/blob/master/docs/i18n/tr.md#readme">
     <span>:tr:</span>
   </a>
-  <a href="https://github.com/marktext/marktext/blob/master/doc/i18n/spanish.md#readme">
+  <a href="https://github.com/marktext/marktext/blob/master/docs/i18n/spanish.md#readme">
     <span>:es:</span>
   </a>
-  <a href="https://github.com/marktext/marktext/blob/master/doc/i18n/pt.md#readme">
+  <a href="https://github.com/marktext/marktext/blob/master/docs/i18n/pt.md#readme">
     <span>:portugal:</span>
   </a>
 </div>
@@ -107,7 +109,7 @@
 
 <br />
 
-![](https://github.com/marktext/marktext/blob/master/doc/marktext.gif)
+![](https://github.com/marktext/marktext/blob/master/docs/marktext.gif)
 
 ## 特徴
 
@@ -122,13 +124,13 @@
 
 | Dark :crescent_moon:                                               | Light :high_brightness:                                             |
 |:------------------------------------------------------------------:|:-------------------------------------------------------------------:|
-| ![](https://github.com/marktext/marktext/blob/master/doc/dark.jpg) | ![](https://github.com/marktext/marktext/blob/master/doc/light.jpg) |
+| ![](https://github.com/marktext/marktext/blob/master/docs/dark.jpg) | ![](https://github.com/marktext/marktext/blob/master/docs/light.jpg) |
 
 <h4 align="center">:smile_cat:編集モード:dog:</h4>
 
 | Source Code                                                          | Typewriter                                                               | Focus                                                               |
 |:--------------------------------------------------------------------:|:------------------------------------------------------------------------:|:-------------------------------------------------------------------:|
-| ![](https://github.com/marktext/marktext/blob/master/doc/source.gif) | ![](https://github.com/marktext/marktext/blob/master/doc/typewriter.gif) | ![](https://github.com/marktext/marktext/blob/master/doc/focus.gif) |
+| ![](https://github.com/marktext/marktext/blob/master/docs/source.gif) | ![](https://github.com/marktext/marktext/blob/master/docs/typewriter.gif) | ![](https://github.com/marktext/marktext/blob/master/docs/focus.gif) |
 
 ## 開発の意図
 
@@ -152,7 +154,7 @@ macOSをご利用の場合は、[**homebrew cask**](https://github.com/caskroom/
 
 > brew cask install mark-text
 
-![](https://github.com/marktext/marktext/blob/master/doc/brew-cask.gif)
+![](https://github.com/marktext/marktext/blob/master/docs/brew-cask.gif)
 
 ## 開発
 
