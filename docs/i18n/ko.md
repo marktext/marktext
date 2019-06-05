@@ -1,3 +1,4 @@
+> **This documentation is outdated, based on the original readme from 27 February 2019!**
 
 <p align="center"><img src="https://github.com/marktext/marktext/blob/master/static/logo-small.png" alt="mark text" width="100" height="100"></p>
 
@@ -82,7 +83,7 @@
 
 <br />
 
-![](https://github.com/marktext/marktext/blob/master/doc/marktext.gif)
+![](https://github.com/marktext/marktext/blob/master/docs/marktext.gif)
 
 ## 기능
 
@@ -97,13 +98,13 @@
 
 | Dark :crescent_moon:                                               | Light :high_brightness:                                             |
 |:------------------------------------------------------------------:|:-------------------------------------------------------------------:|
-| ![](https://github.com/marktext/marktext/blob/master/doc/dark.jpg) | ![](https://github.com/marktext/marktext/blob/master/doc/light.jpg) |
+| ![](https://github.com/marktext/marktext/blob/master/docs/dark.jpg) | ![](https://github.com/marktext/marktext/blob/master/docs/light.jpg) |
 
 <h4 align="center">:smile_cat:다양한 편집 모드:dog:</h4>
 
 | Source Code                                                          | Typewriter                                                               | Focus                                                               |
 |:--------------------------------------------------------------------:|:------------------------------------------------------------------------:|:-------------------------------------------------------------------:|
-| ![](https://github.com/marktext/marktext/blob/master/doc/source.gif) | ![](https://github.com/marktext/marktext/blob/master/doc/typewriter.gif) | ![](https://github.com/marktext/marktext/blob/master/doc/focus.gif) |
+| ![](https://github.com/marktext/marktext/blob/master/docs/source.gif) | ![](https://github.com/marktext/marktext/blob/master/docs/typewriter.gif) | ![](https://github.com/marktext/marktext/blob/master/docs/focus.gif) |
 
 ## 개발 의도
 
@@ -129,14 +130,14 @@ macOS를 이용할 경우는  [**homebrew cask**](https://github.com/caskroom/ho
 brew cask install mark-text
 ```
 
-![](https://github.com/marktext/marktext/blob/master/doc/brew-cask.gif)
+![](https://github.com/marktext/marktext/blob/master/docs/brew-cask.gif)
 
 #### macOS and Windows
 
 설치 마법사를 통해 Mark Text를 다운로드하여 설치하면 된다.
 #### Linux
 
-[Linux installation instructions](https://github.com/marktext/marktext/blob/master/doc/LINUX.md) 이 문서를 따르라.
+[Linux installation instructions](https://github.com/marktext/marktext/blob/master/docs/LINUX.md) 이 문서를 따르라.
 
 ## 개발
 
@@ -158,7 +159,7 @@ Mark Text는 완전히 개발되었다,  pull request를 하기 전에 [Contribu
 
 **Platinum 스폰서**
 
-<a href="https://readme.io" target="_blank"><img src="https://github.com/marktext/marktext/blob/master/doc/sponsor/readme.png" /></a>
+<a href="https://readme.io" target="_blank"><img src="https://github.com/marktext/marktext/blob/master/docs/sponsor/readme.png" /></a>
 <a href="https://opencollective.com/marktext#platinum-sponsors">
   <img src="https://opencollective.com/marktext/tiers/platinum-sponsors.svg?avatarHeight=36&width=600">
 </a>

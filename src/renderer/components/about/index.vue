@@ -19,7 +19,7 @@
           <div class="text" style="min-height: auto">{{ copyright }}</div>
         </el-col>
         <el-col :span="24">
-          <div class="text">Copyright © 2018 Mark Text Contributors</div>
+          <div class="text">{{ copyrightContributors }}</div>
         </el-col>
       </el-row>
     </el-dialog>
@@ -34,6 +34,7 @@
     data () {
       this.name = 'Mark Text'
       this.copyright = `Copyright © 2017-${new Date().getFullYear()} Luo Ran`
+      this.copyrightContributors = `Copyright © 2018-${new Date().getFullYear()} Mark Text Contributors`
       return {
         showAboutDialog: false
       }

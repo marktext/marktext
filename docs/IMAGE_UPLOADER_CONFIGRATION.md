@@ -2,7 +2,7 @@
 
 ##### SM.MS
 
-No need to config, it's free uploading service, thanks!
+No need to config, it's a free uploading service up-to 5MB, thanks!
 
 ##### GitHub
 
