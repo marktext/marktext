@@ -1,6 +1,6 @@
 > **This documentation is outdated, based on the original readme from 19 April 2018!**
 
-<p align="center"><img src="https://github.com/marktext/marktext/blob/master/static/logo-small.png" alt="mark text" width="100" height="100"></p>
+<p align="center"><img src="../../static/logo-small.png" alt="mark text" width="100" height="100"></p>
 
 <h1 align="center">Mark Text</h1>
 
@@ -75,25 +75,25 @@
 
 <div align="center">
   <sub>Translations:</sub>
-  <a href="https://github.com/marktext/marktext/blob/master/readme.md#readme">
+  <a href="../../readme.md#readme">
     <span>:en:</span>
   </a>
-  <a href="https://github.com/marktext/marktext/blob/master/docs/i18n/zh_cn.md#readme">
+  <a href="../../docs/i18n/zh_cn.md#readme">
     <span>:cn:</span>
   </a>
-  <a href="https://github.com/marktext/marktext/blob/master/docs/i18n/pl.md#readme">
+  <a href="../../docs/i18n/pl.md#readme">
     <span>:poland:</span>
   </a>
-  <a href="https://github.com/marktext/marktext/blob/master/docs/i18n/french.md#readme">
+  <a href="../../docs/i18n/french.md#readme">
     <span>:fr:</span>
   </a>
-  <a href="https://github.com/marktext/marktext/blob/master/docs/i18n/tr.md#readme">
+  <a href="../../docs/i18n/tr.md#readme">
     <span>:tr:</span>
   </a>
-  <a href="https://github.com/marktext/marktext/blob/master/docs/i18n/spanish.md#readme">
+  <a href="../../docs/i18n/spanish.md#readme">
     <span>:es:</span>
   </a>
-  <a href="https://github.com/marktext/marktext/blob/master/docs/i18n/pt.md#readme">
+  <a href="../../docs/i18n/pt.md#readme">
     <span>:portugal:</span>
   </a>
 </div>
@@ -109,7 +109,7 @@
 
 <br />
 
-![](https://github.com/marktext/marktext/blob/master/docs/marktext.gif)
+![](../../docs/marktext.gif)
 
 ## 特徴
 
@@ -124,13 +124,13 @@
 
 | Dark :crescent_moon:                                               | Light :high_brightness:                                             |
 |:------------------------------------------------------------------:|:-------------------------------------------------------------------:|
-| ![](https://github.com/marktext/marktext/blob/master/docs/dark.jpg) | ![](https://github.com/marktext/marktext/blob/master/docs/light.jpg) |
+| ![](../../docs/dark.jpg) | ![](../../docs/light.jpg) |
 
 <h4 align="center">:smile_cat:編集モード:dog:</h4>
 
 | Source Code                                                          | Typewriter                                                               | Focus                                                               |
 |:--------------------------------------------------------------------:|:------------------------------------------------------------------------:|:-------------------------------------------------------------------:|
-| ![](https://github.com/marktext/marktext/blob/master/docs/source.gif) | ![](https://github.com/marktext/marktext/blob/master/docs/typewriter.gif) | ![](https://github.com/marktext/marktext/blob/master/docs/focus.gif) |
+| ![](../../docs/source.gif) | ![](../../docs/typewriter.gif) | ![](../../docs/focus.gif) |
 
 ## 開発の意図
 
@@ -148,13 +148,13 @@
 
 上記にご利用のプラットフォームが無い場合は、[リリースページ](https://github.com/marktext/marktext/releases)を探してみてください。それでも見つからない場合は [issue](https://github.com/marktext/marktext/issues) を作成してお知らせいただけると幸いです。
 
-このバージョンでの新着情報をご確認いただくには、[CHANGELOG](https://github.com/marktext/marktext/blob/master/.github/CHANGELOG.md)を参照してください。
+このバージョンでの新着情報をご確認いただくには、[CHANGELOG](../../.github/CHANGELOG.md)を参照してください。
 
 macOSをご利用の場合は、[**homebrew cask**](https://github.com/caskroom/homebrew-cask)からもインストールいただけます、homebrew-caskの利用には[Homebrew](https://brew.sh/)が必要です。
 
 > brew cask install mark-text
 
-![](https://github.com/marktext/marktext/blob/master/docs/brew-cask.gif)
+![](../../docs/brew-cask.gif)
 
 ## 開発
 
@@ -169,7 +169,7 @@ macOSをご利用の場合は、[**homebrew cask**](https://github.com/caskroom/
 
 ## コントリビューション
 
-Mark Textは開発の真っ最中です、プルリクエストを作成する場合は事前に [Contributing Guide](https://github.com/marktext/marktext/blob/master/.github/CONTRIBUTING.md) をご確認ください。Mark Textに追加したい新機能がある場合は、 [TODO LIST](https://github.com/marktext/marktext/blob/master/.github/TODOLIST.md) を参考にしてください。
+Mark Textは開発の真っ最中です、プルリクエストを作成する場合は事前に [Contributing Guide](../../.github/CONTRIBUTING.md) をご確認ください。Mark Textに追加したい新機能がある場合は、 [TODO LIST](../../.github/TODOLIST.md) を参考にしてください。
 
 ## 後援者
 
@@ -194,6 +194,6 @@ Mark Textのロゴをデザインしてくださった @[Yasujizr](https://githu
 
 ## ライセンス
 
-[**MIT**](https://github.com/marktext/marktext/blob/master/LICENSE).
+[**MIT**](../../LICENSE).
 
 [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fmarktext%2Fmarktext.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Fmarktext%2Fmarktext?ref=badge_large)

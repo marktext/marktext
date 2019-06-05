@@ -1,6 +1,6 @@
 > **This documentation is outdated, based on the original readme from 27 February 2019!**
 
-<p align="center"><img src="https://github.com/marktext/marktext/blob/master/static/logo-small.png" alt="mark text" width="100" height="100"></p>
+<p align="center"><img src="../../static/logo-small.png" alt="mark text" width="100" height="100"></p>
 
 <h1 align="center">Mark Text</h1>
 
@@ -24,7 +24,7 @@
     <img src="https://badge.fury.io/gh/jocs%2Fmarktext.svg" alt="website">
   </a>
   <!-- License -->
-  <a href="https://github.com/marktext/marktext/blob/master/LICENSE">
+  <a href="../../LICENSE">
     <img src="https://img.shields.io/github/license/marktext/marktext.svg" alt="LICENSE">
   </a>
   <!-- Build Status -->
@@ -83,7 +83,7 @@
 
 <br />
 
-![](https://github.com/marktext/marktext/blob/master/docs/marktext.gif)
+![](../../docs/marktext.gif)
 
 ## 기능
 
@@ -98,13 +98,13 @@
 
 | Dark :crescent_moon:                                               | Light :high_brightness:                                             |
 |:------------------------------------------------------------------:|:-------------------------------------------------------------------:|
-| ![](https://github.com/marktext/marktext/blob/master/docs/dark.jpg) | ![](https://github.com/marktext/marktext/blob/master/docs/light.jpg) |
+| ![](../../docs/dark.jpg) | ![](../../docs/light.jpg) |
 
 <h4 align="center">:smile_cat:다양한 편집 모드:dog:</h4>
 
 | Source Code                                                          | Typewriter                                                               | Focus                                                               |
 |:--------------------------------------------------------------------:|:------------------------------------------------------------------------:|:-------------------------------------------------------------------:|
-| ![](https://github.com/marktext/marktext/blob/master/docs/source.gif) | ![](https://github.com/marktext/marktext/blob/master/docs/typewriter.gif) | ![](https://github.com/marktext/marktext/blob/master/docs/focus.gif) |
+| ![](../../docs/source.gif) | ![](../../docs/typewriter.gif) | ![](../../docs/focus.gif) |
 
 ## 개발 의도
 
@@ -122,7 +122,7 @@
 
 시스템을 찾을 수 없다면 [release page](https://github.com/marktext/marktext/releases/latest)를 참고하여라. 그래도 없으면 [issue](https://github.com/marktext/marktext/issues)를 작성하여 알려 주시면 감사하겠다.
 
-새로운 버전의 새로운 기능을 확인하기 위해서는 [CHANGELOG](https://github.com/marktext/marktext/blob/master/.github/CHANGELOG.md)를 참조 하여라.
+새로운 버전의 새로운 기능을 확인하기 위해서는 [CHANGELOG](../../.github/CHANGELOG.md)를 참조 하여라.
 
 macOS를 이용할 경우는  [**homebrew cask**](https://github.com/caskroom/homebrew-cask)에서 설치할 수 있다.
 
@@ -130,18 +130,18 @@ macOS를 이용할 경우는  [**homebrew cask**](https://github.com/caskroom/ho
 brew cask install mark-text
 ```
 
-![](https://github.com/marktext/marktext/blob/master/docs/brew-cask.gif)
+![](../../docs/brew-cask.gif)
 
 #### macOS and Windows
 
 설치 마법사를 통해 Mark Text를 다운로드하여 설치하면 된다.
 #### Linux
 
-[Linux installation instructions](https://github.com/marktext/marktext/blob/master/docs/LINUX.md) 이 문서를 따르라.
+[Linux installation instructions](../../docs/LINUX.md) 이 문서를 따르라.
 
 ## 개발
 
-직접 **Mark Text**를 작성하려면 [developer documentation](https://github.com/marktext/marktext/blob/master/.github/CONTRIBUTING.md#build-instructions)를 확인하여라.
+직접 **Mark Text**를 작성하려면 [developer documentation](../../.github/CONTRIBUTING.md#build-instructions)를 확인하여라.
 
 **Mark Text**와 관련하여 질문이 있으시면 언제든지 문제를 기재하실 수 있다. 그렇게 할 때 문제를 열 때 찾을 수 있는 기본 형식을 사용하여라. 물론, 직접 PR을 제출하면 크게 환영 할 것이다.
 
@@ -151,7 +151,7 @@ brew cask install mark-text
 
 ## 기여
 
-Mark Text는 완전히 개발되었다,  pull request를 하기 전에 [Contributing Guide](https://github.com/marktext/marktext/blob/master/.github/CONTRIBUTING.md) 문서를 읽어라. Mark Text에 몇 가지 기능을 추가하고 싶다면 [TODO LIST](https://github.com/marktext/marktext/blob/master/.github/TODOLIST.md) 및 open issues를 참조하여라.
+Mark Text는 완전히 개발되었다,  pull request를 하기 전에 [Contributing Guide](../../.github/CONTRIBUTING.md) 문서를 읽어라. Mark Text에 몇 가지 기능을 추가하고 싶다면 [TODO LIST](../../.github/TODOLIST.md) 및 open issues를 참조하여라.
 
 ## 스폰서
 
@@ -159,7 +159,7 @@ Mark Text는 완전히 개발되었다,  pull request를 하기 전에 [Contribu
 
 **Platinum 스폰서**
 
-<a href="https://readme.io" target="_blank"><img src="https://github.com/marktext/marktext/blob/master/docs/sponsor/readme.png" /></a>
+<a href="https://readme.io" target="_blank"><img src="../../docs/sponsor/readme.png" /></a>
 <a href="https://opencollective.com/marktext#platinum-sponsors">
   <img src="https://opencollective.com/marktext/tiers/platinum-sponsors.svg?avatarHeight=36&width=600">
 </a>
@@ -201,6 +201,6 @@ Mark Text의 로고를 디자인한 @[Yasujizr](https://github.com/Yasujizr) 에
 
 ## License
 
-[**MIT**](https://github.com/marktext/marktext/blob/master/LICENSE).
+[**MIT**](../../LICENSE).
 
 [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fmarktext%2Fmarktext.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Fmarktext%2Fmarktext?ref=badge_large)

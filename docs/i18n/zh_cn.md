@@ -1,6 +1,6 @@
 > **This documentation is outdated, based on the original readme from 13 March 2018!**
 
-<p align="center"><img src="https://github.com/marktext/marktext/blob/master/static/logo-small.png" alt="mark text" width="100" height="100"></p>
+<p align="center"><img src="../../static/logo-small.png" alt="mark text" width="100" height="100"></p>
 
 <h1 align="center">Mark Text</h1>
 
@@ -84,7 +84,7 @@
 
 <br />
 
-![](https://github.com/marktext/marktext/blob/master/docs/marktext.gif)
+![](../../docs/marktext.gif)
 
 ### 特性
 
@@ -100,19 +100,19 @@
 
 |                     黑色主题 :crescent_moon:                     |                    白色主题 :high_brightness:                    |
 | :----------------------------------------------------------: | :----------------------------------------------------------: |
-| ![](https://github.com/marktext/marktext/blob/master/docs/dark.jpg) | ![](https://github.com/marktext/marktext/blob/master/docs/light.jpg) |
+| ![](../../docs/dark.jpg) | ![](../../docs/light.jpg) |
 
 <h4 align="center">:smile_cat:​编辑模式:dog:​</h4>
 
 |                         源代码模式                          |                          打字机模式                          |                            专注模式                             |
 | :----------------------------------------------------------: | :----------------------------------------------------------: | :----------------------------------------------------------: |
-| ![](https://github.com/marktext/marktext/blob/master/docs/source.gif) | ![](https://github.com/marktext/marktext/blob/master/docs/typewriter.gif) | ![](https://github.com/marktext/marktext/blob/master/docs/focus.gif) |
+| ![](../../docs/source.gif) | ![](../../docs/typewriter.gif) | ![](../../docs/focus.gif) |
 
 ### 可以斗图的 Markdown 编辑器
 
  Mark Text 内置斗图功能，省掉了寻找「斗图」的烦恼，通过快捷键 `Cmd+/` 直接打开斗图搜索面板，你需要的有趣图片就在里面。斗图功能默认是关闭的，你需要从`user preference` 菜单中，打开 preference.md, 然后设置 `aidou` 为 `true`。保存然后重启编辑器就可以使用了。
 
-![](https://github.com/marktext/marktext/blob/master/docs/doutu.jpg)
+![](../../docs/doutu.jpg)
 
 ### 安装和下载
 
@@ -128,7 +128,7 @@
 
 > brew cask install mark-text
 
-![](https://github.com/marktext/marktext/blob/master/docs/brew-cask.gif)
+![](../../docs/brew-cask.gif)
 
 ### 开发
 
@@ -141,7 +141,7 @@
 
 ### 贡献
 
-Mark Text 正在全力开发中，在你提交 PR 之前，请首先阅读 [Contributing Guide](https://github.com/marktext/marktext/blob/master/.github/CONTRIBUTING.md)。 如果你想给 Mark Text 添加新的特性，请阅读 [TODO LIST](https://github.com/marktext/marktext/blob/master/.github/TODOLIST.md)
+Mark Text 正在全力开发中，在你提交 PR 之前，请首先阅读 [Contributing Guide](../../.github/CONTRIBUTING.md)。 如果你想给 Mark Text 添加新的特性，请阅读 [TODO LIST](../../.github/TODOLIST.md)
 
 感谢所有 Mark Text 的所有[贡献者](https://github.com/marktext/marktext/graphs/contributors), 正是因为有你们，Mark Text 才会趋于完美。 如果你是贡献者，你可以将你的姓名和头像添加到下面列表中。
 
@@ -153,6 +153,6 @@ Mark Text 正在全力开发中，在你提交 PR 之前，请首先阅读 [Cont
 
 ### License
 
- [**MIT**](https://github.com/marktext/marktext/blob/master/LICENSE).
+ [**MIT**](../../LICENSE).
 
 Copyright (c) 2017-present, @Jocs

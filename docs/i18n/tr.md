@@ -1,6 +1,6 @@
 > **This documentation is outdated, based on the original readme from 19 June 2018!**
 
-<p align="center"><img src="https://github.com/marktext/marktext/blob/master/static/logo-small.png" alt="mark text" width="100" height="100"></p>
+<p align="center"><img src="../../static/logo-small.png" alt="mark text" width="100" height="100"></p>
 
 <h1 align="center">Mark Text</h1>
 
@@ -55,7 +55,7 @@
       Web sitesi
     </a>
      <span> | </span>
-    <a href="https://github.com/marktext/marktext/blob/master/docs/i18n/tr.md#readme">
+    <a href="../../docs/i18n/tr.md#readme">
       Türkçe
     </a>
     <span> | </span>
@@ -88,7 +88,7 @@
 
 <br />
 
-![](https://github.com/marktext/marktext/blob/master/docs/marktext.gif)
+![](../../docs/marktext.gif)
 
 ## Özellikler
 
@@ -103,13 +103,13 @@
 
 |                        Dark :crescent_moon:                        |                       Light :high_brightness:                       |
 | :----------------------------------------------------------------: | :-----------------------------------------------------------------: |
-| ![](https://github.com/marktext/marktext/blob/master/docs/dark.jpg) | ![](https://github.com/marktext/marktext/blob/master/docs/light.jpg) |
+| ![](../../docs/dark.jpg) | ![](../../docs/light.jpg) |
 
 <h4 align="center">:smile_cat:Düzenleme modları:dog:</h4>
 
 |                              Kaynak Kod                              |                                 Daktilo                                  |                              Odaklama                               |
 | :------------------------------------------------------------------: | :----------------------------------------------------------------------: | :-----------------------------------------------------------------: |
-| ![](https://github.com/marktext/marktext/blob/master/docs/source.gif) | ![](https://github.com/marktext/marktext/blob/master/docs/typewriter.gif) | ![](https://github.com/marktext/marktext/blob/master/docs/focus.gif) |
+| ![](../../docs/source.gif) | ![](../../docs/typewriter.gif) | ![](../../docs/focus.gif) |
 
 ## Neden başka editör yazıyoruz?
 
@@ -127,7 +127,7 @@
 
 Kendi sistemini bulamıyor musun? [Yayınlanma sayfasına](https://github.com/marktext/marktext/releases) git.Hala mı bulamıyorsun? Bir [issue](https://github.com/marktext/marktext/issues) aç.
 
-Bu versiyonda yeni özellikler mi görmek istiyorsun? [CHANGELOG](https://github.com/marktext/marktext/blob/master/.github/CHANGELOG.md) başvur.
+Bu versiyonda yeni özellikler mi görmek istiyorsun? [CHANGELOG](../../.github/CHANGELOG.md) başvur.
 
 Eğer OSX sistemi kullanıyorsan, [**homebrew cask**](https://github.com/caskroom/homebrew-cask) kullanarak Mark Text yükleyebilirsin, Homebrew-Cask kullanmaya başlamak için sadece [Homebrew](https://brew.sh/) yüklemen gerekli.
 
@@ -135,7 +135,7 @@ Eğer OSX sistemi kullanıyorsan, [**homebrew cask**](https://github.com/caskroo
 brew cask install mark-text
 ```
 
-![](https://github.com/marktext/marktext/blob/master/docs/brew-cask.gif)
+![](../../docs/brew-cask.gif)
 
 #### macOS ve Windows
 
@@ -143,11 +143,11 @@ Basitçe indirin ve Mark Text kurulum sihirbazı ile kurulumu tamamlayın.
 
 #### Linux
 
-Lütfen [Linux kurulum talimatını](https://github.com/marktext/marktext/blob/master/docs/LINUX.md) takip ediniz.
+Lütfen [Linux kurulum talimatını](../../docs/LINUX.md) takip ediniz.
 
 ## Geliştirme
 
-Eğer **Mark Text** kendiniz geliştirmek isterseniz, lütfen bizim [geliştirici dökümantasyonunu](https://github.com/marktext/marktext/blob/master/.github/CONTRIBUTING.md#build-instructions) kontrol edin.
+Eğer **Mark Text** kendiniz geliştirmek isterseniz, lütfen bizim [geliştirici dökümantasyonunu](../../.github/CONTRIBUTING.md#build-instructions) kontrol edin.
 
 **Mark Text** kullanırken bir sorun olursa, bir issue açabilirsin, ama issue formatına uyacağına umuyoruz.Tabi ki direk olarak PR gönderbilirsin bundan memnuniyet duyarız.
 
@@ -157,7 +157,7 @@ Eğer **Mark Text** kendiniz geliştirmek isterseniz, lütfen bizim [geliştiric
 
 ## Katkıda Bulunmak
 
-Mark Text geliştirme aşamasında, lütfen pull request yapmadan önce [Katkıda bulunma Rehberini](https://github.com/marktext/marktext/blob/master/.github/CONTRIBUTING.md) okuduğunuza emin olun.Mark Text'e yeni özellikler eklemek mi istiyorsun? [TODO LIST](https://github.com/marktext/marktext/blob/master/.github/TODOLIST.md)'e başvur ve bir issue aç.
+Mark Text geliştirme aşamasında, lütfen pull request yapmadan önce [Katkıda bulunma Rehberini](../../.github/CONTRIBUTING.md) okuduğunuza emin olun.Mark Text'e yeni özellikler eklemek mi istiyorsun? [TODO LIST](../../.github/TODOLIST.md)'e başvur ve bir issue aç.
 
 ## Destekçiler
 
@@ -171,7 +171,7 @@ Sponsor olarak bu projeye desktek verin. Logonuz burada websitenizin linki veril
 
 **Platinum Sponsorlar**
 
-<a href="https://readme.io" target="_blank"><img src="https://github.com/marktext/marktext/blob/master/docs/sponsor/readme.png" /></a>
+<a href="https://readme.io" target="_blank"><img src="../../docs/sponsor/readme.png" /></a>
 
 ## Katkıda bulunanlar
 
@@ -183,6 +183,6 @@ Mark Text'e katkıda bulunmuş herkese teşekkürler.[[contributors](https://git
 
 ## Lisans
 
-[**MIT**](https://github.com/marktext/marktext/blob/master/LICENSE).
+[**MIT**](../../LICENSE).
 
 [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fmarktext%2Fmarktext.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Fmarktext%2Fmarktext?ref=badge_large)
