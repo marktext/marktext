@@ -2,7 +2,7 @@ import fs from 'fs-extra'
 import path from 'path'
 import log from 'electron-log'
 import { LINE_ENDING_REG, LF_LINE_ENDING_REG, CRLF_LINE_ENDING_REG } from '../config'
-import { writeFile } from '../filesystem'
+import { isDirectory, isMarkdownFileOrLink, normalizeAndResolvePath , writeFile } from '../filesystem'
 
 const getLineEnding = lineEnding => {
   if (lineEnding === 'lf') {
@@ -18,6 +18,27 @@ const getLineEnding = lineEnding => {
 
 const convertLineEndings = (text, lineEnding) => {
   return text.replace(LINE_ENDING_REG, getLineEnding(lineEnding))
+}
+
+/**
+ * Special function to normalize directory and markdown file paths.
+ *
+ * @param {string} pathname The path to the file or directory.
+ * @returns {{isDir: boolean, path: string}?} Returns the normalize path and a
+ * directory hint or null if it's not a directory or markdown file.
+ */
+export const normalizeMarkdownPath = pathname => {
+  const isDir = isDirectory(pathname)
+  if (isDir || isMarkdownFileOrLink(pathname)) {
+    // Normalize and resolve the path or link target.
+    const resolved = normalizeAndResolvePath(pathname)
+    if (resolved) {
+      return { isDir, path: resolved }
+    } else {
+      console.error(`[ERROR] Cannot resolve "${pathname}".`)
+    }
+  }
+  return null
 }
 
 /**

@@ -7,8 +7,8 @@ import arg from 'arg'
  * @param {boolean} permissive If set to false an exception is throw about unknown flags.
  * @returns {arg.Result} Parsed arguments
  */
-const parseArgs = (argv=null, permissive=true) => {
-  if (argv == null) {
+const parseArgs = (argv = null, permissive = true) => {
+  if (argv === null) {
     argv = process.argv.slice(1)
   }
   const spec = {

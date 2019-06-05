@@ -194,13 +194,7 @@ class WindowManager extends EventEmitter {
    * @returns {number|null}
    */
   getActiveEditorId () {
-    let win = this.getActiveWindow()
-    if (win && win.type !== WindowType.EDITOR) {
-      win = this._windows.get(this._windowActivity.getSecondNewest())
-      if (!win || win.type !== WindowType.EDITOR) {
-        win = null
-      }
-    }
+    const win = this.getActiveEditor()
     return win ? win.id : null
   }
 
@@ -233,7 +227,7 @@ class WindowManager extends EventEmitter {
    * @returns {{windowId: string, fileList: string[]}[]} An array of files mapped to a window id or null to open in a new window.
    */
   findBestWindowToOpenIn (fileList) {
-    if (!fileList || !fileList.length) return []
+    if (!fileList || !Array.isArray(fileList) || !fileList.length) return []
     const { windows } = this
     const lastActiveEditorId = this.getActiveEditorId() // editor id or null
 

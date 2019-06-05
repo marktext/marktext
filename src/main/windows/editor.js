@@ -149,7 +149,7 @@ class EditorWindow extends BaseWindow {
 
     // The window is now destroyed.
     win.on('closed', () => {
-      this.lifecycle = WindowLifecycle.QUITTING
+      this.lifecycle = WindowLifecycle.QUITTED
       this.emit('window-closed')
 
       // Free window reference
@@ -181,7 +181,7 @@ class EditorWindow extends BaseWindow {
    * @param {[boolean]} selected Whether the tab should become the selected tab (true if not set).
    */
   openTab (filePath, selected=true) {
-    if (this.lifecycle === WindowLifecycle.QUITTING) return
+    if (this.lifecycle === WindowLifecycle.QUITTED) return
     this.openTabs([ filePath ], selected ? 0 : -1 )
   }
 
@@ -192,7 +192,7 @@ class EditorWindow extends BaseWindow {
    * @param {[number]} selectedIndex Whether one of the given tabs should become the selected tab (-1 if not set).
    */
   openTabs (fileList, selectedIndex = -1) {
-    if (this.lifecycle === WindowLifecycle.QUITTING) return
+    if (this.lifecycle === WindowLifecycle.QUITTED) return
 
     const { browserWindow } = this
     const { preferences } = this._accessor
@@ -226,7 +226,7 @@ class EditorWindow extends BaseWindow {
    * @param {[string]} markdown The markdown string.
    */
   openUntitledTab (selected=true, markdown='') {
-    if (this.lifecycle === WindowLifecycle.QUITTING) return
+    if (this.lifecycle === WindowLifecycle.QUITTED) return
 
     if (this.lifecycle === WindowLifecycle.READY) {
       const { browserWindow } = this
@@ -242,7 +242,7 @@ class EditorWindow extends BaseWindow {
    * @param {string} pathname The directory path.
    */
   openFolder (pathname) {
-    if (this.lifecycle === WindowLifecycle.QUITTING ||
+    if (this.lifecycle === WindowLifecycle.QUITTED ||
       isSamePathSync(pathname, this._openedRootDirectory)) {
       return
     }

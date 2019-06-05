@@ -21,7 +21,7 @@ export const WindowLifecycle = {
   NONE: 0,
   LOADING: 1,
   READY: 2,
-  QUITTING: 3
+  QUITTED: 3
 }
 
 class BaseWindow extends EventEmitter {
@@ -55,7 +55,7 @@ class BaseWindow extends EventEmitter {
   }
 
   destroy () {
-    this.lifecycle = WindowLifecycle.QUITTING
+    this.lifecycle = WindowLifecycle.QUITTED
     this.emit('window-closed')
 
     this.removeAllListeners()

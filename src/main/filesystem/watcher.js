@@ -151,7 +151,7 @@ class Watcher {
 
     let disposed = false
     let enospcReached = false
-    let renameTimeout = null
+    let renameTimer = null
 
     watcher
       .on('add', pathname => {
@@ -176,9 +176,9 @@ class Watcher {
         // TODO: This should also apply to macOS.
         // TODO: Do we need to rewatch when the watched directory was renamed?
         if (isLinux && type === 'file' && event === 'rename') {
-          clearTimeout(renameTimeout)
-          renameTimeout = setTimeout(async () => {
-            renameTimeout = null
+          clearTimeout(renameTimer)
+          renameTimer = setTimeout(async () => {
+            renameTimer = null
             if (disposed) return
 
             const fileExists = await exists(watchPath)
@@ -213,8 +213,8 @@ class Watcher {
       if (this.watchers[id]) {
         delete this.watchers[id]
       }
-      clearTimeout(renameTimeout)
-      renameTimeout = null
+      clearTimeout(renameTimer)
+      renameTimer = null
       watcher.close()
     }
 

@@ -6,7 +6,8 @@ import log from 'electron-log'
 import { app, BrowserWindow, clipboard, dialog, ipcMain, systemPreferences } from 'electron'
 import { isLinux, isOsx } from '../config'
 import parseArgs from '../cli/parser'
-import { isChildOfDirectory, isDirectory, isMarkdownFileOrLink, normalizeAndResolvePath } from '../filesystem'
+import { isChildOfDirectory } from '../filesystem'
+import { normalizeMarkdownPath } from '../filesystem/markdown'
 import { getMenuItemById } from '../menu'
 import { selectTheme } from '../menu/actions/theme'
 import { dockMenu } from '../menu/templates'
@@ -53,7 +54,7 @@ class App {
           continue
         }
 
-        const info = this.normalizePath(path.resolve(workingDirectory, pathname))
+        const info = normalizeMarkdownPath(path.resolve(workingDirectory, pathname))
         if (info) {
           buf.push(info)
         }
@@ -132,7 +133,7 @@ class App {
           continue
         }
 
-        const info = this.normalizePath(pathname)
+        const info = normalizeMarkdownPath(pathname)
         if (info) {
           _openFilesCache.push(info)
         }
@@ -141,7 +142,7 @@ class App {
 
     const { startUpAction, defaultDirectoryToOpen } = preferences.getAll()
     if (startUpAction === 'folder' && defaultDirectoryToOpen) {
-      const info = this.normalizePath(defaultDirectoryToOpen)
+      const info = normalizeMarkdownPath(defaultDirectoryToOpen)
       if (info) {
         _openFilesCache.unshift(info)
       }
@@ -209,7 +210,7 @@ class App {
 
   openFile = (event, pathname) => {
     event.preventDefault()
-    const info = this.normalizePath(pathname)
+    const info = normalizeMarkdownPath(pathname)
     if (info) {
       this._openFilesCache.push(info)
 
@@ -224,20 +225,6 @@ class App {
         }, 100)
       }
     }
-  }
-
-  normalizePath = pathname => {
-    const isDir = isDirectory(pathname)
-    if (isDir || isMarkdownFileOrLink(pathname)) {
-      // Normalize and resolve the path or link target.
-      const resolved = normalizeAndResolvePath(pathname)
-      if (resolved) {
-        return { isDir, path: resolved }
-      } else {
-        console.error(`[ERROR] Cannot resolve "${pathname}".`)
-      }
-    }
-    return null
   }
 
   // --- private --------------------------------
@@ -286,7 +273,7 @@ class App {
    */
   _openPathList (pathsToOpen, openFilesInSameWindow=false) {
     const { _windowManager } = this
-    const { openFilesInNewWindow } = this._accessor.preferences.getAll()
+    const openFilesInNewWindow = this._accessor.preferences.getItem('openFilesInNewWindow')
 
     const fileSet = new Set()
     const directorySet = new Set()
@@ -331,19 +318,24 @@ class App {
       for (let i = 0; i < directoriesToOpen.length; ++i) {
         const { fileList, rootDirectory } = directoriesToOpen[i]
 
+        let breakOuterLoop = false
         for (let j = 0; j < filesToOpen.length; ++j) {
           const pathname = filesToOpen[j]
           if (isChildOfDirectory(rootDirectory, pathname)) {
             if (isFirstWindow) {
               fileList.push(...filesToOpen)
               filesToOpen.length = 0
-              i = 9999
+              breakOuterLoop = true
               break
             }
             fileList.push(pathname)
             filesToOpen.splice(j, 1)
             --j
           }
+        }
+
+        if (breakOuterLoop) {
+          break
         }
       }
 
@@ -447,7 +439,7 @@ class App {
     })
 
     ipcMain.on('app-open-file-by-id', (windowId, filePath) => {
-      const { openFilesInNewWindow } = this._accessor.preferences.getAll()
+      const openFilesInNewWindow = this._accessor.preferences.getItem('openFilesInNewWindow')
       if (openFilesInNewWindow) {
         this._createEditorWindow(null, [ filePath ])
       } else {
@@ -458,14 +450,14 @@ class App {
       }
     })
     ipcMain.on('app-open-files-by-id', (windowId, fileList) => {
-      const { openFilesInNewWindow } = this._accessor.preferences.getAll()
+      const openFilesInNewWindow = this._accessor.preferences.getItem('openFilesInNewWindow')
       if (openFilesInNewWindow) {
         this._createEditorWindow(null, fileList)
       } else {
         const editor = this._windowManager.get(windowId)
         if (editor) {
           editor.openTabs(
-            fileList.map(p => this.normalizePath(p))
+            fileList.map(p => normalizeMarkdownPath(p))
             .filter(i => i && !i.isDir)
             .map(i => i.path),
             0)
@@ -474,7 +466,7 @@ class App {
     })
 
     ipcMain.on('app-open-markdown-by-id', (windowId, data) => {
-      const { openFilesInNewWindow } = this._accessor.preferences.getAll()
+      const openFilesInNewWindow = this._accessor.preferences.getItem('openFilesInNewWindow')
       if (openFilesInNewWindow) {
         this._createEditorWindow(null, [], [ data ])
       } else {
