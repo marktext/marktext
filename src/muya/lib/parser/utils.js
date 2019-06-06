@@ -45,10 +45,17 @@ const validWidthAndHeight = value => {
 
 export const lowerPriority = (src, offset, rules) => {
   let i
+  const ignoreIndex = []
   for (i = 0; i < offset; i++) {
+    if (ignoreIndex.includes(i)) {
+      continue
+    }
     const text = src.substring(i)
     for (const rule of Object.keys(rules)) {
       const to = rules[rule].exec(text)
+      if (to && to[0].length <= offset - i) {
+        ignoreIndex.push(i + to[0].length - 1)
+      }
       if (to && to[0].length > offset - i) {
         return false
       }
@@ -142,7 +149,6 @@ export const validateEmphasize = (src, offset, marker, pending, rules) => {
   if (!canCloseEmphasis(src, offset, marker)) {
     return false
   }
-
   /**
    * 16.When there are two potential emphasis or strong emphasis spans with the same closing delimiter,
    * the shorter one (the one that opens later) takes precedence. Thus, for example, **foo **bar baz**
