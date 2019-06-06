@@ -176,7 +176,9 @@ class Watcher {
         // TODO: This should also apply to macOS.
         // TODO: Do we need to rewatch when the watched directory was renamed?
         if (isLinux && type === 'file' && event === 'rename') {
-          clearTimeout(renameTimer)
+          if (renameTimer) {
+            clearTimeout(renameTimer)
+          }
           renameTimer = setTimeout(async () => {
             renameTimer = null
             if (disposed) return
@@ -213,8 +215,10 @@ class Watcher {
       if (this.watchers[id]) {
         delete this.watchers[id]
       }
-      clearTimeout(renameTimer)
-      renameTimer = null
+      if (renameTimer) {
+        clearTimeout(renameTimer)
+        renameTimer = null
+      }
       watcher.close()
     }
 

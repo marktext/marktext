@@ -162,6 +162,7 @@ class EditorWindow extends BaseWindow {
 
     mainWindowState.manage(win)
 
+    // Delay load files and directories after the current control flow.
     setTimeout(() => {
       if (rootDirectory) {
         this.openFolder(rootDirectory)
