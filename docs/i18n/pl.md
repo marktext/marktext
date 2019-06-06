@@ -1,6 +1,6 @@
 > **This documentation is outdated, based on the original readme from 14 April 2018!**
 
-<p align="center"><img src="https://github.com/marktext/marktext/blob/master/static/logo-small.png" alt="mark text" width="100" height="100"></p>
+<p align="center"><img src="../../static/logo-small.png" alt="mark text" width="100" height="100"></p>
 
 <h1 align="center">Mark Text</h1>
 
@@ -84,7 +84,7 @@
 
 <br />
 
-![](https://github.com/marktext/marktext/blob/master/docs/marktext.gif)
+![](../../docs/marktext.gif)
 
 ### Cechy programu
 
@@ -99,13 +99,13 @@
 
 | Ciemny :crescent_moon:                                             | Jasny :high_brightness:                                             |
 |:------------------------------------------------------------------:|:-------------------------------------------------------------------:|
-| ![](https://github.com/marktext/marktext/blob/master/docs/dark.jpg) | ![](https://github.com/marktext/marktext/blob/master/docs/light.jpg) |
+| ![](../../docs/dark.jpg) | ![](../../docs/light.jpg) |
 
 <h4 align="center">:smile_cat:Tryby edycji:dog:</h4>
 
 | Kod źródłowy                                                         | Maszyna do pisania                                                       | Skupienie                                                           |
 |:--------------------------------------------------------------------:|:------------------------------------------------------------------------:|:-------------------------------------------------------------------:|
-| ![](https://github.com/marktext/marktext/blob/master/docs/source.gif) | ![](https://github.com/marktext/marktext/blob/master/docs/typewriter.gif) | ![](https://github.com/marktext/marktext/blob/master/docs/focus.gif) |
+| ![](../../docs/source.gif) | ![](../../docs/typewriter.gif) | ![](../../docs/focus.gif) |
 
 ### Dlaczego kolejny edytor?
 
@@ -123,13 +123,13 @@
 
 Nie znalazłeś swojego systemu? Przejdź do strony [release](https://github.com/marktext/marktext/releases). Wciąż nie znalazłeś? Zgłoś [problem](https://github.com/marktext/marktext/issues).
 
-Chciałbyś zobaczyć jak nowe udogodnienia wprowadziła najnowsza wersja? Udaj się do [CHANGELOG](https://github.com/marktext/marktext/blob/master/.github/CHANGELOG.md)
+Chciałbyś zobaczyć jak nowe udogodnienia wprowadziła najnowsza wersja? Udaj się do [CHANGELOG](../../.github/CHANGELOG.md)
 
 Jeśli używasz systemu OS X, to możesz zainstalować Mark Text za pomocą [**homebrew cask**](https://github.com/caskroom/homebrew-cask). Aby zacząć korzystać z Homebrew-Cask potrzebujesz tylko [Homebrew](https://brew.sh/).
 
 > brew cask install mark-text
 
-![](https://github.com/marktext/marktext/blob/master/docs/brew-cask.gif)
+![](../../docs/brew-cask.gif)
 
 ### Rozwój
 
@@ -144,7 +144,7 @@ W przypadku jakichkolwiek pytań podczas korzystania z **Mark Text** zaczęcamy 
 
 ## Udział w projekcie
 
-Mark Text jest w trakcie rozwijania. Upewnij się, że przeczytałeś [Contributing Guide](https://github.com/marktext/marktext/blob/master/.github/CONTRIBUTING.md) przed stworzeniem pull request. Chcesz dodać nowe udogodnienia do Mark Text? Udaj się do [TODO LIST](https://github.com/marktext/marktext/blob/master/.github/TODOLIST.md)
+Mark Text jest w trakcie rozwijania. Upewnij się, że przeczytałeś [Contributing Guide](../../.github/CONTRIBUTING.md) przed stworzeniem pull request. Chcesz dodać nowe udogodnienia do Mark Text? Udaj się do [TODO LIST](../../.github/TODOLIST.md)
 
 Dziękujemy wszystkim osobom, które już wzięły udział w projekcie Mark Text! Jeżeli już jesteś członkiem [contributors](https://github.com/marktext/marktext/graphs/contributors), otwórz pull request aby dodać twoje imię i zdjęcie do poniższej listy osób, które pomogły przy projekcie.
 
@@ -156,6 +156,6 @@ Specjalne podziękowania dla @[Yasujizr](https://github.com/Yasujizr), który za
 
 ### Licencja
 
- [**MIT**](https://github.com/marktext/marktext/blob/master/LICENSE).
+ [**MIT**](../../LICENSE).
 
 Copyright (c) 2017-present, @Jocs

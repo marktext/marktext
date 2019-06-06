@@ -1,6 +1,6 @@
 > **This documentation is outdated, based on the original readme from 1 October 2018!**
 
-<p align="center"><img src="https://github.com/marktext/marktext/blob/master/static/logo-small.png" alt="mark text" width="100" height="100"></p>
+<p align="center"><img src="../../static/logo-small.png" alt="mark text" width="100" height="100"></p>
 
 <h1 align="center">Mark Text</h1>
 
@@ -84,7 +84,7 @@
 
 <br />
 
-![](https://github.com/marktext/marktext/blob/master/docs/marktext.gif)
+![](../../docs/marktext.gif)
 
 ## Características
 
@@ -99,13 +99,13 @@
 
 | Oscuro :crescent_moon:                                               | Claro :high_brightness:                                             |
 |:------------------------------------------------------------------:|:-------------------------------------------------------------------:|
-| ![](https://github.com/marktext/marktext/blob/master/docs/dark.jpg) | ![](https://github.com/marktext/marktext/blob/master/docs/light.jpg) |
+| ![](../../docs/dark.jpg) | ![](../../docs/light.jpg) |
 
 <h4 align="center">:smile_cat:Mode d'édition:dog:</h4>
 
 | Código fuente                                                          | Máquina de escribir                                                               | Concentración                                                               |
 |:--------------------------------------------------------------------:|:------------------------------------------------------------------------:|:-------------------------------------------------------------------:|
-| ![](https://github.com/marktext/marktext/blob/master/docs/source.gif) | ![](https://github.com/marktext/marktext/blob/master/docs/typewriter.gif) | ![](https://github.com/marktext/marktext/blob/master/docs/focus.gif) |
+| ![](../../docs/source.gif) | ![](../../docs/typewriter.gif) | ![](../../docs/focus.gif) |
 
 ## ¿Por qué hacer otro editor ?
 
@@ -123,14 +123,14 @@
 
 ¿No encuentras tu sistema? Ve a la [página de descargas](https://github.com/marktext/marktext/releases). ¿No se encuentra disponible tu versión? Abre una [issue](https://github.com/marktext/marktext/issues).
 
-¿Quieres saber las nuevas funcionalidades de la última versión? Échale un vistazo al [CHANGELOG](https://github.com/marktext/marktext/blob/master/.github/CHANGELOG.md)
+¿Quieres saber las nuevas funcionalidades de la última versión? Échale un vistazo al [CHANGELOG](../../.github/CHANGELOG.md)
 
 Si estás usando macOS, puedes instalar Mart Text usando [**homebrew cask**](https://github.com/caskroom/homebrew-cask). Para usar Homebrew-Cask, tienes que tener instalado [Homebrew](https://brew.sh/)
 ```bash
 brew cask install mark-text
 ```
 
-![](https://github.com/marktext/marktext/blob/master/docs/brew-cask.gif)
+![](../../docs/brew-cask.gif)
 
 #### macOS y Windows
 
@@ -138,11 +138,11 @@ Descarga e instala Mart Text a partir del asistente de instalación
 
 #### Linux
 
-Sigue las [instrucciones de instalación de Linux]	(https://github.com/marktext/marktext/blob/master/docs/LINUX.md).
+Sigue las [instrucciones de instalación de Linux]	(../../docs/LINUX.md).
 
 ## Desarrollo
 
-Si quieres construir tú mismo **Mark Text**, por favor, sigue las  [instrucciones de desarrollo](https://github.com/marktext/marktext/blob/master/.github/CONTRIBUTING.md#build-instructions).
+Si quieres construir tú mismo **Mark Text**, por favor, sigue las  [instrucciones de desarrollo](../../.github/CONTRIBUTING.md#build-instructions).
 
 Si tienes dudas sobre **Mark Text**, puedes abrir un issue. Si lo haces, por favor, sigue el formato estándar. Por supuesto, apreciamos que mandes directamente un Pull Request
 
@@ -150,7 +150,7 @@ Si tienes dudas sobre **Mark Text**, puedes abrir un issue. Si lo haces, por fav
 - [Alfred Workflow](http://www.packal.org/workflow/mark-text): un workflow  para la aplicación de macOS Alfred: usa "mt" para abrir archivos/carpetas con Mark Text
 ## Contribución
 
-**Mark Text** está en pleno desarrollo. Asegúrate de leer [la guía de contribución](https://github.com/marktext/marktext/blob/master/.github/CONTRIBUTING.md) antes de hacer un Pull Request. ¿Quieres añadir algunas funcionalidades? Échale un vistazo a la [TODO LIST](https://github.com/marktext/marktext/blob/master/.github/TODOLIST.md) y abre issues.
+**Mark Text** está en pleno desarrollo. Asegúrate de leer [la guía de contribución](../../.github/CONTRIBUTING.md) antes de hacer un Pull Request. ¿Quieres añadir algunas funcionalidades? Échale un vistazo a la [TODO LIST](../../.github/TODOLIST.md) y abre issues.
 
 ## Backers
 
@@ -182,7 +182,7 @@ Apoya este proyecto convirtiéndote en un sponsor. Tu logo se verá aquí con un
 
 **Platinum Sponsors**
 
-<a href="https://readme.io" target="_blank"><img src="https://github.com/marktext/marktext/blob/master/docs/sponsor/readme.png" /></a>
+<a href="https://readme.io" target="_blank"><img src="../../docs/sponsor/readme.png" /></a>
 
 
 ## Contribuidores
@@ -195,6 +195,6 @@ Un especial agradecimiento a @[Yasujizr](https://github.com/Yasujizr) por hacer 
 
 ## Licencia
 
-[**MIT**](https://github.com/marktext/marktext/blob/master/LICENSE).
+[**MIT**](../../LICENSE).
 
 [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fmarktext%2Fmarktext.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Fmarktext%2Fmarktext?ref=badge_large)
