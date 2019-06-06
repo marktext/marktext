@@ -39,6 +39,22 @@ const copyCutCtrl = ContentState => {
       e.remove()
     }
 
+    const images = wrapper.querySelectorAll('span.ag-inline-image img')
+    for (const image of images) {
+      const src = image.getAttribute('src')
+      let originSrc = null
+      for (const [sSrc, tSrc] of this.stateRender.urlMap.entries()) {
+        if (tSrc === src) {
+          originSrc = sSrc
+          break
+        }
+      }
+
+      if (originSrc) {
+        image.setAttribute('src', originSrc)
+      }
+    }
+
     const hrs = wrapper.querySelectorAll(`[data-role=hr]`)
     for (const hr of hrs) {
       hr.replaceWith(document.createElement('hr'))
