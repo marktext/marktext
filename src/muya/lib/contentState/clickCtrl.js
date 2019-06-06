@@ -13,16 +13,31 @@ const clickCtrl = ContentState => {
       const rect = archorParagraph.getBoundingClientRect()
       // If click below the last paragraph
       // and the last paragraph is not empty, create a new empty paragraph
-      if (/\S/.test(lastBlock.text) && event.clientY > rect.top + rect.height) {
-        const paragraphBlock = this.createBlockP()
-        this.insertAfter(paragraphBlock, archor)
-        const key = paragraphBlock.key
-        const offset = 0
-        this.cursor = {
-          start: { key, offset },
-          end: { key, offset }
+      if (event.clientY > rect.top + rect.height) {
+        let needToInsertNewParagraph = false
+        if (lastBlock.type === 'span') {
+          if (/atxLine|paragraphContent/.test(lastBlock.functionType) && /\S/.test(lastBlock.text)) {
+            needToInsertNewParagraph = true
+          }
+          if (!/atxLine|paragraphContent/.test(lastBlock.functionType)) {
+            needToInsertNewParagraph = true
+          }
+        } else {
+          needToInsertNewParagraph = true
         }
-        return this.partialRender()
+
+        if (needToInsertNewParagraph) {
+          const paragraphBlock = this.createBlockP()
+          this.insertAfter(paragraphBlock, archor)
+          const key = paragraphBlock.key
+          const offset = 0
+          this.cursor = {
+            start: { key, offset },
+            end: { key, offset }
+          }
+
+          return this.partialRender()
+        }
       }
     }
     // handle front menu click
