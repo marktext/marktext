@@ -53,7 +53,7 @@ class BaseFloat {
     // use polyfill
     erd.listenTo(container, ele => {
       const { offsetWidth, offsetHeight } = ele
-      Object.assign(floatBox.style, { width: `${offsetWidth + 2}px`, height: `${offsetHeight + 2}px` })
+      Object.assign(floatBox.style, { width: `${offsetWidth}px`, height: `${offsetHeight}px` })
       this.popper && this.popper.update()
     })
 
