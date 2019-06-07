@@ -399,10 +399,10 @@ class EditorWindow extends BaseWindow {
         return '#f7f7f7'
       case 'one-dark':
        return '#282c34'
+      case 'light':
+      default:
+        return '#ffffff'
     }
-
-    // light or fallback
-    return '#ffffff'
   }
 
   /**
