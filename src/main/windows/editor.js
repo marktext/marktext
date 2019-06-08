@@ -312,7 +312,7 @@ class EditorWindow extends BaseWindow {
    * @param {string[]} fileList The file list.
    * @returns {number[]}
    */
-  getCandidatesScore (fileList) {
+  getCandidateScores (fileList) {
     const { _openedFiles, _openedRootDirectory, id } = this
     const buf = []
     for (const pathname of fileList) {

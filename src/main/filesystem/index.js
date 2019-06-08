@@ -120,7 +120,7 @@ export const isMarkdownFileOrLink = filepath => {
  * @param {string} pathB The second path.
  * @param {boolean} [isNormalized] Are both paths already normalized.
  */
-export const isSamePathSync = (pathA, pathB, isNormalized=false) => {
+export const isSamePathSync = (pathA, pathB, isNormalized = false) => {
   if (!pathA || !pathB) return false
   const a = isNormalized ? pathA : path.normalize(pathA)
   const b = isNormalized ? pathB : path.normalize(pathB)

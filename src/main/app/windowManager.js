@@ -236,17 +236,18 @@ class WindowManager extends EventEmitter {
     }
 
     // Array of scores, same order like fileList.
-    let best = null
+    let filePathScores = null
     for (const window of windows.values()) {
       if (window.type === WindowType.EDITOR) {
-        const score = window.getCandidatesScore(fileList)
-        if (!best) {
-          best = score
+        const scores = window.getCandidateScores(fileList)
+        if (!filePathScores) {
+          filePathScores = scores
         } else {
-          for (let i = 0; i < best.length; ++i) {
+          const len = filePathScores.length
+          for (let i = 0; i < len; ++i) {
             // Update score only if the file is not already opened.
-            if (best[i].score !== -1 && best[i].score < score[i].score) {
-              best[i] = score[i]
+            if (filePathScores[i].score !== -1 && filePathScores[i].score < scores[i].score) {
+              filePathScores[i] = scores[i]
             }
           }
         }
@@ -254,8 +255,9 @@ class WindowManager extends EventEmitter {
     }
 
     const buf = []
-    for (let i = 0; i < best.length; ++i) {
-      let { id: windowId, score } = best[i]
+    const len = filePathScores.length
+    for (let i = 0; i < len; ++i) {
+      let { id: windowId, score } = filePathScores[i]
 
       if (score === -1) {
         // Skip files that already opened.
