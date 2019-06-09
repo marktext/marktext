@@ -16,6 +16,8 @@ skip_tags: true
 environment:
   MARKTEXT_IS_STABLE: 1
   MARKTEXT_EXIT_ON_ERROR: 1
+  GITHUB_TOKEN:
+    secure: Ki5AJWygDYhzMJxl0b0rDx3bhAYmar2aPdwVHiai9IigqsvZpWHLeI3qpTiiaOWL
   GH_TOKEN:
     secure: Ki5AJWygDYhzMJxl0b0rDx3bhAYmar2aPdwVHiai9IigqsvZpWHLeI3qpTiiaOWL
 
