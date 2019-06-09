@@ -4,6 +4,7 @@
     <el-tree
       v-if="toc.length"
       :data="toc"
+      :default-expand-all="true"
       :props="defaultProps"
       @node-click="handleClick"
       :expand-on-click-node="false"
