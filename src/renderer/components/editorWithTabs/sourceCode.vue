@@ -27,6 +27,7 @@
     computed: {
       ...mapState({
         'theme': state => state.preferences.theme,
+        'sourceCode': state => state.preferences.sourceCode,
         'currentTab': state => state.editor.currentFile,
       })
     },
@@ -81,6 +82,7 @@
         bus.$on('file-loaded', this.setMarkdown)
         bus.$on('file-changed', this.handleMarkdownChange)
         bus.$on('dotu-select', this.handleSelectDoutu)
+        bus.$on('selectAll', this.handleSelectAll)
 
         setMode(editor, 'markdown')
         this.listenChange()
@@ -101,6 +103,7 @@
       bus.$off('file-loaded', this.setMarkdown)
       bus.$off('file-changed', this.handleMarkdownChange)
       bus.$off('dotu-select', this.handleSelectDoutu)
+      bus.$off('selectAll', this.handleSelectAll)
 
       const { editor } = this
       const { cursor, markdown } = this.getMarkdownAndCursor(editor)
@@ -174,6 +177,12 @@
           const { cursor, markdown } = this.getMarkdownAndCursor(editor)
           this.$store.dispatch('LISTEN_FOR_CONTENT_CHANGE', { id: this.tabId, markdown, cursor })
           this.tabId = null // invalidate tab id
+        }
+      },
+
+      handleSelectAll () {
+        if (this.sourceCode && this.editor) {
+          this.editor.execCommand('selectAll')
         }
       }
     }
