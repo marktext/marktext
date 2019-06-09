@@ -1,6 +1,6 @@
 import path from 'path'
 import { ipcRenderer, shell } from 'electron'
-import { addFile, unlinkFile, changeFile, addDirectory, unlinkDirectory } from './treeCtrl'
+import { addFile, unlinkFile, addDirectory, unlinkDirectory } from './treeCtrl'
 import bus from '../bus'
 import { create, paste, rename } from '../util/fileSystem'
 import { PATH_SEPARATOR } from '../config'
@@ -10,29 +10,14 @@ import { getFileStateFromData } from './help'
 const state = {
   activeItem: {},
   createCache: {},
-  // Use to cache newly created filename, for open iimmediately.
+  // Use to cache newly created filename, for open immediately.
   newFileNameCache: '',
   renameCache: null,
   clipboard: null,
   projectTree: null
 }
 
-const getters = {
-  fileList: state => {
-    const files = []
-    const travel = folder => {
-      files.push(...folder.files.filter(f => f.isMarkdown))
-      for (const childFolder of folder.folders) {
-        travel(childFolder)
-      }
-    }
-
-    if (state.projectTree) travel(state.projectTree)
-    files.sort((f1, f2) => f1.name.localeCompare(f2.name))
-
-    return files
-  }
-}
+const getters = {}
 
 const mutations = {
   SET_ROOT_DIRECTORY (state, pathname) {
@@ -65,10 +50,6 @@ const mutations = {
     const { projectTree } = state
     unlinkFile(projectTree, change)
   },
-  CHANGE_FILE (state, change) {
-    const { projectTree } = state
-    changeFile(projectTree, change)
-  },
   ADD_DIRECTORY (state, change) {
     const { projectTree } = state
     addDirectory(projectTree, change)
@@ -88,21 +69,6 @@ const mutations = {
   },
   SET_RENAME_CACHE (state, cache) {
     state.renameCache = cache
-  },
-  UPDATE_PROJECT_CONTENT (state, { markdown, pathname }) {
-    if (!state.projectTree) return
-    const travel = folder => {
-      folder.files.filter(file => file.isMarkdown)
-        .forEach(file => {
-          if (file.pathname === pathname) {
-            file.data.markdown = markdown
-          }
-        })
-      for (const childFolder of folder.folders) {
-        travel(childFolder)
-      }
-    }
-    travel(state.projectTree)
   }
 }
 
@@ -135,18 +101,17 @@ const actions = {
           commit('UNLINK_FILE', change)
           commit('SET_SAVE_STATUS_WHEN_REMOVE', change)
           break
-        case 'change':
-          commit('CHANGE_FILE', change)
-          break
         case 'addDir':
           commit('ADD_DIRECTORY', change)
           break
         case 'unlinkDir':
           commit('UNLINK_DIRECTORY', change)
           break
+        case 'change':
+          break
         default:
           if (process.env.NODE_ENV === 'development') {
-            console.log('unknown directory watch type')
+            console.log(`Unknown directory watch type: "${type}"`)
           }
           break
       }

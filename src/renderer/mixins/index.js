@@ -1,5 +1,5 @@
 import { ipcRenderer } from 'electron'
-import { getFileStateFromData } from '../store/help.js'
+import { isSamePathSync } from '../util/fileSystem'
 
 export const tabsMixins = {
   methods: {
@@ -21,28 +21,44 @@ export const tabsMixins = {
 
 export const fileMixins = {
   methods: {
-    handleFileClick () {
-      // HACK: Please see #1034 and #1035
-      const { data, isMarkdown, pathname } = this.file
-      if (!isMarkdown || this.currentFile.pathname === pathname) return
-      const { isMixedLineEndings, filename, lineEnding } = data
-      const isOpened = this.tabs.find(file => file.pathname === pathname)
+    handleSearchResultClick (searchMatch) {
+      const { range } = searchMatch
+      const { filePath } = this.searchResult
 
-      const fileState = isOpened || getFileStateFromData(data)
-      this.$store.dispatch('UPDATE_CURRENT_FILE', fileState)
+      const openedTab = this.tabs.find(file => isSamePathSync(file.pathname, filePath))
+      if (openedTab) {
+        // TODO(search): Set cursor range. Currently muya has no support for doing so.
 
-      // HACK: notify main process. Main process should notify the browser window.
-      ipcRenderer.send('AGANI::window-add-file-path', pathname)
-      ipcRenderer.send('mt::add-recently-used-document', pathname)
-
-      if (isMixedLineEndings && !isOpened) {
-        this.$notify({
-          title: 'Line Ending',
-          message: `${filename} has mixed line endings which are automatically normalized to ${lineEnding.toUpperCase()}.`,
-          type: 'primary',
-          time: 20000,
-          showConfirm: false
+        if (this.currentFile !== openedTab) {
+          this.$store.dispatch('UPDATE_CURRENT_FILE', openedTab)
+        }
+      } else {
+        ipcRenderer.send('mt::open-file', filePath, {
+          range: {
+            isMultiline: range[0][0] !== range[1][0],
+            start: {
+              line: range[0][0],
+              offset: range[0][1]
+            },
+            end: {
+              line: range[1][0],
+              offset: range[1][1]
+            }
+          }
         })
+      }
+    },
+    handleFileClick () {
+      const { isMarkdown, pathname } = this.file
+      if (!isMarkdown) return
+      const openedTab = this.tabs.find(file => isSamePathSync(file.pathname, pathname))
+      if (openedTab) {
+        if (this.currentFile === openedTab) {
+          return
+        }
+        this.$store.dispatch('UPDATE_CURRENT_FILE', openedTab)
+      } else {
+        ipcRenderer.send('mt::open-file', pathname, {})
       }
     }
   }

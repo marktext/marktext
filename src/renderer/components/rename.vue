@@ -1,6 +1,6 @@
 <template>
   <div class="rename">
-    <el-dialog 
+    <el-dialog
       :visible.sync="showRename"
       :show-close="false"
       :modal="true"
@@ -16,7 +16,7 @@
           >
           <svg class="icon" aria-hidden="true" @click="confirm">
             <use xlink:href="#icon-markdown"></use>
-          </svg>        
+          </svg>
         </div>
       </div>
     </el-dialog>
@@ -63,7 +63,6 @@
 
 <style>
   .rename .el-dialog__header {
-    height: 42px;
     box-sizing: border-box;
   }
   .rename .el-dialog__body {
@@ -75,22 +74,20 @@
   .search-wrapper {
     margin-top: 8px;
     z-index: 10000;
-    position: absolute;
-    top: 0;
+    position: relative;
     left: 50%;
     transform: translateX(-50%);
     width: 410px;
-    margin: 0 auto;
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
     align-items: center;
-    height: auto;
-    padding: 5px;
-    background: var(--floatBorderColor);
-    box-shadow: 0 3px 8px var(--floatBorderColor);
-    border: 1px solid var(--floatBorderColor);
+    box-shadow: none;
+    border: none;
     border-radius: 3px;
+    margin: 0;
+    padding: 0 8px;
+
     & .input-wrapper {
       display: flex;
       width: 100%;

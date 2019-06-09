@@ -170,7 +170,7 @@ export default {
         content: '';
         width: 4px;
         height: 0;
-        background: var(--themeColor);
+        background: var(--highlightThemeColor);
         position: absolute;
         left: 0;
         border-top-right-radius: 3px;

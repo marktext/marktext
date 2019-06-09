@@ -8,13 +8,12 @@ const INON_HASH = {
   warning: 'icon-warn',
   info: 'icon-info'
 }
-
-// const COLOR_HASH = {
-//   primary: 'var(--themeColor)',
-//   error: 'var(--deleteColor)',
-//   warning: 'var(--deleteColor)',
-//   info: '#999999'
-// }
+const TYPE_HASH = {
+  primary: 'mt-primary',
+  error: 'mt-error',
+  warning: 'mt-warn',
+  info: 'mt-info'
+}
 
 const notification = {
   name: 'notify',
@@ -28,7 +27,7 @@ const notification = {
     time = 10000,
     title = '',
     message = '',
-    type = 'primary', // primary error warning info
+    type = 'primary', // primary, error, warning or info
     showConfirm = false
   }) {
     let rs
@@ -44,18 +43,20 @@ const notification = {
 
     const noticeContainer = fragment.querySelector('.mt-notification')
     const bgNotice = noticeContainer.querySelector('.notice-bg')
+    const contentContainer = noticeContainer.querySelector('.content')
     const fluent = noticeContainer.querySelector('.fluent')
     const close = noticeContainer.querySelector('.close')
     const { offsetHeight } = noticeContainer
     let target = noticeContainer
-    noticeContainer.classList.add(`mt-${type}`)
 
     if (showConfirm) {
       noticeContainer.classList.add(`mt-confirm`)
       target = noticeContainer.querySelector('.confirm')
     }
 
-    bgNotice.classList.add(INON_HASH[type])
+    noticeContainer.classList.add(TYPE_HASH[type])
+    contentContainer.classList.add(TYPE_HASH[type])
+    bgNotice.classList.add(TYPE_HASH[type])
 
     fluent.style.height = offsetHeight * 2 + 'px'
     fluent.style.width = offsetHeight * 2 + 'px'

@@ -19,6 +19,11 @@ export default function () {
         shell.openExternal('https://github.com/marktext/marktext')
       }
     }, {
+      label: 'License',
+      click () {
+        shell.openExternal('https://github.com/marktext/marktext/blob/master/LICENSE')
+      }
+    }, {
       label: 'Changelog',
       click () {
         shell.openExternal('https://github.com/marktext/marktext/blob/master/.github/CHANGELOG.md')

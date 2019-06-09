@@ -3,7 +3,7 @@
     v-show="showSideBar"
     class="side-bar"
     ref="sideBar"
-    :style="{ 'width': `${finalSideBarWidth}px` }"
+    :style="[ !rightColumn ? { 'min-width': '45px' } : {}, { 'width': `${finalSideBarWidth}px` } ]"
   >
     <div class="title-bar-bg"></div>
     <div class="left-column">
@@ -34,7 +34,6 @@
     <div class="right-column" v-show="rightColumn">
       <tree
         :project-tree="projectTree"
-        :file-list="fileList"
         :opened-files="openedFiles"
         :tabs="tabs"
         v-if="rightColumn === 'files'"
@@ -46,7 +45,7 @@
         v-else-if="rightColumn === 'toc'"
       ></toc>
     </div>
-    <div class="drag-bar" ref="dragBar"></div>
+    <div class="drag-bar" ref="dragBar" v-show="rightColumn"></div>
   </div>
 </template>
 
@@ -56,7 +55,7 @@
   import Tree from './tree.vue'
   import SideBarSearch from './search.vue'
   import Toc from './toc.vue'
-  import { mapState, mapGetters } from 'vuex'
+  import { mapState } from 'vuex'
 
   export default {
     data () {
@@ -80,7 +79,6 @@
         'sideBarWidth': state => state.layout.sideBarWidth,
         'tabs': state => state.editor.tabs
       }),
-      ...mapGetters(['fileList']),
       finalSideBarWidth () {
         const { showSideBar, rightColumn, sideBarViewWidth } = this
         let width = sideBarViewWidth
@@ -101,7 +99,7 @@
         const mouseUpHandler = event => {
           document.removeEventListener('mousemove', mouseMoveHandler, false)
           document.removeEventListener('mouseup', mouseUpHandler, false)
-          this.$store.dispatch('CHANGE_SIDE_BAR_WIDTH', sideBarWidth < 180 ? 180 : sideBarWidth)
+          this.$store.dispatch('CHANGE_SIDE_BAR_WIDTH', sideBarWidth < 220 ? 220 : sideBarWidth)
         }
 
         const mouseMoveHandler = event => {
@@ -143,9 +141,9 @@
     display: flex;
     flex-shrink: 0;
     flex-grow: 0;
-    widows: 280px;
+    width: 280px;
     height: 100vh;
-    min-width: 180px;
+    min-width: 220px;
     position: relative;
     color: var(--sideBarColor);
     user-select: none;
@@ -187,7 +185,7 @@
         width: 18px;
         height: 18px;
         opacity: 1;
-        color: var(--iconColor);
+        color: var(--sideBarIconColor);
         transition: transform .25s ease-in-out;
       }
       &:hover > svg {
@@ -213,10 +211,10 @@
     right: 0;
     bottom: 0;
     height: 100%;
-    width: 8px;
+    width: 3px;
     cursor: col-resize;
     &:hover {
-      border-right: 2px solid var(--sideBarTextColor);
+      border-right: 2px solid var(--highlightThemeColor);
     }
   }
 </style>

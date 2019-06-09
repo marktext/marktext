@@ -24,7 +24,7 @@
             <div class="label">Repo name:</div>
             <el-input v-model="github.repo" placeholder="repo" size="mini"></el-input>
           </div>
-          <div class="form-group button-group">
+          <div class="form-group buttons">
             <el-button size="mini" :disabled="githubDisable" @click="save('github')">Save</el-button>
             <el-button size="mini" :disabled="githubDisable" @click="setCurrentUploader('github')">Set As default Uploader</el-button>
           </div>
@@ -152,7 +152,7 @@ export default {
   & .el-input {
     max-width: 242px;
   }
-  & .button-group {
+  & .buttons {
     margin-top: 30px;
   }
 }

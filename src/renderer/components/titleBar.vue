@@ -307,7 +307,7 @@
     height: 7px;
     display: inline-block;
     border-radius: 50%;
-    background: var(--themeColor);
+    background: var(--highlightThemeColor);
     opacity: .7;
     visibility: hidden;
   }
@@ -346,17 +346,19 @@
     cursor: pointer;
     font-size: 14px;
     color: var(--editorColor30);
-    height: 20px;
     text-align: center;
     line-height: 24px;
-    padding: 0px 5px;
+    padding: 0 5px;
     box-sizing: border-box;
-    border-radius: 4px;
     transition: all .25s ease-in-out;
-  }
-  .word-count:hover {
-    background: var(--sideBarBgColor);
-    color: var(--sideBarTitleColor);
+    & > .text-center-vertical {
+      padding: 2px 5px;
+      border-radius: 3px;
+    }
+    &:hover > span {
+      background: var(--sideBarBgColor);
+      color: var(--sideBarTitleColor);
+    }
   }
 
   .title-no-drag {

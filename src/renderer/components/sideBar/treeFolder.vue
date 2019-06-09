@@ -23,9 +23,9 @@
       >
       <span v-else class="text-overflow">{{folder.name}}</span>
     </div>
-    <div 
+    <div
       class="folder-contents"
-      v-show="!folder.isCollapsed"
+      v-if="!folder.isCollapsed"
     >
       <folder
         v-for="(childFolder, index) of folder.folders" :key="index + 'folder'"
@@ -44,7 +44,7 @@
         v-for="(file, index) of folder.files" :key="index + 'file'"
         :file="file"
         :depth="depth + 1"
-      ></file>  
+      ></file>
     </div>
   </div>
 </template>
@@ -75,7 +75,7 @@
       }
     },
     components: {
-      File: () => import('./file.vue')
+      File: () => import('./treeFile.vue')
     },
     computed: {
       ...mapState({
@@ -130,7 +130,7 @@
       padding-right: 15px;
       & > svg {
         flex-shrink: 0;
-        color: var(--iconColor);
+        color: var(--sideBarIconColor);
         margin-right: 5px;
       }
       &:hover {

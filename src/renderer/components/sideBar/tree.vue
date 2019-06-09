@@ -3,7 +3,8 @@
     <div class="title">
       <!-- Placeholder -->
     </div>
-    <!-- opened files -->
+
+    <!-- Opened tabs -->
     <div class="opened-files">
       <div class="title">
         <svg class="icon icon-arrow" :class="{'fold': !showOpenedFiles}" aria-hidden="true" @click.stop="toggleOpenedFiles()">
@@ -23,7 +24,6 @@
       </div>
       <div class="opened-files-list" v-show="showOpenedFiles">
         <transition-group name="list">
-          <!-- tab.id := mt-1, mt-2, ... -->
           <opened-file
             v-for="tab of tabs"
             :key="tab.id"
@@ -32,7 +32,8 @@
         </transition-group>
       </div>
     </div>
-    <!-- project tree view -->
+
+    <!-- Project tree view -->
     <div
       class="project-tree" v-if="projectTree"
     >
@@ -41,26 +42,8 @@
           <use xlink:href="#icon-arrow"></use>
         </svg>
         <span class="default-cursor text-overflow" @click.stop="toggleDirectories()">{{ projectTree.name }}</span>
-        <a
-          href="javascript:;"
-          :class="{'active': active === 'tree'}"
-          title="Tree View"
-        >
-          <svg class="icon" aria-hidden="true" @click="active = 'tree'">
-            <use xlink:href="#icon-tree"></use>
-          </svg>
-        </a>
-        <a
-          href="javascript:;"
-          :class="{'active': active === 'list'}"
-          title="List View"
-        >
-          <svg class="icon" aria-hidden="true" @click="active = 'list'">
-            <use xlink:href="#icon-list"></use>
-          </svg>
-        </a>
       </div>
-      <div class="tree-wrapper" v-show="showDirectories && active === 'tree'">
+      <div class="tree-wrapper" v-show="showDirectories">
         <folder
           v-for="(folder, index) of projectTree.folders" :key="index + 'folder'"
           :folder="folder"
@@ -83,32 +66,24 @@
           <a href="javascript:;" @click.stop="createFile">Create File</a>
         </div>
       </div>
-      <div v-show="active === 'list'" class="list-wrapper">
-        <list-file
-          v-for="(file, index) of fileList"
-          :key="index"
-          :file="file"
-        ></list-file>
-      </div>
     </div>
     <div v-else class="open-project">
-      <div class="button-group">
+      <div class="centered-group">
         <svg aria-hidden="true" :viewBox="FolderIcon.viewBox">
           <use :xlink:href="FolderIcon.url"></use>
         </svg>
-        <a href="javascript:;" @click="openFolder">
+        <button class="button-primary" @click="openFolder">
           Open Folder
-        </a>
+        </button>
       </div>
     </div>
   </div>
 </template>
 
 <script>
-  import Folder from './folder.vue'
-  import File from './file.vue'
-  import ListFile from './listFile.vue'
-  import OpenedFile from './openedFile.vue'
+  import Folder from './treeFolder.vue'
+  import File from './treeFile.vue'
+  import OpenedFile from './treeOpenedTab.vue'
   import { mapState } from 'vuex'
   import bus from '../../bus'
   import { createFileOrDirectoryMixins } from '../../mixins'
@@ -120,7 +95,6 @@
       this.depth = 0
       this.FolderIcon = FolderIcon
       return {
-        active: 'tree', // tree or list
         showDirectories: true,
         showNewInput: false,
         showOpenedFiles: true,
@@ -134,14 +108,12 @@
         },
         required: true
       },
-      fileList: Array,
       openedFiles: Array,
       tabs: Array
     },
     components: {
       Folder,
       File,
-      ListFile,
       OpenedFile
     },
     computed: {
@@ -177,9 +149,6 @@
       })
     },
     methods: {
-      titleIconClick (active) {
-        //
-      },
       openFolder () {
         this.$store.dispatch('ASK_FOR_OPEN_PROJECT')
       },
@@ -267,7 +236,7 @@
   .opened-files div.title > a:hover {
     display: block;
     &:hover {
-      color: var(--sideBarTitleColor);
+      color: var(--highlightThemeColor);
     }
   }
   .opened-files {
@@ -281,7 +250,7 @@
     max-height: 200px;
     overflow: auto;
     &::-webkit-scrollbar:vertical {
-      width: 5px;
+      width: 8px;
     }
     flex: 1;
   }
@@ -301,22 +270,21 @@
         pointer-events: auto;
         cursor: pointer;
         margin-left: 8px;
-        color: var(--iconColor);
+        color: var(--sideBarIconColor);
         opacity: 0;
       }
       & > a:hover {
-        color: var(--themeColor);
+        color: var(--highlightThemeColor);
       }
       & > a.active {
-        color: var(--themeColor);
+        color: var(--highlightThemeColor);
       }
     }
-    & > .tree-wrapper,
-    & > .list-wrapper {
+    & > .tree-wrapper {
       overflow: auto;
       flex: 1;
       &::-webkit-scrollbar:vertical {
-        width: 5px;
+        width: 8px;
       }
     }
     flex: 1;
@@ -331,7 +299,7 @@
     justify-content: space-around;
     align-items: center;
     padding-bottom: 100px;
-    & .button-group {
+    & .centered-group {
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -340,18 +308,9 @@
       width: 120px;
       fill: var(--themeColor);
     }
-    & a {
-      text-decoration: none;
-      background: var(--themeColor);
-      box-shadow: 0 0 8px 0 var(--selectionColor);
+    & button.button-primary {
       display: block;
-      padding: 4px 7px;
-      border-radius: 5px;
       margin-top: 20px;
-      color: #fff;
-      &:active {
-        opacity: .5;
-      }
     }
   }
   .new-input {
@@ -378,7 +337,7 @@
     padding-top: 40px;
     align-items: center;
     & > a {
-      color: var(--themeColor);
+      color: var(--highlightThemeColor);
       text-align: center;
       margin-top: 15px;
       text-decoration: none;

@@ -197,6 +197,7 @@
     "vega-embed": "^4.0.0",
     "vega-lite": "^3.2.1",
     "view-image": "^0.0.1",
+    "vscode-ripgrep": "^1.2.5",
     "vue": "^2.6.10",
     "vue-electron": "^1.0.6",
     "vue-router": "^3.0.6",

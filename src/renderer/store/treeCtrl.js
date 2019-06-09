@@ -55,15 +55,24 @@ export const addFile = (tree, file) => {
 
   // Add file to related directory
   if (!currentFolder.files.find(f => f.name === name)) {
-    file.id = getUniqueId()
+    // Remove file content from object.
+    const fileCopy = {
+      id: getUniqueId(),
+      birthTime: file.birthTime,
+      isDirectory: file.isDirectory,
+      isFile: file.isFile,
+      isMarkdown: file.isMarkdown,
+      name: file.name,
+      pathname: file.pathname
+    }
 
     const idx = currentFolder.files.findIndex(f => {
       return f.name.localeCompare(name) > 0
     })
     if (idx !== -1) {
-      currentFolder.files.splice(idx, 0, file)
+      currentFolder.files.splice(idx, 0, fileCopy)
     } else {
-      currentFolder.files.push(file)
+      currentFolder.files.push(fileCopy)
     }
   }
 }
@@ -124,32 +133,6 @@ export const unlinkFile = (tree, file) => {
   const index = currentFolder.files.findIndex(f => f.pathname === pathname)
   if (index !== -1) {
     currentFolder.files.splice(index, 1)
-  }
-}
-
-/**
- * Update a given file in the tree list.
- *
- * @param {*} tree Root file tree
- * @param {*} file The file that was changed
- */
-export const changeFile = (tree, file) => {
-  const { pathname, data } = file
-  const dirname = path.dirname(pathname)
-  const subDirectories = getSubdirectoriesFromRoot(tree.pathname, dirname)
-
-  let currentFolder = tree
-  let currentSubFolders = tree.folders
-  for (const directoryName of subDirectories) {
-    const childFolder = currentSubFolders.find(f => f.name === directoryName)
-    if (!childFolder) return
-    currentFolder = childFolder
-    currentSubFolders = childFolder.folders
-  }
-
-  const index = currentFolder.files.findIndex(f => f.pathname === pathname)
-  if (index !== -1) {
-    currentFolder.files[index].data = data
   }
 }
 

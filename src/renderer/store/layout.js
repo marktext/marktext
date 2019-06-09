@@ -1,7 +1,7 @@
 import { ipcRenderer } from 'electron'
 
 const width = localStorage.getItem('side-bar-width')
-const sideBarWidth = typeof +width === 'number' ? Math.max(+width, 180) : 280
+const sideBarWidth = typeof +width === 'number' ? Math.max(+width, 220) : 280
 
 // messages from main process, and do not change the state
 const state = {
@@ -18,8 +18,8 @@ const mutations = {
     Object.assign(state, layout)
   },
   SET_SIDE_BAR_WIDTH (state, width) {
-    // TODO: Add side bar with to session (GH#732).
-    localStorage.setItem('side-bar-width', Math.max(+width, 180))
+    // TODO: Add side bar to session (GH#732).
+    localStorage.setItem('side-bar-width', Math.max(+width, 220))
     state.sideBarWidth = width
   }
 }

@@ -3,7 +3,7 @@
 **:warning:Breaking Changes:**
 
 - `preference.md` is deprecated and no longer supported. Please use the GUI or edit `preferences.json` manually.
-- Removed portable Windows executable. NSIS installer can now be used to install per-user or machine wide.
+- Removed portable Windows executable. NSIS installer can now be used to install per-user (without administrator privileges) or machine wide.
 - Changed `viewToggleFullScreen` and `windowCloseWindow` key bindings to `windowToggleFullScreen` and `fileCloseWindow`.
 - Removed `viewChangeFont` key binding.
 - Mark Text is now single-instance application on Linux and Windows too.
@@ -18,6 +18,7 @@
 - Second-instance files and directories via command-line are opened in the best window
 - Mark Text can use a default directory that is automatically opened during startup (#711)
 - New CLI flags: `--disable-gpu` and `-n,--new-window`
+- Find in files use ripgrep as searcher.
 
 **:butterfly:Optimization**
 

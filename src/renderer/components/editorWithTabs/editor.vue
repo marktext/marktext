@@ -58,11 +58,11 @@
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="dialogTableVisible = false" size="mini">
+        <el-button @click="dialogTableVisible = false">
           Cancel
         </el-button>
-        <el-button type="primary" @click="handleDialogTableConfirm" size="mini">
-          Ok
+        <el-button type="primary" @click="handleDialogTableConfirm">
+          OK
         </el-button>
       </div>
     </el-dialog>
@@ -88,7 +88,7 @@
   import Search from '../search.vue'
   import { animatedScrollTo } from '../../util'
   import { addCommonStyle } from '../../util/theme'
-  import { guessClipboardFilePath } from '../../util/guessClipBoardFilePath'
+  import { guessClipboardFilePath } from '../../util/clipboard'
   import { showContextMenu } from '../../contextMenu/editor'
   import Printer from '@/services/printService'
   import { DEFAULT_EDITOR_FONT_FAMILY } from '@/config'
@@ -731,12 +731,8 @@
     color: var(--editorColor);
     & .ag-dialog-table {
       & .el-button {
+        font-size: 13px;
         width: 70px;
-      }
-      & .el-button:focus {
-        color: var(--themeColor);
-        border-color: var(--highlightColor);
-        background-color: var(--selectionColor);
       }
     }
   }

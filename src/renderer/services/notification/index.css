@@ -12,6 +12,7 @@
   bottom: 15px;
 
   & > .notice-bg {
+    background: #000;
     width: 0;
     height: 0;
     position: absolute;
@@ -21,19 +22,6 @@
     transform: translate(-50%, -50%);
     top: 50%;
     left: 50%;
-  }
-
-  & > .notice-bg.icon-message {
-    background: var(--themeColor);
-  }
-  & > .notice-bg.icon-error {
-    background: var(--deleteColor);
-  }
-  & > .notice-bg.icon-warn {
-    background: var(--deleteColor);
-  }
-  & > .notice-bg.icon-info {
-    background: #999999;
   }
 
   & .content {
@@ -92,6 +80,7 @@
       }
     }
   }
+
   & .fluent-container {
     width: 100%;
     height: 100%;
@@ -117,6 +106,40 @@
   &:hover .content .title .close {
     opacity: 1;
     transform: scale(1);
+  }
+
+  /* Notification style colors */
+  &.mt-primary {
+    & > .notice-bg {
+      background: var(--notificationPrimaryBg);
+    }
+    & > .content {
+      color: var(--notificationPrimaryColor);
+    }
+  }
+  &.mt-info {
+    & > .notice-bg {
+      background: var(--notificationInfoBg);
+    }
+    & > .content {
+      color: var(--notificationInfoColor);
+    }
+  }
+  &.mt-warn {
+    & > .notice-bg {
+      background: var(--notificationWarningBg);
+    }
+    & > .content {
+      color: var(--notificationWarningColor);
+    }
+  }
+  &.mt-error {
+    & > .notice-bg {
+      background: var(--notificationErrorBg);
+    }
+    & > .content {
+      color: var(--notificationErrorColor);
+    }
   }
 }
 .mt-notification.mt-confirm .content .body {
