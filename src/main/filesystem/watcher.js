@@ -1,23 +1,24 @@
 import path from 'path'
-import fs from 'fs'
+import fs from 'fs-extra'
 import log from 'electron-log'
-import { promisify } from 'util'
 import chokidar from 'chokidar'
 import { getUniqueId, hasMarkdownExtension } from '../utils'
+import { exists } from '../filesystem'
 import { loadMarkdownFile } from '../filesystem/markdown'
 import { isLinux } from '../config'
 
-// TODO(need::refactor):
-//  - Refactor this file
-//  - Outsource watcher/search features into worker (per window) and use something like "file-matcher" for searching on disk.
+// TODO(refactor): Please see GH#1035.
+
+export const WATCHER_STABILITY_THRESHOLD = 1000
+export const WATCHER_STABILITY_POLL_INTERVAL = 150
 
 const EVENT_NAME = {
   dir: 'AGANI::update-object-tree',
   file: 'AGANI::update-file'
 }
 
-const add = async (win, pathname, endOfLine) => {
-  const stats = await promisify(fs.stat)(pathname)
+const add = async (win, pathname, type, endOfLine) => {
+  const stats = await fs.stat(pathname)
   const birthTime = stats.birthtime
   const isMarkdown = hasMarkdownExtension(pathname)
   const file = {
@@ -29,11 +30,24 @@ const add = async (win, pathname, endOfLine) => {
     isMarkdown
   }
   if (isMarkdown) {
-    const data = await loadMarkdownFile(pathname, endOfLine)
-    file.data = data
+    // HACK: But this should be removed completely in #1034/#1035.
+    try {
+      const data = await loadMarkdownFile(pathname, endOfLine)
+      file.data = data
+    } catch(err) {
+      // Only notify user about opened files.
+      if (type === 'file') {
+        win.webContents.send('AGANI::show-notification', {
+          title: 'Watcher I/O error',
+          type: 'error',
+          message: err.message
+        })
+        return
+      }
+    }
   }
 
-  win.webContents.send('AGANI::update-object-tree', {
+  win.webContents.send(EVENT_NAME[type], {
     type: 'add',
     change: file
   })
@@ -49,21 +63,35 @@ const unlink = (win, pathname, type) => {
 
 const change = async (win, pathname, type, endOfLine) => {
   const isMarkdown = hasMarkdownExtension(pathname)
-
   if (isMarkdown) {
-    const data = await loadMarkdownFile(pathname, endOfLine)
-    const file = {
-      pathname,
-      data
+    // HACK: Markdown data should be removed completely in #1034/#1035 and
+    // should be only loaded after user interaction.
+    try {
+      const data = await loadMarkdownFile(pathname, endOfLine)
+      const file = {
+        pathname,
+        data
+      }
+      win.webContents.send(EVENT_NAME[type], {
+        type: 'change',
+        change: file
+      })
+    } catch (err) {
+      // Only notify user about opened files.
+      if (type === 'file') {
+        win.webContents.send('AGANI::show-notification', {
+          title: 'Watcher I/O error',
+          type: 'error',
+          message: err.message
+        })
+      }
     }
-    win.webContents.send(EVENT_NAME[type], {
-      type: 'change',
-      change: file
-    })
   }
 }
 
-const addDir = (win, pathname) => {
+const addDir = (win, pathname, type) => {
+  if (type === 'file') return
+
   const directory = {
     pathname,
     name: path.basename(pathname),
@@ -81,7 +109,9 @@ const addDir = (win, pathname) => {
   })
 }
 
-const unlinkDir = (win, pathname) => {
+const unlinkDir = (win, pathname, type) => {
+  if (type === 'file') return
+
   const directory = { pathname }
   win.webContents.send('AGANI::update-object-tree', {
     type: 'unlinkDir',
@@ -96,61 +126,117 @@ class Watcher {
    */
   constructor (preferences) {
     this._preferences = preferences
+    this._ignoreChangeEvents = []
     this.watchers = {}
   }
 
-  // return a unwatch function
+  // Watch a file or directory and return a unwatch function.
   watch (win, watchPath, type = 'dir'/* file or dir */) {
     const id = getUniqueId()
     const watcher = chokidar.watch(watchPath, {
       ignored: /(^|[/\\])(\..|node_modules)/,
       ignoreInitial: type === 'file',
-      persistent: true
+      persistent: true,
+      ignorePermissionErrors: true,
+
+      // Just to be sure when a file is replaced with a directory don't watch recursively.
+      depth: type === 'file' ? 0 : undefined,
+
+      // Please see GH#1043
+      awaitWriteFinish: {
+        stabilityThreshold: WATCHER_STABILITY_THRESHOLD,
+        pollInterval: WATCHER_STABILITY_POLL_INTERVAL
+      }
     })
 
+    let disposed = false
+    let enospcReached = false
+    let renameTimer = null
+
     watcher
-      .on('add', pathname => add(win, pathname, this._preferences.getPreferedEOL()))
-      .on('change', pathname => change(win, pathname, type, this._preferences.getPreferedEOL()))
+      .on('add', pathname => {
+        if (!this._shouldIgnoreEvent(win.id, pathname, type)) {
+          add(win, pathname, type, this._preferences.getPreferedEOL())
+        }
+      })
+      .on('change', pathname => {
+        if (!this._shouldIgnoreEvent(win.id, pathname, type)) {
+          change(win, pathname, type, this._preferences.getPreferedEOL())
+        }
+      })
       .on('unlink', pathname => unlink(win, pathname, type))
-      .on('addDir', pathname => addDir(win, pathname))
-      .on('unlinkDir', pathname => unlinkDir(win, pathname))
-      .on('raw', (event, path, details) => {
+      .on('addDir', pathname => addDir(win, pathname, type))
+      .on('unlinkDir', pathname => unlinkDir(win, pathname, type))
+      .on('raw', (event, subpath, details) => {
         if (global.MARKTEXT_DEBUG_VERBOSE >= 3) {
-          console.log(event, path, details)
+          console.log('watcher: ', event, subpath, details)
         }
 
-        // rename syscall on Linux (chokidar#591)
+        // Fix atomic rename on Linux (chokidar#591).
+        // TODO: This should also apply to macOS.
+        // TODO: Do we need to rewatch when the watched directory was renamed?
         if (isLinux && type === 'file' && event === 'rename') {
-          const { watchedPath } = details
-          // Use the same watcher and re-watch the file.
-          watcher.unwatch(watchedPath)
-          watcher.add(watchedPath)
+          if (renameTimer) {
+            clearTimeout(renameTimer)
+          }
+          renameTimer = setTimeout(async () => {
+            renameTimer = null
+            if (disposed) return
+
+            const fileExists = await exists(watchPath)
+            if (fileExists) {
+              // File still exists but we need to rewatch the file because the inode has changed.
+              watcher.unwatch(watchPath)
+              watcher.add(watchPath)
+            }
+          }, 150)
         }
       })
       .on('error', error => {
-        const msg = `Watcher error: ${error}`
-        console.log(msg)
-        log.error(msg)
+        // Check if too many file descriptors are opened and notify the user about this issue.
+        if (error.code === 'ENOSPC') {
+          if (!enospcReached) {
+            enospcReached = true
+            log.warn('inotify limit reached: Too many file descriptors are opened.')
+
+            win.webContents.send('AGANI::show-notification', {
+              title: 'inotify limit reached',
+              type: 'warning',
+              message: 'Cannot watch all files and file changes because too many file descriptors are opened.'
+            })
+          }
+        } else {
+          log.error(error)
+        }
       })
+
+    const closeFn = () => {
+      disposed = true
+      if (this.watchers[id]) {
+        delete this.watchers[id]
+      }
+      if (renameTimer) {
+        clearTimeout(renameTimer)
+        renameTimer = null
+      }
+      watcher.close()
+    }
 
     this.watchers[id] = {
       win,
       watcher,
       pathname: watchPath,
-      type
+      type,
+
+      close: closeFn
     }
 
     // unwatcher function
-    return () => {
-      if (this.watchers[id]) {
-        delete this.watchers[id]
-      }
-      watcher.close()
-    }
+    return closeFn
   }
 
-  // unWatch some single watch
-  unWatch (win, watchPath, type = 'dir') {
+  // Remove a single watcher.
+  unwatch (win, watchPath, type = 'dir') {
     for (const id of Object.keys(this.watchers)) {
       const w = this.watchers[id]
       if (
@@ -165,13 +251,13 @@ class Watcher {
     }
   }
 
-  // unwatch for one window, (remove all the watchers in one window)
-  unWatchWin (win) {
+  // Remove all watchers from the given window id.
+  unwatchByWindowId (windowId) {
     const watchers = []
     const watchIds = []
     for (const id of Object.keys(this.watchers)) {
       const w = this.watchers[id]
-      if (w.win === win) {
+      if (w.win.id === windowId) {
         watchers.push(w.watcher)
         watchIds.push(id)
       }
@@ -182,9 +268,49 @@ class Watcher {
     }
   }
 
-  clear () {
-    Object.keys(this.watchers).forEach(id => this.watchers[id].watcher.close())
+  close () {
+    Object.keys(this.watchers).forEach(id => this.watchers[id].close())
     this.watchers = {}
+    this._ignoreChangeEvents = []
+  }
+
+  /**
+   * Ignore the next changed event within a certain time for the current file and window.
+   *
+   * NOTE: Only valid for files and "add"/"change" event!
+   *
+   * @param {number} windowId The window id.
+   * @param {string} pathname The path to ignore.
+   * @param {number} [duration] The duration in ms to ignore the changed event.
+   */
+  ignoreChangedEvent (windowId, pathname, duration=WATCHER_STABILITY_THRESHOLD + WATCHER_STABILITY_POLL_INTERVAL + 1000) {
+    this._ignoreChangeEvents.push({ windowId, pathname, duration, start: new Date() })
+  }
+
+  /**
+   * Check whether we should ignore the current event because the file may be changed from Mark Text itself.
+   *
+   * @param {number} winId
+   * @param {string} pathname
+   * @param {string} type
+   */
+  _shouldIgnoreEvent (winId, pathname, type) {
+    if (type === 'file') {
+      const { _ignoreChangeEvents } = this
+      const currentTime = new Date()
+      const len = _ignoreChangeEvents.length
+      for (let i = 0; i < len; ++i) {
+        const { windowId, pathname: pathToIgnore, start, duration } = _ignoreChangeEvents[i]
+        if (windowId === winId && pathToIgnore === pathname) {
+          _ignoreChangeEvents.splice(i)
+          --i
+          if (currentTime - start < duration) {
+            return true
+          }
+        }
+      }
+    }
+    return false
   }
 }
 

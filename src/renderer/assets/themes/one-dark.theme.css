@@ -48,7 +48,8 @@
   --editorAreaWidth: 750px;
 }
 
-::-webkit-scrollbar {
+::-webkit-scrollbar,
+::-webkit-scrollbar-corner {
   background: var(--editorBgColor);
 }
 ::-webkit-scrollbar:vertical {

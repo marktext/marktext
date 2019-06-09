@@ -35,7 +35,7 @@ const getters = {
 }
 
 const mutations = {
-  SET_PROJECT_TREE (state, pathname) {
+  SET_ROOT_DIRECTORY (state, pathname) {
     let name = path.basename(pathname)
     if (!name) {
       // Root directory such "/" or "C:\"
@@ -108,12 +108,8 @@ const mutations = {
 
 const actions = {
   LISTEN_FOR_LOAD_PROJECT ({ commit, dispatch }) {
-    ipcRenderer.on('AGANI::open-project', (e, pathname) => {
-      // Initialize editor and show empty/new tab
-      dispatch('NEW_UNTITLED_TAB')
-
-      dispatch('INIT_STATUS', true)
-      commit('SET_PROJECT_TREE', pathname)
+    ipcRenderer.on('mt::open-directory', (e, pathname) => {
+      commit('SET_ROOT_DIRECTORY', pathname)
       commit('SET_LAYOUT', {
         rightColumn: 'files',
         showSideBar: true,
@@ -163,7 +159,7 @@ const actions = {
     commit('SET_CLIPBOARD', data)
   },
   ASK_FOR_OPEN_PROJECT ({ commit }) {
-    ipcRenderer.send('AGANI::ask-for-open-project-in-sidebar')
+    ipcRenderer.send('mt::ask-for-open-project-in-sidebar')
   },
   LISTEN_FOR_SIDEBAR_CONTEXT_MENU ({ commit, state }) {
     bus.$on('SIDEBAR::show-in-folder', () => {

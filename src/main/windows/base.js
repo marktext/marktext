@@ -1,5 +1,28 @@
 import EventEmitter from 'events'
-import { WindowType } from '../app/windowManager'
+import { isLinux } from '../config'
+
+/**
+ * A Mark Text window.
+ * @typedef {BaseWindow} IApplicationWindow
+ * @property {number | null} id Identifier (= browserWindow.id) or null during initialization.
+ * @property {Electron.BrowserWindow} browserWindow The browse window.
+ * @property {WindowLifecycle} lifecycle The window lifecycle state.
+ * @property {WindowType} type The window type.
+ */
+
+// Window type marktext support.
+export const WindowType = {
+  BASE: 'base', // You shold never create a `BASE` window.
+  EDITOR: 'editor',
+  SETTING: 'setting'
+}
+
+export const WindowLifecycle = {
+  NONE: 0,
+  LOADING: 1,
+  READY: 2,
+  QUITTED: 3
+}
 
 class BaseWindow extends EventEmitter {
 
@@ -10,26 +33,43 @@ class BaseWindow extends EventEmitter {
     super()
 
     this._accessor = accessor
-    this.type = WindowType.BASE
     this.id = null
     this.browserWindow = null
-    this.quitting = false
+    this.lifecycle = WindowLifecycle.NONE
+    this.type = WindowType.BASE
+  }
+
+  bringToFront () {
+    const { browserWindow: win } = this
+    if (win.isMinimized()) win.restore()
+    if (!win.isVisible()) win.show()
+    if (isLinux) {
+      win.focus()
+    } else {
+      win.moveTop()
+    }
+  }
+
+  reload () {
+    this.browserWindow.reload()
   }
 
   destroy () {
-    this.quitting = true
-    this.emit('bye')
+    this.lifecycle = WindowLifecycle.QUITTED
+    this.emit('window-closed')
 
     this.removeAllListeners()
-    this.browserWindow.destroy()
-    this.browserWindow = null
+    if (this.browserWindow) {
+      this.browserWindow.destroy()
+      this.browserWindow = null
+    }
     this.id = null
   }
 
   // --- private ---------------------------------
+
   _buildUrlWithSettings (windowId, env, userPreference) {
-    // NOTE: Only send absolutely necessary values. Theme and titlebar settings
-    //  are sended because we delay load the preferences.
+    // NOTE: Only send absolutely necessary values. Full settings are delay loaded.
     const { type } = this
     const { debug, paths } = env
     const { codeFontFamily, codeFontSize, theme, titleBarStyle } = userPreference.getAll()
@@ -50,7 +90,11 @@ class BaseWindow extends EventEmitter {
     url.searchParams.set('theme', theme)
     url.searchParams.set('tbs', titleBarStyle)
 
-    return url.toString()
+    return url
+  }
+
+  _buildUrlString (windowId, env, userPreference) {
+    return this._buildUrlWithSettings(windowId, env, userPreference).toString()
   }
 }
 

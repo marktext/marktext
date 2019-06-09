@@ -1,9 +1,8 @@
 import path from 'path'
-import BaseWindow from './base'
 import { BrowserWindow, ipcMain } from 'electron'
-import { WindowType } from '../app/windowManager'
+import BaseWindow, { WindowLifecycle, WindowType } from './base'
+import { centerWindowOptions } from './utils'
 import { TITLE_BAR_HEIGHT, defaultPreferenceWinOptions, isLinux, isOsx } from '../config'
-
 
 class SettingWindow extends BaseWindow {
 
@@ -23,6 +22,7 @@ class SettingWindow extends BaseWindow {
   createWindow (options = {}) {
     const { menu: appMenu, env, preferences } = this._accessor
     const winOptions = Object.assign({}, defaultPreferenceWinOptions, options)
+    centerWindowOptions(winOptions)
     if (isLinux) {
       winOptions.icon = path.join(__static, 'logo-96px.png')
     }
@@ -42,10 +42,10 @@ class SettingWindow extends BaseWindow {
     // Create a menu for the current window
     appMenu.addSettingMenu(win)
 
-    win.once('ready-to-show', async () => {
+    win.once('ready-to-show', () => {
       win.show()
-
-      this.emit('window-ready-to-show')
+      this.lifecycle = WindowLifecycle.READY
+      this.emit('window-ready')
     })
 
     win.on('focus', () => {
@@ -74,7 +74,8 @@ class SettingWindow extends BaseWindow {
       win = null
     })
 
-    win.loadURL(this._buildUrlWithSettings(this.id, env, preferences))
+    this.lifecycle = WindowLifecycle.LOADING
+    win.loadURL(this._buildUrlString(this.id, env, preferences))
     win.setSheetOffset(TITLE_BAR_HEIGHT)
 
     return win

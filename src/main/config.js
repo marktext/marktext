@@ -2,7 +2,7 @@ export const isOsx = process.platform === 'darwin'
 export const isWindows = process.platform === 'win32'
 export const isLinux = process.platform === 'linux'
 
-export const defaultWinOptions = {
+export const editorWinOptions = {
   minWidth: 450,
   minHeight: 220,
   webPreferences: {
@@ -10,7 +10,7 @@ export const defaultWinOptions = {
     webSecurity: false
   },
   useContentSize: true,
-  show: false,
+  show: true,
   frame: false,
   titleBarStyle: 'hiddenInset'
 }
@@ -31,8 +31,7 @@ export const defaultPreferenceWinOptions = {
   show: false,
   frame: false,
   thickFrame: !isOsx,
-  titleBarStyle: 'hiddenInset',
-  center: true
+  titleBarStyle: 'hiddenInset'
 }
 
 export const EXTENSIONS = [

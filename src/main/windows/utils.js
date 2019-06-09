@@ -1,6 +1,15 @@
 import { screen } from 'electron'
 import { isLinux } from '../config'
 
+export const centerWindowOptions = options => {
+  // "workArea" doesn't work on Linux
+  const { bounds, workArea } = screen.getDisplayNearestPoint(screen.getCursorScreenPoint())
+  const screenArea = isLinux ? bounds : workArea
+  const { width, height } = options
+  options.x = Math.max(0, Math.ceil(screenArea.x + (screenArea.width - width) / 2))
+  options.y = Math.max(0, Math.ceil(screenArea.y + (screenArea.height - height) / 2))
+}
+
 export const ensureWindowPosition = windowState => {
   // "workArea" doesn't work on Linux
   const { bounds, workArea } = screen.getPrimaryDisplay()
@@ -21,7 +30,6 @@ export const ensureWindowPosition = windowState => {
       .some(display => display)
   }
   if (center) {
-    // win.center() doesn't work on Linux
     x = Math.max(0, Math.ceil(screenArea.x + (screenArea.width - width) / 2))
     y = Math.max(0, Math.ceil(screenArea.y + (screenArea.height - height) / 2))
   }

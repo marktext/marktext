@@ -2,10 +2,10 @@ import { app } from 'electron'
 import * as actions from '../actions/file'
 import { userSetting } from '../actions/marktext'
 import { showTabBar } from '../actions/view'
+import { isOsx } from '../../config'
 
 export default function (keybindings, userPreference, recentlyUsedFiles) {
   const { autoSave } = userPreference.getAll()
-  const notOsx = process.platform !== 'darwin'
   let fileMenu = {
     label: 'File',
     submenu: [{
@@ -38,7 +38,7 @@ export default function (keybindings, userPreference, recentlyUsedFiles) {
     }]
   }
 
-  if (notOsx) {
+  if (!isOsx) {
     let recentlyUsedMenu = {
       label: 'Open Recent',
       submenu: []
@@ -77,12 +77,6 @@ export default function (keybindings, userPreference, recentlyUsedFiles) {
 
   fileMenu.submenu.push({
     type: 'separator'
-  }, {
-    label: 'Close Tab',
-    accelerator: keybindings.getAccelerator('fileCloseTab'),
-    click (menuItem, browserWindow) {
-      actions.closeTab(browserWindow)
-    }
   }, {
     type: 'separator'
   }, {
@@ -140,8 +134,6 @@ export default function (keybindings, userPreference, recentlyUsedFiles) {
       }
     ]
   }, {
-    type: 'separator'
-  }, {
     label: 'Print',
     accelerator: keybindings.getAccelerator('filePrint'),
     click (menuItem, browserWindow) {
@@ -149,23 +141,34 @@ export default function (keybindings, userPreference, recentlyUsedFiles) {
     }
   }, {
     type: 'separator',
-    visible: notOsx
+    visible: !isOsx
   }, {
     label: 'Preferences',
     accelerator: keybindings.getAccelerator('filePreferences'),
-    visible: notOsx,
+    visible: !isOsx,
     click (menuItem, browserWindow) {
       userSetting(menuItem, browserWindow)
     }
   }, {
     type: 'separator',
-    visible: notOsx
+  }, {
+    label: 'Close Tab',
+    accelerator: keybindings.getAccelerator('fileCloseTab'),
+    click (menuItem, browserWindow) {
+      actions.closeTab(browserWindow)
+    }
+  }, {
+    label: 'Close Window',
+    accelerator: keybindings.getAccelerator('fileCloseWindow'),
+    role: 'close'
+  }, {
+    type: 'separator',
+    visible: !isOsx
   }, {
     label: 'Quit',
     accelerator: keybindings.getAccelerator('fileQuit'),
-    visible: notOsx,
+    visible: !isOsx,
     click: app.quit
   })
-
   return fileMenu
 }

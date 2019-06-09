@@ -142,6 +142,7 @@
         'theme': state => state.preferences.theme,
 
         'currentFile': state => state.editor.currentFile,
+
         // edit modes
         'typewriter': state => state.preferences.typewriter,
         'focus': state => state.preferences.focus,

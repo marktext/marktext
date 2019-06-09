@@ -5,7 +5,6 @@
     <title>Mark Text</title>
     <style>
       html, body {
-        background: #ffffff;
         margin: 0;
         padding: 0;
       }
@@ -18,7 +17,12 @@
     <% } %>
   </head>
   <body>
+    <!-- Initial drag area (for Linux and Windows). -->
+    <div id="init-drag-region" style="position: absolute;-webkit-app-region: drag;left: 0;right: 0;top: 0;height: 25px;"></div>
+
+    <!-- Vue app -->
     <div id="app"></div>
+
     <!-- Set `__static` path to static files in production -->
     <script>
       if (process.env.NODE_ENV !== 'development') window.__static = require('path').join(__dirname, '/static').replace(/\\/g, '\\\\')

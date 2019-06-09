@@ -25,11 +25,11 @@ export const rename = (src, dest) => {
 /**
  * Check if the both paths point to the same file.
  *
- * @param {*} pathA The first path.
- * @param {*} pathB The second path.
- * @param {*} isNormalized Are both paths already normalized.
+ * @param {string} pathA The first path.
+ * @param {string} pathB The second path.
+ * @param {boolean} [isNormalized] Are both paths already normalized.
  */
-export const isSameFileSync = (pathA, pathB, isNormalized=false) => {
+export const isSamePathSync = (pathA, pathB, isNormalized = false) => {
   if (!pathA || !pathB) return false
   const a = isNormalized ? pathA : path.normalize(pathA)
   const b = isNormalized ? pathB : path.normalize(pathB)
@@ -174,7 +174,7 @@ export const uploadImage = async (pathname, image, preferences) => {
           uploadByGithub(reader.result, image.name)
         }
       }
-  
+
       reader.readAsDataURL(image)
     }
   }

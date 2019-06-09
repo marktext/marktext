@@ -5,8 +5,7 @@ const state = {}
 
 const getters = {}
 
-const mutations = {
-}
+const mutations = {}
 
 const actions = {
   LISTEN_FOR_NOTIFICATION ({ commit }) {

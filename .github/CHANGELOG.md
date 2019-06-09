@@ -4,18 +4,28 @@
 
 - `preference.md` is deprecated and no longer supported. Please use the GUI or edit `preferences.json` manually.
 - Removed portable Windows executable. NSIS installer can now be used to install per-user or machine wide.
+- Changed `viewToggleFullScreen` and `windowCloseWindow` key bindings to `windowToggleFullScreen` and `fileCloseWindow`.
+- Removed `viewChangeFont` key binding.
+- Mark Text is now single-instance application on Linux and Windows too.
 
 **:cactus:Feature**
 
+- GUI settings (#1028)
 - The cursor jump to the end of format or to the next brackets when press `tab`(#976)
 - Tab drag & drop inside the window
 - Scrollable tabs
+- Support to replace the root folder in a window
+- Second-instance files and directories via command-line are opened in the best window
+- Mark Text can use a default directory that is automatically opened during startup (#711)
+- New CLI flags: `--disable-gpu` and `-n,--new-window`
 
 **:butterfly:Optimization**
 
 - Rewrite `select all` when press `CtrlOrCmd + A` (#937)
 - Set the cursor at the end of `#` in header when press arrow down to jump to the next paragraph.(#978)
 - Improved startup time
+- Replace empty untitled tabs (#830)
+- Editor window is shown immediately while loading
 
 **:beetle:Bug fix**
 
@@ -23,6 +33,14 @@
 - Fixed some bugs after press `backspace` (#934, #938)
 - Change `inline math` vertical align to `top` (#977)
 - Prevent to open the same file twice, instead select the existing tab (#878)
+- Fixed some minor filesystem watcher issues
+- Fixed rename filesystem watcher bug which lead to multiple issues because the parent directory was watched after deleting a file on Linux using `rename`
+- Fixed incorrect file content after a watched file was edited externally (#1043)
+
+**:warning:Breaking Development Changes:**
+
+- Environment variable `MARKTEXT_IS_OFFICIAL_RELEASE` is now `MARKTEXT_IS_STABLE`
+- Renamed npm script `build:dir` to `build:bin`
 
 ### 0.14.0
 

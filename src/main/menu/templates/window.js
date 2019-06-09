@@ -1,7 +1,8 @@
 import { toggleAlwaysOnTop } from '../actions/window'
+import { isOsx } from '../../config'
 
 export default function (keybindings) {
-  return {
+  const menu = {
     label: 'Window',
     role: 'window',
     submenu: [{
@@ -18,9 +19,21 @@ export default function (keybindings) {
     }, {
       type: 'separator'
     }, {
-      label: 'Close Window',
-      accelerator: keybindings.getAccelerator('windowCloseWindow'),
-      role: 'close'
+      label: 'Toggle Full Screen',
+      accelerator: keybindings.getAccelerator('viewToggleFullScreen'),
+      click (item, focusedWindow) {
+        if (focusedWindow) {
+          focusedWindow.setFullScreen(!focusedWindow.isFullScreen())
+        }
+      }
     }]
   }
+
+  if (isOsx) {
+    menu.submenu.push({
+      label: 'Bring All to Front',
+      role: 'front'
+    })
+  }
+  return menu
 }

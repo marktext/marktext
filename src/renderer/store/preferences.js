@@ -3,13 +3,15 @@ import { getOptionsFromState } from './help'
 
 // user preference
 const state = {
-  autoSave: true,
-  autoSaveDelay: 3000,
-  titleBarStyle: 'csd',
+  autoSave: false,
+  autoSaveDelay: 5000,
+  titleBarStyle: 'custom',
   openFilesInNewWindow: false,
+  openFolderInNewWindow: false,
   aidou: true,
   fileSortBy: 'created',
-  startUp: 'folder',
+  startUpAction: 'lastState',
+  defaultDirectoryToOpen: '',
   language: 'en',
 
   editorFontFamily: 'Open Sans',
@@ -33,7 +35,13 @@ const state = {
   listIndentation: 1,
 
   theme: 'light',
-  // edit modes (they are not in preference.md, but still put them here)
+
+  // Default values that are overwritten with the entries below.
+  sideBarVisibility: false,
+  tabBarVisibility: false,
+  sourceCodeModeEnabled: false,
+
+  // Edit modes of the current window (not part of persistent settings)
   typewriter: false, // typewriter mode
   focus: false, // focus mode
   sourceCode: false, // source code mode
@@ -101,7 +109,6 @@ const actions = {
   },
 
   SET_SINGLE_PREFERENCE ({ commit }, { type, value }) {
-    // commit('SET_USER_PREFERENCE', { [type]: value })
     // save to electron-store
     ipcRenderer.send('mt::set-user-preference', { [type]: value })
   },
@@ -112,6 +119,10 @@ const actions = {
 
   SET_IMAGE_FOLDER_PATH ({ commit }) {
     ipcRenderer.send('mt::ask-for-modify-image-folder-path')
+  },
+
+  SELECT_DEFAULT_DIRECTORY_TO_OPEN ({ commit }) {
+    ipcRenderer.send('mt::select-default-directory-to-open')
   }
 }
 

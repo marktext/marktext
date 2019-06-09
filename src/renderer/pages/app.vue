@@ -2,7 +2,7 @@
   <div
     class="editor-container"
   >
-    <side-bar></side-bar>
+    <side-bar v-if="init"></side-bar>
     <div class="editor-middle">
       <title-bar
         :project="projectTree"
@@ -13,6 +13,7 @@
         :platform="platform"
         :is-saved="isSaved"
       ></title-bar>
+      <div class="editor-placeholder" v-if="!init"></div>
       <recent
         v-if="!hasCurrentFile && init"
       ></recent>
@@ -180,6 +181,7 @@
 </script>
 
 <style scoped>
+  .editor-placeholder,
   .editor-container {
     display: flex;
     flex-direction: row;
@@ -196,6 +198,9 @@
     opacity: 0;
     position: absolute;
     left: -10000px;
+  }
+  .editor-placeholder {
+    background: var(--editorBgColor);
   }
   .editor-middle {
     display: flex;

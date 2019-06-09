@@ -1,22 +1,8 @@
 import { app, BrowserWindow, ipcMain } from 'electron'
 import EventEmitter from 'events'
 import log from 'electron-log'
-import Watcher from '../filesystem/watcher'
-
-/**
- * A Mark Text window.
- * @typedef {EditorWindow} IApplicationWindow
- * @property {number | null} id Identifier (= browserWindow.id) or null during initialization.
- * @property {Electron.BrowserWindow} browserWindow The browse window.
- * @property {WindowType} type The window type.
- */
-
-// Window type marktext support.
-export const WindowType = {
-  BASE: 'base', // You shold never create a `BASE` window.
-  EDITOR: 'editor',
-  SETTING: 'setting'
-}
+import Watcher, { WATCHER_STABILITY_THRESHOLD, WATCHER_STABILITY_POLL_INTERVAL } from '../filesystem/watcher'
+import { WindowType } from '../windows/base'
 
 class WindowActivityList {
   constructor() {
@@ -29,6 +15,14 @@ class WindowActivityList {
     const { _buf } = this
     if (_buf.length) {
       return _buf[_buf.length - 1]
+    }
+    return null
+  }
+
+  getSecondNewest () {
+    const { _buf } = this
+    if (_buf.length >= 2) {
+      return _buf[_buf.length - 2]
     }
     return null
   }
@@ -72,7 +66,7 @@ class WindowManager extends EventEmitter {
     this._windows = new Map()
     this._windowActivity = new WindowActivityList()
 
-    // TODO(need::refactor): We should move watcher and search into another process/thread(?)
+    // TODO(need::refactor): Please see #1035.
     this._watcher = new Watcher(preferences)
 
     this._listenForIpcMain()
@@ -84,19 +78,23 @@ class WindowManager extends EventEmitter {
    * @param {IApplicationWindow} window The application window. We take ownership!
    */
   add (window) {
-    this._windows.set(window.id, window)
+    const { id: windowId } = window
+    this._windows.set(windowId, window)
 
-    if (!this._appMenu.has(window.id)) {
-      this._appMenu.addDefaultMenu(window.id)
+    if (!this._appMenu.has(windowId)) {
+      this._appMenu.addDefaultMenu(windowId)
     }
 
     if (this.windowCount === 1) {
-      this.setActiveWindow(window.id)
+      this.setActiveWindow(windowId)
     }
 
-    const { browserWindow } = window
     window.on('window-focus', () => {
-      this.setActiveWindow(browserWindow.id)
+      this.setActiveWindow(windowId)
+    })
+    window.on('window-closed', () => {
+      this.remove(windowId)
+      this._watcher.unwatchByWindowId(windowId)
     })
   }
 
@@ -104,7 +102,7 @@ class WindowManager extends EventEmitter {
    * Return the application window by id.
    *
    * @param {string} windowId The window id.
-   * @returns {IApplicationWindow} The application window or undefined.
+   * @returns {BaseWindow} The application window or undefined.
    */
   get (windowId) {
     return this._windows.get(windowId)
@@ -127,7 +125,7 @@ class WindowManager extends EventEmitter {
   /**
    * Remove the given window by id.
    *
-   * NOTE: All window event listeners are removed!
+   * NOTE: All window "window-focus" events listeners are removed!
    *
    * @param {string} windowId The window id.
    * @returns {IApplicationWindow} Returns the application window. We no longer take ownership.
@@ -136,7 +134,7 @@ class WindowManager extends EventEmitter {
     const { _windows } = this
     const window = this.get(windowId)
     if (window) {
-      window.removeAllListeners()
+      window.removeAllListeners('window-focus')
 
       this._windowActivity.delete(windowId)
       let nextWindowId = this._windowActivity.getNewest()
@@ -160,29 +158,54 @@ class WindowManager extends EventEmitter {
   }
 
   /**
-   * Returns the active window id or null if no window is registred.
-   * @returns {number|null}
+   * Returns the active window or null if no window is registered.
+   * @returns {BaseWindow|undefined}
    */
   getActiveWindow () {
+    return this._windows.get(this._activeWindowId)
+  }
+
+  /**
+   * Returns the active window id or null if no window is registered.
+   * @returns {number|null}
+   */
+  getActiveWindowId () {
     return this._activeWindowId
   }
 
-  get windows () {
-    return this._windows
+  /**
+   * Returns the (last) active editor window or null if no editor is registered.
+   * @returns {EditorWindow|undefined}
+   */
+  getActiveEditor () {
+    let win = this.getActiveWindow()
+    if (win && win.type !== WindowType.EDITOR) {
+      win = this._windows.get(this._windowActivity.getSecondNewest())
+      if (win && win.type === WindowType.EDITOR) {
+        return win
+      }
+      return undefined
+    }
+    return win
   }
 
-  get windowCount () {
-    return this._windows.size
+  /**
+   * Returns the (last) active editor window id or null if no editor is registered.
+   * @returns {number|null}
+   */
+  getActiveEditorId () {
+    const win = this.getActiveEditor()
+    return win ? win.id : null
   }
 
   /**
    *
-   * @param {type} type the WindowType one of ['base', 'editor', 'setting']
-   * Return the windows of the given {type}
+   * @param {WindowType} type the WindowType one of ['base', 'editor', 'setting']
+   * @returns {{id: number, win: BaseWindow}[]} Return the windows of the given {type}
    */
-  windowsOfType (type) {
+  getWindowsByType (type) {
     if (!WindowType[type.toUpperCase()]) {
-      console.error(`${type} is not a valid window type.`)
+      console.error(`"${type}" is not a valid window type.`)
     }
     const { windows } = this
     const result = []
@@ -197,10 +220,75 @@ class WindowManager extends EventEmitter {
     return result
   }
 
+  /**
+   * Find the best window to open the files in.
+   *
+   * @param {string[]} fileList File full paths.
+   * @returns {{windowId: string, fileList: string[]}[]} An array of files mapped to a window id or null to open in a new window.
+   */
+  findBestWindowToOpenIn (fileList) {
+    if (!fileList || !Array.isArray(fileList) || !fileList.length) return []
+    const { windows } = this
+    const lastActiveEditorId = this.getActiveEditorId() // editor id or null
+
+    if (this.windowCount <= 1) {
+      return [ { windowId: lastActiveEditorId, fileList } ]
+    }
+
+    // Array of scores, same order like fileList.
+    let filePathScores = null
+    for (const window of windows.values()) {
+      if (window.type === WindowType.EDITOR) {
+        const scores = window.getCandidateScores(fileList)
+        if (!filePathScores) {
+          filePathScores = scores
+        } else {
+          const len = filePathScores.length
+          for (let i = 0; i < len; ++i) {
+            // Update score only if the file is not already opened.
+            if (filePathScores[i].score !== -1 && filePathScores[i].score < scores[i].score) {
+              filePathScores[i] = scores[i]
+            }
+          }
+        }
+      }
+    }
+
+    const buf = []
+    const len = filePathScores.length
+    for (let i = 0; i < len; ++i) {
+      let { id: windowId, score } = filePathScores[i]
+
+      if (score === -1) {
+        // Skip files that already opened.
+        continue
+      } else if (score === 0) {
+        // There is no best window to open the file(s) in.
+        windowId = lastActiveEditorId
+      }
+
+      let item = buf.find(w => w.windowId === windowId)
+      if (!item) {
+        item = { windowId, fileList: [] }
+        buf.push(item)
+      }
+      item.fileList.push(fileList[i])
+    }
+    return buf
+  }
+
+  get windows () {
+    return this._windows
+  }
+
+  get windowCount () {
+    return this._windows.size
+  }
+
   // --- helper ---------------------------------
 
   closeWatcher () {
-    this._watcher.clear()
+    this._watcher.close()
   }
 
   /**
@@ -213,15 +301,15 @@ class WindowManager extends EventEmitter {
       return false
     }
 
-    const { id } = browserWindow
+    const { id: windowId } = browserWindow
     const { _appMenu, _windows } = this
 
     // Free watchers used by this window
-    this._watcher.unWatchWin(browserWindow)
+    this._watcher.unwatchByWindowId(windowId)
 
     // Application clearup and remove listeners
-    _appMenu.removeWindowMenu(id)
-    const window = this.remove(id)
+    _appMenu.removeWindowMenu(windowId)
+    const window = this.remove(windowId)
 
     // Destroy window wrapper and browser window
     if (window) {
@@ -251,32 +339,39 @@ class WindowManager extends EventEmitter {
     return false
   }
 
-  // --- events ---------------------------------
+  // --- private --------------------------------
 
   _listenForIpcMain () {
-    // listen for file watch from renderer process eg
-    // 1. click file in folder.
-    // 2. new tab and save it.
-    // 3. close tab(s) need unwatch.
-    ipcMain.on('AGANI::file-watch', (e, { pathname, watch }) => {
+    // HACK: Don't use this event! Please see #1034 and #1035
+    ipcMain.on('AGANI::window-add-file-path', (e, filePath) => {
       const win = BrowserWindow.fromWebContents(e.sender)
-      if (watch) {
-        // listen for file `change` and `unlink`
-        this._watcher.watch(win, pathname, 'file')
-      } else {
-        // unlisten for file `change` and `unlink`
-        this._watcher.unWatch(win, pathname, 'file')
+      const editor = this.get(win.id)
+      if (!editor) {
+        log.error(`Cannot find window id "${win.id}" to add opened file.`)
+        return
       }
+      editor.addToOpenedFiles(filePath)
     })
 
     // Force close a BrowserWindow
-    ipcMain.on('AGANI::close-window', e => {
+    ipcMain.on('mt::close-window', e => {
       const win = BrowserWindow.fromWebContents(e.sender)
       this.forceClose(win)
     })
 
+    ipcMain.on('mt::window-tab-closed', (e, pathname) => {
+      const win = BrowserWindow.fromWebContents(e.sender)
+      const editor = this.get(win.id)
+      if (editor) {
+        editor.removeFromOpenedFiles(pathname)
+      }
+    })
+
     // --- local events ---------------
 
+    ipcMain.on('watcher-unwatch-all-by-id', windowId => {
+      this._watcher.unwatchByWindowId(windowId)
+    })
     ipcMain.on('watcher-watch-file', (win, filePath) => {
       this._watcher.watch(win, filePath, 'file')
     })
@@ -284,17 +379,44 @@ class WindowManager extends EventEmitter {
       this._watcher.watch(win, pathname, 'dir')
     })
     ipcMain.on('watcher-unwatch-file', (win, filePath) => {
-      this._watcher.unWatch(win, filePath, 'file')
+      this._watcher.unwatch(win, filePath, 'file')
     })
     ipcMain.on('watcher-unwatch-directory', (win, pathname) => {
-      this._watcher.unWatch(win, pathname, 'dir')
+      this._watcher.unwatch(win, pathname, 'dir')
     })
 
-    // Force close a window by id.
+    ipcMain.on('window-add-file-path', (windowId, filePath) => {
+      const editor = this.get(windowId)
+      if (!editor) {
+        log.error(`Cannot find window id "${windowId}" to add opened file.`)
+        return
+      }
+      editor.addToOpenedFiles(filePath)
+    })
+    ipcMain.on('window-change-file-path', (windowId, pathname, oldPathname) => {
+      const editor = this.get(windowId)
+      if (!editor) {
+        log.error(`Cannot find window id "${windowId}" to change file path.`)
+        return
+      }
+      editor.changeOpenedFilePath(pathname, oldPathname)
+    })
+
+    ipcMain.on('window-file-saved', (windowId, pathname) => {
+      // A changed event is emitted earliest after the stability threshold.
+      const duration = WATCHER_STABILITY_THRESHOLD + (WATCHER_STABILITY_POLL_INTERVAL * 2)
+      this._watcher.ignoreChangedEvent(windowId, pathname, duration)
+    })
+
     ipcMain.on('window-close-by-id', id => {
       this.forceCloseById(id)
     })
-
+    ipcMain.on('window-reload-by-id', id => {
+      const window = this.get(id)
+      if (window) {
+        window.reload()
+      }
+    })
     ipcMain.on('window-toggle-always-on-top', win => {
       const flag = !win.isAlwaysOnTop()
       win.setAlwaysOnTop(flag)

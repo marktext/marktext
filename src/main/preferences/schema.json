@@ -16,7 +16,11 @@
     ]
   },
   "openFilesInNewWindow": {
-    "description": "General--Open file in new window",
+    "description": "General--Open files in a new window.",
+    "type": "boolean"
+  },
+  "openFolderInNewWindow": {
+    "description": "General--Open folder via menu in a new window.",
     "type": "boolean"
   },
   "aidou": {
@@ -31,13 +35,17 @@
       "title"
     ]
   },
-  "startUp": {
+  "startUpAction": {
     "description": "General--The action after Mark Text startup, open the last edited content, open the specified folder or blank page",
     "enum": [
       "folder",
       "lastState",
       "blank"
     ]
+  },
+  "defaultDirectoryToOpen": {
+    "description": "General--The default directory that should be opened on startup when startUp=folder.",
+    "type": "string"
   },
   "language": {
     "description": "General--The language Mark Text use.",
@@ -160,7 +168,6 @@
     "description": "Theme--Select the theme used in Mark Text",
     "type": "string"
   },
-
   "imageInsertAction": {
     "description": "Image--The default behavior after insert image from local folder",
     "enum": [
@@ -168,5 +175,17 @@
       "folder",
       "path"
     ]
+  },
+  "sideBarVisibility": {
+    "description": "View--Whether the side bar is visible.",
+    "type": "boolean"
+  },
+  "tabBarVisibility": {
+    "description": "View--Whether the tabs are shown.",
+    "type": "boolean"
+  },
+  "sourceCodeModeEnabled": {
+    "description": "View--Whether the source-code mode is enabled by default.",
+    "type": "boolean"
   }
 }

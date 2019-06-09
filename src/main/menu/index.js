@@ -7,6 +7,12 @@ import { ensureDirSync, isDirectory, isFile } from '../filesystem'
 import { parseMenu } from '../keyboard/shortcutHandler'
 import configureMenu, { configSettingMenu } from '../menu/templates'
 
+export const MenuType = {
+  DEFAULT: 0,
+  EDITOR: 1,
+  SETTINGS: 2
+}
+
 class AppMenu {
 
   /**
@@ -105,13 +111,13 @@ class AppMenu {
     windowMenus.set(window.id, menu)
   }
 
-  addEditorMenu (window) {
+  addEditorMenu (window, options = {}) {
     const { windowMenus } = this
-    windowMenus.set(window.id, this.buildDefaultMenu(true))
+    windowMenus.set(window.id, this.buildEditorMenu(true))
 
     const { menu, shortcutMap } = windowMenus.get(window.id)
     const currentMenu = Menu.getApplicationMenu() // the menu may be null
-    updateMenuItemSafe(currentMenu, menu, 'sourceCodeModeMenuItem', false)
+    updateMenuItemSafe(currentMenu, menu, 'sourceCodeModeMenuItem', !!options.sourceCodeModeEnabled)
     updateMenuItemSafe(currentMenu, menu, 'typewriterModeMenuItem', false)
 
     // FIXME: Focus mode is being ignored when you open a new window - inconsistency.
@@ -159,7 +165,7 @@ class AppMenu {
     }
   }
 
-  buildDefaultMenu (createShortcutMap, recentUsedDocuments) {
+  buildEditorMenu (createShortcutMap, recentUsedDocuments) {
     if (!recentUsedDocuments) {
       recentUsedDocuments = this.getRecentlyUsedDocuments()
     }
@@ -174,7 +180,8 @@ class AppMenu {
 
     return {
       shortcutMap,
-      menu
+      menu,
+      type: MenuType.EDITOR
     }
   }
 
@@ -182,9 +189,9 @@ class AppMenu {
     if (this.isOsx) {
       const menuTemplate = configSettingMenu(this._keybindings)
       const menu = Menu.buildFromTemplate(menuTemplate)
-      return { menu }
+      return { menu, type: MenuType.SETTINGS }
     }
-    return { menu: null }
+    return { menu: null, type: MenuType.SETTINGS }
   }
 
   updateAppMenu (recentUsedDocuments) {
@@ -193,13 +200,15 @@ class AppMenu {
     }
 
     // "we don't support changing menu object after calling setMenu, the behavior
-    // is undefined if user does that." That means we have to recreate the
+    // is undefined if user does that." That mean we have to recreate the editor
     // application menu each time.
 
     // rebuild all window menus
     this.windowMenus.forEach((value, key) => {
-      const { menu: oldMenu } = value
-      const { menu: newMenu } = this.buildDefaultMenu(false, recentUsedDocuments)
+      const { menu: oldMenu, type } = value
+      if (type !== MenuType.EDITOR) return
+
+      const { menu: newMenu } = this.buildEditorMenu(false, recentUsedDocuments)
 
       // all other menu items are set automatically
       updateMenuItem(oldMenu, newMenu, 'sourceCodeModeMenuItem')
@@ -231,7 +240,9 @@ class AppMenu {
 
   updateThemeMenu = theme => {
     this.windowMenus.forEach((value, key) => {
-      const { menu } = value
+      const { menu, type } = value
+      if (type !== MenuType.EDITOR) return
+
       const themeMenus = menu.getMenuItemById('themeMenu')
       if (!themeMenus) {
         return
@@ -248,7 +259,9 @@ class AppMenu {
 
   updateAutoSaveMenu = autoSave => {
     this.windowMenus.forEach((value, key) => {
-      const { menu } = value
+      const { menu, type } = value
+      if (type !== MenuType.EDITOR) return
+
       const autoSaveMenu = menu.getMenuItemById('autoSaveMenuItem')
       if (!autoSaveMenu) {
         return
@@ -259,7 +272,9 @@ class AppMenu {
 
   updateAidouMenu = bool => {
     this.windowMenus.forEach((value, key) => {
-      const { menu } = value
+      const { menu, type } = value
+      if (type !== MenuType.EDITOR) return
+
       const aidouMenu = menu.getMenuItemById('aidou')
       if (!aidouMenu) {
         return
@@ -283,6 +298,9 @@ class AppMenu {
       this.addRecentlyUsedDocument(pathname)
     })
 
+    ipcMain.on('menu-add-recently-used', pathname => {
+      this.addRecentlyUsedDocument(pathname)
+    })
     ipcMain.on('menu-clear-recently-used', () => {
       this.clearRecentlyUsedDocuments()
     })

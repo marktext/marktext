@@ -4,6 +4,22 @@ import { hasMarkdownExtension } from '../utils'
 import { IMAGE_EXTENSIONS } from '../config'
 
 /**
+ * Test whether or not the given path exists.
+ *
+ * @param {string} p The path to the file or directory.
+ * @returns {boolean}
+ */
+export const exists = async p => {
+  // fs.exists is deprecated.
+  try {
+    await fs.access(p)
+    return true
+  } catch(_) {
+    return false
+  }
+}
+
+/**
  * Ensure that a directory exist.
  *
  * @param {string} dirPath The directory path.
@@ -67,7 +83,7 @@ export const isMarkdownFile = filepath => {
 }
 /**
  * Returns ture if the path is an image file.
- * 
+ *
  * @param {string} filepath The path
  */
 export const isImageFile = filepath => {
@@ -95,6 +111,45 @@ export const isMarkdownFileOrLink = filepath => {
     return isFile(targetPath) && hasMarkdownExtension(targetPath)
   }
   return false
+}
+
+/**
+ * Check if the both paths point to the same file.
+ *
+ * @param {string} pathA The first path.
+ * @param {string} pathB The second path.
+ * @param {boolean} [isNormalized] Are both paths already normalized.
+ */
+export const isSamePathSync = (pathA, pathB, isNormalized = false) => {
+  if (!pathA || !pathB) return false
+  const a = isNormalized ? pathA : path.normalize(pathA)
+  const b = isNormalized ? pathB : path.normalize(pathB)
+  if (a.length !== b.length) {
+    return false
+  } else if (a === b) {
+    return true
+  } else if (a.toLowerCase() === b.toLowerCase()) {
+    try {
+      const fiA = fs.statSync(a)
+      const fiB = fs.statSync(b)
+      return fiA.ino === fiB.ino
+    } catch (_) {
+      // Ignore error
+    }
+  }
+  return false
+}
+
+/**
+ * Check whether a file or directory is a child of the given directory.
+ *
+ * @param {string} dir The parent directory.
+ * @param {string} child The file or directory path to check.
+ */
+export const isChildOfDirectory = (dir, child) => {
+  if (!dir || !child) return false
+  const relative = path.relative(dir, child)
+  return relative && !relative.startsWith('..') && !path.isAbsolute(relative)
 }
 
 /**

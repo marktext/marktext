@@ -3,9 +3,11 @@
   "autoSaveDelay": 5000,
   "titleBarStyle": "custom",
   "openFilesInNewWindow": false,
+  "openFolderInNewWindow": false,
   "aidou": true,
   "fileSortBy": "created",
-  "startUp": "folder",
+  "startUpAction": "lastState",
+  "defaultDirectoryToOpen": "",
   "language": "en",
 
   "editorFontFamily": "Open Sans",
@@ -28,5 +30,9 @@
   "tabSize": 4,
   "listIndentation": 1,
 
-  "theme": "light"
+  "theme": "light",
+
+  "sideBarVisibility": false,
+  "tabBarVisibility": false,
+  "sourceCodeModeEnabled": false
 }

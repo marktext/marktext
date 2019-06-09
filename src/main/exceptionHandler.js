@@ -22,16 +22,14 @@ const getOSInformation = () => {
   return `${os.type()} ${os.arch()} ${os.release()} (${os.platform()})`
 }
 
-const bundleException = (error, type) => {
+const exceptionToString = (error, type) => {
   const { message, stack } = error
-  return {
-    version: global.MARKTEXT_VERSION_STRING || app.getVersion(),
-    os: getOSInformation(),
-    type,
-    date: new Date().toGMTString(),
-    message,
-    stack
-  }
+  return `Version: ${global.MARKTEXT_VERSION_STRING || app.getVersion()}\n` +
+    `OS: ${getOSInformation()}\n` +
+    `Type: ${type}\n` +
+    `Date: ${new Date().toGMTString()}\n` +
+    `Message: ${message}\n` +
+    `Stack: ${stack}\n`
 }
 
 const handleError = (title, error, type) => {
@@ -39,8 +37,7 @@ const handleError = (title, error, type) => {
 
   // Write error into file
   if (type === 'main') {
-    const info = bundleException(error, type)
-    logger(JSON.stringify(info, null, 2))
+    logger(exceptionToString(error, type))
   }
 
   if (EXIT_ON_ERROR) {
@@ -48,12 +45,13 @@ const handleError = (title, error, type) => {
     process.exit(1)
     // eslint, don't lie to me, the return statement is important!
     return // eslint-disable-line no-unreachable
-  } else if (!SHOW_ERROR_DIALOG || (global.MARKTEXT_IS_OFFICIAL_RELEASE && type === 'renderer')) {
+  } else if (!SHOW_ERROR_DIALOG || (global.MARKTEXT_IS_STABLE && type === 'renderer')) {
     return
   }
 
   // show error dialog
   if (app.isReady()) {
+    // Blocking message box
     const result = dialog.showMessageBox({
       type: 'error',
       buttons: [

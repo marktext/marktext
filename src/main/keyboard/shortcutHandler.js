@@ -31,12 +31,13 @@ class Keybindings {
       ['fileNewTab', 'CmdOrCtrl+Shift+T'],
       ['fileOpenFile', 'CmdOrCtrl+O'],
       ['fileOpenFolder', 'CmdOrCtrl+Shift+O'],
-      ['fileCloseTab', 'CmdOrCtrl+W'],
       ['fileSave', 'CmdOrCtrl+S'],
       ['fileSaveAs', 'CmdOrCtrl+Shift+S'],
       ['filePrint', 'CmdOrCtrl+P'],
       ['filePreferences', 'CmdOrCtrl+,'], // marktext menu in macOS
-      ['fileQuit', isOsx ? 'Command+Q' : 'Alt+F4'],
+      ['fileCloseTab', 'CmdOrCtrl+W'],
+      ['fileCloseWindow', 'CmdOrCtrl+Shift+W'],
+      ['fileQuit', 'CmdOrCtrl+Q'],
 
       // edit menu
       ['editUndo', 'CmdOrCtrl+Z'],
@@ -91,18 +92,16 @@ class Keybindings {
       ['formatClearFormat', 'Shift+CmdOrCtrl+R'],
 
       // window menu
-      // ['windowMinimize', 'CmdOrCtrl+M'], deprecated for math.
-      ['windowCloseWindow', 'CmdOrCtrl+Shift+W'],
+      ['windowMinimize', ''], // 'CmdOrCtrl+M' deprecated for math
 
       // view menu
       ['viewToggleFullScreen', isOsx ? 'Ctrl+Command+F' : 'F11'],
-      ['viewChangeFont', 'CmdOrCtrl+.'],
       ['viewSourceCodeMode', 'CmdOrCtrl+Alt+S'],
       ['viewTypewriterMode', 'CmdOrCtrl+Alt+T'],
       ['viewFocusMode', 'CmdOrCtrl+Shift+F'],
       ['viewToggleSideBar', 'CmdOrCtrl+J'],
       ['viewToggleTabBar', 'CmdOrCtrl+Alt+B'],
-      ['viewDevToggleDeveloperTools', isOsx ? 'Alt+Command+I' : 'Ctrl+Shift+I'],
+      ['viewDevToggleDeveloperTools', 'CmdOrCtrl+Alt+I'],
       ['viewDevReload', 'CmdOrCtrl+R']
     ])
 
