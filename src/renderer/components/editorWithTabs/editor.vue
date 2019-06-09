@@ -352,7 +352,7 @@
         bus.$on('searchValue', this.handleSearch)
         bus.$on('replaceValue', this.handReplace)
         bus.$on('find', this.handleFind)
-        bus.$on('insert-image', this.handleSelect)
+        bus.$on('insert-image', this.insertImage)
         bus.$on('image-uploaded', this.handleUploadedImage)
         bus.$on('file-changed', this.handleMarkdownChange)
         bus.$on('editor-blur', this.blurEditor)
@@ -490,7 +490,7 @@
       },
 
       handleSelectAll () {
-        if (this.editor) {
+        if (this.editor && !this.sourceCode) {
           this.editor.selectAll()
         }
       },
@@ -502,7 +502,7 @@
         }
       },
 
-      handleSelect (src) {
+      insertImage (src) {
         if (!this.sourceCode) {
           this.editor && this.editor.insertImage({ src })
         }
@@ -520,7 +520,7 @@
       },
 
       handleUploadedImage (url, deletionUrl) {
-        this.handleSelect(url)
+        this.insertImage(url)
         this.$store.dispatch('SHOW_IMAGE_DELETION_URL', deletionUrl)
       },
 
@@ -688,7 +688,7 @@
       bus.$off('searchValue', this.handleSearch)
       bus.$off('replaceValue', this.handReplace)
       bus.$off('find', this.handleFind)
-      bus.$off('insert-image', this.handleSelect)
+      bus.$off('insert-image', this.insertImage)
       bus.$off('image-uploaded', this.handleUploadedImage)
       bus.$off('file-changed', this.handleMarkdownChange)
       bus.$off('editor-blur', this.blurEditor)
