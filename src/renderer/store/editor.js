@@ -1,4 +1,4 @@
-import { clipboard, ipcRenderer, shell } from 'electron'
+import { clipboard, ipcRenderer, shell, webFrame } from 'electron'
 import path from 'path'
 import bus from '../bus'
 import { hasKeys, getUniqueId } from '../util'
@@ -815,6 +815,12 @@ const actions = {
 
   ASK_FOR_IMAGE_PATH ({ commit }) {
     return ipcRenderer.sendSync('mt::ask-for-image-path')
+  },
+
+  LISTEN_WINDOW_ZOOM () {
+    ipcRenderer.on('mt::window-zoom', (e, zoomFactor) => {
+      webFrame.setZoomFactor(zoomFactor)
+    })
   }
 }
 

@@ -1,6 +1,6 @@
 import './globalSetting'
 import path from 'path'
-import { app } from 'electron'
+import { app, dialog } from 'electron'
 import cli from './cli'
 import setupExceptionHandler, { initExceptionLogger } from './exceptionHandler'
 import log from 'electron-log'
@@ -14,7 +14,7 @@ const initializeLogger = appEnvironment => {
   log.transports.rendererConsole = null
   log.transports.file.file = path.join(appEnvironment.paths.logPath, 'main.log')
   log.transports.file.level = getLogLevel()
-  log.transports.file.sync = false
+  log.transports.file.sync = true
   log.transports.file.init()
   initExceptionLogger()
 }
@@ -48,7 +48,30 @@ if (!process.mas && process.env.NODE_ENV !== 'development') {
 
 // Mark Text environment is configured successfully. You can now access paths, use the logger etc.
 // Create other instances that need access to the modules from above.
-const accessor = new Accessor(appEnvironment)
+let accessor = null
+try {
+  accessor = new Accessor(appEnvironment)
+} catch (err) {
+  // Catch errors that may come from invalid configuration files like settings.
+  const msgHint = err.message.includes('Config schema violation')
+    ? 'This seems to be an issue with your configuration file(s). ' : ''
+
+  log.error(`Loading Mark Text failed during initialization! ${msgHint}`)
+  log.error(err)
+
+  const EXIT_ON_ERROR = !!process.env.MARKTEXT_EXIT_ON_ERROR
+  const SHOW_ERROR_DIALOG = !process.env.MARKTEXT_ERROR_INTERACTION
+  if (!EXIT_ON_ERROR && SHOW_ERROR_DIALOG) {
+    dialog.showErrorBox(
+      'There was an error during loading',
+      `${msgHint}${err.message}\n\n${err.stack}`
+    )
+  }
+  process.exit(1)
+}
+
+// Use synchronous only to report errors in early stage of startup.
+log.transports.file.sync = false
 
 // -----------------------------------------------
 // Be careful when changing code before this line!

@@ -72,7 +72,13 @@ class BaseWindow extends EventEmitter {
     // NOTE: Only send absolutely necessary values. Full settings are delay loaded.
     const { type } = this
     const { debug, paths } = env
-    const { codeFontFamily, codeFontSize, theme, titleBarStyle } = userPreference.getAll()
+    const {
+      codeFontFamily,
+      codeFontSize,
+      hideScrollbar,
+      theme,
+      titleBarStyle
+    } = userPreference.getAll()
 
     const baseUrl = process.env.NODE_ENV === 'development'
       ? `http://localhost:9091`
@@ -87,6 +93,7 @@ class BaseWindow extends EventEmitter {
     // Settings
     url.searchParams.set('cff', codeFontFamily)
     url.searchParams.set('cfs', codeFontSize)
+    url.searchParams.set('hsb', hideScrollbar ? '1' : '0')
     url.searchParams.set('theme', theme)
     url.searchParams.set('tbs', titleBarStyle)
 

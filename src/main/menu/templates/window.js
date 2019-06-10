@@ -1,4 +1,4 @@
-import { toggleAlwaysOnTop } from '../actions/window'
+import { toggleAlwaysOnTop, zoomIn, zoomOut } from '../actions/window'
 import { isOsx } from '../../config'
 
 export default function (keybindings) {
@@ -15,6 +15,18 @@ export default function (keybindings) {
       type: 'checkbox',
       click (menuItem, browserWindow) {
         toggleAlwaysOnTop(browserWindow)
+      }
+    }, {
+      type: 'separator'
+    }, {
+      label: 'Zoom In',
+      click (menuItem, browserWindow) {
+        zoomIn(browserWindow)
+      }
+    }, {
+      label: 'Zoom Out',
+      click (menuItem, browserWindow) {
+        zoomOut(browserWindow)
       }
     }, {
       type: 'separator'

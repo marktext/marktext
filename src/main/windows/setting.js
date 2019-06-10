@@ -1,5 +1,6 @@
 import path from 'path'
 import { BrowserWindow, ipcMain } from 'electron'
+import electronLocalshortcut from '@hfelix/electron-localshortcut'
 import BaseWindow, { WindowLifecycle, WindowType } from './base'
 import { centerWindowOptions } from './utils'
 import { TITLE_BAR_HEIGHT, defaultPreferenceWinOptions, isLinux, isOsx } from '../config'
@@ -20,7 +21,7 @@ class SettingWindow extends BaseWindow {
    * @param {*} [options] BrowserWindow options.
    */
   createWindow (options = {}) {
-    const { menu: appMenu, env, preferences } = this._accessor
+    const { menu: appMenu, env, keybindings, preferences } = this._accessor
     const winOptions = Object.assign({}, defaultPreferenceWinOptions, options)
     centerWindowOptions(winOptions)
     if (isLinux) {
@@ -78,6 +79,13 @@ class SettingWindow extends BaseWindow {
     win.loadURL(this._buildUrlString(this.id, env, preferences))
     win.setSheetOffset(TITLE_BAR_HEIGHT)
 
+    electronLocalshortcut.register(
+      win,
+      keybindings.getAccelerator('viewDevToggleDeveloperTools'),
+      () => {
+        win.webContents.toggleDevTools()
+      }
+    )
     return win
   }
 }
