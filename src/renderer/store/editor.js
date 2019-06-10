@@ -1,5 +1,6 @@
 import { clipboard, ipcRenderer, shell } from 'electron'
 import path from 'path'
+import equal from 'deep-equal'
 import bus from '../bus'
 import { hasKeys, getUniqueId } from '../util'
 import { isSamePathSync } from '../util/fileSystem'
@@ -11,6 +12,7 @@ const state = {
   lineEnding: 'lf',
   currentFile: {},
   tabs: [],
+  listToc: [], // Just use for deep equal check. and replace with new toc if needed.
   toc: []
 }
 
@@ -20,6 +22,7 @@ const mutations = {
     state.currentFile.searchMatches = value
   },
   SET_TOC (state, toc) {
+    state.listToc = toc
     state.toc = listToTree(toc)
   },
   SET_CURRENT_FILE (state, currentFile) {
@@ -641,6 +644,7 @@ const actions = {
     const { autoSave } = rootState.preferences
     const { projectTree } = rootState.project
     const { id: currentId, pathname, markdown: oldMarkdown } = state.currentFile
+    const { listToc } = state
 
     if (!id) {
       throw new Error(`Listen for document change but id was not set!`)
@@ -678,7 +682,7 @@ const actions = {
     // set history
     if (history) commit('SET_HISTORY', history)
     // set toc
-    if (toc) commit('SET_TOC', toc)
+    if (toc && !equal(toc, listToc)) commit('SET_TOC', toc)
 
     // change save status/save to file only when the markdown changed!
     if (markdown !== oldMarkdown) {
