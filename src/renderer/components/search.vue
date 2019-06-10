@@ -69,32 +69,34 @@
       <div class="input-wrapper replace-input">
         <input type="text" v-model="replaceValue" placeholder="Replacement">
       </div>
-      <el-tooltip class="item"
-        effect="dark"
-        content="Replace All"
-        placement="top"
-        :visible-arrow="false"
-        :open-delay="1000"
-      >
-        <button class="button right" @click="replace(false)">
-          <svg class="icon" aria-hidden="true">
-            <use xlink:href="#icon-all-inclusive"></use>
-          </svg>
-        </button>
-      </el-tooltip>
-      <el-tooltip class="item"
-        effect="dark"
-        content="Replace Single"
-        placement="top"
-        :visible-arrow="false"
-        :open-delay="1000"
-      >
-        <button class="button right" @click="replace(true)">
-          <svg class="icon" aria-hidden="true">
-            <use xlink:href="#icon-replace"></use>
-          </svg>
-        </button>
-      </el-tooltip>
+      <div class="button-group">
+        <el-tooltip class="item"
+          effect="dark"
+          content="Replace All"
+          placement="top"
+          :visible-arrow="false"
+          :open-delay="1000"
+        >
+          <button class="button right" @click="replace(false)">
+            <svg class="icon" aria-hidden="true">
+              <use xlink:href="#icon-all-inclusive"></use>
+            </svg>
+          </button>
+        </el-tooltip>
+        <el-tooltip class="item"
+          effect="dark"
+          content="Replace Single"
+          placement="top"
+          :visible-arrow="false"
+          :open-delay="1000"
+        >
+          <button class="button" @click="replace(true)">
+            <svg class="icon" aria-hidden="true">
+              <use xlink:href="#icon-replace"></use>
+            </svg>
+          </button>
+        </el-tooltip>
+      </div>
     </section>
   </div>
 </template>

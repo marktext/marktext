@@ -442,7 +442,6 @@ p:not(.ag-active)[data-role="hr"]::before {
   content: '';
   width: 100%;
   height: 2px;
-  background: var(--editorColor10);
   border-top: 2px dashed var(--editorColor10);
   background: none;
   position: absolute;

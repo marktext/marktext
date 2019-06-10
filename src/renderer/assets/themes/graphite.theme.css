@@ -186,6 +186,7 @@ p:not(.ag-active)[data-role="hr"]::before {
   top: 50%;
   height: 2px;
   box-sizing: border-box;
-  border: 2px dashed var(--editorColor50);
+  border: none;
+  border-bottom: 2px dashed var(--editorColor50);
   transform: translateX(-50%) translateY(-50%);
 }

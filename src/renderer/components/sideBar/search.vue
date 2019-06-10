@@ -13,7 +13,7 @@
             title="Case Sensitive"
             class="is-case-sensitive"
             :class="{'active': isCaseSensitive}"
-            @click.stop="isCaseSensitiveClicked()"
+            @click.stop="caseSensitiveClicked()"
           >
             <svg :viewBox="FindCaseIcon.viewBox" aria-hidden="true">
               <use :xlink:href="FindCaseIcon.url" />
@@ -23,7 +23,7 @@
             title="Select whole word"
             class="is-whole-word"
             :class="{'active': isWholeWord}"
-            @click.stop="isWholeWordClicked()"
+            @click.stop="wholeWordClicked()"
           >
             <svg :viewBox="FindWordIcon.viewBox" aria-hidden="true">
               <use :xlink:href="FindWordIcon.url" />
@@ -33,7 +33,7 @@
             title="Use query as RegEx"
             class="is-regex"
             :class="{'active': isRegexp}"
-            @click.stop="isRegexpClicked()"
+            @click.stop="regexpClicked()"
           >
             <svg :viewBox="FindRegexIcon.viewBox" aria-hidden="true">
               <use :xlink:href="FindRegexIcon.url" />
@@ -234,15 +234,15 @@
           this.searcherCancelCallback = null
         }
       },
-      isCaseSensitiveClicked () {
+      caseSensitiveClicked () {
         this.isCaseSensitive = !this.isCaseSensitive
         this.doSearch()
       },
-      isWholeWordClicked () {
+      wholeWordClicked () {
         this.isWholeWord = !this.isWholeWord
         this.doSearch()
       },
-      isRegexpClicked () {
+      regexpClicked () {
         this.isRegexp = !this.isRegexp
         this.doSearch()
       }
