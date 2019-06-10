@@ -273,6 +273,11 @@
             codeFontFamily: value
           })
         }
+      },
+      currentFile: function (value, oldValue) {
+        if (value && value !== oldValue) {
+          this.scrollToCursor(0)
+        }
       }
     },
     created () {
@@ -524,11 +529,11 @@
         this.$store.dispatch('SHOW_IMAGE_DELETION_URL', deletionUrl)
       },
 
-      scrollToCursor () {
+      scrollToCursor (duration = 300) {
         this.$nextTick(() => {
           const { container } = this.editor
           const { y } = this.editor.getSelection().cursorCoords
-          animatedScrollTo(container, container.scrollTop + y - STANDAR_Y, 300)
+          animatedScrollTo(container, container.scrollTop + y - STANDAR_Y, duration)
         })
       },
 
