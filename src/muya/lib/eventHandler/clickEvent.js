@@ -90,6 +90,7 @@ class ClickEvent {
         // Handle select image
         const imageInfo = getImageInfo(imageWrapper)
         event.preventDefault()
+        eventCenter.dispatch('select-image', imageInfo)
         return contentState.selectImage(imageInfo)
       }
 
