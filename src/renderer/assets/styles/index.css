@@ -56,12 +56,15 @@
 ::-webkit-scrollbar-corner {
   background: var(--floatHoverColor);
 }
+
 ::-webkit-scrollbar:vertical {
   width: 12px;
 }
+
 ::-webkit-scrollbar-thumb {
   background: var(--editorColor10);
 }
+
 ::-webkit-scrollbar-thumb:hover {
   background: var(--editorColor30);
 }
