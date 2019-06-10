@@ -8,6 +8,8 @@ import listToTree from '../util/listToTree'
 import { createDocumentState, getOptionsFromState, getSingleFileState, getBlankFileState } from './help'
 import notice from '../services/notification'
 
+const autoSaveTimers = new Map()
+
 const state = {
   lineEnding: 'lf',
   currentFile: {},
@@ -42,6 +44,13 @@ const mutations = {
     const { tabs, currentFile } = state
     const index = tabs.indexOf(file)
     tabs.splice(index, 1)
+
+    if (file.id && autoSaveTimers.has(file.id)) {
+      const timer = autoSaveTimers.get(file.id)
+      clearTimeout(timer)
+      autoSaveTimers.delete(file.id)
+    }
+
     if (file.id === currentFile.id) {
       const fileState = state.tabs[index] || state.tabs[index - 1] || state.tabs[0] || {}
       state.currentFile = fileState
@@ -93,10 +102,11 @@ const mutations = {
       })
     }
 
-
     const tab = tabs.find(t => isSamePathSync(t.pathname, pathname))
     if (!tab) {
-      throw new Error('LOAD_CHANGE: Cannot find tab in tab list.')
+      // The tab may be closed in the meanwhile.
+      console.error('LOAD_CHANGE: Cannot find tab in tab list.')
+      return
     }
 
     // Upate file content but not tab id.
@@ -640,7 +650,7 @@ const actions = {
 
   // Content change from realtime preview editor and source code editor
   // WORKAROUND: id is "muya" if changes come from muya and not source code editor! So we don't have to apply the workaround.
-  LISTEN_FOR_CONTENT_CHANGE ({ commit, state, rootState }, { id, markdown, wordCount, cursor, history, toc }) {
+  LISTEN_FOR_CONTENT_CHANGE ({ commit, dispatch, state, rootState }, { id, markdown, wordCount, cursor, history, toc }) {
     const { autoSave } = rootState.preferences
     const { projectTree } = rootState.project
     const { id: currentId, pathname, markdown: oldMarkdown } = state.currentFile
@@ -689,12 +699,41 @@ const actions = {
       if (projectTree) {
         commit('UPDATE_PROJECT_CONTENT', { markdown, pathname })
       }
+
+      commit('SET_SAVE_STATUS', false)
       if (pathname && autoSave) {
-        ipcRenderer.send('AGANI::response-file-save', { id: currentId, pathname, markdown, options })
-      } else {
-        commit('SET_SAVE_STATUS', false)
+        dispatch('HANDLE_AUTO_SAVE', { id: currentId, pathname, markdown, options })
       }
     }
+  },
+
+  HANDLE_AUTO_SAVE ({ commit, state, rootState }, { id, pathname, markdown, options }) {
+    if (!id || !pathname) {
+      throw new Error('HANDLE_AUTO_SAVE: Invalid tab.')
+    }
+
+    const { tabs } = state
+    const { autoSaveDelay } = rootState.preferences
+
+    if (autoSaveTimers.has(id)) {
+      const timer = autoSaveTimers.get(id)
+      clearTimeout(timer)
+      autoSaveTimers.delete(id)
+    }
+
+    const timer = setTimeout(() => {
+      autoSaveTimers.delete(id)
+
+      // Validate that the tab still exists. A tab is unchanged until successfully saved
+      // or force closed. The user decides whether to discard or save the tab when
+      // gracefully closed. The automatically save event may fire meanwhile.
+      const tab = tabs.find(t => t.id === id)
+      if (tab && !tab.isSaved) {
+        // Tab changed status is set after the file is saved.
+        ipcRenderer.send('AGANI::response-file-save', { id, pathname, markdown, options })
+      }
+    }, autoSaveDelay)
+    autoSaveTimers.set(id, timer)
   },
 
   SELECTION_CHANGE ({ commit }, changes) {
@@ -777,27 +816,40 @@ const actions = {
       const { pathname } = change
       const tab = tabs.find(t => isSamePathSync(t.pathname, pathname))
       if (tab) {
-        commit('SET_SAVE_STATUS_BY_TAB', { tab, status: false })
-      }
+        const { id, isSaved } = tab
 
-      switch (type) {
-        case 'unlink': {
-          notice.notify({
-            title: 'File Removed on Disk',
-            message: `${pathname} has been removed or moved.`,
-            type: 'warning',
-            time: 0,
-            showConfirm: false
-          })
-          break
-        }
-        case 'add':
-        case 'change': {
-          const { autoSave } = rootState.preferences
-          const { filename } = change.data
-          if (autoSave) {
-            commit('LOAD_CHANGE', change)
-          } else {
+        switch (type) {
+          case 'unlink': {
+            commit('SET_SAVE_STATUS_BY_TAB', { tab, status: false })
+            notice.notify({
+              title: 'File Removed on Disk',
+              message: `${pathname} has been removed or moved.`,
+              type: 'warning',
+              time: 0,
+              showConfirm: false
+            })
+            break
+          }
+          case 'add':
+          case 'change': {
+            const { autoSave } = rootState.preferences
+            const { filename } = change.data
+            if (autoSave) {
+              if (autoSaveTimers.has(id)) {
+                const timer = autoSaveTimers.get(id)
+                clearTimeout(timer)
+                autoSaveTimers.delete(id)
+              }
+
+              // Only reload the content if the tab is saved.
+              if (isSaved) {
+                commit('LOAD_CHANGE', change)
+                return
+              }
+            }
+
+            commit('SET_SAVE_STATUS_BY_TAB', { tab, status: false })
+
             notice.clear()
             notice.notify({
               title: 'File Changed on Disk',
@@ -808,11 +860,13 @@ const actions = {
               .then(() => {
                 commit('LOAD_CHANGE', change)
               })
+            break
           }
-          break
+          default:
+            console.error(`LISTEN_FOR_FILE_CHANGE: Invalid type "${type}"`)
         }
-        default:
-          console.error(`LISTEN_FOR_FILE_CHANGE: Invalid type "${type}"`)
+      } else {
+        console.error(`LISTEN_FOR_FILE_CHANGE: Cannot find tab for path "${pathname}".`)
       }
     })
   },

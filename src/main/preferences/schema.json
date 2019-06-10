@@ -6,7 +6,7 @@
   "autoSaveDelay": {
     "description": "General--How long do you want to save your document(ms)?",
     "type": "number",
-    "minimum": 500
+    "minimum": 1000
   },
   "titleBarStyle": {
     "description": "General--The title bar style (Windows and Linux system only).",

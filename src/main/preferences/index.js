@@ -144,6 +144,10 @@ class Preference extends EventEmitter {
     ipcMain.on('mt::set-user-preference', (e, settings) => {
       this.setItems(settings)
     })
+
+    ipcMain.on('set-user-preference', settings => {
+      this.setItems(settings)
+    })
   }
 }
 

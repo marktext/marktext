@@ -9,12 +9,11 @@
     <range
       description="How long do you want to save your document?"
       :value="autoSaveDelay"
-      :min="3000"
+      :min="1000"
       :max="10000"
       unit="ms"
       :step="100"
       :onChange="value => onSelectChange('autoSaveDelay', value)"
-      :disable="true"
     ></range>
     <cur-select
       v-if="!isOsx"
