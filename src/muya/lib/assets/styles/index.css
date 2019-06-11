@@ -775,19 +775,19 @@ span.ag-warn.ag-emoji-marked-text {
   position: absolute;
   top: 15px;
   background: rgba(50, 54, 58, .5);
-  border-radius: 10px;
+  border-radius: 12px;
   cursor: pointer;
+  transition: background .25s ease-in-out;
 }
 
 .ag-inline-image a.ag-image-icon-turninto i.icon,
 .ag-inline-image a.ag-image-icon-delete i.icon {
-  color: #ccc;
-  transition: color .25s ease-in-out;
+  color: #fff;
 }
 
-.ag-inline-image a.ag-image-icon-turninto i.icon:hover,
-.ag-inline-image a.ag-image-icon-delete i.icon:hover {
-  color: #fff;
+.ag-inline-image a.ag-image-icon-turninto:hover,
+.ag-inline-image a.ag-image-icon-delete:hover {
+  background: rgba(50, 54, 58, .8);
 }
 
 .ag-inline-image a.ag-image-icon-turninto {
