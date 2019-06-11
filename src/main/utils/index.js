@@ -1,5 +1,4 @@
 import { app } from 'electron'
-import { EXTENSIONS } from '../config'
 
 const ID_PREFIX = 'mt-'
 let id = 0
@@ -35,16 +34,6 @@ export const getPath = name => {
     throw new Error('Do not use "getPath" for user data path!')
   }
   return app.getPath(name)
-}
-
-/**
- * Returns true if the filename matches one of the markdown extensions.
- *
- * @param {string} filename Path or filename
- */
-export const hasMarkdownExtension = filename => {
-  if (!filename || typeof filename !== 'string') return false
-  return EXTENSIONS.some(ext => filename.endsWith(`.${ext}`))
 }
 
 export const hasSameKeys = (a, b) => {

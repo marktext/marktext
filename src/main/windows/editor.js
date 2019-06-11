@@ -2,10 +2,10 @@ import path from 'path'
 import { BrowserWindow, dialog, ipcMain } from 'electron'
 import log from 'electron-log'
 import windowStateKeeper from 'electron-window-state'
+import { isChildOfDirectory, isSamePathSync } from 'common/filesystem/paths'
 import BaseWindow, { WindowLifecycle, WindowType } from './base'
 import { ensureWindowPosition } from './utils'
 import { TITLE_BAR_HEIGHT, editorWinOptions, isLinux, isOsx } from '../config'
-import { isChildOfDirectory, isSamePathSync } from '../filesystem'
 import { loadMarkdownFile } from '../filesystem/markdown'
 
 class EditorWindow extends BaseWindow {

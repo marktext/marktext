@@ -1,6 +1,6 @@
 import path from 'path'
 import os from 'os'
-import { isDirectory } from '../filesystem'
+import { isDirectory } from 'common/filesystem'
 import parseArgs from './parser'
 import { dumpKeyboardInformation } from '../keyboard'
 import { getPath } from '../utils'

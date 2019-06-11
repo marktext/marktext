@@ -1,6 +1,6 @@
 import { app } from 'electron'
 import EnvPaths from 'common/envPaths'
-import { ensureDirSync } from '../filesystem'
+import { ensureDirSync } from 'common/filesystem'
 
 class AppPaths extends EnvPaths {
 

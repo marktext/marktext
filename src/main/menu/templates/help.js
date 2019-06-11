@@ -1,8 +1,8 @@
 import path from 'path'
 import { shell } from 'electron'
+import { isFile } from 'common/filesystem'
 import * as actions from '../actions/help'
 import { checkUpdates } from '../actions/marktext'
-import { isFile } from '../../filesystem'
 
 export default function () {
   const helpMenu = {

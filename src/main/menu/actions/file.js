@@ -3,8 +3,10 @@ import path from 'path'
 import { promisify } from 'util'
 import { BrowserWindow, dialog, ipcMain, shell } from 'electron'
 import log from 'electron-log'
-import { EXTENSION_HASN, EXTENSIONS, PANDOC_EXTENSIONS, URL_REG } from '../../config'
-import { isDirectory, isFile, isMarkdownFile, isMarkdownFileOrLink, normalizeAndResolvePath, writeFile } from '../../filesystem'
+import { isDirectory, isFile } from 'common/filesystem'
+import { MARKDOWN_EXTENSIONS, isMarkdownFile, isMarkdownFileOrLink } from 'common/filesystem/paths'
+import { EXTENSION_HASN, PANDOC_EXTENSIONS, URL_REG } from '../../config'
+import { normalizeAndResolvePath, writeFile } from '../../filesystem'
 import { writeMarkdownFile } from '../../filesystem/markdown'
 import { getPath, getRecommendTitleFromMarkdownString } from '../../utils'
 import pandoc from '../../utils/pandoc'
@@ -417,7 +419,7 @@ export const openFile = win => {
     properties: ['openFile', 'multiSelections'],
     filters: [{
       name: 'text',
-      extensions: EXTENSIONS
+      extensions: MARKDOWN_EXTENSIONS
     }]
   }, paths => {
     if (paths && Array.isArray(paths)) {

@@ -2,8 +2,9 @@ import fs from 'fs'
 import path from 'path'
 import { filter } from 'fuzzaldrin'
 import log from 'electron-log'
-import { IMAGE_EXTENSIONS, BLACK_LIST } from '../config'
-import { isDirectory, isFile } from '../filesystem'
+import { isDirectory, isFile } from 'common/filesystem'
+import { IMAGE_EXTENSIONS } from 'common/filesystem/paths'
+import { BLACK_LIST } from '../config'
 
 // TODO(need::refactor): Refactor this file. Just return an array of directories and files without caching and watching?
 

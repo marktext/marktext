@@ -2,7 +2,9 @@ import fs from 'fs-extra'
 import path from 'path'
 import log from 'electron-log'
 import { LINE_ENDING_REG, LF_LINE_ENDING_REG, CRLF_LINE_ENDING_REG } from '../config'
-import { isDirectory, isMarkdownFileOrLink, normalizeAndResolvePath , writeFile } from '../filesystem'
+import { isDirectory } from 'common/filesystem'
+import { isMarkdownFileOrLink } from 'common/filesystem/paths'
+import { normalizeAndResolvePath, writeFile } from '../filesystem'
 
 const getLineEnding = lineEnding => {
   if (lineEnding === 'lf') {
