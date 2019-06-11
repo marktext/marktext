@@ -8,6 +8,7 @@ Usage: marktext [commands] [path ...]
         --debug                   Enable debug mode
         --safe                    Disable plugins and other user configuration
         --dump-keyboard-layout    Dump keyboard information
+    -n, --new-window              Open a new window on second-instance
         --user-data-dir           Change the user data directory
         --disable-gpu             Disable GPU hardware acceleration
     -v, --verbose                 Be verbose
