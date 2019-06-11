@@ -19,9 +19,9 @@ class Keyboard {
 
   listen () {
     // cache shown float box
-    this.muya.eventCenter.subscribe('muya-float', (name, status) => {
-      status ? this.shownFloat.add(name) : this.shownFloat.delete(name)
-      if (name === 'ag-front-menu' && !status) {
+    this.muya.eventCenter.subscribe('muya-float', (tool, status) => {
+      status ? this.shownFloat.add(tool) : this.shownFloat.delete(tool)
+      if (tool.name === 'ag-front-menu' && !status) {
         const seletedParagraph = this.muya.container.querySelector('.ag-selected')
         if (seletedParagraph) {
           this.muya.contentState.selectedBlock = null
@@ -30,6 +30,12 @@ class Keyboard {
         }
       }
     })
+  }
+
+  hideAllFloatTools () {
+    for (const tool of this.shownFloat) {
+      tool.hide()
+    }
   }
 
   recordIsComposed () {
@@ -130,7 +136,15 @@ class Keyboard {
           event.key === EVENT_KEYS.ArrowDown
         )
       ) {
-        if (!this.shownFloat.has('ag-format-picker') && !this.shownFloat.has('ag-table-picker')) {
+        let needPreventDefault = false
+
+        for (const tool of this.shownFloat) {
+          if (tool.name === 'ag-format-picker' || tool.name === 'ag-table-picker') {
+            needPreventDefault = true
+            break
+          }
+        }
+        if (needPreventDefault) {
           event.preventDefault()
         }
         event.stopPropagation()
