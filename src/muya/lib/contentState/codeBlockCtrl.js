@@ -19,7 +19,7 @@ const codeBlockCtrl = ContentState => {
     if (startBlock.type === 'span') {
       if (startBlock.functionType === 'languageInput') {
         lang = text.trim()
-      } else {
+      } else if (startBlock.functionType === 'paragraphContent') {
         const token = text.match(/(^`{3,})([^`]+)/)
         if (token) {
           const len = token[1].length
