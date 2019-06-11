@@ -105,7 +105,7 @@ class BaseFloat {
       this.popper.destroy()
     }
     this.cb = noop
-    eventCenter.dispatch('muya-float', this.name, false)
+    eventCenter.dispatch('muya-float', this, false)
     this.lastScrollTop = null
   }
 
@@ -122,7 +122,7 @@ class BaseFloat {
       modifiers
     })
     this.status = true
-    eventCenter.dispatch('muya-float', this.name, true)
+    eventCenter.dispatch('muya-float', this, true)
   }
 
   destroy () {

@@ -326,6 +326,10 @@ class Muya {
     }
   }
 
+  hideAllFloatTools () {
+    return this.keyboard.hideAllFloatTools()
+  }
+
   destroy () {
     this.contentState.clear()
     this.quickInsert.destroy()
