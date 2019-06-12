@@ -124,6 +124,7 @@ export const createDocumentState = (markdownDocument, id = getUniqueId()) => {
     encoding,
     lineEnding,
     adjustLineEndingOnSave,
+    cursor = null
   } = markdownDocument
 
   assertLineEnding(adjustLineEndingOnSave, lineEnding)
@@ -135,6 +136,7 @@ export const createDocumentState = (markdownDocument, id = getUniqueId()) => {
     pathname,
     encoding,
     lineEnding,
+    cursor,
     adjustLineEndingOnSave
   })
 }

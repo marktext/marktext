@@ -22,7 +22,10 @@ class Cursor {
       } else {
         const anchorParagraph = document.querySelector(`#${anchor.key}`)
         const focusParagraph = document.querySelector(`#${focus.key}`)
-        const order = compareParagraphsOrder(anchorParagraph, focusParagraph)
+        let order = true
+        if (anchorParagraph && focusParagraph) {
+          order = compareParagraphsOrder(anchorParagraph, focusParagraph)
+        }
 
         if (order) {
           this.start = this.anchor

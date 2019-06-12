@@ -1,4 +1,5 @@
 import { ipcRenderer } from 'electron'
+import bus from '../bus'
 import { isSamePathSync } from '../util/fileSystem'
 
 export const tabsMixins = {
@@ -26,25 +27,29 @@ export const fileMixins = {
       const { filePath } = this.searchResult
 
       const openedTab = this.tabs.find(file => isSamePathSync(file.pathname, filePath))
-      if (openedTab) {
-        // TODO(search): Set cursor range. Currently muya has no support for doing so.
+      const cursor = {
+        isCollapsed: range[0][0] !== range[1][0],
+        anchor: {
+          line: range[0][0],
+          ch: range[0][1]
+        },
+        focus: {
+          line: range[1][0],
+          ch: range[1][1]
+        }
+      }
 
+      if (openedTab) {
+        openedTab.cursor = cursor
         if (this.currentFile !== openedTab) {
           this.$store.dispatch('UPDATE_CURRENT_FILE', openedTab)
+        } else {
+          const { id, markdown, cursor, history } = this.currentFile
+          bus.$emit('file-changed', { id, markdown, cursor, renderCursor: true, history })
         }
       } else {
         ipcRenderer.send('mt::open-file', filePath, {
-          range: {
-            isMultiline: range[0][0] !== range[1][0],
-            start: {
-              line: range[0][0],
-              offset: range[0][1]
-            },
-            end: {
-              line: range[1][0],
-              offset: range[1][1]
-            }
-          }
+          cursor
         })
       }
     },

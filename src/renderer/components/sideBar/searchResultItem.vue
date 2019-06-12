@@ -78,7 +78,8 @@
     },
     computed: {
       ...mapState({
-        'tabs': state => state.editor.tabs
+        'tabs': state => state.editor.tabs,
+        'currentFile': state => state.editor.currentFile
       }),
 
       getMatches () {

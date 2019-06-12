@@ -79,15 +79,16 @@
         }
         const editor = this.editor = codeMirror(container, codeMirrorConfig)
 
-        bus.$on('file-loaded', this.setMarkdown)
-        bus.$on('file-changed', this.handleMarkdownChange)
+        bus.$on('file-loaded', this.handleFileChange)
+        bus.$on('file-changed', this.handleFileChange)
         bus.$on('dotu-select', this.handleSelectDoutu)
         bus.$on('selectAll', this.handleSelectAll)
 
         setMode(editor, 'markdown')
         this.listenChange()
         if (cursor) {
-          editor.setCursor(cursor)
+          const { anchor, focus } = cursor
+          editor.setSelection(anchor, focus, { scroll: true }) // Scroll the focus into view.
         } else {
           setCursorAtLastLine(editor)
         }
@@ -100,8 +101,8 @@
       this.viewDestroyed = true
       if (this.commitTimer) clearTimeout(this.commitTimer)
 
-      bus.$off('file-loaded', this.setMarkdown)
-      bus.$off('file-changed', this.handleMarkdownChange)
+      bus.$off('file-loaded', this.handleFileChange)
+      bus.$off('file-changed', this.handleFileChange)
       bus.$off('dotu-select', this.handleSelectDoutu)
       bus.$off('selectAll', this.handleSelectAll)
 
@@ -135,25 +136,18 @@
           }, 1000)
         })
       },
-      // A new file was opened or new tab was added.
-      setMarkdown ({ id, markdown }) {
-        this.prepareTabSwitch()
-
-        const { editor } = this
-        editor.setValue(markdown)
-        // NOTE: Don't set the cursor because we load a new file.
-        setCursorAtLastLine(editor)
-        this.tabId = id
-      },
       // Another tab was selected - only listen to get changes but don't set history or other things.
-      handleMarkdownChange ({ id, markdown, cursor, renderCursor, history }) {
+      handleFileChange ({ id, markdown, cursor }) {
         this.prepareTabSwitch()
 
         const { editor } = this
-        editor.setValue(markdown)
+        if (typeof markdown === 'string') {
+          editor.setValue(markdown)
+        }
         // Cursor is null when loading a file or creating a new tab in source code mode.
         if (cursor) {
-          editor.setCursor(cursor)
+          const { anchor, focus } = cursor
+          editor.setSelection(anchor, focus, { scroll: true }) // Scroll the focus into view.
         } else {
           setCursorAtLastLine(editor)
         }
@@ -161,13 +155,19 @@
       },
       // Get markdown and cursor from CodeMirror.
       getMarkdownAndCursor (cm) {
-        let cursor = cm.getCursor()
+        let focus = cm.getCursor('head')
+        let anchor = cm.getCursor('anchor')
         const markdown = cm.getValue()
-        const line = cm.getLine(cursor.line)
-        const preLine = cm.getLine(cursor.line - 1)
-        const nextLine = cm.getLine(cursor.line + 1)
-        cursor = adjustCursor(cursor, preLine, line, nextLine)
-        return { cursor, markdown }
+        const adjCursor = cursor => {
+          const line = cm.getLine(cursor.line)
+          const preLine = cm.getLine(cursor.line - 1)
+          const nextLine = cm.getLine(cursor.line + 1)
+          return adjustCursor(cursor, preLine, line, nextLine)
+        }
+        focus = adjCursor(focus)
+        anchor = adjCursor(anchor)
+
+        return { cursor: { focus, anchor }, markdown }
       },
       // Commit changes from old tab. Problem: tab was already switched, so commit changes with old tab id.
       prepareTabSwitch () {

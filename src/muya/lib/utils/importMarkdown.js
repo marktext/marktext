@@ -9,7 +9,7 @@ import TurndownService, { usePluginAddRules } from './turndownService'
 import { loadLanguage } from '../prism/index'
 
 // To be disabled rules when parse markdown, Because content state don't need to parse inline rules
-import { CURSOR_DNA } from '../config'
+import { CURSOR_ANCHOR_DNA, CURSOR_FOCUS_DNA } from '../config'
 
 const LINE_BREAKS_REG = /\n/
 
@@ -358,69 +358,138 @@ const importRegister = ContentState => {
     return this.markdownToState(markdown)
   }
 
-  ContentState.prototype.addCursorToMarkdown = function (markdown, cursor) {
-    const { ch, line } = cursor
-    const lines = markdown.split('\n')
-    const rawText = lines[line]
-    lines[line] = rawText.substring(0, ch) + CURSOR_DNA + rawText.substring(ch)
-    return lines.join('\n')
-  }
-
   ContentState.prototype.getCodeMirrorCursor = function () {
     const blocks = this.getBlocks()
-    const { start: { key, offset } } = this.cursor
-    const block = this.getBlock(key)
-    const { text } = block
-    block.text = text.substring(0, offset) + CURSOR_DNA + text.substring(offset)
+    const { anchor, focus } = this.cursor
+    const anchorBlock = this.getBlock(anchor.key)
+    const focusBlock = this.getBlock(focus.key)
+    let { text: anchorText } = anchorBlock
+    let { text: focusText } = focusBlock
+    if (anchor.key === focus.key) {
+      const minOffset = Math.min(anchor.offset, focus.offset)
+      const maxOffset = Math.max(anchor.offset, focus.offset)
+      const firstTextPart = anchorText.substring(0, minOffset)
+      const secondTextPart = anchorText.substring(minOffset, maxOffset)
+      const thirdTextPart = anchorText.substring(maxOffset)
+      anchorBlock.text = firstTextPart +
+        (anchor.offset <= focus.offset ? CURSOR_ANCHOR_DNA : CURSOR_FOCUS_DNA) +
+        secondTextPart +
+        (anchor.offset <= focus.offset ? CURSOR_FOCUS_DNA : CURSOR_ANCHOR_DNA) +
+        thirdTextPart
+    } else {
+      anchorBlock.text = anchorText.substring(0, anchor.offset) + CURSOR_ANCHOR_DNA + anchorText.substring(anchor.offset)
+      focusBlock.text = focusText.substring(0, focus.offset) + CURSOR_FOCUS_DNA + focusText.substring(focus.offset)
+    }
+
     const listIndentation = this.listIndentation
     const markdown = new ExportMarkdown(blocks, listIndentation).generate()
     const cursor = markdown.split('\n').reduce((acc, line, index) => {
-      const ch = line.indexOf(CURSOR_DNA)
-      if (ch > -1) {
-        Object.assign(acc, { line: index, ch })
+      const ach = line.indexOf(CURSOR_ANCHOR_DNA)
+      const fch = line.indexOf(CURSOR_FOCUS_DNA)
+      if (ach > -1 && fch > -1) {
+        if (ach <= fch) {
+          Object.assign(acc.anchor, { line: index, ch: ach })
+          Object.assign(acc.focus, { line: index, ch: fch - CURSOR_ANCHOR_DNA.length })
+        } else {
+          Object.assign(acc.focus, { line: index, ch: fch })
+          Object.assign(acc.anchor, { line: index, ch: ach - CURSOR_FOCUS_DNA.length })
+        }
+      } else if (ach > -1) {
+        Object.assign(acc.anchor, { line: index, ch: ach })
+      } else if (fch > -1) {
+        Object.assign(acc.focus, { line: index, ch: fch })
       }
       return acc
     }, {
-      line: 0,
-      ch: 0
+      anchor: {
+        line: 0,
+        ch: 0
+      },
+      focus: {
+        line: 0,
+        ch: 0
+      }
     })
-    // remove CURSOR_DNA
-    block.text = text
+    // remove CURSOR_FOCUS_DNA and CURSOR_ANCHOR_DNA
+    anchorBlock.text = anchorText
+    focusBlock.text = focusText
     return cursor
   }
 
-  ContentState.prototype.importCursor = function (cursor) {
+  ContentState.prototype.addCursorToMarkdown = function (markdown, cursor) {
+    const { anchor, focus } = cursor
+    const lines = markdown.split('\n')
+    const anchorText = lines[anchor.line]
+    const focusText = lines[focus.line]
+
+    if (anchor.line === focus.line) {
+      const minOffset = Math.min(anchor.ch, focus.ch)
+      const maxOffset = Math.max(anchor.ch, focus.ch)
+      const firstTextPart = anchorText.substring(0, minOffset)
+      const secondTextPart = anchorText.substring(minOffset, maxOffset)
+      const thirdTextPart = anchorText.substring(maxOffset)
+      lines[anchor.line] = firstTextPart +
+        (anchor.ch <= focus.ch ? CURSOR_ANCHOR_DNA : CURSOR_FOCUS_DNA) +
+        secondTextPart +
+        (anchor.ch <= focus.ch ? CURSOR_FOCUS_DNA : CURSOR_ANCHOR_DNA) +
+        thirdTextPart
+    } else {
+      lines[anchor.line] = anchorText.substring(0, anchor.ch) + CURSOR_ANCHOR_DNA + anchorText.substring(anchor.ch)
+      lines[focus.line] = focusText.substring(0, focus.ch) + CURSOR_FOCUS_DNA + focusText.substring(focus.ch)
+    }
+
+    return lines.join('\n')
+  }
+
+  ContentState.prototype.importCursor = function (hasCursor) {
     // set cursor
+    const cursor = {
+      anchor: null,
+      focus: null
+    }
+
+    let count = 0
+
     const travel = blocks => {
       for (const block of blocks) {
-        const { key, text, children, editable } = block
+        let { key, text, children, editable } = block
         if (text) {
-          const offset = text.indexOf(CURSOR_DNA)
+          const offset = text.indexOf(CURSOR_ANCHOR_DNA)
           if (offset > -1) {
-            block.text = text.substring(0, offset) + text.substring(offset + CURSOR_DNA.length)
+            block.text = text.substring(0, offset) + text.substring(offset + CURSOR_ANCHOR_DNA.length)
+            text = block.text
+            count++
             if (editable) {
-              this.cursor = {
-                start: { key, offset },
-                end: { key, offset }
-              }
-              return
+              cursor.anchor = { key, offset }
             }
+          }
+          const focusOffset = text.indexOf(CURSOR_FOCUS_DNA)
+          if (focusOffset > -1) {
+            block.text = text.substring(0, focusOffset) + text.substring(focusOffset + CURSOR_FOCUS_DNA.length)
+            count++
+            if (editable) {
+              cursor.focus = { key, offset: focusOffset }
+            }
+          }
+          if (count === 2) {
+            break
           }
         } else if (children.length) {
           travel(children)
         }
       }
     }
-    if (cursor) {
+    if (hasCursor) {
       travel(this.blocks)
     } else {
       const lastBlock = this.getLastBlock()
       const key = lastBlock.key
       const offset = lastBlock.text.length
-      this.cursor = {
-        start: { key, offset },
-        end: { key, offset }
-      }
+      cursor.anchor = { key, offset }
+      cursor.focus = { key, offset }
+    }
+    if (cursor.anchor && cursor.focus) {
+      this.cursor = cursor
     }
   }
 

@@ -182,7 +182,7 @@ class EditorWindow extends BaseWindow {
    * @param {string} [options] The tab option for the editor window.
    * @param {boolean} [selected] Whether the tab should become the selected tab (true if not set).
    */
-  openTab (filePath, options = {}, selected=true) {
+  openTab (filePath, options = {}, selected = true) {
     if (this.lifecycle === WindowLifecycle.QUITTING) return
     this.openTabs([{ filePath, options, selected }])
   }

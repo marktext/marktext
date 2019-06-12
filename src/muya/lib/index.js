@@ -154,6 +154,13 @@ class Muya {
     }, 0)
   }
 
+  setCursor (cursor) {
+    const markdown = this.getMarkdown()
+    const isRenderCursor = true
+
+    return this.setMarkdown(markdown, cursor, isRenderCursor)
+  }
+
   createTable (tableChecker) {
     return this.contentState.createTable(tableChecker)
   }
