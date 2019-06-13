@@ -34,28 +34,6 @@ export const defaultPreferenceWinOptions = {
   titleBarStyle: 'hiddenInset'
 }
 
-export const EXTENSIONS = [
-  'markdown',
-  'mdown',
-  'mkdn',
-  'md',
-  'mkd',
-  'mdwn',
-  'mdtxt',
-  'mdtext',
-  'text',
-  'txt'
-]
-
-export const IMAGE_EXTENSIONS = [
-  'jpeg',
-  'jpg',
-  'png',
-  'gif',
-  'svg',
-  'webp'
-]
-
 export const PANDOC_EXTENSIONS = [
   'html',
   'docx',
@@ -71,12 +49,6 @@ export const PANDOC_EXTENSIONS = [
   'opml',
   'epub'
 ]
-
-// export const PROJECT_BLACK_LIST = [
-//   'node_modules',
-//   '.git',
-//   '.DS_Store'
-// ]
 
 export const BLACK_LIST = [
   '$RECYCLE.BIN'

@@ -6,8 +6,8 @@ import keytar from 'keytar'
 import schema from './schema'
 import Store from 'electron-store'
 import log from 'electron-log'
-import { ensureDirSync } from '../filesystem'
-import { IMAGE_EXTENSIONS } from '../config'
+import { ensureDirSync } from 'common/filesystem'
+import { IMAGE_EXTENSIONS } from 'common/filesystem/paths'
 
 const DATA_CENTER_NAME = 'dataCenter'
 
@@ -104,7 +104,7 @@ class DataCenter extends EventEmitter {
   }
 
   /**
-   * 
+   *
    * @param {string} key
    * return a promise
    */

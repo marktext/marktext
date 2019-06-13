@@ -114,16 +114,22 @@ For more scripts please see `package.json`.
 
 - ES6 and "best practices"
 - 2 space indent
+- no semicolons
 - JSDoc for documentation
 
 ## Project Structure
 
-- root: Configuration files
+- `.`: Configuration files
 - `package.json`: Project settings
-- `build`: Contains generated binaries
-- `dist`: Build files for deployment
-- `docs`: Documentation and assets
-- `node_modules`: Dependencies
+- `build/`: Contains generated binaries
+- `dist/`: Build files for deployment
+- `docs/`: Documentation and assets
+- `resources/`: Application assets using at build time
+- `node_modules/`: Dependencies
 - `src`: Mark Text source code
-- `static`: Application assets (images, themes, etc)
-- `test`: Contains (unit) tests
+  - `common/`: Common source files that only require Node.js APIs. Code from this folder can be used in all other folders except `muya`.
+  - `main/`: Main process source files that require Electron main-process APIs. `main` files can use `common` source code.
+  - `muya/`: Mark Texts backend that only allow pure JavaScript, BOM and DOM APIs. Don't use Electron or Node.js APIs!
+  - `renderer`: Fontend that require Electron renderer-process APIs and may use `common` or `muya` source code.
+- `static/`: Application assets (images, themes, etc)
+- `test/`: Contains (unit) tests

@@ -4,9 +4,9 @@ import path from 'path'
 import log from 'electron-log'
 import isAccelerator from 'electron-is-accelerator'
 import electronLocalshortcut from '@hfelix/electron-localshortcut'
+import { isFile } from 'common/filesystem'
 import { isOsx } from '../config'
 import { getKeyboardLanguage, getVirtualLetters } from '../keyboard'
-import { isFile } from '../filesystem'
 
 // Problematic key bindings:
 //   Aidou: Ctrl+/ -> dead key
