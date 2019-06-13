@@ -11,7 +11,7 @@
       :class="{error: invalidInput}"
       :placeholder="defaultValue"
       v-model="inputText"
-      @change="handleInputChange"
+      @input="handleInput"
       style="width: 240px"
       clearable>
     </el-input>
@@ -23,6 +23,7 @@ import { shell } from 'electron'
 
 export default {
   data () {
+    this.inputTimer = null
     return {
       inputText: this.input,
       invalidInput: false
@@ -59,11 +60,21 @@ export default {
         shell.openExternal(this.more)
       }
     },
-    handleInputChange (value) {
+    handleInput (value) {
       const result = this.regexValidator.test(value)
       this.invalidInput = !result
+
       if (result) {
-        this.onChange(value)
+        // Only clear timer when input is valid, otherwise write the last value.
+        if (this.inputTimer) {
+          clearTimeout(this.inputTimer)
+        }
+
+        // Setting delay a little bit higher to prevent continuously file writes when typing.
+        this.inputTimer = setTimeout(() => {
+          this.inputTimer = null
+          this.onChange(value)
+        }, 800)
       }
     }
   }
