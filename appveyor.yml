@@ -23,7 +23,7 @@ init:
   - git config --global core.autocrlf input
 
 install:
-  - ps: Install-Product node 8 $env:PLATFORM
+  - ps: Install-Product node 12 $env:PLATFORM
 
   - node --version
   - npm --version
