@@ -46,7 +46,7 @@ class ClickEvent {
         // Commit native cursor position because right-clicking doesn't update the cursor postion.
         contentState.cursor = {
           start,
-          end: start
+          end
         }
       }
 

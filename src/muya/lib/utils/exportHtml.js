@@ -161,7 +161,7 @@ class ExportHtml {
    * @param {*} title Page title
    * @param {*} printOptimization Optimize HTML and CSS for printing
    */
-  async generate (title = '', printOptimization = false) {
+  async generate (title = '', printOptimization = false, extraCss = '') {
     // WORKAROUND: Hide Prism.js style when exporting or printing. Otherwise the background color is white in the dark theme.
     const highlightCssStyle = printOptimization ? `@media print { ${highlightCss} }` : highlightCss
     const html = await this.renderHtml()
@@ -208,6 +208,7 @@ class ExportHtml {
       }
     }
   </style>
+  <style>${extraCss}</style>
 </head>
 <body>
   <article class="markdown-body">
