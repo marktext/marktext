@@ -15,6 +15,7 @@ class DragDrop {
 
     eventCenter.attachDOMEvent(container, 'dragover', dragoverHandler)
   }
+
   dropBinding () {
     const { container, eventCenter, contentState } = this.muya
 
