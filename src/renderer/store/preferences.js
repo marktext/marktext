@@ -1,5 +1,4 @@
 import { ipcRenderer } from 'electron'
-import { getOptionsFromState } from './help'
 
 // user preference
 const state = {
@@ -80,19 +79,8 @@ const actions = {
     ipcRenderer.send('mt::ask-for-user-preference')
     ipcRenderer.send('mt::ask-for-user-data')
 
-    ipcRenderer.on('AGANI::user-preference', (e, preference) => {
-      const { autoSave } = preference
-      commit('SET_USER_PREFERENCE', preference)
-
-      // handle autoSave @todo
-      if (autoSave) {
-        const { pathname, markdown } = state
-        const options = getOptionsFromState(rootState.editor)
-        if (pathname) {
-          commit('SET_SAVE_STATUS', true)
-          ipcRenderer.send('AGANI::response-file-save', { pathname, markdown, options })
-        }
-      }
+    ipcRenderer.on('AGANI::user-preference', (e, preferences) => {
+      commit('SET_USER_PREFERENCE', preferences)
     })
   },
 
