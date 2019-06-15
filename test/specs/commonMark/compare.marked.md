@@ -1,6 +1,6 @@
 ## Compare with `marked.js`
 
-Marked.js failed examples count: 131
+Marked.js failed examples count: 129
 Mark Text failed examples count: 97
 
 **Example7**
@@ -584,6 +584,25 @@ marked.js html
 
 ```
 
+**Example418**
+
+Mark Text fail and marked.js success
+
+```markdown
+Markdown content
+*foo [*bar*](/url)*
+
+Expected Html
+<p><em>foo <a href="/url"><em>bar</em></a></em></p>
+
+Actural Html
+<p>*foo <a href="/url"><em>bar</em></a>*</p>
+
+marked.js html
+<p><em>foo [</em>bar<em>](/url)</em></p>
+
+```
+
 **Example475**
 
 Mark Text success and marked.js fail
@@ -619,6 +638,25 @@ Actural Html
 
 marked.js html
 <p><strong>&lt;a href=&quot;</strong>&quot;&gt;</p>
+
+```
+
+**Example477**
+
+Mark Text fail and marked.js success
+
+```markdown
+Markdown content
+*a \`*\`*
+
+Expected Html
+<p><em>a <code>*</code></em></p>
+
+Actural Html
+<p>*a <code>*</code>*</p>
+
+marked.js html
+<p><em>a `</em>`*</p>
 
 ```
 
@@ -822,4 +860,4 @@ marked.js html
 
 ```
 
-There are 36 examples are different with marked.js.
+There are 38 examples are different with marked.js.
