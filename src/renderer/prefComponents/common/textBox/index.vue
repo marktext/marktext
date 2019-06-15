@@ -13,6 +13,7 @@
       v-model="inputText"
       @input="handleInput"
       style="width: 240px"
+      size="small"
       clearable>
     </el-input>
   </section>
