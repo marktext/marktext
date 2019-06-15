@@ -471,7 +471,7 @@ export const saveAs = win => {
 
 export const autoSave = (menuItem, browserWindow) => {
   const { checked } = menuItem
-  ipcMain.emit('mt::set-user-preference', { autoSave: checked })
+  ipcMain.emit('set-user-preference', { autoSave: checked })
 }
 
 export const moveTo = win => {

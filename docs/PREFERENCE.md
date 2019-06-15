@@ -5,7 +5,7 @@
 | Key                    | Type    | Default Value | Description                                                                                                                                                |
 | ---------------------- | ------- | ------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | autoSave               | Boolean | false         | Automatically save the content being edited. option value: true, false                                                                                     |
-| autoSaveDelay          | Number  | 5000          | The delay in milliseconds after a changed file is saved automatically? 3000 ~10000                                                                         |
+| autoSaveDelay          | Number  | 5000          | The delay in milliseconds after a changed file is saved automatically? 1000 ~10000                                                                         |
 | titleBarStyle          | String  | custom        | The title bar style on Linux and Window: `custom` or `native`                                                                                              |
 | openFilesInNewWindow   | Boolean | false         | true, false                                                                                                                                                |
 | openFolderInNewWindow  | Boolean | false         | true, false                                                                                                                                                |

@@ -277,6 +277,8 @@
       currentFile: function (value, oldValue) {
         if (value && value !== oldValue) {
           this.scrollToCursor(0)
+          // Hide float tools if needed.
+          this.editor && this.editor.hideAllFloatTools()
         }
       },
       sourceCode: function (value, oldValue) {
