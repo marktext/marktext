@@ -35,8 +35,6 @@
   --inputBgColor: rgba(0, 0, 0, .06);
   --focusColor: var(--themeColor);
 
-  --buttonPadding: 7px 14px;
-  --buttonBorderRadius: 5px;
   --buttonFontColor: var(--editorColor);
   --buttonBgColor: #ffffff;
   --buttonBorder: 1px solid #dcdfe6;
@@ -243,9 +241,9 @@ div.el-tab-pane {
   color: var(--buttonFontColor);
   background: var(--buttonBgColor);
   border: var(--buttonBorder);
-  border-radius: var(--buttonBorderRadius);
+  border-radius: 5px;
   box-shadow: var(--buttonShadow);
-  padding: var(--buttonPadding);
+  padding: 7px 14px;
 }
 .button:hover,
 .muya-button:hover,
@@ -277,9 +275,9 @@ div.el-tab-pane {
   color: var(--buttonPrimaryFontColor);
   background: var(--buttonPrimaryBgColor);
   border: var(--buttonPrimaryBorder);
-  border-radius: var(--buttonBorderRadius);
+  border-radius: 5px;
   box-shadow: var(--buttonPrimaryShadow);
-  padding: var(--buttonPadding);
+  padding: 7px 14px;
 }
 .button-primary:hover,
 .muya-button-primary:hover,

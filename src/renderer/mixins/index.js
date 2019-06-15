@@ -1,6 +1,6 @@
 import { ipcRenderer } from 'electron'
+import { isSamePathSync } from 'common/filesystem/paths'
 import bus from '../bus'
-import { isSamePathSync } from '../util/fileSystem'
 
 export const tabsMixins = {
   methods: {

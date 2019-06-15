@@ -30,8 +30,6 @@
   --inputBgColor: rgba(0, 0, 0, .1);
   --focusColor: #568af2;
 
-  --buttonPadding: 7px 14px;
-  --buttonBorderRadius: 5px;
   --buttonFontColor: #9da5b4;
   --buttonBgColor: linear-gradient(#3a3f4b, #353b45);
   --buttonBorder: 1px solid #181a1f;

@@ -36,14 +36,11 @@
   "tabBarVisibility": false,
   "sourceCodeModeEnabled": false,
 
-  "search": {
-    "exclusions": [],
-    "maxFileSize": "",
-    "includeHidden": false,
-    "noIgnore": false,
-    "followSymlinks": true
-  },
-  "watcher": {
-    "usePolling": false
-  }
+  "searchExclusions": [],
+  "searchMaxFileSize": "",
+  "searchIncludeHidden": false,
+  "searchNoIgnore": false,
+  "searchFollowSymlinks": true,
+
+  "watcherUsePolling": false
 }

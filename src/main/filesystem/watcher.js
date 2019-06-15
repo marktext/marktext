@@ -136,7 +136,7 @@ class Watcher {
 
   // Watch a file or directory and return a unwatch function.
   watch (win, watchPath, type = 'dir'/* file or dir */) {
-    const { usePolling } = this._preferences.getItem('watcher')
+    const usePolling = this._preferences.getItem('watcherUsePolling')
 
     const id = getUniqueId()
     const watcher = chokidar.watch(watchPath, {

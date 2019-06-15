@@ -28,8 +28,6 @@
   --inputBgColor: rgba(0, 0, 0, .06);
   --focusColor: var(--themeColor);
 
-  --buttonPadding: 7px 14px;
-  --buttonBorderRadius: 5px;
   --buttonFontColor: var(--editorColor);
   --buttonBgColor: #ffffff;
   --buttonBorder: 1px solid #dcdfe6;

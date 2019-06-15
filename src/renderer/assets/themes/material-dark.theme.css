@@ -29,8 +29,6 @@
   --inputBgColor: rgba(0, 0, 0, .1);
   --focusColor: var(--themeColor);
 
-  --buttonPadding: 7px 14px;
-  --buttonBorderRadius: 5px;
   --buttonFontColor: rgba(255, 255, 255, .6);
   --buttonBgColor: #58606a;
   --buttonBorder: 1px solid #383d44;

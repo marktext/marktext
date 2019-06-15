@@ -40,17 +40,13 @@ const state = {
   tabBarVisibility: false,
   sourceCodeModeEnabled: false,
 
-  search: {
-    exclusions: [],
-    maxFileSize: "",
-    includeHidden: false,
-    noIgnore: false,
-    followSymlinks: true
-  },
+  searchExclusions: [],
+  searchMaxFileSize: "",
+  searchIncludeHidden: false,
+  searchNoIgnore: false,
+  searchFollowSymlinks: true,
 
-  watcher: {
-    usePolling: false
-  },
+  watcherUsePolling: false,
 
   // --------------------------------------------------------------------------
 

@@ -112,7 +112,7 @@ class EditorWindow extends BaseWindow {
         detail: msg
       }, code => {
         if (win.id) {
-          switch(code) {
+          switch (code) {
             case 0: return this.destroy()
             case 1: return this.reload()
           }
@@ -446,7 +446,7 @@ class EditorWindow extends BaseWindow {
     }
     this._directoryToOpen = null
 
-    for(const { doc, options, selected } of this._filesToOpen) {
+    for (const { doc, options, selected } of this._filesToOpen) {
       this._doOpenTab(doc, options, selected)
     }
     this._filesToOpen.length = 0

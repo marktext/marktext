@@ -6,7 +6,7 @@
         <input
           type="text" v-model="keyword"
           placeholder="Search in folder..."
-          @keyup="search"
+          @keyup.enter="search"
         >
         <div class="controls">
           <span
@@ -111,24 +111,21 @@
     computed: {
       ...mapState({
         'projectTree': state => state.project.projectTree,
-        'searchSettings': state => state.preferences.search
+        'searchExclusions': state => state.preferences.searchExclusions,
+        'searchMaxFileSize': state => state.preferences.searchMaxFileSize,
+        'searchIncludeHidden': state => state.preferences.searchIncludeHidden,
+        'searchNoIgnore': state => state.preferences.searchNoIgnore,
+        'searchFollowSymlinks': state => state.preferences.searchFollowSymlinks
       })
     },
     methods: {
-      search (event) {
-        // Search only if enter is pressed.
-        if (event.keyCode === 13) {
-          this.doSearch()
-        }
-      },
-      doSearch () {
+      search () {
         // No root directory is opened.
         if (!this.projectTree || !this.projectTree.pathname) {
           return
         }
 
         const { pathname: rootDirectoryPath } = this.projectTree
-
         const {
           keyword,
           searcherRunning,
@@ -138,13 +135,6 @@
           isRegexp,
           ripgrepDirectorySearcher
         } = this
-        const {
-          exclusions,
-          maxFileSize,
-          includeHidden,
-          noIgnore,
-          followSymlinks
-        } = this.searchSettings
 
         if (searcherRunning && searcherCancelCallback) {
           searcherCancelCallback()
@@ -195,11 +185,11 @@
           isRegexp,
 
           // Options loaded from settings
-          exclusions,
-          maxFileSize: maxFileSize || null,
-          includeHidden,
-          noIgnore,
-          followSymlinks,
+          exclusions: this.searchExclusions,
+          maxFileSize: this.searchMaxFileSize || null,
+          includeHidden: this.searchIncludeHidden,
+          noIgnore: this.searchNoIgnore,
+          followSymlinks: this.searchFollowSymlinks,
 
           // Only search markdown files
           inclusions: [ '*.markdown', '*.mdown', '*.mkdn', '*.md', '*.mkd', '*.mdwn', '*.mdtxt', '*.mdtext', '*.text', '*.txt' ]
@@ -236,15 +226,15 @@
       },
       caseSensitiveClicked () {
         this.isCaseSensitive = !this.isCaseSensitive
-        this.doSearch()
+        this.search()
       },
       wholeWordClicked () {
         this.isWholeWord = !this.isWholeWord
-        this.doSearch()
+        this.search()
       },
       regexpClicked () {
         this.isRegexp = !this.isRegexp
-        this.doSearch()
+        this.search()
       }
     }
   }
