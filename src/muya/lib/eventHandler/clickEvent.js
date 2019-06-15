@@ -33,7 +33,7 @@ class ClickEvent {
         end.offset === 0 &&
         start.offset === startBlock.text.length
       ) {
-        // Set cursor at the end of start Block. and reset cursor
+        // Set cursor at the end of start block and reset cursor
         // Because if you right click at the end of one text block, the cursor.start will at the end of
         // start block and the cursor.end will at the next text block beginning. So we reset the cursor
         // at the end of start block.
