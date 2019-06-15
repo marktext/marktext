@@ -17,6 +17,7 @@ import {
   Tooltip,
   Upload,
   Slider,
+  Checkbox,
   ColorPicker,
   Col,
   Row,
@@ -66,6 +67,7 @@ Vue.use(Button)
 Vue.use(Tooltip)
 Vue.use(Upload)
 Vue.use(Slider)
+Vue.use(Checkbox)
 Vue.use(ColorPicker)
 Vue.use(Col)
 Vue.use(Row)

@@ -28,13 +28,14 @@ class DataCenter extends EventEmitter {
 
     this.init()
   }
+
   init () {
     const defaltData = {
       imageFolderPath: path.join(this.userDataPath, 'images/'),
       screenshotFolderPath: path.join(this.userDataPath, 'screenshot/'),
       webImages: [],
       cloudImages: [],
-      currentUploader: 'smms',
+      currentUploader: 'none',
       imageBed: {
         github: {
           owner: '',

@@ -50,7 +50,7 @@ const state = {
   imageFolderPath: '',
   webImages: [],
   cloudImages: [],
-  currentUploader: 'smms',
+  currentUploader: 'none',
   githubToken: '',
   imageBed: {
     github: {

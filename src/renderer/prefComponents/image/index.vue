@@ -8,7 +8,7 @@
         </el-tooltip>
       </div>
       <el-radio-group v-model="imageInsertAction">
-        <el-radio label="upload">Upload image to cloud by image uploader</el-radio>
+        <el-radio label="upload">Upload image to cloud by image uploader (you need to select one)</el-radio>
         <el-radio label="folder">Move image to sepcial folder</el-radio>
         <el-radio label="path">Insert absolute or relative path of image</el-radio>
       </el-radio-group>
