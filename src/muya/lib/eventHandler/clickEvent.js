@@ -25,11 +25,29 @@ class ClickEvent {
       if (!start || !end) {
         return
       }
+      const startBlock = contentState.getBlock(start.key)
+      const nextTextBlock = contentState.findNextBlockInLocation(startBlock)
 
-      // Commit native cursor position because right-clicking doesn't update the cursor postion.
-      contentState.cursor = {
-        start,
-        end
+      if (
+        nextTextBlock && nextTextBlock.key === end.key &&
+        end.offset === 0 &&
+        start.offset === startBlock.text.length
+      ) {
+        // Set cursor at the end of start block and reset cursor
+        // Because if you right click at the end of one text block, the cursor.start will at the end of
+        // start block and the cursor.end will at the next text block beginning. So we reset the cursor
+        // at the end of start block.
+        contentState.cursor = {
+          start,
+          end: start
+        }
+        selection.setCursorRange(contentState.cursor)
+      } else {
+        // Commit native cursor position because right-clicking doesn't update the cursor postion.
+        contentState.cursor = {
+          start,
+          end
+        }
       }
 
       const sectionChanges = contentState.selectionChange(contentState.cursor)
