@@ -27,6 +27,9 @@ class Preference extends EventEmitter {
 
   /**
    * @param {AppPaths} userDataPath The path instance.
+   *
+   * NOTE: This throws an exception when validation fails.
+   *
    */
   constructor (paths) {
     super()

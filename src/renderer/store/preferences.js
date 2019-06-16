@@ -7,6 +7,7 @@ const state = {
   titleBarStyle: 'custom',
   openFilesInNewWindow: false,
   openFolderInNewWindow: false,
+  hideScrollbar: false,
   aidou: true,
   fileSortBy: 'created',
   startUpAction: 'lastState',
@@ -18,6 +19,8 @@ const state = {
   lineHeight: 1.6,
   codeFontSize: 14,
   codeFontFamily: 'DejaVu Sans Mono',
+  editorLineWidth: "",
+
   autoPairBracket: true,
   autoPairMarkdownSyntax: true,
   autoPairQuote: true,

@@ -2,20 +2,20 @@
   <div class="pref-markdown">
     <h4>markdown</h4>
     <bool
-      description="Preferred loose list item"
+      description="Preferred loose list item."
       :bool="preferLooseListItem"
       :onChange="value => onSelectChange('preferLooseListItem', value)"
       more="https://spec.commonmark.org/0.29/#loose"
     ></bool>
     <cus-select
-      description="The preferred marker used in bullet list"
+      description="The preferred marker used in bullet list."
       :value="bulletListMarker"
       :options="bulletListMarkerOptions"
       :onChange="value => onSelectChange('bulletListMarker', value)"
       more="https://spec.commonmark.org/0.29/#bullet-list-marker"
     ></cus-select>
     <cus-select
-      description="The preferred dilimiter used in order list"
+      description="The preferred dilimiter used in order list."
       :value="orderListDelimiter"
       :options="orderListDelimiterOptions"
       :onChange="value => onSelectChange('orderListDelimiter', value)"
@@ -29,13 +29,13 @@
       :disable="true"
     ></cus-select>
     <cus-select
-      description="The number of spaces a tab is equal to"
+      description="The number of spaces a tab is equal to."
       :value="tabSize"
       :options="tabSizeOptions"
       :onChange="value => onSelectChange('tabSize', value)"
     ></cus-select>
     <cus-select
-      description="The list indentation of sub list items or paragraphs"
+      description="The list indentation of sub list items or paragraphs."
       :value="listIndentation"
       :options="listIndentationOptions"
       :onChange="value => onSelectChange('listIndentation', value)"

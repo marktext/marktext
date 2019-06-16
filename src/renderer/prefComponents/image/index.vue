@@ -3,7 +3,7 @@
     <h4>Image</h4>
     <section class="image-ctrl">
       <div>The default behavior after insert image from local folder.
-        <el-tooltip class='item' effect='dark' content='Mark Text can not get image path from paste event in Linux system.' placement='top-start'>
+        <el-tooltip class='item' effect='dark' content='Mark Text can not get image path from paste event on Linux.' placement='top-start'>
           <i class="el-icon-info"></i>
         </el-tooltip>
       </div>

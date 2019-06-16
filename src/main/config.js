@@ -12,7 +12,8 @@ export const editorWinOptions = {
   useContentSize: true,
   show: true,
   frame: false,
-  titleBarStyle: 'hiddenInset'
+  titleBarStyle: 'hiddenInset',
+  zoomFactor: 1.0
 }
 
 export const defaultPreferenceWinOptions = {
@@ -31,7 +32,8 @@ export const defaultPreferenceWinOptions = {
   show: false,
   frame: false,
   thickFrame: !isOsx,
-  titleBarStyle: 'hiddenInset'
+  titleBarStyle: 'hiddenInset',
+  zoomFactor: 1.0
 }
 
 export const PANDOC_EXTENSIONS = [

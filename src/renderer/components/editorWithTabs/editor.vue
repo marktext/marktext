@@ -9,6 +9,7 @@
     <div
       ref="editor"
       class="editor-component"
+      :style="[ getEditorLineWidth ]"
     ></div>
     <div
       class="image-viewer"
@@ -133,13 +134,13 @@
         'fontSize': state => state.preferences.fontSize,
         'codeFontSize': state => state.preferences.codeFontSize,
         'codeFontFamily': state => state.preferences.codeFontFamily,
-        'lightColor': state => state.preferences.lightColor,
-        'darkColor': state => state.preferences.darkColor,
         'editorFontFamily': state => state.preferences.editorFontFamily,
         'hideQuickInsertHint': state => state.preferences.hideQuickInsertHint,
+        'editorLineWidth': state => state.preferences.editorLineWidth,
         'imageInsertAction': state => state.preferences.imageInsertAction,
         'imageFolderPath': state => state.preferences.imageFolderPath,
         'theme': state => state.preferences.theme,
+        'hideScrollbar': state => state.preferences.hideScrollbar,
 
         'currentFile': state => state.editor.currentFile,
 
@@ -147,7 +148,17 @@
         'typewriter': state => state.preferences.typewriter,
         'focus': state => state.preferences.focus,
         'sourceCode': state => state.preferences.sourceCode
-      })
+      }),
+
+      getEditorLineWidth () {
+        const { editorLineWidth } = this
+        if (!editorLineWidth || !/^[0-9]+(?:ch|px|%)$/.test(editorLineWidth)) {
+          return {}
+        }
+
+        // Overwrite the theme value and add 100px for padding.
+        return { '--editorAreaWidth': `calc(100px + ${editorLineWidth})` }
+      }
     },
     data () {
       this.defaultFontFamily = DEFAULT_EDITOR_FONT_FAMILY
@@ -228,6 +239,11 @@
           editor.setOptions({ hideQuickInsertHint: value })
         }
       },
+      editorLineWidth: function (value, oldValue) {
+        if (value !== oldValue) {
+          // TODO: Ask vue to reload 'getEditorLineWidth'
+        }
+      },
       autoPairBracket: function (value, oldValue) {
         const { editor } = this
         if (value !== oldValue && editor) {
@@ -262,7 +278,8 @@
         if (value !== oldValue) {
           addCommonStyle({
             codeFontSize: value,
-            codeFontFamily: this.codeFontFamily
+            codeFontFamily: this.codeFontFamily,
+            hideScrollbar: this.hideScrollbar
           })
         }
       },
@@ -270,7 +287,17 @@
         if (value !== oldValue) {
           addCommonStyle({
             codeFontSize: this.codeFontSize,
-            codeFontFamily: value
+            codeFontFamily: value,
+            hideScrollbar: this.hideScrollbar
+          })
+        }
+      },
+      hideScrollbar: function (value, oldValue) {
+        if (value !== oldValue) {
+          addCommonStyle({
+            codeFontSize: this.codeFontSize,
+            codeFontFamily: this.codeFontFamily,
+            hideScrollbar: value
           })
         }
       },
