@@ -90,6 +90,10 @@ export default {
       height: calc(100vh - var(--titleBarHeight));
       overflow: auto;
     }
+    & span, & div,
+    & h1, & h2, & h3, & h4, & h5 {
+      user-select: none;
+    }
   }
   & .pref-content.frameless .pref-setting {
     /* Move the scrollbar below the titlebar */

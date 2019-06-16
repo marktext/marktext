@@ -1,27 +1,33 @@
 <template>
   <div class="pref-image-uploader">
     <h4>Image Uploader</h4>
+    <section class="current-uploader">
+      <div v-if="currentUploader !== 'none'">The current image uploader is {{ getServiceNameById(currentUploader) }}.</div>
+      <span v-else>Currently is no uploader selected. Please select an uploader and click on "Set as default".</span>
+    </section>
     <section class="configration">
       <el-tabs v-model="activeTab">
-        <el-tab-pane label="Overview" name="none">
-          <div v-if="currentUploader !== 'none'">
-            <div>The current image uploader is {{ getServiceNameById(currentUploader) }}.</div>
-
-            <!-- TODO: Reset all uploader settings and secret values. -->
-            <el-button class="btn-reset" size="mini" disabled>Reset</el-button>
-          </div>
-          <span v-else>Currently is no uploader selected. Please select an uploader and click on "Set as default".</span>
-        </el-tab-pane>
         <el-tab-pane label="SM.MS" name="smms">
           <div class="description">Thank you <span class="link" @click="open('https://sm.ms/')">SM.MS</span> for providing free uploading services.</div>
-          <legal-notices-checkbox class="smms" :uploaderService="uploadServices.smms"></legal-notices-checkbox>
+          <legal-notices-checkbox
+            class="smms"
+            :class="[{ 'error': legalNoticesErrorStates.smms }]"
+            :uploaderService="uploadServices.smms"
+          ></legal-notices-checkbox>
           <el-button size="mini" @click="setCurrentUploader('smms')">Set as default</el-button>
         </el-tab-pane>
         <el-tab-pane label="GitHub" name="github">
           <div class="form-group">
             <div class="label">
               GitHub token:
-              <i class="el-icon-info" title="Tokens are saved by Keychain on macOS, Secret Service API/libsecret on Linux and Credential Vault on Windows."></i>
+              <el-tooltip
+                class="item"
+                effect="dark"
+                content="The token is saved by Keychain on macOS, Secret Service API/libsecret on Linux and Credential Vault on Windows."
+                placement="top-start"
+              >
+                <i class="el-icon-info"></i>
+              </el-tooltip>
             </div>
             <el-input v-model="githubToken" placeholder="Input token" size="mini"></el-input>
           </div>
@@ -33,7 +39,11 @@
             <div class="label">Repo name:</div>
             <el-input v-model="github.repo" placeholder="repo" size="mini"></el-input>
           </div>
-          <legal-notices-checkbox class="github" :uploaderService="uploadServices.github"></legal-notices-checkbox>
+          <legal-notices-checkbox
+            class="github"
+            :class="[{ 'error': legalNoticesErrorStates.github }]"
+            :uploaderService="uploadServices.github"
+          ></legal-notices-checkbox>
           <div class="form-group button-group">
             <el-button size="mini" :disabled="githubDisable" @click="save('github')">Save</el-button>
             <el-button size="mini" :disabled="githubDisable" @click="setCurrentUploader('github')">Set as default</el-button>
@@ -55,13 +65,17 @@ export default {
   },
   data () {
     return {
-      activeTab: 'none',
+      activeTab: 'smms',
       githubToken: '',
       github: {
         owner: '',
         repo: ''
       },
-      uploadServices: services
+      uploadServices: services,
+      legalNoticesErrorStates: {
+        smms: false,
+        github: false
+      }
     }
   },
   computed: {
@@ -132,18 +146,12 @@ export default {
         return
       }
 
-      const legalNotices = document.getElementsByClassName(`pref-cb-legal-notices ${value}`)
-      if (!legalNotices) {
-        console.error(`Cannot find legal notices of service "${value}"!`)
-        return
-      }
-      legalNotices[0].classList.remove('error')
-
       const { name, agreedToLegalNotices } = service
       if (!agreedToLegalNotices) {
-        legalNotices[0].classList.add('error')
+        this.legalNoticesErrorStates[value] = true
         return
       }
+      this.legalNoticesErrorStates[value] = false
 
       const type = 'currentUploader'
       this.$store.dispatch('SET_USER_DATA', { type, value })
@@ -162,6 +170,15 @@ export default {
     text-transform: uppercase;
     margin: 0;
     font-weight: 100;
+  }
+  & .current-uploader {
+    font-size: 14px;
+    margin: 20px 0;
+    color: var(--editorColor);
+    & .uploader {
+      color: var(--editorColor80);
+      font-size: 600;
+    }
   }
   & .link {
     color: var(--themeColor);
@@ -192,7 +209,7 @@ export default {
       margin-top: 30px;
     }
     &.error {
-      border: 1px solid var(--themeColor);
+      outline: 1px solid var(--themeColor);
       padding: 6px;
     }
   }
