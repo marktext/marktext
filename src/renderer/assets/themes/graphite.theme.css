@@ -31,6 +31,7 @@
   --buttonShadow: rgba(0, 0, 0, 0.12);
   --buttonHover: #f2f2f2;
   --buttonActive: #e5e5e5;
+  --tableBorderColor: #e5e5e5;
 
   --sideBarColor: rgba(188, 193, 197, .8);
   --sideBarTitleColor: rgba(255, 255, 255, 1);

@@ -37,6 +37,7 @@
   --buttonShadow: rgba(0, 0, 0, 0.12);
   --buttonHover: #f2f2f2;
   --buttonActive: #e5e5e5;
+  --tableBorderColor: #e5e5e5;
 
   /*marktext*/
   --sideBarColor: rgba(0, 0, 0, .6);

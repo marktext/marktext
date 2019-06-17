@@ -392,14 +392,14 @@ kbd {
 
   table tr th {
     font-weight: bold;
-    border: 1px solid var(--editorColor10);
+    border: 1px solid var(--tableBorderColor);
     text-align: left;
     margin: 0;
     padding: 6px 13px;
   }
 
   table tr td {
-    border: 1px solid var(--editorColor10);
+    border: 1px solid var(--tableBorderColor);
     text-align: left;
     margin: 0;
     padding: 6px 13px;

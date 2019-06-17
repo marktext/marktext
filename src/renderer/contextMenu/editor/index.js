@@ -36,7 +36,7 @@ export const showContextMenu = (event, { start, end }) => {
     )
   }
 
-  ;[CUT, COPY, COPY_AS_HTML, COPY_AS_MARKDOWN].forEach(item => {
+  [CUT, COPY, COPY_AS_HTML, COPY_AS_MARKDOWN].forEach(item => {
     item.enabled = !disableCutAndCopy
   })
 
