@@ -58,8 +58,12 @@ export default {
 
 <style scoped>
 .pref-container {
+  --prefSideBarWidth: 320px;
+
   width: 100vw;
   height: 100vh;
+  max-width: 100vw;
+  max-height: 100vh;
   position: fixed;
   top: 0;
   left: 0;
@@ -70,6 +74,7 @@ export default {
     flex: 1;
     display: flex;
     flex-direction: column;
+    max-width: calc(100vw - var(--prefSideBarWidth));
     & .title-bar {
       width: 100%;
       height: var(--titleBarHeight);
@@ -84,6 +89,10 @@ export default {
       flex: 1;
       height: calc(100vh - var(--titleBarHeight));
       overflow: auto;
+    }
+    & span, & div,
+    & h1, & h2, & h3, & h4, & h5 {
+      user-select: none;
     }
   }
   & .pref-content.frameless .pref-setting {

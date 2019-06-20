@@ -1,8 +1,5 @@
 <template>
   <div class="title-bar">
-    <div class="title">
-      <span>Mark Text - Settings</span>
-    </div>
     <div class="frameless-titlebar-button frameless-titlebar-close" @click.stop="handleCloseClick">
       <div>
         <svg width="10" height="10">
@@ -45,17 +42,6 @@
     z-index: 2;
     transition: color .4s ease-in-out;
     cursor: default;
-  }
-  .title {
-    padding: 0 142px;
-    height: 100%;
-    line-height: var(--titleBarHeight);
-    font-size: 14px;
-    text-align: center;
-    transition: all .25s ease-in-out;
-  }
-  .title:hover {
-    color: var(sideBarTitleColor);
   }
 
   .frameless-titlebar-button {

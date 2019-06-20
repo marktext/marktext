@@ -80,6 +80,7 @@ export const uploadImage = async (pathname, image, preferences) => {
     const formData = new window.FormData()
     formData.append('smfile', file)
       axios.post(api, formData).then((res) => {
+        // TODO: "res.data.data.delete" should emit "image-uploaded"/handleUploadedImage in editor.js. Maybe add to image manager too.
         re(res.data.data.url)
       })
       .catch(err => {
