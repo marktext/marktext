@@ -404,8 +404,8 @@ const tokenizerFac = (src, beginRules, inlineRules, pos = 0, top, labels) => {
       tokens.push({
         type: 'hard_line_break',
         raw: hardTo[0],
-        spaces: hardTo[1],
-        lineBreak: hardTo[2],
+        spaces: hardTo[1], // The space in hard line break
+        lineBreak: hardTo[2], // \n
         isAtEnd: hardTo.input.length === hardTo[0].length,
         parent: tokens,
         range: {
