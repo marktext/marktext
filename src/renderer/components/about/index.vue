@@ -79,10 +79,10 @@
   }
 
   .about-dialog .title {
-    color: var(--sideBarTitleColor);
+    color: var(--floatFontColor);
   }
 
   .about-dialog .text {
-    color: var(--sideBarTextColor);
+    color: var(--floatFontColor);
   }
 </style>

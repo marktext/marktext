@@ -1,0 +1,10 @@
+<svg id="find-and-replace-icon-word" viewBox="0 0 20 20" stroke="none" fill-rule="evenodd">
+  <rect opacity="0.6" x="1" y="3" width="2" height="6"></rect>
+  <rect opacity="0.6" x="17" y="3" width="2" height="6"></rect>
+  <rect x="6" y="3" width="2" height="6"></rect>
+  <rect x="12" y="3" width="2" height="6"></rect>
+  <rect x="9" y="3" width="2" height="6"></rect>
+  <path d="M4.5,13 L15.5,13 L16,13 L16,12 L15.5,12 L4.5,12 L4,12 L4,13 L4.5,13 L4.5,13 Z"></path>
+  <path d="M4,10.5 L4,12.5 L4,13 L5,13 L5,12.5 L5,10.5 L5,10 L4,10 L4,10.5 L4,10.5 Z"></path>
+  <path d="M15,10.5 L15,12.5 L15,13 L16,13 L16,12.5 L16,10.5 L16,10 L15,10 L15,10.5 L15,10.5 Z"></path>
+</svg>

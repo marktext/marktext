@@ -146,7 +146,8 @@ export const addElementStyle = () => {
   }
   sheet = document.createElement('style')
   sheet.id = ID
-  document.head.appendChild(sheet)
+  // NOTE: Prepend element UI style, otherwise we cannot overwrite the style with the default light theme.
+  document.head.insertBefore(sheet, document.head.firstChild)
   sheet.innerHTML = newElementStyle
 }
 

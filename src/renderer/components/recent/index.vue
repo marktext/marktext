@@ -2,13 +2,13 @@
     <div
       class="recent-files-projects"
     >
-      <div class="button-group">
+      <div class="centered-group">
         <svg :viewBox="ContentIcon.viewBox" aria-hidden="true">
           <use :xlink:href="ContentIcon.url" />
         </svg>
-        <a href="javascript:;" @click="newFile">
+        <button class="button-primary" @click="newFile">
           New File
-        </a>
+        </button>
       </div>
     </div>
 </template>
@@ -36,7 +36,7 @@
     display: flex;
     align-items: center;
     justify-content: space-around;
-    & .button-group {
+    & .centered-group {
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -44,18 +44,9 @@
         width: 200px;
         fill: var(--themeColor);
       }
-      & a {
-        text-decoration: none;
-        background: var(--themeColor);
-        box-shadow: 0 0 8px 0 var(--selectionColor);
+      & button.button-primary {
         display: block;
-        padding: 4px 10px;
-        border-radius: 5px;
         margin-top: 20px;
-        color: #fff;
-        &:active {
-          opacity: .5;
-        }
       }
     }
   }

@@ -1,5 +1,6 @@
 import { ipcRenderer } from 'electron'
-import { getFileStateFromData } from '../store/help.js'
+import { isSamePathSync } from 'common/filesystem/paths'
+import bus from '../bus'
 
 export const tabsMixins = {
   methods: {
@@ -21,28 +22,48 @@ export const tabsMixins = {
 
 export const fileMixins = {
   methods: {
-    handleFileClick () {
-      // HACK: Please see #1034 and #1035
-      const { data, isMarkdown, pathname } = this.file
-      if (!isMarkdown || this.currentFile.pathname === pathname) return
-      const { isMixedLineEndings, filename, lineEnding } = data
-      const isOpened = this.tabs.find(file => file.pathname === pathname)
+    handleSearchResultClick (searchMatch) {
+      const { range } = searchMatch
+      const { filePath } = this.searchResult
 
-      const fileState = isOpened || getFileStateFromData(data)
-      this.$store.dispatch('UPDATE_CURRENT_FILE', fileState)
+      const openedTab = this.tabs.find(file => isSamePathSync(file.pathname, filePath))
+      const cursor = {
+        isCollapsed: range[0][0] !== range[1][0],
+        anchor: {
+          line: range[0][0],
+          ch: range[0][1]
+        },
+        focus: {
+          line: range[1][0],
+          ch: range[1][1]
+        }
+      }
 
-      // HACK: notify main process. Main process should notify the browser window.
-      ipcRenderer.send('AGANI::window-add-file-path', pathname)
-      ipcRenderer.send('mt::add-recently-used-document', pathname)
-
-      if (isMixedLineEndings && !isOpened) {
-        this.$notify({
-          title: 'Line Ending',
-          message: `${filename} has mixed line endings which are automatically normalized to ${lineEnding.toUpperCase()}.`,
-          type: 'primary',
-          time: 20000,
-          showConfirm: false
+      if (openedTab) {
+        openedTab.cursor = cursor
+        if (this.currentFile !== openedTab) {
+          this.$store.dispatch('UPDATE_CURRENT_FILE', openedTab)
+        } else {
+          const { id, markdown, cursor, history } = this.currentFile
+          bus.$emit('file-changed', { id, markdown, cursor, renderCursor: true, history })
+        }
+      } else {
+        ipcRenderer.send('mt::open-file', filePath, {
+          cursor
         })
+      }
+    },
+    handleFileClick () {
+      const { isMarkdown, pathname } = this.file
+      if (!isMarkdown) return
+      const openedTab = this.tabs.find(file => isSamePathSync(file.pathname, pathname))
+      if (openedTab) {
+        if (this.currentFile === openedTab) {
+          return
+        }
+        this.$store.dispatch('UPDATE_CURRENT_FILE', openedTab)
+      } else {
+        ipcRenderer.send('mt::open-file', pathname, {})
       }
     }
   }

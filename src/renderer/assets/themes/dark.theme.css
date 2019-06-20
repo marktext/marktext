@@ -23,24 +23,48 @@
   --editorColor04: rgba(255, 255, 255, .04);
   --editorBgColor: #282828;
   --deleteColor: #409eff;
-  --iconColor: rgba(255, 255, 255, .8);
+  --iconColor: rgba(255, 255, 255, .56);
   --codeBgColor: #424344;
   --codeBlockBgColor: #424344;
   --inputBgColor: rgba(0, 0, 0, .1);
-  --buttonBgColor: #58606a;
-  --buttonBorderColor: rgba(0, 0, 0, 0.2);
-  --buttonShadow: rgba(0, 0, 0, 0.12);
-  --buttonHover: #4a5058;
-  --buttonActive: #434a53;
+
+  --focusColor: var(--themeColor);
+
+  --buttonFontColor: rgba(255, 255, 255, .6);
+  --buttonBgColor: #424344;
+  --buttonBorder: 1px solid rgba(0, 0, 0, 0.2);
+  --buttonShadow: none;
+  --buttonFontColorHover: var(--buttonFontColor);
+  --buttonBgColorHover: #4f5051;
+  --buttonBorderHover: 1px solid rgba(0, 0, 0, 0.3);
+  --buttonFontColorActive: var(--buttonFontColor);
+  --buttonBgColorActive: #333434;
+  --buttonBorderActive: var(--buttonBorder);
+
+  --buttonPrimaryFontColor: #ffffff;
+  --buttonPrimaryBgColor: var(--themeColor);
+  --buttonPrimaryBorder: none;
+  --buttonPrimaryShadow: none;
+  --buttonPrimaryFontColorHover: var(--buttonPrimaryFontColor);
+  --buttonPrimaryBgColorHover: #5aabff;
+  --buttonPrimaryBorderHover: var(--buttonPrimaryBorder);
+  --buttonPrimaryFontColorActive: var(--buttonPrimaryFontColor);
+  --buttonPrimaryBgColorActive: #2791ff;
+  --buttonPrimaryBorderActive: var(--buttonPrimaryBorder);
+  --buttonPrimaryFocusBorder: none;
+  --buttonPrimaryFocusShadow: inset 0 0 0 1px rgba(24, 26, 31, 0.5), 0 0 0 1px var(--themeColor);
   --tableBorderColor: #363839;
 
   /*marktext*/
   --sideBarColor: rgba(255, 255, 255, .6);
+  --sideBarIconColor: var(--iconColor);
   --sideBarTitleColor: rgba(255, 255, 255, .8);
   --sideBarTextColor: rgba(255, 255, 255, .4);
   --sideBarBgColor: #1e1e1e;
   --sideBarItemHoverBgColor: rgba(255, 255, 255, .03);
   --itemBgColor: #3f3f3f;
+
+  --floatFontColor: rgba(255, 255, 255, .7);
   --floatBgColor: #3f3f3f;
   --floatHoverColor: rgba(255, 255, 255, .04);
   --floatBorderColor: rgba(0, 0, 0, .05);
@@ -70,6 +94,11 @@
   border-right: 1px solid #1d1d1d !important;
 }
 
+.recent-files-projects a,
+.open-project a {
+  box-shadow: none !important;
+}
+
 .editor-tabs {
   box-shadow: none !important;
 }
@@ -96,6 +125,17 @@
 .tabs-container > li.active {
   background: var(--editorBgColor) !important;
 }
+
+.aidou .search-wrapper {
+  box-shadow: none;
+}
+
+.open-project button,
+.recent-files-projects button {
+  box-shadow: none !important;
+}
+
+/* ------------------------------------ */
 
 :not(pre) > code[class*="language-"],
 pre:not(.CodeMirror-line),

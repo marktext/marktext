@@ -19,7 +19,7 @@ class EditorWindow extends BaseWindow {
 
     // Root directory and file list to open when the window is ready.
     this._directoryToOpen = null
-    this._filesToOpen = [] // {doc: IMarkdownDocumentRaw, selected: boolean}
+    this._filesToOpen = [] // {doc: IMarkdownDocumentRaw, options: any, selected: boolean}
     this._markdownToOpen = [] // List of markdown strings or an empty string will open a new untitled tab
 
     // Root directory and file list that are currently opened. These lists are
@@ -112,7 +112,7 @@ class EditorWindow extends BaseWindow {
         detail: msg
       }, code => {
         if (win.id) {
-          switch(code) {
+          switch (code) {
             case 0: return this.destroy()
             case 1: return this.reload()
           }
@@ -168,7 +168,7 @@ class EditorWindow extends BaseWindow {
         this.openFolder(rootDirectory)
       }
       if (fileList.length) {
-        this.openTabs(fileList, 0)
+        this.openTabsFromPaths(fileList)
       }
     }, 0)
 
@@ -179,38 +179,49 @@ class EditorWindow extends BaseWindow {
    * Open a new tab from a markdown file.
    *
    * @param {string} filePath The markdown file path.
-   * @param {[boolean]} selected Whether the tab should become the selected tab (true if not set).
+   * @param {string} [options] The tab option for the editor window.
+   * @param {boolean} [selected] Whether the tab should become the selected tab (true if not set).
    */
-  openTab (filePath, selected=true) {
-    if (this.lifecycle === WindowLifecycle.QUITTED) return
-    this.openTabs([ filePath ], selected ? 0 : -1 )
+  openTab (filePath, options = {}, selected = true) {
+    if (this.lifecycle === WindowLifecycle.QUITTING) return
+    this.openTabs([{ filePath, options, selected }])
   }
 
-    /**
-   * Open new tabs from markdown files.
+  /**
+   * Open new tabs from the given file paths.
    *
-   * @param {string[]} filePath The markdown file path list to open.
-   * @param {[number]} selectedIndex Whether one of the given tabs should become the selected tab (-1 if not set).
+   * @param {string[]} filePaths The file paths to open.
    */
-  openTabs (fileList, selectedIndex = -1) {
-    if (this.lifecycle === WindowLifecycle.QUITTED) return
+  openTabsFromPaths (filePaths) {
+    if (!filePaths || filePaths.length === 0) return
+
+    const fileList = filePaths.map(p => ({filePath: p, options: {}, selected: false}))
+    fileList[0].selected = true
+    this.openTabs(fileList)
+  }
+
+  /**
+   * Open new tabs from markdown files with options for editor window.
+   *
+   * @param {{filePath: string, selected: boolean, options: any}[]} filePath A list of markdown file paths and options to open.
+   */
+  openTabs (fileList) {
+    if (this.lifecycle === WindowLifecycle.QUITTING) return
 
     const { browserWindow } = this
     const { preferences } = this._accessor
     const eol = preferences.getPreferedEOL()
 
-    for (let i = 0; i < fileList.length; ++i) {
-      const filePath = fileList[i]
-      const selected = i === selectedIndex
+    for (const { filePath, options, selected } of fileList) {
       loadMarkdownFile(filePath, eol).then(rawDocument => {
         if (this.lifecycle === WindowLifecycle.READY) {
-          this._doOpenTab(rawDocument, selected)
+          this._doOpenTab(rawDocument, options, selected)
         } else {
-          this._filesToOpen.push({ doc: rawDocument, selected })
+          this._filesToOpen.push({ doc: rawDocument, options, selected })
         }
       }).catch(err => {
-        console.error('[ERROR] Cannot open file or directory.')
-        log.error(err)
+        const { message, stack } = err
+        log.error(`[ERROR] Cannot open file or directory: ${message}\n\n${stack}`)
         browserWindow.webContents.send('AGANI::show-notification', {
           title: 'Cannot open tab',
           type: 'error',
@@ -409,9 +420,10 @@ class EditorWindow extends BaseWindow {
    * Open a new new tab from the markdown document.
    *
    * @param {IMarkdownDocumentRaw} rawDocument The markdown document.
+   * @param {any} options The tab option for the editor window.
    * @param {boolean} selected Whether the tab should become the selected tab (true if not set).
    */
-  _doOpenTab (rawDocument, selected) {
+  _doOpenTab (rawDocument, options, selected) {
     const { _accessor, _openedFiles, browserWindow } = this
     const { menu: appMenu } = _accessor
     const { pathname } = rawDocument
@@ -421,7 +433,7 @@ class EditorWindow extends BaseWindow {
 
     appMenu.addRecentlyUsedDocument(pathname)
     _openedFiles.push(pathname)
-    browserWindow.webContents.send('AGANI::new-tab', rawDocument, selected)
+    browserWindow.webContents.send('mt::open-new-tab', rawDocument, options, selected)
   }
 
   _doOpenFilesToOpen () {
@@ -434,8 +446,8 @@ class EditorWindow extends BaseWindow {
     }
     this._directoryToOpen = null
 
-    for(const { doc, selected } of this._filesToOpen) {
-      this._doOpenTab(doc, selected)
+    for (const { doc, options, selected } of this._filesToOpen) {
+      this._doOpenTab(doc, options, selected)
     }
     this._filesToOpen.length = 0
   }

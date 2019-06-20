@@ -43,6 +43,16 @@ const state = {
   tabBarVisibility: false,
   sourceCodeModeEnabled: false,
 
+  searchExclusions: [],
+  searchMaxFileSize: "",
+  searchIncludeHidden: false,
+  searchNoIgnore: false,
+  searchFollowSymlinks: true,
+
+  watcherUsePolling: false,
+
+  // --------------------------------------------------------------------------
+
   // Edit modes of the current window (not part of persistent settings)
   typewriter: false, // typewriter mode
   focus: false, // focus mode

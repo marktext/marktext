@@ -38,7 +38,7 @@
             cols="30" rows="10" v-model="value" ref="textarea"
           ></textarea>
         </div>
-        <div class="button">
+        <div class="buttons">
           <a
             href="javascript:;"
             class="github"
@@ -175,12 +175,12 @@
       height: 80px;
     }
   }
-  .tweet-dialog .button {
+  .tweet-dialog .buttons {
     display: flex;
     justify-content: space-between;
     align-items: center;
   }
-  .tweet-dialog .button a.twitter {
+  .tweet-dialog .buttons a.twitter {
     color: var(--themeColor);
     text-decoration: none;
     width: auto;
@@ -193,14 +193,14 @@
     background: #eee;
     cursor: not-allowed;
   }
-  .tweet-dialog .button a.active {
+  .tweet-dialog .buttons a.active {
     background: var(--themeColor);
     color: #fff;
   }
-  .tweet-dialog .button a.active {
+  .tweet-dialog .buttons a.active {
     cursor: pointer;
   }
-  .tweet-dialog .button a.github {
+  .tweet-dialog .buttons a.github {
     color: var(--iconColor);
     text-decoration: none;
     &:hover {

@@ -1,0 +1,6 @@
+<svg id="find-and-replace-icon-regex" viewBox="0 0 20 20" stroke="none" fill-rule="evenodd">
+  <rect x="3" y="10" width="3" height="3" rx="1"></rect>
+  <rect x="12" y="3" width="2" height="9" rx="1"></rect>
+  <rect transform="translate(13.000000, 7.500000) rotate(60.000000) translate(-13.000000, -7.500000) " x="12" y="3" width="2" height="9" rx="1"></rect>
+  <rect transform="translate(13.000000, 7.500000) rotate(-60.000000) translate(-13.000000, -7.500000) " x="12" y="3" width="2" height="9" rx="1"></rect>
+</svg>

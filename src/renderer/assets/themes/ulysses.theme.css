@@ -24,25 +24,50 @@
   --deleteColor: #ff6969;
   --iconColor: rgba(101, 101, 101, .8);
   --codeBgColor: #d8d8d869;
-  --codeBlockBgColor: rgba(12, 139, 186, .04);
+  --codeBlockBgColor: rgba(12, 139, 186, .05);
   --inputBgColor: rgba(0, 0, 0, .06);
+  --focusColor: var(--themeColor);
+
+  --buttonFontColor: var(--editorColor);
   --buttonBgColor: #ffffff;
-  --buttonBorderColor: rgba(0, 0, 0, 0.2);
-  --buttonShadow: rgba(0, 0, 0, 0.12);
-  --buttonHover: #f2f2f2;
-  --buttonActive: #e5e5e5;
+  --buttonBorder: 1px solid #dcdfe6;
+  --buttonShadow: none;
+  --buttonFontColorHover: var(--buttonFontColor);
+  --buttonBgColorHover: linear-gradient(#fafafa, #f5f5f5);
+  --buttonBorderHover: var(--buttonBorder);
+  --buttonFontColorActive: var(--buttonFontColor);
+  --buttonBgColorActive: #f5f5f5;
+  --buttonBorderActive: var(--buttonBorder);
+  --buttonFocusBorder: 1px solid var(--themeColor);
+  --buttonFocusShadow: 0 0 0 1px var(--themeColor);
+
+  --buttonPrimaryFontColor: #ffffff;
+  --buttonPrimaryBgColor: var(--themeColor);
+  --buttonPrimaryBorder: none;
+  --buttonPrimaryShadow: 0 0 8px 0 rgba(0, 0, 0, .1);
+  --buttonPrimaryFontColorHover: var(--buttonPrimaryFontColor);
+  --buttonPrimaryBgColorHover: var(--buttonPrimaryBgColor);
+  --buttonPrimaryBorderHover: var(--buttonPrimaryBorder);
+  --buttonPrimaryFontColorActive: var(--buttonPrimaryFontColor);
+  --buttonPrimaryBgColorActive: var(--buttonPrimaryBgColor);
+  --buttonPrimaryBorderActive: var(--buttonPrimaryBorder);
+  --buttonPrimaryFocusBorder: none;
+  --buttonPrimaryFocusShadow: inset 0 0 0 1px rgba(5, 66, 89, 0.5), 0 0 0 1px var(--themeColor);
   --tableBorderColor: #e5e5e5;
 
   --sideBarColor: rgba(101, 101, 101, .6);
+  --sideBarIconColor: var(--iconColor);
   --sideBarTitleColor: rgba(101, 101, 101, 1);
   --sideBarTextColor: rgba(101, 101, 101, .4);
   --sideBarBgColor: rgba(248, 248, 248, 0.9);
   --sideBarItemHoverBgColor: rgba(101, 101, 101, .03);
   --itemBgColor: rgba(245, 245, 245, 0.6);
+
+  --floatFontColor: rgba(101, 101, 101, .7);
   --floatBgColor: #ffffff;
   --floatHoverColor: rgba(101, 101, 101, .04);
   --floatBorderColor: rgba(0, 0, 0, .03);
-  --maskColor: rgba(255, 255, 255, .7);
+  --maskColor: rgba(232, 232, 232, .8);
   --editorAreaWidth: 700px;
 }
 
@@ -155,6 +180,7 @@ p:not(.ag-active)[data-role="hr"]::before {
   top: 50%;
   height: 2px;
   box-sizing: border-box;
+  border: none;
   border-bottom: 2px dashed var(--editorColor50);
   transform: translateX(-50%) translateY(-50%);
 }

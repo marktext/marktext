@@ -63,6 +63,9 @@ const unlink = (win, pathname, type) => {
 }
 
 const change = async (win, pathname, type, endOfLine) => {
+  // No need to update the tree view if the file content has changed.
+  if (type === 'dir') return
+
   const isMarkdown = hasMarkdownExtension(pathname)
   if (isMarkdown) {
     // HACK: Markdown data should be removed completely in #1034/#1035 and
@@ -73,7 +76,7 @@ const change = async (win, pathname, type, endOfLine) => {
         pathname,
         data
       }
-      win.webContents.send(EVENT_NAME[type], {
+      win.webContents.send('AGANI::update-file', {
         type: 'change',
         change: file
       })
@@ -133,9 +136,25 @@ class Watcher {
 
   // Watch a file or directory and return a unwatch function.
   watch (win, watchPath, type = 'dir'/* file or dir */) {
+    const usePolling = this._preferences.getItem('watcherUsePolling')
+
     const id = getUniqueId()
     const watcher = chokidar.watch(watchPath, {
-      ignored: /(^|[/\\])(\..|node_modules)/,
+      ignored: (pathname, fileInfo) => {
+        // This function is called twice, once with a single argument (the path),
+        // second time with two arguments (the path and the "fs.Stats" object of that path).
+        if (!fileInfo) {
+          return /(^|[/\\])(\..|node_modules)/.test(pathname)
+        }
+
+        if (/(^|[/\\])(\..|node_modules)/.test(pathname)) {
+          return true
+        }
+        if (fileInfo.isDirectory()) {
+          return false
+        }
+        return !hasMarkdownExtension(pathname)
+      },
       ignoreInitial: type === 'file',
       persistent: true,
       ignorePermissionErrors: true,
@@ -147,7 +166,10 @@ class Watcher {
       awaitWriteFinish: {
         stabilityThreshold: WATCHER_STABILITY_THRESHOLD,
         pollInterval: WATCHER_STABILITY_POLL_INTERVAL
-      }
+      },
+
+      // Settings options
+      usePolling
     })
 
     let disposed = false

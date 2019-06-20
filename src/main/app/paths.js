@@ -8,9 +8,8 @@ class AppPaths extends EnvPaths {
    * Configure and sets all application paths.
    *
    * @param {[string]} userDataPath The user data path or null.
-   * @returns
    */
-  constructor (userDataPath='') {
+  constructor (userDataPath = '') {
     if (!userDataPath) {
       // Use default user data path.
       userDataPath = app.getPath('userData')

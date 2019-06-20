@@ -1,7 +1,7 @@
 import path from 'path'
 import { crashReporter, ipcRenderer } from 'electron'
 import log from 'electron-log'
-import EnvPaths from 'common/envPaths'
+import RendererPaths from './node/paths'
 
 let exceptionLogger = s => console.error(s)
 
@@ -73,14 +73,16 @@ const bootstrapRenderer = () => {
   }
 
   const { debug, initialState, userDataPath, windowId, type } = parseUrlArgs()
+  const paths = new RendererPaths(userDataPath)
   const marktext = {
     initialState,
     env: {
       debug,
-      paths: new EnvPaths(userDataPath),
+      paths,
       windowId,
       type
-    }
+    },
+    paths
   }
   global.marktext = marktext
 

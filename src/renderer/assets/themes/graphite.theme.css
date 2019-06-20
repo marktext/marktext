@@ -22,27 +22,52 @@
   --editorColor04: rgba(43, 48, 50, .04);
   --editorBgColor: #f7f7f7;
   --deleteColor: #ff6969;
-  --iconColor: rgba(135, 135, 135, .8);
+  --iconColor: rgba(91, 91, 91, .8);
   --codeBgColor: #d8d8d869;
-  --codeBlockBgColor: rgba(104, 134, 170, .04);
+  --codeBlockBgColor: rgba(104, 134, 170, .05);
   --inputBgColor: rgba(0, 0, 0, .06);
+  --focusColor: var(--themeColor);
+
+  --buttonFontColor: var(--editorColor);
   --buttonBgColor: #ffffff;
-  --buttonBorderColor: rgba(0, 0, 0, 0.2);
-  --buttonShadow: rgba(0, 0, 0, 0.12);
-  --buttonHover: #f2f2f2;
-  --buttonActive: #e5e5e5;
+  --buttonBorder: 1px solid #dcdfe6;
+  --buttonShadow: none;
+  --buttonFontColorHover: var(--buttonFontColor);
+  --buttonBgColorHover: linear-gradient(#fafafa, #f5f5f5);
+  --buttonBorderHover: var(--buttonBorder);
+  --buttonFontColorActive: var(--buttonFontColor);
+  --buttonBgColorActive: #f5f5f5;
+  --buttonBorderActive: var(--buttonBorder);
+  --buttonFocusBorder: 1px solid var(--themeColor);
+  --buttonFocusShadow: 0 0 0 1px var(--themeColor);
+
+  --buttonPrimaryFontColor: #ffffff;
+  --buttonPrimaryBgColor: var(--themeColor);
+  --buttonPrimaryBorder: none;
+  --buttonPrimaryShadow: 0 0 8px 0 rgba(0, 0, 0, .1);
+  --buttonPrimaryFontColorHover: var(--buttonPrimaryFontColor);
+  --buttonPrimaryBgColorHover: var(--buttonPrimaryBgColor);
+  --buttonPrimaryBorderHover: var(--buttonPrimaryBorder);
+  --buttonPrimaryFontColorActive: var(--buttonPrimaryFontColor);
+  --buttonPrimaryBgColorActive: var(--buttonPrimaryBgColor);
+  --buttonPrimaryBorderActive: var(--buttonPrimaryBorder);
+  --buttonPrimaryFocusBorder: none;
+  --buttonPrimaryFocusShadow: inset 0 0 0 1px rgba(53, 74, 99, 0.5), 0 0 0 1px var(--themeColor);
   --tableBorderColor: #e5e5e5;
 
   --sideBarColor: rgba(188, 193, 197, .8);
+  --sideBarIconColor: rgba(175, 175, 175, .8);
   --sideBarTitleColor: rgba(255, 255, 255, 1);
   --sideBarTextColor: rgba(188, 193, 197, .4);
   --sideBarBgColor: rgba(69, 75, 80, 1);
   --sideBarItemHoverBgColor: rgba(255, 255, 255, .03);
   --itemBgColor: rgba(43, 48, 50, .5);
+
+  --floatFontColor: rgba(43, 48, 50, .7);
   --floatBgColor: rgb(237, 237, 238);
   --floatHoverColor: rgba(43, 48, 50, .04);
   --floatBorderColor: rgba(0, 0, 0, .03);
-  --maskColor: rgba(255, 255, 255, .7);
+  --maskColor: rgba(232, 232, 232, .8);
   --editorAreaWidth: 700px;
 }
 
@@ -160,6 +185,7 @@ p:not(.ag-active)[data-role="hr"]::before {
   top: 50%;
   height: 2px;
   box-sizing: border-box;
+  border: none;
   border-bottom: 2px dashed var(--editorColor50);
   transform: translateX(-50%) translateY(-50%);
 }

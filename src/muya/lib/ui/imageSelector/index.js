@@ -172,7 +172,7 @@ class ImageSelector extends BaseFloat {
           this.muya.contentState.stateRender.urlMap.set(nSrc, localPath)
         }
         const imageWrapper = this.muya.container.querySelector(`span[data-id=${id}]`)
-  
+
         if (imageWrapper) {
           const imageInfo = getImageInfo(imageWrapper)
           this.muya.contentState.replaceImage(imageInfo, {
@@ -230,7 +230,7 @@ class ImageSelector extends BaseFloat {
     let bodyContent = null
     if (tab === 'select') {
       bodyContent = [
-        h('span.role-button.select', {
+        h('button.muya-button.role-button.select', {
           on: {
             click: event => {
               this.handleSelectButtonClick()
@@ -298,8 +298,8 @@ class ImageSelector extends BaseFloat {
       const inputWrapper = isFullMode
         ? h('div.input-container', [altInput, srcInput, titleInput])
         : h('div.input-container', [srcInput])
-      
-      const embedButton = h('span.role-button.link', {
+
+      const embedButton = h('button.muya-button.role-button.link', {
         on: {
           click: event => {
             this.handleLinkButtonClick()

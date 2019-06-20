@@ -21,7 +21,7 @@ const actions = {
     ipcRenderer.on('AGANI::UPDATE_NOT_AVAILABLE', (e, message) => {
       notice.notify({
         title: 'Update not Available',
-        type: 'warning',
+        type: 'primary',
         message
       })
     })

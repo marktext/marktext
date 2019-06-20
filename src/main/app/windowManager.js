@@ -359,6 +359,16 @@ class WindowManager extends EventEmitter {
       this.forceClose(win)
     })
 
+    ipcMain.on('mt::open-file', (e, filePath, options) => {
+      const win = BrowserWindow.fromWebContents(e.sender)
+      const editor = this.get(win.id)
+      if (!editor) {
+        log.error(`Cannot find window id "${win.id}" to open file.`)
+        return
+      }
+      editor.openTab(filePath, options, true)
+    })
+
     ipcMain.on('mt::window-tab-closed', (e, pathname) => {
       const win = BrowserWindow.fromWebContents(e.sender)
       const editor = this.get(win.id)

@@ -85,18 +85,12 @@
   max-width: 80px;
 }
 
-.ag-image-selector span.role-button {
+.ag-image-selector button.role-button {
   display: block;
-  width: 280px;
-  height: 32px;
+  width: 240px;
   border-radius: 8px;
-  color: var(--editorColor80);
-  line-height: 28px;
-  font-size: 16px;
+  font-size: 14px;
   text-align: center;
-  border: 1px solid var(--buttonBorderColor);
-  box-shadow: 0 2px 4px 0 var(--buttonShadowColor);
-  background: var(--buttonBgColor);
   cursor: pointer;
   margin: 0 auto;
   margin-bottom: 16px;
@@ -104,16 +98,8 @@
   user-select: none;
 }
 
-.ag-image-selector span.role-button.select {
+.ag-image-selector button.role-button.select {
   margin-top: 35px;
-}
-
-.ag-image-selector span.role-button:hover {
-  background: var(--buttonHover);
-}
-
-.ag-image-selector span.role-button:active {
-  background: var(--buttonActive);
 }
 
 .ag-image-selector span.description {

@@ -85,6 +85,8 @@ div.ag-show-quick-insert-hint p.ag-paragraph.ag-active > span.ag-paragraph-conte
 *:not(.ag-hide)::selection, .ag-selection {
   background: var(--selectionColor);
   color: var(--editorColor);
+  padding: 0 3px;
+  border-radius: 2px;
 }
 
 .ag-hide::selection {
@@ -125,6 +127,8 @@ figure[data-role="HTML"].ag-active .ag-html-preview {
   animation-name: highlight;
   animation-duration: .25s;
   display: inline-block;
+  padding: 0 3px;
+  border-radius: 2px;
   background: var(--highlightColor);
 }
 
@@ -305,7 +309,7 @@ figure {
   display: inline-block;
   width: 100%;
   height: 100%;
-  filter: drop-shadow(20px 0 currentColor); 
+  filter: drop-shadow(20px 0 currentColor);
   position: relative;
   left: -20px;
 }
@@ -438,7 +442,8 @@ p:not(.ag-active)[data-role="hr"]::before {
   content: '';
   width: 100%;
   height: 2px;
-  background: var(--editorColor10);
+  border-top: 2px dashed var(--editorColor10);
+  background: none;
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
@@ -826,7 +831,7 @@ span.ag-warn.ag-emoji-marked-text {
   width: 100%;
   height: 100%;
   display: inline-block;
-  filter: drop-shadow(20px 0 currentColor); 
+  filter: drop-shadow(20px 0 currentColor);
   position: absolute;
   left: -20px;
 }
@@ -1007,7 +1012,7 @@ span.ag-reference-link {
 }
 
 .ag-front-icon i.icon > i[class^=icon-] {
-  filter: drop-shadow(16px 0 currentColor); 
+  filter: drop-shadow(16px 0 currentColor);
   position: absolute;
   left: -16px;
 }

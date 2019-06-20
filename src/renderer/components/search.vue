@@ -4,36 +4,38 @@
     v-show="showSearch"
   >
     <section class="search">
-      <el-tooltip class="item" 
-        effect="dark"
-        content="Replacement"
-        placement="top"
-        :visible-arrow="false"
-        :open-delay="1000"
-      >
-        <button 
-          class="button" 
-          v-if="type !== 'replace'"
-          @click="typeClick"
+      <div class="button-group">
+        <el-tooltip class="item"
+          effect="dark"
+          content="Replacement"
+          placement="top"
+          :visible-arrow="false"
+          :open-delay="1000"
         >
-          <svg class="icon" aria-hidden="true">
-            <use xlink:href="#icon-findreplace"></use>
-          </svg>
-        </button>
-      </el-tooltip>
-      <el-tooltip class="item" 
-        effect="dark"
-        content="Case sensitive"
-        placement="top"
-        :visible-arrow="false"
-        :open-delay="1000"
-      >
-        <button class="button left" @click="caseClick" :class="{ 'active': caseSensitive }">
-          <svg class="icon" aria-hidden="true">
-            <use xlink:href="#icon-case"></use>
-          </svg>
-        </button>        
-      </el-tooltip>
+          <button
+            class="button"
+            v-if="type !== 'replace'"
+            @click="typeClick"
+          >
+            <svg class="icon" aria-hidden="true">
+              <use xlink:href="#icon-findreplace"></use>
+            </svg>
+          </button>
+        </el-tooltip>
+        <el-tooltip class="item"
+          effect="dark"
+          content="Case sensitive"
+          placement="top"
+          :visible-arrow="false"
+          :open-delay="1000"
+        >
+          <button class="button left" @click="caseClick" :class="{ 'active': caseSensitive }">
+            <svg class="icon" aria-hidden="true">
+              <use xlink:href="#icon-case"></use>
+            </svg>
+          </button>
+        </el-tooltip>
+      </div>
 
       <div class="input-wrapper">
         <input
@@ -45,16 +47,18 @@
         >
         <span class="search-result">{{`${highlightIndex + 1} / ${highlightCount}`}}</span>
       </div>
-      <button class="button right" @click="find('prev')">
-        <svg class="icon" aria-hidden="true">
-          <use xlink:href="#icon-arrow-up"></use>
-        </svg>
-      </button>
-      <button class="button right" @click="find('next')">
-        <svg class="icon" aria-hidden="true">
-          <use xlink:href="#icon-arrowdown"></use>
-        </svg>
-      </button>
+      <div class="button-group">
+        <button class="button right" @click="find('prev')">
+          <svg class="icon" aria-hidden="true">
+            <use xlink:href="#icon-arrow-up"></use>
+          </svg>
+        </button>
+        <button class="button" @click="find('next')">
+          <svg class="icon" aria-hidden="true">
+            <use xlink:href="#icon-arrowdown"></use>
+          </svg>
+        </button>
+      </div>
     </section>
     <section class="replace" v-if="type === 'replace'">
       <button class="button active left" @click="typeClick">
@@ -65,32 +69,34 @@
       <div class="input-wrapper replace-input">
         <input type="text" v-model="replaceValue" placeholder="Replacement">
       </div>
-      <el-tooltip class="item" 
-        effect="dark"
-        content="Replace All"
-        placement="top"
-        :visible-arrow="false"
-        :open-delay="1000"
-      >
-        <button class="button right" @click="replace(false)">
-          <svg class="icon" aria-hidden="true">
-            <use xlink:href="#icon-all-inclusive"></use>
-          </svg>
-        </button>
-      </el-tooltip>
-      <el-tooltip class="item" 
-        effect="dark"
-        content="Replace Single"
-        placement="top"
-        :visible-arrow="false"
-        :open-delay="1000"
-      >
-        <button class="button right" @click="replace(true)">
-          <svg class="icon" aria-hidden="true">
-            <use xlink:href="#icon-replace"></use>
-          </svg>
-        </button>
-      </el-tooltip>
+      <div class="button-group">
+        <el-tooltip class="item"
+          effect="dark"
+          content="Replace All"
+          placement="top"
+          :visible-arrow="false"
+          :open-delay="1000"
+        >
+          <button class="button right" @click="replace(false)">
+            <svg class="icon" aria-hidden="true">
+              <use xlink:href="#icon-all-inclusive"></use>
+            </svg>
+          </button>
+        </el-tooltip>
+        <el-tooltip class="item"
+          effect="dark"
+          content="Replace Single"
+          placement="top"
+          :visible-arrow="false"
+          :open-delay="1000"
+        >
+          <button class="button" @click="replace(true)">
+            <svg class="icon" aria-hidden="true">
+              <use xlink:href="#icon-replace"></use>
+            </svg>
+          </button>
+        </el-tooltip>
+      </div>
     </section>
   </div>
 </template>
@@ -231,13 +237,11 @@
   .search, .replace {
     height: 30px;
     display: flex;
-    padding: 0 10px;
+    padding: 4px 10px 0 10px;
   }
   .search-bar .button {
     outline: none;
     cursor: pointer;
-    border: none;
-    background: transparent;
     box-sizing: border-box;
     height: 30px;
     width: 30px;
@@ -245,7 +249,7 @@
     padding: 5px;
     display: inline-block;
     font-weight: 500;
-    color: var(--iconColor);
+    color: var(--sideBarIconColor);
     &.left {
       margin-right: 10px;
     }
@@ -257,8 +261,8 @@
     color: var(--themeColor);
   }
   .search-bar .button > svg {
-    width: 20px;
-    height: 20px;
+    width: 18px;
+    height: 18px;
   }
   .search-bar .button:active {
     opacity: .5;

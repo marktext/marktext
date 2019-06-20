@@ -23,24 +23,47 @@
   --editorColor04: rgba(171, 178, 191, .04);
   --editorBgColor: #34393f;
   --deleteColor: #ff6969;
-  --iconColor: rgba(255, 255, 255, .8);
+  --iconColor: rgba(255, 255, 255, .56);
   --codeBgColor: #d8d8d869;
   --codeBlockBgColor: #3f454c;
   --inputBgColor: rgba(0, 0, 0, .1);
+  --focusColor: var(--themeColor);
+
+  --buttonFontColor: rgba(255, 255, 255, .6);
   --buttonBgColor: #58606a;
-  --buttonBorderColor: rgba(0, 0, 0, 0.2);
-  --buttonShadow: rgba(0, 0, 0, 0.12);
-  --buttonHover: #4a5058;
-  --buttonActive: #434a53;
+  --buttonBorder: 1px solid #383d44;
+  --buttonShadow: none;
+  --buttonFontColorHover: var(--buttonFontColor);
+  --buttonBgColorHover: #646d78;
+  --buttonBorderHover: var(--buttonBorder);
+  --buttonFontColorActive: var(--buttonFontColor);
+  --buttonBgColorActive: #4a5159;
+  --buttonBorderActive: var(--buttonBorder);
+
+  --buttonPrimaryFontColor: #ffffff;
+  --buttonPrimaryBgColor: var(--themeColor);
+  --buttonPrimaryBorder: none;
+  --buttonPrimaryShadow: none;
+  --buttonPrimaryFontColorHover: var(--buttonPrimaryFontColor);
+  --buttonPrimaryBgColorHover: #f5914f;
+  --buttonPrimaryBorderHover: var(--buttonPrimaryBorder);
+  --buttonPrimaryFontColorActive: var(--buttonPrimaryFontColor);
+  --buttonPrimaryBgColorActive: #f3731f;
+  --buttonPrimaryBorderActive: var(--buttonPrimaryBorder);
+  --buttonPrimaryFocusBorder: none;
+  --buttonPrimaryFocusShadow: inset 0 0 0 1px rgba(145, 75, 29, 0.6), 0 0 0 1px var(--themeColor);
   --tableBorderColor: #4f585e;
 
   /*marktext*/
   --sideBarColor: rgba(255, 255, 255, .6);
+  --sideBarIconColor: var(--iconColor);
   --sideBarTitleColor: rgba(255, 255, 255, 1);
   --sideBarTextColor: rgba(255, 255, 255, .4);
   --sideBarBgColor: rgba(26, 33, 41, 0.9);
   --sideBarItemHoverBgColor: rgba(255, 255, 255, .03);
   --itemBgColor: rgba(71, 78, 86, 0.6);
+
+  --floatFontColor: rgba(171, 178, 191, .8);
   --floatBgColor: #3c4650;
   --floatHoverColor: rgba(255, 255, 255, .04);
   --floatBorderColor: rgba(0, 0, 0, .03);
@@ -62,11 +85,25 @@
   background-color: rgb(255, 255, 255, .05);
 }
 
+.recent-files-projects a,
+.open-project a {
+  box-shadow: none !important;
+}
+
 .tabs-container > li {
   background: none !important;
 }
 .tabs-container > li.active {
   background: var(--floatBgColor) !important;
+}
+
+.aidou .search-wrapper {
+  box-shadow: none;
+}
+
+.open-project button,
+.recent-files-projects button {
+  box-shadow: none !important;
 }
 
 /* ------------------------------------ */
@@ -81,14 +118,6 @@ pre.ag-paragraph {
 figure.ag-active.ag-container-block > div.ag-container-preview {
   box-shadow: 0 3px 8px 0 var(--floatShadow) !important;
 }
-
-/*.ag-image-marked-text::before {
-  background: url(../lib/assets/icons/image_dark.png);
-}
-
-.ag-image-marked-text.ag-image-fail::before {
-  background-image: url(../lib/assets/icons/image_dark_fail.png);
-}*/
 
 /*
  * Prism.js theme (override light theme)

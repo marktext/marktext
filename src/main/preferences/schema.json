@@ -198,5 +198,33 @@
   "sourceCodeModeEnabled": {
     "description": "View--Whether the source-code mode is enabled by default.",
     "type": "boolean"
+  },
+  "searchExclusions": {
+    "description": "Searcher--List of glob patterns to exclude from search.",
+    "type": "array",
+    "items": {
+      "type": "string"
+    }
+  },
+  "searchMaxFileSize": {
+    "description": "Searcher--The maximal file size (<maxFileSize><suffix>). Suffixes of K, M or G are allowed if not suffix is given the number is treated as bytes.",
+    "type": "string",
+    "pattern": "^(?:$|[0-9]+(?:K|M|G)?$)"
+  },
+  "searchIncludeHidden": {
+    "description": "Searcher--Whether to search in hidden files and directories.",
+    "type": "boolean"
+  },
+  "searchNoIgnore": {
+    "description": "Searcher--Whether to ignore ignore files like .gitignore.",
+    "type": "boolean"
+  },
+  "searchFollowSymlinks": {
+    "description": "Searcher--Whether symlinks should be followed.",
+    "type": "boolean"
+  },
+  "watcherUsePolling": {
+    "description": "Watcher--Whether to use polling. Polling may leads to high CPU utilization but is necessary to watch files over a network.",
+    "type": "boolean"
   }
 }

@@ -357,7 +357,7 @@ class App {
           if (windowId !== null) {
             const window = _windowManager.get(windowId)
             if (window) {
-              window.openTabs(fileList, 0)
+              window.openTabsFromPaths(fileList)
               window.bringToFront()
               continue
             }
@@ -445,7 +445,7 @@ class App {
       } else {
         const editor = this._windowManager.get(windowId)
         if (editor) {
-          editor.openTab(filePath, true)
+          editor.openTab(filePath, {}, true)
         }
       }
     })
@@ -456,11 +456,10 @@ class App {
       } else {
         const editor = this._windowManager.get(windowId)
         if (editor) {
-          editor.openTabs(
+          editor.openTabsFromPaths(
             fileList.map(p => normalizeMarkdownPath(p))
             .filter(i => i && !i.isDir)
-            .map(i => i.path),
-            0)
+            .map(i => i.path))
         }
       }
     })

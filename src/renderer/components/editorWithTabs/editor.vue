@@ -59,11 +59,11 @@
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="dialogTableVisible = false" size="mini">
+        <el-button @click="dialogTableVisible = false">
           Cancel
         </el-button>
-        <el-button type="primary" @click="handleDialogTableConfirm" size="mini">
-          Ok
+        <el-button type="primary" @click="handleDialogTableConfirm">
+          OK
         </el-button>
       </div>
     </el-dialog>
@@ -89,7 +89,7 @@
   import Search from '../search.vue'
   import { animatedScrollTo } from '../../util'
   import { addCommonStyle } from '../../util/theme'
-  import { guessClipboardFilePath } from '../../util/guessClipBoardFilePath'
+  import { guessClipboardFilePath } from '../../util/clipboard'
   import { showContextMenu } from '../../contextMenu/editor'
   import Printer from '@/services/printService'
   import { DEFAULT_EDITOR_FONT_FAMILY } from '@/config'
@@ -393,7 +393,7 @@
         bus.$on('find', this.handleFind)
         bus.$on('insert-image', this.insertImage)
         bus.$on('image-uploaded', this.handleUploadedImage)
-        bus.$on('file-changed', this.handleMarkdownChange)
+        bus.$on('file-changed', this.handleFileChange)
         bus.$on('editor-blur', this.blurEditor)
         bus.$on('copyAsMarkdown', this.handleCopyPaste)
         bus.$on('copyAsHtml', this.handleCopyPaste)
@@ -669,24 +669,34 @@
       },
 
       // listen for `open-single-file` event, it will call this method only when open a new file.
-      setMarkdownToEditor ({id, markdown}) {
+      setMarkdownToEditor ({ id, markdown, cursor }) {
         const { editor } = this
         if (editor) {
           editor.clearHistory()
-          // NOTE: Don't set the cursor because we load a new file - no tab switch.
-          editor.setMarkdown(markdown)
+          if (cursor) {
+            editor.setMarkdown(markdown, cursor, true)
+          } else {
+            editor.setMarkdown(markdown)
+          }
         }
       },
 
       // listen for markdown change form source mode or change tabs etc
-      handleMarkdownChange ({ id, markdown, cursor, renderCursor, history }) {
+      handleFileChange ({ id, markdown, cursor, renderCursor, history }) {
         const { editor } = this
         this.$nextTick(() => {
           if (editor) {
             if (history) {
               editor.setHistory(history)
             }
-            editor.setMarkdown(markdown, cursor, renderCursor)
+            if (typeof markdown === 'string') {
+              editor.setMarkdown(markdown, cursor, renderCursor)
+            } else if (cursor) {
+              editor.setCursor(cursor)
+            }
+            if (renderCursor) {
+              this.scrollToCursor(0)
+            }
           }
         })
       },
@@ -729,7 +739,7 @@
       bus.$off('find', this.handleFind)
       bus.$off('insert-image', this.insertImage)
       bus.$off('image-uploaded', this.handleUploadedImage)
-      bus.$off('file-changed', this.handleMarkdownChange)
+      bus.$off('file-changed', this.handleFileChange)
       bus.$off('editor-blur', this.blurEditor)
       bus.$off('copyAsMarkdown', this.handleCopyPaste)
       bus.$off('copyAsHtml', this.handleCopyPaste)
@@ -760,12 +770,8 @@
     color: var(--editorColor);
     & .ag-dialog-table {
       & .el-button {
+        font-size: 13px;
         width: 70px;
-      }
-      & .el-button:focus {
-        color: var(--themeColor);
-        border-color: var(--highlightColor);
-        background-color: var(--selectionColor);
       }
     }
   }

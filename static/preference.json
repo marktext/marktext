@@ -37,5 +37,13 @@
 
   "sideBarVisibility": false,
   "tabBarVisibility": false,
-  "sourceCodeModeEnabled": false
+  "sourceCodeModeEnabled": false,
+
+  "searchExclusions": [],
+  "searchMaxFileSize": "",
+  "searchIncludeHidden": false,
+  "searchNoIgnore": false,
+  "searchFollowSymlinks": true,
+
+  "watcherUsePolling": false
 }

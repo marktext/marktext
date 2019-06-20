@@ -515,17 +515,17 @@ const actions = {
 
   // Open a new tab, optionally with content.
   LISTEN_FOR_NEW_TAB ({ dispatch }) {
-    ipcRenderer.on('AGANI::new-tab', (e, markdownDocument, selected=true) => {
+    ipcRenderer.on('mt::open-new-tab', (e, markdownDocument, options = {}, selected = true) => {
       if (markdownDocument) {
         // Create tab with content.
-        dispatch('NEW_TAB_WITH_CONTENT', { markdownDocument, selected })
+        dispatch('NEW_TAB_WITH_CONTENT', { markdownDocument, options, selected })
       } else {
         // Fallback: create a blank tab and always select it
         dispatch('NEW_UNTITLED_TAB', {})
       }
     })
 
-    ipcRenderer.on('mt::new-untitled-tab', (e, selected=true, markdown='', ) => {
+    ipcRenderer.on('mt::new-untitled-tab', (e, selected = true, markdown = '', ) => {
       // Create a blank tab
       dispatch('NEW_UNTITLED_TAB', { markdown, selected })
     })
@@ -581,7 +581,7 @@ const actions = {
    * @param {{markdownDocument: IMarkdownDocumentRaw, selected?: boolean}} obj The markdown document
    * and optional whether the tab should become the selected tab (true if not set).
    */
-  NEW_TAB_WITH_CONTENT ({ commit, state, dispatch }, { markdownDocument, selected }) {
+  NEW_TAB_WITH_CONTENT ({ commit, state, dispatch }, { markdownDocument, options = {}, selected }) {
     if (!markdownDocument) {
       console.warn('Cannot create a file tab without a markdown document!')
       dispatch('NEW_UNTITLED_TAB', {})
@@ -589,10 +589,9 @@ const actions = {
     }
 
     // Select the tab if not value is specified.
-    if (selected == null) {
+    if (typeof selected === 'undefined') {
       selected = true
     }
-
     // Check if tab already exist and always select existing tab if so.
     const { currentFile, tabs } = state
     const { pathname } = markdownDocument
@@ -617,18 +616,18 @@ const actions = {
     }
 
     const { markdown, isMixedLineEndings } = markdownDocument
-    const docState = createDocumentState(markdownDocument)
-    const { id } = docState
+    const docState = createDocumentState(Object.assign(markdownDocument, options))
+    const { id, cursor } = docState
 
     if (selected) {
       dispatch('UPDATE_CURRENT_FILE', docState)
-      bus.$emit('file-loaded', { id, markdown })
+      bus.$emit('file-loaded', { id, markdown, cursor })
     } else {
       commit('ADD_FILE_TO_TABS', docState)
     }
 
     if (isMixedLineEndings) {
-      // TODO: Show (this) notification(s) per tab.
+      // TODO(watcher): Show (this) notification(s) per tab.
       const { filename, lineEnding } = markdownDocument
       notice.notify({
         title: 'Line Ending',
@@ -652,7 +651,6 @@ const actions = {
   // WORKAROUND: id is "muya" if changes come from muya and not source code editor! So we don't have to apply the workaround.
   LISTEN_FOR_CONTENT_CHANGE ({ commit, dispatch, state, rootState }, { id, markdown, wordCount, cursor, history, toc }) {
     const { autoSave } = rootState.preferences
-    const { projectTree } = rootState.project
     const { id: currentId, pathname, markdown: oldMarkdown } = state.currentFile
     const { listToc } = state
 
@@ -696,10 +694,6 @@ const actions = {
 
     // change save status/save to file only when the markdown changed!
     if (markdown !== oldMarkdown) {
-      if (projectTree) {
-        commit('UPDATE_PROJECT_CONTENT', { markdown, pathname })
-      }
-
       commit('SET_SAVE_STATUS', false)
       if (pathname && autoSave) {
         dispatch('HANDLE_AUTO_SAVE', { id: currentId, pathname, markdown, options })

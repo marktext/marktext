@@ -162,7 +162,8 @@ export const DAED_REMOVE_SELECTOR = new Set([
   '.ag-warn'
 ])
 
-export const CURSOR_DNA = getLongUniqueId()
+export const CURSOR_ANCHOR_DNA = getLongUniqueId()
+export const CURSOR_FOCUS_DNA = getLongUniqueId()
 
 export const DEFAULT_TURNDOWN_CONFIG = {
   headingStyle: 'atx', // setext or atx

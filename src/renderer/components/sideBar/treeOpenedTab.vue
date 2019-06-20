@@ -64,14 +64,14 @@
     }
   }
   .opened-file.active {
-    color: var(--themeColor);
+    color: var(--highlightThemeColor);
   }
   .unsaved.opened-file::before {
     content: '';
     width: 7px;
     height: 7px;
     border-radius: 50%;
-    background: var(--themeColor);
+    background: var(--highlightThemeColor);
     position: absolute;
     top: 11px;
     left: 12px;

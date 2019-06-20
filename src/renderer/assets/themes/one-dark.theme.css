@@ -1,15 +1,16 @@
 :root {
   /*editor*/
-  --themeColor: rgba(226, 192, 141, 1);
-  --themeColor90: rgba(226, 192, 141, .9);
-  --themeColor80: rgba(226, 192, 141, .8);
-  --themeColor70: rgba(226, 192, 141, .7);
-  --themeColor60: rgba(226, 192, 141, .6);
-  --themeColor50: rgba(226, 192, 141, .5);
-  --themeColor40: rgba(226, 192, 141, .4);
-  --themeColor30: rgba(226, 192, 141, .3);
-  --themeColor20: rgba(226, 192, 141, .2);
-  --themeColor10: rgba(226, 192, 141, .1);
+  --themeColor: rgba(77, 120, 204, 1);
+  --themeColor90: rgba(77, 120, 204, .9);
+  --themeColor80: rgba(77, 120, 204, .8);
+  --themeColor70: rgba(77, 120, 204, .7);
+  --themeColor60: rgba(77, 120, 204, .6);
+  --themeColor50: rgba(77, 120, 204, .5);
+  --themeColor40: rgba(77, 120, 204, .4);
+  --themeColor30: rgba(77, 120, 204, .3);
+  --themeColor20: rgba(77, 120, 204, .2);
+  --themeColor10: rgba(77, 120, 204, .1);
+  --highlightThemeColor: #e2c08d;
 
   --highlightColor: #ffffff10;
   --selectionColor: #67769660;
@@ -23,24 +24,49 @@
   --editorColor04: rgba(157, 165, 180, .04);
   --editorBgColor: #282c34;
   --deleteColor: #ff6969;
-  --iconColor: rgba(255, 255, 255, .8);
+  --iconColor: rgba(255, 255, 255, .56);
   --codeBgColor: #3a3f4b;
   --codeBlockBgColor: #3a3f4b;
   --inputBgColor: rgba(0, 0, 0, .1);
-  --buttonBgColor: #58606a;
-  --buttonBorderColor: rgba(0, 0, 0, 0.2);
-  --buttonShadow: rgba(0, 0, 0, 0.12);
-  --buttonHover: #4a5058;
-  --buttonActive: #434a53;
+  --focusColor: #568af2;
+
+  --buttonFontColor: #9da5b4;
+  --buttonBgColor: linear-gradient(#3a3f4b, #353b45);
+  --buttonBorder: 1px solid #181a1f;
+  --buttonShadow: none;
+  --buttonFontColorHover: #d7dae0;
+  --buttonBgColorHover: linear-gradient(#3e4451, #3a3f4b);
+  --buttonBorderHover: var(--buttonBorder);
+  --buttonFontColorActive: var(--buttonFontColor);
+  --buttonBgColorActive: #2c313a;
+  --buttonBorderActive: var(--buttonBorder);
+  --buttonFocusBorder: 1px solid #568af2;
+  --buttonFocusShadow: 0 0 0 1px #568af2;
+
+  --buttonPrimaryFontColor: #ffffff;
+  --buttonPrimaryBgColor: linear-gradient(#557ecf, #4d78cc);
+  --buttonPrimaryBorder: 1px solid #181a1f;;
+  --buttonPrimaryShadow: none;
+  --buttonPrimaryFontColorHover: var(--buttonPrimaryFontColor);
+  --buttonPrimaryBgColorHover: linear-gradient(#6187d2, #5981d0);
+  --buttonPrimaryBorderHover: var(--buttonPrimaryBorder);
+  --buttonPrimaryFontColorActive: var(--buttonPrimaryFontColor);
+  --buttonPrimaryBgColorActive: #3d6bc8;
+  --buttonPrimaryBorderActive: var(--buttonPrimaryBorder);
+  --buttonPrimaryFocusBorder: none;
+  --buttonPrimaryFocusShadow: inset 0 0 0 1px rgba(24, 26, 31, 0.5), 0 0 0 1px #568af2;
   --tableBorderColor: #363839;
 
   /*marktext*/
   --sideBarColor: #9da5b4;
+  --sideBarIconColor: var(--iconColor);
   --sideBarTitleColor: #9da5b4;
   --sideBarTextColor: #9da5b4;
   --sideBarBgColor: #21252b;
   --sideBarItemHoverBgColor: #3a3f4b;
   --itemBgColor: #21252b;
+
+  --floatFontColor: #9da5b4;
   --floatBgColor: #21252b;
   --floatHoverColor: #3a3f4b;
   --floatBorderColor: #181a1f;
@@ -66,27 +92,33 @@
   background: #4b5362;
 }
 
-.el-tooltip__popper.is-dark {
-  border: 1px solid #181a1f;
-}
+/* --- Element UI ------------------------------------------------ */
+
 .v-modal {
-  background: #000;
+  background: #08090a !important;
+  opacity: 0.65 !important;
 }
-.el-dialog {
+.el-dialog,
+.el-dialog.ag-dialog-table {
+  border-radius: 6px !important;
   box-shadow: 0 1px 3px rgba(0,0,0,.3) !important;
   border: 1px solid #181a1f !important;
+  background: #252830 !important;
 }
+
+.el-button:focus {
+  color: var(--buttonFontColor);
+}
+.el-button--primary:focus {
+  color: var(--buttonPrimaryFontColor);
+  background: var(--buttonPrimaryBgColor);
+}
+
+/* --- Core elements --------------------------------------------- */
+
 .ag-front-menu .submenu,
 .ag-float-wrapper {
   box-shadow: 0 4px 8px 0 var(--floatShadow) !important;
-}
-
-.mt-notification > .notice-bg.icon-message {
-  background: #4d78cc !important;
-}
-
-.drop-container.active {
-  border: 1px dashed #4d78cc !important;
 }
 
 .title-bar .frameless-titlebar-button > div > svg {
@@ -97,6 +129,18 @@
   background-color: rgba(215, 218, 224, 0.05) !important;
 }
 
+.input-wrapper {
+  border-radius: 3px !important;
+  border: 1px solid #181a1f !important;
+  background: #1b1d23 !important;
+}
+
+.aidou .search-wrapper {
+  box-shadow: none;
+}
+
+/* --- UI elements ----------------------------------------------- */
+
 .side-bar {
   border-right: 1px solid #181a1f !important;
 }
@@ -106,27 +150,16 @@
 .left-column ul > li:hover > svg {
   color: #d7dae0 !important;
 }
+.left-column ul > li:hover > svg {
+  color: #d7dae0 !important;
+}
 .left-column ul > li.active > svg {
   color: #4d78cc !important;
 }
-.open-project svg,
-.empty .no-data svg,
-.side-bar-toc .no-data svg {
-  fill: #4d78cc !important;
-}
 
-.recent-files-projects a,
-.open-project a {
-  color: #9da5b4 !important;
-  border: 1px solid #181a1f !important;
-  background-color: #353b45 !important;
-  background-image: linear-gradient(#3a3f4b, #353b45) !important;
-  box-shadow: none !important;
-}
-.recent-files-projects a:hover,
-.open-project a:hover {
-  color: #d7dae0 !important;
-  background-image: linear-gradient(#3e4451, #3a3f4b) !important;
+.open-project button.button-primary,
+.recent-files-projects button.button-primary {
+  box-shadow: none;
 }
 
 .editor-tabs {
@@ -170,6 +203,12 @@
   fill: #4d78cc;
 }
 
+/* --- Editor ---------------------------------------------------- */
+
+blockquote::before {
+  background: var(--highlightThemeColor);
+}
+
 :not(pre) > code[class*="language-"],
 pre:not(.CodeMirror-line),
 pre[class*="language-"],
@@ -181,10 +220,6 @@ pre.ag-paragraph {
 p:not(.ag-active)[data-role="hr"]::before {
   border-top: 2px dashed #4b5362 !important;
   background: none !important;
-}
-
-.input-wrapper {
-  background: #1b1d23 !important;
 }
 
 li.ag-task-list-item {

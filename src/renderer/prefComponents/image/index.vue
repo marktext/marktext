@@ -17,7 +17,7 @@
     <section class="image-folder">
       <div class="description">The local image folder.</div>
       <div class="path">{{imageFolderPath}}</div>
-      <div class="button-group">
+      <div>
         <el-button size="mini" @click="modifyImageFolderPath">Modify</el-button>
         <el-button size="mini" @click="openImageFolder">Open Folder</el-button>
       </div>
