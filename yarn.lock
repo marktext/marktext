@@ -5022,10 +5022,10 @@ flatten@^1.0.2:
   resolved "https://registry.yarnpkg.com/flatten/-/flatten-1.0.2.tgz#dae46a9d78fbe25292258cc1e780a41d95c03782"
   integrity sha1-2uRqnXj74lKSJYzB54CkHZXAN4I=
 
-flowchart.js@^1.11.3:
-  version "1.11.3"
-  resolved "https://registry.yarnpkg.com/flowchart.js/-/flowchart.js-1.11.3.tgz#e27e2c2bb5ed0e78bea403f1370a0ea3dfe274dd"
-  integrity sha512-Hk5vKKsEjYp/Vt4gSRBx39z+6OLwkg3top/EQ4antpZXCVrHLajVGWEqhCPeEBixhzDxAtHdRn4aFEtRhlTzHA==
+flowchart.js@^1.12.0:
+  version "1.12.0"
+  resolved "https://registry.npmjs.org/flowchart.js/-/flowchart.js-1.12.0.tgz#ff5b4cf350b4e067a4232dc1b4dfdd87524acf5a"
+  integrity sha512-82mj9315e3+U87D147dbPu/MKBqAtngQu3JY1GFG0+3HmsT6yN/PbpI/tmjdchWEU3gAAKuVXxSGT9u3dNvYow==
   dependencies:
     raphael "2.2.7"
 
@@ -6675,13 +6675,13 @@ katex@^0.10.2:
   dependencies:
     commander "^2.19.0"
 
-keyboard-layout@^2.0.15:
-  version "2.0.15"
-  resolved "https://registry.yarnpkg.com/keyboard-layout/-/keyboard-layout-2.0.15.tgz#ca3be873f18107cb481a45f820de73f5696cd5cf"
-  integrity sha512-CLUhV2Cztm+0kbPHplX9vVCCtnoWd3S6lwA5r+rSzGQzzC0Ot2HsuBSu6IV6v5iPpsvr4cgE4uyfSvQNKnx/BA==
+keyboard-layout@^2.0.16:
+  version "2.0.16"
+  resolved "https://registry.npmjs.org/keyboard-layout/-/keyboard-layout-2.0.16.tgz#b8c1036222c3c12f00c1e0296a032529c43e530e"
+  integrity sha512-eGrxmlV6jbm/mbPEOpYGuH53XEC7wIUj9ZxKcT2z9QHJ/RwrT9iVkvxka9zRxqHZHwQzcffgsa5OxoVAKnhK9w==
   dependencies:
     event-kit "^2.0.0"
-    nan "^2.10.0"
+    nan "^2.13.2"
 
 keyboardevents-areequal@^0.2.1:
   version "0.2.2"
@@ -6693,12 +6693,12 @@ keypress@0.1.x:
   resolved "https://registry.yarnpkg.com/keypress/-/keypress-0.1.0.tgz#4a3188d4291b66b4f65edb99f806aa9ae293592a"
   integrity sha1-SjGI1CkbZrT2XtuZ+AaqmuKTWSo=
 
-keytar@^4.7.0:
-  version "4.7.0"
-  resolved "https://registry.yarnpkg.com/keytar/-/keytar-4.7.0.tgz#992f646ace0862ee72a513a9f6cf7c21ef97078f"
-  integrity sha512-0hLlRRkhdR0068fVQo21hnIndGvacsh9PtAHGAPMPzxFjJwP8idAkVAcbdb1P5B+gterCBa3+4hxL0NPMDlZtw==
+keytar@^4.10.0:
+  version "4.10.0"
+  resolved "https://registry.npmjs.org/keytar/-/keytar-4.10.0.tgz#03897398b22d6e60dbd0b381c088b2495ff32ce5"
+  integrity sha512-oL6dF4FMX8G80zL5e1CPIUEKwZCe9XZw6JZI5YesNstamzJbyZduj7NMUEX2l72BLyWQibyZOvipmof0QbsbRQ==
   dependencies:
-    nan "2.13.2"
+    nan "2.14.0"
     prebuild-install "5.3.0"
 
 killable@^1.0.1:
@@ -7610,7 +7610,12 @@ mute-stream@0.0.7:
   resolved "https://registry.yarnpkg.com/mute-stream/-/mute-stream-0.0.7.tgz#3075ce93bc21b8fab43e1bc4da7e8115ed1e7bab"
   integrity sha1-MHXOk7whuPq0PhvE2n6BFe0ee6s=
 
-nan@2.13.2, nan@^2.10.0, nan@^2.12.1:
+nan@2.14.0, nan@^2.13.2:
+  version "2.14.0"
+  resolved "https://registry.npmjs.org/nan/-/nan-2.14.0.tgz#7818f722027b2459a86f0295d434d1fc2336c52c"
+  integrity sha512-INOFj37C7k3AfaNTtX8RhsTw7qRy7eLET14cROi9+5HAVbbHuIWUHEauBv5qT4Av2tWasiTY1Jw6puUNqRJXQg==
+
+nan@^2.12.1:
   version "2.13.2"
   resolved "https://registry.yarnpkg.com/nan/-/nan-2.13.2.tgz#f51dc7ae66ba7d5d55e1e6d4d8092e802c9aefe7"
   integrity sha512-TghvYc72wlMGMVMluVo9WRJc0mB8KxxF/gZ4YYFy7V2ZQX9l7rgbPg7vjS9mt6U5HXODVFVI2bOduCzwOMv/lw==
@@ -11359,14 +11364,14 @@ vega-dataflow@^5.1.0, vega-dataflow@^5.1.1, vega-dataflow@^5.2.1:
     vega-loader "^4.0.0"
     vega-util "^1.10.0"
 
-vega-embed@^4.0.0:
-  version "4.0.0"
-  resolved "https://registry.yarnpkg.com/vega-embed/-/vega-embed-4.0.0.tgz#c0afac883ac170b1bc3b4ae182b3326cfc2e20b8"
-  integrity sha512-lpYpcR06tzXU0fbJGg+vh/A9p2WVRhsfmiJJwN2eX20/dEjhKSn08F3mQdXk3o3SC9fBlSMViBgs/lzxtQSYBg==
+vega-embed@^4.2.0:
+  version "4.2.0"
+  resolved "https://registry.npmjs.org/vega-embed/-/vega-embed-4.2.0.tgz#59e8478faa6e1e33d0eb601a5b98be9b79d4c4ad"
+  integrity sha512-+WaCaoESZBnF80OiA3UUTO/2qlruj5iTyK1mXYIqdfygEldFLQSZS1DSbLwy0m6BlTZz7mkEWMIe6cX4/P3ufw==
   dependencies:
     d3-selection "^1.4.0"
     json-stringify-pretty-compact "^2.0.0"
-    semver "^5.6.0"
+    semver "^6.0.0"
     vega-schema-url-parser "^1.1.0"
     vega-themes "^2.3.0"
     vega-tooltip "^0.17.0"
@@ -11444,10 +11449,10 @@ vega-hierarchy@^4.0.1:
     vega-dataflow "^5.1.0"
     vega-util "^1.8.0"
 
-vega-lite@^3.2.1:
-  version "3.2.1"
-  resolved "https://registry.yarnpkg.com/vega-lite/-/vega-lite-3.2.1.tgz#d9aa3edbfd0886cedebe606f070bbf5c33998ba7"
-  integrity sha512-Q8ZWodSo5Q3ovLrtqHt9nR7ooRnN9rJzT74JKDPcyGTwqV6kpqFApQxyHYfIj4s4CAZs4pGdpBQaa2M4pKVeyw==
+vega-lite@^3.3.0:
+  version "3.3.0"
+  resolved "https://registry.npmjs.org/vega-lite/-/vega-lite-3.3.0.tgz#26db53d37edd0b22ab466e09b4d21ee2ae63aaf4"
+  integrity sha512-LEfyuJK9EhnbLcs8FuSXbVl/Ks5mm/jjRY+s4zogxSv89Z7yiCNl/HTtGklJ7q0vHT8ffEsrnonIgEQxVzZegA==
   dependencies:
     "@types/clone" "~0.1.30"
     "@types/fast-json-stable-stringify" "^2.0.0"
@@ -11458,9 +11463,9 @@ vega-lite@^3.2.1:
     tslib "~1.9.3"
     vega-event-selector "~2.0.0"
     vega-expression "~2.6.0"
-    vega-typings "0.6.2"
+    vega-typings "0.7.1"
     vega-util "~1.10.0"
-    yargs "~13.2.2"
+    yargs "~13.2.4"
 
 vega-loader@^4.0.0:
   version "4.0.0"
@@ -11603,10 +11608,10 @@ vega-transforms@^4.1.0:
     vega-statistics "^1.4.0"
     vega-util "^1.10.0"
 
-vega-typings@0.6.2:
-  version "0.6.2"
-  resolved "https://registry.yarnpkg.com/vega-typings/-/vega-typings-0.6.2.tgz#2951bf7a4208a5aca3aa8e1316c4df81e759b02b"
-  integrity sha512-k1VBtlj+Ls8cgl1zvdUD6iX7YGsxkHSWmeG0C8DGOxKU7Q3imOCb7uUytexVjVKuWqwCrMnmNTYspelgLBMO+Q==
+vega-typings@0.7.1:
+  version "0.7.1"
+  resolved "https://registry.npmjs.org/vega-typings/-/vega-typings-0.7.1.tgz#c4e5f65eeee4fb64b1a2b14dee426d1b26a02a40"
+  integrity sha512-YRjmcszidnncThmv3UnectLTw6oN/Wg9crx62JC0bA/NhLl4aWuaWTQvikr87l7cGWfKR3Qh9fQgRRhgJ22CPw==
   dependencies:
     vega-util "^1.10.0"
 
@@ -12365,7 +12370,7 @@ yargs@12.0.5, yargs@^12.0.5:
     y18n "^3.2.1 || ^4.0.0"
     yargs-parser "^11.1.1"
 
-yargs@13.2.2, yargs@~13.2.2:
+yargs@13.2.2:
   version "13.2.2"
   resolved "https://registry.yarnpkg.com/yargs/-/yargs-13.2.2.tgz#0c101f580ae95cea7f39d927e7770e3fdc97f993"
   integrity sha512-WyEoxgyTD3w5XRpAQNYUB9ycVH/PQrToaTXdYXRdOXvEy1l19br+VJsc0vcO8PTGg5ro/l/GY7F/JMEBmI0BxA==
@@ -12382,9 +12387,9 @@ yargs@13.2.2, yargs@~13.2.2:
     y18n "^4.0.0"
     yargs-parser "^13.0.0"
 
-yargs@^13.2.2:
+yargs@^13.2.2, yargs@~13.2.4:
   version "13.2.4"
-  resolved "https://registry.yarnpkg.com/yargs/-/yargs-13.2.4.tgz#0b562b794016eb9651b98bd37acf364aa5d6dc83"
+  resolved "https://registry.npmjs.org/yargs/-/yargs-13.2.4.tgz#0b562b794016eb9651b98bd37acf364aa5d6dc83"
   integrity sha512-HG/DWAJa1PAnHT9JAhNa8AbAv3FPaiLzioSjCcmuXXhP8MlpHO5vwls4g4j6n30Z74GVQj8Xa62dWVx1QCGklg==
   dependencies:
     cliui "^5.0.0"
