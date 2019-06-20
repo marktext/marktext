@@ -277,8 +277,8 @@
     "webpack": "^4.31.0",
     "webpack-bundle-analyzer": "^3.3.2",
     "webpack-cli": "^3.3.2",
-    "webpack-dev-server": "^3.3.1",
-    "webpack-hot-middleware": "^2.24.4",
+    "webpack-dev-server": "^3.7.2",
+    "webpack-hot-middleware": "^2.25.0",
     "webpack-merge": "^4.2.1"
   },
   "optionalDependencies": {
