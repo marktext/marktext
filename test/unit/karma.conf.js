@@ -31,7 +31,17 @@ delete webpackConfig.output.libraryTarget
 
 module.exports = config => {
   config.set({
-    browsers: ['Electron'],
+    browsers: ['CustomElectron'],
+    customLaunchers: {
+      CustomElectron: {
+        base: 'Electron',
+        browserWindowOptions: {
+          webPreferences: {
+            nodeIntegration: true
+          }
+        }
+      }
+    },
     mode: 'development',
     client: {
       useIframe: false
