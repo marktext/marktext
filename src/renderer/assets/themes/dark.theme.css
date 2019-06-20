@@ -27,6 +27,7 @@
   --codeBgColor: #424344;
   --codeBlockBgColor: #424344;
   --inputBgColor: rgba(0, 0, 0, .1);
+
   --focusColor: var(--themeColor);
 
   --buttonFontColor: rgba(255, 255, 255, .6);
@@ -52,6 +53,7 @@
   --buttonPrimaryBorderActive: var(--buttonPrimaryBorder);
   --buttonPrimaryFocusBorder: none;
   --buttonPrimaryFocusShadow: inset 0 0 0 1px rgba(24, 26, 31, 0.5), 0 0 0 1px var(--themeColor);
+  --tableBorderColor: #363839;
 
   /*marktext*/
   --sideBarColor: rgba(255, 255, 255, .6);

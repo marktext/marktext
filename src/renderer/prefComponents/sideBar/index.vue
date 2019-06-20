@@ -1,6 +1,6 @@
 <template>
   <div class="pref-sidebar">
-    <h3 class="title">Preference</h3>
+    <h3 class="title">Preferences</h3>
     <section class="search-wrapper">
       <el-autocomplete
         popper-class="pref-autocomplete"
@@ -89,7 +89,7 @@ export default {
   .pref-sidebar {
     -webkit-app-region: drag;
     background: var(--sideBarBgColor);
-    width: 320px;
+    width: var(--prefSideBarWidth);
     height: 100vh;
     padding-top: 40px;
     box-sizing: border-box;

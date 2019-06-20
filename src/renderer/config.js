@@ -10,6 +10,7 @@ export const DEFAULT_CODE_FONT_FAMILY = '"DejaVu Sans Mono", "Source Code Pro", 
 export const DEFAULT_STYLE = {
   codeFontFamily: DEFAULT_CODE_FONT_FAMILY,
   codeFontSize: '14px',
+  hideScrollbar: false,
   theme: 'light'
 }
 

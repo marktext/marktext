@@ -126,6 +126,7 @@ kbd {
 
   #ag-editor-id {
     max-width: var(--editorAreaWidth);
+    min-width: 400px;
     min-height: 100%;
     margin: 0 auto;
     padding: 20px 50px 100px 50px;
@@ -391,14 +392,14 @@ kbd {
 
   table tr th {
     font-weight: bold;
-    border: 1px solid var(--editorColor10);
+    border: 1px solid var(--tableBorderColor);
     text-align: left;
     margin: 0;
     padding: 6px 13px;
   }
 
   table tr td {
-    border: 1px solid var(--editorColor10);
+    border: 1px solid var(--tableBorderColor);
     text-align: left;
     margin: 0;
     padding: 6px 13px;

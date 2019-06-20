@@ -2,7 +2,7 @@
   <div class="pref-editor">
     <h4>Editor</h4>
     <range
-      description="Font size in editor"
+      description="The font size of editor text"
       :value="fontSize"
       :min="12"
       :max="32"
@@ -11,13 +11,13 @@
       :onChange="value => onSelectChange('fontSize', value)"
     ></range>
     <cur-select
-      description="Font used in editor"
+      description="The used font in the editor."
       :value="editorFontFamily"
       :options="editorFontFamilyOptions"
       :onChange="value => onSelectChange('editorFontFamily', value)"
     ></cur-select>
     <range
-      description="Line height in editor"
+      description="Line height of editor lines."
       :value="lineHeight"
       :min="1.2"
       :max="2.0"
@@ -26,7 +26,7 @@
     ></range>
     <separator></separator>
     <bool
-      description="Automatically brackets when editing"
+      description="Automatically brackets when editing."
       :bool="autoPairBracket"
       :onChange="value => onSelectChange('autoPairBracket', value)"
     ></bool>
@@ -42,20 +42,20 @@
     ></bool>
     <separator></separator>
     <cur-select
-      description="The default end of line character, if you select default, which will be selected according to your system intelligence"
+      description="The default end of line character, if you select default, which will be selected according to your system intelligence."
       :value="endOfLine"
       :options="endOfLineOptions"
       :onChange="value => onSelectChange('endOfLine', value)"
     ></cur-select>
     <cur-select
-      description="The writing text direction"
+      description="The writing text direction."
       :value="textDirection"
       :options="textDirectionOptions"
       :onChange="value => onSelectChange('textDirection', value)"
     ></cur-select>
     <separator></separator>
     <range
-      description="Code block font size in editor"
+      description="The code block font size in editor."
       :value="codeFontSize"
       :min="12"
       :max="28"
@@ -64,17 +64,25 @@
       :onChange="value => onSelectChange('codeFontSize', value)"
     ></range>
     <cur-select
-      description="Font used in code block"
+      description="The used code block font in the editor."
       :value="codeFontFamily"
       :options="codeFontFamilyOptions"
       :onChange="value => onSelectChange('codeFontFamily', value)"
     ></cur-select>
     <separator></separator>
     <bool
-      description="Hide hint for quickly creating paragraphs"
-      :bool="hideQuickInsertHint"
+      description="Hide hint for quickly creating paragraphs."
+      :input="hideQuickInsertHint"
       :onChange="value => onSelectChange('hideQuickInsertHint', value)"
     ></bool>
+    <separator></separator>
+    <text-box
+      description="Defines the maximum editor area width. An empty string or suffixes of ch (characters), px (pixels) or % (percentage) are allowed."
+      :input="editorLineWidth"
+      :regexValidator="/^(?:$|[0-9]+(?:ch|px|%)$)/"
+      defaultValue="The default value from the current theme"
+      :onChange="value => onSelectChange('editorLineWidth', value)"
+    ></text-box>
   </div>
 </template>
 
@@ -84,6 +92,7 @@ import Range from '../common/range'
 import CurSelect from '../common/select'
 import Bool from '../common/bool'
 import Separator from '../common/separator'
+import TextBox from '../common/textBox'
 import {
   editorFontFamilyOptions,
   endOfLineOptions,
@@ -96,7 +105,8 @@ export default {
     Range,
     CurSelect,
     Bool,
-    Separator
+    Separator,
+    TextBox
   },
   data () {
     this.editorFontFamilyOptions = editorFontFamilyOptions
@@ -117,7 +127,8 @@ export default {
       textDirection: state => state.preferences.textDirection,
       codeFontSize: state => state.preferences.codeFontSize,
       codeFontFamily: state => state.preferences.codeFontFamily,
-      hideQuickInsertHint: state => state.preferences.hideQuickInsertHint
+      hideQuickInsertHint: state => state.preferences.hideQuickInsertHint,
+      editorLineWidth: state => state.preferences.editorLineWidth
     })
   },
   methods: {

@@ -4,7 +4,7 @@
     "type": "boolean"
   },
   "autoSaveDelay": {
-    "description": "General--How long do you want to save your document(ms)?",
+    "description": "General--The time in ms after a change that the file is saved.",
     "type": "number",
     "minimum": 1000
   },
@@ -22,6 +22,11 @@
   "openFolderInNewWindow": {
     "description": "General--Open folder via menu in a new window.",
     "type": "boolean"
+  },
+  "hideScrollbar": {
+    "description": "General--Whether to hide scrollbars.",
+    "type": "boolean",
+    "default": false
   },
   "aidou": {
     "description": "General--Enable aidou",
@@ -76,6 +81,11 @@
     "minimum": 1.2,
     "default": 1.6
   },
+  "editorLineWidth": {
+    "description": "Editor--Defines the maximum editor area width. An empty string or suffixes of ch (characters), px (pixels) or % (percentage) are allowed.",
+    "type": "string",
+    "pattern": "^(?:$|[0-9]+(?:ch|px|%)$)"
+  },
   "codeFontSize": {
     "description": "Editor--Font size in code Block, the range is 12 ~ 18",
     "type": "number",
@@ -92,6 +102,7 @@
       "monospace"
     ]
   },
+
   "autoPairBracket": {
     "description": "Editor--Automatically brackets when editing",
     "type": "boolean"

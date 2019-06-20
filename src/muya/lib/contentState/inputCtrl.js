@@ -82,7 +82,6 @@ const inputCtrl = ContentState => {
     if (!start || !end) {
       return
     }
-
     const { start: oldStart, end: oldEnd } = this.cursor
     const key = start.key
     const block = this.getBlock(key)
@@ -201,7 +200,7 @@ const inputCtrl = ContentState => {
       if (
         block.text.endsWith('\n') &&
         start.offset === text.length &&
-        event.inputType === 'insertText'
+        (event.inputType === 'insertText' || event.type === 'compositionend')
       ) {
         block.text += event.data
         start.offset++

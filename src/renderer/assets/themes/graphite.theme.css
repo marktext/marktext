@@ -53,6 +53,7 @@
   --buttonPrimaryBorderActive: var(--buttonPrimaryBorder);
   --buttonPrimaryFocusBorder: none;
   --buttonPrimaryFocusShadow: inset 0 0 0 1px rgba(53, 74, 99, 0.5), 0 0 0 1px var(--themeColor);
+  --tableBorderColor: #e5e5e5;
 
   --sideBarColor: rgba(188, 193, 197, .8);
   --sideBarIconColor: rgba(175, 175, 175, .8);

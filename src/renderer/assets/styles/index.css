@@ -60,6 +60,7 @@
   --buttonPrimaryBorderActive: var(--buttonPrimaryBorder);
   --buttonPrimaryFocusBorder: none;
   --buttonPrimaryFocusShadow: inset 0 0 0 1px rgba(13, 91, 55, 0.5), 0 0 0 1px var(--themeColor);
+  --tableBorderColor: #e5e5e5;
 
   /*marktext*/
   --sideBarColor: rgba(0, 0, 0, .6);

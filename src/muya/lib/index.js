@@ -318,6 +318,7 @@ class Muya {
     if (needRender) {
       this.contentState.render()
     }
+
     // Set quick insert hint visibility
     const hideQuickInsertHint = options['hideQuickInsertHint']
     if (typeof hideQuickInsertHint !== 'undefined') {
@@ -328,6 +329,7 @@ class Muya {
         this.container.classList.add('ag-show-quick-insert-hint')
       }
     }
+
     if (options.bulletListMarker) {
       this.contentState.turndownConfig.bulletListMarker = options.bulletListMarker
     }

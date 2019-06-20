@@ -21,6 +21,7 @@ const parseUrlArgs = () => {
   const codeFontFamily = params.get('cff')
   const codeFontSize = params.get('cfs')
   const debug = params.get('debug') === '1'
+  const hideScrollbar = params.get('hsb') === '1'
   const theme = params.get('theme')
   const titleBarStyle = params.get('tbs')
   const userDataPath = params.get('udp')
@@ -34,6 +35,7 @@ const parseUrlArgs = () => {
     initialState: {
       codeFontFamily,
       codeFontSize,
+      hideScrollbar,
       theme,
       titleBarStyle
     }

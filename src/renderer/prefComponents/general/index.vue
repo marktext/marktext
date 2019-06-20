@@ -2,12 +2,12 @@
   <div class="pref-general">
     <h4>General</h4>
     <bool
-      description="Automatically save the content being edited"
+      description="Automatically save the content being edited."
       :bool="autoSave"
       :onChange="value => onSelectChange('autoSave', value)"
     ></bool>
     <range
-      description="How long do you want to save your document?"
+      description="The time in ms after a change that the file is saved."
       :value="autoSaveDelay"
       :min="1000"
       :max="10000"
@@ -17,39 +17,49 @@
     ></range>
     <cur-select
       v-if="!isOsx"
-      description="The title bar style, frameless or not. (You need to restart Mark Text to enable it)"
+      description="The title bar style, frameless or not. You need to restart Mark Text to enable it."
       :value="titleBarStyle"
       :options="titleBarStyleOptions"
       :onChange="value => onSelectChange('titleBarStyle', value)"
     ></cur-select>
     <separator></separator>
     <bool
-      description="Open file in new window"
+      description="Open files in new window."
       :bool="openFilesInNewWindow"
       :onChange="value => onSelectChange('openFilesInNewWindow', value)"
     ></bool>
     <bool
-      description="Enable Aidou"
+      description="Open folder via menu in a new window."
+      :bool="openFolderInNewWindow"
+      :onChange="value => onSelectChange('openFolderInNewWindow', value)"
+    ></bool>
+    <bool
+      description="Whether to hide scrollbars."
+      :bool="hideScrollbar"
+      :onChange="value => onSelectChange('hideScrollbar', value)"
+    ></bool>
+    <bool
+      description="Enable Aidou."
       :bool="aidou"
       :onChange="value => onSelectChange('aidou', value)"
     ></bool>
     <separator></separator>
     <cur-select
-      description="Sort files in opened folder by created time modified time and title"
+      description="Sort files in opened folder by created time modified time and title."
       :value="fileSortBy"
       :options="fileSortByOptions"
       :onChange="value => onSelectChange('fileSortBy', value)"
       :disable="true"
     ></cur-select>
     <section class="startup-action-ctrl">
-      <div>The action after Mark Text startup, open the last edited content, open the specified folder or blank page</div>
+      <div>The action after Mark Text startup: open the last edited content, open the specified folder or blank page.</div>
       <el-radio class="ag-underdevelop" v-model="startUpAction" label="lastState">Open the last window state</el-radio>
       <el-radio v-model="startUpAction" label="folder">Open a default directory</el-radio>
       <el-button size="small" @click="selectDefaultDirectoryToOpen">Select Folder</el-button>
       <el-radio v-model="startUpAction" label="blank">Open blank page</el-radio>
     </section>
     <cur-select
-      description="The language Mark Text use"
+      description="The language Mark Text use."
       :value="language"
       :options="languageOptions"
       :onChange="value => onSelectChange('language', value)"
@@ -92,6 +102,8 @@ export default {
       autoSaveDelay: state => state.preferences.autoSaveDelay,
       titleBarStyle: state => state.preferences.titleBarStyle,
       openFilesInNewWindow: state => state.preferences.openFilesInNewWindow,
+      openFolderInNewWindow: state => state.preferences.openFolderInNewWindow,
+      hideScrollbar: state => state.preferences.hideScrollbar,
       aidou: state => state.preferences.aidou,
       fileSortBy: state => state.preferences.fileSortBy,
       startUpAction: state => state.preferences.startUpAction,
