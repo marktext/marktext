@@ -63,7 +63,7 @@ class Muya {
     const config = { childList: true, subtree: true }
 
     // Callback function to execute when mutations are observed
-    const callback = function(mutationsList, observer) {
+    const callback = (mutationsList, observer) => {
       for(const mutation of mutationsList) {
         if (mutation.type === 'childList') {
           const { removedNodes, target } = mutation
@@ -73,6 +73,11 @@ class Muya {
             const hasTable = Array.from(removedNodes).some(node => node.nodeType === 1 && node.closest('table.ag-paragraph'))
             if (hasTable) {
               console.warn('There was a problem with the table deletion.')
+            }
+            const lineRemovedUnExpected = Array.from(removedNodes).some(node => node.nodeType === 1 && node.classList.contains('ag-paragraph-content'))
+              && this.keyboard.isComposed
+            if (lineRemovedUnExpected) {
+              this.contentState.partialRender()
             }
           }
 
