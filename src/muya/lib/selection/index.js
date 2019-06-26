@@ -3,7 +3,7 @@
  * and customize for specialized use.
  */
 import Cursor from './cursor'
-import { CLASS_OR_ID } from '../config'
+import { CLASS_OR_ID, isIOS } from '../config'
 import {
   isBlockContainer,
   traverseUp,
@@ -509,8 +509,12 @@ class Selection {
       focusNode = anchorNode
       focusOffset = anchorOffset
     } else if (!isAnchorValid && !isFocusValid) {
-      const editor = document.querySelector('#ag-editor-id').parentNode
-      editor.blur()
+      const noNeedBlur = anchorNode.nodeType === 1 && !!anchorNode.querySelector('br') && anchorOffset === 1
+      if (!isIOS || !noNeedBlur) {
+        const editor = document.querySelector('#ag-editor-id').parentNode
+        editor.blur()
+      }
+
       return new Cursor({
         start: null,
         end: null,

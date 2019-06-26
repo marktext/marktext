@@ -47,6 +47,7 @@ class Keyboard {
         this.isComposed = false
         // Because the compose event will not cause `input` event, So need call `inputHandler` by ourself
         contentState.inputHandler(event)
+        eventCenter.dispatch('stateChange')
       }
     }
 
@@ -86,7 +87,9 @@ class Keyboard {
         const { formats } = contentState.selectionFormats()
         eventCenter.dispatch('selectionChange', selectionChanges)
         eventCenter.dispatch('selectionFormats', formats)
-        this.muya.dispatchChange()
+        if (!this.isComposed && event.type === 'click') {
+          this.muya.dispatchChange()
+        }
       })
     }
 
@@ -192,6 +195,7 @@ class Keyboard {
     const inputHandler = event => {
       if (!this.isComposed) {
         contentState.inputHandler(event)
+        this.muya.dispatchChange()
       }
 
       const { lang, paragraph } = contentState.checkEditLanguage()
