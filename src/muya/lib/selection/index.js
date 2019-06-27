@@ -509,6 +509,8 @@ class Selection {
       focusNode = anchorNode
       focusOffset = anchorOffset
     } else if (!isAnchorValid && !isFocusValid) {
+      // Fix bug on some IOS devices(iPhone, iPad, iPod, etc), it will remove the paragraph-content span before
+      // compositionend event. So we add a re-render after it removed this element and do not blur editor.
       const noNeedBlur = anchorNode.nodeType === 1 && !!anchorNode.querySelector('br') && anchorOffset === 1
       if (!isIOS || !noNeedBlur) {
         const editor = document.querySelector('#ag-editor-id').parentNode
