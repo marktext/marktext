@@ -97,13 +97,16 @@ div.ag-show-quick-insert-hint p.ag-paragraph.ag-active > span.ag-paragraph-conte
 figure.ag-container-block pre {
   width: 0;
   height: 0;
-  overflow: hidden;
   opacity: 0;
   z-index: -1;
   position: absolute;
   margin-top: 0;
   margin-bottom: 0;
   overflow: visible;
+}
+
+figure:not(.ag-active).ag-container-block pre {
+  overflow: hidden;
 }
 
 figure.ag-active.ag-container-block pre {
