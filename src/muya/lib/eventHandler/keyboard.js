@@ -163,6 +163,7 @@ class Keyboard {
         case EVENT_KEYS.Enter:
           if (!this.isComposed) {
             contentState.enterHandler(event)
+            this.muya.dispatchChange()
           }
           break
         case 'a':
