@@ -114,7 +114,7 @@ const imageCtrl = ContentState => {
     block.text = oldText.substring(0, start) + imageText + oldText.substring(end)
     return this.singleRender(block)
   }
-  
+
   ContentState.prototype.deleteImage = function ({ key, token }) {
     const block = this.getBlock(key)
     const oldText = block.text
@@ -125,7 +125,8 @@ const imageCtrl = ContentState => {
       start: { key, offset: start },
       end: { key, offset: start }
     }
-    return this.singleRender(block)
+    this.singleRender(block)
+    return this.muya.dispatchChange()
   }
 
   ContentState.prototype.selectImage = function (imageInfo) {
