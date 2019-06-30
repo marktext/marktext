@@ -116,8 +116,8 @@ class App {
     })
   }
 
-  get screenshotFileName () {
-    const screenshotFolderPath = this._accessor.dataCenter.getItem('screenshotFolderPath')
+  async getScreenshotFileName () {
+    const screenshotFolderPath = await this._accessor.dataCenter.getItem('screenshotFolderPath')
     const fileName = `${dayjs().format('YYYY-MM-DD-HH-mm-ss')}-screenshot.png`
     return path.join(screenshotFolderPath, fileName)
   }
@@ -395,10 +395,10 @@ class App {
       this._createEditorWindow()
     })
 
-    ipcMain.on('screen-capture', win => {
+    ipcMain.on('screen-capture', async win => {
       if (isOsx) {
         // Use macOs `screencapture` command line when in macOs system.
-        const { screenshotFileName } = this
+        const screenshotFileName = await this.getScreenshotFileName()
         exec(`screencapture -i -c`, async (err) => {
           if (err) {
             log.error(err)
