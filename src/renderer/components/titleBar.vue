@@ -167,8 +167,9 @@
     watch: {
       filename: function (value) {
         // Set filename when hover on dock
-        const title = this.project && this.project.name ? `${value} - ${this.project.name}` : value
-        document.querySelector('title').textContent = title
+        const title = this.project && this.project.name ?
+          `${value} - ${this.project.name}` : `${value} - Mark Text`
+        document.title = title
       }
     },
     methods: {
