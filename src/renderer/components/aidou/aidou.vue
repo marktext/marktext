@@ -191,7 +191,9 @@
           })
         }
         this.$nextTick(() => {
-          this.$refs.search.focus()
+          if (this.$refs.search) {
+            this.$refs.search.focus()
+          }
         })
       },
       handlerScroll (event) {

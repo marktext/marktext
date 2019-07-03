@@ -93,6 +93,7 @@ const imageCtrl = ContentState => {
       }
     }
     this.partialRender()
+    this.muya.dispatchChange()
   }
 
   ContentState.prototype.replaceImage = function ({ key, token }, { alt = '', src = '', title = '' }) {
