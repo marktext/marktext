@@ -186,6 +186,8 @@ const pasteCtrl = ContentState => {
     event.stopPropagation()
     const text = rawText || event.clipboardData.getData('text/plain')
     let html = rawHtml || event.clipboardData.getData('text/html')
+    console.log(text)
+    console.log(html)
     html = this.standardizeHTML(html)
     const copyType = this.checkCopyType(html, text)
     const { start, end } = this.cursor

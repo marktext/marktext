@@ -4,7 +4,7 @@ import { identity } from './index'
 
 const turndownPluginGfm = require('turndown-plugin-gfm')
 
-export const usePluginAddRules = turndownService => {
+export const usePluginAddRules = (turndownService, keeps) => {
   // Use the gfm plugin
   const { gfm } = turndownPluginGfm
   turndownService.use(gfm)
@@ -40,6 +40,8 @@ export const usePluginAddRules = turndownService => {
   })
 
   turndownService.escape = identity
+
+  turndownService.keep(keeps)
 }
 
 export default TurndownService
