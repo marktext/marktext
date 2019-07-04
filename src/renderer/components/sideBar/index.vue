@@ -5,7 +5,6 @@
     ref="sideBar"
     :style="[ !rightColumn ? { 'min-width': '45px' } : {}, { 'width': `${finalSideBarWidth}px` } ]"
   >
-    <div class="title-bar-bg"></div>
     <div class="left-column">
       <ul>
         <li
