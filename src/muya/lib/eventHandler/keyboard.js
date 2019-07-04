@@ -160,6 +160,7 @@ class Keyboard {
         case EVENT_KEYS.Enter:
           if (!this.isComposed) {
             contentState.enterHandler(event)
+            this.muya.eventCenter.dispatch('muya-scroll-to-position')
           }
           break
         case 'a':
@@ -173,6 +174,9 @@ class Keyboard {
         case EVENT_KEYS.ArrowRight: // fallthrough
           if (!this.isComposed) {
             contentState.arrowHandler(event)
+            if (event.key === EVENT_KEYS.ArrowDown) {
+              this.muya.eventCenter.dispatch('muya-scroll-to-position')
+            }
           }
           break
         case EVENT_KEYS.Tab:

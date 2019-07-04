@@ -22,6 +22,7 @@ import {
   Col,
   Row,
   Tree,
+  Scrollbar,
   Autocomplete,
   Switch,
   Select,
@@ -72,6 +73,7 @@ Vue.use(ColorPicker)
 Vue.use(Col)
 Vue.use(Row)
 Vue.use(Tree)
+Vue.use(Scrollbar)
 Vue.use(Autocomplete)
 Vue.use(Switch)
 Vue.use(Select)

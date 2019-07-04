@@ -138,9 +138,12 @@ const clickCtrl = ContentState => {
       block.functionType !== 'codeLine' &&
       block.functionType !== 'languageInput'
     ) {
-      const reference = this.getPositionReference()
-      const { formats } = this.selectionFormats()
-      eventCenter.dispatch('muya-format-picker', { reference, formats })
+      // in typewriter mode,foramt picker should show after scroll finished
+      setTimeout(() => {
+        const reference = this.getPositionReference()
+        const { formats } = this.selectionFormats()
+        eventCenter.dispatch('muya-format-picker', { reference, formats })
+      }, 400)
     }
 
     // update '```xxx' to code block when you click other place or use press arrow key.

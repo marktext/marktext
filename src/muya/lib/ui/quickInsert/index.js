@@ -31,7 +31,13 @@ class QuickInsert extends BaseScrollFloat {
     if (this.renderArray.length > 0) {
       this.activeItem = this.renderArray[0]
       const activeEle = this.getItemElement(this.activeItem)
-      this.activeEleScrollIntoView(activeEle)
+      //fix: quickinsert item hide in title
+      if (activeEle && activeEle.parentElement) {
+        this.activeEleScrollIntoView(activeEle.parentElement)
+      }
+      else {
+        this.activeEleScrollIntoView(activeEle)
+      }
     }
   }
 

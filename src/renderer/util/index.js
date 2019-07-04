@@ -1,12 +1,6 @@
 import crypto from 'crypto'
+import AnimatedScroll from './animatedScroll'
 
-// help functions
-const easeInOutQuad = function (t, b, c, d) {
-  t /= d / 2
-  if (t < 1) return c / 2 * t * t + b
-  t--
-  return -c / 2 * (t * (t - 2) - 1) + b
-}
 
 const ID_PREFEX = 'mt-'
 let id = 0
@@ -56,7 +50,7 @@ export const collection = {
       }
       localStorage.setItem(DOTU_COLLECTION, JSON.stringify(col))
     } else {
-      localStorage.setItem(DOTU_COLLECTION, JSON.stringify([ emoji ]))
+      localStorage.setItem(DOTU_COLLECTION, JSON.stringify([emoji]))
     }
   },
   getItems () {
@@ -87,7 +81,7 @@ export const dotuHistory = {
       }
       localStorage.setItem(DOTU, JSON.stringify(history))
     } else {
-      localStorage.setItem(DOTU, JSON.stringify([ value ]))
+      localStorage.setItem(DOTU, JSON.stringify([value]))
     }
   },
   getItems () {
@@ -137,40 +131,37 @@ export const adjustCursor = (cursor, preline, line, nextline) => {
   return newCursor
 }
 
-export const animatedScrollTo = function (element, to, duration, callback) {
-  let start = element.scrollTop
-  let change = to - start
-  let animationStart = +new Date()
-  let animating = true
-  let lastpos = null
-
-  const animateScroll = function () {
-    if (!animating) {
-      return
-    }
-    requestAnimationFrame(animateScroll)
-    const now = +new Date()
-    const val = Math.floor(easeInOutQuad(now - animationStart, start, change, duration))
-    if (lastpos) {
-      if (lastpos === element.scrollTop) {
-        lastpos = val
-        element.scrollTop = val
-      } else {
-        animating = false
-      }
-    } else {
-      lastpos = val
-      element.scrollTop = val
-    }
-    if (now > animationStart + duration) {
-      element.scrollTop = to
-      animating = false
+export const animatedScrollTo = function (element, to, type = 'top', options, callback) {
+  const scroll = new AnimatedScroll(element, options)
+  if (type === 'top') {
+    if (to < 0) to = 0
+    scroll.top(to).then(function (newTop) {
       if (callback) {
         callback()
       }
-    }
+    })
   }
-  requestAnimationFrame(animateScroll)
+  else if (type === 'left') {
+    if (to < 0) to = 0
+    scroll.left(to).then(function (newTop) {
+      if (callback) {
+        callback()
+      }
+    })
+  }
+  else {
+    if (to.left < 0) to.left = 0
+    if (to.top < 0) to.top = 0
+    scroll.to({
+      left: to.left,
+      top: to.top
+    }).then(function (newTop) {
+      if (callback) {
+        callback()
+      }
+    })
+  }
+
 }
 
 export const getUniqueId = () => {
@@ -185,7 +176,7 @@ export const hasKeys = obj => Object.keys(obj).length > 0
  * @param {*} obj Object to clone
  * @param {Boolean} deepCopy Create a shallow (false) or deep copy (true)
  */
-export const cloneObj = (obj, deepCopy=true) => {
+export const cloneObj = (obj, deepCopy = true) => {
   return deepCopy ? JSON.parse(JSON.stringify(obj)) : Object.assign({}, obj)
 }
 
