@@ -143,11 +143,14 @@ class Muya {
 
   setMarkdown (markdown, cursor, isRenderCursor = true) {
     let newMarkdown = markdown
+    let isValid = false
     if (cursor) {
-      newMarkdown = this.contentState.addCursorToMarkdown(markdown, cursor)
+      const cursorInfo = this.contentState.addCursorToMarkdown(markdown, cursor)
+      newMarkdown = cursorInfo.markdown
+      isValid = cursorInfo.isValid
     }
     this.contentState.importMarkdown(newMarkdown)
-    this.contentState.importCursor(cursor)
+    this.contentState.importCursor(cursor && isValid)
     this.contentState.render(isRenderCursor)
     setTimeout(() => {
       this.dispatchChange()
