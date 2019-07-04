@@ -791,10 +791,10 @@ export default {
   flex: 1;
   & .editor-scroll {
     flex: 1;
-    &.el-scrollbar__wrap {
+    & .el-scrollbar__wrap {
       overflow-x: hidden;
     }
-    &.el-scrollbar__bar.is-horizontal {
+    & .el-scrollbar__bar.is-horizontal {
       display: none;
     }
   }
@@ -815,7 +815,6 @@ export default {
 }
 .editor-component {
   height: 100%;
-  overflow: auto;
   box-sizing: border-box;
 }
 .typewriter .editor-component {
