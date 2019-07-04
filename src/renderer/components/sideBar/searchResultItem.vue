@@ -20,9 +20,9 @@
             <span class="filename">{{ filename + extension }}</span>
             <span class="match-count">{{ matchCount }}</span>
           </div>
-          <div class="folder-path">
+          <!-- <div class="folder-path">
             <span>{{ dirname }}</span>
-          </div>
+          </div> -->
         </div>
       </div>
       <div
@@ -37,7 +37,7 @@
             :title="searchMatch.lineText"
             @click="handleSearchResultClick(searchMatch)"
           >
-            <span class="line-number">{{ searchMatch.range[0][0] }}</span>
+            <!-- <span class="line-number">{{ searchMatch.range[0][0] }}</span> -->
             <span>{{ searchMatch.lineText.substring(0, searchMatch.range[0][1]) }}</span>
             <span class="ag-highlight">{{ searchMatch.lineText.substring(searchMatch.range[0][1], searchMatch.range[1][1]) }}</span>
             <span>{{ searchMatch.lineText.substring(searchMatch.range[1][1]) }}</span>
@@ -143,7 +143,11 @@
       }
     }
     & .title .filename {
-      font-size: 15px;
+      font-size: 14px;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      white-space: nowrap;
+      padding-right: 8px;
     }
     & .matches {
       & ul {
@@ -165,7 +169,7 @@
             margin-right: 3px;
           }
           & span {
-            font-size: 14px;
+            font-size: 13px;
             white-space: pre;
           }
         }
@@ -193,6 +197,15 @@
       flex: 1;
     }
     & .match-count {
+      display: inline-block;
+      font-size: 12px;
+      line-height: 18px;
+      text-align: center;
+      min-width: 18px;
+      height: 18px;
+      border-radius: 9px;
+      flex-shrink: 0;
+      background: var(--itemBgColor);
       color: var(--sideBarTextColor);
     }
   }
