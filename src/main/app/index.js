@@ -415,7 +415,7 @@ class App {
           win.webContents.send('mt::screenshot-captured')
         })
       } else {
-        // Do nothing, maybe we'll add screenCapture later on Linux and Windows.
+        // TODO: Do nothing, maybe we'll add screenCapture later on Linux and Windows.
         // if (this.shortcutCapture) {
         //   this.launchScreenshotWin = win
         //   this.shortcutCapture.shortcutCapture()
@@ -504,7 +504,9 @@ class App {
         }
       })
     })
-
+    ipcMain.on('mt::open-setting-window', () => {
+      ipcMain.emit('app-create-settings-window')
+    })
   }
 }
 

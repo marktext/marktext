@@ -51,7 +51,6 @@
 
 <script>
   import { sideBarIcons, sideBarBottomIcons } from './help'
-  import bus from '../../bus'
   import Tree from './tree.vue'
   import SideBarSearch from './search.vue'
   import Toc from './toc.vue'
@@ -128,8 +127,8 @@
         }
       },
       handleLeftBottomClick (name) {
-        if (name === 'twitter') {
-          bus.$emit('tweetDialog')
+        if (name === 'setting') {
+          this.$store.dispatch('OPEN_SETTING_WINDOW')
         }
       }
     }
