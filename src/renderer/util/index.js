@@ -25,7 +25,7 @@ const deleteItem = key => value => {
 }
 
 export const serialize = function (params) {
-  return Object.keys(params).map(key => `${key}=${params[key]}`).join('&')
+  return Object.keys(params).map(key => `${key}=${encodeURI(params[key])}`).join('&')
 }
 
 export const merge = function (...args) {

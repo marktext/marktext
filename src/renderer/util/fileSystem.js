@@ -4,7 +4,7 @@ import dayjs from 'dayjs'
 import Octokit from '@octokit/rest'
 import { isImageFile } from 'common/filesystem/paths'
 import { dataURItoBlob, getContentHash } from './index'
-import axios from 'axios'
+import axios from '../axios'
 
 export const create = (pathname, type) => {
   if (type === 'directory') {
@@ -79,7 +79,11 @@ export const uploadImage = async (pathname, image, preferences) => {
     const api = 'https://sm.ms/api/upload'
     const formData = new window.FormData()
     formData.append('smfile', file)
-      axios.post(api, formData).then((res) => {
+      axios({
+        method: 'post',
+        url: api,
+        data: formData
+      }).then((res) => {
         // TODO: "res.data.data.delete" should emit "image-uploaded"/handleUploadedImage in editor.js. Maybe add to image manager too.
         re(res.data.data.url)
       })
