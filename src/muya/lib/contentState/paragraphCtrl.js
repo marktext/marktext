@@ -392,16 +392,21 @@ const paragraphCtrl = ContentState => {
   }
 
   ContentState.prototype.insertContainerBlock = function (functionType, block) {
-    if (block.type === 'span') {
-      block = this.getParent(block)
+    const anchor = this.getAnchor(block)
+    if (!anchor) {
+      console.error('Can not find the anchor paragraph to insert paragraph')
+      return
     }
-    const value = block.type === 'p'
-      ? block.children.map(child => child.text).join('\n').trim()
-      : block.text
+
+    const value = anchor.type === 'p'
+      ? anchor.children.map(child => child.text).join('\n').trim()
+      : ''
 
     const containerBlock = this.createContainerBlock(functionType, value)
-    this.insertAfter(containerBlock, block)
-    this.removeBlock(block)
+    this.insertAfter(containerBlock, anchor)
+    if (anchor.type === 'p') {
+      this.removeBlock(anchor)
+    }
 
     const cursorBlock = containerBlock.children[0].children[0].children[0]
     const { key } = cursorBlock
