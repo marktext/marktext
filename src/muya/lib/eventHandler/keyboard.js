@@ -139,7 +139,15 @@ class Keyboard {
         let needPreventDefault = false
 
         for (const tool of this.shownFloat) {
-          if (tool.name === 'ag-format-picker' || tool.name === 'ag-table-picker') {
+          if (
+            tool.name === 'ag-format-picker' ||
+            tool.name === 'ag-table-picker' ||
+            tool.name === 'ag-quick-insert' ||
+            tool.name === 'ag-emoji-picker' ||
+            tool.name === 'ag-front-menu' ||
+            tool.name === 'ag-list-picker' ||
+            tool.name === 'ag-image-selector'
+          ) {
             needPreventDefault = true
             break
           }
