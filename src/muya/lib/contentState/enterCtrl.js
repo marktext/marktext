@@ -357,13 +357,12 @@ const enterCtrl = ContentState => {
       case left !== 0 && right !== 0: {
         // cursor in the middle
         let { pre, post } = selection.chopHtmlByCursor(paragraph)
-
         if (/^h\d$/.test(block.type)) {
           if (block.headingStyle === 'atx') {
             const PREFIX = /^#+/.exec(pre)[0]
             post = `${PREFIX} ${post}`
           }
-          block.text = pre
+          block.children[0].text = pre
           newBlock = this.createBlock(type, {
             headingStyle: block.headingStyle
           })
