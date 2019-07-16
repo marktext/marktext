@@ -39,7 +39,7 @@ export default function renderContainerBlock (block, activeBlocks, matches, useC
   }
 
   if (/code|pre/.test(type) && typeof lang === 'string' && !!lang) {
-    selector += `.language-${lang}`
+    selector += `.language-${lang.replace(/[#.]{1}/g, '')}`
   }
 
   if (/^h/.test(type)) {

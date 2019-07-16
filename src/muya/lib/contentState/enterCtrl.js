@@ -471,12 +471,13 @@ const enterCtrl = ContentState => {
     }
 
     cursorBlock = getParagraphBlock(cursorBlock)
-    const key = cursorBlock.type === 'p' ? cursorBlock.children[0].key : cursorBlock.key
+    const key = cursorBlock.type === 'p' || cursorBlock.type === 'pre' ? cursorBlock.children[0].key : cursorBlock.key
     const offset = 0
     this.cursor = {
       start: { key, offset },
       end: { key, offset }
     }
+
     this.partialRender()
   }
 }
