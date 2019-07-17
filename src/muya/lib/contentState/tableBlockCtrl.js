@@ -80,16 +80,15 @@ const tableBlockCtrl = ContentState => {
       start: { key, offset },
       end: { key, offset }
     }
-    this.muya.eventCenter.dispatch('stateChange')
     this.partialRender()
   }
 
   ContentState.prototype.createTable = function (tableChecker) {
-    const { eventCenter } = this.muya
-
     this.createFigure(tableChecker)
-    const selectionChanges = this.selectionChange()
-    eventCenter.dispatch('selectionChange', selectionChanges)
+
+    this.muya.dispatchSelectionChange()
+    this.muya.dispatchSelectionFormats()
+    this.muya.dispatchChange()
   }
 
   ContentState.prototype.initTable = function (block) {
