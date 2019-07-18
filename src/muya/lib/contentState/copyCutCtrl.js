@@ -6,7 +6,10 @@ import marked from '../parser/marked'
 
 const copyCutCtrl = ContentState => {
   ContentState.prototype.cutHandler = function () {
-    const { start, end } = this.cursor
+    const { start, end } = selection.getCursorRange()
+    if (!start || !end) {
+      return
+    }
     const startBlock = this.getBlock(start.key)
     const endBlock = this.getBlock(end.key)
     startBlock.text = startBlock.text.substring(0, start.offset) + endBlock.text.substring(end.offset)
