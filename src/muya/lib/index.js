@@ -74,11 +74,6 @@ class Muya {
             if (hasTable) {
               console.warn('There was a problem with the table deletion.')
             }
-            const lineRemovedUnExpected = Array.from(removedNodes).some(node => node.nodeType === 1 && node.classList.contains('ag-paragraph-content'))
-              && this.keyboard.isComposed
-            if (lineRemovedUnExpected) {
-              this.contentState.partialRender()
-            }
           }
 
           if (target.getAttribute('id') === 'ag-editor-id' && target.childElementCount === 0) {
