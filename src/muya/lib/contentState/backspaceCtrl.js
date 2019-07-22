@@ -116,6 +116,14 @@ const backspaceCtrl = ContentState => {
       return
     }
 
+    if (this.isSelectAll()) {
+      event.preventDefault()
+      this.blocks = [ this.createBlockP() ]
+      this.init()
+
+      return this.render()
+    }
+
     const startBlock = this.getBlock(start.key)
     const endBlock = this.getBlock(end.key)
     const maybeLastRow = this.getParent(endBlock)

@@ -708,6 +708,17 @@ const paragraphCtrl = ContentState => {
     return this.muya.eventCenter.dispatch('stateChange')
   }
 
+  ContentState.prototype.isSelectAll = function () {
+    const firstTextBlock = this.getFirstBlock()
+    const lastTextBlock = this.getLastBlock()
+    const { start, end } = this.cursor
+
+    return firstTextBlock.key === start.key &&
+      start.offset === 0 &&
+      lastTextBlock.key === end.key &&
+      end.offset === lastTextBlock.text.length
+  }
+
   ContentState.prototype.selectAll = function () {
     const { start } = this.cursor
     const startBlock = this.getBlock(start.key)
