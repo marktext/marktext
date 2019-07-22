@@ -9,7 +9,6 @@ import { TITLE_BAR_HEIGHT, editorWinOptions, isLinux, isOsx } from '../config'
 import { loadMarkdownFile } from '../filesystem/markdown'
 
 class EditorWindow extends BaseWindow {
-
   /**
    * @param {Accessor} accessor The application accessor for application instances.
    */
@@ -195,7 +194,7 @@ class EditorWindow extends BaseWindow {
   openTabsFromPaths (filePaths) {
     if (!filePaths || filePaths.length === 0) return
 
-    const fileList = filePaths.map(p => ({filePath: p, options: {}, selected: false}))
+    const fileList = filePaths.map(p => ({ filePath: p, options: {}, selected: false }))
     fileList[0].selected = true
     this.openTabs(fileList)
   }
@@ -237,7 +236,7 @@ class EditorWindow extends BaseWindow {
    * @param {[boolean]} selected Whether the tab should become the selected tab (true if not set).
    * @param {[string]} markdown The markdown string.
    */
-  openUntitledTab (selected=true, markdown='') {
+  openUntitledTab (selected = true, markdown = '') {
     if (this.lifecycle === WindowLifecycle.QUITTED) return
 
     if (this.lifecycle === WindowLifecycle.READY) {
@@ -405,11 +404,11 @@ class EditorWindow extends BaseWindow {
       case 'material-dark':
         return '#34393f'
       case 'ulysses':
-      return '#f3f3f3'
+        return '#f3f3f3'
       case 'graphite':
         return '#f7f7f7'
       case 'one-dark':
-       return '#282c34'
+        return '#282c34'
       case 'light':
       default:
         return '#ffffff'

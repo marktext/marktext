@@ -60,7 +60,8 @@ const dragDropCtrl = ContentState => {
   ContentState.prototype.dragoverHandler = function (event) {
     // Cancel to allow tab drag&drop.
     if (!event.dataTransfer.types.length) {
-      return event.dataTransfer.dropEffect = 'none'
+      event.dataTransfer.dropEffect = 'none'
+      return
     }
 
     if (event.dataTransfer.types.includes('text/uri-list')) {
@@ -163,7 +164,7 @@ const dragDropCtrl = ContentState => {
           this.stateRender.urlMap.set(nSrc, src)
         }
         const imageWrapper = this.muya.container.querySelector(`span[data-id=${id}]`)
-  
+
         if (imageWrapper) {
           const imageInfo = getImageInfo(imageWrapper)
           this.replaceImage(imageInfo, {

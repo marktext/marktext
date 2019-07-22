@@ -38,13 +38,13 @@ const turnSoftBreakToSpan = html => {
           const params = []
           let i = 0
           const len = tokens.length
-          for (; i< len; i++) {
+          for (; i < len; i++) {
             let text = tokens[i]
             if (i === 0 && startLen !== 0) {
               text = '\n'.repeat(startLen) + text
             } else if (i === len - 1 && endLen !== 0) {
               text = text + '\n'.repeat(endLen)
-            } 
+            }
             params.push(document.createTextNode(text))
             if (i !== len - 1) {
               const softBreak = document.createElement('span')
@@ -81,7 +81,7 @@ const importRegister = ContentState => {
     let token
     let block
     let value
-    let parentList = [ rootState ]
+    const parentList = [rootState]
     const languageLoaded = new Set()
 
     while ((token = tokens.shift())) {
@@ -133,7 +133,7 @@ const importRegister = ContentState => {
 
           const headingContent = this.createBlock('span', {
             text: value,
-            functionType: headingStyle === 'atx'? 'atxLine' : 'paragraphContent'
+            functionType: headingStyle === 'atx' ? 'atxLine' : 'paragraphContent'
           })
 
           this.appendChild(block, headingContent)
@@ -363,8 +363,8 @@ const importRegister = ContentState => {
     const { anchor, focus } = this.cursor
     const anchorBlock = this.getBlock(anchor.key)
     const focusBlock = this.getBlock(focus.key)
-    let { text: anchorText } = anchorBlock
-    let { text: focusText } = focusBlock
+    const { text: anchorText } = anchorBlock
+    const { text: focusText } = focusBlock
     if (anchor.key === focus.key) {
       const minOffset = Math.min(anchor.offset, focus.offset)
       const maxOffset = Math.max(anchor.offset, focus.offset)

@@ -24,41 +24,41 @@
 </template>
 
 <script>
-  import bus from '../bus'
-  import { mapState } from 'vuex'
+import bus from '../bus'
+import { mapState } from 'vuex'
 
-  export default {
-    data () {
-      return {
-        showRename: false,
-        tempName: ''
-      }
+export default {
+  data () {
+    return {
+      showRename: false,
+      tempName: ''
+    }
+  },
+  created () {
+    this.$nextTick(() => {
+      bus.$on('rename', this.handleRename)
+    })
+  },
+  beforeDestroy () {
+    bus.$off('rename', this.handleRename)
+  },
+  computed: {
+    ...mapState({
+      filename: state => state.editor.currentFile.filename
+    })
+  },
+  methods: {
+    handleRename () {
+      this.showRename = true
+      this.tempName = this.filename
+      this.$refs.search.focus()
     },
-    created () {
-      this.$nextTick(() => {
-        bus.$on('rename', this.handleRename)
-      })
-    },
-    beforeDestroy () {
-      bus.$off('rename', this.handleRename)
-    },
-    computed: {
-      ...mapState({
-        filename: state => state.editor.currentFile.filename
-      })
-    },
-    methods: {
-      handleRename () {
-        this.showRename = true
-        this.tempName = this.filename
-        this.$refs.search.focus()
-      },
-      confirm () {
-        this.$store.dispatch('RENAME', this.tempName)
-        this.showRename = false
-      }
+    confirm () {
+      this.$store.dispatch('RENAME', this.tempName)
+      this.showRename = false
     }
   }
+}
 </script>
 
 <style>

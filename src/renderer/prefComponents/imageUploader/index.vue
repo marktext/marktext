@@ -124,7 +124,7 @@ export default {
       shell.openExternal(link)
     },
     save (type) {
-      const newImageBedConfig = Object.assign({}, this.imageBed, {[type]: this[type]})
+      const newImageBedConfig = Object.assign({}, this.imageBed, { [type]: this[type] })
       this.$store.dispatch('SET_USER_DATA', {
         type: 'imageBed',
         value: newImageBedConfig

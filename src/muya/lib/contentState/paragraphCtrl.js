@@ -209,7 +209,7 @@ const paragraphCtrl = ContentState => {
 
   ContentState.prototype.handleCodeBlockMenu = function () {
     const { start, end, affiliation } = this.selectionChange(this.cursor)
-    let startBlock = this.getBlock(start.key)
+    const startBlock = this.getBlock(start.key)
     const endBlock = this.getBlock(end.key)
     const startParents = this.getParents(startBlock)
     const endParents = this.getParents(endBlock)
@@ -323,7 +323,7 @@ const paragraphCtrl = ContentState => {
             lang,
             functionType: 'codeLine'
           })
- 
+
           this.appendChild(codeBlock, codeLine)
         })
         const inputBlock = this.createBlock('span', {
@@ -547,12 +547,12 @@ const paragraphCtrl = ContentState => {
             headingStyle
           })
           const headerContent = this.createBlock('span', {
-            text: headingStyle === 'atx'? newText.replace(/\n/g, ' ') : newText,
-            functionType: headingStyle === 'atx'? 'atxLine' : 'paragraphContent'
+            text: headingStyle === 'atx' ? newText.replace(/\n/g, ' ') : newText,
+            functionType: headingStyle === 'atx' ? 'atxLine' : 'paragraphContent'
           })
           this.appendChild(header, headerContent)
           key = headerContent.key
-          
+
           this.insertBefore(header, parent)
           this.removeBlock(parent)
         } else {

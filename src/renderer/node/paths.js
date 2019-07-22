@@ -5,7 +5,6 @@ import EnvPaths from 'common/envPaths'
 const rgDiskPath = rgPath.replace(/\bapp\.asar\b/, 'app.asar.unpacked')
 
 class RendererPaths extends EnvPaths {
-
   /**
    * Configure and sets all application paths.
    *

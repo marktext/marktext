@@ -171,21 +171,21 @@ class DataCenter extends EventEmitter {
     ipcMain.on('mt::ask-for-modify-image-folder-path', e => {
       const win = BrowserWindow.fromWebContents(e.sender)
       const folder = dialog.showOpenDialog(win, {
-        properties: [ 'openDirectory', 'createDirectory' ]
+        properties: ['openDirectory', 'createDirectory']
       })
       if (folder && folder[0]) {
         this.setItem('imageFolderPath', folder[0])
       }
     })
 
-    ipcMain.on('mt::set-user-data', (e, userData) =>{
+    ipcMain.on('mt::set-user-data', (e, userData) => {
       this.setItems(userData)
     })
 
     ipcMain.on('mt::ask-for-image-path', e => {
       const win = BrowserWindow.fromWebContents(e.sender)
       const files = dialog.showOpenDialog(win, {
-        properties: [ 'openFile' ],
+        properties: ['openFile'],
         filters: [{
           name: 'Images',
           extensions: IMAGE_EXTENSIONS

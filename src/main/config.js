@@ -21,7 +21,7 @@ export const defaultPreferenceWinOptions = {
   height: 650,
   webPreferences: {
     nodeIntegration: true,
-    webSecurity: false,
+    webSecurity: false
   },
   fullscreenable: false,
   fullscreen: false,

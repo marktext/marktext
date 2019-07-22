@@ -70,7 +70,7 @@ const searchCtrl = ContentState => {
 
   ContentState.prototype.search = function (value, opt = {}) {
     value = value.trim()
-    let matches = []
+    const matches = []
     const { caseSensitive, highlightIndex } = Object.assign(defaultSearchOption, opt)
     const { blocks } = this
     const search = blocks => {

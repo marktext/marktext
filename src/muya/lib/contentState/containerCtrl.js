@@ -1,11 +1,11 @@
 const LINE_BREAKS_REG = /\n/
 const FUNCTION_TYPE_LANG = {
-  'multiplemath': 'latex',
-  'flowchart': 'yaml',
-  'mermaid': 'yaml',
-  'sequence': 'yaml',
+  multiplemath: 'latex',
+  flowchart: 'yaml',
+  mermaid: 'yaml',
+  sequence: 'yaml',
   'vega-lite': 'yaml',
-  'html': 'markup'
+  html: 'markup'
 }
 
 const containerCtrl = ContentState => {

@@ -11,7 +11,7 @@ export const getUniqueId = () => {
 export const getRecommendTitleFromMarkdownString = markdown => {
   const tokens = markdown.match(/#{1,6} {1,}(.+)(?:\n|$)/g)
   if (!tokens) return ''
-  let headers = tokens.map(t => {
+  const headers = tokens.map(t => {
     const matches = t.trim().match(/(#{1,6}) {1,}(.+)/)
     return {
       level: matches[1].length,

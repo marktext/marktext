@@ -234,7 +234,7 @@ const updateCtrl = ContentState => {
       this.removeBlock(nextSibling)
       this.removeBlock(block)
       const isLooseListItem = preSibling.children.some(c => c.isLooseListItem)
-      preSibling.children.forEach(c => c.isLooseListItem = isLooseListItem)
+      preSibling.children.forEach(c => (c.isLooseListItem = isLooseListItem))
     } else if (
       preSibling &&
       this.checkSameMarkerOrDelimiter(preSibling, bulletMarkerOrDelimiter)
@@ -242,7 +242,7 @@ const updateCtrl = ContentState => {
       this.appendChild(preSibling, newListItemBlock)
       this.removeBlock(block)
       const isLooseListItem = preSibling.children.some(c => c.isLooseListItem)
-      preSibling.children.forEach(c => c.isLooseListItem = isLooseListItem)
+      preSibling.children.forEach(c => (c.isLooseListItem = isLooseListItem))
     } else if (
       nextSibling &&
       this.checkSameMarkerOrDelimiter(nextSibling, bulletMarkerOrDelimiter)
@@ -250,7 +250,7 @@ const updateCtrl = ContentState => {
       this.insertBefore(newListItemBlock, nextSibling.children[0])
       this.removeBlock(block)
       const isLooseListItem = nextSibling.children.some(c => c.isLooseListItem)
-      nextSibling.children.forEach(c => c.isLooseListItem = isLooseListItem)
+      nextSibling.children.forEach(c => (c.isLooseListItem = isLooseListItem))
     } else {
       // Create a new list when changing list type, bullet or list delimiter
       const listBlock = this.createBlock(wrapperTag, {
@@ -284,7 +284,7 @@ const updateCtrl = ContentState => {
       }
     }
     if (TASK_LIST_REG.test(listItemText)) {
-      const [,,tasklist,,,,] = listItemText.match(INLINE_UPDATE_REG) || []
+      const [,, tasklist,,,,] = listItemText.match(INLINE_UPDATE_REG) || [] // eslint-disable-line comma-spacing
       return this.updateTaskListItem(block, 'tasklist', tasklist)
     } else {
       return block
@@ -420,7 +420,7 @@ const updateCtrl = ContentState => {
 
     const text = line.text
     const lines = text.split('\n')
-    let setextLines = []
+    const setextLines = []
     const postParagraphLines = []
     let setextLineHasPushed = false
 
@@ -467,7 +467,7 @@ const updateCtrl = ContentState => {
     const text = line.text
     const lines = text.split('\n')
     const preParagraphLines = []
-    let quoteLines = []
+    const quoteLines = []
     let quoteLinesHasPushed = false
 
     for (const l of lines) {
@@ -490,7 +490,7 @@ const updateCtrl = ContentState => {
       }
       const headerContent = this.createBlock('span', {
         text: quoteLines.join('\n'),
-        functionType: block.headingStyle === 'setext'? 'paragraphContent' : 'atxLine'
+        functionType: block.headingStyle === 'setext' ? 'paragraphContent' : 'atxLine'
       })
       this.appendChild(quoteParagraphBlock, headerContent)
     } else {

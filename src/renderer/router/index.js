@@ -8,11 +8,12 @@ import Image from '@/prefComponents/image'
 import ImageUploader from '@/prefComponents/imageUploader'
 
 const routes = type => ([{
-  path: '/', redirect: type === 'editor'? '/editor' : '/preference'
+  path: '/', redirect: type === 'editor' ? '/editor' : '/preference'
 }, {
-  path: '/editor', component: App 
+  path: '/editor', component: App
 }, {
-  path: '/preference', component: Preference,
+  path: '/preference',
+  component: Preference,
   children: [{
     path: '', component: General
   }, {

@@ -29,15 +29,24 @@ module.exports = {
   ],
   rules: {
     // allow paren-less arrow functions
-    'arrow-parens': 0,
+    'arrow-parens': "off",
     // allow async-await
-    'generator-star-spacing': 0,
+    'generator-star-spacing': "off",
     // allow console
-    'no-console': 0,
+    'no-console': "off",
     // allow debugger during development
-    'no-debugger': process.env.NODE_ENV === 'production' ? 2 : 0,
+    'no-debugger': process.env.NODE_ENV === 'production' ? "error" : "off",
+    'no-return-assign': "warn",
+    'no-new': "warn",
     // disallow semicolons
-    semi: [2, "never"]
+    semi: [2, "never"],
+    'require-atomic-updates': "off",
+    // TODO: fix these errors someday
+    'prefer-const': "off",
+    'no-new': "off",
+    'no-mixed-operators': "off",
+    'no-prototype-builtins': "off",
+    "no-return-await": "off"
   },
   settings: {
     'import/resolver': {

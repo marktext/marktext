@@ -209,7 +209,7 @@ class Selection {
   // to move the cursor back to the start of the correct paragraph
   importSelectionMoveCursorPastBlocks (root, index = 1, range) {
     const treeWalker = this.doc.createTreeWalker(root, NodeFilter.SHOW_ELEMENT, filterOnlyParentElements, false)
-    let startContainer = range.startContainer
+    const startContainer = range.startContainer
     let startBlock
     let targetNode
     let currIndex = 0
@@ -279,8 +279,8 @@ class Selection {
     const { left } = this.getCaretOffsets(root)
     const markedText = root.textContent
     const { type, info } = getCursorPositionWithinMarkedText(markedText, left)
-    let pre = markedText.slice(0, left)
-    let post = markedText.slice(left)
+    const pre = markedText.slice(0, left)
+    const post = markedText.slice(left)
     switch (type) {
       case 'OUT':
         return {
@@ -425,7 +425,7 @@ class Selection {
       let count = 0
       for (i = 0; i < len; i++) {
         const child = childNodes[i]
-        const textLength = getTextContent(child, [ CLASS_OR_ID['AG_MATH_RENDER'], CLASS_OR_ID['AG_RUBY_RENDER'] ]).length
+        const textLength = getTextContent(child, [CLASS_OR_ID['AG_MATH_RENDER'], CLASS_OR_ID['AG_RUBY_RENDER']]).length
         if (child.classList && child.classList.contains(CLASS_OR_ID['AG_FRONT_ICON'])) continue
         if (count + textLength >= offset) {
           if (
@@ -547,9 +547,9 @@ class Selection {
       aOffset = 0
       if (preElement) {
         aOffset += getOffsetOfParagraph(preElement, anchorParagraph)
-        aOffset += getTextContent(preElement, [ CLASS_OR_ID['AG_MATH_RENDER'], CLASS_OR_ID['AG_RUBY_RENDER'] ]).length
+        aOffset += getTextContent(preElement, [CLASS_OR_ID['AG_MATH_RENDER'], CLASS_OR_ID['AG_RUBY_RENDER']]).length
       }
-      aOffset += getTextContent(imageWrapper, [ CLASS_OR_ID['AG_MATH_RENDER'], CLASS_OR_ID['AG_RUBY_RENDER'] ]).length
+      aOffset += getTextContent(imageWrapper, [CLASS_OR_ID['AG_MATH_RENDER'], CLASS_OR_ID['AG_RUBY_RENDER']]).length
       fOffset = aOffset
     }
 
@@ -563,10 +563,10 @@ class Selection {
       aOffset = 0
       if (preElement) {
         aOffset += getOffsetOfParagraph(preElement, anchorParagraph)
-        aOffset += getTextContent(preElement, [ CLASS_OR_ID['AG_MATH_RENDER'], CLASS_OR_ID['AG_RUBY_RENDER'] ]).length
+        aOffset += getTextContent(preElement, [CLASS_OR_ID['AG_MATH_RENDER'], CLASS_OR_ID['AG_RUBY_RENDER']]).length
       }
       if (anchorOffset === 3) {
-        aOffset += getTextContent(imageWrapper, [ CLASS_OR_ID['AG_MATH_RENDER'], CLASS_OR_ID['AG_RUBY_RENDER'] ]).length
+        aOffset += getTextContent(imageWrapper, [CLASS_OR_ID['AG_MATH_RENDER'], CLASS_OR_ID['AG_RUBY_RENDER']]).length
       }
       fOffset = aOffset
     }

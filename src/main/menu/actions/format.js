@@ -2,13 +2,13 @@ import { ipcMain } from 'electron'
 import { getMenuItemById } from '../../menu'
 
 const MENU_ID_FORMAT_MAP = {
-  'strongMenuItem': 'strong',
-  'emphasisMenuItem': 'em',
-  'inlineCodeMenuItem': 'inline_code',
-  'strikeMenuItem': 'del',
-  'hyperlinkMenuItem': 'link',
-  'imageMenuItem': 'image',
-  'mathMenuItem': 'inline_math'
+  strongMenuItem: 'strong',
+  emphasisMenuItem: 'em',
+  inlineCodeMenuItem: 'inline_code',
+  strikeMenuItem: 'del',
+  hyperlinkMenuItem: 'link',
+  imageMenuItem: 'image',
+  mathMenuItem: 'inline_math'
 }
 
 const selectFormat = formats => {

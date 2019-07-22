@@ -15,7 +15,7 @@
         <span>Open the themes folder</span>
         <el-button size="small">Open Folder</el-button>
       </div>
-      
+
       <div>
         <span>Import custom themes</span>
         <el-button size="small">Import theme</el-button>
@@ -42,7 +42,7 @@ export default {
   },
   computed: {
     ...mapState({
-      'theme': state => state.preferences.theme
+      theme: state => state.preferences.theme
     })
   },
   created () {

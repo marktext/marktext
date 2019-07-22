@@ -119,8 +119,8 @@ export const gfm = Object.assign({}, normal, {
   emoji: /^(:)([a-z_\d+-]+?)\1/ // not real GFM but put it in here
 })
 
-gfm.url = edit(gfm.url, 'i').
-  replace('email', gfm._extended_email)
+gfm.url = edit(gfm.url, 'i')
+  .replace('email', gfm._extended_email)
   .getRegex()
 
 /**

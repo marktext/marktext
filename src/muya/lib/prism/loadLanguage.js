@@ -66,7 +66,7 @@ function initLoadLanguage (Prism) {
       })
     }
     if (arr && !arr.length) {
-      return Promise.reject('The first parameter should be a list of load languages or single language.')
+      return Promise.reject(new Error('The first parameter should be a list of load languages or single language.'))
     }
 
     if (!Array.isArray(arr)) {

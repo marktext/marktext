@@ -14,7 +14,6 @@ import { getKeyboardLanguage, getVirtualLetters } from '../keyboard'
 //   Upgrade Heading: Ctrl+= -> points to Ctrl+Plus which is ok; Ctrl+Plus is broken
 
 class Keybindings {
-
   /**
    * @param {string} userDataPath The user data path.
    */
@@ -282,7 +281,7 @@ class Keybindings {
 
 export const parseMenu = menuTemplate => {
   const { submenu, accelerator, click, id, visible } = menuTemplate
-  let items = []
+  const items = []
   if (Array.isArray(menuTemplate)) {
     for (const item of menuTemplate) {
       const subitems = parseMenu(item)

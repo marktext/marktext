@@ -27,7 +27,6 @@ export default {
 }
 </script>
 
-
 <style scoped>
   .cpt-loading {
     position: absolute;

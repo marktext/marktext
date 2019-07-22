@@ -105,11 +105,10 @@ function processSubmatch (submatch, lineText, offsetRow) {
 }
 
 function getText (input) {
-  return input.text ? input.text : Buffer.from(input.bytes, 'base64').toString()
+  return 'text' in input ? input.text : Buffer.from(input.bytes, 'base64').toString()
 }
 
 class RipgrepDirectorySearcher {
-
   constructor () {
     this.rgPath = global.marktext.paths.ripgrepBinaryPath
   }

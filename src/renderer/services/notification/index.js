@@ -109,7 +109,7 @@ const notification = {
       const notices = document.querySelectorAll('.mt-notification')
       let i
       let hx = 0
-      let len = notices.length
+      const len = notices.length
       for (i = 0; i < len; i++) {
         notices[i].style.transform = `translate(0, -${hx}px)`
         notices[i].style.zIndex = 10000 - i

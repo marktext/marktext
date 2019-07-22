@@ -6,7 +6,6 @@ import { centerWindowOptions } from './utils'
 import { TITLE_BAR_HEIGHT, defaultPreferenceWinOptions, isLinux, isOsx } from '../config'
 
 class SettingWindow extends BaseWindow {
-
   /**
    * @param {Accessor} accessor The application accessor for application instances.
    */

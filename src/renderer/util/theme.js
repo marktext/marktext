@@ -28,7 +28,7 @@ const getThemeCluster = themeColor => {
       red = red.toString(16)
       green = green.toString(16)
       blue = blue.toString(16)
-      return `#${ red }${ green }${ blue }`
+      return `#${red}${green}${blue}`
     }
   }
 

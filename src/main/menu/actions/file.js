@@ -398,7 +398,7 @@ export const importFile = async win => {
   }
 
   dialog.showOpenDialog(win, {
-    properties: [ 'openFile' ],
+    properties: ['openFile'],
     filters: [{
       name: 'All Files',
       extensions: PANDOC_EXTENSIONS

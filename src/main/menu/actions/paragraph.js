@@ -12,21 +12,21 @@ const DISABLE_LABELS = [
 ]
 
 const MENU_ID_MAP = {
-  'heading1MenuItem': 'h1',
-  'heading2MenuItem': 'h2',
-  'heading3MenuItem': 'h3',
-  'heading4MenuItem': 'h4',
-  'heading5MenuItem': 'h5',
-  'heading6MenuItem': 'h6',
-  'tableMenuItem': 'figure',
-  'codeFencesMenuItem': 'pre',
-  'quoteBlockMenuItem': 'blockquote',
-  'orderListMenuItem': 'ol',
-  'bulletListMenuItem': 'ul',
-  'taskListMenuItem': 'ul',
-  'paragraphMenuItem': 'p',
-  'horizontalLineMenuItem': 'hr',
-  'frontMatterMenuItem': 'pre'
+  heading1MenuItem: 'h1',
+  heading2MenuItem: 'h2',
+  heading3MenuItem: 'h3',
+  heading4MenuItem: 'h4',
+  heading5MenuItem: 'h5',
+  heading6MenuItem: 'h6',
+  tableMenuItem: 'figure',
+  codeFencesMenuItem: 'pre',
+  quoteBlockMenuItem: 'blockquote',
+  orderListMenuItem: 'ol',
+  bulletListMenuItem: 'ul',
+  taskListMenuItem: 'ul',
+  paragraphMenuItem: 'p',
+  horizontalLineMenuItem: 'hr',
+  frontMatterMenuItem: 'pre'
 }
 
 const setParagraphMenuItemStatus = bool => {

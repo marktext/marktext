@@ -18,7 +18,7 @@ Slugger.prototype.slug = function (value) {
     .replace(/\s/g, '-')
 
   if (this.seen.hasOwnProperty(slug)) {
-    let originalSlug = slug
+    const originalSlug = slug
     do {
       this.seen[originalSlug]++
       slug = originalSlug + '-' + this.seen[originalSlug]
