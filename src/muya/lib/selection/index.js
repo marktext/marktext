@@ -511,6 +511,7 @@ class Selection {
     } else if (!isAnchorValid && !isFocusValid) {
       const editor = document.querySelector('#ag-editor-id').parentNode
       editor.blur()
+
       return new Cursor({
         start: null,
         end: null,

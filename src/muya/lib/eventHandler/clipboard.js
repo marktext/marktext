@@ -23,6 +23,7 @@ class Clipboard {
     const pasteHandler = event => {
       contentState.pasteHandler(event, this._pasteType)
       this._pasteType = 'normal'
+      this.muya.dispatchChange()
     }
 
     eventCenter.attachDOMEvent(document, 'paste', docPasteHandler)

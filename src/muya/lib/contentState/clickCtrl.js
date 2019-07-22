@@ -29,7 +29,7 @@ const clickCtrl = ContentState => {
         if (needToInsertNewParagraph) {
           const paragraphBlock = this.createBlockP()
           this.insertAfter(paragraphBlock, archor)
-          const key = paragraphBlock.key
+          const key = paragraphBlock.children[0].key
           const offset = 0
           this.cursor = {
             start: { key, offset },
