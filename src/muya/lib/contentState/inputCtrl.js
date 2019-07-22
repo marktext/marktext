@@ -106,7 +106,7 @@ const inputCtrl = ContentState => {
           const preBlock = this.getParent(startBlock)
           const pBlock = this.createBlock('p')
           this.removeBlocks(startBlock, endBlock)
-          delete startBlock.functionType
+          startBlock.functionType = 'paragraphContent'
           this.appendChild(pBlock, startBlock)
           this.insertBefore(pBlock, preBlock)
           this.removeBlock(preBlock)
