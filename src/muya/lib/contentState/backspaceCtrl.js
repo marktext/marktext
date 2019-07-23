@@ -121,7 +121,11 @@ const backspaceCtrl = ContentState => {
       this.blocks = [ this.createBlockP() ]
       this.init()
 
-      return this.render()
+      this.render()
+
+      this.muya.dispatchSelectionChange()
+      this.muya.dispatchSelectionFormats()
+      return this.muya.dispatchChange()
     }
 
     const startBlock = this.getBlock(start.key)
