@@ -209,8 +209,7 @@ export default {
       margin-top: 30px;
     }
     &.error {
-      outline: 1px solid var(--themeColor);
-      padding: 6px;
+      border: 1px solid var(--deleteColor);
     }
   }
 }

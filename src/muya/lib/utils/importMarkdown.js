@@ -421,7 +421,12 @@ const importRegister = ContentState => {
     const lines = markdown.split('\n')
     const anchorText = lines[anchor.line]
     const focusText = lines[focus.line]
-
+    if (!anchorText || !focusText) {
+      return {
+        markdown: lines.join('\n'),
+        isValid: false
+      }
+    }
     if (anchor.line === focus.line) {
       const minOffset = Math.min(anchor.ch, focus.ch)
       const maxOffset = Math.max(anchor.ch, focus.ch)
@@ -438,7 +443,10 @@ const importRegister = ContentState => {
       lines[focus.line] = focusText.substring(0, focus.ch) + CURSOR_FOCUS_DNA + focusText.substring(focus.ch)
     }
 
-    return lines.join('\n')
+    return {
+      markdown: lines.join('\n'),
+      isValid: true
+    }
   }
 
   ContentState.prototype.importCursor = function (hasCursor) {

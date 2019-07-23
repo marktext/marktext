@@ -46,7 +46,6 @@
   --buttonBgColorActive: #f0f0f0;
   --buttonBorderActive: var(--buttonBorder);
   --buttonFocusBorder: 1px solid var(--themeColor);
-  --buttonFocusShadow: 0 0 0 1px var(--themeColor);
 
   --buttonPrimaryFontColor: #ffffff;
   --buttonPrimaryBgColor: var(--themeColor);
@@ -147,6 +146,7 @@ body {
   box-shadow: 0 4px 8px 0 var(--floatBorderColor);
   border: solid 1px var(--floatBorderColor);
 }
+
 .el-tooltip__popper[x-placement^=left] .popper__arrow {
   border-bottom-color: var(--floatBorderColor);
 }
@@ -265,7 +265,6 @@ div.el-tab-pane {
 .el-button:focus {
   outline: none;
   border: var(--buttonFocusBorder);
-  box-shadow: var(--buttonFocusShadow);
 }
 
 .button-primary,
