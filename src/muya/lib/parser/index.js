@@ -1,5 +1,6 @@
 import { beginRules, inlineRules } from './rules'
 import { isLengthEven, union } from '../utils'
+import { findClosingBracket } from './marked/utils'
 import { getAttributes, parseSrcAndTitle, validateEmphasize, lowerPriority } from './utils'
 
 // const CAN_NEST_RULES = ['strong', 'em', 'link', 'del', 'a_link', 'reference_link', 'html_tag']
@@ -182,6 +183,23 @@ const tokenizerFac = (src, beginRules, inlineRules, pos = 0, top, labels) => {
     if (inChunk) continue
     // image
     const imageTo = inlineRules.image.exec(src)
+    if (imageTo && typeof imageTo[4] === 'string') {
+      const lastParenIndex = findClosingBracket(imageTo[4], '()')
+
+      if (lastParenIndex > -1) {
+        const len = 4 + imageTo[5].length + lastParenIndex + 1
+        imageTo[0] = imageTo[0].substring(0, len)
+        const originSrc = imageTo[4].substring(0, lastParenIndex)
+        const match = /(\\+)$/.exec(originSrc)
+        if (match) {
+          imageTo[4] = originSrc.substring(0, originSrc.length - match[1].length)
+          imageTo[5] = match[1]
+        } else {
+          imageTo[4] = originSrc
+          imageTo[5] = ''
+        }
+      }
+    }
     if (imageTo && isLengthEven(imageTo[3]) && isLengthEven(imageTo[5])) {
       const { src: imageSrc, title } = parseSrcAndTitle(imageTo[4])
       pushPending()

@@ -8,6 +8,7 @@ import './index.css'
 
 class ImageSelector extends BaseFloat {
   static pluginName = 'imageSelector'
+
   constructor (muya) {
     const name = 'ag-image-selector'
     const options = {
@@ -35,6 +36,7 @@ class ImageSelector extends BaseFloat {
     this.floatBox.classList.add('ag-image-selector-wrapper')
     this.listen()
   }
+
   listen () {
     super.listen()
     const { eventCenter } = this.muya

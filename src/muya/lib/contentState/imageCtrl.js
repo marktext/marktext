@@ -113,6 +113,7 @@ const imageCtrl = ContentState => {
     }
     imageText += ')'
     block.text = oldText.substring(0, start) + imageText + oldText.substring(end)
+
     return this.singleRender(block)
   }
 
