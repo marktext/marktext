@@ -101,6 +101,18 @@ class Muya {
     eventCenter.dispatch('change', { markdown, wordCount, cursor, history, toc })
   }
 
+  dispatchSelectionChange = () => {
+    const selectionChanges = this.contentState.selectionChange()
+    
+    this.eventCenter.dispatch('selectionChange', selectionChanges)
+  }
+
+  dispatchSelectionFormats = () => {
+    const { formats } = this.contentState.selectionFormats()
+
+    this.eventCenter.dispatch('selectionFormats', formats)
+  }
+
   getMarkdown () {
     const blocks = this.contentState.getBlocks()
     const listIndentation = this.contentState.listIndentation
@@ -284,10 +296,18 @@ class Muya {
 
   undo () {
     this.contentState.history.undo()
+
+    this.dispatchSelectionChange()
+    this.dispatchSelectionFormats()
+    this.dispatchChange()
   }
 
   redo () {
     this.contentState.history.redo()
+
+    this.dispatchSelectionChange()
+    this.dispatchSelectionFormats()
+    this.dispatchChange()
   }
 
   selectAll () {

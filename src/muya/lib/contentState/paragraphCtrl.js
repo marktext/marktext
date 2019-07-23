@@ -600,11 +600,10 @@ const paragraphCtrl = ContentState => {
     } else {
       this.partialRender()
     }
-    // update menu status
-    const selectionChanges = this.selectionChange(this.cursor)
-    this.muya.eventCenter.dispatch('selectionChange', selectionChanges)
-    // emit change event
-    this.muya.eventCenter.dispatch('stateChange')
+
+    this.muya.dispatchSelectionChange()
+    this.muya.dispatchSelectionFormats()
+    this.muya.dispatchChange()
   }
 
   ContentState.prototype.insertParagraph = function (location, text = '', outMost = false) {

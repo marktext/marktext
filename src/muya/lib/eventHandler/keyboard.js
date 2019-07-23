@@ -57,7 +57,7 @@ class Keyboard {
   }
 
   dispatchEditorState () {
-    const { container, eventCenter, contentState } = this.muya
+    const { container, eventCenter } = this.muya
 
     let timer = null
     const changeHandler = event => {
@@ -83,10 +83,8 @@ class Keyboard {
 
       if (timer) clearTimeout(timer)
       timer = setTimeout(() => {
-        const selectionChanges = contentState.selectionChange()
-        const { formats } = contentState.selectionFormats()
-        eventCenter.dispatch('selectionChange', selectionChanges)
-        eventCenter.dispatch('selectionFormats', formats)
+        this.muya.dispatchSelectionChange()
+        this.muya.dispatchSelectionFormats()
         if (!this.isComposed && event.type === 'click') {
           this.muya.dispatchChange()
         }
