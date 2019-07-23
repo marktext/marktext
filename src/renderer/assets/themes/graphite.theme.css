@@ -22,7 +22,7 @@
   --editorColor04: rgba(43, 48, 50, .04);
   --editorBgColor: #f7f7f7;
   --deleteColor: #ff6969;
-  --iconColor: rgba(91, 91, 91, .8);
+  --iconColor: rgba(150, 150, 150, .8);
   --codeBgColor: #d8d8d869;
   --codeBlockBgColor: rgba(104, 134, 170, .05);
   --inputBgColor: rgba(0, 0, 0, .06);
@@ -39,7 +39,6 @@
   --buttonBgColorActive: #f5f5f5;
   --buttonBorderActive: var(--buttonBorder);
   --buttonFocusBorder: 1px solid var(--themeColor);
-  --buttonFocusShadow: 0 0 0 1px var(--themeColor);
 
   --buttonPrimaryFontColor: #ffffff;
   --buttonPrimaryBgColor: var(--themeColor);

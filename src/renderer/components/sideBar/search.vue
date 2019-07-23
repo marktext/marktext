@@ -56,11 +56,12 @@
           Cancel <i class="el-icon-video-pause"></i>
         </el-button>
       </div>
+      <div v-if="searchResult.length" class="search-result-info">{{searchResultInfo}}</div>
       <div class="search-result" v-if="searchResult.length">
         <search-result-item
-          v-for="(searchResult, index) of searchResult"
+          v-for="(item, index) of searchResult"
           :key="index"
-          :searchResult="searchResult"
+          :searchResult="item"
         ></search-result-item>
       </div>
       <div class="empty" v-else>
@@ -116,13 +117,23 @@
         'searchIncludeHidden': state => state.preferences.searchIncludeHidden,
         'searchNoIgnore': state => state.preferences.searchNoIgnore,
         'searchFollowSymlinks': state => state.preferences.searchFollowSymlinks
-      })
+      }),
+      searchResultInfo () {
+        const fileCount = this.searchResult.length
+        const matchCount = this.searchResult.reduce((acc, item) => {
+          return acc + item.matches.length
+        }, 0)
+
+        return `${matchCount} ${matchCount > 1 ? 'matches' : 'match'} in ${fileCount} ${fileCount > 1 ? 'files' : 'file'}`
+      }
     },
     methods: {
       search () {
         // No root directory is opened.
         if (!this.projectTree || !this.projectTree.pathname) {
-          return
+          return new Notification('No folder opened', {
+            body: `You need to open a folder before search.`
+          })
         }
 
         const { pathname: rootDirectoryPath } = this.projectTree
@@ -248,12 +259,12 @@
   }
   .search-wrapper {
     display: flex;
-    margin: 35px 15px 20px 15px;
+    margin: 35px 15px 10px 15px;
     padding: 0 6px;
     border-radius: 15px;
     height: 30px;
     border: 1px solid var(--floatBorderColor);
-    background: var(--floatBorderColor);
+    background: var(--inputBgColor);
     box-sizing: border-box;
     align-items: center;
     & > input {
@@ -313,6 +324,12 @@
       display: block;
       font-size: 14px;
     }
+  }
+  .search-result-info {
+    padding-left: 15px;
+    margin-bottom: 5px;
+    font-size: 12px;
+    color: var(--sideBarColor);
   }
   .empty,
   .search-result {

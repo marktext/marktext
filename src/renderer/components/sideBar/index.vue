@@ -5,28 +5,27 @@
     ref="sideBar"
     :style="[ !rightColumn ? { 'min-width': '45px' } : {}, { 'width': `${finalSideBarWidth}px` } ]"
   >
-    <div class="title-bar-bg"></div>
     <div class="left-column">
       <ul>
         <li
-          v-for="(icon, index) of sideBarIcons"
+          v-for="(c, index) of sideBarIcons"
           :key="index"
-          @click="handleLeftIconClick(icon.name)"
-          :class="{ 'active': icon.name === rightColumn }"
+          @click="handleLeftIconClick(c.name)"
+          :class="{ 'active': c.name === rightColumn }"
         >
-          <svg class="icon" aria-hidden="true">
-            <use :xlink:href="'#' + icon.icon"></use>
+          <svg :viewBox="c.icon.viewBox">
+            <use :xlink:href="c.icon.url"></use>
           </svg>
         </li>
       </ul>
       <ul class="bottom">
         <li
-          v-for="(icon, index) of sideBarBottomIcons"
+          v-for="(c, index) of sideBarBottomIcons"
           :key="index"
-          @click="handleLeftBottomClick(icon.name)"
+          @click="handleLeftBottomClick(c.name)"
         >
-          <svg class="icon" aria-hidden="true">
-            <use :xlink:href="'#' + icon.icon"></use>
+          <svg :viewBox="c.icon.viewBox">
+            <use :xlink:href="c.icon.url"></use>
           </svg>
         </li>
       </ul>
@@ -51,7 +50,6 @@
 
 <script>
   import { sideBarIcons, sideBarBottomIcons } from './help'
-  import bus from '../../bus'
   import Tree from './tree.vue'
   import SideBarSearch from './search.vue'
   import Toc from './toc.vue'
@@ -128,8 +126,8 @@
         }
       },
       handleLeftBottomClick (name) {
-        if (name === 'twitter') {
-          bus.$emit('tweetDialog')
+        if (name === 'setting') {
+          this.$store.dispatch('OPEN_SETTING_WINDOW')
         }
       }
     }
@@ -147,10 +145,13 @@
     position: relative;
     color: var(--sideBarColor);
     user-select: none;
-  }
-  .side-bar {
     background: var(--sideBarBgColor);
     border-right: 1px solid var(--itemBgColor);
+    & .left-column {
+      & svg {
+        fill: var(--iconColor);
+      }
+    }
   }
 
   .left-column {

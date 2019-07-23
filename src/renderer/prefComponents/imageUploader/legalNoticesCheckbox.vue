@@ -33,6 +33,8 @@ export default {
 
 <style>
 .pref-cb-legal-notices {
+  border: 1px solid transparent;
+  padding: 3px 5px;
   & .el-checkbox {
     margin-right: 0;
   }
