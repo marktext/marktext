@@ -4,21 +4,23 @@
 
 - `preference.md` is deprecated and no longer supported. Please use the GUI or edit `preferences.json` manually.
 - Removed portable Windows executable. NSIS installer can now be used to install per-user (without administrator privileges) or machine wide.
+- Added portable zip archive for both x86 and x64 Windows.
 - Changed `viewToggleFullScreen` and `windowCloseWindow` key bindings to `windowToggleFullScreen` and `fileCloseWindow`.
 - Removed `viewChangeFont` key binding.
 - Mark Text is now single-instance application on Linux and Windows too.
 
 **:cactus:Feature**
 
-- GUI settings (#1028)
+- Added GUI settings (#1028)
 - The cursor jump to the end of format or to the next brackets when press `tab`(#976)
 - Tab drag & drop inside the window
 - Scrollable tabs
 - Support to replace the root folder in a window
 - Second-instance files and directories via command-line are opened in the best window
 - Mark Text can use a default directory that is automatically opened during startup (#711)
-- New CLI flags: `--disable-gpu` and `-n,--new-window`
+- New CLI flags: `--disable-gpu`, `-n,--new-window` and `--user-data-dir`
 - Find in files use ripgrep as searcher.
+- You can know automatically save your document after a predefined intervall.
 
 **:butterfly:Optimization**
 
@@ -27,12 +29,14 @@
 - Improved startup time
 - Replace empty untitled tabs (#830)
 - Editor window is shown immediately while loading
+- Adjust titlebar title when using native window to not show a duplicate title
+- Added `Noto Color Emoji` as default emoji fallback font on Linux to display emojis properly.
 
 **:beetle:Bug fix**
 
-- Fixed some commonmark failed examples and add test case (#943)
+- Fixed some CommonMark failed examples and add test cases (#943)
 - Fixed some bugs after press `backspace` (#934, #938)
-- Change `inline math` vertical align to `top` (#977)
+- Changed `inline math` vertical align to `top` (#977)
 - Prevent to open the same file twice, instead select the existing tab (#878)
 - Fixed some minor filesystem watcher issues
 - Fixed rename filesystem watcher bug which lead to multiple issues because the parent directory was watched after deleting a file on Linux using `rename`
