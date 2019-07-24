@@ -13,9 +13,11 @@ import './assets/styles/index.css'
 
 class Muya {
   static plugins = []
+
   static use (plugin) {
     this.plugins.push(plugin)
   }
+
   constructor (container, options) {
     this.options = Object.assign({}, MUYA_DEFAULT_OPTION, options)
     const { markdown } = this.options
@@ -64,7 +66,7 @@ class Muya {
 
     // Callback function to execute when mutations are observed
     const callback = (mutationsList, observer) => {
-      for(const mutation of mutationsList) {
+      for (const mutation of mutationsList) {
         if (mutation.type === 'childList') {
           const { removedNodes, target } = mutation
           // If the code executes any of the following `if` statements, the editor has gone wrong.

@@ -46,7 +46,7 @@ class ExportHtml {
       theme: 'default'
     })
     mermaid.init(undefined, this.exportContainer.querySelectorAll('div.mermaid'))
-    if (this.muya){
+    if (this.muya) {
       mermaid.initialize({
         theme: this.muya.options.mermaidTheme
       })
@@ -56,8 +56,8 @@ class ExportHtml {
   async renderDiagram () {
     const selector = 'code.language-vega-lite, code.language-flowchart, code.language-sequence'
     const RENDER_MAP = {
-      'flowchart': flowchart,
-      'sequence': Diagram,
+      flowchart: flowchart,
+      sequence: Diagram,
       'vega-lite': vegaEmbed
     }
     const codes = this.exportContainer.querySelectorAll(selector)
@@ -74,7 +74,9 @@ class ExportHtml {
         Object.assign(options, { theme: 'hand' })
       } else if (functionType === 'vega-lite') {
         Object.assign(options, {
-          actions: false, tooltip: false, renderer: 'svg',
+          actions: false,
+          tooltip: false,
+          renderer: 'svg',
           theme: 'latimes' // only render light theme
         })
       }

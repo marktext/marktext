@@ -226,5 +226,5 @@ export default function renderLeafBlock (block, activeBlocks, matches, useCache 
     return h(selector, data, [this.renderIcon(block), ...children])
   } else {
     return h(selector, data, children)
-  } 
+  }
 }

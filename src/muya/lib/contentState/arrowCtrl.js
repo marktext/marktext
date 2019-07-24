@@ -2,7 +2,7 @@ import { EVENT_KEYS, CLASS_OR_ID } from '../config'
 import { findNearestParagraph } from '../selection/dom'
 import selection from '../selection'
 
-// If the next block is header, put cursor after the `#{1,6} *` 
+// If the next block is header, put cursor after the `#{1,6} *`
 const adjustOffset = (offset, block, event) => {
   if (/^span$/.test(block.type) && block.functionType === 'atxLine' && event.key === EVENT_KEYS.ArrowDown) {
     const match = /^\s{0,3}(?:#{1,6})(?:\s{1,}|$)/.exec(block.text)
@@ -151,7 +151,7 @@ const arrowCtrl = ContentState => {
           : (event.key === EVENT_KEYS.ArrowUp
             ? activeBlock.text.length
             : 0)
-        
+
         offset = adjustOffset(offset, activeBlock, event)
 
         const key = activeBlock.type === 'p'

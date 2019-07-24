@@ -260,7 +260,7 @@ const tableBlockCtrl = ContentState => {
 
     if (target === 'row') {
       if (action === 'insert') {
-        let newRow = (location === 'previous' && block.type === 'th')
+        const newRow = (location === 'previous' && block.type === 'th')
           ? createRow(column, true)
           : createRow(column, false)
         if (location === 'previous') {

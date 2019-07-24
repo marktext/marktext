@@ -166,7 +166,7 @@ sep
 
     verifyMarkdown(md, 4)
   })
-/*  it('Indent by one tab', () => {
+  /*  it('Indent by one tab', () => {
     const md = `start
 
 - foo
@@ -193,7 +193,7 @@ sep
 \t\t\t1. foo
 `
     verifyMarkdown(md, "tab")
-  })*/
+  }) */
   it('Indent using Daring Fireball Markdown Spec', () => {
     const md = `start
 
@@ -221,6 +221,6 @@ sep
             1. foo
 `
 
-    verifyMarkdown(md, "dfm", md)
+    verifyMarkdown(md, 'dfm', md)
   })
 })

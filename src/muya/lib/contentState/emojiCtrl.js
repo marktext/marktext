@@ -15,7 +15,7 @@ const emojiCtrl = ContentState => {
           delta = end - offset
           return token.children && Array.isArray(token.children) && token.children.length
             ? findEmojiToken(token.children, offset)
-            : token 
+            : token
         }
       }
     }

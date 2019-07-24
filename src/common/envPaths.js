@@ -1,7 +1,6 @@
 import path from 'path'
 
 class EnvPaths {
-
   /**
    * @param {string} userDataPath The user data path.
    * @returns

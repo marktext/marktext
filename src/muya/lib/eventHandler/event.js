@@ -5,6 +5,7 @@ class EventCenter {
     this.events = []
     this.listeners = {}
   }
+
   /**
    * [attachDOMEvent] bind event listener to target, and return a unique ID,
    * this ID
@@ -22,6 +23,7 @@ class EventCenter {
     })
     return eventId
   }
+
   /**
    * [detachDOMEvent removeEventListener]
    * @param  {[type]} eventId [unique eventId]
@@ -34,12 +36,14 @@ class EventCenter {
       target.removeEventListener(event, listener, capture)
     }
   }
+
   /**
    * [detachAllDomEvents remove all the DOM events handler]
    */
   detachAllDomEvents () {
     this.events.forEach(event => this.detachDOMEvent(event.eventId))
   }
+
   /**
    * inner method for subscribe and subscribeOnce
    */
@@ -49,15 +53,17 @@ class EventCenter {
     if (listeners && Array.isArray(listeners)) {
       listeners.push(handler)
     } else {
-      this.listeners[event] = [ handler ]
+      this.listeners[event] = [handler]
     }
   }
+
   /**
    * [subscribe] subscribe custom event
    */
   subscribe (event, listener) {
     this._subscribe(event, listener)
   }
+
   /**
    * [unsubscribe] unsubscribe custom event
    */
@@ -68,12 +74,14 @@ class EventCenter {
       listeners.splice(index, 1)
     }
   }
+
   /**
    * [subscribeOnce] usbscribe event and listen once
    */
   subscribeOnce (event, listener) {
     this._subscribe(event, listener, true)
   }
+
   /**
    * dispatch custom event
    */
@@ -88,6 +96,7 @@ class EventCenter {
       })
     }
   }
+
   // Determine whether the event has been bind
   checkHasBind (cTarget, cEvent, cListener, cCapture) {
     for (const { target, event, listener, capture } of this.events) {

@@ -30,14 +30,12 @@ const COMMAND_KEY = isOsx ? '⌘' : '⌃'
 // Caps Lock ⇪
 // Fn
 
-
 // Command (or Cmd) ⌘
 // Shift ⇧
 // Option (or Alt) ⌥
 // Control (or Ctrl) ⌃
 // Caps Lock ⇪
 // Fn
-
 
 export const quicInsertObj = {
   'basic block': [{
@@ -59,7 +57,7 @@ export const quicInsertObj = {
     shortCut: `⌥${COMMAND_KEY}Y`,
     icon: frontMatterIcon
   }],
-  'header': [{
+  header: [{
     title: 'Header 1',
     subTitle: '# Lorem Ipsum is simply ...',
     label: 'heading 1',
@@ -146,7 +144,7 @@ export const quicInsertObj = {
     shortCut: `⌥${COMMAND_KEY}X`,
     icon: todoListIcon
   }],
-  'diagram': [{
+  diagram: [{
     title: 'Vega Chart',
     subTitle: 'Render flow chart by vega-lite.js.',
     label: 'vega-lite',

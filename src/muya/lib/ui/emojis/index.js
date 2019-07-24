@@ -9,7 +9,7 @@ for (const emoji of emojis) {
   if (emojisForSearch[newEmoji.category]) {
     emojisForSearch[newEmoji.category].push(newEmoji)
   } else {
-    emojisForSearch[newEmoji.category] = [ newEmoji ]
+    emojisForSearch[newEmoji.category] = [newEmoji]
   }
 }
 

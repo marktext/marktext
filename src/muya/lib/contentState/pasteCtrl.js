@@ -26,7 +26,7 @@ const pasteCtrl = ContentState => {
       if (list) {
         if (
           list.listType === fragment.listType &&
-          listItem.bulletMarkerOrDelimiter === fragment.children[0].bulletMarkerOrDelimiter  
+          listItem.bulletMarkerOrDelimiter === fragment.children[0].bulletMarkerOrDelimiter
         ) {
           return 'MERGE'
         } else {
@@ -87,7 +87,7 @@ const pasteCtrl = ContentState => {
       if (this.selectedImage) {
         this.replaceImage(this.selectedImage, {
           alt: id,
-          src: imagePath,
+          src: imagePath
         })
       } else {
         this.insertImage({
@@ -311,7 +311,7 @@ const pasteCtrl = ContentState => {
         case 'pasteAsPlainText': {
           const lines = text.trim().split(LINE_BREAKS_REG)
           let htmlBlock = null
-          
+
           if (!startBlock.text || lines.length > 1) {
             htmlBlock = this.createBlockP((startBlock.text ? lines.slice(1) : lines).join('\n'))
           }
@@ -377,9 +377,9 @@ const pasteCtrl = ContentState => {
           // No matter copy loose list to tight list or vice versa, the result is one loose list.
           if (targetListType !== originListType) {
             if (!targetListType) {
-              firstFragment.children.forEach(item => item.isLooseListItem = true)
+              firstFragment.children.forEach(item => (item.isLooseListItem = true))
             } else {
-              originList.children.forEach(item => item.isLooseListItem = true)
+              originList.children.forEach(item => (item.isLooseListItem = true))
             }
           }
 
@@ -422,7 +422,7 @@ const pasteCtrl = ContentState => {
           } else {
             startBlock.text += text
           }
-          
+
           tailFragments.forEach(block => {
             this.insertAfter(block, target)
             target = block

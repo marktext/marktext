@@ -14,6 +14,7 @@ const iconhash = {
 
 class ImagePathPicker extends BaseScrollFloat {
   static pluginName = 'imagePathPicker'
+
   constructor (muya) {
     const name = 'ag-list-picker'
     super(muya, name)
@@ -41,7 +42,7 @@ class ImagePathPicker extends BaseScrollFloat {
 
   render () {
     const { renderArray, oldVnode, scrollElement, activeItem } = this
-    let children = renderArray.map((item) => {
+    const children = renderArray.map((item) => {
       const { text, iconClass } = item
       const icon = h('div.icon-wrapper', h('svg', {
         attrs: {
@@ -60,7 +61,7 @@ class ImagePathPicker extends BaseScrollFloat {
           'xlink:href': iconhash[iconClass].url
         }
       }))
-    )
+      )
       const textEle = h('div.language', text)
       const selector = activeItem === item ? 'li.item.active' : 'li.item'
       return h(selector, {

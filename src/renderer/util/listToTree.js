@@ -7,6 +7,7 @@ class Node {
     this.slug = slug
     this.children = []
   }
+
   // Add child node.
   addChild (node) {
     this.children.push(node)

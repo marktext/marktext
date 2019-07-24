@@ -19,7 +19,7 @@ export const getVirtualLetters = () => {
   // Full list of supported virtual keys:
   // https://github.com/parro-it/keyboardevent-from-electron-accelerator/blob/afdbd57bead1e139d7bd03c763778dce6ca8c35d/main.js#L104
   const currentKeymap = getCurrentKeymap()
-  let vkeys = {}
+  const vkeys = {}
   for (const key in currentKeymap) {
     // TODO(fxha): Possibly, we can fix more broken accelerators without apply a manually fix later.
     if (!key.startsWith('Key')) {

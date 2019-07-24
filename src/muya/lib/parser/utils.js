@@ -108,7 +108,7 @@ export const parseSrcAndTitle = (text = '') => {
 const canOpenEmphasis = (src, marker, pending) => {
   const precededChar = pending.charAt(pending.length - 1) || '\n'
   const followedChar = src[marker.length]
-  // not followed by Unicode whitespace, 
+  // not followed by Unicode whitespace,
   if (UNICODE_WHITESPACE_REG.test(followedChar)) {
     return false
   }
@@ -127,7 +127,7 @@ const canOpenEmphasis = (src, marker, pending) => {
 const canCloseEmphasis = (src, offset, marker) => {
   const precededChar = src[offset - marker.length - 1]
   const followedChar = src[offset] || '\n'
-  // not preceded by Unicode whitespace, 
+  // not preceded by Unicode whitespace,
   if (UNICODE_WHITESPACE_REG.test(precededChar)) {
     return false
   }

@@ -24,7 +24,6 @@ const isDarkSystemMode = () => {
 const PREFERENCES_FILE_NAME = 'preferences'
 
 class Preference extends EventEmitter {
-
   /**
    * @param {AppPaths} userDataPath The path instance.
    *

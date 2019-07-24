@@ -124,7 +124,7 @@ const clickCtrl = ContentState => {
         eventCenter.dispatch('format-click', {
           event,
           formatType,
-          data,
+          data
         })
       }
     }

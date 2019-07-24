@@ -10,7 +10,6 @@ const patchEnvPath = () => {
 }
 
 export class AppEnvironment {
-
   constructor (options) {
     this._id = envId++
     this._appPaths = new AppPaths(options.userDataPath)
@@ -24,7 +23,7 @@ export class AppEnvironment {
    *
    * @returns {number} Returns an unique identifier.
    */
-  get id() {
+  get id () {
     return this._id
   }
 

@@ -3,7 +3,7 @@
  * returns only the textual part of the token
  */
 
-function TextRenderer() {}
+function TextRenderer () {}
 
 // no need for block level renderers
 
@@ -16,11 +16,11 @@ TextRenderer.prototype.text = function (text) {
 }
 
 TextRenderer.prototype.link =
-TextRenderer.prototype.image = function(href, title, text) {
+TextRenderer.prototype.image = function (href, title, text) {
   return '' + text
 }
 
-TextRenderer.prototype.br = function() {
+TextRenderer.prototype.br = function () {
   return ''
 }
 

@@ -14,19 +14,19 @@
 </template>
 
 <script>
-  import ContentIcon from '@/assets/icons/undraw_content.svg'
+import ContentIcon from '@/assets/icons/undraw_content.svg'
 
-  export default {
-    data () {
-      this.ContentIcon = ContentIcon
-      return {}
-    },
-    methods: {
-      newFile () {
-        this.$store.dispatch('NEW_UNTITLED_TAB', {})
-      }
+export default {
+  data () {
+    this.ContentIcon = ContentIcon
+    return {}
+  },
+  methods: {
+    newFile () {
+      this.$store.dispatch('NEW_UNTITLED_TAB', {})
     }
   }
+}
 </script>
 
 <style scoped>

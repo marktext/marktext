@@ -97,7 +97,7 @@ export const uploadImage = async (pathname, image, preferences) => {
 
         re(res.data.data.url)
       })
-      .catch(err => {
+      .catch(_ => {
         rj('Upload failed, the image will be copied to the image folder')
       })
   }
@@ -118,9 +118,9 @@ export const uploadImage = async (pathname, image, preferences) => {
     }).then(result => {
       re(result.data.content.download_url)
     })
-    .catch(err => {
-      rj('Upload failed, the image will be copied to the image folder')
-    })
+      .catch(_ => {
+        rj('Upload failed, the image will be copied to the image folder')
+      })
   }
 
   const notification = () => {

@@ -2,7 +2,7 @@ import { ipcMain } from 'electron'
 import * as actions from '../actions/view'
 
 export default function (keybindings) {
-  let viewMenu = {
+  const viewMenu = {
     label: 'View',
     submenu: [{
       id: 'sourceCodeModeMenuItem',

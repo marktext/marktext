@@ -1,331 +1,331 @@
 const languages = [{
-  'name': 'objectivec',
-  'mode': 'clike',
-  'mime': 'text/x-objectivec'
+  name: 'objectivec',
+  mode: 'clike',
+  mime: 'text/x-objectivec'
 }, {
-  'name': 'swift',
-  'mode': 'swift',
-  'mime': 'text/x-swift'
+  name: 'swift',
+  mode: 'swift',
+  mime: 'text/x-swift'
 }, {
-  'name': 'c_cpp',
-  'mode': 'clike',
-  'mime': 'text/x-csrc'
+  name: 'c_cpp',
+  mode: 'clike',
+  mime: 'text/x-csrc'
 }, {
-  'name': 'c',
-  'mode': 'clike',
-  'mime': 'text/x-csrc'
+  name: 'c',
+  mode: 'clike',
+  mime: 'text/x-csrc'
 }, {
-  'name': 'c++',
-  'mode': 'clike',
-  'mime': 'text/x-c++src'
+  name: 'c++',
+  mode: 'clike',
+  mime: 'text/x-c++src'
 }, {
-  'name': 'cmake',
-  'mode': 'cmake',
-  'mime': 'text/x-cmake'
+  name: 'cmake',
+  mode: 'cmake',
+  mime: 'text/x-cmake'
 }, {
-  'name': 'lisp',
-  'mode': 'commonlisp',
-  'mime': 'text/x-common-lisp'
+  name: 'lisp',
+  mode: 'commonlisp',
+  mime: 'text/x-common-lisp'
 }, {
-  'name': 'pascal',
-  'mode': 'pascal',
-  'mime': 'text/x-pascal'
+  name: 'pascal',
+  mode: 'pascal',
+  mime: 'text/x-pascal'
 }, {
-  'name': 'eiffel',
-  'mode': 'eiffel',
-  'mime': 'text/x-eiffel'
+  name: 'eiffel',
+  mode: 'eiffel',
+  mime: 'text/x-eiffel'
 }, {
-  'name': 'yaml',
-  'mode': 'yaml',
-  'mime': 'text/x-yaml'
+  name: 'yaml',
+  mode: 'yaml',
+  mime: 'text/x-yaml'
 }, {
-  'name': 'xml',
-  'mode': 'xml',
-  'mime': 'application/xml'
+  name: 'xml',
+  mode: 'xml',
+  mime: 'application/xml'
 }, {
-  'name': 'django',
-  'mode': 'django',
-  'mime': 'text/x-django'
+  name: 'django',
+  mode: 'django',
+  mime: 'text/x-django'
 }, {
-  'name': 'clojure',
-  'mode': 'clojure',
-  'mime': 'text/x-clojure'
+  name: 'clojure',
+  mode: 'clojure',
+  mime: 'text/x-clojure'
 }, {
-  'name': 'crystal',
-  'mode': 'crystal',
-  'mime': 'text/x-crystal'
+  name: 'crystal',
+  mode: 'crystal',
+  mime: 'text/x-crystal'
 }, {
-  'name': 'ruby',
-  'mode': 'ruby',
-  'mime': 'text/x-ruby'
+  name: 'ruby',
+  mode: 'ruby',
+  mime: 'text/x-ruby'
 }, {
-  'name': 'python',
-  'mode': 'python',
-  'mime': 'text/x-python'
+  name: 'python',
+  mode: 'python',
+  mime: 'text/x-python'
 }, {
-  'name': 'sh',
-  'mode': 'shell',
-  'mime': 'text/x-sh'
+  name: 'sh',
+  mode: 'shell',
+  mime: 'text/x-sh'
 }, { /* alias */
-  'name': 'shell',
-  'mode': 'shell',
-  'mime': 'text/x-sh'
+  name: 'shell',
+  mode: 'shell',
+  mime: 'text/x-sh'
 }, {
-  'name': 'less',
-  'mode': 'css',
-  'mime': 'text/css'
+  name: 'less',
+  mode: 'css',
+  mime: 'text/css'
 }, {
-  'name': 'php',
-  'mode': 'php',
-  'mime': 'application/x-httpd-php'
+  name: 'php',
+  mode: 'php',
+  mime: 'application/x-httpd-php'
 }, {
-  'name': 'json',
-  'mode': 'javascript',
-  'mime': 'application/json'
+  name: 'json',
+  mode: 'javascript',
+  mime: 'application/json'
 }, {
-  'name': 'smarty',
-  'mode': 'smarty',
-  'mime': 'text/x-smarty'
+  name: 'smarty',
+  mode: 'smarty',
+  mime: 'text/x-smarty'
 }, {
-  'name': 'cobol',
-  'mode': 'cobol',
-  'mime': 'text/x-cobol'
+  name: 'cobol',
+  mode: 'cobol',
+  mime: 'text/x-cobol'
 }, {
-  'name': 'go',
-  'mode': 'go',
-  'mime': 'text/x-go'
+  name: 'go',
+  mode: 'go',
+  mime: 'text/x-go'
 }, { /* alias */
-  'name': 'golang',
-  'mode': 'go',
-  'mime': 'text/x-go'
+  name: 'golang',
+  mode: 'go',
+  mime: 'text/x-go'
 }, {
-  'name': 'makefile',
-  'mode': 'shell', /* makefile syntax is not supported by CodeMirror */
-  'mime': 'text/x-sh'
+  name: 'makefile',
+  mode: 'shell', /* makefile syntax is not supported by CodeMirror */
+  mime: 'text/x-sh'
 }, {
-  'name': 'ocaml',
-  'mode': 'mllike',
-  'mime': 'text/x-ocaml'
+  name: 'ocaml',
+  mode: 'mllike',
+  mime: 'text/x-ocaml'
 }, {
-  'name': 'textile',
-  'mode': 'textile',
-  'mime': 'text/x-textile'
+  name: 'textile',
+  mode: 'textile',
+  mime: 'text/x-textile'
 }, {
-  'name': 'd',
-  'mode': 'd',
-  'mime': 'text/x-d'
+  name: 'd',
+  mode: 'd',
+  mime: 'text/x-d'
 }, {
-  'name': 'jade',
-  'mode': 'pug',
-  'mime': 'text/x-pug'
+  name: 'jade',
+  mode: 'pug',
+  mime: 'text/x-pug'
 }, {
-  'name': 'lua',
-  'mode': 'lua',
-  'mime': 'text/x-lua'
+  name: 'lua',
+  mode: 'lua',
+  mime: 'text/x-lua'
 }, {
-  'name': 'coffee',
-  'mode': 'coffeescript',
-  'mime': 'text/x-coffeescript'
+  name: 'coffee',
+  mode: 'coffeescript',
+  mime: 'text/x-coffeescript'
 }, {
-  'name': 'html',
-  'mode': 'htmlmixed',
-  'mime': 'text/html'
+  name: 'html',
+  mode: 'htmlmixed',
+  mime: 'text/html'
 }, {
-  'name': 'pgsql',
-  'mode': 'sql',
-  'mime': 'text/x-sql'
+  name: 'pgsql',
+  mode: 'sql',
+  mime: 'text/x-sql'
 }, {
-  'name': 'haskell',
-  'mode': 'haskell',
-  'mime': 'text/x-haskell'
+  name: 'haskell',
+  mode: 'haskell',
+  mime: 'text/x-haskell'
 }, {
-  'name': 'jsp',
-  'mode': 'htmlembedded',
-  'mime': 'application/x-jsp'
+  name: 'jsp',
+  mode: 'htmlembedded',
+  mime: 'application/x-jsp'
 }, {
-  'name': 'tcl',
-  'mode': 'tcl',
-  'mime': 'text/x-tcl'
+  name: 'tcl',
+  mode: 'tcl',
+  mime: 'text/x-tcl'
 }, {
-  'name': 'ini',
-  'mode': 'properties',
-  'mime': 'text/x-properties'
+  name: 'ini',
+  mode: 'properties',
+  mime: 'text/x-properties'
 }, {
-  'name': 'jsoniq',
-  'mode': 'javascript',
-  'mime': 'application/json'
+  name: 'jsoniq',
+  mode: 'javascript',
+  mime: 'application/json'
 }, {
-  'name': 'vhdl',
-  'mode': 'vhdl',
-  'mime': 'text/x-vhdl'
+  name: 'vhdl',
+  mode: 'vhdl',
+  mime: 'text/x-vhdl'
 }, {
-  'name': 'verilog',
-  'mode': 'verilog',
-  'mime': 'text/x-systemverilog'
+  name: 'verilog',
+  mode: 'verilog',
+  mime: 'text/x-systemverilog'
 }, {
-  'name': 'csharp',
-  'mode': 'clike',
-  'mime': 'text/x-csharp'
+  name: 'csharp',
+  mode: 'clike',
+  mime: 'text/x-csharp'
 }, {
-  'name': 'rust',
-  'mode': 'rust',
-  'mime': 'text/x-rustsrc'
+  name: 'rust',
+  mode: 'rust',
+  mime: 'text/x-rustsrc'
 }, {
-  'name': 'livescript',
-  'mode': 'livescript',
-  'mime': 'text/x-livescript'
+  name: 'livescript',
+  mode: 'livescript',
+  mime: 'text/x-livescript'
 }, {
-  'name': 'jsx',
-  'mode': 'jsx',
-  'mime': 'text/jsx'
+  name: 'jsx',
+  mode: 'jsx',
+  mime: 'text/jsx'
 }, {
-  'name': 'protobuf',
-  'mode': 'protobuf',
-  'mime': 'text/x-protobuf'
+  name: 'protobuf',
+  mode: 'protobuf',
+  mime: 'text/x-protobuf'
 }, {
-  'name': 'markdown',
-  'mode': 'gfm',
-  'mime': 'text/x-gfm'
+  name: 'markdown',
+  mode: 'gfm',
+  mime: 'text/x-gfm'
 }, {
-  'name': 'rst',
-  'mode': 'rst',
-  'mime': 'text/x-rst'
+  name: 'rst',
+  mode: 'rst',
+  mime: 'text/x-rst'
 }, {
-  'name': 'LaTeX',
-  'mode': 'stex',
-  'mime': 'text/x-latex'
+  name: 'LaTeX',
+  mode: 'stex',
+  mime: 'text/x-latex'
 }, {
-  'name': 'java',
-  'mode': 'clike',
-  'mime': 'text/x-java'
+  name: 'java',
+  mode: 'clike',
+  mime: 'text/x-java'
 }, {
-  'name': 'kotlin',
-  'mode': 'clike',
-  'mime': 'text/x-kotlin'
+  name: 'kotlin',
+  mode: 'clike',
+  mime: 'text/x-kotlin'
 }, {
-  'name': 'javascript',
-  'mode': 'javascript',
-  'mime': 'text/javascript'
+  name: 'javascript',
+  mode: 'javascript',
+  mime: 'text/javascript'
 }, {
-  'name': 'erlang',
-  'mode': 'erlang',
-  'mime': 'text/x-erlang'
+  name: 'erlang',
+  mode: 'erlang',
+  mime: 'text/x-erlang'
 }, {
-  'name': 'scheme',
-  'mode': 'scheme',
-  'mime': 'text/x-scheme'
+  name: 'scheme',
+  mode: 'scheme',
+  mime: 'text/x-scheme'
 }, {
-  'name': 'sass',
-  'mode': 'sass',
-  'mime': 'text/x-sass'
+  name: 'sass',
+  mode: 'sass',
+  mime: 'text/x-sass'
 }, {
-  'name': 'groovy',
-  'mode': 'groovy',
-  'mime': 'text/x-groovy'
+  name: 'groovy',
+  mode: 'groovy',
+  mime: 'text/x-groovy'
 }, {
-  'name': 'julia',
-  'mode': 'julia',
-  'mime': 'text/x-julia'
+  name: 'julia',
+  mode: 'julia',
+  mime: 'text/x-julia'
 }, {
-  'name': 'haml',
-  'mode': 'haml',
-  'mime': 'text/x-haml'
+  name: 'haml',
+  mode: 'haml',
+  mime: 'text/x-haml'
 }, {
-  'name': 'powershell',
-  'mode': 'powershell',
-  'mime': 'application/x-powershell'
+  name: 'powershell',
+  mode: 'powershell',
+  mime: 'application/x-powershell'
 }, {
-  'name': 'typescript',
-  'mode': 'javascript',
-  'mime': 'application/typescript'
+  name: 'typescript',
+  mode: 'javascript',
+  mime: 'application/typescript'
 }, {
-  'name': 'dart',
-  'mode': 'dart',
-  'mime': 'application/dart'
+  name: 'dart',
+  mode: 'dart',
+  mime: 'application/dart'
 }, {
-  'name': 'xquery',
-  'mode': 'xquery',
-  'mime': 'application/xquery'
+  name: 'xquery',
+  mode: 'xquery',
+  mime: 'application/xquery'
 }, {
-  'name': 'elm',
-  'mode': 'elm',
-  'mime': 'text/x-elm'
+  name: 'elm',
+  mode: 'elm',
+  mime: 'text/x-elm'
 }, {
-  'name': 'plsql',
-  'mode': 'sql',
-  'mime': 'text/x-plsql'
+  name: 'plsql',
+  mode: 'sql',
+  mime: 'text/x-plsql'
 }, {
-  'name': 'forth',
-  'mode': 'forth',
-  'mime': 'text/x-forth'
+  name: 'forth',
+  mode: 'forth',
+  mime: 'text/x-forth'
 }, {
-  'name': 'scala',
-  'mode': 'clike',
-  'mime': 'text/x-scala'
+  name: 'scala',
+  mode: 'clike',
+  mime: 'text/x-scala'
 }, {
-  'name': 'perl',
-  'mode': 'perl',
-  'mime': 'text/x-perl'
+  name: 'perl',
+  mode: 'perl',
+  mime: 'text/x-perl'
 }, {
-  'name': 'haxe',
-  'mode': 'haxe',
-  'mime': 'text/x-haxe'
+  name: 'haxe',
+  mode: 'haxe',
+  mime: 'text/x-haxe'
 }, {
-  'name': 'rhtml',
-  'mode': 'htmlembedded',
-  'mime': 'application/x-erb'
+  name: 'rhtml',
+  mode: 'htmlembedded',
+  mime: 'application/x-erb'
 }, {
-  'name': 'scss',
-  'mode': 'css',
-  'mime': 'text/x-scss'
+  name: 'scss',
+  mode: 'css',
+  mime: 'text/x-scss'
 }, {
-  'name': 'sql',
-  'mode': 'sql',
-  'mime': 'text/x-sql'
+  name: 'sql',
+  mode: 'sql',
+  mime: 'text/x-sql'
 }, {
-  'name': 'css',
-  'mode': 'css',
-  'mime': 'text/css'
+  name: 'css',
+  mode: 'css',
+  mime: 'text/css'
 }, {
-  'name': 'tex',
-  'mode': 'stex',
-  'mime': 'text/x-stex'
+  name: 'tex',
+  mode: 'stex',
+  mime: 'text/x-stex'
 }, {
-  'name': 'r',
-  'mode': 'r',
-  'mime': 'text/x-rsrc'
+  name: 'r',
+  mode: 'r',
+  mime: 'text/x-rsrc'
 }, {
-  'name': 'diff',
-  'mode': 'diff',
-  'mime': 'text/x-diff'
+  name: 'diff',
+  mode: 'diff',
+  mime: 'text/x-diff'
 }, {
-  'name': 'twig',
-  'mode': 'twig',
-  'mime': 'text/x-twig'
+  name: 'twig',
+  mode: 'twig',
+  mime: 'text/x-twig'
 }, {
-  'name': 'matlab',
-  'mode': 'octave',
-  'mime': 'text/x-octave'
+  name: 'matlab',
+  mode: 'octave',
+  mime: 'text/x-octave'
 }, {
-  'name': 'soy_template',
-  'mode': 'soy',
-  'mime': 'text/x-soy'
+  name: 'soy_template',
+  mode: 'soy',
+  mime: 'text/x-soy'
 }, {
-  'name': 'dockerfile',
-  'mode': 'dockerfile',
-  'mime': 'text/x-dockerfile'
+  name: 'dockerfile',
+  mode: 'dockerfile',
+  mime: 'text/x-dockerfile'
 }, {
-  'name': 'toml',
-  'mode': 'toml',
-  'mime': 'text/x-toml'
+  name: 'toml',
+  mode: 'toml',
+  mime: 'text/x-toml'
 }, {
-  'name': 'pgp',
-  'mode': 'asciiarmor',
-  'mime': 'application/pgp'
+  name: 'pgp',
+  mode: 'asciiarmor',
+  mime: 'application/pgp'
 }, {
-  'name': 'Nginx',
-  'mode': 'nginx',
-  'mime': 'text/x-nginx-conf'
+  name: 'Nginx',
+  mode: 'nginx',
+  mime: 'text/x-nginx-conf'
 }]
 
 export default languages
