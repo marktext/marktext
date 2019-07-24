@@ -715,7 +715,8 @@ const paragraphCtrl = ContentState => {
     return firstTextBlock.key === start.key &&
       start.offset === 0 &&
       lastTextBlock.key === end.key &&
-      end.offset === lastTextBlock.text.length
+      end.offset === lastTextBlock.text.length &&
+      !this.muya.keyboard.isComposed
   }
 
   ContentState.prototype.selectAll = function () {
