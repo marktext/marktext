@@ -11,20 +11,20 @@
 </template>
 
 <script>
-  import { remote } from 'electron'
-  import { closePath } from '../../assets/window-controls.js'
+import { remote } from 'electron'
+import { closePath } from '../../assets/window-controls.js'
 
-  export default {
-    data () {
-      this.windowIconClose = closePath
-      return {}
-    },
-    methods: {
-      handleCloseClick () {
-        remote.getCurrentWindow().close()
-      }
+export default {
+  data () {
+    this.windowIconClose = closePath
+    return {}
+  },
+  methods: {
+    handleCloseClick () {
+      remote.getCurrentWindow().close()
     }
   }
+}
 </script>
 
 <style scoped>

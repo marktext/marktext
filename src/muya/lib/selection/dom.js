@@ -51,7 +51,7 @@ export const getOffsetOfParagraph = (node, paragraph) => {
   do {
     preSibling = preSibling.previousSibling
     if (preSibling) {
-      offset += getTextContent(preSibling, [ CLASS_OR_ID['AG_MATH_RENDER'], CLASS_OR_ID['AG_RUBY_RENDER'] ]).length
+      offset += getTextContent(preSibling, [CLASS_OR_ID['AG_MATH_RENDER'], CLASS_OR_ID['AG_RUBY_RENDER']]).length
     }
   } while (preSibling)
   return (node === paragraph || node.parentNode === paragraph)
@@ -72,7 +72,7 @@ export const findNearestParagraph = node => {
 
 export const findOutMostParagraph = node => {
   do {
-    let parentNode = node.parentNode
+    const parentNode = node.parentNode
     if (isMuyaEditorElement(parentNode) && isAganippeParagraph(node)) return node
     node = parentNode
   } while (node)

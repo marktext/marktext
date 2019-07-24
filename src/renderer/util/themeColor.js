@@ -1,4 +1,4 @@
-import darkTheme from  '../assets/themes/dark.theme.css'
+import darkTheme from '../assets/themes/dark.theme.css'
 import graphiteTheme from '../assets/themes/graphite.theme.css'
 import materialDarkTheme from '../assets/themes/material-dark.theme.css'
 import oneDarkTheme from '../assets/themes/one-dark.theme.css'

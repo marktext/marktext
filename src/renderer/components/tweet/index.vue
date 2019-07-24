@@ -67,56 +67,56 @@
 </template>
 
 <script>
-  import { shell } from 'electron'
-  import bus from '../../bus'
+import { shell } from 'electron'
+import bus from '../../bus'
 
-  export default {
-    data () {
-      return {
-        showTweetDialog: false,
-        value: '',
-        selectedFace: 'smile'
+export default {
+  data () {
+    return {
+      showTweetDialog: false,
+      value: '',
+      selectedFace: 'smile'
+    }
+  },
+  created () {
+    bus.$on('tweetDialog', this.showDialog)
+  },
+  beforeDestroy () {
+    bus.$off('tweetDialog', this.showDialog)
+  },
+  methods: {
+    showDialog () {
+      this.showTweetDialog = true
+      this.value = ''
+      bus.$emit('editor-blur')
+      this.$nextTick(() => {
+        this.$refs.textarea.focus()
+      })
+    },
+    faceClick (name) {
+      this.selectedFace = name
+    },
+    reportViaGithub () {
+      shell.openExternal('https://github.com/marktext/marktext/issues/new')
+    },
+    reportViaTwitter () {
+      const { value, selectedFace } = this
+      if (!value) return
+      const origin = 'https://twitter.com/intent/tweet'
+
+      const params = {
+        via: 'marktextme',
+        url: encodeURI('https://github.com/marktext/marktext/'),
+        text: value
       }
-    },
-    created () {
-      bus.$on('tweetDialog', this.showDialog)
-    },
-    beforeDestroy () {
-      bus.$off('tweetDialog', this.showDialog)
-    },
-    methods: {
-      showDialog () {
-        this.showTweetDialog = true
-        this.value = ''
-        bus.$emit('editor-blur')
-        this.$nextTick(() => {
-          this.$refs.textarea.focus()
-        })
-      },
-      faceClick (name) {
-        this.selectedFace = name
-      },
-      reportViaGithub () {
-        shell.openExternal('https://github.com/marktext/marktext/issues/new')
-      },
-      reportViaTwitter () {
-        const { value, selectedFace } = this
-        if (!value) return
-        const origin = 'https://twitter.com/intent/tweet'
 
-        const params = {
-          via: 'marktextme',
-          url: encodeURI('https://github.com/marktext/marktext/'),
-          text: value
-        }
+      if (selectedFace === 'smile') params.hashtags = 'happyMarkText'
 
-        if (selectedFace === 'smile') params.hashtags = 'happyMarkText'
-
-        shell.openExternal(`${origin}?${Object.keys(params).map(key => `${key}=${params[key]}`).join('&')}`)
-        this.showTweetDialog = false
-      }
+      shell.openExternal(`${origin}?${Object.keys(params).map(key => `${key}=${params[key]}`).join('&')}`)
+      this.showTweetDialog = false
     }
   }
+}
 </script>
 
 <style>

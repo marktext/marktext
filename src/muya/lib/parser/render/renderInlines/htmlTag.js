@@ -13,9 +13,9 @@ export default function htmlTag (h, cursor, block, token, outerClass) {
 
   const anchor = Array.isArray(children) && tag !== 'ruby' // important
     ? children.reduce((acc, to) => {
-        const chunk = this[snakeToCamel(to.type)](h, cursor, block, to, className)
-        return Array.isArray(chunk) ? [...acc, ...chunk] : [...acc, chunk]
-      }, []) 
+      const chunk = this[snakeToCamel(to.type)](h, cursor, block, to, className)
+      return Array.isArray(chunk) ? [...acc, ...chunk] : [...acc, chunk]
+    }, [])
     : ''
   switch (tag) {
     case 'img': {

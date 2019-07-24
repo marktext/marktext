@@ -3,7 +3,7 @@
 export default {
   // Dummy service used to opt-in real services.
   none: {
-    name: "",
+    name: '',
     isGdprCompliant: true,
     privacyUrl: '',
     tosUrl: '',
@@ -14,7 +14,7 @@ export default {
 
   // Real services
   smms: {
-    name: "sm.ms",
+    name: 'sm.ms',
     isGdprCompliant: false,
     privacyUrl: '',
     tosUrl: 'https://sm.ms/about/',
@@ -23,7 +23,7 @@ export default {
     agreedToLegalNotices: false
   },
   github: {
-    name: "GitHub",
+    name: 'GitHub',
     isGdprCompliant: true,
     privacyUrl: 'https://github.com/site/privacy',
     tosUrl: 'https://github.com/site/terms',

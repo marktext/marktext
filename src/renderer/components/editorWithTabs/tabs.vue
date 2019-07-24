@@ -42,100 +42,100 @@
 </template>
 
 <script>
-  import { mapState } from 'vuex'
-  import autoScroll from 'dom-autoscroller'
-  import dragula from 'dragula'
-  import { tabsMixins } from '../../mixins'
+import { mapState } from 'vuex'
+import autoScroll from 'dom-autoscroller'
+import dragula from 'dragula'
+import { tabsMixins } from '../../mixins'
 
-  export default {
-    data () {
-      this.autoScroller = null
-      this.drake = null
-      return {}
+export default {
+  data () {
+    this.autoScroller = null
+    this.drake = null
+    return {}
+  },
+  mixins: [tabsMixins],
+  computed: {
+    ...mapState({
+      currentFile: state => state.editor.currentFile,
+      tabs: state => state.editor.tabs,
+      showSideBar: state => state.layout.showSideBar,
+      sideBarWidth: state => state.layout.sideBarWidth
+    })
+  },
+  methods: {
+    newFile () {
+      this.$store.dispatch('NEW_UNTITLED_TAB', {})
     },
-    mixins: [tabsMixins],
-    computed: {
-      ...mapState({
-        'currentFile': state => state.editor.currentFile,
-        'tabs': state => state.editor.tabs,
-        'showSideBar': state => state.layout.showSideBar,
-        'sideBarWidth': state => state.layout.sideBarWidth
-      })
-    },
-    methods: {
-      newFile () {
-        this.$store.dispatch('NEW_UNTITLED_TAB', {})
-      },
-      handleTabScroll (event) {
-        // Use mouse wheel value first but prioritize X value more (e.g. touchpad input).
-        let delta = event.deltaY
-        if (event.deltaX !== 0) {
-          delta = event.deltaX
+    handleTabScroll (event) {
+      // Use mouse wheel value first but prioritize X value more (e.g. touchpad input).
+      let delta = event.deltaY
+      if (event.deltaX !== 0) {
+        delta = event.deltaX
+      }
+
+      const tabs = this.$refs.tabContainer
+      const newLeft = Math.max(0, Math.min(tabs.scrollLeft + delta, tabs.scrollWidth))
+      tabs.scrollLeft = newLeft
+    }
+  },
+  mounted () {
+    this.$nextTick(() => {
+      const tabs = this.$refs.tabContainer
+
+      // Allow to scroll through the tabs by mouse wheel or touchpad.
+      tabs.addEventListener('wheel', this.handleTabScroll)
+
+      // Allow tab drag and drop to reorder tabs.
+      const drake = this.drake = dragula([this.$refs.tabDropContainer], {
+        direction: 'horizontal',
+        revertOnSpill: true,
+        mirrorContainer: this.$refs.tabDropContainer,
+        ignoreInputTextSelection: false
+      }).on('drop', (el, target, source, sibling) => {
+        // Current tab that was dropped and need to be reordered.
+        const droppedId = el.getAttribute('data-id')
+        // This should be the next tab (tab | ... | el | sibling | tab | ...) but may be
+        // the mirror image or null (tab | ... | el | sibling or null) if last tab.
+        const nextTabId = sibling && sibling.getAttribute('data-id')
+        const isLastTab = !sibling || sibling.classList.contains('gu-mirror')
+        if (!droppedId || (sibling && !nextTabId)) {
+          throw new Error('Cannot reorder tabs: invalid tab id.')
         }
 
-        const tabs = this.$refs.tabContainer
-        const newLeft = Math.max(0, Math.min(tabs.scrollLeft + delta, tabs.scrollWidth ))
-        tabs.scrollLeft = newLeft
-      }
-    },
-    mounted () {
-      this.$nextTick(() => {
-        const tabs = this.$refs.tabContainer
-
-        // Allow to scroll through the tabs by mouse wheel or touchpad.
-        tabs.addEventListener('wheel', this.handleTabScroll)
-
-        // Allow tab drag and drop to reorder tabs.
-        const drake = this.drake = dragula([ this.$refs.tabDropContainer ], {
-          direction: 'horizontal',
-          revertOnSpill: true,
-          mirrorContainer: this.$refs.tabDropContainer,
-          ignoreInputTextSelection: false
-        }).on('drop', (el, target, source, sibling) => {
-          // Current tab that was dropped and need to be reordered.
-          const droppedId = el.getAttribute('data-id')
-          // This should be the next tab (tab | ... | el | sibling | tab | ...) but may be
-          // the mirror image or null (tab | ... | el | sibling or null) if last tab.
-          const nextTabId = sibling && sibling.getAttribute('data-id')
-          const isLastTab = !sibling || sibling.classList.contains('gu-mirror')
-          if (!droppedId || (sibling && !nextTabId)) {
-            throw new Error('Cannot reorder tabs: invalid tab id.')
-          }
-
-          this.$store.dispatch('EXCHANGE_TABS_BY_ID', {
-            fromId: droppedId,
-            toId: isLastTab ? null : nextTabId
-          })
-        })
-
-        // TODO(perf): Create a copy of dom-autoscroller and just hook tabs-container to
-        //   improve performance. Currently autoScroll is triggered when the mouse is moved
-        //   in Mark Text window.
-
-        // Scroll when dragging a tab to the beginning or end of the tab container.
-        this.autoScroller = autoScroll([ tabs ], {
-            margin: 20,
-            maxSpeed: 6,
-            scrollWhenOutside: false,
-            autoScroll: () => {
-              return this.autoScroller.down && drake.dragging
-            }
+        this.$store.dispatch('EXCHANGE_TABS_BY_ID', {
+          fromId: droppedId,
+          toId: isLastTab ? null : nextTabId
         })
       })
-    },
-    beforeDestroy () {
-      const tabs = this.$refs.tabContainer
-      tabs.removeEventListener('wheel', this.handleTabScroll)
 
-      if (this.autoScroller) {
-        // Force destroy
-        this.autoScroller.destroy(true)
-      }
-      if (this.drake) {
-        this.drake.destroy()
-      }
+      // TODO(perf): Create a copy of dom-autoscroller and just hook tabs-container to
+      //   improve performance. Currently autoScroll is triggered when the mouse is moved
+      //   in Mark Text window.
+
+      // Scroll when dragging a tab to the beginning or end of the tab container.
+      this.autoScroller = autoScroll([tabs], {
+        margin: 20,
+        maxSpeed: 6,
+        scrollWhenOutside: false,
+        autoScroll: () => {
+          return this.autoScroller.down && drake.dragging
+        }
+      })
+    })
+  },
+  beforeDestroy () {
+    const tabs = this.$refs.tabContainer
+    tabs.removeEventListener('wheel', this.handleTabScroll)
+
+    if (this.autoScroller) {
+      // Force destroy
+      this.autoScroller.destroy(true)
+    }
+    if (this.drake) {
+      this.drake.destroy()
     }
   }
+}
 </script>
 
 <style scoped>

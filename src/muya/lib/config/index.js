@@ -189,20 +189,20 @@ export const DEFAULT_TURNDOWN_CONFIG = {
 }
 
 export const FORMAT_MARKER_MAP = {
-  'em': '*',
-  'inline_code': '`',
-  'strong': '**',
-  'del': '~~',
-  'inline_math': '$',
-  'u': {
+  em: '*',
+  inline_code: '`',
+  strong: '**',
+  del: '~~',
+  inline_math: '$',
+  u: {
     open: '<u>',
     close: '</u>'
   },
-  'sub': {
+  sub: {
     open: '<sub>',
     close: '</sub>'
   },
-  'sup': {
+  sup: {
     open: '<sup>',
     close: '</sup>'
   }

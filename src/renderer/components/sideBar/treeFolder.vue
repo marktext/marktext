@@ -50,73 +50,73 @@
 </template>
 
 <script>
-  import { mapState } from 'vuex'
-  import { showContextMenu } from '../../contextMenu/sideBar'
-  import bus from '../../bus'
-  import { createFileOrDirectoryMixins } from '../../mixins'
+import { mapState } from 'vuex'
+import { showContextMenu } from '../../contextMenu/sideBar'
+import bus from '../../bus'
+import { createFileOrDirectoryMixins } from '../../mixins'
 
-  export default {
-    mixins: [createFileOrDirectoryMixins],
-    name: 'folder',
-    data () {
-      return {
-        createName: '',
-        newName: ''
-      }
+export default {
+  mixins: [createFileOrDirectoryMixins],
+  name: 'folder',
+  data () {
+    return {
+      createName: '',
+      newName: ''
+    }
+  },
+  props: {
+    folder: {
+      type: Object,
+      required: true
     },
-    props: {
-      folder: {
-        type: Object,
-        required: true
-      },
-      depth: {
-        type: Number,
-        required: true
-      }
-    },
-    components: {
-      File: () => import('./treeFile.vue')
-    },
-    computed: {
-      ...mapState({
-        'renameCache': state => state.project.renameCache,
-        'createCache': state => state.project.createCache,
-        'activeItem': state => state.project.activeItem,
-        'clipboard': state => state.project.clipboard
+    depth: {
+      type: Number,
+      required: true
+    }
+  },
+  components: {
+    File: () => import('./treeFile.vue')
+  },
+  computed: {
+    ...mapState({
+      renameCache: state => state.project.renameCache,
+      createCache: state => state.project.createCache,
+      activeItem: state => state.project.activeItem,
+      clipboard: state => state.project.clipboard
+    })
+  },
+  created () {
+    this.$nextTick(() => {
+      this.$refs.folder.addEventListener('contextmenu', event => {
+        event.preventDefault()
+        this.$store.dispatch('CHANGE_ACTIVE_ITEM', this.folder)
+        showContextMenu(event, !!this.clipboard)
       })
+      bus.$on('SIDEBAR::show-new-input', this.handleInputFocus)
+      bus.$on('SIDEBAR::show-rename-input', this.focusRenameInput)
+    })
+  },
+  methods: {
+    folderNameClick () {
+      this.folder.isCollapsed = !this.folder.isCollapsed
     },
-    created () {
+    noop () {},
+    focusRenameInput () {
       this.$nextTick(() => {
-        this.$refs.folder.addEventListener('contextmenu', event => {
-          event.preventDefault()
-          this.$store.dispatch('CHANGE_ACTIVE_ITEM', this.folder)
-          showContextMenu(event, !!this.clipboard)
-        })
-        bus.$on('SIDEBAR::show-new-input', this.handleInputFocus)
-        bus.$on('SIDEBAR::show-rename-input', this.focusRenameInput)
+        if (this.$refs.renameInput) {
+          this.$refs.renameInput.focus()
+          this.newName = this.folder.name
+        }
       })
     },
-    methods: {
-      folderNameClick () {
-        this.folder.isCollapsed = !this.folder.isCollapsed
-      },
-      noop () {},
-      focusRenameInput () {
-        this.$nextTick(() => {
-          if (this.$refs.renameInput) {
-            this.$refs.renameInput.focus()
-            this.newName = this.folder.name
-          }
-        })
-      },
-      rename () {
-        const { newName } = this
-        if (newName) {
-          this.$store.dispatch('RENAME_IN_SIDEBAR', newName)
-        }
+    rename () {
+      const { newName } = this
+      if (newName) {
+        this.$store.dispatch('RENAME_IN_SIDEBAR', newName)
       }
     }
   }
+}
 </script>
 
 <style scoped>

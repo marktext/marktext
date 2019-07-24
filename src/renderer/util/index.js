@@ -50,13 +50,13 @@ export const collection = {
   setItem (emoji) {
     const data = localStorage.getItem(DOTU_COLLECTION)
     if (data) {
-      let col = JSON.parse(data)
+      const col = JSON.parse(data)
       if (col.findIndex(c => c.link === emoji.link) === -1) {
         col.push(emoji)
       }
       localStorage.setItem(DOTU_COLLECTION, JSON.stringify(col))
     } else {
-      localStorage.setItem(DOTU_COLLECTION, JSON.stringify([ emoji ]))
+      localStorage.setItem(DOTU_COLLECTION, JSON.stringify([emoji]))
     }
   },
   getItems () {
@@ -87,7 +87,7 @@ export const dotuHistory = {
       }
       localStorage.setItem(DOTU, JSON.stringify(history))
     } else {
-      localStorage.setItem(DOTU, JSON.stringify([ value ]))
+      localStorage.setItem(DOTU, JSON.stringify([value]))
     }
   },
   getItems () {
@@ -138,9 +138,9 @@ export const adjustCursor = (cursor, preline, line, nextline) => {
 }
 
 export const animatedScrollTo = function (element, to, duration, callback) {
-  let start = element.scrollTop
-  let change = to - start
-  let animationStart = +new Date()
+  const start = element.scrollTop
+  const change = to - start
+  const animationStart = +new Date()
   let animating = true
   let lastpos = null
 
@@ -185,7 +185,7 @@ export const hasKeys = obj => Object.keys(obj).length > 0
  * @param {*} obj Object to clone
  * @param {Boolean} deepCopy Create a shallow (false) or deep copy (true)
  */
-export const cloneObj = (obj, deepCopy=true) => {
+export const cloneObj = (obj, deepCopy = true) => {
   return deepCopy ? JSON.parse(JSON.stringify(obj)) : Object.assign({}, obj)
 }
 

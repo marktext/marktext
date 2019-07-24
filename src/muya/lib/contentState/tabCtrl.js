@@ -112,7 +112,7 @@ const tabCtrl = ContentState => {
         let target = this.getNextSibling(listItem)
         while (target) {
           this.appendChild(newList, target)
-          let temp = target
+          const temp = target
           target = this.getNextSibling(target)
           this.removeBlock(temp, list)
         }
@@ -185,7 +185,6 @@ const tabCtrl = ContentState => {
     const tokens = tokenizer(text, [], false, labels)
     let result = null
     const walkTokens = tkns => {
-
       for (const token of tkns) {
         const { marker, type, range, children, srcAndTitle, hrefAndTitle, backlash, closeTag, isFullLink, label } = token
         const { start, end } = range

@@ -22,48 +22,48 @@
 </template>
 
 <script>
-  import Tabs from './tabs.vue'
-  import Editor from './editor.vue'
-  import SourceCode from './sourceCode.vue'
+import Tabs from './tabs.vue'
+import Editor from './editor.vue'
+import SourceCode from './sourceCode.vue'
 
-  export default {
-    props: {
-      filename: {
-        type: String
-      },
-      markdown: {
-        type: String,
-        required: true
-      },
-      cursor: {
-        validator (value) {
-          return typeof value === 'object'
-        },
-        required: true
-      },
-      sourceCode: {
-        type: Boolean,
-        required: true
-      },
-      showTabBar: {
-        type: Boolean,
-        required: true
-      },
-      textDirection: {
-        type: String,
-        required: true
-      },
-      platform: {
-        type: String,
-        required: true
-      }
+export default {
+  props: {
+    filename: {
+      type: String
     },
-    components: {
-      Tabs,
-      Editor,
-      SourceCode
+    markdown: {
+      type: String,
+      required: true
+    },
+    cursor: {
+      validator (value) {
+        return typeof value === 'object'
+      },
+      required: true
+    },
+    sourceCode: {
+      type: Boolean,
+      required: true
+    },
+    showTabBar: {
+      type: Boolean,
+      required: true
+    },
+    textDirection: {
+      type: String,
+      required: true
+    },
+    platform: {
+      type: String,
+      required: true
     }
+  },
+  components: {
+    Tabs,
+    Editor,
+    SourceCode
   }
+}
 </script>
 
 <style scoped>

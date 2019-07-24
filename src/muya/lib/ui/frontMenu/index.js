@@ -20,6 +20,7 @@ const defaultOptions = {
 
 class FrontMenu extends BaseFloat {
   static pluginName = 'frontMenu'
+
   constructor (muya, options = {}) {
     const name = 'ag-front-menu'
     const opts = Object.assign({}, defaultOptions, options)

@@ -13,12 +13,12 @@ export dockMenu from './dock'
 
 /**
  * Create the setting window menu.
- * 
+ *
  * @param {Keybindings} keybindings The keybindings instance
  */
 export const configSettingMenu = (keybindings) => {
   return [
-    ...(process.platform === 'darwin' ? [ marktext(keybindings) ] : []),
+    ...(process.platform === 'darwin' ? [marktext(keybindings)] : []),
     prefEdit(keybindings),
     help()
   ]
@@ -33,7 +33,7 @@ export const configSettingMenu = (keybindings) => {
  */
 export default function (keybindings, preferences, recentlyUsedFiles) {
   return [
-    ...(process.platform === 'darwin' ? [ marktext(keybindings) ] : []),
+    ...(process.platform === 'darwin' ? [marktext(keybindings)] : []),
     file(keybindings, preferences, recentlyUsedFiles),
     edit(keybindings, preferences),
     paragraph(keybindings),

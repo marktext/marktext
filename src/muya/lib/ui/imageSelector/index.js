@@ -190,7 +190,7 @@ class ImageSelector extends BaseFloat {
     this.muya.eventCenter.dispatch('stateChange')
   }
 
-  async handleSelectButtonClick  () {
+  async handleSelectButtonClick () {
     if (!this.muya.options.imagePathPicker) {
       console.warn('You need to add a imagePathPicker option')
       return

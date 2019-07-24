@@ -39,7 +39,7 @@ function InlineLexer (links, options) {
     if (/^(?:autolink|code|tag)$/.test(key) && this.rules[key] instanceof RegExp) {
       this.highPriorityLinkRules[key] = this.rules[key]
     }
-  } 
+  }
 }
 
 /**
@@ -48,7 +48,7 @@ function InlineLexer (links, options) {
 
 InlineLexer.prototype.output = function (src) {
   // src = src
-    // .replace(/\u00a0/g, ' ')
+  // .replace(/\u00a0/g, ' ')
   const { disableInline, emoji, math } = this.options
   if (disableInline) {
     return escape(src)

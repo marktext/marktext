@@ -6,16 +6,16 @@ Download the AppImage and type the following:
 
 1. `chmod +x marktext-%version%-x86_64.AppImage`
 2. `./marktext-%version%-x86_64.AppImage`
-3. Now you can decide whether you want to install Mark Text (yes) or just execute it (no).
+3. Now you can execute Mark Text.
 
 ### Installation
 
-You cannot really install an AppImage. It's just a file which can be integrated with your desktop environment. The only thing you have to do is to execute Mark Text and click `Yes` on dialog.
+You cannot really install an AppImage. It's just a file which can be integrated with your desktop environment. The only thing you have to do is to create a desktop file that link to Mark Text (like `~/.local/share/applications/appimage-marktext.desktop`).
 
 ### Uninstallation
 
-1. Delete AppImage file
-2. Delete `~/.local/share/applications/appimagekit-marktext.desktop`
+1. Delete AppImage file.
+2. Delete your desktop file if exists.
 3. Delete your user settings: `~/.config/marktext`
 
 ### Custom launch script

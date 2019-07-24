@@ -118,7 +118,7 @@ const backspaceCtrl = ContentState => {
 
     if (this.isSelectAll()) {
       event.preventDefault()
-      this.blocks = [ this.createBlockP() ]
+      this.blocks = [this.createBlockP()]
       this.init()
 
       this.render()

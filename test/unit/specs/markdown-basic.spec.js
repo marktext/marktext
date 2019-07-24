@@ -4,8 +4,8 @@ import ExportMarkdown from '../../../src/muya/lib/utils/exportMarkdown'
 import { MUYA_DEFAULT_OPTION } from '../../../src/muya/lib/config'
 import * as templates from '../markdown'
 
-const defaultOptions = { 'endOfLine': 'lf' }
-const defaultOptionsCrlf = Object.assign({}, defaultOptions, { 'endOfLine': 'crlf' })
+const defaultOptions = { endOfLine: 'lf' }
+const defaultOptionsCrlf = Object.assign({}, defaultOptions, { endOfLine: 'crlf' })
 
 const createMuyaContext = options => {
   const ctx = {}

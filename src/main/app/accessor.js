@@ -5,11 +5,10 @@ import Keybindings from '../keyboard/shortcutHandler'
 import AppMenu from '../menu'
 
 class Accessor {
-
   /**
    * @param {AppEnvironment} appEnvironment The application environment instance.
    */
-  constructor(appEnvironment) {
+  constructor (appEnvironment) {
     const userDataPath = appEnvironment.paths.userDataPath
 
     this.env = appEnvironment

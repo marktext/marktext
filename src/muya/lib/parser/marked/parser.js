@@ -1,7 +1,7 @@
 import Renderer from './renderer'
 import InlineLexer from './inlineLexer'
 import Slugger from './slugger'
-import TextRenderer from  './textRenderer'
+import TextRenderer from './textRenderer'
 import defaultOptions from './options'
 
 /**
@@ -27,7 +27,7 @@ Parser.prototype.parse = function (src) {
   // use an InlineLexer with a TextRenderer to extract pure text
   this.inlineText = new InlineLexer(
     src.links,
-    Object.assign({}, this.options, {renderer: new TextRenderer()})
+    Object.assign({}, this.options, { renderer: new TextRenderer() })
   )
   this.tokens = src.reverse()
 
@@ -194,7 +194,7 @@ Parser.prototype.tok = function () {
       return this.renderer.paragraph(this.parseText())
     }
     default: {
-      let errMsg = 'Token with "' + this.token.type + '" type was not found.'
+      const errMsg = 'Token with "' + this.token.type + '" type was not found.'
       if (this.options.silent) {
         console.error(errMsg)
       } else {

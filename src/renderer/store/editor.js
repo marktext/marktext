@@ -525,7 +525,7 @@ const actions = {
       }
     })
 
-    ipcRenderer.on('mt::new-untitled-tab', (e, selected = true, markdown = '', ) => {
+    ipcRenderer.on('mt::new-untitled-tab', (e, selected = true, markdown = '') => {
       // Create a blank tab
       dispatch('NEW_UNTITLED_TAB', { markdown, selected })
     })
@@ -802,7 +802,6 @@ const actions = {
 
   LISTEN_FOR_FILE_CHANGE ({ commit, state, rootState }) {
     ipcRenderer.on('AGANI::update-file', (e, { type, change }) => {
-
       // TODO: A new "changed" notification from different files overwrite the old notification
       // and the old notification disappears. I think we should bind the notification to the tab.
 

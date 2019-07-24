@@ -327,7 +327,7 @@ class ExportMarkdown {
       }
       listInfo.listCount++
 
-      const delimiter = bulletMarkerOrDelimiter ? bulletMarkerOrDelimiter : '.'
+      const delimiter = bulletMarkerOrDelimiter || '.'
       itemMarker = `${n}${delimiter} `
     }
 

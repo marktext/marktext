@@ -50,7 +50,7 @@ const renderToolBar = (type, tools, activeBlocks) => {
       }
     }, iconVnode)
   })
-  let selector = `div.ag-tool-${type}.${CLASS_OR_ID['AG_TOOL_BAR']}`
+  const selector = `div.ag-tool-${type}.${CLASS_OR_ID['AG_TOOL_BAR']}`
 
   return h(selector, {
     attrs: {

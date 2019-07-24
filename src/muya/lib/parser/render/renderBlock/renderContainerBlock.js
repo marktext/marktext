@@ -4,14 +4,14 @@ import { renderEditIcon } from './renderContainerEditIcon'
 import { h } from '../snabbdom'
 
 const PRE_BLOCK_HASH = {
-  'fencecode': `.${CLASS_OR_ID['AG_FENCE_CODE']}`,
-  'indentcode': `.${CLASS_OR_ID['AG_INDENT_CODE']}`,
-  'html': `.${CLASS_OR_ID['AG_HTML_BLOCK']}`,
-  'frontmatter': `.${CLASS_OR_ID['AG_FRONT_MATTER']}`,
-  'multiplemath': `.${CLASS_OR_ID['AG_MULTIPLE_MATH']}`,
-  'flowchart': `.${CLASS_OR_ID['AG_FLOWCHART']}`,
-  'sequence': `.${CLASS_OR_ID['AG_SEQUENCE']}`,
-  'mermaid': `.${CLASS_OR_ID['AG_MERMAID']}`,
+  fencecode: `.${CLASS_OR_ID['AG_FENCE_CODE']}`,
+  indentcode: `.${CLASS_OR_ID['AG_INDENT_CODE']}`,
+  html: `.${CLASS_OR_ID['AG_HTML_BLOCK']}`,
+  frontmatter: `.${CLASS_OR_ID['AG_FRONT_MATTER']}`,
+  multiplemath: `.${CLASS_OR_ID['AG_MULTIPLE_MATH']}`,
+  flowchart: `.${CLASS_OR_ID['AG_FLOWCHART']}`,
+  sequence: `.${CLASS_OR_ID['AG_SEQUENCE']}`,
+  mermaid: `.${CLASS_OR_ID['AG_MERMAID']}`,
   'vega-lite': `.${CLASS_OR_ID['AG_VEGA_LITE']}`
 }
 

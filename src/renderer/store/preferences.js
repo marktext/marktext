@@ -19,7 +19,7 @@ const state = {
   lineHeight: 1.6,
   codeFontSize: 14,
   codeFontFamily: 'DejaVu Sans Mono',
-  editorLineWidth: "",
+  editorLineWidth: '',
 
   autoPairBracket: true,
   autoPairMarkdownSyntax: true,
@@ -44,7 +44,7 @@ const state = {
   sourceCodeModeEnabled: false,
 
   searchExclusions: [],
-  searchMaxFileSize: "",
+  searchMaxFileSize: '',
   searchIncludeHidden: false,
   searchNoIgnore: false,
   searchFollowSymlinks: true,

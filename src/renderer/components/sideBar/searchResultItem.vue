@@ -56,72 +56,72 @@
 </template>
 
 <script>
-  import path from 'path'
-  import { mapState } from 'vuex'
-  import { fileMixins } from '../../mixins'
-  import { PATH_SEPARATOR } from '../../config'
+import path from 'path'
+import { mapState } from 'vuex'
+import { fileMixins } from '../../mixins'
+import { PATH_SEPARATOR } from '../../config'
 
-  export default {
-    mixins: [fileMixins],
-    data () {
-      return {
-        showSearchMatches: this.searchResult.matches.length <= 20,
-        allMatchesShown: this.searchResult.matches.length <= 10,
-        shownMatches: 10
-      }
-    },
-    props: {
-      searchResult: {
-        type: Object,
-        required: true
-      }
-    },
-    computed: {
-      ...mapState({
-        'tabs': state => state.editor.tabs,
-        'currentFile': state => state.editor.currentFile
-      }),
+export default {
+  mixins: [fileMixins],
+  data () {
+    return {
+      showSearchMatches: this.searchResult.matches.length <= 20,
+      allMatchesShown: this.searchResult.matches.length <= 10,
+      shownMatches: 10
+    }
+  },
+  props: {
+    searchResult: {
+      type: Object,
+      required: true
+    }
+  },
+  computed: {
+    ...mapState({
+      tabs: state => state.editor.tabs,
+      currentFile: state => state.editor.currentFile
+    }),
 
-      getMatches () {
-        if (this.searchResult.matches.length === 0 ||
+    getMatches () {
+      if (this.searchResult.matches.length === 0 ||
           this.allMatchesShown) {
-          return this.searchResult.matches
-        }
-        return this.searchResult.matches.slice(0, this.shownMatches)
-      },
-
-      // Return filename without extension.
-      filename () {
-        return path.basename(this.searchResult.filePath, path.extname(this.searchResult.filePath))
-      },
-
-      matchCount () {
-        return this.searchResult.matches.length
-      },
-
-      // Return the filename extension or null.
-      extension () {
-        return path.extname(this.searchResult.filePath)
-      },
-
-      // Return the parent directory with trailing path separator.
-      dirname () {
-        return path.join(path.dirname(this.searchResult.filePath), PATH_SEPARATOR)
+        return this.searchResult.matches
       }
+      return this.searchResult.matches.slice(0, this.shownMatches)
     },
-    methods: {
-      toggleSearchMatches () {
-        this.showSearchMatches = !this.showSearchMatches
-      },
-      handleShowMoreMatches(event) {
-        this.shownMatches += 15
-        if (event.ctrlKey || event.metaKey ||
+
+    // Return filename without extension.
+    filename () {
+      return path.basename(this.searchResult.filePath, path.extname(this.searchResult.filePath))
+    },
+
+    matchCount () {
+      return this.searchResult.matches.length
+    },
+
+    // Return the filename extension or null.
+    extension () {
+      return path.extname(this.searchResult.filePath)
+    },
+
+    // Return the parent directory with trailing path separator.
+    dirname () {
+      return path.join(path.dirname(this.searchResult.filePath), PATH_SEPARATOR)
+    }
+  },
+  methods: {
+    toggleSearchMatches () {
+      this.showSearchMatches = !this.showSearchMatches
+    },
+    handleShowMoreMatches (event) {
+      this.shownMatches += 15
+      if (event.ctrlKey || event.metaKey ||
           this.shownMatches >= this.searchResult.matches.length) {
-          this.allMatchesShown = true
-        }
+        this.allMatchesShown = true
       }
     }
   }
+}
 </script>
 
 <style scoped>

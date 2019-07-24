@@ -27,36 +27,36 @@
 </template>
 
 <script>
-  import { mapState } from 'vuex'
-  import bus from '../../bus'
+import { mapState } from 'vuex'
+import bus from '../../bus'
 
-  export default {
-    data () {
-      this.name = 'Mark Text'
-      this.copyright = `Copyright © 2017-${new Date().getFullYear()} Luo Ran`
-      this.copyrightContributors = `Copyright © 2018-${new Date().getFullYear()} Mark Text Contributors`
-      return {
-        showAboutDialog: false
-      }
-    },
-    computed: {
-      ...mapState({
-        'appVersion': state => state.appVersion
-      })
-    },
-    created () {
-      bus.$on('aboutDialog', this.showDialog)
-    },
-    beforeDestroy () {
-      bus.$off('aboutDialog', this.showDialog)
-    },
-    methods: {
-      showDialog () {
-        this.showAboutDialog = true
-        bus.$emit('editor-blur')
-      }
+export default {
+  data () {
+    this.name = 'Mark Text'
+    this.copyright = `Copyright © 2017-${new Date().getFullYear()} Luo Ran`
+    this.copyrightContributors = `Copyright © 2018-${new Date().getFullYear()} Mark Text Contributors`
+    return {
+      showAboutDialog: false
+    }
+  },
+  computed: {
+    ...mapState({
+      appVersion: state => state.appVersion
+    })
+  },
+  created () {
+    bus.$on('aboutDialog', this.showDialog)
+  },
+  beforeDestroy () {
+    bus.$off('aboutDialog', this.showDialog)
+  },
+  methods: {
+    showDialog () {
+      this.showAboutDialog = true
+      bus.$emit('editor-blur')
     }
   }
+}
 </script>
 
 <style>

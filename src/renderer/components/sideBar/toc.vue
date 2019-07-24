@@ -19,31 +19,31 @@
 </template>
 
 <script>
-  import { mapState } from 'vuex'
-  import bus from '../../bus'
-  import EmptyIcon from '@/assets/icons/undraw_toc_empty.svg'
+import { mapState } from 'vuex'
+import bus from '../../bus'
+import EmptyIcon from '@/assets/icons/undraw_toc_empty.svg'
 
-  export default {
-    data () {
-      this.EmptyIcon = EmptyIcon
-      return {
-         defaultProps: {
-          children: 'children',
-          label: 'label'
-        }
-      }
-    },
-    computed: {
-      ...mapState({
-        'toc': state => state.editor.toc
-      })
-    },
-    methods: {
-      handleClick ({ slug }) {
-        bus.$emit('scroll-to-header', slug)
+export default {
+  data () {
+    this.EmptyIcon = EmptyIcon
+    return {
+      defaultProps: {
+        children: 'children',
+        label: 'label'
       }
     }
+  },
+  computed: {
+    ...mapState({
+      toc: state => state.editor.toc
+    })
+  },
+  methods: {
+    handleClick ({ slug }) {
+      bus.$emit('scroll-to-header', slug)
+    }
   }
+}
 </script>
 
 <style>

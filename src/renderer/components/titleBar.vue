@@ -98,143 +98,143 @@
 </template>
 
 <script>
-  import { ipcRenderer, remote } from 'electron'
-  import { mapState } from 'vuex'
-  import { minimizePath, restorePath, maximizePath, closePath } from '../assets/window-controls.js'
-  import { PATH_SEPARATOR } from '../config'
-  import { isOsx } from '@/util'
+import { ipcRenderer, remote } from 'electron'
+import { mapState } from 'vuex'
+import { minimizePath, restorePath, maximizePath, closePath } from '../assets/window-controls.js'
+import { PATH_SEPARATOR } from '../config'
+import { isOsx } from '@/util'
 
-  export default {
-    data () {
-      this.isOsx = isOsx
-      this.HASH = {
-        'word': {
-          short: 'W',
-          full: 'word'
-        },
-        'character': {
-          short: 'C',
-          full: 'character'
-        },
-        'paragraph': {
-          short: 'P',
-          full: 'paragraph'
-        },
-        'all': {
-          short: 'A',
-          full: '(with space)character'
-        }
+export default {
+  data () {
+    this.isOsx = isOsx
+    this.HASH = {
+      word: {
+        short: 'W',
+        full: 'word'
+      },
+      character: {
+        short: 'C',
+        full: 'character'
+      },
+      paragraph: {
+        short: 'P',
+        full: 'paragraph'
+      },
+      all: {
+        short: 'A',
+        full: '(with space)character'
       }
-      this.windowIconMinimize = minimizePath
-      this.windowIconRestore = restorePath
-      this.windowIconMaximize = maximizePath
-      this.windowIconClose = closePath
-      return {
-        isFullScreen: remote.getCurrentWindow().isFullScreen(),
-        isMaximized: remote.getCurrentWindow().isMaximized(),
-        show: 'word'
-      }
-    },
-    created () {
-      ipcRenderer.on('mt::window-maximize', this.onMaximize)
-      ipcRenderer.on('mt::window-unmaximize', this.onUnmaximize)
-      ipcRenderer.on('mt::window-enter-full-screen', this.onEnterFullScreen)
-      ipcRenderer.on('mt::window-leave-full-screen', this.onLeaveFullScreen)
-    },
-    props: {
-      project: Object,
-      filename: String,
-      pathname: String,
-      active: Boolean,
-      wordCount: Object,
-      platform: String,
-      isSaved: Boolean
-    },
-    computed: {
-      ...mapState({
-        'titleBarStyle': state => state.preferences.titleBarStyle,
-        'showTabBar': state => state.layout.showTabBar
-      }),
-      paths () {
-        if (!this.pathname) return []
-        const pathnameToken = this.pathname.split(PATH_SEPARATOR).filter(i => i)
-        return pathnameToken.slice(0, pathnameToken.length - 1).slice(-3)
-      },
-      showCustomTitleBar () {
-        return this.titleBarStyle === 'custom' && !this.isOsx
-      }
-    },
-    watch: {
-      filename: function (value) {
-        // Set filename when hover on dock
-        const title = this.project && this.project.name ?
-          `${value} - ${this.project.name}` : `${value} - Mark Text`
-        document.title = title
-      }
-    },
-    methods: {
-      handleWordClick () {
-        const ITEMS = ['word', 'paragraph', 'character', 'all']
-        const len = ITEMS.length
-        let index = ITEMS.indexOf(this.show)
-        index += 1
-        if (index >= len) index = 0
-        this.show = ITEMS[index]
-      },
-
-      handleCloseClick () {
-        remote.getCurrentWindow().close()
-      },
-
-      handleMaximizeClick () {
-        const win = remote.getCurrentWindow()
-        if (win.isFullScreen()) {
-          win.setFullScreen(false)
-        } else if (win.isMaximized()) {
-          win.unmaximize()
-        } else {
-          win.maximize()
-        }
-      },
-
-      handleMinimizeClick () {
-        remote.getCurrentWindow().minimize()
-      },
-
-      handleMenuClick () {
-        const win = remote.getCurrentWindow()
-        remote
-          .Menu
-          .getApplicationMenu()
-          .popup({ window: win, x: 23, y: 20 })
-      },
-
-      rename () {
-        if (this.platform === 'darwin') {
-          this.$store.dispatch('RESPONSE_FOR_RENAME')
-        }
-      },
-
-      onMaximize () {
-        this.isMaximized = true
-      },
-      onUnmaximize () {
-        this.isMaximized = false
-      },
-      onEnterFullScreen () {
-        this.isFullScreen = true
-      },
-      onLeaveFullScreen  () {
-        this.isFullScreen = false
-      }
-    },
-    beforeDestroy () {
-      ipcRenderer.off('window-maximize', this.onMaximize)
-      ipcRenderer.off('window-unmaximize', this.onUnmaximize)
-      ipcRenderer.off('window-enter-full-screen', this.onEnterFullScreen)
-      ipcRenderer.off('window-leave-full-screen', this.onLeaveFullScreen)
     }
+    this.windowIconMinimize = minimizePath
+    this.windowIconRestore = restorePath
+    this.windowIconMaximize = maximizePath
+    this.windowIconClose = closePath
+    return {
+      isFullScreen: remote.getCurrentWindow().isFullScreen(),
+      isMaximized: remote.getCurrentWindow().isMaximized(),
+      show: 'word'
+    }
+  },
+  created () {
+    ipcRenderer.on('mt::window-maximize', this.onMaximize)
+    ipcRenderer.on('mt::window-unmaximize', this.onUnmaximize)
+    ipcRenderer.on('mt::window-enter-full-screen', this.onEnterFullScreen)
+    ipcRenderer.on('mt::window-leave-full-screen', this.onLeaveFullScreen)
+  },
+  props: {
+    project: Object,
+    filename: String,
+    pathname: String,
+    active: Boolean,
+    wordCount: Object,
+    platform: String,
+    isSaved: Boolean
+  },
+  computed: {
+    ...mapState({
+      titleBarStyle: state => state.preferences.titleBarStyle,
+      showTabBar: state => state.layout.showTabBar
+    }),
+    paths () {
+      if (!this.pathname) return []
+      const pathnameToken = this.pathname.split(PATH_SEPARATOR).filter(i => i)
+      return pathnameToken.slice(0, pathnameToken.length - 1).slice(-3)
+    },
+    showCustomTitleBar () {
+      return this.titleBarStyle === 'custom' && !this.isOsx
+    }
+  },
+  watch: {
+    filename: function (value) {
+      // Set filename when hover on dock
+      const title = this.project && this.project.name
+        ? `${value} - ${this.project.name}` : `${value} - Mark Text`
+      document.title = title
+    }
+  },
+  methods: {
+    handleWordClick () {
+      const ITEMS = ['word', 'paragraph', 'character', 'all']
+      const len = ITEMS.length
+      let index = ITEMS.indexOf(this.show)
+      index += 1
+      if (index >= len) index = 0
+      this.show = ITEMS[index]
+    },
+
+    handleCloseClick () {
+      remote.getCurrentWindow().close()
+    },
+
+    handleMaximizeClick () {
+      const win = remote.getCurrentWindow()
+      if (win.isFullScreen()) {
+        win.setFullScreen(false)
+      } else if (win.isMaximized()) {
+        win.unmaximize()
+      } else {
+        win.maximize()
+      }
+    },
+
+    handleMinimizeClick () {
+      remote.getCurrentWindow().minimize()
+    },
+
+    handleMenuClick () {
+      const win = remote.getCurrentWindow()
+      remote
+        .Menu
+        .getApplicationMenu()
+        .popup({ window: win, x: 23, y: 20 })
+    },
+
+    rename () {
+      if (this.platform === 'darwin') {
+        this.$store.dispatch('RESPONSE_FOR_RENAME')
+      }
+    },
+
+    onMaximize () {
+      this.isMaximized = true
+    },
+    onUnmaximize () {
+      this.isMaximized = false
+    },
+    onEnterFullScreen () {
+      this.isFullScreen = true
+    },
+    onLeaveFullScreen  () {
+      this.isFullScreen = false
+    }
+  },
+  beforeDestroy () {
+    ipcRenderer.off('window-maximize', this.onMaximize)
+    ipcRenderer.off('window-unmaximize', this.onUnmaximize)
+    ipcRenderer.off('window-enter-full-screen', this.onEnterFullScreen)
+    ipcRenderer.off('window-leave-full-screen', this.onLeaveFullScreen)
   }
+}
 </script>
 
 <style scoped>
@@ -415,4 +415,3 @@
   }
 }
 </style>
-

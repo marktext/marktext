@@ -6,7 +6,7 @@ import { isOsx } from '../../config'
 
 export default function (keybindings, userPreference, recentlyUsedFiles) {
   const { autoSave } = userPreference.getAll()
-  let fileMenu = {
+  const fileMenu = {
     label: 'File',
     submenu: [{
       label: 'New Tab',
@@ -39,7 +39,7 @@ export default function (keybindings, userPreference, recentlyUsedFiles) {
   }
 
   if (!isOsx) {
-    let recentlyUsedMenu = {
+    const recentlyUsedMenu = {
       label: 'Open Recent',
       submenu: []
     }
@@ -150,7 +150,7 @@ export default function (keybindings, userPreference, recentlyUsedFiles) {
       userSetting(menuItem, browserWindow)
     }
   }, {
-    type: 'separator',
+    type: 'separator'
   }, {
     label: 'Close Tab',
     accelerator: keybindings.getAccelerator('fileCloseTab'),

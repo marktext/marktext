@@ -167,7 +167,6 @@ const enterCtrl = ContentState => {
         cb: () => {}
       })
       this.selectedImage = null
-      return
     }
   }
 
@@ -285,7 +284,7 @@ const enterCtrl = ContentState => {
         start: { key, offset },
         end: { key, offset }
       }
-      return this.partialRender([ block ])
+      return this.partialRender([block])
     }
 
     const getFirstBlockInNextRow = row => {
@@ -368,7 +367,7 @@ const enterCtrl = ContentState => {
           })
           const headerContent = this.createBlock('span', {
             text: post,
-            functionType: block.headingStyle === 'atx'? 'atxLine' : 'paragraphContent'
+            functionType: block.headingStyle === 'atx' ? 'atxLine' : 'paragraphContent'
           })
           this.appendChild(newBlock, headerContent)
           if (block.marker) {
@@ -394,10 +393,10 @@ const enterCtrl = ContentState => {
         break
       }
       case left === 0 && right === 0: {
-         // paragraph is empty
-         return this.enterInEmptyParagraph(block)
+        // paragraph is empty
+        return this.enterInEmptyParagraph(block)
       }
-      case left !== 0 && right === 0: 
+      case left !== 0 && right === 0:
       case left === 0 && right !== 0: {
         // cursor at end of paragraph or at begin of paragraph
         if (type === 'li') {
@@ -447,9 +446,9 @@ const enterCtrl = ContentState => {
     // If block is pre block when updated, need to focus it.
     const preParagraphBlock = getParagraphBlock(block)
     const blockNeedFocus = this.codeBlockUpdate(preParagraphBlock)
-    let tableNeedFocus = this.tableBlockUpdate(preParagraphBlock)
-    let htmlNeedFocus = this.updateHtmlBlock(preParagraphBlock)
-    let mathNeedFocus = this.updateMathBlock(preParagraphBlock)
+    const tableNeedFocus = this.tableBlockUpdate(preParagraphBlock)
+    const htmlNeedFocus = this.updateHtmlBlock(preParagraphBlock)
+    const mathNeedFocus = this.updateMathBlock(preParagraphBlock)
     let cursorBlock
 
     switch (true) {
