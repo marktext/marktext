@@ -80,23 +80,23 @@ export const uploadImage = async (pathname, image, preferences) => {
     const api = 'https://sm.ms/api/upload'
     const formData = new window.FormData()
     formData.append('smfile', file)
-      axios({
-        method: 'post',
-        url: api,
-        data: formData
-      }).then((res) => {
-        // TODO: "res.data.data.delete" should emit "image-uploaded"/handleUploadedImage in editor.js. Maybe add to image manager too.
-        // This notification will be removed when the image manager implemented.
-        const notice = new Notification('Copy delete URL', {
-          body: `Click to copy the delete URL to clipboard.`
-        })
-
-        notice.onclick = () => {
-          clipboard.writeText(res.data.data.delete)
-        }
-
-        re(res.data.data.url)
+    axios({
+      method: 'post',
+      url: api,
+      data: formData
+    }).then((res) => {
+      // TODO: "res.data.data.delete" should emit "image-uploaded"/handleUploadedImage in editor.js. Maybe add to image manager too.
+      // This notification will be removed when the image manager implemented.
+      const notice = new Notification('Copy delete URL', {
+        body: `Click to copy the delete URL to clipboard.`
       })
+
+      notice.onclick = () => {
+        clipboard.writeText(res.data.data.delete)
+      }
+
+      re(res.data.data.url)
+    })
       .catch(_ => {
         rj('Upload failed, the image will be copied to the image folder')
       })
