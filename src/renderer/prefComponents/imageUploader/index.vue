@@ -2,8 +2,8 @@
   <div class="pref-image-uploader">
     <h4>Image Uploader</h4>
     <section class="current-uploader">
-      <div v-if="currentUploader !== 'none'">The current image uploader is {{ getServiceNameById(currentUploader) }}.</div>
-      <span v-else>Currently is no uploader selected. Please select an uploader and click on "Set as default".</span>
+      <div v-if="isValidUploaderService(currentUploader)">The current image uploader is {{ getServiceNameById(currentUploader) }}.</div>
+      <span v-else>Currently no uploader is selected. Please select an uploader and click on "Set as default".</span>
     </section>
     <section class="configration">
       <el-tabs v-model="activeTab">
@@ -56,7 +56,7 @@
 
 <script>
 import { shell } from 'electron'
-import services from './services.js'
+import services, { isValidService } from './services.js'
 import legalNoticesCheckbox from './legalNoticesCheckbox'
 
 export default {
@@ -116,6 +116,9 @@ export default {
     })
   },
   methods: {
+    isValidUploaderService (name) {
+      return isValidService(name)
+    },
     getServiceNameById (id) {
       const service = services[id]
       return service ? service.name : id
