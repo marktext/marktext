@@ -75,136 +75,136 @@
 </template>
 
 <script>
-  import { mapState } from 'vuex'
-  import log from 'electron-log'
-  import SearchResultItem from './searchResultItem.vue'
-  import RipgrepDirectorySearcher from '../../node/ripgrepSearcher'
-  import EmptyIcon from '@/assets/icons/undraw_empty.svg'
-  import FindCaseIcon from '@/assets/icons/searchIcons/iconCase.svg'
-  import FindWordIcon from '@/assets/icons/searchIcons/iconWord.svg'
-  import FindRegexIcon from '@/assets/icons/searchIcons/iconRegex.svg'
+import { mapState } from 'vuex'
+import log from 'electron-log'
+import SearchResultItem from './searchResultItem.vue'
+import RipgrepDirectorySearcher from '../../node/ripgrepSearcher'
+import EmptyIcon from '@/assets/icons/undraw_empty.svg'
+import FindCaseIcon from '@/assets/icons/searchIcons/iconCase.svg'
+import FindWordIcon from '@/assets/icons/searchIcons/iconWord.svg'
+import FindRegexIcon from '@/assets/icons/searchIcons/iconRegex.svg'
 
-  export default {
-    data () {
-      this.lastKeyword = ''
-      this.lastSearchTime = new Date()
-      this.keyUpTimer = null
-      this.searcherCancelCallback = null
-      this.ripgrepDirectorySearcher = new RipgrepDirectorySearcher()
-      this.EmptyIcon = EmptyIcon
-      this.FindCaseIcon = FindCaseIcon
-      this.FindWordIcon = FindWordIcon
-      this.FindRegexIcon = FindRegexIcon
-      return {
-        keyword: '',
-        searchResult: [],
-        searcherRunning: false,
-        searchErrorString: '',
+export default {
+  data () {
+    this.lastKeyword = ''
+    this.lastSearchTime = new Date()
+    this.keyUpTimer = null
+    this.searcherCancelCallback = null
+    this.ripgrepDirectorySearcher = new RipgrepDirectorySearcher()
+    this.EmptyIcon = EmptyIcon
+    this.FindCaseIcon = FindCaseIcon
+    this.FindWordIcon = FindWordIcon
+    this.FindRegexIcon = FindRegexIcon
+    return {
+      keyword: '',
+      searchResult: [],
+      searcherRunning: false,
+      searchErrorString: '',
 
-        isCaseSensitive: false,
-        isWholeWord: false,
-        isRegexp: false
-      }
-    },
-    components: {
-      SearchResultItem
-    },
-    computed: {
-      ...mapState({
-        'projectTree': state => state.project.projectTree,
-        'searchExclusions': state => state.preferences.searchExclusions,
-        'searchMaxFileSize': state => state.preferences.searchMaxFileSize,
-        'searchIncludeHidden': state => state.preferences.searchIncludeHidden,
-        'searchNoIgnore': state => state.preferences.searchNoIgnore,
-        'searchFollowSymlinks': state => state.preferences.searchFollowSymlinks
-      }),
-      searchResultInfo () {
-        const fileCount = this.searchResult.length
-        const matchCount = this.searchResult.reduce((acc, item) => {
-          return acc + item.matches.length
-        }, 0)
+      isCaseSensitive: false,
+      isWholeWord: false,
+      isRegexp: false
+    }
+  },
+  components: {
+    SearchResultItem
+  },
+  computed: {
+    ...mapState({
+      projectTree: state => state.project.projectTree,
+      searchExclusions: state => state.preferences.searchExclusions,
+      searchMaxFileSize: state => state.preferences.searchMaxFileSize,
+      searchIncludeHidden: state => state.preferences.searchIncludeHidden,
+      searchNoIgnore: state => state.preferences.searchNoIgnore,
+      searchFollowSymlinks: state => state.preferences.searchFollowSymlinks
+    }),
+    searchResultInfo () {
+      const fileCount = this.searchResult.length
+      const matchCount = this.searchResult.reduce((acc, item) => {
+        return acc + item.matches.length
+      }, 0)
 
-        return `${matchCount} ${matchCount > 1 ? 'matches' : 'match'} in ${fileCount} ${fileCount > 1 ? 'files' : 'file'}`
-      }
-    },
-    methods: {
-      search () {
-        // No root directory is opened.
-        if (!this.projectTree || !this.projectTree.pathname) {
-          return new Notification('No folder opened', {
-            body: `You need to open a folder before search.`
-          })
-        }
-
-        const { pathname: rootDirectoryPath } = this.projectTree
-        const {
-          keyword,
-          searcherRunning,
-          searcherCancelCallback,
-          isCaseSensitive,
-          isWholeWord,
-          isRegexp,
-          ripgrepDirectorySearcher
-        } = this
-
-        if (searcherRunning && searcherCancelCallback) {
-          searcherCancelCallback()
-        }
-
-        this.searchResult = []
-        this.searchErrorString = ''
-        this.searcherCancelCallback = null
-
-        if (!keyword) {
-          this.searcherRunning = false
-          return
-        }
-
-        let canceled = false
-        this.searcherRunning = true
-
-        const promises = ripgrepDirectorySearcher.search([rootDirectoryPath], keyword, {
-          didMatch: searchResult => {
-            if (canceled) return
-
-            // filePath: "<file>"
-            // matches: Array(1)
-            // 0:
-            //   leadingContextLines: []
-            //   lineText: "foo-test"
-            //   matchText: "foo"
-            //   range: Array(2)
-            //     0: (2) [0, 0]
-            //     1: (2) [0, 3]
-            //   length: 2
-            //   trailingContextLines: []
-
-            this.searchResult.push(searchResult)
-          },
-          didSearchPaths: numPathsFound => {
-            // More than 100 files with (multiple) matches were found.
-            if (!canceled && numPathsFound > 100) {
-              canceled = true
-              promises.cancel()
-              this.searchErrorString = 'Search was canceled because more than 100 files were found.'
-            }
-          },
-
-          // UI options
-          isCaseSensitive,
-          isWholeWord,
-          isRegexp,
-
-          // Options loaded from settings
-          exclusions: this.searchExclusions,
-          maxFileSize: this.searchMaxFileSize || null,
-          includeHidden: this.searchIncludeHidden,
-          noIgnore: this.searchNoIgnore,
-          followSymlinks: this.searchFollowSymlinks,
-
-          // Only search markdown files
-          inclusions: [ '*.markdown', '*.mdown', '*.mkdn', '*.md', '*.mkd', '*.mdwn', '*.mdtxt', '*.mdtext', '*.text', '*.txt' ]
+      return `${matchCount} ${matchCount > 1 ? 'matches' : 'match'} in ${fileCount} ${fileCount > 1 ? 'files' : 'file'}`
+    }
+  },
+  methods: {
+    search () {
+      // No root directory is opened.
+      if (!this.projectTree || !this.projectTree.pathname) {
+        return new Notification('No folder opened', {
+          body: `You need to open a folder before search.`
         })
+      }
+
+      const { pathname: rootDirectoryPath } = this.projectTree
+      const {
+        keyword,
+        searcherRunning,
+        searcherCancelCallback,
+        isCaseSensitive,
+        isWholeWord,
+        isRegexp,
+        ripgrepDirectorySearcher
+      } = this
+
+      if (searcherRunning && searcherCancelCallback) {
+        searcherCancelCallback()
+      }
+
+      this.searchResult = []
+      this.searchErrorString = ''
+      this.searcherCancelCallback = null
+
+      if (!keyword) {
+        this.searcherRunning = false
+        return
+      }
+
+      let canceled = false
+      this.searcherRunning = true
+
+      const promises = ripgrepDirectorySearcher.search([rootDirectoryPath], keyword, {
+        didMatch: searchResult => {
+          if (canceled) return
+
+          // filePath: "<file>"
+          // matches: Array(1)
+          // 0:
+          //   leadingContextLines: []
+          //   lineText: "foo-test"
+          //   matchText: "foo"
+          //   range: Array(2)
+          //     0: (2) [0, 0]
+          //     1: (2) [0, 3]
+          //   length: 2
+          //   trailingContextLines: []
+
+          this.searchResult.push(searchResult)
+        },
+        didSearchPaths: numPathsFound => {
+          // More than 100 files with (multiple) matches were found.
+          if (!canceled && numPathsFound > 100) {
+            canceled = true
+            promises.cancel()
+            this.searchErrorString = 'Search was canceled because more than 100 files were found.'
+          }
+        },
+
+        // UI options
+        isCaseSensitive,
+        isWholeWord,
+        isRegexp,
+
+        // Options loaded from settings
+        exclusions: this.searchExclusions,
+        maxFileSize: this.searchMaxFileSize || null,
+        includeHidden: this.searchIncludeHidden,
+        noIgnore: this.searchNoIgnore,
+        followSymlinks: this.searchFollowSymlinks,
+
+        // Only search markdown files
+        inclusions: ['*.markdown', '*.mdown', '*.mkdn', '*.md', '*.mkd', '*.mdwn', '*.mdtxt', '*.mdtext', '*.text', '*.txt']
+      })
         .then(() => {
           this.searcherRunning = false
           this.searcherCancelCallback = null
@@ -221,34 +221,34 @@
           log.error(err)
         })
 
-        this.searcherCancelCallback = () => {
-          canceled = true
-          if (promises.cancel) {
-            promises.cancel()
-          }
+      this.searcherCancelCallback = () => {
+        canceled = true
+        if (promises.cancel) {
+          promises.cancel()
         }
-      },
-      cancelSearcher () {
-        const { searcherCancelCallback } = this
-        if (searcherCancelCallback) {
-          searcherCancelCallback()
-          this.searcherCancelCallback = null
-        }
-      },
-      caseSensitiveClicked () {
-        this.isCaseSensitive = !this.isCaseSensitive
-        this.search()
-      },
-      wholeWordClicked () {
-        this.isWholeWord = !this.isWholeWord
-        this.search()
-      },
-      regexpClicked () {
-        this.isRegexp = !this.isRegexp
-        this.search()
       }
+    },
+    cancelSearcher () {
+      const { searcherCancelCallback } = this
+      if (searcherCancelCallback) {
+        searcherCancelCallback()
+        this.searcherCancelCallback = null
+      }
+    },
+    caseSensitiveClicked () {
+      this.isCaseSensitive = !this.isCaseSensitive
+      this.search()
+    },
+    wholeWordClicked () {
+      this.isWholeWord = !this.isWholeWord
+      this.search()
+    },
+    regexpClicked () {
+      this.isRegexp = !this.isRegexp
+      this.search()
     }
   }
+}
 </script>
 
 <style scoped>
