@@ -14,7 +14,6 @@ export const MenuType = {
 }
 
 class AppMenu {
-
   /**
    * @param {Preference} preferences The preferences instances.
    * @param {Keybindings} keybindings The keybindings instances.
@@ -43,7 +42,7 @@ class AppMenu {
     if (isOsxOrWindows) app.addRecentDocument(filePath)
     if (isOsx) return
 
-    let recentDocuments = this.getRecentlyUsedDocuments()
+    const recentDocuments = this.getRecentlyUsedDocuments()
     const index = recentDocuments.indexOf(filePath)
     let needSave = index !== 0
     if (index > 0) {
@@ -74,7 +73,7 @@ class AppMenu {
     }
 
     try {
-      let recentDocuments = JSON.parse(fs.readFileSync(RECENTS_PATH, 'utf-8'))
+      const recentDocuments = JSON.parse(fs.readFileSync(RECENTS_PATH, 'utf-8'))
         .filter(f => f && (isFile(f) || isDirectory(f)))
 
       if (recentDocuments.length > MAX_RECENTLY_USED_DOCUMENTS) {

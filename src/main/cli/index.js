@@ -12,7 +12,7 @@ const cli = () => {
   let argv = process.argv.slice(1)
   if (process.env.NODE_ENV === 'development') {
     // Don't pass electron development arguments to Mark Text and change user data path.
-    argv = [ '--user-data-dir', path.join(getPath('appData'), 'marktext-dev') ]
+    argv = ['--user-data-dir', path.join(getPath('appData'), 'marktext-dev')]
   }
 
   const args = parseArgs(argv, true)

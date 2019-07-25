@@ -19,7 +19,7 @@ const state = {
   platform: process.platform, // platform of system `darwin` | `win32` | `linux`
   appVersion: process.versions.MARKTEXT_VERSION_STRING, // Mark Text version string
   windowActive: true, // whether current window is active or focused
-  init: false, // whether Mark Text is initialized
+  init: false // whether Mark Text is initialized
 }
 
 const getters = {}

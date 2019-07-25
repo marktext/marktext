@@ -9,10 +9,10 @@ const BRACKET_HASH = {
   '[': ']',
   '(': ')',
   '*': '*',
-  '_': '_',
+  _: '_',
   '"': '"',
   '\'': '\'',
-  '$': '$',
+  $: '$',
   '~': '~'
 }
 
@@ -21,10 +21,10 @@ const BACK_HASH = {
   ']': '[',
   ')': '(',
   '*': '*',
-  '_': '_',
+  _: '_',
   '"': '"',
   '\'': '\'',
-  '$': '$',
+  $: '$',
   '~': '~'
 }
 
@@ -86,7 +86,7 @@ const inputCtrl = ContentState => {
     const key = start.key
     const block = this.getBlock(key)
     const paragraph = document.querySelector(`#${key}`)
-    let text = getTextContent(paragraph, [ CLASS_OR_ID['AG_MATH_RENDER'], CLASS_OR_ID['AG_RUBY_RENDER'] ])
+    let text = getTextContent(paragraph, [CLASS_OR_ID['AG_MATH_RENDER'], CLASS_OR_ID['AG_RUBY_RENDER']])
 
     let needRender = false
     let needRenderAll = false
@@ -106,7 +106,7 @@ const inputCtrl = ContentState => {
           const preBlock = this.getParent(startBlock)
           const pBlock = this.createBlock('p')
           this.removeBlocks(startBlock, endBlock)
-          delete startBlock.functionType
+          startBlock.functionType = 'paragraphContent'
           this.appendChild(pBlock, startBlock)
           this.insertBefore(pBlock, preBlock)
           this.removeBlock(preBlock)
@@ -186,7 +186,7 @@ const inputCtrl = ContentState => {
             /^\* /.test(text) &&
             preInputChar === '*' &&
             postInputChar === '*'
-            ) {
+          ) {
             text = text.substring(0, offset) + text.substring(offset + 1)
             needRender = true
           }

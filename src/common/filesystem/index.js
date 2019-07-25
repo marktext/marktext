@@ -11,7 +11,7 @@ export const exists = async p => {
   try {
     await fs.access(p)
     return true
-  } catch(_) {
+  } catch (_) {
     return false
   }
 }

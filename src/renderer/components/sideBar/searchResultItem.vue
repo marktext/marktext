@@ -20,9 +20,9 @@
             <span class="filename">{{ filename + extension }}</span>
             <span class="match-count">{{ matchCount }}</span>
           </div>
-          <div class="folder-path">
+          <!-- <div class="folder-path">
             <span>{{ dirname }}</span>
-          </div>
+          </div> -->
         </div>
       </div>
       <div
@@ -37,7 +37,7 @@
             :title="searchMatch.lineText"
             @click="handleSearchResultClick(searchMatch)"
           >
-            <span class="line-number">{{ searchMatch.range[0][0] }}</span>
+            <!-- <span class="line-number">{{ searchMatch.range[0][0] }}</span> -->
             <span>{{ searchMatch.lineText.substring(0, searchMatch.range[0][1]) }}</span>
             <span class="ag-highlight">{{ searchMatch.lineText.substring(searchMatch.range[0][1], searchMatch.range[1][1]) }}</span>
             <span>{{ searchMatch.lineText.substring(searchMatch.range[1][1]) }}</span>
@@ -56,72 +56,72 @@
 </template>
 
 <script>
-  import path from 'path'
-  import { mapState } from 'vuex'
-  import { fileMixins } from '../../mixins'
-  import { PATH_SEPARATOR } from '../../config'
+import path from 'path'
+import { mapState } from 'vuex'
+import { fileMixins } from '../../mixins'
+import { PATH_SEPARATOR } from '../../config'
 
-  export default {
-    mixins: [fileMixins],
-    data () {
-      return {
-        showSearchMatches: this.searchResult.matches.length <= 20,
-        allMatchesShown: this.searchResult.matches.length <= 10,
-        shownMatches: 10
-      }
-    },
-    props: {
-      searchResult: {
-        type: Object,
-        required: true
-      }
-    },
-    computed: {
-      ...mapState({
-        'tabs': state => state.editor.tabs,
-        'currentFile': state => state.editor.currentFile
-      }),
+export default {
+  mixins: [fileMixins],
+  data () {
+    return {
+      showSearchMatches: this.searchResult.matches.length <= 20,
+      allMatchesShown: this.searchResult.matches.length <= 10,
+      shownMatches: 10
+    }
+  },
+  props: {
+    searchResult: {
+      type: Object,
+      required: true
+    }
+  },
+  computed: {
+    ...mapState({
+      tabs: state => state.editor.tabs,
+      currentFile: state => state.editor.currentFile
+    }),
 
-      getMatches () {
-        if (this.searchResult.matches.length === 0 ||
+    getMatches () {
+      if (this.searchResult.matches.length === 0 ||
           this.allMatchesShown) {
-          return this.searchResult.matches
-        }
-        return this.searchResult.matches.slice(0, this.shownMatches)
-      },
-
-      // Return filename without extension.
-      filename () {
-        return path.basename(this.searchResult.filePath, path.extname(this.searchResult.filePath))
-      },
-
-      matchCount () {
-        return this.searchResult.matches.length
-      },
-
-      // Return the filename extension or null.
-      extension () {
-        return path.extname(this.searchResult.filePath)
-      },
-
-      // Return the parent directory with trailing path separator.
-      dirname () {
-        return path.join(path.dirname(this.searchResult.filePath), PATH_SEPARATOR)
+        return this.searchResult.matches
       }
+      return this.searchResult.matches.slice(0, this.shownMatches)
     },
-    methods: {
-      toggleSearchMatches () {
-        this.showSearchMatches = !this.showSearchMatches
-      },
-      handleShowMoreMatches(event) {
-        this.shownMatches += 15
-        if (event.ctrlKey || event.metaKey ||
+
+    // Return filename without extension.
+    filename () {
+      return path.basename(this.searchResult.filePath, path.extname(this.searchResult.filePath))
+    },
+
+    matchCount () {
+      return this.searchResult.matches.length
+    },
+
+    // Return the filename extension or null.
+    extension () {
+      return path.extname(this.searchResult.filePath)
+    },
+
+    // Return the parent directory with trailing path separator.
+    dirname () {
+      return path.join(path.dirname(this.searchResult.filePath), PATH_SEPARATOR)
+    }
+  },
+  methods: {
+    toggleSearchMatches () {
+      this.showSearchMatches = !this.showSearchMatches
+    },
+    handleShowMoreMatches (event) {
+      this.shownMatches += 15
+      if (event.ctrlKey || event.metaKey ||
           this.shownMatches >= this.searchResult.matches.length) {
-          this.allMatchesShown = true
-        }
+        this.allMatchesShown = true
       }
     }
   }
+}
 </script>
 
 <style scoped>
@@ -143,7 +143,11 @@
       }
     }
     & .title .filename {
-      font-size: 15px;
+      font-size: 14px;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      white-space: nowrap;
+      padding-right: 8px;
     }
     & .matches {
       & ul {
@@ -165,7 +169,7 @@
             margin-right: 3px;
           }
           & span {
-            font-size: 14px;
+            font-size: 13px;
             white-space: pre;
           }
         }
@@ -193,6 +197,15 @@
       flex: 1;
     }
     & .match-count {
+      display: inline-block;
+      font-size: 12px;
+      line-height: 18px;
+      text-align: center;
+      min-width: 18px;
+      height: 18px;
+      border-radius: 9px;
+      flex-shrink: 0;
+      background: var(--itemBgColor);
       color: var(--sideBarTextColor);
     }
   }

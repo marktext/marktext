@@ -31,8 +31,8 @@ export default {
   },
   computed: {
     ...mapState({
-      'theme': state => state.preferences.theme,
-      'titleBarStyle': state => state.preferences.titleBarStyle
+      theme: state => state.preferences.theme,
+      titleBarStyle: state => state.preferences.titleBarStyle
     }),
     showCustomTitleBar () {
       return this.titleBarStyle === 'custom' && !this.isOsx

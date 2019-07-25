@@ -19,7 +19,7 @@ const getSpecs = async () => {
 
   return fetch(`https://spec.commonmark.org/${version}/spec.json`)
     .then(res => res.json())
-    .then (specs => ({ specs, version }))
+    .then(specs => ({ specs, version }))
 }
 
 const getMarkedSpecs = async (version) => {

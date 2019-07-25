@@ -23,16 +23,16 @@ import mermaidIcon from '../../../assets/pngicon/mermaid/2.png'
 import vegaIcon from '../../../assets/pngicon/chart/2.png'
 
 const FUNCTION_TYPE_HASH = {
-  'mermaid': mermaidIcon,
-  'flowchart': flowchartIcon,
-  'sequence': sequenceIcon,
+  mermaid: mermaidIcon,
+  flowchart: flowchartIcon,
+  sequence: sequenceIcon,
   'vega-lite': vegaIcon,
-  'table': newTableIcon,
-  'html': htmlIcon,
-  'multiplemath': mathblockIcon,
-  'fencecode': codeIcon,
-  'indentcode': codeIcon,
-  'frontmatter': frontMatterIcon
+  table: newTableIcon,
+  html: htmlIcon,
+  multiplemath: mathblockIcon,
+  fencecode: codeIcon,
+  indentcode: codeIcon,
+  frontmatter: frontMatterIcon
 }
 
 export default function renderIcon (block) {

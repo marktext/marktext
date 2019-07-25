@@ -24,71 +24,71 @@
 </template>
 
 <script>
-  import FileIcon from './icon.vue'
-  import { mapState } from 'vuex'
-  import { fileMixins } from '../../mixins'
-  import { showContextMenu } from '../../contextMenu/sideBar'
-  import bus from '../../bus'
+import FileIcon from './icon.vue'
+import { mapState } from 'vuex'
+import { fileMixins } from '../../mixins'
+import { showContextMenu } from '../../contextMenu/sideBar'
+import bus from '../../bus'
 
-  export default {
-    mixins: [fileMixins],
-    name: 'file',
-    data () {
-      return {
-        newName: ''
-      }
+export default {
+  mixins: [fileMixins],
+  name: 'file',
+  data () {
+    return {
+      newName: ''
+    }
+  },
+  props: {
+    file: {
+      type: Object,
+      required: true
     },
-    props: {
-      file: {
-        type: Object,
-        required: true
-      },
-      depth: {
-        type: Number,
-        required: true
-      }
-    },
-    components: {
-      FileIcon
-    },
-    computed: {
-      ...mapState({
-        'renameCache': state => state.project.renameCache,
-        'activeItem': state => state.project.activeItem,
-        'clipboard': state => state.project.clipboard,
-        'currentFile': state => state.editor.currentFile,
-        'tabs': state => state.editor.tabs
+    depth: {
+      type: Number,
+      required: true
+    }
+  },
+  components: {
+    FileIcon
+  },
+  computed: {
+    ...mapState({
+      renameCache: state => state.project.renameCache,
+      activeItem: state => state.project.activeItem,
+      clipboard: state => state.project.clipboard,
+      currentFile: state => state.editor.currentFile,
+      tabs: state => state.editor.tabs
+    })
+  },
+  created () {
+    this.$nextTick(() => {
+      this.$refs.file.addEventListener('contextmenu', event => {
+        event.preventDefault()
+        this.$store.dispatch('CHANGE_ACTIVE_ITEM', this.file)
+        showContextMenu(event, !!this.clipboard)
       })
-    },
-    created () {
+
+      bus.$on('SIDEBAR::show-rename-input', this.focusRenameInput)
+    })
+  },
+  methods: {
+    noop () {},
+    focusRenameInput () {
       this.$nextTick(() => {
-        this.$refs.file.addEventListener('contextmenu', event => {
-          event.preventDefault()
-          this.$store.dispatch('CHANGE_ACTIVE_ITEM', this.file)
-          showContextMenu(event, !!this.clipboard)
-        })
-
-        bus.$on('SIDEBAR::show-rename-input', this.focusRenameInput)
+        if (this.$refs.renameInput) {
+          this.$refs.renameInput.focus()
+          this.newName = this.file.name
+        }
       })
     },
-    methods: {
-      noop () {},
-      focusRenameInput () {
-        this.$nextTick(() => {
-          if (this.$refs.renameInput) {
-            this.$refs.renameInput.focus()
-            this.newName = this.file.name
-          }
-        })
-      },
-      rename () {
-        const { newName } = this
-        if (newName) {
-          this.$store.dispatch('RENAME_IN_SIDEBAR', newName)
-        }
+    rename () {
+      const { newName } = this
+      if (newName) {
+        this.$store.dispatch('RENAME_IN_SIDEBAR', newName)
       }
     }
   }
+}
 </script>
 
 <style scoped>

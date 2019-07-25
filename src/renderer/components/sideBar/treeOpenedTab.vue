@@ -15,23 +15,23 @@
 </template>
 
 <script>
-  import { mapState } from 'vuex'
-  import { tabsMixins } from '../../mixins'
+import { mapState } from 'vuex'
+import { tabsMixins } from '../../mixins'
 
-  export default {
-    mixins: [tabsMixins],
-    props: {
-      file: {
-        type: Object,
-        required: true
-      }
-    },
-    computed: {
-      ...mapState({
-        'currentFile': state => state.editor.currentFile
-      })
+export default {
+  mixins: [tabsMixins],
+  props: {
+    file: {
+      type: Object,
+      required: true
     }
+  },
+  computed: {
+    ...mapState({
+      currentFile: state => state.editor.currentFile
+    })
   }
+}
 </script>
 
 <style scoped>

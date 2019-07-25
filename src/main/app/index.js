@@ -17,14 +17,13 @@ import EditorWindow from '../windows/editor'
 import SettingWindow from '../windows/setting'
 
 class App {
-
   /**
    * @param {Accessor} accessor The application accessor for application instances.
    * @param {arg.Result} args Parsed application arguments.
    */
   constructor (accessor, args) {
     this._accessor = accessor
-    this._args = args || {_: []}
+    this._args = args || { _: [] }
     this._openFilesCache = []
     this._openFilesTimer = null
     this._windowManager = this._accessor.windowManager
@@ -78,7 +77,7 @@ class App {
 
     app.on('open-file', this.openFile) // macOS only
 
-    app.on('ready',  this.ready)
+    app.on('ready', this.ready)
 
     app.on('window-all-closed', () => {
       // Close all the image path watcher
@@ -116,8 +115,8 @@ class App {
     })
   }
 
-  get screenshotFileName () {
-    const screenshotFolderPath = this._accessor.dataCenter.getItem('screenshotFolderPath')
+  async getScreenshotFileName () {
+    const screenshotFolderPath = await this._accessor.dataCenter.getItem('screenshotFolderPath')
     const fileName = `${dayjs().format('YYYY-MM-DD-HH-mm-ss')}-screenshot.png`
     return path.join(screenshotFolderPath, fileName)
   }
@@ -271,7 +270,7 @@ class App {
    * @param {boolean} openFilesInSameWindow Open all files in the same window with
    * the first directory and discard other directories.
    */
-  _openPathList (pathsToOpen, openFilesInSameWindow=false) {
+  _openPathList (pathsToOpen, openFilesInSameWindow = false) {
     const { _windowManager } = this
     const openFilesInNewWindow = this._accessor.preferences.getItem('openFilesInNewWindow')
 
@@ -372,12 +371,11 @@ class App {
         const { rootDirectory, fileList } = item
         this._createEditorWindow(rootDirectory, fileList)
       }
-    }
+    } else {
+      // Open each file and directory in a new window.
 
-    // Open each file and directory in a new window.
-    else {
       for (const pathname of filesToOpen) {
-        this._createEditorWindow(null, [ pathname ])
+        this._createEditorWindow(null, [pathname])
       }
 
       for (const item of directoriesToOpen) {
@@ -395,10 +393,10 @@ class App {
       this._createEditorWindow()
     })
 
-    ipcMain.on('screen-capture', win => {
+    ipcMain.on('screen-capture', async win => {
       if (isOsx) {
         // Use macOs `screencapture` command line when in macOs system.
-        const { screenshotFileName } = this
+        const screenshotFileName = await this.getScreenshotFileName()
         exec(`screencapture -i -c`, async (err) => {
           if (err) {
             log.error(err)
@@ -415,7 +413,7 @@ class App {
           win.webContents.send('mt::screenshot-captured')
         })
       } else {
-        // Do nothing, maybe we'll add screenCapture later on Linux and Windows.
+        // TODO: Do nothing, maybe we'll add screenCapture later on Linux and Windows.
         // if (this.shortcutCapture) {
         //   this.launchScreenshotWin = win
         //   this.shortcutCapture.shortcutCapture()
@@ -441,7 +439,7 @@ class App {
     ipcMain.on('app-open-file-by-id', (windowId, filePath) => {
       const openFilesInNewWindow = this._accessor.preferences.getItem('openFilesInNewWindow')
       if (openFilesInNewWindow) {
-        this._createEditorWindow(null, [ filePath ])
+        this._createEditorWindow(null, [filePath])
       } else {
         const editor = this._windowManager.get(windowId)
         if (editor) {
@@ -458,8 +456,8 @@ class App {
         if (editor) {
           editor.openTabsFromPaths(
             fileList.map(p => normalizeMarkdownPath(p))
-            .filter(i => i && !i.isDir)
-            .map(i => i.path))
+              .filter(i => i && !i.isDir)
+              .map(i => i.path))
         }
       }
     })
@@ -467,7 +465,7 @@ class App {
     ipcMain.on('app-open-markdown-by-id', (windowId, data) => {
       const openFilesInNewWindow = this._accessor.preferences.getItem('openFilesInNewWindow')
       if (openFilesInNewWindow) {
-        this._createEditorWindow(null, [], [ data ])
+        this._createEditorWindow(null, [], [data])
       } else {
         const editor = this._windowManager.get(windowId)
         if (editor) {
@@ -505,6 +503,9 @@ class App {
       })
     })
 
+    ipcMain.on('mt::open-setting-window', () => {
+      ipcMain.emit('app-create-settings-window')
+    })
   }
 }
 

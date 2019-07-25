@@ -5,7 +5,7 @@ import Watcher, { WATCHER_STABILITY_THRESHOLD, WATCHER_STABILITY_POLL_INTERVAL }
 import { WindowType } from '../windows/base'
 
 class WindowActivityList {
-  constructor() {
+  constructor () {
     // Oldest             Newest
     //  <number>, ... , <number>
     this._buf = []
@@ -51,13 +51,12 @@ class WindowActivityList {
 }
 
 class WindowManager extends EventEmitter {
-
   /**
    *
    * @param {AppMenu} appMenu The application menu instance.
    * @param {Preference} preferences The preference instance.
    */
-  constructor(appMenu, preferences) {
+  constructor (appMenu, preferences) {
     super()
 
     this._appMenu = appMenu
@@ -137,7 +136,7 @@ class WindowManager extends EventEmitter {
       window.removeAllListeners('window-focus')
 
       this._windowActivity.delete(windowId)
-      let nextWindowId = this._windowActivity.getNewest()
+      const nextWindowId = this._windowActivity.getNewest()
       this.setActiveWindow(nextWindowId)
 
       _windows.delete(windowId)
@@ -232,7 +231,7 @@ class WindowManager extends EventEmitter {
     const lastActiveEditorId = this.getActiveEditorId() // editor id or null
 
     if (this.windowCount <= 1) {
-      return [ { windowId: lastActiveEditorId, fileList } ]
+      return [{ windowId: lastActiveEditorId, fileList }]
     }
 
     // Array of scores, same order like fileList.

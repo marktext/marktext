@@ -48,7 +48,7 @@ build_script:
 
   # calculate checksums
   - ps: get-filehash -Algorithm SHA256 "build\Mark Text *.exe"
-  - ps: get-filehash -Algorithm SHA256 "build\Mark Text Setup *.exe"
+  - ps: get-filehash -Algorithm SHA256 "build\Mark Text-*-win.zip"
 
 test: off
 # test_script:

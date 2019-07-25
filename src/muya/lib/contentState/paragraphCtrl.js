@@ -209,7 +209,7 @@ const paragraphCtrl = ContentState => {
 
   ContentState.prototype.handleCodeBlockMenu = function () {
     const { start, end, affiliation } = this.selectionChange(this.cursor)
-    let startBlock = this.getBlock(start.key)
+    const startBlock = this.getBlock(start.key)
     const endBlock = this.getBlock(end.key)
     const startParents = this.getParents(startBlock)
     const endParents = this.getParents(endBlock)
@@ -323,7 +323,7 @@ const paragraphCtrl = ContentState => {
             lang,
             functionType: 'codeLine'
           })
- 
+
           this.appendChild(codeBlock, codeLine)
         })
         const inputBlock = this.createBlock('span', {
@@ -392,16 +392,21 @@ const paragraphCtrl = ContentState => {
   }
 
   ContentState.prototype.insertContainerBlock = function (functionType, block) {
-    if (block.type === 'span') {
-      block = this.getParent(block)
+    const anchor = this.getAnchor(block)
+    if (!anchor) {
+      console.error('Can not find the anchor paragraph to insert paragraph')
+      return
     }
-    const value = block.type === 'p'
-      ? block.children.map(child => child.text).join('\n').trim()
-      : block.text
+
+    const value = anchor.type === 'p'
+      ? anchor.children.map(child => child.text).join('\n').trim()
+      : ''
 
     const containerBlock = this.createContainerBlock(functionType, value)
-    this.insertAfter(containerBlock, block)
-    this.removeBlock(block)
+    this.insertAfter(containerBlock, anchor)
+    if (anchor.type === 'p') {
+      this.removeBlock(anchor)
+    }
 
     const cursorBlock = containerBlock.children[0].children[0].children[0]
     const { key } = cursorBlock
@@ -542,12 +547,12 @@ const paragraphCtrl = ContentState => {
             headingStyle
           })
           const headerContent = this.createBlock('span', {
-            text: headingStyle === 'atx'? newText.replace(/\n/g, ' ') : newText,
-            functionType: headingStyle === 'atx'? 'atxLine' : 'paragraphContent'
+            text: headingStyle === 'atx' ? newText.replace(/\n/g, ' ') : newText,
+            functionType: headingStyle === 'atx' ? 'atxLine' : 'paragraphContent'
           })
           this.appendChild(header, headerContent)
           key = headerContent.key
-          
+
           this.insertBefore(header, parent)
           this.removeBlock(parent)
         } else {
@@ -595,11 +600,10 @@ const paragraphCtrl = ContentState => {
     } else {
       this.partialRender()
     }
-    // update menu status
-    const selectionChanges = this.selectionChange(this.cursor)
-    this.muya.eventCenter.dispatch('selectionChange', selectionChanges)
-    // emit change event
-    this.muya.eventCenter.dispatch('stateChange')
+
+    this.muya.dispatchSelectionChange()
+    this.muya.dispatchSelectionFormats()
+    this.muya.dispatchChange()
   }
 
   ContentState.prototype.insertParagraph = function (location, text = '', outMost = false) {
@@ -701,6 +705,17 @@ const paragraphCtrl = ContentState => {
     }
     this.partialRender()
     return this.muya.eventCenter.dispatch('stateChange')
+  }
+
+  ContentState.prototype.isSelectAll = function () {
+    const firstTextBlock = this.getFirstBlock()
+    const lastTextBlock = this.getLastBlock()
+    const { start, end } = this.cursor
+
+    return firstTextBlock.key === start.key &&
+      start.offset === 0 &&
+      lastTextBlock.key === end.key &&
+      end.offset === lastTextBlock.text.length
   }
 
   ContentState.prototype.selectAll = function () {

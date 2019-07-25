@@ -116,6 +116,18 @@ const backspaceCtrl = ContentState => {
       return
     }
 
+    if (this.isSelectAll()) {
+      event.preventDefault()
+      this.blocks = [this.createBlockP()]
+      this.init()
+
+      this.render()
+
+      this.muya.dispatchSelectionChange()
+      this.muya.dispatchSelectionFormats()
+      return this.muya.dispatchChange()
+    }
+
     const startBlock = this.getBlock(start.key)
     const endBlock = this.getBlock(end.key)
     const maybeLastRow = this.getParent(endBlock)

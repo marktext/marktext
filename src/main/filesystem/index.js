@@ -24,7 +24,7 @@ export const normalizeAndResolvePath = pathname => {
 
 export const writeFile = (pathname, content, extension) => {
   if (!pathname) {
-    return Promise.reject('[ERROR] Cannot save file without path.')
+    return Promise.reject(new Error('[ERROR] Cannot save file without path.'))
   }
   pathname = !extension || pathname.endsWith(extension) ? pathname : `${pathname}${extension}`
 

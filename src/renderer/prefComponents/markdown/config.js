@@ -25,7 +25,7 @@ export const preferHeadingStyleOptions = [{
   value: 'setext'
 }]
 
-export const tabSizeOptions =[{
+export const tabSizeOptions = [{
   label: '1',
   value: 1
 }, {
@@ -47,7 +47,7 @@ export const listIndentationOptions = [{
   value: 'tab'
 }, {
   label: '1 space',
-  value: 1,
+  value: 1
 }, {
   label: '2 spaces',
   value: 2

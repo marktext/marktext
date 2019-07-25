@@ -37,7 +37,7 @@
 import { category, searchContent } from './config'
 
 export default {
-  data() {
+  data () {
     this.category = category
     return {
       currentCategory: 'general',
@@ -53,35 +53,35 @@ export default {
     }
   },
   methods: {
-      querySearch(queryString, cb) {
-        var restaurants = this.restaurants
-        var results = queryString ? restaurants.filter(this.createFilter(queryString)) : restaurants
-        // call callback return this results
-        cb(results)
-      },
-      createFilter(queryString) {
-        return (restaurant) => {
-          return (restaurant.preference.toLowerCase().indexOf(queryString.toLowerCase()) >= 0) ||
+    querySearch (queryString, cb) {
+      var restaurants = this.restaurants
+      var results = queryString ? restaurants.filter(this.createFilter(queryString)) : restaurants
+      // call callback return this results
+      cb(results)
+    },
+    createFilter (queryString) {
+      return (restaurant) => {
+        return (restaurant.preference.toLowerCase().indexOf(queryString.toLowerCase()) >= 0) ||
             (restaurant.category.toLowerCase().indexOf(queryString.toLowerCase()) >= 0)
-        }
-      },
-      loadAll() {
-        return searchContent
-      },
-      handleSelect(item) {
-        this.$router.push({
-          path: `/preference/${item.category.toLowerCase()}`
-        })
-      },
-      handleCategoryItemClick (item) {
-        this.$router.push({
-          path: item.path
-        })
       }
     },
-    mounted() {
-      this.restaurants = this.loadAll()
+    loadAll () {
+      return searchContent
+    },
+    handleSelect (item) {
+      this.$router.push({
+        path: `/preference/${item.category.toLowerCase()}`
+      })
+    },
+    handleCategoryItemClick (item) {
+      this.$router.push({
+        path: item.path
+      })
     }
+  },
+  mounted () {
+    this.restaurants = this.loadAll()
+  }
 }
 </script>
 

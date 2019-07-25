@@ -10,7 +10,6 @@ export default function htmlRuby (h, cursor, block, token, outerClass) {
 
   const previewSelector = `span.${CLASS_OR_ID['AG_RUBY_RENDER']}`
 
-
   return children ? [
     h(`span.${className}.${CLASS_OR_ID['AG_RUBY']}`, [
       h(`span.${CLASS_OR_ID['AG_INLINE_RULE']}.${CLASS_OR_ID['AG_RUBY_TEXT']}`, content),

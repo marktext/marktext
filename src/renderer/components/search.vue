@@ -102,121 +102,121 @@
 </template>
 
 <script>
-  import bus from '../bus'
-  import { mapState } from 'vuex'
+import bus from '../bus'
+import { mapState } from 'vuex'
 
-  export default {
-    data () {
-      return {
-        showSearch: false,
-        type: 'search',
-        searchValue: '',
-        replaceValue: '',
-        caseSensitive: false
-      }
-    },
-    watch: {
-      searchMatches: function (newValue, oldValue) {
-        if (!newValue || !oldValue) return
-        const { value } = newValue
-        if (value && value !== oldValue.value) {
-          this.searchValue = value
-        }
-      }
-    },
-    computed: {
-      ...mapState({
-        'searchMatches': state => state.editor.currentFile.searchMatches
-      }),
-      highlightIndex () {
-        if (this.searchMatches) {
-          return this.searchMatches.index
-        } else {
-          return -1
-        }
-      },
-      highlightCount () {
-        if (this.searchMatches) {
-          return this.searchMatches.matches.length
-        } else {
-          return 0
-        }
-      }
-    },
-    created () {
-      bus.$on('find', this.listenFind)
-      bus.$on('replace', this.listenReplace)
-      bus.$on('findNext', this.listenFindNext)
-      bus.$on('findPrev', this.listenFindPrev)
-      document.addEventListener('click', this.docClick)
-      document.addEventListener('keyup', this.docKeyup)
-    },
-    beforeDestroy () {
-      bus.$off('find', this.listenFind)
-      bus.$off('replace', this.listenReplace)
-      bus.$off('findNext', this.listenFindNext)
-      bus.$off('findPrev', this.listenFindPrev)
-      document.removeEventListener('click', this.docClick)
-      document.removeEventListener('keyup', this.docKeyup)
-    },
-    methods: {
-      listenFind () {
-        this.showSearch = true
-        this.type = 'search'
-        this.$nextTick(() => {
-          this.$refs.search.focus()
-        })
-      },
-      listenReplace () {
-        this.showSearch = true
-        this.type = 'replace'
-      },
-      listenFindNext () {
-        this.find('next')
-      },
-      listenFindPrev () {
-        this.find('prev')
-      },
-      docKeyup (event) {
-        if (event.key === 'Escape') {
-          this.emitSearch(true)
-        }
-      },
-      docClick (isSelect) {
-        if (!this.showSearch) return
-        this.emitSearch()
-      },
-      emitSearch (selectHighlight = false) {
-        this.showSearch = false
-        const searchValue = this.searchValue = ''
-        this.replaceValue = ''
-        bus.$emit('searchValue', searchValue, { selectHighlight })
-      },
-      caseClick () {
-        this.caseSensitive = !this.caseSensitive
-      },
-      typeClick () {
-        this.type = this.type === 'search' ? 'replace' : 'search'
-      },
-      find (action) {
-        bus.$emit('find', action)
-      },
-      search (event) {
-        if (event.key === 'Escape') return
-        if (event.key !== 'Enter') {
-          const { caseSensitive } = this
-          bus.$emit('searchValue', this.searchValue, { caseSensitive })
-        } else {
-          this.find('next')
-        }
-      },
-      replace (isSingle = true) {
-        const { caseSensitive, replaceValue } = this
-        bus.$emit('replaceValue', replaceValue, { caseSensitive, isSingle })
-      },
-      noop () {}
+export default {
+  data () {
+    return {
+      showSearch: false,
+      type: 'search',
+      searchValue: '',
+      replaceValue: '',
+      caseSensitive: false
     }
+  },
+  watch: {
+    searchMatches: function (newValue, oldValue) {
+      if (!newValue || !oldValue) return
+      const { value } = newValue
+      if (value && value !== oldValue.value) {
+        this.searchValue = value
+      }
+    }
+  },
+  computed: {
+    ...mapState({
+      searchMatches: state => state.editor.currentFile.searchMatches
+    }),
+    highlightIndex () {
+      if (this.searchMatches) {
+        return this.searchMatches.index
+      } else {
+        return -1
+      }
+    },
+    highlightCount () {
+      if (this.searchMatches) {
+        return this.searchMatches.matches.length
+      } else {
+        return 0
+      }
+    }
+  },
+  created () {
+    bus.$on('find', this.listenFind)
+    bus.$on('replace', this.listenReplace)
+    bus.$on('findNext', this.listenFindNext)
+    bus.$on('findPrev', this.listenFindPrev)
+    document.addEventListener('click', this.docClick)
+    document.addEventListener('keyup', this.docKeyup)
+  },
+  beforeDestroy () {
+    bus.$off('find', this.listenFind)
+    bus.$off('replace', this.listenReplace)
+    bus.$off('findNext', this.listenFindNext)
+    bus.$off('findPrev', this.listenFindPrev)
+    document.removeEventListener('click', this.docClick)
+    document.removeEventListener('keyup', this.docKeyup)
+  },
+  methods: {
+    listenFind () {
+      this.showSearch = true
+      this.type = 'search'
+      this.$nextTick(() => {
+        this.$refs.search.focus()
+      })
+    },
+    listenReplace () {
+      this.showSearch = true
+      this.type = 'replace'
+    },
+    listenFindNext () {
+      this.find('next')
+    },
+    listenFindPrev () {
+      this.find('prev')
+    },
+    docKeyup (event) {
+      if (event.key === 'Escape') {
+        this.emitSearch(true)
+      }
+    },
+    docClick (isSelect) {
+      if (!this.showSearch) return
+      this.emitSearch()
+    },
+    emitSearch (selectHighlight = false) {
+      this.showSearch = false
+      const searchValue = this.searchValue = ''
+      this.replaceValue = ''
+      bus.$emit('searchValue', searchValue, { selectHighlight })
+    },
+    caseClick () {
+      this.caseSensitive = !this.caseSensitive
+    },
+    typeClick () {
+      this.type = this.type === 'search' ? 'replace' : 'search'
+    },
+    find (action) {
+      bus.$emit('find', action)
+    },
+    search (event) {
+      if (event.key === 'Escape') return
+      if (event.key !== 'Enter') {
+        const { caseSensitive } = this
+        bus.$emit('searchValue', this.searchValue, { caseSensitive })
+      } else {
+        this.find('next')
+      }
+    },
+    replace (isSingle = true) {
+      const { caseSensitive, replaceValue } = this
+      bus.$emit('replaceValue', replaceValue, { caseSensitive, isSingle })
+    },
+    noop () {}
   }
+}
 </script>
 
 <style scoped>

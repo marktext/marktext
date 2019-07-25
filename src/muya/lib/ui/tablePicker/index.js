@@ -5,6 +5,7 @@ import { EVENT_KEYS } from '../../config'
 
 class TablePicker extends BaseFloat {
   static pluginName = 'tablePicker'
+
   constructor (muya) {
     const name = 'ag-table-picker'
     super(muya, name)
@@ -124,7 +125,7 @@ class TablePicker extends BaseFloat {
 
   keyupHandler (event, type) {
     let number = +this.select[type]
-    let value = +event.target.value
+    const value = +event.target.value
     if (event.key === EVENT_KEYS.ArrowUp) {
       number++
     } else if (event.key === EVENT_KEYS.ArrowDown) {

@@ -3,7 +3,6 @@ import EnvPaths from 'common/envPaths'
 import { ensureDirSync } from 'common/filesystem'
 
 class AppPaths extends EnvPaths {
-
   /**
    * Configure and sets all application paths.
    *

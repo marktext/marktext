@@ -124,7 +124,7 @@ export default {
       shell.openExternal(link)
     },
     save (type) {
-      const newImageBedConfig = Object.assign({}, this.imageBed, {[type]: this[type]})
+      const newImageBedConfig = Object.assign({}, this.imageBed, { [type]: this[type] })
       this.$store.dispatch('SET_USER_DATA', {
         type: 'imageBed',
         value: newImageBedConfig
@@ -209,8 +209,7 @@ export default {
       margin-top: 30px;
     }
     &.error {
-      outline: 1px solid var(--themeColor);
-      padding: 6px;
+      border: 1px solid var(--deleteColor);
     }
   }
 }

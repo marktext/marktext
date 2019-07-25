@@ -198,6 +198,10 @@ const actions = {
       .then(() => {
         commit('RENAME_IF_NEEDED', { src, dest })
       })
+  },
+
+  OPEN_SETTING_WINDOW () {
+    ipcRenderer.send('mt::open-setting-window')
   }
 }
 

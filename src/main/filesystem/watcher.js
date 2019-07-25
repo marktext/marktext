@@ -35,7 +35,7 @@ const add = async (win, pathname, type, endOfLine) => {
     try {
       const data = await loadMarkdownFile(pathname, endOfLine)
       file.data = data
-    } catch(err) {
+    } catch (err) {
       // Only notify user about opened files.
       if (type === 'file') {
         win.webContents.send('AGANI::show-notification', {
@@ -124,7 +124,6 @@ const unlinkDir = (win, pathname, type) => {
 }
 
 class Watcher {
-
   /**
    * @param {Preference} preferences The preference instance.
    */
@@ -306,7 +305,7 @@ class Watcher {
    * @param {string} pathname The path to ignore.
    * @param {number} [duration] The duration in ms to ignore the changed event.
    */
-  ignoreChangedEvent (windowId, pathname, duration=WATCHER_STABILITY_THRESHOLD + WATCHER_STABILITY_POLL_INTERVAL + 1000) {
+  ignoreChangedEvent (windowId, pathname, duration = WATCHER_STABILITY_THRESHOLD + WATCHER_STABILITY_POLL_INTERVAL + 1000) {
     this._ignoreChangeEvents.push({ windowId, pathname, duration, start: new Date() })
   }
 

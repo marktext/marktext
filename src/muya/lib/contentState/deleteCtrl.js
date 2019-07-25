@@ -30,7 +30,7 @@ const deleteCtrl = ContentState => {
         }
         startBlock.text += nextBlock.text
 
-        const toBeRemoved = [ nextBlock ]
+        const toBeRemoved = [nextBlock]
 
         let parent = this.getParent(nextBlock)
         let target = nextBlock

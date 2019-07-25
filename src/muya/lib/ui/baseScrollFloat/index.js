@@ -20,7 +20,9 @@ class BaseScrollFloat extends BaseFloat {
   activeEleScrollIntoView (ele) {
     if (ele) {
       ele.scrollIntoView({
-        behavior: 'auto'
+        behavior: 'auto',
+        block: 'center',
+        inline: 'start'
       })
     }
   }

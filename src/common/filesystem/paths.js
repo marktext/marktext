@@ -56,7 +56,6 @@ export const isMarkdownFile = filepath => {
   return isFile(filepath) && hasMarkdownExtension(filepath)
 }
 
-
 /**
  * Returns true if the path is a markdown file or symbolic link to a markdown file.
  *

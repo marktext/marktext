@@ -5,6 +5,7 @@ import './index.css'
 
 class EmojiPicker extends BaseScrollFloat {
   static pluginName = 'emojiPicker'
+
   constructor (muya) {
     const name = 'ag-emoji-picker'
     super(muya, name)

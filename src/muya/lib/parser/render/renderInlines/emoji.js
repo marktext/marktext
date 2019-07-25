@@ -8,8 +8,8 @@ export default function emoji (h, cursor, block, token, outerClass) {
   const validation = validEmoji(token.content)
   const finalClass = validation ? className : CLASS_OR_ID['AG_WARN']
   const contentSelector = finalClass !== CLASS_OR_ID['AG_GRAY']
-   ? `span.${finalClass}.${CLASS_OR_ID['AG_INLINE_RULE']}.${CLASS_OR_ID['AG_EMOJI_MARKED_TEXT']}`
-   : `span.${CLASS_OR_ID['AG_INLINE_RULE']}.${CLASS_OR_ID['AG_EMOJI_MARKED_TEXT']}`
+    ? `span.${finalClass}.${CLASS_OR_ID['AG_INLINE_RULE']}.${CLASS_OR_ID['AG_EMOJI_MARKED_TEXT']}`
+    : `span.${CLASS_OR_ID['AG_INLINE_RULE']}.${CLASS_OR_ID['AG_EMOJI_MARKED_TEXT']}`
 
   let startMarkerSelector = `span.${finalClass}.${CLASS_OR_ID['AG_EMOJI_MARKER']}`
   let endMarkerSelector = startMarkerSelector

@@ -109,8 +109,8 @@ class StateRender {
   async renderDiagram () {
     const cache = this.diagramCache
     const RENDER_MAP = {
-      'flowchart': flowchart,
-      'sequence': Diagram,
+      flowchart: flowchart,
+      sequence: Diagram,
       'vega-lite': vegaEmbed
     }
     if (cache.size) {
@@ -123,7 +123,9 @@ class StateRender {
           Object.assign(options, { theme: this.muya.options.sequenceTheme })
         } else if (functionType === 'vega-lite') {
           Object.assign(options, {
-            actions: false, tooltip: false, renderer: 'svg',
+            actions: false,
+            tooltip: false,
+            renderer: 'svg',
             theme: this.muya.options.vegaTheme
           })
         }
@@ -206,10 +208,10 @@ class StateRender {
 
   /**
    * Only render one block.
-   * 
-   * @param {object} block 
-   * @param {array} activeBlocks 
-   * @param {array} matches 
+   *
+   * @param {object} block
+   * @param {array} activeBlocks
+   * @param {array} matches
    */
   singleRender (block, activeBlocks, matches) {
     const selector = `#${block.key}`

@@ -25,7 +25,6 @@ export const WindowLifecycle = {
 }
 
 class BaseWindow extends EventEmitter {
-
   /**
    * @param {Accessor} accessor The application accessor for application instances.
    */
