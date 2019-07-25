@@ -355,6 +355,7 @@ const importRegister = ContentState => {
   // turn html to blocks
   ContentState.prototype.html2State = function (html) {
     const markdown = this.htmlToMarkdown(html, ['ruby', 'rt', 'u', 'br'])
+
     return this.markdownToState(markdown)
   }
 
