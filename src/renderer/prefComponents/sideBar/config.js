@@ -50,3 +50,4 @@ export const searchContent = Object.keys(preferences).map(k => {
     preference
   }
 })
+  .filter(({ category: ca }) => category.some(c => c.label === ca.toLowerCase()))
