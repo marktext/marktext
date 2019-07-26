@@ -59,7 +59,7 @@ class Muya {
 
   mutationObserver () {
     // Select the node that will be observed for mutations
-    const { container } = this
+    const { container, eventCenter } = this
 
     // Options for the observer (which mutations to observe)
     const config = { childList: true, subtree: true }
@@ -74,12 +74,14 @@ class Muya {
           if (removedNodes && removedNodes.length) {
             const hasTable = Array.from(removedNodes).some(node => node.nodeType === 1 && node.closest('table.ag-paragraph'))
             if (hasTable) {
+              eventCenter.dispatch('crashed')
               console.warn('There was a problem with the table deletion.')
             }
           }
 
           if (target.getAttribute('id') === 'ag-editor-id' && target.childElementCount === 0) {
-            // TODO: the editor can not be input any more. report bugs and recoveryr...
+            // TODO: the editor can not be input any more. report bugs and recovery...
+            eventCenter.dispatch('crashed')
             console.warn('editor crashed, and can not be input any more.')
           }
         }
