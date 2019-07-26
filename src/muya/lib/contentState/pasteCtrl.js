@@ -74,6 +74,14 @@ const pasteCtrl = ContentState => {
         span.innerHTML = p.innerHTML
         p.replaceWith(span)
       }
+
+      const tds = table.querySelectorAll('td')
+      for (const td of tds) {
+        const rawHtml = td.innerHTML
+        if (/<br>/.test(rawHtml)) {
+          td.innerHTML = rawHtml.replace(/<br>/g, '&lt;br&gt;')
+        }
+      }
     }
 
     return tempWrapper.innerHTML
@@ -186,6 +194,7 @@ const pasteCtrl = ContentState => {
     event.stopPropagation()
     const text = rawText || event.clipboardData.getData('text/plain')
     let html = rawHtml || event.clipboardData.getData('text/html')
+
     html = this.standardizeHTML(html)
     const copyType = this.checkCopyType(html, text)
     const { start, end } = this.cursor

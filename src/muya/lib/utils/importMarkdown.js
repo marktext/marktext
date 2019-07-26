@@ -340,11 +340,11 @@ const importRegister = ContentState => {
     return rootState.children.length ? rootState.children : [this.createBlockP()]
   }
 
-  ContentState.prototype.htmlToMarkdown = function (html) {
+  ContentState.prototype.htmlToMarkdown = function (html, keeps = []) {
     // turn html to markdown
     const { turndownConfig } = this
     const turndownService = new TurndownService(turndownConfig)
-    usePluginAddRules(turndownService)
+    usePluginAddRules(turndownService, keeps)
     // fix #752, but I don't know why the &nbsp; vanlished.
     html = html.replace(/<span>&nbsp;<\/span>/g, ' ')
     html = turnSoftBreakToSpan(html)
@@ -354,7 +354,8 @@ const importRegister = ContentState => {
 
   // turn html to blocks
   ContentState.prototype.html2State = function (html) {
-    const markdown = this.htmlToMarkdown(html)
+    const markdown = this.htmlToMarkdown(html, ['ruby', 'rt', 'u', 'br'])
+
     return this.markdownToState(markdown)
   }
 
