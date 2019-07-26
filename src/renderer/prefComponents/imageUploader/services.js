@@ -1,6 +1,10 @@
 // TODO: Remove information from other vue source files into this file.
 
-export default {
+export const isValidService = name => {
+  return name !== 'none' && services.hasOwnProperty(name)
+}
+
+const services = {
   // Dummy service used to opt-in real services.
   none: {
     name: '',
@@ -32,3 +36,5 @@ export default {
     agreedToLegalNotices: false
   }
 }
+
+export default services
