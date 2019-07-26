@@ -27,6 +27,7 @@ const clickCtrl = ContentState => {
         }
 
         if (needToInsertNewParagraph) {
+          event.preventDefault()
           const paragraphBlock = this.createBlockP()
           this.insertAfter(paragraphBlock, archor)
           const key = paragraphBlock.children[0].key
@@ -36,7 +37,7 @@ const clickCtrl = ContentState => {
             end: { key, offset }
           }
 
-          return this.partialRender()
+          return this.render()
         }
       }
     }
