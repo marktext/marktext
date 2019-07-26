@@ -2,7 +2,7 @@
 
 **:warning:Breaking Changes:**
 
-- `preference.md` is deprecated and no longer supported. Please use the GUI or edit `preferences.json` manually.
+- `preference.md` is deprecated and no longer supported. Please use the GUI.
 - Removed portable Windows executable. NSIS installer can now be used to install per-user (without administrator privileges) or machine wide.
 - Added portable zip archive for both x86 and x64 Windows.
 - Changed `viewToggleFullScreen` and `windowCloseWindow` key bindings to `windowToggleFullScreen` and `fileCloseWindow`.
@@ -11,19 +11,24 @@
 
 **:cactus:Feature**
 
+- feat: add underline format (#946)
 - Added GUI settings (#1028)
 - The cursor jump to the end of format or to the next brackets when press `tab`(#976)
 - Tab drag & drop inside the window
-- Scrollable tabs
+- add tab scrolling and drag&drop (#953)
 - Support to replace the root folder in a window
 - Second-instance files and directories via command-line are opened in the best window
 - Mark Text can use a default directory that is automatically opened during startup (#711)
 - New CLI flags: `--disable-gpu`, `-n,--new-window` and `--user-data-dir`
 - Find in files use ripgrep as searcher.
 - You can know automatically save your document after a predefined intervall.
+- feat: support prism language alias (#1031)
+- Allow to set editor line width and window zoom (#1092)
+- feat: add click delete url to clipboard when upload image to SMMS (#1173)
 
 **:butterfly:Optimization**
 
+- optimization of cursor, and fix some cursor related issues (#963)
 - Rewrite `select all` when press `CtrlOrCmd + A` (#937)
 - Set the cursor at the end of `#` in header when press arrow down to jump to the next paragraph.(#978)
 - Improved startup time
@@ -31,16 +36,38 @@
 - Editor window is shown immediately while loading
 - Adjust titlebar title when using native window to not show a duplicate title
 - Added `Noto Color Emoji` as default emoji fallback font on Linux to display emojis properly.
+- feat: add two event focus and blur of muya (#1039)
+- opti: add katex css only when there is math fomular in export html (#1038)
+- Refactor inline image to support paste/drop image (#1028)
+- opti: insert last paragraph when the last block is table, code block or no-empty paragraph (#1069)
+- Opti: update TOC if needed (#1088)
+- feat: scroll to cursor when switch between tabs (#1089)
+- add: auto save with delay (#1093)
+- Opt-in uploader services and add legal notices (#1113)
+- Add ripgrep as find in files backend (#1086)
 
 **:beetle:Bug fix**
 
 - Fixed some CommonMark failed examples and add test cases (#943)
+- fix: #921 reference link render error (#947)
+- fix: #926 summary element can not be click (#948)
+- fix: #870 list parse error (#964)
 - Fixed some bugs after press `backspace` (#934, #938)
 - Changed `inline math` vertical align to `top` (#977)
 - Prevent to open the same file twice, instead select the existing tab (#878)
 - Fixed some minor filesystem watcher issues
 - Fixed rename filesystem watcher bug which lead to multiple issues because the parent directory was watched after deleting a file on Linux using `rename`
 - Fixed incorrect file content after a watched file was edited externally (#1043)
+- fix: toc content vanish bug (#1021)
+- fix paragraph turn into list bug (#1025)
+- fix: #1018 paste error when the lastblock is html block (#1042)
+- fix: parse inline syntax error (#1072)
+- fix: insert image by image uploader, but can not copy and paste, because it is render the local url (#1070)
+- Fix: #1045 can not select all content in source code mode (#1085)
+- fix: TOC level error (#1087)
+- fix watcher out of range exception (#1095)
+- Opti: image icon style (#1098)
+- delete image triggers muya change (#1125)
 
 **:warning:Breaking Development Changes:**
 
