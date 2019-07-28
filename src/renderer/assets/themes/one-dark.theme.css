@@ -144,16 +144,16 @@
   border-right: 1px solid #181a1f !important;
 }
 .left-column ul > li > svg {
-  color: rgba(215, 218, 224, 0.6) !important;
+  fill: rgba(215, 218, 224, 0.6) !important;
 }
 .left-column ul > li:hover > svg {
-  color: #d7dae0 !important;
+  fill: #d7dae0 !important;
 }
 .left-column ul > li:hover > svg {
-  color: #d7dae0 !important;
+  fill: #d7dae0 !important;
 }
 .left-column ul > li.active > svg {
-  color: #4d78cc !important;
+  fill: #4d78cc !important;
 }
 
 .open-project button.button-primary,

@@ -185,15 +185,12 @@ export default {
       & > svg {
         width: 18px;
         height: 18px;
+        fill: var(--sideBarIconColor);
         opacity: 1;
-        color: var(--sideBarIconColor);
         transition: transform .25s ease-in-out;
       }
-      &:hover > svg {
-        color: var(--themeColor);
-      }
       &.active > svg {
-        color: var(--themeColor);
+        fill: var(--themeColor);
       }
     }
   }
