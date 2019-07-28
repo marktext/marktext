@@ -231,7 +231,7 @@
     "del": "^4.1.1",
     "devtron": "^1.4.0",
     "dotenv": "^8.0.0",
-    "electron": "^5.0.7",
+    "electron": "^5.0.8",
     "electron-builder": "^21.1.1",
     "electron-devtools-installer": "^2.2.4",
     "electron-rebuild": "^1.8.5",
