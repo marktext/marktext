@@ -53,10 +53,12 @@
     ></cur-select>
     <section class="startup-action-ctrl">
       <div>The action after Mark Text startup: open the last edited content, open the specified folder or blank page.</div>
-      <el-radio class="ag-underdevelop" v-model="startUpAction" label="lastState">Open the last window state</el-radio>
-      <el-radio v-model="startUpAction" label="folder">Open a default directory</el-radio>
-      <el-button size="small" @click="selectDefaultDirectoryToOpen">Select Folder</el-button>
-      <el-radio v-model="startUpAction" label="blank">Open blank page</el-radio>
+      <el-radio-group v-model="startUpAction">
+        <el-radio class="ag-underdevelop" label="lastState">Open the last window state</el-radio>
+        <el-radio label="folder">Open a default directory<span>: {{defaultDirectoryToOpen}}</span></el-radio>
+        <el-button size="small" @click="selectDefaultDirectoryToOpen">Select Folder</el-button>
+        <el-radio label="blank">Open blank page</el-radio>
+      </el-radio-group>
     </section>
     <cur-select
       description="The language Mark Text use."
@@ -101,14 +103,23 @@ export default {
       autoSave: state => state.preferences.autoSave,
       autoSaveDelay: state => state.preferences.autoSaveDelay,
       titleBarStyle: state => state.preferences.titleBarStyle,
+      defaultDirectoryToOpen: state => state.preferences.defaultDirectoryToOpen,
       openFilesInNewWindow: state => state.preferences.openFilesInNewWindow,
       openFolderInNewWindow: state => state.preferences.openFolderInNewWindow,
       hideScrollbar: state => state.preferences.hideScrollbar,
       aidou: state => state.preferences.aidou,
       fileSortBy: state => state.preferences.fileSortBy,
-      startUpAction: state => state.preferences.startUpAction,
       language: state => state.preferences.language
-    })
+    }),
+    startUpAction: {
+      get: function () {
+        return this.$store.state.preferences.startUpAction
+      },
+      set: function (value) {
+        const type = 'startUpAction'
+        this.$store.dispatch('SET_SINGLE_PREFERENCE', { type, value })
+      }
+    }
   },
   methods: {
     onSelectChange (type, value) {
