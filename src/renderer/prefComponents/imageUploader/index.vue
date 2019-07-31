@@ -44,7 +44,7 @@
             :class="[{ 'error': legalNoticesErrorStates.github }]"
             :uploaderService="uploadServices.github"
           ></legal-notices-checkbox>
-          <div class="form-group button-group">
+          <div class="form-group">
             <el-button size="mini" :disabled="githubDisable" @click="save('github')">Save</el-button>
             <el-button size="mini" :disabled="githubDisable" @click="setCurrentUploader('github')">Set as default</el-button>
           </div>
