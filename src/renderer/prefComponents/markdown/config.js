@@ -32,7 +32,7 @@ export const tabSizeOptions = [{
   label: '2',
   value: 2
 }, {
-  label: '1',
+  label: '3',
   value: 3
 }, {
   label: '4',
