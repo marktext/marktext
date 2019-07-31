@@ -103,6 +103,23 @@ export const addThemeStyle = theme => {
   }
 }
 
+export const setEditorWidth = value => {
+  const EDITOR_WIDTH_STYLE_ID = 'editor-width'
+  let result = ''
+  if (value && /^[0-9]+(?:ch|px|%)$/.test(value)) {
+    // Overwrite the theme value and add 100px for padding.
+    result = `:root { --editorAreaWidth: calc(100px + ${value}); }`
+  }
+  let styleEle = document.querySelector(`#${EDITOR_WIDTH_STYLE_ID}`)
+  if (!styleEle) {
+    styleEle = document.createElement('style')
+    styleEle.setAttribute('id', EDITOR_WIDTH_STYLE_ID)
+    document.head.appendChild(styleEle)
+  }
+
+  styleEle.innerHTML = result
+}
+
 export const addCommonStyle = options => {
   const { codeFontFamily, codeFontSize, hideScrollbar } = options
   let sheet = document.querySelector(`#${COMMON_STYLE_ID}`)

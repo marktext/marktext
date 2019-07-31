@@ -69,7 +69,7 @@
   --floatBorderColor: rgba(0, 0, 0, .03);
   --floatShadow: rgba(0, 0, 0, 0.2);
   --maskColor: rgba(0, 0, 0, .7);
-  --editorAreaWidth: 700px;
+  --editorAreaWidth: 750px;
 }
 
 .ag-front-menu .submenu,
