@@ -91,7 +91,7 @@ class Keybindings {
       ['formatClearFormat', 'Shift+CmdOrCtrl+R'],
 
       // window menu
-      ['windowMinimize', ''], // 'CmdOrCtrl+M' deprecated for math
+      ['windowMinimize', isOsx ? 'Cmd+M' : ''], // 'CmdOrCtrl+M' deprecated for math
 
       // view menu
       ['viewToggleFullScreen', isOsx ? 'Ctrl+Command+F' : 'F11'],
