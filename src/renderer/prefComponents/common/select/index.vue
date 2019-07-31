@@ -6,8 +6,10 @@
         @click="handleMoreClick"
       ></i>
     </div>
-    <el-select v-model="selectValue"
+    <el-select
+      v-model="selectValue"
       @change="select"
+      :disabled="disable"
     >
       <el-option
         v-for="item in options"
