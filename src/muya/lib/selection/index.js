@@ -601,11 +601,12 @@ class Selection {
     let range
     let x = 0
     let y = 0
+    let width = 0
 
     if (sel.rangeCount) {
       range = sel.getRangeAt(0).cloneRange()
       if (range.getClientRects) {
-        range.collapse(true)
+        // range.collapse(true)
         let rects = range.getClientRects()
         if (rects.length === 0) {
           rects = range.startContainer && range.startContainer.nodeType === Node.ELEMENT_NODE
@@ -613,14 +614,15 @@ class Selection {
             : []
         }
         if (rects.length) {
-          const { left, top, x: rectX, y: rectY } = rects[0]
+          const { left, top, x: rectX, y: rectY, width: rWidth } = rects[0]
           x = rectX || left
           y = rectY || top
+          width = rWidth
         }
       }
     }
 
-    return { x, y }
+    return { x, y, width }
   }
 
   getSelectionEnd () {

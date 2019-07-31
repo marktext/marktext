@@ -676,9 +676,8 @@ class ContentState {
     const { fontSize, lineHeight } = this
     const { start } = this.cursor
     const block = this.getBlock(start.key)
-    const { x, y } = selection.getCursorCoords()
+    const { x, y, width } = selection.getCursorCoords()
     const height = fontSize * lineHeight
-    const width = 0
     const bottom = y + height
     const right = x + width
     const left = x
