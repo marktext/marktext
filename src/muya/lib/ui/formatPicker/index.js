@@ -8,7 +8,7 @@ const defaultOptions = {
   placement: 'top',
   modifiers: {
     offset: {
-      offset: '20, 5'
+      offset: '0, 5'
     }
   },
   showArrow: false
