@@ -9,7 +9,6 @@
     <div
       ref="editor"
       class="editor-component"
-      :style="[ getEditorLineWidth ]"
     ></div>
     <div
       class="image-viewer"
@@ -88,7 +87,7 @@ import FrontMenu from 'muya/lib/ui/frontMenu'
 import bus from '../../bus'
 import Search from '../search.vue'
 import { animatedScrollTo } from '../../util'
-import { addCommonStyle } from '../../util/theme'
+import { addCommonStyle, setEditorWidth } from '../../util/theme'
 import { guessClipboardFilePath } from '../../util/clipboard'
 import { showContextMenu } from '../../contextMenu/editor'
 import Printer from '@/services/printService'
@@ -148,17 +147,7 @@ export default {
       typewriter: state => state.preferences.typewriter,
       focus: state => state.preferences.focus,
       sourceCode: state => state.preferences.sourceCode
-    }),
-
-    getEditorLineWidth () {
-      const { editorLineWidth } = this
-      if (!editorLineWidth || !/^[0-9]+(?:ch|px|%)$/.test(editorLineWidth)) {
-        return {}
-      }
-
-      // Overwrite the theme value and add 100px for padding.
-      return { '--editorAreaWidth': `calc(100px + ${editorLineWidth})` }
-    }
+    })
   },
   data () {
     this.defaultFontFamily = DEFAULT_EDITOR_FONT_FAMILY
@@ -241,7 +230,7 @@ export default {
     },
     editorLineWidth: function (value, oldValue) {
       if (value !== oldValue) {
-        // TODO: Ask vue to reload 'getEditorLineWidth'
+        setEditorWidth(value)
       }
     },
     autoPairBracket: function (value, oldValue) {
@@ -331,6 +320,7 @@ export default {
         tabSize,
         listIndentation,
         hideQuickInsertHint,
+        editorLineWidth,
         theme
       } = this
 
@@ -462,7 +452,10 @@ export default {
       this.editor.on('contextmenu', (event, selectionChanges) => {
         showContextMenu(event, selectionChanges)
       })
+
       document.addEventListener('keyup', this.keyup)
+
+      setEditorWidth(editorLineWidth)
     })
   },
   methods: {
