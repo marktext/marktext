@@ -84,14 +84,14 @@ class Keybindings {
       ['formatEmphasis', 'CmdOrCtrl+I'],
       ['formatUnderline', 'CmdOrCtrl+U'],
       ['formatInlineCode', 'CmdOrCtrl+`'],
-      ['formatInlineMath', 'Ctrl+M'],
+      ['formatInlineMath', 'Shift+CmdOrCtrl+M'],
       ['formatStrike', 'CmdOrCtrl+D'],
       ['formatHyperlink', 'CmdOrCtrl+L'],
       ['formatImage', 'CmdOrCtrl+Shift+I'],
       ['formatClearFormat', 'Shift+CmdOrCtrl+R'],
 
       // window menu
-      ['windowMinimize', ''], // 'CmdOrCtrl+M' deprecated for math
+      ['windowMinimize', 'CmdOrCtrl+M'],
 
       // view menu
       ['viewToggleFullScreen', isOsx ? 'Ctrl+Command+F' : 'F11'],
