@@ -23,6 +23,10 @@ const selectFormat = formats => {
 }
 
 export const format = (win, type) => {
+  // Fix #961
+  if (!win) {
+    return
+  }
   win.webContents.send('AGANI::format', { type })
 }
 
