@@ -22,15 +22,15 @@ This file contains all third-party packages that are bundled and shipped with Ma
 13. ajv (MIT)
 14. animation-frame-polyfill (MIT)
 15. ansi-regex (MIT)
-16. anymatch (ISC)
-17. aproba (ISC)
-18. are-we-there-yet (ISC)
-19. arg (MIT)
-20. array-equal (MIT)
-21. array-from (MIT)
-22. asn1 (MIT)
-23. assert-plus (MIT)
-24. async-each (MIT)
+16. ansi-styles (MIT)
+17. anymatch (ISC)
+18. aproba (ISC)
+19. are-we-there-yet (ISC)
+20. arg (MIT)
+21. array-equal (MIT)
+22. array-from (MIT)
+23. asn1 (MIT)
+24. assert-plus (MIT)
 25. async-limiter (MIT)
 26. async-validator (MIT)
 27. asynckit (MIT)
@@ -63,355 +63,358 @@ This file contains all third-party packages that are bundled and shipped with Ma
 54. clone (MIT)
 55. code-point-at (MIT)
 56. codemirror (MIT)
-57. combined-stream (MIT)
-58. command-exists (MIT)
-59. commander (MIT)
-60. conf (MIT)
-61. console-control-strings (ISC)
-62. contra (MIT)
-63. core-js (MIT)
-64. core-util-is (MIT)
-65. create-point-cb (MIT)
-66. cross-spawn (MIT)
-67. crossvent (MIT)
-68. cssom (MIT)
-69. cssstyle (MIT)
-70. custom-event (MIT)
-71. d3-array (BSD-3-Clause)
-72. d3-axis (BSD-3-Clause)
-73. d3-brush (BSD-3-Clause)
-74. d3-chord (BSD-3-Clause)
-75. d3-collection (BSD-3-Clause)
-76. d3-color (BSD-3-Clause)
-77. d3-contour (BSD-3-Clause)
-78. d3-dispatch (BSD-3-Clause)
-79. d3-drag (BSD-3-Clause)
-80. d3-dsv (BSD-3-Clause)
-81. d3-ease (BSD-3-Clause)
-82. d3-fetch (BSD-3-Clause)
-83. d3-force (BSD-3-Clause)
-84. d3-format (BSD-3-Clause)
-85. d3-geo (BSD-3-Clause)
-86. d3-hierarchy (BSD-3-Clause)
-87. d3-interpolate (BSD-3-Clause)
-88. d3-path (BSD-3-Clause)
-89. d3-polygon (BSD-3-Clause)
-90. d3-quadtree (BSD-3-Clause)
-91. d3-random (BSD-3-Clause)
-92. d3-scale-chromatic (BSD-3-Clause)
-93. d3-scale (BSD-3-Clause)
-94. d3-selection (BSD-3-Clause)
-95. d3-shape (BSD-3-Clause)
-96. d3-time-format (BSD-3-Clause)
-97. d3-time (BSD-3-Clause)
-98. d3-timer (BSD-3-Clause)
-99. d3-transition (BSD-3-Clause)
-100. d3-voronoi (BSD-3-Clause)
-101. d3-zoom (BSD-3-Clause)
-102. d3 (BSD-3-Clause)
-103. dagre-d3-renderer (MIT)
-104. dagre-layout (MIT)
-105. dashdash (MIT)
-106. data-urls (MIT)
-107. dayjs (MIT)
-108. debug (MIT)
-109. decamelize (MIT)
-110. decompress-response (MIT)
-111. deep-extend (MIT)
-112. deep-is (MIT)
-113. deepmerge (MIT)
-114. delayed-stream (MIT)
-115. delegate (MIT)
-116. delegates (MIT)
-117. deprecation (ISC)
-118. detect-libc (Apache-2.0)
-119. dom-autoscroller (MIT)
-120. dom-mousemove-dispatcher (MIT)
-121. dom-plane (MIT)
-122. dom-set (WTFPL)
-123. domexception (MIT)
-124. dompurify (MPL-2.0 OR Apache-2.0)
-125. dot-prop (MIT)
-126. dragula (MIT)
-127. ecc-jsbn (MIT)
-128. electron-is-accelerator (MIT)
-129. electron-log (MIT)
-130. electron-store (MIT)
-131. electron-window-state (MIT)
-132. element-resize-detector (MIT)
-133. element-ui (MIT)
-134. emoji-regex (MIT)
-135. end-of-stream (MIT)
-136. env-paths (MIT)
-137. escaper (MIT)
-138. escodegen (BSD-2-Clause)
-139. esprima (BSD-2-Clause)
-140. estraverse (BSD-2-Clause)
-141. esutils (BSD)
-142. eve-raphael (Apache*)
-143. event-kit (MIT)
-144. execa (MIT)
-145. expand-template ((MIT OR WTFPL))
-146. extend (MIT)
-147. extsprintf (MIT)
-148. fast-deep-equal (MIT)
-149. fast-json-stable-stringify (MIT)
-150. fast-levenshtein (MIT)
-151. file-icons-js (MIT)
-152. fill-range (MIT)
-153. find-up (MIT)
-154. flowchart.js (MIT)
-155. follow-redirects (MIT)
-156. forever-agent (Apache-2.0)
-157. form-data (MIT)
-158. fs-constants (MIT)
-159. fs-extra (MIT)
-160. fuzzaldrin (MIT)
-161. gauge (ISC)
-162. get-caller-file (ISC)
-163. get-stream (MIT)
-164. getpass (MIT)
-165. github-from-package (MIT)
-166. github-markdown-css (MIT)
-167. glob-parent (ISC)
-168. good-listener (MIT)
-169. graceful-fs (ISC)
-170. graphlibrary (MIT)
-171. har-schema (ISC)
-172. har-validator (MIT)
-173. has-unicode (ISC)
-174. he (MIT)
-175. html-encoding-sniffer (MIT)
-176. html-tags (MIT)
-177. http-signature (MIT)
-178. iconv-lite (MIT)
-179. imurmurhash (MIT)
-180. inherits (ISC)
-181. ini (ISC)
-182. invert-kv (MIT)
-183. is-array (MIT)
-184. is-binary-path (MIT)
-185. is-buffer (MIT)
-186. is-extglob (MIT)
-187. is-fullwidth-code-point (MIT)
-188. is-glob (MIT)
-189. is-number (MIT)
-190. is-obj (MIT)
-191. is-plain-object (MIT)
-192. is-regexp (MIT)
-193. is-stream (MIT)
-194. is-typedarray (MIT)
-195. isarray (MIT)
-196. iselement (MIT)
-197. isexe (ISC)
-198. isobject (MIT)
-199. isstream (MIT)
-200. jsbn (MIT)
-201. jsdom (MIT)
-202. json-schema-traverse (MIT)
-203. json-schema-typed (BSD-2-Clause)
-204. json-schema (AFLv2.1,BSD)
-205. json-stringify-pretty-compact (MIT)
-206. json-stringify-safe (ISC)
-207. jsonfile (MIT)
-208. jsprim (MIT)
-209. katex (MIT)
-210. keyboard-layout (MIT)
-211. keyboardevents-areequal (MIT)
-212. keytar (MIT)
-213. lcid (MIT)
-214. left-pad (WTFPL)
-215. levn (MIT)
-216. locate-path (MIT)
-217. lodash.escape (MIT)
-218. lodash.forown (MIT)
-219. lodash.get (MIT)
-220. lodash.kebabcase (MIT)
-221. lodash.remove (MIT)
-222. lodash.set (MIT)
-223. lodash.sortby (MIT)
-224. lodash.uniq (MIT)
-225. lodash (MIT)
-226. macos-release (MIT)
-227. make-dir (MIT)
-228. map-age-cleaner (MIT)
-229. mem (MIT)
-230. mermaid (MIT)
-231. mime-db (MIT)
-232. mime-types (MIT)
-233. mimic-fn (MIT)
-234. mimic-response (MIT)
-235. minimist (MIT)
-236. mkdirp (MIT)
-237. moment (MIT)
-238. ms (MIT)
-239. nan (MIT)
-240. napi-build-utils (MIT)
-241. nice-try (MIT)
-242. node-abi (MIT)
-243. node-fetch (MIT)
-244. noop-logger (MIT)
-245. normalize-path (MIT)
-246. normalize-wheel (BSD-3-Clause)
-247. npm-run-path (MIT)
-248. npmlog (ISC)
-249. number-is-nan (MIT)
-250. nwsapi (MIT)
-251. oauth-sign (Apache-2.0)
-252. object-assign (MIT)
-253. octokit-pagination-methods (MIT)
-254. once (ISC)
-255. optionator (MIT)
-256. os-homedir (MIT)
-257. os-locale (MIT)
-258. os-name (MIT)
-259. p-defer (MIT)
-260. p-finally (MIT)
-261. p-is-promise (MIT)
-262. p-limit (MIT)
-263. p-locate (MIT)
-264. p-try (MIT)
-265. parse-sel (MIT)
-266. parse5 (MIT)
-267. path-exists (MIT)
-268. path-key (MIT)
-269. performance-now (MIT)
-270. picomatch (MIT)
-271. pkg-up (MIT)
-272. plist (MIT)
-273. pn (MIT)
-274. popper.js (MIT)
-275. prebuild-install (MIT)
-276. prelude-ls (MIT)
-277. prismjs (MIT)
-278. process-nextick-args (MIT)
-279. psl (MIT)
-280. pump (MIT)
-281. punycode (MIT)
-282. qs (BSD-3-Clause)
-283. raphael (MIT)
-284. rc ((BSD-2-Clause OR MIT OR Apache-2.0))
-285. readable-stream (MIT)
-286. readdirp (MIT)
-287. regenerator-runtime (MIT)
-288. request-promise-core (ISC)
-289. request-promise-native (ISC)
-290. request (Apache-2.0)
-291. require-directory (MIT)
-292. require-main-filename (ISC)
-293. resize-observer-polyfill (MIT)
-294. rw (BSD-3-Clause)
-295. safe-buffer (MIT)
-296. safer-buffer (MIT)
-297. sax (ISC)
-298. scope-css (MIT)
-299. select (MIT)
-300. semver (ISC)
-301. set-blocking (ISC)
-302. shebang-command (MIT)
-303. shebang-regex (MIT)
-304. signal-exit (ISC)
-305. simple-concat (MIT)
-306. simple-get (MIT)
-307. slugify (MIT)
-308. snabbdom-to-html (MIT)
-309. snabbdom (MIT)
-310. source-map-support (MIT)
-311. source-map (BSD-3-Clause)
-312. sshpk (MIT)
-313. stealthy-require (ISC)
-314. string-width (MIT)
-315. string_decoder (MIT)
-316. strip-ansi (MIT)
-317. strip-css-comments (MIT)
-318. strip-eof (MIT)
-319. strip-json-comments (MIT)
-320. symbol-tree (MIT)
-321. tar-fs (MIT)
-322. tar-stream (MIT)
-323. throttle-debounce (MIT)
-324. ticky (MIT)
-325. tiny-emitter (MIT)
-326. to-buffer (MIT)
-327. to-regex-range (MIT)
-328. topojson-client (BSD-3-Clause)
-329. tough-cookie (BSD-3-Clause)
-330. tr46 (MIT)
-331. tslib (Apache-2.0)
-332. tunnel-agent (Apache-2.0)
-333. turndown-plugin-gfm (MIT)
-334. turndown (MIT)
-335. tweetnacl (Unlicense)
-336. type-check (MIT)
-337. type-fest ((MIT OR CC0-1.0))
-338. type-func (MIT)
-339. underscore (MIT)
-340. universal-user-agent (ISC)
-341. universalify (MIT)
-342. uri-js (BSD-2-Clause)
-343. url-template (BSD*)
-344. util-deprecate (MIT)
-345. uuid (MIT)
-346. vega-canvas (BSD-3-Clause)
-347. vega-crossfilter (BSD-3-Clause)
-348. vega-dataflow (BSD-3-Clause)
-349. vega-embed (BSD-3-Clause)
-350. vega-encode (BSD-3-Clause)
-351. vega-event-selector (BSD-3-Clause)
-352. vega-expression (BSD-3-Clause)
-353. vega-force (BSD-3-Clause)
-354. vega-functions (BSD-3-Clause)
-355. vega-geo (BSD-3-Clause)
-356. vega-hierarchy (BSD-3-Clause)
-357. vega-lite (BSD-3-Clause)
-358. vega-loader (BSD-3-Clause)
-359. vega-parser (BSD-3-Clause)
-360. vega-projection (BSD-3-Clause)
-361. vega-regression (BSD-3-Clause)
-362. vega-runtime (BSD-3-Clause)
-363. vega-scale (BSD-3-Clause)
-364. vega-scenegraph (BSD-3-Clause)
-365. vega-schema-url-parser (BSD-3-Clause)
-366. vega-selections (BSD-3-Clause)
-367. vega-statistics (BSD-3-Clause)
-368. vega-themes (BSD-3-Clause)
-369. vega-tooltip (BSD-3-Clause)
-370. vega-transforms (BSD-3-Clause)
-371. vega-typings (BSD-3-Clause)
-372. vega-util (BSD-3-Clause)
-373. vega-view-transforms (BSD-3-Clause)
-374. vega-view (BSD-3-Clause)
-375. vega-voronoi (BSD-3-Clause)
-376. vega-wordcloud (BSD-3-Clause)
-377. vega (BSD-3-Clause)
-378. verror (MIT)
-379. view-image (MIT)
-380. vscode-ripgrep (MIT)
-381. vue-electron (ISC)
-382. vue-router (MIT)
-383. vue (MIT)
-384. vuex (MIT)
-385. w3c-hr-time (MIT)
-386. webidl-conversions (BSD-2-Clause)
-387. whatwg-encoding (MIT)
-388. whatwg-mimetype (MIT)
-389. whatwg-url (MIT)
-390. which-module (ISC)
-391. which-pm-runs (MIT)
-392. which (ISC)
-393. wide-align (ISC)
-394. windows-release (MIT)
-395. wordwrap (MIT)
-396. wrap-ansi (MIT)
-397. wrappy (ISC)
-398. write-file-atomic (ISC)
-399. ws (MIT)
-400. xml-name-validator (Apache-2.0)
-401. xmlbuilder (MIT)
-402. xtend (MIT)
-403. y18n (ISC)
-404. yargs-parser (ISC)
-405. yargs (MIT)
+57. color-convert (MIT)
+58. color-name (MIT)
+59. combined-stream (MIT)
+60. command-exists (MIT)
+61. commander (MIT)
+62. conf (MIT)
+63. console-control-strings (ISC)
+64. contra (MIT)
+65. core-js (MIT)
+66. core-util-is (MIT)
+67. create-point-cb (MIT)
+68. cross-spawn (MIT)
+69. crossvent (MIT)
+70. cssom (MIT)
+71. cssstyle (MIT)
+72. custom-event (MIT)
+73. d3-array (BSD-3-Clause)
+74. d3-axis (BSD-3-Clause)
+75. d3-brush (BSD-3-Clause)
+76. d3-chord (BSD-3-Clause)
+77. d3-collection (BSD-3-Clause)
+78. d3-color (BSD-3-Clause)
+79. d3-contour (BSD-3-Clause)
+80. d3-dispatch (BSD-3-Clause)
+81. d3-drag (BSD-3-Clause)
+82. d3-dsv (BSD-3-Clause)
+83. d3-ease (BSD-3-Clause)
+84. d3-fetch (BSD-3-Clause)
+85. d3-force (BSD-3-Clause)
+86. d3-format (BSD-3-Clause)
+87. d3-geo (BSD-3-Clause)
+88. d3-hierarchy (BSD-3-Clause)
+89. d3-interpolate (BSD-3-Clause)
+90. d3-path (BSD-3-Clause)
+91. d3-polygon (BSD-3-Clause)
+92. d3-quadtree (BSD-3-Clause)
+93. d3-random (BSD-3-Clause)
+94. d3-scale-chromatic (BSD-3-Clause)
+95. d3-scale (BSD-3-Clause)
+96. d3-selection (BSD-3-Clause)
+97. d3-shape (BSD-3-Clause)
+98. d3-time-format (BSD-3-Clause)
+99. d3-time (BSD-3-Clause)
+100. d3-timer (BSD-3-Clause)
+101. d3-transition (BSD-3-Clause)
+102. d3-voronoi (BSD-3-Clause)
+103. d3-zoom (BSD-3-Clause)
+104. d3 (BSD-3-Clause)
+105. dagre-d3-renderer (MIT)
+106. dagre-layout (MIT)
+107. dashdash (MIT)
+108. data-urls (MIT)
+109. dayjs (MIT)
+110. debug (MIT)
+111. decamelize (MIT)
+112. decompress-response (MIT)
+113. deep-extend (MIT)
+114. deep-is (MIT)
+115. deepmerge (MIT)
+116. delayed-stream (MIT)
+117. delegate (MIT)
+118. delegates (MIT)
+119. deprecation (ISC)
+120. detect-libc (Apache-2.0)
+121. dom-autoscroller (MIT)
+122. dom-mousemove-dispatcher (MIT)
+123. dom-plane (MIT)
+124. dom-set (WTFPL)
+125. domexception (MIT)
+126. dompurify (MPL-2.0 OR Apache-2.0)
+127. dot-prop (MIT)
+128. dragula (MIT)
+129. ecc-jsbn (MIT)
+130. electron-is-accelerator (MIT)
+131. electron-log (MIT)
+132. electron-store (MIT)
+133. electron-window-state (MIT)
+134. element-resize-detector (MIT)
+135. element-ui (MIT)
+136. emoji-regex (MIT)
+137. end-of-stream (MIT)
+138. env-paths (MIT)
+139. escaper (MIT)
+140. escodegen (BSD-2-Clause)
+141. esprima (BSD-2-Clause)
+142. estraverse (BSD-2-Clause)
+143. esutils (BSD)
+144. eve-raphael (Apache*)
+145. event-kit (MIT)
+146. execa (MIT)
+147. expand-template ((MIT OR WTFPL))
+148. extend (MIT)
+149. extsprintf (MIT)
+150. fast-deep-equal (MIT)
+151. fast-json-stable-stringify (MIT)
+152. fast-levenshtein (MIT)
+153. file-icons-js (MIT)
+154. fill-range (MIT)
+155. find-up (MIT)
+156. flowchart.js (MIT)
+157. follow-redirects (MIT)
+158. forever-agent (Apache-2.0)
+159. form-data (MIT)
+160. fs-constants (MIT)
+161. fs-extra (MIT)
+162. fuzzaldrin (MIT)
+163. gauge (ISC)
+164. get-caller-file (ISC)
+165. get-stream (MIT)
+166. getpass (MIT)
+167. github-from-package (MIT)
+168. github-markdown-css (MIT)
+169. glob-parent (ISC)
+170. good-listener (MIT)
+171. graceful-fs (ISC)
+172. graphlibrary (MIT)
+173. har-schema (ISC)
+174. har-validator (MIT)
+175. has-unicode (ISC)
+176. he (MIT)
+177. html-encoding-sniffer (MIT)
+178. html-tags (MIT)
+179. http-signature (MIT)
+180. iconv-lite (MIT)
+181. imurmurhash (MIT)
+182. inherits (ISC)
+183. ini (ISC)
+184. invert-kv (MIT)
+185. is-array (MIT)
+186. is-binary-path (MIT)
+187. is-buffer (MIT)
+188. is-extglob (MIT)
+189. is-fullwidth-code-point (MIT)
+190. is-glob (MIT)
+191. is-number (MIT)
+192. is-obj (MIT)
+193. is-plain-object (MIT)
+194. is-regexp (MIT)
+195. is-stream (MIT)
+196. is-typedarray (MIT)
+197. isarray (MIT)
+198. iselement (MIT)
+199. isexe (ISC)
+200. isobject (MIT)
+201. isstream (MIT)
+202. jsbn (MIT)
+203. jsdom (MIT)
+204. json-schema-traverse (MIT)
+205. json-schema-typed (BSD-2-Clause)
+206. json-schema (AFLv2.1,BSD)
+207. json-stringify-pretty-compact (MIT)
+208. json-stringify-safe (ISC)
+209. jsonfile (MIT)
+210. jsprim (MIT)
+211. katex (MIT)
+212. keyboard-layout (MIT)
+213. keyboardevents-areequal (MIT)
+214. keytar (MIT)
+215. lcid (MIT)
+216. left-pad (WTFPL)
+217. levn (MIT)
+218. locate-path (MIT)
+219. lodash.escape (MIT)
+220. lodash.forown (MIT)
+221. lodash.get (MIT)
+222. lodash.kebabcase (MIT)
+223. lodash.remove (MIT)
+224. lodash.set (MIT)
+225. lodash.sortby (MIT)
+226. lodash.uniq (MIT)
+227. lodash (MIT)
+228. macos-release (MIT)
+229. make-dir (MIT)
+230. map-age-cleaner (MIT)
+231. mem (MIT)
+232. mermaid (MIT)
+233. mime-db (MIT)
+234. mime-types (MIT)
+235. mimic-fn (MIT)
+236. mimic-response (MIT)
+237. minimist (MIT)
+238. mkdirp (MIT)
+239. moment (MIT)
+240. ms (MIT)
+241. nan (MIT)
+242. napi-build-utils (MIT)
+243. nice-try (MIT)
+244. node-abi (MIT)
+245. node-fetch (MIT)
+246. noop-logger (MIT)
+247. normalize-path (MIT)
+248. normalize-wheel (BSD-3-Clause)
+249. npm-run-path (MIT)
+250. npmlog (ISC)
+251. number-is-nan (MIT)
+252. nwsapi (MIT)
+253. oauth-sign (Apache-2.0)
+254. object-assign (MIT)
+255. octokit-pagination-methods (MIT)
+256. once (ISC)
+257. optionator (MIT)
+258. os-homedir (MIT)
+259. os-locale (MIT)
+260. os-name (MIT)
+261. p-defer (MIT)
+262. p-finally (MIT)
+263. p-is-promise (MIT)
+264. p-limit (MIT)
+265. p-locate (MIT)
+266. p-try (MIT)
+267. parse-sel (MIT)
+268. parse5 (MIT)
+269. path-exists (MIT)
+270. path-key (MIT)
+271. performance-now (MIT)
+272. picomatch (MIT)
+273. pkg-up (MIT)
+274. plist (MIT)
+275. pn (MIT)
+276. popper.js (MIT)
+277. prebuild-install (MIT)
+278. prelude-ls (MIT)
+279. prismjs (MIT)
+280. process-nextick-args (MIT)
+281. psl (MIT)
+282. pump (MIT)
+283. punycode (MIT)
+284. qs (BSD-3-Clause)
+285. raphael (MIT)
+286. rc ((BSD-2-Clause OR MIT OR Apache-2.0))
+287. readable-stream (MIT)
+288. readdirp (MIT)
+289. regenerator-runtime (MIT)
+290. request-promise-core (ISC)
+291. request-promise-native (ISC)
+292. request (Apache-2.0)
+293. require-directory (MIT)
+294. require-main-filename (ISC)
+295. resize-observer-polyfill (MIT)
+296. rw (BSD-3-Clause)
+297. safe-buffer (MIT)
+298. safer-buffer (MIT)
+299. sax (ISC)
+300. scope-css (MIT)
+301. select (MIT)
+302. semver (ISC)
+303. set-blocking (ISC)
+304. shebang-command (MIT)
+305. shebang-regex (MIT)
+306. signal-exit (ISC)
+307. simple-concat (MIT)
+308. simple-get (MIT)
+309. slugify (MIT)
+310. snabbdom-to-html (MIT)
+311. snabbdom (MIT)
+312. source-map-support (MIT)
+313. source-map (BSD-3-Clause)
+314. sshpk (MIT)
+315. stealthy-require (ISC)
+316. string-width (MIT)
+317. string_decoder (MIT)
+318. strip-ansi (MIT)
+319. strip-css-comments (MIT)
+320. strip-eof (MIT)
+321. strip-json-comments (MIT)
+322. symbol-tree (MIT)
+323. tar-fs (MIT)
+324. tar-stream (MIT)
+325. throttle-debounce (MIT)
+326. ticky (MIT)
+327. tiny-emitter (MIT)
+328. to-buffer (MIT)
+329. to-regex-range (MIT)
+330. topojson-client (BSD-3-Clause)
+331. tough-cookie (BSD-3-Clause)
+332. tr46 (MIT)
+333. tslib (Apache-2.0)
+334. tunnel-agent (Apache-2.0)
+335. turndown-plugin-gfm (MIT)
+336. turndown (MIT)
+337. tweetnacl (Unlicense)
+338. type-check (MIT)
+339. type-fest ((MIT OR CC0-1.0))
+340. type-func (MIT)
+341. typedarray-to-buffer (MIT)
+342. underscore (MIT)
+343. universal-user-agent (ISC)
+344. universalify (MIT)
+345. uri-js (BSD-2-Clause)
+346. url-template (BSD*)
+347. util-deprecate (MIT)
+348. uuid (MIT)
+349. vega-canvas (BSD-3-Clause)
+350. vega-crossfilter (BSD-3-Clause)
+351. vega-dataflow (BSD-3-Clause)
+352. vega-embed (BSD-3-Clause)
+353. vega-encode (BSD-3-Clause)
+354. vega-event-selector (BSD-3-Clause)
+355. vega-expression (BSD-3-Clause)
+356. vega-force (BSD-3-Clause)
+357. vega-functions (BSD-3-Clause)
+358. vega-geo (BSD-3-Clause)
+359. vega-hierarchy (BSD-3-Clause)
+360. vega-lite (BSD-3-Clause)
+361. vega-loader (BSD-3-Clause)
+362. vega-parser (BSD-3-Clause)
+363. vega-projection (BSD-3-Clause)
+364. vega-regression (BSD-3-Clause)
+365. vega-runtime (BSD-3-Clause)
+366. vega-scale (BSD-3-Clause)
+367. vega-scenegraph (BSD-3-Clause)
+368. vega-schema-url-parser (BSD-3-Clause)
+369. vega-selections (BSD-3-Clause)
+370. vega-statistics (BSD-3-Clause)
+371. vega-themes (BSD-3-Clause)
+372. vega-tooltip (BSD-3-Clause)
+373. vega-transforms (BSD-3-Clause)
+374. vega-typings (BSD-3-Clause)
+375. vega-util (BSD-3-Clause)
+376. vega-view-transforms (BSD-3-Clause)
+377. vega-view (BSD-3-Clause)
+378. vega-voronoi (BSD-3-Clause)
+379. vega-wordcloud (BSD-3-Clause)
+380. vega (BSD-3-Clause)
+381. verror (MIT)
+382. view-image (MIT)
+383. vscode-ripgrep (MIT)
+384. vue-electron (ISC)
+385. vue-router (MIT)
+386. vue (MIT)
+387. vuex (MIT)
+388. w3c-hr-time (MIT)
+389. webidl-conversions (BSD-2-Clause)
+390. whatwg-encoding (MIT)
+391. whatwg-mimetype (MIT)
+392. whatwg-url (MIT)
+393. which-module (ISC)
+394. which-pm-runs (MIT)
+395. which (ISC)
+396. wide-align (ISC)
+397. windows-release (MIT)
+398. wordwrap (MIT)
+399. wrap-ansi (MIT)
+400. wrappy (ISC)
+401. write-file-atomic (ISC)
+402. ws (MIT)
+403. xml-name-validator (Apache-2.0)
+404. xmlbuilder (MIT)
+405. xtend (MIT)
+406. y18n (ISC)
+407. yargs-parser (ISC)
+408. yargs (MIT)
 
 
 -------------------------------------------------
@@ -782,6 +785,20 @@ THE SOFTWARE.
 
 
 
+# ansi-styles (MIT)
+-------------------------------------------------
+MIT License
+
+Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com)
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+
+
 # anymatch (ISC)
 -------------------------------------------------
 The ISC License
@@ -1082,63 +1099,6 @@ SOFTWARE.
 ## Bugs
 
 See <https://github.com/mcavage/node-assert-plus/issues>.
-
-
-
-# async-each (MIT)
--------------------------------------------------
-# async-each
-
-No-bullshit, ultra-simple, 35-lines-of-code async parallel forEach function for JavaScript.
-
-We don't need junky 30K async libs. Really.
-
-For browsers and node.js.
-
-## Installation
-* Just include async-each before your scripts.
-* `npm install async-each` if you’re using node.js.
-
-## Usage
-
-* `each(array, iterator, callback);` — `Array`, `Function`, `(optional) Function`
-* `iterator(item, next)` receives current item and a callback that will mark the item as done. `next` callback receives optional `error, transformedItem` arguments.
-* `callback(error, transformedArray)` optionally receives first error and transformed result `Array`.
-
-```javascript
-var each = require('async-each');
-each(['a.js', 'b.js', 'c.js'], fs.readFile, function(error, contents) {
-  if (error) console.error(error);
-  console.log('Contents for a, b and c:', contents);
-});
-
-// Alternatively in browser:
-asyncEach(list, fn, callback);
-```
-
-## License
-
-The MIT License (MIT)
-
-Copyright (c) 2016 Paul Miller [(paulmillr.com)](http://paulmillr.com)
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the “Software”), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
 
 
 
@@ -2425,6 +2385,44 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
+
+
+
+# color-convert (MIT)
+-------------------------------------------------
+Copyright (c) 2011-2016 Heather Arthur <fayearthur@gmail.com>
+
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of this software and associated documentation files (the
+"Software"), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
+
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+
+
+# color-name (MIT)
+-------------------------------------------------
+The MIT License (MIT)
+Copyright (c) 2015 Dmitry Ivanov
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
 
@@ -5905,7 +5903,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 # flowchart.js (MIT)
 -------------------------------------------------
-Copyright (c) 2018 Adriano Raiano
+Copyright (c) 2019 Adriano Raiano
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -11755,6 +11753,32 @@ SOFTWARE.
 
 
 
+# typedarray-to-buffer (MIT)
+-------------------------------------------------
+The MIT License (MIT)
+
+Copyright (c) Feross Aboukhadijeh
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+
+
+
 # underscore (MIT)
 -------------------------------------------------
 Copyright (c) 2009-2018 Jeremy Ashkenas, DocumentCloud and Investigative
@@ -13707,27 +13731,15 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 # wrap-ansi (MIT)
 -------------------------------------------------
-The MIT License (MIT)
+MIT License
 
 Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com)
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
 
