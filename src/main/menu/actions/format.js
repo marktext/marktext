@@ -24,6 +24,7 @@ const selectFormat = formats => {
 
 export const format = (win, type) => {
   // Fix #961
+  // TODO: This is not the best solution for fix #961, but we don't know how to reproduce this issue.
   if (!win) {
     return
   }
