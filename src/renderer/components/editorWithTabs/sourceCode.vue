@@ -121,6 +121,7 @@ export default {
       const { editor } = this
       editor.on('cursorActivity', cm => {
         const { cursor, markdown } = this.getMarkdownAndCursor(cm)
+        // Attention: the cursor may be `{focus: null, anchor: null}` when press `backspace`
         const wordCount = getWordCount(markdown)
         if (this.commitTimer) clearTimeout(this.commitTimer)
         this.commitTimer = setTimeout(() => {

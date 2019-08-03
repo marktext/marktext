@@ -160,7 +160,7 @@ class Muya {
   setMarkdown (markdown, cursor, isRenderCursor = true) {
     let newMarkdown = markdown
     let isValid = false
-    if (cursor) {
+    if (cursor && cursor.anchor && cursor.focus) {
       const cursorInfo = this.contentState.addCursorToMarkdown(markdown, cursor)
       newMarkdown = cursorInfo.markdown
       isValid = cursorInfo.isValid

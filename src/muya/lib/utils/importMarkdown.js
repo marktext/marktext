@@ -419,6 +419,9 @@ const importRegister = ContentState => {
 
   ContentState.prototype.addCursorToMarkdown = function (markdown, cursor) {
     const { anchor, focus } = cursor
+    if (!anchor || !focus) {
+      return
+    }
     const lines = markdown.split('\n')
     const anchorText = lines[anchor.line]
     const focusText = lines[focus.line]
