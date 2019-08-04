@@ -256,11 +256,14 @@ class ExportMarkdown {
     const { row, column } = table
     const tableData = []
     const tHeader = table.children[0]
-
     const tBody = table.children[1]
-    tableData.push(tHeader.children[0].children.map(th => th.text.trim()))
+    const escapeText = str => {
+      return str.replace(/(?<!\\)\|/g, '\\|')
+    }
+
+    tableData.push(tHeader.children[0].children.map(th => escapeText(th.text).trim()))
     tBody.children.forEach(bodyRow => {
-      tableData.push(bodyRow.children.map(td => td.text.trim()))
+      tableData.push(bodyRow.children.map(td => escapeText(td.text).trim()))
     })
 
     const columnWidth = tHeader.children[0].children.map(th => ({ width: 5, align: th.align }))
