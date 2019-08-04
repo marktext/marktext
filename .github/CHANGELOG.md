@@ -23,7 +23,7 @@
 - Find in files use ripgrep as searcher.
 - You can know automatically save your document after a predefined intervall.
 - feat: support prism language alias (#1031)
-- Allow to set editor line width and window zoom (#1092)
+- Allow to set editor line width ~~and window zoom~~ (disabled due #1225) (#1092)
 - feat: add click delete url to clipboard when upload image to SMMS (#1173)
 
 **:butterfly:Optimization**

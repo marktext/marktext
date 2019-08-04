@@ -1,8 +1,8 @@
 import { autoUpdater } from 'electron-updater'
 import { ipcMain } from 'electron'
 
-let updater
-let win
+let updaterMenuItem = null
+let win = null
 
 autoUpdater.autoDownload = false
 
@@ -15,31 +15,34 @@ autoUpdater.on('error', error => {
 ipcMain.on('AGANI::NEED_UPDATE', (e, { needUpdate }) => {
   if (needUpdate) {
     autoUpdater.downloadUpdate()
-  } else {
-    updater.enabled = true
-    updater = null
+  } else if (updaterMenuItem) {
+    updaterMenuItem.enabled = true
+    updaterMenuItem = null
   }
 })
 
 autoUpdater.on('update-available', () => {
   if (win) {
-    win.webContents.send('AGANI::UPDATE_AVAILABLE', 'Found updates, do you want update now?')
+    win.webContents.send('AGANI::UPDATE_AVAILABLE', 'Found an update, do you want download and install now?')
   }
-  updater.enabled = true
-  updater = null
+  updaterMenuItem.enabled = true
+  updaterMenuItem = null
 })
 
 autoUpdater.on('update-not-available', () => {
   if (win) {
     win.webContents.send('AGANI::UPDATE_NOT_AVAILABLE', 'Current version is up-to-date.')
   }
-  updater.enabled = true
-  updater = null
+  updaterMenuItem.enabled = true
+  updaterMenuItem = null
 })
 
 autoUpdater.on('update-downloaded', () => {
+  // TODO: We should ask the user, so that the user can save all documents and
+  // not just force close the application.
+
   if (win) {
-    win.webContents.send('AGANI::UPDATE_DOWNLOADED', 'Updates downloaded, application will be quit for update...')
+    win.webContents.send('AGANI::UPDATE_DOWNLOADED', 'Update downloaded, application will be quit for update...')
   }
   setImmediate(() => autoUpdater.quitAndInstall())
 })
@@ -49,8 +52,8 @@ export const userSetting = (menuItem, browserWindow) => {
 }
 
 export const checkUpdates = (menuItem, browserWindow) => {
-  updater = menuItem
+  updaterMenuItem = menuItem
+  updaterMenuItem.enabled = false
   win = browserWindow
-  updater.enabled = false
   autoUpdater.checkForUpdates()
 }
