@@ -37,7 +37,7 @@
   </a>
   <!-- Downloads latest release -->
   <a href="https://github.com/marktext/marktext/releases/latest">
-    <img src="https://img.shields.io/github/downloads/marktext/marktext/v0.14.0/total.svg" alt="latest download">
+    <img src="https://img.shields.io/github/downloads/marktext/marktext/v0.15.0/total.svg" alt="latest download">
   </a>
   <!-- sponsors -->
   <a href="https://opencollective.com/marktext">
@@ -121,8 +121,6 @@ Sponsored by Patreon, it will be directly sponsored to Luo Ran (@jocs), who crea
 
 **Platinum Sponsors**
 
-<a href="https://readme.io" target="_blank"><img src="docs/sponsor/readme.png" /></a>
-<a href="https://qordoba.com" target="_blank"><img src="docs/sponsor/qordoba.png" /></a>
 <a href="https://opencollective.com/marktext#platinum-sponsors">
  <img src="https://opencollective.com/marktext/tiers/platinum-sponsors.svg?avatarHeight=36&width=600">
 </a>
@@ -193,7 +191,7 @@ Sponsored by Patreon, it will be directly sponsored to Luo Ran (@jocs), who crea
 
 | ![](https://raw.githubusercontent.com/wiki/ryanoasis/nerd-fonts/screenshots/v1.0.x/mac-pass-sm.png)                                                                                                  | ![](https://raw.githubusercontent.com/wiki/ryanoasis/nerd-fonts/screenshots/v1.0.x/windows-pass-sm.png)                                                                                                          | ![](https://raw.githubusercontent.com/wiki/ryanoasis/nerd-fonts/screenshots/v1.0.x/linux-pass-sm.png)                                                                                                                        |
 |:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
-| [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-0.14.0.dmg.svg)](https://github.com/marktext/marktext/releases/download/v0.14.0/marktext-0.14.0.dmg) | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-setup-0.14.0.exe.svg)](https://github.com/marktext/marktext/releases/download/v0.14.0/marktext-setup-0.14.0.exe) | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-0.14.0-x86_64.AppImage.svg)](https://github.com/marktext/marktext/releases/download/v0.14.0/marktext-0.14.0-x86_64.AppImage) |
+| [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-0.15.0.dmg.svg)](https://github.com/marktext/marktext/releases/download/v0.15.0/marktext-0.15.0.dmg) | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-setup-0.15.0.exe.svg)](https://github.com/marktext/marktext/releases/download/v0.15.0/marktext-setup-0.15.0.exe) | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-0.15.0-x86_64.AppImage.svg)](https://github.com/marktext/marktext/releases/download/v0.15.0/marktext-0.15.0-x86_64.AppImage) |
 
 Want to see new features of the latest version? Please refer to [CHANGELOG](.github/CHANGELOG.md).
 
