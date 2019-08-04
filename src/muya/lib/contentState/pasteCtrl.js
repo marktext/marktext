@@ -479,6 +479,9 @@ const pasteCtrl = ContentState => {
     }
     this.checkInlineUpdate(cursorBlock)
     this.partialRender()
+    this.muya.dispatchSelectionChange()
+    this.muya.dispatchSelectionFormats()
+    return this.muya.dispatchChange()
   }
 }
 
