@@ -54,6 +54,13 @@ const pasteCtrl = ContentState => {
   }
 
   ContentState.prototype.standardizeHTML = function (html) {
+    // Only extract the `body.innerHTML` when the `html` is a full HTML Document.
+    if (/<body>[\s\S]*<\/body>/.test(html)) {
+      const match = /<body>([\s\S]*)<\/body>/.exec(html)
+      if (match && typeof match[1] === 'string') {
+        html = match[1]
+      }
+    }
     const sanitizedHtml = sanitize(html, PREVIEW_DOMPURIFY_CONFIG)
     const tempWrapper = document.createElement('div')
     tempWrapper.innerHTML = sanitizedHtml
