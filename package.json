@@ -36,6 +36,9 @@
     "productName": "Mark Text",
     "appId": "com.github.marktext.marktext",
     "asar": true,
+    "asarUnpack": [
+      "**/*.node"
+    ],
     "directories": {
       "output": "build"
     },
