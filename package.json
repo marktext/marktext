@@ -35,6 +35,7 @@
   "build": {
     "productName": "Mark Text",
     "appId": "com.github.marktext.marktext",
+    "artifactName": "marktext-${version}-${arch}.${ext}",
     "asar": true,
     "directories": {
       "output": "build"
@@ -120,7 +121,6 @@
         "StartupWMClass": "marktext",
         "Keywords": "marktext;"
       },
-      "artifactName": "marktext-${version}-${arch}.${ext}",
       "target": [
         {
           "target": "AppImage"
