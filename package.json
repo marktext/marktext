@@ -35,7 +35,6 @@
   "build": {
     "productName": "Mark Text",
     "appId": "com.github.marktext.marktext",
-    "artifactName": "marktext-${version}-${arch}.${ext}",
     "asar": true,
     "directories": {
       "output": "build"
@@ -67,6 +66,7 @@
       }
     ],
     "dmg": {
+      "artifactName": "marktext-${version}.${ext}",
       "contents": [
         {
           "x": 410,
@@ -82,10 +82,12 @@
       ]
     },
     "mac": {
+      "artifactName": "marktext-${version}-mac.${ext}",
       "icon": "resources/icons/icon.icns",
       "darkModeSupport": true
     },
     "win": {
+      "artifactName": "marktext-${version}-${arch}-win.${ext}",
       "icon": "resources/icons/icon.ico",
       "target": [
         {
@@ -113,6 +115,7 @@
       "include": "resources/windows/installer.nsh"
     },
     "linux": {
+      "artifactName": "marktext-${version}-${arch}.${ext}",
       "category": "Office;TextEditor;Utility",
       "mimeTypes": [
         "text/markdown"
