@@ -106,6 +106,7 @@
       "requestedExecutionLevel": "asInvoker"
     },
     "nsis": {
+      "artifactName": "marktext-setup-${version}.${ext}",
       "perMachine": false,
       "oneClick": false,
       "allowToChangeInstallationDirectory": true,
