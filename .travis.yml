@@ -18,7 +18,9 @@ cache:
   directories:
   - node_modules
   - "$HOME/.electron"
-  - "$HOME/.cache"
+  - "$HOME/.cache/electron"
+  - "$HOME/.cache/electron-builder"
+  - "$HOME/.cache/yarn"
 
 addons:
   apt:
@@ -48,7 +50,11 @@ install:
   - npm --version
   - yarn --version
 
-  - yarn install --frozen-lockfile
+  # Fix cache between Linux and macOS build workers.
+  # - yarn cache clean vscode-ripgrep
+  - rm -rf node_modules/vscode-ripgrep
+
+  - yarn install --check-files --frozen-lockfile
 
 script:
   - yarn run lint
