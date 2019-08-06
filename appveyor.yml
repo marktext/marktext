@@ -47,8 +47,8 @@ build_script:
   - yarn run release:win
 
   # calculate checksums
-  - ps: get-filehash -Algorithm SHA256 "build\Mark Text *.exe"
-  - ps: get-filehash -Algorithm SHA256 "build\Mark Text-*-win.zip"
+  - ps: get-filehash -Algorithm SHA256 "build\marktext-*.exe"
+  - ps: get-filehash -Algorithm SHA256 "build\marktext-*-win.zip"
 
 test: off
 # test_script:
