@@ -28,9 +28,6 @@ export default function image (h, cursor, block, token, outerClass) {
   const data = {
     dataset: {
       raw: token.raw
-    },
-    attrs: {
-      contenteditable: 'true'
     }
   }
   let id
@@ -55,11 +52,7 @@ export default function image (h, cursor, block, token, outerClass) {
     renderIcon(h, 'ag-image-icon-delete', DeleteIcon)
   ]
   const renderImageContainer = (...args) => {
-    return h(`span.${CLASS_OR_ID['AG_IMAGE_CONTAINER']}`, {
-      attrs: {
-        contenteditable: 'true'
-      }
-    }, args)
+    return h(`span.${CLASS_OR_ID['AG_IMAGE_CONTAINER']}`, {}, args)
   }
 
   // the src image is still loading, so use the url Map base64.
