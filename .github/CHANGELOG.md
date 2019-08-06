@@ -1,4 +1,4 @@
-## [unrelease]
+## 0.15.0
 
 **:warning:Breaking Changes:**
 
@@ -74,7 +74,7 @@
 - Environment variable `MARKTEXT_IS_OFFICIAL_RELEASE` is now `MARKTEXT_IS_STABLE`
 - Renamed npm script `build:dir` to `build:bin`
 
-### 0.15.0
+### 0.14.0
 
 This update **fixes a XSS security vulnerability** when exporting a document.
 
