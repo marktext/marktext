@@ -23,7 +23,7 @@
           "useBuiltIns": false,
           "targets": {
             "browsers": [
-              "Chrome >= 66"
+              "Chrome >= 73"
             ]
           }
         }]
