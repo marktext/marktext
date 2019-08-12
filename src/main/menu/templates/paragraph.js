@@ -3,7 +3,7 @@ import * as actions from '../actions/paragraph'
 export default function (keybindings) {
   return {
     id: 'paragraphMenuEntry',
-    label: 'Paragraph',
+    label: '&Paragraph',
     submenu: [{
       id: 'heading1MenuItem',
       label: 'Heading 1',

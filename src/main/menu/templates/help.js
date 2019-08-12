@@ -29,7 +29,7 @@ const isUpdatable = () => {
 
 export default function () {
   const helpMenu = {
-    label: 'Help',
+    label: '&Help',
     role: 'help',
     submenu: [{
       label: 'Learn More',

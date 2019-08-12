@@ -3,7 +3,7 @@ import * as actions from '../actions/view'
 
 export default function (keybindings) {
   const viewMenu = {
-    label: 'View',
+    label: '&View',
     submenu: [{
       id: 'sourceCodeModeMenuItem',
       label: 'Source Code Mode',

@@ -4,7 +4,7 @@ import { isOsx } from '../../config'
 export default function (keybindings, userPreference) {
   const { aidou } = userPreference.getAll()
   return {
-    label: 'Edit',
+    label: '&Edit',
     submenu: [{
       label: 'Undo',
       accelerator: keybindings.getAccelerator('editUndo'),

@@ -3,7 +3,7 @@ import * as actions from '../actions/theme'
 export default function (userPreference) {
   const { theme } = userPreference.getAll()
   return {
-    label: 'Theme',
+    label: '&Theme',
     id: 'themeMenu',
     submenu: [{
       label: 'Cadmium Light',
