@@ -1,49 +1,8 @@
 {
   "comments": false,
-  "env": {
-    "test": {
-      "presets": [
-        ["@babel/preset-env", {
-          "targets": { "node": 10 }
-        }]
-      ],
-      "plugins": ["istanbul"]
-    },
-    "main": {
-      "presets": [
-        ["@babel/preset-env", {
-          "targets": { "node": 10 }
-        }]
-      ]
-    },
-    "renderer": {
-      "presets": [
-        ["@babel/preset-env", {
-          "modules": false,
-          "useBuiltIns": false,
-          "targets": {
-            "browsers": [
-              "Chrome >= 73"
-            ]
-          }
-        }]
-      ]
-    },
-    "web": {
-      "presets": [
-        ["@babel/preset-env", {
-          "modules": false
-        }]
-      ]
-    }
-  },
   "plugins": [["component", {
       "style": false,
       "libraryName": "element-ui"
     }
-  ],
-  "@babel/plugin-proposal-class-properties",
-  "@babel/plugin-proposal-export-default-from",
-  "@babel/plugin-transform-runtime",
-  "@babel/plugin-syntax-class-properties"]
+  ]]
 }
