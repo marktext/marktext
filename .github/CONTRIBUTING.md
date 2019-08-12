@@ -29,7 +29,7 @@ Please search for similar issues before opening an issue and always follow the [
 
 - If fixing a bug:
 
-  - If you are resolving a special issue, add `fix: #xxx[,#xxx]` (`#xxx` is the issue id) in your PR title for a better release log, e.g.`fix: #3899 update entities encoding/decoding`.
+  - If you are resolving a special issue, add `fix: #xxx[,#xxx] <short message>` (`#xxx` is the issue id) in your PR title for a better release log, e.g.`fix: #3899 update entities encoding/decoding`.
   - Update `.github/CHANGELOG.md` for notable changes - like bug fixes and features.
   - Provide detailed description of the bug in your PR and/or link to the issue. You can also include screenshots.
 
@@ -47,6 +47,7 @@ Other ways to help:
 - Translation (*1)
 - Help to answer `more detail` issues or discuss changes and features.
 - Report bugs and feature ideas.
+- Give feedback.
 
 ***1**: More or less blocked until v1.0 release because of early development phase.
 
