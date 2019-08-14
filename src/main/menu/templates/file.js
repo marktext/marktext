@@ -7,7 +7,7 @@ import { isOsx } from '../../config'
 export default function (keybindings, userPreference, recentlyUsedFiles) {
   const { autoSave } = userPreference.getAll()
   const fileMenu = {
-    label: 'File',
+    label: '&File',
     submenu: [{
       label: 'New Tab',
       accelerator: keybindings.getAccelerator('fileNewFile'),
