@@ -285,9 +285,16 @@ class AppMenu {
 
   _appendMiscShortcuts = shortcutMap => {
     shortcutMap.push({
-      accelerator: this._keybindings.getAccelerator('tabsCycle'),
+      accelerator: this._keybindings.getAccelerator('tabsCycleForward'),
       click: (menuItem, win) => {
         win.webContents.send('mt::tabs-cycle-right')
+      },
+      id: null
+    })
+    shortcutMap.push({
+      accelerator: this._keybindings.getAccelerator('tabsCycleBackward'),
+      click: (menuItem, win) => {
+        win.webContents.send('mt::tabs-cycle-left')
       },
       id: null
     })

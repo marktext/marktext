@@ -104,7 +104,8 @@ class Keybindings {
       ['viewDevReload', 'CmdOrCtrl+R'],
 
       // Misc
-      ['tabsCycle', 'CmdOrCtrl+Tab'],
+      ['tabsCycleForward', 'CmdOrCtrl+Tab'],
+      ['tabsCycleBackward', 'CmdOrCtrl+Shift+Tab'],
       ['tabsSwitchToLeft', 'CmdOrCtrl+PageUp'],
       ['tabsSwitchToRight', 'CmdOrCtrl+PageDown']
     ])

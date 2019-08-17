@@ -137,8 +137,9 @@ Here is an example:
 
 **Misc**
 
-| Id                  | Default                                  | Description             |
-| ------------------- | ---------------------------------------- | ----------------------- |
-| `tabsCycle`         | <kbd>CmdOrCtrl</kbd>+<kbd>Tab</kbd>      | Cycle through tabs      |
-| `tabsSwitchToLeft`  | <kbd>CmdOrCtrl</kbd>+<kbd>PageUp</kbd>   | Switch tab to the left  |
-| `tabsSwitchToRight` | <kbd>CmdOrCtrl</kbd>+<kbd>PageDown</kbd> | Switch tab to the right |
+| Id                  | Default                                              | Description                  |
+| ------------------- | ---------------------------------------------------- | ---------------------------- |
+| `tabsCycleForward`  | <kbd>CmdOrCtrl</kbd>+<kbd>Tab</kbd>                  | Cycle through tabs           |
+| `tabsCycleBackward` | <kbd>CmdOrCtrl</kbd>+<kbd>Shift</kbd>+<kbd>Tab</kbd> | Cycle backwards through tabs |
+| `tabsSwitchToLeft`  | <kbd>CmdOrCtrl</kbd>+<kbd>PageUp</kbd>               | Switch tab to the left       |
+| `tabsSwitchToRight` | <kbd>CmdOrCtrl</kbd>+<kbd>PageDown</kbd>             | Switch tab to the right      |
