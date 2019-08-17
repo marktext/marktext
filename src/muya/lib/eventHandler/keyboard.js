@@ -63,7 +63,8 @@ class Keyboard {
     const changeHandler = event => {
       if (
         event.type === 'keyup' &&
-        (event.key === EVENT_KEYS.ArrowUp || event.key === EVENT_KEYS.ArrowDown) &&
+        (event.key === EVENT_KEYS.ArrowUp || event.key === EVENT_KEYS.ArrowDown ||
+          event.key === EVENT_KEYS.PageDown || event.key === EVENT_KEYS.PageUp) &&
         this.shownFloat.size > 0
       ) {
         return
@@ -115,6 +116,13 @@ class Keyboard {
         case EVENT_KEYS.Backspace: {
           return contentState.docBackspaceHandler(event)
         }
+        case EVENT_KEYS.PageDown:
+        case EVENT_KEYS.PageUp: {
+          // Page down/up is disabled due GH#655. I guess we need a controller like the arrow one.
+          event.preventDefault()
+          event.stopPropagation()
+          return
+        }
         case EVENT_KEYS.ArrowUp: // fallthrough
         case EVENT_KEYS.ArrowDown: // fallthrough
         case EVENT_KEYS.ArrowLeft: // fallthrough
@@ -134,7 +142,9 @@ class Keyboard {
           event.key === EVENT_KEYS.Escape ||
           event.key === EVENT_KEYS.Tab ||
           event.key === EVENT_KEYS.ArrowUp ||
-          event.key === EVENT_KEYS.ArrowDown
+          event.key === EVENT_KEYS.ArrowDown ||
+          event.key === EVENT_KEYS.PageDown ||
+          event.key === EVENT_KEYS.PageUp
         )
       ) {
         let needPreventDefault = false
@@ -160,34 +170,47 @@ class Keyboard {
         return
       }
       switch (event.key) {
-        case EVENT_KEYS.Backspace:
+        case EVENT_KEYS.Backspace: {
           contentState.backspaceHandler(event)
           break
-        case EVENT_KEYS.Delete:
+        }
+        case EVENT_KEYS.Delete: {
           contentState.deleteHandler(event)
           break
-        case EVENT_KEYS.Enter:
+        }
+        case EVENT_KEYS.Enter: {
           if (!this.isComposed) {
             contentState.enterHandler(event)
             this.muya.dispatchChange()
           }
           break
-        case 'a':
+        }
+        case 'a': {
           if (event.ctrlKey) {
             contentState.tableCellHandler(event)
           }
           break
+        }
+        case EVENT_KEYS.PageDown:
+        case EVENT_KEYS.PageUp: {
+          // Page down/up is disabled due GH#655. I guess we need a controller like the arrow one.
+          event.preventDefault()
+          event.stopPropagation()
+          break
+        }
         case EVENT_KEYS.ArrowUp: // fallthrough
         case EVENT_KEYS.ArrowDown: // fallthrough
         case EVENT_KEYS.ArrowLeft: // fallthrough
-        case EVENT_KEYS.ArrowRight: // fallthrough
+        case EVENT_KEYS.ArrowRight: {
           if (!this.isComposed) {
             contentState.arrowHandler(event)
           }
           break
-        case EVENT_KEYS.Tab:
+        }
+        case EVENT_KEYS.Tab: {
           contentState.tabHandler(event)
           break
+        }
         default:
           break
       }
@@ -238,6 +261,8 @@ class Keyboard {
         event.key !== EVENT_KEYS.Enter &&
         event.key !== EVENT_KEYS.ArrowDown &&
         event.key !== EVENT_KEYS.ArrowUp &&
+        event.key !== EVENT_KEYS.PageDown &&
+        event.key !== EVENT_KEYS.PageUp &&
         event.key !== EVENT_KEYS.Tab &&
         event.key !== EVENT_KEYS.Escape
       ) {
