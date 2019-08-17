@@ -18,6 +18,7 @@
           :key="file.id"
           :data-id="file.id"
           @click.stop="selectFile(file)"
+          @click.middle="closeTab(file)"
         >
           <span>{{ file.filename }}</span>
           <svg class="close-icon icon" aria-hidden="true"
@@ -76,6 +77,11 @@ export default {
       const tabs = this.$refs.tabContainer
       const newLeft = Math.max(0, Math.min(tabs.scrollLeft + delta, tabs.scrollWidth))
       tabs.scrollLeft = newLeft
+    },
+    closeTab (tab) {
+      if (tab.id) {
+        this.$store.dispatch('CLOSE_TAB', tab)
+      }
     }
   },
   mounted () {
