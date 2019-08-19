@@ -7,9 +7,12 @@ export const getUniqueId = () => {
   return `${ID_PREFIX}${id++}`
 }
 
-// TODO: We should map all heading into the MarkdownDocument.
+// TODO: Remove this function and load the recommend title from the editor (renderer) when
+// requesting the document to save/export.
 export const getRecommendTitleFromMarkdownString = markdown => {
-  const tokens = markdown.match(/#{1,6} {1,}(.+)(?:\n|$)/g)
+  // NOTE: We should read the title from the renderer cache because this regex matches in
+  // code blocks too.
+  const tokens = markdown.match(/#{1,6} {1,}(.*\S.*)(?:\n|$)/g)
   if (!tokens) return ''
   const headers = tokens.map(t => {
     const matches = t.trim().match(/(#{1,6}) {1,}(.+)/)
