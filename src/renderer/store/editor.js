@@ -544,6 +544,15 @@ const actions = {
     })
   },
 
+  LISTEN_FOR_TAB_CYCLE ({ commit, state, dispatch }) {
+    ipcRenderer.on('mt::tabs-cycle-left', e => {
+      dispatch('CYCLE_TABS', false)
+    })
+    ipcRenderer.on('mt::tabs-cycle-right', e => {
+      dispatch('CYCLE_TABS', true)
+    })
+  },
+
   CLOSE_TAB ({ dispatch }, file) {
     const { isSaved } = file
     if (isSaved) {
@@ -551,6 +560,36 @@ const actions = {
     } else {
       dispatch('CLOSE_UNSAVED_TAB', file)
     }
+  },
+
+  // Direction is a boolean where false is left and true right.
+  CYCLE_TABS ({ commit, state }, direction) {
+    const { tabs, currentFile } = state
+    if (tabs.length <= 1) {
+      return
+    }
+
+    const currentIndex = tabs.findIndex(t => t.id === currentFile.id)
+    if (currentIndex === -1) {
+      console.error('CYCLE_TABS: Cannot find current tab index.')
+      return
+    }
+
+    let nextTabIndex = 0
+    if (!direction) {
+      // Switch tab to the left.
+      nextTabIndex = currentIndex === 0 ? tabs.length - 1 : currentIndex - 1
+    } else {
+      // Switch tab to the right.
+      nextTabIndex = (currentIndex + 1) % tabs.length
+    }
+
+    const nextTab = tabs[nextTabIndex]
+    if (!nextTab || !nextTab.id) {
+      console.error(`CYCLE_TABS: Cannot find next tab (index="${nextTabIndex}").`)
+      return
+    }
+    commit('SET_CURRENT_FILE', nextTab)
   },
 
   /**

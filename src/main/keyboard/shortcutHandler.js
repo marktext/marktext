@@ -21,11 +21,11 @@ class Keybindings {
     this.configPath = path.join(userDataPath, 'keybindings.json')
 
     this.keys = new Map([
-      // marktext - macOS only
+      // Mark Text - macOS only
       ['mtHide', 'Command+H'],
       ['mtHideOthers', 'Command+Alt+H'],
 
-      // file menu
+      // File menu
       ['fileNewFile', 'CmdOrCtrl+N'],
       ['fileNewTab', 'CmdOrCtrl+Shift+T'],
       ['fileOpenFile', 'CmdOrCtrl+O'],
@@ -38,7 +38,7 @@ class Keybindings {
       ['fileCloseWindow', 'CmdOrCtrl+Shift+W'],
       ['fileQuit', 'CmdOrCtrl+Q'],
 
-      // edit menu
+      // Edit menu
       ['editUndo', 'CmdOrCtrl+Z'],
       ['editRedo', 'CmdOrCtrl+Shift+Z'],
       ['editCut', 'CmdOrCtrl+X'],
@@ -57,7 +57,7 @@ class Keybindings {
       ['editAidou', 'CmdOrCtrl+/'],
       ['editScreenshot', 'CmdOrCtrl+Alt+A'],
 
-      // paragraph menu
+      // Paragraph menu
       ['paragraphHeading1', 'CmdOrCtrl+1'],
       ['paragraphHeading2', 'CmdOrCtrl+2'],
       ['paragraphHeading3', 'CmdOrCtrl+3'],
@@ -79,7 +79,7 @@ class Keybindings {
       ['paragraphHorizontalLine', 'CmdOrCtrl+Alt+-'],
       ['paragraphYAMLFrontMatter', 'CmdOrCtrl+Alt+Y'],
 
-      // format menu
+      // Format menu
       ['formatStrong', 'CmdOrCtrl+B'],
       ['formatEmphasis', 'CmdOrCtrl+I'],
       ['formatUnderline', 'CmdOrCtrl+U'],
@@ -90,10 +90,10 @@ class Keybindings {
       ['formatImage', 'CmdOrCtrl+Shift+I'],
       ['formatClearFormat', 'Shift+CmdOrCtrl+R'],
 
-      // window menu
+      // Window menu
       ['windowMinimize', 'CmdOrCtrl+M'],
 
-      // view menu
+      // View menu
       ['viewToggleFullScreen', isOsx ? 'Ctrl+Command+F' : 'F11'],
       ['viewSourceCodeMode', 'CmdOrCtrl+Alt+S'],
       ['viewTypewriterMode', 'CmdOrCtrl+Alt+T'],
@@ -101,7 +101,13 @@ class Keybindings {
       ['viewToggleSideBar', 'CmdOrCtrl+J'],
       ['viewToggleTabBar', 'CmdOrCtrl+Alt+B'],
       ['viewDevToggleDeveloperTools', 'CmdOrCtrl+Alt+I'],
-      ['viewDevReload', 'CmdOrCtrl+R']
+      ['viewDevReload', 'CmdOrCtrl+R'],
+
+      // Misc
+      ['tabsCycleForward', 'CmdOrCtrl+Tab'],
+      ['tabsCycleBackward', 'CmdOrCtrl+Shift+Tab'],
+      ['tabsSwitchToLeft', 'CmdOrCtrl+PageUp'],
+      ['tabsSwitchToRight', 'CmdOrCtrl+PageDown']
     ])
 
     // fix non-US keyboards
