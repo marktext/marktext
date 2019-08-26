@@ -1,8 +1,0 @@
-{
-  "comments": false,
-  "plugins": [["component", {
-      "style": false,
-      "libraryName": "element-ui"
-    }
-  ]]
-}

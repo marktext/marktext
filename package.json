@@ -197,7 +197,7 @@
     "katex": "^0.10.2",
     "keyboard-layout": "^2.0.16",
     "keytar": "^4.12.0",
-    "mermaid": "^8.0.0",
+    "mermaid": "^8.2.4",
     "plist": "^3.0.1",
     "popper.js": "^1.15.0",
     "prismjs": "^1.17.1",
