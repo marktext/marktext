@@ -83,7 +83,7 @@ export default function renderContainerBlock (block, activeBlocks, matches, useC
     Object.assign(data.dataset, { role: functionType })
     selector += PRE_BLOCK_HASH[block.functionType]
 
-    if (/html|multiplemath|mermaid|flowchart|wega-lite|sequence/.test(functionType)) {
+    if (/html|multiplemath|mermaid|flowchart|vega-lite|sequence/.test(functionType)) {
       const codeBlock = block.children[0]
       const code = codeBlock.children.map(line => line.text).join('\n')
       this.codeCache.set(block.key, code)
