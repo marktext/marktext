@@ -66,6 +66,8 @@ const pasteCtrl = ContentState => {
     tempWrapper.innerHTML = sanitizedHtml
     // special process for Number app in macOs
     const tables = Array.from(tempWrapper.querySelectorAll('table'))
+    const links = Array.from(tempWrapper.querySelectorAll('a'))
+
     for (const table of tables) {
       const row = table.querySelector('tr')
       if (row.firstElementChild.tagName !== 'TH') {
@@ -88,6 +90,18 @@ const pasteCtrl = ContentState => {
         if (/<br>/.test(rawHtml)) {
           td.innerHTML = rawHtml.replace(/<br>/g, '&lt;br&gt;')
         }
+      }
+    }
+
+    // Prevent it parse into a link if copy a url.
+    for (const link of links) {
+      const href = link.getAttribute('href')
+      const text = link.textContent
+
+      if (href === text) {
+        const span = document.createElement('span')
+        span.innerHTML = text
+        link.replaceWith(span)
       }
     }
 
