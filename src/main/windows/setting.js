@@ -43,7 +43,6 @@ class SettingWindow extends BaseWindow {
     appMenu.addSettingMenu(win)
 
     win.once('ready-to-show', () => {
-      win.show()
       this.lifecycle = WindowLifecycle.READY
       this.emit('window-ready')
     })

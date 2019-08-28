@@ -47,6 +47,7 @@ import AboutDialog from '@/components/about'
 import Rename from '@/components/rename'
 import Tweet from '@/components/tweet'
 import ImportModal from '@/components/import'
+import { loadingPageMixins } from '@/mixins'
 import { mapState } from 'vuex'
 import bus from '@/bus'
 import { DEFAULT_STYLE } from '@/config'
@@ -64,6 +65,7 @@ export default {
     Tweet,
     ImportModal
   },
+  mixins: [loadingPageMixins],
   data () {
     return {
     }
@@ -176,6 +178,7 @@ export default {
     this.$nextTick(() => {
       const style = global.marktext.initialState || DEFAULT_STYLE
       addStyles(style)
+      this.hideLoadingPage()
     })
   }
 }

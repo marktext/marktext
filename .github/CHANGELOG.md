@@ -1,3 +1,13 @@
+## [unrelease]
+
+**:cactus:Feature**
+
+**:butterfly:Optimization**
+
+- Add loading page when init app
+
+**:beetle:Bug fix**
+
 ## 0.15.0
 
 **:warning:Breaking Changes:**

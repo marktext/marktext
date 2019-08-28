@@ -20,6 +20,17 @@ export const tabsMixins = {
   }
 }
 
+export const loadingPageMixins = {
+  methods: {
+    hideLoadingPage () {
+      const loadingPage = document.querySelector('#loading-page')
+      if (loadingPage) {
+        loadingPage.remove()
+      }
+    }
+  }
+}
+
 export const fileMixins = {
   methods: {
     handleSearchResultClick (searchMatch) {
