@@ -3,7 +3,7 @@ import * as actions from '../actions/format'
 export default function (keybindings) {
   return {
     id: 'formatMenuItem',
-    label: 'Format',
+    label: 'F&ormat',
     submenu: [{
       id: 'strongMenuItem',
       label: 'Strong',

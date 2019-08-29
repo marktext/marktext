@@ -164,7 +164,7 @@ class AppMenu {
     }
   }
 
-  buildEditorMenu (createShortcutMap, recentUsedDocuments) {
+  buildEditorMenu (createShortcutMap, recentUsedDocuments = null) {
     if (!recentUsedDocuments) {
       recentUsedDocuments = this.getRecentlyUsedDocuments()
     }
@@ -175,6 +175,7 @@ class AppMenu {
     let shortcutMap = null
     if (createShortcutMap) {
       shortcutMap = parseMenu(menuTemplate)
+      this._appendMiscShortcuts(shortcutMap)
     }
 
     return {
@@ -279,6 +280,37 @@ class AppMenu {
         return
       }
       aidouMenu.visible = bool
+    })
+  }
+
+  _appendMiscShortcuts = shortcutMap => {
+    shortcutMap.push({
+      accelerator: this._keybindings.getAccelerator('tabsCycleForward'),
+      click: (menuItem, win) => {
+        win.webContents.send('mt::tabs-cycle-right')
+      },
+      id: null
+    })
+    shortcutMap.push({
+      accelerator: this._keybindings.getAccelerator('tabsCycleBackward'),
+      click: (menuItem, win) => {
+        win.webContents.send('mt::tabs-cycle-left')
+      },
+      id: null
+    })
+    shortcutMap.push({
+      accelerator: this._keybindings.getAccelerator('tabsSwitchToLeft'),
+      click: (menuItem, win) => {
+        win.webContents.send('mt::tabs-cycle-left')
+      },
+      id: null
+    })
+    shortcutMap.push({
+      accelerator: this._keybindings.getAccelerator('tabsSwitchToRight'),
+      click: (menuItem, win) => {
+        win.webContents.send('mt::tabs-cycle-right')
+      },
+      id: null
     })
   }
 

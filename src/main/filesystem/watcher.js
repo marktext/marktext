@@ -320,8 +320,7 @@ class Watcher {
     if (type === 'file') {
       const { _ignoreChangeEvents } = this
       const currentTime = new Date()
-      const len = _ignoreChangeEvents.length
-      for (let i = 0; i < len; ++i) {
+      for (let i = 0; i < _ignoreChangeEvents.length; ++i) {
         const { windowId, pathname: pathToIgnore, start, duration } = _ignoreChangeEvents[i]
         if (windowId === winId && pathToIgnore === pathname) {
           _ignoreChangeEvents.splice(i, 1)

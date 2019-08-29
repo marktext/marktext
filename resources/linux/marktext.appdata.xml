@@ -1,92 +1,92 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <component type="desktop">
-    <id>com.github.marktext.marktext</id>
-    <metadata_license>CC0-1.0</metadata_license>
-    <project_license>MIT</project_license>
-    <name>Mark Text</name>
-    <summary>Next generation markdown editor</summary>
-    <description>
-        <p>
-            Mark Text is a free and open-source realtime preview markdown editor which support both CommonMark Spec and GitHub Flavored Markdown Spec. It is a concise text editor, dedicated to improving your writing efficiency.
-        </p>
-        <p>Features:</p>
-        <ul>
-            <li>Realtime preview (WYSIWYG) and a clean and simple interface to get a distraction-free writing experience</li>
-            <li>GitHub Flavored Markdown like task-lists, tables, links and emojis</li>
-            <li>Markdown extensions such as math expressions (KaTeX) and front matter</li>
-            <li>Code fence for all the popular languages</li>
-            <li>Support paragraphs and inline style shortcuts to improve your writing efficiency</li>
-            <li>Various edit modes and themes: source code mode, typewriter mode, focus mode</li>
-    ​    </ul>
-    </description>
-    <url type="homepage">https://marktext.github.io/website/</url>
-    <url type="bugtracker">https://github.com/marktext/marktext/issues</url>
-    <screenshots>
-        <screenshot type="default">
-            <caption>Light theme</caption>
-            <image>https://raw.githubusercontent.com/marktext/marktext/master/resources/linux/img/img1.png</image>
-        </screenshot>
-        <screenshot>
-            <caption>Sidebar</caption>
-            <image>https://raw.githubusercontent.com/marktext/marktext/master/resources/linux/img/img2.png</image>
-        </screenshot>
-        <screenshot>
-            <caption>Image and math equations</caption>
-            <image>https://raw.githubusercontent.com/marktext/marktext/master/resources/linux/img/img3.png</image>
-        </screenshot>
-        <screenshot>
-            <caption>Dark theme</caption>
-            <image>https://raw.githubusercontent.com/marktext/marktext/master/resources/linux/img/img4.png</image>
-        </screenshot>
-        <screenshot>
-            <caption>Sidebar and tabs</caption>
-            <image>https://raw.githubusercontent.com/marktext/marktext/master/resources/linux/img/img5.png</image>
-        </screenshot>
-        <screenshot>
-            <caption>Source code mode</caption>
-            <image>https://raw.githubusercontent.com/marktext/marktext/master/resources/linux/img/img6.png</image>
-        </screenshot>
-    </screenshots>
-    <categories>
-        <category>Utility</category>
-        <category>TextEditor</category>
-    </categories>
-    <content_rating type="oars-1.1">
-        <content_attribute id="violence-cartoon">none</content_attribute>
-        <content_attribute id="violence-fantasy">none</content_attribute>
-        <content_attribute id="violence-realistic">none</content_attribute>
-        <content_attribute id="violence-bloodshed">none</content_attribute>
-        <content_attribute id="violence-sexual">none</content_attribute>
-        <content_attribute id="violence-desecration">none</content_attribute>
-        <content_attribute id="violence-slavery">none</content_attribute>
-        <content_attribute id="violence-worship">none</content_attribute>
-        <content_attribute id="drugs-alcohol">none</content_attribute>
-        <content_attribute id="drugs-narcotics">none</content_attribute>
-        <content_attribute id="drugs-tobacco">none</content_attribute>
-        <content_attribute id="sex-nudity">none</content_attribute>
-        <content_attribute id="sex-themes">none</content_attribute>
-        <content_attribute id="sex-homosexuality">none</content_attribute>
-        <content_attribute id="sex-prostitution">none</content_attribute>
-        <content_attribute id="sex-adultery">none</content_attribute>
-        <content_attribute id="sex-appearance">none</content_attribute>
-        <content_attribute id="language-profanity">none</content_attribute>
-        <content_attribute id="language-humor">none</content_attribute>
-        <content_attribute id="language-discrimination">none</content_attribute>
-        <content_attribute id="social-chat">none</content_attribute>
-        <content_attribute id="social-info">none</content_attribute>
-        <content_attribute id="social-audio">none</content_attribute>
-        <content_attribute id="social-location">none</content_attribute>
-        <content_attribute id="social-contacts">none</content_attribute>
-        <content_attribute id="money-purchasing">none</content_attribute>
-        <content_attribute id="money-gambling">none</content_attribute>
-    </content_rating>
-    <releases>
-        <release version="0.15.0" date="2019-08-06"/>
-        <release version="0.14.0" date="2019-04-12"/>
-        <release version="0.13.65" date="2018-11-21"/>
-        <release version="0.13.53" date="2018-10-28"/>
-        <release version="0.12.25" date="2018-06-19"/>
-        <release version="0.12.20" date="2018-06-17"/>
-        <release version="0.11.42" date="2018-05-29"/>
-    </releases>
+  <id>com.github.marktext.marktext</id>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>MIT</project_license>
+  <name>Mark Text</name>
+  <summary>Next generation markdown editor</summary>
+  <description>
+    <p>
+      Mark Text is a free and open-source realtime preview markdown editor which support both CommonMark Spec and GitHub Flavored Markdown Spec. It is a concise text editor, dedicated to improving your writing efficiency.
+    </p>
+    <p>Features:</p>
+    <ul>
+      <li>Realtime preview (WYSIWYG) and a clean and simple interface to get a distraction-free writing experience</li>
+      <li>GitHub Flavored Markdown like task-lists, tables, links and emojis</li>
+      <li>Markdown extensions such as math expressions (KaTeX) and front matter</li>
+      <li>Code fence for all the popular languages</li>
+      <li>Support paragraphs and inline style shortcuts to improve your writing efficiency</li>
+      <li>Various edit modes and themes: source code mode, typewriter mode, focus mode</li>
+    </ul>
+  </description>
+  <url type="homepage">https://marktext.app/</url>
+  <url type="bugtracker">https://github.com/marktext/marktext/issues</url>
+  <screenshots>
+    <screenshot type="default">
+      <caption>Light theme</caption>
+      <image>https://raw.githubusercontent.com/marktext/marktext/master/resources/linux/img/img1.png</image>
+    </screenshot>
+    <screenshot>
+      <caption>Sidebar</caption>
+      <image>https://raw.githubusercontent.com/marktext/marktext/master/resources/linux/img/img2.png</image>
+    </screenshot>
+    <screenshot>
+      <caption>Image and math equations</caption>
+      <image>https://raw.githubusercontent.com/marktext/marktext/master/resources/linux/img/img3.png</image>
+    </screenshot>
+    <screenshot>
+      <caption>Dark theme</caption>
+      <image>https://raw.githubusercontent.com/marktext/marktext/master/resources/linux/img/img4.png</image>
+    </screenshot>
+    <screenshot>
+      <caption>Sidebar and tabs</caption>
+      <image>https://raw.githubusercontent.com/marktext/marktext/master/resources/linux/img/img5.png</image>
+    </screenshot>
+    <screenshot>
+      <caption>Source code mode</caption>
+      <image>https://raw.githubusercontent.com/marktext/marktext/master/resources/linux/img/img6.png</image>
+    </screenshot>
+  </screenshots>
+  <categories>
+    <category>Utility</category>
+    <category>TextEditor</category>
+  </categories>
+  <content_rating type="oars-1.1">
+    <content_attribute id="violence-cartoon">none</content_attribute>
+    <content_attribute id="violence-fantasy">none</content_attribute>
+    <content_attribute id="violence-realistic">none</content_attribute>
+    <content_attribute id="violence-bloodshed">none</content_attribute>
+    <content_attribute id="violence-sexual">none</content_attribute>
+    <content_attribute id="violence-desecration">none</content_attribute>
+    <content_attribute id="violence-slavery">none</content_attribute>
+    <content_attribute id="violence-worship">none</content_attribute>
+    <content_attribute id="drugs-alcohol">none</content_attribute>
+    <content_attribute id="drugs-narcotics">none</content_attribute>
+    <content_attribute id="drugs-tobacco">none</content_attribute>
+    <content_attribute id="sex-nudity">none</content_attribute>
+    <content_attribute id="sex-themes">none</content_attribute>
+    <content_attribute id="sex-homosexuality">none</content_attribute>
+    <content_attribute id="sex-prostitution">none</content_attribute>
+    <content_attribute id="sex-adultery">none</content_attribute>
+    <content_attribute id="sex-appearance">none</content_attribute>
+    <content_attribute id="language-profanity">none</content_attribute>
+    <content_attribute id="language-humor">none</content_attribute>
+    <content_attribute id="language-discrimination">none</content_attribute>
+    <content_attribute id="social-chat">none</content_attribute>
+    <content_attribute id="social-info">none</content_attribute>
+    <content_attribute id="social-audio">none</content_attribute>
+    <content_attribute id="social-location">none</content_attribute>
+    <content_attribute id="social-contacts">none</content_attribute>
+    <content_attribute id="money-purchasing">none</content_attribute>
+    <content_attribute id="money-gambling">none</content_attribute>
+  </content_rating>
+  <releases>
+    <release date="2019-08-06" version="0.15.0"/>
+    <release date="2019-04-12" version="0.14.0"/>
+    <release date="2018-11-21" version="0.13.65"/>
+    <release date="2018-10-28" version="0.13.53"/>
+    <release date="2018-06-19" version="0.12.25"/>
+    <release date="2018-06-17" version="0.12.20"/>
+    <release date="2018-05-29" version="0.11.42"/>
+  </releases>
 </component>
