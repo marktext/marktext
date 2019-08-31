@@ -139,7 +139,7 @@ export default {
         })
       }
       new Notification('Save Image Uploader', {
-        body: `The Github configration has been saved.`
+        body: 'The Github configration has been saved.'
       })
     },
     setCurrentUploader (value) {

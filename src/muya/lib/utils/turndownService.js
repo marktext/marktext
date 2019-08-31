@@ -31,7 +31,7 @@ export const usePluginAddRules = (turndownService, keeps) => {
   turndownService.addRule('codeLineBreak', {
     filter (node, options) {
       return (
-        node.nodeName === 'SPAN' && node.classList.contains(CLASS_OR_ID['AG_CODE_LINE']) && node.nextElementSibling
+        node.nodeName === 'SPAN' && node.classList.contains(CLASS_OR_ID.AG_CODE_LINE) && node.nextElementSibling
       )
     },
     replacement (content, node, options) {

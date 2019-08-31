@@ -45,8 +45,8 @@ export default function loadImageAsync (imageInfo, alt, className, imageClass) {
       .catch(() => {
         const imageText = document.querySelector(`#${id}`)
         if (imageText) {
-          operateClassName(imageText, 'remove', CLASS_OR_ID['AG_IMAGE_LOADING'])
-          operateClassName(imageText, 'add', CLASS_OR_ID['AG_IMAGE_FAIL'])
+          operateClassName(imageText, 'remove', CLASS_OR_ID.AG_IMAGE_LOADING)
+          operateClassName(imageText, 'add', CLASS_OR_ID.AG_IMAGE_FAIL)
           const image = imageText.querySelector('img')
           if (image) {
             image.remove()

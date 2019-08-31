@@ -1,4 +1,4 @@
-import mermaid from 'mermaid'
+import mermaid from 'mermaid/dist/mermaid.core'
 import flowchart from 'flowchart.js'
 import Diagram from './sequence'
 import vegaEmbed from 'vega-embed'
@@ -37,7 +37,7 @@ class StateRender {
       if (children && children.length) {
         children.forEach(c => travel(c))
       } else if (text) {
-        const tokens = beginRules['reference_definition'].exec(text)
+        const tokens = beginRules.reference_definition.exec(text)
         if (tokens) {
           const key = (tokens[2] + tokens[3]).toLowerCase()
           if (!this.labels.has(key)) {
@@ -71,11 +71,11 @@ class StateRender {
   }
 
   getClassName (outerClass, block, token, cursor) {
-    return outerClass || (this.checkConflicted(block, token, cursor) ? CLASS_OR_ID['AG_GRAY'] : CLASS_OR_ID['AG_HIDE'])
+    return outerClass || (this.checkConflicted(block, token, cursor) ? CLASS_OR_ID.AG_GRAY : CLASS_OR_ID.AG_HIDE)
   }
 
   getHighlightClassName (active) {
-    return active ? CLASS_OR_ID['AG_HIGHLIGHT'] : CLASS_OR_ID['AG_SELECTION']
+    return active ? CLASS_OR_ID.AG_HIGHLIGHT : CLASS_OR_ID.AG_SELECTION
   }
 
   getSelector (block, activeBlocks) {
@@ -83,15 +83,15 @@ class StateRender {
     const type = block.type === 'hr' ? 'p' : block.type
     const isActive = activeBlocks.some(b => b.key === block.key) || block.key === cursor.start.key
 
-    let selector = `${type}#${block.key}.${CLASS_OR_ID['AG_PARAGRAPH']}`
+    let selector = `${type}#${block.key}.${CLASS_OR_ID.AG_PARAGRAPH}`
     if (isActive) {
-      selector += `.${CLASS_OR_ID['AG_ACTIVE']}`
+      selector += `.${CLASS_OR_ID.AG_ACTIVE}`
     }
     if (type === 'span') {
       selector += `.ag-${camelToSnake(block.functionType)}`
     }
     if (!block.parent && selectedBlock && block.key === selectedBlock.key) {
-      selector += `.${CLASS_OR_ID['AG_SELECTED']}`
+      selector += `.${CLASS_OR_ID.AG_SELECTED}`
     }
     return selector
   }
@@ -139,7 +139,7 @@ class StateRender {
           }
         } catch (err) {
           target.innerHTML = `< Invalid ${functionType === 'flowchart' ? 'Flow Chart' : 'Sequence'} Codes >`
-          target.classList.add(CLASS_OR_ID['AG_MATH_ERROR'])
+          target.classList.add(CLASS_OR_ID.AG_MATH_ERROR)
         }
       }
       this.diagramCache.clear()
@@ -147,7 +147,7 @@ class StateRender {
   }
 
   render (blocks, activeBlocks, matches) {
-    const selector = `div#${CLASS_OR_ID['AG_EDITOR_ID']}`
+    const selector = `div#${CLASS_OR_ID.AG_EDITOR_ID}`
     const children = blocks.map(block => {
       return this.renderBlock(block, activeBlocks, matches, true)
     })
@@ -173,7 +173,7 @@ class StateRender {
     const needToRemoved = []
     const firstOldDom = startKey
       ? document.querySelector(`#${startKey}`)
-      : document.querySelector(`div#${CLASS_OR_ID['AG_EDITOR_ID']}`).firstElementChild
+      : document.querySelector(`div#${CLASS_OR_ID.AG_EDITOR_ID}`).firstElementChild
     if (!firstOldDom) {
       // TODO@Jocs Just for fix #541, Because I'll rewrite block and render method, it will nolonger have this issue.
       return

@@ -4,7 +4,7 @@ import { snakeToCamel } from '../../../utils'
 // render factory of `del`,`em`,`strong`
 export default function delEmStrongFac (type, h, cursor, block, token, outerClass) {
   const className = this.getClassName(outerClass, block, token, cursor)
-  const COMMON_MARKER = `span.${className}.${CLASS_OR_ID['AG_REMOVE']}`
+  const COMMON_MARKER = `span.${className}.${CLASS_OR_ID.AG_REMOVE}`
   const { marker } = token
   const { start, end } = token.range
   const backlashStart = end - marker.length - token.backlash.length
@@ -20,7 +20,7 @@ export default function delEmStrongFac (type, h, cursor, block, token, outerClas
 
   return [
     h(COMMON_MARKER, startMarker),
-    h(`${type}.${CLASS_OR_ID['AG_INLINE_RULE']}`, content),
+    h(`${type}.${CLASS_OR_ID.AG_INLINE_RULE}`, content),
     h(COMMON_MARKER, endMarker)
   ]
 }

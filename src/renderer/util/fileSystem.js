@@ -88,7 +88,7 @@ export const uploadImage = async (pathname, image, preferences) => {
       // TODO: "res.data.data.delete" should emit "image-uploaded"/handleUploadedImage in editor.js. Maybe add to image manager too.
       // This notification will be removed when the image manager implemented.
       const notice = new Notification('Copy delete URL', {
-        body: `Click to copy the delete URL to clipboard.`
+        body: 'Click to copy the delete URL to clipboard.'
       })
 
       notice.onclick = () => {

@@ -130,7 +130,7 @@ const showUnsavedFilesMessage = (win, files) => {
       buttons: ['Save', 'Cancel', 'Don\'t save'],
       defaultId: 0,
       message: `Do you want to save the changes you made to ${files.length} ${files.length === 1 ? 'file' : 'files'}?\n\n${files.map(f => f.filename).join('\n')}`,
-      detail: `Your changes will be lost if you don't save them.`,
+      detail: 'Your changes will be lost if you don\'t save them.',
       cancelId: 1,
       noLink: true
     }, index => {

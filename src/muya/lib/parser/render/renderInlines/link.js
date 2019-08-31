@@ -4,7 +4,7 @@ import { isLengthEven, snakeToCamel } from '../../../utils'
 // 'link': /^(\[)((?:\[[^\]]*\]|[^\[\]]|\](?=[^\[]*\]))*?)(\\*)\]\((.*?)(\\*)\)/, // can nest
 export default function link (h, cursor, block, token, outerClass) {
   const className = this.getClassName(outerClass, block, token, cursor)
-  const linkClassName = className === CLASS_OR_ID['AG_HIDE'] ? className : CLASS_OR_ID['AG_LINK_IN_BRACKET']
+  const linkClassName = className === CLASS_OR_ID.AG_HIDE ? className : CLASS_OR_ID.AG_LINK_IN_BRACKET
   const { start, end } = token.range
   const firstMiddleBracket = this.highlight(h, block, start, start + 3, token)
 
@@ -35,8 +35,8 @@ export default function link (h, cursor, block, token, outerClass) {
   if (isLengthEven(token.backlash.first) && isLengthEven(token.backlash.second)) {
     if (!token.children.length && !token.backlash.first) { // no-text-link
       return [
-        h(`span.${CLASS_OR_ID['AG_GRAY']}.${CLASS_OR_ID['AG_REMOVE']}`, firstMiddleBracket),
-        h(`a.${CLASS_OR_ID['AG_NOTEXT_LINK']}.${CLASS_OR_ID['AG_INLINE_RULE']}`, {
+        h(`span.${CLASS_OR_ID.AG_GRAY}.${CLASS_OR_ID.AG_REMOVE}`, firstMiddleBracket),
+        h(`a.${CLASS_OR_ID.AG_NOTEXT_LINK}.${CLASS_OR_ID.AG_INLINE_RULE}`, {
           props: {
             href: token.href + encodeURI(token.backlash.second),
             target: '_blank',
@@ -46,12 +46,12 @@ export default function link (h, cursor, block, token, outerClass) {
           ...hrefContent,
           ...this.backlashInToken(h, token.backlash.second, className, secondBacklashStart, token)
         ]),
-        h(`span.${CLASS_OR_ID['AG_GRAY']}.${CLASS_OR_ID['AG_REMOVE']}`, lastBracket)
+        h(`span.${CLASS_OR_ID.AG_GRAY}.${CLASS_OR_ID.AG_REMOVE}`, lastBracket)
       ]
     } else { // has children
       return [
-        h(`span.${className}.${CLASS_OR_ID['AG_REMOVE']}`, firstBracket),
-        h(`a.${CLASS_OR_ID['AG_INLINE_RULE']}`, {
+        h(`span.${className}.${CLASS_OR_ID.AG_REMOVE}`, firstBracket),
+        h(`a.${CLASS_OR_ID.AG_INLINE_RULE}`, {
           props: {
             href: token.href + encodeURI(token.backlash.second),
             target: '_blank',
@@ -64,12 +64,12 @@ export default function link (h, cursor, block, token, outerClass) {
           }, []),
           ...this.backlashInToken(h, token.backlash.first, className, firstBacklashStart, token)
         ]),
-        h(`span.${className}.${CLASS_OR_ID['AG_REMOVE']}`, middleBracket),
-        h(`span.${linkClassName}.${CLASS_OR_ID['AG_REMOVE']}`, [
+        h(`span.${className}.${CLASS_OR_ID.AG_REMOVE}`, middleBracket),
+        h(`span.${linkClassName}.${CLASS_OR_ID.AG_REMOVE}`, [
           ...hrefContent,
           ...this.backlashInToken(h, token.backlash.second, className, secondBacklashStart, token)
         ]),
-        h(`span.${className}.${CLASS_OR_ID['AG_REMOVE']}`, lastBracket)
+        h(`span.${className}.${CLASS_OR_ID.AG_REMOVE}`, lastBracket)
       ]
     }
   } else {

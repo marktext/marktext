@@ -20,7 +20,7 @@ const turnSoftBreakToSpan = html => {
     `<x-mt id="turn-root">${html}</x-mt>`,
     'text/html'
   )
-  const root = doc.querySelector(`#turn-root`)
+  const root = doc.querySelector('#turn-root')
   const travel = childNodes => {
     for (const node of childNodes) {
       if (node.nodeType === 3) {

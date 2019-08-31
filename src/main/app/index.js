@@ -397,7 +397,7 @@ class App {
       if (isOsx) {
         // Use macOs `screencapture` command line when in macOs system.
         const screenshotFileName = await this.getScreenshotFileName()
-        exec(`screencapture -i -c`, async (err) => {
+        exec('screencapture -i -c', async (err) => {
           if (err) {
             log.error(err)
             return

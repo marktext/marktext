@@ -3,8 +3,8 @@ import { snakeToCamel } from '../../../utils'
 
 export default function htmlTag (h, cursor, block, token, outerClass) {
   const { tag, openTag, closeTag, children, attrs } = token
-  const className = children ? this.getClassName(outerClass, block, token, cursor) : CLASS_OR_ID['AG_GRAY']
-  const tagClassName = className === CLASS_OR_ID['AG_HIDE'] ? className : CLASS_OR_ID['AG_HTML_TAG']
+  const className = children ? this.getClassName(outerClass, block, token, cursor) : CLASS_OR_ID.AG_GRAY
+  const tagClassName = className === CLASS_OR_ID.AG_HIDE ? className : CLASS_OR_ID.AG_HTML_TAG
   const { start, end } = token.range
   const openContent = this.highlight(h, block, start, start + openTag.length, token)
   const closeContent = closeTag
@@ -22,12 +22,12 @@ export default function htmlTag (h, cursor, block, token, outerClass) {
       return this.htmlImage(h, cursor, block, token, outerClass)
     }
     case 'br': {
-      return [h(`span.${CLASS_OR_ID['AG_HTML_TAG']}`, [...openContent, h(tag)])]
+      return [h(`span.${CLASS_OR_ID.AG_HTML_TAG}`, [...openContent, h(tag)])]
     }
     default:
       // handle void html tag
       if (!closeTag) {
-        return [h(`span.${CLASS_OR_ID['AG_HTML_TAG']}`, openContent)]
+        return [h(`span.${CLASS_OR_ID.AG_HTML_TAG}`, openContent)]
       } else if (tag === 'ruby') {
         return this.htmlRuby(h, cursor, block, token, outerClass)
       } else {
@@ -35,7 +35,7 @@ export default function htmlTag (h, cursor, block, token, outerClass) {
         // Because we can not nest a block level element in span element(line is span element)
         // we also recommand user not use block level element in paragraph. use block element in html block.
         let selector = BLOCK_TYPE6.includes(tag) ? 'span' : tag
-        selector += `.${CLASS_OR_ID['AG_INLINE_RULE']}`
+        selector += `.${CLASS_OR_ID.AG_INLINE_RULE}`
         const data = {
           attrs: {},
           dataset: {}
@@ -57,9 +57,9 @@ export default function htmlTag (h, cursor, block, token, outerClass) {
         }
 
         return [
-          h(`span.${tagClassName}.${CLASS_OR_ID['AG_OUTPUT_REMOVE']}`, openContent),
+          h(`span.${tagClassName}.${CLASS_OR_ID.AG_OUTPUT_REMOVE}`, openContent),
           h(`${selector}`, data, anchor),
-          h(`span.${tagClassName}.${CLASS_OR_ID['AG_OUTPUT_REMOVE']}`, closeContent)
+          h(`span.${tagClassName}.${CLASS_OR_ID.AG_OUTPUT_REMOVE}`, closeContent)
         ]
       }
   }

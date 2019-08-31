@@ -6,9 +6,9 @@ import 'katex/dist/katex.min.css'
 
 export default function displayMath (h, cursor, block, token, outerClass) {
   const className = this.getClassName(outerClass, block, token, cursor)
-  const mathSelector = className === CLASS_OR_ID['AG_HIDE']
-    ? `span.${className}.${CLASS_OR_ID['AG_MATH']}`
-    : `span.${CLASS_OR_ID['AG_MATH']}`
+  const mathSelector = className === CLASS_OR_ID.AG_HIDE
+    ? `span.${className}.${CLASS_OR_ID.AG_MATH}`
+    : `span.${CLASS_OR_ID.AG_MATH}`
 
   const { start, end } = token.range
   const { marker } = token
@@ -24,7 +24,7 @@ export default function displayMath (h, cursor, block, token, outerClass) {
   const displayMode = false
   const key = `${math}_${type}`
   let mathVnode = null
-  let previewSelector = `span.${CLASS_OR_ID['AG_MATH_RENDER']}`
+  let previewSelector = `span.${CLASS_OR_ID.AG_MATH_RENDER}`
   if (loadMathMap.has(key)) {
     mathVnode = loadMathMap.get(key)
   } else {
@@ -36,18 +36,18 @@ export default function displayMath (h, cursor, block, token, outerClass) {
       loadMathMap.set(key, mathVnode)
     } catch (err) {
       mathVnode = '< Invalid Mathematical Formula >'
-      previewSelector += `.${CLASS_OR_ID['AG_MATH_ERROR']}`
+      previewSelector += `.${CLASS_OR_ID.AG_MATH_ERROR}`
     }
   }
 
   return [
-    h(`span.${className}.${CLASS_OR_ID['AG_MATH_MARKER']}`, startMarker),
+    h(`span.${className}.${CLASS_OR_ID.AG_MATH_MARKER}`, startMarker),
     h(mathSelector, [
-      h(`span.${CLASS_OR_ID['AG_INLINE_RULE']}.${CLASS_OR_ID['AG_MATH_TEXT']}`, content),
+      h(`span.${CLASS_OR_ID.AG_INLINE_RULE}.${CLASS_OR_ID.AG_MATH_TEXT}`, content),
       h(previewSelector, {
         attrs: { contenteditable: 'false' }
       }, mathVnode)
     ]),
-    h(`span.${className}.${CLASS_OR_ID['AG_MATH_MARKER']}`, endMarker)
+    h(`span.${className}.${CLASS_OR_ID.AG_MATH_MARKER}`, endMarker)
   ]
 }

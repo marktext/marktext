@@ -132,7 +132,7 @@ export default {
       // No root directory is opened.
       if (!this.projectTree || !this.projectTree.pathname) {
         return new Notification('No folder opened', {
-          body: `You need to open a folder before search.`
+          body: 'You need to open a folder before search.'
         })
       }
 
