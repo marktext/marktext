@@ -6,12 +6,12 @@ export default function emoji (h, cursor, block, token, outerClass) {
   const { start: rStart, end: rEnd } = token.range
   const className = this.getClassName(outerClass, block, token, cursor)
   const validation = validEmoji(token.content)
-  const finalClass = validation ? className : CLASS_OR_ID['AG_WARN']
-  const contentSelector = finalClass !== CLASS_OR_ID['AG_GRAY']
-    ? `span.${finalClass}.${CLASS_OR_ID['AG_INLINE_RULE']}.${CLASS_OR_ID['AG_EMOJI_MARKED_TEXT']}`
-    : `span.${CLASS_OR_ID['AG_INLINE_RULE']}.${CLASS_OR_ID['AG_EMOJI_MARKED_TEXT']}`
+  const finalClass = validation ? className : CLASS_OR_ID.AG_WARN
+  const contentSelector = finalClass !== CLASS_OR_ID.AG_GRAY
+    ? `span.${finalClass}.${CLASS_OR_ID.AG_INLINE_RULE}.${CLASS_OR_ID.AG_EMOJI_MARKED_TEXT}`
+    : `span.${CLASS_OR_ID.AG_INLINE_RULE}.${CLASS_OR_ID.AG_EMOJI_MARKED_TEXT}`
 
-  let startMarkerSelector = `span.${finalClass}.${CLASS_OR_ID['AG_EMOJI_MARKER']}`
+  let startMarkerSelector = `span.${finalClass}.${CLASS_OR_ID.AG_EMOJI_MARKER}`
   let endMarkerSelector = startMarkerSelector
   let content = token.content
   let pos = rStart + token.marker.length

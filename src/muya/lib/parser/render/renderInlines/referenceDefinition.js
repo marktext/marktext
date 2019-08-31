@@ -1,7 +1,7 @@
 import { CLASS_OR_ID } from '../../../config'
 
 export default function referenceDefinition (h, cursor, block, token, outerClass) {
-  const className = CLASS_OR_ID['AG_REFERENCE_MARKER']
+  const className = CLASS_OR_ID.AG_REFERENCE_MARKER
   const {
     leftBracket,
     label,
@@ -42,10 +42,10 @@ export default function referenceDefinition (h, cursor, block, token, outerClass
 
   return [
     h(`span.${className}`, leftBracketContent),
-    h(`span.${CLASS_OR_ID['AG_REFERENCE_LABEL']}`, labelContent),
-    ...this.backlashInToken(h, backlash, CLASS_OR_ID['AG_GRAY'], backlashStart, token),
+    h(`span.${CLASS_OR_ID.AG_REFERENCE_LABEL}`, labelContent),
+    ...this.backlashInToken(h, backlash, CLASS_OR_ID.AG_GRAY, backlashStart, token),
     h(`span.${className}`, middleContent),
-    h(`span.${CLASS_OR_ID['AG_REFERENCE_TITLE']}`, titleContent),
+    h(`span.${CLASS_OR_ID.AG_REFERENCE_TITLE}`, titleContent),
     h(`span.${className}`, rightContent)
   ]
 }

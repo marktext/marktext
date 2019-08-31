@@ -425,8 +425,8 @@ class Selection {
       let count = 0
       for (i = 0; i < len; i++) {
         const child = childNodes[i]
-        const textLength = getTextContent(child, [CLASS_OR_ID['AG_MATH_RENDER'], CLASS_OR_ID['AG_RUBY_RENDER']]).length
-        if (child.classList && child.classList.contains(CLASS_OR_ID['AG_FRONT_ICON'])) continue
+        const textLength = getTextContent(child, [CLASS_OR_ID.AG_MATH_RENDER, CLASS_OR_ID.AG_RUBY_RENDER]).length
+        if (child.classList && child.classList.contains(CLASS_OR_ID.AG_FRONT_ICON)) continue
         if (count + textLength >= offset) {
           if (
             child.classList && child.classList.contains('ag-inline-image')
@@ -547,9 +547,9 @@ class Selection {
       aOffset = 0
       if (preElement) {
         aOffset += getOffsetOfParagraph(preElement, anchorParagraph)
-        aOffset += getTextContent(preElement, [CLASS_OR_ID['AG_MATH_RENDER'], CLASS_OR_ID['AG_RUBY_RENDER']]).length
+        aOffset += getTextContent(preElement, [CLASS_OR_ID.AG_MATH_RENDER, CLASS_OR_ID.AG_RUBY_RENDER]).length
       }
-      aOffset += getTextContent(imageWrapper, [CLASS_OR_ID['AG_MATH_RENDER'], CLASS_OR_ID['AG_RUBY_RENDER']]).length
+      aOffset += getTextContent(imageWrapper, [CLASS_OR_ID.AG_MATH_RENDER, CLASS_OR_ID.AG_RUBY_RENDER]).length
       fOffset = aOffset
     }
 
@@ -563,10 +563,10 @@ class Selection {
       aOffset = 0
       if (preElement) {
         aOffset += getOffsetOfParagraph(preElement, anchorParagraph)
-        aOffset += getTextContent(preElement, [CLASS_OR_ID['AG_MATH_RENDER'], CLASS_OR_ID['AG_RUBY_RENDER']]).length
+        aOffset += getTextContent(preElement, [CLASS_OR_ID.AG_MATH_RENDER, CLASS_OR_ID.AG_RUBY_RENDER]).length
       }
       if (anchorOffset === 3) {
-        aOffset += getTextContent(imageWrapper, [CLASS_OR_ID['AG_MATH_RENDER'], CLASS_OR_ID['AG_RUBY_RENDER']]).length
+        aOffset += getTextContent(imageWrapper, [CLASS_OR_ID.AG_MATH_RENDER, CLASS_OR_ID.AG_RUBY_RENDER]).length
       }
       fOffset = aOffset
     }

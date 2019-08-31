@@ -74,14 +74,14 @@ class ClickEvent {
       }
       // Handler image and inline math preview click
       const markedImageText = target.previousElementSibling
-      const mathRender = target.closest(`.${CLASS_OR_ID['AG_MATH_RENDER']}`)
-      const rubyRender = target.closest(`.${CLASS_OR_ID['AG_RUBY_RENDER']}`)
-      const imageWrapper = target.closest(`.${CLASS_OR_ID['AG_INLINE_IMAGE']}`)
+      const mathRender = target.closest(`.${CLASS_OR_ID.AG_MATH_RENDER}`)
+      const rubyRender = target.closest(`.${CLASS_OR_ID.AG_RUBY_RENDER}`)
+      const imageWrapper = target.closest(`.${CLASS_OR_ID.AG_INLINE_IMAGE}`)
       const imageTurnInto = target.closest('.ag-image-icon-turninto')
       const imageDelete = target.closest('.ag-image-icon-delete') || target.closest('.ag-image-icon-close')
       const mathText = mathRender && mathRender.previousElementSibling
       const rubyText = rubyRender && rubyRender.previousElementSibling
-      if (markedImageText && markedImageText.classList.contains(CLASS_OR_ID['AG_IMAGE_MARKED_TEXT'])) {
+      if (markedImageText && markedImageText.classList.contains(CLASS_OR_ID.AG_IMAGE_MARKED_TEXT)) {
         eventCenter.dispatch('format-click', {
           event,
           formatType: 'image',
@@ -143,7 +143,7 @@ class ClickEvent {
         return event.stopPropagation()
       }
       // handler container preview click
-      const editIcon = target.closest(`.ag-container-icon`)
+      const editIcon = target.closest('.ag-container-icon')
       if (editIcon) {
         event.preventDefault()
         event.stopPropagation()
@@ -153,7 +153,7 @@ class ClickEvent {
       }
 
       // handler to-do checkbox click
-      if (target.tagName === 'INPUT' && target.classList.contains(CLASS_OR_ID['AG_TASK_LIST_ITEM_CHECKBOX'])) {
+      if (target.tagName === 'INPUT' && target.classList.contains(CLASS_OR_ID.AG_TASK_LIST_ITEM_CHECKBOX)) {
         contentState.listItemCheckBoxClick(target)
       }
       contentState.clickHandler(event)
@@ -169,8 +169,8 @@ function getToolItem (target) {
 
 function selectionText (node) {
   const textLen = node.textContent.length
-  operateClassName(node, 'remove', CLASS_OR_ID['AG_HIDE'])
-  operateClassName(node, 'add', CLASS_OR_ID['AG_GRAY'])
+  operateClassName(node, 'remove', CLASS_OR_ID.AG_HIDE)
+  operateClassName(node, 'add', CLASS_OR_ID.AG_GRAY)
   selection.importSelection({
     start: textLen,
     end: textLen

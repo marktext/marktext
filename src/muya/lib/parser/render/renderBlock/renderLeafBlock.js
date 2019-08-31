@@ -1,5 +1,5 @@
 import katex from 'katex'
-import mermaid from 'mermaid'
+import mermaid from 'mermaid/dist/mermaid.core'
 import prism, { loadedCache, transfromAliasToOrigin } from '../../../prism/'
 import { CLASS_OR_ID, DEVICE_MEMORY, PREVIEW_DOMPURIFY_CONFIG, HAS_TEXT_BLOCK_REG } from '../../../config'
 import { tokenizer } from '../../'
@@ -109,7 +109,7 @@ export default function renderLeafBlock (block, activeBlocks, matches, useCache 
     const code = this.codeCache.get(block.preSibling)
     switch (functionType) {
       case 'html': {
-        selector += `.${CLASS_OR_ID['AG_HTML_PREVIEW']}`
+        selector += `.${CLASS_OR_ID.AG_HTML_PREVIEW}`
         const htmlContent = sanitize(code, PREVIEW_DOMPURIFY_CONFIG)
         // handle empty html bock
         if (/^<([a-z][a-z\d]*)[^>]*?>(\s*)<\/\1>$/.test(htmlContent.trim())) {
@@ -130,10 +130,10 @@ export default function renderLeafBlock (block, activeBlocks, matches, useCache 
       }
       case 'multiplemath': {
         const key = `${code}_display_math`
-        selector += `.${CLASS_OR_ID['AG_CONTAINER_PREVIEW']}`
+        selector += `.${CLASS_OR_ID.AG_CONTAINER_PREVIEW}`
         if (code === '') {
           children = '< Empty Mathematical Formula >'
-          selector += `.${CLASS_OR_ID['AG_EMPTY']}`
+          selector += `.${CLASS_OR_ID.AG_EMPTY}`
         } else if (loadMathMap.has(key)) {
           children = loadMathMap.get(key)
         } else {
@@ -146,16 +146,16 @@ export default function renderLeafBlock (block, activeBlocks, matches, useCache 
             loadMathMap.set(key, children)
           } catch (err) {
             children = '< Invalid Mathematical Formula >'
-            selector += `.${CLASS_OR_ID['AG_MATH_ERROR']}`
+            selector += `.${CLASS_OR_ID.AG_MATH_ERROR}`
           }
         }
         break
       }
       case 'mermaid': {
-        selector += `.${CLASS_OR_ID['AG_CONTAINER_PREVIEW']}`
+        selector += `.${CLASS_OR_ID.AG_CONTAINER_PREVIEW}`
         if (code === '') {
           children = '< Empty Mermaid Block >'
-          selector += `.${CLASS_OR_ID['AG_EMPTY']}`
+          selector += `.${CLASS_OR_ID.AG_EMPTY}`
         } else {
           try {
             mermaid.parse(code)
@@ -163,7 +163,7 @@ export default function renderLeafBlock (block, activeBlocks, matches, useCache 
             this.mermaidCache.add(`#${block.key}`)
           } catch (err) {
             children = '< Invalid Mermaid Codes >'
-            selector += `.${CLASS_OR_ID['AG_MATH_ERROR']}`
+            selector += `.${CLASS_OR_ID.AG_MATH_ERROR}`
           }
         }
         break
@@ -171,10 +171,10 @@ export default function renderLeafBlock (block, activeBlocks, matches, useCache 
       case 'flowchart':
       case 'sequence':
       case 'vega-lite': {
-        selector += `.${CLASS_OR_ID['AG_CONTAINER_PREVIEW']}`
+        selector += `.${CLASS_OR_ID.AG_CONTAINER_PREVIEW}`
         if (code === '') {
           children = '< Empty Diagram Block >'
-          selector += `.${CLASS_OR_ID['AG_EMPTY']}`
+          selector += `.${CLASS_OR_ID.AG_EMPTY}`
         } else {
           children = ''
           this.diagramCache.set(`#${block.key}`, {
@@ -189,12 +189,12 @@ export default function renderLeafBlock (block, activeBlocks, matches, useCache 
     Object.assign(data.attrs, {
       type: 'checkbox'
     })
-    selector = `${type}#${key}.${CLASS_OR_ID['AG_TASK_LIST_ITEM_CHECKBOX']}`
+    selector = `${type}#${key}.${CLASS_OR_ID.AG_TASK_LIST_ITEM_CHECKBOX}`
     if (checked) {
       Object.assign(data.attrs, {
         checked: true
       })
-      selector += `.${CLASS_OR_ID['AG_CHECKBOX_CHECKED']}`
+      selector += `.${CLASS_OR_ID.AG_CHECKBOX_CHECKED}`
     }
     children = ''
   } else if (type === 'span' && functionType === 'codeLine') {

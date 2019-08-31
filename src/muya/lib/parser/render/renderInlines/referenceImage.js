@@ -4,7 +4,7 @@ import { getImageInfo } from '../../../utils'
 // reference_image
 export default function htmlImage (h, cursor, block, token, outerClass) {
   const className = this.getClassName(outerClass, block, token, cursor)
-  const imageClass = CLASS_OR_ID['AG_IMAGE_MARKED_TEXT']
+  const imageClass = CLASS_OR_ID.AG_IMAGE_MARKED_TEXT
   const { start, end } = token.range
   const tag = this.highlight(h, block, start, end, token)
   const { label, backlash, alt } = token
@@ -20,20 +20,20 @@ export default function htmlImage (h, cursor, block, token, outerClass) {
   let isSuccess
   let selector
   if (src) {
-    ({ id, isSuccess } = this.loadImageAsync(imageInfo, alt, className, CLASS_OR_ID['AG_COPY_REMOVE']))
+    ({ id, isSuccess } = this.loadImageAsync(imageInfo, alt, className, CLASS_OR_ID.AG_COPY_REMOVE))
   }
   selector = id ? `span#${id}.${imageClass}` : `span.${imageClass}`
-  selector += `.${CLASS_OR_ID['AG_OUTPUT_REMOVE']}`
+  selector += `.${CLASS_OR_ID.AG_OUTPUT_REMOVE}`
   if (isSuccess) {
     selector += `.${className}`
   } else {
-    selector += `.${CLASS_OR_ID['AG_IMAGE_FAIL']}`
+    selector += `.${CLASS_OR_ID.AG_IMAGE_FAIL}`
   }
 
   return isSuccess
     ? [
       h(selector, tag),
-      h(`img.${CLASS_OR_ID['AG_COPY_REMOVE']}`, { props: { alt, src, title } })
+      h(`img.${CLASS_OR_ID.AG_COPY_REMOVE}`, { props: { alt, src, title } })
     ]
     : [h(selector, tag)]
 }

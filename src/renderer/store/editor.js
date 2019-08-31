@@ -699,7 +699,7 @@ const actions = {
     const { listToc } = state
 
     if (!id) {
-      throw new Error(`Listen for document change but id was not set!`)
+      throw new Error('Listen for document change but id was not set!')
     } else if (!currentId || state.tabs.length === 0) {
       // Discard changes - this case should normally not occur.
       return

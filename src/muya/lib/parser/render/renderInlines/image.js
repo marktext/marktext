@@ -7,7 +7,7 @@ import DeleteIcon from '../../../assets/pngicon/delete/delete@2x.png'
 
 const renderIcon = (h, className, icon) => {
   const selector = `a.${className}`
-  const iconVnode = h('i.icon', h(`i.icon-inner`, {
+  const iconVnode = h('i.icon', h('i.icon-inner', {
     style: {
       background: `url(${icon}) no-repeat`,
       'background-size': '100%'
@@ -39,8 +39,8 @@ export default function image (h, cursor, block, token, outerClass) {
     ({ id, isSuccess } = this.loadImageAsync(imageInfo, alt))
   }
   let wrapperSelector = id
-    ? `span#${id}.${CLASS_OR_ID['AG_INLINE_IMAGE']}`
-    : `span.${CLASS_OR_ID['AG_INLINE_IMAGE']}`
+    ? `span#${id}.${CLASS_OR_ID.AG_INLINE_IMAGE}`
+    : `span.${CLASS_OR_ID.AG_INLINE_IMAGE}`
 
   const imageIcons = [
     renderIcon(h, 'ag-image-icon-success', ImageIcon),
@@ -52,7 +52,7 @@ export default function image (h, cursor, block, token, outerClass) {
     renderIcon(h, 'ag-image-icon-delete', DeleteIcon)
   ]
   const renderImageContainer = (...args) => {
-    return h(`span.${CLASS_OR_ID['AG_IMAGE_CONTAINER']}`, {}, args)
+    return h(`span.${CLASS_OR_ID.AG_IMAGE_CONTAINER}`, {}, args)
   }
 
   // the src image is still loading, so use the url Map base64.
@@ -67,7 +67,7 @@ export default function image (h, cursor, block, token, outerClass) {
   }
 
   if (alt.startsWith('loading-')) {
-    wrapperSelector += `.${CLASS_OR_ID['AG_IMAGE_UPLOADING']}`
+    wrapperSelector += `.${CLASS_OR_ID.AG_IMAGE_UPLOADING}`
     Object.assign(data.dataset, {
       id: alt
     })
@@ -79,11 +79,11 @@ export default function image (h, cursor, block, token, outerClass) {
   if (src) {
     // image is loading...
     if (typeof isSuccess === 'undefined') {
-      wrapperSelector += `.${CLASS_OR_ID['AG_IMAGE_LOADING']}`
+      wrapperSelector += `.${CLASS_OR_ID.AG_IMAGE_LOADING}`
     } else if (isSuccess === true) {
-      wrapperSelector += `.${CLASS_OR_ID['AG_IMAGE_SUCCESS']}`
+      wrapperSelector += `.${CLASS_OR_ID.AG_IMAGE_SUCCESS}`
     } else {
-      wrapperSelector += `.${CLASS_OR_ID['AG_IMAGE_FAIL']}`
+      wrapperSelector += `.${CLASS_OR_ID.AG_IMAGE_FAIL}`
     }
 
     if (selectedImage) {
@@ -93,7 +93,7 @@ export default function image (h, cursor, block, token, outerClass) {
         selectToken.range.start === token.range.start &&
         selectToken.range.end === token.range.end
       ) {
-        wrapperSelector += `.${CLASS_OR_ID['AG_INLINE_IMAGE_SELECTED']}`
+        wrapperSelector += `.${CLASS_OR_ID.AG_INLINE_IMAGE_SELECTED}`
       }
     }
 
@@ -118,7 +118,7 @@ export default function image (h, cursor, block, token, outerClass) {
         ])
       ]
   } else {
-    wrapperSelector += `.${CLASS_OR_ID['AG_EMPTY_IMAGE']}`
+    wrapperSelector += `.${CLASS_OR_ID.AG_EMPTY_IMAGE}`
     return [
       h(wrapperSelector, data, [
         ...imageIcons,

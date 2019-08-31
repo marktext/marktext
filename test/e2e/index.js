@@ -4,8 +4,8 @@
 process.env.BABEL_ENV = 'test'
 
 // Enable use of ES6+ on required files
-require('babel-register')({
-  ignore: /node_modules/
+require('@babel/register')({
+  ignore: [/node_modules/]
 })
 
 // Attach Chai APIs to global scope

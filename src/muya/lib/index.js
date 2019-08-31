@@ -192,9 +192,9 @@ class Muya {
     const { container } = this
     const { focusMode } = this.options
     if (bool && !focusMode) {
-      container.classList.add(CLASS_OR_ID['AG_FOCUS_MODE'])
+      container.classList.add(CLASS_OR_ID.AG_FOCUS_MODE)
     } else {
-      container.classList.remove(CLASS_OR_ID['AG_FOCUS_MODE'])
+      container.classList.remove(CLASS_OR_ID.AG_FOCUS_MODE)
     }
     this.options.focusMode = bool
   }
@@ -347,7 +347,7 @@ class Muya {
     }
 
     // Set quick insert hint visibility
-    const hideQuickInsertHint = options['hideQuickInsertHint']
+    const hideQuickInsertHint = options.hideQuickInsertHint
     if (typeof hideQuickInsertHint !== 'undefined') {
       const hasClass = this.container.classList.contains('ag-show-quick-insert-hint')
       if (hideQuickInsertHint && hasClass) {

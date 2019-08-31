@@ -86,7 +86,7 @@ const inputCtrl = ContentState => {
     const key = start.key
     const block = this.getBlock(key)
     const paragraph = document.querySelector(`#${key}`)
-    let text = getTextContent(paragraph, [CLASS_OR_ID['AG_MATH_RENDER'], CLASS_OR_ID['AG_RUBY_RENDER']])
+    let text = getTextContent(paragraph, [CLASS_OR_ID.AG_MATH_RENDER, CLASS_OR_ID.AG_RUBY_RENDER])
 
     let needRender = false
     let needRenderAll = false
@@ -216,7 +216,7 @@ const inputCtrl = ContentState => {
       } else {
         block.text = text
       }
-      if (beginRules['reference_definition'].test(text)) {
+      if (beginRules.reference_definition.test(text)) {
         needRenderAll = true
       }
     }

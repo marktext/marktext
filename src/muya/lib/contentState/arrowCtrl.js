@@ -97,7 +97,7 @@ const arrowCtrl = ContentState => {
     }
 
     // fix #101
-    if (event.key === EVENT_KEYS.ArrowRight && node && node.classList && node.classList.contains(CLASS_OR_ID['AG_MATH_TEXT'])) {
+    if (event.key === EVENT_KEYS.ArrowRight && node && node.classList && node.classList.contains(CLASS_OR_ID.AG_MATH_TEXT)) {
       const { right } = selection.getCaretOffsets(node)
       if (right === 0 && start.key === end.key && start.offset === end.offset) {
         // It's not recommended to use such lower API, but it's work well.

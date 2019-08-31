@@ -328,20 +328,20 @@ const tabCtrl = ContentState => {
         let endOffset = 0
         switch (tag) {
           case 'img':
-            html += ` alt="" src=""`
+            html += ' alt="" src=""'
             startOffset = endOffset = html.length - 1
             break
           case 'input':
-            html += ` type="text"`
+            html += ' type="text"'
             startOffset = html.length - 5
             endOffset = html.length - 1
             break
           case 'a':
-            html += ` href=""`
+            html += ' href=""'
             startOffset = endOffset = html.length - 1
             break
           case 'link':
-            html += ` rel="stylesheet" href=""`
+            html += ' rel="stylesheet" href=""'
             startOffset = endOffset = html.length - 1
             break
         }
