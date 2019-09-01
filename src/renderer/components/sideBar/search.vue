@@ -6,7 +6,7 @@
         <input
           type="text" v-model="keyword"
           placeholder="Search in folder..."
-          @keyup.enter="search"
+          @keyup="search"
         >
         <div class="controls">
           <span
@@ -46,7 +46,7 @@
       </div>
       <div
         class="cancel-area"
-        v-show="searcherRunning"
+        v-show="showSearchCancelArea"
       >
         <el-button
           type="primary"
@@ -99,6 +99,7 @@ export default {
       keyword: '',
       searchResult: [],
       searcherRunning: false,
+      showSearchCancelArea: false,
       searchErrorString: '',
 
       isCaseSensitive: false,
@@ -151,18 +152,20 @@ export default {
         searcherCancelCallback()
       }
 
-      this.searchResult = []
       this.searchErrorString = ''
       this.searcherCancelCallback = null
 
       if (!keyword) {
+        this.searchResult = []
         this.searcherRunning = false
         return
       }
 
       let canceled = false
       this.searcherRunning = true
+      this.startShowSearchCancelAreaTimer()
 
+      const newSearchResult = []
       const promises = ripgrepDirectorySearcher.search([rootDirectoryPath], keyword, {
         didMatch: searchResult => {
           if (canceled) return
@@ -179,7 +182,7 @@ export default {
           //   length: 2
           //   trailingContextLines: []
 
-          this.searchResult.push(searchResult)
+          newSearchResult.push(searchResult)
         },
         didSearchPaths: numPathsFound => {
           // More than 100 files with (multiple) matches were found.
@@ -206,8 +209,10 @@ export default {
         inclusions: ['*.markdown', '*.mdown', '*.mkdn', '*.md', '*.mkd', '*.mdwn', '*.mdtxt', '*.mdtext', '*.text', '*.txt']
       })
         .then(() => {
+          this.searchResult = newSearchResult
           this.searcherRunning = false
           this.searcherCancelCallback = null
+          this.stopShowSearchCancelAreaTimer()
         })
         .catch(err => {
           canceled = true
@@ -216,17 +221,39 @@ export default {
           }
           this.searcherRunning = false
           this.searcherCancelCallback = null
+          this.stopShowSearchCancelAreaTimer()
 
           this.searchErrorString = err.message
           log.error(err)
         })
 
       this.searcherCancelCallback = () => {
+        this.stopShowSearchCancelAreaTimer()
         canceled = true
         if (promises.cancel) {
           promises.cancel()
         }
       }
+    },
+    /**
+     * Slightly delay showing the "cancel search" button so we don't
+     * see it after every keypress, but only when a search query is lagging.
+     */
+    startShowSearchCancelAreaTimer () {
+      this.stopShowSearchCancelAreaTimer()
+
+      const SHOW_SEARCH_CANCEL_DELAY_MS = 5000
+      this.showSearchCancelAreaTimer = window.setTimeout(() => {
+        this.showSearchCancelArea = true
+      }, SHOW_SEARCH_CANCEL_DELAY_MS)
+    },
+    stopShowSearchCancelAreaTimer () {
+      this.showSearchCancelArea = false
+      if (!this.showSearchCancelAreaTimer) {
+        return
+      }
+      window.clearTimeout(this.showSearchCancelAreaTimer)
+      this.showSearchCancelAreaTimer = null
     },
     cancelSearcher () {
       const { searcherCancelCallback } = this
