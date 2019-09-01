@@ -43,15 +43,11 @@
       </div>
 
       <div class="search-message-section" v-if="showNoFolderOpenedMessage">
-        <span>You have not opened a folder.</span>
+        <div>You have not opened a folder.</div>
         <a href="javascript:;" @click="openFolder">Open Folder</a>
       </div>
-      <div class="search-message-section" v-if="showNoResultFoundMessage">
-        <span>No results found.</span>
-      </div>
-      <div class="search-message-section" v-if="searchErrorString">
-        <span>{{ searchErrorString }}</span>
-      </div>
+      <div class="search-message-section" v-if="showNoResultFoundMessage">No results found.</div>
+      <div class="search-message-section" v-if="searchErrorString">{{ searchErrorString }}</div>
 
       <div
         class="cancel-area"
