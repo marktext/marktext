@@ -12,6 +12,26 @@ delete validateRules.strong
 delete validateRules.tail_header
 delete validateRules.backlash
 
+const correctUrl = token => {
+  if (token && typeof token[4] === 'string') {
+    const lastParenIndex = findClosingBracket(token[4], '()')
+
+    if (lastParenIndex > -1) {
+      const len = token[0].length - (token[4].length - lastParenIndex)
+      token[0] = token[0].substring(0, len)
+      const originSrc = token[4].substring(0, lastParenIndex)
+      const match = /(\\+)$/.exec(originSrc)
+      if (match) {
+        token[4] = originSrc.substring(0, originSrc.length - match[1].length)
+        token[5] = match[1]
+      } else {
+        token[4] = originSrc
+        token[5] = ''
+      }
+    }
+  }
+}
+
 const tokenizerFac = (src, beginRules, inlineRules, pos = 0, top, labels) => {
   const tokens = []
   let pending = ''
@@ -183,23 +203,7 @@ const tokenizerFac = (src, beginRules, inlineRules, pos = 0, top, labels) => {
     if (inChunk) continue
     // image
     const imageTo = inlineRules.image.exec(src)
-    if (imageTo && typeof imageTo[4] === 'string') {
-      const lastParenIndex = findClosingBracket(imageTo[4], '()')
-
-      if (lastParenIndex > -1) {
-        const len = 4 + imageTo[5].length + lastParenIndex + 1
-        imageTo[0] = imageTo[0].substring(0, len)
-        const originSrc = imageTo[4].substring(0, lastParenIndex)
-        const match = /(\\+)$/.exec(originSrc)
-        if (match) {
-          imageTo[4] = originSrc.substring(0, originSrc.length - match[1].length)
-          imageTo[5] = match[1]
-        } else {
-          imageTo[4] = originSrc
-          imageTo[5] = ''
-        }
-      }
-    }
+    correctUrl(imageTo)
     if (imageTo && isLengthEven(imageTo[3]) && isLengthEven(imageTo[5])) {
       const { src: imageSrc, title } = parseSrcAndTitle(imageTo[4])
       pushPending()
@@ -227,6 +231,7 @@ const tokenizerFac = (src, beginRules, inlineRules, pos = 0, top, labels) => {
     }
     // link
     const linkTo = inlineRules.link.exec(src)
+    correctUrl(linkTo)
     if (linkTo && isLengthEven(linkTo[3]) && isLengthEven(linkTo[5])) {
       const { src: href, title } = parseSrcAndTitle(linkTo[4])
       pushPending()
