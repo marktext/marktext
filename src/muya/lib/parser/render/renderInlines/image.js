@@ -32,11 +32,13 @@ export default function image (h, cursor, block, token, outerClass) {
   }
   let id
   let isSuccess
+  let width
+  let height
   let { src } = imageInfo
   const alt = token.alt + encodeURI(token.backlash.first)
   const { title } = token
   if (src) {
-    ({ id, isSuccess } = this.loadImageAsync(imageInfo, alt))
+    ({ id, isSuccess, width, height } = this.loadImageAsync(imageInfo, alt))
   }
   let wrapperSelector = id
     ? `span#${id}.${CLASS_OR_ID.AG_INLINE_IMAGE}`
@@ -48,8 +50,14 @@ export default function image (h, cursor, block, token, outerClass) {
     renderIcon(h, 'ag-image-icon-close', DeleteIcon)
   ]
   const toolIcons = [
-    renderIcon(h, 'ag-image-icon-turninto', ImageEditIcon),
-    renderIcon(h, 'ag-image-icon-delete', DeleteIcon)
+    h(`span.${CLASS_OR_ID.AG_IMAGE_BUTTONS}`, {
+      attrs: {
+        contenteditable: 'false'
+      }
+    }, [
+      renderIcon(h, 'ag-image-icon-turninto', ImageEditIcon),
+      renderIcon(h, 'ag-image-icon-delete', DeleteIcon)
+    ])
   ]
   const renderImageContainer = (...args) => {
     return h(`span.${CLASS_OR_ID.AG_IMAGE_CONTAINER}`, {}, args)
@@ -82,6 +90,9 @@ export default function image (h, cursor, block, token, outerClass) {
       wrapperSelector += `.${CLASS_OR_ID.AG_IMAGE_LOADING}`
     } else if (isSuccess === true) {
       wrapperSelector += `.${CLASS_OR_ID.AG_IMAGE_SUCCESS}`
+      if (typeof width === 'number' && typeof height === 'number' && (width < 100 || height < 100)) {
+        wrapperSelector += '.ag-small-image'
+      }
     } else {
       wrapperSelector += `.${CLASS_OR_ID.AG_IMAGE_FAIL}`
     }

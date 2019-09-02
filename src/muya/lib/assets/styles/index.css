@@ -755,33 +755,49 @@ span.ag-warn.ag-emoji-marked-text {
   vertical-align: middle;
 }
 
+.ag-inline-image,
+.ag-image-container {
+  font-size: 0;
+  line-height: 0;
+}
+
 .ag-inline-image {
-  display: flex;
+  display: inline-block;
   position: relative;
   background: var(--codeBlockBgColor);
-  border-radius: 3px;
-  overflow: hidden;
-  margin: 0 auto;
-  justify-content: space-around;
+  border-radius: 2px;
 }
 
 .ag-inline-image .ag-image-container {
+  display: inline-block;
   position: relative;
-  overflow: hidden;
 }
 
 .ag-inline-image.ag-image-success {
   background: transparent;
 }
 
-.ag-inline-image a.ag-image-icon-turninto,
-.ag-inline-image a.ag-image-icon-delete {
+.ag-inline-image .ag-image-buttons {
   opacity: 0;
   display: none;
+  flex-direction: row;
+  justify-content: space-around;
+  align-items: center;
+  position: absolute;
+  border-radius: 6px;
+  top: 10px;
+  width: 75px;
+  height: 40px;
+  right: 10px;
+}
+
+.ag-inline-image a.ag-image-icon-turninto,
+.ag-inline-image a.ag-image-icon-delete {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
   width: 30px;
   height: 30px;
-  position: absolute;
-  top: 15px;
   background: rgba(50, 54, 58, .5);
   border-radius: 12px;
   cursor: pointer;
@@ -796,14 +812,6 @@ span.ag-warn.ag-emoji-marked-text {
 .ag-inline-image a.ag-image-icon-turninto:hover,
 .ag-inline-image a.ag-image-icon-delete:hover {
   background: rgba(50, 54, 58, .8);
-}
-
-.ag-inline-image a.ag-image-icon-turninto {
-  right: 60px;
-}
-
-.ag-inline-image a.ag-image-icon-delete {
-  right: 15px;
 }
 
 .ag-inline-image a.ag-image-icon-success,
@@ -883,13 +891,9 @@ span.ag-warn.ag-emoji-marked-text {
   display: block;
 }
 
-.ag-inline-image.ag-image-success:hover a.ag-image-icon-turninto,
-.ag-inline-image.ag-image-success:hover a.ag-image-icon-delete {
+.ag-inline-image.ag-image-success:hover span.ag-image-buttons {
   opacity: 1;
   display: flex;
-  align-items: center;
-  justify-content: space-around;
-  z-index: 1;
 }
 
 .ag-inline-image.ag-empty-image:hover a.ag-image-icon-close,
@@ -922,6 +926,13 @@ span.ag-warn.ag-emoji-marked-text {
   left: 50%;
   transform: translateX(-50%) translateY(-50%);
   color: var(--iconColor);
+}
+
+.ag-inline-image.ag-small-image .ag-image-buttons {
+  top: -40px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--floatBgColor);
 }
 
 .ag-image-marked-text ~ img {
