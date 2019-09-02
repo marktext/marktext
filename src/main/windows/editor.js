@@ -100,23 +100,25 @@ class EditorWindow extends BaseWindow {
       log.error(`The window failed to load or was cancelled: ${errorCode}; ${errorDescription}`)
     })
 
-    win.webContents.once('crashed', (event, killed) => {
+    win.webContents.once('crashed', async (event, killed) => {
       const msg = `The renderer process has crashed unexpected or is killed (${killed}).`
       log.error(msg)
 
-      dialog.showMessageBox(win, {
+      const { response } = await dialog.showMessageBox(win, {
         type: 'warning',
         buttons: ['Close', 'Reload', 'Keep It Open'],
         message: 'Mark Text has crashed',
         detail: msg
-      }, code => {
-        if (win.id) {
-          switch (code) {
-            case 0: return this.destroy()
-            case 1: return this.reload()
-          }
-        }
       })
+
+      if (win.id) {
+        switch (response) {
+          case 0:
+            return this.destroy()
+          case 1:
+            return this.reload()
+        }
+      }
     })
 
     win.on('focus', () => {

@@ -32,7 +32,7 @@ const exceptionToString = (error, type) => {
     `Stack: ${stack}\n`
 }
 
-const handleError = (title, error, type) => {
+const handleError = async (title, error, type) => {
   const { message, stack } = error
 
   // Write error into file
@@ -52,7 +52,7 @@ const handleError = (title, error, type) => {
   // show error dialog
   if (app.isReady()) {
     // Blocking message box
-    const result = dialog.showMessageBox({
+    const { response } = await dialog.showMessageBox({
       type: 'error',
       buttons: [
         'OK',
@@ -65,7 +65,7 @@ const handleError = (title, error, type) => {
       detail: stack
     })
 
-    switch (result) {
+    switch (response) {
       case 1: {
         clipboard.writeText(`${title}\n${stack}`)
         break
