@@ -41,9 +41,14 @@
           </span>
         </div>
       </div>
-      <div class="search-error" v-show="searchErrorString">
-        <span>An error occurred: {{ searchErrorString }}</span>
+
+      <div class="search-message-section" v-if="showNoFolderOpenedMessage">
+        <div>You have not opened a folder.</div>
+        <a href="javascript:;" @click="openFolder">Open Folder</a>
       </div>
+      <div class="search-message-section" v-if="showNoResultFoundMessage">No results found.</div>
+      <div class="search-message-section" v-if="searchErrorString">{{ searchErrorString }}</div>
+
       <div
         class="cancel-area"
         v-show="showSearchCancelArea"
@@ -126,15 +131,19 @@ export default {
       }, 0)
 
       return `${matchCount} ${matchCount > 1 ? 'matches' : 'match'} in ${fileCount} ${fileCount > 1 ? 'files' : 'file'}`
+    },
+    showNoFolderOpenedMessage () {
+      return !this.projectTree || !this.projectTree.pathname
+    },
+    showNoResultFoundMessage () {
+      return this.searchResult.length === 0 && this.searcherRunning === false && this.keyword.length > 0
     }
   },
   methods: {
     search () {
       // No root directory is opened.
-      if (!this.projectTree || !this.projectTree.pathname) {
-        return new Notification('No folder opened', {
-          body: 'You need to open a folder before search.'
-        })
+      if (this.showNoFolderOpenedMessage) {
+        return
       }
 
       const { pathname: rootDirectoryPath } = this.projectTree
@@ -188,8 +197,10 @@ export default {
           // More than 100 files with (multiple) matches were found.
           if (!canceled && numPathsFound > 100) {
             canceled = true
-            promises.cancel()
-            this.searchErrorString = 'Search was canceled because more than 100 files were found.'
+            if (promises.cancel) {
+              promises.cancel()
+            }
+            this.searchErrorString = 'Search was limited to 100 files.'
           }
         },
 
@@ -273,6 +284,9 @@ export default {
     regexpClicked () {
       this.isRegexp = !this.isRegexp
       this.search()
+    },
+    openFolder () {
+      this.$store.dispatch('ASK_FOR_OPEN_PROJECT')
     }
   }
 }
@@ -345,14 +359,11 @@ export default {
     text-align: center;
     margin-bottom: 16px;
   }
-  .search-error {
+  .search-message-section {
     overflow-wrap: break-word;
-    & > span {
-      display: block;
-      font-size: 14px;
-    }
   }
-  .search-result-info {
+  .search-result-info,
+  .search-message-section {
     padding-left: 15px;
     margin-bottom: 5px;
     font-size: 12px;
