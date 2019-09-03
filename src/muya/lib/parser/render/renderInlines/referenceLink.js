@@ -3,8 +3,8 @@ import { snakeToCamel } from '../../../utils'
 
 export default function referenceLink (h, cursor, block, token, outerClass) {
   const className = this.getClassName(outerClass, block, token, cursor)
-  const labelClass = className === CLASS_OR_ID['AG_GRAY']
-    ? CLASS_OR_ID['AG_REFERENCE_LABEL']
+  const labelClass = className === CLASS_OR_ID.AG_GRAY
+    ? CLASS_OR_ID.AG_REFERENCE_LABEL
     : className
 
   const { start, end } = token.range
@@ -41,7 +41,7 @@ export default function referenceLink (h, cursor, block, token, outerClass) {
     end,
     token
   )
-  const anchorSelector = href ? `a.${CLASS_OR_ID['AG_INLINE_RULE']}` : `span.${CLASS_OR_ID['AG_REFERENCE_LINK']}`
+  const anchorSelector = href ? `a.${CLASS_OR_ID.AG_INLINE_RULE}` : `span.${CLASS_OR_ID.AG_REFERENCE_LINK}`
   const dataSet = {
     props: {
       title

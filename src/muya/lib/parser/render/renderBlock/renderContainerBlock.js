@@ -4,15 +4,15 @@ import { renderEditIcon } from './renderContainerEditIcon'
 import { h } from '../snabbdom'
 
 const PRE_BLOCK_HASH = {
-  fencecode: `.${CLASS_OR_ID['AG_FENCE_CODE']}`,
-  indentcode: `.${CLASS_OR_ID['AG_INDENT_CODE']}`,
-  html: `.${CLASS_OR_ID['AG_HTML_BLOCK']}`,
-  frontmatter: `.${CLASS_OR_ID['AG_FRONT_MATTER']}`,
-  multiplemath: `.${CLASS_OR_ID['AG_MULTIPLE_MATH']}`,
-  flowchart: `.${CLASS_OR_ID['AG_FLOWCHART']}`,
-  sequence: `.${CLASS_OR_ID['AG_SEQUENCE']}`,
-  mermaid: `.${CLASS_OR_ID['AG_MERMAID']}`,
-  'vega-lite': `.${CLASS_OR_ID['AG_VEGA_LITE']}`
+  fencecode: `.${CLASS_OR_ID.AG_FENCE_CODE}`,
+  indentcode: `.${CLASS_OR_ID.AG_INDENT_CODE}`,
+  html: `.${CLASS_OR_ID.AG_HTML_BLOCK}`,
+  frontmatter: `.${CLASS_OR_ID.AG_FRONT_MATTER}`,
+  multiplemath: `.${CLASS_OR_ID.AG_MULTIPLE_MATH}`,
+  flowchart: `.${CLASS_OR_ID.AG_FLOWCHART}`,
+  sequence: `.${CLASS_OR_ID.AG_SEQUENCE}`,
+  mermaid: `.${CLASS_OR_ID.AG_MERMAID}`,
+  'vega-lite': `.${CLASS_OR_ID.AG_VEGA_LITE}`
 }
 
 export default function renderContainerBlock (block, activeBlocks, matches, useCache = false) {
@@ -67,7 +67,7 @@ export default function renderContainerBlock (block, activeBlocks, matches, useC
     if (
       /html|multiplemath|flowchart|mermaid|sequence|vega-lite/.test(functionType)
     ) {
-      selector += `.${CLASS_OR_ID['AG_CONTAINER_BLOCK']}`
+      selector += `.${CLASS_OR_ID.AG_CONTAINER_BLOCK}`
     }
   } else if (/ul|ol/.test(type) && listType) {
     selector += `.ag-${listType}-list`
@@ -76,9 +76,9 @@ export default function renderContainerBlock (block, activeBlocks, matches, useC
     }
   } else if (type === 'li' && listItemType) {
     Object.assign(data.dataset, { marker: bulletMarkerOrDelimiter })
-    selector += `.${CLASS_OR_ID['AG_LIST_ITEM']}`
+    selector += `.${CLASS_OR_ID.AG_LIST_ITEM}`
     selector += `.ag-${listItemType}-list-item`
-    selector += isLooseListItem ? `.${CLASS_OR_ID['AG_LOOSE_LIST_ITEM']}` : `.${CLASS_OR_ID['AG_TIGHT_LIST_ITEM']}`
+    selector += isLooseListItem ? `.${CLASS_OR_ID.AG_LOOSE_LIST_ITEM}` : `.${CLASS_OR_ID.AG_TIGHT_LIST_ITEM}`
   } else if (type === 'pre') {
     Object.assign(data.dataset, { role: functionType })
     selector += PRE_BLOCK_HASH[block.functionType]

@@ -397,7 +397,7 @@ class App {
       if (isOsx) {
         // Use macOs `screencapture` command line when in macOs system.
         const screenshotFileName = await this.getScreenshotFileName()
-        exec(`screencapture -i -c`, async (err) => {
+        exec('screencapture -i -c', async (err) => {
           if (err) {
             log.error(err)
             return
@@ -488,19 +488,18 @@ class App {
 
     // --- renderer -------------------
 
-    ipcMain.on('mt::select-default-directory-to-open', e => {
+    ipcMain.on('mt::select-default-directory-to-open', async e => {
       const { preferences } = this._accessor
       const { defaultDirectoryToOpen } = preferences.getAll()
       const win = BrowserWindow.fromWebContents(e.sender)
 
-      dialog.showOpenDialog(win, {
+      const { filePaths } = await dialog.showOpenDialog(win, {
         defaultPath: defaultDirectoryToOpen,
         properties: ['openDirectory', 'createDirectory']
-      }, paths => {
-        if (paths) {
-          preferences.setItems({ defaultDirectoryToOpen: paths[0] })
-        }
       })
+      if (filePaths) {
+        preferences.setItems({ defaultDirectoryToOpen: filePaths[0] })
+      }
     })
 
     ipcMain.on('mt::open-setting-window', () => {

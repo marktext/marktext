@@ -168,13 +168,13 @@ class DataCenter extends EventEmitter {
       win.webContents.send('AGANI::user-preference', userData)
     })
 
-    ipcMain.on('mt::ask-for-modify-image-folder-path', e => {
+    ipcMain.on('mt::ask-for-modify-image-folder-path', async e => {
       const win = BrowserWindow.fromWebContents(e.sender)
-      const folder = dialog.showOpenDialog(win, {
+      const { filePaths } = await dialog.showOpenDialog(win, {
         properties: ['openDirectory', 'createDirectory']
       })
-      if (folder && folder[0]) {
-        this.setItem('imageFolderPath', folder[0])
+      if (filePaths && filePaths[0]) {
+        this.setItem('imageFolderPath', filePaths[0])
       }
     })
 
@@ -182,17 +182,18 @@ class DataCenter extends EventEmitter {
       this.setItems(userData)
     })
 
-    ipcMain.on('mt::ask-for-image-path', e => {
+    ipcMain.on('mt::ask-for-image-path', async e => {
       const win = BrowserWindow.fromWebContents(e.sender)
-      const files = dialog.showOpenDialog(win, {
+      const { filePaths } = await dialog.showOpenDialog(win, {
         properties: ['openFile'],
         filters: [{
           name: 'Images',
           extensions: IMAGE_EXTENSIONS
         }]
       })
-      if (files && files[0]) {
-        e.returnValue = files[0]
+
+      if (filePaths && filePaths[0]) {
+        e.returnValue = filePaths[0]
       } else {
         e.returnValue = ''
       }

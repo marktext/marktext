@@ -10,7 +10,7 @@ export const editorWinOptions = {
     webSecurity: false
   },
   useContentSize: true,
-  show: true,
+  show: true, // Show the window after the app is ready.
   frame: false,
   titleBarStyle: 'hiddenInset',
   zoomFactor: 1.0
@@ -29,7 +29,7 @@ export const defaultPreferenceWinOptions = {
   minimizable: false,
   maximizable: false,
   useContentSize: true,
-  show: false,
+  show: true,
   frame: false,
   thickFrame: !isOsx,
   titleBarStyle: 'hiddenInset',

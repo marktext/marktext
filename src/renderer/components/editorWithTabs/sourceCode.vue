@@ -131,7 +131,7 @@ export default {
               this.$store.dispatch('LISTEN_FOR_CONTENT_CHANGE', { id: this.tabId, markdown, wordCount, cursor })
             } else {
               // This may occur during tab switching but should not occur otherwise.
-              console.warn(`LISTEN_FOR_CONTENT_CHANGE: Cannot commit changes because not tab id was set!`)
+              console.warn('LISTEN_FOR_CONTENT_CHANGE: Cannot commit changes because not tab id was set!')
             }
           }
         }, 1000)

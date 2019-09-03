@@ -51,7 +51,7 @@ export const getOffsetOfParagraph = (node, paragraph) => {
   do {
     preSibling = preSibling.previousSibling
     if (preSibling) {
-      offset += getTextContent(preSibling, [CLASS_OR_ID['AG_MATH_RENDER'], CLASS_OR_ID['AG_RUBY_RENDER']]).length
+      offset += getTextContent(preSibling, [CLASS_OR_ID.AG_MATH_RENDER, CLASS_OR_ID.AG_RUBY_RENDER]).length
     }
   } while (preSibling)
   return (node === paragraph || node.parentNode === paragraph)
@@ -79,7 +79,7 @@ export const findOutMostParagraph = node => {
 }
 
 export const isAganippeParagraph = element => {
-  return element && element.classList && element.classList.contains(CLASS_OR_ID['AG_PARAGRAPH'])
+  return element && element.classList && element.classList.contains(CLASS_OR_ID.AG_PARAGRAPH)
 }
 
 export const isBlockContainer = element => {
@@ -88,7 +88,7 @@ export const isBlockContainer = element => {
 }
 
 export const isMuyaEditorElement = element => {
-  return element && element.id === CLASS_OR_ID['AG_EDITOR_ID']
+  return element && element.id === CLASS_OR_ID.AG_EDITOR_ID
 }
 
 export const traverseUp = (current, testElementFunction) => {

@@ -80,7 +80,7 @@ class BaseWindow extends EventEmitter {
     } = userPreference.getAll()
 
     const baseUrl = process.env.NODE_ENV === 'development'
-      ? `http://localhost:9091`
+      ? 'http://localhost:9091'
       : `file://${__dirname}/index.html`
 
     const url = new URL(baseUrl)

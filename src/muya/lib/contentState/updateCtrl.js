@@ -21,7 +21,7 @@ const updateCtrl = ContentState => {
     const { checked, id } = checkbox
     const block = this.getBlock(id)
     block.checked = checked
-    checkbox.classList.toggle(CLASS_OR_ID['AG_CHECKBOX_CHECKED'])
+    checkbox.classList.toggle(CLASS_OR_ID.AG_CHECKBOX_CHECKED)
   }
 
   ContentState.prototype.checkSameMarkerOrDelimiter = function (list, markerOrDelimiter) {

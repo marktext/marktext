@@ -16,6 +16,7 @@
 import { mapState } from 'vuex'
 import TitleBar from '@/prefComponents/common/titlebar'
 import SideBar from '@/prefComponents/sideBar'
+import { loadingPageMixins } from '@/mixins'
 import { addThemeStyle } from '@/util/theme'
 import { DEFAULT_STYLE } from '@/config'
 import { isOsx } from '@/util'
@@ -25,6 +26,7 @@ export default {
     this.isOsx = isOsx
     return {}
   },
+  mixins: [loadingPageMixins],
   components: {
     TitleBar,
     SideBar
@@ -51,6 +53,7 @@ export default {
       addThemeStyle(state.theme)
 
       this.$store.dispatch('ASK_FOR_USER_PREFERENCE')
+      this.hideLoadingPage()
     })
   }
 }

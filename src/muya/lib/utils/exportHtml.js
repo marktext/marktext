@@ -1,7 +1,7 @@
 import marked from '../parser/marked'
 import Prism from 'prismjs'
 import katex from 'katex'
-import mermaid from 'mermaid'
+import mermaid from 'mermaid/dist/mermaid.core'
 import flowchart from 'flowchart.js'
 import Diagram from '../parser/render/sequence'
 import vegaEmbed from 'vega-embed'
@@ -90,7 +90,7 @@ class ExportHtml {
         }
       } catch (err) {
         console.log(err)
-        diagramContainer.innerHTML = `< Invalid Diagram >`
+        diagramContainer.innerHTML = '< Invalid Diagram >'
       }
     }
   }

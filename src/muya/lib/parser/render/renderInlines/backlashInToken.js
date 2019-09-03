@@ -22,7 +22,7 @@ export default function backlashInToken (h, backlashes, outerClass, start, token
       )
     } else {
       result.push(
-        h(`${selector}.${CLASS_OR_ID['AG_BACKLASH']}`, chunk)
+        h(`${selector}.${CLASS_OR_ID.AG_BACKLASH}`, chunk)
       )
     }
   }

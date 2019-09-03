@@ -9,8 +9,28 @@ const disallowedHtmlTag = /(?:title|textarea|style|xmp|iframe|noembed|noframes|s
 const validateRules = Object.assign({}, inlineRules)
 delete validateRules.em
 delete validateRules.strong
-delete validateRules['tail_header']
-delete validateRules['backlash']
+delete validateRules.tail_header
+delete validateRules.backlash
+
+const correctUrl = token => {
+  if (token && typeof token[4] === 'string') {
+    const lastParenIndex = findClosingBracket(token[4], '()')
+
+    if (lastParenIndex > -1) {
+      const len = token[0].length - (token[4].length - lastParenIndex)
+      token[0] = token[0].substring(0, len)
+      const originSrc = token[4].substring(0, lastParenIndex)
+      const match = /(\\+)$/.exec(originSrc)
+      if (match) {
+        token[4] = originSrc.substring(0, originSrc.length - match[1].length)
+        token[5] = match[1]
+      } else {
+        token[4] = originSrc
+        token[5] = ''
+      }
+    }
+  }
+}
 
 const tokenizerFac = (src, beginRules, inlineRules, pos = 0, top, labels) => {
   const tokens = []
@@ -59,7 +79,7 @@ const tokenizerFac = (src, beginRules, inlineRules, pos = 0, top, labels) => {
         break
       }
     }
-    const def = beginRules['reference_definition'].exec(src)
+    const def = beginRules.reference_definition.exec(src)
     if (def && isLengthEven(def[3])) {
       const token = {
         type: 'reference_definition',
@@ -183,23 +203,7 @@ const tokenizerFac = (src, beginRules, inlineRules, pos = 0, top, labels) => {
     if (inChunk) continue
     // image
     const imageTo = inlineRules.image.exec(src)
-    if (imageTo && typeof imageTo[4] === 'string') {
-      const lastParenIndex = findClosingBracket(imageTo[4], '()')
-
-      if (lastParenIndex > -1) {
-        const len = 4 + imageTo[5].length + lastParenIndex + 1
-        imageTo[0] = imageTo[0].substring(0, len)
-        const originSrc = imageTo[4].substring(0, lastParenIndex)
-        const match = /(\\+)$/.exec(originSrc)
-        if (match) {
-          imageTo[4] = originSrc.substring(0, originSrc.length - match[1].length)
-          imageTo[5] = match[1]
-        } else {
-          imageTo[4] = originSrc
-          imageTo[5] = ''
-        }
-      }
-    }
+    correctUrl(imageTo)
     if (imageTo && isLengthEven(imageTo[3]) && isLengthEven(imageTo[5])) {
       const { src: imageSrc, title } = parseSrcAndTitle(imageTo[4])
       pushPending()
@@ -227,6 +231,7 @@ const tokenizerFac = (src, beginRules, inlineRules, pos = 0, top, labels) => {
     }
     // link
     const linkTo = inlineRules.link.exec(src)
+    correctUrl(linkTo)
     if (linkTo && isLengthEven(linkTo[3]) && isLengthEven(linkTo[5])) {
       const { src: href, title } = parseSrcAndTitle(linkTo[4])
       pushPending()
@@ -255,7 +260,7 @@ const tokenizerFac = (src, beginRules, inlineRules, pos = 0, top, labels) => {
       continue
     }
 
-    const rLinkTo = inlineRules['reference_link'].exec(src)
+    const rLinkTo = inlineRules.reference_link.exec(src)
     if (rLinkTo && labels.has(rLinkTo[3] || rLinkTo[1]) && isLengthEven(rLinkTo[2]) && isLengthEven(rLinkTo[4])) {
       pushPending()
       tokens.push({
@@ -281,7 +286,7 @@ const tokenizerFac = (src, beginRules, inlineRules, pos = 0, top, labels) => {
       continue
     }
 
-    const rImageTo = inlineRules['reference_image'].exec(src)
+    const rImageTo = inlineRules.reference_image.exec(src)
     if (rImageTo && labels.has(rImageTo[3] || rImageTo[1]) && isLengthEven(rImageTo[2]) && isLengthEven(rImageTo[4])) {
       pushPending()
 
@@ -308,7 +313,7 @@ const tokenizerFac = (src, beginRules, inlineRules, pos = 0, top, labels) => {
     }
 
     // html escape
-    const htmlEscapeTo = inlineRules['html_escape'].exec(src)
+    const htmlEscapeTo = inlineRules.html_escape.exec(src)
     if (htmlEscapeTo) {
       const len = htmlEscapeTo[0].length
       pushPending()
@@ -328,7 +333,7 @@ const tokenizerFac = (src, beginRules, inlineRules, pos = 0, top, labels) => {
     }
 
     // html-tag
-    const htmlTo = inlineRules['html_tag'].exec(src)
+    const htmlTo = inlineRules.html_tag.exec(src)
     let attrs
     // handle comment
     if (htmlTo && htmlTo[1] && !htmlTo[3]) {
@@ -377,7 +382,7 @@ const tokenizerFac = (src, beginRules, inlineRules, pos = 0, top, labels) => {
     }
 
     // auto link
-    const autoLTo = inlineRules['auto_link'].exec(src)
+    const autoLTo = inlineRules.auto_link.exec(src)
     if (autoLTo) {
       pushPending()
       tokens.push({
@@ -395,7 +400,7 @@ const tokenizerFac = (src, beginRules, inlineRules, pos = 0, top, labels) => {
       continue
     }
     // soft line break
-    const softTo = inlineRules['soft_line_break'].exec(src)
+    const softTo = inlineRules.soft_line_break.exec(src)
     if (softTo) {
       const len = softTo[0].length
       pushPending()
@@ -415,7 +420,7 @@ const tokenizerFac = (src, beginRules, inlineRules, pos = 0, top, labels) => {
       continue
     }
     // hard line break
-    const hardTo = inlineRules['hard_line_break'].exec(src)
+    const hardTo = inlineRules.hard_line_break.exec(src)
     if (hardTo) {
       const len = hardTo[0].length
       pushPending()
@@ -437,7 +442,7 @@ const tokenizerFac = (src, beginRules, inlineRules, pos = 0, top, labels) => {
     }
 
     // tail header
-    const tailTo = inlineRules['tail_header'].exec(src)
+    const tailTo = inlineRules.tail_header.exec(src)
     if (tailTo && top) {
       pushPending()
       tokens.push({
