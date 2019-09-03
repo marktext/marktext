@@ -6,11 +6,13 @@ export default function loadImageAsync (imageInfo, alt, className, imageClass) {
   const { src, isUnknownType } = imageInfo
   let id
   let isSuccess
+  let w
+  let h
 
   if (!this.loadImageMap.has(src)) {
     id = getUniqueId()
     loadImage(src, isUnknownType)
-      .then(url => {
+      .then(({ url, width, height }) => {
         const imageText = document.querySelector(`#${id}`)
         const img = document.createElement('img')
         img.src = url
@@ -29,6 +31,10 @@ export default function loadImageAsync (imageInfo, alt, className, imageClass) {
             imageContainer.appendChild(img)
             imageText.classList.remove('ag-image-loading')
             imageText.classList.add('ag-image-success')
+            // Add `ag-small-image` class name to inline image wrapper if the image is smaller than 100px.
+            if (width < 100 || height < 100) {
+              imageText.classList.add('ag-small-image')
+            }
           } else {
             insertAfter(img, imageText)
             operateClassName(imageText, 'add', className)
@@ -39,7 +45,9 @@ export default function loadImageAsync (imageInfo, alt, className, imageClass) {
         }
         this.loadImageMap.set(src, {
           id,
-          isSuccess: true
+          isSuccess: true,
+          width,
+          height
         })
       })
       .catch(() => {
@@ -64,7 +72,9 @@ export default function loadImageAsync (imageInfo, alt, className, imageClass) {
     const imageInfo = this.loadImageMap.get(src)
     id = imageInfo.id
     isSuccess = imageInfo.isSuccess
+    w = imageInfo.width
+    h = imageInfo.height
   }
 
-  return { id, isSuccess }
+  return { id, isSuccess, width: w, height: h }
 }

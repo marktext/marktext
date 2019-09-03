@@ -142,7 +142,11 @@ export const loadImage = async (url, detectContentType = false) => {
   return new Promise((resolve, reject) => {
     const image = new Image()
     image.onload = () => {
-      resolve(url)
+      resolve({
+        url,
+        width: image.width,
+        height: image.height
+      })
     }
     image.onerror = err => {
       reject(err)
