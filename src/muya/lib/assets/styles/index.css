@@ -967,8 +967,8 @@ span.ag-warn.ag-emoji-marked-text {
 }
 
 .ag-inline-image.ag-small-image .ag-image-buttons::after {
-  bottom: -10px;
-  left: 50%;
+  bottom: -9px;
+  left: 49%;
   content: '';
   background: inherit;
   border: 1px solid var(--floatBorderColor);
