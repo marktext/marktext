@@ -426,13 +426,16 @@ class Selection {
       for (i = 0; i < len; i++) {
         const child = childNodes[i]
         const textLength = getTextContent(child, [CLASS_OR_ID.AG_MATH_RENDER, CLASS_OR_ID.AG_RUBY_RENDER]).length
-        if (child.classList && child.classList.contains(CLASS_OR_ID.AG_FRONT_ICON)) continue
+        if (child.classList && child.classList.contains(CLASS_OR_ID.AG_FRONT_ICON)) {
+          continue
+        }
         if (count + textLength >= offset) {
           if (
             child.classList && child.classList.contains('ag-inline-image')
           ) {
             const imageContainer = child.querySelector('.ag-image-container')
             const hasImg = imageContainer.querySelector('img')
+            console.log(count, textLength, offset)
             if (!hasImg) {
               return {
                 node: child,
@@ -448,13 +451,13 @@ class Selection {
               } else {
                 return {
                   node: imageContainer,
-                  offset: 3
+                  offset: 2
                 }
               }
             } else if (count === offset && count === 0) {
               return {
                 node: imageContainer,
-                offset: 2
+                offset: 0
               }
             } else {
               return {
@@ -474,6 +477,7 @@ class Selection {
 
     let { node: anchorNode, offset: anchorOffset } = getNodeAndOffset(anchorParagraph, anchor.offset)
     let { node: focusNode, offset: focusOffset } = getNodeAndOffset(focusParagraph, focus.offset)
+
     if (anchorNode.nodeType === 3 || anchorNode.nodeType === 1 && !anchorNode.classList.contains('ag-image-container')) {
       anchorOffset = Math.min(anchorOffset, anchorNode.textContent.length)
       focusOffset = Math.min(focusOffset, focusNode.textContent.length)
@@ -565,7 +569,7 @@ class Selection {
         aOffset += getOffsetOfParagraph(preElement, anchorParagraph)
         aOffset += getTextContent(preElement, [CLASS_OR_ID.AG_MATH_RENDER, CLASS_OR_ID.AG_RUBY_RENDER]).length
       }
-      if (anchorOffset === 3) {
+      if (anchorOffset === 2) {
         aOffset += getTextContent(imageWrapper, [CLASS_OR_ID.AG_MATH_RENDER, CLASS_OR_ID.AG_RUBY_RENDER]).length
       }
       fOffset = aOffset

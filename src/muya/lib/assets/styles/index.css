@@ -917,7 +917,7 @@ span.ag-warn.ag-emoji-marked-text {
   display: block;
 }
 
-.ag-inline-image.ag-image-success:hover span.ag-image-buttons {
+.ag-inline-image.ag-image-success:not(.ag-image-uploading):hover span.ag-image-buttons {
   opacity: 1;
   display: flex;
 }
@@ -946,7 +946,7 @@ span.ag-warn.ag-emoji-marked-text {
 }
 
 .ag-inline-image.ag-image-uploading .ag-image-container::before {
-  content: 'Loading ...';
+  content: 'Uploading ...';
   top: 50%;
   position: absolute;
   left: 50%;
@@ -967,8 +967,8 @@ span.ag-warn.ag-emoji-marked-text {
 }
 
 .ag-inline-image.ag-small-image .ag-image-buttons::after {
-  bottom: -10px;
-  left: 50%;
+  bottom: -9px;
+  left: 49%;
   content: '';
   background: inherit;
   border: 1px solid var(--floatBorderColor);
