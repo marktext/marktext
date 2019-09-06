@@ -435,7 +435,7 @@ class Selection {
           ) {
             const imageContainer = child.querySelector('.ag-image-container')
             const hasImg = imageContainer.querySelector('img')
-            console.log(count, textLength, offset)
+
             if (!hasImg) {
               return {
                 node: child,
