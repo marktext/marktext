@@ -258,7 +258,7 @@ class ExportMarkdown {
     const tHeader = table.children[0]
     const tBody = table.children[1]
     const escapeText = str => {
-      return str.replace(/(?<!\\)\|/g, '\\|')
+      return str.replace(/([^\\])\|/g, '$1\\|')
     }
 
     tableData.push(tHeader.children[0].children.map(th => escapeText(th.text).trim()))
