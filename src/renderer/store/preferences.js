@@ -67,7 +67,8 @@ const state = {
   imageBed: {
     github: {
       owner: '',
-      repo: ''
+      repo: '',
+      branch: ''
     }
   }
 }
