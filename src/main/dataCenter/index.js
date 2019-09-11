@@ -39,7 +39,8 @@ class DataCenter extends EventEmitter {
       imageBed: {
         github: {
           owner: '',
-          repo: ''
+          repo: '',
+          branch: ''
         }
       }
     }
