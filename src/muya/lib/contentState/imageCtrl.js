@@ -96,6 +96,26 @@ const imageCtrl = ContentState => {
     this.muya.dispatchChange()
   }
 
+  ContentState.prototype.alignImage = function ({ key, token }, align) { // inline/left/center/right
+    const block = this.getBlock(key)
+    const { range } = token
+    const { start, end } = range
+    const oldText = block.text
+    let imageText = ''
+    const attrs = Object.assign({}, token.attrs)
+    attrs['data-align'] = align
+
+    imageText = '<img '
+    for (const attr of Object.keys(attrs)) {
+      imageText += `${attr}="${attrs[attr]}" `
+    }
+    imageText = imageText.trim()
+    imageText += '>'
+    block.text = oldText.substring(0, start) + imageText + oldText.substring(end)
+
+    return this.singleRender(block)
+  }
+
   ContentState.prototype.replaceImage = function ({ key, token }, { alt = '', src = '', title = '' }) {
     const { type } = token
     const block = this.getBlock(key)
