@@ -82,6 +82,7 @@ import CodePicker from 'muya/lib/ui/codePicker'
 import EmojiPicker from 'muya/lib/ui/emojiPicker'
 import ImagePathPicker from 'muya/lib/ui/imagePicker'
 import ImageSelector from 'muya/lib/ui/imageSelector'
+import ImageToolbar from 'muya/lib/ui/imageToolbar'
 import FormatPicker from 'muya/lib/ui/formatPicker'
 import FrontMenu from 'muya/lib/ui/frontMenu'
 import bus from '../../bus'
@@ -334,6 +335,7 @@ export default {
         applicationId: process.env.UNSPLASH_ACCESS_KEY,
         secret: process.env.UNSPLASH_SECRET_KEY
       })
+      Muya.use(ImageToolbar)
       Muya.use(FormatPicker)
       Muya.use(FrontMenu)
 

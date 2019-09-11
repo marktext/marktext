@@ -13,6 +13,7 @@ export default function htmlImage (h, cursor, block, token, outerClass) {
   let id
   let isSuccess
   let selector
+
   if (src) {
     ({ id, isSuccess } = this.loadImageAsync(imageInfo, alt, className, CLASS_OR_ID.AG_COPY_REMOVE))
   }

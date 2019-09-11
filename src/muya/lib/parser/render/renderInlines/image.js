@@ -2,8 +2,7 @@ import { CLASS_OR_ID } from '../../../config'
 import { getImageInfo } from '../../../utils'
 import ImageIcon from '../../../assets/pngicon/image/2.png'
 import ImageFailIcon from '../../../assets/pngicon/image_fail/2.png'
-import ImageEditIcon from '../../../assets/pngicon/imageEdit/2.png'
-import DeleteIcon from '../../../assets/pngicon/delete/delete@2x.png'
+import DeleteIcon from '../../../assets/pngicon/delete/2.png'
 
 const renderIcon = (h, className, icon) => {
   const selector = `a.${className}`
@@ -49,16 +48,7 @@ export default function image (h, cursor, block, token, outerClass) {
     renderIcon(h, 'ag-image-icon-fail', ImageFailIcon),
     renderIcon(h, 'ag-image-icon-close', DeleteIcon)
   ]
-  const toolIcons = [
-    h(`span.${CLASS_OR_ID.AG_IMAGE_BUTTONS}`, {
-      attrs: {
-        contenteditable: 'false'
-      }
-    }, [
-      renderIcon(h, 'ag-image-icon-turninto', ImageEditIcon),
-      renderIcon(h, 'ag-image-icon-delete', DeleteIcon)
-    ])
-  ]
+
   const renderImageContainer = (...args) => {
     return h(`span.${CLASS_OR_ID.AG_IMAGE_CONTAINER}`, {}, args)
   }
@@ -113,7 +103,6 @@ export default function image (h, cursor, block, token, outerClass) {
         h(wrapperSelector, data, [
           ...imageIcons,
           renderImageContainer(
-            ...toolIcons,
             // An image description has inline elements as its contents.
             // When an image is rendered to HTML, this is standardly used as the image’s alt attribute.
             h('img', { props: { alt: alt.replace(/[`*{}[\]()#+\-.!_>~:|<>$]/g, ''), src, title } })
@@ -123,9 +112,7 @@ export default function image (h, cursor, block, token, outerClass) {
       : [
         h(wrapperSelector, data, [
           ...imageIcons,
-          renderImageContainer(
-            ...toolIcons
-          )
+          renderImageContainer()
         ])
       ]
   } else {
@@ -133,9 +120,7 @@ export default function image (h, cursor, block, token, outerClass) {
     return [
       h(wrapperSelector, data, [
         ...imageIcons,
-        renderImageContainer(
-          ...toolIcons
-        )
+        renderImageContainer()
       ])
     ]
   }

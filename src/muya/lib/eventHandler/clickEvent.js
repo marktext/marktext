@@ -109,6 +109,18 @@ class ClickEvent {
         const imageInfo = getImageInfo(imageWrapper)
         event.preventDefault()
         eventCenter.dispatch('select-image', imageInfo)
+        const rect = imageWrapper.getBoundingClientRect()
+        const reference = {
+          getBoundingClientRect () {
+            return rect
+          },
+          width: imageWrapper.offsetWidth,
+          height: imageWrapper.offsetHeight
+        }
+        eventCenter.dispatch('muya-image-toolbar', {
+          reference,
+          imageInfo
+        })
         return contentState.selectImage(imageInfo)
       }
 
