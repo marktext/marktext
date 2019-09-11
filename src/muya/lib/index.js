@@ -14,8 +14,11 @@ import './assets/styles/index.css'
 class Muya {
   static plugins = []
 
-  static use (plugin) {
-    this.plugins.push(plugin)
+  static use (plugin, options = {}) {
+    this.plugins.push({
+      plugin,
+      options
+    })
   }
 
   constructor (container, options) {
@@ -27,8 +30,8 @@ class Muya {
     this.tooltip = new ToolTip(this)
     // UI plugins
     if (Muya.plugins.length) {
-      for (const Plugin of Muya.plugins) {
-        this[Plugin.pluginName] = new Plugin(this)
+      for (const { plugin: Plugin, options: opts } of Muya.plugins) {
+        this[Plugin.pluginName] = new Plugin(this, opts)
       }
     }
 

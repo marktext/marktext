@@ -330,7 +330,10 @@ export default {
       Muya.use(CodePicker)
       Muya.use(EmojiPicker)
       Muya.use(ImagePathPicker)
-      Muya.use(ImageSelector)
+      Muya.use(ImageSelector, {
+        applicationId: process.env.UNSPLASH_ACCESS_KEY,
+        secret: process.env.UNSPLASH_SECRET_KEY
+      })
       Muya.use(FormatPicker)
       Muya.use(FrontMenu)
 

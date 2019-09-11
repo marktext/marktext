@@ -68,6 +68,7 @@
     "turndown": "^5.0.3",
     "turndown-plugin-gfm": "^1.0.2",
     "underscore": "^1.9.1",
+    "unsplash-js": "^5.0.0",
     "vega": "^5.4.0",
     "vega-embed": "^4.2.1",
     "vega-lite": "^3.3.0",
