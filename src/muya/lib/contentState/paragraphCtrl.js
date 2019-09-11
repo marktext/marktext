@@ -157,7 +157,11 @@ const paragraphCtrl = ContentState => {
           setTimeout(() => {
             this.updateTaskListItem(listItemParagraph, listType)
             this.partialRender()
+            this.muya.dispatchSelectionChange()
+            this.muya.dispatchSelectionFormats()
+            this.muya.dispatchChange()
           })
+          return false
         } else {
           this.updateList(paragraph, listType, undefined, block)
         }
@@ -189,6 +193,8 @@ const paragraphCtrl = ContentState => {
         })
       }
     }
+
+    return true
   }
 
   ContentState.prototype.handleLooseListItem = function () {
@@ -447,6 +453,7 @@ const paragraphCtrl = ContentState => {
     const { start, end } = this.cursor
     const block = this.getBlock(start.key)
     const { text } = block
+    let needDispatchChange = true
 
     switch (paraType) {
       case 'front-matter': {
@@ -456,7 +463,7 @@ const paragraphCtrl = ContentState => {
       case 'ul-bullet':
       case 'ul-task':
       case 'ol-order': {
-        this.handleListMenu(paraType, insertMode)
+        needDispatchChange = this.handleListMenu(paraType, insertMode)
         break
       }
       case 'loose-list-item': {
@@ -601,9 +608,11 @@ const paragraphCtrl = ContentState => {
       this.partialRender()
     }
 
-    this.muya.dispatchSelectionChange()
-    this.muya.dispatchSelectionFormats()
-    this.muya.dispatchChange()
+    if (needDispatchChange) {
+      this.muya.dispatchSelectionChange()
+      this.muya.dispatchSelectionFormats()
+      this.muya.dispatchChange()
+    }
   }
 
   ContentState.prototype.insertParagraph = function (location, text = '', outMost = false) {
