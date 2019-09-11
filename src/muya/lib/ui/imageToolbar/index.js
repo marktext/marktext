@@ -28,6 +28,7 @@ class FormatPicker extends BaseFloat {
     this.reference = null
     const toolbarContainer = this.toolbarContainer = document.createElement('div')
     this.container.appendChild(toolbarContainer)
+    this.floatBox.classList.add('ag-image-toolbar-container')
     this.listen()
   }
 
@@ -72,6 +73,9 @@ class FormatPicker extends BaseFloat {
         itemSelector += '.active'
       }
       return h(itemSelector, {
+        dataset: {
+          tip: i.tooltip
+        },
         on: {
           click: event => {
             this.selectItem(event, i)

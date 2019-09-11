@@ -1,3 +1,6 @@
+.ag-float-wrapper.ag-image-toolbar-container {
+  overflow: visible;
+}
 .ag-image-toolbar {
   height: 30px;
   width: 240px;
@@ -27,6 +30,21 @@
 
 .ag-image-toolbar li.item:hover {
   background: var(--floatHoverColor);
+}
+
+.ag-image-toolbar li.item:hover::after {
+  content: attr(data-tip);
+  width: 100px;
+  height: 28px;
+  text-align: center;
+  display: block;
+  position: absolute;
+  top: -32px;
+  background: var(--floatBgColor);
+  border-radius: 4px;
+  line-height: 28px;
+  color: var(--editorColor);
+  box-shadow: var(--floatShadow);
 }
 
 .ag-image-toolbar li.item.edit {
