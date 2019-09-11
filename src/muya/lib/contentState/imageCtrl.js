@@ -97,21 +97,35 @@ const imageCtrl = ContentState => {
   }
 
   ContentState.prototype.replaceImage = function ({ key, token }, { alt = '', src = '', title = '' }) {
+    const { type } = token
     const block = this.getBlock(key)
     const { start, end } = token.range
     const oldText = block.text
-    let imageText = '!['
-    if (alt) {
-      imageText += alt
+    let imageText = ''
+    if (type === 'image') {
+      imageText = '!['
+      if (alt) {
+        imageText += alt
+      }
+      imageText += ']('
+      if (src) {
+        imageText += src
+      }
+      if (title) {
+        imageText += ` "${title}"`
+      }
+      imageText += ')'
+    } else if (type === 'html_tag') {
+      const { attrs } = token
+      Object.assign(attrs, { alt, src, title })
+      imageText = '<img '
+      for (const attr of Object.keys(attrs)) {
+        imageText += `${attr}="${attrs[attr]}" `
+      }
+      imageText = imageText.trim()
+      imageText += '>'
     }
-    imageText += ']('
-    if (src) {
-      imageText += src
-    }
-    if (title) {
-      imageText += ` "${title}"`
-    }
-    imageText += ')'
+
     block.text = oldText.substring(0, start) + imageText + oldText.substring(end)
 
     return this.singleRender(block)

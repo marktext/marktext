@@ -22,7 +22,8 @@ const renderIcon = (h, className, icon) => {
 
 // I dont want operate dom directly, is there any better method? need help!
 export default function image (h, cursor, block, token, outerClass) {
-  const imageInfo = getImageInfo(token.src + encodeURI(token.backlash.second))
+  console.log(token)
+  const imageInfo = getImageInfo(token.attrs.src)
   const { selectedImage } = this.muya.contentState
   const data = {
     dataset: {
@@ -34,8 +35,8 @@ export default function image (h, cursor, block, token, outerClass) {
   let width
   let height
   let { src } = imageInfo
-  const alt = token.alt + encodeURI(token.backlash.first)
-  const { title } = token
+  const alt = token.attrs.alt
+  const title = token.attrs.title
   if (src) {
     ({ id, isSuccess, width, height } = this.loadImageAsync(imageInfo, alt))
   }
@@ -57,7 +58,7 @@ export default function image (h, cursor, block, token, outerClass) {
   if (this.urlMap.has(src)) {
     // fix: it will generate a new id if the image is not loaded.
     const { selectedImage } = this.muya.contentState
-    if (selectedImage && selectedImage.token.src === src && selectedImage.imageId !== id) {
+    if (selectedImage && selectedImage.token.attrs.src === src && selectedImage.imageId !== id) {
       selectedImage.imageId = id
     }
     src = this.urlMap.get(src)
@@ -74,19 +75,24 @@ export default function image (h, cursor, block, token, outerClass) {
       isSuccess = true
     }
   }
+
   if (src) {
     // image is loading...
     if (typeof isSuccess === 'undefined') {
       wrapperSelector += `.${CLASS_OR_ID.AG_IMAGE_LOADING}`
     } else if (isSuccess === true) {
       wrapperSelector += `.${CLASS_OR_ID.AG_IMAGE_SUCCESS}`
-      if (typeof width === 'number' && typeof height === 'number' && (width < 100 || height < 100)) {
-        wrapperSelector += '.ag-small-image'
+      if (typeof width === 'number' && typeof height === 'number') {
+        Object.assign(data.dataset, {
+          width,
+          height
+        })
       }
     } else {
       wrapperSelector += `.${CLASS_OR_ID.AG_IMAGE_FAIL}`
     }
 
+    // Add image selected class name.
     if (selectedImage) {
       const { key, token: selectToken } = selectedImage
       if (

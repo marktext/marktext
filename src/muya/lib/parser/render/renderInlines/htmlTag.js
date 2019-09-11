@@ -18,8 +18,9 @@ export default function htmlTag (h, cursor, block, token, outerClass) {
     }, [])
     : ''
   switch (tag) {
+    // Handle html img.
     case 'img': {
-      return this.htmlImage(h, cursor, block, token, outerClass)
+      return this.image(h, cursor, block, token, outerClass)
     }
     case 'br': {
       return [h(`span.${CLASS_OR_ID.AG_HTML_TAG}`, [...openContent, h(tag)])]

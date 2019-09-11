@@ -2,7 +2,7 @@ import { CLASS_OR_ID } from '../../../config'
 import { getImageInfo } from '../../../utils'
 
 // reference_image
-export default function htmlImage (h, cursor, block, token, outerClass) {
+export default function referenceImage (h, cursor, block, token, outerClass) {
   const className = this.getClassName(outerClass, block, token, cursor)
   const imageClass = CLASS_OR_ID.AG_IMAGE_MARKED_TEXT
   const { start, end } = token.range

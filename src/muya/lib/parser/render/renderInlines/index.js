@@ -12,7 +12,6 @@ import codeFense from './codeFense'
 import inlineMath from './inlineMath'
 import autoLink from './autoLink'
 import loadImageAsync from './loadImageAsync'
-import htmlImage from './htmlImage'
 import image from './image'
 import delEmStrongFac from './delEmStringFactory'
 import emoji from './emoji'
@@ -43,7 +42,6 @@ export default {
   inlineMath,
   autoLink,
   loadImageAsync,
-  htmlImage,
   image,
   delEmStrongFac,
   emoji,

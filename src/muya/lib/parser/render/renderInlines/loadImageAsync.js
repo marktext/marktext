@@ -31,10 +31,6 @@ export default function loadImageAsync (imageInfo, alt, className, imageClass) {
             imageContainer.appendChild(img)
             imageText.classList.remove('ag-image-loading')
             imageText.classList.add('ag-image-success')
-            // Add `ag-small-image` class name to inline image wrapper if the image is smaller than 100px.
-            if (width < 100 || height < 100) {
-              imageText.classList.add('ag-small-image')
-            }
           } else {
             insertAfter(img, imageText)
             operateClassName(imageText, 'add', className)
