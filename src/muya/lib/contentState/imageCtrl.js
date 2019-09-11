@@ -96,7 +96,7 @@ const imageCtrl = ContentState => {
     this.muya.dispatchChange()
   }
 
-  ContentState.prototype.alignImage = function ({ key, token }, align) { // inline/left/center/right
+  ContentState.prototype.alignImage = function ({ imageId, key, token }, align) { // inline/left/center/right
     const block = this.getBlock(key)
     const { range } = token
     const { start, end } = range
@@ -113,7 +113,11 @@ const imageCtrl = ContentState => {
     imageText += '>'
     block.text = oldText.substring(0, start) + imageText + oldText.substring(end)
 
-    return this.singleRender(block)
+    this.singleRender(block, false)
+    const image = document.querySelector(`#${imageId} img`)
+    if (image) {
+      return image.click()
+    }
   }
 
   ContentState.prototype.replaceImage = function ({ key, token }, { alt = '', src = '', title = '' }) {

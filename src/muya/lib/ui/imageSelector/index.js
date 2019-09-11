@@ -57,9 +57,11 @@ class ImageSelector extends BaseFloat {
           .then(toJson)
           .then(json => {
             this.loading = false
-            this.photoList = json
-            if (this.tab === 'unsplash') {
-              this.render()
+            if (Array.isArray(json)) {
+              this.photoList = json
+              if (this.tab === 'unsplash') {
+                this.render()
+              }
             }
           })
         this.imageInfo = imageInfo
@@ -84,9 +86,11 @@ class ImageSelector extends BaseFloat {
       .then(toJson)
       .then(json => {
         this.loading = false
-        this.photoList = json.results
-        if (this.tab === 'unsplash') {
-          this.render()
+        if (Array.isArray(json.results)) {
+          this.photoList = json.results
+          if (this.tab === 'unsplash') {
+            this.render()
+          }
         }
       })
 

@@ -22,7 +22,6 @@ const renderIcon = (h, className, icon) => {
 
 // I dont want operate dom directly, is there any better method? need help!
 export default function image (h, cursor, block, token, outerClass) {
-  console.log(token)
   const imageInfo = getImageInfo(token.attrs.src)
   const { selectedImage } = this.muya.contentState
   const data = {
@@ -52,6 +51,10 @@ export default function image (h, cursor, block, token, outerClass) {
 
   const renderImageContainer = (...args) => {
     return h(`span.${CLASS_OR_ID.AG_IMAGE_CONTAINER}`, {}, args)
+  }
+
+  if (typeof token.attrs['data-align'] === 'string') {
+    wrapperSelector += `.${token.attrs['data-align']}`
   }
 
   // the src image is still loading, so use the url Map base64.

@@ -108,7 +108,7 @@ class ClickEvent {
         const imageInfo = getImageInfo(imageWrapper)
         event.preventDefault()
         eventCenter.dispatch('select-image', imageInfo)
-        const rect = imageWrapper.getBoundingClientRect()
+        const rect = imageWrapper.querySelector('.ag-image-container').getBoundingClientRect()
         const reference = {
           getBoundingClientRect () {
             return rect

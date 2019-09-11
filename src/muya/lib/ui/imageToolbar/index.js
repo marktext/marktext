@@ -50,6 +50,8 @@ class FormatPicker extends BaseFloat {
 
   render () {
     const { icons, oldVnode, toolbarContainer, imageInfo } = this
+    const { attrs } = imageInfo.token
+    const dataAlign = attrs['data-align']
     const children = icons.map(i => {
       let icon
       let iconWrapperSelector
@@ -65,10 +67,10 @@ class FormatPicker extends BaseFloat {
       }
       const iconWrapper = h(iconWrapperSelector, icon)
       let itemSelector = `li.item.${i.type}`
-      console.log(imageInfo)
-      // if (formats.some(f => f.type === i.type || f.type === 'html_tag' && f.tag === i.type)) {
-      //   itemSelector += '.active'
-      // }
+
+      if (i.type === dataAlign) {
+        itemSelector += '.active'
+      }
       return h(itemSelector, {
         on: {
           click: event => {
@@ -110,6 +112,13 @@ class FormatPicker extends BaseFloat {
           imageInfo,
           cb: () => {}
         })
+        return this.hide()
+      }
+      case 'inline':
+      case 'left':
+      case 'center':
+      case 'right': {
+        this.muya.contentState.alignImage(this.imageInfo, item.type)
         return this.hide()
       }
     }

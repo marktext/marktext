@@ -12,22 +12,22 @@ const icons = [
     icon: editIcon
   },
   {
-    type: 'inlineImage',
+    type: 'inline',
     tooltip: 'Inline Image',
     icon: inlineIcon
   },
   {
-    type: 'alignLeft',
+    type: 'left',
     tooltip: 'Align Left',
     icon: leftIcon
   },
   {
-    type: 'alignMiddle',
+    type: 'center',
     tooltip: 'Align Middle',
     icon: middleIcon
   },
   {
-    type: 'alignRight',
+    type: 'right',
     tooltip: 'Align Right',
     icon: rightIcon
   },

@@ -770,6 +770,24 @@ span.ag-warn.ag-emoji-marked-text {
   border-radius: 2px;
 }
 
+.ag-inline-image.left,
+.ag-inline-image.center,
+.ag-inline-image.right {
+  display: block;
+}
+
+.ag-inline-image.left {
+  text-align: left;
+}
+
+.ag-inline-image.right {
+  text-align: right;
+}
+
+.ag-inline-image.center {
+  text-align: center;
+}
+
 .ag-inline-image .ag-image-container {
   display: inline-block;
   position: relative;
