@@ -25,6 +25,7 @@ class FormatPicker extends BaseFloat {
     this.imageInfo = null
     this.options = opts
     this.icons = icons
+    this.reference = null
     const toolbarContainer = this.toolbarContainer = document.createElement('div')
     this.container.appendChild(toolbarContainer)
     this.listen()
@@ -34,6 +35,7 @@ class FormatPicker extends BaseFloat {
     const { eventCenter } = this.muya
     super.listen()
     eventCenter.subscribe('muya-image-toolbar', ({ reference, imageInfo }) => {
+      this.reference = reference
       if (reference) {
         this.imageInfo = imageInfo
         setTimeout(() => {
@@ -89,7 +91,28 @@ class FormatPicker extends BaseFloat {
   selectItem (event, item) {
     event.preventDefault()
     event.stopPropagation()
-    console.log(item)
+
+    const { imageInfo } = this
+    switch (item.type) {
+      case 'delete':
+        this.muya.contentState.deleteImage(imageInfo)
+        return this.hide()
+      case 'edit': {
+        const rect = this.reference.getBoundingClientRect()
+        const reference = {
+          getBoundingClientRect () {
+            rect.height = 0
+            return rect
+          }
+        }
+        this.muya.eventCenter.dispatch('muya-image-selector', {
+          reference,
+          imageInfo,
+          cb: () => {}
+        })
+        return this.hide()
+      }
+    }
   }
 }
 

@@ -77,7 +77,6 @@ class ClickEvent {
       const mathRender = target.closest(`.${CLASS_OR_ID.AG_MATH_RENDER}`)
       const rubyRender = target.closest(`.${CLASS_OR_ID.AG_RUBY_RENDER}`)
       const imageWrapper = target.closest(`.${CLASS_OR_ID.AG_INLINE_IMAGE}`)
-      const imageTurnInto = target.closest('.ag-image-icon-turninto')
       const imageDelete = target.closest('.ag-image-icon-delete') || target.closest('.ag-image-icon-close')
       const mathText = mathRender && mathRender.previousElementSibling
       const rubyText = rubyRender && rubyRender.previousElementSibling
@@ -126,7 +125,6 @@ class ClickEvent {
 
       // Handle click imagewrapper when it's empty or image load failed.
       if (
-        (imageTurnInto && imageWrapper) ||
         (imageWrapper &&
         (
           imageWrapper.classList.contains('ag-empty-image') ||
@@ -136,9 +134,6 @@ class ClickEvent {
         const rect = imageWrapper.getBoundingClientRect()
         const reference = {
           getBoundingClientRect () {
-            if (imageTurnInto) {
-              rect.height = 0
-            }
             return rect
           }
         }
