@@ -1,5 +1,6 @@
 .ag-float-wrapper.ag-image-toolbar-container {
   overflow: visible;
+  border-radius: 2px;
 }
 .ag-image-toolbar {
   height: 30px;
@@ -52,7 +53,7 @@
   margin-left: 10px;
 }
 
-.ag-image-toolbar li.item.inlineImage {
+.ag-image-toolbar li.item.inline {
   margin-right: 8px;
 }
 
