@@ -122,7 +122,7 @@ class FormatPicker extends BaseFloat {
       case 'left':
       case 'center':
       case 'right': {
-        this.muya.contentState.alignImage(this.imageInfo, item.type)
+        this.muya.contentState.updateImage(this.imageInfo, 'data-align', item.type)
         return this.hide()
       }
     }

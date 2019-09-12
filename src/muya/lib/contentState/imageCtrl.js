@@ -96,14 +96,14 @@ const imageCtrl = ContentState => {
     this.muya.dispatchChange()
   }
 
-  ContentState.prototype.alignImage = function ({ imageId, key, token }, align) { // inline/left/center/right
+  ContentState.prototype.updateImage = function ({ imageId, key, token }, attrName, attrValue) { // inline/left/center/right
     const block = this.getBlock(key)
     const { range } = token
     const { start, end } = range
     const oldText = block.text
     let imageText = ''
     const attrs = Object.assign({}, token.attrs)
-    attrs['data-align'] = align
+    attrs[attrName] = attrValue
 
     imageText = '<img '
     for (const attr of Object.keys(attrs)) {
@@ -116,7 +116,8 @@ const imageCtrl = ContentState => {
     this.singleRender(block, false)
     const image = document.querySelector(`#${imageId} img`)
     if (image) {
-      return image.click()
+      image.click()
+      return this.muya.dispatchChange()
     }
   }
 
@@ -152,7 +153,8 @@ const imageCtrl = ContentState => {
 
     block.text = oldText.substring(0, start) + imageText + oldText.substring(end)
 
-    return this.singleRender(block)
+    this.singleRender(block)
+    return this.muya.dispatchChange()
   }
 
   ContentState.prototype.deleteImage = function ({ key, token }) {

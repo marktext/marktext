@@ -120,7 +120,13 @@ class ClickEvent {
           reference,
           imageInfo
         })
-        return contentState.selectImage(imageInfo)
+        contentState.selectImage(imageInfo)
+        const imageContainer = document.querySelector(`#${imageInfo.imageId} .ag-image-container`)
+        eventCenter.dispatch('muya-transformer', {
+          reference: imageContainer,
+          imageInfo
+        })
+        return
       }
 
       // Handle click imagewrapper when it's empty or image load failed.

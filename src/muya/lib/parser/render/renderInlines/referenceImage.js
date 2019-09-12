@@ -20,7 +20,7 @@ export default function referenceImage (h, cursor, block, token, outerClass) {
   let isSuccess
   let selector
   if (src) {
-    ({ id, isSuccess } = this.loadImageAsync(imageInfo, alt, className, CLASS_OR_ID.AG_COPY_REMOVE))
+    ({ id, isSuccess } = this.loadImageAsync(imageInfo, { alt }, className, CLASS_OR_ID.AG_COPY_REMOVE))
   }
   selector = id ? `span#${id}.${imageClass}` : `span.${imageClass}`
   selector += `.${CLASS_OR_ID.AG_OUTPUT_REMOVE}`

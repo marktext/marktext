@@ -2,7 +2,7 @@ import { getUniqueId, loadImage } from '../../../utils'
 import { insertAfter, operateClassName } from '../../../utils/domManipulate'
 import { CLASS_OR_ID } from '../../../config'
 
-export default function loadImageAsync (imageInfo, alt, className, imageClass) {
+export default function loadImageAsync (imageInfo, attrs, className, imageClass) {
   const { src, isUnknownType } = imageInfo
   let id
   let isSuccess
@@ -16,7 +16,14 @@ export default function loadImageAsync (imageInfo, alt, className, imageClass) {
         const imageText = document.querySelector(`#${id}`)
         const img = document.createElement('img')
         img.src = url
-        if (alt) img.alt = alt.replace(/[`*{}[\]()#+\-.!_>~:|<>$]/g, '')
+        if (attrs.alt) img.alt = attrs.alt.replace(/[`*{}[\]()#+\-.!_>~:|<>$]/g, '')
+        if (attrs.title) img.setAttribute('title', attrs.title)
+        if (attrs.width && typeof attrs.width === 'number') {
+          img.setAttribute('width', attrs.width)
+        }
+        if (attrs.height && typeof attrs.height === 'number') {
+          img.setAttribute('height', attrs.height)
+        }
         if (imageClass) {
           img.classList.add(imageClass)
         }

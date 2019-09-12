@@ -774,6 +774,7 @@ span.ag-warn.ag-emoji-marked-text {
 .ag-inline-image.center,
 .ag-inline-image.right {
   display: block;
+  margin: 30px auto 40px auto;
 }
 
 .ag-inline-image.left {
@@ -791,6 +792,22 @@ span.ag-warn.ag-emoji-marked-text {
 .ag-inline-image .ag-image-container {
   display: inline-block;
   position: relative;
+  overflow: visible;
+}
+
+.ag-inline-image.left .ag-image-container::after,
+.ag-inline-image.center .ag-image-container::after,
+.ag-inline-image.right .ag-image-container::after {
+  content: attr(data-title);
+  position: absolute;
+  height: 20px;
+  font-size: 14px;
+  line-height: 20px;
+  display: block;
+  bottom: -25px;
+  width: 100%;
+  text-align: center;
+  color: var(--editorColor30);
 }
 
 .ag-inline-image.ag-image-success {

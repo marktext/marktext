@@ -31,13 +31,14 @@ export default function image (h, cursor, block, token, outerClass) {
   }
   let id
   let isSuccess
-  let width
-  let height
   let { src } = imageInfo
   const alt = token.attrs.alt
   const title = token.attrs.title
+  const width = token.attrs.width
+  const height = token.attrs.height
+
   if (src) {
-    ({ id, isSuccess, width, height } = this.loadImageAsync(imageInfo, alt))
+    ({ id, isSuccess } = this.loadImageAsync(imageInfo, token.attrs))
   }
   let wrapperSelector = id
     ? `span#${id}.${CLASS_OR_ID.AG_INLINE_IMAGE}`
@@ -50,7 +51,13 @@ export default function image (h, cursor, block, token, outerClass) {
   ]
 
   const renderImageContainer = (...args) => {
-    return h(`span.${CLASS_OR_ID.AG_IMAGE_CONTAINER}`, {}, args)
+    const data = {}
+    if (title) {
+      Object.assign(data, {
+        dataset: { title }
+      })
+    }
+    return h(`span.${CLASS_OR_ID.AG_IMAGE_CONTAINER}`, data, args)
   }
 
   if (typeof token.attrs['data-align'] === 'string') {
@@ -85,12 +92,6 @@ export default function image (h, cursor, block, token, outerClass) {
       wrapperSelector += `.${CLASS_OR_ID.AG_IMAGE_LOADING}`
     } else if (isSuccess === true) {
       wrapperSelector += `.${CLASS_OR_ID.AG_IMAGE_SUCCESS}`
-      if (typeof width === 'number' && typeof height === 'number') {
-        Object.assign(data.dataset, {
-          width,
-          height
-        })
-      }
     } else {
       wrapperSelector += `.${CLASS_OR_ID.AG_IMAGE_FAIL}`
     }
@@ -107,6 +108,22 @@ export default function image (h, cursor, block, token, outerClass) {
       }
     }
 
+    const renderImage = () => {
+      const data = {
+        props: { alt: alt.replace(/[`*{}[\]()#+\-.!_>~:|<>$]/g, ''), src, title }
+      }
+
+      if (typeof width === 'number') {
+        Object.assign(data.props, { width })
+      }
+
+      if (typeof height === 'number') {
+        Object.assign(data.props, { height })
+      }
+
+      return h('img', data)
+    }
+
     return isSuccess
       ? [
         h(wrapperSelector, data, [
@@ -114,7 +131,7 @@ export default function image (h, cursor, block, token, outerClass) {
           renderImageContainer(
             // An image description has inline elements as its contents.
             // When an image is rendered to HTML, this is standardly used as the image’s alt attribute.
-            h('img', { props: { alt: alt.replace(/[`*{}[\]()#+\-.!_>~:|<>$]/g, ''), src, title } })
+            renderImage()
           )
         ])
       ]

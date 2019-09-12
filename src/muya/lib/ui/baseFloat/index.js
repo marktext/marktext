@@ -4,7 +4,7 @@ import { noop } from '../../utils'
 import { EVENT_KEYS } from '../../config'
 import './index.css'
 
-const defaultOptions = {
+const defaultOptions = () => ({
   placement: 'bottom-start',
   modifiers: {
     offset: {
@@ -12,13 +12,13 @@ const defaultOptions = {
     }
   },
   showArrow: true
-}
+})
 
 class BaseFloat {
   constructor (muya, name, options = {}) {
     this.name = name
     this.muya = muya
-    this.options = Object.assign({}, defaultOptions, options)
+    this.options = Object.assign({}, defaultOptions(), options)
     this.status = false
     this.floatBox = null
     this.container = null
