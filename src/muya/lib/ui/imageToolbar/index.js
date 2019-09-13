@@ -102,6 +102,10 @@ class FormatPicker extends BaseFloat {
     switch (item.type) {
       case 'delete':
         this.muya.contentState.deleteImage(imageInfo)
+        // Hide image transformer
+        this.muya.eventCenter.dispatch('muya-transformer', {
+          reference: null
+        })
         return this.hide()
       case 'edit': {
         const rect = this.reference.getBoundingClientRect()
@@ -111,6 +115,10 @@ class FormatPicker extends BaseFloat {
             return rect
           }
         }
+        // Hide image transformer
+        this.muya.eventCenter.dispatch('muya-transformer', {
+          reference: null
+        })
         this.muya.eventCenter.dispatch('muya-image-selector', {
           reference,
           imageInfo,

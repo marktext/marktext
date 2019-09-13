@@ -795,9 +795,9 @@ span.ag-warn.ag-emoji-marked-text {
   overflow: visible;
 }
 
-.ag-inline-image.left .ag-image-container::after,
-.ag-inline-image.center .ag-image-container::after,
-.ag-inline-image.right .ag-image-container::after {
+.ag-inline-image.ag-image-success.left .ag-image-container::after,
+.ag-inline-image.ag-image-success.center .ag-image-container::after,
+.ag-inline-image.ag-image-success.right .ag-image-container::after {
   content: attr(data-title);
   position: absolute;
   height: 20px;
