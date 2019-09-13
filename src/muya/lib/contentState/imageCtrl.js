@@ -161,6 +161,7 @@ const imageCtrl = ContentState => {
     const block = this.getBlock(key)
     const oldText = block.text
     const { start, end } = token.range
+    const { eventCenter } = this.muya
     block.text = oldText.substring(0, start) + oldText.substring(end)
 
     this.cursor = {
@@ -168,6 +169,9 @@ const imageCtrl = ContentState => {
       end: { key, offset: start }
     }
     this.singleRender(block)
+    // Hide image toolbar and image transformer
+    eventCenter.dispatch('muya-transformer', { reference: null })
+    eventCenter.dispatch('muya-image-toolbar', { reference: null })
     return this.muya.dispatchChange()
   }
 

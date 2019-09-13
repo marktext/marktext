@@ -50,6 +50,12 @@ class ImageSelector extends BaseFloat {
     const { eventCenter } = this.muya
     eventCenter.subscribe('muya-image-selector', ({ reference, cb, imageInfo }) => {
       if (reference) {
+        // Unselected image.
+        const { contentState } = this.muya
+        if (contentState.selectedImage) {
+          contentState.selectedImage = null
+        }
+
         Object.assign(this.state, imageInfo.token.attrs)
         // load latest unsplash photos.
         this.loading = true
