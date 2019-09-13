@@ -11,7 +11,7 @@
 
       #loading-page {
         position: absolute;
-        background: #fff;
+        background: transparent;
         -webkit-app-region: drag;
         left: 0;
         right: 0;
@@ -32,7 +32,6 @@
         width: 100%;
         height: 100%;
         border-radius: 50%;
-        background-color: rgba(33, 181, 111, 1);
         opacity: 0.4;
         position: absolute;
         top: 0;
@@ -76,10 +75,34 @@
     <!-- Loading Page when init App -->
     <div id="loading-page">
       <div class="spinner">
-        <div class="double-bounce1"></div>
-        <div class="double-bounce2"></div>
+        <div class="double-bounce1 dot"></div>
+        <div class="double-bounce2 dot"></div>
       </div>
     </div>
+
+    <script>
+      const search = location.search
+      const params = search.split('?')[1].split('&').reduce((acc, i) => {
+        const tokens = i.split('=')
+        return {
+          ...acc,
+          [tokens[0]]: tokens[1]
+        }
+      }, {})
+      const THEMES_COLOR = {
+        'one-dark': 'rgba(77, 120, 204, 1)',
+        'dark': '#409eff',
+        'graphite': 'rgb(104, 134, 170)',
+        'material-dark': '#f48237',
+        'light': 'rgba(33, 181, 111, 1)',
+        'ulysses': 'rgb(12, 139, 186)'
+      }
+
+      const dots = document.querySelectorAll('.dot')
+      Array.from(dots).forEach(dot => {
+        dot.style.background = THEMES_COLOR[params['theme']] || 'rgba(33, 181, 111, 1)'
+      })
+    </script>
 
     <!-- Set `__static` path to static files in production -->
     <script>
