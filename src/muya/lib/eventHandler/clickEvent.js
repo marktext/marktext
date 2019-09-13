@@ -108,6 +108,7 @@ class ClickEvent {
         const imageInfo = getImageInfo(imageWrapper)
         event.preventDefault()
         eventCenter.dispatch('select-image', imageInfo)
+        // Handle show image toolbar
         const rect = imageWrapper.querySelector('.ag-image-container').getBoundingClientRect()
         const reference = {
           getBoundingClientRect () {
@@ -121,6 +122,7 @@ class ClickEvent {
           imageInfo
         })
         contentState.selectImage(imageInfo)
+        // Handle show image transformer
         const imageContainer = document.querySelector(`#${imageInfo.imageId} .ag-image-container`)
         eventCenter.dispatch('muya-transformer', {
           reference: imageContainer,
