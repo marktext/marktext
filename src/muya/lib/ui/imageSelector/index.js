@@ -400,6 +400,12 @@ class ImageSelector extends BaseFloat {
                 const title = photo.user.name
                 const alt = photo.alt_description
                 const src = photo.urls.regular
+                const { id } = photo
+                this.unsplash.photos.getPhoto(id)
+                  .then(toJson)
+                  .then(json => {
+                    this.unsplash.photos.downloadPhoto(json)
+                  })
                 return this.replaceImageAsync({ alt, title, src })
               }
             }
