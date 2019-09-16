@@ -1,6 +1,6 @@
 
 import { PARAGRAPH_TYPES, PREVIEW_DOMPURIFY_CONFIG, HAS_TEXT_BLOCK_REG, IMAGE_EXT_REG } from '../config'
-import { sanitize, getUniqueId, getImageInfo as getImageSrc } from '../utils'
+import { sanitize, getUniqueId, getImageInfo as getImageSrc, getPageTitle } from '../utils'
 import { getImageInfo } from '../utils/getImageInfo'
 
 const LIST_REG = /ul|ol/
@@ -53,7 +53,7 @@ const pasteCtrl = ContentState => {
     return type
   }
 
-  ContentState.prototype.standardizeHTML = function (html) {
+  ContentState.prototype.standardizeHTML = async function (html) {
     // Only extract the `body.innerHTML` when the `html` is a full HTML Document.
     if (/<body>[\s\S]*<\/body>/.test(html)) {
       const match = /<body>([\s\S]*)<\/body>/.exec(html)
@@ -99,9 +99,15 @@ const pasteCtrl = ContentState => {
       const text = link.textContent
 
       if (href === text) {
-        const span = document.createElement('span')
-        span.innerHTML = text
-        link.replaceWith(span)
+        const title = await getPageTitle(href)
+
+        if (title) {
+          link.textContent = title
+        } else {
+          const span = document.createElement('span')
+          span.innerHTML = text
+          link.replaceWith(span)
+        }
       }
     }
 
@@ -216,7 +222,7 @@ const pasteCtrl = ContentState => {
     const text = rawText || event.clipboardData.getData('text/plain')
     let html = rawHtml || event.clipboardData.getData('text/html')
 
-    html = this.standardizeHTML(html)
+    html = await this.standardizeHTML(html)
     const copyType = this.checkCopyType(html, text)
     const { start, end } = this.cursor
     const startBlock = this.getBlock(start.key)
