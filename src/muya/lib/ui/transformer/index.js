@@ -119,7 +119,6 @@ class Transformer {
 
   mouseMove = (event) => {
     const clientX = event.clientX
-    console.log(this.movingAnchor)
     let width
     let relativeAnchor
     const image = this.reference.querySelector('img')

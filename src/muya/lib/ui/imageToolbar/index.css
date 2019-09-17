@@ -29,23 +29,40 @@
   cursor: pointer;
 }
 
+.ag-image-toolbar li.item div.tooltip {
+  min-width: 100px;
+  box-sizing: border-box;
+  height: 30px;
+  text-align: center;
+  display: block;
+  position: absolute;
+  top: -38px;
+  background: var(--floatBgColor);
+  border-radius: 2px;
+  line-height: 30px;
+  color: var(--editorColor);
+  box-shadow: var(--floatShadow);
+  display: none;
+}
+
+.ag-image-toolbar li.item div.tooltip::before {
+  content: '';
+  width: 7px;
+  height: 7px;
+  display: block;
+  background: var(--floatBgColor);
+  position: absolute;
+  bottom: -1px;
+  transform: rotate(-45deg) translateX(-50%);
+  left: 50%;
+}
+
 .ag-image-toolbar li.item:hover {
   background: var(--floatHoverColor);
 }
 
-.ag-image-toolbar li.item:hover::after {
-  content: attr(data-tip);
-  width: 100px;
-  height: 28px;
-  text-align: center;
+.ag-image-toolbar li.item:hover div.tooltip {
   display: block;
-  position: absolute;
-  top: -32px;
-  background: var(--floatBgColor);
-  border-radius: 4px;
-  line-height: 28px;
-  color: var(--editorColor);
-  box-shadow: var(--floatShadow);
 }
 
 .ag-image-toolbar li.item.edit {
