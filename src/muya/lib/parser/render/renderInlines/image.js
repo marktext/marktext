@@ -2,8 +2,7 @@ import { CLASS_OR_ID } from '../../../config'
 import { getImageInfo } from '../../../utils'
 import ImageIcon from '../../../assets/pngicon/image/2.png'
 import ImageFailIcon from '../../../assets/pngicon/image_fail/2.png'
-import ImageEditIcon from '../../../assets/pngicon/imageEdit/2.png'
-import DeleteIcon from '../../../assets/pngicon/delete/delete@2x.png'
+import DeleteIcon from '../../../assets/pngicon/delete/2.png'
 
 const renderIcon = (h, className, icon) => {
   const selector = `a.${className}`
@@ -23,7 +22,7 @@ const renderIcon = (h, className, icon) => {
 
 // I dont want operate dom directly, is there any better method? need help!
 export default function image (h, cursor, block, token, outerClass) {
-  const imageInfo = getImageInfo(token.src + encodeURI(token.backlash.second))
+  const imageInfo = getImageInfo(token.attrs.src)
   const { selectedImage } = this.muya.contentState
   const data = {
     dataset: {
@@ -32,13 +31,14 @@ export default function image (h, cursor, block, token, outerClass) {
   }
   let id
   let isSuccess
-  let width
-  let height
   let { src } = imageInfo
-  const alt = token.alt + encodeURI(token.backlash.first)
-  const { title } = token
+  const alt = token.attrs.alt
+  const title = token.attrs.title
+  const width = token.attrs.width
+  const height = token.attrs.height
+
   if (src) {
-    ({ id, isSuccess, width, height } = this.loadImageAsync(imageInfo, alt))
+    ({ id, isSuccess } = this.loadImageAsync(imageInfo, token.attrs))
   }
   let wrapperSelector = id
     ? `span#${id}.${CLASS_OR_ID.AG_INLINE_IMAGE}`
@@ -49,25 +49,26 @@ export default function image (h, cursor, block, token, outerClass) {
     renderIcon(h, 'ag-image-icon-fail', ImageFailIcon),
     renderIcon(h, 'ag-image-icon-close', DeleteIcon)
   ]
-  const toolIcons = [
-    h(`span.${CLASS_OR_ID.AG_IMAGE_BUTTONS}`, {
-      attrs: {
-        contenteditable: 'false'
-      }
-    }, [
-      renderIcon(h, 'ag-image-icon-turninto', ImageEditIcon),
-      renderIcon(h, 'ag-image-icon-delete', DeleteIcon)
-    ])
-  ]
+
   const renderImageContainer = (...args) => {
-    return h(`span.${CLASS_OR_ID.AG_IMAGE_CONTAINER}`, {}, args)
+    const data = {}
+    if (title) {
+      Object.assign(data, {
+        dataset: { title }
+      })
+    }
+    return h(`span.${CLASS_OR_ID.AG_IMAGE_CONTAINER}`, data, args)
+  }
+
+  if (typeof token.attrs['data-align'] === 'string') {
+    wrapperSelector += `.${token.attrs['data-align']}`
   }
 
   // the src image is still loading, so use the url Map base64.
   if (this.urlMap.has(src)) {
     // fix: it will generate a new id if the image is not loaded.
     const { selectedImage } = this.muya.contentState
-    if (selectedImage && selectedImage.token.src === src && selectedImage.imageId !== id) {
+    if (selectedImage && selectedImage.token.attrs.src === src && selectedImage.imageId !== id) {
       selectedImage.imageId = id
     }
     src = this.urlMap.get(src)
@@ -84,19 +85,18 @@ export default function image (h, cursor, block, token, outerClass) {
       isSuccess = true
     }
   }
+
   if (src) {
     // image is loading...
     if (typeof isSuccess === 'undefined') {
       wrapperSelector += `.${CLASS_OR_ID.AG_IMAGE_LOADING}`
     } else if (isSuccess === true) {
       wrapperSelector += `.${CLASS_OR_ID.AG_IMAGE_SUCCESS}`
-      if (typeof width === 'number' && typeof height === 'number' && (width < 100 || height < 100)) {
-        wrapperSelector += '.ag-small-image'
-      }
     } else {
       wrapperSelector += `.${CLASS_OR_ID.AG_IMAGE_FAIL}`
     }
 
+    // Add image selected class name.
     if (selectedImage) {
       const { key, token: selectToken } = selectedImage
       if (
@@ -108,24 +108,37 @@ export default function image (h, cursor, block, token, outerClass) {
       }
     }
 
+    const renderImage = () => {
+      const data = {
+        props: { alt: alt.replace(/[`*{}[\]()#+\-.!_>~:|<>$]/g, ''), src, title }
+      }
+
+      if (typeof width === 'number') {
+        Object.assign(data.props, { width })
+      }
+
+      if (typeof height === 'number') {
+        Object.assign(data.props, { height })
+      }
+
+      return h('img', data)
+    }
+
     return isSuccess
       ? [
         h(wrapperSelector, data, [
           ...imageIcons,
           renderImageContainer(
-            ...toolIcons,
             // An image description has inline elements as its contents.
             // When an image is rendered to HTML, this is standardly used as the image’s alt attribute.
-            h('img', { props: { alt: alt.replace(/[`*{}[\]()#+\-.!_>~:|<>$]/g, ''), src, title } })
+            renderImage()
           )
         ])
       ]
       : [
         h(wrapperSelector, data, [
           ...imageIcons,
-          renderImageContainer(
-            ...toolIcons
-          )
+          renderImageContainer()
         ])
       ]
   } else {
@@ -133,9 +146,7 @@ export default function image (h, cursor, block, token, outerClass) {
     return [
       h(wrapperSelector, data, [
         ...imageIcons,
-        renderImageContainer(
-          ...toolIcons
-        )
+        renderImageContainer()
       ])
     ]
   }

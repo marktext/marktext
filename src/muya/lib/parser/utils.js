@@ -7,7 +7,7 @@ export const PUNCTUATION_REG = new RegExp(/[!"#$%&'()*+,\-./:;<=>?@\[\]^_`{|}~\x
 export const WHITELIST_ATTRIBUTES = [
   'align', 'alt', 'checked', 'class', 'color', 'dir', 'disabled', 'for', 'height', 'hidden',
   'href', 'id', 'lang', 'lazyload', 'rel', 'spellcheck', 'src', 'srcset', 'start', 'style',
-  'target', 'title', 'type', 'value', 'width'
+  'target', 'title', 'type', 'value', 'width', 'data-align'
 ]
 
 // export const unicodeZsCategory = [
@@ -70,6 +70,13 @@ export const getAttributes = html => {
   const target = doc.querySelector('body').firstElementChild
   if (!target) return null
   const attrs = {}
+  if (target.tagName === 'IMG') {
+    Object.assign(attrs, {
+      title: '',
+      src: '',
+      alt: ''
+    })
+  }
   for (const attr of target.getAttributeNames()) {
     if (!WHITELIST_ATTRIBUTES.includes(attr)) continue
     if (/width|height/.test(attr)) {

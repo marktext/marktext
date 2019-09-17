@@ -1,0 +1,20 @@
+.ag-transformer .circle {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  display: inline-block;
+  border-radius: 50%;
+  background: var(--themeColor);
+  border: 2px solid var(--editorBgColor);
+  box-shadow: 0px 2px 2px 0px rgba(0, 0, 0, 0.15);
+}
+
+.ag-transformer .top-left,
+.ag-transformer .bottom-right {
+  cursor: nwse-resize
+}
+
+.ag-transformer .top-right,
+.ag-transformer .bottom-left {
+  cursor: nesw-resize
+}

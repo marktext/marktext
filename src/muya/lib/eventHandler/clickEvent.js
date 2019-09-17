@@ -77,7 +77,6 @@ class ClickEvent {
       const mathRender = target.closest(`.${CLASS_OR_ID.AG_MATH_RENDER}`)
       const rubyRender = target.closest(`.${CLASS_OR_ID.AG_RUBY_RENDER}`)
       const imageWrapper = target.closest(`.${CLASS_OR_ID.AG_INLINE_IMAGE}`)
-      const imageTurnInto = target.closest('.ag-image-icon-turninto')
       const imageDelete = target.closest('.ag-image-icon-delete') || target.closest('.ag-image-icon-close')
       const mathText = mathRender && mathRender.previousElementSibling
       const rubyText = rubyRender && rubyRender.previousElementSibling
@@ -109,12 +108,31 @@ class ClickEvent {
         const imageInfo = getImageInfo(imageWrapper)
         event.preventDefault()
         eventCenter.dispatch('select-image', imageInfo)
-        return contentState.selectImage(imageInfo)
+        // Handle show image toolbar
+        const rect = imageWrapper.querySelector('.ag-image-container').getBoundingClientRect()
+        const reference = {
+          getBoundingClientRect () {
+            return rect
+          },
+          width: imageWrapper.offsetWidth,
+          height: imageWrapper.offsetHeight
+        }
+        eventCenter.dispatch('muya-image-toolbar', {
+          reference,
+          imageInfo
+        })
+        contentState.selectImage(imageInfo)
+        // Handle show image transformer
+        const imageContainer = document.querySelector(`#${imageInfo.imageId} .ag-image-container`)
+        eventCenter.dispatch('muya-transformer', {
+          reference: imageContainer,
+          imageInfo
+        })
+        return
       }
 
       // Handle click imagewrapper when it's empty or image load failed.
       if (
-        (imageTurnInto && imageWrapper) ||
         (imageWrapper &&
         (
           imageWrapper.classList.contains('ag-empty-image') ||
@@ -124,9 +142,6 @@ class ClickEvent {
         const rect = imageWrapper.getBoundingClientRect()
         const reference = {
           getBoundingClientRect () {
-            if (imageTurnInto) {
-              rect.height = 0
-            }
             return rect
           }
         }

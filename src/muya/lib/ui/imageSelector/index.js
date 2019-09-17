@@ -50,18 +50,24 @@ class ImageSelector extends BaseFloat {
     const { eventCenter } = this.muya
     eventCenter.subscribe('muya-image-selector', ({ reference, cb, imageInfo }) => {
       if (reference) {
-        let { alt, backlash, src, title } = imageInfo.token
-        alt += encodeURI(backlash.first)
-        Object.assign(this.state, { alt, title, src })
+        // Unselected image.
+        const { contentState } = this.muya
+        if (contentState.selectedImage) {
+          contentState.selectedImage = null
+        }
+
+        Object.assign(this.state, imageInfo.token.attrs)
         // load latest unsplash photos.
         this.loading = true
         this.unsplash.photos.listPhotos(1, 40, 'latest')
           .then(toJson)
           .then(json => {
             this.loading = false
-            this.photoList = json
-            if (this.tab === 'unsplash') {
-              this.render()
+            if (Array.isArray(json)) {
+              this.photoList = json
+              if (this.tab === 'unsplash') {
+                this.render()
+              }
             }
           })
         this.imageInfo = imageInfo
@@ -86,9 +92,11 @@ class ImageSelector extends BaseFloat {
       .then(toJson)
       .then(json => {
         this.loading = false
-        this.photoList = json.results
-        if (this.tab === 'unsplash') {
-          this.render()
+        if (Array.isArray(json.results)) {
+          this.photoList = json.results
+          if (this.tab === 'unsplash') {
+            this.render()
+          }
         }
       })
 
@@ -189,7 +197,7 @@ class ImageSelector extends BaseFloat {
 
   replaceImageAsync = async ({ alt, src, title }) => {
     if (!this.muya.options.imageAction || URL_REG.test(src)) {
-      const { alt: oldAlt, src: oldSrc, title: oldTitle } = this.imageInfo.token
+      const { alt: oldAlt, src: oldSrc, title: oldTitle } = this.imageInfo.token.attrs
       if (alt !== oldAlt || src !== oldSrc || title !== oldTitle) {
         this.muya.contentState.replaceImage(this.imageInfo, { alt, src, title })
       }
@@ -392,6 +400,12 @@ class ImageSelector extends BaseFloat {
                 const title = photo.user.name
                 const alt = photo.alt_description
                 const src = photo.urls.regular
+                const { id } = photo
+                this.unsplash.photos.getPhoto(id)
+                  .then(toJson)
+                  .then(json => {
+                    this.unsplash.photos.downloadPhoto(json)
+                  })
                 return this.replaceImageAsync({ alt, title, src })
               }
             }

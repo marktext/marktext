@@ -1,6 +1,6 @@
 import copyIcon from '../../assets/pngicon/copy/2.png'
 import newIcon from '../../assets/pngicon/paragraph/2.png'
-import deleteIcon from '../../assets/pngicon/delete/delete@2x.png'
+import deleteIcon from '../../assets/pngicon/delete/2.png'
 import turnIcon from '../../assets/pngicon/turninto/2.png'
 import { isOsx } from '../../config'
 import { quicInsertObj } from '../quickInsert/config'

@@ -451,7 +451,7 @@ class Selection {
               } else {
                 return {
                   node: imageContainer,
-                  offset: 2
+                  offset: 1
                 }
               }
             } else if (count === offset && count === 0) {
@@ -569,7 +569,7 @@ class Selection {
         aOffset += getOffsetOfParagraph(preElement, anchorParagraph)
         aOffset += getTextContent(preElement, [CLASS_OR_ID.AG_MATH_RENDER, CLASS_OR_ID.AG_RUBY_RENDER]).length
       }
-      if (anchorOffset === 2) {
+      if (anchorOffset === 1) {
         aOffset += getTextContent(imageWrapper, [CLASS_OR_ID.AG_MATH_RENDER, CLASS_OR_ID.AG_RUBY_RENDER]).length
       }
       fOffset = aOffset

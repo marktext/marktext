@@ -30,10 +30,11 @@ class EventCenter {
    */
   detachDOMEvent (eventId) {
     if (!eventId) return false
-    const removeEvent = this.events.filter(e => e.eventId === eventId)[0]
-    if (removeEvent) {
-      const { target, event, listener, capture } = removeEvent
+    const index = this.events.findIndex(e => e.eventId === eventId)
+    if (index > -1) {
+      const { target, event, listener, capture } = this.events[index]
       target.removeEventListener(event, listener, capture)
+      this.events.splice(index, 1)
     }
   }
 
