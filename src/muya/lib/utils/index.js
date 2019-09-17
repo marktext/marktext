@@ -5,6 +5,8 @@ import { isInElectron, URL_REG } from '../config'
 const ID_PREFIX = 'ag-'
 let id = 0
 
+const TIMEOUT = 1500
+
 export const getUniqueId = () => `${ID_PREFIX}${id++}`
 
 export const getLongUniqueId = () => `${getUniqueId()}-${(+new Date()).toString(32)}`
@@ -153,6 +155,61 @@ export const loadImage = async (url, detectContentType = false) => {
     }
     image.src = url
   })
+}
+
+export const isOnline = () => {
+  return navigator.onLine === true
+}
+
+export const getPageTitle = url => {
+  // No need to request the title when it's not url.
+  if (!url.startsWith('http')) {
+    return ''
+  }
+  // No need to request the title when off line.
+  if (!isOnline()) {
+    return ''
+  }
+
+  const req = new XMLHttpRequest()
+  let settle
+  const promise = new Promise((resolve, reject) => {
+    settle = resolve
+  })
+  const handler = () => {
+    if (req.readyState === XMLHttpRequest.DONE) {
+      if (req.status === 200) {
+        const contentType = req.getResponseHeader('Content-Type')
+        if (/text\/html/.test(contentType)) {
+          const { response } = req
+          if (typeof response === 'string') {
+            const match = response.match(/<title>(.*)<\/title>/)
+            return match[1] ? settle(match[1]) : settle('')
+          }
+          return settle('')
+        }
+        return settle('')
+      } else {
+        return settle('')
+      }
+    }
+  }
+  const handleError = (e) => {
+    settle('')
+  }
+  req.open('GET', url)
+  req.onreadystatechange = handler
+  req.onerror = handleError
+  req.send()
+
+  // Resolve empty string when `TIMEOUT` passed.
+  const timer = new Promise((resolve, reject) => {
+    setTimeout(() => {
+      resolve('')
+    }, TIMEOUT)
+  })
+
+  return Promise.race([promise, timer])
 }
 
 export const checkImageContentType = url => {
