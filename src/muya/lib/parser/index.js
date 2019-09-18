@@ -499,7 +499,7 @@ export const tokenizer = (src, highlights = [], hasBeginRules = true, labels = n
   if (highlights.length) {
     postTokenizer(tokens)
   }
-
+  console.log(tokens)
   return tokens
 }
 

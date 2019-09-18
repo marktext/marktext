@@ -97,7 +97,7 @@ export const parseSrcAndTitle = (text = '') => {
       title: ''
     }
   }
-  const rawTitle = parts.pop()
+  const rawTitle = text.replace(/^[^ ]+ +/, '')
   let src = ''
   const TITLE_REG = /^('|")(.*?)\1$/ // we only support use `'` and `"` to indicate a title now.
   let title = ''
