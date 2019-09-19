@@ -69,7 +69,7 @@ class FormatPicker extends BaseFloat {
       const iconWrapper = h(iconWrapperSelector, icon)
       let itemSelector = `li.item.${i.type}`
 
-      if (i.type === dataAlign) {
+      if (i.type === dataAlign || !dataAlign && i.type === 'inline') {
         itemSelector += '.active'
       }
       return h(itemSelector, {
@@ -81,7 +81,7 @@ class FormatPicker extends BaseFloat {
             this.selectItem(event, i)
           }
         }
-      }, iconWrapper)
+      }, [h('div.tooltip', i.tooltip), iconWrapper])
     })
 
     const vnode = h('ul', children)
