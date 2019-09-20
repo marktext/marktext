@@ -14,7 +14,7 @@ const defaultOptions = {
   showArrow: false
 }
 
-class FormatPicker extends BaseFloat {
+class ImageToolbar extends BaseFloat {
   static pluginName = 'imageToolbar'
 
   constructor (muya, options = {}) {
@@ -100,6 +100,7 @@ class FormatPicker extends BaseFloat {
 
     const { imageInfo } = this
     switch (item.type) {
+      // Delete image.
       case 'delete':
         this.muya.contentState.deleteImage(imageInfo)
         // Hide image transformer
@@ -107,6 +108,7 @@ class FormatPicker extends BaseFloat {
           reference: null
         })
         return this.hide()
+      // Edit image, for example: editor alt and title, replace image.
       case 'edit': {
         const rect = this.reference.getBoundingClientRect()
         const reference = {
@@ -137,4 +139,4 @@ class FormatPicker extends BaseFloat {
   }
 }
 
-export default FormatPicker
+export default ImageToolbar

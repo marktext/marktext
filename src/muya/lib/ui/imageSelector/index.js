@@ -414,7 +414,7 @@ class ImageSelector extends BaseFloat {
               src: photo.urls.thumb
             }
           }))
-          console.log(photo)
+
           const desCom = h('div.des', ['By ', h('a', {
             props: {
               href: photo.links.html

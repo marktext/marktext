@@ -1,5 +1,3 @@
-import { URL_REG } from '../config'
-
 const imageCtrl = ContentState => {
   /**
    * insert inline image at the cursor position.
@@ -30,7 +28,7 @@ const imageCtrl = ContentState => {
     const imageFormat = formats.filter(f => f.type === 'image')
     // Only encode URLs but not local paths or data URLs
     let imgUrl
-    if (URL_REG.test(src)) {
+    if (!/data:image/.test(src)) {
       imgUrl = encodeURI(src)
     } else {
       imgUrl = src
@@ -134,7 +132,7 @@ const imageCtrl = ContentState => {
       }
       imageText += ']('
       if (src) {
-        imageText += src
+        imageText += encodeURI(src)
       }
       if (title) {
         imageText += ` "${title}"`
