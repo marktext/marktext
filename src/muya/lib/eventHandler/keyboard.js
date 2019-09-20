@@ -156,7 +156,7 @@ class Keyboard {
         if (needPreventDefault) {
           event.preventDefault()
         }
-        event.stopPropagation()
+        // event.stopPropagation()
         return
       }
       switch (event.key) {
