@@ -169,7 +169,7 @@ class Transformer {
     const circles = this.container.querySelectorAll('.circle')
     Array.from(circles).forEach(c => c.remove())
     this.status = false
-    eventCenter.dispatch('muya-float', this, true)
+    eventCenter.dispatch('muya-float', this, false)
   }
 }
 

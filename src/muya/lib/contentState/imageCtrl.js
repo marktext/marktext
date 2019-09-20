@@ -177,8 +177,13 @@ const imageCtrl = ContentState => {
 
   ContentState.prototype.selectImage = function (imageInfo) {
     this.selectedImage = imageInfo
-    const block = this.getBlock(imageInfo.key)
-    return this.singleRender(block, false)
+    const { key } = imageInfo
+    const block = this.getBlock(key)
+    this.cursor = {
+      start: { key, offset: imageInfo.token.range.end },
+      end: { key, offset: imageInfo.token.range.end }
+    }
+    return this.singleRender(block, true)
   }
 }
 
