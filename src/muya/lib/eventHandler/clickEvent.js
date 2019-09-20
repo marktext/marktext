@@ -16,8 +16,11 @@ class ClickEvent {
       event.preventDefault()
       event.stopPropagation()
 
-      // Hide format box
-      eventCenter.dispatch('muya-format-picker', { reference: null })
+      // Hide all float box and image transformer
+      const { keyboard } = this.muya
+      if (keyboard) {
+        keyboard.hideAllFloatTools()
+      }
 
       const { start, end } = selection.getCursorRange()
 
