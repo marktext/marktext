@@ -101,6 +101,7 @@ import 'muya/themes/default.css'
 import '@/assets/themes/codemirror/one-dark.css'
 import 'view-image/lib/imgViewer.css'
 import CloseIcon from '@/assets/icons/close.svg'
+import { shell } from 'electron'
 
 const STANDAR_Y = 320
 
@@ -334,7 +335,8 @@ export default {
       Muya.use(ImagePathPicker)
       Muya.use(ImageSelector, {
         applicationId: process.env.UNSPLASH_ACCESS_KEY,
-        secret: process.env.UNSPLASH_SECRET_KEY
+        secret: process.env.UNSPLASH_SECRET_KEY,
+        photoCreatorClick: this.photoCreatorClick
       })
       Muya.use(Transformer)
       Muya.use(ImageToolbar)
@@ -466,6 +468,9 @@ export default {
     })
   },
   methods: {
+    photoCreatorClick: (url) => {
+      shell.openExternal(url)
+    },
     async imagePathAutoComplete (src) {
       const files = await this.$store.dispatch('ASK_FOR_IMAGE_AUTO_PATH', src)
       return files.map(f => {
