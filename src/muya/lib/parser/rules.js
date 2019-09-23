@@ -23,7 +23,7 @@ export const inlineRules = {
   reference_link: /^\[([^\]]+?)(\\*)\](?:\[([^\]]*?)(\\*)\])?/,
   reference_image: /^\!\[([^\]]+?)(\\*)\](?:\[([^\]]*?)(\\*)\])?/,
   tail_header: /^(\s{1,}#{1,})(\s*)$/,
-  html_tag: /^(<!--[\s\S]*?-->|(<([a-zA-Z]{1}[a-zA-Z\d-]*) *[\u4e00-\u9fa5_%@&\.\-/:a-zA-Z\d='";\? *]* *(?:\/)?>)(?:([\s\S]*?)(<\/\3 *>))?)/, // raw html
+  html_tag: /^(<!--[\s\S]*?-->|(<([a-zA-Z]{1}[a-zA-Z\d-]*) *[^\n<>]* *(?:\/)?>)(?:([\s\S]*?)(<\/\3 *>))?)/, // raw html
   html_escape: new RegExp(`^(${escapeCharacters.join('|')})`, 'i'),
   soft_line_break: /^(\n)(?!\n)/,
   hard_line_break: /^( {2,})(\n)(?!\n)/,

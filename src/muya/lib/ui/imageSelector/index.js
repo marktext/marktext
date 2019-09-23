@@ -414,9 +414,17 @@ class ImageSelector extends BaseFloat {
               src: photo.urls.thumb
             }
           }))
+
           const desCom = h('div.des', ['By ', h('a', {
             props: {
               href: photo.links.html
+            },
+            on: {
+              click: () => {
+                if (this.options.photoCreatorClick) {
+                  this.options.photoCreatorClick(photo.user.links.html)
+                }
+              }
             }
           }, photo.user.name)])
           return h('div.photo', [imageWrapper, desCom])

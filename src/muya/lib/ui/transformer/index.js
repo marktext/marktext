@@ -59,6 +59,7 @@ class Transformer {
   }
 
   render () {
+    const { eventCenter } = this.muya
     if (this.status) {
       this.hide()
     }
@@ -66,6 +67,7 @@ class Transformer {
 
     this.createElements()
     this.update()
+    eventCenter.dispatch('muya-float', this, true)
   }
 
   createElements () {
@@ -163,9 +165,11 @@ class Transformer {
   }
 
   hide () {
+    const { eventCenter } = this.muya
     const circles = this.container.querySelectorAll('.circle')
     Array.from(circles).forEach(c => c.remove())
     this.status = false
+    eventCenter.dispatch('muya-float', this, false)
   }
 }
 

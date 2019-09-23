@@ -172,7 +172,6 @@ const enterCtrl = ContentState => {
 
   ContentState.prototype.enterHandler = function (event) {
     const { start, end } = selection.getCursorRange()
-
     if (!start || !end) {
       return event.preventDefault()
     }

@@ -795,7 +795,7 @@ span.ag-warn.ag-emoji-marked-text {
   overflow: visible;
 }
 
-.ag-inline-image.ag-image-success.left:not(.ag-image-uploading) .ag-image-container::after,
+/* .ag-inline-image.ag-image-success.left:not(.ag-image-uploading) .ag-image-container::after,
 .ag-inline-image.ag-image-success.center:not(.ag-image-uploading) .ag-image-container::after,
 .ag-inline-image.ag-image-success.right:not(.ag-image-uploading) .ag-image-container::after {
   content: attr(data-title);
@@ -808,7 +808,7 @@ span.ag-warn.ag-emoji-marked-text {
   width: 100%;
   text-align: center;
   color: var(--editorColor30);
-}
+} */
 
 .ag-inline-image.ag-image-success {
   background: transparent;

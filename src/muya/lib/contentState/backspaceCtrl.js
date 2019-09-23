@@ -116,6 +116,12 @@ const backspaceCtrl = ContentState => {
       return
     }
 
+    // handle delete selected image
+    if (this.selectedImage) {
+      event.preventDefault()
+      return this.deleteImage(this.selectedImage)
+    }
+
     if (this.isSelectAll()) {
       event.preventDefault()
       this.blocks = [this.createBlockP()]
@@ -232,7 +238,7 @@ const backspaceCtrl = ContentState => {
     }
 
     const node = selection.getSelectionStart()
-    const preEleSibling = node && node.nodeType === 1 ? node.previousElementSibling : null
+    const parentNode = node && node.nodeType === 1 ? node.parentNode : null
     const paragraph = findNearestParagraph(node)
     const id = paragraph.id
     let block = this.getBlock(id)
@@ -240,14 +246,13 @@ const backspaceCtrl = ContentState => {
     const preBlock = this.findPreBlockInLocation(block)
     const { left, right } = selection.getCaretOffsets(paragraph)
     const inlineDegrade = this.checkBackspaceCase()
-
     // Handle backspace when the previous is an inline image.
-    if (preEleSibling && preEleSibling.classList.contains('ag-inline-image')) {
+    if (parentNode && parentNode.classList.contains('ag-inline-image')) {
       if (selection.getCaretOffsets(node).left === 0) {
         event.preventDefault()
         event.stopPropagation()
-        const imageInfo = getImageInfo(preEleSibling)
-        return this.selectImage(imageInfo)
+        const imageInfo = getImageInfo(parentNode)
+        return this.deleteImage(imageInfo)
       }
       if (selection.getCaretOffsets(node).left === 1 && right === 0) {
         event.stopPropagation()

@@ -6,6 +6,15 @@ import marked from '../parser/marked'
 
 const copyCutCtrl = ContentState => {
   ContentState.prototype.cutHandler = function () {
+    const { selectedImage } = this
+    if (selectedImage) {
+      const { key, token } = selectedImage
+      this.deleteImage({
+        key,
+        token
+      })
+      return
+    }
     const { start, end } = selection.getCursorRange()
     if (!start || !end) {
       return
@@ -163,6 +172,13 @@ const copyCutCtrl = ContentState => {
 
   ContentState.prototype.copyHandler = function (event, type) {
     event.preventDefault()
+    const { selectedImage } = this
+    if (selectedImage) {
+      const { token } = selectedImage
+      event.clipboardData.setData('text/html', token.raw)
+      event.clipboardData.setData('text/plain', token.raw)
+      return
+    }
 
     const { html, text } = this.getClipBoradData()
 

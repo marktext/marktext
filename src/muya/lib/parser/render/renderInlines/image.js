@@ -41,7 +41,7 @@ export default function image (h, cursor, block, token, outerClass) {
     ({ id, isSuccess } = this.loadImageAsync(imageInfo, token.attrs))
   }
   let wrapperSelector = id
-    ? `span#${id}.${CLASS_OR_ID.AG_INLINE_IMAGE}`
+    ? `span#${isSuccess ? block.key + '_' + id + '_' + token.range.start : id}.${CLASS_OR_ID.AG_INLINE_IMAGE}`
     : `span.${CLASS_OR_ID.AG_INLINE_IMAGE}`
 
   const imageIcons = [

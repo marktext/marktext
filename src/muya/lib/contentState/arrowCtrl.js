@@ -79,6 +79,7 @@ const arrowCtrl = ContentState => {
           break
         }
       }
+      this.muya.keyboard.hideAllFloatTools()
       return this.singleRender(block)
     }
   }
