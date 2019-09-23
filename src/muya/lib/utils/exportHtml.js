@@ -209,6 +209,17 @@ class ExportHtml {
         padding: 15px;
       }
     }
+
+    .markdown-body ol ol,
+    .markdown-body ul ol {
+      list-style-type: decimal;
+    }
+    .markdown-body ol ol ol,
+    .markdown-body ol ul ol,
+    .markdown-body ul ol ol,
+    .markdown-body ul ul ol {
+      list-style-type: decimal;
+    }
   </style>
   <style>${extraCss}</style>
 </head>
