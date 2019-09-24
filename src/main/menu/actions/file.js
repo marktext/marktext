@@ -74,11 +74,11 @@ const handleResponseForPrint = e => {
   // })
 }
 
-const handleResponseForSave = async (e, { id, markdown, pathname, options }) => {
+const handleResponseForSave = async (e, { id, filename, markdown, pathname, options }) => {
   const win = BrowserWindow.fromWebContents(e.sender)
   let recommendFilename = getRecommendTitleFromMarkdownString(markdown)
   if (!recommendFilename) {
-    recommendFilename = 'Untitled'
+    recommendFilename = filename || 'Untitled'
   }
 
   // If the file doesn't exist on disk add it to the recently used documents later
@@ -203,11 +203,11 @@ ipcMain.on('mt::save-and-close-tabs', async (e, unsavedFiles) => {
   }
 })
 
-ipcMain.on('AGANI::response-file-save-as', async (e, { id, markdown, pathname, options }) => {
+ipcMain.on('AGANI::response-file-save-as', async (e, { id, filename, markdown, pathname, options }) => {
   const win = BrowserWindow.fromWebContents(e.sender)
   let recommendFilename = getRecommendTitleFromMarkdownString(markdown)
   if (!recommendFilename) {
-    recommendFilename = 'Untitled'
+    recommendFilename = filename || 'Untitled'
   }
 
   // If the file doesn't exist on disk add it to the recently used documents later

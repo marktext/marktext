@@ -325,10 +325,16 @@ const actions = {
   // need pass some data to main process when `save` menu item clicked
   LISTEN_FOR_SAVE ({ commit, state, dispatch }) {
     ipcRenderer.on('AGANI::ask-file-save', () => {
-      const { id, pathname, markdown } = state.currentFile
+      const { id, filename, pathname, markdown } = state.currentFile
       const options = getOptionsFromState(state.currentFile)
       if (id) {
-        ipcRenderer.send('AGANI::response-file-save', { id, pathname, markdown, options })
+        ipcRenderer.send('AGANI::response-file-save', {
+          id,
+          filename,
+          pathname,
+          markdown,
+          options
+        })
       }
     })
   },
@@ -336,10 +342,16 @@ const actions = {
   // need pass some data to main process when `save as` menu item clicked
   LISTEN_FOR_SAVE_AS ({ commit, state }) {
     ipcRenderer.on('AGANI::ask-file-save-as', () => {
-      const { id, pathname, markdown } = state.currentFile
+      const { id, filename, pathname, markdown } = state.currentFile
       const options = getOptionsFromState(state.currentFile)
       if (id) {
-        ipcRenderer.send('AGANI::response-file-save-as', { id, pathname, markdown, options })
+        ipcRenderer.send('AGANI::response-file-save-as', {
+          id,
+          filename,
+          pathname,
+          markdown,
+          options
+        })
       }
     })
   },
@@ -432,12 +444,18 @@ const actions = {
 
   LISTEN_FOR_MOVE_TO ({ commit, state }) {
     ipcRenderer.on('AGANI::ask-file-move-to', () => {
-      const { id, pathname, markdown } = state.currentFile
+      const { id, filename, pathname, markdown } = state.currentFile
       const options = getOptionsFromState(state.currentFile)
       if (!id) return
       if (!pathname) {
         // if current file is a newly created file, just save it!
-        ipcRenderer.send('AGANI::response-file-save', { id, pathname, markdown, options })
+        ipcRenderer.send('AGANI::response-file-save', {
+          id,
+          filename,
+          pathname,
+          markdown,
+          options
+        })
       } else {
         // if not, move to a new(maybe) folder
         ipcRenderer.send('AGANI::response-file-move-to', { id, pathname })
@@ -452,12 +470,18 @@ const actions = {
   },
 
   RESPONSE_FOR_RENAME ({ commit, state }) {
-    const { id, pathname, markdown } = state.currentFile
+    const { id, filename, pathname, markdown } = state.currentFile
     const options = getOptionsFromState(state.currentFile)
     if (!id) return
     if (!pathname) {
       // if current file is a newly created file, just save it!
-      ipcRenderer.send('AGANI::response-file-save', { id, pathname, markdown, options })
+      ipcRenderer.send('AGANI::response-file-save', {
+        id,
+        filename,
+        pathname,
+        markdown,
+        options
+      })
     } else {
       bus.$emit('rename')
     }
@@ -695,7 +719,7 @@ const actions = {
   // WORKAROUND: id is "muya" if changes come from muya and not source code editor! So we don't have to apply the workaround.
   LISTEN_FOR_CONTENT_CHANGE ({ commit, dispatch, state, rootState }, { id, markdown, wordCount, cursor, history, toc }) {
     const { autoSave } = rootState.preferences
-    const { id: currentId, pathname, markdown: oldMarkdown } = state.currentFile
+    const { id: currentId, filename, pathname, markdown: oldMarkdown } = state.currentFile
     const { listToc } = state
 
     if (!id) {
@@ -740,12 +764,18 @@ const actions = {
     if (markdown !== oldMarkdown) {
       commit('SET_SAVE_STATUS', false)
       if (pathname && autoSave) {
-        dispatch('HANDLE_AUTO_SAVE', { id: currentId, pathname, markdown, options })
+        dispatch('HANDLE_AUTO_SAVE', {
+          id: currentId,
+          filename,
+          pathname,
+          markdown,
+          options
+        })
       }
     }
   },
 
-  HANDLE_AUTO_SAVE ({ commit, state, rootState }, { id, pathname, markdown, options }) {
+  HANDLE_AUTO_SAVE ({ commit, state, rootState }, { id, filename, pathname, markdown, options }) {
     if (!id || !pathname) {
       throw new Error('HANDLE_AUTO_SAVE: Invalid tab.')
     }
@@ -768,7 +798,13 @@ const actions = {
       const tab = tabs.find(t => t.id === id)
       if (tab && !tab.isSaved) {
         // Tab changed status is set after the file is saved.
-        ipcRenderer.send('AGANI::response-file-save', { id, pathname, markdown, options })
+        ipcRenderer.send('AGANI::response-file-save', {
+          id,
+          filename,
+          pathname,
+          markdown,
+          options
+        })
       }
     }, autoSaveDelay)
     autoSaveTimers.set(id, timer)
