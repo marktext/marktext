@@ -1,0 +1,70 @@
+.ag-link-tools {
+  height: 34px;
+  width: 100px;
+  position: relative;
+}
+
+.ag-link-tools ul,
+.ag-link-tools li {
+  margin: 0;
+  padding: 0;
+}
+
+.ag-link-tools ul {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.ag-link-tools li.item {
+  margin: 0 11px;
+  position: relative;
+  list-style: none;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  cursor: pointer;
+}
+
+.ag-link-tools li.item:hover {
+  background: var(--floatHoverColor);
+}
+
+.ag-link-tools li.item:last-of-type:before {
+  content: '';
+  width: 1px;
+  position: absolute;
+  height: 18px;
+  background: var(--editorColor10);
+  left: -12px;
+  top: 6px;
+}
+
+.ag-link-tools li.item .icon-wrapper {
+  width: 18px;
+  height: 18px;
+}
+
+.ag-link-tools li.item .icon-wrapper i.icon {
+  display: inline-block;
+  position: relative;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  color: var(--iconColor);
+  transition: all .25s ease-in-out;
+}
+
+.ag-link-tools li.item .icon-wrapper i.icon > i[class^=icon-] {
+  display: inline-block;
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(18px 0 currentColor); 
+  position: relative;
+  left: -18px;
+}

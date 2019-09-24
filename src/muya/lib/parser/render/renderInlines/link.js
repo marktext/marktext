@@ -56,6 +56,11 @@ export default function link (h, cursor, block, token, outerClass) {
             href: token.href + encodeURI(token.backlash.second),
             target: '_blank',
             title: token.title
+          },
+          dataset: {
+            start,
+            end,
+            raw: token.raw
           }
         }, [
           ...token.children.reduce((acc, to) => {

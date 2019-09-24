@@ -85,6 +85,7 @@ import ImageSelector from 'muya/lib/ui/imageSelector'
 import ImageToolbar from 'muya/lib/ui/imageToolbar'
 import Transformer from 'muya/lib/ui/transformer'
 import FormatPicker from 'muya/lib/ui/formatPicker'
+import LinkTools from 'muya/lib/ui/linkTools'
 import FrontMenu from 'muya/lib/ui/frontMenu'
 import bus from '../../bus'
 import Search from '../search.vue'
@@ -342,6 +343,9 @@ export default {
       Muya.use(ImageToolbar)
       Muya.use(FormatPicker)
       Muya.use(FrontMenu)
+      Muya.use(LinkTools, {
+        jumpClick: this.jumpClick
+      })
 
       const options = {
         focusMode,
@@ -470,6 +474,12 @@ export default {
   methods: {
     photoCreatorClick: (url) => {
       shell.openExternal(url)
+    },
+    jumpClick: (linkInfo) => {
+      const { href } = linkInfo.token
+      if (href.startsWith('http')) {
+        shell.openExternal(href)
+      }
     },
     async imagePathAutoComplete (src) {
       const files = await this.$store.dispatch('ASK_FOR_IMAGE_AUTO_PATH', src)
