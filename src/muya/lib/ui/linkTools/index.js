@@ -35,7 +35,6 @@ class LinkTools extends BaseFloat {
     const { eventCenter } = this.muya
     super.listen()
     eventCenter.subscribe('muya-link-tools', ({ reference, linkInfo }) => {
-      console.log(reference, linkInfo)
       if (reference) {
         this.linkInfo = linkInfo
         setTimeout(() => {

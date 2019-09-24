@@ -1,5 +1,5 @@
 
-import { PARAGRAPH_TYPES, PREVIEW_DOMPURIFY_CONFIG, HAS_TEXT_BLOCK_REG, IMAGE_EXT_REG } from '../config'
+import { PARAGRAPH_TYPES, PREVIEW_DOMPURIFY_CONFIG, HAS_TEXT_BLOCK_REG, IMAGE_EXT_REG, URL_REG } from '../config'
 import { sanitize, getUniqueId, getImageInfo as getImageSrc, getPageTitle } from '../utils'
 import { getImageInfo } from '../utils/getImageInfo'
 
@@ -221,7 +221,10 @@ const pasteCtrl = ContentState => {
     event.stopPropagation()
     const text = rawText || event.clipboardData.getData('text/plain')
     let html = rawHtml || event.clipboardData.getData('text/html')
-
+    // Support copy and paste Firefox url and parse title
+    if (URL_REG.test(text) && !/\s/.test(text) && !html) {
+      html = `<a href="${text}">${text}</a>`
+    }
     html = await this.standardizeHTML(html)
     const copyType = this.checkCopyType(html, text)
     const { start, end } = this.cursor
