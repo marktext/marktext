@@ -17,6 +17,21 @@
       :onChange="value => onSelectChange('editorFontFamily', value)"
     ></cur-select>
     <range
+      description="The code block font size in editor."
+      :value="codeFontSize"
+      :min="12"
+      :max="28"
+      unit="px"
+      :step="1"
+      :onChange="value => onSelectChange('codeFontSize', value)"
+    ></range>
+    <cur-select
+      description="The used code block font in the editor."
+      :value="codeFontFamily"
+      :options="codeFontFamilyOptions"
+      :onChange="value => onSelectChange('codeFontFamily', value)"
+    ></cur-select>
+    <range
       description="Line height of editor lines."
       :value="lineHeight"
       :min="1.2"
@@ -54,21 +69,6 @@
       :onChange="value => onSelectChange('textDirection', value)"
     ></cur-select>
     <separator></separator>
-    <range
-      description="The code block font size in editor."
-      :value="codeFontSize"
-      :min="12"
-      :max="28"
-      unit="px"
-      :step="1"
-      :onChange="value => onSelectChange('codeFontSize', value)"
-    ></range>
-    <cur-select
-      description="The used code block font in the editor."
-      :value="codeFontFamily"
-      :options="codeFontFamilyOptions"
-      :onChange="value => onSelectChange('codeFontFamily', value)"
-    ></cur-select>
     <separator></separator>
     <bool
       description="Hide hint for quickly creating paragraphs."
