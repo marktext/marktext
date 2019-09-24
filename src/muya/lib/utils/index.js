@@ -184,7 +184,7 @@ export const getPageTitle = url => {
           const { response } = req
           if (typeof response === 'string') {
             const match = response.match(/<title>(.*)<\/title>/)
-            return match[1] ? settle(match[1]) : settle('')
+            return match && match[1] ? settle(match[1]) : settle('')
           }
           return settle('')
         }

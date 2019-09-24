@@ -1,6 +1,6 @@
 const linkCtrl = ContentState => {
   /**
-   * insert inline image at the cursor position.
+   * Change a link into text.
    */
   ContentState.prototype.unlink = function (linkInfo) {
     const { key, token } = linkInfo
