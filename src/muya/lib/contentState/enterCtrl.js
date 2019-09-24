@@ -387,7 +387,30 @@ const enterCtrl = ContentState => {
             newBlock.bulletMarkerOrDelimiter = block.bulletMarkerOrDelimiter
           }
           newBlock.isLooseListItem = block.isLooseListItem
+        } else if (block.type === 'hr') {
+          const preText = text.substring(0, left)
+          const postText = text.substring(left)
+
+          // Degrade thematice break to paragraph
+          if (preText.replace(/ /g, '').length < 3) {
+            block.type = 'p'
+            block.children[0].functionType = 'paragraphContent'
+          }
+
+          if (postText.replace(/ /g, '').length >= 3) {
+            newBlock = this.createBlock('hr')
+            const content = this.createBlock('span', {
+              functionType: 'thematicBreakLine',
+              text: postText
+            })
+            this.appendChild(newBlock, content)
+          } else {
+            newBlock = this.createBlockP(postText)
+          }
+
+          block.children[0].text = preText
         }
+
         this.insertAfter(newBlock, block)
         break
       }
