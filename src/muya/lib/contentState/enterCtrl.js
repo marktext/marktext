@@ -423,7 +423,7 @@ const enterCtrl = ContentState => {
         // cursor at end of paragraph or at begin of paragraph
         if (type === 'li') {
           if (block.listItemType === 'task') {
-            const { checked } = block.children[0]
+            const checked = false
             newBlock = this.createTaskItemBlock(null, checked)
           } else {
             newBlock = this.createBlockLi()
