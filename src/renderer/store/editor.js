@@ -323,34 +323,38 @@ const actions = {
   },
 
   // need pass some data to main process when `save` menu item clicked
-  LISTEN_FOR_SAVE ({ commit, state, dispatch }) {
+  LISTEN_FOR_SAVE ({ state, rootState }) {
     ipcRenderer.on('AGANI::ask-file-save', () => {
       const { id, filename, pathname, markdown } = state.currentFile
       const options = getOptionsFromState(state.currentFile)
+      const defaultPath = getRootFolderFromState(rootState)
       if (id) {
         ipcRenderer.send('AGANI::response-file-save', {
           id,
           filename,
           pathname,
           markdown,
-          options
+          options,
+          defaultPath
         })
       }
     })
   },
 
   // need pass some data to main process when `save as` menu item clicked
-  LISTEN_FOR_SAVE_AS ({ commit, state }) {
+  LISTEN_FOR_SAVE_AS ({ state, rootState }) {
     ipcRenderer.on('AGANI::ask-file-save-as', () => {
       const { id, filename, pathname, markdown } = state.currentFile
       const options = getOptionsFromState(state.currentFile)
+      const defaultPath = getRootFolderFromState(rootState)
       if (id) {
         ipcRenderer.send('AGANI::response-file-save-as', {
           id,
           filename,
           pathname,
           markdown,
-          options
+          options,
+          defaultPath
         })
       }
     })
@@ -442,10 +446,11 @@ const actions = {
     }
   },
 
-  LISTEN_FOR_MOVE_TO ({ commit, state }) {
+  LISTEN_FOR_MOVE_TO ({ state, rootState }) {
     ipcRenderer.on('AGANI::ask-file-move-to', () => {
       const { id, filename, pathname, markdown } = state.currentFile
       const options = getOptionsFromState(state.currentFile)
+      const defaultPath = getRootFolderFromState(rootState)
       if (!id) return
       if (!pathname) {
         // if current file is a newly created file, just save it!
@@ -454,7 +459,8 @@ const actions = {
           filename,
           pathname,
           markdown,
-          options
+          options,
+          defaultPath
         })
       } else {
         // if not, move to a new(maybe) folder
@@ -469,9 +475,10 @@ const actions = {
     })
   },
 
-  RESPONSE_FOR_RENAME ({ commit, state }) {
+  RESPONSE_FOR_RENAME ({ state, rootState }) {
     const { id, filename, pathname, markdown } = state.currentFile
     const options = getOptionsFromState(state.currentFile)
+    const defaultPath = getRootFolderFromState(rootState)
     if (!id) return
     if (!pathname) {
       // if current file is a newly created file, just save it!
@@ -480,7 +487,8 @@ const actions = {
         filename,
         pathname,
         markdown,
-        options
+        options,
+        defaultPath
       })
     } else {
       bus.$emit('rename')
@@ -797,13 +805,16 @@ const actions = {
       // gracefully closed. The automatically save event may fire meanwhile.
       const tab = tabs.find(t => t.id === id)
       if (tab && !tab.isSaved) {
+        const defaultPath = getRootFolderFromState(rootState)
+
         // Tab changed status is set after the file is saved.
         ipcRenderer.send('AGANI::response-file-save', {
           id,
           filename,
           pathname,
           markdown,
-          options
+          options,
+          defaultPath
         })
       }
     }, autoSaveDelay)
@@ -953,6 +964,21 @@ const actions = {
       webFrame.setZoomFactor(zoomFactor)
     })
   }
+}
+
+// ----------------------------------------------------------------------------
+
+/**
+ * Return the opened root folder or an empty string.
+ *
+ * @param {*} rootState The root state.
+ */
+const getRootFolderFromState = rootState => {
+  const openedFolder = rootState.project.projectTree
+  if (openedFolder) {
+    return openedFolder.pathname
+  }
+  return ''
 }
 
 export default { state, mutations, actions }

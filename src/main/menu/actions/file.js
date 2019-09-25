@@ -74,7 +74,7 @@ const handleResponseForPrint = e => {
   // })
 }
 
-const handleResponseForSave = async (e, { id, filename, markdown, pathname, options }) => {
+const handleResponseForSave = async (e, { id, filename, markdown, pathname, options, defaultPath }) => {
   const win = BrowserWindow.fromWebContents(e.sender)
   let recommendFilename = getRecommendTitleFromMarkdownString(markdown)
   if (!recommendFilename) {
@@ -90,7 +90,7 @@ const handleResponseForSave = async (e, { id, filename, markdown, pathname, opti
 
   if (!filePath) {
     const { filePath: dialogPath, canceled } = await dialog.showSaveDialog(win, {
-      defaultPath: path.join(getPath('documents'), `${recommendFilename}.md`)
+      defaultPath: path.join(defaultPath || getPath('documents'), `${recommendFilename}.md`)
     })
 
     if (dialogPath && !canceled) {
@@ -203,7 +203,7 @@ ipcMain.on('mt::save-and-close-tabs', async (e, unsavedFiles) => {
   }
 })
 
-ipcMain.on('AGANI::response-file-save-as', async (e, { id, filename, markdown, pathname, options }) => {
+ipcMain.on('AGANI::response-file-save-as', async (e, { id, filename, markdown, pathname, options, defaultPath }) => {
   const win = BrowserWindow.fromWebContents(e.sender)
   let recommendFilename = getRecommendTitleFromMarkdownString(markdown)
   if (!recommendFilename) {
@@ -216,7 +216,7 @@ ipcMain.on('AGANI::response-file-save-as', async (e, { id, filename, markdown, p
   const alreadyExistOnDisk = !!pathname
 
   let { filePath, canceled } = await dialog.showSaveDialog(win, {
-    defaultPath: pathname || getPath('documents') + `/${recommendFilename}.md`
+    defaultPath: pathname || path.join(defaultPath || getPath('documents'), `${recommendFilename}.md`)
   })
 
   if (filePath && !canceled) {
