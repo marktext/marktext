@@ -1,4 +1,4 @@
-import { normal, gfm, tables, pedantic } from './blockRules'
+import { normal, gfm, pedantic } from './blockRules'
 import options from './options'
 import { splitCells, rtrim } from './utils'
 
@@ -15,11 +15,7 @@ function Lexer (opts) {
   if (this.options.pedantic) {
     this.rules = pedantic
   } else if (this.options.gfm) {
-    if (this.options.tables) {
-      this.rules = tables
-    } else {
-      this.rules = gfm
-    }
+    this.rules = gfm
   }
 }
 
@@ -117,7 +113,7 @@ Lexer.prototype.token = function (src, top) {
       }
     }
 
-    // fences (gfm)
+    // fences
     cap = this.rules.fences.exec(src)
     if (cap) {
       src = src.substring(cap[0].length)
@@ -478,7 +474,7 @@ Lexer.prototype.token = function (src, top) {
         this.tokens.push({
           type: 'heading',
           headingStyle: 'setext',
-          depth: cap[2] === '=' ? 1 : 2,
+          depth: cap[2].charAt(0) === '=' ? 1 : 2,
           text: precededToken.text + '\n' + cap[1],
           marker
         })
@@ -486,7 +482,7 @@ Lexer.prototype.token = function (src, top) {
         this.tokens.push({
           type: 'heading',
           headingStyle: 'setext',
-          depth: cap[2] === '=' ? 1 : 2,
+          depth: cap[2].charAt(0) === '=' ? 1 : 2,
           text: cap[1],
           marker
         })

@@ -22,7 +22,6 @@ export default {
   silent: false,
   smartLists: false,
   smartypants: false,
-  tables: true,
   xhtml: false,
   disableInline: false
 }
