@@ -129,7 +129,10 @@ gfm.url = edit(gfm.url, 'i')
 
 export const breaks = Object.assign({}, gfm, {
   br: edit(inline.br).replace('{2,}', '*').getRegex(),
-  text: edit(gfm.text).replace(/\{2,\}/g, '*').getRegex()
+  text: edit(gfm.text)
+    .replace('\\b_', '\\b_| {2,}\\n')
+    .replace(/\{2,\}/g, '*')
+    .getRegex()
 })
 
 /* eslint-ensable no-useless-escape */
