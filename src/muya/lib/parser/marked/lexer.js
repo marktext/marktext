@@ -390,7 +390,7 @@ Lexer.prototype.token = function (src, top) {
           : 'html',
         pre: !this.options.sanitizer &&
           (cap[1] === 'pre' || cap[1] === 'script' || cap[1] === 'style'),
-        text: cap[0]
+        text: this.options.sanitize ? (this.options.sanitizer ? this.options.sanitizer(cap[0]) : escape(cap[0])) : cap[0]
       })
       continue
     }

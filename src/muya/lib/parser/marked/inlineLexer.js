@@ -272,7 +272,7 @@ InlineLexer.prototype.output = function (src) {
       src = src.substring(cap[0].length)
       lastChar = cap[0].charAt(cap[0].length - 1)
       if (this.inRawBlock) {
-        out += this.renderer.text(cap[0])
+        out += this.renderer.text(this.options.sanitize ? (this.options.sanitizer ? this.options.sanitizer(cap[0]) : escape(cap[0])) : cap[0])
       } else {
         out += this.renderer.text(escape(this.smartypants(cap[0])))
       }
