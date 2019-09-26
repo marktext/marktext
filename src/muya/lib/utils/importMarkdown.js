@@ -157,9 +157,10 @@ const importRegister = ContentState => {
           const lang = (infostring || '').match(/\S*/)[0]
 
           value = text
-          if (value.endsWith('\n')) {
-            value = value.replace(/\n+$/, '')
-          }
+          // Fix: #1265 and remove codes bellow.
+          // if (value.endsWith('\n')) {
+          //   value = value.replace(/\n+$/, '')
+          // }
           if (/mermaid|flowchart|vega-lite|sequence/.test(lang)) {
             block = this.createContainerBlock(lang, value)
             this.appendChild(parentList[0], block)
