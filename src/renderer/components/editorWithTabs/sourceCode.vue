@@ -83,6 +83,7 @@ export default {
       bus.$on('file-changed', this.handleFileChange)
       bus.$on('dotu-select', this.handleSelectDoutu)
       bus.$on('selectAll', this.handleSelectAll)
+      bus.$on('image-action', this.handleImageAction)
 
       setMode(editor, 'markdown')
       this.listenChange()
@@ -105,12 +106,22 @@ export default {
     bus.$off('file-changed', this.handleFileChange)
     bus.$off('dotu-select', this.handleSelectDoutu)
     bus.$off('selectAll', this.handleSelectAll)
+    bus.$off('image-action', this.handleImageAction)
 
     const { editor } = this
     const { cursor, markdown } = this.getMarkdownAndCursor(editor)
     bus.$emit('file-changed', { id: this.tabId, markdown, cursor, renderCursor: true })
   },
   methods: {
+    handleImageAction ({ id, result, alt }) {
+      const { editor } = this
+      const value = editor.getValue()
+      if (value.indexOf(id) > 0) {
+        const newValue = value.replace(new RegExp(`!\\[${id}\\]\\(.*\\)`), `![${alt}](${result})`)
+        editor.setValue(newValue)
+        setCursorAtLastLine(editor)
+      }
+    },
     handleSelectDoutu (url) {
       const { editor } = this
       if (editor) {
