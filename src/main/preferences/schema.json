@@ -58,14 +58,8 @@
   },
   "editorFontFamily": {
     "description": "Editor--editor font family",
-    "enum": [
-      "Open Sans",
-      "Clear Sans",
-      "Helvetica Neue",
-      "Helvetica",
-      "Arial",
-      "sans-serif"
-    ]
+    "type": "string",
+    "pattern": "^[_A-z0-9]+((-|\\s)*[_A-z0-9])*$"
   },
   "fontSize": {
     "description": "Editor--Font size in pixels",
@@ -95,12 +89,8 @@
   },
   "codeFontFamily": {
     "description": "Editor--Font family used in code block",
-    "enum": [
-      "DejaVu Sans Mono",
-      "Source Code Pro",
-      "Droid Sans Mono",
-      "monospace"
-    ]
+    "type": "string",
+    "pattern": "^[_A-z0-9]+((-|\\s)*[_A-z0-9])*$"
   },
 
   "autoPairBracket": {

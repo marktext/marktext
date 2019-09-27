@@ -82,10 +82,11 @@ Before you can get started developing, you need set up your build environment:
 - libx11 (dev)
 - libxkbfile (dev)
 - libsecret (dev)
+- libfontconfig (dev)
 
-On Debian-based Linux: `sudo apt-get install libx11-dev libxkbfile-dev libsecret-1-dev`
+On Debian-based Linux: `sudo apt-get install libx11-dev libxkbfile-dev libsecret-1-dev libfontconfig-dev`
 
-On Red Hat-based Linux: `sudo dnf install libx11-devel libxkbfile-devel libsecret-devel`
+On Red Hat-based Linux: `sudo dnf install libx11-devel libxkbfile-devel libsecret-devel fontconfig-devel`
 
 **Let's build:**
 
