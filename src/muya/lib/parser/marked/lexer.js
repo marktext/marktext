@@ -1,4 +1,4 @@
-import { normal, gfm, tables, pedantic } from './blockRules'
+import { normal, gfm, pedantic } from './blockRules'
 import options from './options'
 import { splitCells, rtrim } from './utils'
 
@@ -15,11 +15,7 @@ function Lexer (opts) {
   if (this.options.pedantic) {
     this.rules = pedantic
   } else if (this.options.gfm) {
-    if (this.options.tables) {
-      this.rules = tables
-    } else {
-      this.rules = gfm
-    }
+    this.rules = gfm
   }
 }
 
@@ -30,10 +26,7 @@ function Lexer (opts) {
 Lexer.prototype.lex = function (src) {
   src = src
     .replace(/\r\n|\r/g, '\n')
-    // replace `\t` to four space.
     .replace(/\t/g, '    ')
-    // .replace(/\u00a0/g, ' ')
-    .replace(/\u2424/g, '\n')
   this.checkFrontmatter = true
   return this.token(src, true)
 }
@@ -117,7 +110,7 @@ Lexer.prototype.token = function (src, top) {
       }
     }
 
-    // fences (gfm)
+    // fences
     cap = this.rules.fences.exec(src)
     if (cap) {
       src = src.substring(cap[0].length)
@@ -394,7 +387,7 @@ Lexer.prototype.token = function (src, top) {
           : 'html',
         pre: !this.options.sanitizer &&
           (cap[1] === 'pre' || cap[1] === 'script' || cap[1] === 'style'),
-        text: cap[0]
+        text: this.options.sanitize ? (this.options.sanitizer ? this.options.sanitizer(cap[0]) : escape(cap[0])) : cap[0]
       })
       continue
     }
@@ -478,7 +471,7 @@ Lexer.prototype.token = function (src, top) {
         this.tokens.push({
           type: 'heading',
           headingStyle: 'setext',
-          depth: cap[2] === '=' ? 1 : 2,
+          depth: cap[2].charAt(0) === '=' ? 1 : 2,
           text: precededToken.text + '\n' + cap[1],
           marker
         })
@@ -486,7 +479,7 @@ Lexer.prototype.token = function (src, top) {
         this.tokens.push({
           type: 'heading',
           headingStyle: 'setext',
-          depth: cap[2] === '=' ? 1 : 2,
+          depth: cap[2].charAt(0) === '=' ? 1 : 2,
           text: cap[1],
           marker
         })

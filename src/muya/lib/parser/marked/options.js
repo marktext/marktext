@@ -17,12 +17,13 @@ export default {
   mangle: true,
   pedantic: false,
   renderer: null, // new Renderer(),
-  sanitize: false,
-  sanitizer: null,
   silent: false,
   smartLists: false,
   smartypants: false,
-  tables: true,
   xhtml: false,
-  disableInline: false
+  disableInline: false,
+
+  // NOTE: sanitize and sanitizer are deprecated since version 0.7.0, should not be used and will be removed in the future.
+  sanitize: false,
+  sanitizer: null
 }

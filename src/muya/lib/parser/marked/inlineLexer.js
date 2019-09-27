@@ -102,7 +102,7 @@ InlineLexer.prototype.output = function (src) {
     if (cap && lowerPriority(src, cap[0].length, this.highPriorityLinkRules)) {
       const lastParenIndex = findClosingBracket(cap[2], '()')
       if (lastParenIndex > -1) {
-        const linkLen = cap[0].length - (cap[2].length - lastParenIndex) - (cap[3] || '').length
+        const linkLen = 4 + cap[1].length + lastParenIndex
         cap[2] = cap[2].substring(0, lastParenIndex)
         cap[0] = cap[0].substring(0, linkLen).trim()
         cap[3] = ''
@@ -272,7 +272,7 @@ InlineLexer.prototype.output = function (src) {
       src = src.substring(cap[0].length)
       lastChar = cap[0].charAt(cap[0].length - 1)
       if (this.inRawBlock) {
-        out += this.renderer.text(cap[0])
+        out += this.renderer.text(this.options.sanitize ? (this.options.sanitizer ? this.options.sanitizer(cap[0]) : escape(cap[0])) : cap[0])
       } else {
         out += this.renderer.text(escape(this.smartypants(cap[0])))
       }
