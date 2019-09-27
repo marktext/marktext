@@ -77,7 +77,6 @@ const importRegister = ContentState => {
       children: []
     }
     const tokens = new Lexer({ disableInline: true }).lex(markdown)
-
     let token
     let block
     let value
@@ -158,9 +157,10 @@ const importRegister = ContentState => {
           const lang = (infostring || '').match(/\S*/)[0]
 
           value = text
-          if (value.endsWith('\n')) {
-            value = value.replace(/\n+$/, '')
-          }
+          // Fix: #1265 and remove codes bellow.
+          // if (value.endsWith('\n')) {
+          //   value = value.replace(/\n+$/, '')
+          // }
           if (/mermaid|flowchart|vega-lite|sequence/.test(lang)) {
             block = this.createContainerBlock(lang, value)
             this.appendChild(parentList[0], block)
@@ -250,9 +250,20 @@ const importRegister = ContentState => {
           break
         }
         case 'html': {
-          const { text } = token
-          block = this.createHtmlBlock(text.trim())
-          this.appendChild(parentList[0], block)
+          const text = token.text.trim()
+          // TODO: Treat html block which only contains one img as paragraph, we maybe add image block in the future.
+          const isSingleImage = /^<img[^<>]+>$/.test(text)
+          if (isSingleImage) {
+            block = this.createBlock('p')
+            const contentBlock = this.createBlock('span', {
+              text
+            })
+            this.appendChild(block, contentBlock)
+            this.appendChild(parentList[0], block)
+          } else {
+            block = this.createHtmlBlock(text)
+            this.appendChild(parentList[0], block)
+          }
           break
         }
         case 'text': {

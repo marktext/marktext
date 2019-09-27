@@ -1,5 +1,6 @@
 import ContentState from './contentState'
 import EventCenter from './eventHandler/event'
+import MouseEvent from './eventHandler/mouseEvent'
 import Clipboard from './eventHandler/clipboard'
 import Keyboard from './eventHandler/keyboard'
 import DragDrop from './eventHandler/dragDrop'
@@ -14,8 +15,11 @@ import './assets/styles/index.css'
 class Muya {
   static plugins = []
 
-  static use (plugin) {
-    this.plugins.push(plugin)
+  static use (plugin, options = {}) {
+    this.plugins.push({
+      plugin,
+      options
+    })
   }
 
   constructor (container, options) {
@@ -27,8 +31,8 @@ class Muya {
     this.tooltip = new ToolTip(this)
     // UI plugins
     if (Muya.plugins.length) {
-      for (const Plugin of Muya.plugins) {
-        this[Plugin.pluginName] = new Plugin(this)
+      for (const { plugin: Plugin, options: opts } of Muya.plugins) {
+        this[Plugin.pluginName] = new Plugin(this, opts)
       }
     }
 
@@ -37,6 +41,7 @@ class Muya {
     this.clickEvent = new ClickEvent(this)
     this.keyboard = new Keyboard(this)
     this.dragdrop = new DragDrop(this)
+    this.mouseEvent = new MouseEvent(this)
     this.init()
   }
 
@@ -139,9 +144,9 @@ class Muya {
     return this.contentState.history.clearHistory()
   }
 
-  exportStyledHTML (title = '', printOptimization = false) {
+  exportStyledHTML (title = '', printOptimization = false, extraCss = '') {
     const { markdown } = this
-    return new ExportHtml(markdown, this).generate(title, printOptimization)
+    return new ExportHtml(markdown, this).generate(title, printOptimization, extraCss)
   }
 
   exportHtml () {

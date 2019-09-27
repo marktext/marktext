@@ -4,6 +4,19 @@ class DragDrop {
     this.dragOverBinding()
     this.dropBinding()
     this.dragendBinding()
+    this.dragStartBinding()
+  }
+
+  dragStartBinding () {
+    const { container, eventCenter } = this.muya
+
+    const dragStartHandler = event => {
+      if (event.target.tagName === 'IMG') {
+        return event.preventDefault()
+      }
+    }
+
+    eventCenter.attachDOMEvent(container, 'dragstart', dragStartHandler)
   }
 
   dragOverBinding () {

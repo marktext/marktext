@@ -510,11 +510,11 @@ const updateCtrl = ContentState => {
 
     const key = quoteParagraphBlock.children[0].key
     const { start, end } = this.cursor
-    this.cursor = {
-      start: { key, offset: start.offset - 1 },
-      end: { key, offset: end.offset - 1 }
-    }
 
+    this.cursor = {
+      start: { key, offset: Math.max(0, start.offset - 1) },
+      end: { key, offset: Math.max(0, end.offset - 1) }
+    }
     return quoteBlock
   }
 

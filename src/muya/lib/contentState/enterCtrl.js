@@ -172,7 +172,6 @@ const enterCtrl = ContentState => {
 
   ContentState.prototype.enterHandler = function (event) {
     const { start, end } = selection.getCursorRange()
-
     if (!start || !end) {
       return event.preventDefault()
     }
@@ -388,7 +387,30 @@ const enterCtrl = ContentState => {
             newBlock.bulletMarkerOrDelimiter = block.bulletMarkerOrDelimiter
           }
           newBlock.isLooseListItem = block.isLooseListItem
+        } else if (block.type === 'hr') {
+          const preText = text.substring(0, left)
+          const postText = text.substring(left)
+
+          // Degrade thematice break to paragraph
+          if (preText.replace(/ /g, '').length < 3) {
+            block.type = 'p'
+            block.children[0].functionType = 'paragraphContent'
+          }
+
+          if (postText.replace(/ /g, '').length >= 3) {
+            newBlock = this.createBlock('hr')
+            const content = this.createBlock('span', {
+              functionType: 'thematicBreakLine',
+              text: postText
+            })
+            this.appendChild(newBlock, content)
+          } else {
+            newBlock = this.createBlockP(postText)
+          }
+
+          block.children[0].text = preText
         }
+
         this.insertAfter(newBlock, block)
         break
       }
@@ -401,7 +423,7 @@ const enterCtrl = ContentState => {
         // cursor at end of paragraph or at begin of paragraph
         if (type === 'li') {
           if (block.listItemType === 'task') {
-            const { checked } = block.children[0]
+            const checked = false
             newBlock = this.createTaskItemBlock(null, checked)
           } else {
             newBlock = this.createBlockLi()

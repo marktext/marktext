@@ -82,7 +82,10 @@ import CodePicker from 'muya/lib/ui/codePicker'
 import EmojiPicker from 'muya/lib/ui/emojiPicker'
 import ImagePathPicker from 'muya/lib/ui/imagePicker'
 import ImageSelector from 'muya/lib/ui/imageSelector'
+import ImageToolbar from 'muya/lib/ui/imageToolbar'
+import Transformer from 'muya/lib/ui/transformer'
 import FormatPicker from 'muya/lib/ui/formatPicker'
+import LinkTools from 'muya/lib/ui/linkTools'
 import FrontMenu from 'muya/lib/ui/frontMenu'
 import bus from '../../bus'
 import Search from '../search.vue'
@@ -99,6 +102,7 @@ import 'muya/themes/default.css'
 import '@/assets/themes/codemirror/one-dark.css'
 import 'view-image/lib/imgViewer.css'
 import CloseIcon from '@/assets/icons/close.svg'
+import { shell } from 'electron'
 
 const STANDAR_Y = 320
 
@@ -330,9 +334,18 @@ export default {
       Muya.use(CodePicker)
       Muya.use(EmojiPicker)
       Muya.use(ImagePathPicker)
-      Muya.use(ImageSelector)
+      Muya.use(ImageSelector, {
+        applicationId: process.env.UNSPLASH_ACCESS_KEY,
+        secret: process.env.UNSPLASH_SECRET_KEY,
+        photoCreatorClick: this.photoCreatorClick
+      })
+      Muya.use(Transformer)
+      Muya.use(ImageToolbar)
       Muya.use(FormatPicker)
       Muya.use(FrontMenu)
+      Muya.use(LinkTools, {
+        jumpClick: this.jumpClick
+      })
 
       const options = {
         focusMode,
@@ -459,6 +472,15 @@ export default {
     })
   },
   methods: {
+    photoCreatorClick: (url) => {
+      shell.openExternal(url)
+    },
+    jumpClick: (linkInfo) => {
+      const { href } = linkInfo.token
+      if (href.startsWith('http')) {
+        shell.openExternal(href)
+      }
+    },
     async imagePathAutoComplete (src) {
       const files = await this.$store.dispatch('ASK_FOR_IMAGE_AUTO_PATH', src)
       return files.map(f => {

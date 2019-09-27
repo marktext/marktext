@@ -384,3 +384,7 @@ button.button-primary:not(.custom):focus,
   border: var(--buttonPrimaryBorder);
   box-shadow: none;
 }
+
+.image-viewer {
+  z-index: 10001;
+}

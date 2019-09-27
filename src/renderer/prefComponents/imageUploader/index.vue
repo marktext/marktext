@@ -39,6 +39,10 @@
             <div class="label">Repo name:</div>
             <el-input v-model="github.repo" placeholder="repo" size="mini"></el-input>
           </div>
+          <div class="form-group">
+            <div class="label">Branch name(optional):</div>
+            <el-input v-model="github.branch" placeholder="branch" size="mini"></el-input>
+          </div>
           <legal-notices-checkbox
             class="github"
             :class="[{ 'error': legalNoticesErrorStates.github }]"
@@ -69,7 +73,8 @@ export default {
       githubToken: '',
       github: {
         owner: '',
-        repo: ''
+        repo: '',
+        branch: ''
       },
       uploadServices: services,
       legalNoticesErrorStates: {

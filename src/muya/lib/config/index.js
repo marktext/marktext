@@ -96,6 +96,7 @@ export const CLASS_OR_ID = genUpper2LowerKeyHash([
   'AG_HTML_PREVIEW',
   'AG_HTML_TAG',
   'AG_IMAGE_FAIL',
+  'AG_IMAGE_BUTTONS',
   'AG_IMAGE_LOADING',
   'AG_EMPTY_IMAGE',
   'AG_IMAGE_MARKED_TEXT',

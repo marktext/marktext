@@ -144,6 +144,8 @@ const showUnsavedFilesMessage = async (win, files) => {
           resolve({ needSave: true })
         })
       })
+    default:
+      return null
   }
 }
 
@@ -180,7 +182,12 @@ ipcMain.on('mt::save-tabs', (e, unsavedFiles) => {
 
 ipcMain.on('mt::save-and-close-tabs', async (e, unsavedFiles) => {
   const win = BrowserWindow.fromWebContents(e.sender)
-  const { needSave } = await showUnsavedFilesMessage(win, unsavedFiles)
+  const userResult = await showUnsavedFilesMessage(win, unsavedFiles)
+  if (!userResult) {
+    return
+  }
+
+  const { needSave } = userResult
   if (needSave) {
     Promise.all(unsavedFiles.map(file => handleResponseForSave(e, file)))
       .then(arr => {
@@ -242,7 +249,12 @@ ipcMain.on('AGANI::response-file-save-as', async (e, { id, markdown, pathname, o
 
 ipcMain.on('mt::close-window-confirm', async (e, unsavedFiles) => {
   const win = BrowserWindow.fromWebContents(e.sender)
-  const { needSave } = await showUnsavedFilesMessage(win, unsavedFiles)
+  const userResult = await showUnsavedFilesMessage(win, unsavedFiles)
+  if (!userResult) {
+    return
+  }
+
+  const { needSave } = userResult
   if (needSave) {
     Promise.all(unsavedFiles.map(file => handleResponseForSave(e, file)))
       .then(() => {

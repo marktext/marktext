@@ -212,6 +212,12 @@ const tokenizerFac = (src, beginRules, inlineRules, pos = 0, top, labels) => {
         raw: imageTo[0],
         marker: imageTo[1],
         srcAndTitle: imageTo[4],
+        // This `attrs` used for render image.
+        attrs: {
+          src: imageSrc + encodeURI(imageTo[5]),
+          title,
+          alt: imageTo[2] + encodeURI(imageTo[3])
+        },
         src: imageSrc,
         title,
         parent: tokens,

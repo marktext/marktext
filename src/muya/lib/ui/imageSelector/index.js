@@ -1,3 +1,4 @@
+import Unsplash, { toJson } from 'unsplash-js'
 import BaseFloat from '../baseFloat'
 import { patch, h } from '../../parser/render/snabbdom'
 import { EVENT_KEYS, URL_REG } from '../../config'
@@ -9,9 +10,10 @@ import './index.css'
 class ImageSelector extends BaseFloat {
   static pluginName = 'imageSelector'
 
-  constructor (muya) {
+  constructor (muya, options) {
     const name = 'ag-image-selector'
-    const options = {
+    const { applicationId, secret } = options
+    options = Object.assign(options, {
       placement: 'bottom-center',
       modifiers: {
         offset: {
@@ -19,11 +21,17 @@ class ImageSelector extends BaseFloat {
         }
       },
       showArrow: false
-    }
+    })
     super(muya, name, options)
     this.renderArray = []
     this.oldVnode = null
     this.imageInfo = null
+    this.unsplash = new Unsplash({
+      applicationId,
+      secret
+    })
+    this.photoList = []
+    this.loading = false
     this.tab = 'link' // select or link
     this.isFullMode = false // is show title and alt input
     this.state = {
@@ -42,9 +50,26 @@ class ImageSelector extends BaseFloat {
     const { eventCenter } = this.muya
     eventCenter.subscribe('muya-image-selector', ({ reference, cb, imageInfo }) => {
       if (reference) {
-        let { alt, backlash, src, title } = imageInfo.token
-        alt += encodeURI(backlash.first)
-        Object.assign(this.state, { alt, title, src })
+        // Unselected image.
+        const { contentState } = this.muya
+        if (contentState.selectedImage) {
+          contentState.selectedImage = null
+        }
+
+        Object.assign(this.state, imageInfo.token.attrs)
+        // load latest unsplash photos.
+        this.loading = true
+        this.unsplash.photos.listPhotos(1, 40, 'latest')
+          .then(toJson)
+          .then(json => {
+            this.loading = false
+            if (Array.isArray(json)) {
+              this.photoList = json
+              if (this.tab === 'unsplash') {
+                this.render()
+              }
+            }
+          })
         this.imageInfo = imageInfo
         this.show(reference, cb)
         this.render()
@@ -58,6 +83,24 @@ class ImageSelector extends BaseFloat {
         this.hide()
       }
     })
+  }
+
+  searchPhotos = (keyword) => {
+    this.loading = true
+    this.photoList = []
+    this.unsplash.search.photos(keyword, 1, 40)
+      .then(toJson)
+      .then(json => {
+        this.loading = false
+        if (Array.isArray(json.results)) {
+          this.photoList = json.results
+          if (this.tab === 'unsplash') {
+            this.render()
+          }
+        }
+      })
+
+    return this.render()
   }
 
   tabClick (event, tab) {
@@ -152,9 +195,9 @@ class ImageSelector extends BaseFloat {
     return this.replaceImageAsync(this.state)
   }
 
-  async replaceImageAsync ({ alt, src, title }) {
+  replaceImageAsync = async ({ alt, src, title }) => {
     if (!this.muya.options.imageAction || URL_REG.test(src)) {
-      const { alt: oldAlt, src: oldSrc, title: oldTitle } = this.imageInfo.token
+      const { alt: oldAlt, src: oldSrc, title: oldTitle } = this.imageInfo.token.attrs
       if (alt !== oldAlt || src !== oldSrc || title !== oldTitle) {
         this.muya.contentState.replaceImage(this.imageInfo, { alt, src, title })
       }
@@ -211,7 +254,11 @@ class ImageSelector extends BaseFloat {
     }, {
       label: 'Embed link',
       value: 'link'
+    }, {
+      label: 'Unsplash',
+      value: 'unsplash'
     }]
+
     const children = tabs.map(tab => {
       const itemSelector = this.tab === tab.value ? 'li.active' : 'li'
       return h(itemSelector, h('span', {
@@ -226,7 +273,7 @@ class ImageSelector extends BaseFloat {
     return h('ul.header', children)
   }
 
-  renderBody () {
+  renderBody = () => {
     const { tab, state, isFullMode } = this
     const { alt, title, src } = state
     let bodyContent = null
@@ -241,7 +288,7 @@ class ImageSelector extends BaseFloat {
         }, 'Choose an Image'),
         h('span.description', 'Choose image from you computer.')
       ]
-    } else {
+    } else if (tab === 'link') {
       const altInput = h('input.alt', {
         props: {
           placeholder: 'Alt text',
@@ -319,6 +366,73 @@ class ImageSelector extends BaseFloat {
         }, `${isFullMode ? 'simple mode' : 'full mode'}`)
       ])
       bodyContent = [inputWrapper, embedButton, bottomDes]
+    } else {
+      const searchInput = h('input.search', {
+        props: {
+          placeholder: 'Search photos on Unsplash'
+        },
+        on: {
+          keydown: (event) => {
+            const value = event.target.value
+            if (event.key === EVENT_KEYS.Enter && value) {
+              event.preventDefault()
+              event.stopPropagation()
+              this.searchPhotos(value)
+            }
+          }
+        }
+      })
+      bodyContent = [searchInput]
+      if (this.loading) {
+        const loadingCom = h('div.ag-plugin-loading')
+        bodyContent.push(loadingCom)
+      } else if (this.photoList.length === 0) {
+        const noDataCom = h('div.no-data', 'No result...')
+        bodyContent.push(noDataCom)
+      } else {
+        const photos = this.photoList.map(photo => {
+          const imageWrapper = h('div.image-wrapper', {
+            props: {
+              style: `background: ${photo.color};`
+            },
+            on: {
+              click: () => {
+                const title = photo.user.name
+                const alt = photo.alt_description
+                const src = photo.urls.regular
+                const { id } = photo
+                this.unsplash.photos.getPhoto(id)
+                  .then(toJson)
+                  .then(json => {
+                    this.unsplash.photos.downloadPhoto(json)
+                  })
+                return this.replaceImageAsync({ alt, title, src })
+              }
+            }
+          }, h('img', {
+            props: {
+              src: photo.urls.thumb
+            }
+          }))
+
+          const desCom = h('div.des', ['By ', h('a', {
+            props: {
+              href: photo.links.html
+            },
+            on: {
+              click: () => {
+                if (this.options.photoCreatorClick) {
+                  this.options.photoCreatorClick(photo.user.links.html)
+                }
+              }
+            }
+          }, photo.user.name)])
+          return h('div.photo', [imageWrapper, desCom])
+        })
+        const photoWrapper = h('div.photos-wrapper', photos)
+        const moreCom = h('div.more', 'Search for more photos...')
+        bodyContent.push(photoWrapper, moreCom)
+      }
     }
 
     return h('div.image-select-body', bodyContent)
