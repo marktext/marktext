@@ -18,6 +18,7 @@
           :text-direction="textDirection"
         ></source-code>
       </div>
+      <tab-notifications></tab-notifications>
     </div>
 </template>
 
@@ -25,6 +26,7 @@
 import Tabs from './tabs.vue'
 import Editor from './editor.vue'
 import SourceCode from './sourceCode.vue'
+import TabNotifications from './notifications.vue'
 
 export default {
   props: {
@@ -61,7 +63,8 @@ export default {
   components: {
     Tabs,
     Editor,
-    SourceCode
+    SourceCode,
+    TabNotifications
   }
 }
 </script>

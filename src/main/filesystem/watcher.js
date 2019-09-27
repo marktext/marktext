@@ -6,7 +6,7 @@ import { exists } from 'common/filesystem'
 import { hasMarkdownExtension } from 'common/filesystem/paths'
 import { getUniqueId } from '../utils'
 import { loadMarkdownFile } from '../filesystem/markdown'
-import { isLinux } from '../config'
+import { isLinux, isOsx } from '../config'
 
 // TODO(refactor): Please see GH#1035.
 
@@ -159,7 +159,8 @@ class Watcher {
       ignorePermissionErrors: true,
 
       // Just to be sure when a file is replaced with a directory don't watch recursively.
-      depth: type === 'file' ? 0 : undefined,
+      depth: type === 'file'
+        ? (isOsx ? 1 : 0) : undefined,
 
       // Please see GH#1043
       awaitWriteFinish: {

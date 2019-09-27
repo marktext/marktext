@@ -100,16 +100,13 @@ class App {
 
     // Prevent to load webview and opening links or new windows via HTML/JS.
     app.on('web-contents-created', (event, contents) => {
-      contents.on('will-attach-webview', (event, webPreferences, params) => {
-        console.warn('Prevented webview creation.')
+      contents.on('will-attach-webview', event => {
         event.preventDefault()
       })
       contents.on('will-navigate', event => {
-        console.warn('Prevented opening a link.')
         event.preventDefault()
       })
-      contents.on('new-window', (event, url) => {
-        console.warn('Prevented opening a new window.')
+      contents.on('new-window', event => {
         event.preventDefault()
       })
     })

@@ -96,29 +96,59 @@ const mutations = {
     const { data, pathname } = change
     const { isMixedLineEndings, lineEnding, adjustLineEndingOnSave, encoding, markdown, filename } = data
     const options = { encoding, lineEnding, adjustLineEndingOnSave }
+
+    // Create a new document and update few entires later.
     const newFileState = getSingleFileState({ markdown, filename, pathname, options })
-    if (isMixedLineEndings) {
-      notice.notify({
-        title: 'Line Ending',
-        message: `${filename} has mixed line endings which are automatically normalized to ${lineEnding.toUpperCase()}.`,
-        type: 'primary',
-        time: 20000,
-        showConfirm: false
-      })
-    }
 
     const tab = tabs.find(t => isSamePathSync(t.pathname, pathname))
     if (!tab) {
       // The tab may be closed in the meanwhile.
       console.error('LOAD_CHANGE: Cannot find tab in tab list.')
+      notice.notify({
+        title: 'Error loading tab',
+        message: 'There was an error while loading the file change because the tab cannot be found.',
+        type: 'error',
+        time: 20000,
+        showConfirm: false
+      })
       return
     }
 
-    // Upate file content but not tab id.
+    // Backup few entries that we need to restore later.
     const oldId = tab.id
+    const oldNotifications = tab.notifications
+    let oldHistory = null
+    if (tab.history.index >= 0 && tab.history.stack.length >= 1) {
+      // Allow to restore the old document.
+      oldHistory = {
+        stack: [tab.history.stack[tab.history.index]],
+        index: 0
+      }
+
+      // Free reference from array
+      tab.history.index--
+      tab.history.stack.pop()
+    }
+
+    // Update file content and restore some entries.
     Object.assign(tab, newFileState)
     tab.id = oldId
+    tab.notifications = oldNotifications
+    if (oldHistory) {
+      tab.history = oldHistory
+    }
 
+    if (isMixedLineEndings) {
+      tab.notifications.push({
+        msg: `"${filename}" has mixed line endings which are automatically normalized to ${lineEnding.toUpperCase()}.`,
+        showConfirm: false,
+        style: 'info',
+        exclusiveType: '',
+        action: () => {}
+      })
+    }
+
+    // Reload the editor if the tab is currently opened.
     if (pathname === currentFile.pathname) {
       state.currentFile = tab
       const { id, cursor, history } = tab
@@ -236,6 +266,44 @@ const mutations = {
   // TODO: Remove "SET_GLOBAL_LINE_ENDING" because nowhere used.
   SET_GLOBAL_LINE_ENDING (state, ending) {
     state.lineEnding = ending
+  },
+
+  // Push a tab specific notification on stack that never disappears.
+  PUSH_TAB_NOTIFICATION (state, data) {
+    const defaultAction = () => {}
+    const { tabId, msg } = data
+    const action = data.action || defaultAction
+    const showConfirm = data.showConfirm || false
+    const style = data.style || 'info'
+    // Whether only one notification should exist.
+    const exclusiveType = data.exclusiveType || ''
+
+    const { tabs } = state
+    const tab = tabs.find(t => t.id === tabId)
+    if (!tab) {
+      console.error('PUSH_TAB_NOTIFICATION: Cannot find tab in tab list.')
+      return
+    }
+
+    const { notifications } = tab
+
+    // Remove the old notification if only one should exist.
+    if (exclusiveType) {
+      const index = notifications.findIndex(n => n.exclusiveType === exclusiveType)
+      if (index >= 0) {
+        // Reorder current notification
+        notifications.splice(index, 1)
+      }
+    }
+
+    // Push new notification on stack.
+    notifications.push({
+      msg,
+      showConfirm,
+      style,
+      exclusiveType,
+      action: action
+    })
   }
 }
 
@@ -388,12 +456,24 @@ const actions = {
     })
 
     ipcRenderer.on('mt::tab-save-failure', (e, tabId, msg) => {
-      notice.notify({
-        title: 'Save failure',
-        message: msg,
-        type: 'error',
-        time: 20000,
-        showConfirm: false
+      const { tabs } = state
+      const tab = tabs.find(t => t.id === tabId)
+      if (!tab) {
+        notice.notify({
+          title: 'Save failure',
+          message: msg,
+          type: 'error',
+          time: 20000,
+          showConfirm: false
+        })
+        return
+      }
+
+      commit('SET_SAVE_STATUS_BY_TAB', { tab, status: false })
+      commit('PUSH_TAB_NOTIFICATION', {
+        tabId,
+        msg: `There was an error while saving: ${msg}`,
+        style: 'crit'
       })
     })
   },
@@ -703,14 +783,10 @@ const actions = {
     }
 
     if (isMixedLineEndings) {
-      // TODO(watcher): Show (this) notification(s) per tab.
       const { filename, lineEnding } = markdownDocument
-      notice.notify({
-        title: 'Line Ending',
-        message: `${filename} has mixed line endings which are automatically normalized to ${lineEnding.toUpperCase()}.`,
-        type: 'primary',
-        time: 20000,
-        showConfirm: false
+      commit('PUSH_TAB_NOTIFICATION', {
+        tabId: id,
+        msg: `${filename}" has mixed line endings which are automatically normalized to ${lineEnding.toUpperCase()}.`
       })
     }
   },
@@ -858,8 +934,8 @@ const actions = {
   LINTEN_FOR_EXPORT_SUCCESS ({ commit }) {
     ipcRenderer.on('AGANI::export-success', (e, { type, filePath }) => {
       notice.notify({
-        title: 'Export',
-        message: `Export ${path.basename(filePath)} successfully`,
+        title: 'Exported successfully',
+        message: `Exported "${path.basename(filePath)}" successfully!`,
         showConfirm: true
       })
         .then(() => {
@@ -893,31 +969,28 @@ const actions = {
 
   LISTEN_FOR_FILE_CHANGE ({ commit, state, rootState }) {
     ipcRenderer.on('AGANI::update-file', (e, { type, change }) => {
-      // TODO: A new "changed" notification from different files overwrite the old notification
-      // and the old notification disappears. I think we should bind the notification to the tab.
+      // TODO: We should only load the changed content if the user want to reload the document.
 
       const { tabs } = state
       const { pathname } = change
       const tab = tabs.find(t => isSamePathSync(t.pathname, pathname))
       if (tab) {
-        const { id, isSaved } = tab
-
+        const { id, isSaved, filename } = tab
         switch (type) {
           case 'unlink': {
             commit('SET_SAVE_STATUS_BY_TAB', { tab, status: false })
-            notice.notify({
-              title: 'File Removed on Disk',
-              message: `${pathname} has been removed or moved.`,
-              type: 'warning',
-              time: 0,
-              showConfirm: false
+            commit('PUSH_TAB_NOTIFICATION', {
+              tabId: id,
+              msg: `"${filename}" has been removed on disk.`,
+              style: 'warn',
+              showConfirm: false,
+              exclusiveType: 'file_changed'
             })
             break
           }
           case 'add':
           case 'change': {
             const { autoSave } = rootState.preferences
-            const { filename } = change.data
             if (autoSave) {
               if (autoSaveTimers.has(id)) {
                 const timer = autoSaveTimers.get(id)
@@ -933,17 +1006,17 @@ const actions = {
             }
 
             commit('SET_SAVE_STATUS_BY_TAB', { tab, status: false })
-
-            notice.clear()
-            notice.notify({
-              title: 'File Changed on Disk',
-              message: `${filename} has been changed on disk, do you want to reload it?`,
+            commit('PUSH_TAB_NOTIFICATION', {
+              tabId: id,
+              msg: `"${filename}" has been changed on disk. Do you want to reload it?`,
               showConfirm: true,
-              time: 0
+              exclusiveType: 'file_changed',
+              action: status => {
+                if (status) {
+                  commit('LOAD_CHANGE', change)
+                }
+              }
             })
-              .then(() => {
-                commit('LOAD_CHANGE', change)
-              })
             break
           }
           default:

@@ -30,7 +30,9 @@ export const defaultFileState = {
     index: -1,
     matches: [],
     value: ''
-  }
+  },
+  // Per tab notifications
+  notifications: []
 }
 
 export const getOptionsFromState = file => {
