@@ -72,11 +72,15 @@ export default {
           }
         }
       }
+
+      // Set theme
       if (railscastsThemes.includes(theme)) {
         codeMirrorConfig.theme = 'railscasts'
       } else if (oneDarkThemes.includes(theme)) {
         codeMirrorConfig.theme = 'one-dark'
       }
+
+      // Init CodeMirror
       const editor = this.editor = codeMirror(container, codeMirrorConfig)
 
       bus.$on('file-loaded', this.handleFileChange)
@@ -86,7 +90,9 @@ export default {
 
       setMode(editor, 'markdown')
       this.listenChange()
-      if (cursor) {
+
+      // NOTE: Cursor may be not null but the inner values are.
+      if (cursor && cursor.anchor && cursor.focus) {
         const { anchor, focus } = cursor
         editor.setSelection(anchor, focus, { scroll: true }) // Scroll the focus into view.
       } else {
