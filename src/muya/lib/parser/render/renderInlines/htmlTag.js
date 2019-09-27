@@ -1,5 +1,8 @@
+import createDOMPurify from 'dompurify'
 import { CLASS_OR_ID, BLOCK_TYPE6 } from '../../../config'
 import { snakeToCamel } from '../../../utils'
+
+const { sanitize } = createDOMPurify(window)
 
 export default function htmlTag (h, cursor, block, token, outerClass) {
   const { tag, openTag, closeTag, children, attrs } = token
@@ -35,7 +38,8 @@ export default function htmlTag (h, cursor, block, token, outerClass) {
         // if  tag is a block level element, use a inline element `span` to instead.
         // Because we can not nest a block level element in span element(line is span element)
         // we also recommand user not use block level element in paragraph. use block element in html block.
-        let selector = BLOCK_TYPE6.includes(tag) ? 'span' : tag
+        // Use code !sanitize(`<${tag}>`) to filter some malicious tags. for example: <embed>.
+        let selector = BLOCK_TYPE6.includes(tag) || !sanitize(`<${tag}>`) ? 'span' : tag
         selector += `.${CLASS_OR_ID.AG_INLINE_RULE}`
         const data = {
           attrs: {},
