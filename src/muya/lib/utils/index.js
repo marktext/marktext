@@ -227,7 +227,7 @@ export const checkImageContentType = url => {
         } else {
           settle(false)
         }
-      } else if (req.status === 405) { // status 405 means method not allowed, and just return true
+      } else if (req.status === 405) { // status 405 means method not allowed, and just return true.(Solve issue#1297)
         settle(true)
       } else {
         settle(false)
