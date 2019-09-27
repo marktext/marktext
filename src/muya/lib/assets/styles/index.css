@@ -377,7 +377,8 @@ li.ag-task-list-item > input[type=checkbox] {
   cursor: pointer;
   width: 12px;
   height: 12px;
-  top: 5px;
+  top: calc(50% - .25em);
+  transform: translateY(-50%);
   left: -23px;
   transform-origin: center;
   transition: all .2s ease;
