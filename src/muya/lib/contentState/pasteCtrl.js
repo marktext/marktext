@@ -40,13 +40,24 @@ const pasteCtrl = ContentState => {
     }
   }
 
+  // Try to identify the data type.
   ContentState.prototype.checkCopyType = function (html, text) {
     let type = 'normal'
     if (!html && text) {
       type = 'copyAsMarkdown'
-      const match = /^<([a-zA-Z\d-]+)(?=\s|>).*?>[\s\S]+?<\/[a-zA-Z\d-]+>$/.exec(text.trim())
+      const match = /^<([a-zA-Z\d-]+)(?=\s|>).*?>[\s\S]+?<\/([a-zA-Z\d-]+)>$/.exec(text.trim())
       if (match && match[1]) {
         const tag = match[1]
+        if (tag === 'table' && match.length === 3 && match[2] === 'table') {
+          // Try to import a single table
+          const tmp = document.createElement('table')
+          tmp.innerHTML = text
+          if (tmp.childElementCount === 1) {
+            return 'htmlToMd'
+          }
+        }
+
+        // TODO: We could try to import HTML elements such as headings, text and lists to markdown for better UX.
         type = PARAGRAPH_TYPES.find(type => type === tag) ? 'copyAsHtml' : type
       }
     }
@@ -61,13 +72,14 @@ const pasteCtrl = ContentState => {
         html = match[1]
       }
     }
+
+    // Prevent XSS and sanitize HTML.
     const sanitizedHtml = sanitize(html, PREVIEW_DOMPURIFY_CONFIG)
     const tempWrapper = document.createElement('div')
     tempWrapper.innerHTML = sanitizedHtml
-    // special process for Number app in macOs
-    const tables = Array.from(tempWrapper.querySelectorAll('table'))
-    const links = Array.from(tempWrapper.querySelectorAll('a'))
 
+    // Special process for turndown.js, needed for Number app on macOS.
+    const tables = Array.from(tempWrapper.querySelectorAll('table'))
     for (const table of tables) {
       const row = table.querySelector('tr')
       if (row.firstElementChild.tagName !== 'TH') {
@@ -94,13 +106,13 @@ const pasteCtrl = ContentState => {
     }
 
     // Prevent it parse into a link if copy a url.
+    const links = Array.from(tempWrapper.querySelectorAll('a'))
     for (const link of links) {
       const href = link.getAttribute('href')
       const text = link.textContent
 
       if (href === text) {
         const title = await getPageTitle(href)
-
         if (title) {
           link.textContent = title
         } else {
@@ -110,7 +122,6 @@ const pasteCtrl = ContentState => {
         }
       }
     }
-
     return tempWrapper.innerHTML
   }
 
@@ -208,38 +219,55 @@ const pasteCtrl = ContentState => {
     return null
   }
 
+  // Handle global events.
   ContentState.prototype.docPasteHandler = async function (event) {
+    // TODO: Pasting into CodeMirror will not work for special data like images
+    // or tables (HTML) because it's not handled.
+
     const file = await this.pasteImage(event)
     if (file) {
       return event.preventDefault()
     }
   }
 
-  // handle `normal` and `pasteAsPlainText` paste
+  // Handle `normal` and `pasteAsPlainText` paste for preview mode.
   ContentState.prototype.pasteHandler = async function (event, type = 'normal', rawText, rawHtml) {
     event.preventDefault()
     event.stopPropagation()
+
     const text = rawText || event.clipboardData.getData('text/plain')
     let html = rawHtml || event.clipboardData.getData('text/html')
-    // Support copy and paste Firefox url and parse title
+
+    // Support pasted URLs from Firefox.
     if (URL_REG.test(text) && !/\s/.test(text) && !html) {
       html = `<a href="${text}">${text}</a>`
     }
+
+    // Remove crap from HTML such as meta data and styles.
     html = await this.standardizeHTML(html)
-    const copyType = this.checkCopyType(html, text)
+
+    let copyType = this.checkCopyType(html, text)
     const { start, end } = this.cursor
     const startBlock = this.getBlock(start.key)
     const endBlock = this.getBlock(end.key)
     const parent = this.getParent(startBlock)
 
-    if (start.key !== end.key) {
-      this.cutHandler()
-      return this.pasteHandler(event, type)
+    if (copyType === 'htmlToMd') {
+      html = text
+      copyType = 'normal'
     }
 
-    const file = await this.pasteImage(event)
-    if (file) {
-      return
+    if (start.key !== end.key) {
+      this.cutHandler()
+      return this.pasteHandler(event, type, rawText, rawHtml)
+    }
+
+    // NOTE: We should parse HTML if we can and use it instead the image (see GH#1271).
+    if (!html) {
+      const file = await this.pasteImage(event)
+      if (file) {
+        return
+      }
     }
 
     const appendHtml = (text) => {
@@ -252,8 +280,9 @@ const pasteCtrl = ContentState => {
       }
     }
 
-    // Extract the first line from the language identifier (GH#553)
+    // Prepare paste
     if (startBlock.type === 'span' && startBlock.functionType === 'languageInput') {
+      // Extract the first line from the language identifier (GH#553)
       let language = text.trim().match(/^.*$/m)[0] || ''
       const oldLanguageLength = startBlock.text.length
       let offset = 0
@@ -336,7 +365,7 @@ const pasteCtrl = ContentState => {
       return this.partialRender()
     }
 
-    // handle copyAsHtml
+    // Handle paste event and transform data into internal block structure.
     if (copyType === 'copyAsHtml') {
       switch (type) {
         case 'normal': {
@@ -373,12 +402,15 @@ const pasteCtrl = ContentState => {
       ? this.markdownToState(text)
       : this.html2State(html)
 
-    if (stateFragments.length <= 0) return
-    // step 1: if select content, cut the content, and chop the block text into two part by the cursor.
+    if (stateFragments.length <= 0) {
+      return
+    }
+
+    // Step 1: if select content, cut the content, and chop the block text into two part by the cursor.
     const cacheText = endBlock.text.substring(end.offset)
     startBlock.text = startBlock.text.substring(0, start.offset)
 
-    // step 2: when insert the fragments, check begin a new block, or insert into pre block.
+    // Step 2: when insert the fragments, check begin a new block, or insert into pre block.
     const firstFragment = stateFragments[0]
     const tailFragments = stateFragments.slice(1)
     const pasteType = this.checkPasteType(startBlock, firstFragment)
@@ -484,7 +516,8 @@ const pasteCtrl = ContentState => {
         throw new Error('unknown paste type')
       }
     }
-    // step 3: set cursor and render
+
+    // Step 3: set cursor and render
     let cursorBlock = this.getBlock(key)
     if (!cursorBlock) {
       key = startBlock.key
