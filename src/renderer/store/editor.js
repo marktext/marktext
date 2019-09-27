@@ -124,6 +124,10 @@ const mutations = {
         stack: [tab.history.stack[tab.history.index]],
         index: 0
       }
+
+      // Free reference from array
+      tab.history.index--
+      tab.history.stack.pop()
     }
 
     // Update file content and restore some entries.
