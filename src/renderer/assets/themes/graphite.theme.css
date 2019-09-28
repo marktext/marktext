@@ -128,14 +128,14 @@ li.ag-task-list-item > input[type=checkbox] {
   width: 16px;
   height: 16px;
   margin: 4px 0px 0px;
-  top: 2px;
+  top: calc(50% - .25em);
+  transform: translateY(-50%) rotate(-90deg);
   left: -22px;
   transform-origin: center;
-  transform: rotate(-90deg);
   transition: all .2s ease;
 }
 li.ag-task-list-item > input.ag-checkbox-checked {
-  transform: rotate(0);
+  transform: translateY(-50%) rotate(0);
   opacity: .5;
 }
 li.ag-task-list-item > input[type=checkbox]::before {
