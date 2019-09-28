@@ -8,6 +8,8 @@
 
 **:beetle:Bug fix**
 
+- Fixed portable mode detection if current working directory don't match the application directory (#1382)
+
 ## 0.15.0
 
 **:warning:Breaking Changes:**
