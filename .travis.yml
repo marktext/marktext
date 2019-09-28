@@ -35,6 +35,8 @@ addons:
     - libxkbfile-dev
     # atom/node-keytar
     - libsecret-1-dev
+    # fontmanager
+    - libfontconfig-dev
 
 before_install:
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get -qq update ; fi

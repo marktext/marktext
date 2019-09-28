@@ -97,10 +97,8 @@ export default {
   },
   mounted () {
     const { onlyMonospace } = this
-    // monospace property seems not work correctly because even not monospace
-    // fonts are collected.
     const buf = fontManager.getAvailableFontsSync()
-      .filter(f => !onlyMonospace || (onlyMonospace && f.monospace))
+      .filter(f => f.family && (!onlyMonospace || (onlyMonospace && f.monospace)))
       .map(f => f.family)
     this.fontFamilies = [...new Set(buf)].sort((a, b) => a.localeCompare(b))
   }
