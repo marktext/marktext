@@ -52,7 +52,7 @@ const cli = () => {
   // Check for portable mode and ensure the user data path is absolute. We assume
   // that the path is writable if not this lead to an application crash.
   if (!args['--user-data-dir']) {
-    const portablePath = path.join(app.getAppPath(), 'marktext-user-data')
+    const portablePath = path.join(app.getAppPath(), '..', '..', 'marktext-user-data')
     if (isDirectory(portablePath)) {
       args['--user-data-dir'] = portablePath
     }
