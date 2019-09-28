@@ -7,7 +7,9 @@ export const PUNCTUATION_REG = new RegExp(/[!"#$%&'()*+,\-./:;<=>?@\[\]^_`{|}~\x
 export const WHITELIST_ATTRIBUTES = [
   'align', 'alt', 'checked', 'class', 'color', 'dir', 'disabled', 'for', 'height', 'hidden',
   'href', 'id', 'lang', 'lazyload', 'rel', 'spellcheck', 'src', 'srcset', 'start', 'style',
-  'target', 'title', 'type', 'value', 'width', 'data-align'
+  'target', 'title', 'type', 'value', 'width',
+  // Used in img
+  'data-align'
 ]
 
 // export const unicodeZsCategory = [
