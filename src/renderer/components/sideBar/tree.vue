@@ -195,6 +195,7 @@ export default {
     line-height: 35px;
     padding: 0 15px;
     display: flex;
+    flex-shrink: 0;
     flex-direction: row-reverse;
   }
 
@@ -258,6 +259,7 @@ export default {
   .project-tree {
     display: flex;
     flex-direction: column;
+    overflow: auto;
     & > .title {
       padding-right: 15px;
       display: flex;
