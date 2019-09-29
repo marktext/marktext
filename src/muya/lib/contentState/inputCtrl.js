@@ -216,6 +216,13 @@ const inputCtrl = ContentState => {
       } else {
         block.text = text
       }
+
+      // Update code block language when modify code block identifer
+      if (block.functionType === 'languageInput') {
+        const parent = this.getParent(block)
+        parent.lang = block.text
+      }
+
       if (beginRules.reference_definition.test(text)) {
         needRenderAll = true
       }

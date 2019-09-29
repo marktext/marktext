@@ -438,7 +438,7 @@ const backspaceCtrl = ContentState => {
       // also need to remove the paragrah
       if (this.isOnlyChild(block) && block.type === 'span') {
         this.removeBlock(parent)
-      } else {
+      } else if (block.functionType !== 'languageInput') {
         this.removeBlock(block)
       }
 
