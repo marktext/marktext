@@ -59,11 +59,12 @@ const mutations = {
         window.DIRNAME = pathname ? path.dirname(pathname) : ''
         bus.$emit('file-changed', { id, markdown, cursor, renderCursor: true, history })
       }
+    }
+
+    if (state.tabs.length === 0) {
       // Handle close the last tab, need to reset the TOC state
-      if (Object.keys(fileState).length === 0) {
-        state.listToc = []
-        state.toc = []
-      }
+      state.listToc = []
+      state.toc = []
     }
   },
   // Exchange from with to and move from to the end if to is null or empty.
@@ -251,6 +252,12 @@ const mutations = {
         window.DIRNAME = pathname ? path.dirname(pathname) : ''
         bus.$emit('file-changed', { id, markdown, cursor, renderCursor: true, history })
       }
+    }
+
+    if (state.tabs.length === 0) {
+      // Handle close the last tab, need to reset the TOC state
+      state.listToc = []
+      state.toc = []
     }
   },
   RENAME_IF_NEEDED (state, { src, dest }) {
