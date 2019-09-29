@@ -131,7 +131,7 @@ export default {
     open (link) {
       shell.openExternal(link)
     },
-    save (type) {
+    save (type, withNotice = true) {
       const newImageBedConfig = Object.assign({}, this.imageBed, { [type]: this[type] })
       this.$store.dispatch('SET_USER_DATA', {
         type: 'imageBed',
@@ -143,9 +143,11 @@ export default {
           value: this.githubToken
         })
       }
-      new Notification('Save Image Uploader', {
-        body: 'The Github configration has been saved.'
-      })
+      if (withNotice) {
+        new Notification('Save Image Uploader', {
+          body: 'The Github configration has been saved.'
+        })
+      }
     },
     setCurrentUploader (value) {
       const service = services[value]
@@ -158,6 +160,10 @@ export default {
       if (!agreedToLegalNotices) {
         this.legalNoticesErrorStates[value] = true
         return
+      }
+      // Save the setting before set it as default uploader.
+      if (value === 'github') {
+        this.save(value, false)
       }
       this.legalNoticesErrorStates[value] = false
 
