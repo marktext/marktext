@@ -10,12 +10,11 @@
       :step="1"
       :onChange="value => onSelectChange('fontSize', value)"
     ></range>
-    <cur-select
+    <font-text-box
       description="The used font in the editor."
       :value="editorFontFamily"
-      :options="editorFontFamilyOptions"
       :onChange="value => onSelectChange('editorFontFamily', value)"
-    ></cur-select>
+    ></font-text-box>
     <range
       description="The code block font size in editor."
       :value="codeFontSize"
@@ -25,12 +24,12 @@
       :step="1"
       :onChange="value => onSelectChange('codeFontSize', value)"
     ></range>
-    <cur-select
+    <font-text-box
       description="The used code block font in the editor."
+      :onlyMonospace="true"
       :value="codeFontFamily"
-      :options="codeFontFamilyOptions"
       :onChange="value => onSelectChange('codeFontFamily', value)"
-    ></cur-select>
+    ></font-text-box>
     <range
       description="Line height of editor lines."
       :value="lineHeight"
@@ -88,20 +87,20 @@
 
 <script>
 import { mapState } from 'vuex'
+import FontTextBox from '../common/fontTextBox'
 import Range from '../common/range'
 import CurSelect from '../common/select'
 import Bool from '../common/bool'
 import Separator from '../common/separator'
 import TextBox from '../common/textBox'
 import {
-  editorFontFamilyOptions,
   endOfLineOptions,
-  textDirectionOptions,
-  codeFontFamilyOptions
+  textDirectionOptions
 } from './config'
 
 export default {
   components: {
+    FontTextBox,
     Range,
     CurSelect,
     Bool,
@@ -109,10 +108,8 @@ export default {
     TextBox
   },
   data () {
-    this.editorFontFamilyOptions = editorFontFamilyOptions
     this.endOfLineOptions = endOfLineOptions
     this.textDirectionOptions = textDirectionOptions
-    this.codeFontFamilyOptions = codeFontFamilyOptions
     return {}
   },
   computed: {

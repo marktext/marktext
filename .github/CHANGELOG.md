@@ -2,6 +2,8 @@
 
 **:cactus:Feature**
 
+- Allow custom fonts in settings (#1107)
+
 **:butterfly:Optimization**
 
 - Add loading page when init app

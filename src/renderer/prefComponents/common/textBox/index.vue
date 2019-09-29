@@ -88,6 +88,20 @@ export default {
     user-select: none;
     margin: 20px 0;
     color: var(--editorColor);
+    & input.el-input__inner {
+      height: 30px;
+      background: transparent;
+      color: var(--editorColor);
+      border-color: var(--editorColor10);
+    }
+    & .el-input.is-active .el-input__inner,
+    & .el-input__inner:focus {
+      border-color: var(--themeColor);
+    }
+    & .el-input__icon,
+    & .el-input__inner {
+      line-height: 30px;
+    }
   }
   .pref-text-box-item .description {
     margin-bottom: 10px;
