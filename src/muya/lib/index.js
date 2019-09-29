@@ -107,6 +107,7 @@ class Muya {
     const cursor = this.getCursor()
     const history = this.getHistory()
     const toc = this.getTOC()
+
     eventCenter.dispatch('change', { markdown, wordCount, cursor, history, toc })
   }
 

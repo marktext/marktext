@@ -68,7 +68,6 @@ class Keyboard {
       ) {
         return
       }
-
       // Cursor outside editor area or over not editable elements.
       if (event.target.closest('[contenteditable=false]')) {
         return
