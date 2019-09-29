@@ -68,10 +68,13 @@ const paragraphCtrl = ContentState => {
   ContentState.prototype.handleFrontMatter = function () {
     const firstBlock = this.blocks[0]
     if (firstBlock.type === 'pre' && firstBlock.functionType === 'frontmatter') return
+
+    // Default front matter language is YAML. Others cannot be selected via UI.
     const lang = 'yaml'
     const frontMatter = this.createBlock('pre', {
       functionType: 'frontmatter',
-      lang
+      lang,
+      style: '-'
     })
     const codeBlock = this.createBlock('code', {
       lang
@@ -626,6 +629,7 @@ const paragraphCtrl = ContentState => {
     } else {
       anchor = this.getAnchor(block)
     }
+
     // You can not insert paragraph before frontmatter
     if (!anchor || anchor && anchor.functionType === 'frontmatter' && location === 'before') {
       return

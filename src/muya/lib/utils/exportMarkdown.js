@@ -192,12 +192,34 @@ class ExportMarkdown {
   }
 
   normalizeFrontMatter (block, indent) { // preBlock
+    let startToken
+    let endToken
+    switch (block.lang) {
+      case 'yaml':
+        startToken = '---\n'
+        endToken = '---\n'
+        break
+      case 'toml':
+        startToken = '+++\n'
+        endToken = '+++\n'
+        break
+      case 'json':
+        if (block.style === ';') {
+          startToken = ';;;\n'
+          endToken = ';;;\n'
+        } else {
+          startToken = '{\n'
+          endToken = '}\n'
+        }
+        break
+    }
+
     const result = []
-    result.push('---\n')
+    result.push(startToken)
     for (const line of block.children[0].children) {
       result.push(`${line.text}\n`)
     }
-    result.push('---\n')
+    result.push(endToken)
     return result.join('')
   }
 
