@@ -1,16 +1,30 @@
 ## [unrelease]
 
+**:warning:Breaking Changes:**
+
+- Temporary disabled hardware acceleration (GPU) on Linux with Wayland due to rendering issues with the frameless window.
+
 **:cactus:Feature**
 
 - Allow custom fonts in settings (#1107)
+- Allow cycle through tabs via shortcuts (#1124)
+- Allow to close tabs by mouse middle click (#1266)
 
 **:butterfly:Optimization**
 
-- Add loading page when init app
+- Added loading animation during startup
+- Added alt accelerator on Linux and Windows (#1254)
+- Added per-tab notifications
 
 **:beetle:Bug fix**
 
 - Fixed portable mode detection if current working directory don't match the application directory (#1382)
+- Fixed multiple exception in main process (#1284, #1350)
+- Added emoji fallback fonts for macOS and Windows too (#1299)
+- Fixed RegEx for recommend title (#1128)
+- Fixed application freeze when using PageDown/PageUp in special cases (#655)
+- Fixed HTML paste handler (#1271)
+- Fixed save all tab order (#1349)
 
 ## 0.15.0
 
