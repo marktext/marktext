@@ -211,7 +211,7 @@ class ImageSelector extends BaseFloat {
           title
         })
         this.hide()
-        const nSrc = await this.muya.options.imageAction(src)
+        const nSrc = await this.muya.options.imageAction(src, id, alt)
         const { src: localPath } = getImageSrc(src)
         if (localPath) {
           this.muya.contentState.stateRender.urlMap.set(nSrc, localPath)

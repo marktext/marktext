@@ -488,35 +488,48 @@ export default {
         return Object.assign(f, { iconClass, text: f.file + (f.type === 'directory' ? '/' : '') })
       })
     },
-    async imageAction (image) {
+    async imageAction (image, id, alt = '') {
       const { imageInsertAction, imageFolderPath, preferences } = this
       const { pathname } = this.currentFile
+      let result
       switch (imageInsertAction) {
         case 'upload': {
           try {
-            const result = await uploadImage(pathname, image, preferences)
-            return result
+            result = await uploadImage(pathname, image, preferences)
           } catch (err) {
             notice.notify({
               title: 'Upload Image',
               type: 'info',
               message: err
             })
-            return await moveImageToFolder(pathname, image, imageFolderPath)
+            result = await moveImageToFolder(pathname, image, imageFolderPath)
           }
+          break
         }
         case 'folder': {
-          return await moveImageToFolder(pathname, image, imageFolderPath)
+          result = await moveImageToFolder(pathname, image, imageFolderPath)
+          break
         }
         case 'path': {
           if (typeof image === 'string') {
-            return image
+            result = image
           } else {
             // Move image to image folder if it's Blob object.
-            return await moveImageToFolder(pathname, image, imageFolderPath)
+            result = await moveImageToFolder(pathname, image, imageFolderPath)
           }
+          break
         }
       }
+
+      if (id && this.sourceCode) {
+        bus.$emit('image-action', {
+          id,
+          result,
+          alt
+        })
+      }
+
+      return result
     },
     imagePathPicker () {
       return this.$store.dispatch('ASK_FOR_IMAGE_PATH')

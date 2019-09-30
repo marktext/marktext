@@ -87,6 +87,7 @@ export default {
       bus.$on('file-changed', this.handleFileChange)
       bus.$on('dotu-select', this.handleSelectDoutu)
       bus.$on('selectAll', this.handleSelectAll)
+      bus.$on('image-action', this.handleImageAction)
 
       setMode(editor, 'markdown')
       this.listenChange()
@@ -111,12 +112,62 @@ export default {
     bus.$off('file-changed', this.handleFileChange)
     bus.$off('dotu-select', this.handleSelectDoutu)
     bus.$off('selectAll', this.handleSelectAll)
+    bus.$off('image-action', this.handleImageAction)
 
     const { editor } = this
     const { cursor, markdown } = this.getMarkdownAndCursor(editor)
     bus.$emit('file-changed', { id: this.tabId, markdown, cursor, renderCursor: true })
   },
   methods: {
+    handleImageAction ({ id, result, alt }) {
+      const { editor } = this
+      const value = editor.getValue()
+      const focus = editor.getCursor('focus')
+      const anchor = editor.getCursor('anchor')
+      const lines = value.split('\n')
+      const index = lines.findIndex(line => line.indexOf(id) > 0)
+
+      if (index > -1) {
+        const oldLine = lines[index]
+        lines[index] = oldLine.replace(new RegExp(`!\\[${id}\\]\\(.*\\)`), `![${alt}](${result})`)
+        const newValue = lines.join('\n')
+        editor.setValue(newValue)
+        const match = /(!\[.*\]\(.*\))/.exec(oldLine)
+        if (!match) {
+          // User maybe delete `![]()` structure, and the match is null.
+          return
+        }
+        const range = {
+          start: match.index,
+          end: match.index + match[1].length
+        }
+        const delta = alt.length + result.length + 5 - match[1].length
+
+        const adjust = pointer => {
+          if (!pointer) {
+            return
+          }
+          if (pointer.line !== index) {
+            return
+          }
+          if (pointer.ch <= range.start) {
+            // do nothing.
+          } else if (pointer.ch > range.start && pointer.ch < range.end) {
+            pointer.ch = range.start + alt.length + result.length + 5
+          } else {
+            pointer.ch += delta
+          }
+        }
+
+        adjust(focus)
+        adjust(anchor)
+        if (focus && anchor) {
+          editor.setSelection(anchor, focus, { scroll: true })
+        } else {
+          setCursorAtLastLine()
+        }
+      }
+    },
     handleSelectDoutu (url) {
       const { editor } = this
       if (editor) {
