@@ -69,12 +69,32 @@ const paragraphCtrl = ContentState => {
     const firstBlock = this.blocks[0]
     if (firstBlock.type === 'pre' && firstBlock.functionType === 'frontmatter') return
 
-    // Default front matter language is YAML. Others cannot be selected via UI.
-    const lang = 'yaml'
+    const { frontmatterType } = this.muya.options
+    let lang
+    let style
+    switch (frontmatterType) {
+      case '+':
+        lang = 'toml'
+        style = '+'
+        break
+      case ';':
+        lang = 'json'
+        style = ';'
+        break
+      case '{':
+        lang = 'json'
+        style = '{'
+        break
+      default:
+        lang = 'yaml'
+        style = '-'
+        break
+    }
+
     const frontMatter = this.createBlock('pre', {
       functionType: 'frontmatter',
       lang,
-      style: '-'
+      style
     })
     const codeBlock = this.createBlock('code', {
       lang

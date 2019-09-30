@@ -35,6 +35,7 @@ const state = {
   preferHeadingStyle: 'atx',
   tabSize: 4,
   listIndentation: 1,
+  frontmatterType: '-',
 
   theme: 'light',
 

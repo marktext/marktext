@@ -40,6 +40,12 @@
       :options="listIndentationOptions"
       :onChange="value => onSelectChange('listIndentation', value)"
     ></cus-select>
+    <cus-select
+      description="The frontmatter type"
+      :value="frontmatterType"
+      :options="frontmatterTypeOptions"
+      :onChange="value => onSelectChange('frontmatterType', value)"
+    ></cus-select>
   </div>
 </template>
 
@@ -52,7 +58,8 @@ import {
   orderListDelimiterOptions,
   preferHeadingStyleOptions,
   tabSizeOptions,
-  listIndentationOptions
+  listIndentationOptions,
+  frontmatterTypeOptions
 } from './config'
 
 export default {
@@ -66,6 +73,7 @@ export default {
     this.preferHeadingStyleOptions = preferHeadingStyleOptions
     this.tabSizeOptions = tabSizeOptions
     this.listIndentationOptions = listIndentationOptions
+    this.frontmatterTypeOptions = frontmatterTypeOptions
     return {}
   },
   computed: {
@@ -75,7 +83,8 @@ export default {
       orderListDelimiter: state => state.preferences.orderListDelimiter,
       preferHeadingStyle: state => state.preferences.preferHeadingStyle,
       tabSize: state => state.preferences.tabSize,
-      listIndentation: state => state.preferences.listIndentation
+      listIndentation: state => state.preferences.listIndentation,
+      frontmatterType: state => state.preferences.frontmatterType
     })
   },
   methods: {
