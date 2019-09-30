@@ -26,6 +26,7 @@ const services = {
     // Currently a non-persistent value
     agreedToLegalNotices: false
   },
+
   github: {
     name: 'GitHub',
     isGdprCompliant: true,
