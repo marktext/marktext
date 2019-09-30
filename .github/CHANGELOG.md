@@ -18,13 +18,22 @@
 
 **:beetle:Bug fix**
 
-- Fixed portable mode detection if current working directory don't match the application directory (#1382)
-- Fixed multiple exception in main process (#1284, #1350)
-- Added emoji fallback fonts for macOS and Windows too (#1299)
-- Fixed RegEx for recommend title (#1128)
+- Fixed main process exception (#1284)
 - Fixed application freeze when using PageDown/PageUp in special cases (#655)
 - Fixed HTML paste handler (#1271)
 - Fixed save all tab order (#1349)
+
+## 0.15.1
+
+v0.15.1 is an unplanned release to fix a XSS security vulnerability.
+
+**:beetle:Bug fix**
+
+- **Fixed a XSS security vulnerability when parsing inline HTML (#1390)**
+- Fixed portable mode detection if current working directory don't match the application directory (#1382)
+- Fixed exception in main process due to file watcher (#1284)
+- Added emoji fallback fonts for macOS and Windows too (#1299)
+- Fixed RegEx for recommend title (#1128)
 
 ## 0.15.0
 
