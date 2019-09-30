@@ -10,14 +10,14 @@ export default function (keybindings, userPreference, recentlyUsedFiles) {
     label: '&File',
     submenu: [{
       label: 'New Tab',
-      accelerator: keybindings.getAccelerator('fileNewFile'),
+      accelerator: keybindings.getAccelerator('fileNewTab'),
       click (menuItem, browserWindow) {
         actions.newBlankTab(browserWindow)
         showTabBar(browserWindow)
       }
     }, {
       label: 'New Window',
-      accelerator: keybindings.getAccelerator('fileNewTab'),
+      accelerator: keybindings.getAccelerator('fileNewFile'),
       click (menuItem, browserWindow) {
         actions.newEditorWindow()
       }

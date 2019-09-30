@@ -31,6 +31,7 @@ class Preference extends EventEmitter {
    *
    */
   constructor (paths) {
+    // TODO: Preferences should not loaded if global.MARKTEXT_SAFE_MODE is set.
     super()
 
     const { preferencesPath } = paths
