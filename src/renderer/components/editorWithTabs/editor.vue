@@ -138,6 +138,7 @@ export default {
       fontSize: state => state.preferences.fontSize,
       codeFontSize: state => state.preferences.codeFontSize,
       codeFontFamily: state => state.preferences.codeFontFamily,
+      trimUnnecessaryEmptyLine: state => state.preferences.trimUnnecessaryEmptyLine,
       editorFontFamily: state => state.preferences.editorFontFamily,
       hideQuickInsertHint: state => state.preferences.hideQuickInsertHint,
       editorLineWidth: state => state.preferences.editorLineWidth,
@@ -262,6 +263,13 @@ export default {
         editor.setOptions({ autoPairQuote: value })
       }
     },
+    trimUnnecessaryEmptyLine: function (value, oldValue) {
+      const { editor } = this
+      if (value !== oldValue && editor) {
+        console.log(value)
+        editor.setOptions({ trimUnnecessaryEmptyLine: value })
+      }
+    },
     bulletListMarker: function (value, oldValue) {
       const { editor } = this
       if (value !== oldValue && editor) {
@@ -326,6 +334,7 @@ export default {
         autoPairBracket,
         autoPairMarkdownSyntax,
         autoPairQuote,
+        trimUnnecessaryEmptyLine,
         bulletListMarker,
         orderListDelimiter,
         tabSize,
@@ -361,6 +370,7 @@ export default {
         preferLooseListItem,
         autoPairBracket,
         autoPairMarkdownSyntax,
+        trimUnnecessaryEmptyLine,
         autoPairQuote,
         bulletListMarker,
         orderListDelimiter,

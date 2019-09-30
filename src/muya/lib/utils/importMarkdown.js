@@ -76,6 +76,7 @@ const importRegister = ContentState => {
       nextSibling: null,
       children: []
     }
+    const { trimUnnecessaryEmptyLine } = this.muya.options
     const tokens = new Lexer({ disableInline: true }).lex(markdown)
     let token
     let block
@@ -158,10 +159,12 @@ const importRegister = ContentState => {
           const lang = (infostring || '').match(/\S*/)[0]
 
           value = text
-          // Fix: #1265 and remove codes bellow.
-          // if (value.endsWith('\n')) {
-          //   value = value.replace(/\n+$/, '')
-          // }
+          // Fix: #1265.
+          console.log(trimUnnecessaryEmptyLine)
+          if (trimUnnecessaryEmptyLine && (value.endsWith('\n') || value.startsWith('\n'))) {
+            value = value.replace(/\n+$/, '')
+              .replace(/^\n+/, '')
+          }
           if (/mermaid|flowchart|vega-lite|sequence/.test(lang)) {
             block = this.createContainerBlock(lang, value)
             this.appendChild(parentList[0], block)
