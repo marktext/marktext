@@ -46,12 +46,11 @@ const add = async (win, pathname, type, endOfLine) => {
         return
       }
     }
+    win.webContents.send(EVENT_NAME[type], {
+      type: 'add',
+      change: file
+    })
   }
-
-  win.webContents.send(EVENT_NAME[type], {
-    type: 'add',
-    change: file
-  })
 }
 
 const unlink = (win, pathname, type) => {
