@@ -54,7 +54,7 @@ export default function () {
     }, {
       label: 'Markdown syntax',
       click () {
-        shell.openExternal('https://spec.commonmark.org/0.29/')
+        shell.openExternal('https://github.com/marktext/marktext/blob/develop/docs/MARKDOWN_SYNTAX.md')
       }
     }, {
       type: 'separator'

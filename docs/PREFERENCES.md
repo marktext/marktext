@@ -1,4 +1,6 @@
-## Mark Text Preference
+## Mark Text Preferences
+
+Preferences can be controlled and modified in the settings window or via the `preferences.json` file in the [application data directory](APPLICATION_DATA_DIRECTORY.md).
 
 #### General
 
@@ -47,7 +49,7 @@
 
 | Key                           | Type    | Default | Description                                        |
 | ----------------------------- | ------- | ------- | -------------------------------------------------- |
-| sideBarVisibility<sup>*</sup> | Boolean | false   | Controls the visibility of the side bar.           |
+| sideBarVisibility<sup>*</sup> | Boolean | false   | Controls the visibility of the sidebar.            |
 | tabBarVisibility<sup>*</sup>  | Boolean | false   | Controls the visibility of the tabs.               |
 | sourceCodeModeEnabled*        | Boolean | false   | Controls the visibility of the source-code editor. |
 

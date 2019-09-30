@@ -143,7 +143,7 @@ Siga as instruções: [Clique aqui](../../docs/LINUX.md).
 
 ## Desenvolvimento
 
-Gostou da missão? Para contribuir com **Mark Text**, por favor, siga as instruções: [instruções](../../.github/CONTRIBUTING.md#build-instructions).
+Gostou da missão? Para contribuir com **Mark Text**, por favor, siga as instruções: [instruções](../../CONTRIBUTING.md#build-instructions).
 
 Possui dúvidas sobre o **Mark Text**, pode abrir um issue. Se você fizer isso, por favor siga o formato padrão. Naturalmente, agradecemos que você envie uma solicitação pull diretamente
 
@@ -152,7 +152,7 @@ Possui dúvidas sobre o **Mark Text**, pode abrir um issue. Se você fizer isso,
 
 ## Constribuição
 
-**Mark Text** está em pleno desenvolvimento. Por favor leia [o guia de constribuição](../../.github/CONTRIBUTING.md) antes de criar um Pull Request. Você quer adicionar alguns recursos? Dê uma olhada no [TODO LIST](../../.github/TODOLIST.md) e abra um issues.
+**Mark Text** está em pleno desenvolvimento. Por favor leia [o guia de constribuição](../../CONTRIBUTING.md) antes de criar um Pull Request. Você quer adicionar alguns recursos? Dê uma olhada no [TODO LIST](../../.github/TODOLIST.md) e abra um issues.
 
 ## Apoiadores
 

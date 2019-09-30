@@ -142,7 +142,7 @@ Sigue las [instrucciones de instalación de Linux]	(../../docs/LINUX.md).
 
 ## Desarrollo
 
-Si quieres construir tú mismo **Mark Text**, por favor, sigue las  [instrucciones de desarrollo](../../.github/CONTRIBUTING.md#build-instructions).
+Si quieres construir tú mismo **Mark Text**, por favor, sigue las  [instrucciones de desarrollo](../../CONTRIBUTING.md#build-instructions).
 
 Si tienes dudas sobre **Mark Text**, puedes abrir un issue. Si lo haces, por favor, sigue el formato estándar. Por supuesto, apreciamos que mandes directamente un Pull Request
 
@@ -150,7 +150,7 @@ Si tienes dudas sobre **Mark Text**, puedes abrir un issue. Si lo haces, por fav
 - [Alfred Workflow](http://www.packal.org/workflow/mark-text): un workflow  para la aplicación de macOS Alfred: usa "mt" para abrir archivos/carpetas con Mark Text
 ## Contribución
 
-**Mark Text** está en pleno desarrollo. Asegúrate de leer [la guía de contribución](../../.github/CONTRIBUTING.md) antes de hacer un Pull Request. ¿Quieres añadir algunas funcionalidades? Échale un vistazo a la [TODO LIST](../../.github/TODOLIST.md) y abre issues.
+**Mark Text** está en pleno desarrollo. Asegúrate de leer [la guía de contribución](../../CONTRIBUTING.md) antes de hacer un Pull Request. ¿Quieres añadir algunas funcionalidades? Échale un vistazo a la [TODO LIST](../../.github/TODOLIST.md) y abre issues.
 
 ## Backers
 

@@ -144,7 +144,7 @@ W przypadku jakichkolwiek pytań podczas korzystania z **Mark Text** zaczęcamy 
 
 ## Udział w projekcie
 
-Mark Text jest w trakcie rozwijania. Upewnij się, że przeczytałeś [Contributing Guide](../../.github/CONTRIBUTING.md) przed stworzeniem pull request. Chcesz dodać nowe udogodnienia do Mark Text? Udaj się do [TODO LIST](../../.github/TODOLIST.md)
+Mark Text jest w trakcie rozwijania. Upewnij się, że przeczytałeś [Contributing Guide](../../CONTRIBUTING.md) przed stworzeniem pull request. Chcesz dodać nowe udogodnienia do Mark Text? Udaj się do [TODO LIST](../../.github/TODOLIST.md)
 
 Dziękujemy wszystkim osobom, które już wzięły udział w projekcie Mark Text! Jeżeli już jesteś członkiem [contributors](https://github.com/marktext/marktext/graphs/contributors), otwórz pull request aby dodać twoje imię i zdjęcie do poniższej listy osób, które pomogły przy projekcie.
 

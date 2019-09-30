@@ -1,4 +1,4 @@
-# Linux installation instructions
+# Linux Installation Instructions
 
 ## AppImage
 

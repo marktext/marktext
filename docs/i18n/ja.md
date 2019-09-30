@@ -169,7 +169,7 @@ macOSをご利用の場合は、[**homebrew cask**](https://github.com/caskroom/
 
 ## コントリビューション
 
-Mark Textは開発の真っ最中です、プルリクエストを作成する場合は事前に [Contributing Guide](../../.github/CONTRIBUTING.md) をご確認ください。Mark Textに追加したい新機能がある場合は、 [TODO LIST](../../.github/TODOLIST.md) を参考にしてください。
+Mark Textは開発の真っ最中です、プルリクエストを作成する場合は事前に [Contributing Guide](../../CONTRIBUTING.md) をご確認ください。Mark Textに追加したい新機能がある場合は、 [TODO LIST](../../.github/TODOLIST.md) を参考にしてください。
 
 ## 後援者
 
