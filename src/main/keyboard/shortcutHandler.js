@@ -27,7 +27,7 @@ class Keybindings {
 
       // File menu
       ['fileNewFile', 'CmdOrCtrl+N'],
-      ['fileNewTab', 'CmdOrCtrl+Shift+T'],
+      ['fileNewTab', 'CmdOrCtrl+T'],
       ['fileOpenFile', 'CmdOrCtrl+O'],
       ['fileOpenFolder', 'CmdOrCtrl+Shift+O'],
       ['fileSave', 'CmdOrCtrl+S'],
@@ -66,7 +66,7 @@ class Keybindings {
       ['paragraphHeading6', 'CmdOrCtrl+6'],
       ['paragraphUpgradeHeading', 'CmdOrCtrl+='],
       ['paragraphDegradeHeading', 'CmdOrCtrl+-'],
-      ['paragraphTable', 'CmdOrCtrl+T'],
+      ['paragraphTable', 'CmdOrCtrl+Shift+T'],
       ['paragraphCodeFence', 'CmdOrCtrl+Alt+C'],
       ['paragraphQuoteBlock', 'CmdOrCtrl+Alt+Q'],
       ['paragraphMathBlock', 'CmdOrCtrl+Alt+M'],
@@ -110,11 +110,11 @@ class Keybindings {
       ['tabsSwitchToRight', 'CmdOrCtrl+PageDown']
     ])
 
-    // fix non-US keyboards
+    // Fix non-US keyboards
     this.mnemonics = new Map()
     this._fixLayout()
 
-    // load user-defined keybindings
+    // Load user-defined keybindings
     this._loadLocalKeybindings()
   }
 
@@ -156,13 +156,13 @@ class Keybindings {
   // --- private --------------------------------
 
   _fixLayout () {
-    // fix wrong virtual key mapping on non-QWERTY layouts
+    // Fix wrong virtual key mapping on non-QWERTY layouts
     electronLocalshortcut.updateVirtualKeys(getVirtualLetters())
 
-    // fix broken shortcuts and dead keys
+    // Fix broken shortcuts and dead keys
     const lang = getKeyboardLanguage()
     switch (lang) {
-      // fix aidou and inline code
+      // Fix aidou and inline code
       case 'ch':
       case 'de':
       case 'dk':
@@ -176,7 +176,7 @@ class Keybindings {
         }
         break
 
-      // fix aidou only
+      // Fix aidou only
       case 'es':
       case 'fr':
       case 'hr':
@@ -188,7 +188,7 @@ class Keybindings {
         }
         break
 
-      // custom layouts
+      // Custom layouts
       case 'bg':
         if (!isOsx) {
           this.mnemonics.set('CmdOrCtrl+/', 'CmdOrCtrl+8')
@@ -202,7 +202,7 @@ class Keybindings {
     this.mnemonics.set('CmdOrCtrl+/', 'CmdOrCtrl+7')
   }
 
-  // fix dead backquote key on layouts like German
+  // Fix dead backquote key on layouts like German
   _fixInlineCode () {
     this.keys.set('formatInlineCode', 'CmdOrCtrl+Shift+B')
   }
@@ -230,12 +230,23 @@ class Keybindings {
         const value = json[key]
         if (typeof value === 'string') {
           if (value.length === 0) {
-            // unset key
-            this.keys.set(key, '')
+            // Unset key
+            userAccelerators.set(key, '')
           } else if (isAccelerator(value)) {
-            // id / accelerator
             userAccelerators.set(key, value)
           }
+        }
+      }
+    }
+
+    // Check for duplicate user shortcuts
+    for (const [keyA, valueA] of userAccelerators) {
+      for (const [keyB, valueB] of userAccelerators) {
+        if (keyA !== keyB && this._isEqualAccelerator(valueA, valueB)) {
+          const err = `Invalid keybindings.json configuration: Duplicate value for "${keyA}" and "${keyB}"!`
+          console.log(err)
+          log.error(err)
+          return
         }
       }
     }
@@ -244,26 +255,24 @@ class Keybindings {
       return
     }
 
-    // deep clone shortcuts and unset user shortcuts
+    // Deep clone shortcuts
     const accelerators = new Map(this.keys)
-    userAccelerators.forEach((value, key) => {
-      accelerators.set(key, '')
-    })
 
-    // check for duplicate shortcuts
+    // Check for duplicate shortcuts
     for (const [userKey, userValue] of userAccelerators) {
       for (const [key, value] of accelerators) {
         if (this._isEqualAccelerator(value, userValue)) {
-          const err = `Invalid keybindings.json configuration: Duplicate key ${userKey} - ${key}`
-          console.log(err)
-          log.error(err)
-          return
+          // Unset default key
+          accelerators.set(key, '')
+
+          // A accelerator should only exist once in the default map.
+          break
         }
       }
       accelerators.set(userKey, userValue)
     }
 
-    // update key bindings
+    // Update key bindings
     this.keys = accelerators
   }
 
@@ -280,6 +289,10 @@ class Keybindings {
 
     const keysA = a.split('+')
     const keysB = b.split('+')
+    if (keysA.length !== keysB.length) {
+      return false
+    }
+
     const intersection = new Set([...keysA, ...keysB])
     return intersection.size === keysB.length
   }
@@ -314,6 +327,7 @@ const callMenuCallback = (menuInfo, win) => {
       const menus = Menu.getApplicationMenu()
       menuItem = menus.getMenuItemById(id)
     }
+
     // Allow all shortcuts/menus without id and only enabled menus with id (GH#980).
     if (!menuItem || menuItem.enabled !== false) {
       click(menuItem, win)

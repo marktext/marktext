@@ -89,7 +89,7 @@ Here is an example:
 | `paragraphHeading6`        | <kbd>CmdOrCtrl</kbd>+<kbd>6</kbd>                  | Set line as heading 6                             |
 | `paragraphUpgradeHeading`  | <kbd>CmdOrCtrl</kbd>+<kbd>=</kbd>                  | Upgrade a heading                                 |
 | `paragraphDegradeHeading`  | <kbd>CmdOrCtrl</kbd>+<kbd>-</kbd>                  | Degrade a heading                                 |
-| `paragraphTable`           | <kbd>CmdOrCtrl</kbd>+<kbd>T</kbd>                  | Insert a table                                    |
+| `paragraphTable`           | <kbd>CmdOrCtrl</kbd>+<kbd>Shift</kbd>+<kbd>T</kbd> | Insert a table                                    |
 | `paragraphCodeFence`       | <kbd>CmdOrCtrl</kbd>+<kbd>Alt</kbd>+<kbd>C</kbd>   | Insert a code block                               |
 | `paragraphQuoteBlock`      | <kbd>CmdOrCtrl</kbd>+<kbd>Alt</kbd>+<kbd>Q</kbd>   | Insert a quote block                              |
 | `paragraphMathBlock`       | <kbd>CmdOrCtrl</kbd>+<kbd>Alt</kbd>+<kbd>M</kbd>   | Insert a math block                               |
