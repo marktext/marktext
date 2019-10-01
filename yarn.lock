@@ -1323,6 +1323,14 @@ anymatch@^3.1.0:
     normalize-path "^3.0.0"
     picomatch "^2.0.4"
 
+anymatch@~3.1.1:
+  version "3.1.1"
+  resolved "https://registry.npmjs.org/anymatch/-/anymatch-3.1.1.tgz#c55ecf02185e2469259399310c173ce31233b142"
+  integrity sha512-mM8522psRCqzV+6LhomX5wgp25YVibjh8Wj23I5RPkPppSVSjyKD2A2mBJmWGa+KN7f2D6LNh9jkBCeyLktzjg==
+  dependencies:
+    normalize-path "^3.0.0"
+    picomatch "^2.0.4"
+
 app-builder-bin@3.4.3:
   version "3.4.3"
   resolved "https://registry.npmjs.org/app-builder-bin/-/app-builder-bin-3.4.3.tgz#58a74193eb882f029be6b7f0cd3f0c6805927a6b"
@@ -1895,7 +1903,7 @@ braces@^2.2.2, braces@^2.3.1, braces@^2.3.2:
     split-string "^3.0.2"
     to-regex "^3.0.1"
 
-braces@^3.0.1, braces@^3.0.2:
+braces@^3.0.1, braces@^3.0.2, braces@~3.0.2:
   version "3.0.2"
   resolved "https://registry.npmjs.org/braces/-/braces-3.0.2.tgz#3454e1a462ee8d599e236df336cd9ea4f8afe107"
   integrity sha512-b8um+L1RzM3WDSzvhm6gIz1yfTbBt6YTlcEKAvsmqCZZFw46z626lVj9j1yEPW33H5H+lBQpZMP1k8l+78Ha0A==
@@ -2395,20 +2403,20 @@ chokidar@^3.0.0:
   optionalDependencies:
     fsevents "^2.0.6"
 
-chokidar@^3.1.1:
-  version "3.1.1"
-  resolved "https://registry.npmjs.org/chokidar/-/chokidar-3.1.1.tgz#27e953f3950336efcc455fd03e240c7299062003"
-  integrity sha512-df4o16uZmMHzVQwECZRHwfguOt5ixpuQVaZHjYMvYisgKhE+JXwcj/Tcr3+3bu/XeOJQ9ycYmzu7Mv8XrGxJDQ==
+chokidar@^3.2.0:
+  version "3.2.0"
+  resolved "https://registry.npmjs.org/chokidar/-/chokidar-3.2.0.tgz#a0b08f9b770c082def0100e0fbcef322ad156a8a"
+  integrity sha512-ViJAmAatEHwGCbBa8coPyRY6yiQ+yryuHT9XnkV6l0ct140Tf6JguJ0LtgoJrjxr9I9utL8IRuqbjhDJAeWIeg==
   dependencies:
-    anymatch "^3.1.0"
-    braces "^3.0.2"
-    glob-parent "^5.0.0"
-    is-binary-path "^2.1.0"
-    is-glob "^4.0.1"
-    normalize-path "^3.0.0"
-    readdirp "^3.1.1"
+    anymatch "~3.1.1"
+    braces "~3.0.2"
+    glob-parent "~5.1.0"
+    is-binary-path "~2.1.0"
+    is-glob "~4.0.1"
+    normalize-path "~3.0.0"
+    readdirp "~3.1.3"
   optionalDependencies:
-    fsevents "^2.0.6"
+    fsevents "~2.1.0"
 
 chownr@^1.1.1:
   version "1.1.2"
@@ -5166,10 +5174,10 @@ follow-redirects@^1.0.0:
   dependencies:
     debug "^3.0.0"
 
-fontmanager-redux@^0.3.3:
-  version "0.3.3"
-  resolved "https://registry.yarnpkg.com/fontmanager-redux/-/fontmanager-redux-0.3.3.tgz#39f3493332d1694ef3bd1652ee11d66ae3e4f495"
-  integrity sha512-n7bz3J+8gHn1+bEsIwdNlZ+wYsof3JPijHW/HQ+0oYA/zVTAuryXYgBrIKboNymJmYnabACoLB0p4tv/vMPGMA==
+fontmanager-redux@^0.4.0:
+  version "0.4.0"
+  resolved "https://registry.npmjs.org/fontmanager-redux/-/fontmanager-redux-0.4.0.tgz#f4c8232a2e2adc6e996a9d4516ab522d1a5da067"
+  integrity sha512-ZXo6KsOfU0+kvyKz49fpe1T+XIvFuWliQSSjLhMnDDlWIBCpIKN1fwTRIgY9guwzKMVym6uKXbeeqwpqVU1+Vg==
 
 for-in@^1.0.2:
   version "1.0.2"
@@ -5287,6 +5295,11 @@ fsevents@^2.0.6:
   resolved "https://registry.npmjs.org/fsevents/-/fsevents-2.0.7.tgz#382c9b443c6cbac4c57187cdda23aa3bf1ccfc2a"
   integrity sha512-a7YT0SV3RB+DjYcppwVDLtn13UQnmg0SWZS7ezZD0UjnLwXmy8Zm21GMVGLaFGimIqcvyMQaOJBrop8MyOp1kQ==
 
+fsevents@~2.1.0:
+  version "2.1.0"
+  resolved "https://registry.npmjs.org/fsevents/-/fsevents-2.1.0.tgz#ce1a5f9ac71c6d75278b0c5bd236d7dfece4cbaa"
+  integrity sha512-+iXhW3LuDQsno8dOIrCIT/CBjeBWuP7PXe8w9shnj9Lebny/Gx1ZjVBYwexLz36Ri2jKuXMNpV6CYNh8lHHgrQ==
+
 function-bind@^1.1.1:
   version "1.1.1"
   resolved "https://registry.npmjs.org/function-bind/-/function-bind-1.1.1.tgz#a56899d3ea3c9bab874bb9773b7c5ede92f4895d"
@@ -5401,6 +5414,13 @@ glob-parent@^5.0.0:
   version "5.0.0"
   resolved "https://registry.npmjs.org/glob-parent/-/glob-parent-5.0.0.tgz#1dc99f0f39b006d3e92c2c284068382f0c20e954"
   integrity sha512-Z2RwiujPRGluePM6j699ktJYxmPpJKCfpGA13jz2hmFZC7gKetzrWvg5KN3+OsIFmydGyZ1AVwERCq1w/ZZwRg==
+  dependencies:
+    is-glob "^4.0.1"
+
+glob-parent@~5.1.0:
+  version "5.1.0"
+  resolved "https://registry.npmjs.org/glob-parent/-/glob-parent-5.1.0.tgz#5f4c1d1e748d30cd73ad2944b3577a81b081e8c2"
+  integrity sha512-qjtRgnIVmOfnKUE3NJAQEdk+lKrxfw8t5ke7SXtfMTHcjsBfOfWXCQfdb30zfDoZQ2IRSIiidmjtbHZPZ++Ihw==
   dependencies:
     is-glob "^4.0.1"
 
@@ -6247,7 +6267,7 @@ is-binary-path@^1.0.0:
   dependencies:
     binary-extensions "^1.0.0"
 
-is-binary-path@^2.1.0:
+is-binary-path@^2.1.0, is-binary-path@~2.1.0:
   version "2.1.0"
   resolved "https://registry.npmjs.org/is-binary-path/-/is-binary-path-2.1.0.tgz#ea1f7f3b80f064236e83470f86c09c254fb45b09"
   integrity sha512-ZMERYes6pDydyuGidse7OsHxtbI7WVeUEozgR/g7rd0xUimYNlvZRE/K2MgZTjWy725IfelLeVcEM97mmtRGXw==
@@ -6361,7 +6381,7 @@ is-glob@^3.1.0:
   dependencies:
     is-extglob "^2.1.0"
 
-is-glob@^4.0.0, is-glob@^4.0.1:
+is-glob@^4.0.0, is-glob@^4.0.1, is-glob@~4.0.1:
   version "4.0.1"
   resolved "https://registry.npmjs.org/is-glob/-/is-glob-4.0.1.tgz#7567dbe9f2f5e2467bc77ab83c4a29482407a5dc"
   integrity sha512-5G0tKtBTFImOqDnLB2hG6Bp2qcKEFduo4tZu9MT/H6NQv/ghhy30o55ufafxJ/LdH79LLs2Kfrn85TLKyA7BUg==
@@ -7810,10 +7830,10 @@ mkdirp@0.5.1, mkdirp@0.5.x, mkdirp@^0.5.0, mkdirp@^0.5.1, mkdirp@~0.5.1:
   dependencies:
     minimist "0.0.8"
 
-mocha@^6.2.0:
-  version "6.2.0"
-  resolved "https://registry.npmjs.org/mocha/-/mocha-6.2.0.tgz#f896b642843445d1bb8bca60eabd9206b8916e56"
-  integrity sha512-qwfFgY+7EKAAUAdv7VYMZQknI7YJSGesxHyhn6qD52DV8UcSZs5XwCifcZGMVIE4a5fbmhvbotxC0DLQ0oKohQ==
+mocha@^6.2.1:
+  version "6.2.1"
+  resolved "https://registry.npmjs.org/mocha/-/mocha-6.2.1.tgz#da941c99437da9bac412097859ff99543969f94c"
+  integrity sha512-VCcWkLHwk79NYQc8cxhkmI8IigTIhsCwZ6RTxQsqK6go4UvEhzJkYuHm8B2YtlSxcYq2fY+ucr4JBwoD6ci80A==
   dependencies:
     ansi-colors "3.2.3"
     browser-stdout "1.3.1"
@@ -7835,9 +7855,9 @@ mocha@^6.2.0:
     supports-color "6.0.0"
     which "1.3.1"
     wide-align "1.1.3"
-    yargs "13.2.2"
-    yargs-parser "13.0.0"
-    yargs-unparser "1.5.0"
+    yargs "13.3.0"
+    yargs-parser "13.1.1"
+    yargs-unparser "1.6.0"
 
 moment-mini@^2.22.1:
   version "2.22.1"
@@ -8112,7 +8132,7 @@ normalize-path@^2.0.0, normalize-path@^2.1.1:
   dependencies:
     remove-trailing-separator "^1.0.1"
 
-normalize-path@^3.0.0:
+normalize-path@^3.0.0, normalize-path@~3.0.0:
   version "3.0.0"
   resolved "https://registry.npmjs.org/normalize-path/-/normalize-path-3.0.0.tgz#0dcd69ff23a1c9b11fd0978316644a0388216a65"
   integrity sha512-6eZs5Ls3WtCisHWp9S2GUy8dqkpGi4BVSz3GaqiE6ezub0512ESztXUwUB6C6IKbQkY2Pnb/mD4WYojCRwcwLA==
@@ -9698,6 +9718,13 @@ readdirp@^3.1.1:
   version "3.1.2"
   resolved "https://registry.npmjs.org/readdirp/-/readdirp-3.1.2.tgz#fa85d2d14d4289920e4671dead96431add2ee78a"
   integrity sha512-8rhl0xs2cxfVsqzreYCvs8EwBfn/DhVdqtoLmw19uI3SC5avYX9teCurlErfpPXGmYtMHReGaP2RsLnFvz/lnw==
+  dependencies:
+    picomatch "^2.0.4"
+
+readdirp@~3.1.3:
+  version "3.1.3"
+  resolved "https://registry.npmjs.org/readdirp/-/readdirp-3.1.3.tgz#d6e011ed5b9240a92f08651eeb40f7942ceb6cc1"
+  integrity sha512-ZOsfTGkjO2kqeR5Mzr5RYDbTGYneSkdNKX2fOX2P5jF7vMrd/GNnIAUtDldeHHumHUCQ3V05YfWUdxMPAsRu9Q==
   dependencies:
     picomatch "^2.0.4"
 
@@ -11793,18 +11820,18 @@ vega-embed@^4.2.1:
     vega-themes "^2.3.2"
     vega-tooltip "^0.18.1"
 
-vega-encode@^4.3.3:
-  version "4.3.3"
-  resolved "https://registry.npmjs.org/vega-encode/-/vega-encode-4.3.3.tgz#9f39d04d428d827f083e6593a838478d78d187bc"
-  integrity sha512-lhySA4qhsevYrjFgjQn0iyy0ZivrgYbYrjusLZxZ5niJQrCfDqETVl3tjWN9F6vm6HfusBxLWa4cy/zyvK+SOA==
+vega-encode@^4.4.0:
+  version "4.4.0"
+  resolved "https://registry.npmjs.org/vega-encode/-/vega-encode-4.4.0.tgz#190faad9c50b70c15c81eeae3d1ed1a874c6092c"
+  integrity sha512-MLofR0XUZzwStyio8V0igS47X1qf06p3XxJKSxcmlPAcaf7SCtaxlSUxkTs9D1i8XApr44riFRtdtEtDzGP3AQ==
   dependencies:
     d3-array "^2.3.1"
     d3-format "^1.4.1"
     d3-interpolate "^1.3.2"
     d3-time-format "^2.1.3"
     vega-dataflow "^5.4.0"
-    vega-scale "^4.1.1"
-    vega-util "^1.11.0"
+    vega-scale "^4.1.2"
+    vega-util "^1.11.2"
 
 vega-event-selector@^2.0.1, vega-event-selector@~2.0.0:
   version "2.0.1"
@@ -11827,7 +11854,7 @@ vega-force@^4.0.2:
     vega-dataflow "^5.1.1"
     vega-util "^1.11.0"
 
-vega-functions@^5.3.1, vega-functions@^5.3.2:
+vega-functions@^5.3.1:
   version "5.3.2"
   resolved "https://registry.npmjs.org/vega-functions/-/vega-functions-5.3.2.tgz#62ce2a3fa0ee95bc9e84215da311d5479a4e3d10"
   integrity sha512-R62p2pTuQh/493fvUO3xI8lxeIQOWMxUxQhASRxIO4YGRUcSVjZiSvbD7qsm7bp34COkmBWTqUzmZMW2fNGZpA==
@@ -11845,17 +11872,35 @@ vega-functions@^5.3.1, vega-functions@^5.3.2:
     vega-statistics "^1.3.0"
     vega-util "^1.11.0"
 
-vega-geo@^4.0.4:
-  version "4.0.4"
-  resolved "https://registry.npmjs.org/vega-geo/-/vega-geo-4.0.4.tgz#433130c8f2df3687a597b55024d0ee1e9fbcf00e"
-  integrity sha512-YA1iLF0nljkl+WcnURTLYyECxOuIFcw6230TCFTTphMWQuq3oJYF+ENg36z08eMFDgvXTfWDH4mEwOJEb0l/8Q==
+vega-functions@^5.4.0:
+  version "5.4.0"
+  resolved "https://registry.npmjs.org/vega-functions/-/vega-functions-5.4.0.tgz#5d0c32b35ba79065d28830479e5b383ba8f35fdd"
+  integrity sha512-CK0LyeeGXsM+z3d6F8d8B+qqXsPqrJnfvEb3j93Mkc/H0m4cWIlSqIJ+YqO7FjUyWUE971XKcsTlfYoXlnL8Cg==
+  dependencies:
+    d3-array "^2.3.1"
+    d3-color "^1.3.0"
+    d3-format "^1.4.1"
+    d3-geo "^1.11.6"
+    d3-time-format "^2.1.3"
+    vega-dataflow "^5.2.1"
+    vega-expression "^2.6.1"
+    vega-scale "^4.0.0"
+    vega-scenegraph "^4.0.0"
+    vega-selections "^5.0.1"
+    vega-statistics "^1.3.0"
+    vega-util "^1.11.2"
+
+vega-geo@^4.1.0:
+  version "4.1.0"
+  resolved "https://registry.npmjs.org/vega-geo/-/vega-geo-4.1.0.tgz#ebf6c15b7ce858f1e4cfe27b8ff1c6e433364515"
+  integrity sha512-3xo0hpmfVdhbdB0MWAppBu/DGTHn7+4g+psUVBu9LRii4XUNlmi+YmJzO4Ph6tv2zxrfZfIKMXid9+V5MzWn+g==
   dependencies:
     d3-array "^2.3.1"
     d3-contour "^1.3.2"
     d3-geo "^1.11.6"
     vega-dataflow "^5.1.1"
-    vega-projection "^1.2.1"
-    vega-util "^1.11.0"
+    vega-projection "^1.3.0"
+    vega-util "^1.11.2"
 
 vega-hierarchy@^4.0.3:
   version "4.0.3"
@@ -11895,19 +11940,19 @@ vega-loader@^4.0.0, vega-loader@^4.1.1:
     topojson-client "^3.0.0"
     vega-util "^1.11.0"
 
-vega-parser@^5.8.3:
-  version "5.8.3"
-  resolved "https://registry.npmjs.org/vega-parser/-/vega-parser-5.8.3.tgz#663f1afe25a1127628143297fc9be0f3e711d475"
-  integrity sha512-SI8tZWumouBKLz/IXRtfHgTr2sWV9jjK7Bb1XKki76MLvqJfmpaU+leIhGztrqX2cJQGxaKjkelRVZUjn6tjMQ==
+vega-parser@^5.9.0:
+  version "5.9.0"
+  resolved "https://registry.npmjs.org/vega-parser/-/vega-parser-5.9.0.tgz#f343eb6c9a266b876f9bda8ee4531a0a862f7805"
+  integrity sha512-PtbB3ZMYVYDGdRyzSka208ofAWXm9a+xEPvCObAEe2BbJO48+BZBf8lgRtWborxjf60IaNorZBVxI9gUzSXi+A==
   dependencies:
     vega-dataflow "^5.4.0"
     vega-event-selector "^2.0.1"
     vega-expression "^2.6.1"
-    vega-functions "^5.3.1"
-    vega-scale "^4.1.1"
-    vega-util "^1.11.0"
+    vega-functions "^5.4.0"
+    vega-scale "^4.1.2"
+    vega-util "^1.11.2"
 
-vega-projection@^1.2.1, vega-projection@^1.3.0:
+vega-projection@^1.3.0:
   version "1.3.0"
   resolved "https://registry.npmjs.org/vega-projection/-/vega-projection-1.3.0.tgz#4f8292fae8e64c733010068ae26bfcea07ed9ddd"
   integrity sha512-BFOc/XSVVW96WIAAyiUcppCeegniibiKGX0OLbGpQ5WIbeDHsbCXqnkeBpD5wsjvPXaiQRHTZ0PZ8VvCoCQV+g==
@@ -11932,7 +11977,7 @@ vega-runtime@^5.0.1, vega-runtime@^5.0.2:
     vega-dataflow "^5.1.1"
     vega-util "^1.11.0"
 
-vega-scale@^4.0.0, vega-scale@^4.1.1, vega-scale@^4.1.2:
+vega-scale@^4.0.0, vega-scale@^4.1.2:
   version "4.1.2"
   resolved "https://registry.npmjs.org/vega-scale/-/vega-scale-4.1.2.tgz#a23963479ca3cdf7c9d41417af6f060b5d28d82f"
   integrity sha512-TO1MxP9KV6+PaEW0TIIZ6CRUUUYaiZXfFRnD4kBhlY7t3Sx7/ZScFTOswcJVHuMnViJleegodUmbpigF7WrrDQ==
@@ -11943,7 +11988,7 @@ vega-scale@^4.0.0, vega-scale@^4.1.1, vega-scale@^4.1.2:
     d3-time "^1.0.11"
     vega-util "^1.11.0"
 
-vega-scenegraph@^4.0.0, vega-scenegraph@^4.1.0, vega-scenegraph@^4.2.0, vega-scenegraph@^4.2.1:
+vega-scenegraph@^4.0.0, vega-scenegraph@^4.2.0:
   version "4.2.1"
   resolved "https://registry.npmjs.org/vega-scenegraph/-/vega-scenegraph-4.2.1.tgz#cca099865da2f5186daab2fbe835d95b16982ed9"
   integrity sha512-qk3L4P/xcWIDnsuB6E9I/akwbneNaUEsZiYWr8CvpE7BjsIgYqklflCx85UbrqdHte5vFwPWiSiHDEuaNrvWgA==
@@ -11953,6 +11998,17 @@ vega-scenegraph@^4.0.0, vega-scenegraph@^4.1.0, vega-scenegraph@^4.2.0, vega-sce
     vega-canvas "^1.2.1"
     vega-loader "^4.1.1"
     vega-util "^1.11.0"
+
+vega-scenegraph@^4.3.0:
+  version "4.3.0"
+  resolved "https://registry.npmjs.org/vega-scenegraph/-/vega-scenegraph-4.3.0.tgz#ad8328f7363b48357da494e010bab1d1ee333ac1"
+  integrity sha512-QBP7OdLhG8kLV5zHC0TLR1RrGvagy9X+9XGVu8KYuFBRTyNbGX2wD3Eve4uko/1Fkfj35JG/DVq4iBFIXCWbGQ==
+  dependencies:
+    d3-path "^1.0.8"
+    d3-shape "^1.3.5"
+    vega-canvas "^1.2.1"
+    vega-loader "^4.1.1"
+    vega-util "^1.11.2"
 
 vega-schema-url-parser@^1.1.0:
   version "1.1.0"
@@ -11967,12 +12023,19 @@ vega-selections@^5.0.1:
     vega-expression "^2.6.1"
     vega-util "^1.11.0"
 
-vega-statistics@^1.2.5, vega-statistics@^1.3.0, vega-statistics@^1.4.0, vega-statistics@^1.5.0:
+vega-statistics@^1.2.5, vega-statistics@^1.3.0, vega-statistics@^1.4.0:
   version "1.5.0"
   resolved "https://registry.npmjs.org/vega-statistics/-/vega-statistics-1.5.0.tgz#baa961a27eb60fb2e7d26d000dfdacc2f1ba9486"
   integrity sha512-sbDbLHdPGcEsz3E6Rnqolt5hUxStjrGUehyequHNx/+43MIBvONHLdHMtUm9YLJmj/LChkfLShJ+ObwMVH2aWQ==
   dependencies:
     d3-array "^2.0.3"
+
+vega-statistics@^1.6.0:
+  version "1.6.0"
+  resolved "https://registry.npmjs.org/vega-statistics/-/vega-statistics-1.6.0.tgz#a9b982992f0c19de0daafa5260431adc83ccab7e"
+  integrity sha512-8ECaQ9/q8gnMpDLxYEDLCFxqoUmsW1AV1Qho5Iiryq41CoYhSVmg3DzelZRLutmnE8LYsIW6ysQdZw4tOMbhRQ==
+  dependencies:
+    d3-array "^2.3.1"
 
 vega-themes@^2.3.2:
   version "2.4.0"
@@ -11986,15 +12049,15 @@ vega-tooltip@^0.18.1:
   dependencies:
     vega-util "^1.10.0"
 
-vega-transforms@^4.3.0:
-  version "4.3.0"
-  resolved "https://registry.npmjs.org/vega-transforms/-/vega-transforms-4.3.0.tgz#426612669b59838d15efb38a1db1331f5fbe239e"
-  integrity sha512-a3mtG3/d+DIfrqyMVTe5jythRqbiJd/WoRXQQCJpbe4XyPE75huo0VHdcvqmMPrF4dUQPFkp38JHSXTParj2yw==
+vega-transforms@^4.4.0:
+  version "4.4.0"
+  resolved "https://registry.npmjs.org/vega-transforms/-/vega-transforms-4.4.0.tgz#3718d6cf19842b5b8b2bbf376283aae94c76b268"
+  integrity sha512-BzvVE1yuKHv+pbLSGKQjHZR9BBpAQoD2+ns0ce46sLkN0FKty5iy+TO/AOIoss8tNA6769UHxgc7ou1+QO1Ctw==
   dependencies:
     d3-array "^2.3.1"
     vega-dataflow "^5.4.0"
-    vega-statistics "^1.5.0"
-    vega-util "^1.11.0"
+    vega-statistics "^1.6.0"
+    vega-util "^1.11.2"
 
 vega-typings@0.7.2:
   version "0.7.2"
@@ -12003,10 +12066,10 @@ vega-typings@0.7.2:
   dependencies:
     vega-util "^1.10.0"
 
-vega-typings@^0.9.0:
-  version "0.9.0"
-  resolved "https://registry.npmjs.org/vega-typings/-/vega-typings-0.9.0.tgz#c12779e50c2fe075e51fec8f530a344a566e75a1"
-  integrity sha512-auHUUKq/18jk+NGUfR4m/0eil1ufN7sFaYjPOTFu4xhGlULAMriyGQHFaFqPuucNfDCpXMLAQhm31fj67ZPabw==
+vega-typings@^0.10.0:
+  version "0.10.0"
+  resolved "https://registry.npmjs.org/vega-typings/-/vega-typings-0.10.0.tgz#59545610aa6310b7468829c23563ba3e033b5c1d"
+  integrity sha512-hrhv871TpPklR8Kq1ooeydUFmbJ+DItJ4va2sEx56w44VpNKTUuWS8IRubCrTHPm1GqZ0VMO4n+u+XM2t2b60g==
   dependencies:
     vega-util "^1.11.0"
 
@@ -12020,14 +12083,14 @@ vega-util@~1.10.0:
   resolved "https://registry.npmjs.org/vega-util/-/vega-util-1.10.0.tgz#edfd8c04f1d269f903976c228820153902c270d4"
   integrity sha512-fTGnTG7FhtTG9tiYDL3k5s8YHqB71Ml5+aC9B7eaBygeB8GKXBrcbTXLOzoCRxT3Jr5cRhr99PMBu0AkqmhBog==
 
-vega-view-transforms@^4.3.2:
-  version "4.3.2"
-  resolved "https://registry.npmjs.org/vega-view-transforms/-/vega-view-transforms-4.3.2.tgz#1b96567119ecd3339c225230da67011bc73c84a1"
-  integrity sha512-wBDiTS8O5v9J7szalGdsLMjsl3ndIvCGygRWOO8oqFJYboNi6aDEbJMdBkNxxVJ20nNBzT1Ipa2bhYDD0IkylQ==
+vega-view-transforms@^4.4.0:
+  version "4.4.0"
+  resolved "https://registry.npmjs.org/vega-view-transforms/-/vega-view-transforms-4.4.0.tgz#265902ddcde2ea34ba63d63ebed050d2e0e36fc9"
+  integrity sha512-Y3n2ovXAz4R+fwwRF/A63Y8FAC2H4xrIHkF43PnjEo/tQ2T5eoksoRSC7iNiFeHbo95Ks6Si/sVmyE8xhT+J2Q==
   dependencies:
     vega-dataflow "^5.1.1"
-    vega-scenegraph "^4.1.0"
-    vega-util "^1.11.0"
+    vega-scenegraph "^4.3.0"
+    vega-util "^1.11.2"
 
 vega-view@^5.3.1:
   version "5.3.1"
@@ -12062,33 +12125,33 @@ vega-wordcloud@^4.0.2:
     vega-statistics "^1.2.5"
     vega-util "^1.8.0"
 
-vega@^5.4.0:
-  version "5.6.0"
-  resolved "https://registry.npmjs.org/vega/-/vega-5.6.0.tgz#183e91beaf60fa9ed3e58a6db532716c4908f2ad"
-  integrity sha512-CE0tSL94q7PORs+4vVhGpFcKDLvtx4nBSbJUWDhtYD6Wus8M3jTg2G/bE6Ode/5WodWk6hFXOy/Ay3oPaHz7Gw==
+vega@^5.7.0:
+  version "5.7.0"
+  resolved "https://registry.npmjs.org/vega/-/vega-5.7.0.tgz#dc737106786d8c2b40e436cc94c4b63286d1ead4"
+  integrity sha512-AxvSF9LfkRzM5ommt9cnuuzeFpHYOqcr2zH3kPHiOlBidTIE1CkQ3z3g4Ff2mM35ln20EmWoT2bsC+J7uLCpHg==
   dependencies:
     vega-crossfilter "^4.0.1"
     vega-dataflow "^5.4.0"
-    vega-encode "^4.3.3"
+    vega-encode "^4.4.0"
     vega-event-selector "^2.0.1"
     vega-expression "^2.6.1"
     vega-force "^4.0.2"
-    vega-functions "^5.3.2"
-    vega-geo "^4.0.4"
+    vega-functions "^5.4.0"
+    vega-geo "^4.1.0"
     vega-hierarchy "^4.0.3"
     vega-loader "^4.1.1"
-    vega-parser "^5.8.3"
+    vega-parser "^5.9.0"
     vega-projection "^1.3.0"
     vega-regression "^1.0.1"
     vega-runtime "^5.0.2"
     vega-scale "^4.1.2"
-    vega-scenegraph "^4.2.1"
-    vega-statistics "^1.5.0"
-    vega-transforms "^4.3.0"
-    vega-typings "^0.9.0"
+    vega-scenegraph "^4.3.0"
+    vega-statistics "^1.6.0"
+    vega-transforms "^4.4.0"
+    vega-typings "^0.10.0"
     vega-util "^1.11.2"
     vega-view "^5.3.1"
-    vega-view-transforms "^4.3.2"
+    vega-view-transforms "^4.4.0"
     vega-voronoi "^4.1.1"
     vega-wordcloud "^4.0.2"
 
@@ -12674,10 +12737,10 @@ yallist@^3.0.0, yallist@^3.0.2, yallist@^3.0.3:
   resolved "https://registry.npmjs.org/yallist/-/yallist-3.0.3.tgz#b4b049e314be545e3ce802236d6cd22cd91c3de9"
   integrity sha512-S+Zk8DEWE6oKpV+vI3qWkaK+jSbIK86pCwe2IF/xwIpQ8jEuxpw9NyaGjmp9+BoJv5FV2piqCDcoCtStppiq2A==
 
-yargs-parser@13.0.0:
-  version "13.0.0"
-  resolved "https://registry.npmjs.org/yargs-parser/-/yargs-parser-13.0.0.tgz#3fc44f3e76a8bdb1cc3602e860108602e5ccde8b"
-  integrity sha512-w2LXjoL8oRdRQN+hOyppuXs+V/fVAYtpcrRxZuF7Kt/Oc+Jr2uAcVntaUTNT6w5ihoWfFDpNY8CPx1QskxZ/pw==
+yargs-parser@13.1.1, yargs-parser@^13.1.0, yargs-parser@^13.1.1:
+  version "13.1.1"
+  resolved "https://registry.npmjs.org/yargs-parser/-/yargs-parser-13.1.1.tgz#d26058532aa06d365fe091f6a1fc06b2f7e5eca0"
+  integrity sha512-oVAVsHz6uFrg3XQheFII8ESO2ssAf9luWuAd6Wexsu4F3OtIW0o8IribPXYrD4WC24LWtPrJlGy87y5udK+dxQ==
   dependencies:
     camelcase "^5.0.0"
     decamelize "^1.2.0"
@@ -12690,24 +12753,16 @@ yargs-parser@^11.1.1:
     camelcase "^5.0.0"
     decamelize "^1.2.0"
 
-yargs-parser@^13.0.0, yargs-parser@^13.1.0, yargs-parser@^13.1.1:
-  version "13.1.1"
-  resolved "https://registry.npmjs.org/yargs-parser/-/yargs-parser-13.1.1.tgz#d26058532aa06d365fe091f6a1fc06b2f7e5eca0"
-  integrity sha512-oVAVsHz6uFrg3XQheFII8ESO2ssAf9luWuAd6Wexsu4F3OtIW0o8IribPXYrD4WC24LWtPrJlGy87y5udK+dxQ==
-  dependencies:
-    camelcase "^5.0.0"
-    decamelize "^1.2.0"
-
-yargs-unparser@1.5.0:
-  version "1.5.0"
-  resolved "https://registry.npmjs.org/yargs-unparser/-/yargs-unparser-1.5.0.tgz#f2bb2a7e83cbc87bb95c8e572828a06c9add6e0d"
-  integrity sha512-HK25qidFTCVuj/D1VfNiEndpLIeJN78aqgR23nL3y4N0U/91cOAzqfHlF8n2BvoNDcZmJKin3ddNSvOxSr8flw==
+yargs-unparser@1.6.0:
+  version "1.6.0"
+  resolved "https://registry.npmjs.org/yargs-unparser/-/yargs-unparser-1.6.0.tgz#ef25c2c769ff6bd09e4b0f9d7c605fb27846ea9f"
+  integrity sha512-W9tKgmSn0DpSatfri0nx52Joq5hVXgeLiqR/5G0sZNDoLZFOr/xjBUDcShCOGNsBnEMNo1KAMBkTej1Hm62HTw==
   dependencies:
     flat "^4.1.0"
-    lodash "^4.17.11"
-    yargs "^12.0.5"
+    lodash "^4.17.15"
+    yargs "^13.3.0"
 
-yargs@12.0.5, yargs@^12.0.5:
+yargs@12.0.5:
   version "12.0.5"
   resolved "https://registry.npmjs.org/yargs/-/yargs-12.0.5.tgz#05f5997b609647b64f66b81e3b4b10a368e7ad13"
   integrity sha512-Lhz8TLaYnxq/2ObqHDql8dX8CJi97oHxrjUcYtzKbbykPtVW9WB+poxI+NM2UIzsMgNCZTIf0AQwsjK5yMAqZw==
@@ -12724,23 +12779,6 @@ yargs@12.0.5, yargs@^12.0.5:
     which-module "^2.0.0"
     y18n "^3.2.1 || ^4.0.0"
     yargs-parser "^11.1.1"
-
-yargs@13.2.2:
-  version "13.2.2"
-  resolved "https://registry.npmjs.org/yargs/-/yargs-13.2.2.tgz#0c101f580ae95cea7f39d927e7770e3fdc97f993"
-  integrity sha512-WyEoxgyTD3w5XRpAQNYUB9ycVH/PQrToaTXdYXRdOXvEy1l19br+VJsc0vcO8PTGg5ro/l/GY7F/JMEBmI0BxA==
-  dependencies:
-    cliui "^4.0.0"
-    find-up "^3.0.0"
-    get-caller-file "^2.0.1"
-    os-locale "^3.1.0"
-    require-directory "^2.1.1"
-    require-main-filename "^2.0.0"
-    set-blocking "^2.0.0"
-    string-width "^3.0.0"
-    which-module "^2.0.0"
-    y18n "^4.0.0"
-    yargs-parser "^13.0.0"
 
 yargs@13.2.4:
   version "13.2.4"
@@ -12759,7 +12797,7 @@ yargs@13.2.4:
     y18n "^4.0.0"
     yargs-parser "^13.1.0"
 
-yargs@^13.2.4, yargs@^13.3.0, yargs@~13.3.0:
+yargs@13.3.0, yargs@^13.2.4, yargs@^13.3.0, yargs@~13.3.0:
   version "13.3.0"
   resolved "https://registry.npmjs.org/yargs/-/yargs-13.3.0.tgz#4c657a55e07e5f2cf947f8a366567c04a0dedc83"
   integrity sha512-2eehun/8ALW8TLoIl7MVaRUrg+yCnenu8B4kBlRxj3GJGDKU1Og7sMXPNm1BYyM1DOJmTZ4YeN/Nwxv+8XJsUA==
