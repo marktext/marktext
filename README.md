@@ -183,9 +183,9 @@ Sponsored by Patreon, it will be directly sponsored to Luo Ran (@jocs), who crea
 
 1. I love writing. I have used a lot of markdown editors, yet there is still not an editor that can fully meet my needs. I don't like to be disturbed when I write by some unbearable bug. **Mark Text** uses virtual DOM to render pages which has the added benefits of being highly efficient and being open source. That way anyone who loves markdown and writing can use Mark Text.
 2. As mentioned above, **Mark Text** is completely free and open source and will be open source forever. We hope that all markdown lovers will contribute their own code and help develop **Mark Text** into a popular markdown editor.
-3. There are many markdown editors and all have their own merits, some have features which others don't. It's difficult to satisfy each markdown users needs but we hope **Mark Text** will be able to satisfy each markdown users' needs as much as possible. Although the latest **Mark Text** is still not perfect, we will try to make it as best as we possibly can.
+3. There are many markdown editors and all have their own merits, some have features which others don't. It's difficult to satisfy each markdown users needs but we hope **Mark Text** will be able to satisfy each markdown user as much as possible. Although the latest **Mark Text** is still not perfect, we will try to make it as best as we possibly can.
 
-## Download and Install
+## Download and Installation
 
 ![platform](https://img.shields.io/static/v1.svg?label=Platform&message=Linux-64%20|%20macOS-64%20|%20Win-32%20|%20Win-64&style=for-the-badge)
 
@@ -217,9 +217,12 @@ All binaries for Linux, macOS and Windows can be downloaded from the [release pa
 
 ## Development
 
-If you wish to build **Mark Text** yourself, please check out our [developer documentation](.github/CONTRIBUTING.md#build-instructions).
+If you wish to build **Mark Text** yourself, please check out our [build instructions](docs/dev/BUILD.md).
 
-If you have any questions regarding **Mark Text**, you are welcome to write an issue. When doing so please use the default format found when opening a issue. Of course, if you submit a PR directly, it will be greatly appreciated.
+- [User documentation](docs/README.md)
+- [Developer documentation](docs/dev/README.md)
+
+If you have any questions regarding **Mark Text**, you are welcome to write an issue. When doing so please use the default format found when opening an issue. Of course, if you submit a PR directly, it will be greatly appreciated.
 
 ## Integrations
 
@@ -227,13 +230,13 @@ If you have any questions regarding **Mark Text**, you are welcome to write an i
 
 ## Contribution
 
-Mark Text is in full development, please make sure to read the [Contributing Guide](.github/CONTRIBUTING.md) before making a pull request. Want to add some features to Mark Text? Refer to [ROADMAP](.github/ROADMAP.md) and open issues.
+Mark Text is in full development, please make sure to read the [Contributing Guide](CONTRIBUTING.md) before making a pull request. Want to add some features to Mark Text? Refer to our [roadmap](ROADMAP.md) and open issues.
 
 ## Contributors
 
 Thank you to all the people who have already contributed to Mark Text[[contributors](https://github.com/marktext/marktext/graphs/contributors)]
 
-Special thanks to @[Yasujizr](https://github.com/Yasujizr) who designed the logo of Mark Text.
+Special thanks to @[Yasujizr](https://github.com/Yasujizr) who designed the Mark Text logo.
 
 <a href="https://github.com/marktext/marktext/graphs/contributors"><img src="https://opencollective.com/marktext/contributors.svg?width=890" /></a>
 

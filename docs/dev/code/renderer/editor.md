@@ -104,7 +104,7 @@ TBD
 
 TBD
 
-### Side Bar
+### Sidebar
 
 TBD
 

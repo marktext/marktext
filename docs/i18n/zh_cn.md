@@ -193,7 +193,7 @@ brew cask install mark-text
 
 ## 开发
 
-如果您想自己构建 **Mark Text**，请查看我们的 [developer documentation](../../.github/CONTRIBUTING.md#build-instructions).
+如果您想自己构建 **Mark Text**，请查看我们的 [developer documentation](../../.github.md#build-instructions).
 
 如果您对 **Mark Text** 有任何疑问，欢迎写一个 issue。如果这样做时，请使用打开 issue 时发现的默认格式。当然，如果您直接提交 PR，我们将不胜感激。
 
@@ -203,11 +203,11 @@ brew cask install mark-text
 
 ## 贡献
 
-Mark Text 正在全面开发中，请确保在提出 PR 之前先阅读 [Contributing Guide](../../.github/CONTRIBUTING.md) 想要给 Mark Text 添加一些功能？请先看看 [ROADMAP](../../.github/ROADMAP.md) 并创建一个 issue。
+Mark Text 正在全面开发中，请确保在提出 PR 之前先阅读 [Contributing Guide](../../CONTRIBUTING.md) 想要给 Mark Text 添加一些功能？请先看看 [ROADMAP](../../ROADMAP.md) 并创建一个 issue。
 
 ## 贡献者
 
-感谢所有为 Mark Text 做出贡献的人们 
+感谢所有为 Mark Text 做出贡献的人们
 [[contributors](https://github.com/marktext/marktext/graphs/contributors)]
 
 特别感谢 @[Yasujizr](https://github.com/Yasujizr) 设计了一个图标给 Mark Text。

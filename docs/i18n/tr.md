@@ -147,7 +147,7 @@ Lütfen [Linux kurulum talimatını](../../docs/LINUX.md) takip ediniz.
 
 ## Geliştirme
 
-Eğer **Mark Text** kendiniz geliştirmek isterseniz, lütfen bizim [geliştirici dökümantasyonunu](../../.github/CONTRIBUTING.md#build-instructions) kontrol edin.
+Eğer **Mark Text** kendiniz geliştirmek isterseniz, lütfen bizim [geliştirici dökümantasyonunu](../../CONTRIBUTING.md#build-instructions) kontrol edin.
 
 **Mark Text** kullanırken bir sorun olursa, bir issue açabilirsin, ama issue formatına uyacağına umuyoruz.Tabi ki direk olarak PR gönderbilirsin bundan memnuniyet duyarız.
 
@@ -157,7 +157,7 @@ Eğer **Mark Text** kendiniz geliştirmek isterseniz, lütfen bizim [geliştiric
 
 ## Katkıda Bulunmak
 
-Mark Text geliştirme aşamasında, lütfen pull request yapmadan önce [Katkıda bulunma Rehberini](../../.github/CONTRIBUTING.md) okuduğunuza emin olun.Mark Text'e yeni özellikler eklemek mi istiyorsun? [TODO LIST](../../.github/TODOLIST.md)'e başvur ve bir issue aç.
+Mark Text geliştirme aşamasında, lütfen pull request yapmadan önce [Katkıda bulunma Rehberini](../../CONTRIBUTING.md) okuduğunuza emin olun.Mark Text'e yeni özellikler eklemek mi istiyorsun? [TODO LIST](../../.github/TODOLIST.md)'e başvur ve bir issue aç.
 
 ## Destekçiler
 

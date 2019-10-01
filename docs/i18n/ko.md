@@ -141,7 +141,7 @@ brew cask install mark-text
 
 ## 개발
 
-직접 **Mark Text**를 작성하려면 [developer documentation](../../.github/CONTRIBUTING.md#build-instructions)를 확인하여라.
+직접 **Mark Text**를 작성하려면 [developer documentation](../../CONTRIBUTING.md#build-instructions)를 확인하여라.
 
 **Mark Text**와 관련하여 질문이 있으시면 언제든지 문제를 기재하실 수 있다. 그렇게 할 때 문제를 열 때 찾을 수 있는 기본 형식을 사용하여라. 물론, 직접 PR을 제출하면 크게 환영 할 것이다.
 
@@ -151,7 +151,7 @@ brew cask install mark-text
 
 ## 기여
 
-Mark Text는 완전히 개발되었다,  pull request를 하기 전에 [Contributing Guide](../../.github/CONTRIBUTING.md) 문서를 읽어라. Mark Text에 몇 가지 기능을 추가하고 싶다면 [TODO LIST](../../.github/TODOLIST.md) 및 open issues를 참조하여라.
+Mark Text는 완전히 개발되었다,  pull request를 하기 전에 [Contributing Guide](../../CONTRIBUTING.md) 문서를 읽어라. Mark Text에 몇 가지 기능을 추가하고 싶다면 [TODO LIST](../../.github/TODOLIST.md) 및 open issues를 참조하여라.
 
 ## 스폰서
 
