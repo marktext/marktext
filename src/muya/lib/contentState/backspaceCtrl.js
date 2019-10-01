@@ -281,6 +281,23 @@ const backspaceCtrl = ContentState => {
       }
     }
 
+    // Fix issue #1218
+    if (/th|td/.test(startBlock.type) && /<br\/>.{1}$/.test(startBlock.text)) {
+      event.preventDefault()
+      event.stopPropagation()
+
+      const { text } = startBlock
+      startBlock.text = text.substring(0, text.length - 1)
+      const key = startBlock.key
+      const offset = startBlock.text.length
+
+      this.cursor = {
+        start: { key, offset },
+        end: { key, offset }
+      }
+      return this.singleRender(startBlock)
+    }
+
     const tableHasContent = table => {
       const tHead = table.children[0]
       const tBody = table.children[1]
