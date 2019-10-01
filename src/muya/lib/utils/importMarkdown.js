@@ -160,7 +160,6 @@ const importRegister = ContentState => {
 
           value = text
           // Fix: #1265.
-          console.log(trimUnnecessaryEmptyLine)
           if (trimUnnecessaryEmptyLine && (value.endsWith('\n') || value.startsWith('\n'))) {
             value = value.replace(/\n+$/, '')
               .replace(/^\n+/, '')

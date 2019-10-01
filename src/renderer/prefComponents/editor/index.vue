@@ -40,7 +40,7 @@
       :onChange="value => onSelectChange('codeFontFamily', value)"
     ></font-text-box>
     <bool
-      description="Trim the begining and ending empty line when open markdown."
+      description="Trim the beginning and ending empty line when open markdown."
       :bool="trimUnnecessaryEmptyLine"
       :onChange="value => onSelectChange('trimUnnecessaryEmptyLine', value)"
     ></bool>

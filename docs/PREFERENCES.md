@@ -31,7 +31,7 @@ Preferences can be controlled and modified in the settings window or via the `pr
 | textDirection            | String  | ltr                | The writing text direction, optional value: `ltr` or `rtl`                                                                                                            |
 | codeFontSize             | Number  | 14                 | Font size on code block, the range is 12 ~ 28                                                                                                                         |
 | codeFontFamily           | String  | `DejaVu Sans Mono` | Code font family                                                                                                                                                      |
-| trimUnnecessaryEmptyLine | Boolean | true               | Whether to trim the begining and end empty line in Code block                                                                                                         |
+| trimUnnecessaryEmptyLine | Boolean | true               | Whether to trim the beginning and end empty line in Code block                                                                                                         |
 | hideQuickInsertHint      | Boolean | false              | Hide hint for quickly creating paragraphs                                                                                                                             |
 | imageDropAction          | String  | folder             | The default behavior after paste or drag the image to Mark Text, upload it to the image cloud (if configured), move to the specified folder, insert the path          |
 
