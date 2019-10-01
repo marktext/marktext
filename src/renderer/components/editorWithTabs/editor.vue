@@ -105,6 +105,8 @@ import 'view-image/lib/imgViewer.css'
 import CloseIcon from '@/assets/icons/close.svg'
 import { shell } from 'electron'
 
+import { offsetToWordCursor, validateLineCursor, SpellChecker } from '@/spellchecker'
+
 const STANDAR_Y = 320
 
 export default {
@@ -399,6 +401,19 @@ export default {
 
       const { container } = this.editor = new Muya(ele, options)
 
+      // Enable spell checking
+      this.isSpellCheckerAvailable = false
+      this.spellChecker = new SpellChecker(false)
+
+      // TODO(spell): Better error handling
+      this.spellChecker.init().then(m => {
+        this.isSpellCheckerAvailable = true
+        console.log('Spell checker initialized and attached to window. Language: %o', m) // #DEBUG
+      }).catch(err => {
+        this.isSpellCheckerAvailable = false
+        console.error('Error while initializing SpellChecker:\n\n%o', err)
+      })
+
       if (typewriter) {
         this.scrollToCursor()
       }
@@ -482,7 +497,39 @@ export default {
       })
 
       this.editor.on('contextmenu', (event, selectionChanges) => {
-        showContextMenu(event, selectionChanges)
+        // TODO(spell): Refactor this function
+        // NOTE: Right clicking on a misspelled word select the whole word
+        if (this.isSpellCheckerAvailable && validateLineCursor(selectionChanges)) {
+          const { start: startCursor, end: endCursor } = selectionChanges
+          if (startCursor.key === endCursor.key && this.spellChecker) {
+            const { offset: spellcheckOffset } = startCursor
+            const { text } = startCursor.block
+            const wordInfo = this.spellChecker.extractWord(text, spellcheckOffset)
+            if (wordInfo) {
+              const { left, right, word } = wordInfo
+              console.log(left) // #DEBUG
+              console.log(right) // #DEBUG
+              console.log(word) // #DEBUG
+              if (this.spellChecker.isDisabled) {
+                showContextMenu(event, selectionChanges, this.spellChecker, word, [], null)
+              } else {
+                const wordRange = offsetToWordCursor(selectionChanges, left, right)
+                this.spellChecker.getWordSuggestion(word).then(wordSuggestions => {
+                  const replaceCallback = replacement => {
+                    // wordRange: replace this range with the replacement
+                    this.editor._replaceWordInline(selectionChanges, wordRange, replacement, true)
+                  }
+                  showContextMenu(event, selectionChanges, this.spellChecker, word, wordSuggestions, replaceCallback)
+                })
+              }
+              return
+            }
+          }
+        }
+        // No word selected or fallback
+        showContextMenu(event, selectionChanges, this.isSpellCheckerAvailable ? this.spellChecker : null, '', [], null)
+
+        // showContextMenu(event, selectionChanges)
       })
 
       document.addEventListener('keyup', this.keyup)

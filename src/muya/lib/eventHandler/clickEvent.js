@@ -28,9 +28,9 @@ class ClickEvent {
       if (!start || !end) {
         return
       }
+
       const startBlock = contentState.getBlock(start.key)
       const nextTextBlock = contentState.findNextBlockInLocation(startBlock)
-
       if (
         nextTextBlock && nextTextBlock.key === end.key &&
         end.offset === 0 &&

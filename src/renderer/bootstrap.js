@@ -65,6 +65,12 @@ const bootstrapRenderer = () => {
       stack
     }
 
+    // NOTE: "SPELLCHECKER_PREFER_HUNSPELL" environment variable must be set before
+    //       initializing "SpellCheckHandler" from "electron-spellchecker".
+    if (process.env.MT_PREFER_HUNSPELL) {
+      process.env['SPELLCHECKER_PREFER_HUNSPELL'] = 1 // eslint-disable-line dot-notation
+    }
+
     exceptionLogger(event.error)
 
     // Pass exception to main process exception handler to show a error dialog.

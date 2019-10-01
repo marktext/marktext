@@ -28,7 +28,7 @@
     "preinstall": "node .electron-vue/preinstall.js",
     "build:muya": "cd src/muya && webpack --progress --colors --config webpack.config.js",
     "release:muya": "yarn run build:muya && cd src/muya && yarn publish",
-    "rebuild": "electron-rebuild -f -o fontmanager-redux,keytar,keyboard-layout,vscode-windows-registry",
+    "rebuild": "electron-rebuild -f",
     "gen-third-party": "node tools/generateThirdPartyLicense.js",
     "validate-licenses": "node tools/validateLicenses.js"
   },
@@ -47,6 +47,7 @@
     "dragula": "^3.7.2",
     "electron-is-accelerator": "^0.1.2",
     "electron-log": "^3.0.8",
+    "electron-spellchecker": "^2.2.0",
     "electron-store": "^5.0.0",
     "electron-window-state": "^5.0.3",
     "element-resize-detector": "^1.2.0",
