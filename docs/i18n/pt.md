@@ -2,7 +2,7 @@
 
 > **Está documentação pode estar desatualizada, foi criada baseada no README original em 1 de outubro de 2019!**
 
-<p align="center"><img src="static/logo-small.png" alt="Mark Text" width="100" height="100"></p>
+<p align="center"><img src="https://raw.githubusercontent.com/marktext/marktext/develop/static/logo-small.png" alt="Mark Text" width="100" height="100"></p>
 
 <h1 align="center">Mark Text</h1>
 
@@ -155,7 +155,7 @@ Patrocinando pela Patreon, seu valor será enviado diretamente para Luo Ran (@jo
 
 ## Captura de Tela
 
-![](docs/marktext.png?raw=true)
+![](https://raw.githubusercontent.com/marktext/marktext/develop/docs/marktext.png)
 
 ## Recrusos
 
@@ -171,17 +171,17 @@ Patrocinando pela Patreon, seu valor será enviado diretamente para Luo Ran (@jo
 
 | Cadmium Claro                                     | Dark                                            |
 |:-------------------------------------------------:|:-----------------------------------------------:|
-| ![](docs/themeImages/cadmium-light.png?raw=true)  | ![](docs/themeImages/dark.png?raw=true)         |
+| ![](https://raw.githubusercontent.com/marktext/marktext/develop/docs/themeImages/cadmium-light.png)  | ![](https://raw.githubusercontent.com/marktext/marktext/develop/docs/themeImages/dark.png)         |
 | Graphite Light                                    | Materal Dark                                    |
-| ![](docs/themeImages/graphite-light.png?raw=true) | ![](docs/themeImages/materal-dark.png?raw=true) |
+| ![](https://raw.githubusercontent.com/marktext/marktext/develop/docs/themeImages/graphite-light.png) | ![](https://raw.githubusercontent.com/marktext/marktext/develop/docs/themeImages/materal-dark.png) |
 | Ulysses Light                                     | One Dark                                        |
-| ![](docs/themeImages/ulysses-light.png?raw=true)  | ![](docs/themeImages/one-dark.png?raw=true)     |
+| ![](https://raw.githubusercontent.com/marktext/marktext/develop/docs/themeImages/ulysses-light.png)  | ![](https://raw.githubusercontent.com/marktext/marktext/develop/docs/themeImages/one-dark.png)     |
 
 <h4 align="center">:smile_cat:Modos de Edição:dog:</h4>
 
 | Código Fonte         | Escritor                 | Foco               |
 |:--------------------:|:------------------------:|:-------------------:|
-| ![](docs/source.gif) | ![](docs/typewriter.gif) | ![](docs/focus.gif) |
+| ![](https://raw.githubusercontent.com/marktext/marktext/develop/docs/source.gif) | ![](https://raw.githubusercontent.com/marktext/marktext/develop/docs/typewriter.gif) | ![](https://raw.githubusercontent.com/marktext/marktext/develop/docs/focus.gif) |
 
 ## Por que desenvolver outro editor?
 
