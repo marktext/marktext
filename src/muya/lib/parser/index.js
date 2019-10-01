@@ -33,6 +33,7 @@ const correctUrl = token => {
 }
 
 const tokenizerFac = (src, beginRules, inlineRules, pos = 0, top, labels) => {
+  const originSrc = src
   const tokens = []
   let pending = ''
   let pendingStartPos = pos
@@ -338,6 +339,50 @@ const tokenizerFac = (src, beginRules, inlineRules, pos = 0, top, labels) => {
       continue
     }
 
+    // auto link extension
+    const autoLinkExtTo = inlineRules.auto_link_extension.exec(src)
+    if (autoLinkExtTo && top && (pos === 0 || /[* _~(]{1}/.test(originSrc[pos - 1]))) {
+      pushPending()
+      tokens.push({
+        type: 'auto_link_extension',
+        raw: autoLinkExtTo[0],
+        www: autoLinkExtTo[1],
+        url: autoLinkExtTo[2],
+        email: autoLinkExtTo[3],
+        linkType: autoLinkExtTo[1] ? 'www' : (autoLinkExtTo[2] ? 'url' : 'email'),
+        parent: tokens,
+        range: {
+          start: pos,
+          end: pos + autoLinkExtTo[0].length
+        }
+      })
+      src = src.substring(autoLinkExtTo[0].length)
+      pos = pos + autoLinkExtTo[0].length
+      continue
+    }
+
+    // auto link
+    const autoLTo = inlineRules.auto_link.exec(src)
+    if (autoLTo) {
+      pushPending()
+      tokens.push({
+        type: 'auto_link',
+        raw: autoLTo[0],
+        href: autoLTo[1],
+        email: autoLTo[2],
+        isLink: !!autoLTo[1], // It is a link or email.
+        marker: '<',
+        parent: tokens,
+        range: {
+          start: pos,
+          end: pos + autoLTo[0].length
+        }
+      })
+      src = src.substring(autoLTo[0].length)
+      pos = pos + autoLTo[0].length
+      continue
+    }
+
     // html-tag
     const htmlTo = inlineRules.html_tag.exec(src)
     let attrs
@@ -387,24 +432,6 @@ const tokenizerFac = (src, beginRules, inlineRules, pos = 0, top, labels) => {
       continue
     }
 
-    // auto link
-    const autoLTo = inlineRules.auto_link.exec(src)
-    if (autoLTo) {
-      pushPending()
-      tokens.push({
-        type: 'auto_link',
-        raw: autoLTo[0],
-        href: autoLTo[0],
-        parent: tokens,
-        range: {
-          start: pos,
-          end: pos + autoLTo[0].length
-        }
-      })
-      src = src.substring(autoLTo[0].length)
-      pos = pos + autoLTo[0].length
-      continue
-    }
     // soft line break
     const softTo = inlineRules.soft_line_break.exec(src)
     if (softTo) {

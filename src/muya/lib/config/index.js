@@ -63,6 +63,8 @@ export const LOWERCASE_TAGS = generateKeyHash([
 
 export const CLASS_OR_ID = genUpper2LowerKeyHash([
   'AG_ACTIVE',
+  'AG_AUTO_LINK',
+  'AG_AUTO_LINK_EXTENSION',
   'AG_BACKLASH',
   'AG_BUG',
   'AG_BULLET_LIST',
