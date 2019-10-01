@@ -222,29 +222,27 @@ export default {
 <style scoped>
   .search-bar {
     position: absolute;
-    width: 400px;
-    padding: 5px;
+    width: 450px;
+    padding: 0;
     top: 0;
     right: 20px;
     box-shadow: 0 4px 8px 0 var(--floatBorderColor);
     border: 1px solid var(--floatBorderColor);
-    border-radius: 5px;
+    border-radius: 3px;
     background: var(--floatBgColor);
   }
-  .search {
-    margin-bottom: 5px;
-  }
   .search, .replace {
-    height: 30px;
+    height: 28px;
     display: flex;
     padding: 4px 10px 0 10px;
+    margin-bottom: 5px;
   }
   .search-bar .button {
     outline: none;
     cursor: pointer;
     box-sizing: border-box;
-    height: 30px;
-    width: 30px;
+    height: 28px;
+    width: 28px;
     text-align: center;
     padding: 5px;
     display: inline-block;
@@ -261,8 +259,8 @@ export default {
     color: var(--themeColor);
   }
   .search-bar .button > svg {
-    width: 18px;
-    height: 18px;
+    width: 16px;
+    height: 16px;
   }
   .search-bar .button:active {
     opacity: .5;
@@ -286,7 +284,7 @@ export default {
   .input-wrapper input {
     flex: 1;
     padding: 0 8px;
-    height: 30px;
+    height: 28px;
     outline: none;
     border: none;
     box-sizing: border-box;
