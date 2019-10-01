@@ -40,10 +40,14 @@ export default function htmlTag (h, cursor, block, token, outerClass) {
         // we also recommand user not use block level element in paragraph. use block element in html block.
         // Use code !sanitize(`<${tag}>`) to filter some malicious tags. for example: <embed>.
         let selector = BLOCK_TYPE6.includes(tag) || !sanitize(`<${tag}>`) ? 'span' : tag
-        selector += `.${CLASS_OR_ID.AG_INLINE_RULE}`
+        selector += `.${CLASS_OR_ID.AG_INLINE_RULE}.${CLASS_OR_ID.AG_RAW_HTML}`
         const data = {
           attrs: {},
-          dataset: {}
+          dataset: {
+            start,
+            end,
+            raw: token.raw
+          }
         }
         if (attrs.id) {
           selector += `#${attrs.id}`
