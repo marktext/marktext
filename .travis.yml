@@ -1,7 +1,7 @@
 sudo: required
 language: node_js
 node_js:
-  - 10
+  - 12
 
 matrix:
   include:
@@ -65,12 +65,10 @@ script:
 
   # Unit and e2e tests
   - yarn run test
-  #- if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then xvfb-run --server-args="-screen 0 1024x768x24" yarn run test ; fi
-  #- if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then yarn run test ; fi
 
   # Build binaries
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then yarn run release:linux ; fi
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then yarn run release:mac ; fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then yarn run release:linux --publish always ; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then yarn run release:mac --publish always ; fi
 
   # Calculate checksums
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sha256sum build/marktext-*-x64.tar.gz ; fi

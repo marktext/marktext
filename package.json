@@ -7,9 +7,9 @@
   "main": "./dist/electron/main.js",
   "scripts": {
     "release": "echo 'Please run \"build\" or \"release:{linux,mac,win}\"' && exit 1",
-    "release:linux": "node .electron-vue/build.js && electron-builder build --linux --publish always",
-    "release:mac": "node .electron-vue/build.js && electron-builder build --mac --publish always",
-    "release:win": "node .electron-vue/build.js && electron-builder build --win --publish always",
+    "release:linux": "node .electron-vue/build.js && electron-builder build --linux",
+    "release:mac": "node .electron-vue/build.js && electron-builder build --mac",
+    "release:win": "node .electron-vue/build.js && electron-builder build --win",
     "build": "node .electron-vue/build.js && electron-builder",
     "build:bin": "node .electron-vue/build.js && electron-builder --dir",
     "build:clean": "cross-env BUILD_TARGET=clean node .electron-vue/build.js",
