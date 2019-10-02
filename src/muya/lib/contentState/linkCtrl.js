@@ -6,7 +6,6 @@ const linkCtrl = ContentState => {
     const { key, token } = linkInfo
     const block = this.getBlock(key)
     const { text } = block
-    console.log(token)
     let anchor
     switch (token.type) {
       case 'html_tag':
