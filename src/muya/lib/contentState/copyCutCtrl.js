@@ -81,7 +81,7 @@ const copyCutCtrl = ContentState => {
       header.replaceWith(p)
     }
 
-    // replace inline rule element: code, a, strong, em, del to span element
+    // replace inline rule element: code, a, strong, em, del, auto_link to span element
     // in order to escape turndown translation
 
     const inlineRuleElements = wrapper.querySelectorAll(

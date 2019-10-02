@@ -11,6 +11,7 @@ import softLineBreak from './softLineBreak'
 import codeFense from './codeFense'
 import inlineMath from './inlineMath'
 import autoLink from './autoLink'
+import autoLinkExtension from './autoLinkExtension'
 import loadImageAsync from './loadImageAsync'
 import image from './image'
 import delEmStrongFac from './delEmStringFactory'
@@ -41,6 +42,7 @@ export default {
   codeFense,
   inlineMath,
   autoLink,
+  autoLinkExtension,
   loadImageAsync,
   image,
   delEmStrongFac,
