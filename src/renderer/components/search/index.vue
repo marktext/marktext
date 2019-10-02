@@ -178,7 +178,7 @@ export default {
   methods: {
     toggleCtrl (ctrl) {
       this[ctrl] = !this[ctrl]
-      // this.search()
+      this.search()
     },
 
     listenFind () {
@@ -233,17 +233,20 @@ export default {
     },
 
     search (event) {
-      if (event.key === 'Escape') return
-      if (event.key === 'Enter') {
-        this.find('next')
-      } else {
-        const { searchValue, isCaseSensitive, isWholeWord, isRegexp } = this
-        bus.$emit('searchValue', searchValue, {
-          isCaseSensitive,
-          isWholeWord,
-          isRegexp
-        })
+      if (event && event.key === 'Escape') {
+        return
       }
+
+      if (event && event.key === 'Enter') {
+        return this.find('next')
+      }
+
+      const { searchValue, isCaseSensitive, isWholeWord, isRegexp } = this
+      bus.$emit('searchValue', searchValue, {
+        isCaseSensitive,
+        isWholeWord,
+        isRegexp
+      })
     },
 
     replace (isSingle = true) {
