@@ -165,6 +165,15 @@
       4
     ]
   },
+  "frontmatterType": {
+    "description": "Markdown--The frontmatter type",
+    "enum": [
+      "-",
+      "+",
+      ";",
+      "{"
+    ]
+  },
   "theme": {
     "description": "Theme--Select the theme used in Mark Text",
     "type": "string"

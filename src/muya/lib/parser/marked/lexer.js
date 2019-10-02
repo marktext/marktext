@@ -51,14 +51,32 @@ Lexer.prototype.token = function (src, top) {
   let checked
 
   // Only check front matter at the begining of a markdown file.
-  // Why "checkFrontmatter" and "top"? See note in "blockquote".
+  // Please see note in "blockquote" why we need "checkFrontmatter" and "top".
   if (frontMatter) {
     cap = this.rules.frontmatter.exec(src)
     if (this.checkFrontmatter && top && cap) {
       src = src.substring(cap[0].length)
+      let lang
+      let style
+      let text
+      if (cap[1]) {
+        lang = 'yaml'
+        style = '-'
+        text = cap[1]
+      } else if (cap[2]) {
+        lang = 'toml'
+        style = '+'
+        text = cap[2]
+      } else if (cap[3] || cap[4]) {
+        lang = 'json'
+        style = cap[3] ? ';' : '{'
+        text = cap[3] || cap[4]
+      }
       this.tokens.push({
         type: 'frontmatter',
-        text: cap[1]
+        text,
+        style,
+        lang
       })
     }
     this.checkFrontmatter = false

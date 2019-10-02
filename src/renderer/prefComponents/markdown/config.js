@@ -58,3 +58,17 @@ export const listIndentationOptions = [{
   label: '4 spaces',
   value: 4
 }]
+
+export const frontmatterTypeOptions = [{
+  label: 'YAML',
+  value: '-'
+}, {
+  label: 'TOML',
+  value: '+'
+}, {
+  label: 'JSON (;;;)',
+  value: ';'
+}, {
+  label: 'JSON ({})',
+  value: '{'
+}]

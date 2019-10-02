@@ -86,11 +86,12 @@ const importRegister = ContentState => {
     while ((token = tokens.shift())) {
       switch (token.type) {
         case 'frontmatter': {
-          const lang = 'yaml'
+          const { lang, style } = token
           value = token.text
           block = this.createBlock('pre', {
             functionType: token.type,
-            lang
+            lang,
+            style
           })
           const codeBlock = this.createBlock('code', {
             lang

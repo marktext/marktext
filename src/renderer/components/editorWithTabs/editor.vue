@@ -133,6 +133,7 @@ export default {
       orderListDelimiter: state => state.preferences.orderListDelimiter,
       tabSize: state => state.preferences.tabSize,
       listIndentation: state => state.preferences.listIndentation,
+      frontmatterType: state => state.preferences.frontmatterType,
       lineHeight: state => state.preferences.lineHeight,
       fontSize: state => state.preferences.fontSize,
       codeFontSize: state => state.preferences.codeFontSize,
@@ -224,6 +225,12 @@ export default {
       const { editor } = this
       if (value !== oldValue && editor) {
         editor.setListIndentation(value)
+      }
+    },
+    frontmatterType: function (value, oldValue) {
+      const { editor } = this
+      if (value !== oldValue && editor) {
+        editor.setOptions({ frontmatterType: value })
       }
     },
     hideQuickInsertHint: function (value, oldValue) {
@@ -323,6 +330,7 @@ export default {
         orderListDelimiter,
         tabSize,
         listIndentation,
+        frontmatterType,
         hideQuickInsertHint,
         editorLineWidth,
         theme
@@ -358,12 +366,14 @@ export default {
         orderListDelimiter,
         tabSize,
         listIndentation,
+        frontmatterType,
         hideQuickInsertHint,
         imageAction: this.imageAction.bind(this),
         imagePathPicker: this.imagePathPicker.bind(this),
         clipboardFilePath: guessClipboardFilePath,
         imagePathAutoComplete: this.imagePathAutoComplete.bind(this)
       }
+
       if (/dark/i.test(theme)) {
         Object.assign(options, {
           mermaidTheme: 'dark',

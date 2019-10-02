@@ -68,10 +68,33 @@ const paragraphCtrl = ContentState => {
   ContentState.prototype.handleFrontMatter = function () {
     const firstBlock = this.blocks[0]
     if (firstBlock.type === 'pre' && firstBlock.functionType === 'frontmatter') return
-    const lang = 'yaml'
+
+    const { frontmatterType } = this.muya.options
+    let lang
+    let style
+    switch (frontmatterType) {
+      case '+':
+        lang = 'toml'
+        style = '+'
+        break
+      case ';':
+        lang = 'json'
+        style = ';'
+        break
+      case '{':
+        lang = 'json'
+        style = '{'
+        break
+      default:
+        lang = 'yaml'
+        style = '-'
+        break
+    }
+
     const frontMatter = this.createBlock('pre', {
       functionType: 'frontmatter',
-      lang
+      lang,
+      style
     })
     const codeBlock = this.createBlock('code', {
       lang
@@ -626,6 +649,7 @@ const paragraphCtrl = ContentState => {
     } else {
       anchor = this.getAnchor(block)
     }
+
     // You can not insert paragraph before frontmatter
     if (!anchor || anchor && anchor.functionType === 'frontmatter' && location === 'before') {
       return
