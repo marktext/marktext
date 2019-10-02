@@ -486,8 +486,9 @@ export default {
       shell.openExternal(url)
     },
     jumpClick: (linkInfo) => {
-      const { href } = linkInfo.token
-      if (href.startsWith('http')) {
+      const { href } = linkInfo
+
+      if (href && href.startsWith('http')) {
         shell.openExternal(href)
       }
     },

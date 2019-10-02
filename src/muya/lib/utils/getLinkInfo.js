@@ -8,12 +8,14 @@ export const getLinkInfo = a => {
   const end = a.getAttribute('data-end')
   const tokens = tokenizer(raw)
   const token = tokens[0]
+  const href = a.getAttribute('href')
   token.range = {
     start,
     end
   }
   return {
     key: paragraph.id,
-    token
+    token,
+    href
   }
 }

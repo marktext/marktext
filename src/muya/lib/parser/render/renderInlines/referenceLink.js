@@ -41,14 +41,19 @@ export default function referenceLink (h, cursor, block, token, outerClass) {
     end,
     token
   )
-  const anchorSelector = href ? `a.${CLASS_OR_ID.AG_INLINE_RULE}` : `span.${CLASS_OR_ID.AG_REFERENCE_LINK}`
-  const dataSet = {
+  const anchorSelector = href ? `a.${CLASS_OR_ID.AG_INLINE_RULE}.${CLASS_OR_ID.AG_REFERENCE_LINK}` : `span.${CLASS_OR_ID.AG_REFERENCE_LINK}`
+  const data = {
     props: {
       title
+    },
+    dataset: {
+      start,
+      end,
+      raw: token.raw
     }
   }
   if (href) {
-    Object.assign(dataSet.props, { href })
+    Object.assign(data.props, { href })
   }
 
   if (isFullLink) {
@@ -77,7 +82,7 @@ export default function referenceLink (h, cursor, block, token, outerClass) {
 
     return [
       h(`span.${className}`, startMarker),
-      h(anchorSelector, dataSet, content),
+      h(anchorSelector, data, content),
       h(`span.${className}`, middleMarker),
       h(`span.${labelClass}`, labelContent),
       ...this.backlashInToken(h, backlash.second, className, secondBacklashStart, token),
@@ -86,7 +91,7 @@ export default function referenceLink (h, cursor, block, token, outerClass) {
   } else {
     return [
       h(`span.${className}`, startMarker),
-      h(anchorSelector, dataSet, content),
+      h(anchorSelector, data, content),
       h(`span.${className}`, endMarker)
     ]
   }

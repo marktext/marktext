@@ -6,7 +6,27 @@ const linkCtrl = ContentState => {
     const { key, token } = linkInfo
     const block = this.getBlock(key)
     const { text } = block
-    block.text = text.substring(0, token.range.start) + token.anchor + text.substring(token.range.end)
+    let anchor
+    switch (token.type) {
+      case 'html_tag':
+        anchor = token.content
+        break
+      case 'link':
+        anchor = token.href
+        break
+      case 'text': {
+        const match = /^\[(.+?)\]/.exec(token.raw)
+        if (match && match[1]) {
+          anchor = match[1]
+        }
+        break
+      }
+    }
+    if (!anchor) {
+      console.error('Can not find anchor when unlink')
+      return
+    }
+    block.text = text.substring(0, token.range.start) + anchor + text.substring(token.range.end)
     this.cursor = {
       start: {
         key,
@@ -14,7 +34,7 @@ const linkCtrl = ContentState => {
       },
       end: {
         key,
-        offset: +token.range.start + token.anchor.length
+        offset: +token.range.start + anchor.length
       }
     }
 
