@@ -1,8 +1,4 @@
-const defaultSearchOption = {
-  caseSensitive: false,
-  selectHighlight: false,
-  highlightIndex: -1
-}
+import { defaultSearchOption } from '../config'
 
 const searchCtrl = ContentState => {
   ContentState.prototype.replaceOne = function (match, value) {
