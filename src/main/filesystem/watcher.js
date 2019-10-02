@@ -134,7 +134,8 @@ class Watcher {
 
   // Watch a file or directory and return a unwatch function.
   watch (win, watchPath, type = 'dir'/* file or dir */) {
-    const usePolling = this._preferences.getItem('watcherUsePolling')
+    // TODO: Is it needed to set `watcherUsePolling` ? because macOS need to set to true.
+    const usePolling = isOsx ? true : this._preferences.getItem('watcherUsePolling')
 
     const id = getUniqueId()
     const watcher = chokidar.watch(watchPath, {
@@ -323,6 +324,7 @@ class Watcher {
       for (let i = 0; i < _ignoreChangeEvents.length; ++i) {
         const { windowId, pathname: pathToIgnore, start, duration } = _ignoreChangeEvents[i]
         if (windowId === winId && pathToIgnore === pathname) {
+          console.log(currentTime - start)
           _ignoreChangeEvents.splice(i, 1)
           --i
           if (currentTime - start < duration) {
