@@ -24,7 +24,7 @@
 </template>
 
 <script>
-import bus from '../bus'
+import bus from '../../bus'
 import { mapState } from 'vuex'
 
 export default {

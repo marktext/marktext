@@ -102,7 +102,7 @@
 </template>
 
 <script>
-import bus from '../bus'
+import bus from '../../bus'
 import { mapState } from 'vuex'
 
 export default {
@@ -224,10 +224,9 @@ export default {
     position: absolute;
     width: 450px;
     padding: 0;
-    top: 0;
+    top: 1px;
     right: 20px;
-    box-shadow: 0 4px 8px 0 var(--floatBorderColor);
-    border: 1px solid var(--floatBorderColor);
+    box-shadow: var(--floatShadow);
     border-radius: 3px;
     background: var(--floatBgColor);
   }
