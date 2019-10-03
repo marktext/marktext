@@ -17,7 +17,10 @@
     </div>
     <div class="right-controls">
       <section class="search">
-        <div class="input-wrapper">
+        <div
+          class="input-wrapper"
+          :class="{'error': !!searchErrorMsg}"
+        >
           <input
             type="text"
             v-model="searchValue"
@@ -57,6 +60,9 @@
                 <use :xlink:href="FindRegexIcon.url" />
               </svg>
             </span>
+          </div>
+          <div class="error-msg" v-if="searchErrorMsg">
+            {{searchErrorMsg}}
           </div>
         </div>
         <div class="button-group">
@@ -123,14 +129,16 @@ export default {
     this.FindRegexIcon = FindRegexIcon
     return {
       showSearch: false,
+      isCaseSensitive: false,
+      isWholeWord: false,
+      isRegexp: false,
       type: 'search',
       searchValue: '',
       replaceValue: '',
-      isCaseSensitive: false,
-      isWholeWord: false,
-      isRegexp: false
+      searchErrorMsg: ''
     }
   },
+
   watch: {
     searchMatches: function (newValue, oldValue) {
       if (!newValue || !oldValue) return
@@ -140,6 +148,7 @@ export default {
       }
     }
   },
+
   computed: {
     ...mapState({
       searchMatches: state => state.editor.currentFile.searchMatches
@@ -159,6 +168,7 @@ export default {
       }
     }
   },
+
   created () {
     bus.$on('find', this.listenFind)
     bus.$on('replace', this.listenReplace)
@@ -167,6 +177,7 @@ export default {
     document.addEventListener('click', this.docClick)
     document.addEventListener('keyup', this.docKeyup)
   },
+
   beforeDestroy () {
     bus.$off('find', this.listenFind)
     bus.$off('replace', this.listenReplace)
@@ -175,6 +186,7 @@ export default {
     document.removeEventListener('click', this.docClick)
     document.removeEventListener('keyup', this.docKeyup)
   },
+
   methods: {
     toggleCtrl (ctrl) {
       this[ctrl] = !this[ctrl]
@@ -242,6 +254,27 @@ export default {
       }
 
       const { searchValue, isCaseSensitive, isWholeWord, isRegexp } = this
+      if (isRegexp) {
+        // Handle invalid regexp.
+        try {
+          new RegExp(searchValue)
+          this.searchErrorMsg = ''
+        } catch (err) {
+          this.searchErrorMsg = `Invalid regular expression: /${searchValue}/.`
+          return
+        }
+        // Handle match empty string, no need to search.
+        try {
+          const SEARCH_REG = new RegExp(searchValue)
+          if (searchValue && SEARCH_REG.test('')) {
+            throw new Error()
+          }
+          this.searchErrorMsg = ''
+        } catch (err) {
+          this.searchErrorMsg = `The regexp: /${searchValue}/ match too more.`
+          return
+        }
+      }
       bus.$emit('searchValue', searchValue, {
         isCaseSensitive,
         isWholeWord,
@@ -338,9 +371,15 @@ export default {
     display: flex;
     flex: 1;
     position: relative;
+    border: 1px solid var(--inputBgColor);
     background: var(--inputBgColor);
     border-radius: 3px;
-    overflow: hidden;
+    overflow: visible;
+  }
+  .input-wrapper.error {
+    border: 1px solid var(--notificationErrorBg);
+    border-bottom-right-radius: 0;
+    border-bottom-left-radius: 0;
   }
   .input-wrapper .controls {
     position: absolute;
@@ -374,10 +413,27 @@ export default {
         }
       }
   }
+
+  .input-wrapper .error-msg {
+    position: absolute;
+    top: 27px;
+    width: calc(100% + 2px);
+    height: 28px;
+    left: -1px;
+    padding: 0 8px;
+    box-sizing: border-box;
+    border-bottom-left-radius: 3px;
+    border-bottom-right-radius: 3px;
+    background: var(--notificationErrorBg);
+    line-break: 28px;
+    color: #ffffff;
+    font-weight: 14px;
+  }
+
   .input-wrapper input {
     flex: 1;
     padding: 0 8px;
-    height: 28px;
+    height: 26px;
     outline: none;
     border: none;
     box-sizing: border-box;
