@@ -198,6 +198,9 @@ export default {
       this.type = 'search'
       this.$nextTick(() => {
         this.$refs.search.focus()
+        if (this.searchValue) {
+          this.search()
+        }
       })
     },
 
@@ -241,7 +244,7 @@ export default {
      * action: prev or next
      */
     find (action) {
-      bus.$emit('find', action)
+      bus.$emit('find-action', action)
     },
 
     search (event) {
