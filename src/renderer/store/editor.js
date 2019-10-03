@@ -11,7 +11,6 @@ import notice from '../services/notification'
 const autoSaveTimers = new Map()
 
 const state = {
-  lineEnding: 'lf',
   currentFile: {},
   tabs: [],
   listToc: [], // Just use for deep equal check. and replace with new toc if needed.
@@ -268,11 +267,6 @@ const mutations = {
         f.filename = path.basename(dest)
       }
     })
-  },
-
-  // TODO: Remove "SET_GLOBAL_LINE_ENDING" because nowhere used.
-  SET_GLOBAL_LINE_ENDING (state, ending) {
-    state.lineEnding = ending
   },
 
   // Push a tab specific notification on stack that never disappears.
@@ -606,8 +600,8 @@ const actions = {
         sourceCodeModeEnabled
       } = config
 
-      commit('SET_GLOBAL_LINE_ENDING', lineEnding)
       dispatch('SEND_INITIALIZED')
+      commit('SET_USER_PREFERENCE', { endOfLine: lineEnding })
       commit('SET_LAYOUT', {
         rightColumn: 'files',
         showSideBar: !!sideBarVisibility,
@@ -714,15 +708,17 @@ const actions = {
    * @param {{markdown?: string, selected?: boolean}} obj Optional markdown string
    * and whether the tab should become the selected tab (true if not set).
    */
-  NEW_UNTITLED_TAB ({ commit, state, dispatch }, { markdown: markdownString, selected }) {
+  NEW_UNTITLED_TAB ({ commit, state, dispatch, rootState }, { markdown: markdownString, selected }) {
     // If not set select the tab.
     if (selected == null) {
       selected = true
     }
 
     dispatch('SHOW_TAB_VIEW', false)
-    const { tabs, lineEnding } = state
-    const fileState = getBlankFileState(tabs, lineEnding, markdownString)
+
+    const { defaultEncoding, endOfLine } = rootState.preferences
+    const { tabs } = state
+    const fileState = getBlankFileState(tabs, defaultEncoding, endOfLine, markdownString)
 
     if (selected) {
       const { id, markdown } = fileState

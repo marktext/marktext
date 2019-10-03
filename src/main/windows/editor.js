@@ -80,7 +80,7 @@ class EditorWindow extends BaseWindow {
       // Restore and focus window
       this.bringToFront()
 
-      const lineEnding = preferences.getPreferedEOL()
+      const lineEnding = preferences.getPreferedEol()
       appMenu.updateLineEndingMenu(this.id, lineEnding)
 
       win.webContents.send('mt::bootstrap-editor', {
@@ -211,10 +211,11 @@ class EditorWindow extends BaseWindow {
 
     const { browserWindow } = this
     const { preferences } = this._accessor
-    const eol = preferences.getPreferedEOL()
+    const eol = preferences.getPreferedEol()
+    const autoGuessEncoding = preferences.getItem('autoGuessEncoding')
 
     for (const { filePath, options, selected } of fileList) {
-      loadMarkdownFile(filePath, eol).then(rawDocument => {
+      loadMarkdownFile(filePath, eol, autoGuessEncoding).then(rawDocument => {
         if (this.lifecycle === WindowLifecycle.READY) {
           this._doOpenTab(rawDocument, options, selected)
         } else {
@@ -363,7 +364,7 @@ class EditorWindow extends BaseWindow {
       this.lifecycle = WindowLifecycle.READY
       const { preferences } = this._accessor
       const { sideBarVisibility, tabBarVisibility, sourceCodeModeEnabled } = preferences.getAll()
-      const lineEnding = preferences.getPreferedEOL()
+      const lineEnding = preferences.getPreferedEol()
       browserWindow.webContents.send('mt::bootstrap-editor', {
         addBlankTab: true,
         markdownList: [],
@@ -395,27 +396,6 @@ class EditorWindow extends BaseWindow {
   }
 
   // --- private ---------------------------------
-
-  _getPreferredBackgroundColor (theme) {
-    // Hardcode the theme background color and show the window direct for the fastet window ready time.
-    // Later with custom themes we need the background color (e.g. from meta information) and wait
-    // that the window is loaded and then pass theme data to the renderer.
-    switch (theme) {
-      case 'dark':
-        return '#282828'
-      case 'material-dark':
-        return '#34393f'
-      case 'ulysses':
-        return '#f3f3f3'
-      case 'graphite':
-        return '#f7f7f7'
-      case 'one-dark':
-        return '#282c34'
-      case 'light':
-      default:
-        return '#ffffff'
-    }
-  }
 
   /**
    * Open a new new tab from the markdown document.

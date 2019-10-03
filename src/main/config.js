@@ -39,6 +39,7 @@ export const defaultPreferenceWinOptions = {
 export const PANDOC_EXTENSIONS = [
   'html',
   'docx',
+  'odt',
   'latex',
   'tex',
   'ltx',

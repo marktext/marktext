@@ -102,6 +102,27 @@ class BaseWindow extends EventEmitter {
   _buildUrlString (windowId, env, userPreference) {
     return this._buildUrlWithSettings(windowId, env, userPreference).toString()
   }
+
+  _getPreferredBackgroundColor (theme) {
+    // Hardcode the theme background color and show the window direct for the fastet window ready time.
+    // Later with custom themes we need the background color (e.g. from meta information) and wait
+    // that the window is loaded and then pass theme data to the renderer.
+    switch (theme) {
+      case 'dark':
+        return '#282828'
+      case 'material-dark':
+        return '#34393f'
+      case 'ulysses':
+        return '#f3f3f3'
+      case 'graphite':
+        return '#f7f7f7'
+      case 'one-dark':
+        return '#282c34'
+      case 'light':
+      default:
+        return '#ffffff'
+    }
+  }
 }
 
 export default BaseWindow
