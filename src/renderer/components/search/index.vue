@@ -271,7 +271,7 @@ export default {
           }
           this.searchErrorMsg = ''
         } catch (err) {
-          this.searchErrorMsg = `Regular expression: /${searchValue}/ match empty string.`
+          this.searchErrorMsg = `RegExp: /${searchValue}/ match empty string.`
           return
         }
       }
@@ -425,9 +425,10 @@ export default {
     border-bottom-left-radius: 3px;
     border-bottom-right-radius: 3px;
     background: var(--notificationErrorBg);
-    line-break: 28px;
+    line-height: 28px;
     color: #ffffff;
-    font-weight: 14px;
+    font-size: 14px;
+    z-index: 1;
   }
 
   .input-wrapper input {
