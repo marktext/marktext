@@ -25,8 +25,13 @@ const parseUrlArgs = () => {
   const theme = params.get('theme')
   const titleBarStyle = params.get('tbs')
   const userDataPath = params.get('udp')
-  const windowId = params.get('wid')
+  const windowId = Number(params.get('wid'))
   const type = params.get('type')
+
+  if (Number.isNaN(windowId)) {
+    throw new Error('Error while parsing URL arguments: windowId!')
+  }
+
   return {
     type,
     debug,

@@ -3,8 +3,11 @@ import path from 'path'
 import { app, ipcMain, Menu } from 'electron'
 import log from 'electron-log'
 import { ensureDirSync, isDirectory, isFile } from 'common/filesystem'
-import { isLinux } from '../config'
+import { isLinux, isOsx, isWindows } from '../config'
 import { parseMenu } from '../keyboard/shortcutHandler'
+import { updateFormatMenu } from '../menu/actions/format'
+import { updateSelectionMenus } from '../menu/actions/paragraph'
+import { viewLayoutChanged } from '../menu/actions/view'
 import configureMenu, { configSettingMenu } from '../menu/templates'
 
 export const MenuType = {
@@ -28,14 +31,19 @@ class AppMenu {
     this._userDataPath = userDataPath
 
     this.RECENTS_PATH = path.join(userDataPath, FILE_NAME)
-    this.isOsxOrWindows = /darwin|win32/.test(process.platform)
-    this.isOsx = process.platform === 'darwin'
+    this.isOsxOrWindows = isOsx || isWindows
+    this.isOsx = isOsx
     this.activeWindowId = -1
     this.windowMenus = new Map()
 
     this._listenForIpcMain()
   }
 
+  /**
+   * Add the file or directory path to the recently used documents.
+   *
+   * @param {string} filePath The file or directory full path.
+   */
   addRecentlyUsedDocument (filePath) {
     const { isOsxOrWindows, isOsx, MAX_RECENTLY_USED_DOCUMENTS, RECENTS_PATH } = this
 
@@ -66,6 +74,11 @@ class AppMenu {
     }
   }
 
+  /**
+   * Returns a list of all recently used documents and folders.
+   *
+   * @returns {string[]}
+   */
   getRecentlyUsedDocuments () {
     const { RECENTS_PATH, MAX_RECENTLY_USED_DOCUMENTS } = this
     if (!isFile(RECENTS_PATH)) {
@@ -86,6 +99,9 @@ class AppMenu {
     }
   }
 
+  /**
+   * Clear recently used documents.
+   */
   clearRecentlyUsedDocuments () {
     const { isOsxOrWindows, isOsx, RECENTS_PATH } = this
     if (isOsxOrWindows) app.clearRecentDocuments()
@@ -98,34 +114,46 @@ class AppMenu {
     fs.writeFileSync(RECENTS_PATH, json, 'utf-8')
   }
 
+  /**
+   * Add a default menu to the given window.
+   *
+   * @param {number} windowId The window id.
+   */
   addDefaultMenu (windowId) {
     const { windowMenus } = this
-    const menu = this.buildSettingMenu() // Setting menu is also the fallback menu.
+    const menu = this._buildSettingMenu() // Setting menu is also the fallback menu.
     windowMenus.set(windowId, menu)
   }
 
+  /**
+   * Add the settings menu to the given window.
+   *
+   * @param {BrowserWindow} window The settings browser window.
+   */
   addSettingMenu (window) {
     const { windowMenus } = this
-    const menu = this.buildSettingMenu()
+    const menu = this._buildSettingMenu()
     windowMenus.set(window.id, menu)
   }
 
+  /**
+   * Add the editor menu to the given window.
+   *
+   * @param {BrowserWindow} window The editor browser window.
+   * @param {[*]} options The menu options.
+   */
   addEditorMenu (window, options = {}) {
+    const isSourceMode = !!options.sourceCodeModeEnabled
     const { windowMenus } = this
-    windowMenus.set(window.id, this.buildEditorMenu(true))
+    windowMenus.set(window.id, this._buildEditorMenu(true))
 
     const { menu, shortcutMap } = windowMenus.get(window.id)
-    const currentMenu = Menu.getApplicationMenu() // the menu may be null
-    updateMenuItemSafe(currentMenu, menu, 'sourceCodeModeMenuItem', !!options.sourceCodeModeEnabled)
-    updateMenuItemSafe(currentMenu, menu, 'typewriterModeMenuItem', false)
 
-    // FIXME: Focus mode is being ignored when you open a new window - inconsistency.
-    // updateMenuItemSafe(currentMenu, menu, 'focusModeMenuItem', false)
+    // Set source-code editor if prefered.
+    const sourceCodeModeMenuItem = menu.getMenuItemById('sourceCodeModeMenuItem')
+    sourceCodeModeMenuItem.checked = isSourceMode
 
-    const { checked: isSourceMode } = menu.getMenuItemById('sourceCodeModeMenuItem')
     if (isSourceMode) {
-      // BUG: When opening a file `typewriterMode` and `focusMode` will be reset by editor.
-      //      If source code mode is set the editor must not change the values.
       const typewriterModeMenuItem = menu.getMenuItemById('typewriterModeMenuItem')
       const focusModeMenuItem = menu.getMenuItemById('focusModeMenuItem')
       typewriterModeMenuItem.enabled = false
@@ -134,6 +162,11 @@ class AppMenu {
     this._keybindings.registerKeyHandlers(window, shortcutMap)
   }
 
+  /**
+   * Remove menu from the given window.
+   *
+   * @param {number} windowId The window id.
+   */
   removeWindowMenu (windowId) {
     // NOTE: Shortcut handler is automatically unregistered when window is closed.
     const { activeWindowId } = this
@@ -143,19 +176,35 @@ class AppMenu {
     }
   }
 
+  /**
+   * Returns the window menu.
+   *
+   * @param {number} windowId The window id.
+   * @returns {Electron.Menu} The menu.
+   */
   getWindowMenuById (windowId) {
     const menu = this.windowMenus.get(windowId)
     if (!menu) {
-      log.error(`getWindowMenuById: Cannot find window menu for id ${windowId}.`)
+      log.error(`getWindowMenuById: Cannot find window menu for window id ${windowId}.`)
       throw new Error(`Cannot find window menu for id ${windowId}.`)
     }
     return menu.menu
   }
 
+  /**
+   * Check whether the given window has a menu.
+   *
+   * @param {number} windowId The window id.
+   */
   has (windowId) {
     return this.windowMenus.has(windowId)
   }
 
+  /**
+   * Set the given window as last active.
+   *
+   * @param {number} windowId The window id.
+   */
   setActiveWindow (windowId) {
     if (this.activeWindowId !== windowId) {
       // Change application menu to the current window menu.
@@ -164,36 +213,13 @@ class AppMenu {
     }
   }
 
-  buildEditorMenu (createShortcutMap, recentUsedDocuments = null) {
-    if (!recentUsedDocuments) {
-      recentUsedDocuments = this.getRecentlyUsedDocuments()
-    }
-
-    const menuTemplate = configureMenu(this._keybindings, this._preferences, recentUsedDocuments)
-    const menu = Menu.buildFromTemplate(menuTemplate)
-
-    let shortcutMap = null
-    if (createShortcutMap) {
-      shortcutMap = parseMenu(menuTemplate)
-      this._appendMiscShortcuts(shortcutMap)
-    }
-
-    return {
-      shortcutMap,
-      menu,
-      type: MenuType.EDITOR
-    }
-  }
-
-  buildSettingMenu () {
-    if (this.isOsx) {
-      const menuTemplate = configSettingMenu(this._keybindings)
-      const menu = Menu.buildFromTemplate(menuTemplate)
-      return { menu, type: MenuType.SETTINGS }
-    }
-    return { menu: null, type: MenuType.SETTINGS }
-  }
-
+  /**
+   * Updates all window menus.
+   *
+   * NOTE: We need this method to add or remove menu items at runtime.
+   *
+   * @param {[string[]]} recentUsedDocuments
+   */
   updateAppMenu (recentUsedDocuments) {
     if (!recentUsedDocuments) {
       recentUsedDocuments = this.getRecentlyUsedDocuments()
@@ -208,7 +234,7 @@ class AppMenu {
       const { menu: oldMenu, type } = value
       if (type !== MenuType.EDITOR) return
 
-      const { menu: newMenu } = this.buildEditorMenu(false, recentUsedDocuments)
+      const { menu: newMenu } = this._buildEditorMenu(false, recentUsedDocuments)
 
       // all other menu items are set automatically
       updateMenuItem(oldMenu, newMenu, 'sourceCodeModeMenuItem')
@@ -228,25 +254,50 @@ class AppMenu {
     })
   }
 
-  updateLineEndingMenu (lineEnding) {
-    updateLineEndingMenu(lineEnding)
+  /**
+   * Update line ending menu items.
+   *
+   * @param {number} windowId The window id.
+   * @param {string} lineEnding Either >lf< or >crlf<.
+   */
+  updateLineEndingMenu (windowId, lineEnding) {
+    const menus = this.getWindowMenuById(windowId)
+    const crlfMenu = menus.getMenuItemById('crlfLineEndingMenuEntry')
+    const lfMenu = menus.getMenuItemById('lfLineEndingMenuEntry')
+    if (lineEnding === 'crlf') {
+      crlfMenu.checked = true
+    } else {
+      lfMenu.checked = true
+    }
   }
 
-  updateAlwaysOnTopMenu (flag) {
-    const menus = Menu.getApplicationMenu()
+  /**
+   * Update always on top menu item.
+   *
+   * @param {number} windowId The window id.
+   * @param {boolean} lineEnding Always on top.
+   */
+  updateAlwaysOnTopMenu (windowId, flag) {
+    const menus = this.getWindowMenuById(windowId)
     const menu = menus.getMenuItemById('alwaysOnTopMenuItem')
     menu.checked = flag
   }
 
+  /**
+   * Update all theme entries from editor menus to the selected one.
+   */
   updateThemeMenu = theme => {
-    this.windowMenus.forEach((value, key) => {
+    this.windowMenus.forEach(value => {
       const { menu, type } = value
-      if (type !== MenuType.EDITOR) return
+      if (type !== MenuType.EDITOR) {
+        return
+      }
 
       const themeMenus = menu.getMenuItemById('themeMenu')
       if (!themeMenus) {
         return
       }
+
       themeMenus.submenu.items.forEach(item => (item.checked = false))
       themeMenus.submenu.items
         .forEach(item => {
@@ -257,10 +308,15 @@ class AppMenu {
     })
   }
 
+  /**
+   * Update all auto save entries from editor menus to the given state.
+   */
   updateAutoSaveMenu = autoSave => {
-    this.windowMenus.forEach((value, key) => {
+    this.windowMenus.forEach(value => {
       const { menu, type } = value
-      if (type !== MenuType.EDITOR) return
+      if (type !== MenuType.EDITOR) {
+        return
+      }
 
       const autoSaveMenu = menu.getMenuItemById('autoSaveMenuItem')
       if (!autoSaveMenu) {
@@ -270,10 +326,15 @@ class AppMenu {
     })
   }
 
+  /**
+   * Update all aidou entries from editor menus to the given state.
+   */
   updateAidouMenu = bool => {
-    this.windowMenus.forEach((value, key) => {
+    this.windowMenus.forEach(value => {
       const { menu, type } = value
-      if (type !== MenuType.EDITOR) return
+      if (type !== MenuType.EDITOR) {
+        return
+      }
 
       const aidouMenu = menu.getMenuItemById('aidou')
       if (!aidouMenu) {
@@ -283,6 +344,11 @@ class AppMenu {
     })
   }
 
+  /**
+   * Append misc shortcuts the the given shortcut map.
+   *
+   * @param {*} lineEnding The shortcut map.
+   */
   _appendMiscShortcuts = shortcutMap => {
     shortcutMap.push({
       accelerator: this._keybindings.getAccelerator('tabsCycleForward'),
@@ -314,6 +380,36 @@ class AppMenu {
     })
   }
 
+  _buildEditorMenu (createShortcutMap, recentUsedDocuments = null) {
+    if (!recentUsedDocuments) {
+      recentUsedDocuments = this.getRecentlyUsedDocuments()
+    }
+
+    const menuTemplate = configureMenu(this._keybindings, this._preferences, recentUsedDocuments)
+    const menu = Menu.buildFromTemplate(menuTemplate)
+
+    let shortcutMap = null
+    if (createShortcutMap) {
+      shortcutMap = parseMenu(menuTemplate)
+      this._appendMiscShortcuts(shortcutMap)
+    }
+
+    return {
+      shortcutMap,
+      menu,
+      type: MenuType.EDITOR
+    }
+  }
+
+  _buildSettingMenu () {
+    if (this.isOsx) {
+      const menuTemplate = configSettingMenu(this._keybindings)
+      const menu = Menu.buildFromTemplate(menuTemplate)
+      return { menu, type: MenuType.SETTINGS }
+    }
+    return { menu: null, type: MenuType.SETTINGS }
+  }
+
   _setApplicationMenu (menu) {
     if (isLinux && !menu) {
       // WORKAROUND for Electron#16521: We cannot hide the (application) menu on Linux.
@@ -327,6 +423,18 @@ class AppMenu {
   _listenForIpcMain () {
     ipcMain.on('mt::add-recently-used-document', (e, pathname) => {
       this.addRecentlyUsedDocument(pathname)
+    })
+    ipcMain.on('mt::update-line-ending-menu', (e, windowId, lineEnding) => {
+      this.updateLineEndingMenu(windowId, lineEnding)
+    })
+    ipcMain.on('mt::update-format-menu', (e, windowId, formats) => {
+      updateFormatMenu(this.getWindowMenuById(windowId), formats)
+    })
+    ipcMain.on('mt::view-layout-changed', (e, windowId, viewSettings) => {
+      viewLayoutChanged(this.getWindowMenuById(windowId), viewSettings)
+    })
+    ipcMain.on('mt::editor-selection-changed', (e, windowId, changes) => {
+      updateSelectionMenus(this.getWindowMenuById(windowId), changes)
     })
 
     ipcMain.on('menu-add-recently-used', pathname => {
@@ -356,18 +464,6 @@ const updateMenuItem = (oldMenus, newMenus, id) => {
   newItem.checked = oldItem.checked
 }
 
-const updateMenuItemSafe = (oldMenus, newMenus, id, defaultValue) => {
-  let checked = defaultValue
-  if (oldMenus) {
-    const oldItem = oldMenus.getMenuItemById(id)
-    if (oldItem) {
-      checked = oldItem.checked
-    }
-  }
-  const newItem = newMenus.getMenuItemById(id)
-  newItem.checked = checked
-}
-
 // ----------------------------------------------
 
 // HACKY: We have one application menu per window and switch the menu when
@@ -382,17 +478,6 @@ const updateMenuItemSafe = (oldMenus, newMenus, id, defaultValue) => {
 export const getMenuItemById = menuId => {
   const menus = Menu.getApplicationMenu()
   return menus.getMenuItemById(menuId)
-}
-
-export const updateLineEndingMenu = lineEnding => {
-  const menus = Menu.getApplicationMenu()
-  const crlfMenu = menus.getMenuItemById('crlfLineEndingMenuEntry')
-  const lfMenu = menus.getMenuItemById('lfLineEndingMenuEntry')
-  if (lineEnding === 'crlf') {
-    crlfMenu.checked = true
-  } else {
-    lfMenu.checked = true
-  }
 }
 
 export default AppMenu

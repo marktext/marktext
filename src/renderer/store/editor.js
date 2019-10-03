@@ -374,18 +374,12 @@ const actions = {
     commit('EXCHANGE_TABS_BY_ID', tabIDs)
   },
 
-  // need update line ending when change between windows.
-  LISTEN_FOR_LINEENDING_MENU ({ commit, state, dispatch }) {
-    ipcRenderer.on('AGANI::req-update-line-ending-menu', e => {
-      dispatch('UPDATE_LINEENDING_MENU')
-    })
-  },
-
-  // need update line ending when change between tabs
-  UPDATE_LINEENDING_MENU ({ commit, state }) {
+  // We need to update line endings menu when changing tabs.
+  UPDATE_LINE_ENDING_MENU ({ state }) {
     const { lineEnding } = state.currentFile
     if (lineEnding) {
-      ipcRenderer.send('AGANI::update-line-ending-menu', lineEnding)
+      const { windowId } = global.marktext.env
+      ipcRenderer.send('mt::update-line-ending-menu', windowId, lineEnding)
     }
   },
 
@@ -597,6 +591,7 @@ const actions = {
     if (!tabs.some(file => file.id === currentFile.id)) {
       commit('ADD_FILE_TO_TABS', currentFile)
     }
+    dispatch('UPDATE_LINE_ENDING_MENU')
   },
 
   // This events are only used during window creation.
@@ -682,7 +677,7 @@ const actions = {
   },
 
   // Direction is a boolean where false is left and true right.
-  CYCLE_TABS ({ commit, state }, direction) {
+  CYCLE_TABS ({ commit, dispatch, state }, direction) {
     const { tabs, currentFile } = state
     if (tabs.length <= 1) {
       return
@@ -709,6 +704,7 @@ const actions = {
       return
     }
     commit('SET_CURRENT_FILE', nextTab)
+    dispatch('UPDATE_LINE_ENDING_MENU')
   },
 
   /**
@@ -915,11 +911,16 @@ const actions = {
       })
     }
 
-    ipcRenderer.send('AGANI::selection-change', changes)
+    // TODO: We should only send a map of booleans to improve performance and not send
+    // the full change with all block elements with every change.
+
+    const { windowId } = global.marktext.env
+    ipcRenderer.send('mt::editor-selection-changed', windowId, changes)
   },
 
-  SELECTION_FORMATS ({ commit }, formats) {
-    ipcRenderer.send('AGANI::selection-formats', formats)
+  SELECTION_FORMATS (_, formats) {
+    const { windowId } = global.marktext.env
+    ipcRenderer.send('mt::update-format-menu', windowId, formats)
   },
 
   // listen for export from main process

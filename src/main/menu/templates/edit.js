@@ -125,6 +125,7 @@ export default function (keybindings, userPreference) {
     }, {
       type: 'separator'
     }, {
+      // TODO: Remove this menu entry and add it to the command palette (#1408).
       label: 'Line Ending',
       submenu: [{
         id: 'crlfLineEndingMenuEntry',
@@ -141,8 +142,6 @@ export default function (keybindings, userPreference) {
           actions.lineEnding(browserWindow, 'lf')
         }
       }]
-    }, {
-      type: 'separator'
     }]
   }
 }

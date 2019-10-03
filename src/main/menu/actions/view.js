@@ -1,7 +1,5 @@
-import { ipcMain, BrowserWindow } from 'electron'
 import { getMenuItemById } from '../../menu'
 
-const sourceCodeModeMenuItemId = 'sourceCodeModeMenuItem'
 const typewriterModeMenuItemId = 'typewriterModeMenuItem'
 const focusModeMenuItemId = 'focusModeMenuItem'
 
@@ -28,23 +26,14 @@ export const showTabBar = win => {
   }
 }
 
-ipcMain.on('AGANI::ask-for-mode', e => {
-  const sourceCodeModeMenuItem = getMenuItemById(sourceCodeModeMenuItemId)
-  const typewriterModeMenuItem = getMenuItemById(typewriterModeMenuItemId)
-  const focusModeMenuItem = getMenuItemById(focusModeMenuItemId)
-  const modes = {
-    sourceCode: sourceCodeModeMenuItem.checked,
-    typewriter: typewriterModeMenuItem.checked,
-    focus: focusModeMenuItem.checked
-  }
-  const win = BrowserWindow.fromWebContents(e.sender)
-  win.webContents.send('AGANI::res-for-mode', modes)
-})
+// --- IPC events -------------------------------------------------------------
 
-ipcMain.on('AGANI::set-view-layout', (e, { showSideBar, showTabBar }) => {
-  const sideBarMenuItem = getMenuItemById('sideBarMenuItem')
-  const tabBarMenuItem = getMenuItemById('tabBarMenuItem')
+// NOTE: Don't use static `getMenuItemById` here, instead request the menu by
+//       window id from `AppMenu` manager.
 
+export const viewLayoutChanged = (applicationMenu, { showSideBar, showTabBar }) => {
+  const sideBarMenuItem = applicationMenu.getMenuItemById('sideBarMenuItem')
+  const tabBarMenuItem = applicationMenu.getMenuItemById('tabBarMenuItem')
   sideBarMenuItem.checked = showSideBar
   tabBarMenuItem.checked = showTabBar
-})
+}

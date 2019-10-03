@@ -99,18 +99,6 @@ const actions = {
     })
   },
 
-  ASK_FOR_MODE ({ commit }) {
-    ipcRenderer.send('AGANI::ask-for-mode')
-    ipcRenderer.on('AGANI::res-for-mode', (e, modes) => {
-      Object.keys(modes).forEach(type => {
-        commit('SET_MODE', {
-          type,
-          checked: modes[type]
-        })
-      })
-    })
-  },
-
   SET_SINGLE_PREFERENCE ({ commit }, { type, value }) {
     // save to electron-store
     ipcRenderer.send('mt::set-user-preference', { [type]: value })
