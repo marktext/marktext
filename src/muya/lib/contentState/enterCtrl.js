@@ -292,7 +292,8 @@ const enterCtrl = ContentState => {
         const rowContainer = this.getBlock(row.parent)
         const table = this.getBlock(rowContainer.parent)
         const figure = this.getBlock(table.parent)
-        if (rowContainer.type === 'thead') {
+
+        if (rowContainer.type === 'thead' && table.children[1]) {
           nextSibling = table.children[1]
         } else if (figure.nextSibling) {
           nextSibling = this.getBlock(figure.nextSibling)
@@ -301,6 +302,7 @@ const enterCtrl = ContentState => {
           this.insertAfter(nextSibling, figure)
         }
       }
+
       return this.firstInDescendant(nextSibling)
     }
 

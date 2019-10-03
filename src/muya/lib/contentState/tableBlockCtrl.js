@@ -8,8 +8,6 @@ const tableBlockCtrl = ContentState => {
     const tHead = this.createBlock('thead')
     const tBody = this.createBlock('tbody')
 
-    this.appendChild(table, tHead)
-    this.appendChild(table, tBody)
     table.row = rows - 1 // zero base
     table.column = columns - 1 // zero base
     let i
@@ -26,6 +24,12 @@ const tableBlockCtrl = ContentState => {
         cell.column = j
       }
     }
+
+    this.appendChild(table, tHead)
+    if (tBody.children.length) {
+      this.appendChild(table, tBody)
+    }
+
     return table
   }
 

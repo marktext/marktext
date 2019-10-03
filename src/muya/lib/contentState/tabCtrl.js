@@ -54,7 +54,7 @@ const tabCtrl = ContentState => {
         return nextRow.children[0]
       } else if (tbOrTh.type === 'thead') {
         const tBody = this.getBlock(tbOrTh.nextSibling)
-        if (tBody.children.length) {
+        if (tBody && tBody.children.length) {
           return tBody.children[0].children[0]
         }
       }

@@ -284,9 +284,11 @@ class ExportMarkdown {
     }
 
     tableData.push(tHeader.children[0].children.map(th => escapeText(th.text).trim()))
-    tBody.children.forEach(bodyRow => {
-      tableData.push(bodyRow.children.map(td => escapeText(td.text).trim()))
-    })
+    if (tBody) {
+      tBody.children.forEach(bodyRow => {
+        tableData.push(bodyRow.children.map(td => escapeText(td.text).trim()))
+      })
+    }
 
     const columnWidth = tHeader.children[0].children.map(th => ({ width: 5, align: th.align }))
 
