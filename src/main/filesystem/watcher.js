@@ -324,7 +324,6 @@ class Watcher {
       for (let i = 0; i < _ignoreChangeEvents.length; ++i) {
         const { windowId, pathname: pathToIgnore, start, duration } = _ignoreChangeEvents[i]
         if (windowId === winId && pathToIgnore === pathname) {
-          console.log(currentTime - start)
           _ignoreChangeEvents.splice(i, 1)
           --i
           if (currentTime - start < duration) {
