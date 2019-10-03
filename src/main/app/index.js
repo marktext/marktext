@@ -122,7 +122,7 @@ class App {
     const { _args: args, _openFilesCache } = this
     const { preferences } = this._accessor
 
-    if (!isOsx && args._.length) {
+    if (args._.length) {
       for (const pathname of args._) {
         // Ignore all unknown flags
         if (pathname.startsWith('--')) {
