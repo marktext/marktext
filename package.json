@@ -47,7 +47,7 @@
     "dragula": "^3.7.2",
     "electron-is-accelerator": "^0.1.2",
     "electron-log": "^3.0.8",
-    "electron-spellchecker": "^2.2.0",
+    "electron-spellchecker": "file:packages/electron-spellchecker",
     "electron-store": "^5.0.0",
     "electron-window-state": "^5.0.3",
     "element-resize-detector": "^1.2.0",

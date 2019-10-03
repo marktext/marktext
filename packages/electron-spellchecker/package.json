@@ -1,0 +1,58 @@
+{
+  "name": "electron-spellchecker",
+  "version": "2.2.0",
+  "description": "Implement spellchecking, correctly",
+  "scripts": {
+    "doc": "esdoc -c ./esdoc.json",
+    "test-renderer": "electron-mocha --renderer --require ./test/support.js ./test",
+    "test-browser": "electron-mocha --browser --require ./test/support.js ./test",
+    "test": "npm run test-renderer",
+    "node": "cross-env ELECTRON_RUN_AS_NODE=1 ./node_modules/.bin/electron",
+    "start": "electron ./example/main.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/electron-userland/electron-spellchecker"
+  },
+  "keywords": [
+    "spelling",
+    "electron",
+    "rx"
+  ],
+  "contributors": [
+    "Anais Betts <anais@anaisbetts.org>",
+    "Felix Rieseberg <felix@felixrieseberg.com>"
+  ],
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/electron-userland/electron-spellchecker/issues"
+  },
+  "main": "src/index.js",
+  "homepage": "https://github.com/electron-userland/electron-spellchecker",
+  "dependencies": {
+    "@felixrieseberg/spellchecker": "^4.0.10",
+    "bcp47": "^1.1.2",
+    "cld": "^2.5.1",
+    "debug": "^4.1.1",
+    "fs-extra": "^8.1.0",
+    "keyboard-layout": "^2.0.16",
+    "lru-cache": "^5.1.1",
+    "rxjs": "^5.0.1",
+    "rxjs-serial-subscription": "^0.1.1",
+    "spawn-rx": "^2.0.7"
+  },
+  "devDependencies": {
+    "@kwonoj/rxjs-testscheduler-compat": "0.0.4",
+    "chai": "^3.5.0",
+    "chai-as-promised": "^6.0.0",
+    "cross-env": "^5.2.0",
+    "electron-debug": "^2.1.0",
+    "electron-mocha": "^6.0.4",
+    "electron": "4.0.6",
+    "esdoc": "^1.1.0",
+    "esdoc-es7-plugin": "0.0.3",
+    "esdoc-plugin-async-to-sync": "^0.5.0",
+    "eslint": "^5.14.1",
+    "rimraf": "^2.6.3"
+  }
+}

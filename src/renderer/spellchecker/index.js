@@ -1,7 +1,6 @@
-import fs from 'fs'
+import fs from 'fs-extra'
 import path from 'path'
 import { remote } from 'electron'
-import fse from 'fs-extra'
 import { SpellCheckHandler } from 'electron-spellchecker'
 import fallbackLocales from 'electron-spellchecker/src/fallback-locales' // TODO(spell): Export these functions in our fork
 import { normalizeLanguageCode } from 'electron-spellchecker/src/utility' // TODO(spell): ...
@@ -91,10 +90,15 @@ export class SpellChecker {
     this.provider = new SpellCheckHandler()
     // this.provider.autoUnloadDictionariesOnBlur()
 
-    // this.automaticallyIdentifyLanguages = automaticallyIdentifyLanguages
+    // TODO: Currently not supported by our implementation.
+    automaticallyIdentifyLanguages = false
+
+    this.provider.automaticallyIdentifyLanguages(automaticallyIdentifyLanguages)
+    this.automaticallyIdentifyLanguages = automaticallyIdentifyLanguages
+
     this.lang = this.provider.currentSpellcheckerLanguage // default value should be "en-US"
     this.userDictionary = new UserDictionary()
-    // Hunspell is used on Linux and Windows, macOS can use it.
+    // Hunspell is used on Linux and Windows, macOS can use it if prefered.
     this.isHunspell = !isOSX || !!process.env['SPELLCHECKER_PREFER_HUNSPELL'] // eslint-disable-line dot-notation
     this.isEnabled = false
 
@@ -310,7 +314,7 @@ export class SpellChecker {
 // TODO(spell): Move to utils.js
 const ensureDir = dirPath => {
   try {
-    fse.ensureDirSync(dirPath)
+    fs.ensureDirSync(dirPath)
   } catch (e) {
     if (e.code !== 'EEXIST') {
       // TODO(spell): log error
@@ -367,7 +371,7 @@ export class UserDictionary {
 
     try {
       const fullname = path.join(this.userDictPath, `${this.lang}.json`)
-      fse.outputFileSync(fullname, JSON.stringify(this.dict), 'utf-8')
+      fs.outputFileSync(fullname, JSON.stringify(this.dict), 'utf-8')
       return true
     } catch (e) {
       // TODO(spell): log error

@@ -12,18 +12,6 @@
   resolved "https://registry.npmjs.org/7zip/-/7zip-0.0.6.tgz#9cafb171af82329490353b4816f03347aa150a30"
   integrity sha1-nK+xca+CMpSQNTtIFvAzR6oVCjA=
 
-"@aabuhijleh/electron-remote@^1.4.0":
-  version "1.4.0"
-  resolved "https://registry.yarnpkg.com/@aabuhijleh/electron-remote/-/electron-remote-1.4.0.tgz#bd5a7eb150fd4ef2ab0eaa31f392e5f6ac488835"
-  integrity sha512-EG4ZXxqbFY4lpX55vctwz14mFrEOcOHFCMLH5z5lOl6fiviTqscy86tSlKwEE3/o3ExtdPr2tECgCogYYL7d+g==
-  dependencies:
-    debug "^2.5.1"
-    hashids "^1.1.1"
-    lodash.get "^4.4.2"
-    pify "^2.3.0"
-    rxjs "^5.0.0-beta.12"
-    xmlhttprequest "^1.8.0"
-
 "@babel/code-frame@^7.0.0", "@babel/code-frame@^7.5.5":
   version "7.5.5"
   resolved "https://registry.npmjs.org/@babel/code-frame/-/code-frame-7.5.5.tgz#bc0782f6d69f7b7d49531219699b988f669a8f9d"
@@ -4344,12 +4332,9 @@ electron-rebuild@^1.8.6:
     spawn-rx "^3.0.0"
     yargs "^13.2.4"
 
-electron-spellchecker@^2.2.0:
+"electron-spellchecker@file:packages/electron-spellchecker":
   version "2.2.0"
-  resolved "https://registry.yarnpkg.com/electron-spellchecker/-/electron-spellchecker-2.2.0.tgz#e140dd0207d6e5351ca1fa695e307b3bbcea204f"
-  integrity sha512-QkOVgjmjx6bDkqNshRTfVzEz9ctjiKVPZw77YLS0sQReP320QNtTXAKyo+01TORWk58RFT/LdxPZ/aejLdPmOA==
   dependencies:
-    "@aabuhijleh/electron-remote" "^1.4.0"
     "@felixrieseberg/spellchecker" "^4.0.10"
     bcp47 "^1.1.2"
     cld "^2.5.1"
@@ -5898,11 +5883,6 @@ hash.js@^1.0.0, hash.js@^1.0.3:
   dependencies:
     inherits "^2.0.3"
     minimalistic-assert "^1.0.1"
-
-hashids@^1.1.1:
-  version "1.2.2"
-  resolved "https://registry.yarnpkg.com/hashids/-/hashids-1.2.2.tgz#28635c7f2f7360ba463686078eee837479e8eafb"
-  integrity sha512-dEHCG2LraR6PNvSGxosZHIRgxF5sNLOIBFEHbj8lfP9WWmu/PWPMzsip1drdVSOFi51N2pU7gZavrgn7sbGFuw==
 
 he@1.1.x:
   version "1.1.1"
@@ -8950,7 +8930,7 @@ picomatch@^2.0.4, picomatch@^2.0.5:
   resolved "https://registry.npmjs.org/picomatch/-/picomatch-2.0.7.tgz#514169d8c7cd0bdbeecc8a2609e34a7163de69f6"
   integrity sha512-oLHIdio3tZ0qH76NybpeneBhYVj0QFTfXEFTc/B3zKQspYfYYkWYgFsmzo+4kvId/bQRcNkVeguI3y+CD22BtA==
 
-pify@^2.0.0, pify@^2.3.0:
+pify@^2.0.0:
   version "2.3.0"
   resolved "https://registry.npmjs.org/pify/-/pify-2.3.0.tgz#ed141a6ac043a849ea588498e7dca8b15330e90c"
   integrity sha1-7RQaasBDqEnqWISY59yosVMw6Qw=
@@ -12967,11 +12947,6 @@ xmlhttprequest-ssl@~1.5.4:
   version "1.5.5"
   resolved "https://registry.npmjs.org/xmlhttprequest-ssl/-/xmlhttprequest-ssl-1.5.5.tgz#c2876b06168aadc40e57d97e81191ac8f4398b3e"
   integrity sha1-wodrBhaKrcQOV9l+gRkayPQ5iz4=
-
-xmlhttprequest@^1.8.0:
-  version "1.8.0"
-  resolved "https://registry.yarnpkg.com/xmlhttprequest/-/xmlhttprequest-1.8.0.tgz#67fe075c5c24fef39f9d65f5f7b7fe75171968fc"
-  integrity sha1-Z/4HXFwk/vOfnWX197f+dRcZaPw=
 
 xtend@^4.0.0, xtend@~4.0.1:
   version "4.0.2"
