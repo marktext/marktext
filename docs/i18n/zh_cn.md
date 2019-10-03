@@ -56,7 +56,7 @@
       特性
     </a>
     <span> | </span>
-    <a href="https://github.com/marktext/marktext#download-and-install">
+    <a href="https://github.com/marktext/marktext#download-and-installation">
       下载
     </a>
     <span> | </span>

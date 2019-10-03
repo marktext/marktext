@@ -59,7 +59,7 @@
       Funcionalidades
     </a>
     <span> | </span>
-    <a href="https://github.com/marktext/marktext#download-and-install">
+    <a href="https://github.com/marktext/marktext#download-and-installation">
       Descargas
     </a>
     <span> | </span>
