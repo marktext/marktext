@@ -271,7 +271,7 @@ export default {
           }
           this.searchErrorMsg = ''
         } catch (err) {
-          this.searchErrorMsg = `The regexp: /${searchValue}/ match too more.`
+          this.searchErrorMsg = `Regular expression: /${searchValue}/ match empty string.`
           return
         }
       }
