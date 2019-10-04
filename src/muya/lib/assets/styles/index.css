@@ -94,7 +94,7 @@ div.ag-show-quick-insert-hint p.ag-paragraph.ag-active > span.ag-paragraph-conte
   color: transparent;
 }
 
-figure.ag-container-block pre {
+figure.ag-container-block > pre {
   width: 0;
   height: 0;
   opacity: 0;
@@ -120,6 +120,11 @@ figure.ag-active.ag-container-block pre {
 
 figure[data-role="HTML"] .ag-html-preview {
   display: block;
+}
+
+figure[data-role="HTML"] .ag-html-preview > pre{
+  border: 0;
+  background: inherit;
 }
 
 figure[data-role="HTML"].ag-active .ag-html-preview {
