@@ -78,9 +78,8 @@
   position: absolute;
   left: calc(100% + 5px);
   top: -46px;
-  border-radius: 8px;
+  border-radius: 2px;
   box-shadow: var(--floatShadow);
-  border: 1px solid var(--floatBorderColor);
   background-color: var(--floatBgColor);
   transition: all .25s ease-in-out;
   transform-origin: left;
