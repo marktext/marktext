@@ -76,7 +76,7 @@ const importRegister = ContentState => {
       nextSibling: null,
       children: []
     }
-    const { trimUnnecessaryEmptyLine } = this.muya.options
+    const { trimUnnecessaryCodeBlockEmptyLines } = this.muya.options
     const tokens = new Lexer({ disableInline: true }).lex(markdown)
     let token
     let block
@@ -160,7 +160,7 @@ const importRegister = ContentState => {
 
           value = text
           // Fix: #1265.
-          if (trimUnnecessaryEmptyLine && (value.endsWith('\n') || value.startsWith('\n'))) {
+          if (trimUnnecessaryCodeBlockEmptyLines && (value.endsWith('\n') || value.startsWith('\n'))) {
             value = value.replace(/\n+$/, '')
               .replace(/^\n+/, '')
           }

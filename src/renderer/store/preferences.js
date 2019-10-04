@@ -19,7 +19,7 @@ const state = {
   lineHeight: 1.6,
   codeFontSize: 14,
   codeFontFamily: 'DejaVu Sans Mono',
-  trimUnnecessaryEmptyLine: true,
+  trimUnnecessaryCodeBlockEmptyLines: true,
   editorLineWidth: '',
 
   autoPairBracket: true,

@@ -40,9 +40,9 @@
       :onChange="value => onSelectChange('codeFontFamily', value)"
     ></font-text-box>
     <bool
-      description="Trim the beginning and ending empty line when open markdown."
-      :bool="trimUnnecessaryEmptyLine"
-      :onChange="value => onSelectChange('trimUnnecessaryEmptyLine', value)"
+      description="Trim the beginning and ending empty lines in code block when open markdown."
+      :bool="trimUnnecessaryCodeBlockEmptyLines"
+      :onChange="value => onSelectChange('trimUnnecessaryCodeBlockEmptyLines', value)"
     ></bool>
     <separator></separator>
     <bool
@@ -129,7 +129,7 @@ export default {
       textDirection: state => state.preferences.textDirection,
       codeFontSize: state => state.preferences.codeFontSize,
       codeFontFamily: state => state.preferences.codeFontFamily,
-      trimUnnecessaryEmptyLine: state => state.preferences.trimUnnecessaryEmptyLine,
+      trimUnnecessaryCodeBlockEmptyLines: state => state.preferences.trimUnnecessaryCodeBlockEmptyLines,
       hideQuickInsertHint: state => state.preferences.hideQuickInsertHint,
       editorLineWidth: state => state.preferences.editorLineWidth
     })
