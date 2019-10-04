@@ -150,26 +150,14 @@ body {
 .el-tooltip__popper[x-placement^=left] .popper__arrow {
   border-bottom-color: var(--floatBorderColor);
 }
-.el-tooltip__popper[x-placement^=left] .popper__arrow::after {
-  border-left-color: var(--floatBgColor);
-}
 .el-tooltip__popper[x-placement^=top] .popper__arrow {
   border-bottom-color: var(--floatBorderColor);
-}
-.el-tooltip__popper[x-placement^=top] .popper__arrow::after {
-  border-top-color: var(--floatBgColor);
 }
 .el-tooltip__popper[x-placement^=right] .popper__arrow {
   border-bottom-color: var(--floatBorderColor);
 }
-.el-tooltip__popper[x-placement^=right] .popper__arrow::after {
-  border-right-color: var(--floatBgColor);
-}
 .el-tooltip__popper[x-placement^=bottom] .popper__arrow {
   border-bottom-color: var(--floatBorderColor);
-}
-.el-tooltip__popper[x-placement^=bottom] .popper__arrow::after {
-  border-bottom-color: var(--floatBgColor);
 }
 
 .el-button:hover,
