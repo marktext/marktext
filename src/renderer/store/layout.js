@@ -25,19 +25,20 @@ const mutations = {
 }
 
 const actions = {
-  LISTEN_FOR_LAYOUT ({ commit }, layout) {
+  LISTEN_FOR_LAYOUT ({ commit }) {
     ipcRenderer.on('AGANI::listen-for-view-layout', (e, layout) => {
       commit('SET_LAYOUT', layout)
     })
   },
-  LISTEN_FOR_REQUEST_LAYOUT ({ commit, dispatch }) {
+  LISTEN_FOR_REQUEST_LAYOUT ({ dispatch }) {
     ipcRenderer.on('AGANI::request-for-view-layout', () => {
       dispatch('SET_LAYOUT_MENU_ITEM')
     })
   },
-  SET_LAYOUT_MENU_ITEM ({ commit, state }) {
+  SET_LAYOUT_MENU_ITEM ({ state }) {
+    const { windowId } = global.marktext.env
     const { showTabBar, showSideBar } = state
-    ipcRenderer.send('AGANI::set-view-layout', { showTabBar, showSideBar })
+    ipcRenderer.send('mt::view-layout-changed', windowId, { showTabBar, showSideBar })
   },
   CHANGE_SIDE_BAR_WIDTH ({ commit }, width) {
     commit('SET_SIDE_BAR_WIDTH', width)

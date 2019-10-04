@@ -429,7 +429,7 @@ class WindowManager extends EventEmitter {
     ipcMain.on('window-toggle-always-on-top', win => {
       const flag = !win.isAlwaysOnTop()
       win.setAlwaysOnTop(flag)
-      this._appMenu.updateAlwaysOnTopMenu(flag)
+      this._appMenu.updateAlwaysOnTopMenu(win.id, flag)
     })
 
     ipcMain.on('broadcast-preferences-changed', prefs => {

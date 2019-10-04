@@ -1,6 +1,3 @@
-import { ipcMain } from 'electron'
-import { getMenuItemById } from '../../menu'
-
 const DISABLE_LABELS = [
   // paragraph menu items
   'heading1MenuItem', 'heading2MenuItem', 'heading3MenuItem', 'heading4MenuItem',
@@ -29,21 +26,30 @@ const MENU_ID_MAP = {
   frontMatterMenuItem: 'pre'
 }
 
-const setParagraphMenuItemStatus = bool => {
-  const paragraphMenuItem = getMenuItemById('paragraphMenuEntry')
+export const paragraph = (win, type) => {
+  win.webContents.send('AGANI::paragraph', { type })
+}
+
+// --- IPC events -------------------------------------------------------------
+
+// NOTE: Don't use static `getMenuItemById` here, instead request the menu by
+//       window id from `AppMenu` manager.
+
+const setParagraphMenuItemStatus = (applicationMenu, bool) => {
+  const paragraphMenuItem = applicationMenu.getMenuItemById('paragraphMenuEntry')
   paragraphMenuItem.submenu.items
     .forEach(item => (item.enabled = bool))
 }
 
-const setMultipleStatus = (list, status) => {
-  const paragraphMenuItem = getMenuItemById('paragraphMenuEntry')
+const setMultipleStatus = (applicationMenu, list, status) => {
+  const paragraphMenuItem = applicationMenu.getMenuItemById('paragraphMenuEntry')
   paragraphMenuItem.submenu.items
     .filter(item => item.id && list.includes(item.id))
     .forEach(item => (item.enabled = status))
 }
 
-const setCheckedMenuItem = affiliation => {
-  const paragraphMenuItem = getMenuItemById('paragraphMenuEntry')
+const setCheckedMenuItem = (applicationMenu, affiliation) => {
+  const paragraphMenuItem = applicationMenu.getMenuItemById('paragraphMenuEntry')
   paragraphMenuItem.submenu.items.forEach(item => (item.checked = false))
   paragraphMenuItem.submenu.items.forEach(item => {
     if (!item.id) {
@@ -86,36 +92,32 @@ const setCheckedMenuItem = affiliation => {
   })
 }
 
-export const paragraph = (win, type) => {
-  win.webContents.send('AGANI::paragraph', { type })
-}
-
-ipcMain.on('AGANI::selection-change', (e, { start, end, affiliation }) => {
+export const updateSelectionMenus = (applicationMenu, { start, end, affiliation }) => {
   // format menu
-  const formatMenuItem = getMenuItemById('formatMenuItem')
+  const formatMenuItem = applicationMenu.getMenuItemById('formatMenuItem')
   formatMenuItem.submenu.items.forEach(item => (item.enabled = true))
   // handle menu checked
-  setCheckedMenuItem(affiliation)
+  setCheckedMenuItem(applicationMenu, affiliation)
   // handle disable
-  setParagraphMenuItemStatus(true)
+  setParagraphMenuItemStatus(applicationMenu, true)
 
   if (
     (/th|td/.test(start.type) && /th|td/.test(end.type)) ||
     (start.type === 'span' && start.block.functionType === 'codeLine') ||
     (end.type === 'span' && end.block.functionType === 'codeLine')
   ) {
-    setParagraphMenuItemStatus(false)
+    setParagraphMenuItemStatus(applicationMenu, false)
 
     if (start.block.functionType === 'codeLine' || end.block.functionType === 'codeLine') {
-      setMultipleStatus(['codeFencesMenuItem'], true)
+      setMultipleStatus(applicationMenu, ['codeFencesMenuItem'], true)
       formatMenuItem.submenu.items.forEach(item => (item.enabled = false))
     }
   } else if (start.key !== end.key) {
     formatMenuItem.submenu.items
       .filter(item => item.id && DISABLE_LABELS.includes(item.id))
       .forEach(item => (item.enabled = false))
-    setMultipleStatus(DISABLE_LABELS, false)
+    setMultipleStatus(applicationMenu, DISABLE_LABELS, false)
   } else if (!affiliation.slice(0, 3).some(p => /ul|ol/.test(p.type))) {
-    setMultipleStatus(['looseListItemMenuItem'], false)
+    setMultipleStatus(applicationMenu, ['looseListItemMenuItem'], false)
   }
-})
+}

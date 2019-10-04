@@ -81,7 +81,7 @@ class EditorWindow extends BaseWindow {
       this.bringToFront()
 
       const lineEnding = preferences.getPreferedEOL()
-      appMenu.updateLineEndingMenu(lineEnding)
+      appMenu.updateLineEndingMenu(this.id, lineEnding)
 
       win.webContents.send('mt::bootstrap-editor', {
         addBlankTab,

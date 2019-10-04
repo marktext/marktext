@@ -1,7 +1,6 @@
 import path from 'path'
 import { ipcMain, BrowserWindow } from 'electron'
 import log from 'electron-log'
-import { updateLineEndingMenu } from '../../menu'
 import { searchFilesAndDir } from '../../utils/imagePathAutoComplement'
 
 ipcMain.on('mt::ask-for-image-auto-path', (e, { pathname, src, id }) => {
@@ -20,10 +19,6 @@ ipcMain.on('mt::ask-for-image-auto-path', (e, { pathname, src, id }) => {
       log.error(err)
       return win.webContents.send(`mt::response-of-image-path-${id}`, [])
     })
-})
-
-ipcMain.on('AGANI::update-line-ending-menu', (e, lineEnding) => {
-  updateLineEndingMenu(lineEnding)
 })
 
 export const edit = (win, type) => {

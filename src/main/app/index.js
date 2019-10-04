@@ -8,7 +8,6 @@ import { isChildOfDirectory } from 'common/filesystem/paths'
 import { isLinux, isOsx } from '../config'
 import parseArgs from '../cli/parser'
 import { normalizeMarkdownPath } from '../filesystem/markdown'
-import { getMenuItemById } from '../menu'
 import { selectTheme } from '../menu/actions/theme'
 import { dockMenu } from '../menu/templates'
 import { watchers } from '../utils/imagePathAutoComplement'
@@ -155,21 +154,15 @@ class App {
         () => {
           const preferences = this._accessor.preferences
           const { theme } = preferences.getAll()
-          let setedTheme = null
-          if (systemPreferences.isDarkMode() && theme !== 'dark') {
+
+          // Application menu is automatically updated via preference manager.
+          if (systemPreferences.isDarkMode() && theme !== 'dark' &&
+            theme !== 'material-dark' && theme !== 'one-dark') {
             selectTheme('dark')
-            setedTheme = 'dark'
           }
-          if (!systemPreferences.isDarkMode() && theme === 'dark') {
+          if (!systemPreferences.isDarkMode() && theme !== 'light' &&
+            theme !== 'ulysses' && theme !== 'graphite') {
             selectTheme('light')
-            setedTheme = 'light'
-          }
-          if (setedTheme) {
-            const themeMenu = getMenuItemById('themeMenu')
-            const menuItem = themeMenu.submenu.items.filter(item => (item.id === setedTheme))[0]
-            if (menuItem) {
-              menuItem.checked = true
-            }
           }
         }
       )
