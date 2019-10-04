@@ -402,7 +402,6 @@ li.ag-task-list-item > input[type=checkbox]::before {
   content: '';
   width: 18px;
   height: 18px;
-  box-sizing: border-box;
   display: inline-block;
   border: 2px solid var(--editorColor50);
   border-radius: 50%;
@@ -673,7 +672,7 @@ span.ag-emoji-marked-text {
 .ag-emoji-marked-text::before {
   position: absolute;
   content: attr(data-emoji);
-  color: var(--editorColor);
+  color: #000000;
   top: 0;
   left: -1.3em;
   font-size: 1em;
