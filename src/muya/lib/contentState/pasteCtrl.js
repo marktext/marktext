@@ -237,8 +237,7 @@ const pasteCtrl = ContentState => {
 
     const text = rawText || event.clipboardData.getData('text/plain')
     let html = rawHtml || event.clipboardData.getData('text/html')
-    console.log(text)
-    console.log(html)
+
     // Support pasted URLs from Firefox.
     if (URL_REG.test(text) && !/\s/.test(text) && !html) {
       html = `<a href="${text}">${text}</a>`
