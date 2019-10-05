@@ -92,7 +92,10 @@
     "type": "string",
     "pattern": "^[_A-z0-9]+((-|\\s)*[_A-z0-9])*$"
   },
-
+  "trimUnnecessaryCodeBlockEmptyLines": {
+    "description": "Editor--Trim the beginning and ending empty lines in code block",
+    "type": "boolean"
+  },
   "autoPairBracket": {
     "description": "Editor--Automatically brackets when editing",
     "type": "boolean"

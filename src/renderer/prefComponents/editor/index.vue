@@ -10,11 +10,20 @@
       :step="1"
       :onChange="value => onSelectChange('fontSize', value)"
     ></range>
+    <range
+      description="Line height of editor lines."
+      :value="lineHeight"
+      :min="1.2"
+      :max="2.0"
+      :step="0.1"
+      :onChange="value => onSelectChange('lineHeight', value)"
+    ></range>
     <font-text-box
       description="The used font in the editor."
       :value="editorFontFamily"
       :onChange="value => onSelectChange('editorFontFamily', value)"
     ></font-text-box>
+    <separator></separator>
     <range
       description="The code block font size in editor."
       :value="codeFontSize"
@@ -30,14 +39,11 @@
       :value="codeFontFamily"
       :onChange="value => onSelectChange('codeFontFamily', value)"
     ></font-text-box>
-    <range
-      description="Line height of editor lines."
-      :value="lineHeight"
-      :min="1.2"
-      :max="2.0"
-      :step="0.1"
-      :onChange="value => onSelectChange('lineHeight', value)"
-    ></range>
+    <bool
+      description="Trim the beginning and ending empty lines in code block when open markdown."
+      :bool="trimUnnecessaryCodeBlockEmptyLines"
+      :onChange="value => onSelectChange('trimUnnecessaryCodeBlockEmptyLines', value)"
+    ></bool>
     <separator></separator>
     <bool
       description="Automatically brackets when editing."
@@ -67,7 +73,6 @@
       :options="textDirectionOptions"
       :onChange="value => onSelectChange('textDirection', value)"
     ></cur-select>
-    <separator></separator>
     <separator></separator>
     <bool
       description="Hide hint for quickly creating paragraphs."
@@ -124,6 +129,7 @@ export default {
       textDirection: state => state.preferences.textDirection,
       codeFontSize: state => state.preferences.codeFontSize,
       codeFontFamily: state => state.preferences.codeFontFamily,
+      trimUnnecessaryCodeBlockEmptyLines: state => state.preferences.trimUnnecessaryCodeBlockEmptyLines,
       hideQuickInsertHint: state => state.preferences.hideQuickInsertHint,
       editorLineWidth: state => state.preferences.editorLineWidth
     })

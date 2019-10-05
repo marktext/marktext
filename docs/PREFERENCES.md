@@ -19,20 +19,21 @@ Preferences can be controlled and modified in the settings window or via the `pr
 
 #### Editor
 
-| Key                    | Type    | Defaut             | Description                                                                                                                                                           |
-| ---------------------- | ------- | ------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| fontSize               | Number  | 16                 | Font size in pixels. 12 ~ 32                                                                                                                                          |
-| editorFontFamily       | String  | Open Sans          | Font Family                                                                                                                                                           |
-| lineHeight             | Number  | 1.6                | Line Height                                                                                                                                                           |
-| autoPairBracket        | Boolean | true               | Automatically brackets when editing                                                                                                                                   |
-| autoPairMarkdownSyntax | Boolean | true               | Autocomplete markdown syntax                                                                                                                                          |
-| autoPairQuote          | Boolean | true               | Automatic completion of quotes                                                                                                                                        |
-| endOfLine              | String  | default            | The newline character used at the end of each line. The default value is default, which will be selected according to your system intelligence. `lf` `crlf` `default` |
-| textDirection          | String  | ltr                | The writing text direction, optional value: `ltr` or `rtl`                                                                                                            |
-| codeFontSize           | Number  | 14                 | Font size on code block, the range is 12 ~ 28                                                                                                                         |
-| codeFontFamily         | String  | `DejaVu Sans Mono` | Code font family                                                                                                                                                      |
-| hideQuickInsertHint    | Boolean | false              | Hide hint for quickly creating paragraphs                                                                                                                             |
-| imageDropAction        | String  | folder             | The default behavior after paste or drag the image to Mark Text, upload it to the image cloud (if configured), move to the specified folder, insert the path          |
+| Key                      | Type    | Defaut             | Description                                                                                                                                                           |
+| ------------------------ | ------- | ------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| fontSize                 | Number  | 16                 | Font size in pixels. 12 ~ 32                                                                                                                                          |
+| editorFontFamily         | String  | Open Sans          | Font Family                                                                                                                                                           |
+| lineHeight               | Number  | 1.6                | Line Height                                                                                                                                                           |
+| autoPairBracket          | Boolean | true               | Automatically brackets when editing                                                                                                                                   |
+| autoPairMarkdownSyntax   | Boolean | true               | Autocomplete markdown syntax                                                                                                                                          |
+| autoPairQuote            | Boolean | true               | Automatic completion of quotes                                                                                                                                        |
+| endOfLine                | String  | default            | The newline character used at the end of each line. The default value is default, which will be selected according to your system intelligence. `lf` `crlf` `default` |
+| textDirection            | String  | ltr                | The writing text direction, optional value: `ltr` or `rtl`                                                                                                            |
+| codeFontSize             | Number  | 14                 | Font size on code block, the range is 12 ~ 28                                                                                                                         |
+| codeFontFamily           | String  | `DejaVu Sans Mono` | Code font family                                                                                                                                                      |
+| trimUnnecessaryCodeBlockEmptyLines | Boolean | true               | Whether to trim the beginning and end empty line in Code block                                                                                                         |
+| hideQuickInsertHint      | Boolean | false              | Hide hint for quickly creating paragraphs                                                                                                                             |
+| imageDropAction          | String  | folder             | The default behavior after paste or drag the image to Mark Text, upload it to the image cloud (if configured), move to the specified folder, insert the path          |
 
 #### Markdown
 

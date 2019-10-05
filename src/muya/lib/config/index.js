@@ -242,6 +242,8 @@ export const EXPORT_DOMPURIFY_CONFIG = {
 export const MUYA_DEFAULT_OPTION = {
   focusMode: false,
   markdown: '',
+  // Whether to trim the beginning and ending empty line in code block when open markdown.
+  trimUnnecessaryCodeBlockEmptyLines: false,
   preferLooseListItem: true,
   autoPairBracket: true,
   autoPairMarkdownSyntax: true,
