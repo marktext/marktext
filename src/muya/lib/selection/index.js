@@ -578,6 +578,7 @@ class Selection {
     }
 
     const anchor = { key: anchorParagraph.id, offset: aOffset }
+
     const focus = { key: focusParagraph.id, offset: fOffset }
     const result = new Cursor({ anchor, focus })
 

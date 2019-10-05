@@ -86,6 +86,23 @@ const inputCtrl = ContentState => {
     const key = start.key
     const block = this.getBlock(key)
     const paragraph = document.querySelector(`#${key}`)
+
+    // if (
+    //   oldStart.key === oldEnd.key &&
+    //   oldStart.offset === oldEnd.offset &&
+    //   block.text.endsWith('\n') &&
+    //   oldStart.offset === block.text.length &&
+    //   event.inputType === 'insertText'
+    // ) {
+    //   event.preventDefault()
+    //   block.text += event.data
+    //   const offset = block.text.length
+    //   this.cursor = {
+    //     start: { key, offset },
+    //     end: { key, offset }
+    //   }
+    //   return this.singleRender(block)
+    // }
     let text = getTextContent(paragraph, [CLASS_OR_ID.AG_MATH_RENDER, CLASS_OR_ID.AG_RUBY_RENDER])
 
     let needRender = false
@@ -121,7 +138,7 @@ const inputCtrl = ContentState => {
       }
       needRender = true
     }
-
+    console.log(block.text === text)
     // auto pair (not need to auto pair in math block)
     if (block && block.text !== text) {
       if (
