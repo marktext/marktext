@@ -21,7 +21,7 @@ const turnSoftBreakToSpan = html => {
   const root = doc.querySelector('#turn-root')
   const travel = childNodes => {
     for (const node of childNodes) {
-      if (node.nodeType === 3) {
+      if (node.nodeType === 3 && node.parentNode.tagName !== 'CODE') {
         let startLen = 0
         let endLen = 0
         const text = node.nodeValue.replace(/^(\n+)/, (_, p) => {
@@ -358,6 +358,7 @@ const importRegister = ContentState => {
     html = html.replace(/<span>&nbsp;<\/span>/g, String.fromCharCode(160))
 
     html = turnSoftBreakToSpan(html)
+
     const markdown = turndownService.turndown(html)
     return markdown
   }

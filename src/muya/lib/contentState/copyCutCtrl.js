@@ -34,6 +34,19 @@ const copyCutCtrl = ContentState => {
   }
 
   ContentState.prototype.getClipBoradData = function () {
+    const { start, end } = selection.getCursorRange()
+    if (start.key === end.key) {
+      const startBlock = this.getBlock(start.key)
+      const { type, text, functionType } = startBlock
+      // Fix issue #942
+      if (type === 'span' && functionType === 'codeContent') {
+        const selectedText = text.substring(start.offset, end.offset)
+        return {
+          html: marked(selectedText),
+          text: selectedText
+        }
+      }
+    }
     const html = selection.getSelectionHtml()
     const wrapper = document.createElement('div')
     wrapper.innerHTML = html
@@ -164,7 +177,6 @@ const copyCutCtrl = ContentState => {
 
     let htmlData = wrapper.innerHTML
     const textData = this.htmlToMarkdown(htmlData)
-
     htmlData = marked(textData)
     return { html: htmlData, text: textData }
   }
