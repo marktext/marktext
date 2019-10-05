@@ -58,23 +58,21 @@ const bootstrapRenderer = () => {
 
   // Register renderer exception handler
   window.addEventListener('error', event => {
-    const { message, name, stack } = event.error
-    const copy = {
-      message,
-      name,
-      stack
+    if (event.error) {
+      const { message, name, stack } = event.error
+      const copy = {
+        message,
+        name,
+        stack
+      }
+
+      exceptionLogger(event.error)
+
+      // Pass exception to main process exception handler to show a error dialog.
+      ipcRenderer.send('AGANI::handle-renderer-error', copy)
+    } else {
+      console.error(event)
     }
-
-    // NOTE: "SPELLCHECKER_PREFER_HUNSPELL" environment variable must be set before
-    //       initializing "SpellCheckHandler" from "electron-spellchecker".
-    if (process.env.MT_PREFER_HUNSPELL) {
-      process.env['SPELLCHECKER_PREFER_HUNSPELL'] = 1 // eslint-disable-line dot-notation
-    }
-
-    exceptionLogger(event.error)
-
-    // Pass exception to main process exception handler to show a error dialog.
-    ipcRenderer.send('AGANI::handle-renderer-error', copy)
   })
 
   const { debug, initialState, userDataPath, windowId, type } = parseUrlArgs()

@@ -23,6 +23,11 @@ export const category = [{
   icon: MarkdownIcon,
   path: '/preference/markdown'
 }, {
+  name: 'Spell Checker',
+  label: 'spellChecker',
+  icon: GeneralIcon, // TODO: replace icon
+  path: '/preference/spellChecker'
+}, {
   name: 'Theme',
   label: 'theme',
   icon: ThemeIcon,

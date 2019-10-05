@@ -13,7 +13,7 @@ import {
 
 const { Menu, MenuItem } = remote
 
-export const showContextMenu = (event, selectionChanges, spellChecker, selectedWord, wordSuggestions, callback) => {
+export const showContextMenu = (event, selectionChanges, spellchecker, selectedWord, wordSuggestions, callback) => {
   const { start, end } = selectionChanges
   const menu = new Menu()
   const win = remote.getCurrentWindow()
@@ -21,40 +21,20 @@ export const showContextMenu = (event, selectionChanges, spellChecker, selectedW
   const CONTEXT_ITEMS = [INSERT_BEFORE, INSERT_AFTER, SEPARATOR, CUT, COPY, PASTE, SEPARATOR, COPY_AS_MARKDOWN, COPY_AS_HTML, PASTE_AS_PLAIN_TEXT]
 
   // --- START spellchecking ---
-  const spellingSubmenu = []
 
-  // NOTE: This is an experimental branch and not production ready, so don't care about settings and style.
+  if (spellchecker && spellchecker.isEnabled) {
+    const spellingSubmenu = []
 
-  if (spellChecker) {
-    // Download further dictionaries for Hunspell
-    const { isHunspell } = spellChecker.getConfiguration
-    if (isHunspell) {
-      // TODO(spell): async calls below; during downloading we should block the UI or block language switches and further downloads
-      spellingSubmenu.push(new MenuItem({
-        label: 'Download More...',
-        click (menuItem, browserWindow) {
-          // TODO(spell): Show download dialog via vue dialog
-
-          const lang = 'de-DE' // prompt('Please enter the 4 letter language code (language name, region name):', 'en-US')
-
-          // TODO(spell): Handle result
-          spellChecker.loadDictionary(lang).then(m => {
-            const { language } = m
-            console.log(language)
-            alert(JSON.stringify(language, null, 2))
-          })
-        }
-      }))
-    }
-
-    // Change language
-    const availableDictionaries = spellChecker.getAvailableDictionaries()
+    // Change language menu entries
+    const currentLanguage = spellchecker.lang
+    const availableDictionaries = spellchecker.getAvailableDictionaries()
     const availableDictionariesSubmenu = []
     for (const dict of availableDictionaries) {
       availableDictionariesSubmenu.push(new MenuItem({
         label: dict,
+        enabled: dict !== currentLanguage,
         click (menuItem, browserWindow) {
-          spellChecker.switchLanguage(dict).then(m => {
+          spellchecker.switchLanguage(dict).then(m => {
             // TODO(spell): Handle result
             console.log(m)
             alert(JSON.stringify(m, null, 2))
@@ -72,8 +52,7 @@ export const showContextMenu = (event, selectionChanges, spellChecker, selectedW
     spellingSubmenu.push(new MenuItem({
       label: 'Debug',
       click (menuItem, browserWindow) {
-        alert(JSON.stringify(spellChecker.getConfiguration, null, 2))
-        alert(JSON.stringify(spellChecker.getAvailableDictionaries(), null, 2))
+        alert(JSON.stringify(spellchecker.getConfiguration, null, 2))
       }
     }))
 
@@ -82,10 +61,11 @@ export const showContextMenu = (event, selectionChanges, spellChecker, selectedW
     // Word suggestions
     if (selectedWord && wordSuggestions && wordSuggestions.length > 0) {
       spellingSubmenu.push({
-        label: 'Add To Dictionary',
-        enabled: false, // TODO(spell): see API todo
-        click (menuItem, browserWindow) {
-          spellChecker.addToDictionary(selectedWord)
+        label: 'Add to Dictionary',
+        click (menuItem, targetWindow) {
+          // NOTE: Need to notify Chromium to invalidate the spelling underline.
+          targetWindow.webContents.replaceMisspelling(selectedWord)
+          spellchecker.addToDictionary(selectedWord)
         }
       })
       spellingSubmenu.push(SEPARATOR)
@@ -95,36 +75,32 @@ export const showContextMenu = (event, selectionChanges, spellChecker, selectedW
           click (menuItem, browserWindow) {
             console.log(`Clicked on "${word}"`) // #DEBUG
 
-            // NOTE: We cannot just use Electron to replace a word because the change is not forwarded to muya/editor.
-            // browserWindow.webContents.replaceMisspelling(word)
-
-            // NOTE: It's very likely that this call can have side effects because
-            //       of none existing muya, renderer (editor) and main process synchronization.
+            // We cannot just use Chromium to replace a word because the change
+            // is not forwarded to Muya.
             callback(word)
           }
         })
       }
     } else {
       spellingSubmenu.push({
-        label: 'Remove From Dictionary',
-        enabled: false, // !!selectedWord && selectedWord.length >= 2, // TODO(spell): see API todo
-        click (menuItem, browserWindow) {
-          spellChecker.removeFromDictionary(selectedWord)
+        label: 'Remove from Dictionary',
+        enabled: !!selectedWord && selectedWord.length >= 2, // TODO(spell): and inside custom dict
+        click (menuItem, targetWindow) {
+          // NOTE: Need to notify Chromium to invalidate the spelling underline.
+          targetWindow.webContents.replaceMisspelling(selectedWord)
+          spellchecker.removeFromDictionary(selectedWord)
         }
       })
     }
-  } else {
-    spellingSubmenu.push({
-      label: 'Error while initializing spell checker API.',
-      enabled: false
-    })
-  }
 
-  menu.append(new MenuItem({
-    label: 'Spelling...',
-    submenu: spellingSubmenu
-  }))
-  menu.append(new MenuItem(SEPARATOR))
+    menu.append(new MenuItem({
+      label: 'Spelling...',
+      submenu: spellingSubmenu
+    }))
+    menu.append(new MenuItem(SEPARATOR))
+  } else if (!spellchecker) {
+    console.error('Error while initializing spell checker API. Cannot construct spelling menu.')
+  }
 
   // --- END spellchecking ---
 

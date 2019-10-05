@@ -14,7 +14,7 @@
     "build:bin": "node .electron-vue/build.js && electron-builder --dir",
     "build:clean": "cross-env BUILD_TARGET=clean node .electron-vue/build.js",
     "build:dev": "node .electron-vue/build.js",
-    "dev": "node .electron-vue/dev-runner.js",
+    "dev": "cross-env DEBUG='electron-spellchecker:*' node .electron-vue/dev-runner.js",
     "e2e": "yarn run pack && cross-env MARKTEXT_EXIT_ON_ERROR=1 mocha --timeout 10000 test/e2e",
     "lint": "eslint --ext .js,.vue -f ./node_modules/eslint-friendly-formatter src test",
     "lint:fix": "eslint --ext .js,.vue -f ./node_modules/eslint-friendly-formatter --fix src test",

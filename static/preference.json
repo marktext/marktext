@@ -39,6 +39,11 @@
 
   "theme": "light",
 
+  "spellcheckerEnabled": false,
+  "spellcheckerIsHunspell": false,
+  "spellcheckerAutoDetectLanguage": false,
+  "spellcheckerLanguage": "en-US",
+
   "sideBarVisibility": false,
   "tabBarVisibility": false,
   "sourceCodeModeEnabled": false,

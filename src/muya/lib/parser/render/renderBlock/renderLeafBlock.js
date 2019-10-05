@@ -115,6 +115,7 @@ export default function renderLeafBlock (parent, block, activeBlocks, matches, u
 
   if (editable === false) {
     Object.assign(data.attrs, {
+      spellcheck: 'false',
       contenteditable: 'false'
     })
   }
@@ -124,7 +125,10 @@ export default function renderLeafBlock (parent, block, activeBlocks, matches, u
     switch (functionType) {
       case 'html': {
         selector += `.${CLASS_OR_ID.AG_HTML_PREVIEW}`
+        Object.assign(data.attrs, { spellcheck: 'false' })
+
         const htmlContent = sanitize(code, PREVIEW_DOMPURIFY_CONFIG)
+
         // handle empty html bock
         if (/^<([a-z][a-z\d]*)[^>]*?>(\s*)<\/\1>$/.test(htmlContent.trim())) {
           children = htmlToVNode('<div class="ag-empty">&lt;Empty HTML Block&gt;</div>')
@@ -145,6 +149,7 @@ export default function renderLeafBlock (parent, block, activeBlocks, matches, u
       case 'multiplemath': {
         const key = `${code}_display_math`
         selector += `.${CLASS_OR_ID.AG_CONTAINER_PREVIEW}`
+        Object.assign(data.attrs, { spellcheck: 'false' })
         if (code === '') {
           children = '< Empty Mathematical Formula >'
           selector += `.${CLASS_OR_ID.AG_EMPTY}`
@@ -167,6 +172,7 @@ export default function renderLeafBlock (parent, block, activeBlocks, matches, u
       }
       case 'mermaid': {
         selector += `.${CLASS_OR_ID.AG_CONTAINER_PREVIEW}`
+        Object.assign(data.attrs, { spellcheck: 'false' })
         if (code === '') {
           children = '< Empty Mermaid Block >'
           selector += `.${CLASS_OR_ID.AG_EMPTY}`
@@ -186,6 +192,7 @@ export default function renderLeafBlock (parent, block, activeBlocks, matches, u
       case 'sequence':
       case 'vega-lite': {
         selector += `.${CLASS_OR_ID.AG_CONTAINER_PREVIEW}`
+        Object.assign(data.attrs, { spellcheck: 'false' })
         if (code === '') {
           children = '< Empty Diagram Block >'
           selector += `.${CLASS_OR_ID.AG_EMPTY}`
@@ -236,6 +243,7 @@ export default function renderLeafBlock (parent, block, activeBlocks, matches, u
     const html = getHighlightHtml(text, highlights)
     children = htmlToVNode(html)
   }
+
   if (!block.parent) {
     return h(selector, data, [this.renderIcon(block), ...children])
   } else {

@@ -233,6 +233,27 @@
     "type": "string"
   },
 
+  "spellcheckerEnabled": {
+    "description": "Spellchecker--Whether spell checking is enabled.",
+    "type": "boolean",
+    "default": false
+  },
+  "spellcheckerIsHunspell": {
+    "description": "Spellchecker--Whether Hunspell or the OS spell checker is used (macOS only).",
+    "type": "boolean",
+    "default": false
+  },
+  "spellcheckerAutoDetectLanguage": {
+    "description": "Spellchecker--Try to automatically identify the used language when typing.",
+    "type": "boolean",
+    "default": false
+  },
+  "spellcheckerLanguage": {
+    "description": "Spellchecker--The spell checker lanugage",
+    "pattern": "^[a-z]{2}(?:[-][A-Z]{2})?$",
+    "default": "en-US"
+  },
+
   "imageInsertAction": {
     "description": "Image--The default behavior after insert image from local folder",
     "enum": [

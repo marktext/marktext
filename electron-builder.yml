@@ -18,14 +18,21 @@ files:
 - "!node_modules/terser/dist/bundle.min.js.map"
 - "!node_modules/vega-lite/build/vega-lite*.js.map"
 # Don't bundle build files
+- "!node_modules/@felixrieseberg/spellchecker/bin"
+- "!node_modules/cld/bin"
 - "!node_modules/fontmanager-redux/bin"
 - "!node_modules/keyboard-layout/bin"
 - "!node_modules/keytar/bin"
 - "!node_modules/vscode-windows-registry/bin"
+# Don't bundle GPL source files
+- "!node_modules/@felixrieseberg/spellchecker/vendor"
 extraFiles:
 - "LICENSE"
 - from: "resources/THIRD-PARTY-LICENSES.txt"
   to: "THIRD-PARTY-LICENSES.txt"
+extraResources:
+- from: "resources/hunspell_dictionaries/"
+  to: "hunspell_dictionaries/"
 
 fileAssociations:
 - ext:

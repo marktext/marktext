@@ -9,6 +9,9 @@ export default function autoLinkExtension (h, cursor, block, token, outerClass) 
 
   return [
     h(`a.${CLASS_OR_ID.AG_INLINE_RULE}.${CLASS_OR_ID.AG_AUTO_LINK_EXTENSION}`, {
+      attrs: {
+        spellcheck: 'false'
+      },
       props: {
         href: linkType === 'www' ? encodeURI(`http://${www}`) : (linkType === 'url' ? encodeURI(url) : `mailto:${email}`),
         target: '_blank'

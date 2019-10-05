@@ -19,7 +19,7 @@ describe('The Spell Check Handler Class', function() {
 
   beforeEach(function () {
     this.tempCacheDir = path.join(__dirname, `__spell_check${testCount++}`);
-    this.sync = new DictionarySync(this.tempCacheDir);
+    this.sync = new DictionarySync(platform !== 'darwin', this.tempCacheDir);
     this.fixture = new SpellCheckHandler(this.sync, new FakeLocalStorage());
   });
 

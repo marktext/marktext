@@ -14,7 +14,7 @@ describe('The Dictionary Sync class', function() {
 
   beforeEach(function() {
     this.tempCacheDir = path.join(__dirname, `__dict_sync_${testCount++}`);
-    this.fixture = new DictionarySync(this.tempCacheDir);
+    this.fixture = new DictionarySync(platform !== 'darwin', this.tempCacheDir);
   });
 
   afterEach(function() {

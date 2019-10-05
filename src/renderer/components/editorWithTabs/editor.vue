@@ -149,6 +149,9 @@ export default {
       imageFolderPath: state => state.preferences.imageFolderPath,
       theme: state => state.preferences.theme,
       hideScrollbar: state => state.preferences.hideScrollbar,
+      spellcheckerEnabled: state => state.preferences.spellcheckerEnabled,
+      spellcheckerAutoDetectLanguage: state => state.preferences.spellcheckerAutoDetectLanguage,
+      spellcheckerLanguage: state => state.preferences.spellcheckerLanguage,
 
       currentFile: state => state.editor.currentFile,
 
@@ -311,6 +314,58 @@ export default {
         })
       }
     },
+    spellcheckerEnabled: function (value, oldValue) {
+      const {
+        spellchecker,
+        isSpellcheckerAvailable,
+        spellcheckerLanguage
+      } = this
+      if (value !== oldValue && spellchecker) {
+        // TODO(spell): Set Muya `spellcheck` property to `value`.
+
+        // Spell check is available but not initialized.
+        if (!isSpellcheckerAvailable && value && !spellchecker.isInitialized) {
+          this.spellchecker.init(spellcheckerLanguage).then(m => {
+            this.isSpellcheckerAvailable = true
+            console.log('Spell checker initialized and attached to window. Language: %o', m) // #DEBUG
+          }).catch(err => {
+            this.isSpellcheckerAvailable = false
+
+            // TODO(spell): Handle error better
+            console.error('Error while initializing spell checker:\n\n%o', err)
+          })
+        }
+
+        // Enable or disable spell checker.
+        if (isSpellcheckerAvailable) {
+          if (value) {
+            // TODO(spell): Handle error
+            spellchecker.enableSpellchecker()
+          } else {
+            spellchecker.disableSpellchecker()
+          }
+        }
+      }
+    },
+    spellcheckerAutoDetectLanguage: function (value, oldValue) {
+      const { spellchecker, isSpellcheckerAvailable } = this
+      if (value !== oldValue && spellchecker && isSpellcheckerAvailable) {
+        spellchecker.automaticallyIdentifyLanguages = value
+      }
+    },
+    spellcheckerLanguage: function (value, oldValue) {
+      // const { spellchecker, isSpellcheckerAvailable } = this
+      // if (value !== oldValue && spellchecker && isSpellcheckerAvailable) {
+      //   if (!spellchecker.automaticallyIdentifyLanguages) {
+      //     // TODO(spell): This doesn't work but via context menu.
+      //     console.log('Setting spell checker language via editor.vue') // #DEBUG
+      //     spellchecker.switchLanguage(value).catch(error => {
+      //       // TODO(spell): Handle error
+      //       console.error(error)
+      //     })
+      //   }
+      // }
+    },
     currentFile: function (value, oldValue) {
       if (value && value !== oldValue) {
         this.scrollToCursor(0)
@@ -344,7 +399,10 @@ export default {
         frontmatterType,
         hideQuickInsertHint,
         editorLineWidth,
-        theme
+        theme,
+        spellcheckerEnabled,
+        spellcheckerAutoDetectLanguage,
+        spellcheckerLanguage
       } = this
 
       // use muya UI plugins
@@ -402,17 +460,18 @@ export default {
       const { container } = this.editor = new Muya(ele, options)
 
       // Enable spell checking
-      this.isSpellCheckerAvailable = false
-      this.spellChecker = new SpellChecker(false)
-
-      // TODO(spell): Better error handling
-      this.spellChecker.init().then(m => {
-        this.isSpellCheckerAvailable = true
-        console.log('Spell checker initialized and attached to window. Language: %o', m) // #DEBUG
-      }).catch(err => {
-        this.isSpellCheckerAvailable = false
-        console.error('Error while initializing SpellChecker:\n\n%o', err)
-      })
+      this.isSpellcheckerAvailable = false
+      this.spellchecker = new SpellChecker(spellcheckerAutoDetectLanguage, spellcheckerEnabled)
+      if (spellcheckerEnabled) {
+        // TODO(spell): Better error handling
+        this.spellchecker.init(spellcheckerLanguage).then(m => {
+          this.isSpellcheckerAvailable = true
+          console.log('Spell checker initialized and attached to window. Language: %o', m) // #DEBUG
+        }).catch(err => {
+          this.isSpellcheckerAvailable = false
+          console.error('Error while initializing spell checker:\n\n%o', err)
+        })
+      }
 
       if (typewriter) {
         this.scrollToCursor()
@@ -499,37 +558,36 @@ export default {
       this.editor.on('contextmenu', (event, selectionChanges) => {
         // TODO(spell): Refactor this function
         // NOTE: Right clicking on a misspelled word select the whole word
-        if (this.isSpellCheckerAvailable && validateLineCursor(selectionChanges)) {
+        if (this.isSpellcheckerAvailable && validateLineCursor(selectionChanges)) {
           const { start: startCursor, end: endCursor } = selectionChanges
-          if (startCursor.key === endCursor.key && this.spellChecker) {
+          if (startCursor.key === endCursor.key && this.spellchecker) {
             const { offset: spellcheckOffset } = startCursor
             const { text } = startCursor.block
-            const wordInfo = this.spellChecker.extractWord(text, spellcheckOffset)
+            const wordInfo = this.spellchecker.extractWord(text, spellcheckOffset)
             if (wordInfo) {
               const { left, right, word } = wordInfo
               console.log(left) // #DEBUG
               console.log(right) // #DEBUG
               console.log(word) // #DEBUG
-              if (this.spellChecker.isDisabled) {
-                showContextMenu(event, selectionChanges, this.spellChecker, word, [], null)
+              if (this.spellchecker.isDisabled) {
+                showContextMenu(event, selectionChanges, this.spellchecker, word, [], null)
               } else {
                 const wordRange = offsetToWordCursor(selectionChanges, left, right)
-                this.spellChecker.getWordSuggestion(word).then(wordSuggestions => {
+                this.spellchecker.getWordSuggestion(word).then(wordSuggestions => {
                   const replaceCallback = replacement => {
                     // wordRange: replace this range with the replacement
                     this.editor._replaceWordInline(selectionChanges, wordRange, replacement, true)
                   }
-                  showContextMenu(event, selectionChanges, this.spellChecker, word, wordSuggestions, replaceCallback)
+                  showContextMenu(event, selectionChanges, this.spellchecker, word, wordSuggestions, replaceCallback)
                 })
               }
               return
             }
           }
         }
-        // No word selected or fallback
-        showContextMenu(event, selectionChanges, this.isSpellCheckerAvailable ? this.spellChecker : null, '', [], null)
 
-        // showContextMenu(event, selectionChanges)
+        // No word selected or fallback
+        showContextMenu(event, selectionChanges, this.spellchecker, '', [], null)
       })
 
       document.addEventListener('keyup', this.keyup)

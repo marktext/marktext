@@ -4,10 +4,10 @@ import { remote } from 'electron'
 import { SpellCheckHandler } from 'electron-spellchecker'
 import fallbackLocales from 'electron-spellchecker/src/fallback-locales' // TODO(spell): Export these functions in our fork
 import { normalizeLanguageCode } from 'electron-spellchecker/src/utility' // TODO(spell): ...
+import { isOsx, cloneObj } from '../util'
 
-const isOSX = process.platform === 'darwin'
 // NOTE: Hardcoded in "electron-spellchecker/src/dictionary-sync.js" but we could overwrite it
-const dictionaryPath = path.join(remote.app.getPath('userData'), 'dictionaries')
+export const dictionaryPath = path.join(remote.app.getPath('userData'), 'dictionaries')
 
 // Source: https://github.com/Microsoft/vscode/blob/master/src/vs/editor/common/model/wordHelper.ts
 // /(-?\d*\.\d\w*)|([^\`\~\!\@\#\$\%\^\&\*\(\)\-\=\+\[\{\]\}\\\|\;\:\'\"\,\.\<\>\/\?\s]+)/
@@ -55,6 +55,9 @@ export const getAvailableHunspellDictionaries = () => {
   if (fs.existsSync(dictionaryPath) && fs.lstatSync(dictionaryPath).isDirectory()) {
     fs.readdirSync(dictionaryPath).forEach(filename => {
       const fullname = path.join(dictionaryPath, filename)
+
+      // TODO: Support 2 and 5 character language codes
+
       // E.g: de-DE.bdic or en-US.bdic
       if (filename.length === 10 && filename.endsWith('.bdic') && fs.lstatSync(fullname).isFile()) {
         dict.push(filename.slice(0, 5))
@@ -62,17 +65,6 @@ export const getAvailableHunspellDictionaries = () => {
     })
   }
   return dict
-}
-
-// TODO(spell): Move to `utils.js` - there are may be better solutions to deep clone?!
-/**
- * Clone a object as a shallow or deep copy.
- *
- * @param {*} obj Object to clone
- * @param {*} deepCopy Create a shallow or deep copy.
- */
-const cloneObj = (obj, deepCopy = true) => {
-  return deepCopy ? JSON.parse(JSON.stringify(obj)) : Object.assign({}, obj)
 }
 
 /**
@@ -84,64 +76,127 @@ const cloneObj = (obj, deepCopy = true) => {
  *  *: You have to set "SPELLCHECKER_PREFER_HUNSPELL" environment variable to 1 on macOS to use Hunspell.
  */
 export class SpellChecker {
-  // TODO(spell): Enable automaticallyIdentifyLanguages
+  constructor (automaticallyIdentifyLanguages = false, enabled = true) {
+    // Hunspell is used on Linux and Windows but macOS can use Hunspell if prefered.
+    this.isHunspell = !isOsx || !!process.env['SPELLCHECKER_PREFER_HUNSPELL'] // eslint-disable-line dot-notation
 
-  constructor (automaticallyIdentifyLanguages = false) {
+    // Initialize spell check provider. If spell check is not enabled don't
+    // initialize the handler to not load the native module.
+    if (enabled) {
+      this._initHandler(automaticallyIdentifyLanguages)
+    } else {
+      this.provider = null
+      this.lang = 'en-US'
+      this.isEnabled = false
+      this.isInitialized = false
+    }
+
+    console.log(`Using ${this.isHunspell ? 'Hunspell' : 'OS-level'} spellchecker. Enabled=${enabled}`) // #DEBUG
+  }
+
+  _initHandler (automaticallyIdentifyLanguages) {
     this.provider = new SpellCheckHandler()
-    // this.provider.autoUnloadDictionariesOnBlur()
 
-    // TODO: Currently not supported by our implementation.
-    automaticallyIdentifyLanguages = false
+    // TODO(spell): Currently not supported by our Hunspell implementation
+    //              with a reasonable performance.
+    if (this.isHunspell) {
+      automaticallyIdentifyLanguages = false
+    }
 
-    this.provider.automaticallyIdentifyLanguages(automaticallyIdentifyLanguages)
-    this.automaticallyIdentifyLanguages = automaticallyIdentifyLanguages
+    this.provider.automaticallyIdentifyLanguages = automaticallyIdentifyLanguages
+
+    // React to changes such as language detection.
+    this.provider.currentSpellcheckerChanged.subscribe(() => {
+      // TODO(spell): Something changed...
+    })
 
     this.lang = this.provider.currentSpellcheckerLanguage // default value should be "en-US"
     this.userDictionary = new UserDictionary()
-    // Hunspell is used on Linux and Windows, macOS can use it if prefered.
-    this.isHunspell = !isOSX || !!process.env['SPELLCHECKER_PREFER_HUNSPELL'] // eslint-disable-line dot-notation
-    this.isEnabled = false
 
-    console.log(`Using ${this.isHunspell ? 'Hunspell' : 'OS-level'} spellchecker.`) // #DEBUG
+    // The spell checker is now initialized but not yet enabled. Please call `init`.
+    this.isEnabled = false
+    this.isInitialized = true
   }
 
   async init (lang = '') {
-    // TODO(spell): Maybe we should ship Mark Text with a default "en-US" dictionary as fallback
-    //              because we require a working internet connection to download dictionaries for Hunspell.
-    //              On macOS the user need to download dictionaries via system settings.
+    if (this.isEnabled) {
+      return
+    } else if (!this.isInitialized) {
+      this._initHandler(false)
+    }
 
     if (!lang) {
       if (this.isHunspell) {
         // TODO(spell): Downloading dictionaries require internet connection. Allow only downloaded dictionaries.
-        // lang = process.env.LANG || remote.app.getLocale() || 'en-US'
+        // TODO(spell): >getLocale< just return 2-letter language code.
+        // const locale = process.env.LANG
+        // lang = locale ? locale.split('.')[0] : (remote.app.getLocale() || 'en-US')
         lang = 'en-US'
       } else {
-        // NOTE: macOS does automatic language detection, we're gonna trust it - @electron-spellchecker
-        lang = 'en-US'
+        // NOTE: macOS does automatic language detection if language is empty.
+        lang = ''
+        this.provider._automaticallyIdentifyLanguages = true
       }
     }
 
     // We have to call our switch language method to ensure that the provider is in a valid state.
-    const { result, lang: currentLang } = await this._switchLanguage(lang)
-    if (!result) {
+    const currentLang = await this._switchLanguage(lang)
+    if (!currentLang) {
       throw new Error('SpellChecker: Error while initializing SpellChecker.')
     }
 
-    // Spellchecker is attached to the window document.
+    // Attach the spell checker to the window document.
     this.provider.attachToInput()
     this.isEnabled = true
     return currentLang
   }
 
+  /**
+   * Enable spell checker.
+   */
+  async enableSpellchecker () {
+    // TODO(spell): Add `lang` parameter.
+    if (this.isEnabled) {
+      return true
+    }
+
+    const result = await this.provider.enableSpellchecker()
+    if (!result) {
+      return false
+    }
+
+    this.lang = this.provider.currentSpellcheckerLanguage
+    this.isEnabled = true
+    return true
+  }
+
+  /**
+   * Disable spell checker.
+   */
+  disableSpellchecker () {
+    if (!this.isEnabled) {
+      return true
+    }
+
+    this.provider.disableSpellchecker()
+    this.isEnabled = false
+  }
+
   async addToDictionary (word) {
-    // TODO(spell): We can add this directly to the system but how do we remove the word?
-    // if (isOSX) {
-    //   return await this.provider.addToDictionary(word)
-    // }
+    if (!this.isHunspell) {
+      return this.provider.addToDictionary(word)
+    }
+
+    // TODO(spell): Move custom dict to `electron-spellchecker`
     return this.userDictionary.addToDictionary(word)
   }
 
-  removeFromDictionary (word) {
+  async removeFromDictionary (word) {
+    if (!this.isHunspell) {
+      return this.provider.removeFromDictionary(word)
+    }
+
+    // TODO(spell): Move custom dict to `electron-spellchecker`
     return this.userDictionary.removeFromDictionary(word)
   }
 
@@ -155,7 +210,7 @@ export class SpellChecker {
       return []
     }
 
-    if (isOSX && !this.isHunspell) {
+    if (isOsx && !this.isHunspell) {
       if (!this.provider.currentSpellchecker) return []
       // NB: OS X will return lists that are half just a language, half
       // language + locale, like ['en', 'pt_BR', 'ko']
@@ -165,43 +220,62 @@ export class SpellChecker {
           return normalizeLanguageCode(x)
         })
     }
+
+    // TODO(spell): Use cache and update these regularly or via events.
     return getAvailableHunspellDictionaries()
   }
 
   /**
-   * Try to load/download the specific language and attempts to use fallbacks if it fails.
+   * Try to load the specific language and attempts to use fallbacks if it fails.
    *
    * NOTE: This function can throw an exception.
    *
-   * @param {*} lang Language code
-   * @returns Dictionary/language tuple
+   * @param {string} lang Language code
+   * @returns {Object.<string, Buffer>} Dictionary/language tuple
    */
   async loadDictionary (lang) {
     // const { dictionary, language } =
     return await this.provider.loadDictionaryForLanguageWithAlternatives(lang)
   }
 
-  enableSpellChecker () {
-    // TODO(spell): ...
+  /**
+   * Is the spellchecker trying to detect the typed language automatically?
+   */
+  get automaticallyIdentifyLanguages () {
+    if (!this.isEnabled) {
+      return false
+    }
+    return this.provider.automaticallyIdentifyLanguages
   }
 
-  disableSpellChecker () {
-    // TODO(spell): ...
+  /**
+   * Is the spellchecker trying to detect the typed language automatically?
+   */
+  set automaticallyIdentifyLanguages (value) {
+    if (!this.isEnabled) {
+      return
+    }
+
+    // TODO(spell): Currently not supported by our Hunspell implementation
+    //              with a reasonable performance.
+    if (this.isHunspell) {
+      return
+    }
+    this.provider.automaticallyIdentifyLanguages = !!value
   }
 
   /**
    * Explicitly switch the language to a specific language.
    *
-   * NOTE: When using Hunspell, the dictionary will be downloaded if it doesn't exist.
    * NOTE: This function can throw an exception.
    *
-   * @param {*} lang Language code
-   * @returns
+   * @param {string} lang Language code
+   * @returns {string|null} Return the language on success.
    */
   async switchLanguage (lang) {
-    // TODO(spell): this.isDisabled --> enable spellchecker?
-    if (this.isDisabled) {
-      return false
+    // TODO(spell): Is disabled --> enable spellchecker?
+    if (!this.isEnabled) {
+      throw new Error('Invalid state.')
     }
     return await this._switchLanguage(lang)
   }
@@ -210,57 +284,62 @@ export class SpellChecker {
    * UNSAFE - don't call directly! Explicitly switch the language to a specific language.
    *
    * This method should be only called from "switchLanguage()" and "init()".
+   *
+   * @param {string} lang Language code
+   * @returns {string|null} Return the language on success.
    */
   async _switchLanguage (lang) {
     // NOTE: "provider" may be in an invalid state when "!result" (e.g. currentSpellchecker may be null)!
-    let result = await this.provider.switchLanguage(lang)
+    const result = await this.provider.switchLanguage(lang)
+    if (!result) {
+      // TODO(spell): Should we disable spell checking on error?
+      // this.disableSpellchecker()
+      this.userDictionary.unloadDictionary()
+
+      throw new Error('Error while switching language.')
+    }
+
     this.lang = this.provider.currentSpellcheckerLanguage
 
-    // "switchLanguage" returns a boolean on macOS only.
-    if (!isOSX) {
-      result = !!this.provider.currentSpellchecker
-    }
+    console.log(`switchLanguage: ${!!result}; lang: ${lang}; actualLang: ${this.lang}`) // #DEBUG
 
-    console.log(`switchLanguage: ${result}; lang: ${lang}; actualLang: ${this.lang}`) // #DEBUG
-
-    if (result) {
-      this.userDictionary.loadDictionaryForLanguage(this.lang)
-    } else {
-      // TODO(spell): Disable spellchecker? We have to set the spellchecker in a valid state!
-      //              At the moment undefined behavior :/
-      // this.disableSpellChecker()
-      this.userDictionary.unloadDictionary()
-    }
-    return { result, lang: result ? this.lang : '' }
+    this.userDictionary.loadDictionaryForLanguage(this.lang)
+    return this.lang
   }
 
   /**
    * Is the given word misspelled.
    *
-   * @param {*} word
+   * @param {string} word
    */
   isMisspelled (word) {
+    if (!this.isEnabled) {
+      return false
+    }
     return !this.userDictionary.match(word) && this.provider.isMisspelled(word)
   }
 
   /**
    * Extract the word at the given offset from the text.
    *
-   * @param {*} text Text
-   * @param {*} offset Normalized cursor offset (e.g. ab<cursor>c def --> 2)
+   * @param {string} text Text
+   * @param {number} offset Normalized cursor offset (e.g. ab<cursor>c def --> 2)
    */
   extractWord (text, offset) {
-    if (!text || text.length === 0) return null
-    if (offset < 0) offset = 0
-    if (offset >= text.length) offset = text.length - 1
+    if (!text || text.length === 0) {
+      return null
+    } else if (offset < 0) {
+      offset = 0
+    } else if (offset >= text.length) {
+      offset = text.length - 1
+    }
 
-    // Get nearest word
-    // Based on: https://stackoverflow.com/a/5174867
+    // Get nearest word based on: https://stackoverflow.com/a/5174867
     const pos = Number(offset) >>> 0
 
     // Search for the word's beginning and end.
-    const left = text.slice(0, pos + 1).search(WORD_DEFINITION) // /\S+$/
-    const right = text.slice(pos).search(WORD_SEPARATORS) // /\s/
+    const left = text.slice(0, pos + 1).search(WORD_DEFINITION)
+    const right = text.slice(pos).search(WORD_SEPARATORS)
 
     // Cursor is between two word separators (e.g "*<cursor>*" or " <cursor>*")
     if (left <= -1) {
@@ -285,7 +364,7 @@ export class SpellChecker {
   /**
    * Get corrections.
    *
-   * @param {*} word
+   * @param {string} word
    * @returns A array of words
    */
   async getWordSuggestion (word) {
@@ -295,15 +374,11 @@ export class SpellChecker {
     return await this.provider.getCorrectionsForMisspelling(word)
   }
 
-  get isDisabled () {
-    // NOTE: If spellchecker is disabled and you call a method, the behavior is undefined.
-    return !this.isEnabled
-  }
-
   get getConfiguration () {
-    const { isHunspell, lang } = this
-    const automaticallyIdentifyLanguages = this.provider.automaticallyIdentifyLanguages
+    const { isEnabled, isHunspell, lang } = this
+    const automaticallyIdentifyLanguages = this.automaticallyIdentifyLanguages
     return {
+      isEnabled,
       automaticallyIdentifyLanguages,
       lang,
       isHunspell
