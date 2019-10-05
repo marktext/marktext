@@ -16,6 +16,7 @@ const CED_ICONV_ENCODINGS = {
   MACINTOSH: 'utf8'
 }
 
+// Byte Order Mark's to detect endianness and encoding.
 const BOM_ENCODINGS = {
   utf8: [0xEF, 0xBB, 0xBF],
   utf16be: [0xFE, 0xFF],
