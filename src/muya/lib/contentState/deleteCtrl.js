@@ -33,7 +33,7 @@ const deleteCtrl = ContentState => {
     ) {
       event.preventDefault()
       if (nextBlock && /h\d|span/.test(nextBlock.type)) {
-        if (nextBlock.functionType === 'codeLine' && nextBlock.nextSibling) {
+        if (nextBlock.functionType === 'codeContent' && nextBlock.nextSibling) {
           // if code block more than one line, do nothing!
           return
         }

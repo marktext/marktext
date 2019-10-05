@@ -1,5 +1,4 @@
 import TurndownService from 'turndown'
-import { CLASS_OR_ID, LINE_BREAK } from '../config'
 import { identity } from './index'
 
 const turndownPluginGfm = require('joplin-turndown-plugin-gfm')
@@ -24,18 +23,6 @@ export const usePluginAddRules = (turndownService, keeps) => {
     },
     replacement (content, node, options) {
       return `$$\n${content}\n$$`
-    }
-  })
-
-  // Add `LINE_BREAK` to the end of every code line but not the last line.
-  turndownService.addRule('codeLineBreak', {
-    filter (node, options) {
-      return (
-        node.nodeName === 'SPAN' && node.classList.contains(CLASS_OR_ID.AG_CODE_LINE) && node.nextElementSibling
-      )
-    },
-    replacement (content, node, options) {
-      return content + LINE_BREAK
     }
   })
 

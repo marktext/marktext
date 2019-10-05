@@ -103,12 +103,12 @@ export const updateSelectionMenus = (applicationMenu, { start, end, affiliation 
 
   if (
     (/th|td/.test(start.type) && /th|td/.test(end.type)) ||
-    (start.type === 'span' && start.block.functionType === 'codeLine') ||
-    (end.type === 'span' && end.block.functionType === 'codeLine')
+    (start.type === 'span' && start.block.functionType === 'codeContent') ||
+    (end.type === 'span' && end.block.functionType === 'codeContent')
   ) {
     setParagraphMenuItemStatus(applicationMenu, false)
 
-    if (start.block.functionType === 'codeLine' || end.block.functionType === 'codeLine') {
+    if (start.block.functionType === 'codeContent' || end.block.functionType === 'codeContent') {
       setMultipleStatus(applicationMenu, ['codeFencesMenuItem'], true)
       formatMenuItem.submenu.items.forEach(item => (item.enabled = false))
     }

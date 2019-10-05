@@ -536,8 +536,10 @@ class Selection {
 
     const anchorParagraph = findNearestParagraph(anchorNode)
     const focusParagraph = findNearestParagraph(focusNode)
+
     let aOffset = getOffsetOfParagraph(anchorNode, anchorParagraph) + anchorOffset
     let fOffset = getOffsetOfParagraph(focusNode, focusParagraph) + focusOffset
+
     // fix input after image.
     if (
       anchorNode === focusNode &&

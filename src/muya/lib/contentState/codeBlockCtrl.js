@@ -79,32 +79,41 @@ const codeBlockCtrl = ContentState => {
     if (block.type === 'span') {
       block = this.getParent(block)
     }
-    // if it's not a p block, no need to update
+    // If it's not a p block, no need to update
     if (block.type !== 'p') return false
-    // if p block's children are more than one, no need to update
+    // If p block's children are more than one, no need to update
     if (block.children.length !== 1) return false
+
     const { text } = block.children[0]
     const match = CODE_UPDATE_REP.exec(text)
     if (match || lang) {
-      const codeBlock = this.createBlock('code')
-      const firstLine = this.createBlock('span', { text: code })
       const language = lang || (match ? match[1] : '')
-      const inputBlock = this.createBlock('span', { text: language })
+      const codeBlock = this.createBlock('code', {
+        lang: language
+      })
+      const codeContent = this.createBlock('span', {
+        text: code,
+        lang: language,
+        functionType: 'codeContent'
+      })
+      const inputBlock = this.createBlock('span', {
+        text: language,
+        functionType: 'languageInput'
+      })
+
       loadLanguage(language)
-      inputBlock.functionType = 'languageInput'
+
       block.type = 'pre'
       block.functionType = 'fencecode'
       block.lang = language
       block.text = ''
       block.history = null
       block.children = []
-      codeBlock.lang = language
-      firstLine.lang = language
-      firstLine.functionType = 'codeLine'
-      this.appendChild(codeBlock, firstLine)
+
+      this.appendChild(codeBlock, codeContent)
       this.appendChild(block, inputBlock)
       this.appendChild(block, codeBlock)
-      const { key } = firstLine
+      const { key } = codeContent
       const offset = code.length
       this.cursor = {
         start: { key, offset },

@@ -68,7 +68,7 @@ const updateCtrl = ContentState => {
   ContentState.prototype.checkInlineUpdate = function (block) {
     // table cell can not have blocks in it
     if (/th|td|figure/.test(block.type)) return false
-    if (/codeLine|languageInput/.test(block.functionType)) return false
+    if (/codeContent|languageInput/.test(block.functionType)) return false
 
     let line = null
     const { text } = block
@@ -519,15 +519,16 @@ const updateCtrl = ContentState => {
   }
 
   ContentState.prototype.updateIndentCode = function (block, line) {
+    const lang = ''
     const codeBlock = this.createBlock('code', {
-      lang: ''
+      lang
     })
     const inputBlock = this.createBlock('span', {
       functionType: 'languageInput'
     })
     const preBlock = this.createBlock('pre', {
       functionType: 'indentcode',
-      lang: ''
+      lang
     })
 
     const text = line ? line.text : block.text
@@ -545,15 +546,13 @@ const updateCtrl = ContentState => {
         paragraphLines.push(l)
       }
     }
-    codeLines.forEach(text => {
-      const codeLine = this.createBlock('span', {
-        text,
-        functionType: 'codeLine',
-        lang: ''
-      })
-      this.appendChild(codeBlock, codeLine)
+    const codeContent = this.createBlock('span', {
+      text: codeLines.join('\n'),
+      functionType: 'codeContent',
+      lang
     })
 
+    this.appendChild(codeBlock, codeContent)
     this.appendChild(preBlock, inputBlock)
     this.appendChild(preBlock, codeBlock)
     this.insertBefore(preBlock, block)

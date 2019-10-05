@@ -6,7 +6,7 @@
 
   - languageInput
 
-  - codeLine
+  - codeContent (used in code block)
 
   - atxLine (can not contain soft line break and hard line break use in atx heading)
 
@@ -14,7 +14,7 @@
 
   - paragraphContent (defaultValue use in paragraph and setext heading)
 
-- lang - only when it's code line
+- lang - only when it's functionType is `codeContent`
 
   - All prismjs support language or empty string
 

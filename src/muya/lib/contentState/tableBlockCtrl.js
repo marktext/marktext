@@ -49,7 +49,7 @@ const tableBlockCtrl = ContentState => {
     const { type, functionType } = block
     switch (type) {
       case 'span':
-        if (functionType === 'codeLine') {
+        if (functionType === 'codeContent') {
           return this.closest(block, 'figure') || this.closest(block, 'pre')
         } else {
           return this.getParent(block)

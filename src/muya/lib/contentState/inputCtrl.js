@@ -79,6 +79,7 @@ const inputCtrl = ContentState => {
 
   ContentState.prototype.inputHandler = function (event) {
     const { start, end } = selection.getCursorRange()
+    console.log(start.offset)
     if (!start || !end) {
       return
     }
@@ -173,7 +174,7 @@ const inputCtrl = ContentState => {
             ((autoPairQuote && /[']{1}/.test(inputChar) && !(/[a-zA-Z\d]{1}/.test(preInputChar))) ||
             (autoPairQuote && /["]{1}/.test(inputChar)) ||
             (autoPairBracket && /[\{\[\(]{1}/.test(inputChar)) ||
-            (block.functionType !== 'codeLine' && !isInInlineMath && !isInInlineCode && autoPairMarkdownSyntax && /[*$`~_]{1}/.test(inputChar)))
+            (block.functionType !== 'codeContent' && !isInInlineMath && !isInInlineCode && autoPairMarkdownSyntax && /[*$`~_]{1}/.test(inputChar)))
           ) {
             needRender = true
             text = BRACKET_HASH[event.data]
@@ -250,8 +251,7 @@ const inputCtrl = ContentState => {
 
     this.muya.eventCenter.dispatch('muya-quick-insert', reference, block, !!checkQuickInsert)
 
-    // Update preview content of math block
-    if (block && block.type === 'span' && block.functionType === 'codeLine') {
+    if (block && block.type === 'span' && block.functionType === 'codeContent') {
       needRender = true
     }
 

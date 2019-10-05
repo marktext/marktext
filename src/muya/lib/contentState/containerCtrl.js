@@ -1,4 +1,3 @@
-const LINE_BREAKS_REG = /\n/
 const FUNCTION_TYPE_LANG = {
   multiplemath: 'latex',
   flowchart: 'yaml',
@@ -33,22 +32,20 @@ const containerCtrl = ContentState => {
     this.appendChild(preBlock, codeBlock)
 
     if (typeof value === 'string' && value) {
-      value.replace(/^\s+/, '').split(LINE_BREAKS_REG).forEach(line => {
-        const codeLine = this.createBlock('span', {
-          text: line,
-          functionType: 'codeLine',
-          lang
-        })
-
-        this.appendChild(codeBlock, codeLine)
+      value = value.replace(/^\s+/, '')
+      const codeContent = this.createBlock('span', {
+        text: value,
+        lang,
+        functionType: 'codeContent'
       })
+      this.appendChild(codeBlock, codeContent)
     } else {
-      const emptyLine = this.createBlock('span', {
-        functionType: 'codeLine',
+      const emptyCodeContent = this.createBlock('span', {
+        functionType: 'codeContent',
         lang
       })
 
-      this.appendChild(codeBlock, emptyLine)
+      this.appendChild(codeBlock, emptyCodeContent)
     }
 
     const preview = this.createBlock('div', {
