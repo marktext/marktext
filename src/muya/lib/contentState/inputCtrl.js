@@ -77,7 +77,7 @@ const inputCtrl = ContentState => {
     return false
   }
 
-  ContentState.prototype.inputHandler = function (event) {
+  ContentState.prototype.inputHandler = function (event, notEqual = false) {
     const { start, end } = selection.getCursorRange()
     if (!start || !end) {
       return
@@ -87,22 +87,26 @@ const inputCtrl = ContentState => {
     const block = this.getBlock(key)
     const paragraph = document.querySelector(`#${key}`)
 
-    // if (
-    //   oldStart.key === oldEnd.key &&
-    //   oldStart.offset === oldEnd.offset &&
-    //   block.text.endsWith('\n') &&
-    //   oldStart.offset === block.text.length &&
-    //   event.inputType === 'insertText'
-    // ) {
-    //   event.preventDefault()
-    //   block.text += event.data
-    //   const offset = block.text.length
-    //   this.cursor = {
-    //     start: { key, offset },
-    //     end: { key, offset }
-    //   }
-    //   return this.singleRender(block)
-    // }
+    // Fix issue 1447
+    // Fixme: any better solution?
+    if (
+      oldStart.key === oldEnd.key &&
+      oldStart.offset === oldEnd.offset &&
+      block.text.endsWith('\n') &&
+      oldStart.offset === block.text.length &&
+      event.inputType === 'insertText'
+    ) {
+      event.preventDefault()
+      block.text += event.data
+      const offset = block.text.length
+      this.cursor = {
+        start: { key, offset },
+        end: { key, offset }
+      }
+      this.singleRender(block)
+      return this.inputHandler(event, true)
+    }
+
     let text = getTextContent(paragraph, [CLASS_OR_ID.AG_MATH_RENDER, CLASS_OR_ID.AG_RUBY_RENDER])
 
     let needRender = false
@@ -138,9 +142,9 @@ const inputCtrl = ContentState => {
       }
       needRender = true
     }
-    console.log(block.text === text)
+
     // auto pair (not need to auto pair in math block)
-    if (block && block.text !== text) {
+    if (block && (block.text !== text || notEqual)) {
       if (
         start.key === end.key &&
         start.offset === end.offset &&
