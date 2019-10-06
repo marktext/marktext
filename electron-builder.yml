@@ -33,6 +33,8 @@ extraFiles:
 extraResources:
 - from: "resources/hunspell_dictionaries/"
   to: "hunspell_dictionaries/"
+  filter:
+  - "!**/LICENSE-hunspell.txt"
 
 fileAssociations:
 - ext:
