@@ -270,7 +270,7 @@ class ExportMarkdown {
     const codeContentText = block.children[0].children[0].children[0].text
     const lines = codeContentText.split('\n')
     for (const line of lines) {
-      result.push(`${indent}${line.text}\n`)
+      result.push(`${indent}${line}\n`)
     }
     return result.join('')
   }
