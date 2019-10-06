@@ -1,7 +1,8 @@
 {
   "autoSave": {
     "description": "General--Automatically save the content being edited.",
-    "type": "boolean"
+    "type": "boolean",
+    "default": false
   },
   "autoSaveDelay": {
     "description": "General--The time in ms after a change that the file is saved.",
@@ -56,6 +57,7 @@
     "description": "General--The language Mark Text use.",
     "type": "string"
   },
+
   "editorFontFamily": {
     "description": "Editor--editor font family",
     "type": "string",
@@ -114,7 +116,54 @@
       "default",
       "lf",
       "crlf"
+    ],
+    "default": "default"
+  },
+  "defaultEncoding": {
+    "description": "Editor--The default file encoding.",
+    "default": "utf8",
+    "enum": [
+      "utf8",
+      "utf16be",
+      "utf16le",
+      "utf32be",
+      "utf32le",
+      "latin3",
+      "iso885915",
+      "cp1252",
+      "arabic",
+      "cp1256",
+      "latin4",
+      "cp1257",
+      "iso88592",
+      "windows1250",
+      "cp866",
+      "iso88595",
+      "koi8r",
+      "koi8u",
+      "cp1251",
+      "iso885913",
+      "greek",
+      "cp1253",
+      "hebrew",
+      "cp1255",
+      "latin5",
+      "cp1254",
+      "gb2312",
+      "gb18030",
+      "gbk",
+      "big5",
+      "big5hkscs",
+      "shiftjis",
+      "eucjp",
+      "euckr",
+      "latin6"
     ]
+  },
+  "autoGuessEncoding": {
+    "description": "Editor--Try to automatically guess the file encoding when opening files.",
+    "type": "boolean",
+    "default": true
   },
   "textDirection": {
     "description": "Editor--The writing text direction",
@@ -127,6 +176,7 @@
     "description": "Editor--Hide hint for quickly creating paragraphs",
     "type": "boolean"
   },
+
   "preferLooseListItem": {
     "description": "Markdown--The preferred list type",
     "type": "boolean"
@@ -177,10 +227,12 @@
       "{"
     ]
   },
+
   "theme": {
     "description": "Theme--Select the theme used in Mark Text",
     "type": "string"
   },
+
   "imageInsertAction": {
     "description": "Image--The default behavior after insert image from local folder",
     "enum": [
@@ -189,6 +241,7 @@
       "path"
     ]
   },
+
   "sideBarVisibility": {
     "description": "View--Whether the side bar is visible.",
     "type": "boolean"
@@ -201,6 +254,7 @@
     "description": "View--Whether the source-code mode is enabled by default.",
     "type": "boolean"
   },
+
   "searchExclusions": {
     "description": "Searcher--List of glob patterns to exclude from search.",
     "type": "array",

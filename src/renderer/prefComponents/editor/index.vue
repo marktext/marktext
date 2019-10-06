@@ -62,29 +62,41 @@
     ></bool>
     <separator></separator>
     <cur-select
-      description="The default end of line character, if you select default, which will be selected according to your system intelligence."
+      description="The default end of line character. If you select default, the ending will be selected according to your system intelligence."
       :value="endOfLine"
       :options="endOfLineOptions"
       :onChange="value => onSelectChange('endOfLine', value)"
     ></cur-select>
+    <separator></separator>
+    <cur-select
+      description="The default file encoding."
+      :value="defaultEncoding"
+      :options="defaultEncodingOptions"
+      :onChange="value => onSelectChange('defaultEncoding', value)"
+    ></cur-select>
+    <bool
+      description="Try to automatically guess the file encoding when opening files."
+      :bool="autoGuessEncoding"
+      :onChange="value => onSelectChange('autoGuessEncoding', value)"
+    ></bool>
+    <separator></separator>
     <cur-select
       description="The writing text direction."
       :value="textDirection"
       :options="textDirectionOptions"
       :onChange="value => onSelectChange('textDirection', value)"
     ></cur-select>
-    <separator></separator>
     <bool
       description="Hide hint for quickly creating paragraphs."
-      :input="hideQuickInsertHint"
+      :bool="hideQuickInsertHint"
       :onChange="value => onSelectChange('hideQuickInsertHint', value)"
     ></bool>
     <separator></separator>
     <text-box
       description="Defines the maximum editor area width. An empty string or suffixes of ch (characters), px (pixels) or % (percentage) are allowed."
-      :input="editorLineWidth"
+      :bool="editorLineWidth"
       :regexValidator="/^(?:$|[0-9]+(?:ch|px|%)$)/"
-      defaultValue="The default value from the current theme"
+      defaultValue="Default value from current theme"
       :onChange="value => onSelectChange('editorLineWidth', value)"
     ></text-box>
   </div>
@@ -100,7 +112,8 @@ import Separator from '../common/separator'
 import TextBox from '../common/textBox'
 import {
   endOfLineOptions,
-  textDirectionOptions
+  textDirectionOptions,
+  getDefaultEncodingOptions
 } from './config'
 
 export default {
@@ -115,6 +128,7 @@ export default {
   data () {
     this.endOfLineOptions = endOfLineOptions
     this.textDirectionOptions = textDirectionOptions
+    this.defaultEncodingOptions = getDefaultEncodingOptions()
     return {}
   },
   computed: {
@@ -131,7 +145,9 @@ export default {
       codeFontFamily: state => state.preferences.codeFontFamily,
       trimUnnecessaryCodeBlockEmptyLines: state => state.preferences.trimUnnecessaryCodeBlockEmptyLines,
       hideQuickInsertHint: state => state.preferences.hideQuickInsertHint,
-      editorLineWidth: state => state.preferences.editorLineWidth
+      editorLineWidth: state => state.preferences.editorLineWidth,
+      defaultEncoding: state => state.preferences.defaultEncoding,
+      autoGuessEncoding: state => state.preferences.autoGuessEncoding
     })
   },
   methods: {

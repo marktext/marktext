@@ -12,7 +12,10 @@ export const defaultFileState = {
   pathname: '',
   filename: 'Untitled-1',
   markdown: '',
-  encoding: 'utf8', // Currently just "utf8" or "utf8bom"
+  encoding: {
+    encoding: 'utf8',
+    isBom: false
+  },
   lineEnding: 'lf', // lf or crlf
   adjustLineEndingOnSave: false, // convert editor buffer (LF) to CRLF when saving
   history: {
@@ -65,8 +68,8 @@ export const getFileStateFromData = data => {
   })
 }
 
-export const getBlankFileState = (tabs, lineEnding = 'lf', markdown = '') => {
-  const fileState = JSON.parse(JSON.stringify(defaultFileState))
+export const getBlankFileState = (tabs, defaultEncoding = 'utf8', lineEnding = 'lf', markdown = '') => {
+  const fileState = cloneObj(defaultFileState, true)
   let untitleId = Math.max(...tabs.map(f => {
     if (f.pathname === '') {
       return +f.filename.split('-')[1]
@@ -77,11 +80,12 @@ export const getBlankFileState = (tabs, lineEnding = 'lf', markdown = '') => {
 
   const id = getUniqueId()
 
-  // We may pass muarkdown=null as parameter.
+  // We may pass markdown=null as parameter.
   if (markdown == null) {
     markdown = ''
   }
 
+  fileState.encoding.encoding = defaultEncoding
   return Object.assign(fileState, {
     lineEnding,
     adjustLineEndingOnSave: lineEnding.toLowerCase() === 'crlf',
@@ -94,7 +98,7 @@ export const getBlankFileState = (tabs, lineEnding = 'lf', markdown = '') => {
 export const getSingleFileState = ({ id = getUniqueId(), markdown, filename, pathname, options }) => {
   // TODO(refactor:renderer/editor): Replace this function with `createDocumentState`.
 
-  const fileState = JSON.parse(JSON.stringify(defaultFileState))
+  const fileState = cloneObj(defaultFileState, true)
   const { encoding, lineEnding, adjustLineEndingOnSave = 'ltr' } = options
 
   assertLineEnding(adjustLineEndingOnSave, lineEnding)

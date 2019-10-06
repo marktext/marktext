@@ -22,11 +22,11 @@ export const normalizeAndResolvePath = pathname => {
   return path.resolve(pathname)
 }
 
-export const writeFile = (pathname, content, extension) => {
+export const writeFile = (pathname, content, extension, options = 'utf-8') => {
   if (!pathname) {
     return Promise.reject(new Error('[ERROR] Cannot save file without path.'))
   }
   pathname = !extension || pathname.endsWith(extension) ? pathname : `${pathname}${extension}`
 
-  return fs.outputFile(pathname, content, 'utf-8')
+  return fs.outputFile(pathname, content, options)
 }

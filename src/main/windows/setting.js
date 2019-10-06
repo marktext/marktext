@@ -28,13 +28,15 @@ class SettingWindow extends BaseWindow {
     }
 
     // Enable native or custom/frameless window and titlebar
-    const { titleBarStyle } = preferences.getAll()
+    const { titleBarStyle, theme } = preferences.getAll()
     if (!isOsx) {
       winOptions.titleBarStyle = 'default'
       if (titleBarStyle === 'native') {
         winOptions.frame = true
       }
     }
+
+    winOptions.backgroundColor = this._getPreferredBackgroundColor(theme)
 
     let win = this.browserWindow = new BrowserWindow(winOptions)
     this.id = win.id

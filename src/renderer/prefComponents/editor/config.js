@@ -1,3 +1,5 @@
+import { ENCODING_NAME_MAP } from 'common/encoding'
+
 export const endOfLineOptions = [{
   label: 'Default',
   value: 'default'
@@ -16,3 +18,16 @@ export const textDirectionOptions = [{
   label: 'Right to Left',
   value: 'rtl'
 }]
+
+let defaultEncodingOptions = null
+export const getDefaultEncodingOptions = () => {
+  if (defaultEncodingOptions) {
+    return defaultEncodingOptions
+  }
+
+  defaultEncodingOptions = []
+  for (const [value, label] of Object.entries(ENCODING_NAME_MAP)) {
+    defaultEncodingOptions.push({ label, value })
+  }
+  return defaultEncodingOptions
+}
