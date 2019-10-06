@@ -194,7 +194,7 @@ module.exports = class SpellCheckHandler {
    */
   async enableSpellchecker(lang = '') {
     if (this.isEnabled) {
-      return false;
+      return true;
     }
 
     if (!this.isHunspell) {
@@ -205,6 +205,11 @@ module.exports = class SpellCheckHandler {
       if (this.automaticallyIdentifyLanguages) {
         this.currentSpellcheckerLanguage = 'en-US';
         this._automaticallyIdentifyLanguages = true;
+
+        if (webFrame) {
+          this.setSpellCheckProvider(webFrame);
+        }
+
         this.currentSpellcheckerChanged.next(true);
         return true;
       }
