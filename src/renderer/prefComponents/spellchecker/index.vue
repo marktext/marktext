@@ -92,6 +92,7 @@ import { getAvailableHunspellDictionaries, SpellChecker } from '@/spellchecker'
 import { downloadHunspellDictionary, deleteHunspellDictionary } from '@/spellchecker/dictionaryDownloader'
 
 import {
+  getLanguageName,
   DICTIONARIES_LANGUAGES_OPTIONS
 } from './config'
 
@@ -166,7 +167,7 @@ export default {
       return dictionaries.map(item => {
         return {
           value: item,
-          label: DICTIONARIES_LANGUAGES_OPTIONS[item]
+          label: getLanguageName(item)
         }
       })
     },

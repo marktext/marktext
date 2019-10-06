@@ -1,3 +1,11 @@
+export const getLanguageName = langCode => {
+  const item = DICTIONARIES_LANGUAGES_OPTIONS.find(item => item.value === langCode)
+  if (!item) {
+    return `Unknown (${langCode})`
+  }
+  return item.label
+}
+
 export const DICTIONARIES_LANGUAGES_OPTIONS = [{
   label: 'Afrikaans', // Afrikaans
   value: 'af-ZA'

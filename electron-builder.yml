@@ -19,6 +19,7 @@ files:
 - "!node_modules/vega-lite/build/vega-lite*.js.map"
 # Don't bundle build files
 - "!node_modules/@felixrieseberg/spellchecker/bin"
+- "!node_modules/ced/bin"
 - "!node_modules/cld/bin"
 - "!node_modules/fontmanager-redux/bin"
 - "!node_modules/keyboard-layout/bin"
