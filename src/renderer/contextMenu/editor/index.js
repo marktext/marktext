@@ -98,8 +98,6 @@ export const showContextMenu = (event, selectionChanges, spellchecker, selectedW
       submenu: spellingSubmenu
     }))
     menu.append(new MenuItem(SEPARATOR))
-  } else if (!spellchecker) {
-    console.error('Error while initializing spell checker API. Cannot construct spelling menu.')
   }
 
   // --- END spellchecking ---

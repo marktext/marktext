@@ -189,8 +189,10 @@ module.exports = class SpellCheckHandler {
 
   /**
    * Enable spell checker.
+   *
+   * @param {[string]} lang Optional language to set.
    */
-  async enableSpellchecker() {
+  async enableSpellchecker(lang = '') {
     if (this.isEnabled) {
       return false;
     }
@@ -200,17 +202,21 @@ module.exports = class SpellCheckHandler {
       this.isEnabled = true;
 
       // Keep automatic language detection enabled.
-      if (this.automaticallyIdentifyLanguages || !this.currentSpellcheckerLanguage) {
+      if (this.automaticallyIdentifyLanguages) {
         this.currentSpellcheckerLanguage = 'en-US';
         this._automaticallyIdentifyLanguages = true;
         this.currentSpellcheckerChanged.next(true);
         return true;
       }
-      this.currentSpellcheckerChanged.next(true);
-    } else if (!this.currentSpellcheckerLanguage) {
-      return false;
     }
-    return await this.switchLanguage(this.currentSpellcheckerLanguage);
+
+    let language = this.currentSpellcheckerLanguage
+    if (lang) {
+      language = lang
+    } else if (!language) {
+      return false
+    }
+    return await this.switchLanguage(language);
   }
 
   /**
@@ -260,8 +266,11 @@ module.exports = class SpellCheckHandler {
 
     let input = inputText || (fromEventCapture(document.body, 'input')
       .mergeMap((e) => {
-        if (!e.target || !e.target.value) return Observable.empty();
-        if (e.target.value.match(/\S\s$/)) {
+        if (!e.target) return Observable.empty();
+        const value = e.target.isContentEditable ? e.target.textContent : e.target.value;
+        if (!value) return Observable.empty();
+
+        if (value.match(/\S\s$/)) {
           wordsTyped++;
         }
 
@@ -270,7 +279,7 @@ module.exports = class SpellCheckHandler {
           possiblySwitchedCharacterSets.next(true);
         }
 
-        return Observable.of(e.target.value);
+        return Observable.of(value);
       }));
 
     let disp = new Subscription();

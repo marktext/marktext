@@ -24,7 +24,7 @@ const routes = type => ([{
   }, {
     path: 'markdown', component: Markdown, name: 'markdown'
   }, {
-    path: 'spellChecker', component: SpellChecker, name: 'spellChecker'
+    path: 'spelling', component: SpellChecker, name: 'spelling'
   }, {
     path: 'theme', component: Theme, name: 'theme'
   }, {

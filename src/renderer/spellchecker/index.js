@@ -154,13 +154,12 @@ export class SpellChecker {
   /**
    * Enable spell checker.
    */
-  async enableSpellchecker () {
-    // TODO(spell): Add `lang` parameter.
+  async enableSpellchecker (lang = '') {
     if (this.isEnabled) {
       return true
     }
 
-    const result = await this.provider.enableSpellchecker()
+    const result = await this.provider.enableSpellchecker(lang)
     if (!result) {
       return false
     }
@@ -252,6 +251,7 @@ export class SpellChecker {
    * Is the spellchecker trying to detect the typed language automatically?
    */
   set automaticallyIdentifyLanguages (value) {
+    // TODO(spell): Allow to change state when disabled.
     if (!this.isEnabled) {
       return
     }
@@ -377,10 +377,14 @@ export class SpellChecker {
   get getConfiguration () {
     const { isEnabled, isHunspell, lang } = this
     const automaticallyIdentifyLanguages = this.automaticallyIdentifyLanguages
+
+    const spellcheckerLanguage = isEnabled ? this.provider.currentSpellcheckerLanguage : '?' // #DEBUG
+
     return {
       isEnabled,
       automaticallyIdentifyLanguages,
       lang,
+      spellcheckerLanguage,
       isHunspell
     }
   }

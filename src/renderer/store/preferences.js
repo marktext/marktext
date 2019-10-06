@@ -44,6 +44,7 @@ const state = {
 
   spellcheckerEnabled: false,
   spellcheckerIsHunspell: false, // macOS only
+  spellcheckerNoUnderline: false,
   spellcheckerAutoDetectLanguage: false,
   spellcheckerLanguage: 'en-US',
 

@@ -16,8 +16,13 @@ export const downloadHunspellDictionary = async lang => {
     url,
     responseType: 'stream'
   })
-  response.data.pipe(fs.createWriteStream(path.join(dictionaryPath, `${lang}.bdic`)))
-  return true
+
+  return new Promise((resolve, reject) => {
+    const outStream = fs.createWriteStream(path.join(dictionaryPath, `${lang}.bdic`))
+    response.data.pipe(outStream)
+    outStream.once('error', reject)
+    outStream.once('finish', () => resolve())
+  })
 }
 
 /**

@@ -14,6 +14,12 @@
       :onChange="value => onSelectChange('spellcheckerIsHunspell', value)"
     ></bool>
     <bool
+      description="Don't underline spelling mistakes. You can still correct spelling mistakes via right click menu."
+      :bool="spellcheckerNoUnderline"
+      :disable="true"
+      :onChange="value => onSelectChange('spellcheckerNoUnderline', value)"
+    ></bool>
+    <bool
       description="Try to automatically identify the used language when typing. This feature is currently not available on Linux and Windows."
       :bool="spellcheckerAutoDetectLanguage"
       :onChange="value => onSelectChange('spellcheckerAutoDetectLanguage', value)"
@@ -22,7 +28,7 @@
       description="The spell checker lanugage."
       :value="spellcheckerLanguage"
       :disable="!spellcheckerEnabled"
-      :options="spellcheckerDictionaries"
+      :options="availableDictionaries"
       :onChange="value => onSelectChange('spellcheckerLanguage', value)"
     ></cur-select>
     <div
@@ -34,7 +40,7 @@
     <div v-if="isHunspellSelected && spellcheckerEnabled">
       <separator></separator>
       <el-table
-        :data="availableHunspellDictionaries"
+        :data="availableDictionaries"
         style="width: 100%">
         <el-table-column
           prop="value"
@@ -71,6 +77,7 @@
         </el-select>
         <el-button icon="el-icon-document-add" @click="addNewDict"></el-button>
       </div>
+      <div v-if="errorMessage" class="description">{{ errorMessage }}</div>
     </div>
   </div>
 </template>
@@ -97,17 +104,18 @@ export default {
   data () {
     this.isOsx = isOsx
     this.dictionariesLanguagesOptions = DICTIONARIES_LANGUAGES_OPTIONS
-    this.hunspellDictionariesDownloadCache = {}
+    this.hunspellDictionaryDownloadCache = {}
     return {
-      availableHunspellDictionaries: [],
-      spellcheckerDictionaries: [],
-      selectedDictionaryToAdd: 'en-US'
+      availableDictionaries: [],
+      selectedDictionaryToAdd: 'en-US',
+      errorMessage: ''
     }
   },
   computed: {
     ...mapState({
       spellcheckerEnabled: state => state.preferences.spellcheckerEnabled,
       spellcheckerIsHunspell: state => state.preferences.spellcheckerIsHunspell,
+      spellcheckerNoUnderline: state => state.preferences.spellcheckerNoUnderline,
       spellcheckerAutoDetectLanguage: state => state.preferences.spellcheckerAutoDetectLanguage,
       spellcheckerLanguage: state => state.preferences.spellcheckerLanguage,
       isHunspellSelected: state => {
@@ -116,8 +124,8 @@ export default {
     })
   },
   watch: {
-    spellcheckerIsHunspell: function () {
-      if (isOsx) {
+    spellcheckerIsHunspell: function (value, oldValue) {
+      if (isOsx && value !== oldValue && value) {
         const { spellcheckerLanguage } = this
         const index = DICTIONARIES_LANGUAGES_OPTIONS.findIndex(d => d.value === spellcheckerLanguage)
         if (index === -1) {
@@ -147,9 +155,8 @@ export default {
       } else {
         // On macOS we only receive the dictionaries when the spell checker is active.
         if (!this.spellChecker) {
-          // Create a new spell checker provider without initializing our instance.
-          // This is safe on macOS because we only query the available dictionaries.
-          this.spellChecker = new SpellChecker(false)
+          // Create a new spell checker provider without attach it.
+          this.spellChecker = new SpellChecker(false, true)
         }
 
         // Receive available dictionaries from OS.
@@ -164,30 +171,10 @@ export default {
       })
     },
     refreshDictionaryList () {
-      this.availableHunspellDictionaries = this.getAvailableDictionaries()
-      if (this.isHunspellSelected) {
-        this.spellcheckerDictionaries = DICTIONARIES_LANGUAGES_OPTIONS
-      } else {
-        this.spellcheckerDictionaries = this.availableHunspellDictionaries
-      }
+      this.availableDictionaries = this.getAvailableDictionaries()
     },
     onSelectChange (type, value) {
-      const needDownloadDict = type === 'spellcheckerLanguage' &&
-        this.isHunspellSelected && !this.isHunspellDictionaryAvailable(value)
-      if (needDownloadDict) {
-        // Download dictionary before changing language.
-        this.startDownloadHunspellDictionary(value, error => {
-          if (!error) {
-            this.availableHunspellDictionaries = this.getAvailableDictionaries()
-            this.$store.dispatch('SET_SINGLE_PREFERENCE', { type, value })
-          } else {
-            // TODO(spell): Handle error
-            console.error(error)
-          }
-        })
-      } else {
-        this.$store.dispatch('SET_SINGLE_PREFERENCE', { type, value })
-      }
+      this.$store.dispatch('SET_SINGLE_PREFERENCE', { type, value })
     },
 
     // --- Hunspell only ------------------------------------------------------
@@ -195,50 +182,52 @@ export default {
     addNewDict () {
       const { selectedDictionaryToAdd } = this
       if (!this.isHunspellDictionaryAvailable(selectedDictionaryToAdd)) {
-        this.startDownloadHunspellDictionary(selectedDictionaryToAdd, error => {
-          if (!error) {
-            this.availableHunspellDictionaries = this.getAvailableDictionaries()
-          } else {
-            // TODO(spell): Handle error
-            console.error(error)
-          }
-        })
+        this.startDownloadHunspellDictionary(selectedDictionaryToAdd)
       }
     },
     handleUpdateClick (index, row) {
       this.startDownloadHunspellDictionary(row.value)
     },
     handleDeleteClick (index, row) {
-      deleteHunspellDictionary(row.value).then(() => {
-        this.availableHunspellDictionaries = this.getAvailableDictionaries()
-      }).catch(error => {
-        // TODO(spell): Handle error
-        console.error(error)
-      })
-    },
+      const { spellcheckerLanguage } = this
+      const { value: lang } = row
 
-    startDownloadHunspellDictionary (languageCode, callback = null) {
-      if (this.hunspellDictionariesDownloadCache[languageCode]) {
-        callback(null)
+      // Don't allow to delete our fallback language.
+      if (lang === 'en-US') {
         return
       }
 
-      this.hunspellDictionariesDownloadCache[languageCode] = 1
-      downloadHunspellDictionary(languageCode).then(() => {
-        delete this.hunspellDictionariesDownloadCache[languageCode]
-        if (callback) {
-          callback(null)
-        }
-      }).catch(error => {
-        delete this.hunspellDictionariesDownloadCache[languageCode]
-        if (callback) {
-          callback(error)
-        }
-      })
+      // Fallback before deleting selected language.
+      if (spellcheckerLanguage === lang) {
+        this.onSelectChange('spellcheckerLanguage', 'en-US')
+      }
+
+      deleteHunspellDictionary(lang)
+        .then(() => {
+          this.refreshDictionaryList()
+        }).catch(error => {
+          this.errorMessage = `Error deleting dictionary: ${error.message}`
+        })
+    },
+
+    startDownloadHunspellDictionary (languageCode) {
+      if (this.hunspellDictionaryDownloadCache[languageCode]) {
+        return
+      }
+
+      this.hunspellDictionaryDownloadCache[languageCode] = 1
+      downloadHunspellDictionary(languageCode)
+        .then(() => {
+          delete this.hunspellDictionaryDownloadCache[languageCode]
+          this.refreshDictionaryList()
+        }).catch(error => {
+          delete this.hunspellDictionaryDownloadCache[languageCode]
+          this.errorMessage = `Error while downloading: ${error.message}`
+        })
     },
     isHunspellDictionaryAvailable (languageCode) {
-      const { availableHunspellDictionaries } = this
-      return !!availableHunspellDictionaries.find(d => d.languageCode === languageCode)
+      const { availableDictionaries } = this
+      return availableDictionaries.findIndex(d => d.value === languageCode) !== -1
     }
   }
 }

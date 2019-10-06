@@ -41,6 +41,7 @@
 
   "spellcheckerEnabled": false,
   "spellcheckerIsHunspell": false,
+  "spellcheckerNoUnderline": false,
   "spellcheckerAutoDetectLanguage": false,
   "spellcheckerLanguage": "en-US",
 
