@@ -6,7 +6,7 @@ import fallbackLocales from 'electron-spellchecker/src/fallback-locales' // TODO
 import { normalizeLanguageCode } from 'electron-spellchecker/src/utility' // TODO(spell): ...
 import { isOsx, cloneObj } from '../util'
 
-// NOTE: Hardcoded in "electron-spellchecker/src/dictionary-sync.js" but we could overwrite it
+// NOTE: Hardcoded in "electron-spellchecker/src/dictionary-sync.js"
 export const dictionaryPath = path.join(remote.app.getPath('userData'), 'dictionaries')
 
 // Source: https://github.com/Microsoft/vscode/blob/master/src/vs/editor/common/model/wordHelper.ts
@@ -55,12 +55,9 @@ export const getAvailableHunspellDictionaries = () => {
   if (fs.existsSync(dictionaryPath) && fs.lstatSync(dictionaryPath).isDirectory()) {
     fs.readdirSync(dictionaryPath).forEach(filename => {
       const fullname = path.join(dictionaryPath, filename)
-
-      // TODO: Support 2 and 5 character language codes
-
-      // E.g: de-DE.bdic or en-US.bdic
-      if (filename.length === 10 && filename.endsWith('.bdic') && fs.lstatSync(fullname).isFile()) {
-        dict.push(filename.slice(0, 5))
+      const match = filename.match(/^([a-z]{2}(?:[-][A-Z]{2})?)\.bdic$/)
+      if (match && match[1] && fs.lstatSync(fullname).isFile()) {
+        dict.push(match[1])
       }
     })
   }
