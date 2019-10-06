@@ -1,26 +1,51 @@
-const defaultSearchOption = {
-  caseSensitive: false,
-  selectHighlight: false,
-  highlightIndex: -1
+import execall from 'execall'
+import { defaultSearchOption } from '../config'
+
+const matchString = (text, value, options) => {
+  const { isCaseSensitive, isWholeWord, isRegexp } = options
+  /* eslint-disable no-useless-escape */
+  const SPECIAL_CHAR_REG = /[\[\]\\^$.\|\?\*\+\(\)\/]{1}/g
+  /* eslint-enable no-useless-escape */
+  let SEARCH_REG = null
+  let regStr = value
+  let flag = 'g'
+
+  if (!isCaseSensitive) {
+    flag += 'i'
+  }
+
+  if (!isRegexp) {
+    regStr = value.replace(SPECIAL_CHAR_REG, (p) => {
+      return p === '\\' ? '\\\\' : `\\${p}`
+    })
+  }
+
+  if (isWholeWord) {
+    regStr = `\\b${regStr}\\b`
+  }
+
+  try {
+    // Add try catch expression because not all string can generate a valid RegExp. for example `\`.
+    SEARCH_REG = new RegExp(regStr, flag)
+    return execall(SEARCH_REG, text)
+  } catch (err) {
+    return []
+  }
 }
 
 const searchCtrl = ContentState => {
   ContentState.prototype.replaceOne = function (match, value) {
-    const {
-      start,
-      end,
-      key
-    } = match
+    const { start, end, key } = match
     const block = this.getBlock(key)
-    const {
-      text
-    } = block
+    const { text } = block
 
     block.text = text.substring(0, start) + value + text.substring(end)
   }
 
   ContentState.prototype.replace = function (replaceValue, opt = { isSingle: true }) {
-    const { isSingle, caseSensitive } = opt
+    const { isSingle } = opt
+    delete opt.isSingle
+    const searchOptions = Object.assign({}, defaultSearchOption, opt)
     const { matches, value, index } = this.searchMatches
     if (matches.length) {
       if (isSingle) {
@@ -32,7 +57,7 @@ const searchCtrl = ContentState => {
         }
       }
       const highlightIndex = index < matches.length - 1 ? index : index - 1
-      this.search(value, { caseSensitive, highlightIndex: isSingle ? highlightIndex : -1 })
+      this.search(value, { ...searchOptions, highlightIndex: isSingle ? highlightIndex : -1 })
     }
   }
 
@@ -69,34 +94,30 @@ const searchCtrl = ContentState => {
   }
 
   ContentState.prototype.search = function (value, opt = {}) {
-    value = value.trim()
     const matches = []
-    const { caseSensitive, highlightIndex } = Object.assign(defaultSearchOption, opt)
+    const options = Object.assign({}, defaultSearchOption, opt)
+    const { highlightIndex } = options
     const { blocks } = this
-    const search = blocks => {
+    const travel = blocks => {
       for (const block of blocks) {
         let { text, key } = block
-        if (!caseSensitive) {
-          text = text.toLowerCase()
-          value = value.toLowerCase()
-        }
-        if (text) {
-          let i = text.indexOf(value)
-          while (i > -1) {
-            matches.push({
+
+        if (text && typeof text === 'string') {
+          const strMatches = matchString(text, value, options)
+          matches.push(...strMatches.map(m => {
+            return {
               key,
-              start: i,
-              end: i + value.length
-            })
-            i = text.indexOf(value, i + value.length)
-          }
+              start: m.index,
+              end: m.index + m.match.length
+            }
+          }))
         }
         if (block.children.length) {
-          search(block.children)
+          travel(block.children)
         }
       }
     }
-    if (value) search(blocks)
+    if (value) travel(blocks)
     let index = -1
     if (highlightIndex !== -1) {
       index = highlightIndex // If set the highlight index, then highlight the highlighIndex
@@ -104,7 +125,9 @@ const searchCtrl = ContentState => {
       index = 0 // highlight the first word that matches.
     }
     Object.assign(this.searchMatches, { value, matches, index })
-    if (value) this.setCursorToHighlight()
+    if (value) {
+      this.setCursorToHighlight()
+    }
     return matches
   }
 }

@@ -88,7 +88,7 @@ import FormatPicker from 'muya/lib/ui/formatPicker'
 import LinkTools from 'muya/lib/ui/linkTools'
 import FrontMenu from 'muya/lib/ui/frontMenu'
 import bus from '../../bus'
-import Search from '../search.vue'
+import Search from '../search'
 import { animatedScrollTo } from '../../util'
 import { addCommonStyle, setEditorWidth } from '../../util/theme'
 import { guessClipboardFilePath } from '../../util/clipboard'
@@ -412,7 +412,7 @@ export default {
       bus.$on('format', this.handleInlineFormat)
       bus.$on('searchValue', this.handleSearch)
       bus.$on('replaceValue', this.handReplace)
-      bus.$on('find', this.handleFind)
+      bus.$on('find-action', this.handleFindAction)
       bus.$on('insert-image', this.insertImage)
       bus.$on('image-uploaded', this.handleUploadedImage)
       bus.$on('file-changed', this.handleFileChange)
@@ -638,7 +638,7 @@ export default {
       }
     },
 
-    handleFind (action) {
+    handleFindAction (action) {
       const searchMatches = this.editor.find(action)
       this.$store.dispatch('SEARCH', searchMatches)
       this.scrollToHighlight()
@@ -783,7 +783,7 @@ export default {
     bus.$off('format', this.handleInlineFormat)
     bus.$off('searchValue', this.handleSearch)
     bus.$off('replaceValue', this.handReplace)
-    bus.$off('find', this.handleFind)
+    bus.$off('find-action', this.handleFindAction)
     bus.$off('insert-image', this.insertImage)
     bus.$off('image-uploaded', this.handleUploadedImage)
     bus.$off('file-changed', this.handleFileChange)

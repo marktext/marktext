@@ -279,3 +279,10 @@ export const URL_REG = /^http(s)?:\/\/([a-z0-9\-._~]+\.[a-z]{2,}|[0-9.]+|localho
 // The smallest transparent gif base64 image.
 // export const SMALLEST_BASE64 = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'
 // export const isIOS = /(?:iPhone|iPad|iPod|iOS)/i.test(window.navigator.userAgent)
+export const defaultSearchOption = {
+  isCaseSensitive: false,
+  isWholeWord: false,
+  isRegexp: false,
+  selectHighlight: false,
+  highlightIndex: -1
+}

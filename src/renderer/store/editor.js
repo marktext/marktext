@@ -902,6 +902,7 @@ const actions = {
 
   SELECTION_CHANGE ({ commit }, changes) {
     const { start, end } = changes
+    // Set search keyword to store.
     if (start.key === end.key && start.block.text) {
       const value = start.block.text.substring(start.offset, end.offset)
       commit('SET_SEARCH', {
