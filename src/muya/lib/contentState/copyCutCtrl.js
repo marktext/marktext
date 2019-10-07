@@ -1,5 +1,6 @@
 import selection from '../selection'
 import { CLASS_OR_ID } from '../config'
+import { escapeHtml } from '../utils'
 import { getSanitizeHtml } from '../utils/exportHtml'
 import ExportMarkdown from '../utils/exportMarkdown'
 import marked from '../parser/marked'
@@ -40,7 +41,7 @@ const copyCutCtrl = ContentState => {
       const { type, text, functionType } = startBlock
       // Fix issue #942
       if (type === 'span' && functionType === 'codeContent') {
-        const selectedText = text.substring(start.offset, end.offset)
+        const selectedText = escapeHtml(text.substring(start.offset, end.offset))
         return {
           html: marked(selectedText),
           text: selectedText
@@ -123,7 +124,7 @@ const copyCutCtrl = ContentState => {
       const block = this.getBlock(id)
       const language = block.lang || ''
       const codeContent = cf.querySelector('.ag-code-content')
-      const value = codeContent.textContent
+      const value = escapeHtml(codeContent.textContent)
       cf.innerHTML = `<code class="language-${language}">${value}</code>`
     }
 

@@ -413,12 +413,14 @@ class Selection {
     const anchorParagraph = document.querySelector(`#${anchor.key}`)
     const focusParagraph = document.querySelector(`#${focus.key}`)
     const getNodeAndOffset = (node, offset) => {
+
       if (node.nodeType === 3) {
         return {
           node,
           offset
         }
       }
+
       const childNodes = node.childNodes
       const len = childNodes.length
       let i
@@ -429,6 +431,7 @@ class Selection {
         if (child.classList && child.classList.contains(CLASS_OR_ID.AG_FRONT_ICON)) {
           continue
         }
+
         if (count + textLength >= offset) {
           if (
             child.classList && child.classList.contains('ag-inline-image')

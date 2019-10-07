@@ -757,6 +757,7 @@ const paragraphCtrl = ContentState => {
           offset: startBlock.text.length
         }
       }
+
       return this.partialRender()
     }
     // Handler language input, only select language info only...
