@@ -385,24 +385,37 @@ kbd {
     padding: 0;
   }
 
-  table thead tr,
+  /* table thead tr,
   table tr:nth-child(2n) {
     background-color: var(--editorColor04);
-  }
+  } */
 
   table tr th {
     font-weight: bold;
-    border: 1px solid var(--tableBorderColor);
     text-align: left;
     margin: 0;
     padding: 6px 13px;
   }
 
   table tr td {
-    border: 1px solid var(--tableBorderColor);
     text-align: left;
     margin: 0;
     padding: 6px 13px;
+  }
+
+  table tr th::before,
+  table tr td::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: calc(100% + 1px);
+    height: calc(100% + 1px);
+    border: 1px solid var(--tableBorderColor);
+    box-sizing: border-box;
+    pointer-events: none;
   }
 
   table tr th:first-child,
