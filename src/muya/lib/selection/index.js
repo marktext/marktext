@@ -413,7 +413,6 @@ class Selection {
     const anchorParagraph = document.querySelector(`#${anchor.key}`)
     const focusParagraph = document.querySelector(`#${focus.key}`)
     const getNodeAndOffset = (node, offset) => {
-
       if (node.nodeType === 3) {
         return {
           node,
