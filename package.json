@@ -61,6 +61,7 @@
     "github-markdown-css": "^3.0.1",
     "html-tags": "^3.0.0",
     "iconv-lite": "^0.5.0",
+    "iso-639-1": "^2.1.0",
     "joplin-turndown-plugin-gfm": "^1.0.11",
     "katex": "^0.11.1",
     "keyboard-layout": "^2.0.16",

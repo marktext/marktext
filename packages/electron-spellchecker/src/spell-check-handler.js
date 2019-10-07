@@ -695,30 +695,31 @@ module.exports = class SpellCheckHandler {
     }
 
     if (process.platform === 'win32') {
-      // TODO(spell): Check whether this is affected by atom/keyboard-layout#54.
       localeList = require('keyboard-layout').getInstalledKeyboardLanguages();
     }
 
     if (isMac) {
-      if (!this.isHunspell) {
-        fallbackLocaleTable = fallbackLocaleTable || require('./fallback-locales');
+      fallbackLocaleTable = fallbackLocaleTable || require('./fallback-locales');
 
+      if (!this.isHunspell) {
         // NB: OS X will return lists that are half just a language, half
         // language + locale, like ['en', 'pt_BR', 'ko']
         localeList = this.currentSpellchecker.getAvailableDictionaries()
-          .map((x => {
-            if (x.length === 2) return fallbackLocaleTable[x];
-            try {
-              return normalizeLanguageCode(x);
-            } catch (error) {
-              d(`Error: ${error}`);
-              return null;
-            }
-          }));
       } else {
-        // TODO(spell): Test the result on macOS.
+        // Also the keyboad language might be just a 2-letter ISO code.
         localeList = require('keyboard-layout').getInstalledKeyboardLanguages();
       }
+
+      localeList = localeList
+        .map((x => {
+          if (x.length === 2) return fallbackLocaleTable[x];
+          try {
+            return normalizeLanguageCode(x);
+          } catch (error) {
+            d(`Error: ${error}`);
+            return null;
+          }
+        }));
     }
 
     d(`Filtered Locale list: ${JSON.stringify(localeList)}`);

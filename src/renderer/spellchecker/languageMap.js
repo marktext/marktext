@@ -1,12 +1,48 @@
-export const getLanguageName = langCode => {
-  const item = DICTIONARIES_LANGUAGES_OPTIONS.find(item => item.value === langCode)
+import langMap from 'iso-639-1'
+
+/**
+ * Return the native language name by language code.
+ *
+ * @param {string} langCode The ISO two or four-letter language code.
+ */
+export const getLanguageName = languageCode => {
+  if (!languageCode || (languageCode.length !== 2 && languageCode.length !== 5)) {
+    return null
+  }
+
+  let language = ''
+
+  // First try to get an exact lanugage via 4-letter ISO code.
+  if (languageCode.length === 5) {
+    language = getHunspellLanguageName(languageCode)
+    if (language) {
+      return language
+    }
+  }
+
+  language = langMap.getNativeName(languageCode.substr(0, 2))
+  if (language) {
+    return language
+  }
+  return `Unknown (${languageCode})`
+}
+
+/**
+ * Return the native language name by language code for supported Hunspell languages.
+ *
+ * @param {string} langCode The ISO 4-letter language code.
+ */
+export const getHunspellLanguageName = langCode => {
+  const item = HUNSPELL_DICTIONARY_LANGUAGE_MAP.find(item => item.value === langCode)
   if (!item) {
-    return `Unknown (${langCode})`
+    return null
   }
   return item.label
 }
 
-export const DICTIONARIES_LANGUAGES_OPTIONS = [{
+// All available Hunspell dictionary languages.
+// NOTE: Listed as value/label due to settings requirements.
+export const HUNSPELL_DICTIONARY_LANGUAGE_MAP = [{
   label: 'Afrikaans', // Afrikaans
   value: 'af-ZA'
 }, {
@@ -16,7 +52,7 @@ export const DICTIONARIES_LANGUAGES_OPTIONS = [{
   label: 'Català', // Catalan; Valencian
   value: 'ca-ES'
 }, {
-  label: 'Česky, čeština', // Czech
+  label: 'Česky', // Czech
   value: 'cs-CZ'
 }, {
   label: 'Dansk', // Danish
@@ -40,7 +76,7 @@ export const DICTIONARIES_LANGUAGES_OPTIONS = [{
   label: 'English (en-US)', // English
   value: 'en-US'
 }, {
-  label: 'Español', // Spanish; Castilian
+  label: 'Español', // Spanish
   value: 'es-ES'
 }, {
   label: 'Eesti', // Estonian
@@ -55,7 +91,7 @@ export const DICTIONARIES_LANGUAGES_OPTIONS = [{
   label: 'עברית', // Hebrew (modern)
   value: 'he-IL'
 }, {
-  label: 'हिन्दी, हिंदी', // Hindi
+  label: 'हिन्दी', // Hindi
   value: 'hi-IN'
 }, {
   label: 'Hhrvatski', // Croatian
@@ -70,19 +106,19 @@ export const DICTIONARIES_LANGUAGES_OPTIONS = [{
   label: 'Italiano', // Italian
   value: 'it-IT'
 }, {
-  label: '한국어 (韓國語)', // Korean
+  label: '한국어', // Korean
   value: 'ko'
 }, {
-  label: 'Lietuvių kalba', // Lithuanian
+  label: 'Lietuvių', // Lithuanian
   value: 'lt-LT'
 }, {
-  label: 'Latviešu valoda', // Latvian
+  label: 'Latviešu', // Latvian
   value: 'lv-LV'
 }, {
-  label: 'Norsk bokmål', // Norwegian Bokmål
+  label: 'Norsk', // Norwegian
   value: 'nb-NO'
 }, {
-  label: 'Nederlands, Vlaams', // Dutch
+  label: 'Nederlands', // Dutch
   value: 'nl-NL'
 }, {
   label: 'Polski', // Polish
@@ -97,7 +133,7 @@ export const DICTIONARIES_LANGUAGES_OPTIONS = [{
   label: 'Română', // Romanian
   value: 'ro-RO'
 }, {
-  label: 'Pусский язык', // Russian
+  label: 'Pусский', // Russian
   value: 'ru-RU'
 }, {
   label: 'Cрпски језик (Latin)', // Serbian (Latin)
@@ -121,7 +157,7 @@ export const DICTIONARIES_LANGUAGES_OPTIONS = [{
   label: 'தமிழ்', // Tamil
   value: 'ta-IN'
 }, {
-  label: 'тоҷикӣ ( تاجیکی)‎', // Tajik
+  label: 'тоҷикӣ‎', // Tajik
   value: 'tg-TG'
 }, {
   label: 'Türkçe', // Turkish

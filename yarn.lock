@@ -4339,10 +4339,9 @@ electron-rebuild@^1.8.6:
     bcp47 "^1.1.2"
     cld "^2.5.1"
     debug "^4.1.1"
+    fs-extra "^8.1.0"
     keyboard-layout "^2.0.16"
     lru-cache "^5.1.1"
-    mkdirp "^0.5.1"
-    pify "^4.0.1"
     rxjs "^5.0.1"
     rxjs-serial-subscription "^0.1.1"
     spawn-rx "^2.0.7"
@@ -6717,6 +6716,11 @@ isexe@^2.0.0:
   version "2.0.0"
   resolved "https://registry.npmjs.org/isexe/-/isexe-2.0.0.tgz#e8fbf374dc556ff8947a10dcb0572d633f2cfa10"
   integrity sha1-6PvzdNxVb/iUehDcsFctYz8s+hA=
+
+iso-639-1@^2.1.0:
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/iso-639-1/-/iso-639-1-2.1.0.tgz#df88d7dd14b39c4dc748f8b35b6c7ae490e9d543"
+  integrity sha512-8CTinLimb9ncAJ11wpCETWZ51qsQ3LS4vMHF2wxRRtR3+b7bvIxUlXOGYIdq0413+baWnbyG5dBluVcezOG/LQ==
 
 isobject@^2.0.0, isobject@^2.1.0:
   version "2.1.0"

@@ -213,7 +213,11 @@ export class SpellChecker {
       return this.provider.currentSpellchecker.getAvailableDictionaries()
         .map(x => {
           if (x.length === 2) return fallbackLocales[x]
-          return normalizeLanguageCode(x)
+          try {
+            return normalizeLanguageCode(x)
+          } catch (_) {
+            return null
+          }
         })
     }
 

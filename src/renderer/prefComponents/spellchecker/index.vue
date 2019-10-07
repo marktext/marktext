@@ -89,12 +89,8 @@ import Bool from '../common/bool'
 import Separator from '../common/separator'
 import { isOsx } from '@/util'
 import { getAvailableHunspellDictionaries, SpellChecker } from '@/spellchecker'
+import { getLanguageName, HUNSPELL_DICTIONARY_LANGUAGE_MAP } from '@/spellchecker/languageMap.js'
 import { downloadHunspellDictionary, deleteHunspellDictionary } from '@/spellchecker/dictionaryDownloader'
-
-import {
-  getLanguageName,
-  DICTIONARIES_LANGUAGES_OPTIONS
-} from './config'
 
 export default {
   components: {
@@ -104,7 +100,7 @@ export default {
   },
   data () {
     this.isOsx = isOsx
-    this.dictionariesLanguagesOptions = DICTIONARIES_LANGUAGES_OPTIONS
+    this.dictionariesLanguagesOptions = HUNSPELL_DICTIONARY_LANGUAGE_MAP
     this.hunspellDictionaryDownloadCache = {}
     return {
       availableDictionaries: [],
@@ -128,7 +124,7 @@ export default {
     spellcheckerIsHunspell: function (value, oldValue) {
       if (isOsx && value !== oldValue && value) {
         const { spellcheckerLanguage } = this
-        const index = DICTIONARIES_LANGUAGES_OPTIONS.findIndex(d => d.value === spellcheckerLanguage)
+        const index = HUNSPELL_DICTIONARY_LANGUAGE_MAP.findIndex(d => d.value === spellcheckerLanguage)
         if (index === -1) {
           // Language is not supported by Hunspell.
           this.onSelectChange('spellcheckerLanguage', 'en-US')
