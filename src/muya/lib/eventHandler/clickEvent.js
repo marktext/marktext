@@ -126,7 +126,12 @@ class ClickEvent {
         })
         contentState.selectImage(imageInfo)
         // Handle show image transformer
-        const imageContainer = document.querySelector(`#${imageInfo.imageId} .ag-image-container`)
+        const imageSelector = imageInfo.imageId.indexOf('_') > -1
+          ? `#${imageInfo.imageId}`
+          : `#${imageInfo.key}_${imageInfo.imageId}_${imageInfo.token.range.start}`
+
+        const imageContainer = document.querySelector(`${imageSelector} .ag-image-container`)
+
         eventCenter.dispatch('muya-transformer', {
           reference: imageContainer,
           imageInfo

@@ -102,7 +102,8 @@ class Keyboard {
           return contentState.docEnterHandler(event)
         case EVENT_KEYS.Space: {
           if (contentState.selectedImage) {
-            const { src } = getImageInfo(contentState.selectedImage.token.src)
+            const { token } = contentState.selectedImage
+            const { src } = getImageInfo(token.src || token.attrs.src)
             if (src) {
               eventCenter.dispatch('preview-image', {
                 data: src
