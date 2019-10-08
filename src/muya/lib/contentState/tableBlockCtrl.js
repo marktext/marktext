@@ -19,7 +19,6 @@ const tableBlockCtrl = ContentState => {
       for (j = 0; j < columns; j++) {
         const cell = this.createBlock(i === 0 ? 'th' : 'td', {
           align: '',
-          row: i,
           column: j
         })
         const cellContent = this.createBlock('span', {

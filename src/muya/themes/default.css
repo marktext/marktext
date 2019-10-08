@@ -395,12 +395,14 @@ kbd {
     text-align: left;
     margin: 0;
     padding: 6px 13px;
+    position: relative;
   }
 
   table tr td {
     text-align: left;
     margin: 0;
     padding: 6px 13px;
+    position: relative;
   }
 
   table tr th::after,
@@ -426,6 +428,69 @@ kbd {
   table tr th:last-child,
   table tr td:last-child {
     margin-bottom: 0;
+  }
+
+  table tr .ag-drag-left {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    display: block;
+    width: 9px;
+    height: 19px;
+    box-sizing: border-box;
+    border-radius: 4px;
+    border: 1px solid var(--iconColor);
+    left: -11px;
+    cursor: pointer;
+    opacity: .5;
+  }
+
+  table tr .ag-drag-left::before,
+  table tr .ag-drag-left::after {
+    content: '';
+    display: block;
+    width: 3px;
+    height: 3px;
+    border-radius: 50%;
+    background: var(--iconColor);
+    position: absolute;
+    left: 2px;
+    top: 4px;
+  }
+  table tr .ag-drag-left::after {
+    top: 10px;
+  }
+
+
+  table tr .ag-drag-bottom {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    display: block;
+    width: 19px;
+    height: 9px;
+    box-sizing: border-box;
+    border-radius: 4px;
+    border: 1px solid var(--iconColor);
+    bottom: -15px;
+    cursor: pointer;
+    opacity: .5;
+  }
+
+  table tr .ag-drag-bottom::before,
+  table tr .ag-drag-bottom::after {
+    content: '';
+    display: block;
+    width: 3px;
+    height: 3px;
+    border-radius: 50%;
+    background: var(--iconColor);
+    position: absolute;
+    top: 2px;
+    left: 4px;
+  }
+  table tr .ag-drag-bottom::after {
+    left: 10px;
   }
 
   span code,

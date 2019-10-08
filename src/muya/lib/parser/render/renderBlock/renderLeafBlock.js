@@ -68,7 +68,7 @@ const hasReferenceToken = tokens => {
   return result
 }
 
-export default function renderLeafBlock (block, activeBlocks, matches, useCache = false) {
+export default function renderLeafBlock (parent, block, activeBlocks, matches, useCache = false) {
   const { loadMathMap } = this
   const { cursor } = this.muya.contentState
   let selector = this.getSelector(block, activeBlocks)

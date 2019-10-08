@@ -1,6 +1,7 @@
 import { CLASS_OR_ID } from '../../../config'
 import { renderTableTools } from './renderToolBar'
 import { renderEditIcon } from './renderContainerEditIcon'
+import { renderLeftBar, renderBottomBar } from './renderTableDargBar'
 import { h } from '../snabbdom'
 
 const PRE_BLOCK_HASH = {
@@ -15,7 +16,7 @@ const PRE_BLOCK_HASH = {
   'vega-lite': `.${CLASS_OR_ID.AG_VEGA_LITE}`
 }
 
-export default function renderContainerBlock (block, activeBlocks, matches, useCache = false) {
+export default function renderContainerBlock (parent, block, activeBlocks, matches, useCache = false) {
   let selector = this.getSelector(block, activeBlocks)
   const {
     align,
@@ -27,9 +28,10 @@ export default function renderContainerBlock (block, activeBlocks, matches, useC
     listItemType,
     bulletMarkerOrDelimiter,
     isLooseListItem,
-    lang
+    lang,
+    column
   } = block
-  const children = block.children.map(child => this.renderBlock(child, activeBlocks, matches, useCache))
+  const children = block.children.map(child => this.renderBlock(block, child, activeBlocks, matches, useCache))
   const data = {
     attrs: {},
     dataset: {}
@@ -42,6 +44,15 @@ export default function renderContainerBlock (block, activeBlocks, matches, useC
   if (/code|pre/.test(type) && typeof lang === 'string' && !!lang) {
     selector += `.language-${lang.replace(/[#.]{1}/g, '')}`
   }
+
+  if (/th|td/.test(type) && block.parent === activeBlocks[1].parent && !block.preSibling) {
+    children.unshift(renderLeftBar())
+  }
+
+  if (/td/.test(type) && column === activeBlocks[1].column && parent && !parent.nextSibling) {
+    children.push(renderBottomBar())
+  }
+
   if (/th|td/.test(type) && align) {
     Object.assign(data.attrs, {
       style: `text-align:${align}`
