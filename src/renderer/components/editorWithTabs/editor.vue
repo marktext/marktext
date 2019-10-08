@@ -43,8 +43,8 @@
             size="mini"
             v-model="tableChecker.rows"
             controls-position="right"
-            :min="2"
-            :max="20"
+            :min="1"
+            :max="30"
           ></el-input-number>
         </el-form-item>
         <el-form-item label="Columns">
@@ -52,7 +52,7 @@
             size="mini"
             v-model="tableChecker.columns"
             controls-position="right"
-            :min="2"
+            :min="1"
             :max="20"
           ></el-input-number>
         </el-form-item>
