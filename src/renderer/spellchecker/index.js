@@ -95,7 +95,7 @@ export class SpellChecker {
     this.provider.currentSpellcheckerChanged.subscribe(() => {
       console.log(
         '# currentSpellcheckerChanged',
-        '\nEnabled:', this.isEnabled,
+        '\nEnabled:', this.provider.isEnabled,
         '\nAutoIdentifyLanguages:', this.provider.automaticallyIdentifyLanguages,
         '\nLanguage:', this.provider.currentSpellcheckerLanguage,
         '\nisHunspell:', this.provider.isHunspell

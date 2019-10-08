@@ -273,7 +273,7 @@ module.exports = class SpellCheckHandler {
     this.currentSpellchecker = null;
     this.userDictionary.unload();
     this.isEnabled = false;
-    this.currentSpellcheckerChanged.next(true);
+    this.currentSpellcheckerChanged.next(false);
   }
 
   /**
@@ -514,7 +514,7 @@ module.exports = class SpellCheckHandler {
       this.currentSpellchecker = null;
       this.userDictionary.unload();
       this.isEnabled = false;
-      this.currentSpellcheckerChanged.next(true);
+      this.currentSpellcheckerChanged.next(false);
       return false;
     }
 
