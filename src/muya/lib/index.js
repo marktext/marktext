@@ -371,6 +371,12 @@ class Muya {
       }
     }
 
+    // Set spellcheck container attribute
+    const spellcheckEnabled = options.spellcheckEnabled
+    if (typeof spellcheckEnabled !== 'undefined') {
+      this.container.setAttribute('spellcheck', !!spellcheckEnabled)
+    }
+
     if (options.bulletListMarker) {
       this.contentState.turndownConfig.bulletListMarker = options.bulletListMarker
     }
@@ -453,7 +459,7 @@ class Muya {
   * [ensureContainerDiv ensure container element is div]
   */
 function getContainer (originContainer, options) {
-  const { hideQuickInsertHint } = options
+  const { hideQuickInsertHint, spellcheckEnabled } = options
   const container = document.createElement('div')
   const rootDom = document.createElement('div')
   const attrs = originContainer.attributes
@@ -471,8 +477,9 @@ function getContainer (originContainer, options) {
   container.setAttribute('contenteditable', true)
   container.setAttribute('autocorrect', false)
   container.setAttribute('autocomplete', 'off')
-  // TODO(spell): Allow disabling spellchecking
-  container.setAttribute('spellcheck', true)
+  // NOTE: The browser is not able to correct misspelled words words without
+  // a custom implementation like in Mark Text.
+  container.setAttribute('spellcheck', !!spellcheckEnabled)
   container.appendChild(rootDom)
   originContainer.replaceWith(container)
   return container
