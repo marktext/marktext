@@ -3,9 +3,7 @@ require('./support');
 const path = require('path');
 const rimraf = require('rimraf');
 const {next, TestScheduler} = require('@kwonoj/rxjs-testscheduler-compat');
-const FakeLocalStorage = require('../src/fake-local-storage');
 
-const DictionarySync = require('../src/dictionary-sync');
 const SpellCheckHandler = require('../src/spell-check-handler');
 
 const d = require('debug')('electron-spellchecker-test:spell-check-handler');
@@ -19,8 +17,7 @@ describe('The Spell Check Handler Class', function() {
 
   beforeEach(function () {
     this.tempCacheDir = path.join(__dirname, `__spell_check${testCount++}`);
-    this.sync = new DictionarySync(platform !== 'darwin', this.tempCacheDir);
-    this.fixture = new SpellCheckHandler(this.sync, new FakeLocalStorage());
+    this.fixture = new SpellCheckHandler(this.tempCacheDir);
   });
 
   afterEach(function () {

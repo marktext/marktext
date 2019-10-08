@@ -1,3 +1,4 @@
+const path = require('path');
 const {spawn} = require('spawn-rx');
 // const {requireTaskPool} = require('@aabuhijleh/electron-remote');
 const LRU = require('lru-cache');
@@ -32,16 +33,20 @@ require('rxjs/add/operator/toPromise');
 require('./custom-operators');
 
 const DictionarySync = require('./dictionary-sync');
+const UserDictionary = require('./user-dictionary');
 const {normalizeLanguageCode} = require('./utility');
 
 let Spellchecker;
 
 let d = require('debug')('electron-spellchecker:spell-check-handler');
 
-// TODO: Asynchronously check language via Web Workers?
-const cld = require.resolve('./cld2') // requireTaskPool(require.resolve('./cld2'));
+// TODO(spell): Asynchronously check language via Web Workers?
+const cld = require('./cld2') // requireTaskPool(require.resolve('./cld2'));
 
 let fallbackLocaleTable = null;
+const app = process.type === 'renderer' ?
+  require('electron').remote.app :
+  require('electron').app;
 let webFrame = (process.type === 'renderer' ?
   require('electron').webFrame :
   null);
@@ -51,6 +56,7 @@ let webFrame = (process.type === 'renderer' ?
 const validLangCodeWindowsLinux = /[a-z]{2}[_][A-Z]{2}/;
 
 const isMac = process.platform === 'darwin';
+const isWindows = process.platform === 'win32';
 
 // NB: This is to work around electron/electron#1005, where contractions
 // are incorrectly marked as spelling errors. This lets people get away with
@@ -111,23 +117,22 @@ module.exports = class SpellCheckHandler {
   /**
    * Constructs a SpellCheckHandler
    *
-   * @param  {DictionarySync} dictionarySync  An instance of {{DictionarySync}},
-   *                                          create a custom one if you want
-   *                                          to override the dictionary cache
-   *                                          location.
-   * @param  {LocalStorage} localStorage      Deprecated.
+   * @param  {String}  cacheDir    The path to a directory to store dictionaries.
+   *                               If not given, the Electron user data directory
+   *                               will be used.
    * @param  {Scheduler} scheduler            The Rx scheduler to use, for
    *                                          testing.
    */
-  constructor(dictionarySync=null, localStorage=null, scheduler=null) {
+  constructor(cacheDir=null, scheduler=null) {
     // NB: Require here so that consumers can handle native module exceptions.
     Spellchecker = require('./node-spellchecker').Spellchecker;
 
+    cacheDir = cacheDir || path.join(app.getPath('userData'), 'dictionaries');
+
+    // TODO(spell): Ask spellchecker which spell checker is used.
     this.isHunspell = !isMac || !!process.env['SPELLCHECKER_PREFER_HUNSPELL']
-    if (dictionarySync) {
-      dictionarySync.isHunspell = this.isHunspell;
-    }
-    this.dictionarySync = dictionarySync || new DictionarySync(this.isHunspell);
+    this.dictionarySync = new DictionarySync(this.isHunspell, cacheDir);
+    this.userDictionary = new UserDictionary(cacheDir);
     this.switchToLanguage = new Subject();
     this.currentSpellchecker = null;
     this.currentSpellcheckerLanguage = null;
@@ -206,6 +211,7 @@ module.exports = class SpellCheckHandler {
         this.currentSpellcheckerLanguage = 'en-US';
         this._automaticallyIdentifyLanguages = true;
 
+        this.attachToInput();
         if (webFrame) {
           this.setSpellCheckProvider(webFrame);
         }
@@ -215,21 +221,27 @@ module.exports = class SpellCheckHandler {
       }
     }
 
-    let language = this.currentSpellcheckerLanguage
+    let language = this.currentSpellcheckerLanguage;
     if (lang) {
-      language = lang
+      language = lang;
     } else if (!language) {
-      return false
+      return false;
     }
-    return await this.switchLanguage(language);
+
+    const result = await this.switchLanguage(language);
+    if (result) {
+      this.attachToInput();
+    }
+    return result;
   }
 
   /**
    * Disable spell checking and unload the spell checker native module.
    */
   disableSpellchecker() {
-    this.unsubscribe()
+    this.unsubscribe();
     this.currentSpellchecker = null;
+    this.userDictionary.unload();
     this.isEnabled = false;
     this.currentSpellcheckerChanged.next(true);
   }
@@ -382,6 +394,7 @@ module.exports = class SpellCheckHandler {
     ret.add(Observable.fromEvent(window, 'blur').subscribe(() => {
       d(`Unloading spellchecker`);
       this.currentSpellchecker = null;
+      this.userDictionary.unload();
       this.isEnabled = false;
       hasUnloaded = true;
     }));
@@ -389,6 +402,8 @@ module.exports = class SpellCheckHandler {
     ret.add(Observable.fromEvent(window, 'focus').mergeMap(() => {
       if (!hasUnloaded) return Observable.empty();
       if (!this.currentSpellcheckerLanguage) return Observable.empty();
+
+      this.userDictionary.loadForLanguage(this.currentSpellcheckerLanguage);
 
       d(`Restoring spellchecker`);
       return Observable.fromPromise(this.switchLanguage(this.currentSpellcheckerLanguage))
@@ -462,6 +477,7 @@ module.exports = class SpellCheckHandler {
       d(`dictionary for ${langCode}_${actualLang} is not available`);
       this.currentSpellcheckerLanguage = actualLang;
       this.currentSpellchecker = null;
+      this.userDictionary.unload();
       this.isEnabled = false;
       this.currentSpellcheckerChanged.next(true);
       return false;
@@ -474,6 +490,8 @@ module.exports = class SpellCheckHandler {
       this.currentSpellchecker = new Spellchecker();
       this.currentSpellchecker.setDictionary(actualLang, dict);
       this.currentSpellcheckerLanguage = actualLang;
+      // TODO(spell): Handle error?
+      this.userDictionary.loadForLanguage(actualLang);
       this.isEnabled = true;
       this.currentSpellcheckerChanged.next(true);
     }
@@ -575,6 +593,11 @@ module.exports = class SpellCheckHandler {
         return this.currentSpellchecker.isMisspelled(text);
       }
 
+      // Check custom user dictionary for Hunspell first.
+      if (this.userDictionary.match(text)) {
+        return false;
+      }
+
       // NB: I'm not smart enough to fix this bug in Chromium's version of
       // Hunspell so I'm going to fix it here instead. Chromium Hunspell for
       // whatever reason marks the first word in a sentence as mispelled if it is
@@ -638,35 +661,39 @@ module.exports = class SpellCheckHandler {
   /**
    * A proxy for the current spellchecker's method of the same name.
    */
-  async addToDictionary(text) {
+  async addToDictionary(word) {
     // NB: Same deal as getCorrectionsForMisspelling.
     if (!this.currentSpellchecker) return;
 
+    this.isMisspelledCache.del(word);
+
     // Handle NSSpellChecker
     if (!this.isHunspell) {
-      this.isMisspelledCache.reset();
-      this.currentSpellchecker.add(text);
+      this.currentSpellchecker.add(word);
       return;
     }
 
-    // TODO(spell): Use a custom dictionary to save user words to.
+    // Add word to our custom user dictionary.
+    this.userDictionary.add(word);
   }
 
   /**
    * A proxy for the current spellchecker's method of the same name
    */
-  async removeFromDictionary(text) {
+  async removeFromDictionary(word) {
     // NB: Same deal as getCorrectionsForMisspelling.
     if (!this.currentSpellchecker) return;
 
+    this.isMisspelledCache.del(word);
+
     // Handle NSSpellChecker
     if (!this.isHunspell) {
-      this.isMisspelledCache.reset();
-      this.currentSpellchecker.remove(text);
+      this.currentSpellchecker.remove(word);
       return;
     }
 
-    // TODO(spell): Use a custom dictionary to save user words to.
+    // Remove word from our custom user dictionary.
+    this.userDictionary.remove(word);
   }
 
   /**

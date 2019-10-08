@@ -1,6 +1,7 @@
 const DictionarySync = require('./dictionary-sync');
 const SpellCheckHandler = require('./spell-check-handler');
 const SpellChecker = require('./node-spellchecker');
+const UserDictionary = require('./user-dictionary');
 
 /**
  * Overrides the default logging function (the `debug` library) with another
@@ -10,13 +11,12 @@ const SpellChecker = require('./node-spellchecker');
  *                          information to.
  */
 function setGlobalLogger(fn) {
-  for (let klass of [DictionarySync, SpellCheckHandler]) {
+  for (let klass of [DictionarySync, SpellCheckHandler, UserDictionary]) {
     klass.setLogger(fn);
   }
 }
 
 module.exports = {
-  DictionarySync,
   SpellCheckHandler,
   SpellChecker,
   setGlobalLogger,

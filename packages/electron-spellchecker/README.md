@@ -1,6 +1,6 @@
 # electron-spellchecker
 
-![](https://img.shields.io/npm/dm/electron-spellchecker.svg) <a href="https://electron-userland.github.io/electron-spellchecker/docs">![](https://electron-userland.github.io/electron-spellchecker/docs/badge.svg)</a>
+> Modified version of electron-spellchecker.
 
 electron-spellchecker is a library to help you implement spellchecking in your Electron applications, as well as handle default right-click Context Menus (since spell checking shows up in them).  This library intends to solve the problem of spellchecking in a production-ready, international-friendly way.
 
@@ -16,18 +16,13 @@ electron-spellchecker:
 ## Quick Start
 
 ```js
-import {SpellCheckHandler, ContextMenuListener, ContextMenuBuilder} from 'electron-spellchecker';
+import {SpellCheckHandler} from 'electron-spellchecker';
 
 window.spellCheckHandler = new SpellCheckHandler();
 window.spellCheckHandler.attachToInput();
 
 // Start off as US English, America #1 (lol)
 window.spellCheckHandler.switchLanguage('en-US');
-
-let contextMenuBuilder = new ContextMenuBuilder(window.spellCheckHandler);
-let contextMenuListener = new ContextMenuListener((info) => {
-  contextMenuBuilder.showPopupMenu(info);
-});
 ```
 
 ## Language Auto-Detection

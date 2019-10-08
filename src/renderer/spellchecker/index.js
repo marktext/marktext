@@ -36,17 +36,6 @@ export const validateLineCursor = cursor => {
 }
 
 /**
- * Returns a list of all available Hunspell dictionaries.
- *
- * NOTE: Should return around 136 languages.
- */
-export const getHunspellDictionaries = () => {
-  return fallbackLocales.map(twoLetterCode => {
-    return fallbackLocales[twoLetterCode]
-  })
-}
-
-/**
  * Returns a list of local available Hunspell dictionaries.
  */
 export const getAvailableHunspellDictionaries = () => {
@@ -94,21 +83,28 @@ export class SpellChecker {
   _initHandler (automaticallyIdentifyLanguages) {
     this.provider = new SpellCheckHandler()
 
-    // TODO(spell): Currently not supported by our Hunspell implementation
-    //              with a reasonable performance.
-    if (this.isHunspell) {
-      automaticallyIdentifyLanguages = false
-    }
+    // // TODO(spell): Currently not supported by our Hunspell implementation
+    // //              with a reasonable performance.
+    // if (this.isHunspell) {
+    //   automaticallyIdentifyLanguages = false
+    // }
 
     this.provider.automaticallyIdentifyLanguages = automaticallyIdentifyLanguages
 
     // React to changes such as language detection.
     this.provider.currentSpellcheckerChanged.subscribe(() => {
+      console.log(
+        '# currentSpellcheckerChanged',
+        '\nEnabled:', this.isEnabled,
+        '\nAutoIdentifyLanguages:', this.provider.automaticallyIdentifyLanguages,
+        '\nLanguage:', this.provider.currentSpellcheckerLanguage,
+        '\nisHunspell:', this.provider.isHunspell
+      ) // #DEBUG
+
       // TODO(spell): Something changed...
     })
 
     this.lang = this.provider.currentSpellcheckerLanguage // default value should be "en-US"
-    this.userDictionary = new UserDictionary()
 
     // The spell checker is now initialized but not yet enabled. Please call `init`.
     this.isEnabled = false
@@ -124,10 +120,7 @@ export class SpellChecker {
 
     if (!lang) {
       if (this.isHunspell) {
-        // TODO(spell): Downloading dictionaries require internet connection. Allow only downloaded dictionaries.
-        // TODO(spell): >getLocale< just return 2-letter language code.
-        // const locale = process.env.LANG
-        // lang = locale ? locale.split('.')[0] : (remote.app.getLocale() || 'en-US')
+        // Just use the fallback language.
         lang = 'en-US'
       } else {
         // NOTE: macOS does automatic language detection if language is empty.
@@ -179,21 +172,11 @@ export class SpellChecker {
   }
 
   async addToDictionary (word) {
-    if (!this.isHunspell) {
-      return this.provider.addToDictionary(word)
-    }
-
-    // TODO(spell): Move custom dict to `electron-spellchecker`
-    return this.userDictionary.addToDictionary(word)
+    return await this.provider.addToDictionary(word)
   }
 
   async removeFromDictionary (word) {
-    if (!this.isHunspell) {
-      return this.provider.removeFromDictionary(word)
-    }
-
-    // TODO(spell): Move custom dict to `electron-spellchecker`
-    return this.userDictionary.removeFromDictionary(word)
+    return await this.provider.removeFromDictionary(word)
   }
 
   /**
@@ -257,11 +240,11 @@ export class SpellChecker {
       return
     }
 
-    // TODO(spell): Currently not supported by our Hunspell implementation
-    //              with a reasonable performance.
-    if (this.isHunspell) {
-      return
-    }
+    // // TODO(spell): Currently not supported by our Hunspell implementation
+    // //              with a reasonable performance.
+    // if (this.isHunspell) {
+    //   return
+    // }
     this.provider.automaticallyIdentifyLanguages = !!value
   }
 
@@ -295,7 +278,6 @@ export class SpellChecker {
     if (!result) {
       // TODO(spell): Should we disable spell checking on error?
       // this.disableSpellchecker()
-      this.userDictionary.unloadDictionary()
 
       throw new Error('Error while switching language.')
     }
@@ -304,7 +286,6 @@ export class SpellChecker {
 
     console.log(`switchLanguage: ${!!result}; lang: ${lang}; actualLang: ${this.lang}`) // #DEBUG
 
-    this.userDictionary.loadDictionaryForLanguage(this.lang)
     return this.lang
   }
 
@@ -317,7 +298,7 @@ export class SpellChecker {
     if (!this.isEnabled) {
       return false
     }
-    return !this.userDictionary.match(word) && this.provider.isMisspelled(word)
+    return this.provider.isMisspelled(word)
   }
 
   /**
@@ -335,12 +316,9 @@ export class SpellChecker {
       offset = text.length - 1
     }
 
-    // Get nearest word based on: https://stackoverflow.com/a/5174867
-    const pos = Number(offset) >>> 0
-
-    // Search for the word's beginning and end.
-    const left = text.slice(0, pos + 1).search(WORD_DEFINITION)
-    const right = text.slice(pos).search(WORD_SEPARATORS)
+    // Search for the words beginning and end.
+    const left = text.slice(0, offset + 1).search(WORD_DEFINITION)
+    const right = text.slice(offset).search(WORD_SEPARATORS)
 
     // Cursor is between two word separators (e.g "*<cursor>*" or " <cursor>*")
     if (left <= -1) {
@@ -357,8 +335,8 @@ export class SpellChecker {
     }
     return {
       left,
-      right: right + pos,
-      word: text.slice(left, right + pos)
+      right: right + offset,
+      word: text.slice(left, right + offset)
     }
   }
 
@@ -388,99 +366,5 @@ export class SpellChecker {
       spellcheckerLanguage,
       isHunspell
     }
-  }
-}
-
-// TODO(spell): Move to utils.js
-const ensureDir = dirPath => {
-  try {
-    fs.ensureDirSync(dirPath)
-  } catch (e) {
-    if (e.code !== 'EEXIST') {
-      // TODO(spell): log error
-      console.error(e)
-    }
-  }
-}
-
-// TODO(spell): Fork "electron-spellchecker" and add custom user dictories. Otherwise are
-//              word still red highlighted.
-// Enable Add/Remove in "src/renderer/contextMenu/editor/index.js" to test the code below.
-
-export class UserDictionary {
-  // TODO(spell): Add a custom dictionary for user defined words using Radix tree/HAT-trie?
-
-  constructor (dirPath = null) {
-    this.dict = null
-    this.lang = ''
-    this.userDictPath = dirPath || dictionaryPath
-    ensureDir(this.userDictPath)
-  }
-
-  isInitialized () {
-    return this.lang && this.dict
-  }
-
-  unloadDictionary () {
-    this.dict = null
-    this.lang = ''
-  }
-
-  loadDictionaryForLanguage (lang) {
-    const fullname = path.join(this.userDictPath, `${lang}.json`)
-    if (fs.existsSync(fullname) && fs.lstatSync(fullname).isFile()) {
-      try {
-        const dict = JSON.parse(fs.readFileSync(fullname))
-        this.dict = dict
-      } catch (e) {
-        // TODO(spell): log error
-        console.error(e)
-        return false
-      }
-    } else {
-      this.dict = {}
-    }
-    this.lang = lang
-    return true
-  }
-
-  saveDictionary () {
-    if (!this.isInitialized()) {
-      return false
-    }
-
-    try {
-      const fullname = path.join(this.userDictPath, `${this.lang}.json`)
-      fs.outputFileSync(fullname, JSON.stringify(this.dict), 'utf-8')
-      return true
-    } catch (e) {
-      // TODO(spell): log error
-      console.error(e)
-      return false
-    }
-  }
-
-  addToDictionary (word) {
-    if (!this.isInitialized()) {
-      return false
-    }
-
-    this.dict[word] = 1
-    return this.saveDictionary()
-  }
-
-  removeFromDictionary (word) {
-    if (!this.isInitialized()) {
-      return false
-    } else if (!this.match(word)) {
-      return true
-    }
-
-    delete this.dict[word]
-    return this.saveDictionary()
-  }
-
-  match (word) {
-    return this.isInitialized() && !!this.dict.hasOwnProperty(word)
   }
 }

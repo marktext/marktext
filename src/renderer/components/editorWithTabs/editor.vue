@@ -73,6 +73,7 @@
 </template>
 
 <script>
+import { shell } from 'electron'
 import { mapState } from 'vuex'
 import ViewImage from 'view-image'
 import Muya from 'muya/lib'
@@ -88,24 +89,22 @@ import FormatPicker from 'muya/lib/ui/formatPicker'
 import LinkTools from 'muya/lib/ui/linkTools'
 import TableBarTools from 'muya/lib/ui/tableTools'
 import FrontMenu from 'muya/lib/ui/frontMenu'
-import bus from '../../bus'
 import Search from '../search'
-import { animatedScrollTo } from '../../util'
-import { addCommonStyle, setEditorWidth } from '../../util/theme'
-import { guessClipboardFilePath } from '../../util/clipboard'
-import { showContextMenu } from '../../contextMenu/editor'
-import Printer from '@/services/printService'
+import bus from '@/bus'
 import { DEFAULT_EDITOR_FONT_FAMILY } from '@/config'
-import { moveImageToFolder, uploadImage } from '@/util/fileSystem'
+import { showContextMenu } from '@/contextMenu/editor'
 import notice from '@/services/notification'
+import Printer from '@/services/printService'
+import { offsetToWordCursor, validateLineCursor, SpellChecker } from '@/spellchecker'
+import { isOsx, animatedScrollTo } from '@/util'
+import { moveImageToFolder, uploadImage } from '@/util/fileSystem'
+import { guessClipboardFilePath } from '@/util/clipboard'
+import { addCommonStyle, setEditorWidth } from '@/util/theme'
 
 import 'muya/themes/default.css'
 import '@/assets/themes/codemirror/one-dark.css'
 import 'view-image/lib/imgViewer.css'
 import CloseIcon from '@/assets/icons/close.svg'
-import { shell } from 'electron'
-
-import { offsetToWordCursor, validateLineCursor, SpellChecker } from '@/spellchecker'
 
 const STANDAR_Y = 320
 
@@ -150,6 +149,7 @@ export default {
       theme: state => state.preferences.theme,
       hideScrollbar: state => state.preferences.hideScrollbar,
       spellcheckerEnabled: state => state.preferences.spellcheckerEnabled,
+      spellcheckerIsHunspell: state => state.preferences.spellcheckerIsHunspell,
       // spellcheckerNoUnderline: state => state.preferences.spellcheckerNoUnderline,
       spellcheckerAutoDetectLanguage: state => state.preferences.spellcheckerAutoDetectLanguage,
       spellcheckerLanguage: state => state.preferences.spellcheckerLanguage,
@@ -165,6 +165,8 @@ export default {
   data () {
     this.defaultFontFamily = DEFAULT_EDITOR_FONT_FAMILY
     this.CloseIcon = CloseIcon
+    // Helper to ignore changes when the spell check provider was changed in settings.
+    this.spellcheckerIgnorChanges = false
     return {
       selectionChange: null,
       editor: null,
@@ -377,6 +379,38 @@ export default {
         }
       }
     },
+    spellcheckerIsHunspell: function (value, oldValue) {
+      // Only allow this when the OS supports multiple spell checker.
+      const allowed = isOsx
+      const { spellchecker } = this
+      if (allowed && value !== oldValue && spellchecker && spellchecker.isInitialized) {
+        const { isHunspell } = spellchecker
+        if (value === isHunspell) {
+          this.spellcheckerIgnorChanges = false
+
+          // Apply language from settings that may have changed.
+          // NOTE: Language may be invalid because provider 1 support language xyz
+          // but provider 2 not.
+          const { spellcheckerLanguage } = this
+          spellchecker.switchLanguage(spellcheckerLanguage)
+            .catch(err => {
+              const { errorLog } = global.marktext
+              errorLog('Error while switching language:')
+              errorLog(err)
+
+              notice.notify({
+                title: 'Error while switching language',
+                type: 'error',
+                message: err.message
+              })
+            })
+        } else {
+          // Ignore all settings language changes that occur when another
+          // spell check provider is selected.
+          this.spellcheckerIgnorChanges = true
+        }
+      }
+    },
     // spellcheckerNoUnderline: function (value, oldValue) {
     //   const { spellchecker } = this
     //   if (value !== oldValue && spellchecker && spellchecker.isEnabled) {
@@ -386,13 +420,12 @@ export default {
     spellcheckerAutoDetectLanguage: function (value, oldValue) {
       const { spellchecker } = this
       if (value !== oldValue && spellchecker && spellchecker.isInitialized) {
-        // TODO(spell): If `false` send/set prefered language before changing.
         spellchecker.automaticallyIdentifyLanguages = value
       }
     },
     spellcheckerLanguage: function (value, oldValue) {
-      const { spellchecker } = this
-      if (value !== oldValue && spellchecker) {
+      const { spellchecker, spellcheckerIgnorChanges: ignore } = this
+      if (!ignore && value !== oldValue && spellchecker) {
         const {
           isEnabled,
           isInitialized
@@ -568,7 +601,6 @@ export default {
       })
 
       this.editor.on('format-click', ({ event, formatType, data }) => {
-        const isOsx = this.platform === 'darwin'
         const ctrlOrMeta = (isOsx && event.metaKey) || (!isOsx && event.ctrlKey)
         if (formatType === 'link' && ctrlOrMeta) {
           this.$store.dispatch('FORMAT_LINK_CLICK', { data, dirname: window.DIRNAME })

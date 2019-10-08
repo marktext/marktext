@@ -1,6 +1,6 @@
 <template>
   <div class="pref-spellchecker">
-    <h4>Spell Checker</h4>
+    <h4>Spelling</h4>
     <bool
       description="Whether the experimental spell checker is enabled to check for spelling mistakes."
       :bool="spellcheckerEnabled"

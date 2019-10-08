@@ -7,18 +7,12 @@ require('rxjs/add/operator/mergeMap');
 require('rxjs/add/operator/reduce');
 require('rxjs/add/operator/toPromise');
 
-// const { fs } = require('./promisify');
 const { normalizeLanguageCode } = require('./utility');
 
 let d = require('debug')('electron-spellchecker:dictionary-sync');
 
-const app = process.type === 'renderer' ?
-  require('electron').remote.app :
-  require('electron').app;
-
 /**
- * DictioanrySync handles downloading and saving Hunspell dictionaries. Pass it
- * to {{SpellCheckHandler}} to configure a custom cache directory.
+ * DictioanrySync handles downloading and saving Hunspell dictionaries.
  */
 module.exports = class DictionarySync {
   /**
@@ -26,12 +20,10 @@ module.exports = class DictionarySync {
    *
    * @param  {Boolean} isHunspell  Whether Hunspell is used or the OS spell checker.
    * @param  {String}  cacheDir    The path to a directory to store dictionaries.
-   *                               If not given, the Electron user data directory
-   *                               will be used.
    */
-  constructor(isHunspell, cacheDir=null) {
+  constructor(isHunspell, cacheDir) {
     this.isHunspell = isHunspell
-    this.cacheDir = cacheDir || path.join(app.getPath('userData'), 'dictionaries');
+    this.cacheDir = cacheDir;
     fs.mkdirpSync(this.cacheDir);
   }
 
@@ -78,10 +70,5 @@ module.exports = class DictionarySync {
     }
 
     throw new Error("Unable to load dictionary file.");
-  }
-
-  preloadDictionaries() {
-    // NB: This is retained solely to not break earlier versions
-    return Observable.of(true);
   }
 }
