@@ -77,7 +77,6 @@ export default function renderLeafBlock (block, activeBlocks, matches, useCache 
   const {
     text,
     type,
-    align,
     checked,
     key,
     lang,
@@ -120,11 +119,7 @@ export default function renderLeafBlock (block, activeBlocks, matches, useCache 
     })
   }
 
-  if (/th|td/.test(type) && align) {
-    Object.assign(data.attrs, {
-      style: `text-align:${align}`
-    })
-  } else if (type === 'div') {
+  if (type === 'div') {
     const code = this.codeCache.get(block.preSibling)
     switch (functionType) {
       case 'html': {

@@ -54,10 +54,16 @@ const enterCtrl = ContentState => {
     const len = row.children.length
     let i
     for (i = 0; i < len; i++) {
-      const tdBlock = this.createBlock('td')
       const preChild = row.children[i]
-      tdBlock.column = i
-      tdBlock.align = preChild.align
+      const tdBlock = this.createBlock('td', {
+        column: i,
+        align: preChild.align
+      })
+      const cellContent = this.createBlock('span', {
+        functionType: 'cellContent'
+      })
+
+      this.appendChild(tdBlock, cellContent)
       this.appendChild(trBlock, tdBlock)
     }
     return trBlock
@@ -264,7 +270,7 @@ const enterCtrl = ContentState => {
     // Insert `<br/>` in table cell if you want to open a new line.
     // Why not use `soft line break` or `hard line break` ?
     // Becasuse table cell only have one line.
-    if (event.shiftKey && /th|td/.test(block.type)) {
+    if (event.shiftKey && block.functionType === 'cellContent') {
       const { text, key } = block
       const brTag = '<br/>'
       block.text = text.substring(0, start.offset) + brTag + text.substring(start.offset)
@@ -297,10 +303,10 @@ const enterCtrl = ContentState => {
     }
 
     // handle enter in table
-    if (/th|td/.test(block.type)) {
-      const row = this.getBlock(block.parent)
+    if (block.functionType === 'cellContent') {
+      const row = this.closest(block, 'tr')
       const rowContainer = this.getBlock(row.parent)
-      const table = this.getBlock(rowContainer.parent)
+      const table = this.closest(rowContainer, 'table')
 
       if (
         (isOsx && event.metaKey) ||

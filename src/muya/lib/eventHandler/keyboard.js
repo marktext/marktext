@@ -127,6 +127,7 @@ class Keyboard {
       if (event.metaKey || event.ctrlKey) {
         container.classList.add('ag-meta-or-ctrl')
       }
+
       if (
         this.shownFloat.size > 0 &&
         (
@@ -170,11 +171,6 @@ class Keyboard {
           if (!this.isComposed) {
             contentState.enterHandler(event)
             this.muya.dispatchChange()
-          }
-          break
-        case 'a':
-          if (event.ctrlKey) {
-            contentState.tableCellHandler(event)
           }
           break
         case EVENT_KEYS.ArrowUp: // fallthrough

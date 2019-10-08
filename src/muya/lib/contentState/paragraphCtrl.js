@@ -724,23 +724,43 @@ const paragraphCtrl = ContentState => {
   }
 
   ContentState.prototype.selectAll = function () {
-    const { start } = this.cursor
+    const { start, end } = this.cursor
     const startBlock = this.getBlock(start.key)
-    // const endBlock = this.getBlock(end.key)
-    // handle selectAll in table. only select the startBlock cell...
-    if (/th|td/.test(startBlock.type)) {
-      const { key } = start
-      const textLength = startBlock.text.length
-      this.cursor = {
-        start: {
-          key,
-          offset: 0
-        },
-        end: {
-          key,
-          offset: textLength
+    const endBlock = this.getBlock(end.key)
+    // handle selectAll in table.
+    if (startBlock.functionType === 'cellContent' && endBlock.functionType === 'cellContent') {
+      if (start.key === end.key) {
+        const { text, key } = startBlock
+        this.cursor = {
+          start: { key, offset: 0 },
+          end: { key, offset: text.length }
+        }
+      } else {
+        const startTable = this.closest(startBlock, 'table')
+        const endTable = this.closest(endBlock, 'table')
+        // Check whether both blocks are in the same table.
+        if (!startTable || !endTable) {
+          console.error('No table found or invalid type.')
+          return
+        } else if (startTable.key !== endTable.key) {
+          // Select entire document
+          return
+        }
+        const firstTableCell = this.firstInDescendant(startTable)
+        const lastTableCell = this.lastInDescendant(startTable)
+        if (!firstTableCell || firstTableCell.functionType !== 'cellContent' ||
+          !lastTableCell || lastTableCell.functionType !== 'cellContent') {
+          console.error('No table cell found or invalid type.')
+          return
+        }
+        const { key: startKey } = firstTableCell
+        const { key: endKey, text } = lastTableCell
+        this.cursor = {
+          start: { key: startKey, offset: 0 },
+          end: { key: endKey, offset: text.length }
         }
       }
+
       return this.partialRender()
     }
     // Handler selectAll in code block. only select all the code block conent.

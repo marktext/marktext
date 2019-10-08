@@ -219,9 +219,14 @@ const importRegister = ContentState => {
           for (const headText of header) {
             const i = header.indexOf(headText)
             const th = this.createBlock('th', {
-              text: restoreTableEscapeCharacters(headText)
+              align: align[i] || '',
+              column: i
             })
-            Object.assign(th, { align: align[i] || '', column: i })
+            const cellContent = this.createBlock('span', {
+              text: restoreTableEscapeCharacters(headText),
+              functionType: 'cellContent'
+            })
+            this.appendChild(th, cellContent)
             this.appendChild(theadRow, th)
           }
           for (const row of cells) {
@@ -229,9 +234,15 @@ const importRegister = ContentState => {
             for (const cell of row) {
               const i = row.indexOf(cell)
               const td = this.createBlock('td', {
-                text: restoreTableEscapeCharacters(cell)
+                align: align[i] || '',
+                column: i
               })
-              Object.assign(td, { align: align[i] || '', column: i })
+              const cellContent = this.createBlock('span', {
+                text: restoreTableEscapeCharacters(cell),
+                functionType: 'cellContent'
+              })
+
+              this.appendChild(td, cellContent)
               this.appendChild(rowBlock, td)
             }
             this.appendChild(tbody, rowBlock)
@@ -358,8 +369,9 @@ const importRegister = ContentState => {
     html = html.replace(/<span>&nbsp;<\/span>/g, String.fromCharCode(160))
 
     html = turnSoftBreakToSpan(html)
-
+    console.log(html)
     const markdown = turndownService.turndown(html)
+    console.log(markdown)
     return markdown
   }
 

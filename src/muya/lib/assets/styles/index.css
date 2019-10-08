@@ -40,8 +40,16 @@ div.ag-show-quick-insert-hint p.ag-paragraph.ag-active > span.ag-paragraph-conte
 .ag-atx-line:empty::after,
 .ag-thematic-break-line:empty::after,
 .ag-code-content:empty::after,
+.ag-cell-content:empty::after,
 .ag-paragraph-content:empty::after {
   content: '\200B';
+}
+
+.ag-cell-content {
+  display: inline-block;
+  min-width: 1em;
+  width: 100%;
+  min-height: 10px;
 }
 
 .ag-atx-line,

@@ -403,8 +403,8 @@ kbd {
     padding: 6px 13px;
   }
 
-  table tr th::before,
-  table tr td::before {
+  table tr th::after,
+  table tr td::after {
     content: '';
     position: absolute;
     top: 0;

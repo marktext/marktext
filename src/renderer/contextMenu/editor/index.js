@@ -24,7 +24,7 @@ export const showContextMenu = (event, { start, end }) => {
   const disableCutAndCopy = start.key === end.key && start.offset === end.offset
   const CONTEXT_ITEMS = [INSERT_BEFORE, INSERT_AFTER, SEPARATOR, CUT, COPY, PASTE, SEPARATOR, COPY_AS_MARKDOWN, COPY_AS_HTML, PASTE_AS_PLAIN_TEXT]
 
-  if (/th|td/.test(start.block.type) && start.key === end.key) {
+  if (start.block.functionType === 'cellContent' && start.key === end.key) {
     CONTEXT_ITEMS.unshift(
       INSERT_ROW,
       REMOVE_ROW,

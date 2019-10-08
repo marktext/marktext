@@ -8,7 +8,6 @@ import backspaceCtrl from './backspaceCtrl'
 import deleteCtrl from './deleteCtrl'
 import codeBlockCtrl from './codeBlockCtrl'
 import tableBlockCtrl from './tableBlockCtrl'
-import selectionCtrl from './selectionCtrl'
 import History from './history'
 import arrowCtrl from './arrowCtrl'
 import pasteCtrl from './pasteCtrl'
@@ -33,7 +32,6 @@ import escapeCharactersMap, { escapeCharacters } from '../parser/escapeCharacter
 const prototypes = [
   tabCtrl,
   enterCtrl,
-  selectionCtrl,
   updateCtrl,
   backspaceCtrl,
   deleteCtrl,
@@ -411,26 +409,16 @@ class ContentState {
     }
   }
 
-  // help func in removeBlocks
-  findFigure (block) {
-    if (block.type === 'figure') {
-      return block.key
-    } else {
-      const parent = this.getBlock(block.parent)
-      return this.findFigure(parent)
-    }
-  }
-
   /**
    * remove blocks between before and after, and includes after block.
    */
   removeBlocks (before, after, isRemoveAfter = true, isRecursion = false) {
     if (!isRecursion) {
       if (/td|th/.test(before.type)) {
-        this.exemption.add(this.findFigure(before))
+        this.exemption.add(this.closest(before, 'figure'))
       }
       if (/td|th/.test(after.type)) {
-        this.exemption.add(this.findFigure(after))
+        this.exemption.add(this.closest(after, 'figure'))
       }
     }
     let nextSibling = this.getBlock(before.nextSibling)

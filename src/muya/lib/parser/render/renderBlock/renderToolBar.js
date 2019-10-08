@@ -32,7 +32,7 @@ export const TABLE_TOOLS = [{
 const renderToolBar = (type, tools, activeBlocks) => {
   const children = tools.map(tool => {
     const { label, title, icon } = tool
-    const { align } = activeBlocks[0]
+    const { align } = activeBlocks[1] // activeBlocks[0] is span block. cell content.
     let selector = 'li'
     if (align && label === align) {
       selector += '.active'

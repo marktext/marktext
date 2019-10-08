@@ -18,6 +18,7 @@ const PRE_BLOCK_HASH = {
 export default function renderContainerBlock (block, activeBlocks, matches, useCache = false) {
   let selector = this.getSelector(block, activeBlocks)
   const {
+    align,
     type,
     headingStyle,
     editable,
@@ -41,8 +42,11 @@ export default function renderContainerBlock (block, activeBlocks, matches, useC
   if (/code|pre/.test(type) && typeof lang === 'string' && !!lang) {
     selector += `.language-${lang.replace(/[#.]{1}/g, '')}`
   }
-
-  if (/^h/.test(type)) {
+  if (/th|td/.test(type) && align) {
+    Object.assign(data.attrs, {
+      style: `text-align:${align}`
+    })
+  } else if (/^h/.test(type)) {
     if (/^h\d$/.test(type)) {
       // TODO: This should be the best place to create and update the TOC.
       //       Cache `block.key` and title and update only if necessary.

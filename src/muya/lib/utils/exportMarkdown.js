@@ -285,10 +285,10 @@ class ExportMarkdown {
       return str.replace(/([^\\])\|/g, '$1\\|')
     }
 
-    tableData.push(tHeader.children[0].children.map(th => escapeText(th.text).trim()))
+    tableData.push(tHeader.children[0].children.map(th => escapeText(th.children[0].text).trim()))
     if (tBody) {
       tBody.children.forEach(bodyRow => {
-        tableData.push(bodyRow.children.map(td => escapeText(td.text).trim()))
+        tableData.push(bodyRow.children.map(td => escapeText(td.children[0].text).trim()))
       })
     }
 
