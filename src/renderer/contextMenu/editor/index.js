@@ -34,11 +34,17 @@ export const showContextMenu = (event, selectionChanges, spellchecker, selectedW
         label: dict,
         enabled: dict !== currentLanguage,
         click (menuItem, browserWindow) {
-          spellchecker.switchLanguage(dict).then(m => {
-            // TODO(spell): Handle result
-            console.log(m)
-            alert(JSON.stringify(m, null, 2))
-          })
+          spellchecker.switchLanguage(dict)
+            .then(langCode => {
+              // TODO(spell): Handle result
+              console.log(langCode)
+              alert(JSON.stringify(langCode, null, 2))
+            })
+            .catch(error => {
+              // TODO(spell): Handle error
+              console.error(error)
+              alert(error.message)
+            })
         }
       }))
     }

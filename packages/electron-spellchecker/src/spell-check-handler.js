@@ -144,7 +144,7 @@ module.exports = class SpellCheckHandler {
     this.isEnabled = false;
 
     this.scheduler = scheduler;
-    this._automaticallyIdentifyLanguages = false;
+    this._automaticallyIdentifyLanguages = !this.isHunspell;
     this._isPassiveMode = false;
 
     this.disp = new SerialSubscription();
@@ -225,21 +225,39 @@ module.exports = class SpellCheckHandler {
   /**
    * Enable spell checker.
    *
-   * @param {[string]} lang Optional language to set.
+   * NOTE: Using `undefined` will use the existing values.
+   * NOTE: When spell checker is already enabled this method has no effect.
+   *
+   * @param {[string]} lang 4-letter language ISO-code.
+   * @param {[boolean]} automaticallyIdentifyLanguages Whether we should try to identify the typed language.
+   * @param {[boolean]} isPassiveMode Should we highlight misspelled words?
    */
-  async enableSpellchecker(lang = '') {
+  async enableSpellchecker(lang = undefined, automaticallyIdentifyLanguages = undefined, isPassiveMode = undefined) {
     if (this.isEnabled) {
       return true;
     }
 
+    if (typeof lang === 'undefined') {
+      lang = this.currentSpellcheckerLanguage || 'en-US';
+    }
+    if (typeof automaticallyIdentifyLanguages === 'undefined') {
+      automaticallyIdentifyLanguages = this.automaticallyIdentifyLanguages;
+    }
+    if (typeof isPassiveMode === 'undefined') {
+      isPassiveMode = this.isPassiveMode;
+    }
+
     if (!this.isHunspell) {
+      // Using macOS native spell checker.
       this.currentSpellchecker = new Spellchecker();
       this.isEnabled = true;
 
       // Keep automatic language detection enabled.
-      if (this.automaticallyIdentifyLanguages) {
-        this.currentSpellcheckerLanguage = 'en-US';
-        this._automaticallyIdentifyLanguages = true;
+      if (automaticallyIdentifyLanguages) {
+        // Set fallback value.
+        this.currentSpellcheckerLanguage = lang;
+        this.automaticallyIdentifyLanguages = true;
+        this.isPassiveMode = isPassiveMode;
 
         this.attachToInput();
         if (webFrame) {
@@ -249,19 +267,23 @@ module.exports = class SpellCheckHandler {
         this.currentSpellcheckerChanged.next(true);
         return true;
       }
+      // else: fallthrough and switch language
     }
 
-    let language = this.currentSpellcheckerLanguage;
-    if (lang) {
-      language = lang;
-    } else if (!language) {
-      return false;
-    }
+    // Using Hunspell
 
-    const result = await this.switchLanguage(language);
+    this.currentSpellcheckerLanguage = lang;
+    this.automaticallyIdentifyLanguages = automaticallyIdentifyLanguages;
+    this.isPassiveMode = isPassiveMode;
+
+    const result = await this.switchLanguage(lang);
     if (result) {
       this.attachToInput();
     }
+
+    // TODO(spell): Handle invalid state. Spell checker is enabled but
+    // unable to load the requested language (spellchecker language != current).
+
     return result;
   }
 
@@ -495,7 +517,15 @@ module.exports = class SpellCheckHandler {
     // Set language on macOS (OS spell checker)
     if (!this.isHunspell && this.currentSpellchecker) {
       d(`Setting current spellchecker to ${langCode}`);
-      this.currentSpellcheckerLanguage = langCode;
+
+      // An empty language code enables the automatic language detection.
+      if (!langCode) {
+        this._automaticallyIdentifyLanguages = true;
+        this.currentSpellcheckerLanguage = this.currentSpellcheckerLanguage || 'en-US';
+      } else {
+        this._automaticallyIdentifyLanguages = false;
+        this.currentSpellcheckerLanguage = langCode;
+      }
       return this.currentSpellchecker.setDictionary(langCode);
     }
 
@@ -694,7 +724,9 @@ module.exports = class SpellCheckHandler {
   }
 
   /**
-   * A proxy for the current spellchecker's method of the same name.
+   * Add a word to the user dictionary.
+   *
+   * @param {string} word The word to add.
    */
   async addToDictionary(word) {
     // NB: Same deal as getCorrectionsForMisspelling.
@@ -713,7 +745,9 @@ module.exports = class SpellCheckHandler {
   }
 
   /**
-   * A proxy for the current spellchecker's method of the same name
+   * Remove a word frome the user dictionary.
+   *
+   * @param {string} word The word to remove.
    */
   async removeFromDictionary(word) {
     // NB: Same deal as getCorrectionsForMisspelling.

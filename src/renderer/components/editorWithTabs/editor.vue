@@ -331,12 +331,12 @@ export default {
 
         // Spell check is available but not initialized.
         if (value && !spellchecker.isInitialized) {
-          spellchecker.init(spellcheckerLanguage, spellcheckerNoUnderline)
+          spellchecker.init(
+            spellcheckerLanguage,
+            spellcheckerAutoDetectLanguage,
+            spellcheckerNoUnderline
+          )
             .then(m => {
-              if (spellcheckerAutoDetectLanguage !== spellchecker.spellcheckerAutoDetectLanguage) {
-                spellchecker.spellcheckerAutoDetectLanguage = spellcheckerAutoDetectLanguage
-              }
-
               console.log('Spell checker initialized and attached to window. Language: %o', m) // #DEBUG
             })
             .catch(err => {
@@ -356,16 +356,13 @@ export default {
         // Enable or disable spell checker.
         if (spellchecker.isInitialized) {
           if (value) {
-            spellchecker.enableSpellchecker()
+            spellchecker.enableSpellchecker(
+              spellcheckerLanguage,
+              spellcheckerAutoDetectLanguage,
+              spellcheckerNoUnderline
+            )
               .then(status => {
-                if (status) {
-                  if (spellcheckerAutoDetectLanguage !== spellchecker.spellcheckerAutoDetectLanguage) {
-                    spellchecker.spellcheckerAutoDetectLanguage = spellcheckerAutoDetectLanguage
-                  }
-                  if (spellcheckerNoUnderline !== spellchecker.spellcheckerNoUnderline) {
-                    spellchecker.spellcheckerNoUnderline = spellcheckerNoUnderline
-                  }
-                } else {
+                if (!status) {
                   // Non-critical error
                   const { errorLog } = global.marktext
                   errorLog('Non-critical error while enabling spell checking:')
@@ -408,6 +405,11 @@ export default {
           // but provider 2 not.
           const { spellcheckerLanguage } = this
           spellchecker.switchLanguage(spellcheckerLanguage)
+            .then(langCode => {
+              if (!langCode) {
+                // TODO(spell): Unable to switch language.
+              }
+            })
             .catch(err => {
               const { errorLog } = global.marktext
               errorLog('Error while switching language:')
@@ -450,6 +452,11 @@ export default {
 
         if (isEnabled) {
           spellchecker.switchLanguage(value)
+            .then(langCode => {
+              if (!langCode) {
+                // TODO(spell): Unable to switch language.
+              }
+            })
             .catch(err => {
               const { errorLog } = global.marktext
               errorLog('Error while switching language:')
@@ -562,11 +569,15 @@ export default {
       const { container } = this.editor = new Muya(ele, options)
 
       // Create spell check wrapper
-      this.spellchecker = new SpellChecker(spellcheckerAutoDetectLanguage, spellcheckerEnabled)
+      this.spellchecker = new SpellChecker(spellcheckerEnabled)
 
       // Enable spell checking if prefered.
       if (spellcheckerEnabled) {
-        this.spellchecker.init(spellcheckerLanguage, spellcheckerNoUnderline)
+        this.spellchecker.init(
+          spellcheckerLanguage,
+          spellcheckerAutoDetectLanguage,
+          spellcheckerNoUnderline
+        )
           .then(m => {
             console.log('Spell checker initialized and attached to window. Language: %o', m) // #DEBUG
           })

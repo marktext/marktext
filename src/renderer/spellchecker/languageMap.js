@@ -12,7 +12,7 @@ export const getLanguageName = languageCode => {
 
   let language = ''
 
-  // First try to get an exact lanugage via 4-letter ISO code.
+  // First try to get an exact language via 4-letter ISO code.
   if (languageCode.length === 5) {
     language = getHunspellLanguageName(languageCode)
     if (language) {

@@ -254,7 +254,7 @@
     "default": false
   },
   "spellcheckerLanguage": {
-    "description": "Spelling--The spell checker lanugage",
+    "description": "Spelling--The spell checker language",
     "pattern": "^[a-z]{2}(?:[-][A-Z]{2})?$",
     "default": "en-US"
   },

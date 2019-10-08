@@ -2,6 +2,8 @@ const DictionarySync = require('./dictionary-sync');
 const SpellCheckHandler = require('./spell-check-handler');
 const SpellChecker = require('./node-spellchecker');
 const UserDictionary = require('./user-dictionary');
+const { normalizeLanguageCode } = require('./utility');
+const fallbackLocales = require('./fallback-locales')
 
 /**
  * Overrides the default logging function (the `debug` library) with another
@@ -20,4 +22,6 @@ module.exports = {
   SpellCheckHandler,
   SpellChecker,
   setGlobalLogger,
+  fallbackLocales,
+  normalizeLanguageCode,
 };

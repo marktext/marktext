@@ -26,7 +26,7 @@
       :onChange="value => onSelectChange('spellcheckerAutoDetectLanguage', value)"
     ></bool>
     <cur-select
-      description="The spell checker lanugage."
+      description="The spell checker language."
       :value="spellcheckerLanguage"
       :options="availableDictionaries"
       :disable="!spellcheckerEnabled"
