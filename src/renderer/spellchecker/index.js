@@ -111,11 +111,11 @@ export class SpellChecker {
     this.isInitialized = true
   }
 
-  async init (lang = '') {
+  async init (lang = '', isPassiveMode = false) {
     if (this.isEnabled) {
       return
     } else if (!this.isInitialized) {
-      this._initHandler(false)
+      this._initHandler(false, false)
     }
 
     if (!lang) {
@@ -134,6 +134,9 @@ export class SpellChecker {
     if (!currentLang) {
       throw new Error('SpellChecker: Error while initializing SpellChecker.')
     }
+
+    // If true, don't highlight misspelled words.
+    this.provider.isPassiveMode = isPassiveMode
 
     // Attach the spell checker to the window document.
     this.provider.attachToInput()
@@ -246,6 +249,27 @@ export class SpellChecker {
     //   return
     // }
     this.provider.automaticallyIdentifyLanguages = !!value
+  }
+
+  /**
+   * Returns true if not misspelled words should be highlighted.
+   */
+  get spellcheckerNoUnderline () {
+    if (!this.isEnabled) {
+      return false
+    }
+    return this.provider.spellcheckerNoUnderline
+  }
+
+  /**
+   * Should we highlight misspelled words.
+   */
+  set spellcheckerNoUnderline (value) {
+    // TODO(spell): Allow to change state when disabled.
+    if (!this.isEnabled) {
+      return
+    }
+    this.provider.spellcheckerNoUnderline = !!value
   }
 
   /**

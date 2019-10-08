@@ -131,6 +131,7 @@ module.exports = class SpellCheckHandler {
 
     // TODO(spell): Ask spellchecker which spell checker is used.
     this.isHunspell = !isMac || !!process.env['SPELLCHECKER_PREFER_HUNSPELL']
+    // Don't underline spelling mistakes.
     this.dictionarySync = new DictionarySync(this.isHunspell, cacheDir);
     this.userDictionary = new UserDictionary(cacheDir);
     this.switchToLanguage = new Subject();
@@ -143,7 +144,8 @@ module.exports = class SpellCheckHandler {
     this.isEnabled = false;
 
     this.scheduler = scheduler;
-    this._automaticallyIdentifyLanguages = true;
+    this._automaticallyIdentifyLanguages = false;
+    this._isPassiveMode = false;
 
     this.disp = new SerialSubscription();
 
@@ -181,6 +183,34 @@ module.exports = class SpellCheckHandler {
       this.switchLanguage();
     } else if (!this.isHunspell && !value && this.currentSpellcheckerLanguage) {
       this.switchLanguage(this.currentSpellcheckerLanguage);
+    }
+  }
+
+  /**
+   * Returns true if not misspelled words should be highlighted.
+   *
+   * NOTE: You should disable spellcheck attribute.
+   */
+  get isPassiveMode() {
+    return this._isPassiveMode;
+  }
+
+  /**
+   * Should we highlight misspelled words.
+   */
+  set isPassiveMode(value) {
+    this._isPassiveMode = !!value;
+
+    // We need to enable CLD because macOS spell checker cannot longer
+    // auto detect the language.
+    if (!this.isHunspell) {
+      if (!!value) {
+        // Enable CLD on document
+        this.attachToInput();
+      } else {
+        // Disable CLD
+        this.disp.unsubscribe();
+      }
     }
   }
 
@@ -269,8 +299,8 @@ module.exports = class SpellCheckHandler {
    *                            things that this method registered.
    */
   attachToInput(inputText=null) {
-    // OS X has no need for any of this
-    if (!this.isHunspell && !inputText) {
+    // OS X has no need for any of this except for passive mode.
+    if (!this.isHunspell && !inputText && !this.isPassiveMode) {
       return Subscription.EMPTY;
     }
 
@@ -292,7 +322,12 @@ module.exports = class SpellCheckHandler {
         }
 
         if (wordsTyped > 2) {
-          d(`${wordsTyped} words typed without spell checking invoked, redetecting language`);
+          if (this.isPassiveMode) {
+            // Reset counter because spell checking is disabled on the document - don't overflow.
+            wordsTyped = 0;
+          } else {
+            d(`${wordsTyped} words typed without spell checking invoked, redetecting language`);
+          }
           possiblySwitchedCharacterSets.next(true);
         }
 
@@ -553,7 +588,7 @@ module.exports = class SpellCheckHandler {
    *  @private
    */
   handleElectronSpellCheck(words, callback) {
-    if (!this.currentSpellchecker) {
+    if (!this.currentSpellchecker || this.isPassiveMode) {
       callback([]);
       return;
     }

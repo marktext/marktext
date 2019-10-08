@@ -150,7 +150,7 @@ export default {
       hideScrollbar: state => state.preferences.hideScrollbar,
       spellcheckerEnabled: state => state.preferences.spellcheckerEnabled,
       spellcheckerIsHunspell: state => state.preferences.spellcheckerIsHunspell,
-      // spellcheckerNoUnderline: state => state.preferences.spellcheckerNoUnderline,
+      spellcheckerNoUnderline: state => state.preferences.spellcheckerNoUnderline,
       spellcheckerAutoDetectLanguage: state => state.preferences.spellcheckerAutoDetectLanguage,
       spellcheckerLanguage: state => state.preferences.spellcheckerLanguage,
 
@@ -321,6 +321,8 @@ export default {
       const {
         editor,
         spellchecker,
+        spellcheckerNoUnderline,
+        spellcheckerAutoDetectLanguage,
         spellcheckerLanguage
       } = this
       if (value !== oldValue && spellchecker) {
@@ -329,8 +331,12 @@ export default {
 
         // Spell check is available but not initialized.
         if (value && !spellchecker.isInitialized) {
-          spellchecker.init(spellcheckerLanguage)
+          spellchecker.init(spellcheckerLanguage, spellcheckerNoUnderline)
             .then(m => {
+              if (spellcheckerAutoDetectLanguage !== spellchecker.spellcheckerAutoDetectLanguage) {
+                spellchecker.spellcheckerAutoDetectLanguage = spellcheckerAutoDetectLanguage
+              }
+
               console.log('Spell checker initialized and attached to window. Language: %o', m) // #DEBUG
             })
             .catch(err => {
@@ -352,7 +358,14 @@ export default {
           if (value) {
             spellchecker.enableSpellchecker()
               .then(status => {
-                if (!status) {
+                if (status) {
+                  if (spellcheckerAutoDetectLanguage !== spellchecker.spellcheckerAutoDetectLanguage) {
+                    spellchecker.spellcheckerAutoDetectLanguage = spellcheckerAutoDetectLanguage
+                  }
+                  if (spellcheckerNoUnderline !== spellchecker.spellcheckerNoUnderline) {
+                    spellchecker.spellcheckerNoUnderline = spellcheckerNoUnderline
+                  }
+                } else {
                   // Non-critical error
                   const { errorLog } = global.marktext
                   errorLog('Non-critical error while enabling spell checking:')
@@ -413,12 +426,14 @@ export default {
         }
       }
     },
-    // spellcheckerNoUnderline: function (value, oldValue) {
-    //   const { spellchecker } = this
-    //   if (value !== oldValue && spellchecker && spellchecker.isEnabled) {
-    //     // TODO(spell): Don't underline spelling mistakes but allow corrections via context menu.
-    //   }
-    // },
+    spellcheckerNoUnderline: function (value, oldValue) {
+      const { editor, spellchecker } = this
+      if (value !== oldValue && spellchecker && spellchecker.isEnabled) {
+        // Set Muya's spellcheck container attribute.
+        editor.setOptions({ spellcheckEnabled: !value })
+        spellchecker.isPassiveMode = value
+      }
+    },
     spellcheckerAutoDetectLanguage: function (value, oldValue) {
       const { spellchecker } = this
       if (value !== oldValue && spellchecker && spellchecker.isInitialized) {
@@ -487,6 +502,7 @@ export default {
         theme,
         spellcheckerEnabled,
         spellcheckerAutoDetectLanguage,
+        spellcheckerNoUnderline,
         spellcheckerLanguage
       } = this
 
@@ -548,9 +564,9 @@ export default {
       // Create spell check wrapper
       this.spellchecker = new SpellChecker(spellcheckerAutoDetectLanguage, spellcheckerEnabled)
 
-      // Enable spell checking if prefered. Calling an uninitialized spell checker is not allowed.
+      // Enable spell checking if prefered.
       if (spellcheckerEnabled) {
-        this.spellchecker.init(spellcheckerLanguage)
+        this.spellchecker.init(spellcheckerLanguage, spellcheckerNoUnderline)
           .then(m => {
             console.log('Spell checker initialized and attached to window. Language: %o', m) // #DEBUG
           })

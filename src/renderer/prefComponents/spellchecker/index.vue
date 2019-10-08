@@ -16,19 +16,20 @@
     <bool
       description="Don't underline spelling mistakes. You can still correct spelling mistakes via right click menu."
       :bool="spellcheckerNoUnderline"
-      :disable="true"
+      :disable="!spellcheckerEnabled"
       :onChange="value => onSelectChange('spellcheckerNoUnderline', value)"
     ></bool>
     <bool
       description="Try to automatically identify the used language when typing. This feature is currently not available on Linux and Windows."
       :bool="spellcheckerAutoDetectLanguage"
+      :disable="!spellcheckerEnabled"
       :onChange="value => onSelectChange('spellcheckerAutoDetectLanguage', value)"
     ></bool>
     <cur-select
       description="The spell checker lanugage."
       :value="spellcheckerLanguage"
-      :disable="!spellcheckerEnabled"
       :options="availableDictionaries"
+      :disable="!spellcheckerEnabled"
       :onChange="value => onSelectChange('spellcheckerLanguage', value)"
     ></cur-select>
     <div
@@ -153,7 +154,7 @@ export default {
         // On macOS we only receive the dictionaries when the spell checker is active.
         if (!this.spellChecker) {
           // Create a new spell checker provider without attach it.
-          this.spellChecker = new SpellChecker(false, true)
+          this.spellChecker = new SpellChecker()
         }
 
         // Receive available dictionaries from OS.
