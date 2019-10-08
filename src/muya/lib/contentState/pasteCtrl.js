@@ -314,42 +314,18 @@ const pasteCtrl = ContentState => {
       return
     }
 
-    if (startBlock.type === 'span' && startBlock.functionType === 'codeLine') {
-      let referenceBlock = startBlock
+    if (startBlock.type === 'span' && startBlock.functionType === 'codeContent') {
       const blockText = startBlock.text
       const prePartText = blockText.substring(0, start.offset)
       const postPartText = blockText.substring(end.offset)
-      const textList = text.split(LINE_BREAKS_REG)
-      if (textList.length > 1) {
-        textList.forEach((line, i) => {
-          if (i === 0) {
-            startBlock.text = prePartText + line
-          } else {
-            line = i === textList.length - 1 ? line + postPartText : line
-            const lineBlock = this.createBlock('span', { text: line })
-            lineBlock.functionType = startBlock.functionType
-            lineBlock.lang = startBlock.lang
-            this.insertAfter(lineBlock, referenceBlock)
-            referenceBlock = lineBlock
-            if (i === textList.length - 1) {
-              const { key } = lineBlock
-              const offset = line.length
-              this.cursor = {
-                start: { key, offset },
-                end: { key, offset }
-              }
-            }
-          }
-        })
-      } else {
-        startBlock.text = prePartText + text + postPartText
-        const key = startBlock.key
-        const offset = start.offset + text.length
-        this.cursor = {
-          start: { key, offset },
-          end: { key, offset }
-        }
+      startBlock.text = prePartText + text + postPartText
+      const { key } = startBlock
+      const offset = start.offset + text.length
+      this.cursor = {
+        start: { key, offset },
+        end: { key, offset }
       }
+
       return this.partialRender()
     }
 

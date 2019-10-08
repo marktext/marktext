@@ -237,31 +237,21 @@ const enterCtrl = ContentState => {
       }
       return this.partialRender()
     } else if (
-      block.type === 'span' && block.functionType === 'codeLine'
+      block.type === 'span' && block.functionType === 'codeContent'
     ) {
-      const { text } = block
-      const newLineText = text.substring(start.offset)
+      const { text, key } = block
       const autoIndent = checkAutoIndent(text, start.offset)
       const indent = getIndentSpace(text)
-      block.text = text.substring(0, start.offset)
-      const newLine = this.createBlock('span', {
-        text: `${indent}${newLineText}`,
-        functionType: block.functionType,
-        lang: block.lang
-      })
+      block.text = text.substring(0, start.offset) +
+        '\n' +
+        (autoIndent ? indent + ' '.repeat(this.tabSize) + '\n' : '') +
+        indent +
+        text.substring(start.offset)
 
-      this.insertAfter(newLine, block)
-      let { key } = newLine
-      let offset = indent.length
+      let offset = start.offset + 1 + indent.length
+
       if (autoIndent) {
-        const emptyLine = this.createBlock('span', {
-          text: indent + ' '.repeat(this.tabSize)
-        })
-        emptyLine.functionType = block.functionType
-        emptyLine.lang = block.lang
-        this.insertAfter(emptyLine, block)
-        key = emptyLine.key
-        offset = indent.length + this.tabSize
+        offset += this.tabSize
       }
 
       this.cursor = {

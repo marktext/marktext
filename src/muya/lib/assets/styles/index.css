@@ -39,7 +39,7 @@ div.ag-show-quick-insert-hint p.ag-paragraph.ag-active > span.ag-paragraph-conte
 
 .ag-atx-line:empty::after,
 .ag-thematic-break-line:empty::after,
-.ag-code-line:empty::after,
+.ag-code-content:empty::after,
 .ag-paragraph-content:empty::after {
   content: '\200B';
 }
@@ -47,7 +47,7 @@ div.ag-show-quick-insert-hint p.ag-paragraph.ag-active > span.ag-paragraph-conte
 .ag-atx-line,
 .ag-thematic-break-line,
 .ag-paragraph-content,
-.ag-code-line {
+.ag-code-content {
   display: block;
   white-space: pre-wrap;
   word-break: break-word;
@@ -76,6 +76,7 @@ div.ag-show-quick-insert-hint p.ag-paragraph.ag-active > span.ag-paragraph-conte
 .ag-hard-line-break-space::after {
   content: '↩';
   opacity: .5;
+  font-family: monospace;
 }
 
 .ag-line-end {
@@ -402,7 +403,6 @@ li.ag-task-list-item > input[type=checkbox]::before {
   content: '';
   width: 18px;
   height: 18px;
-  box-sizing: border-box;
   display: inline-block;
   border: 2px solid var(--editorColor50);
   border-radius: 50%;
@@ -477,7 +477,7 @@ pre.ag-front-matter {
   margin: 1rem 0;
 }
 
-pre.ag-front-matter span.ag-code-line:first-of-type:empty::after {
+pre.ag-front-matter span.ag-code-content:first-of-type:empty::after {
   content: 'Input YAML Front Matter...';
   color: var(--editorColor10);
 }
@@ -487,7 +487,7 @@ pre[data-role$='code'] span.ag-language-input:empty::after {
   color: var(--editorColor10);
 }
 
-pre.ag-multiple-math span.ag-code-line:first-of-type:empty::after {
+pre.ag-multiple-math span.ag-code-content:first-of-type:empty::after {
   content: 'Input Mathematical Formula...';
   color: var(--editorColor10);
 }
@@ -673,7 +673,7 @@ span.ag-emoji-marked-text {
 .ag-emoji-marked-text::before {
   position: absolute;
   content: attr(data-emoji);
-  color: var(--editorColor);
+  color: #000000;
   top: 0;
   left: -1.3em;
   font-size: 1em;

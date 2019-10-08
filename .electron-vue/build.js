@@ -116,6 +116,7 @@ function greeting () {
       font: 'simple3d',
       space: false
     })
-  } else console.log(chalk.yellow.bold('\n  lets-build'))
-  console.log()
+  } else {
+    console.log(chalk.yellow.bold('\n  lets-build'))
+  }
 }

@@ -873,10 +873,10 @@
     once "^1.4.0"
     universal-user-agent "^4.0.0"
 
-"@octokit/rest@^16.30.1":
-  version "16.30.1"
-  resolved "https://registry.npmjs.org/@octokit/rest/-/rest-16.30.1.tgz#03e6dfb93e9a9cd2b3bacb95c49a8c7923f42ad0"
-  integrity sha512-1n2QzTbbaBXNLpx7WHlcsSMdJvxSdKmerXQm+bMYlKDbQM19uq446ZpGs7Ynq5SsdLj1usIfgJ9gJf4LtcWkDw==
+"@octokit/rest@^16.31.0":
+  version "16.31.0"
+  resolved "https://registry.npmjs.org/@octokit/rest/-/rest-16.31.0.tgz#97ceba8e9b6bfdaffa321d7022917053fcb7dc39"
+  integrity sha512-ZmMpc59N/Ju8FjN2qyOefB+vLppO/8uP/tPyvwEe7cQxdXvPx0OXL/OxDLib8tnT046AtgMNYaXH3FpZnrUdOA==
   dependencies:
     "@octokit/request" "^5.0.0"
     "@octokit/request-error" "^1.0.2"
@@ -10216,6 +10216,14 @@ schema-utils@^2.2.0:
     ajv "^6.10.2"
     ajv-keywords "^3.4.1"
 
+schema-utils@^2.4.1:
+  version "2.4.1"
+  resolved "https://registry.npmjs.org/schema-utils/-/schema-utils-2.4.1.tgz#e89ade5d056dc8bcaca377574bb4a9c4e1b8be56"
+  integrity sha512-RqYLpkPZX5Oc3fw/kHHHyP56fg5Y+XBpIpV8nCg0znIALfq3OH+Ea9Hfeac9BAMwG5IICltiZ0vxFvJQONfA5w==
+  dependencies:
+    ajv "^6.10.2"
+    ajv-keywords "^3.4.1"
+
 scope-css@^1.2.1:
   version "1.2.1"
   resolved "https://registry.npmjs.org/scope-css/-/scope-css-1.2.1.tgz#c35768bc900cad030a3e0d663a818c0f6a57f40e"
@@ -11690,14 +11698,14 @@ urix@^0.1.0:
   resolved "https://registry.npmjs.org/urix/-/urix-0.1.0.tgz#da937f7a62e21fec1fd18d49b35c2935067a6c72"
   integrity sha1-2pN/emLiH+wf0Y1Js1wpNQZ6bHI=
 
-url-loader@^2.1.0:
-  version "2.1.0"
-  resolved "https://registry.npmjs.org/url-loader/-/url-loader-2.1.0.tgz#bcc1ecabbd197e913eca23f5e0378e24b4412961"
-  integrity sha512-kVrp/8VfEm5fUt+fl2E0FQyrpmOYgMEkBsv8+UDP1wFhszECq5JyGF33I7cajlVY90zRZ6MyfgKXngLvHYZX8A==
+url-loader@^2.2.0:
+  version "2.2.0"
+  resolved "https://registry.npmjs.org/url-loader/-/url-loader-2.2.0.tgz#af321aece1fd0d683adc8aaeb27829f29c75b46e"
+  integrity sha512-G8nk3np8ZAnwhHXas1JxJEwJyQdqFXAKJehfgZ/XrC48volFBRtO+FIKtF2u0Ma3bw+4vnDVjHPAQYlF9p2vsw==
   dependencies:
     loader-utils "^1.2.3"
     mime "^2.4.4"
-    schema-utils "^2.0.0"
+    schema-utils "^2.4.1"
 
 url-parse-lax@^3.0.0:
   version "3.0.0"

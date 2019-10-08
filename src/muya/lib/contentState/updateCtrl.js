@@ -68,7 +68,7 @@ const updateCtrl = ContentState => {
   ContentState.prototype.checkInlineUpdate = function (block) {
     // table cell can not have blocks in it
     if (/th|td|figure/.test(block.type)) return false
-    if (/codeLine|languageInput/.test(block.functionType)) return false
+    if (/codeContent|languageInput/.test(block.functionType)) return false
 
     let line = null
     const { text } = block
@@ -84,7 +84,7 @@ const updateCtrl = ContentState => {
 
     switch (true) {
       case (!!hr && new Set(hr.split('').filter(i => /\S/.test(i))).size === 1):
-        return this.updateHr(block, hr, line)
+        return this.updateThematicBreak(block, hr, line)
 
       case !!bullet:
         return this.updateList(block, 'bullet', bullet, line)
@@ -115,7 +115,7 @@ const updateCtrl = ContentState => {
   }
 
   // Thematic break
-  ContentState.prototype.updateHr = function (block, marker, line) {
+  ContentState.prototype.updateThematicBreak = function (block, marker, line) {
     // If the block is already thematic break, no need to update.
     if (block.type === 'hr') return null
     const text = line.text
@@ -124,9 +124,10 @@ const updateCtrl = ContentState => {
     let thematicLine = ''
     const postParagraphLines = []
     let thematicLineHasPushed = false
-
     for (const l of lines) {
-      if (/ {0,3}(?:\\* *\\* *\\*|- *- *-|_ *_ *_)[ \\*\\-\\_]*$/.test(l) && !thematicLineHasPushed) {
+      /* eslint-disable no-useless-escape */
+      if (/ {0,3}(?:\* *\* *\*|- *- *-|_ *_ *_)[ \*\-\_]*$/.test(l) && !thematicLineHasPushed) {
+      /* eslint-enable no-useless-escape */
         thematicLine = l
         thematicLineHasPushed = true
       } else if (!thematicLineHasPushed) {
@@ -155,9 +156,12 @@ const updateCtrl = ContentState => {
     this.removeBlock(block)
     const { start, end } = this.cursor
     const key = thematicBlock.children[0].key
+    const preParagraphLength = preParagraphLines.reduce((acc, i) => acc + i.length + 1, 0) // Add one, because the `\n`
+    const startOffset = start.offset - preParagraphLength
+    const endOffset = end.offset - preParagraphLength
     this.cursor = {
-      start: { key, offset: start.offset },
-      end: { key, offset: end.offset }
+      start: { key, offset: startOffset },
+      end: { key, offset: endOffset }
     }
     return thematicBlock
   }
@@ -519,15 +523,16 @@ const updateCtrl = ContentState => {
   }
 
   ContentState.prototype.updateIndentCode = function (block, line) {
+    const lang = ''
     const codeBlock = this.createBlock('code', {
-      lang: ''
+      lang
     })
     const inputBlock = this.createBlock('span', {
       functionType: 'languageInput'
     })
     const preBlock = this.createBlock('pre', {
       functionType: 'indentcode',
-      lang: ''
+      lang
     })
 
     const text = line ? line.text : block.text
@@ -545,15 +550,13 @@ const updateCtrl = ContentState => {
         paragraphLines.push(l)
       }
     }
-    codeLines.forEach(text => {
-      const codeLine = this.createBlock('span', {
-        text,
-        functionType: 'codeLine',
-        lang: ''
-      })
-      this.appendChild(codeBlock, codeLine)
+    const codeContent = this.createBlock('span', {
+      text: codeLines.join('\n'),
+      functionType: 'codeContent',
+      lang
     })
 
+    this.appendChild(codeBlock, codeContent)
     this.appendChild(preBlock, inputBlock)
     this.appendChild(preBlock, codeBlock)
     this.insertBefore(preBlock, block)

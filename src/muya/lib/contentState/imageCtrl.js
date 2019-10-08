@@ -16,7 +16,7 @@ const imageCtrl = ContentState => {
     if (
       block.type === 'span' &&
       (
-        block.functionType === 'codeLine' ||
+        block.functionType === 'codeContent' ||
         block.functionType === 'languageInput' ||
         block.functionType === 'thematicBreakLine'
       )

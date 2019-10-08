@@ -247,7 +247,8 @@ class ExportMarkdown {
 
   normalizeCodeBlock (block, indent) {
     const result = []
-    const textList = block.children[1].children.map(codeLine => codeLine.text)
+    const codeContent = block.children[1].children[0]
+    const textList = codeContent.text.split('\n')
     const { functionType } = block
     if (functionType === 'fencecode') {
       result.push(`${indent}${block.lang ? '```' + block.lang + '\n' : '```\n'}`)
@@ -266,9 +267,10 @@ class ExportMarkdown {
 
   normalizeHTML (block, indent) { // figure
     const result = []
-    const codeLines = block.children[0].children[0].children
-    for (const line of codeLines) {
-      result.push(`${indent}${line.text}\n`)
+    const codeContentText = block.children[0].children[0].children[0].text
+    const lines = codeContentText.split('\n')
+    for (const line of lines) {
+      result.push(`${indent}${line}\n`)
     }
     return result.join('')
   }

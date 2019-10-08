@@ -33,10 +33,11 @@ const deleteCtrl = ContentState => {
     ) {
       event.preventDefault()
       if (nextBlock && /h\d|span/.test(nextBlock.type)) {
-        if (nextBlock.functionType === 'codeLine' && nextBlock.nextSibling) {
-          // if code block more than one line, do nothing!
+        // if cursor at the end of code block-language input, do nothing!
+        if (nextBlock.functionType === 'codeContent' && startBlock.functionType === 'languageInput') {
           return
         }
+
         startBlock.text += nextBlock.text
 
         const toBeRemoved = [nextBlock]

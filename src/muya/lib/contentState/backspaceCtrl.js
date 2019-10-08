@@ -308,7 +308,7 @@ const backspaceCtrl = ContentState => {
 
     if (
       block.type === 'span' &&
-      block.functionType === 'codeLine' &&
+      block.functionType === 'codeContent' &&
       left === 0 &&
       !block.preSibling
     ) {

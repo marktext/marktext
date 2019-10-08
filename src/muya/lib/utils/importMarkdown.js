@@ -11,8 +11,6 @@ import { loadLanguage } from '../prism/index'
 // To be disabled rules when parse markdown, Because content state don't need to parse inline rules
 import { CURSOR_ANCHOR_DNA, CURSOR_FOCUS_DNA } from '../config'
 
-const LINE_BREAKS_REG = /\n/
-
 // Just because turndown change `\n`(soft line break) to space, So we add `span.ag-soft-line-break` to workaround.
 const turnSoftBreakToSpan = html => {
   const parser = new DOMParser()
@@ -23,7 +21,7 @@ const turnSoftBreakToSpan = html => {
   const root = doc.querySelector('#turn-root')
   const travel = childNodes => {
     for (const node of childNodes) {
-      if (node.nodeType === 3) {
+      if (node.nodeType === 3 && node.parentNode.tagName !== 'CODE') {
         let startLen = 0
         let endLen = 0
         const text = node.nodeValue.replace(/^(\n+)/, (_, p) => {
@@ -89,27 +87,25 @@ const importRegister = ContentState => {
         case 'frontmatter': {
           const { lang, style } = token
           value = token.text
+            .replace(/^\s+/, '')
+            .replace(/\s$/, '')
           block = this.createBlock('pre', {
             functionType: token.type,
             lang,
             style
           })
+
           const codeBlock = this.createBlock('code', {
             lang
           })
-          value
-            .replace(/^\s+/, '')
-            .replace(/\s$/, '')
-            .split(LINE_BREAKS_REG).forEach(line => {
-              const codeLine = this.createBlock('span', {
-                text: line,
-                lang,
-                functionType: 'codeLine'
-              })
 
-              this.appendChild(codeBlock, codeLine)
-            })
+          const codeContent = this.createBlock('span', {
+            text: value,
+            lang,
+            functionType: 'codeContent'
+          })
 
+          this.appendChild(codeBlock, codeContent)
           this.appendChild(block, codeBlock)
           this.appendChild(parentList[0], block)
           break
@@ -175,13 +171,10 @@ const importRegister = ContentState => {
             const codeBlock = this.createBlock('code', {
               lang
             })
-            value.split(LINE_BREAKS_REG).forEach(line => {
-              const codeLine = this.createBlock('span', {
-                text: line
-              })
-              codeLine.lang = lang
-              codeLine.functionType = 'codeLine'
-              this.appendChild(codeBlock, codeLine)
+            const codeContent = this.createBlock('span', {
+              text: value,
+              lang,
+              functionType: 'codeContent'
             })
             const inputBlock = this.createBlock('span', {
               text: lang,
@@ -205,6 +198,7 @@ const importRegister = ContentState => {
                 })
             }
 
+            this.appendChild(codeBlock, codeContent)
             this.appendChild(block, inputBlock)
             this.appendChild(block, codeBlock)
             this.appendChild(parentList[0], block)
@@ -364,6 +358,7 @@ const importRegister = ContentState => {
     html = html.replace(/<span>&nbsp;<\/span>/g, String.fromCharCode(160))
 
     html = turnSoftBreakToSpan(html)
+
     const markdown = turndownService.turndown(html)
     return markdown
   }

@@ -56,7 +56,7 @@ Renderer.prototype.code = function (code, infostring, escaped, codeBlockStyle) {
     className +
     '">' +
     (escaped ? code : escape(code, true)) +
-    '\n</code></pre>\n'
+    '</code></pre>\n'
 }
 
 Renderer.prototype.blockquote = function (quote) {

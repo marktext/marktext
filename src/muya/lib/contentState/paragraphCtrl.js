@@ -2,8 +2,6 @@ import selection from '../selection'
 import { PARAGRAPH_TYPES, DEFAULT_TURNDOWN_CONFIG } from '../config'
 import ExportMarkdown from '../utils/exportMarkdown'
 
-const LINE_BREAKS_REG = /\n/
-
 // get header level
 //  eg: h1 => 1
 //      h2 => 2
@@ -99,15 +97,15 @@ const paragraphCtrl = ContentState => {
     const codeBlock = this.createBlock('code', {
       lang
     })
-    const emptyLine = this.createBlock('span', {
-      functionType: 'codeLine',
+    const emptyCodeContent = this.createBlock('span', {
+      functionType: 'codeContent',
       lang
     })
 
-    this.appendChild(codeBlock, emptyLine)
+    this.appendChild(codeBlock, emptyCodeContent)
     this.appendChild(frontMatter, codeBlock)
     this.insertBefore(frontMatter, firstBlock)
-    const { key } = emptyLine
+    const { key } = emptyCodeContent
     const offset = 0
     this.cursor = {
       start: { key, offset },
@@ -248,39 +246,21 @@ const paragraphCtrl = ContentState => {
     // change fenced code block to p paragraph
     if (affiliation.length && affiliation[0].type === 'pre' && /code/.test(affiliation[0].functionType)) {
       const preBlock = affiliation[0]
-      const codeLines = preBlock.children[1].children
+      const codeContent = preBlock.children[1].children[0]
       preBlock.type = 'p'
       preBlock.children = []
 
-      const newParagraphBlock = this.createBlockP(codeLines.map(l => l.text).join('\n'))
+      const newParagraphBlock = this.createBlockP(codeContent.text)
       this.insertBefore(newParagraphBlock, preBlock)
 
       this.removeBlock(preBlock)
       const { start, end } = this.cursor
 
       const key = newParagraphBlock.children[0].key
-      let startOffset = 0
-      let endOffset = 0
-      let startStop = false
-      let endStop = false
-      for (const line of codeLines) {
-        if (line.key !== start.key && !startStop) {
-          startOffset += line.text.length + 1
-        } else {
-          startOffset += start.offset
-          startStop = true
-        }
-        if (line.key !== end.key && !endStop) {
-          endOffset += line.text.length + 1
-        } else {
-          endOffset += end.offset
-          endStop = true
-        }
-      }
 
       this.cursor = {
-        start: { key, offset: startOffset },
-        end: { key, offset: endOffset }
+        start: { key, offset: start.offset },
+        end: { key, offset: end.offset }
       }
     } else {
       if (start.key === end.key) {
@@ -293,24 +273,20 @@ const paragraphCtrl = ContentState => {
           })
 
           const codeBlock = this.createBlock('code', {
-            lang: ''
+            lang
           })
 
           const inputBlock = this.createBlock('span', {
             functionType: 'languageInput'
           })
 
-          const codes = startBlock.text.split('\n')
+          const codeContent = this.createBlock('span', {
+            text: startBlock.text,
+            lang,
+            functionType: 'codeContent'
+          })
 
-          for (const code of codes) {
-            const codeLine = this.createBlock('span', {
-              text: code,
-              functionType: 'codeLine',
-              lang
-            })
-            this.appendChild(codeBlock, codeLine)
-          }
-
+          this.appendChild(codeBlock, codeContent)
           this.appendChild(preBlock, inputBlock)
           this.appendChild(preBlock, codeBlock)
           this.insertBefore(preBlock, anchorBlock)
@@ -345,20 +321,15 @@ const paragraphCtrl = ContentState => {
 
         const listIndentation = this.listIndentation
         const markdown = new ExportMarkdown(children.slice(startIndex, endIndex + 1), listIndentation).generate()
-
-        markdown.split(LINE_BREAKS_REG).forEach(text => {
-          const codeLine = this.createBlock('span', {
-            text,
-            lang,
-            functionType: 'codeLine'
-          })
-
-          this.appendChild(codeBlock, codeLine)
+        const codeContent = this.createBlock('span', {
+          text: markdown,
+          lang,
+          functionType: 'codeContent'
         })
         const inputBlock = this.createBlock('span', {
           functionType: 'languageInput'
         })
-
+        this.appendChild(codeBlock, codeContent)
         this.appendChild(preBlock, inputBlock)
         this.appendChild(preBlock, codeBlock)
         this.insertAfter(preBlock, referBlock)
@@ -774,20 +745,19 @@ const paragraphCtrl = ContentState => {
     }
     // Handler selectAll in code block. only select all the code block conent.
     // `code block` here is Math, HTML, BLOCK CODE, Mermaid, vega-lite, flowchart, front-matter etc...
-    if (startBlock.type === 'span' && startBlock.functionType === 'codeLine') {
-      const codeBlock = this.getParent(startBlock)
-      const firstCodeLine = this.firstInDescendant(codeBlock)
-      const lastCodeLine = this.lastInDescendant(codeBlock)
+    if (startBlock.type === 'span' && startBlock.functionType === 'codeContent') {
+      const { key } = startBlock
       this.cursor = {
         start: {
-          key: firstCodeLine.key,
+          key,
           offset: 0
         },
         end: {
-          key: lastCodeLine.key,
-          offset: lastCodeLine.text.length
+          key,
+          offset: startBlock.text.length
         }
       }
+
       return this.partialRender()
     }
     // Handler language input, only select language info only...

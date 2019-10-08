@@ -292,7 +292,7 @@ const tabCtrl = ContentState => {
       start.key === end.key &&
       start.offset === end.offset &&
       HAS_TEXT_BLOCK_REG.test(startBlock.type) &&
-      startBlock.functionType !== 'codeLine' && // code line has no inline syntax
+      startBlock.functionType !== 'codeContent' && // code content has no inline syntax
       startBlock.functionType !== 'languageInput' // language input textarea has no inline syntax
     ) {
       const { text, key } = startBlock
@@ -312,7 +312,7 @@ const tabCtrl = ContentState => {
       start.key === end.key &&
       start.offset === end.offset &&
       startBlock.type === 'span' &&
-      (!startBlock.functionType || startBlock.functionType === 'codeLine' && /markup|html|xml|svg|mathml/.test(startBlock.lang))
+      (!startBlock.functionType || startBlock.functionType === 'codeContent' && /markup|html|xml|svg|mathml/.test(startBlock.lang))
     ) {
       const { text } = startBlock
       const lastWordBeforeCursor = text.substring(0, start.offset).split(/\s+/).pop()

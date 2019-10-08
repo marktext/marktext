@@ -14,21 +14,40 @@ const MARKER_HASK = {
   "'": `%${getLongUniqueId()}%`
 }
 
-const getHighlightHtml = (text, highlights, escape = false) => {
+const getHighlightHtml = (text, highlights, escape = false, handleLineEnding = false) => {
   let code = ''
   let pos = 0
+  const getEscapeHTML = (className, content) => {
+    return `${MARKER_HASK['<']}span class=${MARKER_HASK['"']}${className}${MARKER_HASK['"']}${MARKER_HASK['>']}${content}${MARKER_HASK['<']}/span${MARKER_HASK['>']}`
+  }
+
   for (const highlight of highlights) {
     const { start, end, active } = highlight
     code += text.substring(pos, start)
     const className = active ? 'ag-highlight' : 'ag-selection'
+    let highlightContent = text.substring(start, end)
+    if (handleLineEnding && text.endsWith('\n') && end === text.length) {
+      highlightContent = highlightContent.substring(start, end - 1) +
+      (escape
+        ? getEscapeHTML('ag-line-end', '\n')
+        : '<span class="ag-line-end">\n</span>')
+    }
     code += escape
-      ? `${MARKER_HASK['<']}span class=${MARKER_HASK['"']}${className}${MARKER_HASK['"']}${MARKER_HASK['>']}${text.substring(start, end)}${MARKER_HASK['<']}/span${MARKER_HASK['>']}`
-      : `<span class="${className}">${text.substring(start, end)}</span>`
+      ? getEscapeHTML(className, highlightContent)
+      : `<span class="${className}">${highlightContent}</span>`
     pos = end
   }
   if (pos !== text.length) {
-    code += text.substring(pos)
+    if (handleLineEnding && text.endsWith('\n')) {
+      code += text.substring(pos, text.length - 1) +
+      (escape
+        ? getEscapeHTML('ag-line-end', '\n')
+        : '<span class="ag-line-end">\n</span>')
+    } else {
+      code += text.substring(pos)
+    }
   }
+
   return code
 }
 
@@ -81,7 +100,7 @@ export default function renderLeafBlock (block, activeBlocks, matches, useCache 
       tokens = this.tokenCache.get(text)
     } else if (
       HAS_TEXT_BLOCK_REG.test(type) &&
-      functionType !== 'codeLine' &&
+      functionType !== 'codeContent' &&
       functionType !== 'languageInput'
     ) {
       const hasBeginRules = type === 'span'
@@ -197,8 +216,8 @@ export default function renderLeafBlock (block, activeBlocks, matches, useCache 
       selector += `.${CLASS_OR_ID.AG_CHECKBOX_CHECKED}`
     }
     children = ''
-  } else if (type === 'span' && functionType === 'codeLine') {
-    const code = escapeHtml(getHighlightHtml(text, highlights, true))
+  } else if (type === 'span' && functionType === 'codeContent') {
+    const code = escapeHtml(getHighlightHtml(text, highlights, true, true))
       .replace(new RegExp(MARKER_HASK['<'], 'g'), '<')
       .replace(new RegExp(MARKER_HASK['>'], 'g'), '>')
       .replace(new RegExp(MARKER_HASK['"'], 'g'), '"')

@@ -28,6 +28,7 @@ import linkCtrl from './linkCtrl'
 import dragDropCtrl from './dragDropCtrl'
 import importMarkdown from '../utils/importMarkdown'
 import Cursor from '../selection/cursor'
+import escapeCharactersMap, { escapeCharacters } from '../parser/escapeCharacter'
 
 const prototypes = [
   tabCtrl,
@@ -251,6 +252,13 @@ class ContentState {
     // give span block a default functionType `paragraphContent`
     if (type === 'span' && !extras.functionType) {
       blockData.functionType = 'paragraphContent'
+    }
+
+    if (extras.functionType === 'codeContent' && extras.text) {
+      const CHAR_REG = new RegExp(`(${escapeCharacters.join('|')})`, 'gi')
+      extras.text = extras.text.replace(CHAR_REG, (_, p) => {
+        return escapeCharactersMap[p]
+      })
     }
 
     Object.assign(blockData, extras)

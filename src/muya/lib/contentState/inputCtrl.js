@@ -77,7 +77,7 @@ const inputCtrl = ContentState => {
     return false
   }
 
-  ContentState.prototype.inputHandler = function (event) {
+  ContentState.prototype.inputHandler = function (event, notEqual = false) {
     const { start, end } = selection.getCursorRange()
     if (!start || !end) {
       return
@@ -86,6 +86,27 @@ const inputCtrl = ContentState => {
     const key = start.key
     const block = this.getBlock(key)
     const paragraph = document.querySelector(`#${key}`)
+
+    // Fix issue 1447
+    // Fixme: any better solution?
+    if (
+      oldStart.key === oldEnd.key &&
+      oldStart.offset === oldEnd.offset &&
+      block.text.endsWith('\n') &&
+      oldStart.offset === block.text.length &&
+      event.inputType === 'insertText'
+    ) {
+      event.preventDefault()
+      block.text += event.data
+      const offset = block.text.length
+      this.cursor = {
+        start: { key, offset },
+        end: { key, offset }
+      }
+      this.singleRender(block)
+      return this.inputHandler(event, true)
+    }
+
     let text = getTextContent(paragraph, [CLASS_OR_ID.AG_MATH_RENDER, CLASS_OR_ID.AG_RUBY_RENDER])
 
     let needRender = false
@@ -123,7 +144,7 @@ const inputCtrl = ContentState => {
     }
 
     // auto pair (not need to auto pair in math block)
-    if (block && block.text !== text) {
+    if (block && (block.text !== text || notEqual)) {
       if (
         start.key === end.key &&
         start.offset === end.offset &&
@@ -173,7 +194,7 @@ const inputCtrl = ContentState => {
             ((autoPairQuote && /[']{1}/.test(inputChar) && !(/[a-zA-Z\d]{1}/.test(preInputChar))) ||
             (autoPairQuote && /["]{1}/.test(inputChar)) ||
             (autoPairBracket && /[\{\[\(]{1}/.test(inputChar)) ||
-            (block.functionType !== 'codeLine' && !isInInlineMath && !isInInlineCode && autoPairMarkdownSyntax && /[*$`~_]{1}/.test(inputChar)))
+            (block.functionType !== 'codeContent' && !isInInlineMath && !isInInlineCode && autoPairMarkdownSyntax && /[*$`~_]{1}/.test(inputChar)))
           ) {
             needRender = true
             text = BRACKET_HASH[event.data]
@@ -250,8 +271,7 @@ const inputCtrl = ContentState => {
 
     this.muya.eventCenter.dispatch('muya-quick-insert', reference, block, !!checkQuickInsert)
 
-    // Update preview content of math block
-    if (block && block.type === 'span' && block.functionType === 'codeLine') {
+    if (block && block.type === 'span' && block.functionType === 'codeContent') {
       needRender = true
     }
 

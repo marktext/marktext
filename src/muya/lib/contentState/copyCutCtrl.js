@@ -1,5 +1,6 @@
 import selection from '../selection'
 import { CLASS_OR_ID } from '../config'
+import { escapeHtml } from '../utils'
 import { getSanitizeHtml } from '../utils/exportHtml'
 import ExportMarkdown from '../utils/exportMarkdown'
 import marked from '../parser/marked'
@@ -34,6 +35,19 @@ const copyCutCtrl = ContentState => {
   }
 
   ContentState.prototype.getClipBoradData = function () {
+    const { start, end } = selection.getCursorRange()
+    if (start.key === end.key) {
+      const startBlock = this.getBlock(start.key)
+      const { type, text, functionType } = startBlock
+      // Fix issue #942
+      if (type === 'span' && functionType === 'codeContent') {
+        const selectedText = escapeHtml(text.substring(start.offset, end.offset))
+        return {
+          html: marked(selectedText),
+          text: selectedText
+        }
+      }
+    }
     const html = selection.getSelectionHtml()
     const wrapper = document.createElement('div')
     wrapper.innerHTML = html
@@ -109,8 +123,8 @@ const copyCutCtrl = ContentState => {
       const id = cf.id
       const block = this.getBlock(id)
       const language = block.lang || ''
-      const selectedCodeLines = cf.querySelectorAll('.ag-code-line')
-      const value = Array.from(selectedCodeLines).map(codeLine => codeLine.textContent).join('\n')
+      const codeContent = cf.querySelector('.ag-code-content')
+      const value = escapeHtml(codeContent.textContent)
       cf.innerHTML = `<code class="language-${language}">${value}</code>`
     }
 
@@ -125,10 +139,9 @@ const copyCutCtrl = ContentState => {
 
     const htmlBlock = wrapper.querySelectorAll('figure[data-role=\'HTML\']')
     for (const hb of htmlBlock) {
-      const selectedCodeLines = hb.querySelectorAll('span.ag-code-line')
-      const value = Array.from(selectedCodeLines).map(codeLine => codeLine.textContent).join('\n')
+      const codeContent = hb.querySelector('.ag-code-content')
       const pre = document.createElement('pre')
-      pre.textContent = value
+      pre.textContent = codeContent.textContent
       hb.replaceWith(pre)
     }
 
@@ -142,8 +155,8 @@ const copyCutCtrl = ContentState => {
     for (const mb of mathBlock) {
       const preElement = mb.querySelector('pre[data-role]')
       const functionType = preElement.getAttribute('data-role')
-      const selectedCodeLines = mb.querySelectorAll('span.ag-code-line')
-      const value = Array.from(selectedCodeLines).map(codeLine => codeLine.textContent).join('\n')
+      const codeContent = mb.querySelector('.ag-code-content')
+      const value = codeContent.textContent
       let pre
       switch (functionType) {
         case 'multiplemath':
@@ -165,7 +178,6 @@ const copyCutCtrl = ContentState => {
 
     let htmlData = wrapper.innerHTML
     const textData = this.htmlToMarkdown(htmlData)
-
     htmlData = marked(textData)
     return { html: htmlData, text: textData }
   }

@@ -419,6 +419,7 @@ class Selection {
           offset
         }
       }
+
       const childNodes = node.childNodes
       const len = childNodes.length
       let i
@@ -429,6 +430,7 @@ class Selection {
         if (child.classList && child.classList.contains(CLASS_OR_ID.AG_FRONT_ICON)) {
           continue
         }
+
         if (count + textLength >= offset) {
           if (
             child.classList && child.classList.contains('ag-inline-image')
@@ -536,8 +538,10 @@ class Selection {
 
     const anchorParagraph = findNearestParagraph(anchorNode)
     const focusParagraph = findNearestParagraph(focusNode)
+
     let aOffset = getOffsetOfParagraph(anchorNode, anchorParagraph) + anchorOffset
     let fOffset = getOffsetOfParagraph(focusNode, focusParagraph) + focusOffset
+
     // fix input after image.
     if (
       anchorNode === focusNode &&
@@ -576,6 +580,7 @@ class Selection {
     }
 
     const anchor = { key: anchorParagraph.id, offset: aOffset }
+
     const focus = { key: focusParagraph.id, offset: fOffset }
     const result = new Cursor({ anchor, focus })
 

@@ -275,7 +275,7 @@ class Keyboard {
       }
 
       const block = contentState.getBlock(anchor.key)
-      if (anchor.key === focus.key && anchor.offset !== focus.offset && block.functionType !== 'codeLine') {
+      if (anchor.key === focus.key && anchor.offset !== focus.offset && block.functionType !== 'codeContent') {
         const reference = contentState.getPositionReference()
         const { formats } = contentState.selectionFormats()
         eventCenter.dispatch('muya-format-picker', { reference, formats })
