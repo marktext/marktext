@@ -53,6 +53,10 @@ module.exports = class UserDictionary {
         this.dict = dict
       } catch (e) {
         d(`Failed to load directory for language  ${lang}: ${e.message}`);
+
+        // Invalidate dictionary.
+        this.dict = {}
+        this.lang = lang
         return false
       }
     } else {

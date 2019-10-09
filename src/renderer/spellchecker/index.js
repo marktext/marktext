@@ -28,17 +28,46 @@ export const offsetToWordCursor = (lineCursor, left, right) => {
   return { start, end }
 }
 
-export const validateLineCursor = cursor => {
-  return cursor && cursor.start && cursor.start.hasOwnProperty('offset') &&
-    cursor.end && cursor.end.hasOwnProperty('offset')
+/**
+ * Validate whether the selection is valid for spelling correction.
+ *
+ * @param {*} selection The preview edior selection range.
+ */
+export const validateLineCursor = selection => {
+  // Validate selection range.
+  if (!selection && !selection.start && !selection.start.hasOwnProperty('offset') &&
+    !selection.end && !selection.end.hasOwnProperty('offset')) {
+    return false
+  }
+
+  // Allow only single lines, no multiselection support.
+  const { start: startCursor, end: endCursor } = selection
+  if (startCursor.key !== endCursor.key || !startCursor.block) {
+    return false
+  }
+
+  // Don't correct word in code blocks.
+  if (selection.affiliation && selection.affiliation.length === 1 &&
+    selection.affiliation[0].type === 'pre') {
+    return false
+  }
+
+  // Don't correct words in LaTeX editor.
+  if (startCursor.block.functionType === 'codeContent' &&
+    startCursor.block.lang === 'latex') {
+    return false
+  }
+  return true
 }
 
 /**
  * Returns a list of local available Hunspell dictionaries.
+ *
+ * @returns {string[]} List of available Hunspell dictionary language codes.
  */
 export const getAvailableHunspellDictionaries = () => {
   const dict = []
-  // Return dictionaries from filesystem.
+  // Search for dictionaries on filesystem.
   if (fs.existsSync(dictionaryPath) && fs.lstatSync(dictionaryPath).isDirectory()) {
     fs.readdirSync(dictionaryPath).forEach(filename => {
       const fullname = path.join(dictionaryPath, filename)
@@ -74,7 +103,7 @@ export class SpellChecker {
       this._initHandler()
     } else {
       this.provider = null
-      this.lang = 'en-US'
+      this.fallbackLang = null
       this.isEnabled = false
       this.isInitialized = false
     }
@@ -99,11 +128,10 @@ export class SpellChecker {
         '\nisHunspell:', this.provider.isHunspell
       ) // #DEBUG
 
-      // TODO(spell): Something changed...
+      // TODO(spell): Do we need this event? Changes are made from editor.vue/settings
+      // and local spell checker changes like automatic language detaction should not
+      // be set as default language.
     })
-
-    // Default value should be "en-US".
-    this.lang = this.provider.currentSpellcheckerLanguage
 
     // The spell checker is now initialized but not yet enabled. Please call `init`.
     this.isEnabled = false
@@ -150,7 +178,6 @@ export class SpellChecker {
       // OS spell checker.
       this.provider.attachToInput()
 
-      this.lang = this.provider.currentSpellcheckerLanguage
       this.isEnabled = true
       return this.lang
     }
@@ -168,7 +195,7 @@ export class SpellChecker {
 
     // Attach the spell checker to the window document.
     this.provider.attachToInput()
-    this.lang = currentLang
+    this.fallbackLang = currentLang
     this.isEnabled = true
     return currentLang
   }
@@ -194,12 +221,12 @@ export class SpellChecker {
       isPassiveMode
     )
     if (!result) {
-      // TODO(spell): Handle invalid state. Spell checker is enabled but
-      // unable to load the requested language (spellchecker language != current).
+      // Spell checker may be in an invalid state and don't try to recover.
+      this.disableSpellchecker()
       return false
     }
 
-    this.lang = this.provider.currentSpellcheckerLanguage
+    this.fallbackLang = this.lang
     this.isEnabled = true
     return true
   }
@@ -277,7 +304,6 @@ export class SpellChecker {
    * Is the spellchecker trying to detect the typed language automatically?
    */
   set automaticallyIdentifyLanguages (value) {
-    // TODO(spell): Allow to change state when disabled.
     if (!this.isEnabled) {
       return
     }
@@ -285,7 +311,7 @@ export class SpellChecker {
     // // TODO(spell): Currently not supported by our Hunspell implementation
     // //              with a reasonable performance.
     // if (this.isHunspell) {
-    //   return
+    //   value = false
     // }
     this.provider.automaticallyIdentifyLanguages = !!value
   }
@@ -304,11 +330,30 @@ export class SpellChecker {
    * Should we highlight misspelled words.
    */
   set spellcheckerNoUnderline (value) {
-    // TODO(spell): Allow to change state when disabled.
     if (!this.isEnabled) {
       return
     }
     this.provider.spellcheckerNoUnderline = !!value
+  }
+
+  /**
+   * Return the current language.
+   */
+  get lang () {
+    if (!this.provider) {
+      return ''
+    }
+    return this.provider.currentSpellcheckerLanguage
+  }
+
+  /**
+   * Whether the spell checker is in an invalid state and therefore deactivated.
+   */
+  get isInvalidState () {
+    if (!this.provider) {
+      return false
+    }
+    return this.provider.invalidState
   }
 
   /**
@@ -320,19 +365,23 @@ export class SpellChecker {
    * @returns {string|null} Return the language on success or null.
    */
   async switchLanguage (lang) {
-    // TODO(spell): Is disabled --> enable spellchecker?
     if (!this.isEnabled) {
-      throw new Error('Invalid state.')
+      throw new Error('Invalid state: spell checker is disabled.')
     } else if (!lang) {
       throw new Error('Invalid language.')
     }
-    return await this._switchLanguage(lang)
+
+    const currentLang = await this._switchLanguage(lang)
+    if (currentLang) {
+      this.fallbackLang = currentLang
+    }
+    return currentLang
   }
 
   /**
    * Is the given word misspelled.
    *
-   * @param {string} word
+   * @param {string} word The word to check.
    */
   isMisspelled (word) {
     if (!this.isEnabled) {
@@ -342,12 +391,25 @@ export class SpellChecker {
   }
 
   /**
+   * Get corrections.
+   *
+   * @param {string} word The word to get suggestion for.
+   * @returns {string[]} A array of suggestions.
+   */
+  async getWordSuggestion (word) {
+    if (!this.isMisspelled(word)) {
+      return []
+    }
+    return await this.provider.getCorrectionsForMisspelling(word)
+  }
+
+  /**
    * Extract the word at the given offset from the text.
    *
    * @param {string} text Text
    * @param {number} offset Normalized cursor offset (e.g. ab<cursor>c def --> 2)
    */
-  extractWord (text, offset) {
+  static extractWord (text, offset) {
     if (!text || text.length === 0) {
       return null
     } else if (offset < 0) {
@@ -380,30 +442,17 @@ export class SpellChecker {
     }
   }
 
-  /**
-   * Get corrections.
-   *
-   * @param {string} word
-   * @returns A array of words
-   */
-  async getWordSuggestion (word) {
-    if (!this.isMisspelled(word)) {
-      return []
-    }
-    return await this.provider.getCorrectionsForMisspelling(word)
-  }
-
+  // TODO(spell): Delete me, debug only!
   get getConfiguration () {
     const { isEnabled, isHunspell, lang } = this
     const automaticallyIdentifyLanguages = this.automaticallyIdentifyLanguages
-
-    const spellcheckerLanguage = isEnabled ? this.provider.currentSpellcheckerLanguage : '?' // #DEBUG
+    const spellcheckerEnabled = this.provider.isEnabled
 
     return {
       isEnabled,
+      spellcheckerEnabled,
       automaticallyIdentifyLanguages,
       lang,
-      spellcheckerLanguage,
       isHunspell
     }
   }
@@ -414,21 +463,43 @@ export class SpellChecker {
    * @returns {string|null} Return the language on success or null.
    */
   async _switchLanguage (lang) {
-    // NOTE: "provider" may be in an invalid state when "!result" (e.g. currentSpellchecker may be null)!
     const result = await this.provider.switchLanguage(lang)
     if (!result) {
       console.log(`switchLanguage: false; Cannot switch to ${lang}`) // #DEBUG
 
-      // TODO(spell): Should we disable spell checking on error?
-      // this.disableSpellchecker()
-
-      return null
+      return await this._tryRecover()
     }
-
-    this.lang = this.provider.currentSpellcheckerLanguage
 
     console.log(`switchLanguage: true; lang: ${lang}; actualLang: ${this.lang}`) // #DEBUG
 
     return this.lang
+  }
+
+  /**
+   * Try to recover the spell checker's invalid state.
+   *
+   * {string|null} Return the language on success or null.
+   */
+  async _tryRecover () {
+    const lang = this.fallbackLang
+    if (lang) {
+      // Prevent rekursiv loop.
+      this.fallbackLang = null
+
+      // Try fallback language.
+      const result = await this._switchLanguage(lang)
+      if (result) {
+        this.fallbackLang = lang
+        return lang
+      }
+
+      // Spell checker is deactivated from rekursiv call.
+      return null
+    }
+
+    // Spell checker is in an invalid state. We can recover it by enabling
+    // with a valid language.
+    this.disableSpellchecker()
+    return null
   }
 }

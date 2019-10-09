@@ -129,7 +129,8 @@ module.exports = class SpellCheckHandler {
 
     cacheDir = cacheDir || path.join(app.getPath('userData'), 'dictionaries');
 
-    // TODO(spell): Ask spellchecker which spell checker is used.
+    // TODO(spell): Ask spellchecker which spell checker is used and allow to change
+    // at runtime.
     this.isHunspell = !isMac || !!process.env['SPELLCHECKER_PREFER_HUNSPELL']
     // Don't underline spelling mistakes.
     this.dictionarySync = new DictionarySync(this.isHunspell, cacheDir);
@@ -142,6 +143,8 @@ module.exports = class SpellCheckHandler {
     this.spellingErrorOccurred = new Subject();
     this.isMisspelledCache = new LRU({ max: 5000 });
     this.isEnabled = false;
+    // Spell checker is deactivated due to an issue (e.g. dict not available).
+    this.invalidState = false;
 
     this.scheduler = scheduler;
     this._automaticallyIdentifyLanguages = !this.isHunspell;
@@ -280,10 +283,6 @@ module.exports = class SpellCheckHandler {
     if (result) {
       this.attachToInput();
     }
-
-    // TODO(spell): Handle invalid state. Spell checker is enabled but
-    // unable to load the requested language (spellchecker language != current).
-
     return result;
   }
 
@@ -436,44 +435,6 @@ module.exports = class SpellCheckHandler {
   }
 
   /**
-   * autoUnloadDictionariesOnBlur attempts to save memory by unloading
-   * dictionaries when the window loses focus.
-   *
-   * @return {Disposable}   A {{Disposable}} that will unhook the events listened
-   *                        to by this method.
-   */
-  autoUnloadDictionariesOnBlur() {
-    let ret = new Subscription();
-    let hasUnloaded = false;
-
-    if (!this.isHunspell) return Subscription.EMPTY;
-
-    ret.add(Observable.fromEvent(window, 'blur').subscribe(() => {
-      d(`Unloading spellchecker`);
-      this.currentSpellchecker = null;
-      this.userDictionary.unload();
-      this.isEnabled = false;
-      hasUnloaded = true;
-    }));
-
-    ret.add(Observable.fromEvent(window, 'focus').mergeMap(() => {
-      if (!hasUnloaded) return Observable.empty();
-      if (!this.currentSpellcheckerLanguage) return Observable.empty();
-
-      this.userDictionary.loadForLanguage(this.currentSpellcheckerLanguage);
-
-      d(`Restoring spellchecker`);
-      return Observable.fromPromise(this.switchLanguage(this.currentSpellcheckerLanguage))
-        .catch((e) => {
-          d(`Failed to restore spellchecker: ${e.message}`);
-          return Observable.empty();
-        });
-    }).subscribe());
-
-    return ret;
-  }
-
-  /**
    * Switch the dictionary language to the language of the sample text provided.
    * As described in the class documentation, call this method with text most
    * likely in the same language as the user is typing. The locale (i.e. *US* vs
@@ -526,6 +487,8 @@ module.exports = class SpellCheckHandler {
         this._automaticallyIdentifyLanguages = false;
         this.currentSpellcheckerLanguage = langCode;
       }
+
+      this.invalidState = false;
       return this.currentSpellchecker.setDictionary(langCode);
     }
 
@@ -544,6 +507,7 @@ module.exports = class SpellCheckHandler {
       this.currentSpellchecker = null;
       this.userDictionary.unload();
       this.isEnabled = false;
+      this.invalidState = true;
       this.currentSpellcheckerChanged.next(false);
       return false;
     }
@@ -558,6 +522,7 @@ module.exports = class SpellCheckHandler {
       // TODO(spell): Handle error?
       this.userDictionary.loadForLanguage(actualLang);
       this.isEnabled = true;
+      this.invalidState = false;
       this.currentSpellcheckerChanged.next(true);
     }
     return true;

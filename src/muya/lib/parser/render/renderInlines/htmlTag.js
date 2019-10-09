@@ -51,8 +51,8 @@ export default function htmlTag (h, cursor, block, token, outerClass) {
           }
         }
 
-        // Disable spell checking for <kbd> tags
-        if (tag === 'kbd') {
+        // Disable spell checking for these tags
+        if (tag === 'code' || tag === 'kbd') {
           Object.assign(data.attrs, { spellcheck: 'false' })
         }
 

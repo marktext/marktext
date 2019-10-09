@@ -389,57 +389,53 @@ class Muya {
   /**
    * Replace the word range with the given replacement.
    *
-   * NOTE: It's very likely that this method can have side effects because of none existing synchronization.
-   *
-   * @param {*} line Line block reference - must be a valid reference!
-   * @param {*} wordCursor Replace this range with the replacement
-   * @param {*} replacement Replacement
-   * @param {*} setCursor Shoud we update the cursor
+   * @param {*} line A line block reference of the line that contains the word to
+   *                 replace - must be a valid reference!
+   * @param {*} wordCursor The range of the word to replace (line: "abc >foo< abc"
+   *                       whereas `>`/`<` is start and end of `wordCursor`). This
+   *                       range is replaced by `replacement`.
+   * @param {string} replacement The replacement.
+   * @param {boolean} setCursor Shoud we update the editor cursor?
    */
-  _replaceWordInline (line, wordCursor, replacement, setCursor = false) {
-    // TODO(spell): Move this to utils
-    const cursorToString = c => {
-      // Create shallow copy
-      const start = Object.assign({}, c.start)
-      const end = Object.assign({}, c.start)
+  replaceWordInline (line, wordCursor, replacement, setCursor = false) {
+    const { start: lineStart } = line
+    const { end: lineEnd } = line
+    const { start: wordStart } = wordCursor
+    const { end: wordEnd } = wordCursor
 
-      // TODO(spell): Print only `start`, `end` and text length
-      // start.block = end.block = null
-
-      return JSON.stringify({ start, end })
+    // Validate cursor ranges.
+    if (wordStart.key !== wordEnd.key) {
+      throw new Error('Expect a single line word cursor: start.key != end.key.')
+    } else if (lineStart.key !== lineEnd.key) {
+      throw new Error('Expect a single line line cursor: start.key != end.key.')
+    } else if (wordStart.offset > wordEnd.offset) {
+      throw new Error(`Invalid word cursor offset: ${wordStart.offset} should be less ${wordEnd.offset}.`)
+    } else if (lineStart.key !== wordEnd.key) {
+      throw new Error(`Cursor mismatch: Expect the same line but got ${lineStart.key} and ${wordEnd.key}.`)
+    } else if (lineStart.block.text.length < wordEnd.offset) {
+      throw new Error('Invalid cursor: Replacement length is larger than line length.')
     }
 
-    if (wordCursor.start.key !== wordCursor.end.key) {
-      throw new Error('Expects a single line word cursor: start.key != end.key.')
-    } else if (line.start.key !== line.end.key) {
-      // TODO(spell): Not necessary, change `end` to `start`?
-      // line.end = line.start
-      throw new Error('Expects a single line cursor: start.key != end.key.')
-    } else if (wordCursor.start.offset > wordCursor.end.offset) {
-      throw new Error(`Invalid cursor:\n\n${cursorToString(wordCursor)}\n`)
-    } else if (line.start.key !== wordCursor.end.key) {
-      throw new Error(`Cursor mismatch:\n\n${cursorToString(line)}\n\n${cursorToString(wordCursor)}\n`)
-    } else if (line.start.block.text.length < wordCursor.end.offset) {
-      throw new Error(`Invalid cursor:\n\n${cursorToString(line)}\n\n${cursorToString(wordCursor)}\n`)
-    }
+    const { block } = lineStart
+    const { offset: left } = wordStart
+    const { offset: right } = wordEnd
 
-    // Replace word
-    const { block } = line.start
-    const { offset: left } = wordCursor.start
-    const { offset: right } = wordCursor.end
-
+    // Replace word range with replacement.
     block.text = block.text.substr(0, left) + replacement + block.text.substr(right)
 
     // Update cursor
     if (setCursor) {
-      const cursor = Object.assign({}, wordCursor.start, {
+      const { cursor: editorCursor } = this.contentState
+      const cursor = Object.assign({}, wordStart, {
         offset: left + replacement.length
       })
-      this.contentState.cursor.start = cursor
-      this.contentState.cursor.end = cursor
+      editorCursor.start = cursor
+      editorCursor.end = cursor
       line.start = cursor
       line.end = cursor
     }
+
+    // TODO(spell): Can we use `singleRender(line)`?
     this.contentState.partialRender()
     this.dispatchChange()
   }

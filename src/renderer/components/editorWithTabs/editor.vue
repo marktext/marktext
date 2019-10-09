@@ -320,71 +320,24 @@ export default {
     spellcheckerEnabled: function (value, oldValue) {
       const {
         editor,
-        spellchecker,
-        spellcheckerNoUnderline,
-        spellcheckerAutoDetectLanguage,
-        spellcheckerLanguage
+        spellchecker
       } = this
       if (value !== oldValue && spellchecker) {
+        const { isInitialized } = spellchecker
+
         // Set Muya's spellcheck container attribute.
         editor.setOptions({ spellcheckEnabled: value })
 
         // Spell check is available but not initialized.
-        if (value && !spellchecker.isInitialized) {
-          spellchecker.init(
-            spellcheckerLanguage,
-            spellcheckerAutoDetectLanguage,
-            spellcheckerNoUnderline
-          )
-            .then(m => {
-              console.log('Spell checker initialized and attached to window. Language: %o', m) // #DEBUG
-            })
-            .catch(err => {
-              const { errorLog } = global.marktext
-              errorLog('Error while initializing spell checker:')
-              errorLog(err)
-
-              notice.notify({
-                title: 'Error while initializing spell checker',
-                type: 'error',
-                message: err.message
-              })
-            })
+        if (value && !isInitialized) {
+          this.initSpellchecker()
           return
         }
 
         // Enable or disable spell checker.
-        if (spellchecker.isInitialized) {
+        if (isInitialized) {
           if (value) {
-            spellchecker.enableSpellchecker(
-              spellcheckerLanguage,
-              spellcheckerAutoDetectLanguage,
-              spellcheckerNoUnderline
-            )
-              .then(status => {
-                if (!status) {
-                  // Non-critical error
-                  const { errorLog } = global.marktext
-                  errorLog('Non-critical error while enabling spell checking:')
-
-                  notice.notify({
-                    title: 'Spell Checker',
-                    type: 'error',
-                    message: 'Unable to enable spell checking.'
-                  })
-                }
-              })
-              .catch(err => {
-                const { errorLog } = global.marktext
-                errorLog('Error while enabling spell checking:')
-                errorLog(err)
-
-                notice.notify({
-                  title: 'Error while enabling spell checking',
-                  type: 'error',
-                  message: err.message
-                })
-              })
+            this.enableSpellchecker()
           } else {
             spellchecker.disableSpellchecker()
           }
@@ -392,35 +345,22 @@ export default {
       }
     },
     spellcheckerIsHunspell: function (value, oldValue) {
-      // Only allow this when the OS supports multiple spell checker.
-      const allowed = isOsx
-      const { spellchecker } = this
-      if (allowed && value !== oldValue && spellchecker && spellchecker.isInitialized) {
+      // Special case when the OS supports multiple spell checker because the
+      // language may be invalid (provider 1 may support language xyz
+      // but provider 2 not). Otherwise ignore this event.
+      const multiProviderSupported = isOsx
+      if (multiProviderSupported && value !== oldValue) {
+        const { spellchecker } = this
         const { isHunspell } = spellchecker
         if (value === isHunspell) {
           this.spellcheckerIgnorChanges = false
 
           // Apply language from settings that may have changed.
-          // NOTE: Language may be invalid because provider 1 support language xyz
-          // but provider 2 not.
           const { spellcheckerLanguage } = this
-          spellchecker.switchLanguage(spellcheckerLanguage)
-            .then(langCode => {
-              if (!langCode) {
-                // TODO(spell): Unable to switch language.
-              }
-            })
-            .catch(err => {
-              const { errorLog } = global.marktext
-              errorLog('Error while switching language:')
-              errorLog(err)
-
-              notice.notify({
-                title: 'Error while switching language',
-                type: 'error',
-                message: err.message
-              })
-            })
+          const { isEnabled, lang } = spellchecker
+          if (isEnabled && spellcheckerLanguage !== lang) {
+            this.switchSpellcheckLanguage(spellcheckerLanguage)
+          }
         } else {
           // Ignore all settings language changes that occur when another
           // spell check provider is selected.
@@ -430,10 +370,14 @@ export default {
     },
     spellcheckerNoUnderline: function (value, oldValue) {
       const { editor, spellchecker } = this
-      if (value !== oldValue && spellchecker && spellchecker.isEnabled) {
+      if (value !== oldValue) {
         // Set Muya's spellcheck container attribute.
         editor.setOptions({ spellcheckEnabled: !value })
-        spellchecker.isPassiveMode = value
+
+        const { isEnabled } = spellchecker
+        if (isEnabled) {
+          spellchecker.isPassiveMode = value
+        }
       }
     },
     spellcheckerAutoDetectLanguage: function (value, oldValue) {
@@ -443,33 +387,15 @@ export default {
       }
     },
     spellcheckerLanguage: function (value, oldValue) {
-      const { spellchecker, spellcheckerIgnorChanges: ignore } = this
-      if (!ignore && value !== oldValue && spellchecker) {
-        const {
-          isEnabled,
-          isInitialized
-        } = spellchecker
-
+      const { spellchecker, spellcheckerIgnorChanges } = this
+      if (!spellcheckerIgnorChanges && value !== oldValue) {
+        const { isEnabled, isInvalidState } = spellchecker
         if (isEnabled) {
-          spellchecker.switchLanguage(value)
-            .then(langCode => {
-              if (!langCode) {
-                // TODO(spell): Unable to switch language.
-              }
-            })
-            .catch(err => {
-              const { errorLog } = global.marktext
-              errorLog('Error while switching language:')
-              errorLog(err)
-
-              notice.notify({
-                title: 'Error while switching language',
-                type: 'error',
-                message: err.message
-              })
-            })
-        } else if (!isEnabled && isInitialized) {
-          // TODO(spell): Spell checker is disabled but allow to set language hint.
+          this.switchSpellcheckLanguage(value)
+        } else if (isInvalidState) {
+          // Spell checker is in an invalid state due to a missing dictionary and
+          // therefore deactivated. We can safely enable the spell checker again.
+          this.enableSpellchecker()
         }
       }
     },
@@ -507,10 +433,7 @@ export default {
         hideQuickInsertHint,
         editorLineWidth,
         theme,
-        spellcheckerEnabled,
-        spellcheckerAutoDetectLanguage,
-        spellcheckerNoUnderline,
-        spellcheckerLanguage
+        spellcheckerEnabled
       } = this
 
       // use muya UI plugins
@@ -568,30 +491,10 @@ export default {
 
       const { container } = this.editor = new Muya(ele, options)
 
-      // Create spell check wrapper
+      // Create spell check wrapper and enable spell checking if prefered.
       this.spellchecker = new SpellChecker(spellcheckerEnabled)
-
-      // Enable spell checking if prefered.
       if (spellcheckerEnabled) {
-        this.spellchecker.init(
-          spellcheckerLanguage,
-          spellcheckerAutoDetectLanguage,
-          spellcheckerNoUnderline
-        )
-          .then(m => {
-            console.log('Spell checker initialized and attached to window. Language: %o', m) // #DEBUG
-          })
-          .catch(err => {
-            const { errorLog } = global.marktext
-            errorLog('Error while initializing spell checker:')
-            errorLog(err)
-
-            notice.notify({
-              title: 'Error while initializing spell checker',
-              type: 'error',
-              message: err.message
-            })
-          })
+        this.initSpellchecker()
       }
 
       if (typewriter) {
@@ -624,6 +527,7 @@ export default {
       bus.$on('scroll-to-header', this.scrollToHeader)
       bus.$on('print', this.handlePrint)
       bus.$on('screenshot-captured', this.handleScreenShot)
+      bus.$on('switch-spellchecker-language', this.switchSpellcheckLanguage)
 
       this.editor.on('change', changes => {
         // WORKAROUND: "id: 'muya'"
@@ -675,37 +579,35 @@ export default {
         this.$store.dispatch('SELECTION_FORMATS', formats)
       })
 
-      this.editor.on('contextmenu', (event, selectionChanges) => {
-        // TODO(spell): Refactor this function
+      this.editor.on('contextmenu', (event, selection) => {
         const { isEnabled } = this.spellchecker
 
-        // NOTE: Right clicking on a misspelled word select the whole word
-        if (isEnabled && validateLineCursor(selectionChanges)) {
-          const { start: startCursor, end: endCursor } = selectionChanges
-          if (startCursor.key === endCursor.key) {
-            const { offset: spellcheckOffset } = startCursor
-            const { text } = startCursor.block
-            const wordInfo = this.spellchecker.extractWord(text, spellcheckOffset)
-            if (wordInfo) {
-              const { left, right, word } = wordInfo
+        // NOTE: Right clicking on a misspelled word select the whole word.
+        if (isEnabled && validateLineCursor(selection)) {
+          const { start: startCursor } = selection
+          const { offset: lineOffset } = startCursor
+          const { text } = startCursor.block
+          const wordInfo = SpellChecker.extractWord(text, lineOffset)
+          if (wordInfo) {
+            const { left, right, word } = wordInfo
 
-              console.log(`l: ${left}`, `r: ${right}`, word) // #DEBUG
+            console.log(`l: ${left}`, `r: ${right}`, word) // #DEBUG
 
-              const wordRange = offsetToWordCursor(selectionChanges, left, right)
-              this.spellchecker.getWordSuggestion(word).then(wordSuggestions => {
+            const wordRange = offsetToWordCursor(selection, left, right)
+            this.spellchecker.getWordSuggestion(word)
+              .then(wordSuggestions => {
                 const replaceCallback = replacement => {
                   // wordRange := replace this range with the replacement
-                  this.editor._replaceWordInline(selectionChanges, wordRange, replacement, true)
+                  this.editor.replaceWordInline(selection, wordRange, replacement, true)
                 }
-                showContextMenu(event, selectionChanges, this.spellchecker, word, wordSuggestions, replaceCallback)
+                showContextMenu(event, selection, this.spellchecker, word, wordSuggestions, replaceCallback)
               })
-              return
-            }
+            return
           }
         }
 
         // No word selected or fallback
-        showContextMenu(event, selectionChanges, isEnabled ? this.spellchecker : null, '', [], null)
+        showContextMenu(event, selection, isEnabled ? this.spellchecker : null, '', [], null)
       })
 
       document.addEventListener('keyup', this.keyup)
@@ -719,7 +621,6 @@ export default {
     },
     jumpClick: (linkInfo) => {
       const { href } = linkInfo
-
       if (href && href.startsWith('http')) {
         shell.openExternal(href)
       }
@@ -785,6 +686,106 @@ export default {
 
     setImageViewerVisible (status) {
       this.imageViewerVisible = status
+    },
+
+    // Helper methods for spell checker that are needed multiple times.
+    initSpellchecker () {
+      const {
+        spellchecker,
+        spellcheckerNoUnderline,
+        spellcheckerAutoDetectLanguage,
+        spellcheckerLanguage
+      } = this
+
+      spellchecker.init(
+        spellcheckerLanguage,
+        spellcheckerAutoDetectLanguage,
+        spellcheckerNoUnderline
+      )
+        .catch(error => {
+          const { errorLog } = global.marktext
+          errorLog(`Error while initializing spell checker for language "${spellcheckerLanguage}":`)
+          errorLog(error)
+
+          notice.notify({
+            title: 'Spelling',
+            type: 'error',
+            message: `Error while initializing spell checker for language "${spellcheckerLanguage}": ${error.message}`
+          })
+        })
+    },
+    enableSpellchecker () {
+      const {
+        spellchecker,
+        spellcheckerNoUnderline,
+        spellcheckerAutoDetectLanguage,
+        spellcheckerLanguage
+      } = this
+
+      spellchecker.enableSpellchecker(
+        spellcheckerLanguage,
+        spellcheckerAutoDetectLanguage,
+        spellcheckerNoUnderline
+      )
+        .then(status => {
+          if (!status) {
+            notice.notify({
+              title: 'Spelling',
+              type: 'warning',
+              message: `Unable to switch to language "${spellcheckerLanguage}". Spell checker is now disabled.`
+            })
+          }
+        })
+        .catch(error => {
+          const { errorLog } = global.marktext
+          errorLog(`Error while enabling spell checking for "${spellcheckerLanguage}":`)
+          errorLog(error)
+
+          notice.notify({
+            title: 'Spelling',
+            type: 'error',
+            message: `Error while enabling spell checking for "${spellcheckerLanguage}": ${error.message}`
+          })
+        })
+    },
+    switchSpellcheckLanguage (languageCode) {
+      const { spellchecker } = this
+      const { isEnabled } = spellchecker
+
+      // This method can be called from bus, so validate state before continuing.
+      if (!isEnabled) {
+        throw new Error('Cannot switch switch because spell checker is disabled!')
+      }
+
+      spellchecker.switchLanguage(languageCode)
+        .then(langCode => {
+          if (!langCode) {
+            // Unable to switch language, spell checker is now in an invalid state.
+            notice.notify({
+              title: 'Spelling',
+              type: 'warning',
+              message: `Unable to switch to language "${languageCode}". Spell checker is now disabled.`
+            })
+          } else if (langCode !== languageCode) {
+            // Unable to switch language but fallback was successful.
+            notice.notify({
+              title: 'Spelling',
+              type: 'warning',
+              message: `Current spelling language is "${langCode}" because "${languageCode}" dictionary is missing.`
+            })
+          }
+        })
+        .catch(error => {
+          const { errorLog } = global.marktext
+          errorLog(`Error while switching to language "${languageCode}":`)
+          errorLog(error)
+
+          notice.notify({
+            title: 'Spelling',
+            type: 'error',
+            message: `Error while switching to "${languageCode}": ${error.message}`
+          })
+        })
     },
 
     handleUndo () {
@@ -1012,6 +1013,7 @@ export default {
     bus.$off('scroll-to-header', this.scrollToHeader)
     bus.$off('print', this.handlePrint)
     bus.$off('screenshot-captured', this.handleScreenShot)
+    bus.$off('switch-spellchecker-language', this.switchSpellcheckLanguage)
 
     document.removeEventListener('keyup', this.keyup)
 

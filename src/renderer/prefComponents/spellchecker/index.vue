@@ -170,6 +170,12 @@ export default {
     },
     refreshDictionaryList () {
       this.availableDictionaries = this.getAvailableDictionaries()
+
+      // TODO(spell): Delete me
+      this.availableDictionaries.push({
+        value: 'yy-XX',
+        label: 'Invalid Test Value'
+      })
     },
     onSelectChange (type, value) {
       this.$store.dispatch('SET_SINGLE_PREFERENCE', { type, value })
