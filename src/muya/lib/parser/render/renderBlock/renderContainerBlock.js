@@ -70,11 +70,17 @@ export default function renderContainerBlock (parent, block, activeBlocks, match
   }
 
   if (/th|td/.test(type) && block.parent === activeBlocks[1].parent && !block.preSibling) {
-    children.unshift(renderLeftBar())
+    const { cells } = this.muya.contentState.selectedTableCells || {}
+    if (!cells || cells && cells.length <= 0) {
+      children.unshift(renderLeftBar())
+    }
   }
 
   if (/td/.test(type) && column === activeBlocks[1].column && parent && !parent.nextSibling) {
-    children.push(renderBottomBar())
+    const { cells } = this.muya.contentState.selectedTableCells || {}
+    if (!cells || cells && cells.length <= 0) {
+      children.push(renderBottomBar())
+    }
   }
 
   if (/th|td/.test(type) && align) {
