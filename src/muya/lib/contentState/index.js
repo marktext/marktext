@@ -8,6 +8,7 @@ import backspaceCtrl from './backspaceCtrl'
 import deleteCtrl from './deleteCtrl'
 import codeBlockCtrl from './codeBlockCtrl'
 import tableBlockCtrl from './tableBlockCtrl'
+import tableDragBarCtrl from './tableDragBarCtrl'
 import History from './history'
 import arrowCtrl from './arrowCtrl'
 import pasteCtrl from './pasteCtrl'
@@ -40,6 +41,7 @@ const prototypes = [
   pasteCtrl,
   copyCutCtrl,
   tableBlockCtrl,
+  tableDragBarCtrl,
   paragraphCtrl,
   formatCtrl,
   searchCtrl,
@@ -78,6 +80,10 @@ class ContentState {
     this.turndownConfig = Object.assign(DEFAULT_TURNDOWN_CONFIG, { bulletListMarker })
     this.fontSize = 16
     this.lineHeight = 1.6
+    // table drag bar
+    this.dragInfo = null
+    this.isDragTableBar = false
+    this.dragEventIds = []
     this.init()
   }
 

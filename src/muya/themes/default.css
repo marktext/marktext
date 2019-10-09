@@ -430,7 +430,7 @@ kbd {
     margin-bottom: 0;
   }
 
-  table tr .ag-drag-left {
+  table tr .ag-drag-handler.left {
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
@@ -445,8 +445,8 @@ kbd {
     opacity: .5;
   }
 
-  table tr .ag-drag-left::before,
-  table tr .ag-drag-left::after {
+  table tr .ag-drag-handler.left::before,
+  table tr .ag-drag-handler.left::after {
     content: '';
     display: block;
     width: 3px;
@@ -457,12 +457,12 @@ kbd {
     left: 2px;
     top: 4px;
   }
-  table tr .ag-drag-left::after {
+  table tr .ag-drag-handler.left::after {
     top: 10px;
   }
 
 
-  table tr .ag-drag-bottom {
+  table tr .ag-drag-handler.bottom {
     position: absolute;
     left: 50%;
     transform: translateX(-50%);
@@ -477,8 +477,8 @@ kbd {
     opacity: .5;
   }
 
-  table tr .ag-drag-bottom::before,
-  table tr .ag-drag-bottom::after {
+  table tr .ag-drag-handler.bottom::before,
+  table tr .ag-drag-handler.bottom::after {
     content: '';
     display: block;
     width: 3px;
@@ -489,8 +489,27 @@ kbd {
     top: 2px;
     left: 4px;
   }
-  table tr .ag-drag-bottom::after {
+  table tr .ag-drag-handler.bottom::after {
     left: 10px;
+  }
+
+  table .ag-drag-cell {
+    opacity: .7;
+    z-index: 1;
+    background: var(--floatBgColor);
+    transition: left .3s ease-in-out, bottom .3s ease-in-out;
+  }
+
+  table .ag-drag-cell.ag-drag-left {
+    left: -6px;
+  }
+
+  table .ag-drag-cell.ag-drag-bottom {
+    bottom: -6px;
+  }
+
+  table .ag-cell-transform {
+    transition: transform .3s ease-in-out;
   }
 
   span code,

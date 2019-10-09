@@ -4,6 +4,7 @@ class MouseEvent {
   constructor (muya) {
     this.muya = muya
     this.mouseBinding()
+    this.mouseDown()
   }
 
   mouseBinding () {
@@ -38,6 +39,17 @@ class MouseEvent {
 
     eventCenter.attachDOMEvent(container, 'mouseover', handler)
     eventCenter.attachDOMEvent(container, 'mouseout', leaveHandler)
+  }
+
+  mouseDown () {
+    const { container, eventCenter, contentState } = this.muya
+    const handler = event => {
+      const target = event.target
+      if (target.classList && target.classList.contains('ag-drag-handler')) {
+        contentState.handleMouseDown(event)
+      }
+    }
+    eventCenter.attachDOMEvent(container, 'mousedown', handler)
   }
 }
 
