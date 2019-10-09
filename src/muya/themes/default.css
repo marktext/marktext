@@ -405,8 +405,8 @@ kbd {
     position: relative;
   }
 
-  table tr th::after,
-  table tr td::after {
+  table tr th::before,
+  table tr td::before {
     content: '';
     position: absolute;
     top: 0;
