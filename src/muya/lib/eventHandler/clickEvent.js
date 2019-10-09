@@ -66,6 +66,7 @@ class ClickEvent {
       // handler table click
       const toolItem = getToolItem(target)
       contentState.selectedImage = null
+      contentState.selectedTableCells = null
       if (toolItem) {
         event.preventDefault()
         event.stopPropagation()

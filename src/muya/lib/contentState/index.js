@@ -9,6 +9,7 @@ import deleteCtrl from './deleteCtrl'
 import codeBlockCtrl from './codeBlockCtrl'
 import tableBlockCtrl from './tableBlockCtrl'
 import tableDragBarCtrl from './tableDragBarCtrl'
+import tableSelectCellsCtrl from './tableSelectCellsCtrl'
 import History from './history'
 import arrowCtrl from './arrowCtrl'
 import pasteCtrl from './pasteCtrl'
@@ -42,6 +43,7 @@ const prototypes = [
   copyCutCtrl,
   tableBlockCtrl,
   tableDragBarCtrl,
+  tableSelectCellsCtrl,
   paragraphCtrl,
   formatCtrl,
   searchCtrl,
@@ -84,7 +86,31 @@ class ContentState {
     this.dragInfo = null
     this.isDragTableBar = false
     this.dragEventIds = []
+    // table cell select
+    this.cellSelectInfo = null
+    this._selectedTableCells = null
+    this.cellSelectEventIds = []
     this.init()
+  }
+
+  set selectedTableCells (info) {
+    const oldSelectedTableCells = this._selectedTableCells
+    if (!info && !!oldSelectedTableCells) {
+      const selectedCells = this.muya.container.querySelectorAll('.ag-cell-selected')
+
+      for (const cell of Array.from(selectedCells)) {
+        cell.classList.remove('ag-cell-selected')
+        cell.classList.remove('ag-cell-border-top')
+        cell.classList.remove('ag-cell-border-right')
+        cell.classList.remove('ag-cell-border-bottom')
+        cell.classList.remove('ag-cell-border-left')
+      }
+    }
+    this._selectedTableCells = info
+  }
+
+  get selectedTableCells () {
+    return this._selectedTableCells
   }
 
   set selectedImage (image) {

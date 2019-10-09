@@ -19,6 +19,7 @@ const PRE_BLOCK_HASH = {
 export default function renderContainerBlock (parent, block, activeBlocks, matches, useCache = false) {
   let selector = this.getSelector(block, activeBlocks)
   const {
+    key,
     align,
     type,
     headingStyle,
@@ -43,6 +44,29 @@ export default function renderContainerBlock (parent, block, activeBlocks, match
 
   if (/code|pre/.test(type) && typeof lang === 'string' && !!lang) {
     selector += `.language-${lang.replace(/[#.]{1}/g, '')}`
+  }
+
+  if (/th|td/.test(type)) {
+    const { cells } = this.muya.contentState.selectedTableCells || {}
+    if (cells && cells.length) {
+      const cell = cells.find(c => c.key === key)
+      if (cell) {
+        const { top, right, bottom, left } = cell
+        selector += '.ag-cell-selected'
+        if (top) {
+          selector += '.ag-cell-border-top'
+        }
+        if (right) {
+          selector += '.ag-cell-border-right'
+        }
+        if (bottom) {
+          selector += '.ag-cell-border-bottom'
+        }
+        if (left) {
+          selector += '.ag-cell-border-left'
+        }
+      }
+    }
   }
 
   if (/th|td/.test(type) && block.parent === activeBlocks[1].parent && !block.preSibling) {

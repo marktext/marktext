@@ -512,6 +512,27 @@ kbd {
     transition: transform .3s ease-in-out;
   }
 
+  table .ag-cell-selected::before {
+    background: var(--editorColor04);
+    z-index: 1;
+  }
+
+  table .ag-cell-border-top::before {
+    border-top-color: var(--themeColor);
+  }
+
+  table .ag-cell-border-right::before {
+    border-right-color: var(--themeColor);
+  }
+
+  table .ag-cell-border-bottom::before {
+    border-bottom-color: var(--themeColor);
+  }
+
+  table .ag-cell-border-left::before {
+    border-left-color: var(--themeColor);
+  }
+
   span code,
   td code,
   th code {

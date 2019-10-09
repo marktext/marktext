@@ -8,7 +8,7 @@ const calculateAspects = (tableId, barType) => {
   }
 }
 
-const getAllTableCells = tableId => {
+export const getAllTableCells = tableId => {
   const table = document.querySelector(`#${tableId}`)
   const rows = table.querySelectorAll('tr')
   const cells = []
@@ -19,8 +19,10 @@ const getAllTableCells = tableId => {
   return cells
 }
 
-const getIndex = (barType, cell) => {
-  cell = cell.parentNode
+export const getIndex = (barType, cell) => {
+  if (cell.tagName === 'SPAN') {
+    cell = cell.parentNode
+  }
   const row = cell.parentNode
   if (barType === 'bottom') {
     return Array.from(row.children).indexOf(cell)
@@ -107,12 +109,6 @@ const tableDragBarCtrl = ContentState => {
     this.setSwitchStyle()
   }
 
-  ContentState.prototype.hideUnnecessaryBar = function () {
-    const { barType } = this.dragInfo
-    const hideClassName = barType === 'bottom' ? 'left' : 'bottom'
-    document.querySelector(`.ag-drag-handler.${hideClassName}`).style.display = 'none'
-  }
-
   ContentState.prototype.handleMouseUp = function (event) {
     const { eventCenter } = this.muya
     for (const id of this.dragEventIds) {
@@ -128,6 +124,12 @@ const tableDragBarCtrl = ContentState => {
       this.switchTableData()
       this.resetDragTableBar()
     }, 300)
+  }
+
+  ContentState.prototype.hideUnnecessaryBar = function () {
+    const { barType } = this.dragInfo
+    const hideClassName = barType === 'bottom' ? 'left' : 'bottom'
+    document.querySelector(`.ag-drag-handler.${hideClassName}`).style.display = 'none'
   }
 
   ContentState.prototype.calculateCurIndex = function () {

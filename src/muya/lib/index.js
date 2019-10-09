@@ -262,6 +262,9 @@ class Muya {
   }
 
   blur () {
+    const selection = document.getSelection()
+
+    selection.removeAllRanges()
     this.container.blur()
   }
 
