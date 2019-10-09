@@ -4,7 +4,7 @@ import { remote } from 'electron'
 import { SpellCheckHandler, fallbackLocales, normalizeLanguageCode } from 'electron-spellchecker'
 import { isOsx, cloneObj } from '../util'
 
-// NOTE: Hardcoded in "electron-spellchecker/src/dictionary-sync.js"
+// NOTE: Hardcoded in "electron-spellchecker/src/spell-check-handler.js"
 export const dictionaryPath = path.join(remote.app.getPath('userData'), 'dictionaries')
 
 // Source: https://github.com/Microsoft/vscode/blob/master/src/vs/editor/common/model/wordHelper.ts
@@ -13,11 +13,14 @@ const WORD_SEPARATORS = /([`~!@#$%^&*()-=+[{\]}\\|;:'",.<>/?\s])/
 const WORD_DEFINITION = /(-?\d*\.\d\w*)|([^`~!@#$%^&*()-=+[{\]}\\|;:'",.<>/?\s]+)$/
 
 /**
- * Translate a left and right offset into a cursor.
+ * Translate a left and right offset from a word in `line` into a cursor with
+ * the given line cursor.
  *
- * @param {*} lineCursor Original line cursor
- * @param {*} left Start offset/index
- * @param {*} right End offset/index
+ * @param {*} lineCursor The original line cursor.
+ * @param {number} left Start offset/index of word in `lineCursor`.
+ * @param {number} right End offset/index of word in `lineCursor`.
+ * @returns {*} Return a cursor of the word selected in `lineCursor`(e.g.
+ *              "foo >bar< foo" where `>`/`<` start and end offset).
  */
 export const offsetToWordCursor = (lineCursor, left, right) => {
   // Deep clone cursor start and end
@@ -31,7 +34,7 @@ export const offsetToWordCursor = (lineCursor, left, right) => {
 /**
  * Validate whether the selection is valid for spelling correction.
  *
- * @param {*} selection The preview edior selection range.
+ * @param {*} selection The preview editor selection range.
  */
 export const validateLineCursor = selection => {
   // Validate selection range.
@@ -40,13 +43,13 @@ export const validateLineCursor = selection => {
     return false
   }
 
-  // Allow only single lines, no multiselection support.
+  // Allow only single lines
   const { start: startCursor, end: endCursor } = selection
   if (startCursor.key !== endCursor.key || !startCursor.block) {
     return false
   }
 
-  // Don't correct word in code blocks.
+  // Don't correct words in code blocks.
   if (selection.affiliation && selection.affiliation.length === 1 &&
     selection.affiliation[0].type === 'pre') {
     return false
@@ -91,7 +94,7 @@ export class SpellChecker {
   /**
    * ctor
    *
-   * @param {boolean} enabled Enable spell checking?
+   * @param {boolean} enabled Whether spell checking is enabled.
    */
   constructor (enabled = true) {
     // Hunspell is used on Linux and Windows but macOS can use Hunspell if prefered.
@@ -108,6 +111,7 @@ export class SpellChecker {
       this.isInitialized = false
     }
 
+    // TODO(spell): Delete me
     console.log(`Using ${this.isHunspell ? 'Hunspell' : 'OS-level'} spellchecker. Enabled=${enabled}`) // #DEBUG
   }
 
@@ -118,8 +122,7 @@ export class SpellChecker {
 
     this.provider = new SpellCheckHandler()
 
-    // React to changes such as language detection.
-    this.provider.currentSpellcheckerChanged.subscribe(() => {
+    this.provider.currentSpellcheckerChanged.subscribe(() => { // TODO(spell): Delete me
       console.log(
         '# currentSpellcheckerChanged',
         '\nEnabled:', this.provider.isEnabled,
@@ -127,10 +130,6 @@ export class SpellChecker {
         '\nLanguage:', this.provider.currentSpellcheckerLanguage,
         '\nisHunspell:', this.provider.isHunspell
       ) // #DEBUG
-
-      // TODO(spell): Do we need this event? Changes are made from editor.vue/settings
-      // and local spell checker changes like automatic language detaction should not
-      // be set as default language.
     })
 
     // The spell checker is now initialized but not yet enabled. Please call `init`.
@@ -178,6 +177,7 @@ export class SpellChecker {
       // OS spell checker.
       this.provider.attachToInput()
 
+      this.fallbackLang = null
       this.isEnabled = true
       return this.lang
     }
@@ -236,7 +236,7 @@ export class SpellChecker {
    */
   disableSpellchecker () {
     if (!this.isEnabled) {
-      return true
+      return
     }
 
     this.provider.disableSpellchecker()
@@ -249,7 +249,7 @@ export class SpellChecker {
    * @param {string} word The word to add.
    */
   async addToDictionary (word) {
-    await this.provider.addToDictionary(word)
+    return await this.provider.addToDictionary(word)
   }
 
   /**
@@ -258,7 +258,7 @@ export class SpellChecker {
    * @param {string} word The word to remove.
    */
   async removeFromDictionary (word) {
-    await this.provider.removeFromDictionary(word)
+    return await this.provider.removeFromDictionary(word)
   }
 
   /**

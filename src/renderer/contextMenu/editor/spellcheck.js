@@ -1,8 +1,7 @@
 import { remote } from 'electron'
+import log from 'electron-log'
 import bus from '@/bus'
-import {
-  SEPARATOR
-} from './menuItems'
+import { SEPARATOR } from './menuItems'
 
 const { MenuItem } = remote
 
@@ -47,6 +46,10 @@ export default (spellchecker, selectedWord, wordSuggestions, replaceCallback) =>
           // NOTE: Need to notify Chromium to invalidate the spelling underline.
           targetWindow.webContents.replaceMisspelling(selectedWord)
           spellchecker.addToDictionary(selectedWord)
+            .catch(error => {
+              log.error(`Error while adding "${selectedWord}" to dictionary.`)
+              log.error(error)
+            })
         }
       })
       spellingSubmenu.push(SEPARATOR)
@@ -65,12 +68,16 @@ export default (spellchecker, selectedWord, wordSuggestions, replaceCallback) =>
     } else {
       spellingSubmenu.push({
         label: 'Remove from Dictionary',
-        // NOTE: We cannot (always) validate that the word is inside the user dictionary.
+        // NOTE: We cannot validate that the word is inside the user dictionary.
         enabled: !!selectedWord && selectedWord.length >= 2,
         click (menuItem, targetWindow) {
           // NOTE: Need to notify Chromium to invalidate the spelling underline.
           targetWindow.webContents.replaceMisspelling(selectedWord)
           spellchecker.removeFromDictionary(selectedWord)
+            .catch(error => {
+              log.error(`Error while removing "${selectedWord}" from dictionary.`)
+              log.error(error)
+            })
         }
       })
     }

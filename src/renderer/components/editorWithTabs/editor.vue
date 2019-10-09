@@ -74,6 +74,7 @@
 
 <script>
 import { shell } from 'electron'
+import log from 'electron-log'
 import { mapState } from 'vuex'
 import ViewImage from 'view-image'
 import Muya from 'muya/lib'
@@ -318,11 +319,8 @@ export default {
       }
     },
     spellcheckerEnabled: function (value, oldValue) {
-      const {
-        editor,
-        spellchecker
-      } = this
-      if (value !== oldValue && spellchecker) {
+      if (value !== oldValue) {
+        const { editor, spellchecker } = this
         const { isInitialized } = spellchecker
 
         // Set Muya's spellcheck container attribute.
@@ -369,8 +367,9 @@ export default {
       }
     },
     spellcheckerNoUnderline: function (value, oldValue) {
-      const { editor, spellchecker } = this
       if (value !== oldValue) {
+        const { editor, spellchecker } = this
+
         // Set Muya's spellcheck container attribute.
         editor.setOptions({ spellcheckEnabled: !value })
 
@@ -382,7 +381,8 @@ export default {
     },
     spellcheckerAutoDetectLanguage: function (value, oldValue) {
       const { spellchecker } = this
-      if (value !== oldValue && spellchecker && spellchecker.isInitialized) {
+      const { isInitialized } = spellchecker
+      if (value !== oldValue && isInitialized) {
         spellchecker.automaticallyIdentifyLanguages = value
       }
     },
@@ -394,7 +394,8 @@ export default {
           this.switchSpellcheckLanguage(value)
         } else if (isInvalidState) {
           // Spell checker is in an invalid state due to a missing dictionary and
-          // therefore deactivated. We can safely enable the spell checker again.
+          // therefore deactivated. We can safely enable the spell checker again
+          // with the new language.
           this.enableSpellchecker()
         }
       }
@@ -582,7 +583,8 @@ export default {
       this.editor.on('contextmenu', (event, selection) => {
         const { isEnabled } = this.spellchecker
 
-        // NOTE: Right clicking on a misspelled word select the whole word.
+        // NOTE: Right clicking on a misspelled word select the whole word
+        // by Chromium.
         if (isEnabled && validateLineCursor(selection)) {
           const { start: startCursor } = selection
           const { offset: lineOffset } = startCursor
@@ -593,6 +595,7 @@ export default {
 
             console.log(`l: ${left}`, `r: ${right}`, word) // #DEBUG
 
+            // Translate offsets into a cursor with the given line.
             const wordRange = offsetToWordCursor(selection, left, right)
             this.spellchecker.getWordSuggestion(word)
               .then(wordSuggestions => {
@@ -703,9 +706,8 @@ export default {
         spellcheckerNoUnderline
       )
         .catch(error => {
-          const { errorLog } = global.marktext
-          errorLog(`Error while initializing spell checker for language "${spellcheckerLanguage}":`)
-          errorLog(error)
+          log.error(`Error while initializing spell checker for language "${spellcheckerLanguage}":`)
+          log.error(error)
 
           notice.notify({
             title: 'Spelling',
@@ -729,6 +731,7 @@ export default {
       )
         .then(status => {
           if (!status) {
+            // Unable to switch language, spell checker is now in an invalid state.
             notice.notify({
               title: 'Spelling',
               type: 'warning',
@@ -737,9 +740,8 @@ export default {
           }
         })
         .catch(error => {
-          const { errorLog } = global.marktext
-          errorLog(`Error while enabling spell checking for "${spellcheckerLanguage}":`)
-          errorLog(error)
+          log.error(`Error while enabling spell checking for "${spellcheckerLanguage}":`)
+          log.error(error)
 
           notice.notify({
             title: 'Spelling',
@@ -752,7 +754,7 @@ export default {
       const { spellchecker } = this
       const { isEnabled } = spellchecker
 
-      // This method can be called from bus, so validate state before continuing.
+      // This method is also called from bus, so validate state before continuing.
       if (!isEnabled) {
         throw new Error('Cannot switch switch because spell checker is disabled!')
       }
@@ -776,9 +778,8 @@ export default {
           }
         })
         .catch(error => {
-          const { errorLog } = global.marktext
-          errorLog(`Error while switching to language "${languageCode}":`)
-          errorLog(error)
+          log.error(`Error while switching to language "${languageCode}":`)
+          log.error(error)
 
           notice.notify({
             title: 'Spelling',

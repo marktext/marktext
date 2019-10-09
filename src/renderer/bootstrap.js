@@ -94,8 +94,7 @@ const bootstrapRenderer = () => {
       windowId,
       type
     },
-    paths,
-    errorLog: exceptionLogger
+    paths
   }
   global.marktext = marktext
 
