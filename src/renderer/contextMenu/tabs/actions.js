@@ -1,11 +1,11 @@
 import bus from '../../bus'
 
-export const closeThis = (tab) => {
-  bus.$emit('TABS::close-this', tab)
+export const closeThis = (tabId) => {
+  bus.$emit('TABS::close-this', tabId)
 }
 
-export const closeOthers = (tab) => {
-  bus.$emit('TABS::close-others', tab)
+export const closeOthers = (tabId) => {
+  bus.$emit('TABS::close-others', tabId)
 }
 
 export const closeSaved = () => {
@@ -16,14 +16,14 @@ export const closeAll = () => {
   bus.$emit('TABS::close-all')
 }
 
-export const rename = (tab) => {
-  bus.$emit('TABS::rename', tab)
+export const rename = (tabId) => {
+  bus.$emit('TABS::rename', tabId)
 }
 
-export const copyPath = (tab) => {
-  bus.$emit('TABS::copy-path', tab)
+export const copyPath = (tabId) => {
+  bus.$emit('TABS::copy-path', tabId)
 }
 
-export const showInFolder = (tab) => {
-  bus.$emit('TABS::show-in-folder', tab)
+export const showInFolder = (tabId) => {
+  bus.$emit('TABS::show-in-folder', tabId)
 }

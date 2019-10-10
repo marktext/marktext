@@ -82,13 +82,15 @@ export default {
       const newLeft = Math.max(0, Math.min(tabs.scrollLeft + delta, tabs.scrollWidth))
       tabs.scrollLeft = newLeft
     },
-    closeTab (tab) {
-      if (tab.id) {
+    closeTab (tabId) {
+      const tab = this.tabs.find(f => f.id === tabId)
+      if (tab) {
         this.$store.dispatch('CLOSE_TAB', tab)
       }
     },
-    closeOthers (tab) {
-      if (tab.id) {
+    closeOthers (tabId) {
+      const tab = this.tabs.find(f => f.id === tabId)
+      if (tab) {
         this.$store.dispatch('CLOSE_OTHER_TABS', tab)
       }
     },
@@ -98,18 +100,21 @@ export default {
     closeAll () {
       this.$store.dispatch('CLOSE_ALL_TABS')
     },
-    rename (tab) {
-      if (tab.pathname) {
+    rename (tabId) {
+      const tab = this.tabs.find(f => f.id === tabId)
+      if (tab && tab.pathname) {
         this.$store.dispatch('RENAME_FILE', tab)
       }
     },
-    copyPath (tab) {
-      if (tab.pathname) {
+    copyPath (tabId) {
+      const tab = this.tabs.find(f => f.id === tabId)
+      if (tab && tab.pathname) {
         clipboard.writeText(tab.pathname)
       }
     },
-    showInFolder (tab) {
-      if (tab.pathname) {
+    showInFolder (tabId) {
+      const tab = this.tabs.find(f => f.id === tabId)
+      if (tab && tab.pathname) {
         shell.showItemInFolder(tab.pathname)
       }
     },

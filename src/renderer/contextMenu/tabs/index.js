@@ -25,7 +25,7 @@ export const showContextMenu = (event, tab) => {
 
   CONTEXT_ITEMS.forEach(item => {
     const menuItem = new MenuItem(item)
-    menuItem.tab = tab
+    menuItem._tabId = tab.id
     menu.append(menuItem)
   })
   menu.popup({ window: win, x: event.clientX, y: event.clientY })

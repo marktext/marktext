@@ -8,7 +8,7 @@ export const CLOSE_THIS = {
   label: 'Close',
   id: 'closeThisTab',
   click (menuItem, browserWindow) {
-    contextMenu.closeThis(menuItem.tab)
+    contextMenu.closeThis(menuItem._tabId)
   }
 }
 
@@ -16,7 +16,7 @@ export const CLOSE_OTHERS = {
   label: 'Close others',
   id: 'closeOtherTabs',
   click (menuItem, browserWindow) {
-    contextMenu.closeOthers(menuItem.tab)
+    contextMenu.closeOthers(menuItem._tabId)
   }
 }
 
@@ -40,7 +40,7 @@ export const RENAME = {
   label: 'Rename',
   id: 'renameFile',
   click (menuItem, browserWindow) {
-    contextMenu.rename(menuItem.tab)
+    contextMenu.rename(menuItem._tabId)
   }
 }
 
@@ -48,7 +48,7 @@ export const COPY_PATH = {
   label: 'Copy path',
   id: 'copyPath',
   click (menuItem, browserWindow) {
-    contextMenu.copyPath(menuItem.tab)
+    contextMenu.copyPath(menuItem._tabId)
   }
 }
 
@@ -56,6 +56,6 @@ export const SHOW_IN_FOLDER = {
   label: 'Show in folder',
   id: 'showInFolder',
   click (menuItem, browserWindow) {
-    contextMenu.showInFolder(menuItem.tab)
+    contextMenu.showInFolder(menuItem._tabId)
   }
 }
