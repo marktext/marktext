@@ -16,8 +16,7 @@
   },
   "keywords": [
     "spelling",
-    "electron",
-    "rx"
+    "electron"
   ],
   "contributors": [
     "Anais Betts <anais@anaisbetts.org>",
@@ -37,18 +36,15 @@
     "fs-extra": "^8.1.0",
     "keyboard-layout": "^2.0.16",
     "lru-cache": "^5.1.1",
-    "rxjs": "^5.0.1",
-    "rxjs-serial-subscription": "^0.1.1",
-    "spawn-rx": "^2.0.7"
+    "p-throttle": "^3.1.0"
   },
   "devDependencies": {
-    "@kwonoj/rxjs-testscheduler-compat": "0.0.4",
     "chai": "^3.5.0",
     "chai-as-promised": "^6.0.0",
     "cross-env": "^5.2.0",
+    "electron": "4.0.6",
     "electron-debug": "^2.1.0",
     "electron-mocha": "^6.0.4",
-    "electron": "4.0.6",
     "esdoc": "^1.1.0",
     "esdoc-es7-plugin": "0.0.3",
     "esdoc-plugin-async-to-sync": "^0.5.0",

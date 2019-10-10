@@ -122,17 +122,7 @@ export class SpellChecker {
 
     this.provider = new SpellCheckHandler()
 
-    this.provider.currentSpellcheckerChanged.subscribe(() => { // TODO(spell): Delete me
-      console.log(
-        '# currentSpellcheckerChanged',
-        '\nEnabled:', this.provider.isEnabled,
-        '\nAutoIdentifyLanguages:', this.provider.automaticallyIdentifyLanguages,
-        '\nLanguage:', this.provider.currentSpellcheckerLanguage,
-        '\nisHunspell:', this.provider.isHunspell
-      ) // #DEBUG
-    })
-
-    // The spell checker is now initialized but not yet enabled. Please call `init`.
+    // The spell checker is now initialized but not yet enabled. You need to call `init`.
     this.isEnabled = false
     this.isInitialized = true
   }
@@ -143,9 +133,11 @@ export class SpellChecker {
    * @param {string} lang 4-letter language ISO-code.
    * @param {boolean} automaticallyIdentifyLanguages Whether we should try to identify the typed language.
    * @param {boolean} isPassiveMode Should we highlight misspelled words?
+   * @param {[HTMLElement]} container The optional container to attach the automatic spell detection when
+   *                                using Hunspell. Default `document.body`.
    * @returns {string} Returns current spell checker language.
    */
-  async init (lang = '', automaticallyIdentifyLanguages = false, isPassiveMode = false) {
+  async init (lang = '', automaticallyIdentifyLanguages = false, isPassiveMode = false, container = null) {
     if (this.isEnabled) {
       return
     } else if (!this.isInitialized) {
@@ -157,7 +149,8 @@ export class SpellChecker {
     }
 
     // // TODO(spell): Currently not supported by our Hunspell implementation
-    // //              with a reasonable performance.
+    // //              with a reasonable performance and Node worker threads
+    // //              doesn't work currently in Electron (Electon#18540).
     // if (this.isHunspell) {
     //   automaticallyIdentifyLanguages = false
     // }
@@ -175,7 +168,7 @@ export class SpellChecker {
       // Attach the spell checker to the window document.
       // NOTE: Calling this method is normally not necessary on macOS with
       // OS spell checker.
-      this.provider.attachToInput()
+      this.provider.attachToInput(container)
 
       this.fallbackLang = null
       this.isEnabled = true
@@ -194,7 +187,7 @@ export class SpellChecker {
     }
 
     // Attach the spell checker to the window document.
-    this.provider.attachToInput()
+    this.provider.attachToInput(container)
     this.fallbackLang = currentLang
     this.isEnabled = true
     return currentLang
@@ -309,7 +302,8 @@ export class SpellChecker {
     }
 
     // // TODO(spell): Currently not supported by our Hunspell implementation
-    // //              with a reasonable performance.
+    // //              with a reasonable performance and Node worker threads
+    // //              doesn't work currently in Electron (Electon#18540).
     // if (this.isHunspell) {
     //   value = false
     // }

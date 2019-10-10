@@ -694,16 +694,19 @@ export default {
     // Helper methods for spell checker that are needed multiple times.
     initSpellchecker () {
       const {
+        editor,
         spellchecker,
         spellcheckerNoUnderline,
         spellcheckerAutoDetectLanguage,
         spellcheckerLanguage
       } = this
+      const { container } = editor
 
       spellchecker.init(
         spellcheckerLanguage,
         spellcheckerAutoDetectLanguage,
-        spellcheckerNoUnderline
+        spellcheckerNoUnderline,
+        container
       )
         .catch(error => {
           log.error(`Error while initializing spell checker for language "${spellcheckerLanguage}":`)

@@ -1,35 +1,7 @@
 const path = require('path');
-const {spawn} = require('spawn-rx');
-// const {requireTaskPool} = require('@aabuhijleh/electron-remote');
+const EventEmitter = require('events');
 const LRU = require('lru-cache');
-
-const {Subscription} = require('rxjs/Subscription');
-const {Observable} = require('rxjs/Observable');
-const {Subject} = require('rxjs/Subject');
-const SerialSubscription = require('rxjs-serial-subscription').default;
-
-require('rxjs/add/observable/merge');
-require('rxjs/add/observable/defer');
-require('rxjs/add/observable/empty');
-require('rxjs/add/observable/fromEvent');
-require('rxjs/add/observable/fromPromise');
-require('rxjs/add/observable/of');
-
-require('rxjs/add/operator/catch');
-require('rxjs/add/operator/concat');
-require('rxjs/add/operator/concatMap');
-require('rxjs/add/operator/do');
-require('rxjs/add/operator/filter');
-require('rxjs/add/operator/mergeMap');
-require('rxjs/add/operator/observeOn');
-require('rxjs/add/operator/reduce');
-require('rxjs/add/operator/startWith');
-require('rxjs/add/operator/take');
-require('rxjs/add/operator/takeUntil');
-require('rxjs/add/operator/throttle');
-require('rxjs/add/operator/toPromise');
-
-require('./custom-operators');
+const pThrottle = require('p-throttle');
 
 const DictionarySync = require('./dictionary-sync');
 const UserDictionary = require('./user-dictionary');
@@ -80,24 +52,6 @@ const contractionMap = contractions.reduce((acc, word) => {
 const alternatesTable = {};
 
 /**
- * This method mimics Observable.fromEvent, but with capture semantics.
- */
-function fromEventCapture(element, name) {
-  return Observable.create((subj) => {
-    const handler = function(...args) {
-      if (args.length > 1) {
-        subj.next(args);
-      } else {
-        subj.next(args[0] || true);
-      }
-    };
-
-    element.addEventListener(name, handler, true);
-    return new Subscription(() => element.removeEventListener(name, handler, true));
-  });
-}
-
-/**
  * SpellCheckHandler is the main class of this library, and handles all of the
  * different pieces of spell checking except for the context menu information.
  *
@@ -134,22 +88,19 @@ module.exports = class SpellCheckHandler {
     // Don't underline spelling mistakes.
     this.dictionarySync = new DictionarySync(this.isHunspell, cacheDir);
     this.userDictionary = new UserDictionary(cacheDir);
-    this.switchToLanguage = new Subject();
     this.currentSpellchecker = null;
     this.currentSpellcheckerLanguage = null;
-    this.currentSpellcheckerChanged = new Subject();
-    this.spellCheckInvoked = new Subject();
-    this.spellingErrorOccurred = new Subject();
     this.isMisspelledCache = new LRU({ max: 5000 });
     this.isEnabled = false;
     // Spell checker is deactivated due to an issue (e.g. dict not available).
     this.invalidState = false;
 
+    this.bus = new EventEmitter();
+    this._unsubscribeFn = null;
+
     this.scheduler = scheduler;
     this._automaticallyIdentifyLanguages = !this.isHunspell;
     this._isPassiveMode = false;
-
-    this.disp = new SerialSubscription();
 
     if (!this.isHunspell) {
       // NB: OS X does automatic language detection, we're gonna trust it
@@ -176,6 +127,7 @@ module.exports = class SpellCheckHandler {
    */
   set automaticallyIdentifyLanguages(value) {
     this._automaticallyIdentifyLanguages = !!value;
+    this.bus.emit('resetAutoDetection');
 
     // Calling `setDictionary` on the macOS implementation of `@nornagon/spellchecker`
     // is the only way to set the `automaticallyIdentifyLanguages` property on the
@@ -211,7 +163,7 @@ module.exports = class SpellCheckHandler {
         this.attachToInput();
       } else {
         // Disable CLD
-        this.disp.unsubscribe();
+        this.unsubscribe();
       }
     }
   }
@@ -221,7 +173,11 @@ module.exports = class SpellCheckHandler {
    * in the class.
    */
   unsubscribe() {
-    this.disp.unsubscribe();
+    this.bus.removeAllListeners();
+    if (this._unsubscribeFn) {
+      this._unsubscribeFn();
+      this._unsubscribeFn = null;
+    }
   }
 
   /**
@@ -266,7 +222,7 @@ module.exports = class SpellCheckHandler {
           this.setSpellCheckProvider(webFrame);
         }
 
-        this.currentSpellcheckerChanged.next(true);
+        this.bus.emit('currentSpellcheckerChanged', true);
         return true;
       }
       // else: fallthrough and switch language
@@ -293,7 +249,6 @@ module.exports = class SpellCheckHandler {
     this.currentSpellchecker = null;
     this.userDictionary.unload();
     this.isEnabled = false;
-    this.currentSpellcheckerChanged.next(false);
   }
 
   /**
@@ -312,49 +267,53 @@ module.exports = class SpellCheckHandler {
    * switch languages as well as enable Electron spell checking (i.e. the red
    * squigglies).
    *
-   * @param  {Observable<String>} inputText     Simulate the user typing text,
-   *                                            for testing.
-   *
-   * @return {Disposable}       A Disposable which will unregister all of the
-   *                            things that this method registered.
+   * @param {[HTMLElement]} container The optional container to attach the
+   *                                  automatic spell detection when using
+   *                                  Hunspell. Default `document.body`.
    */
-  attachToInput(inputText=null) {
+  attachToInput(container=null) {
     // OS X has no need for any of this except for passive mode.
-    if (!this.isHunspell && !inputText && !this.isPassiveMode) {
-      return Subscription.EMPTY;
+    if (!this.isHunspell && !this.isPassiveMode) {
+      return;
     }
 
-    let possiblySwitchedCharacterSets = new Subject();
     let wordsTyped = 0;
+    let lastInputText = '';
 
-    if (!inputText && !document.body) {
-      throw new Error("document.body is null, if you're calling this in a preload script you need to wrap it in a setTimeout");
+    if (!container && !document.body) {
+      throw new Error("document.body and container are null, if you're calling this in a preload script you need to wrap it in a setTimeout");
+    } else if (this._unsubscribeFn) {
+      throw new Error('Spellchecker is already attach to input. Please use default values to capture the full document.')
     }
 
-    let input = inputText || (fromEventCapture(document.body, 'input')
-      .mergeMap((e) => {
-        if (!e.target) return Observable.empty();
-        const value = e.target.isContentEditable ? e.target.textContent : e.target.value;
-        if (!value) return Observable.empty();
+    const inputHandler = e => {
+      if (!this.automaticallyIdentifyLanguages) return;
+      if (!e.target) return;
+      const value = e.target.isContentEditable ? e.target.textContent : e.target.value;
+      if (!value) return;
 
-        if (value.match(/\S\s$/)) {
-          wordsTyped++;
+      if (value.match(/\S\s$/)) {
+        wordsTyped++;
+      }
+
+      if (wordsTyped > 2) {
+        if (this.isPassiveMode) {
+          // Reset counter because spell checking is disabled on the document - don't overflow.
+          wordsTyped = 0;
+        } else {
+          d(`${wordsTyped} words typed without spell checking invoked, redetecting language`);
         }
+        this.bus.emit('possiblySwitchedCharacterSets');
+      }
 
-        if (wordsTyped > 2) {
-          if (this.isPassiveMode) {
-            // Reset counter because spell checking is disabled on the document - don't overflow.
-            wordsTyped = 0;
-          } else {
-            d(`${wordsTyped} words typed without spell checking invoked, redetecting language`);
-          }
-          possiblySwitchedCharacterSets.next(true);
-        }
+      lastInputText = value;
+    }
 
-        return Observable.of(value);
-      }));
-
-    let disp = new Subscription();
+    const element = container || document.body;
+    element.addEventListener('input', inputHandler, true);
+    this._unsubscribeFn = () => {
+      element.removeEventListener('input', inputHandler, true);
+    };
 
     // NB: When users switch character sets (i.e. we're checking in English and
     // the user suddenly starts typing in Russian), the spellchecker will no
@@ -362,75 +321,73 @@ module.exports = class SpellCheckHandler {
     //
     // If we see too many words typed without a spelling detection, we know we
     // should start rechecking the input box for a language change.
-    disp.add(Observable.merge(this.spellCheckInvoked, this.currentSpellcheckerChanged)
-      .subscribe(() => wordsTyped = 0));
+    this.bus.on('spellCheckInvoked', () => wordsTyped = 0);
+    this.bus.on('currentSpellcheckerChanged', () => wordsTyped = 0);
+    this.bus.on('resetAutoDetection', () => {
+      lastInputText = '';
+      wordsTyped = 0;
+    });
 
-    let lastInputText = '';
-    disp.add(input.subscribe((x) => lastInputText = x));
+    const detectLanguage = pThrottle(async () => {
+      if (!this.automaticallyIdentifyLanguages || lastInputText.length < 8) {
+        return;
+      }
 
-    let initialInputText = input
-      .guaranteedThrottle(250, this.scheduler)
-      .takeUntil(this.currentSpellcheckerChanged);
+      let text = lastInputText;
+      if (text.length > 256) {
+        text = text.substr(text.length - 256);
+      }
 
-    if (this.currentSpellcheckerLanguage) {
-      initialInputText = Observable.empty();
-    }
+      d(`Attempting detection, string length: ${text.length} (total=${lastInputText.length})`);
 
-    let contentToCheck = Observable.merge(
-        this.spellingErrorOccurred,
-        initialInputText,
-        possiblySwitchedCharacterSets)
-      .mergeMap(() => {
-        if (lastInputText.length < 8) return Observable.empty();
-        return Observable.of(lastInputText);
-      });
+      let langWithoutLocale;
+      try {
+        langWithoutLocale = await this.detectLanguageForText(text);
+      } catch (e) {
+        d(`Failed to detect language: ${e.message}`);
+        return;
+      }
 
-    let languageDetectionMatches = contentToCheck
-      .filter(() => this.automaticallyIdentifyLanguages)
-      .mergeMap((text) => {
-        d(`Attempting detection, string length: ${text.length}`);
-        if (text.length > 256) {
-          text = text.substr(text.length - 256);
+      d(`Auto-detected language as ${langWithoutLocale}`);
+      let lang = await this.getLikelyLocaleForLanguage(langWithoutLocale);
+      if (lang !== this.currentSpellcheckerLanguage || !this.currentSpellchecker) {
+        try {
+          // Current dictionary not available.
+          if (!this.switchLanguage(lang)) {
+            return;
+          }
+        } catch (e) {
+          d(`Failed to load dictionary: ${e.message}`);
+          return;
         }
+      }
 
-        return Observable.fromPromise(this.detectLanguageForText(text))
-          .catch(() => Observable.empty());
-      });
+      d(`New Language is ${lang}`);
+      // this.bus.emit('languageChanged', lang);
+    }, 1, 250)
 
-    disp.add(languageDetectionMatches
-      .mergeMap(async (langWithoutLocale) => {
-        d(`Auto-detected language as ${langWithoutLocale}`);
-        let lang = await this.getLikelyLocaleForLanguage(langWithoutLocale);
-        if ( (lang !== this.currentSpellcheckerLanguage) || (!this.currentSpellchecker) ) await this.switchLanguage(lang);
-
-        return lang;
-      })
-      .catch((e) => {
-        d(`Failed to load dictionary: ${e.message}`);
-        return Observable.empty();
-      })
-      .subscribe(async (lang) => {
-        d(`New Language is ${lang}`);
-      }));
+    this.bus.on('spellingErrorOccurred', () => detectLanguage());
+    this.bus.on('possiblySwitchedCharacterSets', () => detectLanguage());
 
     if (webFrame) {
       let prevSpellCheckLanguage;
 
-      disp.add(this.currentSpellcheckerChanged
-          .startWith(true)
-        .filter(() => this.currentSpellcheckerLanguage)
-        .subscribe(() => {
-          if (prevSpellCheckLanguage === this.currentSpellcheckerLanguage) return;
+      const handleLanguageChange = () => {
+        if (!this.currentSpellcheckerLanguage) {
+          return;
+        } else if (prevSpellCheckLanguage === this.currentSpellcheckerLanguage) {
+          return;
+        }
 
-          d('Actually installing spell check provider to Electron');
-          this.setSpellCheckProvider(webFrame);
+        d('Actually installing spell check provider to Electron');
+        this.setSpellCheckProvider(webFrame);
 
-          prevSpellCheckLanguage = this.currentSpellcheckerLanguage;
-        }));
+        prevSpellCheckLanguage = this.currentSpellcheckerLanguage;
+      }
+
+      handleLanguageChange();
+      this.bus.on('currentSpellcheckerChanged', () => handleLanguageChange());
     }
-
-    this.disp.add(disp);
-    return disp;
   }
 
   /**
@@ -441,21 +398,21 @@ module.exports = class SpellCheckHandler {
    *
    * @param  {String} inputText   A language code (i.e. 'en-US')
    *
-   * @return {Promise}            Completion
+   * @return {Promise<boolean>}   Completion
    */
   async provideHintText(inputText) {
     let langWithoutLocale = null;
-    if (!this.isHunspell) return;
+    if (!this.isHunspell) return false;
 
     try {
       langWithoutLocale = await this.detectLanguageForText(inputText.substring(0, 512));
     } catch (e) {
       d(`Couldn't detect language for text of length '${inputText.length}': ${e.message}, ignoring sample`);
-      return;
+      return false;
     }
 
     let lang = await this.getLikelyLocaleForLanguage(langWithoutLocale);
-    await this.switchLanguage(lang);
+    return await this.switchLanguage(lang);
   }
 
   /**
@@ -507,7 +464,7 @@ module.exports = class SpellCheckHandler {
       this.userDictionary.unload();
       this.isEnabled = false;
       this.invalidState = true;
-      this.currentSpellcheckerChanged.next(false);
+      this.bus.emit('currentSpellcheckerChanged', false);
       return false;
     }
 
@@ -518,11 +475,10 @@ module.exports = class SpellCheckHandler {
       this.currentSpellchecker = new Spellchecker();
       this.currentSpellchecker.setDictionary(actualLang, dict);
       this.currentSpellcheckerLanguage = actualLang;
-      // TODO(spell): Handle error?
       this.userDictionary.loadForLanguage(actualLang);
       this.isEnabled = true;
       this.invalidState = false;
-      this.currentSpellcheckerChanged.next(true);
+      this.bus.emit('currentSpellcheckerChanged', true);
     }
     return true;
   }
@@ -548,21 +504,16 @@ module.exports = class SpellCheckHandler {
       }
     }
 
-    d(`Requesting to load ${langCode}, alternatives are ${JSON.stringify(alternatives)}`);
-    return await Observable.of(...alternatives)
-      .concatMap((l) => {
-        return Observable.defer(() =>
-            Observable.fromPromise(this.dictionarySync.loadDictionaryForLanguage(l)))
-          .map((d) => ({language: l, dictionary: d}))
-          .do(({language}) => {
-            alternatesTable[langCode] = language;
-          })
-          .catch(() => Observable.of(null));
-      })
-      .concat(Observable.of({language: langCode, dictionary: null}))
-      .filter((x) => x !== null)
-      .take(1)
-      .toPromise();
+    for (const language of alternatives) {
+      try {
+        const dictionary = await this.dictionarySync.loadDictionaryForLanguage(language);
+        alternatesTable[langCode] = language;
+        return { language, dictionary }
+      } catch (e) {
+        d(`Failed to load language ${langCode}, altTable=${language}, error=${e.message}`);
+      }
+    }
+    return { language: langCode, dictionary: null }
   }
 
   /**
@@ -594,8 +545,12 @@ module.exports = class SpellCheckHandler {
       return;
     }
 
-    this.spellCheckInvoked.next(true);
-    misspelled.forEach(w => this.spellingErrorOccurred.next(w));
+    this.bus.emit('spellCheckInvoked', true);
+    if (this.automaticallyIdentifyLanguages) {
+      // Event is only used to reset the typed words counter.
+      this.bus.emit('spellingErrorOccurred');
+      // misspelled.forEach(w => this.bus.emit('spellingErrorOccurred', w));
+    }
     callback(misspelled);
   }
 
@@ -738,20 +693,17 @@ module.exports = class SpellCheckHandler {
     let localeList = [];
 
     if (process.platform === 'linux') {
-      let locales = await spawn('locale', ['-a'])
-        .reduce((acc,x) => { acc.push(...x.split('\n')); return acc; }, [])
-        .toPromise()
-        .catch(() => []);
-
-      d(`Raw Locale list: ${JSON.stringify(locales)}`);
-
-      localeList = locales.reduce((acc, x) => {
-        let m = x.match(validLangCodeWindowsLinux);
-        if (!m) return acc;
-
-        acc.push(m[0]);
-        return acc;
-      }, []);
+      // Use LANG instead `locale -a` because it will dump all possible languages.
+      if (process.env.LANG) {
+        let m = process.env.LANG.match(validLangCodeWindowsLinux);
+        if (m) {
+          try {
+            localeList = [ normalizeLanguageCode(m[0]) ];
+          } catch (error) {
+            d(`Error: ${error}`);
+          }
+        }
+      }
     }
 
     if (process.platform === 'win32') {
@@ -804,14 +756,6 @@ module.exports = class SpellCheckHandler {
 
       return acc;
     }, {});
-
-    // NB: LANG has a Special Place In Our Hearts
-    if (process.platform === 'linux' && process.env.LANG) {
-      let m = process.env.LANG.match(validLangCodeWindowsLinux);
-      if (!m) return ret;
-
-      ret[m[0].split(/[-_\.]/)[0]] = normalizeLanguageCode(m[0]);
-    }
 
     d(`Result: ${JSON.stringify(ret)}`);
     return ret;

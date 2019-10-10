@@ -1,11 +1,5 @@
 const path = require('path');
 const fs = require('fs-extra');
-const { Observable } = require('rxjs/Observable');
-
-require('rxjs/add/observable/of');
-require('rxjs/add/operator/mergeMap');
-require('rxjs/add/operator/reduce');
-require('rxjs/add/operator/toPromise');
 
 const { normalizeLanguageCode } = require('./utility');
 

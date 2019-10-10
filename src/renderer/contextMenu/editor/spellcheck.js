@@ -32,7 +32,8 @@ export default (spellchecker, selectedWord, wordSuggestions, replaceCallback) =>
     spellingSubmenu.push(new MenuItem({
       label: 'Debug',
       click (menuItem, browserWindow) {
-        alert(JSON.stringify(spellchecker.getConfiguration, null, 2))
+        console.log('#########################')
+        console.log(spellchecker.getConfiguration)
       }
     }))
 
