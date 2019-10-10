@@ -48,7 +48,7 @@ const tabCtrl = ContentState => {
     const rowBlock = this.getBlock(cellBlock.parent)
     const tbOrTh = this.getBlock(rowBlock.parent)
     if (nextSibling) {
-      return nextSibling
+      return this.firstInDescendant(nextSibling)
     } else {
       if (rowBlock.nextSibling) {
         const nextRow = this.getBlock(rowBlock.nextSibling)
@@ -378,13 +378,15 @@ const tabCtrl = ContentState => {
     }
     if (nextCell) {
       const { key } = nextCell
+
       const offset = 0
       this.cursor = {
         start: { key, offset },
         end: { key, offset }
       }
 
-      return this.partialRender()
+      const table = this.closest(nextCell, 'table')
+      return this.singleRender(table)
     }
 
     if (this.isIndentableListItem()) {
