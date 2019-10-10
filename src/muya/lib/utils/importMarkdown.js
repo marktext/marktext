@@ -206,6 +206,7 @@ const importRegister = ContentState => {
           break
         }
         case 'table': {
+          console.log(token)
           const { header, align, cells } = token
           const table = this.createBlock('table')
           const thead = this.createBlock('thead')
@@ -253,7 +254,9 @@ const importRegister = ContentState => {
           this.appendChild(thead, theadRow)
           this.appendChild(block, table)
           this.appendChild(table, thead)
-          this.appendChild(table, tbody)
+          if (tbody.children.length) {
+            this.appendChild(table, tbody)
+          }
           this.appendChild(parentList[0], block)
           break
         }
