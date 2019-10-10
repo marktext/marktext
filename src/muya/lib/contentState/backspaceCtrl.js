@@ -236,6 +236,21 @@ const backspaceCtrl = ContentState => {
       }
     }
 
+    // Fixed #1456 existed bugs `Select one cell and press backspace will cause bug`
+    if (startBlock.functionType === 'cellContent' && this.cursor.start.offset === 0 && this.cursor.end.offset === startBlock.text.length) {
+      event.preventDefault()
+      event.stopPropagation()
+      startBlock.text = ''
+      const { key } = startBlock
+      const offset = 0
+      this.cursor = {
+        start: { key, offset },
+        end: { key, offset }
+      }
+
+      return this.singleRender(startBlock)
+    }
+
     // If select multiple paragraph or multiple characters in one paragraph, just let
     // inputCtrl to handle this case.
     if (start.key !== end.key || start.offset !== end.offset) {
