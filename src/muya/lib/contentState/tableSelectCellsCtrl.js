@@ -221,6 +221,19 @@ const tableSelectCellsCtrl = ContentState => {
       const key = selectedTableCells.cells[0].key
       return this.getBlock(key)
     }
+
+    return null
+  }
+
+  // Return the cell block if yes, else return null.
+  ContentState.prototype.isSelectWholeTable = function () {
+    const { selectedTableCells } = this
+    const table = selectedTableCells ? this.getBlock(selectedTableCells.tableId) : {}
+    const { row, column } = table
+    if (selectedTableCells && table && selectedTableCells.cells.length === (+row + 1) * (+column + 1)) {
+      return table
+    }
+
     return null
   }
 }

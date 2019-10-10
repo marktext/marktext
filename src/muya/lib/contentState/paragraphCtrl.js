@@ -679,6 +679,7 @@ const paragraphCtrl = ContentState => {
     this.partialRender()
     return this.muya.eventCenter.dispatch('stateChange')
   }
+
   // delete current paragraph
   ContentState.prototype.deleteParagraph = function (blockKey) {
     let startOutmostBlock
@@ -731,8 +732,30 @@ const paragraphCtrl = ContentState => {
       !this.muya.keyboard.isComposed
   }
 
+  ContentState.prototype.selectAllContent = function () {
+    const firstTextBlock = this.getFirstBlock()
+    const lastTextBlock = this.getLastBlock()
+    this.cursor = {
+      start: {
+        key: firstTextBlock.key,
+        offset: 0
+      },
+      end: {
+        key: lastTextBlock.key,
+        offset: lastTextBlock.text.length
+      }
+    }
+
+    return this.render()
+  }
+
   ContentState.prototype.selectAll = function () {
     const mayBeCell = this.isSelectSingleCell()
+    const mayBeTable = this.isSelectWholeTable()
+    if (mayBeTable) {
+      this.selectedTableCells = null
+      return this.selectAllContent()
+    }
     // Select whole table if already select one cell.
     if (mayBeCell) {
       const table = this.closest(mayBeCell, 'table')
@@ -806,19 +829,8 @@ const paragraphCtrl = ContentState => {
       }
       return this.partialRender()
     }
-    const firstTextBlock = this.getFirstBlock()
-    const lastTextBlock = this.getLastBlock()
-    this.cursor = {
-      start: {
-        key: firstTextBlock.key,
-        offset: 0
-      },
-      end: {
-        key: lastTextBlock.key,
-        offset: lastTextBlock.text.length
-      }
-    }
-    this.render()
+
+    return this.selectAllContent()
   }
 }
 
