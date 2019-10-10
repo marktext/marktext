@@ -773,6 +773,8 @@ const paragraphCtrl = ContentState => {
         const cellBlock = this.closest(startBlock, /th|td/)
         this.selectedTableCells = {
           tableId: table.key,
+          row: 1,
+          column: 1,
           cells: [{
             key: cellBlock.key,
             top: true,

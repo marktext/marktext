@@ -732,6 +732,18 @@ class ContentState {
     return this.lastInDescendant(blocks[len - 1])
   }
 
+  closest (block, type) {
+    if (!block) {
+      return null
+    }
+    if (type instanceof RegExp ? type.test(block.type) : block.type === type) {
+      return block
+    } else {
+      const parent = this.getParent(block)
+      return this.closest(parent, type)
+    }
+  }
+
   getAnchor (block) {
     const { type, functionType } = block
     if (type !== 'span') {

@@ -347,11 +347,11 @@ class Muya {
   }
 
   /**
-   * Copy the anchor block contains the block with `key`. like copy as markdown.
-   * @param {string} key the block key
+   * Copy the anchor block contains the block with `info`. like copy as markdown.
+   * @param {string|object} key the block key or block
    */
-  copy (key) {
-    // Todo
+  copy (info) {
+    return this.clipboard.copy(info)
   }
 
   setOptions (options, needRender = false) {

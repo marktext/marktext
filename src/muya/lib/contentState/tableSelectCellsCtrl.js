@@ -59,10 +59,12 @@ const tableSelectCellsCtrl = ContentState => {
     this.cellSelectEventIds = []
     if (this.cellSelectInfo && this.cellSelectInfo.isStartSelect) {
       event.preventDefault()
-      const { tableId, selectedCells } = this.cellSelectInfo
+      const { tableId, selectedCells, anchor, focus } = this.cellSelectInfo
       setTimeout(() => {
         this.selectedTableCells = {
           tableId,
+          row: Math.abs(anchor.row - focus.row) + 1, // 1 base
+          column: Math.abs(anchor.column - focus.column) + 1, // 1 base
           cells: selectedCells.map(c => {
             delete c.ele
             return c
@@ -89,9 +91,12 @@ const tableSelectCellsCtrl = ContentState => {
         const row = cells[i]
         for (j = startColIndex; j <= endColIndex; j++) {
           const cell = row[j]
+          const cellBlock = this.getBlock(cell.id)
           this.cellSelectInfo.selectedCells.push({
             ele: cell,
             key: cell.id,
+            text: cellBlock.children[0].text,
+            align: cellBlock.align,
             top: i === startRowIndex,
             right: j === endColIndex,
             bottom: i === endRowIndex,
@@ -203,6 +208,8 @@ const tableSelectCellsCtrl = ContentState => {
     this.calculateSelectedCells()
     this.selectedTableCells = {
       tableId: table.key,
+      row: table.row + 1,
+      column: table.column + 1,
       cells: this.cellSelectInfo.selectedCells.map(c => {
         delete c.ele
         return c

@@ -3,6 +3,7 @@ class Clipboard {
     this.muya = muya
     this._copyType = 'normal' // `normal` or `copyAsMarkdown` or `copyAsHtml`
     this._pasteType = 'normal' // `normal` or `pasteAsPlainText`
+    this._copyInfo = null
     this.listen()
   }
 
@@ -12,7 +13,7 @@ class Clipboard {
       contentState.docPasteHandler(event)
     }
     const copyCutHandler = event => {
-      contentState.copyHandler(event, this._copyType)
+      contentState.copyHandler(event, this._copyType, this._copyInfo)
       if (event.type === 'cut') {
         // when user use `cut` function, the dom has been deleted by default.
         // But should update content state manually.
@@ -30,6 +31,7 @@ class Clipboard {
     eventCenter.attachDOMEvent(container, 'paste', pasteHandler)
     eventCenter.attachDOMEvent(container, 'cut', copyCutHandler)
     eventCenter.attachDOMEvent(container, 'copy', copyCutHandler)
+    eventCenter.attachDOMEvent(document.body, 'copy', copyCutHandler)
   }
 
   copyAsMarkdown () {
@@ -47,16 +49,14 @@ class Clipboard {
     document.execCommand('paste')
   }
 
-  // TODO: Refactor
-  copy (name) {
-    switch (name) {
-      case 'table':
-        this._copyType = 'copyTable'
-        document.execCommand('copy')
-        break
-      default:
-        break
-    }
+  /**
+   * Copy the anchor block(table, paragraph, math block etc) with the info
+   * @param {string|object} info  is the block key if it's string, or block if it's object
+   */
+  copy (info) {
+    this._copyType = 'copyBlock'
+    this._copyInfo = info
+    document.execCommand('copy')
   }
 }
 

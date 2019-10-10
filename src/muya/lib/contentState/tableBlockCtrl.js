@@ -3,7 +3,7 @@ import { isLengthEven, getParagraphReference } from '../utils'
 const TABLE_BLOCK_REG = /^\|.*?(\\*)\|.*?(\\*)\|/
 
 const tableBlockCtrl = ContentState => {
-  ContentState.prototype.createTableInFigure = function ({ rows, columns }, headerTexts) {
+  ContentState.prototype.createTableInFigure = function ({ rows, columns }, tableContents = []) {
     const table = this.createBlock('table', {
       row: rows - 1, // zero base
       column: columns - 1
@@ -16,13 +16,14 @@ const tableBlockCtrl = ContentState => {
     for (i = 0; i < rows; i++) {
       const rowBlock = this.createBlock('tr')
       i === 0 ? this.appendChild(tHead, rowBlock) : this.appendChild(tBody, rowBlock)
+      const rowContents = tableContents[i]
       for (j = 0; j < columns; j++) {
         const cell = this.createBlock(i === 0 ? 'th' : 'td', {
-          align: '',
+          align: rowContents ? rowContents[j].align : '',
           column: j
         })
         const cellContent = this.createBlock('span', {
-          text: headerTexts && i === 0 ? headerTexts[j] : '',
+          text: rowContents ? rowContents[j].text : '',
           functionType: 'cellContent'
         })
 
@@ -37,18 +38,6 @@ const tableBlockCtrl = ContentState => {
     }
 
     return table
-  }
-
-  ContentState.prototype.closest = function (block, type) {
-    if (!block) {
-      return null
-    }
-    if (type instanceof RegExp ? type.test(block.type) : block.type === type) {
-      return block
-    } else {
-      const parent = this.getParent(block)
-      return this.closest(parent, type)
-    }
   }
 
   ContentState.prototype.createFigure = function ({ rows, columns }) {
@@ -107,7 +96,7 @@ const tableBlockCtrl = ContentState => {
     const columns = rowHeader.length
     const rows = 2
 
-    const table = this.createTableInFigure({ rows, columns }, rowHeader)
+    const table = this.createTableInFigure({ rows, columns }, [rowHeader.map(text => ({ text, align: '' }))])
 
     block.type = 'figure'
     block.text = ''

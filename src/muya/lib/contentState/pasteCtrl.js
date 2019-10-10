@@ -381,7 +381,7 @@ const pasteCtrl = ContentState => {
     if (stateFragments.length <= 0) {
       return
     }
-
+    console.log(stateFragments)
     // Step 1: if select content, cut the content, and chop the block text into two part by the cursor.
     const cacheText = endBlock.text.substring(end.offset)
     startBlock.text = startBlock.text.substring(0, start.offset)

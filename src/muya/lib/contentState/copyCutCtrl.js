@@ -179,11 +179,44 @@ const copyCutCtrl = ContentState => {
     let htmlData = wrapper.innerHTML
     const textData = this.htmlToMarkdown(htmlData)
     htmlData = marked(textData)
-    console.log(textData, htmlData)
     return { html: htmlData, text: textData }
   }
 
-  ContentState.prototype.copyHandler = function (event, type) {
+  ContentState.prototype.copyHandler = function (event, type, copyInfo = null) {
+    if (event.target.tagName === 'BODY') {
+      const { selectedTableCells } = this
+      if (selectedTableCells) {
+        event.preventDefault()
+        const { row, column, cells } = selectedTableCells
+        const figureBlock = this.createBlock('figure', {
+          functionType: 'table'
+        })
+        const tableContents = []
+        let i
+        let j
+        for (i = 0; i < row; i++) {
+          const rowWrapper = []
+          for (j = 0; j < column; j++) {
+            const cell = cells[i * column + j]
+
+            rowWrapper.push({
+              text: cell.text,
+              align: cell.align
+            })
+          }
+          tableContents.push(rowWrapper)
+        }
+
+        const table = this.createTableInFigure({ rows: row, columns: column }, tableContents)
+        this.appendChild(figureBlock, table)
+        const listIndentation = this.listIndentation
+        const markdown = new ExportMarkdown([figureBlock], listIndentation).generate()
+
+        event.clipboardData.setData('text/html', '')
+        event.clipboardData.setData('text/plain', markdown)
+      }
+      return
+    }
     event.preventDefault()
     const { selectedImage } = this
     if (selectedImage) {
@@ -211,11 +244,13 @@ const copyCutCtrl = ContentState => {
         event.clipboardData.setData('text/plain', getSanitizeHtml(text))
         break
       }
-      case 'copyTable': {
-        const table = this.getTableBlock()
-        if (!table) return
+
+      case 'copyBlock': {
+        const block = typeof copyInfo === 'string' ? this.getBlock(copyInfo) : copyInfo
+        if (!block) return
+        const anchor = this.getAnchor(block)
         const listIndentation = this.listIndentation
-        const markdown = new ExportMarkdown([table], listIndentation).generate()
+        const markdown = new ExportMarkdown([anchor], listIndentation).generate()
         event.clipboardData.setData('text/html', '')
         event.clipboardData.setData('text/plain', markdown)
         break
