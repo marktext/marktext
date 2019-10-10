@@ -324,12 +324,13 @@ class Muya {
   }
 
   selectAll () {
-    if (this.hasFocus()) {
-      this.contentState.selectAll()
-    }
-    const activeElement = document.activeElement
-    if (activeElement.nodeName === 'INPUT') {
-      activeElement.select()
+    this.contentState.selectAll()
+
+    if (!this.hasFocus()) {
+      const activeElement = document.activeElement
+      if (activeElement.nodeName === 'INPUT') {
+        activeElement.select()
+      }
     }
   }
 

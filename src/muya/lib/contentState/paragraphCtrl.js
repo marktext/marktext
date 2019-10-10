@@ -732,17 +732,35 @@ const paragraphCtrl = ContentState => {
   }
 
   ContentState.prototype.selectAll = function () {
+    const mayBeCell = this.isSelectSingleCell()
+    // Select whole table if already select one cell.
+    if (mayBeCell) {
+      const table = this.closest(mayBeCell, 'table')
+      if (table) {
+        return this.selecTable(table)
+      }
+    }
     const { start, end } = this.cursor
     const startBlock = this.getBlock(start.key)
     const endBlock = this.getBlock(end.key)
     // handle selectAll in table.
     if (startBlock.functionType === 'cellContent' && endBlock.functionType === 'cellContent') {
       if (start.key === end.key) {
-        const { text, key } = startBlock
-        this.cursor = {
-          start: { key, offset: 0 },
-          end: { key, offset: text.length }
+        const table = this.closest(startBlock, 'table')
+        const cellBlock = this.closest(startBlock, /th|td/)
+        this.selectedTableCells = {
+          tableId: table.key,
+          cells: [{
+            key: cellBlock.key,
+            top: true,
+            right: true,
+            bottom: true,
+            left: true
+          }]
         }
+        this.muya.blur()
+        this.singleRender(table, false)
+        return this.muya.eventCenter.dispatch('muya-format-picker', { reference: null })
       } else {
         const startTable = this.closest(startBlock, 'table')
         const endTable = this.closest(endBlock, 'table')
@@ -754,22 +772,8 @@ const paragraphCtrl = ContentState => {
           // Select entire document
           return
         }
-        const firstTableCell = this.firstInDescendant(startTable)
-        const lastTableCell = this.lastInDescendant(startTable)
-        if (!firstTableCell || firstTableCell.functionType !== 'cellContent' ||
-          !lastTableCell || lastTableCell.functionType !== 'cellContent') {
-          console.error('No table cell found or invalid type.')
-          return
-        }
-        const { key: startKey } = firstTableCell
-        const { key: endKey, text } = lastTableCell
-        this.cursor = {
-          start: { key: startKey, offset: 0 },
-          end: { key: endKey, offset: text.length }
-        }
+        return this.selecTable(startTable)
       }
-
-      return this.partialRender()
     }
     // Handler selectAll in code block. only select all the code block conent.
     // `code block` here is Math, HTML, BLOCK CODE, Mermaid, vega-lite, flowchart, front-matter etc...

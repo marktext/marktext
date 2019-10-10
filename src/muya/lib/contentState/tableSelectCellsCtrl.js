@@ -186,6 +186,43 @@ const tableSelectCellsCtrl = ContentState => {
       }
     }
   }
+
+  ContentState.prototype.selecTable = function (table) {
+    // For calculateSelectedCells
+    this.cellSelectInfo = {
+      anchor: {
+        row: 0,
+        column: 0
+      },
+      focus: {
+        row: table.row,
+        column: table.column
+      },
+      cells: getAllTableCells(table.key)
+    }
+    this.calculateSelectedCells()
+    this.selectedTableCells = {
+      tableId: table.key,
+      cells: this.cellSelectInfo.selectedCells.map(c => {
+        delete c.ele
+        return c
+      })
+    }
+    // reset cellSelectInfo
+    this.cellSelectInfo = null
+    this.muya.blur()
+    return this.singleRender(table, false)
+  }
+
+  // Return the cell block if yes, else return null.
+  ContentState.prototype.isSelectSingleCell = function () {
+    const { selectedTableCells } = this
+    if (selectedTableCells && selectedTableCells.cells.length === 1) {
+      const key = selectedTableCells.cells[0].key
+      return this.getBlock(key)
+    }
+    return null
+  }
 }
 
 export default tableSelectCellsCtrl
