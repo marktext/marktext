@@ -346,8 +346,12 @@ class Muya {
     this.clipboard.pasteAsPlainText()
   }
 
-  copy (name) {
-    this.clipboard.copy(name)
+  /**
+   * Copy the anchor block contains the block with `key`. like copy as markdown.
+   * @param {string} key the block key
+   */
+  copy (key) {
+    // Todo
   }
 
   setOptions (options, needRender = false) {

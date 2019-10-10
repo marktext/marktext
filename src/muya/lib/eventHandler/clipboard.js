@@ -47,6 +47,7 @@ class Clipboard {
     document.execCommand('paste')
   }
 
+  // TODO: Refactor
   copy (name) {
     switch (name) {
       case 'table':

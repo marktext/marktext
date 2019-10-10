@@ -426,9 +426,7 @@ export default {
       bus.$on('createParagraph', this.handleParagraph)
       bus.$on('deleteParagraph', this.handleParagraph)
       bus.$on('insertParagraph', this.handleInsertParagraph)
-      bus.$on('editTable', this.handleEditTable)
       bus.$on('scroll-to-header', this.scrollToHeader)
-      bus.$on('copy-block', this.handleCopyBlock)
       bus.$on('print', this.handlePrint)
       bus.$on('screenshot-captured', this.handleScreenShot)
 
@@ -755,17 +753,8 @@ export default {
       editor && editor.insertParagraph(location)
     },
 
-    handleEditTable (data) {
-      const { editor } = this
-      editor && editor.editTable(data)
-    },
-
     blurEditor () {
       this.editor.blur()
-    },
-
-    handleCopyBlock (name) {
-      this.editor.copy(name)
     },
 
     handleScreenShot () {
@@ -797,9 +786,7 @@ export default {
     bus.$off('createParagraph', this.handleParagraph)
     bus.$off('deleteParagraph', this.handleParagraph)
     bus.$off('insertParagraph', this.handleInsertParagraph)
-    bus.$off('editTable', this.handleEditTable)
     bus.$off('scroll-to-header', this.scrollToHeader)
-    bus.$off('copy-block', this.handleCopyBlock)
     bus.$off('print', this.handlePrint)
     bus.$off('screenshot-captured', this.handleScreenShot)
 
