@@ -126,6 +126,9 @@ figure[data-role="HTML"] .ag-html-preview {
 figure[data-role="HTML"] .ag-html-preview > pre{
   border: 0;
   background: inherit;
+  padding: 0 1rem;
+  border-radius: 0.3em;
+  white-space: pre-wrap;
 }
 
 figure[data-role="HTML"].ag-active .ag-html-preview {
