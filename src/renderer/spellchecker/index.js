@@ -148,12 +148,12 @@ export class SpellChecker {
       throw new Error('Init: Either language or automatic language detection must be set.')
     }
 
-    // // TODO(spell): Currently not supported by our Hunspell implementation
-    // //              with a reasonable performance and Node worker threads
-    // //              doesn't work currently in Electron (Electon#18540).
-    // if (this.isHunspell) {
-    //   automaticallyIdentifyLanguages = false
-    // }
+    // TODO(spell): Currently not supported by our Hunspell implementation
+    //              with a reasonable performance and Node worker threads
+    //              doesn't work currently in Electron (Electon#18540).
+    if (this.isHunspell) {
+      automaticallyIdentifyLanguages = false
+    }
 
     // This just set a variable when using Hunspell and switch the spell checker mode
     // when using macOS spell checker. Calling switchLanguage after this using macOS
@@ -301,12 +301,12 @@ export class SpellChecker {
       return
     }
 
-    // // TODO(spell): Currently not supported by our Hunspell implementation
-    // //              with a reasonable performance and Node worker threads
-    // //              doesn't work currently in Electron (Electon#18540).
-    // if (this.isHunspell) {
-    //   value = false
-    // }
+    // TODO(spell): Currently not supported by our Hunspell implementation
+    //              with a reasonable performance and Node worker threads
+    //              doesn't work currently in Electron (Electon#18540).
+    if (this.isHunspell) {
+      value = false
+    }
     this.provider.automaticallyIdentifyLanguages = !!value
   }
 
