@@ -76,17 +76,29 @@ export default function renderContainerBlock (parent, block, activeBlocks, match
     }
   }
 
-  if (/td/.test(type) && column === activeBlocks[1].column && parent && !parent.nextSibling) {
+  if (
+    /td/.test(type) &&
+    column === activeBlocks[1].column &&
+    parent &&
+    !parent.nextSibling
+  ) {
     const { cells } = this.muya.contentState.selectedTableCells || {}
     if (!cells || cells && cells.length <= 0) {
       children.push(renderBottomBar())
     }
   }
 
-  if (/th|td/.test(type) && align) {
-    Object.assign(data.attrs, {
-      style: `text-align:${align}`
-    })
+  if (/th|td/.test(type)) {
+    if (align) {
+      Object.assign(data.attrs, {
+        style: `text-align:${align}`
+      })
+    }
+    if (typeof column === 'number') {
+      Object.assign(data.dataset, {
+        column
+      })
+    }
   } else if (/^h/.test(type)) {
     if (/^h\d$/.test(type)) {
       // TODO: This should be the best place to create and update the TOC.

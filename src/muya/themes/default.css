@@ -493,6 +493,16 @@ kbd {
     left: 10px;
   }
 
+  table tr .ag-drag-handler.left,
+  table tr .ag-drag-handler.bottom
+   {
+    display: none;
+  }
+
+  table.ag-active tr .ag-drag-handler {
+    display: block;
+  }
+
   table .ag-drag-cell {
     opacity: .7;
     z-index: 1;
