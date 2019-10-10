@@ -7,7 +7,6 @@
       ></i>
     </div>
     <el-switch
-      style="display: block"
       v-model="status"
       @change="handleSwitchChange"
       :active-text="status ? 'On': 'Off'">
