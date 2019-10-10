@@ -167,7 +167,7 @@ const tableDragBarCtrl = ContentState => {
       }
     }
 
-    this.dragInfo.curIndex = Math.min(curIndex, len - 1)
+    this.dragInfo.curIndex = Math.max(0, Math.min(curIndex, len - 1))
   }
 
   ContentState.prototype.setDragTargetStyle = function () {
