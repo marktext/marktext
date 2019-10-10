@@ -53,7 +53,7 @@ export const COPY_PATH = {
 }
 
 export const SHOW_IN_FOLDER = {
-  label: 'Show in file manager',
+  label: 'Show in folder',
   id: 'showInFolder',
   click (menuItem, browserWindow) {
     contextMenu.showInFolder(menuItem.tab)
