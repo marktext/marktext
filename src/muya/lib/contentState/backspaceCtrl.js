@@ -107,6 +107,10 @@ const backspaceCtrl = ContentState => {
       event.preventDefault()
       return this.deleteImage(this.selectedImage)
     }
+    if (this.selectedTableCells) {
+      event.preventDefault()
+      return this.deleteSelectedTableCells()
+    }
   }
 
   ContentState.prototype.backspaceHandler = function (event) {

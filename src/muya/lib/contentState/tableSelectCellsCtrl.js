@@ -131,6 +131,61 @@ const tableSelectCellsCtrl = ContentState => {
       }
     }
   }
+
+  // Remove the content of selected table cell, delete the row/column if selected one row/column without content.
+  // Delete the table if the selected whole table is empty.
+  ContentState.prototype.deleteSelectedTableCells = function () {
+    const { tableId, cells } = this.selectedTableCells
+    const tableBlock = this.getBlock(tableId)
+    const { row, column } = tableBlock
+    const rows = new Set()
+    let lastColumn = null
+    let isSameColumn = true
+    let hasContent = false
+    for (const cell of cells) {
+      const cellBlock = this.getBlock(cell.key)
+      const rowBlock = this.getParent(cellBlock)
+      const { column: cellColumn } = cellBlock
+      rows.add(rowBlock)
+      if (cellBlock.children[0].text) {
+        hasContent = true
+      }
+      if (typeof lastColumn === 'object') {
+        lastColumn = cellColumn
+      } else if (cellColumn !== lastColumn) {
+        isSameColumn = false
+      }
+      cellBlock.children[0].text = ''
+    }
+
+    if (hasContent) {
+      this.singleRender(tableBlock, false)
+
+      return this.muya.dispatchChange()
+    } else {
+      const cellKey = cells[0].key
+      const cellBlock = this.getBlock(cellKey)
+      const cellContentKey = cellBlock.children[0].key
+      if (rows.size === +row + 1 && isSameColumn) {
+        // Remove one empty column
+        return this.editTable({
+          location: 'current',
+          action: 'remove',
+          target: 'column'
+        }, cellContentKey)
+      } else if (cells.length === +column + 1 && rows.size === 1) {
+        // Remove one empty row
+        return this.editTable({
+          location: 'current',
+          action: 'remove',
+          target: 'row'
+        }, cellContentKey)
+      } else if (rows.size === +row + 1 && cells.length === (+row + 1) * (+column + 1)) {
+        // Select whole empty table
+        return this.deleteParagraph(tableId)
+      }
+    }
+  }
 }
 
 export default tableSelectCellsCtrl

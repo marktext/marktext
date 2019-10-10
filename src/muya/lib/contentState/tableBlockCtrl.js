@@ -51,19 +51,6 @@ const tableBlockCtrl = ContentState => {
     }
   }
 
-  ContentState.prototype.getAnchor = function (block) {
-    const { type, functionType } = block
-    if (type !== 'span') {
-      return null
-    }
-
-    if (functionType === 'codeContent' || functionType === 'cellContent') {
-      return this.closest(block, 'figure') || this.closest(block, 'pre')
-    } else {
-      return this.getParent(block)
-    }
-  }
-
   ContentState.prototype.createFigure = function ({ rows, columns }) {
     const { end } = this.cursor
     const table = this.createTableInFigure({ rows, columns })
@@ -239,12 +226,25 @@ const tableBlockCtrl = ContentState => {
   }
 
   // insert/remove row/column
-  ContentState.prototype.editTable = function ({ location, action, target }) {
-    const { start, end } = this.cursor
-    const block = this.getBlock(start.key)
-    if (start.key !== end.key || block.functionType !== 'cellContent') {
+  ContentState.prototype.editTable = function ({ location, action, target }, cellContentKey) {
+    let block
+    let start
+    let end
+    if (cellContentKey) {
+      block = this.getBlock(cellContentKey)
+    } else {
+      ({ start, end } = this.cursor)
+      if (start.key !== end.key) {
+        throw new Error('Cursor is not in one block, can not editTable')
+      }
+
+      block = this.getBlock(start.key)
+    }
+
+    if (block.functionType !== 'cellContent') {
       throw new Error('Cursor is not in table block, so you can not insert/edit row/column')
     }
+
     const cellBlock = this.getParent(block)
     const currentRow = this.getParent(cellBlock)
     const table = this.closest(block, 'table')

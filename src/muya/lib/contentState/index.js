@@ -732,6 +732,19 @@ class ContentState {
     return this.lastInDescendant(blocks[len - 1])
   }
 
+  getAnchor (block) {
+    const { type, functionType } = block
+    if (type !== 'span') {
+      return null
+    }
+
+    if (functionType === 'codeContent' || functionType === 'cellContent') {
+      return this.closest(block, 'figure') || this.closest(block, 'pre')
+    } else {
+      return this.getParent(block)
+    }
+  }
+
   clear () {
     this.history.clearHistory()
   }

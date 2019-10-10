@@ -680,14 +680,22 @@ const paragraphCtrl = ContentState => {
     return this.muya.eventCenter.dispatch('stateChange')
   }
   // delete current paragraph
-  ContentState.prototype.deleteParagraph = function () {
-    const { start, end } = this.cursor
-    const startOutmostBlock = this.findOutMostBlock(this.getBlock(start.key))
-    const endOutmostBlock = this.findOutMostBlock(this.getBlock(end.key))
-    if (startOutmostBlock !== endOutmostBlock) {
-      // if the cursor is not in one paragraph, just return
-      return
+  ContentState.prototype.deleteParagraph = function (blockKey) {
+    let startOutmostBlock
+    if (blockKey) {
+      const block = this.getBlock(blockKey)
+      const firstEditableBlock = this.firstInDescendant(block)
+      startOutmostBlock = this.getAnchor(firstEditableBlock)
+    } else {
+      const { start, end } = this.cursor
+      startOutmostBlock = this.findOutMostBlock(this.getBlock(start.key))
+      const endOutmostBlock = this.findOutMostBlock(this.getBlock(end.key))
+      if (startOutmostBlock !== endOutmostBlock) {
+        // if the cursor is not in one paragraph, just return
+        return
+      }
     }
+
     const preBlock = this.getBlock(startOutmostBlock.preSibling)
     const nextBlock = this.getBlock(startOutmostBlock.nextSibling)
     let cursorBlock = null
