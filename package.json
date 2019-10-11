@@ -168,7 +168,7 @@
     "webpack-merge": "^4.2.1"
   },
   "optionalDependencies": {
-    "vscode-windows-registry": "1.0.1"
+    "vscode-windows-registry": "^1.0.2"
   },
   "repository": {
     "type": "git",
