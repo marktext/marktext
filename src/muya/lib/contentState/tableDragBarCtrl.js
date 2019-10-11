@@ -129,7 +129,10 @@ const tableDragBarCtrl = ContentState => {
   ContentState.prototype.hideUnnecessaryBar = function () {
     const { barType } = this.dragInfo
     const hideClassName = barType === 'bottom' ? 'left' : 'bottom'
-    document.querySelector(`.ag-drag-handler.${hideClassName}`).style.display = 'none'
+    const needHideBar = document.querySelector(`.ag-drag-handler.${hideClassName}`)
+    if (needHideBar) {
+      needHideBar.style.display = 'none'
+    }
   }
 
   ContentState.prototype.calculateCurIndex = function () {
@@ -267,8 +270,9 @@ const tableDragBarCtrl = ContentState => {
     const table = this.getBlock(tableId)
     const tHead = table.children[0]
     const tBody = table.children[1]
-    const rows = [tHead.children[0], ...tBody.children]
+    const rows = [tHead.children[0], ...(tBody ? tBody.children : [])]
     let i
+
     if (index !== curIndex) {
       // Cursor in the same cell.
       const { start, end } = this.cursor

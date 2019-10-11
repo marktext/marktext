@@ -47,7 +47,7 @@ div.ag-show-quick-insert-hint p.ag-paragraph.ag-active > span.ag-paragraph-conte
 
 .ag-cell-content {
   display: inline-block;
-  min-width: 1em;
+  min-width: 4em;
   width: 100%;
   min-height: 10px;
 }
