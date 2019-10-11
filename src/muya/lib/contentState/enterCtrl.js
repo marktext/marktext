@@ -313,8 +313,16 @@ const enterCtrl = ContentState => {
       ) {
         const nextRow = this.createRow(row, false)
         if (rowContainer.type === 'thead') {
-          const tBody = this.getBlock(rowContainer.nextSibling)
-          this.insertBefore(nextRow, tBody.children[0])
+          let tBody = this.getBlock(rowContainer.nextSibling)
+          if (!tBody) {
+            tBody = this.createBlock('tbody')
+            this.appendChild(table, tBody)
+          }
+          if (tBody.children.length) {
+            this.insertBefore(nextRow, tBody.children[0])
+          } else {
+            this.appendChild(tBody, nextRow)
+          }
         } else {
           this.insertAfter(nextRow, row)
         }
