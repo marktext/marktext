@@ -12333,12 +12333,10 @@ vscode-ripgrep@^1.5.7:
   resolved "https://registry.npmjs.org/vscode-ripgrep/-/vscode-ripgrep-1.5.7.tgz#acb6b548af488a4bca5d0f1bb5faf761343289ce"
   integrity sha512-/Vsz/+k8kTvui0q3O74pif9FK0nKopgFTiGNVvxicZANxtSA8J8gUE9GQ/4dpi7D/2yI/YVORszwVskFbz46hQ==
 
-vscode-windows-registry@1.0.1:
-  version "1.0.1"
-  resolved "https://registry.npmjs.org/vscode-windows-registry/-/vscode-windows-registry-1.0.1.tgz#bc9f765563eb6dc1c9ad9a41f9eaacc84dfadc7c"
-  integrity sha512-q0aKXi9Py1OBdmXIJJFeJBzpPJMMUxMJNBU9FysWIXEwJyMQGEVevKzM2J3Qz/cHSc5LVqibmoUWzZ7g+97qRg==
-  dependencies:
-    nan "^2.12.1"
+vscode-windows-registry@^1.0.2:
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/vscode-windows-registry/-/vscode-windows-registry-1.0.2.tgz#b863e704a6a69c50b3098a55fbddbe595b0c124a"
+  integrity sha512-/CLLvuOSM2Vme2z6aNyB+4Omd7hDxpf4Thrt8ImxnXeQtxzel2bClJpFQvQqK/s4oaXlkBKS7LqVLeZM+uSVIA==
 
 vue-electron@^1.0.6:
   version "1.0.6"
