@@ -282,7 +282,7 @@ figure {
   display: flex;
   width: 20px;
   height: 20px;
-  margin-right: 3px;
+  margin-right: 6px;
   cursor: pointer;
   border-radius: 3px;
   color: var(--iconColor);
@@ -291,11 +291,11 @@ figure {
 }
 
 .ag-tool-bar ul li[data-label=table] {
-  margin-right: 8px;
+  margin-right: 16px;
 }
 
 .ag-tool-bar ul li[data-label=delete] {
-  margin-left: 8px;
+  margin-left: 16px;
 }
 
 .ag-container-icon {
