@@ -385,8 +385,8 @@ const tabCtrl = ContentState => {
         end: { key, offset }
       }
 
-      const table = this.closest(nextCell, 'table')
-      return this.singleRender(table)
+      const figure = this.closest(nextCell, 'figure')
+      return this.singleRender(figure)
     }
 
     if (this.isIndentableListItem()) {
