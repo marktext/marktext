@@ -69,22 +69,19 @@ export default function renderContainerBlock (parent, block, activeBlocks, match
     }
   }
 
-  if (/th|td/.test(type) && block.parent === activeBlocks[1].parent && !block.preSibling) {
-    const { cells } = this.muya.contentState.selectedTableCells || {}
-    if (!cells || cells && cells.length <= 0) {
-      children.unshift(renderLeftBar())
-    }
-  }
-
-  if (
-    /td/.test(type) &&
-    column === activeBlocks[1].column &&
-    parent &&
-    !parent.nextSibling
-  ) {
-    const { cells } = this.muya.contentState.selectedTableCells || {}
-    if (!cells || cells && cells.length <= 0) {
-      children.push(renderBottomBar())
+  // Judge whether to render the table drag bar.
+  const { cells } = this.muya.contentState.selectedTableCells || {}
+  if (/th|td/.test(type) && (!cells || cells && cells.length === 0)) {
+    const table = this.muya.contentState.closest(block, 'table')
+    const findTable = activeBlocks.find(b => b.key === table.key)
+    if (findTable) {
+      const { row: tableRow, column: tableColumn } = findTable
+      if (block.parent === activeBlocks[1].parent && !block.preSibling && tableRow > 0) {
+        children.unshift(renderLeftBar())
+      }
+      if (column === activeBlocks[1].column && parent && !parent.nextSibling && tableColumn > 0) {
+        children.push(renderBottomBar())
+      }
     }
   }
 
