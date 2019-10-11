@@ -206,7 +206,6 @@ const importRegister = ContentState => {
           break
         }
         case 'table': {
-          console.log(token)
           const { header, align, cells } = token
           const table = this.createBlock('table')
           const thead = this.createBlock('thead')
