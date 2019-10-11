@@ -76,10 +76,19 @@ export default function renderContainerBlock (parent, block, activeBlocks, match
     const findTable = activeBlocks.find(b => b.key === table.key)
     if (findTable) {
       const { row: tableRow, column: tableColumn } = findTable
+      const isLastRow = () => {
+        const rowContainer = this.muya.contentState.closest(block, /tbody|thead/)
+        if (rowContainer.type === 'thead') {
+          return tableRow === 0
+        } else {
+          return !parent.nextSibling
+        }
+      }
       if (block.parent === activeBlocks[1].parent && !block.preSibling && tableRow > 0) {
         children.unshift(renderLeftBar())
       }
-      if (column === activeBlocks[1].column && parent && !parent.nextSibling && tableColumn > 0) {
+
+      if (column === activeBlocks[1].column && isLastRow() && tableColumn > 0) {
         children.push(renderBottomBar())
       }
     }
