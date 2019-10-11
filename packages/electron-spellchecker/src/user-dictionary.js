@@ -1,17 +1,7 @@
-const path = require('path')
-const fs = require('fs-extra')
+const path = require('path');
+const fs = require('fs-extra');
 
 let d = require('debug')('electron-spellchecker:user-dictionary');
-
-function ensureDir(dirPath) {
-  try {
-    fs.ensureDirSync(dirPath)
-  } catch (e) {
-    if (e.code !== 'EEXIST') {
-      d(`Failed to create directory "${dirPath}": ${e.message}`);
-    }
-  }
-}
 
 module.exports = class UserDictionary {
   /**
@@ -20,10 +10,9 @@ module.exports = class UserDictionary {
    * @param  {String}  cacheDir The path to a directory to store dictionaries.
    */
   constructor(cacheDir) {
-    this.dict = null
-    this.lang = ''
-    this.userDictPath = cacheDir
-    ensureDir(this.userDictPath)
+    this.dict = null;
+    this.lang = '';
+    this.userDictPath = cacheDir;
   }
 
   /**
@@ -37,71 +26,71 @@ module.exports = class UserDictionary {
   }
 
   isInitialized() {
-    return this.lang && this.dict
+    return this.lang && this.dict;
   }
 
   unload() {
-    this.dict = null
-    this.lang = ''
+    this.dict = null;
+    this.lang = '';
   }
 
   loadForLanguage(lang) {
-    const fullname = path.join(this.userDictPath, `${lang}.json`)
-    if (fs.existsSync(fullname) && fs.lstatSync(fullname).isFile()) {
+    const fullname = path.join(this.userDictPath, `${lang}.json`);
+    if (fs.existsSync(fullname)) {
       try {
-        const dict = JSON.parse(fs.readFileSync(fullname))
-        this.dict = dict
+        const dict = JSON.parse(fs.readFileSync(fullname));
+        this.dict = dict;
       } catch (e) {
         d(`Failed to load directory for language  ${lang}: ${e.message}`);
 
         // Invalidate dictionary.
-        this.dict = {}
-        this.lang = lang
-        return false
+        this.dict = {};
+        this.lang = lang;
+        return false;
       }
     } else {
-      this.dict = {}
+      this.dict = {};
     }
-    this.lang = lang
-    return true
+    this.lang = lang;
+    return true;
   }
 
   save() {
     if (!this.isInitialized()) {
-      return false
+      return false;
     }
 
     try {
-      const fullname = path.join(this.userDictPath, `${this.lang}.json`)
-      fs.outputFileSync(fullname, JSON.stringify(this.dict), 'utf-8')
-      return true
+      const fullname = path.join(this.userDictPath, `${this.lang}.json`);
+      fs.outputFileSync(fullname, JSON.stringify(this.dict), 'utf-8');
+      return true;
     } catch (e) {
       d(`Failed to save directory for language ${this.lang}: ${e.message}`);
-      return false
+      return false;
     }
   }
 
   add(word) {
     if (!this.isInitialized()) {
-      return false
+      return false;
     }
 
-    this.dict[word] = true
-    return this.save()
+    this.dict[word] = true;
+    return this.save();
   }
 
   remove(word) {
     if (!this.isInitialized()) {
-      return false
+      return false;
     } else if (!this.match(word)) {
-      return true
+      return true;
     }
 
-    delete this.dict[word]
-    return this.save()
+    delete this.dict[word];
+    return this.save();
   }
 
   match(word) {
-    return this.isInitialized() && !!this.dict.hasOwnProperty(word)
+    return this.isInitialized() && !!this.dict.hasOwnProperty(word);
   }
 };

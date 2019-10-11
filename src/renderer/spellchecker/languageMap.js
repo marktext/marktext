@@ -49,7 +49,7 @@ export const HUNSPELL_DICTIONARY_LANGUAGE_MAP = [{
   label: 'български език', // Bulgarian
   value: 'bg-BG'
 }, {
-  label: 'Català', // Catalan; Valencian
+  label: 'Català', // Catalan
   value: 'ca-ES'
 }, {
   label: 'Česky', // Czech
@@ -61,7 +61,7 @@ export const HUNSPELL_DICTIONARY_LANGUAGE_MAP = [{
   label: 'Deutsch', // German
   value: 'de-DE'
 }, {
-  label: 'Ελληνικά', // Greek, Modern
+  label: 'Ελληνικά', // Greek
   value: 'el-GR'
 }, {
   label: 'English (en-AU)', // English

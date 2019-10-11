@@ -14,8 +14,18 @@ import spellcheckMenuBuilder from './spellcheck'
 
 const { Menu, MenuItem } = remote
 
-export const showContextMenu = (event, selectionChanges, spellchecker, selectedWord, wordSuggestions, replaceCallback) => {
-  const { start, end } = selectionChanges
+/**
+ * Show editor context menu.
+ *
+ * @param {MouseEvent} event The native mouse event.
+ * @param {*} selection The editor line with start and end offset.
+ * @param {[SpellChecker]} spellchecker The spellcheck wrapper.
+ * @param {[string]} selectedWord The selected word.
+ * @param {[string[]]} wordSuggestions Suggestions for `word`.
+ * @param {*} replaceCallback The callback to replace the word by a replacement.
+ */
+export const showContextMenu = (event, selection, spellchecker, selectedWord, wordSuggestions, replaceCallback) => {
+  const { start, end } = selection
   const menu = new Menu()
   const win = remote.getCurrentWindow()
   const disableCutAndCopy = start.key === end.key && start.offset === end.offset

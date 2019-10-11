@@ -43,12 +43,11 @@
     "chai-as-promised": "^6.0.0",
     "cross-env": "^5.2.0",
     "electron": "4.0.6",
-    "electron-debug": "^2.1.0",
     "electron-mocha": "^6.0.4",
     "esdoc": "^1.1.0",
     "esdoc-es7-plugin": "0.0.3",
     "esdoc-plugin-async-to-sync": "^0.5.0",
-    "eslint": "^5.14.1",
-    "rimraf": "^2.6.3"
+    "eslint": "^5.16.0",
+    "rimraf": "^2.7.1"
   }
 }

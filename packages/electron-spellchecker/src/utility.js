@@ -20,4 +20,4 @@ function normalizeLanguageCode(langCode) {
 
 module.exports = {
   normalizeLanguageCode
-}
+};

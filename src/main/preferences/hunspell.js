@@ -11,7 +11,7 @@ export default async appDataPath => {
   }
   srcPath = path.join(srcPath, 'hunspell_dictionaries/en-US.bdic')
 
-  // NOTE: Hardcoded in "electron-spellchecker/src/dictionary-sync.js"
+  // NOTE: Hardcoded in "electron-spellchecker/src/spell-check-handler.js"
   const destDir = path.join(appDataPath, 'dictionaries')
   const destPath = path.join(destDir, 'en-US.bdic')
 

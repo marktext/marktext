@@ -381,8 +381,8 @@ export default {
     },
     spellcheckerAutoDetectLanguage: function (value, oldValue) {
       const { spellchecker } = this
-      const { isInitialized } = spellchecker
-      if (value !== oldValue && isInitialized) {
+      const { isEnabled } = spellchecker
+      if (value !== oldValue && isEnabled) {
         spellchecker.automaticallyIdentifyLanguages = value
       }
     },
@@ -734,7 +734,7 @@ export default {
       )
         .then(status => {
           if (!status) {
-            // Unable to switch language, spell checker is now in an invalid state.
+            // Unable to switch language due to missing dictionary. The spell checker is now in an invalid state.
             notice.notify({
               title: 'Spelling',
               type: 'warning',
@@ -765,7 +765,7 @@ export default {
       spellchecker.switchLanguage(languageCode)
         .then(langCode => {
           if (!langCode) {
-            // Unable to switch language, spell checker is now in an invalid state.
+            // Unable to switch language due to missing dictionary. The spell checker is now in an invalid state.
             notice.notify({
               title: 'Spelling',
               type: 'warning',

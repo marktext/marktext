@@ -468,8 +468,6 @@ function getContainer (originContainer, options) {
     container.classList.add('ag-show-quick-insert-hint')
   }
 
-  // TODO(spell): Disable spellchecking on elements like code blocks etc.
-
   container.setAttribute('contenteditable', true)
   container.setAttribute('autocorrect', false)
   container.setAttribute('autocomplete', 'off')

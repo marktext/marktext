@@ -5,6 +5,15 @@ import { SEPARATOR } from './menuItems'
 
 const { MenuItem } = remote
 
+/**
+ * Build the spell checker menu depending on input.
+ *
+ * @param {[SpellChecker]} spellchecker The spellcheck wrapper.
+ * @param {[string]} selectedWord The selected word.
+ * @param {[string[]]} wordSuggestions Suggestions for `word`.
+ * @param {*} replaceCallback The callback to replace the word by a replacement.
+ * @returns {MenuItem[]}
+ */
 export default (spellchecker, selectedWord, wordSuggestions, replaceCallback) => {
   if (spellchecker && spellchecker.isEnabled) {
     const spellingSubmenu = []

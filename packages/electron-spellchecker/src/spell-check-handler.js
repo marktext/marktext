@@ -1,4 +1,5 @@
 const path = require('path');
+const fs = require('fs-extra');
 const EventEmitter = require('events');
 const LRU = require('lru-cache');
 const pThrottle = require('p-throttle');
@@ -12,7 +13,7 @@ let Spellchecker;
 let d = require('debug')('electron-spellchecker:spell-check-handler');
 
 // TODO(spell): Asynchronously check language via Web Workers?
-const cld = require('./cld2') // requireTaskPool(require.resolve('./cld2'));
+const cld = require('./cld2'); // requireTaskPool(require.resolve('./cld2'));
 
 let fallbackLocaleTable = null;
 const app = process.type === 'renderer' ?
@@ -51,6 +52,16 @@ const contractionMap = contractions.reduce((acc, word) => {
 
 const alternatesTable = {};
 
+function ensureDir(dirPath) {
+  try {
+    fs.ensureDirSync(dirPath);
+  } catch (e) {
+    if (e.code !== 'EEXIST') {
+      d(`Failed to create directory "${dirPath}": ${e.message}`);
+    }
+  }
+}
+
 /**
  * SpellCheckHandler is the main class of this library, and handles all of the
  * different pieces of spell checking except for the context menu information.
@@ -73,19 +84,17 @@ module.exports = class SpellCheckHandler {
    * @param  {String}  cacheDir    The path to a directory to store dictionaries.
    *                               If not given, the Electron user data directory
    *                               will be used.
-   * @param  {Scheduler} scheduler            The Rx scheduler to use, for
-   *                                          testing.
    */
-  constructor(cacheDir=null, scheduler=null) {
+  constructor(cacheDir=null) {
     // NB: Require here so that consumers can handle native module exceptions.
     Spellchecker = require('./node-spellchecker').Spellchecker;
 
     cacheDir = cacheDir || path.join(app.getPath('userData'), 'dictionaries');
+    ensureDir(cacheDir);
 
     // TODO(spell): Ask spellchecker which spell checker is used and allow to change
     // at runtime.
-    this.isHunspell = !isMac || !!process.env['SPELLCHECKER_PREFER_HUNSPELL']
-    // Don't underline spelling mistakes.
+    this.isHunspell = !isMac || !!process.env['SPELLCHECKER_PREFER_HUNSPELL'];
     this.dictionarySync = new DictionarySync(this.isHunspell, cacheDir);
     this.userDictionary = new UserDictionary(cacheDir);
     this.currentSpellchecker = null;
@@ -98,8 +107,8 @@ module.exports = class SpellCheckHandler {
     this.bus = new EventEmitter();
     this._unsubscribeFn = null;
 
-    this.scheduler = scheduler;
     this._automaticallyIdentifyLanguages = !this.isHunspell;
+    // Don't underline spelling mistakes.
     this._isPassiveMode = false;
 
     if (!this.isHunspell) {
@@ -283,12 +292,11 @@ module.exports = class SpellCheckHandler {
     if (!container && !document.body) {
       throw new Error("document.body and container are null, if you're calling this in a preload script you need to wrap it in a setTimeout");
     } else if (this._unsubscribeFn) {
-      throw new Error('Spellchecker is already attach to input. Please use default values to capture the full document.')
+      throw new Error('Spellchecker is already attach to input. Please use default values to capture the full document.');
     }
 
     const inputHandler = e => {
-      if (!this.automaticallyIdentifyLanguages) return;
-      if (!e.target) return;
+      if (!this.automaticallyIdentifyLanguages || !e.target) return;
       const value = e.target.isContentEditable ? e.target.textContent : e.target.value;
       if (!value) return;
 
@@ -307,7 +315,7 @@ module.exports = class SpellCheckHandler {
       }
 
       lastInputText = value;
-    }
+    };
 
     const element = container || document.body;
     element.addEventListener('input', inputHandler, true);
@@ -360,11 +368,11 @@ module.exports = class SpellCheckHandler {
           d(`Failed to load dictionary: ${e.message}`);
           return;
         }
-      }
 
-      d(`New Language is ${lang}`);
-      // this.bus.emit('languageChanged', lang);
-    }, 1, 250)
+        d(`New Language is ${lang}`);
+        // this.bus.emit('languageChanged', lang);
+      }
+    }, 1, 250);
 
     this.bus.on('spellingErrorOccurred', () => detectLanguage());
     this.bus.on('possiblySwitchedCharacterSets', () => detectLanguage());
@@ -383,7 +391,7 @@ module.exports = class SpellCheckHandler {
         this.setSpellCheckProvider(webFrame);
 
         prevSpellCheckLanguage = this.currentSpellcheckerLanguage;
-      }
+      };
 
       handleLanguageChange();
       this.bus.on('currentSpellcheckerChanged', () => handleLanguageChange());
@@ -432,7 +440,14 @@ module.exports = class SpellCheckHandler {
     this.isMisspelledCache.reset();
 
     // Set language on macOS (OS spell checker)
-    if (!this.isHunspell && this.currentSpellchecker) {
+    if (!this.isHunspell) {
+      if (!this.currentSpellchecker) {
+        d('Spellchecker is not initialized');
+        this.isEnabled = false;
+        this.invalidState = true;
+        return false;
+      }
+
       d(`Setting current spellchecker to ${langCode}`);
 
       // An empty language code enables the automatic language detection.
@@ -459,6 +474,7 @@ module.exports = class SpellCheckHandler {
 
     if (!dict) {
       d(`dictionary for ${langCode}_${actualLang} is not available`);
+
       this.currentSpellcheckerLanguage = actualLang;
       this.currentSpellchecker = null;
       this.userDictionary.unload();
@@ -508,12 +524,12 @@ module.exports = class SpellCheckHandler {
       try {
         const dictionary = await this.dictionarySync.loadDictionaryForLanguage(language);
         alternatesTable[langCode] = language;
-        return { language, dictionary }
+        return { language, dictionary };
       } catch (e) {
         d(`Failed to load language ${langCode}, altTable=${language}, error=${e.message}`);
       }
     }
-    return { language: langCode, dictionary: null }
+    return { language: langCode, dictionary: null };
   }
 
   /**
@@ -716,7 +732,7 @@ module.exports = class SpellCheckHandler {
       if (!this.isHunspell) {
         // NB: OS X will return lists that are half just a language, half
         // language + locale, like ['en', 'pt_BR', 'ko']
-        localeList = this.currentSpellchecker.getAvailableDictionaries()
+        localeList = this.currentSpellchecker.getAvailableDictionaries();
       } else {
         // Also the keyboad language might be just a 2-letter ISO code.
         localeList = require('keyboard-layout').getInstalledKeyboardLanguages();

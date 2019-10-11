@@ -16,9 +16,8 @@ module.exports = class DictionarySync {
    * @param  {String}  cacheDir    The path to a directory to store dictionaries.
    */
   constructor(isHunspell, cacheDir) {
-    this.isHunspell = isHunspell
+    this.isHunspell = isHunspell;
     this.cacheDir = cacheDir;
-    fs.mkdirpSync(this.cacheDir);
   }
 
   /**
@@ -42,7 +41,7 @@ module.exports = class DictionarySync {
    */
   async loadDictionaryForLanguage(langCode) {
     d(`Loading dictionary for language ${langCode}`);
-    if (!this.isHunspell) return new Buffer([]);
+    if (!this.isHunspell) return Buffer.alloc(0);
 
     let lang = normalizeLanguageCode(langCode);
     let target = path.join(this.cacheDir, `${lang}.bdic`);
@@ -65,4 +64,4 @@ module.exports = class DictionarySync {
 
     throw new Error("Unable to load dictionary file.");
   }
-}
+};

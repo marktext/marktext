@@ -134,7 +134,7 @@ export class SpellChecker {
    * @param {boolean} automaticallyIdentifyLanguages Whether we should try to identify the typed language.
    * @param {boolean} isPassiveMode Should we highlight misspelled words?
    * @param {[HTMLElement]} container The optional container to attach the automatic spell detection when
-   *                                using Hunspell. Default `document.body`.
+   *                                  using Hunspell. Default `document.body`.
    * @returns {string} Returns current spell checker language.
    */
   async init (lang = '', automaticallyIdentifyLanguages = false, isPassiveMode = false, container = null) {
@@ -158,14 +158,15 @@ export class SpellChecker {
     // This just set a variable when using Hunspell and switch the spell checker mode
     // when using macOS spell checker. Calling switchLanguage after this using macOS
     // spell checker will deactivate automatic language detection.
-    this.provider.automaticallyIdentifyLanguages = automaticallyIdentifyLanguages
+    this.provider.automaticallyIdentifyLanguages =
+      automaticallyIdentifyLanguages || (!this.isHunspell && !lang)
 
     // If true, don't highlight misspelled words. Just like above, this method only
     // affect the macOS spell checker.
     this.provider.isPassiveMode = isPassiveMode
 
-    if (!this.isHunspell) {
-      // Attach the spell checker to the window document.
+    if (!this.isHunspell && (automaticallyIdentifyLanguages || !lang)) {
+      // Attach the spell checker to the our editor.
       // NOTE: Calling this method is normally not necessary on macOS with
       // OS spell checker.
       this.provider.attachToInput(container)
@@ -176,17 +177,17 @@ export class SpellChecker {
     }
 
     if (!lang) {
-      // Set to fallback language
+      // Set to Hunspell fallback language
       lang = 'en-US'
     }
 
     // We have to call our switch language method to ensure that the provider is in a valid state.
     const currentLang = await this._switchLanguage(lang)
     if (!currentLang) {
-      throw new Error('Init: Error while switching spell checker language.')
+      throw new Error(`Language "${lang}" is not available.`)
     }
 
-    // Attach the spell checker to the window document.
+    // Attach the spell checker to the our editor.
     this.provider.attachToInput(container)
     this.fallbackLang = currentLang
     this.isEnabled = true
@@ -459,20 +460,15 @@ export class SpellChecker {
   async _switchLanguage (lang) {
     const result = await this.provider.switchLanguage(lang)
     if (!result) {
-      console.log(`switchLanguage: false; Cannot switch to ${lang}`) // #DEBUG
-
       return await this._tryRecover()
     }
-
-    console.log(`switchLanguage: true; lang: ${lang}; actualLang: ${this.lang}`) // #DEBUG
-
     return this.lang
   }
 
   /**
    * Try to recover the spell checker's invalid state.
    *
-   * {string|null} Return the language on success or null.
+   * @returns {string|null} Return the language on success or null.
    */
   async _tryRecover () {
     const lang = this.fallbackLang
