@@ -151,15 +151,15 @@ const tableBlockCtrl = ContentState => {
       case 'table': {
         const { eventCenter } = this.muya
         const figureKey = figure.key
-        const tableLable = document.querySelector(`#${figureKey} [data-label=table]`)
+        const tableEle = document.querySelector(`#${figureKey} [data-label=table]`)
         const { row = 1, column = 1 } = table // zero base
 
         const handler = (row, column) => {
           const { row: oldRow, column: oldColumn } = table
-          const tBody = table.children[1]
+          let tBody = table.children[1]
           const tHead = table.children[0]
           const headerRow = tHead.children[0]
-          const bodyRows = tBody.children
+          const bodyRows = tBody ? tBody.children : []
           let i
           if (column > oldColumn) {
             for (i = oldColumn + 1; i <= column; i++) {
@@ -200,13 +200,22 @@ const tableBlockCtrl = ContentState => {
               const lastRow = tBody.children[tBody.children.length - 1]
               this.removeBlock(lastRow)
             }
+            if (tBody.children.length === 0) {
+              this.removeBlock(tBody)
+            }
           } else if (row > oldRow) {
-            const oneRowInBody = bodyRows[0]
+            if (!tBody) {
+              tBody = this.createBlock('tbody')
+              this.appendChild(table, tBody)
+            }
+            const oneHeaderRow = tHead.children[0]
             for (i = oldRow + 1; i <= row; i++) {
-              const bodyRow = this.createRow(oneRowInBody)
+              const bodyRow = this.createRow(oneHeaderRow, false)
+
               this.appendChild(tBody, bodyRow)
             }
           }
+
           Object.assign(table, { row, column })
 
           const cursorBlock = this.firstInDescendant(headerRow)
@@ -219,7 +228,8 @@ const tableBlockCtrl = ContentState => {
           this.muya.eventCenter.dispatch('stateChange')
           this.partialRender()
         }
-        const reference = getParagraphReference(tableLable, tableLable.id)
+
+        const reference = getParagraphReference(tableEle, tableEle.id)
         eventCenter.dispatch('muya-table-picker', { row, column }, reference, handler.bind(this))
       }
     }
@@ -250,35 +260,16 @@ const tableBlockCtrl = ContentState => {
     const table = this.closest(block, 'table')
     const thead = table.children[0]
     const tbody = table.children[1]
-    const { column } = table
     const columnIndex = currentRow.children.indexOf(cellBlock)
     // const rowIndex = rowContainer.type === 'thead' ? 0 : tbody.children.indexOf(currentRow) + 1
 
     let cursorBlock
 
-    const createRow = (column, isHeader) => {
-      const tr = this.createBlock('tr')
-      let i
-      for (i = 0; i <= column; i++) {
-        const cell = this.createBlock(isHeader ? 'th' : 'td', {
-          align: currentRow.children[i].align,
-          column: i
-        })
-        const cellContent = this.createBlock('span', {
-          functionType: 'cellContent'
-        })
-
-        this.appendChild(cell, cellContent)
-        this.appendChild(tr, cell)
-      }
-      return tr
-    }
-
     if (target === 'row') {
       if (action === 'insert') {
         const newRow = (location === 'previous' && cellBlock.type === 'th')
-          ? createRow(column, true)
-          : createRow(column, false)
+          ? this.createRow(currentRow, true)
+          : this.createRow(currentRow, false)
         if (location === 'previous') {
           this.insertBefore(newRow, currentRow)
           if (cellBlock.type === 'th') {

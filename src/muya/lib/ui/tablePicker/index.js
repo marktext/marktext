@@ -149,7 +149,7 @@ class TablePicker extends BaseFloat {
   selectItem () {
     const { cb } = this
     const { row, column } = this.select
-    cb(Math.max(row, 1), Math.max(column, 1))
+    cb(Math.max(row, 0), Math.max(column, 0))
     this.hide()
   }
 }

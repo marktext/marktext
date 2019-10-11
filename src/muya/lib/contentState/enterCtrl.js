@@ -49,24 +49,23 @@ const enterCtrl = ContentState => {
     return container
   }
 
-  ContentState.prototype.createRow = function (row) {
-    const trBlock = this.createBlock('tr')
+  ContentState.prototype.createRow = function (row, isHeader = false) {
+    const tr = this.createBlock('tr')
     const len = row.children.length
     let i
     for (i = 0; i < len; i++) {
-      const preChild = row.children[i]
-      const tdBlock = this.createBlock('td', {
-        column: i,
-        align: preChild.align
+      const cell = this.createBlock(isHeader ? 'th' : 'td', {
+        align: row.children[i].align,
+        column: i
       })
       const cellContent = this.createBlock('span', {
         functionType: 'cellContent'
       })
 
-      this.appendChild(tdBlock, cellContent)
-      this.appendChild(trBlock, tdBlock)
+      this.appendChild(cell, cellContent)
+      this.appendChild(tr, cell)
     }
-    return trBlock
+    return tr
   }
 
   ContentState.prototype.createBlockLi = function (paragraphInListItem) {
@@ -312,7 +311,7 @@ const enterCtrl = ContentState => {
         (isOsx && event.metaKey) ||
         (!isOsx && event.ctrlKey)
       ) {
-        const nextRow = this.createRow(row)
+        const nextRow = this.createRow(row, false)
         if (rowContainer.type === 'thead') {
           const tBody = this.getBlock(rowContainer.nextSibling)
           this.insertBefore(nextRow, tBody.children[0])
