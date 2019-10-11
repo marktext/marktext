@@ -237,7 +237,7 @@ const backspaceCtrl = ContentState => {
     }
 
     // Fixed #1456 existed bugs `Select one cell and press backspace will cause bug`
-    if (startBlock.functionType === 'cellContent' && this.cursor.start.offset === 0 && this.cursor.end.offset === startBlock.text.length) {
+    if (startBlock.functionType === 'cellContent' && this.cursor.start.offset === 0 && this.cursor.end.offset !== 0 && this.cursor.end.offset === startBlock.text.length) {
       event.preventDefault()
       event.stopPropagation()
       startBlock.text = ''
