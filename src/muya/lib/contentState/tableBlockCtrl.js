@@ -163,14 +163,25 @@ const tableBlockCtrl = ContentState => {
           let i
           if (column > oldColumn) {
             for (i = oldColumn + 1; i <= column; i++) {
-              const th = this.createBlock('th')
-              th.column = i
-              th.align = ''
+              const th = this.createBlock('th', {
+                column: i,
+                align: ''
+              })
+              const thContent = this.createBlock('span', {
+                functionType: 'cellContent'
+              })
+              this.appendChild(th, thContent)
               this.appendChild(headerRow, th)
               bodyRows.forEach(bodyRow => {
-                const td = this.createBlock('td')
-                td.column = i
-                td.align = ''
+                const td = this.createBlock('td', {
+                  column: i,
+                  align: ''
+                })
+
+                const tdContent = this.createBlock('span', {
+                  functionType: 'cellContent'
+                })
+                this.appendChild(td, tdContent)
                 this.appendChild(bodyRow, td)
               })
             }
