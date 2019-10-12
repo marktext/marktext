@@ -34,7 +34,7 @@
   },
   "dependencies": {
     "@hfelix/electron-localshortcut": "^3.1.1",
-    "@octokit/rest": "^16.33.0",
+    "@octokit/rest": "^16.33.1",
     "arg": "^4.1.1",
     "axios": "^0.19.0",
     "ced": "^1.0.0",
@@ -60,7 +60,7 @@
     "github-markdown-css": "^3.0.1",
     "html-tags": "^3.0.0",
     "iconv-lite": "^0.5.0",
-    "joplin-turndown-plugin-gfm": "^1.0.9",
+    "joplin-turndown-plugin-gfm": "^1.0.11",
     "katex": "^0.11.1",
     "keyboard-layout": "^2.0.16",
     "keytar": "^5.0.0-beta.3",
@@ -85,7 +85,7 @@
     "vuex": "^3.1.1"
   },
   "devDependencies": {
-    "@babel/core": "^7.6.3",
+    "@babel/core": "^7.6.4",
     "@babel/plugin-proposal-class-properties": "^7.5.5",
     "@babel/plugin-proposal-export-default-from": "^7.5.2",
     "@babel/plugin-proposal-function-bind": "^7.2.0",
@@ -160,7 +160,7 @@
     "vue-loader": "^15.7.1",
     "vue-style-loader": "^4.1.2",
     "vue-template-compiler": "^2.6.10",
-    "webpack": "^4.41.0",
+    "webpack": "^4.41.1",
     "webpack-bundle-analyzer": "^3.5.2",
     "webpack-cli": "^3.3.9",
     "webpack-dev-server": "^3.8.2",
