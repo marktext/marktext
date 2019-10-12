@@ -60,6 +60,8 @@ const tableSelectCellsCtrl = ContentState => {
     if (this.cellSelectInfo && this.cellSelectInfo.isStartSelect) {
       event.preventDefault()
       const { tableId, selectedCells, anchor, focus } = this.cellSelectInfo
+      // We need to handle this after click event, because click event is emited after mouseup(mouseup will be followed by a click envent), but we set
+      // the `selectedTableCells` to null when click event emited.
       setTimeout(() => {
         this.selectedTableCells = {
           tableId,
@@ -200,7 +202,7 @@ const tableSelectCellsCtrl = ContentState => {
     }
   }
 
-  ContentState.prototype.selecTable = function (table) {
+  ContentState.prototype.selectTable = function (table) {
     // For calculateSelectedCells
     this.cellSelectInfo = {
       anchor: {

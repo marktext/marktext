@@ -760,7 +760,7 @@ const paragraphCtrl = ContentState => {
     if (mayBeCell) {
       const table = this.closest(mayBeCell, 'table')
       if (table) {
-        return this.selecTable(table)
+        return this.selectTable(table)
       }
     }
     const { start, end } = this.cursor
@@ -797,7 +797,7 @@ const paragraphCtrl = ContentState => {
           // Select entire document
           return
         }
-        return this.selecTable(startTable)
+        return this.selectTable(startTable)
       }
     }
     // Handler selectAll in code block. only select all the code block conent.
