@@ -126,6 +126,7 @@ const backspaceCtrl = ContentState => {
       return this.deleteImage(this.selectedImage)
     }
 
+    // Handle select all content.
     if (this.isSelectAll()) {
       event.preventDefault()
       this.blocks = [this.createBlockP()]

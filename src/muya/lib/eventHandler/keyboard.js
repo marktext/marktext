@@ -115,6 +115,9 @@ class Keyboard {
         case EVENT_KEYS.Backspace: {
           return contentState.docBackspaceHandler(event)
         }
+        case EVENT_KEYS.Delete: {
+          return contentState.docDeleteHandler(event)
+        }
         case EVENT_KEYS.ArrowUp: // fallthrough
         case EVENT_KEYS.ArrowDown: // fallthrough
         case EVENT_KEYS.ArrowLeft: // fallthrough
