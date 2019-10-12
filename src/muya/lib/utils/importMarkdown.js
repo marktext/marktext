@@ -378,9 +378,8 @@ const importRegister = ContentState => {
     html = html.replace(/<span>&nbsp;<\/span>/g, String.fromCharCode(160))
 
     html = turnSoftBreakToSpan(html)
-    console.log(html)
     const markdown = turndownService.turndown(html)
-    console.log(markdown)
+
     return markdown
   }
 
