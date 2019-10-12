@@ -402,9 +402,7 @@ class EditorWindow extends BaseWindow {
 
   _buildUrlString (windowId, env, userPreference) {
     const url = this._buildUrlWithSettings(windowId, env, userPreference)
-    const {
-      spellcheckerIsHunspell
-    } = userPreference.getAll()
+    const spellcheckerIsHunspell = userPreference.getItem('spellcheckerIsHunspell')
 
     // Add additional settings
     url.searchParams.set('slp', spellcheckerIsHunspell ? '1' : '0')
