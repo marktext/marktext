@@ -426,12 +426,13 @@ class Selection {
       let count = 0
       for (i = 0; i < len; i++) {
         const child = childNodes[i]
-        const textLength = getTextContent(child, [CLASS_OR_ID.AG_MATH_RENDER, CLASS_OR_ID.AG_RUBY_RENDER]).length
+        const textContent = getTextContent(child, [CLASS_OR_ID.AG_MATH_RENDER, CLASS_OR_ID.AG_RUBY_RENDER])
+        const textLength = textContent.length
         if (child.classList && child.classList.contains(CLASS_OR_ID.AG_FRONT_ICON)) {
           continue
         }
-
-        if (count + textLength >= offset) {
+        // Fix #1460 - put the cursor at the next text node or element if it can be put at the last of /^\n$/ or the next text node/element.
+        if (/^\n$/.test(textContent) ? count + textLength > offset : count + textLength >= offset) {
           if (
             child.classList && child.classList.contains('ag-inline-image')
           ) {
