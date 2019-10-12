@@ -118,8 +118,10 @@ const tableDragBarCtrl = ContentState => {
     if (!this.isDragTableBar) {
       return
     }
+
     this.setDropTargetStyle()
 
+    // The drop animation need 300ms.
     setTimeout(() => {
       this.switchTableData()
       this.resetDragTableBar()
@@ -335,20 +337,22 @@ const tableDragBarCtrl = ContentState => {
           })
         }
       }
-
-      this.cursor = {
-        start: {
-          key,
-          offset: start.offset
-        },
-        end: {
-          key,
-          offset: end.offset
+      if (key) {
+        this.cursor = {
+          start: {
+            key,
+            offset: start.offset
+          },
+          end: {
+            key,
+            offset: end.offset
+          }
         }
+        return this.singleRender(table)
+      } else {
+        return this.partialRender()
       }
     }
-
-    return this.singleRender(table)
   }
 
   ContentState.prototype.resetDragTableBar = function () {
