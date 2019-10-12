@@ -2,6 +2,10 @@ import { getAllTableCells, getIndex } from './tableDragBarCtrl'
 
 const tableSelectCellsCtrl = ContentState => {
   ContentState.prototype.handleCellMouseDown = function (event) {
+    if (event.buttons === 2) {
+      // the contextmenu is emit.
+      return
+    }
     const { eventCenter } = this.muya
     const { target } = event
     const cell = target.closest('th') || target.closest('td')
