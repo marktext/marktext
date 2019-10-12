@@ -139,7 +139,7 @@ const tableSelectCellsCtrl = ContentState => {
 
   // Remove the content of selected table cell, delete the row/column if selected one row/column without content.
   // Delete the table if the selected whole table is empty.
-  ContentState.prototype.deleteSelectedTableCells = function () {
+  ContentState.prototype.deleteSelectedTableCells = function (isCut = false) {
     const { tableId, cells } = this.selectedTableCells
     const tableBlock = this.getBlock(tableId)
     const { row, column } = tableBlock
@@ -163,6 +163,14 @@ const tableSelectCellsCtrl = ContentState => {
       cellBlock.children[0].text = ''
     }
 
+    const isOneColumnSelected = rows.size === +row + 1 && isSameColumn
+    const isOneRowSelected = cells.length === +column + 1 && rows.size === 1
+    const isWholeTableSelected = rows.size === +row + 1 && cells.length === (+row + 1) * (+column + 1)
+
+    if (isCut && isWholeTableSelected) {
+      return this.deleteParagraph(tableId)
+    }
+
     if (hasContent) {
       this.singleRender(tableBlock, false)
 
@@ -171,21 +179,21 @@ const tableSelectCellsCtrl = ContentState => {
       const cellKey = cells[0].key
       const cellBlock = this.getBlock(cellKey)
       const cellContentKey = cellBlock.children[0].key
-      if (rows.size === +row + 1 && isSameColumn) {
+      if (isOneColumnSelected) {
         // Remove one empty column
         return this.editTable({
           location: 'current',
           action: 'remove',
           target: 'column'
         }, cellContentKey)
-      } else if (cells.length === +column + 1 && rows.size === 1) {
+      } else if (isOneRowSelected) {
         // Remove one empty row
         return this.editTable({
           location: 'current',
           action: 'remove',
           target: 'row'
         }, cellContentKey)
-      } else if (rows.size === +row + 1 && cells.length === (+row + 1) * (+column + 1)) {
+      } else if (isWholeTableSelected) {
         // Select whole empty table
         return this.deleteParagraph(tableId)
       }

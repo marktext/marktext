@@ -12,6 +12,14 @@ class Clipboard {
     const docPasteHandler = event => {
       contentState.docPasteHandler(event)
     }
+    const docCopyCutHandler = event => {
+      contentState.docCopyHandler(event)
+      if (event.type === 'cut') {
+        // when user use `cut` function, the dom has been deleted by default.
+        // But should update content state manually.
+        contentState.docCutHandler(event)
+      }
+    }
     const copyCutHandler = event => {
       contentState.copyHandler(event, this._copyType, this._copyInfo)
       if (event.type === 'cut') {
@@ -31,7 +39,8 @@ class Clipboard {
     eventCenter.attachDOMEvent(container, 'paste', pasteHandler)
     eventCenter.attachDOMEvent(container, 'cut', copyCutHandler)
     eventCenter.attachDOMEvent(container, 'copy', copyCutHandler)
-    eventCenter.attachDOMEvent(document.body, 'copy', copyCutHandler)
+    eventCenter.attachDOMEvent(document.body, 'cut', docCopyCutHandler)
+    eventCenter.attachDOMEvent(document.body, 'copy', docCopyCutHandler)
   }
 
   copyAsMarkdown () {

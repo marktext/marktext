@@ -6,7 +6,18 @@ import ExportMarkdown from '../utils/exportMarkdown'
 import marked from '../parser/marked'
 
 const copyCutCtrl = ContentState => {
+  ContentState.prototype.docCutHandler = function (event) {
+    const { selectedTableCells } = this
+    if (selectedTableCells) {
+      event.preventDefault()
+      return this.deleteSelectedTableCells(true)
+    }
+  }
+
   ContentState.prototype.cutHandler = function () {
+    if (this.selectedTableCells) {
+      return
+    }
     const { selectedImage } = this
     if (selectedImage) {
       const { key, token } = selectedImage
@@ -179,42 +190,47 @@ const copyCutCtrl = ContentState => {
     let htmlData = wrapper.innerHTML
     const textData = this.htmlToMarkdown(htmlData)
     htmlData = marked(textData)
+
     return { html: htmlData, text: textData }
   }
 
-  ContentState.prototype.copyHandler = function (event, type, copyInfo = null) {
-    if (event.target.tagName === 'BODY') {
-      const { selectedTableCells } = this
-      if (selectedTableCells) {
-        event.preventDefault()
-        const { row, column, cells } = selectedTableCells
-        const figureBlock = this.createBlock('figure', {
-          functionType: 'table'
-        })
-        const tableContents = []
-        let i
-        let j
-        for (i = 0; i < row; i++) {
-          const rowWrapper = []
-          for (j = 0; j < column; j++) {
-            const cell = cells[i * column + j]
+  ContentState.prototype.docCopyHandler = function (event) {
+    const { selectedTableCells } = this
+    if (selectedTableCells) {
+      event.preventDefault()
+      const { row, column, cells } = selectedTableCells
+      const figureBlock = this.createBlock('figure', {
+        functionType: 'table'
+      })
+      const tableContents = []
+      let i
+      let j
+      for (i = 0; i < row; i++) {
+        const rowWrapper = []
+        for (j = 0; j < column; j++) {
+          const cell = cells[i * column + j]
 
-            rowWrapper.push({
-              text: cell.text,
-              align: cell.align
-            })
-          }
-          tableContents.push(rowWrapper)
+          rowWrapper.push({
+            text: cell.text,
+            align: cell.align
+          })
         }
-
-        const table = this.createTableInFigure({ rows: row, columns: column }, tableContents)
-        this.appendChild(figureBlock, table)
-        const listIndentation = this.listIndentation
-        const markdown = new ExportMarkdown([figureBlock], listIndentation).generate()
-
-        event.clipboardData.setData('text/html', '')
-        event.clipboardData.setData('text/plain', markdown)
+        tableContents.push(rowWrapper)
       }
+
+      const table = this.createTableInFigure({ rows: row, columns: column }, tableContents)
+      this.appendChild(figureBlock, table)
+      const listIndentation = this.listIndentation
+      const markdown = new ExportMarkdown([figureBlock], listIndentation).generate()
+
+      event.clipboardData.setData('text/html', '')
+      event.clipboardData.setData('text/plain', markdown)
+    }
+  }
+
+  ContentState.prototype.copyHandler = function (event, type, copyInfo = null) {
+    if (this.selectedTableCells) {
+      // Hand over to docCopyHandler
       return
     }
     event.preventDefault()
