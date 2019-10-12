@@ -670,6 +670,32 @@ const actions = {
     }
   },
 
+  CLOSE_OTHER_TABS ({ state, dispatch }, file) {
+    const { tabs } = state
+    tabs.filter(f => f.id !== file.id).forEach(tab => {
+      dispatch('CLOSE_TAB', tab)
+    })
+  },
+
+  CLOSE_SAVED_TABS ({ state, dispatch }) {
+    const { tabs } = state
+    tabs.filter(f => f.isSaved).forEach(tab => {
+      dispatch('CLOSE_TAB', tab)
+    })
+  },
+
+  CLOSE_ALL_TABS ({ state, dispatch }) {
+    const { tabs } = state
+    tabs.slice().forEach(tab => {
+      dispatch('CLOSE_TAB', tab)
+    })
+  },
+
+  RENAME_FILE ({ commit }, file) {
+    commit('SET_CURRENT_FILE', file)
+    bus.$emit('rename')
+  },
+
   // Direction is a boolean where false is left and true right.
   CYCLE_TABS ({ commit, dispatch, state }, direction) {
     const { tabs, currentFile } = state
