@@ -8,7 +8,7 @@
     ></bool>
     <separator></separator>
     <bool
-      description="Whether Hunspell or the OS spell checker is used (macOS only). The change take effect after application restart or for new editor windows."
+      description="When enabled Hunspell is used instead the OS spell checker (macOS only). The change take effect after application restart or for new editor windows."
       :bool="spellcheckerIsHunspell"
       :disable="!isOsx || !spellcheckerEnabled"
       :onChange="value => onSelectChange('spellcheckerIsHunspell', value)"
@@ -26,7 +26,7 @@
       :onChange="value => onSelectChange('spellcheckerAutoDetectLanguage', value)"
     ></bool>
     <cur-select
-      description="The spell checker language."
+      description="The default language for spelling."
       :value="spellcheckerLanguage"
       :options="availableDictionaries"
       :disable="!spellcheckerEnabled"
@@ -40,6 +40,7 @@
     </div>
     <div v-if="isHunspellSelected && spellcheckerEnabled">
       <separator></separator>
+      <div class="description">Available Hunspell dictionaries. Please add additional language dictionaries via button below.</div>
       <el-table
         :data="availableDictionaries"
         style="width: 100%">
@@ -64,7 +65,7 @@
         </el-table-column>
       </el-table>
 
-      <div class="description">Add new dictionaries to the spell checker.</div>
+      <div class="description">Add new dictionaries to Hunspell.</div>
       <div class="dictionary-group">
         <el-select
           v-model="selectedDictionaryToAdd"

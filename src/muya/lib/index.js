@@ -398,16 +398,14 @@ class Muya {
    * @param {boolean} setCursor Shoud we update the editor cursor?
    */
   replaceWordInline (line, wordCursor, replacement, setCursor = false) {
-    const { start: lineStart } = line
-    const { end: lineEnd } = line
-    const { start: wordStart } = wordCursor
-    const { end: wordEnd } = wordCursor
+    const { start: lineStart, end: lineEnd } = line
+    const { start: wordStart, end: wordEnd } = wordCursor
 
     // Validate cursor ranges.
     if (wordStart.key !== wordEnd.key) {
-      throw new Error('Expect a single line word cursor: start.key != end.key.')
+      throw new Error('Expect a single line word cursor: "start.key" is not equal to "end.key".')
     } else if (lineStart.key !== lineEnd.key) {
-      throw new Error('Expect a single line line cursor: start.key != end.key.')
+      throw new Error('Expect a single line line cursor: "start.key" is not equal to "end.key".')
     } else if (wordStart.offset > wordEnd.offset) {
       throw new Error(`Invalid word cursor offset: ${wordStart.offset} should be less ${wordEnd.offset}.`)
     } else if (lineStart.key !== wordEnd.key) {
@@ -425,18 +423,18 @@ class Muya {
 
     // Update cursor
     if (setCursor) {
-      const { cursor: editorCursor } = this.contentState
       const cursor = Object.assign({}, wordStart, {
         offset: left + replacement.length
       })
-      editorCursor.start = cursor
-      editorCursor.end = cursor
       line.start = cursor
       line.end = cursor
+      this.contentState.cursor = {
+        start: cursor,
+        end: cursor
+      }
     }
 
-    // TODO(spell): Can we use `singleRender(line)`?
-    this.contentState.partialRender()
+    this.contentState.singleRender(line)
     this.dispatchChange()
   }
 

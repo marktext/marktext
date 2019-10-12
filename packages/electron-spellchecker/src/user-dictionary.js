@@ -7,11 +7,13 @@ module.exports = class UserDictionary {
   /**
    * Create a user dictionary.
    *
-   * @param  {String}  cacheDir The path to a directory to store dictionaries.
+   * @param  {String}    cacheDir The path to a directory to store dictionaries.
+   * @param  {[Boolean]} inMemory Whether this dictionary should be in-memory only.
    */
-  constructor(cacheDir) {
+  constructor(cacheDir, inMemory=false) {
     this.dict = null;
     this.lang = '';
+    this.inMemory = inMemory;
     this.userDictPath = cacheDir;
   }
 
@@ -35,6 +37,12 @@ module.exports = class UserDictionary {
   }
 
   loadForLanguage(lang) {
+    if (this.inMemory) {
+      this.dict = {};
+      this.lang = 'memory';
+      return true;
+    }
+
     const fullname = path.join(this.userDictPath, `${lang}.json`);
     if (fs.existsSync(fullname)) {
       try {
@@ -58,6 +66,8 @@ module.exports = class UserDictionary {
   save() {
     if (!this.isInitialized()) {
       return false;
+    } else if (this.inMemory) {
+      return true;
     }
 
     try {

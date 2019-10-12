@@ -62,6 +62,15 @@ export default (spellchecker, selectedWord, wordSuggestions, replaceCallback) =>
             })
         }
       })
+      // Ignore word for current runtime for all languages.
+      spellingSubmenu.push({
+        label: 'Ignore',
+        click (menuItem, targetWindow) {
+          // NOTE: Need to notify Chromium to invalidate the spelling underline.
+          targetWindow.webContents.replaceMisspelling(selectedWord)
+          spellchecker.ignoreWord(selectedWord)
+        }
+      })
       spellingSubmenu.push(SEPARATOR)
       for (const word of wordSuggestions) {
         spellingSubmenu.push({

@@ -49,15 +49,15 @@ export const validateLineCursor = selection => {
     return false
   }
 
-  // Don't correct words in code blocks.
-  if (selection.affiliation && selection.affiliation.length === 1 &&
-    selection.affiliation[0].type === 'pre') {
+  // Don't correct words in code blocks or editors for HTML, LaTex and diagrams.
+  if (startCursor.block.functionType === 'codeContent' &&
+    startCursor.block.lang !== undefined) {
     return false
   }
 
-  // Don't correct words in LaTeX editor.
-  if (startCursor.block.functionType === 'codeContent' &&
-    startCursor.block.lang === 'latex') {
+  // Don't correct words in code blocks or pre elements such as language identifier.
+  if (selection.affiliation && selection.affiliation.length === 1 &&
+    selection.affiliation[0].type === 'pre') {
     return false
   }
   return true
@@ -253,6 +253,15 @@ export class SpellChecker {
    */
   async removeFromDictionary (word) {
     return await this.provider.removeFromDictionary(word)
+  }
+
+  /**
+   * Ignore a word for the current runtime.
+   *
+   * @param {string} word The word to ignore.
+   */
+  ignoreWord (word) {
+    this.provider.ignoreWord(word)
   }
 
   /**

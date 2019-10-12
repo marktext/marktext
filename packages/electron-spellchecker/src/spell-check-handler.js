@@ -97,6 +97,8 @@ module.exports = class SpellCheckHandler {
     this.isHunspell = !isMac || !!process.env['SPELLCHECKER_PREFER_HUNSPELL'];
     this.dictionarySync = new DictionarySync(this.isHunspell, cacheDir);
     this.userDictionary = new UserDictionary(cacheDir);
+    // Dictionary of ignored words for the current runtime.
+    this.memoryDictionary = new UserDictionary(cacheDir, true);
     this.currentSpellchecker = null;
     this.currentSpellcheckerLanguage = null;
     this.isMisspelledCache = new LRU({ max: 5000 });
@@ -110,6 +112,9 @@ module.exports = class SpellCheckHandler {
     this._automaticallyIdentifyLanguages = !this.isHunspell;
     // Don't underline spelling mistakes.
     this._isPassiveMode = false;
+
+    // Initialize in-memory dictionary.
+    this.memoryDictionary.loadForLanguage();
 
     if (!this.isHunspell) {
       // NB: OS X does automatic language detection, we're gonna trust it
@@ -214,6 +219,8 @@ module.exports = class SpellCheckHandler {
       isPassiveMode = this.isPassiveMode;
     }
 
+    this.memoryDictionary.loadForLanguage();
+
     if (!this.isHunspell) {
       // Using macOS native spell checker.
       this.currentSpellchecker = new Spellchecker();
@@ -257,6 +264,7 @@ module.exports = class SpellCheckHandler {
     this.unsubscribe();
     this.currentSpellchecker = null;
     this.userDictionary.unload();
+    this.memoryDictionary.unload();
     this.isEnabled = false;
   }
 
@@ -504,6 +512,10 @@ module.exports = class SpellCheckHandler {
    * @private
    */
   async loadDictionaryForLanguageWithAlternatives(langCode) {
+    if (!langCode) {
+      throw new Error('loadDictionaryForLanguageWithAlternatives: Invalid language code.')
+    }
+
     this.fallbackLocaleTable = this.fallbackLocaleTable || require('./fallback-locales');
     let lang = langCode.split(/[-_]/)[0];
 
@@ -596,6 +608,8 @@ module.exports = class SpellCheckHandler {
       // Check custom user dictionary for Hunspell first.
       if (this.userDictionary.match(text)) {
         return false;
+      } else if (this.memoryDictionary.match(text)) {
+        return false;
       }
 
       // NB: I'm not smart enough to fix this bug in Chromium's version of
@@ -664,7 +678,6 @@ module.exports = class SpellCheckHandler {
    * @param {string} word The word to add.
    */
   async addToDictionary(word) {
-    // NB: Same deal as getCorrectionsForMisspelling.
     if (!this.currentSpellchecker) return;
 
     this.isMisspelledCache.del(word);
@@ -680,12 +693,11 @@ module.exports = class SpellCheckHandler {
   }
 
   /**
-   * Remove a word frome the user dictionary.
+   * Remove a word from the user dictionary.
    *
    * @param {string} word The word to remove.
    */
   async removeFromDictionary(word) {
-    // NB: Same deal as getCorrectionsForMisspelling.
     if (!this.currentSpellchecker) return;
 
     this.isMisspelledCache.del(word);
@@ -698,6 +710,18 @@ module.exports = class SpellCheckHandler {
 
     // Remove word from our custom user dictionary.
     this.userDictionary.remove(word);
+  }
+
+  /**
+   * Ignore a word for the current runtime.
+   *
+   * @param {string} word The word to ignore.
+   */
+  ignoreWord(word) {
+    if (!this.currentSpellchecker) return;
+
+    this.isMisspelledCache.del(word);
+    this.memoryDictionary.add(word);
   }
 
   /**
@@ -716,7 +740,7 @@ module.exports = class SpellCheckHandler {
           try {
             localeList = [ normalizeLanguageCode(m[0]) ];
           } catch (error) {
-            d(`Error: ${error}`);
+            d(`Error normalize language code: ${error}`);
           }
         }
       }
@@ -744,7 +768,7 @@ module.exports = class SpellCheckHandler {
           try {
             return normalizeLanguageCode(x);
           } catch (error) {
-            d(`Error: ${error}`);
+            d(`Error normalize language code: ${error}`);
             return null;
           }
         }));
@@ -755,6 +779,8 @@ module.exports = class SpellCheckHandler {
     // Some distros like Ubuntu make locale -a useless by dumping
     // every possible locale for the language into the list :-/
     let counts = localeList.reduce((acc,x) => {
+      if (!x) return acc;
+
       let k = x.split(/[-_\.]/)[0];
       acc[k] = acc[k] || [];
       acc[k].push(x);
@@ -767,8 +793,12 @@ module.exports = class SpellCheckHandler {
     let ret = Object.keys(counts).reduce((acc, x) => {
       if (counts[x].length > 1) return acc;
 
-      d(`Setting ${x}`);
-      acc[x] = normalizeLanguageCode(counts[x][0]);
+      try {
+        d(`Setting ${x}`);
+        acc[x] = normalizeLanguageCode(counts[x][0]);
+      } catch (error) {
+        d(`Error reduce likely locale table: ${error}`);
+      }
 
       return acc;
     }, {});
