@@ -232,7 +232,7 @@ const tableSelectCellsCtrl = ContentState => {
   }
 
   // Return the cell block if yes, else return null.
-  ContentState.prototype.isSelectSingleCell = function () {
+  ContentState.prototype.isSingleCellSelected = function () {
     const { selectedTableCells } = this
     if (selectedTableCells && selectedTableCells.cells.length === 1) {
       const key = selectedTableCells.cells[0].key
@@ -243,7 +243,7 @@ const tableSelectCellsCtrl = ContentState => {
   }
 
   // Return the cell block if yes, else return null.
-  ContentState.prototype.isSelectWholeTable = function () {
+  ContentState.prototype.isWholeTableSelected = function () {
     const { selectedTableCells } = this
     const table = selectedTableCells ? this.getBlock(selectedTableCells.tableId) : {}
     const { row, column } = table

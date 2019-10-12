@@ -47,7 +47,7 @@ class MouseEvent {
       const target = event.target
       if (target.classList && target.classList.contains('ag-drag-handler')) {
         contentState.handleMouseDown(event)
-      } else if (target && (target.closest('tr'))) {
+      } else if (target && target.closest('tr')) {
         contentState.handleCellMouseDown(event)
       }
     }

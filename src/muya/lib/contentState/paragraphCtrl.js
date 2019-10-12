@@ -750,8 +750,8 @@ const paragraphCtrl = ContentState => {
   }
 
   ContentState.prototype.selectAll = function () {
-    const mayBeCell = this.isSelectSingleCell()
-    const mayBeTable = this.isSelectWholeTable()
+    const mayBeCell = this.isSingleCellSelected()
+    const mayBeTable = this.isWholeTableSelected()
     if (mayBeTable) {
       this.selectedTableCells = null
       return this.selectAllContent()
