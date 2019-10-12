@@ -1,32 +1,32 @@
 export const toolList = {
   left: [{
-    label: 'Insert Previous Row',
+    label: 'Insert Row Above',
     action: 'insert',
     location: 'previous',
     target: 'row'
   }, {
-    label: 'Insert Next Row',
+    label: 'Insert Row Below',
     action: 'insert',
     location: 'next',
     target: 'row'
   }, {
-    label: 'Remove One Row',
+    label: 'Remove Row',
     action: 'remove',
     location: 'current',
     target: 'row'
   }],
   bottom: [{
-    label: 'Insert Left Column',
+    label: 'Insert Column Left',
     action: 'insert',
     location: 'left',
     target: 'column'
   }, {
-    label: 'Insert Right Column',
+    label: 'Insert Column Right',
     action: 'insert',
     location: 'right',
     target: 'column'
   }, {
-    label: 'Remove One Column',
+    label: 'Remove Column',
     action: 'remove',
     location: 'current',
     target: 'column'
