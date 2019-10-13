@@ -40,8 +40,16 @@ div.ag-show-quick-insert-hint p.ag-paragraph.ag-active > span.ag-paragraph-conte
 .ag-atx-line:empty::after,
 .ag-thematic-break-line:empty::after,
 .ag-code-content:empty::after,
+.ag-cell-content:empty::after,
 .ag-paragraph-content:empty::after {
   content: '\200B';
+}
+
+.ag-cell-content {
+  display: inline-block;
+  min-width: 4em;
+  width: 100%;
+  min-height: 10px;
 }
 
 .ag-atx-line,
@@ -249,14 +257,15 @@ span.ag-math > .ag-math-render.ag-math-error {
 figure {
   padding: 0;
   margin: 0;
-  margin: 1rem 0;
+  margin: 1.4em 0;
   position: relative;
 }
+
 .ag-tool-bar {
   width: 100%;
   user-select: none;
   position: absolute;
-  top: -20px;
+  top: -22px;
   left: 0;
   display: none;
 }
@@ -273,7 +282,7 @@ figure {
   display: flex;
   width: 20px;
   height: 20px;
-  margin-right: 3px;
+  margin-right: 6px;
   cursor: pointer;
   border-radius: 3px;
   color: var(--iconColor);
@@ -281,14 +290,12 @@ figure {
   align-items: center;
 }
 
-.ag-tool-bar ul li[data-label=delete] {
-  position: absolute;
-  top: 0;
+.ag-tool-bar ul li[data-label=table] {
+  margin-right: 16px;
 }
 
 .ag-tool-bar ul li[data-label=delete] {
-  color: var(--deleteColor);
-  right: 0;
+  margin-left: 16px;
 }
 
 .ag-container-icon {
@@ -313,7 +320,7 @@ figure {
   width: 16px;
   overflow: hidden;
   color: var(--iconColor);
-  opacity: .5;
+  opacity: .7;
   transition: all .25s ease-in-out;
 }
 
@@ -339,8 +346,7 @@ figure {
 }
 
 .ag-tool-bar ul li[data-label=delete] i.icon {
-  color: var(--deleteColor);
-  opacity: 1;
+  color: var(--iconColor);
 }
 
 figure.ag-active .ag-tool-bar {
@@ -371,7 +377,6 @@ figure[data-role=HTML]:not(.ag-active):hover .ag-container-icon {
 }
 
 table {
-  width: 100%;
   border-collapse: collapse;
   margin-top: 0;
 }
@@ -495,7 +500,6 @@ pre.ag-multiple-math span.ag-code-content:first-of-type:empty::after {
   color: var(--editorColor10);
 }
 
-figure,
 pre.ag-html-block,
 pre.ag-fence-code,
 pre.ag-indent-code,

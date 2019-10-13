@@ -68,7 +68,7 @@ const hasReferenceToken = tokens => {
   return result
 }
 
-export default function renderLeafBlock (block, activeBlocks, matches, useCache = false) {
+export default function renderLeafBlock (parent, block, activeBlocks, matches, useCache = false) {
   const { loadMathMap } = this
   const { cursor } = this.muya.contentState
   let selector = this.getSelector(block, activeBlocks)
@@ -77,7 +77,6 @@ export default function renderLeafBlock (block, activeBlocks, matches, useCache 
   const {
     text,
     type,
-    align,
     checked,
     key,
     lang,
@@ -120,11 +119,7 @@ export default function renderLeafBlock (block, activeBlocks, matches, useCache 
     })
   }
 
-  if (/th|td/.test(type) && align) {
-    Object.assign(data.attrs, {
-      style: `text-align:${align}`
-    })
-  } else if (type === 'div') {
+  if (type === 'div') {
     const code = this.codeCache.get(block.preSibling)
     switch (functionType) {
       case 'html': {

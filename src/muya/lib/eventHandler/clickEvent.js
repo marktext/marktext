@@ -66,6 +66,7 @@ class ClickEvent {
       // handler table click
       const toolItem = getToolItem(target)
       contentState.selectedImage = null
+      contentState.selectedTableCells = null
       if (toolItem) {
         event.preventDefault()
         event.stopPropagation()
@@ -75,7 +76,26 @@ class ClickEvent {
           contentState.tableToolBarClick(type)
         }
       }
-      // Handler image and inline math preview click
+      // Handle table drag bar click
+      if (target.classList.contains('ag-drag-handler')) {
+        event.preventDefault()
+        event.stopPropagation()
+        const rect = target.getBoundingClientRect()
+        const reference = {
+          getBoundingClientRect () {
+            return rect
+          },
+          width: rect.offsetWidth,
+          height: rect.offsetHeight
+        }
+        eventCenter.dispatch('muya-table-bar', {
+          reference,
+          tableInfo: {
+            barType: target.classList.contains('left') ? 'left' : 'bottom'
+          }
+        })
+      }
+      // Handle image and inline math preview click
       const markedImageText = target.previousElementSibling
       const mathRender = target.closest(`.${CLASS_OR_ID.AG_MATH_RENDER}`)
       const rubyRender = target.closest(`.${CLASS_OR_ID.AG_RUBY_RENDER}`)

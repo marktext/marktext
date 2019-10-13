@@ -1,6 +1,7 @@
 import { CLASS_OR_ID } from '../../../config'
 import { renderTableTools } from './renderToolBar'
 import { renderEditIcon } from './renderContainerEditIcon'
+import { renderLeftBar, renderBottomBar } from './renderTableDargBar'
 import { h } from '../snabbdom'
 
 const PRE_BLOCK_HASH = {
@@ -15,9 +16,11 @@ const PRE_BLOCK_HASH = {
   'vega-lite': `.${CLASS_OR_ID.AG_VEGA_LITE}`
 }
 
-export default function renderContainerBlock (block, activeBlocks, matches, useCache = false) {
+export default function renderContainerBlock (parent, block, activeBlocks, matches, useCache = false) {
   let selector = this.getSelector(block, activeBlocks)
   const {
+    key,
+    align,
     type,
     headingStyle,
     editable,
@@ -26,9 +29,10 @@ export default function renderContainerBlock (block, activeBlocks, matches, useC
     listItemType,
     bulletMarkerOrDelimiter,
     isLooseListItem,
-    lang
+    lang,
+    column
   } = block
-  const children = block.children.map(child => this.renderBlock(child, activeBlocks, matches, useCache))
+  const children = block.children.map(child => this.renderBlock(block, child, activeBlocks, matches, useCache))
   const data = {
     attrs: {},
     dataset: {}
@@ -42,7 +46,66 @@ export default function renderContainerBlock (block, activeBlocks, matches, useC
     selector += `.language-${lang.replace(/[#.]{1}/g, '')}`
   }
 
-  if (/^h/.test(type)) {
+  if (/th|td/.test(type)) {
+    const { cells } = this.muya.contentState.selectedTableCells || {}
+    if (cells && cells.length) {
+      const cell = cells.find(c => c.key === key)
+      if (cell) {
+        const { top, right, bottom, left } = cell
+        selector += '.ag-cell-selected'
+        if (top) {
+          selector += '.ag-cell-border-top'
+        }
+        if (right) {
+          selector += '.ag-cell-border-right'
+        }
+        if (bottom) {
+          selector += '.ag-cell-border-bottom'
+        }
+        if (left) {
+          selector += '.ag-cell-border-left'
+        }
+      }
+    }
+  }
+
+  // Judge whether to render the table drag bar.
+  const { cells } = this.muya.contentState.selectedTableCells || {}
+  if (/th|td/.test(type) && (!cells || cells && cells.length === 0)) {
+    const table = this.muya.contentState.closest(block, 'table')
+    const findTable = activeBlocks.find(b => b.key === table.key)
+    if (findTable) {
+      const { row: tableRow, column: tableColumn } = findTable
+      const isLastRow = () => {
+        const rowContainer = this.muya.contentState.closest(block, /tbody|thead/)
+        if (rowContainer.type === 'thead') {
+          return tableRow === 0
+        } else {
+          return !parent.nextSibling
+        }
+      }
+      if (block.parent === activeBlocks[1].parent && !block.preSibling && tableRow > 0) {
+        children.unshift(renderLeftBar())
+      }
+
+      if (column === activeBlocks[1].column && isLastRow() && tableColumn > 0) {
+        children.push(renderBottomBar())
+      }
+    }
+  }
+
+  if (/th|td/.test(type)) {
+    if (align) {
+      Object.assign(data.attrs, {
+        style: `text-align:${align}`
+      })
+    }
+    if (typeof column === 'number') {
+      Object.assign(data.dataset, {
+        column
+      })
+    }
+  } else if (/^h/.test(type)) {
     if (/^h\d$/.test(type)) {
       // TODO: This should be the best place to create and update the TOC.
       //       Cache `block.key` and title and update only if necessary.

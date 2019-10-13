@@ -149,7 +149,7 @@ class StateRender {
   render (blocks, activeBlocks, matches) {
     const selector = `div#${CLASS_OR_ID.AG_EDITOR_ID}`
     const children = blocks.map(block => {
-      return this.renderBlock(block, activeBlocks, matches, true)
+      return this.renderBlock(null, block, activeBlocks, matches, true)
     })
 
     const newVdom = h(selector, children)
@@ -167,7 +167,7 @@ class StateRender {
     const cursorOutMostBlock = activeBlocks[activeBlocks.length - 1]
     // If cursor is not in render blocks, need to render cursor block independently
     const needRenderCursorBlock = blocks.indexOf(cursorOutMostBlock) === -1
-    const newVnode = h('section', blocks.map(block => this.renderBlock(block, activeBlocks, matches)))
+    const newVnode = h('section', blocks.map(block => this.renderBlock(null, block, activeBlocks, matches)))
     const html = toHTML(newVnode).replace(/^<section>([\s\S]+?)<\/section>$/, '$1')
 
     const needToRemoved = []
@@ -196,7 +196,7 @@ class StateRender {
       const cursorDom = document.querySelector(`#${key}`)
       if (cursorDom) {
         const oldCursorVnode = toVNode(cursorDom)
-        const newCursorVnode = this.renderBlock(cursorOutMostBlock, activeBlocks, matches)
+        const newCursorVnode = this.renderBlock(null, cursorOutMostBlock, activeBlocks, matches)
         patch(oldCursorVnode, newCursorVnode)
       }
     }
@@ -215,7 +215,7 @@ class StateRender {
    */
   singleRender (block, activeBlocks, matches) {
     const selector = `#${block.key}`
-    const newVdom = this.renderBlock(block, activeBlocks, matches, true)
+    const newVdom = this.renderBlock(null, block, activeBlocks, matches, true)
     const rootDom = document.querySelector(selector)
     const oldVdom = toVNode(rootDom)
     patch(oldVdom, newVdom)

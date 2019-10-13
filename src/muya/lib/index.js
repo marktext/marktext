@@ -262,6 +262,9 @@ class Muya {
   }
 
   blur () {
+    const selection = document.getSelection()
+
+    selection.removeAllRanges()
     this.container.blur()
   }
 
@@ -321,12 +324,13 @@ class Muya {
   }
 
   selectAll () {
-    if (this.hasFocus()) {
-      this.contentState.selectAll()
-    }
-    const activeElement = document.activeElement
-    if (activeElement.nodeName === 'INPUT') {
-      activeElement.select()
+    this.contentState.selectAll()
+
+    if (!this.hasFocus()) {
+      const activeElement = document.activeElement
+      if (activeElement.nodeName === 'INPUT') {
+        activeElement.select()
+      }
     }
   }
 
@@ -342,8 +346,12 @@ class Muya {
     this.clipboard.pasteAsPlainText()
   }
 
-  copy (name) {
-    this.clipboard.copy(name)
+  /**
+   * Copy the anchor block contains the block with `info`. like copy as markdown.
+   * @param {string|object} key the block key or block
+   */
+  copy (info) {
+    return this.clipboard.copy(info)
   }
 
   setOptions (options, needRender = false) {

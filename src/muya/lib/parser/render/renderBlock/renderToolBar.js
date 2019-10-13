@@ -5,7 +5,7 @@ import TableIcon from '../../../assets/pngicon/table/table@2x.png'
 import AlignLeftIcon from '../../../assets/pngicon/algin_left/2.png'
 import AlignRightIcon from '../../../assets/pngicon/algin_right/2.png'
 import AlignCenterIcon from '../../../assets/pngicon/algin_center/2.png'
-import DeleteIcon from '../../../assets/pngicon/delete/2.png'
+import DeleteIcon from '../../../assets/pngicon/table_delete/2.png'
 
 export const TABLE_TOOLS = [{
   label: 'table',
@@ -32,7 +32,7 @@ export const TABLE_TOOLS = [{
 const renderToolBar = (type, tools, activeBlocks) => {
   const children = tools.map(tool => {
     const { label, title, icon } = tool
-    const { align } = activeBlocks[0]
+    const { align } = activeBlocks[1] // activeBlocks[0] is span block. cell content.
     let selector = 'li'
     if (align && label === align) {
       selector += '.active'

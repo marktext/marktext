@@ -102,7 +102,7 @@ export const updateSelectionMenus = (applicationMenu, { start, end, affiliation 
   setParagraphMenuItemStatus(applicationMenu, true)
 
   if (
-    (/th|td/.test(start.type) && /th|td/.test(end.type)) ||
+    (start.block.functionType === 'cellContent' && end.block.functionType === 'cellContent') ||
     (start.type === 'span' && start.block.functionType === 'codeContent') ||
     (end.type === 'span' && end.block.functionType === 'codeContent')
   ) {

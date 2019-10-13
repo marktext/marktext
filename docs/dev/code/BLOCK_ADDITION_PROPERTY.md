@@ -8,6 +8,8 @@
 
   - codeContent (used in code block)
 
+  - cellContent (used in table cell, it's parent must be th or td block)
+
   - atxLine (can not contain soft line break and hard line break use in atx heading)
 
   - thematicBreakLine (can not contain soft line break and hard line break use in thematic break)

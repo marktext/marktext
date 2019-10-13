@@ -1,6 +1,14 @@
 import selection from '../selection'
 
 const deleteCtrl = ContentState => {
+  // Handle `delete` keydown event on document.
+  ContentState.prototype.docDeleteHandler = function (event) {
+    if (this.selectedTableCells) {
+      event.preventDefault()
+      return this.deleteSelectedTableCells()
+    }
+  }
+
   ContentState.prototype.deleteHandler = function (event) {
     const { start, end } = selection.getCursorRange()
     if (!start || !end) {

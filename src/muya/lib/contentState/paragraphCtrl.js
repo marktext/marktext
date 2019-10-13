@@ -679,15 +679,24 @@ const paragraphCtrl = ContentState => {
     this.partialRender()
     return this.muya.eventCenter.dispatch('stateChange')
   }
+
   // delete current paragraph
-  ContentState.prototype.deleteParagraph = function () {
-    const { start, end } = this.cursor
-    const startOutmostBlock = this.findOutMostBlock(this.getBlock(start.key))
-    const endOutmostBlock = this.findOutMostBlock(this.getBlock(end.key))
-    if (startOutmostBlock !== endOutmostBlock) {
-      // if the cursor is not in one paragraph, just return
-      return
+  ContentState.prototype.deleteParagraph = function (blockKey) {
+    let startOutmostBlock
+    if (blockKey) {
+      const block = this.getBlock(blockKey)
+      const firstEditableBlock = this.firstInDescendant(block)
+      startOutmostBlock = this.getAnchor(firstEditableBlock)
+    } else {
+      const { start, end } = this.cursor
+      startOutmostBlock = this.findOutMostBlock(this.getBlock(start.key))
+      const endOutmostBlock = this.findOutMostBlock(this.getBlock(end.key))
+      if (startOutmostBlock !== endOutmostBlock) {
+        // if the cursor is not in one paragraph, just return
+        return
+      }
     }
+
     const preBlock = this.getBlock(startOutmostBlock.preSibling)
     const nextBlock = this.getBlock(startOutmostBlock.nextSibling)
     let cursorBlock = null
@@ -723,25 +732,73 @@ const paragraphCtrl = ContentState => {
       !this.muya.keyboard.isComposed
   }
 
-  ContentState.prototype.selectAll = function () {
-    const { start } = this.cursor
-    const startBlock = this.getBlock(start.key)
-    // const endBlock = this.getBlock(end.key)
-    // handle selectAll in table. only select the startBlock cell...
-    if (/th|td/.test(startBlock.type)) {
-      const { key } = start
-      const textLength = startBlock.text.length
-      this.cursor = {
-        start: {
-          key,
-          offset: 0
-        },
-        end: {
-          key,
-          offset: textLength
-        }
+  ContentState.prototype.selectAllContent = function () {
+    const firstTextBlock = this.getFirstBlock()
+    const lastTextBlock = this.getLastBlock()
+    this.cursor = {
+      start: {
+        key: firstTextBlock.key,
+        offset: 0
+      },
+      end: {
+        key: lastTextBlock.key,
+        offset: lastTextBlock.text.length
       }
-      return this.partialRender()
+    }
+
+    return this.render()
+  }
+
+  ContentState.prototype.selectAll = function () {
+    const mayBeCell = this.isSingleCellSelected()
+    const mayBeTable = this.isWholeTableSelected()
+    if (mayBeTable) {
+      this.selectedTableCells = null
+      return this.selectAllContent()
+    }
+    // Select whole table if already select one cell.
+    if (mayBeCell) {
+      const table = this.closest(mayBeCell, 'table')
+      if (table) {
+        return this.selectTable(table)
+      }
+    }
+    const { start, end } = this.cursor
+    const startBlock = this.getBlock(start.key)
+    const endBlock = this.getBlock(end.key)
+    // handle selectAll in table.
+    if (startBlock.functionType === 'cellContent' && endBlock.functionType === 'cellContent') {
+      if (start.key === end.key) {
+        const table = this.closest(startBlock, 'table')
+        const cellBlock = this.closest(startBlock, /th|td/)
+        this.selectedTableCells = {
+          tableId: table.key,
+          row: 1,
+          column: 1,
+          cells: [{
+            key: cellBlock.key,
+            top: true,
+            right: true,
+            bottom: true,
+            left: true
+          }]
+        }
+        this.muya.blur()
+        this.singleRender(table, false)
+        return this.muya.eventCenter.dispatch('muya-format-picker', { reference: null })
+      } else {
+        const startTable = this.closest(startBlock, 'table')
+        const endTable = this.closest(endBlock, 'table')
+        // Check whether both blocks are in the same table.
+        if (!startTable || !endTable) {
+          console.error('No table found or invalid type.')
+          return
+        } else if (startTable.key !== endTable.key) {
+          // Select entire document
+          return
+        }
+        return this.selectTable(startTable)
+      }
     }
     // Handler selectAll in code block. only select all the code block conent.
     // `code block` here is Math, HTML, BLOCK CODE, Mermaid, vega-lite, flowchart, front-matter etc...
@@ -774,19 +831,8 @@ const paragraphCtrl = ContentState => {
       }
       return this.partialRender()
     }
-    const firstTextBlock = this.getFirstBlock()
-    const lastTextBlock = this.getLastBlock()
-    this.cursor = {
-      start: {
-        key: firstTextBlock.key,
-        offset: 0
-      },
-      end: {
-        key: lastTextBlock.key,
-        offset: lastTextBlock.text.length
-      }
-    }
-    this.render()
+
+    return this.selectAllContent()
   }
 }
 
