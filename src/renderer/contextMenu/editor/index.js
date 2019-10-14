@@ -40,18 +40,6 @@ export const showContextMenu = (event, selection, spellchecker, selectedWord, wo
     menu.append(new MenuItem(SEPARATOR))
   }
 
-  if (/th|td/.test(start.block.type) && start.key === end.key) {
-    CONTEXT_ITEMS.unshift(
-      INSERT_ROW,
-      REMOVE_ROW,
-      INSERT_COLUMN,
-      REMOVE_COLUMN,
-      SEPARATOR,
-      COPY_TABLE,
-      SEPARATOR
-    )
-  }
-
   [CUT, COPY, COPY_AS_HTML, COPY_AS_MARKDOWN].forEach(item => {
     item.enabled = !disableCutAndCopy
   })

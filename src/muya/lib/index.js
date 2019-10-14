@@ -434,7 +434,7 @@ class Muya {
       }
     }
 
-    this.contentState.singleRender(line)
+    this.contentState.partialRender()
     this.dispatchChange()
   }
 
