@@ -593,8 +593,6 @@ export default {
           if (wordInfo) {
             const { left, right, word } = wordInfo
 
-            console.log(`l: ${left}`, `r: ${right}`, word) // #DEBUG
-
             // Translate offsets into a cursor with the given line.
             const wordRange = offsetToWordCursor(selection, left, right)
             this.spellchecker.getWordSuggestion(word)

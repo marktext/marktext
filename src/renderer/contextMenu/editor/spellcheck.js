@@ -37,15 +37,6 @@ export default (spellchecker, selectedWord, wordSuggestions, replaceCallback) =>
       submenu: availableDictionariesSubmenu
     }))
 
-    // TODO(spell): Delete me
-    spellingSubmenu.push(new MenuItem({
-      label: 'Debug',
-      click (menuItem, browserWindow) {
-        console.log('#########################')
-        console.log(spellchecker.getConfiguration)
-      }
-    }))
-
     spellingSubmenu.push(SEPARATOR)
 
     // Word suggestions
@@ -76,8 +67,6 @@ export default (spellchecker, selectedWord, wordSuggestions, replaceCallback) =>
         spellingSubmenu.push({
           label: word,
           click () {
-            console.log(`We'll replace "${word}".`) // // TODO(spell): Delete me
-
             // Notify Muya to replace the word. We cannot just use Chromium to
             // replace the word because the change is not forwarded to Muya.
             replaceCallback(word)

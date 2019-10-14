@@ -110,9 +110,6 @@ export class SpellChecker {
       this.isEnabled = false
       this.isInitialized = false
     }
-
-    // TODO(spell): Delete me
-    console.log(`Using ${this.isHunspell ? 'Hunspell' : 'OS-level'} spellchecker. Enabled=${enabled}`) // #DEBUG
   }
 
   _initHandler () {
@@ -443,21 +440,6 @@ export class SpellChecker {
       left,
       right: right + offset,
       word: text.slice(left, right + offset)
-    }
-  }
-
-  // TODO(spell): Delete me, debug only!
-  get getConfiguration () {
-    const { isEnabled, isHunspell, lang } = this
-    const automaticallyIdentifyLanguages = this.automaticallyIdentifyLanguages
-    const spellcheckerEnabled = this.provider.isEnabled
-
-    return {
-      isEnabled,
-      spellcheckerEnabled,
-      automaticallyIdentifyLanguages,
-      lang,
-      isHunspell
     }
   }
 
