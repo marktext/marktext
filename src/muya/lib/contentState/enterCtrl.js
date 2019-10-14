@@ -486,7 +486,7 @@ const enterCtrl = ContentState => {
         cursorBlock = tableNeedFocus
         break
       case !!htmlNeedFocus:
-        cursorBlock = htmlNeedFocus.children[0].children[1] // the second line
+        cursorBlock = htmlNeedFocus.children[0].children[0] // the second line
         break
       case !!mathNeedFocus:
         cursorBlock = mathNeedFocus
@@ -498,7 +498,13 @@ const enterCtrl = ContentState => {
 
     cursorBlock = getParagraphBlock(cursorBlock)
     const key = cursorBlock.type === 'p' || cursorBlock.type === 'pre' ? cursorBlock.children[0].key : cursorBlock.key
-    const offset = 0
+    let offset = 0
+    if (htmlNeedFocus) {
+      const { text } = cursorBlock
+      const match = /^[^\n]+\n[^\n]*/.exec(text)
+      offset = match && match[0] ? match[0].length : 0
+    }
+
     this.cursor = {
       start: { key, offset },
       end: { key, offset }

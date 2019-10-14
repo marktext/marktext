@@ -432,11 +432,11 @@ const paragraphCtrl = ContentState => {
       block = this.getParent(block)
     }
     const preBlock = this.initHtmlBlock(block)
-    const key = preBlock.children[0].children[1]
-      ? preBlock.children[0].children[1].key
-      : preBlock.children[0].children[0].key
+    const cursorBlock = this.firstInDescendant(preBlock)
+    const { key, text } = cursorBlock
+    const match = /^[^\n]+\n[^\n]*/.exec(text)
+    const offset = match && match[0] ? match[0].length : 0
 
-    const offset = 0
     this.cursor = {
       start: { key, offset },
       end: { key, offset }
