@@ -1,7 +1,7 @@
 import fs from 'fs-extra'
 import path from 'path'
 import axios from 'axios'
-import { SpellChecker } from 'electron-spellchecker'
+import { SpellChecker } from '@hfelix/electron-spellchecker'
 import { dictionaryPath } from '../spellchecker'
 
 /**

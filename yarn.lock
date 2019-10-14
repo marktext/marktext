@@ -869,6 +869,20 @@
     electron-is-accelerator "^0.1.0"
     keyboardevents-areequal "^0.2.1"
 
+"@hfelix/electron-spellchecker@^1.0.0-rc.0":
+  version "1.0.0-rc.0"
+  resolved "https://registry.yarnpkg.com/@hfelix/electron-spellchecker/-/electron-spellchecker-1.0.0-rc.0.tgz#240662dbded253b0ded694a5073e0db2959067b6"
+  integrity sha512-KIYlbRT7s4N9FWQSYIebp1O3kScjJR8SRwRrt6rL++5hmWu1NTX+zgCjwyoaUwdoFrHwFv6ZUH455BzjxVrWAg==
+  dependencies:
+    "@felixrieseberg/spellchecker" "^4.0.10"
+    bcp47 "^1.1.2"
+    cld "^2.5.1"
+    debug "^4.1.1"
+    fs-extra "^8.1.0"
+    keyboard-layout "^2.0.16"
+    lru-cache "^5.1.1"
+    p-throttle "^3.1.0"
+
 "@hfelix/keyboardevent-from-electron-accelerator@^1.1.1":
   version "1.1.1"
   resolved "https://registry.npmjs.org/@hfelix/keyboardevent-from-electron-accelerator/-/keyboardevent-from-electron-accelerator-1.1.1.tgz#7e1d4fd913759c381b7919cc7faf4c0c641d457c"
@@ -4331,18 +4345,6 @@ electron-rebuild@^1.8.6:
     ora "^3.4.0"
     spawn-rx "^3.0.0"
     yargs "^13.2.4"
-
-"electron-spellchecker@file:packages/electron-spellchecker":
-  version "2.2.0"
-  dependencies:
-    "@felixrieseberg/spellchecker" "^4.0.10"
-    bcp47 "^1.1.2"
-    cld "^2.5.1"
-    debug "^4.1.1"
-    fs-extra "^8.1.0"
-    keyboard-layout "^2.0.16"
-    lru-cache "^5.1.1"
-    p-throttle "^3.1.0"
 
 electron-store@^5.0.0:
   version "5.0.0"

@@ -1,10 +1,10 @@
 import fs from 'fs-extra'
 import path from 'path'
 import { remote } from 'electron'
-import { SpellCheckHandler, fallbackLocales, normalizeLanguageCode } from 'electron-spellchecker'
+import { SpellCheckHandler, fallbackLocales, normalizeLanguageCode } from '@hfelix/electron-spellchecker'
 import { isOsx, cloneObj } from '../util'
 
-// NOTE: Hardcoded in "electron-spellchecker/src/spell-check-handler.js"
+// NOTE: Hardcoded in "@hfelix/electron-spellchecker/src/spell-check-handler.js"
 export const dictionaryPath = path.join(remote.app.getPath('userData'), 'dictionaries')
 
 // Source: https://github.com/Microsoft/vscode/blob/master/src/vs/editor/common/model/wordHelper.ts
