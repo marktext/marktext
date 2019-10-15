@@ -20,7 +20,7 @@
       :onChange="value => onSelectChange('spellcheckerNoUnderline', value)"
     ></bool>
     <bool
-      description="Try to automatically identify the used language when typing. This feature is currently not available on Linux and Windows."
+      description="Try to automatically identify the used language when typing. This feature is currently not available for Hunspell or when spelling mistakes are not underlined."
       :bool="spellcheckerAutoDetectLanguage"
       :disable="!spellcheckerEnabled"
       :onChange="value => onSelectChange('spellcheckerAutoDetectLanguage', value)"

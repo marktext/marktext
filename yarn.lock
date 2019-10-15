@@ -869,10 +869,10 @@
     electron-is-accelerator "^0.1.0"
     keyboardevents-areequal "^0.2.1"
 
-"@hfelix/electron-spellchecker@^1.0.0-rc.0":
-  version "1.0.0-rc.0"
-  resolved "https://registry.yarnpkg.com/@hfelix/electron-spellchecker/-/electron-spellchecker-1.0.0-rc.0.tgz#240662dbded253b0ded694a5073e0db2959067b6"
-  integrity sha512-KIYlbRT7s4N9FWQSYIebp1O3kScjJR8SRwRrt6rL++5hmWu1NTX+zgCjwyoaUwdoFrHwFv6ZUH455BzjxVrWAg==
+"@hfelix/electron-spellchecker@^1.0.0-rc.1":
+  version "1.0.0-rc.1"
+  resolved "https://registry.yarnpkg.com/@hfelix/electron-spellchecker/-/electron-spellchecker-1.0.0-rc.1.tgz#595762825bd77d1dc43cbc38e725e84e5baa989a"
+  integrity sha512-blQCgk2Dw0mep0eQPZzcMG5bYEmf+Zvih48doiGloclgYikxBb8kYR64hKZQycVg+SeXuLeTodL7L2KI5MXn0Q==
   dependencies:
     "@felixrieseberg/spellchecker" "^4.0.10"
     bcp47 "^1.1.2"
