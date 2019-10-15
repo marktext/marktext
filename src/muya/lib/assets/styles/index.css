@@ -125,6 +125,7 @@ figure.ag-active.ag-container-block pre {
   opacity: 1;
   z-index: 1;
   display: block;
+  box-sizing: border-box;
 }
 
 figure[data-role="HTML"] .ag-html-preview {
