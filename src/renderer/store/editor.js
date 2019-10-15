@@ -691,7 +691,7 @@ const actions = {
     })
   },
 
-  RENAME_FILE ({ commit }, file) {
+  RENAME_FILE ({ commit, dispatch }, file) {
     commit('SET_CURRENT_FILE', file)
     dispatch('UPDATE_LINE_ENDING_MENU')
     bus.$emit('rename')
