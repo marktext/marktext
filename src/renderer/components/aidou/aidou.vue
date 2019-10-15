@@ -95,6 +95,7 @@ export default {
     })
   },
   beforeDestroy () {
+    bus.$off('aidou', this.handleShowAiDou)
     const container = this.$refs.emojis
     if (container) {
       container.removeEventListener('scroll', this.handlerScroll)

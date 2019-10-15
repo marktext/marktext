@@ -3,21 +3,21 @@ export default function (keybindings) {
     label: 'Edit',
     submenu: [{
       label: 'Cut',
-      accelerator: keybindings.getAccelerator('editCut'),
+      accelerator: keybindings.getAccelerator('edit.cut'),
       role: 'cut'
     }, {
       label: 'Copy',
-      accelerator: keybindings.getAccelerator('editCopy'),
+      accelerator: keybindings.getAccelerator('edit.copy'),
       role: 'copy'
     }, {
       label: 'Paste',
-      accelerator: keybindings.getAccelerator('editPaste'),
+      accelerator: keybindings.getAccelerator('edit.paste'),
       role: 'paste'
     }, {
       type: 'separator'
     }, {
       label: 'Select All',
-      accelerator: keybindings.getAccelerator('editSelectAll'),
+      accelerator: keybindings.getAccelerator('edit.select-all'),
       role: 'selectAll'
     }]
   }

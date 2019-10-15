@@ -376,6 +376,13 @@ class WindowManager extends EventEmitter {
       }
     })
 
+    ipcMain.on('mt::window-toggle-always-on-top', e => {
+      const win = BrowserWindow.fromWebContents(e.sender)
+      const flag = !win.isAlwaysOnTop()
+      win.setAlwaysOnTop(flag)
+      this._appMenu.updateAlwaysOnTopMenu(win.id, flag)
+    })
+
     // --- local events ---------------
 
     ipcMain.on('watcher-unwatch-all-by-id', windowId => {

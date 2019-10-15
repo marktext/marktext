@@ -1,5 +1,22 @@
 import crypto from 'crypto'
 
+export const delay = time => {
+  let timerId
+  let rejectFn
+  const p = new Promise((resolve, reject) => {
+    rejectFn = reject
+    timerId = setTimeout(resolve, time)
+  })
+
+  p.cancel = () => {
+    clearTimeout(timerId)
+    timerId = null
+    rejectFn()
+    rejectFn = null
+  }
+  return p
+}
+
 // help functions
 const easeInOutQuad = function (t, b, c, d) {
   t /= d / 2

@@ -10,7 +10,7 @@ const MENU_ID_FORMAT_MAP = {
 
 export const format = (win, type) => {
   if (win && win.webContents) {
-    win.webContents.send('AGANI::format', { type })
+    win.webContents.send('mt::editor-format-action', { type })
   }
 }
 

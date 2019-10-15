@@ -13,13 +13,13 @@ export default function (keybindings) {
     }, {
       label: 'Check for updates...',
       click (menuItem, browserWindow) {
-        actions.checkUpdates(menuItem, browserWindow)
+        actions.checkUpdates(browserWindow)
       }
     }, {
       label: 'Preferences',
-      accelerator: keybindings.getAccelerator('filePreferences'),
-      click (menuItem, browserWindow) {
-        actions.userSetting(menuItem, browserWindow)
+      accelerator: keybindings.getAccelerator('file.preferences'),
+      click () {
+        actions.userSetting()
       }
     }, {
       type: 'separator'
@@ -31,11 +31,11 @@ export default function (keybindings) {
       type: 'separator'
     }, {
       label: 'Hide Mark Text',
-      accelerator: keybindings.getAccelerator('mtHide'),
+      accelerator: keybindings.getAccelerator('mt.hide'),
       role: 'hide'
     }, {
       label: 'Hide Others',
-      accelerator: keybindings.getAccelerator('mtHideOthers'),
+      accelerator: keybindings.getAccelerator('mt.hide-others'),
       role: 'hideothers'
     }, {
       label: 'Show All',
@@ -44,7 +44,7 @@ export default function (keybindings) {
       type: 'separator'
     }, {
       label: 'Quit Mark Text',
-      accelerator: keybindings.getAccelerator('fileQuit'),
+      accelerator: keybindings.getAccelerator('file.quit'),
       click: app.quit
     }]
   }

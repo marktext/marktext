@@ -87,7 +87,7 @@ class SettingWindow extends BaseWindow {
 
     electronLocalshortcut.register(
       win,
-      keybindings.getAccelerator('viewDevToggleDeveloperTools'),
+      keybindings.getAccelerator('view.toggle-dev-tools'),
       () => {
         win.webContents.toggleDevTools()
       }

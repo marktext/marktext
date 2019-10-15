@@ -349,30 +349,37 @@ class AppMenu {
    */
   _appendMiscShortcuts = shortcutMap => {
     shortcutMap.push({
-      accelerator: this._keybindings.getAccelerator('tabsCycleForward'),
+      accelerator: this._keybindings.getAccelerator('tabs.cycle-forward'),
       click: (menuItem, win) => {
         win.webContents.send('mt::tabs-cycle-right')
       },
       id: null
     })
     shortcutMap.push({
-      accelerator: this._keybindings.getAccelerator('tabsCycleBackward'),
+      accelerator: this._keybindings.getAccelerator('tabs.cycle-backward'),
       click: (menuItem, win) => {
         win.webContents.send('mt::tabs-cycle-left')
       },
       id: null
     })
     shortcutMap.push({
-      accelerator: this._keybindings.getAccelerator('tabsSwitchToLeft'),
+      accelerator: this._keybindings.getAccelerator('tabs.switch-to-left'),
       click: (menuItem, win) => {
         win.webContents.send('mt::tabs-cycle-left')
       },
       id: null
     })
     shortcutMap.push({
-      accelerator: this._keybindings.getAccelerator('tabsSwitchToRight'),
+      accelerator: this._keybindings.getAccelerator('tabs.switch-to-right'),
       click: (menuItem, win) => {
         win.webContents.send('mt::tabs-cycle-right')
+      },
+      id: null
+    })
+    shortcutMap.push({
+      accelerator: this._keybindings.getAccelerator('file.quick-open'),
+      click: (menuItem, win) => {
+        win.webContents.send('mt::execute-command-by-id', 'file.quick-open')
       },
       id: null
     })

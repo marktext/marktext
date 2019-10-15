@@ -7,13 +7,13 @@ export default function (keybindings, userPreference) {
     label: '&Edit',
     submenu: [{
       label: 'Undo',
-      accelerator: keybindings.getAccelerator('editUndo'),
+      accelerator: keybindings.getAccelerator('edit.undo'),
       click: (menuItem, browserWindow) => {
         actions.edit(browserWindow, 'undo')
       }
     }, {
       label: 'Redo',
-      accelerator: keybindings.getAccelerator('editRedo'),
+      accelerator: keybindings.getAccelerator('edit.redo'),
       click: (menuItem, browserWindow) => {
         actions.edit(browserWindow, 'redo')
       }
@@ -21,32 +21,32 @@ export default function (keybindings, userPreference) {
       type: 'separator'
     }, {
       label: 'Cut',
-      accelerator: keybindings.getAccelerator('editCut'),
+      accelerator: keybindings.getAccelerator('edit.cut'),
       role: 'cut'
     }, {
       label: 'Copy',
-      accelerator: keybindings.getAccelerator('editCopy'),
+      accelerator: keybindings.getAccelerator('edit.copy'),
       role: 'copy'
     }, {
       label: 'Paste',
-      accelerator: keybindings.getAccelerator('editPaste'),
+      accelerator: keybindings.getAccelerator('edit.paste'),
       role: 'paste'
     }, {
       type: 'separator'
     }, {
-      label: 'Copy As Markdown',
-      accelerator: keybindings.getAccelerator('editCopyAsMarkdown'),
+      label: 'Copy as Markdown',
+      accelerator: keybindings.getAccelerator('edit.copy-as-markdown'),
       click (menuItem, browserWindow) {
         actions.edit(browserWindow, 'copyAsMarkdown')
       }
     }, {
-      label: 'Copy As HTML',
+      label: 'Copy as HTML',
       click (menuItem, browserWindow) {
         actions.edit(browserWindow, 'copyAsHtml')
       }
     }, {
-      label: 'Paste As Plain Text',
-      accelerator: keybindings.getAccelerator('editCopyAsPlaintext'),
+      label: 'Paste as Plain Text',
+      accelerator: keybindings.getAccelerator('edit.copy-as-plaintext'),
       click (menuItem, browserWindow) {
         actions.edit(browserWindow, 'pasteAsPlainText')
       }
@@ -54,7 +54,7 @@ export default function (keybindings, userPreference) {
       type: 'separator'
     }, {
       label: 'Select All',
-      accelerator: keybindings.getAccelerator('editSelectAll'),
+      accelerator: keybindings.getAccelerator('edit.select-all'),
       click (menuItem, browserWindow) {
         actions.edit(browserWindow, 'selectAll')
       }
@@ -62,19 +62,19 @@ export default function (keybindings, userPreference) {
       type: 'separator'
     }, {
       label: 'Duplicate',
-      accelerator: keybindings.getAccelerator('editDuplicate'),
+      accelerator: keybindings.getAccelerator('edit.duplicate'),
       click (menuItem, browserWindow) {
         actions.edit(browserWindow, 'duplicate')
       }
     }, {
       label: 'Create Paragraph',
-      accelerator: keybindings.getAccelerator('editCreateParagraph'),
+      accelerator: keybindings.getAccelerator('edit.create-paragraph'),
       click (menuItem, browserWindow) {
         actions.edit(browserWindow, 'createParagraph')
       }
     }, {
       label: 'Delete Paragraph',
-      accelerator: keybindings.getAccelerator('editDeleteParagraph'),
+      accelerator: keybindings.getAccelerator('edit.delete-paragraph'),
       click (menuItem, browserWindow) {
         actions.edit(browserWindow, 'deleteParagraph')
       }
@@ -82,25 +82,25 @@ export default function (keybindings, userPreference) {
       type: 'separator'
     }, {
       label: 'Find',
-      accelerator: keybindings.getAccelerator('editFind'),
+      accelerator: keybindings.getAccelerator('edit.find'),
       click (menuItem, browserWindow) {
         actions.edit(browserWindow, 'find')
       }
     }, {
       label: 'Find Next',
-      accelerator: keybindings.getAccelerator('editFindNext'),
+      accelerator: keybindings.getAccelerator('edit.find-next'),
       click (menuItem, browserWindow) {
         actions.edit(browserWindow, 'fineNext')
       }
     }, {
       label: 'Find Previous',
-      accelerator: keybindings.getAccelerator('editFindPrevious'),
+      accelerator: keybindings.getAccelerator('edit.find-previous'),
       click (menuItem, browserWindow) {
         actions.edit(browserWindow, 'findPrev')
       }
     }, {
       label: 'Replace',
-      accelerator: keybindings.getAccelerator('editReplace'),
+      accelerator: keybindings.getAccelerator('edit.replace'),
       click (menuItem, browserWindow) {
         actions.edit(browserWindow, 'replace')
       }
@@ -108,7 +108,7 @@ export default function (keybindings, userPreference) {
       type: 'separator'
     }, {
       label: 'Find in Folder',
-      accelerator: keybindings.getAccelerator('editFindInFolder'),
+      accelerator: keybindings.getAccelerator('edit.find-in-folder'),
       click (menuItem, browserWindow) {
         actions.edit(browserWindow, 'findInFolder')
       }
@@ -118,7 +118,7 @@ export default function (keybindings, userPreference) {
       label: 'Aidou',
       visible: aidou,
       id: 'aidou',
-      accelerator: keybindings.getAccelerator('editAidou'),
+      accelerator: keybindings.getAccelerator('edit.aidou'),
       click (menuItem, browserWindow) {
         actions.edit(browserWindow, 'aidou')
       }
@@ -126,9 +126,9 @@ export default function (keybindings, userPreference) {
       label: 'Screenshot',
       id: 'screenshot',
       visible: isOsx,
-      accelerator: keybindings.getAccelerator('editScreenshot'),
+      accelerator: keybindings.getAccelerator('edit.screenshot'),
       click (menuItem, browserWindow) {
-        actions.screenshot(browserWindow, 'screenshot')
+        actions.screenshot(browserWindow)
       }
     }, {
       type: 'separator'

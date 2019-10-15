@@ -1,4 +1,5 @@
 import { ipcRenderer } from 'electron'
+import bus from '../bus'
 
 // user preference
 const state = {
@@ -99,6 +100,9 @@ const mutations = {
   },
   SET_MODE (state, { type, checked }) {
     state[type] = checked
+  },
+  TOGGLE_VIEW_MODE (state, entryName) {
+    state[entryName] = !state[entryName]
   }
 }
 
@@ -127,6 +131,17 @@ const actions = {
 
   SELECT_DEFAULT_DIRECTORY_TO_OPEN ({ commit }) {
     ipcRenderer.send('mt::select-default-directory-to-open')
+  },
+
+  // Toggle a view option and notify main process to toggle menu item.
+  LISTEN_TOGGLE_VIEW ({ commit, state }) {
+    bus.$on('view:toggle-view-entry', entryName => {
+      commit('TOGGLE_VIEW_MODE', entryName)
+      const item = {}
+      item[entryName] = state[entryName]
+      const { windowId } = global.marktext.env
+      ipcRenderer.send('mt::view-layout-changed', windowId, item)
+    })
   }
 }
 

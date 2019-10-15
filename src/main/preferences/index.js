@@ -133,9 +133,11 @@ class Preference extends EventEmitter {
       const win = BrowserWindow.fromWebContents(e.sender)
       win.webContents.send('AGANI::user-preference', this.getAll())
     })
-
     ipcMain.on('mt::set-user-preference', (e, settings) => {
       this.setItems(settings)
+    })
+    ipcMain.on('mt::cmd-toggle-autosave', e => {
+      this.setItem('autoSave', !!this.getItem('autoSave'))
     })
 
     ipcMain.on('set-user-preference', settings => {

@@ -5,9 +5,17 @@ export default function (keybindings) {
   const viewMenu = {
     label: '&View',
     submenu: [{
+      label: 'Command Palette',
+      accelerator: keybindings.getAccelerator('view.command-palette'),
+      click (menuItem, browserWindow) {
+        actions.showCommandPalette(browserWindow)
+      }
+    }, {
+      type: 'separator'
+    }, {
       id: 'sourceCodeModeMenuItem',
       label: 'Source Code Mode',
-      accelerator: keybindings.getAccelerator('viewSourceCodeMode'),
+      accelerator: keybindings.getAccelerator('view.source-code-mode'),
       type: 'checkbox',
       checked: false,
       click (item, browserWindow, event) {
@@ -20,7 +28,7 @@ export default function (keybindings) {
     }, {
       id: 'typewriterModeMenuItem',
       label: 'Typewriter Mode',
-      accelerator: keybindings.getAccelerator('viewTypewriterMode'),
+      accelerator: keybindings.getAccelerator('view.typewriter-mode'),
       type: 'checkbox',
       checked: false,
       click (item, browserWindow, event) {
@@ -33,7 +41,7 @@ export default function (keybindings) {
     }, {
       id: 'focusModeMenuItem',
       label: 'Focus Mode',
-      accelerator: keybindings.getAccelerator('viewFocusMode'),
+      accelerator: keybindings.getAccelerator('view.focus-mode'),
       type: 'checkbox',
       checked: false,
       click (item, browserWindow, event) {
@@ -46,9 +54,9 @@ export default function (keybindings) {
     }, {
       type: 'separator'
     }, {
-      label: 'Toggle Side Bar',
+      label: 'Toggle Sidebar',
       id: 'sideBarMenuItem',
-      accelerator: keybindings.getAccelerator('viewToggleSideBar'),
+      accelerator: keybindings.getAccelerator('view.toggle-sidebar'),
       type: 'checkbox',
       checked: false,
       click (item, browserWindow, event) {
@@ -60,9 +68,9 @@ export default function (keybindings) {
         actions.layout(item, browserWindow, 'showSideBar')
       }
     }, {
-      label: 'Toggle Tab Bar',
+      label: 'Toggle Tabbar',
       id: 'tabBarMenuItem',
-      accelerator: keybindings.getAccelerator('viewToggleTabBar'),
+      accelerator: keybindings.getAccelerator('view.toggle-tabbar'),
       type: 'checkbox',
       checked: false,
       click (item, browserWindow, event) {
@@ -81,7 +89,7 @@ export default function (keybindings) {
   if (global.MARKTEXT_DEBUG) {
     viewMenu.submenu.push({
       label: 'Toggle Developer Tools',
-      accelerator: keybindings.getAccelerator('viewDevToggleDeveloperTools'),
+      accelerator: keybindings.getAccelerator('view.toggle-dev-tools'),
       click (item, focusedWindow) {
         if (focusedWindow) {
           focusedWindow.webContents.toggleDevTools()
@@ -90,7 +98,7 @@ export default function (keybindings) {
     })
     viewMenu.submenu.push({
       label: 'Reload',
-      accelerator: keybindings.getAccelerator('viewDevReload'),
+      accelerator: keybindings.getAccelerator('view.dev-reload'),
       click (item, focusedWindow) {
         if (focusedWindow) {
           ipcMain.emit('window-reload-by-id', focusedWindow.id)
