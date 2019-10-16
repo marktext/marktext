@@ -110,7 +110,6 @@ class StateRender {
           target.innerHTML = code
           mermaid.init(undefined, target)
         } catch (err) {
-          console.error(err)
           target.innerHTML = '< Invalid Mermaid Codes >'
           target.classList.add(CLASS_OR_ID.AG_MATH_ERROR)
         }
@@ -156,7 +155,6 @@ class StateRender {
             await render(key, JSON.parse(code), options)
           }
         } catch (err) {
-          console.log(err)
           target.innerHTML = `< Invalid ${functionType === 'flowchart' ? 'Flow Chart' : 'Sequence'} Codes >`
           target.classList.add(CLASS_OR_ID.AG_MATH_ERROR)
         }
