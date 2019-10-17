@@ -400,6 +400,16 @@ class EditorWindow extends BaseWindow {
 
   // --- private ---------------------------------
 
+  _buildUrlString (windowId, env, userPreference) {
+    const url = this._buildUrlWithSettings(windowId, env, userPreference)
+    const spellcheckerIsHunspell = userPreference.getItem('spellcheckerIsHunspell')
+
+    // Add additional settings
+    url.searchParams.set('slp', spellcheckerIsHunspell ? '1' : '0')
+
+    return url.toString()
+  }
+
   /**
    * Open a new new tab from the markdown document.
    *

@@ -10,6 +10,7 @@ import parseArgs from '../cli/parser'
 import { normalizeMarkdownPath } from '../filesystem/markdown'
 import { selectTheme } from '../menu/actions/theme'
 import { dockMenu } from '../menu/templates'
+import ensureDefaultDict from '../preferences/hunspell'
 import { watchers } from '../utils/imagePathAutoComplement'
 import { WindowType } from '../windows/base'
 import EditorWindow from '../windows/editor'
@@ -109,6 +110,13 @@ class App {
         event.preventDefault()
       })
     })
+
+    // Copy default (en-US) Hunspell dictionary.
+    const { paths } = this._accessor
+    ensureDefaultDict(paths.userDataPath)
+      .catch(error => {
+        log.error(error)
+      })
   }
 
   async getScreenshotFileName () {

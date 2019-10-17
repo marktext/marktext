@@ -42,6 +42,12 @@ const state = {
 
   theme: 'light',
 
+  spellcheckerEnabled: false,
+  spellcheckerIsHunspell: false, // macOS only
+  spellcheckerNoUnderline: false,
+  spellcheckerAutoDetectLanguage: false,
+  spellcheckerLanguage: 'en-US',
+
   // Default values that are overwritten with the entries below.
   sideBarVisibility: false,
   tabBarVisibility: false,

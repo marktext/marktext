@@ -28,6 +28,8 @@ import {
   Option,
   Radio,
   RadioGroup,
+  Table,
+  TableColumn,
   Tabs,
   TabPane,
   Input
@@ -78,6 +80,8 @@ Vue.use(Select)
 Vue.use(Option)
 Vue.use(Radio)
 Vue.use(RadioGroup)
+Vue.use(Table)
+Vue.use(TableColumn)
 Vue.use(Tabs)
 Vue.use(TabPane)
 Vue.use(Input)

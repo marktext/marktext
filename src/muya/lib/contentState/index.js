@@ -10,6 +10,7 @@ import codeBlockCtrl from './codeBlockCtrl'
 import tableBlockCtrl from './tableBlockCtrl'
 import tableDragBarCtrl from './tableDragBarCtrl'
 import tableSelectCellsCtrl from './tableSelectCellsCtrl'
+import coreApi from './core'
 import History from './history'
 import arrowCtrl from './arrowCtrl'
 import pasteCtrl from './pasteCtrl'
@@ -32,6 +33,7 @@ import Cursor from '../selection/cursor'
 import escapeCharactersMap, { escapeCharacters } from '../parser/escapeCharacter'
 
 const prototypes = [
+  coreApi,
   tabCtrl,
   enterCtrl,
   updateCtrl,
