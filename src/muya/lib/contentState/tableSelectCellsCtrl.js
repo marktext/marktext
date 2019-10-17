@@ -37,7 +37,7 @@ const tableSelectCellsCtrl = ContentState => {
     const isOverSameTableCell = cell && table && table.id === this.cellSelectInfo.tableId
     if (isOverSameTableCell && cell.id !== this.cellSelectInfo.anchor.key) {
       this.cellSelectInfo.isStartSelect = true
-      this.muya.blur()
+      this.muya.blur(true)
     }
     if (isOverSameTableCell && this.cellSelectInfo.isStartSelect) {
       const row = getIndex('left', cell)
