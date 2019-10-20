@@ -24,8 +24,7 @@ const loadRenderer = async (name) => {
         rendererCache.set(name, m.default)
         break
       default:
-        console.error(`Unknown diagram name ${name}`)
-        break
+        throw new Error(`Unknown diagram name ${name}`)
     }
   }
 
