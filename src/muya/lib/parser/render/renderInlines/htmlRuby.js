@@ -14,7 +14,10 @@ export default function htmlRuby (h, cursor, block, token, outerClass) {
     h(`span.${className}.${CLASS_OR_ID.AG_RUBY}`, [
       h(`span.${CLASS_OR_ID.AG_INLINE_RULE}.${CLASS_OR_ID.AG_RUBY_TEXT}`, content),
       h(previewSelector, {
-        attrs: { contenteditable: 'false' }
+        attrs: {
+          contenteditable: 'false',
+          spellcheck: 'false'
+        }
       }, vNode)
     ])
   // if children is empty string, no need to render ruby charactors...

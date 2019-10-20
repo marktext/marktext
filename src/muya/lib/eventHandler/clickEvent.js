@@ -28,9 +28,9 @@ class ClickEvent {
       if (!start || !end) {
         return
       }
+
       const startBlock = contentState.getBlock(start.key)
       const nextTextBlock = contentState.findNextBlockInLocation(startBlock)
-
       if (
         nextTextBlock && nextTextBlock.key === end.key &&
         end.offset === 0 &&
@@ -182,8 +182,15 @@ class ClickEvent {
         event.preventDefault()
         return event.stopPropagation()
       }
+
       if (target.closest('div.ag-container-preview') || target.closest('div.ag-html-preview')) {
-        return event.stopPropagation()
+        event.stopPropagation()
+        if (target.closest('div.ag-container-preview')) {
+          event.preventDefault()
+          const figureEle = target.closest('figure')
+          contentState.handleContainerBlockClick(figureEle)
+        }
+        return
       }
       // handler container preview click
       const editIcon = target.closest('.ag-container-icon')

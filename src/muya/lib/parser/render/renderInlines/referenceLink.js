@@ -43,6 +43,9 @@ export default function referenceLink (h, cursor, block, token, outerClass) {
   )
   const anchorSelector = href ? `a.${CLASS_OR_ID.AG_INLINE_RULE}.${CLASS_OR_ID.AG_REFERENCE_LINK}` : `span.${CLASS_OR_ID.AG_REFERENCE_LINK}`
   const data = {
+    attrs: {
+      spellcheck: 'false'
+    },
     props: {
       title
     },

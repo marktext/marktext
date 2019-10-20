@@ -5,11 +5,21 @@ const fs = require('fs')
 const thirdPartyChecker = require('../.electron-vue/thirdPartyChecker.js')
 const rootDir = path.resolve(__dirname, '..')
 
+const additionalPackages = {
+  hunspell: {
+    packageName: 'Hunspell',
+    licenses: 'LGPL 2.1',
+    licenseText: fs.readFileSync(path.join(rootDir, 'resources/hunspell_dictionaries/LICENSE-hunspell.txt'))
+  }
+}
+
 thirdPartyChecker.getLicenses(rootDir, (err, packages, checker) => {
   if (err) {
     console.log(`[ERROR] ${err}`)
     return
   }
+
+  Object.assign(packages, additionalPackages)
 
   let summary = ''
   let licenseList = ''

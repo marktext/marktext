@@ -10,6 +10,8 @@ import { updateSelectionMenus } from '../menu/actions/paragraph'
 import { viewLayoutChanged } from '../menu/actions/view'
 import configureMenu, { configSettingMenu } from '../menu/templates'
 
+const RECENTLY_USED_DOCUMENTS_FILE_NAME = 'recently-used-documents.json'
+const MAX_RECENTLY_USED_DOCUMENTS = 12
 export const MenuType = {
   DEFAULT: 0,
   EDITOR: 1,
@@ -23,16 +25,12 @@ class AppMenu {
    * @param {string} userDataPath The user data path.
    */
   constructor (preferences, keybindings, userDataPath) {
-    const FILE_NAME = 'recently-used-documents.json'
-    this.MAX_RECENTLY_USED_DOCUMENTS = 12
-
     this._preferences = preferences
     this._keybindings = keybindings
     this._userDataPath = userDataPath
 
-    this.RECENTS_PATH = path.join(userDataPath, FILE_NAME)
+    this.RECENTS_PATH = path.join(userDataPath, RECENTLY_USED_DOCUMENTS_FILE_NAME)
     this.isOsxOrWindows = isOsx || isWindows
-    this.isOsx = isOsx
     this.activeWindowId = -1
     this.windowMenus = new Map()
 
@@ -45,7 +43,7 @@ class AppMenu {
    * @param {string} filePath The file or directory full path.
    */
   addRecentlyUsedDocument (filePath) {
-    const { isOsxOrWindows, isOsx, MAX_RECENTLY_USED_DOCUMENTS, RECENTS_PATH } = this
+    const { isOsxOrWindows, RECENTS_PATH } = this
 
     if (isOsxOrWindows) app.addRecentDocument(filePath)
     if (isOsx) return
@@ -80,7 +78,7 @@ class AppMenu {
    * @returns {string[]}
    */
   getRecentlyUsedDocuments () {
-    const { RECENTS_PATH, MAX_RECENTLY_USED_DOCUMENTS } = this
+    const { RECENTS_PATH } = this
     if (!isFile(RECENTS_PATH)) {
       return []
     }
@@ -103,7 +101,7 @@ class AppMenu {
    * Clear recently used documents.
    */
   clearRecentlyUsedDocuments () {
-    const { isOsxOrWindows, isOsx, RECENTS_PATH } = this
+    const { isOsxOrWindows, RECENTS_PATH } = this
     if (isOsxOrWindows) app.clearRecentDocuments()
     if (isOsx) return
 
@@ -402,7 +400,7 @@ class AppMenu {
   }
 
   _buildSettingMenu () {
-    if (this.isOsx) {
+    if (isOsx) {
       const menuTemplate = configSettingMenu(this._keybindings)
       const menu = Menu.buildFromTemplate(menuTemplate)
       return { menu, type: MenuType.SETTINGS }
