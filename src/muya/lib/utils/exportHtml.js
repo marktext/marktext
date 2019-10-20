@@ -1,10 +1,7 @@
 import marked from '../parser/marked'
 import Prism from 'prismjs'
 import katex from 'katex'
-import mermaid from 'mermaid/dist/mermaid.core'
-import flowchart from 'flowchart.js'
-import Diagram from '../parser/render/sequence'
-import vegaEmbed from 'vega-embed'
+import loadRenderer from '../renderers'
 import githubMarkdownCss from 'github-markdown-css/github-markdown.css'
 import highlightCss from 'prismjs/themes/prism.css'
 import katexCss from 'katex/dist/katex.css'
@@ -32,7 +29,7 @@ class ExportHtml {
     this.mathRendererCalled = false
   }
 
-  renderMermaid () {
+  async renderMermaid () {
     const codes = this.exportContainer.querySelectorAll('code.language-mermaid')
     for (const code of codes) {
       const preEle = code.parentNode
@@ -41,6 +38,7 @@ class ExportHtml {
       mermaidContainer.classList.add('mermaid')
       preEle.replaceWith(mermaidContainer)
     }
+    const mermaid = await loadRenderer('mermaid')
     // We only export light theme, so set mermaid theme to `default`, in the future, we can choose whick theme to export.
     mermaid.initialize({
       theme: 'default'
@@ -56,9 +54,9 @@ class ExportHtml {
   async renderDiagram () {
     const selector = 'code.language-vega-lite, code.language-flowchart, code.language-sequence'
     const RENDER_MAP = {
-      flowchart: flowchart,
-      sequence: Diagram,
-      'vega-lite': vegaEmbed
+      flowchart: await loadRenderer('flowchart'),
+      sequence: await loadRenderer('sequence'),
+      'vega-lite': await loadRenderer('vega-lite')
     }
     const codes = this.exportContainer.querySelectorAll(selector)
     for (const code of codes) {
@@ -139,7 +137,7 @@ class ExportHtml {
     exportContainer.innerHTML = html
     document.body.appendChild(exportContainer)
     // render only render the light theme of mermaid and diragram...
-    this.renderMermaid()
+    await this.renderMermaid()
     await this.renderDiagram()
     let result = exportContainer.innerHTML
     exportContainer.remove()

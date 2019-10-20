@@ -1,5 +1,4 @@
 import katex from 'katex'
-import mermaid from 'mermaid/dist/mermaid.core'
 import prism, { loadedCache, transfromAliasToOrigin } from '../../../prism/'
 import { CLASS_OR_ID, DEVICE_MEMORY, PREVIEW_DOMPURIFY_CONFIG, HAS_TEXT_BLOCK_REG } from '../../../config'
 import { tokenizer } from '../../'
@@ -177,14 +176,11 @@ export default function renderLeafBlock (parent, block, activeBlocks, matches, u
           children = '< Empty Mermaid Block >'
           selector += `.${CLASS_OR_ID.AG_EMPTY}`
         } else {
-          try {
-            mermaid.parse(code)
-            children = code
-            this.mermaidCache.add(`#${block.key}`)
-          } catch (err) {
-            children = '< Invalid Mermaid Codes >'
-            selector += `.${CLASS_OR_ID.AG_MATH_ERROR}`
-          }
+          children = 'Loading...'
+          this.mermaidCache.set(`#${block.key}`, {
+            code,
+            functionType
+          })
         }
         break
       }
@@ -197,7 +193,7 @@ export default function renderLeafBlock (parent, block, activeBlocks, matches, u
           children = '< Empty Diagram Block >'
           selector += `.${CLASS_OR_ID.AG_EMPTY}`
         } else {
-          children = ''
+          children = 'Loading...'
           this.diagramCache.set(`#${block.key}`, {
             code,
             functionType

@@ -35,6 +35,10 @@ const rendererConfig = {
   module: {
     rules: [
       {
+        test: require.resolve(path.join(__dirname, '../src/muya/lib/assets/libs/snap.svg-min.js')),
+        use: 'imports-loader?this=>window,fix=>module.exports=0',
+      },
+      {
         test: /\.(js|vue)$/,
         enforce: 'pre',
         exclude: /node_modules/,
@@ -180,6 +184,7 @@ const rendererConfig = {
       '@': path.join(__dirname, '../src/renderer'),
       'common': path.join(__dirname, '../src/common'),
       'muya': path.join(__dirname, '../src/muya'),
+      snapsvg: path.join(__dirname, '../src/muya/lib/assets/libs/snap.svg-min.js'),
       'vue$': 'vue/dist/vue.esm.js'
     },
     extensions: ['.js', '.vue', '.json', '.css', '.node']
