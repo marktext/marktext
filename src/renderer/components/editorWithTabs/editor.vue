@@ -144,6 +144,7 @@ export default {
       trimUnnecessaryCodeBlockEmptyLines: state => state.preferences.trimUnnecessaryCodeBlockEmptyLines,
       editorFontFamily: state => state.preferences.editorFontFamily,
       hideQuickInsertHint: state => state.preferences.hideQuickInsertHint,
+      hideLinkPopup: state => state.preferences.hideLinkPopup,
       editorLineWidth: state => state.preferences.editorLineWidth,
       imageInsertAction: state => state.preferences.imageInsertAction,
       imageFolderPath: state => state.preferences.imageFolderPath,
@@ -291,6 +292,12 @@ export default {
         editor.setOptions({ orderListDelimiter: value })
       }
     },
+    hideLinkPopup: function (value, oldValue) {
+      const { editor } = this
+      if (value !== oldValue && editor) {
+        editor.setOptions({ hideLinkPopup: value })
+      }
+    },
     codeFontSize: function (value, oldValue) {
       if (value !== oldValue) {
         addCommonStyle({
@@ -434,7 +441,8 @@ export default {
         hideQuickInsertHint,
         editorLineWidth,
         theme,
-        spellcheckerEnabled
+        spellcheckerEnabled,
+        hideLinkPopup
       } = this
 
       // use muya UI plugins
@@ -471,6 +479,7 @@ export default {
         listIndentation,
         frontmatterType,
         hideQuickInsertHint,
+        hideLinkPopup,
         spellcheckEnabled: spellcheckerEnabled,
         imageAction: this.imageAction.bind(this),
         imagePathPicker: this.imagePathPicker.bind(this),
