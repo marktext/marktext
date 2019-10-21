@@ -431,8 +431,9 @@ class Selection {
         if (child.classList && child.classList.contains(CLASS_OR_ID.AG_FRONT_ICON)) {
           continue
         }
+
         // Fix #1460 - put the cursor at the next text node or element if it can be put at the last of /^\n$/ or the next text node/element.
-        if (/^\n$/.test(textContent) ? count + textLength > offset : count + textLength >= offset) {
+        if (/^\n$/.test(textContent) && i !== len - 1 ? count + textLength > offset : count + textLength >= offset) {
           if (
             child.classList && child.classList.contains('ag-inline-image')
           ) {

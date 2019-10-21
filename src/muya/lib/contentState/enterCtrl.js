@@ -242,7 +242,8 @@ const enterCtrl = ContentState => {
       }
       return this.partialRender()
     } else if (
-      block.type === 'span' && block.functionType === 'codeContent'
+      block.type === 'span' &&
+      block.functionType === 'codeContent'
     ) {
       const { text, key } = block
       const autoIndent = checkAutoIndent(text, start.offset)
