@@ -91,6 +91,11 @@
       :bool="hideQuickInsertHint"
       :onChange="value => onSelectChange('hideQuickInsertHint', value)"
     ></bool>
+    <bool
+      description="Hide link popup when the cursor is hover on the link."
+      :bool="hideLinkPopup"
+      :onChange="value => onSelectChange('hideLinkPopup', value)"
+    ></bool>
     <separator></separator>
     <text-box
       description="Defines the maximum editor area width. An empty string or suffixes of ch (characters), px (pixels) or % (percentage) are allowed."
@@ -145,6 +150,7 @@ export default {
       codeFontFamily: state => state.preferences.codeFontFamily,
       trimUnnecessaryCodeBlockEmptyLines: state => state.preferences.trimUnnecessaryCodeBlockEmptyLines,
       hideQuickInsertHint: state => state.preferences.hideQuickInsertHint,
+      hideLinkPopup: state => state.preferences.hideLinkPopup,
       editorLineWidth: state => state.preferences.editorLineWidth,
       defaultEncoding: state => state.preferences.defaultEncoding,
       autoGuessEncoding: state => state.preferences.autoGuessEncoding

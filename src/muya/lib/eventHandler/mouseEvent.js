@@ -12,7 +12,8 @@ class MouseEvent {
     const handler = event => {
       const target = event.target
       const parent = target.parentNode
-      if (parent && parent.tagName === 'A' && parent.classList.contains('ag-inline-rule')) {
+      const { hideLinkPopup } = this.muya.options
+      if (!hideLinkPopup && parent && parent.tagName === 'A' && parent.classList.contains('ag-inline-rule')) {
         const rect = parent.getBoundingClientRect()
         const reference = {
           getBoundingClientRect () {

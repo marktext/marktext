@@ -176,6 +176,11 @@
     "description": "Editor--Hide hint for quickly creating paragraphs",
     "type": "boolean"
   },
+  "hideLinkPopup": {
+    "description": "Editor--Hide link popup when the cursor is hover on the link",
+    "type": "boolean",
+    "default": false
+  },
 
   "preferLooseListItem": {
     "description": "Markdown--The preferred list type",
