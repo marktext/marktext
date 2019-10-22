@@ -1,7 +1,4 @@
-import mermaid from 'mermaid/dist/mermaid.core'
-import flowchart from 'flowchart.js'
-import Diagram from './sequence'
-import vegaEmbed from 'vega-embed'
+import loadRenderer from '../../renderers'
 import { CLASS_OR_ID } from '../../config'
 import { conflict, mixins, camelToSnake } from '../../utils'
 import { patch, toVNode, toHTML, h } from './snabbdom'
@@ -16,7 +13,7 @@ class StateRender {
     this.codeCache = new Map()
     this.loadImageMap = new Map()
     this.loadMathMap = new Map()
-    this.mermaidCache = new Set()
+    this.mermaidCache = new Map()
     this.diagramCache = new Map()
     this.tokenCache = new Map()
     this.labels = new Map()
@@ -96,26 +93,46 @@ class StateRender {
     return selector
   }
 
-  renderMermaid () {
+  async renderMermaid () {
     if (this.mermaidCache.size) {
+      const mermaid = await loadRenderer('mermaid')
       mermaid.initialize({
         theme: this.muya.options.mermaidTheme
       })
-      mermaid.init(undefined, document.querySelectorAll(Array.from(this.mermaidCache).join(', ')))
+      for (const [key, value] of this.mermaidCache.entries()) {
+        const { code } = value
+        const target = document.querySelector(key)
+        if (!target) {
+          continue
+        }
+        try {
+          mermaid.parse(code)
+          target.innerHTML = code
+          mermaid.init(undefined, target)
+        } catch (err) {
+          target.innerHTML = '< Invalid Mermaid Codes >'
+          target.classList.add(CLASS_OR_ID.AG_MATH_ERROR)
+        }
+      }
+
       this.mermaidCache.clear()
     }
   }
 
   async renderDiagram () {
     const cache = this.diagramCache
-    const RENDER_MAP = {
-      flowchart: flowchart,
-      sequence: Diagram,
-      'vega-lite': vegaEmbed
-    }
     if (cache.size) {
+      const RENDER_MAP = {
+        flowchart: await loadRenderer('flowchart'),
+        sequence: await loadRenderer('sequence'),
+        'vega-lite': await loadRenderer('vega-lite')
+      }
+
       for (const [key, value] of cache.entries()) {
         const target = document.querySelector(key)
+        if (!target) {
+          continue
+        }
         const { code, functionType } = value
         const render = RENDER_MAP[functionType]
         const options = {}

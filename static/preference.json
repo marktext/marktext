@@ -28,6 +28,7 @@
   "textDirection": "ltr",
   "hideQuickInsertHint": false,
   "imageInsertAction": "path",
+  "hideLinkPopup": false,
 
   "preferLooseListItem": true,
   "bulletListMarker": "-",

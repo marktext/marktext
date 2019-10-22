@@ -647,6 +647,7 @@ kbd {
   html {
     font-size: 13px;
   }
+  blockquote,
   table,
   pre {
     page-break-inside: avoid;

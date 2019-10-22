@@ -255,6 +255,7 @@ export const MUYA_DEFAULT_OPTION = {
   mermaidTheme: 'default', // dark / forest / default
   vegaTheme: 'latimes', // excel / ggplot2 / quartz / vox / fivethirtyeight / dark / latimes
   hideQuickInsertHint: false,
+  hideLinkPopup: false,
   // Whether we should set spellcheck attribute on our container to highlight misspelled words.
   // NOTE: The browser is not able to correct misspelled words words without a custom
   // implementation like in Mark Text.
