@@ -5,7 +5,7 @@ import dayjs from 'dayjs'
 import log from 'electron-log'
 import { app, BrowserWindow, clipboard, dialog, ipcMain, systemPreferences } from 'electron'
 import { isChildOfDirectory } from 'common/filesystem/paths'
-import { isLinux, isOsx } from '../config'
+import { isLinux, isOsx, isWindows } from '../config'
 import parseArgs from '../cli/parser'
 import { normalizeMarkdownPath } from '../filesystem/markdown'
 import { selectTheme } from '../menu/actions/theme'
@@ -151,7 +151,7 @@ class App {
       }
     }
 
-    if (process.platform === 'darwin') {
+    if (isOsx) {
       app.dock.setMenu(dockMenu)
 
       // Listen for system theme change and change Mark Text own `dark` and `light`.
@@ -174,6 +174,21 @@ class App {
           }
         }
       )
+    } else if (isWindows) {
+      app.setJumpList([{
+        type: 'recent'
+      }, {
+        type: 'tasks',
+        items: [{
+          type: 'task',
+          title: 'New Window',
+          description: 'Opens a new window',
+          program: process.execPath,
+          args: '--new-window',
+          iconPath: process.execPath,
+          iconIndex: 0
+        }]
+      }])
     }
 
     if (_openFilesCache.length) {
