@@ -498,6 +498,9 @@ const backspaceCtrl = ContentState => {
         start: { key, offset },
         end: { key, offset }
       }
+      if (this.isCollapse()) {
+        this.checkInlineUpdate(preBlock)
+      }
       this.partialRender()
     }
   }
