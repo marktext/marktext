@@ -225,7 +225,7 @@ export default {
 
     docClick () {
       if (!this.showSearch) return
-      this.emptySearch()
+      this.emptySearch(true)
     },
 
     emptySearch (selectHighlight = false) {
