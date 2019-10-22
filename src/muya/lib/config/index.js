@@ -273,7 +273,6 @@ export const MUYA_DEFAULT_OPTION = {
 //   'mermaid': `graph LR;\nYou-->|Mark Text|Me;`
 // }
 
-export const isInElectron = window && window.process && window.process.type === 'renderer'
 export const isOsx = window && window.navigator && /Mac/.test(window.navigator.platform)
 export const isWin = window && window.navigator.userAgent && /win32|wow32|win64|wow64/i.test(window.navigator.userAgent)
 // http[s] (domain or IPv4 or localhost or IPv6) [port] /not-white-space

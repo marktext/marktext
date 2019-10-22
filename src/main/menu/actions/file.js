@@ -1,4 +1,4 @@
-import fs from 'fs'
+import fs from 'fs-extra'
 import path from 'path'
 import { BrowserWindow, dialog, ipcMain, shell } from 'electron'
 import log from 'electron-log'
@@ -14,32 +14,53 @@ import pandoc from '../../utils/pandoc'
 // the renderer should communicate only with the editor window for file relevant stuff.
 // E.g. "mt::save-tabs" --> "mt::window-save-tabs$wid:<windowId>"
 
+const getPdfPageOptions = options => {
+  if (!options) {
+    return {}
+  }
+
+  const { pageSize, pageSizeWidth, pageSizeHeight, isLandscape } = options
+  if (pageSize === 'custom' && pageSizeWidth && pageSizeHeight) {
+    return {
+      // Note: mm to microns
+      pageSize: { height: pageSizeHeight * 1000, width: pageSizeWidth * 1000 },
+      landscape: !!isLandscape
+    }
+  } else {
+    return { pageSize, landscape: !!isLandscape }
+  }
+}
+
 // Handle the export response from renderer process.
-const handleResponseForExport = async (e, { type, content, pathname, markdown }) => {
+const handleResponseForExport = async (e, { type, content, pathname, title, pageOptions }) => {
   const win = BrowserWindow.fromWebContents(e.sender)
   const extension = EXTENSION_HASN[type]
   const dirname = pathname ? path.dirname(pathname) : getPath('documents')
-  let nakedFilename = getRecommendTitleFromMarkdownString(markdown)
+  let nakedFilename = title
   if (!nakedFilename) {
     nakedFilename = pathname ? path.basename(pathname, '.md') : 'Untitled'
   }
-  const defaultPath = path.join(dirname, `${nakedFilename}${extension}`)
 
+  const defaultPath = path.join(dirname, `${nakedFilename}${extension}`)
   const { filePath, canceled } = await dialog.showSaveDialog(win, {
     defaultPath
   })
 
   if (filePath && !canceled) {
-    let data = content
     try {
-      if (!content && type === 'pdf') {
-        data = await win.webContents.printToPDF({ printBackground: true })
+      if (type === 'pdf') {
+        const options = { printBackground: true }
+        Object.assign(options, getPdfPageOptions(pageOptions))
+        const data = await win.webContents.printToPDF(options)
         removePrintServiceFromWindow(win)
+        await writeFile(filePath, data, extension, {})
+      } else {
+        if (!content) {
+          throw new Error('No HTML content found.')
+        }
+        await writeFile(filePath, content, extension, 'utf8')
       }
-      if (data) {
-        await writeFile(filePath, data, extension)
-        win.webContents.send('AGANI::export-success', { type, filePath })
-      }
+      win.webContents.send('AGANI::export-success', { type, filePath })
     } catch (err) {
       log.error(err)
       const ERROR_MSG = err.message || `Error happened when export ${filePath}`
@@ -399,7 +420,7 @@ ipcMain.on('AGANI::format-link-click', (e, { data, dirname }) => {
 // --- menu -------------------------------------
 
 export const exportFile = (win, type) => {
-  win.webContents.send('AGANI::export', { type })
+  win.webContents.send('mt::show-export-dialog', type)
 }
 
 export const importFile = async win => {
@@ -423,7 +444,16 @@ export const importFile = async win => {
 }
 
 export const print = win => {
-  win.webContents.send('AGANI::print')
+  // See GH#749, Electron#16085 and Electron#17523.
+  dialog.showMessageBox(win, {
+    type: 'info',
+    buttons: ['OK'],
+    defaultId: 0,
+    noLink: true,
+    message: 'Printing doesn\'t work',
+    detail: 'Printing is disabled due to an Electron upstream issue. Please export the document as PDF and print the PDF file. We apologize for the inconvenience!'
+  })
+  // win.webContents.send('mt::show-export-dialog', 'print')
 }
 
 export const openFile = async win => {

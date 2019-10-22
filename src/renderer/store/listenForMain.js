@@ -21,9 +21,12 @@ const actions = {
     })
   },
 
-  LISTEN_FOR_ABOUT_DIALOG ({ commit }) {
+  LISTEN_FOR_SHOW_DIALOG ({ commit }) {
     ipcRenderer.on('AGANI::about-dialog', e => {
       bus.$emit('aboutDialog')
+    })
+    ipcRenderer.on('mt::show-export-dialog', (e, type) => {
+      bus.$emit('showExportDialog', type)
     })
   },
 

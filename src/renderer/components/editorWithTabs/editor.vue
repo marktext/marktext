@@ -100,6 +100,7 @@ import { offsetToWordCursor, validateLineCursor, SpellChecker } from '@/spellche
 import { isOsx, animatedScrollTo } from '@/util'
 import { moveImageToFolder, uploadImage } from '@/util/fileSystem'
 import { guessClipboardFilePath } from '@/util/clipboard'
+import { getCssForOptions } from '@/util/pdf'
 import { addCommonStyle, setEditorWidth } from '@/util/theme'
 
 import 'muya/themes/default.css'
@@ -114,9 +115,6 @@ export default {
     Search
   },
   props: {
-    filename: {
-      type: String
-    },
     markdown: String,
     cursor: Object,
     textDirection: {
@@ -534,7 +532,6 @@ export default {
       bus.$on('deleteParagraph', this.handleParagraph)
       bus.$on('insertParagraph', this.handleInsertParagraph)
       bus.$on('scroll-to-header', this.scrollToHeader)
-      bus.$on('print', this.handlePrint)
       bus.$on('screenshot-captured', this.handleScreenShot)
       bus.$on('switch-spellchecker-language', this.switchSpellcheckLanguage)
 
@@ -878,27 +875,60 @@ export default {
       this.scrollToHighlight()
     },
 
-    async handlePrint () {
-      // generate styled HTML with empty title and optimized for printing
-      const html = await this.editor.exportStyledHTML('', true)
-      this.printer.renderMarkdown(html, true)
-      this.$store.dispatch('PRINT_RESPONSE')
-    },
+    async handleExport (options) {
+      const {
+        type,
+        header,
+        footer,
+        headerFooterStyled,
+        htmlTitle
+      } = options
+      if (!/^pdf|print|styledHtml$/.test(type)) {
+        throw new Error(`Invalid type to export: "${type}".`)
+      }
 
-    async handleExport (type) {
-      const markdown = this.editor.getMarkdown()
+      const extraCss = getCssForOptions(options)
       switch (type) {
         case 'styledHtml': {
-          const content = await this.editor.exportStyledHTML(this.filename)
-          this.$store.dispatch('EXPORT', { type, content, markdown })
+          const content = await this.editor.exportStyledHTML({
+            title: htmlTitle || '',
+            printOptimization: false,
+            extraCss
+          })
+          this.$store.dispatch('EXPORT', { type, content })
           break
         }
-
         case 'pdf': {
-          // generate styled HTML with empty title and optimized for printing
-          const html = await this.editor.exportStyledHTML('', true)
+          // NOTE: We need to set page size via Electron.
+          const { pageSize, pageSizeWidth, pageSizeHeight, isLandscape } = options
+          const pageOptions = {
+            pageSize, pageSizeWidth, pageSizeHeight, isLandscape
+          }
+
+          const html = await this.editor.exportStyledHTML({
+            title: '',
+            printOptimization: true,
+            extraCss,
+            header,
+            footer,
+            headerFooterStyled
+          })
           this.printer.renderMarkdown(html, true)
-          this.$store.dispatch('EXPORT', { type, markdown })
+          this.$store.dispatch('EXPORT', { type, pageOptions })
+          break
+        }
+        case 'print': {
+          // NOTE: Print doesn't support page size or orientation.
+          const html = await this.editor.exportStyledHTML({
+            title: '',
+            printOptimization: true,
+            extraCss,
+            header,
+            footer,
+            headerFooterStyled
+          })
+          this.printer.renderMarkdown(html, true)
+          this.$store.dispatch('PRINT_RESPONSE')
           break
         }
       }
@@ -1021,7 +1051,6 @@ export default {
     bus.$off('deleteParagraph', this.handleParagraph)
     bus.$off('insertParagraph', this.handleInsertParagraph)
     bus.$off('scroll-to-header', this.scrollToHeader)
-    bus.$off('print', this.handlePrint)
     bus.$off('screenshot-captured', this.handleScreenShot)
     bus.$off('switch-spellchecker-language', this.switchSpellcheckLanguage)
 

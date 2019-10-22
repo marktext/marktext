@@ -20,7 +20,6 @@
       <editor-with-tabs
         v-if="hasCurrentFile && init"
         :markdown="markdown"
-        :filename="filename"
         :cursor="cursor"
         :source-code="sourceCode"
         :show-tab-bar="showTabBar"
@@ -29,6 +28,7 @@
       ></editor-with-tabs>
       <aidou></aidou>
       <about-dialog></about-dialog>
+      <export-setting-dialog></export-setting-dialog>
       <rename></rename>
       <tweet></tweet>
       <import-modal></import-modal>
@@ -44,6 +44,7 @@ import TitleBar from '@/components/titleBar'
 import SideBar from '@/components/sideBar'
 import Aidou from '@/components/aidou/aidou'
 import AboutDialog from '@/components/about'
+import ExportSettingDialog from '@/components/exportSettings'
 import Rename from '@/components/rename'
 import Tweet from '@/components/tweet'
 import ImportModal from '@/components/import'
@@ -61,6 +62,7 @@ export default {
     TitleBar,
     SideBar,
     AboutDialog,
+    ExportSettingDialog,
     Rename,
     Tweet,
     ImportModal
@@ -118,7 +120,7 @@ export default {
     // module: listenForMain
     dispatch('LISTEN_FOR_EDIT')
     dispatch('LISTEN_FOR_VIEW')
-    dispatch('LISTEN_FOR_ABOUT_DIALOG')
+    dispatch('LISTEN_FOR_SHOW_DIALOG')
     dispatch('LISTEN_FOR_PARAGRAPH_INLINE_STYLE')
     // module: project
     dispatch('LISTEN_FOR_UPDATE_PROJECT')
@@ -136,7 +138,6 @@ export default {
     dispatch('LISTEN_FOR_SET_PATHNAME')
     dispatch('LISTEN_FOR_BOOTSTRAP_WINDOW')
     dispatch('LISTEN_FOR_SAVE_CLOSE')
-    dispatch('LISTEN_FOR_EXPORT_PRINT')
     dispatch('LISTEN_FOR_RENAME')
     dispatch('LINTEN_FOR_SET_LINE_ENDING')
     dispatch('LISTEN_FOR_NEW_TAB')
