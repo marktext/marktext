@@ -12,7 +12,7 @@ class ImageSelector extends BaseFloat {
 
   constructor (muya, options) {
     const name = 'ag-image-selector'
-    const { applicationId, secret } = options
+    const { accessKey } = options
     options = Object.assign(options, {
       placement: 'bottom-center',
       modifiers: {
@@ -27,8 +27,7 @@ class ImageSelector extends BaseFloat {
     this.oldVnode = null
     this.imageInfo = null
     this.unsplash = new Unsplash({
-      applicationId,
-      secret
+      accessKey
     })
     this.photoList = []
     this.loading = false
