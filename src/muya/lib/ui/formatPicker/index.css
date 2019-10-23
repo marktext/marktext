@@ -1,3 +1,7 @@
+.ag-float-wrapper.ag-format-picker-container {
+  overflow: visible;
+  border-radius: 2px;
+}
 .ag-format-picker {
   height: 30px;
   width: 265px;
@@ -27,6 +31,37 @@
 
 .ag-format-picker li.item:hover {
   background: var(--floatHoverColor);
+}
+
+.ag-format-picker li.item .tooltip {
+  min-width: 90px;
+  box-sizing: border-box;
+  height: 30px;
+  text-align: center;
+  position: absolute;
+  top: -38px;
+  background: var(--floatBgColor);
+  border-radius: 2px;
+  line-height: 30px;
+  color: var(--editorColor);
+  box-shadow: var(--floatShadow);
+  display: none;
+}
+
+.ag-format-picker li.item .tooltip::before {
+  content: '';
+  width: 7px;
+  height: 7px;
+  display: block;
+  background: var(--floatBgColor);
+  position: absolute;
+  bottom: -1px;
+  transform: rotate(-45deg) translateX(-50%);
+  left: 50%;
+}
+
+.ag-format-picker li.item:hover .tooltip {
+  display: block;
 }
 
 .ag-format-picker li.item:last-of-type {

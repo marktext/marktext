@@ -27,6 +27,7 @@ class FormatPicker extends BaseFloat {
     this.icons = icons
     const formatContainer = this.formatContainer = document.createElement('div')
     this.container.appendChild(formatContainer)
+    this.floatBox.classList.add('ag-format-picker-container')
     this.listen()
   }
 
@@ -62,6 +63,7 @@ class FormatPicker extends BaseFloat {
         }, ''))
       }
       const iconWrapper = h(iconWrapperSelector, icon)
+      const tooltip = h('div.tooltip', i.tooltip)
       let itemSelector = `li.item.${i.type}`
       if (formats.some(f => f.type === i.type || f.type === 'html_tag' && f.tag === i.type)) {
         itemSelector += '.active'
@@ -72,7 +74,7 @@ class FormatPicker extends BaseFloat {
             this.selectItem(event, i)
           }
         }
-      }, iconWrapper)
+      }, [tooltip, iconWrapper])
     })
 
     const vnode = h('ul', children)
