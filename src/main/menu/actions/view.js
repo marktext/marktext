@@ -5,7 +5,7 @@ const focusModeMenuItemId = 'focusModeMenuItem'
 
 export const typeMode = (win, type, item) => {
   const { checked } = item
-  win.webContents.send('AGANI::view', { type, checked })
+  win.webContents.send('mt::view', { type, checked })
 
   if (type === 'sourceCode') {
     const typewriterModeMenuItem = getMenuItemById(typewriterModeMenuItemId)
@@ -16,7 +16,7 @@ export const typeMode = (win, type, item) => {
 }
 
 export const layout = (item, win, type) => {
-  win.webContents.send('AGANI::listen-for-view-layout', { [type]: item.checked })
+  win.webContents.send('mt::listen-for-view-layout', { [type]: item.checked })
 }
 
 export const showTabBar = win => {

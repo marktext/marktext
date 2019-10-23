@@ -14,8 +14,8 @@ export const WATCHER_STABILITY_THRESHOLD = 1000
 export const WATCHER_STABILITY_POLL_INTERVAL = 150
 
 const EVENT_NAME = {
-  dir: 'AGANI::update-object-tree',
-  file: 'AGANI::update-file'
+  dir: 'mt::update-object-tree',
+  file: 'mt::update-file'
 }
 
 const add = async (win, pathname, type, endOfLine, autoGuessEncoding) => {
@@ -38,7 +38,7 @@ const add = async (win, pathname, type, endOfLine, autoGuessEncoding) => {
     } catch (err) {
       // Only notify user about opened files.
       if (type === 'file') {
-        win.webContents.send('AGANI::show-notification', {
+        win.webContents.send('mt::show-notification', {
           title: 'Watcher I/O error',
           type: 'error',
           message: err.message
@@ -75,14 +75,14 @@ const change = async (win, pathname, type, endOfLine, autoGuessEncoding) => {
         pathname,
         data
       }
-      win.webContents.send('AGANI::update-file', {
+      win.webContents.send('mt::update-file', {
         type: 'change',
         change: file
       })
     } catch (err) {
       // Only notify user about opened files.
       if (type === 'file') {
-        win.webContents.send('AGANI::show-notification', {
+        win.webContents.send('mt::show-notification', {
           title: 'Watcher I/O error',
           type: 'error',
           message: err.message
@@ -106,7 +106,7 @@ const addDir = (win, pathname, type) => {
     files: []
   }
 
-  win.webContents.send('AGANI::update-object-tree', {
+  win.webContents.send('mt::update-object-tree', {
     type: 'addDir',
     change: directory
   })
@@ -116,7 +116,7 @@ const unlinkDir = (win, pathname, type) => {
   if (type === 'file') return
 
   const directory = { pathname }
-  win.webContents.send('AGANI::update-object-tree', {
+  win.webContents.send('mt::update-object-tree', {
     type: 'unlinkDir',
     change: directory
   })
@@ -228,7 +228,7 @@ class Watcher {
             enospcReached = true
             log.warn('inotify limit reached: Too many file descriptors are opened.')
 
-            win.webContents.send('AGANI::show-notification', {
+            win.webContents.send('mt::show-notification', {
               title: 'inotify limit reached',
               type: 'warning',
               message: 'Cannot watch all files and file changes because too many file descriptors are opened.'

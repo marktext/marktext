@@ -71,7 +71,7 @@ const bootstrapRenderer = () => {
       exceptionLogger(event.error)
 
       // Pass exception to main process exception handler to show a error dialog.
-      ipcRenderer.send('AGANI::handle-renderer-error', copy)
+      ipcRenderer.send('mt::handle-renderer-error', copy)
     } else {
       console.error(event)
     }

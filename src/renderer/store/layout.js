@@ -26,12 +26,12 @@ const mutations = {
 
 const actions = {
   LISTEN_FOR_LAYOUT ({ commit }) {
-    ipcRenderer.on('AGANI::listen-for-view-layout', (e, layout) => {
+    ipcRenderer.on('mt::listen-for-view-layout', (e, layout) => {
       commit('SET_LAYOUT', layout)
     })
   },
   LISTEN_FOR_REQUEST_LAYOUT ({ dispatch }) {
-    ipcRenderer.on('AGANI::request-for-view-layout', () => {
+    ipcRenderer.on('mt::request-for-view-layout', () => {
       dispatch('SET_LAYOUT_MENU_ITEM')
     })
   },
@@ -42,6 +42,9 @@ const actions = {
   },
   CHANGE_SIDE_BAR_WIDTH ({ commit }, width) {
     commit('SET_SIDE_BAR_WIDTH', width)
+  },
+  TOGGLE_FULLSCREEN () {
+    ipcRenderer.send('mt::toggle-fullscreen')
   }
 }
 

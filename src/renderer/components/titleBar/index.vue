@@ -1,5 +1,7 @@
 <template>
-  <div>
+  <div
+    @dblclick="toggleFullscreen"
+  >
     <div
       class="title-bar-editor-bg"
       :class="{ 'tabs-visible': showTabBar }"
@@ -226,6 +228,9 @@ export default {
     },
     onLeaveFullScreen  () {
       this.isFullScreen = false
+    },
+    toggleFullscreen () {
+      this.$store.dispatch('TOGGLE_FULLSCREEN')
     }
   },
   beforeDestroy () {

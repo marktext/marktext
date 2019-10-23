@@ -10,28 +10,28 @@ const mutations = {}
 
 const actions = {
   LISTEN_FOR_EDIT ({ commit }) {
-    ipcRenderer.on('AGANI::edit', (e, { type }) => {
+    ipcRenderer.on('mt::edit', (e, { type }) => {
       bus.$emit(type, type)
     })
   },
 
   LISTEN_FOR_VIEW ({ commit }) {
-    ipcRenderer.on('AGANI::view', (e, data) => {
+    ipcRenderer.on('mt::view', (e, data) => {
       commit('SET_MODE', data)
     })
   },
 
   LISTEN_FOR_ABOUT_DIALOG ({ commit }) {
-    ipcRenderer.on('AGANI::about-dialog', e => {
+    ipcRenderer.on('mt::about-dialog', e => {
       bus.$emit('aboutDialog')
     })
   },
 
   LISTEN_FOR_PARAGRAPH_INLINE_STYLE ({ commit }) {
-    ipcRenderer.on('AGANI::paragraph', (e, { type }) => {
+    ipcRenderer.on('mt::paragraph', (e, { type }) => {
       bus.$emit('paragraph', type)
     })
-    ipcRenderer.on('AGANI::format', (e, { type }) => {
+    ipcRenderer.on('mt::format', (e, { type }) => {
       bus.$emit('format', type)
     })
   }

@@ -14,7 +14,7 @@ export const format = (win, type) => {
   if (!win) {
     return
   }
-  win.webContents.send('AGANI::format', { type })
+  win.webContents.send('mt::format', { type })
 }
 
 // --- IPC events -------------------------------------------------------------

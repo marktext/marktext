@@ -16,13 +16,13 @@ const actions = {
       message: 'You should never see this message'
     }
 
-    ipcRenderer.on('AGANI::show-notification', (e, opts) => {
+    ipcRenderer.on('mt::show-notification', (e, opts) => {
       const options = Object.assign(DEFAULT_OPTS, opts)
 
       notice.notify(options)
     })
 
-    ipcRenderer.on('AGANI::pandoc-not-exists', async (e, opts) => {
+    ipcRenderer.on('mt::pandoc-not-exists', async (e, opts) => {
       const options = Object.assign(DEFAULT_OPTS, opts)
       options.showConfirm = true
       await notice.notify(options)

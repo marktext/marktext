@@ -22,7 +22,7 @@ ipcMain.on('mt::ask-for-image-auto-path', (e, { pathname, src, id }) => {
 })
 
 export const edit = (win, type) => {
-  win.webContents.send('AGANI::edit', { type })
+  win.webContents.send('mt::edit', { type })
 }
 
 export const screenshot = (win, type) => {
@@ -30,5 +30,5 @@ export const screenshot = (win, type) => {
 }
 
 export const lineEnding = (win, lineEnding) => {
-  win.webContents.send('AGANI::set-line-ending', { lineEnding, ignoreSaveStatus: false })
+  win.webContents.send('mt::set-line-ending', { lineEnding, ignoreSaveStatus: false })
 }
