@@ -335,6 +335,14 @@ class Muya {
     }
   }
 
+  /**
+   * Get all images' src from the given markdown.
+   * @param {string} markdown you want to extract images from this markdown.
+   */
+  extractImages (markdown = this.markdown) {
+    return this.contentState.extractImages(markdown)
+  }
+
   copyAsMarkdown () {
     this.clipboard.copyAsMarkdown()
   }
