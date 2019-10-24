@@ -104,6 +104,7 @@ const addFormat = (type, block, { start, end }) => {
     }
     case 'sub':
     case 'sup':
+    case 'mark':
     case 'u': {
       const MARKER = FORMAT_MARKER_MAP[type]
       const oldText = block.text
@@ -133,7 +134,7 @@ const addFormat = (type, block, { start, end }) => {
 const checkTokenIsInlineFormat = token => {
   const { type, tag } = token
   if (FORMAT_TYPES.includes(type)) return true
-  if (type === 'html_tag' && /^(?:u|sub|sup)$/i.test(tag)) return true
+  if (type === 'html_tag' && /^(?:u|sub|sup|mark)$/i.test(tag)) return true
   return false
 }
 

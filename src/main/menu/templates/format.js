@@ -45,6 +45,14 @@ export default function (keybindings) {
         actions.format(browserWindow, 'sub')
       }
     }, {
+      id: 'highlightMenuItem',
+      label: 'Highlight',
+      type: 'checkbox',
+      accelerator: keybindings.getAccelerator('highlight'),
+      click (menuItem, browserWindow) {
+        actions.format(browserWindow, 'mark')
+      }
+    }, {
       type: 'separator'
     }, {
       id: 'inlineCodeMenuItem',

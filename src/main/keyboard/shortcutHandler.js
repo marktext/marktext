@@ -83,6 +83,7 @@ class Keybindings {
       ['formatStrong', 'CmdOrCtrl+B'],
       ['formatEmphasis', 'CmdOrCtrl+I'],
       ['formatUnderline', 'CmdOrCtrl+U'],
+      ['highlight', 'Shift+CmdOrCtrl+H'],
       ['formatInlineCode', 'CmdOrCtrl+`'],
       ['formatInlineMath', 'Shift+CmdOrCtrl+M'],
       ['formatStrike', 'CmdOrCtrl+D'],

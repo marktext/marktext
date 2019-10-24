@@ -206,6 +206,10 @@ export const FORMAT_MARKER_MAP = {
   sup: {
     open: '<sup>',
     close: '</sup>'
+  },
+  mark: {
+    open: '<mark>',
+    close: '</mark>'
   }
 }
 
