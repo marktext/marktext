@@ -102,7 +102,12 @@ export default function renderLeafBlock (parent, block, activeBlocks, matches, u
       functionType !== 'languageInput'
     ) {
       const hasBeginRules = type === 'span'
-      tokens = tokenizer(text, highlights, hasBeginRules, this.labels)
+      tokens = tokenizer(text, {
+        highlights,
+        hasBeginRules,
+        labels: this.labels,
+        options: this.muya.options
+      })
       const hasReferenceTokens = hasReferenceToken(tokens)
       if (highlights.length === 0 && useCache && DEVICE_MEMORY >= 4 && !hasReferenceTokens) {
         this.tokenCache.set(text, tokens)

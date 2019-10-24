@@ -169,7 +169,7 @@ export default {
     & h4 {
       text-transform: uppercase;
       margin: 0;
-      font-weight: 100;
+      font-weight: 400;
     }
     & .image-ctrl {
       font-size: 14px;

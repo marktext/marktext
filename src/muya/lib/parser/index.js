@@ -1,4 +1,4 @@
-import { beginRules, inlineRules } from './rules'
+import { beginRules, inlineRules, inlineExtensionRules } from './rules'
 import { isLengthEven, union } from '../utils'
 import { findClosingBracket } from './marked/utils'
 import { getAttributes, parseSrcAndTitle, validateEmphasize, lowerPriority } from './utils'
@@ -202,6 +202,27 @@ const tokenizerFac = (src, beginRules, inlineRules, pos = 0, top, labels) => {
       }
     }
     if (inChunk) continue
+    // super_sub_script
+    if (inlineRules.super_sub_script) {
+      const superSubTo = inlineRules.super_sub_script.exec(src)
+      if (superSubTo) {
+        pushPending()
+        tokens.push({
+          type: 'super_sub_script',
+          raw: superSubTo[0],
+          marker: superSubTo[1],
+          range: {
+            start: pos,
+            end: pos + superSubTo[0].length
+          },
+          parent: tokens,
+          content: superSubTo[2]
+        })
+        src = src.substring(superSubTo[0].length)
+        pos = pos + superSubTo[0].length
+        continue
+      }
+    }
     // image
     const imageTo = inlineRules.image.exec(src)
     correctUrl(imageTo)
@@ -503,7 +524,19 @@ const tokenizerFac = (src, beginRules, inlineRules, pos = 0, top, labels) => {
   return tokens
 }
 
-export const tokenizer = (src, highlights = [], hasBeginRules = true, labels = new Map()) => {
+export const tokenizer = (src, {
+  highlights = [],
+  hasBeginRules = true,
+  labels = new Map(),
+  options = {}
+} = {}) => {
+  const { superSubScript } = options
+
+  if (superSubScript) {
+    inlineRules.super_sub_script = inlineExtensionRules.super_sub_script
+  } else {
+    delete inlineRules.super_sub_script
+  }
   const tokens = tokenizerFac(src, hasBeginRules ? beginRules : null, inlineRules, 0, true, labels)
 
   const postTokenizer = tokens => {

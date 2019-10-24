@@ -184,7 +184,11 @@ const tabCtrl = ContentState => {
 
   ContentState.prototype.checkCursorAtEndFormat = function (text, offset) {
     const { labels } = this.stateRender
-    const tokens = tokenizer(text, [], false, labels)
+    const tokens = tokenizer(text, {
+      hasBeginRules: false,
+      labels,
+      options: this.muya.options
+    })
     let result = null
     const walkTokens = tkns => {
       for (const token of tkns) {

@@ -137,6 +137,7 @@ export default {
       tabSize: state => state.preferences.tabSize,
       listIndentation: state => state.preferences.listIndentation,
       frontmatterType: state => state.preferences.frontmatterType,
+      superSubScript: state => state.preferences.superSubScript,
       lineHeight: state => state.preferences.lineHeight,
       fontSize: state => state.preferences.fontSize,
       codeFontSize: state => state.preferences.codeFontSize,
@@ -243,6 +244,12 @@ export default {
       const { editor } = this
       if (value !== oldValue && editor) {
         editor.setOptions({ frontmatterType: value })
+      }
+    },
+    superSubScript: function (value, oldValue) {
+      const { editor } = this
+      if (value !== oldValue && editor) {
+        editor.setOptions({ superSubScript: value }, true)
       }
     },
     hideQuickInsertHint: function (value, oldValue) {
@@ -438,6 +445,7 @@ export default {
         tabSize,
         listIndentation,
         frontmatterType,
+        superSubScript,
         hideQuickInsertHint,
         editorLineWidth,
         theme,
@@ -477,6 +485,7 @@ export default {
         tabSize,
         listIndentation,
         frontmatterType,
+        superSubScript,
         hideQuickInsertHint,
         hideLinkPopup,
         spellcheckEnabled: spellcheckerEnabled,

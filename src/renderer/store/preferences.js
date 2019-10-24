@@ -40,6 +40,7 @@ const state = {
   tabSize: 4,
   listIndentation: 1,
   frontmatterType: '-',
+  superSubScript: false,
 
   theme: 'light',
 
