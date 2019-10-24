@@ -35,7 +35,7 @@ const icons = [
     icon: mathIcon
   }, {
     type: 'link',
-    tooltip: 'Line',
+    tooltip: 'Link',
     icon: linkIcon
   }, {
     type: 'image',
