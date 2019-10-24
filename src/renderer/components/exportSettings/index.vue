@@ -467,4 +467,8 @@ export default {
     overflow-x: hidden;
     overflow-y: auto;
   }
+
+  .print-settings-dialog .el-tabs__content::-webkit-scrollbar:vertical {
+    width: 5px;
+  }
 </style>
