@@ -264,7 +264,7 @@ class ExportHtml {
     const { header, footer } = options
     const appendHeaderFooter = !!header || !!footer
     if (!appendHeaderFooter) {
-      return MARKDOWN_ARTICLE(html)
+      return createMarkdownArticle(html)
     }
 
     if (!options.extraCss) {
@@ -275,30 +275,32 @@ class ExportHtml {
 
     let output = HF_TABLE_START
     if (header) {
-      output += HF_TABLE_HEADER(options)
+      output += createTableHeader(options)
     }
 
     if (footer) {
       output += HF_TABLE_FOOTER()
-      output = FIXED_FOOTER(options) + output
+      output = createRealFooter(options) + output
     }
 
-    output = output + HF_TABLE_BODY(html) + HF_TABLE_END
+    output = output + createTableBody(html) + HF_TABLE_END
     return sanitize(output, EXPORT_DOMPURIFY_CONFIG)
   }
 }
 
+// Variables and function to generate the header and footer.
 const HF_TABLE_START = '<table class="page-container">'
-const HF_TABLE_BODY = html => {
+const createTableBody = html => {
   return `<tbody><tr><td>
   <div class="main-container">
-    ${MARKDOWN_ARTICLE(html)}
+    ${createMarkdownArticle(html)}
   </div>
 </td></tr></tbody>`
 }
 const HF_TABLE_END = '</table>'
 
-const HF_TABLE_HEADER = options => {
+/// The header at is shown at the top.
+const createTableHeader = options => {
   const { header, headerFooterStyled } = options
   const { type, left, center, right } = header
   let headerClass = type === 1 ? 'single' : ''
@@ -312,17 +314,15 @@ const HF_TABLE_HEADER = options => {
 </th></tr></thead>`
 }
 
-// Fake footer to reserve space.
-const HF_TABLE_FOOTER = () => {
-  return `<tfoot class="page-footer-fake"><tr><td>
+/// Fake footer to reserve space.
+const HF_TABLE_FOOTER = `<tfoot class="page-footer-fake"><tr><td>
   <div class="hf-container">
     &nbsp;
   </div>
 </td></tr></tfoot>`
-}
 
-// The real footer at is shown at the bottom.
-const FIXED_FOOTER = options => {
+/// The real footer at is shown at the bottom.
+const createRealFooter = options => {
   const { footer, headerFooterStyled } = options
   const { type, left, center, right } = footer
   let footerClass = type === 1 ? 'single' : ''
@@ -336,10 +336,12 @@ const FIXED_FOOTER = options => {
 </div>`
 }
 
-const MARKDOWN_ARTICLE = html => {
+/// Generate the mardown article HTML.
+const createMarkdownArticle = html => {
   return `<article class="markdown-body">${html}</article>`
 }
 
+/// Return the class whether a header/footer should be styled.
 const getHeaderFooterStyledClass = value => {
   if (value === undefined) {
     // Prefer theme settings.
