@@ -110,7 +110,7 @@
 
 <h2 align="center">Supporting Mark Text</h2>
 
-Mark Text is an MIT licensed open source project, you will always be able to download the latest version for free from the GitHub release page. Mark Text is still in development, and its development is inseparable from all sponsors. I hope you join them:
+Mark Text is an MIT licensed open source project, and you will always be able to download the latest version for free from the GitHub release page. Mark Text is still in development, and its development is inseparable from all sponsors. I hope you join them:
 
 - [Become a backer or sponsor on Patreon](https://www.patreon.com/ranluo) or [One time donation](https://github.com/Jocs/sponsor.me)
 - [Become a backer or sponsor on Open Collective](https://opencollective.com/marktext)
@@ -168,7 +168,7 @@ Sponsored by Patreon, it will be directly sponsored to Luo Ran (@jocs), who crea
 | Cadmium Light                                     | Dark                                            |
 |:-------------------------------------------------:|:-----------------------------------------------:|
 | ![](docs/themeImages/cadmium-light.png?raw=true)  | ![](docs/themeImages/dark.png?raw=true)         |
-| Graphite Light                                    | Materal Dark                                    |
+| Graphite Light                                    | Material Dark                                   |
 | ![](docs/themeImages/graphite-light.png?raw=true) | ![](docs/themeImages/materal-dark.png?raw=true) |
 | Ulysses Light                                     | One Dark                                        |
 | ![](docs/themeImages/ulysses-light.png?raw=true)  | ![](docs/themeImages/one-dark.png?raw=true)     |
@@ -183,7 +183,7 @@ Sponsored by Patreon, it will be directly sponsored to Luo Ran (@jocs), who crea
 
 1. I love writing. I have used a lot of markdown editors, yet there is still not an editor that can fully meet my needs. I don't like to be disturbed when I write by some unbearable bug. **Mark Text** uses virtual DOM to render pages which has the added benefits of being highly efficient and being open source. That way anyone who loves markdown and writing can use Mark Text.
 2. As mentioned above, **Mark Text** is completely free and open source and will be open source forever. We hope that all markdown lovers will contribute their own code and help develop **Mark Text** into a popular markdown editor.
-3. There are many markdown editors and all have their own merits, some have features which others don't. It's difficult to satisfy each markdown users needs but we hope **Mark Text** will be able to satisfy each markdown user as much as possible. Although the latest **Mark Text** is still not perfect, we will try to make it as best as we possibly can.
+3. There are many markdown editors and all have their own merits, some have features which others don't. It's difficult to satisfy each markdown users' needs but we hope **Mark Text** will be able to satisfy each markdown user as much as possible. Although the latest **Mark Text** is still not perfect, we will try to make it as best as we possibly can.
 
 ## Download and Installation
 
