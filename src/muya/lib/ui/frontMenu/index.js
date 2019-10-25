@@ -9,10 +9,10 @@ const ITEM_HEIGHT = 28
 const PADDING = 10
 
 const defaultOptions = {
-  placement: 'left',
+  placement: 'bottom',
   modifiers: {
     offset: {
-      offset: '20, 20'
+      offset: '0, 10'
     }
   },
   showArrow: false
