@@ -63,7 +63,10 @@ class FormatPicker extends BaseFloat {
         }, ''))
       }
       const iconWrapper = h(iconWrapperSelector, icon)
-      const tooltip = h('div.tooltip', i.tooltip)
+      const tooltip = h('div.tooltip', [
+        h('div.text', i.tooltip),
+        h('div.shortcut', i.shortcut)
+      ])
       let itemSelector = `li.item.${i.type}`
       if (formats.some(f => f.type === i.type || f.type === 'html_tag' && f.tag === i.type)) {
         itemSelector += '.active'

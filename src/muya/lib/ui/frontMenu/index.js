@@ -5,7 +5,7 @@ import { menu, getSubMenu, getLabel } from './config'
 import './index.css'
 
 const MAX_SUBMENU_HEIGHT = 400
-const ITEM_HEIGHT = 36
+const ITEM_HEIGHT = 28
 const PADDING = 10
 
 const defaultOptions = {
