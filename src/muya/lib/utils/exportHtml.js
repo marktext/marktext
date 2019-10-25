@@ -5,6 +5,7 @@ import loadRenderer from '../renderers'
 import githubMarkdownCss from 'github-markdown-css/github-markdown.css'
 import highlightCss from 'prismjs/themes/prism.css'
 import katexCss from 'katex/dist/katex.css'
+import footerHeaderCss from '../assets/styles/headerFooterStyle.css'
 import { EXPORT_DOMPURIFY_CONFIG } from '../config'
 import { sanitize, unescapeHtml } from '../utils'
 import { validEmoji } from '../ui/emojis'
@@ -131,16 +132,20 @@ class ExportHtml {
       },
       mathRenderer: this.mathRenderer
     })
+
     html = sanitize(html, EXPORT_DOMPURIFY_CONFIG)
+
     const exportContainer = this.exportContainer = document.createElement('div')
     exportContainer.classList.add('ag-render-container')
     exportContainer.innerHTML = html
     document.body.appendChild(exportContainer)
+
     // render only render the light theme of mermaid and diragram...
     await this.renderMermaid()
     await this.renderDiagram()
     let result = exportContainer.innerHTML
     exportContainer.remove()
+
     // hack to add arrow marker to output html
     const pathes = document.querySelectorAll('path[id^=raphael-marker-]')
     const def = '<defs style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">'
@@ -151,6 +156,7 @@ class ExportHtml {
       }
       return `${def}${str}`
     })
+
     this.exportContainer = null
     return result
   }
@@ -158,20 +164,25 @@ class ExportHtml {
   /**
    * Get HTML with style
    *
-   * @param {*} title Page title
-   * @param {*} printOptimization Optimize HTML and CSS for printing
+   * @param {*} options Document options
    */
-  async generate (title = '', printOptimization = false, extraCss = '') {
+  async generate (options) {
+    const { printOptimization } = options
+
     // WORKAROUND: Hide Prism.js style when exporting or printing. Otherwise the background color is white in the dark theme.
     const highlightCssStyle = printOptimization ? `@media print { ${highlightCss} }` : highlightCss
-    const html = await this.renderHtml()
+    const html = this._prepareHtml(await this.renderHtml(), options)
     const katexCssStyle = this.mathRendererCalled ? katexCss : ''
+    this.mathRendererCalled = false
+
+    // `extraCss` may changed in the mean time.
+    const { title, extraCss } = options
     return `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>${title}</title>
+  <title>${sanitize(title, EXPORT_DOMPURIFY_CONFIG)}</title>
   <style>
   ${githubMarkdownCss}
   </style>
@@ -189,6 +200,28 @@ class ExportHtml {
       margin: 0 auto;
       padding: 45px;
     }
+
+    @media not print {
+      .markdown-body {
+        padding: 45px;
+      }
+
+      @media (max-width: 767px) {
+        .markdown-body {
+          padding: 15px;
+        }
+      }
+    }
+
+    .hf-container {
+      color: #24292e;
+      line-height: 1.3;
+    }
+
+    .markdown-body .highlight pre,
+    .markdown-body pre {
+      white-space: pre-wrap;
+    }
     .markdown-body table {
       display: table;
     }
@@ -202,12 +235,6 @@ class ExportHtml {
       margin-top: 0;
       display: inline-block;
     }
-    @media (max-width: 767px) {
-      .markdown-body {
-        padding: 15px;
-      }
-    }
-
     .markdown-body ol ol,
     .markdown-body ul ol {
       list-style-type: decimal;
@@ -222,12 +249,105 @@ class ExportHtml {
   <style>${extraCss}</style>
 </head>
 <body>
-  <article class="markdown-body">
   ${html}
-  </article>
 </body>
 </html>`
   }
+
+  /**
+   * @private
+   *
+   * @param {string} html The converted HTML text.
+   * @param {*} options The export options.
+   */
+  _prepareHtml (html, options) {
+    const { header, footer } = options
+    const appendHeaderFooter = !!header || !!footer
+    if (!appendHeaderFooter) {
+      return createMarkdownArticle(html)
+    }
+
+    if (!options.extraCss) {
+      options.extraCss = footerHeaderCss
+    } else {
+      options.extraCss = footerHeaderCss + options.extraCss
+    }
+
+    let output = HF_TABLE_START
+    if (header) {
+      output += createTableHeader(options)
+    }
+
+    if (footer) {
+      output += HF_TABLE_FOOTER()
+      output = createRealFooter(options) + output
+    }
+
+    output = output + createTableBody(html) + HF_TABLE_END
+    return sanitize(output, EXPORT_DOMPURIFY_CONFIG)
+  }
+}
+
+// Variables and function to generate the header and footer.
+const HF_TABLE_START = '<table class="page-container">'
+const createTableBody = html => {
+  return `<tbody><tr><td>
+  <div class="main-container">
+    ${createMarkdownArticle(html)}
+  </div>
+</td></tr></tbody>`
+}
+const HF_TABLE_END = '</table>'
+
+/// The header at is shown at the top.
+const createTableHeader = options => {
+  const { header, headerFooterStyled } = options
+  const { type, left, center, right } = header
+  let headerClass = type === 1 ? 'single' : ''
+  headerClass += getHeaderFooterStyledClass(headerFooterStyled)
+  return `<thead class="page-header ${headerClass}"><tr><th>
+  <div class="hf-container">
+    <div class="header-content-left">${left}</div>
+    <div class="header-content">${center}</div>
+    <div class="header-content-right">${right}</div>
+  </div>
+</th></tr></thead>`
+}
+
+/// Fake footer to reserve space.
+const HF_TABLE_FOOTER = `<tfoot class="page-footer-fake"><tr><td>
+  <div class="hf-container">
+    &nbsp;
+  </div>
+</td></tr></tfoot>`
+
+/// The real footer at is shown at the bottom.
+const createRealFooter = options => {
+  const { footer, headerFooterStyled } = options
+  const { type, left, center, right } = footer
+  let footerClass = type === 1 ? 'single' : ''
+  footerClass += getHeaderFooterStyledClass(headerFooterStyled)
+  return `<div class="page-footer ${footerClass}">
+  <div class="hf-container">
+    <div class="footer-content-left">${left}</div>
+    <div class="footer-content">${center}</div>
+    <div class="footer-content-right">${right}</div>
+  </div>
+</div>`
+}
+
+/// Generate the mardown article HTML.
+const createMarkdownArticle = html => {
+  return `<article class="markdown-body">${html}</article>`
+}
+
+/// Return the class whether a header/footer should be styled.
+const getHeaderFooterStyledClass = value => {
+  if (value === undefined) {
+    // Prefer theme settings.
+    return ''
+  }
+  return !value ? ' simple' : ' styled'
 }
 
 export default ExportHtml

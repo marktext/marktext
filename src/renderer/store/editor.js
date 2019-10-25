@@ -947,20 +947,39 @@ const actions = {
     ipcRenderer.send('mt::update-format-menu', windowId, formats)
   },
 
-  // listen for export from main process
-  LISTEN_FOR_EXPORT_PRINT ({ commit, state }) {
-    ipcRenderer.on('AGANI::export', (e, { type }) => {
-      bus.$emit('export', type)
-    })
-    ipcRenderer.on('AGANI::print', e => {
-      bus.$emit('print')
-    })
-  },
-
-  EXPORT ({ commit, state }, { type, content, markdown }) {
+  EXPORT ({ state }, { type, content, pageOptions }) {
     if (!hasKeys(state.currentFile)) return
+
+    // Extract title from TOC buffer.
+    let title = ''
+    const { listToc } = state
+    if (listToc && listToc.length > 0) {
+      let headerRef = listToc[0]
+
+      // The main title should be at the beginning of the document.
+      const len = Math.min(listToc.length, 6)
+      for (let i = 1; i < len; ++i) {
+        if (headerRef.lvl === 1) {
+          break
+        }
+
+        const header = listToc[i]
+        if (headerRef.lvl > header.lvl) {
+          headerRef = header
+        }
+      }
+      title = headerRef.content
+    }
+
     const { filename, pathname } = state.currentFile
-    ipcRenderer.send('AGANI::response-export', { type, content, filename, pathname, markdown })
+    ipcRenderer.send('AGANI::response-export', {
+      type,
+      title,
+      content,
+      filename,
+      pathname,
+      pageOptions
+    })
   },
 
   LINTEN_FOR_EXPORT_SUCCESS ({ commit }) {

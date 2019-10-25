@@ -99,7 +99,7 @@
     <separator></separator>
     <text-box
       description="Defines the maximum editor area width. An empty string or suffixes of ch (characters), px (pixels) or % (percentage) are allowed."
-      :bool="editorLineWidth"
+      :input="editorLineWidth"
       :regexValidator="/^(?:$|[0-9]+(?:ch|px|%)$)/"
       defaultValue="Default value from current theme"
       :onChange="value => onSelectChange('editorLineWidth', value)"

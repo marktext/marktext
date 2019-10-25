@@ -43,9 +43,15 @@ export default {
       type: String,
       default: ''
     },
+    emitTime: {
+      type: Number,
+      default: 800
+    },
     regexValidator: {
       type: RegExp,
-      default: /(.*?)/
+      default () {
+        return /(.*?)/
+      }
     }
   },
   watch: {
@@ -71,11 +77,17 @@ export default {
           clearTimeout(this.inputTimer)
         }
 
+        const { emitTime } = this
+        if (emitTime === 0) {
+          this.onChange(value)
+          return
+        }
+
         // Setting delay a little bit higher to prevent continuously file writes when typing.
         this.inputTimer = setTimeout(() => {
           this.inputTimer = null
           this.onChange(value)
-        }, 800)
+        }, emitTime)
       }
     }
   }

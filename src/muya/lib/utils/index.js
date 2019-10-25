@@ -1,6 +1,7 @@
-// DOTO: Don't use Node API in editor folder, remove `path` @jocs
 import createDOMPurify from 'dompurify'
-import { isInElectron, URL_REG } from '../config'
+import { URL_REG } from '../config'
+
+const { sanitize: runSanitize } = createDOMPurify(window)
 
 const ID_PREFIX = 'ag-'
 let id = 0
@@ -263,7 +264,7 @@ export const getImageInfo = (src, baseUrl = window.DIRNAME) => {
   if (imageExtension) {
     const isAbsoluteLocal = /^(?:\/|\\\\|[a-zA-Z]:\\).+/.test(src)
     if (isUrl || (!isAbsoluteLocal && !baseUrl)) {
-      if (!isUrl && !baseUrl && isInElectron) {
+      if (!isUrl && !baseUrl) {
         console.warn('"baseUrl" is not defined!')
       }
 
@@ -271,14 +272,13 @@ export const getImageInfo = (src, baseUrl = window.DIRNAME) => {
         isUnknownType: false,
         src
       }
-    } else if (isInElectron) {
+    } else {
       // Correct relative path on desktop. If we resolve a absolute path "path.resolve" doesn't do anything.
       return {
         isUnknownType: false,
         src: 'file://' + require('path').resolve(baseUrl, src)
       }
     }
-    // else: Forbid the request due absolute or relative path in browser
   } else if (isUrl && !imageExtension) {
     // Assume it's a valid image and make a http request later
     return {
@@ -367,8 +367,7 @@ export const mixins = (constructor, ...object) => {
 }
 
 export const sanitize = (html, options) => {
-  const DOMPurify = createDOMPurify(window)
-  return DOMPurify.sanitize(escapeInBlockHtml(html), options)
+  return runSanitize(escapeInBlockHtml(html), options)
 }
 
 export const getParagraphReference = (ele, id) => {
