@@ -202,9 +202,9 @@ const tokenizerFac = (src, beginRules, inlineRules, pos = 0, top, labels) => {
       }
     }
     if (inChunk) continue
-    // super_sub_script
-    if (inlineRules.super_sub_script) {
-      const superSubTo = inlineRules.super_sub_script.exec(src)
+    // superscript and subscript
+    if (inlineRules.superscript && inlineRules.subscript) {
+      const superSubTo = inlineRules.superscript.exec(src) || inlineRules.subscript.exec(src)
       if (superSubTo) {
         pushPending()
         tokens.push({
@@ -533,9 +533,11 @@ export const tokenizer = (src, {
   const { superSubScript } = options
 
   if (superSubScript) {
-    inlineRules.super_sub_script = inlineExtensionRules.super_sub_script
+    inlineRules.superscript = inlineExtensionRules.superscript
+    inlineRules.subscript = inlineExtensionRules.subscript
   } else {
-    delete inlineRules.super_sub_script
+    delete inlineRules.superscript
+    delete inlineRules.subscript
   }
   const tokens = tokenizerFac(src, hasBeginRules ? beginRules : null, inlineRules, 0, true, labels)
 

@@ -174,7 +174,7 @@ InlineLexer.prototype.output = function (src) {
 
     // superSubScript
     if (superSubScript) {
-      cap = this.rules.script.exec(src)
+      cap = this.rules.superscript.exec(src) || this.rules.subscript.exec(src)
       if (cap) {
         src = src.substring(cap[0].length)
         lastChar = cap[0].charAt(cap[0].length - 1)

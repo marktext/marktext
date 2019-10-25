@@ -40,6 +40,7 @@ export const inlineRules = {
 // Markdown extensions (not belongs to GFM and Commonmark)
 export const inlineExtensionRules = {
   // This is not the best regexp, because it not support `2^2\\^`.
-  super_sub_script: /^(\^|~){1}((?:[^\1\s]|(?<=\\)\1|(?<=\\) )+?)(?<!\\)\1/
+  superscript: /^(\^)((?:[^\^\s]|(?<=\\)\1|(?<=\\) )+?)(?<!\\)\1(?!\1)/,
+  subscript: /^(~)((?:[^~\s]|(?<=\\)\1|(?<=\\) )+?)(?<!\\)\1(?!\1)/
 }
 /* eslint-enable no-useless-escape */

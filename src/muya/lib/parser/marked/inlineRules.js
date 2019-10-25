@@ -40,7 +40,8 @@ const inline = {
   math: /^\$([^$]{1}[\s\S]+?[^$]{1})\$(?!\$)/,
 
   // superScript and subScript
-  script: /^(\^|~){1}((?:[^\1\s]|(?<=\\)\1|(?<=\\) )+?)(?<!\\)\1/
+  superscript: /^(\^)((?:[^\^\s]|(?<=\\)\1|(?<=\\) )+?)(?<!\\)\1(?!\1)/,
+  subscript: /^(~)((?:[^~\s]|(?<=\\)\1|(?<=\\) )+?)(?<!\\)\1(?!\1)/
 }
 
 // list of punctuation marks from common mark spec

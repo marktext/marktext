@@ -268,7 +268,7 @@ export const MUYA_DEFAULT_OPTION = {
   // image path auto completed when you input in image selector.
   imagePathAutoComplete: () => [],
 
-  // Markdown extension supports
+  // Markdown extensions
   superSubScript: false
 }
 
