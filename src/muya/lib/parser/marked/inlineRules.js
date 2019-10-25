@@ -29,7 +29,7 @@ const inline = {
   // ------------------------
   // patched
 
-  // allow inline math "$" and supperScript ("?=[\\<!\[`*]" to "?=[\\<!\[`*\$]")
+  // allow inline math "$" and superscript ("?=[\\<!\[`*]" to "?=[\\<!\[`*\$]")
   text: /^(`+|[^`])(?:[\s\S]*?(?:(?=[\\<!\[`*\$^]|\b_|$)|[^ ](?= {2,}\n))|(?= {2,}\n))/, // emoji is patched in gfm
 
   // ------------------------
@@ -39,7 +39,7 @@ const inline = {
   // TODO: make math optional GH#740
   math: /^\$([^$]{1}[\s\S]+?[^$]{1})\$(?!\$)/,
 
-  // superScript and subScript
+  // superscript and subScript
   superscript: /^(\^)((?:[^\^\s]|(?<=\\)\1|(?<=\\) )+?)(?<!\\)\1(?!\1)/,
   subscript: /^(~)((?:[^~\s]|(?<=\\)\1|(?<=\\) )+?)(?<!\\)\1(?!\1)/
 }
