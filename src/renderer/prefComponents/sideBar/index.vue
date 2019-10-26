@@ -95,7 +95,7 @@ export default {
     box-sizing: border-box;
     & h3 {
       margin: 0;
-      font-weight: 100;
+      font-weight: 400;
       text-align: center;
       color: var(--sideBarColor);
     }

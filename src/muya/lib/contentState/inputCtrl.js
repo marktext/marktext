@@ -37,13 +37,20 @@ const inputCtrl = ContentState => {
   }
 
   ContentState.prototype.checkCursorInTokenType = function (text, offset, type) {
-    const tokens = tokenizer(text, [], false)
+    const tokens = tokenizer(text, {
+      hasBeginRules: false,
+      options: this.muya.options
+    })
     return tokens.filter(t => t.type === type).some(t => offset >= t.range.start && offset <= t.range.end)
   }
 
   ContentState.prototype.checkNotSameToken = function (oldText, text) {
-    const oldTokens = tokenizer(oldText)
-    const tokens = tokenizer(text)
+    const oldTokens = tokenizer(oldText, {
+      options: this.muya.options
+    })
+    const tokens = tokenizer(text, {
+      options: this.muya.options
+    })
 
     const oldCache = {}
     const cache = {}

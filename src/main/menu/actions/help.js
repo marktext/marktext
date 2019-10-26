@@ -1,7 +1,11 @@
 export const showAboutDialog = win => {
-  win.webContents.send('AGANI::about-dialog')
+  if (win && win.webContents) {
+    win.webContents.send('AGANI::about-dialog')
+  }
 }
 
 export const showTweetDialog = (win, type) => {
-  win.webContents.send('AGANI::tweet', type)
+  if (win && win.webContents) {
+    win.webContents.send('AGANI::tweet', type)
+  }
 }

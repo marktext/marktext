@@ -137,7 +137,7 @@ export default {
     & h4 {
       text-transform: uppercase;
       margin: 0;
-      font-weight: 100;
+      font-weight: 400;
     }
     & .startup-action-ctrl {
       font-size: 14px;

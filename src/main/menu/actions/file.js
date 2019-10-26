@@ -420,7 +420,9 @@ ipcMain.on('AGANI::format-link-click', (e, { data, dirname }) => {
 // --- menu -------------------------------------
 
 export const exportFile = (win, type) => {
-  win.webContents.send('mt::show-export-dialog', type)
+  if (win && win.webContents) {
+    win.webContents.send('mt::show-export-dialog', type)
+  }
 }
 
 export const importFile = async win => {
@@ -444,6 +446,9 @@ export const importFile = async win => {
 }
 
 export const print = win => {
+  if (!win) {
+    return
+  }
   // See GH#749, Electron#16085 and Electron#17523.
   dialog.showMessageBox(win, {
     type: 'info',
@@ -492,7 +497,9 @@ export const openFileOrFolder = (win, pathname) => {
 }
 
 export const newBlankTab = win => {
-  win.webContents.send('mt::new-untitled-tab')
+  if (win && win.webContents) {
+    win.webContents.send('mt::new-untitled-tab')
+  }
 }
 
 export const newEditorWindow = () => {
@@ -500,15 +507,21 @@ export const newEditorWindow = () => {
 }
 
 export const closeTab = win => {
-  win.webContents.send('AGANI::close-tab')
+  if (win && win.webContents) {
+    win.webContents.send('AGANI::close-tab')
+  }
 }
 
 export const save = win => {
-  win.webContents.send('AGANI::ask-file-save')
+  if (win && win.webContents) {
+    win.webContents.send('AGANI::ask-file-save')
+  }
 }
 
 export const saveAs = win => {
-  win.webContents.send('AGANI::ask-file-save-as')
+  if (win && win.webContents) {
+    win.webContents.send('AGANI::ask-file-save-as')
+  }
 }
 
 export const autoSave = (menuItem, browserWindow) => {
@@ -517,11 +530,15 @@ export const autoSave = (menuItem, browserWindow) => {
 }
 
 export const moveTo = win => {
-  win.webContents.send('AGANI::ask-file-move-to')
+  if (win && win.webContents) {
+    win.webContents.send('AGANI::ask-file-move-to')
+  }
 }
 
 export const rename = win => {
-  win.webContents.send('AGANI::ask-file-rename')
+  if (win && win.webContents) {
+    win.webContents.send('AGANI::ask-file-rename')
+  }
 }
 
 export const clearRecentlyUsed = () => {

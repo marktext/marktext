@@ -24,7 +24,7 @@ export const menu = [{
 }, {
   icon: newIcon,
   label: 'new',
-  text: 'Create Paragraph',
+  text: 'New Paragraph',
   shortCut: `⇧${COMMAND_KEY}N`
 }, {
   icon: deleteIcon,

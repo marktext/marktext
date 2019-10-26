@@ -15,6 +15,10 @@ TextRenderer.prototype.text = function (text) {
   return text
 }
 
+TextRenderer.prototype.inlineMath = function (math, displayMode) {
+  return math
+}
+
 TextRenderer.prototype.link =
 TextRenderer.prototype.image = function (href, title, text) {
   return '' + text

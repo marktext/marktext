@@ -30,13 +30,6 @@ const COMMAND_KEY = isOsx ? '⌘' : '⌃'
 // Caps Lock ⇪
 // Fn
 
-// Command (or Cmd) ⌘
-// Shift ⇧
-// Option (or Alt) ⌥
-// Control (or Ctrl) ⌃
-// Caps Lock ⇪
-// Fn
-
 export const quicInsertObj = {
   'basic block': [{
     title: 'Paragraph',

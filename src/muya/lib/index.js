@@ -325,14 +325,10 @@ class Muya {
   }
 
   selectAll () {
-    this.contentState.selectAll()
-
     if (!this.hasFocus()) {
-      const activeElement = document.activeElement
-      if (activeElement.nodeName === 'INPUT') {
-        activeElement.select()
-      }
+      return
     }
+    this.contentState.selectAll()
   }
 
   /**
@@ -366,7 +362,7 @@ class Muya {
   setOptions (options, needRender = false) {
     Object.assign(this.options, options)
     if (needRender) {
-      this.contentState.render()
+      this.contentState.render(false, true)
     }
 
     // Set quick insert hint visibility

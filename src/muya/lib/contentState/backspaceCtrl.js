@@ -166,7 +166,9 @@ const backspaceCtrl = ContentState => {
     }
     // fix: #897
     const { text } = startBlock
-    const tokens = tokenizer(text)
+    const tokens = tokenizer(text, {
+      options: this.muya.options
+    })
     let needRender = false
     let preToken = null
     for (const token of tokens) {
