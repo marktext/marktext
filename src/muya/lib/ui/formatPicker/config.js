@@ -15,47 +15,47 @@ const icons = [
   {
     type: 'strong',
     tooltip: 'Emphasize',
-    shortcut: `${COMMAND_KEY}B`,
+    shortcut: `${COMMAND_KEY}+B`,
     icon: strongIcon
   }, {
     type: 'em',
     tooltip: 'Italic',
-    shortcut: `${COMMAND_KEY}I`,
+    shortcut: `${COMMAND_KEY}+I`,
     icon: emphasisIcon
   }, {
     type: 'u',
     tooltip: 'Underline',
-    shortcut: `${COMMAND_KEY}U`,
+    shortcut: `${COMMAND_KEY}+U`,
     icon: underlineIcon
   }, {
     type: 'del',
     tooltip: 'Strikethrough',
-    shortcut: `${COMMAND_KEY}D`,
+    shortcut: `${COMMAND_KEY}+D`,
     icon: strikeIcon
   }, {
     type: 'inline_code',
     tooltip: 'Inline Code',
-    shortcut: `${COMMAND_KEY}\``,
+    shortcut: `${COMMAND_KEY}+\``,
     icon: codeIcon
   }, {
     type: 'inline_math',
     tooltip: 'Inline Math',
-    shortcut: `⇧${COMMAND_KEY}M`,
+    shortcut: `⇧+${COMMAND_KEY}+M`,
     icon: mathIcon
   }, {
     type: 'link',
     tooltip: 'Link',
-    shortcut: `${COMMAND_KEY}L`,
+    shortcut: `${COMMAND_KEY}+L`,
     icon: linkIcon
   }, {
     type: 'image',
     tooltip: 'Image',
-    shortcut: `⇧${COMMAND_KEY}I`,
+    shortcut: `⇧+${COMMAND_KEY}+I`,
     icon: imageIcon
   }, {
     type: 'clear',
     tooltip: 'Eliminate',
-    shortcut: `⇧${COMMAND_KEY}R`,
+    shortcut: `⇧+${COMMAND_KEY}+R`,
     icon: clearIcon
   }
 ]

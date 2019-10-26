@@ -33,51 +33,6 @@
   background: var(--floatHoverColor);
 }
 
-.ag-format-picker li.item .tooltip {
-  box-sizing: border-box;
-  height: 38px;
-  position: absolute;
-  top: -44px;
-  background: var(--floatBgColor);
-  border-radius: 2px;
-  color: var(--editorColor);
-  box-shadow: var(--floatShadow);
-  display: none;
-}
-
-.ag-format-picker li.item .tooltip .text,
-.ag-format-picker li.item .tooltip .shortcut {
-  padding: 0 10px;
-}
-
-.ag-format-picker li.item .tooltip .text {
-  white-space: nowrap;
-  font-size: 12px;
-}
-
-.ag-format-picker li.item .tooltip .shortcut {
-  font-size: 12px;
-  color: var(--editorColor50);
-  transform: scale(.9);
-  transform-origin: top left;
-}
-
-.ag-format-picker li.item .tooltip::before {
-  content: '';
-  width: 7px;
-  height: 7px;
-  display: block;
-  background: var(--floatBgColor);
-  position: absolute;
-  bottom: -1px;
-  transform: rotate(-45deg) translateX(-50%);
-  left: 50%;
-}
-
-.ag-format-picker li.item:hover .tooltip {
-  display: block;
-}
-
 .ag-format-picker li.item:last-of-type {
   margin-left: 6px;
 }
