@@ -817,8 +817,14 @@ export default {
     },
 
     handleSelectAll () {
-      if (this.editor && !this.sourceCode) {
+      if (this.editor && !this.sourceCode && this.editor.hasFocus()) {
         this.editor.selectAll()
+      } else {
+        const activeElement = document.activeElement
+        const nodeName = activeElement.nodeName
+        if (nodeName === 'INPUT' || nodeName === 'TEXTAREA') {
+          activeElement.select()
+        }
       }
     },
 
