@@ -27,7 +27,9 @@ const MENU_ID_MAP = {
 }
 
 export const paragraph = (win, type) => {
-  win.webContents.send('AGANI::paragraph', { type })
+  if (win && win.webContents) {
+    win.webContents.send('AGANI::paragraph', { type })
+  }
 }
 
 // --- IPC events -------------------------------------------------------------

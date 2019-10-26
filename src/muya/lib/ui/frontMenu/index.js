@@ -5,14 +5,14 @@ import { menu, getSubMenu, getLabel } from './config'
 import './index.css'
 
 const MAX_SUBMENU_HEIGHT = 400
-const ITEM_HEIGHT = 36
+const ITEM_HEIGHT = 28
 const PADDING = 10
 
 const defaultOptions = {
-  placement: 'left',
+  placement: 'bottom',
   modifiers: {
     offset: {
-      offset: '20, 20'
+      offset: '0, 10'
     }
   },
   showArrow: false

@@ -75,7 +75,7 @@ export default {
     & h4 {
       text-transform: uppercase;
       margin: 0;
-      font-weight: 100;
+      font-weight: 400;
       margin-bottom: 30px;
     }
   }
@@ -92,7 +92,7 @@ export default {
       background: var(--editorBgColor);
       color: var(--editorColor);
       box-sizing: border-box;
-      border: 1px solid rgba(240, 240, 240, .3);
+      box-shadow: 0 9px 28px -9px rgba(0, 0, 0, .4);
       border-radius: 5px;
       &.dark {
         color: rgba(255, 255, 255, .7);

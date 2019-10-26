@@ -4,6 +4,9 @@ const typewriterModeMenuItemId = 'typewriterModeMenuItem'
 const focusModeMenuItemId = 'focusModeMenuItem'
 
 export const typeMode = (win, type, item) => {
+  if (!win) {
+    return
+  }
   const { checked } = item
   win.webContents.send('AGANI::view', { type, checked })
 
@@ -16,7 +19,9 @@ export const typeMode = (win, type, item) => {
 }
 
 export const layout = (item, win, type) => {
-  win.webContents.send('AGANI::listen-for-view-layout', { [type]: item.checked })
+  if (win && win.webContents) {
+    win.webContents.send('AGANI::listen-for-view-layout', { [type]: item.checked })
+  }
 }
 
 export const showTabBar = win => {

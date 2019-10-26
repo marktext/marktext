@@ -5,12 +5,23 @@ import fileIcons from '../fileIcons'
 
 import './index.css'
 
+const defaultOptions = {
+  placement: 'bottom-start',
+  modifiers: {
+    offset: {
+      offset: '0, 0'
+    }
+  },
+  showArrow: false
+}
+
 class CodePicker extends BaseScrollFloat {
   static pluginName = 'codePicker'
 
-  constructor (muya) {
+  constructor (muya, options = {}) {
     const name = 'ag-list-picker'
-    super(muya, name)
+    const opts = Object.assign({}, defaultOptions, options)
+    super(muya, name, opts)
     this.renderArray = []
     this.oldVnode = null
     this.activeItem = null

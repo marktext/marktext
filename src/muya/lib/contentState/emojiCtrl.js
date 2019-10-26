@@ -5,7 +5,9 @@ const emojiCtrl = ContentState => {
     let { key, offset } = this.cursor.start
     const startBlock = this.getBlock(key)
     const { text } = startBlock
-    const tokens = tokenizer(text)
+    const tokens = tokenizer(text, {
+      options: this.muya.options
+    })
     let delta = 0
 
     const findEmojiToken = (tokens, offset) => {

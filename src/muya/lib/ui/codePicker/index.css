@@ -1,9 +1,10 @@
 .ag-list-picker {
-  width: 150px;
-  max-height: 230px;
-  padding: 10px 0;
+  width: 140px;
+  max-height: 156px;
+  padding: 8px 0;
   overflow-y: auto;
   box-sizing: border-box;
+  font-size: 14px;
 }
 
 .ag-list-picker ul,
@@ -13,7 +14,7 @@
 }
 
 .ag-list-picker .item {
-  height: 35px;
+  height: 28px;
   display: flex;
   list-style: none;
 }
@@ -32,31 +33,31 @@
 }
 
 .ag-list-picker .item .icon-wrapper {
-  width: 35px;
-  height: 35px;
+  width: 28px;
+  height: 28px;
   display: flex;
   justify-content: space-around;
   align-items: center;
 }
 
 .ag-list-picker .item .icon-wrapper span:before {
-  font-size: 18px;
+  font-size: 14px;
 }
 
-.ag-list-picker .icon-wrapper > svg{
-  width: 20px;
-  height: 20px;
-  opacity: .6;
+.ag-list-picker .icon-wrapper > svg {
+  width: 14px;
+  height: 14px;
   fill: var(--iconColor);
 }
 
 .ag-list-picker .item .icon-wrapper img {
-  width: 20px;
-  height: 20px;
+  width: 14px;
+  height: 14px;
 }
 
 .ag-list-picker .item .language {
+  color: var(--editorColor);
   font-size: 14px;
-  line-height: 35px;
-  margin-left: 10px;
+  line-height: 28px;
+  margin-left: 5px;
 }
