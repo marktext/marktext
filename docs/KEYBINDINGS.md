@@ -110,6 +110,7 @@ Here is an example:
 | `formatStrong`      | <kbd>CmdOrCtrl</kbd>+<kbd>B</kbd>                  | Set the font of the selected text to bold   |
 | `formatEmphasis`    | <kbd>CmdOrCtrl</kbd>+<kbd>I</kbd>                  | Set the font of the selected text to italic |
 | `formatUnderline`   | <kbd>CmdOrCtrl</kbd>+<kbd>U</kbd>                  | Change the selected text to underline       |
+| `highlight`         | <kbd>CmdOrCtrl</kbd>+<kbd>Shift</kbd>+<kbd>H</kbd> | Highlight the selected text by <mark> tag   |
 | `formatInlineCode`  | <kbd>CmdOrCtrl</kbd>+<kbd>`</kbd>                  | Change the selected text to inline code     |
 | `formatInlineMath`  | <kbd>CmdOrCtrl</kbd>+<kbd>Shift</kbd>+<kbd>M</kbd> | Change the selected text to inline math     |
 | `formatStrike`      | <kbd>CmdOrCtrl</kbd>+<kbd>D</kbd>                  | Strike through the selected text            |

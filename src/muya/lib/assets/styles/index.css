@@ -1,9 +1,12 @@
-html {
-  -webkit-font-smoothing: antialiased;
-}
-
-pre {
-  -webkit-font-smoothing: auto;
+@keyframes loading {
+  0% {
+    -webkit-transform: rotate(0deg);
+    transform: rotate(0deg);
+  }
+  100% {
+    -webkit-transform: rotate(360deg);
+    transform: rotate(360deg);
+  }
 }
 
 @keyframes highlight {
@@ -18,15 +21,37 @@ pre {
   }
 }
 
-@keyframes loading {
-  0% {
-    -webkit-transform: rotate(0deg);
-    transform: rotate(0deg);
-  }
-  100% {
-    -webkit-transform: rotate(360deg);
-    transform: rotate(360deg);
-  }
+html {
+  -webkit-font-smoothing: antialiased;
+}
+
+pre {
+  -webkit-font-smoothing: auto;
+}
+
+mark {
+  display: inline-block;
+  height: 1.2em;
+  line-height: 1.2;
+}
+
+mark::before, 
+mark::after {
+  clip-path: inset(100%);
+  clip: rect(1px, 1px, 1px, 1px);
+  height: 1px;
+  overflow: hidden;
+  position: absolute;
+  white-space: nowrap;
+  width: 1px;
+}
+
+mark::before {
+  content: " [highlight start] ";
+}
+
+mark::after {
+  content: " [highlight end] ";
 }
 
 #ag-editor-id summary {
