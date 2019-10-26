@@ -241,6 +241,8 @@ export const EXPORT_DOMPURIFY_CONFIG = {
 }
 
 export const MUYA_DEFAULT_OPTION = {
+  fontSize: 16,
+  lineHeight: 1.6,
   focusMode: false,
   markdown: '',
   // Whether to trim the beginning and ending empty line in code block when open markdown.

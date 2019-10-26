@@ -208,9 +208,13 @@ export default function renderLeafBlock (parent, block, activeBlocks, matches, u
       }
     }
   } else if (type === 'input') {
+    const { fontSize, lineHeight } = this.muya.options
+
     Object.assign(data.attrs, {
-      type: 'checkbox'
+      type: 'checkbox',
+      style: `top: ${(fontSize * lineHeight / 2 - 8).toFixed(2)}px`
     })
+
     selector = `${type}#${key}.${CLASS_OR_ID.AG_TASK_LIST_ITEM_CHECKBOX}`
     if (checked) {
       Object.assign(data.attrs, {

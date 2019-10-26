@@ -429,13 +429,12 @@ li.ag-task-list-item {
   position: relative;
 }
 
-li.ag-task-list-item > input[type=checkbox] {
+li.ag-task-list-item > [type=checkbox] {
   position: absolute;
   cursor: pointer;
   width: 12px;
   height: 12px;
-  top: calc(50% - .25em);
-  transform: translateY(-50%);
+  top: .3em;
   left: -23px;
   transform-origin: center;
   transition: all .2s ease;

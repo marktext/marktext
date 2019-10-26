@@ -82,8 +82,6 @@ class ContentState {
     this.historyTimer = null
     this.history = new History(this)
     this.turndownConfig = Object.assign(DEFAULT_TURNDOWN_CONFIG, { bulletListMarker })
-    this.fontSize = 16
-    this.lineHeight = 1.6
     // table drag bar
     this.dragInfo = null
     this.isDragTableBar = false
@@ -708,7 +706,7 @@ class ContentState {
   }
 
   getPositionReference () {
-    const { fontSize, lineHeight } = this
+    const { fontSize, lineHeight } = this.muya.options
     const { start } = this.cursor
     const block = this.getBlock(start.key)
     const { x, y, width } = selection.getCursorCoords()
