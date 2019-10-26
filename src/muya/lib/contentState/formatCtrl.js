@@ -149,7 +149,9 @@ const formatCtrl = ContentState => {
     let tokens = []
     if (start.key === end.key) {
       const { text } = startBlock
-      tokens = tokenizer(text)
+      tokens = tokenizer(text, {
+        options: this.muya.options
+      })
       ;(function iterator (tks) {
         for (const token of tks) {
           if (

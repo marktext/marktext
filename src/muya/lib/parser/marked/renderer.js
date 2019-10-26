@@ -39,6 +39,11 @@ Renderer.prototype.emoji = function (text, emoji) {
   }
 }
 
+Renderer.prototype.script = function (content, marker) {
+  const tagName = marker === '^' ? 'sup' : 'sub'
+  return `<${tagName}>${content}</${tagName}>`
+}
+
 Renderer.prototype.code = function (code, infostring, escaped, codeBlockStyle) {
   const lang = (infostring || '').match(/\S*/)[0]
   if (this.options.highlight) {

@@ -54,7 +54,7 @@ const copyCutCtrl = ContentState => {
       if (type === 'span' && functionType === 'codeContent') {
         const selectedText = escapeHtml(text.substring(start.offset, end.offset))
         return {
-          html: marked(selectedText),
+          html: marked(selectedText, this.muya.options),
           text: selectedText
         }
       }
@@ -257,7 +257,9 @@ const copyCutCtrl = ContentState => {
       }
       case 'copyAsHtml': {
         event.clipboardData.setData('text/html', '')
-        event.clipboardData.setData('text/plain', getSanitizeHtml(text))
+        event.clipboardData.setData('text/plain', getSanitizeHtml(text, {
+          superSubScript: this.muya.options.superSubScript
+        }))
         break
       }
 

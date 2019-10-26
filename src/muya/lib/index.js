@@ -145,9 +145,9 @@ class Muya {
     return this.contentState.history.clearHistory()
   }
 
-  exportStyledHTML (title = '', printOptimization = false, extraCss = '') {
+  exportStyledHTML (options) {
     const { markdown } = this
-    return new ExportHtml(markdown, this).generate(title, printOptimization, extraCss)
+    return new ExportHtml(markdown, this).generate(options)
   }
 
   exportHtml () {
@@ -325,14 +325,18 @@ class Muya {
   }
 
   selectAll () {
-    this.contentState.selectAll()
-
     if (!this.hasFocus()) {
-      const activeElement = document.activeElement
-      if (activeElement.nodeName === 'INPUT') {
-        activeElement.select()
-      }
+      return
     }
+    this.contentState.selectAll()
+  }
+
+  /**
+   * Get all images' src from the given markdown.
+   * @param {string} markdown you want to extract images from this markdown.
+   */
+  extractImages (markdown = this.markdown) {
+    return this.contentState.extractImages(markdown)
   }
 
   copyAsMarkdown () {
@@ -358,7 +362,7 @@ class Muya {
   setOptions (options, needRender = false) {
     Object.assign(this.options, options)
     if (needRender) {
-      this.contentState.render()
+      this.contentState.render(false, true)
     }
 
     // Set quick insert hint visibility

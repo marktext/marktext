@@ -27,6 +27,7 @@ import referenceDefinition from './referenceDefinition'
 import htmlRuby from './htmlRuby'
 import referenceLink from './referenceLink'
 import referenceImage from './referenceImage'
+import superSubScript from './superSubScript'
 
 export default {
   backlashInToken,
@@ -57,5 +58,6 @@ export default {
   referenceDefinition,
   htmlRuby,
   referenceLink,
-  referenceImage
+  referenceImage,
+  superSubScript
 }

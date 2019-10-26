@@ -38,7 +38,10 @@ const updateCtrl = ContentState => {
     const endOffset = cEnd ? cEnd.offset : focus.offset
     const NO_NEED_TOKEN_REG = /text|hard_line_break|soft_line_break/
 
-    for (const token of tokenizer(startBlock.text, undefined, undefined, labels)) {
+    for (const token of tokenizer(startBlock.text, {
+      labels,
+      options: this.muya.options
+    })) {
       if (NO_NEED_TOKEN_REG.test(token.type)) continue
       const { start, end } = token.range
       const textLen = startBlock.text.length
@@ -48,7 +51,10 @@ const updateCtrl = ContentState => {
         return true
       }
     }
-    for (const token of tokenizer(endBlock.text, undefined, undefined, labels)) {
+    for (const token of tokenizer(endBlock.text, {
+      labels,
+      options: this.muya.options
+    })) {
       if (NO_NEED_TOKEN_REG.test(token.type)) continue
       const { start, end } = token.range
       const textLen = endBlock.text.length

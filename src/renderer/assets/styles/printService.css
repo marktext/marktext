@@ -26,7 +26,8 @@ body article.print-container {
     height: auto !important;
   }
 
-  body > div {
+  body > div,
+  body > svg {
     display: none !important;
   }
 

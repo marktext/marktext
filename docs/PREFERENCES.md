@@ -49,6 +49,7 @@ Preferences can be controlled and modified in the settings window or via the `pr
 | tabSize             | Number  | 4       | The number of spaces a tab is equal to                                                                                               |
 | listIndentation     | String  | 1       | The list indentation of sub list items or paragraphs, optional value `dfm`, `tab` or number 1~4                                      |
 | frontmatterType     | String  | `-`     | The frontmatter type: `-` (YAML), `+` (TOML), `;` (JSON) or `{` (JSON)                                                               |
+| superSubScript      | Boolean | `false` | Enable pandoc's markdown extension superscript and subscript.                                                                        |
 
 #### Theme
 

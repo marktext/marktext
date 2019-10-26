@@ -5,7 +5,6 @@
       <tabs v-show="showTabBar"></tabs>
       <div class="container">
         <editor
-          :fileanme="filename"
           :markdown="markdown"
           :cursor="cursor"
           :text-direction="textDirection"
@@ -30,9 +29,6 @@ import TabNotifications from './notifications.vue'
 
 export default {
   props: {
-    filename: {
-      type: String
-    },
     markdown: {
       type: String,
       required: true
