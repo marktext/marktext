@@ -366,7 +366,7 @@ class Muya {
   setOptions (options, needRender = false) {
     Object.assign(this.options, options)
     if (needRender) {
-      this.contentState.render()
+      this.contentState.render(false, true)
     }
 
     // Set quick insert hint visibility

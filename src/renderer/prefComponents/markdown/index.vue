@@ -40,16 +40,25 @@
       :options="listIndentationOptions"
       :onChange="value => onSelectChange('listIndentation', value)"
     ></cus-select>
+    <separator></separator>
+    <h5>Markdown extension syntax</h5>
     <cus-select
       description="The frontmatter type"
       :value="frontmatterType"
       :options="frontmatterTypeOptions"
       :onChange="value => onSelectChange('frontmatterType', value)"
     ></cus-select>
+    <bool
+      description="Enable pandoc's markdown extension superscript and subscript."
+      :bool="superSubScript"
+      :onChange="value => onSelectChange('superSubScript', value)"
+      more="https://pandoc.org/MANUAL.html#superscripts-and-subscripts"
+    ></bool>
   </div>
 </template>
 
 <script>
+import Separator from '../common/separator'
 import { mapState } from 'vuex'
 import Bool from '../common/bool'
 import CusSelect from '../common/select'
@@ -64,6 +73,7 @@ import {
 
 export default {
   components: {
+    Separator,
     Bool,
     CusSelect
   },
@@ -84,7 +94,8 @@ export default {
       preferHeadingStyle: state => state.preferences.preferHeadingStyle,
       tabSize: state => state.preferences.tabSize,
       listIndentation: state => state.preferences.listIndentation,
-      frontmatterType: state => state.preferences.frontmatterType
+      frontmatterType: state => state.preferences.frontmatterType,
+      superSubScript: state => state.preferences.superSubScript
     })
   },
   methods: {
@@ -100,7 +111,10 @@ export default {
     & h4 {
       text-transform: uppercase;
       margin: 0;
-      font-weight: 100;
+      font-weight: 400;
+    }
+    & h5 {
+      font-weight: 400;
     }
   }
 </style>

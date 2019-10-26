@@ -10,8 +10,8 @@ import { EXPORT_DOMPURIFY_CONFIG } from '../config'
 import { sanitize, unescapeHtml } from '../utils'
 import { validEmoji } from '../ui/emojis'
 
-export const getSanitizeHtml = markdown => {
-  const html = marked(markdown)
+export const getSanitizeHtml = (markdown, options) => {
+  const html = marked(markdown, options)
   return sanitize(html, EXPORT_DOMPURIFY_CONFIG)
 }
 
@@ -105,6 +105,7 @@ class ExportHtml {
   async renderHtml () {
     this.mathRendererCalled = false
     let html = marked(this.markdown, {
+      superSubScript: this.muya ? this.muya.options.superSubScript : false,
       highlight (code, lang) {
         // Language may be undefined (GH#591)
         if (!lang) {

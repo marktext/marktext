@@ -232,6 +232,11 @@
       "{"
     ]
   },
+  "superSubScript": {
+    "description": "Markdown-Enable pandoc's markdown extension superscript and subscript.",
+    "type": "boolean",
+    "default": false
+  },
 
   "theme": {
     "description": "Theme--Select the theme used in Mark Text",

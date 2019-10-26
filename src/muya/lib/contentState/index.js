@@ -208,9 +208,12 @@ class ContentState {
     // do nothing.
   }
 
-  render (isRenderCursor = true) {
+  render (isRenderCursor = true, clearCache = false) {
     const { blocks, searchMatches: { matches, index } } = this
     const activeBlocks = this.getActiveBlocks()
+    if (clearCache) {
+      this.stateRender.tokenCache.clear()
+    }
     matches.forEach((m, i) => {
       m.active = i === index
     })

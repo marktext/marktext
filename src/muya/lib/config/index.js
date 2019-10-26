@@ -266,7 +266,10 @@ export const MUYA_DEFAULT_OPTION = {
   imagePathPicker: null,
   clipboardFilePath: () => {},
   // image path auto completed when you input in image selector.
-  imagePathAutoComplete: () => []
+  imagePathAutoComplete: () => [],
+
+  // Markdown extensions
+  superSubScript: false
 }
 
 // export const DIAGRAM_TEMPLATE = {

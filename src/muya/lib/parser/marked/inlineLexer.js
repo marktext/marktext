@@ -49,7 +49,7 @@ function InlineLexer (links, options) {
 InlineLexer.prototype.output = function (src) {
   // src = src
   // .replace(/\u00a0/g, ' ')
-  const { disableInline, emoji, math } = this.options
+  const { disableInline, emoji, math, superSubScript } = this.options
   if (disableInline) {
     return escape(src)
   }
@@ -169,6 +169,18 @@ InlineLexer.prototype.output = function (src) {
         lastChar = cap[0].charAt(cap[0].length - 1)
         text = cap[0]
         out += this.renderer.emoji(text, cap[2])
+      }
+    }
+
+    // superSubScript
+    if (superSubScript) {
+      cap = this.rules.superscript.exec(src) || this.rules.subscript.exec(src)
+      if (cap) {
+        src = src.substring(cap[0].length)
+        lastChar = cap[0].charAt(cap[0].length - 1)
+        const content = cap[2]
+        const marker = cap[1]
+        out += this.renderer.script(content, marker)
       }
     }
 
