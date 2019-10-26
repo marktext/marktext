@@ -9,12 +9,9 @@ const MENU_ID_FORMAT_MAP = {
 }
 
 export const format = (win, type) => {
-  // Fix #961
-  // TODO: This is not the best solution for fix #961, but we don't know how to reproduce this issue.
-  if (!win) {
-    return
+  if (win && win.webContents) {
+    win.webContents.send('AGANI::format', { type })
   }
-  win.webContents.send('AGANI::format', { type })
 }
 
 // --- IPC events -------------------------------------------------------------
