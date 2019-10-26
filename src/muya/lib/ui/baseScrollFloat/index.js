@@ -2,8 +2,8 @@ import BaseFloat from '../baseFloat'
 import { EVENT_KEYS } from '../../config'
 
 class BaseScrollFloat extends BaseFloat {
-  constructor (muya, name) {
-    super(muya, name)
+  constructor (muya, name, options = {}) {
+    super(muya, name, options)
     this.scrollElement = null
     this.reference = null
     this.activeItem = null
