@@ -74,6 +74,7 @@ Here is an example:
 | `editFindNext`        | <kbd>CmdOrCtrl</kbd>+<kbd>Alt</kbd>+<kbd>U</kbd>   | Continue the search and find the next match     |
 | `editFindPrevious`    | <kbd>CmdOrCtrl</kbd>+<kbd>Shift</kbd>+<kbd>U</kbd> | Continue the search and find the previous match |
 | `editReplace`         | <kbd>CmdOrCtrl</kbd>+<kbd>Alt</kbd>+<kbd>F</kbd>   | Replace the information with a replacement      |
+| `editFindInFolder`    | <kbd>CmdOrCtrl</kbd>+<kbd>Shift</kbd>+<kbd>F</kbd> | Find files contain the keyword in opend folder  |
 | `editAidou`           | <kbd>CmdOrCtrl</kbd>+<kbd>/</kbd>                  | Show Aidou dialog                               |
 | `editScreenshot`      | <kbd>Command</kbd>+<kbd>Alt</kbd>+<kbd>A</kbd>     | Get the screenshot (macOS only)                 |
 

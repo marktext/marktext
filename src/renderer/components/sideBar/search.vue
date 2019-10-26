@@ -81,6 +81,7 @@
 
 <script>
 import { mapState } from 'vuex'
+import bus from '../../bus'
 import log from 'electron-log'
 import SearchResultItem from './searchResultItem.vue'
 import RipgrepDirectorySearcher from '../../node/ripgrepSearcher'
@@ -115,8 +116,22 @@ export default {
   components: {
     SearchResultItem
   },
+  watch: {
+    showSideBar: function (value, oldValue) {
+      if (value && !oldValue && this.rightColumn === 'search') {
+        this.keyword = this.searchMatches.value
+      }
+    }
+  },
+  created () {
+    this.keyword = this.searchMatches.value
+    bus.$on('findInFolder', this.handleFindInFolder)
+  },
   computed: {
     ...mapState({
+      rightColumn: state => state.layout.rightColumn,
+      showSideBar: state => state.layout.showSideBar,
+      searchMatches: state => state.editor.currentFile.searchMatches,
       projectTree: state => state.project.projectTree,
       searchExclusions: state => state.preferences.searchExclusions,
       searchMaxFileSize: state => state.preferences.searchMaxFileSize,
@@ -287,7 +302,13 @@ export default {
     },
     openFolder () {
       this.$store.dispatch('ASK_FOR_OPEN_PROJECT')
+    },
+    handleFindInFolder () {
+      this.keyword = this.searchMatches.value
     }
+  },
+  destroyed () {
+    bus.$off('findInFolder', this.handleFindInFolder)
   }
 }
 </script>

@@ -54,6 +54,7 @@ class Keybindings {
       ['editFindNext', 'CmdOrCtrl+Alt+U'],
       ['editFindPrevious', 'CmdOrCtrl+Shift+U'],
       ['editReplace', 'CmdOrCtrl+Alt+F'],
+      ['editFindInFolder', 'Shift+CmdOrCtrl+F'],
       ['editAidou', 'CmdOrCtrl+/'],
       ['editScreenshot', 'CmdOrCtrl+Alt+A'],
 
