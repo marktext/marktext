@@ -274,6 +274,12 @@ span.ag-math > .ag-math-render.ag-math-error {
   background: transparent;
 }
 
+.ag-ruby:not(.ag-hide) > .ag-ruby-render,
+.ag-math:not(.ag-hide) > .ag-math-render {
+  z-index: 100;
+  box-shadow: var(--floatShadow);
+}
+
 .ag-gray.ag-ruby > .ag-ruby-render::before
 .ag-gray.ag-math > .ag-math-render::before {
   border-width: 5px;

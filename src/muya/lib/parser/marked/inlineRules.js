@@ -37,7 +37,7 @@ const inline = {
   emoji: noop,
 
   // TODO: make math optional GH#740
-  math: /^\$([^$]{1}[\s\S]+?[^$]{1})\$(?!\$)/,
+  math: /^\$([^$]*?[^\$\\])\$(?!\$)/,
 
   // superscript and subScript
   superscript: /^(\^)((?:[^\^\s]|(?<=\\)\1|(?<=\\) )+?)(?<!\\)\1(?!\1)/,
