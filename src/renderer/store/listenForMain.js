@@ -11,6 +11,12 @@ const mutations = {}
 const actions = {
   LISTEN_FOR_EDIT ({ commit }) {
     ipcRenderer.on('AGANI::edit', (e, { type }) => {
+      if (type === 'findInFolder') {
+        commit('SET_LAYOUT', {
+          rightColumn: 'search',
+          showSideBar: true
+        })
+      }
       bus.$emit(type, type)
     })
   },

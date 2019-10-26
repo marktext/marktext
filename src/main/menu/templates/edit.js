@@ -107,6 +107,14 @@ export default function (keybindings, userPreference) {
     }, {
       type: 'separator'
     }, {
+      label: 'Find in Folder',
+      accelerator: keybindings.getAccelerator('editFindInFolder'),
+      click (menuItem, browserWindow) {
+        actions.edit(browserWindow, 'findInFolder')
+      }
+    }, {
+      type: 'separator'
+    }, {
       label: 'Aidou',
       visible: aidou,
       id: 'aidou',

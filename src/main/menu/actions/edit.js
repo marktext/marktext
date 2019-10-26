@@ -1,6 +1,7 @@
 import path from 'path'
 import { ipcMain, BrowserWindow } from 'electron'
 import log from 'electron-log'
+import { getMenuItemById } from '../index'
 import { searchFilesAndDir } from '../../utils/imagePathAutoComplement'
 
 ipcMain.on('mt::ask-for-image-auto-path', (e, { pathname, src, id }) => {
@@ -22,6 +23,11 @@ ipcMain.on('mt::ask-for-image-auto-path', (e, { pathname, src, id }) => {
 })
 
 export const edit = (win, type) => {
+  if (type === 'findInFolder') {
+    const sideBarMenuItem = getMenuItemById('sideBarMenuItem')
+    sideBarMenuItem.checked = true
+  }
+
   if (win && win.webContents) {
     win.webContents.send('AGANI::edit', { type })
   }
