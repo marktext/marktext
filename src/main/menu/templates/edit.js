@@ -107,7 +107,7 @@ export default function (keybindings, userPreference) {
     }, {
       type: 'separator'
     }, {
-      label: 'Find In Folder',
+      label: 'Find in Folder',
       accelerator: keybindings.getAccelerator('editFindInFolder'),
       click (menuItem, browserWindow) {
         actions.edit(browserWindow, 'findInFolder')
