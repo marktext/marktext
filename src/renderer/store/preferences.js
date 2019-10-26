@@ -43,6 +43,7 @@ const state = {
   superSubScript: false,
 
   theme: 'light',
+  autoSwitchTheme: 1,
 
   spellcheckerEnabled: false,
   spellcheckerIsHunspell: false, // macOS only

@@ -19,6 +19,7 @@ files:
 - "!node_modules/vega-lite/build/vega-lite*.js.map"
 # Don't bundle build files
 - "!node_modules/@felixrieseberg/spellchecker/bin"
+- "!node_modules/@hfelix/spellchecker/bin"
 - "!node_modules/ced/bin"
 - "!node_modules/ced/vendor"
 - "!node_modules/cld/bin"
@@ -34,6 +35,7 @@ files:
 - "!node_modules/ced/build/vendor"
 # Don't bundle LGPL source files
 - "!node_modules/@felixrieseberg/spellchecker/vendor"
+- "!node_modules/@hfelix/spellchecker/vendor"
 extraFiles:
 - "LICENSE"
 - from: "resources/THIRD-PARTY-LICENSES.txt"

@@ -80,19 +80,9 @@ const handleResponseForExport = async (e, { type, content, pathname, title, page
 
 const handleResponseForPrint = e => {
   const win = BrowserWindow.fromWebContents(e.sender)
-
-  // See GH#749, Electron#16085 and Electron#17523.
-  dialog.showMessageBox(win, {
-    type: 'info',
-    buttons: ['OK'],
-    defaultId: 0,
-    noLink: true,
-    message: 'Printing doesn\'t work',
-    detail: 'Printing is disabled due to an Electron upstream issue. Please export the document as PDF and print the PDF file. We apologize for the inconvenience!'
+  win.webContents.print({ printBackground: true }, () => {
+    removePrintServiceFromWindow(win)
   })
-  // win.webContents.print({ printBackground: true }, () => {
-  //   removePrintServiceFromWindow(win)
-  // })
 }
 
 const handleResponseForSave = async (e, { id, filename, markdown, pathname, options, defaultPath }) => {
@@ -446,19 +436,9 @@ export const importFile = async win => {
 }
 
 export const print = win => {
-  if (!win) {
-    return
+  if (win) {
+    win.webContents.send('mt::show-export-dialog', 'print')
   }
-  // See GH#749, Electron#16085 and Electron#17523.
-  dialog.showMessageBox(win, {
-    type: 'info',
-    buttons: ['OK'],
-    defaultId: 0,
-    noLink: true,
-    message: 'Printing doesn\'t work',
-    detail: 'Printing is disabled due to an Electron upstream issue. Please export the document as PDF and print the PDF file. We apologize for the inconvenience!'
-  })
-  // win.webContents.send('mt::show-export-dialog', 'print')
 }
 
 export const openFile = async win => {

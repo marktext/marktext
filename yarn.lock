@@ -852,12 +852,17 @@
     ajv "^6.1.0"
     ajv-keywords "^3.1.0"
 
-"@felixrieseberg/spellchecker@^4.0.10":
-  version "4.0.10"
-  resolved "https://registry.yarnpkg.com/@felixrieseberg/spellchecker/-/spellchecker-4.0.10.tgz#ec4b11bcaa98a45d0f1c768a2f3dfb2b8768ed3f"
-  integrity sha512-b+BlHcBXjx+W7yGNAtoVpAv8dvmAQ8Tp2YhNjqxIgocb6Wq1nKLl4jfu9DG60UWC0hTNvvQ74ny9ojiUFNqGSA==
+"@electron/get@^1.0.1":
+  version "1.5.0"
+  resolved "https://registry.yarnpkg.com/@electron/get/-/get-1.5.0.tgz#6217d9d18fb71fbd8cd2445a31aa0edc723d19dd"
+  integrity sha512-tafxBz6n08G6SX961F/h8XFtpB/DdwRvJJoDeOH9x78jDSCMQ2G/rRWqSwLFp9oeMFBJf0Pf5Kkw6TKt5w9TWg==
   dependencies:
-    nan "^2.13.2"
+    debug "^4.1.1"
+    env-paths "^2.2.0"
+    fs-extra "^8.1.0"
+    got "^9.6.0"
+    sanitize-filename "^1.6.2"
+    sumchecker "^3.0.0"
 
 "@hfelix/electron-localshortcut@^3.1.1":
   version "3.1.1"
@@ -869,12 +874,12 @@
     electron-is-accelerator "^0.1.0"
     keyboardevents-areequal "^0.2.1"
 
-"@hfelix/electron-spellchecker@^1.0.0-rc.1":
-  version "1.0.0-rc.1"
-  resolved "https://registry.yarnpkg.com/@hfelix/electron-spellchecker/-/electron-spellchecker-1.0.0-rc.1.tgz#595762825bd77d1dc43cbc38e725e84e5baa989a"
-  integrity sha512-blQCgk2Dw0mep0eQPZzcMG5bYEmf+Zvih48doiGloclgYikxBb8kYR64hKZQycVg+SeXuLeTodL7L2KI5MXn0Q==
+"@hfelix/electron-spellchecker@^1.0.0-rc.3":
+  version "1.0.0-rc.3"
+  resolved "https://registry.yarnpkg.com/@hfelix/electron-spellchecker/-/electron-spellchecker-1.0.0-rc.3.tgz#6a76eaf16a4c15987cdda00d42bd9896a0590e70"
+  integrity sha512-qG2YxRtoOLycA7vRJENds4POxV7VC8yVmDXi7dIz3czRUZgNJNCQDR5YoRQ9xPXVLWT3oYB/RLwOS3RJRP3AnA==
   dependencies:
-    "@felixrieseberg/spellchecker" "^4.0.10"
+    "@hfelix/spellchecker" "^4.0.11"
     bcp47 "^1.1.2"
     cld "^2.5.1"
     debug "^4.1.1"
@@ -887,6 +892,13 @@
   version "1.1.1"
   resolved "https://registry.npmjs.org/@hfelix/keyboardevent-from-electron-accelerator/-/keyboardevent-from-electron-accelerator-1.1.1.tgz#7e1d4fd913759c381b7919cc7faf4c0c641d457c"
   integrity sha512-1eVkDSqoRQkF2FrPPia2EZ3310c0TvFKYvSuJbaxHpRKbI6eVHcVGKpmOSDli6Qdn3Bu0h7ozfgMZbAEBD+BLQ==
+
+"@hfelix/spellchecker@^4.0.11":
+  version "4.0.11"
+  resolved "https://registry.yarnpkg.com/@hfelix/spellchecker/-/spellchecker-4.0.11.tgz#bc86881e419c7e12c88ab996a5bbbe78f044385c"
+  integrity sha512-xBVSHB6OPnqD+KBL5cQO0o20/TIezigD0U1a7V+e+5OvAmCnqdWo23IOdZrUDA7bBhNvK2Pml9jF3U7HRo272A==
+  dependencies:
+    nan "^2.13.2"
 
 "@markedjs/html-differ@^3.0.0":
   version "3.0.0"
@@ -1017,10 +1029,10 @@
   resolved "https://registry.npmjs.org/@types/node/-/node-12.7.5.tgz#e19436e7f8e9b4601005d73673b6dc4784ffcc2f"
   integrity sha512-9fq4jZVhPNW8r+UYKnxF1e2HkDWOWKM5bC2/7c9wPV835I0aOrVbS/Hw/pWPk2uKrNXQqg9Z959Kz+IYDd5p3w==
 
-"@types/node@^10.12.18":
-  version "10.14.22"
-  resolved "https://registry.npmjs.org/@types/node/-/node-10.14.22.tgz#34bcdf6b6cb5fc0db33d24816ad9d3ece22feea4"
-  integrity sha512-9taxKC944BqoTVjE+UT3pQH0nHZlTvITwfsOZqyc+R3sfJuxaTtxWjfn1K2UlxyPcKHf0rnaXcVFrS9F9vf0bw==
+"@types/node@^12.0.12":
+  version "12.11.7"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-12.11.7.tgz#57682a9771a3f7b09c2497f28129a0462966524a"
+  integrity sha512-JNbGaHFCLwgHn/iCckiGSOZ1XYHsKFwREtzPwSGCVld1SGhOlmZw2D4ZI94HQCrBHbADzW9m4LER/8olJTRGHA==
 
 "@types/q@^1.5.1":
   version "1.5.2"
@@ -4305,7 +4317,7 @@ electron-devtools-installer@^2.2.4:
     rimraf "^2.5.2"
     semver "^5.3.0"
 
-electron-download@^4.1.0, electron-download@^4.1.1:
+electron-download@^4.1.1:
   version "4.1.1"
   resolved "https://registry.npmjs.org/electron-download/-/electron-download-4.1.1.tgz#02e69556705cc456e520f9e035556ed5a015ebe8"
   integrity sha512-FjEWG9Jb/ppK/2zToP+U5dds114fM1ZOJqMAR4aXXL5CvyPE9fiqBK/9YcwC9poIFQTEJk/EM/zyRwziziRZrg==
@@ -4393,13 +4405,13 @@ electron-window-state@^5.0.3:
     jsonfile "^4.0.0"
     mkdirp "^0.5.1"
 
-electron@^6.1.0:
-  version "6.1.0"
-  resolved "https://registry.npmjs.org/electron/-/electron-6.1.0.tgz#f816347cc0b21cb231b829a4ba5133fbfbbbe100"
-  integrity sha512-CGdM6671gA0WUmsQCVO3stqpvm6/x+S+MkKlqgsk2N3GXnIa3KkfR8k4YNp8gnCgLSZQ0yucFQB/DyEYSjrzrA==
+electron@7.0.0:
+  version "7.0.0"
+  resolved "https://registry.yarnpkg.com/electron/-/electron-7.0.0.tgz#47a5b15ca213f32c20d85f82a1be615a74cdf55f"
+  integrity sha512-vrF1loRW1p0vQCbduqO0EZpo8ePJOuxUT6tSoUSU3lsbGK3VnlJop+0PpCIPzbe2K4G4Gk7WexH08V9se7mJcA==
   dependencies:
-    "@types/node" "^10.12.18"
-    electron-download "^4.1.0"
+    "@electron/get" "^1.0.1"
+    "@types/node" "^12.0.12"
     extract-zip "^1.0.3"
 
 element-resize-detector@^1.2.0:
@@ -11107,6 +11119,13 @@ sumchecker@^2.0.2:
   dependencies:
     debug "^2.2.0"
 
+sumchecker@^3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/sumchecker/-/sumchecker-3.0.0.tgz#da5457b4605184575c76540e5e99cc777cb8ce4c"
+  integrity sha512-yreseuC/z4iaodVoq07XULEOO9p4jnQazO7mbrnDSvWAU/y2cbyIKs+gWJptfcGu9R+1l27K8Rkj0bfvqnBpgQ==
+  dependencies:
+    debug "^4.1.0"
+
 supports-color@6.0.0:
   version "6.0.0"
   resolved "https://registry.npmjs.org/supports-color/-/supports-color-6.0.0.tgz#76cfe742cf1f41bb9b1c29ad03068c05b4c0e40a"
@@ -12418,11 +12437,6 @@ vscode-ripgrep@^1.5.7:
   version "1.5.7"
   resolved "https://registry.npmjs.org/vscode-ripgrep/-/vscode-ripgrep-1.5.7.tgz#acb6b548af488a4bca5d0f1bb5faf761343289ce"
   integrity sha512-/Vsz/+k8kTvui0q3O74pif9FK0nKopgFTiGNVvxicZANxtSA8J8gUE9GQ/4dpi7D/2yI/YVORszwVskFbz46hQ==
-
-vscode-windows-registry@^1.0.2:
-  version "1.0.2"
-  resolved "https://registry.yarnpkg.com/vscode-windows-registry/-/vscode-windows-registry-1.0.2.tgz#b863e704a6a69c50b3098a55fbddbe595b0c124a"
-  integrity sha512-/CLLvuOSM2Vme2z6aNyB+4Omd7hDxpf4Thrt8ImxnXeQtxzel2bClJpFQvQqK/s4oaXlkBKS7LqVLeZM+uSVIA==
 
 vue-electron@^1.0.6:
   version "1.0.6"
