@@ -206,8 +206,13 @@ class Muya {
   }
 
   setFont ({ fontSize, lineHeight }) {
-    if (fontSize) this.contentState.fontSize = parseInt(fontSize, 10)
-    if (lineHeight) this.contentState.lineHeight = lineHeight
+    if (fontSize) {
+      this.options.fontSize = parseInt(fontSize, 10)
+    }
+    if (lineHeight) {
+      this.options.lineHeight = lineHeight
+    }
+    this.contentState.render(false)
   }
 
   setTabSize (tabSize) {
