@@ -96,6 +96,7 @@ class ExportHtml {
 
   mathRenderer = (math, displayMode) => {
     this.mathRendererCalled = true
+    console.log(math)
     return katex.renderToString(math, {
       displayMode
     })
