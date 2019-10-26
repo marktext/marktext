@@ -32,7 +32,7 @@ export const screenshot = (win, type) => {
 }
 
 export const lineEnding = (win, lineEnding) => {
-  if (win.webContents) {
+  if (win && win.webContents) {
     win.webContents.send('AGANI::set-line-ending', { lineEnding, ignoreSaveStatus: false })
   }
 }
