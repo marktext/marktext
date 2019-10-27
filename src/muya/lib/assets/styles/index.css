@@ -186,7 +186,11 @@ figure[data-role="FOOTNOTE"] {
   padding: 1em 1em .05em 1em;
   font-size: .8em;
   opacity: .8;
-  border-radius: 3px;
+}
+
+figure[data-role="FOOTNOTE"] .ag-paragraph-content:first-of-type:empty::after {
+  content: 'Input the footnote definition...';
+  color: var(--editorColor30);
 }
 
 figure[data-role="FOOTNOTE"].ag-active::before {
@@ -1155,11 +1159,26 @@ span.ag-reference-link {
 
 .ag-inline-footnote-identifier {
   background: var(--codeBlockBgColor);
-  padding: 0em 0.3em;
-  border-radius: 1px;
+  padding: 0 0.4em;
+  border-radius: 3px;
   font-size: .7em;
+  color: var(--editorColor80);
 }
 
 .ag-inline-footnote-identifier a {
   color: var(--editorColor);
+}
+
+i.ag-footnote-backlink {
+  width: 20px;
+  height: 20px;
+  text-align: center;
+  line-height: 20px;
+  display: block;
+  position: absolute;
+  right: 1em;
+  bottom: .15em;
+  font-family: sans-serif;
+  cursor: pointer;
+  z-index: 100;
 }

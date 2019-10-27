@@ -1,0 +1,53 @@
+.ag-footnote-tool-container {
+  width: 300px;
+  border-radius: 5px;
+}
+
+.ag-footnote-tool-container .ag-footnote-tool > div {
+  display: flex;
+  height: 35px;
+  align-items: center;
+  color: var(--editorColor);
+  font-size: 12px;
+  padding: 0 10px;
+}
+
+.ag-footnote-tool .text {
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  flex: 1;
+}
+
+.ag-footnote-tool .btn {
+  width: 40px;
+  display: inline-block;
+  cursor: pointer;
+}
+
+.ag-footnote-tool .icon-wrapper {
+  width: 14px;
+  height: 14px;
+  margin-right: 5px;
+  position: relative;
+}
+
+.ag-footnote-tool .icon-wrapper i.icon {
+  display: inline-block;
+  position: absolute;
+  top: 0;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  color: var(--iconColor);
+  transition: all .25s ease-in-out;
+}
+
+.ag-footnote-tool .icon-wrapper i.icon > i[class^=icon-] {
+  display: inline-block;
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(14px 0 currentColor); 
+  position: relative;
+  left: -14px;
+}

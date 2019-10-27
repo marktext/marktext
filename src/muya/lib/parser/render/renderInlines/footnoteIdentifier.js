@@ -10,7 +10,7 @@ export default function footnoteIdentifier (h, cursor, block, token, outerClass)
   const content = this.highlight(h, block, start + marker.length, end - 1, token)
 
   return [
-    h(`sup.${CLASS_OR_ID.AG_INLINE_FOOTNOTE_IDENTIFIER}.${CLASS_OR_ID.AG_INLINE_RULE}`, [
+    h(`sup#noteref-${token.content}.${CLASS_OR_ID.AG_INLINE_FOOTNOTE_IDENTIFIER}.${CLASS_OR_ID.AG_INLINE_RULE}`, [
       h(`span.${className}.${CLASS_OR_ID.AG_REMOVE}`, startMarker),
       h('a', {
         attrs: {

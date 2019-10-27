@@ -36,7 +36,27 @@ const footnoteCtrl = ContentState => {
       this.checkInlineUpdate(pBlock.children[0])
     }
 
-    return this.partialRender()
+    this.partialRender()
+    return sectionWrapper
+  }
+
+  ContentState.prototype.createFootnote = function (identifier) {
+    const { blocks } = this
+    const lastBlock = blocks[blocks.length - 1]
+    const newBlock = this.createBlockP(`[^${identifier}]: `)
+    this.insertAfter(newBlock, lastBlock)
+    const key = newBlock.children[0].key
+    const offset = newBlock.children[0].text.length
+    this.cursor = {
+      start: { key, offset },
+      end: { key, offset }
+    }
+    const sectionWrapper = this.updateFootnote(newBlock, newBlock.children[0])
+    const id = sectionWrapper.key
+    const footnoteEle = document.querySelector(`#${id}`)
+    if (footnoteEle) {
+      footnoteEle.scrollIntoView({ behavior: 'smooth' })
+    }
   }
 }
 

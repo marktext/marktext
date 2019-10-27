@@ -1,5 +1,6 @@
 import { CLASS_OR_ID } from '../../../config'
 import { renderTableTools } from './renderToolBar'
+import { footnoteJumpIcon } from './renderFootnoteJump'
 import { renderEditIcon } from './renderContainerEditIcon'
 import { renderLeftBar, renderBottomBar } from './renderTableDargBar'
 import { h } from '../snabbdom'
@@ -126,8 +127,10 @@ export default function renderContainerBlock (parent, block, activeBlocks, match
       Object.assign(data.dataset, { role: functionType.toUpperCase() })
       if (functionType === 'table') {
         children.unshift(renderTableTools(activeBlocks))
-      } else {
+      } else if (functionType !== 'footnote') {
         children.unshift(renderEditIcon())
+      } else {
+        children.push(footnoteJumpIcon())
       }
     }
 
