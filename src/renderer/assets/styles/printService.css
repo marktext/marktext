@@ -1,6 +1,8 @@
+body .ag-render-container,
 body article.print-container {
-  display: none;
+  display: none !important;
 }
+
 @media print {
   /* Set all settings like margin with @page or Electron settings. */
   @page {
