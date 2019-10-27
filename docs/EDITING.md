@@ -62,13 +62,19 @@ You can transform a line into another type by clicking on the highlighted icon i
 
 #### Table tools
 
-It's sometimes hard to write and manage tables in markdown. In Mark Text you can press <kbd>CmdOrCtrl</kbd>+<kbd>Shift</kbd>+<kbd>T</kbd> to get a table dialog and create a table with variable row and column count. Both row and column count can be changed via the table tools later if necessary. You can use all inline styles in a table cell and align the text via table tools at the top of the table.
+It's sometimes hard to write and manage tables in markdown. In Mark Text you can press <kbd>CmdOrCtrl</kbd>+<kbd>Shift</kbd>+<kbd>T</kbd> to get a table dialog and create a table with variable row and column count. Both row and column count can be changed via the table tools (first icon above the table) later if necessary. You can use all inline styles in a table cell and align the text via table tools at the top of the table.
 
 **Insert and delete rows and columns:**
 
-You can insert or delete a new row or column by right clicking on an existing cell and click on `Insert Row/Column` or `Remove Row/Column`.
+You can insert or delete a new row or column by clicking on an existing cell and click on the menu on the right side for rows or bottom for columns.
 
-![](assets/marktext-table-tools.png)
+![](assets/marktext-table_drag_drop.png)
+
+**Move table cells:**
+
+You can simply move a row or column by clicking on the cell menu (like above) and dragging it by holding your mouse left-button like this:
+
+![](assets/marktext-table-gif.gif)
 
 #### Image tools
 

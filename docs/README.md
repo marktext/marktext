@@ -8,6 +8,7 @@ Welcome to the end-user documentation of Mark Text.
 
 - [Basics](BASICS.md)
 - [Editing in depth](EDITING.md)
+- [Spelling](SPELLING.md)
 - [Markdown syntax](MARKDOWN_SYNTAX.md)
 
 **Further documents:**
@@ -16,10 +17,13 @@ Welcome to the end-user documentation of Mark Text.
 - [Application data directory](APPLICATION_DATA_DIRECTORY.md)
 - [Command line interface](CLI.md)
 - [Environment variables](ENVIRONMENT.md)
-- [Image uploader configration](IMAGE_UPLOADER_CONFIGRATION.md)
+- [Export a document](EXPORT.md)
+- [Image uploader configuration](IMAGE_UPLOADER_CONFIGRATION.md)
 - [Installation instructions](../README.md#download-and-installation)
 - [Key bindings](KEYBINDINGS.md)
 - [Portable mode](PORTABLE.md)
 - [Preferences](PREFERENCES.md)
+- [Themes](THEMES.md)
+- [Themes for exporting](EXPORT_THEMES.md)
 
 Interested in developer documentation? Please see [here](dev/README.md).
