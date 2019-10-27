@@ -140,10 +140,10 @@ export const HUNSPELL_DICTIONARY_LANGUAGE_MAP = [{
   label: 'Cрпски језик (Latin)', // Serbian (Latin)
   value: 'sh' // aka sr-Latn
 }, {
-  label: 'Slovenčina', // Slovak
+  label: 'Slovenčina (sk-SK)', // Slovak
   value: 'sk-SK'
 }, {
-  label: 'Slovenščina', // Slovene
+  label: 'Slovenščina (sl-SI)', // Slovene
   value: 'sl-SI'
 }, {
   label: 'Shqip', // Albanian
