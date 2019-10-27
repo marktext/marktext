@@ -25,6 +25,7 @@
   --iconColor: rgba(150, 150, 150, .8);
   --codeBgColor: #d8d8d869;
   --codeBlockBgColor: rgba(104, 134, 170, .05);
+  --footnoteBgColor: rgba(0, 0, 0, .03);
   --inputBgColor: rgba(0, 0, 0, .06);
   --focusColor: var(--themeColor);
 
