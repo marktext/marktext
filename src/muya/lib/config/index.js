@@ -107,6 +107,7 @@ export const CLASS_OR_ID = genUpper2LowerKeyHash([
   'AG_INLINE_IMAGE_SELECTED',
   'AG_INLINE_IMAGE_IS_EDIT',
   'AG_INDENT_CODE',
+  'AG_INLINE_FOOTNOTE_IDENTIFIER',
   'AG_INLINE_RULE',
   'AG_LANGUAGE',
   'AG_LANGUAGE_INPUT',
@@ -275,7 +276,8 @@ export const MUYA_DEFAULT_OPTION = {
   imagePathAutoComplete: () => [],
 
   // Markdown extensions
-  superSubScript: false
+  superSubScript: false,
+  footnote: true
 }
 
 // export const DIAGRAM_TEMPLATE = {

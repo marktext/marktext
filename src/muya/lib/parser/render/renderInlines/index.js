@@ -28,6 +28,7 @@ import htmlRuby from './htmlRuby'
 import referenceLink from './referenceLink'
 import referenceImage from './referenceImage'
 import superSubScript from './superSubScript'
+import footnoteIdentifier from './footnoteIdentifier'
 
 export default {
   backlashInToken,
@@ -59,5 +60,6 @@ export default {
   htmlRuby,
   referenceLink,
   referenceImage,
-  superSubScript
+  superSubScript,
+  footnoteIdentifier
 }

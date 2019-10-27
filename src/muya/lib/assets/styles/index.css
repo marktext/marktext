@@ -1107,3 +1107,14 @@ span.ag-reference-link {
 .vega-embed {
   padding-right: 0;
 }
+
+.ag-inline-footnote-identifier {
+  background: var(--codeBlockBgColor);
+  padding: 0em 0.3em;
+  border-radius: 1px;
+  font-size: .7em;
+}
+
+.ag-inline-footnote-identifier a {
+  color: var(--editorColor);
+}
