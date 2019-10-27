@@ -16,7 +16,7 @@ export const editorWinOptions = {
   zoomFactor: 1.0
 }
 
-export const defaultPreferenceWinOptions = {
+export const preferencesWinOptions = {
   width: 950,
   height: 650,
   webPreferences: {

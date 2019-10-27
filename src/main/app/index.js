@@ -166,6 +166,10 @@ class App {
     }
     nativeTheme.themeSource = isDarkTheme ? 'dark' : 'light'
 
+    // NOTE: Electron has no API to get the OS theme when changing `nativeTheme` to a
+    //       custom value. The event listener code below for native theme and settings
+    //       theme is more or less a big workaround to get the system color.
+
     // Event that is emitted if `shouldUseDarkColors`, `shouldUseHighContrastColors` or
     // `shouldUseInvertedColorScheme` has changed.
     let isDarkMode = nativeTheme.shouldUseDarkColors
@@ -183,6 +187,11 @@ class App {
         // or `light` will overwrite the OS settings. We have manually set it to `system`
         // to read the OS settings in the following event.
         nativeTheme.themeSource = 'system'
+
+        // No event is emitted if the last and current OS theme are the same.
+        if (isDarkMode === nativeTheme.shouldUseDarkColors) {
+          nativeTheme.themeSource = isDarkMode ? 'dark' : 'light'
+        }
         return
       }
 
@@ -197,6 +206,9 @@ class App {
         } else if (!isOsDarkMode && isDarkTheme) {
           selectTheme('light')
         }
+      } else if (nativeTheme.themeSource === 'system') {
+        // Need to set dark or light theme because we set `system` to get the current system theme.
+        nativeTheme.themeSource = isDarkMode ? 'dark' : 'light'
       }
     })
 
@@ -211,6 +223,9 @@ class App {
             ignoreThemeEvent = true
           }
           nativeTheme.themeSource = isDarkTheme ? 'dark' : 'light'
+        } else if (nativeTheme.themeSource === 'system') {
+          // Need to set dark or light theme because we set `system` to get the current system theme.
+          nativeTheme.themeSource = isDarkMode ? 'dark' : 'light'
         }
       }
     })
