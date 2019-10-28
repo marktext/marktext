@@ -183,12 +183,12 @@ figure[data-role="HTML"].ag-active .ag-html-preview {
 figure[data-role="FOOTNOTE"] {
   position: relative;
   background: var(--footnoteBgColor);
-  padding: 1em 1em .05em 1em;
+  padding: 1em 2em .05em 1em;
   font-size: .8em;
   opacity: .8;
 }
 
-figure[data-role="FOOTNOTE"] .ag-paragraph-content:first-of-type:empty::after {
+figure[data-role="FOOTNOTE"] > p:first-of-type .ag-paragraph-content:empty::after {
   content: 'Input the footnote definition...';
   color: var(--editorColor30);
 }
@@ -1176,8 +1176,8 @@ i.ag-footnote-backlink {
   line-height: 20px;
   display: block;
   position: absolute;
-  right: 1em;
-  bottom: .15em;
+  right: .5em;
+  bottom: .5em;
   font-family: sans-serif;
   cursor: pointer;
   z-index: 100;

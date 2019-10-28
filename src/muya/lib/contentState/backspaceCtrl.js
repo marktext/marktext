@@ -346,6 +346,29 @@ const backspaceCtrl = ContentState => {
 
     if (
       block.type === 'span' &&
+      block.functionType === 'paragraphContent' &&
+      left === 0 &&
+      preBlock &&
+      preBlock.functionType === 'footnoteInput'
+    ) {
+      event.preventDefault()
+      event.stopPropagation()
+      if (!parent.nextSibling) {
+        const pBlock = this.createBlockP(block.text)
+        const figureBlock = this.closest(block, 'figure')
+        this.insertBefore(pBlock, figureBlock)
+        this.removeBlock(figureBlock)
+        const key = pBlock.children[0].key
+        const offset = 0
+        this.cursor = {
+          start: { key, offset },
+          end: { key, offset }
+        }
+
+        this.partialRender()
+      }
+    } else if (
+      block.type === 'span' &&
       block.functionType === 'codeContent' &&
       left === 0 &&
       !block.preSibling
@@ -492,7 +515,7 @@ const backspaceCtrl = ContentState => {
       // also need to remove the paragrah
       if (this.isOnlyChild(block) && block.type === 'span') {
         this.removeBlock(parent)
-      } else if (block.functionType !== 'languageInput') {
+      } else if (block.functionType !== 'languageInput' && block.functionType !== 'footnoteInput') {
         this.removeBlock(block)
       }
 
