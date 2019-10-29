@@ -1,0 +1,15 @@
+.footnotes {
+  font-size: .9em;
+  opacity: .8;
+}
+
+.footnotes li[role="doc-endnote"] {
+  position: relative;
+}
+
+.footnotes .footnote-back {
+  position: absolute;
+  font-family: initial;
+  top: 0;
+  right: 1em;
+}
