@@ -79,6 +79,7 @@ const importRegister = ContentState => {
     }
     const { trimUnnecessaryCodeBlockEmptyLines } = this.muya.options
     const tokens = new Lexer({ disableInline: true }).lex(markdown)
+    console.log(JSON.stringify(tokens, null, 2))
     let token
     let block
     let value
@@ -317,6 +318,23 @@ const importRegister = ContentState => {
           break
         }
         case 'blockquote_end': {
+          parentList.shift()
+          break
+        }
+        case 'footnote_start': {
+          block = this.createBlock('figure', {
+            functionType: 'footnote'
+          })
+          const identifierInput = this.createBlock('span', {
+            text: token.identifier,
+            functionType: 'footnoteInput'
+          })
+          this.appendChild(block, identifierInput)
+          this.appendChild(parentList[0], block)
+          parentList.unshift(block)
+          break
+        }
+        case 'footnote_end': {
           parentList.shift()
           break
         }

@@ -2,6 +2,10 @@
  * Helpers
  */
 
+let i = 0
+
+export const getUniqueId = () => ++i
+
 export const escape = function escape (html, encode) {
   if (encode) {
     if (escape.escapeTest.test(html)) {

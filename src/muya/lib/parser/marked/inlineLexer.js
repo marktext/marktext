@@ -1,16 +1,17 @@
 import Renderer from './renderer'
 import { normal, breaks, gfm, pedantic } from './inlineRules'
 import defaultOptions from './options'
-import { escape, findClosingBracket } from './utils'
+import { escape, findClosingBracket, getUniqueId } from './utils'
 import { validateEmphasize, lowerPriority } from '../utils'
 
 /**
  * Inline Lexer & Compiler
  */
 
-function InlineLexer (links, options) {
+function InlineLexer (links, footnotes, options) {
   this.options = options || defaultOptions
   this.links = links
+  this.footnotes = footnotes
   this.rules = normal
   this.renderer = this.options.renderer || new Renderer()
   this.renderer.options = this.options
@@ -49,7 +50,7 @@ function InlineLexer (links, options) {
 InlineLexer.prototype.output = function (src) {
   // src = src
   // .replace(/\u00a0/g, ' ')
-  const { disableInline, emoji, math, superSubScript } = this.options
+  const { disableInline, emoji, math, superSubScript, footnote } = this.options
   if (disableInline) {
     return escape(src)
   }
@@ -64,6 +65,7 @@ InlineLexer.prototype.output = function (src) {
   let lastChar = ''
 
   while (src) {
+    console.log(src)
     // escape
     cap = this.rules.escape.exec(src)
     if (cap) {
@@ -71,6 +73,19 @@ InlineLexer.prototype.output = function (src) {
       lastChar = cap[0].charAt(cap[0].length - 1)
       out += escape(cap[1])
       continue
+    }
+
+    // footnote identifier
+    if (footnote) {
+      cap = this.rules.footnoteIdentifier.exec(src)
+      if (cap) {
+        src = src.substring(cap[0].length)
+        lastChar = cap[0].charAt(cap[0].length - 1)
+        const identifier = cap[1]
+        const footnoteInfo = this.footnotes[identifier] || {}
+        footnoteInfo.footnoteIdentifierId = getUniqueId()
+        out += this.renderer.footnoteIdentifier(identifier, footnoteInfo)
+      }
     }
 
     // tag

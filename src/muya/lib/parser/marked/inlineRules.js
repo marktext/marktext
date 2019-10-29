@@ -29,7 +29,7 @@ const inline = {
   // ------------------------
   // patched
 
-  // allow inline math "$" and superscript ("?=[\\<!\[`*]" to "?=[\\<!\[`*\$]")
+  // allow inline math "$" and superscript ("?=[\\<!\[`*]" to "?=[\\<!\[`*\$^]")
   text: /^(`+|[^`])(?:[\s\S]*?(?:(?=[\\<!\[`*\$^]|\b_|$)|[^ ](?= {2,}\n))|(?= {2,}\n))/, // emoji is patched in gfm
 
   // ------------------------
@@ -41,7 +41,8 @@ const inline = {
 
   // superscript and subScript
   superscript: /^(\^)((?:[^\^\s]|(?<=\\)\1|(?<=\\) )+?)(?<!\\)\1(?!\1)/,
-  subscript: /^(~)((?:[^~\s]|(?<=\\)\1|(?<=\\) )+?)(?<!\\)\1(?!\1)/
+  subscript: /^(~)((?:[^~\s]|(?<=\\)\1|(?<=\\) )+?)(?<!\\)\1(?!\1)/,
+  footnoteIdentifier: /^\[\^([^\^\[\]\s]+?)(?<!\\)\]/
 }
 
 // list of punctuation marks from common mark spec
@@ -114,7 +115,7 @@ export const gfm = Object.assign({}, normal, {
   // ------------------------
   // patched
 
-  // allow inline math "$" and emoji ":" and superscrpt "^" ("?=[\\<!\[`*~]|" to "?=[\\<!\[`*~:\$]|")
+  // allow inline math "$" and emoji ":" and superscrpt "^" ("?=[\\<!\[`*~]|" to "?=[\\<!\[`*~:\$^]|")
   text: /^(`+|[^`])(?:[\s\S]*?(?:(?=[\\<!\[`*~:\$^]|\b_|https?:\/\/|ftp:\/\/|www\.|$)|[^ ](?= {2,}\n)|[^a-zA-Z0-9.!#$%&'*+\/=?_`{\|}~-](?=[a-zA-Z0-9.!#$%&'*+\/=?_`{\|}~-]+@))|(?= {2,}\n|[a-zA-Z0-9.!#$%&'*+\/=?_`{\|}~-]+@))/,
 
   // ------------------------

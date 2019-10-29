@@ -44,6 +44,18 @@ Renderer.prototype.script = function (content, marker) {
   return `<${tagName}>${content}</${tagName}>`
 }
 
+Renderer.prototype.footnoteIdentifier = function (identifier, { footnoteId, footnoteIdentifierId }) {
+  return `<a href="#${footnoteId ? `fn${footnoteId}` : ''}" class="footnote-ref" id="fnref${footnoteIdentifierId}" role="doc-noteref"><sup>${identifier}</sup></a>`
+}
+
+Renderer.prototype.footnote = function (footnote) {
+  return '<section class="footnotes" role="doc-endnotes">\n<hr />\n<ol>\n' + footnote + '</ol>\n</section>\n'
+}
+
+Renderer.prototype.footnoteItem = function (content, { footnoteId, footnoteIdentifierId }) {
+  return `<li id="fn${footnoteId}" role="doc-endnote">${content}<a href="#${footnoteIdentifierId ? `fnref${footnoteIdentifierId}` : ''}" class="footnote-back" role="doc-backlink">↩︎</a></li>`
+}
+
 Renderer.prototype.code = function (code, infostring, escaped, codeBlockStyle) {
   const lang = (infostring || '').match(/\S*/)[0]
   if (this.options.highlight) {
