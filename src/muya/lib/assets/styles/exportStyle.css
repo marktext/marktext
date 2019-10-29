@@ -10,6 +10,6 @@
 .footnotes .footnote-back {
   position: absolute;
   font-family: initial;
-  top: 0;
+  top: .2em;
   right: 1em;
 }
