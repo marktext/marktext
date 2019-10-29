@@ -36,7 +36,7 @@ const footnoteCtrl = ContentState => {
       this.checkInlineUpdate(pBlock.children[0])
     }
 
-    this.partialRender()
+    this.render()
     return sectionWrapper
   }
 

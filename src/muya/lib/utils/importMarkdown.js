@@ -77,8 +77,8 @@ const importRegister = ContentState => {
       nextSibling: null,
       children: []
     }
-    const { trimUnnecessaryCodeBlockEmptyLines } = this.muya.options
-    const tokens = new Lexer({ disableInline: true }).lex(markdown)
+    const { trimUnnecessaryCodeBlockEmptyLines, footnote } = this.muya.options
+    const tokens = new Lexer({ disableInline: true, footnote }).lex(markdown)
     console.log(JSON.stringify(tokens, null, 2))
     let token
     let block
