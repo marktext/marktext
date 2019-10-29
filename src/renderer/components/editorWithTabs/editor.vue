@@ -137,6 +137,7 @@ export default {
       listIndentation: state => state.preferences.listIndentation,
       frontmatterType: state => state.preferences.frontmatterType,
       superSubScript: state => state.preferences.superSubScript,
+      footnote: state => state.preferences.footnote,
       lineHeight: state => state.preferences.lineHeight,
       fontSize: state => state.preferences.fontSize,
       codeFontSize: state => state.preferences.codeFontSize,
@@ -249,6 +250,12 @@ export default {
       const { editor } = this
       if (value !== oldValue && editor) {
         editor.setOptions({ superSubScript: value }, true)
+      }
+    },
+    footnote: function (value, oldValue) {
+      const { editor } = this
+      if (value !== oldValue && editor) {
+        editor.setOptions({ footnote: value }, true)
       }
     },
     hideQuickInsertHint: function (value, oldValue) {
@@ -447,6 +454,7 @@ export default {
         listIndentation,
         frontmatterType,
         superSubScript,
+        footnote,
         hideQuickInsertHint,
         editorLineWidth,
         theme,
@@ -490,6 +498,7 @@ export default {
         listIndentation,
         frontmatterType,
         superSubScript,
+        footnote,
         hideQuickInsertHint,
         hideLinkPopup,
         spellcheckEnabled: spellcheckerEnabled,

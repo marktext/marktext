@@ -107,6 +107,7 @@ class ExportHtml {
     this.mathRendererCalled = false
     let html = marked(this.markdown, {
       superSubScript: this.muya ? this.muya.options.superSubScript : false,
+      footnote: this.muya ? this.muya.options.footnote : false,
       highlight (code, lang) {
         // Language may be undefined (GH#591)
         if (!lang) {
