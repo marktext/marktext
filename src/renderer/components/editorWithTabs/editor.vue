@@ -590,6 +590,12 @@ export default {
           animatedScrollTo(container, container.scrollTop + y - STANDAR_Y, 100)
         }
 
+        // Used to fix #628: auto scroll cursor to visible if the cursor is too low.
+        if (container.clientHeight - y < 100) {
+          // 740 is the lowest cursor position(till to top) that editor allowed.
+          animatedScrollTo(container, container.scrollTop + (y - 740), 0)
+        }
+
         this.selectionChange = changes
         this.$store.dispatch('SELECTION_CHANGE', changes)
       })
