@@ -80,7 +80,9 @@ class Keyboard {
         return
       }
 
-      if (timer) clearTimeout(timer)
+      if (timer) {
+        clearTimeout(timer)
+      }
       timer = setTimeout(() => {
         this.muya.dispatchSelectionChange()
         this.muya.dispatchSelectionFormats()

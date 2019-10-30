@@ -161,7 +161,6 @@ const clickCtrl = ContentState => {
     }
 
     const needMarkedUpdate = this.checkNeedRender(this.cursor) || this.checkNeedRender({ start, end })
-
     if (needRender) {
       this.cursor = { start, end }
       return this.partialRender()

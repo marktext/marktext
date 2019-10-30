@@ -100,9 +100,9 @@ class Muya {
     observer.observe(container, config)
   }
 
-  dispatchChange = () => {
+  dispatchChange = (content) => {
     const { eventCenter } = this
-    const markdown = this.markdown = this.getMarkdown()
+    const markdown = this.markdown = typeof content === 'string' ? content : this.getMarkdown()
     const wordCount = this.getWordCount(markdown)
     const cursor = this.getCursor()
     const history = this.getHistory()
@@ -175,7 +175,7 @@ class Muya {
     this.contentState.importCursor(cursor && isValid)
     this.contentState.render(isRenderCursor)
     setTimeout(() => {
-      this.dispatchChange()
+      this.dispatchChange(markdown)
     }, 0)
   }
 
