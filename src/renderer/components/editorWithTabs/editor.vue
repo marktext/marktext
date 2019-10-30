@@ -913,6 +913,7 @@ export default {
         headerFooterStyled,
         htmlTitle
       } = options
+
       if (!/^pdf|print|styledHtml$/.test(type)) {
         throw new Error(`Invalid type to export: "${type}".`)
       }
@@ -920,45 +921,72 @@ export default {
       const extraCss = getCssForOptions(options)
       switch (type) {
         case 'styledHtml': {
-          const content = await this.editor.exportStyledHTML({
-            title: htmlTitle || '',
-            printOptimization: false,
-            extraCss
-          })
-          this.$store.dispatch('EXPORT', { type, content })
+          try {
+            const content = await this.editor.exportStyledHTML({
+              title: htmlTitle || '',
+              printOptimization: false,
+              extraCss
+            })
+            this.$store.dispatch('EXPORT', { type, content })
+          } catch (err) {
+            log.error(err)
+            notice.notify({
+              title: 'Export HTML',
+              type: 'error',
+              message: `There is something wrong when export ${htmlTitle || 'html'}`
+            })
+          }
           break
         }
         case 'pdf': {
           // NOTE: We need to set page size via Electron.
-          const { pageSize, pageSizeWidth, pageSizeHeight, isLandscape } = options
-          const pageOptions = {
-            pageSize, pageSizeWidth, pageSizeHeight, isLandscape
-          }
+          try {
+            const { pageSize, pageSizeWidth, pageSizeHeight, isLandscape } = options
+            const pageOptions = {
+              pageSize, pageSizeWidth, pageSizeHeight, isLandscape
+            }
 
-          const html = await this.editor.exportStyledHTML({
-            title: '',
-            printOptimization: true,
-            extraCss,
-            header,
-            footer,
-            headerFooterStyled
-          })
-          this.printer.renderMarkdown(html, true)
-          this.$store.dispatch('EXPORT', { type, pageOptions })
+            const html = await this.editor.exportStyledHTML({
+              title: '',
+              printOptimization: true,
+              extraCss,
+              header,
+              footer,
+              headerFooterStyled
+            })
+            this.printer.renderMarkdown(html, true)
+            this.$store.dispatch('EXPORT', { type, pageOptions })
+          } catch (err) {
+            log.error(err)
+            notice.notify({
+              title: 'Export PDF',
+              type: 'error',
+              message: `There is something wrong when export ${htmlTitle || 'PDF'}`
+            })
+          }
           break
         }
         case 'print': {
           // NOTE: Print doesn't support page size or orientation.
-          const html = await this.editor.exportStyledHTML({
-            title: '',
-            printOptimization: true,
-            extraCss,
-            header,
-            footer,
-            headerFooterStyled
-          })
-          this.printer.renderMarkdown(html, true)
-          this.$store.dispatch('PRINT_RESPONSE')
+          try {
+            const html = await this.editor.exportStyledHTML({
+              title: '',
+              printOptimization: true,
+              extraCss,
+              header,
+              footer,
+              headerFooterStyled
+            })
+            this.printer.renderMarkdown(html, true)
+            this.$store.dispatch('PRINT_RESPONSE')
+          } catch (err) {
+            log.error(err)
+            notice.notify({
+              title: 'Printing',
+              type: 'error',
+              message: `There is something wrong when print ${htmlTitle || ''}`
+            })
+          }
           break
         }
       }

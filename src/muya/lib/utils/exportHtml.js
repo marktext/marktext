@@ -89,7 +89,6 @@ class ExportHtml {
           await render(diagramContainer, JSON.parse(rawCode), options)
         }
       } catch (err) {
-        console.log(err)
         diagramContainer.innerHTML = '< Invalid Diagram >'
       }
     }
@@ -97,6 +96,7 @@ class ExportHtml {
 
   mathRenderer = (math, displayMode) => {
     this.mathRendererCalled = true
+
     return katex.renderToString(math, {
       displayMode
     })
