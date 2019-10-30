@@ -65,7 +65,6 @@ InlineLexer.prototype.output = function (src) {
   let lastChar = ''
 
   while (src) {
-    console.log(src)
     // escape
     cap = this.rules.escape.exec(src)
     if (cap) {

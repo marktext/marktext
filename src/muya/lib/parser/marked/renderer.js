@@ -44,8 +44,8 @@ Renderer.prototype.script = function (content, marker) {
   return `<${tagName}>${content}</${tagName}>`
 }
 
-Renderer.prototype.footnoteIdentifier = function (identifier, { footnoteId, footnoteIdentifierId }) {
-  return `<a href="#${footnoteId ? `fn${footnoteId}` : ''}" class="footnote-ref" id="fnref${footnoteIdentifierId}" role="doc-noteref"><sup>${identifier}</sup></a>`
+Renderer.prototype.footnoteIdentifier = function (identifier, { footnoteId, footnoteIdentifierId, order }) {
+  return `<a href="#${footnoteId ? `fn${footnoteId}` : ''}" class="footnote-ref" id="fnref${footnoteIdentifierId}" role="doc-noteref"><sup>${order || identifier}</sup></a>`
 }
 
 Renderer.prototype.footnote = function (footnote) {

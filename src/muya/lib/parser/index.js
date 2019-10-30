@@ -223,6 +223,7 @@ const tokenizerFac = (src, beginRules, inlineRules, pos = 0, top, labels, option
         continue
       }
     }
+
     // footnote identifier
     if (pos !== 0 && footnote) {
       const footnoteTo = inlineRules.footnote_identifier.exec(src)

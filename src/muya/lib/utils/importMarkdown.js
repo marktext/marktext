@@ -79,7 +79,6 @@ const importRegister = ContentState => {
     }
     const { trimUnnecessaryCodeBlockEmptyLines, footnote } = this.muya.options
     const tokens = new Lexer({ disableInline: true, footnote }).lex(markdown)
-    console.log(JSON.stringify(tokens, null, 2))
     let token
     let block
     let value
@@ -573,7 +572,6 @@ const importRegister = ContentState => {
           results.add(attrs.src)
         } else {
           const rawSrc = label + backlash.second
-          console.log(render.labels)
           if (render.labels.has((rawSrc).toLowerCase())) {
             const { href } = render.labels.get(rawSrc.toLowerCase())
             const { src } = getImageInfo(href)

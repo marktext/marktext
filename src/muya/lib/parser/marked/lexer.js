@@ -10,6 +10,7 @@ function Lexer (opts) {
   this.tokens = []
   this.tokens.links = Object.create(null)
   this.tokens.footnotes = Object.create(null)
+  this.footnoteOrder = 0
   this.options = Object.assign({}, options, opts)
   this.rules = normal
 
@@ -29,6 +30,7 @@ Lexer.prototype.lex = function (src) {
     .replace(/\r\n|\r/g, '\n')
     .replace(/\t/g, '    ')
   this.checkFrontmatter = true
+  this.footnoteOrder = 0
   this.token(src, true)
   // Move footnote token to the end of tokens.
   const { tokens } = this
@@ -163,6 +165,7 @@ Lexer.prototype.token = function (src, top) {
           identifier
         })
         this.tokens.footnotes[identifier] = {
+          order: ++this.footnoteOrder,
           identifier,
           footnoteId: getUniqueId()
         }
