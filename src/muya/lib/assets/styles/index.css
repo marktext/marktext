@@ -183,7 +183,7 @@ figure[data-role="HTML"].ag-active .ag-html-preview {
 figure[data-role="FOOTNOTE"] {
   position: relative;
   background: var(--footnoteBgColor);
-  padding: 1em 2em .05em 1em;
+  padding: 1.2em 2em .05em 1em;
   font-size: .8em;
   opacity: .8;
 }
@@ -197,7 +197,7 @@ figure[data-role="FOOTNOTE"].ag-active::before {
   content: attr(data-role);
   text-transform: lowercase;
   position: absolute;
-  top: .15em;
+  top: .2em;
   right: 1em;
   color: var(--editorColor30);
   font-size: 12px;
@@ -211,7 +211,7 @@ figure[data-role="FOOTNOTE"] .ag-footnote-input {
   padding: 0 1em;
   min-width: 80px;
   position: absolute;
-  top: 0px;
+  top: 0.2em;
   left: 0;
   font-size: 14px;
   font-family: monospace;
