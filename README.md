@@ -121,25 +121,25 @@ Sponsored by Patreon, it will be directly sponsored to Luo Ran (@jocs), who crea
 
 **Platinum Sponsors**
 
-<a href="https://opencollective.com/marktext#platinum-sponsors">
+<a href="https://opencollective.com/marktext#sponsors">
  <img src="https://opencollective.com/marktext/tiers/platinum-sponsors.svg?avatarHeight=36&width=600">
 </a>
 
 **Gold Sponsors**
 
-<a href="https://opencollective.com/marktext#platinum-sponsors">
+<a href="https://opencollective.com/marktext#sponsors">
   <img src="https://opencollective.com/marktext/tiers/gold-sponsors.svg?avatarHeight=36&width=600">
 </a>
 
 **Silver Sponsors**
 
-<a href="https://opencollective.com/marktext#platinum-sponsors">
+<a href="https://opencollective.com/marktext#sponsors">
   <img src="https://opencollective.com/marktext/tiers/silver-sponsors.svg?avatarHeight=36&width=600">
 </a>
 
 **Bronze Sponsors**
 
-<a href="https://opencollective.com/marktext#platinum-sponsors">
+<a href="https://opencollective.com/marktext#sponsors">
   <img src="https://opencollective.com/marktext/tiers/bronze-sponsors.svg?avatarHeight=36&width=600">
 </a>
 
