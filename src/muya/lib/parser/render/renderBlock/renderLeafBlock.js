@@ -247,6 +247,8 @@ export default function renderLeafBlock (parent, block, activeBlocks, matches, u
   } else if (type === 'span' && functionType === 'languageInput') {
     const html = getHighlightHtml(text, highlights)
     children = htmlToVNode(html)
+  } else if (type === 'span' && functionType === 'footnoteInput') {
+    Object.assign(data.attrs, { spellcheck: 'false' })
   }
 
   if (!block.parent) {

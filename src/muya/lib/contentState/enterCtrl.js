@@ -1,6 +1,10 @@
 import selection from '../selection'
 import { isOsx } from '../config'
 
+/* eslint-disable no-useless-escape */
+const FOOTNOTE_REG = /^\[\^([^\^\[\]\s]+?)(?<!\\)\]:$/
+/* eslint-enable no-useless-escape */
+
 const checkAutoIndent = (text, offset) => {
   const pairStr = text.substring(offset - 1, offset + 1)
   return /^(\{\}|\[\]|\(\)|><)$/.test(pairStr)
@@ -224,6 +228,26 @@ const enterCtrl = ContentState => {
       }
       this.partialRender()
       return this.enterHandler(event)
+    }
+
+    if (
+      block.type === 'span' &&
+      block.functionType === 'paragraphContent' &&
+      !this.getParent(block).parent &&
+      start.offset === text.length &&
+      FOOTNOTE_REG.test(text)
+    ) {
+      event.preventDefault()
+      event.stopPropagation()
+      // Just to feet the `updateFootnote` API and add one white space.
+      block.text += ' '
+      const key = block.key
+      const offset = block.text.length
+      this.cursor = {
+        start: { key, offset },
+        end: { key, offset }
+      }
+      return this.updateFootnote(this.getParent(block), block)
     }
 
     // handle `shift + enter` insert `soft line break` or `hard line break`
