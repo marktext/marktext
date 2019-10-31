@@ -14,6 +14,7 @@ class MouseEvent {
       const target = event.target
       const parent = target.parentNode
       const preSibling = target.previousElementSibling
+      const parentPreSibling = parent ? parent.previousElementSibling : null
       const { hideLinkPopup, footnote } = this.muya.options
       const rect = parent.getBoundingClientRect()
       const reference = {
@@ -22,7 +23,14 @@ class MouseEvent {
         }
       }
 
-      if (!hideLinkPopup && parent && parent.tagName === 'A' && parent.classList.contains('ag-inline-rule')) {
+      if (
+        !hideLinkPopup &&
+        parent &&
+        parent.tagName === 'A' &&
+        parent.classList.contains('ag-inline-rule') &&
+        parentPreSibling &&
+        parentPreSibling.classList.contains('ag-hide')
+      ) {
         eventCenter.dispatch('muya-link-tools', {
           reference,
           linkInfo: getLinkInfo(parent)

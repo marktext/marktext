@@ -49,8 +49,8 @@
 
 .ag-format-picker li.item .icon-wrapper {
   display: flex;
-  width: 14px;
-  height: 14px;
+  width: 16px;
+  height: 16px;
 }
 
 .ag-format-picker li.item .icon-wrapper i.icon {
@@ -67,9 +67,9 @@
   display: inline-block;
   width: 100%;
   height: 100%;
-  filter: drop-shadow(14px 0 currentColor); 
+  filter: drop-shadow(16px 0 currentColor); 
   position: relative;
-  left: -14px;
+  left: -16px;
 }
 
 .ag-format-picker li.item.active .icon-wrapper i.icon {
