@@ -166,7 +166,7 @@ export default function (keybindings) {
       }
     }, {
       id: 'frontMatterMenuItem',
-      label: 'YAML Front Matter',
+      label: 'Front Matter',
       type: 'checkbox',
       accelerator: keybindings.getAccelerator('paragraphYAMLFrontMatter'),
       click (menuItem, browserWindow) {
