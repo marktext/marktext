@@ -361,7 +361,7 @@ class Muya {
    * @param {string|object} key the block key or block
    */
   copy (info) {
-    return this.clipboard.copy(info)
+    return this.clipboard.copy('copyBlock', info)
   }
 
   setOptions (options, needRender = false) {

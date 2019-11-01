@@ -572,7 +572,7 @@ pre.ag-indent-code > code::before,
 pre.ag-fence-code > code::before {
   content: '';
   position: absolute;
-  top: -10px;
+  bottom: -1em;
   right: -5px;
   color: var(--editorColor30);
   font-size: 12px;
@@ -1106,6 +1106,47 @@ span.ag-reference-link {
 
 .vega-embed {
   padding-right: 0;
+}
+
+.ag-code-copy {
+  position: absolute;
+  top: .5em;
+  right: .5em;
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  opacity: 0;
+  z-index: 1;
+  transition: opacity .2s ease-in-out;
+}
+
+.ag-active .ag-code-copy {
+  opacity: .5;
+}
+
+pre:not(.ag-active):hover .ag-code-copy {
+  opacity: .5;
+}
+
+.ag-code-copy:hover {
+  opacity: 1;
+}
+
+.ag-code-copy i.icon {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+}
+
+.ag-code-copy i.icon > i[class^=icon-] {
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(16px 0 var(--iconColor));
+  position: absolute;
+  left: -16px;
 }
 
 pre[class*="language-"].line-numbers {

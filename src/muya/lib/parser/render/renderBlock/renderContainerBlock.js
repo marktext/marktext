@@ -2,6 +2,7 @@ import { CLASS_OR_ID } from '../../../config'
 import { renderTableTools } from './renderToolBar'
 import { renderEditIcon } from './renderContainerEditIcon'
 import renderLineNumberRows from './renderLineNumber'
+import renderCopyButton from './renderCopyButton'
 import { renderLeftBar, renderBottomBar } from './renderTableDargBar'
 import { h } from '../snabbdom'
 
@@ -49,6 +50,9 @@ export default function renderContainerBlock (parent, block, activeBlocks, match
   if (/code|pre/.test(type)) {
     if (typeof lang === 'string' && !!lang) {
       selector += `.language-${lang.replace(/[#.]{1}/g, '')}`
+    }
+    if (type === 'pre') {
+      children.unshift(renderCopyButton())
     }
     if (this.muya.options.codeBlockLineNumbers) {
       if (type === 'pre') {

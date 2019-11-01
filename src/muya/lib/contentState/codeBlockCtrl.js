@@ -123,6 +123,18 @@ const codeBlockCtrl = ContentState => {
     }
     return false
   }
+
+  /**
+   * Copy the code block by click right-top copy icon in code block.
+   */
+  ContentState.prototype.copyCodeBlock = function (event) {
+    const { target } = event
+    const preEle = target.closest('pre')
+    const preBlock = this.getBlock(preEle.id)
+    const codeBlock = preBlock.children.find(c => c.type === 'code')
+    const codeContent = codeBlock.children[0].text
+    this.muya.clipboard.copy('copyCodeContent', codeContent)
+  }
 }
 
 export default codeBlockCtrl
