@@ -533,7 +533,7 @@ pre.ag-front-matter span.ag-code-content:first-of-type:empty::after {
 }
 
 pre[data-role$='code'] span.ag-language-input:empty::after {
-  content: 'Input Language...';
+  content: 'Input Language Identifier...';
   color: var(--editorColor10);
 }
 
@@ -1149,18 +1149,18 @@ pre:not(.ag-active):hover .ag-code-copy {
   left: -16px;
 }
 
-pre[class*="language-"].line-numbers {
+pre.ag-paragraph.line-numbers {
 	position: relative;
 	padding-left: 2.5em;
 	counter-reset: linenumber;
 }
 
-pre[class*="language-"].line-numbers > code {
+pre.ag-paragraph.line-numbers > code {
 	position: relative;
 	white-space: inherit;
 }
 
-figure:not(.ag-active) pre[class*="language-"].line-numbers {
+figure:not(.ag-active) pre.ag-paragraph.line-numbers {
   display: none;
 }
 
