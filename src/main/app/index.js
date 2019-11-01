@@ -159,69 +159,20 @@ class App {
 
     // Set initial native theme for theme in preferences.
     const isDarkTheme = /dark/i.test(theme)
-    let ignoreThemeEvent = false
-    if (autoSwitchTheme === 1 && nativeTheme.shouldUseDarkColors !== isDarkTheme) {
-      // Ignore theme change at application startup if prefered.
-      ignoreThemeEvent = true
+    if (autoSwitchTheme === 0 && isDarkTheme !== nativeTheme.shouldUseDarkColors) {
+      selectTheme(nativeTheme.shouldUseDarkColors ? 'dark' : 'light')
+      nativeTheme.themeSource = nativeTheme.shouldUseDarkColors ? 'dark' : 'light'
+    } else {
+      nativeTheme.themeSource = isDarkTheme ? 'dark' : 'light'
     }
-    nativeTheme.themeSource = isDarkTheme ? 'dark' : 'light'
 
-    // NOTE: Electron has no API to get the OS theme when changing `nativeTheme` to a
-    //       custom value. The event listener code below for native theme and settings
-    //       theme is more or less a big workaround to get the system color.
-
-    // Event that is emitted if `shouldUseDarkColors`, `shouldUseHighContrastColors` or
-    // `shouldUseInvertedColorScheme` has changed.
     let isDarkMode = nativeTheme.shouldUseDarkColors
-    nativeTheme.on('updated', () => {
-      const preferences = this._accessor.preferences
-      const { autoSwitchTheme, theme } = preferences.getAll()
-
-      if (ignoreThemeEvent) {
-        ignoreThemeEvent = false
-        return
-      } else if (autoSwitchTheme === 2) {
-        return
-      } else if (nativeTheme.themeSource !== 'system') {
-        // `shouldUseDarkColors` depends on `themeSource`. Setting it to either `dark`
-        // or `light` will overwrite the OS settings. We have manually set it to `system`
-        // to read the OS settings in the following event.
-        nativeTheme.themeSource = 'system'
-
-        // No event is emitted if the last and current OS theme are the same.
-        if (isDarkMode === nativeTheme.shouldUseDarkColors) {
-          nativeTheme.themeSource = isDarkMode ? 'dark' : 'light'
-        }
-        return
-      }
-
-      // Listen for system theme changes and change Mark Text theme accordingly.
-      if (isDarkMode !== nativeTheme.shouldUseDarkColors) {
-        const isOsDarkMode = nativeTheme.shouldUseDarkColors
-
-        // Application menu is automatically updated via preference manager.
-        const isDarkTheme = /dark/i.test(theme)
-        if (isOsDarkMode && !isDarkTheme) {
-          selectTheme('dark')
-        } else if (!isOsDarkMode && isDarkTheme) {
-          selectTheme('light')
-        }
-      } else if (nativeTheme.themeSource === 'system') {
-        // Need to set dark or light theme because we set `system` to get the current system theme.
-        nativeTheme.themeSource = isDarkMode ? 'dark' : 'light'
-      }
-    })
-
     ipcMain.on('broadcast-preferences-changed', change => {
       // Set Chromium's color for native elements after theme change.
       if (change.theme) {
         const isDarkTheme = /dark/i.test(change.theme)
         if (isDarkMode !== isDarkTheme) {
           isDarkMode = isDarkTheme
-          if (nativeTheme.themeSource !== 'system') {
-            // Ignore update event above because we set theme source manually.
-            ignoreThemeEvent = true
-          }
           nativeTheme.themeSource = isDarkTheme ? 'dark' : 'light'
         } else if (nativeTheme.themeSource === 'system') {
           // Need to set dark or light theme because we set `system` to get the current system theme.
