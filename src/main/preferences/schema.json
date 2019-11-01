@@ -94,6 +94,11 @@
     "type": "string",
     "pattern": "^[_A-z0-9]+((-|\\s)*[_A-z0-9])*$"
   },
+  "codeBlockLineNumbers": {
+    "description": "Editor--Whether to show the line numbers",
+    "type": "boolean",
+    "default": true
+  },
   "trimUnnecessaryCodeBlockEmptyLines": {
     "description": "Editor--Trim the beginning and ending empty lines in code block",
     "type": "boolean"

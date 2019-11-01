@@ -1107,3 +1107,49 @@ span.ag-reference-link {
 .vega-embed {
   padding-right: 0;
 }
+
+pre[class*="language-"].line-numbers {
+	position: relative;
+	padding-left: 2.5em;
+	counter-reset: linenumber;
+}
+
+pre[class*="language-"].line-numbers > code {
+	position: relative;
+	white-space: inherit;
+}
+
+figure:not(.ag-active) pre[class*="language-"].line-numbers {
+  display: none;
+}
+
+.line-numbers .line-numbers-rows {
+	position: absolute;
+	pointer-events: none;
+	top: 0;
+	font-size: 100%;
+	left: -2.5em;
+	width: 2.5em; /* works for line-numbers below 1000 lines */
+	letter-spacing: -1px;
+
+	user-select: none;
+
+}
+
+.line-numbers-rows > span {
+	pointer-events: none;
+	display: block;
+	counter-increment: linenumber;
+}
+
+.line-numbers-rows > span:before {
+	content: counter(linenumber);
+	color: var(--editorColor30);
+	display: block;
+	padding-right: .8em;
+  text-align: right;
+  transform: scale(.8);
+  position: relative;
+  top: .05em;
+}
+

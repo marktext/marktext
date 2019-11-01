@@ -40,6 +40,11 @@
       :onChange="value => onSelectChange('codeFontFamily', value)"
     ></font-text-box>
     <bool
+      description="Whether to show the code block line numbers."
+      :bool="codeBlockLineNumbers"
+      :onChange="value => onSelectChange('codeBlockLineNumbers', value)"
+    ></bool>
+    <bool
       description="Trim the beginning and ending empty lines in code block when open markdown."
       :bool="trimUnnecessaryCodeBlockEmptyLines"
       :onChange="value => onSelectChange('trimUnnecessaryCodeBlockEmptyLines', value)"
@@ -148,6 +153,7 @@ export default {
       textDirection: state => state.preferences.textDirection,
       codeFontSize: state => state.preferences.codeFontSize,
       codeFontFamily: state => state.preferences.codeFontFamily,
+      codeBlockLineNumbers: state => state.preferences.codeBlockLineNumbers,
       trimUnnecessaryCodeBlockEmptyLines: state => state.preferences.trimUnnecessaryCodeBlockEmptyLines,
       hideQuickInsertHint: state => state.preferences.hideQuickInsertHint,
       hideLinkPopup: state => state.preferences.hideLinkPopup,

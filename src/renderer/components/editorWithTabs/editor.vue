@@ -140,6 +140,7 @@ export default {
       fontSize: state => state.preferences.fontSize,
       codeFontSize: state => state.preferences.codeFontSize,
       codeFontFamily: state => state.preferences.codeFontFamily,
+      codeBlockLineNumbers: state => state.preferences.codeBlockLineNumbers,
       trimUnnecessaryCodeBlockEmptyLines: state => state.preferences.trimUnnecessaryCodeBlockEmptyLines,
       editorFontFamily: state => state.preferences.editorFontFamily,
       hideQuickInsertHint: state => state.preferences.hideQuickInsertHint,
@@ -312,6 +313,12 @@ export default {
         })
       }
     },
+    codeBlockLineNumbers: function (value, oldValue) {
+      const { editor } = this
+      if (value !== oldValue && editor) {
+        editor.setOptions({ codeBlockLineNumbers: value }, true)
+      }
+    },
     codeFontFamily: function (value, oldValue) {
       if (value !== oldValue) {
         addCommonStyle({
@@ -443,6 +450,7 @@ export default {
         tabSize,
         fontSize,
         lineHeight,
+        codeBlockLineNumbers,
         listIndentation,
         frontmatterType,
         superSubScript,
@@ -485,6 +493,7 @@ export default {
         tabSize,
         fontSize,
         lineHeight,
+        codeBlockLineNumbers,
         listIndentation,
         frontmatterType,
         superSubScript,
