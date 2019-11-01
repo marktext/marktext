@@ -158,7 +158,7 @@ class ExportMarkdown {
           break
         }
         default: {
-          console.log(block.type)
+          console.warn('translateBlocks2Markdown: Unknown block type:', block.type)
           break
         }
       }

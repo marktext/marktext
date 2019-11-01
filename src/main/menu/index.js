@@ -5,6 +5,7 @@ import log from 'electron-log'
 import { ensureDirSync, isDirectory, isFile } from 'common/filesystem'
 import { isLinux, isOsx, isWindows } from '../config'
 import { parseMenu } from '../keyboard/shortcutHandler'
+import { updateSidebarMenu } from '../menu/actions/edit'
 import { updateFormatMenu } from '../menu/actions/format'
 import { updateSelectionMenus } from '../menu/actions/paragraph'
 import { viewLayoutChanged } from '../menu/actions/view'
@@ -434,6 +435,9 @@ class AppMenu {
     })
     ipcMain.on('mt::update-format-menu', (e, windowId, formats) => {
       updateFormatMenu(this.getWindowMenuById(windowId), formats)
+    })
+    ipcMain.on('mt::update-sidebar-menu', (e, windowId, value) => {
+      updateSidebarMenu(this.getWindowMenuById(windowId), value)
     })
     ipcMain.on('mt::view-layout-changed', (e, windowId, viewSettings) => {
       viewLayoutChanged(this.getWindowMenuById(windowId), viewSettings)

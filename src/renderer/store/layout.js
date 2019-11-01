@@ -16,6 +16,10 @@ const getters = {}
 
 const mutations = {
   SET_LAYOUT (state, layout) {
+    if (layout.showSideBar !== undefined) {
+      const { windowId } = global.marktext.env
+      ipcRenderer.send('mt::update-sidebar-menu', windowId, !!layout.showSideBar)
+    }
     Object.assign(state, layout)
   },
   TOGGLE_LAYOUT_ENTRY (state, entryName) {

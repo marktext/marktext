@@ -30,7 +30,7 @@ const COMMAND_KEY = isOsx ? '⌘' : '⌃'
 // Caps Lock ⇪
 // Fn
 
-export const quicInsertObj = {
+export const quickInsertObj = {
   'basic block': [{
     title: 'Paragraph',
     subTitle: 'Lorem Ipsum is simply dummy text',

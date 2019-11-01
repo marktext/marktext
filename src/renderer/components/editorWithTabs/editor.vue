@@ -548,6 +548,7 @@ export default {
       bus.$on('image-uploaded', this.handleUploadedImage)
       bus.$on('file-changed', this.handleFileChange)
       bus.$on('editor-blur', this.blurEditor)
+      bus.$on('editor-focus', this.focusEditor)
       bus.$on('copyAsMarkdown', this.handleCopyPaste)
       bus.$on('copyAsHtml', this.handleCopyPaste)
       bus.$on('pasteAsPlainText', this.handleCopyPaste)
@@ -975,8 +976,8 @@ export default {
         this.$nextTick(() => {
           this.$refs.rowInput.focus()
         })
-      } else {
-        this.editor && this.editor.updateParagraph(type)
+      } else if (this.editor) {
+        this.editor.updateParagraph(type)
       }
     },
 
@@ -1051,6 +1052,10 @@ export default {
       this.editor.blur()
     },
 
+    focusEditor () {
+      this.editor.focus()
+    },
+
     handleScreenShot () {
       if (this.editor) {
         document.execCommand('paste')
@@ -1073,6 +1078,7 @@ export default {
     bus.$off('image-uploaded', this.handleUploadedImage)
     bus.$off('file-changed', this.handleFileChange)
     bus.$off('editor-blur', this.blurEditor)
+    bus.$off('editor-focus', this.focusEditor)
     bus.$off('copyAsMarkdown', this.handleCopyPaste)
     bus.$off('copyAsHtml', this.handleCopyPaste)
     bus.$off('pasteAsPlainText', this.handleCopyPaste)

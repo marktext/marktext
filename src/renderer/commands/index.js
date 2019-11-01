@@ -1,19 +1,12 @@
 // List of all static commands that are loaded into command center.
 import { ipcRenderer, remote, shell } from 'electron'
 import bus from '../bus'
-import { isOsx } from '@/util'
+import { delay, isOsx } from '@/util'
 import { isUpdatable } from './utils'
 
 export { default as FileEncodingCommand } from './fileEncoding'
 export { default as LineEndingCommand } from './lineEnding'
 export { default as QuickOpenCommand } from './quickOpen'
-
-// ----------------------------------------------------------------------------
-
-// TODO: Load shortcuts from main process.
-// TODO: Only execute command if it not "disabled"/ not allowed by Editor/Muya
-
-// ----------------------------------------------------------------------------
 
 export class RootCommand {
   constructor (subcommands = []) {
@@ -30,6 +23,11 @@ export class RootCommand {
   async execute () {
     throw new Error('Root command.')
   }
+}
+
+const focusEditorAndExecute = fn => {
+  setTimeout(() => bus.$emit('editor-focus'), 10)
+  setTimeout(() => fn(), 150)
 }
 
 const commands = [
@@ -68,7 +66,7 @@ const commands = [
     }
   }, {
     id: 'file.save-as',
-    description: 'File: Save As',
+    description: 'File: Save As...',
     execute: async () => {
       ipcRenderer.emit('mt::editor-ask-file-save-as', null)
     }
@@ -76,6 +74,7 @@ const commands = [
     id: 'file.print',
     description: 'File: Print current Tab',
     execute: async () => {
+      await delay(50)
       ipcRenderer.emit('mt::show-export-dialog', null, 'print')
     }
   }, {
@@ -108,6 +107,7 @@ const commands = [
     id: 'file.rename-file',
     description: 'File: Rename...',
     execute: async () => {
+      await delay(50)
       ipcRenderer.emit('mt::editor-rename-file', null)
     }
   }, {
@@ -123,12 +123,14 @@ const commands = [
       id: 'file.export-file-html',
       description: 'HTML',
       execute: async () => {
+        await delay(50)
         bus.$emit('export', 'styledHtml')
       }
     }, {
       id: 'file.export-file-pdf',
       description: 'PDF',
       execute: async () => {
+        await delay(50)
         bus.$emit('export', 'pdf')
       }
     }]
@@ -153,49 +155,63 @@ const commands = [
     id: 'edit.duplicate',
     description: 'Edit: Duplicate',
     execute: async () => {
-      bus.$emit('duplicate', 'duplicate')
+      focusEditorAndExecute(
+        () => bus.$emit('duplicate', 'duplicate')
+      )
     }
   }, {
     id: 'edit.create-paragraph',
     description: 'Edit: Create Paragraph',
     execute: async () => {
-      bus.$emit('createParagraph', 'createParagraph')
+      focusEditorAndExecute(
+        () => bus.$emit('createParagraph', 'createParagraph')
+      )
     }
   }, {
     id: 'edit.delete-paragraph',
     description: 'Edit: Delete Paragraph',
     execute: async () => {
-      bus.$emit('deleteParagraph', 'deleteParagraph')
+      focusEditorAndExecute(
+        () => bus.$emit('deleteParagraph', 'deleteParagraph')
+      )
     }
   }, {
     id: 'edit.find',
     description: 'Edit: Find',
     execute: async () => {
-      setTimeout(() => bus.$emit('find', 'find'), 150)
+      await delay(150)
+      bus.$emit('find', 'find')
     }
-  }, {
-    id: 'edit.find-next',
-    description: 'Edit: Find Next',
-    execute: async () => {
-      setTimeout(() => bus.$emit('fineNext', 'fineNext'), 150)
-    }
-  }, {
-    id: 'edit.find-previous',
-    description: 'Edit: Find Previous',
-    execute: async () => {
-      setTimeout(() => bus.$emit('findPrev', 'findPrev'), 150)
-    }
-  }, {
+  },
+  // TODO: Find next/previous doesn't work.
+  // {
+  //   id: 'edit.find-next',
+  //   description: 'Edit: Find Next',
+  //   execute: async () => {
+  //     await delay(150)
+  //     bus.$emit('fineNext', 'fineNext')
+  //   }
+  // }, {
+  //   id: 'edit.find-previous',
+  //   description: 'Edit: Find Previous',
+  //   execute: async () => {
+  //     await delay(150)
+  //     bus.$emit('findPrev', 'findPrev')
+  //   }
+  // },
+  {
     id: 'edit.replace',
     description: 'Edit: Replace',
     execute: async () => {
-      setTimeout(() => bus.$emit('replace', 'replace'), 150)
+      await delay(150)
+      bus.$emit('replace', 'replace')
     }
   }, {
     id: 'edit.find-in-folder',
     description: 'Edit: Find in Folder',
     execute: async () => {
-      setTimeout(() => bus.$emit('findInFolder', 'findInFolder'), 150)
+      await delay(150)
+      ipcRenderer.emit('mt::editor-edit-action', null, 'findInFolder')
     }
   }, {
     id: 'edit.aidou',
@@ -210,200 +226,274 @@ const commands = [
 
   {
     id: 'paragraph.heading-1',
-    description: 'Paragraph: Heading 1',
+    description: 'Paragraph: Transform into Heading 1',
     execute: async () => {
-      bus.$emit('paragraph', 'heading 1')
+      focusEditorAndExecute(
+        () => bus.$emit('paragraph', 'heading 1')
+      )
     }
   }, {
     id: 'paragraph.heading-2',
-    description: 'Paragraph: Heading 2',
+    description: 'Paragraph: Transform into Heading 2',
     execute: async () => {
-      bus.$emit('paragraph', 'heading 2')
+      focusEditorAndExecute(
+        () => bus.$emit('paragraph', 'heading 2')
+      )
     }
   }, {
     id: 'paragraph.heading-3',
-    description: 'Paragraph: Heading 3',
+    description: 'Paragraph: Transform into Heading 3',
     execute: async () => {
-      bus.$emit('paragraph', 'heading 3')
+      focusEditorAndExecute(
+        () => bus.$emit('paragraph', 'heading 3')
+      )
     }
   }, {
     id: 'paragraph.heading-4',
-    description: 'Paragraph: Heading 4',
+    description: 'Paragraph: Transform into Heading 4',
     execute: async () => {
-      bus.$emit('paragraph', 'heading 4')
+      focusEditorAndExecute(
+        () => bus.$emit('paragraph', 'heading 4')
+      )
     }
   }, {
     id: 'paragraph.heading-5',
-    description: 'Paragraph: Heading 5',
+    description: 'Paragraph: Transform into Heading 5',
     execute: async () => {
-      bus.$emit('paragraph', 'heading 5')
+      focusEditorAndExecute(
+        () => bus.$emit('paragraph', 'heading 5')
+      )
     }
   }, {
     id: 'paragraph.heading-6',
-    description: 'Paragraph: Heading 6',
+    description: 'Paragraph: Transform into Heading 6',
     execute: async () => {
-      bus.$emit('paragraph', 'heading 6')
+      focusEditorAndExecute(
+        () => bus.$emit('paragraph', 'heading 6')
+      )
     }
   }, {
     id: 'paragraph.upgrade-heading',
     description: 'Paragraph: Upgrade Heading',
     execute: async () => {
-      bus.$emit('paragraph', 'upgrade heading')
+      focusEditorAndExecute(
+        () => bus.$emit('paragraph', 'upgrade heading')
+      )
     }
   }, {
     id: 'paragraph.degrade-heading',
     description: 'Paragraph: Degrade Heading',
     execute: async () => {
-      bus.$emit('paragraph', 'degrade heading')
+      focusEditorAndExecute(
+        () => bus.$emit('paragraph', 'degrade heading')
+      )
     }
   }, {
     id: 'paragraph.table',
-    description: 'Paragraph: Create table',
+    description: 'Paragraph: Create Table',
     execute: async () => {
-      bus.$emit('paragraph', 'table')
+      focusEditorAndExecute(
+        () => bus.$emit('paragraph', 'table')
+      )
     }
   }, {
     id: 'paragraph.code-fence',
-    description: 'Paragraph: Create Code Fence',
+    description: 'Paragraph: Transform into Code Fence',
     execute: async () => {
-      bus.$emit('paragraph', 'pre')
+      focusEditorAndExecute(
+        () => bus.$emit('paragraph', 'pre')
+      )
     }
   }, {
     id: 'paragraph.quote-block',
-    description: 'Paragraph: Quote Block',
+    description: 'Paragraph: Transform into Quote Block',
     execute: async () => {
-      bus.$emit('paragraph', 'blockquote')
+      focusEditorAndExecute(
+        () => bus.$emit('paragraph', 'blockquote')
+      )
     }
   }, {
     id: 'paragraph.math-formula',
-    description: 'Paragraph: Math Formula',
+    description: 'Paragraph: Transform into Math Formula',
     execute: async () => {
-      bus.$emit('paragraph', 'mathblock')
+      focusEditorAndExecute(
+        () => bus.$emit('paragraph', 'mathblock')
+      )
     }
   }, {
     id: 'paragraph.html-block',
-    description: 'Paragraph: HTML Block',
+    description: 'Paragraph: Transform into HTML Block',
     execute: async () => {
-      bus.$emit('paragraph', 'html')
+      focusEditorAndExecute(
+        () => bus.$emit('paragraph', 'html')
+      )
     }
   }, {
     id: 'paragraph.order-list',
-    description: 'Paragraph: Create Order List',
+    description: 'Paragraph: Transform into Order List',
     execute: async () => {
-      bus.$emit('paragraph', 'ol-bullet')
+      focusEditorAndExecute(
+        () => bus.$emit('paragraph', 'ol-bullet')
+      )
     }
   }, {
     id: 'paragraph.bullet-list',
-    description: 'Paragraph: Create Bullet List',
+    description: 'Paragraph: Transform into Bullet List',
     execute: async () => {
-      bus.$emit('paragraph', 'ul-bullet')
+      focusEditorAndExecute(
+        () => bus.$emit('paragraph', 'ul-bullet')
+      )
     }
   }, {
     id: 'paragraph.task-list',
-    description: 'Paragraph: Create Task List',
+    description: 'Paragraph: Transform into Task List',
     execute: async () => {
-      bus.$emit('paragraph', 'ul-task')
+      focusEditorAndExecute(
+        () => bus.$emit('paragraph', 'ul-task')
+      )
     }
   }, {
     id: 'paragraph.loose-list-item',
     description: 'Paragraph: Convert to Loose List Item',
     execute: async () => {
-      bus.$emit('paragraph', 'loose-list-item')
+      focusEditorAndExecute(
+        () => bus.$emit('paragraph', 'loose-list-item')
+      )
     }
   }, {
     id: 'paragraph.paragraph',
-    description: 'Paragraph: Paragraph',
+    description: 'Paragraph: Create new Paragraph',
     execute: async () => {
-      bus.$emit('paragraph', 'paragraph')
+      focusEditorAndExecute(
+        () => bus.$emit('paragraph', 'paragraph')
+      )
+    }
+  }, {
+    id: 'paragraph.reset-paragraph',
+    description: 'Paragraph: Transform into Paragraph',
+    execute: async () => {
+      focusEditorAndExecute(
+        () => bus.$emit('paragraph', 'reset-to-paragraph')
+      )
     }
   }, {
     id: 'paragraph.horizontal-line',
     description: 'Paragraph: Insert Horizontal Line',
     execute: async () => {
-      bus.$emit('paragraph', 'hr')
+      focusEditorAndExecute(
+        () => bus.$emit('paragraph', 'hr')
+      )
     }
   }, {
     id: 'paragraph.front-matter',
     description: 'Paragraph: Insert Front Matter',
     execute: async () => {
-      bus.$emit('paragraph', 'front-matter')
+      focusEditorAndExecute(
+        () => bus.$emit('paragraph', 'front-matter')
+      )
     }
   },
 
   // --------------------------------------------------------------------------
   // Format
 
+  // NOTE: Focus editor to restore selection and try to apply the commmand.
+
   {
     id: 'format.strong',
     description: 'Format: Strong',
     execute: async () => {
-      bus.$emit('format', 'strong')
+      focusEditorAndExecute(
+        () => bus.$emit('format', 'strong')
+      )
     }
   }, {
     id: 'format.emphasis',
     description: 'Format: Emphasis',
     execute: async () => {
-      bus.$emit('format', 'em')
+      focusEditorAndExecute(
+        () => bus.$emit('format', 'em')
+      )
     }
   }, {
     id: 'format.underline',
     description: 'Format: Underline',
     execute: async () => {
-      bus.$emit('format', 'u')
+      focusEditorAndExecute(
+        () => bus.$emit('format', 'u')
+      )
     }
   }, {
     id: 'format.highlight',
     description: 'Format: Highlight',
     execute: async () => {
-      bus.$emit('format', 'mark')
+      focusEditorAndExecute(
+        () => bus.$emit('format', 'mark')
+      )
     }
   }, {
     id: 'format.superscript',
     description: 'Format: Superscript',
     execute: async () => {
-      bus.$emit('format', 'sup')
+      focusEditorAndExecute(
+        () => bus.$emit('format', 'sup')
+      )
     }
   }, {
     id: 'format.subscript',
     description: 'Format: Subscript',
     execute: async () => {
-      bus.$emit('format', 'sub')
+      focusEditorAndExecute(
+        () => bus.$emit('format', 'sub')
+      )
     }
   }, {
     id: 'format.inline-code',
     description: 'Format: Inline Code',
     execute: async () => {
-      bus.$emit('format', 'inline_code')
+      focusEditorAndExecute(
+        () => bus.$emit('format', 'inline_code')
+      )
     }
   }, {
     id: 'format.inline-math',
     description: 'Format: Inline Math',
     execute: async () => {
-      bus.$emit('format', 'inline_math')
+      focusEditorAndExecute(
+        () => bus.$emit('format', 'inline_math')
+      )
     }
   }, {
     id: 'format.strike',
     description: 'Format: Strike',
     execute: async () => {
-      bus.$emit('format', 'del')
+      focusEditorAndExecute(
+        () => bus.$emit('format', 'del')
+      )
     }
   }, {
     id: 'format.hyperlink',
     description: 'Format: Hyperlink',
     execute: async () => {
-      bus.$emit('format', 'link')
+      focusEditorAndExecute(
+        () => bus.$emit('format', 'link')
+      )
     }
   }, {
     id: 'format.image',
     description: 'Format: Insert Image',
     execute: async () => {
-      bus.$emit('format', 'image')
+      focusEditorAndExecute(
+        () => bus.$emit('format', 'image')
+      )
     }
   }, {
     id: 'format.clear-format',
     description: 'Format: Clear Format',
     execute: async () => {
-      bus.$emit('format', 'clear')
+      focusEditorAndExecute(
+        () => bus.$emit('format', 'clear')
+      )
     }
   },
 

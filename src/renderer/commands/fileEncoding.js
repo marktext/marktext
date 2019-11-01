@@ -28,7 +28,7 @@ class FileEncodingCommand {
       this.subcommandSelectedIndex = 0
       this.subcommands.push({
         id: `${encoding}-bom`,
-        description: `${getEncodingName(encodingObj)} (current)`
+        description: `${getEncodingName(encodingObj)} - current`
       })
     }
 
@@ -37,7 +37,7 @@ class FileEncodingCommand {
       const isTabEncoding = !isBom && key === encoding
       const item = {
         id: key,
-        description: isTabEncoding ? `${value} (current)` : value
+        description: isTabEncoding ? `${value} - current` : value
       }
       if (isTabEncoding) {
         // Highlight current encoding and set it as first entry.

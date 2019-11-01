@@ -172,6 +172,7 @@ class QuickOpenCommand {
   }
 
   _getInclusions = query => {
+    // NOTE: This will fail on `foo.m` because we search for `foo.m.md`.
     if (MD_EXTENSION.test(query)) {
       return [query]
     }

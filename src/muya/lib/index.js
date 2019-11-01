@@ -267,10 +267,11 @@ class Muya {
   }
 
   blur (isRemoveAllRange = false) {
-    const selection = document.getSelection()
     if (isRemoveAllRange) {
+      const selection = document.getSelection()
       selection.removeAllRanges()
     }
+    this.hideAllFloatTools()
     this.container.blur()
   }
 
