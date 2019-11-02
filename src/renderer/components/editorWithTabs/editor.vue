@@ -469,7 +469,7 @@ export default {
       Muya.use(EmojiPicker)
       Muya.use(ImagePathPicker)
       Muya.use(ImageSelector, {
-        accessKey: process.env.UNSPLASH_ACCESS_KEY,
+        unsplashAccessKey: process.env.UNSPLASH_ACCESS_KEY,
         photoCreatorClick: this.photoCreatorClick
       })
       Muya.use(Transformer)

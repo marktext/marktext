@@ -640,7 +640,6 @@ kbd {
     border-left-color: transparent;
     border-right-color: transparent;
   }
-
 } /* end not print */
 
 @media print {
