@@ -1,6 +1,6 @@
 import { normal, gfm, pedantic } from './blockRules'
 import options from './options'
-import { splitCells, rtrim } from './utils'
+import { splitCells, rtrim, getUniqueId } from './utils'
 
 /**
  * Block Lexer
@@ -9,6 +9,8 @@ import { splitCells, rtrim } from './utils'
 function Lexer (opts) {
   this.tokens = []
   this.tokens.links = Object.create(null)
+  this.tokens.footnotes = Object.create(null)
+  this.footnoteOrder = 0
   this.options = Object.assign({}, options, opts)
   this.rules = normal
 
@@ -28,7 +30,32 @@ Lexer.prototype.lex = function (src) {
     .replace(/\r\n|\r/g, '\n')
     .replace(/\t/g, '    ')
   this.checkFrontmatter = true
-  return this.token(src, true)
+  this.footnoteOrder = 0
+  this.token(src, true)
+  // Move footnote token to the end of tokens.
+  const { tokens } = this
+  const hasNoFootnoteTokens = []
+  const footnoteTokens = []
+  let isInFootnote = false
+  for (const token of tokens) {
+    const { type } = token
+    if (type === 'footnote_start') {
+      isInFootnote = true
+      footnoteTokens.push(token)
+    } else if (type === 'footnote_end') {
+      isInFootnote = false
+      footnoteTokens.push(token)
+    } else if (isInFootnote) {
+      footnoteTokens.push(token)
+    } else {
+      hasNoFootnoteTokens.push(token)
+    }
+  }
+
+  const result = [...hasNoFootnoteTokens, ...footnoteTokens]
+  result.links = tokens.links
+  result.footnotes = tokens.footnotes
+  return result
 }
 
 /**
@@ -36,7 +63,7 @@ Lexer.prototype.lex = function (src) {
  */
 
 Lexer.prototype.token = function (src, top) {
-  const { frontMatter, math } = this.options
+  const { frontMatter, math, footnote } = this.options
   src = src.replace(/^ +$/gm, '')
 
   let loose
@@ -123,6 +150,37 @@ Lexer.prototype.token = function (src, top) {
           type: 'multiplemath',
           text: cap[1]
         })
+        continue
+      }
+    }
+
+    if (footnote) {
+      cap = this.rules.footnote.exec(src)
+      if (top && cap) {
+        src = src.substring(cap[0].length)
+        const identifier = cap[1]
+        this.tokens.push({
+          type: 'footnote_start',
+          identifier
+        })
+        this.tokens.footnotes[identifier] = {
+          order: ++this.footnoteOrder,
+          identifier,
+          footnoteId: getUniqueId()
+        }
+        /* eslint-disable no-useless-escape */
+        // Remove the footnote identifer prefix. eg: `[^identifier]: `.
+        cap = cap[0].replace(/^\[\^[^\^\[\]\s]+?(?<!\\)\]:\s+/gm, '')
+        // Remove the four whitespace before each block of footnote.
+        cap = cap.replace(/\n {4}(?=[^\s])/g, '\n')
+        /* eslint-enable no-useless-escape */
+
+        this.token(cap, top)
+
+        this.tokens.push({
+          type: 'footnote_end'
+        })
+
         continue
       }
     }
@@ -534,8 +592,6 @@ Lexer.prototype.token = function (src, top) {
       throw new Error('Infinite loop on byte: ' + src.charCodeAt(0))
     }
   }
-
-  return this.tokens
 }
 
 export default Lexer

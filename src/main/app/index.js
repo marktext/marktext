@@ -3,7 +3,7 @@ import fse from 'fs-extra'
 import { exec } from 'child_process'
 import dayjs from 'dayjs'
 import log from 'electron-log'
-import { app, BrowserWindow, clipboard, dialog, ipcMain, systemPreferences } from 'electron'
+import { app, BrowserWindow, clipboard, dialog, ipcMain, nativeTheme } from 'electron'
 import { isChildOfDirectory } from 'common/filesystem/paths'
 import { isLinux, isOsx, isWindows } from '../config'
 import parseArgs from '../cli/parser'
@@ -115,7 +115,7 @@ class App {
     const { paths } = this._accessor
     ensureDefaultDict(paths.userDataPath)
       .catch(error => {
-        log.error(error)
+        log.error('Error copying Hunspell dictionary: ', error)
       })
   }
 
@@ -143,7 +143,13 @@ class App {
       }
     }
 
-    const { startUpAction, defaultDirectoryToOpen } = preferences.getAll()
+    const {
+      startUpAction,
+      defaultDirectoryToOpen,
+      autoSwitchTheme,
+      theme
+    } = preferences.getAll()
+
     if (startUpAction === 'folder' && defaultDirectoryToOpen) {
       const info = normalizeMarkdownPath(defaultDirectoryToOpen)
       if (info) {
@@ -151,29 +157,32 @@ class App {
       }
     }
 
+    // Set initial native theme for theme in preferences.
+    const isDarkTheme = /dark/i.test(theme)
+    if (autoSwitchTheme === 0 && isDarkTheme !== nativeTheme.shouldUseDarkColors) {
+      selectTheme(nativeTheme.shouldUseDarkColors ? 'dark' : 'light')
+      nativeTheme.themeSource = nativeTheme.shouldUseDarkColors ? 'dark' : 'light'
+    } else {
+      nativeTheme.themeSource = isDarkTheme ? 'dark' : 'light'
+    }
+
+    let isDarkMode = nativeTheme.shouldUseDarkColors
+    ipcMain.on('broadcast-preferences-changed', change => {
+      // Set Chromium's color for native elements after theme change.
+      if (change.theme) {
+        const isDarkTheme = /dark/i.test(change.theme)
+        if (isDarkMode !== isDarkTheme) {
+          isDarkMode = isDarkTheme
+          nativeTheme.themeSource = isDarkTheme ? 'dark' : 'light'
+        } else if (nativeTheme.themeSource === 'system') {
+          // Need to set dark or light theme because we set `system` to get the current system theme.
+          nativeTheme.themeSource = isDarkMode ? 'dark' : 'light'
+        }
+      }
+    })
+
     if (isOsx) {
       app.dock.setMenu(dockMenu)
-
-      // Listen for system theme change and change Mark Text own `dark` and `light`.
-      // In macOS 10.14 Mojave, Apple introduced a new system-wide dark mode for
-      // all macOS computers.
-      systemPreferences.subscribeNotification(
-        'AppleInterfaceThemeChangedNotification',
-        () => {
-          const preferences = this._accessor.preferences
-          const { theme } = preferences.getAll()
-
-          // Application menu is automatically updated via preference manager.
-          if (systemPreferences.isDarkMode() && theme !== 'dark' &&
-            theme !== 'material-dark' && theme !== 'one-dark') {
-            selectTheme('dark')
-          }
-          if (!systemPreferences.isDarkMode() && theme !== 'light' &&
-            theme !== 'ulysses' && theme !== 'graphite') {
-            selectTheme('light')
-          }
-        }
-      )
     } else if (isWindows) {
       app.setJumpList([{
         type: 'recent'

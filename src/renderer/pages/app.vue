@@ -146,6 +146,7 @@ export default {
     dispatch('LINTEN_FOR_PRINT_SERVICE_CLEARUP')
     dispatch('LINTEN_FOR_EXPORT_SUCCESS')
     dispatch('LISTEN_FOR_FILE_CHANGE')
+    dispatch('LISTEN_WINDOW_ZOOM')
     // module: notification
     dispatch('LISTEN_FOR_NOTIFICATION')
 

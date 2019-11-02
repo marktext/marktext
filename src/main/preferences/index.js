@@ -3,23 +3,11 @@ import fs from 'fs'
 import path from 'path'
 import EventEmitter from 'events'
 import Store from 'electron-store'
-import { BrowserWindow, ipcMain, systemPreferences } from 'electron'
+import { BrowserWindow, ipcMain, nativeTheme } from 'electron'
 import log from 'electron-log'
-import { isOsx, isWindows } from '../config'
+import { isWindows } from '../config'
 import { hasSameKeys } from '../utils'
-import { getStringRegKey, winHKEY } from '../platform/win32/registry.js'
 import schema from './schema'
-
-const isDarkSystemMode = () => {
-  if (isOsx) {
-    return systemPreferences.isDarkMode()
-  } else if (isWindows) {
-    // NOTE: This key is a 32-Bit DWORD but converted to JS string!
-    const buf = getStringRegKey(winHKEY.HKCU, 'Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize', 'AppsUseLightTheme')
-    return buf === '' // zero (0)
-  }
-  return false
-}
 
 const PREFERENCES_FILE_NAME = 'preferences'
 
@@ -50,7 +38,9 @@ class Preference extends EventEmitter {
     let defaultSettings = null
     try {
       defaultSettings = fse.readJsonSync(this.staticPath)
-      if (isDarkSystemMode()) {
+
+      // Set best theme on first application start.
+      if (nativeTheme.shouldUseDarkColors) {
         defaultSettings.theme = 'dark'
       }
     } catch (err) {

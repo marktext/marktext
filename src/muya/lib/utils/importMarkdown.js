@@ -77,9 +77,9 @@ const importRegister = ContentState => {
       nextSibling: null,
       children: []
     }
-    const { trimUnnecessaryCodeBlockEmptyLines } = this.muya.options
-    const tokens = new Lexer({ disableInline: true }).lex(markdown)
 
+    const { trimUnnecessaryCodeBlockEmptyLines, footnote } = this.muya.options
+    const tokens = new Lexer({ disableInline: true, footnote }).lex(markdown)
     let token
     let block
     let value
@@ -321,6 +321,23 @@ const importRegister = ContentState => {
           parentList.shift()
           break
         }
+        case 'footnote_start': {
+          block = this.createBlock('figure', {
+            functionType: 'footnote'
+          })
+          const identifierInput = this.createBlock('span', {
+            text: token.identifier,
+            functionType: 'footnoteInput'
+          })
+          this.appendChild(block, identifierInput)
+          this.appendChild(parentList[0], block)
+          parentList.unshift(block)
+          break
+        }
+        case 'footnote_end': {
+          parentList.shift()
+          break
+        }
         case 'list_start': {
           const { ordered, listType, start } = token
           block = this.createBlock(ordered === true ? 'ol' : 'ul')
@@ -556,7 +573,6 @@ const importRegister = ContentState => {
           results.add(attrs.src)
         } else {
           const rawSrc = label + backlash.second
-          console.log(render.labels)
           if (render.labels.has((rawSrc).toLowerCase())) {
             const { href } = render.labels.get(rawSrc.toLowerCase())
             const { src } = getImageInfo(href)

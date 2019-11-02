@@ -86,7 +86,12 @@ const clearFormat = (token, { start, end }) => {
 }
 
 const addFormat = (type, block, { start, end }) => {
-  if (block.type === 'pre') return false
+  if (
+    block.type !== 'span' ||
+    (block.type === 'span' && !/paragraphContent|cellConntent|atxLine/.test(block.functionType))
+  ) {
+    return false
+  }
   switch (type) {
     case 'em':
     case 'del':

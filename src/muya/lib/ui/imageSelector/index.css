@@ -108,6 +108,7 @@
   text-align: center;
   display: block;
   color: var(--editorColor30);
+  user-select: none;
 }
 
 .ag-image-selector span.description a {
@@ -154,6 +155,7 @@
   text-align: center;
   font-size: 14px;
   color: var(--editorColor);
+  user-select: none;
 }
 
 .ag-image-selector .more {
@@ -161,6 +163,7 @@
   color: var(--editorColor);
   text-align: center;
   margin-bottom: 20px;
+  user-select: none;
 }
 
 .ag-image-selector .photo {

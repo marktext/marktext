@@ -180,6 +180,55 @@ figure[data-role="HTML"].ag-active .ag-html-preview {
   display: none;
 }
 
+figure[data-role="FOOTNOTE"] {
+  position: relative;
+  background: var(--footnoteBgColor);
+  padding: 1.2em 2em .05em 1em;
+  font-size: .8em;
+  opacity: .8;
+}
+
+figure[data-role="FOOTNOTE"] > p:first-of-type .ag-paragraph-content:empty::after {
+  content: 'Input the footnote definition...';
+  color: var(--editorColor30);
+}
+
+figure[data-role="FOOTNOTE"].ag-active::before {
+  content: attr(data-role);
+  text-transform: lowercase;
+  position: absolute;
+  top: .2em;
+  right: 1em;
+  color: var(--editorColor30);
+  font-size: 12px;
+}
+
+figure[data-role="FOOTNOTE"] pre {
+  font-size: .8em;
+}
+
+figure[data-role="FOOTNOTE"] .ag-footnote-input {
+  padding: 0 1em;
+  min-width: 80px;
+  position: absolute;
+  top: 0.2em;
+  left: 0;
+  font-size: 14px;
+  font-family: monospace;
+  font-weight: 600;
+  color: var(--editorColor);
+  background: transparent;
+  z-index: 1;
+}
+
+figure[data-role="FOOTNOTE"] .ag-footnote-input::before {
+  content: '[^';
+}
+
+figure[data-role="FOOTNOTE"] .ag-footnote-input::after {
+  content: ']:';
+}
+
 .ag-highlight {
   animation-name: highlight;
   animation-duration: .25s;
@@ -1106,4 +1155,30 @@ span.ag-reference-link {
 
 .vega-embed {
   padding-right: 0;
+}
+
+.ag-inline-footnote-identifier {
+  background: var(--codeBlockBgColor);
+  padding: 0 0.4em;
+  border-radius: 3px;
+  font-size: .7em;
+  color: var(--editorColor80);
+}
+
+.ag-inline-footnote-identifier a {
+  color: var(--editorColor);
+}
+
+i.ag-footnote-backlink {
+  width: 20px;
+  height: 20px;
+  text-align: center;
+  line-height: 20px;
+  display: block;
+  position: absolute;
+  right: .5em;
+  bottom: .5em;
+  font-family: sans-serif;
+  cursor: pointer;
+  z-index: 100;
 }

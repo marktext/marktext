@@ -92,7 +92,7 @@ class AppMenu {
       }
       return recentDocuments
     } catch (err) {
-      log.error(err)
+      log.error('Error while read recently used documents:', err)
       return []
     }
   }

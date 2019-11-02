@@ -10,6 +10,7 @@ const INLINE_UPDATE_FRAGMENTS = [
   '^(?:[\\s\\S]+?)\\n {0,3}(\\={3,}|\\-{3,})(?= {1,}|$)', // Setext headings **match from beginning**
   '(?:^|\n) {0,3}(>).+', // Block quote
   '^( {4,})', // Indent code **match from beginning**
+  '^(\\[\\^[^\\^\\[\\]\\s]+?(?<!\\\\)\\]: )', // Footnote **match from beginning**
   '(?:^|\n) {0,3}((?:\\* *\\* *\\*|- *- *-|_ *_ *_)[ \\*\\-\\_]*)$' // Thematic break
 ]
 
@@ -76,7 +77,7 @@ const updateCtrl = ContentState => {
     if (/figure/.test(block.type)) {
       return false
     }
-    if (/cellContent|codeContent|languageInput/.test(block.functionType)) {
+    if (/cellContent|codeContent|languageInput|footnoteInput/.test(block.functionType)) {
       return false
     }
 
@@ -89,8 +90,9 @@ const updateCtrl = ContentState => {
     const listItem = this.getParent(block)
     const [
       match, bullet, tasklist, order, atxHeader,
-      setextHeader, blockquote, indentCode, hr
+      setextHeader, blockquote, indentCode, footnote, hr
     ] = text.match(INLINE_UPDATE_REG) || []
+    const { footnote: isSupportFootnote } = this.muya.options
 
     switch (true) {
       case (!!hr && new Set(hr.split('').filter(i => /\S/.test(i))).size === 1):
@@ -117,6 +119,9 @@ const updateCtrl = ContentState => {
 
       case !!indentCode:
         return this.updateIndentCode(block, line)
+
+      case !!footnote && block.type === 'p' && !block.parent && isSupportFootnote:
+        return this.updateFootnote(block, line)
 
       case !match:
       default:

@@ -1,6 +1,10 @@
 import selection from '../selection'
 import { isOsx } from '../config'
 
+/* eslint-disable no-useless-escape */
+const FOOTNOTE_REG = /^\[\^([^\^\[\]\s]+?)(?<!\\)\]:$/
+/* eslint-enable no-useless-escape */
+
 const checkAutoIndent = (text, offset) => {
   const pairStr = text.substring(offset - 1, offset + 1)
   return /^(\{\}|\[\]|\(\)|><)$/.test(pairStr)
@@ -226,6 +230,26 @@ const enterCtrl = ContentState => {
       return this.enterHandler(event)
     }
 
+    if (
+      block.type === 'span' &&
+      block.functionType === 'paragraphContent' &&
+      !this.getParent(block).parent &&
+      start.offset === text.length &&
+      FOOTNOTE_REG.test(text)
+    ) {
+      event.preventDefault()
+      event.stopPropagation()
+      // Just to feet the `updateFootnote` API and add one white space.
+      block.text += ' '
+      const key = block.key
+      const offset = block.text.length
+      this.cursor = {
+        start: { key, offset },
+        end: { key, offset }
+      }
+      return this.updateFootnote(this.getParent(block), block)
+    }
+
     // handle `shift + enter` insert `soft line break` or `hard line break`
     // only cursor in `line block` can create `soft line break` and `hard line break`
     // handle line in code block
@@ -418,6 +442,7 @@ const enterCtrl = ContentState => {
         }
 
         this.insertAfter(newBlock, block)
+
         break
       }
       case left === 0 && right === 0: {
@@ -511,7 +536,14 @@ const enterCtrl = ContentState => {
       end: { key, offset }
     }
 
-    this.partialRender()
+    let needRenderAll = false
+
+    if (this.isCollapse() && cursorBlock.type === 'p') {
+      this.checkInlineUpdate(cursorBlock.children[0])
+      needRenderAll = true
+    }
+
+    needRenderAll ? this.render() : this.partialRender()
   }
 }
 

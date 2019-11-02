@@ -188,7 +188,7 @@ const copyCutCtrl = ContentState => {
     }
 
     let htmlData = wrapper.innerHTML
-    const textData = this.htmlToMarkdown(htmlData)
+    const textData = escapeHtml(this.htmlToMarkdown(htmlData))
     htmlData = marked(textData)
 
     return { html: htmlData, text: textData }
