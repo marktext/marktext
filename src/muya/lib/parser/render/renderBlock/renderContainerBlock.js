@@ -124,9 +124,9 @@ export default function renderContainerBlock (parent, block, activeBlocks, match
   } else if (type === 'figure') {
     if (functionType) {
       Object.assign(data.dataset, { role: functionType.toUpperCase() })
-      if (functionType === 'table') {
+      if (functionType === 'table' && activeBlocks[0] && activeBlocks[0].functionType === 'cellContent') {
         children.unshift(renderTableTools(activeBlocks))
-      } else {
+      } else if (functionType !== 'footnote') {
         children.unshift(renderEditIcon())
       }
     }

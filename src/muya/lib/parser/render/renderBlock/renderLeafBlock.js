@@ -101,7 +101,8 @@ export default function renderLeafBlock (parent, block, activeBlocks, matches, u
       functionType !== 'codeContent' &&
       functionType !== 'languageInput'
     ) {
-      const hasBeginRules = type === 'span'
+      const hasBeginRules = /paragraphContent|atxLine/.test(functionType)
+
       tokens = tokenizer(text, {
         highlights,
         hasBeginRules,
