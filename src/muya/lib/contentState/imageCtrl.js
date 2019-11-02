@@ -29,7 +29,7 @@ const imageCtrl = ContentState => {
     // Only encode URLs but not local paths or data URLs
     let imgUrl
     if (!/data:image/.test(src)) {
-      imgUrl = encodeURI(src)
+      imgUrl = encodeURI(src).replace(/#/g, encodeURIComponent('#'))
     } else {
       imgUrl = src
     }
@@ -132,7 +132,7 @@ const imageCtrl = ContentState => {
       }
       imageText += ']('
       if (src) {
-        imageText += encodeURI(src)
+        imageText += encodeURI(src).replace(/#/g, encodeURIComponent('#'))
       }
       if (title) {
         imageText += ` "${title}"`
