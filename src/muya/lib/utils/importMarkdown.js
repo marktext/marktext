@@ -79,6 +79,7 @@ const importRegister = ContentState => {
     }
     const { trimUnnecessaryCodeBlockEmptyLines } = this.muya.options
     const tokens = new Lexer({ disableInline: true }).lex(markdown)
+
     let token
     let block
     let value
