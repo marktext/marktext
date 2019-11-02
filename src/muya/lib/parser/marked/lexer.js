@@ -75,7 +75,6 @@ Lexer.prototype.token = function (src, top) {
   let i
   let tag
   let l
-  let checked
 
   // Only check front matter at the begining of a markdown file.
   // Please see note in "blockquote" why we need "checkFrontmatter" and "top".
@@ -291,6 +290,7 @@ Lexer.prototype.token = function (src, top) {
     // list
     cap = this.rules.list.exec(src)
     if (cap) {
+      let checked
       src = src.substring(cap[0].length)
       bull = cap[2]
       let isOrdered = bull.length > 1
@@ -425,7 +425,7 @@ Lexer.prototype.token = function (src, top) {
 
         const isOrderedListItem = /\d/.test(bull)
         this.tokens.push({
-          checked: checked,
+          checked,
           listItemType: bull.length > 1 ? 'order' : (isTaskList ? 'task' : 'bullet'),
           bulletMarkerOrDelimiter: isOrderedListItem ? bull.slice(-1) : bull.charAt(0),
           type: loose ? 'loose_item_start' : 'list_item_start'
