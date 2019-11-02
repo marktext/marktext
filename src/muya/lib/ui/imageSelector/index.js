@@ -302,11 +302,7 @@ class ImageSelector extends BaseFloat {
             }
           }
         }, 'Choose an Image'),
-        h('span.description', {
-          props: {
-            style: 'user-select: none;'
-          }
-        }, 'Choose image from your computer.')
+        h('span.description', 'Choose image from your computer.')
       ]
     } else if (tab === 'link') {
       const altInput = h('input.alt', {
@@ -376,11 +372,7 @@ class ImageSelector extends BaseFloat {
         }
       }, 'Embed Image')
       const bottomDes = h('span.description', [
-        h('span', {
-          props: {
-            style: 'user-select: none;'
-          }
-        }, 'Paste web image or local image path. Use '),
+        h('span', 'Paste web image or local image path. Use '),
         h('a', {
           on: {
             click: event => {
@@ -411,11 +403,7 @@ class ImageSelector extends BaseFloat {
         const loadingCom = h('div.ag-plugin-loading')
         bodyContent.push(loadingCom)
       } else if (this.photoList.length === 0) {
-        const noDataCom = h('div.no-data', {
-          props: {
-            style: 'user-select: none;'
-          }
-        }, 'No result...')
+        const noDataCom = h('div.no-data', 'No result...')
         bodyContent.push(noDataCom)
       } else {
         const photos = this.photoList.map(photo => {
@@ -458,11 +446,7 @@ class ImageSelector extends BaseFloat {
           return h('div.photo', [imageWrapper, desCom])
         })
         const photoWrapper = h('div.photos-wrapper', photos)
-        const moreCom = h('div.more', {
-          props: {
-            style: 'user-select: none;'
-          }
-        }, 'Search for more photos...')
+        const moreCom = h('div.more', 'Search for more photos...')
         bodyContent.push(photoWrapper, moreCom)
       }
     }
