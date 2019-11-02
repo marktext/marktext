@@ -418,6 +418,7 @@ const enterCtrl = ContentState => {
         }
 
         this.insertAfter(newBlock, block)
+
         break
       }
       case left === 0 && right === 0: {
@@ -511,7 +512,14 @@ const enterCtrl = ContentState => {
       end: { key, offset }
     }
 
-    this.partialRender()
+    let needRenderAll = false
+
+    if (this.isCollapse() && cursorBlock.type === 'p') {
+      this.checkInlineUpdate(cursorBlock.children[0])
+      needRenderAll = true
+    }
+
+    needRenderAll ? this.render() : this.partialRender()
   }
 }
 
