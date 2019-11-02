@@ -115,7 +115,7 @@ class App {
     const { paths } = this._accessor
     ensureDefaultDict(paths.userDataPath)
       .catch(error => {
-        log.error(error)
+        log.error('Error copying Hunspell dictionary: ', error)
       })
   }
 

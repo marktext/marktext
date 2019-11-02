@@ -62,7 +62,7 @@ const handleResponseForExport = async (e, { type, content, pathname, title, page
       }
       win.webContents.send('AGANI::export-success', { type, filePath })
     } catch (err) {
-      log.error(err)
+      log.error('Error while exporting:', err)
       const ERROR_MSG = err.message || `Error happened when export ${filePath}`
       win.webContents.send('AGANI::show-notification', {
         title: 'Export failure',
@@ -130,7 +130,7 @@ const handleResponseForSave = async (e, { id, filename, markdown, pathname, opti
       return id
     })
     .catch(err => {
-      log.error(err)
+      log.error('Error while saving:', err)
       win.webContents.send('mt::tab-save-failure', id, err.message)
     })
 }
@@ -175,7 +175,7 @@ const openPandocFile = async (windowId, pathname) => {
     const data = await converter()
     ipcMain.emit('app-open-markdown-by-id', windowId, data)
   } catch (err) {
-    log.error(err)
+    log.error('Error while converting file:', err)
   }
 }
 
@@ -206,7 +206,7 @@ ipcMain.on('mt::save-and-close-tabs', async (e, unsavedFiles) => {
         win.send('mt::force-close-tabs-by-id', tabIds)
       })
       .catch(err => {
-        log.error(err.error)
+        log.error('Error while save all:', err.error)
       })
   } else {
     const tabIds = unsavedFiles.map(f => f.id)
@@ -252,7 +252,7 @@ ipcMain.on('AGANI::response-file-save-as', async (e, { id, filename, markdown, p
         }
       })
       .catch(err => {
-        log.error(err)
+        log.error('Error while save as:', err)
         win.webContents.send('mt::tab-save-failure', id, err.message)
       })
   }
@@ -272,8 +272,7 @@ ipcMain.on('mt::close-window-confirm', async (e, unsavedFiles) => {
         ipcMain.emit('window-close-by-id', win.id)
       })
       .catch(err => {
-        console.log(err)
-        log.error(err)
+        log.error('Error while saving before quit:', err)
 
         // Notify user about the problem.
         dialog.showMessageBox(win, {

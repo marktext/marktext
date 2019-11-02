@@ -65,7 +65,7 @@
     "joplin-turndown-plugin-gfm": "^1.0.11",
     "katex": "^0.11.1",
     "keyboard-layout": "^2.0.16",
-    "keytar": "^5.0.0-beta.3",
+    "keytar": "5.0.0-beta.4",
     "mermaid": "^8.4.0",
     "plist": "^3.0.1",
     "popper.js": "^1.16.0",
