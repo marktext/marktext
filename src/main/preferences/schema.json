@@ -237,6 +237,11 @@
     "type": "boolean",
     "default": false
   },
+  "footnote": {
+    "description": "Markdown-Enable pandoc's markdown extension footnote.",
+    "type": "boolean",
+    "default": false
+  },
 
   "theme": {
     "description": "Theme--Select the theme used in Mark Text",

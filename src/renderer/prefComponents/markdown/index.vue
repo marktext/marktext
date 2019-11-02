@@ -54,6 +54,12 @@
       :onChange="value => onSelectChange('superSubScript', value)"
       more="https://pandoc.org/MANUAL.html#superscripts-and-subscripts"
     ></bool>
+    <bool
+      description="Enable pandoc's markdown extension footnote(need restart Mark Text)."
+      :bool="footnote"
+      :onChange="value => onSelectChange('footnote', value)"
+      more="https://pandoc.org/MANUAL.html#footnotes"
+    ></bool>
   </div>
 </template>
 
@@ -95,7 +101,8 @@ export default {
       tabSize: state => state.preferences.tabSize,
       listIndentation: state => state.preferences.listIndentation,
       frontmatterType: state => state.preferences.frontmatterType,
-      superSubScript: state => state.preferences.superSubScript
+      superSubScript: state => state.preferences.superSubScript,
+      footnote: state => state.preferences.footnote
     })
   },
   methods: {

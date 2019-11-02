@@ -41,6 +41,7 @@ const state = {
   listIndentation: 1,
   frontmatterType: '-',
   superSubScript: false,
+  footnote: false,
 
   theme: 'light',
 

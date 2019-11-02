@@ -387,3 +387,15 @@ export const verticalPositionInRect = (event, rect) => {
   const { top, height } = rect
   return (clientY - top) > (height / 2) ? 'down' : 'up'
 }
+
+export const collectFootnotes = (blocks) => {
+  const map = new Map()
+  for (const block of blocks) {
+    if (block.type === 'figure' && block.functionType === 'footnote') {
+      const identifier = block.children[0].text
+      map.set(identifier, block)
+    }
+  }
+
+  return map
+}
