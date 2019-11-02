@@ -44,6 +44,7 @@ const state = {
   footnote: false,
 
   theme: 'light',
+  autoSwitchTheme: 2,
 
   spellcheckerEnabled: false,
   spellcheckerIsHunspell: false, // macOS only

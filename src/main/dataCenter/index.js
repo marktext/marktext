@@ -71,7 +71,7 @@ class DataCenter extends EventEmitter {
 
       return Object.assign(data, encryptObj)
     } catch (err) {
-      log.error(err)
+      log.error('Failed to decrypt secure keys:', err)
       return data
     }
   }
@@ -133,7 +133,7 @@ class DataCenter extends EventEmitter {
       try {
         return await keytar.setPassword(serviceName, key, value)
       } catch (err) {
-        log.error(err)
+        log.error('dataCenter::setItem:', err)
       }
     } else {
       return this.store.set(key, value)

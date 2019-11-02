@@ -60,9 +60,7 @@ try {
   // Catch errors that may come from invalid configuration files like settings.
   const msgHint = err.message.includes('Config schema violation')
     ? 'This seems to be an issue with your configuration file(s). ' : ''
-
-  log.error(`Loading Mark Text failed during initialization! ${msgHint}`)
-  log.error(err)
+  log.error(`Loading Mark Text failed during initialization! ${msgHint}`, err)
 
   const EXIT_ON_ERROR = !!process.env.MARKTEXT_EXIT_ON_ERROR
   const SHOW_ERROR_DIALOG = !process.env.MARKTEXT_ERROR_INTERACTION

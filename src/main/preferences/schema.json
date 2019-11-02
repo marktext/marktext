@@ -247,6 +247,15 @@
     "description": "Theme--Select the theme used in Mark Text",
     "type": "string"
   },
+  "autoSwitchTheme": {
+    "description": "Theme--Automatically adjust application theme according system.",
+    "default": 2,
+    "enum": [
+      0,
+      1,
+      2
+    ]
+  },
 
   "spellcheckerEnabled": {
     "description": "Spelling--Whether spell checking is enabled.",
