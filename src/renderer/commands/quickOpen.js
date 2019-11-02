@@ -5,7 +5,7 @@ import bus from '../bus'
 import { delay } from '@/util'
 import FileSearcher from '@/node/fileSearcher'
 
-const MD_EXTENSION = /\.markdown|\.mdown|\.mkdn|\.md|\.mkd|\.mdwn|\.mdtxt|\.mdtext|\.text|\.txt$/i
+const MD_EXTENSION = /\.(?:markdown|mdown|mkdn|md|mkd|mdwn|mdtxt|mdtext|text|txt)$/i
 const SPECIAL_CHARS = /[\[\]\\^$.\|\?\*\+\(\)\/]{1}/g // eslint-disable-line no-useless-escape
 
 // The quick open command
@@ -82,7 +82,7 @@ class QuickOpenCommand {
 
   // --- private ------------------------------------------
 
-  _doSearch = async query => {
+  _doSearch = query => {
     this._cancelFn = null
     const { _editorState, _folderState } = this
     const isRootDirOpened = !!_folderState.projectTree

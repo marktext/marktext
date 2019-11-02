@@ -289,7 +289,9 @@ export default {
   .input-wrapper {
     display: block;
     width: 100%;
-    border: 1px solid var(--sideBarTextColor);
+    border: 1px solid var(--inputBgColor);
+    background: var(--inputBgColor);
+    border-radius: 3px;
   }
   input.search {
     width: 100%;

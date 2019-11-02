@@ -32,10 +32,10 @@ Here is an example:
 
 **Mark Text menu (macOS only):**
 
-| Id                | Default                                        | Description                             |
-| ----------------- | ---------------------------------------------- | --------------------------------------- |
+| Id                 | Default                                        | Description                             |
+| ------------------ | ---------------------------------------------- | --------------------------------------- |
 | `mt.hide`          | <kbd>Command</kbd>+<kbd>H</kbd>                | Hide Mark Text                          |
-| `mt.hide-others`    | <kbd>Command</kbd>+<kbd>Alt</kbd>+<kbd>H</kbd> | Hide all other windows except Mark Text |
+| `mt.hide-others`   | <kbd>Command</kbd>+<kbd>Alt</kbd>+<kbd>H</kbd> | Hide all other windows except Mark Text |
 | `file.preferences` | <kbd>Command</kbd>+<kbd>,</kbd>                | Open settings window                    |
 | `file.quit`        | <kbd>Command</kbd>+<kbd>Q</kbd>                | Quit Mark Text                          |
 
@@ -74,34 +74,34 @@ Here is an example:
 | `edit.find-next`         | <kbd>CmdOrCtrl</kbd>+<kbd>Alt</kbd>+<kbd>U</kbd>   | Continue the search and find the next match     |
 | `edit.find-previous`     | <kbd>CmdOrCtrl</kbd>+<kbd>Shift</kbd>+<kbd>U</kbd> | Continue the search and find the previous match |
 | `edit.replace`           | <kbd>CmdOrCtrl</kbd>+<kbd>Alt</kbd>+<kbd>F</kbd>   | Replace the information with a replacement      |
-| `edit.find-in-folder`       | <kbd>CmdOrCtrl</kbd>+<kbd>Shift</kbd>+<kbd>F</kbd> | Find files contain the keyword in opend folder  |
+| `edit.find-in-folder`    | <kbd>CmdOrCtrl</kbd>+<kbd>Shift</kbd>+<kbd>F</kbd> | Find files contain the keyword in opend folder  |
 | `edit.aidou`             | <kbd>CmdOrCtrl</kbd>+<kbd>/</kbd>                  | Show Aidou dialog                               |
 | `edit.screenshot`        | <kbd>Command</kbd>+<kbd>Alt</kbd>+<kbd>A</kbd>     | Get the screenshot (macOS only)                 |
 
 **Paragraph menu:**
 
-| Id                         | Default                                            | Description                                       |
-| -------------------------- | -------------------------------------------------- | ------------------------------------------------- |
-| `paragraph.heading-1`        | <kbd>CmdOrCtrl</kbd>+<kbd>1</kbd>                  | Set line as heading 1                             |
-| `paragraph.heading-2`        | <kbd>CmdOrCtrl</kbd>+<kbd>2</kbd>                  | Set line as heading 2                             |
-| `paragraph.heading-3`        | <kbd>CmdOrCtrl</kbd>+<kbd>3</kbd>                  | Set line as heading 3                             |
-| `paragraph.heading-4`        | <kbd>CmdOrCtrl</kbd>+<kbd>4</kbd>                  | Set line as heading 4                             |
-| `paragraph.heading-5`        | <kbd>CmdOrCtrl</kbd>+<kbd>5</kbd>                  | Set line as heading 5                             |
-| `paragraph.heading-6`        | <kbd>CmdOrCtrl</kbd>+<kbd>6</kbd>                  | Set line as heading 6                             |
-| `paragraph.upgrade-heading`  | <kbd>CmdOrCtrl</kbd>+<kbd>=</kbd>                  | Upgrade a heading                                 |
-| `paragraph.degrade-heading`  | <kbd>CmdOrCtrl</kbd>+<kbd>-</kbd>                  | Degrade a heading                                 |
+| Id                          | Default                                            | Description                                       |
+| --------------------------- | -------------------------------------------------- | ------------------------------------------------- |
+| `paragraph.heading-1`       | <kbd>CmdOrCtrl</kbd>+<kbd>1</kbd>                  | Set line as heading 1                             |
+| `paragraph.heading-2`       | <kbd>CmdOrCtrl</kbd>+<kbd>2</kbd>                  | Set line as heading 2                             |
+| `paragraph.heading-3`       | <kbd>CmdOrCtrl</kbd>+<kbd>3</kbd>                  | Set line as heading 3                             |
+| `paragraph.heading-4`       | <kbd>CmdOrCtrl</kbd>+<kbd>4</kbd>                  | Set line as heading 4                             |
+| `paragraph.heading-5`       | <kbd>CmdOrCtrl</kbd>+<kbd>5</kbd>                  | Set line as heading 5                             |
+| `paragraph.heading-6`       | <kbd>CmdOrCtrl</kbd>+<kbd>6</kbd>                  | Set line as heading 6                             |
+| `paragraph.upgrade-heading` | <kbd>CmdOrCtrl</kbd>+<kbd>=</kbd>                  | Upgrade a heading                                 |
+| `paragraph.degrade-heading` | <kbd>CmdOrCtrl</kbd>+<kbd>-</kbd>                  | Degrade a heading                                 |
 | `paragraph.table`           | <kbd>CmdOrCtrl</kbd>+<kbd>Shift</kbd>+<kbd>T</kbd> | Insert a table                                    |
-| `paragraph.code-fence`       | <kbd>CmdOrCtrl</kbd>+<kbd>Alt</kbd>+<kbd>C</kbd>   | Insert a code block                               |
-| `paragraph.quote-block`      | <kbd>CmdOrCtrl</kbd>+<kbd>Alt</kbd>+<kbd>Q</kbd>   | Insert a quote block                              |
-| `paragraph.math-formula`       | <kbd>CmdOrCtrl</kbd>+<kbd>Alt</kbd>+<kbd>M</kbd>   | Insert a math block                               |
-| `paragraph.html-block`       | <kbd>CmdOrCtrl</kbd>+<kbd>Alt</kbd>+<kbd>J/H</kbd> | Insert a HTML block (`J` on macOS, `H` otherwise) |
-| `paragraph.order-list`       | <kbd>CmdOrCtrl</kbd>+<kbd>Alt</kbd>+<kbd>O</kbd>   | Insert a ordered list                             |
-| `paragraph.bullet-list`      | <kbd>CmdOrCtrl</kbd>+<kbd>Alt</kbd>+<kbd>U</kbd>   | Insert a unordered list                           |
-| `paragraph.task-list`        | <kbd>CmdOrCtrl</kbd>+<kbd>Alt</kbd>+<kbd>X</kbd>   | Insert a task list                                |
-| `paragraph.loose-list-item`   | <kbd>CmdOrCtrl</kbd>+<kbd>Alt</kbd>+<kbd>L</kbd>   | Convert a list item to a loose list item          |
+| `paragraph.code-fence`      | <kbd>CmdOrCtrl</kbd>+<kbd>Alt</kbd>+<kbd>C</kbd>   | Insert a code block                               |
+| `paragraph.quote-block`     | <kbd>CmdOrCtrl</kbd>+<kbd>Alt</kbd>+<kbd>Q</kbd>   | Insert a quote block                              |
+| `paragraph.math-formula`    | <kbd>CmdOrCtrl</kbd>+<kbd>Alt</kbd>+<kbd>M</kbd>   | Insert a math block                               |
+| `paragraph.html-block`      | <kbd>CmdOrCtrl</kbd>+<kbd>Alt</kbd>+<kbd>J/H</kbd> | Insert a HTML block (`J` on macOS, `H` otherwise) |
+| `paragraph.order-list`      | <kbd>CmdOrCtrl</kbd>+<kbd>Alt</kbd>+<kbd>O</kbd>   | Insert a ordered list                             |
+| `paragraph.bullet-list`     | <kbd>CmdOrCtrl</kbd>+<kbd>Alt</kbd>+<kbd>U</kbd>   | Insert a unordered list                           |
+| `paragraph.task-list`       | <kbd>CmdOrCtrl</kbd>+<kbd>Alt</kbd>+<kbd>X</kbd>   | Insert a task list                                |
+| `paragraph.loose-list-item` | <kbd>CmdOrCtrl</kbd>+<kbd>Alt</kbd>+<kbd>L</kbd>   | Convert a list item to a loose list item          |
 | `paragraph.paragraph`       | <kbd>CmdOrCtrl</kbd>+<kbd>0</kbd>                  | Convert a heading to a paragraph                  |
-| `paragraph.horizontal-line`  | <kbd>CmdOrCtrl</kbd>+<kbd>Alt</kbd>+<kbd>-</kbd>   | Add a horizontal line                             |
-| `paragraph.front-matter` | <kbd>CmdOrCtrl</kbd>+<kbd>Alt</kbd>+<kbd>Y</kbd>   | Insert a YAML frontmatter block                   |
+| `paragraph.horizontal-line` | <kbd>CmdOrCtrl</kbd>+<kbd>Alt</kbd>+<kbd>-</kbd>   | Add a horizontal line                             |
+| `paragraph.front-matter`    | <kbd>CmdOrCtrl</kbd>+<kbd>Alt</kbd>+<kbd>Y</kbd>   | Insert a YAML frontmatter block                   |
 
 **Format menu:**
 
@@ -120,23 +120,23 @@ Here is an example:
 
 **Window menu:**
 
-| Id                       | Default                           | Description                                                                          |
-| ------------------------ | --------------------------------- | ------------------------------------------------------------------------------------ |
-| `window.minimize`         | <kbd>CmdOrCtrl</kbd>+<kbd>M</kbd> | Minimize the window                                                                  |
+| Id                          | Default                           | Description                                                                          |
+| --------------------------- | --------------------------------- | ------------------------------------------------------------------------------------ |
+| `window.minimize`           | <kbd>CmdOrCtrl</kbd>+<kbd>M</kbd> | Minimize the window                                                                  |
 | `window.toggle-full-screen` | <kbd>F11</kbd>                    | Toggle fullscreen mode (or <kbd>Ctrl</kbd>+<kbd>Command</kbd>+<kbd>F</kbd> on macOS) |
 
 **View menu:**
 
 | Id                            | Default                                            | Description                              |
-| ----------------------------- | -------------------------------------------------- | ---------------------------------------- |
-| `view.command-palette`          | <kbd>CmdOrCtrl</kbd>+<kbd>Shift</kbd>+<kbd>P</kbd> | Toggle command palette                   |
-| `view.source-code-mode`          | <kbd>CmdOrCtrl</kbd>+<kbd>Alt</kbd>+<kbd>S</kbd>   | Switch to source code mode               |
-| `view.typewriter-mode`          | <kbd>CmdOrCtrl</kbd>+<kbd>Alt</kbd>+<kbd>T</kbd>   | Enable typewriter mode                   |
-| `view.focus-mode`               | <kbd>CmdOrCtrl</kbd>+<kbd>Shift</kbd>+<kbd>F</kbd> | Enable focus mode                        |
-| `view.toggle-sidebar`           | <kbd>CmdOrCtrl</kbd>+<kbd>J</kbd>                  | Toggle sidebar                           |
-| `view.toggle-tabbar`            | <kbd>CmdOrCtrl</kbd>+<kbd>Alt</kbd>+<kbd>B</kbd>   | Toggle tabbar                            |
+| ----------------------- | -------------------------------------------------- | ---------------------------------------- |
+| `view.command-palette`  | <kbd>CmdOrCtrl</kbd>+<kbd>Shift</kbd>+<kbd>P</kbd> | Toggle command palette                   |
+| `view.source-code-mode` | <kbd>CmdOrCtrl</kbd>+<kbd>Alt</kbd>+<kbd>S</kbd>   | Switch to source code mode               |
+| `view.typewriter-mode`  | <kbd>CmdOrCtrl</kbd>+<kbd>Alt</kbd>+<kbd>T</kbd>   | Enable typewriter mode                   |
+| `view.focus-mode`       | <kbd>CmdOrCtrl</kbd>+<kbd>Shift</kbd>+<kbd>F</kbd> | Enable focus mode                        |
+| `view.toggle-sidebar`   | <kbd>CmdOrCtrl</kbd>+<kbd>J</kbd>                  | Toggle sidebar                           |
+| `view.toggle-tabbar`    | <kbd>CmdOrCtrl</kbd>+<kbd>Alt</kbd>+<kbd>B</kbd>   | Toggle tabbar                            |
 | `view.toggle-dev-tools` | <kbd>CmdOrCtrl</kbd>+<kbd>Alt</kbd>+<kbd>I</kbd>   | Toggle developer tools (debug mode only) |
-| `view.dev-reload`               | <kbd>CmdOrCtrl</kbd>+<kbd>R</kbd>                  | Reload window (debug mode only)          |
+| `view.dev-reload`       | <kbd>CmdOrCtrl</kbd>+<kbd>R</kbd>                  | Reload window (debug mode only)          |
 
 **Misc**
 

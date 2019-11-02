@@ -461,7 +461,6 @@ const paragraphCtrl = ContentState => {
         return
       }
 
-      // FIXME: This will fail on blockquotes and list items because we cannot distinguish from a paragraph.
       if (blockType === 'table') {
         return
       } else if (/heading|hr/.test(blockType)) {
@@ -923,14 +922,41 @@ const paragraphCtrl = ContentState => {
             internalType = 'mathblock'
           }
 
-          // FIXME: We cannot distinguish between diagram and code blocks.
-          internalType = 'pre'
+          // We cannot easy distinguish between diagram and code blocks.
+          const rootBlock = this.getAnchor(block)
+          if (rootBlock && rootBlock.functionType !== 'fencecode') {
+            // Block seems to be a diagram block.
+            internalType = rootBlock.functionType
+          } else {
+            internalType = 'pre'
+          }
         } else if (block.functionType === 'cellContent') {
           internalType = 'table'
-        } else if (block.functionType === 'paragraphContent') {
-          internalType = 'paragraph'
         } else if (block.functionType === 'thematicBreakLine') {
           internalType = 'hr'
+        }
+
+        // List and quote content is also a problem because it's shown as paragraph.
+        const { affiliation } = this.selectionChange(this.cursor)
+        const listTypes = affiliation
+          .slice(0, 3) // the third entry should be the ul/ol
+          .filter(b => /ul|ol/.test(b.type))
+          .map(b => b.listType)
+
+        // Prefer list or blockquote over paragraph.
+        if (listTypes && listTypes.length === 1) {
+          const listType = listTypes[0]
+          if (listType === 'bullet') {
+            internalType = 'ul-bullet'
+          } else if (listType === 'task') {
+            internalType = 'ul-task'
+          } if (listType === 'order') {
+            internalType = 'ol-order'
+          }
+        } else if (affiliation.length === 2 && affiliation[1].type === 'blockquote') {
+          internalType = 'blockquote'
+        } else if (block.functionType === 'paragraphContent') {
+          internalType = 'paragraph'
         }
         break
       }
