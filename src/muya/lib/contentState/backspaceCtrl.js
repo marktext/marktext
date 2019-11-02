@@ -500,10 +500,14 @@ const backspaceCtrl = ContentState => {
         start: { key, offset },
         end: { key, offset }
       }
-      if (this.isCollapse()) {
+      let needRenderAll = false
+
+      if (this.isCollapse() && preBlock.type === 'span' && preBlock.functionType === 'paragraphContent') {
         this.checkInlineUpdate(preBlock)
+        needRenderAll = true
       }
-      this.partialRender()
+
+      needRenderAll ? this.render() : this.partialRender()
     }
   }
 }
