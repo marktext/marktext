@@ -212,10 +212,10 @@ class EditorWindow extends BaseWindow {
     const { browserWindow } = this
     const { preferences } = this._accessor
     const eol = preferences.getPreferedEol()
-    const autoGuessEncoding = preferences.getItem('autoGuessEncoding')
+    const { autoGuessEncoding, trimTrailingNewline } = preferences.getAll()
 
     for (const { filePath, options, selected } of fileList) {
-      loadMarkdownFile(filePath, eol, autoGuessEncoding).then(rawDocument => {
+      loadMarkdownFile(filePath, eol, autoGuessEncoding, trimTrailingNewline).then(rawDocument => {
         if (this.lifecycle === WindowLifecycle.READY) {
           this._doOpenTab(rawDocument, options, selected)
         } else {

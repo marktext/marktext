@@ -17,6 +17,7 @@ export const defaultFileState = {
     isBom: false
   },
   lineEnding: 'lf', // lf or crlf
+  trimTrailingNewline: 3,
   adjustLineEndingOnSave: false, // convert editor buffer (LF) to CRLF when saving
   history: {
     stack: [],
@@ -39,8 +40,8 @@ export const defaultFileState = {
 }
 
 export const getOptionsFromState = file => {
-  const { encoding, lineEnding, adjustLineEndingOnSave } = file
-  return { encoding, lineEnding, adjustLineEndingOnSave }
+  const { encoding, lineEnding, adjustLineEndingOnSave, trimTrailingNewline } = file
+  return { encoding, lineEnding, adjustLineEndingOnSave, trimTrailingNewline }
 }
 
 export const getFileStateFromData = data => {
@@ -51,7 +52,8 @@ export const getFileStateFromData = data => {
     pathname,
     encoding,
     lineEnding,
-    adjustLineEndingOnSave
+    adjustLineEndingOnSave,
+    trimTrailingNewline
   } = data
   const id = getUniqueId()
 
@@ -64,7 +66,8 @@ export const getFileStateFromData = data => {
     pathname,
     encoding,
     lineEnding,
-    adjustLineEndingOnSave
+    adjustLineEndingOnSave,
+    trimTrailingNewline
   })
 }
 
@@ -99,7 +102,7 @@ export const getSingleFileState = ({ id = getUniqueId(), markdown, filename, pat
   // TODO(refactor:renderer/editor): Replace this function with `createDocumentState`.
 
   const fileState = cloneObj(defaultFileState, true)
-  const { encoding, lineEnding, adjustLineEndingOnSave = 'ltr' } = options
+  const { encoding, lineEnding, adjustLineEndingOnSave, trimTrailingNewline } = options
 
   assertLineEnding(adjustLineEndingOnSave, lineEnding)
 
@@ -110,7 +113,8 @@ export const getSingleFileState = ({ id = getUniqueId(), markdown, filename, pat
     pathname,
     encoding,
     lineEnding,
-    adjustLineEndingOnSave
+    adjustLineEndingOnSave,
+    trimTrailingNewline
   })
 }
 
@@ -130,6 +134,7 @@ export const createDocumentState = (markdownDocument, id = getUniqueId()) => {
     encoding,
     lineEnding,
     adjustLineEndingOnSave,
+    trimTrailingNewline,
     cursor = null
   } = markdownDocument
 
@@ -143,7 +148,8 @@ export const createDocumentState = (markdownDocument, id = getUniqueId()) => {
     encoding,
     lineEnding,
     cursor,
-    adjustLineEndingOnSave
+    adjustLineEndingOnSave,
+    trimTrailingNewline
   })
 }
 

@@ -170,6 +170,16 @@
     "type": "boolean",
     "default": true
   },
+  "trimTrailingNewline": {
+    "description": "Editor--The trim trailing newline option.",
+    "default": 2,
+    "enum": [
+      0,
+      1,
+      2,
+      3
+    ]
+  },
   "textDirection": {
     "description": "Editor--The writing text direction",
     "enum": [

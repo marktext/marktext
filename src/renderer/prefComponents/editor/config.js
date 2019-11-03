@@ -11,6 +11,20 @@ export const endOfLineOptions = [{
   value: 'lf'
 }]
 
+export const trimTrailingNewlineOptions = [{
+  label: 'Trim trailing newlines',
+  value: 0
+}, {
+  label: 'Ensure single trailing newline',
+  value: 1
+}, {
+  label: 'Automatically detect',
+  value: 2
+}, {
+  label: 'Disabled',
+  value: 3
+}]
+
 export const textDirectionOptions = [{
   label: 'Left to Right',
   value: 'ltr'

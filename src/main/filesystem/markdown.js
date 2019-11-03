@@ -72,9 +72,11 @@ export const writeMarkdownFile = (pathname, content, options) => {
  *
  * @param {string} pathname The path to the markdown file.
  * @param {string} preferedEol The prefered EOL.
+ * @param {boolean} autoGuessEncoding Whether we should try to auto guess encoding.
+ * @param {*} trimTrailingNewline The trim trailing newline option.
  * @returns {IMarkdownDocumentRaw} Returns a raw markdown document.
  */
-export const loadMarkdownFile = async (pathname, preferedEol, autoGuessEncoding = true) => {
+export const loadMarkdownFile = async (pathname, preferedEol, autoGuessEncoding = true, trimTrailingNewline = 2) => {
   // TODO: Use streams to not buffer the file multiple times and only guess
   //       encoding on the first 256/512 bytes.
 
@@ -107,6 +109,26 @@ export const loadMarkdownFile = async (pathname, preferedEol, autoGuessEncoding 
     markdown = convertLineEndings(markdown, 'lf')
   }
 
+  // Detect final newline
+  if (trimTrailingNewline === 2) {
+    if (!markdown) {
+      // Use default value
+      trimTrailingNewline = 3
+    } else {
+      const lastIndex = markdown.length - 1
+      if (lastIndex >= 1 && markdown[lastIndex] === '\n' && markdown[lastIndex - 1] === '\n') {
+        // Disabled
+        trimTrailingNewline = 2
+      } else if (markdown[lastIndex] === '\n') {
+        // Ensure single trailing newline
+        trimTrailingNewline = 1
+      } else {
+        // Trim trailing newlines
+        trimTrailingNewline = 0
+      }
+    }
+  }
+
   const filename = path.basename(pathname)
   return {
     // document information
@@ -118,6 +140,7 @@ export const loadMarkdownFile = async (pathname, preferedEol, autoGuessEncoding 
     encoding,
     lineEnding,
     adjustLineEndingOnSave,
+    trimTrailingNewline,
 
     // raw file information
     isMixedLineEndings
