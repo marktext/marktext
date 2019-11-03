@@ -1,4 +1,5 @@
 import { loadLanguage } from '../prism/index'
+import resizeCodeBlockLineNumber from '../utils/resizeCodeLineNumber'
 import selection from '../selection'
 
 const CODE_UPDATE_REP = /^`{3,}(.*)/
@@ -134,6 +135,20 @@ const codeBlockCtrl = ContentState => {
     const codeBlock = preBlock.children.find(c => c.type === 'code')
     const codeContent = codeBlock.children[0].text
     this.muya.clipboard.copy('copyCodeContent', codeContent)
+  }
+
+  ContentState.prototype.resizeLineNumber = function () {
+    const { codeBlockLineNumbers } = this.muya.options
+    if (!codeBlockLineNumbers) {
+      return
+    }
+
+    const codeBlocks = document.querySelectorAll('pre.line-numbers')
+    if (codeBlocks.length) {
+      for (const ele of codeBlocks) {
+        resizeCodeBlockLineNumber(ele)
+      }
+    }
   }
 }
 

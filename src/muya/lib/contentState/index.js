@@ -205,7 +205,7 @@ class ContentState {
   }
 
   postRender () {
-    // do nothing.
+    this.resizeLineNumber()
   }
 
   render (isRenderCursor = true, clearCache = false) {

@@ -1226,6 +1226,11 @@ figure:not(.ag-active) pre.ag-paragraph.line-numbers {
 
 }
 
+.line-numbers-sizer {
+  white-space: pre-line;
+  word-break: break-all;
+}
+
 .line-numbers-rows > span {
 	pointer-events: none;
 	display: block;

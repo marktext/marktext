@@ -12,7 +12,7 @@ const renderCopyButton = () => {
 
   return h(selector, {
     attrs: {
-      title: 'Copy',
+      title: 'Copy content',
       contenteditable: 'false'
     }
   }, iconVnode)
