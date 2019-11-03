@@ -1,4 +1,4 @@
-## [unrelease]
+## [unreleased]
 
 **:warning:Breaking Changes:**
 
@@ -6,15 +6,22 @@
 
 **:cactus:Feature**
 
-- Allow custom fonts in settings (#1107)
+- Added experimental spellchecker (#1424)
+- Allow custom fonts in settings via font family picker (#1107)
 - Allow cycle through tabs via shortcuts (#1124)
 - Allow to close tabs by mouse middle click (#1266)
+- Added export and print options (#1511)
+- Added Windows jump list entries (#1503)
+- Added file encoding support (#1438)
+- Added support for TOML and JSON front matter (#1402)
+- Added menu for tabs by @kenyx89 (#1434)
 
 **:butterfly:Optimization**
 
 - Added loading animation during startup
 - Added alt accelerator on Linux and Windows (#1254)
-- Added per-tab notifications
+- Added per-tab notifications for file changes
+- Optimized package size and startup time
 
 **:beetle:Bug fix**
 
@@ -22,18 +29,16 @@
 - Fixed application freeze when using PageDown/PageUp in special cases (#655)
 - Fixed HTML paste handler (#1271)
 - Fixed save all tab order (#1349)
-
-## 0.15.1
-
-v0.15.1 is an unplanned release to fix a XSS security vulnerability.
-
-**:beetle:Bug fix**
-
-- **Fixed a XSS security vulnerability when parsing inline HTML (#1390)**
-- Fixed portable mode detection if current working directory don't match the application directory (#1382)
-- Fixed exception in main process due to file watcher (#1284)
-- Added emoji fallback fonts for macOS and Windows too (#1299)
-- Fixed RegEx for recommend title (#1128)
+- Fixed additional page that may was added due to padding (#1480)
+- Fixed recently directories (#1486)
+- Fixed invalid screen area on Windows (#1474)
+- Fixed UTF-BOM file loading issue (#1438)
+- Fixed multiple potential issues with menu entries (#1437)
+- Fixed display issues with long text in source-code editor (#1427)
+- Fixed issue that `keybindings.json` was not respected (#1406)
+- Fixed settings checkbox width by @mdogadailo (#1471)
+- Fixed line transformer and tooltip arrow style by @mdogadailo (#1441, #1443)
+- Fixed HTML `pre` tag style in preview editor by @mdogadailo (#1441, #1443)
 
 ## 0.15.0
 
