@@ -36,6 +36,7 @@ export class Example2Command {
   constructor () {
     this.id = 'example-2-id'
     this.description = 'Example 2'
+    this.placeholder = '' // Textbox placeholder (optional)
     this.title = '' // Tooltip (optional)
     this.subcommands = [] // (optional)
     this.subcommandSelectedIndex = -1 // Required if `subcommands` defined (optional)

@@ -13,6 +13,7 @@ class QuickOpenCommand {
   constructor (rootState) {
     this.id = 'file.quick-open'
     this.description = 'File: Quick Open'
+    this.placeholder = 'Search file to open'
     this.shortcut = null
 
     this.subcommands = []

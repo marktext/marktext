@@ -17,7 +17,7 @@
             class="search"
             @keydown="handleBeforeInput"
             @keyup="handleInput"
-            placeholder="Type a command to execute"
+            :placeholder="placeholderText"
           >
         </div>
         <loading v-if="searcherBusy"></loading>
@@ -65,8 +65,10 @@ export default {
   },
   data () {
     this.currentCommand = null
+    this.defaultPlaceholderText = 'Type a command to execute'
     return {
       showCommandPalette: false,
+      placeholderText: this.defaultPlaceholderText,
       query: '',
       selectedCommandIndex: -1,
       availableCommands: [],
@@ -88,6 +90,7 @@ export default {
         .then(() => {
           this.availableCommands = this.currentCommand.subcommands
           this.selectedCommandIndex = this.currentCommand.subcommandSelectedIndex
+          this.placeholderText = this.currentCommand.placeholder || this.defaultPlaceholderText
           this.query = ''
           this.showCommandPalette = true
           bus.$emit('editor-blur')
@@ -347,7 +350,6 @@ export default {
     background: var(--floatHoverColor);
   }
   ul.commands li span {
-    height: 35px;
     text-overflow: ellipsis;
     overflow: hidden;
     white-space: nowrap;
