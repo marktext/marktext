@@ -603,8 +603,9 @@ export default {
 
         // Used to fix #628: auto scroll cursor to visible if the cursor is too low.
         if (container.clientHeight - y < 100) {
-          // 740 is the lowest cursor position(till to top) that editor allowed.
-          animatedScrollTo(container, container.scrollTop + (y - 740), 0)
+          // editableHeight is the lowest cursor position(till to top) that editor allowed.
+          const editableHeight = container.clientHeight - 100
+          animatedScrollTo(container, container.scrollTop + (y - editableHeight), 0)
         }
 
         this.selectionChange = changes
