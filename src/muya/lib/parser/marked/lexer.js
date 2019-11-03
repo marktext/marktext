@@ -32,6 +32,7 @@ Lexer.prototype.lex = function (src) {
   this.checkFrontmatter = true
   this.footnoteOrder = 0
   this.token(src, true)
+
   // Move footnote token to the end of tokens.
   const { tokens } = this
   const hasNoFootnoteTokens = []

@@ -169,7 +169,6 @@ Parser.prototype.tok = function () {
           itemBody += this.tok()
         }
       }
-
       return this.renderer.footnote(body)
     }
     case 'list_start': {

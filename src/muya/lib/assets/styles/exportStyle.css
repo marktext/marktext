@@ -1,3 +1,7 @@
+.markdown-body a.footnote-ref {
+  text-decoration: none;
+}
+
 .footnotes {
   font-size: .85em;
   opacity: .8;
@@ -12,4 +16,5 @@
   font-family: initial;
   top: .2em;
   right: 1em;
+  text-decoration: none;
 }
