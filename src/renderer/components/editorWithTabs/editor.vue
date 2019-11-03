@@ -929,7 +929,7 @@ export default {
             })
             this.$store.dispatch('EXPORT', { type, content })
           } catch (err) {
-            log.error(err)
+            log.error('Failed to export document:', err)
             notice.notify({
               title: 'Printing/Exporting failed',
               type: 'error',
@@ -957,7 +957,7 @@ export default {
             this.printer.renderMarkdown(html, true)
             this.$store.dispatch('EXPORT', { type, pageOptions })
           } catch (err) {
-            log.error(err)
+            log.error('Failed to export document:', err)
             notice.notify({
               title: 'Printing/Exporting failed',
               type: 'error',
@@ -981,7 +981,7 @@ export default {
             this.printer.renderMarkdown(html, true)
             this.$store.dispatch('PRINT_RESPONSE')
           } catch (err) {
-            log.error(err)
+            log.error('Failed to export document:', err)
             notice.notify({
               title: 'Printing/Exporting failed',
               type: 'error',
