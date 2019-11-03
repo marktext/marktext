@@ -189,7 +189,13 @@ class QuickOpenCommand {
     if (!isChildOfDirectory(rootPath, pathname)) {
       return { title: pathname, description: pathname }
     }
-    return { description: path.relative(rootPath, pathname) }
+
+    const p = path.relative(rootPath, pathname)
+    const item = { description: p }
+    if (p.length > 50) {
+      item.title = p
+    }
+    return item
   }
 }
 

@@ -100,7 +100,7 @@ export default {
         .catch(error => {
           // Allow to throw new Error(null) to indicate an invalid state.
           if (error && error.message) {
-            log.error(error)
+            log.error('Unable to initialize command:', error)
           }
         })
     },
@@ -331,6 +331,7 @@ export default {
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
+    max-width: 100%;
     height: 35px;
     padding: 0 8px;
     font-size: 14px;
@@ -346,8 +347,10 @@ export default {
     background: var(--floatHoverColor);
   }
   ul.commands li span {
+    height: 35px;
     text-overflow: ellipsis;
     overflow: hidden;
+    white-space: nowrap;
   }
   ul.commands li span.shortcut {
     font-size: 12px;

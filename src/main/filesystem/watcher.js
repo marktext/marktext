@@ -143,10 +143,10 @@ class Watcher {
         // This function is called twice, once with a single argument (the path),
         // second time with two arguments (the path and the "fs.Stats" object of that path).
         if (!fileInfo) {
-          return /(^|[/\\])(\..|node_modules)/.test(pathname)
+          return /(?:^|[/\\])(?:\..|node_modules|(?:.+\.asar))/.test(pathname)
         }
 
-        if (/(^|[/\\])(\..|node_modules)/.test(pathname)) {
+        if (/(?:^|[/\\])(?:\..|node_modules|(?:.+\.asar))/.test(pathname)) {
           return true
         }
         if (fileInfo.isDirectory()) {
