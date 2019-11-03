@@ -41,8 +41,10 @@ const state = {
   listIndentation: 1,
   frontmatterType: '-',
   superSubScript: false,
+  footnote: false,
 
   theme: 'light',
+  autoSwitchTheme: 2,
 
   spellcheckerEnabled: false,
   spellcheckerIsHunspell: false, // macOS only

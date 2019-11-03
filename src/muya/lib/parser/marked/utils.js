@@ -2,6 +2,10 @@
  * Helpers
  */
 
+let uniqueIdCounter = 0
+
+export const getUniqueId = () => ++uniqueIdCounter
+
 export const escape = function escape (html, encode) {
   if (encode) {
     if (escape.escapeTest.test(html)) {

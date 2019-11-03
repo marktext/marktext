@@ -6,6 +6,8 @@
 
   - languageInput
 
+  - footnoteInput
+
   - codeContent (used in code block)
 
   - cellContent (used in table cell, it's parent must be th or td block)
@@ -45,6 +47,8 @@ The container block of `table`, `html`, `block math`, `mermaid`,`flowchart`,`veg
 - functionType
 
   - table
+
+  - footnote
 
   - html
 

@@ -3,7 +3,7 @@ import { BrowserWindow, ipcMain } from 'electron'
 import electronLocalshortcut from '@hfelix/electron-localshortcut'
 import BaseWindow, { WindowLifecycle, WindowType } from './base'
 import { centerWindowOptions } from './utils'
-import { TITLE_BAR_HEIGHT, defaultPreferenceWinOptions, isLinux, isOsx } from '../config'
+import { TITLE_BAR_HEIGHT, preferencesWinOptions, isLinux, isOsx, isWindows } from '../config'
 
 class SettingWindow extends BaseWindow {
   /**
@@ -21,10 +21,16 @@ class SettingWindow extends BaseWindow {
    */
   createWindow (options = {}) {
     const { menu: appMenu, env, keybindings, preferences } = this._accessor
-    const winOptions = Object.assign({}, defaultPreferenceWinOptions, options)
+    const winOptions = Object.assign({}, preferencesWinOptions, options)
     centerWindowOptions(winOptions)
     if (isLinux) {
       winOptions.icon = path.join(__static, 'logo-96px.png')
+    }
+
+    // WORKAROUND: Electron has issues with different DPI per monitor when
+    // setting a fixed window size.
+    if (isWindows) {
+      winOptions.resizable = true
     }
 
     // Enable native or custom/frameless window and titlebar

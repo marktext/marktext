@@ -32,12 +32,12 @@ const correctUrl = token => {
   }
 }
 
-const tokenizerFac = (src, beginRules, inlineRules, pos = 0, top, labels) => {
+const tokenizerFac = (src, beginRules, inlineRules, pos = 0, top, labels, options) => {
   const originSrc = src
   const tokens = []
   let pending = ''
   let pendingStartPos = pos
-
+  const { superSubScript, footnote } = options
   const pushPending = () => {
     if (pending) {
       tokens.push({
@@ -151,7 +151,7 @@ const tokenizerFac = (src, beginRules, inlineRules, pos = 0, top, labels) => {
             range,
             marker,
             parent: tokens,
-            children: tokenizerFac(to[2], undefined, inlineRules, pos + to[1].length, false, labels),
+            children: tokenizerFac(to[2], undefined, inlineRules, pos + to[1].length, false, labels, options),
             backlash: to[3]
           })
           src = src.substring(to[0].length)
@@ -192,7 +192,7 @@ const tokenizerFac = (src, beginRules, inlineRules, pos = 0, top, labels) => {
             range,
             marker,
             parent: tokens,
-            children: tokenizerFac(to[2], undefined, inlineRules, pos + to[1].length, false, labels),
+            children: tokenizerFac(to[2], undefined, inlineRules, pos + to[1].length, false, labels, options),
             backlash: to[3]
           })
         }
@@ -203,7 +203,7 @@ const tokenizerFac = (src, beginRules, inlineRules, pos = 0, top, labels) => {
     }
     if (inChunk) continue
     // superscript and subscript
-    if (inlineRules.superscript && inlineRules.subscript) {
+    if (superSubScript) {
       const superSubTo = inlineRules.superscript.exec(src) || inlineRules.subscript.exec(src)
       if (superSubTo) {
         pushPending()
@@ -220,6 +220,28 @@ const tokenizerFac = (src, beginRules, inlineRules, pos = 0, top, labels) => {
         })
         src = src.substring(superSubTo[0].length)
         pos = pos + superSubTo[0].length
+        continue
+      }
+    }
+
+    // footnote identifier
+    if (pos !== 0 && footnote) {
+      const footnoteTo = inlineRules.footnote_identifier.exec(src)
+      if (footnoteTo) {
+        pushPending()
+        tokens.push({
+          type: 'footnote_identifier',
+          raw: footnoteTo[0],
+          marker: footnoteTo[1],
+          range: {
+            start: pos,
+            end: pos + footnoteTo[0].length
+          },
+          parent: tokens,
+          content: footnoteTo[2]
+        })
+        src = src.substring(footnoteTo[0].length)
+        pos = pos + footnoteTo[0].length
         continue
       }
     }
@@ -276,7 +298,7 @@ const tokenizerFac = (src, beginRules, inlineRules, pos = 0, top, labels) => {
           start: pos,
           end: pos + linkTo[0].length
         },
-        children: tokenizerFac(linkTo[2], undefined, inlineRules, pos + linkTo[1].length, false, labels),
+        children: tokenizerFac(linkTo[2], undefined, inlineRules, pos + linkTo[1].length, false, labels, options),
         backlash: {
           first: linkTo[3],
           second: linkTo[5]
@@ -306,7 +328,7 @@ const tokenizerFac = (src, beginRules, inlineRules, pos = 0, top, labels) => {
           start: pos,
           end: pos + rLinkTo[0].length
         },
-        children: tokenizerFac(rLinkTo[1], undefined, inlineRules, pos + 1, false, labels)
+        children: tokenizerFac(rLinkTo[1], undefined, inlineRules, pos + 1, false, labels, options)
       })
 
       src = src.substring(rLinkTo[0].length)
@@ -442,7 +464,7 @@ const tokenizerFac = (src, beginRules, inlineRules, pos = 0, top, labels) => {
         parent: tokens,
         attrs,
         content: htmlTo[4],
-        children: htmlTo[4] ? tokenizerFac(htmlTo[4], undefined, inlineRules, pos + htmlTo[2].length, false, labels) : '',
+        children: htmlTo[4] ? tokenizerFac(htmlTo[4], undefined, inlineRules, pos + htmlTo[2].length, false, labels, options) : '',
         range: {
           start: pos,
           end: pos + len
@@ -530,16 +552,8 @@ export const tokenizer = (src, {
   labels = new Map(),
   options = {}
 } = {}) => {
-  const { superSubScript } = options
-
-  if (superSubScript) {
-    inlineRules.superscript = inlineExtensionRules.superscript
-    inlineRules.subscript = inlineExtensionRules.subscript
-  } else {
-    delete inlineRules.superscript
-    delete inlineRules.subscript
-  }
-  const tokens = tokenizerFac(src, hasBeginRules ? beginRules : null, inlineRules, 0, true, labels)
+  const rules = Object.assign({}, inlineRules, inlineExtensionRules)
+  const tokens = tokenizerFac(src, hasBeginRules ? beginRules : null, rules, 0, true, labels, options)
 
   const postTokenizer = tokens => {
     for (const token of tokens) {

@@ -320,21 +320,21 @@ export class SpellChecker {
   /**
    * Returns true if not misspelled words should be highlighted.
    */
-  get spellcheckerNoUnderline () {
+  get isPassiveMode () {
     if (!this.isEnabled) {
       return false
     }
-    return this.provider.spellcheckerNoUnderline
+    return this.provider.isPassiveMode
   }
 
   /**
    * Should we highlight misspelled words.
    */
-  set spellcheckerNoUnderline (value) {
+  set isPassiveMode (value) {
     if (!this.isEnabled) {
       return
     }
-    this.provider.spellcheckerNoUnderline = !!value
+    this.provider.isPassiveMode = !!value
   }
 
   /**

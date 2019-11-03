@@ -17,19 +17,13 @@ export default function (keybindings) {
         toggleAlwaysOnTop(browserWindow)
       }
     }, {
-      // TODO: Disable due GH#1225.
-      visible: false,
       type: 'separator'
     }, {
-      // TODO: Disable due GH#1225.
-      visible: false,
       label: 'Zoom In',
       click (menuItem, browserWindow) {
         zoomIn(browserWindow)
       }
     }, {
-      // TODO: Disable due GH#1225.
-      visible: false,
       label: 'Zoom Out',
       click (menuItem, browserWindow) {
         zoomOut(browserWindow)

@@ -4,8 +4,9 @@
  * Before you edit or update codes in this file,
  * make sure you have read this bellow:
  * Commonmark Spec: https://spec.commonmark.org/0.29/
- * and GitHub Flavored Markdown Spec: https://github.github.com/gfm/
- * The output markdown needs to obey the standards of the two Spec.
+ * GitHub Flavored Markdown Spec: https://github.github.com/gfm/
+ * Pandoc Markdown: https://pandoc.org/MANUAL.html#pandocs-markdown
+ * The output markdown needs to obey the standards of these Spec.
  */
 
 class ExportMarkdown {
@@ -72,6 +73,10 @@ class ExportMarkdown {
             }
             case 'html': {
               result.push(this.normalizeHTML(block, indent))
+              break
+            }
+            case 'footnote': {
+              result.push(this.normalizeFootnote(block, indent))
               break
             }
             case 'multiplemath': {
@@ -385,6 +390,24 @@ class ExportMarkdown {
 
     result.push(`${indent}${itemMarker}`)
     result.push(this.translateBlocks2Markdown(children, newIndent, listIndent).substring(newIndent.length))
+    return result.join('')
+  }
+
+  normalizeFootnote (block, indent) {
+    const result = []
+    const identifier = block.children[0].text
+    result.push(`${indent}[^${identifier}]:`)
+    const hasMultipleBlocks = block.children.length > 2 || block.children[1].type !== 'p'
+    if (hasMultipleBlocks) {
+      result.push('\n')
+      const newIndent = indent + ' '.repeat(4)
+      result.push(this.translateBlocks2Markdown(block.children.slice(1), newIndent))
+    } else {
+      result.push(' ')
+      const paragraphContent = block.children[1].children[0]
+      result.push(this.normalizeParagraphText(paragraphContent, indent))
+    }
+
     return result.join('')
   }
 }

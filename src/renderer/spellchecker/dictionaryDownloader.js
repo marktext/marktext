@@ -17,11 +17,26 @@ export const downloadHunspellDictionary = async lang => {
     responseType: 'stream'
   })
 
+  const dstFile = path.join(dictionaryPath, `${lang}.bdic`)
+  const tmpFile = `${dstFile}.tmp`
   return new Promise((resolve, reject) => {
-    const outStream = fs.createWriteStream(path.join(dictionaryPath, `${lang}.bdic`))
+    const outStream = fs.createWriteStream(tmpFile)
     response.data.pipe(outStream)
+
+    let totalLength = 0
+    response.data.on('data', chunk => {
+      totalLength += chunk.length
+    })
+
     outStream.once('error', reject)
-    outStream.once('finish', () => resolve())
+    outStream.once('finish', async () => {
+      if (totalLength < 8 * 1024) {
+        throw new Error('Dictionary is most likely bogus.')
+      }
+
+      await fs.move(tmpFile, dstFile, { overwrite: true })
+      resolve()
+    })
   })
 }
 
