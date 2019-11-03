@@ -90,7 +90,7 @@ export default {
   .offcial-themes {
     & .theme {
       cursor: pointer;
-      width: 250px;
+      width: 248px;
       height: 100px;
       margin: 0px 20px 10px 20px;
       padding-left: 30px;
