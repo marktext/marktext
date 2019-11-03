@@ -7,6 +7,7 @@ import imageIcon from '../../assets/pngicon/format_image/2.png'
 import linkIcon from '../../assets/pngicon/format_link/2.png'
 import strikeIcon from '../../assets/pngicon/format_strike/2.png'
 import mathIcon from '../../assets/pngicon/format_math/2.png'
+import highlightIcon from '../../assets/pngicon/highlight/2.png'
 import clearIcon from '../../assets/pngicon/format_clear/2.png'
 
 const COMMAND_KEY = isOsx ? '⌘' : '⌃'
@@ -32,6 +33,11 @@ const icons = [
     tooltip: 'Strikethrough',
     shortcut: `${COMMAND_KEY}+D`,
     icon: strikeIcon
+  }, {
+    type: 'mark',
+    tooltip: 'Highlight',
+    shortcut: `⇧+${COMMAND_KEY}+H`,
+    icon: highlightIcon
   }, {
     type: 'inline_code',
     tooltip: 'Inline Code',

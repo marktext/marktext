@@ -101,6 +101,7 @@ class ClickEvent {
       const rubyRender = target.closest(`.${CLASS_OR_ID.AG_RUBY_RENDER}`)
       const imageWrapper = target.closest(`.${CLASS_OR_ID.AG_INLINE_IMAGE}`)
       const codeCopy = target.closest('.ag-code-copy')
+      const footnoteBackLink = target.closest('.ag-footnote-backlink')
       const imageDelete = target.closest('.ag-image-icon-delete') || target.closest('.ag-image-icon-close')
       const mathText = mathRender && mathRender.previousElementSibling
       const rubyText = rubyRender && rubyRender.previousElementSibling
@@ -129,6 +130,20 @@ class ClickEvent {
         // hide image selector if needed.
         eventCenter.dispatch('muya-image-selector', { reference: null })
         return contentState.deleteImage(imageInfo)
+      }
+
+      if (footnoteBackLink) {
+        event.preventDefault()
+        event.stopPropagation()
+        const figure = event.target.closest('figure')
+        const identifier = figure.querySelector('span.ag-footnote-input').textContent
+        if (identifier) {
+          const footnoteIdentifier = document.querySelector(`#noteref-${identifier}`)
+          if (footnoteIdentifier) {
+            footnoteIdentifier.scrollIntoView({ behavior: 'smooth' })
+          }
+        }
+        return
       }
 
       // Handle image click, to select the current image

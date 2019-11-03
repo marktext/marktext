@@ -28,5 +28,6 @@ export default {
   emoji: true,
   math: true,
   frontMatter: true,
-  superSubScript: false
+  superSubScript: false,
+  footnote: false
 }

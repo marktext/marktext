@@ -51,7 +51,7 @@ const rendererConfig = {
         }
       },
       {
-        test: /(theme\-chalk(?:\/|\\)index|katex|github\-markdown|prism[\-a-z]*|\.theme|headerFooterStyle)\.css$/,
+        test: /(theme\-chalk(?:\/|\\)index|exportStyle|katex|github\-markdown|prism[\-a-z]*|\.theme|headerFooterStyle)\.css$/,
         use: [
           'to-string-loader',
           'css-loader'
@@ -59,7 +59,7 @@ const rendererConfig = {
       },
       {
         test: /\.css$/,
-        exclude: /(theme\-chalk(?:\/|\\)index|katex|github\-markdown|prism[\-a-z]*|\.theme|headerFooterStyle)\.css$/,
+        exclude: /(theme\-chalk(?:\/|\\)index|exportStyle|katex|github\-markdown|prism[\-a-z]*|\.theme|headerFooterStyle)\.css$/,
         use: [
           proMode ? MiniCssExtractPlugin.loader : 'style-loader',
           { loader: 'css-loader', options: { importLoaders: 1 } },

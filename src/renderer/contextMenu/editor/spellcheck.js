@@ -1,6 +1,7 @@
 import { remote } from 'electron'
 import log from 'electron-log'
 import bus from '@/bus'
+import { getLanguageName } from '@/spellchecker/languageMap'
 import { SEPARATOR } from './menuItems'
 
 const { MenuItem } = remote
@@ -24,7 +25,7 @@ export default (spellchecker, selectedWord, wordSuggestions, replaceCallback) =>
     const availableDictionariesSubmenu = []
     for (const dict of availableDictionaries) {
       availableDictionariesSubmenu.push(new MenuItem({
-        label: dict,
+        label: getLanguageName(dict),
         enabled: dict !== currentLanguage,
         click () {
           bus.$emit('switch-spellchecker-language', dict)

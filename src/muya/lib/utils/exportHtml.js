@@ -3,6 +3,7 @@ import Prism from 'prismjs'
 import katex from 'katex'
 import loadRenderer from '../renderers'
 import githubMarkdownCss from 'github-markdown-css/github-markdown.css'
+import footnoteCss from '../assets/styles/exportStyle.css'
 import highlightCss from 'prismjs/themes/prism.css'
 import katexCss from 'katex/dist/katex.css'
 import footerHeaderCss from '../assets/styles/headerFooterStyle.css'
@@ -106,6 +107,7 @@ class ExportHtml {
     this.mathRendererCalled = false
     let html = marked(this.markdown, {
       superSubScript: this.muya ? this.muya.options.superSubScript : false,
+      footnote: this.muya ? this.muya.options.footnote : false,
       highlight (code, lang) {
         // Language may be undefined (GH#591)
         if (!lang) {
@@ -247,6 +249,7 @@ class ExportHtml {
       list-style-type: decimal;
     }
   </style>
+  <style>${footnoteCss}</style>
   <style>${extraCss}</style>
 </head>
 <body>

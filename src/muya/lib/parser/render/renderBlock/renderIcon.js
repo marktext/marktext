@@ -21,6 +21,7 @@ import flowchartIcon from '../../../assets/pngicon/flowchart/2.png'
 import sequenceIcon from '../../../assets/pngicon/sequence/2.png'
 import mermaidIcon from '../../../assets/pngicon/mermaid/2.png'
 import vegaIcon from '../../../assets/pngicon/chart/2.png'
+import footnoteIcon from '../../../assets/pngicon/footnote/2.png'
 
 const FUNCTION_TYPE_HASH = {
   mermaid: mermaidIcon,
@@ -32,7 +33,8 @@ const FUNCTION_TYPE_HASH = {
   multiplemath: mathblockIcon,
   fencecode: codeIcon,
   indentcode: codeIcon,
-  frontmatter: frontMatterIcon
+  frontmatter: frontMatterIcon,
+  footnote: footnoteIcon
 }
 
 export default function renderIcon (block) {

@@ -88,6 +88,7 @@ import ImageToolbar from 'muya/lib/ui/imageToolbar'
 import Transformer from 'muya/lib/ui/transformer'
 import FormatPicker from 'muya/lib/ui/formatPicker'
 import LinkTools from 'muya/lib/ui/linkTools'
+import FootnoteTool from 'muya/lib/ui/footnoteTool'
 import TableBarTools from 'muya/lib/ui/tableTools'
 import FrontMenu from 'muya/lib/ui/frontMenu'
 import Search from '../search'
@@ -136,6 +137,7 @@ export default {
       listIndentation: state => state.preferences.listIndentation,
       frontmatterType: state => state.preferences.frontmatterType,
       superSubScript: state => state.preferences.superSubScript,
+      footnote: state => state.preferences.footnote,
       lineHeight: state => state.preferences.lineHeight,
       fontSize: state => state.preferences.fontSize,
       codeFontSize: state => state.preferences.codeFontSize,
@@ -249,6 +251,12 @@ export default {
       const { editor } = this
       if (value !== oldValue && editor) {
         editor.setOptions({ superSubScript: value }, true)
+      }
+    },
+    footnote: function (value, oldValue) {
+      const { editor } = this
+      if (value !== oldValue && editor) {
+        editor.setOptions({ footnote: value }, true)
       }
     },
     hideQuickInsertHint: function (value, oldValue) {
@@ -454,6 +462,7 @@ export default {
         listIndentation,
         frontmatterType,
         superSubScript,
+        footnote,
         hideQuickInsertHint,
         editorLineWidth,
         theme,
@@ -468,7 +477,7 @@ export default {
       Muya.use(EmojiPicker)
       Muya.use(ImagePathPicker)
       Muya.use(ImageSelector, {
-        accessKey: process.env.UNSPLASH_ACCESS_KEY,
+        unsplashAccessKey: process.env.UNSPLASH_ACCESS_KEY,
         photoCreatorClick: this.photoCreatorClick
       })
       Muya.use(Transformer)
@@ -478,6 +487,7 @@ export default {
       Muya.use(LinkTools, {
         jumpClick: this.jumpClick
       })
+      Muya.use(FootnoteTool)
       Muya.use(TableBarTools)
 
       const options = {
@@ -497,6 +507,7 @@ export default {
         listIndentation,
         frontmatterType,
         superSubScript,
+        footnote,
         hideQuickInsertHint,
         hideLinkPopup,
         spellcheckEnabled: spellcheckerEnabled,

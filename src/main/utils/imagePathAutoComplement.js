@@ -46,8 +46,9 @@ const filesHandler = (files, directory, key) => {
 
 const rebuild = (directory) => {
   fs.readdir(directory, (err, files) => {
-    if (err) log.error(err)
-    else {
+    if (err) {
+      log.error('imagePathAutoComplement::rebuild:', err)
+    } else {
       filesHandler(files, directory)
     }
   })

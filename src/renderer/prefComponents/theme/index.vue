@@ -4,11 +4,18 @@
     <section class="offcial-themes">
       <div v-for="t of themes" :key="t.name" class="theme"
         :class="[t.name, { 'active': t.name === theme }]"
-        @click="handleSelectTheme(t.name)"
+        @click="onSelectChange('theme', t.name)"
       >
         <div v-html="t.html"></div>
       </div>
     </section>
+    <separator></separator>
+    <cur-select
+      description="Automatically adjust application theme according system."
+      :value="autoSwitchTheme"
+      :options="autoSwitchThemeOptions"
+      :onChange="value => onSelectChange('autoSwitchTheme', value)"
+    ></cur-select>
     <separator></separator>
     <section class="import-themes ag-underdevelop">
       <div>
@@ -27,21 +34,25 @@
 <script>
 import { mapState } from 'vuex'
 import themeMd from './theme.md'
-import { themes } from './config'
+import { autoSwitchThemeOptions, themes } from './config'
 import markdownToHtml from '@/util/markdownToHtml'
+import CurSelect from '../common/select'
 import Separator from '../common/separator'
 
 export default {
   components: {
+    CurSelect,
     Separator
   },
   data () {
+    this.autoSwitchThemeOptions = autoSwitchThemeOptions
     return {
       themes: []
     }
   },
   computed: {
     ...mapState({
+      autoSwitchTheme: state => state.preferences.autoSwitchTheme,
       theme: state => state.preferences.theme
     })
   },
@@ -60,11 +71,8 @@ export default {
     })
   },
   methods: {
-    handleSelectTheme (theme) {
-      this.$store.dispatch('SET_SINGLE_PREFERENCE', {
-        type: 'theme',
-        value: theme
-      })
+    onSelectChange (type, value) {
+      this.$store.dispatch('SET_SINGLE_PREFERENCE', { type, value })
     }
   }
 }
@@ -84,7 +92,7 @@ export default {
       cursor: pointer;
       width: 250px;
       height: 100px;
-      margin: 0px 22px 10px 22px;
+      margin: 0px 20px 10px 20px;
       padding-left: 30px;
       padding-top: 20px;
       overflow: hidden;

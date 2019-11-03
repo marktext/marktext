@@ -235,7 +235,7 @@ class Watcher {
             })
           }
         } else {
-          log.error(error)
+          log.error('Error while watching files:', error)
         }
       })
 

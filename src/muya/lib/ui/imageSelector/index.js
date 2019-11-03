@@ -12,7 +12,7 @@ class ImageSelector extends BaseFloat {
 
   constructor (muya, options) {
     const name = 'ag-image-selector'
-    const { accessKey } = options
+    const { unsplashAccessKey } = options
     options = Object.assign(options, {
       placement: 'bottom-center',
       modifiers: {
@@ -26,9 +26,13 @@ class ImageSelector extends BaseFloat {
     this.renderArray = []
     this.oldVnode = null
     this.imageInfo = null
-    this.unsplash = new Unsplash({
-      accessKey
-    })
+    if (!unsplashAccessKey) {
+      this.unsplash = null
+    } else {
+      this.unsplash = new Unsplash({
+        accessKey: unsplashAccessKey
+      })
+    }
     this.photoList = []
     this.loading = false
     this.tab = 'link' // select or link
@@ -56,22 +60,27 @@ class ImageSelector extends BaseFloat {
         }
 
         Object.assign(this.state, imageInfo.token.attrs)
-        // load latest unsplash photos.
-        this.loading = true
-        this.unsplash.photos.listPhotos(1, 40, 'latest')
-          .then(toJson)
-          .then(json => {
-            this.loading = false
-            if (Array.isArray(json)) {
-              this.photoList = json
-              if (this.tab === 'unsplash') {
-                this.render()
+
+        if (this.unsplash) {
+          // Load latest unsplash photos.
+          this.loading = true
+          this.unsplash.photos.listPhotos(1, 40, 'latest')
+            .then(toJson)
+            .then(json => {
+              this.loading = false
+              if (Array.isArray(json)) {
+                this.photoList = json
+                if (this.tab === 'unsplash') {
+                  this.render()
+                }
               }
-            }
-          })
+            })
+        }
+
         this.imageInfo = imageInfo
         this.show(reference, cb)
         this.render()
+
         // Auto focus and select all content of the `src.input` element.
         const input = this.imageSelectorContainer.querySelector('input.src')
         if (input) {
@@ -85,6 +94,10 @@ class ImageSelector extends BaseFloat {
   }
 
   searchPhotos = (keyword) => {
+    if (!this.unsplash) {
+      return
+    }
+
     this.loading = true
     this.photoList = []
     this.unsplash.search.photos(keyword, 1, 40)
@@ -253,10 +266,14 @@ class ImageSelector extends BaseFloat {
     }, {
       label: 'Embed link',
       value: 'link'
-    }, {
-      label: 'Unsplash',
-      value: 'unsplash'
     }]
+
+    if (this.unsplash) {
+      tabs.push({
+        label: 'Unsplash',
+        value: 'unsplash'
+      })
+    }
 
     const children = tabs.map(tab => {
       const itemSelector = this.tab === tab.value ? 'li.active' : 'li'
@@ -285,7 +302,7 @@ class ImageSelector extends BaseFloat {
             }
           }
         }, 'Choose an Image'),
-        h('span.description', 'Choose image from you computer.')
+        h('span.description', 'Choose image from your computer.')
       ]
     } else if (tab === 'link') {
       const altInput = h('input.alt', {
@@ -355,14 +372,14 @@ class ImageSelector extends BaseFloat {
         }
       }, 'Embed Image')
       const bottomDes = h('span.description', [
-        h('span', 'Paste web image or local image path, '),
+        h('span', 'Paste web image or local image path. Use '),
         h('a', {
           on: {
             click: event => {
               this.toggleMode()
             }
           }
-        }, `${isFullMode ? 'simple mode' : 'full mode'}`)
+        }, `${isFullMode ? 'simple mode' : 'full mode'}.`)
       ])
       bodyContent = [inputWrapper, embedButton, bottomDes]
     } else {

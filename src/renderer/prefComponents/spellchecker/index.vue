@@ -8,7 +8,7 @@
     ></bool>
     <separator></separator>
     <bool
-      description="When enabled Hunspell is used instead the OS spell checker (macOS only). The change take effect after application restart or for new editor windows."
+      description="When enabled, Hunspell is used instead the OS spell checker (macOS only). The change take effect after application restart or for new editor windows."
       :bool="spellcheckerIsHunspell"
       :disable="!isOsx || !spellcheckerEnabled"
       :onChange="value => onSelectChange('spellcheckerIsHunspell', value)"
@@ -20,7 +20,7 @@
       :onChange="value => onSelectChange('spellcheckerNoUnderline', value)"
     ></bool>
     <bool
-      description="Try to automatically identify the used language when typing. This feature is currently not available for Hunspell or when spelling mistakes are not underlined."
+      description="Try to automatically identify the used language as you type. This feature is currently not available for Hunspell or when spelling mistakes are not underlined."
       :bool="spellcheckerAutoDetectLanguage"
       :disable="!spellcheckerEnabled"
       :onChange="value => onSelectChange('spellcheckerAutoDetectLanguage', value)"
@@ -40,7 +40,7 @@
     </div>
     <div v-if="isHunspellSelected && spellcheckerEnabled">
       <separator></separator>
-      <div class="description">Available Hunspell dictionaries. Please add additional language dictionaries via button below.</div>
+      <div class="description">List of available Hunspell dictionaries. Please add additional language dictionaries via drop-down menu below.</div>
       <el-table
         :data="availableDictionaries"
         style="width: 100%">
@@ -65,7 +65,7 @@
         </el-table-column>
       </el-table>
 
-      <div class="description">Add new dictionaries to Hunspell.</div>
+      <div class="description">Download new dictionaries for Hunspell.</div>
       <div class="dictionary-group">
         <el-select
           v-model="selectedDictionaryToAdd"
@@ -210,7 +210,12 @@ export default {
     },
 
     startDownloadHunspellDictionary (languageCode) {
+      this.errorMessage = ''
       if (this.hunspellDictionaryDownloadCache[languageCode]) {
+        return
+      } else if (!navigator.onLine) {
+        delete this.hunspellDictionaryDownloadCache[languageCode]
+        this.errorMessage = 'No Internet connection available.'
         return
       }
 
