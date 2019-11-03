@@ -931,9 +931,9 @@ export default {
           } catch (err) {
             log.error(err)
             notice.notify({
-              title: 'Export HTML',
+              title: 'Printing/Exporting failed',
               type: 'error',
-              message: `There is something wrong when export ${htmlTitle || 'html'}`
+              message: `There is something wrong when export ${htmlTitle || 'html'}.`
             })
           }
           break
@@ -959,10 +959,11 @@ export default {
           } catch (err) {
             log.error(err)
             notice.notify({
-              title: 'Export PDF',
+              title: 'Printing/Exporting failed',
               type: 'error',
-              message: `There is something wrong when export ${htmlTitle || 'PDF'}`
+              message: `There is something wrong when export ${htmlTitle || 'PDF'}.`
             })
+            this.handlePrintServiceClearup()
           }
           break
         }
@@ -982,10 +983,11 @@ export default {
           } catch (err) {
             log.error(err)
             notice.notify({
-              title: 'Printing',
+              title: 'Printing/Exporting failed',
               type: 'error',
-              message: `There is something wrong when print ${htmlTitle || ''}`
+              message: `There is something wrong when print ${htmlTitle || ''}.`
             })
+            this.handlePrintServiceClearup()
           }
           break
         }
