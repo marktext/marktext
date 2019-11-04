@@ -1,6 +1,5 @@
 /** Liber **/
 
-/* Don't use "Noto Color Emoji" because it will result in PDF files with multiple MB and weird looking emojis. */
 .hf-container,
 .markdown-body {
   font-family: "Source Sans Pro","Segoe UI","Helvetica Neue","Open Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji";
@@ -22,6 +21,26 @@
 .page-footer:not(.simple) .hf-container {
   padding-top: 2px;
   border-top: 1px solid var(--footerHeaderBorderColor);
+}
+
+.footnotes {
+  font-size: 0.75em;
+  opacity: 0.9;
+}
+.footnotes > hr:first-of-type {
+  width: 250px;
+  height: 1px;
+  background: var(--footerHeaderBorderColor);
+}
+.footnotes > ol > li > p {
+  margin-top: 4px;
+  margin-bottom: 4px;
+}
+.footnotes .footnote-back {
+  color: #212121;
+}
+.markdown-body a.footnote-ref {
+  color: #212121;
 }
 
 .markdown-body h1,

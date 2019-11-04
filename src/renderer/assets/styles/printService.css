@@ -1,6 +1,6 @@
 body .ag-render-container,
 body article.print-container {
-  display: none !important;
+  display: none;
 }
 
 @media print {

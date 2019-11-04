@@ -2,6 +2,7 @@ import fs from 'fs-extra'
 import path from 'path'
 import createDOMPurify from 'dompurify'
 import { isFile } from 'common/filesystem'
+import { escapeHtml, unescapeHtml } from 'muya/lib/utils'
 import academicTheme from '@/assets/themes/export/academic.theme.css'
 import liberTheme from '@/assets/themes/export/liber.theme.css'
 
@@ -86,7 +87,7 @@ export const getCssForOptions = options => {
     // Close @page
     output += '}'
   }
-  return sanitize(output, EXPORT_DOMPURIFY_CONFIG)
+  return unescapeHtml(sanitize(escapeHtml(output), EXPORT_DOMPURIFY_CONFIG))
 }
 
 const EXPORT_DOMPURIFY_CONFIG = {

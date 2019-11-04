@@ -1,7 +1,6 @@
 /** Academic **/
 
-/* DejaVu Serif --> 11pt */
-/* Don't use "Noto Color Emoji" because it will result in PDF files with multiple MB and weird looking emojis. */
+/* DejaVu Serif should use 11pt */
 .hf-container,
 .markdown-body {
   font-family: Georgia,Palatino,"Palatino Linotype","Times New Roman","DejaVu Serif",serif,"Apple Color Emoji","Segoe UI Emoji";
@@ -23,6 +22,20 @@
 .page-footer:not(.simple) .hf-container {
   padding-top: 2px;
   border-top: 1px solid var(--footerHeaderBorderColor);
+}
+
+.footnotes {
+  font-size: 0.75em;
+  opacity: 0.9;
+}
+.footnotes > hr:first-of-type {
+  width: 250px;
+  height: 1px;
+  background: var(--footerHeaderBorderColor);
+}
+.footnotes > ol > li > p {
+  margin-top: 4px;
+  margin-bottom: 4px;
 }
 
 .markdown-body h1,

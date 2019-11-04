@@ -283,7 +283,7 @@ class ExportHtml {
     }
 
     if (footer) {
-      output += HF_TABLE_FOOTER()
+      output += HF_TABLE_FOOTER
       output = createRealFooter(options) + output
     }
 
