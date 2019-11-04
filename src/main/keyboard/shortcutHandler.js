@@ -22,94 +22,95 @@ class Keybindings {
 
     this.keys = new Map([
       // Mark Text - macOS only
-      ['mtHide', 'Command+H'],
-      ['mtHideOthers', 'Command+Alt+H'],
+      ['mt.hide', 'Command+H'],
+      ['mt.hide-others', 'Command+Alt+H'],
 
       // File menu
-      ['fileNewFile', 'CmdOrCtrl+N'],
-      ['fileNewTab', 'CmdOrCtrl+T'],
-      ['fileOpenFile', 'CmdOrCtrl+O'],
-      ['fileOpenFolder', 'CmdOrCtrl+Shift+O'],
-      ['fileSave', 'CmdOrCtrl+S'],
-      ['fileSaveAs', 'CmdOrCtrl+Shift+S'],
-      ['filePrint', 'CmdOrCtrl+P'],
-      ['filePreferences', 'CmdOrCtrl+,'], // marktext menu in macOS
-      ['fileCloseTab', 'CmdOrCtrl+W'],
-      ['fileCloseWindow', 'CmdOrCtrl+Shift+W'],
-      ['fileQuit', 'CmdOrCtrl+Q'],
+      ['file.new-file', 'CmdOrCtrl+N'],
+      ['file.new-tab', 'CmdOrCtrl+T'],
+      ['file.open-file', 'CmdOrCtrl+O'],
+      ['file.open-folder', 'CmdOrCtrl+Shift+O'],
+      ['file.save', 'CmdOrCtrl+S'],
+      ['file.save-as', 'CmdOrCtrl+Shift+S'],
+      ['file.preferences', 'CmdOrCtrl+,'], // marktext menu in macOS
+      ['file.close-tab', 'CmdOrCtrl+W'],
+      ['file.close-window', 'CmdOrCtrl+Shift+W'],
+      ['file.quit', 'CmdOrCtrl+Q'],
 
       // Edit menu
-      ['editUndo', 'CmdOrCtrl+Z'],
-      ['editRedo', 'CmdOrCtrl+Shift+Z'],
-      ['editCut', 'CmdOrCtrl+X'],
-      ['editCopy', 'CmdOrCtrl+C'],
-      ['editPaste', 'CmdOrCtrl+V'],
-      ['editCopyAsMarkdown', 'CmdOrCtrl+Shift+C'],
-      ['editCopyAsPlaintext', 'CmdOrCtrl+Shift+V'],
-      ['editSelectAll', 'CmdOrCtrl+A'],
-      ['editDuplicate', 'Shift+CmdOrCtrl+P'],
-      ['editCreateParagraph', 'Shift+CmdOrCtrl+N'],
-      ['editDeleteParagraph', 'Shift+CmdOrCtrl+D'],
-      ['editFind', 'CmdOrCtrl+F'],
-      ['editFindNext', 'CmdOrCtrl+Alt+U'],
-      ['editFindPrevious', 'CmdOrCtrl+Shift+U'],
-      ['editReplace', 'CmdOrCtrl+Alt+F'],
-      ['editFindInFolder', 'Shift+CmdOrCtrl+F'],
-      ['editAidou', 'CmdOrCtrl+/'],
-      ['editScreenshot', 'CmdOrCtrl+Alt+A'],
+      ['edit.undo', 'CmdOrCtrl+Z'],
+      ['edit.redo', 'CmdOrCtrl+Shift+Z'],
+      ['edit.cut', 'CmdOrCtrl+X'],
+      ['edit.copy', 'CmdOrCtrl+C'],
+      ['edit.paste', 'CmdOrCtrl+V'],
+      ['edit.copy-as-markdown', 'CmdOrCtrl+Shift+C'],
+      ['edit.copy-as-plaintext', 'CmdOrCtrl+Shift+V'],
+      ['edit.select-all', 'CmdOrCtrl+A'],
+      ['edit.duplicate', 'CmdOrCtrl+Alt+D'],
+      ['edit.create-paragraph', 'Shift+CmdOrCtrl+N'],
+      ['edit.delete-paragraph', 'Shift+CmdOrCtrl+D'],
+      ['edit.find', 'CmdOrCtrl+F'],
+      ['edit.find-next', 'CmdOrCtrl+Alt+U'],
+      ['edit.find-previous', 'CmdOrCtrl+Shift+U'],
+      ['edit.replace', 'CmdOrCtrl+Alt+F'],
+      ['edit.find-in-folder', 'Shift+CmdOrCtrl+F'],
+      ['edit.aidou', 'CmdOrCtrl+/'],
+      ['edit.screenshot', 'CmdOrCtrl+Alt+A'], // macOS only
 
       // Paragraph menu
-      ['paragraphHeading1', 'CmdOrCtrl+1'],
-      ['paragraphHeading2', 'CmdOrCtrl+2'],
-      ['paragraphHeading3', 'CmdOrCtrl+3'],
-      ['paragraphHeading4', 'CmdOrCtrl+4'],
-      ['paragraphHeading5', 'CmdOrCtrl+5'],
-      ['paragraphHeading6', 'CmdOrCtrl+6'],
-      ['paragraphUpgradeHeading', 'CmdOrCtrl+='],
-      ['paragraphDegradeHeading', 'CmdOrCtrl+-'],
-      ['paragraphTable', 'CmdOrCtrl+Shift+T'],
-      ['paragraphCodeFence', 'CmdOrCtrl+Alt+C'],
-      ['paragraphQuoteBlock', 'CmdOrCtrl+Alt+Q'],
-      ['paragraphMathBlock', 'CmdOrCtrl+Alt+M'],
-      ['paragraphHtmlBlock', isOsx ? 'CmdOrCtrl+Alt+J' : 'CmdOrCtrl+Alt+H'],
-      ['paragraphOrderList', 'CmdOrCtrl+Alt+O'],
-      ['paragraphBulletList', 'CmdOrCtrl+Alt+U'],
-      ['paragraphTaskList', 'CmdOrCtrl+Alt+X'],
-      ['paragraphLooseListItem', 'CmdOrCtrl+Alt+L'],
-      ['paragraphParagraph', 'CmdOrCtrl+0'],
-      ['paragraphHorizontalLine', 'CmdOrCtrl+Alt+-'],
-      ['paragraphYAMLFrontMatter', 'CmdOrCtrl+Alt+Y'],
+      ['paragraph.heading-1', 'CmdOrCtrl+1'],
+      ['paragraph.heading-2', 'CmdOrCtrl+2'],
+      ['paragraph.heading-3', 'CmdOrCtrl+3'],
+      ['paragraph.heading-4', 'CmdOrCtrl+4'],
+      ['paragraph.heading-5', 'CmdOrCtrl+5'],
+      ['paragraph.heading-6', 'CmdOrCtrl+6'],
+      ['paragraph.upgrade-heading', 'CmdOrCtrl+='],
+      ['paragraph.degrade-heading', 'CmdOrCtrl+-'],
+      ['paragraph.table', 'CmdOrCtrl+Shift+T'],
+      ['paragraph.code-fence', 'CmdOrCtrl+Alt+C'],
+      ['paragraph.quote-block', 'CmdOrCtrl+Alt+Q'],
+      ['paragraph.math-formula', 'CmdOrCtrl+Alt+M'],
+      ['paragraph.html-block', isOsx ? 'CmdOrCtrl+Alt+J' : 'CmdOrCtrl+Alt+H'],
+      ['paragraph.order-list', 'CmdOrCtrl+Alt+O'],
+      ['paragraph.bullet-list', 'CmdOrCtrl+Alt+U'],
+      ['paragraph.task-list', 'CmdOrCtrl+Alt+X'],
+      ['paragraph.loose-list-item', 'CmdOrCtrl+Alt+L'],
+      ['paragraph.paragraph', 'CmdOrCtrl+0'],
+      ['paragraph.horizontal-line', 'CmdOrCtrl+Alt+-'],
+      ['paragraph.front-matter', 'CmdOrCtrl+Alt+Y'],
 
       // Format menu
-      ['formatStrong', 'CmdOrCtrl+B'],
-      ['formatEmphasis', 'CmdOrCtrl+I'],
-      ['formatUnderline', 'CmdOrCtrl+U'],
-      ['highlight', 'Shift+CmdOrCtrl+H'],
-      ['formatInlineCode', 'CmdOrCtrl+`'],
-      ['formatInlineMath', 'Shift+CmdOrCtrl+M'],
-      ['formatStrike', 'CmdOrCtrl+D'],
-      ['formatHyperlink', 'CmdOrCtrl+L'],
-      ['formatImage', 'CmdOrCtrl+Shift+I'],
-      ['formatClearFormat', 'Shift+CmdOrCtrl+R'],
+      ['format.strong', 'CmdOrCtrl+B'],
+      ['format.emphasis', 'CmdOrCtrl+I'],
+      ['format.underline', 'CmdOrCtrl+U'],
+      ['format.highlight', 'Shift+CmdOrCtrl+H'],
+      ['format.inline-code', 'CmdOrCtrl+`'],
+      ['format.inline-math', 'Shift+CmdOrCtrl+M'],
+      ['format.strike', 'CmdOrCtrl+D'],
+      ['format.hyperlink', 'CmdOrCtrl+L'],
+      ['format.image', 'CmdOrCtrl+Shift+I'],
+      ['format.clear-format', 'Shift+CmdOrCtrl+R'],
 
       // Window menu
-      ['windowMinimize', 'CmdOrCtrl+M'],
+      ['window.minimize', 'CmdOrCtrl+M'],
+      ['window.toggle-full-screen', isOsx ? 'Ctrl+Command+F' : 'F11'],
 
       // View menu
-      ['viewToggleFullScreen', isOsx ? 'Ctrl+Command+F' : 'F11'],
-      ['viewSourceCodeMode', 'CmdOrCtrl+Alt+S'],
-      ['viewTypewriterMode', 'CmdOrCtrl+Alt+T'],
-      ['viewFocusMode', 'CmdOrCtrl+Shift+F'],
-      ['viewToggleSideBar', 'CmdOrCtrl+J'],
-      ['viewToggleTabBar', 'CmdOrCtrl+Alt+B'],
-      ['viewDevToggleDeveloperTools', 'CmdOrCtrl+Alt+I'],
-      ['viewDevReload', 'CmdOrCtrl+R'],
+      ['view.command-palette', 'CmdOrCtrl+Shift+P'],
+      ['view.source-code-mode', 'CmdOrCtrl+Alt+S'],
+      ['view.typewriter-mode', 'CmdOrCtrl+Alt+T'],
+      ['view.focus-mode', 'CmdOrCtrl+Shift+F'],
+      ['view.toggle-sidebar', 'CmdOrCtrl+J'],
+      ['view.toggle-tabbar', 'CmdOrCtrl+Alt+B'],
+      ['view.toggle-dev-tools', 'CmdOrCtrl+Alt+I'],
+      ['view.dev-reload', 'CmdOrCtrl+R'],
 
       // Misc
-      ['tabsCycleForward', 'CmdOrCtrl+Tab'],
-      ['tabsCycleBackward', 'CmdOrCtrl+Shift+Tab'],
-      ['tabsSwitchToLeft', 'CmdOrCtrl+PageUp'],
-      ['tabsSwitchToRight', 'CmdOrCtrl+PageDown']
+      ['tabs.cycle-forward', 'CmdOrCtrl+Tab'],
+      ['tabs.cycle-backward', 'CmdOrCtrl+Shift+Tab'],
+      ['tabs.switch-to-left', 'CmdOrCtrl+PageUp'],
+      ['tabs.switch-to-right', 'CmdOrCtrl+PageDown'],
+      ['file.quick-open', 'CmdOrCtrl+P']
     ])
 
     // Fix non-US keyboards
@@ -206,7 +207,7 @@ class Keybindings {
 
   // Fix dead backquote key on layouts like German
   _fixInlineCode () {
-    this.keys.set('formatInlineCode', 'CmdOrCtrl+Shift+B')
+    this.keys.set('format.inline-code', 'CmdOrCtrl+Shift+B')
   }
 
   _loadLocalKeybindings () {
@@ -222,8 +223,8 @@ class Keybindings {
 
     // keybindings.json example:
     // {
-    //   "fileSave": "CmdOrCtrl+S",
-    //   "fileSaveAs": "CmdOrCtrl+Shift+S"
+    //   "file.save": "CmdOrCtrl+S",
+    //   "file.save-as": "CmdOrCtrl+Shift+S"
     // }
 
     const userAccelerators = new Map()

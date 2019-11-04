@@ -84,7 +84,7 @@ export default function () {
     }, {
       label: 'Check for updates...',
       click (menuItem, browserWindow) {
-        checkUpdates(menuItem, browserWindow)
+        checkUpdates(browserWindow)
       }
     })
   }

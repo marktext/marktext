@@ -1,7 +1,7 @@
 import { autoUpdater } from 'electron-updater'
-import { ipcMain } from 'electron'
+import { ipcMain, BrowserWindow } from 'electron'
 
-let updaterMenuItem = null
+let runningUpdate = false
 let win = null
 
 autoUpdater.autoDownload = false
@@ -12,29 +12,18 @@ autoUpdater.on('error', error => {
   }
 })
 
-ipcMain.on('AGANI::NEED_UPDATE', (e, { needUpdate }) => {
-  if (needUpdate) {
-    autoUpdater.downloadUpdate()
-  } else if (updaterMenuItem) {
-    updaterMenuItem.enabled = true
-    updaterMenuItem = null
-  }
-})
-
 autoUpdater.on('update-available', () => {
   if (win) {
     win.webContents.send('AGANI::UPDATE_AVAILABLE', 'Found an update, do you want download and install now?')
   }
-  updaterMenuItem.enabled = true
-  updaterMenuItem = null
+  runningUpdate = false
 })
 
 autoUpdater.on('update-not-available', () => {
   if (win) {
     win.webContents.send('AGANI::UPDATE_NOT_AVAILABLE', 'Current version is up-to-date.')
   }
-  updaterMenuItem.enabled = true
-  updaterMenuItem = null
+  runningUpdate = false
 })
 
 autoUpdater.on('update-downloaded', () => {
@@ -47,13 +36,27 @@ autoUpdater.on('update-downloaded', () => {
   setImmediate(() => autoUpdater.quitAndInstall())
 })
 
-export const userSetting = (menuItem, browserWindow) => {
+export const userSetting = () => {
   ipcMain.emit('app-create-settings-window')
 }
 
-export const checkUpdates = (menuItem, browserWindow) => {
-  updaterMenuItem = menuItem
-  updaterMenuItem.enabled = false
-  win = browserWindow
-  autoUpdater.checkForUpdates()
+export const checkUpdates = browserWindow => {
+  if (!runningUpdate) {
+    runningUpdate = true
+    win = browserWindow
+    autoUpdater.checkForUpdates()
+  }
 }
+
+ipcMain.on('AGANI::NEED_UPDATE', (e, { needUpdate }) => {
+  if (needUpdate) {
+    autoUpdater.downloadUpdate()
+  } else {
+    runningUpdate = false
+  }
+})
+
+ipcMain.on('mt::check-for-update', e => {
+  const win = BrowserWindow.fromWebContents(e.sender)
+  checkUpdates(win)
+})

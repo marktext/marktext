@@ -406,6 +406,32 @@ ipcMain.on('AGANI::format-link-click', (e, { data, dirname }) => {
   }
 })
 
+// --- commands -------------------------------------
+
+ipcMain.on('mt::cmd-open-file', e => {
+  const win = BrowserWindow.fromWebContents(e.sender)
+  openFile(win)
+})
+
+ipcMain.on('mt::cmd-new-editor-window', () => {
+  newEditorWindow()
+})
+
+ipcMain.on('mt::cmd-open-folder', e => {
+  const win = BrowserWindow.fromWebContents(e.sender)
+  openFolder(win)
+})
+
+ipcMain.on('mt::cmd-close-window', e => {
+  const win = BrowserWindow.fromWebContents(e.sender)
+  win.close()
+})
+
+ipcMain.on('mt::cmd-import-file', e => {
+  const win = BrowserWindow.fromWebContents(e.sender)
+  importFile(win)
+})
+
 // --- menu -------------------------------------
 
 export const exportFile = (win, type) => {
@@ -487,19 +513,19 @@ export const newEditorWindow = () => {
 
 export const closeTab = win => {
   if (win && win.webContents) {
-    win.webContents.send('AGANI::close-tab')
+    win.webContents.send('mt::editor-close-tab')
   }
 }
 
 export const save = win => {
   if (win && win.webContents) {
-    win.webContents.send('AGANI::ask-file-save')
+    win.webContents.send('mt::editor-ask-file-save')
   }
 }
 
 export const saveAs = win => {
   if (win && win.webContents) {
-    win.webContents.send('AGANI::ask-file-save-as')
+    win.webContents.send('mt::editor-ask-file-save-as')
   }
 }
 
@@ -510,13 +536,13 @@ export const autoSave = (menuItem, browserWindow) => {
 
 export const moveTo = win => {
   if (win && win.webContents) {
-    win.webContents.send('AGANI::ask-file-move-to')
+    win.webContents.send('mt::editor-move-file')
   }
 }
 
 export const rename = win => {
   if (win && win.webContents) {
-    win.webContents.send('AGANI::ask-file-rename')
+    win.webContents.send('mt::editor-rename-file')
   }
 }
 

@@ -7,6 +7,11 @@ import { hasKeys, getUniqueId } from '../util'
 import listToTree from '../util/listToTree'
 import { createDocumentState, getOptionsFromState, getSingleFileState, getBlankFileState } from './help'
 import notice from '../services/notification'
+import {
+  FileEncodingCommand,
+  LineEndingCommand,
+  QuickOpenCommand
+} from '../commands'
 
 const autoSaveTimers = new Map()
 
@@ -201,6 +206,13 @@ const mutations = {
       state.currentFile.lineEnding = lineEnding
     }
   },
+  SET_FILE_ENCODING_BY_NAME (state, encodingName) {
+    if (hasKeys(state.currentFile)) {
+      const { encoding: encodingObj } = state.currentFile
+      encodingObj.encoding = encodingName
+      encodingObj.isBom = false
+    }
+  },
   SET_ADJUST_LINE_ENDING_ON_SAVE (state, adjustLineEndingOnSave) {
     if (hasKeys(state.currentFile)) {
       state.currentFile.adjustLineEndingOnSave = adjustLineEndingOnSave
@@ -387,7 +399,7 @@ const actions = {
 
   // need pass some data to main process when `save` menu item clicked
   LISTEN_FOR_SAVE ({ state, rootState }) {
-    ipcRenderer.on('AGANI::ask-file-save', () => {
+    ipcRenderer.on('mt::editor-ask-file-save', () => {
       const { id, filename, pathname, markdown } = state.currentFile
       const options = getOptionsFromState(state.currentFile)
       const defaultPath = getRootFolderFromState(rootState)
@@ -406,7 +418,7 @@ const actions = {
 
   // need pass some data to main process when `save as` menu item clicked
   LISTEN_FOR_SAVE_AS ({ state, rootState }) {
-    ipcRenderer.on('AGANI::ask-file-save-as', () => {
+    ipcRenderer.on('mt::editor-ask-file-save-as', () => {
       const { id, filename, pathname, markdown } = state.currentFile
       const options = getOptionsFromState(state.currentFile)
       const defaultPath = getRootFolderFromState(rootState)
@@ -522,7 +534,7 @@ const actions = {
   },
 
   LISTEN_FOR_MOVE_TO ({ state, rootState }) {
-    ipcRenderer.on('AGANI::ask-file-move-to', () => {
+    ipcRenderer.on('mt::editor-move-file', () => {
       const { id, filename, pathname, markdown } = state.currentFile
       const options = getOptionsFromState(state.currentFile)
       const defaultPath = getRootFolderFromState(rootState)
@@ -545,7 +557,7 @@ const actions = {
   },
 
   LISTEN_FOR_RENAME ({ commit, state, dispatch }) {
-    ipcRenderer.on('AGANI::ask-file-rename', () => {
+    ipcRenderer.on('mt::editor-rename-file', () => {
       dispatch('RESPONSE_FOR_RENAME')
     })
   },
@@ -589,7 +601,19 @@ const actions = {
   },
 
   // This events are only used during window creation.
-  LISTEN_FOR_BOOTSTRAP_WINDOW ({ commit, state, dispatch }) {
+  LISTEN_FOR_BOOTSTRAP_WINDOW ({ commit, state, dispatch, rootState }) {
+    // Delay load runtime commands and initialize commands.
+    setTimeout(() => {
+      bus.$emit('cmd::register-command', new FileEncodingCommand(rootState.editor))
+      bus.$emit('cmd::register-command', new QuickOpenCommand(rootState))
+      bus.$emit('cmd::register-command', new LineEndingCommand(rootState.editor))
+
+      setTimeout(() => {
+        ipcRenderer.send('mt::request-keybindings')
+        bus.$emit('cmd::sort-commands')
+      }, 100)
+    }, 400)
+
     ipcRenderer.on('mt::bootstrap-editor', (e, config) => {
       const {
         addBlankTab,
@@ -645,7 +669,7 @@ const actions = {
   },
 
   LISTEN_FOR_CLOSE_TAB ({ commit, state, dispatch }) {
-    ipcRenderer.on('AGANI::close-tab', e => {
+    ipcRenderer.on('mt::editor-close-tab', e => {
       const file = state.currentFile
       if (!hasKeys(file)) return
       dispatch('CLOSE_TAB', file)
@@ -1005,15 +1029,28 @@ const actions = {
     })
   },
 
-  LINTEN_FOR_SET_LINE_ENDING ({ commit, state }) {
-    ipcRenderer.on('AGANI::set-line-ending', (e, { lineEnding, ignoreSaveStatus }) => {
+  LINTEN_FOR_SET_LINE_ENDING ({ commit, dispatch, state }) {
+    ipcRenderer.on('mt::set-line-ending', (e, lineEnding) => {
       const { lineEnding: oldLineEnding } = state.currentFile
       if (lineEnding !== oldLineEnding) {
         commit('SET_LINE_ENDING', lineEnding)
         commit('SET_ADJUST_LINE_ENDING_ON_SAVE', lineEnding !== 'lf')
-        if (!ignoreSaveStatus) {
-          commit('SET_SAVE_STATUS', false)
+        commit('SET_SAVE_STATUS', true)
+
+        // Update menu when emitted from renderer process.
+        if (!e) {
+          dispatch('UPDATE_LINE_ENDING_MENU')
         }
+      }
+    })
+  },
+
+  LINTEN_FOR_SET_ENCODING ({ commit, dispatch, state }) {
+    ipcRenderer.on('mt::set-file-encoding', (e, encodingName) => {
+      const { encoding } = state.currentFile.encoding
+      if (encoding !== encodingName) {
+        commit('SET_FILE_ENCODING_BY_NAME', encodingName)
+        commit('SET_SAVE_STATUS', true)
       }
     })
   },

@@ -446,8 +446,29 @@ const paragraphCtrl = ContentState => {
   ContentState.prototype.updateParagraph = function (paraType, insertMode = false) {
     const { start, end } = this.cursor
     const block = this.getBlock(start.key)
-    const { text } = block
+    const { text, type } = block
     let needDispatchChange = true
+
+    // Only allow valid transformations.
+    if (!this.isAllowedTransformation(block, paraType, start.key !== end.key)) {
+      return
+    }
+
+    // Convert back to paragraph.
+    if (paraType === 'reset-to-paragraph') {
+      const blockType = this.getTypeFromBlock(block)
+      if (!blockType) {
+        return
+      }
+
+      if (blockType === 'table') {
+        return
+      } else if (/heading|hr/.test(blockType)) {
+        paraType = 'paragraph'
+      } else {
+        paraType = blockType
+      }
+    }
 
     switch (paraType) {
       case 'front-matter': {
@@ -499,7 +520,10 @@ const paragraphCtrl = ContentState => {
       case 'upgrade heading':
       case 'degrade heading':
       case 'paragraph': {
-        if (start.key !== end.key) return
+        if (start.key !== end.key) {
+          return
+        }
+
         const headingStyle = DEFAULT_TURNDOWN_CONFIG.headingStyle
         const parent = this.getParent(block)
         // \u00A0 is &nbsp;
@@ -530,9 +554,14 @@ const paragraphCtrl = ContentState => {
         const endOffset = newLevel > 0
           ? end.offset + newLevel - hash.length + 1
           : end.offset - hash.length
-        const newText = newLevel > 0
-          ? '#'.repeat(newLevel) + `${String.fromCharCode(160)}${partText}` // &nbsp; code: 160
-          : partText
+
+        // Remove <hr> content when converting to paragraph.
+        let newText = ''
+        if (type !== 'span' && block.functionType !== 'thematicBreakLine') {
+          newText = newLevel > 0
+            ? '#'.repeat(newLevel) + `${String.fromCharCode(160)}${partText}` // &nbsp; code: 160
+            : partText
+        }
 
         // No change
         if (newType === 'p' && parent.type === newType) {
@@ -833,6 +862,158 @@ const paragraphCtrl = ContentState => {
     }
 
     return this.selectAllContent()
+  }
+
+  // Test whether the paragraph transformation is valid.
+  ContentState.prototype.isAllowedTransformation = function (block, toType, isMultilineSelection) {
+    const fromType = this.getTypeFromBlock(block)
+    if (toType === 'front-matter') {
+      // Front matter block is added at the beginning.
+      return true
+    } else if (!fromType) {
+      return false
+    } else if (isMultilineSelection && /heading|table/.test(toType)) {
+      return false
+    } else if (fromType === toType || toType === 'reset-to-paragraph') {
+      // Convert back to paragraph.
+      return true
+    }
+
+    switch (fromType) {
+      case 'paragraph':
+        return !/hr|table/.test(toType)
+      case 'heading 1':
+      case 'heading 2':
+      case 'heading 3':
+      case 'heading 4':
+      case 'heading 5':
+      case 'heading 6':
+        return /paragraph|heading/.test(toType)
+      case 'ul-bulle':
+      case 'ul-task':
+      case 'ol-order':
+        return /ul|ol|loose-list-item/.test(toType)
+      default:
+        // Tables and all code blocks are not allowed.
+        return false
+    }
+  }
+
+  // Translate block type into internal name.
+  ContentState.prototype.getTypeFromBlock = function (block) {
+    const { type } = block
+
+    let internalType = ''
+    const headingMatch = type.match(/^h([1-6]{1})$/)
+    if (headingMatch && headingMatch[1]) {
+      internalType = `heading ${headingMatch[1]}`
+    }
+
+    switch (type) {
+      case 'span': {
+        if (block.functionType === 'atxLine') {
+          internalType = 'heading 1' // loose match
+        } else if (block.functionType === 'languageInput') {
+          internalType = 'pre'
+        } else if (block.functionType === 'codeContent') {
+          if (block.lang === 'markup') {
+            internalType = 'html'
+          } else if (block.lang === 'latex') {
+            internalType = 'mathblock'
+          }
+
+          // We cannot easy distinguish between diagram and code blocks.
+          const rootBlock = this.getAnchor(block)
+          if (rootBlock && rootBlock.functionType !== 'fencecode') {
+            // Block seems to be a diagram block.
+            internalType = rootBlock.functionType
+          } else {
+            internalType = 'pre'
+          }
+        } else if (block.functionType === 'cellContent') {
+          internalType = 'table'
+        } else if (block.functionType === 'thematicBreakLine') {
+          internalType = 'hr'
+        }
+
+        // List and quote content is also a problem because it's shown as paragraph.
+        const { affiliation } = this.selectionChange(this.cursor)
+        const listTypes = affiliation
+          .slice(0, 3) // the third entry should be the ul/ol
+          .filter(b => /ul|ol/.test(b.type))
+          .map(b => b.listType)
+
+        // Prefer list or blockquote over paragraph.
+        if (listTypes && listTypes.length === 1) {
+          const listType = listTypes[0]
+          if (listType === 'bullet') {
+            internalType = 'ul-bullet'
+          } else if (listType === 'task') {
+            internalType = 'ul-task'
+          } if (listType === 'order') {
+            internalType = 'ol-order'
+          }
+        } else if (affiliation.length === 2 && affiliation[1].type === 'blockquote') {
+          internalType = 'blockquote'
+        } else if (block.functionType === 'paragraphContent') {
+          internalType = 'paragraph'
+        }
+        break
+      }
+      case 'div': {
+        // Preview for math formulas or diagramms.
+        return ''
+      }
+      case 'figure': {
+        if (block.functionType === 'multiplemath') {
+          internalType = 'mathblock'
+        } else {
+          internalType = block.functionType
+        }
+        break
+      }
+      case 'pre': {
+        if (block.functionType === 'multiplemath') {
+          internalType = 'mathblock'
+        } else if (block.functionType === 'fencecode' || block.functionType === 'indentcode') {
+          internalType = 'pre'
+        } else if (block.functionType === 'frontmatter') {
+          internalType = 'front-matter'
+        } else {
+          internalType = block.functionType
+        }
+        break
+      }
+      case 'ul': {
+        if (block.listType === 'task') {
+          internalType = 'ul-task'
+        } else {
+          internalType = 'ul-bullet'
+        }
+        break
+      }
+      case 'ol': {
+        internalType = 'ol-order'
+        break
+      }
+      case 'li': {
+        if (block.listItemType === 'order') {
+          internalType = 'ol-order'
+        } else if (block.listItemType === 'bullet') {
+          internalType = 'ul-bullet'
+        } else if (block.listItemType === 'task') {
+          internalType = 'ul-task'
+        }
+        break
+      }
+      case 'table':
+      case 'th':
+      case 'td': {
+        internalType = 'table'
+        break
+      }
+    }
+    return internalType
   }
 }
 

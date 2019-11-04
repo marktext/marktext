@@ -7,7 +7,7 @@ export default function (keybindings) {
     role: 'window',
     submenu: [{
       label: 'Minimize',
-      accelerator: keybindings.getAccelerator('windowMinimize'),
+      accelerator: keybindings.getAccelerator('window.minimize'),
       role: 'minimize'
     }, {
       id: 'alwaysOnTopMenuItem',
@@ -32,7 +32,7 @@ export default function (keybindings) {
       type: 'separator'
     }, {
       label: 'Toggle Full Screen',
-      accelerator: keybindings.getAccelerator('viewToggleFullScreen'),
+      accelerator: keybindings.getAccelerator('window.toggle-full-screen'),
       click (item, focusedWindow) {
         if (focusedWindow) {
           focusedWindow.setFullScreen(!focusedWindow.isFullScreen())

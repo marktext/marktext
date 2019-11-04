@@ -3,8 +3,8 @@ export const isWindows = process.platform === 'win32'
 export const isLinux = process.platform === 'linux'
 
 export const editorWinOptions = {
-  minWidth: 450,
-  minHeight: 220,
+  minWidth: 550,
+  minHeight: 350,
   webPreferences: {
     nodeIntegration: true,
     webSecurity: false

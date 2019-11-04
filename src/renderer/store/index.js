@@ -11,6 +11,7 @@ import preferences from './preferences'
 import autoUpdates from './autoUpdates'
 import notification from './notification'
 import tweet from './tweet'
+import commandCenter from './commandCenter'
 
 Vue.use(Vuex)
 
@@ -61,7 +62,8 @@ const store = new Vuex.Store({
     aidou,
     preferences,
     editor,
-    layout
+    layout,
+    commandCenter
   }
 })
 

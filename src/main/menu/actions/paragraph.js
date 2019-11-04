@@ -28,7 +28,7 @@ const MENU_ID_MAP = {
 
 export const paragraph = (win, type) => {
   if (win && win.webContents) {
-    win.webContents.send('AGANI::paragraph', { type })
+    win.webContents.send('mt::editor-paragraph-action', { type })
   }
 }
 

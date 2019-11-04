@@ -1,4 +1,5 @@
 import { ipcRenderer } from 'electron'
+import bus from '../bus'
 
 const width = localStorage.getItem('side-bar-width')
 const sideBarWidth = typeof +width === 'number' ? Math.max(+width, 220) : 280
@@ -15,7 +16,14 @@ const getters = {}
 
 const mutations = {
   SET_LAYOUT (state, layout) {
+    if (layout.showSideBar !== undefined) {
+      const { windowId } = global.marktext.env
+      ipcRenderer.send('mt::update-sidebar-menu', windowId, !!layout.showSideBar)
+    }
     Object.assign(state, layout)
+  },
+  TOGGLE_LAYOUT_ENTRY (state, entryName) {
+    state[entryName] = !state[entryName]
   },
   SET_SIDE_BAR_WIDTH (state, width) {
     // TODO: Add side bar to session (GH#732).
@@ -26,8 +34,16 @@ const mutations = {
 
 const actions = {
   LISTEN_FOR_LAYOUT ({ commit }) {
-    ipcRenderer.on('AGANI::listen-for-view-layout', (e, layout) => {
+    ipcRenderer.on('mt::set-view-layout', (e, layout) => {
       commit('SET_LAYOUT', layout)
+    })
+
+    bus.$on('view:toggle-view-layout-entry', entryName => {
+      commit('TOGGLE_LAYOUT_ENTRY', entryName)
+      const item = {}
+      item[entryName] = state[entryName]
+      const { windowId } = global.marktext.env
+      ipcRenderer.send('mt::view-layout-changed', windowId, item)
     })
   },
   LISTEN_FOR_REQUEST_LAYOUT ({ dispatch }) {

@@ -2,7 +2,7 @@
 
 ## Getting started
 
-Mark Text is a realtime preview editor for markdown with various markdown extensions. You can simply write and edit text and Mark Text hides all unnecessary syntax elements. When you first start Mark Text an empty editor window is shown. You can see [key bindings](KEYBINDINGS.md) for all available commands or just type `@` to get an overlay with available text elements. Mark Text provides a minimal and simple interface and in the next sections you can learn more about the interface and features.
+Mark Text is a realtime preview editor for markdown with various markdown extensions. You can simply write and edit text and Mark Text hides all unnecessary syntax elements. When you first start Mark Text an empty editor window is shown. You can see [key bindings](KEYBINDINGS.md) or command palette (<kbd>CmdOrCtrl</kbd>+<kbd>Shift</kbd>+<kbd>P</kbd>) for all available commands or just type `@` to get an overlay with available text elements. Mark Text provides a minimal and simple interface and in the next sections you can learn more about the interface and features.
 
 ![](assets/marktext-default.png)
 
@@ -46,7 +46,7 @@ After some modifications you can save your file via <kbd>CmdOrCtrl</kbd>+<kbd>S<
 
 ### Open a directory
 
-Mark Text also have support to open a directory via <kbd>CmdOrCtrl</kbd>+<kbd>Shift</kbd>+<kbd>O</kbd> or the sidebar button *Open Folder*. After opening a directory all files and directories are shown in the sidebar tree view. The tree view allows you to open further files, browse and modify files or directories inside the opened root directory. Above the tree view are all opened files located. To view another sidebar panel like find in files click on the left sidebar icons.
+Mark Text also have support to open a directory via <kbd>CmdOrCtrl</kbd>+<kbd>Shift</kbd>+<kbd>O</kbd> or the sidebar button *Open Folder*. After opening a directory all files and directories are shown in the sidebar tree view. The tree view allows you to open further files, browse and modify files or directories inside the opened root directory. Above the tree view are all opened files located. You can also use quick open (<kbd>CmdOrCtrl</kbd>+<kbd>P</kbd>) to quickly open a file from the opened root directory or editor and navigate via arrow keys or select a file via mouse. To view another sidebar panel like find in files click on the left sidebar icons.
 
 ![](assets/marktext-interface-2.png)
 

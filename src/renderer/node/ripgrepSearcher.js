@@ -210,10 +210,10 @@ class RipgrepDirectorySearcher {
       args.push('--after-context', options.trailingContextLineCount)
     }
     for (const inclusion of this.prepareGlobs(options.inclusions, directoryPath)) {
-      args.push('--glob', inclusion)
+      args.push('--iglob', inclusion)
     }
     for (const exclusion of this.prepareGlobs(options.exclusions, directoryPath)) {
-      args.push('--glob', '!' + exclusion)
+      args.push('--iglob', '!' + exclusion)
     }
 
     args.push('--')

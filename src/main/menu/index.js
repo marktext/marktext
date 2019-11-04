@@ -5,6 +5,7 @@ import log from 'electron-log'
 import { ensureDirSync, isDirectory, isFile } from 'common/filesystem'
 import { isLinux, isOsx, isWindows } from '../config'
 import { parseMenu } from '../keyboard/shortcutHandler'
+import { updateSidebarMenu } from '../menu/actions/edit'
 import { updateFormatMenu } from '../menu/actions/format'
 import { updateSelectionMenus } from '../menu/actions/paragraph'
 import { viewLayoutChanged } from '../menu/actions/view'
@@ -349,30 +350,37 @@ class AppMenu {
    */
   _appendMiscShortcuts = shortcutMap => {
     shortcutMap.push({
-      accelerator: this._keybindings.getAccelerator('tabsCycleForward'),
+      accelerator: this._keybindings.getAccelerator('tabs.cycle-forward'),
       click: (menuItem, win) => {
         win.webContents.send('mt::tabs-cycle-right')
       },
       id: null
     })
     shortcutMap.push({
-      accelerator: this._keybindings.getAccelerator('tabsCycleBackward'),
+      accelerator: this._keybindings.getAccelerator('tabs.cycle-backward'),
       click: (menuItem, win) => {
         win.webContents.send('mt::tabs-cycle-left')
       },
       id: null
     })
     shortcutMap.push({
-      accelerator: this._keybindings.getAccelerator('tabsSwitchToLeft'),
+      accelerator: this._keybindings.getAccelerator('tabs.switch-to-left'),
       click: (menuItem, win) => {
         win.webContents.send('mt::tabs-cycle-left')
       },
       id: null
     })
     shortcutMap.push({
-      accelerator: this._keybindings.getAccelerator('tabsSwitchToRight'),
+      accelerator: this._keybindings.getAccelerator('tabs.switch-to-right'),
       click: (menuItem, win) => {
         win.webContents.send('mt::tabs-cycle-right')
+      },
+      id: null
+    })
+    shortcutMap.push({
+      accelerator: this._keybindings.getAccelerator('file.quick-open'),
+      click: (menuItem, win) => {
+        win.webContents.send('mt::execute-command-by-id', 'file.quick-open')
       },
       id: null
     })
@@ -427,6 +435,9 @@ class AppMenu {
     })
     ipcMain.on('mt::update-format-menu', (e, windowId, formats) => {
       updateFormatMenu(this.getWindowMenuById(windowId), formats)
+    })
+    ipcMain.on('mt::update-sidebar-menu', (e, windowId, value) => {
+      updateSidebarMenu(this.getWindowMenuById(windowId), value)
     })
     ipcMain.on('mt::view-layout-changed', (e, windowId, viewSettings) => {
       viewLayoutChanged(this.getWindowMenuById(windowId), viewSettings)
