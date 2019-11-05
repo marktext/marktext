@@ -167,8 +167,14 @@ export default {
   watch: {
     filename: function (value) {
       // Set filename when hover on dock
-      const title = this.project && this.project.name
-        ? `${value} - ${this.project.name}` : `${value} - Mark Text`
+      const hasOpenFolder = this.project && this.project.name
+      let title = ''
+      if (value) {
+        title = hasOpenFolder ? `${value} - ${this.project.name}` : `${value} - Mark Text`
+      } else {
+        title = hasOpenFolder ? this.project.name : 'Mark Text'
+      }
+
       document.title = title
     }
   },
