@@ -7,10 +7,10 @@ const getters = {}
 
 const mutations = {}
 
-// AGANI::UPDATE_DOWNLOADED
+// mt::UPDATE_DOWNLOADED
 const actions = {
   LISTEN_FOR_UPDATE ({ commit }) {
-    ipcRenderer.on('AGANI::UPDATE_ERROR', (e, message) => {
+    ipcRenderer.on('mt::UPDATE_ERROR', (e, message) => {
       notice.notify({
         title: 'Update',
         type: 'error',
@@ -18,21 +18,21 @@ const actions = {
         message
       })
     })
-    ipcRenderer.on('AGANI::UPDATE_NOT_AVAILABLE', (e, message) => {
+    ipcRenderer.on('mt::UPDATE_NOT_AVAILABLE', (e, message) => {
       notice.notify({
         title: 'Update not Available',
         type: 'primary',
         message
       })
     })
-    ipcRenderer.on('AGANI::UPDATE_DOWNLOADED', (e, message) => {
+    ipcRenderer.on('mt::UPDATE_DOWNLOADED', (e, message) => {
       notice.notify({
         title: 'Update Downloaded',
         type: 'info',
         message
       })
     })
-    ipcRenderer.on('AGANI::UPDATE_AVAILABLE', (e, message) => {
+    ipcRenderer.on('mt::UPDATE_AVAILABLE', (e, message) => {
       notice.notify({
         title: 'Update Available',
         type: 'primary',
@@ -41,11 +41,11 @@ const actions = {
       })
         .then(() => {
           const needUpdate = true
-          ipcRenderer.send('AGANI::NEED_UPDATE', { needUpdate })
+          ipcRenderer.send('mt::NEED_UPDATE', { needUpdate })
         })
         .catch(() => {
           const needUpdate = false
-          ipcRenderer.send('AGANI::NEED_UPDATE', { needUpdate })
+          ipcRenderer.send('mt::NEED_UPDATE', { needUpdate })
         })
     })
   }

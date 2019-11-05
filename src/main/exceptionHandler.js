@@ -105,7 +105,7 @@ const setupExceptionHandler = () => {
   })
 
   // renderer process error handler
-  ipcMain.on('AGANI::handle-renderer-error', (e, error) => {
+  ipcMain.on('mt::handle-renderer-error', (e, error) => {
     handleError(ERROR_MSG_RENDERER, error, 'renderer')
   })
 

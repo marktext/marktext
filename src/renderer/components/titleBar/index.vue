@@ -8,7 +8,7 @@
       class="title-bar"
       :class="[{ 'active': active }, { 'tabs-visible': showTabBar }, { 'frameless': titleBarStyle === 'custom' }, { 'isOsx': isOsx }]"
     >
-      <div class="title">
+      <div class="title" @dblclick.stop="toggleMaxmizeOnMacOS">
         <span v-if="!filename">Mark Text</span>
         <span v-else>
           <span
@@ -194,6 +194,12 @@ export default {
         win.unmaximize()
       } else {
         win.maximize()
+      }
+    },
+
+    toggleMaxmizeOnMacOS () {
+      if (this.isOsx) {
+        this.handleMaximizeClick()
       }
     },
 

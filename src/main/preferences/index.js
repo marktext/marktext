@@ -131,7 +131,7 @@ class Preference extends EventEmitter {
   _listenForIpcMain () {
     ipcMain.on('mt::ask-for-user-preference', e => {
       const win = BrowserWindow.fromWebContents(e.sender)
-      win.webContents.send('AGANI::user-preference', this.getAll())
+      win.webContents.send('mt::user-preference', this.getAll())
     })
     ipcMain.on('mt::set-user-preference', (e, settings) => {
       this.setItems(settings)

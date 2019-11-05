@@ -71,7 +71,7 @@ export default {
         for (const file of e.dataTransfer.files) {
           fileList.push(file.path)
         }
-        ipcRenderer.send('AGANI::window::drop', fileList)
+        ipcRenderer.send('mt::window::drop', fileList)
       }
     }
   }

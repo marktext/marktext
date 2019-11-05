@@ -60,11 +60,11 @@ const handleResponseForExport = async (e, { type, content, pathname, title, page
         }
         await writeFile(filePath, content, extension, 'utf8')
       }
-      win.webContents.send('AGANI::export-success', { type, filePath })
+      win.webContents.send('mt::export-success', { type, filePath })
     } catch (err) {
       log.error('Error while exporting:', err)
       const ERROR_MSG = err.message || `Error happened when export ${filePath}`
-      win.webContents.send('AGANI::show-notification', {
+      win.webContents.send('mt::show-notification', {
         title: 'Export failure',
         type: 'error',
         message: ERROR_MSG
@@ -161,7 +161,7 @@ const showUnsavedFilesMessage = async (win, files) => {
 }
 
 const noticePandocNotFound = win => {
-  return win.webContents.send('AGANI::pandoc-not-exists', {
+  return win.webContents.send('mt::pandoc-not-exists', {
     title: 'Import Warning',
     type: 'warning',
     message: 'Install pandoc before you want to import files.',
@@ -181,7 +181,7 @@ const openPandocFile = async (windowId, pathname) => {
 
 const removePrintServiceFromWindow = win => {
   // remove print service content and restore GUI
-  win.webContents.send('AGANI::print-service-clearup')
+  win.webContents.send('mt::print-service-clearup')
 }
 
 // --- events -----------------------------------
@@ -214,7 +214,7 @@ ipcMain.on('mt::save-and-close-tabs', async (e, unsavedFiles) => {
   }
 })
 
-ipcMain.on('AGANI::response-file-save-as', async (e, { id, filename, markdown, pathname, options, defaultPath }) => {
+ipcMain.on('mt::response-file-save-as', async (e, { id, filename, markdown, pathname, options, defaultPath }) => {
   const win = BrowserWindow.fromWebContents(e.sender)
   let recommendFilename = getRecommendTitleFromMarkdownString(markdown)
   if (!recommendFilename) {
@@ -292,13 +292,13 @@ ipcMain.on('mt::close-window-confirm', async (e, unsavedFiles) => {
   }
 })
 
-ipcMain.on('AGANI::response-file-save', handleResponseForSave)
+ipcMain.on('mt::response-file-save', handleResponseForSave)
 
-ipcMain.on('AGANI::response-export', handleResponseForExport)
+ipcMain.on('mt::response-export', handleResponseForExport)
 
-ipcMain.on('AGANI::response-print', handleResponseForPrint)
+ipcMain.on('mt::response-print', handleResponseForPrint)
 
-ipcMain.on('AGANI::window::drop', async (e, fileList) => {
+ipcMain.on('mt::window::drop', async (e, fileList) => {
   const win = BrowserWindow.fromWebContents(e.sender)
   for (const file of fileList) {
     if (isMarkdownFileOrLink(file)) {
@@ -357,7 +357,7 @@ ipcMain.on('mt::rename', async (e, { id, pathname, newPathname }) => {
   }
 })
 
-ipcMain.on('AGANI::response-file-move-to', async (e, { id, pathname }) => {
+ipcMain.on('mt::response-file-move-to', async (e, { id, pathname }) => {
   const win = BrowserWindow.fromWebContents(e.sender)
   const { filePath, canceled } = await dialog.showSaveDialog(win, {
     buttonLabel: 'Move to',
@@ -389,7 +389,7 @@ ipcMain.on('mt::ask-for-open-project-in-sidebar', async e => {
   }
 })
 
-ipcMain.on('AGANI::format-link-click', (e, { data, dirname }) => {
+ipcMain.on('mt::format-link-click', (e, { data, dirname }) => {
   if (URL_REG.test(data.href)) {
     return shell.openExternal(data.href)
   }

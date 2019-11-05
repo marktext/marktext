@@ -342,7 +342,7 @@ class WindowManager extends EventEmitter {
 
   _listenForIpcMain () {
     // HACK: Don't use this event! Please see #1034 and #1035
-    ipcMain.on('AGANI::window-add-file-path', (e, filePath) => {
+    ipcMain.on('mt::window-add-file-path', (e, filePath) => {
       const win = BrowserWindow.fromWebContents(e.sender)
       const editor = this.get(win.id)
       if (!editor) {
@@ -446,14 +446,14 @@ class WindowManager extends EventEmitter {
       }
       if (Object.keys(prefs).length > 0) {
         for (const { browserWindow } of this._windows.values()) {
-          browserWindow.webContents.send('AGANI::user-preference', prefs)
+          browserWindow.webContents.send('mt::user-preference', prefs)
         }
       }
     })
 
     ipcMain.on('broadcast-user-data-changed', userData => {
       for (const { browserWindow } of this._windows.values()) {
-        browserWindow.webContents.send('AGANI::user-preference', userData)
+        browserWindow.webContents.send('mt::user-preference', userData)
       }
     })
   }
