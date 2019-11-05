@@ -272,6 +272,8 @@ class Muya {
       selection.removeAllRanges()
     }
     this.hideAllFloatTools()
+    this.contentState.selectedImage = null
+    this.contentState.selectedTableCells = null
     this.container.blur()
   }
 
