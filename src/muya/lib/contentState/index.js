@@ -529,7 +529,9 @@ class ContentState {
   getActiveBlocks () {
     const result = []
     let block = this.getBlock(this.cursor.start.key)
-    if (block) result.push(block)
+    if (block) {
+      result.push(block)
+    }
     while (block && block.parent) {
       block = this.getBlock(block.parent)
       result.push(block)
