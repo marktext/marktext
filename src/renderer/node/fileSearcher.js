@@ -9,7 +9,7 @@ class FileSearcher extends RipgrepDirectorySearcher {
     if (options.followSymlinks) {
       args.push('--follow')
     }
-    if (!options.includeHidden) {
+    if (options.includeHidden) {
       args.push('--hidden')
     }
     if (options.noIgnore) {
