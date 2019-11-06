@@ -77,6 +77,11 @@
   padding-bottom: 0;
 }
 
+.markdown-body hr {
+  background-color: #d7d8d9;
+  height: 1px;
+}
+
 .markdown-body .highlight pre,
 .markdown-body pre {
   background-color: #f6f8fa;
