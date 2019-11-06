@@ -105,6 +105,10 @@ export default {
       background: transparent;
       color: var(--editorColor);
       border-color: var(--editorColor10);
+      padding-right: 15px;
+      &::placeholder {
+        color: var(--editorColor30);
+      }
     }
     & .el-input.is-active .el-input__inner,
     & .el-input__inner:focus {
