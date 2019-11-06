@@ -45,7 +45,10 @@ const codeBlockCtrl = ContentState => {
    * @param lang Language identifier
    */
   ContentState.prototype.updateCodeLanguage = function (block, lang) {
-    loadLanguage(lang)
+    if (lang && typeof lang === 'string') {
+      loadLanguage(lang)
+    }
+
     if (block.functionType === 'languageInput') {
       const preBlock = this.getParent(block)
       const nextSibling = this.getNextSibling(block)
@@ -102,7 +105,9 @@ const codeBlockCtrl = ContentState => {
         functionType: 'languageInput'
       })
 
-      loadLanguage(language)
+      if (language) {
+        loadLanguage(language)
+      }
 
       block.type = 'pre'
       block.functionType = 'fencecode'
