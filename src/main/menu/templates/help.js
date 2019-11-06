@@ -32,24 +32,9 @@ export default function () {
     label: '&Help',
     role: 'help',
     submenu: [{
-      label: 'Learn More',
+      label: 'Quick Start',
       click () {
-        shell.openExternal('https://marktext.app')
-      }
-    }, {
-      label: 'Source Code on GitHub',
-      click () {
-        shell.openExternal('https://github.com/marktext/marktext')
-      }
-    }, {
-      label: 'License',
-      click () {
-        shell.openExternal('https://github.com/marktext/marktext/blob/master/LICENSE')
-      }
-    }, {
-      label: 'Changelog',
-      click () {
-        shell.openExternal('https://github.com/marktext/marktext/blob/master/.github/CHANGELOG.md')
+        shell.openExternal('https://github.com/marktext/marktext/blob/develop/docs/README.md')
       }
     }, {
       label: 'Markdown syntax',
@@ -57,7 +42,17 @@ export default function () {
         shell.openExternal('https://github.com/marktext/marktext/blob/develop/docs/MARKDOWN_SYNTAX.md')
       }
     }, {
+      label: 'Changelog',
+      click () {
+        shell.openExternal('https://github.com/marktext/marktext/blob/master/.github/CHANGELOG.md')
+      }
+    }, {
       type: 'separator'
+    }, {
+      label: 'Donate via Open Collective',
+      click (item, win) {
+        shell.openExternal('https://opencollective.com/marktext')
+      }
     }, {
       label: 'Feedback via Twitter',
       click (item, win) {
@@ -71,9 +66,31 @@ export default function () {
     }, {
       type: 'separator'
     }, {
+      label: 'Website',
+      click () {
+        shell.openExternal('https://marktext.app')
+      }
+    }, {
+      label: 'Watch on GitHub',
+      click () {
+        shell.openExternal('https://github.com/marktext/marktext')
+      }
+    }, {
       label: 'Follow @Jocs on Github',
       click () {
         shell.openExternal('https://github.com/Jocs')
+      }
+    }, {
+      label: 'Follow us on Twitter',
+      click () {
+        shell.openExternal('https://twitter.com/marktextapp')
+      }
+    }, {
+      type: 'separator'
+    }, {
+      label: 'License',
+      click () {
+        shell.openExternal('https://github.com/marktext/marktext/blob/master/LICENSE')
       }
     }]
   }
