@@ -58,7 +58,7 @@ export default function renderContainerBlock (parent, block, activeBlocks, match
     Object.assign(data.attrs, { spellcheck: 'false' })
   }
 
-  if (/^(th|td)$/.test(type)) {
+  if (/^(?:th|td)$/.test(type)) {
     const { cells } = this.muya.contentState.selectedTableCells || {}
     if (align) {
       Object.assign(data.attrs, {
