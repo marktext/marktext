@@ -60,7 +60,7 @@
   /*marktext*/
   --sideBarColor: #9da5b4;
   --sideBarIconColor: var(--iconColor);
-  --sideBarTitleColor: #9da5b4;
+  --sideBarTitleColor: rgb(255, 255, 255);
   --sideBarTextColor: #9da5b4;
   --sideBarBgColor: #21252b;
   --sideBarItemHoverBgColor: #3a3f4b;

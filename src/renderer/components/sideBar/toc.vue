@@ -56,12 +56,11 @@ export default {
     display: flex;
     flex-direction: column;
     & .title {
-      padding: 5px 0;
       color: var(--sideBarTitleColor);
-      font-weight: 600px;
+      font-weight: 600;
       font-size: 16px;
-      margin: 20px 0;
-      text-align: center;
+      margin: 37px 0 10px 0;
+      padding-left: 25px;
     }
     & .el-tree-node {
       margin-top: 8px;

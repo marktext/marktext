@@ -321,10 +321,10 @@ export default {
   }
   .search-wrapper {
     display: flex;
-    margin: 35px 15px 10px 15px;
+    margin: 37px 15px 10px 15px;
     padding: 0 6px;
-    border-radius: 15px;
-    height: 30px;
+    border-radius: 14px;
+    height: 28px;
     border: 1px solid var(--floatBorderColor);
     background: var(--inputBgColor);
     box-sizing: border-box;
@@ -337,7 +337,7 @@ export default {
       border: none;
       outline: none;
       padding: 0 8px;
-      font-size: 14px;
+      font-size: 13px;
       width: 50%;
     }
     & > .controls {
