@@ -49,12 +49,12 @@
             <div class="row">
               <div class="description">Page margin in mm:</div>
               <div>
-                <div style="margin-bottom:2px;">Top/Bottom:</div>
+                <div class="label">Top/Bottom:</div>
                 <el-input-number v-model="pageMarginTop" size="mini" controls-position="right" :min="0" :max="100"></el-input-number>
-              <el-input-number v-model="pageMarginBottom" size="mini" controls-position="right" :min="0" :max="100"></el-input-number>
+                <el-input-number v-model="pageMarginBottom" size="mini" controls-position="right" :min="0" :max="100"></el-input-number>
               </div>
               <div>
-                <div style="margin-bottom:2px;">Left/Right:</div>
+                <div class="label">Left/Right:</div>
                 <el-input-number v-model="pageMarginLeft" size="mini" controls-position="right" :min="0" :max="100"></el-input-number>
                 <el-input-number v-model="pageMarginRight" size="mini" controls-position="right" :min="0" :max="100"></el-input-number>
               </div>
@@ -437,6 +437,12 @@ export default {
     white-space: pre-wrap;
     word-break: break-word;
   }
+  .label {
+    margin-bottom: 5px;
+  }
+  .label ~ div {
+    margin-right: 20px;
+  }
   .text {
     white-space: pre-wrap;
     word-break: break-word;
@@ -445,6 +451,10 @@ export default {
   .button-controlls {
     margin-top: 8px;
     text-align: right;
+  }
+
+  .button-controlls .button-primary {
+    font-size: 14px;
   }
 
   .el-tab-pane section:first-child {
