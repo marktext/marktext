@@ -130,8 +130,8 @@ div.ag-show-quick-insert-hint p.ag-paragraph.ag-active > span.ag-paragraph-conte
 *:not(.ag-hide)::selection, .ag-selection {
   background: var(--selectionColor);
   color: var(--editorColor);
-  padding: 0 3px;
-  border-radius: 2px;
+  padding: 0 2px;
+  border-radius: 1px;
 }
 
 .ag-hide::selection {
@@ -232,10 +232,13 @@ figure[data-role="FOOTNOTE"] .ag-footnote-input::after {
 .ag-highlight {
   animation-name: highlight;
   animation-duration: .25s;
-  display: inline-block;
-  padding: 0 3px;
-  border-radius: 2px;
   background: var(--highlightColor);
+  color: var(--editorColor80);
+  display: inline-block;
+  padding: 0 2px;
+  border-radius: 1px;
+  height: 1.3em;
+  line-height: 1.3em;
 }
 
 span.ag-html-tag {
