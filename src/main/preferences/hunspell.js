@@ -1,5 +1,6 @@
 import path from 'path'
 import fs from 'fs-extra'
+import log from 'electron-log'
 import { isOsx } from '../config'
 
 // This is an asynchronous function to not block the process. The spell checker may be
@@ -21,7 +22,12 @@ export default async appDataPath => {
   const destDir = path.join(appDataPath, 'dictionaries')
   const destPath = path.join(destDir, 'en-US.bdic')
 
-  if (!await fs.exists(destPath) && await fs.exists(srcPath)) {
+  if (await fs.exists(srcPath)) {
+    log.error('Error while installing Hunspell default dictionary. Mark Text resources are corrupted!')
+    return
+  }
+
+  if (!await fs.exists(destPath)) {
     await fs.ensureDir(destDir)
     await fs.copy(srcPath, destPath)
   }

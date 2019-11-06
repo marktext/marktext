@@ -116,7 +116,8 @@ InlineLexer.prototype.output = function (src) {
     if (cap && lowerPriority(src, cap[0].length, this.highPriorityLinkRules)) {
       const lastParenIndex = findClosingBracket(cap[2], '()')
       if (lastParenIndex > -1) {
-        const linkLen = 4 + cap[1].length + lastParenIndex
+        const start = cap[0].indexOf('!') === 0 ? 5 : 4
+        const linkLen = start + cap[1].length + lastParenIndex
         cap[2] = cap[2].substring(0, lastParenIndex)
         cap[0] = cap[0].substring(0, linkLen).trim()
         cap[3] = ''
