@@ -59,7 +59,7 @@ function processUnicodeMatch (match) {
   function convertPosition (position) {
     const currentBuffer = remainingBuffer.slice(0, position - previousPosition)
     currentLength = currentBuffer.toString().length + currentLength
-    remainingBuffer = remainingBuffer.slice(position)
+    remainingBuffer = remainingBuffer.slice(position - previousPosition)
 
     previousPosition = position
 
@@ -270,7 +270,6 @@ class RipgrepDirectorySearcher {
         buffer = lines.pop()
         for (const line of lines) {
           const message = JSON.parse(line)
-
           if (message.type === 'begin') {
             pendingEvent = {
               filePath: getText(message.data.path),
@@ -281,9 +280,7 @@ class RipgrepDirectorySearcher {
           } else if (message.type === 'match') {
             const trailingContextLines = []
             pendingTrailingContexts.add(trailingContextLines)
-
             processUnicodeMatch(message.data)
-
             for (const submatch of message.data.submatches) {
               const { lineText, range } = processSubmatch(
                 submatch,
