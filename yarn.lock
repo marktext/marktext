@@ -805,12 +805,12 @@
     electron-is-accelerator "^0.1.0"
     keyboardevents-areequal "^0.2.1"
 
-"@hfelix/electron-spellchecker@1.0.0-rc.4":
-  version "1.0.0-rc.4"
-  resolved "https://registry.yarnpkg.com/@hfelix/electron-spellchecker/-/electron-spellchecker-1.0.0-rc.4.tgz#acb13944165a033c1112f91f6f8d86a5e74990ed"
-  integrity sha512-8vlF2xRe1/yJiCTP9SaJtZMza45wh7ujinTxHJouHDoAY3GgdxYnqahfW2hC2GGUeWXj6mpNteplZpoE2i1R9Q==
+"@hfelix/electron-spellchecker@1.0.0-rc.5":
+  version "1.0.0-rc.5"
+  resolved "https://registry.yarnpkg.com/@hfelix/electron-spellchecker/-/electron-spellchecker-1.0.0-rc.5.tgz#2e7c81857bbdd167aaea45b223a017bd89b19f7a"
+  integrity sha512-ma5osTva2F4/mF0h6Sbq0BTbMhZI0lBovjd/Ki2WesS9O5tIf75vdFeaZh0NVA7yynNsj5RmhfDTvrKOOg79MQ==
   dependencies:
-    "@hfelix/spellchecker" "^4.0.12-rc.0"
+    "@hfelix/spellchecker" "^4.0.12-rc.2"
     bcp47 "^1.1.2"
     cld "^2.5.1"
     debug "^4.1.1"
@@ -824,10 +824,10 @@
   resolved "https://registry.npmjs.org/@hfelix/keyboardevent-from-electron-accelerator/-/keyboardevent-from-electron-accelerator-1.1.1.tgz#7e1d4fd913759c381b7919cc7faf4c0c641d457c"
   integrity sha512-1eVkDSqoRQkF2FrPPia2EZ3310c0TvFKYvSuJbaxHpRKbI6eVHcVGKpmOSDli6Qdn3Bu0h7ozfgMZbAEBD+BLQ==
 
-"@hfelix/spellchecker@^4.0.12-rc.0":
-  version "4.0.12-rc.0"
-  resolved "https://registry.yarnpkg.com/@hfelix/spellchecker/-/spellchecker-4.0.12-rc.0.tgz#8bef46ebc18e117de722fa3538ddd57d79551c23"
-  integrity sha512-wpwfU7lsgNR1wOEknFp6CIPEWiek/4RY0+oMWK13kctnJjXCIlPG8rLlFnNGVv8L01uunNjuyQNcecyZAcTbbg==
+"@hfelix/spellchecker@^4.0.12-rc.2":
+  version "4.0.12-rc.2"
+  resolved "https://registry.yarnpkg.com/@hfelix/spellchecker/-/spellchecker-4.0.12-rc.2.tgz#3a3630c222e567eca68476a1bce1c919dc452378"
+  integrity sha512-FrO+96Di+EiJiib9AiLMXn3PBNg8gayn1r8JBPBM8ME2UwTs8f7GJF6yYCW99a0N8Lqwo13rplLqY6UVG5gEtQ==
   dependencies:
     nan "^2.14.0"
 
