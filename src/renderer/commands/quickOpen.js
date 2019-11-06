@@ -175,12 +175,12 @@ class QuickOpenCommand {
   _getInclusions = query => {
     // NOTE: This will fail on `foo.m` because we search for `foo.m.md`.
     if (MD_EXTENSION.test(query)) {
-      return [query]
+      return [`*${query}`]
     }
 
     const inclusions = ['*.markdown', '*.mdown', '*.mkdn', '*.md', '*.mkd', '*.mdwn', '*.mdtxt', '*.mdtext', '*.text', '*.txt']
     for (let i = 0; i < inclusions.length; ++i) {
-      inclusions[i] = `${query}` + inclusions[i]
+      inclusions[i] = `*${query}` + inclusions[i]
     }
     return inclusions
   }

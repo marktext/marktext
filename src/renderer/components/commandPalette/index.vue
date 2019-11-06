@@ -153,6 +153,9 @@ export default {
       }
     },
     handleInput (event) {
+      if (event.isComposing) {
+        return
+      }
       // NOTE: We're using keyup to catch "enter" key but `ctrlKey`
       // etc doesn't work here.
       switch (event.key) {
