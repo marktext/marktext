@@ -197,6 +197,19 @@ body {
 
 input.el-input__inner {
   background: var(--inputBgColor);
+  border: 1px solid var(--editorColor10);
+  color: var(--editorColor80);
+}
+
+.el-input-number.is-controls-right span.el-input-number__decrease,
+.el-input-number.is-controls-right span.el-input-number__increase {
+  background: var(--buttonBgColor);
+  border-left: none;
+  color: var(--editorColor80);
+}
+
+.el-input-number.is-controls-right span.el-input-number__increase {
+  border-bottom: none;
 }
 
 .el-tabs__nav-wrap::after {
