@@ -11,7 +11,7 @@ class SettingWindow extends BaseWindow {
    */
   constructor (accessor) {
     super(accessor)
-    this.type = WindowType.SETTING
+    this.type = WindowType.SETTINGS
   }
 
   /**

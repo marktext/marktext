@@ -199,7 +199,7 @@ class WindowManager extends EventEmitter {
 
   /**
    *
-   * @param {WindowType} type the WindowType one of ['base', 'editor', 'setting']
+   * @param {WindowType} type the WindowType one of ['base', 'editor', 'settings']
    * @returns {{id: number, win: BaseWindow}[]} Return the windows of the given {type}
    */
   getWindowsByType (type) {

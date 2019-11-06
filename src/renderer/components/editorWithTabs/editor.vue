@@ -97,8 +97,8 @@ import { DEFAULT_EDITOR_FONT_FAMILY } from '@/config'
 import { showContextMenu } from '@/contextMenu/editor'
 import notice from '@/services/notification'
 import Printer from '@/services/printService'
-import { offsetToWordCursor, validateLineCursor, SpellChecker } from '@/spellchecker'
-import { isOsx, animatedScrollTo } from '@/util'
+import { isOsSpellcheckerSupported, offsetToWordCursor, validateLineCursor, SpellChecker } from '@/spellchecker'
+import { delay, isOsx, animatedScrollTo } from '@/util'
 import { moveImageToFolder, uploadImage } from '@/util/fileSystem'
 import { guessClipboardFilePath } from '@/util/clipboard'
 import { getCssForOptions } from '@/util/pdf'
@@ -373,19 +373,21 @@ export default {
       // Special case when the OS supports multiple spell checker because the
       // language may be invalid (provider 1 may support language xyz
       // but provider 2 not). Otherwise ignore this event.
-      const multiProviderSupported = isOsx
-      if (multiProviderSupported && value !== oldValue) {
+      if (isOsSpellcheckerSupported() && value !== oldValue) {
         const { spellchecker } = this
         const { isHunspell } = spellchecker
         if (value === isHunspell) {
           this.spellcheckerIgnorChanges = false
 
-          // Apply language from settings that may have changed.
-          const { spellcheckerLanguage } = this
-          const { isEnabled, lang } = spellchecker
-          if (isEnabled && spellcheckerLanguage !== lang) {
-            this.switchSpellcheckLanguage(spellcheckerLanguage)
-          }
+          // NOTE: Set timout because the language may be changed if it's not supported.
+          delay(500).then(() => {
+            // Apply language from settings that may have changed.
+            const { spellcheckerLanguage } = this
+            const { isEnabled, isHunspell, lang } = spellchecker
+            if (value === isHunspell && isEnabled && spellcheckerLanguage !== lang) {
+              this.switchSpellcheckLanguage(spellcheckerLanguage)
+            }
+          })
         } else {
           // Ignore all settings language changes that occur when another
           // spell check provider is selected.
@@ -641,20 +643,27 @@ export default {
 
             // Translate offsets into a cursor with the given line.
             const wordRange = offsetToWordCursor(selection, left, right)
-            this.spellchecker.getWordSuggestion(word)
-              .then(wordSuggestions => {
-                const replaceCallback = replacement => {
-                  // wordRange := replace this range with the replacement
-                  this.editor.replaceWordInline(selection, wordRange, replacement, true)
-                }
-                showContextMenu(event, selection, this.spellchecker, word, wordSuggestions, replaceCallback)
-              })
+
+            // NOTE: Need to check whether the word is misspelled because
+            // suggestions may be empty even if word is misspelled.
+            if (this.spellchecker.isMisspelled(word)) {
+              this.spellchecker.getWordSuggestion(word)
+                .then(wordSuggestions => {
+                  const replaceCallback = replacement => {
+                    // wordRange := replace this range with the replacement
+                    this.editor.replaceWordInline(selection, wordRange, replacement, true)
+                  }
+                  showContextMenu(event, selection, this.spellchecker, word, wordSuggestions, replaceCallback)
+                })
+            } else {
+              showContextMenu(event, selection, this.spellchecker, word, null, null)
+            }
             return
           }
         }
 
         // No word selected or fallback
-        showContextMenu(event, selection, isEnabled ? this.spellchecker : null, '', [], null)
+        showContextMenu(event, selection, isEnabled ? this.spellchecker : null, '', null, null)
       })
 
       document.addEventListener('keyup', this.keyup)

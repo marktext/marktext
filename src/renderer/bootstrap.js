@@ -99,7 +99,10 @@ const bootstrapRenderer = () => {
   global.marktext = marktext
 
   // Set option to always use Hunspell instead OS spell checker.
-  if (spellcheckerIsHunspell) {
+  if (spellcheckerIsHunspell && type !== 'settings') {
+    // HACK: This code doesn't do anything because `node-spellchecker` is loaded by
+    // `internal/modules/cjs/loader.js` before we can set the envoriment variable here.
+    // The code is additionally added to `index.ejs` to workaound the problem.
     process.env['SPELLCHECKER_PREFER_HUNSPELL'] = 1 // eslint-disable-line dot-notation
   }
 

@@ -126,7 +126,7 @@ export default {
       }
     },
     handleLeftBottomClick (name) {
-      if (name === 'setting') {
+      if (name === 'settings') {
         this.$store.dispatch('OPEN_SETTING_WINDOW')
       }
     }
