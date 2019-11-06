@@ -174,7 +174,7 @@ export default {
             line-height: 16px;
             height: 16px;
             display: inline-block;
-            color: var(--sideBarTitleColor);
+            color: var(--sideBarTextColor);
             border-radius: 1px;
           }
           &:hover {
@@ -204,9 +204,12 @@ export default {
   }
   .title {
     display: flex;
-    color: var(--sideBarTitleColor);
+    color: var(--sideBarTextColor);
     & .filename {
       flex: 1;
+      & .name {
+        font-weight: 600;
+      }
       & .extension {
         color: var(--sideBarTextColor);
         font-size: 12px;
@@ -222,7 +225,7 @@ export default {
       border-radius: 9px;
       flex-shrink: 0;
       background: var(--itemBgColor);
-      color: var(--sideBarTitleColor);
+      color: var(--sideBarTextColor);
     }
   }
 
