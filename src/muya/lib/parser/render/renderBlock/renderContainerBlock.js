@@ -33,6 +33,13 @@ export default function renderContainerBlock (parent, block, activeBlocks, match
     lang,
     column
   } = block
+
+  if (type === 'table') {
+    this.renderingTable = block
+  } else if (/thead|tbody/.test(type)) {
+    this.renderingRowContainer = block
+  }
+
   const children = block.children.map(child => this.renderBlock(block, child, activeBlocks, matches, useCache))
   const data = {
     attrs: {},
@@ -51,8 +58,20 @@ export default function renderContainerBlock (parent, block, activeBlocks, match
     Object.assign(data.attrs, { spellcheck: 'false' })
   }
 
-  if (/th|td/.test(type)) {
+  if (/^(th|td)$/.test(type)) {
     const { cells } = this.muya.contentState.selectedTableCells || {}
+    if (align) {
+      Object.assign(data.attrs, {
+        style: `text-align:${align}`
+      })
+    }
+
+    if (typeof column === 'number') {
+      Object.assign(data.dataset, {
+        column
+      })
+    }
+
     if (cells && cells.length) {
       const cell = cells.find(c => c.key === key)
       if (cell) {
@@ -71,44 +90,28 @@ export default function renderContainerBlock (parent, block, activeBlocks, match
           selector += '.ag-cell-border-left'
         }
       }
-    }
-  }
+    } else {
+      // Judge whether to render the table drag bar.
+      const { renderingTable, renderingRowContainer } = this
 
-  // Judge whether to render the table drag bar.
-  const { cells } = this.muya.contentState.selectedTableCells || {}
-  if (/th|td/.test(type) && (!cells || cells && cells.length === 0)) {
-    const table = this.muya.contentState.closest(block, 'table')
-    const findTable = activeBlocks.find(b => b.key === table.key)
-    if (findTable) {
-      const { row: tableRow, column: tableColumn } = findTable
-      const isLastRow = () => {
-        const rowContainer = this.muya.contentState.closest(block, /tbody|thead/)
-        if (rowContainer.type === 'thead') {
-          return tableRow === 0
-        } else {
-          return !parent.nextSibling
+      const findTable = renderingTable ? activeBlocks.find(b => b.key === renderingTable.key) : null
+      if (findTable && renderingRowContainer) {
+        const { row: tableRow, column: tableColumn } = findTable
+        const isLastRow = () => {
+          if (renderingRowContainer.type === 'thead') {
+            return tableRow === 0
+          } else {
+            return !parent.nextSibling
+          }
+        }
+        if (block.parent === activeBlocks[1].parent && !block.preSibling && tableRow > 0) {
+          children.unshift(renderLeftBar())
+        }
+
+        if (column === activeBlocks[1].column && isLastRow() && tableColumn > 0) {
+          children.push(renderBottomBar())
         }
       }
-      if (block.parent === activeBlocks[1].parent && !block.preSibling && tableRow > 0) {
-        children.unshift(renderLeftBar())
-      }
-
-      if (column === activeBlocks[1].column && isLastRow() && tableColumn > 0) {
-        children.push(renderBottomBar())
-      }
-    }
-  }
-
-  if (/th|td/.test(type)) {
-    if (align) {
-      Object.assign(data.attrs, {
-        style: `text-align:${align}`
-      })
-    }
-    if (typeof column === 'number') {
-      Object.assign(data.dataset, {
-        column
-      })
     }
   } else if (/^h/.test(type)) {
     if (/^h\d$/.test(type)) {

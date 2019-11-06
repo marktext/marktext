@@ -18,6 +18,8 @@ class StateRender {
     this.tokenCache = new Map()
     this.labels = new Map()
     this.urlMap = new Map()
+    this.renderingTable = null
+    this.renderingRowContainer = null
     this.container = null
   }
 
