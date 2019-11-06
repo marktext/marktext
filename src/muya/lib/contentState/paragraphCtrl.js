@@ -554,13 +554,13 @@ const paragraphCtrl = ContentState => {
         const endOffset = newLevel > 0
           ? end.offset + newLevel - hash.length + 1
           : end.offset - hash.length
+        let newText = newLevel > 0
+          ? '#'.repeat(newLevel) + `${String.fromCharCode(160)}${partText}` // &nbsp; code: 160
+          : partText
 
         // Remove <hr> content when converting to paragraph.
-        let newText = ''
-        if (type !== 'span' && block.functionType !== 'thematicBreakLine') {
-          newText = newLevel > 0
-            ? '#'.repeat(newLevel) + `${String.fromCharCode(160)}${partText}` // &nbsp; code: 160
-            : partText
+        if (type === 'span' && block.functionType === 'thematicBreakLine') {
+          newText = ''
         }
 
         // No change
