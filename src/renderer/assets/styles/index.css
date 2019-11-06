@@ -192,7 +192,7 @@ body {
 .el-dialog__header {
   position: relative;
   display: block;
-  padding: 8px 6px !important;
+  padding: 8px 6px;
 }
 
 input.el-input__inner {
