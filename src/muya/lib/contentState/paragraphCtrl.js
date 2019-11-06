@@ -245,22 +245,22 @@ const paragraphCtrl = ContentState => {
     }
     // change fenced code block to p paragraph
     if (affiliation.length && affiliation[0].type === 'pre' && /code/.test(affiliation[0].functionType)) {
-      const preBlock = affiliation[0]
-      const codeContent = preBlock.children[1].children[0]
-      preBlock.type = 'p'
-      preBlock.children = []
+      const codeBlock = affiliation[0]
+      const codeContent = codeBlock.children[1].children[0].text
+      const states = this.markdownToState(codeContent)
 
-      const newParagraphBlock = this.createBlockP(codeContent.text)
-      this.insertBefore(newParagraphBlock, preBlock)
+      for (const state of states) {
+        this.insertBefore(state, codeBlock)
+      }
 
-      this.removeBlock(preBlock)
-      const { start, end } = this.cursor
+      this.removeBlock(codeBlock)
 
-      const key = newParagraphBlock.children[0].key
-
+      const cursorBlock = this.firstInDescendant(states[0])
+      const { key, text } = cursorBlock
+      const offset = text.length
       this.cursor = {
-        start: { key, offset: start.offset },
-        end: { key, offset: end.offset }
+        start: { key, offset },
+        end: { key, offset }
       }
     } else {
       if (start.key === end.key) {
@@ -625,7 +625,7 @@ const paragraphCtrl = ContentState => {
         break
       }
     }
-    if (paraType === 'front-matter') {
+    if (paraType === 'front-matter' || paraType === 'pre') {
       this.render()
     } else {
       this.partialRender()
