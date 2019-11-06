@@ -104,9 +104,9 @@
         </el-tab-pane>
         <el-tab-pane label="Theme" name="theme">
           <div class="text">You can change the document appearance by choosing a theme or create a handcrafted one.</div>
-          <!-- TODO(theme): Create "more" link to PDF theme documentation -->
           <cur-select
             description="Theme:"
+            more="https://github.com/marktext/marktext/blob/develop/docs/EXPORT_THEMES.md"
             :value="theme"
             :options="themeList"
             :onChange="value => onSelectChange('theme', value)"

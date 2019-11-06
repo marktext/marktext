@@ -7,6 +7,7 @@ class FileEncodingCommand {
   constructor (editorState) {
     this.id = 'file.change-encoding'
     this.description = 'File: Change Encoding'
+    this.placeholder = 'Select an option'
 
     this.subcommands = []
     this.subcommandSelectedIndex = -1

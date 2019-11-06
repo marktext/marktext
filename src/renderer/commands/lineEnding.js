@@ -9,6 +9,7 @@ class LineEndingCommand {
   constructor (editorState) {
     this.id = 'file.line-ending'
     this.description = 'File: Change Line Ending'
+    this.placeholder = 'Select an option'
 
     this.subcommands = [{
       id: 'file.line-ending-crlf',

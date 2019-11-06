@@ -30,6 +30,7 @@ const state = {
   endOfLine: 'default',
   defaultEncoding: 'utf8',
   autoGuessEncoding: true,
+  trimTrailingNewline: 2,
   textDirection: 'ltr',
   hideQuickInsertHint: false,
   imageInsertAction: 'folder',

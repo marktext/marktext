@@ -10,7 +10,8 @@ import notice from '../services/notification'
 import {
   FileEncodingCommand,
   LineEndingCommand,
-  QuickOpenCommand
+  QuickOpenCommand,
+  TrailingNewlineCommand
 } from '../commands'
 
 const autoSaveTimers = new Map()
@@ -99,8 +100,16 @@ const mutations = {
   LOAD_CHANGE (state, change) {
     const { tabs, currentFile } = state
     const { data, pathname } = change
-    const { isMixedLineEndings, lineEnding, adjustLineEndingOnSave, encoding, markdown, filename } = data
-    const options = { encoding, lineEnding, adjustLineEndingOnSave }
+    const {
+      isMixedLineEndings,
+      lineEnding,
+      adjustLineEndingOnSave,
+      trimTrailingNewline,
+      encoding,
+      markdown,
+      filename
+    } = data
+    const options = { encoding, lineEnding, adjustLineEndingOnSave, trimTrailingNewline }
 
     // Create a new document and update few entires later.
     const newFileState = getSingleFileState({ markdown, filename, pathname, options })
@@ -211,6 +220,11 @@ const mutations = {
       const { encoding: encodingObj } = state.currentFile
       encodingObj.encoding = encodingName
       encodingObj.isBom = false
+    }
+  },
+  SET_FINAL_NEWLINE (state, value) {
+    if (hasKeys(state.currentFile) && value >= 0 && value <= 3) {
+      state.currentFile.trimTrailingNewline = value
     }
   },
   SET_ADJUST_LINE_ENDING_ON_SAVE (state, adjustLineEndingOnSave) {
@@ -607,6 +621,7 @@ const actions = {
       bus.$emit('cmd::register-command', new FileEncodingCommand(rootState.editor))
       bus.$emit('cmd::register-command', new QuickOpenCommand(rootState))
       bus.$emit('cmd::register-command', new LineEndingCommand(rootState.editor))
+      bus.$emit('cmd::register-command', new TrailingNewlineCommand(rootState.editor))
 
       setTimeout(() => {
         ipcRenderer.send('mt::request-keybindings')
@@ -853,7 +868,13 @@ const actions = {
   // WORKAROUND: id is "muya" if changes come from muya and not source code editor! So we don't have to apply the workaround.
   LISTEN_FOR_CONTENT_CHANGE ({ commit, dispatch, state, rootState }, { id, markdown, wordCount, cursor, history, toc }) {
     const { autoSave } = rootState.preferences
-    const { id: currentId, filename, pathname, markdown: oldMarkdown } = state.currentFile
+    const {
+      id: currentId,
+      filename,
+      pathname,
+      markdown: oldMarkdown,
+      trimTrailingNewline
+    } = state.currentFile
     const { listToc } = state
 
     if (!id) {
@@ -866,38 +887,53 @@ const actions = {
       // Update old tab or discard changes
       for (const tab of state.tabs) {
         if (tab.id && tab.id === id) {
-          tab.markdown = markdown
-          // set cursor
-          if (cursor) tab.cursor = cursor
-          // set history
-          if (history) tab.history = history
+          tab.markdown = adjustTrailingNewlines(markdown, tab.trimTrailingNewline)
+          // Set cursor
+          if (cursor) {
+            tab.cursor = cursor
+          }
+          // Set history
+          if (history) {
+            tab.history = history
+          }
           break
         }
       }
       return
     }
 
-    const options = getOptionsFromState(state.currentFile)
+    markdown = adjustTrailingNewlines(markdown, trimTrailingNewline)
     commit('SET_MARKDOWN', markdown)
 
-    // ignore new line which is added if the editor text is empty (#422)
+    // Ignore new line which is added if the editor text is empty (#422)
     if (oldMarkdown.length === 0 && markdown.length === 1 && markdown[0] === '\n') {
       return
     }
 
-    // set word count
-    if (wordCount) commit('SET_WORD_COUNT', wordCount)
-    // set cursor
-    if (cursor) commit('SET_CURSOR', cursor)
-    // set history
-    if (history) commit('SET_HISTORY', history)
-    // set toc
-    if (toc && !equal(toc, listToc)) commit('SET_TOC', toc)
+    // Word count
+    if (wordCount) {
+      commit('SET_WORD_COUNT', wordCount)
+    }
+    // Set cursor
+    if (cursor) {
+      commit('SET_CURSOR', cursor)
+    }
+    // Set history
+    if (history) {
+      commit('SET_HISTORY', history)
+    }
+    // Set toc
+    if (toc && !equal(toc, listToc)) {
+      commit('SET_TOC', toc)
+    }
 
-    // change save status/save to file only when the markdown changed!
+    // Change save status/save to file only when the markdown changed!
     if (markdown !== oldMarkdown) {
       commit('SET_SAVE_STATUS', false)
+
+      // Save file is auto save is enable and file exist on disk.
       if (pathname && autoSave) {
+        const options = getOptionsFromState(state.currentFile)
         dispatch('HANDLE_AUTO_SAVE', {
           id: currentId,
           filename,
@@ -1045,11 +1081,21 @@ const actions = {
     })
   },
 
-  LINTEN_FOR_SET_ENCODING ({ commit, dispatch, state }) {
+  LINTEN_FOR_SET_ENCODING ({ commit, state }) {
     ipcRenderer.on('mt::set-file-encoding', (e, encodingName) => {
       const { encoding } = state.currentFile.encoding
       if (encoding !== encodingName) {
         commit('SET_FILE_ENCODING_BY_NAME', encodingName)
+        commit('SET_SAVE_STATUS', true)
+      }
+    })
+  },
+
+  LINTEN_FOR_SET_FINAL_NEWLINE ({ commit, state }) {
+    ipcRenderer.on('mt::set-final-newline', (e, value) => {
+      const { trimTrailingNewline } = state.currentFile
+      if (trimTrailingNewline !== value) {
+        commit('SET_FINAL_NEWLINE', value)
         commit('SET_SAVE_STATUS', true)
       }
     })
@@ -1140,6 +1186,59 @@ const getRootFolderFromState = rootState => {
     return openedFolder.pathname
   }
   return ''
+}
+
+/**
+ * Trim the final newlines according `trimTrailingNewlineOption`.
+ *
+ * @param {string} markdown The text to trim.
+ * @param {*} trimTrailingNewlineOption The option how we should trim the final newlines.
+ */
+const adjustTrailingNewlines = (markdown, trimTrailingNewlineOption) => {
+  if (!markdown) {
+    return ''
+  }
+
+  switch (trimTrailingNewlineOption) {
+    // Trim trailing newlines.
+    case 0: {
+      return trimTrailingNewlines(markdown)
+    }
+    // Ensure single trailing newline.
+    case 1: {
+      // Muya will always add a final new line to the markdown text. Check first whether
+      // only one newline exist to prevent copying the string.
+      const lastIndex = markdown.length - 1
+      if (markdown[lastIndex] === '\n') {
+        if (markdown.length === 1) {
+          // Just return nothing because adding a final new line makes no sense.
+          return ''
+        } else if (markdown[lastIndex - 1] !== '\n') {
+          return markdown
+        }
+      }
+
+      // Otherwise trim trailing newlines and add one.
+      markdown = trimTrailingNewlines(markdown)
+      if (markdown.length === 0) {
+        // Just return nothing because adding a final new line makes no sense.
+        return ''
+      }
+      return markdown + '\n'
+    }
+    // Disabled, use text as it is.
+    default:
+      return markdown
+  }
+}
+
+/**
+ * Trim trailing newlines from `text`.
+ *
+ * @param {string} text The text to trim.
+ */
+const trimTrailingNewlines = text => {
+  return text.replace(/[\r?\n]+$/, '')
 }
 
 export default { state, mutations, actions }

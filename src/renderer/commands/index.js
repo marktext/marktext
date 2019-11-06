@@ -7,6 +7,7 @@ import { isUpdatable } from './utils'
 export { default as FileEncodingCommand } from './fileEncoding'
 export { default as LineEndingCommand } from './lineEnding'
 export { default as QuickOpenCommand } from './quickOpen'
+export { default as TrailingNewlineCommand } from './trailingNewline'
 
 export class RootCommand {
   constructor (subcommands = []) {

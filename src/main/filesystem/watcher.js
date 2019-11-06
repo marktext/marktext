@@ -18,7 +18,7 @@ const EVENT_NAME = {
   file: 'mt::update-file'
 }
 
-const add = async (win, pathname, type, endOfLine, autoGuessEncoding) => {
+const add = async (win, pathname, type, endOfLine, autoGuessEncoding, trimTrailingNewline) => {
   const stats = await fs.stat(pathname)
   const birthTime = stats.birthtime
   const isMarkdown = hasMarkdownExtension(pathname)
@@ -33,7 +33,12 @@ const add = async (win, pathname, type, endOfLine, autoGuessEncoding) => {
   if (isMarkdown) {
     // HACK: But this should be removed completely in #1034/#1035.
     try {
-      const data = await loadMarkdownFile(pathname, endOfLine, autoGuessEncoding)
+      const data = await loadMarkdownFile(
+        pathname,
+        endOfLine,
+        autoGuessEncoding,
+        trimTrailingNewline
+      )
       file.data = data
     } catch (err) {
       // Only notify user about opened files.
@@ -61,7 +66,7 @@ const unlink = (win, pathname, type) => {
   })
 }
 
-const change = async (win, pathname, type, endOfLine, autoGuessEncoding) => {
+const change = async (win, pathname, type, endOfLine, autoGuessEncoding, trimTrailingNewline) => {
   // No need to update the tree view if the file content has changed.
   if (type === 'dir') return
 
@@ -70,7 +75,12 @@ const change = async (win, pathname, type, endOfLine, autoGuessEncoding) => {
     // HACK: Markdown data should be removed completely in #1034/#1035 and
     // should be only loaded after user interaction.
     try {
-      const data = await loadMarkdownFile(pathname, endOfLine, autoGuessEncoding)
+      const data = await loadMarkdownFile(
+        pathname,
+        endOfLine,
+        autoGuessEncoding,
+        trimTrailingNewline
+      )
       const file = {
         pathname,
         data
@@ -179,16 +189,18 @@ class Watcher {
     watcher
       .on('add', pathname => {
         if (!this._shouldIgnoreEvent(win.id, pathname, type)) {
-          const eol = this._preferences.getPreferedEol()
-          const autoGuessEncoding = this._preferences.getItem('autoGuessEncoding')
-          add(win, pathname, type, eol, autoGuessEncoding)
+          const { _preferences } = this
+          const eol = _preferences.getPreferedEol()
+          const { autoGuessEncoding, trimTrailingNewline } = _preferences.getAll()
+          add(win, pathname, type, eol, autoGuessEncoding, trimTrailingNewline)
         }
       })
       .on('change', pathname => {
         if (!this._shouldIgnoreEvent(win.id, pathname, type)) {
-          const eol = this._preferences.getPreferedEol()
-          const autoGuessEncoding = this._preferences.getItem('autoGuessEncoding')
-          change(win, pathname, type, eol, autoGuessEncoding)
+          const { _preferences } = this
+          const eol = _preferences.getPreferedEol()
+          const { autoGuessEncoding, trimTrailingNewline } = _preferences.getAll()
+          change(win, pathname, type, eol, autoGuessEncoding, trimTrailingNewline)
         }
       })
       .on('unlink', pathname => unlink(win, pathname, type))
