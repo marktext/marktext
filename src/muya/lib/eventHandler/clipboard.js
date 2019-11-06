@@ -60,10 +60,11 @@ class Clipboard {
 
   /**
    * Copy the anchor block(table, paragraph, math block etc) with the info
+   * @param {string|object} type copyBlock or copyCodeContent
    * @param {string|object} info  is the block key if it's string, or block if it's object
    */
-  copy (info) {
-    this._copyType = 'copyBlock'
+  copy (type, info) {
+    this._copyType = type
     this._copyInfo = info
     document.execCommand('copy')
   }

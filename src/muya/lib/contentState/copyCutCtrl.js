@@ -47,6 +47,9 @@ const copyCutCtrl = ContentState => {
 
   ContentState.prototype.getClipBoradData = function () {
     const { start, end } = selection.getCursorRange()
+    if (!start || !end) {
+      return { html: '', text: '' }
+    }
     if (start.key === end.key) {
       const startBlock = this.getBlock(start.key)
       const { type, text, functionType } = startBlock
@@ -272,6 +275,15 @@ const copyCutCtrl = ContentState => {
         event.clipboardData.setData('text/html', '')
         event.clipboardData.setData('text/plain', markdown)
         break
+      }
+
+      case 'copyCodeContent': {
+        const codeContent = copyInfo
+        if (typeof codeContent !== 'string') {
+          return
+        }
+        event.clipboardData.setData('text/html', '')
+        event.clipboardData.setData('text/plain', codeContent)
       }
     }
   }

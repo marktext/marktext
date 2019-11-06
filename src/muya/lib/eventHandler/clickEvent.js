@@ -100,6 +100,7 @@ class ClickEvent {
       const mathRender = target.closest(`.${CLASS_OR_ID.AG_MATH_RENDER}`)
       const rubyRender = target.closest(`.${CLASS_OR_ID.AG_RUBY_RENDER}`)
       const imageWrapper = target.closest(`.${CLASS_OR_ID.AG_INLINE_IMAGE}`)
+      const codeCopy = target.closest('.ag-code-copy')
       const footnoteBackLink = target.closest('.ag-footnote-backlink')
       const imageDelete = target.closest('.ag-image-icon-delete') || target.closest('.ag-image-icon-close')
       const mathText = mathRender && mathRender.previousElementSibling
@@ -115,6 +116,11 @@ class ClickEvent {
         selectionText(mathText)
       } else if (rubyText) {
         selectionText(rubyText)
+      }
+      if (codeCopy) {
+        event.stopPropagation()
+        event.preventDefault()
+        return this.muya.contentState.copyCodeBlock(event)
       }
       // Handle delete inline iamge by click delete icon.
       if (imageDelete && imageWrapper) {

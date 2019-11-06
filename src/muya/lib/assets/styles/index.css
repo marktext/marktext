@@ -582,7 +582,7 @@ pre.ag-front-matter span.ag-code-content:first-of-type:empty::after {
 }
 
 pre[data-role$='code'] span.ag-language-input:empty::after {
-  content: 'Input Language...';
+  content: 'Input Language Identifier...';
   color: var(--editorColor10);
 }
 
@@ -621,7 +621,7 @@ pre.ag-indent-code > code::before,
 pre.ag-fence-code > code::before {
   content: '';
   position: absolute;
-  top: -10px;
+  bottom: -1em;
   right: -5px;
   color: var(--editorColor30);
   font-size: 12px;
@@ -1155,6 +1155,97 @@ span.ag-reference-link {
 
 .vega-embed {
   padding-right: 0;
+}
+
+.ag-code-copy {
+  position: absolute;
+  top: .5em;
+  right: .5em;
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  opacity: 0;
+  z-index: 1;
+  transition: opacity .2s ease-in-out;
+}
+
+.ag-active .ag-code-copy {
+  opacity: .5;
+}
+
+pre:not(.ag-active):hover .ag-code-copy {
+  opacity: .5;
+}
+
+.ag-code-copy:hover {
+  opacity: 1;
+}
+
+.ag-code-copy i.icon {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+}
+
+.ag-code-copy i.icon > i[class^=icon-] {
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(16px 0 var(--iconColor));
+  position: absolute;
+  left: -16px;
+}
+
+pre.ag-paragraph.line-numbers {
+	position: relative;
+	padding-left: 2.5em;
+	counter-reset: linenumber;
+}
+
+pre.ag-paragraph.line-numbers > code {
+	position: relative;
+	white-space: inherit;
+}
+
+figure:not(.ag-active) pre.ag-paragraph.line-numbers {
+  display: none;
+}
+
+.line-numbers .line-numbers-rows {
+	position: absolute;
+	pointer-events: none;
+	top: 0;
+	font-size: 100%;
+	left: -2.5em;
+	width: 2.5em; /* works for line-numbers below 1000 lines */
+	letter-spacing: -1px;
+
+	user-select: none;
+
+}
+
+.line-numbers-sizer {
+  white-space: pre-line;
+  word-break: break-all;
+}
+
+.line-numbers-rows > span {
+	pointer-events: none;
+	display: block;
+	counter-increment: linenumber;
+}
+
+.line-numbers-rows > span:before {
+	content: counter(linenumber);
+	color: var(--editorColor30);
+	display: block;
+	padding-right: .8em;
+  text-align: right;
+  transform: scale(.8);
+  position: relative;
+  top: .05em;
 }
 
 .ag-inline-footnote-identifier {

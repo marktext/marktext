@@ -2,6 +2,8 @@ import { CLASS_OR_ID } from '../../../config'
 import { renderTableTools } from './renderToolBar'
 import { footnoteJumpIcon } from './renderFootnoteJump'
 import { renderEditIcon } from './renderContainerEditIcon'
+import renderLineNumberRows from './renderLineNumber'
+import renderCopyButton from './renderCopyButton'
 import { renderLeftBar, renderBottomBar } from './renderTableDargBar'
 import { h } from '../snabbdom'
 
@@ -46,8 +48,20 @@ export default function renderContainerBlock (parent, block, activeBlocks, match
     })
   }
 
-  if (/code|pre/.test(type) && typeof lang === 'string' && !!lang) {
-    selector += `.language-${lang.replace(/[#.]{1}/g, '')}`
+  if (/code|pre/.test(type)) {
+    if (typeof lang === 'string' && !!lang) {
+      selector += `.language-${lang.replace(/[#.]{1}/g, '')}`
+    }
+    if (type === 'pre') {
+      children.unshift(renderCopyButton())
+    }
+    if (this.muya.options.codeBlockLineNumbers) {
+      if (type === 'pre') {
+        selector += '.line-numbers'
+      } else {
+        children.unshift(renderLineNumberRows(block.children[0]))
+      }
+    }
     Object.assign(data.attrs, { spellcheck: 'false' })
   }
 

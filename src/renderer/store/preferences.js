@@ -20,6 +20,7 @@ const state = {
   lineHeight: 1.6,
   codeFontSize: 14,
   codeFontFamily: 'DejaVu Sans Mono',
+  codeBlockLineNumbers: true,
   trimUnnecessaryCodeBlockEmptyLines: true,
   editorLineWidth: '',
 
