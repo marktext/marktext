@@ -143,13 +143,17 @@ const commands = [
     id: 'edit.undo',
     description: 'Edit: Undo',
     execute: async () => {
-      bus.$emit('undo', 'undo')
+      focusEditorAndExecute(
+        () => bus.$emit('undo', 'undo')
+      )
     }
   }, {
     id: 'edit.redo',
     description: 'Edit: Redo',
     execute: async () => {
-      bus.$emit('redo', 'redo')
+      focusEditorAndExecute(
+        () => bus.$emit('redo', 'redo')
+      )
     }
   }, {
     id: 'edit.duplicate',
@@ -615,13 +619,17 @@ const commands = [
     id: 'view.typewriter-mode',
     description: 'View: Toggle Typewriter Mode',
     execute: async () => {
-      bus.$emit('view:toggle-view-entry', 'typewriter')
+      focusEditorAndExecute(
+        () => bus.$emit('view:toggle-view-entry', 'typewriter')
+      )
     }
   }, {
     id: 'view.focus-mode',
     description: 'View: Focus Mode',
     execute: async () => {
-      bus.$emit('view:toggle-view-entry', 'focus')
+      focusEditorAndExecute(
+        () => bus.$emit('view:toggle-view-entry', 'focus')
+      )
     }
   }, {
     id: 'view.toggle-sidebar',
