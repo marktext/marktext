@@ -10,7 +10,7 @@
     <bool
       description="When enabled, Hunspell is used instead the OS spell checker on macOS and Windows 10. The change take effect after application restart or for new editor windows."
       :bool="spellcheckerIsHunspell"
-      :disable="isLinux || !spellcheckerEnabled"
+      :disable="!isOsSpellcheckerSupported || !spellcheckerEnabled"
       :onChange="value => onSelectChange('spellcheckerIsHunspell', value)"
     ></bool>
     <bool
@@ -110,6 +110,7 @@ export default {
     this.isOsx = isOsx
     this.isLinux = isLinux
     this.isWindows = isWindows
+    this.isOsSpellcheckerSupported = isOsSpellcheckerSupported()
     this.dictionariesLanguagesOptions = HUNSPELL_DICTIONARY_LANGUAGE_MAP
     this.hunspellDictionaryDownloadCache = {}
     return {
@@ -132,7 +133,7 @@ export default {
   },
   watch: {
     spellcheckerIsHunspell: function (value, oldValue) {
-      if (isOsSpellcheckerSupported() && value !== oldValue) {
+      if (this.isOsSpellcheckerSupported && value !== oldValue) {
         this.ensureDictLanguage(value)
         this.refreshDictionaryList()
       }
@@ -176,8 +177,8 @@ export default {
       this.availableDictionaries = this.getAvailableDictionaries()
     },
     ensureDictLanguage (isHunspell) {
-      const { spellcheckerLanguage } = this
-      if (isHunspell) {
+      const { isOsSpellcheckerSupported, spellcheckerLanguage } = this
+      if (isHunspell || !isOsSpellcheckerSupported) {
         // Validate language for Hunspell.
         const index = HUNSPELL_DICTIONARY_LANGUAGE_MAP.findIndex(d => d.value === spellcheckerLanguage)
         if (index === -1) {
