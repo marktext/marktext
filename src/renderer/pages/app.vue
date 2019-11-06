@@ -147,6 +147,7 @@ export default {
     dispatch('LISTEN_FOR_RENAME')
     dispatch('LINTEN_FOR_SET_LINE_ENDING')
     dispatch('LINTEN_FOR_SET_ENCODING')
+    dispatch('LINTEN_FOR_SET_FINAL_NEWLINE')
     dispatch('LISTEN_FOR_NEW_TAB')
     dispatch('LISTEN_FOR_CLOSE_TAB')
     dispatch('LISTEN_FOR_TAB_CYCLE')

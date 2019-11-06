@@ -36,7 +36,7 @@ Preferences can be controlled and modified in the settings window or via the `pr
 | imageDropAction                    | String  | folder             | The default behavior after paste or drag the image to Mark Text, upload it to the image cloud (if configured), move to the specified folder, insert the path          |
 | defaultEncoding                    | String  | `utf8`             | The default file encoding                                                                                                                                                      |
 | autoGuessEncoding                  | Boolean | true               | Try to automatically guess the file encoding when opening files                                                                                                                |
-| trimTrailingNewline                | Enum    | `2`                | Ensure a single trailing newline or whether trailing newlines should be removed: `0`: ensure single newline, `1`: trim all trailing newlines, `2`: auto detect, `3`: disabled. |
+| trimTrailingNewline                | Enum    | `2`                | Ensure a single trailing newline or whether trailing newlines should be removed: `0`: trim all trailing newlines, `1`: ensure single newline, `2`: auto detect, `3`: disabled. |
 | hideLinkPopup                      | Boolean | false              | It will not show the link popup when hover over the link if set `hideLinkPopup` to true                                                                                        |
 
 #### Markdown

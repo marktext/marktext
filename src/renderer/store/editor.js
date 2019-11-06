@@ -10,7 +10,8 @@ import notice from '../services/notification'
 import {
   FileEncodingCommand,
   LineEndingCommand,
-  QuickOpenCommand
+  QuickOpenCommand,
+  TrailingNewlineCommand
 } from '../commands'
 
 const autoSaveTimers = new Map()
@@ -219,6 +220,11 @@ const mutations = {
       const { encoding: encodingObj } = state.currentFile
       encodingObj.encoding = encodingName
       encodingObj.isBom = false
+    }
+  },
+  SET_FINAL_NEWLINE (state, value) {
+    if (hasKeys(state.currentFile) && value >= 0 && value <= 3) {
+      state.currentFile.trimTrailingNewline = value
     }
   },
   SET_ADJUST_LINE_ENDING_ON_SAVE (state, adjustLineEndingOnSave) {
@@ -615,6 +621,7 @@ const actions = {
       bus.$emit('cmd::register-command', new FileEncodingCommand(rootState.editor))
       bus.$emit('cmd::register-command', new QuickOpenCommand(rootState))
       bus.$emit('cmd::register-command', new LineEndingCommand(rootState.editor))
+      bus.$emit('cmd::register-command', new TrailingNewlineCommand(rootState.editor))
 
       setTimeout(() => {
         ipcRenderer.send('mt::request-keybindings')
@@ -1074,11 +1081,21 @@ const actions = {
     })
   },
 
-  LINTEN_FOR_SET_ENCODING ({ commit, dispatch, state }) {
+  LINTEN_FOR_SET_ENCODING ({ commit, state }) {
     ipcRenderer.on('mt::set-file-encoding', (e, encodingName) => {
       const { encoding } = state.currentFile.encoding
       if (encoding !== encodingName) {
         commit('SET_FILE_ENCODING_BY_NAME', encodingName)
+        commit('SET_SAVE_STATUS', true)
+      }
+    })
+  },
+
+  LINTEN_FOR_SET_FINAL_NEWLINE ({ commit, state }) {
+    ipcRenderer.on('mt::set-final-newline', (e, value) => {
+      const { trimTrailingNewline } = state.currentFile
+      if (trimTrailingNewline !== value) {
+        commit('SET_FINAL_NEWLINE', value)
         commit('SET_SAVE_STATUS', true)
       }
     })
