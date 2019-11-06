@@ -75,7 +75,7 @@ const commands = [
     description: 'File: Print current Tab',
     execute: async () => {
       await delay(50)
-      ipcRenderer.emit('mt::show-export-dialog', null, 'print')
+      bus.$emit('showExportDialog', 'print')
     }
   }, {
     id: 'file.close-tab',
@@ -124,14 +124,14 @@ const commands = [
       description: 'HTML',
       execute: async () => {
         await delay(50)
-        bus.$emit('export', 'styledHtml')
+        bus.$emit('showExportDialog', 'styledHtml')
       }
     }, {
       id: 'file.export-file-pdf',
       description: 'PDF',
       execute: async () => {
         await delay(50)
-        bus.$emit('export', 'pdf')
+        bus.$emit('showExportDialog', 'pdf')
       }
     }]
   },
