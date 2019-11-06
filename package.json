@@ -113,7 +113,7 @@
     "del": "^5.1.0",
     "devtron": "^1.4.0",
     "dotenv": "^8.2.0",
-    "electron": "7.0.1",
+    "electron": "^7.1.0",
     "electron-builder": "^22.1.0",
     "electron-devtools-installer": "^2.2.4",
     "electron-rebuild": "^1.8.6",
@@ -170,9 +170,6 @@
     "webpack-dev-server": "^3.9.0",
     "webpack-hot-middleware": "^2.25.0",
     "webpack-merge": "^4.2.1"
-  },
-  "resolutions": {
-    "node-gyp": "^6.0.1"
   },
   "repository": {
     "type": "git",
