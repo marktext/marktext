@@ -196,7 +196,7 @@ class RipgrepDirectorySearcher {
     if (options.maxFileSize) {
       args.push('--max-filesize', options.maxFileSize + '')
     }
-    if (!options.includeHidden) {
+    if (options.includeHidden) {
       args.push('--hidden')
     }
     if (options.noIgnore) {
