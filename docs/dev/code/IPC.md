@@ -1,6 +1,6 @@
 # Inter-Process Communication (IPC)
 
-[Electron](https://electronjs.org/docs/api/ipc-main) provides `ipcMain` and `ipcRenderer` to communicate asynchronously between the main process and renderer processes. The event name/channel must be prefixed with `mt::` (previously `AGANI::`) if used between main process and renderer processes. The default argument list will be `(event, ...args)`. The event name/channel is not prefixed when using `ipcMain` to emit events to the main process directly and emitted events don't have an `event` parameter. The parameter list will only be `(...args)`! When simulate a renderer event you must specify a [event](https://electronjs.org/docs/api/ipc-main#event-object) parameter (`null` or `undefined` may lead to unexpected exceptions).
+[Electron](https://electronjs.org/docs/api/ipc-main) provides `ipcMain` and `ipcRenderer` to communicate asynchronously between the main process and renderer processes. The event name/channel must be prefixed with `mt::` if used between main process and renderer processes. The default argument list will be `(event, ...args)`. The event name/channel is not prefixed when using `ipcMain` to emit events to the main process directly and emitted events don't have an `event` parameter. The parameter list will only be `(...args)`! When simulate a renderer event you must specify a [event](https://electronjs.org/docs/api/ipc-main#event-object) parameter (`null` or `undefined` may lead to unexpected exceptions).
 
 ## Examples
 

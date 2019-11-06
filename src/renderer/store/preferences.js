@@ -112,7 +112,7 @@ const actions = {
     ipcRenderer.send('mt::ask-for-user-preference')
     ipcRenderer.send('mt::ask-for-user-data')
 
-    ipcRenderer.on('AGANI::user-preference', (e, preferences) => {
+    ipcRenderer.on('mt::user-preference', (e, preferences) => {
       commit('SET_USER_PREFERENCE', preferences)
     })
   },

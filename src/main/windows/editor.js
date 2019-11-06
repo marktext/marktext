@@ -123,13 +123,13 @@ class EditorWindow extends BaseWindow {
 
     win.on('focus', () => {
       this.emit('window-focus')
-      win.webContents.send('AGANI::window-active-status', { status: true })
+      win.webContents.send('mt::window-active-status', { status: true })
     })
 
     // Lost focus
     win.on('blur', () => {
       this.emit('window-blur')
-      win.webContents.send('AGANI::window-active-status', { status: false })
+      win.webContents.send('mt::window-active-status', { status: false })
     })
 
     ;['maximize', 'unmaximize', 'enter-full-screen', 'leave-full-screen'].forEach(channel => {
@@ -143,7 +143,7 @@ class EditorWindow extends BaseWindow {
       this.emit('window-close')
 
       event.preventDefault()
-      win.webContents.send('AGANI::ask-for-close')
+      win.webContents.send('mt::ask-for-close')
 
       // TODO: Close all watchers etc. Should we do this manually or listen to 'quit' event?
     })
@@ -224,7 +224,7 @@ class EditorWindow extends BaseWindow {
       }).catch(err => {
         const { message, stack } = err
         log.error(`[ERROR] Cannot open file or directory: ${message}\n\n${stack}`)
-        browserWindow.webContents.send('AGANI::show-notification', {
+        browserWindow.webContents.send('mt::show-notification', {
           title: 'Cannot open tab',
           type: 'error',
           message: err.message

@@ -8,20 +8,20 @@ autoUpdater.autoDownload = false
 
 autoUpdater.on('error', error => {
   if (win) {
-    win.webContents.send('AGANI::UPDATE_ERROR', error === null ? 'Error: unknown' : (error.message || error).toString())
+    win.webContents.send('mt::UPDATE_ERROR', error === null ? 'Error: unknown' : (error.message || error).toString())
   }
 })
 
 autoUpdater.on('update-available', () => {
   if (win) {
-    win.webContents.send('AGANI::UPDATE_AVAILABLE', 'Found an update, do you want download and install now?')
+    win.webContents.send('mt::UPDATE_AVAILABLE', 'Found an update, do you want download and install now?')
   }
   runningUpdate = false
 })
 
 autoUpdater.on('update-not-available', () => {
   if (win) {
-    win.webContents.send('AGANI::UPDATE_NOT_AVAILABLE', 'Current version is up-to-date.')
+    win.webContents.send('mt::UPDATE_NOT_AVAILABLE', 'Current version is up-to-date.')
   }
   runningUpdate = false
 })
@@ -31,7 +31,7 @@ autoUpdater.on('update-downloaded', () => {
   // not just force close the application.
 
   if (win) {
-    win.webContents.send('AGANI::UPDATE_DOWNLOADED', 'Update downloaded, application will be quit for update...')
+    win.webContents.send('mt::UPDATE_DOWNLOADED', 'Update downloaded, application will be quit for update...')
   }
   setImmediate(() => autoUpdater.quitAndInstall())
 })
@@ -48,7 +48,7 @@ export const checkUpdates = browserWindow => {
   }
 }
 
-ipcMain.on('AGANI::NEED_UPDATE', (e, { needUpdate }) => {
+ipcMain.on('mt::NEED_UPDATE', (e, { needUpdate }) => {
   if (needUpdate) {
     autoUpdater.downloadUpdate()
   } else {

@@ -166,7 +166,7 @@ class DataCenter extends EventEmitter {
     ipcMain.on('mt::ask-for-user-data', async e => {
       const win = BrowserWindow.fromWebContents(e.sender)
       const userData = await this.getAll()
-      win.webContents.send('AGANI::user-preference', userData)
+      win.webContents.send('mt::user-preference', userData)
     })
 
     ipcMain.on('mt::ask-for-modify-image-folder-path', async e => {

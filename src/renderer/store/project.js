@@ -85,7 +85,7 @@ const actions = {
     })
   },
   LISTEN_FOR_UPDATE_PROJECT ({ commit, state, dispatch }) {
-    ipcRenderer.on('AGANI::update-object-tree', (e, { type, change }) => {
+    ipcRenderer.on('mt::update-object-tree', (e, { type, change }) => {
       switch (type) {
         case 'add': {
           const { pathname, data, isMarkdown } = change

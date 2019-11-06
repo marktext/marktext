@@ -57,13 +57,13 @@ class SettingWindow extends BaseWindow {
 
     win.on('focus', () => {
       this.emit('window-focus')
-      win.webContents.send('AGANI::window-active-status', { status: true })
+      win.webContents.send('mt::window-active-status', { status: true })
     })
 
     // Lost focus
     win.on('blur', () => {
       this.emit('window-blur')
-      win.webContents.send('AGANI::window-active-status', { status: false })
+      win.webContents.send('mt::window-active-status', { status: false })
     })
 
     win.on('close', event => {

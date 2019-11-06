@@ -47,7 +47,7 @@ const actions = {
     })
   },
   LISTEN_FOR_REQUEST_LAYOUT ({ dispatch }) {
-    ipcRenderer.on('AGANI::request-for-view-layout', () => {
+    ipcRenderer.on('mt::request-for-view-layout', () => {
       dispatch('SET_LAYOUT_MENU_ITEM')
     })
   },

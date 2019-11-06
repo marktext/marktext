@@ -160,7 +160,7 @@ const mutations = {
       bus.$emit('file-changed', { id, markdown, cursor, renderCursor: true, history })
     }
   },
-  // NOTE: Please call this function only from main process via "AGANI::set-pathname" and free resources before!
+  // NOTE: Please call this function only from main process via "mt::set-pathname" and free resources before!
   SET_PATHNAME (state, { tab, fileInfo }) {
     const { currentFile } = state
     const { filename, pathname, id } = fileInfo
@@ -322,7 +322,7 @@ const mutations = {
 
 const actions = {
   FORMAT_LINK_CLICK ({ commit }, { data, dirname }) {
-    ipcRenderer.send('AGANI::format-link-click', { data, dirname })
+    ipcRenderer.send('mt::format-link-click', { data, dirname })
   },
 
   LISTEN_SCREEN_SHOT ({ commit }) {
@@ -404,7 +404,7 @@ const actions = {
       const options = getOptionsFromState(state.currentFile)
       const defaultPath = getRootFolderFromState(rootState)
       if (id) {
-        ipcRenderer.send('AGANI::response-file-save', {
+        ipcRenderer.send('mt::response-file-save', {
           id,
           filename,
           pathname,
@@ -423,7 +423,7 @@ const actions = {
       const options = getOptionsFromState(state.currentFile)
       const defaultPath = getRootFolderFromState(rootState)
       if (id) {
-        ipcRenderer.send('AGANI::response-file-save-as', {
+        ipcRenderer.send('mt::response-file-save-as', {
           id,
           filename,
           pathname,
@@ -486,7 +486,7 @@ const actions = {
   },
 
   LISTEN_FOR_CLOSE ({ state }) {
-    ipcRenderer.on('AGANI::ask-for-close', e => {
+    ipcRenderer.on('mt::ask-for-close', e => {
       const unsavedFiles = state.tabs
         .filter(file => !file.isSaved)
         .map(file => {
@@ -541,7 +541,7 @@ const actions = {
       if (!id) return
       if (!pathname) {
         // if current file is a newly created file, just save it!
-        ipcRenderer.send('AGANI::response-file-save', {
+        ipcRenderer.send('mt::response-file-save', {
           id,
           filename,
           pathname,
@@ -551,7 +551,7 @@ const actions = {
         })
       } else {
         // if not, move to a new(maybe) folder
-        ipcRenderer.send('AGANI::response-file-move-to', { id, pathname })
+        ipcRenderer.send('mt::response-file-move-to', { id, pathname })
       }
     })
   },
@@ -569,7 +569,7 @@ const actions = {
     if (!id) return
     if (!pathname) {
       // if current file is a newly created file, just save it!
-      ipcRenderer.send('AGANI::response-file-save', {
+      ipcRenderer.send('mt::response-file-save', {
         id,
         filename,
         pathname,
@@ -934,7 +934,7 @@ const actions = {
         const defaultPath = getRootFolderFromState(rootState)
 
         // Tab changed status is set after the file is saved.
-        ipcRenderer.send('AGANI::response-file-save', {
+        ipcRenderer.send('mt::response-file-save', {
           id,
           filename,
           pathname,
@@ -996,7 +996,7 @@ const actions = {
     }
 
     const { filename, pathname } = state.currentFile
-    ipcRenderer.send('AGANI::response-export', {
+    ipcRenderer.send('mt::response-export', {
       type,
       title,
       content,
@@ -1007,7 +1007,7 @@ const actions = {
   },
 
   LINTEN_FOR_EXPORT_SUCCESS ({ commit }) {
-    ipcRenderer.on('AGANI::export-success', (e, { type, filePath }) => {
+    ipcRenderer.on('mt::export-success', (e, { type, filePath }) => {
       notice.notify({
         title: 'Exported successfully',
         message: `Exported "${path.basename(filePath)}" successfully!`,
@@ -1020,11 +1020,11 @@ const actions = {
   },
 
   PRINT_RESPONSE ({ commit }) {
-    ipcRenderer.send('AGANI::response-print')
+    ipcRenderer.send('mt::response-print')
   },
 
   LINTEN_FOR_PRINT_SERVICE_CLEARUP ({ commit }) {
-    ipcRenderer.on('AGANI::print-service-clearup', e => {
+    ipcRenderer.on('mt::print-service-clearup', e => {
       bus.$emit('print-service-clearup')
     })
   },
@@ -1056,7 +1056,7 @@ const actions = {
   },
 
   LISTEN_FOR_FILE_CHANGE ({ commit, state, rootState }) {
-    ipcRenderer.on('AGANI::update-file', (e, { type, change }) => {
+    ipcRenderer.on('mt::update-file', (e, { type, change }) => {
       // TODO: We should only load the changed content if the user want to reload the document.
 
       const { tabs } = state

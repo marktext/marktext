@@ -9,7 +9,7 @@ const mutations = {}
 
 const actions = {
   LISTEN_FOR_TWEET () {
-    ipcRenderer.on('AGANI::tweet', (e, type) => {
+    ipcRenderer.on('mt::tweet', (e, type) => {
       if (type === 'twitter') {
         bus.$emit('tweetDialog')
       }

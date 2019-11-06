@@ -31,7 +31,7 @@ const actions = {
   },
 
   LISTEN_FOR_SHOW_DIALOG ({ commit }) {
-    ipcRenderer.on('AGANI::about-dialog', e => {
+    ipcRenderer.on('mt::about-dialog', e => {
       bus.$emit('aboutDialog')
     })
     ipcRenderer.on('mt::show-export-dialog', (e, type) => {
