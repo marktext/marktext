@@ -21,7 +21,8 @@ import mermaidIcon from '../../assets/pngicon/mermaid/2.png'
 import vegaIcon from '../../assets/pngicon/chart/2.png'
 import { isOsx } from '../../config'
 
-const COMMAND_KEY = isOsx ? '⌘' : '⌃'
+const COMMAND_KEY = isOsx ? '⌘' : 'Ctrl'
+const OPTION_KEY = isOsx ? '⌥' : 'Alt'
 
 // Command (or Cmd) ⌘
 // Shift ⇧
@@ -35,106 +36,106 @@ export const quickInsertObj = {
     title: 'Paragraph',
     subTitle: 'Lorem Ipsum is simply dummy text',
     label: 'paragraph',
-    shortCut: `${COMMAND_KEY}0`,
+    shortCut: `${COMMAND_KEY}+0`,
     icon: paragraphIcon
   }, {
     title: 'Horizontal Line',
     subTitle: '---',
     label: 'hr',
-    shortCut: `⌥${COMMAND_KEY}-`,
+    shortCut: `${OPTION_KEY}+${COMMAND_KEY}+-`,
     icon: hrIcon
   }, {
     title: 'Front Matter',
     subTitle: '--- Lorem Ipsum ---',
     label: 'front-matter',
-    shortCut: `⌥${COMMAND_KEY}Y`,
+    shortCut: `${OPTION_KEY}+${COMMAND_KEY}+Y`,
     icon: frontMatterIcon
   }],
   header: [{
     title: 'Header 1',
     subTitle: '# Lorem Ipsum is simply ...',
     label: 'heading 1',
-    shortCut: `${COMMAND_KEY}1`,
+    shortCut: `${COMMAND_KEY}+1`,
     icon: header1Icon
   }, {
     title: 'Header 2',
     subTitle: '## Lorem Ipsum is simply ...',
     label: 'heading 2',
-    shortCut: `${COMMAND_KEY}2`,
+    shortCut: `${COMMAND_KEY}+2`,
     icon: header2Icon
   }, {
     title: 'Header 3',
     subTitle: '### Lorem Ipsum is simply ...',
     label: 'heading 3',
-    shortCut: `${COMMAND_KEY}3`,
+    shortCut: `${COMMAND_KEY}+3`,
     icon: header3Icon
   }, {
     title: 'Header 4',
     subTitle: '#### Lorem Ipsum is simply ...',
     label: 'heading 4',
-    shortCut: `${COMMAND_KEY}4`,
+    shortCut: `${COMMAND_KEY}+4`,
     icon: header4Icon
   }, {
     title: 'Header 5',
     subTitle: '##### Lorem Ipsum is simply ...',
     label: 'heading 5',
-    shortCut: `${COMMAND_KEY}5`,
+    shortCut: `${COMMAND_KEY}+5`,
     icon: header5Icon
   }, {
     title: 'Header 6',
     subTitle: '###### Lorem Ipsum is simply ...',
     label: 'heading 6',
-    shortCut: `${COMMAND_KEY}6`,
+    shortCut: `${COMMAND_KEY}+6`,
     icon: header6Icon
   }],
   'advanced block': [{
     title: 'Table Block',
     subTitle: '|Lorem | Ipsum is simply |',
     label: 'table',
-    shortCut: `${COMMAND_KEY}T`,
+    shortCut: `${COMMAND_KEY}+T`,
     icon: newTableIcon
   }, {
     title: 'Math Formula',
     subTitle: '$$ Lorem Ipsum is simply $$',
     label: 'mathblock',
-    shortCut: `⌥${COMMAND_KEY}M`,
+    shortCut: `${OPTION_KEY}+${COMMAND_KEY}+M`,
     icon: mathblockIcon
   }, {
     title: 'HTML Block',
     subTitle: '<div> Lorem Ipsum is simply </div>',
     label: 'html',
-    shortCut: `⌥${COMMAND_KEY}J`,
+    shortCut: `${OPTION_KEY}+${COMMAND_KEY}+J`,
     icon: htmlIcon
   }, {
     title: 'Code Block',
     subTitle: '```java Lorem Ipsum is simply ```',
     label: 'pre',
-    shortCut: `⌥${COMMAND_KEY}C`,
+    shortCut: `${OPTION_KEY}+${COMMAND_KEY}+C`,
     icon: codeIcon
   }, {
     title: 'Quote Block',
     subTitle: '>Lorem Ipsum is simply ...',
     label: 'blockquote',
-    shortCut: `⌥${COMMAND_KEY}Q`,
+    shortCut: `${OPTION_KEY}+${COMMAND_KEY}+Q`,
     icon: quoteIcon
   }],
   'list block': [{
     title: 'Order List',
     subTitle: '1. Lorem Ipsum is simply ...',
     label: 'ol-order',
-    shortCut: `⌥${COMMAND_KEY}O`,
+    shortCut: `${OPTION_KEY}+${COMMAND_KEY}+O`,
     icon: orderListIcon
   }, {
     title: 'Bullet List',
     subTitle: '- Lorem Ipsum is simply ...',
     label: 'ul-bullet',
-    shortCut: `⌥${COMMAND_KEY}U`,
+    shortCut: `${OPTION_KEY}+${COMMAND_KEY}+U`,
     icon: bulletListIcon
   }, {
     title: 'To-do List',
     subTitle: '- [x] Lorem Ipsum is simply ...',
     label: 'ul-task',
-    shortCut: `⌥${COMMAND_KEY}X`,
+    shortCut: `${OPTION_KEY}+${COMMAND_KEY}+X`,
     icon: todoListIcon
   }],
   diagram: [{

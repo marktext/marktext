@@ -1,5 +1,5 @@
 .ag-quick-insert {
-  width: 324px;
+  width: 360px;
   max-height: 307px;
   padding: 0 0 20px 0;
   overflow-y: auto;
@@ -69,7 +69,7 @@
   display: inline-block;
   width: 100%;
   height: 100%;
-  filter: drop-shadow(20px 0 currentColor); 
+  filter: drop-shadow(20px 0 currentColor);
   position: relative;
   left: -20px;
 }
@@ -80,7 +80,7 @@
 }
 
 .ag-quick-insert .short-cut {
-  width: 40px;
+  width: 70px;
   margin-right: 20px;
   flex-shrink: 1;
   text-align: right;
