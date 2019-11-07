@@ -10,7 +10,7 @@ import mathIcon from '../../assets/pngicon/format_math/2.png'
 import highlightIcon from '../../assets/pngicon/highlight/2.png'
 import clearIcon from '../../assets/pngicon/format_clear/2.png'
 
-const COMMAND_KEY = isOsx ? '⌘' : '⌃'
+const COMMAND_KEY = isOsx ? '⌘' : 'Ctrl'
 
 const icons = [
   {
