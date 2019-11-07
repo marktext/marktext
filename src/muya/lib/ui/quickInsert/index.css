@@ -1,5 +1,5 @@
 .ag-quick-insert {
-  width: auto;
+  width: 350px;
   max-height: 307px;
   padding: 0 0 20px 0;
   overflow-y: auto;
@@ -80,7 +80,7 @@
 }
 
 .ag-quick-insert .short-cut {
-  width: auto;
+  width: 70px;
   margin-right: 20px;
   flex-shrink: 1;
   text-align: right;
