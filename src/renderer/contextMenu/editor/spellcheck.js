@@ -40,8 +40,8 @@ export default (spellchecker, selectedWord, wordSuggestions, replaceCallback) =>
 
     spellingSubmenu.push(SEPARATOR)
 
-    // Word suggestions
-    if (selectedWord && wordSuggestions && wordSuggestions.length > 0) {
+    // Handle misspelled word if wordSuggestions is set, otherwise word is correct.
+    if (selectedWord && wordSuggestions) {
       spellingSubmenu.push({
         label: 'Add to Dictionary',
         click (menuItem, targetWindow) {
@@ -63,16 +63,19 @@ export default (spellchecker, selectedWord, wordSuggestions, replaceCallback) =>
           spellchecker.ignoreWord(selectedWord)
         }
       })
-      spellingSubmenu.push(SEPARATOR)
-      for (const word of wordSuggestions) {
-        spellingSubmenu.push({
-          label: word,
-          click () {
-            // Notify Muya to replace the word. We cannot just use Chromium to
-            // replace the word because the change is not forwarded to Muya.
-            replaceCallback(word)
-          }
-        })
+
+      if (wordSuggestions.length > 0) {
+        spellingSubmenu.push(SEPARATOR)
+        for (const word of wordSuggestions) {
+          spellingSubmenu.push({
+            label: word,
+            click () {
+              // Notify Muya to replace the word. We cannot just use Chromium to
+              // replace the word because the change is not forwarded to Muya.
+              replaceCallback(word)
+            }
+          })
+        }
       }
     } else {
       spellingSubmenu.push({

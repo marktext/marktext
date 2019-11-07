@@ -34,7 +34,7 @@
   },
   "dependencies": {
     "@hfelix/electron-localshortcut": "^3.1.1",
-    "@hfelix/electron-spellchecker": "^1.0.0-rc.3",
+    "@hfelix/electron-spellchecker": "1.0.0-rc.5",
     "@octokit/rest": "^16.33.1",
     "arg": "^4.1.1",
     "axios": "^0.19.0",

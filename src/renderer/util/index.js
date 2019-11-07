@@ -5,7 +5,11 @@ export const delay = time => {
   let rejectFn
   const p = new Promise((resolve, reject) => {
     rejectFn = reject
-    timerId = setTimeout(resolve, time)
+    timerId = setTimeout(() => {
+      p.cancel = () => {}
+      rejectFn = null
+      resolve()
+    }, time)
   })
 
   p.cancel = () => {
