@@ -8,448 +8,455 @@ This file contains all third-party packages that are bundled and shipped with Ma
 -------------------------------------------------
 
 1. @braintree/sanitize-url (MIT)
-2. @felixrieseberg/spellchecker (MIT)
-3. @hfelix/electron-localshortcut (MIT)
-4. @hfelix/electron-spellchecker (MIT)
-5. @hfelix/keyboardevent-from-electron-accelerator (MIT)
+2. @hfelix/electron-localshortcut (MIT)
+3. @hfelix/electron-spellchecker (MIT)
+4. @hfelix/keyboardevent-from-electron-accelerator (MIT)
+5. @hfelix/spellchecker (MIT)
 6. @octokit/endpoint (MIT)
 7. @octokit/request-error (MIT)
 8. @octokit/request (MIT)
 9. @octokit/rest (MIT)
-10. @types/clone (MIT)
-11. @types/fast-json-stable-stringify (MIT)
-12. abab (BSD*)
-13. acorn-globals (MIT)
-14. acorn-walk (MIT)
-15. acorn (MIT)
-16. ajv (MIT)
-17. animation-frame-polyfill (MIT)
-18. ansi-regex (MIT)
-19. ansi-styles (MIT)
-20. anymatch (ISC)
-21. aproba (ISC)
-22. are-we-there-yet (ISC)
-23. arg (MIT)
-24. array-equal (MIT)
-25. array-from (MIT)
-26. asn1 (MIT)
-27. assert-plus (MIT)
-28. async-limiter (MIT)
-29. async-validator (MIT)
-30. asynckit (MIT)
-31. atoa (MIT)
-32. atob-lite (MIT)
-33. aws-sign2 (Apache-2.0)
-34. aws4 (MIT)
-35. axios (MIT)
-36. babel-runtime (MIT)
-37. balanced-match (MIT)
-38. base64-js (MIT)
-39. batch-processor (MIT)
-40. bcp47 (MIT)
-41. bcrypt-pbkdf (BSD-3-Clause)
-42. before-after-hook (Apache-2.0)
-43. binary-extensions (MIT)
-44. bindings (MIT)
-45. bl (MIT)
-46. brace-expansion (MIT)
-47. braces (MIT)
-48. browser-process-hrtime (BSD-2-Clause)
-49. browser-split (MIT)
-50. btoa-lite (MIT)
-51. buffer-from (MIT)
-52. camel-case (MIT)
-53. camelcase (MIT)
-54. caseless (Apache-2.0)
-55. ced ((ISC AND Apache-2.0))
-56. chokidar (MIT)
-57. chownr (ISC)
-58. cld (Apache)
-59. clean-css (MIT)
-60. clipboard (MIT)
-61. cliui (ISC)
-62. clone-regexp (MIT)
-63. clone (MIT)
-64. code-point-at (MIT)
-65. codemirror (MIT)
-66. color-convert (MIT)
-67. color-name (MIT)
-68. combined-stream (MIT)
-69. command-exists (MIT)
-70. commander (MIT)
-71. concat-map (MIT)
-72. conf (MIT)
-73. console-control-strings (ISC)
-74. contra (MIT)
-75. core-js (MIT)
-76. core-util-is (MIT)
-77. create-point-cb (MIT)
-78. cross-spawn (MIT)
-79. crossvent (MIT)
-80. css-b64-images (MIT)
-81. cssom (MIT)
-82. cssstyle (MIT)
-83. custom-event (MIT)
-84. d3-array (BSD-3-Clause)
-85. d3-axis (BSD-3-Clause)
-86. d3-brush (BSD-3-Clause)
-87. d3-chord (BSD-3-Clause)
-88. d3-collection (BSD-3-Clause)
-89. d3-color (BSD-3-Clause)
-90. d3-contour (BSD-3-Clause)
-91. d3-delaunay (ISC)
-92. d3-dispatch (BSD-3-Clause)
-93. d3-drag (BSD-3-Clause)
-94. d3-dsv (BSD-3-Clause)
-95. d3-ease (BSD-3-Clause)
-96. d3-fetch (BSD-3-Clause)
-97. d3-force (BSD-3-Clause)
-98. d3-format (BSD-3-Clause)
-99. d3-geo (BSD-3-Clause)
-100. d3-hierarchy (BSD-3-Clause)
-101. d3-interpolate (BSD-3-Clause)
-102. d3-path (BSD-3-Clause)
-103. d3-polygon (BSD-3-Clause)
-104. d3-quadtree (BSD-3-Clause)
-105. d3-random (BSD-3-Clause)
-106. d3-scale-chromatic (BSD-3-Clause)
-107. d3-scale (BSD-3-Clause)
-108. d3-selection (BSD-3-Clause)
-109. d3-shape (BSD-3-Clause)
-110. d3-time-format (BSD-3-Clause)
-111. d3-time (BSD-3-Clause)
-112. d3-timer (BSD-3-Clause)
-113. d3-transition (BSD-3-Clause)
-114. d3-voronoi (BSD-3-Clause)
-115. d3-zoom (BSD-3-Clause)
-116. d3 (BSD-3-Clause)
-117. dagre-d3-renderer (MIT)
-118. dagre-layout (MIT)
-119. dashdash (MIT)
-120. data-urls (MIT)
-121. dayjs (MIT)
-122. debug (MIT)
-123. decamelize (MIT)
-124. decompress-response (MIT)
-125. deep-extend (MIT)
-126. deep-is (MIT)
-127. deepmerge (MIT)
-128. delaunator (ISC)
-129. delayed-stream (MIT)
-130. delegate (MIT)
-131. delegates (MIT)
-132. deprecation (ISC)
-133. detect-libc (Apache-2.0)
-134. dom-autoscroller (MIT)
-135. dom-mousemove-dispatcher (MIT)
-136. dom-plane (MIT)
-137. dom-set (WTFPL)
-138. domexception (MIT)
-139. dompurify (MPL-2.0 OR Apache-2.0)
-140. dot-prop (MIT)
-141. dragula (MIT)
-142. ecc-jsbn (MIT)
-143. electron-is-accelerator (MIT)
-144. electron-log (MIT)
-145. electron-store (MIT)
-146. electron-window-state (MIT)
-147. element-resize-detector (MIT)
-148. element-ui (MIT)
-149. emoji-regex (MIT)
-150. end-of-stream (MIT)
-151. env-paths (MIT)
-152. escaper (MIT)
-153. escodegen (BSD-2-Clause)
-154. esprima (BSD-2-Clause)
-155. estraverse (BSD-2-Clause)
-156. esutils (BSD-2-Clause)
-157. eve-raphael (Apache*)
-158. event-kit (MIT)
-159. execa (MIT)
-160. execall (MIT)
-161. expand-template ((MIT OR WTFPL))
-162. extend (MIT)
-163. extsprintf (MIT)
-164. fast-deep-equal (MIT)
-165. fast-json-stable-stringify (MIT)
-166. fast-levenshtein (MIT)
-167. file-icons-js (MIT)
-168. file-uri-to-path (MIT)
-169. fill-range (MIT)
-170. find-up (MIT)
-171. flowchart.js (MIT)
-172. follow-redirects (MIT)
-173. fontmanager-redux (MIT)
-174. forever-agent (Apache-2.0)
-175. form-data (MIT)
-176. form-urlencoded (MIT)
-177. fs-constants (MIT)
-178. fs-extra (MIT)
-179. fs.realpath (ISC)
-180. fuzzaldrin (MIT)
-181. gauge (ISC)
-182. get-caller-file (ISC)
-183. get-stream (MIT)
-184. getpass (MIT)
-185. github-from-package (MIT)
-186. github-markdown-css (MIT)
-187. glob-parent (ISC)
-188. glob (ISC)
-189. good-listener (MIT)
-190. graceful-fs (ISC)
-191. graphlibrary (MIT)
-192. har-schema (ISC)
-193. har-validator (MIT)
-194. has-unicode (ISC)
-195. he (MIT)
-196. html-encoding-sniffer (MIT)
-197. html-minifier (MIT)
-198. html-tags (MIT)
-199. http-signature (MIT)
-200. iconv-lite (MIT)
-201. imurmurhash (MIT)
-202. inflight (ISC)
-203. inherits (ISC)
-204. ini (ISC)
-205. is-array (MIT)
-206. is-binary-path (MIT)
-207. is-buffer (MIT)
-208. is-extglob (MIT)
-209. is-fullwidth-code-point (MIT)
-210. is-glob (MIT)
-211. is-number (MIT)
-212. is-obj (MIT)
-213. is-plain-object (MIT)
-214. is-regexp (MIT)
-215. is-stream (MIT)
-216. is-typedarray (MIT)
-217. isarray (MIT)
-218. iselement (MIT)
-219. isexe (ISC)
-220. iso-639-1 (MIT)
-221. isobject (MIT)
-222. isstream (MIT)
-223. joplin-turndown-plugin-gfm (MIT)
-224. jsbn (MIT)
-225. jsdom (MIT)
-226. json-schema-traverse (MIT)
-227. json-schema-typed (BSD*)
-228. json-schema (AFLv2.1,BSD)
-229. json-stringify-pretty-compact (MIT)
-230. json-stringify-safe (ISC)
-231. jsonfile (MIT)
-232. jsprim (MIT)
-233. katex (MIT)
-234. keyboard-layout (MIT)
-235. keyboardevents-areequal (MIT)
-236. keytar (MIT)
-237. left-pad (WTFPL)
-238. levn (MIT)
-239. locate-path (MIT)
-240. lodash.escape (MIT)
-241. lodash.forown (MIT)
-242. lodash.get (MIT)
-243. lodash.kebabcase (MIT)
-244. lodash.remove (MIT)
-245. lodash.set (MIT)
-246. lodash.sortby (MIT)
-247. lodash.uniq (MIT)
-248. lodash (MIT)
-249. lower-case (MIT)
-250. lru-cache (ISC)
-251. macos-release (MIT)
-252. make-dir (MIT)
-253. mermaid (MIT)
-254. mime-db (MIT)
-255. mime-types (MIT)
-256. mimic-fn (MIT)
-257. mimic-response (MIT)
-258. minify (MIT)
-259. minimatch (ISC)
-260. minimist (MIT)
-261. mkdirp (MIT)
-262. moment-mini (MIT)
-263. ms (MIT)
-264. nan (MIT)
-265. napi-build-utils (MIT)
-266. nice-try (MIT)
-267. no-case (MIT)
-268. node-abi (MIT)
-269. node-fetch (MIT)
-270. noop-logger (MIT)
-271. normalize-path (MIT)
-272. normalize-wheel (BSD-3-Clause)
-273. npm-run-path (MIT)
-274. npmlog (ISC)
-275. number-is-nan (MIT)
-276. nwsapi (MIT)
-277. oauth-sign (Apache-2.0)
-278. object-assign (MIT)
-279. octokit-pagination-methods (MIT)
-280. once (ISC)
-281. onetime (MIT)
-282. optionator (MIT)
-283. os-name (MIT)
-284. p-finally (MIT)
-285. p-limit (MIT)
-286. p-locate (MIT)
-287. p-throttle (MIT)
-288. p-try (MIT)
-289. param-case (MIT)
-290. parse-sel (MIT)
-291. parse5 (MIT)
-292. path-exists (MIT)
-293. path-is-absolute (MIT)
-294. path-key (MIT)
-295. performance-now (MIT)
-296. picomatch (MIT)
-297. pkg-up (MIT)
-298. plist (MIT)
-299. pn (MIT)
-300. popper.js (MIT)
-301. prebuild-install (MIT)
-302. prelude-ls (MIT)
-303. prettier (MIT)
-304. prismjs (MIT)
-305. process-nextick-args (MIT)
-306. psl (MIT)
-307. pump (MIT)
-308. punycode (MIT)
-309. qs (BSD-3-Clause)
-310. querystring (MIT)
-311. querystringify (MIT)
-312. raphael (MIT)
-313. rc ((BSD-2-Clause OR MIT OR Apache-2.0))
-314. readable-stream (MIT)
-315. readdirp (MIT)
-316. regenerator-runtime (MIT)
-317. relateurl (MIT)
-318. request-promise-core (ISC)
-319. request-promise-native (ISC)
-320. request (Apache-2.0)
-321. require-directory (MIT)
-322. require-main-filename (ISC)
-323. requires-port (MIT)
-324. resize-observer-polyfill (MIT)
-325. rimraf (ISC)
-326. rw (BSD-3-Clause)
-327. safe-buffer (MIT)
-328. safer-buffer (MIT)
-329. sax (ISC)
-330. scope-css (MIT)
-331. select (MIT)
-332. semver (ISC)
-333. set-blocking (ISC)
-334. shebang-command (MIT)
-335. shebang-regex (MIT)
-336. signal-exit (ISC)
-337. simple-concat (MIT)
-338. simple-get (MIT)
-339. slugify (MIT)
-340. snabbdom-to-html (MIT)
-341. snabbdom (MIT)
-342. source-map-support (MIT)
-343. source-map (BSD-3-Clause)
-344. sshpk (MIT)
-345. stealthy-require (ISC)
-346. string-width (MIT)
-347. string_decoder (MIT)
-348. strip-ansi (MIT)
-349. strip-css-comments (MIT)
-350. strip-eof (MIT)
-351. strip-json-comments (MIT)
-352. symbol-tree (MIT)
-353. tar-fs (MIT)
-354. tar-stream (MIT)
-355. terser (BSD-2-Clause)
-356. throttle-debounce (MIT)
-357. ticky (MIT)
-358. tiny-emitter (MIT)
-359. to-regex-range (MIT)
-360. topojson-client (BSD-3-Clause)
-361. tough-cookie (BSD-3-Clause)
-362. tr46 (MIT)
-363. try-catch (MIT)
-364. try-to-catch (MIT)
-365. tslib (Apache-2.0)
-366. tunnel-agent (Apache-2.0)
-367. turndown (MIT)
-368. tweetnacl (Unlicense)
-369. type-check (MIT)
-370. type-fest ((MIT OR CC0-1.0))
-371. type-func (MIT)
-372. typedarray-to-buffer (MIT)
-373. uglify-js (BSD-2-Clause)
-374. underscore (MIT)
-375. universal-user-agent (ISC)
-376. universalify (MIT)
-377. unsplash-js (MIT)
-378. upper-case (MIT)
-379. uri-js (BSD-2-Clause)
-380. url-parse (MIT)
-381. util-deprecate (MIT)
-382. uuid (MIT)
-383. vega-canvas (BSD-3-Clause)
-384. vega-crossfilter (BSD-3-Clause)
-385. vega-dataflow (BSD-3-Clause)
-386. vega-embed (BSD-3-Clause)
-387. vega-encode (BSD-3-Clause)
-388. vega-event-selector (BSD-3-Clause)
-389. vega-expression (BSD-3-Clause)
-390. vega-force (BSD-3-Clause)
-391. vega-functions (BSD-3-Clause)
-392. vega-geo (BSD-3-Clause)
-393. vega-hierarchy (BSD-3-Clause)
-394. vega-lite (BSD-3-Clause)
-395. vega-loader (BSD-3-Clause)
-396. vega-parser (BSD-3-Clause)
-397. vega-projection (BSD-3-Clause)
-398. vega-regression (BSD-3-Clause)
-399. vega-runtime (BSD-3-Clause)
-400. vega-scale (BSD-3-Clause)
-401. vega-scenegraph (BSD-3-Clause)
-402. vega-schema-url-parser (BSD-3-Clause)
-403. vega-selections (BSD-3-Clause)
-404. vega-statistics (BSD-3-Clause)
-405. vega-themes (BSD-3-Clause)
-406. vega-tooltip (BSD-3-Clause)
-407. vega-transforms (BSD-3-Clause)
-408. vega-typings (BSD-3-Clause)
-409. vega-util (BSD-3-Clause)
-410. vega-view-transforms (BSD-3-Clause)
-411. vega-view (BSD-3-Clause)
-412. vega-voronoi (BSD-3-Clause)
-413. vega-wordcloud (BSD-3-Clause)
-414. vega (BSD-3-Clause)
-415. verror (MIT)
-416. view-image (MIT)
-417. vscode-ripgrep (MIT)
-418. vue-electron (ISC)
-419. vue-router (MIT)
-420. vue (MIT)
-421. vuex (MIT)
-422. w3c-hr-time (MIT)
-423. webidl-conversions (BSD-2-Clause)
-424. whatwg-encoding (MIT)
-425. whatwg-mimetype (MIT)
-426. whatwg-url (MIT)
-427. which-module (ISC)
-428. which-pm-runs (MIT)
-429. which (ISC)
-430. wide-align (ISC)
-431. windows-release (MIT)
-432. wordwrap (MIT)
-433. wrap-ansi (MIT)
-434. wrappy (ISC)
-435. write-file-atomic (ISC)
-436. ws (MIT)
-437. xml-name-validator (Apache-2.0)
-438. xmlbuilder (MIT)
-439. y18n (ISC)
-440. yallist (ISC)
-441. yargs-parser (ISC)
-442. yargs (MIT)
-443. hunspell (LGPL 2.1)
+10. @octokit/types (MIT)
+11. @types/clone (MIT)
+12. @types/fast-json-stable-stringify (MIT)
+13. @types/node (MIT)
+14. abab (BSD-3-Clause)
+15. acorn-globals (MIT)
+16. acorn-walk (MIT)
+17. acorn (MIT)
+18. ajv (MIT)
+19. animation-frame-polyfill (MIT)
+20. ansi-regex (MIT)
+21. ansi-styles (MIT)
+22. anymatch (ISC)
+23. aproba (ISC)
+24. are-we-there-yet (ISC)
+25. arg (MIT)
+26. array-equal (MIT)
+27. array-flat-polyfill (CC0-1.0)
+28. array-from (MIT)
+29. asn1 (MIT)
+30. assert-plus (MIT)
+31. async-limiter (MIT)
+32. async-validator (MIT)
+33. asynckit (MIT)
+34. atoa (MIT)
+35. atob-lite (MIT)
+36. aws-sign2 (Apache-2.0)
+37. aws4 (MIT)
+38. axios (MIT)
+39. babel-runtime (MIT)
+40. balanced-match (MIT)
+41. base64-js (MIT)
+42. batch-processor (MIT)
+43. bcp47 (MIT)
+44. bcrypt-pbkdf (BSD-3-Clause)
+45. before-after-hook (Apache-2.0)
+46. binary-extensions (MIT)
+47. bindings (MIT)
+48. bl (MIT)
+49. brace-expansion (MIT)
+50. braces (MIT)
+51. browser-process-hrtime (BSD-2-Clause)
+52. browser-split (MIT)
+53. btoa-lite (MIT)
+54. buffer-from (MIT)
+55. camel-case (MIT)
+56. camelcase (MIT)
+57. caseless (Apache-2.0)
+58. ced ((ISC AND Apache-2.0))
+59. chokidar (MIT)
+60. chownr (ISC)
+61. cld (Apache)
+62. clean-css (MIT)
+63. clipboard (MIT)
+64. cliui (ISC)
+65. clone-regexp (MIT)
+66. clone (MIT)
+67. code-point-at (MIT)
+68. codemirror (MIT)
+69. color-convert (MIT)
+70. color-name (MIT)
+71. combined-stream (MIT)
+72. command-exists (MIT)
+73. commander (MIT)
+74. concat-map (MIT)
+75. conf (MIT)
+76. console-control-strings (ISC)
+77. contra (MIT)
+78. core-js (MIT)
+79. core-util-is (MIT)
+80. create-point-cb (MIT)
+81. cross-spawn (MIT)
+82. crossvent (MIT)
+83. crypto-random-string (MIT)
+84. css-b64-images (MIT)
+85. cssom (MIT)
+86. cssstyle (MIT)
+87. custom-event (MIT)
+88. d3-array (BSD-3-Clause)
+89. d3-axis (BSD-3-Clause)
+90. d3-brush (BSD-3-Clause)
+91. d3-chord (BSD-3-Clause)
+92. d3-collection (BSD-3-Clause)
+93. d3-color (BSD-3-Clause)
+94. d3-contour (BSD-3-Clause)
+95. d3-delaunay (ISC)
+96. d3-dispatch (BSD-3-Clause)
+97. d3-drag (BSD-3-Clause)
+98. d3-dsv (BSD-3-Clause)
+99. d3-ease (BSD-3-Clause)
+100. d3-fetch (BSD-3-Clause)
+101. d3-force (BSD-3-Clause)
+102. d3-format (BSD-3-Clause)
+103. d3-geo (BSD-3-Clause)
+104. d3-hierarchy (BSD-3-Clause)
+105. d3-interpolate (BSD-3-Clause)
+106. d3-path (BSD-3-Clause)
+107. d3-polygon (BSD-3-Clause)
+108. d3-quadtree (BSD-3-Clause)
+109. d3-random (BSD-3-Clause)
+110. d3-scale-chromatic (BSD-3-Clause)
+111. d3-scale (BSD-3-Clause)
+112. d3-selection (BSD-3-Clause)
+113. d3-shape (BSD-3-Clause)
+114. d3-time-format (BSD-3-Clause)
+115. d3-time (BSD-3-Clause)
+116. d3-timer (BSD-3-Clause)
+117. d3-transition (BSD-3-Clause)
+118. d3-voronoi (BSD-3-Clause)
+119. d3-zoom (BSD-3-Clause)
+120. d3 (BSD-3-Clause)
+121. dagre-d3-renderer (MIT)
+122. dagre-layout (MIT)
+123. dashdash (MIT)
+124. data-urls (MIT)
+125. dayjs (MIT)
+126. debounce-fn (MIT)
+127. debug (MIT)
+128. decamelize (MIT)
+129. decompress-response (MIT)
+130. deep-extend (MIT)
+131. deep-is (MIT)
+132. deepmerge (MIT)
+133. delaunator (ISC)
+134. delayed-stream (MIT)
+135. delegate (MIT)
+136. delegates (MIT)
+137. deprecation (ISC)
+138. detect-libc (Apache-2.0)
+139. dom-autoscroller (MIT)
+140. dom-mousemove-dispatcher (MIT)
+141. dom-plane (MIT)
+142. dom-set (WTFPL)
+143. domexception (MIT)
+144. dompurify (MPL-2.0 OR Apache-2.0)
+145. dot-prop (MIT)
+146. dragula (MIT)
+147. ecc-jsbn (MIT)
+148. electron-is-accelerator (MIT)
+149. electron-log (MIT)
+150. electron-store (MIT)
+151. electron-window-state (MIT)
+152. element-resize-detector (MIT)
+153. element-ui (MIT)
+154. emoji-regex (MIT)
+155. end-of-stream (MIT)
+156. env-paths (MIT)
+157. escaper (MIT)
+158. escodegen (BSD-2-Clause)
+159. esprima (BSD-2-Clause)
+160. estraverse (BSD-2-Clause)
+161. esutils (BSD-2-Clause)
+162. eve-raphael (Apache*)
+163. event-kit (MIT)
+164. execa (MIT)
+165. execall (MIT)
+166. expand-template ((MIT OR WTFPL))
+167. extend (MIT)
+168. extsprintf (MIT)
+169. fast-deep-equal (MIT)
+170. fast-json-patch (MIT)
+171. fast-json-stable-stringify (MIT)
+172. fast-levenshtein (MIT)
+173. file-icons-js (MIT)
+174. file-uri-to-path (MIT)
+175. fill-range (MIT)
+176. find-up (MIT)
+177. flowchart.js (MIT)
+178. follow-redirects (MIT)
+179. fontmanager-redux (MIT)
+180. forever-agent (Apache-2.0)
+181. form-data (MIT)
+182. form-urlencoded (MIT)
+183. fs-constants (MIT)
+184. fs-extra (MIT)
+185. fs.realpath (ISC)
+186. fuzzaldrin (MIT)
+187. gauge (ISC)
+188. get-caller-file (ISC)
+189. get-stream (MIT)
+190. getpass (MIT)
+191. github-from-package (MIT)
+192. github-markdown-css (MIT)
+193. glob-parent (ISC)
+194. glob (ISC)
+195. good-listener (MIT)
+196. graceful-fs (ISC)
+197. graphlibrary (MIT)
+198. har-schema (ISC)
+199. har-validator (MIT)
+200. has-unicode (ISC)
+201. he (MIT)
+202. html-encoding-sniffer (MIT)
+203. html-minifier (MIT)
+204. html-tags (MIT)
+205. http-signature (MIT)
+206. iconv-lite (MIT)
+207. imurmurhash (MIT)
+208. inflight (ISC)
+209. inherits (ISC)
+210. ini (ISC)
+211. is-array (MIT)
+212. is-binary-path (MIT)
+213. is-buffer (MIT)
+214. is-extglob (MIT)
+215. is-fullwidth-code-point (MIT)
+216. is-glob (MIT)
+217. is-number (MIT)
+218. is-obj (MIT)
+219. is-plain-object (MIT)
+220. is-regexp (MIT)
+221. is-stream (MIT)
+222. is-typedarray (MIT)
+223. isarray (MIT)
+224. iselement (MIT)
+225. isexe (ISC)
+226. iso-639-1 (MIT)
+227. isobject (MIT)
+228. isstream (MIT)
+229. joplin-turndown-plugin-gfm (MIT)
+230. jsbn (MIT)
+231. jsdom (MIT)
+232. json-schema-traverse (MIT)
+233. json-schema-typed (BSD-2-Clause)
+234. json-schema (AFLv2.1,BSD)
+235. json-stringify-pretty-compact (MIT)
+236. json-stringify-safe (ISC)
+237. jsonfile (MIT)
+238. jsprim (MIT)
+239. katex (MIT)
+240. keyboard-layout (MIT)
+241. keyboardevents-areequal (MIT)
+242. keytar (MIT)
+243. left-pad (WTFPL)
+244. levn (MIT)
+245. locate-path (MIT)
+246. lodash.escape (MIT)
+247. lodash.forown (MIT)
+248. lodash.get (MIT)
+249. lodash.kebabcase (MIT)
+250. lodash.remove (MIT)
+251. lodash.set (MIT)
+252. lodash.sortby (MIT)
+253. lodash.uniq (MIT)
+254. lodash (MIT)
+255. lower-case (MIT)
+256. lru-cache (ISC)
+257. macos-release (MIT)
+258. make-dir (MIT)
+259. mermaid (MIT)
+260. mime-db (MIT)
+261. mime-types (MIT)
+262. mimic-fn (MIT)
+263. mimic-response (MIT)
+264. minify (MIT)
+265. minimatch (ISC)
+266. minimist (MIT)
+267. mkdirp (MIT)
+268. moment-mini (MIT)
+269. ms (MIT)
+270. nan (MIT)
+271. napi-build-utils (MIT)
+272. nice-try (MIT)
+273. no-case (MIT)
+274. node-abi (MIT)
+275. node-fetch (MIT)
+276. noop-logger (MIT)
+277. normalize-path (MIT)
+278. normalize-wheel (BSD-3-Clause)
+279. npm-run-path (MIT)
+280. npmlog (ISC)
+281. number-is-nan (MIT)
+282. nwsapi (MIT)
+283. oauth-sign (Apache-2.0)
+284. object-assign (MIT)
+285. octokit-pagination-methods (MIT)
+286. once (ISC)
+287. onetime (MIT)
+288. optionator (MIT)
+289. os-name (MIT)
+290. p-finally (MIT)
+291. p-limit (MIT)
+292. p-locate (MIT)
+293. p-throttle (MIT)
+294. p-try (MIT)
+295. param-case (MIT)
+296. parse-sel (MIT)
+297. parse5 (MIT)
+298. path-exists (MIT)
+299. path-is-absolute (MIT)
+300. path-key (MIT)
+301. performance-now (MIT)
+302. picomatch (MIT)
+303. pkg-up (MIT)
+304. plist (MIT)
+305. pn (MIT)
+306. popper.js (MIT)
+307. prebuild-install (MIT)
+308. prelude-ls (MIT)
+309. prettier (MIT)
+310. prismjs (MIT)
+311. process-nextick-args (MIT)
+312. psl (MIT)
+313. pump (MIT)
+314. punycode (MIT)
+315. qs (BSD-3-Clause)
+316. querystring (MIT)
+317. querystringify (MIT)
+318. raphael (MIT)
+319. rc ((BSD-2-Clause OR MIT OR Apache-2.0))
+320. readable-stream (MIT)
+321. readdirp (MIT)
+322. regenerator-runtime (MIT)
+323. relateurl (MIT)
+324. request-promise-core (ISC)
+325. request-promise-native (ISC)
+326. request (Apache-2.0)
+327. require-directory (MIT)
+328. require-main-filename (ISC)
+329. requires-port (MIT)
+330. resize-observer-polyfill (MIT)
+331. rimraf (ISC)
+332. rw (BSD-3-Clause)
+333. safe-buffer (MIT)
+334. safer-buffer (MIT)
+335. sax (ISC)
+336. scope-css (MIT)
+337. select (MIT)
+338. semver (ISC)
+339. set-blocking (ISC)
+340. shebang-command (MIT)
+341. shebang-regex (MIT)
+342. signal-exit (ISC)
+343. simple-concat (MIT)
+344. simple-get (MIT)
+345. slugify (MIT)
+346. snabbdom-to-html (MIT)
+347. snabbdom (MIT)
+348. source-map-support (MIT)
+349. source-map (BSD-3-Clause)
+350. sshpk (MIT)
+351. stealthy-require (ISC)
+352. string-width (MIT)
+353. string_decoder (MIT)
+354. strip-ansi (MIT)
+355. strip-css-comments (MIT)
+356. strip-eof (MIT)
+357. strip-json-comments (MIT)
+358. symbol-tree (MIT)
+359. tar-fs (MIT)
+360. tar-stream (MIT)
+361. terser (BSD-2-Clause)
+362. throttle-debounce (MIT)
+363. ticky (MIT)
+364. tiny-emitter (MIT)
+365. to-regex-range (MIT)
+366. topojson-client (BSD-3-Clause)
+367. tough-cookie (BSD-3-Clause)
+368. tr46 (MIT)
+369. try-catch (MIT)
+370. try-to-catch (MIT)
+371. tslib (Apache-2.0)
+372. tunnel-agent (Apache-2.0)
+373. turndown (MIT)
+374. tweetnacl (Unlicense)
+375. type-check (MIT)
+376. type-fest ((MIT OR CC0-1.0))
+377. type-func (MIT)
+378. typedarray-to-buffer (MIT)
+379. uglify-js (BSD-2-Clause)
+380. underscore (MIT)
+381. universal-user-agent (ISC)
+382. universalify (MIT)
+383. unsplash-js (MIT)
+384. upper-case (MIT)
+385. uri-js (BSD-2-Clause)
+386. url-parse (MIT)
+387. util-deprecate (MIT)
+388. uuid (MIT)
+389. vega-canvas (BSD-3-Clause)
+390. vega-crossfilter (BSD-3-Clause)
+391. vega-dataflow (BSD-3-Clause)
+392. vega-embed (BSD-3-Clause)
+393. vega-encode (BSD-3-Clause)
+394. vega-event-selector (BSD-3-Clause)
+395. vega-expression (BSD-3-Clause)
+396. vega-force (BSD-3-Clause)
+397. vega-functions (BSD-3-Clause)
+398. vega-geo (BSD-3-Clause)
+399. vega-hierarchy (BSD-3-Clause)
+400. vega-lite (BSD-3-Clause)
+401. vega-loader (BSD-3-Clause)
+402. vega-parser (BSD-3-Clause)
+403. vega-projection (BSD-3-Clause)
+404. vega-regression (BSD-3-Clause)
+405. vega-runtime (BSD-3-Clause)
+406. vega-scale (BSD-3-Clause)
+407. vega-scenegraph (BSD-3-Clause)
+408. vega-schema-url-parser (BSD-3-Clause)
+409. vega-selections (BSD-3-Clause)
+410. vega-statistics (BSD-3-Clause)
+411. vega-themes (BSD-3-Clause)
+412. vega-tooltip (BSD-3-Clause)
+413. vega-transforms (BSD-3-Clause)
+414. vega-typings (BSD-3-Clause)
+415. vega-util (BSD-3-Clause)
+416. vega-view-transforms (BSD-3-Clause)
+417. vega-view (BSD-3-Clause)
+418. vega-voronoi (BSD-3-Clause)
+419. vega-wordcloud (BSD-3-Clause)
+420. vega (BSD-3-Clause)
+421. verror (MIT)
+422. view-image (MIT)
+423. vscode-ripgrep (MIT)
+424. vue-electron (ISC)
+425. vue-router (MIT)
+426. vue (MIT)
+427. vuex (MIT)
+428. w3c-hr-time (MIT)
+429. webfontloader (Apache-2.0)
+430. webidl-conversions (BSD-2-Clause)
+431. whatwg-encoding (MIT)
+432. whatwg-mimetype (MIT)
+433. whatwg-url (MIT)
+434. which-module (ISC)
+435. which-pm-runs (MIT)
+436. which (ISC)
+437. wide-align (ISC)
+438. windows-release (MIT)
+439. wordwrap (MIT)
+440. wrap-ansi (MIT)
+441. wrappy (ISC)
+442. write-file-atomic (ISC)
+443. ws (MIT)
+444. xml-name-validator (Apache-2.0)
+445. xmlbuilder (MIT)
+446. y18n (ISC)
+447. yallist (ISC)
+448. yargs-parser (ISC)
+449. yargs (MIT)
+450. hunspell (LGPL 2.1)
 
 
 -------------------------------------------------
@@ -479,31 +486,6 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-
-
-
-# @felixrieseberg/spellchecker (MIT)
--------------------------------------------------
-Copyright (c) 2013 GitHub Inc.
-
-Permission is hereby granted, free of charge, to any person obtaining
-a copy of this software and associated documentation files (the
-"Software"), to deal in the Software without restriction, including
-without limitation the rights to use, copy, modify, merge, publish,
-distribute, sublicense, and/or sell copies of the Software, and to
-permit persons to whom the Software is furnished to do so, subject to
-the following conditions:
-
-The above copyright notice and this permission notice shall be
-included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
 
@@ -568,6 +550,31 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+
+
+# @hfelix/spellchecker (MIT)
+-------------------------------------------------
+Copyright (c) 2013 GitHub Inc.
+
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of this software and associated documentation files (the
+"Software"), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
+
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
 
@@ -676,6 +683,18 @@ THE SOFTWARE.
 
 
 
+# @octokit/types (MIT)
+-------------------------------------------------
+MIT License Copyright (c) 2019 Octokit contributors
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice (including the next paragraph) shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+
+
 # @types/clone (MIT)
 -------------------------------------------------
 # Installation
@@ -725,7 +744,33 @@ MIT License
 
 
 
-# abab (BSD*)
+# @types/node (MIT)
+-------------------------------------------------
+MIT License
+
+    Copyright (c) Microsoft Corporation. All rights reserved.
+
+    Permission is hereby granted, free of charge, to any person obtaining a copy
+    of this software and associated documentation files (the "Software"), to deal
+    in the Software without restriction, including without limitation the rights
+    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+    copies of the Software, and to permit persons to whom the Software is
+    furnished to do so, subject to the following conditions:
+
+    The above copyright notice and this permission notice shall be included in all
+    copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+    SOFTWARE
+
+
+
+# abab (BSD-3-Clause)
 -------------------------------------------------
 Copyright © 2019 W3C and Jeff Carpenter \<jeffcarp@chromium.org\>
 
@@ -996,6 +1041,119 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
+
+
+
+# array-flat-polyfill (CC0-1.0)
+-------------------------------------------------
+# CC0 1.0 Universal
+
+## Statement of Purpose
+
+The laws of most jurisdictions throughout the world automatically confer
+exclusive Copyright and Related Rights (defined below) upon the creator and
+subsequent owner(s) (each and all, an “owner”) of an original work of
+authorship and/or a database (each, a “Work”).
+
+Certain owners wish to permanently relinquish those rights to a Work for the
+purpose of contributing to a commons of creative, cultural and scientific works
+(“Commons”) that the public can reliably and without fear of later claims of
+infringement build upon, modify, incorporate in other works, reuse and
+redistribute as freely as possible in any form whatsoever and for any purposes,
+including without limitation commercial purposes. These owners may contribute
+to the Commons to promote the ideal of a free culture and the further
+production of creative, cultural and scientific works, or to gain reputation or
+greater distribution for their Work in part through the use and efforts of
+others.
+
+For these and/or other purposes and motivations, and without any expectation of
+additional consideration or compensation, the person associating CC0 with a
+Work (the “Affirmer”), to the extent that he or she is an owner of Copyright
+and Related Rights in the Work, voluntarily elects to apply CC0 to the Work and
+publicly distribute the Work under its terms, with knowledge of his or her
+Copyright and Related Rights in the Work and the meaning and intended legal
+effect of CC0 on those rights.
+
+1. Copyright and Related Rights. A Work made available under CC0 may be
+   protected by copyright and related or neighboring rights (“Copyright and
+   Related Rights”). Copyright and Related Rights include, but are not limited
+   to, the following:
+   1. the right to reproduce, adapt, distribute, perform, display, communicate,
+      and translate a Work;
+   2. moral rights retained by the original author(s) and/or performer(s);
+   3. publicity and privacy rights pertaining to a person’s image or likeness
+      depicted in a Work;
+   4. rights protecting against unfair competition in regards to a Work,
+      subject to the limitations in paragraph 4(i), below;
+   5. rights protecting the extraction, dissemination, use and reuse of data in
+      a Work;
+   6. database rights (such as those arising under Directive 96/9/EC of the
+      European Parliament and of the Council of 11 March 1996 on the legal
+      protection of databases, and under any national implementation thereof,
+      including any amended or successor version of such directive); and
+   7. other similar, equivalent or corresponding rights throughout the world
+      based on applicable law or treaty, and any national implementations
+      thereof.
+
+2. Waiver. To the greatest extent permitted by, but not in contravention of,
+   applicable law, Affirmer hereby overtly, fully, permanently, irrevocably and
+   unconditionally waives, abandons, and surrenders all of Affirmer’s Copyright
+   and Related Rights and associated claims and causes of action, whether now
+   known or unknown (including existing as well as future claims and causes of
+   action), in the Work (i) in all territories worldwide, (ii) for the maximum
+   duration provided by applicable law or treaty (including future time
+   extensions), (iii) in any current or future medium and for any number of
+   copies, and (iv) for any purpose whatsoever, including without limitation
+   commercial, advertising or promotional purposes (the “Waiver”). Affirmer
+   makes the Waiver for the benefit of each member of the public at large and
+   to the detriment of Affirmer’s heirs and successors, fully intending that
+   such Waiver shall not be subject to revocation, rescission, cancellation,
+   termination, or any other legal or equitable action to disrupt the quiet
+   enjoyment of the Work by the public as contemplated by Affirmer’s express
+   Statement of Purpose.
+
+3. Public License Fallback. Should any part of the Waiver for any reason be
+   judged legally invalid or ineffective under applicable law, then the Waiver
+   shall be preserved to the maximum extent permitted taking into account
+   Affirmer’s express Statement of Purpose. In addition, to the extent the
+   Waiver is so judged Affirmer hereby grants to each affected person a
+   royalty-free, non transferable, non sublicensable, non exclusive,
+   irrevocable and unconditional license to exercise Affirmer’s Copyright and
+   Related Rights in the Work (i) in all territories worldwide, (ii) for the
+   maximum duration provided by applicable law or treaty (including future time
+   extensions), (iii) in any current or future medium and for any number of
+   copies, and (iv) for any purpose whatsoever, including without limitation
+   commercial, advertising or promotional purposes (the “License”). The License
+   shall be deemed effective as of the date CC0 was applied by Affirmer to the
+   Work. Should any part of the License for any reason be judged legally
+   invalid or ineffective under applicable law, such partial invalidity or
+   ineffectiveness shall not invalidate the remainder of the License, and in
+   such case Affirmer hereby affirms that he or she will not (i) exercise any
+   of his or her remaining Copyright and Related Rights in the Work or (ii)
+   assert any associated claims and causes of action with respect to the Work,
+   in either case contrary to Affirmer’s express Statement of Purpose.
+
+4. Limitations and Disclaimers.
+   1. No trademark or patent rights held by Affirmer are waived, abandoned,
+      surrendered, licensed or otherwise affected by this document.
+   2. Affirmer offers the Work as-is and makes no representations or warranties
+      of any kind concerning the Work, express, implied, statutory or
+      otherwise, including without limitation warranties of title,
+      merchantability, fitness for a particular purpose, non infringement, or
+      the absence of latent or other defects, accuracy, or the present or
+      absence of errors, whether or not discoverable, all to the greatest
+      extent permissible under applicable law.
+   3. Affirmer disclaims responsibility for clearing rights of other persons
+      that may apply to the Work or any use thereof, including without
+      limitation any person’s Copyright and Related Rights in the Work.
+      Further, Affirmer disclaims responsibility for obtaining any necessary
+      consents, permissions or other rights required for any use of the Work.
+   4. Affirmer understands and acknowledges that Creative Commons is not a
+      party to this document and has no duty or obligation with respect to this
+      CC0 or use of the Work.
+
+For more information, please see
+http://creativecommons.org/publicdomain/zero/1.0/.
 
 
 
@@ -3253,6 +3411,20 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
 
+# crypto-random-string (MIT)
+-------------------------------------------------
+MIT License
+
+Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com)
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+
+
 # css-b64-images (MIT)
 -------------------------------------------------
 [![build status](https://secure.travis-ci.org/Filirom1/css-base64-images.png)](http://travis-ci.org/Filirom1/css-base64-images)
@@ -4667,6 +4839,20 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+
+
+# debounce-fn (MIT)
+-------------------------------------------------
+MIT License
+
+Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com)
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
 
@@ -6471,6 +6657,33 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+
+
+# fast-json-patch (MIT)
+-------------------------------------------------
+(The MIT License)
+
+Copyright (c) 2013, 2014 Joachim Wester
+
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of this software and associated documentation files (the
+'Software'), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
+
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
 
@@ -8476,7 +8689,7 @@ SOFTWARE.
 
 
 
-# json-schema-typed (BSD*)
+# json-schema-typed (BSD-2-Clause)
 -------------------------------------------------
 BSD-2-Clause License
 
@@ -9873,8 +10086,8 @@ Permission is hereby granted, free of charge, to any person
 obtaining a copy of this software and associated documentation
 files (the "Software"), to deal in the Software without
 restriction, including without limitation the rights to use,
-copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the
+copy, modify, merge, publish, distribute, sublicense, and/or
+sell copies of the Software, and to permit persons to whom the
 Software is furnished to do so, subject to the following
 conditions:
 
@@ -11247,7 +11460,7 @@ THE SOFTWARE.
 -------------------------------------------------
 ISC License
 
-Copyright (c) 2016, Nicolai Kamenzky and contributors
+Copyright (c) 2019, Nicolai Kamenzky and contributors
 
 Permission to use, copy, modify, and/or distribute this software for any
 purpose with or without fee is hereby granted, provided that the above
@@ -11267,7 +11480,7 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 -------------------------------------------------
 ISC License
 
-Copyright (c) 2017, Nicolai Kamenzky and contributors
+Copyright (c) 2019, Nicolai Kamenzky and contributors
 
 Permission to use, copy, modify, and/or distribute this software for any
 purpose with or without fee is hereby granted, provided that the above
@@ -15101,6 +15314,187 @@ On the other hand, `performance.timeOrigin` returns the *[Unix time][]* at which
 [global monotonic clock]: https://w3c.github.io/hr-time/#dfn-global-monotonic-clock
 [Unix time]: https://en.wikipedia.org/wiki/Unix_time
 [webidl2js]: https://github.com/jsdom/webidl2js
+
+
+
+# webfontloader (Apache-2.0)
+-------------------------------------------------
+Apache License
+                           Version 2.0, January 2004
+                        http://www.apache.org/licenses/
+
+   TERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION
+
+   1. Definitions.
+
+      "License" shall mean the terms and conditions for use, reproduction,
+      and distribution as defined by Sections 1 through 9 of this document.
+
+      "Licensor" shall mean the copyright owner or entity authorized by
+      the copyright owner that is granting the License.
+
+      "Legal Entity" shall mean the union of the acting entity and all
+      other entities that control, are controlled by, or are under common
+      control with that entity. For the purposes of this definition,
+      "control" means (i) the power, direct or indirect, to cause the
+      direction or management of such entity, whether by contract or
+      otherwise, or (ii) ownership of fifty percent (50%) or more of the
+      outstanding shares, or (iii) beneficial ownership of such entity.
+
+      "You" (or "Your") shall mean an individual or Legal Entity
+      exercising permissions granted by this License.
+
+      "Source" form shall mean the preferred form for making modifications,
+      including but not limited to software source code, documentation
+      source, and configuration files.
+
+      "Object" form shall mean any form resulting from mechanical
+      transformation or translation of a Source form, including but
+      not limited to compiled object code, generated documentation,
+      and conversions to other media types.
+
+      "Work" shall mean the work of authorship, whether in Source or
+      Object form, made available under the License, as indicated by a
+      copyright notice that is included in or attached to the work
+      (an example is provided in the Appendix below).
+
+      "Derivative Works" shall mean any work, whether in Source or Object
+      form, that is based on (or derived from) the Work and for which the
+      editorial revisions, annotations, elaborations, or other modifications
+      represent, as a whole, an original work of authorship. For the purposes
+      of this License, Derivative Works shall not include works that remain
+      separable from, or merely link (or bind by name) to the interfaces of,
+      the Work and Derivative Works thereof.
+
+      "Contribution" shall mean any work of authorship, including
+      the original version of the Work and any modifications or additions
+      to that Work or Derivative Works thereof, that is intentionally
+      submitted to Licensor for inclusion in the Work by the copyright owner
+      or by an individual or Legal Entity authorized to submit on behalf of
+      the copyright owner. For the purposes of this definition, "submitted"
+      means any form of electronic, verbal, or written communication sent
+      to the Licensor or its representatives, including but not limited to
+      communication on electronic mailing lists, source code control systems,
+      and issue tracking systems that are managed by, or on behalf of, the
+      Licensor for the purpose of discussing and improving the Work, but
+      excluding communication that is conspicuously marked or otherwise
+      designated in writing by the copyright owner as "Not a Contribution."
+
+      "Contributor" shall mean Licensor and any individual or Legal Entity
+      on behalf of whom a Contribution has been received by Licensor and
+      subsequently incorporated within the Work.
+
+   2. Grant of Copyright License. Subject to the terms and conditions of
+      this License, each Contributor hereby grants to You a perpetual,
+      worldwide, non-exclusive, no-charge, royalty-free, irrevocable
+      copyright license to reproduce, prepare Derivative Works of,
+      publicly display, publicly perform, sublicense, and distribute the
+      Work and such Derivative Works in Source or Object form.
+
+   3. Grant of Patent License. Subject to the terms and conditions of
+      this License, each Contributor hereby grants to You a perpetual,
+      worldwide, non-exclusive, no-charge, royalty-free, irrevocable
+      (except as stated in this section) patent license to make, have made,
+      use, offer to sell, sell, import, and otherwise transfer the Work,
+      where such license applies only to those patent claims licensable
+      by such Contributor that are necessarily infringed by their
+      Contribution(s) alone or by combination of their Contribution(s)
+      with the Work to which such Contribution(s) was submitted. If You
+      institute patent litigation against any entity (including a
+      cross-claim or counterclaim in a lawsuit) alleging that the Work
+      or a Contribution incorporated within the Work constitutes direct
+      or contributory patent infringement, then any patent licenses
+      granted to You under this License for that Work shall terminate
+      as of the date such litigation is filed.
+
+   4. Redistribution. You may reproduce and distribute copies of the
+      Work or Derivative Works thereof in any medium, with or without
+      modifications, and in Source or Object form, provided that You
+      meet the following conditions:
+
+      (a) You must give any other recipients of the Work or
+          Derivative Works a copy of this License; and
+
+      (b) You must cause any modified files to carry prominent notices
+          stating that You changed the files; and
+
+      (c) You must retain, in the Source form of any Derivative Works
+          that You distribute, all copyright, patent, trademark, and
+          attribution notices from the Source form of the Work,
+          excluding those notices that do not pertain to any part of
+          the Derivative Works; and
+
+      (d) If the Work includes a "NOTICE" text file as part of its
+          distribution, then any Derivative Works that You distribute must
+          include a readable copy of the attribution notices contained
+          within such NOTICE file, excluding those notices that do not
+          pertain to any part of the Derivative Works, in at least one
+          of the following places: within a NOTICE text file distributed
+          as part of the Derivative Works; within the Source form or
+          documentation, if provided along with the Derivative Works; or,
+          within a display generated by the Derivative Works, if and
+          wherever such third-party notices normally appear. The contents
+          of the NOTICE file are for informational purposes only and
+          do not modify the License. You may add Your own attribution
+          notices within Derivative Works that You distribute, alongside
+          or as an addendum to the NOTICE text from the Work, provided
+          that such additional attribution notices cannot be construed
+          as modifying the License.
+
+      You may add Your own copyright statement to Your modifications and
+      may provide additional or different license terms and conditions
+      for use, reproduction, or distribution of Your modifications, or
+      for any such Derivative Works as a whole, provided Your use,
+      reproduction, and distribution of the Work otherwise complies with
+      the conditions stated in this License.
+
+   5. Submission of Contributions. Unless You explicitly state otherwise,
+      any Contribution intentionally submitted for inclusion in the Work
+      by You to the Licensor shall be under the terms and conditions of
+      this License, without any additional terms or conditions.
+      Notwithstanding the above, nothing herein shall supersede or modify
+      the terms of any separate license agreement you may have executed
+      with Licensor regarding such Contributions.
+
+   6. Trademarks. This License does not grant permission to use the trade
+      names, trademarks, service marks, or product names of the Licensor,
+      except as required for reasonable and customary use in describing the
+      origin of the Work and reproducing the content of the NOTICE file.
+
+   7. Disclaimer of Warranty. Unless required by applicable law or
+      agreed to in writing, Licensor provides the Work (and each
+      Contributor provides its Contributions) on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+      implied, including, without limitation, any warranties or conditions
+      of TITLE, NON-INFRINGEMENT, MERCHANTABILITY, or FITNESS FOR A
+      PARTICULAR PURPOSE. You are solely responsible for determining the
+      appropriateness of using or redistributing the Work and assume any
+      risks associated with Your exercise of permissions under this License.
+
+   8. Limitation of Liability. In no event and under no legal theory,
+      whether in tort (including negligence), contract, or otherwise,
+      unless required by applicable law (such as deliberate and grossly
+      negligent acts) or agreed to in writing, shall any Contributor be
+      liable to You for damages, including any direct, indirect, special,
+      incidental, or consequential damages of any character arising as a
+      result of this License or out of the use or inability to use the
+      Work (including but not limited to damages for loss of goodwill,
+      work stoppage, computer failure or malfunction, or any and all
+      other commercial damages or losses), even if such Contributor
+      has been advised of the possibility of such damages.
+
+   9. Accepting Warranty or Additional Liability. While redistributing
+      the Work or Derivative Works thereof, You may choose to offer,
+      and charge a fee for, acceptance of support, warranty, indemnity,
+      or other liability obligations and/or rights consistent with this
+      License. However, in accepting such obligations, You may act only
+      on Your own behalf and on Your sole responsibility, not on behalf
+      of any other Contributor, and only if You agree to indemnify,
+      defend, and hold each Contributor harmless for any liability
+      incurred by, or claims asserted against, such Contributor by reason
+      of your accepting any such warranty or additional liability.
+
+   END OF TERMS AND CONDITIONS
 
 
 
