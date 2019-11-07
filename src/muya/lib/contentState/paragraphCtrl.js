@@ -554,13 +554,13 @@ const paragraphCtrl = ContentState => {
         const endOffset = newLevel > 0
           ? end.offset + newLevel - hash.length + 1
           : end.offset - hash.length
+        let newText = newLevel > 0
+          ? '#'.repeat(newLevel) + `${String.fromCharCode(160)}${partText}` // &nbsp; code: 160
+          : partText
 
         // Remove <hr> content when converting to paragraph.
-        let newText = ''
-        if (type !== 'span' && block.functionType !== 'thematicBreakLine') {
-          newText = newLevel > 0
-            ? '#'.repeat(newLevel) + `${String.fromCharCode(160)}${partText}` // &nbsp; code: 160
-            : partText
+        if (type === 'span' && block.functionType === 'thematicBreakLine') {
+          newText = ''
         }
 
         // No change
@@ -880,8 +880,17 @@ const paragraphCtrl = ContentState => {
     }
 
     switch (fromType) {
-      case 'paragraph':
-        return !/hr|table/.test(toType)
+      case 'ul-bullet':
+      case 'ul-task':
+      case 'ol-order':
+      case 'blockquote':
+      case 'paragraph': {
+        // Only allow line and table with an empty paragraph.
+        if (/hr|table/.test(toType) && block.text) {
+          return false
+        }
+        return true
+      }
       case 'heading 1':
       case 'heading 2':
       case 'heading 3':
@@ -889,10 +898,6 @@ const paragraphCtrl = ContentState => {
       case 'heading 5':
       case 'heading 6':
         return /paragraph|heading/.test(toType)
-      case 'ul-bulle':
-      case 'ul-task':
-      case 'ol-order':
-        return /ul|ol|loose-list-item/.test(toType)
       default:
         // Tables and all code blocks are not allowed.
         return false
