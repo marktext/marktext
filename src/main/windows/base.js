@@ -14,7 +14,7 @@ import { isLinux } from '../config'
 export const WindowType = {
   BASE: 'base', // You shold never create a `BASE` window.
   EDITOR: 'editor',
-  SETTING: 'setting'
+  SETTINGS: 'settings'
 }
 
 export const WindowLifecycle = {

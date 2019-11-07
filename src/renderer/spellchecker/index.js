@@ -1,8 +1,9 @@
 import fs from 'fs-extra'
 import path from 'path'
+import os from 'os'
 import { remote } from 'electron'
 import { SpellCheckHandler, fallbackLocales, normalizeLanguageCode } from '@hfelix/electron-spellchecker'
-import { isOsx, cloneObj } from '../util'
+import { cloneObj, isOsx, isLinux, isWindows } from '@/util'
 
 // NOTE: Hardcoded in "@hfelix/electron-spellchecker/src/spell-check-handler.js"
 export const dictionaryPath = path.join(remote.app.getPath('userData'), 'dictionaries')
@@ -83,6 +84,25 @@ export const getAvailableHunspellDictionaries = () => {
   return dict
 }
 
+export const isOsSpellcheckerSupported = () => {
+  let envOverwrite = !!process.env['SPELLCHECKER_PREFER_HUNSPELL'] // eslint-disable-line dot-notation
+  if (isLinux || envOverwrite) {
+    return false
+  } else if (isOsx) {
+    return true
+  } else if (isWindows) {
+    // NOTE: Normally we need to initialize the spellchecker and check the result.
+    const windowsVersion = os.release().match(/^(\d+)\./)
+    if (windowsVersion && windowsVersion[1]) {
+      const windowsMajor = Number(windowsVersion[1])
+      if (windowsMajor >= 10) {
+        return true
+      }
+    }
+  }
+  return false
+}
+
 /**
  * High level spell checker API.
  *
@@ -98,7 +118,7 @@ export class SpellChecker {
    */
   constructor (enabled = true) {
     // Hunspell is used on Linux and Windows but macOS can use Hunspell if prefered.
-    this.isHunspell = !isOsx || !!process.env['SPELLCHECKER_PREFER_HUNSPELL'] // eslint-disable-line dot-notation
+    this.isHunspell = !isOsSpellcheckerSupported() || !!process.env['SPELLCHECKER_PREFER_HUNSPELL'] // eslint-disable-line dot-notation
 
     // Initialize spell check provider. If spell check is not enabled don't
     // initialize the handler to not load the native module.
@@ -118,6 +138,7 @@ export class SpellChecker {
     }
 
     this.provider = new SpellCheckHandler()
+    this.isHunspell = this.provider.isHunspell
 
     // The spell checker is now initialized but not yet enabled. You need to call `init`.
     this.isEnabled = false

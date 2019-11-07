@@ -412,7 +412,7 @@ class App {
   }
 
   _openSettingsWindow () {
-    const settingWins = this._windowManager.getWindowsByType(WindowType.SETTING)
+    const settingWins = this._windowManager.getWindowsByType(WindowType.SETTINGS)
     if (settingWins.length >= 1) {
       // A setting window is already created
       const browserSettingWindow = settingWins[0].win.browserWindow

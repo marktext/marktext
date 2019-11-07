@@ -4,13 +4,13 @@
     <bool
       description="Whether the experimental spell checker is enabled to check for spelling mistakes."
       :bool="spellcheckerEnabled"
-      :onChange="value => onSelectChange('spellcheckerEnabled', value)"
+      :onChange="handleSpellcheckerEnabled"
     ></bool>
     <separator></separator>
     <bool
-      description="When enabled, Hunspell is used instead the OS spell checker (macOS only). The change take effect after application restart or for new editor windows."
+      description="When enabled, Hunspell is used instead the OS spell checker on macOS and Windows 10. The change take effect after application restart or for new editor windows."
       :bool="spellcheckerIsHunspell"
-      :disable="!isOsx || !spellcheckerEnabled"
+      :disable="!isOsSpellcheckerSupported || !spellcheckerEnabled"
       :onChange="value => onSelectChange('spellcheckerIsHunspell', value)"
     ></bool>
     <bool
@@ -25,6 +25,7 @@
       :disable="!spellcheckerEnabled"
       :onChange="value => onSelectChange('spellcheckerAutoDetectLanguage', value)"
     ></bool>
+    <separator></separator>
     <cur-select
       description="The default language for spelling."
       :value="spellcheckerLanguage"
@@ -33,13 +34,18 @@
       :onChange="value => onSelectChange('spellcheckerLanguage', value)"
     ></cur-select>
     <div
-      v-if="isOsx && spellcheckerIsHunspell"
+      v-if="isOsx && !isHunspellSelected && spellcheckerEnabled"
       class="description"
     >
-      Please add the needed language dictionaries via Language & Region in your system preferences pane.
+      Please add needed language dictionaries via "Language & Region" in your system preferences pane.
+    </div>
+    <div
+      v-if="isWindows && !isHunspellSelected && spellcheckerEnabled"
+      class="description"
+    >
+      Please add needed language dictionaries via "Language" in your "Time & language" settings. Add the additional language and download the "Basic typing" language option.
     </div>
     <div v-if="isHunspellSelected && spellcheckerEnabled">
-      <separator></separator>
       <div class="description">List of available Hunspell dictionaries. Please add additional language dictionaries via drop-down menu below.</div>
       <el-table
         :data="availableDictionaries"
@@ -89,9 +95,9 @@ import { mapState } from 'vuex'
 import CurSelect from '../common/select'
 import Bool from '../common/bool'
 import Separator from '../common/separator'
-import { isOsx } from '@/util'
-import { getAvailableHunspellDictionaries, SpellChecker } from '@/spellchecker'
-import { getLanguageName, HUNSPELL_DICTIONARY_LANGUAGE_MAP } from '@/spellchecker/languageMap.js'
+import { isOsx, isLinux, isWindows } from '@/util'
+import { isOsSpellcheckerSupported, getAvailableHunspellDictionaries, SpellChecker } from '@/spellchecker'
+import { getLanguageName, HUNSPELL_DICTIONARY_LANGUAGE_MAP } from '@/spellchecker/languageMap'
 import { downloadHunspellDictionary, deleteHunspellDictionary } from '@/spellchecker/dictionaryDownloader'
 
 export default {
@@ -102,6 +108,9 @@ export default {
   },
   data () {
     this.isOsx = isOsx
+    this.isLinux = isLinux
+    this.isWindows = isWindows
+    this.isOsSpellcheckerSupported = isOsSpellcheckerSupported()
     this.dictionariesLanguagesOptions = HUNSPELL_DICTIONARY_LANGUAGE_MAP
     this.hunspellDictionaryDownloadCache = {}
     return {
@@ -118,19 +127,14 @@ export default {
       spellcheckerAutoDetectLanguage: state => state.preferences.spellcheckerAutoDetectLanguage,
       spellcheckerLanguage: state => state.preferences.spellcheckerLanguage,
       isHunspellSelected: state => {
-        return !isOsx || state.preferences.spellcheckerIsHunspell
+        return !isOsSpellcheckerSupported() || state.preferences.spellcheckerIsHunspell
       }
     })
   },
   watch: {
     spellcheckerIsHunspell: function (value, oldValue) {
-      if (isOsx && value !== oldValue && value) {
-        const { spellcheckerLanguage } = this
-        const index = HUNSPELL_DICTIONARY_LANGUAGE_MAP.findIndex(d => d.value === spellcheckerLanguage)
-        if (index === -1) {
-          // Language is not supported by Hunspell.
-          this.onSelectChange('spellcheckerLanguage', 'en-US')
-        }
+      if (this.isOsSpellcheckerSupported && value !== oldValue) {
+        this.ensureDictLanguage(value)
         this.refreshDictionaryList()
       }
     }
@@ -141,8 +145,8 @@ export default {
     })
   },
   beforeDestroy () {
-    if (isOsx && this.spellChecker) {
-      this.spellChecker.provider.unsubscribe()
+    if (!isLinux && this.spellchecker) {
+      this.spellchecker.provider.unsubscribe()
     }
   },
   methods: {
@@ -152,14 +156,14 @@ export default {
         // Search hunspell dictionaries on disk.
         dictionaries = getAvailableHunspellDictionaries()
       } else {
-        // On macOS we only receive the dictionaries when the spell checker is active.
-        if (!this.spellChecker) {
+        // We only receive the dictionaries from OS spell checker via the instance.
+        if (!this.spellchecker) {
           // Create a new spell checker provider without attach it.
-          this.spellChecker = new SpellChecker()
+          this.spellchecker = new SpellChecker()
         }
 
         // Receive available dictionaries from OS.
-        dictionaries = this.spellChecker.getAvailableDictionaries()
+        dictionaries = this.spellchecker.getAvailableDictionaries()
       }
 
       return dictionaries.map(item => {
@@ -171,6 +175,47 @@ export default {
     },
     refreshDictionaryList () {
       this.availableDictionaries = this.getAvailableDictionaries()
+    },
+    ensureDictLanguage (isHunspell) {
+      const { isOsSpellcheckerSupported, spellcheckerLanguage } = this
+      if (isHunspell || !isOsSpellcheckerSupported) {
+        // Validate language for Hunspell.
+        const index = HUNSPELL_DICTIONARY_LANGUAGE_MAP.findIndex(d => d.value === spellcheckerLanguage)
+        if (index === -1) {
+          // Use fallback because language is not supported by Hunspell.
+          this.onSelectChange('spellcheckerLanguage', 'en-US')
+        }
+      } else {
+        // Validate language for OS spellchecker. We only receive the dictionaries from
+        // OS spell checker via the instance.
+        if (!this.spellchecker) {
+          // Create a new spell checker provider without attach it.
+          this.spellchecker = new SpellChecker()
+        }
+
+        const dicts = this.spellchecker.getAvailableDictionaries()
+        const index = dicts.findIndex(d => d === spellcheckerLanguage)
+        if (index === -1 && dicts.length >= 1) {
+          // Language is not supported, prefer OS language.
+          var lang = process.env.LANG
+          lang = lang ? lang.split('.')[0] : null
+          if (lang) {
+            lang = lang.replace(/_/g, '-')
+            if (dicts.findIndex(d => d === lang) === -1) {
+              lang = null
+            }
+          }
+          this.onSelectChange('spellcheckerLanguage', lang || dicts[0])
+        }
+      }
+    },
+
+    handleSpellcheckerEnabled (value) {
+      if (value) {
+        const { spellcheckerIsHunspell } = this
+        this.ensureDictLanguage(spellcheckerIsHunspell)
+      }
+      this.onSelectChange('spellcheckerEnabled', value)
     },
     onSelectChange (type, value) {
       this.$store.dispatch('SET_SINGLE_PREFERENCE', { type, value })

@@ -805,12 +805,12 @@
     electron-is-accelerator "^0.1.0"
     keyboardevents-areequal "^0.2.1"
 
-"@hfelix/electron-spellchecker@^1.0.0-rc.3":
-  version "1.0.0-rc.3"
-  resolved "https://registry.npmjs.org/@hfelix/electron-spellchecker/-/electron-spellchecker-1.0.0-rc.3.tgz#6a76eaf16a4c15987cdda00d42bd9896a0590e70"
-  integrity sha512-qG2YxRtoOLycA7vRJENds4POxV7VC8yVmDXi7dIz3czRUZgNJNCQDR5YoRQ9xPXVLWT3oYB/RLwOS3RJRP3AnA==
+"@hfelix/electron-spellchecker@1.0.0-rc.5":
+  version "1.0.0-rc.5"
+  resolved "https://registry.yarnpkg.com/@hfelix/electron-spellchecker/-/electron-spellchecker-1.0.0-rc.5.tgz#2e7c81857bbdd167aaea45b223a017bd89b19f7a"
+  integrity sha512-ma5osTva2F4/mF0h6Sbq0BTbMhZI0lBovjd/Ki2WesS9O5tIf75vdFeaZh0NVA7yynNsj5RmhfDTvrKOOg79MQ==
   dependencies:
-    "@hfelix/spellchecker" "^4.0.11"
+    "@hfelix/spellchecker" "^4.0.12-rc.2"
     bcp47 "^1.1.2"
     cld "^2.5.1"
     debug "^4.1.1"
@@ -824,12 +824,12 @@
   resolved "https://registry.npmjs.org/@hfelix/keyboardevent-from-electron-accelerator/-/keyboardevent-from-electron-accelerator-1.1.1.tgz#7e1d4fd913759c381b7919cc7faf4c0c641d457c"
   integrity sha512-1eVkDSqoRQkF2FrPPia2EZ3310c0TvFKYvSuJbaxHpRKbI6eVHcVGKpmOSDli6Qdn3Bu0h7ozfgMZbAEBD+BLQ==
 
-"@hfelix/spellchecker@^4.0.11":
-  version "4.0.11"
-  resolved "https://registry.npmjs.org/@hfelix/spellchecker/-/spellchecker-4.0.11.tgz#bc86881e419c7e12c88ab996a5bbbe78f044385c"
-  integrity sha512-xBVSHB6OPnqD+KBL5cQO0o20/TIezigD0U1a7V+e+5OvAmCnqdWo23IOdZrUDA7bBhNvK2Pml9jF3U7HRo272A==
+"@hfelix/spellchecker@^4.0.12-rc.2":
+  version "4.0.12-rc.2"
+  resolved "https://registry.yarnpkg.com/@hfelix/spellchecker/-/spellchecker-4.0.12-rc.2.tgz#3a3630c222e567eca68476a1bce1c919dc452378"
+  integrity sha512-FrO+96Di+EiJiib9AiLMXn3PBNg8gayn1r8JBPBM8ME2UwTs8f7GJF6yYCW99a0N8Lqwo13rplLqY6UVG5gEtQ==
   dependencies:
-    nan "^2.13.2"
+    nan "^2.14.0"
 
 "@markedjs/html-differ@^3.0.0":
   version "3.0.0"
@@ -8175,7 +8175,7 @@ mute-stream@0.0.8:
   resolved "https://registry.npmjs.org/mute-stream/-/mute-stream-0.0.8.tgz#1630c42b2251ff81e2a283de96a5497ea92e5e0d"
   integrity sha512-nnbWWOkoWyUsTjKrhgD0dcz22mdkSnpYqbEjIm2nhwhuxlSkpywJmBo8h0ZqJdkp73mb90SssHkN4rsRaBAfAA==
 
-nan@2.14.0, nan@^2.12.1, nan@^2.13.2, nan@^2.9.2:
+nan@2.14.0, nan@^2.12.1, nan@^2.13.2, nan@^2.14.0, nan@^2.9.2:
   version "2.14.0"
   resolved "https://registry.npmjs.org/nan/-/nan-2.14.0.tgz#7818f722027b2459a86f0295d434d1fc2336c52c"
   integrity sha512-INOFj37C7k3AfaNTtX8RhsTw7qRy7eLET14cROi9+5HAVbbHuIWUHEauBv5qT4Av2tWasiTY1Jw6puUNqRJXQg==

@@ -81,14 +81,19 @@
     </div>
 
     <script>
-      const search = location.search
-      const params = search.split('?')[1].split('&').reduce((acc, i) => {
-        const tokens = i.split('=')
-        return {
-          ...acc,
-          [tokens[0]]: tokens[1]
-        }
-      }, {})
+      const params = new URLSearchParams(window.location.search)
+
+      // --- WORKAROUND ---
+      // `node-spellchecker` is loaded by `internal/modules/cjs/loader.js` before
+      // we can set the envoriment variable in our bootstrap routine.
+      const type = params.get('type')
+      const spellcheckerIsHunspell = params.get('slp') === '1'
+      if (spellcheckerIsHunspell && type !== 'settings') {
+        // Set option to always use Hunspell instead OS spell checker.
+        process.env['SPELLCHECKER_PREFER_HUNSPELL'] = 1 // eslint-disable-line dot-notation
+      }
+      // --- END WORKAROUND ---
+
       const THEMES_COLOR = {
         'one-dark': 'rgba(77, 120, 204, 1)',
         'dark': '#409eff',
@@ -100,7 +105,7 @@
 
       const dots = document.querySelectorAll('.dot')
       Array.from(dots).forEach(dot => {
-        dot.style.background = THEMES_COLOR[params['theme']] || 'rgba(33, 181, 111, 1)'
+        dot.style.background = THEMES_COLOR[params.get('theme')] || 'rgba(33, 181, 111, 1)'
       })
     </script>
 
