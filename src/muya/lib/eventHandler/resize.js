@@ -1,5 +1,5 @@
-import resizeCodeBlockLineNumber from '../utils/resizeCodeLineNumber'
-import { throttle } from '../utils'
+// import resizeCodeBlockLineNumber from '../utils/resizeCodeLineNumber'
+// import { throttle } from '../utils'
 
 class Resize {
   constructor (muya) {
@@ -8,14 +8,20 @@ class Resize {
   }
 
   listen () {
-    window.addEventListener('resize', throttle(() => {
-      const codeBlocks = document.querySelectorAll('pre.line-numbers')
-      if (codeBlocks.length) {
-        for (const ele of codeBlocks) {
-          resizeCodeBlockLineNumber(ele)
-        }
-      }
-    }, 300))
+    // FIXME: Disabled due to #1648.
+    // const { codeBlockLineNumbers } = this.muya.options
+    // if (!codeBlockLineNumbers) {
+    //   return
+    // }
+    //
+    // window.addEventListener('resize', throttle(() => {
+    //   const codeBlocks = document.querySelectorAll('pre.line-numbers')
+    //   if (codeBlocks.length) {
+    //     for (const ele of codeBlocks) {
+    //       resizeCodeBlockLineNumber(ele)
+    //     }
+    //   }
+    // }, 300))
   }
 }
 
