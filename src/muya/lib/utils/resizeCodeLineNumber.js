@@ -25,6 +25,8 @@ const getStyles = function (element) {
 * @param {Element} element <pre> element
 */
 const resizeCodeBlockLineNumber = function (element) {
+  // FIXME: Heavy performance issues with this function, please see #1648.
+
   const codeStyles = getStyles(element)
   const whiteSpace = codeStyles['white-space']
 
