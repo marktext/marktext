@@ -213,7 +213,7 @@ Please follow the [Linux installation instructions](docs/LINUX.md).
 
 #### Other
 
-All binaries for Linux, macOS and Windows can be downloaded from the [release page](https://github.com/marktext/marktext/releases/latest). If a version for your system unavailable, then open an [issue](https://github.com/marktext/marktext/issues).
+All binaries for Linux, macOS and Windows can be downloaded from the [release page](https://github.com/marktext/marktext/releases/latest). If a version is unavailable for your system, then please open an [issue](https://github.com/marktext/marktext/issues).
 
 ## Development
 
