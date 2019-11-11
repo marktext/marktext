@@ -10,8 +10,10 @@ export const dictionaryPath = path.join(remote.app.getPath('userData'), 'diction
 
 // Source: https://github.com/Microsoft/vscode/blob/master/src/vs/editor/common/model/wordHelper.ts
 // /(-?\d*\.\d\w*)|([^\`\~\!\@\#\$\%\^\&\*\(\)\-\=\+\[\{\]\}\\\|\;\:\'\"\,\.\<\>\/\?\s]+)/
-const WORD_SEPARATORS = /([`~!@#$%^&*()-=+[{\]}\\|;:'",.<>/?\s])/
-const WORD_DEFINITION = /(-?\d*\.\d\w*)|([^`~!@#$%^&*()-=+[{\]}\\|;:'",.<>/?\s]+)$/
+/* eslint-disable no-useless-escape */
+const WORD_SEPARATORS = /(?:[`~!@#$%^&*()-=+[{\]}\\|;:'",\.<>\/?\s])/g
+const WORD_DEFINITION = /(?:-?\d*\.\d\w*)|(?:[^`~!@#$%^&*()-=+[{\]}\\|;:'",\.<>\/?\s]+)/g
+/* eslint-enable no-useless-escape */
 
 /**
  * Translate a left and right offset from a word in `line` into a cursor with
@@ -440,14 +442,34 @@ export class SpellChecker {
       offset = text.length - 1
     }
 
-    // Search for the words beginning and end.
-    const left = text.slice(0, offset + 1).search(WORD_DEFINITION)
-    const right = text.slice(offset).search(WORD_SEPARATORS)
+    // Matches all words starting at a good position.
+    WORD_DEFINITION.lastIndex = text.lastIndexOf(' ', offset - 1) + 1
+    let match = null
+    let left = -1
+    while (match = WORD_DEFINITION.exec(text)) { // eslint-disable-line
+      if (match && match.index <= offset) {
+        if (WORD_DEFINITION.lastIndex > offset) {
+          left = match.index
+        }
+      } else {
+        break
+      }
+    }
+    WORD_DEFINITION.lastIndex = 0
 
     // Cursor is between two word separators (e.g "*<cursor>*" or " <cursor>*")
     if (left <= -1) {
       return null
     }
+
+    // Find word ending.
+    WORD_SEPARATORS.lastIndex = offset
+    match = WORD_SEPARATORS.exec(text)
+    let right = -1
+    if (match) {
+      right = match.index
+    }
+    WORD_SEPARATORS.lastIndex = 0
 
     // The last word in the string is a special case.
     if (right < 0) {
@@ -459,8 +481,8 @@ export class SpellChecker {
     }
     return {
       left,
-      right: right + offset,
-      word: text.slice(left, right + offset)
+      right: right,
+      word: text.slice(left, right)
     }
   }
 
