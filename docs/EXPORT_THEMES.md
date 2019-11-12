@@ -4,7 +4,7 @@ Mark Text allows you to modify the appearance of the document that you want to e
 
 ## Install a theme
 
-You can install a theme by copying the `.css` file to the [application data directory](APPLICATION_DATA_DIRECTORY.md) location but you may need to restart Mark Text to detect the theme.
+You can install a theme by copying the `.css` file to `themes/export/` directory inside the [application data directory](APPLICATION_DATA_DIRECTORY.md) location but you may need to restart Mark Text to detect the theme.
 
 ## Create a theme
 
