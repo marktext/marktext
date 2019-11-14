@@ -18,7 +18,7 @@ export const sideBarIcons = [
 
 export const sideBarBottomIcons = [
   {
-    name: 'setting',
+    name: 'settings',
     icon: SettingIcon
   }
 ]
