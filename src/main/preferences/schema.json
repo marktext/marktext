@@ -257,6 +257,13 @@
     "type": "boolean",
     "default": false
   },
+  "sequenceTheme": {
+    "description": "Markdown--Sequence diagram theme",
+    "enum": [
+      "hand",
+      "simple"
+    ]
+  },
 
   "theme": {
     "description": "Theme--Select the theme used in Mark Text",

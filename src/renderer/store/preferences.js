@@ -45,6 +45,7 @@ const state = {
   frontmatterType: '-',
   superSubScript: false,
   footnote: false,
+  sequenceTheme: 'hand',
 
   theme: 'light',
   autoSwitchTheme: 2,

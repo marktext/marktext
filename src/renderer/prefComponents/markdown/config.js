@@ -72,3 +72,11 @@ export const frontmatterTypeOptions = [{
   label: 'JSON ({})',
   value: '{'
 }]
+
+export const sequenceThemeOptions = [{
+  label: 'hand',
+  value: 'hand'
+}, {
+  label: 'simple',
+  value: 'simple'
+}]
