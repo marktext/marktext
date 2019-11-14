@@ -115,9 +115,11 @@ Mark Text is an MIT licensed open source project, and the latest version will al
 - [Become a backer or sponsor on Patreon](https://www.patreon.com/ranluo) or [One time donation](https://github.com/Jocs/sponsor.me)
 - [Become a backer or sponsor on Open Collective](https://opencollective.com/marktext)
 
-##### What's the difference between Patreon and OpenCollective?
+##### What's the difference between Patreon and Open Collective?
 
-Sponsored by Patreon, it will be directly sponsored to Luo Ran (@jocs), who create Mark Text and continue to maintain Mark Text. Sponsored by Open Collective, all expenses are transparent, and these sponsorship funds will be used for the development of Mark Text. , maintenance, online and offline activities, and some of the necessary resources, whether sponsored by Patreon or Open Collective, your name or company logo will appear in Mark Text's readme and official website.
+Patreon: Funds will be directly sponsored to Luo Ran (@jocs) who created Mark Text and continues to maintain it.
+Open Collective: All expenses are transparent. The funds will be used for the development and maintenance of Mark Text, funding online and offline activities, and acquiring other necessary resources.
+Names and company logos of all sponsors (from both Patreon and Open Collective) will appear on the official website for Mark Text and in its README.md file.
 
 **Platinum Sponsors**
 
