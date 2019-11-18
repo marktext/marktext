@@ -675,10 +675,12 @@ export default {
     photoCreatorClick: (url) => {
       shell.openExternal(url)
     },
-    jumpClick: (linkInfo) => {
+    jumpClick (linkInfo) {
       const { href } = linkInfo
       if (href && href.startsWith('http')) {
         shell.openExternal(href)
+      } else {
+        this.$store.dispatch('FORMAT_LINK_CLICK', { data: { href: href }, dirname: window.DIRNAME })
       }
     },
     async imagePathAutoComplete (src) {
