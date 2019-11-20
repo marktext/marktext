@@ -6,7 +6,7 @@
       <span class="link" @click="openUrl(uploaderService.privacyUrl)">Privacy Statement</span>
       and
       <span class="link" @click="openUrl(uploaderService.tosUrl)">Terms of Service</span>.
-      <span v-if="!uploaderService.isGdprCompliant">This service is not allowed to use in Europe due GDPR issues.</span>
+      <span v-if="!uploaderService.isGdprCompliant">This service cannot be used in Europe due to GDPR issues.</span>
     </span>
   </div>
 </template>
