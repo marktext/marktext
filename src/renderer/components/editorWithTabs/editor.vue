@@ -677,11 +677,7 @@ export default {
     },
     jumpClick (linkInfo) {
       const { href } = linkInfo
-      if (href && href.startsWith('http')) {
-        shell.openExternal(href)
-      } else {
-        this.$store.dispatch('FORMAT_LINK_CLICK', { data: { href: href }, dirname: window.DIRNAME })
-      }
+      this.$store.dispatch('FORMAT_LINK_CLICK', { data: { href }, dirname: window.DIRNAME })
     },
     async imagePathAutoComplete (src) {
       const files = await this.$store.dispatch('ASK_FOR_IMAGE_AUTO_PATH', src)
