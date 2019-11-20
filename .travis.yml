@@ -39,6 +39,8 @@ addons:
     - libsecret-1-dev
     # fontmanager
     - libfontconfig-dev
+    # Build RPM on Ubuntu
+    - rpm
 
 before_install:
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get -qq update ; fi
@@ -71,10 +73,12 @@ script:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then yarn run release:mac --publish always ; fi
 
   # Calculate checksums
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sha256sum build/marktext-*-x64.tar.gz ; fi
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sha256sum build/marktext-*-x86_64.AppImage ; fi
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then shasum -a 256 build/marktext-*-mac.zip ; fi
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then shasum -a 256 build/marktext-*.dmg ; fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sha256sum build/marktext-x64.tar.gz ; fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sha256sum build/marktext-x86_64.AppImage ; fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sha256sum build/marktext-*.deb ; fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sha256sum build/marktext-*.rpm ; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then shasum -a 256 build/marktext-mac.zip ; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then shasum -a 256 build/marktext.dmg ; fi
 
 branches:
   only:

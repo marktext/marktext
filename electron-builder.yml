@@ -59,7 +59,7 @@ fileAssociations:
   role: "Editor"
   icon: "../resources/icons/md.icns"
 dmg:
-  artifactName: "marktext-${version}.${ext}"
+  artifactName: "marktext.${ext}"
   contents:
   - x: 410
     y: 150
@@ -69,11 +69,11 @@ dmg:
     y: 150
     type: "file"
 mac:
-  artifactName: "marktext-${version}-mac.${ext}"
+  artifactName: "marktext-mac.${ext}"
   icon: "resources/icons/icon.icns"
   darkModeSupport: true
 win:
-  artifactName: "marktext-${version}-${arch}-win.${ext}"
+  artifactName: "marktext-${arch}-win.${ext}"
   icon: "resources/icons/icon.ico"
   target:
   - target: "nsis"
@@ -86,13 +86,16 @@ win:
     - "x64"
   requestedExecutionLevel: "asInvoker"
 nsis:
-  artifactName: "marktext-setup-${version}.${ext}"
+  artifactName: "marktext-setup.${ext}"
   perMachine: false
   oneClick: false
   allowToChangeInstallationDirectory: true
   include: "resources/windows/installer.nsh"
 linux:
-  artifactName: "marktext-${version}-${arch}.${ext}"
+  artifactName: "marktext-${arch}.${ext}"
+  executableName: "marktext"
+  description: "A simple and elegant open-source markdown editor that focused on speed and usability."
+  maintainer: "Mark Text Contributors"
   category: "Office;TextEditor;Utility"
   mimeTypes:
   - "text/markdown"
@@ -102,7 +105,10 @@ linux:
     Keywords: "marktext;"
   target:
   - target: "AppImage"
+  - target: "deb"
+  - target: "rpm"
   - target: "tar.gz"
+  # Workaround because file association array doesn't work.
   fileAssociations:
   - ext: "md"
     name: "Markdown"
@@ -122,3 +128,26 @@ linux:
   - ext: "mdtext"
     name: "Markdown"
     description: "Markdown document"
+deb:
+  # Custom dependencies:
+  depends:
+  # keytar
+  - "libsecret-1-0"
+  # keyboard-layout
+  - "libx11-xcb1"
+  - "libxkbfile1"
+  # fontmanager
+  - "libfontconfig1"
+  fpm:
+  # Expat := MIT like
+  - "--license=Expat"
+rpm:
+  # Custom dependencies:
+  depends:
+  # keytar
+  - "libsecret"
+  # keyboard-layout
+  - "libX11-xcb"
+  - "libxkbfile"
+  # fontmanager
+  - "fontconfig"

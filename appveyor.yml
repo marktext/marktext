@@ -47,7 +47,7 @@ build_script:
   - yarn run release:win --publish always
 
   # Calculate checksums
-  - ps: get-filehash -Algorithm SHA256 "build\marktext-*.exe"
+  - ps: get-filehash -Algorithm SHA256 "build\marktext-setup.exe"
   - ps: get-filehash -Algorithm SHA256 "build\marktext-*-win.zip"
 
 test: off
