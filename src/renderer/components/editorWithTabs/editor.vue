@@ -675,11 +675,9 @@ export default {
     photoCreatorClick: (url) => {
       shell.openExternal(url)
     },
-    jumpClick: (linkInfo) => {
+    jumpClick (linkInfo) {
       const { href } = linkInfo
-      if (href && href.startsWith('http')) {
-        shell.openExternal(href)
-      }
+      this.$store.dispatch('FORMAT_LINK_CLICK', { data: { href }, dirname: window.DIRNAME })
     },
     async imagePathAutoComplete (src) {
       const files = await this.$store.dispatch('ASK_FOR_IMAGE_AUTO_PATH', src)
