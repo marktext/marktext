@@ -17,12 +17,64 @@ const INLINE_UPDATE_FRAGMENTS = [
 const INLINE_UPDATE_REG = new RegExp(INLINE_UPDATE_FRAGMENTS.join('|'), 'i')
 
 const updateCtrl = ContentState => {
-  // handle task list item checkbox click
-  ContentState.prototype.listItemCheckBoxClick = function (checkbox) {
-    const { checked, id } = checkbox
-    const block = this.getBlock(id)
+  ContentState.prototype.setCheckBoxState = function (checkbox, checked) {
+    checkbox.checked = checked
+    const block = this.getBlock(checkbox.id)
     block.checked = checked
     checkbox.classList.toggle(CLASS_OR_ID.AG_CHECKBOX_CHECKED)
+  }
+
+  ContentState.prototype.getParentCheckBox = function (checkbox) {
+    const parent = checkbox.parentElement.parentElement.parentElement
+    if (parent.id !== CLASS_OR_ID.AG_EDITOR_ID) {
+      return parent.firstElementChild
+    } else {
+      return null
+    }
+  }
+
+  ContentState.prototype.cumputeChecboxStatus = function (parentCheckbox) {
+    const children = parentCheckbox.parentElement.lastElementChild.children
+    for (let i = 0; i < children.length; i++) {
+      const checkbox = children[i].firstElementChild
+      if (checkbox.checked === false) {
+        return false
+      }
+    }
+    return true
+  }
+
+  ContentState.prototype.updateParentsCheckBoxState = function (checkbox) {
+    let parent = this.getParentCheckBox(checkbox)
+    while (parent !== null) {
+      const checked = this.cumputeChecboxStatus(parent)
+      if (parent.checked !== checked) {
+        this.setCheckBoxState(parent, checked)
+        parent = this.getParentCheckBox(parent)
+      } else {
+        break
+      }
+    }
+  }
+
+  ContentState.prototype.updateChildrenCheckBoxState = function (checkbox, checked) {
+    const checkboxes = checkbox.parentElement.getElementsByClassName(CLASS_OR_ID.AG_TASK_LIST_ITEM_CHECKBOX)
+    for (let i = 1; i < checkboxes.length; i++) {
+      const checkbox = checkboxes[i]
+      if (checkbox.checked !== checked) {
+        this.setCheckBoxState(checkbox, checked)
+      }
+    }
+  }
+
+  // handle task list item checkbox click
+  ContentState.prototype.listItemCheckBoxClick = function (checkbox) {
+    const { checked } = checkbox
+    this.setCheckBoxState(checkbox, checked)
+
+    // A task checked, then related task should be update
+    this.updateChildrenCheckBoxState(checkbox, checked)
+    this.updateParentsCheckBoxState(checkbox)
   }
 
   ContentState.prototype.checkSameMarkerOrDelimiter = function (list, markerOrDelimiter) {
