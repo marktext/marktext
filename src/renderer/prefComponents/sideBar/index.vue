@@ -1,5 +1,7 @@
 <template>
-  <div class="pref-sidebar">
+  <div class="pref-sidebar"
+    :style="[ autoSwitchTheme == 1 ? { 'background': 'transparent !important'} : {}]"
+      >
     <h3 class="title">Preferences</h3>
     <section class="search-wrapper">
       <el-autocomplete
@@ -35,6 +37,7 @@
 </template>
 <script>
 import { category, searchContent } from './config'
+import { mapState } from 'vuex'
 
 export default {
   data () {
@@ -51,6 +54,11 @@ export default {
         this.currentCategory = to.name
       }
     }
+  },
+  computed: {
+    ...mapState({
+      autoSwitchTheme: state => state.preferences.autoSwitchTheme
+    })
   },
   methods: {
     querySearch (queryString, cb) {

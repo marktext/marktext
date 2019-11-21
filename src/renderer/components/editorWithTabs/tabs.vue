@@ -1,7 +1,7 @@
 <template>
   <div
     class="editor-tabs"
-    :style="{'max-width': showSideBar ? `calc(100vw - ${sideBarWidth}px` : '100vw' }"
+    :style="{'max-width': showSideBar ? `calc(100vw - ${sideBarWidth}px` : '100vw' }, [ autoSwitchTheme == 1 ? { 'background': 'transparent !important'} : {}]"
   >
     <div
       class="scrollable-tabs"
@@ -20,6 +20,7 @@
           @click.stop="selectFile(file)"
           @click.middle="closeTab(file)"
           @contextmenu.prevent="handleContextMenu($event, file)"
+        :style=" [ autoSwitchTheme == 1 ? { 'background': 'transparent !important'} : {}]"
         >
           <span>{{ file.filename }}</span>
           <svg class="close-icon icon" aria-hidden="true"
@@ -62,6 +63,7 @@ export default {
   computed: {
     ...mapState({
       currentFile: state => state.editor.currentFile,
+      autoSwitchTheme: state => state.preferences.autoSwitchTheme,
       tabs: state => state.editor.tabs,
       showSideBar: state => state.layout.showSideBar,
       sideBarWidth: state => state.layout.sideBarWidth

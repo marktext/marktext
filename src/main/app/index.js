@@ -180,6 +180,11 @@ class App {
           nativeTheme.themeSource = isDarkMode ? 'dark' : 'light'
         }
       }
+      if (change.vibrancyType) {
+        for (const window of this._windowManager.windows.values()) {
+          window.browserWindow.setVibrancy(change.vibrancyType)
+        }
+      }
     })
 
     if (isOsx) {

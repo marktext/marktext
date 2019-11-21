@@ -1,5 +1,7 @@
 <template>
-  <div class="pref-container">
+  <div class="pref-container"
+    :style="[ autoSwitchTheme == 1 ? { 'background': 'transparent !important'} : {}]"
+    >
     <title-bar v-if="showCustomTitleBar"></title-bar>
     <side-bar></side-bar>
     <div
@@ -34,6 +36,7 @@ export default {
   computed: {
     ...mapState({
       theme: state => state.preferences.theme,
+      autoSwitchTheme: state => state.preferences.autoSwitchTheme,
       titleBarStyle: state => state.preferences.titleBarStyle
     }),
     showCustomTitleBar () {

@@ -6,6 +6,7 @@
       :modal="true"
       custom-class="ag-dialog-table"
       width="400px"
+      :style="[ autoSwitchTheme == 1 ? { 'background': 'transparent !important'} : {}]"
     >
       <img class="logo" :src="logo" />
       <el-row>
@@ -43,6 +44,7 @@ export default {
   },
   computed: {
     ...mapState({
+      autoSwitchTheme: state => state.preferences.autoSwitchTheme,
       appVersion: state => state.appVersion
     })
   },

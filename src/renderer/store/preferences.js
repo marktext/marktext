@@ -52,6 +52,7 @@ const state = {
 
   theme: 'light',
   autoSwitchTheme: 2,
+  vibrancyType: 'ultra-dark',
 
   spellcheckerEnabled: false,
   spellcheckerIsHunspell: false, // macOS/Windows 10 only

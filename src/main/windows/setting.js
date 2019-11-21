@@ -34,7 +34,7 @@ class SettingWindow extends BaseWindow {
     }
 
     // Enable native or custom/frameless window and titlebar
-    const { titleBarStyle, theme } = preferences.getAll()
+    const { titleBarStyle, vibrancyType, theme } = preferences.getAll()
     if (!isOsx) {
       winOptions.titleBarStyle = 'default'
       if (titleBarStyle === 'native') {
@@ -43,9 +43,12 @@ class SettingWindow extends BaseWindow {
     }
 
     winOptions.backgroundColor = this._getPreferredBackgroundColor(theme)
-
     let win = this.browserWindow = new BrowserWindow(winOptions)
     this.id = win.id
+    if (isOsx) {
+      win.setBackgroundColor('#00000000')
+      win.setVibrancy(vibrancyType)
+    }
 
     // Create a menu for the current window
     appMenu.addSettingMenu(win)

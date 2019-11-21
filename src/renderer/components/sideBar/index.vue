@@ -3,7 +3,7 @@
     v-show="showSideBar"
     class="side-bar"
     ref="sideBar"
-    :style="[ !rightColumn ? { 'min-width': '45px' } : {}, { 'width': `${finalSideBarWidth}px` } ]"
+    :style="[ !rightColumn ? { 'min-width': '45px' } : {}, { 'width': `${finalSideBarWidth}px` } ],[ autoSwitchTheme === 1 ? { 'background': 'transparent !important'} : {}]"
   >
     <div class="left-column">
       <ul>
@@ -76,7 +76,8 @@ export default {
       showSideBar: state => state.layout.showSideBar,
       projectTree: state => state.project.projectTree,
       sideBarWidth: state => state.layout.sideBarWidth,
-      tabs: state => state.editor.tabs
+      tabs: state => state.editor.tabs,
+      autoSwitchTheme: state => state.preferences.autoSwitchTheme
     }),
     finalSideBarWidth () {
       const { showSideBar, rightColumn, sideBarViewWidth } = this

@@ -316,6 +316,17 @@
       2
     ]
   },
+  "vibrancyType": {
+    "description": "Theme--Select the type used by vibrancy.",
+    "default": "ultra-dark",
+    "enum": [
+      "light",
+      "dark",
+      "ultra-dark",
+      "medium-light"
+    ]
+  },
+
   "spellcheckerEnabled": {
     "description": "Spelling--Whether spell checking is enabled.",
     "type": "boolean",

@@ -48,6 +48,7 @@
 
   "theme": "light",
   "autoSwitchTheme": 2,
+  "vibrancyType": "ultra-dark",
 
   "spellcheckerEnabled": false,
   "spellcheckerIsHunspell": false,

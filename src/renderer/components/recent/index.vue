@@ -1,6 +1,7 @@
 <template>
     <div
       class="recent-files-projects"
+      :style="[ autoSwitchTheme == 1 ? { 'background': 'transparent !important'} : {}]"
     >
       <div class="centered-group">
         <svg :viewBox="ContentIcon.viewBox" aria-hidden="true">
@@ -15,11 +16,17 @@
 
 <script>
 import ContentIcon from '@/assets/icons/undraw_content.svg'
+import { mapState } from 'vuex'
 
 export default {
   data () {
     this.ContentIcon = ContentIcon
     return {}
+  },
+  computed: {
+    ...mapState({
+      autoSwitchTheme: state => state.preferences.autoSwitchTheme
+    })
   },
   methods: {
     newFile () {

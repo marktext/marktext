@@ -1,5 +1,7 @@
 <template>
-  <div class="pref-theme">
+  <div class="pref-theme"
+    :style="[ autoSwitchTheme == 1 ? { 'background': 'transparent !important'} : {}]"
+  >
     <h4>Theme</h4>
     <section class="offcial-themes">
       <div v-for="t of themes" :key="t.name" class="theme"
@@ -15,6 +17,13 @@
       :value="autoSwitchTheme"
       :options="autoSwitchThemeOptions"
       :onChange="value => onSelectChange('autoSwitchTheme', value)"
+    ></cur-select>
+    <separator></separator>
+    <cur-select
+      description="Select vibrancy type."
+      :value="vibrancyType"
+      :options="vibrancyTypeOptions"
+      :onChange="value => onSelectChange('vibrancyType', value)"
     ></cur-select>
     <separator></separator>
     <section class="import-themes ag-underdevelop">
@@ -34,7 +43,7 @@
 <script>
 import { mapState } from 'vuex'
 import themeMd from './theme.md'
-import { autoSwitchThemeOptions, themes } from './config'
+import { vibrancyTypeOptions, autoSwitchThemeOptions, themes } from './config'
 import markdownToHtml from '@/util/markdownToHtml'
 import CurSelect from '../common/select'
 import Separator from '../common/separator'
@@ -46,13 +55,13 @@ export default {
   },
   data () {
     this.autoSwitchThemeOptions = autoSwitchThemeOptions
-    return {
-      themes: []
-    }
+    this.vibrancyTypeOptions = vibrancyTypeOptions
+    return {}
   },
   computed: {
     ...mapState({
       autoSwitchTheme: state => state.preferences.autoSwitchTheme,
+      vibrancyType: state => state.preferences.vibrancyType,
       theme: state => state.preferences.theme
     })
   },

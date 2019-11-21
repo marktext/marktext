@@ -1,6 +1,7 @@
 <template>
   <div
     class="editor-container"
+    :style="[ autoSwitchTheme == 1 ? { 'background': 'transparent !important'} : {}]"
   >
     <side-bar v-if="init"></side-bar>
     <div class="editor-middle">
@@ -80,6 +81,7 @@ export default {
       showTabBar: state => state.layout.showTabBar,
       sourceCode: state => state.preferences.sourceCode,
       theme: state => state.preferences.theme,
+      autoSwitchTheme: state => state.preferences.autoSwitchTheme,
       textDirection: state => state.preferences.textDirection
     }),
     ...mapState({

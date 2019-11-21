@@ -3,6 +3,7 @@
     <div
       class="title-bar-editor-bg"
       :class="{ 'tabs-visible': showTabBar }"
+      :style="[ autoSwitchTheme == 1 ? { 'background': 'transparent !important'} : {}]"
     ></div>
     <div
       class="title-bar"
@@ -153,6 +154,7 @@ export default {
   computed: {
     ...mapState({
       titleBarStyle: state => state.preferences.titleBarStyle,
+      autoSwitchTheme: state => state.preferences.autoSwitchTheme,
       showTabBar: state => state.layout.showTabBar
     }),
     paths () {
