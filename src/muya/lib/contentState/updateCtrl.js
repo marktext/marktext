@@ -2,6 +2,27 @@ import { tokenizer } from '../parser/'
 import { conflict } from '../utils'
 import { CLASS_OR_ID } from '../config'
 
+const getParentCheckBox = function (checkbox) {
+  const parent = checkbox.parentElement.parentElement.parentElement
+  if (parent.id !== CLASS_OR_ID.AG_EDITOR_ID) {
+    return parent.firstElementChild
+  } else {
+    return null
+  }
+}
+
+const cumputeChecboxStatus = function (parentCheckbox) {
+  const children = parentCheckbox.parentElement.lastElementChild.children
+  const len = children.length
+  for (let i = 0; i < len; i++) {
+    const checkbox = children[i].firstElementChild
+    if (checkbox.checked === false) {
+      return false
+    }
+  }
+  return true
+}
+
 const INLINE_UPDATE_FRAGMENTS = [
   '(?:^|\n) {0,3}([*+-] {1,4})', // Bullet list
   '(?:^|\n)(\\[[x ]{1}\\] {1,4})', // Task list
@@ -24,33 +45,13 @@ const updateCtrl = ContentState => {
     checkbox.classList.toggle(CLASS_OR_ID.AG_CHECKBOX_CHECKED)
   }
 
-  ContentState.prototype.getParentCheckBox = function (checkbox) {
-    const parent = checkbox.parentElement.parentElement.parentElement
-    if (parent.id !== CLASS_OR_ID.AG_EDITOR_ID) {
-      return parent.firstElementChild
-    } else {
-      return null
-    }
-  }
-
-  ContentState.prototype.cumputeChecboxStatus = function (parentCheckbox) {
-    const children = parentCheckbox.parentElement.lastElementChild.children
-    for (let i = 0; i < children.length; i++) {
-      const checkbox = children[i].firstElementChild
-      if (checkbox.checked === false) {
-        return false
-      }
-    }
-    return true
-  }
-
   ContentState.prototype.updateParentsCheckBoxState = function (checkbox) {
-    let parent = this.getParentCheckBox(checkbox)
+    let parent = getParentCheckBox(checkbox)
     while (parent !== null) {
-      const checked = this.cumputeChecboxStatus(parent)
+      const checked = cumputeChecboxStatus(parent)
       if (parent.checked !== checked) {
         this.setCheckBoxState(parent, checked)
-        parent = this.getParentCheckBox(parent)
+        parent = getParentCheckBox(parent)
       } else {
         break
       }
@@ -58,8 +59,9 @@ const updateCtrl = ContentState => {
   }
 
   ContentState.prototype.updateChildrenCheckBoxState = function (checkbox, checked) {
-    const checkboxes = checkbox.parentElement.getElementsByClassName(CLASS_OR_ID.AG_TASK_LIST_ITEM_CHECKBOX)
-    for (let i = 1; i < checkboxes.length; i++) {
+    const checkboxes = checkbox.parentElement.querySelectorAll(`input ~ ul .${CLASS_OR_ID.AG_TASK_LIST_ITEM_CHECKBOX}`)
+    const len = checkboxes.length
+    for (let i = 0; i < len; i++) {
       const checkbox = checkboxes[i]
       if (checkbox.checked !== checked) {
         this.setCheckBoxState(checkbox, checked)
