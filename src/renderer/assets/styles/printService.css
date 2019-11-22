@@ -1,4 +1,8 @@
-body .ag-render-container,
+body .ag-render-container {
+  left: -10000px;
+  right: -10000px;
+}
+
 body article.print-container {
   display: none;
 }
