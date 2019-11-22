@@ -1,5 +1,5 @@
 import createDOMPurify from 'dompurify'
-import { URL_REG } from '../config'
+import { URL_REG, DATA_URL_REG, IMAGE_EXT_REG } from '../config'
 
 const { sanitize: runSanitize } = createDOMPurify(window)
 
@@ -253,11 +253,7 @@ export const checkImageContentType = url => {
  * @param {string} baseUrl Base path; used on desktop to fix the relative image path.
  */
 export const getImageInfo = (src, baseUrl = window.DIRNAME) => {
-  const EXT_REG = /\.(jpeg|jpg|png|gif|svg|webp)(?=\?|$)/i
-  // data:[<MIME-type>][;charset=<encoding>][;base64],<data>
-  const DATA_URL_REG = /^data:image\/[\w+-]+(;[\w-]+=[\w-]+|;base64)*,[a-zA-Z0-9+/]+={0,2}$/
-
-  const imageExtension = EXT_REG.test(src)
+  const imageExtension = IMAGE_EXT_REG.test(src)
   const isUrl = URL_REG.test(src)
 
   // Treat an URL with valid extension as image
