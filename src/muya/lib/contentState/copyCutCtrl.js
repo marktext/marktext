@@ -81,6 +81,24 @@ const copyCutCtrl = ContentState => {
       e.remove()
     }
 
+    // Fix #1678 copy task list, and the first list item is not task list item.
+    const taskListItems = wrapper.querySelectorAll('li.ag-task-list-item')
+    for (const item of taskListItems) {
+      const firstChild = item.firstElementChild
+      if (firstChild && firstChild.nodeName !== 'INPUT') {
+        const originItem = document.querySelector(`#${item.id}`)
+        let checked = false
+        if (originItem && originItem.firstElementChild && originItem.firstElementChild.nodeName === 'INPUT') {
+          checked = originItem.firstElementChild.checked
+        }
+
+        const input = document.createElement('input')
+        input.setAttribute('type', 'checkbox')
+        input.setAttribute('checked', checked)
+        item.insertBefore(input, firstChild)
+      }
+    }
+
     const images = wrapper.querySelectorAll('span.ag-inline-image img')
     for (const image of images) {
       const src = image.getAttribute('src')
@@ -246,7 +264,6 @@ const copyCutCtrl = ContentState => {
     }
 
     const { html, text } = this.getClipBoradData()
-
     switch (type) {
       case 'normal': {
         event.clipboardData.setData('text/html', html)

@@ -16,6 +16,38 @@ export const usePluginAddRules = (turndownService, keeps) => {
     }
   })
 
+  turndownService.addRule('paragraph', {
+    filter: 'p',
+
+    replacement: function (content, node) {
+      const isTaskListItemParagraph = node.previousElementSibling && node.previousElementSibling.tagName === 'INPUT'
+
+      return isTaskListItemParagraph ? content + '\n\n' : '\n\n' + content + '\n\n'
+    }
+  })
+
+  turndownService.addRule('listItem', {
+    filter: 'li',
+
+    replacement: function (content, node, options) {
+      content = content
+        .replace(/^\n+/, '') // remove leading newlines
+        .replace(/\n+$/, '\n') // replace trailing newlines with just a single one
+        .replace(/\n/gm, '\n  ') // indent
+
+      let prefix = options.bulletListMarker + ' '
+      const parent = node.parentNode
+      if (parent.nodeName === 'OL') {
+        const start = parent.getAttribute('start')
+        const index = Array.prototype.indexOf.call(parent.children, node)
+        prefix = (start ? Number(start) + index : index + 1) + '. '
+      }
+      return (
+        prefix + content + (node.nextSibling && !/\n$/.test(content) ? '\n' : '')
+      )
+    }
+  })
+
   // Handle multiple math lines
   turndownService.addRule('multiplemath', {
     filter (node, options) {
