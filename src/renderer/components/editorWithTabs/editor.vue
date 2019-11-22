@@ -856,7 +856,7 @@ export default {
     },
 
     handleSelectAll () {
-      if (this.editor && !this.sourceCode && this.editor.hasFocus()) {
+      if (this.editor && !this.sourceCode && (this.editor.hasFocus() || this.editor.contentState.selectedTableCells)) {
         this.editor.selectAll()
       } else {
         const activeElement = document.activeElement
@@ -1102,7 +1102,7 @@ export default {
     },
 
     blurEditor () {
-      this.editor.blur()
+      this.editor.blur(false, true)
     },
 
     focusEditor () {

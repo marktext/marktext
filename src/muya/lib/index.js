@@ -268,14 +268,18 @@ class Muya {
     this.container.focus()
   }
 
-  blur (isRemoveAllRange = false) {
+  blur (isRemoveAllRange = false, unSelect = false) {
     if (isRemoveAllRange) {
       const selection = document.getSelection()
       selection.removeAllRanges()
     }
+
+    if (unSelect) {
+      this.contentState.selectedImage = null
+      this.contentState.selectedTableCells = null
+    }
+
     this.hideAllFloatTools()
-    this.contentState.selectedImage = null
-    this.contentState.selectedTableCells = null
     this.container.blur()
   }
 
@@ -335,7 +339,7 @@ class Muya {
   }
 
   selectAll () {
-    if (!this.hasFocus()) {
+    if (!this.hasFocus() && !this.contentState.selectedTableCells) {
       return
     }
     this.contentState.selectAll()

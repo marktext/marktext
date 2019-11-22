@@ -781,13 +781,16 @@ const paragraphCtrl = ContentState => {
   ContentState.prototype.selectAll = function () {
     const mayBeCell = this.isSingleCellSelected()
     const mayBeTable = this.isWholeTableSelected()
+
     if (mayBeTable) {
       this.selectedTableCells = null
       return this.selectAllContent()
     }
+
     // Select whole table if already select one cell.
     if (mayBeCell) {
       const table = this.closest(mayBeCell, 'table')
+
       if (table) {
         return this.selectTable(table)
       }
@@ -800,6 +803,7 @@ const paragraphCtrl = ContentState => {
       if (start.key === end.key) {
         const table = this.closest(startBlock, 'table')
         const cellBlock = this.closest(startBlock, /th|td/)
+
         this.selectedTableCells = {
           tableId: table.key,
           row: 1,
@@ -812,7 +816,7 @@ const paragraphCtrl = ContentState => {
             left: true
           }]
         }
-        this.muya.blur()
+
         this.singleRender(table, false)
         return this.muya.eventCenter.dispatch('muya-format-picker', { reference: null })
       } else {
