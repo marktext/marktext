@@ -80,6 +80,7 @@ const importRegister = ContentState => {
 
     const { trimUnnecessaryCodeBlockEmptyLines, footnote } = this.muya.options
     const tokens = new Lexer({ disableInline: true, footnote }).lex(markdown)
+
     let token
     let block
     let value
@@ -114,6 +115,7 @@ const importRegister = ContentState => {
           this.appendChild(parentList[0], block)
           break
         }
+
         case 'hr': {
           value = token.marker
           block = this.createBlock('hr')
@@ -125,6 +127,7 @@ const importRegister = ContentState => {
           this.appendChild(parentList[0], block)
           break
         }
+
         case 'heading': {
           const { headingStyle, depth, text, marker } = token
           value = headingStyle === 'atx' ? '#'.repeat(+depth) + ` ${text}` : text
@@ -146,12 +149,14 @@ const importRegister = ContentState => {
           this.appendChild(parentList[0], block)
           break
         }
+
         case 'multiplemath': {
           value = token.text
           block = this.createContainerBlock(token.type, value)
           this.appendChild(parentList[0], block)
           break
         }
+
         case 'code': {
           const { codeBlockStyle, text, lang: infostring = '' } = token
 
@@ -209,6 +214,7 @@ const importRegister = ContentState => {
           }
           break
         }
+
         case 'table': {
           const { header, align, cells } = token
           const table = this.createBlock('table')
@@ -270,6 +276,7 @@ const importRegister = ContentState => {
           this.appendChild(parentList[0], block)
           break
         }
+
         case 'html': {
           const text = token.text.trim()
           // TODO: Treat html block which only contains one img as paragraph, we maybe add image block in the future.
@@ -287,6 +294,7 @@ const importRegister = ContentState => {
           }
           break
         }
+
         case 'text': {
           value = token.text
           while (tokens[0].type === 'text') {
@@ -301,6 +309,7 @@ const importRegister = ContentState => {
           this.appendChild(parentList[0], block)
           break
         }
+
         case 'paragraph': {
           value = token.text
           block = this.createBlock('p')
@@ -311,16 +320,24 @@ const importRegister = ContentState => {
           this.appendChild(parentList[0], block)
           break
         }
+
         case 'blockquote_start': {
           block = this.createBlock('blockquote')
           this.appendChild(parentList[0], block)
           parentList.unshift(block)
           break
         }
+
         case 'blockquote_end': {
+          // Fix #1735 the blockquote maybe empty.
+          if (parentList[0].children.length === 0) {
+            const paragraphBlock = this.createBlockP()
+            this.appendChild(parentList[0], paragraphBlock)
+          }
           parentList.shift()
           break
         }
+
         case 'footnote_start': {
           block = this.createBlock('figure', {
             functionType: 'footnote'
@@ -334,10 +351,12 @@ const importRegister = ContentState => {
           parentList.unshift(block)
           break
         }
+
         case 'footnote_end': {
           parentList.shift()
           break
         }
+
         case 'list_start': {
           const { ordered, listType, start } = token
           block = this.createBlock(ordered === true ? 'ol' : 'ul')
@@ -349,10 +368,12 @@ const importRegister = ContentState => {
           parentList.unshift(block)
           break
         }
+
         case 'list_end': {
           parentList.shift()
           break
         }
+
         case 'loose_item_start':
         case 'list_item_start': {
           const { listItemType, bulletMarkerOrDelimiter, checked, type } = token
@@ -373,13 +394,16 @@ const importRegister = ContentState => {
           parentList.unshift(block)
           break
         }
+
         case 'list_item_end': {
           parentList.shift()
           break
         }
+
         case 'space': {
           break
         }
+
         default:
           console.warn(`Unknown type ${token.type}`)
           break
