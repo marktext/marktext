@@ -14,4 +14,4 @@
 
 --
 
-#### Please, don't submit `/dist` files with your PR!
+#### Please don't submit `/dist` files with your PR!
