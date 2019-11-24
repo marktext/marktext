@@ -496,11 +496,6 @@ li.ag-task-list-item > input.ag-checkbox-checked ~ * {
   color: var(--editorColor50);
 }
 
-li.ag-task-list-item > input.ag-checkbox-checked ~ p {
-  text-decoration: line-through;
-  color: var(--editorColor50);
-}
-
 li.ag-task-list-item > input[type=checkbox]::before {
   content: '';
   width: 18px;
