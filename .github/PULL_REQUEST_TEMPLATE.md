@@ -5,7 +5,7 @@
 | BC breaks?       | yes/no
 | Deprecations?    | yes/no
 | New tests added? | yes/not needed
-| Fixed tickets    | comma-separated list of tickets fixed by the PR, if any
+| Fixed tickets    | Fixes #ticket number (set to none if no tickets are fixed, repeat template for each ticket fixed)
 | License          | MIT
 
 ### Description
@@ -14,4 +14,4 @@
 
 --
 
-#### Please, don't submit `/dist` files with your PR!
+#### Please don't submit `/dist` files with your PR!
