@@ -94,7 +94,10 @@ const copyCutCtrl = ContentState => {
 
         const input = document.createElement('input')
         input.setAttribute('type', 'checkbox')
-        input.setAttribute('checked', checked)
+        if (checked) {
+          input.setAttribute('checked', true)
+        }
+
         item.insertBefore(input, firstChild)
       }
     }
