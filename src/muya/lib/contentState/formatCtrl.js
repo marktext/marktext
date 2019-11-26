@@ -88,7 +88,7 @@ const clearFormat = (token, { start, end }) => {
 const addFormat = (type, block, { start, end }) => {
   if (
     block.type !== 'span' ||
-    (block.type === 'span' && !/paragraphContent|cellConntent|atxLine/.test(block.functionType))
+    (block.type === 'span' && !/paragraphContent|cellContent|atxLine/.test(block.functionType))
   ) {
     return false
   }
@@ -235,6 +235,7 @@ const formatCtrl = ContentState => {
     if (!start || !end) {
       return
     }
+
     const startBlock = this.getBlock(start.key)
     const endBlock = this.getBlock(end.key)
     start.delata = end.delata = 0
