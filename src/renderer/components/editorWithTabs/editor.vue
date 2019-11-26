@@ -239,7 +239,7 @@ export default {
     sequenceTheme: function (value, oldValue) {
       const { editor } = this
       if (value !== oldValue && editor) {
-        editor.setOptions({ sequenceTheme: value })
+        editor.setOptions({ sequenceTheme: value }, true)
       }
     },
     listIndentation: function (value, oldValue) {

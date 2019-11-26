@@ -74,9 +74,9 @@ export const frontmatterTypeOptions = [{
 }]
 
 export const sequenceThemeOptions = [{
-  label: 'hand',
+  label: 'Hand drawn',
   value: 'hand'
 }, {
-  label: 'simple',
+  label: 'Simple',
   value: 'simple'
 }]

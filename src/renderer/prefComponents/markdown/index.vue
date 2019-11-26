@@ -61,7 +61,7 @@
       more="https://pandoc.org/MANUAL.html#footnotes"
     ></bool>
     <separator></separator>
-    <h5>Style</h5>
+    <h5>Diagram theme</h5>
     <cus-select
       description="Sequence diagram theme"
       :value="sequenceTheme"
