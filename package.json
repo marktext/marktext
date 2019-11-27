@@ -153,6 +153,7 @@
     "postcss-preset-env": "^6.6.0",
     "raw-loader": "^3.1.0",
     "require-dir": "^1.2.0",
+    "prettier": "^1.18.2",
     "spectron": "^9.0.0",
     "style-loader": "^1.0.0",
     "svg-sprite-loader": "^4.1.6",
