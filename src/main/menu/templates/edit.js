@@ -90,7 +90,7 @@ export default function (keybindings, userPreference) {
       label: 'Find Next',
       accelerator: keybindings.getAccelerator('edit.find-next'),
       click (menuItem, browserWindow) {
-        actions.edit(browserWindow, 'fineNext')
+        actions.edit(browserWindow, 'findNext')
       }
     }, {
       label: 'Find Previous',

@@ -57,26 +57,26 @@ Here is an example:
 
 **Edit menu:**
 
-| Id                       | Default                                            | Description                                     |
-|:------------------------ | -------------------------------------------------- | ----------------------------------------------- |
-| `edit.undo`              | <kbd>CmdOrCtrl</kbd>+<kbd>Z</kbd>                  | Undo last operation                             |
-| `edit.redo`              | <kbd>CmdOrCtrl</kbd>+<kbd>Shift</kbd>+<kbd>Z</kbd> | Redo last operation                             |
-| `edit.cut`               | <kbd>CmdOrCtrl</kbd>+<kbd>X</kbd>                  | Cut selected text                               |
-| `edit.copy`              | <kbd>CmdOrCtrl</kbd>+<kbd>C</kbd>                  | Copy selected text                              |
-| `edit.paste`             | <kbd>CmdOrCtrl</kbd>+<kbd>V</kbd>                  | Paste text                                      |
-| `edit.copy-as-markdown`  | <kbd>CmdOrCtrl</kbd>+<kbd>Shift</kbd>+<kbd>C</kbd> | Copy selected text as markdown                  |
-| `edit.copy-as-plaintext` | <kbd>CmdOrCtrl</kbd>+<kbd>Shift</kbd>+<kbd>V</kbd> | Copy selected text as plaintext                 |
-| `edit.select-all`        | <kbd>CmdOrCtrl</kbd>+<kbd>A</kbd>                  | Select all text of the document                 |
-| `edit.duplicate`         | <kbd>CmdOrCtrl</kbd>+<kbd>Alt</kbd>+<kbd>P</kbd>   | Duplicate the current paragraph                 |
-| `edit.create-paragraph`  | <kbd>CmdOrCtrl</kbd>+<kbd>Shift</kbd>+<kbd>N</kbd> | Create a new paragraph after the current one    |
-| `edit.delete-paragraph`  | <kbd>CmdOrCtrl</kbd>+<kbd>Shift</kbd>+<kbd>D</kbd> | Delete current paragraph                        |
-| `edit.find`              | <kbd>CmdOrCtrl</kbd>+<kbd>F</kbd>                  | Find information in the document                |
-| `edit.find-next`         | <kbd>CmdOrCtrl</kbd>+<kbd>Alt</kbd>+<kbd>U</kbd>   | Continue the search and find the next match     |
-| `edit.find-previous`     | <kbd>CmdOrCtrl</kbd>+<kbd>Shift</kbd>+<kbd>U</kbd> | Continue the search and find the previous match |
-| `edit.replace`           | <kbd>CmdOrCtrl</kbd>+<kbd>Alt</kbd>+<kbd>F</kbd>   | Replace the information with a replacement      |
-| `edit.find-in-folder`    | <kbd>CmdOrCtrl</kbd>+<kbd>Shift</kbd>+<kbd>F</kbd> | Find files contain the keyword in opend folder  |
-| `edit.aidou`             | <kbd>CmdOrCtrl</kbd>+<kbd>/</kbd>                  | Show Aidou dialog                               |
-| `edit.screenshot`        | <kbd>Command</kbd>+<kbd>Alt</kbd>+<kbd>A</kbd>     | Get the screenshot (macOS only)                 |
+| Id                       | Default                                            | Description                                                                                                |
+|:------------------------ | -------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| `edit.undo`              | <kbd>CmdOrCtrl</kbd>+<kbd>Z</kbd>                  | Undo last operation                                                                                        |
+| `edit.redo`              | <kbd>CmdOrCtrl</kbd>+<kbd>Shift</kbd>+<kbd>Z</kbd> | Redo last operation                                                                                        |
+| `edit.cut`               | <kbd>CmdOrCtrl</kbd>+<kbd>X</kbd>                  | Cut selected text                                                                                          |
+| `edit.copy`              | <kbd>CmdOrCtrl</kbd>+<kbd>C</kbd>                  | Copy selected text                                                                                         |
+| `edit.paste`             | <kbd>CmdOrCtrl</kbd>+<kbd>V</kbd>                  | Paste text                                                                                                 |
+| `edit.copy-as-markdown`  | <kbd>CmdOrCtrl</kbd>+<kbd>Shift</kbd>+<kbd>C</kbd> | Copy selected text as markdown                                                                             |
+| `edit.copy-as-plaintext` | <kbd>CmdOrCtrl</kbd>+<kbd>Shift</kbd>+<kbd>V</kbd> | Copy selected text as plaintext                                                                            |
+| `edit.select-all`        | <kbd>CmdOrCtrl</kbd>+<kbd>A</kbd>                  | Select all text of the document                                                                            |
+| `edit.duplicate`         | <kbd>CmdOrCtrl</kbd>+<kbd>Alt</kbd>+<kbd>P</kbd>   | Duplicate the current paragraph                                                                            |
+| `edit.create-paragraph`  | <kbd>CmdOrCtrl</kbd>+<kbd>Shift</kbd>+<kbd>N</kbd> | Create a new paragraph after the current one                                                               |
+| `edit.delete-paragraph`  | <kbd>CmdOrCtrl</kbd>+<kbd>Shift</kbd>+<kbd>D</kbd> | Delete current paragraph                                                                                   |
+| `edit.find`              | <kbd>CmdOrCtrl</kbd>+<kbd>F</kbd>                  | Find information in the document                                                                           |
+| `edit.find-next`         | <kbd>F3</kbd>                                      | Continue the search and find the next match (or <kbd>Cmd</kbd>+<kbd>G</kbd> on macOS)                      |
+| `edit.find-previous`     | <kbd>Shift</kbd>+<kbd>F3</kbd>                     | Continue the search and find the previous match (or <kbd>Shift</kbd>+<kbd>Cmd</kbd>+<kbd>G</kbd> on macOS) |
+| `edit.replace`           | <kbd>CmdOrCtrl</kbd>+<kbd>Alt</kbd>+<kbd>F</kbd>   | Replace the information with a replacement                                                                 |
+| `edit.find-in-folder`    | <kbd>CmdOrCtrl</kbd>+<kbd>Shift</kbd>+<kbd>F</kbd> | Find files contain the keyword in opend folder                                                             |
+| `edit.aidou`             | <kbd>CmdOrCtrl</kbd>+<kbd>/</kbd>                  | Show Aidou dialog                                                                                          |
+| `edit.screenshot`        | <kbd>Command</kbd>+<kbd>Alt</kbd>+<kbd>A</kbd>     | Get the screenshot (macOS only)                                                                            |
 
 **Paragraph menu:**
 

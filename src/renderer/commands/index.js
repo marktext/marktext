@@ -194,7 +194,7 @@ const commands = [
   //   description: 'Edit: Find Next',
   //   execute: async () => {
   //     await delay(150)
-  //     bus.$emit('fineNext', 'fineNext')
+  //     bus.$emit('findNext', 'findNext')
   //   }
   // }, {
   //   id: 'edit.find-previous',
