@@ -92,8 +92,7 @@ pre.ag-paragraph {
 .token.entity,
 .token.url,
 .language-css .token.string,
-.style .token.string,
-.token.variable {
+.style .token.string {
   color: #f8f8f2;
 }
 
@@ -109,7 +108,8 @@ pre.ag-paragraph {
 }
  
 .token.regex,
-.token.important {
+.token.important,
+.token.variable {
   color: #fd971f;
 }
  
