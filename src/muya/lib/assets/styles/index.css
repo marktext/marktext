@@ -35,7 +35,7 @@ mark {
   line-height: 1.2;
 }
 
-mark::before, 
+mark::before,
 mark::after {
   clip-path: inset(100%);
   clip: rect(1px, 1px, 1px, 1px);
@@ -267,6 +267,7 @@ span.ag-math {
   position: absolute;
   top: 100%;
   left: 0;
+  user-select: none;
   z-index: 1;
 }
 
