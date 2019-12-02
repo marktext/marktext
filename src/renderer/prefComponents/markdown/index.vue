@@ -60,6 +60,15 @@
       :onChange="value => onSelectChange('footnote', value)"
       more="https://pandoc.org/MANUAL.html#footnotes"
     ></bool>
+    <separator></separator>
+    <h5>Diagram theme</h5>
+    <cus-select
+      description="Sequence diagram theme"
+      :value="sequenceTheme"
+      :options="sequenceThemeOptions"
+      :onChange="value => onSelectChange('sequenceTheme', value)"
+      more="https://bramp.github.io/js-sequence-diagrams/"
+    ></cus-select>
   </div>
 </template>
 
@@ -74,7 +83,8 @@ import {
   preferHeadingStyleOptions,
   tabSizeOptions,
   listIndentationOptions,
-  frontmatterTypeOptions
+  frontmatterTypeOptions,
+  sequenceThemeOptions
 } from './config'
 
 export default {
@@ -90,6 +100,7 @@ export default {
     this.tabSizeOptions = tabSizeOptions
     this.listIndentationOptions = listIndentationOptions
     this.frontmatterTypeOptions = frontmatterTypeOptions
+    this.sequenceThemeOptions = sequenceThemeOptions
     return {}
   },
   computed: {
@@ -102,7 +113,8 @@ export default {
       listIndentation: state => state.preferences.listIndentation,
       frontmatterType: state => state.preferences.frontmatterType,
       superSubScript: state => state.preferences.superSubScript,
-      footnote: state => state.preferences.footnote
+      footnote: state => state.preferences.footnote,
+      sequenceTheme: state => state.preferences.sequenceTheme
     })
   },
   methods: {

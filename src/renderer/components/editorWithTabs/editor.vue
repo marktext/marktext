@@ -151,6 +151,7 @@ export default {
       imageInsertAction: state => state.preferences.imageInsertAction,
       imageFolderPath: state => state.preferences.imageFolderPath,
       theme: state => state.preferences.theme,
+      sequenceTheme: state => state.preferences.sequenceTheme,
       hideScrollbar: state => state.preferences.hideScrollbar,
       spellcheckerEnabled: state => state.preferences.spellcheckerEnabled,
       spellcheckerIsHunspell: state => state.preferences.spellcheckerIsHunspell,
@@ -233,6 +234,12 @@ export default {
             vegaTheme: 'latimes'
           }, true)
         }
+      }
+    },
+    sequenceTheme: function (value, oldValue) {
+      const { editor } = this
+      if (value !== oldValue && editor) {
+        editor.setOptions({ sequenceTheme: value }, true)
       }
     },
     listIndentation: function (value, oldValue) {
@@ -468,6 +475,7 @@ export default {
         hideQuickInsertHint,
         editorLineWidth,
         theme,
+        sequenceTheme,
         spellcheckerEnabled,
         hideLinkPopup
       } = this
@@ -512,6 +520,7 @@ export default {
         footnote,
         hideQuickInsertHint,
         hideLinkPopup,
+        sequenceTheme,
         spellcheckEnabled: spellcheckerEnabled,
         imageAction: this.imageAction.bind(this),
         imagePathPicker: this.imagePathPicker.bind(this),

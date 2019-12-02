@@ -71,7 +71,7 @@ class ExportHtml {
       preParent.replaceWith(diagramContainer)
       const options = {}
       if (functionType === 'sequence') {
-        Object.assign(options, { theme: 'hand' })
+        Object.assign(options, { theme: this.muya.options.sequenceTheme })
       } else if (functionType === 'vega-lite') {
         Object.assign(options, {
           actions: false,

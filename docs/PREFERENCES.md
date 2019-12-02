@@ -52,6 +52,7 @@ Preferences can be controlled and modified in the settings window or via the `pr
 | frontmatterType     | String  | `-`     | The frontmatter type: `-` (YAML), `+` (TOML), `;` (JSON) or `{` (JSON)                                                               |
 | superSubScript      | Boolean | `false` | Enable pandoc's markdown extension superscript and subscript.                                                                        |
 | footnote            | Boolean | `false` | Enable pandoc's footnote markdown extension                                                                                          |
+| sequenceTheme       | String  | `hand`  | Change the theme of [js-sequence-diagrams](https://bramp.github.io/js-sequence-diagrams/)                                                                                         |
 
 #### Theme
 
