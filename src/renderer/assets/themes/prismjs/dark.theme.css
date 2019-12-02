@@ -93,7 +93,7 @@ pre.ag-paragraph {
 .token.url,
 .language-css .token.string,
 .style .token.string {
-  color: #f8f8f2;
+  color: #e67e65;
 }
 
 .token.atrule,
