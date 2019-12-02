@@ -1,8 +1,6 @@
-import createDOMPurify from 'dompurify'
 import { CLASS_OR_ID, BLOCK_TYPE6 } from '../../../config'
 import { snakeToCamel } from '../../../utils'
-
-const { sanitize } = createDOMPurify(window)
+import sanitize from '../../../utils/dompurify'
 
 export default function htmlTag (h, cursor, block, token, outerClass) {
   const { tag, openTag, closeTag, children, attrs } = token

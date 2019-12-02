@@ -1,7 +1,5 @@
-import createDOMPurify from 'dompurify'
+import runSanitize from './dompurify'
 import { URL_REG, DATA_URL_REG, IMAGE_EXT_REG } from '../config'
-
-const { sanitize: runSanitize } = createDOMPurify(window)
 
 const ID_PREFIX = 'ag-'
 let id = 0
