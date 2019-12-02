@@ -28,6 +28,9 @@ const BACK_HASH = {
   '~': '~'
 }
 
+// TODO: refactor later.
+let renderCodeBlockTimer = null
+
 const inputCtrl = ContentState => {
   // Input @ to quick insert paragraph
   ContentState.prototype.checkQuickInsert = function (block) {
@@ -286,13 +289,26 @@ const inputCtrl = ContentState => {
 
     this.muya.eventCenter.dispatch('muya-quick-insert', reference, block, !!checkQuickInsert)
 
+    this.cursor = { start, end }
+
+    // Throttle render if edit in code block.
     if (block && block.type === 'span' && block.functionType === 'codeContent') {
-      needRender = true
+      if (renderCodeBlockTimer) {
+        clearTimeout(renderCodeBlockTimer)
+      }
+
+      renderCodeBlockTimer = setTimeout(() => {
+        this.singleRender(block)
+      }, 300)
+      return
     }
 
-    this.cursor = { start, end }
     const checkMarkedUpdate = /atxLine|paragraphContent|cellContent/.test(block.functionType) ? this.checkNeedRender() : false
-    const inlineUpdatedBlock = this.isCollapse() && this.checkInlineUpdate(block)
+    let inlineUpdatedBlock = null
+    if (/atxLine|paragraphContent|cellContent/.test(block.functionType)) {
+      inlineUpdatedBlock = this.isCollapse() && this.checkInlineUpdate(block)
+    }
+
     // just for fix #707,need render All if in combines pre list and next list into one list.
     if (inlineUpdatedBlock) {
       const liBlock = this.getParent(inlineUpdatedBlock)
@@ -300,6 +316,7 @@ const inputCtrl = ContentState => {
         needRenderAll = true
       }
     }
+
     if (checkMarkedUpdate || inlineUpdatedBlock || needRender) {
       return needRenderAll ? this.render() : this.partialRender()
     }
