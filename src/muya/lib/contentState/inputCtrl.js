@@ -296,10 +296,13 @@ const inputCtrl = ContentState => {
       if (renderCodeBlockTimer) {
         clearTimeout(renderCodeBlockTimer)
       }
-
-      renderCodeBlockTimer = setTimeout(() => {
+      if (needRender) {
         this.singleRender(block)
-      }, 300)
+      } else {
+        renderCodeBlockTimer = setTimeout(() => {
+          this.singleRender(block)
+        }, 300)
+      }
       return
     }
 
