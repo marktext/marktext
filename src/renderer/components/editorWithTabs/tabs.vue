@@ -223,7 +223,22 @@ export default {
   .scrollable-tabs {
     flex: 0 1 auto;
     height: 35px;
+    max-width: calc(100vw - 20px);
     overflow: hidden;
+  }
+  .scrollable-tabs:hover{
+    overflow-x: scroll;
+  }
+  .scrollable-tabs::-webkit-scrollbar {
+      height: 4px;
+      background-color: transparent;
+  }
+  .scrollable-tabs::-webkit-scrollbar-thumb {
+      border-radius: 4px;
+      background: var(--editorColor50);
+  }
+  .scrollable-tabs::-webkit-scrollbar-track {
+      background: transparent;
   }
   .tabs-container {
     min-width: min-content;
