@@ -70,6 +70,10 @@ export default {
   methods: {
     newFile () {
       this.$store.dispatch('NEW_UNTITLED_TAB', {})
+      this.$nextTick(() => {
+        const tabs = this.$refs.tabContainer
+        tabs.scrollLeft = tabs.scrollWidth
+      })
     },
     handleTabScroll (event) {
       // Use mouse wheel value first but prioritize X value more (e.g. touchpad input).
