@@ -28,6 +28,9 @@ const BACK_HASH = {
   '~': '~'
 }
 
+// TODO: refactor later.
+let renderCodeBlockTimer = null
+
 const inputCtrl = ContentState => {
   // Input @ to quick insert paragraph
   ContentState.prototype.checkQuickInsert = function (block) {
@@ -36,7 +39,11 @@ const inputCtrl = ContentState => {
     return /^@\S*$/.test(text)
   }
 
-  ContentState.prototype.checkCursorInTokenType = function (text, offset, type) {
+  ContentState.prototype.checkCursorInTokenType = function (functionType, text, offset, type) {
+    if (!/atxLine|paragraphContent|cellContent/.test(functionType)) {
+      return false
+    }
+
     const tokens = tokenizer(text, {
       hasBeginRules: false,
       options: this.muya.options
@@ -44,7 +51,11 @@ const inputCtrl = ContentState => {
     return tokens.filter(t => t.type === type).some(t => offset >= t.range.start && offset <= t.range.end)
   }
 
-  ContentState.prototype.checkNotSameToken = function (oldText, text) {
+  ContentState.prototype.checkNotSameToken = function (functionType, oldText, text) {
+    if (!/atxLine|paragraphContent|cellContent/.test(functionType)) {
+      return false
+    }
+
     const oldTokens = tokenizer(oldText, {
       options: this.muya.options
     })
@@ -194,8 +205,8 @@ const inputCtrl = ContentState => {
         } else {
           /* eslint-disable no-useless-escape */
           // Not Unicode aware, since things like \p{Alphabetic} or \p{L} are not supported yet
-          const isInInlineMath = this.checkCursorInTokenType(text, offset, 'inline_math')
-          const isInInlineCode = this.checkCursorInTokenType(text, offset, 'inline_code')
+          const isInInlineMath = this.checkCursorInTokenType(block.functionType, text, offset, 'inline_math')
+          const isInInlineCode = this.checkCursorInTokenType(block.functionType, text, offset, 'inline_code')
           if (
             !/\\/.test(preInputChar) &&
             ((autoPairQuote && /[']{1}/.test(inputChar) && !(/[a-zA-Z\d]{1}/.test(preInputChar))) ||
@@ -222,7 +233,7 @@ const inputCtrl = ContentState => {
         }
       }
 
-      if (this.checkNotSameToken(block.text, text)) {
+      if (this.checkNotSameToken(block.functionType, block.text, text)) {
         needRender = true
       }
       // Just work for `Shift + Enter` to create a soft and hard line break.
@@ -278,13 +289,29 @@ const inputCtrl = ContentState => {
 
     this.muya.eventCenter.dispatch('muya-quick-insert', reference, block, !!checkQuickInsert)
 
+    this.cursor = { start, end }
+
+    // Throttle render if edit in code block.
     if (block && block.type === 'span' && block.functionType === 'codeContent') {
-      needRender = true
+      if (renderCodeBlockTimer) {
+        clearTimeout(renderCodeBlockTimer)
+      }
+      if (needRender) {
+        this.singleRender(block)
+      } else {
+        renderCodeBlockTimer = setTimeout(() => {
+          this.singleRender(block)
+        }, 300)
+      }
+      return
     }
 
-    this.cursor = { start, end }
-    const checkMarkedUpdate = this.checkNeedRender()
-    const inlineUpdatedBlock = this.isCollapse() && this.checkInlineUpdate(block)
+    const checkMarkedUpdate = /atxLine|paragraphContent|cellContent/.test(block.functionType) ? this.checkNeedRender() : false
+    let inlineUpdatedBlock = null
+    if (/atxLine|paragraphContent|cellContent/.test(block.functionType)) {
+      inlineUpdatedBlock = this.isCollapse() && this.checkInlineUpdate(block)
+    }
+
     // just for fix #707,need render All if in combines pre list and next list into one list.
     if (inlineUpdatedBlock) {
       const liBlock = this.getParent(inlineUpdatedBlock)
@@ -292,6 +319,7 @@ const inputCtrl = ContentState => {
         needRenderAll = true
       }
     }
+
     if (checkMarkedUpdate || inlineUpdatedBlock || needRender) {
       return needRenderAll ? this.render() : this.partialRender()
     }
