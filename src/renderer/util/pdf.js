@@ -1,12 +1,10 @@
 import fs from 'fs-extra'
 import path from 'path'
-import createDOMPurify from 'dompurify'
+import sanitize from 'muya/lib/utils/dompurify'
 import { isFile } from 'common/filesystem'
 import { escapeHtml, unescapeHtml } from 'muya/lib/utils'
 import academicTheme from '@/assets/themes/export/academic.theme.css'
 import liberTheme from '@/assets/themes/export/liber.theme.css'
-
-const { sanitize } = createDOMPurify(window)
 
 export const getCssForOptions = options => {
   const {
