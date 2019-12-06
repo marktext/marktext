@@ -7,7 +7,7 @@
       custom-class="ag-dialog-table"
       width="400px"
     >
-      <img class="logo" src="../../assets/images/logo.png" />
+      <img class="logo" :src="logo" />
       <el-row>
         <el-col :span="24">
           <h3 class="title">{{ name }}</h3>
@@ -29,12 +29,14 @@
 <script>
 import { mapState } from 'vuex'
 import bus from '../../bus'
+import MarkTextLogo from '../../assets/images/logo.png'
 
 export default {
   data () {
     this.name = 'Mark Text'
     this.copyright = `Copyright © 2017-${new Date().getFullYear()} Luo Ran`
     this.copyrightContributors = `Copyright © 2018-${new Date().getFullYear()} Mark Text Contributors`
+    this.logo = MarkTextLogo
     return {
       showAboutDialog: false
     }
