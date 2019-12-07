@@ -223,6 +223,9 @@ if (proMode) {
   rendererConfig.devtool = '#nosources-source-map'
   rendererConfig.mode = 'production'
   rendererConfig.plugins.push(
+    new webpack.DefinePlugin({
+      'process.env.UNSPLASH_ACCESS_KEY': JSON.stringify(process.env.UNSPLASH_ACCESS_KEY)
+    }),
     new MiniCssExtractPlugin({
       // Options similar to the same options in webpackOptions.output
       // both options are optional
