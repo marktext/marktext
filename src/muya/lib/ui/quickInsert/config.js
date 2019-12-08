@@ -23,6 +23,7 @@ import { isOsx } from '../../config'
 
 const COMMAND_KEY = isOsx ? '⌘' : 'Ctrl'
 const OPTION_KEY = isOsx ? '⌥' : 'Alt'
+const SHIFT_KEY = isOsx ? '⇧' : 'Shift'
 
 // Command (or Cmd) ⌘
 // Shift ⇧
@@ -92,10 +93,10 @@ export const quickInsertObj = {
     title: 'Table Block',
     subTitle: '|Lorem | Ipsum is simply |',
     label: 'table',
-    shortCut: `${COMMAND_KEY}+T`,
+    shortCut: `${SHIFT_KEY}+${COMMAND_KEY}+T`,
     icon: newTableIcon
   }, {
-    title: 'Math Formula',
+    title: 'Display Math',
     subTitle: '$$ Lorem Ipsum is simply $$',
     label: 'mathblock',
     shortCut: `${OPTION_KEY}+${COMMAND_KEY}+M`,
