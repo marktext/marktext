@@ -96,7 +96,7 @@ export const quickInsertObj = {
     shortCut: `${SHIFT_KEY}+${COMMAND_KEY}+T`,
     icon: newTableIcon
   }, {
-    title: 'Math',
+    title: 'Display Math',
     subTitle: '$$ Lorem Ipsum is simply $$',
     label: 'mathblock',
     shortCut: `${OPTION_KEY}+${COMMAND_KEY}+M`,
