@@ -78,6 +78,7 @@ const clickCtrl = ContentState => {
     // format-click
     const node = selection.getSelectionStart()
     const inlineNode = node ? node.closest('.ag-inline-rule') : null
+    const parentNode = inlineNode ? inlineNode.parentNode : null
     if (inlineNode) {
       let formatType = null
       let data = null
@@ -101,13 +102,29 @@ const clickCtrl = ContentState => {
           break
         }
         case 'STRONG': {
-          formatType = 'strong'
-          data = inlineNode.textContent
+          if (parentNode.tagName === 'A') {
+            formatType = 'link' // auto link or []() link
+            data = {
+              text: inlineNode.textContent,
+              href: parentNode.getAttribute('href')
+            }
+          } else {
+            formatType = 'strong'
+            data = inlineNode.textContent
+          }
           break
         }
         case 'EM': {
-          formatType = 'em'
-          data = inlineNode.textContent
+          if (parentNode.tagName === 'A') {
+            formatType = 'link' // auto link or []() link
+            data = {
+              text: inlineNode.textContent,
+              href: parentNode.getAttribute('href')
+            }
+          } else {
+            formatType = 'em'
+            data = inlineNode.textContent
+          }
           break
         }
         case 'DEL': {
