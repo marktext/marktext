@@ -74,6 +74,9 @@
   <a href="docs/i18n/zh_cn.md#readme">
     <span>:cn:</span>
   </a>
+  <a href="docs/i18n/zh_tw.md#readme">
+    <span>:cn:</span>
+  </a>
   <a href="docs/i18n/pl.md#readme">
     <span>:poland:</span>
   </a>
