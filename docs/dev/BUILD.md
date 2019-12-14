@@ -13,7 +13,7 @@ Before you can get started developing, you need set up your build environment:
 - Node.js `>=v12.0.0` and yarn
 - Python `v2.7.x` for node-gyp
 - C++ compiler and development tools
-- Build is supported on Linux, macOS and Windows 10 
+- Build is supported on Linux, macOS and Windows
 
 **Additional development dependencies on Linux:**
 
@@ -25,6 +25,11 @@ Before you can get started developing, you need set up your build environment:
 On Debian-based Linux: `sudo apt-get install libx11-dev libxkbfile-dev libsecret-1-dev libfontconfig-dev`
 
 On Red Hat-based Linux: `sudo dnf install libx11-devel libxkbfile-devel libsecret-devel fontconfig-devel`
+
+**Additional development dependencies on Windows:**
+
+- Windows 10 SDK (not needed on Windows 10)
+- Visual Studio 2017 (prefered)
 
 ### Let's build
 
