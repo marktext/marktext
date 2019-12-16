@@ -35,6 +35,14 @@ const services = {
 
     // Currently a non-persistent value
     agreedToLegalNotices: false
+  },
+
+  alioss: {
+    name: 'alioss',
+    isGdprCompliant: true,
+    privacyUrl: '',
+    tosUrl: '',
+    agreedToLegalNotices: true
   }
 }
 

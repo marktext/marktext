@@ -87,6 +87,12 @@ const state = {
       owner: '',
       repo: '',
       branch: ''
+    },
+    alioss: {
+      accessKey: '',
+      accessSecret: '',
+      region: '',
+      bucket: ''
     }
   }
 }

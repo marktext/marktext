@@ -53,6 +53,30 @@
             <el-button size="mini" :disabled="githubDisable" @click="setCurrentUploader('github')">Set as default</el-button>
           </div>
         </el-tab-pane>
+        <el-tab-pane label="ALI OSS" name="alioss">
+          <div class="form-group">
+            <div class="label">
+              AccessKey:
+            </div>
+            <el-input v-model="alioss.accessKey" placeholder="Input token" size="mini"></el-input>
+          </div>
+          <div class="form-group">
+            <div class="label">AccessSecret:</div>
+            <el-input v-model="alioss.accessSecret" placeholder="owner" size="mini"></el-input>
+          </div>
+          <div class="form-group">
+            <div class="label">region:</div>
+            <el-input v-model="alioss.region" placeholder="repo" size="mini"></el-input>
+          </div>
+          <div class="form-group">
+            <div class="label">bucket:</div>
+            <el-input v-model="alioss.bucket" placeholder="branch" size="mini"></el-input>
+          </div>
+          <div class="form-group">
+            <el-button size="mini" @click="save('alioss')">Save</el-button>
+            <el-button size="mini" @click="setCurrentUploader('alioss')">Set as default</el-button>
+          </div>
+        </el-tab-pane>
       </el-tabs>
     </section>
   </div>
@@ -75,6 +99,12 @@ export default {
         owner: '',
         repo: '',
         branch: ''
+      },
+      alioss: {
+        accessKey: '',
+        accessSecret: '',
+        region: '',
+        bucket: ''
       },
       uploadServices: services,
       legalNoticesErrorStates: {
@@ -105,14 +135,18 @@ export default {
   },
   watch: {
     imageBed: function (value, oldValue) {
+      console.log('imageBed', value, oldValue)
       if (value !== oldValue) {
         this.github = value.github
+        this.alioss = value.alioss
       }
     }
   },
   created () {
     this.$nextTick(() => {
+      console.log(this.imageBed)
       this.github = this.imageBed.github
+      this.alioss = this.imageBed.alioss
       this.githubToken = this.prefGithubToken
 
       if (services.hasOwnProperty(this.currentUploader)) {
@@ -162,7 +196,7 @@ export default {
         return
       }
       // Save the setting before set it as default uploader.
-      if (value === 'github') {
+      if (value === 'github' || value === 'alioss') {
         this.save(value, false)
       }
       this.legalNoticesErrorStates[value] = false

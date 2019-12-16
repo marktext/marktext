@@ -3,6 +3,7 @@ import { clipboard } from 'electron'
 import fse from 'fs-extra'
 import dayjs from 'dayjs'
 import Octokit from '@octokit/rest'
+import OSS from 'ali-oss/dist/aliyun-oss-sdk.js'
 import { isImageFile } from 'common/filesystem/paths'
 import { dataURItoBlob, getContentHash } from './index'
 import axios from '../axios'
@@ -66,6 +67,7 @@ export const moveImageToFolder = async (pathname, image, dir) => {
 export const uploadImage = async (pathname, image, preferences) => {
   const { currentUploader } = preferences
   const { owner, repo, branch } = preferences.imageBed.github
+  const { accessKey, accessSecret, region, bucket } = preferences.imageBed.alioss
   const token = preferences.githubToken
   const isPath = typeof image === 'string'
   const MAX_SIZE = 5 * 1024 * 1024
@@ -105,7 +107,6 @@ export const uploadImage = async (pathname, image, preferences) => {
   const uploadByGithub = (content, filename) => {
     const octokit = new Octokit({
       auth: `token ${token}`
-
     })
     const path = dayjs().format('YYYY/MM') + `/${dayjs().format('DD-HH-mm-ss')}-${filename}`
     const message = `Upload by Mark Text at ${dayjs().format('YYYY-MM-DD HH:mm:ss')}`
@@ -128,6 +129,22 @@ export const uploadImage = async (pathname, image, preferences) => {
       })
   }
 
+  const uploadToALIOSS = (content, filename) => {
+    let client = new OSS({
+      region,
+      accessKeyId: accessKey,
+      accessKeySecret: accessSecret,
+      bucket,
+      agent: false
+    })
+    const path = dayjs().format('YYYY/MM') + `/${dayjs().format('DD-HH-mm-ss')}-${filename}`
+    client.put(`marktext/${path}`, content).then(result => {
+      re(result.url.replace('http://', 'https://'))
+    }).catch(_ => {
+      rj('Upload failed, the image will be copied to the image folder')
+    })
+  }
+
   const notification = () => {
     rj('Cannot upload more than 5M image, the image will be copied to the image folder')
   }
@@ -145,6 +162,8 @@ export const uploadImage = async (pathname, image, preferences) => {
         const blobFile = new Blob([imageFile])
         if (currentUploader === 'smms') {
           uploadToSMMS(blobFile)
+        } else if (currentUploader === 'alioss') {
+          uploadToALIOSS(Buffer.from(imageFile), path.basename(imagePath))
         } else {
           const base64 = Buffer.from(imageFile).toString('base64')
           uploadByGithub(base64, path.basename(imagePath))
@@ -163,6 +182,8 @@ export const uploadImage = async (pathname, image, preferences) => {
         const blobFile = dataURItoBlob(reader.result, image.name)
         if (currentUploader === 'smms') {
           uploadToSMMS(blobFile)
+        } else if (currentUploader === 'alioss') {
+          uploadToALIOSS(blobFile, image.name)
         } else {
           uploadByGithub(reader.result, image.name)
         }

@@ -36,6 +36,7 @@
     "@hfelix/electron-localshortcut": "^3.1.1",
     "@hfelix/electron-spellchecker": "1.0.0-rc.5",
     "@octokit/rest": "^16.35.0",
+    "ali-oss": "^6.3.1",
     "arg": "^4.1.2",
     "axios": "^0.19.0",
     "ced": "^1.0.0",

@@ -41,6 +41,12 @@ class DataCenter extends EventEmitter {
           owner: '',
           repo: '',
           branch: ''
+        },
+        alioss: {
+          accessKey: '',
+          accessSecret: '',
+          region: '',
+          bucket: ''
         }
       }
     }
