@@ -31,3 +31,13 @@ Yes, please see [here](../PORTABLE.md) for further information.
 ### How can I report bugs and problems
 
 You can report bugs and problems via our [GitHub issue tracker](https://github.com/marktext/marktext/issues). Please provide a detailed description of the problem to better solve the issue.
+
+### I cannot launch Mark Text on Linux (SUID sandbox)
+
+> *The SUID sandbox helper binary was found, but is not configured correctly.*
+
+Normally, you should never get this error but if you disabled user namespaces, this error message may appears in the command output when launching Mark Text. To solve the issue, that Chromium cannot start the sandbox (process), you can choose one of the following steps:
+
+- Enable Linux kernel user namespaces to use the preferred sandbox: `sudo sysctl kernel.unprivileged_userns_clone=1`.
+- Set correct SUID sandbox helper binary permissions: `sudo chown root <path_to_marktext_dir>/chrome-sandbox && sudo chmod 4755 <path_to_marktext_dir>/chrome-sandbox`. This is prefered if you don't want to enable user namespaces.
+- Launch Mark Text with `--no-sandbox` argument.
