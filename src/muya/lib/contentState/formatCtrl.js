@@ -148,6 +148,7 @@ const formatCtrl = ContentState => {
     if (!start || !end) {
       return { formats: [], tokens: [], neighbors: [] }
     }
+
     const startBlock = this.getBlock(start.key)
     const formats = []
     const neighbors = []

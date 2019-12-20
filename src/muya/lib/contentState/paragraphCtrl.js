@@ -113,6 +113,8 @@ const paragraphCtrl = ContentState => {
     }
   }
 
+  // TODO: New created nestled list items missing "listType" key and value.
+
   ContentState.prototype.handleListMenu = function (paraType, insertMode) {
     const { start, end, affiliation } = this.selectionChange(this.cursor)
     const { orderListDelimiter, bulletListMarker, preferLooseListItem } = this.muya.options
