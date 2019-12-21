@@ -316,8 +316,8 @@ Lexer.prototype.token = function (src, top) {
         const itemWithBullet = cap[i]
         item = itemWithBullet
         let newIsTaskListItem = false
-        // Remove the list item's bullet
-        // so it is seen as the next token.
+
+        // Remove the list item's bullet so it is seen as the next token.
         space = item.length
         let newBull
         item = item.replace(/^ *([*+-]|\d+(?:\.|\))) {0,4}/, function (m, p1) {
@@ -327,13 +327,15 @@ Lexer.prototype.token = function (src, top) {
         })
 
         const newIsOrdered = bull.length > 1 && /\d{1,9}/.test(newBull)
-
         if (!newIsOrdered && this.options.gfm) {
           checked = this.rules.checkbox.exec(item)
           if (checked) {
             checked = checked[1] === 'x' || checked[1] === 'X'
-            item = item.replace(this.rules.checkbox, '')
             newIsTaskListItem = true
+
+            // Remove the list item's checkbox and adjust indentation by removing checkbox length.
+            item = item.replace(this.rules.checkbox, '')
+            space -= 4
           } else {
             checked = undefined
           }
@@ -400,6 +402,7 @@ Lexer.prototype.token = function (src, top) {
         } else {
           prevItem = cap[i - 1]
         }
+
         // Determine whether item is loose or not. If previous item is loose
         // this item is also loose.
         // A list is loose if any of its constituent list items are separated by blank lines,
@@ -450,7 +453,6 @@ Lexer.prototype.token = function (src, top) {
       this.tokens.push({
         type: 'list_end'
       })
-
       continue
     }
 
