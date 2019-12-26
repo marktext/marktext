@@ -1,7 +1,7 @@
 <template>
   <div
     class="side-bar-toc"
-    :class="[{ 'side-bar-toc-overflow': !wordWrap, 'side-bar-toc-wordwrap': wordWrap }]"
+    :class="[{ 'side-bar-toc-overflow': !wordWrapInToc, 'side-bar-toc-wordwrap': wordWrapInToc }]"
   >
     <div class="title">Table Of Contents</div>
     <el-tree
@@ -39,7 +39,7 @@ export default {
   computed: {
     ...mapState({
       toc: state => state.editor.toc,
-      wordWrap: state => state.preferences.wordWrap
+      wordWrapInToc: state => state.preferences.wordWrapInToc
     })
   },
   methods: {

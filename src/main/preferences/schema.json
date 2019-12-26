@@ -29,8 +29,8 @@
     "type": "boolean",
     "default": false
   },
-  "wordWrap": {
-    "description": "General--Whether to enable word wrap.",
+  "wordWrapInToc": {
+    "description": "General--Whether to enable word wrap in TOC.",
     "type": "boolean",
     "default": false
   },

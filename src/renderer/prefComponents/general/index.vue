@@ -39,9 +39,9 @@
       :onChange="value => onSelectChange('hideScrollbar', value)"
     ></bool>
     <bool
-      description="Whether to enable word wrap."
-      :bool="wordWrap"
-      :onChange="value => onSelectChange('wordWrap', value)"
+      description="Whether to enable word wrap in TOC."
+      :bool="wordWrapInToc"
+      :onChange="value => onSelectChange('wordWrapInToc', value)"
     ></bool>
     <bool
       description="Enable Aidou."
@@ -112,7 +112,7 @@ export default {
       openFilesInNewWindow: state => state.preferences.openFilesInNewWindow,
       openFolderInNewWindow: state => state.preferences.openFolderInNewWindow,
       hideScrollbar: state => state.preferences.hideScrollbar,
-      wordWrap: state => state.preferences.wordWrap,
+      wordWrapInToc: state => state.preferences.wordWrapInToc,
       aidou: state => state.preferences.aidou,
       fileSortBy: state => state.preferences.fileSortBy,
       language: state => state.preferences.language
