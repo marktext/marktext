@@ -29,6 +29,11 @@
     "type": "boolean",
     "default": false
   },
+  "wordWrapInToc": {
+    "description": "General--Whether to enable word wrap in TOC.",
+    "type": "boolean",
+    "default": false
+  },
   "aidou": {
     "description": "General--Enable aidou",
     "type": "boolean"
@@ -57,7 +62,6 @@
     "description": "General--The language Mark Text use.",
     "type": "string"
   },
-
   "editorFontFamily": {
     "description": "Editor--editor font family",
     "type": "string",
@@ -196,7 +200,6 @@
     "type": "boolean",
     "default": false
   },
-
   "preferLooseListItem": {
     "description": "Markdown--The preferred list type",
     "type": "boolean"
@@ -264,7 +267,6 @@
       "simple"
     ]
   },
-
   "theme": {
     "description": "Theme--Select the theme used in Mark Text",
     "type": "string"
@@ -278,7 +280,6 @@
       2
     ]
   },
-
   "spellcheckerEnabled": {
     "description": "Spelling--Whether spell checking is enabled.",
     "type": "boolean",
@@ -304,7 +305,6 @@
     "pattern": "^[a-z]{2}(?:[-][A-Z]{2})?$",
     "default": "en-US"
   },
-
   "imageInsertAction": {
     "description": "Image--The default behavior after insert image from local folder",
     "enum": [
@@ -313,7 +313,6 @@
       "path"
     ]
   },
-
   "sideBarVisibility": {
     "description": "View--Whether the side bar is visible.",
     "type": "boolean"
@@ -326,7 +325,6 @@
     "description": "View--Whether the source-code mode is enabled by default.",
     "type": "boolean"
   },
-
   "searchExclusions": {
     "description": "Searcher--List of glob patterns to exclude from search.",
     "type": "array",
