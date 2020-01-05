@@ -619,9 +619,13 @@ class Selection {
         // range.collapse(true)
         let rects = range.getClientRects()
         if (rects.length === 0) {
-          rects = range.startContainer && range.startContainer.nodeType === Node.ELEMENT_NODE
-            ? range.startContainer.getClientRects()
+          rects = range.startContainer ? range.startContainer.parentElement.getClientRects()
             : []
+          // prevent tiny vibrations
+          if (rects.length) {
+            const rect = rects[0]
+            rect.y = rect.y + 1
+          }
         }
         if (rects.length) {
           const { left, top, x: rectX, y: rectY, width: rWidth } = rects[0]
