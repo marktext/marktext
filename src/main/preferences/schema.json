@@ -325,6 +325,11 @@
     "description": "View--Whether the source-code mode is enabled by default.",
     "type": "boolean"
   },
+  "marpModeEnabled": {
+    "description": "View--Whether the marp mode is enabled by default.",
+    "type": "boolean"
+  },
+
   "searchExclusions": {
     "description": "Searcher--List of glob patterns to exclude from search.",
     "type": "array",

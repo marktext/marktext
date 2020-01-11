@@ -1,7 +1,7 @@
 <template>
   <div
     class="editor-wrapper"
-    :class="[{ 'typewriter': typewriter, 'focus': focus, 'source': sourceCode }]"
+    :class="[{ 'typewriter': typewriter, 'focus': focus, 'source': sourceCode, 'marp': marp }]"
     :style="{ 'lineHeight': lineHeight, 'fontSize': `${fontSize}px`,
     'font-family': editorFontFamily ? `${editorFontFamily}, ${defaultFontFamily}` : `${defaultFontFamily}` }"
     :dir="textDirection"
@@ -164,7 +164,8 @@ export default {
       // edit modes
       typewriter: state => state.preferences.typewriter,
       focus: state => state.preferences.focus,
-      sourceCode: state => state.preferences.sourceCode
+      sourceCode: state => state.preferences.sourceCode,
+      marp: state => state.preferences.marp
     })
   },
   data () {
@@ -440,6 +441,11 @@ export default {
       if (value && value !== oldValue) {
         this.scrollToCursor(0)
         // Hide float tools if needed.
+        this.editor && this.editor.hideAllFloatTools()
+      }
+    },
+    marp: function (value, oldValue) {
+      if (value && value !== oldValue) {
         this.editor && this.editor.hideAllFloatTools()
       }
     },
@@ -1174,6 +1180,13 @@ export default {
     }
   }
   .editor-wrapper.source {
+    position: absolute;
+    z-index: -1;
+    top: 0;
+    left: 0;
+    overflow: hidden;
+  }
+  .editor-wrapper.marp {
     position: absolute;
     z-index: -1;
     top: 0;

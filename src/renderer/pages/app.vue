@@ -22,6 +22,7 @@
         :markdown="markdown"
         :cursor="cursor"
         :source-code="sourceCode"
+        :marp="marp"
         :show-tab-bar="showTabBar"
         :text-direction="textDirection"
         :platform="platform"
@@ -79,6 +80,7 @@ export default {
     ...mapState({
       showTabBar: state => state.layout.showTabBar,
       sourceCode: state => state.preferences.sourceCode,
+      marp: state => state.preferences.marp,
       theme: state => state.preferences.theme,
       textDirection: state => state.preferences.textDirection
     }),

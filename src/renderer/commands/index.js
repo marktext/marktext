@@ -617,6 +617,12 @@ const commands = [
       bus.$emit('view:toggle-view-entry', 'sourceCode')
     }
   }, {
+    id: 'view.marp-mode',
+    description: 'View: Toggle Marp Mode',
+    execute: async () => {
+      bus.$emit('view:toggle-view-entry', 'marp')
+    }
+  }, {
     id: 'view.typewriter-mode',
     description: 'View: Toggle Typewriter Mode',
     execute: async () => {

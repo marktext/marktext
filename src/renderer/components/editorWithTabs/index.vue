@@ -4,18 +4,23 @@
     >
       <tabs v-show="showTabBar"></tabs>
       <div class="container">
-        <editor
-          :markdown="markdown"
-          :cursor="cursor"
-          :text-direction="textDirection"
-          :platform="platform"
-        ></editor>
         <source-code
           v-if="sourceCode"
           :markdown="markdown"
           :cursor="cursor"
           :text-direction="textDirection"
         ></source-code>
+        <marp
+          v-else-if="marp"
+          :markdown="markdown"
+        ></marp>
+        <editor
+          v-else
+          :markdown="markdown"
+          :cursor="cursor"
+          :text-direction="textDirection"
+          :platform="platform"
+        ></editor>
       </div>
       <tab-notifications></tab-notifications>
     </div>
@@ -25,6 +30,7 @@
 import Tabs from './tabs.vue'
 import Editor from './editor.vue'
 import SourceCode from './sourceCode.vue'
+import Marp from './presetation.vue'
 import TabNotifications from './notifications.vue'
 
 export default {
@@ -40,6 +46,10 @@ export default {
       required: true
     },
     sourceCode: {
+      type: Boolean,
+      required: true
+    },
+    marp: {
       type: Boolean,
       required: true
     },
@@ -60,6 +70,7 @@ export default {
     Tabs,
     Editor,
     SourceCode,
+    Marp,
     TabNotifications
   }
 }

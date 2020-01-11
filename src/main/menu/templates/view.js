@@ -26,6 +26,18 @@ export default function (keybindings) {
         actions.typeMode(browserWindow, 'sourceCode', item)
       }
     }, {
+      id: 'marpModeMenuItem',
+      label: 'Presetation Mode',
+      accelerator: keybindings.getAccelerator('view.marp-mode'),
+      type: 'checkbox',
+      checked: false,
+      click (item, browserWindow, event) {
+        if (!event) {
+          item.checked = !item.checked
+        }
+        actions.typeMode(browserWindow, 'marp', item)
+      }
+    }, {
       id: 'typewriterModeMenuItem',
       label: 'Typewriter Mode',
       accelerator: keybindings.getAccelerator('view.typewriter-mode'),

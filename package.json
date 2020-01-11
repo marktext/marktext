@@ -35,6 +35,8 @@
   "dependencies": {
     "@hfelix/electron-localshortcut": "^3.1.1",
     "@hfelix/electron-spellchecker": "1.0.0-rc.5",
+    "@marp-team/marp-core": "^0.15.2",
+    "@marp-team/marp-vue": "^0.0.1",
     "@octokit/rest": "^16.35.0",
     "arg": "^4.1.2",
     "axios": "^0.19.0",

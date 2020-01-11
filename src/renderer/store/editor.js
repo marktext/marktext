@@ -636,7 +636,8 @@ const actions = {
         lineEnding,
         sideBarVisibility,
         tabBarVisibility,
-        sourceCodeModeEnabled
+        sourceCodeModeEnabled,
+        marpModeEnabled
       } = config
 
       dispatch('SEND_INITIALIZED')
@@ -651,6 +652,11 @@ const actions = {
       commit('SET_MODE', {
         type: 'sourceCode',
         checked: !!sourceCodeModeEnabled
+      })
+
+      commit('SET_MODE', {
+        type: 'marp',
+        checked: !!marpModeEnabled
       })
 
       if (addBlankTab) {
