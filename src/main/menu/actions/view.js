@@ -20,6 +20,12 @@ export const typeMode = (win, type, item) => {
     typewriterModeMenuItem.enabled = !checked
     focusModeMenuItem.enabled = !checked
   }
+  if (type === 'markMap') {
+    const typewriterModeMenuItem = getMenuItemById(typewriterModeMenuItemId)
+    const focusModeMenuItem = getMenuItemById(focusModeMenuItemId)
+    typewriterModeMenuItem.enabled = !checked
+    focusModeMenuItem.enabled = !checked
+  }
 }
 
 export const layout = (item, win, type) => {
@@ -62,6 +68,9 @@ export const viewLayoutChanged = (applicationMenu, changes) => {
         break
       case 'sourceCode':
         changeMenuByName('sourceCodeModeMenuItem', value)
+        break
+      case 'markMap':
+        changeMenuByName('markMapModeMenuItem', value)
         break
       case 'typewriter':
         changeMenuByName(typewriterModeMenuItemId, value)

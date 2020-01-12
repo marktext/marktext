@@ -56,7 +56,8 @@ class EditorWindow extends BaseWindow {
       theme,
       sideBarVisibility,
       tabBarVisibility,
-      sourceCodeModeEnabled
+      sourceCodeModeEnabled,
+      markMapModeEnabled
     } = preferences.getAll()
     if (!isOsx) {
       winOptions.titleBarStyle = 'default'
@@ -72,6 +73,7 @@ class EditorWindow extends BaseWindow {
 
     // Create a menu for the current window
     appMenu.addEditorMenu(win, { sourceCodeModeEnabled })
+    appMenu.addEditorMenu(win, { markMapModeEnabled })
 
     win.webContents.once('did-finish-load', () => {
       this.lifecycle = WindowLifecycle.READY
@@ -89,7 +91,8 @@ class EditorWindow extends BaseWindow {
         lineEnding,
         sideBarVisibility,
         tabBarVisibility,
-        sourceCodeModeEnabled
+        sourceCodeModeEnabled,
+        markMapModeEnabled
       })
 
       this._doOpenFilesToOpen()
@@ -366,7 +369,7 @@ class EditorWindow extends BaseWindow {
     browserWindow.webContents.once('did-finish-load', () => {
       this.lifecycle = WindowLifecycle.READY
       const { preferences } = this._accessor
-      const { sideBarVisibility, tabBarVisibility, sourceCodeModeEnabled } = preferences.getAll()
+      const { sideBarVisibility, tabBarVisibility, sourceCodeModeEnabled, markMapModeEnabled } = preferences.getAll()
       const lineEnding = preferences.getPreferedEol()
       browserWindow.webContents.send('mt::bootstrap-editor', {
         addBlankTab: true,
@@ -374,7 +377,8 @@ class EditorWindow extends BaseWindow {
         lineEnding,
         sideBarVisibility,
         tabBarVisibility,
-        sourceCodeModeEnabled
+        sourceCodeModeEnabled,
+        markMapModeEnabled
       })
     })
 

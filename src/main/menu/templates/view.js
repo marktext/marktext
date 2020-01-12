@@ -26,6 +26,19 @@ export default function (keybindings) {
         actions.typeMode(browserWindow, 'sourceCode', item)
       }
     }, {
+      id: 'markMapModeMenuItem',
+      label: 'Mark Map Mode',
+      accelerator: keybindings.getAccelerator('view.mark-map-mode'),
+      type: 'checkbox',
+      checked: false,
+      click (item, browserWindow, event) {
+        // if we call this function, the checked state is not set
+        if (!event) {
+          item.checked = !item.checked
+        }
+        actions.typeMode(browserWindow, 'markMap', item)
+      }
+    }, {
       id: 'typewriterModeMenuItem',
       label: 'Typewriter Mode',
       accelerator: keybindings.getAccelerator('view.typewriter-mode'),
