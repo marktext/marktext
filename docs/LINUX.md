@@ -50,7 +50,7 @@ You need to install the `flatpak` package for your distribution. Please see the 
 
 **Install from Flathub:**
 
-After you install flatpak and flathub repository, you can install [Mark Text](https://flathub.org/apps/details/com.github.marktext.marktext) with just one command:
+After you install flatpak and flathub repository, you can install [Mark Text](https://flathub.org/apps/details/com.github.marktext.marktext) with just one command (note that you may be asked to enter your password):
 
 ```
 flatpak install flathub com.github.marktext.marktext
