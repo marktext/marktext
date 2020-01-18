@@ -44,6 +44,11 @@
       :onChange="value => onSelectChange('wordWrapInToc', value)"
     ></bool>
     <bool
+      description="Whether to automatically check related task."
+      :bool="autoCheck"
+      :onChange="value => onSelectChange('autoCheck', value)"
+    ></bool>
+    <bool
       description="Enable Aidou."
       :bool="aidou"
       :onChange="value => onSelectChange('aidou', value)"
@@ -113,6 +118,7 @@ export default {
       openFolderInNewWindow: state => state.preferences.openFolderInNewWindow,
       hideScrollbar: state => state.preferences.hideScrollbar,
       wordWrapInToc: state => state.preferences.wordWrapInToc,
+      autoCheck: state => state.preferences.autoCheck,
       aidou: state => state.preferences.aidou,
       fileSortBy: state => state.preferences.fileSortBy,
       language: state => state.preferences.language

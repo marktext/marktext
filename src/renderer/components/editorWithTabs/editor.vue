@@ -131,6 +131,7 @@ export default {
       autoPairBracket: state => state.preferences.autoPairBracket,
       autoPairMarkdownSyntax: state => state.preferences.autoPairMarkdownSyntax,
       autoPairQuote: state => state.preferences.autoPairQuote,
+      autoCheck: state => state.preferences.autoCheck,
       bulletListMarker: state => state.preferences.bulletListMarker,
       orderListDelimiter: state => state.preferences.orderListDelimiter,
       tabSize: state => state.preferences.tabSize,
@@ -293,6 +294,12 @@ export default {
       const { editor } = this
       if (value !== oldValue && editor) {
         editor.setOptions({ autoPairQuote: value })
+      }
+    },
+    autoCheck: function (value, oldValue) {
+      const { editor } = this
+      if (value !== oldValue && editor) {
+        editor.setOptions({ autoCheck: value })
       }
     },
     trimUnnecessaryCodeBlockEmptyLines: function (value, oldValue) {

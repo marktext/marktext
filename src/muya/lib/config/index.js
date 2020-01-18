@@ -252,6 +252,7 @@ export const MUYA_DEFAULT_OPTION = {
   autoPairBracket: true,
   autoPairMarkdownSyntax: true,
   autoPairQuote: true,
+  autoCheck: false,
   bulletListMarker: '-',
   orderListDelimiter: '.',
   tabSize: 4,

@@ -75,8 +75,11 @@ const updateCtrl = ContentState => {
     this.setCheckBoxState(checkbox, checked)
 
     // A task checked, then related task should be update
-    this.updateChildrenCheckBoxState(checkbox, checked)
-    this.updateParentsCheckBoxState(checkbox)
+    const { autoCheck } = this.muya.options
+    if (autoCheck) {
+      this.updateChildrenCheckBoxState(checkbox, checked)
+      this.updateParentsCheckBoxState(checkbox)
+    }
   }
 
   ContentState.prototype.checkSameMarkerOrDelimiter = function (list, markerOrDelimiter) {

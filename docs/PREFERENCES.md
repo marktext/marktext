@@ -13,6 +13,7 @@ Preferences can be controlled and modified in the settings window or via the `pr
 | openFolderInNewWindow  | Boolean | false         | true, false                                                                                                                                                |
 | hideScrollbar          | Boolean | false         | Whether to hide scrollbars. Optional value: true, false                                                                                                    |
 | wordWrapInToc          | Boolean | false         | Whether to enable word wrap in TOC. Optional value: true, false                                                                                            |
+| autoCheck              | Boolean | false         | Whether to automatically check related task. Optional value: true, false                                                                                   |
 | aidou                  | Boolean | true          | Enable aidou. Optional value: true, false                                                                                                                  |
 | fileSortBy             | String  | created       | Sort files in opened folder by `created` time, modified time and title.                                                                                    |
 | startUpAction          | String  | lastState     | The action after Mark Text startup, open the last edited content, open the specified folder or blank page, optional value: `lastState`, `folder`, `blank` |

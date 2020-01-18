@@ -34,6 +34,11 @@
     "type": "boolean",
     "default": false
   },
+  "autoCheck": {
+    "description": "General--Whether to automatically check related task.",
+    "type": "boolean",
+    "default": false
+  },
   "aidou": {
     "description": "General--Enable aidou",
     "type": "boolean"
