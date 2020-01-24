@@ -50,10 +50,10 @@ You need to install the `flatpak` package for your distribution. Please see the 
 
 **Install from Flathub:**
 
-After you install flatpak and flathub repository, you can install [Mark Text](https://flathub.org/apps/details/com.github.marktext.marktext) with just one command:
+After you install flatpak and flathub repository, you can install [Mark Text](https://flathub.org/apps/details/com.github.marktext.marktext) with just one command (note that you may be asked to enter your password):
 
 ```
-sudo flatpak install flathub com.github.marktext.marktext
+flatpak install flathub com.github.marktext.marktext
 ```
 
 or `flatpak install --user flathub com.github.marktext.marktext` to install for the current user only.
@@ -65,7 +65,7 @@ To run Mark Text just execute `flatpak run com.github.marktext.marktext` or clic
 To update Mark Text run the following command:
 
 ```
-sudo flatpak update com.github.marktext.marktext
+flatpak update com.github.marktext.marktext
 ```
 
-or `sudo flatpak update` to update all installed flatpaks.
+or `flatpak update` to update all installed flatpaks.
