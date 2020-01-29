@@ -173,7 +173,14 @@ const actions = {
 
   CREATE_FILE_DIRECTORY ({ commit, state }, name) {
     const { dirname, type } = state.createCache
+
+    if (type === 'file') {
+      const CHECK_MD_EXTENSION = /.*\.(?:markdown|mdown|mkdn|md|mkd|mdwn|mdtxt|mdtext|text|txt)$/i
+      if (!CHECK_MD_EXTENSION.test(name)) name += '.md'
+    }
+
     const fullName = `${dirname}/${name}`
+
     create(fullName, type)
       .then(() => {
         commit('CREATE_PATH', {})
