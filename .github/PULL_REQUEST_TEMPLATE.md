@@ -1,3 +1,6 @@
+<!-- Please change the Answers in the table below
+     to reflect the contents of your pull request. -->
+
 | Q                | A
 | ---------------- | ---
 | Bug fix?         | yes/no
@@ -11,7 +14,3 @@
 ### Description
 
 [Description of the bug or feature]
-
---
-
-#### Please don't submit `/dist` files with your PR!

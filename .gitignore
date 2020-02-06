@@ -1,9 +1,8 @@
 .DS_Store
-dist/electron/*
-dist/web/*
+dist/
+*/dist/*
 build/*
 static/themes/*
-src/muya/dist/
 src/muya/node_modules/
 coverage
 .vscode
