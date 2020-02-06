@@ -1,6 +1,6 @@
 import selection from '../selection'
 import { isMuyaEditorElement } from '../selection/dom'
-import { HAS_TEXT_BLOCK_REG } from '../config'
+import { HAS_TEXT_BLOCK_REG, CLASS_OR_ID } from '../config'
 
 const clickCtrl = ContentState => {
   ContentState.prototype.clickHandler = function (event) {
@@ -78,6 +78,27 @@ const clickCtrl = ContentState => {
     // format-click
     const node = selection.getSelectionStart()
     const inlineNode = node ? node.closest('.ag-inline-rule') : null
+
+    // link-format-click
+    let parentNode = inlineNode
+    while (parentNode !== null && parentNode.classList.contains(CLASS_OR_ID.AG_INLINE_RULE)) {
+      if (parentNode.tagName === 'A') {
+        const formatType = 'link' // auto link or []() link
+        const data = {
+          text: inlineNode.textContent,
+          href: parentNode.getAttribute('href')
+        }
+        eventCenter.dispatch('format-click', {
+          event,
+          formatType,
+          data
+        })
+        break
+      } else {
+        parentNode = parentNode.parentNode
+      }
+    }
+
     if (inlineNode) {
       let formatType = null
       let data = null
@@ -89,14 +110,6 @@ const clickCtrl = ContentState => {
           } else if (inlineNode.classList.contains('ag-math-text')) {
             formatType = 'inline_math'
             data = inlineNode.textContent
-          }
-          break
-        }
-        case 'A': {
-          formatType = 'link' // auto link or []() link
-          data = {
-            text: inlineNode.textContent,
-            href: inlineNode.getAttribute('href')
           }
           break
         }
