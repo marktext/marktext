@@ -97,6 +97,23 @@ div.ag-show-quick-insert-hint p.ag-paragraph.ag-active > span.ag-paragraph-conte
   word-break: break-word;
 }
 
+/* TODO: This disables wrapping long lines in code blocks, allowing
+   scrolling instead.  Make this contingent on user preference. */
+.ag-code-content {
+  overflow: auto;
+  white-space: pre;
+}
+
+.ag-code-content::-webkit-scrollbar {
+    /* Show scroll bars to deal with unwrapped lines in code blocks,
+       regardless of the preference for hiding scroll bars
+       generally. */
+    display: block;
+
+    height: 3px;
+    width: 3px;
+}
+
 .ag-selected {
   background: linear-gradient(17deg, var(--editorBgColor) 36.65%, var(--editorColor04));
   border-radius: 3px;
