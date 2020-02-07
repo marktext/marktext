@@ -13,7 +13,6 @@ Preferences can be controlled and modified in the settings window or via the `pr
 | openFolderInNewWindow  | Boolean | false         | true, false                                                                                                                                                |
 | hideScrollbar          | Boolean | false         | Whether to hide scrollbars. Optional value: true, false                                                                                                    |
 | wordWrapInToc          | Boolean | false         | Whether to enable word wrap in TOC. Optional value: true, false                                                                                            |
-| autoCheck              | Boolean | false         | Whether to automatically check related task. Optional value: true, false                                                                                   |
 | aidou                  | Boolean | true          | Enable aidou. Optional value: true, false                                                                                                                  |
 | fileSortBy             | String  | created       | Sort files in opened folder by `created` time, modified time and title.                                                                                    |
 | startUpAction          | String  | lastState     | The action after Mark Text startup, open the last edited content, open the specified folder or blank page, optional value: `lastState`, `folder`, `blank` |
@@ -41,6 +40,7 @@ Preferences can be controlled and modified in the settings window or via the `pr
 | autoGuessEncoding                  | Boolean | true               | Try to automatically guess the file encoding when opening files                                                                                                                |
 | trimTrailingNewline                | Enum    | `2`                | Ensure a single trailing newline or whether trailing newlines should be removed: `0`: trim all trailing newlines, `1`: ensure single newline, `2`: auto detect, `3`: disabled. |
 | hideLinkPopup                      | Boolean | false              | It will not show the link popup when hover over the link if set `hideLinkPopup` to true                                                                                        |
+| autoCheck                          | Boolean | false              | Whether to automatically check related task. Optional value: true, false                                                                                             |
 
 #### Markdown
 

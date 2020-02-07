@@ -131,7 +131,6 @@ export default {
       autoPairBracket: state => state.preferences.autoPairBracket,
       autoPairMarkdownSyntax: state => state.preferences.autoPairMarkdownSyntax,
       autoPairQuote: state => state.preferences.autoPairQuote,
-      autoCheck: state => state.preferences.autoCheck,
       bulletListMarker: state => state.preferences.bulletListMarker,
       orderListDelimiter: state => state.preferences.orderListDelimiter,
       tabSize: state => state.preferences.tabSize,
@@ -148,6 +147,7 @@ export default {
       editorFontFamily: state => state.preferences.editorFontFamily,
       hideQuickInsertHint: state => state.preferences.hideQuickInsertHint,
       hideLinkPopup: state => state.preferences.hideLinkPopup,
+      autoCheck: state => state.preferences.autoCheck,
       editorLineWidth: state => state.preferences.editorLineWidth,
       imageInsertAction: state => state.preferences.imageInsertAction,
       imageFolderPath: state => state.preferences.imageFolderPath,
@@ -296,12 +296,6 @@ export default {
         editor.setOptions({ autoPairQuote: value })
       }
     },
-    autoCheck: function (value, oldValue) {
-      const { editor } = this
-      if (value !== oldValue && editor) {
-        editor.setOptions({ autoCheck: value })
-      }
-    },
     trimUnnecessaryCodeBlockEmptyLines: function (value, oldValue) {
       const { editor } = this
       if (value !== oldValue && editor) {
@@ -324,6 +318,12 @@ export default {
       const { editor } = this
       if (value !== oldValue && editor) {
         editor.setOptions({ hideLinkPopup: value })
+      }
+    },
+    autoCheck: function (value, oldValue) {
+      const { editor } = this
+      if (value !== oldValue && editor) {
+        editor.setOptions({ autoCheck: value })
       }
     },
     codeFontSize: function (value, oldValue) {

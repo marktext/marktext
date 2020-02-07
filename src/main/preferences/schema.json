@@ -34,11 +34,6 @@
     "type": "boolean",
     "default": false
   },
-  "autoCheck": {
-    "description": "General--Whether to automatically check related task.",
-    "type": "boolean",
-    "default": false
-  },
   "aidou": {
     "description": "General--Enable aidou",
     "type": "boolean"
@@ -202,6 +197,11 @@
   },
   "hideLinkPopup": {
     "description": "Editor--Hide link popup when the cursor is hover on the link",
+    "type": "boolean",
+    "default": false
+  },
+  "autoCheck": {
+    "description": "Editor--Whether to automatically check related task.",
     "type": "boolean",
     "default": false
   },
