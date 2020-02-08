@@ -6,6 +6,7 @@ import { create, paste, rename } from '../util/fileSystem'
 import { PATH_SEPARATOR } from '../config'
 import notice from '../services/notification'
 import { getFileStateFromData } from './help'
+import { hasMarkdownExtension } from '../../common/filesystem/paths'
 
 const state = {
   activeItem: {},
@@ -173,7 +174,13 @@ const actions = {
 
   CREATE_FILE_DIRECTORY ({ commit, state }, name) {
     const { dirname, type } = state.createCache
+
+    if (type === 'file' && !hasMarkdownExtension(name)) {
+      name += '.md'
+    }
+
     const fullName = `${dirname}/${name}`
+
     create(fullName, type)
       .then(() => {
         commit('CREATE_PATH', {})

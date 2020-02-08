@@ -15,6 +15,8 @@ export const MARKDOWN_EXTENSIONS = [
   'txt'
 ]
 
+export const MARKDOWN_INCLUSIONS = MARKDOWN_EXTENSIONS.map(x => '*.' + x)
+
 export const IMAGE_EXTENSIONS = [
   'jpeg',
   'jpg',

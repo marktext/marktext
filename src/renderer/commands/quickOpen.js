@@ -1,11 +1,10 @@
 import path from 'path'
 import { ipcRenderer } from 'electron'
-import { isChildOfDirectory } from 'common/filesystem/paths'
+import { isChildOfDirectory, hasMarkdownExtension, MARKDOWN_INCLUSIONS } from '../../common/filesystem/paths'
 import bus from '../bus'
 import { delay } from '@/util'
 import FileSearcher from '@/node/fileSearcher'
 
-const MD_EXTENSION = /\.(?:markdown|mdown|mkdn|md|mkd|mdwn|mdtxt|mdtext|text|txt)$/i
 const SPECIAL_CHARS = /[\[\]\\^$.\|\?\*\+\(\)\/]{1}/g // eslint-disable-line no-useless-escape
 
 // The quick open command
@@ -174,11 +173,11 @@ class QuickOpenCommand {
 
   _getInclusions = query => {
     // NOTE: This will fail on `foo.m` because we search for `foo.m.md`.
-    if (MD_EXTENSION.test(query)) {
+    if (hasMarkdownExtension(query)) {
       return [`*${query}`]
     }
 
-    const inclusions = ['*.markdown', '*.mdown', '*.mkdn', '*.md', '*.mkd', '*.mdwn', '*.mdtxt', '*.mdtext', '*.text', '*.txt']
+    const inclusions = MARKDOWN_INCLUSIONS
     for (let i = 0; i < inclusions.length; ++i) {
       inclusions[i] = `*${query}` + inclusions[i]
     }

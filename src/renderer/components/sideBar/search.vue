@@ -89,6 +89,7 @@ import EmptyIcon from '@/assets/icons/undraw_empty.svg'
 import FindCaseIcon from '@/assets/icons/searchIcons/iconCase.svg'
 import FindWordIcon from '@/assets/icons/searchIcons/iconWord.svg'
 import FindRegexIcon from '@/assets/icons/searchIcons/iconRegex.svg'
+import { MARKDOWN_INCLUSIONS } from '../../../common/filesystem/paths'
 
 export default {
   data () {
@@ -232,7 +233,7 @@ export default {
         followSymlinks: this.searchFollowSymlinks,
 
         // Only search markdown files
-        inclusions: ['*.markdown', '*.mdown', '*.mkdn', '*.md', '*.mkd', '*.mdwn', '*.mdtxt', '*.mdtext', '*.text', '*.txt']
+        inclusions: MARKDOWN_INCLUSIONS
       })
         .then(() => {
           this.searchResult = newSearchResult
