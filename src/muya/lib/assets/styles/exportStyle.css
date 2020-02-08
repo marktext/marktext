@@ -18,3 +18,8 @@
   right: 1em;
   text-decoration: none;
 }
+
+.inline-math.invalid,
+.multiple-math.invalid {
+  color: rgb(255, 105, 105);
+}
