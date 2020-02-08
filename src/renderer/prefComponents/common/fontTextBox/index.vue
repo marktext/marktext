@@ -7,9 +7,9 @@
     <el-autocomplete
       class="font-autocomplete"
       popper-class="font-autocomplete-popper"
-      v-model="state"
+      v-model="selectValue"
       :fetch-suggestions="querySearch"
-      :placeholder="selectValue"
+      placeholder="Select font..."
       @select="handleSelect"
     >
       <i class="el-icon-arrow-down el-input__icon" slot="suffix"></i>
@@ -50,7 +50,6 @@ export default {
   data () {
     return {
       fontFamilies: [],
-      state: '',
       selectValue: this.value
     }
   },
@@ -68,6 +67,7 @@ export default {
       default: false
     }
   },
+
   watch: {
     value: function (value, oldValue) {
       if (value !== oldValue) {
@@ -75,6 +75,7 @@ export default {
       }
     }
   },
+
   methods: {
     querySearch (queryString, callback) {
       const fontFamilies = this.fontFamilies
@@ -83,12 +84,14 @@ export default {
         : fontFamilies
       callback(results)
     },
+
     handleSelect (value) {
-      if (/^[_A-z0-9]+((-|\s)*[_A-z0-9])*$/.test(value)) {
+      if (/^[^\s]+((-|\s)*[^\s])*$/.test(value)) {
         this.selectValue = value
         this.onChange(value)
       }
     },
+
     handleMoreClick () {
       if (typeof this.more === 'string') {
         shell.openExternal(this.more)
