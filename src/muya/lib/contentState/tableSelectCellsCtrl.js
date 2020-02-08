@@ -178,6 +178,7 @@ const tableSelectCellsCtrl = ContentState => {
     const isWholeTableSelected = rows.size === +row + 1 && cells.length === (+row + 1) * (+column + 1)
 
     if (isCut && isWholeTableSelected) {
+      this.selectedTableCells = null
       return this.deleteParagraph(tableId)
     }
 
@@ -189,6 +190,7 @@ const tableSelectCellsCtrl = ContentState => {
       const cellKey = cells[0].key
       const cellBlock = this.getBlock(cellKey)
       const cellContentKey = cellBlock.children[0].key
+      this.selectedTableCells = null
       if (isOneColumnSelected) {
         // Remove one empty column
         return this.editTable({
