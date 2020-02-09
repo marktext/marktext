@@ -484,7 +484,8 @@ export default {
         theme,
         sequenceTheme,
         spellcheckerEnabled,
-        hideLinkPopup
+        hideLinkPopup,
+        autoCheck
       } = this
 
       // use muya UI plugins
@@ -527,6 +528,7 @@ export default {
         footnote,
         hideQuickInsertHint,
         hideLinkPopup,
+        autoCheck,
         sequenceTheme,
         spellcheckEnabled: spellcheckerEnabled,
         imageAction: this.imageAction.bind(this),

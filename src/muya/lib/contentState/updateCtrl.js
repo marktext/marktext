@@ -1,27 +1,5 @@
 import { tokenizer } from '../parser/'
 import { conflict } from '../utils'
-import { CLASS_OR_ID } from '../config'
-
-const getParentCheckBox = function (checkbox) {
-  const parent = checkbox.parentElement.parentElement.parentElement
-  if (parent.id !== CLASS_OR_ID.AG_EDITOR_ID) {
-    return parent.firstElementChild
-  } else {
-    return null
-  }
-}
-
-const cumputeChecboxStatus = function (parentCheckbox) {
-  const children = parentCheckbox.parentElement.lastElementChild.children
-  const len = children.length
-  for (let i = 0; i < len; i++) {
-    const checkbox = children[i].firstElementChild
-    if (checkbox.checked === false) {
-      return false
-    }
-  }
-  return true
-}
 
 const INLINE_UPDATE_FRAGMENTS = [
   '(?:^|\n) {0,3}([*+-] {1,4})', // Bullet list
@@ -38,50 +16,6 @@ const INLINE_UPDATE_FRAGMENTS = [
 const INLINE_UPDATE_REG = new RegExp(INLINE_UPDATE_FRAGMENTS.join('|'), 'i')
 
 const updateCtrl = ContentState => {
-  ContentState.prototype.setCheckBoxState = function (checkbox, checked) {
-    checkbox.checked = checked
-    const block = this.getBlock(checkbox.id)
-    block.checked = checked
-    checkbox.classList.toggle(CLASS_OR_ID.AG_CHECKBOX_CHECKED)
-  }
-
-  ContentState.prototype.updateParentsCheckBoxState = function (checkbox) {
-    let parent = getParentCheckBox(checkbox)
-    while (parent !== null) {
-      const checked = cumputeChecboxStatus(parent)
-      if (parent.checked !== checked) {
-        this.setCheckBoxState(parent, checked)
-        parent = getParentCheckBox(parent)
-      } else {
-        break
-      }
-    }
-  }
-
-  ContentState.prototype.updateChildrenCheckBoxState = function (checkbox, checked) {
-    const checkboxes = checkbox.parentElement.querySelectorAll(`input ~ ul .${CLASS_OR_ID.AG_TASK_LIST_ITEM_CHECKBOX}`)
-    const len = checkboxes.length
-    for (let i = 0; i < len; i++) {
-      const checkbox = checkboxes[i]
-      if (checkbox.checked !== checked) {
-        this.setCheckBoxState(checkbox, checked)
-      }
-    }
-  }
-
-  // handle task list item checkbox click
-  ContentState.prototype.listItemCheckBoxClick = function (checkbox) {
-    const { checked } = checkbox
-    this.setCheckBoxState(checkbox, checked)
-
-    // A task checked, then related task should be update
-    const { autoCheck } = this.muya.options
-    if (autoCheck) {
-      this.updateChildrenCheckBoxState(checkbox, checked)
-      this.updateParentsCheckBoxState(checkbox)
-    }
-  }
-
   ContentState.prototype.checkSameMarkerOrDelimiter = function (list, markerOrDelimiter) {
     if (!/ol|ul/.test(list.type)) return false
     return list.children[0].bulletMarkerOrDelimiter === markerOrDelimiter
@@ -199,7 +133,7 @@ const updateCtrl = ContentState => {
     for (const l of lines) {
       /* eslint-disable no-useless-escape */
       if (/ {0,3}(?:\* *\* *\*|- *- *-|_ *_ *_)[ \*\-\_]*$/.test(l) && !thematicLineHasPushed) {
-      /* eslint-enable no-useless-escape */
+        /* eslint-enable no-useless-escape */
         thematicLine = l
         thematicLineHasPushed = true
       } else if (!thematicLineHasPushed) {
@@ -360,7 +294,7 @@ const updateCtrl = ContentState => {
       }
     }
     if (TASK_LIST_REG.test(listItemText)) {
-      const [,, tasklist,,,,] = listItemText.match(INLINE_UPDATE_REG) || [] // eslint-disable-line comma-spacing
+      const [, , tasklist, , , ,] = listItemText.match(INLINE_UPDATE_REG) || [] // eslint-disable-line comma-spacing
       return this.updateTaskListItem(block, 'tasklist', tasklist)
     } else {
       return block
