@@ -32,6 +32,7 @@
   "hideQuickInsertHint": false,
   "imageInsertAction": "path",
   "hideLinkPopup": false,
+  "autoCheck": false,
 
   "preferLooseListItem": true,
   "bulletListMarker": "-",

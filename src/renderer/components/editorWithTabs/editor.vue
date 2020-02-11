@@ -147,6 +147,7 @@ export default {
       editorFontFamily: state => state.preferences.editorFontFamily,
       hideQuickInsertHint: state => state.preferences.hideQuickInsertHint,
       hideLinkPopup: state => state.preferences.hideLinkPopup,
+      autoCheck: state => state.preferences.autoCheck,
       editorLineWidth: state => state.preferences.editorLineWidth,
       imageInsertAction: state => state.preferences.imageInsertAction,
       imageFolderPath: state => state.preferences.imageFolderPath,
@@ -319,6 +320,12 @@ export default {
         editor.setOptions({ hideLinkPopup: value })
       }
     },
+    autoCheck: function (value, oldValue) {
+      const { editor } = this
+      if (value !== oldValue && editor) {
+        editor.setOptions({ autoCheck: value })
+      }
+    },
     codeFontSize: function (value, oldValue) {
       if (value !== oldValue) {
         addCommonStyle({
@@ -477,7 +484,8 @@ export default {
         theme,
         sequenceTheme,
         spellcheckerEnabled,
-        hideLinkPopup
+        hideLinkPopup,
+        autoCheck
       } = this
 
       // use muya UI plugins
@@ -520,6 +528,7 @@ export default {
         footnote,
         hideQuickInsertHint,
         hideLinkPopup,
+        autoCheck,
         sequenceTheme,
         spellcheckEnabled: spellcheckerEnabled,
         imageAction: this.imageAction.bind(this),

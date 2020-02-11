@@ -109,6 +109,11 @@
       :bool="hideLinkPopup"
       :onChange="value => onSelectChange('hideLinkPopup', value)"
     ></bool>
+    <bool
+      description="Whether to automatically check related task."
+      :bool="autoCheck"
+      :onChange="value => onSelectChange('autoCheck', value)"
+    ></bool>
     <separator></separator>
     <text-box
       description="Defines the maximum editor area width. An empty string or suffixes of ch (characters), px (pixels) or % (percentage) are allowed."
@@ -167,6 +172,7 @@ export default {
       trimUnnecessaryCodeBlockEmptyLines: state => state.preferences.trimUnnecessaryCodeBlockEmptyLines,
       hideQuickInsertHint: state => state.preferences.hideQuickInsertHint,
       hideLinkPopup: state => state.preferences.hideLinkPopup,
+      autoCheck: state => state.preferences.autoCheck,
       editorLineWidth: state => state.preferences.editorLineWidth,
       defaultEncoding: state => state.preferences.defaultEncoding,
       autoGuessEncoding: state => state.preferences.autoGuessEncoding,

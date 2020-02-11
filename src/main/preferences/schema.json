@@ -200,6 +200,11 @@
     "type": "boolean",
     "default": false
   },
+  "autoCheck": {
+    "description": "Editor--Whether to automatically check related task.",
+    "type": "boolean",
+    "default": false
+  },
   "preferLooseListItem": {
     "description": "Markdown--The preferred list type",
     "type": "boolean"

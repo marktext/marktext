@@ -1,6 +1,8 @@
 import selection from '../selection'
 import { isMuyaEditorElement } from '../selection/dom'
 import { HAS_TEXT_BLOCK_REG, CLASS_OR_ID } from '../config'
+import { getParentCheckBox } from '../utils/getParentCheckBox'
+import { cumputeCheckboxStatus } from '../utils/cumputeCheckBoxStatus'
 
 const clickCtrl = ContentState => {
   ContentState.prototype.clickHandler = function (event) {
@@ -191,6 +193,50 @@ const clickCtrl = ContentState => {
       })
     } else {
       this.cursor = { start, end }
+    }
+  }
+
+  ContentState.prototype.setCheckBoxState = function (checkbox, checked) {
+    checkbox.checked = checked
+    const block = this.getBlock(checkbox.id)
+    block.checked = checked
+    checkbox.classList.toggle(CLASS_OR_ID.AG_CHECKBOX_CHECKED)
+  }
+
+  ContentState.prototype.updateParentsCheckBoxState = function (checkbox) {
+    let parent = getParentCheckBox(checkbox)
+    while (parent !== null) {
+      const checked = cumputeCheckboxStatus(parent)
+      if (parent.checked !== checked) {
+        this.setCheckBoxState(parent, checked)
+        parent = getParentCheckBox(parent)
+      } else {
+        break
+      }
+    }
+  }
+
+  ContentState.prototype.updateChildrenCheckBoxState = function (checkbox, checked) {
+    const checkboxes = checkbox.parentElement.querySelectorAll(`input ~ ul .${CLASS_OR_ID.AG_TASK_LIST_ITEM_CHECKBOX}`)
+    const len = checkboxes.length
+    for (let i = 0; i < len; i++) {
+      const checkbox = checkboxes[i]
+      if (checkbox.checked !== checked) {
+        this.setCheckBoxState(checkbox, checked)
+      }
+    }
+  }
+
+  // handle task list item checkbox click
+  ContentState.prototype.listItemCheckBoxClick = function (checkbox) {
+    const { checked } = checkbox
+    this.setCheckBoxState(checkbox, checked)
+
+    // A task checked, then related task should be update
+    const { autoCheck } = this.muya.options
+    if (autoCheck) {
+      this.updateChildrenCheckBoxState(checkbox, checked)
+      this.updateParentsCheckBoxState(checkbox)
     }
   }
 }

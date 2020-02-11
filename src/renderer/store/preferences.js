@@ -36,6 +36,7 @@ const state = {
   hideQuickInsertHint: false,
   imageInsertAction: 'folder',
   hideLinkPopup: false,
+  autoCheck: false,
 
   preferLooseListItem: true,
   bulletListMarker: '-',

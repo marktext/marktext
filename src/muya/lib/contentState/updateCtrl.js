@@ -1,6 +1,5 @@
 import { tokenizer } from '../parser/'
 import { conflict } from '../utils'
-import { CLASS_OR_ID } from '../config'
 
 const INLINE_UPDATE_FRAGMENTS = [
   '(?:^|\n) {0,3}([*+-] {1,4})', // Bullet list
@@ -17,14 +16,6 @@ const INLINE_UPDATE_FRAGMENTS = [
 const INLINE_UPDATE_REG = new RegExp(INLINE_UPDATE_FRAGMENTS.join('|'), 'i')
 
 const updateCtrl = ContentState => {
-  // handle task list item checkbox click
-  ContentState.prototype.listItemCheckBoxClick = function (checkbox) {
-    const { checked, id } = checkbox
-    const block = this.getBlock(id)
-    block.checked = checked
-    checkbox.classList.toggle(CLASS_OR_ID.AG_CHECKBOX_CHECKED)
-  }
-
   ContentState.prototype.checkSameMarkerOrDelimiter = function (list, markerOrDelimiter) {
     if (!/ol|ul/.test(list.type)) return false
     return list.children[0].bulletMarkerOrDelimiter === markerOrDelimiter
@@ -142,7 +133,7 @@ const updateCtrl = ContentState => {
     for (const l of lines) {
       /* eslint-disable no-useless-escape */
       if (/ {0,3}(?:\* *\* *\*|- *- *-|_ *_ *_)[ \*\-\_]*$/.test(l) && !thematicLineHasPushed) {
-      /* eslint-enable no-useless-escape */
+        /* eslint-enable no-useless-escape */
         thematicLine = l
         thematicLineHasPushed = true
       } else if (!thematicLineHasPushed) {
@@ -303,7 +294,7 @@ const updateCtrl = ContentState => {
       }
     }
     if (TASK_LIST_REG.test(listItemText)) {
-      const [,, tasklist,,,,] = listItemText.match(INLINE_UPDATE_REG) || [] // eslint-disable-line comma-spacing
+      const [, , tasklist, , , ,] = listItemText.match(INLINE_UPDATE_REG) || [] // eslint-disable-line comma-spacing
       return this.updateTaskListItem(block, 'tasklist', tasklist)
     } else {
       return block
