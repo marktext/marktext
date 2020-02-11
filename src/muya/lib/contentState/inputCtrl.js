@@ -308,7 +308,7 @@ const inputCtrl = ContentState => {
 
     const checkMarkedUpdate = /atxLine|paragraphContent|cellContent/.test(block.functionType) ? this.checkNeedRender() : false
     let inlineUpdatedBlock = null
-    if (/atxLine|paragraphContent|cellContent/.test(block.functionType)) {
+    if (/atxLine|paragraphContent|cellContent|thematicBreakLine/.test(block.functionType)) {
       inlineUpdatedBlock = this.isCollapse() && this.checkInlineUpdate(block)
     }
 
