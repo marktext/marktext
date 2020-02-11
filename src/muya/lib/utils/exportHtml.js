@@ -3,7 +3,7 @@ import Prism from 'prismjs'
 import katex from 'katex'
 import loadRenderer from '../renderers'
 import githubMarkdownCss from 'github-markdown-css/github-markdown.css'
-import footnoteCss from '../assets/styles/exportStyle.css'
+import exportStyle from '../assets/styles/exportStyle.css'
 import highlightCss from 'prismjs/themes/prism.css'
 import katexCss from 'katex/dist/katex.css'
 import footerHeaderCss from '../assets/styles/headerFooterStyle.css'
@@ -97,9 +97,15 @@ class ExportHtml {
   mathRenderer = (math, displayMode) => {
     this.mathRendererCalled = true
 
-    return katex.renderToString(math, {
-      displayMode
-    })
+    try {
+      return katex.renderToString(math, {
+        displayMode
+      })
+    } catch (err) {
+      return displayMode
+        ? `<pre class="multiple-math invalid">\n${math}</pre>\n`
+        : `<span class="inline-math invalid" title="invalid math">${math}</span>`
+    }
   }
 
   // render pure html by marked
@@ -249,7 +255,7 @@ class ExportHtml {
       list-style-type: decimal;
     }
   </style>
-  <style>${footnoteCss}</style>
+  <style>${exportStyle}</style>
   <style>${extraCss}</style>
 </head>
 <body>

@@ -973,9 +973,9 @@ export default {
           } catch (err) {
             log.error('Failed to export document:', err)
             notice.notify({
-              title: 'Printing/Exporting failed',
+              title: `Printing/Exporting ${htmlTitle || 'html'} failed`,
               type: 'error',
-              message: `There is something wrong when export ${htmlTitle || 'html'}.`
+              message: err.message || 'There is something wrong when exporting.'
             })
           }
           break
