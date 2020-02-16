@@ -115,6 +115,7 @@ export default {
   components: {
     Search
   },
+
   props: {
     markdown: String,
     cursor: Object,
@@ -124,6 +125,7 @@ export default {
     },
     platform: String
   },
+
   computed: {
     ...mapState({
       preferences: state => state.preferences,
@@ -168,11 +170,13 @@ export default {
       sourceCode: state => state.preferences.sourceCode
     })
   },
+
   data () {
     this.defaultFontFamily = DEFAULT_EDITOR_FONT_FAMILY
     this.CloseIcon = CloseIcon
     // Helper to ignore changes when the spell check provider was changed in settings.
     this.spellcheckerIgnorChanges = false
+
     return {
       selectionChange: null,
       editor: null,
@@ -186,27 +190,32 @@ export default {
       }
     }
   },
+
   watch: {
     typewriter: function (value) {
       if (value) {
         this.scrollToCursor()
       }
     },
+
     focus: function (value) {
       this.editor.setFocusMode(value)
     },
+
     fontSize: function (value, oldValue) {
       const { editor } = this
       if (value !== oldValue && editor) {
         editor.setFont({ fontSize: value })
       }
     },
+
     lineHeight: function (value, oldValue) {
       const { editor } = this
       if (value !== oldValue && editor) {
         editor.setFont({ lineHeight: value })
       }
     },
+
     preferLooseListItem: function (value, oldValue) {
       const { editor } = this
       if (value !== oldValue && editor) {
@@ -215,12 +224,14 @@ export default {
         })
       }
     },
+
     tabSize: function (value, oldValue) {
       const { editor } = this
       if (value !== oldValue && editor) {
         editor.setTabSize(value)
       }
     },
+
     theme: function (value, oldValue) {
       if (value !== oldValue && this.editor) {
         // Agreement：Any black series theme needs to contain dark `word`.
@@ -237,95 +248,111 @@ export default {
         }
       }
     },
+
     sequenceTheme: function (value, oldValue) {
       const { editor } = this
       if (value !== oldValue && editor) {
         editor.setOptions({ sequenceTheme: value }, true)
       }
     },
+
     listIndentation: function (value, oldValue) {
       const { editor } = this
       if (value !== oldValue && editor) {
         editor.setListIndentation(value)
       }
     },
+
     frontmatterType: function (value, oldValue) {
       const { editor } = this
       if (value !== oldValue && editor) {
         editor.setOptions({ frontmatterType: value })
       }
     },
+
     superSubScript: function (value, oldValue) {
       const { editor } = this
       if (value !== oldValue && editor) {
         editor.setOptions({ superSubScript: value }, true)
       }
     },
+
     footnote: function (value, oldValue) {
       const { editor } = this
       if (value !== oldValue && editor) {
         editor.setOptions({ footnote: value }, true)
       }
     },
+
     hideQuickInsertHint: function (value, oldValue) {
       const { editor } = this
       if (value !== oldValue && editor) {
         editor.setOptions({ hideQuickInsertHint: value })
       }
     },
+
     editorLineWidth: function (value, oldValue) {
       if (value !== oldValue) {
         setEditorWidth(value)
       }
     },
+
     autoPairBracket: function (value, oldValue) {
       const { editor } = this
       if (value !== oldValue && editor) {
         editor.setOptions({ autoPairBracket: value })
       }
     },
+
     autoPairMarkdownSyntax: function (value, oldValue) {
       const { editor } = this
       if (value !== oldValue && editor) {
         editor.setOptions({ autoPairMarkdownSyntax: value })
       }
     },
+
     autoPairQuote: function (value, oldValue) {
       const { editor } = this
       if (value !== oldValue && editor) {
         editor.setOptions({ autoPairQuote: value })
       }
     },
+
     trimUnnecessaryCodeBlockEmptyLines: function (value, oldValue) {
       const { editor } = this
       if (value !== oldValue && editor) {
         editor.setOptions({ trimUnnecessaryCodeBlockEmptyLines: value })
       }
     },
+
     bulletListMarker: function (value, oldValue) {
       const { editor } = this
       if (value !== oldValue && editor) {
         editor.setOptions({ bulletListMarker: value })
       }
     },
+
     orderListDelimiter: function (value, oldValue) {
       const { editor } = this
       if (value !== oldValue && editor) {
         editor.setOptions({ orderListDelimiter: value })
       }
     },
+
     hideLinkPopup: function (value, oldValue) {
       const { editor } = this
       if (value !== oldValue && editor) {
         editor.setOptions({ hideLinkPopup: value })
       }
     },
+
     autoCheck: function (value, oldValue) {
       const { editor } = this
       if (value !== oldValue && editor) {
         editor.setOptions({ autoCheck: value })
       }
     },
+
     codeFontSize: function (value, oldValue) {
       if (value !== oldValue) {
         addCommonStyle({
@@ -335,12 +362,14 @@ export default {
         })
       }
     },
+
     codeBlockLineNumbers: function (value, oldValue) {
       const { editor } = this
       if (value !== oldValue && editor) {
         editor.setOptions({ codeBlockLineNumbers: value }, true)
       }
     },
+
     codeFontFamily: function (value, oldValue) {
       if (value !== oldValue) {
         addCommonStyle({
@@ -350,6 +379,7 @@ export default {
         })
       }
     },
+
     hideScrollbar: function (value, oldValue) {
       if (value !== oldValue) {
         addCommonStyle({
@@ -359,6 +389,7 @@ export default {
         })
       }
     },
+
     spellcheckerEnabled: function (value, oldValue) {
       if (value !== oldValue) {
         const { editor, spellchecker } = this
@@ -383,6 +414,7 @@ export default {
         }
       }
     },
+
     spellcheckerIsHunspell: function (value, oldValue) {
       // Special case when the OS supports multiple spell checker because the
       // language may be invalid (provider 1 may support language xyz
@@ -409,6 +441,7 @@ export default {
         }
       }
     },
+
     spellcheckerNoUnderline: function (value, oldValue) {
       if (value !== oldValue) {
         const { editor, spellchecker } = this
@@ -422,6 +455,7 @@ export default {
         }
       }
     },
+
     spellcheckerAutoDetectLanguage: function (value, oldValue) {
       const { spellchecker } = this
       const { isEnabled } = spellchecker
@@ -429,6 +463,7 @@ export default {
         spellchecker.automaticallyIdentifyLanguages = value
       }
     },
+
     spellcheckerLanguage: function (value, oldValue) {
       const { spellchecker, spellcheckerIgnorChanges } = this
       if (!spellcheckerIgnorChanges && value !== oldValue) {
@@ -443,6 +478,7 @@ export default {
         }
       }
     },
+
     currentFile: function (value, oldValue) {
       if (value && value !== oldValue) {
         this.scrollToCursor(0)
@@ -450,12 +486,14 @@ export default {
         this.editor && this.editor.hideAllFloatTools()
       }
     },
+
     sourceCode: function (value, oldValue) {
       if (value && value !== oldValue) {
         this.editor && this.editor.hideAllFloatTools()
       }
     }
   },
+
   created () {
     this.$nextTick(() => {
       this.printer = new Printer()
@@ -693,10 +731,12 @@ export default {
     photoCreatorClick: (url) => {
       shell.openExternal(url)
     },
+
     jumpClick (linkInfo) {
       const { href } = linkInfo
       this.$store.dispatch('FORMAT_LINK_CLICK', { data: { href }, dirname: window.DIRNAME })
     },
+
     async imagePathAutoComplete (src) {
       const files = await this.$store.dispatch('ASK_FOR_IMAGE_AUTO_PATH', src)
       return files.map(f => {
@@ -704,6 +744,7 @@ export default {
         return Object.assign(f, { iconClass, text: f.file + (f.type === 'directory' ? '/' : '') })
       })
     },
+
     async imageAction (image, id, alt = '') {
       const { imageInsertAction, imageFolderPath, preferences } = this
       const { pathname } = this.currentFile
@@ -747,9 +788,11 @@ export default {
 
       return result
     },
+
     imagePathPicker () {
       return this.$store.dispatch('ASK_FOR_IMAGE_PATH')
     },
+
     keyup (event) {
       if (event.key === 'Escape') {
         this.setImageViewerVisible(false)
@@ -788,6 +831,7 @@ export default {
           })
         })
     },
+
     enableSpellchecker () {
       const {
         spellchecker,
@@ -822,6 +866,7 @@ export default {
           })
         })
     },
+
     switchSpellcheckLanguage (languageCode) {
       const { spellchecker } = this
       const { isEnabled } = spellchecker
@@ -1182,6 +1227,7 @@ export default {
       }
     }
   }
+
   .editor-wrapper.source {
     position: absolute;
     z-index: -1;
@@ -1189,15 +1235,18 @@ export default {
     left: 0;
     overflow: hidden;
   }
+
   .editor-component {
     height: 100%;
     overflow: auto;
     box-sizing: border-box;
   }
+
   .typewriter .editor-component {
     padding-top: calc(50vh - 136px);
     padding-bottom: calc(50vh - 54px);
   }
+
   .image-viewer {
     position: fixed;
     backdrop-filter: blur(5px);
@@ -1222,10 +1271,12 @@ export default {
       }
     }
   }
+
   .iv-container {
     width: 100%;
     height: 100%;
   }
+
   .iv-snap-view {
     opacity: 1;
     bottom: 20px;
