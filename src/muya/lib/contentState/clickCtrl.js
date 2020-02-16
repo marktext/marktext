@@ -238,6 +238,14 @@ const clickCtrl = ContentState => {
       this.updateChildrenCheckBoxState(checkbox, checked)
       this.updateParentsCheckBoxState(checkbox)
     }
+
+    const block = this.getBlock(checkbox.id)
+    const parentBlock = this.getParent(block)
+    const firstEditableBlock = this.firstInDescendant(parentBlock)
+    const { key } = firstEditableBlock
+    const offset = 0
+    this.cursor = { start: { key, offset }, end: { key, offset } }
+    return this.partialRender()
   }
 }
 
