@@ -10,11 +10,24 @@ Download the AppImage and type the following:
 
 ### Installation
 
-You cannot really install an AppImage. It's just a file which can be integrated with your desktop environment. The only thing you have to do is to create a desktop file that link to Mark Text (like `~/.local/share/applications/appimage-marktext.desktop`).
+You cannot really install an AppImage. It's a file which can run directly after getting executable permission. To integrate it into desktop environment, you can either create desktop entry manually **or** use [AppImageLauncher](https://github.com/TheAssassin/AppImageLauncher).
 
-##### System integration
+#### Desktop file creation
 
-You can integrate the AppImage into the system via AppImageLauncher.
+See [example desktop file](https://github.com/marktext/marktext/blob/develop/resources/linux/marktext.desktop).
+
+```bash
+$ curl -L https://github.com/marktext/marktext/blob/develop/resources/linux/marktext.desktop -o $HOME/.local/share/applications/marktext.desktop
+
+# Update the Exec in desktop file to your real marktext command. Specify Path if necessary.
+$ vim $HOME/.local/share/applications/marktext.desktop
+
+$ update-desktop-database $HOME/.local/share/applications/
+```
+
+#### AppImageLauncher integration
+
+You can integrate the AppImage into the system via [AppImageLauncher](https://github.com/TheAssassin/AppImageLauncher). It will handle the desktop entry automatically.
 
 ### Uninstallation
 
@@ -27,6 +40,7 @@ You can integrate the AppImage into the system via AppImageLauncher.
 1. Save AppImage somewhere. Let's say `~/bin/marktext.AppImage`
 2. `chmod +x ~/bin/marktext.AppImage`
 3. Create a launch script:
+   
    ```sh
    #!/bin/bash
    DESKTOPINTEGRATION=0 ~/bin/marktext.AppImage
