@@ -234,6 +234,14 @@ class ExportHtml {
     .markdown-body table {
       display: table;
     }
+    .markdown-body img[data-align="center"] {
+      display: block;
+      margin: 0 auto;
+    }
+    .markdown-body img[data-align="right"] {
+      display: block;
+      margin: 0 0 0 auto;
+    }
     .markdown-body li.task-list-item {
       list-style-type: none;
     }
