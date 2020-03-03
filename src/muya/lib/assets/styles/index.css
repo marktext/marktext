@@ -342,6 +342,7 @@ span.ag-math > .ag-math-render.ag-math-error {
   border: none;
   box-shadow: none;
   background: transparent;
+  user-select: auto;
 }
 
 .ag-ruby:not(.ag-hide) > .ag-ruby-render,
