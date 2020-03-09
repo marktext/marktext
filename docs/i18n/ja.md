@@ -51,19 +51,19 @@
       ウェブサイト
     </a>
     <span> | </span>
-    <a href="https://github.com/marktext/marktext#features">
+    <a href="#features">
       特徴
     </a>
     <span> | </span>
-    <a href="https://github.com/marktext/marktext#download">
+    <a href="#download">
       ダウンロード
     </a>
     <span> | </span>
-    <a href="https://github.com/marktext/marktext#development">
+    <a href="#development">
       開発
     </a>
     <span> | </span>
-    <a href="https://github.com/marktext/marktext#contribution">
+    <a href="#contribution">
       コントリビューション
     </a>
   </h3>
