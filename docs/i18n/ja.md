@@ -153,14 +153,14 @@ Patreonを介した寄付は、Mark Textの開発および維持を行ってい�
 
 ![](../../docs/marktext.png?raw=true)
 
-<h2 id="features"> 特徴 </h2>
+<h2 id="features">特徴</h2>
 
 - WYSIWYGなリアルタイムプレビューと、執筆に没頭できるクリーンでシンプルなインターフェース
 - [CommonMark Spec](https://spec.commonmark.org/0.29/)と[GitHub Flavored Markdown Spec](https://github.github.com/gfm/)、および一部の[Pandoc Markdown](https://pandoc.org/MANUAL.html#pandocs-markdown)をサポート
 - KaTeXを用いた数式表示、Front matterや絵文字が使用可能
 - 段落とインラインショートカットを利用することで編集効率を向上
 - **HTML**ファイルと**PDF**ファイルを出力可能
-- 様々なテーマ: **Cadmium Light**, **Material Dark**
+- **Cadmium Light**, **Material Dark**など様々なテーマ 
 - 選べる編集モード: **Source Code mode**, **Typewriter mode**, **Focus mode**
 
 <h4 align="center">:crescent_moon:テーマ:high_brightness:</h4>
