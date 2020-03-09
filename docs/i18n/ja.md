@@ -161,7 +161,7 @@ Patreonを介した寄付は、Mark Textの開発および維持を行ってい�
 - 段落とインラインショートカットを利用することで編集効率を向上
 - **HTML**ファイルと**PDF**ファイルを出力可能
 - 様々なテーマ: **Cadmium Light**, **Material Dark**
-- 編集モード: **Source Code mode**, **Typewriter mode**, **Focus mode**
+- 選べる編集モード: **Source Code mode**, **Typewriter mode**, **Focus mode**
 
 <h4 align="center">:crescent_moon:テーマ:high_brightness:</h4>
 
