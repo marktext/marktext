@@ -120,7 +120,7 @@
     "type": "boolean"
   },
   "endOfLine": {
-    "description": "Editor--The newline character used at the end of each line. The default value is default, which will be selected according to your system intelligence.",
+    "description": "Editor--The newline character used at the end of each line. The default value is default, which selects your operating system's default newline character.",
     "enum": [
       "default",
       "lf",
