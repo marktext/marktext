@@ -1,22 +1,19 @@
-> **This documentation is outdated, based on the original readme from 19 April 2018!**
-
-<p align="center"><img src="../../static/logo-small.png" alt="mark text" width="100" height="100"></p>
+<p align="center"><img src="static/logo-small.png" alt="Mark Text" width="100" height="100"></p>
 
 <h1 align="center">Mark Text</h1>
 
 <div align="center">
-  <a href="https://twitter.com/intent/tweet?text=Wow:&url=https%3A%2F%2Fgithub.com%2Fmarktext%2Fmarktext">
+  <a href="https://twitter.com/intent/tweet?via=marktextme&url=https://github.com/marktext/marktext/&text=What%20do%20you%20want%20to%20say%20to%20app?&hashtags=happyMarkText">
     <img src="https://img.shields.io/twitter/url/https/github.com/marktext/marktext.svg?style=for-the-badge" alt="twitter">
   </a>
 </div>
 <div align="center">
-  <strong>:high_brightness:次世代のマークダウンエディタ:crescent_moon:</strong>
-</div>
-<div align="center">
-  OS XとLinuxとWindows向けの<code>Electron</code>アプリ
+  <strong>:high_brightness: 次世代マークダウンエディタ :crescent_moon:</strong><br>
+  シンプルでエレガントなマークダウンエディタ: スピードと使いやすさをあなたに<br>
+  <sub>Linux・macOS・Windowsで使用可能</sub>
 </div>
 
-<br />
+<br>
 
 <div align="center">
   <!-- Version -->
@@ -24,34 +21,33 @@
     <img src="https://badge.fury.io/gh/jocs%2Fmarktext.svg" alt="website">
   </a>
   <!-- License -->
-  <a href="https://marktext.github.io/website">
+  <a href="LICENSE">
     <img src="https://img.shields.io/github/license/marktext/marktext.svg" alt="LICENSE">
   </a>
   <!-- Build Status -->
-  <a href="https://marktext.github.io/website">
+  <a href="https://travis-ci.org/marktext/marktext/">
     <img src="https://travis-ci.org/marktext/marktext.svg?branch=master" alt="build">
   </a>
+  <a href="https://ci.appveyor.com/project/marktext/marktext/branch/master">
+    <img src="https://ci.appveyor.com/api/projects/status/l4gxgydj0i95hmxg/branch/master?svg=true" alt="build">
+  </a>
   <!-- Downloads total -->
-  <a href="https://marktext.github.io/website">
+  <a href="https://github.com/marktext/marktext/releases">
     <img src="https://img.shields.io/github/downloads/marktext/marktext/total.svg" alt="total download">
   </a>
   <!-- Downloads latest release -->
-  <a href="https://marktext.github.io/website">
+  <a href="https://github.com/marktext/marktext/releases/latest">
     <img src="https://img.shields.io/github/downloads/marktext/marktext/v0.15.1/total.svg" alt="latest download">
   </a>
-  <!-- deps -->
-  <a href="https://marktext.github.io/website">
-    <img src="https://img.shields.io/hackage-deps/v/lens.svg" alt="dependencies">
-  </a>
-  <!-- donates -->
+  <!-- sponsors -->
   <a href="https://opencollective.com/marktext">
-    <img src="https://opencollective.com/marktext/tiers/backer/badge.svg?label=backer&color=brightgreen" alt="donate">
+    <img src="https://opencollective.com/marktext/tiers/silver-sponsors/badge.svg?label=SilverSponsors&color=brightgreen" alt="sponsors">
   </a>
 </div>
 
 <div align="center">
   <h3>
-    <a href="https://marktext.github.io/website">
+    <a href="https://marktext.app">
       ウェブサイト
     </a>
     <span> | </span>
@@ -59,7 +55,7 @@
       特徴
     </a>
     <span> | </span>
-    <a href="https://github.com/marktext/marktext#download-and-installation">
+    <a href="https://github.com/marktext/marktext#download-and-install">
       ダウンロード
     </a>
     <span> | </span>
@@ -74,27 +70,30 @@
 </div>
 
 <div align="center">
-  <sub>Translations:</sub>
-  <a href="../../readme.md#readme">
-    <span>:en:</span>
+  <sub>多言語版:</sub>
+  <a href="README.md">
+    <span>:uk:</span>
   </a>
-  <a href="../../docs/i18n/zh_cn.md#readme">
+  <a href="docs/i18n/zh_cn.md#readme">
     <span>:cn:</span>
   </a>
-  <a href="../../docs/i18n/pl.md#readme">
+  <a href="docs/i18n/pl.md#readme">
     <span>:poland:</span>
   </a>
-  <a href="../../docs/i18n/french.md#readme">
+  <a href="docs/i18n/french.md#readme">
     <span>:fr:</span>
   </a>
-  <a href="../../docs/i18n/tr.md#readme">
+  <a href="docs/i18n/tr.md#readme">
     <span>:tr:</span>
   </a>
-  <a href="../../docs/i18n/spanish.md#readme">
+  <a href="docs/i18n/spanish.md#readme">
     <span>:es:</span>
   </a>
-  <a href="../../docs/i18n/pt.md#readme">
+  <a href="docs/i18n/pt.md#readme">
     <span>:portugal:</span>
+  </a>
+  <a href="docs/i18n/ko.md#readme">
+    <span>:kr:</span>
   </a>
 </div>
 
@@ -109,28 +108,76 @@
 
 <br />
 
-![](../../docs/marktext.gif)
+<h2 align="center">Mark Textへの支援</h2>
 
-## 特徴
+Mark Textは、MITライセンスのオープンソースプロジェクトであり、Githubリリースページからいつでも無料で最新のMark Textをダウンロードできます。Mark Textはまだ開発中のソフトウェアであり、開発を続けるためにはスポンサーからのご支援が必要です。どうかMark Textへのご支援をよろしくお願い申し上げます。
 
-- リアルタイムプレビューと[snabbdom](https://github.com/snabbdom/snabbdom) を用いたレンダリング。
-- [CommonMark Spec](https://spec.commonmark.org/0.29/) と [GitHub Flavored Markdown Spec](https://github.github.com/gfm/)をサポート。
-- 段落とインラインショートカットを利用することで編集効率を向上。
-- **HTML** ファイルと **PDF** ファイルを出力可能.
-- ダークテーマとライトテーマが利用可能.
-- 沢山の編集モード: **Source Code mode**, **Typewriter mode**, **Focus mode**.
+- Patreonを介して継続的ご支援をいただける場合は[こちら](https://www.patreon.com/ranluo)から、また、一時寄付金をいただける場合は[こちら](https://github.com/Jocs/sponsor.me)からお願いいたします。
+- Open Collectiveを介してご支援をいただける場合は[こちら](https://opencollective.com/marktext)をご利用ください。
 
-<h4 align="center">:crescent_moon:利用可能なテーマ:high_brightness:</h4>
+##### PatreonとOpen Collectiveの違い
 
-| Dark :crescent_moon:                                               | Light :high_brightness:                                             |
-|:------------------------------------------------------------------:|:-------------------------------------------------------------------:|
-| ![](../../docs/dark.jpg) | ![](../../docs/light.jpg) |
+Patreonを介した寄付は、Mark Textの開発および維持を行っているLuo Ran (@jocs)に直接届きます。Open Collectiveを介した寄付は、その額や出資者が公開されます。すべての出資金はMark Textの開発、維持、オンラインおよびオフラインでの活動、そしてその他の必要なリソースの入手に使われます。PatreonかOpen Collectiveかに関わらず、すべての出資者のお名前もしくは会社のロゴは、Mark Textの公式サイトおよびReadmeに掲載いたします。
+
+**Platinum Sponsors**
+
+<a href="https://opencollective.com/marktext#platinum-sponsors">
+ <img src="https://opencollective.com/marktext/tiers/platinum-sponsors.svg?avatarHeight=36&width=600">
+</a>
+
+**Gold Sponsors**
+
+<a href="https://opencollective.com/marktext#platinum-sponsors">
+  <img src="https://opencollective.com/marktext/tiers/gold-sponsors.svg?avatarHeight=36&width=600">
+</a>
+
+**Silver Sponsors**
+
+<a href="https://opencollective.com/marktext#platinum-sponsors">
+  <img src="https://opencollective.com/marktext/tiers/silver-sponsors.svg?avatarHeight=36&width=600">
+</a>
+
+**Bronze Sponsors**
+
+<a href="https://opencollective.com/marktext#platinum-sponsors">
+  <img src="https://opencollective.com/marktext/tiers/bronze-sponsors.svg?avatarHeight=36&width=600">
+</a>
+
+**Backers**
+
+<a href="https://opencollective.com/marktext#backers">
+  <img src="https://opencollective.com/marktext/tiers/backer.svg?avatarHeight=36&width=600">
+</a>
+
+## スクリーンショット
+
+![](docs/marktext.png?raw=true)
+
+<h2 id="features"> 特徴 </h2>
+
+- WYSIWYGなリアルタイムプレビューと、執筆に没頭できるクリーンでシンプルなインターフェース
+- [CommonMark Spec](https://spec.commonmark.org/0.29/)と[GitHub Flavored Markdown Spec](https://github.github.com/gfm/)をサポート
+- KaTeXを用いた数式表示、Front matterや絵文字が使用可能
+- 段落とインラインショートカットを利用することで編集効率を向上
+- **HTML**ファイルと**PDF**ファイルを出力可能
+- 様々なテーマ: **Cadmium Light**, **Material Dark**
+- 編集モード: **Source Code mode**, **Typewriter mode**, **Focus mode**
+
+<h4 align="center">:crescent_moon:テーマ:high_brightness:</h4>
+
+| Cadmium Light                                     | Dark                                            |
+|:-------------------------------------------------:|:-----------------------------------------------:|
+| ![](docs/themeImages/cadmium-light.png?raw=true)  | ![](docs/themeImages/dark.png?raw=true)         |
+| Graphite Light                                    | Materal Dark                                    |
+| ![](docs/themeImages/graphite-light.png?raw=true) | ![](docs/themeImages/materal-dark.png?raw=true) |
+| Ulysses Light                                     | One Dark                                        |
+| ![](docs/themeImages/ulysses-light.png?raw=true)  | ![](docs/themeImages/one-dark.png?raw=true)     |
 
 <h4 align="center">:smile_cat:編集モード:dog:</h4>
 
-| Source Code                                                          | Typewriter                                                               | Focus                                                               |
-|:--------------------------------------------------------------------:|:------------------------------------------------------------------------:|:-------------------------------------------------------------------:|
-| ![](../../docs/source.gif) | ![](../../docs/typewriter.gif) | ![](../../docs/focus.gif) |
+| Source Code          | Typewriter               | Focus               |
+|:--------------------:|:------------------------:|:-------------------:|
+| ![](docs/source.gif) | ![](docs/typewriter.gif) | ![](docs/focus.gif) |
 
 ## 開発の意図
 
