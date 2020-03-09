@@ -156,7 +156,7 @@ Patreonを介した寄付は、Mark Textの開発および維持を行ってい�
 <h2 id="features"> 特徴 </h2>
 
 - WYSIWYGなリアルタイムプレビューと、執筆に没頭できるクリーンでシンプルなインターフェース
-- [CommonMark Spec](https://spec.commonmark.org/0.29/)と[GitHub Flavored Markdown Spec](https://github.github.com/gfm/)をサポート
+- [CommonMark Spec](https://spec.commonmark.org/0.29/)と[GitHub Flavored Markdown Spec](https://github.github.com/gfm/)、および一部の[Pandoc Markdown](https://pandoc.org/MANUAL.html#pandocs-markdown)をサポート
 - KaTeXを用いた数式表示、Front matterや絵文字が使用可能
 - 段落とインラインショートカットを利用することで編集効率を向上
 - **HTML**ファイルと**PDF**ファイルを出力可能
@@ -217,7 +217,10 @@ Linux、macOSおよびWindows用の全てのバイナリは、[リリースペ�
 
 <h2 id="development">開発</h2>
 
-**Mark Text** を自前でビルドしたい場合は、[developer documentation](../../.github/CONTRIBUTING.md#build-instructions)を参照してください。
+**Mark Text** を自前でビルドしたい場合は、[build instructions](../../docs/dev/BUILD.md)を参照してください。
+
+- [User documentation](../../docs/README.md)
+- [Developer documentation](../../docs/dev/README.md)
 
 **Mark Text**に関するご質問がありましたら、フォーマットを参考にissueを作成してください。もちろんプルリクエストを直接提出して頂いても構いません。ご協力ありがとうございます。
 
@@ -227,7 +230,7 @@ Linux、macOSおよびWindows用の全てのバイナリは、[リリースペ�
 
 <h2 id="contribution">コントリビューション</h2>
 
-Mark Textは開発の真っ最中です、プルリクエストを作成する場合は事前に [Contributing Guide](../../CONTRIBUTING.md) をご確認ください。Mark Textに追加したい新機能がある場合は、 [ROADMAP](../../.github/ROADMAP.md)を参考にしてissueを作成してください。
+Mark Textは開発の真っ最中です、プルリクエストを作成する場合は事前に [Contributing Guide](../../CONTRIBUTING.md) をご確認ください。Mark Textに追加したい新機能がある場合は、 [roadmap](https://github.com/marktext/marktext/projects)を参考にしてissueを作成してください。
 
 ## コントリビューター
 
