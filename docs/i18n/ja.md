@@ -185,7 +185,7 @@ Patreonを介した寄付は、Mark Textの開発および維持を行ってい�
 2. 上記の通り、**Mark Text**はオープンソースなので、誰でもソースコードをコントリビュートすることで開発に参加し、**Mark Text** をポピュラーなマークダウンエディタにしていくことができます。
 3. 特徴的な機能を備えたマークダウンエディタは既に沢山ありますが、全てのマークダウンユーザーの要望を満たすのは難しいです。まだまだ未熟ですが、**Mark Text** がマークダウンユーザーの要望を可能な限り叶えられるエディタになることを願っています。
 
-<h2 id="download">ダウンロードとインストール</h2>
+<h2 id="download">ダウンロード</h2>
 
 ![platform](https://img.shields.io/static/v1.svg?label=Platform&message=Linux-64%20|%20macOS-64%20|%20Win-32%20|%20Win-64&style=for-the-badge)
 
