@@ -55,7 +55,7 @@
       特徴
     </a>
     <span> | </span>
-    <a href="https://github.com/marktext/marktext#download-and-install">
+    <a href="https://github.com/marktext/marktext#download">
       ダウンロード
     </a>
     <span> | </span>
@@ -185,7 +185,7 @@ Patreonを介した寄付は、Mark Textの開発および維持を行ってい�
 2. 上記の通り、**Mark Text**はオープンソースなので、誰でもソースコードをコントリビュートすることで開発に参加し、**Mark Text** をポピュラーなマークダウンエディタにしていくことができます。
 3. 特徴的な機能を備えたマークダウンエディタは既に沢山ありますが、全てのマークダウンユーザーの要望を満たすのは難しいです。まだまだ未熟ですが、**Mark Text** がマークダウンユーザーの要望を可能な限り叶えられるエディタになることを願っています。
 
-## ダウンロードとインストール
+<h2 id="download">ダウンロードとインストール</h2>
 
 ![platform](https://img.shields.io/static/v1.svg?label=Platform&message=Linux-64%20|%20macOS-64%20|%20Win-32%20|%20Win-64&style=for-the-badge)
 
@@ -193,42 +193,41 @@ Patreonを介した寄付は、Mark Textの開発および維持を行ってい�
 |:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
 | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-0.15.1.dmg.svg)](https://github.com/marktext/marktext/releases/download/v0.15.1/marktext-0.15.1.dmg) | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-setup-0.15.1.exe.svg)](https://github.com/marktext/marktext/releases/download/v0.15.1/marktext-setup-0.15.1.exe) | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-0.15.1-x86_64.AppImage.svg)](https://github.com/marktext/marktext/releases/download/v0.15.1/marktext-0.15.1-x86_64.AppImage) |
 
-上記にご利用のプラットフォームが無い場合は、[リリースページ](https://github.com/marktext/marktext/releases)を探してみてください。それでも見つからない場合は [issue](https://github.com/marktext/marktext/issues) を作成してお知らせいただけると幸いです。
-
 このバージョンでの新着情報をご確認いただくには、[CHANGELOG](../../.github/CHANGELOG.md)を参照してください。
 
-macOSをご利用の場合は、[**homebrew cask**](https://github.com/caskroom/homebrew-cask)からもインストールいただけます、homebrew-caskの利用には[Homebrew](https://brew.sh/)が必要です。
+#### macOS
 
-> brew cask install mark-text
+最新のMark Text(`marktext-%version%.dmg`)を[リリースページ](https://github.com/marktext/marktext/releases/latest)からダウンロードするか、[**homebrew cask**](https://github.com/caskroom/homebrew-cask)を用いてインストールしてください。Homebrew-Caskを使うためには、[Homebrew](https://brew.sh/)がインストールされている必要があります。
 
-![](../../docs/brew-cask.gif)
+```bash
+brew cask install mark-text
+```
 
-## 開発
+#### Windows
 
-**Mark Text** をビルドしたい場合は以下の手順で可能です:
+Mark Textをダウンロードして、セットアップウィザード(`marktext-setup-%version%.exe`)を介してインストールしてください。インストールの際、ユーザごとにインストールするか、グローバルにインストールするかを選択してください。
 
-- このリポジトリをcloneします
-- `npm install` を実行します
-- `npm run build` を実行します
-- ビルドしたアプリをApplicationsフォルダにコピーするか、Windowsの場合は実行可能なインストーラを起動します。
+#### Linux
 
-**Mark Text**のご利用中にご質問がありましたら、フォーマットを参考にissueを作成してください。もちろんプルリクエストを直接提出して頂いても構いません。ご協力ありがとうございます。
+[Linux installation instructions](../../docs/LINUX.md)を参照してください。
 
-## コントリビューション
+#### その他
 
-Mark Textは開発の真っ最中です、プルリクエストを作成する場合は事前に [Contributing Guide](../../CONTRIBUTING.md) をご確認ください。Mark Textに追加したい新機能がある場合は、 [TODO LIST](../../.github/TODOLIST.md) を参考にしてください。
+Linux、macOSおよびWindows用の全てのバイナリは、[リリースページ](https://github.com/marktext/marktext/releases/latest)からダウンロードできます。お使いのシステムで使用可能なソフトウェアがリリースページ内に見つからない場合は、[issue](https://github.com/marktext/marktext/issues) を作成してお知らせいただけると幸いです。
 
-## 後援者
+<h2 id="development">開発</h2>
 
-全ての後援者に感謝申し上げます🙏  [[Become a backer](https://opencollective.com/marktext#backers)]
+**Mark Text** を自前でビルドしたい場合は、[developer documentation](../../.github/CONTRIBUTING.md#build-instructions)を参照してください。
 
-<a href="https://opencollective.com/marktext#backers" target="_blank"><img src="https://opencollective.com/marktext/tiers/backer.svg?avatarHeight=36" /></a>
+**Mark Text**に関するご質問がありましたら、フォーマットを参考にissueを作成してください。もちろんプルリクエストを直接提出して頂いても構いません。ご協力ありがとうございます。
 
-## スポンサー
+## インテグレーション
 
-スポンサーになることでこのプロジェクトをサポートすることができます。あなたのロゴがWebサイトへのリンクと共にここに表示されます。 [[Become a sponsor](https://opencollective.com/marktext#silver-sponsors)]
+- [Alfred Workflow](http://www.packal.org/workflow/mark-text): macOS向けのアプリであるAlfred Workflowです。Alfredを起動して、"mt"コマンドを入力することでファイルやフォルダをMark Textで開きます。
 
-<a href="https://opencollective.com/marktext#silver-sponsors" target="_blank"><img src="https://opencollective.com/marktext/tiers/silver-sponsors.svg?avatarHeight=36" /></a>
+<h2 id="contribution">コントリビューション</h2>
+
+Mark Textは開発の真っ最中です、プルリクエストを作成する場合は事前に [Contributing Guide](../../CONTRIBUTING.md) をご確認ください。Mark Textに追加したい新機能がある場合は、 [ROADMAP](../../.github/ROADMAP.md)を参考にしてissueを作成してください。
 
 ## コントリビューター
 
@@ -237,7 +236,6 @@ Mark Textにコントリビュートしてくださった [[コントリビュ�
 Mark Textのロゴをデザインしてくださった @[Yasujizr](https://github.com/Yasujizr) に感謝を申し上げます。
 
 <a href="https://github.com/marktext/marktext/graphs/contributors"><img src="https://opencollective.com/marktext/contributors.svg?width=890" /></a>
-
 
 ## ライセンス
 
