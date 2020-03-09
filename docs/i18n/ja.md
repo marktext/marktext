@@ -1,4 +1,4 @@
-<p align="center"><img src="/static/logo-small.png" alt="Mark Text" width="100" height="100"></p>
+<p align="center"><img src="../../static/logo-small.png" alt="Mark Text" width="100" height="100"></p>
 
 <h1 align="center">Mark Text</h1>
 
@@ -71,7 +71,7 @@
 
 <div align="center">
   <sub>多言語版:</sub>
-  <a href="/README.md">
+  <a href="../../README.md">
     <span>:uk:</span>
   </a>
   <a href="zh_cn.md">
@@ -151,7 +151,7 @@ Patreonを介した寄付は、Mark Textの開発および維持を行ってい�
 
 ## スクリーンショット
 
-![](/docs/marktext.png?raw=true)
+![](../../docs/marktext.png?raw=true)
 
 <h2 id="features"> 特徴 </h2>
 
@@ -165,19 +165,19 @@ Patreonを介した寄付は、Mark Textの開発および維持を行ってい�
 
 <h4 align="center">:crescent_moon:テーマ:high_brightness:</h4>
 
-| Cadmium Light                                      | Dark                                             |
-|:--------------------------------------------------:|:------------------------------------------------:|
-| ![](/docs/themeImages/cadmium-light.png?raw=true)  | ![](/docs/themeImages/dark.png?raw=true)         |
-| Graphite Light                                     | Materal Dark                                     |
-| ![](/docs/themeImages/graphite-light.png?raw=true) | ![](/docs/themeImages/materal-dark.png?raw=true) |
-| Ulysses Light                                      | One Dark                                         |
-| ![](/docs/themeImages/ulysses-light.png?raw=true)  | ![](/docs/themeImages/one-dark.png?raw=true)     |
+| Cadmium Light                                           | Dark                                                  |
+|:-------------------------------------------------------:|:-----------------------------------------------------:|
+| ![](../../docs/themeImages/cadmium-light.png?raw=true)  | ![](../../docs/themeImages/dark.png?raw=true)         |
+| Graphite Light                                          | Materal Dark                                          |
+| ![](../../docs/themeImages/graphite-light.png?raw=true) | ![](../../docs/themeImages/materal-dark.png?raw=true) |
+| Ulysses Light                                           | One Dark                                              |
+| ![](../../docs/themeImages/ulysses-light.png?raw=true)  | ![](../../docs/themeImages/one-dark.png?raw=true)     |
 
 <h4 align="center">:smile_cat:編集モード:dog:</h4>
 
-| Source Code           | Typewriter                | Focus                |
-|:---------------------:|:-------------------------:|:--------------------:|
-| ![](/docs/source.gif) | ![](/docs/typewriter.gif) | ![](/docs/focus.gif) |
+| Source Code                | Typewriter                     | Focus                     |
+|:--------------------------:|:------------------------------:|:-------------------------:|
+| ![](../../docs/source.gif) | ![](../../docs/typewriter.gif) | ![](../../docs/focus.gif) |
 
 ## 開発の意図
 
