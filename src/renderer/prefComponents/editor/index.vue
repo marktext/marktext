@@ -110,7 +110,7 @@
       :onChange="value => onSelectChange('hideLinkPopup', value)"
     ></bool>
     <bool
-      description="Whether to automatically check any child tasks."
+      description="Whether to automatically check any related tasks."
       :bool="autoCheck"
       :onChange="value => onSelectChange('autoCheck', value)"
     ></bool>
