@@ -2,32 +2,32 @@
   <div class="pref-spellchecker">
     <h4>Spelling</h4>
     <bool
-      description="Whether the experimental spell checker is enabled to check for spelling mistakes."
+      description="Whether the (experimental) spell checker is enabled."
       :bool="spellcheckerEnabled"
       :onChange="handleSpellcheckerEnabled"
     ></bool>
     <separator></separator>
     <bool
-      description="When enabled, Hunspell is used instead the OS spell checker on macOS and Windows 10. The change take effect after application restart or for new editor windows."
+      description="Whether Hunspell is used instead of the OS spell checker on macOS and Windows 10. The change takes effect after restarting Mark Text and for new editor windows."
       :bool="spellcheckerIsHunspell"
       :disable="!isOsSpellcheckerSupported || !spellcheckerEnabled"
       :onChange="value => onSelectChange('spellcheckerIsHunspell', value)"
     ></bool>
     <bool
-      description="Don't underline spelling mistakes. You can still correct spelling mistakes via right click menu."
+      description="Don't underline spelling mistakes. You can still correct spelling mistakes via the right click menu."				
       :bool="spellcheckerNoUnderline"
       :disable="!spellcheckerEnabled"
       :onChange="value => onSelectChange('spellcheckerNoUnderline', value)"
     ></bool>
     <bool
-      description="Try to automatically identify the used language as you type. This feature is currently not available for Hunspell or when spelling mistakes are not underlined."
+      description="Automatically identify the used language. This feature is currently unavailable when using Hunspell or if mistake underlining is disabled."
       :bool="spellcheckerAutoDetectLanguage"
       :disable="!spellcheckerEnabled"
       :onChange="value => onSelectChange('spellcheckerAutoDetectLanguage', value)"
     ></bool>
     <separator></separator>
     <cur-select
-      description="The default language for spelling."
+      description="The default language for the spell checker."
       :value="spellcheckerLanguage"
       :options="availableDictionaries"
       :disable="!spellcheckerEnabled"
@@ -37,16 +37,16 @@
       v-if="isOsx && !isHunspellSelected && spellcheckerEnabled"
       class="description"
     >
-      Please add needed language dictionaries via "Language & Region" in your system preferences pane.
+      Please add required language dictionaries via "Language & Region" in your system preferences pane.
     </div>
     <div
       v-if="isWindows && !isHunspellSelected && spellcheckerEnabled"
       class="description"
     >
-      Please add needed language dictionaries via "Language" in your "Time & language" settings. Add the additional language and download the "Basic typing" language option.
+      Please add required language dictionaries via "Language" in your "Time & language" settings. Add the langauge and download the "Basic typing" option.
     </div>
     <div v-if="isHunspellSelected && spellcheckerEnabled">
-      <div class="description">List of available Hunspell dictionaries. Please add additional language dictionaries via drop-down menu below.</div>
+      <div class="description">List of available Hunspell dictionaries. Please add additional language dictionaries via the drop-down menu below.</div>
       <el-table
         :data="availableDictionaries"
         style="width: 100%">
