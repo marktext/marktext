@@ -2,7 +2,7 @@
   <div class="pref-general">
     <h4>General</h4>
     <bool
-      description="Automatically save changes."
+      description="Automatically save document changes."
       :bool="autoSave"
       :onChange="value => onSelectChange('autoSave', value)"
     ></bool>
@@ -29,7 +29,7 @@
       :onChange="value => onSelectChange('openFilesInNewWindow', value)"
     ></bool>
     <bool
-      description="Whether to open folders via a menu in a new window."
+      description="Whether to open folders in a new window."
       :bool="openFolderInNewWindow"
       :onChange="value => onSelectChange('openFolderInNewWindow', value)"
     ></bool>
