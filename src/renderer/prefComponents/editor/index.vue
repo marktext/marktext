@@ -11,7 +11,7 @@
       :onChange="value => onSelectChange('fontSize', value)"
     ></range>
     <range
-      description="Line height of editor lines."
+      description="The line height of editor lines."
       :value="lineHeight"
       :min="1.2"
       :max="2.0"
@@ -76,7 +76,7 @@
     ></cur-select>
     <separator></separator>
     <cur-select
-      description="The default encoder for files."
+      description="The default encoding for files."
       :value="defaultEncoding"
       :options="defaultEncodingOptions"
       :onChange="value => onSelectChange('defaultEncoding', value)"
@@ -87,7 +87,7 @@
       :onChange="value => onSelectChange('autoGuessEncoding', value)"
     ></bool>
     <cur-select
-      description="Whether trailing newlines should be removed."
+      description="What to do with traling newlines."
       :value="trimTrailingNewline"
       :options="trimTrailingNewlineOptions"
       :onChange="value => onSelectChange('trimTrailingNewline', value)"
@@ -105,7 +105,7 @@
       :onChange="value => onSelectChange('hideQuickInsertHint', value)"
     ></bool>
     <bool
-      description="Whether to hide the link popup when the cursor is hovering on links."
+      description="Whether to hide the link popup when the cursor is over a link."
       :bool="hideLinkPopup"
       :onChange="value => onSelectChange('hideLinkPopup', value)"
     ></bool>
