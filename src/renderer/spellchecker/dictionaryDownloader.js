@@ -1,7 +1,7 @@
 import fs from 'fs-extra'
 import path from 'path'
-import axios from 'axios'
 import { SpellChecker } from '@hfelix/electron-spellchecker'
+import axios from '../axios'
 import { dictionaryPath } from '../spellchecker'
 
 /**
@@ -11,9 +11,7 @@ import { dictionaryPath } from '../spellchecker'
  */
 export const downloadHunspellDictionary = async lang => {
   const url = SpellChecker.getURLForHunspellDictionary(lang)
-  const response = await axios({
-    method: 'get',
-    url,
+  const response = await axios.get(url, {
     responseType: 'stream'
   })
 
