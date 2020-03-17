@@ -2,7 +2,7 @@
   <div class="pref-editor">
     <h4>Editor</h4>
     <range
-      description="The font size of editor text"
+      description="The font size of text in the editor."
       :value="fontSize"
       :min="12"
       :max="32"
@@ -11,7 +11,7 @@
       :onChange="value => onSelectChange('fontSize', value)"
     ></range>
     <range
-      description="Line height of editor lines."
+      description="The line height of editor lines."
       :value="lineHeight"
       :min="1.2"
       :max="2.0"
@@ -19,13 +19,13 @@
       :onChange="value => onSelectChange('lineHeight', value)"
     ></range>
     <font-text-box
-      description="The used font in the editor."
+      description="The font used in the editor."
       :value="editorFontFamily"
       :onChange="value => onSelectChange('editorFontFamily', value)"
     ></font-text-box>
     <separator></separator>
     <range
-      description="The code block font size in editor."
+      description="The font size of text in code blocks."
       :value="codeFontSize"
       :min="12"
       :max="28"
@@ -34,7 +34,7 @@
       :onChange="value => onSelectChange('codeFontSize', value)"
     ></range>
     <font-text-box
-      description="The used code block font in the editor."
+      description="The font used in code blocks."
       :onlyMonospace="true"
       :value="codeFontFamily"
       :onChange="value => onSelectChange('codeFontFamily', value)"
@@ -42,75 +42,75 @@
     <!-- FIXME: Disabled due to #1648. -->
     <bool
       v-show="false"
-      description="Whether to show the code block line numbers."
+      description="Whether to show line numbers in code blocks."
       :bool="codeBlockLineNumbers"
       :onChange="value => onSelectChange('codeBlockLineNumbers', value)"
     ></bool>
     <bool
-      description="Trim the beginning and ending empty lines in code block when open markdown."
+      description="Trim any empty lines at the beginning and end of code blocks when you open a markdown file."
       :bool="trimUnnecessaryCodeBlockEmptyLines"
       :onChange="value => onSelectChange('trimUnnecessaryCodeBlockEmptyLines', value)"
     ></bool>
     <separator></separator>
     <bool
-      description="Automatically brackets when editing."
+      description="Automatically close brackets when writing."
       :bool="autoPairBracket"
       :onChange="value => onSelectChange('autoPairBracket', value)"
     ></bool>
     <bool
-      description="Autocomplete markdown syntax"
+      description="Automatically complete markdown syntax."
       :bool="autoPairMarkdownSyntax"
       :onChange="value => onSelectChange('autoPairMarkdownSyntax', value)"
     ></bool>
     <bool
-      description="Automatic completion of quotes"
+      description="Automatically complete quotes."
       :bool="autoPairQuote"
       :onChange="value => onSelectChange('autoPairQuote', value)"
     ></bool>
     <separator></separator>
     <cur-select
-      description="The default end of line character. If you select default, the ending will be selected according to your system intelligence."
+      description="The newline character used at the end of each line. The "default" option selects your operating system's default newline character."
       :value="endOfLine"
       :options="endOfLineOptions"
       :onChange="value => onSelectChange('endOfLine', value)"
     ></cur-select>
     <separator></separator>
     <cur-select
-      description="The default file encoding."
+      description="The default encoding for files."
       :value="defaultEncoding"
       :options="defaultEncodingOptions"
       :onChange="value => onSelectChange('defaultEncoding', value)"
     ></cur-select>
     <bool
-      description="Try to automatically guess the file encoding when opening files."
+      description="Automatically guess the file's encoding when opening files."
       :bool="autoGuessEncoding"
       :onChange="value => onSelectChange('autoGuessEncoding', value)"
     ></bool>
     <cur-select
-      description="Whether a single trailing newline should be ensured or trailing newlines should be removed."
+      description="What to do with traling newlines."
       :value="trimTrailingNewline"
       :options="trimTrailingNewlineOptions"
       :onChange="value => onSelectChange('trimTrailingNewline', value)"
     ></cur-select>
     <separator></separator>
     <cur-select
-      description="The writing text direction."
+      description="The writing direction of text."
       :value="textDirection"
       :options="textDirectionOptions"
       :onChange="value => onSelectChange('textDirection', value)"
     ></cur-select>
     <bool
-      description="Hide hint for quickly creating paragraphs."
+      description="Whether to hide the hint for quickly creating paragraphs."
       :bool="hideQuickInsertHint"
       :onChange="value => onSelectChange('hideQuickInsertHint', value)"
     ></bool>
     <bool
-      description="Hide link popup when the cursor is hover on the link."
+      description="Whether to hide the link popup when the cursor is over a link."
       :bool="hideLinkPopup"
       :onChange="value => onSelectChange('hideLinkPopup', value)"
     ></bool>
     <bool
-      description="Whether to automatically check related task."
+      description="Whether to automatically check any related tasks."
       :bool="autoCheck"
       :onChange="value => onSelectChange('autoCheck', value)"
     ></bool>

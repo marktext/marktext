@@ -11,7 +11,7 @@
     </section>
     <separator></separator>
     <cur-select
-      description="Automatically adjust application theme according system."
+      description="Automatically adjust application theme according to system settings."
       :value="autoSwitchTheme"
       :options="autoSwitchThemeOptions"
       :onChange="value => onSelectChange('autoSwitchTheme', value)"
