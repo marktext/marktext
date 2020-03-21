@@ -1,4 +1,5 @@
 body .ag-render-container {
+  position: fixed;
   left: -10000px;
   right: -10000px;
 }
@@ -57,7 +58,7 @@ body article.print-container {
     margin-top: 0;
     display: inline-block;
   }
-  .markdown-body pre code.fenced-code-block {
+  body article.markdown-body pre code.fenced-code-block {
     white-space: pre-wrap;
     word-break: break-word;
   }

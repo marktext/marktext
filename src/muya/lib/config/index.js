@@ -233,6 +233,7 @@ export const PREVIEW_DOMPURIFY_CONFIG = {
 export const EXPORT_DOMPURIFY_CONFIG = {
   FORBID_ATTR: ['contenteditable'],
   ALLOW_DATA_ATTR: false,
+  ADD_ATTR: ['data-align'],
   USE_PROFILES: {
     html: true,
     svg: true,
