@@ -4600,7 +4600,7 @@ electron-window-state@^5.0.3:
     jsonfile "^4.0.0"
     mkdirp "^0.5.1"
 
-electron@^8.1.0:
+electron@^8.1.1:
   version "8.1.1"
   resolved "https://registry.npm.taobao.org/electron/download/electron-8.1.1.tgz#737a5af03c7b4af60b49dff7bfe1203fcbd5bf89"
   integrity sha1-c3pa8Dx7SvYLSd/3v+EgP8vVv4k=
