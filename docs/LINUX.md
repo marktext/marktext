@@ -17,7 +17,7 @@ You cannot really install an AppImage. It's a file which can run directly after 
 See [example desktop file](https://github.com/marktext/marktext/blob/develop/resources/linux/marktext.desktop).
 
 ```bash
-$ curl -L https://github.com/marktext/marktext/blob/develop/resources/linux/marktext.desktop -o $HOME/.local/share/applications/marktext.desktop
+$ curl -L https://raw.githubusercontent.com/marktext/marktext/develop/resources/linux/marktext.desktop -o $HOME/.local/share/applications/marktext.desktop
 
 # Update the Exec in desktop file to your real marktext command. Specify Path if necessary.
 $ vim $HOME/.local/share/applications/marktext.desktop
