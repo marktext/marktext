@@ -1,9 +1,8 @@
-sudo: required
 language: node_js
 node_js:
   - 12
 
-matrix:
+jobs:
   include:
   - os: osx
     osx_image: xcode9.4

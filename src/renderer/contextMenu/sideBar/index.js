@@ -35,5 +35,5 @@ export const showContextMenu = (event, hasPathCache) => {
   CONTEXT_ITEMS.forEach(item => {
     menu.append(new MenuItem(item))
   })
-  menu.popup({ window: win, x: event.clientX, y: event.clientY })
+  menu.popup([{ window: win, x: event.clientX, y: event.clientY }])
 }

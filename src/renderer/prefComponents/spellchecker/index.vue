@@ -14,7 +14,7 @@
       :onChange="value => onSelectChange('spellcheckerIsHunspell', value)"
     ></bool>
     <bool
-      description="Don't underline spelling mistakes. You can still correct spelling mistakes via the right click menu."				
+      description="Don't underline spelling mistakes. You can still correct spelling mistakes via the right click menu."
       :bool="spellcheckerNoUnderline"
       :disable="!spellcheckerEnabled"
       :onChange="value => onSelectChange('spellcheckerNoUnderline', value)"
