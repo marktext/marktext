@@ -37,7 +37,7 @@
   </a>
   <!-- Downloads latest release -->
   <a href="https://marktext.github.io/website">
-    <img src="https://img.shields.io/github/downloads/marktext/marktext/v0.16.0/total.svg" alt="latest download">
+    <img src="https://img.shields.io/github/downloads/marktext/marktext/v0.16.1/total.svg" alt="latest download">
   </a>
   <!-- deps -->
   <a href="https://marktext.github.io/website">
@@ -123,7 +123,7 @@
 
 |                                                         ![](https://github.com/ryanoasis/nerd-fonts/wiki/screenshots/v1.0.x/mac-pass-sm.png)                                                         |                                                             ![](https://github.com/ryanoasis/nerd-fonts/wiki/screenshots/v1.0.x/windows-pass-sm.png)                                                             |                                                                    ![](https://github.com/ryanoasis/nerd-fonts/wiki/screenshots/v1.0.x/linux-pass-sm.png)                                                                    |
 | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: |
-| [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext.dmg.svg)](https://github.com/marktext/marktext/releases/download/v0.16.0/marktext.dmg) | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-setup.exe.svg)](https://github.com/marktext/marktext/releases/download/v0.16.0/marktext-setup.exe) | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-x86_64.AppImage.svg)](https://github.com/marktext/marktext/releases/download/v0.16.0/marktext-x86_64.AppImage) |
+| [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext.dmg.svg)](https://github.com/marktext/marktext/releases/download/v0.16.1/marktext.dmg) | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-setup.exe.svg)](https://github.com/marktext/marktext/releases/download/v0.16.1/marktext-setup.exe) | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-x86_64.AppImage.svg)](https://github.com/marktext/marktext/releases/download/v0.16.1/marktext-x86_64.AppImage) |
 
 Kendi sistemini bulamıyor musun? [Yayınlanma sayfasına](https://github.com/marktext/marktext/releases) git.Hala mı bulamıyorsun? Bir [issue](https://github.com/marktext/marktext/issues) aç.
 
