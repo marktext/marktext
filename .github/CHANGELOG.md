@@ -95,6 +95,18 @@
 - Document can't be exported when inline formulas are in other blocks than paragraph (#1522)
 - Wrong task-list item alignment (#1540)
 
+## 0.15.1
+
+v0.15.1 is an unplanned release to fix a XSS security vulnerability.
+
+**:beetle:Bug fix**
+
+- **Fixed a XSS security vulnerability when parsing inline HTML (#1390)**
+- Fixed portable mode detection if current working directory don't match the application directory (#1382)
+- Fixed exception in main process due to file watcher (#1284)
+- Added emoji fallback fonts for macOS and Windows too (#1299)
+- Fixed RegEx for recommend title (#1128)
+
 ## 0.15.0
 
 **:warning:Breaking Changes:**
