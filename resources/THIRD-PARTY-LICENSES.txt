@@ -12,451 +12,462 @@ This file contains all third-party packages that are bundled and shipped with Ma
 3. @hfelix/electron-spellchecker (MIT)
 4. @hfelix/keyboardevent-from-electron-accelerator (MIT)
 5. @hfelix/spellchecker (MIT)
-6. @octokit/endpoint (MIT)
-7. @octokit/request-error (MIT)
-8. @octokit/request (MIT)
-9. @octokit/rest (MIT)
-10. @octokit/types (MIT)
-11. @types/clone (MIT)
-12. @types/fast-json-stable-stringify (MIT)
-13. @types/node (MIT)
-14. abab (BSD-3-Clause)
-15. acorn-globals (MIT)
-16. acorn-walk (MIT)
-17. acorn (MIT)
-18. ajv (MIT)
-19. animation-frame-polyfill (MIT)
-20. ansi-regex (MIT)
-21. ansi-styles (MIT)
-22. anymatch (ISC)
-23. aproba (ISC)
-24. are-we-there-yet (ISC)
-25. arg (MIT)
-26. array-equal (MIT)
-27. array-flat-polyfill (CC0-1.0)
-28. array-from (MIT)
-29. asn1 (MIT)
-30. assert-plus (MIT)
-31. async-limiter (MIT)
-32. async-validator (MIT)
-33. asynckit (MIT)
-34. atoa (MIT)
-35. atob-lite (MIT)
-36. aws-sign2 (Apache-2.0)
-37. aws4 (MIT)
-38. axios (MIT)
-39. babel-runtime (MIT)
-40. balanced-match (MIT)
-41. base64-js (MIT)
-42. batch-processor (MIT)
-43. bcp47 (MIT)
-44. bcrypt-pbkdf (BSD-3-Clause)
-45. before-after-hook (Apache-2.0)
-46. binary-extensions (MIT)
-47. bindings (MIT)
-48. bl (MIT)
-49. brace-expansion (MIT)
-50. braces (MIT)
-51. browser-process-hrtime (BSD-2-Clause)
-52. browser-split (MIT)
-53. btoa-lite (MIT)
-54. buffer-from (MIT)
-55. camel-case (MIT)
-56. camelcase (MIT)
-57. caseless (Apache-2.0)
-58. ced ((ISC AND Apache-2.0))
-59. chokidar (MIT)
-60. chownr (ISC)
-61. cld (Apache)
-62. clean-css (MIT)
-63. clipboard (MIT)
-64. cliui (ISC)
-65. clone-regexp (MIT)
-66. clone (MIT)
-67. code-point-at (MIT)
-68. codemirror (MIT)
-69. color-convert (MIT)
-70. color-name (MIT)
-71. combined-stream (MIT)
-72. command-exists (MIT)
-73. commander (MIT)
-74. concat-map (MIT)
-75. conf (MIT)
-76. console-control-strings (ISC)
-77. contra (MIT)
-78. core-js (MIT)
-79. core-util-is (MIT)
-80. create-point-cb (MIT)
-81. cross-spawn (MIT)
-82. crossvent (MIT)
-83. crypto-random-string (MIT)
-84. css-b64-images (MIT)
-85. cssom (MIT)
-86. cssstyle (MIT)
-87. custom-event (MIT)
-88. d3-array (BSD-3-Clause)
-89. d3-axis (BSD-3-Clause)
-90. d3-brush (BSD-3-Clause)
-91. d3-chord (BSD-3-Clause)
-92. d3-collection (BSD-3-Clause)
-93. d3-color (BSD-3-Clause)
-94. d3-contour (BSD-3-Clause)
-95. d3-delaunay (ISC)
-96. d3-dispatch (BSD-3-Clause)
-97. d3-drag (BSD-3-Clause)
-98. d3-dsv (BSD-3-Clause)
-99. d3-ease (BSD-3-Clause)
-100. d3-fetch (BSD-3-Clause)
-101. d3-force (BSD-3-Clause)
-102. d3-format (BSD-3-Clause)
-103. d3-geo (BSD-3-Clause)
-104. d3-hierarchy (BSD-3-Clause)
-105. d3-interpolate (BSD-3-Clause)
-106. d3-path (BSD-3-Clause)
-107. d3-polygon (BSD-3-Clause)
-108. d3-quadtree (BSD-3-Clause)
-109. d3-random (BSD-3-Clause)
-110. d3-scale-chromatic (BSD-3-Clause)
-111. d3-scale (BSD-3-Clause)
-112. d3-selection (BSD-3-Clause)
-113. d3-shape (BSD-3-Clause)
-114. d3-time-format (BSD-3-Clause)
-115. d3-time (BSD-3-Clause)
-116. d3-timer (BSD-3-Clause)
-117. d3-transition (BSD-3-Clause)
-118. d3-voronoi (BSD-3-Clause)
-119. d3-zoom (BSD-3-Clause)
-120. d3 (BSD-3-Clause)
-121. dagre-d3-renderer (MIT)
-122. dagre-layout (MIT)
-123. dashdash (MIT)
-124. data-urls (MIT)
-125. dayjs (MIT)
-126. debounce-fn (MIT)
-127. debug (MIT)
-128. decamelize (MIT)
-129. decompress-response (MIT)
-130. deep-extend (MIT)
-131. deep-is (MIT)
-132. deepmerge (MIT)
-133. delaunator (ISC)
-134. delayed-stream (MIT)
-135. delegate (MIT)
-136. delegates (MIT)
-137. deprecation (ISC)
-138. detect-libc (Apache-2.0)
-139. dom-autoscroller (MIT)
-140. dom-mousemove-dispatcher (MIT)
-141. dom-plane (MIT)
-142. dom-set (WTFPL)
-143. domexception (MIT)
-144. dompurify (MPL-2.0 OR Apache-2.0)
-145. dot-prop (MIT)
-146. dragula (MIT)
-147. ecc-jsbn (MIT)
-148. electron-is-accelerator (MIT)
-149. electron-log (MIT)
-150. electron-store (MIT)
-151. electron-window-state (MIT)
-152. element-resize-detector (MIT)
-153. element-ui (MIT)
-154. emoji-regex (MIT)
-155. end-of-stream (MIT)
-156. env-paths (MIT)
-157. escaper (MIT)
-158. escodegen (BSD-2-Clause)
-159. esprima (BSD-2-Clause)
-160. estraverse (BSD-2-Clause)
-161. esutils (BSD-2-Clause)
-162. eve-raphael (Apache*)
-163. event-kit (MIT)
-164. execa (MIT)
-165. execall (MIT)
-166. expand-template ((MIT OR WTFPL))
-167. extend (MIT)
-168. extsprintf (MIT)
-169. fast-deep-equal (MIT)
-170. fast-json-patch (MIT)
-171. fast-json-stable-stringify (MIT)
-172. fast-levenshtein (MIT)
-173. file-icons-js (MIT)
-174. file-uri-to-path (MIT)
-175. fill-range (MIT)
-176. find-up (MIT)
-177. flowchart.js (MIT)
-178. follow-redirects (MIT)
-179. fontmanager-redux (MIT)
-180. forever-agent (Apache-2.0)
-181. form-data (MIT)
-182. form-urlencoded (MIT)
-183. fs-constants (MIT)
-184. fs-extra (MIT)
-185. fs.realpath (ISC)
-186. fuzzaldrin (MIT)
-187. gauge (ISC)
-188. get-caller-file (ISC)
-189. get-stream (MIT)
-190. getpass (MIT)
-191. github-from-package (MIT)
-192. github-markdown-css (MIT)
-193. glob-parent (ISC)
-194. glob (ISC)
-195. good-listener (MIT)
-196. graceful-fs (ISC)
-197. graphlibrary (MIT)
-198. har-schema (ISC)
-199. har-validator (MIT)
-200. has-unicode (ISC)
-201. he (MIT)
-202. html-encoding-sniffer (MIT)
-203. html-minifier (MIT)
-204. html-tags (MIT)
-205. http-signature (MIT)
-206. iconv-lite (MIT)
-207. imurmurhash (MIT)
-208. inflight (ISC)
-209. inherits (ISC)
-210. ini (ISC)
-211. is-array (MIT)
-212. is-binary-path (MIT)
-213. is-buffer (MIT)
-214. is-extglob (MIT)
-215. is-fullwidth-code-point (MIT)
-216. is-glob (MIT)
-217. is-number (MIT)
-218. is-obj (MIT)
-219. is-plain-object (MIT)
-220. is-regexp (MIT)
-221. is-stream (MIT)
-222. is-typedarray (MIT)
-223. isarray (MIT)
-224. iselement (MIT)
-225. isexe (ISC)
-226. iso-639-1 (MIT)
-227. isobject (MIT)
-228. isstream (MIT)
-229. joplin-turndown-plugin-gfm (MIT)
-230. jsbn (MIT)
-231. jsdom (MIT)
-232. json-schema-traverse (MIT)
-233. json-schema-typed (BSD-2-Clause)
-234. json-schema (AFLv2.1,BSD)
-235. json-stringify-pretty-compact (MIT)
-236. json-stringify-safe (ISC)
-237. jsonfile (MIT)
-238. jsprim (MIT)
-239. katex (MIT)
-240. keyboard-layout (MIT)
-241. keyboardevents-areequal (MIT)
-242. keytar (MIT)
-243. left-pad (WTFPL)
-244. levn (MIT)
-245. locate-path (MIT)
-246. lodash.escape (MIT)
-247. lodash.forown (MIT)
-248. lodash.get (MIT)
-249. lodash.kebabcase (MIT)
-250. lodash.remove (MIT)
-251. lodash.set (MIT)
-252. lodash.sortby (MIT)
-253. lodash.uniq (MIT)
-254. lodash (MIT)
-255. lower-case (MIT)
-256. lru-cache (ISC)
-257. macos-release (MIT)
-258. make-dir (MIT)
-259. mermaid (MIT)
-260. mime-db (MIT)
-261. mime-types (MIT)
-262. mimic-fn (MIT)
-263. mimic-response (MIT)
-264. minify (MIT)
-265. minimatch (ISC)
-266. minimist (MIT)
-267. mkdirp (MIT)
-268. moment-mini (MIT)
-269. ms (MIT)
-270. nan (MIT)
-271. napi-build-utils (MIT)
-272. nice-try (MIT)
-273. no-case (MIT)
-274. node-abi (MIT)
-275. node-fetch (MIT)
-276. noop-logger (MIT)
-277. normalize-path (MIT)
-278. normalize-wheel (BSD-3-Clause)
-279. npm-run-path (MIT)
-280. npmlog (ISC)
-281. number-is-nan (MIT)
-282. nwsapi (MIT)
-283. oauth-sign (Apache-2.0)
-284. object-assign (MIT)
-285. octokit-pagination-methods (MIT)
-286. once (ISC)
-287. onetime (MIT)
-288. optionator (MIT)
-289. os-name (MIT)
-290. p-finally (MIT)
-291. p-limit (MIT)
-292. p-locate (MIT)
-293. p-throttle (MIT)
-294. p-try (MIT)
-295. param-case (MIT)
-296. parse-sel (MIT)
-297. parse5 (MIT)
-298. path-exists (MIT)
-299. path-is-absolute (MIT)
-300. path-key (MIT)
-301. performance-now (MIT)
-302. picomatch (MIT)
-303. pkg-up (MIT)
-304. plist (MIT)
-305. pn (MIT)
-306. popper.js (MIT)
-307. prebuild-install (MIT)
-308. prelude-ls (MIT)
-309. prettier (MIT)
-310. prismjs (MIT)
-311. process-nextick-args (MIT)
-312. psl (MIT)
-313. pump (MIT)
-314. punycode (MIT)
-315. qs (BSD-3-Clause)
-316. querystring (MIT)
-317. querystringify (MIT)
-318. raphael (MIT)
-319. rc ((BSD-2-Clause OR MIT OR Apache-2.0))
-320. readable-stream (MIT)
-321. readdirp (MIT)
-322. regenerator-runtime (MIT)
-323. relateurl (MIT)
-324. request-promise-core (ISC)
-325. request-promise-native (ISC)
-326. request (Apache-2.0)
-327. require-directory (MIT)
-328. require-main-filename (ISC)
-329. requires-port (MIT)
-330. resize-observer-polyfill (MIT)
-331. rimraf (ISC)
-332. rw (BSD-3-Clause)
-333. safe-buffer (MIT)
-334. safer-buffer (MIT)
-335. sax (ISC)
-336. scope-css (MIT)
-337. select (MIT)
-338. semver (ISC)
-339. set-blocking (ISC)
-340. shebang-command (MIT)
-341. shebang-regex (MIT)
-342. signal-exit (ISC)
-343. simple-concat (MIT)
-344. simple-get (MIT)
-345. slugify (MIT)
-346. snabbdom-to-html (MIT)
-347. snabbdom (MIT)
-348. source-map-support (MIT)
-349. source-map (BSD-3-Clause)
-350. sshpk (MIT)
-351. stealthy-require (ISC)
-352. string-width (MIT)
-353. string_decoder (MIT)
-354. strip-ansi (MIT)
-355. strip-css-comments (MIT)
-356. strip-eof (MIT)
-357. strip-json-comments (MIT)
-358. symbol-tree (MIT)
-359. tar-fs (MIT)
-360. tar-stream (MIT)
-361. terser (BSD-2-Clause)
-362. throttle-debounce (MIT)
-363. ticky (MIT)
-364. tiny-emitter (MIT)
-365. to-regex-range (MIT)
-366. topojson-client (BSD-3-Clause)
-367. tough-cookie (BSD-3-Clause)
-368. tr46 (MIT)
-369. try-catch (MIT)
-370. try-to-catch (MIT)
-371. tslib (Apache-2.0)
-372. tunnel-agent (Apache-2.0)
-373. turndown (MIT)
-374. tweetnacl (Unlicense)
-375. type-check (MIT)
-376. type-fest ((MIT OR CC0-1.0))
-377. type-func (MIT)
-378. typedarray-to-buffer (MIT)
-379. uglify-js (BSD-2-Clause)
-380. underscore (MIT)
-381. universal-user-agent (ISC)
-382. universalify (MIT)
-383. unsplash-js (MIT)
-384. upper-case (MIT)
-385. uri-js (BSD-2-Clause)
-386. url-parse (MIT)
-387. util-deprecate (MIT)
-388. uuid (MIT)
-389. vega-canvas (BSD-3-Clause)
-390. vega-crossfilter (BSD-3-Clause)
-391. vega-dataflow (BSD-3-Clause)
-392. vega-embed (BSD-3-Clause)
-393. vega-encode (BSD-3-Clause)
-394. vega-event-selector (BSD-3-Clause)
-395. vega-expression (BSD-3-Clause)
-396. vega-force (BSD-3-Clause)
-397. vega-functions (BSD-3-Clause)
-398. vega-geo (BSD-3-Clause)
-399. vega-hierarchy (BSD-3-Clause)
-400. vega-lite (BSD-3-Clause)
-401. vega-loader (BSD-3-Clause)
-402. vega-parser (BSD-3-Clause)
-403. vega-projection (BSD-3-Clause)
-404. vega-regression (BSD-3-Clause)
-405. vega-runtime (BSD-3-Clause)
-406. vega-scale (BSD-3-Clause)
-407. vega-scenegraph (BSD-3-Clause)
-408. vega-schema-url-parser (BSD-3-Clause)
-409. vega-selections (BSD-3-Clause)
-410. vega-statistics (BSD-3-Clause)
-411. vega-themes (BSD-3-Clause)
-412. vega-tooltip (BSD-3-Clause)
-413. vega-transforms (BSD-3-Clause)
-414. vega-typings (BSD-3-Clause)
-415. vega-util (BSD-3-Clause)
-416. vega-view-transforms (BSD-3-Clause)
-417. vega-view (BSD-3-Clause)
-418. vega-voronoi (BSD-3-Clause)
-419. vega-wordcloud (BSD-3-Clause)
-420. vega (BSD-3-Clause)
-421. verror (MIT)
-422. view-image (MIT)
-423. vscode-ripgrep (MIT)
-424. vue-electron (ISC)
-425. vue-router (MIT)
-426. vue (MIT)
-427. vuex (MIT)
-428. w3c-hr-time (MIT)
-429. webfontloader (Apache-2.0)
-430. webidl-conversions (BSD-2-Clause)
-431. whatwg-encoding (MIT)
-432. whatwg-mimetype (MIT)
-433. whatwg-url (MIT)
-434. which-module (ISC)
-435. which-pm-runs (MIT)
-436. which (ISC)
-437. wide-align (ISC)
-438. windows-release (MIT)
-439. wordwrap (MIT)
-440. wrap-ansi (MIT)
-441. wrappy (ISC)
-442. write-file-atomic (ISC)
-443. ws (MIT)
-444. xml-name-validator (Apache-2.0)
-445. xmlbuilder (MIT)
-446. y18n (ISC)
-447. yallist (ISC)
-448. yargs-parser (ISC)
-449. yargs (MIT)
-450. hunspell (LGPL 2.1)
+6. @octokit/auth-token (MIT)
+7. @octokit/endpoint (MIT)
+8. @octokit/plugin-paginate-rest (MIT)
+9. @octokit/plugin-request-log (MIT)
+10. @octokit/plugin-rest-endpoint-methods (MIT)
+11. @octokit/request-error (MIT)
+12. @octokit/request (MIT)
+13. @octokit/rest (MIT)
+14. @octokit/types (MIT)
+15. @types/clone (MIT)
+16. @types/color-name (MIT)
+17. @types/fast-json-stable-stringify (MIT)
+18. @types/node (MIT)
+19. abab (BSD-3-Clause)
+20. acorn-globals (MIT)
+21. acorn-walk (MIT)
+22. acorn (MIT)
+23. ajv (MIT)
+24. animation-frame-polyfill (MIT)
+25. ansi-regex (MIT)
+26. ansi-styles (MIT)
+27. anymatch (ISC)
+28. aproba (ISC)
+29. are-we-there-yet (ISC)
+30. arg (MIT)
+31. array-flat-polyfill (CC0-1.0)
+32. array-from (MIT)
+33. asn1 (MIT)
+34. assert-plus (MIT)
+35. async-validator (MIT)
+36. asynckit (MIT)
+37. atoa (MIT)
+38. atob-lite (MIT)
+39. aws-sign2 (Apache-2.0)
+40. aws4 (MIT)
+41. axios (MIT)
+42. babel-runtime (MIT)
+43. balanced-match (MIT)
+44. base64-js (MIT)
+45. batch-processor (MIT)
+46. bcp47 (MIT)
+47. bcrypt-pbkdf (BSD-3-Clause)
+48. before-after-hook (Apache-2.0)
+49. binary-extensions (MIT)
+50. bindings (MIT)
+51. bl (MIT)
+52. brace-expansion (MIT)
+53. braces (MIT)
+54. browser-process-hrtime (BSD-2-Clause)
+55. browser-split (MIT)
+56. btoa-lite (MIT)
+57. buffer-from (MIT)
+58. camel-case (MIT)
+59. camelcase (MIT)
+60. caseless (Apache-2.0)
+61. ced ((ISC AND Apache-2.0))
+62. chokidar (MIT)
+63. chownr (ISC)
+64. cld (Apache)
+65. clean-css (MIT)
+66. clipboard (MIT)
+67. cliui (ISC)
+68. clone-regexp (MIT)
+69. clone (MIT)
+70. code-point-at (MIT)
+71. codemirror (MIT)
+72. color-convert (MIT)
+73. color-name (MIT)
+74. combined-stream (MIT)
+75. command-exists (MIT)
+76. commander (MIT)
+77. concat-map (MIT)
+78. conf (MIT)
+79. console-control-strings (ISC)
+80. contra (MIT)
+81. core-js (MIT)
+82. core-util-is (MIT)
+83. create-point-cb (MIT)
+84. cross-spawn (MIT)
+85. crossvent (MIT)
+86. crypto-random-string (MIT)
+87. css-b64-images (MIT)
+88. cssom (MIT)
+89. cssstyle (MIT)
+90. custom-event (MIT)
+91. d3-array (BSD-3-Clause)
+92. d3-axis (BSD-3-Clause)
+93. d3-brush (BSD-3-Clause)
+94. d3-chord (BSD-3-Clause)
+95. d3-collection (BSD-3-Clause)
+96. d3-color (BSD-3-Clause)
+97. d3-contour (BSD-3-Clause)
+98. d3-delaunay (ISC)
+99. d3-dispatch (BSD-3-Clause)
+100. d3-drag (BSD-3-Clause)
+101. d3-dsv (BSD-3-Clause)
+102. d3-ease (BSD-3-Clause)
+103. d3-fetch (BSD-3-Clause)
+104. d3-force (BSD-3-Clause)
+105. d3-format (BSD-3-Clause)
+106. d3-geo-projection (BSD-3-Clause)
+107. d3-geo (BSD-3-Clause)
+108. d3-hierarchy (BSD-3-Clause)
+109. d3-interpolate (BSD-3-Clause)
+110. d3-path (BSD-3-Clause)
+111. d3-polygon (BSD-3-Clause)
+112. d3-quadtree (BSD-3-Clause)
+113. d3-random (BSD-3-Clause)
+114. d3-scale-chromatic (BSD-3-Clause)
+115. d3-scale (BSD-3-Clause)
+116. d3-selection (BSD-3-Clause)
+117. d3-shape (BSD-3-Clause)
+118. d3-time-format (BSD-3-Clause)
+119. d3-time (BSD-3-Clause)
+120. d3-timer (BSD-3-Clause)
+121. d3-transition (BSD-3-Clause)
+122. d3-voronoi (BSD-3-Clause)
+123. d3-zoom (BSD-3-Clause)
+124. d3 (BSD-3-Clause)
+125. dagre-d3 (MIT)
+126. dagre (MIT)
+127. dashdash (MIT)
+128. data-urls (MIT)
+129. dayjs (MIT)
+130. debounce-fn (MIT)
+131. debug (MIT)
+132. decamelize (MIT)
+133. decimal.js (MIT)
+134. decompress-response (MIT)
+135. deep-extend (MIT)
+136. deep-is (MIT)
+137. deepmerge (MIT)
+138. delaunator (ISC)
+139. delayed-stream (MIT)
+140. delegate (MIT)
+141. delegates (MIT)
+142. deprecation (ISC)
+143. detect-libc (Apache-2.0)
+144. dom-autoscroller (MIT)
+145. dom-mousemove-dispatcher (MIT)
+146. dom-plane (MIT)
+147. dom-set (WTFPL)
+148. domexception (MIT)
+149. dompurify (MPL-2.0 OR Apache-2.0)
+150. dot-prop (MIT)
+151. dragula (MIT)
+152. ecc-jsbn (MIT)
+153. electron-is-accelerator (MIT)
+154. electron-log (MIT)
+155. electron-store (MIT)
+156. electron-window-state (MIT)
+157. element-resize-detector (MIT)
+158. element-ui (MIT)
+159. emoji-regex (MIT)
+160. end-of-stream (MIT)
+161. env-paths (MIT)
+162. escaper (MIT)
+163. escodegen (BSD-2-Clause)
+164. esprima (BSD-2-Clause)
+165. estraverse (BSD-2-Clause)
+166. esutils (BSD-2-Clause)
+167. eve-raphael (Apache*)
+168. event-kit (MIT)
+169. execa (MIT)
+170. execall (MIT)
+171. expand-template ((MIT OR WTFPL))
+172. extend (MIT)
+173. extsprintf (MIT)
+174. fast-deep-equal (MIT)
+175. fast-json-patch (MIT)
+176. fast-json-stable-stringify (MIT)
+177. fast-levenshtein (MIT)
+178. file-icons-js (MIT)
+179. file-uri-to-path (MIT)
+180. fill-range (MIT)
+181. find-up (MIT)
+182. flowchart.js (MIT)
+183. follow-redirects (MIT)
+184. fontmanager-redux (MIT)
+185. forever-agent (Apache-2.0)
+186. form-data (MIT)
+187. form-urlencoded (MIT)
+188. fs-constants (MIT)
+189. fs-extra (MIT)
+190. fs.realpath (ISC)
+191. fsevents (MIT)
+192. fuzzaldrin (MIT)
+193. gauge (ISC)
+194. get-caller-file (ISC)
+195. get-stream (MIT)
+196. getpass (MIT)
+197. github-from-package (MIT)
+198. github-markdown-css (MIT)
+199. glob-parent (ISC)
+200. glob (ISC)
+201. good-listener (MIT)
+202. graceful-fs (ISC)
+203. graphlib (MIT)
+204. har-schema (ISC)
+205. har-validator (MIT)
+206. has-unicode (ISC)
+207. he (MIT)
+208. html-encoding-sniffer (MIT)
+209. html-minifier (MIT)
+210. html-tags (MIT)
+211. http-signature (MIT)
+212. iconv-lite (MIT)
+213. imurmurhash (MIT)
+214. inflight (ISC)
+215. inherits (ISC)
+216. ini (ISC)
+217. ip-regex (MIT)
+218. is-array (MIT)
+219. is-binary-path (MIT)
+220. is-extglob (MIT)
+221. is-fullwidth-code-point (MIT)
+222. is-glob (MIT)
+223. is-number (MIT)
+224. is-obj (MIT)
+225. is-plain-object (MIT)
+226. is-potential-custom-element-name (MIT)
+227. is-regexp (MIT)
+228. is-stream (MIT)
+229. is-typedarray (MIT)
+230. isarray (MIT)
+231. iselement (MIT)
+232. isexe (ISC)
+233. iso-639-1 (MIT)
+234. isobject (MIT)
+235. isstream (MIT)
+236. joplin-turndown-plugin-gfm (MIT)
+237. jsbn (MIT)
+238. jsdom (MIT)
+239. json-schema-traverse (MIT)
+240. json-schema-typed (BSD-2-Clause)
+241. json-schema (AFLv2.1,BSD)
+242. json-stringify-pretty-compact (MIT)
+243. json-stringify-safe (ISC)
+244. jsonfile (MIT)
+245. jsprim (MIT)
+246. katex (MIT)
+247. keyboard-layout (MIT)
+248. keyboardevents-areequal (MIT)
+249. keytar (MIT)
+250. levn (MIT)
+251. locate-path (MIT)
+252. lodash.escape (MIT)
+253. lodash.forown (MIT)
+254. lodash.get (MIT)
+255. lodash.kebabcase (MIT)
+256. lodash.remove (MIT)
+257. lodash.set (MIT)
+258. lodash.sortby (MIT)
+259. lodash.uniq (MIT)
+260. lodash (MIT)
+261. lower-case (MIT)
+262. lru-cache (ISC)
+263. macos-release (MIT)
+264. make-dir (MIT)
+265. mermaid (MIT)
+266. mime-db (MIT)
+267. mime-types (MIT)
+268. mimic-fn (MIT)
+269. mimic-response (MIT)
+270. minify (MIT)
+271. minimatch (ISC)
+272. minimist (MIT)
+273. mkdirp (MIT)
+274. moment-mini (MIT)
+275. ms (MIT)
+276. nan (MIT)
+277. napi-build-utils (MIT)
+278. nice-try (MIT)
+279. no-case (MIT)
+280. node-abi (MIT)
+281. node-addon-api (MIT)
+282. node-fetch (MIT)
+283. noop-logger (MIT)
+284. normalize-path (MIT)
+285. normalize-wheel (BSD-3-Clause)
+286. npm-run-path (MIT)
+287. npmlog (ISC)
+288. number-is-nan (MIT)
+289. nwsapi (MIT)
+290. oauth-sign (Apache-2.0)
+291. object-assign (MIT)
+292. octokit-pagination-methods (MIT)
+293. once (ISC)
+294. onetime (MIT)
+295. optionator (MIT)
+296. os-name (MIT)
+297. p-finally (MIT)
+298. p-limit (MIT)
+299. p-locate (MIT)
+300. p-throttle (MIT)
+301. p-try (MIT)
+302. param-case (MIT)
+303. parse-sel (MIT)
+304. parse5 (MIT)
+305. path-exists (MIT)
+306. path-is-absolute (MIT)
+307. path-key (MIT)
+308. path-parse (MIT)
+309. performance-now (MIT)
+310. picomatch (MIT)
+311. pkg-up (MIT)
+312. plist (MIT)
+313. popper.js (MIT)
+314. prebuild-install (MIT)
+315. prelude-ls (MIT)
+316. prismjs (MIT)
+317. process-nextick-args (MIT)
+318. psl (MIT)
+319. pump (MIT)
+320. punycode (MIT)
+321. qs (BSD-3-Clause)
+322. querystring (MIT)
+323. querystringify (MIT)
+324. raphael (MIT)
+325. rc ((BSD-2-Clause OR MIT OR Apache-2.0))
+326. readable-stream (MIT)
+327. readdirp (MIT)
+328. regenerator-runtime (MIT)
+329. relateurl (MIT)
+330. request-promise-core (ISC)
+331. request-promise-native (ISC)
+332. request (Apache-2.0)
+333. require-directory (MIT)
+334. require-main-filename (ISC)
+335. requires-port (MIT)
+336. resize-observer-polyfill (MIT)
+337. resolve (MIT)
+338. rimraf (ISC)
+339. rw (BSD-3-Clause)
+340. safe-buffer (MIT)
+341. safer-buffer (MIT)
+342. saxes (ISC)
+343. scope-css (MIT)
+344. select (MIT)
+345. semver (ISC)
+346. set-blocking (ISC)
+347. shebang-command (MIT)
+348. shebang-regex (MIT)
+349. signal-exit (ISC)
+350. simple-concat (MIT)
+351. simple-get (MIT)
+352. slugify (MIT)
+353. snabbdom-to-html (MIT)
+354. snabbdom (MIT)
+355. source-map-support (MIT)
+356. source-map (BSD-3-Clause)
+357. sshpk (MIT)
+358. stealthy-require (ISC)
+359. string-width (MIT)
+360. string_decoder (MIT)
+361. strip-ansi (MIT)
+362. strip-css-comments (MIT)
+363. strip-eof (MIT)
+364. strip-json-comments (MIT)
+365. symbol-tree (MIT)
+366. tar-fs (MIT)
+367. tar-stream (MIT)
+368. terser (BSD-2-Clause)
+369. throttle-debounce (MIT)
+370. ticky (MIT)
+371. tiny-emitter (MIT)
+372. to-regex-range (MIT)
+373. topojson-client (ISC)
+374. tough-cookie (BSD-3-Clause)
+375. tr46 (MIT)
+376. try-catch (MIT)
+377. try-to-catch (MIT)
+378. tslib (Apache-2.0)
+379. tunnel-agent (Apache-2.0)
+380. turndown (MIT)
+381. tweetnacl (Unlicense)
+382. type-check (MIT)
+383. type-fest ((MIT OR CC0-1.0))
+384. type-func (MIT)
+385. typedarray-to-buffer (MIT)
+386. uglify-js (BSD-2-Clause)
+387. underscore (MIT)
+388. universal-user-agent (ISC)
+389. universalify (MIT)
+390. unsplash-js (MIT)
+391. upper-case (MIT)
+392. uri-js (BSD-2-Clause)
+393. url-parse (MIT)
+394. util-deprecate (MIT)
+395. uuid (MIT)
+396. vega-canvas (BSD-3-Clause)
+397. vega-crossfilter (BSD-3-Clause)
+398. vega-dataflow (BSD-3-Clause)
+399. vega-embed (BSD-3-Clause)
+400. vega-encode (BSD-3-Clause)
+401. vega-event-selector (BSD-3-Clause)
+402. vega-expression (BSD-3-Clause)
+403. vega-force (BSD-3-Clause)
+404. vega-functions (BSD-3-Clause)
+405. vega-geo (BSD-3-Clause)
+406. vega-hierarchy (BSD-3-Clause)
+407. vega-lite (BSD-3-Clause)
+408. vega-loader (BSD-3-Clause)
+409. vega-parser (BSD-3-Clause)
+410. vega-projection (BSD-3-Clause)
+411. vega-regression (BSD-3-Clause)
+412. vega-runtime (BSD-3-Clause)
+413. vega-scale (BSD-3-Clause)
+414. vega-scenegraph (BSD-3-Clause)
+415. vega-schema-url-parser (BSD-3-Clause)
+416. vega-selections (BSD-3-Clause)
+417. vega-statistics (BSD-3-Clause)
+418. vega-themes (BSD-3-Clause)
+419. vega-time (BSD-3-Clause)
+420. vega-tooltip (BSD-3-Clause)
+421. vega-transforms (BSD-3-Clause)
+422. vega-typings (BSD-3-Clause)
+423. vega-util (BSD-3-Clause)
+424. vega-view-transforms (BSD-3-Clause)
+425. vega-view (BSD-3-Clause)
+426. vega-voronoi (BSD-3-Clause)
+427. vega-wordcloud (BSD-3-Clause)
+428. vega (BSD-3-Clause)
+429. verror (MIT)
+430. view-image (MIT)
+431. vscode-ripgrep (MIT)
+432. vue-electron (ISC)
+433. vue-router (MIT)
+434. vue (MIT)
+435. vuex (MIT)
+436. w3c-hr-time (MIT)
+437. w3c-xmlserializer (MIT)
+438. webfontloader (Apache-2.0)
+439. webidl-conversions (BSD-2-Clause)
+440. whatwg-encoding (MIT)
+441. whatwg-mimetype (MIT)
+442. whatwg-url (MIT)
+443. which-module (ISC)
+444. which-pm-runs (MIT)
+445. which (ISC)
+446. wide-align (ISC)
+447. windows-release (MIT)
+448. word-wrap (MIT)
+449. wrap-ansi (MIT)
+450. wrappy (ISC)
+451. write-file-atomic (ISC)
+452. ws (MIT)
+453. xml-name-validator (Apache-2.0)
+454. xmlbuilder (MIT)
+455. xmlchars (MIT)
+456. xmldom (MIT*)
+457. y18n (ISC)
+458. yallist (ISC)
+459. yargs-parser (ISC)
+460. yargs (MIT)
+461. hunspell (LGPL 2.1)
 
 
 -------------------------------------------------
@@ -578,6 +589,32 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
 
+# @octokit/auth-token (MIT)
+-------------------------------------------------
+The MIT License
+
+Copyright (c) 2019 Octokit contributors
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+
+
+
 # @octokit/endpoint (MIT)
 -------------------------------------------------
 The MIT License
@@ -601,6 +638,42 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
+
+
+
+# @octokit/plugin-paginate-rest (MIT)
+-------------------------------------------------
+MIT License Copyright (c) 2019 Octokit contributors
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice (including the next paragraph) shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+
+
+# @octokit/plugin-request-log (MIT)
+-------------------------------------------------
+MIT License Copyright (c) 2020 Octokit contributors
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice (including the next paragraph) shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+
+
+# @octokit/plugin-rest-endpoint-methods (MIT)
+-------------------------------------------------
+MIT License Copyright (c) 2019 Octokit contributors
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice (including the next paragraph) shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
 
@@ -718,6 +791,32 @@ These definitions were written by Kieran Simpson <https://github.com/kierans/Def
 
 
 
+# @types/color-name (MIT)
+-------------------------------------------------
+MIT License
+
+    Copyright (c) Microsoft Corporation. All rights reserved.
+
+    Permission is hereby granted, free of charge, to any person obtaining a copy
+    of this software and associated documentation files (the "Software"), to deal
+    in the Software without restriction, including without limitation the rights
+    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+    copies of the Software, and to permit persons to whom the Software is
+    furnished to do so, subject to the following conditions:
+
+    The above copyright notice and this permission notice shall be included in all
+    copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+    SOFTWARE
+
+
+
 # @types/fast-json-stable-stringify (MIT)
 -------------------------------------------------
 MIT License
@@ -774,17 +873,17 @@ MIT License
 -------------------------------------------------
 Copyright © 2019 W3C and Jeff Carpenter \<jeffcarp@chromium.org\>
 
-Both the original source code and new contributions in this repository are released under the [W3C 3-clause BSD license](https://github.com/w3c/web-platform-tests/blob/master/LICENSE.md#w3c-3-clause-bsd-license).
+Both the original source code and new contributions in this repository are released under the [3-Clause BSD license](https://opensource.org/licenses/BSD-3-Clause).
 
-# W3C 3-clause BSD License
+# The 3-Clause BSD License
 
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
 
-*    Redistributions of works must retain the original copyright notice, this list of conditions and the following disclaimer.
-*    Redistributions in binary form must reproduce the original copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
-*    Neither the name of the W3C nor the names of its contributors may be used to endorse or promote products derived from this work without specific prior written permission.
+1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
 
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 
@@ -996,7 +1095,7 @@ THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH RE
 -------------------------------------------------
 MIT License
 
-Copyright (c) 2017 Zeit, Inc.
+Copyright (c) 2017-2019 Zeit, Inc.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -1015,32 +1114,6 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-
-
-
-# array-equal (MIT)
--------------------------------------------------
-The MIT License (MIT)
-
-Copyright (c) 2014 Jonathan Ong me@jongleberry.com
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
 
 
 
@@ -1357,19 +1430,6 @@ SOFTWARE.
 ## Bugs
 
 See <https://github.com/mcavage/node-assert-plus/issues>.
-
-
-
-# async-limiter (MIT)
--------------------------------------------------
-The MIT License (MIT)
-Copyright (c) 2017 Samuel Reed <samuel.trace.reed@gmail.com>
-
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
 
@@ -3233,7 +3293,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 -------------------------------------------------
 MIT License
 
-Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com)
+Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (https://sindresorhus.com)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
@@ -3535,33 +3595,26 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 # cssstyle (MIT)
 -------------------------------------------------
-# CSSStyleDeclaration
+Copyright (c) Chad Walker
 
-[![NpmVersion](https://img.shields.io/npm/v/cssstyle.svg)](https://www.npmjs.com/package/cssstyle) [![Build Status](https://travis-ci.org/jsakas/CSSStyleDeclaration.svg?branch=master)](https://travis-ci.org/jsakas/CSSStyleDeclaration)
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of this software and associated documentation files (the
+"Software"), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
 
-CSSStyleDeclaration is a work-a-like to the CSSStyleDeclaration class in Nikita Vasilyev's [CSSOM](https://github.com/NV/CSSOM). I made it so that when using [jQuery in node](https://github.com/tmtk75/node-jquery) setting css attributes via $.fn.css() would work. node-jquery uses [jsdom](https://github.com/tmpvar/jsdom) to create a DOM to use in node. jsdom uses CSSOM for styling, and CSSOM's implementation of the [CSSStyleDeclaration](http://www.w3.org/TR/DOM-Level-2-Style/css.html#CSS-CSSStyleDeclaration) doesn't support [CSS2Properties](http://www.w3.org/TR/DOM-Level-2-Style/css.html#CSS-CSS2Properties), which is how jQuery's [$.fn.css()](http://api.jquery.com/css/) operates.
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
 
-### Why not just issue a pull request?
-
-Well, NV wants to keep CSSOM fast (which I can appreciate) and CSS2Properties aren't required by the standard (though every browser has the interface). So I figured the path of least resistance would be to just modify this one class, publish it as a node module (that requires CSSOM) and then make a pull request of jsdom to use it.
-
-### How do I test this code?
-
-`npm test` should do the trick, assuming you have the dev dependencies installed:
-
-```
-$ npm test
-
-tests
-✔ Verify Has Properties
-✔ Verify Has Functions
-✔ Verify Has Special Properties
-✔ Test From Style String
-✔ Test From Properties
-✔ Test Shorthand Properties
-✔ Test width and height Properties and null and empty strings
-✔ Test Implicit Properties
-```
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
 
@@ -4070,6 +4123,65 @@ LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
 ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+
+
+# d3-geo-projection (BSD-3-Clause)
+-------------------------------------------------
+Copyright 2013-2016 Mike Bostock
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without modification,
+are permitted provided that the following conditions are met:
+
+* Redistributions of source code must retain the above copyright notice, this
+  list of conditions and the following disclaimer.
+
+* Redistributions in binary form must reproduce the above copyright notice,
+  this list of conditions and the following disclaimer in the documentation
+  and/or other materials provided with the distribution.
+
+* Neither the name of the author nor the names of contributors may be used to
+  endorse or promote products derived from this software without specific prior
+  written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
+ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
+ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+
+
+
+MIT License for https://github.com/scijs/integrate-adaptive-simpson
+
+The MIT License (MIT)
+
+Copyright (c) 2015 Ricky Reusser
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
 
 
 
@@ -4740,21 +4852,33 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 
-# dagre-d3-renderer (MIT)
+# dagre-d3 (MIT)
 -------------------------------------------------
-Copyright 2018 Tyler Long
+Copyright (c) 2013 Chris Pettitt
 
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
 
-The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
 
 
 
-# dagre-layout (MIT)
+# dagre (MIT)
 -------------------------------------------------
-Copyright (c) 2018 Tyler Long
+Copyright (c) 2012-2014 Chris Pettitt
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -4806,7 +4930,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 # data-urls (MIT)
 -------------------------------------------------
-Copyright © 2017–2018 Domenic Denicola <d@domenic.me>
+Copyright © 2017–2020 Domenic Denicola <d@domenic.me>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
@@ -4902,6 +5026,33 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
+
+
+
+# decimal.js (MIT)
+-------------------------------------------------
+The MIT Licence.
+
+Copyright (c) 2019 Michael Mclaughlin
+
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of this software and associated documentation files (the
+'Software'), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
+
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
 
@@ -6021,7 +6172,7 @@ SOFTWARE.
 -------------------------------------------------
 MIT License
 
-Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com)
+Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (https://sindresorhus.com)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
@@ -6691,6 +6842,9 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 -------------------------------------------------
 This software is released under the MIT license:
 
+Copyright (c) 2017 Evgeny Poberezkin
+Copyright (c) 2013 James Halliday
+
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
 the Software without restriction, including without limitation the rights to
@@ -7321,6 +7475,33 @@ the licensed code:
 
 
 
+# fsevents (MIT)
+-------------------------------------------------
+MIT License
+-----------
+
+Copyright (C) 2010-2019 by Philipp Dunkel, Ben Noordhuis, Elan Shankar, Paul Miller
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+
+
+
 # fuzzaldrin (MIT)
 -------------------------------------------------
 Copyright (c) 2009-2011 Joshaven Potter <yourtech@gmail.com>
@@ -7606,9 +7787,9 @@ IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 
 
-# graphlibrary (MIT)
+# graphlib (MIT)
 -------------------------------------------------
-Copyright (c) 2018 Tyler Long
+Copyright (c) 2012-2014 Chris Pettitt
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -7707,7 +7888,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 # html-encoding-sniffer (MIT)
 -------------------------------------------------
-Copyright © 2016 Domenic Denicola <d@domenic.me>
+Copyright © 2016–2020 Domenic Denicola <d@domenic.me>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
@@ -7993,6 +8174,32 @@ IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 
 
+# ip-regex (MIT)
+-------------------------------------------------
+The MIT License (MIT)
+
+Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com)
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+
+
+
 # is-array (MIT)
 -------------------------------------------------
 <a href="https://jepso-ci.com/yields/isArray">
@@ -8036,32 +8243,6 @@ Permission is hereby granted, free of charge, to any person obtaining a copy of 
 The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-
-
-# is-buffer (MIT)
--------------------------------------------------
-The MIT License (MIT)
-
-Copyright (c) Feross Aboukhadijeh
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
 
 
 
@@ -8206,6 +8387,31 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
+
+
+
+# is-potential-custom-element-name (MIT)
+-------------------------------------------------
+Copyright Mathias Bynens <https://mathiasbynens.be/>
+
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of this software and associated documentation files (the
+"Software"), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
+
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
 
@@ -8430,23 +8636,30 @@ npm install iso-639-1
 
 ### Node.js
 
+```javascript
+const ISO6391 = require('iso-639-1');
+console.log(ISO6391.getName('en')); // 'English'
 ```
-const ISO6391 = require('iso-639-1')
-console.log(ISO6391.getName('en')) // 'English'
+
+### ES Module
+
+```javascript
+import ISO6391 from 'iso-639-1';
+console.log(ISO6391.getName('en')); // 'English'
 ```
 
 ### Browsers
 
 HTML
 
-```
+```html
 <script type="text/javascript" src="./node_modules/iso-639-1/build/index.js"></script>
 ```
 
 Visit global variable ISO6391 in js
 
-```
-console.log(ISO6391.getName('en')) // 'English'
+```javascript
+console.log(ISO6391.getName('en')); // 'English'
 ```
 
 ## Methods
@@ -8497,7 +8710,7 @@ Check whether the given code is in the list of [ISO-639-1](https://en.wikipedia.
 
 Get the array of the language objects by the given codes
 
-## Usage
+## Example
 
 ```
 const ISO6391 = require('iso-639-1')
@@ -8919,24 +9132,6 @@ NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
 LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-
-
-# left-pad (WTFPL)
--------------------------------------------------
-DO WHAT THE FUCK YOU WANT TO PUBLIC LICENSE
-                    Version 2, December 2004
-
- Copyright (C) 2014 Azer Koçulu <azer@roadbeats.com>
-
- Everyone is permitted to copy and distribute verbatim or modified
- copies of this license document, and changing it is allowed as long
- as the name is changed.
-
-            DO WHAT THE FUCK YOU WANT TO PUBLIC LICENSE
-   TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION AND MODIFICATION
-
-  0. You just DO WHAT THE FUCK YOU WANT TO.
 
 
 
@@ -9887,6 +10082,24 @@ SOFTWARE.
 
 
 
+# node-addon-api (MIT)
+-------------------------------------------------
+The MIT License (MIT)
+=====================
+
+Copyright (c) 2017 Node.js API collaborators
+-----------------------------------
+
+*Node.js API collaborators listed at <https://github.com/nodejs/node-addon-api#collaborators>*
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+
+
 # node-fetch (MIT)
 -------------------------------------------------
 The MIT License (MIT)
@@ -10449,7 +10662,7 @@ MIT
 
 # parse5 (MIT)
 -------------------------------------------------
-Copyright (c) 2013-2016 Ivan Nikulin (ifaaan@gmail.com, https://github.com/inikulin)
+Copyright (c) 2013-2019 Ivan Nikulin (ifaaan@gmail.com, https://github.com/inikulin)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -10549,6 +10762,32 @@ THE SOFTWARE.
 
 
 
+# path-parse (MIT)
+-------------------------------------------------
+The MIT License (MIT)
+
+Copyright (c) 2015 Javier Blanco
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+
+
 # performance-now (MIT)
 -------------------------------------------------
 Copyright (c) 2013 Braveg1rl
@@ -10627,159 +10866,6 @@ HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
 WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
-
-
-
-# pn (MIT)
--------------------------------------------------
-# pn
-[![NPM][NPM1]][NPM2]
-
-[![Build Status][1]][2]
-
-The `pn` library gives you the Promise-using node standard library
-you've always dreamed of.  Think "Promised Node" when saying it.
-
-Just about every node standard library method that takes a callback will now
-return a `Promise` iff no callback is supplied.  But existing code
-that passes callbacks will still work fine --- and fast:  No unnecessary
-`Promise`s are created if you supply a callback.
-
-The wrappers are generated automatically by a script, with a table to
-handle exceptions and odd cases.  See below for more details.
-
-## Installation
-```
-npm install pn
-```
-## Usage
-```
-var fs = require('pn/fs');
-fs.writeFile('foo', 'bar', 'utf-8').then(function() { console.log('done'); });
-// But you can use callbacks, too -- existing code won't break.
-fs.writeFile('foo', 'bat', 'utf-8', function(err) { console.log('yay'); });
-```
-
-This library uses node native promises (ie `global.Promise`) by
-default, and thus works with node >= 0.11.
-
-You can use [`core-js`](https://www.npmjs.org/package/core-js) or
-[`es6-shim`](https://www.npmjs.org/package/es6-shim)
-to add ES6 Promises to earlier versions of node, for example:
-```
-require('es6-shim');
-var fs = require('pn/fs');
-```
-Just be sure that `es6-shim` is loaded before the `pn` package in that
-case.
-
-You might also want to look into packages like
-[`prfun`](https://www.npmjs.org/package/prfun)
-which add some helpers to make working with native promises much more
-fun.
-
-In particular, the `Promise#done` method is very useful when
-debugging, at least until v8's native Promise debugging
-capabilities are completed.
-
-## Custom Promise types
-
-You can also specify a custom `Promise` type to use, as follows:
-```
-var MyPromise = require('prfun');  // Use prfun's Promises, for example.
-require('pn/_promise')(MyPromise); // This only needs to be done once.
-```
-
-## Exceptions and odd cases
-
-The wrappers are automatically generated by `scripts/generate.js`;
-there is a table in that file which specifies all the odd cases.
-
-In general: if the node API has a callback which takes multiple
-value arguments, the `Promise` returned will be an object with
-named fields corresponding to the different values. If the node
-API takes a callback *and* returns a value, `pn` will return
-the original value with a nonenumerable field named `promise`
-corresponding to the callback.  Combining these two cases:
-```
-var child_process = require('pn/child_process');
-var cp = child_process.execFile('true');
-console.log('pid', cp.pid);
-cp.promise.then(function(result) {
-  console.log('stdout: ', result.stdout);
-  console.log('stderr: ', result.stderr);
-});
-```
-
-* `child_process`: The `exec` and `execFile` methods promise a object
-  with fields named `stdout` and `stderr`.  They return a `ChildProcess`
-  object with a nonenumerable field named `promise` corresponding to the
-  callback.
-* `crypto`: The `randomBytes` and `pseudoRandomBytes` methods are
-  now always asynchronous, returning a `Promise` if no callback
-  is supplied.  Use the new `randomBytesSync` and `pseudoRandomBytesSync`
-  methods if you want synchronous computation.  *This is backwards
-  incompatible with existing node code.*
-* `dns`: The `lookupService` method promises an object with
-  fields named `hostname` and `service`.
-* `fs`: The `exists` method doesn't pass an error to its callback.
-  The promisied version will never reject.  The `write` method promises
-  an object with fields named `written` and `data`.  The `read` method
-  promises an object with fields named `read` and `data`.
-* `http`, `https`: The `request` and `get` methods return a `ClientRequest`
-  object with a nonenumerable field named `promise`, which will
-  resolve to an `IncomingMessage` object.
-* `process`: You can defer computation to the next tick with
-  `require('pn/process').nextTick().then(function(){...})`
-* `tls`: The `connect` and `createServer` return objects with a
-  nonenumerable field named `promise`.
-
-There are a few object methods which are not promisified by this
-package:
-* `domain`: `Domain#bind`, `Domain#intercept`
-* `http`,`https`: `ClientRequest#setTimeout`, `IncomingMessage#setTimeout`,
-  `Server#setTimeout`, `ServerResponse#setTimeout`, `Server#listen`,
-  `Server#close`
-* `net`: `Server#listen`, `Server#close`, `Server#getConnections`,
-  `Socket#write`, `Socket#setTimeout`
-* `readline`: `Interface#question`
-* `stream`: `Writable#write`, `Writable#end`
-* `dgram`: `Socket#send`, `Socket#bind`.
-
-## Related packages
-
-Here are some other packages with similar aims:
-* [`promised-node`](https://www.npmjs.org/package/promised-node)
-* [`then-fs`](https://www.npmjs.org/package/then-fs)
-* [`final-fs`](https://www.npmjs.org/package/final-fs)
-
-## License
-
-Copyright (c) 2014-2018 C. Scott Ananian
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
-
-[NPM1]: https://nodei.co/npm/pn.png
-[NPM2]: https://nodei.co/npm/pn/
-
-[1]: https://travis-ci.org/cscott/node-pn.svg
-[2]: https://travis-ci.org/cscott/node-pn
 
 
 
@@ -11058,18 +11144,6 @@ HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
 WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
-
-
-
-# prettier (MIT)
--------------------------------------------------
-Copyright © James Long and contributors
-
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
 
@@ -11654,6 +11728,32 @@ SOFTWARE.
 
 
 
+# resolve (MIT)
+-------------------------------------------------
+MIT License
+
+Copyright (c) 2012 James Halliday
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+
+
 # rimraf (ISC)
 -------------------------------------------------
 The ISC License
@@ -11757,49 +11857,331 @@ SOFTWARE.
 
 
 
-# sax (ISC)
+# saxes (ISC)
 -------------------------------------------------
-The ISC License
+# saxes
 
-Copyright (c) Isaac Z. Schlueter and Contributors
+A sax-style non-validating parser for XML.
 
-Permission to use, copy, modify, and/or distribute this software for any
-purpose with or without fee is hereby granted, provided that the above
-copyright notice and this permission notice appear in all copies.
+Saxes is a fork of [sax](https://github.com/isaacs/sax-js) 1.2.4. All mentions
+of sax in this project's documentation are references to sax 1.2.4.
 
-THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
-WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
-MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
-ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
-WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
-ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR
-IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+Designed with [node](http://nodejs.org/) in mind, but should work fine in the
+browser or other CommonJS implementations.
 
-====
+Saxes does not support Node versions older than 10.
 
-`String.fromCodePoint` by Mathias Bynens used according to terms of MIT
-License, as follows:
+## Notable Differences from Sax.
 
-    Copyright Mathias Bynens <https://mathiasbynens.be/>
+* Saxes aims to be much stricter than sax with regards to XML
+  well-formedness. Sax, even in its so-called "strict mode", is not strict. It
+  silently accepts structures that are not well-formed XML. Projects that need
+  better compliance with well-formedness constraints cannot use sax as-is.
 
-    Permission is hereby granted, free of charge, to any person obtaining
-    a copy of this software and associated documentation files (the
-    "Software"), to deal in the Software without restriction, including
-    without limitation the rights to use, copy, modify, merge, publish,
-    distribute, sublicense, and/or sell copies of the Software, and to
-    permit persons to whom the Software is furnished to do so, subject to
-    the following conditions:
+  Consequently, saxes does not support HTML, or pseudo-XML, or bad XML. Saxes
+  will report well-formedness errors in all these cases but it won't try to
+  extract data from malformed documents like sax does.
 
-    The above copyright notice and this permission notice shall be
-    included in all copies or substantial portions of the Software.
+* Saxes is much much faster than sax, mostly because of a substantial redesign
+  of the internal parsing logic. The speed improvement is not merely due to
+  removing features that were supported by sax. That helped a bit, but saxes
+  adds some expensive checks in its aim for conformance with the XML
+  specification. Redesigning the parsing logic is what accounts for most of the
+  performance improvement.
 
-    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-    EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-    MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-    NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-    LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-    OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-    WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+* Saxes does not aim to support antiquated platforms. We will not pollute the
+  source or the default build with support for antiquated platforms. If you want
+  support for IE 11, you are welcome to produce a PR that adds a *new build*
+  transpiled to ES5.
+
+* Saxes handles errors differently from sax: it provides a default onerror
+  handler which throws. You can replace it with your own handler if you want. If
+  your handler does nothing, there is no `resume` method to call.
+
+* There's no `Stream` API. A revamped API may be introduced later. (It is still
+  a "streaming parser" in the general sense that you write a character stream to
+  it.)
+
+* Saxes does not have facilities for limiting the size the data chunks passed to
+  event handlers. See the FAQ entry for more details.
+
+## Conformance
+
+Saxes supports:
+
+* [XML 1.0 fifth edition](https://www.w3.org/TR/2008/REC-xml-20081126/)
+* [XML 1.1 second edition](https://www.w3.org/TR/2006/REC-xml11-20060816/)
+* [Namespaces in XML 1.0 (Third Edition)](https://www.w3.org/TR/2009/REC-xml-names-20091208/).
+* [Namespaces in XML 1.1 (Second Edition)](https://www.w3.org/TR/2006/REC-xml-names11-20060816/).
+
+## Limitations
+
+This is a non-validating parser so it only verifies whether the document is
+well-formed. We do aim to raise errors for all malformed constructs
+encountered. However, this parser does not thorougly parse the contents of
+DTDs. So most malformedness errors caused by errors **in DTDs** cannot be
+reported.
+
+## Regarding `<!DOCTYPE` and `<!ENTITY`
+
+The parser will handle the basic XML entities in text nodes and attribute
+values: `&amp; &lt; &gt; &apos; &quot;`. It's possible to define additional
+entities in XML by putting them in the DTD. This parser doesn't do anything with
+that. If you want to listen to the `doctype` event, and then fetch the
+doctypes, and read the entities and add them to `parser.ENTITIES`, then be my
+guest.
+
+## Documentation
+
+The source code contains JSDOC comments. Use them. What follows is a brief
+summary of what is available. The final authority is the source code.
+
+**PAY CLOSE ATTENTION TO WHAT IS PUBLIC AND WHAT IS PRIVATE.**
+
+The move to TypeScript makes it so that everything is now formally private,
+protected, or public.
+
+If you use anything not public, that's at your own peril.
+
+If there's a mistake in the documentation, raise an issue. If you just assume,
+you may assume incorrectly.
+
+## Summary Usage Information
+
+### Example
+
+```javascript
+var saxes = require("./lib/saxes"),
+  parser = new saxes.SaxesParser();
+
+parser.on("error", function (e) {
+  // an error happened.
+});
+parser.on("text", function (t) {
+  // got some text.  t is the string of text.
+});
+parser.on("opentag", function (node) {
+  // opened a tag.  node has "name" and "attributes"
+});
+parser.on("end", function () {
+  // parser stream is done, and ready to have more stuff written to it.
+});
+
+parser.write('<xml>Hello, <who name="world">world</who>!</xml>').close();
+```
+
+### Constructor Arguments
+
+Settings supported:
+
+* `xmlns` - Boolean. If `true`, then namespaces are supported. Default
+  is `false`.
+
+* `position` - Boolean. If `false`, then don't track line/col/position. Unset is
+  treated as `true`. Default is unset. Currently, setting this to `false` only
+  results in a cosmetic change: the errors reported do not contain position
+  information. sax-js would literally turn off the position-computing logic if
+  this flag was set to false. The notion was that it would optimize
+  execution. In saxes at least it turns out that continually testing this flag
+  causes a cost that offsets the benefits of turning off this logic.
+
+* `fileName` - String. Set a file name for error reporting. This is useful only
+  when tracking positions. You may leave it unset.
+
+* `fragment` - Boolean. If `true`, parse the XML as an XML fragment. Default is
+  `false`.
+
+* `additionalNamespaces` - A plain object whose key, value pairs define
+   namespaces known before parsing the XML file. It is not legal to pass
+   bindings for the namespaces `"xml"` or `"xmlns"`.
+
+* `defaultXMLVersion` - The default version of the XML specification to use if
+  the document contains no XML declaration. If the document does contain an XML
+  declaration, then this setting is ignored. Must be `"1.0"` or `"1.1"`. The
+  default is `"1.0"`.
+
+* `forceXMLVersion` - Boolean. A flag indicating whether to force the XML
+  version used for parsing to the value of ``defaultXMLVersion``. When this flag
+  is ``true``, ``defaultXMLVersion`` must be specified. If unspecified, the
+  default value of this flag is ``false``.
+
+  Example: suppose you are parsing a document that has an XML declaration
+  specifying XML version 1.1.
+
+  If you set ``defaultXMLVersion`` to ``"1.0"`` without setting
+  ``forceXMLVersion`` then the XML declaration will override the value of
+  ``defaultXMLVersion`` and the document will be parsed according to XML 1.1.
+
+  If you set ``defaultXMLVersion`` to ``"1.0"`` and set ``forceXMLVersion`` to
+  ``true``, then the XML declaration will be ignored and the document will be
+  parsed according to XML 1.0.
+
+### Methods
+
+`write` - Write bytes onto the stream. You don't have to pass the whole document
+in one `write` call. You can read your source chunk by chunk and call `write`
+with each chunk.
+
+`close` - Close the stream. Once closed, no more data may be written until it is
+done processing the buffer, which is signaled by the `end` event.
+
+### Properties
+
+The parser has the following properties:
+
+`line`, `column`, `columnIndex`, `position` - Indications of the position in the
+XML document where the parser currently is looking. The `columnIndex` property
+counts columns as if indexing into a JavaScript string, whereas the `column`
+property counts Unicode characters.
+
+`closed` - Boolean indicating whether or not the parser can be written to.  If
+it's `true`, then wait for the `ready` event to write again.
+
+`opt` - Any options passed into the constructor.
+
+`xmlDecl` - The XML declaration for this document. It contains the fields
+`version`, `encoding` and `standalone`. They are all `undefined` before
+encountering the XML declaration. If they are undefined after the XML
+declaration, the corresponding value was not set by the declaration. There is no
+event associated with the XML declaration. In a well-formed document, the XML
+declaration may be preceded only by an optional BOM. So by the time any event
+generated by the parser happens, the declaration has been processed if present
+at all. Otherwise, you have a malformed document, and as stated above, you
+cannot rely on the parser data!
+
+### Error Handling
+
+The parser continues to parse even upon encountering errors, and does its best
+to continue reporting errors. You should heed all errors reported. After an
+error, however, saxes may interpret your document incorrectly. For instance
+``<foo a=bc="d"/>`` is invalid XML. Did you mean to have ``<foo a="bc=d"/>`` or
+``<foo a="b" c="d"/>`` or some other variation?  For the sake of continuing to
+provide errors, saxes will continue parsing the document, but the structure it
+reports may be incorrect. It is only after the errors are fixed in the document
+that saxes can provide a reliable interpretation of the document.
+
+That leaves you with two rules of thumb when using saxes:
+
+* Pay attention to the errors that saxes report. The default `onerror` handler
+  throws, so by default, you cannot miss errors.
+
+* **ONCE AN ERROR HAS BEEN ENCOUNTERED, STOP RELYING ON THE EVENT HANDLERS OTHER
+  THAN `onerror`.** As explained above, when saxes runs into a well-formedness
+  problem, it makes a guess in order to continue reporting more errors. The guess
+  may be wrong.
+
+### Events
+
+To listen to an event, override `on<eventname>`. The list of supported events
+are also in the exported `EVENTS` array.
+
+See the JSDOC comments in the source code for a description of each supported
+event.
+
+### Parsing XML Fragments
+
+The XML specification does not define any method by which to parse XML
+fragments. However, there are usage scenarios in which it is desirable to parse
+fragments. In order to allow this, saxes provides three initialization options.
+
+If you pass the option `fragment: true` to the parser constructor, the parser
+will expect an XML fragment. It essentially starts with a parsing state
+equivalent to the one it would be in if `parser.write("<foo">)` had been called
+right after initialization. In other words, it expects content which is
+acceptable inside an element. This also turns off well-formedness checks that
+are inappropriate when parsing a fragment.
+
+The option `additionalNamespaces` allows you to define additional prefix-to-URI
+bindings known before parsing starts. You would use this over `resolvePrefix` if
+you have at the ready a series of namespaces bindings to use.
+
+The option `resolvePrefix` allows you to pass a function which saxes will use if
+it is unable to resolve a namespace prefix by itself. You would use this over
+`additionalNamespaces` in a context where getting a complete list of defined
+namespaces is onerous.
+
+Note that you can use `additionalNamespaces` and `resolvePrefix` together if you
+want. `additionalNamespaces` applies before `resolvePrefix`.
+
+The options `additionalNamespaces` and `resolvePrefix` are really meant to be
+used for parsing fragments. However, saxes won't prevent you from using them
+with `fragment: false`. Note that if you do this, your document may parse
+without errors and yet be malformed because the document can refer to namespaces
+which are not defined *in* the document.
+
+Of course, `additionalNamespaces` and `resolvePrefix` are used only if `xmlns`
+is `true`. If you are parsing a fragment that does not use namespaces, there's
+no point in setting these options.
+
+### Performance Tips
+
+* saxes works faster on files that use newlines (``\u000A``) as end of line
+  markers than files that use other end of line markers (like ``\r`` or
+  ``\r\n``). The XML specification requires that conformant applications behave
+  as if all characters that are to be treated as end of line characters are
+  converted to ``\u000A`` prior to parsing. The optimal code path for saxes is a
+  file in which all end of line characters are already ``\u000A``.
+
+* Don't split Unicode strings you feed to saxes across surrogates. When you
+  naively split a string in JavaScript, you run the risk of splitting a Unicode
+  character into two surrogates. e.g.  In the following example ``a`` and ``b``
+  each contain half of a single Unicode character: ``const a = "\u{1F4A9}"[0];
+  const b = "\u{1F4A9}"[1]`` If you feed such split surrogates to versions of
+  saxes prior to 4, you'd get errors. Saxes version 4 and over are able to
+  detect when a chunk of data ends with a surrogate and carry over the surrogate
+  to the next chunk. However this operation entails slicing and concatenating
+  strings. If you can feed your data in a way that does not split surrogates,
+  you should do it. (Obviously, feeding all the data at once with a single write
+  is fastest.)
+
+* Don't set event handlers you don't need. Saxes has always aimed to avoid doing
+  work that will just be tossed away but future improvements hope to do this
+  more aggressively. One way saxes knows whether or not some data is needed is
+  by checking whether a handler has been set for a specific event.
+
+## FAQ
+
+Q. Why has saxes dropped support for limiting the size of data chunks passed to
+event handlers?
+
+A. With sax you could set ``MAX_BUFFER_LENGTH`` to cause the parser to limit the
+size of data chunks passed to event handlers. So if you ran into a span of text
+above the limit, multiple ``text`` events with smaller data chunks were fired
+instead of a single event with a large chunk.
+
+However, that functionality had some problematic characteristics. It had an
+arbitrary default value. It was library-wide so all parsers created from a
+single instance of the ``sax`` library shared it. This could potentially cause
+conflicts among libraries running in the same VM but using sax for different
+purposes.
+
+These issues could have been easily fixed, but there were larger issues. The
+buffer limit arbitrarily applied to some events but not others. It would split
+``text``, ``cdata`` and ``script`` events. However, if a ``comment``,
+``doctype``, ``attribute`` or ``processing instruction`` were more than the
+limit, the parser would generate an error and you were left picking up the
+pieces.
+
+It was not intuitive to use. You'd think setting the limit to 1K would prevent
+chunks bigger than 1K to be passed to event handlers. But that was not the
+case. A comment in the source code told you that you might go over the limit if
+you passed large chunks to ``write``. So if you want a 1K limit, don't pass 64K
+chunks to ``write``. Fair enough. You know what limit you want so you can
+control the size of the data you pass to ``write``. So you limit the chunks to
+``write`` to 1K at a time. Even if you do this, your event handlers may get data
+chunks that are 2K in size. Suppose on the previous ``write`` the parser has
+just finished processing an open tag, so it is ready for text. Your ``write``
+passes 1K of text. You are not above the limit yet, so no event is generated
+yet. The next ``write`` passes another 1K of text. It so happens that sax checks
+buffer limits only once per ``write``, after the chunk of data has been
+processed. Now you've hit the limit and you get a ``text`` event with 2K of
+data. So even if you limit your ``write`` calls to the buffer limit you've set,
+you may still get events with chunks at twice the buffer size limit you've
+specified.
+
+We may consider reinstating an equivalent functionality, provided that it
+addresses the issues above and does not cause a huge performance drop for
+use-case scenarios that don't need it.
 
 
 
@@ -13043,34 +13425,21 @@ THE SOFTWARE.
 
 
 
-# topojson-client (BSD-3-Clause)
+# topojson-client (ISC)
 -------------------------------------------------
-Copyright (c) 2012-2016, Michael Bostock
-All rights reserved.
+Copyright 2012-2019 Michael Bostock
 
-Redistribution and use in source and binary forms, with or without
-modification, are permitted provided that the following conditions are met:
+Permission to use, copy, modify, and/or distribute this software for any purpose
+with or without fee is hereby granted, provided that the above copyright notice
+and this permission notice appear in all copies.
 
-* Redistributions of source code must retain the above copyright notice, this
-  list of conditions and the following disclaimer.
-
-* Redistributions in binary form must reproduce the above copyright notice,
-  this list of conditions and the following disclaimer in the documentation
-  and/or other materials provided with the distribution.
-
-* The name Michael Bostock may not be used to endorse or promote products
-  derived from this software without specific prior written permission.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-DISCLAIMED. IN NO EVENT SHALL MICHAEL BOSTOCK BE LIABLE FOR ANY DIRECT,
-INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
-NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
-EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
+REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND
+FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
+INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS
+OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER
+TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
+THIS SOFTWARE.
 
 
 
@@ -14592,6 +14961,38 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 
+# vega-time (BSD-3-Clause)
+-------------------------------------------------
+Copyright (c) 2015-2018, University of Washington Interactive Data Lab
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+
+1. Redistributions of source code must retain the above copyright notice, this
+   list of conditions and the following disclaimer.
+
+2. Redistributions in binary form must reproduce the above copyright notice,
+   this list of conditions and the following disclaimer in the documentation
+   and/or other materials provided with the distribution.
+
+3. Neither the name of the copyright holder nor the names of its contributors
+  may be used to endorse or promote products derived from this software
+  without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+
+
 # vega-tooltip (BSD-3-Clause)
 -------------------------------------------------
 Copyright 2016 Interactive Data Lab and contributors
@@ -14642,33 +15043,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 # vega-typings (BSD-3-Clause)
 -------------------------------------------------
-Copyright (c) 2015-2018, University of Washington Interactive Data Lab
-All rights reserved.
+# Vega-Typings
 
-Redistribution and use in source and binary forms, with or without
-modification, are permitted provided that the following conditions are met:
+[![npm version](https://img.shields.io/npm/v/vega-typings.svg)](https://www.npmjs.com/package/vega-typings)
 
-1. Redistributions of source code must retain the above copyright notice, this
-   list of conditions and the following disclaimer.
-
-2. Redistributions in binary form must reproduce the above copyright notice,
-   this list of conditions and the following disclaimer in the documentation
-   and/or other materials provided with the distribution.
-
-3. Neither the name of the copyright holder nor the names of its contributors
-  may be used to endorse or promote products derived from this software
-  without specific prior written permission.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE
-FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+Typings for [Vega](https://github.com/vega/vega).
 
 
 
@@ -15195,125 +15574,57 @@ THE SOFTWARE.
 
 # w3c-hr-time (MIT)
 -------------------------------------------------
-# w3c-hr-time
+# The MIT License (MIT)
 
-This module implements the W3C [High Resolution Time Level 2][HR-TIME] specification. It provides exactly three exports:
+Copyright (c) 2017 Tiancheng "Timothy" Gu and other contributors
 
-- `Performance` class
-- `getGlobalMonotonicClockMS(): number`
-- `clockIsAccurate: boolean`
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
 
-In all APIs, a "high-resolution timestamp" means a number in milliseconds that may have a fractional part, if the system clock is accurate enough (see "Clock accuracy" section below). It is identical to the [`DOMHighResTimeStamp`][] type in the High Resolution Time spec.
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
 
-Portability is paramount to this module. It uses only APIs exposed from Node.js core like `Date.now()` and `process.hrtime()` and does not use or require any native modules. It also employs the [browser-process-hrtime][] module for graceful degrades for platforms that do not have `process.hrtime()` (such as browsers).
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
 
-## `Performance` class
 
-```js
-const { Performance } = require("w3c-hr-time");
-const performance = new Performance();
 
-console.log(performance.timeOrigin);
-// Prints a number close to Date.now() but that may have fractional parts, like
-// 1514888563819.351.
+# w3c-xmlserializer (MIT)
+-------------------------------------------------
+The MIT License (MIT)
+=====================
 
-console.log(new Date(performance.timeOrigin));
-// Prints a date close to new Date(), like 2018-01-02T10:22:43.819Z.
+Copyright © 2016 Sebastian Mayr
 
-setTimeout(() => {
-  console.log(performance.now());
-  // Prints a number close to 5000, like 5008.023059.
-}, 5000);
-```
+Permission is hereby granted, free of charge, to any person
+obtaining a copy of this software and associated documentation
+files (the “Software”), to deal in the Software without
+restriction, including without limitation the rights to use,
+copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the
+Software is furnished to do so, subject to the following
+conditions:
 
-Perhaps the most interesting export is the [`Performance`][] class. By constructing the class, you can get an instance quite similar to the `window.performance` object in browsers. Specifically, the following APIs are implemented:
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
 
-* [`performance.now(): number`][`Performance#now()`] returns the high-resolution duration since the construction of the `Performance` object.
-* [`performance.timeOrigin: number`][`Performance#timeOrigin`] is a high-resolution timestamp of the `Performance` object's construction, expressed in [Unix time][].
-* [`performance.toJSON(): object`][`Performance#toJSON()`] returns an object with `timeOrigin` property set to the corresponding value of this object. This allows serializing the `Performance` object with `JSON.stringify()`. In browsers, the returned object may contain additional properties such as `navigation` and `timing`. However, those properties are specific to browser navigation and are unsuitable for a Node.js implementation. Furthermore, they are specified not in the High Resolution Time spec but in [Navigation Timing][NAVIGATION-TIMING], and are thereby outside the scope of this module.
-
-### Limitations
-
-This module does not aim for full [Web IDL][WEBIDL] conformance, so things like `performance.toJSON.call({})` will not throw `TypeError`s like it does in browsers. If you need full Web IDL conformance, you may be interested in the [webidl2js][] module.
-
-The `Performance` class provided also does not have `mark()`, `measure()`, `getEntries()`, and such functions. They are specified in other specs than High Resolution Timing, such as [User Timing][USER-TIMING] (marks and measures) and [Performance Timeline][PERFORMANCE-TIMELINE] (entries management). Those specs extend the definition of the `Performance` class defined in High Resolution Timing, and to implement those specs you can extend the `Performance` class exported by this module.
-
-Due to the limitations of the APIs exposed through Node.js, the construction of a `Performance` object may take up to 1 millisecond to gather information for high-resolution `timeOrigin`.
-
-## Global monotonic clock
-
-The High Resolution Time spec defines a [global monotonic clock][] that is "shared by time origin's *[sic]*, is monotonically increasing and not subject to system clock adjustments or system clock skew, and whose reference point is the Unix time."
-
-This module exports a function `getGlobalMonotonicClockMS()` that is the basis of all timing functions used my this module when a monotonic time is required. It returns a high-resolution timestamp whose zero value is at some arbitrary point in the past. (For the current high-resolution timestamp based on the Unix epoch, use `new Performance().timeOrigin` instead.)
-
-```js
-const { getGlobalMonotonicClockMS } = require("w3c-hr-time");
-
-const start = getGlobalMonotonicClockMS();
-console.log(start);
-// Prints a millisecond timestamp based on an arbitrary point in the past, like
-// 280249733.012151.
-
-setTimeout(() => {
-  console.log(getGlobalMonotonicClockMS() - a);
-  // Prints a number close to 5000, like 5006.156536.
-}, 5000);
-```
-
-Unlike other functions that return only integer timestamps if the system clock does not provide enough resolution, this function may still return timestamps with fractional parts on those systems with less accurate clocks. See "Clock accuracy" section below for more information.
-
-## Clock accuracy
-
-The High Resolution Time spec [states][HR-TIME §4] that
-
-> A [`DOMHighResTimeStamp`][] *SHOULD* represent a time in milliseconds accurate to 5 microseconds - see [8. Privacy and Security][HR-TIME §8].
->
-> If the User Agent is unable to provide a time value accurate to 5 microseconds due to hardware or software constraints, the User Agent can represent a [`DOMHighResTimeStamp`][] as a time in milliseconds accurate to a millisecond.
-
-This module implements this suggestion faithfully. It executes a test at `require()`-time to determine if the system clock (both `Date.now()` and `process.hrtime()`) is accurate enough to 5 microseconds. The result of this test can be accessed through the exported `clockIsAccurate` boolean value.
-
-```js
-const { Performance, clockIsAccurate } = require("w3c-hr-time");
-
-const performance = new Performance();
-
-if (!clockIsAccurate) {
-  console.assert(Number.isInteger(performance.timeOrigin));
-  console.assert(Number.isInteger(performance.now()));
-}
-```
-
-If `clockIsAccurate` is false, `performance.timeOrigin` and `performance.now()` are always rounded to millisecond accuracy. `getGlobalMonotonicClockMS()` however is exempt from this requirement due to its best-effort nature, and the fact that it is not an API exposed by the High Resolution Time spec.
-
-## Clock drift
-
-[Clock drift][clock drift] can be observed through system or user clock adjustments -- that is, the speed at which `Date.now()` changes may be faster or slower than real time if there is a pending adjustment to the system clock, for example through NTP synchronizing.
-
-In the spec, the [global monotonic clock][] is defined to be immune to such drifts. Correspondingly, the APIs exposed through this module that are defined using the global monotonic clock such as `performance.now()` and `getGlobalMonotonicClockMS()` are also guaranteed to reflect real time.
-
-For example, if `performance.now()` returns 1000, it is guaranteed that the time of this call is exactly one second since the construction of the `Performance` object. But the difference in `Date.now()`'s value from the construction of the `Performance` object to when `performance.now()` returns 1000 may not be exactly 1000. You may also see `performance.now() - Date.now()` diverge over time as a result of clock drifts.
-
-On the other hand, `performance.timeOrigin` returns the *[Unix time][]* at which the `Performance` object is constructed and relies on the current time exposed through `Date.now()`. That means that it is susceptible to clock drifts that has occurred before the `Performance` object was constructed.
-
-[HR-TIME]: https://w3c.github.io/hr-time/
-[NAVIGATION-TIMING]: https://w3c.github.io/navigation-timing/
-[PERFORMANCE-TIMELINE]: https://w3c.github.io/performance-timeline/
-[USER-TIMING]: https://w3c.github.io/user-timing/
-[WEBIDL]: https://heycam.github.io/webidl/
-
-[HR-TIME §4]: https://w3c.github.io/hr-time/#dom-domhighrestimestamp
-[HR-TIME §8]: https://w3c.github.io/hr-time/#privacy-security
-
-[`DOMHighResTimeStamp`]: https://w3c.github.io/hr-time/#dom-domhighrestimestamp
-[`Performance`]: https://w3c.github.io/hr-time/#dfn-performance
-[`Performance#now()`]: https://w3c.github.io/hr-time/#dom-performance-now
-[`Performance#timeOrigin`]: https://w3c.github.io/hr-time/#dom-performance-timeorigin
-[`Performance#toJSON()`]: https://w3c.github.io/hr-time/#dom-performance-tojson
-[browser-process-hrtime]: https://www.npmjs.com/package/browser-process-hrtime
-[clock drift]: https://en.wikipedia.org/wiki/Clock_drift
-[global monotonic clock]: https://w3c.github.io/hr-time/#dfn-global-monotonic-clock
-[Unix time]: https://en.wikipedia.org/wiki/Unix_time
-[webidl2js]: https://github.com/jsdom/webidl2js
+THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+OTHER DEALINGS IN THE SOFTWARE.
 
 
 
@@ -15661,26 +15972,29 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 
 
-# wordwrap (MIT)
+# word-wrap (MIT)
 -------------------------------------------------
-This software is released under the MIT license:
+The MIT License (MIT)
 
-Permission is hereby granted, free of charge, to any person obtaining a copy of
-this software and associated documentation files (the "Software"), to deal in
-the Software without restriction, including without limitation the rights to
-use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
-the Software, and to permit persons to whom the Software is furnished to do so,
-subject to the following conditions:
+Copyright (c) 2014-2017, Jon Schlinkert
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
-FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
-COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
-IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
 
 
 
@@ -15958,6 +16272,42 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
+
+
+
+# xmlchars (MIT)
+-------------------------------------------------
+Copyright Louis-Dominique Dubeau and contributors to xmlchars
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of
+this software and associated documentation files (the "Software"), to deal in
+the Software without restriction, including without limitation the rights to
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+the Software, and to permit persons to whom the Software is furnished to do so,
+subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+
+
+# xmldom (MIT*)
+-------------------------------------------------
+You can choose any one of those:
+
+The MIT License (MIT):
+
+link:http://opensource.org/licenses/MIT
+
+LGPL:
+http://www.gnu.org/licenses/lgpl.html
 
 
 
