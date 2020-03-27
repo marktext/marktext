@@ -1,4 +1,4 @@
-## [unreleased]
+## 0.16.0
 
 **:warning:Breaking Changes:**
 
