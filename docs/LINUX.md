@@ -1,4 +1,4 @@
-# Linux installation instructions
+# Linux Installation Instructions
 
 ## AppImage
 
@@ -10,7 +10,24 @@ Download the AppImage and type the following:
 
 ### Installation
 
-You cannot really install an AppImage. It's just a file which can be integrated with your desktop environment. The only thing you have to do is to create a desktop file that link to Mark Text (like `~/.local/share/applications/appimage-marktext.desktop`).
+You cannot really install an AppImage. It's a file which can run directly after getting executable permission. To integrate it into desktop environment, you can either create desktop entry manually **or** use [AppImageLauncher](https://github.com/TheAssassin/AppImageLauncher).
+
+#### Desktop file creation
+
+See [example desktop file](https://github.com/marktext/marktext/blob/develop/resources/linux/marktext.desktop).
+
+```bash
+$ curl -L https://raw.githubusercontent.com/marktext/marktext/develop/resources/linux/marktext.desktop -o $HOME/.local/share/applications/marktext.desktop
+
+# Update the Exec in desktop file to your real marktext command. Specify Path if necessary.
+$ vim $HOME/.local/share/applications/marktext.desktop
+
+$ update-desktop-database $HOME/.local/share/applications/
+```
+
+#### AppImageLauncher integration
+
+You can integrate the AppImage into the system via [AppImageLauncher](https://github.com/TheAssassin/AppImageLauncher). It will handle the desktop entry automatically.
 
 ### Uninstallation
 
@@ -23,6 +40,7 @@ You cannot really install an AppImage. It's just a file which can be integrated 
 1. Save AppImage somewhere. Let's say `~/bin/marktext.AppImage`
 2. `chmod +x ~/bin/marktext.AppImage`
 3. Create a launch script:
+   
    ```sh
    #!/bin/bash
    DESKTOPINTEGRATION=0 ~/bin/marktext.AppImage
@@ -46,10 +64,10 @@ You need to install the `flatpak` package for your distribution. Please see the 
 
 **Install from Flathub:**
 
-After you install flatpak and flathub repository, you can install [Mark Text](https://flathub.org/apps/details/com.github.marktext.marktext) with just one command:
+After you install flatpak and flathub repository, you can install [Mark Text](https://flathub.org/apps/details/com.github.marktext.marktext) with just one command (note that you may be asked to enter your password):
 
 ```
-sudo flatpak install flathub com.github.marktext.marktext
+flatpak install flathub com.github.marktext.marktext
 ```
 
 or `flatpak install --user flathub com.github.marktext.marktext` to install for the current user only.
@@ -61,7 +79,7 @@ To run Mark Text just execute `flatpak run com.github.marktext.marktext` or clic
 To update Mark Text run the following command:
 
 ```
-sudo flatpak update com.github.marktext.marktext
+flatpak update com.github.marktext.marktext
 ```
 
-or `sudo flatpak update` to update all installed flatpaks.
+or `flatpak update` to update all installed flatpaks.

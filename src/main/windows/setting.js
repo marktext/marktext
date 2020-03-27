@@ -3,7 +3,7 @@ import { BrowserWindow, ipcMain } from 'electron'
 import electronLocalshortcut from '@hfelix/electron-localshortcut'
 import BaseWindow, { WindowLifecycle, WindowType } from './base'
 import { centerWindowOptions } from './utils'
-import { TITLE_BAR_HEIGHT, defaultPreferenceWinOptions, isLinux, isOsx } from '../config'
+import { TITLE_BAR_HEIGHT, preferencesWinOptions, isLinux, isOsx, isWindows } from '../config'
 
 class SettingWindow extends BaseWindow {
   /**
@@ -11,7 +11,7 @@ class SettingWindow extends BaseWindow {
    */
   constructor (accessor) {
     super(accessor)
-    this.type = WindowType.SETTING
+    this.type = WindowType.SETTINGS
   }
 
   /**
@@ -21,20 +21,28 @@ class SettingWindow extends BaseWindow {
    */
   createWindow (options = {}) {
     const { menu: appMenu, env, keybindings, preferences } = this._accessor
-    const winOptions = Object.assign({}, defaultPreferenceWinOptions, options)
+    const winOptions = Object.assign({}, preferencesWinOptions, options)
     centerWindowOptions(winOptions)
     if (isLinux) {
       winOptions.icon = path.join(__static, 'logo-96px.png')
     }
 
+    // WORKAROUND: Electron has issues with different DPI per monitor when
+    // setting a fixed window size.
+    if (isWindows) {
+      winOptions.resizable = true
+    }
+
     // Enable native or custom/frameless window and titlebar
-    const { titleBarStyle } = preferences.getAll()
+    const { titleBarStyle, theme } = preferences.getAll()
     if (!isOsx) {
       winOptions.titleBarStyle = 'default'
       if (titleBarStyle === 'native') {
         winOptions.frame = true
       }
     }
+
+    winOptions.backgroundColor = this._getPreferredBackgroundColor(theme)
 
     let win = this.browserWindow = new BrowserWindow(winOptions)
     this.id = win.id
@@ -43,20 +51,19 @@ class SettingWindow extends BaseWindow {
     appMenu.addSettingMenu(win)
 
     win.once('ready-to-show', () => {
-      win.show()
       this.lifecycle = WindowLifecycle.READY
       this.emit('window-ready')
     })
 
     win.on('focus', () => {
       this.emit('window-focus')
-      win.webContents.send('AGANI::window-active-status', { status: true })
+      win.webContents.send('mt::window-active-status', { status: true })
     })
 
     // Lost focus
     win.on('blur', () => {
       this.emit('window-blur')
-      win.webContents.send('AGANI::window-active-status', { status: false })
+      win.webContents.send('mt::window-active-status', { status: false })
     })
 
     win.on('close', event => {
@@ -80,7 +87,7 @@ class SettingWindow extends BaseWindow {
 
     electronLocalshortcut.register(
       win,
-      keybindings.getAccelerator('viewDevToggleDeveloperTools'),
+      keybindings.getAccelerator('view.toggle-dev-tools'),
       () => {
         win.webContents.toggleDevTools()
       }

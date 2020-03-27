@@ -37,7 +37,7 @@
   </a>
   <!-- Downloads latest release -->
   <a href="https://marktext.github.io/website">
-    <img src="https://img.shields.io/github/downloads/marktext/marktext/v0.15.1/total.svg" alt="latest download">
+    <img src="https://img.shields.io/github/downloads/marktext/marktext/v0.16.0/total.svg" alt="latest download">
   </a>
   <!-- deps -->
   <a href="https://marktext.github.io/website">
@@ -59,7 +59,7 @@
       Cechy programu
     </a>
     <span> | </span>
-    <a href="https://github.com/marktext/marktext#download-and-install">
+    <a href="https://github.com/marktext/marktext#download-and-installation">
       Instalacja
     </a>
     <span> | </span>
@@ -119,7 +119,7 @@
 
 | ![]( https://github.com/ryanoasis/nerd-fonts/wiki/screenshots/v1.0.x/mac-pass-sm.png)                                                                                                             | ![]( https://github.com/ryanoasis/nerd-fonts/wiki/screenshots/v1.0.x/windows-pass-sm.png)                                                                                                                     | ![]( https://github.com/ryanoasis/nerd-fonts/wiki/screenshots/v1.0.x/linux-pass-sm.png)                                                                                                                                   |
 |:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
-| [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-0.15.1.dmg.svg)](https://github.com/marktext/marktext/releases/download/v0.15.1/marktext-0.15.1.dmg) | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-setup-0.15.1.exe.svg)](https://github.com/marktext/marktext/releases/download/v0.15.1/marktext-setup-0.15.1.exe) | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-0.15.1-x86_64.AppImage.svg)](https://github.com/marktext/marktext/releases/download/v0.15.1/marktext-0.15.1-x86_64.AppImage) |
+| [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-0.16.0.dmg.svg)](https://github.com/marktext/marktext/releases/download/v0.16.0/marktext.dmg) | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-setup-0.16.0.exe.svg)](https://github.com/marktext/marktext/releases/download/v0.16.0/marktext-setup.exe) | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-0.16.0-x86_64.AppImage.svg)](https://github.com/marktext/marktext/releases/download/v0.16.0/marktext-x86_64.AppImage) |
 
 Nie znalazłeś swojego systemu? Przejdź do strony [release](https://github.com/marktext/marktext/releases). Wciąż nie znalazłeś? Zgłoś [problem](https://github.com/marktext/marktext/issues).
 
@@ -144,7 +144,7 @@ W przypadku jakichkolwiek pytań podczas korzystania z **Mark Text** zaczęcamy 
 
 ## Udział w projekcie
 
-Mark Text jest w trakcie rozwijania. Upewnij się, że przeczytałeś [Contributing Guide](../../.github/CONTRIBUTING.md) przed stworzeniem pull request. Chcesz dodać nowe udogodnienia do Mark Text? Udaj się do [TODO LIST](../../.github/TODOLIST.md)
+Mark Text jest w trakcie rozwijania. Upewnij się, że przeczytałeś [Contributing Guide](../../CONTRIBUTING.md) przed stworzeniem pull request. Chcesz dodać nowe udogodnienia do Mark Text? Udaj się do [TODO LIST](../../.github/TODOLIST.md)
 
 Dziękujemy wszystkim osobom, które już wzięły udział w projekcie Mark Text! Jeżeli już jesteś członkiem [contributors](https://github.com/marktext/marktext/graphs/contributors), otwórz pull request aby dodać twoje imię i zdjęcie do poniższej listy osób, które pomogły przy projekcie.
 

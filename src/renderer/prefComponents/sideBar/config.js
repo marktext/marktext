@@ -4,6 +4,7 @@ import MarkdownIcon from '@/assets/icons/pref_markdown.svg'
 import ThemeIcon from '@/assets/icons/pref_theme.svg'
 import ImageIcon from '@/assets/icons/pref_image.svg'
 import ImageUploaderIcon from '@/assets/icons/pref_image_uploader.svg'
+import SpellIcon from '@/assets/icons/pref_spellcheck.svg'
 
 import preferences from '../../../main/preferences/schema'
 
@@ -22,6 +23,11 @@ export const category = [{
   label: 'markdown',
   icon: MarkdownIcon,
   path: '/preference/markdown'
+}, {
+  name: 'Spelling',
+  label: 'spelling',
+  icon: SpellIcon,
+  path: '/preference/spelling'
 }, {
   name: 'Theme',
   label: 'theme',

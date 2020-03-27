@@ -40,25 +40,27 @@ const BOTH_SIDES_FORMATS = ['strong', 'em', 'inline_code', 'image', 'link', 'ref
 
 const tabCtrl = ContentState => {
   ContentState.prototype.findNextCell = function (block) {
-    if (!(/td|th/.test(block.type))) {
+    if (block.functionType !== 'cellContent') {
       throw new Error('only th and td can have next cell')
     }
-    const nextSibling = this.getBlock(block.nextSibling)
-    const parent = this.getBlock(block.parent)
-    const tbOrTh = this.getBlock(parent.parent)
+    const cellBlock = this.getParent(block)
+    const nextSibling = this.getBlock(cellBlock.nextSibling)
+    const rowBlock = this.getBlock(cellBlock.parent)
+    const tbOrTh = this.getBlock(rowBlock.parent)
     if (nextSibling) {
-      return nextSibling
+      return this.firstInDescendant(nextSibling)
     } else {
-      if (parent.nextSibling) {
-        const nextRow = this.getBlock(parent.nextSibling)
-        return nextRow.children[0]
+      if (rowBlock.nextSibling) {
+        const nextRow = this.getBlock(rowBlock.nextSibling)
+        return this.firstInDescendant(nextRow)
       } else if (tbOrTh.type === 'thead') {
         const tBody = this.getBlock(tbOrTh.nextSibling)
-        if (tBody.children.length) {
-          return tBody.children[0].children[0]
+        if (tBody && tBody.children.length) {
+          return this.firstInDescendant(tBody)
         }
       }
     }
+
     return false
   }
 
@@ -182,7 +184,11 @@ const tabCtrl = ContentState => {
 
   ContentState.prototype.checkCursorAtEndFormat = function (text, offset) {
     const { labels } = this.stateRender
-    const tokens = tokenizer(text, [], false, labels)
+    const tokens = tokenizer(text, {
+      hasBeginRules: false,
+      labels,
+      options: this.muya.options
+    })
     let result = null
     const walkTokens = tkns => {
       for (const token of tkns) {
@@ -292,7 +298,7 @@ const tabCtrl = ContentState => {
       start.key === end.key &&
       start.offset === end.offset &&
       HAS_TEXT_BLOCK_REG.test(startBlock.type) &&
-      startBlock.functionType !== 'codeLine' && // code line has no inline syntax
+      startBlock.functionType !== 'codeContent' && // code content has no inline syntax
       startBlock.functionType !== 'languageInput' // language input textarea has no inline syntax
     ) {
       const { text, key } = startBlock
@@ -312,7 +318,7 @@ const tabCtrl = ContentState => {
       start.key === end.key &&
       start.offset === end.offset &&
       startBlock.type === 'span' &&
-      (!startBlock.functionType || startBlock.functionType === 'codeLine' && /markup|html|xml|svg|mathml/.test(startBlock.lang))
+      (!startBlock.functionType || startBlock.functionType === 'codeContent' && /markup|html|xml|svg|mathml/.test(startBlock.lang))
     ) {
       const { text } = startBlock
       const lastWordBeforeCursor = text.substring(0, start.offset).split(/\s+/).pop()
@@ -328,20 +334,20 @@ const tabCtrl = ContentState => {
         let endOffset = 0
         switch (tag) {
           case 'img':
-            html += ` alt="" src=""`
+            html += ' alt="" src=""'
             startOffset = endOffset = html.length - 1
             break
           case 'input':
-            html += ` type="text"`
+            html += ' type="text"'
             startOffset = html.length - 5
             endOffset = html.length - 1
             break
           case 'a':
-            html += ` href=""`
+            html += ' href=""'
             startOffset = endOffset = html.length - 1
             break
           case 'link':
-            html += ` rel="stylesheet" href=""`
+            html += ' rel="stylesheet" href=""'
             startOffset = endOffset = html.length - 1
             break
         }
@@ -369,19 +375,22 @@ const tabCtrl = ContentState => {
 
     // Handle `tab` key in table cell.
     let nextCell
-    if (start.key === end.key && /th|td/.test(startBlock.type)) {
+    if (start.key === end.key && startBlock.functionType === 'cellContent') {
       nextCell = this.findNextCell(startBlock)
-    } else if (/th|td/.test(endBlock.type)) {
+    } else if (endBlock.functionType === 'cellContent') {
       nextCell = endBlock
     }
     if (nextCell) {
-      const key = nextCell.key
+      const { key } = nextCell
+
+      const offset = 0
       this.cursor = {
-        start: { key, offset: 0 },
-        end: { key, offset: 0 }
+        start: { key, offset },
+        end: { key, offset }
       }
 
-      return this.partialRender()
+      const figure = this.closest(nextCell, 'figure')
+      return this.singleRender(figure)
     }
 
     if (this.isIndentableListItem()) {

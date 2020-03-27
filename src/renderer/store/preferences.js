@@ -1,4 +1,5 @@
 import { ipcRenderer } from 'electron'
+import bus from '../bus'
 
 // user preference
 const state = {
@@ -8,6 +9,7 @@ const state = {
   openFilesInNewWindow: false,
   openFolderInNewWindow: false,
   hideScrollbar: false,
+  wordWrapInToc: false,
   aidou: true,
   fileSortBy: 'created',
   startUpAction: 'lastState',
@@ -19,15 +21,22 @@ const state = {
   lineHeight: 1.6,
   codeFontSize: 14,
   codeFontFamily: 'DejaVu Sans Mono',
+  codeBlockLineNumbers: true,
+  trimUnnecessaryCodeBlockEmptyLines: true,
   editorLineWidth: '',
 
   autoPairBracket: true,
   autoPairMarkdownSyntax: true,
   autoPairQuote: true,
   endOfLine: 'default',
+  defaultEncoding: 'utf8',
+  autoGuessEncoding: true,
+  trimTrailingNewline: 2,
   textDirection: 'ltr',
   hideQuickInsertHint: false,
   imageInsertAction: 'folder',
+  hideLinkPopup: false,
+  autoCheck: false,
 
   preferLooseListItem: true,
   bulletListMarker: '-',
@@ -35,8 +44,19 @@ const state = {
   preferHeadingStyle: 'atx',
   tabSize: 4,
   listIndentation: 1,
+  frontmatterType: '-',
+  superSubScript: false,
+  footnote: false,
+  sequenceTheme: 'hand',
 
   theme: 'light',
+  autoSwitchTheme: 2,
+
+  spellcheckerEnabled: false,
+  spellcheckerIsHunspell: false, // macOS/Windows 10 only
+  spellcheckerNoUnderline: false,
+  spellcheckerAutoDetectLanguage: false,
+  spellcheckerLanguage: 'en-US',
 
   // Default values that are overwritten with the entries below.
   sideBarVisibility: false,
@@ -67,7 +87,8 @@ const state = {
   imageBed: {
     github: {
       owner: '',
-      repo: ''
+      repo: '',
+      branch: ''
     }
   }
 }
@@ -84,6 +105,9 @@ const mutations = {
   },
   SET_MODE (state, { type, checked }) {
     state[type] = checked
+  },
+  TOGGLE_VIEW_MODE (state, entryName) {
+    state[entryName] = !state[entryName]
   }
 }
 
@@ -92,20 +116,8 @@ const actions = {
     ipcRenderer.send('mt::ask-for-user-preference')
     ipcRenderer.send('mt::ask-for-user-data')
 
-    ipcRenderer.on('AGANI::user-preference', (e, preferences) => {
+    ipcRenderer.on('mt::user-preference', (e, preferences) => {
       commit('SET_USER_PREFERENCE', preferences)
-    })
-  },
-
-  ASK_FOR_MODE ({ commit }) {
-    ipcRenderer.send('AGANI::ask-for-mode')
-    ipcRenderer.on('AGANI::res-for-mode', (e, modes) => {
-      Object.keys(modes).forEach(type => {
-        commit('SET_MODE', {
-          type,
-          checked: modes[type]
-        })
-      })
     })
   },
 
@@ -124,6 +136,17 @@ const actions = {
 
   SELECT_DEFAULT_DIRECTORY_TO_OPEN ({ commit }) {
     ipcRenderer.send('mt::select-default-directory-to-open')
+  },
+
+  // Toggle a view option and notify main process to toggle menu item.
+  LISTEN_TOGGLE_VIEW ({ commit, state }) {
+    bus.$on('view:toggle-view-entry', entryName => {
+      commit('TOGGLE_VIEW_MODE', entryName)
+      const item = {}
+      item[entryName] = state[entryName]
+      const { windowId } = global.marktext.env
+      ipcRenderer.send('mt::view-layout-changed', windowId, item)
+    })
   }
 }
 

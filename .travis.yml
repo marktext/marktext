@@ -1,18 +1,19 @@
-sudo: required
 language: node_js
 node_js:
-  - 10
+  - 12
 
-matrix:
+jobs:
   include:
   - os: osx
-    osx_image: xcode9.2
+    osx_image: xcode9.4
     env: CC=clang CXX=clang++ npm_config_clang=1 MARKTEXT_IS_STABLE=1 MARKTEXT_EXIT_ON_ERROR=1
     compiler: clang
   - os: linux
-    dist: trusty
+    dist: bionic
     env: CC=clang CXX=clang++ npm_config_clang=1 MARKTEXT_IS_STABLE=1 MARKTEXT_EXIT_ON_ERROR=1 DISPLAY=:99.0
     compiler: clang
+    services:
+      - xvfb
 
 cache:
   directories:
@@ -35,6 +36,10 @@ addons:
     - libxkbfile-dev
     # atom/node-keytar
     - libsecret-1-dev
+    # fontmanager
+    - libfontconfig-dev
+    # Build RPM on Ubuntu
+    - rpm
 
 before_install:
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get -qq update ; fi
@@ -51,7 +56,6 @@ install:
   - yarn --version
 
   # Fix cache between Linux and macOS build workers.
-  # - yarn cache clean vscode-ripgrep
   - rm -rf node_modules/vscode-ripgrep
 
   - yarn install --check-files --frozen-lockfile
@@ -61,18 +65,19 @@ script:
   - yarn run validate-licenses
 
   # Unit and e2e tests
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then xvfb-run --server-args="-screen 0 1024x768x24" yarn run test ; fi
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then yarn run test ; fi
+  - yarn run test
 
   # Build binaries
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then yarn run release:linux ; fi
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then yarn run release:mac ; fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then yarn run release:linux --publish always ; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then yarn run release:mac --publish always ; fi
 
   # Calculate checksums
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sha256sum build/marktext-*-x64.tar.gz ; fi
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sha256sum build/marktext-*-x86_64.AppImage ; fi
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then shasum -a 256 build/marktext-*-mac.zip ; fi
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then shasum -a 256 build/marktext-*.dmg ; fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sha256sum build/marktext-x64.tar.gz ; fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sha256sum build/marktext-x86_64.AppImage ; fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sha256sum build/marktext-*.deb ; fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sha256sum build/marktext-*.rpm ; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then shasum -a 256 build/marktext-mac.zip ; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then shasum -a 256 build/marktext.dmg ; fi
 
 branches:
   only:

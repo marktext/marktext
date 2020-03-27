@@ -4,8 +4,9 @@
  * Before you edit or update codes in this file,
  * make sure you have read this bellow:
  * Commonmark Spec: https://spec.commonmark.org/0.29/
- * and GitHub Flavored Markdown Spec: https://github.github.com/gfm/
- * The output markdown needs to obey the standards of the two Spec.
+ * GitHub Flavored Markdown Spec: https://github.github.com/gfm/
+ * Pandoc Markdown: https://pandoc.org/MANUAL.html#pandocs-markdown
+ * The output markdown needs to obey the standards of these Spec.
  */
 
 class ExportMarkdown {
@@ -72,6 +73,10 @@ class ExportMarkdown {
             }
             case 'html': {
               result.push(this.normalizeHTML(block, indent))
+              break
+            }
+            case 'footnote': {
+              result.push(this.normalizeFootnote(block, indent))
               break
             }
             case 'multiplemath': {
@@ -153,7 +158,7 @@ class ExportMarkdown {
           break
         }
         default: {
-          console.log(block.type)
+          console.warn('translateBlocks2Markdown: Unknown block type:', block.type)
           break
         }
       }
@@ -192,12 +197,34 @@ class ExportMarkdown {
   }
 
   normalizeFrontMatter (block, indent) { // preBlock
+    let startToken
+    let endToken
+    switch (block.lang) {
+      case 'yaml':
+        startToken = '---\n'
+        endToken = '---\n'
+        break
+      case 'toml':
+        startToken = '+++\n'
+        endToken = '+++\n'
+        break
+      case 'json':
+        if (block.style === ';') {
+          startToken = ';;;\n'
+          endToken = ';;;\n'
+        } else {
+          startToken = '{\n'
+          endToken = '}\n'
+        }
+        break
+    }
+
     const result = []
-    result.push('---\n')
+    result.push(startToken)
     for (const line of block.children[0].children) {
       result.push(`${line.text}\n`)
     }
-    result.push('---\n')
+    result.push(endToken)
     return result.join('')
   }
 
@@ -225,7 +252,8 @@ class ExportMarkdown {
 
   normalizeCodeBlock (block, indent) {
     const result = []
-    const textList = block.children[1].children.map(codeLine => codeLine.text)
+    const codeContent = block.children[1].children[0]
+    const textList = codeContent.text.split('\n')
     const { functionType } = block
     if (functionType === 'fencecode') {
       result.push(`${indent}${block.lang ? '```' + block.lang + '\n' : '```\n'}`)
@@ -244,9 +272,10 @@ class ExportMarkdown {
 
   normalizeHTML (block, indent) { // figure
     const result = []
-    const codeLines = block.children[0].children[0].children
-    for (const line of codeLines) {
-      result.push(`${indent}${line.text}\n`)
+    const codeContentText = block.children[0].children[0].children[0].text
+    const lines = codeContentText.split('\n')
+    for (const line of lines) {
+      result.push(`${indent}${line}\n`)
     }
     return result.join('')
   }
@@ -258,13 +287,15 @@ class ExportMarkdown {
     const tHeader = table.children[0]
     const tBody = table.children[1]
     const escapeText = str => {
-      return str.replace(/(?<!\\)\|/g, '\\|')
+      return str.replace(/([^\\])\|/g, '$1\\|')
     }
 
-    tableData.push(tHeader.children[0].children.map(th => escapeText(th.text).trim()))
-    tBody.children.forEach(bodyRow => {
-      tableData.push(bodyRow.children.map(td => escapeText(td.text).trim()))
-    })
+    tableData.push(tHeader.children[0].children.map(th => escapeText(th.children[0].text).trim()))
+    if (tBody) {
+      tBody.children.forEach(bodyRow => {
+        tableData.push(bodyRow.children.map(td => escapeText(td.children[0].text).trim()))
+      })
+    }
 
     const columnWidth = tHeader.children[0].children.map(th => ({ width: 5, align: th.align }))
 
@@ -359,6 +390,24 @@ class ExportMarkdown {
 
     result.push(`${indent}${itemMarker}`)
     result.push(this.translateBlocks2Markdown(children, newIndent, listIndent).substring(newIndent.length))
+    return result.join('')
+  }
+
+  normalizeFootnote (block, indent) {
+    const result = []
+    const identifier = block.children[0].text
+    result.push(`${indent}[^${identifier}]:`)
+    const hasMultipleBlocks = block.children.length > 2 || block.children[1].type !== 'p'
+    if (hasMultipleBlocks) {
+      result.push('\n')
+      const newIndent = indent + ' '.repeat(4)
+      result.push(this.translateBlocks2Markdown(block.children.slice(1), newIndent))
+    } else {
+      result.push(' ')
+      const paragraphContent = block.children[1].children[0]
+      result.push(this.normalizeParagraphText(paragraphContent, indent))
+    }
+
     return result.join('')
   }
 }

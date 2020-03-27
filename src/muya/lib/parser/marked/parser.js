@@ -11,6 +11,8 @@ import defaultOptions from './options'
 function Parser (options) {
   this.tokens = []
   this.token = null
+  this.footnotes = null
+  this.footnoteIdentifier = ''
   this.options = options || defaultOptions
   this.options.renderer = this.options.renderer || new Renderer()
   this.renderer = this.options.renderer
@@ -23,14 +25,15 @@ function Parser (options) {
  */
 
 Parser.prototype.parse = function (src) {
-  this.inline = new InlineLexer(src.links, this.options)
+  this.inline = new InlineLexer(src.links, src.footnotes, this.options)
   // use an InlineLexer with a TextRenderer to extract pure text
   this.inlineText = new InlineLexer(
     src.links,
+    src.footnotes,
     Object.assign({}, this.options, { renderer: new TextRenderer() })
   )
   this.tokens = src.reverse()
-
+  this.footnotes = src.footnotes
   let out = ''
   while (this.next()) {
     out += this.tok()
@@ -147,6 +150,26 @@ Parser.prototype.tok = function () {
       }
 
       return this.renderer.blockquote(body)
+    }
+    // All the tokens will be footnotes if it after a footnote_start token. Because we put all footnote token at the end.
+    case 'footnote_start': {
+      let body = ''
+      let itemBody = ''
+      this.footnoteIdentifier = this.token.identifier
+      while (this.next()) {
+        if (this.token.type === 'footnote_end') {
+          const footnoteInfo = this.footnotes[this.footnoteIdentifier]
+          body += this.renderer.footnoteItem(itemBody, footnoteInfo)
+          this.footnoteIdentifier = ''
+          itemBody = ''
+        } else if (this.token.type === 'footnote_start') {
+          this.footnoteIdentifier = this.token.identifier
+          itemBody = ''
+        } else {
+          itemBody += this.tok()
+        }
+      }
+      return this.renderer.footnote(body)
     }
     case 'list_start': {
       let body = ''

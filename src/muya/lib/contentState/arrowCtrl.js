@@ -15,38 +15,42 @@ const adjustOffset = (offset, block, event) => {
 
 const arrowCtrl = ContentState => {
   ContentState.prototype.findNextRowCell = function (cell) {
-    if (!/th|td/.test(cell.type)) {
+    if (cell.functionType !== 'cellContent') {
       throw new Error(`block with type ${cell && cell.type} is not a table cell`)
     }
-    const row = this.getParent(cell)
-    const rowContainer = this.getParent(row) // thead or tbody
-    const column = row.children.indexOf(cell)
+    const thOrTd = this.getParent(cell)
+    const row = this.closest(cell, 'tr')
+    const rowContainer = this.closest(row, /thead|tbody/) // thead or tbody
+    const column = row.children.indexOf(thOrTd)
     if (rowContainer.type === 'thead') {
       const tbody = this.getNextSibling(rowContainer)
       if (tbody && tbody.children.length) {
-        return tbody.children[0].children[column]
+        return tbody.children[0].children[column].children[0]
       }
     } else if (rowContainer.type === 'tbody') {
       const nextRow = this.getNextSibling(row)
       if (nextRow) {
-        return nextRow.children[column]
+        return nextRow.children[column].children[0]
       }
     }
     return null
   }
 
   ContentState.prototype.findPrevRowCell = function (cell) {
-    if (!/th|td/.test(cell.type)) throw new Error(`block with type ${cell && cell.type} is not a table cell`)
-    const row = this.getParent(cell)
+    if (cell.functionType !== 'cellContent') {
+      throw new Error(`block with type ${cell && cell.type} is not a table cell`)
+    }
+    const thOrTd = this.getParent(cell)
+    const row = this.closest(cell, 'tr')
     const rowContainer = this.getParent(row) // thead or tbody
     const rowIndex = rowContainer.children.indexOf(row)
-    const column = row.children.indexOf(cell)
+    const column = row.children.indexOf(thOrTd)
     if (rowContainer.type === 'tbody') {
       if (rowIndex === 0 && rowContainer.preSibling) {
         const thead = this.getPreSibling(rowContainer)
-        return thead.children[0].children[column]
+        return thead.children[0].children[column].children[0]
       } else if (rowIndex > 0) {
-        return this.getPreSibling(row).children[column]
+        return this.getPreSibling(row).children[column].children[0]
       }
       return null
     }
@@ -79,6 +83,7 @@ const arrowCtrl = ContentState => {
           break
         }
       }
+      this.muya.keyboard.hideAllFloatTools()
       return this.singleRender(block)
     }
   }
@@ -97,7 +102,7 @@ const arrowCtrl = ContentState => {
     }
 
     // fix #101
-    if (event.key === EVENT_KEYS.ArrowRight && node && node.classList && node.classList.contains(CLASS_OR_ID['AG_MATH_TEXT'])) {
+    if (event.key === EVENT_KEYS.ArrowRight && node && node.classList && node.classList.contains(CLASS_OR_ID.AG_MATH_TEXT)) {
       const { right } = selection.getCaretOffsets(node)
       if (right === 0 && start.key === end.key && start.offset === end.offset) {
         // It's not recommended to use such lower API, but it's work well.
@@ -117,12 +122,12 @@ const arrowCtrl = ContentState => {
       (event.key === EVENT_KEYS.ArrowUp && topOffset > 0) ||
       (event.key === EVENT_KEYS.ArrowDown && bottomOffset > 0)
     ) {
-      if (!/pre|th|td/.test(block.type)) {
+      if (!/pre/.test(block.type) || block.functionType !== 'cellContent') {
         return
       }
     }
 
-    if (/th|td/.test(block.type)) {
+    if (block.functionType === 'cellContent') {
       let activeBlock
       const cellInNextRow = this.findNextRowCell(block)
       const cellInPrevRow = this.findPrevRowCell(block)

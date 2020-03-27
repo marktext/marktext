@@ -37,7 +37,7 @@
   </a>
   <!-- Downloads latest release -->
   <a href="https://github.com/marktext/marktext/releases/latest">
-    <img src="https://img.shields.io/github/downloads/marktext/marktext/v0.15.1/total.svg" alt="latest download">
+    <img src="https://img.shields.io/github/downloads/marktext/marktext/v0.16.0/total.svg" alt="latest download">
   </a>
   <!-- sponsors -->
   <a href="https://opencollective.com/marktext">
@@ -55,7 +55,7 @@
       Features
     </a>
     <span> | </span>
-    <a href="https://github.com/marktext/marktext#download-and-install">
+    <a href="https://github.com/marktext/marktext#download-and-installation">
       Downloads
     </a>
     <span> | </span>
@@ -73,6 +73,9 @@
   <sub>Translations:</sub>
   <a href="docs/i18n/zh_cn.md#readme">
     <span>:cn:</span>
+  </a>
+  <a href="docs/i18n/zh_tw.md#readme">
+    <span>:taiwan:</span>
   </a>
   <a href="docs/i18n/pl.md#readme">
     <span>:poland:</span>
@@ -110,14 +113,16 @@
 
 <h2 align="center">Supporting Mark Text</h2>
 
-Mark Text is an MIT licensed open source project, you will always be able to download the latest version for free from the GitHub release page. Mark Text is still in development, and its development is inseparable from all sponsors. I hope you join them:
+Mark Text is an MIT licensed open source project, and the latest version will always be downloadable for free from the GitHub release page. Mark Text is still in development, and its development is inseparable from all sponsors. I hope you join them:
 
 - [Become a backer or sponsor on Patreon](https://www.patreon.com/ranluo) or [One time donation](https://github.com/Jocs/sponsor.me)
 - [Become a backer or sponsor on Open Collective](https://opencollective.com/marktext)
 
-##### What's the difference between Patreon and OpenCollective?
+##### What's the difference between Patreon and Open Collective?
 
-Sponsored by Patreon, it will be directly sponsored to Luo Ran (@jocs), who create Mark Text and continue to maintain Mark Text. Sponsored by Open Collective, all expenses are transparent, and these sponsorship funds will be used for the development of Mark Text. , maintenance, online and offline activities, and some of the necessary resources, whether sponsored by Patreon or Open Collective, your name or company logo will appear in Mark Text's readme and official website.
+Patreon: Funds will be directly sponsored to Luo Ran (@jocs) who created Mark Text and continues to maintain it.
+Open Collective: All expenses are transparent. The funds will be used for the development and maintenance of Mark Text, funding online and offline activities, and acquiring other necessary resources.
+Names and company logos of all sponsors (from both Patreon and Open Collective) will appear on the official website for Mark Text and in its README.md file.
 
 **Platinum Sponsors**
 
@@ -156,7 +161,7 @@ Sponsored by Patreon, it will be directly sponsored to Luo Ran (@jocs), who crea
 ## Features
 
 - Realtime preview (WYSIWYG) and a clean and simple interface to get a distraction-free writing experience.
-- Support [CommonMark Spec](https://spec.commonmark.org/0.29/) and [GitHub Flavored Markdown Spec](https://github.github.com/gfm/).
+- Support [CommonMark Spec](https://spec.commonmark.org/0.29/), [GitHub Flavored Markdown Spec](https://github.github.com/gfm/) and selective support [Pandoc markdown](https://pandoc.org/MANUAL.html#pandocs-markdown).
 - Markdown extensions such as math expressions (KaTeX), front matter and emojis.
 - Support paragraphs and inline style shortcuts to improve your writing efficiency.
 - Output **HTML** and **PDF** files.
@@ -168,7 +173,7 @@ Sponsored by Patreon, it will be directly sponsored to Luo Ran (@jocs), who crea
 | Cadmium Light                                     | Dark                                            |
 |:-------------------------------------------------:|:-----------------------------------------------:|
 | ![](docs/themeImages/cadmium-light.png?raw=true)  | ![](docs/themeImages/dark.png?raw=true)         |
-| Graphite Light                                    | Materal Dark                                    |
+| Graphite Light                                    | Material Dark                                   |
 | ![](docs/themeImages/graphite-light.png?raw=true) | ![](docs/themeImages/materal-dark.png?raw=true) |
 | Ulysses Light                                     | One Dark                                        |
 | ![](docs/themeImages/ulysses-light.png?raw=true)  | ![](docs/themeImages/one-dark.png?raw=true)     |
@@ -183,15 +188,15 @@ Sponsored by Patreon, it will be directly sponsored to Luo Ran (@jocs), who crea
 
 1. I love writing. I have used a lot of markdown editors, yet there is still not an editor that can fully meet my needs. I don't like to be disturbed when I write by some unbearable bug. **Mark Text** uses virtual DOM to render pages which has the added benefits of being highly efficient and being open source. That way anyone who loves markdown and writing can use Mark Text.
 2. As mentioned above, **Mark Text** is completely free and open source and will be open source forever. We hope that all markdown lovers will contribute their own code and help develop **Mark Text** into a popular markdown editor.
-3. There are many markdown editors and all have their own merits, some have features which others don't. It's difficult to satisfy each markdown users needs but we hope **Mark Text** will be able to satisfy each markdown users' needs as much as possible. Although the latest **Mark Text** is still not perfect, we will try to make it as best as we possibly can.
+3. There are many markdown editors and all have their own merits, some have features which others don't. It's difficult to satisfy each markdown users' needs but we hope **Mark Text** will be able to satisfy each markdown user as much as possible. Although the latest **Mark Text** is still not perfect, we will try to make it as best as we possibly can.
 
-## Download and Install
+## Download and Installation
 
 ![platform](https://img.shields.io/static/v1.svg?label=Platform&message=Linux-64%20|%20macOS-64%20|%20Win-32%20|%20Win-64&style=for-the-badge)
 
 | ![](https://raw.githubusercontent.com/wiki/ryanoasis/nerd-fonts/screenshots/v1.0.x/mac-pass-sm.png)                                                                                                  | ![](https://raw.githubusercontent.com/wiki/ryanoasis/nerd-fonts/screenshots/v1.0.x/windows-pass-sm.png)                                                                                                          | ![](https://raw.githubusercontent.com/wiki/ryanoasis/nerd-fonts/screenshots/v1.0.x/linux-pass-sm.png)                                                                                                                        |
 |:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
-| [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-0.15.1.dmg.svg)](https://github.com/marktext/marktext/releases/download/v0.15.1/marktext-0.15.1.dmg) | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-setup-0.15.1.exe.svg)](https://github.com/marktext/marktext/releases/download/v0.15.1/marktext-setup-0.15.1.exe) | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-0.15.1-x86_64.AppImage.svg)](https://github.com/marktext/marktext/releases/download/v0.15.1/marktext-0.15.1-x86_64.AppImage) |
+| [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-0.16.0.dmg.svg)](https://github.com/marktext/marktext/releases/download/v0.16.0/marktext.dmg) | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-setup-0.16.0.exe.svg)](https://github.com/marktext/marktext/releases/download/v0.16.0/marktext-setup.exe) | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-0.16.0-x86_64.AppImage.svg)](https://github.com/marktext/marktext/releases/download/v0.16.0/marktext-x86_64.AppImage) |
 
 Want to see new features of the latest version? Please refer to [CHANGELOG](.github/CHANGELOG.md).
 
@@ -213,13 +218,16 @@ Please follow the [Linux installation instructions](docs/LINUX.md).
 
 #### Other
 
-All binaries for Linux, macOS and Windows can be downloaded from the [release page](https://github.com/marktext/marktext/releases/latest). Is a version for your system unavailable, then open an [issue](https://github.com/marktext/marktext/issues).
+All binaries for Linux, macOS and Windows can be downloaded from the [release page](https://github.com/marktext/marktext/releases/latest). If a version is unavailable for your system, then please open an [issue](https://github.com/marktext/marktext/issues).
 
 ## Development
 
-If you wish to build **Mark Text** yourself, please check out our [developer documentation](.github/CONTRIBUTING.md#build-instructions).
+If you wish to build **Mark Text** yourself, please check out our [build instructions](docs/dev/BUILD.md).
 
-If you have any questions regarding **Mark Text**, you are welcome to write an issue. When doing so please use the default format found when opening a issue. Of course, if you submit a PR directly, it will be greatly appreciated.
+- [User documentation](docs/README.md)
+- [Developer documentation](docs/dev/README.md)
+
+If you have any questions regarding **Mark Text**, you are welcome to write an issue. When doing so please use the default format found when opening an issue. Of course, if you submit a PR directly, it will be greatly appreciated.
 
 ## Integrations
 
@@ -227,13 +235,13 @@ If you have any questions regarding **Mark Text**, you are welcome to write an i
 
 ## Contribution
 
-Mark Text is in full development, please make sure to read the [Contributing Guide](.github/CONTRIBUTING.md) before making a pull request. Want to add some features to Mark Text? Refer to [ROADMAP](.github/ROADMAP.md) and open issues.
+Mark Text is in full development, please make sure to read the [Contributing Guide](CONTRIBUTING.md) before making a pull request. Want to add some features to Mark Text? Refer to our [roadmap](https://github.com/marktext/marktext/projects) and open issues.
 
 ## Contributors
 
 Thank you to all the people who have already contributed to Mark Text[[contributors](https://github.com/marktext/marktext/graphs/contributors)]
 
-Special thanks to @[Yasujizr](https://github.com/Yasujizr) who designed the logo of Mark Text.
+Special thanks to @[Yasujizr](https://github.com/Yasujizr) who designed the Mark Text logo.
 
 <a href="https://github.com/marktext/marktext/graphs/contributors"><img src="https://opencollective.com/marktext/contributors.svg?width=890" /></a>
 

@@ -6,7 +6,7 @@
         <input
           type="text" v-model="keyword"
           placeholder="Search in folder..."
-          @keyup.enter="search"
+          @keyup="search"
         >
         <div class="controls">
           <span
@@ -41,12 +41,17 @@
           </span>
         </div>
       </div>
-      <div class="search-error" v-show="searchErrorString">
-        <span>An error occurred: {{ searchErrorString }}</span>
+
+      <div class="search-message-section" v-if="showNoFolderOpenedMessage">
+        <div>You have not opened a folder.</div>
+        <a href="javascript:;" @click="openFolder">Open Folder</a>
       </div>
+      <div class="search-message-section" v-if="showNoResultFoundMessage">No results found.</div>
+      <div class="search-message-section" v-if="searchErrorString">{{ searchErrorString }}</div>
+
       <div
         class="cancel-area"
-        v-show="searcherRunning"
+        v-show="showSearchCancelArea"
       >
         <el-button
           type="primary"
@@ -76,6 +81,7 @@
 
 <script>
 import { mapState } from 'vuex'
+import bus from '../../bus'
 import log from 'electron-log'
 import SearchResultItem from './searchResultItem.vue'
 import RipgrepDirectorySearcher from '../../node/ripgrepSearcher'
@@ -83,6 +89,7 @@ import EmptyIcon from '@/assets/icons/undraw_empty.svg'
 import FindCaseIcon from '@/assets/icons/searchIcons/iconCase.svg'
 import FindWordIcon from '@/assets/icons/searchIcons/iconWord.svg'
 import FindRegexIcon from '@/assets/icons/searchIcons/iconRegex.svg'
+import { MARKDOWN_INCLUSIONS } from '../../../common/filesystem/paths'
 
 export default {
   data () {
@@ -99,6 +106,7 @@ export default {
       keyword: '',
       searchResult: [],
       searcherRunning: false,
+      showSearchCancelArea: false,
       searchErrorString: '',
 
       isCaseSensitive: false,
@@ -109,8 +117,22 @@ export default {
   components: {
     SearchResultItem
   },
+  watch: {
+    showSideBar: function (value, oldValue) {
+      if (value && !oldValue && this.rightColumn === 'search') {
+        this.keyword = this.searchMatches.value
+      }
+    }
+  },
+  created () {
+    this.keyword = this.searchMatches.value
+    bus.$on('findInFolder', this.handleFindInFolder)
+  },
   computed: {
     ...mapState({
+      rightColumn: state => state.layout.rightColumn,
+      showSideBar: state => state.layout.showSideBar,
+      searchMatches: state => state.editor.currentFile.searchMatches,
       projectTree: state => state.project.projectTree,
       searchExclusions: state => state.preferences.searchExclusions,
       searchMaxFileSize: state => state.preferences.searchMaxFileSize,
@@ -125,15 +147,19 @@ export default {
       }, 0)
 
       return `${matchCount} ${matchCount > 1 ? 'matches' : 'match'} in ${fileCount} ${fileCount > 1 ? 'files' : 'file'}`
+    },
+    showNoFolderOpenedMessage () {
+      return !this.projectTree || !this.projectTree.pathname
+    },
+    showNoResultFoundMessage () {
+      return this.searchResult.length === 0 && this.searcherRunning === false && this.keyword.length > 0
     }
   },
   methods: {
     search () {
       // No root directory is opened.
-      if (!this.projectTree || !this.projectTree.pathname) {
-        return new Notification('No folder opened', {
-          body: `You need to open a folder before search.`
-        })
+      if (this.showNoFolderOpenedMessage) {
+        return
       }
 
       const { pathname: rootDirectoryPath } = this.projectTree
@@ -151,18 +177,20 @@ export default {
         searcherCancelCallback()
       }
 
-      this.searchResult = []
       this.searchErrorString = ''
       this.searcherCancelCallback = null
 
       if (!keyword) {
+        this.searchResult = []
         this.searcherRunning = false
         return
       }
 
       let canceled = false
       this.searcherRunning = true
+      this.startShowSearchCancelAreaTimer()
 
+      const newSearchResult = []
       const promises = ripgrepDirectorySearcher.search([rootDirectoryPath], keyword, {
         didMatch: searchResult => {
           if (canceled) return
@@ -179,14 +207,16 @@ export default {
           //   length: 2
           //   trailingContextLines: []
 
-          this.searchResult.push(searchResult)
+          newSearchResult.push(searchResult)
         },
         didSearchPaths: numPathsFound => {
           // More than 100 files with (multiple) matches were found.
           if (!canceled && numPathsFound > 100) {
             canceled = true
-            promises.cancel()
-            this.searchErrorString = 'Search was canceled because more than 100 files were found.'
+            if (promises.cancel) {
+              promises.cancel()
+            }
+            this.searchErrorString = 'Search was limited to 100 files.'
           }
         },
 
@@ -203,11 +233,13 @@ export default {
         followSymlinks: this.searchFollowSymlinks,
 
         // Only search markdown files
-        inclusions: ['*.markdown', '*.mdown', '*.mkdn', '*.md', '*.mkd', '*.mdwn', '*.mdtxt', '*.mdtext', '*.text', '*.txt']
+        inclusions: MARKDOWN_INCLUSIONS
       })
         .then(() => {
+          this.searchResult = newSearchResult
           this.searcherRunning = false
           this.searcherCancelCallback = null
+          this.stopShowSearchCancelAreaTimer()
         })
         .catch(err => {
           canceled = true
@@ -216,17 +248,39 @@ export default {
           }
           this.searcherRunning = false
           this.searcherCancelCallback = null
+          this.stopShowSearchCancelAreaTimer()
 
           this.searchErrorString = err.message
           log.error(err)
         })
 
       this.searcherCancelCallback = () => {
+        this.stopShowSearchCancelAreaTimer()
         canceled = true
         if (promises.cancel) {
           promises.cancel()
         }
       }
+    },
+    /**
+     * Slightly delay showing the "cancel search" button so we don't
+     * see it after every keypress, but only when a search query is lagging.
+     */
+    startShowSearchCancelAreaTimer () {
+      this.stopShowSearchCancelAreaTimer()
+
+      const SHOW_SEARCH_CANCEL_DELAY_MS = 5000
+      this.showSearchCancelAreaTimer = window.setTimeout(() => {
+        this.showSearchCancelArea = true
+      }, SHOW_SEARCH_CANCEL_DELAY_MS)
+    },
+    stopShowSearchCancelAreaTimer () {
+      this.showSearchCancelArea = false
+      if (!this.showSearchCancelAreaTimer) {
+        return
+      }
+      window.clearTimeout(this.showSearchCancelAreaTimer)
+      this.showSearchCancelAreaTimer = null
     },
     cancelSearcher () {
       const { searcherCancelCallback } = this
@@ -246,7 +300,16 @@ export default {
     regexpClicked () {
       this.isRegexp = !this.isRegexp
       this.search()
+    },
+    openFolder () {
+      this.$store.dispatch('ASK_FOR_OPEN_PROJECT')
+    },
+    handleFindInFolder () {
+      this.keyword = this.searchMatches.value
     }
+  },
+  destroyed () {
+    bus.$off('findInFolder', this.handleFindInFolder)
   }
 }
 </script>
@@ -259,10 +322,10 @@ export default {
   }
   .search-wrapper {
     display: flex;
-    margin: 35px 15px 10px 15px;
+    margin: 37px 15px 10px 15px;
     padding: 0 6px;
-    border-radius: 15px;
-    height: 30px;
+    border-radius: 14px;
+    height: 28px;
     border: 1px solid var(--floatBorderColor);
     background: var(--inputBgColor);
     box-sizing: border-box;
@@ -275,7 +338,7 @@ export default {
       border: none;
       outline: none;
       padding: 0 8px;
-      font-size: 14px;
+      font-size: 13px;
       width: 50%;
     }
     & > .controls {
@@ -318,14 +381,11 @@ export default {
     text-align: center;
     margin-bottom: 16px;
   }
-  .search-error {
+  .search-message-section {
     overflow-wrap: break-word;
-    & > span {
-      display: block;
-      font-size: 14px;
-    }
   }
-  .search-result-info {
+  .search-result-info,
+  .search-message-section {
     padding-left: 15px;
     margin-bottom: 5px;
     font-size: 12px;

@@ -126,7 +126,7 @@ export default {
       }
     },
     handleLeftBottomClick (name) {
-      if (name === 'setting') {
+      if (name === 'settings') {
         this.$store.dispatch('OPEN_SETTING_WINDOW')
       }
     }
@@ -212,7 +212,7 @@ export default {
     width: 3px;
     cursor: col-resize;
     &:hover {
-      border-right: 2px solid var(--highlightThemeColor);
+      border-right: 2px solid var(--iconColor);
     }
   }
 </style>

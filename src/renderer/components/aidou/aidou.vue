@@ -18,7 +18,7 @@
             @keyup="handleInput"
             @input="historyIndex = -1"
             @focus = "showCollection = false"
-            ref="search" placeholder="Discover you next dotu..."
+            ref="search" placeholder="Search dotu..."
           >
           <svg class="icon" aria-hidden="true" @click="getCollection">
             <use xlink:href="#icon-collect"></use>
@@ -95,6 +95,7 @@ export default {
     })
   },
   beforeDestroy () {
+    bus.$off('aidou', this.handleShowAiDou)
     const container = this.$refs.emojis
     if (container) {
       container.removeEventListener('scroll', this.handlerScroll)
@@ -233,38 +234,30 @@ export default {
 }
 </script>
 
-<style scoped>
-  .el-dialog__header {
-    margin-bottom: 20px;
+<style>
+  .aidou .el-dialog__header {
+    padding-top: 10px;
   }
-  .search-wrapper {
+  .aidou .search-wrapper {
+    margin-top: 20px;
     margin: 0 auto;
-    margin-top: 8px;
     z-index: 10000;
-    position: absolute;
-    top: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 410px;
+    width: 300px;
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
     align-items: center;
-    height: auto;
-    padding: 5px;
-    color: var(--editorColor);
-    background: var(--floatBgColor);
-    box-shadow: 0 3px 8px 3px var(--floatHoverColor);
-    border: 1px solid var(--floatBorderColor);
-    border-radius: 3px;
+    height: 30px;
   }
-  .input-wrapper {
+  .aidou .input-wrapper {
     display: flex;
     width: 100%;
-    border: 1px solid var(--sideBarTextColor);
+    border: 1px solid var(--editorColor10);
+    background: var(--inputBgColor);
     border-radius: 14px;
+    color: var(--editorColor);
   }
-  .search {
+  .aidou .search {
     width: 100%;
     height: 30px;
     outline: none;
@@ -275,7 +268,7 @@ export default {
     color: var(--editorColor);
     background: transparent;
   }
-  .search-wrapper svg {
+  .aidou .search-wrapper svg {
     cursor: pointer;
     margin: 0 5px;
     width: 30px;
@@ -283,10 +276,11 @@ export default {
     color: var(--iconColor);
     transition: all .3s ease-in-out;
   }
-  .search-wrapper svg:hover {
+  .aidou .search-wrapper svg:hover {
     color: var(--themeColor);
   }
-  ul.history {
+
+  .aidou ul.history {
     display: flex;
     flex-direction: column;
     list-style: none;
@@ -294,65 +288,80 @@ export default {
     margin: 0;
     width: 100%;
     box-sizing: border-box;
+    background: var(--inputBgColor);
+    border-radius: 5px;
+    margin-top: 5px;
+    z-index: 1;
+    backdrop-filter: blur(10px);
   }
-  ul.history li {
-    height: 35px;
+
+  .aidou ul.history li {
+    height: 30px;
     padding: 0 8px;
-    line-height: 35px;
+    line-height: 30px;
     cursor: pointer;
     position: relative;
+    color: var(--editorColor50);
   }
-  ul.history li .icon {
+  .aidou ul.history li .icon {
     position: absolute;
-    top: 12.5px;
+    top: 10px;
     right: 12px;
     width: 10px;
     height: 10px;
     display: none;
   }
-   ul.history .clear-history {
+  .aidou ul.history .clear-history {
     text-align: center;
   }
-  ul.history .clear-history span {
+  .aidou ul.history .clear-history span {
     font-size: 12px;
     color: var(--themeColor);
     text-align: center;
     cursor: pointer;
   }
-  ul.history li.active {
+  .aidou ul.history li.active {
     background: var(--floatHoverColor);
   }
-  ul.history:hover li {
+  .aidou ul.history:hover li {
     background: transparent;
   }
-  ul.history li:hover .icon {
+  .aidou ul.history li:hover .icon {
     display: block;
   }
-  ul.history li:hover {
+  .aidou ul.history li:hover {
     background: var(--floatHoverColor);
   }
-  .image-container {
+
+  .aidou .el-dialog__body {
+    padding: 0;
+  }
+
+  .aidou .image-container {
     height: 410px;
     overflow: auto;
+    padding: 10px;
   }
-  .image-container .img-wrapper {
+  .aidou .image-container::-webkit-scrollbar:vertical {
+    width: 0;
+  }
+  .aidou .image-container .img-wrapper {
     position: relative;
     overflow: hidden;
-    width: 130px;
-    height: 130px;
-    margin-right: 10px;
-    margin-bottom: 10px;
+    width: 113px;
+    height: 113px;
+    margin-right: 5px;
     box-sizing: border-box;
     border-radius: 3px;
     cursor: pointer;
     transition: all .25s ease-in-out;
     display: inline-block;
   }
-  .image-container .img-wrapper img {
+  .aidou .image-container .img-wrapper img {
     width: 100%;
     height: 100%;
   }
-  .image-container .img-wrapper > svg {
+  .aidou .image-container .img-wrapper > svg {
     position: absolute;
     top: 3px;
     right: 0px;
@@ -360,25 +369,25 @@ export default {
     height: 20px;
     display: none;
   }
-  .image-container .img-wrapper > svg.active {
+  .aidou .image-container .img-wrapper > svg.active {
     color: var(--themeColor);
   }
-  .image-container .img-wrapper:hover > svg {
+  .aidou .image-container .img-wrapper:hover > svg {
     display: block;
   }
-  .image-container .img-wrapper:hover {
+  .aidou .image-container .img-wrapper:hover {
     transform: scale(1.05);
   }
-  .image-container .img-wrapper:nth-of-type(4n) {
+  .aidou .image-container .img-wrapper:nth-of-type(5n) {
     margin-right: 0;
   }
-  .dialog-footer {
+  .aidou .dialog-footer {
     text-align: center;
   }
-  .fade-enter-active, .fade-leave-active {
+  .aidou .fade-enter-active, .fade-leave-active {
     transition: opacity .2s;
   }
-  .fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
+  .aidou .fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
     opacity: 0;
   }
 </style>

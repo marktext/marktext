@@ -1,7 +1,19 @@
+body .ag-render-container {
+  position: fixed;
+  left: -10000px;
+  right: -10000px;
+}
+
 body article.print-container {
   display: none;
 }
+
 @media print {
+  /* Set all settings like margin with @page or Electron settings. */
+  @page {
+    margin: 15mm 20mm 15mm 20mm;
+  }
+
   .editor-container {
     display: none !important;
   }
@@ -21,7 +33,8 @@ body article.print-container {
     height: auto !important;
   }
 
-  body > div {
+  body > div,
+  body > svg {
     display: none !important;
   }
 
@@ -36,7 +49,7 @@ body article.print-container {
     min-width: 200px;
     max-width: 980px;
     margin: 0 auto;
-    padding: 45px;
+    padding: 0;
   }
   body article.markdown-body table {
     display: table;
@@ -45,7 +58,7 @@ body article.print-container {
     margin-top: 0;
     display: inline-block;
   }
-  .markdown-body pre code.fenced-code-block {
+  body article.markdown-body pre code.fenced-code-block {
     white-space: pre-wrap;
     word-break: break-word;
   }
@@ -60,10 +73,5 @@ body article.print-container {
   body article.markdown-body .mermaid > svg,
   body article.markdown-body .vega-embed > svg {
     max-width: 100%;
-  }
-  @media (max-width: 767px) {
-    body article.markdown-body {
-      padding: 15px;
-    }
   }
 }

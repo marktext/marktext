@@ -1,7 +1,6 @@
 import path from 'path'
 import { ipcMain, BrowserWindow } from 'electron'
 import log from 'electron-log'
-import { updateLineEndingMenu } from '../../menu'
 import { searchFilesAndDir } from '../../utils/imagePathAutoComplement'
 
 ipcMain.on('mt::ask-for-image-auto-path', (e, { pathname, src, id }) => {
@@ -22,18 +21,28 @@ ipcMain.on('mt::ask-for-image-auto-path', (e, { pathname, src, id }) => {
     })
 })
 
-ipcMain.on('AGANI::update-line-ending-menu', (e, lineEnding) => {
-  updateLineEndingMenu(lineEnding)
-})
-
 export const edit = (win, type) => {
-  win.webContents.send('AGANI::edit', { type })
+  if (win && win.webContents) {
+    win.webContents.send('mt::editor-edit-action', type)
+  }
 }
 
-export const screenshot = (win, type) => {
+export const screenshot = win => {
   ipcMain.emit('screen-capture', win)
 }
 
 export const lineEnding = (win, lineEnding) => {
-  win.webContents.send('AGANI::set-line-ending', { lineEnding, ignoreSaveStatus: false })
+  if (win && win.webContents) {
+    win.webContents.send('mt::set-line-ending', lineEnding)
+  }
+}
+
+// --- IPC events -------------------------------------------------------------
+
+// NOTE: Don't use static `getMenuItemById` here, instead request the menu by
+//       window id from `AppMenu` manager.
+
+export const updateSidebarMenu = (applicationMenu, value) => {
+  const sideBarMenuItem = applicationMenu.getMenuItemById('sideBarMenuItem')
+  sideBarMenuItem.checked = !!value
 }

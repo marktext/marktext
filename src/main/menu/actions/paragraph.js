@@ -1,6 +1,3 @@
-import { ipcMain } from 'electron'
-import { getMenuItemById } from '../../menu'
-
 const DISABLE_LABELS = [
   // paragraph menu items
   'heading1MenuItem', 'heading2MenuItem', 'heading3MenuItem', 'heading4MenuItem',
@@ -20,102 +17,130 @@ const MENU_ID_MAP = {
   heading6MenuItem: 'h6',
   tableMenuItem: 'figure',
   codeFencesMenuItem: 'pre',
+  htmlBlockMenuItem: 'html',
+  mathBlockMenuItem: 'multiplemath',
   quoteBlockMenuItem: 'blockquote',
   orderListMenuItem: 'ol',
   bulletListMenuItem: 'ul',
-  taskListMenuItem: 'ul',
+  // taskListMenuItem: 'ul',
   paragraphMenuItem: 'p',
   horizontalLineMenuItem: 'hr',
-  frontMatterMenuItem: 'pre'
+  frontMatterMenuItem: 'frontmatter' // 'pre'
 }
 
-const setParagraphMenuItemStatus = bool => {
-  const paragraphMenuItem = getMenuItemById('paragraphMenuEntry')
+export const paragraph = (win, type) => {
+  if (win && win.webContents) {
+    win.webContents.send('mt::editor-paragraph-action', { type })
+  }
+}
+
+// --- IPC events -------------------------------------------------------------
+
+// NOTE: Don't use static `getMenuItemById` here, instead request the menu by
+//       window id from `AppMenu` manager.
+
+const setParagraphMenuItemStatus = (applicationMenu, bool) => {
+  const paragraphMenuItem = applicationMenu.getMenuItemById('paragraphMenuEntry')
   paragraphMenuItem.submenu.items
     .forEach(item => (item.enabled = bool))
 }
 
-const setMultipleStatus = (list, status) => {
-  const paragraphMenuItem = getMenuItemById('paragraphMenuEntry')
+const setMultipleStatus = (applicationMenu, list, status) => {
+  const paragraphMenuItem = applicationMenu.getMenuItemById('paragraphMenuEntry')
   paragraphMenuItem.submenu.items
     .filter(item => item.id && list.includes(item.id))
     .forEach(item => (item.enabled = status))
 }
 
-const setCheckedMenuItem = affiliation => {
-  const paragraphMenuItem = getMenuItemById('paragraphMenuEntry')
+const setCheckedMenuItem = (applicationMenu, { affiliation, isTable, isLooseListItem, isTaskList }) => {
+  const paragraphMenuItem = applicationMenu.getMenuItemById('paragraphMenuEntry')
   paragraphMenuItem.submenu.items.forEach(item => (item.checked = false))
   paragraphMenuItem.submenu.items.forEach(item => {
     if (!item.id) {
       return false
     } else if (item.id === 'looseListItemMenuItem') {
-      let checked = false
-      if (affiliation.length >= 1 && /ul|ol/.test(affiliation[0].type)) {
-        checked = affiliation[0].children[0].isLooseListItem
-      } else if (affiliation.length >= 3 && affiliation[1].type === 'li') {
-        checked = affiliation[1].isLooseListItem
+      item.checked = !!isLooseListItem
+    } else if (Object.keys(affiliation).some(b => {
+      if (b === 'ul' && isTaskList) {
+        if (item.id === 'taskListMenuItem') {
+          return true
+        }
+        return false
+      } else if (isTable && item.id === 'tableMenuItem') {
+        return true
+      } else if (item.id === 'codeFencesMenuItem' && /code$/.test(b)) {
+        return true
       }
-      item.checked = checked
-    } else if (affiliation.some(b => {
-      if (b.type === 'ul') {
-        if (b.listType === 'bullet') {
-          return item.id === 'bulletListMenuItem'
-        } else {
-          return item.id === 'taskListMenuItem'
-        }
-      } else if (b.type === 'pre' && b.functionType) {
-        if (b.functionType === 'frontmatter') {
-          return item.id === 'frontMatterMenuItem'
-        } else if (/code$/.test(b.functionType)) {
-          return item.id === 'codeFencesMenuItem'
-        } else if (b.functionType === 'html') {
-          return item.id === 'htmlBlockMenuItem'
-        } else if (b.functionType === 'multiplemath') {
-          return item.id === 'mathBlockMenuItem'
-        }
-      } else if (b.type === 'figure' && b.functionType) {
-        if (b.functionType === 'table') {
-          return item.id === 'tableMenuItem'
-        }
-      } else {
-        return b.type === MENU_ID_MAP[item.id]
-      }
+      return b === MENU_ID_MAP[item.id]
     })) {
       item.checked = true
     }
   })
 }
 
-export const paragraph = (win, type) => {
-  win.webContents.send('AGANI::paragraph', { type })
-}
+/**
+ * Update paragraph menu entires from given state.
+ *
+ * @param {Electron.MenuItem} applicationMenu The application menu instance.
+ * @param {*} state The selection information.
+ */
+export const updateSelectionMenus = (applicationMenu, state) => {
+  const {
+    // Key/boolean object like "ul: true" of block elements that are selected.
+    // This may be an empty object when multiple block elements are selected.
+    affiliation,
+    isDisabled,
+    isMultiline,
+    isCodeFences,
+    isCodeContent
+  } = state
 
-ipcMain.on('AGANI::selection-change', (e, { start, end, affiliation }) => {
-  // format menu
-  const formatMenuItem = getMenuItemById('formatMenuItem')
+  // Reset format menu.
+  const formatMenuItem = applicationMenu.getMenuItemById('formatMenuItem')
   formatMenuItem.submenu.items.forEach(item => (item.enabled = true))
-  // handle menu checked
-  setCheckedMenuItem(affiliation)
-  // handle disable
-  setParagraphMenuItemStatus(true)
 
-  if (
-    (/th|td/.test(start.type) && /th|td/.test(end.type)) ||
-    (start.type === 'span' && start.block.functionType === 'codeLine') ||
-    (end.type === 'span' && end.block.functionType === 'codeLine')
-  ) {
-    setParagraphMenuItemStatus(false)
+  // Handle menu checked.
+  setCheckedMenuItem(applicationMenu, state)
 
-    if (start.block.functionType === 'codeLine' || end.block.functionType === 'codeLine') {
-      setMultipleStatus(['codeFencesMenuItem'], true)
+  // Reset paragraph menu.
+  setParagraphMenuItemStatus(applicationMenu, !isDisabled)
+  if (isDisabled) {
+    return
+  }
+
+  if (isCodeFences) {
+    setParagraphMenuItemStatus(applicationMenu, false)
+
+    // A code line is selected.
+    if (isCodeContent) {
       formatMenuItem.submenu.items.forEach(item => (item.enabled = false))
+
+      // TODO: Allow to transform to paragraph for other code blocks too but
+      //   currently not supported by Muya.
+      // // Allow to transform to paragraph.
+      // if (affiliation.frontmatter) {
+      //   setMultipleStatus(applicationMenu, ['frontMatterMenuItem'], true)
+      // } else if (affiliation.html) {
+      //   setMultipleStatus(applicationMenu, ['htmlBlockMenuItem'], true)
+      // } else if (affiliation.multiplemath) {
+      //   setMultipleStatus(applicationMenu, ['mathBlockMenuItem'], true)
+      // } else {
+      //  setMultipleStatus(applicationMenu, ['codeFencesMenuItem'], true)
+      // }
+
+      if (Object.keys(affiliation).some(b => /code$/.test(b))) {
+        setMultipleStatus(applicationMenu, ['codeFencesMenuItem'], true)
+      }
     }
-  } else if (start.key !== end.key) {
+  } else if (isMultiline) {
     formatMenuItem.submenu.items
       .filter(item => item.id && DISABLE_LABELS.includes(item.id))
       .forEach(item => (item.enabled = false))
-    setMultipleStatus(DISABLE_LABELS, false)
-  } else if (!affiliation.slice(0, 3).some(p => /ul|ol/.test(p.type))) {
-    setMultipleStatus(['looseListItemMenuItem'], false)
+    setMultipleStatus(applicationMenu, DISABLE_LABELS, false)
   }
-})
+
+  // Disable loose list item.
+  if (!affiliation.ul && !affiliation.ol) {
+    setMultipleStatus(applicationMenu, ['looseListItemMenuItem'], false)
+  }
+}

@@ -2,8 +2,6 @@ import selection from '../selection'
 import { PARAGRAPH_TYPES, DEFAULT_TURNDOWN_CONFIG } from '../config'
 import ExportMarkdown from '../utils/exportMarkdown'
 
-const LINE_BREAKS_REG = /\n/
-
 // get header level
 //  eg: h1 => 1
 //      h2 => 2
@@ -68,29 +66,54 @@ const paragraphCtrl = ContentState => {
   ContentState.prototype.handleFrontMatter = function () {
     const firstBlock = this.blocks[0]
     if (firstBlock.type === 'pre' && firstBlock.functionType === 'frontmatter') return
-    const lang = 'yaml'
+
+    const { frontmatterType } = this.muya.options
+    let lang
+    let style
+    switch (frontmatterType) {
+      case '+':
+        lang = 'toml'
+        style = '+'
+        break
+      case ';':
+        lang = 'json'
+        style = ';'
+        break
+      case '{':
+        lang = 'json'
+        style = '{'
+        break
+      default:
+        lang = 'yaml'
+        style = '-'
+        break
+    }
+
     const frontMatter = this.createBlock('pre', {
       functionType: 'frontmatter',
-      lang
+      lang,
+      style
     })
     const codeBlock = this.createBlock('code', {
       lang
     })
-    const emptyLine = this.createBlock('span', {
-      functionType: 'codeLine',
+    const emptyCodeContent = this.createBlock('span', {
+      functionType: 'codeContent',
       lang
     })
 
-    this.appendChild(codeBlock, emptyLine)
+    this.appendChild(codeBlock, emptyCodeContent)
     this.appendChild(frontMatter, codeBlock)
     this.insertBefore(frontMatter, firstBlock)
-    const { key } = emptyLine
+    const { key } = emptyCodeContent
     const offset = 0
     this.cursor = {
       start: { key, offset },
       end: { key, offset }
     }
   }
+
+  // TODO: New created nestled list items missing "listType" key and value.
 
   ContentState.prototype.handleListMenu = function (paraType, insertMode) {
     const { start, end, affiliation } = this.selectionChange(this.cursor)
@@ -157,7 +180,11 @@ const paragraphCtrl = ContentState => {
           setTimeout(() => {
             this.updateTaskListItem(listItemParagraph, listType)
             this.partialRender()
+            this.muya.dispatchSelectionChange()
+            this.muya.dispatchSelectionFormats()
+            this.muya.dispatchChange()
           })
+          return false
         } else {
           this.updateList(paragraph, listType, undefined, block)
         }
@@ -189,6 +216,8 @@ const paragraphCtrl = ContentState => {
         })
       }
     }
+
+    return true
   }
 
   ContentState.prototype.handleLooseListItem = function () {
@@ -218,40 +247,22 @@ const paragraphCtrl = ContentState => {
     }
     // change fenced code block to p paragraph
     if (affiliation.length && affiliation[0].type === 'pre' && /code/.test(affiliation[0].functionType)) {
-      const preBlock = affiliation[0]
-      const codeLines = preBlock.children[1].children
-      preBlock.type = 'p'
-      preBlock.children = []
+      const codeBlock = affiliation[0]
+      const codeContent = codeBlock.children[1].children[0].text
+      const states = this.markdownToState(codeContent)
 
-      const newParagraphBlock = this.createBlockP(codeLines.map(l => l.text).join('\n'))
-      this.insertBefore(newParagraphBlock, preBlock)
-
-      this.removeBlock(preBlock)
-      const { start, end } = this.cursor
-
-      const key = newParagraphBlock.children[0].key
-      let startOffset = 0
-      let endOffset = 0
-      let startStop = false
-      let endStop = false
-      for (const line of codeLines) {
-        if (line.key !== start.key && !startStop) {
-          startOffset += line.text.length + 1
-        } else {
-          startOffset += start.offset
-          startStop = true
-        }
-        if (line.key !== end.key && !endStop) {
-          endOffset += line.text.length + 1
-        } else {
-          endOffset += end.offset
-          endStop = true
-        }
+      for (const state of states) {
+        this.insertBefore(state, codeBlock)
       }
 
+      this.removeBlock(codeBlock)
+
+      const cursorBlock = this.firstInDescendant(states[0])
+      const { key, text } = cursorBlock
+      const offset = text.length
       this.cursor = {
-        start: { key, offset: startOffset },
-        end: { key, offset: endOffset }
+        start: { key, offset },
+        end: { key, offset }
       }
     } else {
       if (start.key === end.key) {
@@ -264,24 +275,20 @@ const paragraphCtrl = ContentState => {
           })
 
           const codeBlock = this.createBlock('code', {
-            lang: ''
+            lang
           })
 
           const inputBlock = this.createBlock('span', {
             functionType: 'languageInput'
           })
 
-          const codes = startBlock.text.split('\n')
+          const codeContent = this.createBlock('span', {
+            text: startBlock.text,
+            lang,
+            functionType: 'codeContent'
+          })
 
-          for (const code of codes) {
-            const codeLine = this.createBlock('span', {
-              text: code,
-              functionType: 'codeLine',
-              lang
-            })
-            this.appendChild(codeBlock, codeLine)
-          }
-
+          this.appendChild(codeBlock, codeContent)
           this.appendChild(preBlock, inputBlock)
           this.appendChild(preBlock, codeBlock)
           this.insertBefore(preBlock, anchorBlock)
@@ -316,20 +323,15 @@ const paragraphCtrl = ContentState => {
 
         const listIndentation = this.listIndentation
         const markdown = new ExportMarkdown(children.slice(startIndex, endIndex + 1), listIndentation).generate()
-
-        markdown.split(LINE_BREAKS_REG).forEach(text => {
-          const codeLine = this.createBlock('span', {
-            text,
-            lang,
-            functionType: 'codeLine'
-          })
-
-          this.appendChild(codeBlock, codeLine)
+        const codeContent = this.createBlock('span', {
+          text: markdown,
+          lang,
+          functionType: 'codeContent'
         })
         const inputBlock = this.createBlock('span', {
           functionType: 'languageInput'
         })
-
+        this.appendChild(codeBlock, codeContent)
         this.appendChild(preBlock, inputBlock)
         this.appendChild(preBlock, codeBlock)
         this.insertAfter(preBlock, referBlock)
@@ -432,11 +434,11 @@ const paragraphCtrl = ContentState => {
       block = this.getParent(block)
     }
     const preBlock = this.initHtmlBlock(block)
-    const key = preBlock.children[0].children[1]
-      ? preBlock.children[0].children[1].key
-      : preBlock.children[0].children[0].key
+    const cursorBlock = this.firstInDescendant(preBlock)
+    const { key, text } = cursorBlock
+    const match = /^[^\n]+\n[^\n]*/.exec(text)
+    const offset = match && match[0] ? match[0].length : 0
 
-    const offset = 0
     this.cursor = {
       start: { key, offset },
       end: { key, offset }
@@ -446,7 +448,29 @@ const paragraphCtrl = ContentState => {
   ContentState.prototype.updateParagraph = function (paraType, insertMode = false) {
     const { start, end } = this.cursor
     const block = this.getBlock(start.key)
-    const { text } = block
+    const { text, type } = block
+    let needDispatchChange = true
+
+    // Only allow valid transformations.
+    if (!this.isAllowedTransformation(block, paraType, start.key !== end.key)) {
+      return
+    }
+
+    // Convert back to paragraph.
+    if (paraType === 'reset-to-paragraph') {
+      const blockType = this.getTypeFromBlock(block)
+      if (!blockType) {
+        return
+      }
+
+      if (blockType === 'table') {
+        return
+      } else if (/heading|hr/.test(blockType)) {
+        paraType = 'paragraph'
+      } else {
+        paraType = blockType
+      }
+    }
 
     switch (paraType) {
       case 'front-matter': {
@@ -456,7 +480,7 @@ const paragraphCtrl = ContentState => {
       case 'ul-bullet':
       case 'ul-task':
       case 'ol-order': {
-        this.handleListMenu(paraType, insertMode)
+        needDispatchChange = this.handleListMenu(paraType, insertMode)
         break
       }
       case 'loose-list-item': {
@@ -498,7 +522,10 @@ const paragraphCtrl = ContentState => {
       case 'upgrade heading':
       case 'degrade heading':
       case 'paragraph': {
-        if (start.key !== end.key) return
+        if (start.key !== end.key) {
+          return
+        }
+
         const headingStyle = DEFAULT_TURNDOWN_CONFIG.headingStyle
         const parent = this.getParent(block)
         // \u00A0 is &nbsp;
@@ -529,9 +556,14 @@ const paragraphCtrl = ContentState => {
         const endOffset = newLevel > 0
           ? end.offset + newLevel - hash.length + 1
           : end.offset - hash.length
-        const newText = newLevel > 0
+        let newText = newLevel > 0
           ? '#'.repeat(newLevel) + `${String.fromCharCode(160)}${partText}` // &nbsp; code: 160
           : partText
+
+        // Remove <hr> content when converting to paragraph.
+        if (type === 'span' && block.functionType === 'thematicBreakLine') {
+          newText = ''
+        }
 
         // No change
         if (newType === 'p' && parent.type === newType) {
@@ -595,15 +627,17 @@ const paragraphCtrl = ContentState => {
         break
       }
     }
-    if (paraType === 'front-matter') {
+    if (paraType === 'front-matter' || paraType === 'pre') {
       this.render()
     } else {
       this.partialRender()
     }
 
-    this.muya.dispatchSelectionChange()
-    this.muya.dispatchSelectionFormats()
-    this.muya.dispatchChange()
+    if (needDispatchChange) {
+      this.muya.dispatchSelectionChange()
+      this.muya.dispatchSelectionFormats()
+      this.muya.dispatchChange()
+    }
   }
 
   ContentState.prototype.insertParagraph = function (location, text = '', outMost = false) {
@@ -617,6 +651,7 @@ const paragraphCtrl = ContentState => {
     } else {
       anchor = this.getAnchor(block)
     }
+
     // You can not insert paragraph before frontmatter
     if (!anchor || anchor && anchor.functionType === 'frontmatter' && location === 'before') {
       return
@@ -675,15 +710,24 @@ const paragraphCtrl = ContentState => {
     this.partialRender()
     return this.muya.eventCenter.dispatch('stateChange')
   }
+
   // delete current paragraph
-  ContentState.prototype.deleteParagraph = function () {
-    const { start, end } = this.cursor
-    const startOutmostBlock = this.findOutMostBlock(this.getBlock(start.key))
-    const endOutmostBlock = this.findOutMostBlock(this.getBlock(end.key))
-    if (startOutmostBlock !== endOutmostBlock) {
-      // if the cursor is not in one paragraph, just return
-      return
+  ContentState.prototype.deleteParagraph = function (blockKey) {
+    let startOutmostBlock
+    if (blockKey) {
+      const block = this.getBlock(blockKey)
+      const firstEditableBlock = this.firstInDescendant(block)
+      startOutmostBlock = this.getAnchor(firstEditableBlock)
+    } else {
+      const { start, end } = this.cursor
+      startOutmostBlock = this.findOutMostBlock(this.getBlock(start.key))
+      const endOutmostBlock = this.findOutMostBlock(this.getBlock(end.key))
+      if (startOutmostBlock !== endOutmostBlock) {
+        // if the cursor is not in one paragraph, just return
+        return
+      }
     }
+
     const preBlock = this.getBlock(startOutmostBlock.preSibling)
     const nextBlock = this.getBlock(startOutmostBlock.nextSibling)
     let cursorBlock = null
@@ -719,42 +763,93 @@ const paragraphCtrl = ContentState => {
       !this.muya.keyboard.isComposed
   }
 
-  ContentState.prototype.selectAll = function () {
-    const { start } = this.cursor
-    const startBlock = this.getBlock(start.key)
-    // const endBlock = this.getBlock(end.key)
-    // handle selectAll in table. only select the startBlock cell...
-    if (/th|td/.test(startBlock.type)) {
-      const { key } = start
-      const textLength = startBlock.text.length
-      this.cursor = {
-        start: {
-          key,
-          offset: 0
-        },
-        end: {
-          key,
-          offset: textLength
-        }
+  ContentState.prototype.selectAllContent = function () {
+    const firstTextBlock = this.getFirstBlock()
+    const lastTextBlock = this.getLastBlock()
+    this.cursor = {
+      start: {
+        key: firstTextBlock.key,
+        offset: 0
+      },
+      end: {
+        key: lastTextBlock.key,
+        offset: lastTextBlock.text.length
       }
-      return this.partialRender()
+    }
+
+    return this.render()
+  }
+
+  ContentState.prototype.selectAll = function () {
+    const mayBeCell = this.isSingleCellSelected()
+    const mayBeTable = this.isWholeTableSelected()
+
+    if (mayBeTable) {
+      this.selectedTableCells = null
+      return this.selectAllContent()
+    }
+
+    // Select whole table if already select one cell.
+    if (mayBeCell) {
+      const table = this.closest(mayBeCell, 'table')
+
+      if (table) {
+        return this.selectTable(table)
+      }
+    }
+    const { start, end } = this.cursor
+    const startBlock = this.getBlock(start.key)
+    const endBlock = this.getBlock(end.key)
+    // handle selectAll in table.
+    if (startBlock.functionType === 'cellContent' && endBlock.functionType === 'cellContent') {
+      if (start.key === end.key) {
+        const table = this.closest(startBlock, 'table')
+        const cellBlock = this.closest(startBlock, /th|td/)
+
+        this.selectedTableCells = {
+          tableId: table.key,
+          row: 1,
+          column: 1,
+          cells: [{
+            key: cellBlock.key,
+            top: true,
+            right: true,
+            bottom: true,
+            left: true
+          }]
+        }
+
+        this.singleRender(table, false)
+        return this.muya.eventCenter.dispatch('muya-format-picker', { reference: null })
+      } else {
+        const startTable = this.closest(startBlock, 'table')
+        const endTable = this.closest(endBlock, 'table')
+        // Check whether both blocks are in the same table.
+        if (!startTable || !endTable) {
+          console.error('No table found or invalid type.')
+          return
+        } else if (startTable.key !== endTable.key) {
+          // Select entire document
+          return
+        }
+        return this.selectTable(startTable)
+      }
     }
     // Handler selectAll in code block. only select all the code block conent.
     // `code block` here is Math, HTML, BLOCK CODE, Mermaid, vega-lite, flowchart, front-matter etc...
-    if (startBlock.type === 'span' && startBlock.functionType === 'codeLine') {
-      const codeBlock = this.getParent(startBlock)
-      const firstCodeLine = this.firstInDescendant(codeBlock)
-      const lastCodeLine = this.lastInDescendant(codeBlock)
+    if (startBlock.type === 'span' && startBlock.functionType === 'codeContent') {
+      const { key } = startBlock
       this.cursor = {
         start: {
-          key: firstCodeLine.key,
+          key,
           offset: 0
         },
         end: {
-          key: lastCodeLine.key,
-          offset: lastCodeLine.text.length
+          key,
+          offset: startBlock.text.length
         }
       }
+
       return this.partialRender()
     }
     // Handler language input, only select language info only...
@@ -771,19 +866,165 @@ const paragraphCtrl = ContentState => {
       }
       return this.partialRender()
     }
-    const firstTextBlock = this.getFirstBlock()
-    const lastTextBlock = this.getLastBlock()
-    this.cursor = {
-      start: {
-        key: firstTextBlock.key,
-        offset: 0
-      },
-      end: {
-        key: lastTextBlock.key,
-        offset: lastTextBlock.text.length
+
+    return this.selectAllContent()
+  }
+
+  // Test whether the paragraph transformation is valid.
+  ContentState.prototype.isAllowedTransformation = function (block, toType, isMultilineSelection) {
+    const fromType = this.getTypeFromBlock(block)
+    if (toType === 'front-matter') {
+      // Front matter block is added at the beginning.
+      return true
+    } else if (!fromType) {
+      return false
+    } else if (isMultilineSelection && /heading|table/.test(toType)) {
+      return false
+    } else if (fromType === toType || toType === 'reset-to-paragraph') {
+      // Convert back to paragraph.
+      return true
+    }
+
+    switch (fromType) {
+      case 'ul-bullet':
+      case 'ul-task':
+      case 'ol-order':
+      case 'blockquote':
+      case 'paragraph': {
+        // Only allow line and table with an empty paragraph.
+        if (/hr|table/.test(toType) && block.text) {
+          return false
+        }
+        return true
+      }
+      case 'heading 1':
+      case 'heading 2':
+      case 'heading 3':
+      case 'heading 4':
+      case 'heading 5':
+      case 'heading 6':
+        return /paragraph|heading/.test(toType)
+      default:
+        // Tables and all code blocks are not allowed.
+        return false
+    }
+  }
+
+  // Translate block type into internal name.
+  ContentState.prototype.getTypeFromBlock = function (block) {
+    const { type } = block
+
+    let internalType = ''
+    const headingMatch = type.match(/^h([1-6]{1})$/)
+    if (headingMatch && headingMatch[1]) {
+      internalType = `heading ${headingMatch[1]}`
+    }
+
+    switch (type) {
+      case 'span': {
+        if (block.functionType === 'atxLine') {
+          internalType = 'heading 1' // loose match
+        } else if (block.functionType === 'languageInput') {
+          internalType = 'pre'
+        } else if (block.functionType === 'codeContent') {
+          if (block.lang === 'markup') {
+            internalType = 'html'
+          } else if (block.lang === 'latex') {
+            internalType = 'mathblock'
+          }
+
+          // We cannot easy distinguish between diagram and code blocks.
+          const rootBlock = this.getAnchor(block)
+          if (rootBlock && rootBlock.functionType !== 'fencecode') {
+            // Block seems to be a diagram block.
+            internalType = rootBlock.functionType
+          } else {
+            internalType = 'pre'
+          }
+        } else if (block.functionType === 'cellContent') {
+          internalType = 'table'
+        } else if (block.functionType === 'thematicBreakLine') {
+          internalType = 'hr'
+        }
+
+        // List and quote content is also a problem because it's shown as paragraph.
+        const { affiliation } = this.selectionChange(this.cursor)
+        const listTypes = affiliation
+          .slice(0, 3) // the third entry should be the ul/ol
+          .filter(b => /ul|ol/.test(b.type))
+          .map(b => b.listType)
+
+        // Prefer list or blockquote over paragraph.
+        if (listTypes && listTypes.length === 1) {
+          const listType = listTypes[0]
+          if (listType === 'bullet') {
+            internalType = 'ul-bullet'
+          } else if (listType === 'task') {
+            internalType = 'ul-task'
+          } if (listType === 'order') {
+            internalType = 'ol-order'
+          }
+        } else if (affiliation.length === 2 && affiliation[1].type === 'blockquote') {
+          internalType = 'blockquote'
+        } else if (block.functionType === 'paragraphContent') {
+          internalType = 'paragraph'
+        }
+        break
+      }
+      case 'div': {
+        // Preview for math formulas or diagramms.
+        return ''
+      }
+      case 'figure': {
+        if (block.functionType === 'multiplemath') {
+          internalType = 'mathblock'
+        } else {
+          internalType = block.functionType
+        }
+        break
+      }
+      case 'pre': {
+        if (block.functionType === 'multiplemath') {
+          internalType = 'mathblock'
+        } else if (block.functionType === 'fencecode' || block.functionType === 'indentcode') {
+          internalType = 'pre'
+        } else if (block.functionType === 'frontmatter') {
+          internalType = 'front-matter'
+        } else {
+          internalType = block.functionType
+        }
+        break
+      }
+      case 'ul': {
+        if (block.listType === 'task') {
+          internalType = 'ul-task'
+        } else {
+          internalType = 'ul-bullet'
+        }
+        break
+      }
+      case 'ol': {
+        internalType = 'ol-order'
+        break
+      }
+      case 'li': {
+        if (block.listItemType === 'order') {
+          internalType = 'ol-order'
+        } else if (block.listItemType === 'bullet') {
+          internalType = 'ul-bullet'
+        } else if (block.listItemType === 'task') {
+          internalType = 'ul-task'
+        }
+        break
+      }
+      case 'table':
+      case 'th':
+      case 'td': {
+        internalType = 'table'
+        break
       }
     }
-    this.render()
+    return internalType
   }
 }
 

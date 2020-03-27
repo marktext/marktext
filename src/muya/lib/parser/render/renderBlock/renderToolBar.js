@@ -2,10 +2,10 @@
 import { h } from '../snabbdom'
 import { CLASS_OR_ID } from '../../../config'
 import TableIcon from '../../../assets/pngicon/table/table@2x.png'
-import AlignLeftIcon from '../../../assets/pngicon/algin_left/algin_left@2x.png'
-import AlignRightIcon from '../../../assets/pngicon/algin_right/algin_right@2x.png'
-import AlignCenterIcon from '../../../assets/pngicon/algin_center/algin_center@2x.png'
-import DeleteIcon from '../../../assets/pngicon/delete/delete@2x.png'
+import AlignLeftIcon from '../../../assets/pngicon/algin_left/2.png'
+import AlignRightIcon from '../../../assets/pngicon/algin_right/2.png'
+import AlignCenterIcon from '../../../assets/pngicon/algin_center/2.png'
+import DeleteIcon from '../../../assets/pngicon/table_delete/2.png'
 
 export const TABLE_TOOLS = [{
   label: 'table',
@@ -32,7 +32,7 @@ export const TABLE_TOOLS = [{
 const renderToolBar = (type, tools, activeBlocks) => {
   const children = tools.map(tool => {
     const { label, title, icon } = tool
-    const { align } = activeBlocks[0]
+    const { align } = activeBlocks[1] // activeBlocks[0] is span block. cell content.
     let selector = 'li'
     if (align && label === align) {
       selector += '.active'
@@ -50,7 +50,7 @@ const renderToolBar = (type, tools, activeBlocks) => {
       }
     }, iconVnode)
   })
-  const selector = `div.ag-tool-${type}.${CLASS_OR_ID['AG_TOOL_BAR']}`
+  const selector = `div.ag-tool-${type}.${CLASS_OR_ID.AG_TOOL_BAR}`
 
   return h(selector, {
     attrs: {

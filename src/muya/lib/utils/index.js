@@ -1,9 +1,10 @@
-// DOTO: Don't use Node API in editor folder, remove `path` @jocs
-import createDOMPurify from 'dompurify'
-import { isInElectron, URL_REG } from '../config'
+import runSanitize from './dompurify'
+import { URL_REG, DATA_URL_REG, IMAGE_EXT_REG } from '../config'
 
 const ID_PREFIX = 'ag-'
 let id = 0
+
+const TIMEOUT = 1500
 
 export const getUniqueId = () => `${ID_PREFIX}${id++}`
 
@@ -142,13 +143,72 @@ export const loadImage = async (url, detectContentType = false) => {
   return new Promise((resolve, reject) => {
     const image = new Image()
     image.onload = () => {
-      resolve(url)
+      resolve({
+        url,
+        width: image.width,
+        height: image.height
+      })
     }
     image.onerror = err => {
       reject(err)
     }
     image.src = url
   })
+}
+
+export const isOnline = () => {
+  return navigator.onLine === true
+}
+
+export const getPageTitle = url => {
+  // No need to request the title when it's not url.
+  if (!url.startsWith('http')) {
+    return ''
+  }
+  // No need to request the title when off line.
+  if (!isOnline()) {
+    return ''
+  }
+
+  const req = new XMLHttpRequest()
+  let settle
+  const promise = new Promise((resolve, reject) => {
+    settle = resolve
+  })
+  const handler = () => {
+    if (req.readyState === XMLHttpRequest.DONE) {
+      if (req.status === 200) {
+        const contentType = req.getResponseHeader('Content-Type')
+        if (/text\/html/.test(contentType)) {
+          const { response } = req
+          if (typeof response === 'string') {
+            const match = response.match(/<title>(.*)<\/title>/)
+            return match && match[1] ? settle(match[1]) : settle('')
+          }
+          return settle('')
+        }
+        return settle('')
+      } else {
+        return settle('')
+      }
+    }
+  }
+  const handleError = (e) => {
+    settle('')
+  }
+  req.open('GET', url)
+  req.onreadystatechange = handler
+  req.onerror = handleError
+  req.send()
+
+  // Resolve empty string when `TIMEOUT` passed.
+  const timer = new Promise((resolve, reject) => {
+    setTimeout(() => {
+      resolve('')
+    }, TIMEOUT)
+  })
+
+  return Promise.race([promise, timer])
 }
 
 export const checkImageContentType = url => {
@@ -166,6 +226,8 @@ export const checkImageContentType = url => {
         } else {
           settle(false)
         }
+      } else if (req.status === 405) { // status 405 means method not allowed, and just return true.(Solve issue#1297)
+        settle(true)
       } else {
         settle(false)
       }
@@ -189,18 +251,14 @@ export const checkImageContentType = url => {
  * @param {string} baseUrl Base path; used on desktop to fix the relative image path.
  */
 export const getImageInfo = (src, baseUrl = window.DIRNAME) => {
-  const EXT_REG = /\.(jpeg|jpg|png|gif|svg|webp)(?=\?|$)/i
-  // data:[<MIME-type>][;charset=<encoding>][;base64],<data>
-  const DATA_URL_REG = /^data:image\/[\w+-]+(;[\w-]+=[\w-]+|;base64)*,[a-zA-Z0-9+/]+={0,2}$/
-
-  const imageExtension = EXT_REG.test(src)
+  const imageExtension = IMAGE_EXT_REG.test(src)
   const isUrl = URL_REG.test(src)
 
   // Treat an URL with valid extension as image
   if (imageExtension) {
     const isAbsoluteLocal = /^(?:\/|\\\\|[a-zA-Z]:\\).+/.test(src)
     if (isUrl || (!isAbsoluteLocal && !baseUrl)) {
-      if (!isUrl && !baseUrl && isInElectron) {
+      if (!isUrl && !baseUrl) {
         console.warn('"baseUrl" is not defined!')
       }
 
@@ -208,14 +266,13 @@ export const getImageInfo = (src, baseUrl = window.DIRNAME) => {
         isUnknownType: false,
         src
       }
-    } else if (isInElectron) {
+    } else {
       // Correct relative path on desktop. If we resolve a absolute path "path.resolve" doesn't do anything.
       return {
         isUnknownType: false,
         src: 'file://' + require('path').resolve(baseUrl, src)
       }
     }
-    // else: Forbid the request due absolute or relative path in browser
   } else if (isUrl && !imageExtension) {
     // Assume it's a valid image and make a http request later
     return {
@@ -252,7 +309,7 @@ export const unescapeHtml = text => {
     .replace(/&lt;/g, '<')
     .replace(/&gt;/g, '>')
     .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, `'`)
+    .replace(/&#39;/g, '\'')
 }
 
 export const escapeInBlockHtml = html => {
@@ -304,8 +361,7 @@ export const mixins = (constructor, ...object) => {
 }
 
 export const sanitize = (html, options) => {
-  const DOMPurify = createDOMPurify(window)
-  return DOMPurify.sanitize(escapeInBlockHtml(html), options)
+  return runSanitize(escapeInBlockHtml(html), options)
 }
 
 export const getParagraphReference = (ele, id) => {
@@ -324,4 +380,16 @@ export const verticalPositionInRect = (event, rect) => {
   const { clientY } = event
   const { top, height } = rect
   return (clientY - top) > (height / 2) ? 'down' : 'up'
+}
+
+export const collectFootnotes = (blocks) => {
+  const map = new Map()
+  for (const block of blocks) {
+    if (block.type === 'figure' && block.functionType === 'footnote') {
+      const identifier = block.children[0].text
+      map.set(identifier, block)
+    }
+  }
+
+  return map
 }

@@ -78,18 +78,18 @@ export const writeResult = (version, specs, markedSpecs, type = 'commonmark') =>
       const acturalHtml = marked(spec.markdown, MT_MARKED_OPTIONS)
       result += `**Example${spec.example}**\n\n`
       result += '```markdown\n'
-      result += `Markdown content\n`
+      result += 'Markdown content\n'
       result += `${spec.markdown.replace(/`/g, '\\`')}\n`
-      result += `Expected Html\n`
+      result += 'Expected Html\n'
       result += `${expectedHtml}\n`
-      result += `Actural Html\n`
+      result += 'Actural Html\n'
       result += `${acturalHtml}\n`
       result += '```\n\n'
     })
   const failedPath = type === 'commonmark' ? `./${type}.${version}.md` : `../gfm/${type}.${version}.md`
   fs.writeFileSync(path.join(__dirname, failedPath), result)
   // compare with markedjs
-  let compareResult = `## Compare with \`marked.js\`\n\n`
+  let compareResult = '## Compare with `marked.js`\n\n'
   compareResult += `Marked.js failed examples count: ${markedSpecs.filter(s => s.shouldFail).length}\n`
   compareResult += `Mark Text failed examples count: ${failedCount}\n\n`
   let count = 0
@@ -101,20 +101,20 @@ export const writeResult = (version, specs, markedSpecs, type = 'commonmark') =>
       compareResult += `**Example${spec.example}**\n\n`
       compareResult += `Mark Text ${spec.shouldFail ? 'fail' : 'success'} and marked.js ${markedSpecs[i].shouldFail ? 'fail' : 'success'}\n\n`
       compareResult += '```markdown\n'
-      compareResult += `Markdown content\n`
+      compareResult += 'Markdown content\n'
       compareResult += `${spec.markdown.replace(/`/g, '\\`')}\n`
-      compareResult += `Expected Html\n`
+      compareResult += 'Expected Html\n'
       compareResult += `${spec.html}\n`
-      compareResult += `Actural Html\n`
+      compareResult += 'Actural Html\n'
       compareResult += `${acturalHtml}\n`
-      compareResult += `marked.js html\n`
+      compareResult += 'marked.js html\n'
       compareResult += `${markedJs(spec.markdown, { headerIds: false })}\n`
       compareResult += '```\n\n'
     }
   })
 
   compareResult += `There are ${count} examples are different with marked.js.`
-  const comparePath = type === 'commonmark' ? `./compare.marked.md` : `../gfm/compare.marked.md`
+  const comparePath = type === 'commonmark' ? './compare.marked.md' : '../gfm/compare.marked.md'
   fs.writeFileSync(path.join(__dirname, comparePath), compareResult)
 }
 

@@ -1,6 +1,10 @@
 import selection from '../selection'
 import { isOsx } from '../config'
 
+/* eslint-disable no-useless-escape */
+const FOOTNOTE_REG = /^\[\^([^\^\[\]\s]+?)(?<!\\)\]:$/
+/* eslint-enable no-useless-escape */
+
 const checkAutoIndent = (text, offset) => {
   const pairStr = text.substring(offset - 1, offset + 1)
   return /^(\{\}|\[\]|\(\)|><)$/.test(pairStr)
@@ -49,18 +53,23 @@ const enterCtrl = ContentState => {
     return container
   }
 
-  ContentState.prototype.createRow = function (row) {
-    const trBlock = this.createBlock('tr')
+  ContentState.prototype.createRow = function (row, isHeader = false) {
+    const tr = this.createBlock('tr')
     const len = row.children.length
     let i
     for (i = 0; i < len; i++) {
-      const tdBlock = this.createBlock('td')
-      const preChild = row.children[i]
-      tdBlock.column = i
-      tdBlock.align = preChild.align
-      this.appendChild(trBlock, tdBlock)
+      const cell = this.createBlock(isHeader ? 'th' : 'td', {
+        align: row.children[i].align,
+        column: i
+      })
+      const cellContent = this.createBlock('span', {
+        functionType: 'cellContent'
+      })
+
+      this.appendChild(cell, cellContent)
+      this.appendChild(tr, cell)
     }
-    return trBlock
+    return tr
   }
 
   ContentState.prototype.createBlockLi = function (paragraphInListItem) {
@@ -172,7 +181,6 @@ const enterCtrl = ContentState => {
 
   ContentState.prototype.enterHandler = function (event) {
     const { start, end } = selection.getCursorRange()
-
     if (!start || !end) {
       return event.preventDefault()
     }
@@ -222,6 +230,26 @@ const enterCtrl = ContentState => {
       return this.enterHandler(event)
     }
 
+    if (
+      block.type === 'span' &&
+      block.functionType === 'paragraphContent' &&
+      !this.getParent(block).parent &&
+      start.offset === text.length &&
+      FOOTNOTE_REG.test(text)
+    ) {
+      event.preventDefault()
+      event.stopPropagation()
+      // Just to feet the `updateFootnote` API and add one white space.
+      block.text += ' '
+      const key = block.key
+      const offset = block.text.length
+      this.cursor = {
+        start: { key, offset },
+        end: { key, offset }
+      }
+      return this.updateFootnote(this.getParent(block), block)
+    }
+
     // handle `shift + enter` insert `soft line break` or `hard line break`
     // only cursor in `line block` can create `soft line break` and `hard line break`
     // handle line in code block
@@ -238,31 +266,22 @@ const enterCtrl = ContentState => {
       }
       return this.partialRender()
     } else if (
-      block.type === 'span' && block.functionType === 'codeLine'
+      block.type === 'span' &&
+      block.functionType === 'codeContent'
     ) {
-      const { text } = block
-      const newLineText = text.substring(start.offset)
+      const { text, key } = block
       const autoIndent = checkAutoIndent(text, start.offset)
       const indent = getIndentSpace(text)
-      block.text = text.substring(0, start.offset)
-      const newLine = this.createBlock('span', {
-        text: `${indent}${newLineText}`,
-        functionType: block.functionType,
-        lang: block.lang
-      })
+      block.text = text.substring(0, start.offset) +
+        '\n' +
+        (autoIndent ? indent + ' '.repeat(this.tabSize) + '\n' : '') +
+        indent +
+        text.substring(start.offset)
 
-      this.insertAfter(newLine, block)
-      let { key } = newLine
-      let offset = indent.length
+      let offset = start.offset + 1 + indent.length
+
       if (autoIndent) {
-        const emptyLine = this.createBlock('span', {
-          text: indent + ' '.repeat(this.tabSize)
-        })
-        emptyLine.functionType = block.functionType
-        emptyLine.lang = block.lang
-        this.insertAfter(emptyLine, block)
-        key = emptyLine.key
-        offset = indent.length + this.tabSize
+        offset += this.tabSize
       }
 
       this.cursor = {
@@ -275,7 +294,7 @@ const enterCtrl = ContentState => {
     // Insert `<br/>` in table cell if you want to open a new line.
     // Why not use `soft line break` or `hard line break` ?
     // Becasuse table cell only have one line.
-    if (event.shiftKey && /th|td/.test(block.type)) {
+    if (event.shiftKey && block.functionType === 'cellContent') {
       const { text, key } = block
       const brTag = '<br/>'
       block.text = text.substring(0, start.offset) + brTag + text.substring(start.offset)
@@ -293,7 +312,8 @@ const enterCtrl = ContentState => {
         const rowContainer = this.getBlock(row.parent)
         const table = this.getBlock(rowContainer.parent)
         const figure = this.getBlock(table.parent)
-        if (rowContainer.type === 'thead') {
+
+        if (rowContainer.type === 'thead' && table.children[1]) {
           nextSibling = table.children[1]
         } else if (figure.nextSibling) {
           nextSibling = this.getBlock(figure.nextSibling)
@@ -302,23 +322,32 @@ const enterCtrl = ContentState => {
           this.insertAfter(nextSibling, figure)
         }
       }
+
       return this.firstInDescendant(nextSibling)
     }
 
     // handle enter in table
-    if (/th|td/.test(block.type)) {
-      const row = this.getBlock(block.parent)
+    if (block.functionType === 'cellContent') {
+      const row = this.closest(block, 'tr')
       const rowContainer = this.getBlock(row.parent)
-      const table = this.getBlock(rowContainer.parent)
+      const table = this.closest(rowContainer, 'table')
 
       if (
         (isOsx && event.metaKey) ||
         (!isOsx && event.ctrlKey)
       ) {
-        const nextRow = this.createRow(row)
+        const nextRow = this.createRow(row, false)
         if (rowContainer.type === 'thead') {
-          const tBody = this.getBlock(rowContainer.nextSibling)
-          this.insertBefore(nextRow, tBody.children[0])
+          let tBody = this.getBlock(rowContainer.nextSibling)
+          if (!tBody) {
+            tBody = this.createBlock('tbody')
+            this.appendChild(table, tBody)
+          }
+          if (tBody.children.length) {
+            this.insertBefore(nextRow, tBody.children[0])
+          } else {
+            this.appendChild(tBody, nextRow)
+          }
         } else {
           this.insertAfter(nextRow, row)
         }
@@ -388,8 +417,32 @@ const enterCtrl = ContentState => {
             newBlock.bulletMarkerOrDelimiter = block.bulletMarkerOrDelimiter
           }
           newBlock.isLooseListItem = block.isLooseListItem
+        } else if (block.type === 'hr') {
+          const preText = text.substring(0, left)
+          const postText = text.substring(left)
+
+          // Degrade thematice break to paragraph
+          if (preText.replace(/ /g, '').length < 3) {
+            block.type = 'p'
+            block.children[0].functionType = 'paragraphContent'
+          }
+
+          if (postText.replace(/ /g, '').length >= 3) {
+            newBlock = this.createBlock('hr')
+            const content = this.createBlock('span', {
+              functionType: 'thematicBreakLine',
+              text: postText
+            })
+            this.appendChild(newBlock, content)
+          } else {
+            newBlock = this.createBlockP(postText)
+          }
+
+          block.children[0].text = preText
         }
+
         this.insertAfter(newBlock, block)
+
         break
       }
       case left === 0 && right === 0: {
@@ -401,7 +454,7 @@ const enterCtrl = ContentState => {
         // cursor at end of paragraph or at begin of paragraph
         if (type === 'li') {
           if (block.listItemType === 'task') {
-            const { checked } = block.children[0]
+            const checked = false
             newBlock = this.createTaskItemBlock(null, checked)
           } else {
             newBlock = this.createBlockLi()
@@ -459,7 +512,7 @@ const enterCtrl = ContentState => {
         cursorBlock = tableNeedFocus
         break
       case !!htmlNeedFocus:
-        cursorBlock = htmlNeedFocus.children[0].children[1] // the second line
+        cursorBlock = htmlNeedFocus.children[0].children[0] // the second line
         break
       case !!mathNeedFocus:
         cursorBlock = mathNeedFocus
@@ -471,13 +524,26 @@ const enterCtrl = ContentState => {
 
     cursorBlock = getParagraphBlock(cursorBlock)
     const key = cursorBlock.type === 'p' || cursorBlock.type === 'pre' ? cursorBlock.children[0].key : cursorBlock.key
-    const offset = 0
+    let offset = 0
+    if (htmlNeedFocus) {
+      const { text } = cursorBlock
+      const match = /^[^\n]+\n[^\n]*/.exec(text)
+      offset = match && match[0] ? match[0].length : 0
+    }
+
     this.cursor = {
       start: { key, offset },
       end: { key, offset }
     }
 
-    this.partialRender()
+    let needRenderAll = false
+
+    if (this.isCollapse() && cursorBlock.type === 'p') {
+      this.checkInlineUpdate(cursorBlock.children[0])
+      needRenderAll = true
+    }
+
+    needRenderAll ? this.render() : this.partialRender()
   }
 }
 

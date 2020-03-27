@@ -1,25 +1,7 @@
-export const editorFontFamilyOptions = [{
-  label: 'Open Sans',
-  value: 'Open Sans'
-}, {
-  label: 'Clear Sans',
-  value: 'Clear Sans'
-}, {
-  label: 'Helvetica Neue',
-  value: 'Helvetica Neue'
-}, {
-  label: 'Helvetica',
-  value: 'Helvetica'
-}, {
-  label: 'Arial',
-  value: 'Arial'
-}, {
-  label: 'sans-serif',
-  value: 'sans-serif'
-}]
+import { ENCODING_NAME_MAP } from 'common/encoding'
 
 export const endOfLineOptions = [{
-  label: 'default',
+  label: 'Default',
   value: 'default'
 }, {
   label: 'Carriage return and Line feed(CRLF)',
@@ -27,6 +9,20 @@ export const endOfLineOptions = [{
 }, {
   label: 'Line feed(Lf)',
   value: 'lf'
+}]
+
+export const trimTrailingNewlineOptions = [{
+  label: 'Trim trailing newlines',
+  value: 0
+}, {
+  label: 'Ensure single trailing newline',
+  value: 1
+}, {
+  label: 'Automatically detect',
+  value: 2
+}, {
+  label: 'Disabled',
+  value: 3
 }]
 
 export const textDirectionOptions = [{
@@ -37,16 +33,15 @@ export const textDirectionOptions = [{
   value: 'rtl'
 }]
 
-export const codeFontFamilyOptions = [{
-  label: 'DejaVu Sans Mono',
-  value: 'DejaVu Sans Mono'
-}, {
-  label: 'Source Code Pro',
-  value: 'Source Code Pro'
-}, {
-  label: 'Droid Sans Mono',
-  value: 'Droid Sans Mono'
-}, {
-  label: 'monospace',
-  value: 'monospace'
-}]
+let defaultEncodingOptions = null
+export const getDefaultEncodingOptions = () => {
+  if (defaultEncodingOptions) {
+    return defaultEncodingOptions
+  }
+
+  defaultEncodingOptions = []
+  for (const [value, label] of Object.entries(ENCODING_NAME_MAP)) {
+    defaultEncodingOptions.push({ label, value })
+  }
+  return defaultEncodingOptions
+}

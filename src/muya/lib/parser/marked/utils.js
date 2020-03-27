@@ -2,6 +2,10 @@
  * Helpers
  */
 
+let uniqueIdCounter = 0
+
+export const getUniqueId = () => ++uniqueIdCounter
+
 export const escape = function escape (html, encode) {
   if (encode) {
     if (escape.escapeTest.test(html)) {
@@ -96,11 +100,18 @@ const resolveUrl = function resolveUrl (base, href) {
     }
   }
   base = baseUrls[' ' + base]
+  let relativeBase = base.indexOf(':') === -1
 
   if (href.slice(0, 2) === '//') {
-    return base.replace(/:[\s\S]*/, ':') + href
+    if (relativeBase) {
+      return href
+    }
+    return base.replace(/^([^:]+:)[\s\S]*$/, '$1') + href
   } else if (href.charAt(0) === '/') {
-    return base.replace(/(:\/*[^/]*)[\s\S]*/, '$1') + href
+    if (relativeBase) {
+      return href
+    }
+    return base.replace(/^([^:]+:\/*[^/]*)[\s\S]*$/, '$1') + href
   } else {
     return base + href
   }

@@ -29,22 +29,17 @@ const isUpdatable = () => {
 
 export default function () {
   const helpMenu = {
-    label: 'Help',
+    label: '&Help',
     role: 'help',
     submenu: [{
-      label: 'Learn More',
+      label: 'Quick Start',
       click () {
-        shell.openExternal('https://marktext.app')
+        shell.openExternal('https://github.com/marktext/marktext/blob/master/docs/README.md')
       }
     }, {
-      label: 'Source Code on GitHub',
+      label: 'Markdown syntax',
       click () {
-        shell.openExternal('https://github.com/marktext/marktext')
-      }
-    }, {
-      label: 'License',
-      click () {
-        shell.openExternal('https://github.com/marktext/marktext/blob/master/LICENSE')
+        shell.openExternal('https://github.com/marktext/marktext/blob/master/docs/MARKDOWN_SYNTAX.md')
       }
     }, {
       label: 'Changelog',
@@ -52,12 +47,12 @@ export default function () {
         shell.openExternal('https://github.com/marktext/marktext/blob/master/.github/CHANGELOG.md')
       }
     }, {
-      label: 'Markdown syntax',
-      click () {
-        shell.openExternal('https://spec.commonmark.org/0.29/')
-      }
-    }, {
       type: 'separator'
+    }, {
+      label: 'Donate via Open Collective',
+      click (item, win) {
+        shell.openExternal('https://opencollective.com/marktext')
+      }
     }, {
       label: 'Feedback via Twitter',
       click (item, win) {
@@ -71,9 +66,31 @@ export default function () {
     }, {
       type: 'separator'
     }, {
+      label: 'Website',
+      click () {
+        shell.openExternal('https://marktext.app')
+      }
+    }, {
+      label: 'Watch on GitHub',
+      click () {
+        shell.openExternal('https://github.com/marktext/marktext')
+      }
+    }, {
       label: 'Follow @Jocs on Github',
       click () {
         shell.openExternal('https://github.com/Jocs')
+      }
+    }, {
+      label: 'Follow us on Twitter',
+      click () {
+        shell.openExternal('https://twitter.com/marktextapp')
+      }
+    }, {
+      type: 'separator'
+    }, {
+      label: 'License',
+      click () {
+        shell.openExternal('https://github.com/marktext/marktext/blob/master/LICENSE')
       }
     }]
   }
@@ -84,7 +101,7 @@ export default function () {
     }, {
       label: 'Check for updates...',
       click (menuItem, browserWindow) {
-        checkUpdates(menuItem, browserWindow)
+        checkUpdates(browserWindow)
       }
     })
   }

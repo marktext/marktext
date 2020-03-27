@@ -2,12 +2,12 @@
   <div class="pref-general">
     <h4>General</h4>
     <bool
-      description="Automatically save the content being edited."
+      description="Automatically save document changes."
       :bool="autoSave"
       :onChange="value => onSelectChange('autoSave', value)"
     ></bool>
     <range
-      description="The time in ms after a change that the file is saved."
+      description="The delay in milliseconds between a change being made and saved."
       :value="autoSaveDelay"
       :min="1000"
       :max="10000"
@@ -17,19 +17,19 @@
     ></range>
     <cur-select
       v-if="!isOsx"
-      description="The title bar style, frameless or not. You need to restart Mark Text to enable it."
+      description="The style of the title bar. You need to restart Mark Text after changing."
       :value="titleBarStyle"
       :options="titleBarStyleOptions"
       :onChange="value => onSelectChange('titleBarStyle', value)"
     ></cur-select>
     <separator></separator>
     <bool
-      description="Open files in new window."
+      description="Whether to open files in a new window."
       :bool="openFilesInNewWindow"
       :onChange="value => onSelectChange('openFilesInNewWindow', value)"
     ></bool>
     <bool
-      description="Open folder via menu in a new window."
+      description="Whether to open folders in a new window."
       :bool="openFolderInNewWindow"
       :onChange="value => onSelectChange('openFolderInNewWindow', value)"
     ></bool>
@@ -39,29 +39,34 @@
       :onChange="value => onSelectChange('hideScrollbar', value)"
     ></bool>
     <bool
-      description="Enable Aidou."
+      description="Whether to enable word wrap in TOC."
+      :bool="wordWrapInToc"
+      :onChange="value => onSelectChange('wordWrapInToc', value)"
+    ></bool>
+    <bool
+      description="Whether to enable Aidou."
       :bool="aidou"
       :onChange="value => onSelectChange('aidou', value)"
     ></bool>
     <separator></separator>
     <cur-select
-      description="Sort files in opened folder by created time modified time and title."
+      description="How to sort files in opened folders."
       :value="fileSortBy"
       :options="fileSortByOptions"
       :onChange="value => onSelectChange('fileSortBy', value)"
       :disable="true"
     ></cur-select>
     <section class="startup-action-ctrl">
-      <div>The action after Mark Text startup: open the last edited content, open the specified folder or blank page.</div>
+      <div>What Mark Text should do on startup.</div>
       <el-radio-group v-model="startUpAction">
         <el-radio class="ag-underdevelop" label="lastState">Open the last window state</el-radio>
-        <el-radio label="folder">Open a default directory<span>: {{defaultDirectoryToOpen}}</span></el-radio>
+        <el-radio label="folder">Open the default directory<span>: {{defaultDirectoryToOpen}}</span></el-radio>
         <el-button size="small" @click="selectDefaultDirectoryToOpen">Select Folder</el-button>
-        <el-radio label="blank">Open blank page</el-radio>
+        <el-radio label="blank">Open a blank page</el-radio>
       </el-radio-group>
     </section>
     <cur-select
-      description="The language Mark Text use."
+      description="What language Mark Text is in."
       :value="language"
       :options="languageOptions"
       :onChange="value => onSelectChange('language', value)"
@@ -107,6 +112,7 @@ export default {
       openFilesInNewWindow: state => state.preferences.openFilesInNewWindow,
       openFolderInNewWindow: state => state.preferences.openFolderInNewWindow,
       hideScrollbar: state => state.preferences.hideScrollbar,
+      wordWrapInToc: state => state.preferences.wordWrapInToc,
       aidou: state => state.preferences.aidou,
       fileSortBy: state => state.preferences.fileSortBy,
       language: state => state.preferences.language
@@ -137,7 +143,7 @@ export default {
     & h4 {
       text-transform: uppercase;
       margin: 0;
-      font-weight: 100;
+      font-weight: 400;
     }
     & .startup-action-ctrl {
       font-size: 14px;

@@ -8,7 +8,9 @@ import backspaceCtrl from './backspaceCtrl'
 import deleteCtrl from './deleteCtrl'
 import codeBlockCtrl from './codeBlockCtrl'
 import tableBlockCtrl from './tableBlockCtrl'
-import selectionCtrl from './selectionCtrl'
+import tableDragBarCtrl from './tableDragBarCtrl'
+import tableSelectCellsCtrl from './tableSelectCellsCtrl'
+import coreApi from './core'
 import History from './history'
 import arrowCtrl from './arrowCtrl'
 import pasteCtrl from './pasteCtrl'
@@ -24,14 +26,17 @@ import inputCtrl from './inputCtrl'
 import tocCtrl from './tocCtrl'
 import emojiCtrl from './emojiCtrl'
 import imageCtrl from './imageCtrl'
+import linkCtrl from './linkCtrl'
 import dragDropCtrl from './dragDropCtrl'
+import footnoteCtrl from './footnoteCtrl'
 import importMarkdown from '../utils/importMarkdown'
 import Cursor from '../selection/cursor'
+import escapeCharactersMap, { escapeCharacters } from '../parser/escapeCharacter'
 
 const prototypes = [
+  coreApi,
   tabCtrl,
   enterCtrl,
-  selectionCtrl,
   updateCtrl,
   backspaceCtrl,
   deleteCtrl,
@@ -40,6 +45,8 @@ const prototypes = [
   pasteCtrl,
   copyCutCtrl,
   tableBlockCtrl,
+  tableDragBarCtrl,
+  tableSelectCellsCtrl,
   paragraphCtrl,
   formatCtrl,
   searchCtrl,
@@ -50,7 +57,9 @@ const prototypes = [
   tocCtrl,
   emojiCtrl,
   imageCtrl,
+  linkCtrl,
   dragDropCtrl,
+  footnoteCtrl,
   importMarkdown
 ]
 
@@ -75,9 +84,35 @@ class ContentState {
     this.historyTimer = null
     this.history = new History(this)
     this.turndownConfig = Object.assign(DEFAULT_TURNDOWN_CONFIG, { bulletListMarker })
-    this.fontSize = 16
-    this.lineHeight = 1.6
+    // table drag bar
+    this.dragInfo = null
+    this.isDragTableBar = false
+    this.dragEventIds = []
+    // table cell select
+    this.cellSelectInfo = null
+    this._selectedTableCells = null
+    this.cellSelectEventIds = []
     this.init()
+  }
+
+  set selectedTableCells (info) {
+    const oldSelectedTableCells = this._selectedTableCells
+    if (!info && !!oldSelectedTableCells) {
+      const selectedCells = this.muya.container.querySelectorAll('.ag-cell-selected')
+
+      for (const cell of Array.from(selectedCells)) {
+        cell.classList.remove('ag-cell-selected')
+        cell.classList.remove('ag-cell-border-top')
+        cell.classList.remove('ag-cell-border-right')
+        cell.classList.remove('ag-cell-border-bottom')
+        cell.classList.remove('ag-cell-border-left')
+      }
+    }
+    this._selectedTableCells = info
+  }
+
+  get selectedTableCells () {
+    return this._selectedTableCells
   }
 
   set selectedImage (image) {
@@ -170,12 +205,15 @@ class ContentState {
   }
 
   postRender () {
-    // do nothing.
+    this.resizeLineNumber()
   }
 
-  render (isRenderCursor = true) {
+  render (isRenderCursor = true, clearCache = false) {
     const { blocks, searchMatches: { matches, index } } = this
     const activeBlocks = this.getActiveBlocks()
+    if (clearCache) {
+      this.stateRender.tokenCache.clear()
+    }
     matches.forEach((m, i) => {
       m.active = i === index
     })
@@ -249,6 +287,13 @@ class ContentState {
     // give span block a default functionType `paragraphContent`
     if (type === 'span' && !extras.functionType) {
       blockData.functionType = 'paragraphContent'
+    }
+
+    if (extras.functionType === 'codeContent' && extras.text) {
+      const CHAR_REG = new RegExp(`(${escapeCharacters.join('|')})`, 'gi')
+      extras.text = extras.text.replace(CHAR_REG, (_, p) => {
+        return escapeCharactersMap[p]
+      })
     }
 
     Object.assign(blockData, extras)
@@ -401,26 +446,16 @@ class ContentState {
     }
   }
 
-  // help func in removeBlocks
-  findFigure (block) {
-    if (block.type === 'figure') {
-      return block.key
-    } else {
-      const parent = this.getBlock(block.parent)
-      return this.findFigure(parent)
-    }
-  }
-
   /**
    * remove blocks between before and after, and includes after block.
    */
   removeBlocks (before, after, isRemoveAfter = true, isRecursion = false) {
     if (!isRecursion) {
       if (/td|th/.test(before.type)) {
-        this.exemption.add(this.findFigure(before))
+        this.exemption.add(this.closest(before, 'figure'))
       }
       if (/td|th/.test(after.type)) {
-        this.exemption.add(this.findFigure(after))
+        this.exemption.add(this.closest(after, 'figure'))
       }
     }
     let nextSibling = this.getBlock(before.nextSibling)
@@ -494,7 +529,9 @@ class ContentState {
   getActiveBlocks () {
     const result = []
     let block = this.getBlock(this.cursor.start.key)
-    if (block) result.push(block)
+    if (block) {
+      result.push(block)
+    }
     while (block && block.parent) {
       block = this.getBlock(block.parent)
       result.push(block)
@@ -673,7 +710,7 @@ class ContentState {
   }
 
   getPositionReference () {
-    const { fontSize, lineHeight } = this
+    const { fontSize, lineHeight } = this.muya.options
     const { start } = this.cursor
     const block = this.getBlock(start.key)
     const { x, y, width } = selection.getCursorCoords()
@@ -700,6 +737,31 @@ class ContentState {
     const { blocks } = this
     const len = blocks.length
     return this.lastInDescendant(blocks[len - 1])
+  }
+
+  closest (block, type) {
+    if (!block) {
+      return null
+    }
+    if (type instanceof RegExp ? type.test(block.type) : block.type === type) {
+      return block
+    } else {
+      const parent = this.getParent(block)
+      return this.closest(parent, type)
+    }
+  }
+
+  getAnchor (block) {
+    const { type, functionType } = block
+    if (type !== 'span') {
+      return null
+    }
+
+    if (functionType === 'codeContent' || functionType === 'cellContent') {
+      return this.closest(block, 'figure') || this.closest(block, 'pre')
+    } else {
+      return this.getParent(block)
+    }
   }
 
   clear () {

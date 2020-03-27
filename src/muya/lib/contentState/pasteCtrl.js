@@ -1,6 +1,6 @@
 
-import { PARAGRAPH_TYPES, PREVIEW_DOMPURIFY_CONFIG, HAS_TEXT_BLOCK_REG, IMAGE_EXT_REG } from '../config'
-import { sanitize, getUniqueId, getImageInfo as getImageSrc } from '../utils'
+import { PARAGRAPH_TYPES, PREVIEW_DOMPURIFY_CONFIG, HAS_TEXT_BLOCK_REG, IMAGE_EXT_REG, URL_REG } from '../config'
+import { sanitize, getUniqueId, getImageInfo as getImageSrc, getPageTitle } from '../utils'
 import { getImageInfo } from '../utils/getImageInfo'
 
 const LIST_REG = /ul|ol/
@@ -40,20 +40,31 @@ const pasteCtrl = ContentState => {
     }
   }
 
+  // Try to identify the data type.
   ContentState.prototype.checkCopyType = function (html, text) {
     let type = 'normal'
     if (!html && text) {
       type = 'copyAsMarkdown'
-      const match = /^<([a-zA-Z\d-]+)(?=\s|>).*?>[\s\S]+?<\/[a-zA-Z\d-]+>$/.exec(text.trim())
+      const match = /^<([a-zA-Z\d-]+)(?=\s|>).*?>[\s\S]+?<\/([a-zA-Z\d-]+)>$/.exec(text.trim())
       if (match && match[1]) {
         const tag = match[1]
+        if (tag === 'table' && match.length === 3 && match[2] === 'table') {
+          // Try to import a single table
+          const tmp = document.createElement('table')
+          tmp.innerHTML = text
+          if (tmp.childElementCount === 1) {
+            return 'htmlToMd'
+          }
+        }
+
+        // TODO: We could try to import HTML elements such as headings, text and lists to markdown for better UX.
         type = PARAGRAPH_TYPES.find(type => type === tag) ? 'copyAsHtml' : type
       }
     }
     return type
   }
 
-  ContentState.prototype.standardizeHTML = function (html) {
+  ContentState.prototype.standardizeHTML = async function (html) {
     // Only extract the `body.innerHTML` when the `html` is a full HTML Document.
     if (/<body>[\s\S]*<\/body>/.test(html)) {
       const match = /<body>([\s\S]*)<\/body>/.exec(html)
@@ -61,10 +72,13 @@ const pasteCtrl = ContentState => {
         html = match[1]
       }
     }
+
+    // Prevent XSS and sanitize HTML.
     const sanitizedHtml = sanitize(html, PREVIEW_DOMPURIFY_CONFIG)
     const tempWrapper = document.createElement('div')
     tempWrapper.innerHTML = sanitizedHtml
-    // special process for Number app in macOs
+
+    // Special process for turndown.js, needed for Number app on macOS.
     const tables = Array.from(tempWrapper.querySelectorAll('table'))
     for (const table of tables) {
       const row = table.querySelector('tr')
@@ -91,6 +105,23 @@ const pasteCtrl = ContentState => {
       }
     }
 
+    // Prevent it parse into a link if copy a url.
+    const links = Array.from(tempWrapper.querySelectorAll('a'))
+    for (const link of links) {
+      const href = link.getAttribute('href')
+      const text = link.textContent
+
+      if (href === text) {
+        const title = await getPageTitle(href)
+        if (title) {
+          link.textContent = title
+        } else {
+          const span = document.createElement('span')
+          span.innerHTML = text
+          link.replaceWith(span)
+        }
+      }
+    }
     return tempWrapper.innerHTML
   }
 
@@ -110,7 +141,7 @@ const pasteCtrl = ContentState => {
           src: imagePath
         })
       }
-      const nSrc = await this.muya.options.imageAction(imagePath)
+      const nSrc = await this.muya.options.imageAction(imagePath, id)
       const { src } = getImageSrc(imagePath)
       if (src) {
         this.stateRender.urlMap.set(nSrc, src)
@@ -169,7 +200,7 @@ const pasteCtrl = ContentState => {
       }
       reader.readAsDataURL(file)
 
-      const nSrc = await this.muya.options.imageAction(file)
+      const nSrc = await this.muya.options.imageAction(file, id)
       const base64 = this.stateRender.urlMap.get(id)
       if (base64) {
         this.stateRender.urlMap.set(nSrc, base64)
@@ -188,35 +219,55 @@ const pasteCtrl = ContentState => {
     return null
   }
 
+  // Handle global events.
   ContentState.prototype.docPasteHandler = async function (event) {
+    // TODO: Pasting into CodeMirror will not work for special data like images
+    // or tables (HTML) because it's not handled.
+
     const file = await this.pasteImage(event)
     if (file) {
       return event.preventDefault()
     }
   }
 
-  // handle `normal` and `pasteAsPlainText` paste
+  // Handle `normal` and `pasteAsPlainText` paste for preview mode.
   ContentState.prototype.pasteHandler = async function (event, type = 'normal', rawText, rawHtml) {
     event.preventDefault()
     event.stopPropagation()
+
     const text = rawText || event.clipboardData.getData('text/plain')
     let html = rawHtml || event.clipboardData.getData('text/html')
 
-    html = this.standardizeHTML(html)
-    const copyType = this.checkCopyType(html, text)
+    // Support pasted URLs from Firefox.
+    if (URL_REG.test(text) && !/\s/.test(text) && !html) {
+      html = `<a href="${text}">${text}</a>`
+    }
+
+    // Remove crap from HTML such as meta data and styles.
+    html = await this.standardizeHTML(html)
+
+    let copyType = this.checkCopyType(html, text)
     const { start, end } = this.cursor
     const startBlock = this.getBlock(start.key)
     const endBlock = this.getBlock(end.key)
     const parent = this.getParent(startBlock)
 
-    if (start.key !== end.key) {
-      this.cutHandler()
-      return this.pasteHandler(event, type)
+    if (copyType === 'htmlToMd') {
+      html = text
+      copyType = 'normal'
     }
 
-    const file = await this.pasteImage(event)
-    if (file) {
-      return
+    if (start.key !== end.key) {
+      this.cutHandler()
+      return this.pasteHandler(event, type, rawText, rawHtml)
+    }
+
+    // NOTE: We should parse HTML if we can and use it instead the image (see GH#1271).
+    if (!html) {
+      const file = await this.pasteImage(event)
+      if (file) {
+        return
+      }
     }
 
     const appendHtml = (text) => {
@@ -229,8 +280,9 @@ const pasteCtrl = ContentState => {
       }
     }
 
-    // Extract the first line from the language identifier (GH#553)
+    // Prepare paste
     if (startBlock.type === 'span' && startBlock.functionType === 'languageInput') {
+      // Extract the first line from the language identifier (GH#553)
       let language = text.trim().match(/^.*$/m)[0] || ''
       const oldLanguageLength = startBlock.text.length
       let offset = 0
@@ -262,46 +314,22 @@ const pasteCtrl = ContentState => {
       return
     }
 
-    if (startBlock.type === 'span' && startBlock.functionType === 'codeLine') {
-      let referenceBlock = startBlock
+    if (startBlock.type === 'span' && startBlock.functionType === 'codeContent') {
       const blockText = startBlock.text
       const prePartText = blockText.substring(0, start.offset)
       const postPartText = blockText.substring(end.offset)
-      const textList = text.split(LINE_BREAKS_REG)
-      if (textList.length > 1) {
-        textList.forEach((line, i) => {
-          if (i === 0) {
-            startBlock.text = prePartText + line
-          } else {
-            line = i === textList.length - 1 ? line + postPartText : line
-            const lineBlock = this.createBlock('span', { text: line })
-            lineBlock.functionType = startBlock.functionType
-            lineBlock.lang = startBlock.lang
-            this.insertAfter(lineBlock, referenceBlock)
-            referenceBlock = lineBlock
-            if (i === textList.length - 1) {
-              const { key } = lineBlock
-              const offset = line.length
-              this.cursor = {
-                start: { key, offset },
-                end: { key, offset }
-              }
-            }
-          }
-        })
-      } else {
-        startBlock.text = prePartText + text + postPartText
-        const key = startBlock.key
-        const offset = start.offset + text.length
-        this.cursor = {
-          start: { key, offset },
-          end: { key, offset }
-        }
+      startBlock.text = prePartText + text + postPartText
+      const { key } = startBlock
+      const offset = start.offset + text.length
+      this.cursor = {
+        start: { key, offset },
+        end: { key, offset }
       }
+
       return this.partialRender()
     }
 
-    if (/th|td/.test(startBlock.type)) {
+    if (startBlock.functionType === 'cellContent') {
       const pendingText = text.trim().replace(/\n/g, '<br/>')
       startBlock.text = startBlock.text.substring(0, start.offset) + pendingText + startBlock.text.substring(end.offset)
       const { key } = startBlock
@@ -313,7 +341,7 @@ const pasteCtrl = ContentState => {
       return this.partialRender()
     }
 
-    // handle copyAsHtml
+    // Handle paste event and transform data into internal block structure.
     if (copyType === 'copyAsHtml') {
       switch (type) {
         case 'normal': {
@@ -350,12 +378,15 @@ const pasteCtrl = ContentState => {
       ? this.markdownToState(text)
       : this.html2State(html)
 
-    if (stateFragments.length <= 0) return
-    // step 1: if select content, cut the content, and chop the block text into two part by the cursor.
+    if (stateFragments.length <= 0) {
+      return
+    }
+
+    // Step 1: if select content, cut the content, and chop the block text into two part by the cursor.
     const cacheText = endBlock.text.substring(end.offset)
     startBlock.text = startBlock.text.substring(0, start.offset)
 
-    // step 2: when insert the fragments, check begin a new block, or insert into pre block.
+    // Step 2: when insert the fragments, check begin a new block, or insert into pre block.
     const firstFragment = stateFragments[0]
     const tailFragments = stateFragments.slice(1)
     const pasteType = this.checkPasteType(startBlock, firstFragment)
@@ -461,7 +492,8 @@ const pasteCtrl = ContentState => {
         throw new Error('unknown paste type')
       }
     }
-    // step 3: set cursor and render
+
+    // Step 3: set cursor and render
     let cursorBlock = this.getBlock(key)
     if (!cursorBlock) {
       key = startBlock.key

@@ -1,7 +1,8 @@
 {
   "autoSave": {
     "description": "General--Automatically save the content being edited.",
-    "type": "boolean"
+    "type": "boolean",
+    "default": false
   },
   "autoSaveDelay": {
     "description": "General--The time in ms after a change that the file is saved.",
@@ -25,6 +26,11 @@
   },
   "hideScrollbar": {
     "description": "General--Whether to hide scrollbars.",
+    "type": "boolean",
+    "default": false
+  },
+  "wordWrapInToc": {
+    "description": "General--Whether to enable word wrap in TOC.",
     "type": "boolean",
     "default": false
   },
@@ -58,14 +64,8 @@
   },
   "editorFontFamily": {
     "description": "Editor--editor font family",
-    "enum": [
-      "Open Sans",
-      "Clear Sans",
-      "Helvetica Neue",
-      "Helvetica",
-      "Arial",
-      "sans-serif"
-    ]
+    "type": "string",
+    "pattern": "^[^\\s]+((-|\\s)*[^\\s])*$"
   },
   "fontSize": {
     "description": "Editor--Font size in pixels",
@@ -95,14 +95,18 @@
   },
   "codeFontFamily": {
     "description": "Editor--Font family used in code block",
-    "enum": [
-      "DejaVu Sans Mono",
-      "Source Code Pro",
-      "Droid Sans Mono",
-      "monospace"
-    ]
+    "type": "string",
+    "pattern": "^[^\\s]+((-|\\s)*[^\\s])*$"
   },
-
+  "codeBlockLineNumbers": {
+    "description": "Editor--Whether to show the line numbers",
+    "type": "boolean",
+    "default": true
+  },
+  "trimUnnecessaryCodeBlockEmptyLines": {
+    "description": "Editor--Trim the beginning and ending empty lines in code block",
+    "type": "boolean"
+  },
   "autoPairBracket": {
     "description": "Editor--Automatically brackets when editing",
     "type": "boolean"
@@ -116,11 +120,68 @@
     "type": "boolean"
   },
   "endOfLine": {
-    "description": "Editor--The newline character used at the end of each line. The default value is default, which will be selected according to your system intelligence.",
+    "description": "Editor--The newline character used at the end of each line. The default value is default, which selects your operating system's default newline character.",
     "enum": [
       "default",
       "lf",
       "crlf"
+    ],
+    "default": "default"
+  },
+  "defaultEncoding": {
+    "description": "Editor--The default file encoding.",
+    "default": "utf8",
+    "enum": [
+      "utf8",
+      "utf16be",
+      "utf16le",
+      "utf32be",
+      "utf32le",
+      "latin3",
+      "iso885915",
+      "cp1252",
+      "arabic",
+      "cp1256",
+      "latin4",
+      "cp1257",
+      "iso88592",
+      "windows1250",
+      "cp866",
+      "iso88595",
+      "koi8r",
+      "koi8u",
+      "cp1251",
+      "iso885913",
+      "greek",
+      "cp1253",
+      "hebrew",
+      "cp1255",
+      "latin5",
+      "cp1254",
+      "gb2312",
+      "gb18030",
+      "gbk",
+      "big5",
+      "big5hkscs",
+      "shiftjis",
+      "eucjp",
+      "euckr",
+      "latin6"
+    ]
+  },
+  "autoGuessEncoding": {
+    "description": "Editor--Try to automatically guess the file encoding when opening files.",
+    "type": "boolean",
+    "default": true
+  },
+  "trimTrailingNewline": {
+    "description": "Editor--The trim trailing newline option.",
+    "default": 2,
+    "enum": [
+      0,
+      1,
+      2,
+      3
     ]
   },
   "textDirection": {
@@ -133,6 +194,16 @@
   "hideQuickInsertHint": {
     "description": "Editor--Hide hint for quickly creating paragraphs",
     "type": "boolean"
+  },
+  "hideLinkPopup": {
+    "description": "Editor--Hide link popup when the cursor is hover on the link",
+    "type": "boolean",
+    "default": false
+  },
+  "autoCheck": {
+    "description": "Editor--Whether to automatically check related task.",
+    "type": "boolean",
+    "default": false
   },
   "preferLooseListItem": {
     "description": "Markdown--The preferred list type",
@@ -175,9 +246,69 @@
       4
     ]
   },
+  "frontmatterType": {
+    "description": "Markdown--The frontmatter type",
+    "enum": [
+      "-",
+      "+",
+      ";",
+      "{"
+    ]
+  },
+  "superSubScript": {
+    "description": "Markdown-Enable pandoc's markdown extension superscript and subscript.",
+    "type": "boolean",
+    "default": false
+  },
+  "footnote": {
+    "description": "Markdown-Enable pandoc's markdown extension footnote.",
+    "type": "boolean",
+    "default": false
+  },
+  "sequenceTheme": {
+    "description": "Markdown--Sequence diagram theme",
+    "enum": [
+      "hand",
+      "simple"
+    ]
+  },
   "theme": {
     "description": "Theme--Select the theme used in Mark Text",
     "type": "string"
+  },
+  "autoSwitchTheme": {
+    "description": "Theme--Automatically adjust application theme according system.",
+    "default": 2,
+    "enum": [
+      0,
+      1,
+      2
+    ]
+  },
+  "spellcheckerEnabled": {
+    "description": "Spelling--Whether spell checking is enabled.",
+    "type": "boolean",
+    "default": false
+  },
+  "spellcheckerIsHunspell": {
+    "description": "Spelling--Whether Hunspell or the OS spell checker is used (macOS only).",
+    "type": "boolean",
+    "default": false
+  },
+  "spellcheckerNoUnderline": {
+    "description": "Spelling--Don't underline spelling mistakes.",
+    "type": "boolean",
+    "default": false
+  },
+  "spellcheckerAutoDetectLanguage": {
+    "description": "Spelling--Try to automatically identify the used language when typing.",
+    "type": "boolean",
+    "default": false
+  },
+  "spellcheckerLanguage": {
+    "description": "Spelling--The spell checker language",
+    "pattern": "^[a-z]{2}(?:[-][A-Z]{2})?$",
+    "default": "en-US"
   },
   "imageInsertAction": {
     "description": "Image--The default behavior after insert image from local folder",

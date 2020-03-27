@@ -1,6 +1,14 @@
 import selection from '../selection'
 
 const deleteCtrl = ContentState => {
+  // Handle `delete` keydown event on document.
+  ContentState.prototype.docDeleteHandler = function (event) {
+    if (this.selectedTableCells) {
+      event.preventDefault()
+      return this.deleteSelectedTableCells()
+    }
+  }
+
   ContentState.prototype.deleteHandler = function (event) {
     const { start, end } = selection.getCursorRange()
     if (!start || !end) {
@@ -18,16 +26,26 @@ const deleteCtrl = ContentState => {
     }
     // Only handle h1~h6 span block
     const { type, text, key } = startBlock
+    if (/span/.test(type) && start.offset === 0 && text[1] === '\n') {
+      event.preventDefault()
+      startBlock.text = text.substring(2)
+      this.cursor = {
+        start: { key, offset: 0 },
+        end: { key, offset: 0 }
+      }
+      return this.singleRender(startBlock)
+    }
     if (
       /h\d|span/.test(type) &&
       start.offset === text.length
     ) {
       event.preventDefault()
       if (nextBlock && /h\d|span/.test(nextBlock.type)) {
-        if (nextBlock.functionType === 'codeLine' && nextBlock.nextSibling) {
-          // if code block more than one line, do nothing!
+        // if cursor at the end of code block-language input, do nothing!
+        if (nextBlock.functionType === 'codeContent' && startBlock.functionType === 'languageInput') {
           return
         }
+
         startBlock.text += nextBlock.text
 
         const toBeRemoved = [nextBlock]

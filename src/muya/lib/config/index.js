@@ -6,7 +6,7 @@ import voidHtmlTags from 'html-tags/void'
 // Electron 2.0.2 not support yet! So give a default value 4
 export const DEVICE_MEMORY = navigator.deviceMemory || 4 // Get the divice memory number(Chrome >= 63)
 export const UNDO_DEPTH = DEVICE_MEMORY >= 4 ? 100 : 50
-export const HAS_TEXT_BLOCK_REG = /^(span|th|td)/i
+export const HAS_TEXT_BLOCK_REG = /^span$/i
 export const VOID_HTML_TAGS = voidHtmlTags
 export const HTML_TAGS = htmlTags
 // TYPE1 ~ TYPE7 according to https://github.github.com/gfm/#html-blocks
@@ -28,7 +28,7 @@ export const BLOCK_TYPE7 = htmlTags.filter(tag => {
   return !BLOCK_TYPE1.find(t => t === tag) && !BLOCK_TYPE6.find(t => t === tag)
 })
 
-export const IMAGE_EXT_REG = /\.(jpeg|jpg|png|gif|svg|webp)(?=\?|$)/i
+export const IMAGE_EXT_REG = /\.(?:jpeg|jpg|png|gif|svg|webp)(?=\?|$)/i
 
 export const PARAGRAPH_TYPES = ['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote', 'pre', 'ul', 'ol', 'li', 'figure']
 
@@ -63,14 +63,13 @@ export const LOWERCASE_TAGS = generateKeyHash([
 
 export const CLASS_OR_ID = genUpper2LowerKeyHash([
   'AG_ACTIVE',
+  'AG_AUTO_LINK',
+  'AG_AUTO_LINK_EXTENSION',
   'AG_BACKLASH',
   'AG_BUG',
   'AG_BULLET_LIST',
   'AG_BULLET_LIST_ITEM',
   'AG_CHECKBOX_CHECKED',
-  'AG_CODE_LINE',
-  'AG_CODE_LINE_ADD',
-  'AG_CODE_LINE_MINUS',
   'AG_CONTAINER_BLOCK',
   'AG_CONTAINER_PREVIEW',
   'AG_CONTAINER_ICON',
@@ -96,6 +95,7 @@ export const CLASS_OR_ID = genUpper2LowerKeyHash([
   'AG_HTML_PREVIEW',
   'AG_HTML_TAG',
   'AG_IMAGE_FAIL',
+  'AG_IMAGE_BUTTONS',
   'AG_IMAGE_LOADING',
   'AG_EMPTY_IMAGE',
   'AG_IMAGE_MARKED_TEXT',
@@ -107,6 +107,7 @@ export const CLASS_OR_ID = genUpper2LowerKeyHash([
   'AG_INLINE_IMAGE_SELECTED',
   'AG_INLINE_IMAGE_IS_EDIT',
   'AG_INDENT_CODE',
+  'AG_INLINE_FOOTNOTE_IDENTIFIER',
   'AG_INLINE_RULE',
   'AG_LANGUAGE',
   'AG_LANGUAGE_INPUT',
@@ -133,6 +134,7 @@ export const CLASS_OR_ID = genUpper2LowerKeyHash([
   'AG_ORDER_LIST_ITEM',
   'AG_OUTPUT_REMOVE',
   'AG_PARAGRAPH',
+  'AG_RAW_HTML',
   'AG_REFERENCE_LABEL',
   'AG_REFERENCE_LINK',
   'AG_REFERENCE_MARKER',
@@ -205,6 +207,10 @@ export const FORMAT_MARKER_MAP = {
   sup: {
     open: '<sup>',
     close: '</sup>'
+  },
+  mark: {
+    open: '<mark>',
+    close: '</mark>'
   }
 }
 
@@ -227,6 +233,7 @@ export const PREVIEW_DOMPURIFY_CONFIG = {
 export const EXPORT_DOMPURIFY_CONFIG = {
   FORBID_ATTR: ['contenteditable'],
   ALLOW_DATA_ATTR: false,
+  ADD_ATTR: ['data-align'],
   USE_PROFILES: {
     html: true,
     svg: true,
@@ -236,8 +243,12 @@ export const EXPORT_DOMPURIFY_CONFIG = {
 }
 
 export const MUYA_DEFAULT_OPTION = {
+  fontSize: 16,
+  lineHeight: 1.6,
   focusMode: false,
   markdown: '',
+  // Whether to trim the beginning and ending empty line in code block when open markdown.
+  trimUnnecessaryCodeBlockEmptyLines: false,
   preferLooseListItem: true,
   autoPairBracket: true,
   autoPairMarkdownSyntax: true,
@@ -245,30 +256,50 @@ export const MUYA_DEFAULT_OPTION = {
   bulletListMarker: '-',
   orderListDelimiter: '.',
   tabSize: 4,
+  codeBlockLineNumbers: false,
   // bullet/list marker width + listIndentation, tab or Daring Fireball Markdown (4 spaces) --> list indentation
   listIndentation: 1,
+  frontmatterType: '-',
   sequenceTheme: 'hand', // hand or simple
   mermaidTheme: 'default', // dark / forest / default
   vegaTheme: 'latimes', // excel / ggplot2 / quartz / vox / fivethirtyeight / dark / latimes
   hideQuickInsertHint: false,
+  hideLinkPopup: false,
+  autoCheck: false,
+  // Whether we should set spellcheck attribute on our container to highlight misspelled words.
+  // NOTE: The browser is not able to correct misspelled words words without a custom
+  // implementation like in Mark Text.
+  spellcheckEnabled: false,
   // transform the image to local folder, cloud or just return the local path
   imageAction: null,
   // Call Electron open dialog or input element type is file.
   imagePathPicker: null,
   clipboardFilePath: () => {},
   // image path auto completed when you input in image selector.
-  imagePathAutoComplete: () => []
+  imagePathAutoComplete: () => [],
+
+  // Markdown extensions
+  superSubScript: false,
+  footnote: false
 }
 
 // export const DIAGRAM_TEMPLATE = {
 //   'mermaid': `graph LR;\nYou-->|Mark Text|Me;`
 // }
 
-export const isInElectron = window && window.process && window.process.type === 'renderer'
 export const isOsx = window && window.navigator && /Mac/.test(window.navigator.platform)
 export const isWin = window && window.navigator.userAgent && /win32|wow32|win64|wow64/i.test(window.navigator.userAgent)
 // http[s] (domain or IPv4 or localhost or IPv6) [port] /not-white-space
 export const URL_REG = /^http(s)?:\/\/([a-z0-9\-._~]+\.[a-z]{2,}|[0-9.]+|localhost|\[[a-f0-9.:]+\])(:[0-9]{1,5})?\/[\S]+/i
+// data:[<MIME-type>][;charset=<encoding>][;base64],<data>
+export const DATA_URL_REG = /^data:image\/[\w+-]+(;[\w-]+=[\w-]+|;base64)*,[a-zA-Z0-9+/]+={0,2}$/
 // The smallest transparent gif base64 image.
 // export const SMALLEST_BASE64 = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'
 // export const isIOS = /(?:iPhone|iPad|iPod|iOS)/i.test(window.navigator.userAgent)
+export const defaultSearchOption = {
+  isCaseSensitive: false,
+  isWholeWord: false,
+  isRegexp: false,
+  selectHighlight: false,
+  highlightIndex: -1
+}

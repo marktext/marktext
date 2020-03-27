@@ -43,8 +43,8 @@
             size="mini"
             v-model="tableChecker.rows"
             controls-position="right"
-            :min="2"
-            :max="20"
+            :min="1"
+            :max="30"
           ></el-input-number>
         </el-form-item>
         <el-form-item label="Columns">
@@ -52,7 +52,7 @@
             size="mini"
             v-model="tableChecker.columns"
             controls-position="right"
-            :min="2"
+            :min="1"
             :max="20"
           ></el-input-number>
         </el-form-item>
@@ -73,6 +73,8 @@
 </template>
 
 <script>
+import { shell } from 'electron'
+import log from 'electron-log'
 import { mapState } from 'vuex'
 import ViewImage from 'view-image'
 import Muya from 'muya/lib'
@@ -82,18 +84,25 @@ import CodePicker from 'muya/lib/ui/codePicker'
 import EmojiPicker from 'muya/lib/ui/emojiPicker'
 import ImagePathPicker from 'muya/lib/ui/imagePicker'
 import ImageSelector from 'muya/lib/ui/imageSelector'
+import ImageToolbar from 'muya/lib/ui/imageToolbar'
+import Transformer from 'muya/lib/ui/transformer'
 import FormatPicker from 'muya/lib/ui/formatPicker'
+import LinkTools from 'muya/lib/ui/linkTools'
+import FootnoteTool from 'muya/lib/ui/footnoteTool'
+import TableBarTools from 'muya/lib/ui/tableTools'
 import FrontMenu from 'muya/lib/ui/frontMenu'
-import bus from '../../bus'
-import Search from '../search.vue'
-import { animatedScrollTo } from '../../util'
-import { addCommonStyle, setEditorWidth } from '../../util/theme'
-import { guessClipboardFilePath } from '../../util/clipboard'
-import { showContextMenu } from '../../contextMenu/editor'
-import Printer from '@/services/printService'
+import Search from '../search'
+import bus from '@/bus'
 import { DEFAULT_EDITOR_FONT_FAMILY } from '@/config'
-import { moveImageToFolder, uploadImage } from '@/util/fileSystem'
+import { showContextMenu } from '@/contextMenu/editor'
 import notice from '@/services/notification'
+import Printer from '@/services/printService'
+import { isOsSpellcheckerSupported, offsetToWordCursor, validateLineCursor, SpellChecker } from '@/spellchecker'
+import { delay, isOsx, animatedScrollTo } from '@/util'
+import { moveImageToFolder, uploadImage } from '@/util/fileSystem'
+import { guessClipboardFilePath } from '@/util/clipboard'
+import { getCssForOptions } from '@/util/pdf'
+import { addCommonStyle, setEditorWidth } from '@/util/theme'
 
 import 'muya/themes/default.css'
 import '@/assets/themes/codemirror/one-dark.css'
@@ -106,10 +115,8 @@ export default {
   components: {
     Search
   },
+
   props: {
-    filename: {
-      type: String
-    },
     markdown: String,
     cursor: Object,
     textDirection: {
@@ -118,6 +125,7 @@ export default {
     },
     platform: String
   },
+
   computed: {
     ...mapState({
       preferences: state => state.preferences,
@@ -129,17 +137,30 @@ export default {
       orderListDelimiter: state => state.preferences.orderListDelimiter,
       tabSize: state => state.preferences.tabSize,
       listIndentation: state => state.preferences.listIndentation,
+      frontmatterType: state => state.preferences.frontmatterType,
+      superSubScript: state => state.preferences.superSubScript,
+      footnote: state => state.preferences.footnote,
       lineHeight: state => state.preferences.lineHeight,
       fontSize: state => state.preferences.fontSize,
       codeFontSize: state => state.preferences.codeFontSize,
       codeFontFamily: state => state.preferences.codeFontFamily,
+      codeBlockLineNumbers: state => state.preferences.codeBlockLineNumbers,
+      trimUnnecessaryCodeBlockEmptyLines: state => state.preferences.trimUnnecessaryCodeBlockEmptyLines,
       editorFontFamily: state => state.preferences.editorFontFamily,
       hideQuickInsertHint: state => state.preferences.hideQuickInsertHint,
+      hideLinkPopup: state => state.preferences.hideLinkPopup,
+      autoCheck: state => state.preferences.autoCheck,
       editorLineWidth: state => state.preferences.editorLineWidth,
       imageInsertAction: state => state.preferences.imageInsertAction,
       imageFolderPath: state => state.preferences.imageFolderPath,
       theme: state => state.preferences.theme,
+      sequenceTheme: state => state.preferences.sequenceTheme,
       hideScrollbar: state => state.preferences.hideScrollbar,
+      spellcheckerEnabled: state => state.preferences.spellcheckerEnabled,
+      spellcheckerIsHunspell: state => state.preferences.spellcheckerIsHunspell,
+      spellcheckerNoUnderline: state => state.preferences.spellcheckerNoUnderline,
+      spellcheckerAutoDetectLanguage: state => state.preferences.spellcheckerAutoDetectLanguage,
+      spellcheckerLanguage: state => state.preferences.spellcheckerLanguage,
 
       currentFile: state => state.editor.currentFile,
 
@@ -149,9 +170,13 @@ export default {
       sourceCode: state => state.preferences.sourceCode
     })
   },
+
   data () {
     this.defaultFontFamily = DEFAULT_EDITOR_FONT_FAMILY
     this.CloseIcon = CloseIcon
+    // Helper to ignore changes when the spell check provider was changed in settings.
+    this.spellcheckerIgnorChanges = false
+
     return {
       selectionChange: null,
       editor: null,
@@ -165,27 +190,32 @@ export default {
       }
     }
   },
+
   watch: {
     typewriter: function (value) {
       if (value) {
         this.scrollToCursor()
       }
     },
+
     focus: function (value) {
       this.editor.setFocusMode(value)
     },
+
     fontSize: function (value, oldValue) {
       const { editor } = this
       if (value !== oldValue && editor) {
         editor.setFont({ fontSize: value })
       }
     },
+
     lineHeight: function (value, oldValue) {
       const { editor } = this
       if (value !== oldValue && editor) {
         editor.setFont({ lineHeight: value })
       }
     },
+
     preferLooseListItem: function (value, oldValue) {
       const { editor } = this
       if (value !== oldValue && editor) {
@@ -194,12 +224,14 @@ export default {
         })
       }
     },
+
     tabSize: function (value, oldValue) {
       const { editor } = this
       if (value !== oldValue && editor) {
         editor.setTabSize(value)
       }
     },
+
     theme: function (value, oldValue) {
       if (value !== oldValue && this.editor) {
         // Agreement：Any black series theme needs to contain dark `word`.
@@ -216,53 +248,111 @@ export default {
         }
       }
     },
+
+    sequenceTheme: function (value, oldValue) {
+      const { editor } = this
+      if (value !== oldValue && editor) {
+        editor.setOptions({ sequenceTheme: value }, true)
+      }
+    },
+
     listIndentation: function (value, oldValue) {
       const { editor } = this
       if (value !== oldValue && editor) {
         editor.setListIndentation(value)
       }
     },
+
+    frontmatterType: function (value, oldValue) {
+      const { editor } = this
+      if (value !== oldValue && editor) {
+        editor.setOptions({ frontmatterType: value })
+      }
+    },
+
+    superSubScript: function (value, oldValue) {
+      const { editor } = this
+      if (value !== oldValue && editor) {
+        editor.setOptions({ superSubScript: value }, true)
+      }
+    },
+
+    footnote: function (value, oldValue) {
+      const { editor } = this
+      if (value !== oldValue && editor) {
+        editor.setOptions({ footnote: value }, true)
+      }
+    },
+
     hideQuickInsertHint: function (value, oldValue) {
       const { editor } = this
       if (value !== oldValue && editor) {
         editor.setOptions({ hideQuickInsertHint: value })
       }
     },
+
     editorLineWidth: function (value, oldValue) {
       if (value !== oldValue) {
         setEditorWidth(value)
       }
     },
+
     autoPairBracket: function (value, oldValue) {
       const { editor } = this
       if (value !== oldValue && editor) {
         editor.setOptions({ autoPairBracket: value })
       }
     },
+
     autoPairMarkdownSyntax: function (value, oldValue) {
       const { editor } = this
       if (value !== oldValue && editor) {
         editor.setOptions({ autoPairMarkdownSyntax: value })
       }
     },
+
     autoPairQuote: function (value, oldValue) {
       const { editor } = this
       if (value !== oldValue && editor) {
         editor.setOptions({ autoPairQuote: value })
       }
     },
+
+    trimUnnecessaryCodeBlockEmptyLines: function (value, oldValue) {
+      const { editor } = this
+      if (value !== oldValue && editor) {
+        editor.setOptions({ trimUnnecessaryCodeBlockEmptyLines: value })
+      }
+    },
+
     bulletListMarker: function (value, oldValue) {
       const { editor } = this
       if (value !== oldValue && editor) {
         editor.setOptions({ bulletListMarker: value })
       }
     },
+
     orderListDelimiter: function (value, oldValue) {
       const { editor } = this
       if (value !== oldValue && editor) {
         editor.setOptions({ orderListDelimiter: value })
       }
     },
+
+    hideLinkPopup: function (value, oldValue) {
+      const { editor } = this
+      if (value !== oldValue && editor) {
+        editor.setOptions({ hideLinkPopup: value })
+      }
+    },
+
+    autoCheck: function (value, oldValue) {
+      const { editor } = this
+      if (value !== oldValue && editor) {
+        editor.setOptions({ autoCheck: value })
+      }
+    },
+
     codeFontSize: function (value, oldValue) {
       if (value !== oldValue) {
         addCommonStyle({
@@ -272,6 +362,14 @@ export default {
         })
       }
     },
+
+    codeBlockLineNumbers: function (value, oldValue) {
+      const { editor } = this
+      if (value !== oldValue && editor) {
+        editor.setOptions({ codeBlockLineNumbers: value }, true)
+      }
+    },
+
     codeFontFamily: function (value, oldValue) {
       if (value !== oldValue) {
         addCommonStyle({
@@ -281,6 +379,7 @@ export default {
         })
       }
     },
+
     hideScrollbar: function (value, oldValue) {
       if (value !== oldValue) {
         addCommonStyle({
@@ -290,6 +389,96 @@ export default {
         })
       }
     },
+
+    spellcheckerEnabled: function (value, oldValue) {
+      if (value !== oldValue) {
+        const { editor, spellchecker } = this
+        const { isInitialized } = spellchecker
+
+        // Set Muya's spellcheck container attribute.
+        editor.setOptions({ spellcheckEnabled: value })
+
+        // Spell check is available but not initialized.
+        if (value && !isInitialized) {
+          this.initSpellchecker()
+          return
+        }
+
+        // Enable or disable spell checker.
+        if (isInitialized) {
+          if (value) {
+            this.enableSpellchecker()
+          } else {
+            spellchecker.disableSpellchecker()
+          }
+        }
+      }
+    },
+
+    spellcheckerIsHunspell: function (value, oldValue) {
+      // Special case when the OS supports multiple spell checker because the
+      // language may be invalid (provider 1 may support language xyz
+      // but provider 2 not). Otherwise ignore this event.
+      if (isOsSpellcheckerSupported() && value !== oldValue) {
+        const { spellchecker } = this
+        const { isHunspell } = spellchecker
+        if (value === isHunspell) {
+          this.spellcheckerIgnorChanges = false
+
+          // NOTE: Set timout because the language may be changed if it's not supported.
+          delay(500).then(() => {
+            // Apply language from settings that may have changed.
+            const { spellcheckerLanguage } = this
+            const { isEnabled, isHunspell, lang } = spellchecker
+            if (value === isHunspell && isEnabled && spellcheckerLanguage !== lang) {
+              this.switchSpellcheckLanguage(spellcheckerLanguage)
+            }
+          })
+        } else {
+          // Ignore all settings language changes that occur when another
+          // spell check provider is selected.
+          this.spellcheckerIgnorChanges = true
+        }
+      }
+    },
+
+    spellcheckerNoUnderline: function (value, oldValue) {
+      if (value !== oldValue) {
+        const { editor, spellchecker } = this
+
+        // Set Muya's spellcheck container attribute.
+        editor.setOptions({ spellcheckEnabled: !value })
+
+        const { isEnabled } = spellchecker
+        if (isEnabled) {
+          spellchecker.isPassiveMode = value
+        }
+      }
+    },
+
+    spellcheckerAutoDetectLanguage: function (value, oldValue) {
+      const { spellchecker } = this
+      const { isEnabled } = spellchecker
+      if (value !== oldValue && isEnabled) {
+        spellchecker.automaticallyIdentifyLanguages = value
+      }
+    },
+
+    spellcheckerLanguage: function (value, oldValue) {
+      const { spellchecker, spellcheckerIgnorChanges } = this
+      if (!spellcheckerIgnorChanges && value !== oldValue) {
+        const { isEnabled, isInvalidState } = spellchecker
+        if (isEnabled) {
+          this.switchSpellcheckLanguage(value)
+        } else if (isInvalidState) {
+          // Spell checker is in an invalid state due to a missing dictionary and
+          // therefore deactivated. We can safely enable the spell checker again
+          // with the new language.
+          this.enableSpellchecker()
+        }
+      }
+    },
+
     currentFile: function (value, oldValue) {
       if (value && value !== oldValue) {
         this.scrollToCursor(0)
@@ -297,12 +486,14 @@ export default {
         this.editor && this.editor.hideAllFloatTools()
       }
     },
+
     sourceCode: function (value, oldValue) {
       if (value && value !== oldValue) {
         this.editor && this.editor.hideAllFloatTools()
       }
     }
   },
+
   created () {
     this.$nextTick(() => {
       this.printer = new Printer()
@@ -315,13 +506,24 @@ export default {
         autoPairBracket,
         autoPairMarkdownSyntax,
         autoPairQuote,
+        trimUnnecessaryCodeBlockEmptyLines,
         bulletListMarker,
         orderListDelimiter,
         tabSize,
+        fontSize,
+        lineHeight,
+        codeBlockLineNumbers,
         listIndentation,
+        frontmatterType,
+        superSubScript,
+        footnote,
         hideQuickInsertHint,
         editorLineWidth,
-        theme
+        theme,
+        sequenceTheme,
+        spellcheckerEnabled,
+        hideLinkPopup,
+        autoCheck
       } = this
 
       // use muya UI plugins
@@ -330,9 +532,19 @@ export default {
       Muya.use(CodePicker)
       Muya.use(EmojiPicker)
       Muya.use(ImagePathPicker)
-      Muya.use(ImageSelector)
+      Muya.use(ImageSelector, {
+        unsplashAccessKey: process.env.UNSPLASH_ACCESS_KEY,
+        photoCreatorClick: this.photoCreatorClick
+      })
+      Muya.use(Transformer)
+      Muya.use(ImageToolbar)
       Muya.use(FormatPicker)
       Muya.use(FrontMenu)
+      Muya.use(LinkTools, {
+        jumpClick: this.jumpClick
+      })
+      Muya.use(FootnoteTool)
+      Muya.use(TableBarTools)
 
       const options = {
         focusMode,
@@ -340,17 +552,29 @@ export default {
         preferLooseListItem,
         autoPairBracket,
         autoPairMarkdownSyntax,
+        trimUnnecessaryCodeBlockEmptyLines,
         autoPairQuote,
         bulletListMarker,
         orderListDelimiter,
         tabSize,
+        fontSize,
+        lineHeight,
+        codeBlockLineNumbers,
         listIndentation,
+        frontmatterType,
+        superSubScript,
+        footnote,
         hideQuickInsertHint,
+        hideLinkPopup,
+        autoCheck,
+        sequenceTheme,
+        spellcheckEnabled: spellcheckerEnabled,
         imageAction: this.imageAction.bind(this),
         imagePathPicker: this.imagePathPicker.bind(this),
         clipboardFilePath: guessClipboardFilePath,
         imagePathAutoComplete: this.imagePathAutoComplete.bind(this)
       }
+
       if (/dark/i.test(theme)) {
         Object.assign(options, {
           mermaidTheme: 'dark',
@@ -364,6 +588,12 @@ export default {
       }
 
       const { container } = this.editor = new Muya(ele, options)
+
+      // Create spell check wrapper and enable spell checking if prefered.
+      this.spellchecker = new SpellChecker(spellcheckerEnabled)
+      if (spellcheckerEnabled) {
+        this.initSpellchecker()
+      }
 
       if (typewriter) {
         this.scrollToCursor()
@@ -380,11 +610,12 @@ export default {
       bus.$on('format', this.handleInlineFormat)
       bus.$on('searchValue', this.handleSearch)
       bus.$on('replaceValue', this.handReplace)
-      bus.$on('find', this.handleFind)
+      bus.$on('find-action', this.handleFindAction)
       bus.$on('insert-image', this.insertImage)
       bus.$on('image-uploaded', this.handleUploadedImage)
       bus.$on('file-changed', this.handleFileChange)
       bus.$on('editor-blur', this.blurEditor)
+      bus.$on('editor-focus', this.focusEditor)
       bus.$on('copyAsMarkdown', this.handleCopyPaste)
       bus.$on('copyAsHtml', this.handleCopyPaste)
       bus.$on('pasteAsPlainText', this.handleCopyPaste)
@@ -392,11 +623,9 @@ export default {
       bus.$on('createParagraph', this.handleParagraph)
       bus.$on('deleteParagraph', this.handleParagraph)
       bus.$on('insertParagraph', this.handleInsertParagraph)
-      bus.$on('editTable', this.handleEditTable)
       bus.$on('scroll-to-header', this.scrollToHeader)
-      bus.$on('copy-block', this.handleCopyBlock)
-      bus.$on('print', this.handlePrint)
       bus.$on('screenshot-captured', this.handleScreenShot)
+      bus.$on('switch-spellchecker-language', this.switchSpellcheckLanguage)
 
       this.editor.on('change', changes => {
         // WORKAROUND: "id: 'muya'"
@@ -404,7 +633,6 @@ export default {
       })
 
       this.editor.on('format-click', ({ event, formatType, data }) => {
-        const isOsx = this.platform === 'darwin'
         const ctrlOrMeta = (isOsx && event.metaKey) || (!isOsx && event.ctrlKey)
         if (formatType === 'link' && ctrlOrMeta) {
           this.$store.dispatch('FORMAT_LINK_CLICK', { data, dirname: window.DIRNAME })
@@ -441,6 +669,13 @@ export default {
           animatedScrollTo(container, container.scrollTop + y - STANDAR_Y, 100)
         }
 
+        // Used to fix #628: auto scroll cursor to visible if the cursor is too low.
+        if (container.clientHeight - y < 100) {
+          // editableHeight is the lowest cursor position(till to top) that editor allowed.
+          const editableHeight = container.clientHeight - 100
+          animatedScrollTo(container, container.scrollTop + (y - editableHeight), 0)
+        }
+
         this.selectionChange = changes
         this.$store.dispatch('SELECTION_CHANGE', changes)
       })
@@ -449,8 +684,42 @@ export default {
         this.$store.dispatch('SELECTION_FORMATS', formats)
       })
 
-      this.editor.on('contextmenu', (event, selectionChanges) => {
-        showContextMenu(event, selectionChanges)
+      this.editor.on('contextmenu', (event, selection) => {
+        const { isEnabled } = this.spellchecker
+
+        // NOTE: Right clicking on a misspelled word select the whole word
+        // by Chromium.
+        if (isEnabled && validateLineCursor(selection)) {
+          const { start: startCursor } = selection
+          const { offset: lineOffset } = startCursor
+          const { text } = startCursor.block
+          const wordInfo = SpellChecker.extractWord(text, lineOffset)
+          if (wordInfo) {
+            const { left, right, word } = wordInfo
+
+            // Translate offsets into a cursor with the given line.
+            const wordRange = offsetToWordCursor(selection, left, right)
+
+            // NOTE: Need to check whether the word is misspelled because
+            // suggestions may be empty even if word is misspelled.
+            if (this.spellchecker.isMisspelled(word)) {
+              this.spellchecker.getWordSuggestion(word)
+                .then(wordSuggestions => {
+                  const replaceCallback = replacement => {
+                    // wordRange := replace this range with the replacement
+                    this.editor.replaceWordInline(selection, wordRange, replacement, true)
+                  }
+                  showContextMenu(event, selection, this.spellchecker, word, wordSuggestions, replaceCallback)
+                })
+            } else {
+              showContextMenu(event, selection, this.spellchecker, word, null, null)
+            }
+            return
+          }
+        }
+
+        // No word selected or fallback
+        showContextMenu(event, selection, isEnabled ? this.spellchecker : null, '', null, null)
       })
 
       document.addEventListener('keyup', this.keyup)
@@ -459,6 +728,15 @@ export default {
     })
   },
   methods: {
+    photoCreatorClick: (url) => {
+      shell.openExternal(url)
+    },
+
+    jumpClick (linkInfo) {
+      const { href } = linkInfo
+      this.$store.dispatch('FORMAT_LINK_CLICK', { data: { href }, dirname: window.DIRNAME })
+    },
+
     async imagePathAutoComplete (src) {
       const files = await this.$store.dispatch('ASK_FOR_IMAGE_AUTO_PATH', src)
       return files.map(f => {
@@ -466,39 +744,55 @@ export default {
         return Object.assign(f, { iconClass, text: f.file + (f.type === 'directory' ? '/' : '') })
       })
     },
-    async imageAction (image) {
+
+    async imageAction (image, id, alt = '') {
       const { imageInsertAction, imageFolderPath, preferences } = this
       const { pathname } = this.currentFile
+      let result
       switch (imageInsertAction) {
         case 'upload': {
           try {
-            const result = await uploadImage(pathname, image, preferences)
-            return result
+            result = await uploadImage(pathname, image, preferences)
           } catch (err) {
             notice.notify({
               title: 'Upload Image',
               type: 'info',
               message: err
             })
-            return await moveImageToFolder(pathname, image, imageFolderPath)
+            result = await moveImageToFolder(pathname, image, imageFolderPath)
           }
+          break
         }
         case 'folder': {
-          return await moveImageToFolder(pathname, image, imageFolderPath)
+          result = await moveImageToFolder(pathname, image, imageFolderPath)
+          break
         }
         case 'path': {
           if (typeof image === 'string') {
-            return image
+            result = image
           } else {
             // Move image to image folder if it's Blob object.
-            return await moveImageToFolder(pathname, image, imageFolderPath)
+            result = await moveImageToFolder(pathname, image, imageFolderPath)
           }
+          break
         }
       }
+
+      if (id && this.sourceCode) {
+        bus.$emit('image-action', {
+          id,
+          result,
+          alt
+        })
+      }
+
+      return result
     },
+
     imagePathPicker () {
       return this.$store.dispatch('ASK_FOR_IMAGE_PATH')
     },
+
     keyup (event) {
       if (event.key === 'Escape') {
         this.setImageViewerVisible(false)
@@ -507,6 +801,109 @@ export default {
 
     setImageViewerVisible (status) {
       this.imageViewerVisible = status
+    },
+
+    // Helper methods for spell checker that are needed multiple times.
+    initSpellchecker () {
+      const {
+        editor,
+        spellchecker,
+        spellcheckerNoUnderline,
+        spellcheckerAutoDetectLanguage,
+        spellcheckerLanguage
+      } = this
+      const { container } = editor
+
+      spellchecker.init(
+        spellcheckerLanguage,
+        spellcheckerAutoDetectLanguage,
+        spellcheckerNoUnderline,
+        container
+      )
+        .catch(error => {
+          log.error(`Error while initializing spell checker for language "${spellcheckerLanguage}":`)
+          log.error(error)
+
+          notice.notify({
+            title: 'Spelling',
+            type: 'error',
+            message: `Error while initializing spell checker for language "${spellcheckerLanguage}": ${error.message}`
+          })
+        })
+    },
+
+    enableSpellchecker () {
+      const {
+        spellchecker,
+        spellcheckerNoUnderline,
+        spellcheckerAutoDetectLanguage,
+        spellcheckerLanguage
+      } = this
+
+      spellchecker.enableSpellchecker(
+        spellcheckerLanguage,
+        spellcheckerAutoDetectLanguage,
+        spellcheckerNoUnderline
+      )
+        .then(status => {
+          if (!status) {
+            // Unable to switch language due to missing dictionary. The spell checker is now in an invalid state.
+            notice.notify({
+              title: 'Spelling',
+              type: 'warning',
+              message: `Unable to switch to language "${spellcheckerLanguage}". Spell checker is now disabled.`
+            })
+          }
+        })
+        .catch(error => {
+          log.error(`Error while enabling spell checking for "${spellcheckerLanguage}":`)
+          log.error(error)
+
+          notice.notify({
+            title: 'Spelling',
+            type: 'error',
+            message: `Error while enabling spell checking for "${spellcheckerLanguage}": ${error.message}`
+          })
+        })
+    },
+
+    switchSpellcheckLanguage (languageCode) {
+      const { spellchecker } = this
+      const { isEnabled } = spellchecker
+
+      // This method is also called from bus, so validate state before continuing.
+      if (!isEnabled) {
+        throw new Error('Cannot switch switch because spell checker is disabled!')
+      }
+
+      spellchecker.switchLanguage(languageCode)
+        .then(langCode => {
+          if (!langCode) {
+            // Unable to switch language due to missing dictionary. The spell checker is now in an invalid state.
+            notice.notify({
+              title: 'Spelling',
+              type: 'warning',
+              message: `Unable to switch to language "${languageCode}". Spell checker is now disabled.`
+            })
+          } else if (langCode !== languageCode) {
+            // Unable to switch language but fallback was successful.
+            notice.notify({
+              title: 'Spelling',
+              type: 'warning',
+              message: `Current spelling language is "${langCode}" because "${languageCode}" dictionary is missing.`
+            })
+          }
+        })
+        .catch(error => {
+          log.error(`Error while switching to language "${languageCode}":`)
+          log.error(error)
+
+          notice.notify({
+            title: 'Spelling',
+            type: 'error',
+            message: `Error while switching to "${languageCode}": ${error.message}`
+          })
+        })
     },
 
     handleUndo () {
@@ -522,8 +919,14 @@ export default {
     },
 
     handleSelectAll () {
-      if (this.editor && !this.sourceCode) {
+      if (this.editor && !this.sourceCode && (this.editor.hasFocus() || this.editor.contentState.selectedTableCells)) {
         this.editor.selectAll()
+      } else {
+        const activeElement = document.activeElement
+        const nodeName = activeElement.nodeName
+        if (nodeName === 'INPUT' || nodeName === 'TEXTAREA') {
+          activeElement.select()
+        }
       }
     },
 
@@ -583,33 +986,96 @@ export default {
       }
     },
 
-    handleFind (action) {
+    handleFindAction (action) {
       const searchMatches = this.editor.find(action)
       this.$store.dispatch('SEARCH', searchMatches)
       this.scrollToHighlight()
     },
 
-    async handlePrint () {
-      // generate styled HTML with empty title and optimized for printing
-      const html = await this.editor.exportStyledHTML('', true)
-      this.printer.renderMarkdown(html, true)
-      this.$store.dispatch('PRINT_RESPONSE')
-    },
+    async handleExport (options) {
+      const {
+        type,
+        header,
+        footer,
+        headerFooterStyled,
+        htmlTitle
+      } = options
 
-    async handleExport (type) {
-      const markdown = this.editor.getMarkdown()
+      if (!/^pdf|print|styledHtml$/.test(type)) {
+        throw new Error(`Invalid type to export: "${type}".`)
+      }
+
+      const extraCss = getCssForOptions(options)
       switch (type) {
         case 'styledHtml': {
-          const content = await this.editor.exportStyledHTML(this.filename)
-          this.$store.dispatch('EXPORT', { type, content, markdown })
+          try {
+            const content = await this.editor.exportStyledHTML({
+              title: htmlTitle || '',
+              printOptimization: false,
+              extraCss
+            })
+            this.$store.dispatch('EXPORT', { type, content })
+          } catch (err) {
+            log.error('Failed to export document:', err)
+            notice.notify({
+              title: `Printing/Exporting ${htmlTitle || 'html'} failed`,
+              type: 'error',
+              message: err.message || 'There is something wrong when exporting.'
+            })
+          }
           break
         }
-
         case 'pdf': {
-          // generate styled HTML with empty title and optimized for printing
-          const html = await this.editor.exportStyledHTML('', true)
-          this.printer.renderMarkdown(html, true)
-          this.$store.dispatch('EXPORT', { type, markdown })
+          // NOTE: We need to set page size via Electron.
+          try {
+            const { pageSize, pageSizeWidth, pageSizeHeight, isLandscape } = options
+            const pageOptions = {
+              pageSize, pageSizeWidth, pageSizeHeight, isLandscape
+            }
+
+            const html = await this.editor.exportStyledHTML({
+              title: '',
+              printOptimization: true,
+              extraCss,
+              header,
+              footer,
+              headerFooterStyled
+            })
+            this.printer.renderMarkdown(html, true)
+            this.$store.dispatch('EXPORT', { type, pageOptions })
+          } catch (err) {
+            log.error('Failed to export document:', err)
+            notice.notify({
+              title: 'Printing/Exporting failed',
+              type: 'error',
+              message: `There is something wrong when export ${htmlTitle || 'PDF'}.`
+            })
+            this.handlePrintServiceClearup()
+          }
+          break
+        }
+        case 'print': {
+          // NOTE: Print doesn't support page size or orientation.
+          try {
+            const html = await this.editor.exportStyledHTML({
+              title: '',
+              printOptimization: true,
+              extraCss,
+              header,
+              footer,
+              headerFooterStyled
+            })
+            this.printer.renderMarkdown(html, true)
+            this.$store.dispatch('PRINT_RESPONSE')
+          } catch (err) {
+            log.error('Failed to export document:', err)
+            notice.notify({
+              title: 'Printing/Exporting failed',
+              type: 'error',
+              message: `There is something wrong when print ${htmlTitle || ''}.`
+            })
+            this.handlePrintServiceClearup()
+          }
           break
         }
       }
@@ -626,8 +1092,8 @@ export default {
         this.$nextTick(() => {
           this.$refs.rowInput.focus()
         })
-      } else {
-        this.editor && this.editor.updateParagraph(type)
+      } else if (this.editor) {
+        this.editor.updateParagraph(type)
       }
     },
 
@@ -698,17 +1164,12 @@ export default {
       editor && editor.insertParagraph(location)
     },
 
-    handleEditTable (data) {
-      const { editor } = this
-      editor && editor.editTable(data)
-    },
-
     blurEditor () {
-      this.editor.blur()
+      this.editor.blur(false, true)
     },
 
-    handleCopyBlock (name) {
-      this.editor.copy(name)
+    focusEditor () {
+      this.editor.focus()
     },
 
     handleScreenShot () {
@@ -728,11 +1189,12 @@ export default {
     bus.$off('format', this.handleInlineFormat)
     bus.$off('searchValue', this.handleSearch)
     bus.$off('replaceValue', this.handReplace)
-    bus.$off('find', this.handleFind)
+    bus.$off('find-action', this.handleFindAction)
     bus.$off('insert-image', this.insertImage)
     bus.$off('image-uploaded', this.handleUploadedImage)
     bus.$off('file-changed', this.handleFileChange)
     bus.$off('editor-blur', this.blurEditor)
+    bus.$off('editor-focus', this.focusEditor)
     bus.$off('copyAsMarkdown', this.handleCopyPaste)
     bus.$off('copyAsHtml', this.handleCopyPaste)
     bus.$off('pasteAsPlainText', this.handleCopyPaste)
@@ -740,11 +1202,9 @@ export default {
     bus.$off('createParagraph', this.handleParagraph)
     bus.$off('deleteParagraph', this.handleParagraph)
     bus.$off('insertParagraph', this.handleInsertParagraph)
-    bus.$off('editTable', this.handleEditTable)
     bus.$off('scroll-to-header', this.scrollToHeader)
-    bus.$off('copy-block', this.handleCopyBlock)
-    bus.$off('print', this.handlePrint)
     bus.$off('screenshot-captured', this.handleScreenShot)
+    bus.$off('switch-spellchecker-language', this.switchSpellcheckLanguage)
 
     document.removeEventListener('keyup', this.keyup)
 
@@ -767,6 +1227,7 @@ export default {
       }
     }
   }
+
   .editor-wrapper.source {
     position: absolute;
     z-index: -1;
@@ -774,15 +1235,18 @@ export default {
     left: 0;
     overflow: hidden;
   }
+
   .editor-component {
     height: 100%;
     overflow: auto;
     box-sizing: border-box;
   }
+
   .typewriter .editor-component {
     padding-top: calc(50vh - 136px);
     padding-bottom: calc(50vh - 54px);
   }
+
   .image-viewer {
     position: fixed;
     backdrop-filter: blur(5px);
@@ -807,10 +1271,12 @@ export default {
       }
     }
   }
+
   .iv-container {
     width: 100%;
     height: 100%;
   }
+
   .iv-snap-view {
     opacity: 1;
     bottom: 20px;

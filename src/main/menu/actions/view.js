@@ -1,13 +1,18 @@
-import { ipcMain, BrowserWindow } from 'electron'
 import { getMenuItemById } from '../../menu'
 
-const sourceCodeModeMenuItemId = 'sourceCodeModeMenuItem'
 const typewriterModeMenuItemId = 'typewriterModeMenuItem'
 const focusModeMenuItemId = 'focusModeMenuItem'
 
+export const showCommandPalette = win => {
+  win.webContents.send('mt::show-command-palette')
+}
+
 export const typeMode = (win, type, item) => {
+  if (!win) {
+    return
+  }
   const { checked } = item
-  win.webContents.send('AGANI::view', { type, checked })
+  win.webContents.send('mt::editor-change-view', { type, checked })
 
   if (type === 'sourceCode') {
     const typewriterModeMenuItem = getMenuItemById(typewriterModeMenuItemId)
@@ -18,7 +23,9 @@ export const typeMode = (win, type, item) => {
 }
 
 export const layout = (item, win, type) => {
-  win.webContents.send('AGANI::listen-for-view-layout', { [type]: item.checked })
+  if (win && win.webContents) {
+    win.webContents.send('mt::set-view-layout', { [type]: item.checked })
+  }
 }
 
 export const showTabBar = win => {
@@ -28,23 +35,40 @@ export const showTabBar = win => {
   }
 }
 
-ipcMain.on('AGANI::ask-for-mode', e => {
-  const sourceCodeModeMenuItem = getMenuItemById(sourceCodeModeMenuItemId)
-  const typewriterModeMenuItem = getMenuItemById(typewriterModeMenuItemId)
-  const focusModeMenuItem = getMenuItemById(focusModeMenuItemId)
-  const modes = {
-    sourceCode: sourceCodeModeMenuItem.checked,
-    typewriter: typewriterModeMenuItem.checked,
-    focus: focusModeMenuItem.checked
+// --- IPC events -------------------------------------------------------------
+
+// NOTE: Don't use static `getMenuItemById` here, instead request the menu by
+//       window id from `AppMenu` manager.
+
+/**
+ *
+ * @param {*} applicationMenu The application menu instance.
+ * @param {*} changes Array of changed view settings (e.g. [ {showSideBar: true} ]).
+ */
+export const viewLayoutChanged = (applicationMenu, changes) => {
+  const changeMenuByName = (id, value) => {
+    const menuItem = applicationMenu.getMenuItemById(id)
+    menuItem.checked = value
   }
-  const win = BrowserWindow.fromWebContents(e.sender)
-  win.webContents.send('AGANI::res-for-mode', modes)
-})
 
-ipcMain.on('AGANI::set-view-layout', (e, { showSideBar, showTabBar }) => {
-  const sideBarMenuItem = getMenuItemById('sideBarMenuItem')
-  const tabBarMenuItem = getMenuItemById('tabBarMenuItem')
-
-  sideBarMenuItem.checked = showSideBar
-  tabBarMenuItem.checked = showTabBar
-})
+  for (const key in changes) {
+    const value = changes[key]
+    switch (key) {
+      case 'showSideBar':
+        changeMenuByName('sideBarMenuItem', value)
+        break
+      case 'showTabBar':
+        changeMenuByName('tabBarMenuItem', value)
+        break
+      case 'sourceCode':
+        changeMenuByName('sourceCodeModeMenuItem', value)
+        break
+      case 'typewriter':
+        changeMenuByName(typewriterModeMenuItemId, value)
+        break
+      case 'focus':
+        changeMenuByName(focusModeMenuItemId, value)
+        break
+    }
+  }
+}

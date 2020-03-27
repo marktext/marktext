@@ -37,7 +37,7 @@
   </a>
   <!-- Downloads latest release -->
   <a href="https://marktext.github.io/website">
-    <img src="https://img.shields.io/github/downloads/marktext/marktext/v0.15.1/total.svg" alt="latest download">
+    <img src="https://img.shields.io/github/downloads/marktext/marktext/v0.16.0/total.svg" alt="latest download">
   </a>
   <!-- deps -->
   <a href="https://marktext.github.io/website">
@@ -63,7 +63,7 @@
       Özellikler
     </a>
     <span> | </span>
-    <a href="https://github.com/marktext/marktext#download-and-install">
+    <a href="https://github.com/marktext/marktext#download-and-installation">
       İndirmeler
     </a>
     <span> | </span>
@@ -123,7 +123,7 @@
 
 |                                                         ![](https://github.com/ryanoasis/nerd-fonts/wiki/screenshots/v1.0.x/mac-pass-sm.png)                                                         |                                                             ![](https://github.com/ryanoasis/nerd-fonts/wiki/screenshots/v1.0.x/windows-pass-sm.png)                                                             |                                                                    ![](https://github.com/ryanoasis/nerd-fonts/wiki/screenshots/v1.0.x/linux-pass-sm.png)                                                                    |
 | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: |
-| [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-0.15.1.dmg.svg)](https://github.com/marktext/marktext/releases/download/v0.15.1/marktext-0.15.1.dmg) | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-setup-0.15.1.exe.svg)](https://github.com/marktext/marktext/releases/download/v0.15.1/marktext-setup-0.15.1.exe) | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-0.15.1-x86_64.AppImage.svg)](https://github.com/marktext/marktext/releases/download/v0.15.1/marktext-0.15.1-x86_64.AppImage) |
+| [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-0.16.0.dmg.svg)](https://github.com/marktext/marktext/releases/download/v0.16.0/marktext.dmg) | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-setup-0.16.0.exe.svg)](https://github.com/marktext/marktext/releases/download/v0.16.0/marktext-setup.exe) | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-0.16.0-x86_64.AppImage.svg)](https://github.com/marktext/marktext/releases/download/v0.16.0/marktext-x86_64.AppImage) |
 
 Kendi sistemini bulamıyor musun? [Yayınlanma sayfasına](https://github.com/marktext/marktext/releases) git.Hala mı bulamıyorsun? Bir [issue](https://github.com/marktext/marktext/issues) aç.
 
@@ -147,7 +147,7 @@ Lütfen [Linux kurulum talimatını](../../docs/LINUX.md) takip ediniz.
 
 ## Geliştirme
 
-Eğer **Mark Text** kendiniz geliştirmek isterseniz, lütfen bizim [geliştirici dökümantasyonunu](../../.github/CONTRIBUTING.md#build-instructions) kontrol edin.
+Eğer **Mark Text** kendiniz geliştirmek isterseniz, lütfen bizim [geliştirici dökümantasyonunu](../../CONTRIBUTING.md#build-instructions) kontrol edin.
 
 **Mark Text** kullanırken bir sorun olursa, bir issue açabilirsin, ama issue formatına uyacağına umuyoruz.Tabi ki direk olarak PR gönderbilirsin bundan memnuniyet duyarız.
 
@@ -157,7 +157,7 @@ Eğer **Mark Text** kendiniz geliştirmek isterseniz, lütfen bizim [geliştiric
 
 ## Katkıda Bulunmak
 
-Mark Text geliştirme aşamasında, lütfen pull request yapmadan önce [Katkıda bulunma Rehberini](../../.github/CONTRIBUTING.md) okuduğunuza emin olun.Mark Text'e yeni özellikler eklemek mi istiyorsun? [TODO LIST](../../.github/TODOLIST.md)'e başvur ve bir issue aç.
+Mark Text geliştirme aşamasında, lütfen pull request yapmadan önce [Katkıda bulunma Rehberini](../../CONTRIBUTING.md) okuduğunuza emin olun.Mark Text'e yeni özellikler eklemek mi istiyorsun? [TODO LIST](../../.github/TODOLIST.md)'e başvur ve bir issue aç.
 
 ## Destekçiler
 

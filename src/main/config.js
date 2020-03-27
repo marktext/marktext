@@ -3,20 +3,20 @@ export const isWindows = process.platform === 'win32'
 export const isLinux = process.platform === 'linux'
 
 export const editorWinOptions = {
-  minWidth: 450,
-  minHeight: 220,
+  minWidth: 550,
+  minHeight: 350,
   webPreferences: {
     nodeIntegration: true,
     webSecurity: false
   },
   useContentSize: true,
-  show: true,
+  show: true, // Show the window after the app is ready.
   frame: false,
   titleBarStyle: 'hiddenInset',
   zoomFactor: 1.0
 }
 
-export const defaultPreferenceWinOptions = {
+export const preferencesWinOptions = {
   width: 950,
   height: 650,
   webPreferences: {
@@ -29,7 +29,7 @@ export const defaultPreferenceWinOptions = {
   minimizable: false,
   maximizable: false,
   useContentSize: true,
-  show: false,
+  show: true,
   frame: false,
   thickFrame: !isOsx,
   titleBarStyle: 'hiddenInset',
@@ -39,6 +39,7 @@ export const defaultPreferenceWinOptions = {
 export const PANDOC_EXTENSIONS = [
   'html',
   'docx',
+  'odt',
   'latex',
   'tex',
   'ltx',

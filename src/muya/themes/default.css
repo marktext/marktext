@@ -385,24 +385,39 @@ kbd {
     padding: 0;
   }
 
-  table thead tr,
+  /* table thead tr,
   table tr:nth-child(2n) {
     background-color: var(--editorColor04);
-  }
+  } */
 
   table tr th {
     font-weight: bold;
-    border: 1px solid var(--tableBorderColor);
     text-align: left;
     margin: 0;
     padding: 6px 13px;
+    position: relative;
   }
 
   table tr td {
-    border: 1px solid var(--tableBorderColor);
     text-align: left;
     margin: 0;
     padding: 6px 13px;
+    position: relative;
+  }
+
+  table tr th::before,
+  table tr td::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: calc(100% + 1px);
+    height: calc(100% + 1px);
+    border: 1px solid var(--tableBorderColor);
+    box-sizing: border-box;
+    pointer-events: none;
   }
 
   table tr th:first-child,
@@ -413,6 +428,119 @@ kbd {
   table tr th:last-child,
   table tr td:last-child {
     margin-bottom: 0;
+  }
+
+  table tr .ag-drag-handler.left {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    display: block;
+    width: 9px;
+    height: 19px;
+    box-sizing: border-box;
+    border-radius: 4px;
+    border: 1px solid var(--iconColor);
+    left: -11px;
+    cursor: pointer;
+    opacity: .5;
+  }
+
+  table tr .ag-drag-handler.left::before,
+  table tr .ag-drag-handler.left::after {
+    content: '';
+    display: block;
+    width: 3px;
+    height: 3px;
+    border-radius: 50%;
+    background: var(--iconColor);
+    position: absolute;
+    left: 2px;
+    top: 4px;
+  }
+  table tr .ag-drag-handler.left::after {
+    top: 10px;
+  }
+
+
+  table tr .ag-drag-handler.bottom {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    display: block;
+    width: 19px;
+    height: 9px;
+    box-sizing: border-box;
+    border-radius: 4px;
+    border: 1px solid var(--iconColor);
+    bottom: -15px;
+    cursor: pointer;
+    opacity: .5;
+  }
+
+  table tr .ag-drag-handler.bottom::before,
+  table tr .ag-drag-handler.bottom::after {
+    content: '';
+    display: block;
+    width: 3px;
+    height: 3px;
+    border-radius: 50%;
+    background: var(--iconColor);
+    position: absolute;
+    top: 2px;
+    left: 4px;
+  }
+  table tr .ag-drag-handler.bottom::after {
+    left: 10px;
+  }
+
+  table tr .ag-drag-handler.left,
+  table tr .ag-drag-handler.bottom
+   {
+    display: none;
+  }
+
+  table.ag-active tr .ag-drag-handler {
+    display: block;
+  }
+
+  table .ag-drag-cell {
+    opacity: .7;
+    z-index: 1;
+    background: var(--floatBgColor);
+    transition: left .3s ease-in-out, bottom .3s ease-in-out;
+  }
+
+  table .ag-drag-cell.ag-drag-left {
+    left: -6px;
+  }
+
+  table .ag-drag-cell.ag-drag-bottom {
+    bottom: -6px;
+  }
+
+  table .ag-cell-transform {
+    transition: transform .3s ease-in-out;
+  }
+
+  table .ag-cell-selected::before {
+    background: var(--editorColor04);
+    z-index: 1;
+  }
+
+  table .ag-cell-border-top::before {
+    border-top-color: var(--themeColor);
+  }
+
+  table .ag-cell-border-right::before {
+    border-right-color: var(--themeColor);
+  }
+
+  table .ag-cell-border-bottom::before {
+    border-bottom-color: var(--themeColor);
+  }
+
+  table .ag-cell-border-left::before {
+    border-left-color: var(--themeColor);
   }
 
   span code,
@@ -512,13 +640,13 @@ kbd {
     border-left-color: transparent;
     border-right-color: transparent;
   }
-
 } /* end not print */
 
 @media print {
   html {
     font-size: 13px;
   }
+  blockquote,
   table,
   pre {
     page-break-inside: avoid;

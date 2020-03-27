@@ -72,6 +72,13 @@ export const getAttributes = html => {
   const target = doc.querySelector('body').firstElementChild
   if (!target) return null
   const attrs = {}
+  if (target.tagName === 'IMG') {
+    Object.assign(attrs, {
+      title: '',
+      src: '',
+      alt: ''
+    })
+  }
   for (const attr of target.getAttributeNames()) {
     if (!WHITELIST_ATTRIBUTES.includes(attr)) continue
     if (/width|height/.test(attr)) {
@@ -92,7 +99,7 @@ export const parseSrcAndTitle = (text = '') => {
       title: ''
     }
   }
-  const rawTitle = parts.pop()
+  const rawTitle = text.replace(/^[^ ]+ +/, '')
   let src = ''
   const TITLE_REG = /^('|")(.*?)\1$/ // we only support use `'` and `"` to indicate a title now.
   let title = ''

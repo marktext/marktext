@@ -1,13 +1,14 @@
 import createDOMPurify from 'dompurify'
 import { CLASS_OR_ID, BLOCK_TYPE6 } from '../../../config'
 import { snakeToCamel } from '../../../utils'
+import sanitize from '../../../utils/dompurify'
 
 const { sanitize } = createDOMPurify(window)
 
 export default function htmlTag (h, cursor, block, token, outerClass) {
   const { tag, openTag, closeTag, children, attrs } = token
-  const className = children ? this.getClassName(outerClass, block, token, cursor) : CLASS_OR_ID['AG_GRAY']
-  const tagClassName = className === CLASS_OR_ID['AG_HIDE'] ? className : CLASS_OR_ID['AG_HTML_TAG']
+  const className = children ? this.getClassName(outerClass, block, token, cursor) : CLASS_OR_ID.AG_GRAY
+  const tagClassName = className === CLASS_OR_ID.AG_HIDE ? className : CLASS_OR_ID.AG_HTML_TAG
   const { start, end } = token.range
   const openContent = this.highlight(h, block, start, start + openTag.length, token)
   const closeContent = closeTag
@@ -20,17 +21,19 @@ export default function htmlTag (h, cursor, block, token, outerClass) {
       return Array.isArray(chunk) ? [...acc, ...chunk] : [...acc, chunk]
     }, [])
     : ''
+
   switch (tag) {
+    // Handle html img.
     case 'img': {
-      return this.htmlImage(h, cursor, block, token, outerClass)
+      return this.image(h, cursor, block, token, outerClass)
     }
     case 'br': {
-      return [h(`span.${CLASS_OR_ID['AG_HTML_TAG']}`, [...openContent, h(tag)])]
+      return [h(`span.${CLASS_OR_ID.AG_HTML_TAG}`, [...openContent, h(tag)])]
     }
     default:
       // handle void html tag
       if (!closeTag) {
-        return [h(`span.${CLASS_OR_ID['AG_HTML_TAG']}`, openContent)]
+        return [h(`span.${CLASS_OR_ID.AG_HTML_TAG}`, openContent)]
       } else if (tag === 'ruby') {
         return this.htmlRuby(h, cursor, block, token, outerClass)
       } else {
@@ -39,11 +42,25 @@ export default function htmlTag (h, cursor, block, token, outerClass) {
         // we also recommand user not use block level element in paragraph. use block element in html block.
         // Use code !sanitize(`<${tag}>`) to filter some malicious tags. for example: <embed>.
         let selector = BLOCK_TYPE6.includes(tag) || !sanitize(`<${tag}>`) ? 'span' : tag
+<<<<<<< HEAD
+        selector += `.${CLASS_OR_ID.AG_INLINE_RULE}.${CLASS_OR_ID.AG_RAW_HTML}`
+=======
         selector += `.${CLASS_OR_ID.AG_INLINE_RULE}`
+>>>>>>> master
         const data = {
           attrs: {},
-          dataset: {}
+          dataset: {
+            start,
+            end,
+            raw: token.raw
+          }
         }
+
+        // Disable spell checking for these tags
+        if (tag === 'code' || tag === 'kbd') {
+          Object.assign(data.attrs, { spellcheck: 'false' })
+        }
+
         if (attrs.id) {
           selector += `#${attrs.id}`
         }
@@ -61,9 +78,17 @@ export default function htmlTag (h, cursor, block, token, outerClass) {
         }
 
         return [
-          h(`span.${tagClassName}.${CLASS_OR_ID['AG_OUTPUT_REMOVE']}`, openContent),
+          h(`span.${tagClassName}.${CLASS_OR_ID.AG_OUTPUT_REMOVE}`, {
+            attrs: {
+              spellcheck: 'false'
+            }
+          }, openContent),
           h(`${selector}`, data, anchor),
-          h(`span.${tagClassName}.${CLASS_OR_ID['AG_OUTPUT_REMOVE']}`, closeContent)
+          h(`span.${tagClassName}.${CLASS_OR_ID.AG_OUTPUT_REMOVE}`, {
+            attrs: {
+              spellcheck: 'false'
+            }
+          }, closeContent)
         ]
       }
   }

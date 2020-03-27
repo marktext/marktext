@@ -40,10 +40,40 @@
       :options="listIndentationOptions"
       :onChange="value => onSelectChange('listIndentation', value)"
     ></cus-select>
+    <separator></separator>
+    <h5>Markdown extension syntax</h5>
+    <cus-select
+      description="The frontmatter type"
+      :value="frontmatterType"
+      :options="frontmatterTypeOptions"
+      :onChange="value => onSelectChange('frontmatterType', value)"
+    ></cus-select>
+    <bool
+      description="Enable pandoc's markdown extension superscript and subscript."
+      :bool="superSubScript"
+      :onChange="value => onSelectChange('superSubScript', value)"
+      more="https://pandoc.org/MANUAL.html#superscripts-and-subscripts"
+    ></bool>
+    <bool
+      description="Enable pandoc's markdown extension footnote(need restart Mark Text)."
+      :bool="footnote"
+      :onChange="value => onSelectChange('footnote', value)"
+      more="https://pandoc.org/MANUAL.html#footnotes"
+    ></bool>
+    <separator></separator>
+    <h5>Diagram theme</h5>
+    <cus-select
+      description="Sequence diagram theme"
+      :value="sequenceTheme"
+      :options="sequenceThemeOptions"
+      :onChange="value => onSelectChange('sequenceTheme', value)"
+      more="https://bramp.github.io/js-sequence-diagrams/"
+    ></cus-select>
   </div>
 </template>
 
 <script>
+import Separator from '../common/separator'
 import { mapState } from 'vuex'
 import Bool from '../common/bool'
 import CusSelect from '../common/select'
@@ -52,11 +82,14 @@ import {
   orderListDelimiterOptions,
   preferHeadingStyleOptions,
   tabSizeOptions,
-  listIndentationOptions
+  listIndentationOptions,
+  frontmatterTypeOptions,
+  sequenceThemeOptions
 } from './config'
 
 export default {
   components: {
+    Separator,
     Bool,
     CusSelect
   },
@@ -66,6 +99,8 @@ export default {
     this.preferHeadingStyleOptions = preferHeadingStyleOptions
     this.tabSizeOptions = tabSizeOptions
     this.listIndentationOptions = listIndentationOptions
+    this.frontmatterTypeOptions = frontmatterTypeOptions
+    this.sequenceThemeOptions = sequenceThemeOptions
     return {}
   },
   computed: {
@@ -75,7 +110,11 @@ export default {
       orderListDelimiter: state => state.preferences.orderListDelimiter,
       preferHeadingStyle: state => state.preferences.preferHeadingStyle,
       tabSize: state => state.preferences.tabSize,
-      listIndentation: state => state.preferences.listIndentation
+      listIndentation: state => state.preferences.listIndentation,
+      frontmatterType: state => state.preferences.frontmatterType,
+      superSubScript: state => state.preferences.superSubScript,
+      footnote: state => state.preferences.footnote,
+      sequenceTheme: state => state.preferences.sequenceTheme
     })
   },
   methods: {
@@ -91,7 +130,10 @@ export default {
     & h4 {
       text-transform: uppercase;
       margin: 0;
-      font-weight: 100;
+      font-weight: 400;
+    }
+    & h5 {
+      font-weight: 400;
     }
   }
 </style>

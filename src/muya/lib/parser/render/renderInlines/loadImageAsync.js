@@ -2,19 +2,28 @@ import { getUniqueId, loadImage } from '../../../utils'
 import { insertAfter, operateClassName } from '../../../utils/domManipulate'
 import { CLASS_OR_ID } from '../../../config'
 
-export default function loadImageAsync (imageInfo, alt, className, imageClass) {
+export default function loadImageAsync (imageInfo, attrs, className, imageClass) {
   const { src, isUnknownType } = imageInfo
   let id
   let isSuccess
+  let w
+  let h
 
   if (!this.loadImageMap.has(src)) {
     id = getUniqueId()
     loadImage(src, isUnknownType)
-      .then(url => {
+      .then(({ url, width, height }) => {
         const imageText = document.querySelector(`#${id}`)
         const img = document.createElement('img')
         img.src = url
-        if (alt) img.alt = alt.replace(/[`*{}[\]()#+\-.!_>~:|<>$]/g, '')
+        if (attrs.alt) img.alt = attrs.alt.replace(/[`*{}[\]()#+\-.!_>~:|<>$]/g, '')
+        if (attrs.title) img.setAttribute('title', attrs.title)
+        if (attrs.width && typeof attrs.width === 'number') {
+          img.setAttribute('width', attrs.width)
+        }
+        if (attrs.height && typeof attrs.height === 'number') {
+          img.setAttribute('height', attrs.height)
+        }
         if (imageClass) {
           img.classList.add(imageClass)
         }
@@ -39,14 +48,16 @@ export default function loadImageAsync (imageInfo, alt, className, imageClass) {
         }
         this.loadImageMap.set(src, {
           id,
-          isSuccess: true
+          isSuccess: true,
+          width,
+          height
         })
       })
       .catch(() => {
         const imageText = document.querySelector(`#${id}`)
         if (imageText) {
-          operateClassName(imageText, 'remove', CLASS_OR_ID['AG_IMAGE_LOADING'])
-          operateClassName(imageText, 'add', CLASS_OR_ID['AG_IMAGE_FAIL'])
+          operateClassName(imageText, 'remove', CLASS_OR_ID.AG_IMAGE_LOADING)
+          operateClassName(imageText, 'add', CLASS_OR_ID.AG_IMAGE_FAIL)
           const image = imageText.querySelector('img')
           if (image) {
             image.remove()
@@ -64,7 +75,9 @@ export default function loadImageAsync (imageInfo, alt, className, imageClass) {
     const imageInfo = this.loadImageMap.get(src)
     id = imageInfo.id
     isSuccess = imageInfo.isSuccess
+    w = imageInfo.width
+    h = imageInfo.height
   }
 
-  return { id, isSuccess }
+  return { id, isSuccess, width: w, height: h }
 }

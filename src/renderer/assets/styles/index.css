@@ -32,6 +32,7 @@
   --iconColor: #6B737B;
   --codeBgColor: #d8d8d869;
   --codeBlockBgColor: rgba(0, 0, 0, 0.03);
+  --footnoteBgColor: rgba(0, 0, 0, .03);
   --inputBgColor: rgba(0, 0, 0, .06);
   --focusColor: var(--themeColor);
 
@@ -150,26 +151,14 @@ body {
 .el-tooltip__popper[x-placement^=left] .popper__arrow {
   border-bottom-color: var(--floatBorderColor);
 }
-.el-tooltip__popper[x-placement^=left] .popper__arrow::after {
-  border-left-color: var(--floatBgColor);
-}
 .el-tooltip__popper[x-placement^=top] .popper__arrow {
   border-bottom-color: var(--floatBorderColor);
-}
-.el-tooltip__popper[x-placement^=top] .popper__arrow::after {
-  border-top-color: var(--floatBgColor);
 }
 .el-tooltip__popper[x-placement^=right] .popper__arrow {
   border-bottom-color: var(--floatBorderColor);
 }
-.el-tooltip__popper[x-placement^=right] .popper__arrow::after {
-  border-right-color: var(--floatBgColor);
-}
 .el-tooltip__popper[x-placement^=bottom] .popper__arrow {
   border-bottom-color: var(--floatBorderColor);
-}
-.el-tooltip__popper[x-placement^=bottom] .popper__arrow::after {
-  border-bottom-color: var(--floatBgColor);
 }
 
 .el-button:hover,
@@ -203,11 +192,24 @@ body {
 .el-dialog__header {
   position: relative;
   display: block;
-  padding: 8px 6px !important;
+  padding: 8px 6px;
 }
 
 input.el-input__inner {
   background: var(--inputBgColor);
+  border: 1px solid var(--editorColor10);
+  color: var(--editorColor80);
+}
+
+.el-input-number.is-controls-right span.el-input-number__decrease,
+.el-input-number.is-controls-right span.el-input-number__increase {
+  background: var(--buttonBgColor);
+  border-left: none;
+  color: var(--editorColor80);
+}
+
+.el-input-number.is-controls-right span.el-input-number__increase {
+  border-bottom: none;
 }
 
 .el-tabs__nav-wrap::after {
@@ -383,4 +385,8 @@ button.button-primary:not(.custom):focus,
   background: var(--buttonPrimaryBgColor);
   border: var(--buttonPrimaryBorder);
   box-shadow: none;
+}
+
+.image-viewer {
+  z-index: 10001;
 }

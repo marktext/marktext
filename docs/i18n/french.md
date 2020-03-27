@@ -37,7 +37,7 @@
   </a>
   <!-- Downloads latest release -->
   <a href="https://marktext.github.io/website">
-    <img src="https://img.shields.io/github/downloads/marktext/marktext/v0.15.1/total.svg" alt="latest download">
+    <img src="https://img.shields.io/github/downloads/marktext/marktext/v0.16.0/total.svg" alt="latest download">
   </a>
   <!-- deps -->
   <a href="https://marktext.github.io/website">
@@ -59,7 +59,7 @@
       Fonctionnalités
     </a>
     <span> | </span>
-    <a href="https://github.com/marktext/marktext#download-and-install">
+    <a href="https://github.com/marktext/marktext#download-and-installation">
       Téléchargement
     </a>
     <span> | </span>
@@ -119,7 +119,7 @@
 
 | ![]( https://github.com/ryanoasis/nerd-fonts/wiki/screenshots/v1.0.x/mac-pass-sm.png)                                                                                                             | ![]( https://github.com/ryanoasis/nerd-fonts/wiki/screenshots/v1.0.x/windows-pass-sm.png)                                                                                                                     | ![]( https://github.com/ryanoasis/nerd-fonts/wiki/screenshots/v1.0.x/linux-pass-sm.png)                                                                                                                                   |
 |:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
-| [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-0.15.1.dmg.svg)](https://github.com/marktext/marktext/releases/download/v0.15.1/marktext-0.15.1.dmg) | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-setup-0.15.1.exe.svg)](https://github.com/marktext/marktext/releases/download/v0.15.1/marktext-setup-0.15.1.exe) | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-0.15.1-x86_64.AppImage.svg)](https://github.com/marktext/marktext/releases/download/v0.15.1/marktext-0.15.1-x86_64.AppImage) |
+| [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-0.16.0.dmg.svg)](https://github.com/marktext/marktext/releases/download/v0.16.0/marktext-0.16.0.dmg) | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-setup-0.16.0.exe.svg)](https://github.com/marktext/marktext/releases/download/v0.16.0/marktext-setup-0.16.0.exe) | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-0.16.0-x86_64.AppImage.svg)](https://github.com/marktext/marktext/releases/download/v0.16.0/marktext-0.16.0-x86_64.AppImage) |
 
 Vous ne trouvez pas votre système? Aller sur la [page des releases](https://github.com/marktext/marktext/releases). Toujours pas? Ouvrez une [issue](https://github.com/marktext/marktext/issues).
 
@@ -143,13 +143,13 @@ Veuillez suivre [les instructions d'installations Linux](../../docs/LINUX.md).
 
 ## Development
 
-Si vous souhaiter participer à l'amélioration de **Mark Text**, référer vous au [instructions de dévelopement](../../.github/CONTRIBUTING.md#build-instructions).
+Si vous souhaiter participer à l'amélioration de **Mark Text**, référer vous au [instructions de dévelopement](../../CONTRIBUTING.md#build-instructions).
 
 Si vous avez des questions pendant votre utilisation, vous êtes les bienvenues pour ouvrir une issue, mais j'espère que vous suivrez le format requis. Bien sûr, si vous soumettez une PR directement, cela sera apprécié.
 
 ## Contribution
 
-**Mark Text** est en plein déveloment, prenez soin d'étudier le [guide de contribution](../../.github/CONTRIBUTING.md) avant de faire une pull request. Vous souhaitez plus de fonctionnalités à Mark Text? Rendez-vous sur la [TODO LIST](../../.github/TODOLIST.md) pour ouvrir des issues.
+**Mark Text** est en plein déveloment, prenez soin d'étudier le [guide de contribution](../../CONTRIBUTING.md) avant de faire une pull request. Vous souhaitez plus de fonctionnalités à Mark Text? Rendez-vous sur la [TODO LIST](../../.github/TODOLIST.md) pour ouvrir des issues.
 
 ## Backers
 

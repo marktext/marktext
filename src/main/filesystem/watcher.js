@@ -6,7 +6,7 @@ import { exists } from 'common/filesystem'
 import { hasMarkdownExtension } from 'common/filesystem/paths'
 import { getUniqueId } from '../utils'
 import { loadMarkdownFile } from '../filesystem/markdown'
-import { isLinux } from '../config'
+import { isLinux, isOsx } from '../config'
 
 // TODO(refactor): Please see GH#1035.
 
@@ -14,11 +14,11 @@ export const WATCHER_STABILITY_THRESHOLD = 1000
 export const WATCHER_STABILITY_POLL_INTERVAL = 150
 
 const EVENT_NAME = {
-  dir: 'AGANI::update-object-tree',
-  file: 'AGANI::update-file'
+  dir: 'mt::update-object-tree',
+  file: 'mt::update-file'
 }
 
-const add = async (win, pathname, type, endOfLine) => {
+const add = async (win, pathname, type, endOfLine, autoGuessEncoding, trimTrailingNewline) => {
   const stats = await fs.stat(pathname)
   const birthTime = stats.birthtime
   const isMarkdown = hasMarkdownExtension(pathname)
@@ -33,12 +33,17 @@ const add = async (win, pathname, type, endOfLine) => {
   if (isMarkdown) {
     // HACK: But this should be removed completely in #1034/#1035.
     try {
-      const data = await loadMarkdownFile(pathname, endOfLine)
+      const data = await loadMarkdownFile(
+        pathname,
+        endOfLine,
+        autoGuessEncoding,
+        trimTrailingNewline
+      )
       file.data = data
     } catch (err) {
       // Only notify user about opened files.
       if (type === 'file') {
-        win.webContents.send('AGANI::show-notification', {
+        win.webContents.send('mt::show-notification', {
           title: 'Watcher I/O error',
           type: 'error',
           message: err.message
@@ -46,12 +51,11 @@ const add = async (win, pathname, type, endOfLine) => {
         return
       }
     }
+    win.webContents.send(EVENT_NAME[type], {
+      type: 'add',
+      change: file
+    })
   }
-
-  win.webContents.send(EVENT_NAME[type], {
-    type: 'add',
-    change: file
-  })
 }
 
 const unlink = (win, pathname, type) => {
@@ -62,7 +66,7 @@ const unlink = (win, pathname, type) => {
   })
 }
 
-const change = async (win, pathname, type, endOfLine) => {
+const change = async (win, pathname, type, endOfLine, autoGuessEncoding, trimTrailingNewline) => {
   // No need to update the tree view if the file content has changed.
   if (type === 'dir') return
 
@@ -71,19 +75,24 @@ const change = async (win, pathname, type, endOfLine) => {
     // HACK: Markdown data should be removed completely in #1034/#1035 and
     // should be only loaded after user interaction.
     try {
-      const data = await loadMarkdownFile(pathname, endOfLine)
+      const data = await loadMarkdownFile(
+        pathname,
+        endOfLine,
+        autoGuessEncoding,
+        trimTrailingNewline
+      )
       const file = {
         pathname,
         data
       }
-      win.webContents.send('AGANI::update-file', {
+      win.webContents.send('mt::update-file', {
         type: 'change',
         change: file
       })
     } catch (err) {
       // Only notify user about opened files.
       if (type === 'file') {
-        win.webContents.send('AGANI::show-notification', {
+        win.webContents.send('mt::show-notification', {
           title: 'Watcher I/O error',
           type: 'error',
           message: err.message
@@ -107,7 +116,7 @@ const addDir = (win, pathname, type) => {
     files: []
   }
 
-  win.webContents.send('AGANI::update-object-tree', {
+  win.webContents.send('mt::update-object-tree', {
     type: 'addDir',
     change: directory
   })
@@ -117,7 +126,7 @@ const unlinkDir = (win, pathname, type) => {
   if (type === 'file') return
 
   const directory = { pathname }
-  win.webContents.send('AGANI::update-object-tree', {
+  win.webContents.send('mt::update-object-tree', {
     type: 'unlinkDir',
     change: directory
   })
@@ -135,7 +144,8 @@ class Watcher {
 
   // Watch a file or directory and return a unwatch function.
   watch (win, watchPath, type = 'dir'/* file or dir */) {
-    const usePolling = this._preferences.getItem('watcherUsePolling')
+    // TODO: Is it needed to set `watcherUsePolling` ? because macOS need to set to true.
+    const usePolling = isOsx ? true : this._preferences.getItem('watcherUsePolling')
 
     const id = getUniqueId()
     const watcher = chokidar.watch(watchPath, {
@@ -143,10 +153,10 @@ class Watcher {
         // This function is called twice, once with a single argument (the path),
         // second time with two arguments (the path and the "fs.Stats" object of that path).
         if (!fileInfo) {
-          return /(^|[/\\])(\..|node_modules)/.test(pathname)
+          return /(?:^|[/\\])(?:\..|node_modules|(?:.+\.asar))/.test(pathname)
         }
 
-        if (/(^|[/\\])(\..|node_modules)/.test(pathname)) {
+        if (/(?:^|[/\\])(?:\..|node_modules|(?:.+\.asar))/.test(pathname)) {
           return true
         }
         if (fileInfo.isDirectory()) {
@@ -159,7 +169,8 @@ class Watcher {
       ignorePermissionErrors: true,
 
       // Just to be sure when a file is replaced with a directory don't watch recursively.
-      depth: type === 'file' ? 0 : undefined,
+      depth: type === 'file'
+        ? (isOsx ? 1 : 0) : undefined,
 
       // Please see GH#1043
       awaitWriteFinish: {
@@ -178,12 +189,18 @@ class Watcher {
     watcher
       .on('add', pathname => {
         if (!this._shouldIgnoreEvent(win.id, pathname, type)) {
-          add(win, pathname, type, this._preferences.getPreferedEOL())
+          const { _preferences } = this
+          const eol = _preferences.getPreferedEol()
+          const { autoGuessEncoding, trimTrailingNewline } = _preferences.getAll()
+          add(win, pathname, type, eol, autoGuessEncoding, trimTrailingNewline)
         }
       })
       .on('change', pathname => {
         if (!this._shouldIgnoreEvent(win.id, pathname, type)) {
-          change(win, pathname, type, this._preferences.getPreferedEOL())
+          const { _preferences } = this
+          const eol = _preferences.getPreferedEol()
+          const { autoGuessEncoding, trimTrailingNewline } = _preferences.getAll()
+          change(win, pathname, type, eol, autoGuessEncoding, trimTrailingNewline)
         }
       })
       .on('unlink', pathname => unlink(win, pathname, type))
@@ -203,7 +220,9 @@ class Watcher {
           }
           renameTimer = setTimeout(async () => {
             renameTimer = null
-            if (disposed) return
+            if (disposed) {
+              return
+            }
 
             const fileExists = await exists(watchPath)
             if (fileExists) {
@@ -221,14 +240,14 @@ class Watcher {
             enospcReached = true
             log.warn('inotify limit reached: Too many file descriptors are opened.')
 
-            win.webContents.send('AGANI::show-notification', {
+            win.webContents.send('mt::show-notification', {
               title: 'inotify limit reached',
               type: 'warning',
               message: 'Cannot watch all files and file changes because too many file descriptors are opened.'
             })
           }
         } else {
-          log.error(error)
+          log.error('Error while watching files:', error)
         }
       })
 

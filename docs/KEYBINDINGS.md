@@ -6,8 +6,8 @@ Here is an example:
 
 ```json
 {
-  "fileSave": "CmdOrCtrl+Shift+S",
-  "fileSaveAs": "CmdOrCtrl+S"
+  "file.save": "CmdOrCtrl+Shift+S",
+  "file.save-as": "CmdOrCtrl+S"
 }
 ```
 
@@ -32,103 +32,118 @@ Here is an example:
 
 **Mark Text menu (macOS only):**
 
-| Id                | Description                             |
-| ----------------- | --------------------------------------- |
-| `mtHide`          | Hide Mark Text                          |
-| `mtHideOthers`    | Hide all other windows except Mark Text |
-| `filePreferences` | Open settings window                    |
-| `fileQuit`        | Quit Mark Text                          |
+| Id                 | Default                                        | Description                             |
+| ------------------ | ---------------------------------------------- | --------------------------------------- |
+| `mt.hide`          | <kbd>Command</kbd>+<kbd>H</kbd>                | Hide Mark Text                          |
+| `mt.hide-others`   | <kbd>Command</kbd>+<kbd>Alt</kbd>+<kbd>H</kbd> | Hide all other windows except Mark Text |
+| `file.preferences` | <kbd>Command</kbd>+<kbd>,</kbd>                | Open settings window                    |
+| `file.quit`        | <kbd>Command</kbd>+<kbd>Q</kbd>                | Quit Mark Text                          |
 
 **File menu:**
 
-| Id                | Description                               |
-|:----------------- | ----------------------------------------- |
-| `fileNewFile`     | New file                                  |
-| `fileNewTab`      | New tab                                   |
-| `fileOpenFile`    | Open markdown file                        |
-| `fileOpenFolder`  | Open folder                               |
-| `fileSave`        | Save                                      |
-| `fileSaveAs`      | Save as...                                |
-| `filePreferences` | Open settings window (Linux/Windows only) |
-| `fileCloseTab`    | Close tab                                 |
-| `fileCloseWindow` | Close window                              |
-| `fileQuit`        | Quit Mark Text (Linux/Windows only)       |
+| Id                  | Default                                            | Description                               |
+|:------------------- | -------------------------------------------------- | ----------------------------------------- |
+| `file.new-file`     | <kbd>CmdOrCtrl</kbd>+<kbd>N</kbd>                  | New file                                  |
+| `file.new-tab`      | <kbd>CmdOrCtrl</kbd>+<kbd>T</kbd>                  | New tab                                   |
+| `file.open-file`    | <kbd>CmdOrCtrl</kbd>+<kbd>O</kbd>                  | Open markdown file                        |
+| `file.open-folder`  | <kbd>CmdOrCtrl</kbd>+<kbd>Shift</kbd>+<kbd>O</kbd> | Open folder                               |
+| `file.save`         | <kbd>CmdOrCtrl</kbd>+<kbd>S</kbd>                  | Save                                      |
+| `file.save-as`      | <kbd>CmdOrCtrl</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd> | Save as...                                |
+| `file.print`        | -                                                  | Print current tab                         |
+| `file.preferences`  | <kbd>Ctrl</kbd>+<kbd>,</kbd>                       | Open settings window (Linux/Windows only) |
+| `file.close-tab`    | <kbd>CmdOrCtrl</kbd>+<kbd>W</kbd>                  | Close tab                                 |
+| `file.close-window` | <kbd>CmdOrCtrl</kbd>+<kbd>Shift</kbd>+<kbd>W</kbd> | Close window                              |
+| `file.quit`         | <kbd>CmdOrCtrl</kbd>+<kbd>Q</kbd>                  | Quit Mark Text (Linux/Windows only)       |
 
 **Edit menu:**
 
-| Id                    | Description                                     |
-|:--------------------- | ----------------------------------------------- |
-| `editUndo`            | Undo last operation                             |
-| `editRedo`            | Redo last operation                             |
-| `editCut`             | Cut selected text                               |
-| `editCopy`            | Copy selected text                              |
-| `editPaste`           | Paste text                                      |
-| `editCopyAsMarkdown`  | Copy selected text as markdown                  |
-| `editCopyAsPlaintext` | Copy selected text as plaintext                 |
-| `editSelectAll`       | Select all text of the document                 |
-| `editDuplicate`       | Duplicate the current paragraph                 |
-| `editCreateParagraph` | Create a new paragraph after the current one    |
-| `editDeleteParagraph` | Delete current paragraph                        |
-| `editFind`            | Find information in the document                |
-| `editFindNext`        | Continue the search and find the next match     |
-| `editFindPrevious`    | Continue the search and find the previous match |
-| `editReplace`         | Replace the information with a replacement      |
-| `editAidou`           | Show Aidou dialog                               |
-| `editScreenshot`      | Get the screenshot                              |
+| Id                       | Default                                            | Description                                                                                                |
+|:------------------------ | -------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| `edit.undo`              | <kbd>CmdOrCtrl</kbd>+<kbd>Z</kbd>                  | Undo last operation                                                                                        |
+| `edit.redo`              | <kbd>CmdOrCtrl</kbd>+<kbd>Shift</kbd>+<kbd>Z</kbd> | Redo last operation                                                                                        |
+| `edit.cut`               | <kbd>CmdOrCtrl</kbd>+<kbd>X</kbd>                  | Cut selected text                                                                                          |
+| `edit.copy`              | <kbd>CmdOrCtrl</kbd>+<kbd>C</kbd>                  | Copy selected text                                                                                         |
+| `edit.paste`             | <kbd>CmdOrCtrl</kbd>+<kbd>V</kbd>                  | Paste text                                                                                                 |
+| `edit.copy-as-markdown`  | <kbd>CmdOrCtrl</kbd>+<kbd>Shift</kbd>+<kbd>C</kbd> | Copy selected text as markdown                                                                             |
+| `edit.copy-as-plaintext` | <kbd>CmdOrCtrl</kbd>+<kbd>Shift</kbd>+<kbd>V</kbd> | Copy selected text as plaintext                                                                            |
+| `edit.select-all`        | <kbd>CmdOrCtrl</kbd>+<kbd>A</kbd>                  | Select all text of the document                                                                            |
+| `edit.duplicate`         | <kbd>CmdOrCtrl</kbd>+<kbd>Alt</kbd>+<kbd>P</kbd>   | Duplicate the current paragraph                                                                            |
+| `edit.create-paragraph`  | <kbd>CmdOrCtrl</kbd>+<kbd>Shift</kbd>+<kbd>N</kbd> | Create a new paragraph after the current one                                                               |
+| `edit.delete-paragraph`  | <kbd>CmdOrCtrl</kbd>+<kbd>Shift</kbd>+<kbd>D</kbd> | Delete current paragraph                                                                                   |
+| `edit.find`              | <kbd>CmdOrCtrl</kbd>+<kbd>F</kbd>                  | Find information in the document                                                                           |
+| `edit.find-next`         | <kbd>F3</kbd>                                      | Continue the search and find the next match (or <kbd>Cmd</kbd>+<kbd>G</kbd> on macOS)                      |
+| `edit.find-previous`     | <kbd>Shift</kbd>+<kbd>F3</kbd>                     | Continue the search and find the previous match (or <kbd>Shift</kbd>+<kbd>Cmd</kbd>+<kbd>G</kbd> on macOS) |
+| `edit.replace`           | <kbd>CmdOrCtrl</kbd>+<kbd>Alt</kbd>+<kbd>F</kbd>   | Replace the information with a replacement                                                                 |
+| `edit.find-in-folder`    | <kbd>CmdOrCtrl</kbd>+<kbd>Shift</kbd>+<kbd>F</kbd> | Find files contain the keyword in opend folder                                                             |
+| `edit.aidou`             | <kbd>CmdOrCtrl</kbd>+<kbd>/</kbd>                  | Show Aidou dialog                                                                                          |
+| `edit.screenshot`        | <kbd>Command</kbd>+<kbd>Alt</kbd>+<kbd>A</kbd>     | Get the screenshot (macOS only)                                                                            |
 
 **Paragraph menu:**
 
-| Id                         | Description                              |
-| -------------------------- | ---------------------------------------- |
-| `paragraphHeading1`        | Set line as heading 1                    |
-| `paragraphHeading2`        | Set line as heading 2                    |
-| `paragraphHeading3`        | Set line as heading 3                    |
-| `paragraphHeading4`        | Set line as heading 4                    |
-| `paragraphHeading5`        | Set line as heading 5                    |
-| `paragraphHeading6`        | Set line as heading 6                    |
-| `paragraphUpgradeHeading`  | Upgrade a heading                        |
-| `paragraphDegradeHeading`  | Degrade a heading                        |
-| `paragraphTable`           | Insert a table                           |
-| `paragraphCodeFence`       | Insert a code block                      |
-| `paragraphQuoteBlock`      | Insert a quote block                     |
-| `paragraphMathBlock`       | Insert a math block                      |
-| `paragraphHtmlBlock`       | Insert a HTML block                      |
-| `paragraphOrderList`       | Insert a ordered list                    |
-| `paragraphBulletList`      | Insert a unordered list                  |
-| `paragraphTaskList`        | Insert a task list                       |
-| `paragraphLooseListItem`   | Convert a list item to a loose list item |
-| `paragraphParagraph`       | Convert a heading to a paragraph         |
-| `paragraphHorizontalLine`  | Add a horizontal line                    |
-| `paragraphYAMLFrontMatter` | Insert a YAML frontmatter block          |
+| Id                          | Default                                            | Description                                       |
+| --------------------------- | -------------------------------------------------- | ------------------------------------------------- |
+| `paragraph.heading-1`       | <kbd>CmdOrCtrl</kbd>+<kbd>1</kbd>                  | Set line as heading 1                             |
+| `paragraph.heading-2`       | <kbd>CmdOrCtrl</kbd>+<kbd>2</kbd>                  | Set line as heading 2                             |
+| `paragraph.heading-3`       | <kbd>CmdOrCtrl</kbd>+<kbd>3</kbd>                  | Set line as heading 3                             |
+| `paragraph.heading-4`       | <kbd>CmdOrCtrl</kbd>+<kbd>4</kbd>                  | Set line as heading 4                             |
+| `paragraph.heading-5`       | <kbd>CmdOrCtrl</kbd>+<kbd>5</kbd>                  | Set line as heading 5                             |
+| `paragraph.heading-6`       | <kbd>CmdOrCtrl</kbd>+<kbd>6</kbd>                  | Set line as heading 6                             |
+| `paragraph.upgrade-heading` | <kbd>CmdOrCtrl</kbd>+<kbd>=</kbd>                  | Upgrade a heading                                 |
+| `paragraph.degrade-heading` | <kbd>CmdOrCtrl</kbd>+<kbd>-</kbd>                  | Degrade a heading                                 |
+| `paragraph.table`           | <kbd>CmdOrCtrl</kbd>+<kbd>Shift</kbd>+<kbd>T</kbd> | Insert a table                                    |
+| `paragraph.code-fence`      | <kbd>CmdOrCtrl</kbd>+<kbd>Alt</kbd>+<kbd>C</kbd>   | Insert a code block                               |
+| `paragraph.quote-block`     | <kbd>CmdOrCtrl</kbd>+<kbd>Alt</kbd>+<kbd>Q</kbd>   | Insert a quote block                              |
+| `paragraph.math-formula`    | <kbd>CmdOrCtrl</kbd>+<kbd>Alt</kbd>+<kbd>M</kbd>   | Insert a math block                               |
+| `paragraph.html-block`      | <kbd>CmdOrCtrl</kbd>+<kbd>Alt</kbd>+<kbd>J/H</kbd> | Insert a HTML block (`J` on macOS, `H` otherwise) |
+| `paragraph.order-list`      | <kbd>CmdOrCtrl</kbd>+<kbd>Alt</kbd>+<kbd>O</kbd>   | Insert a ordered list                             |
+| `paragraph.bullet-list`     | <kbd>CmdOrCtrl</kbd>+<kbd>Alt</kbd>+<kbd>U</kbd>   | Insert a unordered list                           |
+| `paragraph.task-list`       | <kbd>CmdOrCtrl</kbd>+<kbd>Alt</kbd>+<kbd>X</kbd>   | Insert a task list                                |
+| `paragraph.loose-list-item` | <kbd>CmdOrCtrl</kbd>+<kbd>Alt</kbd>+<kbd>L</kbd>   | Convert a list item to a loose list item          |
+| `paragraph.paragraph`       | <kbd>CmdOrCtrl</kbd>+<kbd>0</kbd>                  | Convert a heading to a paragraph                  |
+| `paragraph.horizontal-line` | <kbd>CmdOrCtrl</kbd>+<kbd>Alt</kbd>+<kbd>-</kbd>   | Add a horizontal line                             |
+| `paragraph.front-matter`    | <kbd>CmdOrCtrl</kbd>+<kbd>Alt</kbd>+<kbd>Y</kbd>   | Insert a YAML frontmatter block                   |
 
 **Format menu:**
 
-| Id                  | Description                                 |
-| ------------------- | ------------------------------------------- |
-| `formatStrong`      | Set the font of the selected text to bold   |
-| `formatEmphasis`    | Set the font of the selected text to italic |
-| `formatUnderline`   | Change the selected text to underline       |
-| `formatInlineCode`  | Change the selected text to inline code     |
-| `formatStrike`      | Strike through the selected text            |
-| `formatHyperlink`   | Insert a hyperlink                          |
-| `formatImage`       | Insert a image                              |
-| `formatClearFormat` | Clear the formatting of the selected text   |
+| Id                    | Default                                            | Description                                 |
+| --------------------- | -------------------------------------------------- | ------------------------------------------- |
+| `format.strong`       | <kbd>CmdOrCtrl</kbd>+<kbd>B</kbd>                  | Set the font of the selected text to bold   |
+| `format.emphasis`     | <kbd>CmdOrCtrl</kbd>+<kbd>I</kbd>                  | Set the font of the selected text to italic |
+| `format.underline`    | <kbd>CmdOrCtrl</kbd>+<kbd>U</kbd>                  | Change the selected text to underline       |
+| `format.highlight`    | <kbd>CmdOrCtrl</kbd>+<kbd>Shift</kbd>+<kbd>H</kbd> | Highlight the selected text by <mark> tag   |
+| `format.inline-code`  | <kbd>CmdOrCtrl</kbd>+<kbd>`</kbd>                  | Change the selected text to inline code     |
+| `format.inline-math`  | <kbd>CmdOrCtrl</kbd>+<kbd>Shift</kbd>+<kbd>M</kbd> | Change the selected text to inline math     |
+| `format.strike`       | <kbd>CmdOrCtrl</kbd>+<kbd>D</kbd>                  | Strike through the selected text            |
+| `format.hyperlink`    | <kbd>CmdOrCtrl</kbd>+<kbd>L</kbd>                  | Insert a hyperlink                          |
+| `format.image`        | <kbd>CmdOrCtrl</kbd>+<kbd>Shift</kbd>+<kbd>I</kbd> | Insert a image                              |
+| `format.clear-format` | <kbd>CmdOrCtrl</kbd>+<kbd>Shift</kbd>+<kbd>R</kbd> | Clear the formatting of the selected text   |
 
 **Window menu:**
 
-| Id                       | Description            |
-| ------------------------ | ---------------------- |
-| `windowMinimize`         | Minimize the window    |
-| `windowToggleFullScreen` | Toggle fullscreen mode |
+| Id                          | Default                           | Description                                                                          |
+| --------------------------- | --------------------------------- | ------------------------------------------------------------------------------------ |
+| `window.minimize`           | <kbd>CmdOrCtrl</kbd>+<kbd>M</kbd> | Minimize the window                                                                  |
+| `window.toggle-full-screen` | <kbd>F11</kbd>                    | Toggle fullscreen mode (or <kbd>Ctrl</kbd>+<kbd>Command</kbd>+<kbd>F</kbd> on macOS) |
 
 **View menu:**
 
-| Id                            | Description                              |
-| ----------------------------- | ---------------------------------------- |
-| `viewSourceCodeMode`          | Switch to source code mode               |
-| `viewTypewriterMode`          | Enable typewriter mode                   |
-| `viewFocusMode`               | Enable focus mode                        |
-| `viewToggleSideBar`           | Toggle sidebar                           |
-| `viewToggleTabBar`            | Toggle tabbar                            |
-| `viewDevToggleDeveloperTools` | Toggle developer tools (debug mode only) |
-| `viewDevReload`               | Reload window (debug mode only)          |
+| Id                            | Default                                            | Description                              |
+| ----------------------- | -------------------------------------------------- | ---------------------------------------- |
+| `view.command-palette`  | <kbd>CmdOrCtrl</kbd>+<kbd>Shift</kbd>+<kbd>P</kbd> | Toggle command palette                   |
+| `view.source-code-mode` | <kbd>CmdOrCtrl</kbd>+<kbd>Alt</kbd>+<kbd>S</kbd>   | Switch to source code mode               |
+| `view.typewriter-mode`  | <kbd>CmdOrCtrl</kbd>+<kbd>Alt</kbd>+<kbd>T</kbd>   | Enable typewriter mode                   |
+| `view.focus-mode`       | <kbd>CmdOrCtrl</kbd>+<kbd>Shift</kbd>+<kbd>F</kbd> | Enable focus mode                        |
+| `view.toggle-sidebar`   | <kbd>CmdOrCtrl</kbd>+<kbd>J</kbd>                  | Toggle sidebar                           |
+| `view.toggle-tabbar`    | <kbd>CmdOrCtrl</kbd>+<kbd>Alt</kbd>+<kbd>B</kbd>   | Toggle tabbar                            |
+| `view.toggle-dev-tools` | <kbd>CmdOrCtrl</kbd>+<kbd>Alt</kbd>+<kbd>I</kbd>   | Toggle developer tools (debug mode only) |
+| `view.dev-reload`       | <kbd>CmdOrCtrl</kbd>+<kbd>R</kbd>                  | Reload window (debug mode only)          |
+
+**Misc**
+
+| Id                     | Default                                              | Description                  |
+| ---------------------- | ---------------------------------------------------- | ---------------------------- |
+| `tabs.cycle-forward`   | <kbd>CmdOrCtrl</kbd>+<kbd>Tab</kbd>                  | Cycle through tabs           |
+| `tabs.cycle-backward`  | <kbd>CmdOrCtrl</kbd>+<kbd>Shift</kbd>+<kbd>Tab</kbd> | Cycle backwards through tabs |
+| `tabs.switch-to-left`  | <kbd>CmdOrCtrl</kbd>+<kbd>PageUp</kbd>               | Switch tab to the left       |
+| `tabs.switch-to-right` | <kbd>CmdOrCtrl</kbd>+<kbd>PageDown</kbd>             | Switch tab to the right      |
+| `file.quick-open`      | <kbd>CmdOrCtrl</kbd>+<kbd>P</kbd>                    | Open quick open dialog       |

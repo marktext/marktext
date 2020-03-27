@@ -419,20 +419,27 @@ class Selection {
           offset
         }
       }
+
       const childNodes = node.childNodes
       const len = childNodes.length
       let i
       let count = 0
       for (i = 0; i < len; i++) {
         const child = childNodes[i]
-        const textLength = getTextContent(child, [CLASS_OR_ID['AG_MATH_RENDER'], CLASS_OR_ID['AG_RUBY_RENDER']]).length
-        if (child.classList && child.classList.contains(CLASS_OR_ID['AG_FRONT_ICON'])) continue
-        if (count + textLength >= offset) {
+        const textContent = getTextContent(child, [CLASS_OR_ID.AG_MATH_RENDER, CLASS_OR_ID.AG_RUBY_RENDER])
+        const textLength = textContent.length
+        if (child.classList && child.classList.contains(CLASS_OR_ID.AG_FRONT_ICON)) {
+          continue
+        }
+
+        // Fix #1460 - put the cursor at the next text node or element if it can be put at the last of /^\n$/ or the next text node/element.
+        if (/^\n$/.test(textContent) && i !== len - 1 ? count + textLength > offset : count + textLength >= offset) {
           if (
             child.classList && child.classList.contains('ag-inline-image')
           ) {
             const imageContainer = child.querySelector('.ag-image-container')
             const hasImg = imageContainer.querySelector('img')
+
             if (!hasImg) {
               return {
                 node: child,
@@ -448,13 +455,13 @@ class Selection {
               } else {
                 return {
                   node: imageContainer,
-                  offset: 3
+                  offset: 1
                 }
               }
             } else if (count === offset && count === 0) {
               return {
                 node: imageContainer,
-                offset: 2
+                offset: 0
               }
             } else {
               return {
@@ -474,6 +481,7 @@ class Selection {
 
     let { node: anchorNode, offset: anchorOffset } = getNodeAndOffset(anchorParagraph, anchor.offset)
     let { node: focusNode, offset: focusOffset } = getNodeAndOffset(focusParagraph, focus.offset)
+
     if (anchorNode.nodeType === 3 || anchorNode.nodeType === 1 && !anchorNode.classList.contains('ag-image-container')) {
       anchorOffset = Math.min(anchorOffset, anchorNode.textContent.length)
       focusOffset = Math.min(focusOffset, focusNode.textContent.length)
@@ -490,9 +498,8 @@ class Selection {
     if (node.nodeType === 3) {
       node = node.parentNode
     }
-    return node.closest('span.ag-paragraph') ||
-      node.closest('th.ag-paragraph') ||
-      node.closest('td.ag-paragraph')
+
+    return node.closest('span.ag-paragraph')
   }
 
   getCursorRange () {
@@ -532,8 +539,10 @@ class Selection {
 
     const anchorParagraph = findNearestParagraph(anchorNode)
     const focusParagraph = findNearestParagraph(focusNode)
+
     let aOffset = getOffsetOfParagraph(anchorNode, anchorParagraph) + anchorOffset
     let fOffset = getOffsetOfParagraph(focusNode, focusParagraph) + focusOffset
+
     // fix input after image.
     if (
       anchorNode === focusNode &&
@@ -547,9 +556,9 @@ class Selection {
       aOffset = 0
       if (preElement) {
         aOffset += getOffsetOfParagraph(preElement, anchorParagraph)
-        aOffset += getTextContent(preElement, [CLASS_OR_ID['AG_MATH_RENDER'], CLASS_OR_ID['AG_RUBY_RENDER']]).length
+        aOffset += getTextContent(preElement, [CLASS_OR_ID.AG_MATH_RENDER, CLASS_OR_ID.AG_RUBY_RENDER]).length
       }
-      aOffset += getTextContent(imageWrapper, [CLASS_OR_ID['AG_MATH_RENDER'], CLASS_OR_ID['AG_RUBY_RENDER']]).length
+      aOffset += getTextContent(imageWrapper, [CLASS_OR_ID.AG_MATH_RENDER, CLASS_OR_ID.AG_RUBY_RENDER]).length
       fOffset = aOffset
     }
 
@@ -563,15 +572,16 @@ class Selection {
       aOffset = 0
       if (preElement) {
         aOffset += getOffsetOfParagraph(preElement, anchorParagraph)
-        aOffset += getTextContent(preElement, [CLASS_OR_ID['AG_MATH_RENDER'], CLASS_OR_ID['AG_RUBY_RENDER']]).length
+        aOffset += getTextContent(preElement, [CLASS_OR_ID.AG_MATH_RENDER, CLASS_OR_ID.AG_RUBY_RENDER]).length
       }
-      if (anchorOffset === 3) {
-        aOffset += getTextContent(imageWrapper, [CLASS_OR_ID['AG_MATH_RENDER'], CLASS_OR_ID['AG_RUBY_RENDER']]).length
+      if (anchorOffset === 1) {
+        aOffset += getTextContent(imageWrapper, [CLASS_OR_ID.AG_MATH_RENDER, CLASS_OR_ID.AG_RUBY_RENDER]).length
       }
       fOffset = aOffset
     }
 
     const anchor = { key: anchorParagraph.id, offset: aOffset }
+
     const focus = { key: focusParagraph.id, offset: fOffset }
     const result = new Cursor({ anchor, focus })
 

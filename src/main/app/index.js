@@ -3,14 +3,15 @@ import fse from 'fs-extra'
 import { exec } from 'child_process'
 import dayjs from 'dayjs'
 import log from 'electron-log'
-import { app, BrowserWindow, clipboard, dialog, ipcMain, systemPreferences } from 'electron'
+import { app, BrowserWindow, clipboard, dialog, ipcMain, nativeTheme } from 'electron'
 import { isChildOfDirectory } from 'common/filesystem/paths'
-import { isLinux, isOsx } from '../config'
+import { isLinux, isOsx, isWindows } from '../config'
 import parseArgs from '../cli/parser'
+import { normalizeAndResolvePath } from '../filesystem'
 import { normalizeMarkdownPath } from '../filesystem/markdown'
-import { getMenuItemById } from '../menu'
 import { selectTheme } from '../menu/actions/theme'
 import { dockMenu } from '../menu/templates'
+import ensureDefaultDict from '../preferences/hunspell'
 import { watchers } from '../utils/imagePathAutoComplement'
 import { WindowType } from '../windows/base'
 import EditorWindow from '../windows/editor'
@@ -100,19 +101,23 @@ class App {
 
     // Prevent to load webview and opening links or new windows via HTML/JS.
     app.on('web-contents-created', (event, contents) => {
-      contents.on('will-attach-webview', (event, webPreferences, params) => {
-        console.warn('Prevented webview creation.')
+      contents.on('will-attach-webview', event => {
         event.preventDefault()
       })
       contents.on('will-navigate', event => {
-        console.warn('Prevented opening a link.')
         event.preventDefault()
       })
-      contents.on('new-window', (event, url) => {
-        console.warn('Prevented opening a new window.')
+      contents.on('new-window', event => {
         event.preventDefault()
       })
     })
+
+    // Copy default (en-US) Hunspell dictionary.
+    const { paths } = this._accessor
+    ensureDefaultDict(paths.userDataPath)
+      .catch(error => {
+        log.error('Error copying Hunspell dictionary: ', error)
+      })
   }
 
   async getScreenshotFileName () {
@@ -125,7 +130,7 @@ class App {
     const { _args: args, _openFilesCache } = this
     const { preferences } = this._accessor
 
-    if (!isOsx && args._.length) {
+    if (args._.length) {
       for (const pathname of args._) {
         // Ignore all unknown flags
         if (pathname.startsWith('--')) {
@@ -139,7 +144,13 @@ class App {
       }
     }
 
-    const { startUpAction, defaultDirectoryToOpen } = preferences.getAll()
+    const {
+      startUpAction,
+      defaultDirectoryToOpen,
+      autoSwitchTheme,
+      theme
+    } = preferences.getAll()
+
     if (startUpAction === 'folder' && defaultDirectoryToOpen) {
       const info = normalizeMarkdownPath(defaultDirectoryToOpen)
       if (info) {
@@ -147,35 +158,47 @@ class App {
       }
     }
 
-    if (process.platform === 'darwin') {
-      app.dock.setMenu(dockMenu)
+    // Set initial native theme for theme in preferences.
+    const isDarkTheme = /dark/i.test(theme)
+    if (autoSwitchTheme === 0 && isDarkTheme !== nativeTheme.shouldUseDarkColors) {
+      selectTheme(nativeTheme.shouldUseDarkColors ? 'dark' : 'light')
+      nativeTheme.themeSource = nativeTheme.shouldUseDarkColors ? 'dark' : 'light'
+    } else {
+      nativeTheme.themeSource = isDarkTheme ? 'dark' : 'light'
+    }
 
-      // Listen for system theme change and change Mark Text own `dark` and `light`.
-      // In macOS 10.14 Mojave, Apple introduced a new system-wide dark mode for
-      // all macOS computers.
-      systemPreferences.subscribeNotification(
-        'AppleInterfaceThemeChangedNotification',
-        () => {
-          const preferences = this._accessor.preferences
-          const { theme } = preferences.getAll()
-          let setedTheme = null
-          if (systemPreferences.isDarkMode() && theme !== 'dark') {
-            selectTheme('dark')
-            setedTheme = 'dark'
-          }
-          if (!systemPreferences.isDarkMode() && theme === 'dark') {
-            selectTheme('light')
-            setedTheme = 'light'
-          }
-          if (setedTheme) {
-            const themeMenu = getMenuItemById('themeMenu')
-            const menuItem = themeMenu.submenu.items.filter(item => (item.id === setedTheme))[0]
-            if (menuItem) {
-              menuItem.checked = true
-            }
-          }
+    let isDarkMode = nativeTheme.shouldUseDarkColors
+    ipcMain.on('broadcast-preferences-changed', change => {
+      // Set Chromium's color for native elements after theme change.
+      if (change.theme) {
+        const isDarkTheme = /dark/i.test(change.theme)
+        if (isDarkMode !== isDarkTheme) {
+          isDarkMode = isDarkTheme
+          nativeTheme.themeSource = isDarkTheme ? 'dark' : 'light'
+        } else if (nativeTheme.themeSource === 'system') {
+          // Need to set dark or light theme because we set `system` to get the current system theme.
+          nativeTheme.themeSource = isDarkMode ? 'dark' : 'light'
         }
-      )
+      }
+    })
+
+    if (isOsx) {
+      app.dock.setMenu(dockMenu)
+    } else if (isWindows) {
+      app.setJumpList([{
+        type: 'recent'
+      }, {
+        type: 'tasks',
+        items: [{
+          type: 'task',
+          title: 'New Window',
+          description: 'Opens a new window',
+          program: process.execPath,
+          args: '--new-window',
+          iconPath: process.execPath,
+          iconIndex: 0
+        }]
+      }])
     }
 
     if (_openFilesCache.length) {
@@ -388,6 +411,21 @@ class App {
     pathsToOpen.length = 0
   }
 
+  _openSettingsWindow () {
+    const settingWins = this._windowManager.getWindowsByType(WindowType.SETTINGS)
+    if (settingWins.length >= 1) {
+      // A setting window is already created
+      const browserSettingWindow = settingWins[0].win.browserWindow
+      if (isLinux) {
+        browserSettingWindow.focus()
+      } else {
+        browserSettingWindow.moveTop()
+      }
+      return
+    }
+    this._createSettingWindow()
+  }
+
   _listenForIpcMain () {
     ipcMain.on('app-create-editor-window', () => {
       this._createEditorWindow()
@@ -397,7 +435,7 @@ class App {
       if (isOsx) {
         // Use macOs `screencapture` command line when in macOs system.
         const screenshotFileName = await this.getScreenshotFileName()
-        exec(`screencapture -i -c`, async (err) => {
+        exec('screencapture -i -c', async (err) => {
           if (err) {
             log.error(err)
             return
@@ -422,18 +460,7 @@ class App {
     })
 
     ipcMain.on('app-create-settings-window', () => {
-      const settingWins = this._windowManager.getWindowsByType(WindowType.SETTING)
-      if (settingWins.length >= 1) {
-        // A setting window is already created
-        const browserSettingWindow = settingWins[0].win.browserWindow
-        if (isLinux) {
-          browserSettingWindow.focus()
-        } else {
-          browserSettingWindow.moveTop()
-        }
-        return
-      }
-      this._createSettingWindow()
+      this._openSettingsWindow()
     })
 
     ipcMain.on('app-open-file-by-id', (windowId, filePath) => {
@@ -488,23 +515,51 @@ class App {
 
     // --- renderer -------------------
 
-    ipcMain.on('mt::select-default-directory-to-open', e => {
+    ipcMain.on('mt::app-try-quit', () => {
+      app.quit()
+    })
+
+    ipcMain.on('mt::open-file-by-window-id', (e, windowId, filePath) => {
+      const resolvedPath = normalizeAndResolvePath(filePath)
+      const openFilesInNewWindow = this._accessor.preferences.getItem('openFilesInNewWindow')
+      if (openFilesInNewWindow) {
+        this._createEditorWindow(null, [resolvedPath])
+      } else {
+        const editor = this._windowManager.get(windowId)
+        if (editor) {
+          editor.openTab(resolvedPath, {}, true)
+        }
+      }
+    })
+
+    ipcMain.on('mt::select-default-directory-to-open', async e => {
       const { preferences } = this._accessor
       const { defaultDirectoryToOpen } = preferences.getAll()
       const win = BrowserWindow.fromWebContents(e.sender)
 
-      dialog.showOpenDialog(win, {
+      const { filePaths } = await dialog.showOpenDialog(win, {
         defaultPath: defaultDirectoryToOpen,
         properties: ['openDirectory', 'createDirectory']
-      }, paths => {
-        if (paths) {
-          preferences.setItems({ defaultDirectoryToOpen: paths[0] })
-        }
       })
+      if (filePaths) {
+        preferences.setItems({ defaultDirectoryToOpen: filePaths[0] })
+      }
     })
 
     ipcMain.on('mt::open-setting-window', () => {
-      ipcMain.emit('app-create-settings-window')
+      this._openSettingsWindow()
+    })
+
+    ipcMain.on('mt::make-screenshot', e => {
+      const win = BrowserWindow.fromWebContents(e.sender)
+      ipcMain.emit('screen-capture', win)
+    })
+
+    ipcMain.on('mt::request-keybindings', e => {
+      const win = BrowserWindow.fromWebContents(e.sender)
+      const { keybindings } = this._accessor
+      // Convert map to object
+      win.webContents.send('mt::keybindings-response', Object.fromEntries(keybindings.keys))
     })
   }
 }

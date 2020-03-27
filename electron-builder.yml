@@ -1,0 +1,153 @@
+productName: "Mark Text"
+appId: "com.github.marktext.marktext"
+
+asar: true
+asarUnpack:
+- "**/*.node"
+directories:
+  output: "build"
+files:
+- "dist/electron/**/*"
+# Don't bundle these files
+- "!**/node_modules/*/{CHANGELOG.md,README.md,README,readme.md,readme}"
+- "!node_modules/css-b64-images/{draft.png,draft.xcf}"
+- "!node_modules/dagre-d3-renderer/dist/{dagre-d3.js.map,demo/}"
+- "!node_modules/dagre-layout/dist/dagre-layout*.js.map"
+- "!node_modules/dragula/resources"
+- "!node_modules/mermaid/dist/mermaid*.js.map"
+- "!node_modules/terser/dist/bundle.min.js.map"
+- "!node_modules/vega-lite/build/vega-lite*.js.map"
+# Don't bundle build files
+- "!node_modules/@felixrieseberg/spellchecker/bin"
+- "!node_modules/@hfelix/spellchecker/bin"
+- "!node_modules/ced/bin"
+- "!node_modules/ced/vendor"
+- "!node_modules/cld/bin"
+- "!node_modules/cld/deps"
+- "!node_modules/fontmanager-redux/bin"
+- "!node_modules/keyboard-layout/bin"
+- "!node_modules/keytar/bin"
+- "!node_modules/vscode-windows-registry/bin"
+# Don't bundle Windows build files
+- "!node_modules/**/{*.vcxproj,*.vcxproj.filters}"
+- "!node_modules/**/build/Release/{*.lib,*.exp,*.ilk,*.pdb}"
+- "!node_modules/**/build/Release/obj"
+- "!node_modules/ced/build/vendor"
+# Don't bundle LGPL source files
+- "!node_modules/@felixrieseberg/spellchecker/vendor"
+- "!node_modules/@hfelix/spellchecker/vendor"
+extraFiles:
+- "LICENSE"
+- from: "resources/THIRD-PARTY-LICENSES.txt"
+  to: "THIRD-PARTY-LICENSES.txt"
+extraResources:
+- from: "resources/hunspell_dictionaries/"
+  to: "hunspell_dictionaries/"
+  filter:
+  - "!**/LICENSE-hunspell.txt"
+
+fileAssociations:
+- ext:
+  - "md"
+  - "markdown"
+  - "mmd"
+  - "mdown"
+  - "mdtxt"
+  - "mdtext"
+  name: "Markdown"
+  description: "Markdown document"
+  role: "Editor"
+  icon: "../resources/icons/md.icns"
+dmg:
+  artifactName: "marktext.${ext}"
+  contents:
+  - x: 410
+    y: 150
+    type: "link"
+    path: "/Applications"
+  - x: 130
+    y: 150
+    type: "file"
+mac:
+  artifactName: "marktext-mac.${ext}"
+  icon: "resources/icons/icon.icns"
+  darkModeSupport: true
+win:
+  artifactName: "marktext-${arch}-win.${ext}"
+  icon: "resources/icons/icon.ico"
+  target:
+  - target: "nsis"
+    arch:
+    - "ia32"
+    - "x64"
+  - target: "zip"
+    arch:
+    - "ia32"
+    - "x64"
+  requestedExecutionLevel: "asInvoker"
+nsis:
+  artifactName: "marktext-setup.${ext}"
+  perMachine: false
+  oneClick: false
+  allowToChangeInstallationDirectory: true
+  include: "resources/windows/installer.nsh"
+linux:
+  artifactName: "marktext-${arch}.${ext}"
+  executableName: "marktext"
+  description: "A simple and elegant open-source markdown editor that focused on speed and usability."
+  maintainer: "Mark Text Contributors"
+  category: "Office;TextEditor;Utility"
+  mimeTypes:
+  - "text/markdown"
+  icon: "resources/icons"
+  desktop:
+    StartupWMClass: "marktext"
+    Keywords: "marktext;"
+  target:
+  - target: "AppImage"
+  - target: "deb"
+  - target: "rpm"
+  - target: "tar.gz"
+  # Workaround because file association array doesn't work.
+  fileAssociations:
+  - ext: "md"
+    name: "Markdown"
+    description: "Markdown document"
+  - ext: "markdown"
+    name: "Markdown"
+    description: "Markdown document"
+  - ext: "mmd"
+    name: "Markdown"
+    description: "Markdown document"
+  - ext: "mdown"
+    name: "Markdown"
+    description: "Markdown document"
+  - ext: "mdtxt"
+    name: "Markdown"
+    description: "Markdown document"
+  - ext: "mdtext"
+    name: "Markdown"
+    description: "Markdown document"
+deb:
+  # Custom dependencies:
+  depends:
+  # keytar
+  - "libsecret-1-0"
+  # keyboard-layout
+  - "libx11-xcb1"
+  - "libxkbfile1"
+  # fontmanager
+  - "libfontconfig1"
+  fpm:
+  # Expat := MIT like
+  - "--license=Expat"
+rpm:
+  # Custom dependencies:
+  depends:
+  # keytar
+  - "libsecret"
+  # keyboard-layout
+  - "libX11-xcb"
+  - "libxkbfile"
+  # fontmanager
+  - "fontconfig"

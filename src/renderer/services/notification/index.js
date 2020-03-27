@@ -50,7 +50,7 @@ const notification = {
     let target = noticeContainer
 
     if (showConfirm) {
-      noticeContainer.classList.add(`mt-confirm`)
+      noticeContainer.classList.add('mt-confirm')
       target = noticeContainer.querySelector('.confirm')
     }
 

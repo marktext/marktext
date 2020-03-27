@@ -1,9 +1,12 @@
-html {
-  -webkit-font-smoothing: antialiased;
-}
-
-pre {
-  -webkit-font-smoothing: auto;
+@keyframes loading {
+  0% {
+    -webkit-transform: rotate(0deg);
+    transform: rotate(0deg);
+  }
+  100% {
+    -webkit-transform: rotate(360deg);
+    transform: rotate(360deg);
+  }
 }
 
 @keyframes highlight {
@@ -16,6 +19,39 @@ pre {
   to {
     transform: scale(1);
   }
+}
+
+html {
+  -webkit-font-smoothing: antialiased;
+}
+
+pre {
+  -webkit-font-smoothing: auto;
+}
+
+mark {
+  display: inline-block;
+  height: 1.2em;
+  line-height: 1.2;
+}
+
+mark::before,
+mark::after {
+  clip-path: inset(100%);
+  clip: rect(1px, 1px, 1px, 1px);
+  height: 1px;
+  overflow: hidden;
+  position: absolute;
+  white-space: nowrap;
+  width: 1px;
+}
+
+mark::before {
+  content: " [highlight start] ";
+}
+
+mark::after {
+  content: " [highlight end] ";
 }
 
 #ag-editor-id summary {
@@ -39,18 +75,43 @@ div.ag-show-quick-insert-hint p.ag-paragraph.ag-active > span.ag-paragraph-conte
 
 .ag-atx-line:empty::after,
 .ag-thematic-break-line:empty::after,
-.ag-code-line:empty::after,
+.ag-code-content:empty::after,
+.ag-cell-content:empty::after,
 .ag-paragraph-content:empty::after {
   content: '\200B';
+}
+
+.ag-cell-content {
+  display: inline-block;
+  min-width: 4em;
+  width: 100%;
+  min-height: 10px;
 }
 
 .ag-atx-line,
 .ag-thematic-break-line,
 .ag-paragraph-content,
-.ag-code-line {
+.ag-code-content {
   display: block;
   white-space: pre-wrap;
   word-break: break-word;
+}
+
+/* TODO: This disables wrapping long lines in code blocks, allowing
+   scrolling instead.  Make this contingent on user preference. */
+.ag-code-content {
+  overflow: auto;
+  white-space: pre;
+}
+
+.ag-code-content::-webkit-scrollbar {
+    /* Show scroll bars to deal with unwrapped lines in code blocks,
+       regardless of the preference for hiding scroll bars
+       generally. */
+    display: block;
+
+    height: 3px;
+    width: 3px;
 }
 
 .ag-selected {
@@ -76,6 +137,7 @@ div.ag-show-quick-insert-hint p.ag-paragraph.ag-active > span.ag-paragraph-conte
 .ag-hard-line-break-space::after {
   content: '↩';
   opacity: .5;
+  font-family: monospace;
 }
 
 .ag-line-end {
@@ -85,8 +147,8 @@ div.ag-show-quick-insert-hint p.ag-paragraph.ag-active > span.ag-paragraph-conte
 *:not(.ag-hide)::selection, .ag-selection {
   background: var(--selectionColor);
   color: var(--editorColor);
-  padding: 0 3px;
-  border-radius: 2px;
+  padding: 0 2px;
+  border-radius: 1px;
 }
 
 .ag-hide::selection {
@@ -94,7 +156,7 @@ div.ag-show-quick-insert-hint p.ag-paragraph.ag-active > span.ag-paragraph-conte
   color: transparent;
 }
 
-figure.ag-container-block pre {
+figure.ag-container-block > pre {
   width: 0;
   height: 0;
   opacity: 0;
@@ -116,23 +178,84 @@ figure.ag-active.ag-container-block pre {
   opacity: 1;
   z-index: 1;
   display: block;
+  box-sizing: border-box;
 }
 
 figure[data-role="HTML"] .ag-html-preview {
   display: block;
 }
 
+figure[data-role="HTML"] .ag-html-preview > pre{
+  border: 0;
+  background: inherit;
+  padding: 0 1rem;
+  border-radius: 0.3em;
+  white-space: pre-wrap;
+}
+
 figure[data-role="HTML"].ag-active .ag-html-preview {
   display: none;
+}
+
+figure[data-role="FOOTNOTE"] {
+  position: relative;
+  background: var(--footnoteBgColor);
+  padding: 1.2em 2em .05em 1em;
+  font-size: .8em;
+  opacity: .8;
+}
+
+figure[data-role="FOOTNOTE"] > p:first-of-type .ag-paragraph-content:empty::after {
+  content: 'Input the footnote definition...';
+  color: var(--editorColor30);
+}
+
+figure[data-role="FOOTNOTE"].ag-active::before {
+  content: attr(data-role);
+  text-transform: lowercase;
+  position: absolute;
+  top: .2em;
+  right: 1em;
+  color: var(--editorColor30);
+  font-size: 12px;
+}
+
+figure[data-role="FOOTNOTE"] pre {
+  font-size: .8em;
+}
+
+figure[data-role="FOOTNOTE"] .ag-footnote-input {
+  padding: 0 1em;
+  min-width: 80px;
+  position: absolute;
+  top: 0.2em;
+  left: 0;
+  font-size: 14px;
+  font-family: monospace;
+  font-weight: 600;
+  color: var(--editorColor);
+  background: transparent;
+  z-index: 1;
+}
+
+figure[data-role="FOOTNOTE"] .ag-footnote-input::before {
+  content: '[^';
+}
+
+figure[data-role="FOOTNOTE"] .ag-footnote-input::after {
+  content: ']:';
 }
 
 .ag-highlight {
   animation-name: highlight;
   animation-duration: .25s;
-  display: inline-block;
-  padding: 0 3px;
-  border-radius: 2px;
   background: var(--highlightColor);
+  color: var(--editorColor80);
+  display: inline-block;
+  padding: 0 2px;
+  border-radius: 1px;
+  height: 1.3em;
+  line-height: 1.3em;
 }
 
 span.ag-html-tag {
@@ -161,6 +284,7 @@ span.ag-math {
   position: absolute;
   top: 100%;
   left: 0;
+  user-select: none;
   z-index: 1;
 }
 
@@ -218,6 +342,13 @@ span.ag-math > .ag-math-render.ag-math-error {
   border: none;
   box-shadow: none;
   background: transparent;
+  user-select: auto;
+}
+
+.ag-ruby:not(.ag-hide) > .ag-ruby-render,
+.ag-math:not(.ag-hide) > .ag-math-render {
+  z-index: 100;
+  box-shadow: var(--floatShadow);
 }
 
 .ag-gray.ag-ruby > .ag-ruby-render::before
@@ -240,14 +371,15 @@ span.ag-math > .ag-math-render.ag-math-error {
 figure {
   padding: 0;
   margin: 0;
-  margin: 1rem 0;
+  margin: 1.4em 0;
   position: relative;
 }
+
 .ag-tool-bar {
   width: 100%;
   user-select: none;
   position: absolute;
-  top: -20px;
+  top: -22px;
   left: 0;
   display: none;
 }
@@ -264,20 +396,20 @@ figure {
   display: flex;
   width: 20px;
   height: 20px;
-  margin-right: 3px;
+  margin-right: 6px;
   cursor: pointer;
   border-radius: 3px;
   color: var(--iconColor);
+  justify-content: center;
+  align-items: center;
+}
+
+.ag-tool-bar ul li[data-label=table] {
+  margin-right: 16px;
 }
 
 .ag-tool-bar ul li[data-label=delete] {
-  position: absolute;
-  top: 0;
-}
-
-.ag-tool-bar ul li[data-label=delete] {
-  color: var(--deleteColor);
-  right: 0;
+  margin-left: 16px;
 }
 
 .ag-container-icon {
@@ -298,11 +430,11 @@ figure {
 .ag-tool-bar ul li i.icon {
   display: inline-block;
   position: relative;
-  height:20px;
-  width: 20px;
+  height: 16px;
+  width: 16px;
   overflow: hidden;
   color: var(--iconColor);
-  opacity: .5;
+  opacity: .7;
   transition: all .25s ease-in-out;
 }
 
@@ -312,9 +444,9 @@ figure {
   display: inline-block;
   width: 100%;
   height: 100%;
-  filter: drop-shadow(20px 0 currentColor);
-  position: relative;
-  left: -20px;
+  filter: drop-shadow(16px 0 currentColor);
+  position: absolute;
+  left: -16px;
 }
 
 .ag-container-icon i.icon {
@@ -328,8 +460,7 @@ figure {
 }
 
 .ag-tool-bar ul li[data-label=delete] i.icon {
-  color: var(--deleteColor);
-  opacity: 1;
+  color: var(--iconColor);
 }
 
 figure.ag-active .ag-tool-bar {
@@ -360,7 +491,6 @@ figure[data-role=HTML]:not(.ag-active):hover .ag-container-icon {
 }
 
 table {
-  width: 100%;
   border-collapse: collapse;
   margin-top: 0;
 }
@@ -370,12 +500,12 @@ li.ag-task-list-item {
   position: relative;
 }
 
-li.ag-task-list-item > input[type=checkbox] {
+li.ag-task-list-item > [type=checkbox] {
   position: absolute;
   cursor: pointer;
   width: 12px;
   height: 12px;
-  top: 5px;
+  top: .3em;
   left: -23px;
   transform-origin: center;
   transition: all .2s ease;
@@ -385,16 +515,10 @@ li.ag-task-list-item > input.ag-checkbox-checked ~ * {
   color: var(--editorColor50);
 }
 
-li.ag-task-list-item > input.ag-checkbox-checked ~ p {
-  text-decoration: line-through;
-  color: var(--editorColor50);
-}
-
 li.ag-task-list-item > input[type=checkbox]::before {
   content: '';
   width: 18px;
   height: 18px;
-  box-sizing: border-box;
   display: inline-block;
   border: 2px solid var(--editorColor50);
   border-radius: 50%;
@@ -469,22 +593,21 @@ pre.ag-front-matter {
   margin: 1rem 0;
 }
 
-pre.ag-front-matter span.ag-code-line:first-of-type:empty::after {
+pre.ag-front-matter span.ag-code-content:first-of-type:empty::after {
   content: 'Input YAML Front Matter...';
   color: var(--editorColor10);
 }
 
 pre[data-role$='code'] span.ag-language-input:empty::after {
-  content: 'Input Language...';
+  content: 'Input Language Identifier...';
   color: var(--editorColor10);
 }
 
-pre.ag-multiple-math span.ag-code-line:first-of-type:empty::after {
+pre.ag-multiple-math span.ag-code-content:first-of-type:empty::after {
   content: 'Input Mathematical Formula...';
   color: var(--editorColor10);
 }
 
-figure,
 pre.ag-html-block,
 pre.ag-fence-code,
 pre.ag-indent-code,
@@ -515,7 +638,7 @@ pre.ag-indent-code > code::before,
 pre.ag-fence-code > code::before {
   content: '';
   position: absolute;
-  top: -10px;
+  bottom: -1em;
   right: -5px;
   color: var(--editorColor30);
   font-size: 12px;
@@ -665,7 +788,7 @@ span.ag-emoji-marked-text {
 .ag-emoji-marked-text::before {
   position: absolute;
   content: attr(data-emoji);
-  color: var(--editorColor);
+  color: #000000;
   top: 0;
   left: -1.3em;
   font-size: 1em;
@@ -755,55 +878,61 @@ span.ag-warn.ag-emoji-marked-text {
   vertical-align: middle;
 }
 
+.ag-inline-image,
+.ag-image-container {
+  font-size: 0;
+  line-height: 0;
+}
+
 .ag-inline-image {
-  display: flex;
+  display: inline-block;
   position: relative;
   background: var(--codeBlockBgColor);
-  border-radius: 3px;
-  overflow: hidden;
-  margin: 0 auto;
-  justify-content: space-around;
+  border-radius: 2px;
+}
+
+.ag-inline-image.left,
+.ag-inline-image.center,
+.ag-inline-image.right {
+  display: block;
+  margin: 30px auto 40px auto;
+}
+
+.ag-inline-image.left {
+  text-align: left;
+}
+
+.ag-inline-image.right {
+  text-align: right;
+}
+
+.ag-inline-image.center {
+  text-align: center;
 }
 
 .ag-inline-image .ag-image-container {
+  display: inline-block;
   position: relative;
-  overflow: hidden;
+  overflow: visible;
 }
+
+/* .ag-inline-image.ag-image-success.left:not(.ag-image-uploading) .ag-image-container::after,
+.ag-inline-image.ag-image-success.center:not(.ag-image-uploading) .ag-image-container::after,
+.ag-inline-image.ag-image-success.right:not(.ag-image-uploading) .ag-image-container::after {
+  content: attr(data-title);
+  position: absolute;
+  height: 20px;
+  font-size: 14px;
+  line-height: 20px;
+  display: block;
+  bottom: -25px;
+  width: 100%;
+  text-align: center;
+  color: var(--editorColor30);
+} */
 
 .ag-inline-image.ag-image-success {
   background: transparent;
-}
-
-.ag-inline-image a.ag-image-icon-turninto,
-.ag-inline-image a.ag-image-icon-delete {
-  opacity: 0;
-  display: none;
-  width: 30px;
-  height: 30px;
-  position: absolute;
-  top: 15px;
-  background: rgba(50, 54, 58, .5);
-  border-radius: 12px;
-  cursor: pointer;
-  transition: background .25s ease-in-out;
-}
-
-.ag-inline-image a.ag-image-icon-turninto i.icon,
-.ag-inline-image a.ag-image-icon-delete i.icon {
-  color: #fff;
-}
-
-.ag-inline-image a.ag-image-icon-turninto:hover,
-.ag-inline-image a.ag-image-icon-delete:hover {
-  background: rgba(50, 54, 58, .8);
-}
-
-.ag-inline-image a.ag-image-icon-turninto {
-  right: 60px;
-}
-
-.ag-inline-image a.ag-image-icon-delete {
-  right: 15px;
 }
 
 .ag-inline-image a.ag-image-icon-success,
@@ -840,16 +969,24 @@ span.ag-warn.ag-emoji-marked-text {
 }
 
 .ag-inline-image.ag-image-fail,
-.ag-inline-image.ag-image-loading,
 .ag-inline-image.ag-empty-image {
   width: 100%;
   height: 50px;
   cursor: pointer;
 }
 
-.ag-inline-image.ag-image-loading::before,
+.ag-inline-image.ag-image-loading {
+  width: 400px;
+  height: 250px;
+  margin: 0 auto;
+  vertical-align: bottom;
+}
+
 .ag-inline-image.ag-image-fail::before,
 .ag-inline-image.ag-empty-image::before {
+  text-align: left;
+  line-height: 20px;
+  height: 20px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -870,10 +1007,6 @@ span.ag-warn.ag-emoji-marked-text {
   content: 'Load image failed';
 }
 
-.ag-inline-image.ag-image-loading::before {
-  content: 'Loading image...';
-}
-
 .ag-inline-image.ag-image-loading a.ag-image-icon-success,
 .ag-inline-image.ag-empty-image a.ag-image-icon-success {
   display: block;
@@ -881,15 +1014,6 @@ span.ag-warn.ag-emoji-marked-text {
 
 .ag-inline-image.ag-image-fail a.ag-image-icon-fail {
   display: block;
-}
-
-.ag-inline-image.ag-image-success:hover a.ag-image-icon-turninto,
-.ag-inline-image.ag-image-success:hover a.ag-image-icon-delete {
-  opacity: 1;
-  display: flex;
-  align-items: center;
-  justify-content: space-around;
-  z-index: 1;
 }
 
 .ag-inline-image.ag-empty-image:hover a.ag-image-icon-close,
@@ -910,18 +1034,31 @@ span.ag-warn.ag-emoji-marked-text {
   opacity: .3;
 }
 
-.ag-inline-image.ag-image-uploading .ag-image-container a.ag-image-icon-turninto,
-.ag-inline-image.ag-image-uploading .ag-image-container a.ag-image-icon-delete {
-  display: none;
+.ag-inline-image.ag-image-uploading .ag-image-container::before,
+.ag-inline-image.ag-image-uploading .ag-image-container::after,
+.ag-inline-image.ag-image-loading::before,
+.ag-inline-image.ag-image-loading::after {
+  position: absolute;
+  content: '';
+  display: block;
+  border-radius: 50%;
+  width: 22px;
+  height: 22px;
+  top: calc(50% - 11px);
+  left: calc(50% - 11px);
 }
 
-.ag-inline-image.ag-image-uploading .ag-image-container::before {
-  content: 'Loading ...';
-  top: 50%;
+.ag-inline-image.ag-image-uploading .ag-image-container::before,
+.ag-inline-image.ag-image-loading::before {
+  font-size: 10px;
   position: absolute;
-  left: 50%;
-  transform: translateX(-50%) translateY(-50%);
-  color: var(--iconColor);
+  text-indent: -9999px;
+  border-top: 2px solid var(--editorColor10);
+  border-right: 2px solid var(--editorColor10);
+  border-bottom: 2px solid var(--editorColor10);
+  border-left: 2px solid var(--iconColor);
+  transform: translateZ(0);
+  animation: loading 1.1s infinite linear;
 }
 
 .ag-image-marked-text ~ img {
@@ -1035,4 +1172,121 @@ span.ag-reference-link {
 
 .vega-embed {
   padding-right: 0;
+}
+
+.ag-code-copy {
+  position: absolute;
+  top: .5em;
+  right: .5em;
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  opacity: 0;
+  z-index: 1;
+  transition: opacity .2s ease-in-out;
+}
+
+.ag-active .ag-code-copy {
+  opacity: .5;
+}
+
+pre:not(.ag-active):hover .ag-code-copy {
+  opacity: .5;
+}
+
+.ag-code-copy:hover {
+  opacity: 1;
+}
+
+.ag-code-copy i.icon {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+}
+
+.ag-code-copy i.icon > i[class^=icon-] {
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(16px 0 var(--iconColor));
+  position: absolute;
+  left: -16px;
+}
+
+pre.ag-paragraph.line-numbers {
+	position: relative;
+	padding-left: 2.5em;
+	counter-reset: linenumber;
+}
+
+pre.ag-paragraph.line-numbers > code {
+	position: relative;
+	white-space: inherit;
+}
+
+figure:not(.ag-active) pre.ag-paragraph.line-numbers {
+  display: none;
+}
+
+.line-numbers .line-numbers-rows {
+	position: absolute;
+	pointer-events: none;
+	top: 0;
+	font-size: 100%;
+	left: -2.5em;
+	width: 2.5em; /* works for line-numbers below 1000 lines */
+	letter-spacing: -1px;
+
+	user-select: none;
+
+}
+
+.line-numbers-sizer {
+  white-space: pre-line;
+  word-break: break-all;
+}
+
+.line-numbers-rows > span {
+	pointer-events: none;
+	display: block;
+	counter-increment: linenumber;
+}
+
+.line-numbers-rows > span:before {
+	content: counter(linenumber);
+	color: var(--editorColor30);
+	display: block;
+	padding-right: .8em;
+  text-align: right;
+  transform: scale(.8);
+  position: relative;
+  top: .05em;
+}
+
+.ag-inline-footnote-identifier {
+  background: var(--codeBlockBgColor);
+  padding: 0 0.4em;
+  border-radius: 3px;
+  font-size: .7em;
+  color: var(--editorColor80);
+}
+
+.ag-inline-footnote-identifier a {
+  color: var(--editorColor);
+}
+
+i.ag-footnote-backlink {
+  width: 20px;
+  height: 20px;
+  text-align: center;
+  line-height: 20px;
+  display: block;
+  position: absolute;
+  right: .5em;
+  bottom: .5em;
+  font-family: sans-serif;
+  cursor: pointer;
+  z-index: 100;
 }

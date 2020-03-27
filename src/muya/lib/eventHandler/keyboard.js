@@ -68,7 +68,6 @@ class Keyboard {
       ) {
         return
       }
-
       // Cursor outside editor area or over not editable elements.
       if (event.target.closest('[contenteditable=false]')) {
         return
@@ -103,7 +102,8 @@ class Keyboard {
           return contentState.docEnterHandler(event)
         case EVENT_KEYS.Space: {
           if (contentState.selectedImage) {
-            const { src } = getImageInfo(contentState.selectedImage.token.src)
+            const { token } = contentState.selectedImage
+            const { src } = getImageInfo(token.src || token.attrs.src)
             if (src) {
               eventCenter.dispatch('preview-image', {
                 data: src
@@ -114,6 +114,9 @@ class Keyboard {
         }
         case EVENT_KEYS.Backspace: {
           return contentState.docBackspaceHandler(event)
+        }
+        case EVENT_KEYS.Delete: {
+          return contentState.docDeleteHandler(event)
         }
         case EVENT_KEYS.ArrowUp: // fallthrough
         case EVENT_KEYS.ArrowDown: // fallthrough
@@ -127,6 +130,7 @@ class Keyboard {
       if (event.metaKey || event.ctrlKey) {
         container.classList.add('ag-meta-or-ctrl')
       }
+
       if (
         this.shownFloat.size > 0 &&
         (
@@ -156,7 +160,7 @@ class Keyboard {
         if (needPreventDefault) {
           event.preventDefault()
         }
-        event.stopPropagation()
+        // event.stopPropagation()
         return
       }
       switch (event.key) {
@@ -170,11 +174,6 @@ class Keyboard {
           if (!this.isComposed) {
             contentState.enterHandler(event)
             this.muya.dispatchChange()
-          }
-          break
-        case 'a':
-          if (event.ctrlKey) {
-            contentState.tableCellHandler(event)
           }
           break
         case EVENT_KEYS.ArrowUp: // fallthrough
@@ -276,7 +275,12 @@ class Keyboard {
       }
 
       const block = contentState.getBlock(anchor.key)
-      if (anchor.key === focus.key && anchor.offset !== focus.offset && block.functionType !== 'codeLine') {
+      if (
+        anchor.key === focus.key &&
+        anchor.offset !== focus.offset &&
+        block.functionType !== 'codeContent' &&
+        block.functionType !== 'languageInput'
+      ) {
         const reference = contentState.getPositionReference()
         const { formats } = contentState.selectionFormats()
         eventCenter.dispatch('muya-format-picker', { reference, formats })

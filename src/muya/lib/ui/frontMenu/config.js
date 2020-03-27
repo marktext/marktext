@@ -1,12 +1,12 @@
 import copyIcon from '../../assets/pngicon/copy/2.png'
 import newIcon from '../../assets/pngicon/paragraph/2.png'
-import deleteIcon from '../../assets/pngicon/delete/delete@2x.png'
+import deleteIcon from '../../assets/pngicon/delete/2.png'
 import turnIcon from '../../assets/pngicon/turninto/2.png'
 import { isOsx } from '../../config'
-import { quicInsertObj } from '../quickInsert/config'
+import { quickInsertObj } from '../quickInsert/config'
 
-const wholeSubMenu = Object.keys(quicInsertObj).reduce((acc, key) => {
-  const items = quicInsertObj[key]
+const wholeSubMenu = Object.keys(quickInsertObj).reduce((acc, key) => {
+  const items = quickInsertObj[key]
   return [...acc, ...items]
 }, [])
 
@@ -24,7 +24,7 @@ export const menu = [{
 }, {
   icon: newIcon,
   label: 'new',
-  text: 'Create Paragraph',
+  text: 'New Paragraph',
   shortCut: `⇧${COMMAND_KEY}N`
 }, {
   icon: deleteIcon,

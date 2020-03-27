@@ -3,6 +3,7 @@ import Preference from '@/pages/preference'
 import General from '@/prefComponents/general'
 import Editor from '@/prefComponents/editor'
 import Markdown from '@/prefComponents/markdown'
+import SpellChecker from '@/prefComponents/spellchecker'
 import Theme from '@/prefComponents/theme'
 import Image from '@/prefComponents/image'
 import ImageUploader from '@/prefComponents/imageUploader'
@@ -22,6 +23,8 @@ const routes = type => ([{
     path: 'editor', component: Editor, name: 'editor'
   }, {
     path: 'markdown', component: Markdown, name: 'markdown'
+  }, {
+    path: 'spelling', component: SpellChecker, name: 'spelling'
   }, {
     path: 'theme', component: Theme, name: 'theme'
   }, {

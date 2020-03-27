@@ -4,11 +4,18 @@
     <section class="offcial-themes">
       <div v-for="t of themes" :key="t.name" class="theme"
         :class="[t.name, { 'active': t.name === theme }]"
-        @click="handleSelectTheme(t.name)"
+        @click="onSelectChange('theme', t.name)"
       >
         <div v-html="t.html"></div>
       </div>
     </section>
+    <separator></separator>
+    <cur-select
+      description="Automatically adjust application theme according to system settings."
+      :value="autoSwitchTheme"
+      :options="autoSwitchThemeOptions"
+      :onChange="value => onSelectChange('autoSwitchTheme', value)"
+    ></cur-select>
     <separator></separator>
     <section class="import-themes ag-underdevelop">
       <div>
@@ -27,21 +34,25 @@
 <script>
 import { mapState } from 'vuex'
 import themeMd from './theme.md'
-import { themes } from './config'
+import { autoSwitchThemeOptions, themes } from './config'
 import markdownToHtml from '@/util/markdownToHtml'
+import CurSelect from '../common/select'
 import Separator from '../common/separator'
 
 export default {
   components: {
+    CurSelect,
     Separator
   },
   data () {
+    this.autoSwitchThemeOptions = autoSwitchThemeOptions
     return {
       themes: []
     }
   },
   computed: {
     ...mapState({
+      autoSwitchTheme: state => state.preferences.autoSwitchTheme,
       theme: state => state.preferences.theme
     })
   },
@@ -60,11 +71,8 @@ export default {
     })
   },
   methods: {
-    handleSelectTheme (theme) {
-      this.$store.dispatch('SET_SINGLE_PREFERENCE', {
-        type: 'theme',
-        value: theme
-      })
+    onSelectChange (type, value) {
+      this.$store.dispatch('SET_SINGLE_PREFERENCE', { type, value })
     }
   }
 }
@@ -75,16 +83,16 @@ export default {
     & h4 {
       text-transform: uppercase;
       margin: 0;
-      font-weight: 100;
+      font-weight: 400;
       margin-bottom: 30px;
     }
   }
   .offcial-themes {
     & .theme {
       cursor: pointer;
-      width: 250px;
+      width: 248px;
       height: 100px;
-      margin: 0px 22px 10px 22px;
+      margin: 0px 20px 10px 20px;
       padding-left: 30px;
       padding-top: 20px;
       overflow: hidden;
@@ -92,7 +100,7 @@ export default {
       background: var(--editorBgColor);
       color: var(--editorColor);
       box-sizing: border-box;
-      border: 1px solid rgba(240, 240, 240, .3);
+      box-shadow: 0 9px 28px -9px rgba(0, 0, 0, .4);
       border-radius: 5px;
       &.dark {
         color: rgba(255, 255, 255, .7);

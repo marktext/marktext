@@ -3,10 +3,12 @@
 }
 .ag-image-selector {
   width: 500px;
-  height: 190px;
+  min-height: 190px;
+  max-height: 400px;
 }
 
 .ag-image-selector ul.header {
+  flex-shrink: 0;
   margin: 0;
   padding: 0;
   height: 40px;
@@ -106,9 +108,126 @@
   text-align: center;
   display: block;
   color: var(--editorColor30);
+  user-select: none;
 }
 
 .ag-image-selector span.description a {
   cursor: pointer;
   color: #4ca4f5;
 }
+
+.ag-image-selector > div {
+  max-height: 400px;
+  display: flex;
+  flex-direction: column;
+}
+
+.ag-image-selector .image-select-body {
+  flex: 1;
+  max-height: 359px;
+  overflow: auto;
+}
+
+.ag-image-selector .image-select-body::-webkit-scrollbar:vertical {
+  width: 0;
+}
+
+.ag-image-selector .image-select-body .search {
+  width: calc(100% - 22px);
+  margin: 10px 11px;
+  height: 30px;
+  border-radius: 15px;
+  outline: none;
+  padding: 0 15px;
+  border: none;
+  font-size: 14px;
+  background: var(--inputBgColor);
+  color: var(--editorColor);
+  box-sizing: border-box;
+}
+
+.ag-image-selector .photos-wrapper {
+  padding: 11px;
+}
+
+.ag-image-selector .no-data {
+  margin-top: 30px;
+  text-align: center;
+  font-size: 14px;
+  color: var(--editorColor);
+  user-select: none;
+}
+
+.ag-image-selector .more {
+  font-size: 12px;
+  color: var(--editorColor);
+  text-align: center;
+  margin-bottom: 20px;
+  user-select: none;
+}
+
+.ag-image-selector .photo {
+  width: 112px;
+  height: 80px;
+  margin-right: 10px;
+  margin-bottom: 12px;
+  display: inline-block;
+  overflow: hidden;
+}
+
+.ag-image-selector .photo:nth-of-type(4n) {
+  margin-right: 0;
+}
+
+.ag-image-selector .image-wrapper {
+  width: 110px;
+  height: 60px;
+  border-radius: 2px;
+  overflow: hidden;
+  position: relative;
+  cursor: pointer;
+}
+
+.ag-image-selector .image-wrapper img {
+  width: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.ag-image-selector .des {
+  font-size: 12px;
+  color: var(--editorColor50);
+  line-height: 20px;
+  margin-top: 5px;
+}
+
+.ag-image-selector .des a {
+  margin-left: 5px;
+  color: var(--editorColor70);
+}
+
+.ag-image-selector .des a::hover {
+  color: var(--themeColor);
+}
+
+.ag-plugin-loading,
+.ag-plugin-loading:after {
+  border-radius: 50%;
+  width: 22px;
+  height: 22px;
+}
+
+.ag-plugin-loading {
+  margin: 60px auto;
+  font-size: 10px;
+  position: relative;
+  text-indent: -9999px;
+  border-top: 2px solid var(--editorColor10);
+  border-right: 2px solid var(--editorColor10);
+  border-bottom: 2px solid var(--editorColor10);
+  border-left: 2px solid var(--iconColor);
+  transform: translateZ(0);
+  animation: loading 1.1s infinite linear;
+}
+

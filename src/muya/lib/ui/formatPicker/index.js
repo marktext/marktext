@@ -27,6 +27,7 @@ class FormatPicker extends BaseFloat {
     this.icons = icons
     const formatContainer = this.formatContainer = document.createElement('div')
     this.container.appendChild(formatContainer)
+    this.floatBox.classList.add('ag-format-picker-container')
     this.listen()
   }
 
@@ -54,7 +55,7 @@ class FormatPicker extends BaseFloat {
       if (i.icon) {
         // SVG icon Asset
         iconWrapperSelector = 'div.icon-wrapper'
-        icon = h('i.icon', h(`i.icon-inner`, {
+        icon = h('i.icon', h('i.icon-inner', {
           style: {
             background: `url(${i.icon}) no-repeat`,
             'background-size': '100%'
@@ -62,17 +63,21 @@ class FormatPicker extends BaseFloat {
         }, ''))
       }
       const iconWrapper = h(iconWrapperSelector, icon)
+
       let itemSelector = `li.item.${i.type}`
       if (formats.some(f => f.type === i.type || f.type === 'html_tag' && f.tag === i.type)) {
         itemSelector += '.active'
       }
       return h(itemSelector, {
+        attrs: {
+          title: `${i.tooltip} ${i.shortcut}`
+        },
         on: {
           click: event => {
             this.selectItem(event, i)
           }
         }
-      }, iconWrapper)
+      }, [iconWrapper])
     })
 
     const vnode = h('ul', children)

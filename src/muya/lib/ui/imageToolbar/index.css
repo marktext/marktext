@@ -1,0 +1,128 @@
+.ag-float-wrapper.ag-image-toolbar-container {
+  overflow: visible;
+  border-radius: 2px;
+}
+.ag-image-toolbar {
+  height: 30px;
+  width: 240px;
+}
+
+.ag-image-toolbar ul,
+.ag-image-toolbar li {
+  margin: 0;
+  padding: 0;
+}
+
+.ag-image-toolbar ul {
+  padding: 0 7px;
+  display: flex;
+}
+
+.ag-image-toolbar li.item {
+  position: relative;
+  list-style: none;
+  width: 28px;
+  height: 30px;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  cursor: pointer;
+}
+
+.ag-image-toolbar li.item div.tooltip {
+  min-width: 100px;
+  box-sizing: border-box;
+  height: 30px;
+  text-align: center;
+  display: block;
+  position: absolute;
+  top: -38px;
+  background: var(--floatBgColor);
+  border-radius: 2px;
+  line-height: 30px;
+  color: var(--editorColor);
+  box-shadow: var(--floatShadow);
+  display: none;
+}
+
+.ag-image-toolbar li.item div.tooltip::before {
+  content: '';
+  width: 7px;
+  height: 7px;
+  display: block;
+  background: var(--floatBgColor);
+  position: absolute;
+  bottom: -1px;
+  transform: rotate(-45deg) translateX(-50%);
+  left: 50%;
+}
+
+.ag-image-toolbar li.item:hover {
+  background: var(--floatHoverColor);
+}
+
+.ag-image-toolbar li.item:hover div.tooltip {
+  display: block;
+}
+
+.ag-image-toolbar li.item.edit {
+  margin-right: 21px;
+  margin-left: 10px;
+}
+
+.ag-image-toolbar li.item.inline {
+  margin-right: 8px;
+}
+
+.ag-image-toolbar li.item:first-of-type:before {
+  content: '';
+  width: 1px;
+  position: absolute;
+  height: 16px;
+  background: var(--editorColor10);
+  right: -10px;
+  top: 7px;
+}
+
+.ag-image-toolbar li.item.delete {
+  margin-right: 10px;
+  margin-left: 21px;
+}
+
+.ag-image-toolbar li.item:last-of-type:before {
+  content: '';
+  width: 1px;
+  position: absolute;
+  height: 16px;
+  background: var(--editorColor10);
+  left: -10px;
+  top: 7px;
+}
+
+.ag-image-toolbar li.item .icon-wrapper {
+  width: 16px;
+  height: 16px;
+}
+
+.ag-image-toolbar li.item .icon-wrapper i.icon {
+  display: inline-block;
+  position: relative;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  color: var(--iconColor);
+  transition: all .25s ease-in-out;
+}
+
+.ag-image-toolbar li.item .icon-wrapper i.icon > i[class^=icon-] {
+  display: inline-block;
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(16px 0 currentColor); 
+  position: relative;
+  left: -16px;
+}
+
+.ag-image-toolbar li.item.active .icon-wrapper i.icon {
+  color: var(--themeColor);
+}

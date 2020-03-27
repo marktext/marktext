@@ -25,6 +25,7 @@
   --iconColor: rgba(101, 101, 101, .8);
   --codeBgColor: #d8d8d869;
   --codeBlockBgColor: rgba(12, 139, 186, .05);
+  --footnoteBgColor: rgba(0, 0, 0, .03);
   --inputBgColor: rgba(0, 0, 0, .06);
   --focusColor: var(--themeColor);
 
@@ -122,11 +123,11 @@ li.ag-task-list-item > input[type=checkbox] {
   cursor: pointer;
   width: 16px;
   height: 16px;
-  margin: 4px 0px 0px;
-  top: 2px;
-  left: -22px;
-  transform-origin: center;
+  top: .1em;
   transform: rotate(-90deg);
+  margin: 0;
+  left: -24px;
+  transform-origin: center;
   transition: all .2s ease;
 }
 li.ag-task-list-item > input.ag-checkbox-checked {

@@ -1,11 +1,32 @@
 import selection from '../selection'
 import { CLASS_OR_ID } from '../config'
+import { escapeHtml } from '../utils'
 import { getSanitizeHtml } from '../utils/exportHtml'
 import ExportMarkdown from '../utils/exportMarkdown'
 import marked from '../parser/marked'
 
 const copyCutCtrl = ContentState => {
+  ContentState.prototype.docCutHandler = function (event) {
+    const { selectedTableCells } = this
+    if (selectedTableCells) {
+      event.preventDefault()
+      return this.deleteSelectedTableCells(true)
+    }
+  }
+
   ContentState.prototype.cutHandler = function () {
+    if (this.selectedTableCells) {
+      return
+    }
+    const { selectedImage } = this
+    if (selectedImage) {
+      const { key, token } = selectedImage
+      this.deleteImage({
+        key,
+        token
+      })
+      return
+    }
     const { start, end } = selection.getCursorRange()
     if (!start || !end) {
       return
@@ -25,23 +46,60 @@ const copyCutCtrl = ContentState => {
   }
 
   ContentState.prototype.getClipBoradData = function () {
+    const { start, end } = selection.getCursorRange()
+    if (!start || !end) {
+      return { html: '', text: '' }
+    }
+    if (start.key === end.key) {
+      const startBlock = this.getBlock(start.key)
+      const { type, text, functionType } = startBlock
+      // Fix issue #942
+      if (type === 'span' && functionType === 'codeContent') {
+        const selectedText = escapeHtml(text.substring(start.offset, end.offset))
+        return {
+          html: marked(selectedText, this.muya.options),
+          text: selectedText
+        }
+      }
+    }
     const html = selection.getSelectionHtml()
     const wrapper = document.createElement('div')
     wrapper.innerHTML = html
     const removedElements = wrapper.querySelectorAll(
-      `.${CLASS_OR_ID['AG_TOOL_BAR']},
-      .${CLASS_OR_ID['AG_MATH_RENDER']},
-      .${CLASS_OR_ID['AG_RUBY_RENDER']},
-      .${CLASS_OR_ID['AG_HTML_PREVIEW']},
-      .${CLASS_OR_ID['AG_MATH_PREVIEW']},
-      .${CLASS_OR_ID['AG_COPY_REMOVE']},
-      .${CLASS_OR_ID['AG_LANGUAGE_INPUT']},
-      .${CLASS_OR_ID['AG_HTML_TAG']} br,
-      .${CLASS_OR_ID['AG_FRONT_ICON']}`
+      `.${CLASS_OR_ID.AG_TOOL_BAR},
+      .${CLASS_OR_ID.AG_MATH_RENDER},
+      .${CLASS_OR_ID.AG_RUBY_RENDER},
+      .${CLASS_OR_ID.AG_HTML_PREVIEW},
+      .${CLASS_OR_ID.AG_MATH_PREVIEW},
+      .${CLASS_OR_ID.AG_COPY_REMOVE},
+      .${CLASS_OR_ID.AG_LANGUAGE_INPUT},
+      .${CLASS_OR_ID.AG_HTML_TAG} br,
+      .${CLASS_OR_ID.AG_FRONT_ICON}`
     )
 
     for (const e of removedElements) {
       e.remove()
+    }
+
+    // Fix #1678 copy task list, and the first list item is not task list item.
+    const taskListItems = wrapper.querySelectorAll('li.ag-task-list-item')
+    for (const item of taskListItems) {
+      const firstChild = item.firstElementChild
+      if (firstChild && firstChild.nodeName !== 'INPUT') {
+        const originItem = document.querySelector(`#${item.id}`)
+        let checked = false
+        if (originItem && originItem.firstElementChild && originItem.firstElementChild.nodeName === 'INPUT') {
+          checked = originItem.firstElementChild.checked
+        }
+
+        const input = document.createElement('input')
+        input.setAttribute('type', 'checkbox')
+        if (checked) {
+          input.setAttribute('checked', true)
+        }
+
+        item.insertBefore(input, firstChild)
+      }
     }
 
     const images = wrapper.querySelectorAll('span.ag-inline-image img')
@@ -60,27 +118,27 @@ const copyCutCtrl = ContentState => {
       }
     }
 
-    const hrs = wrapper.querySelectorAll(`[data-role=hr]`)
+    const hrs = wrapper.querySelectorAll('[data-role=hr]')
     for (const hr of hrs) {
       hr.replaceWith(document.createElement('hr'))
     }
 
-    const headers = wrapper.querySelectorAll(`[data-head]`)
+    const headers = wrapper.querySelectorAll('[data-head]')
     for (const header of headers) {
       const p = document.createElement('p')
       p.textContent = header.textContent
       header.replaceWith(p)
     }
 
-    // replace inline rule element: code, a, strong, em, del to span element
+    // replace inline rule element: code, a, strong, em, del, auto_link to span element
     // in order to escape turndown translation
 
     const inlineRuleElements = wrapper.querySelectorAll(
-      `a.${CLASS_OR_ID['AG_INLINE_RULE']},
-      code.${CLASS_OR_ID['AG_INLINE_RULE']},
-      strong.${CLASS_OR_ID['AG_INLINE_RULE']},
-      em.${CLASS_OR_ID['AG_INLINE_RULE']},
-      del.${CLASS_OR_ID['AG_INLINE_RULE']}`
+      `a.${CLASS_OR_ID.AG_INLINE_RULE},
+      code.${CLASS_OR_ID.AG_INLINE_RULE},
+      strong.${CLASS_OR_ID.AG_INLINE_RULE},
+      em.${CLASS_OR_ID.AG_INLINE_RULE},
+      del.${CLASS_OR_ID.AG_INLINE_RULE}`
     )
     for (const e of inlineRuleElements) {
       const span = document.createElement('span')
@@ -88,24 +146,24 @@ const copyCutCtrl = ContentState => {
       e.replaceWith(span)
     }
 
-    const aLinks = wrapper.querySelectorAll(`.${CLASS_OR_ID['AG_A_LINK']}`)
+    const aLinks = wrapper.querySelectorAll(`.${CLASS_OR_ID.AG_A_LINK}`)
     for (const l of aLinks) {
       const span = document.createElement('span')
       span.innerHTML = l.innerHTML
       l.replaceWith(span)
     }
 
-    const codefense = wrapper.querySelectorAll(`pre[data-role$='code']`)
+    const codefense = wrapper.querySelectorAll('pre[data-role$=\'code\']')
     for (const cf of codefense) {
       const id = cf.id
       const block = this.getBlock(id)
       const language = block.lang || ''
-      const selectedCodeLines = cf.querySelectorAll('.ag-code-line')
-      const value = Array.from(selectedCodeLines).map(codeLine => codeLine.textContent).join('\n')
+      const codeContent = cf.querySelector('.ag-code-content')
+      const value = escapeHtml(codeContent.textContent)
       cf.innerHTML = `<code class="language-${language}">${value}</code>`
     }
 
-    const tightListItem = wrapper.querySelectorAll(`.ag-tight-list-item`)
+    const tightListItem = wrapper.querySelectorAll('.ag-tight-list-item')
     for (const li of tightListItem) {
       for (const item of li.childNodes) {
         if (item.tagName === 'P' && item.childElementCount === 1 && item.classList.contains('ag-paragraph')) {
@@ -114,12 +172,11 @@ const copyCutCtrl = ContentState => {
       }
     }
 
-    const htmlBlock = wrapper.querySelectorAll(`figure[data-role='HTML']`)
+    const htmlBlock = wrapper.querySelectorAll('figure[data-role=\'HTML\']')
     for (const hb of htmlBlock) {
-      const selectedCodeLines = hb.querySelectorAll('span.ag-code-line')
-      const value = Array.from(selectedCodeLines).map(codeLine => codeLine.textContent).join('\n')
+      const codeContent = hb.querySelector('.ag-code-content')
       const pre = document.createElement('pre')
-      pre.textContent = value
+      pre.textContent = codeContent.textContent
       hb.replaceWith(pre)
     }
 
@@ -129,12 +186,12 @@ const copyCutCtrl = ContentState => {
       b.innerHTML = ''
     }
 
-    const mathBlock = wrapper.querySelectorAll(`figure.ag-container-block`)
+    const mathBlock = wrapper.querySelectorAll('figure.ag-container-block')
     for (const mb of mathBlock) {
       const preElement = mb.querySelector('pre[data-role]')
       const functionType = preElement.getAttribute('data-role')
-      const selectedCodeLines = mb.querySelectorAll('span.ag-code-line')
-      const value = Array.from(selectedCodeLines).map(codeLine => codeLine.textContent).join('\n')
+      const codeContent = mb.querySelector('.ag-code-content')
+      const value = codeContent.textContent
       let pre
       switch (functionType) {
         case 'multiplemath':
@@ -155,17 +212,61 @@ const copyCutCtrl = ContentState => {
     }
 
     let htmlData = wrapper.innerHTML
-    const textData = this.htmlToMarkdown(htmlData)
-
+    const textData = escapeHtml(this.htmlToMarkdown(htmlData))
     htmlData = marked(textData)
+
     return { html: htmlData, text: textData }
   }
 
-  ContentState.prototype.copyHandler = function (event, type) {
+  ContentState.prototype.docCopyHandler = function (event) {
+    const { selectedTableCells } = this
+    if (selectedTableCells) {
+      event.preventDefault()
+      const { row, column, cells } = selectedTableCells
+      const figureBlock = this.createBlock('figure', {
+        functionType: 'table'
+      })
+      const tableContents = []
+      let i
+      let j
+      for (i = 0; i < row; i++) {
+        const rowWrapper = []
+        for (j = 0; j < column; j++) {
+          const cell = cells[i * column + j]
+
+          rowWrapper.push({
+            text: cell.text,
+            align: cell.align
+          })
+        }
+        tableContents.push(rowWrapper)
+      }
+
+      const table = this.createTableInFigure({ rows: row, columns: column }, tableContents)
+      this.appendChild(figureBlock, table)
+      const listIndentation = this.listIndentation
+      const markdown = new ExportMarkdown([figureBlock], listIndentation).generate()
+
+      event.clipboardData.setData('text/html', '')
+      event.clipboardData.setData('text/plain', markdown)
+    }
+  }
+
+  ContentState.prototype.copyHandler = function (event, type, copyInfo = null) {
+    if (this.selectedTableCells) {
+      // Hand over to docCopyHandler
+      return
+    }
     event.preventDefault()
+    const { selectedImage } = this
+    if (selectedImage) {
+      const { token } = selectedImage
+      event.clipboardData.setData('text/html', token.raw)
+      event.clipboardData.setData('text/plain', token.raw)
+      return
+    }
 
     const { html, text } = this.getClipBoradData()
-
     switch (type) {
       case 'normal': {
         event.clipboardData.setData('text/html', html)
@@ -179,17 +280,30 @@ const copyCutCtrl = ContentState => {
       }
       case 'copyAsHtml': {
         event.clipboardData.setData('text/html', '')
-        event.clipboardData.setData('text/plain', getSanitizeHtml(text))
+        event.clipboardData.setData('text/plain', getSanitizeHtml(text, {
+          superSubScript: this.muya.options.superSubScript
+        }))
         break
       }
-      case 'copyTable': {
-        const table = this.getTableBlock()
-        if (!table) return
+
+      case 'copyBlock': {
+        const block = typeof copyInfo === 'string' ? this.getBlock(copyInfo) : copyInfo
+        if (!block) return
+        const anchor = this.getAnchor(block)
         const listIndentation = this.listIndentation
-        const markdown = new ExportMarkdown([table], listIndentation).generate()
+        const markdown = new ExportMarkdown([anchor], listIndentation).generate()
         event.clipboardData.setData('text/html', '')
         event.clipboardData.setData('text/plain', markdown)
         break
+      }
+
+      case 'copyCodeContent': {
+        const codeContent = copyInfo
+        if (typeof codeContent !== 'string') {
+          return
+        }
+        event.clipboardData.setData('text/html', '')
+        event.clipboardData.setData('text/plain', codeContent)
       }
     }
   }

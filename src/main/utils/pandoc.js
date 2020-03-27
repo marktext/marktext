@@ -1,10 +1,19 @@
 // Copy from https://github.com/utatti/simple-pandoc/blob/master/index.js
 import { spawn } from 'child_process'
 import commandExists from 'command-exists'
+import { isFile } from 'common/filesystem'
 
-const command = 'pandoc'
+const pandocCommand = 'pandoc'
+
+const getCommand = () => {
+  if (envPathExists()) {
+    return process.env.MARKTEXT_PANDOC
+  }
+  return pandocCommand
+}
 
 const pandoc = (from, to, ...args) => {
+  const command = getCommand()
   const option = ['-s', from, '-t', to].concat(args)
 
   const converter = () => new Promise((resolve, reject) => {
@@ -29,7 +38,14 @@ const pandoc = (from, to, ...args) => {
 }
 
 pandoc.exists = () => {
-  return commandExists.sync(command)
+  if (envPathExists()) {
+    return true
+  }
+  return commandExists.sync(pandocCommand)
+}
+
+const envPathExists = () => {
+  return !!process.env.MARKTEXT_PANDOC && isFile(process.env.MARKTEXT_PANDOC)
 }
 
 export default pandoc

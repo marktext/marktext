@@ -1,6 +1,5 @@
-import fs from 'fs'
+import fs from 'fs-extra'
 import path from 'path'
-import { promisify } from 'util'
 import { BrowserWindow, dialog, ipcMain, shell } from 'electron'
 import log from 'electron-log'
 import { isDirectory, isFile } from 'common/filesystem'
@@ -15,71 +14,82 @@ import pandoc from '../../utils/pandoc'
 // the renderer should communicate only with the editor window for file relevant stuff.
 // E.g. "mt::save-tabs" --> "mt::window-save-tabs$wid:<windowId>"
 
+const getPdfPageOptions = options => {
+  if (!options) {
+    return {}
+  }
+
+  const { pageSize, pageSizeWidth, pageSizeHeight, isLandscape } = options
+  if (pageSize === 'custom' && pageSizeWidth && pageSizeHeight) {
+    return {
+      // Note: mm to microns
+      pageSize: { height: pageSizeHeight * 1000, width: pageSizeWidth * 1000 },
+      landscape: !!isLandscape
+    }
+  } else {
+    return { pageSize, landscape: !!isLandscape }
+  }
+}
+
 // Handle the export response from renderer process.
-const handleResponseForExport = async (e, { type, content, pathname, markdown }) => {
+const handleResponseForExport = async (e, { type, content, pathname, title, pageOptions }) => {
   const win = BrowserWindow.fromWebContents(e.sender)
   const extension = EXTENSION_HASN[type]
   const dirname = pathname ? path.dirname(pathname) : getPath('documents')
-  let nakedFilename = getRecommendTitleFromMarkdownString(markdown)
+  let nakedFilename = title
   if (!nakedFilename) {
     nakedFilename = pathname ? path.basename(pathname, '.md') : 'Untitled'
   }
-  const defaultPath = path.join(dirname, `${nakedFilename}${extension}`)
 
-  dialog.showSaveDialog(win, {
+  const defaultPath = path.join(dirname, `${nakedFilename}${extension}`)
+  const { filePath, canceled } = await dialog.showSaveDialog(win, {
     defaultPath
-  }, async filePath => {
-    if (filePath) {
-      let data = content
-      try {
-        if (!content && type === 'pdf') {
-          data = await promisify(win.webContents.printToPDF.bind(win.webContents))({ printBackground: true })
-          removePrintServiceFromWindow(win)
-        }
-        if (data) {
-          await writeFile(filePath, data, extension)
-          win.webContents.send('AGANI::export-success', { type, filePath })
-        }
-      } catch (err) {
-        log.error(err)
-        const ERROR_MSG = err.message || `Error happened when export ${filePath}`
-        win.webContents.send('AGANI::show-notification', {
-          title: 'Export failure',
-          type: 'error',
-          message: ERROR_MSG
-        })
-      }
-    } else {
-      // User canceled save dialog
-      if (type === 'pdf') {
-        removePrintServiceFromWindow(win)
-      }
-    }
   })
+
+  if (filePath && !canceled) {
+    try {
+      if (type === 'pdf') {
+        const options = { printBackground: true }
+        Object.assign(options, getPdfPageOptions(pageOptions))
+        const data = await win.webContents.printToPDF(options)
+        removePrintServiceFromWindow(win)
+        await writeFile(filePath, data, extension, {})
+      } else {
+        if (!content) {
+          throw new Error('No HTML content found.')
+        }
+        await writeFile(filePath, content, extension, 'utf8')
+      }
+      win.webContents.send('mt::export-success', { type, filePath })
+    } catch (err) {
+      log.error('Error while exporting:', err)
+      const ERROR_MSG = err.message || `Error happened when export ${filePath}`
+      win.webContents.send('mt::show-notification', {
+        title: 'Export failure',
+        type: 'error',
+        message: ERROR_MSG
+      })
+    }
+  } else {
+    // User canceled save dialog
+    if (type === 'pdf') {
+      removePrintServiceFromWindow(win)
+    }
+  }
 }
 
 const handleResponseForPrint = e => {
   const win = BrowserWindow.fromWebContents(e.sender)
-
-  // See GH#749, Electron#16085 and Electron#17523.
-  dialog.showMessageBox(win, {
-    type: 'info',
-    buttons: ['OK'],
-    defaultId: 0,
-    noLink: true,
-    message: 'Printing doesn\'t work',
-    detail: 'Printing is disabled due to an Electron upstream issue. Please export the document as PDF and print the PDF file. We apologize for the inconvenience!'
-  }, () => {})
-  // win.webContents.print({ printBackground: true }, () => {
-  //   removePrintServiceFromWindow(win)
-  // })
+  win.webContents.print({ printBackground: true }, () => {
+    removePrintServiceFromWindow(win)
+  })
 }
 
-const handleResponseForSave = async (e, { id, markdown, pathname, options }) => {
+const handleResponseForSave = async (e, { id, filename, markdown, pathname, options, defaultPath }) => {
   const win = BrowserWindow.fromWebContents(e.sender)
   let recommendFilename = getRecommendTitleFromMarkdownString(markdown)
   if (!recommendFilename) {
-    recommendFilename = 'Untitled'
+    recommendFilename = filename || 'Untitled'
   }
 
   // If the file doesn't exist on disk add it to the recently used documents later
@@ -88,13 +98,15 @@ const handleResponseForSave = async (e, { id, markdown, pathname, options }) => 
   const alreadyExistOnDisk = !!pathname
 
   let filePath = pathname
+
   if (!filePath) {
-    filePath = await new Promise((resolve, reject) => {
-      // TODO: Use asynchronous version that returns a "Promise" with Electron 6.
-      dialog.showSaveDialog(win, {
-        defaultPath: path.join(getPath('documents'), `${recommendFilename}.md`)
-      }, resolve)
+    const { filePath: dialogPath, canceled } = await dialog.showSaveDialog(win, {
+      defaultPath: path.join(defaultPath || getPath('documents'), `${recommendFilename}.md`)
     })
+
+    if (dialogPath && !canceled) {
+      filePath = dialogPath
+    }
   }
 
   // Save dialog canceled by user - no error.
@@ -118,38 +130,38 @@ const handleResponseForSave = async (e, { id, markdown, pathname, options }) => 
       return id
     })
     .catch(err => {
-      log.error(err)
+      log.error('Error while saving:', err)
       win.webContents.send('mt::tab-save-failure', id, err.message)
     })
 }
 
-const showUnsavedFilesMessage = (win, files) => {
-  return new Promise((resolve, reject) => {
-    dialog.showMessageBox(win, {
-      type: 'warning',
-      buttons: ['Save', 'Cancel', 'Don\'t save'],
-      defaultId: 0,
-      message: `Do you want to save the changes you made to ${files.length} ${files.length === 1 ? 'file' : 'files'}?\n\n${files.map(f => f.filename).join('\n')}`,
-      detail: `Your changes will be lost if you don't save them.`,
-      cancelId: 1,
-      noLink: true
-    }, index => {
-      switch (index) {
-        case 2:
-          resolve({ needSave: false })
-          break
-        case 0:
-          setTimeout(() => {
-            resolve({ needSave: true })
-          })
-          break
-      }
-    })
+const showUnsavedFilesMessage = async (win, files) => {
+  const { response } = await dialog.showMessageBox(win, {
+    type: 'warning',
+    buttons: ['Save', 'Cancel', 'Don\'t save'],
+    defaultId: 0,
+    message: `Do you want to save the changes you made to ${files.length} ${files.length === 1 ? 'file' : 'files'}?\n\n${files.map(f => f.filename).join('\n')}`,
+    detail: 'Your changes will be lost if you don\'t save them.',
+    cancelId: 1,
+    noLink: true
   })
+
+  switch (response) {
+    case 2:
+      return { needSave: false }
+    case 0:
+      return new Promise((resolve, reject) => {
+        setTimeout(() => {
+          resolve({ needSave: true })
+        })
+      })
+    default:
+      return null
+  }
 }
 
 const noticePandocNotFound = win => {
-  return win.webContents.send('AGANI::pandoc-not-exists', {
+  return win.webContents.send('mt::pandoc-not-exists', {
     title: 'Import Warning',
     type: 'warning',
     message: 'Install pandoc before you want to import files.',
@@ -163,13 +175,13 @@ const openPandocFile = async (windowId, pathname) => {
     const data = await converter()
     ipcMain.emit('app-open-markdown-by-id', windowId, data)
   } catch (err) {
-    log.error(err)
+    log.error('Error while converting file:', err)
   }
 }
 
 const removePrintServiceFromWindow = win => {
   // remove print service content and restore GUI
-  win.webContents.send('AGANI::print-service-clearup')
+  win.webContents.send('mt::print-service-clearup')
 }
 
 // --- events -----------------------------------
@@ -181,7 +193,12 @@ ipcMain.on('mt::save-tabs', (e, unsavedFiles) => {
 
 ipcMain.on('mt::save-and-close-tabs', async (e, unsavedFiles) => {
   const win = BrowserWindow.fromWebContents(e.sender)
-  const { needSave } = await showUnsavedFilesMessage(win, unsavedFiles)
+  const userResult = await showUnsavedFilesMessage(win, unsavedFiles)
+  if (!userResult) {
+    return
+  }
+
+  const { needSave } = userResult
   if (needSave) {
     Promise.all(unsavedFiles.map(file => handleResponseForSave(e, file)))
       .then(arr => {
@@ -189,7 +206,7 @@ ipcMain.on('mt::save-and-close-tabs', async (e, unsavedFiles) => {
         win.send('mt::force-close-tabs-by-id', tabIds)
       })
       .catch(err => {
-        log.error(err.error)
+        log.error('Error while save all:', err.error)
       })
   } else {
     const tabIds = unsavedFiles.map(f => f.id)
@@ -197,11 +214,11 @@ ipcMain.on('mt::save-and-close-tabs', async (e, unsavedFiles) => {
   }
 })
 
-ipcMain.on('AGANI::response-file-save-as', (e, { id, markdown, pathname, options }) => {
+ipcMain.on('mt::response-file-save-as', async (e, { id, filename, markdown, pathname, options, defaultPath }) => {
   const win = BrowserWindow.fromWebContents(e.sender)
   let recommendFilename = getRecommendTitleFromMarkdownString(markdown)
   if (!recommendFilename) {
-    recommendFilename = 'Untitled'
+    recommendFilename = filename || 'Untitled'
   }
 
   // If the file doesn't exist on disk add it to the recently used documents later
@@ -209,49 +226,53 @@ ipcMain.on('AGANI::response-file-save-as', (e, { id, markdown, pathname, options
   // on disk nevertheless but is already tracked by Mark Text.
   const alreadyExistOnDisk = !!pathname
 
-  dialog.showSaveDialog(win, {
-    defaultPath: pathname || getPath('documents') + `/${recommendFilename}.md`
-  }, filePath => {
-    if (filePath) {
-      filePath = path.resolve(filePath)
-      writeMarkdownFile(filePath, markdown, options, win)
-        .then(() => {
-          if (!alreadyExistOnDisk) {
-            ipcMain.emit('window-add-file-path', win.id, filePath)
-            ipcMain.emit('menu-add-recently-used', filePath)
-
-            const filename = path.basename(filePath)
-            win.webContents.send('mt::set-pathname', { id, pathname: filePath, filename })
-          } else if (pathname !== filePath) {
-            // Update window file list and watcher.
-            ipcMain.emit('window-change-file-path', win.id, filePath, pathname)
-
-            const filename = path.basename(filePath)
-            win.webContents.send('mt::set-pathname', { id, pathname: filePath, filename })
-          } else {
-            ipcMain.emit('window-file-saved', win.id, filePath)
-            win.webContents.send('mt::tab-saved', id)
-          }
-        })
-        .catch(err => {
-          log.error(err)
-          win.webContents.send('mt::tab-save-failure', id, err.message)
-        })
-    }
+  let { filePath, canceled } = await dialog.showSaveDialog(win, {
+    defaultPath: pathname || path.join(defaultPath || getPath('documents'), `${recommendFilename}.md`)
   })
+
+  if (filePath && !canceled) {
+    filePath = path.resolve(filePath)
+    writeMarkdownFile(filePath, markdown, options, win)
+      .then(() => {
+        if (!alreadyExistOnDisk) {
+          ipcMain.emit('window-add-file-path', win.id, filePath)
+          ipcMain.emit('menu-add-recently-used', filePath)
+
+          const filename = path.basename(filePath)
+          win.webContents.send('mt::set-pathname', { id, pathname: filePath, filename })
+        } else if (pathname !== filePath) {
+          // Update window file list and watcher.
+          ipcMain.emit('window-change-file-path', win.id, filePath, pathname)
+
+          const filename = path.basename(filePath)
+          win.webContents.send('mt::set-pathname', { id, pathname: filePath, filename })
+        } else {
+          ipcMain.emit('window-file-saved', win.id, filePath)
+          win.webContents.send('mt::tab-saved', id)
+        }
+      })
+      .catch(err => {
+        log.error('Error while save as:', err)
+        win.webContents.send('mt::tab-save-failure', id, err.message)
+      })
+  }
 })
 
 ipcMain.on('mt::close-window-confirm', async (e, unsavedFiles) => {
   const win = BrowserWindow.fromWebContents(e.sender)
-  const { needSave } = await showUnsavedFilesMessage(win, unsavedFiles)
+  const userResult = await showUnsavedFilesMessage(win, unsavedFiles)
+  if (!userResult) {
+    return
+  }
+
+  const { needSave } = userResult
   if (needSave) {
     Promise.all(unsavedFiles.map(file => handleResponseForSave(e, file)))
       .then(() => {
         ipcMain.emit('window-close-by-id', win.id)
       })
       .catch(err => {
-        console.log(err)
-        log.error(err)
+        log.error('Error while saving before quit:', err)
 
         // Notify user about the problem.
         dialog.showMessageBox(win, {
@@ -259,24 +280,25 @@ ipcMain.on('mt::close-window-confirm', async (e, unsavedFiles) => {
           buttons: ['Close', 'Keep It Open'],
           message: 'Failure while saving files',
           detail: err.message
-        }, code => {
-          if (win.id && code === 0) {
-            ipcMain.emit('window-close-by-id', win.id)
-          }
         })
+          .then(({ response }) => {
+            if (win.id && response === 0) {
+              ipcMain.emit('window-close-by-id', win.id)
+            }
+          })
       })
   } else {
     ipcMain.emit('window-close-by-id', win.id)
   }
 })
 
-ipcMain.on('AGANI::response-file-save', handleResponseForSave)
+ipcMain.on('mt::response-file-save', handleResponseForSave)
 
-ipcMain.on('AGANI::response-export', handleResponseForExport)
+ipcMain.on('mt::response-export', handleResponseForExport)
 
-ipcMain.on('AGANI::response-print', handleResponseForPrint)
+ipcMain.on('mt::response-print', handleResponseForPrint)
 
-ipcMain.on('AGANI::window::drop', async (e, fileList) => {
+ipcMain.on('mt::window::drop', async (e, fileList) => {
   const win = BrowserWindow.fromWebContents(e.sender)
   for (const file of fileList) {
     if (isMarkdownFileOrLink(file)) {
@@ -297,7 +319,7 @@ ipcMain.on('AGANI::window::drop', async (e, fileList) => {
   }
 })
 
-ipcMain.on('mt::rename', (e, { id, pathname, newPathname }) => {
+ipcMain.on('mt::rename', async (e, { id, pathname, newPathname }) => {
   if (pathname === newPathname) return
   const win = BrowserWindow.fromWebContents(e.sender)
 
@@ -320,54 +342,54 @@ ipcMain.on('mt::rename', (e, { id, pathname, newPathname }) => {
   if (!isFile(newPathname)) {
     doRename()
   } else {
-    dialog.showMessageBox(win, {
+    const { response } = await dialog.showMessageBox(win, {
       type: 'warning',
       buttons: ['Replace', 'Cancel'],
       defaultId: 1,
       message: `The file "${path.basename(newPathname)}" already exists. Do you want to replace it?`,
       cancelId: 1,
       noLink: true
-    }, index => {
-      if (index === 0) {
-        doRename()
+    })
+
+    if (response === 0) {
+      doRename()
+    }
+  }
+})
+
+ipcMain.on('mt::response-file-move-to', async (e, { id, pathname }) => {
+  const win = BrowserWindow.fromWebContents(e.sender)
+  const { filePath, canceled } = await dialog.showSaveDialog(win, {
+    buttonLabel: 'Move to',
+    nameFieldLabel: 'Filename:',
+    defaultPath: pathname
+  })
+
+  if (filePath && !canceled) {
+    fs.rename(pathname, filePath, err => {
+      if (err) {
+        log.error(`mt::rename: Cannot rename "${pathname}" to "${filePath}".\n${err.stack}`)
+        return
       }
+
+      ipcMain.emit('window-change-file-path', win.id, filePath, pathname)
+      e.sender.send('mt::set-pathname', { id, pathname: filePath, filename: path.basename(filePath) })
     })
   }
 })
 
-ipcMain.on('AGANI::response-file-move-to', (e, { id, pathname }) => {
+ipcMain.on('mt::ask-for-open-project-in-sidebar', async e => {
   const win = BrowserWindow.fromWebContents(e.sender)
-  dialog.showSaveDialog(win, {
-    buttonLabel: 'Move to',
-    nameFieldLabel: 'Filename:',
-    defaultPath: pathname
-  }, newPath => {
-    if (newPath) {
-      fs.rename(pathname, newPath, err => {
-        if (err) {
-          log.error(`mt::rename: Cannot rename "${pathname}" to "${newPath}".\n${err.stack}`)
-          return
-        }
-
-        ipcMain.emit('window-change-file-path', win.id, newPath, pathname)
-        e.sender.send('mt::set-pathname', { id, pathname: newPath, filename: path.basename(newPath) })
-      })
-    }
-  })
-})
-
-ipcMain.on('mt::ask-for-open-project-in-sidebar', e => {
-  const win = BrowserWindow.fromWebContents(e.sender)
-  dialog.showOpenDialog(win, {
+  const { filePaths } = await dialog.showOpenDialog(win, {
     properties: ['openDirectory', 'createDirectory']
-  }, directories => {
-    if (directories && directories[0]) {
-      ipcMain.emit('app-open-directory-by-id', win.id, directories[0], true)
-    }
   })
+
+  if (filePaths && filePaths[0]) {
+    ipcMain.emit('app-open-directory-by-id', win.id, filePaths[0], true)
+  }
 })
 
-ipcMain.on('AGANI::format-link-click', (e, { data, dirname }) => {
+ipcMain.on('mt::format-link-click', (e, { data, dirname }) => {
   if (URL_REG.test(data.href)) {
     return shell.openExternal(data.href)
   }
@@ -384,10 +406,38 @@ ipcMain.on('AGANI::format-link-click', (e, { data, dirname }) => {
   }
 })
 
+// --- commands -------------------------------------
+
+ipcMain.on('mt::cmd-open-file', e => {
+  const win = BrowserWindow.fromWebContents(e.sender)
+  openFile(win)
+})
+
+ipcMain.on('mt::cmd-new-editor-window', () => {
+  newEditorWindow()
+})
+
+ipcMain.on('mt::cmd-open-folder', e => {
+  const win = BrowserWindow.fromWebContents(e.sender)
+  openFolder(win)
+})
+
+ipcMain.on('mt::cmd-close-window', e => {
+  const win = BrowserWindow.fromWebContents(e.sender)
+  win.close()
+})
+
+ipcMain.on('mt::cmd-import-file', e => {
+  const win = BrowserWindow.fromWebContents(e.sender)
+  importFile(win)
+})
+
 // --- menu -------------------------------------
 
 export const exportFile = (win, type) => {
-  win.webContents.send('AGANI::export', { type })
+  if (win && win.webContents) {
+    win.webContents.send('mt::show-export-dialog', type)
+  }
 }
 
 export const importFile = async win => {
@@ -397,45 +447,47 @@ export const importFile = async win => {
     return noticePandocNotFound(win)
   }
 
-  dialog.showOpenDialog(win, {
+  const { filePaths } = await dialog.showOpenDialog(win, {
     properties: ['openFile'],
     filters: [{
       name: 'All Files',
       extensions: PANDOC_EXTENSIONS
     }]
-  }, filePath => {
-    if (filePath) {
-      openPandocFile(win.id, filePath)
-    }
   })
+
+  if (filePaths && filePaths[0]) {
+    openPandocFile(win.id, filePaths[0])
+  }
 }
 
 export const print = win => {
-  win.webContents.send('AGANI::print')
+  if (win) {
+    win.webContents.send('mt::show-export-dialog', 'print')
+  }
 }
 
-export const openFile = win => {
-  dialog.showOpenDialog(win, {
+export const openFile = async win => {
+  const { filePaths } = await dialog.showOpenDialog(win, {
     properties: ['openFile', 'multiSelections'],
     filters: [{
       name: 'text',
       extensions: MARKDOWN_EXTENSIONS
     }]
-  }, paths => {
-    if (paths && Array.isArray(paths)) {
-      ipcMain.emit('app-open-files-by-id', win.id, paths)
-    }
   })
+
+  if (filePaths && Array.isArray(filePaths)) {
+    ipcMain.emit('app-open-files-by-id', win.id, filePaths)
+  }
 }
 
-export const openFolder = win => {
-  dialog.showOpenDialog(win, {
+export const openFolder = async win => {
+  const { filePaths } = await dialog.showOpenDialog(win, {
     properties: ['openDirectory', 'createDirectory']
-  }, directories => {
-    if (directories && directories[0]) {
-      openFileOrFolder(win, directories[0])
-    }
   })
+
+  if (filePaths && filePaths[0]) {
+    openFileOrFolder(win, filePaths[0])
+  }
 }
 
 export const openFileOrFolder = (win, pathname) => {
@@ -450,7 +502,9 @@ export const openFileOrFolder = (win, pathname) => {
 }
 
 export const newBlankTab = win => {
-  win.webContents.send('mt::new-untitled-tab')
+  if (win && win.webContents) {
+    win.webContents.send('mt::new-untitled-tab')
+  }
 }
 
 export const newEditorWindow = () => {
@@ -458,15 +512,21 @@ export const newEditorWindow = () => {
 }
 
 export const closeTab = win => {
-  win.webContents.send('AGANI::close-tab')
+  if (win && win.webContents) {
+    win.webContents.send('mt::editor-close-tab')
+  }
 }
 
 export const save = win => {
-  win.webContents.send('AGANI::ask-file-save')
+  if (win && win.webContents) {
+    win.webContents.send('mt::editor-ask-file-save')
+  }
 }
 
 export const saveAs = win => {
-  win.webContents.send('AGANI::ask-file-save-as')
+  if (win && win.webContents) {
+    win.webContents.send('mt::editor-ask-file-save-as')
+  }
 }
 
 export const autoSave = (menuItem, browserWindow) => {
@@ -475,11 +535,15 @@ export const autoSave = (menuItem, browserWindow) => {
 }
 
 export const moveTo = win => {
-  win.webContents.send('AGANI::ask-file-move-to')
+  if (win && win.webContents) {
+    win.webContents.send('mt::editor-move-file')
+  }
 }
 
 export const rename = win => {
-  win.webContents.send('AGANI::ask-file-rename')
+  if (win && win.webContents) {
+    win.webContents.send('mt::editor-rename-file')
+  }
 }
 
 export const clearRecentlyUsed = () => {

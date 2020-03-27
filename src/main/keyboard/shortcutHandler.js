@@ -21,94 +21,103 @@ class Keybindings {
     this.configPath = path.join(userDataPath, 'keybindings.json')
 
     this.keys = new Map([
-      // marktext - macOS only
-      ['mtHide', 'Command+H'],
-      ['mtHideOthers', 'Command+Alt+H'],
+      // Mark Text - macOS only
+      ['mt.hide', 'Command+H'],
+      ['mt.hide-others', 'Command+Alt+H'],
 
-      // file menu
-      ['fileNewFile', 'CmdOrCtrl+N'],
-      ['fileNewTab', 'CmdOrCtrl+Shift+T'],
-      ['fileOpenFile', 'CmdOrCtrl+O'],
-      ['fileOpenFolder', 'CmdOrCtrl+Shift+O'],
-      ['fileSave', 'CmdOrCtrl+S'],
-      ['fileSaveAs', 'CmdOrCtrl+Shift+S'],
-      ['filePrint', 'CmdOrCtrl+P'],
-      ['filePreferences', 'CmdOrCtrl+,'], // marktext menu in macOS
-      ['fileCloseTab', 'CmdOrCtrl+W'],
-      ['fileCloseWindow', 'CmdOrCtrl+Shift+W'],
-      ['fileQuit', 'CmdOrCtrl+Q'],
+      // File menu
+      ['file.new-file', 'CmdOrCtrl+N'],
+      ['file.new-tab', 'CmdOrCtrl+T'],
+      ['file.open-file', 'CmdOrCtrl+O'],
+      ['file.open-folder', 'CmdOrCtrl+Shift+O'],
+      ['file.save', 'CmdOrCtrl+S'],
+      ['file.save-as', 'CmdOrCtrl+Shift+S'],
+      ['file.preferences', 'CmdOrCtrl+,'], // marktext menu in macOS
+      ['file.close-tab', 'CmdOrCtrl+W'],
+      ['file.close-window', 'CmdOrCtrl+Shift+W'],
+      ['file.quit', 'CmdOrCtrl+Q'],
 
-      // edit menu
-      ['editUndo', 'CmdOrCtrl+Z'],
-      ['editRedo', 'CmdOrCtrl+Shift+Z'],
-      ['editCut', 'CmdOrCtrl+X'],
-      ['editCopy', 'CmdOrCtrl+C'],
-      ['editPaste', 'CmdOrCtrl+V'],
-      ['editCopyAsMarkdown', 'CmdOrCtrl+Shift+C'],
-      ['editCopyAsPlaintext', 'CmdOrCtrl+Shift+V'],
-      ['editSelectAll', 'CmdOrCtrl+A'],
-      ['editDuplicate', 'Shift+CmdOrCtrl+P'],
-      ['editCreateParagraph', 'Shift+CmdOrCtrl+N'],
-      ['editDeleteParagraph', 'Shift+CmdOrCtrl+D'],
-      ['editFind', 'CmdOrCtrl+F'],
-      ['editFindNext', 'CmdOrCtrl+Alt+U'],
-      ['editFindPrevious', 'CmdOrCtrl+Shift+U'],
-      ['editReplace', 'CmdOrCtrl+Alt+F'],
-      ['editAidou', 'CmdOrCtrl+/'],
-      ['editScreenshot', 'CmdOrCtrl+Alt+A'],
+      // Edit menu
+      ['edit.undo', 'CmdOrCtrl+Z'],
+      ['edit.redo', 'CmdOrCtrl+Shift+Z'],
+      ['edit.cut', 'CmdOrCtrl+X'],
+      ['edit.copy', 'CmdOrCtrl+C'],
+      ['edit.paste', 'CmdOrCtrl+V'],
+      ['edit.copy-as-markdown', 'CmdOrCtrl+Shift+C'],
+      ['edit.copy-as-plaintext', 'CmdOrCtrl+Shift+V'],
+      ['edit.select-all', 'CmdOrCtrl+A'],
+      ['edit.duplicate', 'CmdOrCtrl+Alt+D'],
+      ['edit.create-paragraph', 'Shift+CmdOrCtrl+N'],
+      ['edit.delete-paragraph', 'Shift+CmdOrCtrl+D'],
+      ['edit.find', 'CmdOrCtrl+F'],
+      ['edit.find-next', isOsx ? 'Cmd+G' : 'F3'],
+      ['edit.find-previous', isOsx ? 'Cmd+Shift+G' : 'Shift+F3'],
+      ['edit.replace', 'CmdOrCtrl+Alt+F'],
+      ['edit.find-in-folder', 'Shift+CmdOrCtrl+F'],
+      ['edit.aidou', 'CmdOrCtrl+/'],
+      ['edit.screenshot', 'CmdOrCtrl+Alt+A'], // macOS only
 
-      // paragraph menu
-      ['paragraphHeading1', 'CmdOrCtrl+1'],
-      ['paragraphHeading2', 'CmdOrCtrl+2'],
-      ['paragraphHeading3', 'CmdOrCtrl+3'],
-      ['paragraphHeading4', 'CmdOrCtrl+4'],
-      ['paragraphHeading5', 'CmdOrCtrl+5'],
-      ['paragraphHeading6', 'CmdOrCtrl+6'],
-      ['paragraphUpgradeHeading', 'CmdOrCtrl+='],
-      ['paragraphDegradeHeading', 'CmdOrCtrl+-'],
-      ['paragraphTable', 'CmdOrCtrl+T'],
-      ['paragraphCodeFence', 'CmdOrCtrl+Alt+C'],
-      ['paragraphQuoteBlock', 'CmdOrCtrl+Alt+Q'],
-      ['paragraphMathBlock', 'CmdOrCtrl+Alt+M'],
-      ['paragraphHtmlBlock', isOsx ? 'CmdOrCtrl+Alt+J' : 'CmdOrCtrl+Alt+H'],
-      ['paragraphOrderList', 'CmdOrCtrl+Alt+O'],
-      ['paragraphBulletList', 'CmdOrCtrl+Alt+U'],
-      ['paragraphTaskList', 'CmdOrCtrl+Alt+X'],
-      ['paragraphLooseListItem', 'CmdOrCtrl+Alt+L'],
-      ['paragraphParagraph', 'CmdOrCtrl+0'],
-      ['paragraphHorizontalLine', 'CmdOrCtrl+Alt+-'],
-      ['paragraphYAMLFrontMatter', 'CmdOrCtrl+Alt+Y'],
+      // Paragraph menu
+      ['paragraph.heading-1', 'CmdOrCtrl+1'],
+      ['paragraph.heading-2', 'CmdOrCtrl+2'],
+      ['paragraph.heading-3', 'CmdOrCtrl+3'],
+      ['paragraph.heading-4', 'CmdOrCtrl+4'],
+      ['paragraph.heading-5', 'CmdOrCtrl+5'],
+      ['paragraph.heading-6', 'CmdOrCtrl+6'],
+      ['paragraph.upgrade-heading', 'CmdOrCtrl+='],
+      ['paragraph.degrade-heading', 'CmdOrCtrl+-'],
+      ['paragraph.table', 'CmdOrCtrl+Shift+T'],
+      ['paragraph.code-fence', 'CmdOrCtrl+Alt+C'],
+      ['paragraph.quote-block', 'CmdOrCtrl+Alt+Q'],
+      ['paragraph.math-formula', 'CmdOrCtrl+Alt+M'],
+      ['paragraph.html-block', isOsx ? 'CmdOrCtrl+Alt+J' : 'CmdOrCtrl+Alt+H'],
+      ['paragraph.order-list', 'CmdOrCtrl+Alt+O'],
+      ['paragraph.bullet-list', 'CmdOrCtrl+Alt+U'],
+      ['paragraph.task-list', 'CmdOrCtrl+Alt+X'],
+      ['paragraph.loose-list-item', 'CmdOrCtrl+Alt+L'],
+      ['paragraph.paragraph', 'CmdOrCtrl+0'],
+      ['paragraph.horizontal-line', 'CmdOrCtrl+Alt+-'],
+      ['paragraph.front-matter', 'CmdOrCtrl+Alt+Y'],
 
-      // format menu
-      ['formatStrong', 'CmdOrCtrl+B'],
-      ['formatEmphasis', 'CmdOrCtrl+I'],
-      ['formatUnderline', 'CmdOrCtrl+U'],
-      ['formatInlineCode', 'CmdOrCtrl+`'],
-      ['formatInlineMath', 'Shift+CmdOrCtrl+M'],
-      ['formatStrike', 'CmdOrCtrl+D'],
-      ['formatHyperlink', 'CmdOrCtrl+L'],
-      ['formatImage', 'CmdOrCtrl+Shift+I'],
-      ['formatClearFormat', 'Shift+CmdOrCtrl+R'],
+      // Format menu
+      ['format.strong', 'CmdOrCtrl+B'],
+      ['format.emphasis', 'CmdOrCtrl+I'],
+      ['format.underline', 'CmdOrCtrl+U'],
+      ['format.highlight', 'Shift+CmdOrCtrl+H'],
+      ['format.inline-code', 'CmdOrCtrl+`'],
+      ['format.inline-math', 'Shift+CmdOrCtrl+M'],
+      ['format.strike', 'CmdOrCtrl+D'],
+      ['format.hyperlink', 'CmdOrCtrl+L'],
+      ['format.image', 'CmdOrCtrl+Shift+I'],
+      ['format.clear-format', 'Shift+CmdOrCtrl+R'],
 
-      // window menu
-      ['windowMinimize', 'CmdOrCtrl+M'],
+      // Window menu
+      ['window.minimize', 'CmdOrCtrl+M'],
+      ['window.toggle-full-screen', isOsx ? 'Ctrl+Command+F' : 'F11'],
 
-      // view menu
-      ['viewToggleFullScreen', isOsx ? 'Ctrl+Command+F' : 'F11'],
-      ['viewSourceCodeMode', 'CmdOrCtrl+Alt+S'],
-      ['viewTypewriterMode', 'CmdOrCtrl+Alt+T'],
-      ['viewFocusMode', 'CmdOrCtrl+Shift+F'],
-      ['viewToggleSideBar', 'CmdOrCtrl+J'],
-      ['viewToggleTabBar', 'CmdOrCtrl+Alt+B'],
-      ['viewDevToggleDeveloperTools', 'CmdOrCtrl+Alt+I'],
-      ['viewDevReload', 'CmdOrCtrl+R']
+      // View menu
+      ['view.command-palette', 'CmdOrCtrl+Shift+P'],
+      ['view.source-code-mode', 'CmdOrCtrl+Alt+S'],
+      ['view.typewriter-mode', 'CmdOrCtrl+Alt+T'],
+      ['view.focus-mode', 'CmdOrCtrl+Shift+F'],
+      ['view.toggle-sidebar', 'CmdOrCtrl+J'],
+      ['view.toggle-tabbar', 'CmdOrCtrl+Alt+B'],
+      ['view.toggle-dev-tools', 'CmdOrCtrl+Alt+I'],
+      ['view.dev-reload', 'CmdOrCtrl+R'],
+
+      // Misc
+      ['tabs.cycle-forward', 'CmdOrCtrl+Tab'],
+      ['tabs.cycle-backward', 'CmdOrCtrl+Shift+Tab'],
+      ['tabs.switch-to-left', 'CmdOrCtrl+PageUp'],
+      ['tabs.switch-to-right', 'CmdOrCtrl+PageDown'],
+      ['file.quick-open', 'CmdOrCtrl+P']
     ])
 
-    // fix non-US keyboards
+    // Fix non-US keyboards
     this.mnemonics = new Map()
     this._fixLayout()
 
-    // load user-defined keybindings
+    // Load user-defined keybindings
     this._loadLocalKeybindings()
   }
 
@@ -150,13 +159,13 @@ class Keybindings {
   // --- private --------------------------------
 
   _fixLayout () {
-    // fix wrong virtual key mapping on non-QWERTY layouts
+    // Fix wrong virtual key mapping on non-QWERTY layouts
     electronLocalshortcut.updateVirtualKeys(getVirtualLetters())
 
-    // fix broken shortcuts and dead keys
+    // Fix broken shortcuts and dead keys
     const lang = getKeyboardLanguage()
     switch (lang) {
-      // fix aidou and inline code
+      // Fix aidou and inline code
       case 'ch':
       case 'de':
       case 'dk':
@@ -170,7 +179,7 @@ class Keybindings {
         }
         break
 
-      // fix aidou only
+      // Fix aidou only
       case 'es':
       case 'fr':
       case 'hr':
@@ -182,7 +191,7 @@ class Keybindings {
         }
         break
 
-      // custom layouts
+      // Custom layouts
       case 'bg':
         if (!isOsx) {
           this.mnemonics.set('CmdOrCtrl+/', 'CmdOrCtrl+8')
@@ -196,9 +205,9 @@ class Keybindings {
     this.mnemonics.set('CmdOrCtrl+/', 'CmdOrCtrl+7')
   }
 
-  // fix dead backquote key on layouts like German
+  // Fix dead backquote key on layouts like German
   _fixInlineCode () {
-    this.keys.set('formatInlineCode', 'CmdOrCtrl+Shift+B')
+    this.keys.set('format.inline-code', 'CmdOrCtrl+Shift+B')
   }
 
   _loadLocalKeybindings () {
@@ -214,8 +223,8 @@ class Keybindings {
 
     // keybindings.json example:
     // {
-    //   "fileSave": "CmdOrCtrl+S",
-    //   "fileSaveAs": "CmdOrCtrl+Shift+S"
+    //   "file.save": "CmdOrCtrl+S",
+    //   "file.save-as": "CmdOrCtrl+Shift+S"
     // }
 
     const userAccelerators = new Map()
@@ -224,12 +233,23 @@ class Keybindings {
         const value = json[key]
         if (typeof value === 'string') {
           if (value.length === 0) {
-            // unset key
-            this.keys.set(key, '')
+            // Unset key
+            userAccelerators.set(key, '')
           } else if (isAccelerator(value)) {
-            // id / accelerator
             userAccelerators.set(key, value)
           }
+        }
+      }
+    }
+
+    // Check for duplicate user shortcuts
+    for (const [keyA, valueA] of userAccelerators) {
+      for (const [keyB, valueB] of userAccelerators) {
+        if (keyA !== keyB && this._isEqualAccelerator(valueA, valueB)) {
+          const err = `Invalid keybindings.json configuration: Duplicate value for "${keyA}" and "${keyB}"!`
+          console.log(err)
+          log.error(err)
+          return
         }
       }
     }
@@ -238,26 +258,24 @@ class Keybindings {
       return
     }
 
-    // deep clone shortcuts and unset user shortcuts
+    // Deep clone shortcuts
     const accelerators = new Map(this.keys)
-    userAccelerators.forEach((value, key) => {
-      accelerators.set(key, '')
-    })
 
-    // check for duplicate shortcuts
+    // Check for duplicate shortcuts
     for (const [userKey, userValue] of userAccelerators) {
       for (const [key, value] of accelerators) {
         if (this._isEqualAccelerator(value, userValue)) {
-          const err = `Invalid keybindings.json configuration: Duplicate key ${userKey} - ${key}`
-          console.log(err)
-          log.error(err)
-          return
+          // Unset default key
+          accelerators.set(key, '')
+
+          // A accelerator should only exist once in the default map.
+          break
         }
       }
       accelerators.set(userKey, userValue)
     }
 
-    // update key bindings
+    // Update key bindings
     this.keys = accelerators
   }
 
@@ -274,6 +292,10 @@ class Keybindings {
 
     const keysA = a.split('+')
     const keysB = b.split('+')
+    if (keysA.length !== keysB.length) {
+      return false
+    }
+
     const intersection = new Set([...keysA, ...keysB])
     return intersection.size === keysB.length
   }
@@ -308,6 +330,7 @@ const callMenuCallback = (menuInfo, win) => {
       const menus = Menu.getApplicationMenu()
       menuItem = menus.getMenuItemById(id)
     }
+
     // Allow all shortcuts/menus without id and only enabled menus with id (GH#980).
     if (!menuItem || menuItem.enabled !== false) {
       click(menuItem, win)

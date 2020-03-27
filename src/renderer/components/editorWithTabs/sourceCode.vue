@@ -64,6 +64,12 @@ export default {
         lineWrapping: true,
         styleActiveLine: true,
         direction: textDirection,
+        // The amount of updates needed when scrolling. Settings this to >Infinity< or use CSS
+        // >height: auto< result in bad performance because the whole document is always rendered.
+        // Since we are using >height: auto< setting this to >Infinity< to fix #171. The best
+        // solution would be to set a fixed height like in #791 but then the scrollbar is not on
+        // the right side. Please also see CodeMirror#1104.
+        viewportMargin: Infinity,
         lineNumberFormatter (line) {
           if (line % 10 === 0 || line === 1) {
             return line
@@ -72,21 +78,28 @@ export default {
           }
         }
       }
+
+      // Set theme
       if (railscastsThemes.includes(theme)) {
         codeMirrorConfig.theme = 'railscasts'
       } else if (oneDarkThemes.includes(theme)) {
         codeMirrorConfig.theme = 'one-dark'
       }
+
+      // Init CodeMirror
       const editor = this.editor = codeMirror(container, codeMirrorConfig)
 
       bus.$on('file-loaded', this.handleFileChange)
       bus.$on('file-changed', this.handleFileChange)
       bus.$on('dotu-select', this.handleSelectDoutu)
       bus.$on('selectAll', this.handleSelectAll)
+      bus.$on('image-action', this.handleImageAction)
 
       setMode(editor, 'markdown')
       this.listenChange()
-      if (cursor) {
+
+      // NOTE: Cursor may be not null but the inner values are.
+      if (cursor && cursor.anchor && cursor.focus) {
         const { anchor, focus } = cursor
         editor.setSelection(anchor, focus, { scroll: true }) // Scroll the focus into view.
       } else {
@@ -105,12 +118,62 @@ export default {
     bus.$off('file-changed', this.handleFileChange)
     bus.$off('dotu-select', this.handleSelectDoutu)
     bus.$off('selectAll', this.handleSelectAll)
+    bus.$off('image-action', this.handleImageAction)
 
     const { editor } = this
     const { cursor, markdown } = this.getMarkdownAndCursor(editor)
     bus.$emit('file-changed', { id: this.tabId, markdown, cursor, renderCursor: true })
   },
   methods: {
+    handleImageAction ({ id, result, alt }) {
+      const { editor } = this
+      const value = editor.getValue()
+      const focus = editor.getCursor('focus')
+      const anchor = editor.getCursor('anchor')
+      const lines = value.split('\n')
+      const index = lines.findIndex(line => line.indexOf(id) > 0)
+
+      if (index > -1) {
+        const oldLine = lines[index]
+        lines[index] = oldLine.replace(new RegExp(`!\\[${id}\\]\\(.*\\)`), `![${alt}](${result})`)
+        const newValue = lines.join('\n')
+        editor.setValue(newValue)
+        const match = /(!\[.*\]\(.*\))/.exec(oldLine)
+        if (!match) {
+          // User maybe delete `![]()` structure, and the match is null.
+          return
+        }
+        const range = {
+          start: match.index,
+          end: match.index + match[1].length
+        }
+        const delta = alt.length + result.length + 5 - match[1].length
+
+        const adjust = pointer => {
+          if (!pointer) {
+            return
+          }
+          if (pointer.line !== index) {
+            return
+          }
+          if (pointer.ch <= range.start) {
+            // do nothing.
+          } else if (pointer.ch > range.start && pointer.ch < range.end) {
+            pointer.ch = range.start + alt.length + result.length + 5
+          } else {
+            pointer.ch += delta
+          }
+        }
+
+        adjust(focus)
+        adjust(anchor)
+        if (focus && anchor) {
+          editor.setSelection(anchor, focus, { scroll: true })
+        } else {
+          setCursorAtLastLine()
+        }
+      }
+    },
     handleSelectDoutu (url) {
       const { editor } = this
       if (editor) {
@@ -131,7 +194,7 @@ export default {
               this.$store.dispatch('LISTEN_FOR_CONTENT_CHANGE', { id: this.tabId, markdown, wordCount, cursor })
             } else {
               // This may occur during tab switching but should not occur otherwise.
-              console.warn(`LISTEN_FOR_CONTENT_CHANGE: Cannot commit changes because not tab id was set!`)
+              console.warn('LISTEN_FOR_CONTENT_CHANGE: Cannot commit changes because not tab id was set!')
             }
           }
         }, 1000)
@@ -197,6 +260,7 @@ export default {
     overflow: auto;
   }
   .source-code .CodeMirror {
+    height: auto;
     margin: 50px auto;
     max-width: var(--editorAreaWidth);
     background: transparent;

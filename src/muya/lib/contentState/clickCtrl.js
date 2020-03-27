@@ -1,6 +1,8 @@
 import selection from '../selection'
 import { isMuyaEditorElement } from '../selection/dom'
-import { HAS_TEXT_BLOCK_REG } from '../config'
+import { HAS_TEXT_BLOCK_REG, CLASS_OR_ID } from '../config'
+import { getParentCheckBox } from '../utils/getParentCheckBox'
+import { cumputeCheckboxStatus } from '../utils/cumputeCheckBoxStatus'
 
 const clickCtrl = ContentState => {
   ContentState.prototype.clickHandler = function (event) {
@@ -78,6 +80,27 @@ const clickCtrl = ContentState => {
     // format-click
     const node = selection.getSelectionStart()
     const inlineNode = node ? node.closest('.ag-inline-rule') : null
+
+    // link-format-click
+    let parentNode = inlineNode
+    while (parentNode !== null && parentNode.classList.contains(CLASS_OR_ID.AG_INLINE_RULE)) {
+      if (parentNode.tagName === 'A') {
+        const formatType = 'link' // auto link or []() link
+        const data = {
+          text: inlineNode.textContent,
+          href: parentNode.getAttribute('href')
+        }
+        eventCenter.dispatch('format-click', {
+          event,
+          formatType,
+          data
+        })
+        break
+      } else {
+        parentNode = parentNode.parentNode
+      }
+    }
+
     if (inlineNode) {
       let formatType = null
       let data = null
@@ -89,14 +112,6 @@ const clickCtrl = ContentState => {
           } else if (inlineNode.classList.contains('ag-math-text')) {
             formatType = 'inline_math'
             data = inlineNode.textContent
-          }
-          break
-        }
-        case 'A': {
-          formatType = 'link' // auto link or []() link
-          data = {
-            text: inlineNode.textContent,
-            href: inlineNode.getAttribute('href')
           }
           break
         }
@@ -136,7 +151,7 @@ const clickCtrl = ContentState => {
       start.key === end.key &&
       start.offset !== end.offset &&
       HAS_TEXT_BLOCK_REG.test(block.type) &&
-      block.functionType !== 'codeLine' &&
+      block.functionType !== 'codeContent' &&
       block.functionType !== 'languageInput'
     ) {
       const reference = this.getPositionReference()
@@ -179,6 +194,58 @@ const clickCtrl = ContentState => {
     } else {
       this.cursor = { start, end }
     }
+  }
+
+  ContentState.prototype.setCheckBoxState = function (checkbox, checked) {
+    checkbox.checked = checked
+    const block = this.getBlock(checkbox.id)
+    block.checked = checked
+    checkbox.classList.toggle(CLASS_OR_ID.AG_CHECKBOX_CHECKED)
+  }
+
+  ContentState.prototype.updateParentsCheckBoxState = function (checkbox) {
+    let parent = getParentCheckBox(checkbox)
+    while (parent !== null) {
+      const checked = cumputeCheckboxStatus(parent)
+      if (parent.checked !== checked) {
+        this.setCheckBoxState(parent, checked)
+        parent = getParentCheckBox(parent)
+      } else {
+        break
+      }
+    }
+  }
+
+  ContentState.prototype.updateChildrenCheckBoxState = function (checkbox, checked) {
+    const checkboxes = checkbox.parentElement.querySelectorAll(`input ~ ul .${CLASS_OR_ID.AG_TASK_LIST_ITEM_CHECKBOX}`)
+    const len = checkboxes.length
+    for (let i = 0; i < len; i++) {
+      const checkbox = checkboxes[i]
+      if (checkbox.checked !== checked) {
+        this.setCheckBoxState(checkbox, checked)
+      }
+    }
+  }
+
+  // handle task list item checkbox click
+  ContentState.prototype.listItemCheckBoxClick = function (checkbox) {
+    const { checked } = checkbox
+    this.setCheckBoxState(checkbox, checked)
+
+    // A task checked, then related task should be update
+    const { autoCheck } = this.muya.options
+    if (autoCheck) {
+      this.updateChildrenCheckBoxState(checkbox, checked)
+      this.updateParentsCheckBoxState(checkbox)
+    }
+
+    const block = this.getBlock(checkbox.id)
+    const parentBlock = this.getParent(block)
+    const firstEditableBlock = this.firstInDescendant(parentBlock)
+    const { key } = firstEditableBlock
+    const offset = 0
+    this.cursor = { start: { key, offset }, end: { key, offset } }
+    return this.partialRender()
   }
 }
 

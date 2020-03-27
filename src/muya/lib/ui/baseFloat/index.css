@@ -6,7 +6,7 @@
   height: auto;
   top: -1000px;
   right: -1000px;
-  border-radius: 8px;
+  border-radius: 2px;
   box-shadow: var(--floatShadow);
   background-color: var(--floatBgColor);
   transition: opacity .25s ease-in-out;

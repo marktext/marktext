@@ -20,7 +20,6 @@
       <editor-with-tabs
         v-if="hasCurrentFile && init"
         :markdown="markdown"
-        :filename="filename"
         :cursor="cursor"
         :source-code="sourceCode"
         :show-tab-bar="showTabBar"
@@ -28,7 +27,9 @@
         :platform="platform"
       ></editor-with-tabs>
       <aidou></aidou>
+      <command-palette></command-palette>
       <about-dialog></about-dialog>
+      <export-setting-dialog></export-setting-dialog>
       <rename></rename>
       <tweet></tweet>
       <import-modal></import-modal>
@@ -44,9 +45,12 @@ import TitleBar from '@/components/titleBar'
 import SideBar from '@/components/sideBar'
 import Aidou from '@/components/aidou/aidou'
 import AboutDialog from '@/components/about'
+import CommandPalette from '@/components/commandPalette'
+import ExportSettingDialog from '@/components/exportSettings'
 import Rename from '@/components/rename'
 import Tweet from '@/components/tweet'
 import ImportModal from '@/components/import'
+import { loadingPageMixins } from '@/mixins'
 import { mapState } from 'vuex'
 import bus from '@/bus'
 import { DEFAULT_STYLE } from '@/config'
@@ -60,10 +64,13 @@ export default {
     TitleBar,
     SideBar,
     AboutDialog,
+    ExportSettingDialog,
     Rename,
     Tweet,
-    ImportModal
+    ImportModal,
+    CommandPalette
   },
+  mixins: [loadingPageMixins],
   data () {
     return {
     }
@@ -108,6 +115,8 @@ export default {
 
     // store/index.js
     dispatch('LINTEN_WIN_STATUS')
+    // module: command center
+    dispatch('LISTEN_COMMAND_CENTER_BUS')
     // module: tweet
     dispatch('LISTEN_FOR_TWEET')
     // module: layout
@@ -116,7 +125,7 @@ export default {
     // module: listenForMain
     dispatch('LISTEN_FOR_EDIT')
     dispatch('LISTEN_FOR_VIEW')
-    dispatch('LISTEN_FOR_ABOUT_DIALOG')
+    dispatch('LISTEN_FOR_SHOW_DIALOG')
     dispatch('LISTEN_FOR_PARAGRAPH_INLINE_STYLE')
     // module: project
     dispatch('LISTEN_FOR_UPDATE_PROJECT')
@@ -127,7 +136,7 @@ export default {
     // module: editor
     dispatch('LISTEN_SCREEN_SHOT')
     dispatch('ASK_FOR_USER_PREFERENCE')
-    dispatch('ASK_FOR_MODE')
+    dispatch('LISTEN_TOGGLE_VIEW')
     dispatch('LISTEN_FOR_CLOSE')
     dispatch('LISTEN_FOR_SAVE_AS')
     dispatch('LISTEN_FOR_MOVE_TO')
@@ -135,14 +144,17 @@ export default {
     dispatch('LISTEN_FOR_SET_PATHNAME')
     dispatch('LISTEN_FOR_BOOTSTRAP_WINDOW')
     dispatch('LISTEN_FOR_SAVE_CLOSE')
-    dispatch('LISTEN_FOR_EXPORT_PRINT')
     dispatch('LISTEN_FOR_RENAME')
     dispatch('LINTEN_FOR_SET_LINE_ENDING')
+    dispatch('LINTEN_FOR_SET_ENCODING')
+    dispatch('LINTEN_FOR_SET_FINAL_NEWLINE')
     dispatch('LISTEN_FOR_NEW_TAB')
     dispatch('LISTEN_FOR_CLOSE_TAB')
+    dispatch('LISTEN_FOR_TAB_CYCLE')
     dispatch('LINTEN_FOR_PRINT_SERVICE_CLEARUP')
     dispatch('LINTEN_FOR_EXPORT_SUCCESS')
     dispatch('LISTEN_FOR_FILE_CHANGE')
+    dispatch('LISTEN_WINDOW_ZOOM')
     // module: notification
     dispatch('LISTEN_FOR_NOTIFICATION')
 
@@ -175,6 +187,7 @@ export default {
     this.$nextTick(() => {
       const style = global.marktext.initialState || DEFAULT_STYLE
       addStyles(style)
+      this.hideLoadingPage()
     })
   }
 }

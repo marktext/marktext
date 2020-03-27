@@ -1,4 +1,4 @@
-import { beginRules, inlineRules } from './rules'
+import { beginRules, inlineRules, inlineExtensionRules } from './rules'
 import { isLengthEven, union } from '../utils'
 import { findClosingBracket } from './marked/utils'
 import { getAttributes, parseSrcAndTitle, validateEmphasize, lowerPriority } from './utils'
@@ -9,14 +9,35 @@ const disallowedHtmlTag = /(?:title|textarea|style|xmp|iframe|noembed|noframes|s
 const validateRules = Object.assign({}, inlineRules)
 delete validateRules.em
 delete validateRules.strong
-delete validateRules['tail_header']
-delete validateRules['backlash']
+delete validateRules.tail_header
+delete validateRules.backlash
 
-const tokenizerFac = (src, beginRules, inlineRules, pos = 0, top, labels) => {
+const correctUrl = token => {
+  if (token && typeof token[4] === 'string') {
+    const lastParenIndex = findClosingBracket(token[4], '()')
+
+    if (lastParenIndex > -1) {
+      const len = token[0].length - (token[4].length - lastParenIndex)
+      token[0] = token[0].substring(0, len)
+      const originSrc = token[4].substring(0, lastParenIndex)
+      const match = /(\\+)$/.exec(originSrc)
+      if (match) {
+        token[4] = originSrc.substring(0, originSrc.length - match[1].length)
+        token[5] = match[1]
+      } else {
+        token[4] = originSrc
+        token[5] = ''
+      }
+    }
+  }
+}
+
+const tokenizerFac = (src, beginRules, inlineRules, pos = 0, top, labels, options) => {
+  const originSrc = src
   const tokens = []
   let pending = ''
   let pendingStartPos = pos
-
+  const { superSubScript, footnote } = options
   const pushPending = () => {
     if (pending) {
       tokens.push({
@@ -59,7 +80,7 @@ const tokenizerFac = (src, beginRules, inlineRules, pos = 0, top, labels) => {
         break
       }
     }
-    const def = beginRules['reference_definition'].exec(src)
+    const def = beginRules.reference_definition.exec(src)
     if (def && isLengthEven(def[3])) {
       const token = {
         type: 'reference_definition',
@@ -130,7 +151,7 @@ const tokenizerFac = (src, beginRules, inlineRules, pos = 0, top, labels) => {
             range,
             marker,
             parent: tokens,
-            children: tokenizerFac(to[2], undefined, inlineRules, pos + to[1].length, false, labels),
+            children: tokenizerFac(to[2], undefined, inlineRules, pos + to[1].length, false, labels, options),
             backlash: to[3]
           })
           src = src.substring(to[0].length)
@@ -171,7 +192,7 @@ const tokenizerFac = (src, beginRules, inlineRules, pos = 0, top, labels) => {
             range,
             marker,
             parent: tokens,
-            children: tokenizerFac(to[2], undefined, inlineRules, pos + to[1].length, false, labels),
+            children: tokenizerFac(to[2], undefined, inlineRules, pos + to[1].length, false, labels, options),
             backlash: to[3]
           })
         }
@@ -181,25 +202,52 @@ const tokenizerFac = (src, beginRules, inlineRules, pos = 0, top, labels) => {
       }
     }
     if (inChunk) continue
-    // image
-    const imageTo = inlineRules.image.exec(src)
-    if (imageTo && typeof imageTo[4] === 'string') {
-      const lastParenIndex = findClosingBracket(imageTo[4], '()')
-
-      if (lastParenIndex > -1) {
-        const len = 4 + imageTo[5].length + lastParenIndex + 1
-        imageTo[0] = imageTo[0].substring(0, len)
-        const originSrc = imageTo[4].substring(0, lastParenIndex)
-        const match = /(\\+)$/.exec(originSrc)
-        if (match) {
-          imageTo[4] = originSrc.substring(0, originSrc.length - match[1].length)
-          imageTo[5] = match[1]
-        } else {
-          imageTo[4] = originSrc
-          imageTo[5] = ''
-        }
+    // superscript and subscript
+    if (superSubScript) {
+      const superSubTo = inlineRules.superscript.exec(src) || inlineRules.subscript.exec(src)
+      if (superSubTo) {
+        pushPending()
+        tokens.push({
+          type: 'super_sub_script',
+          raw: superSubTo[0],
+          marker: superSubTo[1],
+          range: {
+            start: pos,
+            end: pos + superSubTo[0].length
+          },
+          parent: tokens,
+          content: superSubTo[2]
+        })
+        src = src.substring(superSubTo[0].length)
+        pos = pos + superSubTo[0].length
+        continue
       }
     }
+
+    // footnote identifier
+    if (pos !== 0 && footnote) {
+      const footnoteTo = inlineRules.footnote_identifier.exec(src)
+      if (footnoteTo) {
+        pushPending()
+        tokens.push({
+          type: 'footnote_identifier',
+          raw: footnoteTo[0],
+          marker: footnoteTo[1],
+          range: {
+            start: pos,
+            end: pos + footnoteTo[0].length
+          },
+          parent: tokens,
+          content: footnoteTo[2]
+        })
+        src = src.substring(footnoteTo[0].length)
+        pos = pos + footnoteTo[0].length
+        continue
+      }
+    }
+    // image
+    const imageTo = inlineRules.image.exec(src)
+    correctUrl(imageTo)
     if (imageTo && isLengthEven(imageTo[3]) && isLengthEven(imageTo[5])) {
       const { src: imageSrc, title } = parseSrcAndTitle(imageTo[4])
       pushPending()
@@ -208,6 +256,12 @@ const tokenizerFac = (src, beginRules, inlineRules, pos = 0, top, labels) => {
         raw: imageTo[0],
         marker: imageTo[1],
         srcAndTitle: imageTo[4],
+        // This `attrs` used for render image.
+        attrs: {
+          src: imageSrc + encodeURI(imageTo[5]),
+          title,
+          alt: imageTo[2] + encodeURI(imageTo[3])
+        },
         src: imageSrc,
         title,
         parent: tokens,
@@ -227,6 +281,7 @@ const tokenizerFac = (src, beginRules, inlineRules, pos = 0, top, labels) => {
     }
     // link
     const linkTo = inlineRules.link.exec(src)
+    correctUrl(linkTo)
     if (linkTo && isLengthEven(linkTo[3]) && isLengthEven(linkTo[5])) {
       const { src: href, title } = parseSrcAndTitle(linkTo[4])
       pushPending()
@@ -243,7 +298,7 @@ const tokenizerFac = (src, beginRules, inlineRules, pos = 0, top, labels) => {
           start: pos,
           end: pos + linkTo[0].length
         },
-        children: tokenizerFac(linkTo[2], undefined, inlineRules, pos + linkTo[1].length, false, labels),
+        children: tokenizerFac(linkTo[2], undefined, inlineRules, pos + linkTo[1].length, false, labels, options),
         backlash: {
           first: linkTo[3],
           second: linkTo[5]
@@ -255,7 +310,7 @@ const tokenizerFac = (src, beginRules, inlineRules, pos = 0, top, labels) => {
       continue
     }
 
-    const rLinkTo = inlineRules['reference_link'].exec(src)
+    const rLinkTo = inlineRules.reference_link.exec(src)
     if (rLinkTo && labels.has(rLinkTo[3] || rLinkTo[1]) && isLengthEven(rLinkTo[2]) && isLengthEven(rLinkTo[4])) {
       pushPending()
       tokens.push({
@@ -273,7 +328,7 @@ const tokenizerFac = (src, beginRules, inlineRules, pos = 0, top, labels) => {
           start: pos,
           end: pos + rLinkTo[0].length
         },
-        children: tokenizerFac(rLinkTo[1], undefined, inlineRules, pos + 1, false, labels)
+        children: tokenizerFac(rLinkTo[1], undefined, inlineRules, pos + 1, false, labels, options)
       })
 
       src = src.substring(rLinkTo[0].length)
@@ -281,7 +336,7 @@ const tokenizerFac = (src, beginRules, inlineRules, pos = 0, top, labels) => {
       continue
     }
 
-    const rImageTo = inlineRules['reference_image'].exec(src)
+    const rImageTo = inlineRules.reference_image.exec(src)
     if (rImageTo && labels.has(rImageTo[3] || rImageTo[1]) && isLengthEven(rImageTo[2]) && isLengthEven(rImageTo[4])) {
       pushPending()
 
@@ -308,7 +363,7 @@ const tokenizerFac = (src, beginRules, inlineRules, pos = 0, top, labels) => {
     }
 
     // html escape
-    const htmlEscapeTo = inlineRules['html_escape'].exec(src)
+    const htmlEscapeTo = inlineRules.html_escape.exec(src)
     if (htmlEscapeTo) {
       const len = htmlEscapeTo[0].length
       pushPending()
@@ -327,8 +382,52 @@ const tokenizerFac = (src, beginRules, inlineRules, pos = 0, top, labels) => {
       continue
     }
 
+    // auto link extension
+    const autoLinkExtTo = inlineRules.auto_link_extension.exec(src)
+    if (autoLinkExtTo && top && (pos === 0 || /[* _~(]{1}/.test(originSrc[pos - 1]))) {
+      pushPending()
+      tokens.push({
+        type: 'auto_link_extension',
+        raw: autoLinkExtTo[0],
+        www: autoLinkExtTo[1],
+        url: autoLinkExtTo[2],
+        email: autoLinkExtTo[3],
+        linkType: autoLinkExtTo[1] ? 'www' : (autoLinkExtTo[2] ? 'url' : 'email'),
+        parent: tokens,
+        range: {
+          start: pos,
+          end: pos + autoLinkExtTo[0].length
+        }
+      })
+      src = src.substring(autoLinkExtTo[0].length)
+      pos = pos + autoLinkExtTo[0].length
+      continue
+    }
+
+    // auto link
+    const autoLTo = inlineRules.auto_link.exec(src)
+    if (autoLTo) {
+      pushPending()
+      tokens.push({
+        type: 'auto_link',
+        raw: autoLTo[0],
+        href: autoLTo[1],
+        email: autoLTo[2],
+        isLink: !!autoLTo[1], // It is a link or email.
+        marker: '<',
+        parent: tokens,
+        range: {
+          start: pos,
+          end: pos + autoLTo[0].length
+        }
+      })
+      src = src.substring(autoLTo[0].length)
+      pos = pos + autoLTo[0].length
+      continue
+    }
+
     // html-tag
-    const htmlTo = inlineRules['html_tag'].exec(src)
+    const htmlTo = inlineRules.html_tag.exec(src)
     let attrs
     // handle comment
     if (htmlTo && htmlTo[1] && !htmlTo[3]) {
@@ -365,7 +464,7 @@ const tokenizerFac = (src, beginRules, inlineRules, pos = 0, top, labels) => {
         parent: tokens,
         attrs,
         content: htmlTo[4],
-        children: htmlTo[4] ? tokenizerFac(htmlTo[4], undefined, inlineRules, pos + htmlTo[2].length, false, labels) : '',
+        children: htmlTo[4] ? tokenizerFac(htmlTo[4], undefined, inlineRules, pos + htmlTo[2].length, false, labels, options) : '',
         range: {
           start: pos,
           end: pos + len
@@ -376,26 +475,8 @@ const tokenizerFac = (src, beginRules, inlineRules, pos = 0, top, labels) => {
       continue
     }
 
-    // auto link
-    const autoLTo = inlineRules['auto_link'].exec(src)
-    if (autoLTo) {
-      pushPending()
-      tokens.push({
-        type: 'auto_link',
-        raw: autoLTo[0],
-        href: autoLTo[0],
-        parent: tokens,
-        range: {
-          start: pos,
-          end: pos + autoLTo[0].length
-        }
-      })
-      src = src.substring(autoLTo[0].length)
-      pos = pos + autoLTo[0].length
-      continue
-    }
     // soft line break
-    const softTo = inlineRules['soft_line_break'].exec(src)
+    const softTo = inlineRules.soft_line_break.exec(src)
     if (softTo) {
       const len = softTo[0].length
       pushPending()
@@ -415,7 +496,7 @@ const tokenizerFac = (src, beginRules, inlineRules, pos = 0, top, labels) => {
       continue
     }
     // hard line break
-    const hardTo = inlineRules['hard_line_break'].exec(src)
+    const hardTo = inlineRules.hard_line_break.exec(src)
     if (hardTo) {
       const len = hardTo[0].length
       pushPending()
@@ -437,7 +518,7 @@ const tokenizerFac = (src, beginRules, inlineRules, pos = 0, top, labels) => {
     }
 
     // tail header
-    const tailTo = inlineRules['tail_header'].exec(src)
+    const tailTo = inlineRules.tail_header.exec(src)
     if (tailTo && top) {
       pushPending()
       tokens.push({
@@ -465,8 +546,14 @@ const tokenizerFac = (src, beginRules, inlineRules, pos = 0, top, labels) => {
   return tokens
 }
 
-export const tokenizer = (src, highlights = [], hasBeginRules = true, labels = new Map()) => {
-  const tokens = tokenizerFac(src, hasBeginRules ? beginRules : null, inlineRules, 0, true, labels)
+export const tokenizer = (src, {
+  highlights = [],
+  hasBeginRules = true,
+  labels = new Map(),
+  options = {}
+} = {}) => {
+  const rules = Object.assign({}, inlineRules, inlineExtensionRules)
+  const tokens = tokenizerFac(src, hasBeginRules ? beginRules : null, rules, 0, true, labels, options)
 
   const postTokenizer = tokens => {
     for (const token of tokens) {

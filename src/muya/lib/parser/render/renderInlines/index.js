@@ -11,8 +11,8 @@ import softLineBreak from './softLineBreak'
 import codeFense from './codeFense'
 import inlineMath from './inlineMath'
 import autoLink from './autoLink'
+import autoLinkExtension from './autoLinkExtension'
 import loadImageAsync from './loadImageAsync'
-import htmlImage from './htmlImage'
 import image from './image'
 import delEmStrongFac from './delEmStringFactory'
 import emoji from './emoji'
@@ -27,6 +27,8 @@ import referenceDefinition from './referenceDefinition'
 import htmlRuby from './htmlRuby'
 import referenceLink from './referenceLink'
 import referenceImage from './referenceImage'
+import superSubScript from './superSubScript'
+import footnoteIdentifier from './footnoteIdentifier'
 
 export default {
   backlashInToken,
@@ -42,8 +44,8 @@ export default {
   codeFense,
   inlineMath,
   autoLink,
+  autoLinkExtension,
   loadImageAsync,
-  htmlImage,
   image,
   delEmStrongFac,
   emoji,
@@ -57,5 +59,7 @@ export default {
   referenceDefinition,
   htmlRuby,
   referenceLink,
-  referenceImage
+  referenceImage,
+  superSubScript,
+  footnoteIdentifier
 }

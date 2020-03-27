@@ -65,7 +65,7 @@ export const moveImageToFolder = async (pathname, image, dir) => {
  */
 export const uploadImage = async (pathname, image, preferences) => {
   const { currentUploader } = preferences
-  const { owner, repo } = preferences.imageBed.github
+  const { owner, repo, branch } = preferences.imageBed.github
   const token = preferences.githubToken
   const isPath = typeof image === 'string'
   const MAX_SIZE = 5 * 1024 * 1024
@@ -88,7 +88,7 @@ export const uploadImage = async (pathname, image, preferences) => {
       // TODO: "res.data.data.delete" should emit "image-uploaded"/handleUploadedImage in editor.js. Maybe add to image manager too.
       // This notification will be removed when the image manager implemented.
       const notice = new Notification('Copy delete URL', {
-        body: `Click to copy the delete URL to clipboard.`
+        body: 'Click to copy the delete URL to clipboard.'
       })
 
       notice.onclick = () => {
@@ -109,13 +109,18 @@ export const uploadImage = async (pathname, image, preferences) => {
     })
     const path = dayjs().format('YYYY/MM') + `/${dayjs().format('DD-HH-mm-ss')}-${filename}`
     const message = `Upload by Mark Text at ${dayjs().format('YYYY-MM-DD HH:mm:ss')}`
-    octokit.repos.createFile({
+    var payload = {
       owner,
       repo,
       path,
+      branch,
       message,
       content
-    }).then(result => {
+    }
+    if (!branch) {
+      delete payload.branch
+    }
+    octokit.repos.createFile(payload).then(result => {
       re(result.data.content.download_url)
     })
       .catch(_ => {

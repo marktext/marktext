@@ -7,17 +7,17 @@ import { isOsx } from '../../config'
 export default function (keybindings, userPreference, recentlyUsedFiles) {
   const { autoSave } = userPreference.getAll()
   const fileMenu = {
-    label: 'File',
+    label: '&File',
     submenu: [{
       label: 'New Tab',
-      accelerator: keybindings.getAccelerator('fileNewFile'),
+      accelerator: keybindings.getAccelerator('file.new-tab'),
       click (menuItem, browserWindow) {
         actions.newBlankTab(browserWindow)
         showTabBar(browserWindow)
       }
     }, {
       label: 'New Window',
-      accelerator: keybindings.getAccelerator('fileNewTab'),
+      accelerator: keybindings.getAccelerator('file.new-file'),
       click (menuItem, browserWindow) {
         actions.newEditorWindow()
       }
@@ -25,13 +25,13 @@ export default function (keybindings, userPreference, recentlyUsedFiles) {
       type: 'separator'
     }, {
       label: 'Open File',
-      accelerator: keybindings.getAccelerator('fileOpenFile'),
+      accelerator: keybindings.getAccelerator('file.open-file'),
       click (menuItem, browserWindow) {
         actions.openFile(browserWindow)
       }
     }, {
       label: 'Open Folder',
-      accelerator: keybindings.getAccelerator('fileOpenFolder'),
+      accelerator: keybindings.getAccelerator('file.open-folder'),
       click (menuItem, browserWindow) {
         actions.openFolder(browserWindow)
       }
@@ -81,13 +81,13 @@ export default function (keybindings, userPreference, recentlyUsedFiles) {
     type: 'separator'
   }, {
     label: 'Save',
-    accelerator: keybindings.getAccelerator('fileSave'),
+    accelerator: keybindings.getAccelerator('file.save'),
     click (menuItem, browserWindow) {
       actions.save(browserWindow)
     }
   }, {
     label: 'Save As...',
-    accelerator: keybindings.getAccelerator('fileSaveAs'),
+    accelerator: keybindings.getAccelerator('file.save-as'),
     click (menuItem, browserWindow) {
       actions.saveAs(browserWindow)
     }
@@ -135,7 +135,7 @@ export default function (keybindings, userPreference, recentlyUsedFiles) {
     ]
   }, {
     label: 'Print',
-    accelerator: keybindings.getAccelerator('filePrint'),
+    accelerator: keybindings.getAccelerator('file.print'),
     click (menuItem, browserWindow) {
       actions.print(browserWindow)
     }
@@ -144,29 +144,29 @@ export default function (keybindings, userPreference, recentlyUsedFiles) {
     visible: !isOsx
   }, {
     label: 'Preferences',
-    accelerator: keybindings.getAccelerator('filePreferences'),
+    accelerator: keybindings.getAccelerator('file.preferences'),
     visible: !isOsx,
-    click (menuItem, browserWindow) {
-      userSetting(menuItem, browserWindow)
+    click () {
+      userSetting()
     }
   }, {
     type: 'separator'
   }, {
     label: 'Close Tab',
-    accelerator: keybindings.getAccelerator('fileCloseTab'),
+    accelerator: keybindings.getAccelerator('file.close-tab'),
     click (menuItem, browserWindow) {
       actions.closeTab(browserWindow)
     }
   }, {
     label: 'Close Window',
-    accelerator: keybindings.getAccelerator('fileCloseWindow'),
+    accelerator: keybindings.getAccelerator('file.close-window'),
     role: 'close'
   }, {
     type: 'separator',
     visible: !isOsx
   }, {
     label: 'Quit',
-    accelerator: keybindings.getAccelerator('fileQuit'),
+    accelerator: keybindings.getAccelerator('file.quit'),
     visible: !isOsx,
     click: app.quit
   })

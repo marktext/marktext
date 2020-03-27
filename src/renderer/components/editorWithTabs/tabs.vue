@@ -18,6 +18,8 @@
           :key="file.id"
           :data-id="file.id"
           @click.stop="selectFile(file)"
+          @click.middle="closeTab(file)"
+          @contextmenu.prevent="handleContextMenu($event, file)"
         >
           <span>{{ file.filename }}</span>
           <svg class="close-icon icon" aria-hidden="true"
@@ -46,6 +48,9 @@ import { mapState } from 'vuex'
 import autoScroll from 'dom-autoscroller'
 import dragula from 'dragula'
 import { tabsMixins } from '../../mixins'
+import { showContextMenu } from '../../contextMenu/tabs'
+import bus from '../../bus'
+import { shell, clipboard } from 'electron'
 
 export default {
   data () {
@@ -76,7 +81,60 @@ export default {
       const tabs = this.$refs.tabContainer
       const newLeft = Math.max(0, Math.min(tabs.scrollLeft + delta, tabs.scrollWidth))
       tabs.scrollLeft = newLeft
+    },
+    closeTab (tabId) {
+      const tab = this.tabs.find(f => f.id === tabId)
+      if (tab) {
+        this.$store.dispatch('CLOSE_TAB', tab)
+      }
+    },
+    closeOthers (tabId) {
+      const tab = this.tabs.find(f => f.id === tabId)
+      if (tab) {
+        this.$store.dispatch('CLOSE_OTHER_TABS', tab)
+      }
+    },
+    closeSaved () {
+      this.$store.dispatch('CLOSE_SAVED_TABS')
+    },
+    closeAll () {
+      this.$store.dispatch('CLOSE_ALL_TABS')
+    },
+    rename (tabId) {
+      const tab = this.tabs.find(f => f.id === tabId)
+      if (tab && tab.pathname) {
+        this.$store.dispatch('RENAME_FILE', tab)
+      }
+    },
+    copyPath (tabId) {
+      const tab = this.tabs.find(f => f.id === tabId)
+      if (tab && tab.pathname) {
+        clipboard.writeText(tab.pathname)
+      }
+    },
+    showInFolder (tabId) {
+      const tab = this.tabs.find(f => f.id === tabId)
+      if (tab && tab.pathname) {
+        shell.showItemInFolder(tab.pathname)
+      }
+    },
+    handleContextMenu (event, tab) {
+      if (tab.id) {
+        showContextMenu(event, tab)
+      }
     }
+  },
+  created () {
+    this.$nextTick(() => {
+      // listen for bus events.
+      bus.$on('TABS::close-this', this.closeTab)
+      bus.$on('TABS::close-others', this.closeOthers)
+      bus.$on('TABS::close-saved', this.closeSaved)
+      bus.$on('TABS::close-all', this.closeAll)
+      bus.$on('TABS::rename', this.rename)
+      bus.$on('TABS::copy-path', this.copyPath)
+      bus.$on('TABS::show-in-folder', this.showInFolder)
+    })
   },
   mounted () {
     this.$nextTick(() => {
@@ -134,6 +192,14 @@ export default {
     if (this.drake) {
       this.drake.destroy()
     }
+
+    bus.$off('TABS::close-this', this.closeTab)
+    bus.$off('TABS::close-others', this.closeOthers)
+    bus.$off('TABS::close-saved', this.closeSaved)
+    bus.$off('TABS::close-all', this.closeAll)
+    bus.$off('TABS::rename', this.rename)
+    bus.$off('TABS::copy-path', this.copyPath)
+    bus.$off('TABS::show-in-folder', this.showInFolder)
   }
 }
 </script>

@@ -11,6 +11,7 @@ import preferences from './preferences'
 import autoUpdates from './autoUpdates'
 import notification from './notification'
 import tweet from './tweet'
+import commandCenter from './commandCenter'
 
 Vue.use(Vuex)
 
@@ -35,7 +36,7 @@ const mutations = {
 
 const actions = {
   LINTEN_WIN_STATUS ({ commit, state }) {
-    ipcRenderer.on('AGANI::window-active-status', (e, { status }) => {
+    ipcRenderer.on('mt::window-active-status', (e, { status }) => {
       commit('SET_WIN_STATUS', status)
     })
   },
@@ -61,7 +62,8 @@ const store = new Vuex.Store({
     aidou,
     preferences,
     editor,
-    layout
+    layout,
+    commandCenter
   }
 })
 

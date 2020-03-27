@@ -28,6 +28,9 @@ const BACK_HASH = {
   '~': '~'
 }
 
+// TODO: refactor later.
+let renderCodeBlockTimer = null
+
 const inputCtrl = ContentState => {
   // Input @ to quick insert paragraph
   ContentState.prototype.checkQuickInsert = function (block) {
@@ -36,14 +39,29 @@ const inputCtrl = ContentState => {
     return /^@\S*$/.test(text)
   }
 
-  ContentState.prototype.checkCursorInInlineMath = function (text, offset) {
-    const tokens = tokenizer(text, [], false)
-    return tokens.filter(t => t.type === 'inline_math').some(t => offset >= t.range.start && offset <= t.range.end)
+  ContentState.prototype.checkCursorInTokenType = function (functionType, text, offset, type) {
+    if (!/atxLine|paragraphContent|cellContent/.test(functionType)) {
+      return false
+    }
+
+    const tokens = tokenizer(text, {
+      hasBeginRules: false,
+      options: this.muya.options
+    })
+    return tokens.filter(t => t.type === type).some(t => offset >= t.range.start && offset <= t.range.end)
   }
 
-  ContentState.prototype.checkNotSameToken = function (oldText, text) {
-    const oldTokens = tokenizer(oldText)
-    const tokens = tokenizer(text)
+  ContentState.prototype.checkNotSameToken = function (functionType, oldText, text) {
+    if (!/atxLine|paragraphContent|cellContent/.test(functionType)) {
+      return false
+    }
+
+    const oldTokens = tokenizer(oldText, {
+      options: this.muya.options
+    })
+    const tokens = tokenizer(text, {
+      options: this.muya.options
+    })
 
     const oldCache = {}
     const cache = {}
@@ -77,7 +95,7 @@ const inputCtrl = ContentState => {
     return false
   }
 
-  ContentState.prototype.inputHandler = function (event) {
+  ContentState.prototype.inputHandler = function (event, notEqual = false) {
     const { start, end } = selection.getCursorRange()
     if (!start || !end) {
       return
@@ -86,7 +104,28 @@ const inputCtrl = ContentState => {
     const key = start.key
     const block = this.getBlock(key)
     const paragraph = document.querySelector(`#${key}`)
-    let text = getTextContent(paragraph, [CLASS_OR_ID['AG_MATH_RENDER'], CLASS_OR_ID['AG_RUBY_RENDER']])
+
+    // Fix issue 1447
+    // Fixme: any better solution?
+    if (
+      oldStart.key === oldEnd.key &&
+      oldStart.offset === oldEnd.offset &&
+      block.text.endsWith('\n') &&
+      oldStart.offset === block.text.length &&
+      event.inputType === 'insertText'
+    ) {
+      event.preventDefault()
+      block.text += event.data
+      const offset = block.text.length
+      this.cursor = {
+        start: { key, offset },
+        end: { key, offset }
+      }
+      this.singleRender(block)
+      return this.inputHandler(event, true)
+    }
+
+    let text = getTextContent(paragraph, [CLASS_OR_ID.AG_MATH_RENDER, CLASS_OR_ID.AG_RUBY_RENDER])
 
     let needRender = false
     let needRenderAll = false
@@ -123,7 +162,7 @@ const inputCtrl = ContentState => {
     }
 
     // auto pair (not need to auto pair in math block)
-    if (block && block.text !== text) {
+    if (block && (block.text !== text || notEqual)) {
       if (
         start.key === end.key &&
         start.offset === end.offset &&
@@ -166,13 +205,14 @@ const inputCtrl = ContentState => {
         } else {
           /* eslint-disable no-useless-escape */
           // Not Unicode aware, since things like \p{Alphabetic} or \p{L} are not supported yet
-          const isInInlineMath = this.checkCursorInInlineMath(text, offset)
+          const isInInlineMath = this.checkCursorInTokenType(block.functionType, text, offset, 'inline_math')
+          const isInInlineCode = this.checkCursorInTokenType(block.functionType, text, offset, 'inline_code')
           if (
             !/\\/.test(preInputChar) &&
             ((autoPairQuote && /[']{1}/.test(inputChar) && !(/[a-zA-Z\d]{1}/.test(preInputChar))) ||
             (autoPairQuote && /["]{1}/.test(inputChar)) ||
             (autoPairBracket && /[\{\[\(]{1}/.test(inputChar)) ||
-            (block.functionType !== 'codeLine' && !isInInlineMath && autoPairMarkdownSyntax && /[*$`~_]{1}/.test(inputChar)))
+            (block.functionType !== 'codeContent' && !isInInlineMath && !isInInlineCode && autoPairMarkdownSyntax && /[*$`~_]{1}/.test(inputChar)))
           ) {
             needRender = true
             text = BRACKET_HASH[event.data]
@@ -193,7 +233,7 @@ const inputCtrl = ContentState => {
         }
       }
 
-      if (this.checkNotSameToken(block.text, text)) {
+      if (this.checkNotSameToken(block.functionType, block.text, text)) {
         needRender = true
       }
       // Just work for `Shift + Enter` to create a soft and hard line break.
@@ -216,7 +256,14 @@ const inputCtrl = ContentState => {
       } else {
         block.text = text
       }
-      if (beginRules['reference_definition'].test(text)) {
+
+      // Update code block language when modify code block identifer
+      if (block.functionType === 'languageInput') {
+        const parent = this.getParent(block)
+        parent.lang = block.text
+      }
+
+      if (beginRules.reference_definition.test(text)) {
         needRenderAll = true
       }
     }
@@ -242,14 +289,29 @@ const inputCtrl = ContentState => {
 
     this.muya.eventCenter.dispatch('muya-quick-insert', reference, block, !!checkQuickInsert)
 
-    // Update preview content of math block
-    if (block && block.type === 'span' && block.functionType === 'codeLine') {
-      needRender = true
+    this.cursor = { start, end }
+
+    // Throttle render if edit in code block.
+    if (block && block.type === 'span' && block.functionType === 'codeContent') {
+      if (renderCodeBlockTimer) {
+        clearTimeout(renderCodeBlockTimer)
+      }
+      if (needRender) {
+        this.partialRender()
+      } else {
+        renderCodeBlockTimer = setTimeout(() => {
+          this.partialRender()
+        }, 300)
+      }
+      return
     }
 
-    this.cursor = { start, end }
-    const checkMarkedUpdate = this.checkNeedRender()
-    const inlineUpdatedBlock = this.isCollapse() && this.checkInlineUpdate(block)
+    const checkMarkedUpdate = /atxLine|paragraphContent|cellContent/.test(block.functionType) ? this.checkNeedRender() : false
+    let inlineUpdatedBlock = null
+    if (/atxLine|paragraphContent|cellContent|thematicBreakLine/.test(block.functionType)) {
+      inlineUpdatedBlock = this.isCollapse() && this.checkInlineUpdate(block)
+    }
+
     // just for fix #707,need render All if in combines pre list and next list into one list.
     if (inlineUpdatedBlock) {
       const liBlock = this.getParent(inlineUpdatedBlock)
@@ -257,6 +319,7 @@ const inputCtrl = ContentState => {
         needRenderAll = true
       }
     }
+
     if (checkMarkedUpdate || inlineUpdatedBlock || needRender) {
       return needRenderAll ? this.render() : this.partialRender()
     }

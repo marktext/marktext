@@ -12,8 +12,12 @@ export const defaultFileState = {
   pathname: '',
   filename: 'Untitled-1',
   markdown: '',
-  encoding: 'utf8', // Currently just "utf8" or "utf8bom"
+  encoding: {
+    encoding: 'utf8',
+    isBom: false
+  },
   lineEnding: 'lf', // lf or crlf
+  trimTrailingNewline: 3,
   adjustLineEndingOnSave: false, // convert editor buffer (LF) to CRLF when saving
   history: {
     stack: [],
@@ -30,12 +34,14 @@ export const defaultFileState = {
     index: -1,
     matches: [],
     value: ''
-  }
+  },
+  // Per tab notifications
+  notifications: []
 }
 
 export const getOptionsFromState = file => {
-  const { encoding, lineEnding, adjustLineEndingOnSave } = file
-  return { encoding, lineEnding, adjustLineEndingOnSave }
+  const { encoding, lineEnding, adjustLineEndingOnSave, trimTrailingNewline } = file
+  return { encoding, lineEnding, adjustLineEndingOnSave, trimTrailingNewline }
 }
 
 export const getFileStateFromData = data => {
@@ -46,7 +52,8 @@ export const getFileStateFromData = data => {
     pathname,
     encoding,
     lineEnding,
-    adjustLineEndingOnSave
+    adjustLineEndingOnSave,
+    trimTrailingNewline
   } = data
   const id = getUniqueId()
 
@@ -59,12 +66,13 @@ export const getFileStateFromData = data => {
     pathname,
     encoding,
     lineEnding,
-    adjustLineEndingOnSave
+    adjustLineEndingOnSave,
+    trimTrailingNewline
   })
 }
 
-export const getBlankFileState = (tabs, lineEnding = 'lf', markdown = '') => {
-  const fileState = JSON.parse(JSON.stringify(defaultFileState))
+export const getBlankFileState = (tabs, defaultEncoding = 'utf8', lineEnding = 'lf', markdown = '') => {
+  const fileState = cloneObj(defaultFileState, true)
   let untitleId = Math.max(...tabs.map(f => {
     if (f.pathname === '') {
       return +f.filename.split('-')[1]
@@ -75,11 +83,12 @@ export const getBlankFileState = (tabs, lineEnding = 'lf', markdown = '') => {
 
   const id = getUniqueId()
 
-  // We may pass muarkdown=null as parameter.
+  // We may pass markdown=null as parameter.
   if (markdown == null) {
     markdown = ''
   }
 
+  fileState.encoding.encoding = defaultEncoding
   return Object.assign(fileState, {
     lineEnding,
     adjustLineEndingOnSave: lineEnding.toLowerCase() === 'crlf',
@@ -92,8 +101,8 @@ export const getBlankFileState = (tabs, lineEnding = 'lf', markdown = '') => {
 export const getSingleFileState = ({ id = getUniqueId(), markdown, filename, pathname, options }) => {
   // TODO(refactor:renderer/editor): Replace this function with `createDocumentState`.
 
-  const fileState = JSON.parse(JSON.stringify(defaultFileState))
-  const { encoding, lineEnding, adjustLineEndingOnSave = 'ltr' } = options
+  const fileState = cloneObj(defaultFileState, true)
+  const { encoding, lineEnding, adjustLineEndingOnSave, trimTrailingNewline } = options
 
   assertLineEnding(adjustLineEndingOnSave, lineEnding)
 
@@ -104,7 +113,8 @@ export const getSingleFileState = ({ id = getUniqueId(), markdown, filename, pat
     pathname,
     encoding,
     lineEnding,
-    adjustLineEndingOnSave
+    adjustLineEndingOnSave,
+    trimTrailingNewline
   })
 }
 
@@ -124,6 +134,7 @@ export const createDocumentState = (markdownDocument, id = getUniqueId()) => {
     encoding,
     lineEnding,
     adjustLineEndingOnSave,
+    trimTrailingNewline,
     cursor = null
   } = markdownDocument
 
@@ -137,7 +148,8 @@ export const createDocumentState = (markdownDocument, id = getUniqueId()) => {
     encoding,
     lineEnding,
     cursor,
-    adjustLineEndingOnSave
+    adjustLineEndingOnSave,
+    trimTrailingNewline
   })
 }
 

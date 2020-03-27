@@ -2,7 +2,7 @@ import { filter } from 'fuzzaldrin'
 import { patch, h } from '../../parser/render/snabbdom'
 import { deepCopy } from '../../utils'
 import BaseScrollFloat from '../baseScrollFloat'
-import { quicInsertObj } from './config'
+import { quickInsertObj } from './config'
 import './index.css'
 
 class QuickInsert extends BaseScrollFloat {
@@ -17,7 +17,7 @@ class QuickInsert extends BaseScrollFloat {
     this.renderArray = null
     this.activeItem = null
     this.block = null
-    this.renderObj = quicInsertObj
+    this.renderObj = quickInsertObj
     this.render()
     this.listen()
   }
@@ -104,7 +104,7 @@ class QuickInsert extends BaseScrollFloat {
   search (text) {
     const { contentState } = this.muya
     const canInserFrontMatter = contentState.canInserFrontMatter(this.block)
-    const obj = deepCopy(quicInsertObj)
+    const obj = deepCopy(quickInsertObj)
     if (!canInserFrontMatter) {
       obj['basic block'].splice(2, 1)
     }

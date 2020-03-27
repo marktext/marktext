@@ -18,14 +18,6 @@ export const PASTE = {
   role: 'paste'
 }
 
-export const COPY_TABLE = {
-  label: 'Copy Table',
-  id: 'copyTableMenuItem',
-  click (menuItem, browserWindow) {
-    contextMenu.copyTable()
-  }
-}
-
 export const COPY_AS_MARKDOWN = {
   label: 'Copy As Markdown',
   id: 'copyAsMarkdownMenuItem',
@@ -64,116 +56,6 @@ export const INSERT_AFTER = {
   click (menuItem, browserWindow) {
     contextMenu.insertParagraph('after')
   }
-}
-
-export const INSERT_ROW = {
-  label: 'Insert Row',
-  submenu: [{
-    label: 'Previous Row',
-    click (menuItem, browserWindow) {
-      contextMenu.editTable({
-        location: 'previous',
-        action: 'insert',
-        target: 'row'
-      })
-    }
-  }, {
-    label: 'Next Row',
-    click (menuItem, browserWindow) {
-      contextMenu.editTable({
-        location: 'next',
-        action: 'insert',
-        target: 'row'
-      })
-    }
-  }]
-}
-
-export const REMOVE_ROW = {
-  label: 'Remove Row',
-  submenu: [{
-    label: 'Previous Row',
-    click (menuItem, browserWindow) {
-      contextMenu.editTable({
-        location: 'previous',
-        action: 'remove',
-        target: 'row'
-      })
-    }
-  }, {
-    label: 'Current Row',
-    click (menuItem, browserWindow) {
-      contextMenu.editTable({
-        location: 'current',
-        action: 'remove',
-        target: 'row'
-      })
-    }
-  }, {
-    label: 'Next Row',
-    click (menuItem, browserWindow) {
-      contextMenu.editTable({
-        location: 'next',
-        action: 'remove',
-        target: 'row'
-      })
-    }
-  }]
-}
-
-export const INSERT_COLUMN = {
-  label: 'Insert Column',
-  submenu: [{
-    label: 'Left Column',
-    click (menuItem, browserWindow) {
-      contextMenu.editTable({
-        location: 'left',
-        action: 'insert',
-        target: 'column'
-      })
-    }
-  }, {
-    label: 'Right Column',
-    click (menuItem, browserWindow) {
-      contextMenu.editTable({
-        location: 'right',
-        action: 'insert',
-        target: 'column'
-      })
-    }
-  }]
-}
-
-export const REMOVE_COLUMN = {
-  label: 'Remove Column',
-  submenu: [{
-    label: 'Left Column',
-    click (menuItem, browserWindow) {
-      contextMenu.editTable({
-        location: 'left',
-        action: 'remove',
-        target: 'column'
-      })
-    }
-  }, {
-    label: 'Current Column',
-    click (menuItem, browserWindow) {
-      contextMenu.editTable({
-        location: 'current',
-        action: 'remove',
-        target: 'column'
-      })
-    }
-  }, {
-    label: 'Right Column',
-    click (menuItem, browserWindow) {
-      contextMenu.editTable({
-        location: 'right',
-        action: 'remove',
-        target: 'column'
-      })
-    }
-  }]
 }
 
 export const SEPARATOR = {

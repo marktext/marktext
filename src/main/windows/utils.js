@@ -6,8 +6,8 @@ export const centerWindowOptions = options => {
   const { bounds, workArea } = screen.getDisplayNearestPoint(screen.getCursorScreenPoint())
   const screenArea = isLinux ? bounds : workArea
   const { width, height } = options
-  options.x = Math.max(0, Math.ceil(screenArea.x + (screenArea.width - width) / 2))
-  options.y = Math.max(0, Math.ceil(screenArea.y + (screenArea.height - height) / 2))
+  options.x = Math.ceil(screenArea.x + (screenArea.width - width) / 2)
+  options.y = Math.ceil(screenArea.y + (screenArea.height - height) / 2)
 }
 
 export const ensureWindowPosition = windowState => {
@@ -30,8 +30,8 @@ export const ensureWindowPosition = windowState => {
       .some(display => display)
   }
   if (center) {
-    x = Math.max(0, Math.ceil(screenArea.x + (screenArea.width - width) / 2))
-    y = Math.max(0, Math.ceil(screenArea.y + (screenArea.height - height) / 2))
+    x = Math.ceil(screenArea.x + (screenArea.width - width) / 2)
+    y = Math.ceil(screenArea.y + (screenArea.height - height) / 2)
   }
   return {
     x,

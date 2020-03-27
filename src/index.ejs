@@ -8,6 +8,58 @@
         margin: 0;
         padding: 0;
       }
+
+      #loading-page {
+        position: absolute;
+        background: transparent;
+        -webkit-app-region: drag;
+        left: 0;
+        right: 0;
+        top: 0;
+        bottom: 0;
+      }
+
+      .spinner {
+        width: 40px;
+        height: 40px;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translateX(-50%) translateY(-50%);
+      }
+
+      .double-bounce1, .double-bounce2 {
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        opacity: 0.4;
+        position: absolute;
+        top: 0;
+        left: 0;
+
+        -webkit-animation: sk-bounce 2.0s infinite ease-in-out;
+        animation: sk-bounce 2.0s infinite ease-in-out;
+      }
+
+      .double-bounce2 {
+        -webkit-animation-delay: -1.0s;
+        animation-delay: -1.0s;
+      }
+
+      @-webkit-keyframes sk-bounce {
+        0%, 100% { -webkit-transform: scale(0.0) }
+        50% { -webkit-transform: scale(1.0) }
+      }
+
+      @keyframes sk-bounce {
+        0%, 100% {
+          transform: scale(0.0);
+          -webkit-transform: scale(0.0);
+        } 50% {
+          transform: scale(1.0);
+          -webkit-transform: scale(1.0);
+        }
+      }
     </style>
     <% if (htmlWebpackPlugin.options.nodeModules) { %>
       <!-- Add `node_modules/` to global paths so `require` works properly in development -->
@@ -16,12 +68,46 @@
       </script>
     <% } %>
   </head>
-  <body>
-    <!-- Initial drag area (for Linux and Windows). -->
-    <div id="init-drag-region" style="position: absolute;-webkit-app-region: drag;left: 0;right: 0;top: 0;height: 25px;"></div>
-
+  <body autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
     <!-- Vue app -->
     <div id="app"></div>
+
+    <!-- Loading Page when init App -->
+    <div id="loading-page">
+      <div class="spinner">
+        <div class="double-bounce1 dot"></div>
+        <div class="double-bounce2 dot"></div>
+      </div>
+    </div>
+
+    <script>
+      const params = new URLSearchParams(window.location.search)
+
+      // --- WORKAROUND ---
+      // `node-spellchecker` is loaded by `internal/modules/cjs/loader.js` before
+      // we can set the envoriment variable in our bootstrap routine.
+      const type = params.get('type')
+      const spellcheckerIsHunspell = params.get('slp') === '1'
+      if (spellcheckerIsHunspell && type !== 'settings') {
+        // Set option to always use Hunspell instead OS spell checker.
+        process.env['SPELLCHECKER_PREFER_HUNSPELL'] = 1 // eslint-disable-line dot-notation
+      }
+      // --- END WORKAROUND ---
+
+      const THEMES_COLOR = {
+        'one-dark': 'rgba(77, 120, 204, 1)',
+        'dark': '#409eff',
+        'graphite': 'rgb(104, 134, 170)',
+        'material-dark': '#f48237',
+        'light': 'rgba(33, 181, 111, 1)',
+        'ulysses': 'rgb(12, 139, 186)'
+      }
+
+      const dots = document.querySelectorAll('.dot')
+      Array.from(dots).forEach(dot => {
+        dot.style.background = THEMES_COLOR[params.get('theme')] || 'rgba(33, 181, 111, 1)'
+      })
+    </script>
 
     <!-- Set `__static` path to static files in production -->
     <script>

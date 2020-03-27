@@ -5,7 +5,6 @@
       <tabs v-show="showTabBar"></tabs>
       <div class="container">
         <editor
-          :fileanme="filename"
           :markdown="markdown"
           :cursor="cursor"
           :text-direction="textDirection"
@@ -18,6 +17,7 @@
           :text-direction="textDirection"
         ></source-code>
       </div>
+      <tab-notifications></tab-notifications>
     </div>
 </template>
 
@@ -25,12 +25,10 @@
 import Tabs from './tabs.vue'
 import Editor from './editor.vue'
 import SourceCode from './sourceCode.vue'
+import TabNotifications from './notifications.vue'
 
 export default {
   props: {
-    filename: {
-      type: String
-    },
     markdown: {
       type: String,
       required: true
@@ -61,7 +59,8 @@ export default {
   components: {
     Tabs,
     Editor,
-    SourceCode
+    SourceCode,
+    TabNotifications
   }
 }
 </script>

@@ -1,4 +1,5 @@
 import { loadLanguage } from '../prism/index'
+// import resizeCodeBlockLineNumber from '../utils/resizeCodeLineNumber'
 import selection from '../selection'
 
 const CODE_UPDATE_REP = /^`{3,}(.*)/
@@ -44,7 +45,10 @@ const codeBlockCtrl = ContentState => {
    * @param lang Language identifier
    */
   ContentState.prototype.updateCodeLanguage = function (block, lang) {
-    loadLanguage(lang)
+    if (lang && typeof lang === 'string') {
+      loadLanguage(lang)
+    }
+
     if (block.functionType === 'languageInput') {
       const preBlock = this.getParent(block)
       const nextSibling = this.getNextSibling(block)
@@ -79,32 +83,43 @@ const codeBlockCtrl = ContentState => {
     if (block.type === 'span') {
       block = this.getParent(block)
     }
-    // if it's not a p block, no need to update
+    // If it's not a p block, no need to update
     if (block.type !== 'p') return false
-    // if p block's children are more than one, no need to update
+    // If p block's children are more than one, no need to update
     if (block.children.length !== 1) return false
+
     const { text } = block.children[0]
     const match = CODE_UPDATE_REP.exec(text)
     if (match || lang) {
-      const codeBlock = this.createBlock('code')
-      const firstLine = this.createBlock('span', { text: code })
       const language = lang || (match ? match[1] : '')
-      const inputBlock = this.createBlock('span', { text: language })
-      loadLanguage(language)
-      inputBlock.functionType = 'languageInput'
+      const codeBlock = this.createBlock('code', {
+        lang: language
+      })
+      const codeContent = this.createBlock('span', {
+        text: code,
+        lang: language,
+        functionType: 'codeContent'
+      })
+      const inputBlock = this.createBlock('span', {
+        text: language,
+        functionType: 'languageInput'
+      })
+
+      if (language) {
+        loadLanguage(language)
+      }
+
       block.type = 'pre'
       block.functionType = 'fencecode'
       block.lang = language
       block.text = ''
       block.history = null
       block.children = []
-      codeBlock.lang = language
-      firstLine.lang = language
-      firstLine.functionType = 'codeLine'
-      this.appendChild(codeBlock, firstLine)
+
+      this.appendChild(codeBlock, codeContent)
       this.appendChild(block, inputBlock)
       this.appendChild(block, codeBlock)
-      const { key } = firstLine
+      const { key } = codeContent
       const offset = code.length
       this.cursor = {
         start: { key, offset },
@@ -113,6 +128,33 @@ const codeBlockCtrl = ContentState => {
       return true
     }
     return false
+  }
+
+  /**
+   * Copy the code block by click right-top copy icon in code block.
+   */
+  ContentState.prototype.copyCodeBlock = function (event) {
+    const { target } = event
+    const preEle = target.closest('pre')
+    const preBlock = this.getBlock(preEle.id)
+    const codeBlock = preBlock.children.find(c => c.type === 'code')
+    const codeContent = codeBlock.children[0].text
+    this.muya.clipboard.copy('copyCodeContent', codeContent)
+  }
+
+  ContentState.prototype.resizeLineNumber = function () {
+    // FIXME: Disabled due to #1648.
+    // const { codeBlockLineNumbers } = this.muya.options
+    // if (!codeBlockLineNumbers) {
+    //   return
+    // }
+
+    // const codeBlocks = document.querySelectorAll('pre.line-numbers')
+    // if (codeBlocks.length) {
+    //   for (const ele of codeBlocks) {
+    //     resizeCodeBlockLineNumber(ele)
+    //   }
+    // }
   }
 }
 

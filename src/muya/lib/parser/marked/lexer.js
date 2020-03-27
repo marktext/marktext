@@ -1,6 +1,6 @@
-import { normal, gfm, tables, pedantic } from './blockRules'
+import { normal, gfm, pedantic } from './blockRules'
 import options from './options'
-import { splitCells, rtrim } from './utils'
+import { splitCells, rtrim, getUniqueId } from './utils'
 
 /**
  * Block Lexer
@@ -9,17 +9,15 @@ import { splitCells, rtrim } from './utils'
 function Lexer (opts) {
   this.tokens = []
   this.tokens.links = Object.create(null)
+  this.tokens.footnotes = Object.create(null)
+  this.footnoteOrder = 0
   this.options = Object.assign({}, options, opts)
   this.rules = normal
 
   if (this.options.pedantic) {
     this.rules = pedantic
   } else if (this.options.gfm) {
-    if (this.options.tables) {
-      this.rules = tables
-    } else {
-      this.rules = gfm
-    }
+    this.rules = gfm
   }
 }
 
@@ -30,12 +28,35 @@ function Lexer (opts) {
 Lexer.prototype.lex = function (src) {
   src = src
     .replace(/\r\n|\r/g, '\n')
-    // replace `\t` to four space.
     .replace(/\t/g, '    ')
-    // .replace(/\u00a0/g, ' ')
-    .replace(/\u2424/g, '\n')
   this.checkFrontmatter = true
-  return this.token(src, true)
+  this.footnoteOrder = 0
+  this.token(src, true)
+
+  // Move footnote token to the end of tokens.
+  const { tokens } = this
+  const hasNoFootnoteTokens = []
+  const footnoteTokens = []
+  let isInFootnote = false
+  for (const token of tokens) {
+    const { type } = token
+    if (type === 'footnote_start') {
+      isInFootnote = true
+      footnoteTokens.push(token)
+    } else if (type === 'footnote_end') {
+      isInFootnote = false
+      footnoteTokens.push(token)
+    } else if (isInFootnote) {
+      footnoteTokens.push(token)
+    } else {
+      hasNoFootnoteTokens.push(token)
+    }
+  }
+
+  const result = [...hasNoFootnoteTokens, ...footnoteTokens]
+  result.links = tokens.links
+  result.footnotes = tokens.footnotes
+  return result
 }
 
 /**
@@ -43,7 +64,7 @@ Lexer.prototype.lex = function (src) {
  */
 
 Lexer.prototype.token = function (src, top) {
-  const { frontMatter, math } = this.options
+  const { frontMatter, math, footnote } = this.options
   src = src.replace(/^ +$/gm, '')
 
   let loose
@@ -55,17 +76,34 @@ Lexer.prototype.token = function (src, top) {
   let i
   let tag
   let l
-  let checked
 
   // Only check front matter at the begining of a markdown file.
-  // Why "checkFrontmatter" and "top"? See note in "blockquote".
+  // Please see note in "blockquote" why we need "checkFrontmatter" and "top".
   if (frontMatter) {
     cap = this.rules.frontmatter.exec(src)
     if (this.checkFrontmatter && top && cap) {
       src = src.substring(cap[0].length)
+      let lang
+      let style
+      let text
+      if (cap[1]) {
+        lang = 'yaml'
+        style = '-'
+        text = cap[1]
+      } else if (cap[2]) {
+        lang = 'toml'
+        style = '+'
+        text = cap[2]
+      } else if (cap[3] || cap[4]) {
+        lang = 'json'
+        style = cap[3] ? ';' : '{'
+        text = cap[3] || cap[4]
+      }
       this.tokens.push({
         type: 'frontmatter',
-        text: cap[1]
+        text,
+        style,
+        lang
       })
     }
     this.checkFrontmatter = false
@@ -117,7 +155,38 @@ Lexer.prototype.token = function (src, top) {
       }
     }
 
-    // fences (gfm)
+    if (footnote) {
+      cap = this.rules.footnote.exec(src)
+      if (top && cap) {
+        src = src.substring(cap[0].length)
+        const identifier = cap[1]
+        this.tokens.push({
+          type: 'footnote_start',
+          identifier
+        })
+        this.tokens.footnotes[identifier] = {
+          order: ++this.footnoteOrder,
+          identifier,
+          footnoteId: getUniqueId()
+        }
+        /* eslint-disable no-useless-escape */
+        // Remove the footnote identifer prefix. eg: `[^identifier]: `.
+        cap = cap[0].replace(/^\[\^[^\^\[\]\s]+?(?<!\\)\]:\s+/gm, '')
+        // Remove the four whitespace before each block of footnote.
+        cap = cap.replace(/\n {4}(?=[^\s])/g, '\n')
+        /* eslint-enable no-useless-escape */
+
+        this.token(cap, top)
+
+        this.tokens.push({
+          type: 'footnote_end'
+        })
+
+        continue
+      }
+    }
+
+    // fences
     cap = this.rules.fences.exec(src)
     if (cap) {
       src = src.substring(cap[0].length)
@@ -222,6 +291,7 @@ Lexer.prototype.token = function (src, top) {
     // list
     cap = this.rules.list.exec(src)
     if (cap) {
+      let checked
       src = src.substring(cap[0].length)
       bull = cap[2]
       let isOrdered = bull.length > 1
@@ -246,8 +316,8 @@ Lexer.prototype.token = function (src, top) {
         const itemWithBullet = cap[i]
         item = itemWithBullet
         let newIsTaskListItem = false
-        // Remove the list item's bullet
-        // so it is seen as the next token.
+
+        // Remove the list item's bullet so it is seen as the next token.
         space = item.length
         let newBull
         item = item.replace(/^ *([*+-]|\d+(?:\.|\))) {0,4}/, function (m, p1) {
@@ -257,13 +327,15 @@ Lexer.prototype.token = function (src, top) {
         })
 
         const newIsOrdered = bull.length > 1 && /\d{1,9}/.test(newBull)
-
         if (!newIsOrdered && this.options.gfm) {
           checked = this.rules.checkbox.exec(item)
           if (checked) {
             checked = checked[1] === 'x' || checked[1] === 'X'
-            item = item.replace(this.rules.checkbox, '')
             newIsTaskListItem = true
+
+            // Remove the list item's checkbox and adjust indentation by removing checkbox length.
+            item = item.replace(this.rules.checkbox, '')
+            space -= 4
           } else {
             checked = undefined
           }
@@ -330,6 +402,7 @@ Lexer.prototype.token = function (src, top) {
         } else {
           prevItem = cap[i - 1]
         }
+
         // Determine whether item is loose or not. If previous item is loose
         // this item is also loose.
         // A list is loose if any of its constituent list items are separated by blank lines,
@@ -356,7 +429,7 @@ Lexer.prototype.token = function (src, top) {
 
         const isOrderedListItem = /\d/.test(bull)
         this.tokens.push({
-          checked: checked,
+          checked,
           listItemType: bull.length > 1 ? 'order' : (isTaskList ? 'task' : 'bullet'),
           bulletMarkerOrDelimiter: isOrderedListItem ? bull.slice(-1) : bull.charAt(0),
           type: loose ? 'loose_item_start' : 'list_item_start'
@@ -380,7 +453,6 @@ Lexer.prototype.token = function (src, top) {
       this.tokens.push({
         type: 'list_end'
       })
-
       continue
     }
 
@@ -394,7 +466,7 @@ Lexer.prototype.token = function (src, top) {
           : 'html',
         pre: !this.options.sanitizer &&
           (cap[1] === 'pre' || cap[1] === 'script' || cap[1] === 'style'),
-        text: cap[0]
+        text: this.options.sanitize ? (this.options.sanitizer ? this.options.sanitizer(cap[0]) : escape(cap[0])) : cap[0]
       })
       continue
     }
@@ -478,7 +550,7 @@ Lexer.prototype.token = function (src, top) {
         this.tokens.push({
           type: 'heading',
           headingStyle: 'setext',
-          depth: cap[2] === '=' ? 1 : 2,
+          depth: cap[2].charAt(0) === '=' ? 1 : 2,
           text: precededToken.text + '\n' + cap[1],
           marker
         })
@@ -486,7 +558,7 @@ Lexer.prototype.token = function (src, top) {
         this.tokens.push({
           type: 'heading',
           headingStyle: 'setext',
-          depth: cap[2] === '=' ? 1 : 2,
+          depth: cap[2].charAt(0) === '=' ? 1 : 2,
           text: cap[1],
           marker
         })
@@ -523,8 +595,6 @@ Lexer.prototype.token = function (src, top) {
       throw new Error('Infinite loop on byte: ' + src.charCodeAt(0))
     }
   }
-
-  return this.tokens
 }
 
 export default Lexer

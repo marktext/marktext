@@ -3,11 +3,11 @@ import { isOsx } from '../../config'
 
 export default function (keybindings) {
   const menu = {
-    label: 'Window',
+    label: '&Window',
     role: 'window',
     submenu: [{
       label: 'Minimize',
-      accelerator: keybindings.getAccelerator('windowMinimize'),
+      accelerator: keybindings.getAccelerator('window.minimize'),
       role: 'minimize'
     }, {
       id: 'alwaysOnTopMenuItem',
@@ -17,19 +17,13 @@ export default function (keybindings) {
         toggleAlwaysOnTop(browserWindow)
       }
     }, {
-      // TODO: Disable due GH#1225.
-      visible: false,
       type: 'separator'
     }, {
-      // TODO: Disable due GH#1225.
-      visible: false,
       label: 'Zoom In',
       click (menuItem, browserWindow) {
         zoomIn(browserWindow)
       }
     }, {
-      // TODO: Disable due GH#1225.
-      visible: false,
       label: 'Zoom Out',
       click (menuItem, browserWindow) {
         zoomOut(browserWindow)
@@ -38,7 +32,7 @@ export default function (keybindings) {
       type: 'separator'
     }, {
       label: 'Toggle Full Screen',
-      accelerator: keybindings.getAccelerator('viewToggleFullScreen'),
+      accelerator: keybindings.getAccelerator('window.toggle-full-screen'),
       click (item, focusedWindow) {
         if (focusedWindow) {
           focusedWindow.setFullScreen(!focusedWindow.isFullScreen())

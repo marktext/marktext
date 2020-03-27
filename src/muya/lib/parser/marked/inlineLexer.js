@@ -1,16 +1,17 @@
 import Renderer from './renderer'
 import { normal, breaks, gfm, pedantic } from './inlineRules'
 import defaultOptions from './options'
-import { escape, findClosingBracket } from './utils'
+import { escape, findClosingBracket, getUniqueId } from './utils'
 import { validateEmphasize, lowerPriority } from '../utils'
 
 /**
  * Inline Lexer & Compiler
  */
 
-function InlineLexer (links, options) {
+function InlineLexer (links, footnotes, options) {
   this.options = options || defaultOptions
   this.links = links
+  this.footnotes = footnotes
   this.rules = normal
   this.renderer = this.options.renderer || new Renderer()
   this.renderer.options = this.options
@@ -49,7 +50,7 @@ function InlineLexer (links, options) {
 InlineLexer.prototype.output = function (src) {
   // src = src
   // .replace(/\u00a0/g, ' ')
-  const { disableInline, emoji, math } = this.options
+  const { disableInline, emoji, math, superSubScript, footnote } = this.options
   if (disableInline) {
     return escape(src)
   }
@@ -71,6 +72,19 @@ InlineLexer.prototype.output = function (src) {
       lastChar = cap[0].charAt(cap[0].length - 1)
       out += escape(cap[1])
       continue
+    }
+
+    // footnote identifier
+    if (footnote) {
+      cap = this.rules.footnoteIdentifier.exec(src)
+      if (cap) {
+        src = src.substring(cap[0].length)
+        lastChar = cap[0].charAt(cap[0].length - 1)
+        const identifier = cap[1]
+        const footnoteInfo = this.footnotes[identifier] || {}
+        footnoteInfo.footnoteIdentifierId = getUniqueId()
+        out += this.renderer.footnoteIdentifier(identifier, footnoteInfo)
+      }
     }
 
     // tag
@@ -102,7 +116,8 @@ InlineLexer.prototype.output = function (src) {
     if (cap && lowerPriority(src, cap[0].length, this.highPriorityLinkRules)) {
       const lastParenIndex = findClosingBracket(cap[2], '()')
       if (lastParenIndex > -1) {
-        const linkLen = cap[0].length - (cap[2].length - lastParenIndex) - (cap[3] || '').length
+        const start = cap[0].indexOf('!') === 0 ? 5 : 4
+        const linkLen = start + cap[1].length + lastParenIndex
         cap[2] = cap[2].substring(0, lastParenIndex)
         cap[0] = cap[0].substring(0, linkLen).trim()
         cap[3] = ''
@@ -169,6 +184,18 @@ InlineLexer.prototype.output = function (src) {
         lastChar = cap[0].charAt(cap[0].length - 1)
         text = cap[0]
         out += this.renderer.emoji(text, cap[2])
+      }
+    }
+
+    // superSubScript
+    if (superSubScript) {
+      cap = this.rules.superscript.exec(src) || this.rules.subscript.exec(src)
+      if (cap) {
+        src = src.substring(cap[0].length)
+        lastChar = cap[0].charAt(cap[0].length - 1)
+        const content = cap[2]
+        const marker = cap[1]
+        out += this.renderer.script(content, marker)
       }
     }
 
@@ -272,7 +299,7 @@ InlineLexer.prototype.output = function (src) {
       src = src.substring(cap[0].length)
       lastChar = cap[0].charAt(cap[0].length - 1)
       if (this.inRawBlock) {
-        out += this.renderer.text(cap[0])
+        out += this.renderer.text(this.options.sanitize ? (this.options.sanitizer ? this.options.sanitizer(cap[0]) : escape(cap[0])) : cap[0])
       } else {
         out += this.renderer.text(escape(this.smartypants(cap[0])))
       }

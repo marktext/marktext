@@ -25,7 +25,7 @@ init:
   - git config --global core.autocrlf input
 
 install:
-  - ps: Install-Product node 10 $env:PLATFORM
+  - ps: Install-Product node 12 $env:PLATFORM
 
   - node --version
   - npm --version
@@ -44,12 +44,10 @@ build_script:
   - yarn run validate-licenses
   - yarn run test
 
-  - yarn run release:win
+  - yarn run release:win --publish always
 
-  # calculate checksums
-  - ps: get-filehash -Algorithm SHA256 "build\marktext-*.exe"
+  # Calculate checksums
+  - ps: get-filehash -Algorithm SHA256 "build\marktext-setup.exe"
   - ps: get-filehash -Algorithm SHA256 "build\marktext-*-win.zip"
 
 test: off
-# test_script:
-#   - yarn run test

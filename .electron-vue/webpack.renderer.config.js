@@ -35,6 +35,10 @@ const rendererConfig = {
   module: {
     rules: [
       {
+        test: require.resolve(path.join(__dirname, '../src/muya/lib/assets/libs/snap.svg-min.js')),
+        use: 'imports-loader?this=>window,fix=>module.exports=0',
+      },
+      {
         test: /\.(js|vue)$/,
         enforce: 'pre',
         exclude: /node_modules/,
@@ -47,7 +51,7 @@ const rendererConfig = {
         }
       },
       {
-        test: /(theme\-chalk(?:\/|\\)index|katex|github\-markdown|prism[\-a-z]*|\.theme)\.css$/,
+        test: /(theme\-chalk(?:\/|\\)index|exportStyle|katex|github\-markdown|prism[\-a-z]*|\.theme|headerFooterStyle)\.css$/,
         use: [
           'to-string-loader',
           'css-loader'
@@ -55,7 +59,7 @@ const rendererConfig = {
       },
       {
         test: /\.css$/,
-        exclude: /(theme\-chalk(?:\/|\\)index|katex|github\-markdown|prism[\-a-z]*|\.theme)\.css$/,
+        exclude: /(theme\-chalk(?:\/|\\)index|exportStyle|katex|github\-markdown|prism[\-a-z]*|\.theme|headerFooterStyle)\.css$/,
         use: [
           proMode ? MiniCssExtractPlugin.loader : 'style-loader',
           { loader: 'css-loader', options: { importLoaders: 1 } },
@@ -75,7 +79,14 @@ const rendererConfig = {
       },
       {
         test: /\.js$/,
-        use: 'babel-loader',
+        use: [
+          {
+            loader: 'babel-loader',
+            options: {
+              cacheDirectory: true
+            }
+          }
+        ],
         exclude: /node_modules/
       },
       {
@@ -160,6 +171,11 @@ const rendererConfig = {
     }),
     new webpack.NoEmitOnErrorsPlugin(),
     new webpack.DefinePlugin(getRendererEnvironmentDefinitions()),
+    // Use node http request instead axios's XHR adapter.
+    new webpack.NormalModuleReplacementPlugin(
+      /.+\/node_modules\/axios\/lib\/adapters\/xhr\.js$/,
+      'http.js'
+    ),
     new VueLoaderPlugin()
   ],
   output: {
@@ -173,6 +189,7 @@ const rendererConfig = {
       '@': path.join(__dirname, '../src/renderer'),
       'common': path.join(__dirname, '../src/common'),
       'muya': path.join(__dirname, '../src/muya'),
+      snapsvg: path.join(__dirname, '../src/muya/lib/assets/libs/snap.svg-min.js'),
       'vue$': 'vue/dist/vue.esm.js'
     },
     extensions: ['.js', '.vue', '.json', '.css', '.node']
@@ -211,6 +228,9 @@ if (proMode) {
   rendererConfig.devtool = '#nosources-source-map'
   rendererConfig.mode = 'production'
   rendererConfig.plugins.push(
+    new webpack.DefinePlugin({
+      'process.env.UNSPLASH_ACCESS_KEY': JSON.stringify(process.env.UNSPLASH_ACCESS_KEY)
+    }),
     new MiniCssExtractPlugin({
       // Options similar to the same options in webpackOptions.output
       // both options are optional

@@ -39,7 +39,8 @@ class DataCenter extends EventEmitter {
       imageBed: {
         github: {
           owner: '',
-          repo: ''
+          repo: '',
+          branch: ''
         }
       }
     }
@@ -70,7 +71,7 @@ class DataCenter extends EventEmitter {
 
       return Object.assign(data, encryptObj)
     } catch (err) {
-      log.error(err)
+      log.error('Failed to decrypt secure keys:', err)
       return data
     }
   }
@@ -132,7 +133,7 @@ class DataCenter extends EventEmitter {
       try {
         return await keytar.setPassword(serviceName, key, value)
       } catch (err) {
-        log.error(err)
+        log.error('dataCenter::setItem:', err)
       }
     } else {
       return this.store.set(key, value)
@@ -165,16 +166,16 @@ class DataCenter extends EventEmitter {
     ipcMain.on('mt::ask-for-user-data', async e => {
       const win = BrowserWindow.fromWebContents(e.sender)
       const userData = await this.getAll()
-      win.webContents.send('AGANI::user-preference', userData)
+      win.webContents.send('mt::user-preference', userData)
     })
 
-    ipcMain.on('mt::ask-for-modify-image-folder-path', e => {
+    ipcMain.on('mt::ask-for-modify-image-folder-path', async e => {
       const win = BrowserWindow.fromWebContents(e.sender)
-      const folder = dialog.showOpenDialog(win, {
+      const { filePaths } = await dialog.showOpenDialog(win, {
         properties: ['openDirectory', 'createDirectory']
       })
-      if (folder && folder[0]) {
-        this.setItem('imageFolderPath', folder[0])
+      if (filePaths && filePaths[0]) {
+        this.setItem('imageFolderPath', filePaths[0])
       }
     })
 
@@ -182,17 +183,18 @@ class DataCenter extends EventEmitter {
       this.setItems(userData)
     })
 
-    ipcMain.on('mt::ask-for-image-path', e => {
+    ipcMain.on('mt::ask-for-image-path', async e => {
       const win = BrowserWindow.fromWebContents(e.sender)
-      const files = dialog.showOpenDialog(win, {
+      const { filePaths } = await dialog.showOpenDialog(win, {
         properties: ['openFile'],
         filters: [{
           name: 'Images',
           extensions: IMAGE_EXTENSIONS
         }]
       })
-      if (files && files[0]) {
-        e.returnValue = files[0]
+
+      if (filePaths && filePaths[0]) {
+        e.returnValue = filePaths[0]
       } else {
         e.returnValue = ''
       }

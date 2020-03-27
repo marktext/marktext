@@ -40,7 +40,7 @@
   </a>
   <!-- Downloads latest release -->
   <a href="https://github.com/marktext/marktext/releases/latest">
-    <img src="https://img.shields.io/github/downloads/marktext/marktext/v0.15.1/total.svg" alt="latest download">
+    <img src="https://img.shields.io/github/downloads/marktext/marktext/v0.16.0/total.svg" alt="latest download">
   </a>
   <!-- sponsors -->
   <a href="https://opencollective.com/marktext">
@@ -58,7 +58,7 @@
       Features
     </a>
     <span> | </span>
-    <a href="https://github.com/marktext/marktext#download-and-install">
+    <a href="https://github.com/marktext/marktext#download-and-installation">
       Downloads
     </a>
     <span> | </span>
@@ -118,7 +118,7 @@
 
 | ![]( https://github.com/ryanoasis/nerd-fonts/wiki/screenshots/v1.0.x/mac-pass-sm.png)                                                                                                             | ![]( https://github.com/ryanoasis/nerd-fonts/wiki/screenshots/v1.0.x/windows-pass-sm.png)                                                                                                                     | ![]( https://github.com/ryanoasis/nerd-fonts/wiki/screenshots/v1.0.x/linux-pass-sm.png)                                                                                                                                   |
 |:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
-| [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-0.15.1.dmg.svg)](https://github.com/marktext/marktext/releases/download/v0.15.1/marktext-0.15.1.dmg) | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-setup-0.15.1.exe.svg)](https://github.com/marktext/marktext/releases/download/v0.15.1/marktext-setup-0.15.1.exe) | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-0.15.1-x86_64.AppImage.svg)](https://github.com/marktext/marktext/releases/download/v0.15.1/marktext-0.15.1-x86_64.AppImage) |
+| [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-0.16.0.dmg.svg)](https://github.com/marktext/marktext/releases/download/v0.16.0/marktext.dmg) | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-setup-0.16.0.exe.svg)](https://github.com/marktext/marktext/releases/download/v0.16.0/marktext-setup.exe) | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-0.16.0-x86_64.AppImage.svg)](https://github.com/marktext/marktext/releases/download/v0.16.0/marktext-x86_64.AppImage) |
 
 시스템을 찾을 수 없다면 [release page](https://github.com/marktext/marktext/releases/latest)를 참고하여라. 그래도 없으면 [issue](https://github.com/marktext/marktext/issues)를 작성하여 알려 주시면 감사하겠다.
 
@@ -141,7 +141,7 @@ brew cask install mark-text
 
 ## 개발
 
-직접 **Mark Text**를 작성하려면 [developer documentation](../../.github/CONTRIBUTING.md#build-instructions)를 확인하여라.
+직접 **Mark Text**를 작성하려면 [developer documentation](../../CONTRIBUTING.md#build-instructions)를 확인하여라.
 
 **Mark Text**와 관련하여 질문이 있으시면 언제든지 문제를 기재하실 수 있다. 그렇게 할 때 문제를 열 때 찾을 수 있는 기본 형식을 사용하여라. 물론, 직접 PR을 제출하면 크게 환영 할 것이다.
 
@@ -151,7 +151,7 @@ brew cask install mark-text
 
 ## 기여
 
-Mark Text는 완전히 개발되었다,  pull request를 하기 전에 [Contributing Guide](../../.github/CONTRIBUTING.md) 문서를 읽어라. Mark Text에 몇 가지 기능을 추가하고 싶다면 [TODO LIST](../../.github/TODOLIST.md) 및 open issues를 참조하여라.
+Mark Text는 완전히 개발되었다,  pull request를 하기 전에 [Contributing Guide](../../CONTRIBUTING.md) 문서를 읽어라. Mark Text에 몇 가지 기능을 추가하고 싶다면 [TODO LIST](../../.github/TODOLIST.md) 및 open issues를 참조하여라.
 
 ## 스폰서
 

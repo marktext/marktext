@@ -1,303 +1,175 @@
 {
   "name": "marktext",
-  "version": "0.15.1",
+  "version": "0.16.0",
   "homepage": "https://marktext.app/",
   "description": "Next generation markdown editor",
   "license": "MIT",
   "main": "./dist/electron/main.js",
   "scripts": {
     "release": "echo 'Please run \"build\" or \"release:{linux,mac,win}\"' && exit 1",
-    "release:linux": "node .electron-vue/build.js && electron-builder build --linux --publish always",
-    "release:mac": "node .electron-vue/build.js && electron-builder build --mac --publish always",
-    "release:win": "node .electron-vue/build.js && electron-builder build --win --publish always",
+    "release:linux": "node .electron-vue/build.js && electron-builder build --linux",
+    "release:mac": "node .electron-vue/build.js && electron-builder build --mac",
+    "release:win": "node .electron-vue/build.js && electron-builder build --win",
     "build": "node .electron-vue/build.js && electron-builder",
     "build:bin": "node .electron-vue/build.js && electron-builder --dir",
     "build:clean": "cross-env BUILD_TARGET=clean node .electron-vue/build.js",
     "build:dev": "node .electron-vue/build.js",
-    "dev": "node .electron-vue/dev-runner.js",
-    "e2e": "npm run pack && cross-env MARKTEXT_EXIT_ON_ERROR=1 mocha --timeout 10000 test/e2e",
+    "dev": "cross-env node .electron-vue/dev-runner.js",
+    "e2e": "yarn run pack && cross-env MARKTEXT_EXIT_ON_ERROR=1 mocha --timeout 10000 test/e2e",
     "lint": "eslint --ext .js,.vue -f ./node_modules/eslint-friendly-formatter src test",
     "lint:fix": "eslint --ext .js,.vue -f ./node_modules/eslint-friendly-formatter --fix src test",
-    "pack": "npm run pack:main && npm run pack:renderer",
+    "pack": "yarn run pack:main && yarn run pack:renderer",
     "pack:main": "cross-env NODE_ENV=production webpack --progress --colors --config .electron-vue/webpack.main.config.js",
     "pack:renderer": "cross-env NODE_ENV=production webpack --progress --colors --config .electron-vue/webpack.renderer.config.js",
-    "test": "npm run unit && npm run e2e",
+    "postinstall": "yarn run rebuild && yarn run lint:fix",
+    "test": "yarn run unit && yarn run e2e",
     "test:specs": "node -r esm test/specs/commonMark/run.spec.js && node -r esm test/specs/gfm/run.spec.js",
     "unit": "cross-env NODE_ENV=test ELECTRON_DISABLE_SECURITY_WARNINGS=true karma start test/unit/karma.conf.js",
     "preinstall": "node .electron-vue/preinstall.js",
-    "postinstall": "npm run rebuild && npm run lint:fix",
     "build:muya": "cd src/muya && webpack --progress --colors --config webpack.config.js",
-    "release:muya": "npm run build:muya && cd src/muya && npm publish",
-    "rebuild": "electron-rebuild -f -o keytar,keyboard-layout,vscode-windows-registry",
+    "release:muya": "yarn run build:muya && cd src/muya && yarn publish",
+    "rebuild": "electron-rebuild -f",
     "gen-third-party": "node tools/generateThirdPartyLicense.js",
     "validate-licenses": "node tools/validateLicenses.js"
   },
-  "build": {
-    "productName": "Mark Text",
-    "appId": "com.github.marktext.marktext",
-    "asar": true,
-    "asarUnpack": [
-      "**/*.node"
-    ],
-    "directories": {
-      "output": "build"
-    },
-    "fileAssociations": [
-      {
-        "ext": [
-          "md",
-          "markdown",
-          "mmd",
-          "mdown",
-          "mdtxt",
-          "mdtext"
-        ],
-        "name": "Markdown",
-        "description": "Markdown document",
-        "role": "Editor",
-        "icon": "../resources/icons/md.icns"
-      }
-    ],
-    "files": [
-      "dist/electron/**/*"
-    ],
-    "extraFiles": [
-      "LICENSE",
-      {
-        "from": "resources/THIRD-PARTY-LICENSES.txt",
-        "to": "THIRD-PARTY-LICENSES.txt"
-      }
-    ],
-    "dmg": {
-      "artifactName": "marktext-${version}.${ext}",
-      "contents": [
-        {
-          "x": 410,
-          "y": 150,
-          "type": "link",
-          "path": "/Applications"
-        },
-        {
-          "x": 130,
-          "y": 150,
-          "type": "file"
-        }
-      ]
-    },
-    "mac": {
-      "artifactName": "marktext-${version}-mac.${ext}",
-      "icon": "resources/icons/icon.icns",
-      "darkModeSupport": true
-    },
-    "win": {
-      "artifactName": "marktext-${version}-${arch}-win.${ext}",
-      "icon": "resources/icons/icon.ico",
-      "target": [
-        {
-          "target": "nsis",
-          "arch": [
-            "ia32",
-            "x64"
-          ]
-        },
-        {
-          "target": "zip",
-          "arch": [
-            "ia32",
-            "x64"
-          ]
-        }
-      ],
-      "requestedExecutionLevel": "asInvoker"
-    },
-    "nsis": {
-      "artifactName": "marktext-setup-${version}.${ext}",
-      "perMachine": false,
-      "oneClick": false,
-      "allowToChangeInstallationDirectory": true,
-      "include": "resources/windows/installer.nsh"
-    },
-    "linux": {
-      "artifactName": "marktext-${version}-${arch}.${ext}",
-      "category": "Office;TextEditor;Utility",
-      "mimeTypes": [
-        "text/markdown"
-      ],
-      "icon": "resources/icons",
-      "desktop": {
-        "StartupWMClass": "marktext",
-        "Keywords": "marktext;"
-      },
-      "target": [
-        {
-          "target": "AppImage"
-        },
-        {
-          "target": "tar.gz"
-        }
-      ],
-      "fileAssociations": [
-        {
-          "ext": "md",
-          "name": "Markdown",
-          "description": "Markdown document"
-        },
-        {
-          "ext": "markdown",
-          "name": "Markdown",
-          "description": "Markdown document"
-        },
-        {
-          "ext": "mmd",
-          "name": "Markdown",
-          "description": "Markdown document"
-        },
-        {
-          "ext": "mdown",
-          "name": "Markdown",
-          "description": "Markdown document"
-        },
-        {
-          "ext": "mdtxt",
-          "name": "Markdown",
-          "description": "Markdown document"
-        },
-        {
-          "ext": "mdtext",
-          "name": "Markdown",
-          "description": "Markdown document"
-        }
-      ]
-    }
-  },
   "dependencies": {
     "@hfelix/electron-localshortcut": "^3.1.1",
-    "@octokit/rest": "^16.28.5",
-    "arg": "^4.1.1",
-    "axios": "^0.19.0",
-    "chokidar": "^3.0.2",
-    "codemirror": "^5.48.2",
+    "@hfelix/electron-spellchecker": "1.0.0-rc.5",
+    "@octokit/rest": "^16.43.1",
+    "arg": "^4.1.3",
+    "axios": "^0.19.2",
+    "ced": "^1.0.0",
+    "chokidar": "^3.3.1",
+    "codemirror": "^5.52.0",
     "command-exists": "^1.2.8",
-    "dayjs": "^1.8.15",
+    "dayjs": "^1.8.23",
     "dom-autoscroller": "^2.3.4",
-    "dompurify": "2.0.3",
+    "dompurify": "^2.0.8",
     "dragula": "^3.7.2",
     "electron-is-accelerator": "^0.1.2",
-    "electron-log": "^3.0.6",
-    "electron-store": "^4.0.0",
+    "electron-log": "^4.1.0",
+    "electron-store": "^5.1.1",
     "electron-window-state": "^5.0.3",
-    "element-resize-detector": "^1.2.0",
-    "element-ui": "^2.10.1",
+    "element-resize-detector": "^1.2.1",
+    "element-ui": "^2.13.0",
+    "execall": "^2.0.0",
     "file-icons-js": "^1.0.3",
-    "flowchart.js": "^1.12.1",
+    "flowchart.js": "^1.13.0",
+    "fontmanager-redux": "^0.4.0",
     "fs-extra": "^8.1.0",
     "fuzzaldrin": "^2.1.0",
     "github-markdown-css": "^3.0.1",
-    "html-tags": "^3.0.0",
-    "katex": "^0.10.2",
+    "html-tags": "^3.1.0",
+    "iconv-lite": "^0.5.1",
+    "iso-639-1": "^2.1.1",
+    "joplin-turndown-plugin-gfm": "^1.0.12",
+    "katex": "^0.11.1",
     "keyboard-layout": "^2.0.16",
-    "keytar": "^4.12.0",
-    "mermaid": "^8.0.0",
+    "keytar": "5.4.0",
+    "mermaid": "^8.4.8",
     "plist": "^3.0.1",
-    "popper.js": "^1.15.0",
-    "prismjs": "^1.17.1",
-    "snabbdom": "^0.7.3",
+    "popper.js": "^1.16.1",
+    "prismjs": "^1.19.0",
+    "snabbdom": "^0.7.4",
     "snabbdom-to-html": "^5.1.1",
-    "source-map-support": "^0.5.12",
-    "turndown": "^5.0.3",
-    "turndown-plugin-gfm": "^1.0.2",
-    "underscore": "^1.9.1",
-    "vega": "^5.4.0",
-    "vega-embed": "^4.2.1",
-    "vega-lite": "^3.3.0",
+    "source-map-support": "^0.5.16",
+    "turndown": "^6.0.0",
+    "underscore": "^1.9.2",
+    "unsplash-js": "^6.0.0",
+    "vega": "^5.10.0",
+    "vega-embed": "^6.4.0",
+    "vega-lite": "^4.7.0",
     "view-image": "^0.0.1",
-    "vscode-ripgrep": "^1.3.1",
-    "vue": "^2.6.10",
+    "vscode-ripgrep": "^1.5.8",
+    "vue": "^2.6.11",
     "vue-electron": "^1.0.6",
-    "vue-router": "^3.0.7",
-    "vuex": "^3.1.1"
+    "vue-router": "^3.1.6",
+    "vuex": "^3.1.3",
+    "webfontloader": "^1.6.28"
   },
   "devDependencies": {
-    "@markedjs/html-differ": "^2.0.1",
-    "babel-core": "^6.26.3",
-    "babel-eslint": "^10.0.2",
-    "babel-loader": "^7.1.5",
+    "@babel/core": "^7.8.7",
+    "@babel/plugin-proposal-class-properties": "^7.8.3",
+    "@babel/plugin-proposal-export-default-from": "^7.8.3",
+    "@babel/plugin-proposal-function-bind": "^7.8.3",
+    "@babel/plugin-syntax-class-properties": "^7.8.3",
+    "@babel/plugin-syntax-dynamic-import": "^7.8.3",
+    "@babel/plugin-transform-runtime": "^7.8.3",
+    "@babel/preset-env": "^7.8.7",
+    "@babel/register": "^7.8.6",
+    "@babel/runtime": "^7.8.7",
+    "@markedjs/html-differ": "^3.0.0",
+    "babel-eslint": "^10.1.0",
+    "babel-loader": "^8.0.6",
     "babel-plugin-component": "^1.1.1",
-    "babel-plugin-istanbul": "^5.1.1",
-    "babel-plugin-transform-runtime": "^6.23.0",
-    "babel-preset-env": "^1.7.0",
-    "babel-preset-stage-0": "^6.24.1",
-    "babel-register": "^6.26.0",
-    "cfonts": "^2.4.3",
+    "babel-plugin-istanbul": "^6.0.0",
+    "cfonts": "^2.8.1",
     "chai": "^4.2.0",
-    "chalk": "^2.4.2",
+    "chalk": "^3.0.0",
     "cheerio": "^1.0.0-rc.3",
-    "copy-webpack-plugin": "^5.0.3",
-    "cross-env": "^5.2.0",
-    "css-loader": "^2.1.1",
-    "del": "^4.1.1",
+    "copy-webpack-plugin": "^5.1.1",
+    "cross-env": "^7.0.2",
+    "css-loader": "^3.4.2",
+    "del": "^5.1.0",
     "devtron": "^1.4.0",
-    "dotenv": "^8.0.0",
-    "electron": "5.0.11",
-    "electron-builder": "^21.1.1",
+    "dotenv": "^8.2.0",
+    "electron": "^8.1.1",
+    "electron-builder": "^22.4.1",
     "electron-devtools-installer": "^2.2.4",
-    "electron-rebuild": "^1.8.5",
-    "electron-updater": "^4.1.2",
-    "eslint": "^6.1.0",
-    "eslint-config-standard": "^13.0.1",
+    "electron-rebuild": "^1.10.1",
+    "electron-updater": "^4.2.5",
+    "eslint": "^6.8.0",
+    "eslint-config-standard": "^14.1.0",
     "eslint-friendly-formatter": "^4.0.1",
     "eslint-import-resolver-alias": "^1.1.2",
-    "eslint-loader": "^2.2.1",
+    "eslint-loader": "^3.0.3",
     "eslint-plugin-html": "^6.0.0",
-    "eslint-plugin-import": "^2.18.2",
-    "eslint-plugin-node": "^9.1.0",
+    "eslint-plugin-import": "^2.20.1",
+    "eslint-plugin-node": "^11.0.0",
     "eslint-plugin-promise": "^4.2.1",
-    "eslint-plugin-standard": "^4.0.0",
-    "eslint-plugin-vue": "^5.2.3",
+    "eslint-plugin-standard": "^4.0.1",
+    "eslint-plugin-vue": "^6.2.2",
     "esm": "^3.2.25",
-    "file-loader": "^4.1.0",
-    "git-revision-webpack-plugin": "^3.0.3",
+    "file-loader": "^6.0.0",
+    "git-revision-webpack-plugin": "^3.0.4",
     "html-webpack-plugin": "^3.2.0",
-    "inject-loader": "^4.0.1",
-    "karma": "^4.1.0",
+    "imports-loader": "^0.8.0",
+    "karma": "^4.4.1",
     "karma-chai": "^0.1.0",
-    "karma-coverage": "^1.1.2",
+    "karma-coverage": "^2.0.1",
     "karma-electron": "6.3.0",
     "karma-mocha": "^1.3.0",
     "karma-sourcemap-loader": "^0.3.7",
     "karma-spec-reporter": "0.0.32",
-    "karma-webpack": "^3.0.5",
+    "karma-webpack": "^4.0.2",
     "license-checker": "^25.0.1",
-    "marked": "^0.7.0",
-    "mini-css-extract-plugin": "^0.8.0",
-    "mocha": "^6.2.0",
+    "marked": "^0.8.0",
+    "mini-css-extract-plugin": "^0.9.0",
+    "mocha": "^7.1.0",
     "multispinner": "^0.2.1",
     "node-fetch": "^2.6.0",
     "node-loader": "^0.6.0",
     "postcss-loader": "^3.0.0",
-    "postcss-preset-env": "^6.6.0",
-    "raw-loader": "^2.0.0",
+    "postcss-preset-env": "^6.7.0",
+    "raw-loader": "^4.0.0",
     "require-dir": "^1.2.0",
-    "spectron": "^7.0.0",
-    "style-loader": "^0.23.1",
-    "svg-sprite-loader": "^4.1.6",
-    "svgo": "^1.3.0",
+    "spectron": "^10.0.1",
+    "style-loader": "^1.1.3",
+    "svg-sprite-loader": "^4.2.1",
+    "svgo": "^1.3.2",
     "svgo-loader": "^2.2.1",
-    "to-string-loader": "^1.1.5",
-    "url-loader": "^1.1.2",
+    "to-string-loader": "^1.1.6",
+    "url-loader": "^4.0.0",
     "vue-html-loader": "^1.2.4",
-    "vue-loader": "^15.7.1",
+    "vue-loader": "^15.9.0",
     "vue-style-loader": "^4.1.2",
-    "vue-template-compiler": "^2.6.10",
-    "webpack": "^4.36.1",
-    "webpack-bundle-analyzer": "^3.3.2",
-    "webpack-cli": "^3.3.6",
-    "webpack-dev-server": "^3.7.2",
+    "vue-template-compiler": "^2.6.11",
+    "webpack": "^4.42.0",
+    "webpack-bundle-analyzer": "^3.6.1",
+    "webpack-cli": "^3.3.11",
+    "webpack-dev-server": "^3.10.3",
     "webpack-hot-middleware": "^2.25.0",
-    "webpack-merge": "^4.2.1"
-  },
-  "optionalDependencies": {
-    "vscode-windows-registry": "1.0.1"
+    "webpack-merge": "^4.2.2"
   },
   "repository": {
     "type": "git",

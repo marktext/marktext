@@ -17,7 +17,9 @@
           @click.stop="toggleSearchMatches()"
         >
           <div class="title">
-            <span class="filename">{{ filename + extension }}</span>
+            <span class="filename">
+              <span class="name">{{ filename }}</span><span class="extension">{{extension}}</span>
+            </span>
             <span class="match-count">{{ matchCount }}</span>
           </div>
           <!-- <div class="folder-path">
@@ -31,6 +33,7 @@
       >
         <ul>
           <li
+            class="text-overflow"
             v-for="(searchMatch, index) of getMatches"
             :key="index"
             :searchMatch="searchMatch"
@@ -38,8 +41,8 @@
             @click="handleSearchResultClick(searchMatch)"
           >
             <!-- <span class="line-number">{{ searchMatch.range[0][0] }}</span> -->
-            <span>{{ searchMatch.lineText.substring(0, searchMatch.range[0][1]) }}</span>
-            <span class="ag-highlight">{{ searchMatch.lineText.substring(searchMatch.range[0][1], searchMatch.range[1][1]) }}</span>
+            <span>{{ ellipsisText(searchMatch.lineText.substring(0, searchMatch.range[0][1])) }}</span>
+            <span class="highlight">{{ searchMatch.lineText.substring(searchMatch.range[0][1], searchMatch.range[1][1]) }}</span>
             <span>{{ searchMatch.lineText.substring(searchMatch.range[1][1]) }}</span>
           </li>
         </ul>
@@ -83,8 +86,7 @@ export default {
     }),
 
     getMatches () {
-      if (this.searchResult.matches.length === 0 ||
-          this.allMatchesShown) {
+      if (this.searchResult.matches.length === 0 || this.allMatchesShown) {
         return this.searchResult.matches
       }
       return this.searchResult.matches.slice(0, this.shownMatches)
@@ -113,12 +115,19 @@ export default {
     toggleSearchMatches () {
       this.showSearchMatches = !this.showSearchMatches
     },
+
     handleShowMoreMatches (event) {
       this.shownMatches += 15
       if (event.ctrlKey || event.metaKey ||
           this.shownMatches >= this.searchResult.matches.length) {
         this.allMatchesShown = true
       }
+    },
+
+    ellipsisText (text) {
+      const len = text.length
+      const MAX_PRETEXT_LEN = 6
+      return len > MAX_PRETEXT_LEN ? `...${text.substring(len - MAX_PRETEXT_LEN)}` : text
     }
   }
 }
@@ -157,16 +166,19 @@ export default {
           display: block;
           padding: 2px 16px;
           padding-right: 0;
-          text-overflow: ellipsis;
-          overflow: hidden;
           cursor: pointer;
           /* Hide space between inline spans */
           font-size: 0;
+          & .highlight {
+            background: var(--highlightColor);
+            line-height: 16px;
+            height: 16px;
+            display: inline-block;
+            color: var(--sideBarTextColor);
+            border-radius: 1px;
+          }
           &:hover {
             background: var(--sideBarItemHoverBgColor);
-          },
-          & span:first-child {
-            margin-right: 3px;
           }
           & span {
             font-size: 13px;
@@ -192,9 +204,16 @@ export default {
   }
   .title {
     display: flex;
-    color: var(--sideBarTitleColor);
+    color: var(--sideBarTextColor);
     & .filename {
       flex: 1;
+      & .name {
+        font-weight: 600;
+      }
+      & .extension {
+        color: var(--sideBarTextColor);
+        font-size: 12px;
+      }
     }
     & .match-count {
       display: inline-block;
@@ -209,9 +228,11 @@ export default {
       color: var(--sideBarTextColor);
     }
   }
+
   .folder-path {
     font-size: 12px;
   }
+
   .folder-path > span,
   .matches {
     width: 100%;

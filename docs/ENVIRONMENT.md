@@ -5,6 +5,7 @@
 | `MARKTEXT_DEBUG`             | Enable debug mode.                                          |
 | `MARKTEXT_DEBUG_KEYBOARD`    | Print more keyboard information when debug mode is enabled. |
 | `MARKTEXT_ERROR_INTERACTION` | Never show the error dialog to report bugs.                 |
+| `MARKTEXT_PANDOC`            | Overwrite the pandoc path.                                  |
 
 ## Development
 

@@ -3,6 +3,9 @@
  * there is some difference when parse loose list item and tight lsit item.
  * Both of them add a p block in li block, use the CSS style to distinguish loose and tight.
  */
+import StateRender from '../parser/render'
+import { tokenizer } from '../parser'
+import { getImageInfo } from '../utils'
 import { Lexer } from '../parser/marked'
 import ExportMarkdown from './exportMarkdown'
 import TurndownService, { usePluginAddRules } from './turndownService'
@@ -11,8 +14,6 @@ import { loadLanguage } from '../prism/index'
 // To be disabled rules when parse markdown, Because content state don't need to parse inline rules
 import { CURSOR_ANCHOR_DNA, CURSOR_FOCUS_DNA } from '../config'
 
-const LINE_BREAKS_REG = /\n/
-
 // Just because turndown change `\n`(soft line break) to space, So we add `span.ag-soft-line-break` to workaround.
 const turnSoftBreakToSpan = html => {
   const parser = new DOMParser()
@@ -20,10 +21,10 @@ const turnSoftBreakToSpan = html => {
     `<x-mt id="turn-root">${html}</x-mt>`,
     'text/html'
   )
-  const root = doc.querySelector(`#turn-root`)
+  const root = doc.querySelector('#turn-root')
   const travel = childNodes => {
     for (const node of childNodes) {
-      if (node.nodeType === 3) {
+      if (node.nodeType === 3 && node.parentNode.tagName !== 'CODE') {
         let startLen = 0
         let endLen = 0
         const text = node.nodeValue.replace(/^(\n+)/, (_, p) => {
@@ -76,7 +77,9 @@ const importRegister = ContentState => {
       nextSibling: null,
       children: []
     }
-    const tokens = new Lexer({ disableInline: true }).lex(markdown)
+
+    const { trimUnnecessaryCodeBlockEmptyLines, footnote } = this.muya.options
+    const tokens = new Lexer({ disableInline: true, footnote }).lex(markdown)
 
     let token
     let block
@@ -87,32 +90,32 @@ const importRegister = ContentState => {
     while ((token = tokens.shift())) {
       switch (token.type) {
         case 'frontmatter': {
-          const lang = 'yaml'
+          const { lang, style } = token
           value = token.text
+            .replace(/^\s+/, '')
+            .replace(/\s$/, '')
           block = this.createBlock('pre', {
             functionType: token.type,
-            lang
+            lang,
+            style
           })
+
           const codeBlock = this.createBlock('code', {
             lang
           })
-          value
-            .replace(/^\s+/, '')
-            .replace(/\s$/, '')
-            .split(LINE_BREAKS_REG).forEach(line => {
-              const codeLine = this.createBlock('span', {
-                text: line,
-                lang,
-                functionType: 'codeLine'
-              })
 
-              this.appendChild(codeBlock, codeLine)
-            })
+          const codeContent = this.createBlock('span', {
+            text: value,
+            lang,
+            functionType: 'codeContent'
+          })
 
+          this.appendChild(codeBlock, codeContent)
           this.appendChild(block, codeBlock)
           this.appendChild(parentList[0], block)
           break
         }
+
         case 'hr': {
           value = token.marker
           block = this.createBlock('hr')
@@ -124,6 +127,7 @@ const importRegister = ContentState => {
           this.appendChild(parentList[0], block)
           break
         }
+
         case 'heading': {
           const { headingStyle, depth, text, marker } = token
           value = headingStyle === 'atx' ? '#'.repeat(+depth) + ` ${text}` : text
@@ -145,12 +149,14 @@ const importRegister = ContentState => {
           this.appendChild(parentList[0], block)
           break
         }
+
         case 'multiplemath': {
           value = token.text
           block = this.createContainerBlock(token.type, value)
           this.appendChild(parentList[0], block)
           break
         }
+
         case 'code': {
           const { codeBlockStyle, text, lang: infostring = '' } = token
 
@@ -158,8 +164,10 @@ const importRegister = ContentState => {
           const lang = (infostring || '').match(/\S*/)[0]
 
           value = text
-          if (value.endsWith('\n')) {
+          // Fix: #1265.
+          if (trimUnnecessaryCodeBlockEmptyLines && (value.endsWith('\n') || value.startsWith('\n'))) {
             value = value.replace(/\n+$/, '')
+              .replace(/^\n+/, '')
           }
           if (/mermaid|flowchart|vega-lite|sequence/.test(lang)) {
             block = this.createContainerBlock(lang, value)
@@ -172,13 +180,10 @@ const importRegister = ContentState => {
             const codeBlock = this.createBlock('code', {
               lang
             })
-            value.split(LINE_BREAKS_REG).forEach(line => {
-              const codeLine = this.createBlock('span', {
-                text: line
-              })
-              codeLine.lang = lang
-              codeLine.functionType = 'codeLine'
-              this.appendChild(codeBlock, codeLine)
+            const codeContent = this.createBlock('span', {
+              text: value,
+              lang,
+              functionType: 'codeContent'
             })
             const inputBlock = this.createBlock('span', {
               text: lang,
@@ -202,12 +207,14 @@ const importRegister = ContentState => {
                 })
             }
 
+            this.appendChild(codeBlock, codeContent)
             this.appendChild(block, inputBlock)
             this.appendChild(block, codeBlock)
             this.appendChild(parentList[0], block)
           }
           break
         }
+
         case 'table': {
           const { header, align, cells } = token
           const table = this.createBlock('table')
@@ -219,42 +226,75 @@ const importRegister = ContentState => {
             //       We have to re-escape the chraracter to not break the table.
             return text.replace(/\|/g, '\\|')
           }
-          for (const headText of header) {
-            const i = header.indexOf(headText)
+          let i
+          let j
+          const headerLen = header.length
+          for (i = 0; i < headerLen; i++) {
+            const headText = header[i]
             const th = this.createBlock('th', {
-              text: restoreTableEscapeCharacters(headText)
+              align: align[i] || '',
+              column: i
             })
-            Object.assign(th, { align: align[i] || '', column: i })
+            const cellContent = this.createBlock('span', {
+              text: restoreTableEscapeCharacters(headText),
+              functionType: 'cellContent'
+            })
+            this.appendChild(th, cellContent)
             this.appendChild(theadRow, th)
           }
-          for (const row of cells) {
+          const rowLen = cells.length
+          for (i = 0; i < rowLen; i++) {
             const rowBlock = this.createBlock('tr')
-            for (const cell of row) {
-              const i = row.indexOf(cell)
+            const rowContents = cells[i]
+            const colLen = rowContents.length
+            for (j = 0; j < colLen; j++) {
+              const cell = rowContents[j]
               const td = this.createBlock('td', {
-                text: restoreTableEscapeCharacters(cell)
+                align: align[j] || '',
+                column: j
               })
-              Object.assign(td, { align: align[i] || '', column: i })
+              const cellContent = this.createBlock('span', {
+                text: restoreTableEscapeCharacters(cell),
+                functionType: 'cellContent'
+              })
+
+              this.appendChild(td, cellContent)
               this.appendChild(rowBlock, td)
             }
             this.appendChild(tbody, rowBlock)
           }
+
           Object.assign(table, { row: cells.length, column: header.length - 1 }) // set row and column
           block = this.createBlock('figure')
           block.functionType = 'table'
           this.appendChild(thead, theadRow)
           this.appendChild(block, table)
           this.appendChild(table, thead)
-          this.appendChild(table, tbody)
+          if (tbody.children.length) {
+            this.appendChild(table, tbody)
+          }
           this.appendChild(parentList[0], block)
           break
         }
+
         case 'html': {
-          const { text } = token
-          block = this.createHtmlBlock(text.trim())
-          this.appendChild(parentList[0], block)
+          const text = token.text.trim()
+          // TODO: Treat html block which only contains one img as paragraph, we maybe add image block in the future.
+          const isSingleImage = /^<img[^<>]+>$/.test(text)
+          if (isSingleImage) {
+            block = this.createBlock('p')
+            const contentBlock = this.createBlock('span', {
+              text
+            })
+            this.appendChild(block, contentBlock)
+            this.appendChild(parentList[0], block)
+          } else {
+            block = this.createHtmlBlock(text)
+            this.appendChild(parentList[0], block)
+          }
           break
         }
+
         case 'text': {
           value = token.text
           while (tokens[0].type === 'text') {
@@ -269,6 +309,7 @@ const importRegister = ContentState => {
           this.appendChild(parentList[0], block)
           break
         }
+
         case 'paragraph': {
           value = token.text
           block = this.createBlock('p')
@@ -279,16 +320,43 @@ const importRegister = ContentState => {
           this.appendChild(parentList[0], block)
           break
         }
+
         case 'blockquote_start': {
           block = this.createBlock('blockquote')
           this.appendChild(parentList[0], block)
           parentList.unshift(block)
           break
         }
+
         case 'blockquote_end': {
+          // Fix #1735 the blockquote maybe empty.
+          if (parentList[0].children.length === 0) {
+            const paragraphBlock = this.createBlockP()
+            this.appendChild(parentList[0], paragraphBlock)
+          }
           parentList.shift()
           break
         }
+
+        case 'footnote_start': {
+          block = this.createBlock('figure', {
+            functionType: 'footnote'
+          })
+          const identifierInput = this.createBlock('span', {
+            text: token.identifier,
+            functionType: 'footnoteInput'
+          })
+          this.appendChild(block, identifierInput)
+          this.appendChild(parentList[0], block)
+          parentList.unshift(block)
+          break
+        }
+
+        case 'footnote_end': {
+          parentList.shift()
+          break
+        }
+
         case 'list_start': {
           const { ordered, listType, start } = token
           block = this.createBlock(ordered === true ? 'ol' : 'ul')
@@ -300,10 +368,12 @@ const importRegister = ContentState => {
           parentList.unshift(block)
           break
         }
+
         case 'list_end': {
           parentList.shift()
           break
         }
+
         case 'loose_item_start':
         case 'list_item_start': {
           const { listItemType, bulletMarkerOrDelimiter, checked, type } = token
@@ -324,13 +394,16 @@ const importRegister = ContentState => {
           parentList.unshift(block)
           break
         }
+
         case 'list_item_end': {
           parentList.shift()
           break
         }
+
         case 'space': {
           break
         }
+
         default:
           console.warn(`Unknown type ${token.type}`)
           break
@@ -345,17 +418,19 @@ const importRegister = ContentState => {
     const { turndownConfig } = this
     const turndownService = new TurndownService(turndownConfig)
     usePluginAddRules(turndownService, keeps)
+
     // fix #752, but I don't know why the &nbsp; vanlished.
-    html = html.replace(/<span>&nbsp;<\/span>/g, ' ')
+    html = html.replace(/<span>&nbsp;<\/span>/g, String.fromCharCode(160))
+
     html = turnSoftBreakToSpan(html)
     const markdown = turndownService.turndown(html)
+
     return markdown
   }
 
   // turn html to blocks
   ContentState.prototype.html2State = function (html) {
     const markdown = this.htmlToMarkdown(html, ['ruby', 'rt', 'u', 'br'])
-
     return this.markdownToState(markdown)
   }
 
@@ -507,6 +582,55 @@ const importRegister = ContentState => {
 
   ContentState.prototype.importMarkdown = function (markdown) {
     this.blocks = this.markdownToState(markdown)
+  }
+
+  ContentState.prototype.extractImages = function (markdown) {
+    const results = new Set()
+    const blocks = this.markdownToState(markdown)
+    const render = new StateRender(this.muya)
+    render.collectLabels(blocks)
+
+    const travelToken = token => {
+      const { type, attrs, children, tag, label, backlash } = token
+      if (/reference_image|image/.test(type) || type === 'html_tag' && tag === 'img') {
+        if ((type === 'image' || type === 'html_tag') && attrs.src) {
+          results.add(attrs.src)
+        } else {
+          const rawSrc = label + backlash.second
+          if (render.labels.has((rawSrc).toLowerCase())) {
+            const { href } = render.labels.get(rawSrc.toLowerCase())
+            const { src } = getImageInfo(href)
+            if (src) {
+              results.add(src)
+            }
+          }
+        }
+      } else if (children && children.length) {
+        for (const child of children) {
+          travelToken(child)
+        }
+      }
+    }
+
+    const travel = block => {
+      const { text, children, type, functionType } = block
+      if (children.length) {
+        for (const b of children) {
+          travel(b)
+        }
+      } else if (text && type === 'span' && /paragraphContent|atxLine|cellContent/.test(functionType)) {
+        const tokens = tokenizer(text, [], false, render.labels)
+        for (const token of tokens) {
+          travelToken(token)
+        }
+      }
+    }
+
+    for (const block of blocks) {
+      travel(block)
+    }
+
+    return Array.from(results)
   }
 }
 

@@ -5,14 +5,14 @@ import { menu, getSubMenu, getLabel } from './config'
 import './index.css'
 
 const MAX_SUBMENU_HEIGHT = 400
-const ITEM_HEIGHT = 36
+const ITEM_HEIGHT = 28
 const PADDING = 10
 
 const defaultOptions = {
-  placement: 'left',
+  placement: 'bottom',
   modifiers: {
     offset: {
-      offset: '20, 20'
+      offset: '0, 10'
     }
   },
   showArrow: false
@@ -79,7 +79,7 @@ class FrontMenu extends BaseFloat {
       ])
       let itemSelector = `li.item.${label}`
       if (label === getLabel(this.outmostBlock)) {
-        itemSelector += `.active`
+        itemSelector += '.active'
       }
       return h(itemSelector, {
         on: {
@@ -118,11 +118,11 @@ class FrontMenu extends BaseFloat {
         itemChildren.push(this.renderSubMenu(subMenu))
       }
       if (label === 'turnInto' && subMenu.length === 0) {
-        itemSelector += `.disabled`
+        itemSelector += '.disabled'
       }
       // front matter can not be duplicated.
       if (label === 'duplicate' && type === 'pre' && functionType === 'frontmatter') {
-        itemSelector += `.disabled`
+        itemSelector += '.disabled'
       }
       return h(itemSelector, {
         on: {

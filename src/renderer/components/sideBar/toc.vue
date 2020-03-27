@@ -1,5 +1,8 @@
 <template>
-  <div class="side-bar-toc">
+  <div
+    class="side-bar-toc"
+    :class="[{ 'side-bar-toc-overflow': !wordWrapInToc, 'side-bar-toc-wordwrap': wordWrapInToc }]"
+  >
     <div class="title">Table Of Contents</div>
     <el-tree
       v-if="toc.length"
@@ -35,7 +38,8 @@ export default {
   },
   computed: {
     ...mapState({
-      toc: state => state.editor.toc
+      toc: state => state.editor.toc,
+      wordWrapInToc: state => state.preferences.wordWrapInToc
     })
   },
   methods: {
@@ -52,16 +56,14 @@ export default {
     margin: 0;
     padding: 0;
     list-style: none;
-    overflow: auto;
     display: flex;
     flex-direction: column;
     & .title {
-      padding: 5px 0;
       color: var(--sideBarTitleColor);
-      font-weight: 600px;
+      font-weight: 600;
       font-size: 16px;
-      margin: 20px 0;
-      text-align: center;
+      margin: 37px 0 10px 0;
+      padding-left: 25px;
     }
     & .el-tree-node {
       margin-top: 8px;
@@ -92,6 +94,18 @@ export default {
         width: 120px;
         fill: var(--themeColor);
       }
+    }
+  }
+  .side-bar-toc-overflow {
+    overflow: auto;
+  }
+  .side-bar-toc-wordwrap {
+    overflow-x: hidden;
+    overflow-y: auto;
+    & .el-tree-node__content {
+      white-space: normal;
+      height: auto;
+      min-height: 26px;
     }
   }
 </style>

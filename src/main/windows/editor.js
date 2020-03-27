@@ -80,8 +80,8 @@ class EditorWindow extends BaseWindow {
       // Restore and focus window
       this.bringToFront()
 
-      const lineEnding = preferences.getPreferedEOL()
-      appMenu.updateLineEndingMenu(lineEnding)
+      const lineEnding = preferences.getPreferedEol()
+      appMenu.updateLineEndingMenu(this.id, lineEnding)
 
       win.webContents.send('mt::bootstrap-editor', {
         addBlankTab,
@@ -100,34 +100,36 @@ class EditorWindow extends BaseWindow {
       log.error(`The window failed to load or was cancelled: ${errorCode}; ${errorDescription}`)
     })
 
-    win.webContents.once('crashed', (event, killed) => {
+    win.webContents.once('crashed', async (event, killed) => {
       const msg = `The renderer process has crashed unexpected or is killed (${killed}).`
       log.error(msg)
 
-      dialog.showMessageBox(win, {
+      const { response } = await dialog.showMessageBox(win, {
         type: 'warning',
         buttons: ['Close', 'Reload', 'Keep It Open'],
         message: 'Mark Text has crashed',
         detail: msg
-      }, code => {
-        if (win.id) {
-          switch (code) {
-            case 0: return this.destroy()
-            case 1: return this.reload()
-          }
-        }
       })
+
+      if (win.id) {
+        switch (response) {
+          case 0:
+            return this.destroy()
+          case 1:
+            return this.reload()
+        }
+      }
     })
 
     win.on('focus', () => {
       this.emit('window-focus')
-      win.webContents.send('AGANI::window-active-status', { status: true })
+      win.webContents.send('mt::window-active-status', { status: true })
     })
 
     // Lost focus
     win.on('blur', () => {
       this.emit('window-blur')
-      win.webContents.send('AGANI::window-active-status', { status: false })
+      win.webContents.send('mt::window-active-status', { status: false })
     })
 
     ;['maximize', 'unmaximize', 'enter-full-screen', 'leave-full-screen'].forEach(channel => {
@@ -141,7 +143,7 @@ class EditorWindow extends BaseWindow {
       this.emit('window-close')
 
       event.preventDefault()
-      win.webContents.send('AGANI::ask-for-close')
+      win.webContents.send('mt::ask-for-close')
 
       // TODO: Close all watchers etc. Should we do this manually or listen to 'quit' event?
     })
@@ -209,10 +211,11 @@ class EditorWindow extends BaseWindow {
 
     const { browserWindow } = this
     const { preferences } = this._accessor
-    const eol = preferences.getPreferedEOL()
+    const eol = preferences.getPreferedEol()
+    const { autoGuessEncoding, trimTrailingNewline } = preferences.getAll()
 
     for (const { filePath, options, selected } of fileList) {
-      loadMarkdownFile(filePath, eol).then(rawDocument => {
+      loadMarkdownFile(filePath, eol, autoGuessEncoding, trimTrailingNewline).then(rawDocument => {
         if (this.lifecycle === WindowLifecycle.READY) {
           this._doOpenTab(rawDocument, options, selected)
         } else {
@@ -221,7 +224,7 @@ class EditorWindow extends BaseWindow {
       }).catch(err => {
         const { message, stack } = err
         log.error(`[ERROR] Cannot open file or directory: ${message}\n\n${stack}`)
-        browserWindow.webContents.send('AGANI::show-notification', {
+        browserWindow.webContents.send('mt::show-notification', {
           title: 'Cannot open tab',
           type: 'error',
           message: err.message
@@ -259,11 +262,14 @@ class EditorWindow extends BaseWindow {
     }
 
     if (this.lifecycle === WindowLifecycle.READY) {
-      const { browserWindow } = this
+      const { _accessor, browserWindow } = this
+      const { menu: appMenu } = _accessor
+
       if (this._openedRootDirectory) {
         ipcMain.emit('watcher-unwatch-directory', browserWindow, this._openedRootDirectory)
       }
 
+      appMenu.addRecentlyUsedDocument(pathname)
       this._openedRootDirectory = pathname
       ipcMain.emit('watcher-watch-directory', browserWindow, pathname)
       browserWindow.webContents.send('mt::open-directory', pathname)
@@ -361,7 +367,7 @@ class EditorWindow extends BaseWindow {
       this.lifecycle = WindowLifecycle.READY
       const { preferences } = this._accessor
       const { sideBarVisibility, tabBarVisibility, sourceCodeModeEnabled } = preferences.getAll()
-      const lineEnding = preferences.getPreferedEOL()
+      const lineEnding = preferences.getPreferedEol()
       browserWindow.webContents.send('mt::bootstrap-editor', {
         addBlankTab: true,
         markdownList: [],
@@ -394,25 +400,14 @@ class EditorWindow extends BaseWindow {
 
   // --- private ---------------------------------
 
-  _getPreferredBackgroundColor (theme) {
-    // Hardcode the theme background color and show the window direct for the fastet window ready time.
-    // Later with custom themes we need the background color (e.g. from meta information) and wait
-    // that the window is loaded and then pass theme data to the renderer.
-    switch (theme) {
-      case 'dark':
-        return '#282828'
-      case 'material-dark':
-        return '#34393f'
-      case 'ulysses':
-        return '#f3f3f3'
-      case 'graphite':
-        return '#f7f7f7'
-      case 'one-dark':
-        return '#282c34'
-      case 'light':
-      default:
-        return '#ffffff'
-    }
+  _buildUrlString (windowId, env, userPreference) {
+    const url = this._buildUrlWithSettings(windowId, env, userPreference)
+    const spellcheckerIsHunspell = userPreference.getItem('spellcheckerIsHunspell')
+
+    // Add additional settings
+    url.searchParams.set('slp', spellcheckerIsHunspell ? '1' : '0')
+
+    return url.toString()
   }
 
   /**
