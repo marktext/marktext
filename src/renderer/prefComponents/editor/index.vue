@@ -69,7 +69,7 @@
     ></bool>
     <separator></separator>
     <cur-select
-      description="The newline character used at the end of each line. The "default" option selects your operating system's default newline character."
+      description="The newline character used at the end of each line. The default option selects your operating system's default newline character."
       :value="endOfLine"
       :options="endOfLineOptions"
       :onChange="value => onSelectChange('endOfLine', value)"
