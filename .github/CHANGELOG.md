@@ -1,3 +1,7 @@
+## 0.16.1
+
+- Fix: Settings page, editor settings are messed up
+
 ## 0.16.0
 
 **:warning:Breaking Changes:**
