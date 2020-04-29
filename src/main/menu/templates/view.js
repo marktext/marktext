@@ -54,7 +54,7 @@ export default function (keybindings) {
     }, {
       type: 'separator'
     }, {
-      label: 'Toggle Sidebar',
+      label: 'Sidebar',
       id: 'sideBarMenuItem',
       accelerator: keybindings.getAccelerator('view.toggle-sidebar'),
       type: 'checkbox',
@@ -68,7 +68,7 @@ export default function (keybindings) {
         actions.layout(item, browserWindow, 'showSideBar')
       }
     }, {
-      label: 'Toggle Tabbar',
+      label: 'Tab Bar',
       id: 'tabBarMenuItem',
       accelerator: keybindings.getAccelerator('view.toggle-tabbar'),
       type: 'checkbox',

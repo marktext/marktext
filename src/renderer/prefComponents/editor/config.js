@@ -4,24 +4,24 @@ export const endOfLineOptions = [{
   label: 'Default',
   value: 'default'
 }, {
-  label: 'Carriage return and Line feed(CRLF)',
+  label: 'Carriage return and line feed (CRLF)',
   value: 'crlf'
 }, {
-  label: 'Line feed(Lf)',
+  label: 'Line feed (LF)',
   value: 'lf'
 }]
 
 export const trimTrailingNewlineOptions = [{
-  label: 'Trim trailing newlines',
+  label: 'Trim all leading and trailing',
   value: 0
 }, {
-  label: 'Ensure single trailing newline',
+  label: 'Trim all leading and ensure exactly one trailing',
   value: 1
 }, {
-  label: 'Automatically detect',
+  label: 'Trim all leading and all but one trailing',
   value: 2
 }, {
-  label: 'Disabled',
+  label: 'Do nothing',
   value: 3
 }]
 

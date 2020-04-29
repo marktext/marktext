@@ -2,32 +2,32 @@
   <div class="pref-spellchecker">
     <h4>Spelling</h4>
     <bool
-      description="Whether the (experimental) spell checker is enabled."
+      description="Enable spell checker (experimental)."
       :bool="spellcheckerEnabled"
       :onChange="handleSpellcheckerEnabled"
     ></bool>
     <separator></separator>
     <bool
-      description="Whether Hunspell is used instead of the OS spell checker on macOS and Windows 10. The change takes effect after restarting Mark Text and for new editor windows."
+      description="Use Hunspell instead of system spell checker on macOS and Windows 10. (Restart required.)
       :bool="spellcheckerIsHunspell"
       :disable="!isOsSpellcheckerSupported || !spellcheckerEnabled"
       :onChange="value => onSelectChange('spellcheckerIsHunspell', value)"
     ></bool>
     <bool
-      description="Don't underline spelling mistakes. You can still correct spelling mistakes via the right click menu."
+      description="Hide marks on spelling errors."
       :bool="spellcheckerNoUnderline"
       :disable="!spellcheckerEnabled"
       :onChange="value => onSelectChange('spellcheckerNoUnderline', value)"
     ></bool>
     <bool
-      description="Automatically identify the used language. This feature is currently unavailable when using Hunspell or if mistake underlining is disabled."
+      description="Automatically detect document language language. (Unavailable if Hunspell is used or if spelling errors are not marked.)
       :bool="spellcheckerAutoDetectLanguage"
       :disable="!spellcheckerEnabled"
       :onChange="value => onSelectChange('spellcheckerAutoDetectLanguage', value)"
     ></bool>
     <separator></separator>
     <cur-select
-      description="The default language for the spell checker."
+      description="Default language for spell checker."
       :value="spellcheckerLanguage"
       :options="availableDictionaries"
       :disable="!spellcheckerEnabled"
@@ -37,16 +37,16 @@
       v-if="isOsx && !isHunspellSelected && spellcheckerEnabled"
       class="description"
     >
-      Please add required language dictionaries via "Language & Region" in your system preferences pane.
+      Additional languages may be added through "Language & Region" in your system preferences pane.
     </div>
     <div
       v-if="isWindows && !isHunspellSelected && spellcheckerEnabled"
       class="description"
     >
-      Please add required language dictionaries via "Language" in your "Time & language" settings. Add the langauge and download the "Basic typing" option.
+      Additional languages may be added via "Language" in your "Time & language" settings.
     </div>
     <div v-if="isHunspellSelected && spellcheckerEnabled">
-      <div class="description">List of available Hunspell dictionaries. Please add additional language dictionaries via the drop-down menu below.</div>
+      <div class="description">Installed Hunspell dictionaries. (Add additional language dictionaries below.)</div>
       <el-table
         :data="availableDictionaries"
         style="width: 100%">
@@ -71,7 +71,7 @@
         </el-table-column>
       </el-table>
 
-      <div class="description">Download new dictionaries for Hunspell.</div>
+      <div class="description">Download new Hunspell dictionaries.</div>
       <div class="dictionary-group">
         <el-select
           v-model="selectedDictionaryToAdd"
