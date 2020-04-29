@@ -19,7 +19,7 @@
       :onChange="value => onSelectChange('lineHeight', value)"
     ></range>
     <font-text-box
-      description="Font family in text editor."
+      description="Font for text editor."
       :value="editorFontFamily"
       :onChange="value => onSelectChange('editorFontFamily', value)"
     ></font-text-box>
@@ -34,7 +34,7 @@
       :onChange="value => onSelectChange('codeFontSize', value)"
     ></range>
     <font-text-box
-      description="Font family in code blocks."
+      description="Font for code blocks."
       :onlyMonospace="true"
       :value="codeFontFamily"
       :onChange="value => onSelectChange('codeFontFamily', value)"
