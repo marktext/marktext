@@ -134,6 +134,9 @@ export default {
       bus.$on('TABS::rename', this.rename)
       bus.$on('TABS::copy-path', this.copyPath)
       bus.$on('TABS::show-in-folder', this.showInFolder)
+      bus.$on('EDITOR_TABS::change-max-width', (width) => {
+        this.$store.state.layout.sideBarWidth = width
+      })
     })
   },
   mounted () {
