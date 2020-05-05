@@ -35,6 +35,14 @@ const services = {
 
     // Currently a non-persistent value
     agreedToLegalNotices: false
+  },
+
+  cliScript: {
+    name: 'command line script',
+    isGdprCompliant: true,
+    privacyUrl: '',
+    tosUrl: '',
+    agreedToLegalNotices: true
   }
 }
 
