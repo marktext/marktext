@@ -212,6 +212,12 @@ brew cask install mark-text
 
 Simply download and install Mark Text via setup wizard (`marktext-setup-%version%.exe`) and choose whether to install per-user or machine wide.
 
+Alternatively, install Mark Text using [Chocolatey](https://chocolatey.org/). To use Chocolatey you need to have [Chocolatey](https://chocolatey.org/install) installed.
+
+```bash
+choco install marktext
+```
+
 #### Linux
 
 Please follow the [Linux installation instructions](docs/LINUX.md).
