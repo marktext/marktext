@@ -13,7 +13,7 @@
   - `common/`: Common source files that only require Node.js APIs. Code from this folder can be used in all other folders except `muya`.
   - `main/`: Main process source files that require Electron main-process APIs. `main` files can use `common` source code.
   - `muya/`: Mark Texts backend that only allow pure JavaScript, BOM and DOM APIs. Don't use Electron or Node.js APIs!
-  - `renderer`: Fontend that require Electron renderer-process APIs and may use `common` or `muya` source code.
+  - `renderer`: Frontend that require Electron renderer-process APIs and may use `common` or `muya` source code.
 - `static/`: Application assets (images, themes, etc)
 - `test/`: Contains (unit) tests
 
