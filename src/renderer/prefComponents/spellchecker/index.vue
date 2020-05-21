@@ -71,7 +71,7 @@
         </el-table-column>
       </el-table>
 
-      <div class="description">Download new Hunspell dictionaries.</div>
+      <div class="description">Download additional Hunspell dictionaries.</div>
       <div class="dictionary-group">
         <el-select
           v-model="selectedDictionaryToAdd"
