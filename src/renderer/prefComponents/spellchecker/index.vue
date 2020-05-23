@@ -46,7 +46,7 @@
       Additional languages may be added via "Language" in your "Time & language" settings.
     </div>
     <div v-if="isHunspellSelected && spellcheckerEnabled">
-      <div class="description">Installed Hunspell dictionaries. (Add additional language dictionaries below.)</div>
+      <div class="description">Installed Hunspell dictionaries.</div>
       <el-table
         :data="availableDictionaries"
         style="width: 100%">
