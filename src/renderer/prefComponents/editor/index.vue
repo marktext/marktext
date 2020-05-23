@@ -47,7 +47,7 @@
       :onChange="value => onSelectChange('codeBlockLineNumbers', value)"
     ></bool>
     <bool
-      description="Handling of leading and trailing empty lines."
+      description="Remove leading and trailing empty lines in code blocks."
       :bool="trimUnnecessaryCodeBlockEmptyLines"
       :onChange="value => onSelectChange('trimUnnecessaryCodeBlockEmptyLines', value)"
     ></bool>
