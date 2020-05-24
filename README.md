@@ -124,6 +124,12 @@ Patreon: Funds will be directly sponsored to Luo Ran (@jocs) who created Mark Te
 Open Collective: All expenses are transparent. The funds will be used for the development and maintenance of Mark Text, funding online and offline activities, and acquiring other necessary resources.
 Names and company logos of all sponsors (from both Patreon and Open Collective) will appear on the official website for Mark Text and in its README.md file.
 
+**Special Sponsors**
+
+<a href="https://www.dogedoge.com/">
+ <img src="https://www.dogedoge.com/assets/new_logo.min.png" width="100" height="100">
+</a>
+
 **Platinum Sponsors**
 
 <a href="https://opencollective.com/marktext#platinum-sponsors">
