@@ -17,7 +17,7 @@
     ></range>
     <cur-select
       v-if="!isOsx"
-      description="Title bar style. (Restart required)."
+      description="Title bar style (requires restart)."
       :value="titleBarStyle"
       :options="titleBarStyleOptions"
       :onChange="value => onSelectChange('titleBarStyle', value)"

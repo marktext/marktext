@@ -54,7 +54,7 @@ export default function (keybindings) {
     }, {
       type: 'separator'
     }, {
-      label: 'Sidebar',
+      label: 'Show Sidebar',
       id: 'sideBarMenuItem',
       accelerator: keybindings.getAccelerator('view.toggle-sidebar'),
       type: 'checkbox',
@@ -88,7 +88,7 @@ export default function (keybindings) {
 
   if (global.MARKTEXT_DEBUG) {
     viewMenu.submenu.push({
-      label: 'Toggle Developer Tools',
+      label: 'Show Developer Tools',
       accelerator: keybindings.getAccelerator('view.toggle-dev-tools'),
       click (item, focusedWindow) {
         if (focusedWindow) {

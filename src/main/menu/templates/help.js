@@ -76,12 +76,12 @@ export default function () {
         shell.openExternal('https://github.com/marktext/marktext')
       }
     }, {
-      label: 'Follow on Github',
+      label: 'Follow us on Github',
       click () {
         shell.openExternal('https://github.com/Jocs')
       }
     }, {
-      label: 'Follow on Twitter',
+      label: 'Follow us on Twitter',
       click () {
         shell.openExternal('https://twitter.com/marktextapp')
       }
