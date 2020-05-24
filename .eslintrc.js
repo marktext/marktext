@@ -46,7 +46,8 @@ module.exports = {
     'no-new': "off",
     'no-mixed-operators': "off",
     'no-prototype-builtins': "off",
-    "no-return-await": "off"
+    'no-return-await': "off",
+    'accessor-pairs': "off"
   },
   settings: {
     'import/resolver': {
