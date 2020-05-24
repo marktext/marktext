@@ -20,6 +20,7 @@
       :onChange="value => onSelectChange('spellcheckerNoUnderline', value)"
     ></bool>
     <bool
+      v-show="isOsx && !spellcheckerIsHunspell"
       description="Automatically identify the used language. This feature is currently unavailable when using Hunspell or if mistake underlining is disabled."
       :bool="spellcheckerAutoDetectLanguage"
       :disable="!spellcheckerEnabled"
