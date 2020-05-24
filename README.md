@@ -127,7 +127,7 @@ Names and company logos of all sponsors (from both Patreon and Open Collective) 
 **Special Sponsors**
 
 <a href="https://www.dogedoge.com/">
- <img src="https://www.dogedoge.com/assets/new_logo.min.png">
+ <img src="https://www.dogedoge.com/assets/new_logo.min.png" width="100" height="100">
 </a>
 
 **Platinum Sponsors**
