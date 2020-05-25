@@ -20,7 +20,7 @@
       :onChange="value => onSelectChange('spellcheckerNoUnderline', value)"
     ></bool>
     <bool
-      description="Automatically detect document language.
+      description="Automatically detect document language (requires allowing of underlining spelling errors).
       :bool="spellcheckerAutoDetectLanguage"
       :disable="!spellcheckerEnabled"
       :onChange="value => onSelectChange('spellcheckerAutoDetectLanguage', value)"

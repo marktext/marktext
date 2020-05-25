@@ -15,12 +15,12 @@ const COMMAND_KEY = isOsx ? '⌘' : 'Ctrl'
 const icons = [
   {
     type: 'strong',
-    tooltip: 'Strong Emphasis',
+    tooltip: 'Bold',
     shortcut: `${COMMAND_KEY}+B`,
     icon: strongIcon
   }, {
     type: 'em',
-    tooltip: 'Emphasis',
+    tooltip: 'Italic',
     shortcut: `${COMMAND_KEY}+I`,
     icon: emphasisIcon
   }, {

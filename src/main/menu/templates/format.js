@@ -6,7 +6,7 @@ export default function (keybindings) {
     label: 'F&ormat',
     submenu: [{
       id: 'strongMenuItem',
-      label: 'Strong Emphasis',
+      label: 'Bold',
       type: 'checkbox',
       accelerator: keybindings.getAccelerator('format.strong'),
       click (menuItem, browserWindow) {
@@ -14,7 +14,7 @@ export default function (keybindings) {
       }
     }, {
       id: 'emphasisMenuItem',
-      label: 'Emphasis',
+      label: 'Italic',
       type: 'checkbox',
       accelerator: keybindings.getAccelerator('format.emphasis'),
       click (menuItem, browserWindow) {
