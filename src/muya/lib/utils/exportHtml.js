@@ -114,6 +114,7 @@ class ExportHtml {
     let html = marked(this.markdown, {
       superSubScript: this.muya ? this.muya.options.superSubScript : false,
       footnote: this.muya ? this.muya.options.footnote : false,
+      isGitlabCompatibilityEnabled: this.muya ? this.muya.options.isGitlabCompatibilityEnabled : false,
       highlight (code, lang) {
         // Language may be undefined (GH#591)
         if (!lang) {

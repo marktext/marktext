@@ -61,6 +61,13 @@
       more="https://pandoc.org/MANUAL.html#footnotes"
     ></bool>
     <separator></separator>
+    <h5>Compatibility</h5>
+    <bool
+      description="Enable GitLab compatibility mode."
+      :bool="isGitlabCompatibilityEnabled"
+      :onChange="value => onSelectChange('isGitlabCompatibilityEnabled', value)"
+    ></bool>
+    <separator></separator>
     <h5>Diagram theme</h5>
     <cus-select
       description="Sequence diagram theme"
@@ -114,6 +121,7 @@ export default {
       frontmatterType: state => state.preferences.frontmatterType,
       superSubScript: state => state.preferences.superSubScript,
       footnote: state => state.preferences.footnote,
+      isGitlabCompatibilityEnabled: state => state.preferences.isGitlabCompatibilityEnabled,
       sequenceTheme: state => state.preferences.sequenceTheme
     })
   },

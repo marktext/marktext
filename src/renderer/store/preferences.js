@@ -47,6 +47,7 @@ const state = {
   frontmatterType: '-',
   superSubScript: false,
   footnote: false,
+  isGitlabCompatibilityEnabled: false,
   sequenceTheme: 'hand',
 
   theme: 'light',
