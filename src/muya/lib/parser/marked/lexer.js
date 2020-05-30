@@ -155,6 +155,7 @@ Lexer.prototype.token = function (src, top) {
       }
     }
 
+    // footnote
     if (footnote) {
       cap = this.rules.footnote.exec(src)
       if (top && cap) {
@@ -164,11 +165,14 @@ Lexer.prototype.token = function (src, top) {
           type: 'footnote_start',
           identifier
         })
+
+        // NOTE: Order is wrong if footnote identifier 1 is behind footnote identifier 2 in text.
         this.tokens.footnotes[identifier] = {
           order: ++this.footnoteOrder,
           identifier,
           footnoteId: getUniqueId()
         }
+
         /* eslint-disable no-useless-escape */
         // Remove the footnote identifer prefix. eg: `[^identifier]: `.
         cap = cap[0].replace(/^\[\^[^\^\[\]\s]+?(?<!\\)\]:\s+/gm, '')
