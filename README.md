@@ -173,6 +173,7 @@ Names and company logos of all sponsors (from both Patreon and Open Collective) 
 - Output **HTML** and **PDF** files.
 - Various themes: **Cadmium Light**, **Material Dark** etc.
 - Various editing modes: **Source Code mode**, **Typewriter mode**, **Focus mode**.
+- Paste images directly from clipboard
 
 <h4 align="center">:crescent_moon:themes:high_brightness:</h4>
 
