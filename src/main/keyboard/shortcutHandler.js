@@ -245,7 +245,7 @@ class Keybindings {
     // Check for duplicate user shortcuts
     for (const [keyA, valueA] of userAccelerators) {
       for (const [keyB, valueB] of userAccelerators) {
-        if (keyA !== keyB && this._isEqualAccelerator(valueA, valueB)) {
+        if (valueA !== '' && keyA !== keyB && this._isEqualAccelerator(valueA, valueB)) {
           const err = `Invalid keybindings.json configuration: Duplicate value for "${keyA}" and "${keyB}"!`
           console.log(err)
           log.error(err)
