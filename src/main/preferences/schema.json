@@ -132,6 +132,7 @@
     "description": "Editor--The default file encoding.",
     "default": "utf8",
     "enum": [
+      "ascii",
       "utf8",
       "utf16be",
       "utf16le",
