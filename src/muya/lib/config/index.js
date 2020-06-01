@@ -239,7 +239,9 @@ export const EXPORT_DOMPURIFY_CONFIG = {
     svg: true,
     svgFilters: true,
     mathMl: true
-  }
+  },
+  // Allow "file" protocol to export images on Windows (#1997).
+  ALLOWED_URI_REGEXP: /^(?:(?:(?:f|ht)tps?|mailto|tel|callto|cid|xmpp|file):|[^a-z]|[a-z+.\-]+(?:[^a-z+.\-:]|$))/i // eslint-disable-line no-useless-escape
 }
 
 export const MUYA_DEFAULT_OPTION = {

@@ -1,4 +1,5 @@
 import { URL_REG, DATA_URL_REG } from '../config'
+import { correctImageSrc } from '../utils/getImageInfo'
 
 const imageCtrl = ContentState => {
   /**
@@ -109,7 +110,11 @@ const imageCtrl = ContentState => {
 
     imageText = '<img '
     for (const attr of Object.keys(attrs)) {
-      imageText += `${attr}="${attrs[attr]}" `
+      let value = attrs[attr]
+      if (value && attr === 'src') {
+        value = correctImageSrc(value)
+      }
+      imageText += `${attr}="${value}" `
     }
     imageText = imageText.trim()
     imageText += '>'
@@ -147,7 +152,11 @@ const imageCtrl = ContentState => {
       Object.assign(attrs, { alt, src, title })
       imageText = '<img '
       for (const attr of Object.keys(attrs)) {
-        imageText += `${attr}="${attrs[attr]}" `
+        let value = attrs[attr]
+        if (value && attr === 'src') {
+          value = correctImageSrc(value)
+        }
+        imageText += `${attr}="${value}" `
       }
       imageText = imageText.trim()
       imageText += '>'

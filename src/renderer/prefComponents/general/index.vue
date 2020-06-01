@@ -59,7 +59,10 @@
     <section class="startup-action-ctrl">
       <div>What Mark Text should do on startup.</div>
       <el-radio-group v-model="startUpAction">
+        <!--
+          Hide "lastState" for now (#2064).
         <el-radio class="ag-underdevelop" label="lastState">Open the last window state</el-radio>
+        -->
         <el-radio label="folder">Open the default directory<span>: {{defaultDirectoryToOpen}}</span></el-radio>
         <el-button size="small" @click="selectDefaultDirectoryToOpen">Select Folder</el-button>
         <el-radio label="blank">Open a blank page</el-radio>

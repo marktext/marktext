@@ -81,8 +81,12 @@ InlineLexer.prototype.output = function (src) {
         src = src.substring(cap[0].length)
         lastChar = cap[0].charAt(cap[0].length - 1)
         const identifier = cap[1]
+
         const footnoteInfo = this.footnotes[identifier] || {}
-        footnoteInfo.footnoteIdentifierId = getUniqueId()
+        if (footnoteInfo.footnoteIdentifierId === undefined) {
+          footnoteInfo.footnoteIdentifierId = getUniqueId()
+        }
+
         out += this.renderer.footnoteIdentifier(identifier, footnoteInfo)
       }
     }

@@ -4,7 +4,7 @@
   >
     <div
       class="folder-name" @click="folderNameClick"
-      :style="{'padding-left': `${depth * 5 + 15}px`}"
+      :style="{'padding-left': `${(depth * 20) + 20}px`}"
       :class="[{ 'active': folder.id === activeItem.id }]"
       :title="folder.pathname"
       ref="folder"
