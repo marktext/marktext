@@ -12,13 +12,13 @@ export const endOfLineOptions = [{
 }]
 
 export const trimTrailingNewlineOptions = [{
-  label: 'Trim all leading and trailing',
+  label: 'Trim all trailing',
   value: 0
 }, {
-  label: 'Trim all leading and ensure exactly one trailing',
+  label: 'Ensure a single one',
   value: 1
 }, {
-  label: 'Trim all leading and all but one trailing',
+  label: 'Detect trailing style',
   value: 2
 }, {
   label: 'Do nothing',
