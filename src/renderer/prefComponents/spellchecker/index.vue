@@ -14,14 +14,14 @@
       :onChange="value => onSelectChange('spellcheckerIsHunspell', value)"
     ></bool>
     <bool
-      description="Hide marks on spelling errors."
+      description="Hide marks for spelling errors."
       :bool="spellcheckerNoUnderline"
       :disable="!spellcheckerEnabled"
       :onChange="value => onSelectChange('spellcheckerNoUnderline', value)"
     ></bool>
     <bool
       v-show="isOsx && !spellcheckerIsHunspell"
-      description="Automatically detect document language (requires allowing of underlining spelling errors).
+      description="Automatically detect document language (requires showing marks for spelling errors).
       :bool="spellcheckerAutoDetectLanguage"
       :disable="!spellcheckerEnabled"
       :onChange="value => onSelectChange('spellcheckerAutoDetectLanguage', value)"
@@ -44,7 +44,7 @@
       v-if="isWindows && !isHunspellSelected && spellcheckerEnabled"
       class="description"
     >
-      Additional languages may be added via "Language" in your "Time & language" settings.
+      Additional languages may be added through "Language" in your "Time & language" settings.
     </div>
     <div v-if="isHunspellSelected && spellcheckerEnabled">
       <div class="description">Installed Hunspell dictionaries.</div>

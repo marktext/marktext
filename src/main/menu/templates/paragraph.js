@@ -158,7 +158,7 @@ export default function (keybindings) {
       }
     }, {
       id: 'horizontalLineMenuItem',
-      label: 'Thematic Break',
+      label: 'Horizontal Rule',
       type: 'checkbox',
       accelerator: keybindings.getAccelerator('paragraph.horizontal-line'),
       click (menuItem, browserWindow) {

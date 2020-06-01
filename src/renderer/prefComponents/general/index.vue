@@ -7,7 +7,7 @@
       :onChange="value => onSelectChange('autoSave', value)"
     ></bool>
     <range
-      description="Delay after document change before automatically saving (milliseconds)."
+      description="Delay following document edit before automatically saving (milliseconds)."
       :value="autoSaveDelay"
       :min="1000"
       :max="10000"
@@ -39,7 +39,7 @@
       :onChange="value => onSelectChange('hideScrollbar', value)"
     ></bool>
     <bool
-      description="Word wrap in table of contents."
+      description="Wrap text in table of contents."
       :bool="wordWrapInToc"
       :onChange="value => onSelectChange('wordWrapInToc', value)"
     ></bool>
