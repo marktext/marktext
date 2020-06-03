@@ -35,6 +35,9 @@ const codeBlockCtrl = ContentState => {
 
   ContentState.prototype.selectLanguage = function (paragraph, lang) {
     const block = this.getBlock(paragraph.id)
+    if (lang === 'math' && this.isGitlabCompatibilityEnabled && this.updateMathBlock(block)) {
+      return
+    }
     this.updateCodeLanguage(block, lang)
   }
 

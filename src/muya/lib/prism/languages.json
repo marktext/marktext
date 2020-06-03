@@ -564,6 +564,9 @@
   },
   "latex": {
     "title": "LaTeX",
+    "alias": [
+      "math"
+    ],
     "ext": [
       "text",
       "ltx",

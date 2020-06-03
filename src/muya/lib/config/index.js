@@ -282,7 +282,8 @@ export const MUYA_DEFAULT_OPTION = {
 
   // Markdown extensions
   superSubScript: false,
-  footnote: false
+  footnote: false,
+  isGitlabCompatibilityEnabled: false
 }
 
 // export const DIAGRAM_TEMPLATE = {

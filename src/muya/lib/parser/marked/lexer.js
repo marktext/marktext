@@ -64,7 +64,12 @@ Lexer.prototype.lex = function (src) {
  */
 
 Lexer.prototype.token = function (src, top) {
-  const { frontMatter, math, footnote } = this.options
+  const {
+    footnote,
+    frontMatter,
+    isGitlabCompatibilityEnabled,
+    math
+  } = this.options
   src = src.replace(/^ +$/gm, '')
 
   let loose
@@ -149,9 +154,24 @@ Lexer.prototype.token = function (src, top) {
         src = src.substring(cap[0].length)
         this.tokens.push({
           type: 'multiplemath',
-          text: cap[1]
+          text: cap[1],
+          mathStyle: ''
         })
         continue
+      }
+
+      // match GitLab display math blocks (```math)
+      if (isGitlabCompatibilityEnabled) {
+        cap = this.rules.multiplemathGitlab.exec(src)
+        if (cap) {
+          src = src.substring(cap[0].length)
+          this.tokens.push({
+            type: 'multiplemath',
+            text: cap[2] || '',
+            mathStyle: 'gitlab'
+          })
+          continue
+        }
       }
     }
 
