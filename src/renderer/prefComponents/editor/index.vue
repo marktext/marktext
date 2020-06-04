@@ -87,7 +87,7 @@
       :onChange="value => onSelectChange('autoGuessEncoding', value)"
     ></bool>
     <cur-select
-      description="What to do with traling newlines."
+      description="What to do with trailing newlines."
       :value="trimTrailingNewline"
       :options="trimTrailingNewlineOptions"
       :onChange="value => onSelectChange('trimTrailingNewline', value)"
