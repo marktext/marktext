@@ -64,7 +64,7 @@
         <el-radio class="ag-underdevelop" label="lastState">Open the last window state</el-radio>
         -->
         <el-radio label="folder">Open the default directory<span>: {{defaultDirectoryToOpen}}</span></el-radio>
-        <el-button size="small" @click="selectDefaultDirectoryToOpen">Select Folder</el-button>
+        <el-button size="small" @click="selectDefaultDirectoryToOpen">Select Folder...</el-button>
         <el-radio label="blank">Open a blank page</el-radio>
       </el-radio-group>
     </section>

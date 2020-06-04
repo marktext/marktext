@@ -78,7 +78,7 @@
             v-if="showNoFolderOpenedMessage"
             @click="openFolder"
           >
-            Open Folder
+            Open Folder...
           </button>
         </div>
       </div>

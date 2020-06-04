@@ -20,12 +20,12 @@
     <section class="import-themes ag-underdevelop">
       <div>
         <span>Open the themes folder</span>
-        <el-button size="small">Open Folder</el-button>
+        <el-button size="small">Open Folder...</el-button>
       </div>
 
       <div>
         <span>Import custom themes</span>
-        <el-button size="small">Import theme</el-button>
+        <el-button size="small">Import Theme...</el-button>
       </div>
     </section>
   </div>

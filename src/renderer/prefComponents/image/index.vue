@@ -18,8 +18,8 @@
       <div class="description">Local image folder.</div>
       <div class="path">{{imageFolderPath}}</div>
       <div>
-        <el-button size="mini" @click="modifyImageFolderPath">Modify</el-button>
-        <el-button size="mini" @click="openImageFolder">Open Folder</el-button>
+        <el-button size="mini" @click="modifyImageFolderPath">Modify...</el-button>
+        <el-button size="mini" @click="openImageFolder">Open Folder...</el-button>
       </div>
     </section>
   </div>

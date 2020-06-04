@@ -19,7 +19,7 @@
         <el-tab-pane label="GitHub" name="github">
           <div class="form-group">
             <div class="label">
-              GitHub token:
+              GitHub token
               <el-tooltip
                 class="item"
                 effect="dark"
@@ -32,15 +32,15 @@
             <el-input v-model="githubToken" placeholder="Input token" size="mini"></el-input>
           </div>
           <div class="form-group">
-            <div class="label">Owner name:</div>
+            <div class="label">Owner name</div>
             <el-input v-model="github.owner" placeholder="owner" size="mini"></el-input>
           </div>
           <div class="form-group">
-            <div class="label">Repo name:</div>
+            <div class="label">Repo name</div>
             <el-input v-model="github.repo" placeholder="repo" size="mini"></el-input>
           </div>
           <div class="form-group">
-            <div class="label">Branch name (optional):</div>
+            <div class="label">Branch name (optional)</div>
             <el-input v-model="github.branch" placeholder="branch" size="mini"></el-input>
           </div>
           <legal-notices-checkbox

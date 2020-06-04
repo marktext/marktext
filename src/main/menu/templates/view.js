@@ -5,7 +5,7 @@ export default function (keybindings) {
   const viewMenu = {
     label: '&View',
     submenu: [{
-      label: 'Command Palette',
+      label: 'Command Palette...',
       accelerator: keybindings.getAccelerator('view.command-palette'),
       click (menuItem, browserWindow) {
         actions.showCommandPalette(browserWindow)
