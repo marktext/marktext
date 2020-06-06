@@ -378,6 +378,76 @@ class AppMenu {
       id: null
     })
     shortcutMap.push({
+      accelerator: this._keybindings.getAccelerator('tabs.switch-to-first'),
+      click: (menuItem, win) => {
+        win.webContents.send('mt::switch-first-tab')
+      },
+      id: null
+    })
+    shortcutMap.push({
+      accelerator: this._keybindings.getAccelerator('tabs.switch-to-second'),
+      click: (menuItem, win) => {
+        win.webContents.send('mt::switch-second-tab')
+      },
+      id: null
+    })
+    shortcutMap.push({
+      accelerator: this._keybindings.getAccelerator('tabs.switch-to-third'),
+      click: (menuItem, win) => {
+        win.webContents.send('mt::switch-third-tab')
+      },
+      id: null
+    })
+    shortcutMap.push({
+      accelerator: this._keybindings.getAccelerator('tabs.switch-to-fourth'),
+      click: (menuItem, win) => {
+        win.webContents.send('mt::switch-fourth-tab')
+      },
+      id: null
+    })
+    shortcutMap.push({
+      accelerator: this._keybindings.getAccelerator('tabs.switch-to-fifth'),
+      click: (menuItem, win) => {
+        win.webContents.send('mt::switch-fifth-tab')
+      },
+      id: null
+    })
+    shortcutMap.push({
+      accelerator: this._keybindings.getAccelerator('tabs.switch-to-sixth'),
+      click: (menuItem, win) => {
+        win.webContents.send('mt::switch-sixth-tab')
+      },
+      id: null
+    })
+    shortcutMap.push({
+      accelerator: this._keybindings.getAccelerator('tabs.switch-to-seventh'),
+      click: (menuItem, win) => {
+        win.webContents.send('mt::switch-seventh-tab')
+      },
+      id: null
+    })
+    shortcutMap.push({
+      accelerator: this._keybindings.getAccelerator('tabs.switch-to-eighth'),
+      click: (menuItem, win) => {
+        win.webContents.send('mt::switch-eighth-tab')
+      },
+      id: null
+    })
+    shortcutMap.push({
+      accelerator: this._keybindings.getAccelerator('tabs.switch-to-ninth'),
+      click: (menuItem, win) => {
+        win.webContents.send('mt::switch-ninth-tab')
+      },
+      id: null
+    })
+    shortcutMap.push({
+      accelerator: this._keybindings.getAccelerator('tabs.switch-to-tenth'),
+      click: (menuItem, win) => {
+        win.webContents.send('mt::switch-tenth-tab')
+      },
+      id: null
+    })
+    shortcutMap.push({
       accelerator: this._keybindings.getAccelerator('file.quick-open'),
       click: (menuItem, win) => {
         win.webContents.send('mt::execute-command-by-id', 'file.quick-open')

@@ -151,6 +151,7 @@ export default {
     dispatch('LISTEN_FOR_NEW_TAB')
     dispatch('LISTEN_FOR_CLOSE_TAB')
     dispatch('LISTEN_FOR_TAB_CYCLE')
+    dispatch('LISTEN_FOR_SWITCH_TABS')
     dispatch('LINTEN_FOR_PRINT_SERVICE_CLEARUP')
     dispatch('LINTEN_FOR_EXPORT_SUCCESS')
     dispatch('LISTEN_FOR_FILE_CHANGE')
