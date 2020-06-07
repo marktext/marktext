@@ -673,6 +673,18 @@ const commands = [
     execute: async () => {
       shell.openExternal('https://github.com/marktext/marktext/blob/develop/docs/MARKDOWN_SYNTAX.md')
     }
+  }, {
+    id: 'file.text-direction-ltr',
+    description: 'Mark Text: Set text direction Left to Right',
+    execute: async () => {
+      ipcRenderer.send('mt::set-user-preference', { textDirection: 'ltr' })
+    }
+  }, {
+    id: 'file.text-direction-rtl',
+    description: 'Mark Text: Set text direction Right to Left',
+    execute: async () => {
+      ipcRenderer.send('mt::set-user-preference', { textDirection: 'rtl' })
+    }
   },
 
   // --------------------------------------------------------------------------
