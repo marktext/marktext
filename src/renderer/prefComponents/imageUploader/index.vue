@@ -40,7 +40,7 @@
             <el-input v-model="github.repo" placeholder="repo" size="mini"></el-input>
           </div>
           <div class="form-group">
-            <div class="label">Branch name(optional):</div>
+            <div class="label">Branch name (optional):</div>
             <el-input v-model="github.branch" placeholder="branch" size="mini"></el-input>
           </div>
           <legal-notices-checkbox

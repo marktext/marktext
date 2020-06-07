@@ -37,7 +37,7 @@ export default function () {
         shell.openExternal('https://github.com/marktext/marktext/blob/master/docs/README.md')
       }
     }, {
-      label: 'Markdown syntax',
+      label: 'Markdown Reference',
       click () {
         shell.openExternal('https://github.com/marktext/marktext/blob/master/docs/MARKDOWN_SYNTAX.md')
       }
@@ -59,7 +59,7 @@ export default function () {
         actions.showTweetDialog(win, 'twitter')
       }
     }, {
-      label: 'Report Issue or Feature request',
+      label: 'Report Issue or Request Feature',
       click () {
         shell.openExternal('https://github.com/marktext/marktext/issues')
       }
@@ -76,7 +76,7 @@ export default function () {
         shell.openExternal('https://github.com/marktext/marktext')
       }
     }, {
-      label: 'Follow @Jocs on Github',
+      label: 'Follow us on Github',
       click () {
         shell.openExternal('https://github.com/Jocs')
       }

@@ -35,7 +35,7 @@ export const COPY_AS_HTML = {
 }
 
 export const PASTE_AS_PLAIN_TEXT = {
-  label: 'Paste As Plain Text',
+  label: 'Paste as Plain Text',
   id: 'pasteAsPlainTextMenuItem',
   click (menuItem, browserWindow) {
     contextMenu.pasteAsPlainText()

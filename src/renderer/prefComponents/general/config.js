@@ -7,10 +7,10 @@ export const titleBarStyleOptions = [{
 }]
 
 export const fileSortByOptions = [{
-  label: 'Create time',
+  label: 'Creation time',
   value: 'created'
 }, {
-  label: 'Modified time',
+  label: 'Modification time',
   value: 'modified'
 }, {
   label: 'Title',

@@ -2,40 +2,40 @@
   <div class="pref-markdown">
     <h4>markdown</h4>
     <bool
-      description="Preferred loose list item."
+      description="Prefer loose list items."
       :bool="preferLooseListItem"
       :onChange="value => onSelectChange('preferLooseListItem', value)"
       more="https://spec.commonmark.org/0.29/#loose"
     ></bool>
     <cus-select
-      description="The preferred marker used in bullet list."
+      description="Preferred marker for bullet lists."
       :value="bulletListMarker"
       :options="bulletListMarkerOptions"
       :onChange="value => onSelectChange('bulletListMarker', value)"
       more="https://spec.commonmark.org/0.29/#bullet-list-marker"
     ></cus-select>
     <cus-select
-      description="The preferred dilimiter used in order list."
+      description="Preferred marker for ordered lists."
       :value="orderListDelimiter"
       :options="orderListDelimiterOptions"
       :onChange="value => onSelectChange('orderListDelimiter', value)"
       more="https://spec.commonmark.org/0.29/#ordered-list"
     ></cus-select>
     <cus-select
-      description="The preferred heading style"
+      description="Preferred heading style."
       :value="preferHeadingStyle"
       :options="preferHeadingStyleOptions"
       :onChange="value => onSelectChange('preferHeadingStyle', value)"
       :disable="true"
     ></cus-select>
     <cus-select
-      description="The number of spaces a tab is equal to."
+      description="Preferred tab width."
       :value="tabSize"
       :options="tabSizeOptions"
       :onChange="value => onSelectChange('tabSize', value)"
     ></cus-select>
     <cus-select
-      description="The list indentation of sub list items or paragraphs."
+      description="Preferred list indentation."
       :value="listIndentation"
       :options="listIndentationOptions"
       :onChange="value => onSelectChange('listIndentation', value)"
@@ -43,7 +43,7 @@
     <separator></separator>
     <h5>Markdown extension syntax</h5>
     <cus-select
-      description="The frontmatter type"
+      description="Format for front matter."
       :value="frontmatterType"
       :options="frontmatterTypeOptions"
       :onChange="value => onSelectChange('frontmatterType', value)"

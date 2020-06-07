@@ -15,7 +15,7 @@ const COMMAND_KEY = isOsx ? '⌘' : 'Ctrl'
 const icons = [
   {
     type: 'strong',
-    tooltip: 'Emphasize',
+    tooltip: 'Bold',
     shortcut: `${COMMAND_KEY}+B`,
     icon: strongIcon
   }, {
@@ -60,7 +60,7 @@ const icons = [
     icon: imageIcon
   }, {
     type: 'clear',
-    tooltip: 'Eliminate',
+    tooltip: 'Clear Formatting',
     shortcut: `⇧+${COMMAND_KEY}+R`,
     icon: clearIcon
   }
