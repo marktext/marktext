@@ -15,10 +15,10 @@ export const trimTrailingNewlineOptions = [{
   label: 'Trim all trailing',
   value: 0
 }, {
-  label: 'Ensure a single one',
+  label: 'Ensure exactly one trailing',
   value: 1
 }, {
-  label: 'Detect trailing style',
+  label: 'Preserve style of original document',
   value: 2
 }, {
   label: 'Do nothing',
