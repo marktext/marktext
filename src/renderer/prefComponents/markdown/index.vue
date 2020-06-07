@@ -2,7 +2,7 @@
   <div class="pref-markdown">
     <h4>markdown</h4>
     <bool
-      description="Prefer loose list item."
+      description="Prefer loose list items."
       :bool="preferLooseListItem"
       :onChange="value => onSelectChange('preferLooseListItem', value)"
       more="https://spec.commonmark.org/0.29/#loose"
