@@ -204,6 +204,7 @@ class ExportHtml {
   </style>
   <style>
     .markdown-body {
+      font-family: -apple-system,Segoe UI,Helvetica,Arial,sans-serif,Apple Color Emoji,Segoe UI Emoji;
       box-sizing: border-box;
       min-width: 200px;
       max-width: 980px;
