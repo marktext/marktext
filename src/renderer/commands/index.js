@@ -646,6 +646,23 @@ const commands = [
     }
   },
 
+  {
+    id: 'view.text-direction',
+    description: 'View: Set Text Direction',
+    subcommands: [{
+      id: 'view.text-direction-ltr',
+      description: 'Left to Right',
+      value: 'ltr'
+    }, {
+      id: 'view.text-direction-rtl',
+      description: 'Right to Left',
+      value: 'rtl'
+    }],
+    executeSubcommand: async (_, value) => {
+      ipcRenderer.send('mt::set-user-preference', { textDirection: value })
+    }
+  },
+
   // --------------------------------------------------------------------------
   // Mark Text
 
@@ -672,18 +689,6 @@ const commands = [
     description: 'Mark Text: Markdown Syntax Guide',
     execute: async () => {
       shell.openExternal('https://github.com/marktext/marktext/blob/develop/docs/MARKDOWN_SYNTAX.md')
-    }
-  }, {
-    id: 'file.text-direction-ltr',
-    description: 'Mark Text: Set text direction Left to Right',
-    execute: async () => {
-      ipcRenderer.send('mt::set-user-preference', { textDirection: 'ltr' })
-    }
-  }, {
-    id: 'file.text-direction-rtl',
-    description: 'Mark Text: Set text direction Right to Left',
-    execute: async () => {
-      ipcRenderer.send('mt::set-user-preference', { textDirection: 'rtl' })
     }
   },
 
