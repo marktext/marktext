@@ -55,7 +55,7 @@ const copyCutCtrl = ContentState => {
       const { type, text, functionType } = startBlock
       // Fix issue #942
       if (type === 'span' && functionType === 'codeContent') {
-        const selectedText = escapeHtml(text.substring(start.offset, end.offset))
+        const selectedText = text.substring(start.offset, end.offset)
         return {
           html: marked(selectedText, this.muya.options),
           text: selectedText
@@ -212,7 +212,7 @@ const copyCutCtrl = ContentState => {
     }
 
     let htmlData = wrapper.innerHTML
-    const textData = escapeHtml(this.htmlToMarkdown(htmlData))
+    const textData = this.htmlToMarkdown(htmlData)
     htmlData = marked(textData)
 
     return { html: htmlData, text: textData }

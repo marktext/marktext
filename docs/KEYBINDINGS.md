@@ -132,7 +132,7 @@ Here is an example:
 | `view.command-palette`  | <kbd>CmdOrCtrl</kbd>+<kbd>Shift</kbd>+<kbd>P</kbd> | Toggle command palette                   |
 | `view.source-code-mode` | <kbd>CmdOrCtrl</kbd>+<kbd>Alt</kbd>+<kbd>S</kbd>   | Switch to source code mode               |
 | `view.typewriter-mode`  | <kbd>CmdOrCtrl</kbd>+<kbd>Alt</kbd>+<kbd>T</kbd>   | Enable typewriter mode                   |
-| `view.focus-mode`       | <kbd>CmdOrCtrl</kbd>+<kbd>Shift</kbd>+<kbd>F</kbd> | Enable focus mode                        |
+| `view.focus-mode`       | <kbd>CmdOrCtrl</kbd>+<kbd>Shift</kbd>+<kbd>J</kbd> | Enable focus mode                        |
 | `view.toggle-sidebar`   | <kbd>CmdOrCtrl</kbd>+<kbd>J</kbd>                  | Toggle sidebar                           |
 | `view.toggle-tabbar`    | <kbd>CmdOrCtrl</kbd>+<kbd>Alt</kbd>+<kbd>B</kbd>   | Toggle tabbar                            |
 | `view.toggle-dev-tools` | <kbd>CmdOrCtrl</kbd>+<kbd>Alt</kbd>+<kbd>I</kbd>   | Toggle developer tools (debug mode only) |
