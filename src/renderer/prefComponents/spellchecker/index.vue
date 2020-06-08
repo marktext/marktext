@@ -8,7 +8,7 @@
     ></bool>
     <separator></separator>
     <bool
-      description="Use Hunspell instead of system spell checker on macOS and Windows 10 (requires restart).
+      description="Use Hunspell instead of system spell checker on macOS and Windows 10 (requires restart)."
       :bool="spellcheckerIsHunspell"
       :disable="!isOsSpellcheckerSupported || !spellcheckerEnabled"
       :onChange="value => onSelectChange('spellcheckerIsHunspell', value)"
@@ -21,7 +21,7 @@
     ></bool>
     <bool
       v-show="isOsx && !spellcheckerIsHunspell"
-      description="Automatically detect document language (requires showing marks for spelling errors).
+      description="Automatically detect document language (requires showing marks for spelling errors)."
       :bool="spellcheckerAutoDetectLanguage"
       :disable="!spellcheckerEnabled"
       :onChange="value => onSelectChange('spellcheckerAutoDetectLanguage', value)"
