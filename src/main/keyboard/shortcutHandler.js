@@ -99,7 +99,7 @@ class Keybindings {
       ['view.command-palette', 'CmdOrCtrl+Shift+P'],
       ['view.source-code-mode', 'CmdOrCtrl+Alt+S'],
       ['view.typewriter-mode', 'CmdOrCtrl+Alt+T'],
-      ['view.focus-mode', 'CmdOrCtrl+Shift+F'],
+      ['view.focus-mode', 'CmdOrCtrl+Shift+J'],
       ['view.toggle-sidebar', 'CmdOrCtrl+J'],
       ['view.toggle-tabbar', 'CmdOrCtrl+Alt+B'],
       ['view.toggle-dev-tools', 'CmdOrCtrl+Alt+I'],
