@@ -57,7 +57,7 @@
       :disable="true"
     ></cur-select>
     <section class="startup-action-ctrl">
-      <div>What Mark Text should do on startup</div>
+      <div>Action on startup</div>
       <el-radio-group v-model="startUpAction">
         <!--
           Hide "lastState" for now (#2064).

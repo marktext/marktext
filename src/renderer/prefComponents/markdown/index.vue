@@ -41,7 +41,7 @@
       :onChange="value => onSelectChange('listIndentation', value)"
     ></cus-select>
     <separator></separator>
-    <h5>Markdown extension syntax</h5>
+    <h5>Markdown extensions</h5>
     <cus-select
       description="Format for front matter"
       :value="frontmatterType"
@@ -49,13 +49,13 @@
       :onChange="value => onSelectChange('frontmatterType', value)"
     ></cus-select>
     <bool
-      description="Enable pandoc's markdown extension superscript and subscript"
+      description="Use Pandoc-style superscript and subscript"
       :bool="superSubScript"
       :onChange="value => onSelectChange('superSubScript', value)"
       more="https://pandoc.org/MANUAL.html#superscripts-and-subscripts"
     ></bool>
     <bool
-      description="Enable pandoc's markdown extension footnote(need restart Mark Text)"
+      description="Use Pandoc-style footnotes (requres restart)"
       :bool="footnote"
       :onChange="value => onSelectChange('footnote', value)"
       more="https://pandoc.org/MANUAL.html#footnotes"
