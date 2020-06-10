@@ -646,6 +646,23 @@ const commands = [
     }
   },
 
+  {
+    id: 'view.text-direction',
+    description: 'View: Set Text Direction',
+    subcommands: [{
+      id: 'view.text-direction-ltr',
+      description: 'Left to Right',
+      value: 'ltr'
+    }, {
+      id: 'view.text-direction-rtl',
+      description: 'Right to Left',
+      value: 'rtl'
+    }],
+    executeSubcommand: async (_, value) => {
+      ipcRenderer.send('mt::set-user-preference', { textDirection: value })
+    }
+  },
+
   // --------------------------------------------------------------------------
   // Mark Text
 
