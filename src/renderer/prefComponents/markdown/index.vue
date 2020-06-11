@@ -55,7 +55,7 @@
       more="https://pandoc.org/MANUAL.html#superscripts-and-subscripts"
     ></bool>
     <bool
-      description="Use Pandoc-style footnotes (requres restart)"
+      description="Use Pandoc-style footnotes (requires restart)"
       :bool="footnote"
       :onChange="value => onSelectChange('footnote', value)"
       more="https://pandoc.org/MANUAL.html#footnotes"
