@@ -8,6 +8,7 @@
 
 - Added shortcut to switch tabs `Alt-#<num>` (@MrHeer).
 - Added GitLab math block support.
+- Support setting text direction via comand palette (@Pajn).
 
 **:butterfly:Optimization**
 
