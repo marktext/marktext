@@ -73,7 +73,7 @@
           <use :xlink:href="FolderIcon.url"></use>
         </svg>
         <button class="button-primary" @click="openFolder">
-          Open Folder...
+          Open Folder
         </button>
       </div>
     </div>
