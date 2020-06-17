@@ -1408,6 +1408,11 @@ after@0.8.2:
   resolved "https://registry.npmjs.org/after/-/after-0.8.2.tgz#fedb394f9f0e02aa9768e702bda23b505fae7e1f"
   integrity sha1-/ts5T58OAqqXaOcCvaI7UF+ufh8=
 
+agent-base@5:
+  version "5.1.1"
+  resolved "https://registry.yarnpkg.com/agent-base/-/agent-base-5.1.1.tgz#e8fb3f242959db44d63be665db7a8e739537a32c"
+  integrity sha512-TMeqbNl2fMW0nMjTEPOwe3J/PRFP4vqeoNuQMG0HlMrtm5QxKqdvAkZ1pRBQ/ulIyDD5Yq0nJ7YbdD8ey0TO3g==
+
 aggregate-error@^3.0.0:
   version "3.0.1"
   resolved "https://registry.npmjs.org/aggregate-error/-/aggregate-error-3.0.1.tgz#db2fe7246e536f40d9b5442a39e117d7dd6a24e0"
@@ -3888,19 +3893,19 @@ debug@3.2.6, debug@^3.0.0, debug@^3.1.0, debug@^3.1.1, debug@^3.2.5:
   dependencies:
     ms "^2.1.1"
 
+debug@4, debug@^4.0.1, debug@^4.1.0, debug@^4.1.1, debug@~4.1.0:
+  version "4.1.1"
+  resolved "https://registry.npmjs.org/debug/-/debug-4.1.1.tgz#3b72260255109c6b589cee050f1d516139664791"
+  integrity sha512-pYAIzeRo8J6KPEaJ0VWOh5Pzkbw/RetuzehGM7QRRX5he4fPHx2rdKMB256ehJCkX+XRQm16eZLqLNS8RSZXZw==
+  dependencies:
+    ms "^2.1.1"
+
 debug@=3.1.0, debug@~3.1.0:
   version "3.1.0"
   resolved "https://registry.npmjs.org/debug/-/debug-3.1.0.tgz#5bb5a0672628b64149566ba16819e61518c67261"
   integrity sha512-OX8XqP7/1a9cqkxYw2yXss15f26NKWBpDXQd0/uK/KPqdQhxbPa994hnzjcE2VqQpDslf55723cKPUOGSmMY3g==
   dependencies:
     ms "2.0.0"
-
-debug@^4.0.1, debug@^4.1.0, debug@^4.1.1, debug@~4.1.0:
-  version "4.1.1"
-  resolved "https://registry.npmjs.org/debug/-/debug-4.1.1.tgz#3b72260255109c6b589cee050f1d516139664791"
-  integrity sha512-pYAIzeRo8J6KPEaJ0VWOh5Pzkbw/RetuzehGM7QRRX5he4fPHx2rdKMB256ehJCkX+XRQm16eZLqLNS8RSZXZw==
-  dependencies:
-    ms "^2.1.1"
 
 debug@^4.2.0:
   version "4.2.0"
@@ -4509,10 +4514,10 @@ electron-is-accelerator@^0.2.0:
   resolved "https://registry.npmjs.org/electron-is-accelerator/-/electron-is-accelerator-0.2.0.tgz#8768feb2eb64ded6bcb98936853a4a6dcf6bfb46"
   integrity sha512-jml8EDK0x1xuPCr8ZWr+tuCL9RwfR4lee+WhLID2WZ0ygGSlnkumF6K1zw05CgnkDvHuKhFV6/NrSDI87QWAfA==
 
-electron-log@^4.2.1:
-  version "4.2.1"
-  resolved "https://registry.yarnpkg.com/electron-log/-/electron-log-4.2.1.tgz#a5e9f5b7a9c8cffb6ae5af78b76e68012d5e68da"
-  integrity sha512-tUI9w3kUP3qhwXJ92RDUPFVZfwtBwKCy/1TsSHndXYLlNCB/7+vkiQG0uxv9D2Leuxc/DJKfYyrdEBpzi/vyZg==
+electron-log@^4.2.2:
+  version "4.2.2"
+  resolved "https://registry.yarnpkg.com/electron-log/-/electron-log-4.2.2.tgz#b358dc6d1e4772465609ee3d8ad9f594d9e742c8"
+  integrity sha512-lBpLh1Q8qayrTxFIrTPcNjSHsosvUfOYyZ8glhiLcx7zCNPDGuj8+nXlEaaSS6LRiQQbLgLG+wKpuvztNzBIrA==
 
 electron-publish@22.7.0:
   version "22.7.0"
@@ -4577,10 +4582,10 @@ electron-window-state@^5.0.3:
     jsonfile "^4.0.0"
     mkdirp "^0.5.1"
 
-electron@^8.3.1:
-  version "8.3.1"
-  resolved "https://registry.yarnpkg.com/electron/-/electron-8.3.1.tgz#79e98c4d5b8e7c09a8a811f1aa78903f0c692721"
-  integrity sha512-VZpgLVFyD2SwFDkO9rwUcNgrAMah+g38FEtALGxli8bRVTbcHl8bt21szfa0YUWpc6hWcaf6JdZjqDS5q73Bsg==
+electron@^8.3.2:
+  version "8.3.2"
+  resolved "https://registry.yarnpkg.com/electron/-/electron-8.3.2.tgz#4b0c02e6e1b2194c37220e42d13d08f7b74fd2ea"
+  integrity sha512-U4JrglY8X2bED0R1BRX8ovGYDk2cpR1vFn0aIsYbrCbHLGfAXdNuAcs40s3yBhiknvvaqQV+wu4Becokv1hs7A==
   dependencies:
     "@electron/get" "^1.0.1"
     "@types/node" "^12.0.12"
@@ -6383,6 +6388,14 @@ https-browserify@^1.0.0:
   resolved "https://registry.npmjs.org/https-browserify/-/https-browserify-1.0.0.tgz#ec06c10e0a34c0f2faf199f7fd7fc78fffd03c73"
   integrity sha1-7AbBDgo0wPL68Zn3/X/Hj//QPHM=
 
+https-proxy-agent@^4.0.0:
+  version "4.0.0"
+  resolved "https://registry.yarnpkg.com/https-proxy-agent/-/https-proxy-agent-4.0.0.tgz#702b71fb5520a132a66de1f67541d9e62154d82b"
+  integrity sha512-zoDhWrkR3of1l9QAL8/scJZyLu8j/gBkcwcaQOZh7Gyh/+uJQzGVETdgT30akuwkpL8HTRfssqI3BZuV18teDg==
+  dependencies:
+    agent-base "5"
+    debug "4"
+
 humanize-plus@^1.8.1:
   version "1.8.2"
   resolved "https://registry.npmjs.org/humanize-plus/-/humanize-plus-1.8.2.tgz#a65b34459ad6367adbb3707a82a3c9f916167030"
@@ -6399,6 +6412,13 @@ iconv-lite@^0.5.1:
   version "0.5.1"
   resolved "https://registry.npmjs.org/iconv-lite/-/iconv-lite-0.5.1.tgz#b2425d3c7b18f7219f2ca663d103bddb91718d64"
   integrity sha512-ONHr16SQvKZNSqjQT9gy5z24Jw+uqfO02/ngBSBoqChZ+W8qXX7GPRa1RoUnzGADw8K63R1BXUMzarCVQBpY8Q==
+  dependencies:
+    safer-buffer ">= 2.1.2 < 3"
+
+iconv-lite@^0.6.0:
+  version "0.6.0"
+  resolved "https://registry.yarnpkg.com/iconv-lite/-/iconv-lite-0.6.0.tgz#66a93b80df0bd05d2a43a7426296b7f91073f125"
+  integrity sha512-43ZpGYZ9QtuutX5l6WC1DSO8ane9N+Ct5qPLF2OV7vM9abM69gnAbVkh66ibaZd3aOGkoP1ZmringlKhLBkw2Q==
   dependencies:
     safer-buffer ">= 2.1.2 < 3"
 
@@ -7366,13 +7386,13 @@ keypress@0.1.x:
   resolved "https://registry.npmjs.org/keypress/-/keypress-0.1.0.tgz#4a3188d4291b66b4f65edb99f806aa9ae293592a"
   integrity sha1-SjGI1CkbZrT2XtuZ+AaqmuKTWSo=
 
-keytar@5.6.0:
-  version "5.6.0"
-  resolved "https://registry.npmjs.org/keytar/-/keytar-5.6.0.tgz#7b5d4bd043d17211163640be6c4a27a49b12bb39"
-  integrity sha512-ueulhshHSGoryfRXaIvTj0BV1yB0KddBGhGoqCxSN9LR1Ks1GKuuCdVhF+2/YOs5fMl6MlTI9On1a4DHDXoTow==
+keytar@^6.0.1:
+  version "6.0.1"
+  resolved "https://registry.yarnpkg.com/keytar/-/keytar-6.0.1.tgz#996961abdebf300b2d34bb2eab6e42a8096b1ed8"
+  integrity sha512-1Ihpf2tdM3sLwGMkYHXYhVC/hx5BDR7CWFL4IrBA3IDZo0xHhS2nM+tU9Y+u/U7okNfbVkwmKsieLkcWRMh93g==
   dependencies:
-    nan "2.14.1"
-    prebuild-install "5.3.3"
+    node-addon-api "^3.0.0"
+    prebuild-install "5.3.4"
 
 keyv@^3.0.0:
   version "3.1.0"
@@ -8376,7 +8396,7 @@ mute-stream@0.0.8:
   resolved "https://registry.npmjs.org/mute-stream/-/mute-stream-0.0.8.tgz#1630c42b2251ff81e2a283de96a5497ea92e5e0d"
   integrity sha512-nnbWWOkoWyUsTjKrhgD0dcz22mdkSnpYqbEjIm2nhwhuxlSkpywJmBo8h0ZqJdkp73mb90SssHkN4rsRaBAfAA==
 
-nan@2.14.1, nan@^2.12.1, nan@^2.13.2, nan@^2.14.0:
+nan@^2.12.1, nan@^2.13.2, nan@^2.14.0:
   version "2.14.1"
   resolved "https://registry.npmjs.org/nan/-/nan-2.14.1.tgz#d7be34dfa3105b91494c3147089315eff8874b01"
   integrity sha512-isWHgVjnFjh2x2yuJ/tj3JbwoHu3UC2dX5G/88Cm24yB6YopVgxvBObDY7n5xW6ExmFhJpSEQqFPvq9zaXc8Jw==
@@ -8444,7 +8464,7 @@ node-abi@^2.11.0, node-abi@^2.7.0:
   dependencies:
     semver "^5.4.1"
 
-node-addon-api@*:
+node-addon-api@*, node-addon-api@^3.0.0:
   version "3.0.0"
   resolved "https://registry.npmjs.org/node-addon-api/-/node-addon-api-3.0.0.tgz#812446a1001a54f71663bed188314bba07e09247"
   integrity sha512-sSHCgWfJ+Lui/u+0msF3oyCgvdkhxDbkCS6Q8uiJquzOimkJBvX6hl5aSSA7DR1XbMpdM8r7phjcF63sF4rkKg==
@@ -9754,15 +9774,15 @@ posthtml@^0.9.2:
     posthtml-parser "^0.2.0"
     posthtml-render "^1.0.5"
 
-prebuild-install@5.3.3:
-  version "5.3.3"
-  resolved "https://registry.npmjs.org/prebuild-install/-/prebuild-install-5.3.3.tgz#ef4052baac60d465f5ba6bf003c9c1de79b9da8e"
-  integrity sha512-GV+nsUXuPW2p8Zy7SarF/2W/oiK8bFQgJcncoJ0d7kRpekEA0ftChjfEaF9/Y+QJEc/wFR7RAEa8lYByuUIe2g==
+prebuild-install@5.3.4:
+  version "5.3.4"
+  resolved "https://registry.yarnpkg.com/prebuild-install/-/prebuild-install-5.3.4.tgz#6982d10084269d364c1856550b7d090ea31fa293"
+  integrity sha512-AkKN+pf4fSEihjapLEEj8n85YIw/tN6BQqkhzbDc0RvEZGdkpJBGMUYx66AAMcPG2KzmPQS7Cm16an4HVBRRMA==
   dependencies:
     detect-libc "^1.0.3"
     expand-template "^2.0.3"
     github-from-package "0.0.0"
-    minimist "^1.2.0"
+    minimist "^1.2.3"
     mkdirp "^0.5.1"
     napi-build-utils "^1.0.1"
     node-abi "^2.7.0"
@@ -9868,6 +9888,11 @@ proxy-addr@~2.0.5:
   dependencies:
     forwarded "~0.1.2"
     ipaddr.js "1.9.1"
+
+proxy-from-env@^1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/proxy-from-env/-/proxy-from-env-1.1.0.tgz#e102f16ca355424865755d2c9e8ea4f24d58c3e2"
+  integrity sha512-D+zkORCbA9f1tdWRK0RaCR3GPv50cMxcrz4X8k5LTSUD1Dkw47mKJEZQNunItRTkWwgtaUSo1RVFRIG9ZXiFYg==
 
 prr@~1.0.1:
   version "1.0.1"
@@ -12413,10 +12438,10 @@ vega-dataflow@^5.5.1, vega-dataflow@^5.6.0, vega-dataflow@^5.7.0, vega-dataflow@
     vega-loader "^4.3.0"
     vega-util "^1.14.0"
 
-vega-embed@^6.8.0:
-  version "6.8.0"
-  resolved "https://registry.yarnpkg.com/vega-embed/-/vega-embed-6.8.0.tgz#600ff2d302e4170c1261fcd3fe787c2af7c33c5e"
-  integrity sha512-MRT6uy9ghUqS8xtIOnhcYCEXG6eabNI0GIgKsFHAAzKF0rY1IuUkwrMO3XucOYzcedVXyBWPJOxlPC3iSgXjAA==
+vega-embed@^6.9.0:
+  version "6.9.0"
+  resolved "https://registry.yarnpkg.com/vega-embed/-/vega-embed-6.9.0.tgz#41e8d744f92806cc5beaca34f56a22f7a34aef1c"
+  integrity sha512-VLPV4kh1i/5JqVOA+Ws5yjnIdOsXV38To1gUCRbe17C4QBFL5DXqF/TAdgXO+49KpHbCHrwOubuNZg8cTLQiaQ==
   dependencies:
     fast-json-patch "^3.0.0-1"
     json-stringify-pretty-compact "^2.0.0"
@@ -12755,10 +12780,13 @@ void-elements@^2.0.0:
   resolved "https://registry.npmjs.org/void-elements/-/void-elements-2.0.1.tgz#c066afb582bb1cb4128d60ea92392e94d5e9dbec"
   integrity sha1-wGavtYK7HLQSjWDqkjkulNXp2+w=
 
-vscode-ripgrep@^1.5.8:
-  version "1.5.8"
-  resolved "https://registry.npmjs.org/vscode-ripgrep/-/vscode-ripgrep-1.5.8.tgz#32cb33da6d1a9ca8f5de8c2813ed5114fd55fc11"
-  integrity sha512-l6Pv/t1Jk63RU+kEkMO04XxnNRYdyzuesizj9AzFpcfrUxxpAjEJBK1qO9Mov30UUGZl7uDUBn+uCv9koaHPPA==
+vscode-ripgrep@^1.6.2:
+  version "1.6.2"
+  resolved "https://registry.yarnpkg.com/vscode-ripgrep/-/vscode-ripgrep-1.6.2.tgz#fb912c7465699f10ce0218a6676cc632c77369b4"
+  integrity sha512-jkZEWnQFcE+QuQFfxQXWcWtDafTmgkp3DjMKawDkajZwgnDlGKpFp15ybKrZNVTi1SLEF/12BzxYSZVVZ2XrkA==
+  dependencies:
+    https-proxy-agent "^4.0.0"
+    proxy-from-env "^1.1.0"
 
 vue-electron@^1.0.6:
   version "1.0.6"
@@ -12804,10 +12832,10 @@ vue-loader@^15.9.2:
     vue-hot-reload-api "^2.3.0"
     vue-style-loader "^4.1.0"
 
-vue-router@^3.3.2:
-  version "3.3.2"
-  resolved "https://registry.yarnpkg.com/vue-router/-/vue-router-3.3.2.tgz#0099de402edb2fe92f9711053ab5a2156f239cad"
-  integrity sha512-5sEbcfb7MW8mY8lbUVbF4kgcipGXsagkM/X+pb6n0MhjP+RorWIUTPAPSqgPaiPOxVCXgAItBl8Vwz8vq78faA==
+vue-router@^3.3.4:
+  version "3.3.4"
+  resolved "https://registry.yarnpkg.com/vue-router/-/vue-router-3.3.4.tgz#4e38abc34a11c41b6c3d8244449a2e363ba6250b"
+  integrity sha512-SdKRBeoXUjaZ9R/8AyxsdTqkOfMcI5tWxPZOUX5Ie1BTL5rPSZ0O++pbiZCeYeythiZIdLEfkDiQPKIaWk5hDg==
 
 vue-style-loader@^4.1.0, vue-style-loader@^4.1.2:
   version "4.1.2"
