@@ -25,7 +25,7 @@
 
       <div>
         <span>Import custom themes</span>
-        <el-button size="small">Import theme</el-button>
+        <el-button size="small">Import Theme</el-button>
       </div>
     </section>
   </div>
