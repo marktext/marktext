@@ -28,6 +28,7 @@
 - Fixed footnote exception when exporting document.
 - Fixed cryptic characters when exporting document as PDF on macOS (@gSpera).
 - Fixed unnecessary character sanitation when setting clipboard data.
+- Fixed sup- and superscript export issue.
 
 ## 0.16.1
 
