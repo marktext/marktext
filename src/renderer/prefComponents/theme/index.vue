@@ -11,7 +11,7 @@
     </section>
     <separator></separator>
     <cur-select
-      description="Automatically adjust application theme according to system settings."
+      description="Automatically adjust application theme according to system settings"
       :value="autoSwitchTheme"
       :options="autoSwitchThemeOptions"
       :onChange="value => onSelectChange('autoSwitchTheme', value)"
@@ -25,7 +25,7 @@
 
       <div>
         <span>Import custom themes</span>
-        <el-button size="small">Import theme</el-button>
+        <el-button size="small">Import Theme</el-button>
       </div>
     </section>
   </div>

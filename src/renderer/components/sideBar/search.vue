@@ -43,7 +43,7 @@
       </div>
 
       <div class="search-message-section" v-if="showNoFolderOpenedMessage">
-        <span>You have not opened a folder.</span>
+        <span>No folder open</span>
       </div>
       <div class="search-message-section" v-if="showNoResultFoundMessage">No results found.</div>
       <div class="search-message-section" v-if="searchErrorString">{{ searchErrorString }}</div>

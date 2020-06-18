@@ -2,7 +2,7 @@
   <div class="pref-spellchecker">
     <h4>Spelling</h4>
     <bool
-      description="Enable spell checker (experimental)."
+      description="Enable spell checker (experimental)"
       :bool="spellcheckerEnabled"
       :onChange="handleSpellcheckerEnabled"
     ></bool>
@@ -14,7 +14,7 @@
       :onChange="value => onSelectChange('spellcheckerIsHunspell', value)"
     ></bool>
     <bool
-      description="Hide marks for spelling errors."
+      description="Hide marks for spelling errors"
       :bool="spellcheckerNoUnderline"
       :disable="!spellcheckerEnabled"
       :onChange="value => onSelectChange('spellcheckerNoUnderline', value)"
@@ -28,7 +28,7 @@
     ></bool>
     <separator></separator>
     <cur-select
-      description="Default language for spell checker."
+      description="Default language for spell checker"
       :value="spellcheckerLanguage"
       :options="availableDictionaries"
       :disable="!spellcheckerEnabled"
@@ -47,7 +47,7 @@
       Additional languages may be added through "Language" in your "Time & language" settings.
     </div>
     <div v-if="isHunspellSelected && spellcheckerEnabled">
-      <div class="description">Installed Hunspell dictionaries.</div>
+      <div class="description">Installed Hunspell dictionaries</div>
       <el-table
         :data="availableDictionaries"
         style="width: 100%">
@@ -72,7 +72,7 @@
         </el-table-column>
       </el-table>
 
-      <div class="description">Download additional Hunspell dictionaries.</div>
+      <div class="description">Download additional Hunspell dictionaries</div>
       <div class="dictionary-group">
         <el-select
           v-model="selectedDictionaryToAdd"

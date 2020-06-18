@@ -2,60 +2,60 @@
   <div class="pref-markdown">
     <h4>markdown</h4>
     <bool
-      description="Prefer loose list items."
+      description="Prefer loose list items"
       :bool="preferLooseListItem"
       :onChange="value => onSelectChange('preferLooseListItem', value)"
       more="https://spec.commonmark.org/0.29/#loose"
     ></bool>
     <cus-select
-      description="Preferred marker for bullet lists."
+      description="Preferred marker for bullet lists"
       :value="bulletListMarker"
       :options="bulletListMarkerOptions"
       :onChange="value => onSelectChange('bulletListMarker', value)"
       more="https://spec.commonmark.org/0.29/#bullet-list-marker"
     ></cus-select>
     <cus-select
-      description="Preferred marker for ordered lists."
+      description="Preferred marker for ordered lists"
       :value="orderListDelimiter"
       :options="orderListDelimiterOptions"
       :onChange="value => onSelectChange('orderListDelimiter', value)"
       more="https://spec.commonmark.org/0.29/#ordered-list"
     ></cus-select>
     <cus-select
-      description="Preferred heading style."
+      description="Preferred heading style"
       :value="preferHeadingStyle"
       :options="preferHeadingStyleOptions"
       :onChange="value => onSelectChange('preferHeadingStyle', value)"
       :disable="true"
     ></cus-select>
     <cus-select
-      description="Preferred tab width."
+      description="Preferred tab width"
       :value="tabSize"
       :options="tabSizeOptions"
       :onChange="value => onSelectChange('tabSize', value)"
     ></cus-select>
     <cus-select
-      description="Preferred list indentation."
+      description="Preferred list indentation"
       :value="listIndentation"
       :options="listIndentationOptions"
       :onChange="value => onSelectChange('listIndentation', value)"
     ></cus-select>
     <separator></separator>
-    <h5>Markdown extension syntax</h5>
+    <h5>Markdown extensions</h5>
     <cus-select
-      description="Format for front matter."
+      description="Format for front matter"
       :value="frontmatterType"
       :options="frontmatterTypeOptions"
       :onChange="value => onSelectChange('frontmatterType', value)"
     ></cus-select>
     <bool
-      description="Enable pandoc's markdown extension superscript and subscript."
+      description="Use Pandoc-style superscript and subscript"
       :bool="superSubScript"
       :onChange="value => onSelectChange('superSubScript', value)"
       more="https://pandoc.org/MANUAL.html#superscripts-and-subscripts"
     ></bool>
     <bool
-      description="Enable pandoc's markdown extension footnote(need restart Mark Text)."
+      description="Use Pandoc-style footnotes (requires restart)"
       :bool="footnote"
       :onChange="value => onSelectChange('footnote', value)"
       more="https://pandoc.org/MANUAL.html#footnotes"
@@ -63,7 +63,7 @@
     <separator></separator>
     <h5>Compatibility</h5>
     <bool
-      description="Enable GitLab compatibility mode."
+      description="Enable GitLab compatibility mode"
       :bool="isGitlabCompatibilityEnabled"
       :onChange="value => onSelectChange('isGitlabCompatibilityEnabled', value)"
     ></bool>
