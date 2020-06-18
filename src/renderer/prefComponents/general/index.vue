@@ -7,7 +7,7 @@
       :onChange="value => onSelectChange('autoSave', value)"
     ></bool>
     <range
-      description="Delay following document edit before automatically saving (milliseconds)"
+      description="Delay following document edit before automatically saving"
       :value="autoSaveDelay"
       :min="1000"
       :max="10000"
@@ -17,7 +17,8 @@
     ></range>
     <cur-select
       v-if="!isOsx"
-      description="Title bar style (requires restart)"
+      description="Title bar style"
+      notes="Requires restart."
       :value="titleBarStyle"
       :options="titleBarStyleOptions"
       :onChange="value => onSelectChange('titleBarStyle', value)"
@@ -143,11 +144,6 @@ export default {
 
 <style scoped>
   .pref-general {
-    & h4 {
-      text-transform: uppercase;
-      margin: 0;
-      font-weight: 400;
-    }
     & .startup-action-ctrl {
       font-size: 14px;
       user-select: none;

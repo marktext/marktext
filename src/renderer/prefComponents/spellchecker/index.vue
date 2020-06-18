@@ -2,13 +2,15 @@
   <div class="pref-spellchecker">
     <h4>Spelling</h4>
     <bool
-      description="Enable spell checker (experimental)"
+      description="Enable spell checker"
+      notes="Feature is experimental."
       :bool="spellcheckerEnabled"
       :onChange="handleSpellcheckerEnabled"
     ></bool>
     <separator></separator>
     <bool
-      description="Use Hunspell instead of system spell checker on macOS and Windows 10 (requires restart)"
+      description="Use Hunspell instead of system spell checker on macOS and Windows 10"
+      notes="Requires restart."
       :bool="spellcheckerIsHunspell"
       :disable="!isOsSpellcheckerSupported || !spellcheckerEnabled"
       :onChange="value => onSelectChange('spellcheckerIsHunspell', value)"
@@ -285,11 +287,6 @@ export default {
 
 <style scoped>
   .pref-spellchecker {
-    & h4 {
-      text-transform: uppercase;
-      margin: 0;
-      font-weight: 400;
-    }
     & div.description {
       margin-top: 10px;
       margin-bottom: 2px;

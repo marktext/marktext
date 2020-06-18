@@ -1,7 +1,7 @@
 <template>
   <section class="pref-select-item" :class="{'ag-underdevelop': disable}">
     <div class="description">
-      <span>{{description}}</span>
+      <span>{{description}}:</span>
       <i class="el-icon-info" v-if="more"
         @click="handleMoreClick"
       ></i>
@@ -18,6 +18,9 @@
         :value="item.value">
       </el-option>
     </el-select>
+    <div v-if="notes" class="notes">
+      {{notes}}
+    </div>
   </section>
 </template>
 
@@ -32,6 +35,7 @@ export default {
   },
   props: {
     description: String,
+    notes: String,
     value: String | Number,
     options: Array,
     onChange: Function,
@@ -66,8 +70,13 @@ export default {
   margin: 20px 0;
   font-size: 14px;
   color: var(--editorColor);
+  & .notes {
+    margin-top: 10px;
+    font-style: italic;
+    font-size: 12px;
+  }
   & .el-select {
-    width: 180px;
+    width: 100%;
   }
   & input.el-input__inner {
     height: 30px;

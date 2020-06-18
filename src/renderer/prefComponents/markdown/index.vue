@@ -1,6 +1,6 @@
 <template>
   <div class="pref-markdown">
-    <h4>markdown</h4>
+    <h4>Markdown</h4>
     <bool
       description="Prefer loose list items"
       :bool="preferLooseListItem"
@@ -55,7 +55,8 @@
       more="https://pandoc.org/MANUAL.html#superscripts-and-subscripts"
     ></bool>
     <bool
-      description="Use Pandoc-style footnotes (requires restart)"
+      description="Use Pandoc-style footnotes"
+      notes="Requires restart."
       :bool="footnote"
       :onChange="value => onSelectChange('footnote', value)"
       more="https://pandoc.org/MANUAL.html#footnotes"
@@ -135,13 +136,5 @@ export default {
 
 <style scoped>
   .pref-markdown {
-    & h4 {
-      text-transform: uppercase;
-      margin: 0;
-      font-weight: 400;
-    }
-    & h5 {
-      font-weight: 400;
-    }
   }
 </style>

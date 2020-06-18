@@ -1,7 +1,7 @@
 <template>
   <section class="pref-font-input-item" :class="{'ag-underdevelop': disable}">
     <div class="description">
-      <span>{{description}}</span>
+      <span>{{description}}:</span>
       <i class="el-icon-info" v-if="more" @click="handleMoreClick"></i>
     </div>
     <el-autocomplete
@@ -139,7 +139,7 @@ export default {
   font-size: 14px;
   color: var(--editorColor);
   & .font-autocomplete {
-    width: 240px;
+    width: 100%;
   }
   & input.el-input__inner {
     height: 30px;

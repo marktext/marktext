@@ -116,10 +116,10 @@
     ></bool>
     <separator></separator>
     <text-box
-      description="Maximum width of text editor. Empty for theme default, otherwise number with unit suffix (`ch`: characters, `px`: pixels, `%`: percentage)"
+      description="Maximum width of text editor"
+      notes="Leave empty for theme default, otherwise use number with unit suffix, which is one of 'ch' for characters, 'px' for pixels, or '%' for percentage."
       :input="editorLineWidth"
       :regexValidator="/^(?:$|[0-9]+(?:ch|px|%)$)/"
-      defaultValue="Default value from current theme"
       :onChange="value => onSelectChange('editorLineWidth', value)"
     ></text-box>
   </div>
@@ -189,11 +189,6 @@ export default {
 
 <style scoped>
   .pref-editor {
-    & h4 {
-      text-transform: uppercase;
-      margin: 0;
-      font-weight: 400;
-    }
     & .image-ctrl {
       font-size: 14px;
       user-select: none;
