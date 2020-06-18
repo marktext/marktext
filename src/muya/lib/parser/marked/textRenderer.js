@@ -19,12 +19,17 @@ TextRenderer.prototype.inlineMath = function (math, displayMode) {
   return math
 }
 
-TextRenderer.prototype.footnoteIdentifier = function (identifier, { footnoteId, footnoteIdentifierId, order }) {
-  return `<a href="#${footnoteId ? `fn${footnoteId}` : ''}" class="footnote-ref" id="fnref${footnoteIdentifierId}" role="doc-noteref"><sup>${order || identifier}</sup></a>`
-}
-
 TextRenderer.prototype.emoji = function (text, emoji) {
   return emoji
+}
+
+TextRenderer.prototype.script = function (content, marker) {
+  const tagName = marker === '^' ? 'sup' : 'sub'
+  return `<${tagName}>${content}</${tagName}>`
+}
+
+TextRenderer.prototype.footnoteIdentifier = function (identifier, { footnoteId, footnoteIdentifierId, order }) {
+  return `<a href="#${footnoteId ? `fn${footnoteId}` : ''}" class="footnote-ref" id="fnref${footnoteIdentifierId}" role="doc-noteref"><sup>${order || identifier}</sup></a>`
 }
 
 TextRenderer.prototype.link =
