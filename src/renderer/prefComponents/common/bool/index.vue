@@ -5,14 +5,13 @@
       <i class="el-icon-info" v-if="more"
         @click="handleMoreClick"
       ></i>
-    </div>
     <el-switch
       v-model="status"
-      @change="handleSwitchChange"
-      :active-text="status ? 'On': 'Off'">
+      @change="handleSwitchChange">
     </el-switch>
     <div v-if="notes" class="notes">
       {{notes}}
+    </div>
     </div>
   </section>
 </template>
@@ -63,6 +62,10 @@ export default {
     user-select: none;
     margin: 20px 0;
     color: var(--editorColor);
+    & .el-switch {
+      float: right;
+      clear: right;
+    }
     & .description {
       margin-bottom: 10px;
       & i {
