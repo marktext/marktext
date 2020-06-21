@@ -142,6 +142,7 @@ Mark Text 是一个使用 MIT license 的开源项目，你将一直能够从 Gi
 - 输出 **HTML** 和 **PDF** 文件。
 - 各种主题：**Cadmium Light**、**Material Dark** 等等。
 - 各种编辑模式：**源代码模式**、**打字机模式**、**专注模式**。
+- 直接从剪贴板上传图片。
 
 <h4 align="center">:crescent_moon: 主题 :high_brightness:</h4>
 
@@ -199,7 +200,10 @@ brew cask install mark-text
 
 ## 开发
 
-如果您想自己构建 **Mark Text**，请查看我们的 [developer documentation](../../.github.md#build-instructions).
+如果您想自己构建 **Mark Text**，请查看我们的 [build instructions](../dev/BUILD.md).
+
+- [User documentation](../README.md)
+- [Developer documentation](../dev/README.md)
 
 如果您对 **Mark Text** 有任何疑问，欢迎写一个 issue。如果这样做时，请使用打开 issue 时发现的默认格式。当然，如果您直接提交 PR，我们将不胜感激。
 

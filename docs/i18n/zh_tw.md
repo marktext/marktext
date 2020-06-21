@@ -121,6 +121,12 @@ Mark Text 是 MIT 許可的開源專案，你可以持續在 GitHub 發布頁面
 
 使用 Patreon 贊助，它將直接贊助给 Mark Text 的作者及維護者 Luo Ran (@jocs)。使用 Open Collective 贊助的所有費用都是公開的，這些贊助資金將用於 Mark Text 的開發、維護、線上和線下活動以及一些必要的資源（無論您是在 Patreon 還是 Open Collective 贊助）。您的姓名或公司logo將出現在 Mark Text 的 README 和官方網站上。
 
+**特別贊助商**
+
+<a href="https://www.dogedoge.com/">
+ <img src="https://www.dogedoge.com/assets/new_logo.min.png" width="100" height="100">
+</a>
+
 **白金贊助商**
 
 <a href="https://opencollective.com/marktext#platinum-sponsors">
@@ -164,6 +170,7 @@ Mark Text 是 MIT 許可的開源專案，你可以持續在 GitHub 發布頁面
 - 可以輸出 **HTML** 和 **PDF** 文件。
 - 各種主題：**Cadmium Light**、**Material Dark** 等等。
 - 各種編輯模式：**原始碼模式**、**打字機模式**、**專注模式**。
+- 直接從剪貼板上傳圖片。
 
 <h4 align="center">:crescent_moon: 主题 :high_brightness:</h4>
 
@@ -221,11 +228,15 @@ brew cask install mark-text
 
 ## 開發
 
-如果您想自己建置 **Mark Text**，請查看我們的 [developer documentation](../../.github.md#build-instructions).
+如果您想自己建置 **Mark Text**，請查看我們的 [build instructions](../dev/BUILD.md).
+
+- [User documentation](../README.md)
+- [Developer documentation](../dev/README.md)
 
 如果您對 **Mark Text** 有任何疑問，歡迎開一個 issue，並使用開 issue 時的預設格式。當然您也可以直接提交 PR，我們將感激不盡。
 
-## 整合
+## 集成
+
 - [Alfred Workflow](http://www.packal.org/workflow/mark-text)：macOS 應用程式 Alfred 的使用流程：使用 "mt" 在文件或者文件夾中打開 Mark Text。
 
 ## 貢獻
