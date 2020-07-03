@@ -18,7 +18,7 @@
           :key="file.id"
           :data-id="file.id"
           @click.stop="selectFile(file)"
-          @click.middle="closeTab(file)"
+          @click.middle="closeTab(file.id)"
           @contextmenu.prevent="handleContextMenu($event, file)"
         >
           <span>{{ file.filename }}</span>
