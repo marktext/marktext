@@ -142,7 +142,7 @@
     "karma-spec-reporter": "0.0.32",
     "karma-webpack": "^4.0.2",
     "license-checker": "^25.0.1",
-    "marked": "^0.8.2",
+    "marked": "^1.1.1",
     "mini-css-extract-plugin": "^0.9.0",
     "mocha": "^7.2.0",
     "multispinner": "^0.2.1",
