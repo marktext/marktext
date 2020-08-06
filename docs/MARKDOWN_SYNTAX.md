@@ -465,18 +465,18 @@ Renders to:
 
 **Center text in a column**
 
-To center the text in a column, add a colon to the middle of the dashes in the row beneath the header.
+To center the text in a column, add a colon to the left and right of the dashes in the row beneath the header.
 
 ```markdown
 | Option | Description |
-| -:- | -:- |
+| :-: | :-: |
 | data   | path to data files to supply the data that will be passed into templates. |
 | engine | engine to be used for processing templates. Handlebars is the default. |
 | ext    | extension to be used for dest files. |
 ```
 
 | Option | Description |
-| -:- | -:- |
+| :-: | :-: |
 | data   | path to data files to supply the data that will be passed into templates. |
 | engine | engine to be used for processing templates. Handlebars is the default. |
 | ext    | extension to be used for dest files. |
@@ -484,7 +484,7 @@ To center the text in a column, add a colon to the middle of the dashes in the r
 
 **Right-align the text in a column**
 
-To right-align the text in a column, add a colon to the middle of the dashes in the row beneath the header.
+To right-align the text in a column, add a colon to the right of the dashes in the row beneath the header.
 
 ```markdown
 | Option | Description |
