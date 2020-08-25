@@ -230,7 +230,7 @@ const pasteCtrl = ContentState => {
     }
   }
 
-  // Handle `normal` and `pasteAsPlainText` paste for preview mode.
+  // Handle `normal` and `pasteAsMarkdown` paste for preview mode.
   ContentState.prototype.pasteHandler = async function (event, type = 'normal', rawText, rawHtml) {
     event.preventDefault()
     event.stopPropagation()
@@ -345,14 +345,6 @@ const pasteCtrl = ContentState => {
     if (copyType === 'copyAsHtml') {
       switch (type) {
         case 'normal': {
-          const htmlBlock = this.createBlockP(text.trim())
-          this.insertAfter(htmlBlock, parent)
-          this.removeBlock(parent)
-          // handler heading
-          this.insertHtmlBlock(htmlBlock)
-          break
-        }
-        case 'pasteAsPlainText': {
           const lines = text.trim().split(LINE_BREAKS_REG)
           let htmlBlock = null
 
@@ -370,11 +362,19 @@ const pasteCtrl = ContentState => {
           }
           break
         }
+        case 'pasteAsMarkdown': {
+          const htmlBlock = this.createBlockP(text.trim())
+          this.insertAfter(htmlBlock, parent)
+          this.removeBlock(parent)
+          // handler heading
+          this.insertHtmlBlock(htmlBlock)
+          break
+        }
       }
       return this.partialRender()
     }
 
-    const stateFragments = type === 'pasteAsPlainText' || copyType === 'copyAsMarkdown'
+    const stateFragments = type === 'normal' || copyType === 'copyAsMarkdown'
       ? this.markdownToState(text)
       : this.html2State(html)
 

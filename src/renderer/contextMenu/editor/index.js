@@ -5,7 +5,7 @@ import {
   PASTE,
   COPY_AS_MARKDOWN,
   COPY_AS_HTML,
-  PASTE_AS_PLAIN_TEXT,
+  PASTE_AS_MARKDOWN,
   SEPARATOR,
   INSERT_BEFORE,
   INSERT_AFTER
@@ -29,7 +29,7 @@ export const showContextMenu = (event, selection, spellchecker, selectedWord, wo
   const menu = new Menu()
   const win = remote.getCurrentWindow()
   const disableCutAndCopy = start.key === end.key && start.offset === end.offset
-  const CONTEXT_ITEMS = [INSERT_BEFORE, INSERT_AFTER, SEPARATOR, CUT, COPY, PASTE, SEPARATOR, COPY_AS_MARKDOWN, COPY_AS_HTML, PASTE_AS_PLAIN_TEXT]
+  const CONTEXT_ITEMS = [INSERT_BEFORE, INSERT_AFTER, SEPARATOR, CUT, COPY, PASTE, SEPARATOR, COPY_AS_MARKDOWN, COPY_AS_HTML, PASTE_AS_MARKDOWN]
 
   const spellingSubmenu = spellcheckMenuBuilder(spellchecker, selectedWord, wordSuggestions, replaceCallback)
   if (spellingSubmenu) {

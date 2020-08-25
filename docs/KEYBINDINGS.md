@@ -65,7 +65,7 @@ Here is an example:
 | `edit.copy`              | <kbd>CmdOrCtrl</kbd>+<kbd>C</kbd>                  | Copy selected text                                                                                         |
 | `edit.paste`             | <kbd>CmdOrCtrl</kbd>+<kbd>V</kbd>                  | Paste text                                                                                                 |
 | `edit.copy-as-markdown`  | <kbd>CmdOrCtrl</kbd>+<kbd>Shift</kbd>+<kbd>C</kbd> | Copy selected text as markdown                                                                             |
-| `edit.copy-as-plaintext` | <kbd>CmdOrCtrl</kbd>+<kbd>Shift</kbd>+<kbd>V</kbd> | Copy selected text as plaintext                                                                            |
+| `edit.paste-as-markdown` | <kbd>CmdOrCtrl</kbd>+<kbd>Shift</kbd>+<kbd>V</kbd> | Paste text as markdown                                                                                     |
 | `edit.select-all`        | <kbd>CmdOrCtrl</kbd>+<kbd>A</kbd>                  | Select all text of the document                                                                            |
 | `edit.duplicate`         | <kbd>CmdOrCtrl</kbd>+<kbd>Alt</kbd>+<kbd>P</kbd>   | Duplicate the current paragraph                                                                            |
 | `edit.create-paragraph`  | <kbd>CmdOrCtrl</kbd>+<kbd>Shift</kbd>+<kbd>N</kbd> | Create a new paragraph after the current one                                                               |
@@ -127,7 +127,7 @@ Here is an example:
 
 **View menu:**
 
-| Id                            | Default                                            | Description                              |
+| Id                      | Default                                            | Description                              |
 | ----------------------- | -------------------------------------------------- | ---------------------------------------- |
 | `view.command-palette`  | <kbd>CmdOrCtrl</kbd>+<kbd>Shift</kbd>+<kbd>P</kbd> | Toggle command palette                   |
 | `view.source-code-mode` | <kbd>CmdOrCtrl</kbd>+<kbd>Alt</kbd>+<kbd>S</kbd>   | Switch to source code mode               |

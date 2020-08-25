@@ -628,7 +628,7 @@ export default {
       bus.$on('editor-focus', this.focusEditor)
       bus.$on('copyAsMarkdown', this.handleCopyPaste)
       bus.$on('copyAsHtml', this.handleCopyPaste)
-      bus.$on('pasteAsPlainText', this.handleCopyPaste)
+      bus.$on('pasteAsMarkdown', this.handleCopyPaste)
       bus.$on('duplicate', this.handleParagraph)
       bus.$on('createParagraph', this.handleParagraph)
       bus.$on('deleteParagraph', this.handleParagraph)
@@ -942,7 +942,7 @@ export default {
       }
     },
 
-    // Custom copyAsMarkdown copyAsHtml pasteAsPlainText
+    // Custom copyAsMarkdown copyAsHtml pasteAsMarkdown
     handleCopyPaste (type) {
       if (this.editor) {
         this.editor[type]()
@@ -1209,7 +1209,7 @@ export default {
     bus.$off('editor-focus', this.focusEditor)
     bus.$off('copyAsMarkdown', this.handleCopyPaste)
     bus.$off('copyAsHtml', this.handleCopyPaste)
-    bus.$off('pasteAsPlainText', this.handleCopyPaste)
+    bus.$off('pasteAsMarkdown', this.handleCopyPaste)
     bus.$off('duplicate', this.handleParagraph)
     bus.$off('createParagraph', this.handleParagraph)
     bus.$off('deleteParagraph', this.handleParagraph)

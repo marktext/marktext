@@ -34,11 +34,11 @@ export const COPY_AS_HTML = {
   }
 }
 
-export const PASTE_AS_PLAIN_TEXT = {
-  label: 'Paste as Plain Text',
-  id: 'pasteAsPlainTextMenuItem',
+export const PASTE_AS_MARKDOWN = {
+  label: 'Paste As Markdown',
+  id: 'pasteAsMarkdownTextMenuItem',
   click (menuItem, browserWindow) {
-    contextMenu.pasteAsPlainText()
+    contextMenu.pasteAsMarkdown()
   }
 }
 

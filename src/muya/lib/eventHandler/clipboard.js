@@ -2,7 +2,7 @@ class Clipboard {
   constructor (muya) {
     this.muya = muya
     this._copyType = 'normal' // `normal` or `copyAsMarkdown` or `copyAsHtml`
-    this._pasteType = 'normal' // `normal` or `pasteAsPlainText`
+    this._pasteType = 'normal' // `normal` or `pasteAsMarkdown`
     this._copyInfo = null
     this.listen()
   }
@@ -53,8 +53,8 @@ class Clipboard {
     document.execCommand('copy')
   }
 
-  pasteAsPlainText () {
-    this._pasteType = 'pasteAsPlainText'
+  pasteAsMarkdown () {
+    this._pasteType = 'pasteAsMarkdown'
     document.execCommand('paste')
   }
 

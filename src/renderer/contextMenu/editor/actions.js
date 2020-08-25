@@ -8,8 +8,8 @@ export const copyAsHtml = (menuItem, browserWindow) => {
   bus.$emit('copyAsHtml', 'copyAsHtml')
 }
 
-export const pasteAsPlainText = (menuItem, browserWindow) => {
-  bus.$emit('pasteAsPlainText', 'pasteAsPlainText')
+export const pasteAsMarkdown = (menuItem, browserWindow) => {
+  bus.$emit('pasteAsMarkdown', 'pasteAsMarkdown')
 }
 
 export const insertParagraph = location => {

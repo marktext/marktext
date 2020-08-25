@@ -44,7 +44,7 @@ class Keybindings {
       ['edit.copy', 'CmdOrCtrl+C'],
       ['edit.paste', 'CmdOrCtrl+V'],
       ['edit.copy-as-markdown', 'CmdOrCtrl+Shift+C'],
-      ['edit.copy-as-plaintext', 'CmdOrCtrl+Shift+V'],
+      ['edit.paste-as-markdown', 'CmdOrCtrl+Shift+V'],
       ['edit.select-all', 'CmdOrCtrl+A'],
       ['edit.duplicate', 'CmdOrCtrl+Alt+D'],
       ['edit.create-paragraph', 'Shift+CmdOrCtrl+N'],

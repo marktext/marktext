@@ -361,8 +361,8 @@ class Muya {
     this.clipboard.copyAsHtml()
   }
 
-  pasteAsPlainText () {
-    this.clipboard.pasteAsPlainText()
+  pasteAsMarkdown () {
+    this.clipboard.pasteAsMarkdown()
   }
 
   /**

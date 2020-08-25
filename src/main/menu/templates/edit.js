@@ -45,10 +45,10 @@ export default function (keybindings, userPreference) {
         actions.edit(browserWindow, 'copyAsHtml')
       }
     }, {
-      label: 'Paste as Plain Text',
-      accelerator: keybindings.getAccelerator('edit.copy-as-plaintext'),
+      label: 'Paste as Markdown',
+      accelerator: keybindings.getAccelerator('edit.paste-as-markdown'),
       click (menuItem, browserWindow) {
-        actions.edit(browserWindow, 'pasteAsPlainText')
+        actions.edit(browserWindow, 'pasteAsMarkdown')
       }
     }, {
       type: 'separator'
