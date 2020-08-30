@@ -83,7 +83,7 @@ class ContentState {
     this.prevCursor = null
     this.historyTimer = null
     this.history = new History(this)
-    this.turndownConfig = Object.assign(DEFAULT_TURNDOWN_CONFIG, { bulletListMarker })
+    this.turndownConfig = Object.assign({}, DEFAULT_TURNDOWN_CONFIG, { bulletListMarker })
     // table drag bar
     this.dragInfo = null
     this.isDragTableBar = false
