@@ -43,7 +43,7 @@ export const getHunspellLanguageName = langCode => {
 
 // All available Hunspell dictionary languages.
 // NOTE: Listed as value/label due to settings requirements.
-export const HUNSPELL_DICTIONARY_LANGUAGE_MAP = [{
+export const HUNSPELL_DICTIONARY_LANGUAGE_MAP = Object.freeze([{
   label: 'Afrikaans', // Afrikaans
   value: 'af-ZA'
 }, {
@@ -169,4 +169,4 @@ export const HUNSPELL_DICTIONARY_LANGUAGE_MAP = [{
 }, {
   label: 'Tiếng Việt', // Vietnamese
   value: 'vi-VN'
-}]
+}])
