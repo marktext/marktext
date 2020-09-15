@@ -215,6 +215,7 @@ export default {
 
     handleMenuClick () {
       const win = remote.getCurrentWindow()
+
       remote
         .Menu
         .getApplicationMenu()

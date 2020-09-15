@@ -6,6 +6,7 @@ const path = require('path')
 const { say } = require('cfonts')
 const { spawn } = require('child_process')
 const webpack = require('webpack')
+const HtmlWebpackPlugin = require('html-webpack-plugin')
 const WebpackDevServer = require('webpack-dev-server')
 const webpackHotMiddleware = require('webpack-hot-middleware')
 
@@ -48,14 +49,18 @@ function startRenderer () {
       heartbeat: 2500
     })
 
-    compiler.plugin('compilation', compilation => {
-      compilation.plugin('html-webpack-plugin-after-emit', (data, cb) => {
-        hotMiddleware.publish({ action: 'reload' })
-        cb && cb()
-      })
+    compiler.hooks.compilation.tap('HtmlWebpackPluginAfterEmit', compilation => {
+      HtmlWebpackPlugin.getHooks(compilation).afterEmit.tapAsync(
+        'AfterPlugin', // <-- Set a meaningful name here for stacktraces
+        (data, cb) => {
+          hotMiddleware.publish({ action: 'reload' })
+          // Tell webpack to move on
+          cb(null, data)
+        }
+      )
     })
 
-    compiler.plugin('done', stats => {
+    compiler.hooks.done.tap('AfterCompiler', stats => {
       logStats('Renderer', stats)
     })
 
@@ -83,7 +88,7 @@ function startMain () {
 
     const compiler = webpack(mainConfig)
 
-    compiler.plugin('watch-run', (compilation, done) => {
+    compiler.hooks.watchRun.tapAsync('Compiling', (_, done) => {
       logStats('Main', chalk.white.bold('compiling...'))
       hotMiddleware.publish({ action: 'compiling' })
       done()

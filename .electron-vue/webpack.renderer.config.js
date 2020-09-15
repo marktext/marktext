@@ -9,7 +9,6 @@ const MiniCssExtractPlugin = require("mini-css-extract-plugin")
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const VueLoaderPlugin = require('vue-loader/lib/plugin')
 const SpritePlugin = require('svg-sprite-loader/plugin')
-const postcssPresetEnv = require('postcss-preset-env')
 const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer')
 
 const { getRendererEnvironmentDefinitions } = require('./marktextEnvironment')
@@ -63,14 +62,19 @@ const rendererConfig = {
         use: [
           proMode ? MiniCssExtractPlugin.loader : 'style-loader',
           { loader: 'css-loader', options: { importLoaders: 1 } },
-          { loader: 'postcss-loader', options: {
-            ident: 'postcss',
-            plugins: () => [
-              postcssPresetEnv({
-                stage: 0
-              })
-            ]
-          } }
+          {
+            loader: 'postcss-loader',
+            options: {
+              postcssOptions: {
+                plugins: [
+                  ['postcss-preset-env',
+                  {
+                    stage: 0
+                  }]
+                ]
+              }
+            }
+          }
         ]
       },
       {
