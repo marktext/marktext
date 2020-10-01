@@ -113,7 +113,7 @@
 
 <h2 align="center">Dê apoio ao Mark Text</h2>
 
-Mark Text é um projeto com licença MIT (projetos de código aberto), e sua última versão sempre estará disponível gratuitamente na página de 'Releases' do Github. Mark Text ainda está em desenvolvimento e seu desenvolvimento é inseparável de todos os patrocinadores. Espero que você se junte a esse grupo:
+Mark Text é um projeto com licença MIT (projetos de código aberto), e suas atualizações sempre estarão disponíveis gratuitamente na página de 'Releases' do Github. Mark Text ainda está em desenvolvimento e seu desenvolvimento é inseparável de todos os patrocinadores. Espero que você se junte a esse grupo:
 
 - [Torne-se um apoiador ou patrocinador no Patreon](https://www.patreon.com/ranluo) or [One time donation](https://github.com/Jocs/sponsor.me)
 - [Seja um apoiador ou patrocinador no Open Collective](https://opencollective.com/marktext)
