@@ -163,7 +163,7 @@ Nomes e logotipos de empresas de todos os patrocinadores (do Patreon e do Open C
 
 ## Captura de Tela
 
-![](docs/marktext.png?raw=true)
+![](https://github.com/marktext/marktext/raw/develop/docs/marktext.png?raw=true)
 
 ## Recursos
 
