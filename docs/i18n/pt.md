@@ -1,4 +1,4 @@
-<p align="center"><img src="static/logo-small.png" alt="Mark Text" width="100" height="100"></p>
+<p align="center"><img src="https://github.com/marktext/marktext/raw/develop/static/logo-small.png" alt="Mark Text" width="100" height="100"></p>
 
 <h1 align="center">Mark Text</h1>
 
