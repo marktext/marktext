@@ -245,7 +245,7 @@ Se você ainda possui alguma dúvida sobre **Mark Text**, seja bem vindo para ab
 
 ## Integrações
 
-- [Alfred Workflow](http://www.packal.org/workflow/mark-text): Um fluxo de trabalho para o aplicativo Alfred do macOS: Use "mt" para abrir arquivos / pasta com Mark Text.
+- [Alfred Workflow](http://www.packal.org/workflow/mark-text): Um fluxo de trabalho para o aplicativo Alfred do macOS: Use "mt" para abrir arquivos/pasta com Mark Text.
 
 ## Contribuição
 
