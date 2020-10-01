@@ -254,7 +254,7 @@ Mark Text está em pleno desenvolvimento, certifique-se de ler o [guia de Contri
 
 Obrigado a todas as pessoas que já contribuíram para Mark Text[[contribuidores](https://github.com/marktext/marktext/graphs/contributors)]
 
-Agradecimentos especiais ao @[Yasujizr](https://github.com/Yasujizr) por desenhar nossa Logo.
+Um agradecimento especial ao @[Yasujizr](https://github.com/Yasujizr) por desenhar nossa Logo.
 
 <a href="https://github.com/marktext/marktext/graphs/contributors"><img src="https://opencollective.com/marktext/contributors.svg?width=890" /></a>
 
