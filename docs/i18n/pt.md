@@ -180,17 +180,17 @@ Nomes e logotipos de empresas de todos os patrocinadores (do Patreon e do Open C
 
 | Cadmium Light                                     | Dark                                            |
 |:-------------------------------------------------:|:-----------------------------------------------:|
-| ![](docs/themeImages/cadmium-light.png?raw=true)  | ![](docs/themeImages/dark.png?raw=true)         |
+| ![](https://github.com/marktext/marktext/raw/develop/docs/themeImages/cadmium-light.png?raw=true)  | ![](https://github.com/marktext/marktext/raw/develop/docs/themeImages/dark.png?raw=truee)         |
 | Graphite Light                                    | Material Dark                                   |
-| ![](docs/themeImages/graphite-light.png?raw=true) | ![](docs/themeImages/materal-dark.png?raw=true) |
+| ![](https://github.com/marktext/marktext/raw/develop/docs/themeImages/graphite-light.png?raw=true) | ![](https://github.com/marktext/marktext/raw/develop/docs/themeImages/materal-dark.png?raw=true) |
 | Ulysses Light                                     | One Dark                                        |
-| ![](docs/themeImages/ulysses-light.png?raw=true)  | ![](docs/themeImages/one-dark.png?raw=true)     |
+| ![](https://github.com/marktext/marktext/raw/develop/docs/themeImages/ulysses-light.png?raw=true)  | ![](https://github.com/marktext/marktext/raw/develop/docs/themeImages/one-dark.png?raw=true)     |
 
 <h4 align="center">:smile_cat:Modos de Edição:dog:</h4>
 
 | Código               | Escritor                 | Foco                |
 |:--------------------:|:------------------------:|:-------------------:|
-| ![](docs/source.gif) | ![](docs/typewriter.gif) | ![](docs/focus.gif) |
+| ![](https://github.com/marktext/marktext/raw/develop/docs/source.gif) | ![](https://github.com/marktext/marktext/raw/develop/docs/typewriter.gif) | ![](https://github.com/marktext/marktext/raw/develop/docs/focus.gif) |
 
 ## Por que criar outro editor?
 
