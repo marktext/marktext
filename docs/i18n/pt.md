@@ -120,8 +120,9 @@ Mark Text é um projeto com licença MIT (projetos de código aberto), e suas at
 
 ##### Qual é a diferença entre Patreon e Open Collective?
 
-Patreon: Os fundos serão patrocinados diretamente para Luo Ran (@jocs) que criou o Mark Text e continua a mantê-lo.
-Open Collective: Todas as despesas são transparentes. Os fundos serão usados para o desenvolvimento e manutenção do Mark Text, financiando atividades online e offline e adquirindo outros recursos necessários.
+**Patreon**: Os fundos serão patrocinados diretamente para Luo Ran (@jocs) que criou o Mark Text e continua a mantê-lo.
+
+**Open Collective**: Todas as despesas são transparentes. Os fundos serão usados para o desenvolvimento e manutenção do Mark Text, financiando atividades online e offline e adquirindo outros recursos necessários.
 Nomes e logotipos de empresas de todos os patrocinadores (do Patreon e do Open Collective) aparecerão no site oficial do Mark Text e em seu arquivo README.md.
 
 **Patrocinadores Especiais**
