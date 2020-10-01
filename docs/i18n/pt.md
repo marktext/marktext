@@ -170,7 +170,7 @@ Nomes e logotipos de empresas de todos os patrocinadores (do Patreon e do Open C
 - Visualização em tempo real (WYSIWYG) e uma interface limpa e simples para obter uma experiência de escrita sem distrações.
 - Suporta o uso de [CommonMark Spec](https://spec.commonmark.org/0.29/), [GitHub Flavored Markdown Spec](https://github.github.com/gfm/) e suporte seletivo para [Pandoc markdown](https://pandoc.org/MANUAL.html#pandocs-markdown).
 - Extensões de Markdown, como expressões matemáticas (KaTeX), front matter e emojis.
-- Aceite parágrafos e atalhos de estilo embutido para melhorar sua eficiência de escrita.
+- Utilixe parágrafos e atalhos de estilos para melhorar sua eficiência de escrita.
 - Consegue exportar arquivos **HTML** e **PDF**.
 - Vários temas, como: **Cadmium Light**, **Material Dark** etc.
 - Vários modos de edição: **Modo Código**, **Modo Escritor**, **Modo Foco**.
