@@ -26,7 +26,7 @@ Documentation is currently under development.
 
 ### Can I run a portable version of Mark Text?
 
-Yes, please see [here](../PORTABLE.md) for further information.
+Yes, please see [here](PORTABLE.md) for further information.
 
 ### How can I report bugs and problems
 
