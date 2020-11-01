@@ -816,6 +816,7 @@ const paragraphCtrl = ContentState => {
           column: 1,
           cells: [{
             key: cellBlock.key,
+            text: cellBlock.children[0].text,
             top: true,
             right: true,
             bottom: true,
