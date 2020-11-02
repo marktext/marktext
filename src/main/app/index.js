@@ -3,7 +3,7 @@ import fse from 'fs-extra'
 import { exec } from 'child_process'
 import dayjs from 'dayjs'
 import log from 'electron-log'
-import { app, BrowserWindow, clipboard, dialog, ipcMain, nativeTheme } from 'electron'
+import { app, BrowserWindow, clipboard, dialog, globalShortcut, ipcMain, nativeTheme } from 'electron'
 import { isChildOfDirectory } from 'common/filesystem/paths'
 import { isLinux, isOsx, isWindows } from '../config'
 import parseArgs from '../cli/parser'
@@ -205,6 +205,75 @@ class App {
       this._openFilesToOpen()
     } else {
       this._createEditorWindow()
+    }
+
+    // Overlay mode - window is an overlay, visibility toggled when shortcut is pressed
+    const isOverlay = true
+
+    if (isOverlay) {
+      // Register global shortcut
+      // TODO: make this optional and configurable
+      const ret = globalShortcut.register('Alt+Shift+N', () => {
+        const window = this._windowManager.getActiveWindow()?.browserWindow
+        if (!window) return null
+
+        const isFocused = window.isFocused()
+        window.setVisibleOnAllWorkspaces(true)
+
+        if (isFocused) {
+          // Hide the window
+          // TODO: add option for auto-save on hide
+          window.hide()
+          app.hide() // gives back focus to previous app
+        } else {
+          // Show the window
+          app.show()
+          window.show()
+          window.focus()
+        }
+      })
+      if (!ret) {
+        console.log('hide/show toggle registration failed')
+      } else {
+        // Cleanup global shortcut
+        app.on('will-quit', () => {
+          globalShortcut.unregisterAll()
+        })
+
+        // TODO: add task bar item to access application menu
+        // Setup window as a persistent overlay
+        // app.dock.hide()
+
+        // Allow access via tray icon
+        // const iconPath = path.join(__dirname, '../../../resources/icons/tray/marktext.png')
+        // const tray = new Tray(iconPath)
+        // TODO: these should be based on the normal context menu config
+        // const contextMenu = Menu.buildFromTemplate([
+        //   {
+        //     label: 'Focus',
+        //     type: 'normal',
+        //     click: () => {
+        //       const window = this._windowManager.getActiveWindow()?.browserWindow
+        //       if (!window) return null
+
+        //       app.show()
+        //       window.show()
+        //       window.focus()
+        //     }
+        //   }, {
+        //     label: 'Preferences...',
+        //     type: 'normal',
+        //     click: () => userSetting()
+        //   }, {
+        //     label: 'Quit',
+        //     type: 'normal',
+        //     click: () => app.quit()
+        //   }
+        // ])
+        // tray.setToolTip('This is the tooltip')
+        // tray.setContextMenu(contextMenu)
+        // this.tray = tray
+      }
     }
 
     // this.shortcutCapture = new ShortcutCapture()
