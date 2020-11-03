@@ -24,6 +24,11 @@
     ></cur-select>
     <separator></separator>
     <bool
+      description="Overlay mode"
+      :bool="overlayMode"
+      :onChange="value => onSelectChange('overlayMode', value)"
+    ></bool>
+    <bool
       description="Open files in new window"
       :bool="openFilesInNewWindow"
       :onChange="value => onSelectChange('openFilesInNewWindow', value)"
@@ -118,7 +123,8 @@ export default {
       wordWrapInToc: state => state.preferences.wordWrapInToc,
       aidou: state => state.preferences.aidou,
       fileSortBy: state => state.preferences.fileSortBy,
-      language: state => state.preferences.language
+      language: state => state.preferences.language,
+      overlayMode: state => state.preferences.overlayMode
     }),
     startUpAction: {
       get: function () {

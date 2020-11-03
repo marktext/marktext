@@ -148,7 +148,8 @@ class App {
       startUpAction,
       defaultDirectoryToOpen,
       autoSwitchTheme,
-      theme
+      theme,
+      overlayMode
     } = preferences.getAll()
 
     if (startUpAction === 'folder' && defaultDirectoryToOpen) {
@@ -207,29 +208,34 @@ class App {
       this._createEditorWindow()
     }
 
-    // Overlay mode - window is an overlay, visibility toggled when shortcut is pressed
-    const isOverlay = true
+    const OVERLAY_SHORTCUT = 'Alt+Shift+N'
 
-    if (isOverlay) {
-      // Register global shortcut
-      // TODO: make this optional and configurable
-      const ret = globalShortcut.register('Alt+Shift+N', () => {
-        const window = this._windowManager.getActiveWindow()?.browserWindow
-        if (!window) return null
-
-        const isFocused = window.isFocused()
+    /** Initialize overlay mode settings */
+    const initOverlayMode = () => {
+      BrowserWindow.getAllWindows().forEach(window => {
         window.setVisibleOnAllWorkspaces(true)
+      })
+
+      // Register global shortcut
+      const ret = globalShortcut.register(OVERLAY_SHORTCUT, () => {
+        const firstWindow = this._windowManager.getActiveWindow()?.browserWindow
+        if (!firstWindow) return null
+
+        const isFocused = firstWindow.isFocused()
 
         if (isFocused) {
           // Hide the window
-          // TODO: add option for auto-save on hide
-          window.hide()
+          BrowserWindow.getAllWindows().forEach(window => {
+            window.hide()
+          })
           app.hide() // gives back focus to previous app
         } else {
           // Show the window
           app.show()
-          window.show()
-          window.focus()
+          BrowserWindow.getAllWindows().forEach(window => {
+            window.show()
+            window.focus()
+          })
         }
       })
       if (!ret) {
@@ -239,42 +245,37 @@ class App {
         app.on('will-quit', () => {
           globalShortcut.unregisterAll()
         })
-
-        // TODO: add task bar item to access application menu
-        // Setup window as a persistent overlay
-        // app.dock.hide()
-
-        // Allow access via tray icon
-        // const iconPath = path.join(__dirname, '../../../resources/icons/tray/marktext.png')
-        // const tray = new Tray(iconPath)
-        // TODO: these should be based on the normal context menu config
-        // const contextMenu = Menu.buildFromTemplate([
-        //   {
-        //     label: 'Focus',
-        //     type: 'normal',
-        //     click: () => {
-        //       const window = this._windowManager.getActiveWindow()?.browserWindow
-        //       if (!window) return null
-
-        //       app.show()
-        //       window.show()
-        //       window.focus()
-        //     }
-        //   }, {
-        //     label: 'Preferences...',
-        //     type: 'normal',
-        //     click: () => userSetting()
-        //   }, {
-        //     label: 'Quit',
-        //     type: 'normal',
-        //     click: () => app.quit()
-        //   }
-        // ])
-        // tray.setToolTip('This is the tooltip')
-        // tray.setContextMenu(contextMenu)
-        // this.tray = tray
       }
     }
+    /** Cleanup overlay mode settings */
+    const destroyOverlayMode = () => {
+      globalShortcut.unregister(OVERLAY_SHORTCUT)
+
+      BrowserWindow.getAllWindows().forEach(window => {
+        if (!window.isVisible()) {
+          window.show()
+        }
+        window.setVisibleOnAllWorkspaces(false)
+      })
+
+      app.show()
+    }
+
+    // Overlay mode - window is an overlay, visibility toggled when shortcut is pressed
+    if (overlayMode) {
+      initOverlayMode()
+    }
+    ipcMain.on('mt::set-user-preference', (e, settings) => {
+      if (!settings?.hasOwnProperty('overlayMode')) { return }
+
+      if (settings.overlayMode) {
+        // Bind overlay shortcuts
+        initOverlayMode()
+      } else {
+        // Unbind overlay shortcuts
+        destroyOverlayMode()
+      }
+    })
 
     // this.shortcutCapture = new ShortcutCapture()
     // if (process.env.NODE_ENV === 'development') {

@@ -12,6 +12,7 @@ const state = {
   wordWrapInToc: false,
   aidou: true,
   fileSortBy: 'created',
+  overlayMode: false,
   startUpAction: 'lastState',
   defaultDirectoryToOpen: '',
   language: 'en',
