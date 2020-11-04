@@ -24,7 +24,7 @@
     ></cur-select>
     <separator></separator>
     <bool
-      description="Overlay mode"
+      description="Overlay mode (Alt+Shift+N)"
       :bool="overlayMode"
       :onChange="value => onSelectChange('overlayMode', value)"
     ></bool>
