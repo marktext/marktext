@@ -85,8 +85,14 @@ const state = {
   cloudImages: [],
   currentUploader: 'none',
   githubToken: '',
+  giteeToken: '',
   imageBed: {
     github: {
+      owner: '',
+      repo: '',
+      branch: ''
+    },
+    gitee: {
       owner: '',
       repo: '',
       branch: ''

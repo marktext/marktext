@@ -53,6 +53,43 @@
             <el-button size="mini" :disabled="githubDisable" @click="setCurrentUploader('github')">Set as default</el-button>
           </div>
         </el-tab-pane>
+        <el-tab-pane label="Gitee" name="gitee">
+          <div class="form-group">
+            <div class="label">
+              Gitee token:
+              <el-tooltip
+                class="item"
+                effect="dark"
+                content="The token is saved by Keychain on macOS, Secret Service API/libsecret on Linux and Credential Vault on Windows"
+                placement="top-start"
+              >
+                <i class="el-icon-info"></i>
+              </el-tooltip>
+            </div>
+            <el-input v-model="giteeToken" placeholder="Input token" size="mini"></el-input>
+          </div>
+          <div class="form-group">
+            <div class="label">Owner name:</div>
+            <el-input v-model="gitee.owner" placeholder="owner" size="mini"></el-input>
+          </div>
+          <div class="form-group">
+            <div class="label">Repo name:</div>
+            <el-input v-model="gitee.repo" placeholder="repo" size="mini"></el-input>
+          </div>
+          <div class="form-group">
+            <div class="label">Branch name (optional):</div>
+            <el-input v-model="gitee.branch" placeholder="branch" size="mini"></el-input>
+          </div>
+          <legal-notices-checkbox
+            class="gitee"
+            :class="[{ 'error': legalNoticesErrorStates.gitee }]"
+            :uploaderService="uploadServices.gitee"
+          ></legal-notices-checkbox>
+          <div class="form-group">
+            <el-button size="mini" :disabled="giteeDisable" @click="save('gitee')">Save</el-button>
+            <el-button size="mini" :disabled="giteeDisable" @click="setCurrentUploader('gitee')">Set as default</el-button>
+          </div>
+        </el-tab-pane>
       </el-tabs>
     </section>
   </div>
@@ -76,9 +113,16 @@ export default {
         repo: '',
         branch: ''
       },
+      giteeToken: '',
+      gitee: {
+        owner: '',
+        repo: '',
+        branch: ''
+      },
       uploadServices: services,
       legalNoticesErrorStates: {
         smms: false,
+        gitee: false,
         github: false
       }
     }
@@ -99,14 +143,25 @@ export default {
         return this.$store.state.preferences.githubToken
       }
     },
+    prefGiteeToken: {
+      get: function () {
+        return this.$store.state.preferences.giteeToken
+      }
+    },
     githubDisable () {
       return !this.githubToken || !this.github.owner || !this.github.repo
+    },
+    giteeDisable () {
+      return !this.giteeToken || !this.gitee.owner || !this.gitee.repo
     }
   },
   watch: {
     imageBed: function (value, oldValue) {
       if (value !== oldValue) {
         this.github = value.github
+        if (value.gitee !== this.gitee) {
+          this.gitee = value.gitee
+        }
       }
     }
   },
@@ -114,6 +169,8 @@ export default {
     this.$nextTick(() => {
       this.github = this.imageBed.github
       this.githubToken = this.prefGithubToken
+      this.gitee = this.imageBed.gitee
+      this.giteeToken = this.prefGiteeToken
 
       if (services.hasOwnProperty(this.currentUploader)) {
         services[this.currentUploader].agreedToLegalNotices = true
@@ -142,11 +199,23 @@ export default {
           type: 'githubToken',
           value: this.githubToken
         })
-      }
-      if (withNotice) {
-        new Notification('Save Image Uploader', {
-          body: 'The Github configration has been saved.'
+      } else if (type === 'gitee') {
+        this.$store.dispatch('SET_USER_DATA', {
+          type: 'giteeToken',
+          value: this.giteeToken
         })
+      }
+
+      if (withNotice) {
+        if (type === 'github') {
+          new Notification('Save Image Uploader', {
+            body: 'The Github configration has been saved.'
+          })
+        } else if (type === 'gitee') {
+          new Notification('Save Image Uploader', {
+            body: 'The Gitee configration has been saved.'
+          })
+        }
       }
     },
     setCurrentUploader (value) {
@@ -162,7 +231,7 @@ export default {
         return
       }
       // Save the setting before set it as default uploader.
-      if (value === 'github') {
+      if (value === 'github' || value === 'gitee') {
         this.save(value, false)
       }
       this.legalNoticesErrorStates[value] = false
@@ -220,6 +289,9 @@ export default {
       margin-bottom: 30px;
     }
     &.github {
+      margin-top: 30px;
+    }
+    &.gitee {
       margin-top: 30px;
     }
     &.error {

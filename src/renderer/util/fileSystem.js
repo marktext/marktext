@@ -6,6 +6,7 @@ import Octokit from '@octokit/rest'
 import { isImageFile } from 'common/filesystem/paths'
 import { dataURItoBlob, getContentHash } from './index'
 import axios from '../axios'
+import urlJoin from 'url-join'
 
 export const create = (pathname, type) => {
   if (type === 'directory') {
@@ -67,6 +68,8 @@ export const uploadImage = async (pathname, image, preferences) => {
   const { currentUploader } = preferences
   const { owner, repo, branch } = preferences.imageBed.github
   const token = preferences.githubToken
+  const gitee = preferences.imageBed.gitee
+  const giteeToken = preferences.giteeToken
   const isPath = typeof image === 'string'
   const MAX_SIZE = 5 * 1024 * 1024
   let re
@@ -128,6 +131,37 @@ export const uploadImage = async (pathname, image, preferences) => {
       })
   }
 
+  const uploadByGitee = (content, fileName) => {
+    const path = dayjs().format('YYYY/MM')
+    const filename = `${dayjs().format('DD-HH-mm-ss')}-${fileName}`
+    const message = `Upload by Mark Text at ${dayjs().format('YYYY-MM-DD HH:mm:ss')}`
+    const url = encodeURI(urlJoin(
+      'https://gitee.com/api/v5',
+      'repos', gitee.owner, gitee.repo, 'contents', path, filename
+    ))
+    var branch = gitee.branch || 'master'
+    const formData = {
+      access_token: giteeToken,
+      content: content,
+      message: message,
+      branch: branch
+    }
+    axios({
+      method: 'post',
+      url: url,
+      json: true,
+      resolveWithFullResponse: true,
+      data: formData
+    }).then((res) => {
+      if (res && res.status === 201) {
+        re(res.data.content.download_url)
+      }
+    })
+      .catch(e => {
+        rj(`Upload failed, the image will be copied to the image folder, ${e}`)
+      })
+  }
+
   const notification = () => {
     rj('Cannot upload more than 5M image, the image will be copied to the image folder')
   }
@@ -145,6 +179,9 @@ export const uploadImage = async (pathname, image, preferences) => {
         const blobFile = new Blob([imageFile])
         if (currentUploader === 'smms') {
           uploadToSMMS(blobFile)
+        } else if (currentUploader === 'gitee') {
+          const base64 = Buffer.from(imageFile).toString('base64')
+          uploadByGitee(base64, path.basename(imagePath))
         } else {
           const base64 = Buffer.from(imageFile).toString('base64')
           uploadByGithub(base64, path.basename(imagePath))
@@ -163,6 +200,8 @@ export const uploadImage = async (pathname, image, preferences) => {
         const blobFile = dataURItoBlob(reader.result, image.name)
         if (currentUploader === 'smms') {
           uploadToSMMS(blobFile)
+        } else if (currentUploader === 'gitee') {
+          uploadByGitee(reader.result, image.name)
         } else {
           uploadByGithub(reader.result, image.name)
         }

@@ -19,7 +19,7 @@ class DataCenter extends EventEmitter {
     this.dataCenterPath = dataCenterPath
     this.userDataPath = userDataPath
     this.serviceName = 'marktext'
-    this.encryptKeys = ['githubToken']
+    this.encryptKeys = ['githubToken', 'giteeToken']
     this.hasDataCenterFile = fs.existsSync(path.join(this.dataCenterPath, `./${DATA_CENTER_NAME}.json`))
     this.store = new Store({
       schema,
@@ -38,6 +38,11 @@ class DataCenter extends EventEmitter {
       currentUploader: 'none',
       imageBed: {
         github: {
+          owner: '',
+          repo: '',
+          branch: ''
+        },
+        gitee: {
           owner: '',
           repo: '',
           branch: ''
