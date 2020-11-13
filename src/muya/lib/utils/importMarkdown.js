@@ -320,6 +320,7 @@ const importRegister = ContentState => {
           break
         }
 
+        case 'toc':
         case 'paragraph': {
           value = token.text
           block = this.createBlock('p')

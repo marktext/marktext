@@ -101,7 +101,7 @@ import { isOsSpellcheckerSupported, offsetToWordCursor, validateLineCursor, Spel
 import { delay, isOsx, animatedScrollTo } from '@/util'
 import { moveImageToFolder, uploadImage } from '@/util/fileSystem'
 import { guessClipboardFilePath } from '@/util/clipboard'
-import { getCssForOptions } from '@/util/pdf'
+import { getCssForOptions, getHtmlToc } from '@/util/pdf'
 import { addCommonStyle, setEditorWidth } from '@/util/theme'
 
 import 'muya/themes/default.css'
@@ -1020,7 +1020,8 @@ export default {
         header,
         footer,
         headerFooterStyled,
-        htmlTitle
+        htmlTitle,
+        tocEnabled
       } = options
 
       if (!/^pdf|print|styledHtml$/.test(type)) {
@@ -1028,13 +1029,16 @@ export default {
       }
 
       const extraCss = getCssForOptions(options)
+      const htmlToc = tocEnabled ? getHtmlToc(this.editor.getTOC(), options) : null
+
       switch (type) {
         case 'styledHtml': {
           try {
             const content = await this.editor.exportStyledHTML({
               title: htmlTitle || '',
               printOptimization: false,
-              extraCss
+              extraCss,
+              toc: htmlToc
             })
             this.$store.dispatch('EXPORT', { type, content })
           } catch (err) {
@@ -1059,6 +1063,7 @@ export default {
               title: '',
               printOptimization: true,
               extraCss,
+              toc: htmlToc,
               header,
               footer,
               headerFooterStyled
@@ -1083,6 +1088,7 @@ export default {
               title: '',
               printOptimization: true,
               extraCss,
+              toc: htmlToc,
               header,
               footer,
               headerFooterStyled

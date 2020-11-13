@@ -1,9 +1,12 @@
+import { downcode } from './urlify'
+
 /**
  * Slugger generates header id
  */
 
 function Slugger () {
   this.seen = {}
+  this.downcodeUnicode = true
 }
 
 /**
@@ -11,7 +14,8 @@ function Slugger () {
  */
 
 Slugger.prototype.slug = function (value) {
-  let slug = value
+  let slug = this.downcodeUnicode ? downcode(value) : value
+  slug = slug
     .toLowerCase()
     .trim()
     // remove html tags

@@ -193,6 +193,26 @@
             ></range>
           </div>
         </el-tab-pane>
+
+        <el-tab-pane label="Table of Contents" name="toc">
+          <bool
+            description="Enable table of contents:"
+            :bool="tocEnabled"
+            :onChange="value => onSelectChange('tocEnabled', value)"
+          ></bool>
+          <bool
+            description="Include top heading:"
+            :bool="tocIncludeTopHeading"
+            :onChange="value => onSelectChange('tocIncludeTopHeading', value)"
+          ></bool>
+          <text-box
+            description="Title:"
+            :input="tocTitle"
+            :emitTime="0"
+            :onChange="value => onSelectChange('tocTitle', value)"
+          ></text-box>
+         </el-tab-pane>
+
       </el-tabs>
       <div class="button-controlls">
         <button class="button-primary" @click="handleClicked">
@@ -266,7 +286,10 @@ export default {
       footerTextRight: '',
       headerFooterCustomize: false,
       headerFooterStyled: true,
-      headerFooterFontSize: 12
+      headerFooterFontSize: 12,
+      tocEnabled: false,
+      tocTitle: '',
+      tocIncludeTopHeading: true
     }
   },
   computed: {
@@ -325,7 +348,10 @@ export default {
         footerTextRight,
         headerFooterCustomize,
         headerFooterStyled,
-        headerFooterFontSize
+        headerFooterFontSize,
+        tocEnabled,
+        tocTitle,
+        tocIncludeTopHeading
       } = this
       const options = {
         type: exportType,
@@ -339,7 +365,10 @@ export default {
         pageMarginLeft,
         autoNumberingHeadings,
         showFrontMatter,
-        theme: theme === 'default' ? null : theme
+        theme: theme === 'default' ? null : theme,
+        tocEnabled,
+        tocTitle,
+        tocIncludeTopHeading
       }
 
       if (!isPrintable) {

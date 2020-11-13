@@ -605,6 +605,12 @@ Lexer.prototype.token = function (src, top) {
     cap = this.rules.paragraph.exec(src)
     if (top && cap) {
       src = src.substring(cap[0].length)
+
+      if (/^\[toc\]\n?$/i.test(cap[1])) {
+        this.tokens.push({ type: 'toc', text: '[TOC]' })
+        continue
+      }
+
       this.tokens.push({
         type: 'paragraph',
         text: cap[1].charAt(cap[1].length - 1) === '\n'

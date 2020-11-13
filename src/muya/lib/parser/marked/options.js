@@ -7,6 +7,7 @@ export default {
   highlight: null,
   mathRenderer: null,
   emojiRenderer: null,
+  tocRenderer: null,
   langPrefix: 'language-',
   mangle: true,
   pedantic: false,
