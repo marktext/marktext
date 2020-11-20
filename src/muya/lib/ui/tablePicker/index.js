@@ -44,9 +44,6 @@ class TablePicker extends BaseFloat {
     let j
     for (i = 0; i < row; i++) {
       let rowSelector = 'div.ag-table-picker-row'
-      if (i === 0) {
-        rowSelector += '.ag-table-picker-header'
-      }
       const cells = []
       for (j = 0; j < column; j++) {
         let cellSelector = 'span.ag-table-picker-cell'
