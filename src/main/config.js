@@ -6,6 +6,7 @@ export const editorWinOptions = {
   minWidth: 550,
   minHeight: 350,
   webPreferences: {
+    enableRemoteModule: true,
     nodeIntegration: true,
     webSecurity: false
   },
@@ -20,6 +21,7 @@ export const preferencesWinOptions = {
   width: 950,
   height: 650,
   webPreferences: {
+    enableRemoteModule: true,
     nodeIntegration: true,
     webSecurity: false
   },

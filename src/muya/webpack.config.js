@@ -4,7 +4,6 @@ process.env.BABEL_ENV = 'renderer'
 
 const path = require('path')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
-const postcssPresetEnv = require('postcss-preset-env')
 
 module.exports = {
   mode: 'development',
@@ -22,12 +21,14 @@ module.exports = {
           {
             loader: 'postcss-loader',
             options: {
-              ident: 'postcss',
-              plugins: () => [
-                postcssPresetEnv({
-                  stage: 0
-                })
-              ]
+              postcssOptions: {
+                plugins: [
+                  ['postcss-preset-env',
+                    {
+                      stage: 0
+                    }]
+                ]
+              }
             }
           }
         ]
