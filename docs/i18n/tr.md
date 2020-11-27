@@ -71,31 +71,31 @@
 
 <div align="center">
   <sub>Çeviriler:</sub>
-  <a href="docs/i18n/zh_cn.md#readme">
+  <a href="zh_cn.md#readme">
     <span>:cn:</span>
   </a>
-  <a href="docs/i18n/zh_tw.md#readme">
+  <a href="zh_tw.md#readme">
     <span>:taiwan:</span>
   </a>
-  <a href="docs/i18n/pl.md#readme">
+  <a href="pl.md#readme">
     <span>:poland:</span>
   </a>
-  <a href="docs/i18n/ja.md#readme">
+  <a href="ja.md#readme">
     <span>:jp:</span>
   </a>
-  <a href="docs/i18n/french.md#readme">
+  <a href="french.md#readme">
     <span>:fr:</span>
   </a>
-  <a href="docs/i18n/tr.md#readme">
+  <a href="tr.md#readme">
     <span>:tr:</span>
   </a>
-  <a href="docs/i18n/spanish.md#readme">
+  <a href="spanish.md#readme">
     <span>:es:</span>
   </a>
-  <a href="docs/i18n/pt.md#readme">
+  <a href="pt.md#readme">
     <span>:portugal:</span>
   </a>
-  <a href="docs/i18n/ko.md#readme">
+  <a href="ko.md#readme">
     <span>:kr:</span>
   </a>
 </div>
@@ -162,7 +162,7 @@ Tüm sponsorlarımızın (hem Patreon hem Open Collective) isimleri ve logoları
 
 ## Ekran görüntüsü
 
-![](docs/marktext.png?raw=true)
+![](../marktext.png?raw=true)
 
 ## Özellikler
 
@@ -179,17 +179,17 @@ Tüm sponsorlarımızın (hem Patreon hem Open Collective) isimleri ve logoları
 
 | Cadmium Light                                     | Dark                                            |
 |:-------------------------------------------------:|:-----------------------------------------------:|
-| ![](docs/themeImages/cadmium-light.png?raw=true)  | ![](docs/themeImages/dark.png?raw=true)         |
+| ![](../themeImages/cadmium-light.png?raw=true)  | ![](../../docs/themeImages/dark.png?raw=true)         |
 | Graphite Light                                    | Material Dark                                   |
-| ![](docs/themeImages/graphite-light.png?raw=true) | ![](docs/themeImages/materal-dark.png?raw=true) |
+| ![](../themeImages/graphite-light.png?raw=true) | ![](../../docs/themeImages/materal-dark.png?raw=true) |
 | Ulysses Light                                     | One Dark                                        |
-| ![](docs/themeImages/ulysses-light.png?raw=true)  | ![](docs/themeImages/one-dark.png?raw=true)     |
+| ![](../themeImages/ulysses-light.png?raw=true)  | ![](../../docs/themeImages/one-dark.png?raw=true)     |
 
 <h4 align="center">:smile_cat: Yazma modları :dog:</h4>
 
 | Kaynak düzenleme modu | Daktilo modu             | Odak modu           |
 |:---------------------:|:------------------------:|:-------------------:|
-| ![](docs/source.gif)  | ![](docs/typewriter.gif) | ![](docs/focus.gif) |
+| ![](../source.gif)  | ![](../typewriter.gif) | ![](../focus.gif) |
 
 ## Neden başka bir editör?
 
@@ -227,7 +227,7 @@ choco install marktext
 
 #### Linux
 
-bkz. [Linux kurulumu](docs/LINUX.md).
+bkz. [Linux kurulumu](../LINUX.md).
 
 #### Diğer platformlar
 
@@ -237,8 +237,8 @@ Tüm Linux, macOS ve Windows sürümleri [indirmeler](https://github.com/marktex
 
 Eğer **Mark Text** kendiniz derlemek isterseniz, lütfen [geliştirici dökümantasyonuna](../../CONTRIBUTING.md#build-instructions) bakın.
 
-- [Kullanıcı dokümantasyonu](docs/README.md)
-- [Geliştirici dokümantasyonu](docs/dev/README.md)
+- [Kullanıcı dokümantasyonu](../README.md)
+- [Geliştirici dokümantasyonu](../dev/README.md)
 
 **Mark Text** hakkında sorularınız için issue açabilirsiniz. Lütfen standart formatı kullanın. Direkt olarak PR açmak tabiki hoş karşılanır.
 
