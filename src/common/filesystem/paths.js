@@ -2,7 +2,7 @@ import fs from 'fs-extra'
 import path from 'path'
 import { isFile, isSymbolicLink } from './index'
 
-export const MARKDOWN_EXTENSIONS = [
+export const MARKDOWN_EXTENSIONS = Object.freeze([
   'markdown',
   'mdown',
   'mkdn',
@@ -13,18 +13,18 @@ export const MARKDOWN_EXTENSIONS = [
   'mdtext',
   'text',
   'txt'
-]
+])
 
-export const MARKDOWN_INCLUSIONS = MARKDOWN_EXTENSIONS.map(x => '*.' + x)
+export const MARKDOWN_INCLUSIONS = Object.freeze(MARKDOWN_EXTENSIONS.map(x => '*.' + x))
 
-export const IMAGE_EXTENSIONS = [
+export const IMAGE_EXTENSIONS = Object.freeze([
   'jpeg',
   'jpg',
   'png',
   'gif',
   'svg',
   'webp'
-]
+])
 
 /**
  * Returns true if the filename matches one of the markdown extensions.
