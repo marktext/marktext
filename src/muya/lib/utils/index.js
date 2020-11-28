@@ -6,6 +6,14 @@ let id = 0
 
 const TIMEOUT = 1500
 
+const HTML_TAG_REPLACEMENTS = {
+  '&': '&amp;',
+  '<': '&lt;',
+  '>': '&gt;',
+  '"': '&quot;',
+  "'": '&#39;'
+}
+
 export const getUniqueId = () => `${ID_PREFIX}${id++}`
 
 export const getLongUniqueId = () => `${getUniqueId()}-${(+new Date()).toString(32)}`
@@ -322,6 +330,10 @@ export const escapeInBlockHtml = html => {
     })
 }
 
+export const escapeHtmlTags = html => {
+  return html.replace(/[&<>"']/g, x => { return HTML_TAG_REPLACEMENTS[x] })
+}
+
 export const wordCount = markdown => {
   const paragraph = markdown.split(/\n{2,}/).filter(line => line).length
   let word = 0
@@ -363,8 +375,12 @@ export const mixins = (constructor, ...object) => {
   return Object.assign(constructor.prototype, ...object)
 }
 
-export const sanitize = (html, options) => {
-  return runSanitize(escapeInBlockHtml(html), options)
+export const sanitize = (html, purifyOptions, disableHtml) => {
+  if (disableHtml) {
+    return runSanitize(escapeHtmlTags(html), purifyOptions)
+  } else {
+    return runSanitize(escapeInBlockHtml(html), purifyOptions)
+  }
 }
 
 export const getParagraphReference = (ele, id) => {

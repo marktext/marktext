@@ -13,7 +13,7 @@ import { validEmoji } from '../ui/emojis'
 
 export const getSanitizeHtml = (markdown, options) => {
   const html = marked(markdown, options)
-  return sanitize(html, EXPORT_DOMPURIFY_CONFIG)
+  return sanitize(html, EXPORT_DOMPURIFY_CONFIG, false)
 }
 
 const DIAGRAM_TYPE = [
@@ -143,7 +143,7 @@ class ExportHtml {
       mathRenderer: this.mathRenderer
     })
 
-    html = sanitize(html, EXPORT_DOMPURIFY_CONFIG)
+    html = sanitize(html, EXPORT_DOMPURIFY_CONFIG, false)
 
     const exportContainer = this.exportContainer = document.createElement('div')
     exportContainer.classList.add('ag-render-container')
@@ -192,7 +192,7 @@ class ExportHtml {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>${sanitize(title, EXPORT_DOMPURIFY_CONFIG)}</title>
+  <title>${sanitize(title, EXPORT_DOMPURIFY_CONFIG, true)}</title>
   <style>
   ${githubMarkdownCss}
   </style>
@@ -304,7 +304,7 @@ class ExportHtml {
     }
 
     output = output + createTableBody(html) + HF_TABLE_END
-    return sanitize(output, EXPORT_DOMPURIFY_CONFIG)
+    return sanitize(output, EXPORT_DOMPURIFY_CONFIG, false)
   }
 }
 

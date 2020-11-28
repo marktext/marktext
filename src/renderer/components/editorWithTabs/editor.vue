@@ -140,6 +140,7 @@ export default {
       frontmatterType: state => state.preferences.frontmatterType,
       superSubScript: state => state.preferences.superSubScript,
       footnote: state => state.preferences.footnote,
+      isHtmlEnabled: state => state.preferences.isHtmlEnabled,
       isGitlabCompatibilityEnabled: state => state.preferences.isGitlabCompatibilityEnabled,
       lineHeight: state => state.preferences.lineHeight,
       fontSize: state => state.preferences.fontSize,
@@ -282,6 +283,13 @@ export default {
       const { editor } = this
       if (value !== oldValue && editor) {
         editor.setOptions({ footnote: value }, true)
+      }
+    },
+
+    isHtmlEnabled: function (value, oldValue) {
+      const { editor } = this
+      if (value !== oldValue && editor) {
+        editor.setOptions({ disableHtml: !value }, true)
       }
     },
 
@@ -525,6 +533,7 @@ export default {
         frontmatterType,
         superSubScript,
         footnote,
+        isHtmlEnabled,
         isGitlabCompatibilityEnabled,
         hideQuickInsertHint,
         editorLineWidth,
@@ -573,6 +582,7 @@ export default {
         frontmatterType,
         superSubScript,
         footnote,
+        disableHtml: !isHtmlEnabled,
         isGitlabCompatibilityEnabled,
         hideQuickInsertHint,
         hideLinkPopup,

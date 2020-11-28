@@ -74,7 +74,8 @@ const pasteCtrl = ContentState => {
     }
 
     // Prevent XSS and sanitize HTML.
-    const sanitizedHtml = sanitize(html, PREVIEW_DOMPURIFY_CONFIG)
+    const { disableHtml } = this.muya.options
+    const sanitizedHtml = sanitize(html, PREVIEW_DOMPURIFY_CONFIG, disableHtml)
     const tempWrapper = document.createElement('div')
     tempWrapper.innerHTML = sanitizedHtml
 

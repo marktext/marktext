@@ -30,5 +30,7 @@ export default {
   frontMatter: true,
   superSubScript: false,
   footnote: false,
-  isGitlabCompatibilityEnabled: false
+  isGitlabCompatibilityEnabled: false,
+
+  isHtmlEnabled: true
 }
