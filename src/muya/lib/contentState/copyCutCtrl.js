@@ -223,9 +223,6 @@ const copyCutCtrl = ContentState => {
     if (selectedTableCells) {
       event.preventDefault()
       const { row, column, cells } = selectedTableCells
-      const figureBlock = this.createBlock('figure', {
-        functionType: 'table'
-      })
       const tableContents = []
       let i
       let j
@@ -242,13 +239,23 @@ const copyCutCtrl = ContentState => {
         tableContents.push(rowWrapper)
       }
 
-      const table = this.createTableInFigure({ rows: row, columns: column }, tableContents)
-      this.appendChild(figureBlock, table)
-      const { isGitlabCompatibilityEnabled, listIndentation } = this
-      const markdown = new ExportMarkdown([figureBlock], listIndentation, isGitlabCompatibilityEnabled).generate()
+      if (row === 1 && column === 1) {
+        // Copy cells text if only one is selected
+        event.clipboardData.setData('text/html', '')
+        event.clipboardData.setData('text/plain', tableContents[0][0].text)
+      } else {
+        // Copy as markdown table
+        const figureBlock = this.createBlock('figure', {
+          functionType: 'table'
+        })
+        const table = this.createTableInFigure({ rows: row, columns: column }, tableContents)
+        this.appendChild(figureBlock, table)
+        const { isGitlabCompatibilityEnabled, listIndentation } = this
+        const markdown = new ExportMarkdown([figureBlock], listIndentation, isGitlabCompatibilityEnabled).generate()
 
-      event.clipboardData.setData('text/html', '')
-      event.clipboardData.setData('text/plain', markdown)
+        event.clipboardData.setData('text/html', '')
+        event.clipboardData.setData('text/plain', markdown)
+      }
     }
   }
 
