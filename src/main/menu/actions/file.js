@@ -14,6 +14,23 @@ import pandoc from '../../utils/pandoc'
 // the renderer should communicate only with the editor window for file relevant stuff.
 // E.g. "mt::save-tabs" --> "mt::window-save-tabs$wid:<windowId>"
 
+const getExportExtensionFilter = type => {
+  if (type === 'pdf') {
+    return [{
+      name: 'Portable Document Format',
+      extensions: ['pdf']
+    }]
+  } else if (type === 'styledHtml') {
+    return [{
+      name: 'Hypertext Markup Language',
+      extensions: ['html']
+    }]
+  }
+
+  // Allow all extensions.
+  return undefined
+}
+
 const getPdfPageOptions = options => {
   if (!options) {
     return {}
@@ -43,7 +60,8 @@ const handleResponseForExport = async (e, { type, content, pathname, title, page
 
   const defaultPath = path.join(dirname, `${nakedFilename}${extension}`)
   const { filePath, canceled } = await dialog.showSaveDialog(win, {
-    defaultPath
+    defaultPath,
+    filters: getExportExtensionFilter(type)
   })
 
   if (filePath && !canceled) {
