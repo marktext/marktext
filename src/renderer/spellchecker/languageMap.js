@@ -3,10 +3,10 @@ import langMap from 'iso-639-1'
 /**
  * Return the native language name by language code.
  *
- * @param {string} langCode The ISO two or four-letter language code (e.g. en, en-US).
+ * @param {string} langCode The ISO two or four-letter language code (e.g. en, en-US) or BCP-47 code.
  */
 export const getLanguageName = languageCode => {
-  if (!languageCode || (languageCode.length !== 2 && languageCode.length !== 5)) {
+  if (!languageCode || languageCode.length < 2) {
     return null
   }
 
