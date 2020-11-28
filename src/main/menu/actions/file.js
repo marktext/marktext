@@ -470,7 +470,7 @@ export const openFile = async win => {
   const { filePaths } = await dialog.showOpenDialog(win, {
     properties: ['openFile', 'multiSelections'],
     filters: [{
-      name: 'text',
+      name: 'Markdown document',
       extensions: MARKDOWN_EXTENSIONS
     }]
   })
