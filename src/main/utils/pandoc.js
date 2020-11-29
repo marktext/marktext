@@ -1,7 +1,7 @@
 // Copy from https://github.com/utatti/simple-pandoc/blob/master/index.js
 import { spawn } from 'child_process'
 import commandExists from 'command-exists'
-import { isFile } from 'common/filesystem'
+import { isFile2 } from 'common/filesystem'
 
 const pandocCommand = 'pandoc'
 
@@ -45,7 +45,7 @@ pandoc.exists = () => {
 }
 
 const envPathExists = () => {
-  return !!process.env.MARKTEXT_PANDOC && isFile(process.env.MARKTEXT_PANDOC)
+  return !!process.env.MARKTEXT_PANDOC && isFile2(process.env.MARKTEXT_PANDOC)
 }
 
 export default pandoc

@@ -2,7 +2,7 @@ import fs from 'fs'
 import path from 'path'
 import { app, ipcMain, Menu } from 'electron'
 import log from 'electron-log'
-import { ensureDirSync, isDirectory, isFile } from 'common/filesystem'
+import { ensureDirSync, isDirectory2, isFile2 } from 'common/filesystem'
 import { isLinux, isOsx, isWindows } from '../config'
 import { parseMenu } from '../keyboard/shortcutHandler'
 import { updateSidebarMenu } from '../menu/actions/edit'
@@ -80,13 +80,13 @@ class AppMenu {
    */
   getRecentlyUsedDocuments () {
     const { RECENTS_PATH } = this
-    if (!isFile(RECENTS_PATH)) {
+    if (!isFile2(RECENTS_PATH)) {
       return []
     }
 
     try {
       const recentDocuments = JSON.parse(fs.readFileSync(RECENTS_PATH, 'utf-8'))
-        .filter(f => f && (isFile(f) || isDirectory(f)))
+        .filter(f => f && (isFile2(f) || isDirectory2(f)))
 
       if (recentDocuments.length > MAX_RECENTLY_USED_DOCUMENTS) {
         recentDocuments.splice(MAX_RECENTLY_USED_DOCUMENTS, recentDocuments.length - MAX_RECENTLY_USED_DOCUMENTS)

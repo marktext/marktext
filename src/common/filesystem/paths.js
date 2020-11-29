@@ -1,6 +1,6 @@
 import fs from 'fs-extra'
 import path from 'path'
-import { isFile, isSymbolicLink } from './index'
+import { isFile, isFile2, isSymbolicLink } from './index'
 
 export const MARKDOWN_EXTENSIONS = Object.freeze([
   'markdown',
@@ -50,31 +50,19 @@ export const isImageFile = filepath => {
 }
 
 /**
- * Returns true if the path is a markdown file.
- *
- * @param {string} filepath The path or link path.
- */
-export const isMarkdownFile = filepath => {
-  return isFile(filepath) && hasMarkdownExtension(filepath)
-}
-
-/**
  * Returns true if the path is a markdown file or symbolic link to a markdown file.
  *
  * @param {string} filepath The path or link path.
  */
-export const isMarkdownFileOrLink = filepath => {
-  if (!isFile(filepath)) return false
-  if (hasMarkdownExtension(filepath)) {
-    return true
-  }
+export const isMarkdownFile = filepath => {
+  if (!isFile2(filepath)) return false
 
-  // Symbolic link to a markdown file
+  // Check symbolic link.
   if (isSymbolicLink(filepath)) {
-    const targetPath = fs.readlinkSync(filepath)
+    const targetPath = path.resolve(path.dirname(filepath), fs.readlinkSync(filepath))
     return isFile(targetPath) && hasMarkdownExtension(targetPath)
   }
-  return false
+  return hasMarkdownExtension(filepath)
 }
 
 /**
