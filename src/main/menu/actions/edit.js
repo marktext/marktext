@@ -5,7 +5,7 @@ import { searchFilesAndDir } from '../../utils/imagePathAutoComplement'
 
 ipcMain.on('mt::ask-for-image-auto-path', (e, { pathname, src, id }) => {
   const win = BrowserWindow.fromWebContents(e.sender)
-  if (!src || src !== 'string') {
+  if (!src || typeof src !== 'string') {
     win.webContents.send(`mt::response-of-image-path-${id}`, [])
     return
   }
