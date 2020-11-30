@@ -246,6 +246,12 @@ figure[data-role="FOOTNOTE"] .ag-footnote-input::after {
   content: ']:';
 }
 
+figure[data-role="FOOTNOTE"] span code,
+figure[data-role="FOOTNOTE"] td code,
+figure[data-role="FOOTNOTE"] th code {
+  font-size: .8em;
+}
+
 .ag-highlight {
   animation-name: highlight;
   animation-duration: .25s;
