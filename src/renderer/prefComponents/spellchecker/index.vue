@@ -96,7 +96,7 @@ import { mapState } from 'vuex'
 import CurSelect from '../common/select'
 import Bool from '../common/bool'
 import Separator from '../common/separator'
-import { isOsx, isLinux, isWindows } from '@/util'
+import { isOsx, isLinux, isWindows, cloneObj } from '@/util'
 import { isOsSpellcheckerSupported, getAvailableHunspellDictionaries, SpellChecker } from '@/spellchecker'
 import { getLanguageName, HUNSPELL_DICTIONARY_LANGUAGE_MAP } from '@/spellchecker/languageMap'
 import { downloadHunspellDictionary, deleteHunspellDictionary } from '@/spellchecker/dictionaryDownloader'
@@ -112,7 +112,7 @@ export default {
     this.isLinux = isLinux
     this.isWindows = isWindows
     this.isOsSpellcheckerSupported = isOsSpellcheckerSupported()
-    this.dictionariesLanguagesOptions = HUNSPELL_DICTIONARY_LANGUAGE_MAP
+    this.dictionariesLanguagesOptions = cloneObj(HUNSPELL_DICTIONARY_LANGUAGE_MAP)
     this.hunspellDictionaryDownloadCache = {}
     return {
       availableDictionaries: [],
