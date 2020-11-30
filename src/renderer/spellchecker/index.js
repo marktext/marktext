@@ -296,8 +296,9 @@ export class SpellChecker {
     }
 
     if (!this.isHunspell) {
-      // NB: OS X will return lists that are half just a language, half
-      // language + locale, like ['en', 'pt_BR', 'ko']
+      // NOTE: OS X will return lists that are half just a language, half
+      // language + locale, like ['en', 'pt_BR', 'ko'] and Windows also returns
+      // BCP-47 ones.
       return this.provider.currentSpellchecker.getAvailableDictionaries()
         .map(x => {
           if (x.length === 2) return fallbackLocales[x]
@@ -307,6 +308,7 @@ export class SpellChecker {
             return null
           }
         })
+        .filter(x => { return !!x })
     }
 
     // Load hunspell dictionaries from disk.

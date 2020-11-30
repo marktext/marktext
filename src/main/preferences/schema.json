@@ -338,7 +338,7 @@
   },
   "spellcheckerLanguage": {
     "description": "Spelling--The spell checker language",
-    "pattern": "^[a-z]{2}(?:[-][A-Z]{2})?$",
+    "pattern": "^[a-z]{2,3}(?:[-](?:[0-9]|[a-zA-Z]){2,}){0,2}$",
     "default": "en-US"
   },
   "imageInsertAction": {
