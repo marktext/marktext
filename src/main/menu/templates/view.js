@@ -82,7 +82,7 @@ export default function (keybindings) {
         actions.layout(item, browserWindow, 'showTabBar')
       }
     }, {
-      label: 'Toggle TOC',
+      label: 'Toggle Table of Contents',
       id: 'tocMenuItem',
       accelerator: keybindings.getAccelerator('view.toggle-toc'),
       click (_, browserWindow) {
