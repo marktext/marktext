@@ -107,11 +107,11 @@ InlineLexer.prototype.output = function (src) {
 
       src = src.substring(cap[0].length)
       lastChar = cap[0].charAt(cap[0].length - 1)
-      out += this.options.sanitize
-        ? this.options.sanitizer
+      out += this.renderer.html(this.options.sanitize
+        ? (this.options.sanitizer
           ? this.options.sanitizer(cap[0])
-          : escape(cap[0])
-        : cap[0]
+          : escape(cap[0]))
+        : cap[0])
       continue
     }
 
@@ -234,7 +234,15 @@ InlineLexer.prototype.output = function (src) {
     if (cap) {
       src = src.substring(cap[0].length)
       lastChar = cap[0].charAt(cap[0].length - 1)
-      out += this.renderer.codespan(escape(cap[2].trim(), true))
+
+      let text = cap[2].replace(/\n/g, ' ')
+      const hasNonSpaceChars = /[^ ]/.test(text)
+      const hasSpaceCharsOnBothEnds = text.startsWith(' ') && text.endsWith(' ')
+      if (hasNonSpaceChars && hasSpaceCharsOnBothEnds) {
+        text = text.substring(1, text.length - 1)
+      }
+      text = escape(text, true)
+      out += this.renderer.codespan(text)
       continue
     }
 
@@ -252,7 +260,7 @@ InlineLexer.prototype.output = function (src) {
     if (cap) {
       src = src.substring(cap[0].length)
       lastChar = cap[0].charAt(cap[0].length - 1)
-      out += this.renderer.del(this.output(cap[1]))
+      out += this.renderer.del(this.output(cap[2]))
       continue
     }
 
@@ -329,10 +337,11 @@ InlineLexer.prototype.escapes = function (text) {
 InlineLexer.prototype.outputLink = function (cap, link) {
   const href = link.href
   const title = link.title ? escape(link.title) : null
+  const text = cap[1].replace(/\\([\[\]])/g, '$1') // eslint-disable-line no-useless-escape
 
   return cap[0].charAt(0) !== '!'
-    ? this.renderer.link(href, title, this.output(cap[1]))
-    : this.renderer.image(href, title, escape(cap[1]))
+    ? this.renderer.link(href, title, this.output(text))
+    : this.renderer.image(href, title, escape(text))
 }
 
 /**
