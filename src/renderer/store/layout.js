@@ -33,9 +33,17 @@ const mutations = {
 }
 
 const actions = {
-  LISTEN_FOR_LAYOUT ({ commit }) {
+  LISTEN_FOR_LAYOUT ({ state, commit }) {
     ipcRenderer.on('mt::set-view-layout', (e, layout) => {
-      commit('SET_LAYOUT', layout)
+      if (layout.rightColumn) {
+        commit('SET_LAYOUT', {
+          ...layout,
+          rightColumn: layout.rightColumn === state.rightColumn ? '' : layout.rightColumn,
+          showSideBar: true
+        })
+      } else {
+        commit('SET_LAYOUT', layout)
+      }
     })
 
     bus.$on('view:toggle-view-layout-entry', entryName => {

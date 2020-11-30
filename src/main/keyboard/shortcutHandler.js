@@ -101,6 +101,7 @@ class Keybindings {
       ['view.typewriter-mode', 'CmdOrCtrl+Alt+T'],
       ['view.focus-mode', 'CmdOrCtrl+Shift+J'],
       ['view.toggle-sidebar', 'CmdOrCtrl+J'],
+      ['view.toggle-toc', 'CmdOrCtrl+K'],
       ['view.toggle-tabbar', 'CmdOrCtrl+Alt+B'],
       ['view.toggle-dev-tools', 'CmdOrCtrl+Alt+I'],
       ['view.dev-reload', 'CmdOrCtrl+R'],

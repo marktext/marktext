@@ -22,9 +22,9 @@ export const typeMode = (win, type, item) => {
   }
 }
 
-export const layout = (item, win, type) => {
+export const layout = (item, win, type, value) => {
   if (win && win.webContents) {
-    win.webContents.send('mt::set-view-layout', { [type]: item.checked })
+    win.webContents.send('mt::set-view-layout', { [type]: value || item.checked })
   }
 }
 
