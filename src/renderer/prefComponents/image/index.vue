@@ -55,7 +55,7 @@ export default {
   },
   methods: {
     openImageFolder () {
-      shell.openItem(this.imageFolderPath)
+      shell.openPath(this.imageFolderPath)
     },
     modifyImageFolderPath () {
       return this.$store.dispatch('SET_IMAGE_FOLDER_PATH')
