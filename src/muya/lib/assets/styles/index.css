@@ -1279,6 +1279,44 @@ figure:not(.ag-active) pre.ag-paragraph.line-numbers {
   color: var(--editorColor80);
 }
 
+.ag-inline-citation {
+  border-radius: 3px;
+  color: var(--editorColor80);
+}
+
+.ag-inline-citation a .ag-gray {
+  color: inherit;
+  text-decoration: inherit;
+}
+
+.ag-meta-or-ctrl .ag-inline-citation a {
+  cursor: pointer !important;
+}
+
+[class*='ag-inline-citation-paren-'] {
+  overflow: hidden;
+  width: 0;
+  height: 0;
+  vertical-align: middle;
+  display: inline-block;
+  color: var(--editorColor30);
+}
+
+.ag-hide[class*='ag-inline-citation-paren-'] {
+  overflow: visible;
+  width: auto;
+  height: auto;
+  vertical-align: baseline;
+}
+
+.ag-inline-citation-paren-start:before {
+  content: '(';
+}
+
+.ag-inline-citation-paren-end:before {
+  content: ')';
+}
+
 .ag-inline-footnote-identifier a {
   color: var(--editorColor);
 }

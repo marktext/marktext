@@ -1,3 +1,5 @@
+import Renderer from './renderer'
+
 /**
  * TextRenderer
  * returns only the textual part of the token
@@ -34,6 +36,15 @@ TextRenderer.prototype.script = function (content, marker) {
 
 TextRenderer.prototype.footnoteIdentifier = function (identifier, { footnoteId, footnoteIdentifierId, order }) {
   return `<a href="#${footnoteId ? `fn${footnoteId}` : ''}" class="footnote-ref" id="fnref${footnoteIdentifierId}" role="doc-noteref"><sup>${order || identifier}</sup></a>`
+}
+
+Renderer.prototype.citation = function (content) {
+  const str = content.replace(/(?<![\p{L}\d\-:.#$%&+?<>~/])(@)([\p{L}\d\-:.#$%&+?<>~/]+)/gu, '$2')
+  return `(${str})`
+}
+
+Renderer.prototype.inTextCitation = function (key, suffix) {
+  return suffix ? `${key} (${suffix})` : key
 }
 
 TextRenderer.prototype.link =

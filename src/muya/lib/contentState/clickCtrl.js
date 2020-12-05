@@ -112,6 +112,15 @@ const clickCtrl = ContentState => {
           } else if (inlineNode.classList.contains('ag-math-text')) {
             formatType = 'inline_math'
             data = inlineNode.textContent
+          } else if (inlineNode.classList.contains('ag-inline-citation')) {
+            const parentLink = node.parentNode.getAttribute('href')
+            if (parentLink) {
+              formatType = 'link'
+              data = {
+                text: node.textContent,
+                href: parentLink
+              }
+            }
           }
           break
         }

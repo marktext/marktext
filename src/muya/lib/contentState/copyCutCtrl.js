@@ -290,6 +290,7 @@ const copyCutCtrl = ContentState => {
         event.clipboardData.setData('text/plain', getSanitizeHtml(text, {
           superSubScript: this.muya.options.superSubScript,
           footnote: this.muya.options.footnote,
+          citations: this.muya.options.citations,
           isGitlabCompatibilityEnabled: this.muya.options.isGitlabCompatibilityEnabled
         }))
         break

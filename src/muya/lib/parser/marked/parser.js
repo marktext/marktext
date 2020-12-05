@@ -38,7 +38,6 @@ Parser.prototype.parse = function (src) {
   while (this.next()) {
     out += this.tok()
   }
-
   return out
 }
 

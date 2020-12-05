@@ -178,3 +178,7 @@ export const validateEmphasize = (src, offset, marker, pending, rules) => {
    */
   return lowerPriority(src, offset, rules)
 }
+
+export const getCitationLink = (citekey, template) => {
+  return template.replace(/{{\s*citekey\s*}}/, citekey)
+}
