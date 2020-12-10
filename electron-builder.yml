@@ -4,8 +4,6 @@ appId: "com.github.marktext.marktext"
 asar: true
 asarUnpack:
 - "**/*.node"
-# WORKAROUND: electron-builder#5360
-- "**/node_modules/vscode-ripgrep/**/*"
 directories:
   output: "build"
 files:
