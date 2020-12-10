@@ -1,7 +1,7 @@
 import Renderer from './renderer'
 import { normal, breaks, gfm, pedantic } from './inlineRules'
 import defaultOptions from './options'
-import { escape, findClosingBracket, getUniqueId } from './utils'
+import { escape, findClosingBracket, getUniqueId, rtrim } from './utils'
 import { validateEmphasize, lowerPriority } from '../utils'
 
 /**
@@ -118,31 +118,54 @@ InlineLexer.prototype.output = function (src) {
     // link
     cap = this.rules.link.exec(src)
     if (cap && lowerPriority(src, cap[0].length, this.highPriorityLinkRules)) {
-      const lastParenIndex = findClosingBracket(cap[2], '()')
-      if (lastParenIndex > -1) {
-        const start = cap[0].indexOf('!') === 0 ? 5 : 4
-        const linkLen = start + cap[1].length + lastParenIndex
-        cap[2] = cap[2].substring(0, lastParenIndex)
-        cap[0] = cap[0].substring(0, linkLen).trim()
-        cap[3] = ''
+      const trimmedUrl = cap[2].trim()
+      if (!this.options.pedantic && trimmedUrl.startsWith('<')) {
+        // commonmark requires matching angle brackets
+        if (!trimmedUrl.endsWith('>')) {
+          return
+        }
+
+        // ending angle bracket cannot be escaped
+        const rtrimSlash = rtrim(trimmedUrl.slice(0, -1), '\\')
+        if ((trimmedUrl.length - rtrimSlash.length) % 2 === 0) {
+          return
+        }
+      } else {
+        // find closing parenthesis
+        const lastParenIndex = findClosingBracket(cap[2], '()')
+        if (lastParenIndex > -1) {
+          const start = cap[0].indexOf('!') === 0 ? 5 : 4
+          const linkLen = start + cap[1].length + lastParenIndex
+          cap[2] = cap[2].substring(0, lastParenIndex)
+          cap[0] = cap[0].substring(0, linkLen).trim()
+          cap[3] = ''
+        }
       }
       src = src.substring(cap[0].length)
       lastChar = cap[0].charAt(cap[0].length - 1)
-      this.inLink = true
       href = cap[2]
       if (this.options.pedantic) {
+        // split pedantic href and title
         link = /^([^'"]*[^\s])\s+(['"])(.*)\2/.exec(href)
 
         if (link) {
           href = link[1]
           title = link[3]
-        } else {
-          title = ''
         }
       } else {
         title = cap[3] ? cap[3].slice(1, -1) : ''
       }
-      href = href.trim().replace(/^<([\s\S]*)>$/, '$1')
+      href = href.trim()
+      if (href.startsWith('<')) {
+        if (this.options.pedantic && !trimmedUrl.endsWith('>')) {
+          // pedantic allows starting angle bracket without ending angle bracket
+          href = href.slice(1)
+        } else {
+          href = href.slice(1, -1)
+        }
+      }
+
+      this.inLink = true
       out += this.outputLink(cap, {
         href: this.escapes(href),
         title: this.escapes(title)

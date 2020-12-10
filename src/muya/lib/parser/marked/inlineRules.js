@@ -71,7 +71,7 @@ inline.tag = edit(inline.tag)
   .getRegex()
 
 inline._label = /(?:\[(?:\\.|[^\[\]\\])*\]|\\.|`[^`]*`|[^\[\]\\`])*?/
-inline._href = /<(?:\\[<>]?|[^\s<>\\])*>|[^\s\x00-\x1f]*/ // eslint-disable-line no-control-regex
+inline._href = /<(?:\\.|[^\n<>\\])+>|[^\s\x00-\x1f]*/ // eslint-disable-line no-control-regex
 inline._title = /"(?:\\"?|[^"\\])*"|'(?:\\'?|[^'\\])*'|\((?:\\\)?|[^)\\])*\)/
 
 inline.link = edit(inline.link)
