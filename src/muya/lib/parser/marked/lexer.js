@@ -229,10 +229,19 @@ Lexer.prototype.token = function (src, top) {
     cap = this.rules.heading.exec(src)
     if (cap) {
       src = src.substring(cap[0].length)
-      let text = cap[2] || ''
-      if (cap[3] && !cap[3].startsWith(' ') && !/ +#+ *(?:\n+|$)/.test(cap[0])) {
-        text = (text + cap[3]).trim()
+      let text = cap[2] ? cap[2].trim() : ''
+
+      if (text.endsWith('#')) {
+        var trimmed = rtrim(text, '#')
+
+        if (this.options.pedantic) {
+          text = trimmed.trim()
+        } else if (!trimmed || trimmed.endsWith(' ')) {
+          // CommonMark requires space before trailing #s
+          text = trimmed.trim()
+        }
       }
+
       this.tokens.push({
         type: 'heading',
         headingStyle: 'atx',
