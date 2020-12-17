@@ -283,7 +283,10 @@ export const MUYA_DEFAULT_OPTION = Object.freeze({
   // Markdown extensions
   superSubScript: false,
   footnote: false,
-  isGitlabCompatibilityEnabled: false
+  isGitlabCompatibilityEnabled: false,
+
+  // Whether HTML rendering is disabled or not.
+  disableHtml: true
 })
 
 // export const DIAGRAM_TEMPLATE = Object.freeze({

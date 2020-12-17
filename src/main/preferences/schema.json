@@ -289,6 +289,11 @@
     "type": "boolean",
     "default": false
   },
+  "isHtmlEnabled": {
+    "description": "Markdown-Enable HTML rendering",
+    "type": "boolean",
+    "default": true
+  },
   "isGitlabCompatibilityEnabled": {
     "description": "Markdown-Enable GitLab compatibility mode.",
     "type": "boolean",
