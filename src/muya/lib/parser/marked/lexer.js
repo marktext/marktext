@@ -214,11 +214,13 @@ Lexer.prototype.token = function (src, top) {
     cap = this.rules.fences.exec(src)
     if (cap) {
       src = src.substring(cap[0].length)
+      const raw = cap[0]
+      const text = indentCodeCompensation(raw, cap[3] || '')
       this.tokens.push({
         type: 'code',
         codeBlockStyle: 'fenced',
         lang: cap[2] ? cap[2].trim() : cap[2],
-        text: cap[3] || ''
+        text
       })
       continue
     }
@@ -227,10 +229,19 @@ Lexer.prototype.token = function (src, top) {
     cap = this.rules.heading.exec(src)
     if (cap) {
       src = src.substring(cap[0].length)
-      let text = cap[2] || ''
-      if (cap[3] && !cap[3].startsWith(' ') && !/ +#+ *(?:\n+|$)/.test(cap[0])) {
-        text = (text + cap[3]).trim()
+      let text = cap[2] ? cap[2].trim() : ''
+
+      if (text.endsWith('#')) {
+        var trimmed = rtrim(text, '#')
+
+        if (this.options.pedantic) {
+          text = trimmed.trim()
+        } else if (!trimmed || trimmed.endsWith(' ')) {
+          // CommonMark requires space before trailing #s
+          text = trimmed.trim()
+        }
       }
+
       this.tokens.push({
         type: 'heading',
         headingStyle: 'atx',
@@ -619,6 +630,34 @@ Lexer.prototype.token = function (src, top) {
       throw new Error('Infinite loop on byte: ' + src.charCodeAt(0))
     }
   }
+}
+
+function indentCodeCompensation (raw, text) {
+  const matchIndentToCode = raw.match(/^(\s+)(?:```)/)
+
+  if (matchIndentToCode === null) {
+    return text
+  }
+
+  const indentToCode = matchIndentToCode[1]
+
+  return text
+    .split('\n')
+    .map(node => {
+      const matchIndentInNode = node.match(/^\s+/)
+      if (matchIndentInNode === null) {
+        return node
+      }
+
+      const [indentInNode] = matchIndentInNode
+
+      if (indentInNode.length >= indentToCode.length) {
+        return node.slice(indentToCode.length)
+      }
+
+      return node
+    })
+    .join('\n')
 }
 
 export default Lexer
