@@ -327,7 +327,7 @@ class App {
         directoriesToOpen[0].fileList.push(...filesToOpen)
         directoriesToOpen.length = 1
       } else {
-        directoriesToOpen.push({ rootDirectory: null, fileList: filesToOpen })
+        directoriesToOpen.push({ rootDirectory: null, fileList: [...filesToOpen] })
       }
       filesToOpen.length = 0
     }
@@ -541,7 +541,7 @@ class App {
         defaultPath: defaultDirectoryToOpen,
         properties: ['openDirectory', 'createDirectory']
       })
-      if (filePaths) {
+      if (filePaths && filePaths[0]) {
         preferences.setItems({ defaultDirectoryToOpen: filePaths[0] })
       }
     })

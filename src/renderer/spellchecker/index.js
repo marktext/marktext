@@ -3,6 +3,7 @@ import path from 'path'
 import os from 'os'
 import { remote } from 'electron'
 import { SpellCheckHandler, fallbackLocales, normalizeLanguageCode } from '@hfelix/electron-spellchecker'
+import { isDirectory, isFile } from 'common/filesystem'
 import { cloneObj, isOsx, isLinux, isWindows } from '@/util'
 
 // NOTE: Hardcoded in "@hfelix/electron-spellchecker/src/spell-check-handler.js"
@@ -74,11 +75,11 @@ export const validateLineCursor = selection => {
 export const getAvailableHunspellDictionaries = () => {
   const dict = []
   // Search for dictionaries on filesystem.
-  if (fs.existsSync(dictionaryPath) && fs.lstatSync(dictionaryPath).isDirectory()) {
+  if (isDirectory(dictionaryPath)) {
     fs.readdirSync(dictionaryPath).forEach(filename => {
       const fullname = path.join(dictionaryPath, filename)
       const match = filename.match(/^([a-z]{2}(?:[-][A-Z]{2})?)\.bdic$/)
-      if (match && match[1] && fs.lstatSync(fullname).isFile()) {
+      if (match && match[1] && isFile(fullname)) {
         dict.push(match[1])
       }
     })

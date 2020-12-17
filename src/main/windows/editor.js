@@ -256,7 +256,7 @@ class EditorWindow extends BaseWindow {
    * @param {string} pathname The directory path.
    */
   openFolder (pathname) {
-    if (this.lifecycle === WindowLifecycle.QUITTED ||
+    if (!pathname || this.lifecycle === WindowLifecycle.QUITTED ||
       isSamePathSync(pathname, this._openedRootDirectory)) {
       return
     }

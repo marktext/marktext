@@ -2,8 +2,8 @@ import fs from 'fs-extra'
 import path from 'path'
 import { BrowserWindow, dialog, ipcMain, shell } from 'electron'
 import log from 'electron-log'
-import { isDirectory, isFile } from 'common/filesystem'
-import { MARKDOWN_EXTENSIONS, isMarkdownFile, isMarkdownFileOrLink } from 'common/filesystem/paths'
+import { isDirectory, isFile, exists } from 'common/filesystem'
+import { MARKDOWN_EXTENSIONS, isMarkdownFile } from 'common/filesystem/paths'
 import { EXTENSION_HASN, PANDOC_EXTENSIONS, URL_REG } from '../../config'
 import { normalizeAndResolvePath, writeFile } from '../../filesystem'
 import { writeMarkdownFile } from '../../filesystem/markdown'
@@ -319,7 +319,7 @@ ipcMain.on('mt::response-print', handleResponseForPrint)
 ipcMain.on('mt::window::drop', async (e, fileList) => {
   const win = BrowserWindow.fromWebContents(e.sender)
   for (const file of fileList) {
-    if (isMarkdownFileOrLink(file)) {
+    if (isMarkdownFile(file)) {
       openFileOrFolder(win, file)
       continue
     }
@@ -357,7 +357,7 @@ ipcMain.on('mt::rename', async (e, { id, pathname, newPathname }) => {
     })
   }
 
-  if (!isFile(newPathname)) {
+  if (!exists(newPathname)) {
     doRename()
   } else {
     const { response } = await dialog.showMessageBox(win, {
@@ -403,11 +403,16 @@ ipcMain.on('mt::ask-for-open-project-in-sidebar', async e => {
   })
 
   if (filePaths && filePaths[0]) {
-    ipcMain.emit('app-open-directory-by-id', win.id, filePaths[0], true)
+    const resolvedPath = normalizeAndResolvePath(filePaths[0])
+    ipcMain.emit('app-open-directory-by-id', win.id, resolvedPath, true)
   }
 })
 
 ipcMain.on('mt::format-link-click', (e, { data, dirname }) => {
+  if (!data || !data.href || typeof data.href !== 'string') {
+    return
+  }
+
   if (URL_REG.test(data.href)) {
     return shell.openExternal(data.href)
   }
@@ -493,7 +498,7 @@ export const openFile = async win => {
     }]
   })
 
-  if (filePaths && Array.isArray(filePaths)) {
+  if (Array.isArray(filePaths) && filePaths.length > 0) {
     ipcMain.emit('app-open-files-by-id', win.id, filePaths)
   }
 }

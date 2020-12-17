@@ -207,6 +207,7 @@
 import { mapState } from 'vuex'
 import fs from 'fs-extra'
 import path from 'path'
+import { isDirectory, isFile } from 'common/filesystem'
 import bus from '../../bus'
 import Bool from '@/prefComponents/common/bool'
 import CurSelect from '@/prefComponents/common/select'
@@ -393,10 +394,10 @@ export default {
       const themeDir = path.join(userDataPath, 'themes/export')
 
       // Search for dictionaries on filesystem.
-      if (fs.existsSync(themeDir) && fs.lstatSync(themeDir).isDirectory()) {
+      if (isDirectory(themeDir)) {
         fs.readdirSync(themeDir).forEach(async filename => {
           const fullname = path.join(themeDir, filename)
-          if (/.+\.css$/i.test(filename) && fs.lstatSync(fullname).isFile()) {
+          if (/.+\.css$/i.test(filename) && isFile(fullname)) {
             try {
               const content = await fs.readFile(fullname, 'utf8')
 
