@@ -151,7 +151,7 @@ class DataCenter extends EventEmitter {
       return
     }
 
-    Object.keys(settings).map(key => {
+    Object.keys(settings).forEach(key => {
       this.setItem(key, settings[key])
     })
   }

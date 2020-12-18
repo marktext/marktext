@@ -7,6 +7,8 @@ export const editorWinOptions = Object.freeze({
   minHeight: 350,
   webPreferences: {
     enableRemoteModule: true,
+    contextIsolation: false,
+    spellcheck: false,
     nodeIntegration: true,
     webSecurity: false
   },
@@ -22,6 +24,8 @@ export const preferencesWinOptions = Object.freeze({
   height: 650,
   webPreferences: {
     enableRemoteModule: true,
+    contextIsolation: false,
+    spellcheck: false,
     nodeIntegration: true,
     webSecurity: false
   },

@@ -9,8 +9,6 @@ import Accessor from './app/accessor'
 import setupEnvironment from './app/env'
 import { getLogLevel } from './utils'
 
-app.allowRendererProcessReuse = false
-
 const initializeLogger = appEnvironment => {
   log.transports.console.level = process.env.NODE_ENV === 'development' ? true : 'error'
   log.transports.rendererConsole = null

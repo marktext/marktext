@@ -140,7 +140,7 @@ export class SpellChecker {
       throw new Error('Invalid state.')
     }
 
-    this.provider = new SpellCheckHandler()
+    this.provider = new SpellCheckHandler(dictionaryPath)
     this.isHunspell = this.provider.isHunspell
 
     // The spell checker is now initialized but not yet enabled. You need to call `init`.

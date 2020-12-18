@@ -2,6 +2,8 @@ import fs from 'fs-extra'
 import path from 'path'
 import { isFile, isFile2, isSymbolicLink } from './index'
 
+const isOsx = process.platform === 'darwin'
+
 export const MARKDOWN_EXTENSIONS = Object.freeze([
   'markdown',
   'mdown',
@@ -102,4 +104,18 @@ export const isChildOfDirectory = (dir, child) => {
   if (!dir || !child) return false
   const relative = path.relative(dir, child)
   return relative && !relative.startsWith('..') && !path.isAbsolute(relative)
+}
+
+export const getResourcesPath = () => {
+  let resPath = process.resourcesPath
+  if (process.env.NODE_ENV === 'development') {
+    // Default locations:
+    //   Linux/Windows: node_modules/electron/dist/resources/
+    //   macOS: node_modules/electron/dist/Electron.app/Contents/Resources
+    if (isOsx) {
+      resPath = path.join(resPath, '../..')
+    }
+    resPath = path.join(resPath, '../../../../resources')
+  }
+  return resPath
 }
