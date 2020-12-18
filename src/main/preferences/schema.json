@@ -355,6 +355,16 @@
     ],
     "default": "path"
   },
+  "imagePreferRelativeDirectory": {
+    "description": "Image--Whether to prefer the relative image directory.",
+    "type": "boolean",
+    "default": false
+  },
+  "imageRelativeDirectoryName": {
+    "description": "Image--The relative image folder name.",
+    "type": "string",
+    "default": "assets"
+  },
   "sideBarVisibility": {
     "description": "View--Whether the side bar is visible.",
     "type": "boolean",
