@@ -197,6 +197,7 @@
         <el-tab-pane label="Table of Contents" name="toc">
           <bool
             description="Include top heading:"
+            detailedDescription="Includes the first heading level too."
             :bool="tocIncludeTopHeading"
             :onChange="value => onSelectChange('tocIncludeTopHeading', value)"
           ></bool>
@@ -207,7 +208,6 @@
             :onChange="value => onSelectChange('tocTitle', value)"
           ></text-box>
          </el-tab-pane>
-
       </el-tabs>
       <div class="button-controlls">
         <button class="button-primary" @click="handleClicked">
