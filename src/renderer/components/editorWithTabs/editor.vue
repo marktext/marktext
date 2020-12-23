@@ -74,9 +74,11 @@
 
 <script>
 import { shell } from 'electron'
+import path from 'path'
 import log from 'electron-log'
 import { mapState } from 'vuex'
 // import ViewImage from 'view-image'
+import { isChildOfDirectory } from 'common/filesystem/paths'
 import Muya from 'muya/lib'
 import TablePicker from 'muya/lib/ui/tablePicker'
 import QuickInsert from 'muya/lib/ui/quickInsert'
@@ -99,7 +101,7 @@ import notice from '@/services/notification'
 import Printer from '@/services/printService'
 import { isOsSpellcheckerSupported, offsetToWordCursor, validateLineCursor, SpellChecker } from '@/spellchecker'
 import { delay, isOsx, animatedScrollTo } from '@/util'
-import { moveImageToFolder, uploadImage } from '@/util/fileSystem'
+import { moveImageToFolder, moveToRelativeFolder, uploadImage } from '@/util/fileSystem'
 import { guessClipboardFilePath } from '@/util/clipboard'
 import { getCssForOptions, getHtmlToc } from '@/util/pdf'
 import { addCommonStyle, setEditorWidth } from '@/util/theme'
@@ -154,6 +156,8 @@ export default {
       autoCheck: state => state.preferences.autoCheck,
       editorLineWidth: state => state.preferences.editorLineWidth,
       imageInsertAction: state => state.preferences.imageInsertAction,
+      imagePreferRelativeDirectory: state => state.preferences.imagePreferRelativeDirectory,
+      imageRelativeDirectoryName: state => state.preferences.imageRelativeDirectoryName,
       imageFolderPath: state => state.preferences.imageFolderPath,
       theme: state => state.preferences.theme,
       sequenceTheme: state => state.preferences.sequenceTheme,
@@ -165,6 +169,7 @@ export default {
       spellcheckerLanguage: state => state.preferences.spellcheckerLanguage,
 
       currentFile: state => state.editor.currentFile,
+      projectTree: state => state.project.projectTree,
 
       // edit modes
       typewriter: state => state.preferences.typewriter,
@@ -768,9 +773,26 @@ export default {
     },
 
     async imageAction (image, id, alt = '') {
-      const { imageInsertAction, imageFolderPath, preferences } = this
+      const {
+        imageInsertAction,
+        imageFolderPath,
+        imagePreferRelativeDirectory,
+        imageRelativeDirectoryName,
+        preferences
+      } = this
       const { pathname } = this.currentFile
-      let result
+
+      // Figure out the current working directory.
+      let cwd = pathname ? path.dirname(pathname) : null
+      if (pathname && this.projectTree) {
+        const { pathname: rootPath } = this.projectTree
+        if (rootPath && isChildOfDirectory(rootPath, pathname)) {
+          // Save assets relative to root directory.
+          cwd = rootPath
+        }
+      }
+
+      let result = ''
       switch (imageInsertAction) {
         case 'upload': {
           try {
@@ -787,6 +809,9 @@ export default {
         }
         case 'folder': {
           result = await moveImageToFolder(pathname, image, imageFolderPath)
+          if (cwd && imagePreferRelativeDirectory) {
+            result = moveToRelativeFolder(cwd, result, imageRelativeDirectoryName)
+          }
           break
         }
         case 'path': {
@@ -795,6 +820,11 @@ export default {
           } else {
             // Move image to image folder if it's Blob object.
             result = await moveImageToFolder(pathname, image, imageFolderPath)
+
+            // Respect user preferences if file exist on disk.
+            if (cwd && imagePreferRelativeDirectory) {
+              result = moveToRelativeFolder(cwd, result, imageRelativeDirectoryName)
+            }
           }
           break
         }

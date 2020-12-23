@@ -35,6 +35,8 @@ const state = {
   textDirection: 'ltr',
   hideQuickInsertHint: false,
   imageInsertAction: 'folder',
+  imagePreferRelativeDirectory: false,
+  imageRelativeDirectoryName: 'assets',
   hideLinkPopup: false,
   autoCheck: false,
 
