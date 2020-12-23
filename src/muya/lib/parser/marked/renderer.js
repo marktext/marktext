@@ -223,4 +223,11 @@ Renderer.prototype.text = function (text) {
   return text
 }
 
+Renderer.prototype.toc = function () {
+  if (this.options.tocRenderer) {
+    return this.options.tocRenderer()
+  }
+  return ''
+}
+
 export default Renderer

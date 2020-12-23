@@ -5,6 +5,15 @@
       <i class="el-icon-info" v-if="more"
         @click="handleMoreClick"
       ></i>
+      <el-tooltip
+        v-else-if="detailedDescription"
+        :content="detailedDescription"
+        class="item"
+        effect="dark"
+        placement="top-start"
+      >
+        <i class="el-icon-info"></i>
+      </el-tooltip>
     </div>
     <el-switch
       v-model="status"
@@ -28,6 +37,7 @@ export default {
     bool: Boolean,
     onChange: Function,
     more: String,
+    detailedDescription: String,
     disable: {
       type: Boolean,
       default: false

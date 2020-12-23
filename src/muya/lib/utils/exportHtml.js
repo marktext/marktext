@@ -109,7 +109,7 @@ class ExportHtml {
   }
 
   // render pure html by marked
-  async renderHtml () {
+  async renderHtml (toc) {
     this.mathRendererCalled = false
     let html = marked(this.markdown, {
       superSubScript: this.muya ? this.muya.options.superSubScript : false,
@@ -140,7 +140,13 @@ class ExportHtml {
           return `:${emoji}:`
         }
       },
-      mathRenderer: this.mathRenderer
+      mathRenderer: this.mathRenderer,
+      tocRenderer () {
+        if (!toc) {
+          return ''
+        }
+        return toc
+      }
     })
 
     html = sanitize(html, EXPORT_DOMPURIFY_CONFIG, false)
@@ -181,7 +187,7 @@ class ExportHtml {
 
     // WORKAROUND: Hide Prism.js style when exporting or printing. Otherwise the background color is white in the dark theme.
     const highlightCssStyle = printOptimization ? `@media print { ${highlightCss} }` : highlightCss
-    const html = this._prepareHtml(await this.renderHtml(), options)
+    const html = this._prepareHtml(await this.renderHtml(options.toc), options)
     const katexCssStyle = this.mathRendererCalled ? katexCss : ''
     this.mathRendererCalled = false
 
