@@ -16,11 +16,12 @@ When this option is enabled, all images are copied relative to the opened file o
 
 NB: The assets directory name must be a valid path name and Mark Text need write access to the directory.
 
-Examples for relativ paths:
+Examples for relative paths:
 
-- assets
-- ../assets
-- assets/123
+- `assets`
+- `../assets`
+- `.`: current file directory
+- `assets/123`
 
 ### Keep original location
 

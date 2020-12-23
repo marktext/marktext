@@ -30,7 +30,7 @@
       <text-box
         description="Relative image folder name"
         :input="imageRelativeDirectoryName"
-        :regexValidator="/^(?:$|(?![a-zA-Z]:)[^\/\\].+$)/"
+        :regexValidator="/^(?:$|(?![a-zA-Z]:)[^\/\\].*$)/"
         :defaultValue="relativeDirectoryNamePlaceholder"
         :onChange="value => onSelectChange('imageRelativeDirectoryName', value)"
       ></text-box>
