@@ -37,7 +37,7 @@
   </a>
   <!-- Downloads latest release -->
   <a href="https://github.com/marktext/marktext/releases/latest">
-    <img src="https://img.shields.io/github/downloads/marktext/marktext/v0.16.2/total.svg" alt="latest download">
+    <img src="https://img.shields.io/github/downloads/marktext/marktext/v0.16.3/total.svg" alt="latest download">
   </a>
   <!-- sponsors -->
   <a href="https://opencollective.com/marktext">
@@ -203,7 +203,7 @@ Mark Text 是一个使用 MIT license 的开源项目，您将一直能够从 Gi
 
 | ![](https://raw.githubusercontent.com/wiki/ryanoasis/nerd-fonts/screenshots/v1.0.x/mac-pass-sm.png)                                                                                                  | ![](https://raw.githubusercontent.com/wiki/ryanoasis/nerd-fonts/screenshots/v1.0.x/windows-pass-sm.png)                                                                                                          | ![](https://raw.githubusercontent.com/wiki/ryanoasis/nerd-fonts/screenshots/v1.0.x/linux-pass-sm.png)                                                                                                                        |
 |:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
-| [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext.dmg.svg)](https://github.com/marktext/marktext/releases/download/v0.16.2/marktext.dmg) | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-setup.exe.svg)](https://github.com/marktext/marktext/releases/download/v0.16.2/marktext-setup.exe) | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-x86_64.AppImage.svg)](https://github.com/marktext/marktext/releases/download/v0.16.2/marktext-x86_64.AppImage) |
+| [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext.dmg.svg)](https://github.com/marktext/marktext/releases/download/v0.16.3/marktext.dmg) | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-setup.exe.svg)](https://github.com/marktext/marktext/releases/download/v0.16.3/marktext-setup.exe) | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-x86_64.AppImage.svg)](https://github.com/marktext/marktext/releases/download/v0.16.3/marktext-x86_64.AppImage) |
 
 想要看看最新版本有什么新特性？请参阅[更新日志](.github/CHANGELOG.md)。
 

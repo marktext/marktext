@@ -7359,127 +7359,27 @@ IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 # iso-639-1 (MIT)
 -------------------------------------------------
-# ISO-639-1
-[![NPM Version][npm-image]][npm-url]
-[![Build Status][travis-image]][travis-url]
-[![Download Count][download-url]][npm-url]
+This software is licensed under the MIT License.
 
-[travis-image]: https://travis-ci.org/meikidd/iso-639-1.svg?branch=master
-[travis-url]: https://travis-ci.org/meikidd/iso-639-1
-[npm-image]: https://img.shields.io/npm/v/iso-639-1.svg?style=flat-square
-[npm-url]: https://npmjs.org/package/iso-639-1
-[download-url]: https://img.shields.io/npm/dt/iso-639-1.svg?style=flat-square
+Copyright(c) by Mei Qingguang
 
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
 
-Simple interface for [ISO-639-1](https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes) language codes
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
 
-## Installation
-
-```
-npm install iso-639-1
-```
-
-## Usage
-
-### Node.js
-
-```javascript
-const ISO6391 = require('iso-639-1');
-console.log(ISO6391.getName('en')); // 'English'
-```
-
-### ES Module
-
-```javascript
-import ISO6391 from 'iso-639-1';
-console.log(ISO6391.getName('en')); // 'English'
-```
-
-### Browsers
-
-HTML
-
-```html
-<script type="text/javascript" src="./node_modules/iso-639-1/build/index.js"></script>
-```
-
-Visit global variable ISO6391 in js
-
-```javascript
-console.log(ISO6391.getName('en')); // 'English'
-```
-
-## Methods
-
-### getName(code)
-  - @param code {string}
-  - @return {string}
-
-Lookup language english name by code
-
-### getAllNames()
-  - @return {array}
-
-Get array of all language english names
-
-### getNativeName(code)
-  - @param code {string}
-  - @return {string}
-
-Lookup language native name by code
-
-### getAllNativeNames()
-  - @return {array}
-
-Get array of all language native names
-
-
-### getCode(name)
-  - @param name {string}
-  - @return {string}
-
-Lookup code by english name or native name
-
-### getAllCodes()
-  - @return {array}
-
-Get array of all codes
-
-### validate(code)
-  - @param code {string}
-  - @return {boolean}
-
-Check whether the given code is in the list of [ISO-639-1](https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes)
-
-### getLanguages(codes)
-  - @param codes {array}
-  - @return {array}
-
-Get the array of the language objects by the given codes
-
-## Example
-
-```
-const ISO6391 = require('iso-639-1')
-
-console.log(ISO6391.getName('zh')) // 'Chinese'
-console.log(ISO6391.getNativeName('zh')) // '中文'
-
-console.log(ISO6391.getAllNames()) // ['Afar','Abkhaz', ... ,'Zulu']
-console.log(ISO6391.getAllNativeNames()) //['Afaraf','аҧсуа бызшәа', ... ,'isiZulu' ]
-
-console.log(ISO6391.getCode('Chinese')) // 'zh'
-console.log(ISO6391.getCode('中文')) // 'zh'
-
-console.log(ISO6391.getAllCodes()) //['aa','ab',...,'zu']
-
-console.log(ISO6391.validate('en')) // true
-console.log(ISO6391.validate('xx')) // false
-
-console.log(ISO6391.getLanguages(['en', 'zh']))
-// [{code:'en',name:'English',nativeName:'English'},{code:'zh',name:'Chinese',nativeName:'中文'}]
-
-```
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
 
 
 
@@ -12618,11 +12518,33 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 # vega-typings (BSD-3-Clause)
 -------------------------------------------------
-# Vega-Typings
+Copyright (c) 2015-2018, University of Washington Interactive Data Lab
+All rights reserved.
 
-[![npm version](https://img.shields.io/npm/v/vega-typings.svg)](https://www.npmjs.com/package/vega-typings)
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
 
-Typings for [Vega](https://github.com/vega/vega).
+1. Redistributions of source code must retain the above copyright notice, this
+   list of conditions and the following disclaimer.
+
+2. Redistributions in binary form must reproduce the above copyright notice,
+   this list of conditions and the following disclaimer in the documentation
+   and/or other materials provided with the distribution.
+
+3. Neither the name of the copyright holder nor the names of its contributors
+  may be used to endorse or promote products derived from this software
+  without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 
