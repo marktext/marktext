@@ -200,7 +200,7 @@ Patreonを介した寄付は、Mark Textの開発および維持を行ってい�
 最新のMark Text(`marktext-%version%.dmg`)を[リリースページ](https://github.com/marktext/marktext/releases/latest)からダウンロードするか、[**homebrew cask**](https://github.com/caskroom/homebrew-cask)を用いてインストールしてください。Homebrew-Caskを使うためには、[Homebrew](https://brew.sh/)がインストールされている必要があります。
 
 ```bash
-brew cask install mark-text
+brew install --cask mark-text
 ```
 
 #### Windows

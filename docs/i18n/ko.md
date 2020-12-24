@@ -210,7 +210,7 @@ Open Collective: 모든 지출은 투명합니다. 후원금은 마크 텍스트
 최신 `marktext-%version%.dmg`를 [릴리즈 페이지](https://github.com/marktext/marktext/releases/latest)에서 다운로드하거나 [**homebrew cask**](https://github.com/caskroom/homebrew-cask)를 이용하여 설치할 수 있습니다. Homebrew-Cask를 이용하려면 [Homebrew](https://brew.sh/)가 설치되어 있어야 합니다.
 
 ```bash
-brew cask install mark-text
+brew install --cask mark-text
 ```
 
 #### 윈도우

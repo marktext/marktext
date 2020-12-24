@@ -212,7 +212,7 @@ Mark Text 是一个使用 MIT license 的开源项目，您将一直能够从 Gi
 您可以从 [release 页面](https://github.com/marktext/marktext/releases/latest)下载最新的 `marktext-%version%.dmg` 或者使用 [**homebrew cask**](https://github.com/caskroom/homebrew-cask) 安装 Mark Text。要使用 Homebrew-Cask，您只需要安装 [Homebrew](https://brew.sh/)。
 
 ```bash
-brew cask install mark-text
+brew install --cask mark-text
 ```
 
 #### Windows
