@@ -127,7 +127,7 @@
 
 Si estás usando macOS, puedes instalar Mart Text usando [**homebrew cask**](https://github.com/caskroom/homebrew-cask). Para usar Homebrew-Cask, tienes que tener instalado [Homebrew](https://brew.sh/)
 ```bash
-brew cask install mark-text
+brew install --cask mark-text
 ```
 
 ![](../../docs/brew-cask.gif)

@@ -212,7 +212,7 @@ Son sürümde gelen değişiklikler için [CHANGELOG](.github/CHANGELOG.md)'a ba
 Mark Text'i [indirmeler](https://github.com/marktext/marktext/releases/latest)'den`marktext-%sürüm%.dmg` olarak  indirebilir, ya da [**homebrew cask**](https://github.com/caskroom/homebrew-cask) yoluyla kurabilirsiniz. Homebrew-Cask kullanabilmek için [Homebrew](https://brew.sh/)'ün kurulu olması gerekir.
 
 ```bash
-brew cask install mark-text
+brew install --cask mark-text
 ```
 
 #### Windows

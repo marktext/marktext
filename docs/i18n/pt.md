@@ -213,7 +213,7 @@ Quer ver os últimos recursos? Por favor acesse o [Histórico de Mudanças](.git
 Você pode baixar o último `marktext-%version%.dmg` acessando [página de versões](https://github.com/marktext/marktext/releases/latest) ou instale o Mark Text usando [**homebrew cask**](https://github.com/caskroom/homebrew-cask). Para usar Homebrew-Cask você precisa ter o [Homebrew](https://brew.sh/) instalado.
 
 ```bash
-brew cask install mark-text
+brew install --cask mark-text
 ```
 
 #### Windows

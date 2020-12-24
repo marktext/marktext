@@ -128,7 +128,7 @@ Vous voulez voir une nouvelle feature dans la prochaine version? Consulté le [C
 Si vous êtes sur OS X, vous pouvez installer Mark Text via [**homebrew cask**](https://github.com/caskroom/homebrew-cask), pour commencer à utiliser Homebrew-Cask, vous avez seulement besoin d'avoir [Homebrew](https://brew.sh/) installer sur votre machine.
 
 ```bash
-brew cask install mark-text
+brew install --cask mark-text
 ```
 
 ![](../../docs/brew-cask.gif)
