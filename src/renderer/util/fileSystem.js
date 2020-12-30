@@ -1,29 +1,59 @@
 import path from 'path'
+import crypto from 'crypto'
 import { clipboard } from 'electron'
-import fse from 'fs-extra'
+import fs from 'fs-extra'
 import dayjs from 'dayjs'
 import Octokit from '@octokit/rest'
+import { ensureDirSync } from 'common/filesystem'
 import { isImageFile } from 'common/filesystem/paths'
-import { dataURItoBlob, getContentHash } from './index'
+import { dataURItoBlob } from './index'
 import axios from '../axios'
 
 export const create = (pathname, type) => {
   if (type === 'directory') {
-    return fse.ensureDir(pathname)
+    return fs.ensureDir(pathname)
   } else {
-    return fse.outputFile(pathname, '')
+    return fs.outputFile(pathname, '')
   }
 }
 
 export const paste = ({ src, dest, type }) => {
-  return type === 'cut' ? fse.move(src, dest) : fse.copy(src, dest)
+  return type === 'cut' ? fs.move(src, dest) : fs.copy(src, dest)
 }
 
 export const rename = (src, dest) => {
-  return fse.move(src, dest)
+  return fs.move(src, dest)
+}
+
+export const getHash = (content, encoding, type) => {
+  return crypto.createHash(type).update(content, encoding).digest('hex')
+}
+
+export const getContentHash = content => {
+  return getHash(content, 'utf8', 'sha1')
+}
+
+export const moveToRelativeFolder = async (cwd, imagePath, relativeName) => {
+  if (!relativeName) {
+    // Use fallback name according settings description
+    relativeName = 'assets'
+  } else if (path.isAbsolute(relativeName)) {
+    throw new Error('Invalid relative directory name')
+  }
+
+  // Path combination:
+  //  - markdown file directory + relative directory name or
+  //  - root directory + relative directory name
+  const absPath = path.resolve(cwd, relativeName)
+  ensureDirSync(absPath)
+
+  const dstPath = path.resolve(absPath, path.basename(imagePath))
+  await fs.move(imagePath, dstPath, { overwrite: true })
+  return dstPath
 }
 
 export const moveImageToFolder = async (pathname, image, dir) => {
+  ensureDirSync(dir)
   const isPath = typeof image === 'string'
   if (isPath) {
     const dirname = path.dirname(pathname)
@@ -39,7 +69,7 @@ export const moveImageToFolder = async (pathname, image, dir) => {
       const hash = getContentHash(imagePath)
       // To avoid name conflict.
       const hashFilePath = path.join(dir, `${hash}${extname}`)
-      await fse.copy(imagePath, hashFilePath)
+      await fs.copy(imagePath, hashFilePath)
       return hashFilePath
     } else {
       return Promise.resolve(image)
@@ -55,7 +85,7 @@ export const moveImageToFolder = async (pathname, image, dir) => {
 
       fileReader.readAsBinaryString(image)
     })
-    await fse.writeFile(imagePath, binaryString, 'binary')
+    await fs.writeFile(imagePath, binaryString, 'binary')
     return imagePath
   }
 }
@@ -137,11 +167,11 @@ export const uploadImage = async (pathname, image, preferences) => {
     const imagePath = path.resolve(dirname, image)
     const isImage = isImageFile(imagePath)
     if (isImage) {
-      const { size } = await fse.stat(imagePath)
+      const { size } = await fs.stat(imagePath)
       if (size > MAX_SIZE) {
         notification()
       } else {
-        const imageFile = await fse.readFile(imagePath)
+        const imageFile = await fs.readFile(imagePath)
         const blobFile = new Blob([imageFile])
         if (currentUploader === 'smms') {
           uploadToSMMS(blobFile)

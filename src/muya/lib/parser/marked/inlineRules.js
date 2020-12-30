@@ -30,7 +30,7 @@ const inline = {
   // patched
 
   // allow inline math "$" and superscript ("?=[\\<!\[`*]" to "?=[\\<!\[`*\$^]")
-  text: /^(`+|[^`])(?:[\s\S]*?(?:(?=[\\<!\[`*\$^]|\b_|$)|[^ ](?= {2,}\n))|(?= {2,}\n))/, // emoji is patched in gfm
+  text: /^(`+|[^`])(?:(?= {2,}\n)|[\s\S]*?(?:(?=[\\<!\[`*\$^]|\b_|$)|[^ ](?= {2,}\n))|(?= {2,}\n))/, // emoji is patched in gfm
 
   // ------------------------
   // extra
@@ -47,7 +47,11 @@ const inline = {
 
 // list of punctuation marks from common mark spec
 // without ` and ] to workaround Rule 17 (inline code blocks/links)
-inline._punctuation = '!"#$%&\'()*+,\\-./:;<=>?@\\[^_{|}~'
+// without , to work around example 393
+inline._punctuation = '!"#$%&\'()+\\-.,/:;<=>?@\\[\\]`^{|}~'
+
+inline._comment = edit(block._comment).replace('(?:-->|$)', '-->').getRegex()
+
 inline.em = edit(inline.em).replace(/punctuation/g, inline._punctuation).getRegex()
 
 inline._escapes = /\\([!"#$%&'()*+,\-./:;<=>?@\[\]\\^_`{|}~])/g
@@ -62,12 +66,12 @@ inline.autolink = edit(inline.autolink)
 inline._attribute = /\s+[a-zA-Z:_][\w.:-]*(?:\s*=\s*"[^"]*"|\s*=\s*'[^']*'|\s*=\s*[^\s"'=<>`]+)?/
 
 inline.tag = edit(inline.tag)
-  .replace('comment', block._comment)
+  .replace('comment', inline._comment)
   .replace('attribute', inline._attribute)
   .getRegex()
 
-inline._label = /(?:\[[^\[\]]*\]|\\.|`[^`]*`|[^\[\]\\`])*?/
-inline._href = /<(?:\\[<>]?|[^\s<>\\])*>|[^\s\x00-\x1f]*/ // eslint-disable-line no-control-regex
+inline._label = /(?:\[(?:\\.|[^\[\]\\])*\]|\\.|`[^`]*`|[^\[\]\\`])*?/
+inline._href = /<(?:\\.|[^\n<>\\])+>|[^\s\x00-\x1f]*/ // eslint-disable-line no-control-regex
 inline._title = /"(?:\\"?|[^"\\])*"|'(?:\\'?|[^'\\])*'|\((?:\\\)?|[^)\\])*\)/
 
 inline.link = edit(inline.link)
@@ -110,13 +114,13 @@ export const gfm = Object.assign({}, normal, {
   _extended_email: /[A-Za-z0-9._+-]+(@)[a-zA-Z0-9-_]+(?:\.[a-zA-Z0-9-_]*[a-zA-Z0-9])+(?![-_])/,
   url: /^((?:ftp|https?):\/\/|www\.)(?:[a-zA-Z0-9\-]+\.?)+[^\s<]*|^email/,
   _backpedal: /(?:[^?!.,:;*_~()&]+|\([^)]*\)|&(?![a-zA-Z0-9]+;$)|[?!.,:;*_~)]+(?!$))+/,
-  del: /^~+(?=\S)([\s\S]*?\S)~+/,
+  del: /^(~~?)(?=[^\s~])([\s\S]*?[^\s~])\1(?=[^~]|$)/,
 
   // ------------------------
   // patched
 
   // allow inline math "$" and emoji ":" and superscrpt "^" ("?=[\\<!\[`*~]|" to "?=[\\<!\[`*~:\$^]|")
-  text: /^(`+|[^`])(?:[\s\S]*?(?:(?=[\\<!\[`*~:\$^]|\b_|https?:\/\/|ftp:\/\/|www\.|$)|[^ ](?= {2,}\n)|[^a-zA-Z0-9.!#$%&'*+\/=?_`{\|}~-](?=[a-zA-Z0-9.!#$%&'*+\/=?_`{\|}~-]+@))|(?= {2,}\n|[a-zA-Z0-9.!#$%&'*+\/=?_`{\|}~-]+@))/,
+  text: /^([`~]+|[^`~])(?:(?= {2,}\n)|[\s\S]*?(?:(?=[\\<!\[`*~:\$^]|\b_|https?:\/\/|ftp:\/\/|www\.|$)|[^ ](?= {2,}\n)|[^a-zA-Z0-9.!#$%&'*+\/=?_`{\|}~-](?=[a-zA-Z0-9.!#$%&'*+\/=?_`{\|}~-]+@))|(?= {2,}\n|[a-zA-Z0-9.!#$%&'*+\/=?_`{\|}~-]+@))/,
 
   // ------------------------
   // extra

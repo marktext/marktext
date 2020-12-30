@@ -7,22 +7,26 @@
   "autoSaveDelay": {
     "description": "General--The time in ms after a change that the file is saved.",
     "type": "number",
-    "minimum": 1000
+    "minimum": 1000,
+    "default": 5000
   },
   "titleBarStyle": {
     "description": "General--The title bar style (Windows and Linux system only).",
     "enum": [
       "custom",
       "native"
-    ]
+    ],
+    "default": "custom"
   },
   "openFilesInNewWindow": {
     "description": "General--Open files in a new window.",
-    "type": "boolean"
+    "type": "boolean",
+    "default": false
   },
   "openFolderInNewWindow": {
     "description": "General--Open folder via menu in a new window.",
-    "type": "boolean"
+    "type": "boolean",
+    "default": false
   },
   "hideScrollbar": {
     "description": "General--Whether to hide scrollbars.",
@@ -44,7 +48,8 @@
       "modified",
       "created",
       "title"
-    ]
+    ],
+    "default": "modified"
   },
   "startUpAction": {
     "description": "General--The action after Mark Text startup, open the last edited content, open the specified folder or blank page",
@@ -52,7 +57,8 @@
       "folder",
       "lastState",
       "blank"
-    ]
+    ],
+    "default": "blank"
   },
   "defaultDirectoryToOpen": {
     "description": "General--The default directory that should be opened on startup when startUp=folder.",
@@ -60,12 +66,14 @@
   },
   "language": {
     "description": "General--The language Mark Text use.",
-    "type": "string"
+    "type": "string",
+    "default": "en"
   },
   "editorFontFamily": {
     "description": "Editor--editor font family",
     "type": "string",
-    "pattern": "^[^\\s]+((-|\\s)*[^\\s])*$"
+    "pattern": "^[^\\s]+((-|\\s)*[^\\s])*$",
+    "default": "Open Sans"
   },
   "fontSize": {
     "description": "Editor--Font size in pixels",
@@ -84,7 +92,8 @@
   "editorLineWidth": {
     "description": "Editor--Defines the maximum editor area width. An empty string or suffixes of ch (characters), px (pixels) or % (percentage) are allowed.",
     "type": "string",
-    "pattern": "^(?:$|[0-9]+(?:ch|px|%)$)"
+    "pattern": "^(?:$|[0-9]+(?:ch|px|%)$)",
+    "default": ""
   },
   "codeFontSize": {
     "description": "Editor--Font size in code Block, the range is 12 ~ 18",
@@ -96,7 +105,8 @@
   "codeFontFamily": {
     "description": "Editor--Font family used in code block",
     "type": "string",
-    "pattern": "^[^\\s]+((-|\\s)*[^\\s])*$"
+    "pattern": "^[^\\s]+((-|\\s)*[^\\s])*$",
+    "default": "DejaVu Sans Mono"
   },
   "codeBlockLineNumbers": {
     "description": "Editor--Whether to show the line numbers",
@@ -105,19 +115,23 @@
   },
   "trimUnnecessaryCodeBlockEmptyLines": {
     "description": "Editor--Trim the beginning and ending empty lines in code block",
-    "type": "boolean"
+    "type": "boolean",
+    "default": true
   },
   "autoPairBracket": {
     "description": "Editor--Automatically brackets when editing",
-    "type": "boolean"
+    "type": "boolean",
+    "default": true
   },
   "autoPairMarkdownSyntax": {
     "description": "Editor--Autocomplete markdown syntax",
-    "type": "boolean"
+    "type": "boolean",
+    "default": true
   },
   "autoPairQuote": {
     "description": "Editor--Automatic completion of quotes",
-    "type": "boolean"
+    "type": "boolean",
+    "default": true
   },
   "endOfLine": {
     "description": "Editor--The newline character used at the end of each line. The default value is default, which selects your operating system's default newline character.",
@@ -132,6 +146,7 @@
     "description": "Editor--The default file encoding.",
     "default": "utf8",
     "enum": [
+      "ascii",
       "utf8",
       "utf16be",
       "utf16le",
@@ -189,11 +204,13 @@
     "enum": [
       "ltr",
       "rtl"
-    ]
+    ],
+    "default": "ltr"
   },
   "hideQuickInsertHint": {
     "description": "Editor--Hide hint for quickly creating paragraphs",
-    "type": "boolean"
+    "type": "boolean",
+    "default": false
   },
   "hideLinkPopup": {
     "description": "Editor--Hide link popup when the cursor is hover on the link",
@@ -207,7 +224,8 @@
   },
   "preferLooseListItem": {
     "description": "Markdown--The preferred list type",
-    "type": "boolean"
+    "type": "boolean",
+    "default": true
   },
   "bulletListMarker": {
     "description": "Markdown--The marker used in bullet list",
@@ -215,25 +233,29 @@
       "-",
       "*",
       "+"
-    ]
+    ],
+    "default": "-"
   },
   "orderListDelimiter": {
     "description": "Markdown--The dilimiter used in order list",
     "enum": [
       ".",
       ")"
-    ]
+    ],
+    "default": "."
   },
   "preferHeadingStyle": {
     "description": "Markdown--The preferred heading style in Mark Text",
     "enum": [
       "atx",
       "setext"
-    ]
+    ],
+    "default": "atx"
   },
   "tabSize": {
     "description": "Markdown--Replace the tab with x spaces",
-    "type": "number"
+    "type": "number",
+    "default": 4
   },
   "listIndentation": {
     "description": "Markdown--Select the indent of list",
@@ -244,7 +266,8 @@
       2,
       3,
       4
-    ]
+    ],
+    "default": 1
   },
   "frontmatterType": {
     "description": "Markdown--The frontmatter type",
@@ -253,7 +276,8 @@
       "+",
       ";",
       "{"
-    ]
+    ],
+    "default": "-"
   },
   "superSubScript": {
     "description": "Markdown-Enable pandoc's markdown extension superscript and subscript.",
@@ -265,16 +289,28 @@
     "type": "boolean",
     "default": false
   },
+  "isHtmlEnabled": {
+    "description": "Markdown-Enable HTML rendering",
+    "type": "boolean",
+    "default": true
+  },
+  "isGitlabCompatibilityEnabled": {
+    "description": "Markdown-Enable GitLab compatibility mode.",
+    "type": "boolean",
+    "default": false
+  },
   "sequenceTheme": {
     "description": "Markdown--Sequence diagram theme",
     "enum": [
       "hand",
       "simple"
-    ]
+    ],
+    "default": "hand"
   },
   "theme": {
     "description": "Theme--Select the theme used in Mark Text",
-    "type": "string"
+    "type": "string",
+    "default": "light"
   },
   "autoSwitchTheme": {
     "description": "Theme--Automatically adjust application theme according system.",
@@ -307,7 +343,7 @@
   },
   "spellcheckerLanguage": {
     "description": "Spelling--The spell checker language",
-    "pattern": "^[a-z]{2}(?:[-][A-Z]{2})?$",
+    "pattern": "^[a-z]{2,3}(?:[-](?:[0-9]|[a-zA-Z]){2,}){0,2}$",
     "default": "en-US"
   },
   "imageInsertAction": {
@@ -316,46 +352,66 @@
       "upload",
       "folder",
       "path"
-    ]
+    ],
+    "default": "path"
+  },
+  "imagePreferRelativeDirectory": {
+    "description": "Image--Whether to prefer the relative image directory.",
+    "type": "boolean",
+    "default": false
+  },
+  "imageRelativeDirectoryName": {
+    "description": "Image--The relative image folder name.",
+    "type": "string",
+    "default": "assets"
   },
   "sideBarVisibility": {
     "description": "View--Whether the side bar is visible.",
-    "type": "boolean"
+    "type": "boolean",
+    "default": false
   },
   "tabBarVisibility": {
     "description": "View--Whether the tabs are shown.",
-    "type": "boolean"
+    "type": "boolean",
+    "default": false
   },
   "sourceCodeModeEnabled": {
     "description": "View--Whether the source-code mode is enabled by default.",
-    "type": "boolean"
+    "type": "boolean",
+    "default": false
   },
   "searchExclusions": {
     "description": "Searcher--List of glob patterns to exclude from search.",
     "type": "array",
     "items": {
       "type": "string"
-    }
+    },
+    "default": []
   },
   "searchMaxFileSize": {
     "description": "Searcher--The maximal file size (<maxFileSize><suffix>). Suffixes of K, M or G are allowed if not suffix is given the number is treated as bytes.",
     "type": "string",
-    "pattern": "^(?:$|[0-9]+(?:K|M|G)?$)"
+    "pattern": "^(?:$|[0-9]+(?:K|M|G)?$)",
+    "default": ""
   },
   "searchIncludeHidden": {
     "description": "Searcher--Whether to search in hidden files and directories.",
-    "type": "boolean"
+    "type": "boolean",
+    "default": false
   },
   "searchNoIgnore": {
     "description": "Searcher--Whether to ignore ignore files like .gitignore.",
-    "type": "boolean"
+    "type": "boolean",
+    "default": false
   },
   "searchFollowSymlinks": {
     "description": "Searcher--Whether symlinks should be followed.",
-    "type": "boolean"
+    "type": "boolean",
+    "default": true
   },
   "watcherUsePolling": {
     "description": "Watcher--Whether to use polling. Polling may leads to high CPU utilization but is necessary to watch files over a network.",
-    "type": "boolean"
+    "type": "boolean",
+    "default": false
   }
 }

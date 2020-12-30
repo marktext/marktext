@@ -40,22 +40,22 @@ export const tabSizeOptions = [{
 }]
 
 export const listIndentationOptions = [{
-  label: 'dfm',
+  label: 'DocFX style',
   value: 'dfm'
 }, {
-  label: 'tab',
+  label: 'True tab character',
   value: 'tab'
 }, {
-  label: '1 space',
+  label: 'Single space character',
   value: 1
 }, {
-  label: '2 spaces',
+  label: 'Two space characters',
   value: 2
 }, {
-  label: '3 spaces',
+  label: 'Three space characters',
   value: 3
 }, {
-  label: '4 spaces',
+  label: 'Four space characters',
   value: 4
 }]
 

@@ -46,7 +46,11 @@ module.exports = {
     'no-new': "off",
     'no-mixed-operators': "off",
     'no-prototype-builtins': "off",
-    "no-return-await": "off"
+    'no-return-await': "off",
+    'accessor-pairs': "off",
+    // Workaround #2422.
+    'template-curly-spacing': "off",
+    'indent' : "off"
   },
   settings: {
     'import/resolver': {

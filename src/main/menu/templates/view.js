@@ -5,7 +5,7 @@ export default function (keybindings) {
   const viewMenu = {
     label: '&View',
     submenu: [{
-      label: 'Command Palette',
+      label: 'Command Palette...',
       accelerator: keybindings.getAccelerator('view.command-palette'),
       click (menuItem, browserWindow) {
         actions.showCommandPalette(browserWindow)
@@ -54,7 +54,7 @@ export default function (keybindings) {
     }, {
       type: 'separator'
     }, {
-      label: 'Toggle Sidebar',
+      label: 'Show Sidebar',
       id: 'sideBarMenuItem',
       accelerator: keybindings.getAccelerator('view.toggle-sidebar'),
       type: 'checkbox',
@@ -68,7 +68,7 @@ export default function (keybindings) {
         actions.layout(item, browserWindow, 'showSideBar')
       }
     }, {
-      label: 'Toggle Tabbar',
+      label: 'Show Tab Bar',
       id: 'tabBarMenuItem',
       accelerator: keybindings.getAccelerator('view.toggle-tabbar'),
       type: 'checkbox',
@@ -82,13 +82,20 @@ export default function (keybindings) {
         actions.layout(item, browserWindow, 'showTabBar')
       }
     }, {
+      label: 'Toggle Table of Contents',
+      id: 'tocMenuItem',
+      accelerator: keybindings.getAccelerator('view.toggle-toc'),
+      click (_, browserWindow) {
+        actions.layout(null, browserWindow, 'rightColumn', 'toc')
+      }
+    }, {
       type: 'separator'
     }]
   }
 
   if (global.MARKTEXT_DEBUG) {
     viewMenu.submenu.push({
-      label: 'Toggle Developer Tools',
+      label: 'Show Developer Tools',
       accelerator: keybindings.getAccelerator('view.toggle-dev-tools'),
       click (item, focusedWindow) {
         if (focusedWindow) {

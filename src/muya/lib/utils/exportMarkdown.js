@@ -10,11 +10,12 @@
  */
 
 class ExportMarkdown {
-  constructor (blocks, listIndentation = 1) {
+  constructor (blocks, listIndentation = 1, isGitlabCompatibilityEnabled = false) {
     this.blocks = blocks
     this.listType = [] // 'ul' or 'ol'
     // helper to translate the first tight item in a nested list
     this.isLooseParentList = true
+    this.isGitlabCompatibilityEnabled = !!isGitlabCompatibilityEnabled
 
     // set and validate settings
     this.listIndentation = 'number'
@@ -229,12 +230,20 @@ class ExportMarkdown {
   }
 
   normalizeMultipleMath (block, /* figure */ indent) {
+    const { isGitlabCompatibilityEnabled } = this
+    let startToken = '$$'
+    let endToken = '$$'
+    if (isGitlabCompatibilityEnabled && block.mathStyle === 'gitlab') {
+      startToken = '```math'
+      endToken = '```'
+    }
+
     const result = []
-    result.push(`${indent}$$\n`)
+    result.push(`${indent}${startToken}\n`)
     for (const line of block.children[0].children[0].children) {
       result.push(`${indent}${line.text}\n`)
     }
-    result.push(`${indent}$$\n`)
+    result.push(`${indent}${endToken}\n`)
     return result.join('')
   }
 

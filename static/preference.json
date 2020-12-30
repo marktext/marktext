@@ -31,6 +31,8 @@
   "textDirection": "ltr",
   "hideQuickInsertHint": false,
   "imageInsertAction": "path",
+  "imagePreferRelativeDirectory": false,
+  "imageRelativeDirectoryName": "assets",
   "hideLinkPopup": false,
   "autoCheck": false,
 
@@ -43,6 +45,8 @@
   "frontmatterType": "-",
   "superSubScript": false,
   "footnote": false,
+  "isHtmlEnabled": true,
+  "isGitlabCompatibilityEnabled": false,
   "sequenceTheme": "hand",
 
   "theme": "light",

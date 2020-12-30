@@ -700,6 +700,39 @@ const actions = {
     })
   },
 
+  LISTEN_FOR_SWITCH_TABS ({ commit, state, dispatch }) {
+    ipcRenderer.on('mt::switch-first-tab', e => {
+      dispatch('SWITCH_TABS', 1)
+    })
+    ipcRenderer.on('mt::switch-second-tab', e => {
+      dispatch('SWITCH_TABS', 2)
+    })
+    ipcRenderer.on('mt::switch-third-tab', e => {
+      dispatch('SWITCH_TABS', 3)
+    })
+    ipcRenderer.on('mt::switch-fourth-tab', e => {
+      dispatch('SWITCH_TABS', 4)
+    })
+    ipcRenderer.on('mt::switch-fifth-tab', e => {
+      dispatch('SWITCH_TABS', 5)
+    })
+    ipcRenderer.on('mt::switch-sixth-tab', e => {
+      dispatch('SWITCH_TABS', 6)
+    })
+    ipcRenderer.on('mt::switch-seventh-tab', e => {
+      dispatch('SWITCH_TABS', 7)
+    })
+    ipcRenderer.on('mt::switch-eighth-tab', e => {
+      dispatch('SWITCH_TABS', 8)
+    })
+    ipcRenderer.on('mt::switch-ninth-tab', e => {
+      dispatch('SWITCH_TABS', 9)
+    })
+    ipcRenderer.on('mt::switch-tenth-tab', e => {
+      dispatch('SWITCH_TABS', 10)
+    })
+  },
+
   CLOSE_TAB ({ dispatch }, file) {
     const { isSaved } = file
     if (isSaved) {
@@ -758,6 +791,29 @@ const actions = {
       nextTabIndex = (currentIndex + 1) % tabs.length
     }
 
+    const nextTab = tabs[nextTabIndex]
+    if (!nextTab || !nextTab.id) {
+      console.error(`CYCLE_TABS: Cannot find next tab (index="${nextTabIndex}").`)
+      return
+    }
+    commit('SET_CURRENT_FILE', nextTab)
+    dispatch('UPDATE_LINE_ENDING_MENU')
+  },
+
+  // switch tabs with Alt+#num.
+  SWITCH_TABS ({ commit, dispatch, state }, num) {
+    const { tabs, currentFile } = state
+    if (tabs.length <= 1 || num > tabs.length) {
+      return
+    }
+
+    const currentIndex = tabs.findIndex(t => t.id === currentFile.id)
+    if (currentIndex === -1) {
+      console.error('CYCLE_TABS: Cannot find current tab index.')
+      return
+    }
+
+    const nextTabIndex = num - 1
     const nextTab = tabs[nextTabIndex]
     if (!nextTab || !nextTab.id) {
       console.error(`CYCLE_TABS: Cannot find next tab (index="${nextTabIndex}").`)

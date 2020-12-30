@@ -17,5 +17,5 @@ export const zoomOut = win => {
   const { webContents } = win
   const zoom = webContents.getZoomFactor()
   // WORKAROUND: We need to set zoom on the browser window due to Electron#16018.
-  webContents.send('mt::window-zoom', Math.max(1.0, zoom - 0.125))
+  webContents.send('mt::window-zoom', Math.max(0.5, zoom - 0.125))
 }

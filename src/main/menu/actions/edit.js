@@ -5,6 +5,11 @@ import { searchFilesAndDir } from '../../utils/imagePathAutoComplement'
 
 ipcMain.on('mt::ask-for-image-auto-path', (e, { pathname, src, id }) => {
   const win = BrowserWindow.fromWebContents(e.sender)
+  if (!src || typeof src !== 'string') {
+    win.webContents.send(`mt::response-of-image-path-${id}`, [])
+    return
+  }
+
   if (src.endsWith('/') || src.endsWith('\\') || src.endsWith('.')) {
     return win.webContents.send(`mt::response-of-image-path-${id}`, [])
   }

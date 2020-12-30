@@ -321,8 +321,12 @@ const paragraphCtrl = ContentState => {
           lang
         })
 
-        const listIndentation = this.listIndentation
-        const markdown = new ExportMarkdown(children.slice(startIndex, endIndex + 1), listIndentation).generate()
+        const { isGitlabCompatibilityEnabled, listIndentation } = this
+        const markdown = new ExportMarkdown(
+          children.slice(startIndex, endIndex + 1),
+          listIndentation,
+          isGitlabCompatibilityEnabled
+        ).generate()
         const codeContent = this.createBlock('span', {
           text: markdown,
           lang,
@@ -812,6 +816,7 @@ const paragraphCtrl = ContentState => {
           column: 1,
           cells: [{
             key: cellBlock.key,
+            text: cellBlock.children[0].text,
             top: true,
             right: true,
             bottom: true,

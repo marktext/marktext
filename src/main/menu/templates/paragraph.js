@@ -56,14 +56,14 @@ export default function (keybindings) {
       type: 'separator'
     }, {
       id: 'upgradeHeadingMenuItem',
-      label: 'Upgrade Heading',
+      label: 'Promote Heading',
       accelerator: keybindings.getAccelerator('paragraph.upgrade-heading'),
       click (menuItem, browserWindow) {
         actions.paragraph(browserWindow, 'upgrade heading')
       }
     }, {
       id: 'degradeHeadingMenuItem',
-      label: 'Degrade Heading',
+      label: 'Demote Heading',
       accelerator: keybindings.getAccelerator('paragraph.degrade-heading'),
       click (menuItem, browserWindow) {
         actions.paragraph(browserWindow, 'degrade heading')
@@ -114,7 +114,7 @@ export default function (keybindings) {
       type: 'separator'
     }, {
       id: 'orderListMenuItem',
-      label: 'Order List',
+      label: 'Ordered List',
       type: 'checkbox',
       accelerator: keybindings.getAccelerator('paragraph.order-list'),
       click (menuItem, browserWindow) {
@@ -158,7 +158,7 @@ export default function (keybindings) {
       }
     }, {
       id: 'horizontalLineMenuItem',
-      label: 'Horizontal Line',
+      label: 'Horizontal Rule',
       type: 'checkbox',
       accelerator: keybindings.getAccelerator('paragraph.horizontal-line'),
       click (menuItem, browserWindow) {

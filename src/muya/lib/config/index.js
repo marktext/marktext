@@ -7,32 +7,32 @@ import voidHtmlTags from 'html-tags/void'
 export const DEVICE_MEMORY = navigator.deviceMemory || 4 // Get the divice memory number(Chrome >= 63)
 export const UNDO_DEPTH = DEVICE_MEMORY >= 4 ? 100 : 50
 export const HAS_TEXT_BLOCK_REG = /^span$/i
-export const VOID_HTML_TAGS = voidHtmlTags
-export const HTML_TAGS = htmlTags
+export const VOID_HTML_TAGS = Object.freeze(voidHtmlTags)
+export const HTML_TAGS = Object.freeze(htmlTags)
 // TYPE1 ~ TYPE7 according to https://github.github.com/gfm/#html-blocks
-export const BLOCK_TYPE1 = [
+export const BLOCK_TYPE1 = Object.freeze([
   'script', 'pre', 'style'
-]
+])
 
 export const BLOCK_TYPE2_REG = /^<!--(?=\s).*\s+-->$/
 
-export const BLOCK_TYPE6 = [
+export const BLOCK_TYPE6 = Object.freeze([
   'address', 'article', 'aside', 'base', 'basefont', 'blockquote', 'body', 'caption', 'center', 'col', 'colgroup', 'dd',
   'details', 'dialog', 'dir', 'div', 'dl', 'dt', 'fieldset', 'figcaption', 'figure', 'footer', 'form', 'frame', 'frameset',
   'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'head', 'header', 'hr', 'html', 'iframe', 'legend', 'li', 'link', 'main', 'menu',
   'menuitem', 'meta', 'nav', 'noframes', 'ol', 'optgroup', 'option', 'p', 'param', 'section', 'source', 'summary', 'table',
   'tbody', 'td', 'tfoot', 'th', 'thead', 'title', 'tr', 'track', 'ul'
-]
+])
 
-export const BLOCK_TYPE7 = htmlTags.filter(tag => {
+export const BLOCK_TYPE7 = Object.freeze(htmlTags.filter(tag => {
   return !BLOCK_TYPE1.find(t => t === tag) && !BLOCK_TYPE6.find(t => t === tag)
-})
+}))
 
 export const IMAGE_EXT_REG = /\.(?:jpeg|jpg|png|gif|svg|webp)(?=\?|$)/i
 
-export const PARAGRAPH_TYPES = ['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote', 'pre', 'ul', 'ol', 'li', 'figure']
+export const PARAGRAPH_TYPES = Object.freeze(['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote', 'pre', 'ul', 'ol', 'li', 'figure'])
 
-export const blockContainerElementNames = [
+export const blockContainerElementNames = Object.freeze([
   // elements our editor generates
   ...PARAGRAPH_TYPES,
   // all other known block elements
@@ -40,11 +40,11 @@ export const blockContainerElementNames = [
   'figcaption', 'footer', 'form', 'header', 'hgroup', 'main', 'nav',
   'noscript', 'output', 'section', 'video',
   'table', 'thead', 'tbody', 'tfoot', 'tr', 'th', 'td'
-]
+])
 
-export const emptyElementNames = ['br', 'col', 'colgroup', 'hr', 'img', 'input', 'source', 'wbr']
+export const emptyElementNames = Object.freeze(['br', 'col', 'colgroup', 'hr', 'img', 'input', 'source', 'wbr'])
 
-export const EVENT_KEYS = generateKeyHash([
+export const EVENT_KEYS = Object.freeze(generateKeyHash([
   'Enter',
   'Backspace',
   'Space',
@@ -55,13 +55,13 @@ export const EVENT_KEYS = generateKeyHash([
   'ArrowRight',
   'Tab',
   'Escape'
-])
+]))
 
-export const LOWERCASE_TAGS = generateKeyHash([
+export const LOWERCASE_TAGS = Object.freeze(generateKeyHash([
   ...blockContainerElementNames, ...emptyElementNames, 'div'
-])
+]))
 
-export const CLASS_OR_ID = genUpper2LowerKeyHash([
+export const CLASS_OR_ID = Object.freeze(genUpper2LowerKeyHash([
   'AG_ACTIVE',
   'AG_AUTO_LINK',
   'AG_AUTO_LINK_EXTENSION',
@@ -154,20 +154,20 @@ export const CLASS_OR_ID = genUpper2LowerKeyHash([
   'AG_TOOL_BAR',
   'AG_VEGA_LITE',
   'AG_WARN'
-])
+]))
 
-export const DAED_REMOVE_SELECTOR = new Set([
+export const DAED_REMOVE_SELECTOR = Object.freeze(new Set([
   '.ag-image-marked-text::before',
   '.ag-image-marked-text.ag-image-fail::before',
   '.ag-hide',
   '.ag-gray',
   '.ag-warn'
-])
+]))
 
 export const CURSOR_ANCHOR_DNA = getLongUniqueId()
 export const CURSOR_FOCUS_DNA = getLongUniqueId()
 
-export const DEFAULT_TURNDOWN_CONFIG = {
+export const DEFAULT_TURNDOWN_CONFIG = Object.freeze({
   headingStyle: 'atx', // setext or atx
   hr: '---',
   bulletListMarker: '-', // -, +, or *
@@ -188,9 +188,9 @@ export const DEFAULT_TURNDOWN_CONFIG = {
       return node.isBlock ? '\n\n' : ''
     }
   }
-}
+})
 
-export const FORMAT_MARKER_MAP = {
+export const FORMAT_MARKER_MAP = Object.freeze({
   em: '*',
   inline_code: '`',
   strong: '**',
@@ -212,13 +212,13 @@ export const FORMAT_MARKER_MAP = {
     open: '<mark>',
     close: '</mark>'
   }
-}
+})
 
-export const FORMAT_TYPES = ['strong', 'em', 'del', 'inline_code', 'link', 'image', 'inline_math']
+export const FORMAT_TYPES = Object.freeze(['strong', 'em', 'del', 'inline_code', 'link', 'image', 'inline_math'])
 
 export const LINE_BREAK = '\n'
 
-export const PREVIEW_DOMPURIFY_CONFIG = {
+export const PREVIEW_DOMPURIFY_CONFIG = Object.freeze({
   // do not forbit `class` because `code` element use class to present language
   FORBID_ATTR: ['style', 'contenteditable'],
   ALLOW_DATA_ATTR: false,
@@ -226,11 +226,12 @@ export const PREVIEW_DOMPURIFY_CONFIG = {
     html: true,
     svg: true,
     svgFilters: true,
-    mathMl: true
-  }
-}
+    mathMl: false
+  },
+  RETURN_TRUSTED_TYPE: false
+})
 
-export const EXPORT_DOMPURIFY_CONFIG = {
+export const EXPORT_DOMPURIFY_CONFIG = Object.freeze({
   FORBID_ATTR: ['contenteditable'],
   ALLOW_DATA_ATTR: false,
   ADD_ATTR: ['data-align'],
@@ -238,11 +239,14 @@ export const EXPORT_DOMPURIFY_CONFIG = {
     html: true,
     svg: true,
     svgFilters: true,
-    mathMl: true
-  }
-}
+    mathMl: false
+  },
+  RETURN_TRUSTED_TYPE: false,
+  // Allow "file" protocol to export images on Windows (#1997).
+  ALLOWED_URI_REGEXP: /^(?:(?:(?:f|ht)tps?|mailto|tel|callto|cid|xmpp|file):|[^a-z]|[a-z+.\-]+(?:[^a-z+.\-:]|$))/i // eslint-disable-line no-useless-escape
+})
 
-export const MUYA_DEFAULT_OPTION = {
+export const MUYA_DEFAULT_OPTION = Object.freeze({
   fontSize: 16,
   lineHeight: 1.6,
   focusMode: false,
@@ -280,12 +284,16 @@ export const MUYA_DEFAULT_OPTION = {
 
   // Markdown extensions
   superSubScript: false,
-  footnote: false
-}
+  footnote: false,
+  isGitlabCompatibilityEnabled: false,
 
-// export const DIAGRAM_TEMPLATE = {
+  // Whether HTML rendering is disabled or not.
+  disableHtml: true
+})
+
+// export const DIAGRAM_TEMPLATE = Object.freeze({
 //   'mermaid': `graph LR;\nYou-->|Mark Text|Me;`
-// }
+// })
 
 export const isOsx = window && window.navigator && /Mac/.test(window.navigator.platform)
 export const isWin = window && window.navigator.userAgent && /win32|wow32|win64|wow64/i.test(window.navigator.userAgent)
@@ -296,10 +304,10 @@ export const DATA_URL_REG = /^data:image\/[\w+-]+(;[\w-]+=[\w-]+|;base64)*,[a-zA
 // The smallest transparent gif base64 image.
 // export const SMALLEST_BASE64 = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'
 // export const isIOS = /(?:iPhone|iPad|iPod|iOS)/i.test(window.navigator.userAgent)
-export const defaultSearchOption = {
+export const defaultSearchOption = Object.freeze({
   isCaseSensitive: false,
   isWholeWord: false,
   isRegexp: false,
   selectHighlight: false,
   highlightIndex: -1
-}
+})

@@ -1,3 +1,71 @@
+## 0.16.3
+
+**:warning:Breaking Changes:**
+
+- Disabled rendering of MathML elements.
+
+**:cactus:Feature**
+
+- Added support for SPARQL and Turtle languages (@vemonet).
+- Added support for forward navigation in table cells with `Shift+Tab` (@evan-cohen).
+- Added support for negative zoom.
+- Adjusted footnote inline code font size.
+- Added shortcut to toggle table of contents panel (@zmen).
+- Added settings option to disable HTML rendering.
+- Added support for a relative image directory.
+- Added support to include table of contents in exported document.
+
+**:butterfly:Optimization**
+
+- Improved color of word counter in graphite light theme (@bmvisoky).
+- Improved UX of font selection.
+
+**:beetle:Bug fix**
+
+- Fixed XSS security vulnerability when parsing MathML submitted by @0xBADCA7.
+- Fixed an issue that URLs with trailing slashes are not recognized (@sweetliquid).
+- Fixed closing tabs with mouse-middle click (@mnxn).
+- Fixed an exception when selecting a table cell with `Ctrl+A` (@AmauriAires).
+- Fixed quick open searcher (@munckymagik).
+- Fixed code highlighting in a special case (@zmen).
+- Fixed an issue with shaking in typewriter mode (@MrHeer).
+- Fixed spell checker config schema violation on Windows and allowed BCP-47 language codes.
+- Fixed behavior when a single table cell is selected.
+- Fixed an issue that symbolic files could not be opened.
+- Fixed blank window when opening a second window with `--new-window`.
+
+## 0.16.2
+
+**:warning:Breaking Changes:**
+
+- Toggle focus mode shortcut is now `Ctrl+Shift+J`.
+
+**:cactus:Feature**
+
+- Added shortcut to switch tabs `Alt-#<num>` (@MrHeer).
+- Added GitLab math block support.
+- Support setting text direction via comand palette (@Pajn).
+
+**:butterfly:Optimization**
+
+- Scale headings according editor font size.
+- Increased indentation for sidebar tree view (@BeatLink).
+- Updated user-interface strings (@brainchild0, @Rexogamer).
+
+**:beetle:Bug fix**
+
+- Fixed image export issues on Windows.
+- Fixed an issue that multiple empty shortcuts were not allowed.
+- Fixed image path autocomplete.
+- Fixed an issue that the max width of editor tabs was not rendererd correctly (@aimproxy).
+- Fixed Hunspell dictionary downloader on Windows.
+- Fixed an issue with Hunspell spell checker on Windows.
+- Fixed ASCII (ISO-8859-1) encoding in settings validator.
+- Fixed footnote exception when exporting document.
+- Fixed cryptic characters when exporting document as PDF on macOS (@gSpera).
+- Fixed unnecessary character sanitation when setting clipboard data.
+- Fixed sup- and superscript export issue.
+
 ## 0.16.1
 
 - Fix: Settings page, editor settings are messed up
@@ -44,9 +112,9 @@
 - Search shows open folder warning, no results text and errors @Illyism (#1312)
 - Reordered font settings to show editor and source-code font settings at the top. (#1204)
 - Add whether to trim the beginning and end empty line of code block, add setting option, the default value is trim the empty line. (#1378)
-- Optimization of code block (#1445) 
+- Optimization of code block (#1445)
 - Optimization of table block (#1456)
-- Add tooltip to format tool bar (#1516) 
+- Add tooltip to format tool bar (#1516)
 
 **:beetle:Bug fix**
 

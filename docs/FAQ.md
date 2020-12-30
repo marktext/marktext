@@ -26,7 +26,7 @@ Documentation is currently under development.
 
 ### Can I run a portable version of Mark Text?
 
-Yes, please see [here](../PORTABLE.md) for further information.
+Yes, please see [here](PORTABLE.md) for further information.
 
 ### How can I report bugs and problems
 
@@ -41,3 +41,7 @@ Normally, you should never get this error but if you disabled user namespaces, t
 - Enable Linux kernel user namespaces to use the preferred sandbox: `sudo sysctl kernel.unprivileged_userns_clone=1`.
 - Set correct SUID sandbox helper binary permissions: `sudo chown root <path_to_marktext_dir>/chrome-sandbox && sudo chmod 4755 <path_to_marktext_dir>/chrome-sandbox`. This is prefered if you don't want to enable user namespaces.
 - Launch Mark Text with `--no-sandbox` argument.
+
+### What is a "Aidou" ?
+
+Aidou is a chinese service that provides images to illustrate articles or blog post. You can enable/disable it via your preferences.

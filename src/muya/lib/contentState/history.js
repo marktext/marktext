@@ -6,9 +6,11 @@ class History {
     this.stack = []
     this.index = -1
     this.contentState = contentState
+    this.pending = null
   }
 
   undo () {
+    this.commitPending()
     if (this.index > 0) {
       this.index = this.index - 1
 
@@ -23,6 +25,7 @@ class History {
   }
 
   redo () {
+    this.pending = null
     const { index, stack } = this
     const len = stack.length
     if (index < len - 1) {
@@ -38,6 +41,7 @@ class History {
   }
 
   push (state) {
+    this.pending = null
     this.stack.splice(this.index + 1)
     const copyState = deepCopy(state)
     this.stack.push(copyState)
@@ -48,9 +52,20 @@ class History {
     this.index = this.index + 1
   }
 
+  pushPending (state) {
+    this.pending = state
+  }
+
+  commitPending () {
+    if (this.pending) {
+      this.push(this.pending)
+    }
+  }
+
   clearHistory () {
     this.stack = []
     this.index = -1
+    this.pending = null
   }
 }
 

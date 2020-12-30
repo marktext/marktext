@@ -18,7 +18,7 @@
           :key="file.id"
           :data-id="file.id"
           @click.stop="selectFile(file)"
-          @click.middle="closeTab(file)"
+          @click.middle="closeTab(file.id)"
           @contextmenu.prevent="handleContextMenu($event, file)"
         >
           <span>{{ file.filename }}</span>
@@ -100,6 +100,9 @@ export default {
     closeAll () {
       this.$store.dispatch('CLOSE_ALL_TABS')
     },
+    changeMaxWidth (width) {
+      this.$store.dispatch('CHANGE_SIDE_BAR_WIDTH', width)
+    },
     rename (tabId) {
       const tab = this.tabs.find(f => f.id === tabId)
       if (tab && tab.pathname) {
@@ -134,6 +137,7 @@ export default {
       bus.$on('TABS::rename', this.rename)
       bus.$on('TABS::copy-path', this.copyPath)
       bus.$on('TABS::show-in-folder', this.showInFolder)
+      bus.$on('EDITOR_TABS::change-max-width', this.changeMaxWidth)
     })
   },
   mounted () {

@@ -9,14 +9,12 @@ directories:
 files:
 - "dist/electron/**/*"
 # Don't bundle these files
-- "!**/node_modules/*/{CHANGELOG.md,README.md,README,readme.md,readme}"
+- "!**/node_modules/**/{CHANGELOG.md,README.md,README,readme.md,readme}"
 - "!node_modules/css-b64-images/{draft.png,draft.xcf}"
-- "!node_modules/dagre-d3-renderer/dist/{dagre-d3.js.map,demo/}"
-- "!node_modules/dagre-layout/dist/dagre-layout*.js.map"
+- "!node_modules/dagre-d3-renderer/dist/demo/"
 - "!node_modules/dragula/resources"
-- "!node_modules/mermaid/dist/mermaid*.js.map"
-- "!node_modules/terser/dist/bundle.min.js.map"
-- "!node_modules/vega-lite/build/vega-lite*.js.map"
+- "!node_modules/**/*.js.map"
+- "!node_modules/**/*.ts.map"
 # Don't bundle build files
 - "!node_modules/@felixrieseberg/spellchecker/bin"
 - "!node_modules/@hfelix/spellchecker/bin"
@@ -27,10 +25,12 @@ files:
 - "!node_modules/fontmanager-redux/bin"
 - "!node_modules/keyboard-layout/bin"
 - "!node_modules/keytar/bin"
-- "!node_modules/vscode-windows-registry/bin"
+# Don't bundle Linux build files
+- "!node_modules/@hfelix/spellchecker/build/Release/hunspell.a"
+- "!node_modules/ced/build/Release/compact_enc_det.a"
 # Don't bundle Windows build files
 - "!node_modules/**/{*.vcxproj,*.vcxproj.filters}"
-- "!node_modules/**/build/Release/{*.lib,*.exp,*.ilk,*.pdb}"
+- "!node_modules/**/build/Release/{*.lib,*.exp,*.ilk,*.pdb,*.iobj,*.ipdb}"
 - "!node_modules/**/build/Release/obj"
 - "!node_modules/ced/build/vendor"
 # Don't bundle LGPL source files

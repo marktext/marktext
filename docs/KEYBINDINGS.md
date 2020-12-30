@@ -132,18 +132,29 @@ Here is an example:
 | `view.command-palette`  | <kbd>CmdOrCtrl</kbd>+<kbd>Shift</kbd>+<kbd>P</kbd> | Toggle command palette                   |
 | `view.source-code-mode` | <kbd>CmdOrCtrl</kbd>+<kbd>Alt</kbd>+<kbd>S</kbd>   | Switch to source code mode               |
 | `view.typewriter-mode`  | <kbd>CmdOrCtrl</kbd>+<kbd>Alt</kbd>+<kbd>T</kbd>   | Enable typewriter mode                   |
-| `view.focus-mode`       | <kbd>CmdOrCtrl</kbd>+<kbd>Shift</kbd>+<kbd>F</kbd> | Enable focus mode                        |
+| `view.focus-mode`       | <kbd>CmdOrCtrl</kbd>+<kbd>Shift</kbd>+<kbd>J</kbd> | Enable focus mode                        |
 | `view.toggle-sidebar`   | <kbd>CmdOrCtrl</kbd>+<kbd>J</kbd>                  | Toggle sidebar                           |
 | `view.toggle-tabbar`    | <kbd>CmdOrCtrl</kbd>+<kbd>Alt</kbd>+<kbd>B</kbd>   | Toggle tabbar                            |
+| `view.toggle-toc` .     | <kbd>CmdOrCtrl</kbd>+<kbd>K</kbd>                  | Toggle table of contents                 |
 | `view.toggle-dev-tools` | <kbd>CmdOrCtrl</kbd>+<kbd>Alt</kbd>+<kbd>I</kbd>   | Toggle developer tools (debug mode only) |
 | `view.dev-reload`       | <kbd>CmdOrCtrl</kbd>+<kbd>R</kbd>                  | Reload window (debug mode only)          |
 
 **Misc**
 
-| Id                     | Default                                              | Description                  |
-| ---------------------- | ---------------------------------------------------- | ---------------------------- |
-| `tabs.cycle-forward`   | <kbd>CmdOrCtrl</kbd>+<kbd>Tab</kbd>                  | Cycle through tabs           |
-| `tabs.cycle-backward`  | <kbd>CmdOrCtrl</kbd>+<kbd>Shift</kbd>+<kbd>Tab</kbd> | Cycle backwards through tabs |
-| `tabs.switch-to-left`  | <kbd>CmdOrCtrl</kbd>+<kbd>PageUp</kbd>               | Switch tab to the left       |
-| `tabs.switch-to-right` | <kbd>CmdOrCtrl</kbd>+<kbd>PageDown</kbd>             | Switch tab to the right      |
-| `file.quick-open`      | <kbd>CmdOrCtrl</kbd>+<kbd>P</kbd>                    | Open quick open dialog       |
+| Id                       | Default                                              | Description                  |
+| ------------------------ | ---------------------------------------------------- | ---------------------------- |
+| `tabs.cycle-forward`     | <kbd>CmdOrCtrl</kbd>+<kbd>Tab</kbd>                  | Cycle through tabs           |
+| `tabs.cycle-backward`    | <kbd>CmdOrCtrl</kbd>+<kbd>Shift</kbd>+<kbd>Tab</kbd> | Cycle backwards through tabs |
+| `tabs.switch-to-left`    | <kbd>CmdOrCtrl</kbd>+<kbd>PageUp</kbd>               | Switch tab to the left       |
+| `tabs.switch-to-right`   | <kbd>CmdOrCtrl</kbd>+<kbd>PageDown</kbd>             | Switch tab to the right      |
+| `tabs.switch-to-first`   | <kbd>Alt</kbd>+<kbd>1</kbd>                          | Switch tab to the 1st        |
+| `tabs.switch-to-second`  | <kbd>Alt</kbd>+<kbd>2</kbd>                          | Switch tab to the 2nd        |
+| `tabs.switch-to-third`   | <kbd>Alt</kbd>+<kbd>3</kbd>                          | Switch tab to the 3rd        |
+| `tabs.switch-to-fourth`  | <kbd>Alt</kbd>+<kbd>4</kbd>                          | Switch tab to the 4th        |
+| `tabs.switch-to-fifth`   | <kbd>Alt</kbd>+<kbd>5</kbd>                          | Switch tab to the 5th        |
+| `tabs.switch-to-sixth`   | <kbd>Alt</kbd>+<kbd>6</kbd>                          | Switch tab to the 6th        |
+| `tabs.switch-to-seventh` | <kbd>Alt</kbd>+<kbd>7</kbd>                          | Switch tab to the 7th        |
+| `tabs.switch-to-eighth`  | <kbd>Alt</kbd>+<kbd>8</kbd>                          | Switch tab to the 8th        |
+| `tabs.switch-to-ninth`   | <kbd>Alt</kbd>+<kbd>9</kbd>                          | Switch tab to the 9th        |
+| `tabs.switch-to-tenth`   | <kbd>Alt</kbd>+<kbd>0</kbd>                          | Switch tab to the 10th       |
+| `file.quick-open`        | <kbd>CmdOrCtrl</kbd>+<kbd>P</kbd>                    | Open quick open dialog       |

@@ -74,7 +74,8 @@ const pasteCtrl = ContentState => {
     }
 
     // Prevent XSS and sanitize HTML.
-    const sanitizedHtml = sanitize(html, PREVIEW_DOMPURIFY_CONFIG)
+    const { disableHtml } = this.muya.options
+    const sanitizedHtml = sanitize(html, PREVIEW_DOMPURIFY_CONFIG, disableHtml)
     const tempWrapper = document.createElement('div')
     tempWrapper.innerHTML = sanitizedHtml
 
@@ -228,6 +229,18 @@ const pasteCtrl = ContentState => {
     if (file) {
       return event.preventDefault()
     }
+
+    if (this.selectedTableCells) {
+      const { start } = this.cursor
+      const startBlock = this.getBlock(start.key)
+      const { selectedTableCells: stc } = this
+
+      // Exactly one table cell is selected. Replace the cells text via default handler.
+      if (startBlock && startBlock.functionType === 'cellContent' && stc.row === 1 && stc.column === 1) {
+        this.pasteHandler(event)
+        return event.preventDefault()
+      }
+    }
   }
 
   // Handle `normal` and `pasteAsPlainText` paste for preview mode.
@@ -330,10 +343,30 @@ const pasteCtrl = ContentState => {
     }
 
     if (startBlock.functionType === 'cellContent') {
-      const pendingText = text.trim().replace(/\n/g, '<br/>')
-      startBlock.text = startBlock.text.substring(0, start.offset) + pendingText + startBlock.text.substring(end.offset)
+      let isOneCellSelected = false
+      if (this.selectedTableCells) {
+        const { selectedTableCells: stc } = this
+        // Replace cells text when one cell is selected.
+        if (stc.row === 1 && stc.column === 1) {
+          isOneCellSelected = true
+        } else {
+          // Cancel event, multiple cells are selected.
+          return this.partialRender()
+        }
+      }
+
       const { key } = startBlock
-      const offset = start.offset + pendingText.length
+      const pendingText = text.trim().replace(/\n/g, '<br/>')
+      let offset = pendingText.length
+      if (isOneCellSelected) {
+        // Replace text and deselect cell.
+        startBlock.text = pendingText
+        this.selectedTableCells = null
+      } else {
+        offset += start.offset
+        startBlock.text = startBlock.text.substring(0, start.offset) + pendingText + startBlock.text.substring(end.offset)
+      }
+
       this.cursor = {
         start: { key, offset },
         end: { key, offset }

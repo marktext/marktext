@@ -2,7 +2,7 @@
   <div
     :title="file.pathname"
     class="side-bar-file"
-    :style="{'padding-left': `${depth * 5 + 15}px`, 'opacity': file.isMarkdown ? 1 : 0.75 }"
+    :style="{'padding-left': `${(depth * 20) + 20}px`, 'opacity': file.isMarkdown ? 1 : 0.75 }"
     @click="handleFileClick()"
     :class="[{'current': currentFile.pathname === file.pathname, 'active': file.id === activeItem.id }]"
     ref="file"

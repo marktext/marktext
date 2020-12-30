@@ -1,5 +1,7 @@
 import * as contextMenu from './actions'
 
+// NOTE: This are mutable fields that may change at runtime.
+
 export const CUT = {
   label: 'Cut',
   id: 'cutMenuItem', // not used yet!
@@ -35,7 +37,7 @@ export const COPY_AS_HTML = {
 }
 
 export const PASTE_AS_PLAIN_TEXT = {
-  label: 'Paste As Plain Text',
+  label: 'Paste as Plain Text',
   id: 'pasteAsPlainTextMenuItem',
   click (menuItem, browserWindow) {
     contextMenu.pasteAsPlainText()

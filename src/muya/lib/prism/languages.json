@@ -564,6 +564,9 @@
   },
   "latex": {
     "title": "LaTeX",
+    "alias": [
+      "math"
+    ],
     "ext": [
       "text",
       "ltx",
@@ -995,6 +998,11 @@
       "tpl"
     ]
   },
+  "sparql": {
+    "title": "SPARQL",
+    "require": "turtle",
+    "ext": []
+  },
   "sql": {
     "title": "SQL",
     "ext": [
@@ -1050,6 +1058,10 @@
       "clike",
       "markup-templating"
     ],
+    "ext": []
+  },
+  "turtle": {
+    "title": "Turtle",
     "ext": []
   },
   "twig": {

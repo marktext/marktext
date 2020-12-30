@@ -77,9 +77,19 @@ const importRegister = ContentState => {
       nextSibling: null,
       children: []
     }
+    const {
+      footnote,
+      isGitlabCompatibilityEnabled,
+      superSubScript,
+      trimUnnecessaryCodeBlockEmptyLines
+    } = this.muya.options
 
-    const { trimUnnecessaryCodeBlockEmptyLines, footnote } = this.muya.options
-    const tokens = new Lexer({ disableInline: true, footnote }).lex(markdown)
+    const tokens = new Lexer({
+      disableInline: true,
+      footnote,
+      isGitlabCompatibilityEnabled,
+      superSubScript
+    }).lex(markdown)
 
     let token
     let block
@@ -152,7 +162,7 @@ const importRegister = ContentState => {
 
         case 'multiplemath': {
           value = token.text
-          block = this.createContainerBlock(token.type, value)
+          block = this.createContainerBlock(token.type, value, token.mathStyle)
           this.appendChild(parentList[0], block)
           break
         }
@@ -310,6 +320,7 @@ const importRegister = ContentState => {
           break
         }
 
+        case 'toc':
         case 'paragraph': {
           value = token.text
           block = this.createBlock('p')
@@ -457,8 +468,8 @@ const importRegister = ContentState => {
       focusBlock.text = focusText.substring(0, focus.offset) + CURSOR_FOCUS_DNA + focusText.substring(focus.offset)
     }
 
-    const listIndentation = this.listIndentation
-    const markdown = new ExportMarkdown(blocks, listIndentation).generate()
+    const { isGitlabCompatibilityEnabled, listIndentation } = this
+    const markdown = new ExportMarkdown(blocks, listIndentation, isGitlabCompatibilityEnabled).generate()
     const cursor = markdown.split('\n').reduce((acc, line, index) => {
       const ach = line.indexOf(CURSOR_ANCHOR_DNA)
       const fch = line.indexOf(CURSOR_FOCUS_DNA)

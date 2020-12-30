@@ -83,7 +83,7 @@ class ContentState {
     this.prevCursor = null
     this.historyTimer = null
     this.history = new History(this)
-    this.turndownConfig = Object.assign(DEFAULT_TURNDOWN_CONFIG, { bulletListMarker })
+    this.turndownConfig = Object.assign({}, DEFAULT_TURNDOWN_CONFIG, { bulletListMarker })
     // table drag bar
     this.dragInfo = null
     this.isDragTableBar = false
@@ -135,16 +135,18 @@ class ContentState {
     if (!(cursor instanceof Cursor)) {
       cursor = new Cursor(cursor)
     }
-    const handler = () => {
+
+    this.prevCursor = this.currentCursor
+    this.currentCursor = cursor
+
+    const getHistoryState = () => {
       const { blocks, renderRange, currentCursor } = this
-      this.history.push({
+      return {
         blocks,
         renderRange,
         cursor: currentCursor
-      })
+      }
     }
-    this.prevCursor = this.currentCursor
-    this.currentCursor = cursor
 
     if (!cursor.noHistory) {
       if (
@@ -154,10 +156,19 @@ class ContentState {
           this.prevCursor.end.key !== cursor.end.key
         )
       ) {
-        handler()
+        // Push history immediately
+        this.history.push(getHistoryState())
       } else {
+        // WORKAROUND: The current engine doesn't support a smart history and we
+        // need to store the whole state. Therefore, we push history only when the
+        // user stops typing. Pushing one pending entry allows us to commit the
+        // change before an undo action is triggered to partially solve #1321.
         if (this.historyTimer) clearTimeout(this.historyTimer)
-        this.historyTimer = setTimeout(handler, 2000)
+        this.history.pushPending(getHistoryState())
+
+        this.historyTimer = setTimeout(() => {
+          this.history.commitPending()
+        }, 2000)
       }
     }
   }

@@ -31,7 +31,7 @@ export default function (keybindings) {
     }, {
       type: 'separator'
     }, {
-      label: 'Toggle Full Screen',
+      label: 'Show in Full Screen',
       accelerator: keybindings.getAccelerator('window.toggle-full-screen'),
       click (item, focusedWindow) {
         if (focusedWindow) {

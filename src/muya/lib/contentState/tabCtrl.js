@@ -64,6 +64,30 @@ const tabCtrl = ContentState => {
     return false
   }
 
+  ContentState.prototype.findPreviousCell = function (block) {
+    if (block.functionType !== 'cellContent') {
+      throw new Error('only th and td can have previous cell')
+    }
+    const cellBlock = this.getParent(block)
+    const previousSibling = this.getBlock(cellBlock.preSibling)
+    const rowBlock = this.getBlock(cellBlock.parent)
+    const tbOrTh = this.getBlock(rowBlock.parent)
+    if (previousSibling) {
+      return this.firstInDescendant(previousSibling)
+    } else {
+      if (rowBlock.preSibling) {
+        const previousRow = this.getBlock(rowBlock.preSibling)
+        return this.lastInDescendant(previousRow)
+      } else if (tbOrTh.type === 'tbody') {
+        const tHead = this.getBlock(tbOrTh.preSibling)
+        if (tHead && tHead.children.length) {
+          return this.lastInDescendant(tHead)
+        }
+      }
+    }
+    return block
+  }
+
   ContentState.prototype.isUnindentableListItem = function (block) {
     const parent = this.getParent(block)
     const listItem = this.getParent(parent)
@@ -285,7 +309,7 @@ const tabCtrl = ContentState => {
     const startBlock = this.getBlock(start.key)
     const endBlock = this.getBlock(end.key)
 
-    if (event.shiftKey) {
+    if (event.shiftKey && !startBlock.functionType === 'cellContent') {
       const unindentType = this.isUnindentableListItem(startBlock)
       if (unindentType) {
         this.unindentListItem(startBlock, unindentType)
@@ -376,7 +400,9 @@ const tabCtrl = ContentState => {
     // Handle `tab` key in table cell.
     let nextCell
     if (start.key === end.key && startBlock.functionType === 'cellContent') {
-      nextCell = this.findNextCell(startBlock)
+      nextCell = event.shiftKey
+        ? this.findPreviousCell(startBlock)
+        : this.findNextCell(startBlock)
     } else if (endBlock.functionType === 'cellContent') {
       nextCell = endBlock
     }
