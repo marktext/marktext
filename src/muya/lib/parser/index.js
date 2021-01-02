@@ -386,13 +386,22 @@ const tokenizerFac = (src, beginRules, inlineRules, pos = 0, top, labels, option
     const autoLinkExtTo = inlineRules.auto_link_extension.exec(src)
     if (autoLinkExtTo && top && (pos === 0 || /[* _~(]{1}/.test(originSrc[pos - 1]))) {
       pushPending()
+      var oLinkType, oHref
+      if (autoLinkExtTo[1]) {
+        oLinkType = 'www'
+        oHref = encodeURI(`http://${autoLinkExtTo[1]}`)
+      } else if (autoLinkExtTo[2]) {
+        oLinkType = 'url'
+        oHref = encodeURI(autoLinkExtTo[2])
+      } else { // autoLinkExtTo[3]
+        oLinkType = 'email'
+        oHref = `mailto:${autoLinkExtTo[3]}`
+      }
+
       tokens.push({
         type: 'auto_link_extension',
-        raw: autoLinkExtTo[0],
-        www: autoLinkExtTo[1],
-        url: autoLinkExtTo[2],
-        email: autoLinkExtTo[3],
-        linkType: autoLinkExtTo[1] ? 'www' : (autoLinkExtTo[2] ? 'url' : 'email'),
+        href: oHref,
+        linkType: oLinkType,
         parent: tokens,
         range: {
           start: pos,
