@@ -38,6 +38,7 @@
     "@octokit/rest": "^16.43.2",
     "arg": "^5.0.0",
     "axios": "^0.21.0",
+    "caniuse-lite": "^1.0.30001171",
     "ced": "^1.0.0",
     "chokidar": "^3.4.3",
     "codemirror": "^5.59.0",
