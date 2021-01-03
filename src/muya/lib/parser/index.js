@@ -387,13 +387,13 @@ const tokenizerFac = (src, beginRules, inlineRules, pos = 0, top, labels, option
     // auto link extension
     const autoLinkExtTo = inlineRules.auto_link_extension.exec(src)
     if (autoLinkExtTo && top) {
-      // if pos is 1st char, or char before pos is one of these
+      // if pos is 1st char, or the char before pos is one of these
       if (pos === 0 || charList1.includes(originSrc[pos - 1])) {
         pushPending()
         let oHref
         if (autoLinkExtTo[1]) { // www, no http
           oHref = encodeURI(`http://${autoLinkExtTo[1]}`)
-        } else if (autoLinkExtTo[2]) { // good http
+        } else if (autoLinkExtTo[2]) { // good http or localhost
           oHref = encodeURI(autoLinkExtTo[2])
         } else { // @ mail
           oHref = `mailto:${autoLinkExtTo[3]}`
