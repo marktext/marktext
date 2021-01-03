@@ -7,7 +7,7 @@ const email = 3
 // group 1 : matchGroups[1] : www, no http
 // group 2 : matchGroups[2] : good http or localhost
 // group 3 : matchGroups[3] : @ email
-describe.only('auto_link_extension regex', () => {
+describe('auto_link_extension regex', () => {
   it('http end with :   (http://some.domain.name/path/to/resource: Description of resource.)', () => {
     let [testString, expected] = [
       'http://some.domain.name/path/to/resource: Description of resource.',
