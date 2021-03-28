@@ -418,15 +418,12 @@ ipcMain.on('mt::format-link-click', (e, { data, dirname }) => {
     return shell.openExternal(href)
   }
 
-  let pathname = null
-  if (path.isAbsolute(href) && isMarkdownFile(href)) {
-    pathname = href
-  } else if (!path.isAbsolute(href) && isMarkdownFile(path.join(dirname, href))) {
-    pathname = path.join(dirname, href)
-  }
-  if (pathname) {
+  let pathname = path.isAbsolute(href) ? href : path.join(dirname, href)
+  if (isMarkdownFile(pathname)) {
     const win = BrowserWindow.fromWebContents(e.sender)
     return openFileOrFolder(win, pathname)
+  } else {
+    return shell.openPath(pathname)
   }
 })
 
