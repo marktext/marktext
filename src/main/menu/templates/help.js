@@ -34,17 +34,17 @@ export default function () {
     submenu: [{
       label: 'Quick Start...',
       click () {
-        shell.openExternal('https://github.com/marktext/marktext/blob/master/docs/README.md')
+        shell.openExternal('https://github.com/marktext/marktext/blob/develop/docs/README.md')
       }
     }, {
       label: 'Markdown Reference...',
       click () {
-        shell.openExternal('https://github.com/marktext/marktext/blob/master/docs/MARKDOWN_SYNTAX.md')
+        shell.openExternal('https://github.com/marktext/marktext/blob/develop/docs/MARKDOWN_SYNTAX.md')
       }
     }, {
       label: 'Changelog...',
       click () {
-        shell.openExternal('https://github.com/marktext/marktext/blob/master/.github/CHANGELOG.md')
+        shell.openExternal('https://github.com/marktext/marktext/blob/develop/.github/CHANGELOG.md')
       }
     }, {
       type: 'separator'
