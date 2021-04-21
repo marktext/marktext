@@ -429,8 +429,6 @@ ipcMain.on('mt::format-link-click', (e, { data, dirname }) => {
     const win = BrowserWindow.fromWebContents(e.sender)
     return openFileOrFolder(win, pathname)
   } else if (pathname) {
-    // const win = BrowserWindow.fromWebContents(e.sender)
-    // return openFileOrFolder(win, pathname)
     return shell.openPath(pathname)
   }
 })
