@@ -133,6 +133,7 @@ export default {
   created () {
     this.keyword = this.searchMatches.value
     bus.$on('findInFolder', this.handleFindInFolder)
+    this.search()
   },
   computed: {
     ...mapState({
