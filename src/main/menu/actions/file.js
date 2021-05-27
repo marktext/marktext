@@ -189,7 +189,7 @@ const noticePandocNotFound = win => {
 
 const openPandocFile = async (windowId, pathname) => {
   try {
-    const converter = pandoc(pathname, 'markdown')
+    const converter = pandoc(pathname, 'gfm')
     const data = await converter()
     ipcMain.emit('app-open-markdown-by-id', windowId, data)
   } catch (err) {
