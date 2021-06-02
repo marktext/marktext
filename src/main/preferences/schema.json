@@ -89,6 +89,11 @@
     "minimum": 1.2,
     "default": 1.6
   },
+  "wrapCodeBlocks": {
+    "description": "Editor--Wrap text inside code blocks",
+    "type": "boolean",
+    "default": true
+  },
   "editorLineWidth": {
     "description": "Editor--Defines the maximum editor area width. An empty string or suffixes of ch (characters), px (pixels) or % (percentage) are allowed.",
     "type": "string",

@@ -115,6 +115,12 @@
       :onChange="value => onSelectChange('autoCheck', value)"
     ></bool>
     <separator></separator>
+    <bool
+      description="Wrap text inside code blocks"
+      :bool="wrapCodeBlocks"
+      :onChange="value => onSelectChange('wrapCodeBlocks', value)"
+    ></bool>
+    <separator></separator>
     <text-box
       description="Maximum width of text editor. Empty for theme default, otherwise number with unit suffix (`ch`: characters, `px`: pixels, `%`: percentage)"
       :input="editorLineWidth"
@@ -173,6 +179,7 @@ export default {
       hideQuickInsertHint: state => state.preferences.hideQuickInsertHint,
       hideLinkPopup: state => state.preferences.hideLinkPopup,
       autoCheck: state => state.preferences.autoCheck,
+      wrapCodeBlocks: state => state.preferences.wrapCodeBlocks,
       editorLineWidth: state => state.preferences.editorLineWidth,
       defaultEncoding: state => state.preferences.defaultEncoding,
       autoGuessEncoding: state => state.preferences.autoGuessEncoding,

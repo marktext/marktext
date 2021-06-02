@@ -104,7 +104,7 @@ import { delay, isOsx, animatedScrollTo } from '@/util'
 import { moveImageToFolder, moveToRelativeFolder, uploadImage } from '@/util/fileSystem'
 import { guessClipboardFilePath } from '@/util/clipboard'
 import { getCssForOptions, getHtmlToc } from '@/util/pdf'
-import { addCommonStyle, setEditorWidth } from '@/util/theme'
+import { addCommonStyle, setEditorWidth, setWrapCodeBlocks } from '@/util/theme'
 
 import 'muya/themes/default.css'
 import '@/assets/themes/codemirror/one-dark.css'
@@ -154,6 +154,7 @@ export default {
       hideQuickInsertHint: state => state.preferences.hideQuickInsertHint,
       hideLinkPopup: state => state.preferences.hideLinkPopup,
       autoCheck: state => state.preferences.autoCheck,
+      wrapCodeBlocks: state => state.preferences.wrapCodeBlocks,
       editorLineWidth: state => state.preferences.editorLineWidth,
       imageInsertAction: state => state.preferences.imageInsertAction,
       imagePreferRelativeDirectory: state => state.preferences.imagePreferRelativeDirectory,
@@ -309,6 +310,12 @@ export default {
       const { editor } = this
       if (value !== oldValue && editor) {
         editor.setOptions({ hideQuickInsertHint: value })
+      }
+    },
+
+    wrapCodeBlocks: function (value, oldValue) {
+      if (value !== oldValue) {
+        setWrapCodeBlocks(value)
       }
     },
 
@@ -541,6 +548,7 @@ export default {
         isHtmlEnabled,
         isGitlabCompatibilityEnabled,
         hideQuickInsertHint,
+        wrapCodeBlocks,
         editorLineWidth,
         theme,
         sequenceTheme,
@@ -750,6 +758,8 @@ export default {
       })
 
       document.addEventListener('keyup', this.keyup)
+
+      setWrapCodeBlocks(wrapCodeBlocks);
 
       setEditorWidth(editorLineWidth)
     })

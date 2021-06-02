@@ -90,18 +90,10 @@ div.ag-show-quick-insert-hint p.ag-paragraph.ag-active > span.ag-paragraph-conte
 
 .ag-atx-line,
 .ag-thematic-break-line,
-.ag-paragraph-content,
-.ag-code-content {
+.ag-paragraph-content {
   display: block;
   white-space: pre-wrap;
   word-break: break-word;
-}
-
-/* TODO: This disables wrapping long lines in code blocks, allowing
-   scrolling instead.  Make this contingent on user preference. */
-.ag-code-content {
-  overflow: auto;
-  white-space: pre;
 }
 
 .ag-code-content::-webkit-scrollbar {
