@@ -39,7 +39,7 @@ export const hasMarkdownExtension = filename => {
 }
 
 /**
- * Returns ture if the path is an image file.
+ * Returns true if the path is an image file.
  *
  * @param {string} filepath The path
  */
