@@ -208,6 +208,9 @@ const inputCtrl = ContentState => {
           const isInInlineMath = this.checkCursorInTokenType(block.functionType, text, offset, 'inline_math')
           const isInInlineCode = this.checkCursorInTokenType(block.functionType, text, offset, 'inline_code')
           if (
+            // Issue 2566: Do not complete markdown syntax if the previous character is
+            // alphanumeric.
+            (!/[a-z0-9]{1}/i.test(preInputChar) || !/[*$`~_]{1}/.test(inputChar)) &&
             !/\\/.test(preInputChar) &&
             ((autoPairQuote && /[']{1}/.test(inputChar) && !(/[a-zA-Z\d]{1}/.test(preInputChar))) ||
             (autoPairQuote && /["]{1}/.test(inputChar)) ||
