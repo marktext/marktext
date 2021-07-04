@@ -52,7 +52,7 @@
               <span class="front">Characters:</span><span class="text">{{wordCount['character']}}</span>
             </div>
             <div class="title-item">
-              <span class="front">Paragraph:</span><span class="text">{{wordCount['paragraph']}}</span>
+              <span class="front">Paragraphs:</span><span class="text">{{wordCount['paragraph']}}</span>
             </div>
           </div>
           <div
