@@ -1,4 +1,4 @@
-export const ENCODING_NAME_MAP = {
+export const ENCODING_NAME_MAP = Object.freeze({
   utf8: 'UTF-8',
   utf16be: 'UTF-16 BE',
   utf16le: 'UTF-16 LE',
@@ -35,7 +35,7 @@ export const ENCODING_NAME_MAP = {
   eucjp: 'Japanese (EUC-JP)',
   euckr: 'Korean (EUC-KR)',
   latin6: 'Nordic (ISO 8859-10)'
-}
+})
 
 /**
  * Try to translate the encoding.

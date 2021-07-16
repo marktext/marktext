@@ -37,7 +37,7 @@
   </a>
   <!-- Downloads latest release -->
   <a href="https://github.com/marktext/marktext/releases/latest">
-    <img src="https://img.shields.io/github/downloads/marktext/marktext/v0.16.1/total.svg" alt="latest download">
+    <img src="https://img.shields.io/github/downloads/marktext/marktext/v0.16.3/total.svg" alt="latest download">
   </a>
   <!-- sponsors -->
   <a href="https://opencollective.com/marktext">
@@ -160,7 +160,7 @@ Patreonを介した寄付は、Mark Textの開発および維持を行ってい�
 - KaTeXを用いた数式表示、Front matterや絵文字が使用可能
 - 段落とインラインショートカットを利用することで編集効率を向上
 - **HTML**ファイルと**PDF**ファイルを出力可能
-- **Cadmium Light**, **Material Dark**など様々なテーマ 
+- **Cadmium Light**, **Material Dark**など様々なテーマ
 - 選べる編集モード: **Source Code mode**, **Typewriter mode**, **Focus mode**
 
 <h4 align="center">:crescent_moon:テーマ:high_brightness:</h4>
@@ -191,7 +191,7 @@ Patreonを介した寄付は、Mark Textの開発および維持を行ってい�
 
 | ![]( https://github.com/ryanoasis/nerd-fonts/wiki/screenshots/v1.0.x/mac-pass-sm.png)                                                                                                             | ![]( https://github.com/ryanoasis/nerd-fonts/wiki/screenshots/v1.0.x/windows-pass-sm.png)                                                                                                                     | ![]( https://github.com/ryanoasis/nerd-fonts/wiki/screenshots/v1.0.x/linux-pass-sm.png)                                                                                                                                   |
 |:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
-| [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext.dmg.svg)](https://github.com/marktext/marktext/releases/download/v0.16.1/marktext.dmg) | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-setup.exe.svg)](https://github.com/marktext/marktext/releases/download/v0.16.1/marktext-setup.exe) | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-x86_64.AppImage.svg)](https://github.com/marktext/marktext/releases/download/v0.16.1/marktext-x86_64.AppImage) |
+| [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext.dmg.svg)](https://github.com/marktext/marktext/releases/download/v0.16.3/marktext.dmg) | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-setup.exe.svg)](https://github.com/marktext/marktext/releases/download/v0.16.3/marktext-setup.exe) | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-x86_64.AppImage.svg)](https://github.com/marktext/marktext/releases/download/v0.16.3/marktext-x86_64.AppImage) |
 
 このバージョンでの新着情報をご確認いただくには、[CHANGELOG](../../.github/CHANGELOG.md)を参照してください。
 
@@ -200,7 +200,7 @@ Patreonを介した寄付は、Mark Textの開発および維持を行ってい�
 最新のMark Text(`marktext-%version%.dmg`)を[リリースページ](https://github.com/marktext/marktext/releases/latest)からダウンロードするか、[**homebrew cask**](https://github.com/caskroom/homebrew-cask)を用いてインストールしてください。Homebrew-Caskを使うためには、[Homebrew](https://brew.sh/)がインストールされている必要があります。
 
 ```bash
-brew cask install mark-text
+brew install --cask mark-text
 ```
 
 #### Windows

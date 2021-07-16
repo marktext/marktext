@@ -43,8 +43,7 @@
       </div>
 
       <div class="search-message-section" v-if="showNoFolderOpenedMessage">
-        <div>You have not opened a folder.</div>
-        <a href="javascript:;" @click="openFolder">Open Folder</a>
+        <span>No folder open</span>
       </div>
       <div class="search-message-section" v-if="showNoResultFoundMessage">No results found.</div>
       <div class="search-message-section" v-if="searchErrorString">{{ searchErrorString }}</div>
@@ -74,6 +73,13 @@
           <svg :viewBox="EmptyIcon.viewBox" aria-hidden="true">
             <use :xlink:href="EmptyIcon.url" />
           </svg>
+          <button
+            class="button-primary"
+            v-if="showNoFolderOpenedMessage"
+            @click="openFolder"
+          >
+            Open Folder
+          </button>
         </div>
       </div>
     </div>

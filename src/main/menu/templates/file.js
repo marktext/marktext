@@ -24,13 +24,13 @@ export default function (keybindings, userPreference, recentlyUsedFiles) {
     }, {
       type: 'separator'
     }, {
-      label: 'Open File',
+      label: 'Open File...',
       accelerator: keybindings.getAccelerator('file.open-file'),
       click (menuItem, browserWindow) {
         actions.openFile(browserWindow)
       }
     }, {
-      label: 'Open Folder',
+      label: 'Open Folder...',
       accelerator: keybindings.getAccelerator('file.open-folder'),
       click (menuItem, browserWindow) {
         actions.openFolder(browserWindow)
@@ -143,7 +143,7 @@ export default function (keybindings, userPreference, recentlyUsedFiles) {
     type: 'separator',
     visible: !isOsx
   }, {
-    label: 'Preferences',
+    label: 'Preferences...',
     accelerator: keybindings.getAccelerator('file.preferences'),
     visible: !isOsx,
     click () {

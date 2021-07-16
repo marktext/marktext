@@ -1,6 +1,6 @@
 # Marked
 
-This folder contains a patched [Marked.js](https://github.com/markedjs/marked/) version based on `v0.7.0` commit [16a6495326b2fe7623840d4054b0deba5afbc00a](https://github.com/markedjs/marked/commit/16a6495326b2fe7623840d4054b0deba5afbc00a).
+This folder contains a patched [Marked.js](https://github.com/markedjs/marked/) version based on `v0.8.2` and bug fixes from `v1.2.5`, no breaking changes from `v1.0.0` are included.
 
 ## Changes
 

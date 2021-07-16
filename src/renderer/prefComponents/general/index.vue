@@ -2,12 +2,12 @@
   <div class="pref-general">
     <h4>General</h4>
     <bool
-      description="Automatically save document changes."
+      description="Automatically save document changes"
       :bool="autoSave"
       :onChange="value => onSelectChange('autoSave', value)"
     ></bool>
     <range
-      description="The delay in milliseconds between a change being made and saved."
+      description="Delay following document edit before automatically saving (milliseconds)"
       :value="autoSaveDelay"
       :min="1000"
       :max="10000"
@@ -17,56 +17,59 @@
     ></range>
     <cur-select
       v-if="!isOsx"
-      description="The style of the title bar. You need to restart Mark Text after changing."
+      description="Title bar style (requires restart)"
       :value="titleBarStyle"
       :options="titleBarStyleOptions"
       :onChange="value => onSelectChange('titleBarStyle', value)"
     ></cur-select>
     <separator></separator>
     <bool
-      description="Whether to open files in a new window."
+      description="Open files in new window"
       :bool="openFilesInNewWindow"
       :onChange="value => onSelectChange('openFilesInNewWindow', value)"
     ></bool>
     <bool
-      description="Whether to open folders in a new window."
+      description="Open folders in new window"
       :bool="openFolderInNewWindow"
       :onChange="value => onSelectChange('openFolderInNewWindow', value)"
     ></bool>
     <bool
-      description="Whether to hide scrollbars."
+      description="Hide scrollbars"
       :bool="hideScrollbar"
       :onChange="value => onSelectChange('hideScrollbar', value)"
     ></bool>
     <bool
-      description="Whether to enable word wrap in TOC."
+      description="Wrap text in table of contents"
       :bool="wordWrapInToc"
       :onChange="value => onSelectChange('wordWrapInToc', value)"
     ></bool>
     <bool
-      description="Whether to enable Aidou."
+      description="Use Aidou"
       :bool="aidou"
       :onChange="value => onSelectChange('aidou', value)"
     ></bool>
     <separator></separator>
     <cur-select
-      description="How to sort files in opened folders."
+      description="Sort field for files in open folders"
       :value="fileSortBy"
       :options="fileSortByOptions"
       :onChange="value => onSelectChange('fileSortBy', value)"
       :disable="true"
     ></cur-select>
     <section class="startup-action-ctrl">
-      <div>What Mark Text should do on startup.</div>
+      <div>Action on startup</div>
       <el-radio-group v-model="startUpAction">
+        <!--
+          Hide "lastState" for now (#2064).
         <el-radio class="ag-underdevelop" label="lastState">Open the last window state</el-radio>
+        -->
         <el-radio label="folder">Open the default directory<span>: {{defaultDirectoryToOpen}}</span></el-radio>
         <el-button size="small" @click="selectDefaultDirectoryToOpen">Select Folder</el-button>
         <el-radio label="blank">Open a blank page</el-radio>
       </el-radio-group>
     </section>
     <cur-select
-      description="What language Mark Text is in."
+      description="Language for user interface"
       :value="language"
       :options="languageOptions"
       :onChange="value => onSelectChange('language', value)"

@@ -32,63 +32,63 @@ export default function () {
     label: '&Help',
     role: 'help',
     submenu: [{
-      label: 'Quick Start',
+      label: 'Quick Start...',
       click () {
         shell.openExternal('https://github.com/marktext/marktext/blob/master/docs/README.md')
       }
     }, {
-      label: 'Markdown syntax',
+      label: 'Markdown Reference...',
       click () {
         shell.openExternal('https://github.com/marktext/marktext/blob/master/docs/MARKDOWN_SYNTAX.md')
       }
     }, {
-      label: 'Changelog',
+      label: 'Changelog...',
       click () {
         shell.openExternal('https://github.com/marktext/marktext/blob/master/.github/CHANGELOG.md')
       }
     }, {
       type: 'separator'
     }, {
-      label: 'Donate via Open Collective',
+      label: 'Donate via Open Collective...',
       click (item, win) {
         shell.openExternal('https://opencollective.com/marktext')
       }
     }, {
-      label: 'Feedback via Twitter',
+      label: 'Feedback via Twitter...',
       click (item, win) {
         actions.showTweetDialog(win, 'twitter')
       }
     }, {
-      label: 'Report Issue or Feature request',
+      label: 'Report Issue or Request Feature...',
       click () {
         shell.openExternal('https://github.com/marktext/marktext/issues')
       }
     }, {
       type: 'separator'
     }, {
-      label: 'Website',
+      label: 'Website...',
       click () {
         shell.openExternal('https://marktext.app')
       }
     }, {
-      label: 'Watch on GitHub',
+      label: 'Watch on GitHub...',
       click () {
         shell.openExternal('https://github.com/marktext/marktext')
       }
     }, {
-      label: 'Follow @Jocs on Github',
+      label: 'Follow us on Github...',
       click () {
         shell.openExternal('https://github.com/Jocs')
       }
     }, {
-      label: 'Follow us on Twitter',
+      label: 'Follow us on Twitter...',
       click () {
         shell.openExternal('https://twitter.com/marktextapp')
       }
     }, {
       type: 'separator'
     }, {
-      label: 'License',
+      label: 'License...',
       click () {
         shell.openExternal('https://github.com/marktext/marktext/blob/master/LICENSE')
       }
@@ -110,7 +110,7 @@ export default function () {
     helpMenu.submenu.push({
       type: 'separator'
     }, {
-      label: 'About Mark Text',
+      label: 'About Mark Text...',
       click (menuItem, browserWindow) {
         actions.showAboutDialog(browserWindow)
       }

@@ -3,6 +3,7 @@ import path from 'path'
 import os from 'os'
 import { remote } from 'electron'
 import { SpellCheckHandler, fallbackLocales, normalizeLanguageCode } from '@hfelix/electron-spellchecker'
+import { isDirectory, isFile } from 'common/filesystem'
 import { cloneObj, isOsx, isLinux, isWindows } from '@/util'
 
 // NOTE: Hardcoded in "@hfelix/electron-spellchecker/src/spell-check-handler.js"
@@ -74,11 +75,11 @@ export const validateLineCursor = selection => {
 export const getAvailableHunspellDictionaries = () => {
   const dict = []
   // Search for dictionaries on filesystem.
-  if (fs.existsSync(dictionaryPath) && fs.lstatSync(dictionaryPath).isDirectory()) {
+  if (isDirectory(dictionaryPath)) {
     fs.readdirSync(dictionaryPath).forEach(filename => {
       const fullname = path.join(dictionaryPath, filename)
       const match = filename.match(/^([a-z]{2}(?:[-][A-Z]{2})?)\.bdic$/)
-      if (match && match[1] && fs.lstatSync(fullname).isFile()) {
+      if (match && match[1] && isFile(fullname)) {
         dict.push(match[1])
       }
     })
@@ -139,7 +140,7 @@ export class SpellChecker {
       throw new Error('Invalid state.')
     }
 
-    this.provider = new SpellCheckHandler()
+    this.provider = new SpellCheckHandler(dictionaryPath)
     this.isHunspell = this.provider.isHunspell
 
     // The spell checker is now initialized but not yet enabled. You need to call `init`.
@@ -168,10 +169,10 @@ export class SpellChecker {
       throw new Error('Init: Either language or automatic language detection must be set.')
     }
 
-    // TODO(spell): Currently not supported by our Hunspell implementation
-    //              with a reasonable performance and Node worker threads
-    //              doesn't work currently in Electron (Electon#18540).
-    if (this.isHunspell) {
+    // TODO(spell): Language detection is currently unavailable when another
+    //   spell checker than the macOS spell checker is used because Node worker
+    //   threads doesn't work in Electron (Electon#18540).
+    if (this.isHunspell || !isOsx) {
       automaticallyIdentifyLanguages = false
     }
 
@@ -197,7 +198,7 @@ export class SpellChecker {
     }
 
     if (!lang) {
-      // Set to Hunspell fallback language
+      // Set to Hunspell fallback language.
       lang = 'en-US'
     }
 
@@ -296,8 +297,9 @@ export class SpellChecker {
     }
 
     if (!this.isHunspell) {
-      // NB: OS X will return lists that are half just a language, half
-      // language + locale, like ['en', 'pt_BR', 'ko']
+      // NOTE: OS X will return lists that are half just a language, half
+      // language + locale, like ['en', 'pt_BR', 'ko'] and Windows also returns
+      // BCP-47 ones.
       return this.provider.currentSpellchecker.getAvailableDictionaries()
         .map(x => {
           if (x.length === 2) return fallbackLocales[x]
@@ -307,6 +309,7 @@ export class SpellChecker {
             return null
           }
         })
+        .filter(x => { return !!x })
     }
 
     // Load hunspell dictionaries from disk.
@@ -331,10 +334,10 @@ export class SpellChecker {
       return
     }
 
-    // TODO(spell): Currently not supported by our Hunspell implementation
-    //              with a reasonable performance and Node worker threads
-    //              doesn't work currently in Electron (Electon#18540).
-    if (this.isHunspell) {
+    // TODO(spell): Language detection is currently unavailable when another
+    //   spell checker than the macOS spell checker is used because Node worker
+    //   threads doesn't work in Electron (Electon#18540).
+    if (this.isHunspell || !isOsx) {
       value = false
     }
     this.provider.automaticallyIdentifyLanguages = !!value

@@ -35,6 +35,8 @@ const state = {
   textDirection: 'ltr',
   hideQuickInsertHint: false,
   imageInsertAction: 'folder',
+  imagePreferRelativeDirectory: false,
+  imageRelativeDirectoryName: 'assets',
   hideLinkPopup: false,
   autoCheck: false,
 
@@ -47,6 +49,8 @@ const state = {
   frontmatterType: '-',
   superSubScript: false,
   footnote: false,
+  isHtmlEnabled: true,
+  isGitlabCompatibilityEnabled: false,
   sequenceTheme: 'hand',
 
   theme: 'light',

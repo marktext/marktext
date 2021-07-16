@@ -1,7 +1,7 @@
 import Unsplash, { toJson } from 'unsplash-js'
 import BaseFloat from '../baseFloat'
 import { patch, h } from '../../parser/render/snabbdom'
-import { EVENT_KEYS, URL_REG } from '../../config'
+import { EVENT_KEYS, URL_REG, isWin } from '../../config'
 import { getUniqueId, getImageInfo as getImageSrc } from '../../utils'
 import { getImageInfo } from '../../utils/getImageInfo'
 
@@ -60,6 +60,16 @@ class ImageSelector extends BaseFloat {
         }
 
         Object.assign(this.state, imageInfo.token.attrs)
+
+        // Remove file protocol to allow autocomplete.
+        const imageSrc = this.state.src
+        if (imageSrc && /^file:\/\//.test(imageSrc)) {
+          let protocolLen = 7
+          if (isWin && /^file:\/\/\//.test(imageSrc)) {
+            protocolLen = 8
+          }
+          this.state.src = imageSrc.substring(protocolLen)
+        }
 
         if (this.unsplash) {
           // Load latest unsplash photos.
@@ -181,9 +191,14 @@ class ImageSelector extends BaseFloat {
     const reference = this.imageSelectorContainer.querySelector('input.src')
     const cb = item => {
       const { text } = item
-      const newValue = value.replace(/(\/)([^/]+)$/, (m, p1, p2) => {
-        return p1
-      }) + text
+
+      let basePath = ''
+      const pathSep = value.match(/(\/|\\)(?:[^/\\]+)$/)
+      if (pathSep && pathSep[0]) {
+        basePath = value.substring(0, pathSep.index + 1)
+      }
+
+      const newValue = basePath + text
       const len = newValue.length
       reference.value = newValue
       this.state.src = newValue
@@ -250,6 +265,7 @@ class ImageSelector extends BaseFloat {
       console.warn('You need to add a imagePathPicker option')
       return
     }
+
     const path = await this.muya.options.imagePathPicker()
     const { alt, title } = this.state
     return this.replaceImageAsync({

@@ -1,7 +1,7 @@
 import Renderer from './renderer'
 import { normal, breaks, gfm, pedantic } from './inlineRules'
 import defaultOptions from './options'
-import { escape, findClosingBracket, getUniqueId } from './utils'
+import { escape, findClosingBracket, getUniqueId, rtrim } from './utils'
 import { validateEmphasize, lowerPriority } from '../utils'
 
 /**
@@ -81,8 +81,12 @@ InlineLexer.prototype.output = function (src) {
         src = src.substring(cap[0].length)
         lastChar = cap[0].charAt(cap[0].length - 1)
         const identifier = cap[1]
+
         const footnoteInfo = this.footnotes[identifier] || {}
-        footnoteInfo.footnoteIdentifierId = getUniqueId()
+        if (footnoteInfo.footnoteIdentifierId === undefined) {
+          footnoteInfo.footnoteIdentifierId = getUniqueId()
+        }
+
         out += this.renderer.footnoteIdentifier(identifier, footnoteInfo)
       }
     }
@@ -103,42 +107,65 @@ InlineLexer.prototype.output = function (src) {
 
       src = src.substring(cap[0].length)
       lastChar = cap[0].charAt(cap[0].length - 1)
-      out += this.options.sanitize
-        ? this.options.sanitizer
+      out += this.renderer.html(this.options.sanitize
+        ? (this.options.sanitizer
           ? this.options.sanitizer(cap[0])
-          : escape(cap[0])
-        : cap[0]
+          : escape(cap[0]))
+        : cap[0])
       continue
     }
 
     // link
     cap = this.rules.link.exec(src)
     if (cap && lowerPriority(src, cap[0].length, this.highPriorityLinkRules)) {
-      const lastParenIndex = findClosingBracket(cap[2], '()')
-      if (lastParenIndex > -1) {
-        const start = cap[0].indexOf('!') === 0 ? 5 : 4
-        const linkLen = start + cap[1].length + lastParenIndex
-        cap[2] = cap[2].substring(0, lastParenIndex)
-        cap[0] = cap[0].substring(0, linkLen).trim()
-        cap[3] = ''
+      const trimmedUrl = cap[2].trim()
+      if (!this.options.pedantic && trimmedUrl.startsWith('<')) {
+        // commonmark requires matching angle brackets
+        if (!trimmedUrl.endsWith('>')) {
+          return
+        }
+
+        // ending angle bracket cannot be escaped
+        const rtrimSlash = rtrim(trimmedUrl.slice(0, -1), '\\')
+        if ((trimmedUrl.length - rtrimSlash.length) % 2 === 0) {
+          return
+        }
+      } else {
+        // find closing parenthesis
+        const lastParenIndex = findClosingBracket(cap[2], '()')
+        if (lastParenIndex > -1) {
+          const start = cap[0].indexOf('!') === 0 ? 5 : 4
+          const linkLen = start + cap[1].length + lastParenIndex
+          cap[2] = cap[2].substring(0, lastParenIndex)
+          cap[0] = cap[0].substring(0, linkLen).trim()
+          cap[3] = ''
+        }
       }
       src = src.substring(cap[0].length)
       lastChar = cap[0].charAt(cap[0].length - 1)
-      this.inLink = true
       href = cap[2]
       if (this.options.pedantic) {
+        // split pedantic href and title
         link = /^([^'"]*[^\s])\s+(['"])(.*)\2/.exec(href)
 
         if (link) {
           href = link[1]
           title = link[3]
-        } else {
-          title = ''
         }
       } else {
         title = cap[3] ? cap[3].slice(1, -1) : ''
       }
-      href = href.trim().replace(/^<([\s\S]*)>$/, '$1')
+      href = href.trim()
+      if (href.startsWith('<')) {
+        if (this.options.pedantic && !trimmedUrl.endsWith('>')) {
+          // pedantic allows starting angle bracket without ending angle bracket
+          href = href.slice(1)
+        } else {
+          href = href.slice(1, -1)
+        }
+      }
+
+      this.inLink = true
       out += this.outputLink(cap, {
         href: this.escapes(href),
         title: this.escapes(title)
@@ -230,7 +257,15 @@ InlineLexer.prototype.output = function (src) {
     if (cap) {
       src = src.substring(cap[0].length)
       lastChar = cap[0].charAt(cap[0].length - 1)
-      out += this.renderer.codespan(escape(cap[2].trim(), true))
+
+      let text = cap[2].replace(/\n/g, ' ')
+      const hasNonSpaceChars = /[^ ]/.test(text)
+      const hasSpaceCharsOnBothEnds = text.startsWith(' ') && text.endsWith(' ')
+      if (hasNonSpaceChars && hasSpaceCharsOnBothEnds) {
+        text = text.substring(1, text.length - 1)
+      }
+      text = escape(text, true)
+      out += this.renderer.codespan(text)
       continue
     }
 
@@ -248,7 +283,7 @@ InlineLexer.prototype.output = function (src) {
     if (cap) {
       src = src.substring(cap[0].length)
       lastChar = cap[0].charAt(cap[0].length - 1)
-      out += this.renderer.del(this.output(cap[1]))
+      out += this.renderer.del(this.output(cap[2]))
       continue
     }
 
@@ -325,10 +360,11 @@ InlineLexer.prototype.escapes = function (text) {
 InlineLexer.prototype.outputLink = function (cap, link) {
   const href = link.href
   const title = link.title ? escape(link.title) : null
+  const text = cap[1].replace(/\\([\[\]])/g, '$1') // eslint-disable-line no-useless-escape
 
   return cap[0].charAt(0) !== '!'
-    ? this.renderer.link(href, title, this.output(cap[1]))
-    : this.renderer.image(href, title, escape(cap[1]))
+    ? this.renderer.link(href, title, this.output(text))
+    : this.renderer.image(href, title, escape(text))
 }
 
 /**

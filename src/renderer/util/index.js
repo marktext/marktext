@@ -1,5 +1,3 @@
-import crypto from 'crypto'
-
 export const delay = time => {
   let timerId
   let rejectFn
@@ -208,14 +206,6 @@ export const hasKeys = obj => Object.keys(obj).length > 0
  */
 export const cloneObj = (obj, deepCopy = true) => {
   return deepCopy ? JSON.parse(JSON.stringify(obj)) : Object.assign({}, obj)
-}
-
-export const getHash = (content, encoding, type) => {
-  return crypto.createHash(type).update(content, encoding).digest('hex')
-}
-
-export const getContentHash = content => {
-  return getHash(content, 'utf8', 'sha1')
 }
 
 export const isOsx = process.platform === 'darwin'

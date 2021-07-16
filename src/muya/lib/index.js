@@ -127,8 +127,8 @@ class Muya {
 
   getMarkdown () {
     const blocks = this.contentState.getBlocks()
-    const listIndentation = this.contentState.listIndentation
-    return new ExportMarkdown(blocks, listIndentation).generate()
+    const { isGitlabCompatibilityEnabled, listIndentation } = this.contentState
+    return new ExportMarkdown(blocks, listIndentation, isGitlabCompatibilityEnabled).generate()
   }
 
   getHistory () {

@@ -2,7 +2,7 @@ import fs from 'fs'
 import path from 'path'
 import { app, ipcMain, Menu } from 'electron'
 import log from 'electron-log'
-import { ensureDirSync, isDirectory, isFile } from 'common/filesystem'
+import { ensureDirSync, isDirectory2, isFile2 } from 'common/filesystem'
 import { isLinux, isOsx, isWindows } from '../config'
 import { parseMenu } from '../keyboard/shortcutHandler'
 import { updateSidebarMenu } from '../menu/actions/edit'
@@ -80,13 +80,13 @@ class AppMenu {
    */
   getRecentlyUsedDocuments () {
     const { RECENTS_PATH } = this
-    if (!isFile(RECENTS_PATH)) {
+    if (!isFile2(RECENTS_PATH)) {
       return []
     }
 
     try {
       const recentDocuments = JSON.parse(fs.readFileSync(RECENTS_PATH, 'utf-8'))
-        .filter(f => f && (isFile(f) || isDirectory(f)))
+        .filter(f => f && (isFile2(f) || isDirectory2(f)))
 
       if (recentDocuments.length > MAX_RECENTLY_USED_DOCUMENTS) {
         recentDocuments.splice(MAX_RECENTLY_USED_DOCUMENTS, recentDocuments.length - MAX_RECENTLY_USED_DOCUMENTS)
@@ -374,6 +374,76 @@ class AppMenu {
       accelerator: this._keybindings.getAccelerator('tabs.switch-to-right'),
       click: (menuItem, win) => {
         win.webContents.send('mt::tabs-cycle-right')
+      },
+      id: null
+    })
+    shortcutMap.push({
+      accelerator: this._keybindings.getAccelerator('tabs.switch-to-first'),
+      click: (menuItem, win) => {
+        win.webContents.send('mt::switch-first-tab')
+      },
+      id: null
+    })
+    shortcutMap.push({
+      accelerator: this._keybindings.getAccelerator('tabs.switch-to-second'),
+      click: (menuItem, win) => {
+        win.webContents.send('mt::switch-second-tab')
+      },
+      id: null
+    })
+    shortcutMap.push({
+      accelerator: this._keybindings.getAccelerator('tabs.switch-to-third'),
+      click: (menuItem, win) => {
+        win.webContents.send('mt::switch-third-tab')
+      },
+      id: null
+    })
+    shortcutMap.push({
+      accelerator: this._keybindings.getAccelerator('tabs.switch-to-fourth'),
+      click: (menuItem, win) => {
+        win.webContents.send('mt::switch-fourth-tab')
+      },
+      id: null
+    })
+    shortcutMap.push({
+      accelerator: this._keybindings.getAccelerator('tabs.switch-to-fifth'),
+      click: (menuItem, win) => {
+        win.webContents.send('mt::switch-fifth-tab')
+      },
+      id: null
+    })
+    shortcutMap.push({
+      accelerator: this._keybindings.getAccelerator('tabs.switch-to-sixth'),
+      click: (menuItem, win) => {
+        win.webContents.send('mt::switch-sixth-tab')
+      },
+      id: null
+    })
+    shortcutMap.push({
+      accelerator: this._keybindings.getAccelerator('tabs.switch-to-seventh'),
+      click: (menuItem, win) => {
+        win.webContents.send('mt::switch-seventh-tab')
+      },
+      id: null
+    })
+    shortcutMap.push({
+      accelerator: this._keybindings.getAccelerator('tabs.switch-to-eighth'),
+      click: (menuItem, win) => {
+        win.webContents.send('mt::switch-eighth-tab')
+      },
+      id: null
+    })
+    shortcutMap.push({
+      accelerator: this._keybindings.getAccelerator('tabs.switch-to-ninth'),
+      click: (menuItem, win) => {
+        win.webContents.send('mt::switch-ninth-tab')
+      },
+      id: null
+    })
+    shortcutMap.push({
+      accelerator: this._keybindings.getAccelerator('tabs.switch-to-tenth'),
+      click: (menuItem, win) => {
+        win.webContents.send('mt::switch-tenth-tab')
       },
       id: null
     })

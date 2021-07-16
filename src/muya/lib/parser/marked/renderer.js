@@ -191,6 +191,21 @@ Renderer.prototype.link = function (href, title, text) {
 }
 
 Renderer.prototype.image = function (href, title, text) {
+  if (!href) {
+    return text
+  }
+
+  // Fix ASCII and UNC paths on Windows (#1997).
+  if (/^(?:[a-zA-Z]:\\|[a-zA-Z]:\/).+/.test(href)) {
+    href = 'file:///' + href.replace(/\\/g, '/')
+  } else if (/^\\\?\\.+/.test(href)) {
+    // NOTE: Only check for "\?\" instead of "\\?\" because URL escaping removes the first "\".
+    href = 'file:///' + href.substring(3).replace(/\\/g, '/')
+  } else if (/^\/.+/.test(href)) {
+    // Be consistent but it's not needed.
+    href = 'file://' + href
+  }
+
   href = cleanUrl(this.options.sanitize, this.options.baseUrl, href)
   if (href === null) {
     return text
@@ -206,6 +221,13 @@ Renderer.prototype.image = function (href, title, text) {
 
 Renderer.prototype.text = function (text) {
   return text
+}
+
+Renderer.prototype.toc = function () {
+  if (this.options.tocRenderer) {
+    return this.options.tocRenderer()
+  }
+  return ''
 }
 
 export default Renderer

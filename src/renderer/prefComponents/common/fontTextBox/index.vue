@@ -48,6 +48,7 @@ import fontManager from 'fontmanager-redux'
 
 export default {
   data () {
+    this.defaultValue = this.value
     return {
       fontFamilies: [],
       selectValue: this.value
@@ -71,6 +72,7 @@ export default {
   watch: {
     value: function (value, oldValue) {
       if (value !== oldValue) {
+        this.defaultValue = value
         this.selectValue = value
       }
     }
@@ -79,7 +81,7 @@ export default {
   methods: {
     querySearch (queryString, callback) {
       const fontFamilies = this.fontFamilies
-      const results = queryString
+      const results = queryString && this.defaultValue !== queryString
         ? fontFamilies.filter(f => f.toLowerCase().indexOf(queryString.toLowerCase()) === 0)
         : fontFamilies
       callback(results)

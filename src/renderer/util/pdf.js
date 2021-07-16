@@ -1,10 +1,12 @@
 import fs from 'fs-extra'
 import path from 'path'
+import Slugger from 'muya/lib/parser/marked/slugger'
 import sanitize from 'muya/lib/utils/dompurify'
 import { isFile } from 'common/filesystem'
 import { escapeHtml, unescapeHtml } from 'muya/lib/utils'
 import academicTheme from '@/assets/themes/export/academic.theme.css'
 import liberTheme from '@/assets/themes/export/liber.theme.css'
+import { cloneObj } from '../util'
 
 export const getCssForOptions = options => {
   const {
@@ -86,6 +88,46 @@ export const getCssForOptions = options => {
     output += '}'
   }
   return unescapeHtml(sanitize(escapeHtml(output), EXPORT_DOMPURIFY_CONFIG))
+}
+
+const generateHtmlToc = (tocList, slugger, currentLevel, options) => {
+  if (!tocList || tocList.length === 0) {
+    return ''
+  }
+
+  const topLevel = tocList[0].lvl
+  if (!options.tocIncludeTopHeading && topLevel <= 1) {
+    tocList.shift()
+    return generateHtmlToc(tocList, slugger, currentLevel, options)
+  } else if (topLevel <= currentLevel) {
+    return ''
+  }
+
+  const { content, lvl } = tocList.shift()
+  const slug = slugger.slug(content)
+
+  let html = `<li><span><a class="toc-h${lvl}" href="#${slug}">${content}</a><span class="dots"></span></span>`
+
+  // Generate sub-items
+  if (tocList.length !== 0 && tocList[0].lvl > lvl) {
+    html += '<ul>' + generateHtmlToc(tocList, slugger, lvl, options) + '</ul>'
+  }
+
+  html += '</li>' + generateHtmlToc(tocList, slugger, currentLevel, options)
+  return html
+}
+
+export const getHtmlToc = (toc, options = {}) => {
+  const list = cloneObj(toc)
+  const slugger = new Slugger()
+  const tocList = generateHtmlToc(list, slugger, 0, options)
+  if (!tocList) {
+    return ''
+  }
+
+  const title = options.tocTitle ? options.tocTitle : 'Table of Contents'
+  const html = `<div class="toc-container"><p class="toc-title">${title}</p><ul class="toc-list">${tocList}</ul></div>`
+  return sanitize(html, EXPORT_DOMPURIFY_CONFIG)
 }
 
 const EXPORT_DOMPURIFY_CONFIG = {

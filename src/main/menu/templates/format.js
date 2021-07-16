@@ -6,7 +6,7 @@ export default function (keybindings) {
     label: 'F&ormat',
     submenu: [{
       id: 'strongMenuItem',
-      label: 'Strong',
+      label: 'Bold',
       type: 'checkbox',
       accelerator: keybindings.getAccelerator('format.strong'),
       click (menuItem, browserWindow) {
@@ -14,7 +14,7 @@ export default function (keybindings) {
       }
     }, {
       id: 'emphasisMenuItem',
-      label: 'Emphasis',
+      label: 'Italic',
       type: 'checkbox',
       accelerator: keybindings.getAccelerator('format.emphasis'),
       click (menuItem, browserWindow) {
@@ -74,7 +74,7 @@ export default function (keybindings) {
       type: 'separator'
     }, {
       id: 'strikeMenuItem',
-      label: 'Strike',
+      label: 'Strikethrough',
       type: 'checkbox',
       accelerator: keybindings.getAccelerator('format.strike'),
       click (menuItem, browserWindow) {
@@ -99,7 +99,7 @@ export default function (keybindings) {
     }, {
       type: 'separator'
     }, {
-      label: 'Clear Format',
+      label: 'Clear Formatting',
       accelerator: keybindings.getAccelerator('format.clear-format'),
       click (menuItem, browserWindow) {
         actions.format(browserWindow, 'clear')

@@ -23,7 +23,7 @@
               <el-tooltip
                 class="item"
                 effect="dark"
-                content="The token is saved by Keychain on macOS, Secret Service API/libsecret on Linux and Credential Vault on Windows."
+                content="The token is saved by Keychain on macOS, Secret Service API/libsecret on Linux and Credential Vault on Windows"
                 placement="top-start"
               >
                 <i class="el-icon-info"></i>
@@ -40,7 +40,7 @@
             <el-input v-model="github.repo" placeholder="repo" size="mini"></el-input>
           </div>
           <div class="form-group">
-            <div class="label">Branch name(optional):</div>
+            <div class="label">Branch name (optional):</div>
             <el-input v-model="github.branch" placeholder="branch" size="mini"></el-input>
           </div>
           <legal-notices-checkbox

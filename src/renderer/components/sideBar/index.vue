@@ -53,6 +53,7 @@ import { sideBarIcons, sideBarBottomIcons } from './help'
 import Tree from './tree.vue'
 import SideBarSearch from './search.vue'
 import Toc from './toc.vue'
+import bus from '../../bus'
 import { mapState } from 'vuex'
 
 export default {
@@ -120,6 +121,7 @@ export default {
     handleLeftIconClick (name) {
       if (this.rightColumn === name) {
         this.$store.commit('SET_LAYOUT', { rightColumn: '' })
+        bus.$emit('EDITOR_TABS::change-max-width', this.finalSideBarWidth)
       } else {
         this.$store.commit('SET_LAYOUT', { rightColumn: name })
         this.sideBarViewWidth = +this.sideBarWidth

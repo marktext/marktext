@@ -222,46 +222,46 @@ kbd {
   }
 
   h1 {
-    font-size: 30px;
+    font-size: 1.875em;
   }
 
   h2 {
-    font-size: 24px;
+    font-size: 1.5em;
   }
 
   h3 {
-    font-size: 22px;
+    font-size: 1.375em;
   }
 
   h4 {
-    font-size: 20px;
+    font-size: 1.25em;
   }
 
   h5 {
-    font-size: 18px;
+    font-size: 1.125em;
   }
 
   h6 {
-    font-size: 16px;
+    font-size: 1em;
   }
 
   h1 .ag-gray {
-    font-size: 21px;
+    font-size: 1.313em;
   }
   h2 .ag-gray {
-    font-size: 20px;
+    font-size: 1.25em;
   }
   h3 .ag-gray {
-    font-size: 19px;
+    font-size: 1.188em;
   }
   h4 .ag-gray {
-    font-size: 18px;
+    font-size: 1.125em;
   }
   h5 .ag-gray {
-    font-size: 17px;
+    font-size: 1.063em;
   }
   h6 .ag-gray {
-    font-size: 16px;
+    font-size: 1em;
   }
 
   p,

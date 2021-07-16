@@ -40,7 +40,7 @@ export default {
     user-select: none;
     height: 28px;
     line-height: 28px;
-    padding-left: 30px;
+    padding-left: 35px;
     position: relative;
     color: var(--sideBarColor);
     & > svg {

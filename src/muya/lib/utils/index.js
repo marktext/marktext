@@ -6,6 +6,14 @@ let id = 0
 
 const TIMEOUT = 1500
 
+const HTML_TAG_REPLACEMENTS = {
+  '&': '&amp;',
+  '<': '&lt;',
+  '>': '&gt;',
+  '"': '&quot;',
+  "'": '&#39;'
+}
+
 export const getUniqueId = () => `${ID_PREFIX}${id++}`
 
 export const getLongUniqueId = () => `${getUniqueId()}-${(+new Date()).toString(32)}`
@@ -252,11 +260,13 @@ export const checkImageContentType = url => {
  */
 export const getImageInfo = (src, baseUrl = window.DIRNAME) => {
   const imageExtension = IMAGE_EXT_REG.test(src)
-  const isUrl = URL_REG.test(src)
+  const isUrl = URL_REG.test(src) || (imageExtension && /^file:\/\/.+/.test(src))
 
-  // Treat an URL with valid extension as image
+  // Treat an URL with valid extension as image.
   if (imageExtension) {
-    const isAbsoluteLocal = /^(?:\/|\\\\|[a-zA-Z]:\\).+/.test(src)
+    // NOTE: Check both "C:\" and "C:/" because we're using "file:///C:/".
+    const isAbsoluteLocal = /^(?:\/|\\\\|[a-zA-Z]:\\|[a-zA-Z]:\/).+/.test(src)
+
     if (isUrl || (!isAbsoluteLocal && !baseUrl)) {
       if (!isUrl && !baseUrl) {
         console.warn('"baseUrl" is not defined!')
@@ -268,6 +278,7 @@ export const getImageInfo = (src, baseUrl = window.DIRNAME) => {
       }
     } else {
       // Correct relative path on desktop. If we resolve a absolute path "path.resolve" doesn't do anything.
+      // NOTE: We don't need to convert Windows styled path to UNIX style because Chromium handels this internal.
       return {
         isUnknownType: false,
         src: 'file://' + require('path').resolve(baseUrl, src)
@@ -319,6 +330,10 @@ export const escapeInBlockHtml = html => {
     })
 }
 
+export const escapeHtmlTags = html => {
+  return html.replace(/[&<>"']/g, x => { return HTML_TAG_REPLACEMENTS[x] })
+}
+
 export const wordCount = markdown => {
   const paragraph = markdown.split(/\n{2,}/).filter(line => line).length
   let word = 0
@@ -360,8 +375,12 @@ export const mixins = (constructor, ...object) => {
   return Object.assign(constructor.prototype, ...object)
 }
 
-export const sanitize = (html, options) => {
-  return runSanitize(escapeInBlockHtml(html), options)
+export const sanitize = (html, purifyOptions, disableHtml) => {
+  if (disableHtml) {
+    return runSanitize(escapeHtmlTags(html), purifyOptions)
+  } else {
+    return runSanitize(escapeInBlockHtml(html), purifyOptions)
+  }
 }
 
 export const getParagraphReference = (ele, id) => {

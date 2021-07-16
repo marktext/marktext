@@ -3,10 +3,10 @@ import langMap from 'iso-639-1'
 /**
  * Return the native language name by language code.
  *
- * @param {string} langCode The ISO two or four-letter language code (e.g. en, en-US).
+ * @param {string} langCode The ISO two or four-letter language code (e.g. en, en-US) or BCP-47 code.
  */
 export const getLanguageName = languageCode => {
-  if (!languageCode || (languageCode.length !== 2 && languageCode.length !== 5)) {
+  if (!languageCode || languageCode.length < 2) {
     return null
   }
 
@@ -43,7 +43,7 @@ export const getHunspellLanguageName = langCode => {
 
 // All available Hunspell dictionary languages.
 // NOTE: Listed as value/label due to settings requirements.
-export const HUNSPELL_DICTIONARY_LANGUAGE_MAP = [{
+export const HUNSPELL_DICTIONARY_LANGUAGE_MAP = Object.freeze([{
   label: 'Afrikaans', // Afrikaans
   value: 'af-ZA'
 }, {
@@ -169,4 +169,4 @@ export const HUNSPELL_DICTIONARY_LANGUAGE_MAP = [{
 }, {
   label: 'Tiếng Việt', // Vietnamese
   value: 'vi-VN'
-}]
+}])

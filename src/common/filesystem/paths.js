@@ -1,8 +1,10 @@
 import fs from 'fs-extra'
 import path from 'path'
-import { isFile, isSymbolicLink } from './index'
+import { isFile, isFile2, isSymbolicLink } from './index'
 
-export const MARKDOWN_EXTENSIONS = [
+const isOsx = process.platform === 'darwin'
+
+export const MARKDOWN_EXTENSIONS = Object.freeze([
   'markdown',
   'mdown',
   'mkdn',
@@ -13,18 +15,18 @@ export const MARKDOWN_EXTENSIONS = [
   'mdtext',
   'text',
   'txt'
-]
+])
 
-export const MARKDOWN_INCLUSIONS = MARKDOWN_EXTENSIONS.map(x => '*.' + x)
+export const MARKDOWN_INCLUSIONS = Object.freeze(MARKDOWN_EXTENSIONS.map(x => '*.' + x))
 
-export const IMAGE_EXTENSIONS = [
+export const IMAGE_EXTENSIONS = Object.freeze([
   'jpeg',
   'jpg',
   'png',
   'gif',
   'svg',
   'webp'
-]
+])
 
 /**
  * Returns true if the filename matches one of the markdown extensions.
@@ -50,31 +52,19 @@ export const isImageFile = filepath => {
 }
 
 /**
- * Returns true if the path is a markdown file.
- *
- * @param {string} filepath The path or link path.
- */
-export const isMarkdownFile = filepath => {
-  return isFile(filepath) && hasMarkdownExtension(filepath)
-}
-
-/**
  * Returns true if the path is a markdown file or symbolic link to a markdown file.
  *
  * @param {string} filepath The path or link path.
  */
-export const isMarkdownFileOrLink = filepath => {
-  if (!isFile(filepath)) return false
-  if (hasMarkdownExtension(filepath)) {
-    return true
-  }
+export const isMarkdownFile = filepath => {
+  if (!isFile2(filepath)) return false
 
-  // Symbolic link to a markdown file
+  // Check symbolic link.
   if (isSymbolicLink(filepath)) {
-    const targetPath = fs.readlinkSync(filepath)
+    const targetPath = path.resolve(path.dirname(filepath), fs.readlinkSync(filepath))
     return isFile(targetPath) && hasMarkdownExtension(targetPath)
   }
-  return false
+  return hasMarkdownExtension(filepath)
 }
 
 /**
@@ -114,4 +104,18 @@ export const isChildOfDirectory = (dir, child) => {
   if (!dir || !child) return false
   const relative = path.relative(dir, child)
   return relative && !relative.startsWith('..') && !path.isAbsolute(relative)
+}
+
+export const getResourcesPath = () => {
+  let resPath = process.resourcesPath
+  if (process.env.NODE_ENV === 'development') {
+    // Default locations:
+    //   Linux/Windows: node_modules/electron/dist/resources/
+    //   macOS: node_modules/electron/dist/Electron.app/Contents/Resources
+    if (isOsx) {
+      resPath = path.join(resPath, '../..')
+    }
+    resPath = path.join(resPath, '../../../../resources')
+  }
+  return resPath
 }

@@ -114,7 +114,8 @@ const setupExceptionHandler = () => {
     companyName: 'marktext',
     productName: 'marktext',
     submitURL: 'http://0.0.0.0/',
-    uploadToServer: false
+    uploadToServer: false,
+    compress: true
   })
 }
 

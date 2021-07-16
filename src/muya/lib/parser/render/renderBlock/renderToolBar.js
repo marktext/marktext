@@ -7,7 +7,7 @@ import AlignRightIcon from '../../../assets/pngicon/algin_right/2.png'
 import AlignCenterIcon from '../../../assets/pngicon/algin_center/2.png'
 import DeleteIcon from '../../../assets/pngicon/table_delete/2.png'
 
-export const TABLE_TOOLS = [{
+export const TABLE_TOOLS = Object.freeze([{
   label: 'table',
   title: 'Resize Table',
   icon: TableIcon
@@ -27,7 +27,7 @@ export const TABLE_TOOLS = [{
   label: 'delete',
   title: 'Delete Table',
   icon: DeleteIcon
-}]
+}])
 
 const renderToolBar = (type, tools, activeBlocks) => {
   const children = tools.map(tool => {

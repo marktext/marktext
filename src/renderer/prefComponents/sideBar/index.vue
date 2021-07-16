@@ -6,7 +6,7 @@
         popper-class="pref-autocomplete"
         v-model="state"
         :fetch-suggestions="querySearch"
-        placeholder="Search preference..."
+        placeholder="Search preferences"
         :trigger-on-focus="false"
         @select="handleSelect">
         <i

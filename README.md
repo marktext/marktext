@@ -37,7 +37,7 @@
   </a>
   <!-- Downloads latest release -->
   <a href="https://github.com/marktext/marktext/releases/latest">
-    <img src="https://img.shields.io/github/downloads/marktext/marktext/v0.16.1/total.svg" alt="latest download">
+    <img src="https://img.shields.io/github/downloads/marktext/marktext/v0.16.3/total.svg" alt="latest download">
   </a>
   <!-- sponsors -->
   <a href="https://opencollective.com/marktext">
@@ -75,7 +75,7 @@
     <span>:cn:</span>
   </a>
   <a href="docs/i18n/zh_tw.md#readme">
-    <span>:cn:</span>
+    <span>:taiwan:</span>
   </a>
   <a href="docs/i18n/pl.md#readme">
     <span>:poland:</span>
@@ -124,6 +124,12 @@ Patreon: Funds will be directly sponsored to Luo Ran (@jocs) who created Mark Te
 Open Collective: All expenses are transparent. The funds will be used for the development and maintenance of Mark Text, funding online and offline activities, and acquiring other necessary resources.
 Names and company logos of all sponsors (from both Patreon and Open Collective) will appear on the official website for Mark Text and in its README.md file.
 
+**Special Sponsors**
+
+<a href="https://www.dogedoge.com/">
+ <img src="https://www.dogedoge.com/assets/new_logo.min.png" width="100" height="100">
+</a>
+
 **Platinum Sponsors**
 
 <a href="https://opencollective.com/marktext#platinum-sponsors">
@@ -167,6 +173,7 @@ Names and company logos of all sponsors (from both Patreon and Open Collective) 
 - Output **HTML** and **PDF** files.
 - Various themes: **Cadmium Light**, **Material Dark** etc.
 - Various editing modes: **Source Code mode**, **Typewriter mode**, **Focus mode**.
+- Paste images directly from clipboard
 
 <h4 align="center">:crescent_moon:themes:high_brightness:</h4>
 
@@ -196,7 +203,7 @@ Names and company logos of all sponsors (from both Patreon and Open Collective) 
 
 | ![](https://raw.githubusercontent.com/wiki/ryanoasis/nerd-fonts/screenshots/v1.0.x/mac-pass-sm.png)                                                                                                  | ![](https://raw.githubusercontent.com/wiki/ryanoasis/nerd-fonts/screenshots/v1.0.x/windows-pass-sm.png)                                                                                                          | ![](https://raw.githubusercontent.com/wiki/ryanoasis/nerd-fonts/screenshots/v1.0.x/linux-pass-sm.png)                                                                                                                        |
 |:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
-| [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext.dmg.svg)](https://github.com/marktext/marktext/releases/download/v0.16.1/marktext.dmg) | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-setup.exe.svg)](https://github.com/marktext/marktext/releases/download/v0.16.1/marktext-setup.exe) | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-x86_64.AppImage.svg)](https://github.com/marktext/marktext/releases/download/v0.16.1/marktext-x86_64.AppImage) |
+| [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext.dmg.svg)](https://github.com/marktext/marktext/releases/download/v0.16.3/marktext.dmg) | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-setup.exe.svg)](https://github.com/marktext/marktext/releases/download/v0.16.3/marktext-setup.exe) | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-x86_64.AppImage.svg)](https://github.com/marktext/marktext/releases/download/v0.16.3/marktext-x86_64.AppImage) |
 
 Want to see new features of the latest version? Please refer to [CHANGELOG](.github/CHANGELOG.md).
 
@@ -205,12 +212,18 @@ Want to see new features of the latest version? Please refer to [CHANGELOG](.git
 You can either download the latest `marktext-%version%.dmg` from the [release page](https://github.com/marktext/marktext/releases/latest) or install Mark Text using [**homebrew cask**](https://github.com/caskroom/homebrew-cask). To use Homebrew-Cask you just need to have [Homebrew](https://brew.sh/) installed.
 
 ```bash
-brew cask install mark-text
+brew install --cask mark-text
 ```
 
 #### Windows
 
 Simply download and install Mark Text via setup wizard (`marktext-setup-%version%.exe`) and choose whether to install per-user or machine wide.
+
+Alternatively, install Mark Text using [Chocolatey](https://chocolatey.org/). To use Chocolatey you need to have [Chocolatey](https://chocolatey.org/install) installed.
+
+```bash
+choco install marktext
+```
 
 #### Linux
 

@@ -132,7 +132,8 @@ export default function renderLeafBlock (parent, block, activeBlocks, matches, u
         selector += `.${CLASS_OR_ID.AG_HTML_PREVIEW}`
         Object.assign(data.attrs, { spellcheck: 'false' })
 
-        const htmlContent = sanitize(code, PREVIEW_DOMPURIFY_CONFIG)
+        const { disableHtml } = this.muya.options
+        const htmlContent = sanitize(code, PREVIEW_DOMPURIFY_CONFIG, disableHtml)
 
         // handle empty html bock
         if (/^<([a-z][a-z\d]*)[^>]*?>(\s*)<\/\1>$/.test(htmlContent.trim())) {
