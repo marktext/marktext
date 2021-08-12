@@ -145,6 +145,7 @@ export const CLASS_OR_ID = Object.freeze(genUpper2LowerKeyHash([
   'AG_RUBY_TEXT',
   'AG_SELECTION',
   'AG_SEQUENCE',
+  'AG_PLANTUML',
   'AG_SHOW_PREVIEW',
   'AG_SOFT_LINE_BREAK',
   'AG_TASK_LIST',

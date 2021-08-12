@@ -127,6 +127,7 @@ class StateRender {
       const RENDER_MAP = {
         flowchart: await loadRenderer('flowchart'),
         sequence: await loadRenderer('sequence'),
+        plantuml: await loadRenderer('plantuml'),
         'vega-lite': await loadRenderer('vega-lite')
       }
 
@@ -149,7 +150,7 @@ class StateRender {
           })
         }
         try {
-          if (functionType === 'flowchart' || functionType === 'sequence') {
+          if (functionType === 'flowchart' || functionType === 'sequence' || functionType === 'plantuml') {
             const diagram = render.parse(code)
             target.innerHTML = ''
             diagram.drawSVG(target, options)
@@ -157,7 +158,7 @@ class StateRender {
             await render(key, JSON.parse(code), options)
           }
         } catch (err) {
-          target.innerHTML = `< Invalid ${functionType === 'flowchart' ? 'Flow Chart' : 'Sequence'} Codes >`
+          target.innerHTML = `< Invalid ${functionType === 'flowchart' ? 'Flow Chart' : 'Sequence'} Codes >` // TODO
           target.classList.add(CLASS_OR_ID.AG_MATH_ERROR)
         }
       }

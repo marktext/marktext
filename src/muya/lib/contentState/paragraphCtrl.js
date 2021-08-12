@@ -513,6 +513,7 @@ const paragraphCtrl = ContentState => {
       }
       case 'flowchart':
       case 'sequence':
+      case 'plantuml':
       case 'mermaid':
       case 'vega-lite':
         this.insertContainerBlock(paraType, block)
@@ -699,7 +700,7 @@ const paragraphCtrl = ContentState => {
       // if the cursor is not in one paragraph, just return
       return
     }
-    // if copied block has pre block: html, multiplemath, vega-light, mermaid, flowchart, sequence...
+    // if copied block has pre block: html, multiplemath, vega-light, mermaid, flowchart, sequence, plantuml...
     const copiedBlock = this.copyBlock(startOutmostBlock)
     this.insertAfter(copiedBlock, startOutmostBlock)
 

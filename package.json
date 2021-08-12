@@ -68,6 +68,7 @@
     "keyboard-layout": "^2.0.17",
     "keytar": "^7.7.0",
     "mermaid": "8.8.4",
+    "minizlib": "^2.1.1",
     "plist": "^3.0.4",
     "popper.js": "^1.16.1",
     "prismjs": "^1.25.0",
