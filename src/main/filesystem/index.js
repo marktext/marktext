@@ -1,5 +1,6 @@
 import fs from 'fs-extra'
 import path from 'path'
+import hidefile from 'hidefile'
 import { isDirectory, isFile, isSymbolicLink } from 'common/filesystem'
 
 /**
@@ -27,6 +28,14 @@ export const writeFile = (pathname, content, extension, options = 'utf-8') => {
     return Promise.reject(new Error('[ERROR] Cannot save file without path.'))
   }
   pathname = !extension || pathname.endsWith(extension) ? pathname : `${pathname}${extension}`
-
+  
+  hidefile.isHidden('pathname', (err, result) => {
+  if (err == null) {
+    console.log(result);  //-> false
+  }
+  else
+    console.log('You cannot add or save file in a hidden directory "${pathname}"')
+});
+  
   return fs.outputFile(pathname, content, options)
 }
