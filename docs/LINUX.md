@@ -2,7 +2,7 @@
 
 ## AppImage
 
-Download the AppImage and type the following:
+[Download the AppImage](https://github.com/marktext/marktext/releases/latest) and type the following:
 
 1. `chmod +x marktext-%version%-x86_64.AppImage`
 2. `./marktext-%version%-x86_64.AppImage`
