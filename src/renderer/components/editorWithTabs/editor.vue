@@ -1033,7 +1033,7 @@ export default {
       const anchor = document.querySelector(selector)
       if (anchor) {
         const { y } = anchor.getBoundingClientRect()
-        const DURATION = 300
+        const DURATION = isOsx ? 300 : 0
         animatedScrollTo(container, container.scrollTop + y - STANDAR_Y, DURATION)
       }
     },
