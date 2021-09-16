@@ -309,7 +309,7 @@ const tabCtrl = ContentState => {
     const startBlock = this.getBlock(start.key)
     const endBlock = this.getBlock(end.key)
 
-    if (event.shiftKey && !startBlock.functionType === 'cellContent') {
+    if (event.shiftKey && startBlock.functionType !== 'cellContent') {
       const unindentType = this.isUnindentableListItem(startBlock)
       if (unindentType) {
         this.unindentListItem(startBlock, unindentType)
