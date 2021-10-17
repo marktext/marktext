@@ -409,20 +409,19 @@ ipcMain.on('mt::ask-for-open-project-in-sidebar', async e => {
 })
 
 ipcMain.on('mt::format-link-click', (e, { data, dirname }) => {
-  if (!data || (!data.href && !data.text)) {
+  if (!data || !data.href || typeof data.href !== 'string') {
     return
   }
 
-  const href = data.href || data.text
-  if (URL_REG.test(href)) {
-    return shell.openExternal(href)
+  if (URL_REG.test(data.href)) {
+    return shell.openExternal(data.href)
   }
-
   let pathname = null
-  if (path.isAbsolute(href) && isMarkdownFile(href)) {
-    pathname = href
-  } else if (!path.isAbsolute(href) && isMarkdownFile(path.join(dirname, href))) {
-    pathname = path.join(dirname, href)
+  if (path.isAbsolute(data.href) && isMarkdownFile(data.href)) {
+    pathname = data.href
+  }
+  if (!path.isAbsolute(data.href) && isMarkdownFile(path.join(dirname, data.href))) {
+    pathname = path.join(dirname, data.href)
   }
   if (pathname) {
     const win = BrowserWindow.fromWebContents(e.sender)

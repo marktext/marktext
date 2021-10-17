@@ -1,5 +1,8 @@
 import axios from '../axios'
 import { serialize, merge, dataURItoBlob } from '../util'
+import request from 'request'
+
+var FormData = require('form-data')
 
 const CONFIG = {
   SOGOU: {
@@ -48,6 +51,32 @@ const resource = {
 
         reader.readAsDataURL(data)
       }))
+  },
+  fetchImgToSM (url, smmsToken) {
+    const api = 'https://sm.ms/api/v2/upload'
+    const formData = new FormData()
+    const formHeaders = formData.getHeaders()
+    formData.append('smfile', request(url))
+    return axios({
+      url: api,
+      method: 'POST',
+      data: formData,
+      headers: {
+        ...formHeaders,
+        Authorization: smmsToken,
+        'Content-Type': `multipart/form-data; boundary=${formData._boundary}`
+      }
+    }).then(({ data }) => {
+      console.log(data)
+      const { data: res } = data
+      return {
+        url: res.url,
+        err: '',
+        server: 'sm'
+      }
+    }).catch((err) => {
+      console.log('error：', err)
+    })
   },
   sm (base64) {
     const api = 'https://sm.ms/api/upload'

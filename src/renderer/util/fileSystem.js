@@ -3,11 +3,15 @@ import crypto from 'crypto'
 import { clipboard } from 'electron'
 import fs from 'fs-extra'
 import dayjs from 'dayjs'
-import Octokit from '@octokit/rest'
+import { Octokit } from '@octokit/rest'
 import { ensureDirSync } from 'common/filesystem'
 import { isImageFile } from 'common/filesystem/paths'
-import { dataURItoBlob } from './index'
+// import { dataURItoBlob } from './index'
 import axios from '../axios'
+import urlJoin from 'url-join'
+
+const os = require('os')
+var FormData = require('form-data')
 
 export const create = (pathname, type) => {
   if (type === 'directory') {
@@ -95,8 +99,11 @@ export const moveImageToFolder = async (pathname, image, dir) => {
  */
 export const uploadImage = async (pathname, image, preferences) => {
   const { currentUploader } = preferences
-  const { owner, repo, branch } = preferences.imageBed.github
-  const token = preferences.githubToken
+  const { owner, repo, branch, email } = preferences.imageBed.github
+  const githubToken = preferences.githubToken
+  const smmsToken = preferences.smmsToken
+  const gitee = preferences.imageBed.gitee
+  const giteeToken = preferences.giteeToken
   const isPath = typeof image === 'string'
   const MAX_SIZE = 5 * 1024 * 1024
   let re
@@ -106,55 +113,120 @@ export const uploadImage = async (pathname, image, preferences) => {
     rj = reject
   })
 
-  const uploadToSMMS = file => {
-    const api = 'https://sm.ms/api/upload'
-    const formData = new window.FormData()
-    formData.append('smfile', file)
+  const uploadToSMMS = imagePath => {
+    const api = 'https://sm.ms/api/v2/upload'
+    const formData = new FormData()
+    const formHeaders = formData.getHeaders()
+
+    console.log(imagePath)
+    formData.append('smfile', fs.createReadStream(imagePath))
     axios({
       method: 'post',
       url: api,
-      data: formData
-    }).then((res) => {
-      // TODO: "res.data.data.delete" should emit "image-uploaded"/handleUploadedImage in editor.js. Maybe add to image manager too.
-      // This notification will be removed when the image manager implemented.
-      const notice = new Notification('Copy delete URL', {
-        body: 'Click to copy the delete URL to clipboard.'
-      })
-
-      notice.onclick = () => {
-        clipboard.writeText(res.data.data.delete)
+      data: formData,
+      headers: {
+        ...formHeaders,
+        Authorization: smmsToken,
+        'Content-Type': `multipart/form-data; boundary=${formData._boundary}`
       }
+    }).then((res) => {
+      // del tmp file
+      console.log(res)
+      if (imagePath.indexOf(os.tmpdir()) !== -1) {
+        console.log('tmp file')
+        fs.unlinkSync(imagePath)
+      }
+      if (res.data.code && res.data.code.indexOf('repeated') !== -1) {
+        console.log('图片重复了')
+        re(res.data.images)
+      } else {
+        // TODO: "res.data.data.delete" should emit "image-uploaded"/handleUploadedImage in editor.js. Maybe add to image manager too.
+        // This notification will be removed when the image manager implemented.
+        const notice = new Notification('Copy delete URL', {
+          body: 'Click to copy the delete URL to clipboard.'
+        })
 
-      re(res.data.data.url)
+        notice.onclick = () => {
+          clipboard.writeText(res.data.data.delete)
+        }
+        re(res.data.data.url)
+      }
     })
-      .catch(_ => {
+      .catch(err => {
+        console.log('err', err)
         rj('Upload failed, the image will be copied to the image folder')
       })
   }
 
   const uploadByGithub = (content, filename) => {
+    console.log('github token: ', githubToken)
     const octokit = new Octokit({
-      auth: `token ${token}`
-
+      auth: githubToken,
+      log: {
+        debug: (res) => { console.log(res) },
+        info: (res) => { console.log(res) },
+        warn: (res) => { console.log(res) },
+        error: (res) => { console.log(res) }
+      }
     })
+
     const path = dayjs().format('YYYY/MM') + `/${dayjs().format('DD-HH-mm-ss')}-${filename}`
     const message = `Upload by Mark Text at ${dayjs().format('YYYY-MM-DD HH:mm:ss')}`
     var payload = {
       owner,
       repo,
       path,
-      branch,
       message,
-      content
+      content,
+      'committer.name': owner,
+      'committer.email': email,
+      'author.Name': owner,
+      'authoer.email': email,
+      branch
     }
+    console.log(payload)
     if (!branch) {
       delete payload.branch
     }
-    octokit.repos.createFile(payload).then(result => {
+    octokit.rest.repos.createOrUpdateFileContents(payload).then(result => {
+      console.log('github reply: ', result)
       re(result.data.content.download_url)
     })
-      .catch(_ => {
+      .catch(err => {
+        console.log('github err: ', err)
         rj('Upload failed, the image will be copied to the image folder')
+      })
+  }
+
+  const uploadByGitee = (content, fileName) => {
+    const path = dayjs().format('YYYY/MM')
+    const filename = `${dayjs().format('DD-HH-mm-ss')}-${fileName}`
+    const message = `Upload by Mark Text at ${dayjs().format('YYYY-MM-DD HH:mm:ss')}`
+    const url = encodeURI(urlJoin(
+      'https://gitee.com/api/v5',
+      'repos', gitee.owner, gitee.repo, 'contents', path, filename
+    ))
+    var branch = gitee.branch || 'master'
+    const formData = {
+      access_token: giteeToken,
+      content: content,
+      message: message,
+      branch: branch
+    }
+    axios({
+      method: 'post',
+      url: url,
+      json: true,
+      resolveWithFullResponse: true,
+      data: formData
+    }).then((res) => {
+      if (res && res.status === 201) {
+        re(res.data.content.download_url)
+      }
+    })
+      .catch(err => {
+        console.log('github err: ', err)
+        rj(`Upload failed, the image will be copied to the image folder, ${err}`)
       })
   }
 
@@ -172,9 +244,13 @@ export const uploadImage = async (pathname, image, preferences) => {
         notification()
       } else {
         const imageFile = await fs.readFile(imagePath)
-        const blobFile = new Blob([imageFile])
+        // const blobFile = new Blob([imageFile])
+        console.log('imagePath: ', imagePath)
         if (currentUploader === 'smms') {
-          uploadToSMMS(blobFile)
+          uploadToSMMS(imagePath)
+        } else if (currentUploader === 'gitee') {
+          const base64 = Buffer.from(imageFile).toString('base64')
+          uploadByGitee(base64, path.basename(imagePath))
         } else {
           const base64 = Buffer.from(imageFile).toString('base64')
           uploadByGithub(base64, path.basename(imagePath))
@@ -190,11 +266,28 @@ export const uploadImage = async (pathname, image, preferences) => {
     } else {
       const reader = new FileReader()
       reader.onload = async () => {
-        const blobFile = dataURItoBlob(reader.result, image.name)
+        // const blobFile = dataURItoBlob(reader.result, image.name)
+        const imageData = reader.result.replace(/^data:image\/\w+;base64,/, '')
+        const dataBuffer = Buffer.from(imageData, 'base64')
+        // const imagePath = tempWrite.sync('unicorn', image.name)
+        const imagePath = path.resolve(os.tmpdir(), image.name)
+        console.log('imagePath: ', imagePath)
+
+        fs.writeFile(imagePath, dataBuffer, function (err) {
+          if (err) {
+            console.log('save img error：', err)
+          } else {
+            console.log('save img success!')
+          }
+        })
+        const imageFile = await fs.readFile(imagePath)
+        const imageBase64 = Buffer.from(imageFile).toString('base64')
         if (currentUploader === 'smms') {
-          uploadToSMMS(blobFile)
+          uploadToSMMS(imagePath)
+        } else if (currentUploader === 'gitee') {
+          uploadByGitee(imageBase64, image.name)
         } else {
-          uploadByGithub(reader.result, image.name)
+          uploadByGithub(imageBase64, image.name)
         }
       }
 

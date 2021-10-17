@@ -35,6 +35,16 @@ const services = {
 
     // Currently a non-persistent value
     agreedToLegalNotices: false
+  },
+
+  gitee: {
+    name: 'Gitee',
+    isGdprCompliant: true,
+    privacyUrl: '',
+    tosUrl: 'https://gitee.com/terms',
+
+    // Currently a non-persistent value
+    agreedToLegalNotices: false
   }
 }
 

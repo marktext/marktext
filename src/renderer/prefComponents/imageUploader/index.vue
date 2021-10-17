@@ -2,20 +2,49 @@
   <div class="pref-image-uploader">
     <h4>Image Uploader</h4>
     <section class="current-uploader">
-      <div v-if="isValidUploaderService(currentUploader)">The current image uploader is {{ getServiceNameById(currentUploader) }}.</div>
-      <span v-else>Currently no uploader is selected. Please select an uploader and click on "Set as default".</span>
+      <div v-if="isValidUploaderService(currentUploader)">
+        The current image uploader is {{ getServiceNameById(currentUploader) }}.
+      </div>
+      <span v-else
+        >Currently no uploader is selected. Please select an uploader and click
+        on "Set as default".</span
+      >
     </section>
     <section class="configration">
       <el-tabs v-model="activeTab">
+        <!-- sm.ms -->
         <el-tab-pane label="SM.MS" name="smms">
-          <div class="description">Thank you <span class="link" @click="open('https://sm.ms/')">SM.MS</span> for providing free uploading services.</div>
+          <div class="form-group">
+            <div class="label">
+              SM.MS token:
+              <el-tooltip
+                class="item"
+                effect="dark"
+                content="The token is saved by Keychain on macOS, Secret Service API/libsecret on Linux and Credential Vault on Windows"
+                placement="top-start"
+              >
+                <i class="el-icon-info"></i>
+              </el-tooltip>
+            </div>
+            <el-input
+              v-model="smmsToken"
+              placeholder="Input token"
+              size="mini"
+            ></el-input>
+          </div>
           <legal-notices-checkbox
             class="smms"
-            :class="[{ 'error': legalNoticesErrorStates.smms }]"
+            :class="[{ error: legalNoticesErrorStates.smms }]"
             :uploaderService="uploadServices.smms"
           ></legal-notices-checkbox>
-          <el-button size="mini" @click="setCurrentUploader('smms')">Set as default</el-button>
+          <el-button size="mini" :disabled="smmsDisable" @click="save('smms')"
+            >Save</el-button
+          >
+          <el-button size="mini" @click="setCurrentUploader('smms')"
+            >Set as default</el-button
+          >
         </el-tab-pane>
+        <!-- github -->
         <el-tab-pane label="GitHub" name="github">
           <div class="form-group">
             <div class="label">
@@ -29,28 +58,126 @@
                 <i class="el-icon-info"></i>
               </el-tooltip>
             </div>
-            <el-input v-model="githubToken" placeholder="Input token" size="mini"></el-input>
+            <el-input
+              v-model="githubToken"
+              placeholder="Input token"
+              size="mini"
+            ></el-input>
           </div>
           <div class="form-group">
             <div class="label">Owner name:</div>
-            <el-input v-model="github.owner" placeholder="owner" size="mini"></el-input>
+            <el-input
+              v-model="github.owner"
+              placeholder="owner"
+              size="mini"
+            ></el-input>
+          </div>
+          <div class="form-group">
+            <div class="label">Email:</div>
+            <el-input
+              v-model="github.email"
+              placeholder="email"
+              size="mini"
+            ></el-input>
           </div>
           <div class="form-group">
             <div class="label">Repo name:</div>
-            <el-input v-model="github.repo" placeholder="repo" size="mini"></el-input>
+            <el-input
+              v-model="github.repo"
+              placeholder="repo"
+              size="mini"
+            ></el-input>
           </div>
           <div class="form-group">
             <div class="label">Branch name (optional):</div>
-            <el-input v-model="github.branch" placeholder="branch" size="mini"></el-input>
+            <el-input
+              v-model="github.branch"
+              placeholder="branch"
+              size="mini"
+            ></el-input>
           </div>
           <legal-notices-checkbox
             class="github"
-            :class="[{ 'error': legalNoticesErrorStates.github }]"
+            :class="[{ error: legalNoticesErrorStates.github }]"
             :uploaderService="uploadServices.github"
           ></legal-notices-checkbox>
           <div class="form-group">
-            <el-button size="mini" :disabled="githubDisable" @click="save('github')">Save</el-button>
-            <el-button size="mini" :disabled="githubDisable" @click="setCurrentUploader('github')">Set as default</el-button>
+            <el-button
+              size="mini"
+              :disabled="githubDisable"
+              @click="save('github')"
+              >Save</el-button
+            >
+            <el-button
+              size="mini"
+              :disabled="githubDisable"
+              @click="setCurrentUploader('github')"
+              >Set as default</el-button
+            >
+          </div>
+        </el-tab-pane>
+        <!-- gitee -->
+        <el-tab-pane label="Gitee" name="gitee">
+          <div class="form-group">
+            <div class="label">
+              Gitee token:
+              <el-tooltip
+                class="item"
+                effect="dark"
+                content="The token is saved by Keychain on macOS, Secret Service API/libsecret on Linux and Credential Vault on Windows"
+                placement="top-start"
+              >
+                <i class="el-icon-info"></i>
+              </el-tooltip>
+            </div>
+            <el-input
+              v-model="giteeToken"
+              placeholder="Input token"
+              size="mini"
+            ></el-input>
+          </div>
+          <div class="form-group">
+            <div class="label">Owner name:</div>
+            <el-input
+              v-model="gitee.owner"
+              placeholder="owner"
+              size="mini"
+            ></el-input>
+          </div>
+          <div class="form-group">
+            <div class="label">Repo name:</div>
+            <el-input
+              v-model="gitee.repo"
+              placeholder="repo"
+              size="mini"
+            ></el-input>
+          </div>
+          <div class="form-group">
+            <div class="label">Branch name (optional):</div>
+            <el-input
+              v-model="gitee.branch"
+              placeholder="branch"
+              size="mini"
+            ></el-input>
+          </div>
+          <legal-notices-checkbox
+            class="gitee"
+            :class="[{ error: legalNoticesErrorStates.gitee }]"
+            :uploaderService="uploadServices.gitee"
+          ></legal-notices-checkbox>
+          <div class="form-group">
+            <el-button
+              size="mini"
+              :disabled="giteeDisable"
+              @click="save('gitee')"
+              >Save</el-button
+            >
+            <el-button
+              size="mini"
+              :disabled="giteeDisable"
+              @click="setCurrentUploader('gitee')"
+              >Set as default</el-button
+            >
           </div>
         </el-tab-pane>
       </el-tabs>
@@ -70,8 +197,16 @@ export default {
   data () {
     return {
       activeTab: 'smms',
+      smmsToken: '',
       githubToken: '',
+      giteeToken: '',
       github: {
+        owner: '',
+        repo: '',
+        branch: '',
+        email: ''
+      },
+      gitee: {
         owner: '',
         repo: '',
         branch: ''
@@ -79,7 +214,8 @@ export default {
       uploadServices: services,
       legalNoticesErrorStates: {
         smms: false,
-        github: false
+        github: false,
+        gitee: false
       }
     }
   },
@@ -94,27 +230,53 @@ export default {
         return this.$store.state.preferences.imageBed
       }
     },
+    prefSmmsToken: {
+      get: function () {
+        return this.$store.state.preferences.smmsToken
+      }
+    },
     prefGithubToken: {
       get: function () {
         return this.$store.state.preferences.githubToken
       }
     },
+    prefGiteeToken: {
+      get: function () {
+        return this.$store.state.preferences.giteeToken
+      }
+    },
+    smmsDisable () {
+      return !this.smmsToken
+    },
     githubDisable () {
-      return !this.githubToken || !this.github.owner || !this.github.repo
+      return !this.githubToken || !this.github.owner || !this.github.repo || !this.github.email
+    },
+    giteeDisable () {
+      return !this.giteeToken || !this.gitee.owner || !this.gitee.repo
     }
   },
   watch: {
     imageBed: function (value, oldValue) {
       if (value !== oldValue) {
-        this.github = value.github
+        if (value.github !== this.github) {
+          this.github = value.github
+        }
+        if (value.gitee !== this.gitee) {
+          this.gitee = value.gitee
+        }
+        if (value.smms !== this.smms) {
+          this.smms = value.smms
+        }
       }
     }
   },
   created () {
     this.$nextTick(() => {
+      this.smmsToken = this.prefSmmsToken
       this.github = this.imageBed.github
       this.githubToken = this.prefGithubToken
-
+      this.gitee = this.imageBed.gitee
+      this.giteeToken = this.prefGiteeToken
       if (services.hasOwnProperty(this.currentUploader)) {
         services[this.currentUploader].agreedToLegalNotices = true
       }
@@ -132,7 +294,9 @@ export default {
       shell.openExternal(link)
     },
     save (type, withNotice = true) {
-      const newImageBedConfig = Object.assign({}, this.imageBed, { [type]: this[type] })
+      const newImageBedConfig = Object.assign({}, this.imageBed, {
+        [type]: this[type]
+      })
       this.$store.dispatch('SET_USER_DATA', {
         type: 'imageBed',
         value: newImageBedConfig
@@ -142,11 +306,31 @@ export default {
           type: 'githubToken',
           value: this.githubToken
         })
+      } else if (type === 'gitee') {
+        this.$store.dispatch('SET_USER_DATA', {
+          type: 'giteeToken',
+          value: this.giteeToken
+        })
+      } else if (type === 'smms') {
+        this.$store.dispatch('SET_USER_DATA', {
+          type: 'smmsToken',
+          value: this.smmsToken
+        })
       }
       if (withNotice) {
-        new Notification('Save Image Uploader', {
-          body: 'The Github configration has been saved.'
-        })
+        if (type === 'github') {
+          new Notification('Save Image Uploader', {
+            body: 'The Github configration has been saved.'
+          })
+        } else if (type === 'gitee') {
+          new Notification('Save Image Uploader', {
+            body: 'The Gitee configration has been saved.'
+          })
+        } else if (type === 'smms') {
+          new Notification('Save Image Uploader', {
+            body: 'The Smms configration has been saved.'
+          })
+        }
       }
     },
     setCurrentUploader (value) {
@@ -162,7 +346,7 @@ export default {
         return
       }
       // Save the setting before set it as default uploader.
-      if (value === 'github') {
+      if (value === 'github' || value === 'gitee' || value === 'smms') {
         this.save(value, false)
       }
       this.legalNoticesErrorStates[value] = false
@@ -220,6 +404,9 @@ export default {
       margin-bottom: 30px;
     }
     &.github {
+      margin-top: 30px;
+    }
+    &.gitee {
       margin-top: 30px;
     }
     &.error {

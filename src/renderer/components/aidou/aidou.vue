@@ -103,6 +103,7 @@ export default {
   },
   computed: {
     ...mapState({
+      smmsToken: state => state.preferences.smmsToken,
       aiList: state => state.aidou.aiList,
       aiLoading: state => state.aidou.aiLoading
     }),
@@ -133,8 +134,7 @@ export default {
     },
     async handleEmojiClick ({ link }) {
       try {
-        const base64 = await resource.fetchImgToBase64(link)
-        const { url } = await resource.sm(base64)
+        const { url } = await resource.fetchImgToSM(link, this.smmsToken)
         bus.$emit('insert-image', url)
         this.showAiDou = false
       } catch (err) {
