@@ -137,7 +137,7 @@ export const uploadImage = async (pathname, image, preferences) => {
         fs.unlinkSync(imagePath)
       }
       if (res.data.code && res.data.code.indexOf('repeated') !== -1) {
-        console.log('图片重复了')
+        console.log('Repetitive picture')
         re(res.data.images)
       } else {
         // TODO: "res.data.data.delete" should emit "image-uploaded"/handleUploadedImage in editor.js. Maybe add to image manager too.

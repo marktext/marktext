@@ -140,11 +140,11 @@ class EditorWindow extends BaseWindow {
       win.webContents.send('mt::window-active-status', { status: false })
     })
 
-      ;['maximize', 'unmaximize', 'enter-full-screen', 'leave-full-screen'].forEach(channel => {
-        win.on(channel, () => {
-          win.webContents.send(`mt::window-${channel}`)
-        })
+    ;['maximize', 'unmaximize', 'enter-full-screen', 'leave-full-screen'].forEach(channel => {
+      win.on(channel, () => {
+        win.webContents.send(`mt::window-${channel}`)
       })
+    })
 
     // Before closed. We cancel the action and ask the editor further instructions.
     win.on('close', event => {

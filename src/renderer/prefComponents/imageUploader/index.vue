@@ -249,7 +249,12 @@ export default {
       return !this.smmsToken
     },
     githubDisable () {
-      return !this.githubToken || !this.github.owner || !this.github.repo || !this.github.email
+      return (
+        !this.githubToken ||
+        !this.github.owner ||
+        !this.github.repo ||
+        !this.github.email
+      )
     },
     giteeDisable () {
       return !this.giteeToken || !this.gitee.owner || !this.gitee.repo
