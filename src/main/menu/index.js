@@ -477,6 +477,7 @@ class AppMenu {
     }
   }
 
+  // 设置菜单
   _buildSettingMenu () {
     if (isOsx) {
       const menuTemplate = configSettingMenu(this._keybindings)

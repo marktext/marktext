@@ -1,4 +1,4 @@
-import { ipcMain } from 'electron'
+// import { ipcMain } from 'electron'
 import * as actions from '../actions/view'
 
 export default function (keybindings) {
@@ -88,30 +88,28 @@ export default function (keybindings) {
       click (_, browserWindow) {
         actions.layout(null, browserWindow, 'rightColumn', 'toc')
       }
-    }, {
-      type: 'separator'
     }]
   }
 
-  if (global.MARKTEXT_DEBUG) {
-    viewMenu.submenu.push({
-      label: 'Show Developer Tools',
-      accelerator: keybindings.getAccelerator('view.toggle-dev-tools'),
-      click (item, focusedWindow) {
-        if (focusedWindow) {
-          focusedWindow.webContents.toggleDevTools()
-        }
-      }
-    })
-    viewMenu.submenu.push({
-      label: 'Reload',
-      accelerator: keybindings.getAccelerator('view.dev-reload'),
-      click (item, focusedWindow) {
-        if (focusedWindow) {
-          ipcMain.emit('window-reload-by-id', focusedWindow.id)
-        }
-      }
-    })
-  }
+  // if (global.MARKTEXT_DEBUG) {
+  //   viewMenu.submenu.push({
+  //     label: 'Show Developer Tools',
+  //     accelerator: keybindings.getAccelerator('view.toggle-dev-tools'),
+  //     click (item, focusedWindow) {
+  //       if (focusedWindow) {
+  //         focusedWindow.webContents.toggleDevTools()
+  //       }
+  //     }
+  //   })
+  //   viewMenu.submenu.push({
+  //     label: 'Reload',
+  //     accelerator: keybindings.getAccelerator('view.dev-reload'),
+  //     click (item, focusedWindow) {
+  //       if (focusedWindow) {
+  //         ipcMain.emit('window-reload-by-id', focusedWindow.id)
+  //       }
+  //     }
+  //   })
+  // }
   return viewMenu
 }
