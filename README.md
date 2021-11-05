@@ -196,12 +196,14 @@ Names and company logos of all sponsors (from both Patreon and Open Collective) 
 
 <ol>
   <li>You need to create a discord application.</li>
-  <li>- https://discord.com/developers/applications</li>
+  <ul>
+    <li>https://discord.com/developers/applications</li>
+  </ul>
   <li>Change the name to MarkText.</li>
   <li>Go in Rich Presence ➔ Art Assets.</li>
   <li>Click on Add Image(s) and choose the image from assets/images.</li>
   <li>Name it marktext-logo</li>
-<ol>
+</ol>
 
 ### Done!
 
