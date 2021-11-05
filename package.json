@@ -43,6 +43,7 @@
     "codemirror": "^5.59.0",
     "command-exists": "^1.2.9",
     "dayjs": "^1.9.7",
+    "discord-rpc": "^4.0.1",
     "dom-autoscroller": "^2.3.4",
     "dompurify": "^2.2.6",
     "dragula": "^3.7.3",

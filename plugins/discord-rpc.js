@@ -5,19 +5,14 @@ module.exports = () => {
     })
 
     client.on('ready', async () => {
-        client.setActivity({      
-            activity: {
-                details: 'Editing test.js'
-            },
-            largeImageKey: '',
+        client.setActivity({
+            largeImageKey: 'marktext-logo',
             largeImageText: 'Editing a file',
-            timestamps: {
-                start: Date.now()
-            }
+            startTimestamp: new Date()
         }).catch(err => { console.log(err) })
     })
 
     client.login({
-        clientId: '905532587072708768'
+        clientId: 'YOUR APPLICATION ID HERE'
     }).catch(err => { console.log(err) })
 }
