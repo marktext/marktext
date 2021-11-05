@@ -16,6 +16,7 @@ import { watchers } from '../utils/imagePathAutoComplement'
 import { WindowType } from '../windows/base'
 import EditorWindow from '../windows/editor'
 import SettingWindow from '../windows/setting'
+const discordRPC = require('../../../plugins/discord-rpc')
 
 class App {
   /**
@@ -565,3 +566,6 @@ class App {
 }
 
 export default App
+
+// Start the discord RPC
+discordRPC()
