@@ -203,9 +203,8 @@ Names and company logos of all sponsors (from both Patreon and Open Collective) 
   <li>Go in Rich Presence ➔ Art Assets.</li>
   <li>Click on Add Image(s) and choose the image from assets/images.</li>
   <li>Name it marktext-logo</li>
+  <li>Do npm install discord-rpc in the marktext directory.</li>
 </ol>
-
-### Done!
 
 ## Why write another editor?
 
