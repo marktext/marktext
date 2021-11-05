@@ -191,6 +191,20 @@ Names and company logos of all sponsors (from both Patreon and Open Collective) 
 |:--------------------:|:------------------------:|:-------------------:|
 | ![](docs/source.gif) | ![](docs/typewriter.gif) | ![](docs/focus.gif) |
 
+
+## Discord-RPC
+
+<ol>
+  <li>You need to create a discord application.</li>
+  <li>- https://discord.com/developers/applications</li>
+  <li>Change the name to MarkText.</li>
+  <li>Go in Rich Presence ➔ Art Assets.</li>
+  <li>Click on Add Image(s) and choose the image from assets/images.</li>
+  <li>Name it marktext-logo</li>
+<ol>
+
+### Done!
+
 ## Why write another editor?
 
 1. I love writing. I have used a lot of markdown editors, yet there is still not an editor that can fully meet my needs. I don't like to be disturbed when I write by some unbearable bug. **Mark Text** uses virtual DOM to render pages which has the added benefits of being highly efficient and being open source. That way anyone who loves markdown and writing can use Mark Text.
