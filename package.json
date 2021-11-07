@@ -112,10 +112,10 @@
     "del": "^5.1.0",
     "devtron": "^1.4.0",
     "dotenv": "^8.2.0",
-    "electron": "^11.1.1",
+    "electron": "^13.6.1",
     "electron-builder": "^22.10.4",
     "electron-devtools-installer": "^3.1.1",
-    "electron-rebuild": "^2.3.4",
+    "electron-rebuild": "^3.2.3",
     "electron-updater": "^4.3.7",
     "eslint": "^7.15.0",
     "eslint-config-standard": "^14.1.1",
@@ -169,6 +169,9 @@
     "webpack-dev-server": "^3.11.0",
     "webpack-hot-middleware": "^2.25.0",
     "webpack-merge": "^4.2.2"
+  },
+  "resolutions": {
+    "node-abi": "^2.26.0"
   },
   "repository": {
     "type": "git",
