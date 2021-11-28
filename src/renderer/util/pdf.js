@@ -1,4 +1,4 @@
-import fs from 'fs-extra'
+import fs from 'fs'
 import path from 'path'
 import Slugger from 'muya/lib/parser/marked/slugger'
 import sanitize from 'muya/lib/utils/dompurify'

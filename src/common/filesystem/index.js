@@ -8,10 +8,8 @@ import path from 'path'
  * @returns {boolean}
  */
 export const exists = async p => {
-  // Nodes fs.exists is deprecated.
   try {
-    await fs.access(p)
-    return true
+    return fs.existsSync(p)
   } catch (_) {
     return false
   }
