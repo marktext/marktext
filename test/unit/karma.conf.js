@@ -54,7 +54,7 @@ module.exports = config => {
         { type: 'text-summary' }
       ]
     },
-    frameworks: ['mocha', 'chai'],
+    frameworks: ['mocha', 'chai', 'webpack'],
     files: ['./index.js'],
     preprocessors: {
       './index.js': ['webpack', 'sourcemap']
