@@ -45,3 +45,7 @@ Normally, you should never get this error but if you disabled user namespaces, t
 ### What is a "Aidou" ?
 
 Aidou is a chinese service that provides images to illustrate articles or blog post. You can enable/disable it via your preferences.
+
+### Will Marktext support other language? Such as Chinese or Japanese?
+
+You can see issue #138 , we are working for this for 3 years, and can't support other languages at now.
