@@ -2,7 +2,7 @@ name: Build
 
 on:
   push:
-    branches: [ main, master, develop, 'github-ci' ] # TODO: Remove 'github-ci' before merge
+    branches: [ main, master, develop ]
     paths-ignore:
       - 'docs/**'
   pull_request:
