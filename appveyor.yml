@@ -35,9 +35,9 @@ install:
 
 cache:
   - node_modules -> yarn.lock
-  - '%LOCALAPPDATA%\electron\Cache' -> yarn.lock
-  - '%LOCALAPPDATA%\electron-builder\cache' -> yarn.lock
-  - '%LOCALAPPDATA%\Yarn\cache' -> yarn.lock
+  - '%LOCALAPPDATA%\electron\Cache -> yarn.lock'
+  - '%LOCALAPPDATA%\electron-builder\cache -> yarn.lock'
+  - '%LOCALAPPDATA%\Yarn\cache'
 
 build_script:
   - yarn run lint
