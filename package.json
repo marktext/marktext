@@ -170,9 +170,6 @@
     "webpack-hot-middleware": "^2.25.1",
     "webpack-merge": "^4.2.2"
   },
-  "resolutions": {
-    "node-abi": "^2.26.0"
-  },
   "repository": {
     "type": "git",
     "url": "git@github.com:marktext/marktext.git"
