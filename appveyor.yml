@@ -34,10 +34,10 @@ install:
   - yarn install --frozen-lockfile
 
 cache:
-  - node_modules
-  - '%LOCALAPPDATA%\electron\Cache'
-  - '%LOCALAPPDATA%\electron-builder\cache'
-  - '%LOCALAPPDATA%\Yarn\cache'
+  - node_modules -> yarn.lock
+  - '%LOCALAPPDATA%\electron\Cache' -> yarn.lock
+  - '%LOCALAPPDATA%\electron-builder\cache' -> yarn.lock
+  - '%LOCALAPPDATA%\Yarn\cache' -> yarn.lock
 
 build_script:
   - yarn run lint
