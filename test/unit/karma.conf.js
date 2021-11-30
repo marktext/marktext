@@ -40,6 +40,8 @@ delete webpackConfig.output.libraryTarget
 
 module.exports = config => {
   config.set({
+    browserNoActivityTimeout: 120000,
+    browserDisconnectTimeout: 60000,
     browsers: ['CustomElectron'],
     customLaunchers: {
       CustomElectron: {
@@ -50,7 +52,8 @@ module.exports = config => {
             contextIsolation: false,
             spellcheck: false,
             nodeIntegration: true,
-            webSecurity: false
+            webSecurity: false,
+            sandbox: false
           }
         }
       }
