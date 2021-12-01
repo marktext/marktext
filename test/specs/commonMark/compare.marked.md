@@ -1,34 +1,7 @@
 ## Compare with `marked.js`
 
-Marked.js failed examples count: 80
+Marked.js failed examples count: 75
 Mark Text failed examples count: 0
-
-**Example49**
-
-Mark Text success and marked.js fail
-
-```markdown
-Markdown content
-## 
-#
-### ###
-
-Expected Html
-<h2></h2>
-<h1></h1>
-<h3></h3>
-
-Actural Html
-<h2></h2>
-<p>#</p>
-<h3>###</h3>
-
-marked.js html
-<h2></h2>
-<p>#</p>
-<h3>###</h3>
-
-```
 
 **Example51**
 
@@ -1140,7 +1113,7 @@ Expected Html
 <p><em><em>foo</em> bar</em></p>
 
 Actural Html
-<p>__foo_ bar_</p>
+<p><em>_foo</em> bar_</p>
 
 marked.js html
 <p>__foo_ bar_</p>
@@ -1311,7 +1284,7 @@ Expected Html
 <p>_<em>foo</em></p>
 
 Actural Html
-<p>__foo_</p>
+<p><em>_foo</em></p>
 
 marked.js html
 <p>__foo_</p>
@@ -1368,7 +1341,7 @@ Expected Html
 <p>___<em>foo</em></p>
 
 Actural Html
-<p>____foo_</p>
+<p><em>___foo</em></p>
 
 marked.js html
 <p>____foo_</p>
@@ -1486,90 +1459,6 @@ Actural Html
 
 marked.js html
 <p><strong>foo **bar baz</strong></p>
-
-```
-
-**Example486**
-
-Mark Text success and marked.js fail
-
-```markdown
-Markdown content
-[link](</my uri>)
-
-Expected Html
-<p><a href="/my%20uri">link</a></p>
-
-Actural Html
-<p>[link](&lt;/my uri&gt;)</p>
-
-marked.js html
-<p>[link](&lt;/my uri&gt;)</p>
-
-```
-
-**Example489**
-
-Mark Text success and marked.js fail
-
-```markdown
-Markdown content
-[a](<b)c>)
-
-Expected Html
-<p><a href="b)c">a</a></p>
-
-Actural Html
-<p><a href="%3Cb">a</a>c&gt;)</p>
-
-marked.js html
-<p><a href="%3Cb">a</a>c&gt;)</p>
-
-```
-
-**Example490**
-
-Mark Text success and marked.js fail
-
-```markdown
-Markdown content
-[link](<foo\>)
-
-Expected Html
-<p>[link](&lt;foo&gt;)</p>
-
-Actural Html
-<p><a href="foo%5C">link</a></p>
-
-marked.js html
-<p><a href="foo%5C">link</a></p>
-
-```
-
-**Example491**
-
-Mark Text success and marked.js fail
-
-```markdown
-Markdown content
-[a](<b)c
-[a](<b)c>
-[a](<b>c)
-
-Expected Html
-<p>[a](&lt;b)c
-[a](&lt;b)c&gt;
-[a](<b>c)</p>
-
-Actural Html
-<p><a href="%3Cb">a</a>c
-<a href="%3Cb">a</a>c&gt;
-<a href="%3Cb%3Ec">a</a></p>
-
-marked.js html
-<p><a href="%3Cb">a</a>c
-<a href="%3Cb">a</a>c&gt;
-<a href="%3Cb%3Ec">a</a></p>
 
 ```
 
@@ -2016,4 +1905,4 @@ marked.js html
 
 ```
 
-There are 80 examples are different with marked.js.
+There are 75 examples are different with marked.js.

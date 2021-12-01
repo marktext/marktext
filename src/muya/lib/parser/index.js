@@ -3,6 +3,7 @@ import { isLengthEven, union } from '../utils'
 import { findClosingBracket } from './marked/utils'
 import { getAttributes, parseSrcAndTitle, validateEmphasize, lowerPriority } from './utils'
 
+const charList1 = '* _~('
 // const CAN_NEST_RULES = ['strong', 'em', 'link', 'del', 'a_link', 'reference_link', 'html_tag']
 // disallowed html tags in https://github.github.com/gfm/#raw-html
 const disallowedHtmlTag = /(?:title|textarea|style|xmp|iframe|noembed|noframes|script|plaintext)/i
@@ -108,6 +109,7 @@ const tokenizerFac = (src, beginRules, inlineRules, pos = 0, top, labels, option
     }
   }
 
+  // starting at end back one char each time
   while (src.length) {
     // backlash
     const backTo = inlineRules.backlash.exec(src)
@@ -384,24 +386,32 @@ const tokenizerFac = (src, beginRules, inlineRules, pos = 0, top, labels, option
 
     // auto link extension
     const autoLinkExtTo = inlineRules.auto_link_extension.exec(src)
-    if (autoLinkExtTo && top && (pos === 0 || /[* _~(]{1}/.test(originSrc[pos - 1]))) {
-      pushPending()
-      tokens.push({
-        type: 'auto_link_extension',
-        raw: autoLinkExtTo[0],
-        www: autoLinkExtTo[1],
-        url: autoLinkExtTo[2],
-        email: autoLinkExtTo[3],
-        linkType: autoLinkExtTo[1] ? 'www' : (autoLinkExtTo[2] ? 'url' : 'email'),
-        parent: tokens,
-        range: {
-          start: pos,
-          end: pos + autoLinkExtTo[0].length
+    if (autoLinkExtTo && top) {
+      // if pos is 1st char, or the char before pos is one of these
+      if (pos === 0 || charList1.includes(originSrc[pos - 1])) {
+        pushPending()
+        let oHref
+        if (autoLinkExtTo[1]) { // www, no http
+          oHref = encodeURI(`http://${autoLinkExtTo[1]}`)
+        } else if (autoLinkExtTo[2]) { // good http or localhost
+          oHref = encodeURI(autoLinkExtTo[2])
+        } else { // @ mail
+          oHref = `mailto:${autoLinkExtTo[3]}`
         }
-      })
-      src = src.substring(autoLinkExtTo[0].length)
-      pos = pos + autoLinkExtTo[0].length
-      continue
+
+        tokens.push({
+          type: 'auto_link_extension',
+          href: oHref,
+          parent: tokens,
+          range: {
+            start: pos,
+            end: pos + autoLinkExtTo[0].length
+          }
+        })
+        src = src.substring(autoLinkExtTo[0].length)
+        pos = pos + autoLinkExtTo[0].length
+        continue
+      }
     }
 
     // auto link
