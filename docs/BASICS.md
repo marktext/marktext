@@ -46,7 +46,7 @@ After some modifications you can save your file via <kbd>CmdOrCtrl</kbd>+<kbd>S<
 
 ### Open a directory
 
-Mark Text also have support to open a directory via <kbd>CmdOrCtrl</kbd>+<kbd>Shift</kbd>+<kbd>O</kbd> or the sidebar button *Open Folder*. After opening a directory all files and directories are shown in the sidebar tree view. The tree view allows you to open further files, browse and modify files or directories inside the opened root directory. Above the tree view are all opened files located. You can also use quick open (<kbd>CmdOrCtrl</kbd>+<kbd>P</kbd>) to quickly open a file from the opened root directory or editor and navigate via arrow keys or select a file via mouse. To view another sidebar panel like find in files click on the left sidebar icons.
+Mark Text also has support to open a directory via <kbd>CmdOrCtrl</kbd>+<kbd>Shift</kbd>+<kbd>O</kbd> or the sidebar button *Open Folder*. After opening a directory all files and directories are shown in the sidebar tree view. The tree view allows you to open further files, browse and modify files or directories inside the opened root directory. Above the tree view are all opened files located. You can also use quick open (<kbd>CmdOrCtrl</kbd>+<kbd>P</kbd>) to quickly open a file from the opened root directory or editor and navigate via arrow keys or select a file via mouse. To view another sidebar panel like find in files click on the left sidebar icons.
 
 ![](assets/marktext-interface-2.png)
 
