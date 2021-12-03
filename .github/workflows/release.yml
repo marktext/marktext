@@ -1,0 +1,97 @@
+name: Build and upload release
+
+on:
+  push:
+    branches:
+      - 'release-v*'
+
+jobs:
+  release:
+    runs-on: ${{ matrix.os }}
+    continue-on-error: false
+
+    strategy:
+      matrix:
+        os: [macos-11, ubuntu-latest] # windows-latest
+
+    env:
+      DISPLAY: ":99.0"
+      MARKTEXT_IS_STABLE: 1
+      MARKTEXT_EXIT_ON_ERROR: 1
+
+    steps:
+      - name: Check out Git repository
+        uses: actions/checkout@v2
+
+      - name: Install Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: 14.x
+          check-latest: true
+          cache: yarn
+          cache-dependency-path: yarn.lock
+
+      - name: Install build dependencies
+        if: runner.os == 'Linux'
+        #                         electron-builder                 | keyboard-layout         | keytar                      | fontmanager     | RPM on Ubuntu
+        run: |
+          sudo apt-get -y update
+          sudo apt-get install -y icnsutils graphicsmagick xz-utils libx11-dev libxkbfile-dev gnome-keyring libsecret-1-dev libfontconfig-dev rpm
+
+      - name: Cache Electron
+        uses: actions/cache@v2
+        with:
+          path: ${{ github.workspace }}/.cache/electron
+          key: ${{ runner.os }}-electron-cache-${{ hashFiles(format('{0}{1}', github.workspace, '/yarn.lock')) }}
+          restore-keys: |
+            ${{ runner.os }}-electron-cache-
+
+      - name: Cache Electron-Builder
+        uses: actions/cache@v2
+        with:
+          path: ${{ github.workspace }}/.cache/electron-builder
+          key: ${{ runner.os }}-electron-builder-cache-${{ hashFiles(format('{0}{1}', github.workspace, '/yarn.lock')) }}
+          restore-keys: |
+            ${{ runner.os }}-electron-builder-cache-
+
+      - name: Install dependencies
+        run: yarn install --check-files --frozen-lockfile
+
+      - name: Lint
+        run: |
+          yarn run lint
+          yarn run validate-licenses
+
+      - name: Run unit and E2E tests
+        uses: GabrielBB/xvfb-action@v1
+        with:
+          run: yarn run test
+
+      - name: Build and release
+        run: |
+              if [ "$RUNNER_OS" == "Linux" ]; then
+                yarn run release:linux --publish always
+              elif [ "$RUNNER_OS" == "macOS" ]; then
+                yarn run release:mac --publish always
+              else
+                echo "$RUNNER_OS not supported"
+                exit 1
+              fi
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Calculate checksums
+        if: runner.os == 'Linux'
+        run: |
+          sha256sum build/marktext-x64.tar.gz
+          sha256sum build/marktext-x86_64.AppImage
+          sha256sum build/marktext-*.deb
+          sha256sum build/marktext-*.rpm
+        shell: bash
+
+      - name: Calculate checksums
+        if: runner.os == 'macOS'
+        run: |
+          shasum -a 256 build/marktext-mac.zip
+          shasum -a 256 build/marktext.dmg
+        shell: bash

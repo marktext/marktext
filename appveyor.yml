@@ -25,7 +25,7 @@ init:
   - git config --global core.autocrlf input
 
 install:
-  - ps: Install-Product node 12 $env:PLATFORM
+  - ps: Install-Product node 14 $env:PLATFORM
 
   - node --version
   - npm --version
@@ -34,9 +34,9 @@ install:
   - yarn install --frozen-lockfile
 
 cache:
-  - node_modules
-  - '%LOCALAPPDATA%\electron\Cache'
-  - '%LOCALAPPDATA%\electron-builder\cache'
+  - node_modules -> yarn.lock
+  - '%LOCALAPPDATA%\electron\Cache -> yarn.lock'
+  - '%LOCALAPPDATA%\electron-builder\cache -> yarn.lock'
   - '%LOCALAPPDATA%\Yarn\cache'
 
 build_script:
