@@ -1,4 +1,4 @@
-name: Build and upload release
+name: Release
 
 on:
   push:
@@ -9,6 +9,7 @@ jobs:
   unix:
     runs-on: ${{ matrix.os }}
     continue-on-error: false
+    timeout-minutes: 45
 
     strategy:
       matrix:
@@ -27,7 +28,7 @@ jobs:
       - name: Install Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: 14.x
+          node-version: 14
           check-latest: true
           cache: yarn
           cache-dependency-path: yarn.lock
@@ -43,9 +44,21 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ${{ github.workspace }}/node_modules
-          key: ${{ runner.os }}-node_modules-${{ hashFiles(format('{0}{1}', github.workspace, '/yarn.lock')) }}
+          key: ${{ runner.os }}-node_modules-cache-${{ hashFiles(format('{0}{1}', github.workspace, '/yarn.lock')) }}
           restore-keys: |
-            ${{ runner.os }}-node_modules-
+            ${{ runner.os }}-node_modules-cache-
+
+      - name: Cache Electron
+        uses: actions/cache@v2
+        with:
+          path: ${{ env.HOME }}/.cache/electron
+          key: ${{ runner.os }}-electron-cache-${{ hashFiles(format('{0}{1}', github.workspace, '/yarn.lock')) }}
+
+      - name: Cache Electron-Builder
+        uses: actions/cache@v2
+        with:
+          path: ${{ env.HOME }}/.cache//electron-builder
+          key: ${{ runner.os }}-electron-builder-cache-${{ hashFiles(format('{0}{1}', github.workspace, '/yarn.lock')) }}
 
       - name: Install dependencies
         run: yarn install --check-files --frozen-lockfile
@@ -70,8 +83,6 @@ jobs:
                 echo "$RUNNER_OS not supported"
                 exit 1
               fi
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Calculate checksums
         if: runner.os == 'Linux'
@@ -92,6 +103,7 @@ jobs:
   windows:
     runs-on: windows-latest
     continue-on-error: false
+    timeout-minutes: 45
 
     env:
       MARKTEXT_IS_STABLE: 1
@@ -105,30 +117,38 @@ jobs:
       - name: Install Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: 14.x
+          node-version: 14
           check-latest: true
           cache: yarn
           cache-dependency-path: yarn.lock
 
       # Workaround: Fix native build failure due to outdated node-gyp version.
-      - name: Install node-gyp
+      - name: Fix node-gyp
         run: |
           npm install --global node-gyp@latest
           npm prefix -g | % {npm config set node_gyp "$_\node_modules\node-gyp\bin\node-gyp.js"}
+          node-gyp install
         shell: pwsh
-
-      - name: Install Python 2.x
-        uses: actions/setup-python@v2
-        with:
-          python-version: "2.x"
 
       - name: Cache node_modules
         uses: actions/cache@v2
         with:
           path: ${{ github.workspace }}\node_modules
-          key: ${{ runner.os }}-node_modules-${{ hashFiles(format('{0}{1}', github.workspace, '\yarn.lock')) }}
+          key: ${{ runner.os }}-node_modules-cache-${{ hashFiles(format('{0}{1}', github.workspace, '\yarn.lock')) }}
           restore-keys: |
-            ${{ runner.os }}-node_modules-
+            ${{ runner.os }}-node_modules-cache-
+
+      - name: Cache Electron
+        uses: actions/cache@v2
+        with:
+          path: ${{ env.LOCALAPPDATA }}\electron\Cache
+          key: ${{ runner.os }}-electron-cache-${{ hashFiles(format('{0}{1}', github.workspace, '\yarn.lock')) }}
+
+      - name: Cache Electron-Builder
+        uses: actions/cache@v2
+        with:
+          path: ${{ env.LOCALAPPDATA }}\electron-builder\cache
+          key: ${{ runner.os }}-electron-builder-cache-${{ hashFiles(format('{0}{1}', github.workspace, '\yarn.lock')) }}
 
       - name: Install dependencies
         run: yarn install --check-files --frozen-lockfile
