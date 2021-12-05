@@ -11,18 +11,20 @@ on:
       - 'docs/**'
 
 jobs:
-  release:
+  unix:
     runs-on: ${{ matrix.os }}
     continue-on-error: false
+    timeout-minutes: 45
 
     strategy:
       matrix:
-        os: [macos-11, ubuntu-latest] # windows-latest
+        os: [macos-11, ubuntu-latest]
 
     env:
       DISPLAY: ":99.0"
       # MARKTEXT_IS_STABLE: 1
       MARKTEXT_EXIT_ON_ERROR: 1
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
       - name: Check out Git repository
@@ -31,7 +33,7 @@ jobs:
       - name: Install Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: 14.x
+          node-version: 14
           check-latest: true
           cache: yarn
           cache-dependency-path: yarn.lock
@@ -43,23 +45,29 @@ jobs:
           sudo apt-get -y update
           sudo apt-get install -y icnsutils graphicsmagick xz-utils libx11-dev libxkbfile-dev gnome-keyring libsecret-1-dev libfontconfig-dev
 
+      - name: Cache node_modules
+        uses: actions/cache@v2
+        id: cacheNodeModules
+        with:
+          path: ${{ github.workspace }}/node_modules
+          key: ${{ runner.os }}-node_modules-cache-${{ hashFiles(format('{0}{1}', github.workspace, '/yarn.lock')) }}
+          restore-keys: |
+            ${{ runner.os }}-node_modules-cache-
+
       - name: Cache Electron
         uses: actions/cache@v2
         with:
-          path: ${{ github.workspace }}/.cache/electron
+          path: ${{ env.HOME }}/.cache/electron
           key: ${{ runner.os }}-electron-cache-${{ hashFiles(format('{0}{1}', github.workspace, '/yarn.lock')) }}
-          restore-keys: |
-            ${{ runner.os }}-electron-cache-
 
       - name: Cache Electron-Builder
         uses: actions/cache@v2
         with:
-          path: ${{ github.workspace }}/.cache/electron-builder
+          path: ${{ env.HOME }}/.cache//electron-builder
           key: ${{ runner.os }}-electron-builder-cache-${{ hashFiles(format('{0}{1}', github.workspace, '/yarn.lock')) }}
-          restore-keys: |
-            ${{ runner.os }}-electron-builder-cache-
 
       - name: Install dependencies
+        if: ${{ steps.cacheNodeModules.outputs.cache-hit != 'true' }}
         run: yarn install --check-files --frozen-lockfile
 
       - name: Lint
@@ -72,5 +80,71 @@ jobs:
         with:
           run: yarn run test
 
-      - name: Build Mark Text
+      - name: Build
+        run: yarn build:bin
+
+  windows:
+    runs-on: windows-latest
+    continue-on-error: false
+    timeout-minutes: 45
+
+    env:
+      # MARKTEXT_IS_STABLE: 1
+      MARKTEXT_EXIT_ON_ERROR: 1
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    steps:
+      - name: Check out Git repository
+        uses: actions/checkout@v2
+
+      - name: Install Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: 14
+          check-latest: true
+          cache: yarn
+          cache-dependency-path: yarn.lock
+
+      # Workaround: Fix native build failure due to outdated node-gyp version.
+      - name: Fix node-gyp
+        run: |
+          npm install --global node-gyp@latest
+          npm prefix -g | % {npm config set node_gyp "$_\node_modules\node-gyp\bin\node-gyp.js"}
+          node-gyp install
+        shell: pwsh
+
+      - name: Cache node_modules
+        uses: actions/cache@v2
+        id: cacheNodeModules
+        with:
+          path: ${{ github.workspace }}\node_modules
+          key: ${{ runner.os }}-node_modules-cache-${{ hashFiles(format('{0}{1}', github.workspace, '\yarn.lock')) }}
+          restore-keys: |
+            ${{ runner.os }}-node_modules-cache-
+
+      - name: Cache Electron
+        uses: actions/cache@v2
+        with:
+          path: ${{ env.LOCALAPPDATA }}\electron\Cache
+          key: ${{ runner.os }}-electron-cache-${{ hashFiles(format('{0}{1}', github.workspace, '\yarn.lock')) }}
+
+      - name: Cache Electron-Builder
+        uses: actions/cache@v2
+        with:
+          path: ${{ env.LOCALAPPDATA }}\electron-builder\cache
+          key: ${{ runner.os }}-electron-builder-cache-${{ hashFiles(format('{0}{1}', github.workspace, '\yarn.lock')) }}
+
+      - name: Install dependencies
+        if: ${{ steps.cacheNodeModules.outputs.cache-hit != 'true' }}
+        run: yarn install --check-files --frozen-lockfile
+
+      - name: Lint
+        run: |
+          yarn run lint
+          yarn run validate-licenses
+
+      - name: Run unit and E2E tests
+        run: yarn run test
+
+      - name: Build
         run: yarn build:bin
