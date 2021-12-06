@@ -1,5 +1,7 @@
 'use strict'
 
+const fs = require('fs')
+const path = require('path')
 const merge = require('webpack-merge')
 const webpack = require('webpack')
 
@@ -7,6 +9,15 @@ const baseConfig = require('../../.electron-vue/webpack.renderer.config')
 
 // Set BABEL_ENV to use proper preset config
 process.env.BABEL_ENV = 'test'
+
+// We need to create the build directory before launching Karma.
+try {
+  fs.mkdirSync(path.join('dist', 'electron'), { recursive: true })
+} catch(e) {
+  if (e.code !== 'EEXIST') {
+    throw e
+  }
+}
 
 let webpackConfig = merge(baseConfig, {
   devtool: '#inline-source-map',
@@ -29,6 +40,8 @@ delete webpackConfig.output.libraryTarget
 
 module.exports = config => {
   config.set({
+    browserNoActivityTimeout: 120000,
+    browserDisconnectTimeout: 60000,
     browsers: ['CustomElectron'],
     customLaunchers: {
       CustomElectron: {
@@ -38,7 +51,9 @@ module.exports = config => {
             enableRemoteModule: true,
             contextIsolation: false,
             spellcheck: false,
-            nodeIntegration: true
+            nodeIntegration: true,
+            webSecurity: false,
+            sandbox: false
           }
         }
       }
@@ -54,7 +69,7 @@ module.exports = config => {
         { type: 'text-summary' }
       ]
     },
-    frameworks: ['mocha', 'chai'],
+    frameworks: ['mocha', 'chai', 'webpack'],
     files: ['./index.js'],
     preprocessors: {
       './index.js': ['webpack', 'sourcemap']

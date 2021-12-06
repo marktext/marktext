@@ -38,7 +38,10 @@ const mainConfig = {
       },
       {
         test: /\.node$/,
-        use: 'node-loader'
+        loader: 'node-loader',
+        options: {
+          name: '[name].[ext]'
+        }
       }
     ]
   },

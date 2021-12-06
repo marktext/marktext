@@ -10,8 +10,8 @@ git clone https://github.com/marktext/marktext.git
 
 Before you can get started developing, you need set up your build environment:
 
-- Node.js `>=v12.17` and yarn
-- Python `v2.7` or `>=v3.5` for node-gyp
+- Node.js `>=v14` and yarn
+- Python `>=v3.6` for node-gyp
 - C++ compiler and development tools
 - Build is supported on Linux, macOS and Windows
 
@@ -28,8 +28,8 @@ On Red Hat-based Linux: `sudo dnf install libx11-devel libxkbfile-devel libsecre
 
 **Additional development dependencies on Windows:**
 
-- Windows 10 SDK (not needed on Windows 10)
-- Visual Studio 2017 (prefered)
+- Windows 10 SDK (only needed before Windows 10)
+- Visual Studio 2019 (prefered)
 
 ### Let's build
 

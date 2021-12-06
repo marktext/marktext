@@ -102,11 +102,11 @@ In typewriter mode, the cursor is always keep in the middle of the editor.
 
 ## File encoding
 
-Mark Text try to automatically detect the used file encoding and byte-order mark (BOM) when opening a file. The default encoding is UTF-8 that should support all needed characters but can be changed in settings. You can disable automatically encoding detection but then we assume that all files are UTF-8 encoded. The current used encoding can be shown via command palette and also changed there.
+Mark Text tries to automatically detect the used file encoding and byte-order mark (BOM) when opening a file. The default encoding is UTF-8 that should support all needed characters but can be changed in settings. You can disable automatically encoding detection but then we assume that all files are UTF-8 encoded. The current used encoding can be shown via command palette and also changed there.
 
 ## Line endings
 
-Mark Text automatically analyzes each file and detect the used line ending and can be changed via command palette too.
+Mark Text automatically analyzes each file and detects the used line ending and can be changed via command palette too.
 
 ## Find and replace
 
