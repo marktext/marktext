@@ -46,8 +46,8 @@ export const moveToRelativeFolder = async (cwd, imagePath, relativeName) => {
   //  - root directory + relative directory name
   const absPath = path.resolve(cwd, relativeName)
   const dstPath = path.resolve(absPath, path.basename(imagePath))
-  await fs.move(imagePath, dstPath, { overwrite: true })
   ensureDirSync(absPath)
+  await fs.move(imagePath, dstPath, { overwrite: true })
 
   // dstRelPath: relative directory name + image file name
   const dstRelPath = path.join(relativeName, path.basename(imagePath))
