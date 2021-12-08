@@ -1,0 +1,13 @@
+{
+  "preferences": {
+    "general": {
+      "autoSave": "自动保存文档更改",
+      "autoSaveDelay": "编辑后自动保存的时间间隔（毫秒）",
+      "openFilesInNewWindow": "在新窗口打开文档",
+      "openFolderInNewWindow": "在新窗口打开文件夹",
+      "hideScrollbar": "隐藏滚动条",
+      "wordWrapInToc": "自动折叠目录项",
+      "fileSortBy": "文件夹排序依据"
+    }
+  }
+}

@@ -41,6 +41,8 @@ import { addElementStyle } from '@/util/theme'
 import './assets/styles/index.css'
 import './assets/styles/printService.css'
 
+import i18n from './i18n'
+
 // -----------------------------------------------
 
 // Decode source map in production - must be registered first
@@ -60,6 +62,7 @@ addElementStyle()
 
 // Configure Vue
 locale.use(lang)
+locale.i18n = (key, value) => i18n.t(key, value)
 
 Vue.use(Dialog)
 Vue.use(Form)
@@ -104,5 +107,6 @@ const router = new VueRouter({
 new Vue({
   store,
   router,
-  template: '<router-view class="view"></router-view>'
+  template: '<router-view class="view"></router-view>',
+  i18n
 }).$mount('#app')

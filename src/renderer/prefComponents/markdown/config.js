@@ -1,3 +1,5 @@
+import i18n from '../../i18n'
+
 export const bulletListMarkerOptions = [{
   label: '*',
   value: '*'
@@ -18,10 +20,10 @@ export const orderListDelimiterOptions = [{
 }]
 
 export const preferHeadingStyleOptions = [{
-  label: 'ATX heading',
+  label: i18n.t('preferences.markdown.preferHeadingStyle.atx'),
   value: 'atx'
 }, {
-  label: 'Setext heading',
+  label: i18n.t('preferences.markdown.preferHeadingStyle.setext'),
   value: 'setext'
 }]
 
@@ -40,22 +42,22 @@ export const tabSizeOptions = [{
 }]
 
 export const listIndentationOptions = [{
-  label: 'DocFX style',
+  label: i18n.t('preferences.markdown.listIndentation.dfm'),
   value: 'dfm'
 }, {
-  label: 'True tab character',
+  label: i18n.t('preferences.markdown.listIndentation.tab'),
   value: 'tab'
 }, {
-  label: 'Single space character',
+  label: i18n.t('preferences.markdown.listIndentation.singleSpace'),
   value: 1
 }, {
-  label: 'Two space characters',
+  label: i18n.t('preferences.markdown.listIndentation.twoSpaces'),
   value: 2
 }, {
-  label: 'Three space characters',
+  label: i18n.t('preferences.markdown.listIndentation.threeSpaces'),
   value: 3
 }, {
-  label: 'Four space characters',
+  label: i18n.t('preferences.markdown.listIndentation.fourSpaces'),
   value: 4
 }]
 
@@ -74,9 +76,9 @@ export const frontmatterTypeOptions = [{
 }]
 
 export const sequenceThemeOptions = [{
-  label: 'Hand drawn',
+  label: i18n.t('preferences.markdown.sequenceTheme.hand'),
   value: 'hand'
 }, {
-  label: 'Simple',
+  label: i18n.t('preferences.markdown.sequenceTheme.simple'),
   value: 'simple'
 }]

@@ -1,35 +1,36 @@
 import { ENCODING_NAME_MAP } from 'common/encoding'
+import i18n from '../../i18n'
 
 export const endOfLineOptions = [{
-  label: 'Default',
+  label: i18n.t('preferences.editor.endOfLine.default'),
   value: 'default'
 }, {
-  label: 'Carriage return and line feed (CRLF)',
+  label: i18n.t('preferences.editor.endOfLine.crlf'),
   value: 'crlf'
 }, {
-  label: 'Line feed (LF)',
+  label: i18n.t('preferences.editor.endOfLine.lf'),
   value: 'lf'
 }]
 
 export const trimTrailingNewlineOptions = [{
-  label: 'Trim all trailing',
+  label: i18n.t('preferences.editor.trimTrailingNewline.all'),
   value: 0
 }, {
-  label: 'Ensure exactly one trailing',
+  label: i18n.t('preferences.editor.trimTrailingNewline.exactlyOne'),
   value: 1
 }, {
-  label: 'Preserve style of original document',
+  label: i18n.t('preferences.editor.trimTrailingNewline.originalStyle'),
   value: 2
 }, {
-  label: 'Do nothing',
+  label: i18n.t('preferences.editor.trimTrailingNewline.doNothing'),
   value: 3
 }]
 
 export const textDirectionOptions = [{
-  label: 'Left to Right',
+  label: i18n.t('preferences.editor.textDirection.ltr'),
   value: 'ltr'
 }, {
-  label: 'Right to Left',
+  label: i18n.t('preferences.editor.textDirection.rtl'),
   value: 'rtl'
 }]
 

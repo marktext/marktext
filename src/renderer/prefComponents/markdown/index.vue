@@ -2,80 +2,80 @@
   <div class="pref-markdown">
     <h4>markdown</h4>
     <bool
-      description="Prefer loose list items"
+      :description="$t('preferences.markdown.preferLooseListItem')"
       :bool="preferLooseListItem"
       :onChange="value => onSelectChange('preferLooseListItem', value)"
       more="https://spec.commonmark.org/0.29/#loose"
     ></bool>
     <cus-select
-      description="Preferred marker for bullet lists"
+      :description="$t('preferences.markdown.bulletListMarker')"
       :value="bulletListMarker"
       :options="bulletListMarkerOptions"
       :onChange="value => onSelectChange('bulletListMarker', value)"
       more="https://spec.commonmark.org/0.29/#bullet-list-marker"
     ></cus-select>
     <cus-select
-      description="Preferred marker for ordered lists"
+      :description="$t('preferences.markdown.orderListDelimiter')"
       :value="orderListDelimiter"
       :options="orderListDelimiterOptions"
       :onChange="value => onSelectChange('orderListDelimiter', value)"
       more="https://spec.commonmark.org/0.29/#ordered-list"
     ></cus-select>
     <cus-select
-      description="Preferred heading style"
+      :description="$t('preferences.markdown.preferHeadingStyle._title')"
       :value="preferHeadingStyle"
       :options="preferHeadingStyleOptions"
       :onChange="value => onSelectChange('preferHeadingStyle', value)"
       :disable="true"
     ></cus-select>
     <cus-select
-      description="Preferred tab width"
+      :description="$t('preferences.markdown.tabSize')"
       :value="tabSize"
       :options="tabSizeOptions"
       :onChange="value => onSelectChange('tabSize', value)"
     ></cus-select>
     <cus-select
-      description="Preferred list indentation"
+      :description="$t('preferences.markdown.listIndentation._title')"
       :value="listIndentation"
       :options="listIndentationOptions"
       :onChange="value => onSelectChange('listIndentation', value)"
     ></cus-select>
     <separator></separator>
-    <h5>Markdown extensions</h5>
+    <h5>{{ $t('preferences.markdown.extentions') }}</h5>
     <cus-select
-      description="Format for front matter"
+      :description="$t('preferences.markdown.frontmatterType')"
       :value="frontmatterType"
       :options="frontmatterTypeOptions"
       :onChange="value => onSelectChange('frontmatterType', value)"
     ></cus-select>
     <bool
-      description="Use Pandoc-style superscript and subscript"
+      :description="$t('preferences.markdown.superSubScript')"
       :bool="superSubScript"
       :onChange="value => onSelectChange('superSubScript', value)"
       more="https://pandoc.org/MANUAL.html#superscripts-and-subscripts"
     ></bool>
     <bool
-      description="Use Pandoc-style footnotes (requires restart)"
+      :description="$t('preferences.markdown.footnote')"
       :bool="footnote"
       :onChange="value => onSelectChange('footnote', value)"
       more="https://pandoc.org/MANUAL.html#footnotes"
     ></bool>
     <separator></separator>
-    <h5>Compatibility</h5>
+    <h5>{{ $t('preferences.markdown.compatibility') }}</h5>
     <bool
-      description="Enable HTML rendering"
+      :description="$t('preferences.markdown.isHtmlEnabled')"
       :bool="isHtmlEnabled"
       :onChange="value => onSelectChange('isHtmlEnabled', value)"
     ></bool>
     <bool
-      description="Enable GitLab compatibility mode"
+      :description="$t('preferences.markdown.isGitlabCompatibilityEnabled')"
       :bool="isGitlabCompatibilityEnabled"
       :onChange="value => onSelectChange('isGitlabCompatibilityEnabled', value)"
     ></bool>
     <separator></separator>
-    <h5>Diagram theme</h5>
+    <h5>{{ $t('preferences.markdown.diagramTheme') }}</h5>
     <cus-select
-      description="Sequence diagram theme"
+      :description="$t('preferences.markdown.sequenceTheme._title')"
       :value="sequenceTheme"
       :options="sequenceThemeOptions"
       :onChange="value => onSelectChange('sequenceTheme', value)"
