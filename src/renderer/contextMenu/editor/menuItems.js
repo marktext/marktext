@@ -1,27 +1,28 @@
 import * as contextMenu from './actions'
+import i18n from '../../../locales'
 
 // NOTE: This are mutable fields that may change at runtime.
 
 export const CUT = {
-  label: 'Cut',
+  label: i18n.t('menu.edit.cut'),
   id: 'cutMenuItem', // not used yet!
   role: 'cut'
 }
 
 export const COPY = {
-  label: 'Copy',
+  label: i18n.t('menu.edit.copy'),
   id: 'copyMenuItem',
   role: 'copy'
 }
 
 export const PASTE = {
-  label: 'Paste',
+  label: i18n.t('menu.edit.paste'),
   id: 'pasteMenuItem',
   role: 'paste'
 }
 
 export const COPY_AS_MARKDOWN = {
-  label: 'Copy As Markdown',
+  label: i18n.t('menu.edit.copyAsMarkdown'),
   id: 'copyAsMarkdownMenuItem',
   click (menuItem, browserWindow) {
     contextMenu.copyAsMarkdown()
@@ -29,7 +30,7 @@ export const COPY_AS_MARKDOWN = {
 }
 
 export const COPY_AS_HTML = {
-  label: 'Copy As Html',
+  label: i18n.t('menu.edit.copyAsHtml'),
   id: 'copyAsHtmlMenuItem',
   click (menuItem, browserWindow) {
     contextMenu.copyAsHtml()
@@ -37,7 +38,7 @@ export const COPY_AS_HTML = {
 }
 
 export const PASTE_AS_PLAIN_TEXT = {
-  label: 'Paste as Plain Text',
+  label: i18n.t('menu.edit.pasteAsPlainText'),
   id: 'pasteAsPlainTextMenuItem',
   click (menuItem, browserWindow) {
     contextMenu.pasteAsPlainText()
@@ -45,7 +46,7 @@ export const PASTE_AS_PLAIN_TEXT = {
 }
 
 export const INSERT_BEFORE = {
-  label: 'Insert Paragraph Before',
+  label: i18n.t('menu.edit.insertParagraphBefore'),
   id: 'insertParagraphBeforeMenuItem',
   click (menuItem, browserWindow) {
     contextMenu.insertParagraph('before')
@@ -53,7 +54,7 @@ export const INSERT_BEFORE = {
 }
 
 export const INSERT_AFTER = {
-  label: 'Insert Paragraph After',
+  label: i18n.t('menu.edit.insertParagraphAfter'),
   id: 'insertParagraphAfterMenuItem',
   click (menuItem, browserWindow) {
     contextMenu.insertParagraph('after')

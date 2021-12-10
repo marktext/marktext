@@ -1,4 +1,136 @@
 {
+  "menu": {
+    "file": {
+      "_title": "文件(&F)",
+      "newBlankTab": "新建标签页",
+      "newWindow": "新建窗口",
+      "openFile": "打开文件...",
+      "openFolder": "打开文件夹...",
+      "openRecent": "最近使用的文件",
+      "clearRecentlyUsed": "清空最近使用文件列表",
+      "save": "保存",
+      "saveAs": "另存为...",
+      "autoSave": "自动保存",
+      "moveTo": "移动到...",
+      "rename": "重命名...",
+      "import": "导入...",
+      "export": "导出",
+      "html": "HTML",
+      "pdf": "PDF",
+      "print": "打印",
+      "preferences": "偏好设置...",
+      "closeTab": "关闭标签页",
+      "closeWindow": "关闭窗口",
+      "quit": "退出"
+    },
+    "edit": {
+      "_title": "编辑(&E)",
+      "_title_simple": "编辑",
+      "undo": "撤消",
+      "redo": "重做",
+      "cut": "剪切",
+      "copy": "复制",
+      "paste": "粘贴",
+      "copyAsMarkdown": "复制为 Markdown",
+      "copyAsHtml": "复制为 HTML",
+      "pasteAsPlainText": "粘贴为纯文本",
+      "selectAll": "全选",
+      "duplicate": "复写到新段落",
+      "createParagraph": "新段落",
+      "deleteParagraph": "删除段落",
+      "insertParagraphBefore": "在光标前插入新段落",
+      "insertParagraphAfter": "在光标后插入新段落",
+      "find": "查找",
+      "findNext": "查找下一个",
+      "findPrev": "查找上一个",
+      "replace": "替换",
+      "findInFolder": "在文件夹中查找",
+      "aidou": "爱斗图",
+      "screenshot": "截屏",
+      "lineEnding": "行尾序列",
+      "crlf": "回车换行（CRLF）",
+      "lf": "换行"
+    },
+    "format": {
+      "_title": "格式(&F)",
+      "bold": "粗体",
+      "italic": "斜体",
+      "underline": "下划线",
+      "superscript": "上标",
+      "subscript": "下标",
+      "highlight": "高亮",
+      "inlineCode": "行内代码",
+      "inlineMath": "行内数学公式",
+      "strike": "删除线",
+      "hyperlink": "超链接",
+      "image": "图片",
+      "clear": "清除格式"
+    },
+    "paragraph": {
+      "_title": "段落(&P)",
+      "_title_simple": "段落",
+      "heading1": "一级标题",
+      "heading2": "二级标题",
+      "heading3": "三级标题",
+      "heading4": "四级标题",
+      "heading5": "五级标题",
+      "heading6": "六级标题",
+      "promoteHeading": "上移一级",
+      "demoteHeading": "下移一级",
+      "table": "表格",
+      "codeFences": "代码块",
+      "blockquote": "引文",
+      "mathBlock": "数学公式",
+      "htmlBlock": "HTML 块",
+      "orderList": "有序列表",
+      "bulletList": "无序列表",
+      "taskList": "待办事项表",
+      "looseListItem": "松散列表项",
+      "normalParagraph": "普通段落",
+      "horizontalLine": "水平分隔线",
+      "frontMatter": "文件首部信息"
+    },
+    "view": {
+      "_title": "视图(&V)",
+      "commandPalette": "命令列表",
+      "srcMode": "源代码模式",
+      "typewriterMode": "打字机模式",
+      "focusMode": "专注模式",
+      "showSideBar": "显示侧边栏",
+      "showTabBar": "显示标签栏",
+      "toggleToc": "显示/隐藏目录",
+      "showDevTools": "显示开发者工具",
+      "reload": "重新加载"
+    },
+    "themes": {
+      "_title": "主题(&T)"
+    },
+    "window": {
+      "_title": "窗口(&W)",
+      "minimize": "最小化",
+      "alwaysOnTop": "置顶",
+      "zoomIn": "放大",
+      "zoomOut": "缩小",
+      "fullScreen": "全屏",
+      "bringAllToFront": "将所有窗口切换到前台"
+    },
+    "help": {
+      "_title": "帮助(&H)",
+      "quickStart": "快速指南...",
+      "markdownReference": "Markdown 参考指南...",
+      "changeLog": "更新日志...",
+      "donateViaOpenCollective": "通过 Open Collective 捐助我们...",
+      "feedbackViaTwitter": "在 Twitter 上和我们反馈...",
+      "reportIssueOrRequestFeature": "反馈问题或功能建议...",
+      "website": "访问官网...",
+      "watchOnGithub": "在 GitHub 上关注 Mark Text...",
+      "followUsOnGithub": "在 GitHub 上关注我们...",
+      "followUsOnTwitter": "在 Twitter 上关注我们...",
+      "license": "许可协议...",
+      "checkUpdates": "检查更新...",
+      "about": "关于 Mark Text..."
+    }
+  },
   "preferences": {
     "_title": "偏好设置",
     "sidebar": {
@@ -177,7 +309,5 @@
         "branchPlaceholder": "分支名"
       }
     }
-  },
-  "tos": "Term of Service",
-  "term": "I accept xxx {0}"
+  }
 }

@@ -1,17 +1,18 @@
 import { toggleAlwaysOnTop, zoomIn, zoomOut } from '../actions/window'
 import { isOsx } from '../../config'
+import i18n from '../../i18n'
 
 export default function (keybindings) {
   const menu = {
-    label: '&Window',
+    label: i18n.t('menu.window._title'),
     role: 'window',
     submenu: [{
-      label: 'Minimize',
+      label: i18n.t('menu.window.minimize'),
       accelerator: keybindings.getAccelerator('window.minimize'),
       role: 'minimize'
     }, {
       id: 'alwaysOnTopMenuItem',
-      label: 'Always on Top',
+      label: i18n.t('menu.window.alwaysOnTop'),
       type: 'checkbox',
       click (menuItem, browserWindow) {
         toggleAlwaysOnTop(browserWindow)
@@ -19,19 +20,19 @@ export default function (keybindings) {
     }, {
       type: 'separator'
     }, {
-      label: 'Zoom In',
+      label: i18n.t('menu.window.zoomIn'),
       click (menuItem, browserWindow) {
         zoomIn(browserWindow)
       }
     }, {
-      label: 'Zoom Out',
+      label: i18n.t('menu.window.zoomOut'),
       click (menuItem, browserWindow) {
         zoomOut(browserWindow)
       }
     }, {
       type: 'separator'
     }, {
-      label: 'Show in Full Screen',
+      label: i18n.t('menu.window.fullScreen'),
       accelerator: keybindings.getAccelerator('window.toggle-full-screen'),
       click (item, focusedWindow) {
         if (focusedWindow) {
@@ -43,7 +44,7 @@ export default function (keybindings) {
 
   if (isOsx) {
     menu.submenu.push({
-      label: 'Bring All to Front',
+      label: i18n.t('menu.window.bringAllToFront'),
       role: 'front'
     })
   }
