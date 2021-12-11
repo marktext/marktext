@@ -45,11 +45,13 @@ export const moveToRelativeFolder = async (cwd, imagePath, relativeName) => {
   //  - markdown file directory + relative directory name or
   //  - root directory + relative directory name
   const absPath = path.resolve(cwd, relativeName)
-  ensureDirSync(absPath)
-
   const dstPath = path.resolve(absPath, path.basename(imagePath))
+  ensureDirSync(absPath)
   await fs.move(imagePath, dstPath, { overwrite: true })
-  return dstPath
+
+  // dstRelPath: relative directory name + image file name
+  const dstRelPath = path.join(relativeName, path.basename(imagePath))
+  return dstRelPath
 }
 
 export const moveImageToFolder = async (pathname, image, dir) => {
