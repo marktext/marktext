@@ -810,7 +810,7 @@ export default {
         case 'folder': {
           result = await moveImageToFolder(pathname, image, imageFolderPath)
           if (cwd && imagePreferRelativeDirectory) {
-            result = moveToRelativeFolder(cwd, result, imageRelativeDirectoryName)
+            result = await moveToRelativeFolder(cwd, result, imageRelativeDirectoryName)
           }
           break
         }
@@ -823,7 +823,7 @@ export default {
 
             // Respect user preferences if file exist on disk.
             if (cwd && imagePreferRelativeDirectory) {
-              result = moveToRelativeFolder(cwd, result, imageRelativeDirectoryName)
+              result = await moveToRelativeFolder(cwd, result, imageRelativeDirectoryName)
             }
           }
           break
