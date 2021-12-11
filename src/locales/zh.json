@@ -31,6 +31,7 @@
       "cut": "剪切",
       "copy": "复制",
       "paste": "粘贴",
+      "delete": "删除",
       "copyAsMarkdown": "复制为 Markdown",
       "copyAsHtml": "复制为 HTML",
       "pasteAsPlainText": "粘贴为纯文本",
@@ -87,8 +88,26 @@
       "taskList": "待办事项表",
       "looseListItem": "松散列表项",
       "normalParagraph": "普通段落",
+      "newParagraph": "新段落",
       "horizontalLine": "水平分隔线",
-      "frontMatter": "文件首部信息"
+      "frontMatter": "文件首部信息",
+      "turnInto": "转换为",
+      "vega": "Vega 图表",
+      "flowChart": "流程图",
+      "seqDiagram": "序列图",
+      "mermaid": "Mermaid 图表",
+      "_descriptions": {
+        "vega": "插入用 vega-lite.js 渲染的流程图。",
+        "flowChart": "插入用 flowchart.js 渲染的流程图。",
+        "seqDiagram": "插入用 js-sequence 渲染的序列图。",
+        "mermaid": "插入 Mermaid 图表。"
+      },
+      "blockTypes": {
+        "basicBlock": "基本",
+        "advancedBlock": "高级",
+        "listBlock": "列表",
+        "diagram": "图表"
+      }
     },
     "view": {
       "_title": "视图(&V)",
