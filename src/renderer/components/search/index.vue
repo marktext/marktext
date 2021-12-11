@@ -31,7 +31,7 @@
           <div class="controls">
             <span class="search-result">{{`${highlightIndex + 1} / ${highlightCount}`}}</span>
             <span
-              title="Case Sensitive"
+              :title="$t('components.search.caseSensitive')"
               class="is-case-sensitive"
               :class="{'active': isCaseSensitive}"
               @click.stop="toggleCtrl('isCaseSensitive')"
@@ -41,7 +41,7 @@
               </svg>
             </span>
             <span
-              title="Select whole word"
+              :title="$t('components.search.selWholeWord')"
               class="is-whole-word"
               :class="{'active': isWholeWord}"
               @click.stop="toggleCtrl('isWholeWord')"
@@ -51,7 +51,7 @@
               </svg>
             </span>
             <span
-              title="Use query as RegEx"
+              :title="$t('components.search.useRegexp')"
               class="is-regex"
               :class="{'active': isRegexp}"
               @click.stop="toggleCtrl('isRegexp')"
@@ -85,7 +85,7 @@
         <div class="button-group">
           <el-tooltip class="item"
             effect="dark"
-            content="Replace All"
+            :content="$t('components.search.replaceSingle')"
             placement="top"
             :visible-arrow="false"
             :open-delay="1000"
@@ -98,7 +98,7 @@
           </el-tooltip>
           <el-tooltip class="item"
             effect="dark"
-            content="Replace Single"
+            :content="$t('components.search.replaceAll')"
             placement="top"
             :visible-arrow="false"
             :open-delay="1000"

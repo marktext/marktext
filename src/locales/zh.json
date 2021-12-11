@@ -328,5 +328,31 @@
         "branchPlaceholder": "分支名"
       }
     }
+  },
+  "components": {
+    "search": {
+      "caseSensitive": "区分大小写",
+      "selWholeWord": "全字匹配",
+      "useRegexp": "使用正则表达式",
+      "replaceSingle": "单个替换",
+      "replaceAll": "全部替换"
+    },
+    "titleBar": {
+      "stats": {
+        "words": "单词数：",
+        "characters": "字符数：",
+        "paragraphs": "段落数："
+      }
+    }
+  },
+  "dialogs": {
+    "ok": "确定",
+    "cancel": "取消",
+    "unsavedFiles": {
+      "message": "要保存对下列 1 个文件的修改吗？ | 要保存对下列 {count} 个文件的修改吗？",
+      "detail": "如果你不保存，则你对文件的更改将丢失。",
+      "save": "保存",
+      "doNotSave": "不保存"
+    }
   }
 }
