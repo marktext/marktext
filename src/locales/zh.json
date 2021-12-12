@@ -326,6 +326,12 @@
         "repoPlaceholder": "仓库名",
         "branch": "分支名称（可选）：",
         "branchPlaceholder": "分支名"
+      },
+      "legalNotices": {
+        "notice": "在使用 {0} 时，您同意 {0} 的 {1} 与 {2}。",
+        "privacyStatement": "隐私政策",
+        "termsOfService": "服务条款",
+        "GDPR": "受到欧盟《通用数据保护法（GDPR）》的约束，该服务在欧洲地区不可用。"
       }
     }
   },
@@ -353,6 +359,97 @@
       "detail": "如果你不保存，则你对文件的更改将丢失。",
       "save": "保存",
       "doNotSave": "不保存"
+    },
+    "export": {
+      "_title": "导出选项",
+      "exportBtn": "导出...",
+      "info": {
+        "_title": "说明",
+        "_description": "请在此处定制你的页面布局，然后单击“导出”以继续。"
+      },
+      "page": {
+        "_title": "页面",
+        "pageTitle": "页面标题：",
+        "pageSize": "页面大小",
+        "widthOrHeight": "指定宽度/高度，以毫米为单位：",
+        "landscapeOrientation": "横向页面",
+        "pageMargin": "指定页边距，以毫米为单位：",
+        "topOrBottom": "顶部/底部",
+        "leftOrRight": "左侧/右侧"
+      },
+      "style": {
+        "_title": "风格",
+        "overwriteThemeFonts": "覆盖主题中设置的字体",
+        "fontFamily": "字体家族：",
+        "fontSize": "字体大小",
+        "lineHeight": "行高",
+        "autoNumberingHeadings": "标题自动编号",
+        "showFrontMatter": "显示文件首部信息"
+      },
+      "theme": {
+        "_title": "主题",
+        "_description": "你可以选择或者自创一个主题来改变文档外观。",
+        "selectTheme": "选择主题："
+      },
+      "headerAndFooter": {
+        "_title": "页眉和页脚",
+        "_description": "如果指定了页眉和/或页脚，则相应的文字会出现在每一页上。",
+        "headerType": "页眉类型：",
+        "headerTextLeft": "页眉左侧文字：",
+        "headerTextCenter": "页眉中央文字：",
+        "headerTextRight": "页眉右侧文字：",
+        "footerType": "页脚类型：",
+        "footerTextLeft": "页脚左侧文字：",
+        "footerTextCenter": "页脚中央文字：",
+        "footerTextRight": "页脚右侧文字：",
+        "customizeStyle": "自定义风格",
+        "allowStyled": "允许在页眉或页脚中使用样式",
+        "fontSize": "字体大小",
+        "types": {
+          "none": "无",
+          "singleCell": "1栏",
+          "threeCells": "3栏"
+        },
+        "styles": {
+          "default": "默认",
+          "simple": "简易",
+          "styled": "样式化"
+        }
+      },
+      "toc": {
+        "_title": "目录",
+        "includeTopHeading": "包含顶级标题",
+        "includeTopHeading_description": "在目录中显示第一级标题",
+        "tocTitle": "标题："
+      },
+      "pageSizeList": {
+        "A3": "A3",
+        "A4": "A4",
+        "A5": "A5",
+        "USLegal": "美国法律文件用纸",
+        "USLetter": "美国信件用纸",
+        "Tabloid": "小报",
+        "custom": "自定义"
+      }
+    }
+  },
+  "panels": {
+    "imageSelector": {
+      "select": "选择",
+      "embedLink": "嵌入链接",
+      "unsplash": "Unsplash",
+      "chooseAnImage": "选择一个图片",
+      "chooseAnImage_description": "从你的电脑中选择一个图片文件。",
+      "altText": "替代文字",
+      "imageLinkOrLocalPath": "图片链接或本地路径",
+      "imageTitle": "图注",
+      "embedImage": "嵌入图片",
+      "pasteImage_description": "粘贴网络图片或者本地图片路径。使用：",
+      "simpleMode": "简易模式",
+      "fullMode": "完整模式",
+      "search": "在 Unsplash 上搜索图片",
+      "noResult": "无结果...",
+      "searchMore": "搜索更多图片..."
     }
   }
 }

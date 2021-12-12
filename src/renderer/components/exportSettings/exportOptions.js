@@ -1,50 +1,52 @@
+import i18n from '../../../locales'
+
 export const pageSizeList = [
   {
-    label: 'A3 (297mm x 420mm)',
+    label: `${i18n.t('dialogs.export.pageSizeList.A3')} (297mm x 420mm)`,
     value: 'A3'
   }, {
-    label: 'A4 (210mm x 297mm)',
+    label: `${i18n.t('dialogs.export.pageSizeList.A4')} (210mm x 297mm)`,
     value: 'A4'
   }, {
-    label: 'A5 (148mm x 210mm)',
+    label: `${i18n.t('dialogs.export.pageSizeList.A5')} (148mm x 210mm)`,
     value: 'A5'
   }, {
-    label: 'US Legal (8.5" x 13")',
+    label: `${i18n.t('dialogs.export.pageSizeList.USLegal')} (8.5" x 13")`,
     value: 'Legal'
   }, {
-    label: 'US Letter (8.5" x 11")',
+    label: `${i18n.t('dialogs.export.pageSizeList.USLetter')} (8.5" x 11")`,
     value: 'Letter'
   }, {
-    label: 'Tabloid (17" x 11")',
+    label: `${i18n.t('dialogs.export.pageSizeList.Tabloid')} (17" x 11")`,
     value: 'Tabloid'
   }, {
-    label: 'Custom',
+    label: `${i18n.t('dialogs.export.pageSizeList.custom')}`,
     value: 'custom'
   }
 ]
 
 export const headerFooterTypes = [
   {
-    label: 'None',
+    label: i18n.t('dialogs.export.headerAndFooter.types.none'),
     value: 0
   }, {
-    label: 'Single cell',
+    label: i18n.t('dialogs.export.headerAndFooter.types.singleCell'),
     value: 1
   }, {
-    label: 'Three cells',
+    label: i18n.t('dialogs.export.headerAndFooter.types.threeCells'),
     value: 2
   }
 ]
 
 export const headerFooterStyles = [
   {
-    label: 'Default',
+    label: i18n.t('dialogs.export.headerAndFooter.styles.default'),
     value: 0
   }, {
-    label: 'Simple',
+    label: i18n.t('dialogs.export.headerAndFooter.styles.simple'),
     value: 1
   }, {
-    label: 'Styled',
+    label: i18n.t('dialogs.export.headerAndFooter.styles.styled'),
     value: 2
   }
 ]
