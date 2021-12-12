@@ -451,5 +451,18 @@
       "noResult": "无结果...",
       "searchMore": "搜索更多图片..."
     }
+  },
+  "hints": {
+    "editor": {
+      "newParagraph": "键入 @ 以插入样式",
+      "footnote": "键入脚注定义...",
+      "frontMatter": "键入 YAML 文件首部...",
+      "langIdentifier": "键入语言名称...",
+      "math": "键入数学公式...",
+      "codeBlockFence": "围栏式代码块",
+      "codeBlockIndent": "缩进式代码块",
+      "addImage": "单击以添加图片",
+      "loadImageFailed": "添加图片失败"
+    }
   }
 }

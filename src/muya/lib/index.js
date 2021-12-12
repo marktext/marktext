@@ -13,6 +13,8 @@ import ExportHtml from './utils/exportHtml'
 import ToolTip from './ui/tooltip'
 import './assets/styles/index.css'
 
+import i18n from '../lib/i18n'
+
 class Muya {
   static plugins = []
 
@@ -62,6 +64,7 @@ class Muya {
     eventCenter.attachDOMEvent(container, 'blur', () => {
       eventCenter.dispatch('blur')
     })
+    initI18n()
   }
 
   mutationObserver () {
@@ -462,6 +465,66 @@ function getContainer (originContainer, options) {
   container.appendChild(rootDom)
   originContainer.replaceWith(container)
   return container
+}
+
+/**
+  * Override CSS property "content:" for i18n via adding a new <style> element
+  * Reference: https://stackoverflow.com/questions/11371550/change-hover-css-properties-with-javascript
+  */
+function initI18n () {
+  const cssOverride = `
+    div.ag-show-quick-insert-hint p.ag-paragraph.ag-active > span.ag-paragraph-content:first-of-type:empty::after {
+      content: '${i18n.t('hints.editor.newParagraph')}';
+      color: var(--editorColor10);
+    }
+
+    figure[data-role="FOOTNOTE"] > p:first-of-type .ag-paragraph-content:empty::after {
+      content: '${i18n.t('hints.editor.footnote')}';
+      color: var(--editorColor30);
+    }
+
+    pre.ag-front-matter span.ag-code-content:first-of-type:empty::after {
+      content: '${i18n.t('hints.editor.frontMatter')}';
+      color: var(--editorColor10);
+    }
+    
+    pre[data-role$='code'] span.ag-language-input:empty::after {
+      content: '${i18n.t('hints.editor.langIdentifier')}';
+      color: var(--editorColor10);
+    }
+    
+    pre.ag-multiple-math span.ag-code-content:first-of-type:empty::after {
+      content: '${i18n.t('hints.editor.math')};
+      color: var(--editorColor10);
+    }
+
+    pre.ag-active.ag-fence-code > code::before {
+      content: '${i18n.t('hints.editor.codeBlockFence')}';
+    }
+    
+    pre.ag-active.ag-indent-code > code::before {
+      content: '${i18n.t('hints.editor.codeBlockIndent')}';
+    }
+
+    .ag-inline-image.ag-empty-image::before {
+      content: '${i18n.t('hints.editor.addImage')}';
+    }
+    
+    .ag-inline-image.ag-image-fail::before {
+      content: '${i18n.t('hints.editor.loadImageFailed')}';
+    }
+    
+  `
+
+  const style = document.createElement('style')
+
+  if (style.styleSheet) {
+      style.styleSheet.cssText = cssOverride
+  } else {
+      style.appendChild(document.createTextNode(cssOverride))
+  }
+
+  document.getElementsByTagName('head')[0].appendChild(style)
 }
 
 export default Muya
