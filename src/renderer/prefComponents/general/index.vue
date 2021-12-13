@@ -73,7 +73,6 @@
       :value="language"
       :options="languageOptions"
       :onChange="value => onSelectChange('language', value)"
-      :disable="true"
     ></cur-select>
   </div>
 </template>
@@ -88,9 +87,9 @@ import { isOsx } from '@/util'
 
 import {
   titleBarStyleOptions,
-  fileSortByOptions,
-  languageOptions
+  fileSortByOptions
 } from './config'
+import { languageOptions } from '../../i18n'
 
 export default {
   components: {

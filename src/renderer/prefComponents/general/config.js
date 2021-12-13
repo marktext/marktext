@@ -18,8 +18,3 @@ export const fileSortByOptions = [{
   label: i18n.t('preferences.general.fileSortBy.title'),
   value: 'title'
 }]
-
-export const languageOptions = [{
-  label: 'English',
-  value: 'en'
-}]

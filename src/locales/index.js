@@ -3,9 +3,26 @@ import VueI18n from 'vue-i18n'
 
 Vue.use(VueI18n)
 
-const messages = {
-  zh: require('./zh.json'),
-  en: require('./en.json')
+const languageList = [
+{
+  name: 'English',
+  id: 'en',
+  message: require('./en.json')
+}, {
+  name: 'Chinese Simplified',
+  id: 'zh',
+  message: require('./zh.json')
+}]
+
+let messages = {}
+let languageOptions = []
+
+for (let i = 0; i < languageList.length; i++) {
+  messages[languageList[i].id] = languageList[i].message
+  languageOptions.push({
+    label: languageList[i].name,
+    value: languageList[i].id
+  })
 }
 
 const DEFAULT_LOCALE = 'en'
@@ -20,7 +37,8 @@ const i18n = new VueI18n({
 
 export {
   messages,
-  DEFAULT_LOCALE
+  DEFAULT_LOCALE,
+  languageOptions
 }
 
 export default i18n
