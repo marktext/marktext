@@ -514,6 +514,14 @@ function initI18n () {
       content: '${i18n.t('hints.editor.loadImageFailed')}';
     }
     
+    mark::before {
+      content: " ${i18n.t('hints.editor.highlightStart')} ";
+    }
+    
+    mark::after {
+      content: " ${i18n.t('hints.editor.highlightEnd')} ";
+    }
+    
   `
 
   const style = document.createElement('style')

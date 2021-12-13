@@ -462,7 +462,15 @@
       "codeBlockFence": "围栏式代码块",
       "codeBlockIndent": "缩进式代码块",
       "addImage": "单击以添加图片",
-      "loadImageFailed": "添加图片失败"
+      "loadImageFailed": "添加图片失败",
+      "highlightStart": "[高亮开始]",
+      "highlightEnd": "[高亮结束]",
+      "loading": "正在加载",
+      "emptyHtmlBlock": "空白 HTML 代码块",
+      "emptyMathFormula": "空白公式",
+      "invalidFormula": "无效公式",
+      "emptyMermaid": "空白 Mermaid 代码块",
+      "emptyDiagram": "空白图表代码块"
     }
   }
 }
