@@ -33,6 +33,7 @@
     "validate-licenses": "node tools/validateLicenses.js"
   },
   "dependencies": {
+    "@electron/remote": "^2.0.1",
     "@hfelix/electron-localshortcut": "^3.1.1",
     "@hfelix/electron-spellchecker": "^2.0.0",
     "@octokit/rest": "^16.43.2",

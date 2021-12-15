@@ -1,13 +1,13 @@
 import fs from 'fs-extra'
 import path from 'path'
 import os from 'os'
-import { remote } from 'electron'
+import { app as remoteApp } from '@electron/remote'
 import { SpellCheckHandler, fallbackLocales, normalizeLanguageCode } from '@hfelix/electron-spellchecker'
 import { isDirectory, isFile } from 'common/filesystem'
 import { cloneObj, isOsx, isLinux, isWindows } from '@/util'
 
 // NOTE: Hardcoded in "@hfelix/electron-spellchecker/src/spell-check-handler.js"
-export const dictionaryPath = path.join(remote.app.getPath('userData'), 'dictionaries')
+export const dictionaryPath = path.join(remoteApp.getPath('userData'), 'dictionaries')
 
 // Source: https://github.com/Microsoft/vscode/blob/master/src/vs/editor/common/model/wordHelper.ts
 // /(-?\d*\.\d\w*)|([^\`\~\!\@\#\$\%\^\&\*\(\)\-\=\+\[\{\]\}\\\|\;\:\'\"\,\.\<\>\/\?\s]+)/
