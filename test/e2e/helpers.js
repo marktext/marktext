@@ -4,9 +4,14 @@ const { _electron } = require('playwright')
 
 const mainEntrypoint = 'dist/electron/main.js'
 
+const getDateAsFilename = () => {
+  const date = new Date()
+  return '' + date.getFullYear() + (date.getMonth() + 1) + date.getDay()
+}
+
 const getTempPath = () => {
-  const name = 'marktext_e2etest'
-  return path.join(os.tmpdir(), name)
+  const name = 'marktext-e2etest-'
+  return path.join(os.tmpdir(), name + getDateAsFilename())
 }
 
 const getElectronPath = () => {
