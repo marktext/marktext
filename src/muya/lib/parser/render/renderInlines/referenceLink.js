@@ -1,5 +1,6 @@
 import { CLASS_OR_ID } from '../../../config'
 import { snakeToCamel } from '../../../utils'
+import { sanitizeHyperlink } from '../../../utils/url'
 
 export default function referenceLink (h, cursor, block, token, outerClass) {
   const className = this.getClassName(outerClass, block, token, cursor)
@@ -56,7 +57,7 @@ export default function referenceLink (h, cursor, block, token, outerClass) {
     }
   }
   if (href) {
-    Object.assign(data.props, { href })
+    Object.assign(data.props, { href: sanitizeHyperlink(href) })
   }
 
   if (isFullLink) {

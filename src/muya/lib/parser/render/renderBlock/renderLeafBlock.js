@@ -46,8 +46,7 @@ const getHighlightHtml = (text, highlights, escape = false, handleLineEnding = f
       code += text.substring(pos)
     }
   }
-
-  return code
+  return escapeHtml(code)
 }
 
 const hasReferenceToken = tokens => {
@@ -226,14 +225,14 @@ export default function renderLeafBlock (parent, block, activeBlocks, matches, u
     }
     children = ''
   } else if (type === 'span' && functionType === 'codeContent') {
-    const code = escapeHtml(getHighlightHtml(text, highlights, true, true))
+    const code = getHighlightHtml(text, highlights, true, true)
       .replace(new RegExp(MARKER_HASK['<'], 'g'), '<')
       .replace(new RegExp(MARKER_HASK['>'], 'g'), '>')
       .replace(new RegExp(MARKER_HASK['"'], 'g'), '"')
       .replace(new RegExp(MARKER_HASK["'"], 'g'), "'")
+
     // transfrom alias to original language
     const transformedLang = transfromAliasToOrigin([lang])[0]
-
     if (transformedLang && /\S/.test(code) && loadedCache.has(transformedLang)) {
       const wrapper = document.createElement('div')
       wrapper.classList.add(`language-${transformedLang}`)
@@ -247,7 +246,8 @@ export default function renderLeafBlock (parent, block, activeBlocks, matches, u
       children = htmlToVNode(code)
     }
   } else if (type === 'span' && functionType === 'languageInput') {
-    const html = getHighlightHtml(text, highlights)
+    const escapedText = sanitize(text, PREVIEW_DOMPURIFY_CONFIG, true)
+    const html = getHighlightHtml(escapedText, highlights, true)
     children = htmlToVNode(html)
   } else if (type === 'span' && functionType === 'footnoteInput') {
     Object.assign(data.attrs, { spellcheck: 'false' })
