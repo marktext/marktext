@@ -16,6 +16,7 @@ import { watchers } from '../utils/imagePathAutoComplement'
 import { WindowType } from '../windows/base'
 import EditorWindow from '../windows/editor'
 import SettingWindow from '../windows/setting'
+import i18n, { DEFAULT_LOCALE } from '../i18n'
 
 class App {
   /**
@@ -261,6 +262,8 @@ class App {
    * @returns {EditorWindow} The created editor window.
    */
   _createEditorWindow (rootDirectory = null, fileList = [], markdownList = [], options = {}) {
+    this._setI18nLocale()
+
     const editor = new EditorWindow(this._accessor)
     editor.createWindow(rootDirectory, fileList, markdownList, options)
     this._windowManager.add(editor)
@@ -274,6 +277,8 @@ class App {
    * Create a new setting window.
    */
   _createSettingWindow () {
+    this._setI18nLocale()
+
     const setting = new SettingWindow(this._accessor)
     setting.createWindow()
     this._windowManager.add(setting)
@@ -561,6 +566,23 @@ class App {
       // Convert map to object
       win.webContents.send('mt::keybindings-response', Object.fromEntries(keybindings.keys))
     })
+  }
+
+  /**
+   * Set UI locale for main process.
+   */
+  _setI18nLocale () {
+    const { preferences } = this._accessor
+    const { language } = preferences.getAll()
+
+    i18n.locale = language || DEFAULT_LOCALE
+
+    log.info(`
+      Main Process UI Locales:
+      * Default locale:                 ${DEFAULT_LOCALE}
+      * Locale defined in preferences:  ${language}
+      * Locale set in Vue-I18n:         ${i18n.locale}
+    `)
   }
 }
 
