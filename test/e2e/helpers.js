@@ -10,8 +10,8 @@ const getDateAsFilename = () => {
 }
 
 const getTempPath = () => {
-  const name = 'marktext-e2etest-'
-  return path.join(os.tmpdir(), name + getDateAsFilename())
+  const name = 'marktext-e2etest-' + getDateAsFilename()
+  return path.join(os.tmpdir(), name)
 }
 
 const getElectronPath = () => {
