@@ -181,7 +181,7 @@
         "selectDefaultDirectoryToOpen": "选择默认打开的文件夹",
         "blank": "新建空白文档"
       },
-      "languageForUI": "界面语言"
+      "languageForUI": "界面语言（重启程序或打开新窗口时生效）"
     },
     "editor": {
       "_title": "编辑器",
@@ -233,12 +233,12 @@
         "atx": "ATX 标题",
         "setext": "Setext 标题"
       },
-      "tabSize": "Tab 宽度",
+      "tabSize": "制表符宽度",
       "listIndentation": {
         "_title": "缩进方式",
         "dfm": "DocFX 样式",
         "tab": "真正的 Tab 字符",
-        "singleSpace": "1个空格",
+        "singleSpace": "单个空格",
         "twoSpaces": "2个空格",
         "threeSpaces": "3个空格",
         "fourSpaces": "4个空格"
@@ -278,6 +278,7 @@
       "autoSwitchTheme": {
         "_title": "根据系统设置自动调整主题",
         "atStartup": "启动时",
+        "onlyAtRuntime": "仅在运行期间",
         "never": "从不"
       },
       "openThemesFolderAction": {

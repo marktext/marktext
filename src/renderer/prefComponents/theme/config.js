@@ -25,7 +25,7 @@ export const autoSwitchThemeOptions = [{
   label: i18n.t('preferences.theme.autoSwitchTheme.atStartup'), // Always
   value: 0
 }, /* {
-  label: 'Only at runtime',
+  label: i18n.t('preferences.theme.autoSwitchTheme.onlyAtRuntime'),
   value: 1
 }, */ {
   label: i18n.t('preferences.theme.autoSwitchTheme.never'),

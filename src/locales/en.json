@@ -181,7 +181,7 @@
         "selectDefaultDirectoryToOpen": "Select Folder",
         "blank": "Open a blank page"
       },
-      "languageForUI": "Language for user interface"
+      "languageForUI": "Language for user interface (requires restart or opening new window)"
     },
     "editor": {
       "_title": "Editor",
