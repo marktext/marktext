@@ -10,34 +10,34 @@
     <cus-select
       :description="$t('preferences.markdown.bulletListMarker')"
       :value="bulletListMarker"
-      :options="bulletListMarkerOptions"
+      :options="bulletListMarkerOptions()"
       :onChange="value => onSelectChange('bulletListMarker', value)"
       more="https://spec.commonmark.org/0.29/#bullet-list-marker"
     ></cus-select>
     <cus-select
       :description="$t('preferences.markdown.orderListDelimiter')"
       :value="orderListDelimiter"
-      :options="orderListDelimiterOptions"
+      :options="orderListDelimiterOptions()"
       :onChange="value => onSelectChange('orderListDelimiter', value)"
       more="https://spec.commonmark.org/0.29/#ordered-list"
     ></cus-select>
     <cus-select
       :description="$t('preferences.markdown.preferHeadingStyle._title')"
       :value="preferHeadingStyle"
-      :options="preferHeadingStyleOptions"
+      :options="preferHeadingStyleOptions()"
       :onChange="value => onSelectChange('preferHeadingStyle', value)"
       :disable="true"
     ></cus-select>
     <cus-select
       :description="$t('preferences.markdown.tabSize')"
       :value="tabSize"
-      :options="tabSizeOptions"
+      :options="tabSizeOptions()"
       :onChange="value => onSelectChange('tabSize', value)"
     ></cus-select>
     <cus-select
       :description="$t('preferences.markdown.listIndentation._title')"
       :value="listIndentation"
-      :options="listIndentationOptions"
+      :options="listIndentationOptions()"
       :onChange="value => onSelectChange('listIndentation', value)"
     ></cus-select>
     <separator></separator>
@@ -45,7 +45,7 @@
     <cus-select
       :description="$t('preferences.markdown.frontmatterType')"
       :value="frontmatterType"
-      :options="frontmatterTypeOptions"
+      :options="frontmatterTypeOptions()"
       :onChange="value => onSelectChange('frontmatterType', value)"
     ></cus-select>
     <bool
@@ -77,7 +77,7 @@
     <cus-select
       :description="$t('preferences.markdown.sequenceTheme._title')"
       :value="sequenceTheme"
-      :options="sequenceThemeOptions"
+      :options="sequenceThemeOptions()"
       :onChange="value => onSelectChange('sequenceTheme', value)"
       more="https://bramp.github.io/js-sequence-diagrams/"
     ></cus-select>

@@ -19,7 +19,7 @@
       v-if="!isOsx"
       :description="$t('preferences.general.titleBarStyle._title')"
       :value="titleBarStyle"
-      :options="titleBarStyleOptions"
+      :options="titleBarStyleOptions()"
       :onChange="value => onSelectChange('titleBarStyle', value)"
     ></cur-select>
     <separator></separator>
@@ -52,7 +52,7 @@
     <cur-select
       :description="$t('preferences.general.fileSortBy._title')"
       :value="fileSortBy"
-      :options="fileSortByOptions"
+      :options="fileSortByOptions()"
       :onChange="value => onSelectChange('fileSortBy', value)"
       :disable="true"
     ></cur-select>

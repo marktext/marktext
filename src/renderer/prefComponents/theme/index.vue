@@ -13,7 +13,7 @@
     <cur-select
       :description="$t('preferences.theme.autoSwitchTheme._title')"
       :value="autoSwitchTheme"
-      :options="autoSwitchThemeOptions"
+      :options="autoSwitchThemeOptions()"
       :onChange="value => onSelectChange('autoSwitchTheme', value)"
     ></cur-select>
     <separator></separator>

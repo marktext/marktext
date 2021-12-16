@@ -21,7 +21,7 @@
       </el-autocomplete>
     </section>
     <section class="category">
-      <div v-for="c of category" :key="c.name" class="item"
+      <div v-for="c of category()" :key="c.name" class="item"
         @click="handleCategoryItemClick(c)"
         :class="{active: c.label === currentCategory}"
       >

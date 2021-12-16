@@ -71,7 +71,7 @@
     <cur-select
       :description="$t('preferences.editor.endOfLine._title')"
       :value="endOfLine"
-      :options="endOfLineOptions"
+      :options="endOfLineOptions()"
       :onChange="value => onSelectChange('endOfLine', value)"
     ></cur-select>
     <separator></separator>
@@ -89,14 +89,14 @@
     <cur-select
       :description="$t('preferences.editor.trimTrailingNewline._title')"
       :value="trimTrailingNewline"
-      :options="trimTrailingNewlineOptions"
+      :options="trimTrailingNewlineOptions()"
       :onChange="value => onSelectChange('trimTrailingNewline', value)"
     ></cur-select>
     <separator></separator>
     <cur-select
       :description="$t('preferences.editor.textDirection._title')"
       :value="textDirection"
-      :options="textDirectionOptions"
+      :options="textDirectionOptions()"
       :onChange="value => onSelectChange('textDirection', value)"
     ></cur-select>
     <bool
