@@ -54,6 +54,7 @@ import { loadingPageMixins } from '@/mixins'
 import { mapState } from 'vuex'
 import bus from '@/bus'
 import { DEFAULT_STYLE } from '@/config'
+import { asyncGetLanguage, DEFAULT_LOCALE } from '../i18n'
 
 export default {
   name: 'marktext',
@@ -184,6 +185,11 @@ export default {
         e.dataTransfer.dropEffect = 'none'
       }
     }, false)
+
+    // Fetch and set UI language asynchronously
+    asyncGetLanguage().then(language => {
+      this.$root.$i18n.locale = language || DEFAULT_LOCALE
+    })
 
     this.$nextTick(() => {
       const style = global.marktext.initialState || DEFAULT_STYLE

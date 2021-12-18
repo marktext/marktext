@@ -20,6 +20,7 @@ import { loadingPageMixins } from '@/mixins'
 import { addThemeStyle } from '@/util/theme'
 import { DEFAULT_STYLE } from '@/config'
 import { isOsx } from '@/util'
+import { asyncGetLanguage, DEFAULT_LOCALE } from '../i18n'
 
 export default {
   data () {
@@ -48,6 +49,11 @@ export default {
     }
   },
   created () {
+    // Fetch and set UI language asynchronously
+    asyncGetLanguage().then(language => {
+      this.$root.$i18n.locale = language || DEFAULT_LOCALE
+    })
+
     this.$nextTick(() => {
       const state = global.marktext.initialState || DEFAULT_STYLE
       addThemeStyle(state.theme)
