@@ -1,4 +1,4 @@
-import { remote } from 'electron'
+import { getCurrentWindow, Menu as RemoteMenu, MenuItem as RemoteMenuItem } from '@electron/remote'
 import {
   SEPARATOR,
   NEW_FILE,
@@ -11,11 +11,9 @@ import {
   SHOW_IN_FOLDER
 } from './menuItems'
 
-const { Menu, MenuItem } = remote
-
 export const showContextMenu = (event, hasPathCache) => {
-  const menu = new Menu()
-  const win = remote.getCurrentWindow()
+  const menu = new RemoteMenu()
+  const win = getCurrentWindow()
   const CONTEXT_ITEMS = [
     NEW_FILE,
     NEW_DIRECTORY,
@@ -33,7 +31,7 @@ export const showContextMenu = (event, hasPathCache) => {
   PASTE.enabled = hasPathCache
 
   CONTEXT_ITEMS.forEach(item => {
-    menu.append(new MenuItem(item))
+    menu.append(new RemoteMenuItem(item))
   })
   menu.popup([{ window: win, x: event.clientX, y: event.clientY }])
 }

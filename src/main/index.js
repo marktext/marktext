@@ -1,6 +1,7 @@
 import './globalSetting'
 import path from 'path'
 import { app, dialog } from 'electron'
+import { initialize as remoteInitializeServer } from '@electron/remote/main'
 import cli from './cli'
 import setupExceptionHandler, { initExceptionLogger } from './exceptionHandler'
 import log from 'electron-log'
@@ -12,10 +13,9 @@ import { getLogLevel } from './utils'
 const initializeLogger = appEnvironment => {
   log.transports.console.level = process.env.NODE_ENV === 'development' ? true : 'error'
   log.transports.rendererConsole = null
-  log.transports.file.file = path.join(appEnvironment.paths.logPath, 'main.log')
+  log.transports.file.resolvePath = () => path.join(appEnvironment.paths.logPath, 'main.log')
   log.transports.file.level = getLogLevel()
   log.transports.file.sync = true
-  log.transports.file.init()
   initExceptionLogger()
 }
 
@@ -79,6 +79,10 @@ log.transports.file.sync = false
 // -----------------------------------------------
 // Be careful when changing code before this line!
 // NOTE: Do not create classes or other code before this line!
+
+// TODO: We should switch to another async API like https://nornagon.medium.com/electrons-remote-module-considered-harmful-70d69500f31.
+// Enable remote module
+remoteInitializeServer()
 
 const marktext = new App(accessor, args)
 marktext.init()
