@@ -38,6 +38,7 @@
   display: flex;
   justify-content: space-around;
   align-items: center;
+  padding-top: 2px;
 }
 
 .ag-list-picker .item .icon-wrapper span:before {

@@ -1,5 +1,5 @@
 import katex from 'katex'
-import prism, { loadedCache, transfromAliasToOrigin } from '../../../prism/'
+import prism, { loadedLanguages, transfromAliasToOrigin } from '../../../prism/'
 import { CLASS_OR_ID, DEVICE_MEMORY, PREVIEW_DOMPURIFY_CONFIG, HAS_TEXT_BLOCK_REG } from '../../../config'
 import { tokenizer } from '../../'
 import { snakeToCamel, sanitize, escapeHtml, getLongUniqueId, getImageInfo } from '../../../utils'
@@ -233,7 +233,7 @@ export default function renderLeafBlock (parent, block, activeBlocks, matches, u
 
     // transfrom alias to original language
     const transformedLang = transfromAliasToOrigin([lang])[0]
-    if (transformedLang && /\S/.test(code) && loadedCache.has(transformedLang)) {
+    if (transformedLang && /\S/.test(code) && loadedLanguages.has(transformedLang)) {
       const wrapper = document.createElement('div')
       wrapper.classList.add(`language-${transformedLang}`)
       wrapper.innerHTML = code
