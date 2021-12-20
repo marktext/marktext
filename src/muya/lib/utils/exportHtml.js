@@ -84,8 +84,6 @@ class ExportHtml {
       const options = {}
       if (functionType === 'sequence') {
         Object.assign(options, { theme: this.muya.options.sequenceTheme })
-      } else if (functionType === 'plantuml') {
-        // TODO Object.assign(options, { theme: this.muya.options.sequenceTheme })
       } else if (functionType === 'vega-lite') {
         Object.assign(options, {
           actions: false,
@@ -95,12 +93,17 @@ class ExportHtml {
         })
       }
       try {
-        if (functionType === 'flowchart' || functionType === 'sequence' || functionType === 'plantuml') {
+        if (functionType === 'flowchart' || functionType === 'sequence') {
           const diagram = render.parse(rawCode)
           diagramContainer.innerHTML = ''
           diagram.drawSVG(diagramContainer, options)
-          // TODO intercept plantuml renderer here
-        } if (functionType === 'vega-lite') {
+        }
+        if (functionType === 'plantuml') {
+          const diagram = render.parse(rawCode)
+          diagramContainer.innerHTML = ''
+          diagram.insertImgElement(diagramContainer, options)
+        }
+        if (functionType === 'vega-lite') {
           await render(diagramContainer, JSON.parse(rawCode), options)
         }
       } catch (err) {

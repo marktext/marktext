@@ -45,7 +45,7 @@ export default class Diagram {
     return maketrans(tableIn, tableOut, base64Value)
   }
 
-  drawSVG (container, _options) {
+  insertImgElement (container, _options) {
     const div = _.isString(container)
       ? document.getElementById(container)
       : container

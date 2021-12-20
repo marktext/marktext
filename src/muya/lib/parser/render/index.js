@@ -150,15 +150,19 @@ class StateRender {
           })
         }
         try {
-          if (functionType === 'flowchart' || functionType === 'sequence' || functionType === 'plantuml') {
+          if (functionType === 'flowchart' || functionType === 'sequence') {
             const diagram = render.parse(code)
             target.innerHTML = ''
             diagram.drawSVG(target, options)
+          } else if (functionType === 'plantuml') {
+            const diagram = render.parse(code)
+            target.innerHTML = ''
+            diagram.insertImgElement(target, options)
           } else if (functionType === 'vega-lite') {
             await render(key, JSON.parse(code), options)
           }
         } catch (err) {
-          target.innerHTML = `< Invalid ${functionType === 'flowchart' ? 'Flow Chart' : 'Sequence'} Codes >` // TODO
+          target.innerHTML = `< Invalid ${functionType === 'flowchart' ? 'Flow Chart' : 'Sequence'} Codes >`
           target.classList.add(CLASS_OR_ID.AG_MATH_ERROR)
         }
       }
