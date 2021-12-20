@@ -87,6 +87,7 @@ const state = {
   webImages: [],
   cloudImages: [],
   currentUploader: 'none',
+  command: '',
   githubToken: '',
   imageBed: {
     github: {

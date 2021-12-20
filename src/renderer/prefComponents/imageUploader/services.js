@@ -35,6 +35,16 @@ const services = {
 
     // Currently a non-persistent value
     agreedToLegalNotices: false
+  },
+
+  custom: {
+    name: 'custom',
+    isGdprCompliant: false,
+    privacyUrl: '',
+    tosUrl: '',
+
+    // Set to true to always allow to change to this dummy service
+    agreedToLegalNotices: false
   }
 }
 

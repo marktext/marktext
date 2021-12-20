@@ -8,6 +8,8 @@ import { ensureDirSync } from 'common/filesystem'
 import { isImageFile } from 'common/filesystem/paths'
 import { dataURItoBlob } from './index'
 import axios from '../axios'
+import * as util from 'util'
+import { exec } from 'child_process'
 
 export const create = (pathname, type) => {
   if (type === 'directory') {
@@ -99,6 +101,7 @@ export const uploadImage = async (pathname, image, preferences) => {
   const { currentUploader } = preferences
   const { owner, repo, branch } = preferences.imageBed.github
   const token = preferences.githubToken
+  const command = preferences.command
   const isPath = typeof image === 'string'
   const MAX_SIZE = 5 * 1024 * 1024
   let re
@@ -107,6 +110,21 @@ export const uploadImage = async (pathname, image, preferences) => {
     re = resolve
     rj = reject
   })
+
+  const uploadViaCommand = imagePath => {
+    const e = util.promisify(exec)
+    e(`${command} "${imagePath}"`)
+      .then(res => {
+        if (res.stderr) {
+          rj('Upload failed, the image will be copied to the image folder')
+        } else {
+          re(res.stdout.trim())
+        }
+      })
+      .catch(_ => {
+        rj('Upload failed, the image will be copied to the image folder')
+      })
+  }
 
   const uploadToSMMS = file => {
     const api = 'https://sm.ms/api/upload'
@@ -177,9 +195,11 @@ export const uploadImage = async (pathname, image, preferences) => {
         const blobFile = new Blob([imageFile])
         if (currentUploader === 'smms') {
           uploadToSMMS(blobFile)
-        } else {
+        } else if (currentUploader === 'github') {
           const base64 = Buffer.from(imageFile).toString('base64')
           uploadByGithub(base64, path.basename(imagePath))
+        } else {
+          uploadViaCommand(imagePath)
         }
       }
     } else {

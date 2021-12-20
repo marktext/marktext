@@ -53,6 +53,44 @@
             <el-button size="mini" :disabled="githubDisable" @click="setCurrentUploader('github')">Set as default</el-button>
           </div>
         </el-tab-pane>
+        </el-tab-pane>
+        <el-tab-pane label="CUSTOM" name="custom">
+          <div class="description">
+            You can input a custom-command as custom image uploader.
+          </div>
+          <div class="form-group">
+            <div class="label">Command:</div>
+            <el-input
+              v-model="command"
+              class="custom"
+              placeholder="custom command"
+              size="medium"
+            ></el-input>
+          </div>
+          <br>
+          <legal-notices-checkbox
+            class="custom"
+            :class="[{ 'error': legalNoticesErrorStates.custom }]"
+            :uploaderService="uploadServices.custom"
+          ></legal-notices-checkbox>
+          <div class="form-group">
+            <el-button size="mini" @click="testCustomCommand()">Test</el-button>
+            <el-button size="mini" @click="setCurrentUploader('custom')"
+              >Set as default</el-button
+            >
+          </div>
+          <el-dialog
+            :title="testResultType"
+            :visible.sync="testResultDialogVisible"
+            width="30%"
+          >
+            <span>{{ testResultOutput }}</span>
+
+            <span slot="footer" class="dialog-footer">
+              <el-button type="primary" @click="testResultOpen('https://www.baidu.com')">{{ testResultButton }}</el-button>
+            </span>
+          </el-dialog>
+        </el-tab-pane>
       </el-tabs>
     </section>
   </div>
@@ -60,6 +98,8 @@
 
 <script>
 import { shell } from 'electron'
+import { exec } from 'child_process'
+import path from 'path'
 import services, { isValidService } from './services.js'
 import legalNoticesCheckbox from './legalNoticesCheckbox'
 
@@ -71,6 +111,7 @@ export default {
     return {
       activeTab: 'smms',
       githubToken: '',
+      command: '',
       github: {
         owner: '',
         repo: '',
@@ -79,8 +120,13 @@ export default {
       uploadServices: services,
       legalNoticesErrorStates: {
         smms: false,
-        github: false
-      }
+        github: false,
+        command: false
+      },
+      testResultType: '',
+      testResultOutput: '',
+      testResultButton: '',
+      testResultDialogVisible: false
     }
   },
   computed: {
@@ -99,6 +145,11 @@ export default {
         return this.$store.state.preferences.githubToken
       }
     },
+    customCommand: {
+      get: function () {
+        return this.$store.state.preferences.command
+      }
+    },
     githubDisable () {
       return !this.githubToken || !this.github.owner || !this.github.repo
     }
@@ -111,9 +162,11 @@ export default {
     }
   },
   created () {
+    this.activeTab = this.currentUploader
     this.$nextTick(() => {
       this.github = this.imageBed.github
       this.githubToken = this.prefGithubToken
+      this.command = this.customCommand
 
       if (services.hasOwnProperty(this.currentUploader)) {
         services[this.currentUploader].agreedToLegalNotices = true
@@ -143,10 +196,46 @@ export default {
           value: this.githubToken
         })
       }
+      if (type === 'custom') {
+        this.$store.dispatch('SET_USER_DATA', {
+          type: 'command',
+          value: this.command
+        })
+      }
       if (withNotice) {
         new Notification('Save Image Uploader', {
           body: 'The Github configration has been saved.'
         })
+      }
+    },
+    testCustomCommand () {
+      const testImgPath = __dirname.indexOf('app.asar') > -1 ? path.join(__dirname.split('resources')[0], 'logo.png') : path.join(__static, 'logo-small.png')
+      const cmd = `${this.command} "${testImgPath}"`
+      exec(cmd, (err, stdout, stderr) => {
+        this.testResultDialogVisible = true
+        if (err) {
+          this.testResultType = 'Error'
+          this.testResultOutput = err.message
+          this.testResultButton = 'OK'
+
+          return
+        }
+        if (stderr) {
+          this.testResultType = 'Error'
+          this.testResultOutput = stderr
+          this.testResultButton = 'OK'
+
+          return
+        }
+        this.testResultType = 'Image URL'
+        this.testResultOutput = stdout
+        this.testResultButton = 'OPEN'
+      })
+    },
+    testResultOpen (url) {
+      this.testResultDialogVisible = false
+      if (this.testResultButton === 'OPEN') {
+         this.open(this.testResultOutput)
       }
     },
     setCurrentUploader (value) {
@@ -162,7 +251,7 @@ export default {
         return
       }
       // Save the setting before set it as default uploader.
-      if (value === 'github') {
+      if (value === 'github' || value === 'custom') {
         this.save(value, false)
       }
       this.legalNoticesErrorStates[value] = false
