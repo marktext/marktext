@@ -101,7 +101,7 @@ class ExportHtml {
         if (functionType === 'plantuml') {
           const diagram = render.parse(rawCode)
           diagramContainer.innerHTML = ''
-          diagram.insertImgElement(diagramContainer, options)
+          diagram.insertImgElement(diagramContainer)
         }
         if (functionType === 'vega-lite') {
           await render(diagramContainer, JSON.parse(rawCode), options)

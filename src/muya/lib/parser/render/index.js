@@ -157,7 +157,7 @@ class StateRender {
           } else if (functionType === 'plantuml') {
             const diagram = render.parse(code)
             target.innerHTML = ''
-            diagram.insertImgElement(target, options)
+            diagram.insertImgElement(target)
           } else if (functionType === 'vega-lite') {
             await render(key, JSON.parse(code), options)
           }

@@ -1,5 +1,4 @@
 import zlib from 'zlib'
-import _ from 'underscore'
 import { toHTML, h } from './snabbdom'
 
 const PLANTUML_URL = 'https://www.plantuml.com/plantuml'
@@ -45,8 +44,8 @@ export default class Diagram {
     return maketrans(tableIn, tableOut, base64Value)
   }
 
-  insertImgElement (container, _options) {
-    const div = _.isString(container)
+  insertImgElement (container) {
+    const div = typeof container === 'string'
       ? document.getElementById(container)
       : container
     if (div === null || !div.tagName) {
