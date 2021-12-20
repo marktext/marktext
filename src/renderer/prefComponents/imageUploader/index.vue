@@ -87,7 +87,7 @@
             <span>{{ testResultOutput }}</span>
 
             <span slot="footer" class="dialog-footer">
-              <el-button type="primary" @click="testResultOpen('https://www.baidu.com')">{{ testResultButton }}</el-button>
+              <el-button type="primary" @click="testResultOpen()">{{ testResultButton }}</el-button>
             </span>
           </el-dialog>
         </el-tab-pane>
@@ -232,7 +232,7 @@ export default {
         this.testResultButton = 'OPEN'
       })
     },
-    testResultOpen (url) {
+    testResultOpen () {
       this.testResultDialogVisible = false
       if (this.testResultButton === 'OPEN') {
          this.open(this.testResultOutput)
