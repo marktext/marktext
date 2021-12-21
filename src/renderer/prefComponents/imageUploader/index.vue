@@ -162,7 +162,9 @@ export default {
     }
   },
   created () {
-    this.activeTab = this.currentUploader
+    if (this.currentUploader && this.currentUploader !== 'none') {
+      this.activeTab = this.currentUploader
+    }
     this.$nextTick(() => {
       this.github = this.imageBed.github
       this.githubToken = this.prefGithubToken
