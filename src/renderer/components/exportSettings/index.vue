@@ -30,7 +30,7 @@
                 class="page-size-select"
                 :description="$t('dialogs.export.page.pageSize')"
                 :value="pageSize"
-                :options="pageSizeList"
+                :options="pageSizeList()"
                 :onChange="value => onSelectChange('pageSize', value)"
               ></cur-select>
               <div v-if="pageSize === 'custom'" class="row">
@@ -108,7 +108,7 @@
             :description="$t('dialogs.export.theme.selectTheme')"
             more="https://github.com/marktext/marktext/blob/develop/docs/EXPORT_THEMES.md"
             :value="theme"
-            :options="themeList"
+            :options="themeList()"
             :onChange="value => onSelectChange('theme', value)"
           ></cur-select>
         </el-tab-pane>
@@ -117,7 +117,7 @@
           <cur-select
             :description="$t('dialogs.export.headerAndFooter.headerType')"
             :value="headerType"
-            :options="headerFooterTypes"
+            :options="headerFooterTypes()"
             :onChange="value => onSelectChange('headerType', value)"
           ></cur-select>
           <text-box
@@ -145,7 +145,7 @@
           <cur-select
             :description="$t('dialogs.export.headerAndFooter.footerType')"
             :value="footerType"
-            :options="headerFooterTypes"
+            :options="headerFooterTypes()"
             :onChange="value => onSelectChange('footerType', value)"
           ></cur-select>
           <text-box
