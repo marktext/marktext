@@ -45,7 +45,7 @@ export const showContextMenu = (event, selection, spellchecker, selectedWord, wo
   })
 
   CONTEXT_ITEMS.forEach(item => {
-    menu.append(new MenuItem(item))
+    menu.append(new MenuItem(item()))
   })
   menu.popup([{ window: win, x: event.clientX, y: event.clientY }])
 }
