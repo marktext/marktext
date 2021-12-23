@@ -17,14 +17,14 @@ Before you can get started developing, you need set up your build environment:
 
 **Additional development dependencies on Linux:**
 
-- libx11 (dev)
-- libxkbfile (dev)
-- libsecret (dev)
-- libfontconfig (dev)
+- libX11 (with headers)
+- libxkbfile (with headers)
+- libsecret (with headers)
+- libfontconfig (with headers)
 
 On Debian-based Linux: `sudo apt-get install libx11-dev libxkbfile-dev libsecret-1-dev libfontconfig-dev`
 
-On Red Hat-based Linux: `sudo dnf install libx11-devel libxkbfile-devel libsecret-devel fontconfig-devel`
+On Red Hat-based Linux: `sudo dnf install libX11-devel libxkbfile-devel libsecret-devel fontconfig-devel`
 
 **Additional development dependencies on Windows:**
 
