@@ -74,8 +74,8 @@
             :uploaderService="uploadServices.custom"
           ></legal-notices-checkbox>
           <div class="form-group">
-            <el-button size="mini" @click="testCustomCommand()">Test</el-button>
-            <el-button size="mini" @click="setCurrentUploader('custom')"
+            <el-button size="mini" :disabled="customDisable" @click="testCustomCommand()">Test</el-button>
+            <el-button size="mini" :disabled="customDisable" @click="setCurrentUploader('custom')"
               >Set as default</el-button
             >
           </div>
@@ -152,6 +152,9 @@ export default {
     },
     githubDisable () {
       return !this.githubToken || !this.github.owner || !this.github.repo
+    },
+    customDisable () {
+      return !this.command
     }
   },
   watch: {
