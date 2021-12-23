@@ -357,7 +357,7 @@ ipcMain.on('mt::rename', async (e, { id, pathname, newPathname }) => {
     })
   }
 
-  if (!exists(newPathname)) {
+  if (!await exists(newPathname)) {
     doRename()
   } else {
     const { response } = await dialog.showMessageBox(win, {
