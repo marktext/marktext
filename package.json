@@ -170,7 +170,8 @@
     "webpack-cli": "^3.3.12",
     "webpack-dev-server": "^3.11.3",
     "webpack-hot-middleware": "^2.25.1",
-    "webpack-merge": "^4.2.2"
+    "webpack-merge": "^4.2.2",
+    "normalize-path": "^3.0.0"
   },
   "resolutions": {
     "cld": "^2.7.1"

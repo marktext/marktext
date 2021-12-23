@@ -1,4 +1,5 @@
 import path from 'path'
+import normalizePath from 'normalize-path'
 import crypto from 'crypto'
 import { clipboard } from 'electron'
 import fs from 'fs-extra'
@@ -50,7 +51,7 @@ export const moveToRelativeFolder = async (cwd, imagePath, relativeName) => {
   await fs.move(imagePath, dstPath, { overwrite: true })
 
   // dstRelPath: relative directory name + image file name
-  const dstRelPath = path.join(relativeName, path.basename(imagePath))
+  const dstRelPath = normalizePath(path.join(relativeName, path.basename(imagePath)))
   return dstRelPath
 }
 
