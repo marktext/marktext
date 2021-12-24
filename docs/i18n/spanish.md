@@ -2,7 +2,7 @@
 
 <p align="center"><img src="../../static/logo-small.png" alt="mark text" width="100" height="100"></p>
 
-<h1 align="center">Mark Text</h1>
+<h1 align="center">MarkText</h1>
 
 <div align="center">
   <a href="https://twitter.com/intent/tweet?via=marktextme&url=https://github.com/marktext/marktext/&text=What%20do%20you%20want%20to%20say%20to%20me?&hashtags=happyMarkText">
@@ -109,9 +109,9 @@
 
 ## ¿Por qué hacer otro editor ?
 
-1. Me encanta escribir. He usado un montón de editores de markdown, y todavía no he encontrado ninguno que cumpla todas mis necesidades. No me gusta que me moleste ningún bug cuando escribo. **Mark Text** usa virtual DOM para renderizar páginas, la cual tiene el beneficio de ser muy eficiente y de código abierto. Así, a cualquiera que le guste escribir y use markdown puede usar Mark Text
-2. Como se ha mencionado arriba, **Mark Text** es de código abierto, y lo será para siempre. Esperamos que todos los amantes de markdown contribuyan y ayuden al desarrollo de **Mark Text**, para que sea popular.
-3. Hay muchos editores de markdown, y todos tienen sus méritos. Algunos tienen funcionalidades que otros no. Es difícil satisfacer los gustos de todo el mundo, pero esperamos que **Mark Text** cubra las necesidades de todos lo máximo posible. Aunque lo último de **Mark Text** no sea perfecto, lo damos todo para intentar que sea lo mejor
+1. Me encanta escribir. He usado un montón de editores de markdown, y todavía no he encontrado ninguno que cumpla todas mis necesidades. No me gusta que me moleste ningún bug cuando escribo. **MarkText** usa virtual DOM para renderizar páginas, la cual tiene el beneficio de ser muy eficiente y de código abierto. Así, a cualquiera que le guste escribir y use markdown puede usar MarkText
+2. Como se ha mencionado arriba, **MarkText** es de código abierto, y lo será para siempre. Esperamos que todos los amantes de markdown contribuyan y ayuden al desarrollo de **MarkText**, para que sea popular.
+3. Hay muchos editores de markdown, y todos tienen sus méritos. Algunos tienen funcionalidades que otros no. Es difícil satisfacer los gustos de todo el mundo, pero esperamos que **MarkText** cubra las necesidades de todos lo máximo posible. Aunque lo último de **MarkText** no sea perfecto, lo damos todo para intentar que sea lo mejor
 
 ## Descarga e instalación
 
@@ -142,15 +142,15 @@ Sigue las [instrucciones de instalación de Linux]	(../../docs/LINUX.md).
 
 ## Desarrollo
 
-Si quieres construir tú mismo **Mark Text**, por favor, sigue las  [instrucciones de desarrollo](../../CONTRIBUTING.md#build-instructions).
+Si quieres construir tú mismo **MarkText**, por favor, sigue las  [instrucciones de desarrollo](../../CONTRIBUTING.md#build-instructions).
 
-Si tienes dudas sobre **Mark Text**, puedes abrir un issue. Si lo haces, por favor, sigue el formato estándar. Por supuesto, apreciamos que mandes directamente un Pull Request
+Si tienes dudas sobre **MarkText**, puedes abrir un issue. Si lo haces, por favor, sigue el formato estándar. Por supuesto, apreciamos que mandes directamente un Pull Request
 
 ## Integración
-- [Alfred Workflow](http://www.packal.org/workflow/mark-text): un workflow  para la aplicación de macOS Alfred: usa "mt" para abrir archivos/carpetas con Mark Text
+- [Alfred Workflow](http://www.packal.org/workflow/mark-text): un workflow  para la aplicación de macOS Alfred: usa "mt" para abrir archivos/carpetas con MarkText
 ## Contribución
 
-**Mark Text** está en pleno desarrollo. Asegúrate de leer [la guía de contribución](../../CONTRIBUTING.md) antes de hacer un Pull Request. ¿Quieres añadir algunas funcionalidades? Échale un vistazo a la [TODO LIST](../../.github/TODOLIST.md) y abre issues.
+**MarkText** está en pleno desarrollo. Asegúrate de leer [la guía de contribución](../../CONTRIBUTING.md) antes de hacer un Pull Request. ¿Quieres añadir algunas funcionalidades? Échale un vistazo a la [TODO LIST](../../.github/TODOLIST.md) y abre issues.
 
 ## Backers
 
@@ -187,9 +187,9 @@ Apoya este proyecto convirtiéndote en un sponsor. Tu logo se verá aquí con un
 
 ## Contribuidores
 
-Gracias a todo el mundo que ha contribuido al desarrollo de Mark Text! [[contributors](https://github.com/marktext/marktext/graphs/contributors)]
+Gracias a todo el mundo que ha contribuido al desarrollo de MarkText! [[contributors](https://github.com/marktext/marktext/graphs/contributors)]
 
-Un especial agradecimiento a @[Yasujizr](https://github.com/Yasujizr) por hacer el logo de Mark Text.
+Un especial agradecimiento a @[Yasujizr](https://github.com/Yasujizr) por hacer el logo de MarkText.
 
 <a href="https://github.com/marktext/marktext/graphs/contributors"><img src="https://opencollective.com/marktext/contributors.svg?width=890" /></a>
 

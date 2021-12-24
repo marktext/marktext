@@ -1,6 +1,6 @@
 <p align="center"><img src="../../static/logo-small.png" alt="mark text" width="100" height="100"></p>
 
-<h1 align="center">Mark Text</h1>
+<h1 align="center">MarkText</h1>
 
 <div align="center">
   <a href="https://twitter.com/intent/tweet?via=marktextme&url=https://github.com/marktext/marktext/&text=Uygulama%20için%20ne%20demek%20istersiniz?&hashtags=happyMarkText">
@@ -111,18 +111,18 @@
 
 <br />
 
-<h2 align="center">Mark Text'e yardımda bulunma</h2>
+<h2 align="center">MarkText'e yardımda bulunma</h2>
 
-Mark Text, MIT lisanslı  ve açık kaynaklı bir projedir, ve en yeni versiyonu her zaman ücretsiz olarak GitHub'dan indirilebilir. Mark Text hâlâ geliştirme aşamasında, ve bu geliştirme sponsorları sayesinde mümkün oluyor. Sponsor olmak isterseniz:
+MarkText, MIT lisanslı  ve açık kaynaklı bir projedir, ve en yeni versiyonu her zaman ücretsiz olarak GitHub'dan indirilebilir. MarkText hâlâ geliştirme aşamasında, ve bu geliştirme sponsorları sayesinde mümkün oluyor. Sponsor olmak isterseniz:
 
 - [Become a backer or sponsor on Patreon](https://www.patreon.com/ranluo) or [One time donation](https://github.com/Jocs/sponsor.me)
 - [Become a backer or sponsor on Open Collective](https://opencollective.com/marktext)
 
 ##### Open Collective ve Patreon arasında ne fark var?
 
-Patreon: Tüm yardım direkt olarak Mark Text'i yapan ve sürdüren Luo Ran (@jocs)'a, gider.
-Open Collective: Bu platformda tüm masraf ve harcamalarımız şeffaftır. Para, Mark Text'in geliştirilmesi ve sürdürülmesi, çevrimiçi ve çevrimdışı aktiviteleri, ve gerekli kaynaklara erişimi için kullanılacaktır.
-Tüm sponsorlarımızın (hem Patreon hem Open Collective) isimleri ve logoları Mark Text'in resmi web sitesinde ve README.md dosyasında yer alır.
+Patreon: Tüm yardım direkt olarak MarkText'i yapan ve sürdüren Luo Ran (@jocs)'a, gider.
+Open Collective: Bu platformda tüm masraf ve harcamalarımız şeffaftır. Para, MarkText'in geliştirilmesi ve sürdürülmesi, çevrimiçi ve çevrimdışı aktiviteleri, ve gerekli kaynaklara erişimi için kullanılacaktır.
+Tüm sponsorlarımızın (hem Patreon hem Open Collective) isimleri ve logoları MarkText'in resmi web sitesinde ve README.md dosyasında yer alır.
 
 **Özel Sponsorlar**
 
@@ -193,9 +193,9 @@ Tüm sponsorlarımızın (hem Patreon hem Open Collective) isimleri ve logoları
 
 ## Neden başka bir editör?
 
-1. Yazmayı sevdiğimiz için. Birçok markdown editörü kullandık, ve hala benim gereksinimlerimi tam anlamı ile karşılayanı bir editör yok. Yazarken dayanılmaz bir bug ile uğraşmaktan hoşlanmıyorum. **Mark Text** sayfayı çizmek için virtual DOM kullanır, bu da hızlı ve açık kaynaklı olması gibi avantajlar sağlıyor. Bu yolla yazmayı ve markdown'u seven bütün herkes Mark Text kullanabilir.
-2. Yukarıda bahsettiğim gibi **Mark Text** daima açık kaynak olacak. Tüm markdown sevenlerin koda katkıda bulunmasını ve **Mark Text**'in daha popüler bir markdown editör olmasını ümit ediyorum.
-3. Birçok markdown editörü var, ve her biri kendi avantajlarına sahip. Tüm markdown kullanıcılarını tatmin etmek zor, ama biz **Mark Text** 'in markdown kullanıcılarının gereksinimlerini mümkün oldukça tatmin edebileceğini umuyoruz. **Mark Text** hala mükemmel değil, ancak biz elimizden geldiğince iyileştirmeye çalışıyoruz.
+1. Yazmayı sevdiğimiz için. Birçok markdown editörü kullandık, ve hala benim gereksinimlerimi tam anlamı ile karşılayanı bir editör yok. Yazarken dayanılmaz bir bug ile uğraşmaktan hoşlanmıyorum. **MarkText** sayfayı çizmek için virtual DOM kullanır, bu da hızlı ve açık kaynaklı olması gibi avantajlar sağlıyor. Bu yolla yazmayı ve markdown'u seven bütün herkes MarkText kullanabilir.
+2. Yukarıda bahsettiğim gibi **MarkText** daima açık kaynak olacak. Tüm markdown sevenlerin koda katkıda bulunmasını ve **MarkText**'in daha popüler bir markdown editör olmasını ümit ediyorum.
+3. Birçok markdown editörü var, ve her biri kendi avantajlarına sahip. Tüm markdown kullanıcılarını tatmin etmek zor, ama biz **MarkText** 'in markdown kullanıcılarının gereksinimlerini mümkün oldukça tatmin edebileceğini umuyoruz. **MarkText** hala mükemmel değil, ancak biz elimizden geldiğince iyileştirmeye çalışıyoruz.
 
 ## İndirme ve Kurulum
 
@@ -209,7 +209,7 @@ Son sürümde gelen değişiklikler için [CHANGELOG](.github/CHANGELOG.md)'a ba
 
 #### macOS
 
-Mark Text'i [indirmeler](https://github.com/marktext/marktext/releases/latest)'den`marktext-%sürüm%.dmg` olarak  indirebilir, ya da [**homebrew cask**](https://github.com/caskroom/homebrew-cask) yoluyla kurabilirsiniz. Homebrew-Cask kullanabilmek için [Homebrew](https://brew.sh/)'ün kurulu olması gerekir.
+MarkText'i [indirmeler](https://github.com/marktext/marktext/releases/latest)'den`marktext-%sürüm%.dmg` olarak  indirebilir, ya da [**homebrew cask**](https://github.com/caskroom/homebrew-cask) yoluyla kurabilirsiniz. Homebrew-Cask kullanabilmek için [Homebrew](https://brew.sh/)'ün kurulu olması gerekir.
 
 ```bash
 brew install --cask mark-text
@@ -219,7 +219,7 @@ brew install --cask mark-text
 
 (`marktext-setup-%version%.exe`) yükleyiciyi indirip çalıştırın.
 
-Veya, Mark Text'i [Chocolatey](https://chocolatey.org/) yoluyla kurun. Chocolatey kullanabilmek için [Chocolatey](https://chocolatey.org/install)'in kurulu olması gerekir.
+Veya, MarkText'i [Chocolatey](https://chocolatey.org/) yoluyla kurun. Chocolatey kullanabilmek için [Chocolatey](https://chocolatey.org/install)'in kurulu olması gerekir.
 
 ```bash
 choco install marktext
@@ -235,26 +235,26 @@ Tüm Linux, macOS ve Windows sürümleri [indirmeler](https://github.com/marktex
 
 ## Geliştirme
 
-Eğer **Mark Text** kendiniz derlemek isterseniz, lütfen [geliştirici dökümantasyonuna](../../CONTRIBUTING.md#build-instructions) bakın.
+Eğer **MarkText** kendiniz derlemek isterseniz, lütfen [geliştirici dökümantasyonuna](../../CONTRIBUTING.md#build-instructions) bakın.
 
 - [Kullanıcı dokümantasyonu](../README.md)
 - [Geliştirici dokümantasyonu](../dev/README.md)
 
-**Mark Text** hakkında sorularınız için issue açabilirsiniz. Lütfen standart formatı kullanın. Direkt olarak PR açmak tabiki hoş karşılanır.
+**MarkText** hakkında sorularınız için issue açabilirsiniz. Lütfen standart formatı kullanın. Direkt olarak PR açmak tabiki hoş karşılanır.
 
 ## Entegrasyonlar
 
-- [Alfred Workflow](http://www.packal.org/workflow/mark-text): macOS Alfred uygulaması için bir iş akışı: Mark Text ile dosya/klasör açmak için "mt" kullanılır.
+- [Alfred Workflow](http://www.packal.org/workflow/mark-text): macOS Alfred uygulaması için bir iş akışı: MarkText ile dosya/klasör açmak için "mt" kullanılır.
 
 ## Katkıda Bulunmak
 
-Mark Text geliştirme aşamasındadır. Lütfen pull request açmadan önce [Katkıda bulunma Rehberine](../../CONTRIBUTING.md) bakınız. Mark Text'e katkıda bulunmak için [roadmap](https://github.com/marktext/marktext/projects)'e bakınız.
+MarkText geliştirme aşamasındadır. Lütfen pull request açmadan önce [Katkıda bulunma Rehberine](../../CONTRIBUTING.md) bakınız. MarkText'e katkıda bulunmak için [roadmap](https://github.com/marktext/marktext/projects)'e bakınız.
 
 ## Destekçiler
 
 Tüm destekçilerimize teşekkürler! [[destekçiler](https://github.com/marktext/marktext/graphs/contributors)]
 
-Mark Text logosunu tasarlayan @[Yasujizr](https://github.com/Yasujizr)'a özel teşekkürler.
+MarkText logosunu tasarlayan @[Yasujizr](https://github.com/Yasujizr)'a özel teşekkürler.
 
 <a href="https://github.com/marktext/marktext/graphs/contributors"><img src="https://opencollective.com/marktext/contributors.svg?width=890" /></a>
 

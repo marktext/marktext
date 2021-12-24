@@ -4,7 +4,7 @@ Let us take a look at the realtime editor and editing features.
 
 ## Text manipulation
 
-Mark Text shows you formatted text in realtime while you can simply write and edit text but also use markdown syntax. To improve your writing efficiency there are a lot of key bindings for better text manipulation. In the preferences you can control the editor settings such as font settings, autocompletion and line width.
+MarkText shows you formatted text in realtime while you can simply write and edit text but also use markdown syntax. To improve your writing efficiency there are a lot of key bindings for better text manipulation. In the preferences you can control the editor settings such as font settings, autocompletion and line width.
 
 ## Selections
 
@@ -34,7 +34,7 @@ Do you want to delete headings, lists or tables? Just select the area and press 
 
 ## Brackets and quotes autocompletion
 
-You can configure Mark Text to autocomplete markdown syntax, brackets and quotes. By default `()`, `[]`, `{}`, `**`, `__`, `$$`, `""` and `''` are completed when the first character is typed.
+You can configure MarkText to autocomplete markdown syntax, brackets and quotes. By default `()`, `[]`, `{}`, `**`, `__`, `$$`, `""` and `''` are completed when the first character is typed.
 
 ## Links
 
@@ -44,7 +44,7 @@ Links are shown by default as normal text but if you click on a link the link is
 
 ## Formatting
 
-Mark Text will automatically format your markdown document according CommonMark and GitHub Flavored Markdown specification. You can control few settings via preferences such as list indentation.
+MarkText will automatically format your markdown document according CommonMark and GitHub Flavored Markdown specification. You can control few settings via preferences such as list indentation.
 
 ## Editing features
 
@@ -62,7 +62,7 @@ You can transform a line into another type by clicking on the highlighted icon i
 
 #### Table tools
 
-It's sometimes hard to write and manage tables in markdown. In Mark Text you can press <kbd>CmdOrCtrl</kbd>+<kbd>Shift</kbd>+<kbd>T</kbd> to get a table dialog and create a table with variable row and column count. Both row and column count can be changed via the table tools (first icon above the table) later if necessary. You can use all inline styles in a table cell and align the text via table tools at the top of the table.
+It's sometimes hard to write and manage tables in markdown. In MarkText you can press <kbd>CmdOrCtrl</kbd>+<kbd>Shift</kbd>+<kbd>T</kbd> to get a table dialog and create a table with variable row and column count. Both row and column count can be changed via the table tools (first icon above the table) later if necessary. You can use all inline styles in a table cell and align the text via table tools at the top of the table.
 
 **Insert and delete rows and columns:**
 
@@ -80,7 +80,7 @@ You can simply move a row or column by clicking on the cell menu (like above) an
 
 ![](assets/marktext-image-viewer.png)
 
-Mark Text provides an image viewer and a pop up to select and label images. You can resize any image by your mouse cursor and changes are applied in realtime. By clicking on an image or writing `![]()` a pop up is automatically shown that allows you to select an image from disk or paste a path or URL. Images can be automatically uploaded to cloud, moved to a relative or absolute path on disk. Even pasting images that are not located on disk is supported and these images are stored in the background. In addition, you can control the image alignment whether inline, left, centered or right.
+MarkText provides an image viewer and a pop up to select and label images. You can resize any image by your mouse cursor and changes are applied in realtime. By clicking on an image or writing `![]()` a pop up is automatically shown that allows you to select an image from disk or paste a path or URL. Images can be automatically uploaded to cloud, moved to a relative or absolute path on disk. Even pasting images that are not located on disk is supported and these images are stored in the background. In addition, you can control the image alignment whether inline, left, centered or right.
 
 ![](assets/marktext-image-popup.png)
 
@@ -102,11 +102,11 @@ In typewriter mode, the cursor is always keep in the middle of the editor.
 
 ## File encoding
 
-Mark Text tries to automatically detect the used file encoding and byte-order mark (BOM) when opening a file. The default encoding is UTF-8 that should support all needed characters but can be changed in settings. You can disable automatically encoding detection but then we assume that all files are UTF-8 encoded. The current used encoding can be shown via command palette and also changed there.
+MarkText tries to automatically detect the used file encoding and byte-order mark (BOM) when opening a file. The default encoding is UTF-8 that should support all needed characters but can be changed in settings. You can disable automatically encoding detection but then we assume that all files are UTF-8 encoded. The current used encoding can be shown via command palette and also changed there.
 
 ## Line endings
 
-Mark Text automatically analyzes each file and detects the used line ending and can be changed via command palette too.
+MarkText automatically analyzes each file and detects the used line ending and can be changed via command palette too.
 
 ## Find and replace
 
@@ -116,4 +116,4 @@ To quickly find a keyword in your document press <kbd>CmdOrCtrl</kbd>+<kbd>F</kb
 
 **Search in opened folder:**
 
-Mark Text provides a build-in filesystem explorer (tree view) with a fast file searcher. Type a keyword in the search bar and select the needed options like regex or case-insensitive search. That's all, now Mark Text will search all markdown files in the opened root directory.
+MarkText provides a build-in filesystem explorer (tree view) with a fast file searcher. Type a keyword in the search bar and select the needed options like regex or case-insensitive search. That's all, now MarkText will search all markdown files in the opened root directory.

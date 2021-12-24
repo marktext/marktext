@@ -1,6 +1,6 @@
 <p align="center"><img src="../../static/logo-small.png" alt="mark text" width="100" height="100"></p>
 
-<h1 align="center">Mark Text</h1>
+<h1 align="center">MarkText</h1>
 <div align="center">
   <a href="https://twitter.com/intent/tweet?via=marktextme&url=https://github.com/marktext/marktext/&text=What%20do%20you%20want%20to%20say%20to%20app?&hashtags=happyMarkText">
     <img src="https://img.shields.io/twitter/url/https/github.com/marktext/marktext.svg?style=for-the-badge" alt="twitter">
@@ -110,16 +110,16 @@
 <br />
 
 
-<h2 align="center">支援 Mark Text</h2>
+<h2 align="center">支援 MarkText</h2>
 
-Mark Text 是 MIT 許可的開源專案，你可以持續在 GitHub 發布頁面免費下載最新版本。Mark Text 仍然在開發中，其發展與所有贊助商都密不可分。我希望你加入他們的行列：
+MarkText 是 MIT 許可的開源專案，你可以持續在 GitHub 發布頁面免費下載最新版本。MarkText 仍然在開發中，其發展與所有贊助商都密不可分。我希望你加入他們的行列：
 
 - [Become a backer or sponsor on Patreon](https://www.patreon.com/ranluo) or [One time donation](https://github.com/Jocs/sponsor.me)
 - [Become a backer or sponsor on Open Collective](https://opencollective.com/marktext)
 
 ##### 使用 Patreon 和 OpenCollective 贊助有什麼不同？
 
-使用 Patreon 贊助，它將直接贊助给 Mark Text 的作者及維護者 Luo Ran (@jocs)。使用 Open Collective 贊助的所有費用都是公開的，這些贊助資金將用於 Mark Text 的開發、維護、線上和線下活動以及一些必要的資源（無論您是在 Patreon 還是 Open Collective 贊助）。您的姓名或公司logo將出現在 Mark Text 的 README 和官方網站上。
+使用 Patreon 贊助，它將直接贊助给 MarkText 的作者及維護者 Luo Ran (@jocs)。使用 Open Collective 贊助的所有費用都是公開的，這些贊助資金將用於 MarkText 的開發、維護、線上和線下活動以及一些必要的資源（無論您是在 Patreon 還是 Open Collective 贊助）。您的姓名或公司logo將出現在 MarkText 的 README 和官方網站上。
 
 **白金贊助商**
 
@@ -185,9 +185,9 @@ Mark Text 是 MIT 許可的開源專案，你可以持續在 GitHub 發布頁面
 ## 為什麼要另外寫一個編輯器？
 
 1. 我愛寫作。我曾經用過很多 Markdown 編輯器，但沒有一個編輯器可以滿足我的需求。我不喜歡在我寫作的時候被莫名其妙的bug干擾。
-**Mark Text** 使用 virtual DOM 來呈現畫面，擁有高效能和開源的附加優勢。任何喜歡 Markdown 和寫作的人都可以使用 Mark Text。
-2. 承上所述，**Mark Text** 是完全免費和開源的，且將永遠開源。我們希望所有 Markdown 愛好者都可以協助開發並貢獻自己的程式，讓 **Mark Text** 成為流行的 Markdown 編輯器。
-3. Markdown 編輯器很多，各有優點，有些則沒有。我們很難滿足所有 Markdown 用户的需求，但是我們希望 **Mark Text** 盡可能滿足每一個 Markdown 用户的需求。儘管最新的 **Mark Text** 仍不完美，但我們會盡力使它更加完善。
+**MarkText** 使用 virtual DOM 來呈現畫面，擁有高效能和開源的附加優勢。任何喜歡 Markdown 和寫作的人都可以使用 MarkText。
+2. 承上所述，**MarkText** 是完全免費和開源的，且將永遠開源。我們希望所有 Markdown 愛好者都可以協助開發並貢獻自己的程式，讓 **MarkText** 成為流行的 Markdown 編輯器。
+3. Markdown 編輯器很多，各有優點，有些則沒有。我們很難滿足所有 Markdown 用户的需求，但是我們希望 **MarkText** 盡可能滿足每一個 Markdown 用户的需求。儘管最新的 **MarkText** 仍不完美，但我們會盡力使它更加完善。
 
 ## 下載及安裝
 
@@ -201,7 +201,7 @@ Mark Text 是 MIT 許可的開源專案，你可以持續在 GitHub 發布頁面
 
 #### macOS
 
-你可以從 [release page](https://github.com/marktext/marktext/releases/latest) 下載最新的 `marktext-%version%.dmg` 或是使用 [**homebrew cask**](https://github.com/caskroom/homebrew-cask) 安裝 Mark Text。如果使用 Homebrew-Cask，您只需要安裝 [Homebrew](https://brew.sh/)。
+你可以從 [release page](https://github.com/marktext/marktext/releases/latest) 下載最新的 `marktext-%version%.dmg` 或是使用 [**homebrew cask**](https://github.com/caskroom/homebrew-cask) 安裝 MarkText。如果使用 Homebrew-Cask，您只需要安裝 [Homebrew](https://brew.sh/)。
 
 ```bash
 brew install --cask mark-text
@@ -209,7 +209,7 @@ brew install --cask mark-text
 
 #### Windows
 
-只需要透過安裝精靈 (`marktext-setup-％version％.exe`）下載並安裝 Mark Text，然後選擇替用户或是機器安裝。
+只需要透過安裝精靈 (`marktext-setup-％version％.exe`）下載並安裝 MarkText，然後選擇替用户或是機器安裝。
 
 #### Linux
 
@@ -221,23 +221,23 @@ brew install --cask mark-text
 
 ## 開發
 
-如果您想自己建置 **Mark Text**，請查看我們的 [developer documentation](../../.github.md#build-instructions).
+如果您想自己建置 **MarkText**，請查看我們的 [developer documentation](../../.github.md#build-instructions).
 
-如果您對 **Mark Text** 有任何疑問，歡迎開一個 issue，並使用開 issue 時的預設格式。當然您也可以直接提交 PR，我們將感激不盡。
+如果您對 **MarkText** 有任何疑問，歡迎開一個 issue，並使用開 issue 時的預設格式。當然您也可以直接提交 PR，我們將感激不盡。
 
 ## 整合
-- [Alfred Workflow](http://www.packal.org/workflow/mark-text)：macOS 應用程式 Alfred 的使用流程：使用 "mt" 在文件或者文件夾中打開 Mark Text。
+- [Alfred Workflow](http://www.packal.org/workflow/mark-text)：macOS 應用程式 Alfred 的使用流程：使用 "mt" 在文件或者文件夾中打開 MarkText。
 
 ## 貢獻
 
-Mark Text 正在全面開發中，請確保在提出 PR 之前先閱讀 [Contributing Guide](../../CONTRIBUTING.md) 想要给 Mark Text 新增一些功能嗎？請先看看 [ROADMAP](../../ROADMAP.md) 並創建一個 issue。
+MarkText 正在全面開發中，請確保在提出 PR 之前先閱讀 [Contributing Guide](../../CONTRIBUTING.md) 想要给 MarkText 新增一些功能嗎？請先看看 [ROADMAP](../../ROADMAP.md) 並創建一個 issue。
 
 ## 貢獻者
 
-感謝所有為 Mark Text 做出貢獻的人們
+感謝所有為 MarkText 做出貢獻的人們
 [[contributors](https://github.com/marktext/marktext/graphs/contributors)]
 
-特别感謝 @[Yasujizr](https://github.com/Yasujizr) 設計了一個 Logo 給 Mark Text。
+特别感謝 @[Yasujizr](https://github.com/Yasujizr) 設計了一個 Logo 給 MarkText。
 
 <a href="https://github.com/marktext/marktext/graphs/contributors"><img src="https://opencollective.com/marktext/contributors.svg?width=890" /></a>
 

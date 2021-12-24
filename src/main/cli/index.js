@@ -12,7 +12,7 @@ const writeLine = s => write(s + '\n')
 const cli = () => {
   let argv = process.argv.slice(1)
   if (process.env.NODE_ENV === 'development') {
-    // Don't pass electron development arguments to Mark Text and change user data path.
+    // Don't pass electron development arguments to MarkText and change user data path.
     argv = ['--user-data-dir', path.join(getPath('appData'), 'marktext-dev')]
   }
 
@@ -36,7 +36,7 @@ const cli = () => {
   }
 
   if (args['--version']) {
-    writeLine(`Mark Text: ${global.MARKTEXT_VERSION_STRING}`)
+    writeLine(`MarkText: ${global.MARKTEXT_VERSION_STRING}`)
     writeLine(`Node.js: ${process.versions.node}`)
     writeLine(`Electron: ${process.versions.electron}`)
     writeLine(`Chromium: ${process.versions.chrome}`)

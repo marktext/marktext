@@ -1,11 +1,11 @@
 ## Compare with `marked.js`
 
 Marked.js failed examples count: 80
-Mark Text failed examples count: 0
+MarkText failed examples count: 0
 
 **Example49**
 
-Mark Text success and marked.js fail
+MarkText success and marked.js fail
 
 ```markdown
 Markdown content
@@ -32,7 +32,7 @@ marked.js html
 
 **Example51**
 
-Mark Text success and marked.js fail
+MarkText success and marked.js fail
 
 ```markdown
 Markdown content
@@ -58,7 +58,7 @@ baz</em>
 
 **Example52**
 
-Mark Text success and marked.js fail
+MarkText success and marked.js fail
 
 ```markdown
 Markdown content
@@ -82,7 +82,7 @@ baz</em><br>====</p>
 
 **Example65**
 
-Mark Text success and marked.js fail
+MarkText success and marked.js fail
 
 ```markdown
 Markdown content
@@ -108,7 +108,7 @@ Bar</p>
 
 **Example164**
 
-Mark Text success and marked.js fail
+MarkText success and marked.js fail
 
 ```markdown
 Markdown content
@@ -137,7 +137,7 @@ marked.js html
 
 **Example169**
 
-Mark Text success and marked.js fail
+MarkText success and marked.js fail
 
 ```markdown
 Markdown content
@@ -158,7 +158,7 @@ marked.js html
 
 **Example171**
 
-Mark Text success and marked.js fail
+MarkText success and marked.js fail
 
 ```markdown
 Markdown content
@@ -179,7 +179,7 @@ marked.js html
 
 **Example206**
 
-Mark Text success and marked.js fail
+MarkText success and marked.js fail
 
 ```markdown
 Markdown content
@@ -210,7 +210,7 @@ bar</code></pre>
 
 **Example207**
 
-Mark Text success and marked.js fail
+MarkText success and marked.js fail
 
 ```markdown
 Markdown content
@@ -241,7 +241,7 @@ marked.js html
 
 **Example225**
 
-Mark Text success and marked.js fail
+MarkText success and marked.js fail
 
 ```markdown
 Markdown content
@@ -273,7 +273,7 @@ marked.js html
 
 **Example227**
 
-Mark Text success and marked.js fail
+MarkText success and marked.js fail
 
 ```markdown
 Markdown content
@@ -306,7 +306,7 @@ marked.js html
 
 **Example232**
 
-Mark Text success and marked.js fail
+MarkText success and marked.js fail
 
 ```markdown
 Markdown content
@@ -339,7 +339,7 @@ marked.js html
 
 **Example234**
 
-Mark Text success and marked.js fail
+MarkText success and marked.js fail
 
 ```markdown
 Markdown content
@@ -382,7 +382,7 @@ marked.js html
 
 **Example243**
 
-Mark Text success and marked.js fail
+MarkText success and marked.js fail
 
 ```markdown
 Markdown content
@@ -423,7 +423,7 @@ marked.js html
 
 **Example244**
 
-Mark Text success and marked.js fail
+MarkText success and marked.js fail
 
 ```markdown
 Markdown content
@@ -464,7 +464,7 @@ marked.js html
 
 **Example246**
 
-Mark Text success and marked.js fail
+MarkText success and marked.js fail
 
 ```markdown
 Markdown content
@@ -496,7 +496,7 @@ marked.js html
 
 **Example248**
 
-Mark Text success and marked.js fail
+MarkText success and marked.js fail
 
 ```markdown
 Markdown content
@@ -542,7 +542,7 @@ marked.js html
 
 **Example250**
 
-Mark Text success and marked.js fail
+MarkText success and marked.js fail
 
 ```markdown
 Markdown content
@@ -568,7 +568,7 @@ marked.js html
 
 **Example254**
 
-Mark Text success and marked.js fail
+MarkText success and marked.js fail
 
 ```markdown
 Markdown content
@@ -589,7 +589,7 @@ marked.js html
 
 **Example276**
 
-Mark Text success and marked.js fail
+MarkText success and marked.js fail
 
 ```markdown
 Markdown content
@@ -639,7 +639,7 @@ marked.js html
 
 **Example277**
 
-Mark Text success and marked.js fail
+MarkText success and marked.js fail
 
 ```markdown
 Markdown content
@@ -694,7 +694,7 @@ marked.js html
 
 **Example282**
 
-Mark Text success and marked.js fail
+MarkText success and marked.js fail
 
 ```markdown
 Markdown content
@@ -741,7 +741,7 @@ marked.js html
 
 **Example283**
 
-Mark Text success and marked.js fail
+MarkText success and marked.js fail
 
 ```markdown
 Markdown content
@@ -791,7 +791,7 @@ marked.js html
 
 **Example287**
 
-Mark Text success and marked.js fail
+MarkText success and marked.js fail
 
 ```markdown
 Markdown content
@@ -836,7 +836,7 @@ marked.js html
 
 **Example288**
 
-Mark Text success and marked.js fail
+MarkText success and marked.js fail
 
 ```markdown
 Markdown content
@@ -884,7 +884,7 @@ marked.js html
 
 **Example289**
 
-Mark Text success and marked.js fail
+MarkText success and marked.js fail
 
 ```markdown
 Markdown content
@@ -937,7 +937,7 @@ marked.js html
 
 **Example309**
 
-Mark Text success and marked.js fail
+MarkText success and marked.js fail
 
 ```markdown
 Markdown content
@@ -958,7 +958,7 @@ marked.js html
 
 **Example310**
 
-Mark Text success and marked.js fail
+MarkText success and marked.js fail
 
 ```markdown
 Markdown content
@@ -980,7 +980,7 @@ marked.js html
 
 **Example314**
 
-Mark Text success and marked.js fail
+MarkText success and marked.js fail
 
 ```markdown
 Markdown content
@@ -1011,7 +1011,7 @@ marked.js html
 
 **Example318**
 
-Mark Text success and marked.js fail
+MarkText success and marked.js fail
 
 ```markdown
 Markdown content
@@ -1030,7 +1030,7 @@ marked.js html
 
 **Example319**
 
-Mark Text success and marked.js fail
+MarkText success and marked.js fail
 
 ```markdown
 Markdown content
@@ -1051,7 +1051,7 @@ marked.js html
 
 **Example320**
 
-Mark Text success and marked.js fail
+MarkText success and marked.js fail
 
 ```markdown
 Markdown content
@@ -1073,7 +1073,7 @@ marked.js html
 
 **Example361**
 
-Mark Text success and marked.js fail
+MarkText success and marked.js fail
 
 ```markdown
 Markdown content
@@ -1092,7 +1092,7 @@ marked.js html
 
 **Example387**
 
-Mark Text success and marked.js fail
+MarkText success and marked.js fail
 
 ```markdown
 Markdown content
@@ -1111,7 +1111,7 @@ marked.js html
 
 **Example388**
 
-Mark Text success and marked.js fail
+MarkText success and marked.js fail
 
 ```markdown
 Markdown content
@@ -1130,7 +1130,7 @@ marked.js html
 
 **Example407**
 
-Mark Text success and marked.js fail
+MarkText success and marked.js fail
 
 ```markdown
 Markdown content
@@ -1149,7 +1149,7 @@ marked.js html
 
 **Example412**
 
-Mark Text success and marked.js fail
+MarkText success and marked.js fail
 
 ```markdown
 Markdown content
@@ -1168,7 +1168,7 @@ marked.js html
 
 **Example415**
 
-Mark Text success and marked.js fail
+MarkText success and marked.js fail
 
 ```markdown
 Markdown content
@@ -1187,7 +1187,7 @@ marked.js html
 
 **Example416**
 
-Mark Text success and marked.js fail
+MarkText success and marked.js fail
 
 ```markdown
 Markdown content
@@ -1206,7 +1206,7 @@ marked.js html
 
 **Example424**
 
-Mark Text success and marked.js fail
+MarkText success and marked.js fail
 
 ```markdown
 Markdown content
@@ -1225,7 +1225,7 @@ marked.js html
 
 **Example425**
 
-Mark Text success and marked.js fail
+MarkText success and marked.js fail
 
 ```markdown
 Markdown content
@@ -1244,7 +1244,7 @@ marked.js html
 
 **Example442**
 
-Mark Text success and marked.js fail
+MarkText success and marked.js fail
 
 ```markdown
 Markdown content
@@ -1263,7 +1263,7 @@ marked.js html
 
 **Example445**
 
-Mark Text success and marked.js fail
+MarkText success and marked.js fail
 
 ```markdown
 Markdown content
@@ -1282,7 +1282,7 @@ marked.js html
 
 **Example446**
 
-Mark Text success and marked.js fail
+MarkText success and marked.js fail
 
 ```markdown
 Markdown content
@@ -1301,7 +1301,7 @@ marked.js html
 
 **Example453**
 
-Mark Text success and marked.js fail
+MarkText success and marked.js fail
 
 ```markdown
 Markdown content
@@ -1320,7 +1320,7 @@ marked.js html
 
 **Example454**
 
-Mark Text success and marked.js fail
+MarkText success and marked.js fail
 
 ```markdown
 Markdown content
@@ -1339,7 +1339,7 @@ marked.js html
 
 **Example455**
 
-Mark Text success and marked.js fail
+MarkText success and marked.js fail
 
 ```markdown
 Markdown content
@@ -1358,7 +1358,7 @@ marked.js html
 
 **Example456**
 
-Mark Text success and marked.js fail
+MarkText success and marked.js fail
 
 ```markdown
 Markdown content
@@ -1377,7 +1377,7 @@ marked.js html
 
 **Example457**
 
-Mark Text success and marked.js fail
+MarkText success and marked.js fail
 
 ```markdown
 Markdown content
@@ -1396,7 +1396,7 @@ marked.js html
 
 **Example458**
 
-Mark Text success and marked.js fail
+MarkText success and marked.js fail
 
 ```markdown
 Markdown content
@@ -1415,7 +1415,7 @@ marked.js html
 
 **Example465**
 
-Mark Text success and marked.js fail
+MarkText success and marked.js fail
 
 ```markdown
 Markdown content
@@ -1434,7 +1434,7 @@ marked.js html
 
 **Example466**
 
-Mark Text success and marked.js fail
+MarkText success and marked.js fail
 
 ```markdown
 Markdown content
@@ -1453,7 +1453,7 @@ marked.js html
 
 **Example467**
 
-Mark Text success and marked.js fail
+MarkText success and marked.js fail
 
 ```markdown
 Markdown content
@@ -1472,7 +1472,7 @@ marked.js html
 
 **Example470**
 
-Mark Text success and marked.js fail
+MarkText success and marked.js fail
 
 ```markdown
 Markdown content
@@ -1491,7 +1491,7 @@ marked.js html
 
 **Example486**
 
-Mark Text success and marked.js fail
+MarkText success and marked.js fail
 
 ```markdown
 Markdown content
@@ -1510,7 +1510,7 @@ marked.js html
 
 **Example489**
 
-Mark Text success and marked.js fail
+MarkText success and marked.js fail
 
 ```markdown
 Markdown content
@@ -1529,7 +1529,7 @@ marked.js html
 
 **Example490**
 
-Mark Text success and marked.js fail
+MarkText success and marked.js fail
 
 ```markdown
 Markdown content
@@ -1548,7 +1548,7 @@ marked.js html
 
 **Example491**
 
-Mark Text success and marked.js fail
+MarkText success and marked.js fail
 
 ```markdown
 Markdown content
@@ -1575,7 +1575,7 @@ marked.js html
 
 **Example499**
 
-Mark Text success and marked.js fail
+MarkText success and marked.js fail
 
 ```markdown
 Markdown content
@@ -1594,7 +1594,7 @@ marked.js html
 
 **Example503**
 
-Mark Text success and marked.js fail
+MarkText success and marked.js fail
 
 ```markdown
 Markdown content
@@ -1613,7 +1613,7 @@ marked.js html
 
 **Example508**
 
-Mark Text success and marked.js fail
+MarkText success and marked.js fail
 
 ```markdown
 Markdown content
@@ -1632,7 +1632,7 @@ marked.js html
 
 **Example514**
 
-Mark Text success and marked.js fail
+MarkText success and marked.js fail
 
 ```markdown
 Markdown content
@@ -1651,7 +1651,7 @@ marked.js html
 
 **Example515**
 
-Mark Text success and marked.js fail
+MarkText success and marked.js fail
 
 ```markdown
 Markdown content
@@ -1670,7 +1670,7 @@ marked.js html
 
 **Example516**
 
-Mark Text success and marked.js fail
+MarkText success and marked.js fail
 
 ```markdown
 Markdown content
@@ -1689,7 +1689,7 @@ marked.js html
 
 **Example520**
 
-Mark Text success and marked.js fail
+MarkText success and marked.js fail
 
 ```markdown
 Markdown content
@@ -1708,7 +1708,7 @@ marked.js html
 
 **Example522**
 
-Mark Text success and marked.js fail
+MarkText success and marked.js fail
 
 ```markdown
 Markdown content
@@ -1727,7 +1727,7 @@ marked.js html
 
 **Example524**
 
-Mark Text success and marked.js fail
+MarkText success and marked.js fail
 
 ```markdown
 Markdown content
@@ -1748,7 +1748,7 @@ marked.js html
 
 **Example528**
 
-Mark Text success and marked.js fail
+MarkText success and marked.js fail
 
 ```markdown
 Markdown content
@@ -1769,7 +1769,7 @@ marked.js html
 
 **Example529**
 
-Mark Text success and marked.js fail
+MarkText success and marked.js fail
 
 ```markdown
 Markdown content
@@ -1790,7 +1790,7 @@ marked.js html
 
 **Example532**
 
-Mark Text success and marked.js fail
+MarkText success and marked.js fail
 
 ```markdown
 Markdown content
@@ -1811,7 +1811,7 @@ marked.js html
 
 **Example534**
 
-Mark Text success and marked.js fail
+MarkText success and marked.js fail
 
 ```markdown
 Markdown content
@@ -1832,7 +1832,7 @@ marked.js html
 
 **Example569**
 
-Mark Text success and marked.js fail
+MarkText success and marked.js fail
 
 ```markdown
 Markdown content
@@ -1853,7 +1853,7 @@ marked.js html
 
 **Example570**
 
-Mark Text success and marked.js fail
+MarkText success and marked.js fail
 
 ```markdown
 Markdown content
@@ -1872,7 +1872,7 @@ marked.js html
 
 **Example571**
 
-Mark Text success and marked.js fail
+MarkText success and marked.js fail
 
 ```markdown
 Markdown content
@@ -1891,7 +1891,7 @@ marked.js html
 
 **Example572**
 
-Mark Text success and marked.js fail
+MarkText success and marked.js fail
 
 ```markdown
 Markdown content
@@ -1912,7 +1912,7 @@ marked.js html
 
 **Example573**
 
-Mark Text success and marked.js fail
+MarkText success and marked.js fail
 
 ```markdown
 Markdown content
@@ -1933,7 +1933,7 @@ marked.js html
 
 **Example581**
 
-Mark Text success and marked.js fail
+MarkText success and marked.js fail
 
 ```markdown
 Markdown content
@@ -1954,7 +1954,7 @@ marked.js html
 
 **Example585**
 
-Mark Text success and marked.js fail
+MarkText success and marked.js fail
 
 ```markdown
 Markdown content
@@ -1975,7 +1975,7 @@ marked.js html
 
 **Example622**
 
-Mark Text success and marked.js fail
+MarkText success and marked.js fail
 
 ```markdown
 Markdown content
@@ -1994,7 +1994,7 @@ marked.js html
 
 **Example623**
 
-Mark Text success and marked.js fail
+MarkText success and marked.js fail
 
 ```markdown
 Markdown content
