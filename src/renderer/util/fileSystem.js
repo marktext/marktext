@@ -137,7 +137,6 @@ export const uploadImage = async (pathname, image, preferences) => {
   const uploadByGithub = (content, filename) => {
     const octokit = new Octokit({
       auth: `token ${token}`
-
     })
     const path = dayjs().format('YYYY/MM') + `/${dayjs().format('DD-HH-mm-ss')}-${filename}`
     const message = `Upload by Mark Text at ${dayjs().format('YYYY-MM-DD HH:mm:ss')}`
@@ -152,7 +151,7 @@ export const uploadImage = async (pathname, image, preferences) => {
     if (!branch) {
       delete payload.branch
     }
-    octokit.repos.createFile(payload).then(result => {
+    octokit.repos.createOrUpdateFileContents(payload).then(result => {
       re(result.data.content.download_url)
     })
       .catch(_ => {
