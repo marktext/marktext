@@ -36,5 +36,5 @@ about: Create a bug report to help us improve
 
 ### Versions
 
-- MarkText version:
+- Mark Text version:
 - Operating system:
