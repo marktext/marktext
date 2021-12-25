@@ -9,6 +9,7 @@ import { normalizeAndResolvePath, writeFile } from '../../filesystem'
 import { writeMarkdownFile } from '../../filesystem/markdown'
 import { getPath, getRecommendTitleFromMarkdownString } from '../../utils'
 import pandoc from '../../utils/pandoc'
+import i18n from '../../i18n'
 
 // TODO(refactor): "save" and "save as" should be moved to the editor window (editor.js) and
 // the renderer should communicate only with the editor window for file relevant stuff.
@@ -156,10 +157,10 @@ const handleResponseForSave = async (e, { id, filename, markdown, pathname, opti
 const showUnsavedFilesMessage = async (win, files) => {
   const { response } = await dialog.showMessageBox(win, {
     type: 'warning',
-    buttons: ['Save', 'Cancel', 'Don\'t save'],
+    buttons: [i18n.t('dialogs.unsavedFiles.save'), i18n.t('dialogs.cancel'), i18n.t('dialogs.unsavedFiles.doNotSave')],
     defaultId: 0,
-    message: `Do you want to save the changes you made to ${files.length} ${files.length === 1 ? 'file' : 'files'}?\n\n${files.map(f => f.filename).join('\n')}`,
-    detail: 'Your changes will be lost if you don\'t save them.',
+    message: `${i18n.tc('dialogs.unsavedFiles.message', files.length)}\n\n${files.map(f => f.filename).join('\n')}`,
+    detail: i18n.t('dialogs.unsavedFiles.detail'),
     cancelId: 1,
     noLink: true
   })

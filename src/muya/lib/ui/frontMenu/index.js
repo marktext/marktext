@@ -99,7 +99,7 @@ class FrontMenu extends BaseFloat {
   render () {
     const { oldVnode, frontMenuContainer, outmostBlock, startBlock, endBlock } = this
     const { type, functionType } = outmostBlock
-    const children = menu.map(({ icon, label, text, shortCut }) => {
+    const children = menu().map(({ icon, label, text, shortCut }) => {
       const subMenu = getSubMenu(outmostBlock, startBlock, endBlock)
       const iconWrapperSelector = 'div.icon-wrapper'
       const iconWrapper = h(iconWrapperSelector, h('i.icon', h(`i.icon-${label.replace(/\s/g, '-')}`, {

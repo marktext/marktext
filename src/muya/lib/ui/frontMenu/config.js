@@ -4,6 +4,7 @@ import deleteIcon from '../../assets/pngicon/delete/2.png'
 import turnIcon from '../../assets/pngicon/turninto/2.png'
 import { isOsx } from '../../config'
 import { quickInsertObj } from '../quickInsert/config'
+import i18n from '../../i18n'
 
 const wholeSubMenu = Object.keys(quickInsertObj).reduce((acc, key) => {
   const items = quickInsertObj[key]
@@ -12,26 +13,28 @@ const wholeSubMenu = Object.keys(quickInsertObj).reduce((acc, key) => {
 
 const COMMAND_KEY = isOsx ? '⌘' : '⌃'
 
-export const menu = [{
-  icon: copyIcon,
-  label: 'duplicate',
-  text: 'Duplicate',
-  shortCut: `⇧${COMMAND_KEY}P`
-}, {
-  icon: turnIcon,
-  label: 'turnInto',
-  text: 'Turn Into'
-}, {
-  icon: newIcon,
-  label: 'new',
-  text: 'New Paragraph',
-  shortCut: `⇧${COMMAND_KEY}N`
-}, {
-  icon: deleteIcon,
-  label: 'delete',
-  text: 'Delete',
-  shortCut: `⇧${COMMAND_KEY}D`
-}]
+export const menu = () => {
+  return [{
+    icon: copyIcon,
+    label: 'duplicate',
+    text: i18n.t('menu.edit.duplicate'),
+    shortCut: `⇧${COMMAND_KEY}P`
+  }, {
+    icon: turnIcon,
+    label: 'turnInto',
+    text: i18n.t('menu.paragraph.turnInto')
+  }, {
+    icon: newIcon,
+    label: 'new',
+    text: i18n.t('menu.paragraph.newParagraph'),
+    shortCut: `⇧${COMMAND_KEY}N`
+  }, {
+    icon: deleteIcon,
+    label: 'delete',
+    text: i18n.t('menu.edit.delete'),
+    shortCut: `⇧${COMMAND_KEY}D`
+  }]
+}
 
 export const getLabel = block => {
   const { type, functionType, listType } = block

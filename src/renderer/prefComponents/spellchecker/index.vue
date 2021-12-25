@@ -1,34 +1,34 @@
 <template>
   <div class="pref-spellchecker">
-    <h4>Spelling</h4>
+    <h4>{{ $t('preferences.spelling._title') }}</h4>
     <bool
-      description="Enable spell checker (experimental)"
+      :description="$t('preferences.spelling.spellcheckerEnabled')"
       :bool="spellcheckerEnabled"
       :onChange="handleSpellcheckerEnabled"
     ></bool>
     <separator></separator>
     <bool
-      description="Use Hunspell instead of system spell checker on macOS and Windows 10 (requires restart)"
+      :description="$t('preferences.spelling.spellcheckerIsHunspell')"
       :bool="spellcheckerIsHunspell"
       :disable="!isOsSpellcheckerSupported || !spellcheckerEnabled"
       :onChange="value => onSelectChange('spellcheckerIsHunspell', value)"
     ></bool>
     <bool
-      description="Hide marks for spelling errors"
+      :description="$t('preferences.spelling.spellcheckerNoUnderline')"
       :bool="spellcheckerNoUnderline"
       :disable="!spellcheckerEnabled"
       :onChange="value => onSelectChange('spellcheckerNoUnderline', value)"
     ></bool>
     <bool
       v-show="isOsx && !spellcheckerIsHunspell"
-      description="Automatically detect document language (requires showing marks for spelling errors)"
+      :description="$t('preferences.spelling.spellcheckerAutoDetectLanguage')"
       :bool="spellcheckerAutoDetectLanguage"
       :disable="!spellcheckerEnabled"
       :onChange="value => onSelectChange('spellcheckerAutoDetectLanguage', value)"
     ></bool>
     <separator></separator>
     <cur-select
-      description="Default language for spell checker"
+      :description="$t('preferences.spelling.spellcheckerLanguage')"
       :value="spellcheckerLanguage"
       :options="availableDictionaries"
       :disable="!spellcheckerEnabled"
@@ -38,16 +38,16 @@
       v-if="isOsx && !isHunspellSelected && spellcheckerEnabled"
       class="description"
     >
-      Additional languages may be added through "Language & Region" in your system preferences pane.
+      {{ $t('preferences.spelling.hintMacOS') }}
     </div>
     <div
       v-if="isWindows && !isHunspellSelected && spellcheckerEnabled"
       class="description"
     >
-      Additional languages may be added through "Language" in your "Time & language" settings.
+      {{ $t('preferences.spelling.hintWindows') }}
     </div>
     <div v-if="isHunspellSelected && spellcheckerEnabled">
-      <div class="description">Installed Hunspell dictionaries</div>
+      <div class="description">{{ $t('preferences.spelling.installDictsActions._title') }}</div>
       <el-table
         :data="availableDictionaries"
         style="width: 100%">
@@ -66,13 +66,13 @@
           label="Operations"
           width="170">
           <template slot-scope="scope">
-            <el-button @click="handleUpdateClick(scope.$index, scope.row)" type="text" size="small">Update</el-button>
-            <el-button @click="handleDeleteClick(scope.$index, scope.row)" type="text" size="small">Delete</el-button>
+            <el-button @click="handleUpdateClick(scope.$index, scope.row)" type="text" size="small">{{ $t('preferences.spelling.installDictsActions.update') }}</el-button>
+            <el-button @click="handleDeleteClick(scope.$index, scope.row)" type="text" size="small">{{ $t('preferences.spelling.installDictsActions.delete') }}</el-button>
           </template>
         </el-table-column>
       </el-table>
 
-      <div class="description">Download additional Hunspell dictionaries</div>
+      <div class="description">{{ $t('preferences.spelling.downloadDict') }}</div>
       <div class="dictionary-group">
         <el-select
           v-model="selectedDictionaryToAdd"

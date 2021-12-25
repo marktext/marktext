@@ -83,6 +83,7 @@
     "vscode-ripgrep": "^1.12.1",
     "vue": "^2.6.14",
     "vue-electron": "^1.0.6",
+    "vue-i18n": "^8.26.7",
     "vue-router": "^3.5.3",
     "vuex": "^3.6.2",
     "webfontloader": "^1.6.28"

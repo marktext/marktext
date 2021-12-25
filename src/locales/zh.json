@@ -1,0 +1,477 @@
+{
+  "menu": {
+    "file": {
+      "_title": "文件(&F)",
+      "newBlankTab": "新建标签页",
+      "newWindow": "新建窗口",
+      "openFile": "打开文件...",
+      "openFolder": "打开文件夹...",
+      "openRecent": "最近使用的文件",
+      "clearRecentlyUsed": "清空最近使用文件列表",
+      "save": "保存",
+      "saveAs": "另存为...",
+      "autoSave": "自动保存",
+      "moveTo": "移动到...",
+      "rename": "重命名...",
+      "import": "导入...",
+      "export": "导出",
+      "html": "HTML",
+      "pdf": "PDF",
+      "print": "打印",
+      "preferences": "偏好设置...",
+      "closeTab": "关闭标签页",
+      "closeWindow": "关闭窗口",
+      "quit": "退出"
+    },
+    "edit": {
+      "_title": "编辑(&E)",
+      "_title_simple": "编辑",
+      "undo": "撤消",
+      "redo": "重做",
+      "cut": "剪切",
+      "copy": "复制",
+      "paste": "粘贴",
+      "delete": "删除",
+      "copyAsMarkdown": "复制为 Markdown",
+      "copyAsHtml": "复制为 HTML",
+      "pasteAsPlainText": "粘贴为纯文本",
+      "selectAll": "全选",
+      "duplicate": "复写到新段落",
+      "createParagraph": "新段落",
+      "deleteParagraph": "删除段落",
+      "insertParagraphBefore": "在光标前插入新段落",
+      "insertParagraphAfter": "在光标后插入新段落",
+      "find": "查找",
+      "findNext": "查找下一个",
+      "findPrev": "查找上一个",
+      "replace": "替换",
+      "findInFolder": "在文件夹中查找",
+      "aidou": "爱斗图",
+      "screenshot": "截屏",
+      "lineEnding": "行尾序列",
+      "crlf": "回车换行（CRLF）",
+      "lf": "换行"
+    },
+    "format": {
+      "_title": "格式(&F)",
+      "bold": "粗体",
+      "italic": "斜体",
+      "underline": "下划线",
+      "superscript": "上标",
+      "subscript": "下标",
+      "highlight": "高亮",
+      "inlineCode": "行内代码",
+      "inlineMath": "行内数学公式",
+      "strike": "删除线",
+      "hyperlink": "超链接",
+      "image": "图片",
+      "clear": "清除格式"
+    },
+    "paragraph": {
+      "_title": "段落(&P)",
+      "_title_simple": "段落",
+      "heading1": "一级标题",
+      "heading2": "二级标题",
+      "heading3": "三级标题",
+      "heading4": "四级标题",
+      "heading5": "五级标题",
+      "heading6": "六级标题",
+      "promoteHeading": "上移一级",
+      "demoteHeading": "下移一级",
+      "table": "表格",
+      "codeFences": "代码块",
+      "blockquote": "引文",
+      "mathBlock": "数学公式",
+      "htmlBlock": "HTML 块",
+      "orderList": "有序列表",
+      "bulletList": "无序列表",
+      "taskList": "待办事项表",
+      "looseListItem": "松散列表项",
+      "normalParagraph": "普通段落",
+      "newParagraph": "新段落",
+      "horizontalLine": "水平分隔线",
+      "frontMatter": "文件首部信息",
+      "turnInto": "转换为",
+      "vega": "Vega 图表",
+      "flowChart": "流程图",
+      "seqDiagram": "序列图",
+      "mermaid": "Mermaid 图表",
+      "_descriptions": {
+        "vega": "插入用 vega-lite.js 渲染的流程图。",
+        "flowChart": "插入用 flowchart.js 渲染的流程图。",
+        "seqDiagram": "插入用 js-sequence 渲染的序列图。",
+        "mermaid": "插入 Mermaid 图表。"
+      },
+      "blockTypes": {
+        "basicBlock": "基本",
+        "advancedBlock": "高级",
+        "listBlock": "列表",
+        "diagram": "图表"
+      }
+    },
+    "view": {
+      "_title": "视图(&V)",
+      "commandPalette": "命令列表",
+      "srcMode": "源代码模式",
+      "typewriterMode": "打字机模式",
+      "focusMode": "专注模式",
+      "showSideBar": "显示侧边栏",
+      "showTabBar": "显示标签栏",
+      "toggleToc": "显示/隐藏目录",
+      "showDevTools": "显示开发者工具",
+      "reload": "重新加载"
+    },
+    "themes": {
+      "_title": "主题(&T)"
+    },
+    "window": {
+      "_title": "窗口(&W)",
+      "minimize": "最小化",
+      "alwaysOnTop": "置顶",
+      "zoomIn": "放大",
+      "zoomOut": "缩小",
+      "fullScreen": "全屏",
+      "bringAllToFront": "将所有窗口切换到前台"
+    },
+    "help": {
+      "_title": "帮助(&H)",
+      "quickStart": "快速指南...",
+      "markdownReference": "Markdown 参考指南...",
+      "changeLog": "更新日志...",
+      "donateViaOpenCollective": "通过 Open Collective 捐助我们...",
+      "feedbackViaTwitter": "在 Twitter 上和我们反馈...",
+      "reportIssueOrRequestFeature": "反馈问题或功能建议...",
+      "website": "访问官网...",
+      "watchOnGithub": "在 GitHub 上关注 Mark Text...",
+      "followUsOnGithub": "在 GitHub 上关注我们...",
+      "followUsOnTwitter": "在 Twitter 上关注我们...",
+      "license": "许可协议...",
+      "checkUpdates": "检查更新...",
+      "about": "关于 Mark Text..."
+    }
+  },
+  "preferences": {
+    "_title": "偏好设置",
+    "sidebar": {
+      "search": "搜索偏好设置"
+    },
+    "general": {
+      "_title": "通用",
+      "autoSave": "自动保存文档更改",
+      "autoSaveDelay": "编辑后自动保存的时间间隔（毫秒）",
+      "titleBarStyle": {
+        "_title": "标题栏样式（重启生效）",
+        "custom": "自有",
+        "native": "原生"
+      },
+      "openFilesInNewWindow": "在新窗口打开文档",
+      "openFolderInNewWindow": "在新窗口打开文件夹",
+      "hideScrollbar": "隐藏滚动条",
+      "wordWrapInToc": "自动折叠目录项",
+      "useAidou": "启用爱斗图",
+      "fileSortBy": {
+        "_title": "文件排序依据",
+        "created": "创建时间",
+        "modified": "修改时间",
+        "title": "标题"
+      },
+      "startUpAction": {
+        "_title": "在启动时：",
+        "folder": "打开默认文件夹",
+        "selectDefaultDirectoryToOpen": "选择默认打开的文件夹",
+        "blank": "新建空白文档"
+      },
+      "languageForUI": "界面语言（重启程序或打开新窗口时生效）"
+    },
+    "editor": {
+      "_title": "编辑器",
+      "fontSize": "文本编辑器字体大小",
+      "lineHeight": "文本编辑器行高",
+      "editorFontFamily": "文本编辑器字体",
+      "codeFontSize": "代码块字体大小",
+      "codeFontFamily": "代码块字体",
+      "codeBlockLineNumbers": "在代码块中显示行号",
+      "trimUnnecessaryCodeBlockEmptyLines": "移除代码块首尾空行",
+      "autoPairBracket": "自动录入成对括号",
+      "autoPairMarkdownSyntax": "自动语法补全",
+      "autoPairQuote": "自动录入成对引号",
+      "endOfLine": {
+        "_title": "行尾序列",
+        "default": "默认",
+        "crlf": "回车换行（CRLF）",
+        "lf": "换行"
+      },
+      "defaultEncoding": "默认编码",
+      "autoGuessEncoding": "自动检测文本编码",
+      "trimTrailingNewline": {
+        "_title": "处理文件尾部空行的方式",
+        "all": "移除所有空行",
+        "exactlyOne": "确保留下1个空行",
+        "originalStyle": "保持原文档风格",
+        "doNothing": "不作处理"
+      },
+      "textDirection": {
+        "_title": "文本方向",
+        "ltr": "从左至右",
+        "rtl": "从右至左"
+      },
+      "hideQuickInsertHint": "隐藏新段落提示符",
+      "hideLinkPopup": "隐藏超链接弹框",
+      "autoCheck": "自动勾选相应的任务",
+      "editorLineWidth": {
+        "_title": "文本编辑器的最大宽度。留空遵循主题设置，否则使用下方输入的带单位数值（可用单位：`ch`表示字宽，`px`表示像素，`%`表示百分比）",
+        "defaultValue": "来自当前主题的默认值"
+      }
+    },
+    "markdown": {
+      "_title": "Markdown",
+      "preferLooseListItem": "优先使用松散的列表项",
+      "bulletListMarker": "无序列表符号",
+      "orderListDelimiter": "有序列表符号",
+      "preferHeadingStyle": {
+        "_title": "标题样式",
+        "atx": "ATX 标题",
+        "setext": "Setext 标题"
+      },
+      "tabSize": "制表符宽度",
+      "listIndentation": {
+        "_title": "缩进方式",
+        "dfm": "DocFX 样式",
+        "tab": "真正的 Tab 字符",
+        "singleSpace": "单个空格",
+        "twoSpaces": "2个空格",
+        "threeSpaces": "3个空格",
+        "fourSpaces": "4个空格"
+      },
+      "extentions": "Markdown 扩展",
+      "frontmatterType": "文件首部信息格式",
+      "superSubScript": "使用 Pandoc 风格的上下标",
+      "footnote": "使用 Pandoc 风格的脚注（需要重启）",
+      "compatibility": "兼容性",
+      "isHtmlEnabled": "渲染 HTML 代码",
+      "isGitlabCompatibilityEnabled": "启用兼容 GitLab 模式",
+      "diagramTheme": "图表主题",
+      "sequenceTheme": {
+        "_title": "序列图风格",
+        "hand": "手绘",
+        "simple": "简易"
+      }
+    },
+    "spelling": {
+      "_title": "拼写",
+      "spellcheckerEnabled": "启用拼写检查（实验性功能）",
+      "spellcheckerIsHunspell": "使用 Hunspell 而非 macOS / Windows 10 自带的拼写检查器（重启后生效）",
+      "spellcheckerNoUnderline": "隐藏拼写错误下划线",
+      "spellcheckerAutoDetectLanguage": "自动检测文档语言（需要启用下划线显示）",
+      "spellcheckerLanguage": "默认拼写检查语言",
+      "hintMacOS": "你可以在系统设置的“语言和地区”中添加额外的语言。",
+      "hintWindows": "你可以在“时间和语言”的“语言”设置中添加额外的语言。",
+      "installDictsActions": {
+        "_title": "安装 Hunspell 词典",
+        "update": "更新",
+        "delete": "删除"
+      },
+      "downloadDict": "下载额外的 Hunspell 词典"
+    },
+    "theme": {
+      "_title": "主题",
+      "autoSwitchTheme": {
+        "_title": "根据系统设置自动调整主题",
+        "atStartup": "启动时",
+        "onlyAtRuntime": "仅在运行期间",
+        "never": "从不"
+      },
+      "openThemesFolderAction": {
+        "_title": "打开主题文件夹",
+        "_button": "打开"
+      },
+      "importCustomThemesAction": {
+        "_title": "导入自定义主题",
+        "_button": "导入"
+      }
+    },
+    "image": {
+      "_title": "图片",
+      "imageInsertAction": {
+        "_title": "从本地或剪贴板插入图片的默认操作",
+        "_notice": "剪贴板粘贴图片仅在 macOS 和 Windows 上得到完整支持",
+        "upload": "运用指定的上传工具，上传到云存储（必须先设置上传工具）",
+        "folder": "移动到指定的本地文件夹",
+        "path": "保留在原处"
+      },
+      "localImageFolderAction": {
+        "_title": "本地图片文件夹",
+        "modify": "更改",
+        "open": "打开文件夹"
+      },
+      "imagePreferRelativeDirectory": "优先使用相对路径",
+      "imageRelativeDirectoryName": "指定相对路径的名称"
+    },
+    "imageUploader": {
+      "_title": "图片上传器",
+      "currentUploaderIs": "当前使用的图片上传器：",
+      "noUploaderSelected": "当前尚未选择图片上传器。请先选择一个上传器，然后单击“设置为默认”。",
+      "save": "保存",
+      "setAsDefault": "设置为默认",
+      "SMMS": {
+        "linkLabel": "SM.MS",
+        "ThankSMMS": "感谢 {0} 提供免费的上传服务。"
+      },
+      "GitHub": {
+        "token": "GitHub 令牌（token）：",
+        "tokenNotice": "令牌在 macOS 中以密钥环（Keychain）存储，在 Linux 中通过 Secret Service API / libsecret 存储，在 Windows 中利用可信凭据存储",
+        "tokenPlaceholder": "输入令牌",
+        "owner": "所有者名称：",
+        "ownerPlaceholder": "所有者",
+        "repo": "仓库名称：",
+        "repoPlaceholder": "仓库名",
+        "branch": "分支名称（可选）：",
+        "branchPlaceholder": "分支名"
+      },
+      "legalNotices": {
+        "notice": "在使用 {0} 时，您同意 {0} 的 {1} 与 {2}。",
+        "privacyStatement": "隐私政策",
+        "termsOfService": "服务条款",
+        "GDPR": "受到欧盟《通用数据保护法（GDPR）》的约束，该服务在欧洲地区不可用。"
+      }
+    }
+  },
+  "components": {
+    "search": {
+      "caseSensitive": "区分大小写",
+      "selWholeWord": "全字匹配",
+      "useRegexp": "使用正则表达式",
+      "replaceSingle": "单个替换",
+      "replaceAll": "全部替换"
+    },
+    "titleBar": {
+      "stats": {
+        "words": "单词数：",
+        "characters": "字符数：",
+        "paragraphs": "段落数："
+      }
+    }
+  },
+  "dialogs": {
+    "ok": "确定",
+    "cancel": "取消",
+    "unsavedFiles": {
+      "message": "要保存对下列 1 个文件的修改吗？ | 要保存对下列 {count} 个文件的修改吗？",
+      "detail": "如果你不保存，则你对文件的更改将丢失。",
+      "save": "保存",
+      "doNotSave": "不保存"
+    },
+    "export": {
+      "_title": "导出选项",
+      "exportBtn": "导出...",
+      "info": {
+        "_title": "说明",
+        "_description": "请在此处定制你的页面布局，然后单击“导出”以继续。"
+      },
+      "page": {
+        "_title": "页面",
+        "pageTitle": "页面标题：",
+        "pageSize": "页面大小",
+        "widthOrHeight": "指定宽度/高度，以毫米为单位：",
+        "landscapeOrientation": "横向页面",
+        "pageMargin": "指定页边距，以毫米为单位：",
+        "topOrBottom": "顶部/底部",
+        "leftOrRight": "左侧/右侧"
+      },
+      "style": {
+        "_title": "风格",
+        "overwriteThemeFonts": "覆盖主题中设置的字体",
+        "fontFamily": "字体家族：",
+        "fontSize": "字体大小",
+        "lineHeight": "行高",
+        "autoNumberingHeadings": "标题自动编号",
+        "showFrontMatter": "显示文件首部信息"
+      },
+      "theme": {
+        "_title": "主题",
+        "_description": "你可以选择或者自创一个主题来改变文档外观。",
+        "selectTheme": "选择主题："
+      },
+      "headerAndFooter": {
+        "_title": "页眉和页脚",
+        "_description": "如果指定了页眉和/或页脚，则相应的文字会出现在每一页上。",
+        "headerType": "页眉类型：",
+        "headerTextLeft": "页眉左侧文字：",
+        "headerTextCenter": "页眉中央文字：",
+        "headerTextRight": "页眉右侧文字：",
+        "footerType": "页脚类型：",
+        "footerTextLeft": "页脚左侧文字：",
+        "footerTextCenter": "页脚中央文字：",
+        "footerTextRight": "页脚右侧文字：",
+        "customizeStyle": "自定义风格",
+        "allowStyled": "允许在页眉或页脚中使用样式",
+        "fontSize": "字体大小",
+        "types": {
+          "none": "无",
+          "singleCell": "1栏",
+          "threeCells": "3栏"
+        },
+        "styles": {
+          "default": "默认",
+          "simple": "简易",
+          "styled": "样式化"
+        }
+      },
+      "toc": {
+        "_title": "目录",
+        "includeTopHeading": "包含顶级标题",
+        "includeTopHeading_description": "在目录中显示第一级标题",
+        "tocTitle": "标题："
+      },
+      "pageSizeList": {
+        "A3": "A3",
+        "A4": "A4",
+        "A5": "A5",
+        "USLegal": "美国法律文件用纸",
+        "USLetter": "美国信件用纸",
+        "Tabloid": "小报",
+        "custom": "自定义"
+      }
+    }
+  },
+  "panels": {
+    "imageSelector": {
+      "select": "选择",
+      "embedLink": "嵌入链接",
+      "unsplash": "Unsplash",
+      "chooseAnImage": "选择一个图片",
+      "chooseAnImage_description": "从你的电脑中选择一个图片文件。",
+      "altText": "替代文字",
+      "imageLinkOrLocalPath": "图片链接或本地路径",
+      "imageTitle": "图注",
+      "embedImage": "嵌入图片",
+      "pasteImage_description": "粘贴网络图片或者本地图片路径。使用：",
+      "simpleMode": "简易模式",
+      "fullMode": "完整模式",
+      "search": "在 Unsplash 上搜索图片",
+      "noResult": "无结果...",
+      "searchMore": "搜索更多图片..."
+    }
+  },
+  "hints": {
+    "editor": {
+      "newParagraph": "键入 @ 以插入样式",
+      "footnote": "键入脚注定义...",
+      "frontMatter": "键入 YAML 文件首部...",
+      "langIdentifier": "键入语言名称...",
+      "math": "键入数学公式...",
+      "codeBlockFence": "围栏式代码块",
+      "codeBlockIndent": "缩进式代码块",
+      "addImage": "单击以添加图片",
+      "loadImageFailed": "添加图片失败",
+      "highlightStart": "[高亮开始]",
+      "highlightEnd": "[高亮结束]",
+      "loading": "正在加载",
+      "emptyHtmlBlock": "空白 HTML 代码块",
+      "emptyMathFormula": "空白公式",
+      "invalidFormula": "无效公式",
+      "emptyMermaid": "空白 Mermaid 代码块",
+      "emptyDiagram": "空白图表代码块"
+    }
+  }
+}

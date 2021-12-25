@@ -1,13 +1,13 @@
 <template>
   <div class="pref-general">
-    <h4>General</h4>
+    <h4>{{ $t('preferences.general._title') }}</h4>
     <bool
-      description="Automatically save document changes"
+      :description="$t('preferences.general.autoSave')"
       :bool="autoSave"
       :onChange="value => onSelectChange('autoSave', value)"
     ></bool>
     <range
-      description="Delay following document edit before automatically saving (milliseconds)"
+      :description="$t('preferences.general.autoSaveDelay')"
       :value="autoSaveDelay"
       :min="1000"
       :max="10000"
@@ -17,64 +17,63 @@
     ></range>
     <cur-select
       v-if="!isOsx"
-      description="Title bar style (requires restart)"
+      :description="$t('preferences.general.titleBarStyle._title')"
       :value="titleBarStyle"
-      :options="titleBarStyleOptions"
+      :options="titleBarStyleOptions()"
       :onChange="value => onSelectChange('titleBarStyle', value)"
     ></cur-select>
     <separator></separator>
     <bool
-      description="Open files in new window"
+      :description="$t('preferences.general.openFilesInNewWindow')"
       :bool="openFilesInNewWindow"
       :onChange="value => onSelectChange('openFilesInNewWindow', value)"
     ></bool>
     <bool
-      description="Open folders in new window"
+      :description="$t('preferences.general.openFolderInNewWindow')"
       :bool="openFolderInNewWindow"
       :onChange="value => onSelectChange('openFolderInNewWindow', value)"
     ></bool>
     <bool
-      description="Hide scrollbars"
+      :description="$t('preferences.general.hideScrollbar')"
       :bool="hideScrollbar"
       :onChange="value => onSelectChange('hideScrollbar', value)"
     ></bool>
     <bool
-      description="Wrap text in table of contents"
+      :description="$t('preferences.general.wordWrapInToc')"
       :bool="wordWrapInToc"
       :onChange="value => onSelectChange('wordWrapInToc', value)"
     ></bool>
     <bool
-      description="Use Aidou"
+      :description="$t('preferences.general.useAidou')"
       :bool="aidou"
       :onChange="value => onSelectChange('aidou', value)"
       more="https://github.com/marktext/marktext/blob/develop/docs/FAQ.md#what-is-a-aidou-"
     ></bool>
     <separator></separator>
     <cur-select
-      description="Sort field for files in open folders"
+      :description="$t('preferences.general.fileSortBy._title')"
       :value="fileSortBy"
-      :options="fileSortByOptions"
+      :options="fileSortByOptions()"
       :onChange="value => onSelectChange('fileSortBy', value)"
       :disable="true"
     ></cur-select>
     <section class="startup-action-ctrl">
-      <div>Action on startup</div>
+      <div>{{ $t('preferences.general.startUpAction._title') }}</div>
       <el-radio-group v-model="startUpAction">
         <!--
           Hide "lastState" for now (#2064).
         <el-radio class="ag-underdevelop" label="lastState">Open the last window state</el-radio>
         -->
-        <el-radio label="folder">Open the default directory<span>: {{defaultDirectoryToOpen}}</span></el-radio>
-        <el-button size="small" @click="selectDefaultDirectoryToOpen">Select Folder</el-button>
-        <el-radio label="blank">Open a blank page</el-radio>
+        <el-radio label="folder">{{ $t('preferences.general.startUpAction.folder') }}<span>: {{defaultDirectoryToOpen}}</span></el-radio>
+        <el-button size="small" @click="selectDefaultDirectoryToOpen">{{ $t('preferences.general.startUpAction.selectDefaultDirectoryToOpen') }}</el-button>
+        <el-radio label="blank">{{ $t('preferences.general.startUpAction.blank') }}</el-radio>
       </el-radio-group>
     </section>
     <cur-select
-      description="Language for user interface"
+      :description="$t('preferences.general.languageForUI')"
       :value="language"
       :options="languageOptions"
       :onChange="value => onSelectChange('language', value)"
-      :disable="true"
     ></cur-select>
   </div>
 </template>
@@ -89,9 +88,9 @@ import { isOsx } from '@/util'
 
 import {
   titleBarStyleOptions,
-  fileSortByOptions,
-  languageOptions
+  fileSortByOptions
 } from './config'
+import { languageOptions } from '../../i18n'
 
 export default {
   components: {
