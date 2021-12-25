@@ -58,32 +58,33 @@ fileAssociations:
   description: "Markdown document"
   role: "Editor"
   icon: "../resources/icons/md.icns"
-dmg:
-  artifactName: "marktext.${ext}"
-  contents:
-  - x: 410
-    y: 150
-    type: "link"
-    path: "/Applications"
-  - x: 130
-    y: 150
-    type: "file"
 mac:
   artifactName: "marktext-mac.${ext}"
   icon: "resources/icons/icon.icns"
   darkModeSupport: true
+  target:
+    - target: dmg
+      arch: [x64, arm64]
+    - target: zip
+      arch: [x64, arm64]
+dmg:
+  artifactName: "marktext.${ext}"
+  contents:
+  - x: 410
+    y: 240
+    type: "link"
+    path: "/Applications"
+  - x: 130
+    y: 240
+    type: "file"
 win:
   artifactName: "marktext-${arch}-win.${ext}"
   icon: "resources/icons/icon.ico"
   target:
   - target: "nsis"
-    arch:
-    - "ia32"
-    - "x64"
+    arch: [ia32, x64]
   - target: "zip"
-    arch:
-    - "ia32"
-    - "x64"
+    arch: [ia32, x64]
   requestedExecutionLevel: "asInvoker"
 nsis:
   artifactName: "marktext-setup.${ext}"
