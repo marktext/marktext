@@ -1,6 +1,6 @@
 ---
 name: Feature Request
-about: Suggest an idea for Mark Text
+about: Suggest an idea for MarkText
 ---
 
 ### Describe your feature request
