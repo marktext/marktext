@@ -11,7 +11,7 @@
 </template>
 
 <script>
-import { remote } from 'electron'
+import { getCurrentWindow } from '@electron/remote'
 import { closePath } from '../../assets/window-controls.js'
 
 export default {
@@ -21,7 +21,7 @@ export default {
   },
   methods: {
     handleCloseClick () {
-      remote.getCurrentWindow().close()
+      getCurrentWindow().close()
     }
   }
 }

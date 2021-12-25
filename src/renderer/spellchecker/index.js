@@ -1,12 +1,15 @@
 import fs from 'fs-extra'
 import path from 'path'
 import os from 'os'
-import { remote } from 'electron'
 import { SpellCheckHandler, fallbackLocales, normalizeLanguageCode } from '@hfelix/electron-spellchecker'
+import { isDirectory, isFile } from 'common/filesystem'
 import { cloneObj, isOsx, isLinux, isWindows } from '@/util'
 
 // NOTE: Hardcoded in "@hfelix/electron-spellchecker/src/spell-check-handler.js"
-export const dictionaryPath = path.join(remote.app.getPath('userData'), 'dictionaries')
+export const getDictionaryPath = () => {
+  const { userDataPath } = global.marktext.paths
+  return path.join(userDataPath, 'dictionaries')
+}
 
 // Source: https://github.com/Microsoft/vscode/blob/master/src/vs/editor/common/model/wordHelper.ts
 // /(-?\d*\.\d\w*)|([^\`\~\!\@\#\$\%\^\&\*\(\)\-\=\+\[\{\]\}\\\|\;\:\'\"\,\.\<\>\/\?\s]+)/
@@ -72,13 +75,14 @@ export const validateLineCursor = selection => {
  * @returns {string[]} List of available Hunspell dictionary language codes.
  */
 export const getAvailableHunspellDictionaries = () => {
+  const dictionaryPath = getDictionaryPath()
   const dict = []
   // Search for dictionaries on filesystem.
-  if (fs.existsSync(dictionaryPath) && fs.lstatSync(dictionaryPath).isDirectory()) {
+  if (isDirectory(dictionaryPath)) {
     fs.readdirSync(dictionaryPath).forEach(filename => {
       const fullname = path.join(dictionaryPath, filename)
       const match = filename.match(/^([a-z]{2}(?:[-][A-Z]{2})?)\.bdic$/)
-      if (match && match[1] && fs.lstatSync(fullname).isFile()) {
+      if (match && match[1] && isFile(fullname)) {
         dict.push(match[1])
       }
     })
@@ -139,7 +143,7 @@ export class SpellChecker {
       throw new Error('Invalid state.')
     }
 
-    this.provider = new SpellCheckHandler()
+    this.provider = new SpellCheckHandler(getDictionaryPath())
     this.isHunspell = this.provider.isHunspell
 
     // The spell checker is now initialized but not yet enabled. You need to call `init`.
@@ -296,8 +300,9 @@ export class SpellChecker {
     }
 
     if (!this.isHunspell) {
-      // NB: OS X will return lists that are half just a language, half
-      // language + locale, like ['en', 'pt_BR', 'ko']
+      // NOTE: OS X will return lists that are half just a language, half
+      // language + locale, like ['en', 'pt_BR', 'ko'] and Windows also returns
+      // BCP-47 ones.
       return this.provider.currentSpellchecker.getAvailableDictionaries()
         .map(x => {
           if (x.length === 2) return fallbackLocales[x]
@@ -307,6 +312,7 @@ export class SpellChecker {
             return null
           }
         })
+        .filter(x => { return !!x })
     }
 
     // Load hunspell dictionaries from disk.

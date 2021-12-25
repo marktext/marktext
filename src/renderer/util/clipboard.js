@@ -1,14 +1,14 @@
 import { isLinux, isOsx, isWindows } from './index'
 import plist from 'plist'
-import { remote } from 'electron'
+import { clipboard as remoteClipboard } from '@electron/remote'
 
 const hasClipboardFiles = () => {
-  return remote.clipboard.has('NSFilenamesPboardType')
+  return remoteClipboard.has('NSFilenamesPboardType')
 }
 
 const getClipboardFiles = () => {
   if (!hasClipboardFiles()) { return [] }
-  return plist.parse(remote.clipboard.read('NSFilenamesPboardType'))
+  return plist.parse(remoteClipboard.read('NSFilenamesPboardType'))
 }
 
 export const guessClipboardFilePath = () => {
@@ -17,7 +17,7 @@ export const guessClipboardFilePath = () => {
     const result = getClipboardFiles()
     return Array.isArray(result) && result.length ? result[0] : ''
   } else if (isWindows) {
-    const rawFilePath = remote.clipboard.read('FileNameW')
+    const rawFilePath = remoteClipboard.read('FileNameW')
     const filePath = rawFilePath.replace(new RegExp(String.fromCharCode(0), 'g'), '')
     return filePath && typeof filePath === 'string' ? filePath : ''
   } else {

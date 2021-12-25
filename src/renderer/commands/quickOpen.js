@@ -177,9 +177,9 @@ class QuickOpenCommand {
       return [`*${query}`]
     }
 
-    const inclusions = MARKDOWN_INCLUSIONS
-    for (let i = 0; i < inclusions.length; ++i) {
-      inclusions[i] = `*${query}` + inclusions[i]
+    const inclusions = []
+    for (let i = 0; i < MARKDOWN_INCLUSIONS.length; ++i) {
+      inclusions[i] = `*${query}` + MARKDOWN_INCLUSIONS[i]
     }
     return inclusions
   }

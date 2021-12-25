@@ -1,5 +1,6 @@
 // List of all static commands that are loaded into command center.
-import { ipcRenderer, remote, shell } from 'electron'
+import { ipcRenderer, shell } from 'electron'
+import { getCurrentWindow } from '@electron/remote'
 import bus from '../bus'
 import { delay, isOsx } from '@/util'
 import { isUpdatable } from './utils'
@@ -509,7 +510,7 @@ const commands = [
     id: 'window.minimize',
     description: 'Window: Minimize',
     execute: async () => {
-      remote.getCurrentWindow().minimize()
+      getCurrentWindow().minimize()
     }
   }, {
     id: 'window.always-on-top',
@@ -521,7 +522,7 @@ const commands = [
     id: 'window.toggle-full-screen',
     description: 'Window: Toggle Full Screen',
     execute: async () => {
-      const win = remote.getCurrentWindow()
+      const win = getCurrentWindow()
       win.setFullScreen(!win.isFullScreen())
     }
   },
@@ -531,38 +532,50 @@ const commands = [
     description: 'Window: Zoom...',
     subcommands: [{
       id: 'file.zoom-0',
+      description: '0.625',
+      value: 0.625
+    }, {
+      id: 'file.zoom-1',
+      description: '0.75',
+      value: 0.75
+    }, {
+      id: 'file.zoom-2',
+      description: '0.875',
+      value: 0.875
+    }, {
+      id: 'file.zoom-3',
       description: '1.0',
       value: 1.0
     }, {
-      id: 'file.zoom-1',
+      id: 'file.zoom-4',
       description: '1.125',
       value: 1.125
     }, {
-      id: 'file.zoom-2',
+      id: 'file.zoom-5',
       description: '1.25',
       value: 1.25
     }, {
-      id: 'file.zoom-3',
+      id: 'file.zoom-6',
       description: '1.375',
       value: 1.375
     }, {
-      id: 'file.zoom-4',
+      id: 'file.zoom-7',
       description: '1.5',
       value: 1.5
     }, {
-      id: 'file.zoom-5',
+      id: 'file.zoom-8',
       description: '1.625',
       value: 1.625
     }, {
-      id: 'file.zoom-6',
+      id: 'file.zoom-9',
       description: '1.75',
       value: 1.75
     }, {
-      id: 'file.zoom-7',
+      id: 'file.zoom-10',
       description: '1.875',
       value: 1.875
     }, {
-      id: 'file.zoom-8',
+      id: 'file.zoom-11',
       description: '2.0',
       value: 2.0
     }],

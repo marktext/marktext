@@ -2,7 +2,7 @@ import fs from 'fs-extra'
 import path from 'path'
 import { SpellChecker } from '@hfelix/electron-spellchecker'
 import axios from '../axios'
-import { dictionaryPath } from '../spellchecker'
+import { getDictionaryPath } from '../spellchecker'
 
 /**
  * Try to download the given Hunspell dictionary.
@@ -15,6 +15,7 @@ export const downloadHunspellDictionary = async lang => {
     responseType: 'stream'
   })
 
+  const dictionaryPath = getDictionaryPath()
   await fs.ensureDir(dictionaryPath)
 
   const dstFile = path.join(dictionaryPath, `${lang}.bdic`)
@@ -48,5 +49,5 @@ export const downloadHunspellDictionary = async lang => {
  * @param {string} lang The language to remove.
  */
 export const deleteHunspellDictionary = async lang => {
-  return await fs.remove(path.join(dictionaryPath, `${lang}.bdic`))
+  return await fs.remove(path.join(getDictionaryPath(), `${lang}.bdic`))
 }

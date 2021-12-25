@@ -7,6 +7,7 @@ export default {
   highlight: null,
   mathRenderer: null,
   emojiRenderer: null,
+  tocRenderer: null,
   langPrefix: 'language-',
   mangle: true,
   pedantic: false,
@@ -30,5 +31,7 @@ export default {
   frontMatter: true,
   superSubScript: false,
   footnote: false,
-  isGitlabCompatibilityEnabled: false
+  isGitlabCompatibilityEnabled: false,
+
+  isHtmlEnabled: true
 }

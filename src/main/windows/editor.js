@@ -1,5 +1,6 @@
 import path from 'path'
 import { BrowserWindow, dialog, ipcMain } from 'electron'
+import { enable as remoteEnable } from '@electron/remote/main'
 import log from 'electron-log'
 import windowStateKeeper from 'electron-window-state'
 import { isChildOfDirectory, isSamePathSync } from 'common/filesystem/paths'
@@ -68,6 +69,7 @@ class EditorWindow extends BaseWindow {
     winOptions.backgroundColor = this._getPreferredBackgroundColor(theme)
 
     let win = this.browserWindow = new BrowserWindow(winOptions)
+    remoteEnable(win.webContents)
     this.id = win.id
 
     // Create a menu for the current window
@@ -100,9 +102,17 @@ class EditorWindow extends BaseWindow {
       log.error(`The window failed to load or was cancelled: ${errorCode}; ${errorDescription}`)
     })
 
-    win.webContents.once('crashed', async (event, killed) => {
-      const msg = `The renderer process has crashed unexpected or is killed (${killed}).`
+    win.webContents.once('render-process-gone', async (event, { reason }) => {
+      if (reason === 'clean-exit') {
+        return
+      }
+
+      const msg = `The renderer process has crashed unexpected or is killed (${reason}).`
       log.error(msg)
+
+      if (reason === 'abnormal-exit') {
+        return
+      }
 
       const { response } = await dialog.showMessageBox(win, {
         type: 'warning',
@@ -256,7 +266,7 @@ class EditorWindow extends BaseWindow {
    * @param {string} pathname The directory path.
    */
   openFolder (pathname) {
-    if (this.lifecycle === WindowLifecycle.QUITTED ||
+    if (!pathname || this.lifecycle === WindowLifecycle.QUITTED ||
       isSamePathSync(pathname, this._openedRootDirectory)) {
       return
     }

@@ -140,7 +140,13 @@ const actions = {
     })
     bus.$on('SIDEBAR::remove', () => {
       const { pathname } = state.activeItem
-      shell.moveItemToTrash(pathname)
+      shell.trashItem(pathname).catch(err => {
+        notice.notify({
+          title: 'Deletion Error',
+          type: 'error',
+          message: err.message
+        })
+      })
     })
     bus.$on('SIDEBAR::copy-cut', type => {
       const { pathname: src } = state.activeItem

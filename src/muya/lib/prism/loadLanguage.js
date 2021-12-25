@@ -1,6 +1,7 @@
 import languages from './languages'
 let peerDependentsMap = null
 export const loadedCache = new Set(['markup', 'css', 'clike', 'javascript'])
+const prismComponentCache = new Map()
 
 function getPeerDependentsMap () {
   const peerDependentsMap = {}
@@ -100,7 +101,12 @@ function initLoadLanguage (Prism) {
       }
 
       delete Prism.languages[language]
-      await import('prismjs/components/prism-' + language)
+      if (!prismComponentCache.has(language)) {
+        await import('prismjs/components/prism-' + language)
+        prismComponentCache.set(language, Prism.languages[language])
+      } else {
+        Prism.languages[language] = prismComponentCache.get(language)
+      }
       loadedCache.add(language)
       promises.push(Promise.resolve({
         status: 'loaded',
@@ -113,6 +119,7 @@ function initLoadLanguage (Prism) {
         // we want to reload it.
         if (Prism.languages[dependent]) {
           delete Prism.languages[dependent]
+          loadedCache.delete(dependent)
           return true
         }
         return false

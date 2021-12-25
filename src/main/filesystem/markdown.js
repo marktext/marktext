@@ -3,8 +3,8 @@ import path from 'path'
 import log from 'electron-log'
 import iconv from 'iconv-lite'
 import { LINE_ENDING_REG, LF_LINE_ENDING_REG, CRLF_LINE_ENDING_REG } from '../config'
-import { isDirectory } from 'common/filesystem'
-import { isMarkdownFileOrLink } from 'common/filesystem/paths'
+import { isDirectory2 } from 'common/filesystem'
+import { isMarkdownFile } from 'common/filesystem/paths'
 import { normalizeAndResolvePath, writeFile } from '../filesystem'
 import { guessEncoding } from './encoding'
 
@@ -32,8 +32,8 @@ const convertLineEndings = (text, lineEnding) => {
  * directory hint or null if it's not a directory or markdown file.
  */
 export const normalizeMarkdownPath = pathname => {
-  const isDir = isDirectory(pathname)
-  if (isDir || isMarkdownFileOrLink(pathname)) {
+  const isDir = isDirectory2(pathname)
+  if (isDir || isMarkdownFile(pathname)) {
     // Normalize and resolve the path or link target.
     const resolved = normalizeAndResolvePath(pathname)
     if (resolved) {

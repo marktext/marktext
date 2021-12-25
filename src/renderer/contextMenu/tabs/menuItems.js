@@ -1,5 +1,7 @@
 import * as contextMenu from './actions'
 
+// NOTE: This are mutable fields that may change at runtime.
+
 export const SEPARATOR = {
   type: 'separator'
 }

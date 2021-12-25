@@ -1,6 +1,6 @@
 import { CLASS_OR_ID, BLOCK_TYPE6 } from '../../../config'
 import { snakeToCamel } from '../../../utils'
-import sanitize from '../../../utils/dompurify'
+import sanitize, { isValidAttribute } from '../../../utils/dompurify'
 
 export default function htmlTag (h, cursor, block, token, outerClass) {
   const { tag, openTag, closeTag, children, attrs } = token
@@ -66,7 +66,10 @@ export default function htmlTag (h, cursor, block, token, outerClass) {
 
         for (const attr of Object.keys(attrs)) {
           if (attr !== 'id' && attr !== 'class') {
-            data.attrs[attr] = attrs[attr]
+            const attrData = attrs[attr]
+            if (isValidAttribute(tag, attr, attrData)) {
+              data.attrs[attr] = attrData
+            }
           }
         }
 

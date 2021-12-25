@@ -216,6 +216,9 @@ Parser.prototype.tok = function () {
     case 'text': {
       return this.renderer.paragraph(this.parseText())
     }
+    case 'toc': {
+      return this.renderer.toc()
+    }
     default: {
       const errMsg = 'Token with "' + this.token.type + '" type was not found.'
       if (this.options.silent) {

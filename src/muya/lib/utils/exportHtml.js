@@ -1,6 +1,7 @@
 import marked from '../parser/marked'
 import Prism from 'prismjs'
 import katex from 'katex'
+import 'katex/dist/contrib/mhchem.min.js'
 import loadRenderer from '../renderers'
 import githubMarkdownCss from 'github-markdown-css/github-markdown.css'
 import exportStyle from '../assets/styles/exportStyle.css'
@@ -13,7 +14,7 @@ import { validEmoji } from '../ui/emojis'
 
 export const getSanitizeHtml = (markdown, options) => {
   const html = marked(markdown, options)
-  return sanitize(html, EXPORT_DOMPURIFY_CONFIG)
+  return sanitize(html, EXPORT_DOMPURIFY_CONFIG, false)
 }
 
 const DIAGRAM_TYPE = [
@@ -109,7 +110,7 @@ class ExportHtml {
   }
 
   // render pure html by marked
-  async renderHtml () {
+  async renderHtml (toc) {
     this.mathRendererCalled = false
     let html = marked(this.markdown, {
       superSubScript: this.muya ? this.muya.options.superSubScript : false,
@@ -140,10 +141,16 @@ class ExportHtml {
           return `:${emoji}:`
         }
       },
-      mathRenderer: this.mathRenderer
+      mathRenderer: this.mathRenderer,
+      tocRenderer () {
+        if (!toc) {
+          return ''
+        }
+        return toc
+      }
     })
 
-    html = sanitize(html, EXPORT_DOMPURIFY_CONFIG)
+    html = sanitize(html, EXPORT_DOMPURIFY_CONFIG, false)
 
     const exportContainer = this.exportContainer = document.createElement('div')
     exportContainer.classList.add('ag-render-container')
@@ -181,7 +188,7 @@ class ExportHtml {
 
     // WORKAROUND: Hide Prism.js style when exporting or printing. Otherwise the background color is white in the dark theme.
     const highlightCssStyle = printOptimization ? `@media print { ${highlightCss} }` : highlightCss
-    const html = this._prepareHtml(await this.renderHtml(), options)
+    const html = this._prepareHtml(await this.renderHtml(options.toc), options)
     const katexCssStyle = this.mathRendererCalled ? katexCss : ''
     this.mathRendererCalled = false
 
@@ -192,7 +199,7 @@ class ExportHtml {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>${sanitize(title, EXPORT_DOMPURIFY_CONFIG)}</title>
+  <title>${sanitize(title, EXPORT_DOMPURIFY_CONFIG, true)}</title>
   <style>
   ${githubMarkdownCss}
   </style>
@@ -304,7 +311,7 @@ class ExportHtml {
     }
 
     output = output + createTableBody(html) + HF_TABLE_END
-    return sanitize(output, EXPORT_DOMPURIFY_CONFIG)
+    return sanitize(output, EXPORT_DOMPURIFY_CONFIG, false)
   }
 }
 

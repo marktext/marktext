@@ -2,8 +2,8 @@ import fs from 'fs-extra'
 import path from 'path'
 import { BrowserWindow, dialog, ipcMain, shell } from 'electron'
 import log from 'electron-log'
-import { isDirectory, isFile } from 'common/filesystem'
-import { MARKDOWN_EXTENSIONS, isMarkdownFile, isMarkdownFileOrLink } from 'common/filesystem/paths'
+import { isDirectory, isFile, exists } from 'common/filesystem'
+import { MARKDOWN_EXTENSIONS, isMarkdownFile } from 'common/filesystem/paths'
 import { EXTENSION_HASN, PANDOC_EXTENSIONS, URL_REG } from '../../config'
 import { normalizeAndResolvePath, writeFile } from '../../filesystem'
 import { writeMarkdownFile } from '../../filesystem/markdown'
@@ -13,6 +13,23 @@ import pandoc from '../../utils/pandoc'
 // TODO(refactor): "save" and "save as" should be moved to the editor window (editor.js) and
 // the renderer should communicate only with the editor window for file relevant stuff.
 // E.g. "mt::save-tabs" --> "mt::window-save-tabs$wid:<windowId>"
+
+const getExportExtensionFilter = type => {
+  if (type === 'pdf') {
+    return [{
+      name: 'Portable Document Format',
+      extensions: ['pdf']
+    }]
+  } else if (type === 'styledHtml') {
+    return [{
+      name: 'Hypertext Markup Language',
+      extensions: ['html']
+    }]
+  }
+
+  // Allow all extensions.
+  return undefined
+}
 
 const getPdfPageOptions = options => {
   if (!options) {
@@ -43,7 +60,8 @@ const handleResponseForExport = async (e, { type, content, pathname, title, page
 
   const defaultPath = path.join(dirname, `${nakedFilename}${extension}`)
   const { filePath, canceled } = await dialog.showSaveDialog(win, {
-    defaultPath
+    defaultPath,
+    filters: getExportExtensionFilter(type)
   })
 
   if (filePath && !canceled) {
@@ -301,7 +319,7 @@ ipcMain.on('mt::response-print', handleResponseForPrint)
 ipcMain.on('mt::window::drop', async (e, fileList) => {
   const win = BrowserWindow.fromWebContents(e.sender)
   for (const file of fileList) {
-    if (isMarkdownFileOrLink(file)) {
+    if (isMarkdownFile(file)) {
       openFileOrFolder(win, file)
       continue
     }
@@ -339,7 +357,7 @@ ipcMain.on('mt::rename', async (e, { id, pathname, newPathname }) => {
     })
   }
 
-  if (!isFile(newPathname)) {
+  if (!await exists(newPathname)) {
     doRename()
   } else {
     const { response } = await dialog.showMessageBox(win, {
@@ -385,24 +403,33 @@ ipcMain.on('mt::ask-for-open-project-in-sidebar', async e => {
   })
 
   if (filePaths && filePaths[0]) {
-    ipcMain.emit('app-open-directory-by-id', win.id, filePaths[0], true)
+    const resolvedPath = normalizeAndResolvePath(filePaths[0])
+    ipcMain.emit('app-open-directory-by-id', win.id, resolvedPath, true)
   }
 })
 
 ipcMain.on('mt::format-link-click', (e, { data, dirname }) => {
-  if (URL_REG.test(data.href)) {
-    return shell.openExternal(data.href)
+  if (!data || (!data.href && !data.text)) {
+    return
   }
+
+  const href = data.href || data.text
+  if (URL_REG.test(href)) {
+    return shell.openExternal(href)
+  }
+
   let pathname = null
-  if (path.isAbsolute(data.href) && isMarkdownFile(data.href)) {
-    pathname = data.href
+  if (path.isAbsolute(href)) {
+    pathname = href
+  } else if (dirname && !path.isAbsolute(href)) {
+    pathname = path.join(dirname, href)
   }
-  if (!path.isAbsolute(data.href) && isMarkdownFile(path.join(dirname, data.href))) {
-    pathname = path.join(dirname, data.href)
-  }
-  if (pathname) {
+
+  if (pathname && isMarkdownFile(pathname)) {
     const win = BrowserWindow.fromWebContents(e.sender)
     return openFileOrFolder(win, pathname)
+  } else if (pathname) {
+    return shell.openPath(pathname)
   }
 })
 
@@ -470,12 +497,12 @@ export const openFile = async win => {
   const { filePaths } = await dialog.showOpenDialog(win, {
     properties: ['openFile', 'multiSelections'],
     filters: [{
-      name: 'text',
+      name: 'Markdown document',
       extensions: MARKDOWN_EXTENSIONS
     }]
   })
 
-  if (filePaths && Array.isArray(filePaths)) {
+  if (Array.isArray(filePaths) && filePaths.length > 0) {
     ipcMain.emit('app-open-files-by-id', win.id, filePaths)
   }
 }

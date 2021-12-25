@@ -1,24 +1,36 @@
 # XSS Tests
 
-<script>throw new Error('XSS 1')</script>
+### HTML
 
-<img src="#" onerror="throw new Error('XSS 2')">
+<script>process.crash()</script>
 
-<svg/onload="throw new Error('XSS 3')">
+<img src="#" onerror="process.crash()">
+
+<svg/onload="process.crash()">
 
 <svg width="100" height="100">
-  <script>throw new Error('XSS 4')</script>
+  <script>process.crash()</script>
   <rect width="100" height="100" style="fill:rgb(0,0,0)" />
 </svg>
 
-<iframe src="javascript:throw new Error('XSS 5');"></iframe>
+<iframe src="javascript:process.crash();"></iframe>
 
-<iframe src="#" onerror="throw new Error('XSS 6')" onload="throw new Error('XSS 6')"></iframe>
+<iframe src="#" onerror="process.crash()" onload="process.crash()"></iframe>
 
-<iframe src="not-a-real-file.extension" onerror="throw new Error('XSS 7')" onload="throw new Error('XSS 7')"></iframe>
+<iframe src="not-a-real-file.extension" onerror="process.crash()" onload="process.crash()"></iframe>
 
-<iframe/src="data:text/html,<svg onload=\"throw new Error('XSS 7')\"">
+<iframe/src="data:text/html,<svg onload=\"process.crash()\"">
 
 <embed src="data:image/svg+xml;base64,PHN2ZyB4bWxuczpzdmc9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB2ZXJzaW9uPSIxLjAiIHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIj48c2NyaXB0PnRocm93IG5ldyBFcnJvcignWFNTIDgnKTwvc2NyaXB0Pjwvc3ZnPgo=" type="image/svg+xml" AllowScriptAccess="always"></embed>
 
-<script foo>throw new Error('XSS 9')</script>
+<script foo>process.crash()</script>
+
+#### Markdown
+
+```<style/onload=process.crash()>
+foo
+```
+
+```"><script>process.crash()</script>
+foo
+```

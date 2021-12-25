@@ -618,10 +618,13 @@ class Selection {
       if (range.getClientRects) {
         // range.collapse(true)
         let rects = range.getClientRects()
-        if (rects.length === 0) {
-          rects = range.startContainer && range.startContainer.nodeType === Node.ELEMENT_NODE
-            ? range.startContainer.getClientRects()
-            : []
+        if (rects.length === 0 && range.startContainer && (range.startContainer.nodeType === Node.ELEMENT_NODE || range.startContainer.nodeType === Node.TEXT_NODE)) {
+          rects = range.startContainer.parentElement.getClientRects()
+          // prevent tiny vibrations
+          if (rects.length) {
+            const rect = rects[0]
+            rect.y = rect.y + 1
+          }
         }
         if (rects.length) {
           const { left, top, x: rectX, y: rectY, width: rWidth } = rects[0]

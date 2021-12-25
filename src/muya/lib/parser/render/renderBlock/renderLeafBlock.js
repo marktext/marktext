@@ -1,4 +1,5 @@
 import katex from 'katex'
+import 'katex/dist/contrib/mhchem.min.js'
 import prism, { loadedCache, transfromAliasToOrigin } from '../../../prism/'
 import { CLASS_OR_ID, DEVICE_MEMORY, PREVIEW_DOMPURIFY_CONFIG, HAS_TEXT_BLOCK_REG } from '../../../config'
 import { tokenizer } from '../../'
@@ -46,8 +47,7 @@ const getHighlightHtml = (text, highlights, escape = false, handleLineEnding = f
       code += text.substring(pos)
     }
   }
-
-  return code
+  return escapeHtml(code)
 }
 
 const hasReferenceToken = tokens => {
@@ -132,7 +132,8 @@ export default function renderLeafBlock (parent, block, activeBlocks, matches, u
         selector += `.${CLASS_OR_ID.AG_HTML_PREVIEW}`
         Object.assign(data.attrs, { spellcheck: 'false' })
 
-        const htmlContent = sanitize(code, PREVIEW_DOMPURIFY_CONFIG)
+        const { disableHtml } = this.muya.options
+        const htmlContent = sanitize(code, PREVIEW_DOMPURIFY_CONFIG, disableHtml)
 
         // handle empty html bock
         if (/^<([a-z][a-z\d]*)[^>]*?>(\s*)<\/\1>$/.test(htmlContent.trim())) {
@@ -225,14 +226,14 @@ export default function renderLeafBlock (parent, block, activeBlocks, matches, u
     }
     children = ''
   } else if (type === 'span' && functionType === 'codeContent') {
-    const code = escapeHtml(getHighlightHtml(text, highlights, true, true))
+    const code = getHighlightHtml(text, highlights, true, true)
       .replace(new RegExp(MARKER_HASK['<'], 'g'), '<')
       .replace(new RegExp(MARKER_HASK['>'], 'g'), '>')
       .replace(new RegExp(MARKER_HASK['"'], 'g'), '"')
       .replace(new RegExp(MARKER_HASK["'"], 'g'), "'")
+
     // transfrom alias to original language
     const transformedLang = transfromAliasToOrigin([lang])[0]
-
     if (transformedLang && /\S/.test(code) && loadedCache.has(transformedLang)) {
       const wrapper = document.createElement('div')
       wrapper.classList.add(`language-${transformedLang}`)
@@ -246,7 +247,8 @@ export default function renderLeafBlock (parent, block, activeBlocks, matches, u
       children = htmlToVNode(code)
     }
   } else if (type === 'span' && functionType === 'languageInput') {
-    const html = getHighlightHtml(text, highlights)
+    const escapedText = sanitize(text, PREVIEW_DOMPURIFY_CONFIG, true)
+    const html = getHighlightHtml(escapedText, highlights, true)
     children = htmlToVNode(html)
   } else if (type === 'span' && functionType === 'footnoteInput') {
     Object.assign(data.attrs, { spellcheck: 'false' })

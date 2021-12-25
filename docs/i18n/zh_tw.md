@@ -38,7 +38,7 @@
   </a>
   <!-- Downloads latest release -->
   <a href="https://github.com/marktext/marktext/releases/latest">
-    <img src="https://img.shields.io/github/downloads/marktext/marktext/v0.16.2/total.svg" alt="latest download">
+    <img src="https://img.shields.io/github/downloads/marktext/marktext/v0.16.3/total.svg" alt="latest download">
   </a>
   <!-- sponsors -->
   <a href="https://opencollective.com/marktext">
@@ -72,28 +72,28 @@
 
 <div align="center">
   <sub>Translations:</sub>
-  <a href="docs/i18n/zh_cn.md#readme">
+  <a href="zh_cn.md#readme">
     <span>:cn:</span>
   </a>
-  <a href="docs/i18n/pl.md#readme">
+  <a href="pl.md#readme">
     <span>:poland:</span>
   </a>
-  <a href="docs/i18n/ja.md#readme">
+  <a href="ja.md#readme">
     <span>:jp:</span>
   </a>
-  <a href="docs/i18n/french.md#readme">
+  <a href="french.md#readme">
     <span>:fr:</span>
   </a>
-  <a href="docs/i18n/tr.md#readme">
+  <a href="tr.md#readme">
     <span>:tr:</span>
   </a>
-  <a href="docs/i18n/spanish.md#readme">
+  <a href="spanish.md#readme">
     <span>:es:</span>
   </a>
-  <a href="docs/i18n/pt.md#readme">
+  <a href="pt.md#readme">
     <span>:portugal:</span>
   </a>
-  <a href="docs/i18n/ko.md#readme">
+  <a href="ko.md#readme">
     <span>:kr:</span>
   </a>
 </div>
@@ -195,7 +195,7 @@ Mark Text 是 MIT 許可的開源專案，你可以持續在 GitHub 發布頁面
 
 | ![](https://raw.githubusercontent.com/wiki/ryanoasis/nerd-fonts/screenshots/v1.0.x/mac-pass-sm.png)                                                                                                  | ![](https://raw.githubusercontent.com/wiki/ryanoasis/nerd-fonts/screenshots/v1.0.x/windows-pass-sm.png)                                                                                                          | ![](https://raw.githubusercontent.com/wiki/ryanoasis/nerd-fonts/screenshots/v1.0.x/linux-pass-sm.png)                                                                                                                        |
 |:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
-| [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext.dmg.svg)](https://github.com/marktext/marktext/releases/download/v0.16.2/marktext.dmg) | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-setup.exe.svg)](https://github.com/marktext/marktext/releases/download/v0.16.2/marktext-setup.exe) | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-x86_64.AppImage.svg)](https://github.com/marktext/marktext/releases/download/v0.16.2/marktext-x86_64.AppImage) |
+| [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext.dmg.svg)](https://github.com/marktext/marktext/releases/download/v0.16.3/marktext.dmg) | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-setup.exe.svg)](https://github.com/marktext/marktext/releases/download/v0.16.3/marktext-setup.exe) | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-x86_64.AppImage.svg)](https://github.com/marktext/marktext/releases/download/v0.16.3/marktext-x86_64.AppImage) |
 
 想知道最新版本有什麼新功能嗎？請參閱 [CHANGELOG](.github/CHANGELOG.md)。
 
@@ -204,7 +204,7 @@ Mark Text 是 MIT 許可的開源專案，你可以持續在 GitHub 發布頁面
 你可以從 [release page](https://github.com/marktext/marktext/releases/latest) 下載最新的 `marktext-%version%.dmg` 或是使用 [**homebrew cask**](https://github.com/caskroom/homebrew-cask) 安裝 Mark Text。如果使用 Homebrew-Cask，您只需要安裝 [Homebrew](https://brew.sh/)。
 
 ```bash
-brew cask install mark-text
+brew install --cask mark-text
 ```
 
 #### Windows

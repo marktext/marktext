@@ -37,7 +37,7 @@
   </a>
   <!-- Downloads latest release -->
   <a href="https://github.com/marktext/marktext/releases/latest">
-    <img src="https://img.shields.io/github/downloads/marktext/marktext/v0.16.2/total.svg" alt="latest download">
+    <img src="https://img.shields.io/github/downloads/marktext/marktext/v0.16.3/total.svg" alt="latest download">
   </a>
   <!-- sponsors -->
   <a href="https://opencollective.com/marktext">
@@ -75,7 +75,7 @@
     <span>:cn:</span>
   </a>
   <a href="docs/i18n/zh_tw.md#readme">
-    <span>:cn:</span>
+    <span>:taiwan:</span>
   </a>
   <a href="docs/i18n/pl.md#readme">
     <span>:poland:</span>
@@ -203,7 +203,7 @@ Names and company logos of all sponsors (from both Patreon and Open Collective) 
 
 | ![](https://raw.githubusercontent.com/wiki/ryanoasis/nerd-fonts/screenshots/v1.0.x/mac-pass-sm.png)                                                                                                  | ![](https://raw.githubusercontent.com/wiki/ryanoasis/nerd-fonts/screenshots/v1.0.x/windows-pass-sm.png)                                                                                                          | ![](https://raw.githubusercontent.com/wiki/ryanoasis/nerd-fonts/screenshots/v1.0.x/linux-pass-sm.png)                                                                                                                        |
 |:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
-| [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext.dmg.svg)](https://github.com/marktext/marktext/releases/download/v0.16.2/marktext.dmg) | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-setup.exe.svg)](https://github.com/marktext/marktext/releases/download/v0.16.2/marktext-setup.exe) | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-x86_64.AppImage.svg)](https://github.com/marktext/marktext/releases/download/v0.16.2/marktext-x86_64.AppImage) |
+| [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext.dmg.svg)](https://github.com/marktext/marktext/releases/download/v0.16.3/marktext.dmg) | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-setup.exe.svg)](https://github.com/marktext/marktext/releases/download/v0.16.3/marktext-setup.exe) | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-x86_64.AppImage.svg)](https://github.com/marktext/marktext/releases/download/v0.16.3/marktext-x86_64.AppImage) |
 
 Want to see new features of the latest version? Please refer to [CHANGELOG](.github/CHANGELOG.md).
 
@@ -212,18 +212,26 @@ Want to see new features of the latest version? Please refer to [CHANGELOG](.git
 You can either download the latest `marktext-%version%.dmg` from the [release page](https://github.com/marktext/marktext/releases/latest) or install Mark Text using [**homebrew cask**](https://github.com/caskroom/homebrew-cask). To use Homebrew-Cask you just need to have [Homebrew](https://brew.sh/) installed.
 
 ```bash
-brew cask install mark-text
+brew install --cask mark-text
 ```
 
 #### Windows
 
 Simply download and install Mark Text via setup wizard (`marktext-setup-%version%.exe`) and choose whether to install per-user or machine wide.
 
-Alternatively, install Mark Text using [Chocolatey](https://chocolatey.org/). To use Chocolatey you need to have [Chocolatey](https://chocolatey.org/install) installed.
+Alternatively, install Mark Text using a package manager such as [Chocolatey](https://chocolatey.org/) or [Winget](https://docs.microsoft.com/en-us/windows/package-manager/winget/). 
 
-```bash
-choco install marktext
-```
+  - To use Chocolatey you need to have [Chocolatey](https://chocolatey.org/install) installed.
+
+  ```bash
+  choco install marktext
+  ```
+  
+  - To use Winget you need to have [Winget](https://docs.microsoft.com/en-us/windows/package-manager/winget/#install-winget) installed.
+  
+  ```bash
+  winget install marktext
+  ```
 
 #### Linux
 

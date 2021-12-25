@@ -4,7 +4,7 @@ import path from 'path'
 import log from 'electron-log'
 import isAccelerator from 'electron-is-accelerator'
 import electronLocalshortcut from '@hfelix/electron-localshortcut'
-import { isFile } from 'common/filesystem'
+import { isFile2 } from 'common/filesystem'
 import { isOsx } from '../config'
 import { getKeyboardLanguage, getVirtualLetters } from '../keyboard'
 
@@ -101,6 +101,7 @@ class Keybindings {
       ['view.typewriter-mode', 'CmdOrCtrl+Alt+T'],
       ['view.focus-mode', 'CmdOrCtrl+Shift+J'],
       ['view.toggle-sidebar', 'CmdOrCtrl+J'],
+      ['view.toggle-toc', 'CmdOrCtrl+K'],
       ['view.toggle-tabbar', 'CmdOrCtrl+Alt+B'],
       ['view.toggle-dev-tools', 'CmdOrCtrl+Alt+I'],
       ['view.dev-reload', 'CmdOrCtrl+R'],
@@ -221,7 +222,7 @@ class Keybindings {
   }
 
   _loadLocalKeybindings () {
-    if (global.MARKTEXT_SAFE_MODE || !isFile(this.configPath)) {
+    if (global.MARKTEXT_SAFE_MODE || !isFile2(this.configPath)) {
       return
     }
 
