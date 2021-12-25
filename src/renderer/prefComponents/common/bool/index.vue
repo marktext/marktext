@@ -14,15 +14,14 @@
       >
         <i class="el-icon-info"></i>
       </el-tooltip>
+      <span v-if="notes" class="notes">
+        {{notes}}
+      </span>
     </div>
     <el-switch
       v-model="status"
       @change="handleSwitchChange">
     </el-switch>
-    <div v-if="notes" class="notes">
-      {{notes}}
-    </div>
-    </div>
   </section>
 </template>
 
@@ -73,12 +72,11 @@ export default {
     user-select: none;
     margin: 20px 0;
     color: var(--editorColor);
-    & .el-switch {
-      float: right;
-      clear: right;
-    }
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
     & .description {
-      margin-bottom: 10px;
       & i {
         cursor: pointer;
         opacity: .7;
@@ -88,26 +86,30 @@ export default {
         color: var(--themeColor);
       }
     }
+
     & .notes {
-      margin-top: 10px;
       font-style: italic;
       font-size: 12px;
     }
   }
+
   span.el-switch__core::after {
     top: 3px;
     left: 7px;
     width: 10px;
     height: 10px;
   }
+
   .el-switch .el-switch__core {
     border: 2px solid var(--iconColor);
     background: transparent;
     box-sizing: border-box;
   }
+
   span.el-switch__label {
     color: var(--editorColor50);
   }
+
   .el-switch:not(.is-checked) .el-switch__core::after {
     background: var(--iconColor);
   }
