@@ -201,10 +201,12 @@ class App {
       }])
     }
 
+    if (!_openFilesCache.find(path => path.isDir)) {
+      this._createEditorWindow()
+    }
+
     if (_openFilesCache.length) {
       this._openFilesToOpen()
-    } else {
-      this._createEditorWindow()
     }
 
     // this.shortcutCapture = new ShortcutCapture()
