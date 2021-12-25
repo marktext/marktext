@@ -28,12 +28,13 @@ export default {
     user-select: none;
     margin: 20px 0;
     color: var(--editorColor);
+
     & .pref-compound-body {
-      border: 1pt solid lightgray;
       padding: 8px 16px 8px 16px;
       margin-top: -12px;
       background: rgba(0, 0, 0, .04);
     }
+
     & .description {
       margin-bottom: 10px;
       & i {
@@ -45,6 +46,7 @@ export default {
         color: var(--themeColor);
       }
     }
+
     & .notes {
       margin-top: 10px;
       font-style: italic;
