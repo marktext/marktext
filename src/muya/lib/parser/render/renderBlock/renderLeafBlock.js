@@ -1,4 +1,5 @@
 import katex from 'katex'
+import 'katex/dist/contrib/mhchem.min.js'
 import prism, { loadedCache, transfromAliasToOrigin } from '../../../prism/'
 import { CLASS_OR_ID, DEVICE_MEMORY, PREVIEW_DOMPURIFY_CONFIG, HAS_TEXT_BLOCK_REG } from '../../../config'
 import { tokenizer } from '../../'

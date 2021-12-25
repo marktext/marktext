@@ -279,7 +279,7 @@ class ContentState {
   }
 
   /**
-   * A block in Mark Text present a paragraph(block syntax in GFM) or a line in paragraph.
+   * A block in MarkText present a paragraph(block syntax in GFM) or a line in paragraph.
    * a `span` block must in a `p block` or `pre block` and `p block`'s children must be `span` blocks.
    */
   createBlock (type = 'span', extras = {}) {

@@ -1,13 +1,17 @@
 <template>
   <div class="pref-general">
     <h4>General</h4>
+    <compound>
+    <template #head>
     <bool
       description="Automatically save document changes"
       :bool="autoSave"
       :onChange="value => onSelectChange('autoSave', value)"
     ></bool>
+    </template>
+    <template #children>
     <range
-      description="Delay following document edit before automatically saving (milliseconds)"
+      description="Delay following document edit before automatically saving"
       :value="autoSaveDelay"
       :min="1000"
       :max="10000"
@@ -15,9 +19,12 @@
       :step="100"
       :onChange="value => onSelectChange('autoSaveDelay', value)"
     ></range>
+    </template>
+    </compound>
     <cur-select
       v-if="!isOsx"
-      description="Title bar style (requires restart)"
+      description="Title bar style"
+      notes="Requires restart."
       :value="titleBarStyle"
       :options="titleBarStyleOptions"
       :onChange="value => onSelectChange('titleBarStyle', value)"
@@ -81,6 +88,7 @@
 
 <script>
 import { mapState } from 'vuex'
+import Compound from '../common/compound'
 import Range from '../common/range'
 import CurSelect from '../common/select'
 import Bool from '../common/bool'
@@ -95,6 +103,7 @@ import {
 
 export default {
   components: {
+    Compound,
     Bool,
     Range,
     CurSelect,
@@ -144,11 +153,6 @@ export default {
 
 <style scoped>
   .pref-general {
-    & h4 {
-      text-transform: uppercase;
-      margin: 0;
-      font-weight: 400;
-    }
     & .startup-action-ctrl {
       font-size: 14px;
       user-select: none;

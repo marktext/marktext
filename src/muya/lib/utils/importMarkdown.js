@@ -1,5 +1,5 @@
 /**
- * translate markdown format to content state used by Mark Text
+ * translate markdown format to content state used by MarkText
  * there is some difference when parse loose list item and tight lsit item.
  * Both of them add a p block in li block, use the CSS style to distinguish loose and tight.
  */

@@ -1,4 +1,4 @@
-productName: "Mark Text"
+productName: "MarkText"
 appId: "com.github.marktext.marktext"
 
 asar: true
@@ -95,7 +95,7 @@ linux:
   artifactName: "marktext-${arch}.${ext}"
   executableName: "marktext"
   description: "A simple and elegant open-source markdown editor that focused on speed and usability."
-  maintainer: "Mark Text Contributors"
+  maintainer: "MarkText Contributors"
   category: "Office;TextEditor;Utility"
   mimeTypes:
   - "text/markdown"

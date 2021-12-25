@@ -1,6 +1,6 @@
 # Portable Mode
 
-Mark Text stores all user configuration inside the [application data directory](APPLICATION_DATA_DIRECTORY.md) that can be changed with `--user-data-dir` command-line flag.
+MarkText stores all user configuration inside the [application data directory](APPLICATION_DATA_DIRECTORY.md) that can be changed with `--user-data-dir` command-line flag.
 
 ## Linux and Windows
 
@@ -8,7 +8,7 @@ On Linux and Windows you can also create a directory called `marktext-user-data`
 
 ```
 marktext-portable/
- ├── marktext (Linux) or Mark Text.exe (Windows)
+ ├── marktext (Linux) or MarkText.exe (Windows)
  ├── marktext-user-data/
  ├── resources/
  ├── THIRD-PARTY-LICENSES.txt

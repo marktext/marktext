@@ -1,6 +1,6 @@
 # Export a Document
 
-Mark Text allows you to export a markdown document as PDF and HTML file or to print the document.
+MarkText allows you to export a markdown document as PDF and HTML file or to print the document.
 
 ## Options
 
@@ -18,7 +18,7 @@ Adjust the page style without modify the page theme:
 
 ### Theme
 
-Mark Text allows you to select a page theme before exporting. You can learn more about page themes [here](EXPORT_THEMES.md).
+MarkText allows you to select a page theme before exporting. You can learn more about page themes [here](EXPORT_THEMES.md).
 
 ### Header and footer
 
