@@ -1,6 +1,7 @@
 import marked from '../parser/marked'
 import Prism from 'prismjs'
 import katex from 'katex'
+import 'katex/dist/contrib/mhchem.min.js'
 import loadRenderer from '../renderers'
 import githubMarkdownCss from 'github-markdown-css/github-markdown.css'
 import exportStyle from '../assets/styles/exportStyle.css'

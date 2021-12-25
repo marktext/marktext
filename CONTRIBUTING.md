@@ -14,7 +14,7 @@ We are really excited that you are interested in contributing to MarkText :tada:
 
 ## Philosophy
 
-MarkText is still in development, many things will change and feature will be added but our philosophy is to keep things clean, simple and minimal. For example our side bar and tabs: these two panels provide a lot of functionality but don't disturb the user if it's need it. We'll add more and more feature, maybe extended by plugins, that can be activated via settings to improve MarkText. So we allow everyone to customize MarkText for it needs and provide a minimal default interface.
+MarkText is still in development, many things will change and features will be added but our philosophy is to keep things clean, simple and minimal. For example our side bar and tabs: these two panels provide a lot of functionality but don't disturb the user if it's need it. We'll add more and more features, maybe extended it by plugins, that can be activated via settings to improve MarkText. So we allow everyone to customize MarkText for their needs and provide a minimal default interface.
 
 ## Issue reporting guidelines
 
@@ -27,7 +27,7 @@ Please make sure the following is done before submitting a PR:
 - Submit PRs directly to the `develop` branch.
 - Reference the related issue in the PR comment.
 - Utilize JSDoc for better code documentation.
-- Ensure all tests passes.
+- Ensure all tests pass.
 - Please lint (`yarn run lint`) and test your PR before submitting.
 - All PRs need to pass the **CI** before merged. If it fails, please try to solve the issue(s) and feel free to ask for any help.
 
@@ -37,10 +37,10 @@ If you add new feature:
 - Provide convincing reason to add this feature.
 - Then submit your PR.
 
-If fix a bug:
+If you fix a bug:
 
 - If you are resolving a special issue, please add `fix: #<issue number> <short message>` in your PR title (e.g.`fix: #3899 update entities encoding/decoding`).
-- Provide detailed description of the bug in your PR and/or link to the issue. You can also include screenshots.
+- Provide a detailed description of the bug in your PR and/or link to the issue. You can also include screenshots.
 
 ### Where should I start?
 
@@ -60,7 +60,7 @@ Other ways to help:
 1. Fork the repository.
 2. Clone your fork: `git clone git@github.com:<username>/marktext.git`
 3. Create a feature branch: `git checkout -b feature`
-4. Make you changes and push your branch.
+4. Make your changes and push your branch.
 5. Create a PR against `develop` and describe your changes.
 
 **Rebase your PR:**

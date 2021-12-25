@@ -188,7 +188,7 @@ v0.15.1 is an unplanned release to fix a XSS security vulnerability.
 - Added portable zip archive for both x86 and x64 Windows.
 - Changed `viewToggleFullScreen` and `windowCloseWindow` key bindings to `windowToggleFullScreen` and `fileCloseWindow`.
 - Removed `viewChangeFont` key binding.
-- Mark Text is now single-instance application on Linux and Windows too.
+- MarkText is now single-instance application on Linux and Windows too.
 
 **:cactus:Feature**
 
@@ -199,7 +199,7 @@ v0.15.1 is an unplanned release to fix a XSS security vulnerability.
 - add tab scrolling and drag&drop (#953)
 - Support to replace the root folder in a window
 - Second-instance files and directories via command-line are opened in the best window
-- Mark Text can use a default directory that is automatically opened during startup (#711)
+- MarkText can use a default directory that is automatically opened during startup (#711)
 - New CLI flags: `--disable-gpu`, `-n,--new-window` and `--user-data-dir`
 - Find in files use ripgrep as searcher.
 - You can know automatically save your document after a predefined intervall.
@@ -294,7 +294,7 @@ foo<section>bar</section>zar
 - Making images display smaller (#659)
 - Open local markdown file when you click on it in another tab (#359)
 - Clicking a link should open it in the browser (#425)
-- Support maxOS `dark mode`, when you change `mode dark or light` in system, Mark Text will change its theme.
+- Support maxOS `dark mode`, when you change `mode dark or light` in system, MarkText will change its theme.
 - Add new themes: Ulysses Light, Graphite Light, Material Dark and One Dark.
 - Watch file changed in tabs and show a notice(autoSave is `false`) or update the file(autoSave is `true`)
 - Support input inline Ruby charactors as raw html (#257)
@@ -327,7 +327,7 @@ foo<section>bar</section>zar
 - Fix dark preview box background color (#587)
 - Use white PDF background color (#583)
 - Fix document printing
-- Restore default Mark Text style after exporting/printing
+- Restore default MarkText style after exporting/printing
 - Prevent enter key as language identifier (#569)
 - Allow pasting text into the code block language text-box (#553)
 - Fixed a crash when opening a directory with an unknown file extension
@@ -373,7 +373,7 @@ foo<section>bar</section>zar
 - Fixed list parse error [more info](https://github.com/marktext/marktext/issues/831#issuecomment-477719256)
 - Fixed source code mode tab switching
 - Fixed source code mode to preview switching
-- Mark Text didn't remove highlight when I delete the markdown symbol like * or `. (#893)
+- MarkText didn't remove highlight when I delete the markdown symbol like * or `. (#893)
 - After delete ``` at the beginning to paragraph by backspace, then type other text foo, the color will be strange, if you type 1. bar. error happened. (#892)
 - Fix highlight error in code block (#545 #890)
 - Fix files sorting in folder (#438)
@@ -565,7 +565,7 @@ foo<section>bar</section>zar
 
 **:notebook_with_decorative_cover:​Note**
 
-You need uninstall the old version of Mark Text before install version 0.10.21, because we changed the AppId when build.
+You need uninstall the old version of MarkText before install version 0.10.21, because we changed the AppId when build.
 
 **:cactus:Feature**
 
@@ -638,9 +638,9 @@ You need uninstall the old version of Mark Text before install version 0.10.21, 
 
 **:cactus:Feature**
 
-- Add user preferences in `Mark Text menu`, the shoutcut is `CmdorCtrl + ,`, you can set the default `theme` and `autoSave`.
-- Add `autoSave` to `file menu`, the default value is in `preferences.md` which you can open in `Mark Text menu`. #45
-- Add drag and drop to open Markdown file with Mark Text @fxha
+- Add user preferences in `MarkText menu`, the shoutcut is `CmdorCtrl + ,`, you can set the default `theme` and `autoSave`.
+- Add `autoSave` to `file menu`, the default value is in `preferences.md` which you can open in `MarkText menu`. #45
+- Add drag and drop to open Markdown file with MarkText @fxha
 - User setting: fontSize, lineHeight, color in realtime mode.
 - Move your file to other folder @DXXL
 - Rename filename
@@ -652,7 +652,7 @@ You need uninstall the old version of Mark Text before install version 0.10.21, 
 
 **:beetle:Bug fix**
 
-- fix: prevent open image or file directly when drag and drop over Mark Text #42
+- fix: prevent open image or file directly when drag and drop over MarkText #42
 - fix: set theme to all the open window not just the active one.
 - fix: set correct application menu offset on windows #44
 - fix: Missing preferences menu in Linux and Windows. @fxha

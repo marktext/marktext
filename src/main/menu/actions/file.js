@@ -415,7 +415,11 @@ ipcMain.on('mt::format-link-click', (e, { data, dirname }) => {
 
   const href = data.href || data.text
   if (URL_REG.test(href)) {
-    return shell.openExternal(href)
+    shell.openExternal(href)
+    return
+  } else if (/^[a-z0-9]+:\/\//i.test(href)) {
+    // Prevent other URLs.
+    return
   }
 
   let pathname = null
@@ -425,11 +429,13 @@ ipcMain.on('mt::format-link-click', (e, { data, dirname }) => {
     pathname = path.join(dirname, href)
   }
 
-  if (pathname && isMarkdownFile(pathname)) {
-    const win = BrowserWindow.fromWebContents(e.sender)
-    return openFileOrFolder(win, pathname)
-  } else if (pathname) {
-    return shell.openPath(pathname)
+  if (pathname) {
+    if (isMarkdownFile(pathname)) {
+      const win = BrowserWindow.fromWebContents(e.sender)
+      openFileOrFolder(win, pathname)
+    } else {
+      shell.openPath(pathname)
+    }
   }
 })
 
