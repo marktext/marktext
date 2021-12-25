@@ -27,6 +27,15 @@ export default {
 }
 </script>
 
+<style>
+  h4 {
+    margin: 0;
+    font-weight: normal;
+  }
+  h5 {
+    font-weight: normal;
+  }
+</style>
 <style scoped>
   .title-bar {
     -webkit-app-region: drag;

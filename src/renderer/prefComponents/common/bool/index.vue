@@ -1,7 +1,7 @@
 <template>
   <section class="pref-switch-item" :class="{'ag-underdevelop': disable}">
     <div class="description">
-      <span>{{description}}</span>
+      <span>{{description}}:</span>
       <i class="el-icon-info" v-if="more"
         @click="handleMoreClick"
       ></i>
@@ -17,9 +17,12 @@
     </div>
     <el-switch
       v-model="status"
-      @change="handleSwitchChange"
-      :active-text="status ? 'On': 'Off'">
+      @change="handleSwitchChange">
     </el-switch>
+    <div v-if="notes" class="notes">
+      {{notes}}
+    </div>
+    </div>
   </section>
 </template>
 
@@ -34,6 +37,7 @@ export default {
   },
   props: {
     description: String,
+    notes: String,
     bool: Boolean,
     onChange: Function,
     more: String,
@@ -69,16 +73,25 @@ export default {
     user-select: none;
     margin: 20px 0;
     color: var(--editorColor);
-  }
-  .pref-switch-item .description {
-    margin-bottom: 10px;
-    & i {
-      cursor: pointer;
-      opacity: .7;
-      color: var(--iconColor);
+    & .el-switch {
+      float: right;
+      clear: right;
     }
-    & i:hover {
-      color: var(--themeColor);
+    & .description {
+      margin-bottom: 10px;
+      & i {
+        cursor: pointer;
+        opacity: .7;
+        color: var(--iconColor);
+      }
+      & i:hover {
+        color: var(--themeColor);
+      }
+    }
+    & .notes {
+      margin-top: 10px;
+      font-style: italic;
+      font-size: 12px;
     }
   }
   span.el-switch__core::after {
