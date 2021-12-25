@@ -88,7 +88,7 @@ const clickCtrl = ContentState => {
         const formatType = 'link' // auto link or []() link
         const data = {
           text: inlineNode.textContent,
-          href: parentNode.getAttribute('href')
+          href: parentNode.getAttribute('href') || ''
         }
         eventCenter.dispatch('format-click', {
           event,

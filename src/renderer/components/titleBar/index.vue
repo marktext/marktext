@@ -98,7 +98,8 @@
 </template>
 
 <script>
-import { ipcRenderer, remote } from 'electron'
+import { ipcRenderer } from 'electron'
+import { getCurrentWindow, Menu as RemoteMenu } from '@electron/remote'
 import { mapState } from 'vuex'
 import { minimizePath, restorePath, maximizePath, closePath } from '../../assets/window-controls.js'
 import { PATH_SEPARATOR } from '../../config'
@@ -130,8 +131,8 @@ export default {
     this.windowIconMaximize = maximizePath
     this.windowIconClose = closePath
     return {
-      isFullScreen: remote.getCurrentWindow().isFullScreen(),
-      isMaximized: remote.getCurrentWindow().isMaximized(),
+      isFullScreen: getCurrentWindow().isFullScreen(),
+      isMaximized: getCurrentWindow().isMaximized(),
       show: 'word'
     }
   },
@@ -189,11 +190,11 @@ export default {
     },
 
     handleCloseClick () {
-      remote.getCurrentWindow().close()
+      getCurrentWindow().close()
     },
 
     handleMaximizeClick () {
-      const win = remote.getCurrentWindow()
+      const win = getCurrentWindow()
       if (win.isFullScreen()) {
         win.setFullScreen(false)
       } else if (win.isMaximized()) {
@@ -210,15 +211,12 @@ export default {
     },
 
     handleMinimizeClick () {
-      remote.getCurrentWindow().minimize()
+      getCurrentWindow().minimize()
     },
 
     handleMenuClick () {
-      const win = remote.getCurrentWindow()
-      remote
-        .Menu
-        .getApplicationMenu()
-        .popup({ window: win, x: 23, y: 20 })
+      const win = getCurrentWindow()
+      RemoteMenu.getApplicationMenu().popup({ window: win, x: 23, y: 20 })
     },
 
     rename () {

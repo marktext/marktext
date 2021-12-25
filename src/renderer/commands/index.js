@@ -1,5 +1,6 @@
 // List of all static commands that are loaded into command center.
-import { ipcRenderer, remote, shell } from 'electron'
+import { ipcRenderer, shell } from 'electron'
+import { getCurrentWindow } from '@electron/remote'
 import bus from '../bus'
 import { delay, isOsx } from '@/util'
 import { isUpdatable } from './utils'
@@ -509,7 +510,7 @@ const commands = [
     id: 'window.minimize',
     description: 'Window: Minimize',
     execute: async () => {
-      remote.getCurrentWindow().minimize()
+      getCurrentWindow().minimize()
     }
   }, {
     id: 'window.always-on-top',
@@ -521,7 +522,7 @@ const commands = [
     id: 'window.toggle-full-screen',
     description: 'Window: Toggle Full Screen',
     execute: async () => {
-      const win = remote.getCurrentWindow()
+      const win = getCurrentWindow()
       win.setFullScreen(!win.isFullScreen())
     }
   },

@@ -47,6 +47,7 @@
       :description="$t('preferences.general.useAidou')"
       :bool="aidou"
       :onChange="value => onSelectChange('aidou', value)"
+      more="https://github.com/marktext/marktext/blob/develop/docs/FAQ.md#what-is-a-aidou-"
     ></bool>
     <separator></separator>
     <cur-select

@@ -71,31 +71,31 @@
 
 <div align="center">
   <sub>翻译：</sub>
-  <a href="docs/i18n/zh_cn.md#readme">
+  <a href="zh_cn.md#readme">
     <span>:cn:</span>
   </a>
-  <a href="docs/i18n/zh_tw.md#readme">
+  <a href="zh_tw.md#readme">
     <span>:taiwan:</span>
   </a>
-  <a href="docs/i18n/pl.md#readme">
+  <a href="pl.md#readme">
     <span>:poland:</span>
   </a>
-  <a href="docs/i18n/ja.md#readme">
+  <a href="ja.md#readme">
     <span>:jp:</span>
   </a>
-  <a href="docs/i18n/french.md#readme">
+  <a href="french.md#readme">
     <span>:fr:</span>
   </a>
-  <a href="docs/i18n/tr.md#readme">
+  <a href="tr.md#readme">
     <span>:tr:</span>
   </a>
-  <a href="docs/i18n/spanish.md#readme">
+  <a href="spanish.md#readme">
     <span>:es:</span>
   </a>
-  <a href="docs/i18n/pt.md#readme">
+  <a href="pt.md#readme">
     <span>:portugal:</span>
   </a>
-  <a href="docs/i18n/ko.md#readme">
+  <a href="ko.md#readme">
     <span>:kr:</span>
   </a>
 </div>

@@ -219,11 +219,19 @@ brew install --cask mark-text
 
 Simply download and install Mark Text via setup wizard (`marktext-setup-%version%.exe`) and choose whether to install per-user or machine wide.
 
-Alternatively, install Mark Text using [Chocolatey](https://chocolatey.org/). To use Chocolatey you need to have [Chocolatey](https://chocolatey.org/install) installed.
+Alternatively, install Mark Text using a package manager such as [Chocolatey](https://chocolatey.org/) or [Winget](https://docs.microsoft.com/en-us/windows/package-manager/winget/). 
 
-```bash
-choco install marktext
-```
+  - To use Chocolatey you need to have [Chocolatey](https://chocolatey.org/install) installed.
+
+  ```bash
+  choco install marktext
+  ```
+  
+  - To use Winget you need to have [Winget](https://docs.microsoft.com/en-us/windows/package-manager/winget/#install-winget) installed.
+  
+  ```bash
+  winget install marktext
+  ```
 
 #### Linux
 

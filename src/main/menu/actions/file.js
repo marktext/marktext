@@ -358,7 +358,7 @@ ipcMain.on('mt::rename', async (e, { id, pathname, newPathname }) => {
     })
   }
 
-  if (!exists(newPathname)) {
+  if (!await exists(newPathname)) {
     doRename()
   } else {
     const { response } = await dialog.showMessageBox(win, {
@@ -420,14 +420,17 @@ ipcMain.on('mt::format-link-click', (e, { data, dirname }) => {
   }
 
   let pathname = null
-  if (path.isAbsolute(href) && isMarkdownFile(href)) {
+  if (path.isAbsolute(href)) {
     pathname = href
-  } else if (!path.isAbsolute(href) && isMarkdownFile(path.join(dirname, href))) {
+  } else if (dirname && !path.isAbsolute(href)) {
     pathname = path.join(dirname, href)
   }
-  if (pathname) {
+
+  if (pathname && isMarkdownFile(pathname)) {
     const win = BrowserWindow.fromWebContents(e.sender)
     return openFileOrFolder(win, pathname)
+  } else if (pathname) {
+    return shell.openPath(pathname)
   }
 })
 

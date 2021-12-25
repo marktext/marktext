@@ -1,13 +1,15 @@
 import fs from 'fs-extra'
 import path from 'path'
 import os from 'os'
-import { remote } from 'electron'
 import { SpellCheckHandler, fallbackLocales, normalizeLanguageCode } from '@hfelix/electron-spellchecker'
 import { isDirectory, isFile } from 'common/filesystem'
 import { cloneObj, isOsx, isLinux, isWindows } from '@/util'
 
 // NOTE: Hardcoded in "@hfelix/electron-spellchecker/src/spell-check-handler.js"
-export const dictionaryPath = path.join(remote.app.getPath('userData'), 'dictionaries')
+export const getDictionaryPath = () => {
+  const { userDataPath } = global.marktext.paths
+  return path.join(userDataPath, 'dictionaries')
+}
 
 // Source: https://github.com/Microsoft/vscode/blob/master/src/vs/editor/common/model/wordHelper.ts
 // /(-?\d*\.\d\w*)|([^\`\~\!\@\#\$\%\^\&\*\(\)\-\=\+\[\{\]\}\\\|\;\:\'\"\,\.\<\>\/\?\s]+)/
@@ -73,6 +75,7 @@ export const validateLineCursor = selection => {
  * @returns {string[]} List of available Hunspell dictionary language codes.
  */
 export const getAvailableHunspellDictionaries = () => {
+  const dictionaryPath = getDictionaryPath()
   const dict = []
   // Search for dictionaries on filesystem.
   if (isDirectory(dictionaryPath)) {
@@ -140,7 +143,7 @@ export class SpellChecker {
       throw new Error('Invalid state.')
     }
 
-    this.provider = new SpellCheckHandler(dictionaryPath)
+    this.provider = new SpellCheckHandler(getDictionaryPath())
     this.isHunspell = this.provider.isHunspell
 
     // The spell checker is now initialized but not yet enabled. You need to call `init`.
