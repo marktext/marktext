@@ -1,6 +1,6 @@
-<p align="center"><img src="https://github.com/marktext/marktext/raw/develop/static/logo-small.png" alt="Mark Text" width="100" height="100"></p>
+<p align="center"><img src="https://github.com/marktext/marktext/raw/develop/static/logo-small.png" alt="MarkText" width="100" height="100"></p>
 
-<h1 align="center">Mark Text</h1>
+<h1 align="center">MarkText</h1>
 
 <div align="center">
   <a href="https://twitter.com/intent/tweet?via=marktextme&url=https://github.com/marktext/marktext/&text=What%20do%20you%20want%20to%20say%20to%20app?&hashtags=happyMarkText">
@@ -111,19 +111,19 @@
 
 <br />
 
-<h2 align="center">Dê apoio ao Mark Text</h2>
+<h2 align="center">Dê apoio ao MarkText</h2>
 
-Mark Text é um projeto com licença MIT (projetos de código aberto), e suas atualizações sempre estarão disponíveis gratuitamente na página de 'Releases' do Github. Mark Text ainda está em desenvolvimento e seu desenvolvimento é inseparável de todos os patrocinadores. Espero que você se junte a esse grupo:
+MarkText é um projeto com licença MIT (projetos de código aberto), e suas atualizações sempre estarão disponíveis gratuitamente na página de 'Releases' do Github. MarkText ainda está em desenvolvimento e seu desenvolvimento é inseparável de todos os patrocinadores. Espero que você se junte a esse grupo:
 
 - [Torne-se um apoiador ou patrocinador no Patreon](https://www.patreon.com/ranluo) or [One time donation](https://github.com/Jocs/sponsor.me)
 - [Seja um apoiador ou patrocinador no Open Collective](https://opencollective.com/marktext)
 
 ##### Qual é a diferença entre Patreon e Open Collective?
 
-**Patreon**: Os fundos serão patrocinados diretamente para Luo Ran (@jocs) que criou o Mark Text e continua a mantê-lo.
+**Patreon**: Os fundos serão patrocinados diretamente para Luo Ran (@jocs) que criou o MarkText e continua a mantê-lo.
 
-**Open Collective**: Todas as despesas são transparentes. Os fundos serão usados para o desenvolvimento e manutenção do Mark Text, financiando atividades online e offline e adquirindo outros recursos necessários.
-Nomes e logotipos de empresas de todos os patrocinadores (do Patreon e do Open Collective) aparecerão no site oficial do Mark Text e em seu arquivo README.md.
+**Open Collective**: Todas as despesas são transparentes. Os fundos serão usados para o desenvolvimento e manutenção do MarkText, financiando atividades online e offline e adquirindo outros recursos necessários.
+Nomes e logotipos de empresas de todos os patrocinadores (do Patreon e do Open Collective) aparecerão no site oficial do MarkText e em seu arquivo README.md.
 
 **Patrocinadores Especiais**
 
@@ -194,9 +194,9 @@ Nomes e logotipos de empresas de todos os patrocinadores (do Patreon e do Open C
 
 ## Por que criar outro editor?
 
-1. Amo escrever. Eu usei muitos editores de markdown, mas ainda não há um editor que possa atender totalmente às minhas necessidades. Não gosto de ser incomodado quando escrevo por algum bug insuportável. **Mark Text** usa DOM virtual para renderizar páginas, o que tem os benefícios adicionais de ser altamente eficiente e possui código aberto. Dessa forma, qualquer pessoa que adora marcação e escrita pode usar Mark Text.
-2. Conforme mencionado acima, **Mark Text** é totalmente gratuito e de código-fonte aberto e será para sempre. Esperamos que todos os amantes do markdown contribuam com seu próprio código e ajudem a desenvolver o **Mark Text**, tornando-o um editor de markdown popular.
-3. Existem muitos editores de markdown e todos têm seus próprios méritos, alguns têm recursos que outros não. É difícil satisfazer as necessidades de cada usuário, mas esperamos que **Mark Text** seja capaz de satisfazer cada usuário de Markdown tanto quanto possível. Embora o último **Mark Text** ainda não seja perfeito, vamos tentar fazer o melhor que pudermos.
+1. Amo escrever. Eu usei muitos editores de markdown, mas ainda não há um editor que possa atender totalmente às minhas necessidades. Não gosto de ser incomodado quando escrevo por algum bug insuportável. **MarkText** usa DOM virtual para renderizar páginas, o que tem os benefícios adicionais de ser altamente eficiente e possui código aberto. Dessa forma, qualquer pessoa que adora marcação e escrita pode usar MarkText.
+2. Conforme mencionado acima, **MarkText** é totalmente gratuito e de código-fonte aberto e será para sempre. Esperamos que todos os amantes do markdown contribuam com seu próprio código e ajudem a desenvolver o **MarkText**, tornando-o um editor de markdown popular.
+3. Existem muitos editores de markdown e todos têm seus próprios méritos, alguns têm recursos que outros não. É difícil satisfazer as necessidades de cada usuário, mas esperamos que **MarkText** seja capaz de satisfazer cada usuário de Markdown tanto quanto possível. Embora o último **MarkText** ainda não seja perfeito, vamos tentar fazer o melhor que pudermos.
 
 ## Download e Instalação
 
@@ -210,7 +210,7 @@ Quer ver os últimos recursos? Por favor acesse o [Histórico de Mudanças](.git
 
 #### macOS
 
-Você pode baixar o último `marktext-%version%.dmg` acessando [página de versões](https://github.com/marktext/marktext/releases/latest) ou instale o Mark Text usando [**homebrew cask**](https://github.com/caskroom/homebrew-cask). Para usar Homebrew-Cask você precisa ter o [Homebrew](https://brew.sh/) instalado.
+Você pode baixar o último `marktext-%version%.dmg` acessando [página de versões](https://github.com/marktext/marktext/releases/latest) ou instale o MarkText usando [**homebrew cask**](https://github.com/caskroom/homebrew-cask). Para usar Homebrew-Cask você precisa ter o [Homebrew](https://brew.sh/) instalado.
 
 ```bash
 brew install --cask mark-text
@@ -218,7 +218,7 @@ brew install --cask mark-text
 
 #### Windows
 
-Instale o Mark Text utilizando um gerenciador de instalações (`marktext-setup-%version%.exe`) e escolha para instalar para seu usuário ou em toda a máquina.
+Instale o MarkText utilizando um gerenciador de instalações (`marktext-setup-%version%.exe`) e escolha para instalar para seu usuário ou em toda a máquina.
 
 De forma alternativa, você pode instalar usando [Chocolatey](https://chocolatey.org/). Para usar Chocolatey você precisa de ter instalado [Chocolatey](https://chocolatey.org/install).
 
@@ -236,24 +236,24 @@ Todo o código-fonte para Linux, macOS and Windows pode ser baixado da [página 
 
 ## Desenvolvimento
 
-Se você deseja fazer sua própria build do **Mark Text**, dê uma lida no documento de [instruções de build](docs/dev/BUILD.md).
+Se você deseja fazer sua própria build do **MarkText**, dê uma lida no documento de [instruções de build](docs/dev/BUILD.md).
 
 - [Documentação do Usuário](docs/README.md)
 - [Documentação do Desenvolvedor](docs/dev/README.md)
 
-Se você ainda possui alguma dúvida sobre **Mark Text**, seja bem vindo para abrir uma issue. Ao fazer isso, use o formato padrão encontrado ao abrir uma 'issue'. Claro, se você enviar um PR diretamente, será muito apreciado.
+Se você ainda possui alguma dúvida sobre **MarkText**, seja bem vindo para abrir uma issue. Ao fazer isso, use o formato padrão encontrado ao abrir uma 'issue'. Claro, se você enviar um PR diretamente, será muito apreciado.
 
 ## Integrações
 
-- [Alfred Workflow](http://www.packal.org/workflow/mark-text): Um fluxo de trabalho para o aplicativo Alfred do macOS: Use "mt" para abrir arquivos/pasta com Mark Text.
+- [Alfred Workflow](http://www.packal.org/workflow/mark-text): Um fluxo de trabalho para o aplicativo Alfred do macOS: Use "mt" para abrir arquivos/pasta com MarkText.
 
 ## Contribuição
 
-Mark Text está em pleno desenvolvimento, certifique-se de ler o [guia de Contribuição](CONTRIBUTING.md) antes de fazer uma solicitação de PR. Quer adicionar alguns recursos ao Mark Text? Consulte nosso [roadmap](https://github.com/marktext/marktext/projects) and open issues.
+MarkText está em pleno desenvolvimento, certifique-se de ler o [guia de Contribuição](CONTRIBUTING.md) antes de fazer uma solicitação de PR. Quer adicionar alguns recursos ao MarkText? Consulte nosso [roadmap](https://github.com/marktext/marktext/projects) and open issues.
 
 ## Contribuidores
 
-Obrigado a todas as pessoas que já contribuíram para Mark Text[[contribuidores](https://github.com/marktext/marktext/graphs/contributors)]
+Obrigado a todas as pessoas que já contribuíram para MarkText[[contribuidores](https://github.com/marktext/marktext/graphs/contributors)]
 
 Um agradecimento especial ao @[Yasujizr](https://github.com/Yasujizr) por desenhar nossa Logo.
 

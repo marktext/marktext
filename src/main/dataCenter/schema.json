@@ -8,7 +8,7 @@
     "type": "string"
   },
   "webImages": {
-    "description": "Images from web which you used in Mark Text",
+    "description": "Images from web which you used in MarkText",
     "type": "array"
   },
   "cloudImages": {

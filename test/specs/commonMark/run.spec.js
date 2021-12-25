@@ -91,7 +91,7 @@ export const writeResult = (version, specs, markedSpecs, type = 'commonmark') =>
   // compare with markedjs
   let compareResult = '## Compare with `marked.js`\n\n'
   compareResult += `Marked.js failed examples count: ${markedSpecs.filter(s => s.shouldFail).length}\n`
-  compareResult += `Mark Text failed examples count: ${failedCount}\n\n`
+  compareResult += `MarkText failed examples count: ${failedCount}\n\n`
   let count = 0
   specs.forEach((spec, i) => {
     if (spec.shouldFail !== markedSpecs[i].shouldFail) {
@@ -99,7 +99,7 @@ export const writeResult = (version, specs, markedSpecs, type = 'commonmark') =>
       const acturalHtml = marked(spec.markdown, MT_MARKED_OPTIONS)
 
       compareResult += `**Example${spec.example}**\n\n`
-      compareResult += `Mark Text ${spec.shouldFail ? 'fail' : 'success'} and marked.js ${markedSpecs[i].shouldFail ? 'fail' : 'success'}\n\n`
+      compareResult += `MarkText ${spec.shouldFail ? 'fail' : 'success'} and marked.js ${markedSpecs[i].shouldFail ? 'fail' : 'success'}\n\n`
       compareResult += '```markdown\n'
       compareResult += 'Markdown content\n'
       compareResult += `${spec.markdown.replace(/`/g, '\\`')}\n`

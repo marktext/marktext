@@ -112,7 +112,7 @@ const handleResponseForSave = async (e, { id, filename, markdown, pathname, opti
 
   // If the file doesn't exist on disk add it to the recently used documents later
   // and execute file from filesystem watcher for a short time. The file may exists
-  // on disk nevertheless but is already tracked by Mark Text.
+  // on disk nevertheless but is already tracked by MarkText.
   const alreadyExistOnDisk = !!pathname
 
   let filePath = pathname
@@ -241,7 +241,7 @@ ipcMain.on('mt::response-file-save-as', async (e, { id, filename, markdown, path
 
   // If the file doesn't exist on disk add it to the recently used documents later
   // and execute file from filesystem watcher for a short time. The file may exists
-  // on disk nevertheless but is already tracked by Mark Text.
+  // on disk nevertheless but is already tracked by MarkText.
   const alreadyExistOnDisk = !!pathname
 
   let { filePath, canceled } = await dialog.showSaveDialog(win, {
@@ -415,7 +415,11 @@ ipcMain.on('mt::format-link-click', (e, { data, dirname }) => {
 
   const href = data.href || data.text
   if (URL_REG.test(href)) {
-    return shell.openExternal(href)
+    shell.openExternal(href)
+    return
+  } else if (/^[a-z0-9]+:\/\//i.test(href)) {
+    // Prevent other URLs.
+    return
   }
 
   let pathname = null
@@ -425,11 +429,13 @@ ipcMain.on('mt::format-link-click', (e, { data, dirname }) => {
     pathname = path.join(dirname, href)
   }
 
-  if (pathname && isMarkdownFile(pathname)) {
-    const win = BrowserWindow.fromWebContents(e.sender)
-    return openFileOrFolder(win, pathname)
-  } else if (pathname) {
-    return shell.openPath(pathname)
+  if (pathname) {
+    if (isMarkdownFile(pathname)) {
+      const win = BrowserWindow.fromWebContents(e.sender)
+      openFileOrFolder(win, pathname)
+    } else {
+      shell.openPath(pathname)
+    }
   }
 })
 

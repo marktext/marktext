@@ -42,16 +42,16 @@ if (args['--disable-gpu']) {
   app.disableHardwareAcceleration()
 }
 
-// Make Mark Text a single instance application.
+// Make MarkText a single instance application.
 if (!process.mas && process.env.NODE_ENV !== 'development') {
   const gotSingleInstanceLock = app.requestSingleInstanceLock()
   if (!gotSingleInstanceLock) {
-    process.stdout.write('Other Mark Text instance detected: exiting...\n')
+    process.stdout.write('Other MarkText instance detected: exiting...\n')
     app.exit()
   }
 }
 
-// Mark Text environment is configured successfully. You can now access paths, use the logger etc.
+// MarkText environment is configured successfully. You can now access paths, use the logger etc.
 // Create other instances that need access to the modules from above.
 let accessor = null
 try {
@@ -60,7 +60,7 @@ try {
   // Catch errors that may come from invalid configuration files like settings.
   const msgHint = err.message.includes('Config schema violation')
     ? 'This seems to be an issue with your configuration file(s). ' : ''
-  log.error(`Loading Mark Text failed during initialization! ${msgHint}`, err)
+  log.error(`Loading MarkText failed during initialization! ${msgHint}`, err)
 
   const EXIT_ON_ERROR = !!process.env.MARKTEXT_EXIT_ON_ERROR
   const SHOW_ERROR_DIALOG = !process.env.MARKTEXT_ERROR_INTERACTION

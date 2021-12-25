@@ -80,12 +80,6 @@ export default {
 
 <style>
   .pref-theme {
-    & h4 {
-      text-transform: uppercase;
-      margin: 0;
-      font-weight: 400;
-      margin-bottom: 30px;
-    }
   }
   .offcial-themes {
     & .theme {

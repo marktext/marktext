@@ -14,7 +14,7 @@ The titlebar is located at the top of the window and shows the current opened fi
 
 ### Sidebar
 
-The sidebar is an optional feature of Mark Text that contains three panels and has a variable width. The first pannel is a tree view of the opened root directory. The latter two are a folder searcher (find in files) that is powered by ripgrep and table of contents of the currently opened document.
+The sidebar is an optional feature of MarkText that contains three panels and has a variable width. The first pannel is a tree view of the opened root directory. The latter two are a folder searcher (find in files) that is powered by ripgrep and table of contents of the currently opened document.
 
 ### Editor
 
