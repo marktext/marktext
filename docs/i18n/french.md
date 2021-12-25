@@ -2,7 +2,7 @@
 
 <p align="center"><img src="../../static/logo-small.png" alt="mark text" width="100" height="100"></p>
 
-<h1 align="center">Mark Text</h1>
+<h1 align="center">MarkText</h1>
 
 <div align="center">
   <a href="https://twitter.com/intent/tweet?via=marktextme&url=https://github.com/marktext/marktext/&text=What%20do%20you%20want%20to%20say%20to%20me?&hashtags=happyMarkText">
@@ -109,9 +109,9 @@
 
 ## Pourquoi écrire un nouvel éditeur?
 
-1. J'adore écrire. J'ai utilisé de nombreux éditeurs markdown et pourtant, aucun ne correspondait réellement à mes besoins. **Mark Text** utilise un DOM virtuel pour le rendu ce qui le rend très efficace. C'est aussi un outil open source pour tous les amoureux de l'écriture et du markdown.
-2. Comme mentionné **Mark Text** est et restera open source. Il est aussi espérer que des amoureux du markdown puissent participer au dévelopement du projet afin de rendre **Mark Text** un éditeur parmis les plus populaire.
-3. Il y a beaucoup d'éditeur markdown et chacun de ses éditeurs à ses propres caractéristiques mais il est aussi difficile de pouvoir satisfaire tout les besoins utilisateurs. J'espère que **Mark Text** pourra satisfaire vos besoins le plus possible. De plus **Mark Text** n'est pas parfait mais nous faisons de notre mieux pour aller dans cette direction.
+1. J'adore écrire. J'ai utilisé de nombreux éditeurs markdown et pourtant, aucun ne correspondait réellement à mes besoins. **MarkText** utilise un DOM virtuel pour le rendu ce qui le rend très efficace. C'est aussi un outil open source pour tous les amoureux de l'écriture et du markdown.
+2. Comme mentionné **MarkText** est et restera open source. Il est aussi espérer que des amoureux du markdown puissent participer au dévelopement du projet afin de rendre **MarkText** un éditeur parmis les plus populaire.
+3. Il y a beaucoup d'éditeur markdown et chacun de ses éditeurs à ses propres caractéristiques mais il est aussi difficile de pouvoir satisfaire tout les besoins utilisateurs. J'espère que **MarkText** pourra satisfaire vos besoins le plus possible. De plus **MarkText** n'est pas parfait mais nous faisons de notre mieux pour aller dans cette direction.
 
 ## Download and Install
 
@@ -125,7 +125,7 @@ Vous ne trouvez pas votre système? Aller sur la [page des releases](https://git
 
 Vous voulez voir une nouvelle feature dans la prochaine version? Consulté le [CHANGELOG](../../.github/CHANGELOG.md)
 
-Si vous êtes sur OS X, vous pouvez installer Mark Text via [**homebrew cask**](https://github.com/caskroom/homebrew-cask), pour commencer à utiliser Homebrew-Cask, vous avez seulement besoin d'avoir [Homebrew](https://brew.sh/) installer sur votre machine.
+Si vous êtes sur OS X, vous pouvez installer MarkText via [**homebrew cask**](https://github.com/caskroom/homebrew-cask), pour commencer à utiliser Homebrew-Cask, vous avez seulement besoin d'avoir [Homebrew](https://brew.sh/) installer sur votre machine.
 
 ```bash
 brew install --cask mark-text
@@ -135,7 +135,7 @@ brew install --cask mark-text
 
 #### macOS and Windows
 
-Télécharger et installer simplement Mark Text via le client d'installation.
+Télécharger et installer simplement MarkText via le client d'installation.
 
 #### Linux
 
@@ -143,13 +143,13 @@ Veuillez suivre [les instructions d'installations Linux](../../docs/LINUX.md).
 
 ## Development
 
-Si vous souhaiter participer à l'amélioration de **Mark Text**, référer vous au [instructions de dévelopement](../../CONTRIBUTING.md#build-instructions).
+Si vous souhaiter participer à l'amélioration de **MarkText**, référer vous au [instructions de dévelopement](../../CONTRIBUTING.md#build-instructions).
 
 Si vous avez des questions pendant votre utilisation, vous êtes les bienvenues pour ouvrir une issue, mais j'espère que vous suivrez le format requis. Bien sûr, si vous soumettez une PR directement, cela sera apprécié.
 
 ## Contribution
 
-**Mark Text** est en plein déveloment, prenez soin d'étudier le [guide de contribution](../../CONTRIBUTING.md) avant de faire une pull request. Vous souhaitez plus de fonctionnalités à Mark Text? Rendez-vous sur la [TODO LIST](../../.github/TODOLIST.md) pour ouvrir des issues.
+**MarkText** est en plein déveloment, prenez soin d'étudier le [guide de contribution](../../CONTRIBUTING.md) avant de faire une pull request. Vous souhaitez plus de fonctionnalités à MarkText? Rendez-vous sur la [TODO LIST](../../.github/TODOLIST.md) pour ouvrir des issues.
 
 ## Backers
 
@@ -167,9 +167,9 @@ Supporter ce projet en devenant sponsor de celui-ci. Votre logo sera affiché ic
 
 ## Contributors
 
-Merci à tous les contributeurs ayant déjà participé à Mark Text [[contributors](https://github.com/marktext/marktext/graphs/contributors)]
+Merci à tous les contributeurs ayant déjà participé à MarkText [[contributors](https://github.com/marktext/marktext/graphs/contributors)]
 
-Un remerciement spécial à @[Yasujizr](https://github.com/Yasujizr) qui est l'auteur du logo de Mark Text.
+Un remerciement spécial à @[Yasujizr](https://github.com/Yasujizr) qui est l'auteur du logo de MarkText.
 
 <a href="https://github.com/marktext/marktext/graphs/contributors"><img src="https://opencollective.com/marktext/contributors.svg?width=890" /></a>
 

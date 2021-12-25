@@ -1,6 +1,6 @@
-# Mark Text Contributing Guide
+# MarkText Contributing Guide
 
-We are really excited that you are interested in contributing to Mark Text :tada:. Before submitting your contribution though, please make sure to take a moment and read through the following guidelines.
+We are really excited that you are interested in contributing to MarkText :tada:. Before submitting your contribution though, please make sure to take a moment and read through the following guidelines.
 
 - [Code of Conduct](.github/CODE_OF_CONDUCT.md)
 - [Philosophy](#philosophy)
@@ -14,7 +14,7 @@ We are really excited that you are interested in contributing to Mark Text :tada
 
 ## Philosophy
 
-Mark Text is still in development, many things will change and feature will be added but our philosophy is to keep things clean, simple and minimal. For example our side bar and tabs: these two panels provide a lot of functionality but don't disturb the user if it's need it. We'll add more and more feature, maybe extended by plugins, that can be activated via settings to improve Mark Text. So we allow everyone to customize Mark Text for it needs and provide a minimal default interface.
+MarkText is still in development, many things will change and feature will be added but our philosophy is to keep things clean, simple and minimal. For example our side bar and tabs: these two panels provide a lot of functionality but don't disturb the user if it's need it. We'll add more and more feature, maybe extended by plugins, that can be activated via settings to improve MarkText. So we allow everyone to customize MarkText for it needs and provide a minimal default interface.
 
 ## Issue reporting guidelines
 
@@ -44,16 +44,16 @@ If fix a bug:
 
 ### Where should I start?
 
-A good way to start to find an issue flagged as a `bug`, `help wanted` or `feature request`. The `good first issue` issues are good for newcomers. Please discuss the solution for larger issues first and after the final solution is approved by the Mark Text members, you can submit/work on the PR. For small changes you can directly open a PR.
+A good way to start to find an issue flagged as a `bug`, `help wanted` or `feature request`. The `good first issue` issues are good for newcomers. Please discuss the solution for larger issues first and after the final solution is approved by the MarkText members, you can submit/work on the PR. For small changes you can directly open a PR.
 
 Other ways to help:
 
 - Documentation
 - Translation (currently unavailable)
 - Design icons and logos and improve the UI
-- Help to test Mark Text
+- Help to test MarkText
 - Help to answer issues or discuss changes and features.
-- Let us know you opinion about Mark Text, missing features and report bugs and problems. :+1: features you like and discuss with us about upcoming changes and features.
+- Let us know you opinion about MarkText, missing features and report bugs and problems. :+1: features you like and discuss with us about upcoming changes and features.
 
 ## Quick start
 

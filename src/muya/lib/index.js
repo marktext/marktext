@@ -457,7 +457,7 @@ function getContainer (originContainer, options) {
   container.setAttribute('autocorrect', false)
   container.setAttribute('autocomplete', 'off')
   // NOTE: The browser is not able to correct misspelled words words without
-  // a custom implementation like in Mark Text.
+  // a custom implementation like in MarkText.
   container.setAttribute('spellcheck', !!spellcheckEnabled)
   container.appendChild(rootDom)
   originContainer.replaceWith(container)

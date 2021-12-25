@@ -2,7 +2,7 @@
 
 <p align="center"><img src="../../static/logo-small.png" alt="mark text" width="100" height="100"></p>
 
-<h1 align="center">Mark Text</h1>
+<h1 align="center">MarkText</h1>
 
 <div align="center">
   <a href="https://twitter.com/intent/tweet?text=Wow:&url=https%3A%2F%2Fgithub.com%2Fmarktext%2Fmarktext">
@@ -109,9 +109,9 @@
 
 ### Dlaczego kolejny edytor?
 
-1. Kocham pisać. Używałem wiele różnych edytorów markdown, ale wciąż nie ma takiego, który byłby w pełni zgodny z moimi oczekiwaniami. Nie lubię, kiedy pisanie przerywają mi niemożliwe do wytrzymania błędy. **Mark Text** używa wirtualnego DOM do wyrenderowania strony co sprawia, że jest bardzo wydajny. Program jest rozpowszechniany na licencji open source dla wszystkich przyjaciół kochających markdown i pisanie.
-2. Jak już zostało wspomniane powyżej, **Mark Text** będzie zawsze rozpowszechniany na licencji open source. Wierzymy, że wszyscy wielbiciele markdown dołożą swoją cegiełkę do kodów źródłowych programu i pomogą w rozwijaniu **Mark Text**.
-3. Istnieje wiele edytorów markdown i każdy z nich ma swoje cechy szczególne, jednak ciężko jest zaspokoić wszystkie potrzeby użytkowników. Wierzę, że **Mark Text** jest w stanie zaspokoić potrzeby jak największej grupy osób. Mimo iż najnowsza wersja **Mark Text** nie jest idealna, próbujemy stworzyć go tak doskonałym jak to jest tylko możliwe.
+1. Kocham pisać. Używałem wiele różnych edytorów markdown, ale wciąż nie ma takiego, który byłby w pełni zgodny z moimi oczekiwaniami. Nie lubię, kiedy pisanie przerywają mi niemożliwe do wytrzymania błędy. **MarkText** używa wirtualnego DOM do wyrenderowania strony co sprawia, że jest bardzo wydajny. Program jest rozpowszechniany na licencji open source dla wszystkich przyjaciół kochających markdown i pisanie.
+2. Jak już zostało wspomniane powyżej, **MarkText** będzie zawsze rozpowszechniany na licencji open source. Wierzymy, że wszyscy wielbiciele markdown dołożą swoją cegiełkę do kodów źródłowych programu i pomogą w rozwijaniu **MarkText**.
+3. Istnieje wiele edytorów markdown i każdy z nich ma swoje cechy szczególne, jednak ciężko jest zaspokoić wszystkie potrzeby użytkowników. Wierzę, że **MarkText** jest w stanie zaspokoić potrzeby jak największej grupy osób. Mimo iż najnowsza wersja **MarkText** nie jest idealna, próbujemy stworzyć go tak doskonałym jak to jest tylko możliwe.
 
 ### Instalacja
 
@@ -125,7 +125,7 @@ Nie znalazłeś swojego systemu? Przejdź do strony [release](https://github.com
 
 Chciałbyś zobaczyć jak nowe udogodnienia wprowadziła najnowsza wersja? Udaj się do [CHANGELOG](../../.github/CHANGELOG.md)
 
-Jeśli używasz systemu OS X, to możesz zainstalować Mark Text za pomocą [**homebrew cask**](https://github.com/caskroom/homebrew-cask). Aby zacząć korzystać z Homebrew-Cask potrzebujesz tylko [Homebrew](https://brew.sh/).
+Jeśli używasz systemu OS X, to możesz zainstalować MarkText za pomocą [**homebrew cask**](https://github.com/caskroom/homebrew-cask). Aby zacząć korzystać z Homebrew-Cask potrzebujesz tylko [Homebrew](https://brew.sh/).
 
 > brew install --cask mark-text
 
@@ -133,22 +133,22 @@ Jeśli używasz systemu OS X, to możesz zainstalować Mark Text za pomocą [**h
 
 ### Rozwój
 
-Jeżeli chciałbyś samodzielnie zbudować **Mark Text**:
+Jeżeli chciałbyś samodzielnie zbudować **MarkText**:
 
 - sklonuj to repozytorium.
 - uruchom komendę `npm install`
 - uruchom komendę `npm run build`
 - skopiuj zbudowaną aplikację do folderu Applications lub jeśli używasz systemu Windows uruchom instalator.
 
-W przypadku jakichkolwiek pytań podczas korzystania z **Mark Text** zaczęcamy do zgłoszenia problemu. Mamy nadzieję, że będziesz trzymał się ustalonego z góry formatu zgłaszania problemów. Wspaniale by było, jeżeli to właśnie ty naprawisz błąd i zgłosisz pull request.
+W przypadku jakichkolwiek pytań podczas korzystania z **MarkText** zaczęcamy do zgłoszenia problemu. Mamy nadzieję, że będziesz trzymał się ustalonego z góry formatu zgłaszania problemów. Wspaniale by było, jeżeli to właśnie ty naprawisz błąd i zgłosisz pull request.
 
 ## Udział w projekcie
 
-Mark Text jest w trakcie rozwijania. Upewnij się, że przeczytałeś [Contributing Guide](../../CONTRIBUTING.md) przed stworzeniem pull request. Chcesz dodać nowe udogodnienia do Mark Text? Udaj się do [TODO LIST](../../.github/TODOLIST.md)
+MarkText jest w trakcie rozwijania. Upewnij się, że przeczytałeś [Contributing Guide](../../CONTRIBUTING.md) przed stworzeniem pull request. Chcesz dodać nowe udogodnienia do MarkText? Udaj się do [TODO LIST](../../.github/TODOLIST.md)
 
-Dziękujemy wszystkim osobom, które już wzięły udział w projekcie Mark Text! Jeżeli już jesteś członkiem [contributors](https://github.com/marktext/marktext/graphs/contributors), otwórz pull request aby dodać twoje imię i zdjęcie do poniższej listy osób, które pomogły przy projekcie.
+Dziękujemy wszystkim osobom, które już wzięły udział w projekcie MarkText! Jeżeli już jesteś członkiem [contributors](https://github.com/marktext/marktext/graphs/contributors), otwórz pull request aby dodać twoje imię i zdjęcie do poniższej listy osób, które pomogły przy projekcie.
 
-Specjalne podziękowania dla @[Yasujizr](https://github.com/Yasujizr), który zaprojektował logo Mark Text.
+Specjalne podziękowania dla @[Yasujizr](https://github.com/Yasujizr), który zaprojektował logo MarkText.
 
 | [![Jocs](https://avatars0.githubusercontent.com/u/9712830?s=150&v=4)](https://github.com/Jocs) | [![ywwhack](https://avatars1.githubusercontent.com/u/8746197?s=150&v=4)](https://github.com/ywwhack) | [![notAlaanor](https://avatars1.githubusercontent.com/u/17591936?s=150&v=4)](https://github.com/notAlaanor) | [![fxha](https://avatars1.githubusercontent.com/u/22716132?s=150&v=4)](https://github.com/fxha) |
 |:----------------------------------------------------------------------------------------------:|:----------------------------------------------------------------------------------------------------:|:-----------------------------------------------------------------------------------------------------------:|:-----------------------------------------------------------------------------------------------:|

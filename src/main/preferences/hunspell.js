@@ -13,7 +13,7 @@ export default async appDataPath => {
   const destPath = path.join(destDir, 'en-US.bdic')
 
   if (!await fs.exists(srcPath)) {
-    log.error('Error while installing Hunspell default dictionary. Mark Text resources are corrupted!')
+    log.error('Error while installing Hunspell default dictionary. MarkText resources are corrupted!')
     return
   }
 
