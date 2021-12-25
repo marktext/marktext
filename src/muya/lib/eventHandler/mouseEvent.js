@@ -28,6 +28,7 @@ class MouseEvent {
         parent &&
         parent.tagName === 'A' &&
         parent.classList.contains('ag-inline-rule') &&
+        !parent.classList.contains('ag-inline-citation-link') &&
         parentPreSibling &&
         parentPreSibling.classList.contains('ag-hide')
       ) {

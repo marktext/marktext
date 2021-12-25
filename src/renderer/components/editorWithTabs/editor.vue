@@ -142,8 +142,11 @@ export default {
       frontmatterType: state => state.preferences.frontmatterType,
       superSubScript: state => state.preferences.superSubScript,
       footnote: state => state.preferences.footnote,
-      isHtmlEnabled: state => state.preferences.isHtmlEnabled,
+      citations: state => state.preferences.citations,
+      citationLinks: state => state.preferences.citationLinks,
+      citationLinkTemplate: state => state.preferences.citationLinkTemplate,
       isGitlabCompatibilityEnabled: state => state.preferences.isGitlabCompatibilityEnabled,
+      isHtmlEnabled: state => state.preferences.isHtmlEnabled,
       lineHeight: state => state.preferences.lineHeight,
       fontSize: state => state.preferences.fontSize,
       codeFontSize: state => state.preferences.codeFontSize,
@@ -288,6 +291,27 @@ export default {
       const { editor } = this
       if (value !== oldValue && editor) {
         editor.setOptions({ footnote: value }, true)
+      }
+    },
+
+    citations: function (value, oldValue) {
+      const { editor } = this
+      if (value !== oldValue && editor) {
+        editor.setOptions({ citations: value }, true)
+      }
+    },
+
+    citationLinks: function (value, oldValue) {
+      const { editor } = this
+      if (value !== oldValue && editor) {
+        editor.setOptions({ citationLinks: value }, true)
+      }
+    },
+
+    citationLinkTemplate: function (value, oldValue) {
+      const { editor } = this
+      if (value !== oldValue && editor) {
+        editor.setOptions({ citationLinkTemplate: value }, true)
       }
     },
 
@@ -539,6 +563,9 @@ export default {
         superSubScript,
         footnote,
         isHtmlEnabled,
+        citations,
+        citationLinks,
+        citationLinkTemplate,
         isGitlabCompatibilityEnabled,
         hideQuickInsertHint,
         editorLineWidth,
@@ -588,6 +615,9 @@ export default {
         superSubScript,
         footnote,
         disableHtml: !isHtmlEnabled,
+        citations,
+        citationLinks,
+        citationLinkTemplate,
         isGitlabCompatibilityEnabled,
         hideQuickInsertHint,
         hideLinkPopup,

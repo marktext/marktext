@@ -37,7 +37,7 @@ const tokenizerFac = (src, beginRules, inlineRules, pos = 0, top, labels, option
   const tokens = []
   let pending = ''
   let pendingStartPos = pos
-  const { superSubScript, footnote } = options
+  const { superSubScript, footnote, citations } = options
   const pushPending = () => {
     if (pending) {
       tokens.push({
@@ -245,6 +245,53 @@ const tokenizerFac = (src, beginRules, inlineRules, pos = 0, top, labels, option
         continue
       }
     }
+
+    if (citations) {
+      // braced citations
+      const citation = inlineRules.citation.exec(src)
+      if (citation) {
+        pushPending()
+        tokens.push({
+          type: 'citation',
+          marker: citation[0],
+          raw: citation[0],
+          content: citation[1],
+          range: {
+            start: pos,
+            end: pos + citation[0].length
+          }
+        })
+        src = src.substring(citation[0].length)
+        pos = pos + citation[0].length
+        continue
+      }
+
+      // in-text citation
+      const inTextCitation = inlineRules.in_text_citation.exec(src)
+      if (inTextCitation) {
+        pushPending()
+        tokens.push({
+          type: 'inTextCitation',
+          raw: inTextCitation[1],
+          marker: inTextCitation[2],
+          citeKey: inTextCitation[3],
+          suffix: inTextCitation[4],
+          suffixSpace: inTextCitation[5],
+          suffixStartMarker: inTextCitation[6],
+          suffixContent: inTextCitation[7],
+          suffixEndMarker: inTextCitation[8],
+          range: {
+            start: pos,
+            end: pos + inTextCitation[0].length
+          },
+          parent: tokens
+        })
+        src = src.substring(inTextCitation[0].length)
+        pos = pos + inTextCitation[0].length
+        continue
+      }
+    }
+
     // image
     const imageTo = inlineRules.image.exec(src)
     correctUrl(imageTo)

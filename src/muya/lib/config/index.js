@@ -108,6 +108,16 @@ export const CLASS_OR_ID = Object.freeze(genUpper2LowerKeyHash([
   'AG_INLINE_IMAGE_IS_EDIT',
   'AG_INDENT_CODE',
   'AG_INLINE_FOOTNOTE_IDENTIFIER',
+  'AG_INLINE_CITATION',
+  'AG_INLINE_CITATION_CITEKEY',
+  'AG_INLINE_CITATION_FULL',
+  'AG_INLINE_CITATION_KEY_MARKER',
+  'AG_INLINE_CITATION_IN_TEXT',
+  'AG_INLINE_CITATION_START_MARKER',
+  'AG_INLINE_CITATION_PAREN_START',
+  'AG_INLINE_CITATION_PAREN_END',
+  'AG_INLINE_CITATION_END_MARKER',
+  'AG_INLINE_CITATION_LINK',
   'AG_INLINE_RULE',
   'AG_LANGUAGE',
   'AG_LANGUAGE_INPUT',
@@ -285,6 +295,7 @@ export const MUYA_DEFAULT_OPTION = Object.freeze({
   // Markdown extensions
   superSubScript: false,
   footnote: false,
+  citations: false,
   isGitlabCompatibilityEnabled: false,
 
   // Whether HTML rendering is disabled or not.

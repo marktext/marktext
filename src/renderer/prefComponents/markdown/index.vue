@@ -60,6 +60,24 @@
       :onChange="value => onSelectChange('footnote', value)"
       more="https://pandoc.org/MANUAL.html#footnotes"
     ></bool>
+    <bool
+      description="Use Pandoc-style citations (requires restart)"
+      :bool="citations"
+      :onChange="value => onSelectChange('citations', value)"
+      more="https://pandoc.org/MANUAL.html#citations"
+    ></bool>
+    <bool
+      description="Render pandoc citations as links"
+      :bool="citationLinks"
+      :onChange="value => onSelectChange('citationLinks', value)"
+      more="https://pandoc.org/MANUAL.html#citations"
+    ></bool>
+    <text-box
+      description="Template for citation links"
+      :input="citationLinkTemplate"
+      :emitTime="0"
+      :onChange="value => onSelectChange('citationLinkTemplate', value)"
+    ></text-box>
     <separator></separator>
     <h5>Compatibility</h5>
     <bool
@@ -89,6 +107,7 @@ import Separator from '../common/separator'
 import { mapState } from 'vuex'
 import Bool from '../common/bool'
 import CusSelect from '../common/select'
+import TextBox from '../common/textBox'
 import {
   bulletListMarkerOptions,
   orderListDelimiterOptions,
@@ -103,7 +122,8 @@ export default {
   components: {
     Separator,
     Bool,
-    CusSelect
+    CusSelect,
+    TextBox
   },
   data () {
     this.bulletListMarkerOptions = bulletListMarkerOptions
@@ -127,6 +147,9 @@ export default {
       superSubScript: state => state.preferences.superSubScript,
       footnote: state => state.preferences.footnote,
       isHtmlEnabled: state => state.preferences.isHtmlEnabled,
+      citations: state => state.preferences.citations,
+      citationLinks: state => state.preferences.citationLinks,
+      citationLinkTemplate: state => state.preferences.citationLinkTemplate,
       isGitlabCompatibilityEnabled: state => state.preferences.isGitlabCompatibilityEnabled,
       sequenceTheme: state => state.preferences.sequenceTheme
     })

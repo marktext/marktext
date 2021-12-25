@@ -48,6 +48,15 @@ Renderer.prototype.footnoteIdentifier = function (identifier, { footnoteId, foot
   return `<a href="#${footnoteId ? `fn${footnoteId}` : ''}" class="footnote-ref" id="fnref${footnoteIdentifierId}" role="doc-noteref"><sup>${order || identifier}</sup></a>`
 }
 
+Renderer.prototype.citation = function (content) {
+  const str = content.replace(/(?<![\p{L}\d\-:.#$%&+?<>~/])(@)([\p{L}\d\-:.#$%&+?<>~/]+)/gu, '$2')
+  return `(${str})`
+}
+
+Renderer.prototype.inTextCitation = function (key, suffix) {
+  return suffix ? `${key} (${suffix})` : key
+}
+
 Renderer.prototype.footnote = function (footnote) {
   return '<section class="footnotes" role="doc-endnotes">\n<hr />\n<ol>\n' + footnote + '</ol>\n</section>\n'
 }

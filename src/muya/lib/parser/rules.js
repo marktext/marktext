@@ -42,6 +42,8 @@ export const inlineExtensionRules = {
   // This is not the best regexp, because it not support `2^2\\^`.
   superscript: /^(\^)((?:[^\^\s]|(?<=\\)\1|(?<=\\) )+?)(?<!\\)\1(?!\1)/,
   subscript: /^(~)((?:[^~\s]|(?<=\\)\1|(?<=\\) )+?)(?<!\\)\1(?!\1)/,
-  footnote_identifier: /^(\[\^)([^\^\[\]\s]+?)(?<!\\)\]/
+  footnote_identifier: /^(\[\^)([^\^\[\]\s]+?)(?<!\\)\]/,
+  in_text_citation: /^((@)([\p{L}\d\-:.#$%&+?<>~/]+)(?!\])(( )(\[)(.*?)(\]))?)(?=[^\p{L}\d\-:.#$%&+?<>~/]|$)/u,
+  citation: /^(?<![\\])\[([^\]]*?(?<![a-zA-Z0-9.!#$%&'*+/=?^_`{|}~])-?@[\p{L}\d\-:.#$%&+?<>~/].*?)\]/u
 }
 /* eslint-enable no-useless-escape */

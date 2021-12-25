@@ -29,6 +29,8 @@ import referenceLink from './referenceLink'
 import referenceImage from './referenceImage'
 import superSubScript from './superSubScript'
 import footnoteIdentifier from './footnoteIdentifier'
+import inTextCitation from './inTextCitation'
+import citation from './citation'
 
 export default {
   backlashInToken,
@@ -61,5 +63,7 @@ export default {
   referenceLink,
   referenceImage,
   superSubScript,
-  footnoteIdentifier
+  footnoteIdentifier,
+  citation,
+  inTextCitation
 }

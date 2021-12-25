@@ -289,6 +289,21 @@
     "type": "boolean",
     "default": false
   },
+  "citations": {
+    "description": "Markdown-Enable pandoc's markdown extension citations.",
+    "type": "boolean",
+    "default": false
+  },
+  "citationLinks": {
+    "description": "Markdown-Enable pandoc citation links.",
+    "type": "boolean",
+    "default": true
+  },
+  "citationLinkTemplate": {
+    "description": "Markdown-Template for pandoc citation links. '{{citekey}}' will be replaced with the cite key.",
+    "type": "string",
+    "default": "zotero://select/items/bbt:{{citekey}}"
+  },
   "isHtmlEnabled": {
     "description": "Markdown-Enable HTML rendering",
     "type": "boolean",
