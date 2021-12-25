@@ -4,7 +4,7 @@ about: Create a bug report to help us improve
 ---
 
 <!--
-  - Please search for issues that matches the one you want to file.
+  - Please search for issues that matches the one you want to file and use the thumbs up emoji.
   - Please make sure your application version is up to date.
 -->
 
