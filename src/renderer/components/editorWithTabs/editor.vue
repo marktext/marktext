@@ -693,7 +693,13 @@ export default {
       this.editor.on('selectionChange', changes => {
         const { y } = changes.cursorCoords
         if (this.typewriter) {
-          animatedScrollTo(container, container.scrollTop + y - STANDAR_Y, 100)
+          const startPosition = container.scrollTop
+          const toPosition = startPosition + y - STANDAR_Y
+
+          // Prevent micro shakes and unnecessary scrolling.
+          if (Math.abs(startPosition - toPosition) > 2) {
+            animatedScrollTo(container, toPosition, 100)
+          }
         }
 
         // Used to fix #628: auto scroll cursor to visible if the cursor is too low.
