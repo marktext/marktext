@@ -48,19 +48,15 @@ class CodePicker extends BaseScrollFloat {
     const { renderArray, oldVnode, scrollElement, activeItem } = this
     let children = renderArray.map(item => {
       let iconClassNames
-      if (item.ext && Array.isArray(item.ext)) {
-        for (const ext of item.ext) {
-          iconClassNames = fileIcons.getClassWithColor(`fackname.${ext}`)
-          if (iconClassNames) break
-        }
-      } else if (item.name) {
-        iconClassNames = fileIcons.getClassWithColor(item.name)
+
+      if (item.name) {
+        iconClassNames = fileIcons.getClassByLanguage(item.name)
       }
 
       // Because `markdown mode in Codemirror` don't have extensions.
       // if still can not get the className, add a common className 'atom-icon light-cyan'
       if (!iconClassNames) {
-        iconClassNames = item.name === 'markdown' ? fileIcons.getClassWithColor('fackname.md') : 'atom-icon light-cyan'
+        iconClassNames = item.name === 'markdown' ? fileIcons.getClassByName('fackname.md') : 'atom-icon light-cyan'
       }
       const iconSelector = 'span' + iconClassNames.split(/\s/).map(s => `.${s}`).join('')
       const icon = h('div.icon-wrapper', h(iconSelector))
