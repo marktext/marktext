@@ -677,29 +677,29 @@ const commands = [
   },
 
   // --------------------------------------------------------------------------
-  // Mark Text
+  // MarkText
 
   {
     id: 'file.preferences',
-    description: 'Mark Text: Preferences',
+    description: 'MarkText: Preferences',
     execute: async () => {
       ipcRenderer.send('mt::open-setting-window')
     }
   }, {
     id: 'file.quit',
-    description: 'Mark Text: Quit',
+    description: 'MarkText: Quit',
     execute: async () => {
       ipcRenderer.send('mt::app-try-quit')
     }
   }, {
     id: 'docs.user-guide',
-    description: 'Mark Text: End User Guide',
+    description: 'MarkText: End User Guide',
     execute: async () => {
       shell.openExternal('https://github.com/marktext/marktext/blob/develop/docs/README.md')
     }
   }, {
     id: 'docs.markdown-syntax',
-    description: 'Mark Text: Markdown Syntax Guide',
+    description: 'MarkText: Markdown Syntax Guide',
     execute: async () => {
       shell.openExternal('https://github.com/marktext/marktext/blob/develop/docs/MARKDOWN_SYNTAX.md')
     }
@@ -726,7 +726,7 @@ const commands = [
 if (isUpdatable()) {
   commands.push({
     id: 'file.check-update',
-    description: 'Mark Text: Check for Updates',
+    description: 'MarkText: Check for Updates',
     execute: async () => {
       ipcRenderer.send('mt::check-for-update')
     }

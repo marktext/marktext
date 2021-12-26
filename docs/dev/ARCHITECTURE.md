@@ -9,21 +9,21 @@
 - `docs/`: Documentation and assets
 - `resources/`: Application assets using at build time
 - `node_modules/`: Dependencies
-- `src`: Mark Text source code
+- `src`: MarkText source code
   - `common/`: Common source files that only require Node.js APIs. Code from this folder can be used in all other folders except `muya`.
   - `main/`: Main process source files that require Electron main-process APIs. `main` files can use `common` source code.
-  - `muya/`: Mark Texts backend that only allow pure JavaScript, BOM and DOM APIs. Don't use Electron or Node.js APIs!
+  - `muya/`: MarkTexts backend that only allow pure JavaScript, BOM and DOM APIs. Don't use Electron or Node.js APIs!
   - `renderer`: Frontend that require Electron renderer-process APIs and may use `common` or `muya` source code.
 - `static/`: Application assets (images, themes, etc)
 - `test/`: Contains (unit) tests
 
-## Introduction to Mark Text
+## Introduction to MarkText
 
-Mark Text is a realtime preview (WYSIWYG) editor for markdown with various markdown extensions and our philosophy is to keep things clean, simple and minimal. The application is build with HTML, JS and CSS on top of Electron. Currently we're using a few native node libraries and our UI is build with Vue/Vuex. Mark Text can be split in three parts: the core called Muya, the main- and renderer process.
+MarkText is a realtime preview (WYSIWYG) editor for markdown with various markdown extensions and our philosophy is to keep things clean, simple and minimal. The application is build with HTML, JS and CSS on top of Electron. Currently we're using a few native node libraries and our UI is build with Vue/Vuex. MarkText can be split in three parts: the core called Muya, the main- and renderer process.
 
-Muya provides realtime preview and markdown editing via multiple modules based on a block structure. You can imagine it as the editor backend with modules for markdown parsing, data store as block structure, markdown document transformations according CommonMark and GitHub Flavored Markdown specification with some extra specifications, event listeners and an exporter to generate standalone HTML and markdown files but also to generate the WYSIWYG editor. Muya is single threaded as well as Mark Text but use asynchronous functions to boost performance.
+Muya provides realtime preview and markdown editing via multiple modules based on a block structure. You can imagine it as the editor backend with modules for markdown parsing, data store as block structure, markdown document transformations according CommonMark and GitHub Flavored Markdown specification with some extra specifications, event listeners and an exporter to generate standalone HTML and markdown files but also to generate the WYSIWYG editor. Muya is single threaded as well as MarkText but use asynchronous functions to boost performance.
 
-> NOTE: Mark Text's source-code editor is provided by CodeMirror and not well optimized nor feature rich. It's not part of Muya and an editor (renderer process) feature that load the markdown text from Muya (export), operate on it and re-import the text into Muya when switching to preview mode.
+> NOTE: MarkText's source-code editor is provided by CodeMirror and not well optimized nor feature rich. It's not part of Muya and an editor (renderer process) feature that load the markdown text from Muya (export), operate on it and re-import the text into Muya when switching to preview mode.
 
 > NOTE: Muya requires a core refactoring to provide better modularization, APIs and plugins. Furthermore, the data structure need improvements for better performance and stability.
 

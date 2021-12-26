@@ -1,7 +1,7 @@
 <template>
   <section class="pref-text-box-item" :class="{'ag-underdevelop': disable}">
     <div class="description">
-      <span>{{description}}</span>
+      <span>{{description}}:</span>
       <i class="el-icon-info" v-if="more"
         @click="handleMoreClick"
       ></i>
@@ -12,10 +12,12 @@
       :placeholder="defaultValue"
       v-model="inputText"
       @input="handleInput"
-      style="width: 240px"
       size="small"
       clearable>
     </el-input>
+    <div v-if="notes" class="notes">
+      {{notes}}
+    </div>
   </section>
 </template>
 
@@ -32,6 +34,7 @@ export default {
   },
   props: {
     description: String,
+    notes: String,
     input: String,
     onChange: Function,
     more: String,
@@ -100,6 +103,7 @@ export default {
     user-select: none;
     margin: 20px 0;
     color: var(--editorColor);
+    width: 100%;
     & input.el-input__inner {
       height: 30px;
       background: transparent;
@@ -110,6 +114,14 @@ export default {
         color: var(--editorColor30);
       }
     }
+    & .notes {
+      margin-top: 10px;
+      font-style: italic;
+      font-size: 12px;
+    }
+    & .input {
+      width: 100%;
+    }
     & .el-input.is-active .el-input__inner,
     & .el-input__inner:focus {
       border-color: var(--themeColor);
@@ -118,9 +130,9 @@ export default {
     & .el-input__inner {
       line-height: 30px;
     }
-  }
-  .pref-text-box-item .description {
-    margin-bottom: 10px;
+    & .description {
+      margin-bottom: 10px;
+    }
     & i {
       cursor: pointer;
       opacity: .7;

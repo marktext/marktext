@@ -172,7 +172,7 @@ export default {
 
       // TODO(perf): Create a copy of dom-autoscroller and just hook tabs-container to
       //   improve performance. Currently autoScroll is triggered when the mouse is moved
-      //   in Mark Text window.
+      //   in MarkText window.
 
       // Scroll when dragging a tab to the beginning or end of the tab container.
       this.autoScroller = autoScroll([tabs], {

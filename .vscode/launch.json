@@ -4,7 +4,7 @@
     {
       "type": "node",
       "request": "launch",
-      "name": "Launch Mark Text",
+      "name": "Launch MarkText",
       "program": "${workspaceFolder}/.electron-vue/dev-runner.js",
       "env": {
         "NODE_ENV": "development",
@@ -38,9 +38,9 @@
   ],
   "compounds": [
     {
-      "name": "Debug Mark Text",
+      "name": "Debug MarkText",
       "configurations": [
-        "Launch Mark Text",
+        "Launch MarkText",
         "Attach to Main Process",
         "Attach to Renderer Process"
       ]

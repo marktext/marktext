@@ -9,7 +9,7 @@
       :class="[{ 'active': active }, { 'tabs-visible': showTabBar }, { 'frameless': titleBarStyle === 'custom' }, { 'isOsx': isOsx }]"
     >
       <div class="title" @dblclick.stop="toggleMaxmizeOnMacOS">
-        <span v-if="!filename">Mark Text</span>
+        <span v-if="!filename">MarkText</span>
         <span v-else>
           <span
             v-for="(path, index) of paths"
@@ -171,9 +171,9 @@ export default {
       const hasOpenFolder = this.project && this.project.name
       let title = ''
       if (value) {
-        title = hasOpenFolder ? `${value} - ${this.project.name}` : `${value} - Mark Text`
+        title = hasOpenFolder ? `${value} - ${this.project.name}` : `${value} - MarkText`
       } else {
-        title = hasOpenFolder ? this.project.name : 'Mark Text'
+        title = hasOpenFolder ? this.project.name : 'MarkText'
       }
 
       document.title = title
