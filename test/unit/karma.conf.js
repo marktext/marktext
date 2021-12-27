@@ -2,7 +2,7 @@
 
 const fs = require('fs')
 const path = require('path')
-const merge = require('webpack-merge')
+const { merge } = require('webpack-merge')
 const webpack = require('webpack')
 
 const baseConfig = require('../../.electron-vue/webpack.renderer.config')
@@ -20,10 +20,14 @@ try {
 }
 
 let webpackConfig = merge(baseConfig, {
-  devtool: '#inline-source-map',
+  devtool: 'inline-source-map',
+  cache: false,
+  output: {
+    publicPath: '/'
+  },
   plugins: [
     new webpack.DefinePlugin({
-      'process.env.NODE_ENV': '"testing"'
+      'process.env.NODE_ENV': '"development"'
     })
   ]
 })
