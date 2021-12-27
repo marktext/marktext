@@ -29,10 +29,17 @@ export default {
     margin: 20px 0;
     color: var(--editorColor);
 
+    & .pref-compound-head h6.title {
+      font-weight: 400;
+      font-size: 1.1em;
+      padding-bottom: 6px;
+    }
+
     & .pref-compound-body {
       padding: 8px 16px 8px 16px;
       margin-top: -12px;
       background: rgba(0, 0, 0, .04);
+      border: 1px solid rgba(255, 255, 255, .03);
     }
 
     & .description {
