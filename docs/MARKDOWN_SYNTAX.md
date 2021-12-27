@@ -845,6 +845,20 @@ Class08 <--> C2: Cool label
 ```
 </pre>
 
+## PlantUML
+
+Please visit [PlantUML website](https://plantuml.com/) for more details.
+
+```plantuml
+@startuml
+Alice -> Bob: Authentication Request
+Bob --> Alice: Authentication Response
+
+Alice -> Bob: Another authentication Request
+Alice <-- Bob: Another authentication Response
+@enduml
+```
+
 <br>
 
 ## Raw HTML

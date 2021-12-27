@@ -24,7 +24,7 @@
 
 ##### 2. div
 
-used for preview `block math`, `mermaid`, `flowchart`, `vega-lite`, `sequence` and `html block`.
+used for preview `block math`, `mermaid`, `flowchart`, `vega-lite`, `sequence`, `plantuml` and `html block`.
 
 - functionType
 
@@ -38,11 +38,13 @@ used for preview `block math`, `mermaid`, `flowchart`, `vega-lite`, `sequence` a
 
   - sequence
 
+  - plantuml
+
   - html
 
 ##### 3. figure
 
-The container block of `table`, `html`, `block math`, `mermaid`,`flowchart`,`vega-lite`,`sequence`.
+The container block of `table`, `html`, `block math`, `mermaid`,`flowchart`,`vega-lite`,`sequence`,`plantuml`.
 
 - functionType
 
@@ -62,9 +64,11 @@ The container block of `table`, `html`, `block math`, `mermaid`,`flowchart`,`veg
 
   - sequence
 
+  - plantuml
+
 ##### 4. pre
 
-Used for `html`,`block math`,`mermaid`,`flowchart`,`vega-lite`,`sequence` `code block`.
+Used for `html`,`block math`,`mermaid`,`flowchart`,`vega-lite`,`sequence`, `plantuml`, `code block`.
 
 - functionType
 
@@ -79,6 +83,8 @@ Used for `html`,`block math`,`mermaid`,`flowchart`,`vega-lite`,`sequence` `code 
   - vega-lite
 
   - sequence
+
+  - plantuml
 
   - fencecode
 

@@ -193,6 +193,7 @@ export default function renderLeafBlock (parent, block, activeBlocks, matches, u
       }
       case 'flowchart':
       case 'sequence':
+      case 'plantuml':
       case 'vega-lite': {
         selector += `.${CLASS_OR_ID.AG_CONTAINER_PREVIEW}`
         Object.assign(data.attrs, { spellcheck: 'false' })

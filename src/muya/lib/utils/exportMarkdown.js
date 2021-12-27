@@ -87,6 +87,7 @@ class ExportMarkdown {
             case 'mermaid':
             case 'flowchart':
             case 'sequence':
+            case 'plantuml':
             case 'vega-lite': {
               result.push(this.normalizeContainer(block, indent))
               break
@@ -247,7 +248,7 @@ class ExportMarkdown {
     return result.join('')
   }
 
-  // `mermaid` `flowchart` `sequence` `vega-lite`
+  // `mermaid` `flowchart` `sequence` `plantuml` `vega-lite`
   normalizeContainer (block, indent) {
     const result = []
     const diagramType = block.children[0].functionType
