@@ -51,7 +51,7 @@ function startRenderer () {
 
     compiler.hooks.compilation.tap('HtmlWebpackPluginAfterEmit', compilation => {
       HtmlWebpackPlugin.getHooks(compilation).afterEmit.tapAsync(
-        'AfterPlugin', // <-- Set a meaningful name here for stacktraces
+        'AfterPlugin',
         (data, cb) => {
           hotMiddleware.publish({ action: 'reload' })
           // Tell webpack to move on
@@ -64,21 +64,22 @@ function startRenderer () {
       logStats('Renderer', stats)
     })
 
-    const server = new WebpackDevServer(
-      compiler,
-      {
-        contentBase: path.join(__dirname, '../'),
-        quiet: true,
-        setup (app, ctx) {
-          app.use(hotMiddleware)
-          ctx.middleware.waitUntilValid(() => {
-            resolve()
-          })
-        }
+    const server = new WebpackDevServer({
+      host: '127.0.0.1',
+      port: 9091,
+      hot: true,
+      liveReload: true,
+      compress: true,
+      static: false,
+      onBeforeSetupMiddleware ({ app, middleware}) {
+        app.use(hotMiddleware)
+        middleware.waitUntilValid(() => {
+          resolve()
+        })
       }
-    )
+    }, compiler)
 
-    server.listen(9091)
+    server.start()
   })
 }
 

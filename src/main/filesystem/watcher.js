@@ -169,8 +169,7 @@ class Watcher {
       ignorePermissionErrors: true,
 
       // Just to be sure when a file is replaced with a directory don't watch recursively.
-      depth: type === 'file'
-        ? (isOsx ? 1 : 0) : undefined,
+      depth: type === 'file' ? (isOsx ? 1 : 0) : undefined,
 
       // Please see GH#1043
       awaitWriteFinish: {

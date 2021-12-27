@@ -79,9 +79,11 @@ class BaseWindow extends EventEmitter {
       titleBarStyle
     } = userPreference.getAll()
 
+    /* eslint-disable */
     const baseUrl = process.env.NODE_ENV === 'development'
       ? 'http://localhost:9091'
       : `file://${__dirname}/index.html`
+    /* eslint-enable */
 
     const url = new URL(baseUrl)
     url.searchParams.set('udp', paths.userDataPath)
