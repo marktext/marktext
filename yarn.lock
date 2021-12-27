@@ -1611,10 +1611,10 @@
     diff "^5.0.0"
     parse5-sax-parser "^6.0.1"
 
-"@marktext/file-icons@^1.0.4":
-  version "1.0.4"
-  resolved "https://registry.npmjs.org/@marktext/file-icons/-/file-icons-1.0.4.tgz#322ab75e3d4c872550819b70f7dbe56e51322239"
-  integrity sha512-lVXig/OaF7JMPtxqd7InIraS1NcolXJBuBqlEet+Y8qgVsSns7DlNW876xo3Xywqf/hAuq1mQ4qjj/Gp97tcug==
+"@marktext/file-icons@^1.0.5":
+  version "1.0.5"
+  resolved "https://registry.npmjs.org/@marktext/file-icons/-/file-icons-1.0.5.tgz#ffd1159e50a15fec72aaed34dc5bd746cc9acf4b"
+  integrity sha512-GeMV3hv3tOG2hgixsLAOgk7lE6DXGEHrEF8e5kQLmiQOF/nz5ueXOnmSozdNHXnpPsCLJkugHhSHAGjH8mqApw==
   dependencies:
     file-icons "github:file-icons/atom"
 
