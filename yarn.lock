@@ -1611,6 +1611,13 @@
     diff "^5.0.0"
     parse5-sax-parser "^6.0.1"
 
+"@marktext/file-icons@^1.0.4":
+  version "1.0.4"
+  resolved "https://registry.npmjs.org/@marktext/file-icons/-/file-icons-1.0.4.tgz#322ab75e3d4c872550819b70f7dbe56e51322239"
+  integrity sha512-lVXig/OaF7JMPtxqd7InIraS1NcolXJBuBqlEet+Y8qgVsSns7DlNW876xo3Xywqf/hAuq1mQ4qjj/Gp97tcug==
+  dependencies:
+    file-icons "github:file-icons/atom"
+
 "@nodelib/fs.scandir@2.1.3":
   version "2.1.3"
   resolved "https://registry.npmjs.org/@nodelib/fs.scandir/-/fs.scandir-2.1.3.tgz#3a582bdb53804c6ba6d146579c46e52130cf4a3b"
@@ -2772,6 +2779,13 @@ atob@^2.1.2:
   version "2.1.2"
   resolved "https://registry.npmjs.org/atob/-/atob-2.1.2.tgz#6d9517eb9e030d2436666651e86bd9f6f13533c9"
   integrity sha512-Wm6ukoaOGJi/73p/cl2GvLjTI5JM1k/O14isD73YML8StrH/7/lRFgmg8nICZgD3bZZvjwCGxtMOD3wWNAu8cg==
+
+atom-fs@v0.2.1:
+  version "0.2.1"
+  resolved "https://registry.npmjs.org/atom-fs/-/atom-fs-0.2.1.tgz#650717ff1bfe2d10e3add5fa8f296875b68ce0e5"
+  integrity sha512-H+09ux1pNAPUbJqyrZ7lA/CpNmKqZURrYc23QzDUG29A380EYEnzwW99Do5VlT8SmZtyapOMySFesndgvZZGWg==
+  dependencies:
+    mapped-disposable "^1.0.3"
 
 atomically@^1.7.0:
   version "1.7.0"
@@ -6531,10 +6545,14 @@ file-entry-cache@^6.0.1:
   dependencies:
     flat-cache "^3.0.4"
 
-file-icons-js@1.0.3:
-  version "1.0.3"
-  resolved "https://registry.yarnpkg.com/file-icons-js/-/file-icons-js-1.0.3.tgz#d0765dc1d86aba4b2d7664a39e4ef7af9f12c5af"
-  integrity sha512-n4zoKEpMaAxBTUB7wtgrFBa4dM3b7mBLLA1VI/Q5Cdk/k2UA8S8oaxvnECp3QOzg0Dn+KKRzfIHF7qSdRkA65Q==
+"file-icons@github:file-icons/atom":
+  version "2.1.47"
+  resolved "https://codeload.github.com/file-icons/atom/tar.gz/66d57920f352fa5ed0c66f6fe86a98b2b3b8dac1"
+  dependencies:
+    atom-fs v0.2.1
+    lru-cache "^5.1.1"
+    mapped-disposable "^1.0.3"
+    micromatch "^4.0.2"
 
 file-loader@^6.2.0:
   version "6.2.0"
@@ -9320,6 +9338,11 @@ map-visit@^1.0.0:
   integrity sha1-7Nyo8TFE5mDxtb1B8S80edmN+48=
   dependencies:
     object-visit "^1.0.0"
+
+mapped-disposable@^1.0.3:
+  version "1.0.3"
+  resolved "https://registry.npmjs.org/mapped-disposable/-/mapped-disposable-1.0.3.tgz#3eaad0b20b174142ee80bd37f675bab200abd569"
+  integrity sha512-DpYYRSZjNB6tOg8E4BZ+rNsKe4WxoptwM8+JqHi8R0buJgHLmrmAfJtv4lcqqO1esTtxaPx4FXOR54bPoS9qwg==
 
 marked@^1.2.9:
   version "1.2.9"
