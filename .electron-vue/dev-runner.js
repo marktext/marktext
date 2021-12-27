@@ -120,7 +120,7 @@ function startMain () {
 
 function startElectron () {
   electronProcess = spawn(electron, [
-    '--inspect=5861',
+    '--inspect=5858',
     '--remote-debugging-port=8315',
     '--nolazy',
     path.join(__dirname, '../dist/electron/main.js')
