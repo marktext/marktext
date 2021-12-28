@@ -70,7 +70,13 @@ function startRenderer () {
       hot: true,
       liveReload: true,
       compress: true,
-      static: false,
+      static: [
+        {
+          directory: path.join(__dirname, '../node_modules/codemirror/mode'),
+          publicPath: '/codemirror/mode',
+          watch: false
+        }
+      ],
       onBeforeSetupMiddleware ({ app, middleware}) {
         app.use(hotMiddleware)
         middleware.waitUntilValid(() => {
