@@ -166,7 +166,7 @@ function greeting () {
   const cols = process.stdout.columns
   let text = ''
 
-  if (cols > 104) text = 'building marktext'
+  if (cols > 155) text = 'building marktext'
   else if (cols > 76) text = 'building|marktext'
   else text = false
 
