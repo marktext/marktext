@@ -8,7 +8,7 @@ import { isFile2 } from 'common/filesystem'
 import { isOsx } from '../config'
 import { getKeyboardLanguage, getVirtualLetters } from '../keyboard'
 
-const altOrCtrl = (isOsx) ? 'Ctrl' : 'Alt'
+const tabSwitchBaseStroke = (isOsx) ? 'Ctrl' : 'Alt'
 // Problematic key bindings:
 //   Aidou: Ctrl+/ -> dead key
 //   Inline Code: Ctrl+` -> dead key
@@ -112,16 +112,16 @@ class Keybindings {
       ['tabs.cycle-backward', 'CmdOrCtrl+Shift+Tab'],
       ['tabs.switch-to-left', 'CmdOrCtrl+PageUp'],
       ['tabs.switch-to-right', 'CmdOrCtrl+PageDown'],
-      ['tabs.switch-to-first', `${altOrCtrl}+1`],
-      ['tabs.switch-to-second', `${altOrCtrl}+2`],
-      ['tabs.switch-to-third', `${altOrCtrl}+3`],
-      ['tabs.switch-to-fourth', `${altOrCtrl}+4`],
-      ['tabs.switch-to-fifth', `${altOrCtrl}+5`],
-      ['tabs.switch-to-sixth', `${altOrCtrl}+6`],
-      ['tabs.switch-to-seventh', `${altOrCtrl}+7`],
-      ['tabs.switch-to-eighth', `${altOrCtrl}+8`],
-      ['tabs.switch-to-ninth', `${altOrCtrl}+9`],
-      ['tabs.switch-to-tenth', `${altOrCtrl}+0`],
+      ['tabs.switch-to-first', `${tabSwitchBaseStroke}+1`],
+      ['tabs.switch-to-second', `${tabSwitchBaseStroke}+2`],
+      ['tabs.switch-to-third', `${tabSwitchBaseStroke}+3`],
+      ['tabs.switch-to-fourth', `${tabSwitchBaseStroke}+4`],
+      ['tabs.switch-to-fifth', `${tabSwitchBaseStroke}+5`],
+      ['tabs.switch-to-sixth', `${tabSwitchBaseStroke}+6`],
+      ['tabs.switch-to-seventh', `${tabSwitchBaseStroke}+7`],
+      ['tabs.switch-to-eighth', `${tabSwitchBaseStroke}+8`],
+      ['tabs.switch-to-ninth', `${tabSwitchBaseStroke}+9`],
+      ['tabs.switch-to-tenth', `${tabSwitchBaseStroke}+0`],
       ['file.quick-open', 'CmdOrCtrl+P']
     ])
 
