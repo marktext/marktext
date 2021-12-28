@@ -13,7 +13,7 @@ function maketrans (tableIn, tableOut, value) {
 }
 
 export default class Diagram {
-  encodedInput = '';
+  encodedInput = ''
 
   /**
    * Builds a Diagram object storing the encoded input value
@@ -38,8 +38,8 @@ export default class Diagram {
     const tableOut =
       '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz-_'
 
-    const utf8Value = unescape(encodeURIComponent(value))
-    const compressedValue = zlib.deflateSync(utf8Value, { level: 9 })
+    const utf8Value = decodeURIComponent(encodeURIComponent(value))
+    const compressedValue = zlib.deflateSync(utf8Value, { level: 3 })
     const base64Value = compressedValue.toString('base64')
     return maketrans(tableIn, tableOut, base64Value)
   }
