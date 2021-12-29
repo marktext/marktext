@@ -4,8 +4,9 @@ import fileIcons from '@marktext/file-icons'
 
 fileIcons.getClassByName = function (name) {
   const icon = fileIcons.matchName(name)
-
-  return icon ? icon.getClass(0, false) : null
+  const classNames = icon ? icon.getClass(0, false) : null
+  // TODO JOCS https://github.com/file-icons/atom/issues/865
+  return classNames.replace(/icon-file-text/, 'text-icon')
 }
 fileIcons.getClassByLanguage = function (lang) {
   const icon = fileIcons.matchLanguage(lang)
