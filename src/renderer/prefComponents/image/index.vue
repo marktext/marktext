@@ -15,10 +15,15 @@
     </section>
     <separator></separator>
     <section class="image-folder">
-      <div class="description">Local image folder</div>
-      <div class="path">{{imageFolderPath}}</div>
+      <text-box
+        description="Local image folder"
+        :input="imageFolderPath"
+        :regexValidator="/^(?:$|([a-zA-Z]:)?[\/\\].*$)/"
+        :defaultValue="FolderPathPlaceholder"
+        :onChange="value => modifyImageFolderPath(value)"
+      ></text-box>
       <div>
-        <el-button size="mini" @click="modifyImageFolderPath">Modify</el-button>
+        <el-button size="mini" @click="modifyImageFolderPath()">Modify</el-button>
         <el-button size="mini" @click="openImageFolder">Open Folder</el-button>
       </div>
       <bool
@@ -57,6 +62,7 @@ export default {
   },
   computed: {
     ...mapState({
+      imageFolderPath: state => state.preferences.imageFolderPath,
       imagePreferRelativeDirectory: state => state.preferences.imagePreferRelativeDirectory,
       imageRelativeDirectoryName: state => state.preferences.imageRelativeDirectoryName
     }),
@@ -69,9 +75,9 @@ export default {
         this.$store.dispatch('SET_SINGLE_PREFERENCE', { type, value })
       }
     },
-    imageFolderPath: {
+    FolderPathPlaceholder: {
       get: function () {
-        return this.$store.state.preferences.imageFolderPath
+        return this.$store.state.preferences.imageFolderPath || ''
       }
     },
     relativeDirectoryNamePlaceholder: {
@@ -84,8 +90,8 @@ export default {
     openImageFolder () {
       shell.openPath(this.imageFolderPath)
     },
-    modifyImageFolderPath () {
-      return this.$store.dispatch('SET_IMAGE_FOLDER_PATH')
+    modifyImageFolderPath (value) {
+      return this.$store.dispatch('SET_IMAGE_FOLDER_PATH', value)
     },
     onSelectChange (type, value) {
       this.$store.dispatch('SET_SINGLE_PREFERENCE', { type, value })
@@ -103,18 +109,6 @@ export default {
     & label {
       display: block;
       margin: 20px 0;
-    }
-  }
-  & .image-folder {
-    & div.description {
-      font-size: 14px;
-      color: var(--editorColor);
-    }
-    & div.path {
-      font-size: 14px;
-      color: var(--editorColor50);
-      margin-top: 15px;
-      margin-bottom: 15px;
     }
   }
 }
