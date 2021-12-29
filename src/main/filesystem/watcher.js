@@ -329,7 +329,7 @@ class Watcher {
   }
 
   /**
-   * Check whether we should ignore the current event because the file may be changed from Mark Text itself.
+   * Check whether we should ignore the current event because the file may be changed from MarkText itself.
    *
    * @param {number} winId
    * @param {string} pathname

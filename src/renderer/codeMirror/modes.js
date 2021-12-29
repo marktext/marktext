@@ -167,6 +167,10 @@ const languages = [{
   mode: 'clike',
   mime: 'text/x-csharp'
 }, {
+  name: 'cs',
+  mode: 'clike',
+  mime: 'text/x-csharp'
+}, {
   name: 'rust',
   mode: 'rust',
   mime: 'text/x-rustsrc'

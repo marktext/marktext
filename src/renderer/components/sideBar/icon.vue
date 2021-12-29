@@ -15,10 +15,10 @@ export default {
   },
   computed: {
     className () {
-      let icon = fileIcons.getClassWithColor(this.name ? this.name : 'mock.md')
+      let icon = fileIcons.getClassByName(this.name ? this.name : 'mock.md')
       if (!icon) {
         // Use fallback icon when the icon is unknown.
-        icon = fileIcons.getClassWithColor('mock.md')
+        icon = fileIcons.getClassByName('mock.md')
       }
       return icon.split(/\s/)
     }

@@ -412,3 +412,14 @@ export const collectFootnotes = (blocks) => {
 
   return map
 }
+
+export const getDefer = () => {
+  const defer = {}
+  const promise = new Promise((resolve, reject) => {
+    defer.resolve = resolve
+    defer.reject = reject
+  })
+  defer.promise = promise
+
+  return defer
+}

@@ -3,11 +3,11 @@
   <id>com.github.marktext.marktext</id>
   <metadata_license>CC0-1.0</metadata_license>
   <project_license>MIT</project_license>
-  <name>Mark Text</name>
+  <name>MarkText</name>
   <summary>Next generation markdown editor</summary>
   <description>
     <p>
-      Mark Text is a free and open-source realtime preview markdown editor which support both CommonMark Spec and GitHub Flavored Markdown Spec. It is a concise text editor, dedicated to improving your writing efficiency.
+      MarkText is a free and open-source realtime preview markdown editor which support both CommonMark Spec and GitHub Flavored Markdown Spec. It is a concise text editor, dedicated to improving your writing efficiency.
     </p>
     <p>Features:</p>
     <ul>

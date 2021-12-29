@@ -53,6 +53,7 @@ export default {
     height: var(--titleBarHeight);
     -webkit-app-region: no-drag;
   }
+
   .frameless-titlebar-button > div {
     position: absolute;
     display: inline-flex;
@@ -60,12 +61,15 @@ export default {
     left: 50%;
     transform: translateX(-50%) translateY(-50%);
   }
+
   .frameless-titlebar-close:hover {
     background-color: rgb(228, 79, 79);
   }
+
   .frameless-titlebar-button svg {
     fill: #000000
   }
+
   .frameless-titlebar-close:hover svg {
     fill: #ffffff
   }

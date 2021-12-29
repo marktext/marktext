@@ -112,7 +112,7 @@ const handleResponseForSave = async (e, { id, filename, markdown, pathname, opti
 
   // If the file doesn't exist on disk add it to the recently used documents later
   // and execute file from filesystem watcher for a short time. The file may exists
-  // on disk nevertheless but is already tracked by Mark Text.
+  // on disk nevertheless but is already tracked by MarkText.
   const alreadyExistOnDisk = !!pathname
 
   let filePath = pathname
@@ -241,7 +241,7 @@ ipcMain.on('mt::response-file-save-as', async (e, { id, filename, markdown, path
 
   // If the file doesn't exist on disk add it to the recently used documents later
   // and execute file from filesystem watcher for a short time. The file may exists
-  // on disk nevertheless but is already tracked by Mark Text.
+  // on disk nevertheless but is already tracked by MarkText.
   const alreadyExistOnDisk = !!pathname
 
   let { filePath, canceled } = await dialog.showSaveDialog(win, {
@@ -357,7 +357,7 @@ ipcMain.on('mt::rename', async (e, { id, pathname, newPathname }) => {
     })
   }
 
-  if (!exists(newPathname)) {
+  if (!await exists(newPathname)) {
     doRename()
   } else {
     const { response } = await dialog.showMessageBox(win, {
@@ -415,18 +415,27 @@ ipcMain.on('mt::format-link-click', (e, { data, dirname }) => {
 
   const href = data.href || data.text
   if (URL_REG.test(href)) {
-    return shell.openExternal(href)
+    shell.openExternal(href)
+    return
+  } else if (/^[a-z0-9]+:\/\//i.test(href)) {
+    // Prevent other URLs.
+    return
   }
 
   let pathname = null
-  if (path.isAbsolute(href) && isMarkdownFile(href)) {
+  if (path.isAbsolute(href)) {
     pathname = href
-  } else if (!path.isAbsolute(href) && isMarkdownFile(path.join(dirname, href))) {
+  } else if (dirname && !path.isAbsolute(href)) {
     pathname = path.join(dirname, href)
   }
+
   if (pathname) {
-    const win = BrowserWindow.fromWebContents(e.sender)
-    return openFileOrFolder(win, pathname)
+    if (isMarkdownFile(pathname)) {
+      const win = BrowserWindow.fromWebContents(e.sender)
+      openFileOrFolder(win, pathname)
+    } else {
+      shell.openPath(pathname)
+    }
   }
 })
 

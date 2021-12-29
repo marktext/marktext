@@ -91,22 +91,22 @@ export default {
     background: var(--sideBarBgColor);
     width: var(--prefSideBarWidth);
     height: 100vh;
-    padding-top: 40px;
+    padding-top: 30px;
     box-sizing: border-box;
     & h3 {
       margin: 0;
-      font-weight: 400;
-      text-align: center;
+      font-weight: normal;
       color: var(--sideBarColor);
     }
+    padding-left: 30px;
+    padding-right: 30px;
   }
   .search-wrapper {
     -webkit-app-region: no-drag;
-    padding: 0 20px;
     margin: 30px 0;
   }
   .el-autocomplete {
-    width: 280px;
+    width: 100%;
     & .el-input__inner {
       background: transparent;
       height: 35px;

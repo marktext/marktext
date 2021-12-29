@@ -3,6 +3,7 @@ const FUNCTION_TYPE_LANG = {
   flowchart: 'yaml',
   mermaid: 'yaml',
   sequence: 'yaml',
+  plantuml: 'yaml',
   'vega-lite': 'yaml',
   html: 'markup'
 }

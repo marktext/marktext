@@ -4,9 +4,9 @@ import * as actions from '../actions/marktext'
 
 export default function (keybindings) {
   return {
-    label: 'Mark Text',
+    label: 'MarkText',
     submenu: [{
-      label: 'About Mark Text',
+      label: 'About MarkText',
       click (menuItem, browserWindow) {
         showAboutDialog(browserWindow)
       }
@@ -30,7 +30,7 @@ export default function (keybindings) {
     }, {
       type: 'separator'
     }, {
-      label: 'Hide Mark Text',
+      label: 'Hide MarkText',
       accelerator: keybindings.getAccelerator('mt.hide'),
       role: 'hide'
     }, {
@@ -43,7 +43,7 @@ export default function (keybindings) {
     }, {
       type: 'separator'
     }, {
-      label: 'Quit Mark Text',
+      label: 'Quit MarkText',
       accelerator: keybindings.getAccelerator('file.quit'),
       click: app.quit
     }]
