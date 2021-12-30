@@ -169,15 +169,15 @@ class DataCenter extends EventEmitter {
       win.webContents.send('mt::user-preference', userData)
     })
 
-    ipcMain.on('mt::ask-for-modify-image-folder-path', async (e, filePath) => {
-      if (!filePath) {
+    ipcMain.on('mt::ask-for-modify-image-folder-path', async (e, imagePath) => {
+      if (!imagePath) {
         const win = BrowserWindow.fromWebContents(e.sender)
-        filePath = (await dialog.showOpenDialog(win, {
+        imagePath = (await dialog.showOpenDialog(win, {
           properties: ['openDirectory', 'createDirectory']
         })).filePaths[0]
       }
-      if (filePath) {
-        this.setItem('imageFolderPath', filePath)
+      if (imagePath) {
+        this.setItem('imageFolderPath', imagePath)
       }
     })
 
