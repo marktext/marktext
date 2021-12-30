@@ -158,7 +158,7 @@ export default {
       imageInsertAction: state => state.preferences.imageInsertAction,
       imagePreferRelativeDirectory: state => state.preferences.imagePreferRelativeDirectory,
       imageRelativeDirectoryName: state => state.preferences.imageRelativeDirectoryName,
-      imageFolderPath: state => state.preferences.imageFolderPath.replace(/\${filename}/g, this.currentFile),
+      imageFolderPath: state => state.preferences.imageFolderPath,
       theme: state => state.preferences.theme,
       sequenceTheme: state => state.preferences.sequenceTheme,
       hideScrollbar: state => state.preferences.hideScrollbar,
@@ -798,6 +798,7 @@ export default {
         }
       }
 
+      imageFolderPath = imageFolderPath.replace(/\${filename}/g, this.pathname)
       let result = ''
       switch (imageInsertAction) {
         case 'upload': {
