@@ -6,7 +6,7 @@ import dayjs from 'dayjs'
 import Octokit from '@octokit/rest'
 import { ensureDirSync } from 'common/filesystem'
 import { isImageFile } from 'common/filesystem/paths'
-import { dataURItoBlob } from './index'
+import { isWindows, dataURItoBlob } from './index'
 import axios from '../axios'
 
 export const create = (pathname, type) => {
@@ -51,6 +51,11 @@ export const moveToRelativeFolder = async (cwd, imagePath, relativeName) => {
 
   // dstRelPath: relative directory name + image file name
   const dstRelPath = path.join(relativeName, path.basename(imagePath))
+
+  if (isWindows) {
+    // Use forward slashes for better compatibility with websites.
+    return dstRelPath.replace(/\\/g, '/')
+  }
   return dstRelPath
 }
 
