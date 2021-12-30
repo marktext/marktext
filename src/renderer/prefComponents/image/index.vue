@@ -19,7 +19,7 @@
         description="Local image folder"
         :input="imageFolderPath"
         :regexValidator="/^(?:$|([a-zA-Z]:)?[\/\\].*$)/"
-        :defaultValue="FolderPathPlaceholder"
+        :defaultValue="folderPathPlaceholder"
         :onChange="value => modifyImageFolderPath(value)"
       ></text-box>
       <div>
@@ -75,7 +75,7 @@ export default {
         this.$store.dispatch('SET_SINGLE_PREFERENCE', { type, value })
       }
     },
-    FolderPathPlaceholder: {
+    folderPathPlaceholder: {
       get: function () {
         return this.$store.state.preferences.imageFolderPath || ''
       }
