@@ -37,7 +37,7 @@
         class="new-input"
         :style="{'margin-left': `${depth * 5 + 15}px` }"
         ref="input"
-        @keydown.enter="handleInputEnter"
+        @keypress.enter="handleInputEnter"
         v-model="createName"
       >
       <file
