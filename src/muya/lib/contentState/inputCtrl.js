@@ -100,6 +100,7 @@ const inputCtrl = ContentState => {
     if (!start || !end) {
       return
     }
+
     const { start: oldStart, end: oldEnd } = this.cursor
     const key = start.key
     const block = this.getBlock(key)
