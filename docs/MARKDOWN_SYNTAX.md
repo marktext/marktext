@@ -654,7 +654,7 @@ YAML front matter blocks are identified by an opening and closing `---` line.
 ```markdown
 ---
 title: YAML front matter example
-key: valule
+key: value
 ---
 
 Lorem ipsum dolor sit amet, graecis denique ei vel, at duo primis mandamus.
