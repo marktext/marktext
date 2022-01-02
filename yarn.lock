@@ -1514,20 +1514,20 @@
     lodash "^4.17.15"
     tmp-promise "^3.0.2"
 
-"@markedjs/html-differ@^3.0.4":
-  version "3.0.4"
-  resolved "https://registry.yarnpkg.com/@markedjs/html-differ/-/html-differ-3.0.4.tgz#e5cbe2711176fbfc25683accd4cdfb63706e029e"
-  integrity sha512-lmcvZSe2LNHMrNSbbo7X4z7Ndhi4lJabmzXb4MhF/OFYQNbJBt07TvXpjS9n4Wn0gDBnyylwhkaeSDhslH723Q==
+"@markedjs/html-differ@^4.0.0":
+  version "4.0.0"
+  resolved "https://registry.npmjs.org/@markedjs/html-differ/-/html-differ-4.0.0.tgz#40a1fea3a17c123615e1ab1151c1cec60f4c006a"
+  integrity sha512-sVyNpOMnP5AugPMGWaBaES0SR0aX2SZUXCe5jn1Diyz9WkuNA7Ea7bD3TFo+i0YCJC1h2Wv6iLF7yfFCWmpS+g==
   dependencies:
-    chalk "^4.1.0"
+    chalk "^5.0.0"
     coa "^2.0.2"
     diff "^5.0.0"
     parse5-sax-parser "^6.0.1"
 
-"@marktext/file-icons@^1.0.5":
-  version "1.0.5"
-  resolved "https://registry.npmjs.org/@marktext/file-icons/-/file-icons-1.0.5.tgz#ffd1159e50a15fec72aaed34dc5bd746cc9acf4b"
-  integrity sha512-GeMV3hv3tOG2hgixsLAOgk7lE6DXGEHrEF8e5kQLmiQOF/nz5ueXOnmSozdNHXnpPsCLJkugHhSHAGjH8mqApw==
+"@marktext/file-icons@^1.0.6":
+  version "1.0.6"
+  resolved "https://registry.npmjs.org/@marktext/file-icons/-/file-icons-1.0.6.tgz#2d8e45ef588f815fe002f661353d1ca1b948fbb7"
+  integrity sha512-E9xMmaa4nqSdIjLfZyabIkbNMRPwr+SexzkRqGOWfLkgWiZHNL45JkiLLFBqBqn7ERUxzPgSVFt2MGnetlq2rA==
   dependencies:
     file-icons "github:file-icons/atom"
 
@@ -3366,6 +3366,11 @@ chalk@^4.0.0, chalk@^4.1.0, chalk@^4.1.1, chalk@^4.1.2:
   dependencies:
     ansi-styles "^4.1.0"
     supports-color "^7.1.0"
+
+chalk@^5.0.0:
+  version "5.0.0"
+  resolved "https://registry.npmjs.org/chalk/-/chalk-5.0.0.tgz#bd96c6bb8e02b96e08c0c3ee2a9d90e050c7b832"
+  integrity sha512-/duVOqst+luxCQRKEo4bNxinsOQtMP80ZYm7mMqzuh5PociNL0PvmHFvREJ9ueYL2TxlHjBcmLCdmocx9Vg+IQ==
 
 change-case@3.0.x:
   version "3.0.2"
