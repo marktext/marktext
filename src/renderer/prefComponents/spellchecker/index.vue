@@ -1,34 +1,40 @@
 <template>
   <div class="pref-spellchecker">
     <h4>Spelling</h4>
-    <bool
-      description="Enable spell checker"
-      notes="Feature is experimental."
-      :bool="spellcheckerEnabled"
-      :onChange="handleSpellcheckerEnabled"
-    ></bool>
+    <compound>
+      <template #head>
+        <bool
+          description="Enable spell checker"
+          :bool="spellcheckerEnabled"
+          :onChange="handleSpellcheckerEnabled"
+        ></bool>
+      </template>
+      <template #children>
+        <bool
+          description="Use Hunspell instead of system spell checker on macOS and Windows 10"
+          notes="Requires restart."
+          :bool="spellcheckerIsHunspell"
+          :disable="!isOsSpellcheckerSupported || !spellcheckerEnabled"
+          :onChange="value => onSelectChange('spellcheckerIsHunspell', value)"
+        ></bool>
+        <bool
+          description="Hide marks for spelling errors"
+          :bool="spellcheckerNoUnderline"
+          :disable="!spellcheckerEnabled"
+          :onChange="value => onSelectChange('spellcheckerNoUnderline', value)"
+        ></bool>
+        <bool
+          v-show="isOsx && !spellcheckerIsHunspell"
+          description="Automatically detect document language (requires showing marks for spelling errors)"
+          :bool="spellcheckerAutoDetectLanguage"
+          :disable="!spellcheckerEnabled"
+          :onChange="value => onSelectChange('spellcheckerAutoDetectLanguage', value)"
+        ></bool>
+      </template>
+    </compound>
+
     <separator></separator>
-    <bool
-      description="Use Hunspell instead of system spell checker on macOS and Windows 10"
-      notes="Requires restart."
-      :bool="spellcheckerIsHunspell"
-      :disable="!isOsSpellcheckerSupported || !spellcheckerEnabled"
-      :onChange="value => onSelectChange('spellcheckerIsHunspell', value)"
-    ></bool>
-    <bool
-      description="Hide marks for spelling errors"
-      :bool="spellcheckerNoUnderline"
-      :disable="!spellcheckerEnabled"
-      :onChange="value => onSelectChange('spellcheckerNoUnderline', value)"
-    ></bool>
-    <bool
-      v-show="isOsx && !spellcheckerIsHunspell"
-      description="Automatically detect document language (requires showing marks for spelling errors)"
-      :bool="spellcheckerAutoDetectLanguage"
-      :disable="!spellcheckerEnabled"
-      :onChange="value => onSelectChange('spellcheckerAutoDetectLanguage', value)"
-    ></bool>
-    <separator></separator>
+
     <cur-select
       description="Default language for spell checker"
       :value="spellcheckerLanguage"
@@ -48,7 +54,9 @@
     >
       Additional languages may be added through "Language" in your "Time & language" settings.
     </div>
+
     <div v-if="isHunspellSelected && spellcheckerEnabled">
+      <h6 class="title">Hunspell settings:</h6>
       <div class="description">Installed Hunspell dictionaries</div>
       <el-table
         :data="availableDictionaries"
@@ -95,6 +103,7 @@
 
 <script>
 import { mapState } from 'vuex'
+import Compound from '../common/compound'
 import CurSelect from '../common/select'
 import Bool from '../common/bool'
 import Separator from '../common/separator'
@@ -106,6 +115,7 @@ import { downloadHunspellDictionary, deleteHunspellDictionary } from '@/spellche
 export default {
   components: {
     Bool,
+    Compound,
     CurSelect,
     Separator
   },
@@ -292,6 +302,10 @@ export default {
       margin-bottom: 2px;
       color: var(--iconColor);
       font-size: 14px;
+    }
+    & h6.title {
+      font-weight: 400;
+      font-size: 1.1em;
     }
   }
   .el-table, .el-table__expanded-cell {

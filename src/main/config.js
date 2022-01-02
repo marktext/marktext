@@ -19,6 +19,8 @@ export const editorWinOptions = Object.freeze({
 })
 
 export const preferencesWinOptions = Object.freeze({
+  minWidth: 450,
+  minHeight: 350,
   width: 950,
   height: 650,
   webPreferences: {

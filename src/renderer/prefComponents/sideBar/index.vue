@@ -74,9 +74,12 @@ export default {
       })
     },
     handleCategoryItemClick (item) {
-      this.$router.push({
-        path: item.path
-      })
+      const { currentCategory } = this
+      if (item.name.toLowerCase() !== currentCategory) {
+        this.$router.push({
+          path: item.path
+        })
+      }
     }
   },
   mounted () {
@@ -88,6 +91,8 @@ export default {
 <style>
   .pref-sidebar {
     -webkit-app-region: drag;
+    display: flex;
+    flex-direction: column;
     background: var(--sideBarBgColor);
     width: var(--prefSideBarWidth);
     height: 100vh;
@@ -96,13 +101,13 @@ export default {
     & h3 {
       margin: 0;
       font-weight: normal;
+      text-align: center;
       color: var(--sideBarColor);
     }
-    padding-left: 30px;
-    padding-right: 30px;
   }
   .search-wrapper {
     -webkit-app-region: no-drag;
+    padding: 0 20px;
     margin: 30px 0;
   }
   .el-autocomplete {
@@ -144,6 +149,7 @@ export default {
   }
   .category {
     -webkit-app-region: no-drag;
+    overflow-y: auto;
     & .item {
       width: 100%;
       height: 50px;

@@ -4,7 +4,7 @@ import { enable as remoteEnable } from '@electron/remote/main'
 import electronLocalshortcut from '@hfelix/electron-localshortcut'
 import BaseWindow, { WindowLifecycle, WindowType } from './base'
 import { centerWindowOptions } from './utils'
-import { TITLE_BAR_HEIGHT, preferencesWinOptions, isLinux, isOsx, isWindows } from '../config'
+import { TITLE_BAR_HEIGHT, preferencesWinOptions, isLinux, isOsx } from '../config'
 
 class SettingWindow extends BaseWindow {
   /**
@@ -30,9 +30,7 @@ class SettingWindow extends BaseWindow {
 
     // WORKAROUND: Electron has issues with different DPI per monitor when
     // setting a fixed window size.
-    if (isWindows) {
-      winOptions.resizable = true
-    }
+    winOptions.resizable = true
 
     // Enable native or custom/frameless window and titlebar
     const { titleBarStyle, theme } = preferences.getAll()

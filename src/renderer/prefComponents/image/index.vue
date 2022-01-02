@@ -9,7 +9,7 @@
       </div>
       <el-radio-group v-model="imageInsertAction">
         <el-radio label="upload">Upload to cloud using selected uploader (must be configured)</el-radio>
-        <el-radio label="folder">Move to designated local folder</el-radio>
+        <el-radio label="folder">Copy to designated relative assets or local folder</el-radio>
         <el-radio label="path">Keep original location</el-radio>
       </el-radio-group>
     </section>
@@ -21,20 +21,27 @@
         <el-button size="mini" @click="modifyImageFolderPath">Modify</el-button>
         <el-button size="mini" @click="openImageFolder">Open Folder</el-button>
       </div>
-      <bool
-        description="Prefer relative assets folder"
-        more="https://github.com/marktext/marktext/blob/develop/docs/IMAGES.md"
-        :bool="imagePreferRelativeDirectory"
-        :onChange="value => onSelectChange('imagePreferRelativeDirectory', value)"
-      ></bool>
-      <text-box
-        description="Relative image folder name"
-        :input="imageRelativeDirectoryName"
-        :regexValidator="/^(?:$|(?![a-zA-Z]:)[^\/\\].*$)/"
-        :defaultValue="relativeDirectoryNamePlaceholder"
-        :onChange="value => onSelectChange('imageRelativeDirectoryName', value)"
-      ></text-box>
     </section>
+
+    <compound>
+      <template #head>
+        <bool
+          description="Prefer relative assets folder"
+          more="https://github.com/marktext/marktext/blob/develop/docs/IMAGES.md"
+          :bool="imagePreferRelativeDirectory"
+          :onChange="value => onSelectChange('imagePreferRelativeDirectory', value)"
+        ></bool>
+      </template>
+      <template #children>
+        <text-box
+          description="Relative image folder name"
+          :input="imageRelativeDirectoryName"
+          :regexValidator="/^(?:$|(?![a-zA-Z]:)[^\/\\].*$)/"
+          :defaultValue="relativeDirectoryNamePlaceholder"
+          :onChange="value => onSelectChange('imageRelativeDirectoryName', value)"
+        ></text-box>
+      </template>
+    </compound>
   </div>
 </template>
 
@@ -42,12 +49,14 @@
 import { mapState } from 'vuex'
 import { shell } from 'electron'
 import Bool from '../common/bool'
+import Compound from '../common/compound'
 import Separator from '../common/separator'
 import TextBox from '../common/textBox'
 
 export default {
   components: {
     Bool,
+    Compound,
     Separator,
     TextBox
   },
