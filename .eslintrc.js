@@ -1,7 +1,7 @@
 module.exports = {
   root: true,
   parserOptions: {
-    parser: 'babel-eslint',
+    parser: '@babel/eslint-parser',
     ecmaVersion: 8,
     ecmaFeatures: {
       impliedStrict: true
@@ -64,5 +64,10 @@ module.exports = {
         extensions: ['.js', '.vue', '.json', '.css', '.node']
       }
     }
-  }
+  },
+  ignorePatterns: [
+    'node_modules',
+    'src/muya/dist/**/*',
+    'src/muya/webpack.config.js'
+  ]
 }

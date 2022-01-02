@@ -3,7 +3,7 @@ import crypto from 'crypto'
 import { clipboard } from 'electron'
 import fs from 'fs-extra'
 import dayjs from 'dayjs'
-import Octokit from '@octokit/rest'
+import { Octokit } from '@octokit/rest'
 import { ensureDirSync } from 'common/filesystem'
 import { isImageFile } from 'common/filesystem/paths'
 import { isWindows, dataURItoBlob } from './index'
@@ -145,7 +145,7 @@ export const uploadImage = async (pathname, image, preferences) => {
     })
     const path = dayjs().format('YYYY/MM') + `/${dayjs().format('DD-HH-mm-ss')}-${filename}`
     const message = `Upload by MarkText at ${dayjs().format('YYYY-MM-DD HH:mm:ss')}`
-    var payload = {
+    const payload = {
       owner,
       repo,
       path,

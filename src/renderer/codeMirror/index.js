@@ -19,9 +19,7 @@ multiplexMode(codeMirror)
 window.CodeMirror = codeMirror
 
 const modes = codeMirror.modeInfo
-codeMirror.modeURL = process.env.NODE_ENV !== 'production'
-  ? './node_modules/codemirror/mode/%N/%N.js'
-  : './codemirror/mode/%N/%N.js'
+codeMirror.modeURL = './codemirror/mode/%N/%N.js'
 
 const getModeFromName = name => {
   let result = null

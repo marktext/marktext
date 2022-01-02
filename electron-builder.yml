@@ -14,6 +14,7 @@ files:
 - "!node_modules/dagre-d3-renderer/dist/demo/"
 - "!node_modules/dragula/resources"
 - "!node_modules/**/*.js.map"
+- "!node_modules/**/*.cjs.map"
 - "!node_modules/**/*.ts.map"
 # Don't bundle build files
 - "!node_modules/@felixrieseberg/spellchecker/bin"

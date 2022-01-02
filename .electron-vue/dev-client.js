@@ -1,4 +1,4 @@
-const hotClient = require('webpack-hot-middleware/client?noInfo=true&reload=true')
+const hotClient = require('webpack-hot-middleware/client?reload=true')
 
 hotClient.subscribe(event => {
   /**

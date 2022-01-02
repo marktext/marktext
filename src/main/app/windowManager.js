@@ -208,7 +208,7 @@ class WindowManager extends EventEmitter {
     }
     const { windows } = this
     const result = []
-    for (var [key, value] of windows) {
+    for (const [key, value] of windows) {
       if (value.type === type) {
         result.push({
           id: key,

@@ -200,7 +200,7 @@ export default {
         const index = dicts.findIndex(d => d === spellcheckerLanguage)
         if (index === -1 && dicts.length >= 1) {
           // Language is not supported, prefer OS language.
-          var lang = process.env.LANG
+          let lang = process.env.LANG
           lang = lang ? lang.split('.')[0] : null
           if (lang) {
             lang = lang.replace(/_/g, '-')

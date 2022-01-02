@@ -72,7 +72,7 @@
     <!-- Vue app -->
     <div id="app"></div>
 
-    <!-- Loading Page when init App -->
+    <!-- Loading page on application startup -->
     <div id="loading-page">
       <div class="spinner">
         <div class="double-bounce1 dot"></div>
@@ -110,9 +110,11 @@
     </script>
 
     <!-- Set `__static` path to static files in production -->
-    <script>
-      if (process.env.NODE_ENV !== 'development') window.__static = require('path').join(__dirname, '/static').replace(/\\/g, '\\\\')
-    </script>
+    <% if (!htmlWebpackPlugin.options.isBrowser && !htmlWebpackPlugin.options.isDevelopment) { %>
+      <script>
+        window.__static = require('path').join(__dirname, '/static').replace(/\\/g, '\\\\')
+      </script>
+    <% } %>
 
     <!-- webpack builds are automatically injected -->
   </body>

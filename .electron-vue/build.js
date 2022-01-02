@@ -8,7 +8,7 @@ const chalk = require('chalk')
 const del = require('del')
 const fs = require('fs-extra')
 const webpack = require('webpack')
-const Multispinner = require('multispinner')
+const Listr = require('listr')
 
 
 const mainConfig = require('./webpack.main.config')
@@ -39,40 +39,53 @@ async function build () {
   const to = path.resolve(__dirname, '../static/themes')
   await fs.copy(from, to)
 
-  const tasks = ['main', 'renderer']
-  const m = new Multispinner(tasks, {
-    preText: 'building',
-    postText: 'process'
-  })
-
   let results = ''
 
-  m.on('success', () => {
-    process.stdout.write('\x1B[2J\x1B[0f')
-    console.log(`\n\n${results}`)
-    console.log(`${okayLog}take it away ${chalk.yellow('`electron-builder`')}\n`)
-    process.exit()
-  })
+  const tasks = new Listr(
+    [
+      {
+        title: 'building main process',
+        task: async () => {
+          await pack(mainConfig)
+            .then(result => {
+              results += result + '\n\n'
+            })
+            .catch(err => {
+              console.log(`\n  ${errorLog}failed to build main process`)
+              console.error(`\n${err}\n`)
+              process.exit(1)
+            })
+        }
+      },
+      {
+        title: 'building renderer process',
+        task: async () => {
+          await pack(rendererConfig)
+            .then(result => {
+              results += result + '\n\n'
+            })
+            .catch(err => {
+              console.log(`\n  ${errorLog}failed to build renderer process`)
+              console.error(`\n${err}\n`)
+              process.exit(1)
+            })
+        }
+      }
+    ],
+    { concurrent: 2 }
+  )
 
-  pack(mainConfig).then(result => {
-    results += result + '\n\n'
-    m.success('main')
-  }).catch(err => {
-    m.error('main')
-    console.log(`\n  ${errorLog}failed to build main process`)
-    console.error(`\n${err}\n`)
-    process.exit(1)
-  })
-
-  pack(rendererConfig).then(result => {
-    results += result + '\n\n'
-    m.success('renderer')
-  }).catch(err => {
-    m.error('renderer')
-    console.log(`\n  ${errorLog}failed to build renderer process`)
-    console.error(`\n${err}\n`)
-    process.exit(1)
-  })
+  await tasks
+    .run()
+    .then(() => {
+      process.stdout.write('\x1B[2J\x1B[0f')
+      console.log(`\n\n${results}`)
+      console.log(`${okayLog}take it away ${chalk.yellow('`electron-builder`')}\n`)
+      process.exit()
+    })
+    .catch(err => {
+      process.exit(1)
+    })
 }
 
 function pack (config) {
@@ -106,8 +119,8 @@ function greeting () {
   const cols = process.stdout.columns
   let text = ''
 
-  if (cols > 85) text = 'lets-build'
-  else if (cols > 60) text = 'lets-|build'
+  if (cols > 155) text = 'building marktext'
+  else if (cols > 76) text = 'building|marktext'
   else text = false
 
   if (text && !isCI) {
@@ -117,6 +130,6 @@ function greeting () {
       space: false
     })
   } else {
-    console.log(chalk.yellow.bold('\n  lets-build'))
+    console.log(chalk.yellow.bold('\n  building marktext'))
   }
 }

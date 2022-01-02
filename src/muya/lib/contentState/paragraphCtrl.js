@@ -678,19 +678,6 @@ const paragraphCtrl = ContentState => {
     this.muya.eventCenter.dispatch('stateChange')
   }
 
-  ContentState.prototype.getPreBlock = function (block) {
-    const { children } = block
-    if (!children || !children.length) return null
-    for (const child of children) {
-      if (child.type === 'pre') {
-        return child
-      } else {
-        return this.getPreBlock(child)
-      }
-    }
-    return null
-  }
-
   // make a dulication of the current block
   ContentState.prototype.duplicate = function () {
     const { start, end } = this.cursor
