@@ -37,7 +37,7 @@ export const block = {
   frontmatter: /^(?:(?:---\n([\s\S]+?)---)|(?:\+\+\+\n([\s\S]+?)\+\+\+)|(?:;;;\n([\s\S]+?);;;)|(?:\{\n([\s\S]+?)\}))(?:\n{2,}|\n{1,2}$)/,
   multiplemath: /^\$\$\n([\s\S]+?)\n\$\$(?:\n+|$)/,
   multiplemathGitlab: /^ {0,3}(`{3,})math\n(?:(|[\s\S]*?)\n)(?: {0,3}\1`* *(?:\n+|$)|$)/, // Math inside a code block (GitLab display math)
-  footnote: /^\[\^([^\^\[\]\s]+?)\]:[\s\S]+?(?=\n *\n {0,3}[^ ]+|$)/
+  footnote: /^\[\^([^\^\[\]\s]+?)(?<!\\)\]:[\s\S]+?(?=\n *\n {0,3}[^ ]+|$)/
 }
 
 block._label = /(?!\s*\])(?:\\[\[\]]|[^\[\]])+/

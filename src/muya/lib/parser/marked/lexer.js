@@ -195,7 +195,7 @@ Lexer.prototype.token = function (src, top) {
 
         /* eslint-disable no-useless-escape */
         // Remove the footnote identifer prefix. eg: `[^identifier]: `.
-        cap = cap[0].replace(/^\[\^[^\^\[\]\s]+?(?<!\\)\]:\s+/gm, '')
+        cap = cap[0].replace(/^\[\^[^\^\[\]\s]+?(?<!\\)\]:\s*/gm, '')
         // Remove the four whitespace before each block of footnote.
         cap = cap.replace(/\n {4}(?=[^\s])/g, '\n')
         /* eslint-enable no-useless-escape */
