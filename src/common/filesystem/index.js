@@ -1,4 +1,5 @@
 import fs from 'fs-extra'
+import fsPromises from 'fs/promises'
 import path from 'path'
 
 /**
@@ -9,7 +10,8 @@ import path from 'path'
  */
 export const exists = async p => {
   try {
-    return fs.existsSync(p)
+    await fsPromises.access(p)
+    return true
   } catch (_) {
     return false
   }
