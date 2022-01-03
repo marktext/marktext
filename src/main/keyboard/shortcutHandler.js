@@ -108,8 +108,8 @@ class Keybindings {
       ['view.dev-reload', 'CmdOrCtrl+R'],
 
       // Misc
-      ['tabs.cycle-forward', 'CmdOrCtrl+Tab'],
-      ['tabs.cycle-backward', 'CmdOrCtrl+Shift+Tab'],
+      ['tabs.cycle-forward', 'Ctrl+Tab'],
+      ['tabs.cycle-backward', 'Ctrl+Shift+Tab'],
       ['tabs.switch-to-left', 'CmdOrCtrl+PageUp'],
       ['tabs.switch-to-right', 'CmdOrCtrl+PageDown'],
       ['tabs.switch-to-first', `${tabSwitchBaseStroke}+1`],
