@@ -1,6 +1,7 @@
 import path from 'path'
 import fs from 'fs-extra'
 import log from 'electron-log'
+import { exists } from 'common/filesystem'
 import { getResourcesPath } from 'common/filesystem/paths'
 
 // This is an asynchronous function to not block the process. The spell checker may be
@@ -12,12 +13,12 @@ export default async appDataPath => {
   const destDir = path.join(appDataPath, 'dictionaries')
   const destPath = path.join(destDir, 'en-US.bdic')
 
-  if (!fs.existsSync(srcPath)) {
-    log.error('Error while installing Hunspell default dictionary. Mark Text resources are corrupted!')
+  if (!await exists(srcPath)) {
+    log.error('Error while installing Hunspell default dictionary. MarkText resources are corrupted!')
     return
   }
 
-  if (!fs.existsSync(destPath)) {
+  if (!await exists(destPath)) {
     await fs.ensureDir(destDir)
     await fs.copy(srcPath, destPath)
   }

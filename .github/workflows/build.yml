@@ -118,9 +118,9 @@ jobs:
         id: cacheNodeModules
         with:
           path: ${{ github.workspace }}\node_modules
-          key: ${{ runner.os }}-node_modules-cache-${{ hashFiles(format('{0}{1}', github.workspace, '\yarn.lock')) }}
+          key: ${{ runner.os }}-node_modules-cache-v1-${{ hashFiles(format('{0}{1}', github.workspace, '\yarn.lock')) }}
           restore-keys: |
-            ${{ runner.os }}-node_modules-cache-
+            ${{ runner.os }}-node_modules-cache-v1-
 
       - name: Cache Electron
         uses: actions/cache@v2
