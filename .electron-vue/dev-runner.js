@@ -77,7 +77,7 @@ function startRenderer () {
           watch: false
         }
       ],
-      onBeforeSetupMiddleware ({ app, middleware}) {
+      onBeforeSetupMiddleware ({ app, middleware }) {
         app.use(hotMiddleware)
         middleware.waitUntilValid(() => {
           resolve()
