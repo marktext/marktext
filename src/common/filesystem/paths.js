@@ -1,4 +1,4 @@
-import fs from 'fs-extra'
+import fs from 'fs'
 import path from 'path'
 import { isFile, isFile2, isSymbolicLink } from './index'
 

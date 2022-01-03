@@ -1,5 +1,5 @@
 import path from 'path'
-import fs from 'fs-extra'
+import fsPromises from 'fs/promises'
 import log from 'electron-log'
 import chokidar from 'chokidar'
 import { exists } from 'common/filesystem'
@@ -19,7 +19,7 @@ const EVENT_NAME = {
 }
 
 const add = async (win, pathname, type, endOfLine, autoGuessEncoding, trimTrailingNewline) => {
-  const stats = await fs.stat(pathname)
+  const stats = await fsPromises.stat(pathname)
   const birthTime = stats.birthtime
   const isMarkdown = hasMarkdownExtension(pathname)
   const file = {

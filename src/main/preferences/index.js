@@ -1,4 +1,3 @@
-import fse from 'fs-extra'
 import fs from 'fs'
 import path from 'path'
 import EventEmitter from 'events'
@@ -37,7 +36,7 @@ class Preference extends EventEmitter {
   init = () => {
     let defaultSettings = null
     try {
-      defaultSettings = fse.readJsonSync(this.staticPath)
+      defaultSettings = JSON.parse(fs.readFileSync(this.staticPath, { encoding: 'utf8' }) || '{}')
 
       // Set best theme on first application start.
       if (nativeTheme.shouldUseDarkColors) {

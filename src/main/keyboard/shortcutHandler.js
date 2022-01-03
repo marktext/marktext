@@ -1,5 +1,5 @@
 import { Menu } from 'electron'
-import fs from 'fs-extra'
+import fs from 'fs'
 import path from 'path'
 import log from 'electron-log'
 import isAccelerator from 'electron-is-accelerator'
@@ -227,7 +227,12 @@ class Keybindings {
       return
     }
 
-    const json = fs.readJsonSync(this.configPath, { throws: false })
+    let json
+    try {
+      json = JSON.parse(fs.readFileSync(this.configPath, 'utf8'))
+    } catch (e) {
+      json = null
+    }
     if (!json || typeof json !== 'object') {
       log.warn('Invalid keybindings.json configuration.')
       return
