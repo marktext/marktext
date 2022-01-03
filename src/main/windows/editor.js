@@ -1,5 +1,6 @@
 import path from 'path'
 import { BrowserWindow, dialog, ipcMain } from 'electron'
+import { enable as remoteEnable } from '@electron/remote/main'
 import log from 'electron-log'
 import windowStateKeeper from 'electron-window-state'
 import { isChildOfDirectory, isSamePathSync } from 'common/filesystem/paths'
@@ -68,6 +69,7 @@ class EditorWindow extends BaseWindow {
     winOptions.backgroundColor = this._getPreferredBackgroundColor(theme)
 
     let win = this.browserWindow = new BrowserWindow(winOptions)
+    remoteEnable(win.webContents)
     this.id = win.id
 
     // Create a menu for the current window
@@ -115,7 +117,7 @@ class EditorWindow extends BaseWindow {
       const { response } = await dialog.showMessageBox(win, {
         type: 'warning',
         buttons: ['Close', 'Reload', 'Keep It Open'],
-        message: 'Mark Text has crashed',
+        message: 'MarkText has crashed',
         detail: msg
       })
 

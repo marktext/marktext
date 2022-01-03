@@ -34,11 +34,23 @@ const matchString = (text, value, options) => {
 }
 
 const searchCtrl = ContentState => {
+  ContentState.prototype.buildRegexValue = function (match, value) {
+    const groups = value.match(/\$(\d)*/g)
+    if (groups) {
+      for (const regexGroup of groups) {
+        const groupIndex = regexGroup[1] - 1
+        if (groupIndex < match.subMatches.length) {
+          value = value.replace(regexGroup, match.subMatches[groupIndex])
+        }
+      }
+    }
+    return value
+  }
+
   ContentState.prototype.replaceOne = function (match, value) {
     const { start, end, key } = match
     const block = this.getBlock(key)
     const { text } = block
-
     block.text = text.substring(0, start) + value + text.substring(end)
   }
 
@@ -48,6 +60,9 @@ const searchCtrl = ContentState => {
     const searchOptions = Object.assign({}, defaultSearchOption, opt)
     const { matches, value, index } = this.searchMatches
     if (matches.length) {
+      if (opt.isRegexp) {
+        replaceValue = this.buildRegexValue(matches[index], replaceValue)
+      }
       if (isSingle) {
         this.replaceOne(matches[index], replaceValue)
       } else {
@@ -108,7 +123,8 @@ const searchCtrl = ContentState => {
             return {
               key,
               start: m.index,
-              end: m.index + m.match.length
+              end: m.index + m.match.length,
+              subMatches: m.subMatches
             }
           }))
         }

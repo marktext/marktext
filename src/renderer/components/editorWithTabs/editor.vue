@@ -693,7 +693,13 @@ export default {
       this.editor.on('selectionChange', changes => {
         const { y } = changes.cursorCoords
         if (this.typewriter) {
-          animatedScrollTo(container, container.scrollTop + y - STANDAR_Y, 100)
+          const startPosition = container.scrollTop
+          const toPosition = startPosition + y - STANDAR_Y
+
+          // Prevent micro shakes and unnecessary scrolling.
+          if (Math.abs(startPosition - toPosition) > 2) {
+            animatedScrollTo(container, toPosition, 100)
+          }
         }
 
         // Used to fix #628: auto scroll cursor to visible if the cursor is too low.
@@ -810,7 +816,7 @@ export default {
         case 'folder': {
           result = await moveImageToFolder(pathname, image, imageFolderPath)
           if (cwd && imagePreferRelativeDirectory) {
-            result = moveToRelativeFolder(cwd, result, imageRelativeDirectoryName)
+            result = await moveToRelativeFolder(cwd, result, imageRelativeDirectoryName)
           }
           break
         }
@@ -823,7 +829,7 @@ export default {
 
             // Respect user preferences if file exist on disk.
             if (cwd && imagePreferRelativeDirectory) {
-              result = moveToRelativeFolder(cwd, result, imageRelativeDirectoryName)
+              result = await moveToRelativeFolder(cwd, result, imageRelativeDirectoryName)
             }
           }
           break

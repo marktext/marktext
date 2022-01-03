@@ -54,8 +54,8 @@ export default {
   },
   methods: {
     querySearch (queryString, cb) {
-      var restaurants = this.restaurants
-      var results = queryString ? restaurants.filter(this.createFilter(queryString)) : restaurants
+      const restaurants = this.restaurants
+      const results = queryString ? restaurants.filter(this.createFilter(queryString)) : restaurants
       // call callback return this results
       cb(results)
     },
@@ -74,9 +74,12 @@ export default {
       })
     },
     handleCategoryItemClick (item) {
-      this.$router.push({
-        path: item.path
-      })
+      const { currentCategory } = this
+      if (item.name.toLowerCase() !== currentCategory) {
+        this.$router.push({
+          path: item.path
+        })
+      }
     }
   },
   mounted () {
@@ -88,14 +91,16 @@ export default {
 <style>
   .pref-sidebar {
     -webkit-app-region: drag;
+    display: flex;
+    flex-direction: column;
     background: var(--sideBarBgColor);
     width: var(--prefSideBarWidth);
     height: 100vh;
-    padding-top: 40px;
+    padding-top: 30px;
     box-sizing: border-box;
     & h3 {
       margin: 0;
-      font-weight: 400;
+      font-weight: normal;
       text-align: center;
       color: var(--sideBarColor);
     }
@@ -106,7 +111,7 @@ export default {
     margin: 30px 0;
   }
   .el-autocomplete {
-    width: 280px;
+    width: 100%;
     & .el-input__inner {
       background: transparent;
       height: 35px;
@@ -144,6 +149,7 @@ export default {
   }
   .category {
     -webkit-app-region: no-drag;
+    overflow-y: auto;
     & .item {
       width: 100%;
       height: 50px;

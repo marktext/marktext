@@ -107,8 +107,8 @@ class App {
       contents.on('will-navigate', event => {
         event.preventDefault()
       })
-      contents.on('new-window', event => {
-        event.preventDefault()
+      contents.setWindowOpenHandler(details => {
+        return { action: 'deny' }
       })
     })
 

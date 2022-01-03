@@ -12,6 +12,9 @@ const clickCtrl = ContentState => {
       const lastBlock = this.getLastBlock()
       const archor = this.findOutMostBlock(lastBlock)
       const archorParagraph = document.querySelector(`#${archor.key}`)
+      if (archorParagraph === null) {
+        return
+      }
       const rect = archorParagraph.getBoundingClientRect()
       // If click below the last paragraph
       // and the last paragraph is not empty, create a new empty paragraph
@@ -88,7 +91,7 @@ const clickCtrl = ContentState => {
         const formatType = 'link' // auto link or []() link
         const data = {
           text: inlineNode.textContent,
-          href: parentNode.getAttribute('href')
+          href: parentNode.getAttribute('href') || ''
         }
         eventCenter.dispatch('format-click', {
           event,

@@ -9,10 +9,8 @@ require('dotenv').config()
 
 // Install `vue-devtools`
 require('electron').app.on('ready', () => {
-  let installExtension = require('electron-devtools-installer')
-  // WORKAROUND: Electron: 2.0.0 does not match required range
-  // https://github.com/MarshallOfSound/electron-devtools-installer/issues/73
-  installExtension.default(installExtension.VUEJS_DEVTOOLS.id)
+  const { default: installExtension, VUEJS_DEVTOOLS } = require('electron-devtools-installer')
+  installExtension(VUEJS_DEVTOOLS)
     .then(() => {})
     .catch(err => {
       console.log('Unable to install `vue-devtools`: \n', err)

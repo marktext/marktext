@@ -12,13 +12,13 @@ const presetsHash = {
   test: [
     [presetEnv,
     {
-      targets: { 'node': 10 }
+      targets: { 'node': 16 }
     }]
   ],
   main: [
     [presetEnv,
     {
-      targets: { 'node': 10 }
+      targets: { 'node': 16 }
     }]
   ],
   renderer: [
@@ -27,7 +27,7 @@ const presetsHash = {
       useBuiltIns: false,
       targets: {
         electron: require('electron/package.json').version,
-        node: 10
+        node: 16
       }
     }]
   ]
@@ -46,8 +46,7 @@ module.exports = function (api) {
         style: false,
         libraryName: 'element-ui'
       }
-    ]
-    )
+    ])
   }
 
   return {

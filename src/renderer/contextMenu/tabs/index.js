@@ -1,4 +1,4 @@
-import { remote } from 'electron'
+import { getCurrentWindow, Menu as RemoteMenu, MenuItem as RemoteMenuItem } from '@electron/remote'
 import {
   CLOSE_THIS,
   CLOSE_OTHERS,
@@ -10,11 +10,9 @@ import {
   SHOW_IN_FOLDER
 } from './menuItems'
 
-const { Menu, MenuItem } = remote
-
 export const showContextMenu = (event, tab) => {
-  const menu = new Menu()
-  const win = remote.getCurrentWindow()
+  const menu = new RemoteMenu()
+  const win = getCurrentWindow()
   const { pathname } = tab
   const CONTEXT_ITEMS = [CLOSE_THIS, CLOSE_OTHERS, CLOSE_SAVED, CLOSE_ALL, SEPARATOR, RENAME, COPY_PATH, SHOW_IN_FOLDER]
   const FILE_CONTEXT_ITEMS = [RENAME, COPY_PATH, SHOW_IN_FOLDER]
@@ -24,7 +22,7 @@ export const showContextMenu = (event, tab) => {
   })
 
   CONTEXT_ITEMS.forEach(item => {
-    const menuItem = new MenuItem(item)
+    const menuItem = new RemoteMenuItem(item)
     menuItem._tabId = tab.id
     menu.append(menuItem)
   })

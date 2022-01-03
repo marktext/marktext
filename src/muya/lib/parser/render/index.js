@@ -127,6 +127,7 @@ class StateRender {
       const RENDER_MAP = {
         flowchart: await loadRenderer('flowchart'),
         sequence: await loadRenderer('sequence'),
+        plantuml: await loadRenderer('plantuml'),
         'vega-lite': await loadRenderer('vega-lite')
       }
 
@@ -153,6 +154,10 @@ class StateRender {
             const diagram = render.parse(code)
             target.innerHTML = ''
             diagram.drawSVG(target, options)
+          } else if (functionType === 'plantuml') {
+            const diagram = render.parse(code)
+            target.innerHTML = ''
+            diagram.insertImgElement(target)
           } else if (functionType === 'vega-lite') {
             await render(key, JSON.parse(code), options)
           }

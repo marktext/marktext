@@ -3,10 +3,10 @@ import crypto from 'crypto'
 import { clipboard } from 'electron'
 import fs from 'fs-extra'
 import dayjs from 'dayjs'
-import Octokit from '@octokit/rest'
+import { Octokit } from '@octokit/rest'
 import { ensureDirSync } from 'common/filesystem'
 import { isImageFile } from 'common/filesystem/paths'
-import { dataURItoBlob } from './index'
+import { isWindows, dataURItoBlob } from './index'
 import axios from '../axios'
 
 export const create = (pathname, type) => {
@@ -45,11 +45,18 @@ export const moveToRelativeFolder = async (cwd, imagePath, relativeName) => {
   //  - markdown file directory + relative directory name or
   //  - root directory + relative directory name
   const absPath = path.resolve(cwd, relativeName)
-  ensureDirSync(absPath)
-
   const dstPath = path.resolve(absPath, path.basename(imagePath))
+  ensureDirSync(absPath)
   await fs.move(imagePath, dstPath, { overwrite: true })
-  return dstPath
+
+  // dstRelPath: relative directory name + image file name
+  const dstRelPath = path.join(relativeName, path.basename(imagePath))
+
+  if (isWindows) {
+    // Use forward slashes for better compatibility with websites.
+    return dstRelPath.replace(/\\/g, '/')
+  }
+  return dstRelPath
 }
 
 export const moveImageToFolder = async (pathname, image, dir) => {
@@ -135,11 +142,10 @@ export const uploadImage = async (pathname, image, preferences) => {
   const uploadByGithub = (content, filename) => {
     const octokit = new Octokit({
       auth: `token ${token}`
-
     })
     const path = dayjs().format('YYYY/MM') + `/${dayjs().format('DD-HH-mm-ss')}-${filename}`
-    const message = `Upload by Mark Text at ${dayjs().format('YYYY-MM-DD HH:mm:ss')}`
-    var payload = {
+    const message = `Upload by MarkText at ${dayjs().format('YYYY-MM-DD HH:mm:ss')}`
+    const payload = {
       owner,
       repo,
       path,
@@ -150,7 +156,7 @@ export const uploadImage = async (pathname, image, preferences) => {
     if (!branch) {
       delete payload.branch
     }
-    octokit.repos.createFile(payload).then(result => {
+    octokit.repos.createOrUpdateFileContents(payload).then(result => {
       re(result.data.content.download_url)
     })
       .catch(_ => {

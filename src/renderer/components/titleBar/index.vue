@@ -9,7 +9,7 @@
       :class="[{ 'active': active }, { 'tabs-visible': showTabBar }, { 'frameless': titleBarStyle === 'custom' }, { 'isOsx': isOsx }]"
     >
       <div class="title" @dblclick.stop="toggleMaxmizeOnMacOS">
-        <span v-if="!filename">Mark Text</span>
+        <span v-if="!filename">MarkText</span>
         <span v-else>
           <span
             v-for="(path, index) of paths"
@@ -98,7 +98,8 @@
 </template>
 
 <script>
-import { ipcRenderer, remote } from 'electron'
+import { ipcRenderer } from 'electron'
+import { getCurrentWindow, Menu as RemoteMenu } from '@electron/remote'
 import { mapState } from 'vuex'
 import { minimizePath, restorePath, maximizePath, closePath } from '../../assets/window-controls.js'
 import { PATH_SEPARATOR } from '../../config'
@@ -130,8 +131,8 @@ export default {
     this.windowIconMaximize = maximizePath
     this.windowIconClose = closePath
     return {
-      isFullScreen: remote.getCurrentWindow().isFullScreen(),
-      isMaximized: remote.getCurrentWindow().isMaximized(),
+      isFullScreen: getCurrentWindow().isFullScreen(),
+      isMaximized: getCurrentWindow().isMaximized(),
       show: 'word'
     }
   },
@@ -170,9 +171,9 @@ export default {
       const hasOpenFolder = this.project && this.project.name
       let title = ''
       if (value) {
-        title = hasOpenFolder ? `${value} - ${this.project.name}` : `${value} - Mark Text`
+        title = hasOpenFolder ? `${value} - ${this.project.name}` : `${value} - MarkText`
       } else {
-        title = hasOpenFolder ? this.project.name : 'Mark Text'
+        title = hasOpenFolder ? this.project.name : 'MarkText'
       }
 
       document.title = title
@@ -189,11 +190,11 @@ export default {
     },
 
     handleCloseClick () {
-      remote.getCurrentWindow().close()
+      getCurrentWindow().close()
     },
 
     handleMaximizeClick () {
-      const win = remote.getCurrentWindow()
+      const win = getCurrentWindow()
       if (win.isFullScreen()) {
         win.setFullScreen(false)
       } else if (win.isMaximized()) {
@@ -210,15 +211,12 @@ export default {
     },
 
     handleMinimizeClick () {
-      remote.getCurrentWindow().minimize()
+      getCurrentWindow().minimize()
     },
 
     handleMenuClick () {
-      const win = remote.getCurrentWindow()
-      remote
-        .Menu
-        .getApplicationMenu()
-        .popup({ window: win, x: 23, y: 20 })
+      const win = getCurrentWindow()
+      RemoteMenu.getApplicationMenu().popup({ window: win, x: 23, y: 20 })
     },
 
     rename () {

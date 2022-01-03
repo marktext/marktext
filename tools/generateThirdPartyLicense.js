@@ -58,7 +58,7 @@ ${licenseText}
   const output = `# Third Party Notices
 -------------------------------------------------
 
-This file contains all third-party packages that are bundled and shipped with Mark Text.
+This file contains all third-party packages that are bundled and shipped with MarkText.
 
 -------------------------------------------------
 # Summary

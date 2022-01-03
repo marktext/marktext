@@ -218,10 +218,12 @@ const formatCtrl = ContentState => {
       }))
     }
 
-    neighbors = type ? neighbors.filter(n => {
-      return n.type === type ||
-      n.type === 'html_tag' && n.tag === type
-    }) : neighbors
+    neighbors = type
+      ? neighbors.filter(n => {
+        return n.type === type ||
+        n.type === 'html_tag' && n.tag === type
+      })
+      : neighbors
 
     for (const neighbor of neighbors) {
       clearFormat(neighbor, { start, end })

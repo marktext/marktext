@@ -222,15 +222,23 @@ export default {
       let focus = cm.getCursor('head')
       let anchor = cm.getCursor('anchor')
       const markdown = cm.getValue()
-      const adjCursor = cursor => {
+      const convertToMuyaCursor = cursor => {
         const line = cm.getLine(cursor.line)
         const preLine = cm.getLine(cursor.line - 1)
         const nextLine = cm.getLine(cursor.line + 1)
         return adjustCursor(cursor, preLine, line, nextLine)
       }
-      focus = adjCursor(focus)
-      anchor = adjCursor(anchor)
 
+      anchor = convertToMuyaCursor(anchor) // Selection start as Muya cursor
+      focus = convertToMuyaCursor(focus) // Selection end as Muya cursor
+
+      // Normalize cursor that `anchor` is always before `focus` because
+      // this is the expected behavior in Muya.
+      if (anchor && focus && anchor.line > focus.line) {
+        const tmpCursor = focus
+        focus = anchor
+        anchor = tmpCursor
+      }
       return { cursor: { focus, anchor }, markdown }
     },
     // Commit changes from old tab. Problem: tab was already switched, so commit changes with old tab id.
