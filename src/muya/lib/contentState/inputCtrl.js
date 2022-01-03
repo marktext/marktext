@@ -211,12 +211,11 @@ const inputCtrl = ContentState => {
           if (
             // Issue 2566: Do not complete markdown syntax if the previous character is
             // alphanumeric.
-            (!/[a-z0-9]{1}/i.test(preInputChar) || !/[*$`~_]{1}/.test(inputChar)) &&
             !/\\/.test(preInputChar) &&
             ((autoPairQuote && /[']{1}/.test(inputChar) && !(/[a-zA-Z\d]{1}/.test(preInputChar))) ||
-            (autoPairQuote && /["]{1}/.test(inputChar)) ||
-            (autoPairBracket && /[\{\[\(]{1}/.test(inputChar)) ||
-            (block.functionType !== 'codeContent' && !isInInlineMath && !isInInlineCode && autoPairMarkdownSyntax && /[*$`~_]{1}/.test(inputChar)))
+              (autoPairQuote && /["]{1}/.test(inputChar)) ||
+              (autoPairBracket && /[\{\[\(]{1}/.test(inputChar)) ||
+              (block.functionType !== 'codeContent' && !isInInlineMath && !isInInlineCode && autoPairMarkdownSyntax && !/[a-z0-9]{1}/i.test(preInputChar) && /[*$`~_]{1}/.test(inputChar)))
           ) {
             needRender = true
             text = BRACKET_HASH[event.data]
