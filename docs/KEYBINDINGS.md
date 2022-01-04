@@ -143,8 +143,8 @@ Here is an example:
 
 | Id                       | Default                                              | Description                  |
 | ------------------------ | ---------------------------------------------------- | ---------------------------- |
-| `tabs.cycle-forward`     | <kbd>CmdOrCtrl</kbd>+<kbd>Tab</kbd>                  | Cycle through tabs           |
-| `tabs.cycle-backward`    | <kbd>CmdOrCtrl</kbd>+<kbd>Shift</kbd>+<kbd>Tab</kbd> | Cycle backwards through tabs |
+| `tabs.cycle-forward`     | <kbd>Ctrl</kbd>+<kbd>Tab</kbd>                       | Cycle through tabs           |
+| `tabs.cycle-backward`    | <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Tab</kbd>      | Cycle backwards through tabs |
 | `tabs.switch-to-left`    | <kbd>CmdOrCtrl</kbd>+<kbd>PageUp</kbd>               | Switch tab to the left       |
 | `tabs.switch-to-right`   | <kbd>CmdOrCtrl</kbd>+<kbd>PageDown</kbd>             | Switch tab to the right      |
 | `tabs.switch-to-first`   | <kbd>Alt</kbd>+<kbd>1</kbd>                          | Switch tab to the 1st        |
