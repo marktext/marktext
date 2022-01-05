@@ -34,6 +34,7 @@ export default function (keybindings) {
       id: 'superscriptMenuItem',
       label: 'Superscript',
       type: 'checkbox',
+      accelerator: keybindings.getAccelerator('format.superscript'),
       click (menuItem, browserWindow) {
         actions.format(browserWindow, 'sup')
       }
@@ -41,6 +42,7 @@ export default function (keybindings) {
       id: 'subscriptMenuItem',
       label: 'Subscript',
       type: 'checkbox',
+      accelerator: keybindings.getAccelerator('format.subscript'),
       click (menuItem, browserWindow) {
         actions.format(browserWindow, 'sub')
       }

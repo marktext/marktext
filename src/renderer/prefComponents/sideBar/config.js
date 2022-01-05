@@ -43,6 +43,11 @@ export const category = [{
   label: 'imageUploader',
   icon: ImageUploaderIcon,
   path: '/preference/imageUploader'
+}, {
+  name: 'Key Bindings',
+  label: 'keybindings',
+  icon: ImageUploaderIcon, // TODO: Replace icon
+  path: '/preference/keybindings'
 }]
 
 export const searchContent = Object.keys(preferences).map(k => {

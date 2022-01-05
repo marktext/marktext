@@ -561,6 +561,11 @@ class App {
       // Convert map to object
       win.webContents.send('mt::keybindings-response', Object.fromEntries(keybindings.keys))
     })
+
+    ipcMain.on('mt::open-keybindings-config', () => {
+      const { keybindings } = this._accessor
+      keybindings.openConfigInFileManager()
+    })
   }
 }
 

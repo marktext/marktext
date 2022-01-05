@@ -1,14 +1,16 @@
-import { Menu } from 'electron'
+import { shell, Menu } from 'electron'
 import fs from 'fs'
 import path from 'path'
 import log from 'electron-log'
 import isAccelerator from 'electron-is-accelerator'
 import electronLocalshortcut from '@hfelix/electron-localshortcut'
 import { isFile2 } from 'common/filesystem'
-import { isOsx } from '../config'
+import { isLinux, isOsx } from '../config'
 import { getKeyboardLanguage, getVirtualLetters } from '../keyboard'
+import keybindingsDarwin from './keybindingsDarwin'
+import keybindingsLinux from './keybindingsLinux'
+import keybindingsWindows from './keybindingsWindows'
 
-const tabSwitchBaseStroke = (isOsx) ? 'Ctrl' : 'Alt'
 // Problematic key bindings:
 //   Aidou: Ctrl+/ -> dead key
 //   Inline Code: Ctrl+` -> dead key
@@ -21,109 +23,7 @@ class Keybindings {
   constructor (userDataPath) {
     this.configPath = path.join(userDataPath, 'keybindings.json')
 
-    this.keys = new Map([
-      // MarkText - macOS only
-      ['mt.hide', 'Command+H'],
-      ['mt.hide-others', 'Command+Alt+H'],
-
-      // File menu
-      ['file.new-file', 'CmdOrCtrl+N'],
-      ['file.new-tab', 'CmdOrCtrl+T'],
-      ['file.open-file', 'CmdOrCtrl+O'],
-      ['file.open-folder', 'CmdOrCtrl+Shift+O'],
-      ['file.save', 'CmdOrCtrl+S'],
-      ['file.save-as', 'CmdOrCtrl+Shift+S'],
-      ['file.preferences', 'CmdOrCtrl+,'], // marktext menu in macOS
-      ['file.close-tab', 'CmdOrCtrl+W'],
-      ['file.close-window', 'CmdOrCtrl+Shift+W'],
-      ['file.quit', 'CmdOrCtrl+Q'],
-
-      // Edit menu
-      ['edit.undo', 'CmdOrCtrl+Z'],
-      ['edit.redo', 'CmdOrCtrl+Shift+Z'],
-      ['edit.cut', 'CmdOrCtrl+X'],
-      ['edit.copy', 'CmdOrCtrl+C'],
-      ['edit.paste', 'CmdOrCtrl+V'],
-      ['edit.copy-as-markdown', 'CmdOrCtrl+Shift+C'],
-      ['edit.copy-as-plaintext', 'CmdOrCtrl+Shift+V'],
-      ['edit.select-all', 'CmdOrCtrl+A'],
-      ['edit.duplicate', 'CmdOrCtrl+Alt+D'],
-      ['edit.create-paragraph', 'Shift+CmdOrCtrl+N'],
-      ['edit.delete-paragraph', 'Shift+CmdOrCtrl+D'],
-      ['edit.find', 'CmdOrCtrl+F'],
-      ['edit.find-next', isOsx ? 'Cmd+G' : 'F3'],
-      ['edit.find-previous', isOsx ? 'Cmd+Shift+G' : 'Shift+F3'],
-      ['edit.replace', 'CmdOrCtrl+Alt+F'],
-      ['edit.find-in-folder', 'Shift+CmdOrCtrl+F'],
-      ['edit.aidou', 'CmdOrCtrl+/'],
-      ['edit.screenshot', 'CmdOrCtrl+Alt+A'], // macOS only
-
-      // Paragraph menu
-      ['paragraph.heading-1', 'CmdOrCtrl+1'],
-      ['paragraph.heading-2', 'CmdOrCtrl+2'],
-      ['paragraph.heading-3', 'CmdOrCtrl+3'],
-      ['paragraph.heading-4', 'CmdOrCtrl+4'],
-      ['paragraph.heading-5', 'CmdOrCtrl+5'],
-      ['paragraph.heading-6', 'CmdOrCtrl+6'],
-      ['paragraph.upgrade-heading', 'CmdOrCtrl+='],
-      ['paragraph.degrade-heading', 'CmdOrCtrl+-'],
-      ['paragraph.table', 'CmdOrCtrl+Shift+T'],
-      ['paragraph.code-fence', 'CmdOrCtrl+Alt+C'],
-      ['paragraph.quote-block', 'CmdOrCtrl+Alt+Q'],
-      ['paragraph.math-formula', 'CmdOrCtrl+Alt+M'],
-      ['paragraph.html-block', isOsx ? 'CmdOrCtrl+Alt+J' : 'CmdOrCtrl+Alt+H'],
-      ['paragraph.order-list', 'CmdOrCtrl+Alt+O'],
-      ['paragraph.bullet-list', 'CmdOrCtrl+Alt+U'],
-      ['paragraph.task-list', 'CmdOrCtrl+Alt+X'],
-      ['paragraph.loose-list-item', 'CmdOrCtrl+Alt+L'],
-      ['paragraph.paragraph', 'CmdOrCtrl+0'],
-      ['paragraph.horizontal-line', 'CmdOrCtrl+Alt+-'],
-      ['paragraph.front-matter', 'CmdOrCtrl+Alt+Y'],
-
-      // Format menu
-      ['format.strong', 'CmdOrCtrl+B'],
-      ['format.emphasis', 'CmdOrCtrl+I'],
-      ['format.underline', 'CmdOrCtrl+U'],
-      ['format.highlight', 'Shift+CmdOrCtrl+H'],
-      ['format.inline-code', 'CmdOrCtrl+`'],
-      ['format.inline-math', 'Shift+CmdOrCtrl+M'],
-      ['format.strike', 'CmdOrCtrl+D'],
-      ['format.hyperlink', 'CmdOrCtrl+L'],
-      ['format.image', 'CmdOrCtrl+Shift+I'],
-      ['format.clear-format', 'Shift+CmdOrCtrl+R'],
-
-      // Window menu
-      ['window.minimize', 'CmdOrCtrl+M'],
-      ['window.toggle-full-screen', isOsx ? 'Ctrl+Command+F' : 'F11'],
-
-      // View menu
-      ['view.command-palette', 'CmdOrCtrl+Shift+P'],
-      ['view.source-code-mode', 'CmdOrCtrl+Alt+S'],
-      ['view.typewriter-mode', 'CmdOrCtrl+Alt+T'],
-      ['view.focus-mode', 'CmdOrCtrl+Shift+J'],
-      ['view.toggle-sidebar', 'CmdOrCtrl+J'],
-      ['view.toggle-toc', 'CmdOrCtrl+K'],
-      ['view.toggle-tabbar', 'CmdOrCtrl+Alt+B'],
-      ['view.toggle-dev-tools', 'CmdOrCtrl+Alt+I'],
-      ['view.dev-reload', 'CmdOrCtrl+R'],
-
-      // Misc
-      ['tabs.cycle-forward', 'Ctrl+Tab'],
-      ['tabs.cycle-backward', 'Ctrl+Shift+Tab'],
-      ['tabs.switch-to-left', 'CmdOrCtrl+PageUp'],
-      ['tabs.switch-to-right', 'CmdOrCtrl+PageDown'],
-      ['tabs.switch-to-first', `${tabSwitchBaseStroke}+1`],
-      ['tabs.switch-to-second', `${tabSwitchBaseStroke}+2`],
-      ['tabs.switch-to-third', `${tabSwitchBaseStroke}+3`],
-      ['tabs.switch-to-fourth', `${tabSwitchBaseStroke}+4`],
-      ['tabs.switch-to-fifth', `${tabSwitchBaseStroke}+5`],
-      ['tabs.switch-to-sixth', `${tabSwitchBaseStroke}+6`],
-      ['tabs.switch-to-seventh', `${tabSwitchBaseStroke}+7`],
-      ['tabs.switch-to-eighth', `${tabSwitchBaseStroke}+8`],
-      ['tabs.switch-to-ninth', `${tabSwitchBaseStroke}+9`],
-      ['tabs.switch-to-tenth', `${tabSwitchBaseStroke}+0`],
-      ['file.quick-open', 'CmdOrCtrl+P']
-    ])
+    this.keys = this._getOsKeyMap()
 
     // Fix non-US keyboards
     this.mnemonics = new Map()
@@ -168,7 +68,25 @@ class Keybindings {
     }
   }
 
+  openConfigInFileManager () {
+    const { configPath } = this
+    if (!isFile2(configPath)) {
+      fs.writeFileSync(configPath, '{\n\n\n}\n', 'utf-8')
+    }
+    shell.openPath(configPath)
+      .catch(err => console.error(err))
+  }
+
   // --- private --------------------------------
+
+  _getOsKeyMap () {
+    if (isOsx) {
+      return keybindingsDarwin
+    } else if (isLinux) {
+      return keybindingsLinux
+    }
+    return keybindingsWindows
+  }
 
   _fixLayout () {
     // Fix wrong virtual key mapping on non-QWERTY layouts
@@ -219,18 +137,23 @@ class Keybindings {
 
   // Fix dead backquote key on layouts like German
   _fixInlineCode () {
-    this.keys.set('format.inline-code', 'CmdOrCtrl+Shift+B')
+    if (isOsx) {
+      this.keys.set('format.inline-code', 'Cmd+Shift+B')
+    } else {
+      this.keys.set('format.inline-code', 'Ctrl+Alt+B')
+    }
   }
 
   _loadLocalKeybindings () {
     if (global.MARKTEXT_SAFE_MODE || !isFile2(this.configPath)) {
+      console.log('Ignoring key bindings because safe mode is enabled.')
       return
     }
 
     let json
     try {
       json = JSON.parse(fs.readFileSync(this.configPath, 'utf8'))
-    } catch (e) {
+    } catch (_) {
       json = null
     }
     if (!json || typeof json !== 'object') {

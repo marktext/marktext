@@ -513,7 +513,7 @@ const commands = [
       getCurrentWindow().minimize()
     }
   }, {
-    id: 'window.always-on-top',
+    id: 'window.toggle-always-on-top',
     description: 'Window: Always on Top',
     execute: async () => {
       ipcRenderer.send('mt::window-toggle-always-on-top')
@@ -530,6 +530,7 @@ const commands = [
   {
     id: 'file.zoom',
     description: 'Window: Zoom...',
+    shortcut: [(isOsx ? 'Cmd' : 'Ctrl'), 'Scroll'],
     subcommands: [{
       id: 'file.zoom-0',
       description: '0.625',
@@ -695,13 +696,13 @@ const commands = [
     id: 'docs.user-guide',
     description: 'MarkText: End User Guide',
     execute: async () => {
-      shell.openExternal('https://github.com/marktext/marktext/blob/develop/docs/README.md')
+      shell.openExternal('https://github.com/marktext/marktext/blob/master/docs/README.md')
     }
   }, {
     id: 'docs.markdown-syntax',
     description: 'MarkText: Markdown Syntax Guide',
     execute: async () => {
-      shell.openExternal('https://github.com/marktext/marktext/blob/develop/docs/MARKDOWN_SYNTAX.md')
+      shell.openExternal('https://github.com/marktext/marktext/blob/master/docs/MARKDOWN_SYNTAX.md')
     }
   },
 
