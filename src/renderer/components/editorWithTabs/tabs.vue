@@ -1,8 +1,5 @@
 <template>
-  <div
-    class="editor-tabs"
-    :style="{'max-width': showSideBar ? `calc(100vw - ${sideBarWidth}px` : '100vw' }"
-  >
+  <div class="editor-tabs">
     <div
       class="scrollable-tabs"
       ref="tabContainer"
@@ -44,13 +41,13 @@
 </template>
 
 <script>
+import { shell, clipboard } from 'electron'
 import { mapState } from 'vuex'
 import autoScroll from 'dom-autoscroller'
 import dragula from 'dragula'
 import { tabsMixins } from '../../mixins'
 import { showContextMenu } from '../../contextMenu/tabs'
 import bus from '../../bus'
-import { shell, clipboard } from 'electron'
 
 export default {
   data () {
@@ -62,9 +59,7 @@ export default {
   computed: {
     ...mapState({
       currentFile: state => state.editor.currentFile,
-      tabs: state => state.editor.tabs,
-      showSideBar: state => state.layout.showSideBar,
-      sideBarWidth: state => state.layout.sideBarWidth
+      tabs: state => state.editor.tabs
     })
   },
   methods: {
@@ -100,9 +95,6 @@ export default {
     closeAll () {
       this.$store.dispatch('CLOSE_ALL_TABS')
     },
-    changeMaxWidth (width) {
-      this.$store.dispatch('CHANGE_SIDE_BAR_WIDTH', width)
-    },
     rename (tabId) {
       const tab = this.tabs.find(f => f.id === tabId)
       if (tab && tab.pathname) {
@@ -137,7 +129,6 @@ export default {
       bus.$on('TABS::rename', this.rename)
       bus.$on('TABS::copy-path', this.copyPath)
       bus.$on('TABS::show-in-folder', this.showInFolder)
-      bus.$on('EDITOR_TABS::change-max-width', this.changeMaxWidth)
     })
   },
   mounted () {
