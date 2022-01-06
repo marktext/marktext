@@ -52,7 +52,7 @@
     "default": "modified"
   },
   "startUpAction": {
-    "description": "General--The action after Mark Text startup, open the last edited content, open the specified folder or blank page",
+    "description": "General--The action after MarkText startup, open the last edited content, open the specified folder or blank page",
     "enum": [
       "folder",
       "lastState",
@@ -65,7 +65,7 @@
     "type": "string"
   },
   "language": {
-    "description": "General--The language Mark Text use.",
+    "description": "General--The language MarkText use.",
     "type": "string",
     "default": "en"
   },
@@ -245,7 +245,7 @@
     "default": "."
   },
   "preferHeadingStyle": {
-    "description": "Markdown--The preferred heading style in Mark Text",
+    "description": "Markdown--The preferred heading style in MarkText",
     "enum": [
       "atx",
       "setext"
@@ -308,7 +308,7 @@
     "default": "hand"
   },
   "theme": {
-    "description": "Theme--Select the theme used in Mark Text",
+    "description": "Theme--Select the theme used in MarkText",
     "type": "string",
     "default": "light"
   },

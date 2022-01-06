@@ -1,4 +1,4 @@
-import fs from 'fs-extra'
+import fsPromises from 'fs/promises'
 import path from 'path'
 import log from 'electron-log'
 import iconv from 'iconv-lite'
@@ -80,7 +80,7 @@ export const loadMarkdownFile = async (pathname, preferedEol, autoGuessEncoding 
   // TODO: Use streams to not buffer the file multiple times and only guess
   //       encoding on the first 256/512 bytes.
 
-  let buffer = await fs.readFile(path.resolve(pathname))
+  let buffer = await fsPromises.readFile(path.resolve(pathname))
 
   const encoding = guessEncoding(buffer, autoGuessEncoding)
   const supported = iconv.encodingExists(encoding.encoding)

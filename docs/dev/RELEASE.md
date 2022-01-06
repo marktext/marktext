@@ -1,4 +1,4 @@
-# Steps to release Mark Text
+# Steps to release MarkText
 
 - Create a release candidate
   - Create branch `release-v%version%`

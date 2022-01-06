@@ -11,10 +11,12 @@ const VueLoaderPlugin = require('vue-loader/lib/plugin')
 const SpritePlugin = require('svg-sprite-loader/plugin')
 const postcssPresetEnv = require('postcss-preset-env')
 const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer')
+const ESLintPlugin = require('eslint-webpack-plugin')
 
 const { getRendererEnvironmentDefinitions } = require('./marktextEnvironment')
 const { dependencies } = require('../package.json')
-const proMode = process.env.NODE_ENV === 'production'
+
+const isProduction = process.env.NODE_ENV === 'production'
 /**
  * List of node_modules to include in webpack bundle
  * Required for specific packages like Vue UI libraries
@@ -23,9 +25,16 @@ const proMode = process.env.NODE_ENV === 'production'
  */
 const whiteListedModules = ['vue']
 
+/** @type {import('webpack').Configuration} */
 const rendererConfig = {
   mode: 'development',
-  devtool: '#cheap-module-eval-source-map',
+  devtool: 'eval-cheap-module-source-map',
+  optimization: {
+    emitOnErrors: false
+  },
+  infrastructureLogging: {
+    level: 'warn',
+  },
   entry: {
     renderer: path.join(__dirname, '../src/renderer/main.js')
   },
@@ -36,17 +45,14 @@ const rendererConfig = {
     rules: [
       {
         test: require.resolve(path.join(__dirname, '../src/muya/lib/assets/libs/snap.svg-min.js')),
-        use: 'imports-loader?this=>window,fix=>module.exports=0',
+        use: 'imports-loader?this=>window,fix=>module.exports=0'
       },
       {
-        test: /\.(js|vue)$/,
-        enforce: 'pre',
-        exclude: /node_modules/,
+        test: /\.vue$/,
         use: {
-          loader: 'eslint-loader',
+          loader: 'vue-loader',
           options: {
-            formatter: require('eslint-friendly-formatter'),
-            failOnError: true
+            sourceMap: true
           }
         }
       },
@@ -61,16 +67,21 @@ const rendererConfig = {
         test: /\.css$/,
         exclude: /(theme\-chalk(?:\/|\\)index|exportStyle|katex|github\-markdown|prism[\-a-z]*|\.theme|headerFooterStyle)\.css$/,
         use: [
-          proMode ? MiniCssExtractPlugin.loader : 'style-loader',
-          { loader: 'css-loader', options: { importLoaders: 1 } },
-          { loader: 'postcss-loader', options: {
-            ident: 'postcss',
-            plugins: () => [
-              postcssPresetEnv({
-                stage: 0
-              })
-            ]
-          } }
+          isProduction ? MiniCssExtractPlugin.loader : 'style-loader',
+          {
+            loader: 'css-loader',
+            options: { importLoaders: 1 }
+          },
+          {
+            loader: 'postcss-loader',
+            options: {
+              postcssOptions: {
+                plugins: [
+                  postcssPresetEnv({ stage: 0 })
+                ],
+              },
+            }
+          }
         ]
       },
       {
@@ -97,15 +108,6 @@ const rendererConfig = {
         }
       },
       {
-        test: /\.vue$/,
-        use: {
-          loader: 'vue-loader',
-          options: {
-            sourceMap: true
-          }
-        }
-      },
-      {
         test: /\.svg$/,
         use: [
           {
@@ -120,45 +122,54 @@ const rendererConfig = {
       },
       {
         test: /\.(png|jpe?g|gif)(\?.*)?$/,
-        use: {
-          loader: 'url-loader',
-          query: {
-            limit: 10000,
-            name: 'imgs/[name]--[folder].[ext]'
-          }
+        type: 'asset',
+        generator: {
+          filename: 'images/[name].[contenthash:8][ext]'
         }
       },
       {
         test: /\.(mp4|webm|ogg|mp3|wav|flac|aac)(\?.*)?$/,
-        loader: 'url-loader',
-        options: {
-          limit: 10000,
-          name: 'media/[name]--[folder].[ext]'
+        type: 'asset/resource',
+        generator: {
+          filename: 'media/[name].[contenthash:8][ext]'
         }
       },
       {
         test: /\.(woff2?|eot|ttf|otf)(\?.*)?$/,
-        use: {
-          loader: 'url-loader',
-          query: {
-            limit: 100000,
-            name: 'fonts/[name]--[folder].[ext]'
-          }
+        type: 'asset/resource',
+        generator: {
+          filename: 'fonts/[name].[contenthash:8][ext]'
         }
       },
       {
         test: /\.md$/,
-        use: [
-          'raw-loader'
-        ]
+        type: 'asset/source'
       }
     ]
   },
   node: {
-    __dirname: !proMode,
-    __filename: !proMode
+    __dirname: !isProduction,
+    __filename: !isProduction
   },
   plugins: [
+    new ESLintPlugin({
+      cache: !isProduction,
+      extensions: ['js', 'vue'],
+      files: [
+        'src',
+        'test'
+      ],
+      exclude: [
+        'node_modules'
+      ],
+      emitError: true,
+      failOnError: true,
+      // NB: Threads must be disabled, otherwise no errors are emitted.
+      threads: false,
+      formatter: require('eslint-friendly-formatter'),
+      context: path.resolve(__dirname, '../'),
+      overrideConfigFile: '.eslintrc.js'
+    }),
     new SpritePlugin(),
     new HtmlWebpackPlugin({
       filename: 'index.html',
@@ -166,13 +177,16 @@ const rendererConfig = {
       minify: {
         collapseWhitespace: true,
         removeAttributeQuotes: true,
-        removeComments: true
+        removeComments: true,
+        minifyJS: true,
+        minifyCSS: true
       },
-      nodeModules: process.env.NODE_ENV !== 'production'
+      isBrowser: false,
+      isDevelopment: !isProduction,
+      nodeModules: !isProduction
         ? path.resolve(__dirname, '../node_modules')
         : false
     }),
-    new webpack.NoEmitOnErrorsPlugin(),
     new webpack.DefinePlugin(getRendererEnvironmentDefinitions()),
     // Use node http request instead axios's XHR adapter.
     new webpack.NormalModuleReplacementPlugin(
@@ -181,10 +195,13 @@ const rendererConfig = {
     ),
     new VueLoaderPlugin()
   ],
+  cache: false,
   output: {
     filename: '[name].js',
     libraryTarget: 'commonjs2',
-    path: path.join(__dirname, '../dist/electron')
+    path: path.join(__dirname, '../dist/electron'),
+    assetModuleFilename: 'assets/[name].[contenthash:8][ext]',
+    asyncChunks: true
   },
   resolve: {
     alias: {
@@ -203,12 +220,17 @@ const rendererConfig = {
 /**
  * Adjust rendererConfig for development settings
  */
-if (!proMode) {
+if (!isProduction) {
+  rendererConfig.cache = { type: 'memory' }
+  // NOTE: Caching between builds is currently not possible because all SVGs are invalid on second build due to svgo-loader.
+  // rendererConfig.cache = {
+  //   name: 'renderer-dev',
+  //   type: 'filesystem'
+  // }
   rendererConfig.plugins.push(
     new webpack.DefinePlugin({
       '__static': `"${path.join(__dirname, '../static').replace(/\\/g, '\\\\')}"`
-    }),
-    new webpack.HotModuleReplacementPlugin()
+    })
   )
 }
 
@@ -220,16 +242,18 @@ if (process.env.NODE_ENV !== 'production' && process.env.NODE_ENV !== 'test' &&
 }
 
 // Fix debugger breakpoints
-if (!proMode && process.env.MARKTEXT_BUILD_VSCODE_DEBUG) {
-  rendererConfig.devtool = '#inline-source-map'
+if (!isProduction && process.env.MARKTEXT_BUILD_VSCODE_DEBUG) {
+  rendererConfig.devtool = 'inline-source-map'
 }
 
 /**
  * Adjust rendererConfig for production settings
  */
-if (proMode) {
-  rendererConfig.devtool = '#nosources-source-map'
+if (isProduction) {
+  rendererConfig.devtool = 'nosources-source-map'
   rendererConfig.mode = 'production'
+  rendererConfig.optimization.minimize = true
+
   rendererConfig.plugins.push(
     new webpack.DefinePlugin({
       'process.env.UNSPLASH_ACCESS_KEY': JSON.stringify(process.env.UNSPLASH_ACCESS_KEY)
@@ -237,22 +261,23 @@ if (proMode) {
     new MiniCssExtractPlugin({
       // Options similar to the same options in webpackOptions.output
       // both options are optional
-      filename: '[name].[hash].css',
-      chunkFilename: '[id].[hash].css'
+      filename: '[name].[contenthash].css',
+      chunkFilename: '[id].[contenthash].css'
     }),
-    new CopyWebpackPlugin([
-      {
-        from: path.join(__dirname, '../static'),
-        to: path.join(__dirname, '../dist/electron/static'),
-        ignore: ['.*']
-      },
-      {
-        from: path.resolve(__dirname, '../node_modules/codemirror/mode/*/*'),
-        to: path.join(__dirname, '../dist/electron/codemirror/mode/[name]/[name].js')
-      }
-    ]),
-    new webpack.LoaderOptionsPlugin({
-      minimize: true
+    new CopyWebpackPlugin({
+      patterns: [
+        {
+          from: path.join(__dirname, '../static'),
+          to: path.join(__dirname, '../dist/electron/static'),
+          globOptions: {
+            ignore: ['.*']
+          }
+        },
+        {
+          from: path.resolve(__dirname, '../node_modules/codemirror/mode/*/*').replace(/\\/g, '/'),
+          to: path.join(__dirname, '../dist/electron/codemirror/mode/[name]/[name][ext]')
+        }
+      ]
     })
   )
 }

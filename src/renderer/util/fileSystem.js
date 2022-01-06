@@ -1,14 +1,16 @@
-import Octokit from '@octokit/rest'
-import cp from 'child_process'
+import path from 'path'
+import crypto from 'crypto'
+import { clipboard } from 'electron'
+import fs from 'fs-extra'
+import dayjs from 'dayjs'
+import { Octokit } from '@octokit/rest'
 import { ensureDirSync } from 'common/filesystem'
 import { isImageFile } from 'common/filesystem/paths'
-import crypto from 'crypto'
-import dayjs from 'dayjs'
-import { clipboard } from 'electron'
+import cp from 'child_process'
 import { unlink, writeFileSync } from 'fs'
 import fs from 'fs-extra'
 import { tmpdir } from 'os'
-import path from 'path'
+import { isWindows, dataURItoBlob } from './index'
 import axios from '../axios'
 import { dataURItoBlob, getContentHash } from './index'
 
@@ -54,6 +56,11 @@ export const moveToRelativeFolder = async (cwd, imagePath, relativeName) => {
 
   // dstRelPath: relative directory name + image file name
   const dstRelPath = path.join(relativeName, path.basename(imagePath))
+
+  if (isWindows) {
+    // Use forward slashes for better compatibility with websites.
+    return dstRelPath.replace(/\\/g, '/')
+  }
   return dstRelPath
 }
 
@@ -141,11 +148,10 @@ export const uploadImage = async (pathname, image, preferences) => {
   const uploadByGithub = (content, filename) => {
     const octokit = new Octokit({
       auth: `token ${token}`
-
     })
     const path = dayjs().format('YYYY/MM') + `/${dayjs().format('DD-HH-mm-ss')}-${filename}`
-    const message = `Upload by Mark Text at ${dayjs().format('YYYY-MM-DD HH:mm:ss')}`
-    var payload = {
+    const message = `Upload by MarkText at ${dayjs().format('YYYY-MM-DD HH:mm:ss')}`
+    const payload = {
       owner,
       repo,
       path,
@@ -156,7 +162,7 @@ export const uploadImage = async (pathname, image, preferences) => {
     if (!branch) {
       delete payload.branch
     }
-    octokit.repos.createFile(payload).then(result => {
+    octokit.repos.createOrUpdateFileContents(payload).then(result => {
       re(result.data.content.download_url)
     })
       .catch(_ => {
@@ -194,15 +200,11 @@ export const uploadImage = async (pathname, image, preferences) => {
       if (size > MAX_SIZE) {
         notification()
       } else {
-<<<<<<< HEAD
-        const imageFile = await fs.readFile(imagePath)
-=======
         if (currentUploader === 'cliScript') {
           uploadByCliScript(imagePath)
           return promise
         }
         const imageFile = await fse.readFile(imagePath)
->>>>>>> e1ab88b5 (added option to use a command line script as image uploader)
         const blobFile = new Blob([imageFile])
         if (currentUploader === 'smms') {
           uploadToSMMS(blobFile)

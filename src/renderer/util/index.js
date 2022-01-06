@@ -19,14 +19,6 @@ export const delay = time => {
   return p
 }
 
-// help functions
-const easeInOutQuad = function (t, b, c, d) {
-  t /= d / 2
-  if (t < 1) return c / 2 * t * t + b
-  t--
-  return -c / 2 * (t * (t - 2) - 1) + b
-}
-
 const ID_PREFEX = 'mt-'
 let id = 0
 const DOTU = 'DOTU'
@@ -147,12 +139,12 @@ export const adjustCursor = (cursor, preline, line, nextline) => {
   if (/[*+-]\s.+/.test(line) && newCursor.ch <= 1) {
     newCursor.ch = 2
   }
+
   // Need to adjust the cursor when cursor at blank line or in a line contains HTML tag.
   // set the newCursor to null, the new cursor will at the last line of document.
   if (!/\S/.test(line) || /<\/?([a-zA-Z\d-]+)(?=\s|>).*>/.test(line)) {
     newCursor = null
   }
-
   return newCursor
 }
 
@@ -160,35 +152,36 @@ export const animatedScrollTo = function (element, to, duration, callback) {
   const start = element.scrollTop
   const change = to - start
   const animationStart = +new Date()
-  let animating = true
-  let lastpos = null
+
+  // Prevent animation on small steps
+  if (Math.abs(change) <= 6) {
+    element.scrollTop = to
+    return
+  }
+
+  const easeInOutQuad = function (t, b, c, d) {
+    t /= d / 2
+    if (t < 1) return (c / 2) * t * t + b
+    t--
+    return (-c / 2) * (t * (t - 2) - 1) + b
+  }
 
   const animateScroll = function () {
-    if (!animating) {
-      return
-    }
-    requestAnimationFrame(animateScroll)
     const now = +new Date()
     const val = Math.floor(easeInOutQuad(now - animationStart, start, change, duration))
-    if (lastpos) {
-      if (lastpos === element.scrollTop) {
-        lastpos = val
-        element.scrollTop = val
-      } else {
-        animating = false
-      }
-    } else {
-      lastpos = val
-      element.scrollTop = val
-    }
+
+    element.scrollTop = val
+
     if (now > animationStart + duration) {
       element.scrollTop = to
-      animating = false
       if (callback) {
         callback()
       }
+    } else {
+      requestAnimationFrame(animateScroll)
     }
   }
+
   requestAnimationFrame(animateScroll)
 }
 

@@ -1,5 +1,5 @@
 import path from 'path'
-import fs from 'fs-extra'
+import fsPromises from 'fs/promises'
 import log from 'electron-log'
 import chokidar from 'chokidar'
 import { exists } from 'common/filesystem'
@@ -19,7 +19,7 @@ const EVENT_NAME = {
 }
 
 const add = async (win, pathname, type, endOfLine, autoGuessEncoding, trimTrailingNewline) => {
-  const stats = await fs.stat(pathname)
+  const stats = await fsPromises.stat(pathname)
   const birthTime = stats.birthtime
   const isMarkdown = hasMarkdownExtension(pathname)
   const file = {
@@ -169,8 +169,7 @@ class Watcher {
       ignorePermissionErrors: true,
 
       // Just to be sure when a file is replaced with a directory don't watch recursively.
-      depth: type === 'file'
-        ? (isOsx ? 1 : 0) : undefined,
+      depth: type === 'file' ? (isOsx ? 1 : 0) : undefined,
 
       // Please see GH#1043
       awaitWriteFinish: {
@@ -329,7 +328,7 @@ class Watcher {
   }
 
   /**
-   * Check whether we should ignore the current event because the file may be changed from Mark Text itself.
+   * Check whether we should ignore the current event because the file may be changed from MarkText itself.
    *
    * @param {number} winId
    * @param {string} pathname

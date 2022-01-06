@@ -9,9 +9,9 @@ const patchTheme = css => {
 }
 
 const getEmojiPickerPatch = () => {
-  return isLinux ? `.ag-emoji-picker section .emoji-wrapper .item span {
-  font-family: sans-serif, "Noto Color Emoji";
-}` : ''
+  return isLinux
+    ? '.ag-emoji-picker section .emoji-wrapper .item span { font-family: sans-serif, "Noto Color Emoji"; }'
+    : ''
 }
 
 const getThemeCluster = themeColor => {

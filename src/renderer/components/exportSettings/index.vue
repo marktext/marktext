@@ -220,7 +220,7 @@
 
 <script>
 import { mapState } from 'vuex'
-import fs from 'fs-extra'
+import fs from 'fs/promises'
 import path from 'path'
 import { isDirectory, isFile } from 'common/filesystem'
 import bus from '../../bus'

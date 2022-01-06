@@ -100,6 +100,7 @@ const inputCtrl = ContentState => {
     if (!start || !end) {
       return
     }
+
     const { start: oldStart, end: oldEnd } = this.cursor
     const key = start.key
     const block = this.getBlock(key)
@@ -208,11 +209,13 @@ const inputCtrl = ContentState => {
           const isInInlineMath = this.checkCursorInTokenType(block.functionType, text, offset, 'inline_math')
           const isInInlineCode = this.checkCursorInTokenType(block.functionType, text, offset, 'inline_code')
           if (
+            // Issue 2566: Do not complete markdown syntax if the previous character is
+            // alphanumeric.
             !/\\/.test(preInputChar) &&
             ((autoPairQuote && /[']{1}/.test(inputChar) && !(/[a-zA-Z\d]{1}/.test(preInputChar))) ||
-            (autoPairQuote && /["]{1}/.test(inputChar)) ||
-            (autoPairBracket && /[\{\[\(]{1}/.test(inputChar)) ||
-            (block.functionType !== 'codeContent' && !isInInlineMath && !isInInlineCode && autoPairMarkdownSyntax && /[*$`~_]{1}/.test(inputChar)))
+              (autoPairQuote && /["]{1}/.test(inputChar)) ||
+              (autoPairBracket && /[\{\[\(]{1}/.test(inputChar)) ||
+              (block.functionType !== 'codeContent' && !isInInlineMath && !isInInlineCode && autoPairMarkdownSyntax && !/[a-z0-9]{1}/i.test(preInputChar) && /[*$`~_]{1}/.test(inputChar)))
           ) {
             needRender = true
             text = BRACKET_HASH[event.data]
@@ -306,7 +309,9 @@ const inputCtrl = ContentState => {
       return
     }
 
-    const checkMarkedUpdate = /atxLine|paragraphContent|cellContent/.test(block.functionType) ? this.checkNeedRender() : false
+    const checkMarkedUpdate = /atxLine|paragraphContent|cellContent/.test(block.functionType)
+      ? this.checkNeedRender()
+      : false
     let inlineUpdatedBlock = null
     if (/atxLine|paragraphContent|cellContent|thematicBreakLine/.test(block.functionType)) {
       inlineUpdatedBlock = this.isCollapse() && this.checkInlineUpdate(block)

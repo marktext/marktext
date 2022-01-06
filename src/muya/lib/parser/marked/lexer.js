@@ -195,7 +195,7 @@ Lexer.prototype.token = function (src, top) {
 
         /* eslint-disable no-useless-escape */
         // Remove the footnote identifer prefix. eg: `[^identifier]: `.
-        cap = cap[0].replace(/^\[\^[^\^\[\]\s]+?(?<!\\)\]:\s+/gm, '')
+        cap = cap[0].replace(/^\[\^[^\^\[\]\s]+?(?<!\\)\]:\s*/gm, '')
         // Remove the four whitespace before each block of footnote.
         cap = cap.replace(/\n {4}(?=[^\s])/g, '\n')
         /* eslint-enable no-useless-escape */
@@ -232,7 +232,7 @@ Lexer.prototype.token = function (src, top) {
       let text = cap[2] ? cap[2].trim() : ''
 
       if (text.endsWith('#')) {
-        var trimmed = rtrim(text, '#')
+        let trimmed = rtrim(text, '#')
 
         if (this.options.pedantic) {
           text = trimmed.trim()
@@ -389,7 +389,7 @@ Lexer.prototype.token = function (src, top) {
             (isOrdered && newIsOrdered && bull.slice(-1) !== newBull.slice(-1)) ||
             (isOrdered !== newIsOrdered) ||
             // Changing to/from task list item from/to bullet, starts a new list(work for marktext issue #870)
-            // Because we distinguish between task list and bullet list in Mark Text,
+            // Because we distinguish between task list and bullet list in MarkText,
             // the parsing here is somewhat different from the commonmark Spec,
             // and the task list needs to be a separate list.
             (isTaskList !== newIsTaskListItem)
@@ -424,7 +424,8 @@ Lexer.prototype.token = function (src, top) {
         // Backpedal if it does not belong in this list.
         if (i !== l - 1) {
           b = this.rules.bullet.exec(cap[i + 1])[0]
-          if (bull.length > 1 ? b.length === 1
+          if (bull.length > 1
+            ? b.length === 1
             : (b.length > 1 || (this.options.smartLists && b !== bull))) {
             src = cap.slice(i + 1).join('\n') + src
             i = l - 1

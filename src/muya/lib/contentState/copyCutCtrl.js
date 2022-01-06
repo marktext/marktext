@@ -203,6 +203,7 @@ const copyCutCtrl = ContentState => {
         case 'mermaid':
         case 'flowchart':
         case 'sequence':
+        case 'plantuml':
         case 'vega-lite':
           pre = document.createElement('pre')
           pre.innerHTML = `<code class="language-${functionType}">${value}</code>`

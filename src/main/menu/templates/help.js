@@ -110,7 +110,7 @@ export default function () {
     helpMenu.submenu.push({
       type: 'separator'
     }, {
-      label: 'About Mark Text...',
+      label: 'About MarkText...',
       click (menuItem, browserWindow) {
         actions.showAboutDialog(browserWindow)
       }

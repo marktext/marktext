@@ -1,6 +1,6 @@
 ---
 name: Question
-about: Ask a question about Mark Text
+about: Ask a question about MarkText
 ---
 
 ### Question description

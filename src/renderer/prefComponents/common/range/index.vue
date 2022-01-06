@@ -1,7 +1,7 @@
 <template>
   <section class="pref-range-item" :class="{'ag-underdevelop': disable}">
     <div class="description">
-      <span>{{description}}: <span class="value">{{selectValue + (unit ? unit : '')}}</span></span>
+      <span>{{description}}:</span> <span class="value" v-if="selectValue">{{selectValue}} <span v-if="unit">{{unit}}</span></span>
       <i class="el-icon-info" v-if="more"
         @click="handleMoreClick"
       ></i>
@@ -65,8 +65,14 @@ export default {
   margin: 20px 0;
   font-size: 14px;
   color: var(--editorColor);
+  width: 100%;
+  & .value {
+    text-align: right;
+    font-style: italic;
+    float: right
+  }
   & .el-slider {
-    width: 300px;
+    width: 100%;
   }
   & .el-slider__runway,
   & .el-slider__bar {
@@ -84,6 +90,7 @@ export default {
 }
 .pref-select-item .description {
   margin-bottom: 10px;
+
   & .value {
     color: var(--editorColor80);
   }

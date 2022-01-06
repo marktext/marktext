@@ -30,14 +30,14 @@ Here is an example:
 
 ## Available id's
 
-**Mark Text menu (macOS only):**
+**MarkText menu (macOS only):**
 
 | Id                 | Default                                        | Description                             |
 | ------------------ | ---------------------------------------------- | --------------------------------------- |
-| `mt.hide`          | <kbd>Command</kbd>+<kbd>H</kbd>                | Hide Mark Text                          |
-| `mt.hide-others`   | <kbd>Command</kbd>+<kbd>Alt</kbd>+<kbd>H</kbd> | Hide all other windows except Mark Text |
+| `mt.hide`          | <kbd>Command</kbd>+<kbd>H</kbd>                | Hide MarkText                          |
+| `mt.hide-others`   | <kbd>Command</kbd>+<kbd>Alt</kbd>+<kbd>H</kbd> | Hide all other windows except MarkText |
 | `file.preferences` | <kbd>Command</kbd>+<kbd>,</kbd>                | Open settings window                    |
-| `file.quit`        | <kbd>Command</kbd>+<kbd>Q</kbd>                | Quit Mark Text                          |
+| `file.quit`        | <kbd>Command</kbd>+<kbd>Q</kbd>                | Quit MarkText                          |
 
 **File menu:**
 
@@ -53,7 +53,7 @@ Here is an example:
 | `file.preferences`  | <kbd>Ctrl</kbd>+<kbd>,</kbd>                       | Open settings window (Linux/Windows only) |
 | `file.close-tab`    | <kbd>CmdOrCtrl</kbd>+<kbd>W</kbd>                  | Close tab                                 |
 | `file.close-window` | <kbd>CmdOrCtrl</kbd>+<kbd>Shift</kbd>+<kbd>W</kbd> | Close window                              |
-| `file.quit`         | <kbd>CmdOrCtrl</kbd>+<kbd>Q</kbd>                  | Quit Mark Text (Linux/Windows only)       |
+| `file.quit`         | <kbd>CmdOrCtrl</kbd>+<kbd>Q</kbd>                  | Quit MarkText (Linux/Windows only)       |
 
 **Edit menu:**
 
@@ -143,8 +143,8 @@ Here is an example:
 
 | Id                       | Default                                              | Description                  |
 | ------------------------ | ---------------------------------------------------- | ---------------------------- |
-| `tabs.cycle-forward`     | <kbd>CmdOrCtrl</kbd>+<kbd>Tab</kbd>                  | Cycle through tabs           |
-| `tabs.cycle-backward`    | <kbd>CmdOrCtrl</kbd>+<kbd>Shift</kbd>+<kbd>Tab</kbd> | Cycle backwards through tabs |
+| `tabs.cycle-forward`     | <kbd>Ctrl</kbd>+<kbd>Tab</kbd>                       | Cycle through tabs           |
+| `tabs.cycle-backward`    | <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Tab</kbd>      | Cycle backwards through tabs |
 | `tabs.switch-to-left`    | <kbd>CmdOrCtrl</kbd>+<kbd>PageUp</kbd>               | Switch tab to the left       |
 | `tabs.switch-to-right`   | <kbd>CmdOrCtrl</kbd>+<kbd>PageDown</kbd>             | Switch tab to the right      |
 | `tabs.switch-to-first`   | <kbd>Alt</kbd>+<kbd>1</kbd>                          | Switch tab to the 1st        |

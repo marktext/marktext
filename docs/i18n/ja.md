@@ -1,6 +1,6 @@
-<p align="center"><img src="../../static/logo-small.png" alt="Mark Text" width="100" height="100"></p>
+<p align="center"><img src="../../static/logo-small.png" alt="MarkText" width="100" height="100"></p>
 
-<h1 align="center">Mark Text</h1>
+<h1 align="center">MarkText</h1>
 
 <div align="center">
   <a href="https://twitter.com/intent/tweet?via=marktextme&url=https://github.com/marktext/marktext/&text=What%20do%20you%20want%20to%20say%20to%20app?&hashtags=happyMarkText">
@@ -108,16 +108,16 @@
 
 <br />
 
-<h2 align="center">Mark Textへの支援</h2>
+<h2 align="center">MarkTextへの支援</h2>
 
-Mark Textは、MITライセンスのオープンソースプロジェクトであり、Githubリリースページからいつでも無料で最新のMark Textをダウンロードできます。Mark Textはまだ開発中のソフトウェアであり、開発を続けるためにはスポンサーからのご支援が必要です。どうかMark Textへのご支援をよろしくお願い申し上げます。
+MarkTextは、MITライセンスのオープンソースプロジェクトであり、Githubリリースページからいつでも無料で最新のMarkTextをダウンロードできます。MarkTextはまだ開発中のソフトウェアであり、開発を続けるためにはスポンサーからのご支援が必要です。どうかMarkTextへのご支援をよろしくお願い申し上げます。
 
 - Patreonを介して継続的ご支援をいただける場合は[こちら](https://www.patreon.com/ranluo)から、また、一時寄付金をいただける場合は[こちら](https://github.com/Jocs/sponsor.me)からお願いいたします。
 - Open Collectiveを介してご支援をいただける場合は[こちら](https://opencollective.com/marktext)をご利用ください。
 
 ##### PatreonとOpen Collectiveの違い
 
-Patreonを介した寄付は、Mark Textの開発および維持を行っているLuo Ran (@jocs)に直接届きます。Open Collectiveを介した寄付は、その額や出資者が公開されます。すべての出資金はMark Textの開発、維持、オンラインおよびオフラインでの活動、そしてその他の必要なリソースの入手に使われます。PatreonかOpen Collectiveかに関わらず、すべての出資者のお名前もしくは会社のロゴは、Mark Textの公式サイトおよびReadmeに掲載いたします。
+Patreonを介した寄付は、MarkTextの開発および維持を行っているLuo Ran (@jocs)に直接届きます。Open Collectiveを介した寄付は、その額や出資者が公開されます。すべての出資金はMarkTextの開発、維持、オンラインおよびオフラインでの活動、そしてその他の必要なリソースの入手に使われます。PatreonかOpen Collectiveかに関わらず、すべての出資者のお名前もしくは会社のロゴは、MarkTextの公式サイトおよびReadmeに掲載いたします。
 
 **Platinum Sponsors**
 
@@ -181,9 +181,9 @@ Patreonを介した寄付は、Mark Textの開発および維持を行ってい�
 
 ## 開発の意図
 
-1. 私は書くことが好きです。これまでに沢山のマークダウンエディタを使ってきましたが、まだ私の要望を完璧に満たすものを見つけられていません。致命的なバグに執筆を邪魔されたくないのです。**Mark Text**はページのレンダリングに仮想DOMを用いることで効率を向上させ、さらにオープンソースで提供しました。
-2. 上記の通り、**Mark Text**はオープンソースなので、誰でもソースコードをコントリビュートすることで開発に参加し、**Mark Text** をポピュラーなマークダウンエディタにしていくことができます。
-3. 特徴的な機能を備えたマークダウンエディタは既に沢山ありますが、全てのマークダウンユーザーの要望を満たすのは難しいです。まだまだ未熟ですが、**Mark Text** がマークダウンユーザーの要望を可能な限り叶えられるエディタになることを願っています。
+1. 私は書くことが好きです。これまでに沢山のマークダウンエディタを使ってきましたが、まだ私の要望を完璧に満たすものを見つけられていません。致命的なバグに執筆を邪魔されたくないのです。**MarkText**はページのレンダリングに仮想DOMを用いることで効率を向上させ、さらにオープンソースで提供しました。
+2. 上記の通り、**MarkText**はオープンソースなので、誰でもソースコードをコントリビュートすることで開発に参加し、**MarkText** をポピュラーなマークダウンエディタにしていくことができます。
+3. 特徴的な機能を備えたマークダウンエディタは既に沢山ありますが、全てのマークダウンユーザーの要望を満たすのは難しいです。まだまだ未熟ですが、**MarkText** がマークダウンユーザーの要望を可能な限り叶えられるエディタになることを願っています。
 
 <h2 id="download">ダウンロード</h2>
 
@@ -197,7 +197,7 @@ Patreonを介した寄付は、Mark Textの開発および維持を行ってい�
 
 #### macOS
 
-最新のMark Text(`marktext-%version%.dmg`)を[リリースページ](https://github.com/marktext/marktext/releases/latest)からダウンロードするか、[**homebrew cask**](https://github.com/caskroom/homebrew-cask)を用いてインストールしてください。Homebrew-Caskを使うためには、[Homebrew](https://brew.sh/)がインストールされている必要があります。
+最新のMarkText(`marktext-%version%.dmg`)を[リリースページ](https://github.com/marktext/marktext/releases/latest)からダウンロードするか、[**homebrew cask**](https://github.com/caskroom/homebrew-cask)を用いてインストールしてください。Homebrew-Caskを使うためには、[Homebrew](https://brew.sh/)がインストールされている必要があります。
 
 ```bash
 brew install --cask mark-text
@@ -205,7 +205,7 @@ brew install --cask mark-text
 
 #### Windows
 
-Mark Textをダウンロードして、セットアップウィザード(`marktext-setup-%version%.exe`)を介してインストールしてください。インストールの際、ユーザごとにインストールするか、グローバルにインストールするかを選択してください。
+MarkTextをダウンロードして、セットアップウィザード(`marktext-setup-%version%.exe`)を介してインストールしてください。インストールの際、ユーザごとにインストールするか、グローバルにインストールするかを選択してください。
 
 #### Linux
 
@@ -217,26 +217,26 @@ Linux、macOSおよびWindows用の全てのバイナリは、[リリースペ�
 
 <h2 id="development">開発</h2>
 
-**Mark Text** を自前でビルドしたい場合は、[build instructions](../../docs/dev/BUILD.md)を参照してください。
+**MarkText** を自前でビルドしたい場合は、[build instructions](../../docs/dev/BUILD.md)を参照してください。
 
 - [User documentation](../../docs/README.md)
 - [Developer documentation](../../docs/dev/README.md)
 
-**Mark Text**に関するご質問がありましたら、フォーマットを参考にissueを作成してください。もちろんプルリクエストを直接提出して頂いても構いません。ご協力ありがとうございます。
+**MarkText**に関するご質問がありましたら、フォーマットを参考にissueを作成してください。もちろんプルリクエストを直接提出して頂いても構いません。ご協力ありがとうございます。
 
 ## インテグレーション
 
-- [Alfred Workflow](http://www.packal.org/workflow/mark-text): macOS向けのアプリであるAlfred Workflowです。Alfredを起動して、"mt"コマンドを入力することでファイルやフォルダをMark Textで開きます。
+- [Alfred Workflow](http://www.packal.org/workflow/mark-text): macOS向けのアプリであるAlfred Workflowです。Alfredを起動して、"mt"コマンドを入力することでファイルやフォルダをMarkTextで開きます。
 
 <h2 id="contribution">コントリビューション</h2>
 
-Mark Textは開発の真っ最中です、プルリクエストを作成する場合は事前に [Contributing Guide](../../CONTRIBUTING.md) をご確認ください。Mark Textに追加したい新機能がある場合は、 [roadmap](https://github.com/marktext/marktext/projects)を参考にしてissueを作成してください。
+MarkTextは開発の真っ最中です、プルリクエストを作成する場合は事前に [Contributing Guide](../../CONTRIBUTING.md) をご確認ください。MarkTextに追加したい新機能がある場合は、 [roadmap](https://github.com/marktext/marktext/projects)を参考にしてissueを作成してください。
 
 ## コントリビューター
 
-Mark Textにコントリビュートしてくださった [[コントリビューター](https://github.com/marktext/marktext/graphs/contributors)] の皆さんに感謝を申し上げます。
+MarkTextにコントリビュートしてくださった [[コントリビューター](https://github.com/marktext/marktext/graphs/contributors)] の皆さんに感謝を申し上げます。
 
-Mark Textのロゴをデザインしてくださった @[Yasujizr](https://github.com/Yasujizr) に感謝を申し上げます。
+MarkTextのロゴをデザインしてくださった @[Yasujizr](https://github.com/Yasujizr) に感謝を申し上げます。
 
 <a href="https://github.com/marktext/marktext/graphs/contributors"><img src="https://opencollective.com/marktext/contributors.svg?width=890" /></a>
 

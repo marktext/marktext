@@ -1,5 +1,5 @@
 import { Menu } from 'electron'
-import fs from 'fs-extra'
+import fs from 'fs'
 import path from 'path'
 import log from 'electron-log'
 import isAccelerator from 'electron-is-accelerator'
@@ -8,6 +8,7 @@ import { isFile2 } from 'common/filesystem'
 import { isOsx } from '../config'
 import { getKeyboardLanguage, getVirtualLetters } from '../keyboard'
 
+const tabSwitchBaseStroke = (isOsx) ? 'Ctrl' : 'Alt'
 // Problematic key bindings:
 //   Aidou: Ctrl+/ -> dead key
 //   Inline Code: Ctrl+` -> dead key
@@ -21,7 +22,7 @@ class Keybindings {
     this.configPath = path.join(userDataPath, 'keybindings.json')
 
     this.keys = new Map([
-      // Mark Text - macOS only
+      // MarkText - macOS only
       ['mt.hide', 'Command+H'],
       ['mt.hide-others', 'Command+Alt+H'],
 
@@ -107,20 +108,20 @@ class Keybindings {
       ['view.dev-reload', 'CmdOrCtrl+R'],
 
       // Misc
-      ['tabs.cycle-forward', 'CmdOrCtrl+Tab'],
-      ['tabs.cycle-backward', 'CmdOrCtrl+Shift+Tab'],
+      ['tabs.cycle-forward', 'Ctrl+Tab'],
+      ['tabs.cycle-backward', 'Ctrl+Shift+Tab'],
       ['tabs.switch-to-left', 'CmdOrCtrl+PageUp'],
       ['tabs.switch-to-right', 'CmdOrCtrl+PageDown'],
-      ['tabs.switch-to-first', 'Alt+1'],
-      ['tabs.switch-to-second', 'Alt+2'],
-      ['tabs.switch-to-third', 'Alt+3'],
-      ['tabs.switch-to-fourth', 'Alt+4'],
-      ['tabs.switch-to-fifth', 'Alt+5'],
-      ['tabs.switch-to-sixth', 'Alt+6'],
-      ['tabs.switch-to-seventh', 'Alt+7'],
-      ['tabs.switch-to-eighth', 'Alt+8'],
-      ['tabs.switch-to-ninth', 'Alt+9'],
-      ['tabs.switch-to-tenth', 'Alt+0'],
+      ['tabs.switch-to-first', `${tabSwitchBaseStroke}+1`],
+      ['tabs.switch-to-second', `${tabSwitchBaseStroke}+2`],
+      ['tabs.switch-to-third', `${tabSwitchBaseStroke}+3`],
+      ['tabs.switch-to-fourth', `${tabSwitchBaseStroke}+4`],
+      ['tabs.switch-to-fifth', `${tabSwitchBaseStroke}+5`],
+      ['tabs.switch-to-sixth', `${tabSwitchBaseStroke}+6`],
+      ['tabs.switch-to-seventh', `${tabSwitchBaseStroke}+7`],
+      ['tabs.switch-to-eighth', `${tabSwitchBaseStroke}+8`],
+      ['tabs.switch-to-ninth', `${tabSwitchBaseStroke}+9`],
+      ['tabs.switch-to-tenth', `${tabSwitchBaseStroke}+0`],
       ['file.quick-open', 'CmdOrCtrl+P']
     ])
 
@@ -226,7 +227,12 @@ class Keybindings {
       return
     }
 
-    const json = fs.readJsonSync(this.configPath, { throws: false })
+    let json
+    try {
+      json = JSON.parse(fs.readFileSync(this.configPath, 'utf8'))
+    } catch (e) {
+      json = null
+    }
     if (!json || typeof json !== 'object') {
       log.warn('Invalid keybindings.json configuration.')
       return
