@@ -53,11 +53,11 @@
             <el-button size="mini" :disabled="githubDisable" @click="setCurrentUploader('github')">Set as default</el-button>
           </div>
         </el-tab-pane>
-        <el-tab-pane label="Command line script" name="cliScript">
-          <div class="description">The script will be executed with the image file path as its only argument and it should output with any valid value for the <code>src</code> attribute of a <em>HTMLImageElement</em>.</div>
+        <el-tab-pane label="Command-line Script" name="cliScript">
+          <div class="description">The script will be executed with the image file path as its only argument and it should output any valid value for the <code>src</code> attribute of a <em>HTMLImageElement</em>.</div>
           <div class="form-group">
             <div class="label">
-              Script absolute path
+              Shell script location
             </div>
             <el-input v-model="cliScript" placeholder="Script absolute path" size="mini"></el-input>
           </div>
@@ -73,11 +73,9 @@
 
 <script>
 import { shell } from 'electron'
-import fs from 'fs'
 import services, { isValidService } from './services.js'
 import legalNoticesCheckbox from './legalNoticesCheckbox'
-
-const { statSync, constants: { S_IXUSR, S_IXGRP, S_IXOTH } } = fs
+import { isFileExecutable } from '../../util/fileSystem'
 
 export default {
   components: {
@@ -128,13 +126,7 @@ export default {
       if (!this.cliScript) {
         return true
       }
-      try {
-        const stat = statSync(this.cliScript)
-        return !stat.isFile() || (stat.mode & (S_IXUSR | S_IXGRP | S_IXOTH)) === 0
-      } catch (err) {
-        // err ignored
-        return true
-      }
+      return !isFileExecutable(this.cliScript)
     }
   },
   watch: {

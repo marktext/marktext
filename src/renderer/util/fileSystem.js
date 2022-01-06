@@ -7,12 +7,10 @@ import { Octokit } from '@octokit/rest'
 import { ensureDirSync } from 'common/filesystem'
 import { isImageFile } from 'common/filesystem/paths'
 import cp from 'child_process'
-import { unlink, writeFileSync } from 'fs'
-import fs from 'fs-extra'
 import { tmpdir } from 'os'
+import { unlink, writeFileSync, statSync, constants } from 'fs'
 import { isWindows, dataURItoBlob } from './index'
 import axios from '../axios'
-import { dataURItoBlob, getContentHash } from './index'
 
 export const create = (pathname, type) => {
   if (type === 'directory') {
@@ -179,7 +177,9 @@ export const uploadImage = async (pathname, image, preferences) => {
       writeFileSync(filepath, data)
     }
     cp.execFile(cliScript, [filepath], (err, data) => {
-      !isPath && unlink(filepath)
+      if (!isPath) {
+        unlink(filepath)
+      }
       if (err) {
         return rj(err)
       }
@@ -204,7 +204,7 @@ export const uploadImage = async (pathname, image, preferences) => {
           uploadByCliScript(imagePath)
           return promise
         }
-        const imageFile = await fse.readFile(imagePath)
+        const imageFile = await fs.readFile(imagePath)
         const blobFile = new Blob([imageFile])
         if (currentUploader === 'smms') {
           uploadToSMMS(blobFile)
@@ -243,4 +243,14 @@ export const uploadImage = async (pathname, image, preferences) => {
   }
 
   return promise
+}
+
+export const isFileExecutable = (filepath) => {
+  try {
+    const stat = statSync(filepath)
+    return stat.isFile() && (stat.mode & (constants.S_IXUSR | constants.S_IXGRP | constants.S_IXOTH)) !== 0
+  } catch (err) {
+    // err ignored
+    return false
+  }
 }
