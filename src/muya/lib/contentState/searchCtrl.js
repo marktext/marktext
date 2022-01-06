@@ -35,15 +35,19 @@ const matchString = (text, value, options) => {
 
 const searchCtrl = ContentState => {
   ContentState.prototype.buildRegexValue = function (match, value) {
-    const groups = value.match(/\$(\d)*/g)
-    if (groups) {
-      for (const regexGroup of groups) {
-        const groupIndex = regexGroup[1] - 1
-        if (groupIndex < match.subMatches.length) {
-          value = value.replace(regexGroup, match.subMatches[groupIndex])
+    const groups = value.match(/(?<!\\)\$\d/g)
+
+    if (Array.isArray(groups) && groups.length) {
+      for (const group of groups) {
+        const index = parseInt(group.replace(/^\$/, ''))
+        if (index === 0) {
+          value = value.replace(group, match.match)
+        } else if (index > 0 && index <= match.subMatches.length) {
+          value = value.replace(group, match.subMatches[index - 1])
         }
       }
     }
+
     return value
   }
 
@@ -55,15 +59,16 @@ const searchCtrl = ContentState => {
   }
 
   ContentState.prototype.replace = function (replaceValue, opt = { isSingle: true }) {
-    const { isSingle } = opt
+    const { isSingle, isRegexp } = opt
     delete opt.isSingle
     const searchOptions = Object.assign({}, defaultSearchOption, opt)
     const { matches, value, index } = this.searchMatches
     if (matches.length) {
-      if (opt.isRegexp) {
+      if (isRegexp) {
         replaceValue = this.buildRegexValue(matches[index], replaceValue)
       }
       if (isSingle) {
+        // replace single
         this.replaceOne(matches[index], replaceValue)
       } else {
         // replace all
@@ -119,12 +124,13 @@ const searchCtrl = ContentState => {
 
         if (text && typeof text === 'string') {
           const strMatches = matchString(text, value, options)
-          matches.push(...strMatches.map(m => {
+          matches.push(...strMatches.map(({ index, match, subMatches }) => {
             return {
               key,
-              start: m.index,
-              end: m.index + m.match.length,
-              subMatches: m.subMatches
+              start: index,
+              end: index + match.length,
+              match,
+              subMatches
             }
           }))
         }
