@@ -35,7 +35,6 @@ const matchString = (text, value, options) => {
 
 const searchCtrl = ContentState => {
   ContentState.prototype.buildRegexValue = function (match, value) {
-    // TODO: Needed to handle great than 10?
     const groups = value.match(/(?<!\\)\$\d/g)
 
     if (Array.isArray(groups) && groups.length) {
