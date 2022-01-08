@@ -53,6 +53,19 @@
             <el-button size="mini" :disabled="githubDisable" @click="setCurrentUploader('github')">Set as default</el-button>
           </div>
         </el-tab-pane>
+        <el-tab-pane label="Command-line Script" name="cliScript">
+          <div class="description">The script will be executed with the image file path as its only argument and it should output any valid value for the <code>src</code> attribute of a <em>HTMLImageElement</em>.</div>
+          <div class="form-group">
+            <div class="label">
+              Shell script location
+            </div>
+            <el-input v-model="cliScript" placeholder="Script absolute path" size="mini"></el-input>
+          </div>
+          <div class="form-group">
+            <el-button size="mini" :disabled="cliScriptDisable" @click="save('cliScript')">Save</el-button>
+            <el-button size="mini" :disabled="cliScriptDisable" @click="setCurrentUploader('cliScript')">Set as default</el-button>
+          </div>
+        </el-tab-pane>
       </el-tabs>
     </section>
   </div>
@@ -62,6 +75,7 @@
 import { shell } from 'electron'
 import services, { isValidService } from './services.js'
 import legalNoticesCheckbox from './legalNoticesCheckbox'
+import { isFileExecutable } from '../../util/fileSystem'
 
 export default {
   components: {
@@ -76,6 +90,7 @@ export default {
         repo: '',
         branch: ''
       },
+      cliScript: '',
       uploadServices: services,
       legalNoticesErrorStates: {
         smms: false,
@@ -99,8 +114,19 @@ export default {
         return this.$store.state.preferences.githubToken
       }
     },
+    prefCliScript: {
+      get: function () {
+        return this.$store.state.preferences.cliScript
+      }
+    },
     githubDisable () {
       return !this.githubToken || !this.github.owner || !this.github.repo
+    },
+    cliScriptDisable () {
+      if (!this.cliScript) {
+        return true
+      }
+      return !isFileExecutable(this.cliScript)
     }
   },
   watch: {
@@ -114,6 +140,7 @@ export default {
     this.$nextTick(() => {
       this.github = this.imageBed.github
       this.githubToken = this.prefGithubToken
+      this.cliScript = this.prefCliScript
 
       if (services.hasOwnProperty(this.currentUploader)) {
         services[this.currentUploader].agreedToLegalNotices = true
@@ -143,9 +170,20 @@ export default {
           value: this.githubToken
         })
       }
-      if (withNotice) {
+      if (type === 'cliScript') {
+        this.$store.dispatch('SET_USER_DATA', {
+          type: 'cliScript',
+          value: this.cliScript
+        })
+      }
+      if (withNotice && type === 'github') {
         new Notification('Save Image Uploader', {
           body: 'The Github configration has been saved.'
+        })
+      }
+      if (withNotice && type === 'cliScript') {
+        new Notification('Save Image Uploader', {
+          body: 'The command line script configuration has been saved'
         })
       }
     },
@@ -162,10 +200,12 @@ export default {
         return
       }
       // Save the setting before set it as default uploader.
-      if (value === 'github') {
+      if (value === 'github' || value === 'cliScript') {
         this.save(value, false)
       }
-      this.legalNoticesErrorStates[value] = false
+      if (this.legalNoticesErrorStates[value] !== undefined) {
+        this.legalNoticesErrorStates[value] = false
+      }
 
       const type = 'currentUploader'
       this.$store.dispatch('SET_USER_DATA', { type, value })
