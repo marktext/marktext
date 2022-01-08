@@ -168,9 +168,10 @@ export const animatedScrollTo = function (element, to, duration, callback) {
 
   const animateScroll = function () {
     const now = +new Date()
-    const val = Math.floor(easeInOutQuad(now - animationStart, start, change, duration))
-
-    element.scrollTop = val
+    if (duration > 0) {
+      const val = Math.floor(easeInOutQuad(now - animationStart, start, change, duration))
+      element.scrollTop = val
+    }
 
     if (now > animationStart + duration) {
       element.scrollTop = to
