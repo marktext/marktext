@@ -153,8 +153,8 @@ export const animatedScrollTo = function (element, to, duration, callback) {
   const change = to - start
   const animationStart = +new Date()
 
-  // Prevent animation on small steps
-  if (Math.abs(change) <= 6) {
+  // Prevent animation on small steps or duration is 0
+  if (duration === 0 || Math.abs(change) <= 6) {
     element.scrollTop = to
     return
   }
@@ -168,10 +168,9 @@ export const animatedScrollTo = function (element, to, duration, callback) {
 
   const animateScroll = function () {
     const now = +new Date()
-    if (duration > 0) {
-      const val = Math.floor(easeInOutQuad(now - animationStart, start, change, duration))
-      element.scrollTop = val
-    }
+    const val = Math.floor(easeInOutQuad(now - animationStart, start, change, duration))
+
+    element.scrollTop = val
 
     if (now > animationStart + duration) {
       element.scrollTop = to
