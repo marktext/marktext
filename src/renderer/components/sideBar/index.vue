@@ -53,7 +53,6 @@ import { sideBarIcons, sideBarBottomIcons } from './help'
 import Tree from './tree.vue'
 import SideBarSearch from './search.vue'
 import Toc from './toc.vue'
-import bus from '../../bus'
 import { mapState } from 'vuex'
 
 export default {
@@ -80,10 +79,9 @@ export default {
     }),
     finalSideBarWidth () {
       const { showSideBar, rightColumn, sideBarViewWidth } = this
-      let width = sideBarViewWidth
-      if (rightColumn === '') width = 45
-      if (!showSideBar) width -= 45
-      return width
+      if (!showSideBar) return 0
+      if (rightColumn === '') return 45
+      return sideBarViewWidth < 220 ? 220 : sideBarViewWidth
     }
   },
   created () {
@@ -121,10 +119,14 @@ export default {
     handleLeftIconClick (name) {
       if (this.rightColumn === name) {
         this.$store.commit('SET_LAYOUT', { rightColumn: '' })
-        bus.$emit('EDITOR_TABS::change-max-width', this.finalSideBarWidth)
+        this.$store.dispatch('CHANGE_SIDE_BAR_WIDTH', this.finalSideBarWidth)
       } else {
+        const needDispatch = this.rightColumn === ''
         this.$store.commit('SET_LAYOUT', { rightColumn: name })
         this.sideBarViewWidth = +this.sideBarWidth
+        if (needDispatch) {
+          this.$store.dispatch('CHANGE_SIDE_BAR_WIDTH', this.finalSideBarWidth)
+        }
       }
     },
     handleLeftBottomClick (name) {
