@@ -75,7 +75,7 @@
 import { shell } from 'electron'
 import services, { isValidService } from './services.js'
 import legalNoticesCheckbox from './legalNoticesCheckbox'
-import { isFileExecutable } from '../../util/fileSystem'
+import { isFileExecutableSync } from '../../util/fileSystem'
 
 export default {
   components: {
@@ -126,7 +126,7 @@ export default {
       if (!this.cliScript) {
         return true
       }
-      return !isFileExecutable(this.cliScript)
+      return !isFileExecutableSync(this.cliScript)
     }
   },
   watch: {
