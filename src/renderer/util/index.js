@@ -154,7 +154,7 @@ export const animatedScrollTo = function (element, to, duration, callback) {
   const animationStart = +new Date()
 
   // Prevent animation on small steps or duration is 0
-  if (duration === 0 || Math.abs(change) <= 6) {
+  if (Math.abs(change) <= 6 || duration === 0) {
     element.scrollTop = to
     return
   }
