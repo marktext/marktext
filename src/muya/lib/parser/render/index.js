@@ -179,16 +179,8 @@ class StateRender {
     const newVdom = h(selector, children)
     const rootDom = document.querySelector(selector) || this.container
     const oldVdom = toVNode(rootDom)
+
     patch(oldVdom, newVdom)
-    // snabbdom 'patch' doesn't parse SVGs correctly, so we need to refresh the svg parentElement
-    // https://github.com/snabbdom/snabbdom/issues/388
-    const refreshSvgParent = (vDom) => {
-      if (vDom.children?.some(e => e.sel === 'svg')) {
-        const html = vDom.elm.innerHTML
-        vDom.elm.innerHTML = html
-      } else vDom.children?.forEach(v => refreshSvgParent(v))
-    }
-    refreshSvgParent(newVdom)
     this.renderMermaid()
     this.renderDiagram()
     this.codeCache.clear()
