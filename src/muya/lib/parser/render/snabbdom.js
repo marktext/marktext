@@ -17,3 +17,19 @@ export const htmlToVNode = html => { // helper function for convert html to vnod
   wrapper.innerHTML = html
   return toVNode(wrapper).children
 }
+
+const addNS = ({ data, children, sel }) => {
+  data.ns = 'http://www.w3.org/2000/svg'
+  if (sel !== 'foreignObject' && children !== undefined) {
+    children.filter((vNode) => vNode.data).forEach(addNS)
+  }
+}
+
+export const addNStoVNodeChildren = (children = []) => {
+  children
+    .filter((vNode) => vNode.data)
+    .forEach((vNode) => {
+      addNStoVNodeChildren(vNode.children)
+      vNode.sel.startsWith('svg') && addNS(vNode)
+    })
+}
