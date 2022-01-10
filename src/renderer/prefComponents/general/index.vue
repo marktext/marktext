@@ -51,6 +51,12 @@
           :bool="openFolderInNewWindow"
           :onChange="value => onSelectChange('openFolderInNewWindow', value)"
         ></bool>
+        <cur-select
+          description="Zoom"
+          :value="zoom"
+          :options="zoomOptions"
+          :onChange="value => onSelectChange('zoom', value)"
+        ></cur-select>
       </template>
     </compound>
 
@@ -129,6 +135,7 @@ import { isOsx } from '@/util'
 
 import {
   titleBarStyleOptions,
+  zoomOptions,
   fileSortByOptions,
   languageOptions
 } from './config'
@@ -143,6 +150,7 @@ export default {
   },
   data () {
     this.titleBarStyleOptions = titleBarStyleOptions
+    this.zoomOptions = zoomOptions
     this.fileSortByOptions = fileSortByOptions
     this.languageOptions = languageOptions
     this.isOsx = isOsx
@@ -156,6 +164,7 @@ export default {
       defaultDirectoryToOpen: state => state.preferences.defaultDirectoryToOpen,
       openFilesInNewWindow: state => state.preferences.openFilesInNewWindow,
       openFolderInNewWindow: state => state.preferences.openFolderInNewWindow,
+      zoom: state => state.preferences.zoom,
       hideScrollbar: state => state.preferences.hideScrollbar,
       wordWrapInToc: state => state.preferences.wordWrapInToc,
       aidou: state => state.preferences.aidou,
