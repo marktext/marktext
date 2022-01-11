@@ -8,6 +8,7 @@ const state = {
   titleBarStyle: 'custom',
   openFilesInNewWindow: false,
   openFolderInNewWindow: false,
+  zoom: 1.0,
   hideScrollbar: false,
   wordWrapInToc: false,
   aidou: true,
