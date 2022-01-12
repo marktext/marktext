@@ -2,30 +2,29 @@ import path from 'path'
 import crypto from 'crypto'
 import { clipboard } from 'electron'
 import fs from 'fs-extra'
-import dayjs from 'dayjs'
-import { Octokit } from '@octokit/rest'
-import { ensureDirSync } from 'common/filesystem'
-import { isImageFile } from 'common/filesystem/paths'
+import { statSync, constants } from 'fs'
 import cp from 'child_process'
 import { tmpdir } from 'os'
-import { unlink, writeFileSync, statSync, constants } from 'fs'
+import dayjs from 'dayjs'
+import { Octokit } from '@octokit/rest'
+import { isImageFile } from 'common/filesystem/paths'
 import { isWindows, dataURItoBlob } from './index'
 import axios from '../axios'
 
-export const create = (pathname, type) => {
-  if (type === 'directory') {
-    return fs.ensureDir(pathname)
-  } else {
-    return fs.outputFile(pathname, '')
-  }
+export const create = async (pathname, type) => {
+  return type === 'directory'
+    ? await fs.ensureDir(pathname)
+    : await fs.outputFile(pathname, '')
 }
 
-export const paste = ({ src, dest, type }) => {
-  return type === 'cut' ? fs.move(src, dest) : fs.copy(src, dest)
+export const paste = async ({ src, dest, type }) => {
+  return type === 'cut'
+    ? await fs.move(src, dest)
+    : await fs.copy(src, dest)
 }
 
-export const rename = (src, dest) => {
-  return fs.move(src, dest)
+export const rename = async (src, dest) => {
+  return await fs.move(src, dest)
 }
 
 export const getHash = (content, encoding, type) => {
@@ -49,7 +48,7 @@ export const moveToRelativeFolder = async (cwd, imagePath, relativeName) => {
   //  - root directory + relative directory name
   const absPath = path.resolve(cwd, relativeName)
   const dstPath = path.resolve(absPath, path.basename(imagePath))
-  ensureDirSync(absPath)
+  await fs.ensureDir(absPath)
   await fs.move(imagePath, dstPath, { overwrite: true })
 
   // dstRelPath: relative directory name + image file name
@@ -62,8 +61,8 @@ export const moveToRelativeFolder = async (cwd, imagePath, relativeName) => {
   return dstRelPath
 }
 
-export const moveImageToFolder = async (pathname, image, dir) => {
-  ensureDirSync(dir)
+export const moveImageToFolder = async (pathname, image, outputDir) => {
+  await fs.ensureDir(outputDir)
   const isPath = typeof image === 'string'
   if (isPath) {
     const dirname = path.dirname(pathname)
@@ -72,27 +71,25 @@ export const moveImageToFolder = async (pathname, image, dir) => {
     if (isImage) {
       const filename = path.basename(imagePath)
       const extname = path.extname(imagePath)
-      const noHashPath = path.join(dir, filename)
+      const noHashPath = path.join(outputDir, filename)
       if (noHashPath === imagePath) {
         return imagePath
       }
       const hash = getContentHash(imagePath)
       // To avoid name conflict.
-      const hashFilePath = path.join(dir, `${hash}${extname}`)
+      const hashFilePath = path.join(outputDir, `${hash}${extname}`)
       await fs.copy(imagePath, hashFilePath)
       return hashFilePath
     } else {
       return Promise.resolve(image)
     }
   } else {
-    const imagePath = path.join(dir, `${dayjs().format('YYYY-MM-DD-HH-mm-ss')}-${image.name}`)
-
+    const imagePath = path.join(outputDir, `${dayjs().format('YYYY-MM-DD-HH-mm-ss')}-${image.name}`)
     const binaryString = await new Promise((resolve, reject) => {
       const fileReader = new FileReader()
       fileReader.onload = () => {
         resolve(fileReader.result)
       }
-
       fileReader.readAsBinaryString(image)
     })
     await fs.writeFile(imagePath, binaryString, 'binary')
@@ -160,25 +157,26 @@ export const uploadImage = async (pathname, image, preferences) => {
     if (!branch) {
       delete payload.branch
     }
-    octokit.repos.createOrUpdateFileContents(payload).then(result => {
-      re(result.data.content.download_url)
-    })
+    octokit.repos.createOrUpdateFileContents(payload)
+      .then(result => {
+        re(result.data.content.download_url)
+      })
       .catch(_ => {
         rj('Upload failed, the image will be copied to the image folder')
       })
   }
 
-  const uploadByCliScript = (filepath, name = null) => {
+  const uploadByCliScript = async (filepath) => {
     let isPath = true
     if (typeof filepath !== 'string') {
       isPath = false
       const data = new Uint8Array(filepath)
-      filepath = path.join(tmpdir(), name || +new Date())
-      writeFileSync(filepath, data)
+      filepath = path.join(tmpdir(), +new Date())
+      await fs.writeFile(filepath, data)
     }
-    cp.execFile(cliScript, [filepath], (err, data) => {
+    cp.execFile(cliScript, [filepath], async (err, data) => {
       if (!isPath) {
-        unlink(filepath)
+        await fs.unlink(filepath)
       }
       if (err) {
         return rj(err)
@@ -227,11 +225,9 @@ export const uploadImage = async (pathname, image, preferences) => {
           case 'cliScript':
             uploadByCliScript(reader.result, image.name)
             break
-
           case 'smms':
             uploadToSMMS(dataURItoBlob(reader.result, image.name))
             break
-
           default:
             uploadByGithub(reader.result, image.name)
         }
@@ -241,11 +237,10 @@ export const uploadImage = async (pathname, image, preferences) => {
       reader[readerFunction](image)
     }
   }
-
   return promise
 }
 
-export const isFileExecutable = (filepath) => {
+export const isFileExecutableSync = (filepath) => {
   try {
     const stat = statSync(filepath)
     return stat.isFile() && (stat.mode & (constants.S_IXUSR | constants.S_IXGRP | constants.S_IXOTH)) !== 0

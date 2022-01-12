@@ -806,7 +806,7 @@ export default {
           } catch (err) {
             notice.notify({
               title: 'Upload Image',
-              type: 'info',
+              type: 'warning',
               message: err
             })
             result = await moveImageToFolder(pathname, image, imageFolderPath)
@@ -843,7 +843,6 @@ export default {
           alt
         })
       }
-
       return result
     },
 
