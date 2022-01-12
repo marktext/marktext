@@ -104,7 +104,7 @@ export default function (keybindings) {
       }
     })
     viewMenu.submenu.push({
-      label: 'Reload',
+      label: 'Reload (for Development)',
       accelerator: keybindings.getAccelerator('view.dev-reload'),
       click (item, focusedWindow) {
         if (focusedWindow) {
@@ -113,5 +113,15 @@ export default function (keybindings) {
       }
     })
   }
+
+  viewMenu.submenu.push({
+    label: 'Reload Images',
+    accelerator: keybindings.getAccelerator('view.reload-images'),
+    click (item, focusedWindow) {
+      if (focusedWindow) {
+        ipcMain.emit('invalidate-image-cache-by-id', focusedWindow.id)
+      }
+    }
+  })
   return viewMenu
 }

@@ -433,6 +433,12 @@ class WindowManager extends EventEmitter {
         window.reload()
       }
     })
+    ipcMain.on('invalidate-image-cache-by-id', id => {
+      const window = this.get(id)
+      if (window) {
+        window.invalidateImageCache()
+      }
+    })
     ipcMain.on('window-toggle-always-on-top', win => {
       const flag = !win.isAlwaysOnTop()
       win.setAlwaysOnTop(flag)
