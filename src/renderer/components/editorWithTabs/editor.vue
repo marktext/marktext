@@ -798,7 +798,7 @@ export default {
         }
       }
 
-      resolvedImageFolderPath = imageFolderPath.replace(/\${filename}/g, this.pathname)
+      const resolvedImageFolderPath = imageFolderPath.replace(/\${filename}/g, this.pathname)
       let result = ''
       switch (imageInsertAction) {
         case 'upload': {
