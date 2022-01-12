@@ -33,6 +33,7 @@ export const transfromAliasToOrigin = langs => {
       }
     }
   }
+
   return result
 }
 
@@ -40,9 +41,7 @@ function initLoadLanguage (Prism) {
   return async function loadLanguages (langs) {
     // If no argument is passed, load all components
     if (!langs) {
-      langs = Object.keys(languages).filter(function (lang) {
-        return lang !== 'meta'
-      })
+      langs = Object.keys(languages).filter(lang => lang !== 'meta')
     }
 
     if (langs && !langs.length) {
@@ -54,8 +53,8 @@ function initLoadLanguage (Prism) {
     }
 
     const promises = []
-    // the user might have loaded languages via some other way or used `prism.js` which already includes some
-    // we don't need to validate the ids because `getLoader` will ignore invalid ones
+    // The user might have loaded languages via some other way or used `prism.js` which already includes some
+    // We don't need to validate the ids because `getLoader` will ignore invalid ones
     const loaded = [...loadedLanguages, ...Object.keys(Prism.languages)]
 
     getLoader(components, langs, loaded).load(async lang => {
@@ -66,17 +65,20 @@ function initLoadLanguage (Prism) {
           lang,
           status: 'noexist'
         })
-        return
+      } else if (loadedLanguages.has(lang)) {
+        defer.resolve({
+          lang,
+          status: 'cached'
+        })
+      } else {
+        delete Prism.languages[lang]
+        await import('prismjs/components/prism-' + lang)
+        defer.resolve({
+          lang,
+          status: 'loaded'
+        })
+        loadedLanguages.add(lang)
       }
-
-      delete Prism.languages[lang]
-
-      await import('prismjs/components/prism-' + lang)
-      defer.resolve({
-        lang,
-        status: loadedLanguages.has(lang) ? 'cached' : 'loaded'
-      })
-      loadedLanguages.add(lang)
     })
 
     return Promise.all(promises)

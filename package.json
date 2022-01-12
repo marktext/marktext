@@ -71,7 +71,7 @@
     "minizlib": "^2.1.1",
     "plist": "^3.0.4",
     "popper.js": "^1.16.1",
-    "prismjs": "^1.25.0",
+    "prismjs": "^1.26.0",
     "snabbdom": "^0.7.4",
     "snabbdom-to-html": "^6.0.0",
     "source-map-support": "^0.5.21",

@@ -14,6 +14,8 @@ import { loadLanguage } from '../prism/index'
 // To be disabled rules when parse markdown, Because content state don't need to parse inline rules
 import { CURSOR_ANCHOR_DNA, CURSOR_FOCUS_DNA } from '../config'
 
+const languageLoaded = new Set()
+
 // Just because turndown change `\n`(soft line break) to space, So we add `span.ag-soft-line-break` to workaround.
 const turnSoftBreakToSpan = html => {
   const parser = new DOMParser()
@@ -95,7 +97,6 @@ const importRegister = ContentState => {
     let block
     let value
     const parentList = [rootState]
-    const languageLoaded = new Set()
 
     while ((token = tokens.shift())) {
       switch (token.type) {
@@ -420,7 +421,7 @@ const importRegister = ContentState => {
           break
       }
     }
-    languageLoaded.clear()
+
     return rootState.children.length ? rootState.children : [this.createBlockP()]
   }
 
