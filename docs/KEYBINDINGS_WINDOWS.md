@@ -49,12 +49,12 @@ MarkText key bindings for Windows. Please see [general key bindings](KEYBINDINGS
 
 | Id                          | Default                                       | Description                              |
 | --------------------------- | --------------------------------------------- | ---------------------------------------- |
-| `paragraph.heading-1`       | <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>1</kbd> | Set line as heading 1                    |
-| `paragraph.heading-2`       | <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>2</kbd> | Set line as heading 2                    |
-| `paragraph.heading-3`       | <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>3</kbd> | Set line as heading 3                    |
-| `paragraph.heading-4`       | <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>4</kbd> | Set line as heading 4                    |
-| `paragraph.heading-5`       | <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>5</kbd> | Set line as heading 5                    |
-| `paragraph.heading-6`       | <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>6</kbd> | Set line as heading 6                    |
+| `paragraph.heading-1`       | <kbd>Ctrl</kbd>+<kbd>1</kbd>                  | Set line as heading 1                    |
+| `paragraph.heading-2`       | <kbd>Ctrl</kbd>+<kbd>2</kbd>                  | Set line as heading 2                    |
+| `paragraph.heading-3`       | <kbd>Ctrl</kbd>+<kbd>3</kbd>                  | Set line as heading 3                    |
+| `paragraph.heading-4`       | <kbd>Ctrl</kbd>+<kbd>4</kbd>                  | Set line as heading 4                    |
+| `paragraph.heading-5`       | <kbd>Ctrl</kbd>+<kbd>5</kbd>                  | Set line as heading 5                    |
+| `paragraph.heading-6`       | <kbd>Ctrl</kbd>+<kbd>6</kbd>                  | Set line as heading 6                    |
 | `paragraph.upgrade-heading` | <kbd>Ctrl</kbd>+<kbd>=</kbd>                  | Upgrade a heading                        |
 | `paragraph.degrade-heading` | <kbd>Ctrl</kbd>+<kbd>-</kbd>                  | Degrade a heading                        |
 | `paragraph.table`           | <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>T</kbd> | Insert a table                           |
@@ -121,16 +121,16 @@ MarkText key bindings for Windows. Please see [general key bindings](KEYBINDINGS
 | `tabs.cycle-backward`    | <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Tab</kbd> | Cycle backwards through tabs |
 | `tabs.switch-to-left`    | <kbd>Ctrl</kbd>+<kbd>PageUp</kbd>               | Switch tab to the left       |
 | `tabs.switch-to-right`   | <kbd>Ctrl</kbd>+<kbd>PageDown</kbd>             | Switch tab to the right      |
-| `tabs.switch-to-first`   | <kbd>Ctrl</kbd>+<kbd>1</kbd>                    | Switch tab to the 1st        |
-| `tabs.switch-to-second`  | <kbd>Ctrl</kbd>+<kbd>2</kbd>                    | Switch tab to the 2nd        |
-| `tabs.switch-to-third`   | <kbd>Ctrl</kbd>+<kbd>3</kbd>                    | Switch tab to the 3rd        |
-| `tabs.switch-to-fourth`  | <kbd>Ctrl</kbd>+<kbd>4</kbd>                    | Switch tab to the 4th        |
-| `tabs.switch-to-fifth`   | <kbd>Ctrl</kbd>+<kbd>5</kbd>                    | Switch tab to the 5th        |
-| `tabs.switch-to-sixth`   | <kbd>Ctrl</kbd>+<kbd>6</kbd>                    | Switch tab to the 6th        |
-| `tabs.switch-to-seventh` | <kbd>Ctrl</kbd>+<kbd>7</kbd>                    | Switch tab to the 7th        |
-| `tabs.switch-to-eighth`  | <kbd>Ctrl</kbd>+<kbd>8</kbd>                    | Switch tab to the 8th        |
-| `tabs.switch-to-ninth`   | <kbd>Ctrl</kbd>+<kbd>9</kbd>                    | Switch tab to the 9th        |
-| `tabs.switch-to-tenth`   | <kbd>Ctrl</kbd>+<kbd>0</kbd>                    | Switch tab to the 10th       |
+| `tabs.switch-to-first`   | <kbd>Alt</kbd>+<kbd>1</kbd>                     | Switch tab to the 1st        |
+| `tabs.switch-to-second`  | <kbd>Alt</kbd>+<kbd>2</kbd>                     | Switch tab to the 2nd        |
+| `tabs.switch-to-third`   | <kbd>Alt</kbd>+<kbd>3</kbd>                     | Switch tab to the 3rd        |
+| `tabs.switch-to-fourth`  | <kbd>Alt</kbd>+<kbd>4</kbd>                     | Switch tab to the 4th        |
+| `tabs.switch-to-fifth`   | <kbd>Alt</kbd>+<kbd>5</kbd>                     | Switch tab to the 5th        |
+| `tabs.switch-to-sixth`   | <kbd>Alt</kbd>+<kbd>6</kbd>                     | Switch tab to the 6th        |
+| `tabs.switch-to-seventh` | <kbd>Alt</kbd>+<kbd>7</kbd>                     | Switch tab to the 7th        |
+| `tabs.switch-to-eighth`  | <kbd>Alt</kbd>+<kbd>8</kbd>                     | Switch tab to the 8th        |
+| `tabs.switch-to-ninth`   | <kbd>Alt</kbd>+<kbd>9</kbd>                     | Switch tab to the 9th        |
+| `tabs.switch-to-tenth`   | <kbd>Alt</kbd>+<kbd>0</kbd>                     | Switch tab to the 10th       |
 
 #### Misc
 
