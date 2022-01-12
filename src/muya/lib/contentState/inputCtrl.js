@@ -157,9 +157,13 @@ const inputCtrl = ContentState => {
         //          includes soft-line breaks. The normal text from `oldEnd` is moved into the `start`
         //          block but the remaining soft-lines (separated by \n) not. We have to append the
         //          remaining text (soft-lines) to the new start block.
-        const endParagraph = document.querySelector(`#${oldEnd.key}`)
-        if (endParagraph) {
-          text += '\n' + getTextContent(endParagraph, [CLASS_OR_ID.AG_MATH_RENDER, CLASS_OR_ID.AG_RUBY_RENDER])
+        const matchBreak = /(?<=.)\n./.exec(endBlock.text)
+        if (matchBreak && matchBreak.index > 0) {
+          // Skip if end block is fully selected and the cursor is in the next line (e.g. via keyboard).
+          const lineOffset = matchBreak.index
+          if (oldEnd.offset <= lineOffset) {
+            text += endBlock.text.substring(lineOffset)
+          }
         }
         this.removeBlocks(startBlock, endBlock)
       } else {
