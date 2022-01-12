@@ -136,8 +136,8 @@ const actions = {
     ipcRenderer.send('mt::set-user-data', { [type]: value })
   },
 
-  SET_IMAGE_FOLDER_PATH ({ commit }) {
-    ipcRenderer.send('mt::ask-for-modify-image-folder-path')
+  SET_IMAGE_FOLDER_PATH ({ commit }, value) {
+    ipcRenderer.send('mt::ask-for-modify-image-folder-path', value)
   },
 
   SELECT_DEFAULT_DIRECTORY_TO_OPEN ({ commit }) {
