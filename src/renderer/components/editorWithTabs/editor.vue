@@ -798,7 +798,7 @@ export default {
         }
       }
 
-      imageFolderPath = imageFolderPath.replace(/\${filename}/g, this.pathname)
+      resolvedImageFolderPath = imageFolderPath.replace(/\${filename}/g, this.pathname)
       let result = ''
       switch (imageInsertAction) {
         case 'upload': {
@@ -810,12 +810,12 @@ export default {
               type: 'info',
               message: err
             })
-            result = await moveImageToFolder(pathname, image, imageFolderPath)
+            result = await moveImageToFolder(pathname, image, resolvedImageFolderPath)
           }
           break
         }
         case 'folder': {
-          result = await moveImageToFolder(pathname, image, imageFolderPath)
+          result = await moveImageToFolder(pathname, image, resolvedImageFolderPath)
           if (cwd && imagePreferRelativeDirectory) {
             result = await moveToRelativeFolder(cwd, result, imageRelativeDirectoryName)
           }
@@ -826,7 +826,7 @@ export default {
             result = image
           } else {
             // Move image to image folder if it's Blob object.
-            result = await moveImageToFolder(pathname, image, imageFolderPath)
+            result = await moveImageToFolder(pathname, image, resolvedImageFolderPath)
 
             // Respect user preferences if file exist on disk.
             if (cwd && imagePreferRelativeDirectory) {
