@@ -158,19 +158,24 @@ const dragDropCtrl = ContentState => {
         }
         this.render()
 
-        const nSrc = await this.muya.options.imageAction(path, id, name)
-        const { src } = getImageSrc(path)
-        if (src) {
-          this.stateRender.urlMap.set(nSrc, src)
-        }
-        const imageWrapper = this.muya.container.querySelector(`span[data-id=${id}]`)
+        try {
+          const newSrc = await this.muya.options.imageAction(path, id, name)
+          const { src } = getImageSrc(path)
+          if (src) {
+            this.stateRender.urlMap.set(newSrc, src)
+          }
+          const imageWrapper = this.muya.container.querySelector(`span[data-id=${id}]`)
 
-        if (imageWrapper) {
-          const imageInfo = getImageInfo(imageWrapper)
-          this.replaceImage(imageInfo, {
-            alt: name,
-            src: nSrc
-          })
+          if (imageWrapper) {
+            const imageInfo = getImageInfo(imageWrapper)
+            this.replaceImage(imageInfo, {
+              alt: name,
+              src: newSrc
+            })
+          }
+        } catch (error) {
+          // TODO: Notify user about an error.
+          console.error('Unexpected error on image action:', error)
         }
       }
       this.muya.eventCenter.dispatch('stateChange')

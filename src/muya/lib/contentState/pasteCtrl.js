@@ -141,10 +141,19 @@ const pasteCtrl = ContentState => {
           src: imagePath
         })
       }
-      const nSrc = await this.muya.options.imageAction(imagePath, id)
+
+      let newSrc = null
+      try {
+        newSrc = await this.muya.options.imageAction(imagePath, id)
+      } catch (error) {
+        // TODO: Notify user about an error.
+        console.error('Unexpected error on image action:', error)
+        return null
+      }
+
       const { src } = getImageSrc(imagePath)
       if (src) {
-        this.stateRender.urlMap.set(nSrc, src)
+        this.stateRender.urlMap.set(newSrc, src)
       }
 
       const imageWrapper = this.muya.container.querySelector(`span[data-id=${id}]`)
@@ -152,7 +161,7 @@ const pasteCtrl = ContentState => {
       if (imageWrapper) {
         const imageInfo = getImageInfo(imageWrapper)
         this.replaceImage(imageInfo, {
-          src: nSrc
+          src: newSrc
         })
       }
       return imagePath
@@ -200,10 +209,18 @@ const pasteCtrl = ContentState => {
       }
       reader.readAsDataURL(file)
 
-      const nSrc = await this.muya.options.imageAction(file, id)
+      let newSrc = null
+      try {
+        newSrc = await this.muya.options.imageAction(file, id)
+      } catch (error) {
+        // TODO: Notify user about an error.
+        console.error('Unexpected error on image action:', error)
+        return null
+      }
+
       const base64 = this.stateRender.urlMap.get(id)
       if (base64) {
-        this.stateRender.urlMap.set(nSrc, base64)
+        this.stateRender.urlMap.set(newSrc, base64)
         this.stateRender.urlMap.delete(id)
       }
       const imageWrapper = this.muya.container.querySelector(`span[data-id=${id}]`)
@@ -211,7 +228,7 @@ const pasteCtrl = ContentState => {
       if (imageWrapper) {
         const imageInfo = getImageInfo(imageWrapper)
         this.replaceImage(imageInfo, {
-          src: nSrc
+          src: newSrc
         })
       }
       return file

@@ -238,20 +238,26 @@ class ImageSelector extends BaseFloat {
           title
         })
         this.hide()
-        const nSrc = await this.muya.options.imageAction(src, id, alt)
-        const { src: localPath } = getImageSrc(src)
-        if (localPath) {
-          this.muya.contentState.stateRender.urlMap.set(nSrc, localPath)
-        }
-        const imageWrapper = this.muya.container.querySelector(`span[data-id=${id}]`)
 
-        if (imageWrapper) {
-          const imageInfo = getImageInfo(imageWrapper)
-          this.muya.contentState.replaceImage(imageInfo, {
-            alt,
-            src: nSrc,
-            title
-          })
+        try {
+          const newSrc = await this.muya.options.imageAction(src, id, alt)
+          const { src: localPath } = getImageSrc(src)
+          if (localPath) {
+            this.muya.contentState.stateRender.urlMap.set(newSrc, localPath)
+          }
+          const imageWrapper = this.muya.container.querySelector(`span[data-id=${id}]`)
+
+          if (imageWrapper) {
+            const imageInfo = getImageInfo(imageWrapper)
+            this.muya.contentState.replaceImage(imageInfo, {
+              alt,
+              src: newSrc,
+              title
+            })
+          }
+        } catch (error) {
+          // TODO: Notify user about an error.
+          console.error('Unexpected error on image action:', error)
         }
       } else {
         this.hide()
