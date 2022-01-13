@@ -135,10 +135,8 @@ const inputCtrl = ContentState => {
       const startOutmostBlock = this.findOutMostBlock(startBlock)
       const endBlock = this.getBlock(oldEnd.key)
       const endOutmostBlock = this.findOutMostBlock(endBlock)
-      if (
+      if (startBlock.functionType === 'languageInput') {
         // fix #918.
-        startBlock.functionType === 'languageInput'
-      ) {
         if (startOutmostBlock === endOutmostBlock && !endBlock.nextSibling) {
           this.removeBlocks(startBlock, endBlock, false)
           endBlock.text = ''
@@ -153,6 +151,21 @@ const inputCtrl = ContentState => {
         } else {
           this.removeBlocks(startBlock, endBlock)
         }
+      } else if (startBlock.functionType === 'paragraphContent' &&
+        start.key === end.key && oldStart.key === start.key && oldEnd.key !== end.key) {
+        // GH#2269: The end block will lose all soft-lines when removing multiple paragraphs and `oldEnd`
+        //          includes soft-line breaks. The normal text from `oldEnd` is moved into the `start`
+        //          block but the remaining soft-lines (separated by \n) not. We have to append the
+        //          remaining text (soft-lines) to the new start block.
+        const matchBreak = /(?<=.)\n./.exec(endBlock.text)
+        if (matchBreak && matchBreak.index > 0) {
+          // Skip if end block is fully selected and the cursor is in the next line (e.g. via keyboard).
+          const lineOffset = matchBreak.index
+          if (oldEnd.offset <= lineOffset) {
+            text += endBlock.text.substring(lineOffset)
+          }
+        }
+        this.removeBlocks(startBlock, endBlock)
       } else {
         this.removeBlocks(startBlock, endBlock)
       }
@@ -239,6 +252,7 @@ const inputCtrl = ContentState => {
       if (this.checkNotSameToken(block.functionType, block.text, text)) {
         needRender = true
       }
+
       // Just work for `Shift + Enter` to create a soft and hard line break.
       if (
         block.text.endsWith('\n') &&
