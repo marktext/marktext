@@ -786,7 +786,10 @@ export default {
         imageRelativeDirectoryName,
         preferences
       } = this
-      const { pathname } = this.currentFile
+      const {
+        filename,
+        pathname
+      } = this.currentFile
 
       // Figure out the current working directory.
       let cwd = pathname ? path.dirname(pathname) : null
@@ -798,39 +801,46 @@ export default {
         }
       }
 
-      const resolvedImageFolderPath = imageFolderPath.replace(/\${filename}/g, this.pathname)
-      let result = ''
+      const getResolvedImagePath = imagePath => {
+        // Use filename only when the tab is saved on disk.
+        const replacement = pathname ? filename : ''
+        return imagePath.replace(/\${filename}/g, replacement)
+      }
+
+      const resolvedImageFolderPath = getResolvedImagePath(imageFolderPath)
+      const resolvedImageRelativeDirectoryName = getResolvedImagePath(imageRelativeDirectoryName)
+      let destImagePath = ''
       switch (imageInsertAction) {
         case 'upload': {
           try {
-            result = await uploadImage(pathname, image, preferences)
+            destImagePath = await uploadImage(pathname, image, preferences)
           } catch (err) {
             notice.notify({
               title: 'Upload Image',
               type: 'warning',
               message: err
             })
-            result = await moveImageToFolder(pathname, image, resolvedImageFolderPath)
+            destImagePath = await moveImageToFolder(pathname, image, resolvedImageFolderPath)
           }
           break
         }
         case 'folder': {
-          result = await moveImageToFolder(pathname, image, resolvedImageFolderPath)
+          destImagePath = await moveImageToFolder(pathname, image, resolvedImageFolderPath)
           if (cwd && imagePreferRelativeDirectory) {
-            result = await moveToRelativeFolder(cwd, result, imageRelativeDirectoryName)
+            destImagePath = await moveToRelativeFolder(cwd, destImagePath, resolvedImageRelativeDirectoryName)
           }
           break
         }
         case 'path': {
           if (typeof image === 'string') {
-            result = image
+            destImagePath = image
           } else {
             // Move image to image folder if it's Blob object.
-            result = await moveImageToFolder(pathname, image, resolvedImageFolderPath)
+            destImagePath = await moveImageToFolder(pathname, image, resolvedImageFolderPath)
 
             // Respect user preferences if file exist on disk.
             if (cwd && imagePreferRelativeDirectory) {
-              result = await moveToRelativeFolder(cwd, result, imageRelativeDirectoryName)
+              destImagePath = await moveToRelativeFolder(cwd, destImagePath, resolvedImageRelativeDirectoryName)
             }
           }
           break
@@ -840,11 +850,11 @@ export default {
       if (id && this.sourceCode) {
         bus.$emit('image-action', {
           id,
-          result,
+          result: destImagePath,
           alt
         })
       }
-      return result
+      return destImagePath
     },
 
     imagePathPicker () {

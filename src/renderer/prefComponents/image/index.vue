@@ -23,8 +23,8 @@
         :onChange="value => modifyImageFolderPath(value)"
       ></text-box>
       <div>
-        <el-button size="mini" @click="modifyImageFolderPath()">Modify</el-button>
-        <el-button size="mini" @click="openImageFolder">Open Folder</el-button>
+        <el-button size="mini" @click="modifyImageFolderPath(undefined)">Open...</el-button>
+        <el-button size="mini" @click="openImageFolder">Show in Folder</el-button>
       </div>
     </section>
 

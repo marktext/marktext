@@ -31,8 +31,8 @@ class DataCenter extends EventEmitter {
 
   init () {
     const defaltData = {
-      imageFolderPath: path.join(this.userDataPath, 'images/'),
-      screenshotFolderPath: path.join(this.userDataPath, 'screenshot/'),
+      imageFolderPath: path.join(this.userDataPath, 'images'),
+      screenshotFolderPath: path.join(this.userDataPath, 'screenshot'),
       webImages: [],
       cloudImages: [],
       currentUploader: 'none',
@@ -44,14 +44,11 @@ class DataCenter extends EventEmitter {
         }
       }
     }
+
     if (!this.hasDataCenterFile) {
       this.store.set(defaltData)
-      const imageFolderPath = this.store.get('imageFolderPath')
-      const screenshotFolderPath = this.store.get('screenshotFolderPath')
-      ensureDirSync(imageFolderPath)
-      ensureDirSync(screenshotFolderPath)
+      ensureDirSync(this.store.get('screenshotFolderPath'))
     }
-
     this._listenForIpcMain()
   }
 
@@ -122,10 +119,7 @@ class DataCenter extends EventEmitter {
 
   async setItem (key, value) {
     const { encryptKeys, serviceName } = this
-    if (
-      key === 'imageFolderPath' ||
-      key === 'screenshotFolderPath'
-    ) {
+    if (key === 'screenshotFolderPath') {
       ensureDirSync(value)
     }
     ipcMain.emit('broadcast-user-data-changed', { [key]: value })
@@ -133,7 +127,7 @@ class DataCenter extends EventEmitter {
       try {
         return await keytar.setPassword(serviceName, key, value)
       } catch (err) {
-        log.error('dataCenter::setItem:', err)
+        log.error('Keytar error:', err)
       }
     } else {
       return this.store.set(key, value)
@@ -172,9 +166,12 @@ class DataCenter extends EventEmitter {
     ipcMain.on('mt::ask-for-modify-image-folder-path', async (e, imagePath) => {
       if (!imagePath) {
         const win = BrowserWindow.fromWebContents(e.sender)
-        imagePath = (await dialog.showOpenDialog(win, {
+        const { filePaths } = await dialog.showOpenDialog(win, {
           properties: ['openDirectory', 'createDirectory']
-        })).filePaths[0]
+        })
+        if (filePaths && filePaths[0]) {
+          imagePath = filePaths[0]
+        }
       }
       if (imagePath) {
         this.setItem('imageFolderPath', imagePath)
@@ -185,6 +182,7 @@ class DataCenter extends EventEmitter {
       this.setItems(userData)
     })
 
+    // TODO: Replace sync. call.
     ipcMain.on('mt::ask-for-image-path', async e => {
       const win = BrowserWindow.fromWebContents(e.sender)
       const { filePaths } = await dialog.showOpenDialog(win, {
