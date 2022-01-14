@@ -10,7 +10,7 @@ git clone https://github.com/marktext/marktext.git
 
 Before you can get started developing, you need set up your build environment:
 
-- Node.js `>=v14` and yarn
+- Node.js `>=v16` but `<v17` and yarn
 - Python `>=v3.6` for node-gyp
 - C++ compiler and development tools
 - Build is supported on Linux, macOS and Windows
@@ -46,12 +46,12 @@ Copy the build app to applications folder, or if on Windows run the executable i
 $ yarn run <script> # or npm run <script>
 ```
 
-| Script          | Description                                       |
-| --------------- | ------------------------------------------------- |
+| Script          | Description                                      |
+| --------------- | ------------------------------------------------ |
 | `build`         | Build MarkText binaries and packages for your OS |
 | `build:bin`     | Build MarkText binary for your OS                |
 | `dev`           | Build and run MarkText in developer mode         |
-| `lint`          | Lint code style                                   |
-| `test` / `unit` | Run unit tests                                    |
+| `lint`          | Lint code style                                  |
+| `test` / `unit` | Run unit tests                                   |
 
 For more scripts please see `package.json`.
