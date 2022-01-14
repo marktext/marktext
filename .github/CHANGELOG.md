@@ -16,9 +16,9 @@ Mark Text is now MarkText! We'd like to thank all contributors and users that ha
 - Added support for chemical equations in math mode.
 - Added automatic call to search for find-in-file when the pane is opened.
 - Open local non-markdown files in default application.
-- Added support to use all menu entires for key binding.
+- Added support to use all menu entries for key binding.
 - Added window zoom via default mouse event.
-- Zoom level is now restored on startup
+- Zoom level is now restored on startup.
 
 **:butterfly:Optimization**
 
