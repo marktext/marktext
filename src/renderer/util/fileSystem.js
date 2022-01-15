@@ -99,7 +99,6 @@ export const moveImageToFolder = async (pathname, image, outputDir) => {
  * @jocs todo, rewrite it use class
  */
 export const uploadImage = async (pathname, image, preferences) => {
-  console.log(pathname, image, preferences)
   const { currentUploader, imageBed, githubToken: token, cliScript } = preferences
   const { owner, repo, branch } = imageBed.github
   const isPath = typeof image === 'string'
@@ -110,6 +109,10 @@ export const uploadImage = async (pathname, image, preferences) => {
     re = resolve
     rj = reject
   })
+
+  if (currentUploader === 'none') {
+    rj('No image uploader provided.')
+  }
 
   const uploadByGithub = (content, filename) => {
     const octokit = new Octokit({
