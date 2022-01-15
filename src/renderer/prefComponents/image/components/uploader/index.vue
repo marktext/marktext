@@ -18,6 +18,7 @@
         </div>
       </div>
       <div class="github" v-if="currentUploader === 'github'">
+        <div class="warning">Github will be removed in a future version, please use picgo</div>
         <div class="form-group">
           <div class="label">
             GitHub token:
@@ -229,6 +230,9 @@ export default {
 
   & .current-uploader {
     margin: 20px 0;
+  }
+  & .warning {
+    color: var(--deleteColor);
   }
   & .link {
     color: var(--themeColor);
