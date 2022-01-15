@@ -93,7 +93,7 @@ export default new Map([
   ['view.toggle-toc', 'Command+K'],
   ['view.toggle-tabbar', 'Command+Alt+B'],
   ['view.toggle-dev-tools', 'Command+Alt+I'],
-  ['view.dev-reload', 'Command+R'],
+  ['view.dev-reload', 'Command+Alt+R'],
   ['view.reload-images', 'Command+R'],
 
   // ======== Not included in application menu ========================
