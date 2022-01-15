@@ -85,13 +85,12 @@ class SettingWindow extends BaseWindow {
     win.loadURL(this._buildUrlString(this.id, env, preferences))
     win.setSheetOffset(TITLE_BAR_HEIGHT)
 
-    electronLocalshortcut.register(
-      win,
-      keybindings.getAccelerator('view.toggle-dev-tools'),
-      () => {
+    const devToolsAccelerator = keybindings.getAccelerator('view.toggle-dev-tools')
+    if (env.debug && devToolsAccelerator) {
+      electronLocalshortcut.register(win, devToolsAccelerator, () => {
         win.webContents.toggleDevTools()
-      }
-    )
+      })
+    }
     return win
   }
 }

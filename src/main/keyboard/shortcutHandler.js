@@ -36,7 +36,7 @@ class Keybindings {
   getAccelerator (id) {
     const name = this.keys.get(id)
     if (!name) {
-      return ''
+      return null
     }
     return name
   }
@@ -146,7 +146,6 @@ class Keybindings {
 
   _loadLocalKeybindings () {
     if (global.MARKTEXT_SAFE_MODE || !isFile2(this.configPath)) {
-      console.log('Ignoring key bindings because safe mode is enabled.')
       return
     }
 
