@@ -419,7 +419,7 @@ export default {
     flex-direction: column;
     justify-content: space-around;
     padding-bottom: 100px;
-    & .no-data{
+    & .no-data {
       display: flex;
       align-items: center;
       flex-direction: column;
