@@ -10,6 +10,13 @@
     <section class="configration">
       <cur-select :value="currentUploader" :options="uploaderOptions"
         :onChange="value => setCurrentUploader(value)"></cur-select>
+      <div class="picgo" v-if="currentUploader === 'picgo'">
+        <div v-if="!picgoExisted" class="warning">
+          Your system does not have <span class="link"
+            @click="open('https://github.com/PicGo/PicGo-Core')">picgo</span> installed, please
+          install it before use.
+        </div>
+      </div>
       <div class="github" v-if="currentUploader === 'github'">
         <div class="form-group">
           <div class="label">
@@ -66,6 +73,8 @@ import services, { isValidService } from './services.js'
 import legalNoticesCheckbox from './legalNoticesCheckbox'
 import { isFileExecutableSync } from '@/util/fileSystem'
 import CurSelect from '@/prefComponents/common/select'
+import commandExists from 'command-exists'
+import notice from '@/services/notification'
 
 export default {
   components: {
@@ -88,6 +97,7 @@ export default {
         branch: ''
       },
       cliScript: '',
+      picgoExisted: true,
       uploadServices: services,
       legalNoticesErrorStates: {
         github: false
@@ -137,6 +147,7 @@ export default {
       this.github = this.imageBed.github
       this.githubToken = this.prefGithubToken
       this.cliScript = this.prefCliScript
+      this.testPicgo()
 
       if (services.hasOwnProperty(this.currentUploader)) {
         services[this.currentUploader].agreedToLegalNotices = true
@@ -147,15 +158,20 @@ export default {
     isValidUploaderService (name) {
       return isValidService(name)
     },
+
     getServiceNameById (id) {
       const service = services[id]
       return service ? service.name : id
     },
+
     open (link) {
       shell.openExternal(link)
     },
-    save (type, withNotice = true) {
-      this.validate(type)
+
+    save (type) {
+      if (!this.validate(type)) {
+        return
+      }
       const newImageBedConfig = Object.assign({}, this.imageBed, { [type]: this[type] })
       this.$store.dispatch('SET_USER_DATA', {
         type: 'imageBed',
@@ -173,42 +189,34 @@ export default {
           value: this.cliScript
         })
       }
-      if (withNotice && type === 'github') {
-        new Notification('Save Image Uploader', {
-          body: 'The Github configration has been saved.'
-        })
-      }
-      if (withNotice && type === 'cliScript') {
-        new Notification('Save Image Uploader', {
-          body: 'The command line script configuration has been saved'
-        })
-      }
+      notice.notify({
+        title: 'Save Config',
+        message: type === 'github' ? 'The Github configration has been saved.' : 'The command line script configuration has been saved',
+        type: 'primary'
+      })
     },
+
     setCurrentUploader (value) {
       const type = 'currentUploader'
       this.$store.dispatch('SET_USER_DATA', { type, value })
     },
+
+    testPicgo () {
+      this.picgoExisted = commandExists.sync('picgo')
+    },
+
     validate (value) {
       const service = services[value]
-      const { name, agreedToLegalNotices } = service
+      const { agreedToLegalNotices } = service
       if (!agreedToLegalNotices) {
         this.legalNoticesErrorStates[value] = true
-        return
-      }
-      // Save the setting before set it as default uploader.
-      if (value === 'github' || value === 'cliScript') {
-        this.save(value, false)
+        return false
       }
       if (this.legalNoticesErrorStates[value] !== undefined) {
         this.legalNoticesErrorStates[value] = false
       }
 
-      const type = 'currentUploader'
-      this.$store.dispatch('SET_USER_DATA', { type, value })
-
-      new Notification('Set Image Uploader', {
-        body: `Set ${name} as the default image uploader successfully.`
-      })
+      return true
     }
   }
 }
