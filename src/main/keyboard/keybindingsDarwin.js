@@ -38,7 +38,6 @@ export default new Map([
   ['edit.find-previous', 'Cmd+Shift+G'],
   ['edit.replace', 'Command+Alt+F'],
   ['edit.find-in-folder', 'Shift+Command+F'],
-  ['edit.aidou', 'Command+/'],
   ['edit.screenshot', 'Command+Alt+A'], // macOS only
 
   // Paragraph menu

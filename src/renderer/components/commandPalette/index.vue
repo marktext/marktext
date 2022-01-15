@@ -52,7 +52,7 @@
 import { mapState } from 'vuex'
 import log from 'electron-log'
 import bus from '../../bus'
-import loading from '../aidou/loading'
+import loading from '../loading'
 
 export default {
   components: {

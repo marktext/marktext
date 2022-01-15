@@ -43,7 +43,6 @@ MarkText key bindings for Linux. Please see [general key bindings](KEYBINDINGS.m
 | `edit.find-previous`      | <kbd>Shift</kbd>+<kbd>F3</kbd>                | Continue the search and find the previous match |
 | `edit.replace`            | <kbd>Ctrl</kbd>+<kbd>R</kbd>                  | Replace the information with a replacement      |
 | `edit.find-in-folder`     | <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>F</kbd> | Find files contain the keyword in opend folder  |
-| `edit.aidou`              | <kbd>Ctrl</kbd>+<kbd>/</kbd>                  | Show Aidou dialog                               |
 
 #### Paragraph menu
 

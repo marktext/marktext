@@ -50,7 +50,6 @@ MarkText key bindings for macOS. Please see [general key bindings](KEYBINDINGS.m
 | `edit.find-previous`     | <kbd>Shift</kbd>+<kbd>Cmd</kbd>+<kbd>G</kbd>     | Continue the search and find the previous match |
 | `edit.replace`           | <kbd>Command</kbd>+<kbd>Alt</kbd>+<kbd>F</kbd>   | Replace the information with a replacement      |
 | `edit.find-in-folder`    | <kbd>Command</kbd>+<kbd>Shift</kbd>+<kbd>F</kbd> | Find files contain the keyword in opend folder  |
-| `edit.aidou`             | <kbd>Command</kbd>+<kbd>/</kbd>                  | Show Aidou dialog                               |
 | `edit.screenshot`        | <kbd>Command</kbd>+<kbd>Alt</kbd>+<kbd>A</kbd>   | Get the screenshot                              |
 
 #### Paragraph menu
