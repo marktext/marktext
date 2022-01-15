@@ -29,14 +29,12 @@
 import { mapState } from 'vuex'
 import { shell } from 'electron'
 import Bool from '@/prefComponents/common/bool'
-import CurSelect from '@/prefComponents/common/select'
 import Compound from '@/prefComponents/common/compound'
 import TextBox from '@/prefComponents/common/textBox'
 
 export default {
   components: {
     Bool,
-    CurSelect,
     Compound,
     TextBox
   },

@@ -9,10 +9,10 @@
           <i class="el-icon-info"></i>
         </el-tooltip>
       </div>
-      <cur-select :value="imageInsertAction" :options="imageActions"
-        :onChange="value => onSelectChange('imageInsertAction', value)"></cur-select>
+      <CurSelect :value="imageInsertAction" :options="imageActions"
+        :onChange="value => onSelectChange('imageInsertAction', value)"></CurSelect>
     </section>
-    <separator></separator>
+    <Separator />
     <FolderSetting v-if="imageInsertAction === 'folder' || imageInsertAction === 'path'" />
     <Uploader v-if="imageInsertAction === 'upload'" />
   </div>
@@ -21,12 +21,14 @@
 <script>
 import Separator from '../common/separator'
 import Uploader from './components/uploader'
+import CurSelect from '@/prefComponents/common/select'
 import FolderSetting from './components/folderSetting'
 import { imageActions } from './config'
 
 export default {
   components: {
     Separator,
+    CurSelect,
     FolderSetting,
     Uploader
   },
