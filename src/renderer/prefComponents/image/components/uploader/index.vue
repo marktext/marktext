@@ -1,6 +1,6 @@
 <template>
   <div class="pref-image-uploader">
-    <h4>Image Uploader</h4>
+    <h5>Uploader</h5>
     <section class="current-uploader">
       <div v-if="isValidUploaderService(currentUploader)">The current image uploader is {{ getServiceNameById(currentUploader) }}.</div>
       <span v-else>Currently no uploader is selected. Please select an uploader and click on "Set as default".</span>
@@ -75,7 +75,7 @@
 import { shell } from 'electron'
 import services, { isValidService } from './services.js'
 import legalNoticesCheckbox from './legalNoticesCheckbox'
-import { isFileExecutableSync } from '../../util/fileSystem'
+import { isFileExecutableSync } from '@/util/fileSystem'
 
 export default {
   components: {

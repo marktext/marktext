@@ -101,10 +101,8 @@ export const moveImageToFolder = async (pathname, image, outputDir) => {
  * @jocs todo, rewrite it use class
  */
 export const uploadImage = async (pathname, image, preferences) => {
-  const { currentUploader } = preferences
-  const { owner, repo, branch } = preferences.imageBed.github
-  const token = preferences.githubToken
-  const cliScript = preferences.cliScript
+  const { currentUploader, imageBed, githubToken: token, cliScript } = preferences
+  const { owner, repo, branch } = imageBed.github
   const isPath = typeof image === 'string'
   const MAX_SIZE = 5 * 1024 * 1024
   let re

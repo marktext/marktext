@@ -7,16 +7,18 @@
           <i class="el-icon-info"></i>
         </el-tooltip>
       </div>
-      <el-radio-group v-model="imageInsertAction">
-        <el-radio label="upload">Upload to cloud using selected uploader (must be configured)</el-radio>
-        <el-radio label="folder">Copy to designated relative assets or local folder</el-radio>
-        <el-radio label="path">Keep original location</el-radio>
-      </el-radio-group>
+      <cur-select
+        :value="imageInsertAction"
+        :options="imageActions"
+        :onChange="value => onSelectChange('imageInsertAction', value)"
+      ></cur-select>
     </section>
+
     <separator></separator>
-    <section class="image-folder">
+    <section class="image-folder" v-if="imageInsertAction === 'folder' || imageInsertAction === 'path'">
+      <h5>Global or relative image Folder</h5>
       <text-box
-        description="Local image folder"
+        description="Global image folder"
         :input="imageFolderPath"
         :regexValidator="/^(?:$|([a-zA-Z]:)?[\/\\].*$)/"
         :defaultValue="folderPathPlaceholder"
@@ -26,27 +28,27 @@
         <el-button size="mini" @click="modifyImageFolderPath(undefined)">Open...</el-button>
         <el-button size="mini" @click="openImageFolder">Show in Folder</el-button>
       </div>
+      <compound>
+        <template #head>
+          <bool
+            description="Prefer relative assets folder"
+            more="https://github.com/marktext/marktext/blob/develop/docs/IMAGES.md"
+            :bool="imagePreferRelativeDirectory"
+            :onChange="value => onSelectChange('imagePreferRelativeDirectory', value)"
+          ></bool>
+        </template>
+        <template #children>
+          <text-box
+            description="Relative image folder name"
+            :input="imageRelativeDirectoryName"
+            :regexValidator="/^(?:$|(?![a-zA-Z]:)[^\/\\].*$)/"
+            :defaultValue="relativeDirectoryNamePlaceholder"
+            :onChange="value => onSelectChange('imageRelativeDirectoryName', value)"
+          ></text-box>
+        </template>
+      </compound>
     </section>
-
-    <compound>
-      <template #head>
-        <bool
-          description="Prefer relative assets folder"
-          more="https://github.com/marktext/marktext/blob/develop/docs/IMAGES.md"
-          :bool="imagePreferRelativeDirectory"
-          :onChange="value => onSelectChange('imagePreferRelativeDirectory', value)"
-        ></bool>
-      </template>
-      <template #children>
-        <text-box
-          description="Relative image folder name"
-          :input="imageRelativeDirectoryName"
-          :regexValidator="/^(?:$|(?![a-zA-Z]:)[^\/\\].*$)/"
-          :defaultValue="relativeDirectoryNamePlaceholder"
-          :onChange="value => onSelectChange('imageRelativeDirectoryName', value)"
-        ></text-box>
-      </template>
-    </compound>
+    <Uploader v-if="imageInsertAction === 'upload'" />
   </div>
 </template>
 
@@ -54,18 +56,25 @@
 import { mapState } from 'vuex'
 import { shell } from 'electron'
 import Bool from '../common/bool'
+import CurSelect from '../common/select'
 import Compound from '../common/compound'
 import Separator from '../common/separator'
 import TextBox from '../common/textBox'
+import Uploader from './components/uploader'
+import { imageActions } from './config'
 
 export default {
   components: {
     Bool,
+    CurSelect,
     Compound,
     Separator,
-    TextBox
+    TextBox,
+    Uploader
   },
   data () {
+    this.imageActions = imageActions
+
     return {
     }
   },
@@ -78,10 +87,6 @@ export default {
     imageInsertAction: {
       get: function () {
         return this.$store.state.preferences.imageInsertAction
-      },
-      set: function (value) {
-        const type = 'imageInsertAction'
-        this.$store.dispatch('SET_SINGLE_PREFERENCE', { type, value })
       }
     },
     folderPathPlaceholder: {
