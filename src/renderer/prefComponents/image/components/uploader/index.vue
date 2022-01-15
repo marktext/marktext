@@ -2,30 +2,30 @@
   <div class="pref-image-uploader">
     <h5>Uploader</h5>
     <section class="current-uploader">
-      <div v-if="isValidUploaderService(currentUploader)">The current image uploader is {{ getServiceNameById(currentUploader) }}.</div>
-      <span v-else>Currently no uploader is selected. Please select an uploader and click on "Set as default".</span>
+      <div v-if="isValidUploaderService(currentUploader)">The current image uploader is
+        {{ getServiceNameById(currentUploader) }}.</div>
+      <span v-else>Currently no uploader is selected. Please select an uploader and click on "Set as
+        default".</span>
     </section>
     <section class="configration">
       <el-tabs v-model="activeTab">
         <el-tab-pane label="SM.MS" name="smms">
-          <div class="description">Thank you <span class="link" @click="open('https://sm.ms/')">SM.MS</span> for providing free uploading services.</div>
-          <legal-notices-checkbox
-            class="smms"
-            :class="[{ 'error': legalNoticesErrorStates.smms }]"
-            :uploaderService="uploadServices.smms"
-          ></legal-notices-checkbox>
+          <div class="description">Thank you <span class="link"
+              @click="open('https://sm.ms/')">SM.MS</span> for
+            providing free uploading
+            services.
+          </div>
+          <legal-notices-checkbox class="smms" :class="[{ 'error': legalNoticesErrorStates.smms }]"
+            :uploaderService="uploadServices.smms"></legal-notices-checkbox>
           <el-button size="mini" @click="setCurrentUploader('smms')">Set as default</el-button>
         </el-tab-pane>
         <el-tab-pane label="GitHub" name="github">
           <div class="form-group">
             <div class="label">
               GitHub token:
-              <el-tooltip
-                class="item"
-                effect="dark"
+              <el-tooltip class="item" effect="dark"
                 content="The token is saved by Keychain on macOS, Secret Service API/libsecret on Linux and Credential Vault on Windows"
-                placement="top-start"
-              >
+                placement="top-start">
                 <i class="el-icon-info"></i>
               </el-tooltip>
             </div>
@@ -43,18 +43,21 @@
             <div class="label">Branch name (optional):</div>
             <el-input v-model="github.branch" placeholder="branch" size="mini"></el-input>
           </div>
-          <legal-notices-checkbox
-            class="github"
+          <legal-notices-checkbox class="github"
             :class="[{ 'error': legalNoticesErrorStates.github }]"
-            :uploaderService="uploadServices.github"
-          ></legal-notices-checkbox>
+            :uploaderService="uploadServices.github"></legal-notices-checkbox>
           <div class="form-group">
-            <el-button size="mini" :disabled="githubDisable" @click="save('github')">Save</el-button>
-            <el-button size="mini" :disabled="githubDisable" @click="setCurrentUploader('github')">Set as default</el-button>
+            <el-button size="mini" :disabled="githubDisable" @click="save('github')">Save
+            </el-button>
+            <el-button size="mini" :disabled="githubDisable" @click="setCurrentUploader('github')">
+              Set as default</el-button>
           </div>
         </el-tab-pane>
         <el-tab-pane label="Command-line Script" name="cliScript">
-          <div class="description">The script will be executed with the image file path as its only argument and it should output any valid value for the <code>src</code> attribute of a <em>HTMLImageElement</em>.</div>
+          <div class="description">The script will be executed with the image file path as its only
+            argument and it should output any valid value for the <code>src</code> attribute of a
+            <em>HTMLImageElement</em>.
+          </div>
           <div class="form-group">
             <div class="label">
               Shell script location
@@ -62,8 +65,11 @@
             <el-input v-model="cliScript" placeholder="Script absolute path" size="mini"></el-input>
           </div>
           <div class="form-group">
-            <el-button size="mini" :disabled="cliScriptDisable" @click="save('cliScript')">Save</el-button>
-            <el-button size="mini" :disabled="cliScriptDisable" @click="setCurrentUploader('cliScript')">Set as default</el-button>
+            <el-button size="mini" :disabled="cliScriptDisable" @click="save('cliScript')">Save
+            </el-button>
+            <el-button size="mini" :disabled="cliScriptDisable"
+              @click="setCurrentUploader('cliScript')">Set as default
+            </el-button>
           </div>
         </el-tab-pane>
       </el-tabs>
