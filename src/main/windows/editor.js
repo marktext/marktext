@@ -203,7 +203,8 @@ class EditorWindow extends BaseWindow {
    * @param {boolean} [selected] Whether the tab should become the selected tab (true if not set).
    */
   openTab (filePath, options = {}, selected = true) {
-    if (this.lifecycle === WindowLifecycle.QUITTING) return
+    // TODO: Don't allow new files if quitting.
+    if (this.lifecycle === WindowLifecycle.QUITTED) return
     this.openTabs([{ filePath, options, selected }])
   }
 
@@ -226,7 +227,8 @@ class EditorWindow extends BaseWindow {
    * @param {{filePath: string, selected: boolean, options: any}[]} filePath A list of markdown file paths and options to open.
    */
   openTabs (fileList) {
-    if (this.lifecycle === WindowLifecycle.QUITTING) return
+    // TODO: Don't allow new files if quitting.
+    if (this.lifecycle === WindowLifecycle.QUITTED) return
 
     const { browserWindow } = this
     const { preferences } = this._accessor
@@ -259,6 +261,7 @@ class EditorWindow extends BaseWindow {
    * @param {[string]} markdown The markdown string.
    */
   openUntitledTab (selected = true, markdown = '') {
+    // TODO: Don't allow new files if quitting.
     if (this.lifecycle === WindowLifecycle.QUITTED) return
 
     if (this.lifecycle === WindowLifecycle.READY) {
@@ -275,6 +278,7 @@ class EditorWindow extends BaseWindow {
    * @param {string} pathname The directory path.
    */
   openFolder (pathname) {
+    // TODO: Don't allow new files if quitting.
     if (!pathname || this.lifecycle === WindowLifecycle.QUITTED ||
       isSamePathSync(pathname, this._openedRootDirectory)) {
       return

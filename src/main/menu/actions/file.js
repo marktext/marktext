@@ -71,7 +71,7 @@ const handleResponseForExport = async (e, { type, content, pathname, title, page
         Object.assign(options, getPdfPageOptions(pageOptions))
         const data = await win.webContents.printToPDF(options)
         removePrintServiceFromWindow(win)
-        await writeFile(filePath, data, extension, {})
+        await writeFile(filePath, data, extension, 'binary')
       } else {
         if (!content) {
           throw new Error('No HTML content found.')
@@ -221,14 +221,14 @@ ipcMain.on('mt::save-and-close-tabs', async (e, unsavedFiles) => {
     Promise.all(unsavedFiles.map(file => handleResponseForSave(e, file)))
       .then(arr => {
         const tabIds = arr.filter(id => id != null)
-        win.send('mt::force-close-tabs-by-id', tabIds)
+        win.webContents.send('mt::force-close-tabs-by-id', tabIds)
       })
       .catch(err => {
-        log.error('Error while save all:', err.error)
+        log.error('Error while save all:', err)
       })
   } else {
     const tabIds = unsavedFiles.map(f => f.id)
-    win.send('mt::force-close-tabs-by-id', tabIds)
+    win.webContents.send('mt::force-close-tabs-by-id', tabIds)
   }
 })
 

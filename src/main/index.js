@@ -11,7 +11,7 @@ import setupEnvironment from './app/env'
 import { getLogLevel } from './utils'
 
 const initializeLogger = appEnvironment => {
-  log.transports.console.level = process.env.NODE_ENV === 'development' ? true : 'error'
+  log.transports.console.level = process.env.NODE_ENV === 'development' ? 'info' : 'error'
   log.transports.rendererConsole = null
   log.transports.file.resolvePath = () => path.join(appEnvironment.paths.logPath, 'main.log')
   log.transports.file.level = getLogLevel()

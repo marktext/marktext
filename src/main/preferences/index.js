@@ -43,7 +43,7 @@ class Preference extends EventEmitter {
         defaultSettings.theme = 'dark'
       }
     } catch (err) {
-      log(err)
+      log.error(err)
     }
 
     if (!defaultSettings) {
