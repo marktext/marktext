@@ -135,8 +135,7 @@ export const uploadImage = async (pathname, image, preferences) => {
       .then(result => {
         re(result.data.content.download_url)
       })
-      .catch(err => {
-        console.log(err)
+      .catch(_ => {
         rj('Upload failed, the image will be copied to the image folder')
       })
   }
@@ -158,7 +157,6 @@ export const uploadImage = async (pathname, image, preferences) => {
           return rj(err)
         }
         const parts = data.split('[PicGo SUCCESS]:')
-        console.log(parts)
         if (parts.length === 2) {
           re(parts[1].trim())
         } else {
