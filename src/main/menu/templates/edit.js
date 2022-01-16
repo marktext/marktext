@@ -1,8 +1,7 @@
 import * as actions from '../actions/edit'
 import { isOsx } from '../../config'
 
-export default function (keybindings, userPreference) {
-
+export default function (keybindings) {
   return {
     label: '&Edit',
     submenu: [{
