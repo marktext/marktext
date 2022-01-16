@@ -135,7 +135,8 @@ jobs:
           key: ${{ runner.os }}-electron-builder-cache-${{ hashFiles(format('{0}{1}', github.workspace, '\yarn.lock')) }}
 
       - name: Install dependencies
-        if: ${{ steps.cacheNodeModules.outputs.cache-hit != 'true' }}
+        # Windows worker fail sometimes because a module cannot be found.
+        # if: ${{ steps.cacheNodeModules.outputs.cache-hit != 'true' }}
         run: yarn install --check-files --frozen-lockfile
 
       - name: Lint
