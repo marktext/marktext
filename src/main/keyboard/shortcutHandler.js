@@ -102,6 +102,21 @@ class Keybindings {
       case 'no':
       case 'se':
         this._fixInlineCode()
+        if (!isOsx) {
+          this._fixDeadKey()
+        }
+        break
+
+      // Fix dead key only
+      case 'es':
+      case 'fr':
+      case 'hr':
+      case 'it':
+      case 'pl':
+      case 'pt':
+        if (!isOsx) {
+          this._fixDeadKey()
+        }
         break
 
       // Custom layouts
@@ -112,6 +127,10 @@ class Keybindings {
         }
         break
     }
+  }
+
+  _fixDeadKey () {
+    this.mnemonics.set('CmdOrCtrl+/', 'CmdOrCtrl+7')
   }
 
   // Fix dead backquote key on layouts like German
