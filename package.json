@@ -36,7 +36,6 @@
   "dependencies": {
     "@electron/remote": "^2.0.8",
     "@hfelix/electron-localshortcut": "^4.0.1",
-    "@hfelix/electron-spellchecker": "^2.0.0",
     "@marktext/file-icons": "^1.0.6",
     "@octokit/rest": "^18.12.0",
     "arg": "^5.0.1",
@@ -177,8 +176,8 @@
     "webpack-merge": "^5.8.0"
   },
   "resolutions": {
-    "cld": "^2.7.1",
-    "node-abi": "^3.8.0"
+    "node-abi": "^3.8.0",
+    "node-addon-api": "^4.3.0"
   },
   "repository": {
     "type": "git",

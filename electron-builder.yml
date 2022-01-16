@@ -20,13 +20,12 @@ files:
 - "!node_modules/**/*.cjs.map"
 - "!node_modules/**/*.mjs.map"
 - "!node_modules/**/*.ts.map"
+- "!node_modules/vscode-ripgrep/{jsconfig.json,*.md,LICENSE}"
+- "!node_modules/vscode-ripgrep/download.js"
+- "!node_modules/vscode-ripgrep/postinstall.js"
 # Don't bundle build files
-- "!node_modules/@felixrieseberg/spellchecker/bin"
-- "!node_modules/@hfelix/spellchecker/bin"
 - "!node_modules/ced/bin"
 - "!node_modules/ced/vendor"
-- "!node_modules/cld/bin"
-- "!node_modules/cld/deps"
 - "!node_modules/fontmanager-redux/bin"
 - "!node_modules/keyboard-layout/bin"
 - "!node_modules/keytar/bin"
@@ -41,25 +40,16 @@ files:
 - "!node_modules/vega/build-es5/"
 - "!node_modules/vega-embed/build-es5/"
 # Don't bundle Linux build files
-- "!node_modules/@hfelix/spellchecker/build/Release/hunspell.a"
 - "!node_modules/ced/build/Release/compact_enc_det.a"
 # Don't bundle Windows build files
 - "!node_modules/**/{*.vcxproj,*.vcxproj.filters}"
 - "!node_modules/**/build/Release/{*.lib,*.exp,*.ilk,*.pdb,*.iobj,*.ipdb}"
 - "!node_modules/**/build/Release/obj"
 - "!node_modules/ced/build/vendor"
-# Don't bundle LGPL source files
-- "!node_modules/@felixrieseberg/spellchecker/vendor"
-- "!node_modules/@hfelix/spellchecker/vendor"
 extraFiles:
 - "LICENSE"
 - from: "resources/THIRD-PARTY-LICENSES.txt"
   to: "THIRD-PARTY-LICENSES.txt"
-extraResources:
-- from: "resources/hunspell_dictionaries/"
-  to: "hunspell_dictionaries/"
-  filter:
-  - "!**/LICENSE-hunspell.txt"
 afterPack: './.electron-vue/electron-builder/afterPack.js'
 
 fileAssociations:

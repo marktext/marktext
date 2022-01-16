@@ -25,7 +25,8 @@ export const preferencesWinOptions = Object.freeze({
   height: 650,
   webPreferences: {
     contextIsolation: false,
-    spellcheck: false,
+    // Always true to access native spellchecker.
+    spellcheck: true,
     nodeIntegration: true,
     webSecurity: false
   },

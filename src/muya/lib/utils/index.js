@@ -33,6 +33,7 @@ export const isLengthEven = (str = '') => str.length % 2 === 0
 export const snakeToCamel = name => name.replace(/_([a-z])/g, (p0, p1) => p1.toUpperCase())
 
 export const camelToSnake = name => name.replace(/([A-Z])/g, (_, p) => `-${p.toLowerCase()}`)
+
 /**
  *  Are two arrays have intersection
  */
@@ -432,4 +433,13 @@ export const getDefer = () => {
   defer.promise = promise
 
   return defer
+}
+
+/**
+ * Deep clone the given object.
+ *
+ * @param {*} obj Object to clone
+ */
+export const deepClone = obj => {
+  return JSON.parse(JSON.stringify(obj))
 }

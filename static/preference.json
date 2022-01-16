@@ -53,9 +53,7 @@
   "autoSwitchTheme": 2,
 
   "spellcheckerEnabled": false,
-  "spellcheckerIsHunspell": false,
   "spellcheckerNoUnderline": false,
-  "spellcheckerAutoDetectLanguage": false,
   "spellcheckerLanguage": "en-US",
 
   "sideBarVisibility": false,

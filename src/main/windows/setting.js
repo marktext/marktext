@@ -18,11 +18,11 @@ class SettingWindow extends BaseWindow {
   /**
    * Creates a new setting window.
    *
-   * @param {*} [options] BrowserWindow options.
+   * @param {*} [category] The settings category tab name.
    */
-  createWindow (options = {}) {
+  createWindow (category = null) {
     const { menu: appMenu, env, keybindings, preferences } = this._accessor
-    const winOptions = Object.assign({}, preferencesWinOptions, options)
+    const winOptions = Object.assign({}, preferencesWinOptions)
     centerWindowOptions(winOptions)
     if (isLinux) {
       winOptions.icon = path.join(__static, 'logo-96px.png')
@@ -82,7 +82,7 @@ class SettingWindow extends BaseWindow {
     })
 
     this.lifecycle = WindowLifecycle.LOADING
-    win.loadURL(this._buildUrlString(this.id, env, preferences))
+    win.loadURL(this._buildUrlString(this.id, env, preferences, category))
     win.setSheetOffset(TITLE_BAR_HEIGHT)
 
     const devToolsAccelerator = keybindings.getAccelerator('view.toggle-dev-tools')
@@ -92,6 +92,15 @@ class SettingWindow extends BaseWindow {
       })
     }
     return win
+  }
+
+  _buildUrlString (windowId, env, userPreference, category) {
+    const url = this._buildUrlWithSettings(windowId, env, userPreference)
+    if (category) {
+      // Overwrite type to add category name
+      url.searchParams.set('type', `${WindowType.SETTINGS}/${category}`)
+    }
+    return url.toString()
   }
 }
 

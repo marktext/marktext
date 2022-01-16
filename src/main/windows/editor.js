@@ -7,7 +7,9 @@ import { isChildOfDirectory, isSamePathSync } from 'common/filesystem/paths'
 import BaseWindow, { WindowLifecycle, WindowType } from './base'
 import { ensureWindowPosition, zoomIn, zoomOut } from './utils'
 import { TITLE_BAR_HEIGHT, editorWinOptions, isLinux, isOsx } from '../config'
+import { showEditorContextMenu } from '../contextMenu/editor'
 import { loadMarkdownFile } from '../filesystem/markdown'
+import { switchLanguage } from '../spellchecker'
 
 class EditorWindow extends BaseWindow {
   /**
@@ -57,7 +59,9 @@ class EditorWindow extends BaseWindow {
       theme,
       sideBarVisibility,
       tabBarVisibility,
-      sourceCodeModeEnabled
+      sourceCodeModeEnabled,
+      spellcheckerEnabled,
+      spellcheckerLanguage
     } = preferences.getAll()
     if (!isOsx) {
       winOptions.titleBarStyle = 'default'
@@ -67,13 +71,28 @@ class EditorWindow extends BaseWindow {
     }
 
     winOptions.backgroundColor = this._getPreferredBackgroundColor(theme)
+    if (spellcheckerEnabled) {
+      winOptions.webPreferences.spellcheck = true
+    }
 
     let win = this.browserWindow = new BrowserWindow(winOptions)
     remoteEnable(win.webContents)
     this.id = win.id
 
+    if (spellcheckerEnabled && !isOsx) {
+      try {
+        switchLanguage(win, spellcheckerLanguage)
+      } catch (error) {
+        log.error('Unable to set spell checker language on startup:', error)
+      }
+    }
+
     // Create a menu for the current window
     appMenu.addEditorMenu(win, { sourceCodeModeEnabled })
+
+    win.webContents.on('context-menu', (event, params) => {
+      showEditorContextMenu(win, event, params, preferences.getItem('spellcheckerEnabled'))
+    })
 
     win.webContents.once('did-finish-load', () => {
       this.lifecycle = WindowLifecycle.READY
@@ -425,16 +444,6 @@ class EditorWindow extends BaseWindow {
   }
 
   // --- private ---------------------------------
-
-  _buildUrlString (windowId, env, userPreference) {
-    const url = this._buildUrlWithSettings(windowId, env, userPreference)
-    const spellcheckerIsHunspell = userPreference.getItem('spellcheckerIsHunspell')
-
-    // Add additional settings
-    url.searchParams.set('slp', spellcheckerIsHunspell ? '1' : '0')
-
-    return url.toString()
-  }
 
   /**
    * Open a new new tab from the markdown document.
