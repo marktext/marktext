@@ -1170,7 +1170,7 @@ export default {
       }
     },
 
-    // handle `duplicate`, `delete`, `create paragraph bellow`
+    // handle `duplicate`, `delete`, `create paragraph below`
     handleParagraph (type) {
       const { editor } = this
       if (editor) {

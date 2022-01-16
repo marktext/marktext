@@ -7,7 +7,7 @@ export const isValidService = name => {
 const services = {
   // Dummy service used to opt-in real services.
   none: {
-    name: '',
+    name: 'None',
     isGdprCompliant: true,
     privacyUrl: '',
     tosUrl: '',
@@ -17,14 +17,14 @@ const services = {
   },
 
   // Real services
-  smms: {
-    name: 'sm.ms',
+  picgo: {
+    name: 'Picgo',
     isGdprCompliant: false,
     privacyUrl: '',
-    tosUrl: 'https://sm.ms/about/',
+    tosUrl: 'https://github.com/PicGo/PicGo-Core',
 
     // Currently a non-persistent value
-    agreedToLegalNotices: false
+    agreedToLegalNotices: true
   },
 
   github: {
@@ -38,7 +38,7 @@ const services = {
   },
 
   cliScript: {
-    name: 'command line script',
+    name: 'Command line script',
     isGdprCompliant: true,
     privacyUrl: '',
     tosUrl: '',

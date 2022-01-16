@@ -3,105 +3,48 @@
     <h4>Image</h4>
     <section class="image-ctrl">
       <div>Default action after image is inserted from local folder or clipboard
-        <el-tooltip class='item' effect='dark' content='Clipboard handling is only fully supported on macOS and Windows.' placement='top-start'>
+        <el-tooltip class='item' effect='dark'
+          content='Clipboard handling is only fully supported on macOS and Windows.'
+          placement='top-start'>
           <i class="el-icon-info"></i>
         </el-tooltip>
       </div>
-      <el-radio-group v-model="imageInsertAction">
-        <el-radio label="upload">Upload to cloud using selected uploader (must be configured)</el-radio>
-        <el-radio label="folder">Copy to designated relative assets or local folder</el-radio>
-        <el-radio label="path">Keep original location</el-radio>
-      </el-radio-group>
+      <CurSelect :value="imageInsertAction" :options="imageActions"
+        :onChange="value => onSelectChange('imageInsertAction', value)"></CurSelect>
     </section>
-    <separator></separator>
-    <section class="image-folder">
-      <text-box
-        description="Local image folder"
-        :input="imageFolderPath"
-        :regexValidator="/^(?:$|([a-zA-Z]:)?[\/\\].*$)/"
-        :defaultValue="folderPathPlaceholder"
-        :onChange="value => modifyImageFolderPath(value)"
-      ></text-box>
-      <div>
-        <el-button size="mini" @click="modifyImageFolderPath(undefined)">Open...</el-button>
-        <el-button size="mini" @click="openImageFolder">Show in Folder</el-button>
-      </div>
-    </section>
-
-    <compound>
-      <template #head>
-        <bool
-          description="Prefer relative assets folder"
-          more="https://github.com/marktext/marktext/blob/develop/docs/IMAGES.md"
-          :bool="imagePreferRelativeDirectory"
-          :onChange="value => onSelectChange('imagePreferRelativeDirectory', value)"
-        ></bool>
-      </template>
-      <template #children>
-        <text-box
-          description="Relative image folder name"
-          :input="imageRelativeDirectoryName"
-          :regexValidator="/^(?:$|(?![a-zA-Z]:)[^\/\\].*$)/"
-          :defaultValue="relativeDirectoryNamePlaceholder"
-          :onChange="value => onSelectChange('imageRelativeDirectoryName', value)"
-        ></text-box>
-      </template>
-    </compound>
+    <Separator />
+    <FolderSetting v-if="imageInsertAction === 'folder' || imageInsertAction === 'path'" />
+    <Uploader v-if="imageInsertAction === 'upload'" />
   </div>
 </template>
 
 <script>
-import { mapState } from 'vuex'
-import { shell } from 'electron'
-import Bool from '../common/bool'
-import Compound from '../common/compound'
 import Separator from '../common/separator'
-import TextBox from '../common/textBox'
+import Uploader from './components/uploader'
+import CurSelect from '@/prefComponents/common/select'
+import FolderSetting from './components/folderSetting'
+import { imageActions } from './config'
 
 export default {
   components: {
-    Bool,
-    Compound,
     Separator,
-    TextBox
+    CurSelect,
+    FolderSetting,
+    Uploader
   },
   data () {
-    return {
-    }
+    this.imageActions = imageActions
+
+    return {}
   },
   computed: {
-    ...mapState({
-      imageFolderPath: state => state.preferences.imageFolderPath,
-      imagePreferRelativeDirectory: state => state.preferences.imagePreferRelativeDirectory,
-      imageRelativeDirectoryName: state => state.preferences.imageRelativeDirectoryName
-    }),
     imageInsertAction: {
       get: function () {
         return this.$store.state.preferences.imageInsertAction
-      },
-      set: function (value) {
-        const type = 'imageInsertAction'
-        this.$store.dispatch('SET_SINGLE_PREFERENCE', { type, value })
-      }
-    },
-    folderPathPlaceholder: {
-      get: function () {
-        return this.$store.state.preferences.imageFolderPath || ''
-      }
-    },
-    relativeDirectoryNamePlaceholder: {
-      get: function () {
-        return this.$store.state.preferences.imageRelativeDirectoryName || 'assets'
       }
     }
   },
   methods: {
-    openImageFolder () {
-      shell.openPath(this.imageFolderPath)
-    },
-    modifyImageFolderPath (value) {
-      return this.$store.dispatch('SET_IMAGE_FOLDER_PATH', value)
-    },
     onSelectChange (type, value) {
       this.$store.dispatch('SET_SINGLE_PREFERENCE', { type, value })
     }

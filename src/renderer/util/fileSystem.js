@@ -1,6 +1,5 @@
 import path from 'path'
 import crypto from 'crypto'
-import { clipboard } from 'electron'
 import fs from 'fs-extra'
 import { statSync, constants } from 'fs'
 import cp from 'child_process'
@@ -8,8 +7,7 @@ import { tmpdir } from 'os'
 import dayjs from 'dayjs'
 import { Octokit } from '@octokit/rest'
 import { isImageFile } from 'common/filesystem/paths'
-import { isWindows, dataURItoBlob } from './index'
-import axios from '../axios'
+import { isWindows } from './index'
 
 export const create = async (pathname, type) => {
   return type === 'directory'
@@ -101,10 +99,8 @@ export const moveImageToFolder = async (pathname, image, outputDir) => {
  * @jocs todo, rewrite it use class
  */
 export const uploadImage = async (pathname, image, preferences) => {
-  const { currentUploader } = preferences
-  const { owner, repo, branch } = preferences.imageBed.github
-  const token = preferences.githubToken
-  const cliScript = preferences.cliScript
+  const { currentUploader, imageBed, githubToken: auth, cliScript } = preferences
+  const { owner, repo, branch } = imageBed.github
   const isPath = typeof image === 'string'
   const MAX_SIZE = 5 * 1024 * 1024
   let re
@@ -114,35 +110,13 @@ export const uploadImage = async (pathname, image, preferences) => {
     rj = reject
   })
 
-  const uploadToSMMS = file => {
-    const api = 'https://sm.ms/api/upload'
-    const formData = new window.FormData()
-    formData.append('smfile', file)
-    axios({
-      method: 'post',
-      url: api,
-      data: formData
-    }).then((res) => {
-      // TODO: "res.data.data.delete" should emit "image-uploaded"/handleUploadedImage in editor.js. Maybe add to image manager too.
-      // This notification will be removed when the image manager implemented.
-      const notice = new Notification('Copy delete URL', {
-        body: 'Click to copy the delete URL to clipboard.'
-      })
-
-      notice.onclick = () => {
-        clipboard.writeText(res.data.data.delete)
-      }
-
-      re(res.data.data.url)
-    })
-      .catch(_ => {
-        rj('Upload failed, the image will be copied to the image folder')
-      })
+  if (currentUploader === 'none') {
+    rj('No image uploader provided.')
   }
 
   const uploadByGithub = (content, filename) => {
     const octokit = new Octokit({
-      auth: `token ${token}`
+      auth
     })
     const path = dayjs().format('YYYY/MM') + `/${dayjs().format('DD-HH-mm-ss')}-${filename}`
     const message = `Upload by MarkText at ${dayjs().format('YYYY-MM-DD HH:mm:ss')}`
@@ -166,7 +140,7 @@ export const uploadImage = async (pathname, image, preferences) => {
       })
   }
 
-  const uploadByCliScript = async (filepath) => {
+  const uploadByCommand = async (uploader, filepath) => {
     let isPath = true
     if (typeof filepath !== 'string') {
       isPath = false
@@ -174,15 +148,32 @@ export const uploadImage = async (pathname, image, preferences) => {
       filepath = path.join(tmpdir(), +new Date())
       await fs.writeFile(filepath, data)
     }
-    cp.execFile(cliScript, [filepath], async (err, data) => {
-      if (!isPath) {
-        await fs.unlink(filepath)
-      }
-      if (err) {
-        return rj(err)
-      }
-      re(data.trim())
-    })
+    if (uploader === 'picgo') {
+      cp.exec(`picgo u "${filepath}"`, async (err, data) => {
+        if (!isPath) {
+          await fs.unlink(filepath)
+        }
+        if (err) {
+          return rj(err)
+        }
+        const parts = data.split('[PicGo SUCCESS]:')
+        if (parts.length === 2) {
+          re(parts[1].trim())
+        } else {
+          rj('PicGo upload error')
+        }
+      })
+    } else {
+      cp.execFile(cliScript, [filepath], async (err, data) => {
+        if (!isPath) {
+          await fs.unlink(filepath)
+        }
+        if (err) {
+          return rj(err)
+        }
+        re(data.trim())
+      })
+    }
   }
 
   const notification = () => {
@@ -198,17 +189,17 @@ export const uploadImage = async (pathname, image, preferences) => {
       if (size > MAX_SIZE) {
         notification()
       } else {
-        if (currentUploader === 'cliScript') {
-          uploadByCliScript(imagePath)
-          return promise
-        }
-        const imageFile = await fs.readFile(imagePath)
-        const blobFile = new Blob([imageFile])
-        if (currentUploader === 'smms') {
-          uploadToSMMS(blobFile)
-        } else {
-          const base64 = Buffer.from(imageFile).toString('base64')
-          uploadByGithub(base64, path.basename(imagePath))
+        switch (currentUploader) {
+          case 'cliScript':
+          case 'picgo':
+            uploadByCommand(currentUploader, imagePath)
+            break
+          case 'github': {
+            const imageFile = await fs.readFile(imagePath)
+            const base64 = Buffer.from(imageFile).toString('base64')
+            uploadByGithub(base64, path.basename(imagePath))
+            break
+          }
         }
       }
     } else {
@@ -222,18 +213,16 @@ export const uploadImage = async (pathname, image, preferences) => {
       const reader = new FileReader()
       reader.onload = async () => {
         switch (currentUploader) {
+          case 'picgo':
           case 'cliScript':
-            uploadByCliScript(reader.result, image.name)
-            break
-          case 'smms':
-            uploadToSMMS(dataURItoBlob(reader.result, image.name))
+            uploadByCommand(currentUploader, reader.result)
             break
           default:
             uploadByGithub(reader.result, image.name)
         }
       }
 
-      const readerFunction = currentUploader === 'cliScript' ? 'readAsArrayBuffer' : 'readAsDataURL'
+      const readerFunction = currentUploader !== 'github' ? 'readAsArrayBuffer' : 'readAsDataURL'
       reader[readerFunction](image)
     }
   }

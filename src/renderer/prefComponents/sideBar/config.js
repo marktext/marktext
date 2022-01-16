@@ -39,11 +39,6 @@ export const category = [{
   icon: ImageIcon,
   path: '/preference/image'
 }, {
-  name: 'Image Uploader',
-  label: 'imageUploader',
-  icon: ImageUploaderIcon,
-  path: '/preference/imageUploader'
-}, {
   name: 'Key Bindings',
   label: 'keybindings',
   icon: ImageUploaderIcon, // TODO: Replace icon

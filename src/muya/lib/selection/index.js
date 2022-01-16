@@ -592,7 +592,7 @@ class Selection {
     return result
   }
 
-  // topOffset is the line counts above cursor, and bottomOffset is line counts bellow cursor.
+  // topOffset is the line counts above cursor, and bottomOffset is line counts below cursor.
   getCursorYOffset (paragraph) {
     const { y } = this.getCursorCoords()
     const { height, top } = paragraph.getBoundingClientRect()

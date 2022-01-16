@@ -1,8 +1,9 @@
 <template>
   <section class="pref-select-item" :class="{'ag-underdevelop': disable}">
-    <div class="description">
+    <div class="description" v-if="description">
       <span>{{description}}:</span>
-      <i class="el-icon-info" v-if="more"
+      <i class="el-icon-info"
+        v-if="more"
         @click="handleMoreClick"
       ></i>
     </div>
