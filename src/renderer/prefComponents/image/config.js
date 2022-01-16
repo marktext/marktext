@@ -1,5 +1,5 @@
 export const imageActions = [{
-  label: 'Upload image to cloud using selected uploader (must be configured bellow)',
+  label: 'Upload image to cloud using selected uploader (must be configured below)',
   value: 'upload'
 }, {
   label: 'Copy image to designated relative assets or global local folder',

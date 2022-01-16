@@ -11,7 +11,7 @@
       <cur-select :value="currentUploader" :options="uploaderOptions"
         :onChange="value => setCurrentUploader(value)"></cur-select>
       <div class="picgo" v-if="currentUploader === 'picgo'">
-        <div v-if="!picgoExisted" class="warning">
+        <div v-if="!picgoExists" class="warning">
           Your system does not have <span class="link"
             @click="open('https://github.com/PicGo/PicGo-Core')">picgo</span> installed, please
           install it before use.
@@ -98,7 +98,7 @@ export default {
         branch: ''
       },
       cliScript: '',
-      picgoExisted: true,
+      picgoExists: true,
       uploadServices: services,
       legalNoticesErrorStates: {
         github: false
@@ -203,7 +203,7 @@ export default {
     },
 
     testPicgo () {
-      this.picgoExisted = commandExists.sync('picgo')
+      this.picgoExists = commandExists.sync('picgo')
     },
 
     validate (value) {

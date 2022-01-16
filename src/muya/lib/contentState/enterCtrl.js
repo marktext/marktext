@@ -165,7 +165,7 @@ const enterCtrl = ContentState => {
       const rect = imageWrapper.getBoundingClientRect()
       const reference = {
         getBoundingClientRect () {
-          rect.height = 0 // Put image selector bellow the top border of image.
+          rect.height = 0 // Put image selector below the top border of image.
           return rect
         }
       }

@@ -387,7 +387,7 @@ foo<section>bar</section>zar
 - Don't show save dialog for an empty document (#422)
 - Sidebar and tab redesign
 - Calculate artifact checksum after uploading (#566)
-- Use `CmdOrCltr+Enter` to add table row bellow.
+- Use `CmdOrCltr+Enter` to add table row below.
 
 **:beetle:Bug fix**
 

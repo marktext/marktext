@@ -99,7 +99,7 @@ export const moveImageToFolder = async (pathname, image, outputDir) => {
  * @jocs todo, rewrite it use class
  */
 export const uploadImage = async (pathname, image, preferences) => {
-  const { currentUploader, imageBed, githubToken: token, cliScript } = preferences
+  const { currentUploader, imageBed, githubToken: auth, cliScript } = preferences
   const { owner, repo, branch } = imageBed.github
   const isPath = typeof image === 'string'
   const MAX_SIZE = 5 * 1024 * 1024
@@ -116,7 +116,7 @@ export const uploadImage = async (pathname, image, preferences) => {
 
   const uploadByGithub = (content, filename) => {
     const octokit = new Octokit({
-      auth: `token ${token}`
+      auth
     })
     const path = dayjs().format('YYYY/MM') + `/${dayjs().format('DD-HH-mm-ss')}-${filename}`
     const message = `Upload by MarkText at ${dayjs().format('YYYY-MM-DD HH:mm:ss')}`
@@ -135,7 +135,8 @@ export const uploadImage = async (pathname, image, preferences) => {
       .then(result => {
         re(result.data.content.download_url)
       })
-      .catch(_ => {
+      .catch(err => {
+        console.log(err)
         rj('Upload failed, the image will be copied to the image folder')
       })
   }
@@ -156,8 +157,13 @@ export const uploadImage = async (pathname, image, preferences) => {
         if (err) {
           return rj(err)
         }
-
-        re(data.split('[PicGo SUCCESS]:')[1].trim())
+        const parts = data.split('[PicGo SUCCESS]:')
+        console.log(parts)
+        if (parts.length === 2) {
+          re(parts[1].trim())
+        } else {
+          rj('PicGo upload error')
+        }
       })
     } else {
       cp.execFile(cliScript, [filepath], async (err, data) => {
