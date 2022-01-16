@@ -12,7 +12,6 @@ import keybindingsLinux from './keybindingsLinux'
 import keybindingsWindows from './keybindingsWindows'
 
 // Problematic key bindings:
-//   Aidou: Ctrl+/ -> dead key
 //   Inline Code: Ctrl+` -> dead key
 //   Upgrade Heading: Ctrl+= -> points to Ctrl+Plus which is ok; Ctrl+Plus is broken
 
@@ -95,7 +94,7 @@ class Keybindings {
     // Fix broken shortcuts and dead keys
     const lang = getKeyboardLanguage()
     switch (lang) {
-      // Fix aidou and inline code
+      // Fix inline code
       case 'ch':
       case 'de':
       case 'dk':
@@ -103,13 +102,12 @@ class Keybindings {
       case 'no':
       case 'se':
         this._fixInlineCode()
-
         if (!isOsx) {
-          this._fixAidou()
+          this._fixDeadKey()
         }
         break
 
-      // Fix aidou only
+      // Fix dead key only
       case 'es':
       case 'fr':
       case 'hr':
@@ -117,7 +115,7 @@ class Keybindings {
       case 'pl':
       case 'pt':
         if (!isOsx) {
-          this._fixAidou()
+          this._fixDeadKey()
         }
         break
 
@@ -131,7 +129,7 @@ class Keybindings {
     }
   }
 
-  _fixAidou () {
+  _fixDeadKey () {
     this.mnemonics.set('CmdOrCtrl+/', 'CmdOrCtrl+7')
   }
 

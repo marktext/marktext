@@ -5,7 +5,6 @@ import { ipcRenderer } from 'electron'
 import listenForMain from './listenForMain'
 import project from './project'
 import editor from './editor'
-import aidou from './aidou'
 import layout from './layout'
 import preferences from './preferences'
 import autoUpdates from './autoUpdates'
@@ -59,7 +58,6 @@ const store = new Vuex.Store({
     tweet,
     // have states
     project,
-    aidou,
     preferences,
     editor,
     layout,

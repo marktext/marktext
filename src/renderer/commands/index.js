@@ -219,12 +219,6 @@ const commands = [
       await delay(150)
       ipcRenderer.emit('mt::editor-edit-action', null, 'findInFolder')
     }
-  }, {
-    id: 'edit.aidou',
-    description: 'Edit: Aidou',
-    execute: async () => {
-      bus.$emit('aidou', 'aidou')
-    }
   },
 
   // --------------------------------------------------------------------------

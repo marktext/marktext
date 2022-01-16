@@ -91,7 +91,6 @@ export default {
 
       bus.$on('file-loaded', this.handleFileChange)
       bus.$on('file-changed', this.handleFileChange)
-      bus.$on('dotu-select', this.handleSelectDoutu)
       bus.$on('selectAll', this.handleSelectAll)
       bus.$on('image-action', this.handleImageAction)
 
@@ -116,7 +115,6 @@ export default {
 
     bus.$off('file-loaded', this.handleFileChange)
     bus.$off('file-changed', this.handleFileChange)
-    bus.$off('dotu-select', this.handleSelectDoutu)
     bus.$off('selectAll', this.handleSelectAll)
     bus.$off('image-action', this.handleImageAction)
 
@@ -172,12 +170,6 @@ export default {
         } else {
           setCursorAtLastLine()
         }
-      }
-    },
-    handleSelectDoutu (url) {
-      const { editor } = this
-      if (editor) {
-        editor.replaceSelection(`![](${url})`)
       }
     },
     listenChange () {

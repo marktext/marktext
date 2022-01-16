@@ -45,10 +45,6 @@
     "type": "boolean",
     "default": false
   },
-  "aidou": {
-    "description": "General--Enable aidou",
-    "type": "boolean"
-  },
   "fileSortBy": {
     "description": "General--Sort files in opened folder by created time, modified time and title.",
     "enum": [

@@ -2,7 +2,7 @@ import * as actions from '../actions/edit'
 import { isOsx } from '../../config'
 
 export default function (keybindings, userPreference) {
-  const { aidou } = userPreference.getAll()
+
   return {
     label: '&Edit',
     submenu: [{
@@ -115,14 +115,6 @@ export default function (keybindings, userPreference) {
       }
     }, {
       type: 'separator'
-    }, {
-      label: 'Aidou',
-      visible: aidou,
-      id: 'aidou',
-      accelerator: keybindings.getAccelerator('edit.aidou'),
-      click (menuItem, browserWindow) {
-        actions.edit(browserWindow, 'aidou')
-      }
     }, {
       label: 'Screenshot',
       id: 'screenshot',

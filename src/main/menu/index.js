@@ -326,24 +326,6 @@ class AppMenu {
   }
 
   /**
-   * Update all aidou entries from editor menus to the given state.
-   */
-  updateAidouMenu = bool => {
-    this.windowMenus.forEach(value => {
-      const { menu, type } = value
-      if (type !== MenuType.EDITOR) {
-        return
-      }
-
-      const aidouMenu = menu.getMenuItemById('aidou')
-      if (!aidouMenu) {
-        return
-      }
-      aidouMenu.visible = bool
-    })
-  }
-
-  /**
    * Append misc shortcuts the the given shortcut map.
    *
    * @param {*} lineEnding The shortcut map.
@@ -529,9 +511,6 @@ class AppMenu {
       }
       if (prefs.autoSave !== undefined) {
         this.updateAutoSaveMenu(prefs.autoSave)
-      }
-      if (prefs.aidou !== undefined) {
-        this.updateAidouMenu(prefs.aidou)
       }
     })
   }
