@@ -219,11 +219,19 @@ brew install --cask mark-text
 
 要想安装 MarkText，只需下载并运行安装向导（`marktext-setup-％version％.exe`），然后选择为本用户安装还是为本计算机所有用户安装。
 
-另外，也可以使用 [Chocolatey](https://chocolatey.org/) 安装 MarkText。要想使用 Chocolatey，您需要确保安装了 [Chocolatey](https://chocolatey.org/install)。
+或者，也可以使用 Chocolatey 或 Winget 等软件包管理器来安装 MarkText。
 
-```bash
-choco install marktext
-```
+  - 使用 Chocolatey 前需要安装好 [Chocolatey](https://chocolatey.org/install)。
+  
+  ```bash
+  choco install marktext
+  ```
+  
+  - 使用 Winget 前需要安装好 [Winget](https://docs.microsoft.com/en-us/windows/package-manager/winget/#install-winget)。
+  
+  ```bash
+  winget install marktext
+  ```
 
 #### Linux
 
