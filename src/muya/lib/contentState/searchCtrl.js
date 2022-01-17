@@ -1,4 +1,4 @@
-import execall from 'execall'
+import execAll from 'execall'
 import { defaultSearchOption } from '../config'
 
 const matchString = (text, value, options) => {
@@ -27,7 +27,7 @@ const matchString = (text, value, options) => {
   try {
     // Add try catch expression because not all string can generate a valid RegExp. for example `\`.
     SEARCH_REG = new RegExp(regStr, flag)
-    return execall(SEARCH_REG, text)
+    return execAll(SEARCH_REG, text)
   } catch (err) {
     return []
   }
