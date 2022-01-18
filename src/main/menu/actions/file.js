@@ -53,9 +53,9 @@ const handleResponseForExport = async (e, { type, content, pathname, title, page
   const win = BrowserWindow.fromWebContents(e.sender)
   const extension = EXTENSION_HASN[type]
   const dirname = pathname ? path.dirname(pathname) : getPath('documents')
-  let nakedFilename = title
+  let nakedFilename = pathname ? path.basename(pathname, '.md') : title
   if (!nakedFilename) {
-    nakedFilename = pathname ? path.basename(pathname, '.md') : 'Untitled'
+    nakedFilename = 'Untitled'
   }
 
   const defaultPath = path.join(dirname, `${nakedFilename}${extension}`)
