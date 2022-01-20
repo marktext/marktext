@@ -106,6 +106,7 @@
     <a href="https://github.com/marktext/marktext/graphs/contributors">
       contributors
     </a>
+    .
   </sub>
 </div>
 
@@ -261,7 +262,7 @@ MarkText is in development, please make sure to read the [Contributing Guide](CO
 
 ## Contributors
 
-Thank you to all the people who have already contributed to MarkText[[contributors](https://github.com/marktext/marktext/graphs/contributors)]
+Thank you to all the people who have already contributed to MarkText[[contributors](https://github.com/marktext/marktext/graphs/contributors)].
 
 Special thanks to @[Yasujizr](https://github.com/Yasujizr) who designed the MarkText logo.
 
