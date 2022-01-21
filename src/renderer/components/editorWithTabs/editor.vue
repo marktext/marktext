@@ -804,7 +804,7 @@ export default {
       const getResolvedImagePath = imagePath => {
         // Use filename only when the tab is saved on disk.
         const replacement = pathname ? filename : ''
-        return imagePath.replace(/\${filename}/g, replacement)
+        return imagePath.replace(/\${filename}/g, replacement.replace(/\.[^/.]+$/, ''))
       }
 
       const resolvedImageFolderPath = getResolvedImagePath(imageFolderPath)
