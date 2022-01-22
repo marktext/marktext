@@ -401,11 +401,6 @@ class EditorWindow extends BaseWindow {
     super.reload()
   }
 
-  invalidateImageCache () {
-    const { browserWindow } = this
-    browserWindow.webContents.send('mt::invalidate-image-cache', {})
-  }
-
   destroy () {
     super.destroy()
 

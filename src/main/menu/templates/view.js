@@ -89,6 +89,14 @@ export default function (keybindings) {
         actions.layout(null, browserWindow, 'rightColumn', 'toc')
       }
     }, {
+      label: 'Reload Images',
+      accelerator: keybindings.getAccelerator('view.reload-images'),
+      click (item, focusedWindow) {
+        if (focusedWindow) {
+          focusedWindow.webContents.send('mt::invalidate-image-cache', {})
+        }
+      }
+    }, {
       type: 'separator'
     }]
   }
@@ -104,7 +112,7 @@ export default function (keybindings) {
       }
     })
     viewMenu.submenu.push({
-      label: 'Reload (for Development)',
+      label: 'Reload window',
       accelerator: keybindings.getAccelerator('view.dev-reload'),
       click (item, focusedWindow) {
         if (focusedWindow) {
@@ -114,14 +122,5 @@ export default function (keybindings) {
     })
   }
 
-  viewMenu.submenu.push({
-    label: 'Reload Images',
-    accelerator: keybindings.getAccelerator('view.reload-images'),
-    click (item, focusedWindow) {
-      if (focusedWindow) {
-        ipcMain.emit('invalidate-image-cache-by-id', focusedWindow.id)
-      }
-    }
-  })
   return viewMenu
 }

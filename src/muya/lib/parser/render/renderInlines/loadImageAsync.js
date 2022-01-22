@@ -14,6 +14,7 @@ export default function loadImageAsync (imageInfo, attrs, className, imageClass)
   if (this.loadImageMap.has(src)) {
     const imageInfo = this.loadImageMap.get(src)
     if (imageInfo.dispMsec !== imageInfo.touchMsec) {
+      // We have a cached image, but force it to load.
       reload = true
     }
   } else {
