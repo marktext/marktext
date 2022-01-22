@@ -3,8 +3,8 @@ import EditorIcon from '@/assets/icons/pref_editor.svg'
 import MarkdownIcon from '@/assets/icons/pref_markdown.svg'
 import ThemeIcon from '@/assets/icons/pref_theme.svg'
 import ImageIcon from '@/assets/icons/pref_image.svg'
-import ImageUploaderIcon from '@/assets/icons/pref_image_uploader.svg'
 import SpellIcon from '@/assets/icons/pref_spellcheck.svg'
+import KeyBindingIcon from '@/assets/icons/pref_key_binding.svg'
 
 import preferences from '../../../main/preferences/schema'
 
@@ -41,7 +41,7 @@ export const category = [{
 }, {
   name: 'Key Bindings',
   label: 'keybindings',
-  icon: ImageUploaderIcon, // TODO: Replace icon
+  icon: KeyBindingIcon,
   path: '/preference/keybindings'
 }]
 
