@@ -626,6 +626,7 @@ export default {
 
       // listen for bus events.
       bus.$on('file-loaded', this.setMarkdownToEditor)
+      bus.$on('invalidate-image-cache', this.handleInvalidateImageCache)
       bus.$on('undo', this.handleUndo)
       bus.$on('redo', this.handleRedo)
       bus.$on('selectAll', this.handleSelectAll)
@@ -974,6 +975,12 @@ export default {
         })
     },
 
+    handleInvalidateImageCache () {
+      if (this.editor) {
+        this.editor.invalidateImageCache()
+      }
+    },
+
     handleUndo () {
       if (this.editor) {
         this.editor.undo()
@@ -1253,6 +1260,7 @@ export default {
   },
   beforeDestroy () {
     bus.$off('file-loaded', this.setMarkdownToEditor)
+    bus.$off('invalidate-image-cache', this.handleInvalidateImageCache)
     bus.$off('undo', this.handleUndo)
     bus.$off('redo', this.handleRedo)
     bus.$off('selectAll', this.handleSelectAll)

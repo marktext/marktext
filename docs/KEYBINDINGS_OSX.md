@@ -116,7 +116,8 @@ MarkText key bindings for macOS. Please see [general key bindings](KEYBINDINGS.m
 | `view.toggle-tabbar`    | <kbd>Command</kbd>+<kbd>Alt</kbd>+<kbd>B</kbd>   | Toggle tabbar                            |
 | `view.toggle-toc` .     | <kbd>Command</kbd>+<kbd>K</kbd>                  | Toggle table of contents                 |
 | `view.toggle-dev-tools` | <kbd>Command</kbd>+<kbd>Alt</kbd>+<kbd>I</kbd>   | Toggle developer tools (debug mode only) |
-| `view.dev-reload`       | <kbd>Command</kbd>+<kbd>R</kbd>                  | Reload window (debug mode only)          |
+| `view.dev-reload`       | <kbd>Command</kbd>+<kbd>Alt</kbd>+<kbd>R</kbd>   | Reload window (debug mode only)          |
+| `view.reload-images`    | <kbd>Command</kbd>+<kbd>R</kbd>                  | Reload images                            |
 
 ## Available key bindings
 

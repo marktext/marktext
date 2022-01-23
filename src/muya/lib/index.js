@@ -322,6 +322,11 @@ class Muya {
     this.eventCenter.subscribeOnce(event, listener)
   }
 
+  invalidateImageCache () {
+    this.contentState.stateRender.invalidateImageCache()
+    this.contentState.render(true)
+  }
+
   undo () {
     this.contentState.history.undo()
 

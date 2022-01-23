@@ -95,6 +95,7 @@ export default new Map([
   ['view.toggle-tabbar', 'Ctrl+Shift+B'],
   ['view.toggle-dev-tools', 'Ctrl+Alt+I'],
   ['view.dev-reload', 'Ctrl+F5'],
+  ['view.reload-images', 'F5'],
 
   // ======== Not included in application menu ========================
   ['tabs.cycle-forward', 'Ctrl+Tab'],

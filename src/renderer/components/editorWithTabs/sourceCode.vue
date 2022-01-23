@@ -90,6 +90,7 @@ export default {
       const editor = this.editor = codeMirror(container, codeMirrorConfig)
 
       bus.$on('file-loaded', this.handleFileChange)
+      bus.$on('invalidate-image-cache', this.handleInvalidateImageCache)
       bus.$on('file-changed', this.handleFileChange)
       bus.$on('selectAll', this.handleSelectAll)
       bus.$on('image-action', this.handleImageAction)
@@ -114,6 +115,7 @@ export default {
     if (this.commitTimer) clearTimeout(this.commitTimer)
 
     bus.$off('file-loaded', this.handleFileChange)
+    bus.$off('invalidate-image-cache', this.handleInvalidateImageCache)
     bus.$off('file-changed', this.handleFileChange)
     bus.$off('selectAll', this.handleSelectAll)
     bus.$off('image-action', this.handleImageAction)
@@ -247,6 +249,12 @@ export default {
     handleSelectAll () {
       if (this.sourceCode && this.editor) {
         this.editor.execCommand('selectAll')
+      }
+    },
+
+    handleInvalidateImageCache () {
+      if (this.editor) {
+        this.editor.invalidateImageCache()
       }
     }
   }

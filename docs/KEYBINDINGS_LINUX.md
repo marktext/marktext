@@ -109,6 +109,7 @@ MarkText key bindings for Linux. Please see [general key bindings](KEYBINDINGS.m
 | `view.toggle-toc` .     | <kbd>Ctrl</kbd>+<kbd>K</kbd>                  | Toggle table of contents                 |
 | `view.toggle-dev-tools` | <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>I</kbd>   | Toggle developer tools (debug mode only) |
 | `view.dev-reload`       | <kbd>Ctrl</kbd>+<kbd>F5</kbd>                 | Reload window (debug mode only)          |
+| `view.reload-images`    | <kbd>F5</kbd>                                 | Reload images                            |
 
 ## Available key bindings
 

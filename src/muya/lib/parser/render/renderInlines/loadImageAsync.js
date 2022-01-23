@@ -8,14 +8,32 @@ export default function loadImageAsync (imageInfo, attrs, className, imageClass)
   let isSuccess
   let w
   let h
+  let domsrc
 
-  if (!this.loadImageMap.has(src)) {
+  let reload = false
+  if (this.loadImageMap.has(src)) {
+    const imageInfo = this.loadImageMap.get(src)
+    if (imageInfo.dispMsec !== imageInfo.touchMsec) {
+      // We have a cached image, but force it to load.
+      reload = true
+    }
+  } else {
+    reload = true
+  }
+  if (reload) {
     id = getUniqueId()
     loadImage(src, isUnknownType)
       .then(({ url, width, height }) => {
         const imageText = document.querySelector(`#${id}`)
         const img = document.createElement('img')
-        img.src = url
+        let dispMsec = Date.now()
+        let touchMsec = dispMsec
+        if (/^file:\/\//.test(src)) {
+          domsrc = url + '?msec=' + dispMsec
+        } else {
+          domsrc = url
+        }
+        img.src = domsrc
         if (attrs.alt) img.alt = attrs.alt.replace(/[`*{}[\]()#+\-.!_>~:|<>$]/g, '')
         if (attrs.title) img.setAttribute('title', attrs.title)
         if (attrs.width && typeof attrs.width === 'number') {
@@ -50,7 +68,10 @@ export default function loadImageAsync (imageInfo, attrs, className, imageClass)
           id,
           isSuccess: true,
           width,
-          height
+          height,
+          dispMsec,
+          touchMsec,
+          domsrc
         })
       })
       .catch(() => {
@@ -73,11 +94,13 @@ export default function loadImageAsync (imageInfo, attrs, className, imageClass)
       })
   } else {
     const imageInfo = this.loadImageMap.get(src)
+
     id = imageInfo.id
     isSuccess = imageInfo.isSuccess
     w = imageInfo.width
     h = imageInfo.height
+    domsrc = imageInfo.domsrc
   }
 
-  return { id, isSuccess, width: w, height: h }
+  return { id, isSuccess, domsrc, width: w, height: h }
 }

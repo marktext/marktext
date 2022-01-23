@@ -247,6 +247,13 @@ class StateRender {
     this.renderDiagram()
     this.codeCache.clear()
   }
+
+  invalidateImageCache () {
+    this.loadImageMap.forEach((imageInfo, key) => {
+      imageInfo.touchMsec = Date.now()
+      this.loadImageMap.set(key, imageInfo)
+    })
+  }
 }
 
 mixins(StateRender, renderInlines, renderBlock)
