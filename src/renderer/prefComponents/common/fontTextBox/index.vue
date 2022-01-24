@@ -22,7 +22,7 @@
 
 <script>
 import { shell } from 'electron'
-import fontManager from 'fontmanager-redux'
+// import fontManager from 'fontmanager-redux'
 
 // Example font objects:
 // {
@@ -101,6 +101,8 @@ export default {
     }
   },
   mounted () {
+    // Delay load native library because it's not needed for the editor.
+    const fontManager = require('fontmanager-redux')
     const { onlyMonospace } = this
     const buf = fontManager.getAvailableFontsSync()
       .filter(f => f.family && (!onlyMonospace || (onlyMonospace && f.monospace)))

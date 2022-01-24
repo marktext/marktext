@@ -1,19 +1,16 @@
 import { shell, Menu } from 'electron'
 import fs from 'fs'
+import fsPromises from 'fs/promises'
 import path from 'path'
 import log from 'electron-log'
-import isAccelerator from 'electron-is-accelerator'
-import electronLocalshortcut from '@hfelix/electron-localshortcut'
+import { electronLocalshortcut, isValidElectronAccelerator } from '@hfelix/electron-localshortcut'
 import { isFile2 } from 'common/filesystem'
+import { isEqualAccelerator } from 'common/keybinding'
 import { isLinux, isOsx } from '../config'
-import { getKeyboardLanguage, getVirtualLetters } from '../keyboard'
+import { getKeyboardInfo, keyboardLayoutMonitor } from '../keyboard'
 import keybindingsDarwin from './keybindingsDarwin'
 import keybindingsLinux from './keybindingsLinux'
 import keybindingsWindows from './keybindingsWindows'
-
-// Problematic key bindings:
-//   Inline Code: Ctrl+` -> dead key
-//   Upgrade Heading: Ctrl+= -> points to Ctrl+Plus which is ok; Ctrl+Plus is broken
 
 class Keybindings {
   /**
@@ -22,11 +19,9 @@ class Keybindings {
   constructor (userDataPath) {
     this.configPath = path.join(userDataPath, 'keybindings.json')
 
-    this.keys = this._getOsKeyMap()
-
-    // Fix non-US keyboards
-    this.mnemonics = new Map()
-    this._fixLayout()
+    this.userKeybindings = new Map()
+    this.keys = this.getDefaultKeybindings()
+    this._prepareKeyMapper()
 
     // Load user-defined keybindings
     this._loadLocalKeybindings()
@@ -44,23 +39,11 @@ class Keybindings {
     for (const item of acceleratorMap) {
       let { accelerator } = item
 
-      // Fix broken shortcuts because of dead keys or non-US keyboard problems. We bind the
-      // shortcut to another accelerator because of key mapping issues. E.g: 'Alt+/' is not
-      // available on a German keyboard, because you have to press 'Shift+7' to produce '/'.
-      // In this case we can remap the accelerator to 'Alt+7' or 'Ctrl+Shift+7'.
-      const acceleratorFix = this.mnemonics.get(accelerator)
-      if (acceleratorFix) {
-        accelerator = acceleratorFix
-      }
-
       // Regisiter shortcuts on the BrowserWindow instead of using Chromium's native menu.
       // This makes it possible to receive key down events before Chromium/Electron and we
       // can handle reserved Chromium shortcuts. Afterwards prevent the default action of
       // the event so the native menu is not triggered.
       electronLocalshortcut.register(win, accelerator, () => {
-        if (global.MARKTEXT_DEBUG && process.env.MARKTEXT_DEBUG_KEYBOARD) {
-          console.log(`You pressed ${accelerator}`)
-        }
         callMenuCallback(item, win)
         return true // prevent default action
       })
@@ -76,9 +59,7 @@ class Keybindings {
       .catch(err => console.error(err))
   }
 
-  // --- private --------------------------------
-
-  _getOsKeyMap () {
+  getDefaultKeybindings () {
     if (isOsx) {
       return keybindingsDarwin
     } else if (isLinux) {
@@ -87,58 +68,50 @@ class Keybindings {
     return keybindingsWindows
   }
 
-  _fixLayout () {
-    // Fix wrong virtual key mapping on non-QWERTY layouts
-    electronLocalshortcut.updateVirtualKeys(getVirtualLetters())
-
-    // Fix broken shortcuts and dead keys
-    const lang = getKeyboardLanguage()
-    switch (lang) {
-      // Fix inline code
-      case 'ch':
-      case 'de':
-      case 'dk':
-      case 'fi':
-      case 'no':
-      case 'se':
-        this._fixInlineCode()
-        if (!isOsx) {
-          this._fixDeadKey()
-        }
-        break
-
-      // Fix dead key only
-      case 'es':
-      case 'fr':
-      case 'hr':
-      case 'it':
-      case 'pl':
-      case 'pt':
-        if (!isOsx) {
-          this._fixDeadKey()
-        }
-        break
-
-      // Custom layouts
-      case 'bg':
-        if (!isOsx) {
-          this.mnemonics.set('CmdOrCtrl+/', 'CmdOrCtrl+8')
-          this._fixInlineCode()
-        }
-        break
-    }
+  /**
+   * Returns all user key bindings.
+   *
+   * @returns {Map<String, String>} User key bindings.
+   */
+  getUserKeybindings () {
+    return this.userKeybindings
   }
 
-  _fixDeadKey () {
-    this.mnemonics.set('CmdOrCtrl+/', 'CmdOrCtrl+7')
+  /**
+   * Sets and saves the given user key bindings on disk.
+   *
+   * @param {Map<String, String>} userKeybindings New user key bindings.
+   * @returns {Promise<Boolean>}
+   */
+  async setUserKeybindings (userKeybindings) {
+    this.userKeybindings = new Map(userKeybindings)
+    return this._saveUserKeybindings()
   }
 
-  // Fix dead backquote key on layouts like German
-  _fixInlineCode () {
-    if (isOsx) {
-      this.keys.set('format.inline-code', 'Cmd+Shift+B')
-    } else {
-      this.keys.set('format.inline-code', 'Ctrl+Alt+B')
+  // --- private --------------------------------
+
+  _prepareKeyMapper () {
+    // Update the key mapper to prevent problems on non-US keyboards.
+    const { layout, keymap } = getKeyboardInfo()
+    electronLocalshortcut.setKeyboardLayout(layout, keymap)
+
+    // Notify key mapper when the keyboard layout was changed.
+    keyboardLayoutMonitor.addListener(({ layout, keymap }) => {
+      if (global.MARKTEXT_DEBUG && process.env.MARKTEXT_DEBUG_KEYBOARD) {
+        console.log('[DEBUG] Keyboard layout changed:\n', layout)
+      }
+      electronLocalshortcut.setKeyboardLayout(layout, keymap)
+    })
+  }
+
+  async _saveUserKeybindings () {
+    const { configPath, userKeybindings } = this
+    try {
+      const userKeybindingJson = JSON.stringify(Object.fromEntries(userKeybindings), null, 2)
+      await fsPromises.writeFile(configPath, userKeybindingJson, 'utf8')
+      return true
+    } catch (_) {
+      return false
     }
   }
 
@@ -147,14 +120,9 @@ class Keybindings {
       return
     }
 
-    let json
-    try {
-      json = JSON.parse(fs.readFileSync(this.configPath, 'utf8'))
-    } catch (_) {
-      json = null
-    }
-    if (!json || typeof json !== 'object') {
-      log.warn('Invalid keybindings.json configuration.')
+    const rawUserKeybindings = this._loadUserKeybindingsFromDisk()
+    if (!rawUserKeybindings) {
+      log.warn('Invalid keybinding configuration: failed to load or parse file.')
       return
     }
 
@@ -165,15 +133,17 @@ class Keybindings {
     // }
 
     const userAccelerators = new Map()
-    for (const key in json) {
+    for (const key in rawUserKeybindings) {
       if (this.keys.has(key)) {
-        const value = json[key]
+        const value = rawUserKeybindings[key]
         if (typeof value === 'string') {
           if (value.length === 0) {
             // Unset key
             userAccelerators.set(key, '')
-          } else if (isAccelerator(value)) {
+          } else if (isValidElectronAccelerator(value)) {
             userAccelerators.set(key, value)
+          } else {
+            console.error(`[WARNING] "${value}" is not a valid accelerator.`)
           }
         }
       }
@@ -182,7 +152,7 @@ class Keybindings {
     // Check for duplicate user shortcuts
     for (const [keyA, valueA] of userAccelerators) {
       for (const [keyB, valueB] of userAccelerators) {
-        if (valueA !== '' && keyA !== keyB && this._isEqualAccelerator(valueA, valueB)) {
+        if (valueA !== '' && keyA !== keyB && isEqualAccelerator(valueA, valueB)) {
           const err = `Invalid keybindings.json configuration: Duplicate value for "${keyA}" and "${keyB}"!`
           console.log(err)
           log.error(err)
@@ -201,9 +171,17 @@ class Keybindings {
     // Check for duplicate shortcuts
     for (const [userKey, userValue] of userAccelerators) {
       for (const [key, value] of accelerators) {
-        if (this._isEqualAccelerator(value, userValue)) {
+        // This is a workaround to unset key bindings that the user used in `keybindings.json` before
+        // proper settings. Keep this for now, but add the ID to the users key binding that we show the
+        // right bindings in settings.
+        if (isEqualAccelerator(value, userValue)) {
           // Unset default key
           accelerators.set(key, '')
+
+          // This entry is actually unset because the user used the accelerator.
+          if (userAccelerators.get(key) == null) {
+            userAccelerators.set(key, '')
+          }
 
           // A accelerator should only exist once in the default map.
           break
@@ -214,27 +192,21 @@ class Keybindings {
 
     // Update key bindings
     this.keys = accelerators
+
+    // Save user keybindings for settings
+    this.userKeybindings = userAccelerators
   }
 
-  _isEqualAccelerator (a, b) {
-    a = a.toLowerCase().replace('cmdorctrl', 'ctrl').replace('command', 'ctrl')
-    b = b.toLowerCase().replace('cmdorctrl', 'ctrl').replace('command', 'ctrl')
-    const i1 = a.indexOf('+')
-    const i2 = b.indexOf('+')
-    if (i1 === -1 && i2 === -1) {
-      return a === b
-    } else if (i1 === -1 || i2 === -1) {
-      return false
+  _loadUserKeybindingsFromDisk () {
+    try {
+      const obj = JSON.parse(fs.readFileSync(this.configPath, 'utf8'))
+      if (typeof obj !== 'object') {
+        return null
+      }
+      return obj
+    } catch (_) {
+      return null
     }
-
-    const keysA = a.split('+')
-    const keysB = b.split('+')
-    if (keysA.length !== keysB.length) {
-      return false
-    }
-
-    const intersection = new Set([...keysA, ...keysB])
-    return intersection.size === keysB.length
   }
 }
 

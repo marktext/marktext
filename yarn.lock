@@ -1737,15 +1737,12 @@
   resolved "https://registry.yarnpkg.com/@gar/promisify/-/promisify-1.1.2.tgz#30aa825f11d438671d585bd44e7fd564535fc210"
   integrity sha512-82cpyJyKRoQoRi+14ibCeGPu0CwypgtBAdBhq1WfvagpCZNKqwXbKwXllYSMG91DhmG4jt9gN8eP6lGOtozuaw==
 
-"@hfelix/electron-localshortcut@^3.1.1":
-  version "3.1.1"
-  resolved "https://registry.npmjs.org/@hfelix/electron-localshortcut/-/electron-localshortcut-3.1.1.tgz#97e2f200568bffd5a49b465830b84f76fbc1130d"
-  integrity sha512-0kXNL54CE4d6oaUjZJ0kWzIVhENDp9JB9cFJnREwkhbR+aKvzGKeT8yofmf5tq+cZcoLKyBPchDtJLNDls8j5w==
+"@hfelix/electron-localshortcut@^4.0.0-rc.1":
+  version "4.0.0-rc.1"
+  resolved "https://registry.yarnpkg.com/@hfelix/electron-localshortcut/-/electron-localshortcut-4.0.0-rc.1.tgz#1d7801c32ddd2ad2785073b920dcd16f24c1e53a"
+  integrity sha512-rRiwMBPJkPe/aAuzjFcjuIokm8VsTTWsCPOHNsjrrLWhOy+/TCiwEmdspCguLt07e23oXMhbMLALE3N3NFJGTg==
   dependencies:
-    "@hfelix/keyboardevent-from-electron-accelerator" "^1.1.1"
-    debug "^4.0.1"
-    electron-is-accelerator "^0.1.0"
-    keyboardevents-areequal "^0.2.1"
+    debug "^4.3.3"
 
 "@hfelix/electron-spellchecker@^2.0.0":
   version "2.0.0"
@@ -1760,11 +1757,6 @@
     keyboard-layout "^2.0.17"
     lru-cache "^6.0.0"
     p-throttle "^3.1.0"
-
-"@hfelix/keyboardevent-from-electron-accelerator@^1.1.1":
-  version "1.1.1"
-  resolved "https://registry.npmjs.org/@hfelix/keyboardevent-from-electron-accelerator/-/keyboardevent-from-electron-accelerator-1.1.1.tgz#7e1d4fd913759c381b7919cc7faf4c0c641d457c"
-  integrity sha512-1eVkDSqoRQkF2FrPPia2EZ3310c0TvFKYvSuJbaxHpRKbI6eVHcVGKpmOSDli6Qdn3Bu0h7ozfgMZbAEBD+BLQ==
 
 "@hfelix/spellchecker@^4.1.0":
   version "4.1.0"
@@ -5124,7 +5116,7 @@ debug@2.6.9, debug@^2.2.0, debug@^2.3.3, debug@^2.6.8, debug@^2.6.9:
   dependencies:
     ms "2.0.0"
 
-debug@4, debug@^4.0.1, debug@^4.1.0:
+debug@4, debug@^4.1.0:
   version "4.1.1"
   resolved "https://registry.npmjs.org/debug/-/debug-4.1.1.tgz#3b72260255109c6b589cee050f1d516139664791"
   integrity sha512-pYAIzeRo8J6KPEaJ0VWOh5Pzkbw/RetuzehGM7QRRX5he4fPHx2rdKMB256ehJCkX+XRQm16eZLqLNS8RSZXZw==
@@ -5152,7 +5144,7 @@ debug@^3.2.7:
   dependencies:
     ms "^2.1.1"
 
-debug@^4.1.1, debug@~4.3.1, debug@~4.3.2:
+debug@^4.1.1, debug@^4.3.3, debug@~4.3.1, debug@~4.3.2:
   version "4.3.3"
   resolved "https://registry.yarnpkg.com/debug/-/debug-4.3.3.tgz#04266e0b70a98d4462e6e288e38259213332b664"
   integrity sha512-/zxw5+vh1Tfv+4Qn7a5nsbcJKPaSvCDhojn6FEl9vupwK2VCSDtEiEtqr8DFtzYFOdz63LBkxec7DYuc2jon6Q==
@@ -5722,16 +5714,6 @@ electron-devtools-installer@^3.2.0:
     semver "^7.2.1"
     tslib "^2.1.0"
     unzip-crx-3 "^0.2.0"
-
-electron-is-accelerator@^0.1.0:
-  version "0.1.2"
-  resolved "https://registry.npmjs.org/electron-is-accelerator/-/electron-is-accelerator-0.1.2.tgz#509e510c26a56b55e17f863a4b04e111846ab27b"
-  integrity sha1-UJ5RDCala1Xhf4Y6SwThEYRqsns=
-
-electron-is-accelerator@^0.2.0:
-  version "0.2.0"
-  resolved "https://registry.npmjs.org/electron-is-accelerator/-/electron-is-accelerator-0.2.0.tgz#8768feb2eb64ded6bcb98936853a4a6dcf6bfb46"
-  integrity sha512-jml8EDK0x1xuPCr8ZWr+tuCL9RwfR4lee+WhLID2WZ0ygGSlnkumF6K1zw05CgnkDvHuKhFV6/NrSDI87QWAfA==
 
 electron-log@^4.4.4:
   version "4.4.4"
@@ -8611,11 +8593,6 @@ keyboard-layout@^2.0.17:
     event-kit "^2.0.0"
     nan "^2.13.2"
 
-keyboardevents-areequal@^0.2.1:
-  version "0.2.2"
-  resolved "https://registry.npmjs.org/keyboardevents-areequal/-/keyboardevents-areequal-0.2.2.tgz#88191ec738ce9f7591c25e9056de928b40277194"
-  integrity sha512-Nv+Kr33T0mEjxR500q+I6IWisOQ0lK1GGOncV0kWE6n4KFmpcu7RUX5/2B0EUtX51Cb0HjZ9VJsSY3u4cBa0kw==
-
 keypress@0.1.x:
   version "0.1.0"
   resolved "https://registry.npmjs.org/keypress/-/keypress-0.1.0.tgz#4a3188d4291b66b4f65edb99f806aa9ae293592a"
@@ -9465,6 +9442,11 @@ napi-build-utils@^1.0.1:
   version "1.0.2"
   resolved "https://registry.npmjs.org/napi-build-utils/-/napi-build-utils-1.0.2.tgz#b1fddc0b2c46e380a0b7a76f984dd47c41a13806"
   integrity sha512-ONmRUqK7zj7DWX0D9ADe03wbwOBZxNAfF20PlGfCWQcD3+/MakShIHrMqx9YwPTfxDdF1zLeL+RGZiR9kGMLdg==
+
+native-keymap@^3.1.0:
+  version "3.1.0"
+  resolved "https://registry.yarnpkg.com/native-keymap/-/native-keymap-3.1.0.tgz#4ad8350f9253d0ae13c77f37d4a34ab4773e305f"
+  integrity sha512-h67B9n/L0DRGAftZqO7ZTlgGy7UY8r7N/GOAnnDibmRqFoenjbd9IdkN9uCf1Xs+vGW4BDJn9ZtO6xwJAbDmEA==
 
 natural-compare@^1.4.0:
   version "1.4.0"

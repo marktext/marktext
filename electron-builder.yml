@@ -26,6 +26,7 @@ files:
 - "!node_modules/fontmanager-redux/bin"
 - "!node_modules/keyboard-layout/bin"
 - "!node_modules/keytar/bin"
+- "!node_modules/native-keymap/bin"
 # Don't bundle Linux build files
 - "!node_modules/@hfelix/spellchecker/build/Release/hunspell.a"
 - "!node_modules/ced/build/Release/compact_enc_det.a"

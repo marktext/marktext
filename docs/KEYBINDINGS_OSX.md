@@ -6,12 +6,12 @@ MarkText key bindings for macOS. Please see [general key bindings](KEYBINDINGS.m
 
 #### MarkText menu
 
-| Id                 | Default                                        | Description                            |
-| ------------------ | ---------------------------------------------- | -------------------------------------- |
-| `mt.hide`          | <kbd>Command</kbd>+<kbd>H</kbd>                | Hide MarkText                          |
-| `mt.hide-others`   | <kbd>Command</kbd>+<kbd>Alt</kbd>+<kbd>H</kbd> | Hide all other windows except MarkText |
-| `file.preferences` | <kbd>Command</kbd>+<kbd>,</kbd>                | Open settings window                   |
-| `file.quit`        | <kbd>Command</kbd>+<kbd>Q</kbd>                | Quit MarkText                          |
+| Id                 | Default                                           | Description                            |
+| ------------------ | ------------------------------------------------- | -------------------------------------- |
+| `mt.hide`          | <kbd>Command</kbd>+<kbd>H</kbd>                   | Hide MarkText                          |
+| `mt.hide-others`   | <kbd>Command</kbd>+<kbd>Option</kbd>+<kbd>H</kbd> | Hide all other windows except MarkText |
+| `file.preferences` | <kbd>Command</kbd>+<kbd>,</kbd>                   | Open settings window                   |
+| `file.quit`        | <kbd>Command</kbd>+<kbd>Q</kbd>                   | Quit MarkText                          |
 
 #### File menu
 
@@ -31,51 +31,51 @@ MarkText key bindings for macOS. Please see [general key bindings](KEYBINDINGS.m
 
 #### Edit menu
 
-| Id                       | Default                                          | Description                                     |
-|:------------------------ | ------------------------------------------------ | ----------------------------------------------- |
-| `edit.undo`              | <kbd>Command</kbd>+<kbd>Z</kbd>                  | Undo last operation                             |
-| `edit.redo`              | <kbd>Command</kbd>+<kbd>Shift</kbd>+<kbd>Z</kbd> | Redo last operation                             |
-| `edit.cut`               | <kbd>Command</kbd>+<kbd>X</kbd>                  | Cut selected text                               |
-| `edit.copy`              | <kbd>Command</kbd>+<kbd>C</kbd>                  | Copy selected text                              |
-| `edit.paste`             | <kbd>Command</kbd>+<kbd>V</kbd>                  | Paste text                                      |
-| `edit.copy-as-markdown`  | <kbd>Command</kbd>+<kbd>Shift</kbd>+<kbd>C</kbd> | Copy selected text as markdown                  |
-| `edit.copy-as-html`      | -                                                | Copy selected text as html                      |
-| `edit.paste-as-plaintext` | <kbd>Command</kbd>+<kbd>Shift</kbd>+<kbd>V</kbd> | Copy selected text as plaintext                 |
-| `edit.select-all`        | <kbd>Command</kbd>+<kbd>A</kbd>                  | Select all text of the document                 |
-| `edit.duplicate`         | <kbd>Command</kbd>+<kbd>Alt</kbd>+<kbd>P</kbd>   | Duplicate the current paragraph                 |
-| `edit.create-paragraph`  | <kbd>Command</kbd>+<kbd>Shift</kbd>+<kbd>N</kbd> | Create a new paragraph after the current one    |
-| `edit.delete-paragraph`  | <kbd>Command</kbd>+<kbd>Shift</kbd>+<kbd>D</kbd> | Delete current paragraph                        |
-| `edit.find`              | <kbd>Command</kbd>+<kbd>F</kbd>                  | Find information in the document                |
-| `edit.find-next`         | <kbd>Cmd</kbd>+<kbd>G</kbd>                      | Continue the search and find the next match     |
-| `edit.find-previous`     | <kbd>Shift</kbd>+<kbd>Cmd</kbd>+<kbd>G</kbd>     | Continue the search and find the previous match |
-| `edit.replace`           | <kbd>Command</kbd>+<kbd>Alt</kbd>+<kbd>F</kbd>   | Replace the information with a replacement      |
-| `edit.find-in-folder`    | <kbd>Command</kbd>+<kbd>Shift</kbd>+<kbd>F</kbd> | Find files contain the keyword in opend folder  |
-| `edit.screenshot`        | <kbd>Command</kbd>+<kbd>Alt</kbd>+<kbd>A</kbd>   | Get the screenshot                              |
+| Id                        | Default                                           | Description                                     |
+|:------------------------- | ------------------------------------------------- | ----------------------------------------------- |
+| `edit.undo`               | <kbd>Command</kbd>+<kbd>Z</kbd>                   | Undo last operation                             |
+| `edit.redo`               | <kbd>Command</kbd>+<kbd>Shift</kbd>+<kbd>Z</kbd>  | Redo last operation                             |
+| `edit.cut`                | <kbd>Command</kbd>+<kbd>X</kbd>                   | Cut selected text                               |
+| `edit.copy`               | <kbd>Command</kbd>+<kbd>C</kbd>                   | Copy selected text                              |
+| `edit.paste`              | <kbd>Command</kbd>+<kbd>V</kbd>                   | Paste text                                      |
+| `edit.copy-as-markdown`   | <kbd>Command</kbd>+<kbd>Shift</kbd>+<kbd>C</kbd>  | Copy selected text as markdown                  |
+| `edit.copy-as-html`       | -                                                 | Copy selected text as html                      |
+| `edit.paste-as-plaintext` | <kbd>Command</kbd>+<kbd>Shift</kbd>+<kbd>V</kbd>  | Copy selected text as plaintext                 |
+| `edit.select-all`         | <kbd>Command</kbd>+<kbd>A</kbd>                   | Select all text of the document                 |
+| `edit.duplicate`          | <kbd>Command</kbd>+<kbd>Option</kbd>+<kbd>P</kbd> | Duplicate the current paragraph                 |
+| `edit.create-paragraph`   | <kbd>Command</kbd>+<kbd>Shift</kbd>+<kbd>N</kbd>  | Create a new paragraph after the current one    |
+| `edit.delete-paragraph`   | <kbd>Command</kbd>+<kbd>Shift</kbd>+<kbd>D</kbd>  | Delete current paragraph                        |
+| `edit.find`               | <kbd>Command</kbd>+<kbd>F</kbd>                   | Find information in the document                |
+| `edit.find-next`          | <kbd>Cmd</kbd>+<kbd>G</kbd>                       | Continue the search and find the next match     |
+| `edit.find-previous`      | <kbd>Shift</kbd>+<kbd>Cmd</kbd>+<kbd>G</kbd>      | Continue the search and find the previous match |
+| `edit.replace`            | <kbd>Command</kbd>+<kbd>Option</kbd>+<kbd>F</kbd> | Replace the information with a replacement      |
+| `edit.find-in-folder`     | <kbd>Command</kbd>+<kbd>Shift</kbd>+<kbd>F</kbd>  | Find files contain the keyword in opend folder  |
+| `edit.screenshot`         | <kbd>Command</kbd>+<kbd>Option</kbd>+<kbd>A</kbd> | Get the screenshot                              |
 
 #### Paragraph menu
 
-| Id                          | Default                                          | Description                              |
-| --------------------------- | ------------------------------------------------ | ---------------------------------------- |
-| `paragraph.heading-1`       | <kbd>Command</kbd>+<kbd>1</kbd>                  | Set line as heading 1                    |
-| `paragraph.heading-2`       | <kbd>Command</kbd>+<kbd>2</kbd>                  | Set line as heading 2                    |
-| `paragraph.heading-3`       | <kbd>Command</kbd>+<kbd>3</kbd>                  | Set line as heading 3                    |
-| `paragraph.heading-4`       | <kbd>Command</kbd>+<kbd>4</kbd>                  | Set line as heading 4                    |
-| `paragraph.heading-5`       | <kbd>Command</kbd>+<kbd>5</kbd>                  | Set line as heading 5                    |
-| `paragraph.heading-6`       | <kbd>Command</kbd>+<kbd>6</kbd>                  | Set line as heading 6                    |
-| `paragraph.upgrade-heading` | <kbd>Command</kbd>+<kbd>=</kbd>                  | Upgrade a heading                        |
-| `paragraph.degrade-heading` | <kbd>Command</kbd>+<kbd>-</kbd>                  | Degrade a heading                        |
-| `paragraph.table`           | <kbd>Command</kbd>+<kbd>Shift</kbd>+<kbd>T</kbd> | Insert a table                           |
-| `paragraph.code-fence`      | <kbd>Command</kbd>+<kbd>Alt</kbd>+<kbd>C</kbd>   | Insert a code block                      |
-| `paragraph.quote-block`     | <kbd>Command</kbd>+<kbd>Alt</kbd>+<kbd>Q</kbd>   | Insert a quote block                     |
-| `paragraph.math-formula`    | <kbd>Command</kbd>+<kbd>Alt</kbd>+<kbd>M</kbd>   | Insert a math block                      |
-| `paragraph.html-block`      | <kbd>Command</kbd>+<kbd>Alt</kbd>+<kbd>J</kbd>   | Insert a HTML block                      |
-| `paragraph.order-list`      | <kbd>Command</kbd>+<kbd>Alt</kbd>+<kbd>O</kbd>   | Insert a ordered list                    |
-| `paragraph.bullet-list`     | <kbd>Command</kbd>+<kbd>Alt</kbd>+<kbd>U</kbd>   | Insert a unordered list                  |
-| `paragraph.task-list`       | <kbd>Command</kbd>+<kbd>Alt</kbd>+<kbd>X</kbd>   | Insert a task list                       |
-| `paragraph.loose-list-item` | <kbd>Command</kbd>+<kbd>Alt</kbd>+<kbd>L</kbd>   | Convert a list item to a loose list item |
-| `paragraph.paragraph`       | <kbd>Command</kbd>+<kbd>0</kbd>                  | Convert a heading to a paragraph         |
-| `paragraph.horizontal-line` | <kbd>Command</kbd>+<kbd>Alt</kbd>+<kbd>-</kbd>   | Add a horizontal line                    |
-| `paragraph.front-matter`    | <kbd>Command</kbd>+<kbd>Alt</kbd>+<kbd>Y</kbd>   | Insert a YAML frontmatter block          |
+| Id                          | Default                                           | Description                              |
+| --------------------------- | ------------------------------------------------- | ---------------------------------------- |
+| `paragraph.heading-1`       | <kbd>Command</kbd>+<kbd>1</kbd>                   | Set line as heading 1                    |
+| `paragraph.heading-2`       | <kbd>Command</kbd>+<kbd>2</kbd>                   | Set line as heading 2                    |
+| `paragraph.heading-3`       | <kbd>Command</kbd>+<kbd>3</kbd>                   | Set line as heading 3                    |
+| `paragraph.heading-4`       | <kbd>Command</kbd>+<kbd>4</kbd>                   | Set line as heading 4                    |
+| `paragraph.heading-5`       | <kbd>Command</kbd>+<kbd>5</kbd>                   | Set line as heading 5                    |
+| `paragraph.heading-6`       | <kbd>Command</kbd>+<kbd>6</kbd>                   | Set line as heading 6                    |
+| `paragraph.upgrade-heading` | <kbd>Command</kbd>+<kbd>=</kbd>                   | Upgrade a heading                        |
+| `paragraph.degrade-heading` | <kbd>Command</kbd>+<kbd>-</kbd>                   | Degrade a heading                        |
+| `paragraph.table`           | <kbd>Command</kbd>+<kbd>Shift</kbd>+<kbd>T</kbd>  | Insert a table                           |
+| `paragraph.code-fence`      | <kbd>Command</kbd>+<kbd>Option</kbd>+<kbd>C</kbd> | Insert a code block                      |
+| `paragraph.quote-block`     | <kbd>Command</kbd>+<kbd>Option</kbd>+<kbd>Q</kbd> | Insert a quote block                     |
+| `paragraph.math-formula`    | <kbd>Command</kbd>+<kbd>Option</kbd>+<kbd>M</kbd> | Insert a math block                      |
+| `paragraph.html-block`      | <kbd>Command</kbd>+<kbd>Option</kbd>+<kbd>J</kbd> | Insert a HTML block                      |
+| `paragraph.order-list`      | <kbd>Command</kbd>+<kbd>Option</kbd>+<kbd>O</kbd> | Insert a ordered list                    |
+| `paragraph.bullet-list`     | <kbd>Command</kbd>+<kbd>Option</kbd>+<kbd>U</kbd> | Insert a unordered list                  |
+| `paragraph.task-list`       | <kbd>Command</kbd>+<kbd>Option</kbd>+<kbd>X</kbd> | Insert a task list                       |
+| `paragraph.loose-list-item` | <kbd>Command</kbd>+<kbd>Option</kbd>+<kbd>L</kbd> | Convert a list item to a loose list item |
+| `paragraph.paragraph`       | <kbd>Command</kbd>+<kbd>0</kbd>                   | Convert a heading to a paragraph         |
+| `paragraph.horizontal-line` | <kbd>Command</kbd>+<kbd>Option</kbd>+<kbd>-</kbd> | Add a horizontal line                    |
+| `paragraph.front-matter`    | <kbd>Command</kbd>+<kbd>Option</kbd>+<kbd>Y</kbd> | Insert a YAML frontmatter block          |
 
 #### Format menu
 
@@ -106,18 +106,18 @@ MarkText key bindings for macOS. Please see [general key bindings](KEYBINDINGS.m
 
 #### View menu
 
-| Id                      | Default                                          | Description                              |
-| ----------------------- | ------------------------------------------------ | ---------------------------------------- |
-| `view.command-palette`  | <kbd>Command</kbd>+<kbd>Shift</kbd>+<kbd>P</kbd> | Toggle command palette                   |
-| `view.source-code-mode` | <kbd>Command</kbd>+<kbd>Alt</kbd>+<kbd>S</kbd>   | Switch to source code mode               |
-| `view.typewriter-mode`  | <kbd>Command</kbd>+<kbd>Alt</kbd>+<kbd>T</kbd>   | Enable typewriter mode                   |
-| `view.focus-mode`       | <kbd>Command</kbd>+<kbd>Shift</kbd>+<kbd>J</kbd> | Enable focus mode                        |
-| `view.toggle-sidebar`   | <kbd>Command</kbd>+<kbd>J</kbd>                  | Toggle sidebar                           |
-| `view.toggle-tabbar`    | <kbd>Command</kbd>+<kbd>Alt</kbd>+<kbd>B</kbd>   | Toggle tabbar                            |
-| `view.toggle-toc` .     | <kbd>Command</kbd>+<kbd>K</kbd>                  | Toggle table of contents                 |
-| `view.toggle-dev-tools` | <kbd>Command</kbd>+<kbd>Alt</kbd>+<kbd>I</kbd>   | Toggle developer tools (debug mode only) |
-| `view.dev-reload`       | <kbd>Command</kbd>+<kbd>Alt</kbd>+<kbd>R</kbd>   | Reload window (debug mode only)          |
-| `view.reload-images`    | <kbd>Command</kbd>+<kbd>R</kbd>                  | Reload images                            |
+| Id                      | Default                                           | Description                              |
+| ----------------------- | ------------------------------------------------- | ---------------------------------------- |
+| `view.command-palette`  | <kbd>Command</kbd>+<kbd>Shift</kbd>+<kbd>P</kbd>  | Toggle command palette                   |
+| `view.source-code-mode` | <kbd>Command</kbd>+<kbd>Option</kbd>+<kbd>S</kbd> | Switch to source code mode               |
+| `view.typewriter-mode`  | <kbd>Command</kbd>+<kbd>Option</kbd>+<kbd>T</kbd> | Enable typewriter mode                   |
+| `view.focus-mode`       | <kbd>Command</kbd>+<kbd>Shift</kbd>+<kbd>J</kbd>  | Enable focus mode                        |
+| `view.toggle-sidebar`   | <kbd>Command</kbd>+<kbd>J</kbd>                   | Toggle sidebar                           |
+| `view.toggle-tabbar`    | <kbd>Command</kbd>+<kbd>Option</kbd>+<kbd>B</kbd> | Toggle tabbar                            |
+| `view.toggle-toc` .     | <kbd>Command</kbd>+<kbd>K</kbd>                   | Toggle table of contents                 |
+| `view.toggle-dev-tools` | <kbd>Command</kbd>+<kbd>Option</kbd>+<kbd>I</kbd> | Toggle developer tools (debug mode only) |
+| `view.dev-reload`       | <kbd>Command</kbd>+<kbd>Option</kbd>+<kbd>R</kbd> | Reload window (debug mode only)          |
+| `view.reload-images`    | <kbd>Command</kbd>+<kbd>R</kbd>                   | Reload images                            |
 
 ## Available key bindings
 

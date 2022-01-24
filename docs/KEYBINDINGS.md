@@ -17,12 +17,13 @@ Here is an example:
 - `Option` on macOS
 - `Ctrl`
 - `Shift`
-- `Alt` and `AltGr` on Linux and Windows
-- `Super` on Linux and Windows
+- `Alt` (equal to `Option` on macOS)
+
+Please don't bind `AltGr`, use `Cltr+Alt` instead.
 
 ## Available keys
 
-- `0-9`, `A-Z`, `F1-F24` and punctuations
+- `0-9`, `A-Z`, `F1-F24` and punctuations like `/` or `#`
 - `Plus`, `Space`, `Tab`, `Backspace`, `Delete`, `Insert`, `Return/Enter`, `Esc`, `Home`, `End` and `PrintScreen`
 - `Up`, `Down`, `Left` and `Right`
 - `PageUp` and `PageDown`
