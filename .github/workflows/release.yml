@@ -63,6 +63,10 @@ jobs:
       - name: Install dependencies
         run: yarn install --check-files --frozen-lockfile
 
+      - name: Strip ripgrep on Linux
+        if: runner.os == 'Linux'
+        run: strip node_modules/vscode-ripgrep/bin/rg
+
       - name: Lint
         run: |
           yarn run lint
