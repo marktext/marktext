@@ -32,7 +32,7 @@
     <section class="footer">
       <separator></separator>
       <el-button size="medium" @click="saveKeybindings">Save</el-button>
-      <el-button size="medium" @click="restoreDefaults">Restore defaults</el-button>
+      <el-button size="medium" @click="restoreDefaults">Restore default key bindings</el-button>
     </section>
     <section v-if="showDebugTools" class="keyboard-debug">
       <separator></separator>
@@ -117,6 +117,16 @@ export default {
     },
     restoreDefaults () {
       this.keybindingConfigurator.resetAll()
+        .then(success => {
+          if (!success) {
+            notice.notify({
+              title: 'Failed to save',
+              type: 'error',
+              message: 'An unexpected error occurred while saving.'
+            })
+          }
+        })
+        .catch(error => log.error(error))
     },
     handleEditClick (index, entry) {
       if (index >= 0 && entry) {

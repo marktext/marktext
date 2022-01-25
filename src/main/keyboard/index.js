@@ -66,7 +66,7 @@ export const registerKeyboardListeners = () => {
     const content = JSON.stringify(getKeyboardInfo(), null, 2)
     fsPromises.writeFile(dumpPath, content, 'utf8')
       .then(() => {
-        console.log('Keyboard information written to "', dumpPath, '".')
+        console.log(`Keyboard information written to "${dumpPath}".`)
         shell.openPath(dumpPath)
       })
       .catch(error => {

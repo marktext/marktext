@@ -24,7 +24,7 @@
           >
         </div>
         <div class="footer">
-          <div>Press Enter to continue or ESC to exit.</div>
+          <div class="descriptions">Press Enter to continue or ESC to exit.</div>
           <div
             v-show="!isKeybindingValid"
             class="invalid-keybinding"
@@ -193,6 +193,9 @@ export default {
   .footer {
     font-size: 13px;
     text-align: center;
+    & .description {
+      margin-top: 2px;
+    }
     & .invalid-keybinding {
       font-weight: bold;
     }

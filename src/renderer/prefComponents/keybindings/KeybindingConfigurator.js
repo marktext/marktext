@@ -109,13 +109,13 @@ export default class KeybindingConfigurator {
 
   resetToDefault (id) {
     const accelerator = this.defaultKeybindings.get(id)
-    if (!accelerator) {
+    if (accelerator == null) { // allow empty string
       return false
     }
     return this.change(id, accelerator)
   }
 
-  resetAll () {
+  async resetAll () {
     const { defaultKeybindings, keybindingList } = this
     for (const entry of keybindingList) {
       const defaultAccelerator = defaultKeybindings.get(entry.id)
@@ -127,6 +127,7 @@ export default class KeybindingConfigurator {
       entry.type = SHORTCUT_TYPE_DEFAULT
     }
     this.isDirty = true
+    return this.save()
   }
 
   getDefaultAccelerator (id) {
@@ -134,7 +135,7 @@ export default class KeybindingConfigurator {
   }
 
   _isDuplicate (accelerator) {
-    return this.keybindingList.findIndex(entry => isEqualAccelerator(entry.accelerator, accelerator)) !== -1
+    return accelerator !== '' && this.keybindingList.findIndex(entry => isEqualAccelerator(entry.accelerator, accelerator)) !== -1
   }
 
   _isDefaultBinding (id, accelerator) {
