@@ -20,6 +20,9 @@
           :regexValidator="/^(?:$|(?![a-zA-Z]:)[^\/\\].*$)/"
           :defaultValue="relativeDirectoryNamePlaceholder"
           :onChange="value => onSelectChange('imageRelativeDirectoryName', value)"></text-box>
+        <div class="footnote">
+          Include <code>${filename}</code> in the text-box above to automatically insert the document file name.
+        </div>
       </template>
     </compound>
   </section>
@@ -77,3 +80,12 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+.image-folder .footnote {
+  font-size: 13px;
+  & code {
+    font-size: 13px;
+  }
+}
+</style>

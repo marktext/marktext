@@ -780,6 +780,7 @@ export default {
     },
 
     async imageAction (image, id, alt = '') {
+      // TODO(Refactor): Refactor this method.
       const {
         imageInsertAction,
         imageFolderPath,
@@ -792,20 +793,29 @@ export default {
         pathname
       } = this.currentFile
 
+      // Save an image relative to the file if the relative image directory include the filename variable.
+      // The image is save relative to the root folder without a variable.
+      const saveRelativeToFile = () => {
+        return /\${filename}/.test(imageRelativeDirectoryName)
+      }
+
       // Figure out the current working directory.
-      let cwd = pathname ? path.dirname(pathname) : null
-      if (pathname && this.projectTree) {
+      const isTabSavedOnDisk = !!pathname
+      let relativeBasePath = isTabSavedOnDisk ? path.dirname(pathname) : null
+      if (isTabSavedOnDisk && !saveRelativeToFile() && this.projectTree) {
         const { pathname: rootPath } = this.projectTree
         if (rootPath && isChildOfDirectory(rootPath, pathname)) {
           // Save assets relative to root directory.
-          cwd = rootPath
+          relativeBasePath = rootPath
         }
       }
 
       const getResolvedImagePath = imagePath => {
-        // Use filename only when the tab is saved on disk.
-        const replacement = pathname ? filename : ''
-        return imagePath.replace(/\${filename}/g, replacement.replace(/\.[^/.]+$/, ''))
+        const replacement = isTabSavedOnDisk
+          // Filename w/o extension
+          ? filename.replace(/\.[^/.]+$/, '')
+          : ''
+        return imagePath.replace(/\${filename}/g, replacement)
       }
 
       const resolvedImageFolderPath = getResolvedImagePath(imageFolderPath)
@@ -827,21 +837,22 @@ export default {
         }
         case 'folder': {
           destImagePath = await moveImageToFolder(pathname, image, resolvedImageFolderPath)
-          if (cwd && imagePreferRelativeDirectory) {
-            destImagePath = await moveToRelativeFolder(cwd, destImagePath, resolvedImageRelativeDirectoryName)
+          if (isTabSavedOnDisk && imagePreferRelativeDirectory) {
+            destImagePath = await moveToRelativeFolder(relativeBasePath, resolvedImageRelativeDirectoryName, pathname, destImagePath)
           }
           break
         }
         case 'path': {
           if (typeof image === 'string') {
+            // Input is a local path.
             destImagePath = image
           } else {
-            // Move image to image folder if it's Blob object.
+            // Save and move image to image folder if input is binary.
             destImagePath = await moveImageToFolder(pathname, image, resolvedImageFolderPath)
 
-            // Respect user preferences if file exist on disk.
-            if (cwd && imagePreferRelativeDirectory) {
-              destImagePath = await moveToRelativeFolder(cwd, destImagePath, resolvedImageRelativeDirectoryName)
+            // Respect user preferences if tab exists on disk.
+            if (isTabSavedOnDisk && imagePreferRelativeDirectory) {
+              destImagePath = await moveToRelativeFolder(relativeBasePath, resolvedImageRelativeDirectoryName, pathname, destImagePath)
             }
           }
           break
