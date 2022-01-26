@@ -1,7 +1,6 @@
 <template>
   <div class="key-input-dialog">
     <div v-if="showKeyInputDialog" class="input-overlay"></div>
-    <!-- TODO(KeyBinding): The dialog is shown behind the overlay when `modal` background is enabled. -->
     <el-dialog
       :visible.sync="showKeyInputDialog"
       :show-close="false"
