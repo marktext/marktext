@@ -100,8 +100,10 @@ jobs:
       - name: Calculate checksums
         if: runner.os == 'macOS'
         run: |
-          shasum -a 256 build/marktext-mac.zip
-          shasum -a 256 build/marktext.dmg
+          shasum -a 256 build/marktext-arm64-mac.zip
+          shasum -a 256 build/marktext-x64-mac.zip
+          shasum -a 256 build/marktext-arm64.dmg
+          shasum -a 256 build/marktext-x64.dmg
         shell: bash
 
   windows:
