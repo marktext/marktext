@@ -247,8 +247,19 @@ export default {
     },
 
     handleSelectAll () {
-      if (this.sourceCode && this.editor) {
+      if (!this.sourceCode) {
+        return
+      }
+
+      const { editor } = this
+      if (editor && editor.hasFocus()) {
         this.editor.execCommand('selectAll')
+      } else {
+        const activeElement = document.activeElement
+        const nodeName = activeElement.nodeName
+        if (nodeName === 'INPUT' || nodeName === 'TEXTAREA') {
+          activeElement.select()
+        }
       }
     },
 

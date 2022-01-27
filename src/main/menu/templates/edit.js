@@ -22,19 +22,19 @@ export default function (keybindings) {
       label: 'Cut',
       accelerator: keybindings.getAccelerator('edit.cut'),
       click (menuItem, browserWindow) {
-        actions.edit(browserWindow, 'cutText')
+        actions.nativeCut(browserWindow)
       }
     }, {
       label: 'Copy',
       accelerator: keybindings.getAccelerator('edit.copy'),
       click (menuItem, browserWindow) {
-        actions.edit(browserWindow, 'copyText')
+        actions.nativeCopy(browserWindow)
       }
     }, {
       label: 'Paste',
       accelerator: keybindings.getAccelerator('edit.paste'),
       click (menuItem, browserWindow) {
-        actions.edit(browserWindow, 'paste')
+        actions.nativePaste(browserWindow)
       }
     }, {
       type: 'separator'

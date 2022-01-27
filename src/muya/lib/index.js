@@ -358,24 +358,12 @@ class Muya {
     return this.contentState.extractImages(markdown)
   }
 
-  copyText () {
-    this.clipboard.copyText()
-  }
-
   copyAsMarkdown () {
     this.clipboard.copyAsMarkdown()
   }
 
   copyAsHtml () {
     this.clipboard.copyAsHtml()
-  }
-
-  cutText () {
-    this.clipboard.cutText()
-  }
-
-  paste () {
-    this.clipboard.paste()
   }
 
   pasteAsPlainText () {

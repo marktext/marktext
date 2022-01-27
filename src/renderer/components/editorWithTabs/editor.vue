@@ -642,11 +642,8 @@ export default {
       bus.$on('file-changed', this.handleFileChange)
       bus.$on('editor-blur', this.blurEditor)
       bus.$on('editor-focus', this.focusEditor)
-      bus.$on('copyText', this.handleCopyPaste)
-      bus.$on('cutText', this.handleCopyPaste)
       bus.$on('copyAsMarkdown', this.handleCopyPaste)
       bus.$on('copyAsHtml', this.handleCopyPaste)
-      bus.$on('paste', this.handleCopyPaste)
       bus.$on('pasteAsPlainText', this.handleCopyPaste)
       bus.$on('duplicate', this.handleParagraph)
       bus.$on('createParagraph', this.handleParagraph)
@@ -1008,7 +1005,11 @@ export default {
     },
 
     handleSelectAll () {
-      if (this.editor && !this.sourceCode && (this.editor.hasFocus() || this.editor.contentState.selectedTableCells)) {
+      if (this.sourceCode) {
+        return
+      }
+
+      if (this.editor && (this.editor.hasFocus() || this.editor.contentState.selectedTableCells)) {
         this.editor.selectAll()
       } else {
         const activeElement = document.activeElement
@@ -1290,11 +1291,8 @@ export default {
     bus.$off('file-changed', this.handleFileChange)
     bus.$off('editor-blur', this.blurEditor)
     bus.$off('editor-focus', this.focusEditor)
-    bus.$off('copyText', this.handleCopyPaste)
-    bus.$off('cutText', this.handleCopyPaste)
     bus.$off('copyAsMarkdown', this.handleCopyPaste)
     bus.$off('copyAsHtml', this.handleCopyPaste)
-    bus.$off('paste', this.handleCopyPaste)
     bus.$off('pasteAsPlainText', this.handleCopyPaste)
     bus.$off('duplicate', this.handleParagraph)
     bus.$off('createParagraph', this.handleParagraph)
