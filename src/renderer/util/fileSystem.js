@@ -33,12 +33,21 @@ export const getContentHash = content => {
   return getHash(content, 'utf8', 'sha1')
 }
 
-export const moveToRelativeFolder = async (cwd, imagePath, relativeName) => {
+/**
+ * Moves an image to a relative position.
+ *
+ * @param {String} cwd The relative base path (project root or full folder path of opened file).
+ * @param {String} relativeName The relative directory name.
+ * @param {String} filePath The full path to the opened file in editor.
+ * @param {String} imagePath The image to move.
+ * @returns {String} The relative path the the image from given `filePath`.
+ */
+export const moveToRelativeFolder = async (cwd, relativeName, filePath, imagePath) => {
   if (!relativeName) {
     // Use fallback name according settings description
     relativeName = 'assets'
   } else if (path.isAbsolute(relativeName)) {
-    throw new Error('Invalid relative directory name')
+    throw new Error('Invalid relative directory name.')
   }
 
   // Path combination:
@@ -49,8 +58,8 @@ export const moveToRelativeFolder = async (cwd, imagePath, relativeName) => {
   await fs.ensureDir(absPath)
   await fs.move(imagePath, dstPath, { overwrite: true })
 
-  // dstRelPath: relative directory name + image file name
-  const dstRelPath = path.join(relativeName, path.basename(imagePath))
+  // Find relative path between given file and saved image.
+  const dstRelPath = path.relative(path.dirname(filePath), dstPath)
 
   if (isWindows) {
     // Use forward slashes for better compatibility with websites.

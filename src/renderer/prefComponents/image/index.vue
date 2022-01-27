@@ -2,7 +2,7 @@
   <div class="pref-image">
     <h4>Image</h4>
     <section class="image-ctrl">
-      <div>Default action after image is inserted from local folder or clipboard
+      <div>Default action after an image is inserted from local folder or clipboard
         <el-tooltip class='item' effect='dark'
           content='Clipboard handling is only fully supported on macOS and Windows.'
           placement='top-start'>
