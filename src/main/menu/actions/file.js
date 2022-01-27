@@ -550,6 +550,12 @@ export const closeTab = win => {
   }
 }
 
+export const closeWindow = win => {
+  if (win) {
+    win.close()
+  }
+}
+
 export const save = win => {
   if (win && win.webContents) {
     win.webContents.send('mt::editor-ask-file-save')

@@ -43,6 +43,13 @@ class Clipboard {
     eventCenter.attachDOMEvent(document.body, 'copy', docCopyCutHandler)
   }
 
+  // TODO: `document.execCommand` is deprecated!
+
+  copyText () {
+    this._copyType = 'normal'
+    document.execCommand('copy')
+  }
+
   copyAsMarkdown () {
     this._copyType = 'copyAsMarkdown'
     document.execCommand('copy')
@@ -51,6 +58,15 @@ class Clipboard {
   copyAsHtml () {
     this._copyType = 'copyAsHtml'
     document.execCommand('copy')
+  }
+
+  cutText () {
+    document.execCommand('cut')
+  }
+
+  paste () {
+    this._pasteType = 'normal'
+    document.execCommand('paste')
   }
 
   pasteAsPlainText () {

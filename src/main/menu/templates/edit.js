@@ -21,15 +21,21 @@ export default function (keybindings) {
     }, {
       label: 'Cut',
       accelerator: keybindings.getAccelerator('edit.cut'),
-      role: 'cut'
+      click (menuItem, browserWindow) {
+        actions.edit(browserWindow, 'cutText')
+      }
     }, {
       label: 'Copy',
       accelerator: keybindings.getAccelerator('edit.copy'),
-      role: 'copy'
+      click (menuItem, browserWindow) {
+        actions.edit(browserWindow, 'copyText')
+      }
     }, {
       label: 'Paste',
       accelerator: keybindings.getAccelerator('edit.paste'),
-      role: 'paste'
+      click (menuItem, browserWindow) {
+        actions.edit(browserWindow, 'paste')
+      }
     }, {
       type: 'separator'
     }, {

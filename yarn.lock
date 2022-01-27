@@ -1753,10 +1753,10 @@
     global-agent "^3.0.0"
     global-tunnel-ng "^2.7.1"
 
-"@electron/remote@^2.0.1":
-  version "2.0.1"
-  resolved "https://registry.yarnpkg.com/@electron/remote/-/remote-2.0.1.tgz#810cbc595a21f0f94641eb2d7e8264063a3f84de"
-  integrity sha512-bGX4/yB2bPZwXm1DsxgoABgH0Cz7oFtXJgkerB8VrStYdTyvhGAULzNLRn9rVmeAuC3VUDXaXpZIlZAZHpsLIA==
+"@electron/remote@^2.0.4":
+  version "2.0.4"
+  resolved "https://registry.yarnpkg.com/@electron/remote/-/remote-2.0.4.tgz#c3dae436aed79d1b8adcefc5a4963c06750ad5d8"
+  integrity sha512-8m2P/d2RH986PmMW5lKygbPEjEYJ7RgCe37Y8DQ1wujKMH6VjmLIB+Y+DP2SA611svCZc58TRSd8FraGvcfGZw==
 
 "@electron/universal@1.0.5":
   version "1.0.5"
@@ -5892,10 +5892,10 @@ electron-window-state@^5.0.3:
     jsonfile "^4.0.0"
     mkdirp "^0.5.1"
 
-electron@^15.3.5:
-  version "15.3.5"
-  resolved "https://registry.yarnpkg.com/electron/-/electron-15.3.5.tgz#62fc7d2289d3f47e9e05c0aa9bb6d929a6faf398"
-  integrity sha512-z0/7+p3uZYBmjf7UEVBfcMTVgW6ThGgfI4jdbQ1TH4XOLYkj560/abv91/s8kK0MZ7JQg4KRP1JwQZ4q6+BPFw==
+electron@^15.3.6:
+  version "15.3.6"
+  resolved "https://registry.yarnpkg.com/electron/-/electron-15.3.6.tgz#19b9aee1e063b1983b3d7f535567d90e0e1b4d04"
+  integrity sha512-mOOTcZH/Vlq9GP3B8G3aMvZQ4eZyCjUZZpLccABqsPyLUMEixcdx750DQ7M+iHYyo0BWxj/JuHblzQXgNnPkfg==
   dependencies:
     "@electron/get" "^1.13.0"
     "@types/node" "^14.6.2"
@@ -6226,10 +6226,10 @@ eslint-plugin-standard@^4.1.0:
   resolved "https://registry.yarnpkg.com/eslint-plugin-standard/-/eslint-plugin-standard-4.1.0.tgz#0c3bf3a67e853f8bbbc580fb4945fbf16f41b7c5"
   integrity sha512-ZL7+QRixjTR6/528YNGyDotyffm5OQst/sGxKDwGb9Uqs4In5Egi4+jbobhqJoyoCM6/7v/1A5fhQ7ScMtDjaQ==
 
-eslint-plugin-vue@^8.3.0:
-  version "8.3.0"
-  resolved "https://registry.yarnpkg.com/eslint-plugin-vue/-/eslint-plugin-vue-8.3.0.tgz#2ae4f915ed3541a58c4a4c1145c1e60b86aa7e85"
-  integrity sha512-IIuLHw4vQxGlHcoP2dG6t/2OVdQf2qoyAzEGAxreU1afZOHGA7y3TWq8I+r3ZA6Wjs6xpeUWGHlT31QGr9Rb5g==
+eslint-plugin-vue@^8.4.0:
+  version "8.4.0"
+  resolved "https://registry.yarnpkg.com/eslint-plugin-vue/-/eslint-plugin-vue-8.4.0.tgz#16e59b356386b4428fb7d886b6d8ee5df2bbc09d"
+  integrity sha512-Ga96QRG8GA9AyzKtEDxqYRCMt/VJM4SLkcNmm4FvUiFBE4jpaBr25unRBi9iVmHLYhA9EZ/4I+jD8n1vfWzyAA==
   dependencies:
     eslint-utils "^3.0.0"
     natural-compare "^1.4.0"
@@ -9550,10 +9550,10 @@ napi-build-utils@^1.0.1:
   resolved "https://registry.npmjs.org/napi-build-utils/-/napi-build-utils-1.0.2.tgz#b1fddc0b2c46e380a0b7a76f984dd47c41a13806"
   integrity sha512-ONmRUqK7zj7DWX0D9ADe03wbwOBZxNAfF20PlGfCWQcD3+/MakShIHrMqx9YwPTfxDdF1zLeL+RGZiR9kGMLdg==
 
-native-keymap@^3.1.0:
-  version "3.1.0"
-  resolved "https://registry.yarnpkg.com/native-keymap/-/native-keymap-3.1.0.tgz#4ad8350f9253d0ae13c77f37d4a34ab4773e305f"
-  integrity sha512-h67B9n/L0DRGAftZqO7ZTlgGy7UY8r7N/GOAnnDibmRqFoenjbd9IdkN9uCf1Xs+vGW4BDJn9ZtO6xwJAbDmEA==
+native-keymap@^3.1.1:
+  version "3.1.1"
+  resolved "https://registry.yarnpkg.com/native-keymap/-/native-keymap-3.1.1.tgz#edecdc763129eb97754c0651e8f7da89a2b78958"
+  integrity sha512-q6I3VBGW0dMxTvL2gXWkkl8Ofdlt56RxlPL/lknA8HjgXCpZ/esukuZGV+sGS1xif1muTM3gTnv2PGf4SxHovA==
 
 natural-compare@^1.4.0:
   version "1.4.0"
