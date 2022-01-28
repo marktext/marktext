@@ -60,7 +60,7 @@ fileAssociations:
   role: "Editor"
   icon: "../resources/icons/md.icns"
 mac:
-  artifactName: "marktext-mac.${ext}"
+  artifactName: "marktext-${arch}-mac.${ext}"
   icon: "resources/icons/icon.icns"
   darkModeSupport: true
   target:
@@ -69,7 +69,7 @@ mac:
     - target: zip
       arch: [x64, arm64]
 dmg:
-  artifactName: "marktext.${ext}"
+  artifactName: "marktext-${arch}.${ext}"
   contents:
   - x: 410
     y: 240
