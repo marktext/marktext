@@ -1,6 +1,6 @@
 import loadRenderer from '../../renderers'
-import { CLASS_OR_ID } from '../../config'
-import { conflict, mixins, camelToSnake } from '../../utils'
+import { CLASS_OR_ID, PREVIEW_DOMPURIFY_CONFIG } from '../../config'
+import { conflict, mixins, camelToSnake, sanitize } from '../../utils'
 import { patch, toVNode, toHTML, h, addNStoVNodeSvgChildren } from './snabbdom'
 import { beginRules } from '../rules'
 import renderInlines from './renderInlines'
@@ -99,6 +99,7 @@ class StateRender {
     if (this.mermaidCache.size) {
       const mermaid = await loadRenderer('mermaid')
       mermaid.initialize({
+        securityLevel: 'strict',
         theme: this.muya.options.mermaidTheme
       })
       for (const [key, value] of this.mermaidCache.entries()) {
@@ -109,7 +110,7 @@ class StateRender {
         }
         try {
           mermaid.parse(code)
-          target.innerHTML = code
+          target.innerHTML = sanitize(code, PREVIEW_DOMPURIFY_CONFIG, true)
           mermaid.init(undefined, target)
         } catch (err) {
           target.innerHTML = '< Invalid Mermaid Codes >'
