@@ -1,10 +1,12 @@
-## Unreleased (6f1e733)
+## Unreleased (c959d18)
 
 Mark Text is now MarkText! We'd like to thank all contributors and users that have been using MarkText and worked on this release.
 
 **:warning:Breaking Changes:**
 
-- Changed multiple key bindings.
+- Changed multiple default key bindings.
+- Changed key binding handling: all key bindings are now mapped to the corresponding US key bindings. E.g. `Ctrl+Shift+7` on a German keyboard will now produce `Ctrl+/` because `Shift+7` is equivalent to `/`.
+- Image uploder: SM.MS was removed, GitHub uploader is deprecated and will be replaced by PicGo in our next release.
 
 **:cactus:Feature**
 
@@ -19,12 +21,17 @@ Mark Text is now MarkText! We'd like to thank all contributors and users that ha
 - Added support to use all menu entries for key binding.
 - Added window zoom via default mouse event.
 - Zoom level is now restored on startup.
+- Added PicGo to upload images.
+- Ability to invalidate image cache on demand.
+- Added settings page to configure key bindings.
 
 **:butterfly:Optimization**
 
 - Improved inline markdown autocomplete support.
 - Improved preference design.
 - Relative image paths are now converted to forward slashes on Windows for better compatibility.
+- Center sidebar image when no search results are available.
+- Updated emoji database.
 
 **:beetle:Bug fix**
 
@@ -36,6 +43,7 @@ Mark Text is now MarkText! We'd like to thank all contributors and users that ha
 - Fixed editor overflow when the sidbar is open.
 - Fixed a crash that occurred due to a bug in the markdown footnote parser.
 - Fixed issue with shortcuts that included `Alt`.
+- Fixed multiple issues on non-US keyboards.
 - Normalized source-code editor cursor.
 - Fixed preference scaling issue and added missing scrollbar.
 - Fixed a rendering issue when multiple elements were selected via keyboard.
@@ -46,7 +54,7 @@ Mark Text is now MarkText! We'd like to thank all contributors and users that ha
 - Fixed file rename with editor dialog.
 - Fixed URL open handler when clicking a link in the editor.
 - Fixed an issue that prevented to unindent a list item.
-- Fixed a XSS issue on language selector input.
+- Fixed a XSS issue on language selector and mermaid diagram input.
 
 ## 0.16.3
 

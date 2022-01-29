@@ -1,10 +1,12 @@
 #### Image Uploader Configration
 
-##### SM.MS
+##### PicGo
 
-No need to config, it's a free uploading service up-to 5MB, thanks!
+PicGo is a CLI tool to upload images to various cloud providers. Please see [here](https://picgo.github.io/PicGo-Doc/en/guide/) of more information.
 
 ##### GitHub
+
+> NOTE: This uploader is deprecated and will be replaced by PicGo in version 0.18.
 
 1. Step 1, Create a GitHub [repo](https://github.com/new).
 
