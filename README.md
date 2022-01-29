@@ -210,7 +210,7 @@ Want to see new features of the latest version? Please refer to [CHANGELOG](.git
 
 #### macOS
 
-You can either download the latest `marktext-%version%.dmg` from the [release page](https://github.com/marktext/marktext/releases/latest) or install **MarkText** using [**homebrew cask**](https://github.com/caskroom/homebrew-cask). To use Homebrew-Cask you just need to have [Homebrew](https://brew.sh/) installed.
+You can either download the latest `marktext-%version%.dmg` from the [release page](https://github.com/marktext/marktext/releases/latest) or install MarkText using [**homebrew cask**](https://github.com/caskroom/homebrew-cask). To use Homebrew-Cask you just need to have [Homebrew](https://brew.sh/) installed.
 
 ```bash
 brew install --cask mark-text
@@ -218,21 +218,19 @@ brew install --cask mark-text
 
 #### Windows
 
-Simply download and install **MarkText** via setup wizard (`marktext-setup-%version%.exe`) and choose whether to install per-user or machine wide.
+Simply download and install MarkText via setup wizard (`marktext-setup-%version%.exe`) and choose whether to install per-user or machine wide. Alternatively, install MarkText using a package manager such as [Chocolatey](https://chocolatey.org/) or [Winget](https://docs.microsoft.com/en-us/windows/package-manager/winget/).
 
-Alternatively, install MarkText using a package manager such as [Chocolatey](https://chocolatey.org/) or [Winget](https://docs.microsoft.com/en-us/windows/package-manager/winget/). 
+To use Chocolatey, you need to have [Chocolatey](https://chocolatey.org/install) installed:
 
-  - To use Chocolatey, you need to have [Chocolatey](https://chocolatey.org/install) installed.
+```bash
+choco install marktext
+```
 
-  ```bash
-  choco install marktext
-  ```
-  
-  - To use Winget you need to have [Winget](https://docs.microsoft.com/en-us/windows/package-manager/winget/#install-winget) installed.
-  
-  ```bash
-  winget install marktext
-  ```
+To use Winget, you need to have [Winget](https://docs.microsoft.com/en-us/windows/package-manager/winget/#install-winget) installed:
+
+```bash
+winget install marktext
+```
 
 #### Linux
 
@@ -244,12 +242,12 @@ All binaries for Linux, macOS and Windows can be downloaded from the [release pa
 
 ## Development
 
-If you wish to build **MarkText** yourself, please check out our [build instructions](docs/dev/BUILD.md).
+If you wish to build MarkText yourself, please check out our [build instructions](docs/dev/BUILD.md).
 
 - [User documentation](docs/README.md)
 - [Developer documentation](docs/dev/README.md)
 
-If you have any questions regarding **MarkText**, you are welcome to write an issue. When doing so please use the default format found when opening an issue. Of course, if you submit a PR directly, it will be greatly appreciated.
+If you have any questions regarding MarkText, you are welcome to write an issue. When doing so please use the default format found when opening an issue. Of course, if you submit a PR directly, it will be greatly appreciated.
 
 ## Integrations
 
