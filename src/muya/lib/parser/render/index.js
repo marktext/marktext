@@ -1,7 +1,7 @@
 import loadRenderer from '../../renderers'
 import { CLASS_OR_ID, PREVIEW_DOMPURIFY_CONFIG } from '../../config'
 import { conflict, mixins, camelToSnake, sanitize } from '../../utils'
-import { patch, toVNode, toHTML, h, addNStoVNodeSvgChildren } from './snabbdom'
+import { patch, toVNode, toHTML, h } from './snabbdom'
 import { beginRules } from '../rules'
 import renderInlines from './renderInlines'
 import renderBlock from './renderBlock'
@@ -176,7 +176,6 @@ class StateRender {
     const children = blocks.map(block => {
       return this.renderBlock(null, block, activeBlocks, matches, true)
     })
-    addNStoVNodeSvgChildren(children)
     const newVdom = h(selector, children)
     const rootDom = document.querySelector(selector) || this.container
     const oldVdom = toVNode(rootDom)

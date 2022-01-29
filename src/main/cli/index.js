@@ -3,7 +3,6 @@ import { app } from 'electron'
 import os from 'os'
 import { isDirectory } from 'common/filesystem'
 import parseArgs from './parser'
-import { dumpKeyboardInformation } from '../keyboard'
 import { getPath } from '../utils'
 
 const write = s => process.stdout.write(s)
@@ -24,7 +23,6 @@ const cli = () => {
 
         --debug                   Enable debug mode
         --safe                    Disable plugins and other user configuration
-        --dump-keyboard-layout    Dump keyboard information
     -n, --new-window              Open a new window on second-instance
         --user-data-dir           Change the user data directory
         --disable-gpu             Disable GPU hardware acceleration
@@ -41,11 +39,6 @@ const cli = () => {
     writeLine(`Electron: ${process.versions.electron}`)
     writeLine(`Chromium: ${process.versions.chrome}`)
     writeLine(`OS: ${os.type()} ${os.arch()} ${os.release()}`)
-    process.exit(0)
-  }
-
-  if (args['--dump-keyboard-layout']) {
-    writeLine(dumpKeyboardInformation())
     process.exit(0)
   }
 

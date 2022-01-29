@@ -1,5 +1,9 @@
 // Key bindings for Windows.
 
+// NOTE: Avoid `Ctrl+Alt` and `AltGr` shortcuts on Windows because these are used to produce alternative characters.
+//       Unlike Linux, `Ctrl+Alt` is an alias to `AltGr` on Windows and will produce alternative characters too.
+//       We'll should try bind no keys to `Alt` "modifiers" because there are only a few key bindings available.
+
 export default new Map([
   // MarkText menu on macOS only
   ['mt.hide', ''],
@@ -50,16 +54,16 @@ export default new Map([
   ['paragraph.upgrade-heading', 'Ctrl+='],
   ['paragraph.degrade-heading', 'Ctrl+-'],
   ['paragraph.table', 'Ctrl+Shift+T'],
-  ['paragraph.code-fence', 'Ctrl+Alt+C'],
-  ['paragraph.quote-block', 'Ctrl+Alt+Q'],
-  ['paragraph.math-formula', 'Ctrl+Alt+M'],
+  ['paragraph.code-fence', 'Ctrl+Shift+K'],
+  ['paragraph.quote-block', 'Ctrl+Shift+Q'],
+  ['paragraph.math-formula', 'Ctrl+Alt+N'],
   ['paragraph.html-block', 'Ctrl+Alt+H'],
-  ['paragraph.order-list', 'Ctrl+Alt+O'],
-  ['paragraph.bullet-list', 'Ctrl+Alt+U'],
+  ['paragraph.order-list', 'Ctrl+G'],
+  ['paragraph.bullet-list', 'Ctrl+H'],
   ['paragraph.task-list', 'Ctrl+Alt+X'],
   ['paragraph.loose-list-item', 'Ctrl+Alt+L'],
   ['paragraph.paragraph', 'Ctrl+Shift+0'],
-  ['paragraph.horizontal-line', 'Ctrl+Alt+-'],
+  ['paragraph.horizontal-line', 'Ctrl+Shift+U'],
   ['paragraph.front-matter', 'Ctrl+Alt+Y'],
 
   // Format menu
@@ -86,7 +90,7 @@ export default new Map([
   // View menu
   ['view.command-palette', 'Ctrl+Shift+P'],
   ['view.source-code-mode', 'Ctrl+E'],
-  ['view.typewriter-mode', 'Ctrl+Alt+T'],
+  ['view.typewriter-mode', 'Ctrl+Shift+G'],
   ['view.focus-mode', 'Ctrl+Shift+J'],
   ['view.toggle-sidebar', 'Ctrl+J'],
   ['view.toggle-toc', 'Ctrl+K'],

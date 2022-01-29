@@ -43,6 +43,8 @@ class Clipboard {
     eventCenter.attachDOMEvent(document.body, 'copy', docCopyCutHandler)
   }
 
+  // TODO: `document.execCommand` is deprecated!
+
   copyAsMarkdown () {
     this._copyType = 'copyAsMarkdown'
     document.execCommand('copy')

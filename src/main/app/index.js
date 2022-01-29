@@ -9,6 +9,7 @@ import { isLinux, isOsx, isWindows } from '../config'
 import parseArgs from '../cli/parser'
 import { normalizeAndResolvePath } from '../filesystem'
 import { normalizeMarkdownPath } from '../filesystem/markdown'
+import { registerKeyboardListeners } from '../keyboard'
 import { selectTheme } from '../menu/actions/theme'
 import { dockMenu } from '../menu/templates'
 import ensureDefaultDict from '../preferences/hunspell'
@@ -427,6 +428,8 @@ class App {
   }
 
   _listenForIpcMain () {
+    registerKeyboardListeners()
+
     ipcMain.on('app-create-editor-window', () => {
       this._createEditorWindow()
     })
@@ -565,6 +568,18 @@ class App {
     ipcMain.on('mt::open-keybindings-config', () => {
       const { keybindings } = this._accessor
       keybindings.openConfigInFileManager()
+    })
+
+    ipcMain.handle('mt::keybinding-get-pref-keybindings', () => {
+      const { keybindings } = this._accessor
+      const defaultKeybindings = keybindings.getDefaultKeybindings()
+      const userKeybindings = keybindings.getUserKeybindings()
+      return { defaultKeybindings, userKeybindings }
+    })
+
+    ipcMain.handle('mt::keybinding-save-user-keybindings', async (event, userKeybindings) => {
+      const { keybindings } = this._accessor
+      return await keybindings.setUserKeybindings(userKeybindings)
     })
   }
 }

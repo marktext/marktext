@@ -62,11 +62,11 @@ MarkText key bindings for Linux. Please see [general key bindings](KEYBINDINGS.m
 | `paragraph.math-formula`    | <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>M</kbd>   | Insert a math block                      |
 | `paragraph.html-block`      | <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>H</kbd>   | Insert a HTML block                      |
 | `paragraph.order-list`      | <kbd>Ctrl</kbd>+<kbd>G</kbd>                  | Insert a ordered list                    |
-| `paragraph.bullet-list`     | <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>G</kbd> | Insert a unordered list                  |
+| `paragraph.bullet-list`     | <kbd>Ctrl</kbd>+<kbd>H</kbd>                  | Insert a unordered list                  |
 | `paragraph.task-list`       | <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>X</kbd> | Insert a task list                       |
 | `paragraph.loose-list-item` | <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>L</kbd> | Convert a list item to a loose list item |
 | `paragraph.paragraph`       | <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>0</kbd> | Convert a heading to a paragraph         |
-| `paragraph.horizontal-line` | <kbd>Ctrl</kbd>+<kbd>H</kbd>                  | Add a horizontal line                    |
+| `paragraph.horizontal-line` | <kbd>Ctrl</kbd>+<kbd>\_</kbd>                 | Add a horizontal line                    |
 | `paragraph.front-matter`    | <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Y</kbd> | Insert a YAML frontmatter block          |
 
 #### Format menu
@@ -79,7 +79,7 @@ MarkText key bindings for Linux. Please see [general key bindings](KEYBINDINGS.m
 | `format.superscript`  | -                                             | Change the selected text to underline           |
 | `format.subscript`    | -                                             | Change the selected text to underline           |
 | `format.highlight`    | <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>H</kbd> | Highlight the selected text by <mark>tag</mark> |
-| `format.inline-code`  | <kbd>Ctrl</kbd>+<kbd>`</kbd>                  | Change the selected text to inline code         |
+| `format.inline-code`  | <kbd>Ctrl</kbd>+<kbd>Y</kbd>                  | Change the selected text to inline code         |
 | `format.inline-math`  | <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>M</kbd> | Change the selected text to inline math         |
 | `format.strike`       | <kbd>Ctrl</kbd>+<kbd>D</kbd>                  | Strike through the selected text                |
 | `format.hyperlink`    | <kbd>Ctrl</kbd>+<kbd>L</kbd>                  | Insert a hyperlink                              |
@@ -136,4 +136,4 @@ MarkText key bindings for Linux. Please see [general key bindings](KEYBINDINGS.m
 
 | Id                | Default                      | Description            |
 | ----------------- | ---------------------------- | ---------------------- |
-| `file.quick-open` | <kbd>Ctrl</kbd>+<kbd>P</kbd> | Open quick open dialog |
+| `file.quick-open` | <kbd>Ctrl</kbd>+<kbd>P</kbd> | Show quick open dialog |

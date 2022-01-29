@@ -61,7 +61,7 @@ export default {
 
 <style>
 .pref-container {
-  --prefSideBarWidth: 320px;
+  --prefSideBarWidth: 280px;
 
   width: 100vw;
   height: 100vh;

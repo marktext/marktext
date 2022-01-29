@@ -22,9 +22,8 @@
 
 <script>
 import { shell } from 'electron'
-import fontManager from 'fontmanager-redux'
 
-// Example font objects:
+// Example of fontmanager-redux objects:
 // {
 //     path: '/Library/Fonts/Arial.ttf',
 //     postscriptName: 'ArialMT',
@@ -101,6 +100,8 @@ export default {
     }
   },
   mounted () {
+    // Delay load native library because it's not needed for the editor and causes a delay.
+    const fontManager = require('fontmanager-redux')
     const { onlyMonospace } = this
     const buf = fontManager.getAvailableFontsSync()
       .filter(f => f.family && (!onlyMonospace || (onlyMonospace && f.monospace)))

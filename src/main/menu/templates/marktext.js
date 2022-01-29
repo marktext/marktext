@@ -1,6 +1,8 @@
-import { app } from 'electron'
+import { app, Menu } from 'electron'
 import { showAboutDialog } from '../actions/help'
 import * as actions from '../actions/marktext'
+
+// macOS only menu.
 
 export default function (keybindings) {
   return {
@@ -32,14 +34,20 @@ export default function (keybindings) {
     }, {
       label: 'Hide MarkText',
       accelerator: keybindings.getAccelerator('mt.hide'),
-      role: 'hide'
+      click () {
+        Menu.sendActionToFirstResponder('hide:')
+      }
     }, {
       label: 'Hide Others',
       accelerator: keybindings.getAccelerator('mt.hide-others'),
-      role: 'hideothers'
+      click () {
+        Menu.sendActionToFirstResponder('hideOtherApplications:')
+      }
     }, {
       label: 'Show All',
-      role: 'unhide'
+      click () {
+        Menu.sendActionToFirstResponder('unhideAllApplications:')
+      }
     }, {
       type: 'separator'
     }, {

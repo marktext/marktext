@@ -1005,7 +1005,11 @@ export default {
     },
 
     handleSelectAll () {
-      if (this.editor && !this.sourceCode && (this.editor.hasFocus() || this.editor.contentState.selectedTableCells)) {
+      if (this.sourceCode) {
+        return
+      }
+
+      if (this.editor && (this.editor.hasFocus() || this.editor.contentState.selectedTableCells)) {
         this.editor.selectAll()
       } else {
         const activeElement = document.activeElement

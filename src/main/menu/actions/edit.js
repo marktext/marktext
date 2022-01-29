@@ -32,6 +32,24 @@ export const edit = (win, type) => {
   }
 }
 
+export const nativeCut = win => {
+  if (win) {
+    win.webContents.cut()
+  }
+}
+
+export const nativeCopy = win => {
+  if (win) {
+    win.webContents.copy()
+  }
+}
+
+export const nativePaste = win => {
+  if (win) {
+    win.webContents.paste()
+  }
+}
+
 export const screenshot = win => {
   ipcMain.emit('screen-capture', win)
 }

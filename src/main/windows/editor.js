@@ -182,6 +182,9 @@ class EditorWindow extends BaseWindow {
 
     mainWindowState.manage(win)
 
+    // Disable application menu shortcuts because we want to handle key bindings yourself.
+    win.webContents.setIgnoreMenuShortcuts(true)
+
     // Delay load files and directories after the current control flow.
     setTimeout(() => {
       if (rootDirectory) {

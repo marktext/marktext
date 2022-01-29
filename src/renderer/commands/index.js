@@ -4,6 +4,7 @@ import { getCurrentWindow } from '@electron/remote'
 import bus from '../bus'
 import { delay, isOsx } from '@/util'
 import { isUpdatable } from './utils'
+import getCommandDescriptionById from './descriptions'
 
 export { default as FileEncodingCommand } from './fileEncoding'
 export { default as LineEndingCommand } from './lineEnding'
@@ -38,56 +39,47 @@ const commands = [
 
   {
     id: 'file.new-tab',
-    description: 'File: New Tab',
     execute: async () => {
       ipcRenderer.emit('mt::new-untitled-tab', null)
     }
   }, {
     id: 'file.new-file',
-    description: 'File: New Window',
     execute: async () => {
       ipcRenderer.send('mt::cmd-new-editor-window')
     }
   }, {
     id: 'file.open-file',
-    description: 'File: Open file',
     execute: async () => {
       ipcRenderer.send('mt::cmd-open-file')
     }
   }, {
     id: 'file.open-folder',
-    description: 'File: Open Folder',
     execute: async () => {
       ipcRenderer.send('mt::cmd-open-folder')
     }
   }, {
     id: 'file.save',
-    description: 'File: Save',
     execute: async () => {
       ipcRenderer.emit('mt::editor-ask-file-save', null)
     }
   }, {
     id: 'file.save-as',
-    description: 'File: Save As...',
     execute: async () => {
       ipcRenderer.emit('mt::editor-ask-file-save-as', null)
     }
   }, {
     id: 'file.print',
-    description: 'File: Print current Tab',
     execute: async () => {
       await delay(50)
       bus.$emit('showExportDialog', 'print')
     }
   }, {
     id: 'file.close-tab',
-    description: 'File: Close current Tab',
     execute: async () => {
       ipcRenderer.emit('mt::editor-close-tab', null)
     }
   }, {
     id: 'file.close-window',
-    description: 'File: Close Window',
     execute: async () => {
       ipcRenderer.send('mt::cmd-close-window')
     }
@@ -95,32 +87,27 @@ const commands = [
 
   {
     id: 'file.toggle-auto-save',
-    description: 'File: Toggle Auto Save',
     execute: async () => {
       ipcRenderer.send('mt::cmd-toggle-autosave')
     }
   }, {
     id: 'file.move-file',
-    description: 'File: Move...',
     execute: async () => {
       ipcRenderer.emit('mt::editor-move-file', null)
     }
   }, {
     id: 'file.rename-file',
-    description: 'File: Rename...',
     execute: async () => {
       await delay(50)
       ipcRenderer.emit('mt::editor-rename-file', null)
     }
   }, {
     id: 'file.import-file',
-    description: 'File: Import...',
     execute: async () => {
       ipcRenderer.send('mt::cmd-import-file')
     }
   }, {
     id: 'file.export-file',
-    description: 'File: Export...',
     subcommands: [{
       id: 'file.export-file-html',
       description: 'HTML',
@@ -143,7 +130,6 @@ const commands = [
 
   {
     id: 'edit.undo',
-    description: 'Edit: Undo',
     execute: async () => {
       focusEditorAndExecute(
         () => bus.$emit('undo', 'undo')
@@ -151,7 +137,6 @@ const commands = [
     }
   }, {
     id: 'edit.redo',
-    description: 'Edit: Redo',
     execute: async () => {
       focusEditorAndExecute(
         () => bus.$emit('redo', 'redo')
@@ -159,7 +144,6 @@ const commands = [
     }
   }, {
     id: 'edit.duplicate',
-    description: 'Edit: Duplicate',
     execute: async () => {
       focusEditorAndExecute(
         () => bus.$emit('duplicate', 'duplicate')
@@ -167,7 +151,6 @@ const commands = [
     }
   }, {
     id: 'edit.create-paragraph',
-    description: 'Edit: Create Paragraph',
     execute: async () => {
       focusEditorAndExecute(
         () => bus.$emit('createParagraph', 'createParagraph')
@@ -175,7 +158,6 @@ const commands = [
     }
   }, {
     id: 'edit.delete-paragraph',
-    description: 'Edit: Delete Paragraph',
     execute: async () => {
       focusEditorAndExecute(
         () => bus.$emit('deleteParagraph', 'deleteParagraph')
@@ -183,7 +165,6 @@ const commands = [
     }
   }, {
     id: 'edit.find',
-    description: 'Edit: Find',
     execute: async () => {
       await delay(150)
       bus.$emit('find', 'find')
@@ -207,14 +188,12 @@ const commands = [
   // },
   {
     id: 'edit.replace',
-    description: 'Edit: Replace',
     execute: async () => {
       await delay(150)
       bus.$emit('replace', 'replace')
     }
   }, {
     id: 'edit.find-in-folder',
-    description: 'Edit: Find in Folder',
     execute: async () => {
       await delay(150)
       ipcRenderer.emit('mt::editor-edit-action', null, 'findInFolder')
@@ -226,7 +205,6 @@ const commands = [
 
   {
     id: 'paragraph.heading-1',
-    description: 'Paragraph: Transform into Heading 1',
     execute: async () => {
       focusEditorAndExecute(
         () => bus.$emit('paragraph', 'heading 1')
@@ -234,7 +212,6 @@ const commands = [
     }
   }, {
     id: 'paragraph.heading-2',
-    description: 'Paragraph: Transform into Heading 2',
     execute: async () => {
       focusEditorAndExecute(
         () => bus.$emit('paragraph', 'heading 2')
@@ -242,7 +219,6 @@ const commands = [
     }
   }, {
     id: 'paragraph.heading-3',
-    description: 'Paragraph: Transform into Heading 3',
     execute: async () => {
       focusEditorAndExecute(
         () => bus.$emit('paragraph', 'heading 3')
@@ -250,7 +226,6 @@ const commands = [
     }
   }, {
     id: 'paragraph.heading-4',
-    description: 'Paragraph: Transform into Heading 4',
     execute: async () => {
       focusEditorAndExecute(
         () => bus.$emit('paragraph', 'heading 4')
@@ -258,7 +233,6 @@ const commands = [
     }
   }, {
     id: 'paragraph.heading-5',
-    description: 'Paragraph: Transform into Heading 5',
     execute: async () => {
       focusEditorAndExecute(
         () => bus.$emit('paragraph', 'heading 5')
@@ -266,7 +240,6 @@ const commands = [
     }
   }, {
     id: 'paragraph.heading-6',
-    description: 'Paragraph: Transform into Heading 6',
     execute: async () => {
       focusEditorAndExecute(
         () => bus.$emit('paragraph', 'heading 6')
@@ -274,7 +247,6 @@ const commands = [
     }
   }, {
     id: 'paragraph.upgrade-heading',
-    description: 'Paragraph: Upgrade Heading',
     execute: async () => {
       focusEditorAndExecute(
         () => bus.$emit('paragraph', 'upgrade heading')
@@ -282,7 +254,6 @@ const commands = [
     }
   }, {
     id: 'paragraph.degrade-heading',
-    description: 'Paragraph: Degrade Heading',
     execute: async () => {
       focusEditorAndExecute(
         () => bus.$emit('paragraph', 'degrade heading')
@@ -290,7 +261,6 @@ const commands = [
     }
   }, {
     id: 'paragraph.table',
-    description: 'Paragraph: Create Table',
     execute: async () => {
       focusEditorAndExecute(
         () => bus.$emit('paragraph', 'table')
@@ -298,7 +268,6 @@ const commands = [
     }
   }, {
     id: 'paragraph.code-fence',
-    description: 'Paragraph: Transform into Code Fence',
     execute: async () => {
       focusEditorAndExecute(
         () => bus.$emit('paragraph', 'pre')
@@ -306,7 +275,6 @@ const commands = [
     }
   }, {
     id: 'paragraph.quote-block',
-    description: 'Paragraph: Transform into Quote Block',
     execute: async () => {
       focusEditorAndExecute(
         () => bus.$emit('paragraph', 'blockquote')
@@ -314,7 +282,6 @@ const commands = [
     }
   }, {
     id: 'paragraph.math-formula',
-    description: 'Paragraph: Transform into Math Formula',
     execute: async () => {
       focusEditorAndExecute(
         () => bus.$emit('paragraph', 'mathblock')
@@ -322,7 +289,6 @@ const commands = [
     }
   }, {
     id: 'paragraph.html-block',
-    description: 'Paragraph: Transform into HTML Block',
     execute: async () => {
       focusEditorAndExecute(
         () => bus.$emit('paragraph', 'html')
@@ -330,7 +296,6 @@ const commands = [
     }
   }, {
     id: 'paragraph.order-list',
-    description: 'Paragraph: Transform into Order List',
     execute: async () => {
       focusEditorAndExecute(
         () => bus.$emit('paragraph', 'ol-bullet')
@@ -338,7 +303,6 @@ const commands = [
     }
   }, {
     id: 'paragraph.bullet-list',
-    description: 'Paragraph: Transform into Bullet List',
     execute: async () => {
       focusEditorAndExecute(
         () => bus.$emit('paragraph', 'ul-bullet')
@@ -346,7 +310,6 @@ const commands = [
     }
   }, {
     id: 'paragraph.task-list',
-    description: 'Paragraph: Transform into Task List',
     execute: async () => {
       focusEditorAndExecute(
         () => bus.$emit('paragraph', 'ul-task')
@@ -354,7 +317,6 @@ const commands = [
     }
   }, {
     id: 'paragraph.loose-list-item',
-    description: 'Paragraph: Convert to Loose List Item',
     execute: async () => {
       focusEditorAndExecute(
         () => bus.$emit('paragraph', 'loose-list-item')
@@ -362,7 +324,6 @@ const commands = [
     }
   }, {
     id: 'paragraph.paragraph',
-    description: 'Paragraph: Create new Paragraph',
     execute: async () => {
       focusEditorAndExecute(
         () => bus.$emit('paragraph', 'paragraph')
@@ -370,7 +331,6 @@ const commands = [
     }
   }, {
     id: 'paragraph.reset-paragraph',
-    description: 'Paragraph: Transform into Paragraph',
     execute: async () => {
       focusEditorAndExecute(
         () => bus.$emit('paragraph', 'reset-to-paragraph')
@@ -378,7 +338,6 @@ const commands = [
     }
   }, {
     id: 'paragraph.horizontal-line',
-    description: 'Paragraph: Insert Horizontal Line',
     execute: async () => {
       focusEditorAndExecute(
         () => bus.$emit('paragraph', 'hr')
@@ -386,7 +345,6 @@ const commands = [
     }
   }, {
     id: 'paragraph.front-matter',
-    description: 'Paragraph: Insert Front Matter',
     execute: async () => {
       focusEditorAndExecute(
         () => bus.$emit('paragraph', 'front-matter')
@@ -401,7 +359,6 @@ const commands = [
 
   {
     id: 'format.strong',
-    description: 'Format: Strong',
     execute: async () => {
       focusEditorAndExecute(
         () => bus.$emit('format', 'strong')
@@ -409,7 +366,6 @@ const commands = [
     }
   }, {
     id: 'format.emphasis',
-    description: 'Format: Emphasis',
     execute: async () => {
       focusEditorAndExecute(
         () => bus.$emit('format', 'em')
@@ -417,7 +373,6 @@ const commands = [
     }
   }, {
     id: 'format.underline',
-    description: 'Format: Underline',
     execute: async () => {
       focusEditorAndExecute(
         () => bus.$emit('format', 'u')
@@ -425,7 +380,6 @@ const commands = [
     }
   }, {
     id: 'format.highlight',
-    description: 'Format: Highlight',
     execute: async () => {
       focusEditorAndExecute(
         () => bus.$emit('format', 'mark')
@@ -433,7 +387,6 @@ const commands = [
     }
   }, {
     id: 'format.superscript',
-    description: 'Format: Superscript',
     execute: async () => {
       focusEditorAndExecute(
         () => bus.$emit('format', 'sup')
@@ -441,7 +394,6 @@ const commands = [
     }
   }, {
     id: 'format.subscript',
-    description: 'Format: Subscript',
     execute: async () => {
       focusEditorAndExecute(
         () => bus.$emit('format', 'sub')
@@ -449,7 +401,6 @@ const commands = [
     }
   }, {
     id: 'format.inline-code',
-    description: 'Format: Inline Code',
     execute: async () => {
       focusEditorAndExecute(
         () => bus.$emit('format', 'inline_code')
@@ -457,7 +408,6 @@ const commands = [
     }
   }, {
     id: 'format.inline-math',
-    description: 'Format: Inline Math',
     execute: async () => {
       focusEditorAndExecute(
         () => bus.$emit('format', 'inline_math')
@@ -465,7 +415,6 @@ const commands = [
     }
   }, {
     id: 'format.strike',
-    description: 'Format: Strike',
     execute: async () => {
       focusEditorAndExecute(
         () => bus.$emit('format', 'del')
@@ -473,7 +422,6 @@ const commands = [
     }
   }, {
     id: 'format.hyperlink',
-    description: 'Format: Hyperlink',
     execute: async () => {
       focusEditorAndExecute(
         () => bus.$emit('format', 'link')
@@ -481,7 +429,6 @@ const commands = [
     }
   }, {
     id: 'format.image',
-    description: 'Format: Insert Image',
     execute: async () => {
       focusEditorAndExecute(
         () => bus.$emit('format', 'image')
@@ -489,7 +436,6 @@ const commands = [
     }
   }, {
     id: 'format.clear-format',
-    description: 'Format: Clear Format',
     execute: async () => {
       focusEditorAndExecute(
         () => bus.$emit('format', 'clear')
@@ -502,19 +448,16 @@ const commands = [
 
   {
     id: 'window.minimize',
-    description: 'Window: Minimize',
     execute: async () => {
       getCurrentWindow().minimize()
     }
   }, {
     id: 'window.toggle-always-on-top',
-    description: 'Window: Always on Top',
     execute: async () => {
       ipcRenderer.send('mt::window-toggle-always-on-top')
     }
   }, {
     id: 'window.toggle-full-screen',
-    description: 'Window: Toggle Full Screen',
     execute: async () => {
       const win = getCurrentWindow()
       win.setFullScreen(!win.isFullScreen())
@@ -523,7 +466,6 @@ const commands = [
 
   {
     id: 'file.zoom',
-    description: 'Window: Zoom...',
     shortcut: [(isOsx ? 'Cmd' : 'Ctrl'), 'Scroll'],
     subcommands: [{
       id: 'file.zoom-0',
@@ -584,7 +526,6 @@ const commands = [
 
   {
     id: 'window.change-theme',
-    description: 'Theme: Change Theme',
     subcommands: [{
       id: 'window.change-theme-light',
       description: 'Cadmium Light',
@@ -620,13 +561,11 @@ const commands = [
 
   {
     id: 'view.source-code-mode',
-    description: 'View: Toggle Source Code Mode',
     execute: async () => {
       bus.$emit('view:toggle-view-entry', 'sourceCode')
     }
   }, {
     id: 'view.typewriter-mode',
-    description: 'View: Toggle Typewriter Mode',
     execute: async () => {
       focusEditorAndExecute(
         () => bus.$emit('view:toggle-view-entry', 'typewriter')
@@ -634,7 +573,6 @@ const commands = [
     }
   }, {
     id: 'view.focus-mode',
-    description: 'View: Focus Mode',
     execute: async () => {
       focusEditorAndExecute(
         () => bus.$emit('view:toggle-view-entry', 'focus')
@@ -642,13 +580,11 @@ const commands = [
     }
   }, {
     id: 'view.toggle-sidebar',
-    description: 'View: Toggle Sidebar',
     execute: async () => {
       bus.$emit('view:toggle-view-layout-entry', 'showSideBar')
     }
   }, {
     id: 'view.toggle-tabbar',
-    description: 'View: Toggle Tabs',
     execute: async () => {
       bus.$emit('view:toggle-view-layout-entry', 'showTabBar')
     }
@@ -656,7 +592,6 @@ const commands = [
 
   {
     id: 'view.text-direction',
-    description: 'View: Set Text Direction',
     subcommands: [{
       id: 'view.text-direction-ltr',
       description: 'Left to Right',
@@ -676,25 +611,21 @@ const commands = [
 
   {
     id: 'file.preferences',
-    description: 'MarkText: Preferences',
     execute: async () => {
       ipcRenderer.send('mt::open-setting-window')
     }
   }, {
     id: 'file.quit',
-    description: 'MarkText: Quit',
     execute: async () => {
       ipcRenderer.send('mt::app-try-quit')
     }
   }, {
     id: 'docs.user-guide',
-    description: 'MarkText: End User Guide',
     execute: async () => {
       shell.openExternal('https://github.com/marktext/marktext/blob/master/docs/README.md')
     }
   }, {
     id: 'docs.markdown-syntax',
-    description: 'MarkText: Markdown Syntax Guide',
     execute: async () => {
       shell.openExternal('https://github.com/marktext/marktext/blob/master/docs/MARKDOWN_SYNTAX.md')
     }
@@ -705,13 +636,11 @@ const commands = [
 
   {
     id: 'tabs.cycle-forward',
-    description: 'Misc: Cycle Tabs Forward',
     execute: async () => {
       ipcRenderer.emit('mt::tabs-cycle-right', null)
     }
   }, {
     id: 'tabs.cycle-backward',
-    description: 'Misc: Cycle Tabs Backward',
     execute: async () => {
       ipcRenderer.emit('mt::tabs-cycle-left', null)
     }
@@ -721,7 +650,6 @@ const commands = [
 if (isUpdatable()) {
   commands.push({
     id: 'file.check-update',
-    description: 'MarkText: Check for Updates',
     execute: async () => {
       ipcRenderer.send('mt::check-for-update')
     }
@@ -731,11 +659,18 @@ if (isUpdatable()) {
 if (isOsx) {
   commands.push({
     id: 'edit.screenshot',
-    description: 'Edit: Make Screenshot',
     execute: async () => {
       ipcRenderer.send('mt::make-screenshot')
     }
   })
+}
+
+// Complete all command descriptions.
+for (const item of commands) {
+  const { id, description } = item
+  if (id && !description) {
+    item.description = getCommandDescriptionById(id)
+  }
 }
 
 export default commands

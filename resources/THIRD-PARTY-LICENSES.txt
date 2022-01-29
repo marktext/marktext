@@ -12,8 +12,8 @@ This file contains all third-party packages that are bundled and shipped with Ma
 3. @electron/remote (MIT)
 4. @hfelix/electron-localshortcut (MIT)
 5. @hfelix/electron-spellchecker (MIT)
-6. @hfelix/keyboardevent-from-electron-accelerator (MIT)
-7. @hfelix/spellchecker (MIT)
+6. @hfelix/spellchecker (MIT)
+7. @marktext/file-icons (MIT)
 8. @octokit/auth-token (MIT)
 9. @octokit/core (MIT)
 10. @octokit/endpoint (MIT)
@@ -29,165 +29,165 @@ This file contains all third-party packages that are bundled and shipped with Ma
 20. @sindresorhus/is (MIT)
 21. @szmarczak/http-timer (MIT)
 22. @types/clone (MIT)
-23. @types/fast-json-stable-stringify (MIT)
-24. @types/node (MIT)
-25. agent-base (MIT)
-26. ajv-formats (MIT)
-27. ajv (MIT)
-28. animation-frame-polyfill (MIT)
-29. ansi-regex (MIT)
-30. ansi-styles (MIT)
-31. anymatch (ISC)
-32. aproba (ISC)
-33. are-we-there-yet (ISC)
-34. arg (MIT)
-35. array-flat-polyfill (CC0-1.0)
-36. array-from (MIT)
-37. async-validator (MIT)
-38. at-least-node (ISC)
-39. atoa (MIT)
-40. atomically (MIT)
-41. axios (MIT)
-42. babel-runtime (MIT)
-43. balanced-match (MIT)
-44. base64-js (MIT)
-45. batch-processor (MIT)
-46. bcp47 (MIT)
-47. before-after-hook (Apache-2.0)
-48. binary-extensions (MIT)
-49. bindings (MIT)
-50. bl (MIT)
-51. boolean (MIT)
-52. brace-expansion (MIT)
-53. braces (MIT)
-54. browser-split (MIT)
-55. buffer-crc32 (MIT)
-56. buffer-from (MIT)
-57. buffer (MIT)
-58. cacheable-request (MIT)
-59. camel-case (MIT)
-60. ced ((ISC AND Apache-2.0))
-61. chokidar (MIT)
-62. chownr (ISC)
-63. cld (Apache)
-64. clean-css (MIT)
-65. cliui (ISC)
-66. clone-regexp (MIT)
-67. clone-response (MIT)
-68. clone (MIT)
-69. code-point-at (MIT)
-70. codemirror (MIT)
-71. color-convert (MIT)
-72. color-name (MIT)
-73. command-exists (MIT)
-74. commander (MIT)
-75. concat-map (MIT)
-76. concat-stream (MIT)
-77. conf (MIT)
-78. config-chain (MIT)
-79. console-control-strings (ISC)
-80. contra (MIT)
-81. core-js (MIT)
-82. core-util-is (MIT)
-83. create-point-cb (MIT)
-84. cross-spawn (MIT)
-85. crossvent (MIT)
-86. css-b64-images (MIT)
-87. custom-event (MIT)
-88. d3-array (BSD-3-Clause)
-89. d3-axis (BSD-3-Clause)
-90. d3-brush (BSD-3-Clause)
-91. d3-chord (BSD-3-Clause)
-92. d3-collection (BSD-3-Clause)
-93. d3-color (BSD-3-Clause)
-94. d3-contour (BSD-3-Clause)
-95. d3-delaunay (ISC)
-96. d3-dispatch (BSD-3-Clause)
-97. d3-drag (BSD-3-Clause)
-98. d3-dsv (BSD-3-Clause)
-99. d3-ease (BSD-3-Clause)
-100. d3-fetch (BSD-3-Clause)
-101. d3-force (BSD-3-Clause)
-102. d3-format (BSD-3-Clause)
-103. d3-geo-projection (BSD-3-Clause)
-104. d3-geo (BSD-3-Clause)
-105. d3-hierarchy (BSD-3-Clause)
-106. d3-interpolate (BSD-3-Clause)
-107. d3-path (BSD-3-Clause)
-108. d3-polygon (BSD-3-Clause)
-109. d3-quadtree (BSD-3-Clause)
-110. d3-random (BSD-3-Clause)
-111. d3-scale-chromatic (BSD-3-Clause)
-112. d3-scale (BSD-3-Clause)
-113. d3-selection (BSD-3-Clause)
-114. d3-shape (BSD-3-Clause)
-115. d3-time-format (BSD-3-Clause)
-116. d3-time (BSD-3-Clause)
-117. d3-timer (BSD-3-Clause)
-118. d3-transition (BSD-3-Clause)
-119. d3-voronoi (BSD-3-Clause)
-120. d3-zoom (BSD-3-Clause)
-121. d3 (BSD-3-Clause)
-122. dagre-d3 (MIT)
-123. dagre (MIT)
-124. dayjs (MIT)
-125. debounce-fn (MIT)
-126. debug (MIT)
-127. decompress-response (MIT)
-128. deep-extend (MIT)
-129. deepmerge (MIT)
-130. defer-to-connect (MIT)
-131. define-properties (MIT)
-132. delaunator (ISC)
-133. delegates (MIT)
-134. deprecation (ISC)
-135. detect-libc (Apache-2.0)
-136. detect-node (ISC)
-137. dom-autoscroller (MIT)
-138. dom-mousemove-dispatcher (MIT)
-139. dom-plane (MIT)
-140. dom-set (WTFPL)
-141. domino (BSD-2-Clause)
-142. dompurify ((MPL-2.0 OR Apache-2.0))
-143. dot-prop (MIT)
-144. dragula (MIT)
-145. duplexer3 (BSD-3-Clause)
-146. electron-is-accelerator (MIT)
-147. electron-log (MIT)
-148. electron-store (MIT)
-149. electron-window-state (MIT)
-150. electron (MIT)
-151. element-resize-detector (MIT)
-152. element-ui (MIT)
-153. emoji-regex (MIT)
-154. encodeurl (MIT)
-155. end-of-stream (MIT)
-156. entity-decode (MIT)
-157. env-paths (MIT)
-158. es6-error (MIT)
-159. escalade (MIT)
-160. escape-string-regexp (MIT)
-161. eve-raphael (Apache*)
-162. event-kit (MIT)
-163. execa (MIT)
-164. execall (MIT)
-165. expand-template ((MIT OR WTFPL))
-166. extract-zip (BSD-2-Clause)
-167. fast-deep-equal (MIT)
-168. fast-json-patch (MIT)
-169. fast-json-stable-stringify (MIT)
-170. fd-slicer (MIT)
-171. file-uri-to-path (MIT)
-172. fill-range (MIT)
-173. find-up (MIT)
-174. flowchart.js (MIT)
-175. follow-redirects (MIT)
-176. fontmanager-redux (MIT)
-177. form-urlencoded (MIT)
-178. fs-constants (MIT)
-179. fs-extra (MIT)
-180. fs.realpath (ISC)
-181. fsevents (MIT)
+23. @types/content-type (MIT)
+24. @types/fast-json-stable-stringify (MIT)
+25. @types/node (MIT)
+26. agent-base (MIT)
+27. ajv-formats (MIT)
+28. ajv (MIT)
+29. animation-frame-polyfill (MIT)
+30. ansi-regex (MIT)
+31. ansi-styles (MIT)
+32. anymatch (ISC)
+33. aproba (ISC)
+34. are-we-there-yet (ISC)
+35. arg (MIT)
+36. array-flat-polyfill (CC0-1.0)
+37. array-from (MIT)
+38. async-validator (MIT)
+39. at-least-node (ISC)
+40. atoa (MIT)
+41. atom-fs (ISC)
+42. atomically (MIT)
+43. axios (MIT)
+44. babel-runtime (MIT)
+45. balanced-match (MIT)
+46. base64-js (MIT)
+47. batch-processor (MIT)
+48. bcp47 (MIT)
+49. before-after-hook (Apache-2.0)
+50. binary-extensions (MIT)
+51. bindings (MIT)
+52. bl (MIT)
+53. boolean (MIT)
+54. brace-expansion (MIT)
+55. braces (MIT)
+56. browser-split (MIT)
+57. buffer-crc32 (MIT)
+58. buffer-from (MIT)
+59. buffer (MIT)
+60. cacheable-request (MIT)
+61. camel-case (MIT)
+62. ced ((ISC AND Apache-2.0))
+63. chokidar (MIT)
+64. chownr (ISC)
+65. cld (Apache)
+66. clean-css (MIT)
+67. cliui (ISC)
+68. clone-regexp (MIT)
+69. clone-response (MIT)
+70. clone (MIT)
+71. code-point-at (MIT)
+72. codemirror (MIT)
+73. color-convert (MIT)
+74. color-name (MIT)
+75. command-exists (MIT)
+76. commander (MIT)
+77. concat-map (MIT)
+78. concat-stream (MIT)
+79. conf (MIT)
+80. config-chain (MIT)
+81. console-control-strings (ISC)
+82. content-type (MIT)
+83. contra (MIT)
+84. core-js (MIT)
+85. core-util-is (MIT)
+86. create-point-cb (MIT)
+87. cross-spawn (MIT)
+88. crossvent (MIT)
+89. css-b64-images (MIT)
+90. custom-event (MIT)
+91. d3-array (BSD-3-Clause)
+92. d3-axis (BSD-3-Clause)
+93. d3-brush (BSD-3-Clause)
+94. d3-chord (BSD-3-Clause)
+95. d3-collection (BSD-3-Clause)
+96. d3-color (BSD-3-Clause)
+97. d3-contour (BSD-3-Clause)
+98. d3-delaunay (ISC)
+99. d3-dispatch (BSD-3-Clause)
+100. d3-drag (BSD-3-Clause)
+101. d3-dsv (BSD-3-Clause)
+102. d3-ease (BSD-3-Clause)
+103. d3-fetch (BSD-3-Clause)
+104. d3-force (BSD-3-Clause)
+105. d3-format (BSD-3-Clause)
+106. d3-geo-projection (BSD-3-Clause)
+107. d3-geo (BSD-3-Clause)
+108. d3-hierarchy (BSD-3-Clause)
+109. d3-interpolate (BSD-3-Clause)
+110. d3-path (BSD-3-Clause)
+111. d3-polygon (BSD-3-Clause)
+112. d3-quadtree (BSD-3-Clause)
+113. d3-random (BSD-3-Clause)
+114. d3-scale-chromatic (BSD-3-Clause)
+115. d3-scale (BSD-3-Clause)
+116. d3-selection (BSD-3-Clause)
+117. d3-shape (BSD-3-Clause)
+118. d3-time-format (BSD-3-Clause)
+119. d3-time (BSD-3-Clause)
+120. d3-timer (BSD-3-Clause)
+121. d3-transition (BSD-3-Clause)
+122. d3-voronoi (BSD-3-Clause)
+123. d3-zoom (BSD-3-Clause)
+124. d3 (BSD-3-Clause)
+125. dagre-d3 (MIT)
+126. dagre (MIT)
+127. dayjs (MIT)
+128. debounce-fn (MIT)
+129. debug (MIT)
+130. decompress-response (MIT)
+131. deep-extend (MIT)
+132. deepmerge (MIT)
+133. defer-to-connect (MIT)
+134. define-properties (MIT)
+135. delaunator (ISC)
+136. delegates (MIT)
+137. deprecation (ISC)
+138. detect-libc (Apache-2.0)
+139. detect-node (ISC)
+140. dom-autoscroller (MIT)
+141. dom-mousemove-dispatcher (MIT)
+142. dom-plane (MIT)
+143. dom-set (WTFPL)
+144. domino (BSD-2-Clause)
+145. dompurify ((MPL-2.0 OR Apache-2.0))
+146. dot-prop (MIT)
+147. dragula (MIT)
+148. duplexer3 (BSD-3-Clause)
+149. electron-log (MIT)
+150. electron-store (MIT)
+151. electron-window-state (MIT)
+152. electron (MIT)
+153. element-resize-detector (MIT)
+154. element-ui (MIT)
+155. emoji-regex (MIT)
+156. encodeurl (MIT)
+157. end-of-stream (MIT)
+158. entity-decode (MIT)
+159. env-paths (MIT)
+160. es6-error (MIT)
+161. escalade (MIT)
+162. escape-string-regexp (MIT)
+163. eve-raphael (Apache*)
+164. event-kit (MIT)
+165. execa (MIT)
+166. execall (MIT)
+167. expand-template ((MIT OR WTFPL))
+168. extract-zip (BSD-2-Clause)
+169. fast-deep-equal (MIT)
+170. fast-json-patch (MIT)
+171. fast-json-stable-stringify (MIT)
+172. fd-slicer (MIT)
+173. file-uri-to-path (MIT)
+174. fill-range (MIT)
+175. find-up (MIT)
+176. flowchart.js (MIT)
+177. follow-redirects (MIT)
+178. fontmanager-redux (MIT)
+179. fs-constants (MIT)
+180. fs-extra (MIT)
+181. fs.realpath (ISC)
 182. fuzzaldrin (MIT)
 183. gauge (ISC)
 184. get-caller-file (ISC)
@@ -237,91 +237,91 @@ This file contains all third-party packages that are bundled and shipped with Ma
 228. jsonfile (MIT)
 229. katex (MIT)
 230. keyboard-layout (MIT)
-231. keyboardevents-areequal (MIT)
-232. keytar (MIT)
-233. keyv (MIT)
-234. khroma (MIT)
-235. locate-path (MIT)
-236. lodash.escape (MIT)
-237. lodash.forown (MIT)
-238. lodash.get (MIT)
-239. lodash.kebabcase (MIT)
-240. lodash.remove (MIT)
-241. lodash.uniq (MIT)
-242. lodash (MIT)
-243. lower-case (MIT)
-244. lowercase-keys (MIT)
-245. lru-cache (ISC)
-246. macos-release (MIT)
-247. matcher (MIT)
-248. mermaid (MIT)
+231. keytar (MIT)
+232. keyv (MIT)
+233. khroma (MIT)
+234. locate-path (MIT)
+235. lodash.escape (MIT)
+236. lodash.forown (MIT)
+237. lodash.kebabcase (MIT)
+238. lodash.remove (MIT)
+239. lodash.uniq (MIT)
+240. lodash (MIT)
+241. lower-case (MIT)
+242. lowercase-keys (MIT)
+243. lru-cache (ISC)
+244. macos-release (MIT)
+245. mapped-disposable (ISC)
+246. matcher (MIT)
+247. mermaid (MIT)
+248. micromatch (MIT)
 249. mimic-fn (MIT)
 250. mimic-response (MIT)
 251. minify (MIT)
 252. minimatch (ISC)
 253. minimist (MIT)
-254. mkdirp-classic (MIT)
-255. mkdirp (MIT)
-256. moment-mini (MIT)
-257. ms (MIT)
-258. nan (MIT)
-259. napi-build-utils (MIT)
-260. nice-try (MIT)
-261. no-case (MIT)
-262. node-abi (MIT)
-263. node-addon-api (MIT)
-264. node-fetch (MIT)
-265. noop-logger (MIT)
-266. normalize-path (MIT)
-267. normalize-url (MIT)
-268. normalize-wheel (BSD-3-Clause)
-269. npm-conf (MIT)
-270. npm-run-path (MIT)
-271. npmlog (ISC)
-272. number-is-nan (MIT)
-273. object-assign (MIT)
-274. object-keys (MIT)
-275. once (ISC)
-276. onetime (MIT)
-277. os-name (MIT)
-278. p-cancelable (MIT)
-279. p-finally (MIT)
-280. p-limit (MIT)
-281. p-locate (MIT)
-282. p-throttle (MIT)
-283. p-try (MIT)
-284. param-case (MIT)
-285. parse-sel (MIT)
-286. path-exists (MIT)
-287. path-is-absolute (MIT)
-288. path-key (MIT)
-289. path-parse (MIT)
-290. pend (MIT)
-291. picomatch (MIT)
-292. pify (MIT)
-293. pkg-up (MIT)
-294. plist (MIT)
-295. popper.js (MIT)
-296. prebuild-install (MIT)
-297. prepend-http (MIT)
-298. prismjs (MIT)
-299. process-nextick-args (MIT)
-300. progress (MIT)
-301. proto-list (ISC)
-302. proxy-from-env (MIT)
-303. pump (MIT)
-304. punycode (MIT)
-305. querystring (MIT)
-306. querystringify (MIT)
-307. raphael (MIT)
-308. rc ((BSD-2-Clause OR MIT OR Apache-2.0))
-309. readable-stream (MIT)
-310. readdirp (MIT)
-311. regenerator-runtime (MIT)
-312. relateurl (MIT)
-313. require-directory (MIT)
-314. require-from-string (MIT)
-315. requires-port (MIT)
+254. minipass (ISC)
+255. minizlib (MIT)
+256. mkdirp-classic (MIT)
+257. mkdirp (MIT)
+258. moment-mini (MIT)
+259. ms (MIT)
+260. nan (MIT)
+261. napi-build-utils (MIT)
+262. native-keymap (MIT)
+263. nice-try (MIT)
+264. no-case (MIT)
+265. node-abi (MIT)
+266. node-addon-api (MIT)
+267. node-fetch (MIT)
+268. noop-logger (MIT)
+269. normalize-path (MIT)
+270. normalize-url (MIT)
+271. normalize-wheel (BSD-3-Clause)
+272. npm-conf (MIT)
+273. npm-run-path (MIT)
+274. npmlog (ISC)
+275. number-is-nan (MIT)
+276. object-assign (MIT)
+277. object-keys (MIT)
+278. once (ISC)
+279. onetime (MIT)
+280. os-name (MIT)
+281. p-cancelable (MIT)
+282. p-finally (MIT)
+283. p-limit (MIT)
+284. p-locate (MIT)
+285. p-throttle (MIT)
+286. p-try (MIT)
+287. param-case (MIT)
+288. parse-sel (MIT)
+289. path-exists (MIT)
+290. path-is-absolute (MIT)
+291. path-key (MIT)
+292. path-parse (MIT)
+293. pend (MIT)
+294. picomatch (MIT)
+295. pify (MIT)
+296. pkg-up (MIT)
+297. plist (MIT)
+298. popper.js (MIT)
+299. prebuild-install (MIT)
+300. prepend-http (MIT)
+301. prismjs (MIT)
+302. process-nextick-args (MIT)
+303. progress (MIT)
+304. proto-list (ISC)
+305. proxy-from-env (MIT)
+306. pump (MIT)
+307. punycode (MIT)
+308. raphael (MIT)
+309. rc ((BSD-2-Clause OR MIT OR Apache-2.0))
+310. readable-stream (MIT)
+311. readdirp (MIT)
+312. regenerator-runtime (MIT)
+313. relateurl (MIT)
+314. require-directory (MIT)
+315. require-from-string (MIT)
 316. resize-observer-polyfill (MIT)
 317. resolve (MIT)
 318. responselike (MIT)
@@ -375,62 +375,61 @@ This file contains all third-party packages that are bundled and shipped with Ma
 366. upper-case (MIT)
 367. uri-js (BSD-2-Clause)
 368. url-parse-lax (MIT)
-369. url-parse (MIT)
-370. util-deprecate (MIT)
-371. vega-canvas (BSD-3-Clause)
-372. vega-crossfilter (BSD-3-Clause)
-373. vega-dataflow (BSD-3-Clause)
-374. vega-embed (BSD-3-Clause)
-375. vega-encode (BSD-3-Clause)
-376. vega-event-selector (BSD-3-Clause)
-377. vega-expression (BSD-3-Clause)
-378. vega-force (BSD-3-Clause)
-379. vega-format (BSD-3-Clause)
-380. vega-functions (BSD-3-Clause)
-381. vega-geo (BSD-3-Clause)
-382. vega-hierarchy (BSD-3-Clause)
-383. vega-label (BSD-3-Clause)
-384. vega-lite (BSD-3-Clause)
-385. vega-loader (BSD-3-Clause)
-386. vega-parser (BSD-3-Clause)
-387. vega-projection (BSD-3-Clause)
-388. vega-regression (BSD-3-Clause)
-389. vega-runtime (BSD-3-Clause)
-390. vega-scale (BSD-3-Clause)
-391. vega-scenegraph (BSD-3-Clause)
-392. vega-schema-url-parser (BSD-3-Clause)
-393. vega-selections (BSD-3-Clause)
-394. vega-statistics (BSD-3-Clause)
-395. vega-themes (BSD-3-Clause)
-396. vega-time (BSD-3-Clause)
-397. vega-tooltip (BSD-3-Clause)
-398. vega-transforms (BSD-3-Clause)
-399. vega-typings (BSD-3-Clause)
-400. vega-util (BSD-3-Clause)
-401. vega-view-transforms (BSD-3-Clause)
-402. vega-view (BSD-3-Clause)
-403. vega-voronoi (BSD-3-Clause)
-404. vega-wordcloud (BSD-3-Clause)
-405. vega (BSD-3-Clause)
-406. vscode-ripgrep (MIT)
-407. vue-electron (ISC)
-408. vue-router (MIT)
-409. vue (MIT)
-410. vuex (MIT)
-411. webfontloader (Apache-2.0)
-412. which-pm-runs (MIT)
-413. which (ISC)
-414. wide-align (ISC)
-415. windows-release (MIT)
-416. wrap-ansi (MIT)
-417. wrappy (ISC)
-418. xmlbuilder (MIT)
-419. y18n (ISC)
-420. yallist (ISC)
-421. yargs-parser (ISC)
-422. yargs (MIT)
-423. yauzl (MIT)
-424. hunspell (LGPL 2.1)
+369. util-deprecate (MIT)
+370. vega-canvas (BSD-3-Clause)
+371. vega-crossfilter (BSD-3-Clause)
+372. vega-dataflow (BSD-3-Clause)
+373. vega-embed (BSD-3-Clause)
+374. vega-encode (BSD-3-Clause)
+375. vega-event-selector (BSD-3-Clause)
+376. vega-expression (BSD-3-Clause)
+377. vega-force (BSD-3-Clause)
+378. vega-format (BSD-3-Clause)
+379. vega-functions (BSD-3-Clause)
+380. vega-geo (BSD-3-Clause)
+381. vega-hierarchy (BSD-3-Clause)
+382. vega-label (BSD-3-Clause)
+383. vega-lite (BSD-3-Clause)
+384. vega-loader (BSD-3-Clause)
+385. vega-parser (BSD-3-Clause)
+386. vega-projection (BSD-3-Clause)
+387. vega-regression (BSD-3-Clause)
+388. vega-runtime (BSD-3-Clause)
+389. vega-scale (BSD-3-Clause)
+390. vega-scenegraph (BSD-3-Clause)
+391. vega-schema-url-parser (BSD-3-Clause)
+392. vega-selections (BSD-3-Clause)
+393. vega-statistics (BSD-3-Clause)
+394. vega-themes (BSD-3-Clause)
+395. vega-time (BSD-3-Clause)
+396. vega-tooltip (BSD-3-Clause)
+397. vega-transforms (BSD-3-Clause)
+398. vega-typings (BSD-3-Clause)
+399. vega-util (BSD-3-Clause)
+400. vega-view-transforms (BSD-3-Clause)
+401. vega-view (BSD-3-Clause)
+402. vega-voronoi (BSD-3-Clause)
+403. vega-wordcloud (BSD-3-Clause)
+404. vega (BSD-3-Clause)
+405. vscode-ripgrep (MIT)
+406. vue-electron (ISC)
+407. vue-router (MIT)
+408. vue (MIT)
+409. vuex (MIT)
+410. webfontloader (Apache-2.0)
+411. which-pm-runs (MIT)
+412. which (ISC)
+413. wide-align (ISC)
+414. windows-release (MIT)
+415. wrap-ansi (MIT)
+416. wrappy (ISC)
+417. xmlbuilder (MIT)
+418. y18n (ISC)
+419. yallist (ISC)
+420. yargs-parser (ISC)
+421. yargs (MIT)
+422. yauzl (MIT)
+423. hunspell (LGPL 2.1)
 
 
 -------------------------------------------------
@@ -842,8 +841,11 @@ Custom value can be returned by setting `event.returnValue`.
 # @hfelix/electron-localshortcut (MIT)
 -------------------------------------------------
 The MIT License (MIT)
-Copyright (c) 2017 Andrea Parodi
 
+Copyright (c) 2022 Felix Häusler
+Copyright (c) 2017 Andrea Parodi
+Copyright (c) 2016 Thomas Brouard
+Copyright (c) 2014 GitHub Inc.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -877,32 +879,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 
 
-# @hfelix/keyboardevent-from-electron-accelerator (MIT)
--------------------------------------------------
-MIT License
-
-Copyright (c) 2017 Andrea Parodi
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-
-
-
 # @hfelix/spellchecker (MIT)
 -------------------------------------------------
 Copyright (c) 2013 GitHub Inc.
@@ -925,6 +901,32 @@ NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
 LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+
+
+# @marktext/file-icons (MIT)
+-------------------------------------------------
+MIT License
+
+Copyright (c) 2021 Mark Text
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
 
 
 
@@ -1212,6 +1214,32 @@ SOFTWARE.
 
 
 # @types/clone (MIT)
+-------------------------------------------------
+MIT License
+
+    Copyright (c) Microsoft Corporation.
+
+    Permission is hereby granted, free of charge, to any person obtaining a copy
+    of this software and associated documentation files (the "Software"), to deal
+    in the Software without restriction, including without limitation the rights
+    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+    copies of the Software, and to permit persons to whom the Software is
+    furnished to do so, subject to the following conditions:
+
+    The above copyright notice and this permission notice shall be included in all
+    copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+    SOFTWARE
+
+
+
+# @types/content-type (MIT)
 -------------------------------------------------
 MIT License
 
@@ -1795,6 +1823,24 @@ FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
 COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+
+
+# atom-fs (ISC)
+-------------------------------------------------
+Copyright (c) 2016-2021, John Gardner
+
+Permission to use, copy, modify, and/or distribute this software for any
+purpose with or without fee is hereby granted, provided that the above
+copyright notice and this permission notice appear in all copies.
+
+THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 
 
@@ -2502,7 +2548,7 @@ THE SOFTWARE.
 -------------------------------------------------
 This software is licensed under the ISC License:
 
-Copyright (c) 2018–2019, Jakob Krigovsky
+Copyright (c) 2018–2021, Jakob Krigovsky
 
 Permission to use, copy, modify, and/or distribute this software for any
 purpose with or without fee is hereby granted, provided that the above
@@ -3335,6 +3381,33 @@ ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
 WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
 ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+
+
+
+# content-type (MIT)
+-------------------------------------------------
+(The MIT License)
+
+Copyright (c) 2015 Douglas Christopher Wilson
+
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of this software and associated documentation files (the
+'Software'), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
+
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
 
@@ -5903,32 +5976,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 
-# electron-is-accelerator (MIT)
--------------------------------------------------
-MIT License
-
-Copyright (c) 2016 Thomas Brouard
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-
-
-
 # electron-log (MIT)
 -------------------------------------------------
 The MIT License (MIT)
@@ -6985,63 +7032,6 @@ MIT
 
 
 
-# form-urlencoded (MIT)
--------------------------------------------------
-form-urlencoded
-===============
-**(c)[Bumblehead][0],[JBlashill][6] 2012,2013,2014,2015,2016**
-
-[![npm version](https://badge.fury.io/js/form-urlencoded.svg)](https://badge.fury.io/js/form-urlencoded)
-
-Returns `x-www-form-urlencoded` string data, an encoding often used when an [HTML form is submitted][1]. Form data is serialised in [this format][2] and sent to a server.
-
-
-```javascript
-var formurlencoded = require('form-urlencoded');
-var obj = {
-  str : 'val',
-  num : 0,
-  arr : [3, {prop : false}, 1, null, 6],
-  obj : {prop1 : null, prop2 : ['elem']}
-};
-
-console.log(formurlencoded(obj));
-// str=val&num=0&arr%5B%5D=3&arr%5B%5D%5Bprop%5D=false&arr%
-// 5B%5D=1&arr%5B%5D=null&arr%5B%5D=6&obj%5Bprop1%5D=null&o
-// bj%5Bprop2%5D%5B%5D=elem
-
-console.log(formurlencoded(obj, {
-  ignorenull : true,
-  sorted : true
-}));
-// arr%5B%5D=3&arr%5B%5D%5Bprop%5D=false&arr%5B%5D=1&arr%5B
-// %5D=6&num=0&obj%5Bprop2%5D%5B%5D=elem&str=val
-```
-
-[0]: http://www.bumblehead.com                            "bumblehead"
-[1]: http://www.w3.org/TR/html4/interact/forms.html#h-17.13.4.1  "w3c"
-[2]: http://www.w3.org/TR/html5/forms.html#url-encoded-form-data "w3c"
-[3]: http://nodejs.org/api/querystring.html               "node.js qs"
-[4]: www.ruby-doc.org/stdlib-1.9.3/libdoc/uri/rdoc/URI.html    "rails"
-[5]: https://github.com/visionmedia/node-querystring           "tj qs"
-[6]: https://github.com/jblashill/form-urlencoded          "jblashill"
-[7]: https://raw.githubusercontent.com/iambumblehead/es5classic/master/es5classic_120x120.png
-
-
-![scrounge](https://github.com/iambumblehead/scroungejs/raw/master/img/hand.png)[![es5 classic][7]][7] 
-
-(The MIT License)
-
-Copyright (c) 2012-2016 [Bumblehead][0] <chris@bumblehead.com>
-
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the 'Software'), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-
-
 # fs-constants (MIT)
 -------------------------------------------------
 The MIT License (MIT)
@@ -7133,33 +7123,6 @@ the licensed code:
   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
   FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
   DEALINGS IN THE SOFTWARE.
-
-
-
-# fsevents (MIT)
--------------------------------------------------
-MIT License
------------
-
-Copyright (C) 2010-2020 by Philipp Dunkel, Ben Noordhuis, Elan Shankar, Paul Miller
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
 
 
 
@@ -8405,32 +8368,6 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
 
-# keyboardevents-areequal (MIT)
--------------------------------------------------
-MIT License
-
-Copyright (c) 2017 Andrea
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-
-
-
 # keytar (MIT)
 -------------------------------------------------
 Copyright (c) 2013 GitHub Inc.
@@ -8575,58 +8512,6 @@ terms above.
 
 
 # lodash.forown (MIT)
--------------------------------------------------
-Copyright jQuery Foundation and other contributors <https://jquery.org/>
-
-Based on Underscore.js, copyright Jeremy Ashkenas,
-DocumentCloud and Investigative Reporters & Editors <http://underscorejs.org/>
-
-This software consists of voluntary contributions made by many
-individuals. For exact contribution history, see the revision history
-available at https://github.com/lodash/lodash
-
-The following license applies to all parts of this software except as
-documented below:
-
-====
-
-Permission is hereby granted, free of charge, to any person obtaining
-a copy of this software and associated documentation files (the
-"Software"), to deal in the Software without restriction, including
-without limitation the rights to use, copy, modify, merge, publish,
-distribute, sublicense, and/or sell copies of the Software, and to
-permit persons to whom the Software is furnished to do so, subject to
-the following conditions:
-
-The above copyright notice and this permission notice shall be
-included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-====
-
-Copyright and related rights for sample code are waived via CC0. Sample
-code is defined as all source code displayed within the prose of the
-documentation.
-
-CC0: http://creativecommons.org/publicdomain/zero/1.0/
-
-====
-
-Files located in the node_modules and vendor directories are externally
-maintained libraries used by this software which have their own
-licenses; we recommend you read them, as their terms may differ from the
-terms above.
-
-
-
-# lodash.get (MIT)
 -------------------------------------------------
 Copyright jQuery Foundation and other contributors <https://jquery.org/>
 
@@ -8972,6 +8857,24 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 
 
+# mapped-disposable (ISC)
+-------------------------------------------------
+Copyright (c) 2016-2019, John Gardner
+
+Permission to use, copy, modify, and/or distribute this software for any
+purpose with or without fee is hereby granted, provided that the above
+copyright notice and this permission notice appear in all copies.
+
+THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+
+
+
 # matcher (MIT)
 -------------------------------------------------
 MIT License
@@ -9009,6 +8912,32 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+
+
+# micromatch (MIT)
+-------------------------------------------------
+The MIT License (MIT)
+
+Copyright (c) 2014-present, Jon Schlinkert.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
 
 
 
@@ -9107,6 +9036,57 @@ FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
 COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+
+
+# minipass (ISC)
+-------------------------------------------------
+The ISC License
+
+Copyright (c) npm, Inc. and Contributors
+
+Permission to use, copy, modify, and/or distribute this software for any
+purpose with or without fee is hereby granted, provided that the above
+copyright notice and this permission notice appear in all copies.
+
+THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR
+IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+
+
+
+# minizlib (MIT)
+-------------------------------------------------
+Minizlib was created by Isaac Z. Schlueter.
+It is a derivative work of the Node.js project.
+
+"""
+Copyright Isaac Z. Schlueter and Contributors
+Copyright Node.js contributors. All rights reserved.
+Copyright Joyent, Inc. and other Node contributors. All rights reserved.
+
+Permission is hereby granted, free of charge, to any person obtaining a
+copy of this software and associated documentation files (the "Software"),
+to deal in the Software without restriction, including without limitation
+the rights to use, copy, modify, merge, publish, distribute, sublicense,
+and/or sell copies of the Software, and to permit persons to whom the
+Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+"""
 
 
 
@@ -9241,6 +9221,28 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+
+
+# native-keymap (MIT)
+-------------------------------------------------
+Copyright (c) Microsoft Corporation
+
+All rights reserved.
+
+MIT License
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation
+files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy,
+modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software
+is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED *AS IS*, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
+BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT
+OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
 
@@ -10480,55 +10482,6 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
 
-# querystring (MIT)
--------------------------------------------------
-Copyright 2012 Irakli Gozalishvili. All rights reserved.
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to
-deal in the Software without restriction, including without limitation the
-rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
-sell copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
-IN THE SOFTWARE.
-
-
-
-# querystringify (MIT)
--------------------------------------------------
-The MIT License (MIT)
-
-Copyright (c) 2015 Unshift.io, Arnout Kazemier,  the Contributors.
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-
-
-
 # raphael (MIT)
 -------------------------------------------------
 The MIT License
@@ -10765,32 +10718,6 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
-
-
-
-# requires-port (MIT)
--------------------------------------------------
-The MIT License (MIT)
-
-Copyright (c) 2015 Unshift.io, Arnout Kazemier,  the Contributors.
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
 
 
 
@@ -12615,9 +12542,9 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 # unsplash-js (MIT)
 -------------------------------------------------
-The MIT License (MIT)
+MIT License
 
-Copyright (c) 2015 Naoufal Kadhom
+Copyright (c) 2020 Unsplash
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -12692,32 +12619,6 @@ Permission is hereby granted, free of charge, to any person obtaining a copy of 
 The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-
-
-# url-parse (MIT)
--------------------------------------------------
-The MIT License (MIT)
-
-Copyright (c) 2015 Unshift.io, Arnout Kazemier,  the Contributors.
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
 
 
 

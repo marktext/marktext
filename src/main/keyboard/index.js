@@ -1,56 +1,76 @@
-// import EventEmitter from 'events'
-import { getCurrentKeyboardLayout, getCurrentKeyboardLanguage, getCurrentKeymap } from 'keyboard-layout'
+import { ipcMain, shell } from 'electron'
+import log from 'electron-log'
+import EventEmitter from 'events'
+import fsPromises from 'fs/promises'
+import { getCurrentKeyboardLayout, getKeyMap, onDidChangeKeyboardLayout } from 'native-keymap'
+import os from 'os'
+import path from 'path'
 
-export const getKeyboardLanguage = () => {
-  const lang = getCurrentKeyboardLanguage()
-  if (lang.length >= 2) {
-    return lang.substring(0, 2)
+let currentKeyboardInfo = null
+const loadKeyboardInfo = () => {
+  currentKeyboardInfo = {
+    layout: getCurrentKeyboardLayout(),
+    keymap: getKeyMap()
   }
-  return lang
+  return currentKeyboardInfo
 }
 
-export const dumpKeyboardInformation = () => {
-  return `Layout: ${getCurrentKeyboardLayout()}\n` +
-    `Language: ${getCurrentKeyboardLanguage()}\n\n` +
-    JSON.stringify(getCurrentKeymap(), null, 2)
+export const getKeyboardInfo = () => {
+  if (!currentKeyboardInfo) {
+    return loadKeyboardInfo()
+  }
+  return currentKeyboardInfo
 }
 
-export const getVirtualLetters = () => {
-  // Full list of supported virtual keys:
-  // https://github.com/parro-it/keyboardevent-from-electron-accelerator/blob/afdbd57bead1e139d7bd03c763778dce6ca8c35d/main.js#L104
-  const currentKeymap = getCurrentKeymap()
-  const vkeys = {}
-  for (const key in currentKeymap) {
-    // TODO(fxha): Possibly, we can fix more broken accelerators without apply a manually fix later.
-    if (!key.startsWith('Key')) {
-      continue
-    }
-    const unmodifiedKey = currentKeymap[key].unmodified
-    if (unmodifiedKey) {
-      // uppercase character / vkey name (A: KeyA)
-      vkeys[unmodifiedKey.toUpperCase()] = key
+const KEYBOARD_LAYOUT_MONITOR_CHANNEL_ID = 'onDidChangeKeyboardLayout'
+class KeyboardLayoutMonitor extends EventEmitter {
+  constructor () {
+    super()
+    this._isSubscribed = false
+    this._emitTimer = null
+  }
+
+  addListener (callback) {
+    this._ensureNativeListener()
+    this.on(KEYBOARD_LAYOUT_MONITOR_CHANNEL_ID, callback)
+  }
+
+  removeListener (callback) {
+    this.removeListener(KEYBOARD_LAYOUT_MONITOR_CHANNEL_ID, callback)
+  }
+
+  _ensureNativeListener () {
+    if (!this._isSubscribed) {
+      this._isSubscribed = true
+      onDidChangeKeyboardLayout(() => {
+        // The keyboard layout change event may be emitted multiple times.
+        clearTimeout(this._emitTimer)
+        this._emitTimer = setTimeout(() => {
+          this.emit(KEYBOARD_LAYOUT_MONITOR_CHANNEL_ID, loadKeyboardInfo())
+          this._emitTimer = null
+        }, 150)
+      })
     }
   }
-  return vkeys
 }
 
-// class KeyboardLayoutMonitor {
-//
-//   constructor() {
-//     this._eventEmitter = new EventEmitter()
-//     this._subscription = null
-//   }
-//
-//   onDidChangeCurrentKeyboardLayout (callback) {
-//     if (!this._subscription) {
-//       this._subscription = onDidChangeCurrentKeyboardLayout(layout => {
-//         this._eventEmitter.emit('onDidChangeCurrentKeyboardLayout', layout)
-//       })
-//     }
-//     this._eventEmitter.on('onDidChangeCurrentKeyboardLayout', callback)
-//   }
-//
-// }
-//
-// // TODO(@fxha): Reload ShortcutHandler on change
-// export const keyboardLayoutMonitor = new KeyboardLayoutMonitor()
+// Export a single-instance of the monitor.
+export const keyboardLayoutMonitor = new KeyboardLayoutMonitor()
+
+export const registerKeyboardListeners = () => {
+  ipcMain.handle('mt::keybinding-get-keyboard-info', async () => {
+    return getKeyboardInfo()
+  })
+  ipcMain.on('mt::keybinding-debug-dump-keyboard-info', async () => {
+    const dumpPath = path.join(os.tmpdir(), 'marktext_keyboard_info.json')
+    const content = JSON.stringify(getKeyboardInfo(), null, 2)
+    fsPromises.writeFile(dumpPath, content, 'utf8')
+      .then(() => {
+        console.log(`Keyboard information written to "${dumpPath}".`)
+        shell.openPath(dumpPath)
+      })
+      .catch(error => {
+        log.error('Error dumping keyboard information:', error)
+      })
+  })
+}
