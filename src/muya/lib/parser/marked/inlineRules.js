@@ -59,6 +59,11 @@ inline._escapes = /\\([!"#$%&'()*+,\-./:;<=>?@\[\]\\^_`{|}~])/g
 inline._scheme = /[a-zA-Z][a-zA-Z0-9+.-]{1,31}/
 inline._email = /[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+(@)[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+(?![-_])/
 inline.autolink = edit(inline.autolink)
+  stringLink = inline.autolink.source
+  if(stringLink[stringLink.length-1] == ':'){
+    stringLink.slice(0,-1)
+  }
+  inline.autolink = new RegExp(stringlink)
   .replace('scheme', inline._scheme)
   .replace('email', inline._email)
   .getRegex()
@@ -75,12 +80,22 @@ inline._href = /<(?:\\.|[^\n<>\\])+>|[^\s\x00-\x1f]*/ // eslint-disable-line no-
 inline._title = /"(?:\\"?|[^"\\])*"|'(?:\\'?|[^'\\])*'|\((?:\\\)?|[^)\\])*\)/
 
 inline.link = edit(inline.link)
+  stringLink = inline.link.source
+  if(stringLink[stringLink.length-1] == ':'){
+    stringLink.slice(0,-1)
+  }
+  inline.link = new RegExp(stringlink)
   .replace('label', inline._label)
   .replace('href', inline._href)
   .replace('title', inline._title)
   .getRegex()
 
 inline.reflink = edit(inline.reflink)
+  stringLink = inline.reflink.source
+  if(stringLink[stringLink.length-1] == ':'){
+    stringLink.slice(0,-1)
+  }
+  inline.reflink = new RegExp(stringlink)
   .replace('label', inline._label)
   .getRegex()
 
