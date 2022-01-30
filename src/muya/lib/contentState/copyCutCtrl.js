@@ -1,6 +1,6 @@
 import selection from '../selection'
 import { CLASS_OR_ID } from '../config'
-import { escapeHtml } from '../utils'
+import { escapeHTML } from '../utils'
 import { getSanitizeHtml } from '../utils/exportHtml'
 import ExportMarkdown from '../utils/exportMarkdown'
 import marked from '../parser/marked'
@@ -159,7 +159,7 @@ const copyCutCtrl = ContentState => {
       const block = this.getBlock(id)
       const language = block.lang || ''
       const codeContent = cf.querySelector('.ag-code-content')
-      const value = escapeHtml(codeContent.textContent)
+      const value = escapeHTML(codeContent.textContent)
       cf.innerHTML = `<code class="language-${language}">${value}</code>`
     }
 

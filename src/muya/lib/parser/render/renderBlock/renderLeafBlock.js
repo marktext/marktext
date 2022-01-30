@@ -3,7 +3,7 @@ import prism, { loadedLanguages, transfromAliasToOrigin } from '../../../prism/'
 import 'katex/dist/contrib/mhchem.min.js'
 import { CLASS_OR_ID, DEVICE_MEMORY, PREVIEW_DOMPURIFY_CONFIG, HAS_TEXT_BLOCK_REG } from '../../../config'
 import { tokenizer } from '../../'
-import { snakeToCamel, sanitize, escapeHtml, getLongUniqueId, getImageInfo } from '../../../utils'
+import { snakeToCamel, sanitize, escapeHTML, getLongUniqueId, getImageInfo } from '../../../utils'
 import { h, htmlToVNode } from '../snabbdom'
 
 // todo@jocs any better solutions?
@@ -47,7 +47,7 @@ const getHighlightHtml = (text, highlights, escape = false, handleLineEnding = f
       code += text.substring(pos)
     }
   }
-  return escapeHtml(code)
+  return escapeHTML(code)
 }
 
 const hasReferenceToken = tokens => {

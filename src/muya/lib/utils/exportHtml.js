@@ -9,7 +9,7 @@ import highlightCss from 'prismjs/themes/prism.css'
 import katexCss from 'katex/dist/katex.css'
 import footerHeaderCss from '../assets/styles/headerFooterStyle.css'
 import { EXPORT_DOMPURIFY_CONFIG } from '../config'
-import { sanitize, unescapeHtml } from '../utils'
+import { sanitize, unescapeHTML } from '../utils'
 import { validEmoji } from '../ui/emojis'
 
 export const getSanitizeHtml = (markdown, options) => {
@@ -38,7 +38,7 @@ class ExportHtml {
     for (const code of codes) {
       const preEle = code.parentNode
       const mermaidContainer = document.createElement('div')
-      mermaidContainer.innerHTML = sanitize(unescapeHtml(code.innerHTML), EXPORT_DOMPURIFY_CONFIG, true)
+      mermaidContainer.innerHTML = sanitize(unescapeHTML(code.innerHTML), EXPORT_DOMPURIFY_CONFIG, true)
       mermaidContainer.classList.add('mermaid')
       preEle.replaceWith(mermaidContainer)
     }
@@ -67,7 +67,7 @@ class ExportHtml {
     }
     const codes = this.exportContainer.querySelectorAll(selector)
     for (const code of codes) {
-      const rawCode = unescapeHtml(code.innerHTML)
+      const rawCode = unescapeHTML(code.innerHTML)
       const functionType = (() => {
         if (/sequence/.test(code.className)) {
           return 'sequence'
