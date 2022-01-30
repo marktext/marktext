@@ -175,7 +175,8 @@
     "webpack-merge": "^5.8.0"
   },
   "resolutions": {
-    "cld": "^2.7.1"
+    "cld": "^2.7.1",
+    "node-abi": "^3.5.0"
   },
   "repository": {
     "type": "git",
