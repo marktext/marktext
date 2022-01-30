@@ -58,6 +58,7 @@ extraResources:
   to: "hunspell_dictionaries/"
   filter:
   - "!**/LICENSE-hunspell.txt"
+afterPack: './.electron-vue/electron-builder/afterPack.js'
 
 fileAssociations:
 - ext:
