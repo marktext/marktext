@@ -6,6 +6,8 @@ asarUnpack:
 - "**/*.node"
 directories:
   output: "build"
+# Workaround: Don't download prebuilt libraries (GH#2953).
+buildDependenciesFromSource: true
 files:
 - "dist/electron/**/*"
 # Don't bundle these files

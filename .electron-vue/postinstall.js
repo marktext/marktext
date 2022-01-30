@@ -19,3 +19,14 @@ if (fs.existsSync(windowsReleasePath)) {
   const destPath = path.join(windowsReleasePath, 'index.js')
   fs.copyFileSync(srcPath, destPath)
 }
+
+// WORKAROUND: electron-builder downloads the wrong prebuilt architecture on macOS and the reason is unknown.
+//   For now, we rebuild all native libraries from source.
+const keytarPath = path.resolve(__dirname, '../node_modules/keytar')
+if (process.platform === 'darwin' && fs.existsSync(keytarPath)) {
+  const keytarPackageJsonPath = path.join(keytarPath, 'package.json')
+  let packageText = fs.readFileSync(keytarPackageJsonPath, { encoding : 'utf-8' })
+
+  packageText = packageText.replace(/"install": "prebuild-install \|\| npm run build",/i, '"install": "npm run build",')
+  fs.writeFileSync(keytarPackageJsonPath, packageText, { encoding : 'utf-8' })
+}
