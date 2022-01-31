@@ -2,7 +2,7 @@ import fs from 'fs'
 import path from 'path'
 import Slugger from 'muya/lib/parser/marked/slugger'
 import { isFile } from 'common/filesystem'
-import { escapeHtml, unescapeHtml } from 'muya/lib/utils'
+import { escapeHTML, unescapeHTML } from 'muya/lib/utils'
 import academicTheme from '@/assets/themes/export/academic.theme.css'
 import liberTheme from '@/assets/themes/export/liber.theme.css'
 import { cloneObj } from '../util'
@@ -87,7 +87,7 @@ export const getCssForOptions = options => {
     // Close @page
     output += '}'
   }
-  return unescapeHtml(sanitize(escapeHtml(output), EXPORT_DOMPURIFY_CONFIG))
+  return unescapeHTML(sanitize(escapeHTML(output), EXPORT_DOMPURIFY_CONFIG))
 }
 
 const generateHtmlToc = (tocList, slugger, currentLevel, options) => {

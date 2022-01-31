@@ -1,5 +1,5 @@
 import { loadLanguage } from '../prism/index'
-import { escapeHtml } from '../utils'
+import { escapeHTML } from '../utils'
 // import resizeCodeBlockLineNumber from '../utils/resizeCodeLineNumber'
 import selection from '../selection'
 
@@ -57,7 +57,7 @@ const codeBlockCtrl = ContentState => {
     }
 
     // Prevent possible XSS on language input when using lang attribute later on. The input is also sanitized before rendering.
-    lang = escapeHtml(lang)
+    lang = escapeHTML(lang)
     if (lang !== '') {
       loadLanguage(lang)
     }

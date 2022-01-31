@@ -307,26 +307,36 @@ export const getImageInfo = (src, baseUrl = window.DIRNAME) => {
   }
 }
 
-export const escapeHtml = html => {
-  return html
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;')
-}
+export const escapeHTML = str =>
+  str.replace(
+    /[&<>'"]/g,
+    tag =>
+      ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        "'": '&#39;',
+        '"': '&quot;'
+      }[tag] || tag)
+  )
 
-export const unescapeHtml = text => {
-  return text
-    .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>')
-    .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, '\'')
-}
+export const unescapeHTML = str =>
+  str.replace(
+    /(?:&amp;|&lt;|&gt;|&quot;|&#39;)/g,
+    tag =>
+      ({
+        '&amp;': '&',
+        '&lt;': '<',
+        '&gt;': '>',
+        '&#39;': "'",
+        '&quot;': '"'
+      }[tag] || tag)
+  )
 
 export const escapeInBlockHtml = html => {
   return html
     .replace(/(<(style|script|title)[^<>]*>)([\s\S]*?)(<\/\2>)/g, (m, p1, p2, p3, p4) => {
-      return `${escapeHtml(p1)}${p3}${escapeHtml(p4)}`
+      return `${escapeHTML(p1)}${p3}${escapeHTML(p4)}`
     })
 }
 
