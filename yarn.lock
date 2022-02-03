@@ -1789,10 +1789,10 @@
   resolved "https://registry.yarnpkg.com/@gar/promisify/-/promisify-1.1.2.tgz#30aa825f11d438671d585bd44e7fd564535fc210"
   integrity sha512-82cpyJyKRoQoRi+14ibCeGPu0CwypgtBAdBhq1WfvagpCZNKqwXbKwXllYSMG91DhmG4jt9gN8eP6lGOtozuaw==
 
-"@hfelix/electron-localshortcut@^4.0.0-rc.1":
-  version "4.0.0-rc.1"
-  resolved "https://registry.yarnpkg.com/@hfelix/electron-localshortcut/-/electron-localshortcut-4.0.0-rc.1.tgz#1d7801c32ddd2ad2785073b920dcd16f24c1e53a"
-  integrity sha512-rRiwMBPJkPe/aAuzjFcjuIokm8VsTTWsCPOHNsjrrLWhOy+/TCiwEmdspCguLt07e23oXMhbMLALE3N3NFJGTg==
+"@hfelix/electron-localshortcut@^4.0.0":
+  version "4.0.0"
+  resolved "https://registry.yarnpkg.com/@hfelix/electron-localshortcut/-/electron-localshortcut-4.0.0.tgz#3ccfdb60dbe966b0ed7aa9388b13a52072734e8d"
+  integrity sha512-FZ+d3/6h141WOXrCLYt+ZcwcHZIkGar4chTqfZgcI+2FoLR3CJSJuX0dG8PUvvJWCo404PNxiVCF4ZxLOqpn8w==
   dependencies:
     debug "^4.3.3"
 
