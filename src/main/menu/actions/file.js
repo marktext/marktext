@@ -133,6 +133,8 @@ const handleResponseForSave = async (e, { id, filename, markdown, pathname, opti
   }
 
   filePath = path.resolve(filePath)
+  const extension = path.extname(filePath) || '.md'
+  filePath = !filePath.endsWith(extension) ? filePath += extension : filePath
   return writeMarkdownFile(filePath, markdown, options, win)
     .then(() => {
       if (!alreadyExistOnDisk) {
