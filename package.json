@@ -34,7 +34,7 @@
   },
   "dependencies": {
     "@electron/remote": "^2.0.4",
-    "@hfelix/electron-localshortcut": "^4.0.0-rc.1",
+    "@hfelix/electron-localshortcut": "^4.0.0",
     "@hfelix/electron-spellchecker": "^2.0.0",
     "@marktext/file-icons": "^1.0.6",
     "@octokit/rest": "^18.12.0",

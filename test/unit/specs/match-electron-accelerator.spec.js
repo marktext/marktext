@@ -1,19 +1,23 @@
 import { isEqualAccelerator } from 'common/keybinding'
 
-const keys = [
+const characterKeys = [
   '0',
   '1',
   '9',
   'A',
+  'b',
   'G',
   'Z',
-  'F1',
-  'F5',
-  'F24',
   '~',
   '!',
   '@',
-  '#',
+  '#'
+]
+
+const nonCharacterKeys = [
+  'F1',
+  'F5',
+  'F24',
   'Plus',
   'Space',
   'Tab',
@@ -42,6 +46,8 @@ const keys = [
   'PrintScreen'
 ]
 
+const keys = [...characterKeys, ...nonCharacterKeys]
+
 const modifiers = [
   'Command',
   'Cmd',
@@ -54,6 +60,34 @@ const modifiers = [
   'AltGr',
   'Shift'
 ]
+
+describe('Test equal with non characte key', () => {
+  it('Match F2', () => {
+    expect(isEqualAccelerator('F2', 'F2')).to.equal(true)
+  })
+  it('Match F10', () => {
+    expect(isEqualAccelerator('F10', 'F10')).to.equal(true)
+  })
+  it('Match PageUp', () => {
+    expect(isEqualAccelerator('PageUp', 'PageUp')).to.equal(true)
+  })
+  it('Match Tab', () => {
+    expect(isEqualAccelerator('Tab', 'Tab')).to.equal(true)
+  })
+
+  it('Mismatch F2 and F3', () => {
+    expect(isEqualAccelerator('F2', 'F3')).to.equal(false)
+  })
+  it('Mismatch Left and Down', () => {
+    expect(isEqualAccelerator('Left', 'Down')).to.equal(false)
+  })
+  it('Mismatch F1 and 1', () => {
+    expect(isEqualAccelerator('F1', '1')).to.equal(false)
+  })
+  it('Mismatch F2 and Ctrl+F2', () => {
+    expect(isEqualAccelerator('F2', 'Ctrl+F2')).to.equal(false)
+  })
+})
 
 describe('Test equal with basis keys', () => {
   it('Match Ctrl+A', () => {
@@ -100,11 +134,21 @@ describe('Test invalid accelerator', () => {
   })
 })
 
-describe('Match all', () => {
+describe('Match combination for modifier and key', () => {
   modifiers.forEach(mod =>
     keys.forEach(key => {
       it(`Should match ${mod}+${key}`, () => {
         expect(isEqualAccelerator(`${mod}+${key}`, `${key}+${mod}`)).to.equal(true)
+      })
+    })
+  )
+})
+
+describe('Match non-character keys', () => {
+  nonCharacterKeys.forEach(nonCharacterKey =>
+    keys.forEach(key => {
+      it(`Should match ${nonCharacterKeys}`, () => {
+        expect(isEqualAccelerator(`${nonCharacterKeys}`, `${nonCharacterKeys}`)).to.equal(true)
       })
     })
   )

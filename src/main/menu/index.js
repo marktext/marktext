@@ -436,6 +436,20 @@ class AppMenu {
       },
       id: null
     })
+
+    if (isWindows) {
+      // WORKAROUND: Window close event isn't triggered on Windows if `setIgnoreMenuShortcuts(true)` is used (Electron#32674).
+      // NB: Remove this immediately if upstream is fixed because the event may be emitted twice.
+      shortcutMap.push({
+        accelerator: 'Alt+F4',
+        click: (menuItem, win) => {
+          if (win && !win.isDestroyed()) {
+            win.close()
+          }
+        },
+        id: null
+      })
+    }
   }
 
   _buildEditorMenu (createShortcutMap, recentUsedDocuments = null) {

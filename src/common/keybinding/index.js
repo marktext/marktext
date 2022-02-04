@@ -23,7 +23,7 @@ export const isEqualAccelerator = (a, b) => {
 
   const partsA = a.split('+')
   const partsB = b.split('+')
-  if (partsA.length !== partsB.length || partsA.length <= 1) {
+  if (partsA.length !== partsB.length) {
     return false
   }
 
