@@ -146,10 +146,8 @@ describe('Match combination for modifier and key', () => {
 
 describe('Match non-character keys', () => {
   nonCharacterKeys.forEach(nonCharacterKey =>
-    keys.forEach(key => {
-      it(`Should match ${nonCharacterKeys}`, () => {
-        expect(isEqualAccelerator(`${nonCharacterKeys}`, `${nonCharacterKeys}`)).to.equal(true)
-      })
+    it(`Should match ${nonCharacterKey}`, () => {
+      expect(isEqualAccelerator(`${nonCharacterKey}`, `${nonCharacterKey}`)).to.equal(true)
     })
   )
 })
