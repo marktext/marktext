@@ -1,0 +1,11 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "target": "es2020",
+    "paths": {
+      "common/*": ["../common/*"]
+    }
+  },
+  "include": ["."]
+}
