@@ -41,6 +41,7 @@ export default function image (h, cursor, block, token, outerClass) {
   if (src) {
     ({ id, isSuccess, domsrc } = this.loadImageAsync(imageInfo, token.attrs))
   }
+
   let wrapperSelector = id
     ? `span#${isSuccess ? block.key + '_' + id + '_' + token.range.start : id}.${CLASS_OR_ID.AG_INLINE_IMAGE}`
     : `span.${CLASS_OR_ID.AG_INLINE_IMAGE}`

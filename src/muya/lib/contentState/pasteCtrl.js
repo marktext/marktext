@@ -41,17 +41,17 @@ const pasteCtrl = ContentState => {
   }
 
   // Try to identify the data type.
-  ContentState.prototype.checkCopyType = function (html, text) {
+  ContentState.prototype.checkCopyType = function (html, rawText) {
     let type = 'normal'
-    if (!html && text) {
+    if (!html && rawText) {
       type = 'copyAsMarkdown'
-      const match = /^<([a-zA-Z\d-]+)(?=\s|>).*?>[\s\S]+?<\/([a-zA-Z\d-]+)>$/.exec(text.trim())
+      const match = /^<([a-zA-Z\d-]+)(?=\s|>).*?>[\s\S]+?<\/([a-zA-Z\d-]+)>$/.exec(rawText.trim())
       if (match && match[1]) {
         const tag = match[1]
         if (tag === 'table' && match.length === 3 && match[2] === 'table') {
           // Try to import a single table
           const tmp = document.createElement('table')
-          tmp.innerHTML = text
+          tmp.innerHTML = sanitize(rawText, PREVIEW_DOMPURIFY_CONFIG, false)
           if (tmp.childElementCount === 1) {
             return 'htmlToMd'
           }
@@ -64,17 +64,17 @@ const pasteCtrl = ContentState => {
     return type
   }
 
-  ContentState.prototype.standardizeHTML = async function (html) {
+  ContentState.prototype.standardizeHTML = async function (rawHtml) {
     // Only extract the `body.innerHTML` when the `html` is a full HTML Document.
-    if (/<body>[\s\S]*<\/body>/.test(html)) {
-      const match = /<body>([\s\S]*)<\/body>/.exec(html)
+    if (/<body>[\s\S]*<\/body>/.test(rawHtml)) {
+      const match = /<body>([\s\S]*)<\/body>/.exec(rawHtml)
       if (match && typeof match[1] === 'string') {
-        html = match[1]
+        rawHtml = match[1]
       }
     }
 
     // Prevent XSS and sanitize HTML.
-    const sanitizedHtml = sanitize(html, PREVIEW_DOMPURIFY_CONFIG, false)
+    const sanitizedHtml = sanitize(rawHtml, PREVIEW_DOMPURIFY_CONFIG, false)
     const tempWrapper = document.createElement('div')
     tempWrapper.innerHTML = sanitizedHtml
 
@@ -98,9 +98,9 @@ const pasteCtrl = ContentState => {
 
       const tds = table.querySelectorAll('td')
       for (const td of tds) {
-        const rawHtml = td.innerHTML
-        if (/<br>/.test(rawHtml)) {
-          td.innerHTML = rawHtml.replace(/<br>/g, '&lt;br&gt;')
+        const tableDataHtml = td.innerHTML
+        if (/<br>/.test(tableDataHtml)) {
+          td.innerHTML = tableDataHtml.replace(/<br>/g, '&lt;br&gt;')
         }
       }
     }
@@ -110,11 +110,10 @@ const pasteCtrl = ContentState => {
     for (const link of links) {
       const href = link.getAttribute('href')
       const text = link.textContent
-
-      if (href === text) {
+      if (URL_REG.test(href) && href === text) {
         const title = await getPageTitle(href)
         if (title) {
-          link.textContent = title
+          link.innerHTML = sanitize(title, PREVIEW_DOMPURIFY_CONFIG, true)
         } else {
           const span = document.createElement('span')
           span.innerHTML = text
@@ -266,13 +265,17 @@ const pasteCtrl = ContentState => {
 
     const text = rawText || event.clipboardData.getData('text/plain')
     let html = rawHtml || event.clipboardData.getData('text/html')
+    if (!text && !html) {
+      return
+    }
 
     // Support pasted URLs from Firefox.
     if (URL_REG.test(text) && !/\s/.test(text) && !html) {
       html = `<a href="${text}">${text}</a>`
     }
 
-    // Remove crap from HTML such as meta data and styles.
+    // Remove crap from HTML such as meta data and styles and sanitize HTML,
+    // but `text` may still contain dangerous HTML.
     html = await this.standardizeHTML(html)
 
     let copyType = this.checkCopyType(html, text)
@@ -282,7 +285,7 @@ const pasteCtrl = ContentState => {
     const parent = this.getParent(startBlock)
 
     if (copyType === 'htmlToMd') {
-      html = text
+      html = sanitize(text, PREVIEW_DOMPURIFY_CONFIG, false)
       copyType = 'normal'
     }
 
