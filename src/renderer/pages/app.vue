@@ -125,7 +125,6 @@ export default {
     dispatch('LISTEN_FOR_TWEET')
     // module: layout
     dispatch('LISTEN_FOR_LAYOUT')
-    dispatch('LISTEN_FOR_REQUEST_LAYOUT')
     // module: listenForMain
     dispatch('LISTEN_FOR_EDIT')
     dispatch('LISTEN_FOR_VIEW')

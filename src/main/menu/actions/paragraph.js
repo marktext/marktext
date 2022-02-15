@@ -1,3 +1,5 @@
+import { COMMANDS } from '../../commands'
+
 const DISABLE_LABELS = [
   // paragraph menu items
   'heading1MenuItem', 'heading2MenuItem', 'heading3MenuItem', 'heading4MenuItem',
@@ -8,7 +10,7 @@ const DISABLE_LABELS = [
   'hyperlinkMenuItem', 'imageMenuItem'
 ]
 
-const MENU_ID_MAP = {
+const MENU_ID_MAP = Object.freeze({
   heading1MenuItem: 'h1',
   heading2MenuItem: 'h2',
   heading3MenuItem: 'h3',
@@ -26,12 +28,117 @@ const MENU_ID_MAP = {
   paragraphMenuItem: 'p',
   horizontalLineMenuItem: 'hr',
   frontMatterMenuItem: 'frontmatter' // 'pre'
-}
+})
 
-export const paragraph = (win, type) => {
+const transformEditorElement = (win, type) => {
   if (win && win.webContents) {
     win.webContents.send('mt::editor-paragraph-action', { type })
   }
+}
+
+export const bulletList = win => {
+  transformEditorElement(win, 'ul-bullet')
+}
+
+export const codeFence = win => {
+  transformEditorElement(win, 'pre')
+}
+
+export const degradeHeading = win => {
+  transformEditorElement(win, 'degrade heading')
+}
+
+export const frontMatter = win => {
+  transformEditorElement(win, 'front-matter')
+}
+
+export const heading1 = win => {
+  transformEditorElement(win, 'heading 1')
+}
+
+export const heading2 = win => {
+  transformEditorElement(win, 'heading 2')
+}
+
+export const heading3 = win => {
+  transformEditorElement(win, 'heading 3')
+}
+
+export const heading4 = win => {
+  transformEditorElement(win, 'heading 4')
+}
+
+export const heading5 = win => {
+  transformEditorElement(win, 'heading 5')
+}
+
+export const heading6 = win => {
+  transformEditorElement(win, 'heading 6')
+}
+
+export const horizontalLine = win => {
+  transformEditorElement(win, 'hr')
+}
+
+export const htmlBlock = win => {
+  transformEditorElement(win, 'html')
+}
+
+export const looseListItem = win => {
+  transformEditorElement(win, 'loose-list-item')
+}
+
+export const mathFormula = win => {
+  transformEditorElement(win, 'mathblock')
+}
+
+export const orderedList = win => {
+  transformEditorElement(win, 'ol-order')
+}
+
+export const paragraph = win => {
+  transformEditorElement(win, 'paragraph')
+}
+
+export const quoteBlock = win => {
+  transformEditorElement(win, 'blockquote')
+}
+
+export const table = win => {
+  transformEditorElement(win, 'table')
+}
+
+export const taskList = win => {
+  transformEditorElement(win, 'ul-task')
+}
+
+export const increaseHeading = win => {
+  transformEditorElement(win, 'upgrade heading')
+}
+
+// --- Commands -------------------------------------------------------------
+
+export const loadParagraphCommands = commandManager => {
+  commandManager.add(COMMANDS.PARAGRAPH_BULLET_LIST, bulletList)
+  commandManager.add(COMMANDS.PARAGRAPH_CODE_FENCE, codeFence)
+  commandManager.add(COMMANDS.PARAGRAPH_DEGRADE_HEADING, degradeHeading)
+  commandManager.add(COMMANDS.PARAGRAPH_FRONT_MATTER, frontMatter)
+  commandManager.add(COMMANDS.PARAGRAPH_HEADING_1, heading1)
+  commandManager.add(COMMANDS.PARAGRAPH_HEADING_2, heading2)
+  commandManager.add(COMMANDS.PARAGRAPH_HEADING_3, heading3)
+  commandManager.add(COMMANDS.PARAGRAPH_HEADING_4, heading4)
+  commandManager.add(COMMANDS.PARAGRAPH_HEADING_5, heading5)
+  commandManager.add(COMMANDS.PARAGRAPH_HEADING_6, heading6)
+  commandManager.add(COMMANDS.PARAGRAPH_HORIZONTAL_LINE, horizontalLine)
+  commandManager.add(COMMANDS.PARAGRAPH_HTML_BLOCK, htmlBlock)
+  commandManager.add(COMMANDS.PARAGRAPH_LOOSE_LIST_ITEM, looseListItem)
+  commandManager.add(COMMANDS.PARAGRAPH_MATH_FORMULA, mathFormula)
+  commandManager.add(COMMANDS.PARAGRAPH_ORDERED_LIST, orderedList)
+  commandManager.add(COMMANDS.PARAGRAPH_PARAGRAPH, paragraph)
+  commandManager.add(COMMANDS.PARAGRAPH_QUOTE_BLOCK, quoteBlock)
+  commandManager.add(COMMANDS.PARAGRAPH_TABLE, table)
+  commandManager.add(COMMANDS.PARAGRAPH_TASK_LIST, taskList)
+  commandManager.add(COMMANDS.PARAGRAPH_INCREASE_HEADING, increaseHeading)
 }
 
 // --- IPC events -------------------------------------------------------------

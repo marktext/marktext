@@ -13,7 +13,7 @@ export default new Map([
   ['mt.hide-others', ''],
 
   // File menu
-  ['file.new-file', 'Ctrl+N'],
+  ['file.new-window', 'Ctrl+N'],
   ['file.new-tab', 'Ctrl+T'],
   ['file.open-file', 'Ctrl+O'],
   ['file.open-folder', 'Ctrl+Shift+O'],

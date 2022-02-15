@@ -5,7 +5,7 @@ const commandDescriptions = Object.freeze({
 
   'mt.hide': 'MarkText: Hide MarkText',
   'mt.hide-others': 'MarkText: Hide Others',
-  'file.new-file': 'File: New Window',
+  'file.new-window': 'File: New Window',
   'file.new-tab': 'File: New Tab',
   'file.open-file': 'File: Open file',
   'file.open-folder': 'File: Open Folder',

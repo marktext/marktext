@@ -14,6 +14,7 @@ export class AppEnvironment {
     this._id = envId++
     this._appPaths = new AppPaths(options.userDataPath)
     this._debug = !!options.debug
+    this._isDevMode = !!options.isDevMode
     this._verbose = !!options.verbose
     this._safeMode = !!options.safeMode
   }
@@ -44,6 +45,13 @@ export class AppEnvironment {
   /**
    * @returns {boolean}
    */
+  get isDevMode () {
+    return this._isDevMode
+  }
+
+  /**
+   * @returns {boolean}
+   */
   get verbose () {
     return this._verbose
   }
@@ -65,6 +73,7 @@ export class AppEnvironment {
 const setupEnvironment = args => {
   patchEnvPath()
 
+  const isDevMode = process.env.NODE_ENV !== 'production'
   const debug = args['--debug'] || !!process.env.MARKTEXT_DEBUG || process.env.NODE_ENV !== 'production'
   const verbose = args['--verbose'] || 0
   const safeMode = args['--safe']
@@ -72,6 +81,7 @@ const setupEnvironment = args => {
 
   const appEnvironment = new AppEnvironment({
     debug,
+    isDevMode,
     verbose,
     safeMode,
     userDataPath

@@ -4,7 +4,11 @@ import * as actions from '../actions/file'
 const dockMenu = Menu.buildFromTemplate([{
   label: 'Open...',
   click (menuItem, browserWindow) {
-    actions.openFile(browserWindow)
+    if (browserWindow) {
+      actions.openFile(browserWindow)
+    } else {
+      actions.newEditorWindow()
+    }
   }
 }, {
   label: 'Clear Recent',

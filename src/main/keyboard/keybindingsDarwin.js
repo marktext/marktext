@@ -10,7 +10,7 @@ export default new Map([
   ['file.preferences', 'Command+,'], // located under MarkText menu in macOS only
 
   // File menu
-  ['file.new-file', 'Command+N'],
+  ['file.new-window', 'Command+N'],
   ['file.new-tab', 'Command+T'],
   ['file.open-file', 'Command+O'],
   ['file.open-folder', 'Command+Shift+O'],
