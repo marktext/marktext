@@ -500,15 +500,31 @@ class AppMenu {
       this.updateLineEndingMenu(windowId, lineEnding)
     })
     ipcMain.on('mt::update-format-menu', (e, windowId, formats) => {
+      if (!this.has(windowId)) {
+        log.error(`UpdateApplicationMenu: Cannot find window menu for window id ${windowId}.`)
+        return
+      }
       updateFormatMenu(this.getWindowMenuById(windowId), formats)
     })
     ipcMain.on('mt::update-sidebar-menu', (e, windowId, value) => {
+      if (!this.has(windowId)) {
+        log.error(`UpdateApplicationMenu: Cannot find window menu for window id ${windowId}.`)
+        return
+      }
       updateSidebarMenu(this.getWindowMenuById(windowId), value)
     })
     ipcMain.on('mt::view-layout-changed', (e, windowId, viewSettings) => {
+      if (!this.has(windowId)) {
+        log.error(`UpdateApplicationMenu: Cannot find window menu for window id ${windowId}.`)
+        return
+      }
       viewLayoutChanged(this.getWindowMenuById(windowId), viewSettings)
     })
     ipcMain.on('mt::editor-selection-changed', (e, windowId, changes) => {
+      if (!this.has(windowId)) {
+        log.error(`UpdateApplicationMenu: Cannot find window menu for window id ${windowId}.`)
+        return
+      }
       updateSelectionMenus(this.getWindowMenuById(windowId), changes)
     })
 
