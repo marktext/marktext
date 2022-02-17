@@ -142,7 +142,7 @@ const actions = {
       const { pathname } = state.activeItem
       shell.trashItem(pathname).catch(err => {
         notice.notify({
-          title: 'Deletion Error',
+          title: 'Error while deleting',
           type: 'error',
           message: err.message
         })
@@ -156,15 +156,25 @@ const actions = {
       const { clipboard } = state
       const { pathname, isDirectory } = state.activeItem
       const dirname = isDirectory ? pathname : path.dirname(pathname)
-      if (clipboard) {
+      if (clipboard && clipboard.src) {
         clipboard.dest = dirname + PATH_SEPARATOR + path.basename(clipboard.src)
+
+        if (path.normalize(clipboard.src) === path.normalize(clipboard.dest)) {
+          notice.notify({
+            title: 'Paste Forbidden',
+            type: 'warning',
+            message: 'Source and destination must not be the same.'
+          })
+          return
+        }
+
         paste(clipboard)
           .then(() => {
             commit('SET_CLIPBOARD', null)
           })
           .catch(err => {
             notice.notify({
-              title: 'Paste Error',
+              title: 'Error while pasting',
               type: 'error',
               message: err.message
             })
