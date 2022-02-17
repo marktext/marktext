@@ -8,8 +8,17 @@ const spec = {
   '--map': String,
   '-m': '--map'
 }
-const args = arg(spec, { argv: process.argv.slice(1), permissive: false })
+const args = arg(spec, { argv: process.argv.slice(1), permissive: true })
 const mapPath = args['--map']
+
+if (!mapPath) {
+  console.log('ERROR: -m is a required argument.\n')
+  console.log('USAGE:\n  yarn deobfuscateStackTrace -m <path_to_source_map>')
+  process.exit(1)
+} else if (!fs.existsSync(mapPath)) {
+  console.log(`ERROR: Invalid source map path: "${mapPath}".`)
+  process.exit(1)
+}
 
 const deobfuscateStackTrace = stackTraceStr => {
   const smc = new sourceMap.SourceMapConsumer(fs.readFileSync(mapPath, 'utf8'))
@@ -38,6 +47,8 @@ const deobfuscateStackTrace = stackTraceStr => {
     }
   })
 }
+
+console.log('Please paste the stack trace and continue with double Enter:')
 
 const lines = []
 readline.createInterface({
