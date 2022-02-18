@@ -11,7 +11,7 @@ export const loadedLanguages = new Set(['markup', 'css', 'clike', 'javascript'])
 const { languages } = components
 
 // Look for the origin languge by alias
-export const transfromAliasToOrigin = langs => {
+export const transformAliasToOrigin = langs => {
   const result = []
   for (const lang of langs) {
     if (languages[lang]) {
