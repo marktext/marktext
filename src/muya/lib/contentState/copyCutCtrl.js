@@ -45,7 +45,7 @@ const copyCutCtrl = ContentState => {
     this.partialRender()
   }
 
-  ContentState.prototype.getClipBoradData = function () {
+  ContentState.prototype.getClipBoardData = function () {
     const { start, end } = selection.getCursorRange()
     if (!start || !end) {
       return { html: '', text: '' }
@@ -274,7 +274,7 @@ const copyCutCtrl = ContentState => {
       return
     }
 
-    const { html, text } = this.getClipBoradData()
+    const { html, text } = this.getClipBoardData()
     switch (type) {
       case 'normal': {
         event.clipboardData.setData('text/html', html)
