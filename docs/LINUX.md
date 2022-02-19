@@ -74,6 +74,20 @@ or `flatpak install --user flathub com.github.marktext.marktext` to install for 
 
 To run MarkText just execute `flatpak run com.github.marktext.marktext` or click on the MarkText icon in your application launcher.
 
+## Arch User Repository
+
+The Arch User Repository also contains the packages:
+
+`marktext`, `marktext-bin`, `marktext-git` and `marktext-appimage`.
+
+Install it via an AUR helper like `yay -S marktext` or with
+
+```
+git clone https://aur.archlinux.org/marktext.git
+cd marktext
+makepkg -si
+```
+
 ### Update
 
 To update MarkText run the following command:
