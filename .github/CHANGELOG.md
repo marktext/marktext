@@ -14,7 +14,6 @@ Mark Text is now MarkText! We'd like to thank all contributors and users that ha
 - Added command-line image uploader.
 - Added regular expression group replacement to searcher.
 - Added PlantUML diagram support.
-- Added support for Apple M1 (arm64).
 - Added support for chemical equations in math mode.
 - Added automatic call to search for find-in-file when the pane is opened.
 - Open local non-markdown files in default application.
