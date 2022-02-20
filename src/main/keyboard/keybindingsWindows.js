@@ -45,13 +45,15 @@ export default new Map([
   ['edit.screenshot', ''], // macOS only
 
   // Paragraph menu
-  ['paragraph.heading-1', 'Ctrl+Shift+1'],
-  ['paragraph.heading-2', 'Ctrl+Shift+2'],
-  ['paragraph.heading-3', 'Ctrl+Shift+3'],
-  ['paragraph.heading-4', 'Ctrl+Shift+4'],
-  ['paragraph.heading-5', 'Ctrl+Shift+5'],
-  ['paragraph.heading-6', 'Ctrl+Shift+6'],
-  ['paragraph.upgrade-heading', 'Ctrl+='],
+  // NOTE: We cannot set a default value for heading size because `Ctrl+Alt` is an alias
+  //       to `AltGr` on Windows and `Ctrl+Shift+1` is mapped to the underlying character.
+  ['paragraph.heading-1', ''],
+  ['paragraph.heading-2', ''],
+  ['paragraph.heading-3', ''],
+  ['paragraph.heading-4', ''],
+  ['paragraph.heading-5', ''],
+  ['paragraph.heading-6', ''],
+  ['paragraph.upgrade-heading', 'Ctrl+Plus'],
   ['paragraph.degrade-heading', 'Ctrl+-'],
   ['paragraph.table', 'Ctrl+Shift+T'],
   ['paragraph.code-fence', 'Ctrl+Shift+K'],
