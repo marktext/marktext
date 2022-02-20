@@ -50,7 +50,7 @@ export default new Map([
   ['paragraph.heading-4', 'Command+4'],
   ['paragraph.heading-5', 'Command+5'],
   ['paragraph.heading-6', 'Command+6'],
-  ['paragraph.upgrade-heading', 'Command+='],
+  ['paragraph.upgrade-heading', 'Command+Plus'],
   ['paragraph.degrade-heading', 'Command+-'],
   ['paragraph.table', 'Command+Shift+T'],
   ['paragraph.code-fence', 'Command+Option+C'],

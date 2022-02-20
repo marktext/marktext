@@ -48,13 +48,13 @@ export default new Map([
   ['edit.screenshot', ''], // macOS only
 
   // Paragraph menu
-  ['paragraph.heading-1', 'Ctrl+Shift+1'],
-  ['paragraph.heading-2', 'Ctrl+Shift+2'],
-  ['paragraph.heading-3', 'Ctrl+Shift+3'],
-  ['paragraph.heading-4', 'Ctrl+Shift+4'],
-  ['paragraph.heading-5', 'Ctrl+Shift+5'],
-  ['paragraph.heading-6', 'Ctrl+Shift+6'],
-  ['paragraph.upgrade-heading', 'Ctrl+='],
+  ['paragraph.heading-1', 'Ctrl+Alt+1'],
+  ['paragraph.heading-2', 'Ctrl+Alt+2'],
+  ['paragraph.heading-3', 'Ctrl+Alt+3'],
+  ['paragraph.heading-4', 'Ctrl+Alt+4'],
+  ['paragraph.heading-5', 'Ctrl+Alt+5'],
+  ['paragraph.heading-6', 'Ctrl+Alt+6'],
+  ['paragraph.upgrade-heading', 'Ctrl+Plus'],
   ['paragraph.degrade-heading', 'Ctrl+-'],
   ['paragraph.table', 'Ctrl+Shift+T'],
   ['paragraph.code-fence', 'Ctrl+Shift+K'],

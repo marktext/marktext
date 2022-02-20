@@ -62,7 +62,7 @@ MarkText key bindings for macOS. Please see [general key bindings](KEYBINDINGS.m
 | `paragraph.heading-4`       | <kbd>Command</kbd>+<kbd>4</kbd>                   | Set line as heading 4                    |
 | `paragraph.heading-5`       | <kbd>Command</kbd>+<kbd>5</kbd>                   | Set line as heading 5                    |
 | `paragraph.heading-6`       | <kbd>Command</kbd>+<kbd>6</kbd>                   | Set line as heading 6                    |
-| `paragraph.upgrade-heading` | <kbd>Command</kbd>+<kbd>=</kbd>                   | Upgrade a heading                        |
+| `paragraph.upgrade-heading` | <kbd>Command</kbd>+<kbd>Plus</kbd>                | Upgrade a heading                        |
 | `paragraph.degrade-heading` | <kbd>Command</kbd>+<kbd>-</kbd>                   | Degrade a heading                        |
 | `paragraph.table`           | <kbd>Command</kbd>+<kbd>Shift</kbd>+<kbd>T</kbd>  | Insert a table                           |
 | `paragraph.code-fence`      | <kbd>Command</kbd>+<kbd>Option</kbd>+<kbd>C</kbd> | Insert a code block                      |

@@ -99,6 +99,12 @@ const commandDescriptions = Object.freeze({
   'tabs.switch-to-tenth': 'Misc: Switch tab to the 10st',
 
   // ============================================
+  // # Menu descriptions but not available as command
+  // #
+
+  'view.reload-images': 'View: Clear cache and reload images',
+
+  // ============================================
   // # Additional command descriptions
   // #
 
