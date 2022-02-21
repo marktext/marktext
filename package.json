@@ -30,7 +30,8 @@
     "release:muya": "yarn run build:muya && cd src/muya && yarn publish",
     "rebuild": "electron-rebuild -f",
     "gen-third-party": "node tools/generateThirdPartyLicense.js",
-    "validate-licenses": "node tools/validateLicenses.js"
+    "validate-licenses": "node tools/validateLicenses.js",
+    "deobfuscateStackTrace": "node tools/deobfuscateStackTrace.js"
   },
   "dependencies": {
     "@electron/remote": "^2.0.4",
@@ -157,6 +158,7 @@
     "postcss-preset-env": "^7.4.1",
     "raw-loader": "^4.0.2",
     "require-dir": "^1.2.0",
+    "stacktrace-parser": "^0.1.10",
     "style-loader": "^3.3.1",
     "svg-sprite-loader": "^6.0.11",
     "svgo": "^2.8.0",
