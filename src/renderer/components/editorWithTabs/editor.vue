@@ -614,7 +614,7 @@ export default {
 
       const { container } = this.editor = new Muya(ele, options)
 
-      // Create spell check wrapper and enable spell checking if prefered.
+      // Create spell check wrapper and enable spell checking if preferred.
       this.spellchecker = new SpellChecker(spellcheckerEnabled)
       if (spellcheckerEnabled) {
         this.initSpellchecker()

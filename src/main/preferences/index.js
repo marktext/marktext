@@ -121,7 +121,7 @@ class Preference extends EventEmitter {
     })
   }
 
-  getPreferedEol () {
+  getPreferredEol () {
     const endOfLine = this.getItem('endOfLine')
     if (endOfLine === 'lf') {
       return 'lf'

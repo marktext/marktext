@@ -148,7 +148,7 @@ class AppMenu {
 
     const { menu, shortcutMap } = windowMenus.get(window.id)
 
-    // Set source-code editor if prefered.
+    // Set source-code editor if preferred.
     const sourceCodeModeMenuItem = menu.getMenuItemById('sourceCodeModeMenuItem')
     sourceCodeModeMenuItem.checked = isSourceMode
 
