@@ -83,3 +83,17 @@ flatpak update com.github.marktext.marktext
 ```
 
 or `flatpak update` to update all installed flatpaks.
+
+## Arch User Repository
+
+The Arch User Repository also contains the packages:
+
+`marktext`, `marktext-bin`, `marktext-git` and `marktext-appimage`.
+
+Install it via an AUR helper like `yay -S marktext` or with
+
+```
+git clone https://aur.archlinux.org/marktext.git
+cd marktext
+makepkg -si
+```
