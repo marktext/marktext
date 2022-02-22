@@ -82,7 +82,7 @@ class EditorWindow extends BaseWindow {
       // Restore and focus window
       this.bringToFront()
 
-      const lineEnding = preferences.getPreferedEol()
+      const lineEnding = preferences.getPreferredEol()
       appMenu.updateLineEndingMenu(this.id, lineEnding)
 
       win.webContents.send('mt::bootstrap-editor', {
@@ -235,7 +235,7 @@ class EditorWindow extends BaseWindow {
 
     const { browserWindow } = this
     const { preferences } = this._accessor
-    const eol = preferences.getPreferedEol()
+    const eol = preferences.getPreferredEol()
     const { autoGuessEncoding, trimTrailingNewline } = preferences.getAll()
 
     for (const { filePath, options, selected } of fileList) {
@@ -393,7 +393,7 @@ class EditorWindow extends BaseWindow {
       this.lifecycle = WindowLifecycle.READY
       const { preferences } = this._accessor
       const { sideBarVisibility, tabBarVisibility, sourceCodeModeEnabled } = preferences.getAll()
-      const lineEnding = preferences.getPreferedEol()
+      const lineEnding = preferences.getPreferredEol()
       browserWindow.webContents.send('mt::bootstrap-editor', {
         addBlankTab: true,
         markdownList: [],
