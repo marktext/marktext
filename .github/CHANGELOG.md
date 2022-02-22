@@ -1,4 +1,4 @@
-## Unreleased (c959d18)
+## 0.17.0
 
 Mark Text is now MarkText! We'd like to thank all contributors and users that have been using MarkText and worked on this release.
 
@@ -6,12 +6,12 @@ Mark Text is now MarkText! We'd like to thank all contributors and users that ha
 
 - Changed multiple default key bindings.
 - Changed key binding handling: all key bindings are now mapped to the corresponding US key bindings. E.g. `Ctrl+Shift+7` on a German keyboard will now produce `Ctrl+/` because `Shift+7` is equivalent to `/`.
-- Image uploder: SM.MS was removed, GitHub uploader is deprecated and will be replaced by PicGo in our next release.
+- Image uploader: SM.MS was removed, GitHub uploader is deprecated and will be replaced by PicGo in our next release.
 
 **:cactus:Feature**
 
 - Added support for image path variables.
-- Added command-line image uploader.
+- Added command-line image uploader and reworked settings.
 - Added regular expression group replacement to searcher.
 - Added PlantUML diagram support.
 - Added support for chemical equations in math mode.
@@ -31,10 +31,11 @@ Mark Text is now MarkText! We'd like to thank all contributors and users that ha
 - Relative image paths are now converted to forward slashes on Windows for better compatibility.
 - Center sidebar image when no search results are available.
 - Updated emoji database.
+- Improved sidebar file handling UX by providing more error messages.
 
 **:beetle:Bug fix**
 
-- Fixed an issue with code block cusor positioning.
+- Fixed an issue with code block cursor positioning.
 - Fixed invalid mermaid diagram representation when exporting as PDF.
 - Fixed rendering issue with LaTeX formulas
 - Fixed an issue that may caused editor flickering while pressing `Enter`.
@@ -53,7 +54,9 @@ Mark Text is now MarkText! We'd like to thank all contributors and users that ha
 - Fixed file rename with editor dialog.
 - Fixed URL open handler when clicking a link in the editor.
 - Fixed an issue that prevented to unindent a list item.
-- Fixed a XSS issue on language selector and mermaid diagram input.
+- Fixed multiple XSS issues on language selector and data input.
+- Fixed a bug that HTML was rendered in preview mode even it was disabled in settings.
+- HTML character encoding is now supported in code blocks.
 
 ## 0.16.3
 

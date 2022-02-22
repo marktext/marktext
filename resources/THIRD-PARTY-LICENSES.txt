@@ -30,7 +30,7 @@ This file contains all third-party packages that are bundled and shipped with Ma
 21. @szmarczak/http-timer (MIT)
 22. @types/clone (MIT)
 23. @types/content-type (MIT)
-24. @types/fast-json-stable-stringify (MIT)
+24. @types/estree (MIT)
 25. @types/node (MIT)
 26. agent-base (MIT)
 27. ajv-formats (MIT)
@@ -67,369 +67,358 @@ This file contains all third-party packages that are bundled and shipped with Ma
 58. buffer-from (MIT)
 59. buffer (MIT)
 60. cacheable-request (MIT)
-61. camel-case (MIT)
-62. ced ((ISC AND Apache-2.0))
-63. chokidar (MIT)
-64. chownr (ISC)
-65. cld (Apache)
-66. clean-css (MIT)
-67. cliui (ISC)
-68. clone-regexp (MIT)
-69. clone-response (MIT)
-70. clone (MIT)
-71. code-point-at (MIT)
-72. codemirror (MIT)
-73. color-convert (MIT)
-74. color-name (MIT)
-75. command-exists (MIT)
-76. commander (MIT)
-77. concat-map (MIT)
-78. concat-stream (MIT)
-79. conf (MIT)
-80. config-chain (MIT)
-81. console-control-strings (ISC)
-82. content-type (MIT)
-83. contra (MIT)
-84. core-js (MIT)
-85. core-util-is (MIT)
-86. create-point-cb (MIT)
-87. cross-spawn (MIT)
-88. crossvent (MIT)
-89. css-b64-images (MIT)
-90. custom-event (MIT)
-91. d3-array (BSD-3-Clause)
-92. d3-axis (BSD-3-Clause)
-93. d3-brush (BSD-3-Clause)
-94. d3-chord (BSD-3-Clause)
-95. d3-collection (BSD-3-Clause)
-96. d3-color (BSD-3-Clause)
-97. d3-contour (BSD-3-Clause)
-98. d3-delaunay (ISC)
-99. d3-dispatch (BSD-3-Clause)
-100. d3-drag (BSD-3-Clause)
-101. d3-dsv (BSD-3-Clause)
-102. d3-ease (BSD-3-Clause)
-103. d3-fetch (BSD-3-Clause)
-104. d3-force (BSD-3-Clause)
-105. d3-format (BSD-3-Clause)
-106. d3-geo-projection (BSD-3-Clause)
-107. d3-geo (BSD-3-Clause)
-108. d3-hierarchy (BSD-3-Clause)
-109. d3-interpolate (BSD-3-Clause)
-110. d3-path (BSD-3-Clause)
-111. d3-polygon (BSD-3-Clause)
-112. d3-quadtree (BSD-3-Clause)
-113. d3-random (BSD-3-Clause)
-114. d3-scale-chromatic (BSD-3-Clause)
-115. d3-scale (BSD-3-Clause)
-116. d3-selection (BSD-3-Clause)
-117. d3-shape (BSD-3-Clause)
-118. d3-time-format (BSD-3-Clause)
-119. d3-time (BSD-3-Clause)
-120. d3-timer (BSD-3-Clause)
-121. d3-transition (BSD-3-Clause)
-122. d3-voronoi (BSD-3-Clause)
-123. d3-zoom (BSD-3-Clause)
-124. d3 (BSD-3-Clause)
-125. dagre-d3 (MIT)
-126. dagre (MIT)
-127. dayjs (MIT)
-128. debounce-fn (MIT)
-129. debug (MIT)
-130. decompress-response (MIT)
-131. deep-extend (MIT)
-132. deepmerge (MIT)
-133. defer-to-connect (MIT)
-134. define-properties (MIT)
-135. delaunator (ISC)
-136. delegates (MIT)
-137. deprecation (ISC)
-138. detect-libc (Apache-2.0)
-139. detect-node (ISC)
-140. dom-autoscroller (MIT)
-141. dom-mousemove-dispatcher (MIT)
-142. dom-plane (MIT)
-143. dom-set (WTFPL)
-144. domino (BSD-2-Clause)
-145. dompurify ((MPL-2.0 OR Apache-2.0))
-146. dot-prop (MIT)
-147. dragula (MIT)
-148. duplexer3 (BSD-3-Clause)
-149. electron-log (MIT)
-150. electron-store (MIT)
-151. electron-window-state (MIT)
-152. electron (MIT)
-153. element-resize-detector (MIT)
-154. element-ui (MIT)
-155. emoji-regex (MIT)
-156. encodeurl (MIT)
-157. end-of-stream (MIT)
-158. entity-decode (MIT)
-159. env-paths (MIT)
-160. es6-error (MIT)
-161. escalade (MIT)
-162. escape-string-regexp (MIT)
-163. eve-raphael (Apache*)
-164. event-kit (MIT)
-165. execa (MIT)
-166. execall (MIT)
-167. expand-template ((MIT OR WTFPL))
-168. extract-zip (BSD-2-Clause)
-169. fast-deep-equal (MIT)
-170. fast-json-patch (MIT)
-171. fast-json-stable-stringify (MIT)
-172. fd-slicer (MIT)
-173. file-uri-to-path (MIT)
-174. fill-range (MIT)
-175. find-up (MIT)
-176. flowchart.js (MIT)
-177. follow-redirects (MIT)
-178. fontmanager-redux (MIT)
-179. fs-constants (MIT)
-180. fs-extra (MIT)
-181. fs.realpath (ISC)
-182. fuzzaldrin (MIT)
-183. gauge (ISC)
-184. get-caller-file (ISC)
-185. get-stream (MIT)
-186. github-from-package (MIT)
-187. github-markdown-css (MIT)
-188. glob-parent (ISC)
-189. glob (ISC)
-190. global-agent (BSD-3-Clause)
-191. global-tunnel-ng (BSD-3-Clause)
-192. globalthis (MIT)
-193. got (MIT)
-194. graceful-fs (ISC)
-195. graphlib (MIT)
-196. has-unicode (ISC)
-197. he (MIT)
-198. html-minifier (MIT)
-199. html-tags (MIT)
-200. http-cache-semantics (BSD-2-Clause)
-201. https-proxy-agent (MIT)
-202. iconv-lite (MIT)
-203. ieee754 (BSD-3-Clause)
-204. inflight (ISC)
-205. inherits (ISC)
-206. ini (ISC)
-207. is-array (MIT)
-208. is-binary-path (MIT)
-209. is-extglob (MIT)
-210. is-fullwidth-code-point (MIT)
-211. is-glob (MIT)
-212. is-number (MIT)
-213. is-obj (MIT)
-214. is-plain-object (MIT)
-215. is-regexp (MIT)
-216. is-stream (MIT)
-217. isarray (MIT)
-218. iselement (MIT)
-219. isexe (ISC)
-220. iso-639-1 (MIT)
-221. isobject (MIT)
-222. joplin-turndown-plugin-gfm (MIT)
-223. json-buffer (MIT)
-224. json-schema-traverse (MIT)
-225. json-schema-typed (BSD-2-Clause)
-226. json-stringify-pretty-compact (MIT)
-227. json-stringify-safe (ISC)
-228. jsonfile (MIT)
-229. katex (MIT)
-230. keyboard-layout (MIT)
-231. keytar (MIT)
-232. keyv (MIT)
-233. khroma (MIT)
-234. locate-path (MIT)
-235. lodash.escape (MIT)
-236. lodash.forown (MIT)
-237. lodash.kebabcase (MIT)
-238. lodash.remove (MIT)
-239. lodash.uniq (MIT)
-240. lodash (MIT)
-241. lower-case (MIT)
-242. lowercase-keys (MIT)
-243. lru-cache (ISC)
-244. macos-release (MIT)
-245. mapped-disposable (ISC)
-246. matcher (MIT)
-247. mermaid (MIT)
-248. micromatch (MIT)
-249. mimic-fn (MIT)
-250. mimic-response (MIT)
-251. minify (MIT)
-252. minimatch (ISC)
-253. minimist (MIT)
-254. minipass (ISC)
-255. minizlib (MIT)
-256. mkdirp-classic (MIT)
-257. mkdirp (MIT)
-258. moment-mini (MIT)
-259. ms (MIT)
-260. nan (MIT)
-261. napi-build-utils (MIT)
-262. native-keymap (MIT)
-263. nice-try (MIT)
-264. no-case (MIT)
-265. node-abi (MIT)
-266. node-addon-api (MIT)
-267. node-fetch (MIT)
-268. noop-logger (MIT)
-269. normalize-path (MIT)
-270. normalize-url (MIT)
-271. normalize-wheel (BSD-3-Clause)
-272. npm-conf (MIT)
-273. npm-run-path (MIT)
-274. npmlog (ISC)
-275. number-is-nan (MIT)
-276. object-assign (MIT)
-277. object-keys (MIT)
-278. once (ISC)
-279. onetime (MIT)
-280. os-name (MIT)
-281. p-cancelable (MIT)
-282. p-finally (MIT)
-283. p-limit (MIT)
-284. p-locate (MIT)
-285. p-throttle (MIT)
-286. p-try (MIT)
-287. param-case (MIT)
-288. parse-sel (MIT)
-289. path-exists (MIT)
-290. path-is-absolute (MIT)
-291. path-key (MIT)
-292. path-parse (MIT)
-293. pend (MIT)
-294. picomatch (MIT)
-295. pify (MIT)
-296. pkg-up (MIT)
-297. plist (MIT)
-298. popper.js (MIT)
-299. prebuild-install (MIT)
-300. prepend-http (MIT)
-301. prismjs (MIT)
-302. process-nextick-args (MIT)
-303. progress (MIT)
-304. proto-list (ISC)
-305. proxy-from-env (MIT)
-306. pump (MIT)
-307. punycode (MIT)
-308. raphael (MIT)
-309. rc ((BSD-2-Clause OR MIT OR Apache-2.0))
-310. readable-stream (MIT)
-311. readdirp (MIT)
-312. regenerator-runtime (MIT)
-313. relateurl (MIT)
-314. require-directory (MIT)
-315. require-from-string (MIT)
-316. resize-observer-polyfill (MIT)
-317. resolve (MIT)
-318. responselike (MIT)
-319. roarr (BSD-3-Clause)
-320. rw (BSD-3-Clause)
-321. safe-buffer (MIT)
-322. safer-buffer (MIT)
-323. semver-compare (MIT)
-324. semver (ISC)
-325. serialize-error (MIT)
-326. set-blocking (ISC)
-327. shebang-command (MIT)
-328. shebang-regex (MIT)
-329. signal-exit (ISC)
-330. simple-concat (MIT)
-331. simple-get (MIT)
-332. snabbdom-to-html (MIT)
-333. snabbdom (MIT)
-334. source-map-support (MIT)
-335. source-map (BSD-3-Clause)
-336. sprintf-js (BSD-3-Clause)
-337. string-width (MIT)
-338. string_decoder (MIT)
-339. strip-ansi (MIT)
-340. strip-eof (MIT)
-341. strip-json-comments (MIT)
-342. stylis (MIT)
-343. sumchecker (Apache-2.0)
-344. tar-fs (MIT)
-345. tar-stream (MIT)
-346. terser (BSD-2-Clause)
-347. throttle-debounce (MIT)
-348. ticky (MIT)
-349. to-readable-stream (MIT)
-350. to-regex-range (MIT)
-351. topojson-client (ISC)
-352. try-catch (MIT)
-353. try-to-catch (MIT)
-354. tslib (0BSD)
-355. tunnel-agent (Apache-2.0)
-356. tunnel (MIT)
-357. turndown (MIT)
-358. type-fest ((MIT OR CC0-1.0))
-359. type-func (MIT)
-360. typedarray (MIT)
-361. uglify-js (BSD-2-Clause)
-362. underscore (MIT)
-363. universal-user-agent (ISC)
-364. universalify (MIT)
-365. unsplash-js (MIT)
-366. upper-case (MIT)
-367. uri-js (BSD-2-Clause)
-368. url-parse-lax (MIT)
-369. util-deprecate (MIT)
-370. vega-canvas (BSD-3-Clause)
-371. vega-crossfilter (BSD-3-Clause)
-372. vega-dataflow (BSD-3-Clause)
-373. vega-embed (BSD-3-Clause)
-374. vega-encode (BSD-3-Clause)
-375. vega-event-selector (BSD-3-Clause)
-376. vega-expression (BSD-3-Clause)
-377. vega-force (BSD-3-Clause)
-378. vega-format (BSD-3-Clause)
-379. vega-functions (BSD-3-Clause)
-380. vega-geo (BSD-3-Clause)
-381. vega-hierarchy (BSD-3-Clause)
-382. vega-label (BSD-3-Clause)
-383. vega-lite (BSD-3-Clause)
-384. vega-loader (BSD-3-Clause)
-385. vega-parser (BSD-3-Clause)
-386. vega-projection (BSD-3-Clause)
-387. vega-regression (BSD-3-Clause)
-388. vega-runtime (BSD-3-Clause)
-389. vega-scale (BSD-3-Clause)
-390. vega-scenegraph (BSD-3-Clause)
-391. vega-schema-url-parser (BSD-3-Clause)
-392. vega-selections (BSD-3-Clause)
-393. vega-statistics (BSD-3-Clause)
-394. vega-themes (BSD-3-Clause)
-395. vega-time (BSD-3-Clause)
-396. vega-tooltip (BSD-3-Clause)
-397. vega-transforms (BSD-3-Clause)
-398. vega-typings (BSD-3-Clause)
-399. vega-util (BSD-3-Clause)
-400. vega-view-transforms (BSD-3-Clause)
-401. vega-view (BSD-3-Clause)
-402. vega-voronoi (BSD-3-Clause)
-403. vega-wordcloud (BSD-3-Clause)
-404. vega (BSD-3-Clause)
-405. vscode-ripgrep (MIT)
-406. vue-electron (ISC)
-407. vue-router (MIT)
-408. vue (MIT)
-409. vuex (MIT)
-410. webfontloader (Apache-2.0)
-411. which-pm-runs (MIT)
-412. which (ISC)
-413. wide-align (ISC)
-414. windows-release (MIT)
-415. wrap-ansi (MIT)
-416. wrappy (ISC)
-417. xmlbuilder (MIT)
-418. y18n (ISC)
-419. yallist (ISC)
-420. yargs-parser (ISC)
-421. yargs (MIT)
-422. yauzl (MIT)
-423. hunspell (LGPL 2.1)
+61. ced ((ISC AND Apache-2.0))
+62. chokidar (MIT)
+63. chownr (ISC)
+64. cld (Apache)
+65. cliui (ISC)
+66. clone-regexp (MIT)
+67. clone-response (MIT)
+68. clone (MIT)
+69. code-point-at (MIT)
+70. codemirror (MIT)
+71. color-convert (MIT)
+72. color-name (MIT)
+73. command-exists (MIT)
+74. commander (MIT)
+75. concat-map (MIT)
+76. concat-stream (MIT)
+77. conf (MIT)
+78. config-chain (MIT)
+79. console-control-strings (ISC)
+80. content-type (MIT)
+81. contra (MIT)
+82. core-js (MIT)
+83. core-util-is (MIT)
+84. create-point-cb (MIT)
+85. cross-spawn (MIT)
+86. crossvent (MIT)
+87. custom-event (MIT)
+88. d3-array (BSD-3-Clause)
+89. d3-axis (BSD-3-Clause)
+90. d3-brush (BSD-3-Clause)
+91. d3-chord (BSD-3-Clause)
+92. d3-collection (BSD-3-Clause)
+93. d3-color (BSD-3-Clause)
+94. d3-contour (BSD-3-Clause)
+95. d3-delaunay (ISC)
+96. d3-dispatch (BSD-3-Clause)
+97. d3-drag (BSD-3-Clause)
+98. d3-dsv (BSD-3-Clause)
+99. d3-ease (BSD-3-Clause)
+100. d3-fetch (BSD-3-Clause)
+101. d3-force (BSD-3-Clause)
+102. d3-format (BSD-3-Clause)
+103. d3-geo-projection (BSD-3-Clause)
+104. d3-geo (BSD-3-Clause)
+105. d3-hierarchy (BSD-3-Clause)
+106. d3-interpolate (BSD-3-Clause)
+107. d3-path (BSD-3-Clause)
+108. d3-polygon (BSD-3-Clause)
+109. d3-quadtree (BSD-3-Clause)
+110. d3-random (BSD-3-Clause)
+111. d3-scale-chromatic (BSD-3-Clause)
+112. d3-scale (BSD-3-Clause)
+113. d3-selection (BSD-3-Clause)
+114. d3-shape (BSD-3-Clause)
+115. d3-time-format (BSD-3-Clause)
+116. d3-time (BSD-3-Clause)
+117. d3-timer (BSD-3-Clause)
+118. d3-transition (BSD-3-Clause)
+119. d3-voronoi (BSD-3-Clause)
+120. d3-zoom (BSD-3-Clause)
+121. d3 (BSD-3-Clause)
+122. dagre-d3 (MIT)
+123. dagre (MIT)
+124. dayjs (MIT)
+125. debounce-fn (MIT)
+126. debug (MIT)
+127. decompress-response (MIT)
+128. deep-extend (MIT)
+129. deepmerge (MIT)
+130. defer-to-connect (MIT)
+131. define-properties (MIT)
+132. delaunator (ISC)
+133. delegates (MIT)
+134. deprecation (ISC)
+135. detect-libc (Apache-2.0)
+136. detect-node (ISC)
+137. dom-autoscroller (MIT)
+138. dom-mousemove-dispatcher (MIT)
+139. dom-plane (MIT)
+140. dom-set (WTFPL)
+141. domino (BSD-2-Clause)
+142. dompurify ((MPL-2.0 OR Apache-2.0))
+143. dot-prop (MIT)
+144. dragula (MIT)
+145. duplexer3 (BSD-3-Clause)
+146. electron-log (MIT)
+147. electron-store (MIT)
+148. electron-window-state (MIT)
+149. electron (MIT)
+150. element-resize-detector (MIT)
+151. element-ui (MIT)
+152. emoji-regex (MIT)
+153. encodeurl (MIT)
+154. end-of-stream (MIT)
+155. env-paths (MIT)
+156. es6-error (MIT)
+157. escalade (MIT)
+158. escape-string-regexp (MIT)
+159. eve-raphael (Apache*)
+160. event-kit (MIT)
+161. execa (MIT)
+162. execall (MIT)
+163. expand-template ((MIT OR WTFPL))
+164. extract-zip (BSD-2-Clause)
+165. fast-deep-equal (MIT)
+166. fast-json-patch (MIT)
+167. fast-json-stable-stringify (MIT)
+168. fd-slicer (MIT)
+169. file-uri-to-path (MIT)
+170. fill-range (MIT)
+171. find-up (MIT)
+172. flowchart.js (MIT)
+173. follow-redirects (MIT)
+174. fontmanager-redux (MIT)
+175. fs-constants (MIT)
+176. fs-extra (MIT)
+177. fs.realpath (ISC)
+178. function-bind (MIT)
+179. fuzzaldrin (MIT)
+180. gauge (ISC)
+181. get-caller-file (ISC)
+182. get-stream (MIT)
+183. github-from-package (MIT)
+184. github-markdown-css (MIT)
+185. glob-parent (ISC)
+186. glob (ISC)
+187. global-agent (BSD-3-Clause)
+188. global-tunnel-ng (BSD-3-Clause)
+189. globalthis (MIT)
+190. got (MIT)
+191. graceful-fs (ISC)
+192. graphlib (MIT)
+193. has-unicode (ISC)
+194. has (MIT)
+195. html-tags (MIT)
+196. http-cache-semantics (BSD-2-Clause)
+197. https-proxy-agent (MIT)
+198. iconv-lite (MIT)
+199. ieee754 (BSD-3-Clause)
+200. inflight (ISC)
+201. inherits (ISC)
+202. ini (ISC)
+203. internmap (ISC)
+204. is-array (MIT)
+205. is-binary-path (MIT)
+206. is-core-module (MIT)
+207. is-extglob (MIT)
+208. is-fullwidth-code-point (MIT)
+209. is-glob (MIT)
+210. is-number (MIT)
+211. is-obj (MIT)
+212. is-plain-object (MIT)
+213. is-regexp (MIT)
+214. is-stream (MIT)
+215. isarray (MIT)
+216. iselement (MIT)
+217. isexe (ISC)
+218. iso-639-1 (MIT)
+219. isobject (MIT)
+220. joplin-turndown-plugin-gfm (MIT)
+221. json-buffer (MIT)
+222. json-schema-traverse (MIT)
+223. json-schema-typed (BSD-2-Clause)
+224. json-stringify-pretty-compact (MIT)
+225. json-stringify-safe (ISC)
+226. jsonfile (MIT)
+227. katex (MIT)
+228. keyboard-layout (MIT)
+229. keytar (MIT)
+230. keyv (MIT)
+231. khroma (MIT)
+232. locate-path (MIT)
+233. lodash.escape (MIT)
+234. lodash.forown (MIT)
+235. lodash.kebabcase (MIT)
+236. lodash.remove (MIT)
+237. lodash.uniq (MIT)
+238. lodash (MIT)
+239. lowercase-keys (MIT)
+240. lru-cache (ISC)
+241. macos-release (MIT)
+242. mapped-disposable (ISC)
+243. matcher (MIT)
+244. mermaid (MIT)
+245. micromatch (MIT)
+246. mimic-fn (MIT)
+247. mimic-response (MIT)
+248. minimatch (ISC)
+249. minimist (MIT)
+250. minipass (ISC)
+251. minizlib (MIT)
+252. mkdirp-classic (MIT)
+253. mkdirp (MIT)
+254. moment-mini (MIT)
+255. ms (MIT)
+256. nan (MIT)
+257. napi-build-utils (MIT)
+258. native-keymap (MIT)
+259. nice-try (MIT)
+260. node-abi (MIT)
+261. node-addon-api (MIT)
+262. node-fetch (MIT)
+263. normalize-path (MIT)
+264. normalize-url (MIT)
+265. normalize-wheel (BSD-3-Clause)
+266. npm-conf (MIT)
+267. npm-run-path (MIT)
+268. npmlog (ISC)
+269. number-is-nan (MIT)
+270. object-assign (MIT)
+271. object-keys (MIT)
+272. once (ISC)
+273. onetime (MIT)
+274. os-name (MIT)
+275. p-cancelable (MIT)
+276. p-finally (MIT)
+277. p-limit (MIT)
+278. p-locate (MIT)
+279. p-throttle (MIT)
+280. p-try (MIT)
+281. parse-sel (MIT)
+282. path-exists (MIT)
+283. path-is-absolute (MIT)
+284. path-key (MIT)
+285. path-parse (MIT)
+286. pend (MIT)
+287. picomatch (MIT)
+288. pify (MIT)
+289. pkg-up (MIT)
+290. plist (MIT)
+291. popper.js (MIT)
+292. prebuild-install (MIT)
+293. prepend-http (MIT)
+294. prismjs (MIT)
+295. process-nextick-args (MIT)
+296. progress (MIT)
+297. proto-list (ISC)
+298. proxy-from-env (MIT)
+299. pump (MIT)
+300. punycode (MIT)
+301. raphael (MIT)
+302. rc ((BSD-2-Clause OR MIT OR Apache-2.0))
+303. readable-stream (MIT)
+304. readdirp (MIT)
+305. regenerator-runtime (MIT)
+306. require-directory (MIT)
+307. require-from-string (MIT)
+308. resize-observer-polyfill (MIT)
+309. resolve (MIT)
+310. responselike (MIT)
+311. roarr (BSD-3-Clause)
+312. robust-predicates (Unlicense)
+313. rw (BSD-3-Clause)
+314. safe-buffer (MIT)
+315. safer-buffer (MIT)
+316. semver-compare (MIT)
+317. semver (ISC)
+318. serialize-error (MIT)
+319. set-blocking (ISC)
+320. shebang-command (MIT)
+321. shebang-regex (MIT)
+322. signal-exit (ISC)
+323. simple-concat (MIT)
+324. simple-get (MIT)
+325. snabbdom-to-html (MIT)
+326. snabbdom (MIT)
+327. source-map-support (MIT)
+328. source-map (BSD-3-Clause)
+329. sprintf-js (BSD-3-Clause)
+330. string-width (MIT)
+331. string_decoder (MIT)
+332. strip-ansi (MIT)
+333. strip-eof (MIT)
+334. strip-json-comments (MIT)
+335. stylis (MIT)
+336. sumchecker (Apache-2.0)
+337. supports-preserve-symlinks-flag (MIT)
+338. tar-fs (MIT)
+339. tar-stream (MIT)
+340. throttle-debounce (MIT)
+341. ticky (MIT)
+342. to-readable-stream (MIT)
+343. to-regex-range (MIT)
+344. topojson-client (ISC)
+345. tslib (0BSD)
+346. tunnel-agent (Apache-2.0)
+347. tunnel (MIT)
+348. turndown (MIT)
+349. type-fest ((MIT OR CC0-1.0))
+350. type-func (MIT)
+351. typedarray (MIT)
+352. underscore (MIT)
+353. universal-user-agent (ISC)
+354. universalify (MIT)
+355. unsplash-js (MIT)
+356. uri-js (BSD-2-Clause)
+357. url-parse-lax (MIT)
+358. util-deprecate (MIT)
+359. vega-canvas (BSD-3-Clause)
+360. vega-crossfilter (BSD-3-Clause)
+361. vega-dataflow (BSD-3-Clause)
+362. vega-embed (BSD-3-Clause)
+363. vega-encode (BSD-3-Clause)
+364. vega-event-selector (BSD-3-Clause)
+365. vega-expression (BSD-3-Clause)
+366. vega-force (BSD-3-Clause)
+367. vega-format (BSD-3-Clause)
+368. vega-functions (BSD-3-Clause)
+369. vega-geo (BSD-3-Clause)
+370. vega-hierarchy (BSD-3-Clause)
+371. vega-interpreter (BSD-3-Clause)
+372. vega-label (BSD-3-Clause)
+373. vega-lite (BSD-3-Clause)
+374. vega-loader (BSD-3-Clause)
+375. vega-parser (BSD-3-Clause)
+376. vega-projection (BSD-3-Clause)
+377. vega-regression (BSD-3-Clause)
+378. vega-runtime (BSD-3-Clause)
+379. vega-scale (BSD-3-Clause)
+380. vega-scenegraph (BSD-3-Clause)
+381. vega-schema-url-parser (BSD-3-Clause)
+382. vega-selections (BSD-3-Clause)
+383. vega-statistics (BSD-3-Clause)
+384. vega-themes (BSD-3-Clause)
+385. vega-time (BSD-3-Clause)
+386. vega-tooltip (BSD-3-Clause)
+387. vega-transforms (BSD-3-Clause)
+388. vega-typings (BSD-3-Clause)
+389. vega-util (BSD-3-Clause)
+390. vega-view-transforms (BSD-3-Clause)
+391. vega-view (BSD-3-Clause)
+392. vega-voronoi (BSD-3-Clause)
+393. vega-wordcloud (BSD-3-Clause)
+394. vega (BSD-3-Clause)
+395. vscode-ripgrep (MIT)
+396. vue-electron (ISC)
+397. vue-router (MIT)
+398. vue (MIT)
+399. vuex (MIT)
+400. webfontloader (Apache-2.0)
+401. which (ISC)
+402. wide-align (ISC)
+403. windows-release (MIT)
+404. wrap-ansi (MIT)
+405. wrappy (ISC)
+406. xmlbuilder (MIT)
+407. y18n (ISC)
+408. yallist (ISC)
+409. yargs-parser (ISC)
+410. yargs (MIT)
+411. yauzl (MIT)
+412. hunspell (LGPL 2.1)
 
 
 -------------------------------------------------
@@ -1265,7 +1254,7 @@ MIT License
 
 
 
-# @types/fast-json-stable-stringify (MIT)
+# @types/estree (MIT)
 -------------------------------------------------
 MIT License
 
@@ -2518,32 +2507,6 @@ SOFTWARE.
 
 
 
-# camel-case (MIT)
--------------------------------------------------
-The MIT License (MIT)
-
-Copyright (c) 2014 Blake Embrey (hello@blakeembrey.com)
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
-
-
-
 # ced ((ISC AND Apache-2.0))
 -------------------------------------------------
 This software is licensed under the ISC License:
@@ -3021,30 +2984,6 @@ Apache License
    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
    See the License for the specific language governing permissions and
    limitations under the License.
-
-
-
-# clean-css (MIT)
--------------------------------------------------
-Copyright (C) 2017 JakubPawlowicz.com
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is furnished
-to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
-OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
-DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
-ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
-DEALINGS IN THE SOFTWARE.
 
 
 
@@ -3558,89 +3497,6 @@ FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
 COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-
-
-# css-b64-images (MIT)
--------------------------------------------------
-[![build status](https://secure.travis-ci.org/Filirom1/css-base64-images.png)](http://travis-ci.org/Filirom1/css-base64-images)
-css-base64-images
-=================
-
-Base64 images in your css file.
-
-![Base64](https://github.com/Filirom1/css-base64-images/raw/master/draft.png)
-
-Transform this:
-
-    .single-quote {
-      background: url('../img/background-pattern.gif');
-    }
-
-into
-
-    .single-quote {
-      background: url('data:image/gif;base64,R0lGODlhBgAGAIAAAObm5vLy8iH/C1hNUCBEYXRhWE1QPD94cGFja2V0IGJlZ2luPSLvu78iIGlkPSJXNU0wTXBDZWhpSHpyZVN6TlRjemtjOWQiPz4gPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iQWRvYmUgWE1QIENvcmUgNS4wLWMwNjAgNjEuMTM0Nzc3LCAyMDEwLzAyLzEyLTE3OjMyOjAwICAgICAgICAiPiA8cmRmOlJERiB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiPiA8cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0iIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtbG5zOnhtcE1NPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvbW0vIiB4bWxuczpzdFJlZj0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL3NUeXBlL1Jlc291cmNlUmVmIyIgeG1wOkNyZWF0b3JUb29sPSJBZG9iZSBQaG90b3Nob3AgQ1M1IE1hY2ludG9zaCIgeG1wTU06SW5zdGFuY2VJRD0ieG1wLmlpZDpFMEY0NTFERjVEQ0ExMUUwOURGQ0Y2NjAyQTkzMUQ2OSIgeG1wTU06RG9jdW1lbnRJRD0ieG1wLmRpZDpFMEY0NTFFMDVEQ0ExMUUwOURGQ0Y2NjAyQTkzMUQ2OSI+IDx4bXBNTTpEZXJpdmVkRnJvbSBzdFJlZjppbnN0YW5jZUlEPSJ4bXAuaWlkOkUwRjQ1MURENURDQTExRTA5REZDRjY2MDJBOTMxRDY5IiBzdFJlZjpkb2N1bWVudElEPSJ4bXAuZGlkOkUwRjQ1MURFNURDQTExRTA5REZDRjY2MDJBOTMxRDY5Ii8+IDwvcmRmOkRlc2NyaXB0aW9uPiA8L3JkZjpSREY+IDwveDp4bXBtZXRhPiA8P3hwYWNrZXQgZW5kPSJyIj8+Af/+/fz7+vn49/b19PPy8fDv7u3s6+rp6Ofm5eTj4uHg397d3Nva2djX1tXU09LR0M/OzczLysnIx8bFxMPCwcC/vr28u7q5uLe2tbSzsrGwr66trKuqqainpqWko6KhoJ+enZybmpmYl5aVlJOSkZCPjo2Mi4qJiIeGhYSDgoGAf359fHt6eXh3dnV0c3JxcG9ubWxramloZ2ZlZGNiYWBfXl1cW1pZWFdWVVRTUlFQT05NTEtKSUhHRkVEQ0JBQD8+PTw7Ojk4NzY1NDMyMTAvLi0sKyopKCcmJSQjIiEgHx4dHBsaGRgXFhUUExIREA8ODQwLCgkIBwYFBAMCAQAAIfkEAAAAAAAsAAAAAAYABgAAAgqMDYcaqX6AnKAAADs=');
-    }
-
-Only works with CSS files.
-
-Works with:
-
-* single quotes: url('../img/background-pattern.gif');
-* double quotes: url("../img/background-pattern.gif");
-* absolute URL: url("/img/background-pattern.gif"); but you must specify a `root` path
-
-Do not work with (a warning is shown, but the process continue)
-
-* File bigger than 4Ko (configurable)
-* external urls: url("http://my-company.ext/img/background-pattern.gif");
-* not found images
-
-## Install
-
-    npm install -g css-b64-images
-
-## Usage
-
-    cd /your/www/root/dir
-    css-b64-images css/styles.css > css/style.optimized.css
-
-## As a library
-
-### From File
-
-fromFile(cssFile, root, [options,] cb)
-
-You must specify the `root` path for absolute URLs to work.
-
-    var b64img = require('css-b64-images');
-
-    b64img.fromFile('/your/www/root/dir/css/your-stylesheet.css', '/your/www/root/dir/', function(err, css){
-      if(err) console.error('Error:', err);
-      console.log(css);
-    });
-
-### From String
-
-fromString(css, relativePath, rootPath, [options,] cb)
-
-    var b64img = require('css-b64-images');
-    var css = fs.readFileSync('/your/www/root/dir/css/your-stylesheet.css');
-
-    b64img.fromString(css, '/your/www/root/dir/css/', '/your/www/root/dir/', function(err, css){
-      if(err) console.error('Error:', err);
-      console.log(css);
-    });
-
-### Options
-
-* maxSize: (default 4096) bigger images are not base64 in the CSS
-
-
-## LICENSE
-
-MIT
 
 
 
@@ -6199,32 +6055,6 @@ THE SOFTWARE.
 
 
 
-# entity-decode (MIT)
--------------------------------------------------
-MIT License
-
-Copyright (c) 2018 
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-
-
-
 # env-paths (MIT)
 -------------------------------------------------
 MIT License
@@ -6778,7 +6608,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 # flowchart.js (MIT)
 -------------------------------------------------
-Copyright (c) 2019 Adriano Raiano
+Copyright (c) 2022 Adriano Raiano
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -7126,6 +6956,30 @@ the licensed code:
 
 
 
+# function-bind (MIT)
+-------------------------------------------------
+Copyright (c) 2013 Raynos.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+
+
+
 # fuzzaldrin (MIT)
 -------------------------------------------------
 Copyright (c) 2009-2011 Joshaven Potter <yourtech@gmail.com>
@@ -7426,34 +7280,9 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 
 
-# he (MIT)
+# has (MIT)
 -------------------------------------------------
-Copyright Mathias Bynens <https://mathiasbynens.be/>
-
-Permission is hereby granted, free of charge, to any person obtaining
-a copy of this software and associated documentation files (the
-"Software"), to deal in the Software without restriction, including
-without limitation the rights to use, copy, modify, merge, publish,
-distribute, sublicense, and/or sell copies of the Software, and to
-permit persons to whom the Software is furnished to do so, subject to
-the following conditions:
-
-The above copyright notice and this permission notice shall be
-included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-
-
-# html-minifier (MIT)
--------------------------------------------------
-Copyright (c) 2010-2018 Juriy "kangax" Zaytsev
+Copyright (c) 2013 Thiago de Arruda
 
 Permission is hereby granted, free of charge, to any person
 obtaining a copy of this software and associated documentation
@@ -7749,6 +7578,24 @@ IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 
 
+# internmap (ISC)
+-------------------------------------------------
+Copyright 2021 Mike Bostock
+
+Permission to use, copy, modify, and/or distribute this software for any purpose
+with or without fee is hereby granted, provided that the above copyright notice
+and this permission notice appear in all copies.
+
+THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
+REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND
+FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
+INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS
+OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER
+TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
+THIS SOFTWARE.
+
+
+
 # is-array (MIT)
 -------------------------------------------------
 <a href="https://jepso-ci.com/yields/isArray">
@@ -7792,6 +7639,31 @@ Permission is hereby granted, free of charge, to any person obtaining a copy of 
 The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+
+
+# is-core-module (MIT)
+-------------------------------------------------
+The MIT License (MIT)
+
+Copyright (c) 2014 Dave Justice
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of
+this software and associated documentation files (the "Software"), to deal in
+the Software without restriction, including without limitation the rights to
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+the Software, and to permit persons to whom the Software is furnished to do so,
+subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
 
@@ -8255,7 +8127,7 @@ POSSIBILITY OF SUCH DAMAGE.
 -------------------------------------------------
 The MIT License (MIT)
 
-Copyright (c) 2014, 2016, 2017, 2019 Simon Lydell
+Copyright (c) 2014, 2016, 2017, 2019, 2021 Simon Lydell
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -8771,32 +8643,6 @@ terms above.
 
 
 
-# lower-case (MIT)
--------------------------------------------------
-The MIT License (MIT)
-
-Copyright (c) 2014 Blake Embrey (hello@blakeembrey.com)
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
-
-
-
 # lowercase-keys (MIT)
 -------------------------------------------------
 The MIT License (MIT)
@@ -8893,7 +8739,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 -------------------------------------------------
 The MIT License (MIT)
 
-Copyright (c) 2014 - 2020 Knut Sveidqvist
+Copyright (c) 2014 - 2021 Knut Sveidqvist
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -8966,33 +8812,6 @@ Permission is hereby granted, free of charge, to any person obtaining a copy of 
 The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-
-
-# minify (MIT)
--------------------------------------------------
-(The MIT License)
-
-Copyright (c) 2012-2019 Coderaiser <mnemonic.enemy@gmail.com>
-
-Permission is hereby granted, free of charge, to any person obtaining
-a copy of this software and associated documentation files (the
-"Software"), to deal in the Software without restriction, including
-without limitation the rights to use, copy, modify, merge, publish,
-distribute, sublicense, and/or sell copies of the Software, and to
-permit persons to whom the Software is furnished to do so, subject to
-the following conditions:
-
-The above copyright notice and this permission notice shall be
-included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
 
@@ -9272,32 +9091,6 @@ THE SOFTWARE.
 
 
 
-# no-case (MIT)
--------------------------------------------------
-The MIT License (MIT)
-
-Copyright (c) 2014 Blake Embrey (hello@blakeembrey.com)
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
-
-
-
 # node-abi (MIT)
 -------------------------------------------------
 MIT License
@@ -9365,38 +9158,6 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-
-
-
-# noop-logger (MIT)
--------------------------------------------------
-[![Build Status](https://circleci.com/gh/segmentio/noop-logger.png?circle-token=3281390270513cae0e50fd18b8d972eb48a56879)](https://circleci.com/gh/segmentio/noop-logger)
-
-# noop-logger
-
-  A logger that does exactly nothing, useful when you want to test modules that require a logger to be passed in.
-
-## Installation
-
-    $ npm install noop-logger
-
-## API
-
-  Exposes the following noops:
-
-  - `logger.debug`
-  - `logger.info`
-  - `logger.warn`
-  - `logger.error`
-  - `logger.critical`
-  - `logger.alert`
-  - `logger.emergency`
-  - `logger.notice`
-  - `logger.fatal`
-
-## License
-
-  MIT
 
 
 
@@ -9754,32 +9515,6 @@ Permission is hereby granted, free of charge, to any person obtaining a copy of 
 The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-
-
-# param-case (MIT)
--------------------------------------------------
-The MIT License (MIT)
-
-Copyright (c) 2014 Blake Embrey (hello@blakeembrey.com)
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
 
 
 
@@ -10642,32 +10377,6 @@ require("regenerator-runtime/path").path
 
 
 
-# relateurl (MIT)
--------------------------------------------------
-The MIT License (MIT)
-
-Copyright (c) Steven Vachon <contact@svachon.com> (svachon.com)
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
-
-
-
 # require-directory (MIT)
 -------------------------------------------------
 The MIT License (MIT)
@@ -10823,6 +10532,35 @@ LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
 ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+
+
+# robust-predicates (Unlicense)
+-------------------------------------------------
+This is free and unencumbered software released into the public domain.
+
+Anyone is free to copy, modify, publish, use, compile, sell, or
+distribute this software, either in source code form or as a compiled
+binary, for any purpose, commercial or non-commercial, and by any
+means.
+
+In jurisdictions that recognize copyright laws, the author or authors
+of this software dedicate any and all copyright interest in the
+software to the public domain. We make this dedication for the benefit
+of the public at large and to the detriment of our heirs and
+successors. We intend this dedication to be an overt act of
+relinquishment in perpetuity of all present and future rights to this
+software under copyright law.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR
+OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+OTHER DEALINGS IN THE SOFTWARE.
+
+For more information, please refer to <http://unlicense.org>
 
 
 
@@ -11454,7 +11192,7 @@ THE SOFTWARE.
 -------------------------------------------------
 MIT License
 
-Copyright (c) 2016 Sultan Tarimo
+Copyright (c) 2016-present Sultan Tarimo
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -11682,6 +11420,32 @@ Apache License
 
 
 
+# supports-preserve-symlinks-flag (MIT)
+-------------------------------------------------
+MIT License
+
+Copyright (c) 2022 Inspect JS
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+
+
 # tar-fs (MIT)
 -------------------------------------------------
 The MIT License (MIT)
@@ -11731,40 +11495,6 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
-
-
-
-# terser (BSD-2-Clause)
--------------------------------------------------
-UglifyJS is released under the BSD license:
-
-Copyright 2012-2018 (c) Mihai Bazon <mihai.bazon@gmail.com>
-
-Redistribution and use in source and binary forms, with or without
-modification, are permitted provided that the following conditions
-are met:
-
-    * Redistributions of source code must retain the above
-      copyright notice, this list of conditions and the following
-      disclaimer.
-
-    * Redistributions in binary form must reproduce the above
-      copyright notice, this list of conditions and the following
-      disclaimer in the documentation and/or other materials
-      provided with the distribution.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDER “AS IS” AND ANY
-EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER BE
-LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY,
-OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
-TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
-THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
-SUCH DAMAGE.
 
 
 
@@ -12181,58 +11911,6 @@ THIS SOFTWARE.
 
 
 
-# try-catch (MIT)
--------------------------------------------------
-The MIT License (MIT)
-
-Copyright (c) 2014-2018 coderaiser
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-
-
-
-# try-to-catch (MIT)
--------------------------------------------------
-The MIT License (MIT)
-
-Copyright (c) coderaiser
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-
-
-
 # tslib (0BSD)
 -------------------------------------------------
 Copyright (c) Microsoft Corporation.
@@ -12442,40 +12120,6 @@ SOFTWARE.
 
 
 
-# uglify-js (BSD-2-Clause)
--------------------------------------------------
-UglifyJS is released under the BSD license:
-
-Copyright 2012-2019 (c) Mihai Bazon <mihai.bazon@gmail.com>
-
-Redistribution and use in source and binary forms, with or without
-modification, are permitted provided that the following conditions
-are met:
-
-    * Redistributions of source code must retain the above
-      copyright notice, this list of conditions and the following
-      disclaimer.
-
-    * Redistributions in binary form must reproduce the above
-      copyright notice, this list of conditions and the following
-      disclaimer in the documentation and/or other materials
-      provided with the distribution.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDER “AS IS” AND ANY
-EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER BE
-LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY,
-OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
-TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
-THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
-SUCH DAMAGE.
-
-
-
 # underscore (MIT)
 -------------------------------------------------
 Copyright (c) 2009-2021 Jeremy Ashkenas, Julian Gonggrijp, and DocumentCloud and Investigative Reporters & Editors
@@ -12563,32 +12207,6 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-
-
-
-# upper-case (MIT)
--------------------------------------------------
-The MIT License (MIT)
-
-Copyright (c) 2014 Blake Embrey (hello@blakeembrey.com)
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
 
 
 
@@ -12813,7 +12431,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 # vega-event-selector (BSD-3-Clause)
 -------------------------------------------------
-Copyright (c) 2015-2018, University of Washington Interactive Data Lab
+Copyright (c) 2015-2021, University of Washington Interactive Data Lab
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -12845,7 +12463,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 # vega-expression (BSD-3-Clause)
 -------------------------------------------------
-Copyright (c) 2015-2018, University of Washington Interactive Data Lab
+Copyright (c) 2015-2021, University of Washington Interactive Data Lab
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -12941,7 +12559,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 # vega-functions (BSD-3-Clause)
 -------------------------------------------------
-Copyright (c) 2015-2018, University of Washington Interactive Data Lab
+Copyright (c) 2015-2021, University of Washington Interactive Data Lab
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -13035,9 +12653,41 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 
-# vega-label (BSD-3-Clause)
+# vega-interpreter (BSD-3-Clause)
 -------------------------------------------------
 Copyright (c) 2015-2018, University of Washington Interactive Data Lab
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+
+1. Redistributions of source code must retain the above copyright notice, this
+   list of conditions and the following disclaimer.
+
+2. Redistributions in binary form must reproduce the above copyright notice,
+   this list of conditions and the following disclaimer in the documentation
+   and/or other materials provided with the distribution.
+
+3. Neither the name of the copyright holder nor the names of its contributors
+  may be used to endorse or promote products derived from this software
+  without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+
+
+# vega-label (BSD-3-Clause)
+-------------------------------------------------
+Copyright (c) 2015-2021, University of Washington Interactive Data Lab
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -13101,7 +12751,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 # vega-loader (BSD-3-Clause)
 -------------------------------------------------
-Copyright (c) 2015-2018, University of Washington Interactive Data Lab
+Copyright (c) 2015-2021, University of Washington Interactive Data Lab
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -13133,7 +12783,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 # vega-parser (BSD-3-Clause)
 -------------------------------------------------
-Copyright (c) 2015-2018, University of Washington Interactive Data Lab
+Copyright (c) 2015-2021, University of Washington Interactive Data Lab
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -13359,7 +13009,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 # vega-selections (BSD-3-Clause)
 -------------------------------------------------
-Copyright (c) 2015-2018, University of Washington Interactive Data Lab
+Copyright (c) 2015-2021, University of Washington Interactive Data Lab
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -13391,7 +13041,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 # vega-statistics (BSD-3-Clause)
 -------------------------------------------------
-Copyright (c) 2015-2018, University of Washington Interactive Data Lab
+Copyright (c) 2015-2021, University of Washington Interactive Data Lab
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -13535,39 +13185,17 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 # vega-typings (BSD-3-Clause)
 -------------------------------------------------
-Copyright (c) 2015-2018, University of Washington Interactive Data Lab
-All rights reserved.
+# Vega-Typings
 
-Redistribution and use in source and binary forms, with or without
-modification, are permitted provided that the following conditions are met:
+[![npm version](https://img.shields.io/npm/v/vega-typings.svg)](https://www.npmjs.com/package/vega-typings)
 
-1. Redistributions of source code must retain the above copyright notice, this
-   list of conditions and the following disclaimer.
-
-2. Redistributions in binary form must reproduce the above copyright notice,
-   this list of conditions and the following disclaimer in the documentation
-   and/or other materials provided with the distribution.
-
-3. Neither the name of the copyright holder nor the names of its contributors
-  may be used to endorse or promote products derived from this software
-  without specific prior written permission.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE
-FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+Typings for [Vega](https://github.com/vega/vega).
 
 
 
 # vega-util (BSD-3-Clause)
 -------------------------------------------------
-Copyright (c) 2015-2018, University of Washington Interactive Data Lab
+Copyright (c) 2015-2021, University of Washington Interactive Data Lab
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -13727,7 +13355,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 # vega (BSD-3-Clause)
 -------------------------------------------------
-Copyright (c) 2015-2018, University of Washington Interactive Data Lab
+Copyright (c) 2015-2021, University of Washington Interactive Data Lab
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -14041,32 +13669,6 @@ Apache License
       of your accepting any such warranty or additional liability.
 
    END OF TERMS AND CONDITIONS
-
-
-
-# which-pm-runs (MIT)
--------------------------------------------------
-The MIT License (MIT)
-
-Copyright (c) 2017 Zoltan Kochan
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
 
 
 
