@@ -37,7 +37,7 @@
   </a>
   <!-- Downloads latest release -->
   <a href="https://github.com/marktext/marktext/releases/latest">
-    <img src="https://img.shields.io/github/downloads/marktext/marktext/v0.16.3/total.svg" alt="latest download">
+    <img src="https://img.shields.io/github/downloads/marktext/marktext/v0.17.0/total.svg" alt="latest download">
   </a>
   <!-- sponsors -->
   <a href="https://opencollective.com/marktext">
@@ -71,31 +71,31 @@
 
 <div align="center">
   <sub>번역본:</sub>
-  <a href="docs/i18n/zh_cn.md#readme">
+  <a href="zh_cn.md#readme">
     <span>:cn:</span>
   </a>
-  <a href="docs/i18n/zh_tw.md#readme">
+  <a href="zh_tw.md#readme">
     <span>:taiwan:</span>
   </a>
-  <a href="docs/i18n/pl.md#readme">
+  <a href="pl.md#readme">
     <span>:poland:</span>
   </a>
-  <a href="docs/i18n/ja.md#readme">
+  <a href="ja.md#readme">
     <span>:jp:</span>
   </a>
-  <a href="docs/i18n/french.md#readme">
+  <a href="french.md#readme">
     <span>:fr:</span>
   </a>
-  <a href="docs/i18n/tr.md#readme">
+  <a href="tr.md#readme">
     <span>:tr:</span>
   </a>
-  <a href="docs/i18n/spanish.md#readme">
+  <a href="spanish.md#readme">
     <span>:es:</span>
   </a>
-  <a href="docs/i18n/pt.md#readme">
+  <a href="pt.md#readme">
     <span>:portugal:</span>
   </a>
-  <a href="docs/i18n/ko.md#readme">
+  <a href="ko.md#readme">
     <span>:kr:</span>
   </a>
 </div>
@@ -201,7 +201,7 @@ Open Collective: 모든 지출은 투명합니다. 후원금은 마크 텍스트
 
 | ![](https://raw.githubusercontent.com/wiki/ryanoasis/nerd-fonts/screenshots/v1.0.x/mac-pass-sm.png)                                                                                                  | ![](https://raw.githubusercontent.com/wiki/ryanoasis/nerd-fonts/screenshots/v1.0.x/windows-pass-sm.png)                                                                                                          | ![](https://raw.githubusercontent.com/wiki/ryanoasis/nerd-fonts/screenshots/v1.0.x/linux-pass-sm.png)                                                                                                                        |
 |:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
-| [![최신 버전](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext.dmg.svg)](https://github.com/marktext/marktext/releases/download/v0.16.3/marktext.dmg) | [![최신 버전](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-setup.exe.svg)](https://github.com/marktext/marktext/releases/download/v0.16.3/marktext-setup.exe) | [![최신 버전](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-x86_64.AppImage.svg)](https://github.com/marktext/marktext/releases/download/v0.16.3/marktext-x86_64.AppImage) |
+| [![최신 버전](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext.dmg.svg)](https://github.com/marktext/marktext/releases/download/v0.17.0/marktext.dmg) | [![최신 버전](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-setup.exe.svg)](https://github.com/marktext/marktext/releases/download/v0.17.0/marktext-setup.exe) | [![최신 버전](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-x86_64.AppImage.svg)](https://github.com/marktext/marktext/releases/download/v0.17.0/marktext-x86_64.AppImage) |
 
 최신 버전의 새로운 기능을 보고 싶나요? [변경사항](.github/CHANGELOG.md)을 참조하세요.
 

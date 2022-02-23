@@ -1219,9 +1219,20 @@ const actions = {
     return ipcRenderer.sendSync('mt::ask-for-image-path')
   },
 
-  LISTEN_WINDOW_ZOOM () {
+  LISTEN_WINDOW_ZOOM ({ dispatch, rootState }) {
     ipcRenderer.on('mt::window-zoom', (e, zoomFactor) => {
+      zoomFactor = Number.parseFloat(zoomFactor.toFixed(3)) // prevent float rounding errors
+      const { zoom } = rootState.preferences
+      if (zoom !== zoomFactor) {
+        dispatch('SET_SINGLE_PREFERENCE', { type: 'zoom', value: zoomFactor })
+      }
       webFrame.setZoomFactor(zoomFactor)
+    })
+  },
+
+  LISTEN_FOR_RELOAD_IMAGES () {
+    ipcRenderer.on('mt::invalidate-image-cache', (e) => {
+      bus.$emit('invalidate-image-cache')
     })
   }
 }

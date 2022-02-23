@@ -1,12 +1,12 @@
-import fs from 'fs-extra'
+import fs from 'fs'
 import path from 'path'
 import Slugger from 'muya/lib/parser/marked/slugger'
-import sanitize from 'muya/lib/utils/dompurify'
 import { isFile } from 'common/filesystem'
-import { escapeHtml, unescapeHtml } from 'muya/lib/utils'
+import { escapeHTML, unescapeHTML } from 'muya/lib/utils'
 import academicTheme from '@/assets/themes/export/academic.theme.css'
 import liberTheme from '@/assets/themes/export/liber.theme.css'
 import { cloneObj } from '../util'
+import { sanitize, EXPORT_DOMPURIFY_CONFIG } from '../util/dompurify'
 
 export const getCssForOptions = options => {
   const {
@@ -87,7 +87,7 @@ export const getCssForOptions = options => {
     // Close @page
     output += '}'
   }
-  return unescapeHtml(sanitize(escapeHtml(output), EXPORT_DOMPURIFY_CONFIG))
+  return unescapeHTML(sanitize(escapeHTML(output), EXPORT_DOMPURIFY_CONFIG))
 }
 
 const generateHtmlToc = (tocList, slugger, currentLevel, options) => {
@@ -128,17 +128,6 @@ export const getHtmlToc = (toc, options = {}) => {
   const title = options.tocTitle ? options.tocTitle : 'Table of Contents'
   const html = `<div class="toc-container"><p class="toc-title">${title}</p><ul class="toc-list">${tocList}</ul></div>`
   return sanitize(html, EXPORT_DOMPURIFY_CONFIG)
-}
-
-const EXPORT_DOMPURIFY_CONFIG = {
-  FORBID_ATTR: ['contenteditable'],
-  ALLOW_DATA_ATTR: false,
-  USE_PROFILES: {
-    html: true,
-    svg: true,
-    svgFilters: true,
-    mathMl: true
-  }
 }
 
 // Don't use "Noto Color Emoji" because it will result in PDF files with multiple MB and weird looking emojis.

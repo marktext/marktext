@@ -1,7 +1,7 @@
 const rendererCache = new Map()
 /**
  *
- * @param {string} name the renderer name: katex, sequence, flowchart, mermaid, vega-lite
+ * @param {string} name the renderer name: katex, sequence, plantuml, flowchart, mermaid, vega-lite
  */
 const loadRenderer = async (name) => {
   if (!rendererCache.has(name)) {
@@ -11,12 +11,16 @@ const loadRenderer = async (name) => {
         m = await import('../parser/render/sequence')
         rendererCache.set(name, m.default)
         break
+      case 'plantuml':
+        m = await import('../parser/render/plantuml')
+        rendererCache.set(name, m.default)
+        break
       case 'flowchart':
         m = await import('flowchart.js')
         rendererCache.set(name, m.default)
         break
       case 'mermaid':
-        m = await import('mermaid/dist/mermaid.core')
+        m = await import('mermaid/dist/mermaid.core.js')
         rendererCache.set(name, m.default)
         break
       case 'vega-lite':

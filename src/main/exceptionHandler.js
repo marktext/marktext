@@ -27,7 +27,7 @@ const exceptionToString = (error, type) => {
   return `Version: ${global.MARKTEXT_VERSION_STRING || app.getVersion()}\n` +
     `OS: ${getOSInformation()}\n` +
     `Type: ${type}\n` +
-    `Date: ${new Date().toGMTString()}\n` +
+    `Date: ${new Date().toUTCString()}\n` +
     `Message: ${message}\n` +
     `Stack: ${stack}\n`
 }
@@ -41,7 +41,7 @@ const handleError = async (title, error, type) => {
   }
 
   if (EXIT_ON_ERROR) {
-    console.log('Mark Text was terminated due to an unexpected error (MARKTEXT_EXIT_ON_ERROR variable was set)!')
+    console.log('MarkText was terminated due to an unexpected error (MARKTEXT_EXIT_ON_ERROR variable was set)!')
     process.exit(1)
     // eslint, don't lie to me, the return statement is important!
     return // eslint-disable-line no-unreachable
@@ -86,7 +86,7 @@ ${title}.
 
 ### Version
 
-Mark Text: ${global.MARKTEXT_VERSION_STRING}
+MarkText: ${global.MARKTEXT_VERSION_STRING}
 Operating system: ${getOSInformation()}`)
         break
       }

@@ -1,4 +1,4 @@
-## Mark Text Preferences
+## MarkText Preferences
 
 Preferences can be controlled and modified in the settings window or via the `preferences.json` file in the [application data directory](APPLICATION_DATA_DIRECTORY.md).
 
@@ -11,13 +11,13 @@ Preferences can be controlled and modified in the settings window or via the `pr
 | titleBarStyle          | String  | custom        | The title bar style on Linux and Window: `custom` or `native`                                                                                              |
 | openFilesInNewWindow   | Boolean | false         | true, false                                                                                                                                                |
 | openFolderInNewWindow  | Boolean | false         | true, false                                                                                                                                                |
+| zoom                   | Number  | 1.0           | The zoom level. Between 0.5 and 2.0 inclusive.                                                                                              |
 | hideScrollbar          | Boolean | false         | Whether to hide scrollbars. Optional value: true, false                                                                                                    |
 | wordWrapInToc          | Boolean | false         | Whether to enable word wrap in TOC. Optional value: true, false                                                                                            |
-| aidou                  | Boolean | true          | Enable aidou. Optional value: true, false                                                                                                                  |
 | fileSortBy             | String  | created       | Sort files in opened folder by `created` time, modified time and title.                                                                                    |
-| startUpAction          | String  | lastState     | The action after Mark Text startup, open the last edited content, open the specified folder or blank page, optional value: `lastState`, `folder`, `blank` |
+| startUpAction          | String  | lastState     | The action after MarkText startup, open the last edited content, open the specified folder or blank page, optional value: `lastState`, `folder`, `blank` |
 | defaultDirectoryToOpen | String  | `""`          | The path that should be opened if `startUpAction=folder`.                                                                                                  |
-| language               | String  | en            | The language Mark Text use.                                                                                                                                |
+| language               | String  | en            | The language MarkText use.                                                                                                                                |
 
 #### Editor
 
@@ -35,7 +35,7 @@ Preferences can be controlled and modified in the settings window or via the `pr
 | codeFontFamily                     | String  | `DejaVu Sans Mono` | Code font family                                                                                                                                                               |
 | trimUnnecessaryCodeBlockEmptyLines | Boolean | true               | Whether to trim the beginning and end empty line in Code block                                                                                                                 |
 | hideQuickInsertHint                | Boolean | false              | Hide hint for quickly creating paragraphs                                                                                                                                      |
-| imageDropAction                    | String  | folder             | The default behavior after paste or drag the image to Mark Text, upload it to the image cloud (if configured), move to the specified folder, insert the path          |
+| imageDropAction                    | String  | folder             | The default behavior after paste or drag the image to MarkText, upload it to the image cloud (if configured), move to the specified folder, insert the path          |
 | defaultEncoding                    | String  | `utf8`             | The default file encoding                                                                                                                                                      |
 | autoGuessEncoding                  | Boolean | true               | Try to automatically guess the file encoding when opening files                                                                                                                |
 | trimTrailingNewline                | Enum    | `2`                | Ensure a single trailing newline or whether trailing newlines should be removed: `0`: trim all trailing newlines, `1`: ensure single newline, `2`: auto detect, `3`: disabled. |
@@ -49,7 +49,7 @@ Preferences can be controlled and modified in the settings window or via the `pr
 | preferLooseListItem | Boolean | true    | The preferred list type.                                                                                                             |
 | bulletListMarker    | String  | `-`     | The preferred marker used in bullet list, optional value: `-`, `*` `+`                                                               |
 | orderListDelimiter  | String  | `.`     | The preferred delimiter used in order list, optional value: `.` `)`                                                                  |
-| preferHeadingStyle  | String  | `atx`   | The preferred heading style in Mark Text, optional value `atx` `setext`, [more info](https://spec.commonmark.org/0.29/#atx-headings) |
+| preferHeadingStyle  | String  | `atx`   | The preferred heading style in MarkText, optional value `atx` `setext`, [more info](https://spec.commonmark.org/0.29/#atx-headings) |
 | tabSize             | Number  | 4       | The number of spaces a tab is equal to                                                                                               |
 | listIndentation     | String  | 1       | The list indentation of sub list items or paragraphs, optional value `dfm`, `tab` or number 1~4                                      |
 | frontmatterType     | String  | `-`     | The frontmatter type: `-` (YAML), `+` (TOML), `;` (JSON) or `{` (JSON)                                                               |

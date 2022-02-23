@@ -19,6 +19,7 @@ import mathblockIcon from '../../../assets/pngicon/math/2.png'
 import orderListIcon from '../../../assets/pngicon/order_list/2.png'
 import flowchartIcon from '../../../assets/pngicon/flowchart/2.png'
 import sequenceIcon from '../../../assets/pngicon/sequence/2.png'
+import plantumlIcon from '../../../assets/pngicon/plantuml/2.png'
 import mermaidIcon from '../../../assets/pngicon/mermaid/2.png'
 import vegaIcon from '../../../assets/pngicon/chart/2.png'
 import footnoteIcon from '../../../assets/pngicon/footnote/2.png'
@@ -27,6 +28,7 @@ const FUNCTION_TYPE_HASH = {
   mermaid: mermaidIcon,
   flowchart: flowchartIcon,
   sequence: sequenceIcon,
+  plantuml: plantumlIcon,
   'vega-lite': vegaIcon,
   table: newTableIcon,
   html: htmlIcon,

@@ -1,4 +1,5 @@
 import katex from 'katex'
+import 'katex/dist/contrib/mhchem.min.js'
 import { CLASS_OR_ID } from '../../../config'
 import { htmlToVNode } from '../snabbdom'
 

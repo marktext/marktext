@@ -59,9 +59,9 @@ export default {
 }
 </script>
 
-<style scoped>
+<style>
 .pref-container {
-  --prefSideBarWidth: 320px;
+  --prefSideBarWidth: 280px;
 
   width: 100vw;
   height: 100vh;
@@ -72,6 +72,16 @@ export default {
   left: 0;
   display: flex;
   background: var(--editorBgColor);
+
+  & h4 {
+    margin: 0;
+    font-weight: normal;
+  }
+
+  & h5 {
+    font-weight: normal;
+  }
+
   & .pref-content {
     position: relative;
     flex: 1;

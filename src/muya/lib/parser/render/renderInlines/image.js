@@ -31,6 +31,7 @@ export default function image (h, cursor, block, token, outerClass) {
   }
   let id
   let isSuccess
+  let domsrc
   let { src } = imageInfo
   const alt = token.attrs.alt
   const title = token.attrs.title
@@ -38,8 +39,9 @@ export default function image (h, cursor, block, token, outerClass) {
   const height = token.attrs.height
 
   if (src) {
-    ({ id, isSuccess } = this.loadImageAsync(imageInfo, token.attrs))
+    ({ id, isSuccess, domsrc } = this.loadImageAsync(imageInfo, token.attrs))
   }
+
   let wrapperSelector = id
     ? `span#${isSuccess ? block.key + '_' + id + '_' + token.range.start : id}.${CLASS_OR_ID.AG_INLINE_IMAGE}`
     : `span.${CLASS_OR_ID.AG_INLINE_IMAGE}`
@@ -110,7 +112,7 @@ export default function image (h, cursor, block, token, outerClass) {
 
     const renderImage = () => {
       const data = {
-        props: { alt: alt.replace(/[`*{}[\]()#+\-.!_>~:|<>$]/g, ''), src, title }
+        props: { alt: alt.replace(/[`*{}[\]()#+\-.!_>~:|<>$]/g, ''), src: domsrc, title }
       }
 
       if (typeof width === 'number') {

@@ -513,6 +513,7 @@ const paragraphCtrl = ContentState => {
       }
       case 'flowchart':
       case 'sequence':
+      case 'plantuml':
       case 'mermaid':
       case 'vega-lite':
         this.insertContainerBlock(paraType, block)
@@ -677,19 +678,6 @@ const paragraphCtrl = ContentState => {
     this.muya.eventCenter.dispatch('stateChange')
   }
 
-  ContentState.prototype.getPreBlock = function (block) {
-    const { children } = block
-    if (!children || !children.length) return null
-    for (const child of children) {
-      if (child.type === 'pre') {
-        return child
-      } else {
-        return this.getPreBlock(child)
-      }
-    }
-    return null
-  }
-
   // make a dulication of the current block
   ContentState.prototype.duplicate = function () {
     const { start, end } = this.cursor
@@ -699,7 +687,7 @@ const paragraphCtrl = ContentState => {
       // if the cursor is not in one paragraph, just return
       return
     }
-    // if copied block has pre block: html, multiplemath, vega-light, mermaid, flowchart, sequence...
+    // if copied block has pre block: html, multiplemath, vega-light, mermaid, flowchart, sequence, plantuml...
     const copiedBlock = this.copyBlock(startOutmostBlock)
     this.insertAfter(copiedBlock, startOutmostBlock)
 

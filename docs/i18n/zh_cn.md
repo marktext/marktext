@@ -1,6 +1,6 @@
-<p align="center"><img src="../../static/logo-small.png" alt="Mark Text" width="100" height="100"></p>
+<p align="center"><img src="../../static/logo-small.png" alt="MarkText" width="100" height="100"></p>
 
-<h1 align="center">Mark Text</h1>
+<h1 align="center">MarkText</h1>
 
 <div align="center">
   <a href="https://twitter.com/intent/tweet?via=marktextme&url=https://github.com/marktext/marktext/&text=What%20do%20you%20want%20to%20say%20to%20app?&hashtags=happyMarkText">
@@ -37,7 +37,7 @@
   </a>
   <!-- Downloads latest release -->
   <a href="https://github.com/marktext/marktext/releases/latest">
-    <img src="https://img.shields.io/github/downloads/marktext/marktext/v0.16.3/total.svg" alt="latest download">
+    <img src="https://img.shields.io/github/downloads/marktext/marktext/v0.17.0/total.svg" alt="latest download">
   </a>
   <!-- sponsors -->
   <a href="https://opencollective.com/marktext">
@@ -71,31 +71,31 @@
 
 <div align="center">
   <sub>翻译：</sub>
-  <a href="docs/i18n/zh_cn.md#readme">
+  <a href="zh_cn.md#readme">
     <span>:cn:</span>
   </a>
-  <a href="docs/i18n/zh_tw.md#readme">
+  <a href="zh_tw.md#readme">
     <span>:taiwan:</span>
   </a>
-  <a href="docs/i18n/pl.md#readme">
+  <a href="pl.md#readme">
     <span>:poland:</span>
   </a>
-  <a href="docs/i18n/ja.md#readme">
+  <a href="ja.md#readme">
     <span>:jp:</span>
   </a>
-  <a href="docs/i18n/french.md#readme">
+  <a href="french.md#readme">
     <span>:fr:</span>
   </a>
-  <a href="docs/i18n/tr.md#readme">
+  <a href="tr.md#readme">
     <span>:tr:</span>
   </a>
-  <a href="docs/i18n/spanish.md#readme">
+  <a href="spanish.md#readme">
     <span>:es:</span>
   </a>
-  <a href="docs/i18n/pt.md#readme">
+  <a href="pt.md#readme">
     <span>:portugal:</span>
   </a>
-  <a href="docs/i18n/ko.md#readme">
+  <a href="ko.md#readme">
     <span>:kr:</span>
   </a>
 </div>
@@ -111,18 +111,18 @@
 
 <br />
 
-<h2 align="center">支持 Mark Text</h2>
+<h2 align="center">支持 MarkText</h2>
 
-Mark Text 是一个使用 MIT license 的开源项目，您将一直能够从 GitHub release 页面免费下载最新版本。Mark Text 仍然在开发中，它的发展离不开所有赞助者，希望您能加入他们的行列：
+MarkText 是一个使用 MIT license 的开源项目，您将一直能够从 GitHub release 页面免费下载最新版本。MarkText 仍然在开发中，它的发展离不开所有赞助者，希望您能加入他们的行列：
 
 - [在 Patreon 上成为支持者或赞助者](https://www.patreon.com/ranluo) 或 [一次性捐赠](https://github.com/Jocs/sponsor.me)
 - [在 Open Collective 上成为支持者或赞助者](https://opencollective.com/marktext)
 
 ##### Patreon 和 OpenCollective 有什么不同？
 
-在 Patreon 赞助：资金将直接赞助给创建并继续维护 Mark Text 的 Luo Ran (@jocs)。
-在 Open Collective 赞助：所有费用都是透明的，这些赞助资金将用于 Mark Text 的开发、维护、在线和离线活动以及一些必要的资源。
-所有赞助者（无论是在 Patreon 还是 Open Collective）的姓名或公司徽标将出现在 Mark Text 的官方网站和 README.md 文件中。
+在 Patreon 赞助：资金将直接赞助给创建并继续维护 MarkText 的 Luo Ran (@jocs)。
+在 Open Collective 赞助：所有费用都是透明的，这些赞助资金将用于 MarkText 的开发、维护、在线和离线活动以及一些必要的资源。
+所有赞助者（无论是在 Patreon 还是 Open Collective）的姓名或公司徽标将出现在 MarkText 的官方网站和 README.md 文件中。
 
 **特别赞助者**
 
@@ -193,9 +193,9 @@ Mark Text 是一个使用 MIT license 的开源项目，您将一直能够从 Gi
 
 ## 为什么要编写一个编辑器？
 
-1. 我爱写作。我曾经使用过很多 Markdown 编辑器，但还没有一个编辑器可以完全满足我的需求。我不喜欢当我写一些难以忍受的错误时会被打扰。**Mark Text** 使用 virtual DOM 来渲染页面，具有高效和开源的附加优势。这样，任何喜欢 Markdown 和写作的人都可以使用 Mark Text。
-2. 如上所述，**Mark Text** 是完全自由开源的，并且将永远是开源的。我们希望所有 Markdown 爱好者都可以贡献自己的代码，并帮助将 **Mark Text** 开发为流行的 Markdown 编辑器。
-3. Markdown 编辑器很多，各有优点，有一些拥有独特的特性。我们很难满足每个 Markdown 用户的需求，但是我们希望 **Mark Text** 能够尽可能满足每个 Markdown 用户的需求。尽管最新的 **Mark Text** 仍不完美，但我们将尽力使它尽可能地完善。
+1. 我爱写作。我曾经使用过很多 Markdown 编辑器，但还没有一个编辑器可以完全满足我的需求。我不喜欢当我写一些难以忍受的错误时会被打扰。**MarkText** 使用 virtual DOM 来渲染页面，具有高效和开源的附加优势。这样，任何喜欢 Markdown 和写作的人都可以使用 MarkText。
+2. 如上所述，**MarkText** 是完全自由开源的，并且将永远是开源的。我们希望所有 Markdown 爱好者都可以贡献自己的代码，并帮助将 **MarkText** 开发为流行的 Markdown 编辑器。
+3. Markdown 编辑器很多，各有优点，有一些拥有独特的特性。我们很难满足每个 Markdown 用户的需求，但是我们希望 **MarkText** 能够尽可能满足每个 Markdown 用户的需求。尽管最新的 **MarkText** 仍不完美，但我们将尽力使它尽可能地完善。
 
 ## 下载和安装
 
@@ -203,13 +203,13 @@ Mark Text 是一个使用 MIT license 的开源项目，您将一直能够从 Gi
 
 | ![](https://raw.githubusercontent.com/wiki/ryanoasis/nerd-fonts/screenshots/v1.0.x/mac-pass-sm.png)                                                                                                  | ![](https://raw.githubusercontent.com/wiki/ryanoasis/nerd-fonts/screenshots/v1.0.x/windows-pass-sm.png)                                                                                                          | ![](https://raw.githubusercontent.com/wiki/ryanoasis/nerd-fonts/screenshots/v1.0.x/linux-pass-sm.png)                                                                                                                        |
 |:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
-| [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext.dmg.svg)](https://github.com/marktext/marktext/releases/download/v0.16.3/marktext.dmg) | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-setup.exe.svg)](https://github.com/marktext/marktext/releases/download/v0.16.3/marktext-setup.exe) | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-x86_64.AppImage.svg)](https://github.com/marktext/marktext/releases/download/v0.16.3/marktext-x86_64.AppImage) |
+| [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext.dmg.svg)](https://github.com/marktext/marktext/releases/download/v0.17.0/marktext.dmg) | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-setup.exe.svg)](https://github.com/marktext/marktext/releases/download/v0.17.0/marktext-setup.exe) | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-x86_64.AppImage.svg)](https://github.com/marktext/marktext/releases/download/v0.17.0/marktext-x86_64.AppImage) |
 
 想要看看最新版本有什么新特性？请参阅[更新日志](.github/CHANGELOG.md)。
 
 #### macOS
 
-您可以从 [release 页面](https://github.com/marktext/marktext/releases/latest)下载最新的 `marktext-%version%.dmg` 或者使用 [**homebrew cask**](https://github.com/caskroom/homebrew-cask) 安装 Mark Text。要使用 Homebrew-Cask，您只需要安装 [Homebrew](https://brew.sh/)。
+您可以从 [release 页面](https://github.com/marktext/marktext/releases/latest)下载最新的 `marktext-%version%.dmg` 或者使用 [**homebrew cask**](https://github.com/caskroom/homebrew-cask) 安装 MarkText。要使用 Homebrew-Cask，您只需要安装 [Homebrew](https://brew.sh/)。
 
 ```bash
 brew install --cask mark-text
@@ -217,13 +217,21 @@ brew install --cask mark-text
 
 #### Windows
 
-要想安装 Mark Text，只需下载并运行安装向导（`marktext-setup-％version％.exe`），然后选择为本用户安装还是为本计算机所有用户安装。
+要想安装 MarkText，只需下载并运行安装向导（`marktext-setup-％version％.exe`），然后选择为本用户安装还是为本计算机所有用户安装。
 
-另外，也可以使用 [Chocolatey](https://chocolatey.org/) 安装 Mark Text。要想使用 Chocolatey，您需要确保安装了 [Chocolatey](https://chocolatey.org/install)。
+或者，也可以使用 Chocolatey 或 Winget 等软件包管理器来安装 MarkText。
 
-```bash
-choco install marktext
-```
+  - 使用 Chocolatey 前需要安装好 [Chocolatey](https://chocolatey.org/install)。
+
+  ```bash
+  choco install marktext
+  ```
+
+  - 使用 Winget 前需要安装好 [Winget](https://docs.microsoft.com/en-us/windows/package-manager/winget/#install-winget)。
+
+  ```bash
+  winget install marktext
+  ```
 
 #### Linux
 
@@ -235,26 +243,26 @@ choco install marktext
 
 ## 开发
 
-如果您想自己构建 **Mark Text**，请查看我们的[构建指南](../../docs/dev/BUILD.md)。
+如果您想自己构建 **MarkText**，请查看我们的[构建指南](../../docs/dev/BUILD.md)。
 
 - [用户文档](../../docs/README.md)
 - [开发者文档](../../docs/dev/README.md)
 
-如果您对 **Mark Text** 有任何疑问，欢迎写一个 issue。当这样做时，请使用打开 issue 时的默认格式。当然，如果您直接提交 PR，我们将不胜感激。
+如果您对 **MarkText** 有任何疑问，欢迎写一个 issue。当这样做时，请使用打开 issue 时的默认格式。当然，如果您直接提交 PR，我们将不胜感激。
 
 ## 集成
 
-- [Alfred 工作流](http://www.packal.org/workflow/mark-text)：macOS 应用程序 Alfred 的工作流：使用“mt”在文件或者文件夹下打开 Mark Text。
+- [Alfred 工作流](http://www.packal.org/workflow/mark-text)：macOS 应用程序 Alfred 的工作流：使用“mt”在文件或者文件夹下打开 MarkText。
 
 ## 贡献
 
-Mark Text 正在全面开发中，请确保在提出 PR 之前先阅读[贡献指南](../../CONTRIBUTING.md)。想要给 Mark Text 添加一些功能？请先看看 [roadmap](../../ROADMAP.md) 和开放的 issue。
+MarkText 正在全面开发中，请确保在提出 PR 之前先阅读[贡献指南](../../CONTRIBUTING.md)。想要给 MarkText 添加一些功能？请先看看 [roadmap](../../ROADMAP.md) 和开放的 issue。
 
 ## 贡献者
 
-感谢所有为 Mark Text 做出贡献的人[[贡献者](https://github.com/marktext/marktext/graphs/contributors)]
+感谢所有为 MarkText 做出贡献的人[[贡献者](https://github.com/marktext/marktext/graphs/contributors)]
 
-特别感谢设计了 Mark Text 图标的 @[Yasujizr](https://github.com/Yasujizr)。
+特别感谢设计了 MarkText 图标的 @[Yasujizr](https://github.com/Yasujizr)。
 
 <a href="https://github.com/marktext/marktext/graphs/contributors"><img src="https://opencollective.com/marktext/contributors.svg?width=890" /></a>
 

@@ -235,18 +235,18 @@ Note that placement of achors is arbitrary, you can put them anywhere you want, 
 Images have a similar syntax to links but include a preceding exclamation point.
 
 ```markdown
-![Mark Text](https://raw.githubusercontent.com/marktext/marktext/develop/resources/icons/256x256/marktext.png)
+![MarkText](https://raw.githubusercontent.com/marktext/marktext/develop/resources/icons/256x256/marktext.png)
 ```
 
-![Mark Text](https://raw.githubusercontent.com/marktext/marktext/develop/resources/icons/256x256/marktext.png)
+![MarkText](https://raw.githubusercontent.com/marktext/marktext/develop/resources/icons/256x256/marktext.png)
 
 or
 
 ```markdown
-![Alt text](hhttps://raw.githubusercontent.com/marktext/marktext/develop/resources/icons/256x256/marktext.png "Mark Text logo")
+![Alt text](hhttps://raw.githubusercontent.com/marktext/marktext/develop/resources/icons/256x256/marktext.png "MarkText logo")
 ```
 
-![Alt text](https://raw.githubusercontent.com/marktext/marktext/develop/resources/icons/256x256/marktext.png "Mark Text logo")
+![Alt text](https://raw.githubusercontent.com/marktext/marktext/develop/resources/icons/256x256/marktext.png "MarkText logo")
 
 Like links, Images also have a footnote style syntax
 
@@ -258,10 +258,10 @@ Like links, Images also have a footnote style syntax
 
 With a reference later in the document defining the URL location:
 
-[id]: https://raw.githubusercontent.com/marktext/marktext/develop/resources/icons/256x256/marktext.png  "Mark Text logo"
+[id]: https://raw.githubusercontent.com/marktext/marktext/develop/resources/icons/256x256/marktext.png  "MarkText logo"
 
 ```markdown
-[id]: https://raw.githubusercontent.com/marktext/marktext/develop/resources/icons/256x256/marktext.png  "Mark Text logo"
+[id]: https://raw.githubusercontent.com/marktext/marktext/develop/resources/icons/256x256/marktext.png  "MarkText logo"
 ```
 
 <br>
@@ -639,7 +639,7 @@ Which renders to:
 
 :heart: :zap: :cow: :dollar: :star: :tada:
 
-**NOTE:** Mark Text provides an emoji picker with search functionality.
+**NOTE:** MarkText provides an emoji picker with search functionality.
 
 <br>
 
@@ -654,7 +654,7 @@ YAML front matter blocks are identified by an opening and closing `---` line.
 ```markdown
 ---
 title: YAML front matter example
-key: valule
+key: value
 ---
 
 Lorem ipsum dolor sit amet, graecis denique ei vel, at duo primis mandamus.
@@ -728,7 +728,7 @@ $$
 
 ## Diagrams
 
-Mark Text support class, flow chart, gantt and sequence diagrams powered by flowchart.js, mermaid and Vega-Lite. [Code](#code) blocks with special language identifiers are used for diagrams.
+MarkText support class, flow chart, gantt and sequence diagrams powered by flowchart.js, mermaid and Vega-Lite. [Code](#code) blocks with special language identifiers are used for diagrams.
 
 For example, this:
 
@@ -844,6 +844,20 @@ Class01 : int gorilla
 Class08 <--> C2: Cool label
 ```
 </pre>
+
+## PlantUML
+
+Please visit [PlantUML website](https://plantuml.com/) for more details.
+
+```plantuml
+@startuml
+Alice -> Bob: Authentication Request
+Bob --> Alice: Authentication Response
+
+Alice -> Bob: Another authentication Request
+Alice <-- Bob: Another authentication Response
+@enduml
+```
 
 <br>
 

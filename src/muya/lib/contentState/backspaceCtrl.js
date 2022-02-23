@@ -238,14 +238,41 @@ const backspaceCtrl = ContentState => {
         return this.render()
       }
     }
-
     // Fixed #1456 existed bugs `Select one cell and press backspace will cause bug`
-    if (startBlock.functionType === 'cellContent' && this.cursor.start.offset === 0 && this.cursor.end.offset !== 0 && this.cursor.end.offset === startBlock.text.length) {
+    if (
+      startBlock.functionType === 'cellContent' &&
+      this.cursor.start.offset === 0 &&
+      this.cursor.end.offset !== 0 &&
+      this.cursor.end.offset === startBlock.text.length
+    ) {
       event.preventDefault()
       event.stopPropagation()
       startBlock.text = ''
       const { key } = startBlock
       const offset = 0
+      this.cursor = {
+        start: { key, offset },
+        end: { key, offset }
+      }
+
+      return this.singleRender(startBlock)
+    }
+
+    // Fix: https://github.com/marktext/marktext/issues/2013
+    // Also fix the codeblock crashed when the code content is '\n' and press backspace.
+    if (
+      startBlock.functionType === 'codeContent' &&
+      startBlock.key === endBlock.key &&
+      this.cursor.start.offset === this.cursor.end.offset &&
+      (/\n.$/.test(startBlock.text) || startBlock.text === '\n') &&
+      startBlock.text.length === this.cursor.start.offset
+    ) {
+      event.preventDefault()
+      event.stopPropagation()
+
+      startBlock.text = /\n.$/.test(startBlock.text) ? startBlock.text.replace(/.$/, '') : ''
+      const { key } = startBlock
+      const offset = startBlock.text.length
       this.cursor = {
         start: { key, offset },
         end: { key, offset }
@@ -395,6 +422,7 @@ const backspaceCtrl = ContentState => {
           case 'flowchart':
           case 'mermaid':
           case 'sequence':
+          case 'plantuml':
           case 'vega-lite':
           case 'html':
             referenceBlock = this.getParent(preBlock)

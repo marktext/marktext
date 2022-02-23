@@ -28,6 +28,13 @@
     "type": "boolean",
     "default": false
   },
+  "zoom": {
+    "description": "General--The zoom level. Between 0.5 and 2.0 inclusive.",
+    "type": "number",
+    "minimum": 0.5,
+    "maximum": 2.0,
+    "default": 1.0
+  },
   "hideScrollbar": {
     "description": "General--Whether to hide scrollbars.",
     "type": "boolean",
@@ -37,10 +44,6 @@
     "description": "General--Whether to enable word wrap in TOC.",
     "type": "boolean",
     "default": false
-  },
-  "aidou": {
-    "description": "General--Enable aidou",
-    "type": "boolean"
   },
   "fileSortBy": {
     "description": "General--Sort files in opened folder by created time, modified time and title.",
@@ -52,7 +55,7 @@
     "default": "modified"
   },
   "startUpAction": {
-    "description": "General--The action after Mark Text startup, open the last edited content, open the specified folder or blank page",
+    "description": "General--The action after MarkText startup, open the last edited content, open the specified folder or blank page",
     "enum": [
       "folder",
       "lastState",
@@ -65,7 +68,7 @@
     "type": "string"
   },
   "language": {
-    "description": "General--The language Mark Text use.",
+    "description": "General--The language MarkText use.",
     "type": "string",
     "default": "en"
   },
@@ -245,7 +248,7 @@
     "default": "."
   },
   "preferHeadingStyle": {
-    "description": "Markdown--The preferred heading style in Mark Text",
+    "description": "Markdown--The preferred heading style in MarkText",
     "enum": [
       "atx",
       "setext"
@@ -308,7 +311,7 @@
     "default": "hand"
   },
   "theme": {
-    "description": "Theme--Select the theme used in Mark Text",
+    "description": "Theme--Select the theme used in MarkText",
     "type": "string",
     "default": "light"
   },

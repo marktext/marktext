@@ -1,4 +1,3 @@
-import fse from 'fs-extra'
 import fs from 'fs'
 import path from 'path'
 import EventEmitter from 'events'
@@ -37,14 +36,14 @@ class Preference extends EventEmitter {
   init = () => {
     let defaultSettings = null
     try {
-      defaultSettings = fse.readJsonSync(this.staticPath)
+      defaultSettings = JSON.parse(fs.readFileSync(this.staticPath, { encoding: 'utf8' }) || '{}')
 
       // Set best theme on first application start.
       if (nativeTheme.shouldUseDarkColors) {
         defaultSettings.theme = 'dark'
       }
     } catch (err) {
-      log(err)
+      log.error(err)
     }
 
     if (!defaultSettings) {
@@ -64,19 +63,29 @@ class Preference extends EventEmitter {
       const defaultSettingKeys = Object.keys(defaultSettings)
 
       if (requiresUpdate) {
-        // remove outdated settings
+        // TODO(fxha): For performance reasons, we should try to replace 'electron-store' because
+        //   it does multiple blocking I/O calls when changing entries. There is no transaction or
+        //   async I/O available. The core reason we changed to it was JSON scheme validation.
+
+        // Remove outdated settings
         for (const key of userSettingKeys) {
           if (!defaultSettingKeys.includes(key)) {
             delete userSetting[key]
+            this.store.delete(key)
           }
         }
-        // add new setting options
+
+        // Add new setting options
+        let addedNewEntries = false
         for (const key in defaultSettings) {
           if (!userSettingKeys.includes(key)) {
+            addedNewEntries = true
             userSetting[key] = defaultSettings[key]
           }
         }
-        this.store.set(userSetting)
+        if (addedNewEntries) {
+          this.store.set(userSetting)
+        }
       }
     }
 
@@ -112,7 +121,7 @@ class Preference extends EventEmitter {
     })
   }
 
-  getPreferedEol () {
+  getPreferredEol () {
     const endOfLine = this.getItem('endOfLine')
     if (endOfLine === 'lf') {
       return 'lf'

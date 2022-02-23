@@ -1,6 +1,6 @@
 import selection from '../selection'
 import { CLASS_OR_ID } from '../config'
-import { escapeHtml } from '../utils'
+import { escapeHTML } from '../utils'
 import { getSanitizeHtml } from '../utils/exportHtml'
 import ExportMarkdown from '../utils/exportMarkdown'
 import marked from '../parser/marked'
@@ -45,7 +45,7 @@ const copyCutCtrl = ContentState => {
     this.partialRender()
   }
 
-  ContentState.prototype.getClipBoradData = function () {
+  ContentState.prototype.getClipBoardData = function () {
     const { start, end } = selection.getCursorRange()
     if (!start || !end) {
       return { html: '', text: '' }
@@ -159,7 +159,7 @@ const copyCutCtrl = ContentState => {
       const block = this.getBlock(id)
       const language = block.lang || ''
       const codeContent = cf.querySelector('.ag-code-content')
-      const value = escapeHtml(codeContent.textContent)
+      const value = escapeHTML(codeContent.textContent)
       cf.innerHTML = `<code class="language-${language}">${value}</code>`
     }
 
@@ -203,6 +203,7 @@ const copyCutCtrl = ContentState => {
         case 'mermaid':
         case 'flowchart':
         case 'sequence':
+        case 'plantuml':
         case 'vega-lite':
           pre = document.createElement('pre')
           pre.innerHTML = `<code class="language-${functionType}">${value}</code>`
@@ -273,7 +274,7 @@ const copyCutCtrl = ContentState => {
       return
     }
 
-    const { html, text } = this.getClipBoradData()
+    const { html, text } = this.getClipBoardData()
     switch (type) {
       case 'normal': {
         event.clipboardData.setData('text/html', html)

@@ -90,8 +90,8 @@ export default {
       const editor = this.editor = codeMirror(container, codeMirrorConfig)
 
       bus.$on('file-loaded', this.handleFileChange)
+      bus.$on('invalidate-image-cache', this.handleInvalidateImageCache)
       bus.$on('file-changed', this.handleFileChange)
-      bus.$on('dotu-select', this.handleSelectDoutu)
       bus.$on('selectAll', this.handleSelectAll)
       bus.$on('image-action', this.handleImageAction)
 
@@ -115,8 +115,8 @@ export default {
     if (this.commitTimer) clearTimeout(this.commitTimer)
 
     bus.$off('file-loaded', this.handleFileChange)
+    bus.$off('invalidate-image-cache', this.handleInvalidateImageCache)
     bus.$off('file-changed', this.handleFileChange)
-    bus.$off('dotu-select', this.handleSelectDoutu)
     bus.$off('selectAll', this.handleSelectAll)
     bus.$off('image-action', this.handleImageAction)
 
@@ -174,12 +174,6 @@ export default {
         }
       }
     },
-    handleSelectDoutu (url) {
-      const { editor } = this
-      if (editor) {
-        editor.replaceSelection(`![](${url})`)
-      }
-    },
     listenChange () {
       const { editor } = this
       editor.on('cursorActivity', cm => {
@@ -222,15 +216,23 @@ export default {
       let focus = cm.getCursor('head')
       let anchor = cm.getCursor('anchor')
       const markdown = cm.getValue()
-      const adjCursor = cursor => {
+      const convertToMuyaCursor = cursor => {
         const line = cm.getLine(cursor.line)
         const preLine = cm.getLine(cursor.line - 1)
         const nextLine = cm.getLine(cursor.line + 1)
         return adjustCursor(cursor, preLine, line, nextLine)
       }
-      focus = adjCursor(focus)
-      anchor = adjCursor(anchor)
 
+      anchor = convertToMuyaCursor(anchor) // Selection start as Muya cursor
+      focus = convertToMuyaCursor(focus) // Selection end as Muya cursor
+
+      // Normalize cursor that `anchor` is always before `focus` because
+      // this is the expected behavior in Muya.
+      if (anchor && focus && anchor.line > focus.line) {
+        const tmpCursor = focus
+        focus = anchor
+        anchor = tmpCursor
+      }
       return { cursor: { focus, anchor }, markdown }
     },
     // Commit changes from old tab. Problem: tab was already switched, so commit changes with old tab id.
@@ -245,8 +247,25 @@ export default {
     },
 
     handleSelectAll () {
-      if (this.sourceCode && this.editor) {
+      if (!this.sourceCode) {
+        return
+      }
+
+      const { editor } = this
+      if (editor && editor.hasFocus()) {
         this.editor.execCommand('selectAll')
+      } else {
+        const activeElement = document.activeElement
+        const nodeName = activeElement.nodeName
+        if (nodeName === 'INPUT' || nodeName === 'TEXTAREA') {
+          activeElement.select()
+        }
+      }
+    },
+
+    handleInvalidateImageCache () {
+      if (this.editor) {
+        this.editor.invalidateImageCache()
       }
     }
   }

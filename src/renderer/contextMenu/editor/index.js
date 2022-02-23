@@ -1,4 +1,4 @@
-import { remote } from 'electron'
+import { getCurrentWindow, Menu as RemoteMenu, MenuItem as RemoteMenuItem } from '@electron/remote'
 import {
   CUT,
   COPY,
@@ -12,7 +12,6 @@ import {
 } from './menuItems'
 import spellcheckMenuBuilder from './spellcheck'
 
-const { Menu, MenuItem } = remote
 const CONTEXT_ITEMS = [INSERT_BEFORE, INSERT_AFTER, SEPARATOR, CUT, COPY, PASTE, SEPARATOR, COPY_AS_MARKDOWN, COPY_AS_HTML, PASTE_AS_PLAIN_TEXT]
 
 /**
@@ -27,17 +26,17 @@ const CONTEXT_ITEMS = [INSERT_BEFORE, INSERT_AFTER, SEPARATOR, CUT, COPY, PASTE,
  */
 export const showContextMenu = (event, selection, spellchecker, selectedWord, wordSuggestions, replaceCallback) => {
   const { start, end } = selection
-  const menu = new Menu()
-  const win = remote.getCurrentWindow()
+  const menu = new RemoteMenu()
+  const win = getCurrentWindow()
   const disableCutAndCopy = start.key === end.key && start.offset === end.offset
 
   const spellingSubmenu = spellcheckMenuBuilder(spellchecker, selectedWord, wordSuggestions, replaceCallback)
   if (spellingSubmenu) {
-    menu.append(new MenuItem({
+    menu.append(new RemoteMenuItem({
       label: 'Spelling...',
       submenu: spellingSubmenu
     }))
-    menu.append(new MenuItem(SEPARATOR))
+    menu.append(new RemoteMenuItem(SEPARATOR))
   }
 
   [CUT, COPY, COPY_AS_HTML, COPY_AS_MARKDOWN].forEach(item => {
@@ -45,7 +44,7 @@ export const showContextMenu = (event, selection, spellchecker, selectedWord, wo
   })
 
   CONTEXT_ITEMS.forEach(item => {
-    menu.append(new MenuItem(item))
+    menu.append(new RemoteMenuItem(item))
   })
   menu.popup([{ window: win, x: event.clientX, y: event.clientY }])
 }

@@ -1,7 +1,7 @@
 import Prism from 'prismjs'
 import { filter } from 'fuzzaldrin'
-import initLoadLanguage, { loadedCache, transfromAliasToOrigin } from './loadLanguage'
-import languages from './languages'
+import initLoadLanguage, { loadedLanguages, transformAliasToOrigin } from './loadLanguage'
+import { languages } from 'prismjs/components.js'
 
 const prism = Prism
 window.Prism = Prism
@@ -44,9 +44,8 @@ loadLanguage('yaml')
 export {
   search,
   loadLanguage,
-  loadedCache,
-  transfromAliasToOrigin,
-  languages
+  loadedLanguages,
+  transformAliasToOrigin
 }
 
 export default prism

@@ -1,4 +1,4 @@
-const GitRevisionPlugin = require('git-revision-webpack-plugin')
+const { GitRevisionPlugin } = require('git-revision-webpack-plugin')
 const { version } = require('../package.json')
 
 const getEnvironmentDefinitions = function () {

@@ -2,7 +2,7 @@
  * Hi contributors!
  *
  * Before you edit or update codes in this file,
- * make sure you have read this bellow:
+ * make sure you have read this below:
  * Commonmark Spec: https://spec.commonmark.org/0.29/
  * GitHub Flavored Markdown Spec: https://github.github.com/gfm/
  * Pandoc Markdown: https://pandoc.org/MANUAL.html#pandocs-markdown
@@ -87,6 +87,7 @@ class ExportMarkdown {
             case 'mermaid':
             case 'flowchart':
             case 'sequence':
+            case 'plantuml':
             case 'vega-lite': {
               result.push(this.normalizeContainer(block, indent))
               break
@@ -247,7 +248,7 @@ class ExportMarkdown {
     return result.join('')
   }
 
-  // `mermaid` `flowchart` `sequence` `vega-lite`
+  // `mermaid` `flowchart` `sequence` `plantuml` `vega-lite`
   normalizeContainer (block, indent) {
     const result = []
     const diagramType = block.children[0].functionType

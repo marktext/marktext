@@ -14,7 +14,6 @@ const parseArgs = (argv = null, permissive = true) => {
   const spec = {
     '--debug': Boolean,
     '--safe': Boolean,
-    '--dump-keyboard-layout': Boolean,
 
     '--new-window': Boolean,
     '-n': '--new-window',

@@ -4,29 +4,46 @@ process.env.BABEL_ENV = 'renderer'
 
 const path = require('path')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
+const postcssPresetEnv = require('postcss-preset-env')
 
+/** @type {import('webpack').Configuration} */
 module.exports = {
-  mode: 'development',
-  devtool: '',
+  mode: 'production',
+  devtool: 'hidden-nosources-source-map',
+  optimization: {
+    emitOnErrors: false,
+    minimize: true
+  },
   entry: {
     renderer: path.join(__dirname, './lib/index.js')
   },
   module: {
     rules: [
       {
+        test: require.resolve(path.join(__dirname, './lib/assets/libs/snap.svg-min.js')),
+        use: 'imports-loader?this=>window,fix=>module.exports=0'
+      },
+      {
+        test: /(theme\-chalk(?:\/|\\)index|exportStyle|katex|github\-markdown|prism[\-a-z]*|\.theme|headerFooterStyle)\.css$/,
+        use: [
+          'to-string-loader',
+          'css-loader'
+        ]
+      },
+      {
         test: /\.css$/,
         use: [
           MiniCssExtractPlugin.loader,
-          { loader: 'css-loader', options: { importLoader: 1 } },
+          {
+            loader: 'css-loader',
+            options: { importLoaders: 1 }
+          },
           {
             loader: 'postcss-loader',
             options: {
               postcssOptions: {
                 plugins: [
-                  ['postcss-preset-env',
-                    {
-                      stage: 0
-                    }]
+                  postcssPresetEnv({ stage: 0 })
                 ]
               }
             }
@@ -44,30 +61,23 @@ module.exports = {
       },
       {
         test: /\.(png|jpe?g|gif|svg)(\?.*)?$/,
-        use: {
-          loader: 'url-loader',
-          query: {
-            limit: 10000,
-            name: 'imgs/[name]--[folder].[ext]'
-          }
+        type: 'asset',
+        generator: {
+          filename: 'images/[name].[contenthash:8][ext]'
         }
       },
       {
         test: /\.(mp4|webm|ogg|mp3|wav|flac|aac)(\?.*)?$/,
-        loader: 'url-loader',
-        options: {
-          limit: 10000,
-          name: 'media/[name]--[folder].[ext]'
+        type: 'asset/resource',
+        generator: {
+          filename: 'media/[name].[contenthash:8][ext]'
         }
       },
       {
         test: /\.(woff2?|eot|ttf|otf)(\?.*)?$/,
-        use: {
-          loader: 'url-loader',
-          query: {
-            limit: 10000,
-            name: 'fonts/[name]--[folder].[ext]'
-          }
+        type: 'asset/resource',
+        generator: {
+          filename: 'fonts/[name].[contenthash:8][ext]'
         }
       }
     ]
@@ -86,6 +96,13 @@ module.exports = {
     path: path.join(__dirname, './dist')
   },
   resolve: {
-    extensions: ['.js', '.vue', '.json', '.css', '.node']
+    alias: {
+      snapsvg: path.join(__dirname, './lib/assets/libs/snap.svg-min.js')
+    },
+    extensions: ['.js', '.vue', '.json', '.css', '.node'],
+    fallback: {
+      fs: false,
+      path: require.resolve('path-browserify')
+    }
   }
 }

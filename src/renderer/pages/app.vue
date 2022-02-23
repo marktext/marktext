@@ -26,7 +26,6 @@
         :text-direction="textDirection"
         :platform="platform"
       ></editor-with-tabs>
-      <aidou></aidou>
       <command-palette></command-palette>
       <about-dialog></about-dialog>
       <export-setting-dialog></export-setting-dialog>
@@ -43,7 +42,6 @@ import Recent from '@/components/recent'
 import EditorWithTabs from '@/components/editorWithTabs'
 import TitleBar from '@/components/titleBar'
 import SideBar from '@/components/sideBar'
-import Aidou from '@/components/aidou/aidou'
 import AboutDialog from '@/components/about'
 import CommandPalette from '@/components/commandPalette'
 import ExportSettingDialog from '@/components/exportSettings'
@@ -54,11 +52,11 @@ import { loadingPageMixins } from '@/mixins'
 import { mapState } from 'vuex'
 import bus from '@/bus'
 import { DEFAULT_STYLE } from '@/config'
+import { ipcRenderer } from 'electron'
 
 export default {
   name: 'marktext',
   components: {
-    Aidou,
     Recent,
     EditorWithTabs,
     TitleBar,
@@ -83,6 +81,9 @@ export default {
       textDirection: state => state.preferences.textDirection
     }),
     ...mapState({
+      zoom: state => state.preferences.zoom
+    }),
+    ...mapState({
       projectTree: state => state.project.projectTree,
       pathname: state => state.editor.currentFile.pathname,
       filename: state => state.editor.currentFile.filename,
@@ -103,6 +104,9 @@ export default {
       if (value !== oldValue) {
         addThemeStyle(value)
       }
+    },
+    zoom: function (zoom) {
+      ipcRenderer.emit('mt::window-zoom', null, zoom)
     }
   },
   created () {
@@ -156,6 +160,7 @@ export default {
     dispatch('LINTEN_FOR_EXPORT_SUCCESS')
     dispatch('LISTEN_FOR_FILE_CHANGE')
     dispatch('LISTEN_WINDOW_ZOOM')
+    dispatch('LISTEN_FOR_RELOAD_IMAGES')
     // module: notification
     dispatch('LISTEN_FOR_NOTIFICATION')
 

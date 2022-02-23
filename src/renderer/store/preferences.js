@@ -8,9 +8,9 @@ const state = {
   titleBarStyle: 'custom',
   openFilesInNewWindow: false,
   openFolderInNewWindow: false,
+  zoom: 1.0,
   hideScrollbar: false,
   wordWrapInToc: false,
-  aidou: true,
   fileSortBy: 'created',
   startUpAction: 'lastState',
   defaultDirectoryToOpen: '',
@@ -94,7 +94,8 @@ const state = {
       repo: '',
       branch: ''
     }
-  }
+  },
+  cliScript: ''
 }
 
 const getters = {}
@@ -134,8 +135,8 @@ const actions = {
     ipcRenderer.send('mt::set-user-data', { [type]: value })
   },
 
-  SET_IMAGE_FOLDER_PATH ({ commit }) {
-    ipcRenderer.send('mt::ask-for-modify-image-folder-path')
+  SET_IMAGE_FOLDER_PATH ({ commit }, value) {
+    ipcRenderer.send('mt::ask-for-modify-image-folder-path', value)
   },
 
   SELECT_DEFAULT_DIRECTORY_TO_OPEN ({ commit }) {

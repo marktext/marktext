@@ -1,4 +1,4 @@
-import execall from 'execall'
+import execAll from 'execall'
 import { defaultSearchOption } from '../config'
 
 const matchString = (text, value, options) => {
@@ -27,28 +27,48 @@ const matchString = (text, value, options) => {
   try {
     // Add try catch expression because not all string can generate a valid RegExp. for example `\`.
     SEARCH_REG = new RegExp(regStr, flag)
-    return execall(SEARCH_REG, text)
+    return execAll(SEARCH_REG, text)
   } catch (err) {
     return []
   }
 }
 
 const searchCtrl = ContentState => {
+  ContentState.prototype.buildRegexValue = function (match, value) {
+    const groups = value.match(/(?<!\\)\$\d/g)
+
+    if (Array.isArray(groups) && groups.length) {
+      for (const group of groups) {
+        const index = parseInt(group.replace(/^\$/, ''))
+        if (index === 0) {
+          value = value.replace(group, match.match)
+        } else if (index > 0 && index <= match.subMatches.length) {
+          value = value.replace(group, match.subMatches[index - 1])
+        }
+      }
+    }
+
+    return value
+  }
+
   ContentState.prototype.replaceOne = function (match, value) {
     const { start, end, key } = match
     const block = this.getBlock(key)
     const { text } = block
-
     block.text = text.substring(0, start) + value + text.substring(end)
   }
 
   ContentState.prototype.replace = function (replaceValue, opt = { isSingle: true }) {
-    const { isSingle } = opt
+    const { isSingle, isRegexp } = opt
     delete opt.isSingle
     const searchOptions = Object.assign({}, defaultSearchOption, opt)
     const { matches, value, index } = this.searchMatches
     if (matches.length) {
+      if (isRegexp) {
+        replaceValue = this.buildRegexValue(matches[index], replaceValue)
+      }
       if (isSingle) {
+        // replace single
         this.replaceOne(matches[index], replaceValue)
       } else {
         // replace all
@@ -104,11 +124,13 @@ const searchCtrl = ContentState => {
 
         if (text && typeof text === 'string') {
           const strMatches = matchString(text, value, options)
-          matches.push(...strMatches.map(m => {
+          matches.push(...strMatches.map(({ index, match, subMatches }) => {
             return {
               key,
-              start: m.index,
-              end: m.index + m.match.length
+              start: index,
+              end: index + match.length,
+              match,
+              subMatches
             }
           }))
         }

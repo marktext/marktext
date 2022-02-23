@@ -148,7 +148,7 @@ class AppMenu {
 
     const { menu, shortcutMap } = windowMenus.get(window.id)
 
-    // Set source-code editor if prefered.
+    // Set source-code editor if preferred.
     const sourceCodeModeMenuItem = menu.getMenuItemById('sourceCodeModeMenuItem')
     sourceCodeModeMenuItem.checked = isSourceMode
 
@@ -326,24 +326,6 @@ class AppMenu {
   }
 
   /**
-   * Update all aidou entries from editor menus to the given state.
-   */
-  updateAidouMenu = bool => {
-    this.windowMenus.forEach(value => {
-      const { menu, type } = value
-      if (type !== MenuType.EDITOR) {
-        return
-      }
-
-      const aidouMenu = menu.getMenuItemById('aidou')
-      if (!aidouMenu) {
-        return
-      }
-      aidouMenu.visible = bool
-    })
-  }
-
-  /**
    * Append misc shortcuts the the given shortcut map.
    *
    * @param {*} lineEnding The shortcut map.
@@ -454,6 +436,20 @@ class AppMenu {
       },
       id: null
     })
+
+    if (isWindows) {
+      // WORKAROUND: Window close event isn't triggered on Windows if `setIgnoreMenuShortcuts(true)` is used (Electron#32674).
+      // NB: Remove this immediately if upstream is fixed because the event may be emitted twice.
+      shortcutMap.push({
+        accelerator: 'Alt+F4',
+        click: (menuItem, win) => {
+          if (win && !win.isDestroyed()) {
+            win.close()
+          }
+        },
+        id: null
+      })
+    }
   }
 
   _buildEditorMenu (createShortcutMap, recentUsedDocuments = null) {
@@ -504,15 +500,31 @@ class AppMenu {
       this.updateLineEndingMenu(windowId, lineEnding)
     })
     ipcMain.on('mt::update-format-menu', (e, windowId, formats) => {
+      if (!this.has(windowId)) {
+        log.error(`UpdateApplicationMenu: Cannot find window menu for window id ${windowId}.`)
+        return
+      }
       updateFormatMenu(this.getWindowMenuById(windowId), formats)
     })
     ipcMain.on('mt::update-sidebar-menu', (e, windowId, value) => {
+      if (!this.has(windowId)) {
+        log.error(`UpdateApplicationMenu: Cannot find window menu for window id ${windowId}.`)
+        return
+      }
       updateSidebarMenu(this.getWindowMenuById(windowId), value)
     })
     ipcMain.on('mt::view-layout-changed', (e, windowId, viewSettings) => {
+      if (!this.has(windowId)) {
+        log.error(`UpdateApplicationMenu: Cannot find window menu for window id ${windowId}.`)
+        return
+      }
       viewLayoutChanged(this.getWindowMenuById(windowId), viewSettings)
     })
     ipcMain.on('mt::editor-selection-changed', (e, windowId, changes) => {
+      if (!this.has(windowId)) {
+        log.error(`UpdateApplicationMenu: Cannot find window menu for window id ${windowId}.`)
+        return
+      }
       updateSelectionMenus(this.getWindowMenuById(windowId), changes)
     })
 
@@ -529,9 +541,6 @@ class AppMenu {
       }
       if (prefs.autoSave !== undefined) {
         this.updateAutoSaveMenu(prefs.autoSave)
-      }
-      if (prefs.aidou !== undefined) {
-        this.updateAidouMenu(prefs.aidou)
       }
     })
   }

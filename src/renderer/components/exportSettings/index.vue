@@ -220,7 +220,8 @@
 
 <script>
 import { mapState } from 'vuex'
-import fs from 'fs-extra'
+import fs from 'fs'
+import fsPromises from 'fs/promises'
 import path from 'path'
 import { isDirectory, isFile } from 'common/filesystem'
 import bus from '../../bus'
@@ -420,7 +421,7 @@ export default {
           const fullname = path.join(themeDir, filename)
           if (/.+\.css$/i.test(filename) && isFile(fullname)) {
             try {
-              const content = await fs.readFile(fullname, 'utf8')
+              const content = await fsPromises.readFile(fullname, 'utf8')
 
               // Match comment with theme name in first line only.
               const match = content.match(/^(?:\/\*+[ \t]*([A-z0-9 -]+)[ \t]*(?:\*+\/|[\n\r])?)/)

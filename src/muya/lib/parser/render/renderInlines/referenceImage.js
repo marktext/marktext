@@ -18,9 +18,10 @@ export default function referenceImage (h, cursor, block, token, outerClass) {
   const { src } = imageInfo
   let id
   let isSuccess
+  let domsrc
   let selector
   if (src) {
-    ({ id, isSuccess } = this.loadImageAsync(imageInfo, { alt }, className, CLASS_OR_ID.AG_COPY_REMOVE))
+    ({ id, isSuccess, domsrc } = this.loadImageAsync(imageInfo, { alt }, className, CLASS_OR_ID.AG_COPY_REMOVE))
   }
   selector = id ? `span#${id}.${imageClass}` : `span.${imageClass}`
   selector += `.${CLASS_OR_ID.AG_OUTPUT_REMOVE}`
@@ -33,7 +34,7 @@ export default function referenceImage (h, cursor, block, token, outerClass) {
   return isSuccess
     ? [
       h(selector, tag),
-      h(`img.${CLASS_OR_ID.AG_COPY_REMOVE}`, { props: { alt, src, title } })
+      h(`img.${CLASS_OR_ID.AG_COPY_REMOVE}`, { props: { alt, src: domsrc, title } })
     ]
     : [h(selector, tag)]
 }

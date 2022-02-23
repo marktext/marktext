@@ -19,29 +19,8 @@ export const delay = time => {
   return p
 }
 
-// help functions
-const easeInOutQuad = function (t, b, c, d) {
-  t /= d / 2
-  if (t < 1) return c / 2 * t * t + b
-  t--
-  return -c / 2 * (t * (t - 2) - 1) + b
-}
-
 const ID_PREFEX = 'mt-'
 let id = 0
-const DOTU = 'DOTU'
-const MAX_HISTORY_LENGTH = 10
-const DOTU_COLLECTION = 'DOTU_COLLECTION'
-const deleteItem = key => value => {
-  const data = localStorage.getItem(key)
-  if (!data) return
-  const col = JSON.parse(data)
-  const index = col.indexOf(value)
-  if (index > -1) {
-    col.splice(index, 1)
-    localStorage.setItem(key, JSON.stringify(col))
-  }
-}
 
 export const serialize = function (params) {
   return Object.keys(params).map(key => `${key}=${encodeURI(params[key])}`).join('&')
@@ -63,60 +42,6 @@ export const dataURItoBlob = function (dataURI) {
     ia[i] = byte.charCodeAt(i)
   }
   return new window.Blob([ab], { type: mime })
-}
-
-export const collection = {
-  setItem (emoji) {
-    const data = localStorage.getItem(DOTU_COLLECTION)
-    if (data) {
-      const col = JSON.parse(data)
-      if (col.findIndex(c => c.link === emoji.link) === -1) {
-        col.push(emoji)
-      }
-      localStorage.setItem(DOTU_COLLECTION, JSON.stringify(col))
-    } else {
-      localStorage.setItem(DOTU_COLLECTION, JSON.stringify([emoji]))
-    }
-  },
-  getItems () {
-    const data = localStorage.getItem(DOTU_COLLECTION)
-    return data ? JSON.parse(data) : []
-  },
-  deleteItem (emoji) {
-    const data = localStorage.getItem(DOTU_COLLECTION)
-    if (!data) return
-    const col = JSON.parse(data)
-    const index = col.findIndex(c => c.link === emoji.link)
-    if (index > -1) {
-      col.splice(index, 1)
-      localStorage.setItem(DOTU_COLLECTION, JSON.stringify(col))
-    }
-  }
-}
-
-export const dotuHistory = {
-  setItem (value) {
-    const data = localStorage.getItem(DOTU)
-    if (data) {
-      let history = JSON.parse(data)
-      history.unshift(value)
-      history = [...new Set(history)] // delete the duplicate word
-      if (history.length > MAX_HISTORY_LENGTH) {
-        history.pop()
-      }
-      localStorage.setItem(DOTU, JSON.stringify(history))
-    } else {
-      localStorage.setItem(DOTU, JSON.stringify([value]))
-    }
-  },
-  getItems () {
-    const data = localStorage.getItem(DOTU)
-    return data ? JSON.parse(data) : []
-  },
-  deleteItem: deleteItem(DOTU),
-  clear () {
-    localStorage.setItem(DOTU, '[]')
-  }
 }
 
 export const adjustCursor = (cursor, preline, line, nextline) => {
@@ -147,12 +72,12 @@ export const adjustCursor = (cursor, preline, line, nextline) => {
   if (/[*+-]\s.+/.test(line) && newCursor.ch <= 1) {
     newCursor.ch = 2
   }
+
   // Need to adjust the cursor when cursor at blank line or in a line contains HTML tag.
   // set the newCursor to null, the new cursor will at the last line of document.
   if (!/\S/.test(line) || /<\/?([a-zA-Z\d-]+)(?=\s|>).*>/.test(line)) {
     newCursor = null
   }
-
   return newCursor
 }
 
@@ -160,35 +85,36 @@ export const animatedScrollTo = function (element, to, duration, callback) {
   const start = element.scrollTop
   const change = to - start
   const animationStart = +new Date()
-  let animating = true
-  let lastpos = null
+
+  // Prevent animation on small steps or duration is 0
+  if (Math.abs(change) <= 6 || duration === 0) {
+    element.scrollTop = to
+    return
+  }
+
+  const easeInOutQuad = function (t, b, c, d) {
+    t /= d / 2
+    if (t < 1) return (c / 2) * t * t + b
+    t--
+    return (-c / 2) * (t * (t - 2) - 1) + b
+  }
 
   const animateScroll = function () {
-    if (!animating) {
-      return
-    }
-    requestAnimationFrame(animateScroll)
     const now = +new Date()
     const val = Math.floor(easeInOutQuad(now - animationStart, start, change, duration))
-    if (lastpos) {
-      if (lastpos === element.scrollTop) {
-        lastpos = val
-        element.scrollTop = val
-      } else {
-        animating = false
-      }
-    } else {
-      lastpos = val
-      element.scrollTop = val
-    }
+
+    element.scrollTop = val
+
     if (now > animationStart + duration) {
       element.scrollTop = to
-      animating = false
       if (callback) {
         callback()
       }
+    } else {
+      requestAnimationFrame(animateScroll)
     }
   }
+
   requestAnimationFrame(animateScroll)
 }
 

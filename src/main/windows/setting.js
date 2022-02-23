@@ -1,9 +1,10 @@
 import path from 'path'
 import { BrowserWindow, ipcMain } from 'electron'
-import electronLocalshortcut from '@hfelix/electron-localshortcut'
+import { enable as remoteEnable } from '@electron/remote/main'
+import { electronLocalshortcut } from '@hfelix/electron-localshortcut'
 import BaseWindow, { WindowLifecycle, WindowType } from './base'
 import { centerWindowOptions } from './utils'
-import { TITLE_BAR_HEIGHT, preferencesWinOptions, isLinux, isOsx, isWindows } from '../config'
+import { TITLE_BAR_HEIGHT, preferencesWinOptions, isLinux, isOsx } from '../config'
 
 class SettingWindow extends BaseWindow {
   /**
@@ -29,9 +30,7 @@ class SettingWindow extends BaseWindow {
 
     // WORKAROUND: Electron has issues with different DPI per monitor when
     // setting a fixed window size.
-    if (isWindows) {
-      winOptions.resizable = true
-    }
+    winOptions.resizable = true
 
     // Enable native or custom/frameless window and titlebar
     const { titleBarStyle, theme } = preferences.getAll()
@@ -45,6 +44,7 @@ class SettingWindow extends BaseWindow {
     winOptions.backgroundColor = this._getPreferredBackgroundColor(theme)
 
     let win = this.browserWindow = new BrowserWindow(winOptions)
+    remoteEnable(win.webContents)
     this.id = win.id
 
     // Create a menu for the current window
@@ -85,13 +85,12 @@ class SettingWindow extends BaseWindow {
     win.loadURL(this._buildUrlString(this.id, env, preferences))
     win.setSheetOffset(TITLE_BAR_HEIGHT)
 
-    electronLocalshortcut.register(
-      win,
-      keybindings.getAccelerator('view.toggle-dev-tools'),
-      () => {
+    const devToolsAccelerator = keybindings.getAccelerator('view.toggle-dev-tools')
+    if (env.debug && devToolsAccelerator) {
+      electronLocalshortcut.register(win, devToolsAccelerator, () => {
         win.webContents.toggleDevTools()
-      }
-    )
+      })
+    }
     return win
   }
 }

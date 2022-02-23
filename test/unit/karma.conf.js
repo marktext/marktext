@@ -1,6 +1,8 @@
 'use strict'
 
-const merge = require('webpack-merge')
+const fs = require('fs')
+const path = require('path')
+const { merge } = require('webpack-merge')
 const webpack = require('webpack')
 
 const baseConfig = require('../../.electron-vue/webpack.renderer.config')
@@ -8,11 +10,24 @@ const baseConfig = require('../../.electron-vue/webpack.renderer.config')
 // Set BABEL_ENV to use proper preset config
 process.env.BABEL_ENV = 'test'
 
+// We need to create the build directory before launching Karma.
+try {
+  fs.mkdirSync(path.join('dist', 'electron'), { recursive: true })
+} catch(e) {
+  if (e.code !== 'EEXIST') {
+    throw e
+  }
+}
+
 let webpackConfig = merge(baseConfig, {
-  devtool: '#inline-source-map',
+  devtool: 'inline-source-map',
+  cache: false,
+  output: {
+    publicPath: '/'
+  },
   plugins: [
     new webpack.DefinePlugin({
-      'process.env.NODE_ENV': '"testing"'
+      'process.env.NODE_ENV': '"development"'
     })
   ]
 })
@@ -29,16 +44,19 @@ delete webpackConfig.output.libraryTarget
 
 module.exports = config => {
   config.set({
+    browserNoActivityTimeout: 120000,
+    browserDisconnectTimeout: 60000,
     browsers: ['CustomElectron'],
     customLaunchers: {
       CustomElectron: {
         base: 'Electron',
         browserWindowOptions: {
           webPreferences: {
-            enableRemoteModule: true,
             contextIsolation: false,
             spellcheck: false,
-            nodeIntegration: true
+            nodeIntegration: true,
+            webSecurity: false,
+            sandbox: false
           }
         }
       }
@@ -54,7 +72,7 @@ module.exports = config => {
         { type: 'text-summary' }
       ]
     },
-    frameworks: ['mocha', 'chai'],
+    frameworks: ['mocha', 'chai', 'webpack'],
     files: ['./index.js'],
     preprocessors: {
       './index.js': ['webpack', 'sourcemap']

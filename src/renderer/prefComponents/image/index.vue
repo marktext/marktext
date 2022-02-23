@@ -2,91 +2,49 @@
   <div class="pref-image">
     <h4>Image</h4>
     <section class="image-ctrl">
-      <div>Default action after image is inserted from local folder or clipboard
-        <el-tooltip class='item' effect='dark' content='Clipboard handling is only fully supported on macOS and Windows.' placement='top-start'>
+      <div>Default action after an image is inserted from local folder or clipboard
+        <el-tooltip class='item' effect='dark'
+          content='Clipboard handling is only fully supported on macOS and Windows.'
+          placement='top-start'>
           <i class="el-icon-info"></i>
         </el-tooltip>
       </div>
-      <el-radio-group v-model="imageInsertAction">
-        <el-radio label="upload">Upload to cloud using selected uploader (must be configured)</el-radio>
-        <el-radio label="folder">Move to designated local folder</el-radio>
-        <el-radio label="path">Keep original location</el-radio>
-      </el-radio-group>
+      <CurSelect :value="imageInsertAction" :options="imageActions"
+        :onChange="value => onSelectChange('imageInsertAction', value)"></CurSelect>
     </section>
-    <separator></separator>
-    <section class="image-folder">
-      <div class="description">Local image folder</div>
-      <div class="path">{{imageFolderPath}}</div>
-      <div>
-        <el-button size="mini" @click="modifyImageFolderPath">Modify</el-button>
-        <el-button size="mini" @click="openImageFolder">Open Folder</el-button>
-      </div>
-      <bool
-        description="Prefer relative assets folder"
-        more="https://github.com/marktext/marktext/blob/develop/docs/IMAGES.md"
-        :bool="imagePreferRelativeDirectory"
-        :onChange="value => onSelectChange('imagePreferRelativeDirectory', value)"
-      ></bool>
-      <text-box
-        description="Relative image folder name"
-        :input="imageRelativeDirectoryName"
-        :regexValidator="/^(?:$|(?![a-zA-Z]:)[^\/\\].*$)/"
-        :defaultValue="relativeDirectoryNamePlaceholder"
-        :onChange="value => onSelectChange('imageRelativeDirectoryName', value)"
-      ></text-box>
-    </section>
+    <Separator />
+    <FolderSetting v-if="imageInsertAction === 'folder' || imageInsertAction === 'path'" />
+    <Uploader v-if="imageInsertAction === 'upload'" />
   </div>
 </template>
 
 <script>
-import { mapState } from 'vuex'
-import { shell } from 'electron'
-import Bool from '../common/bool'
 import Separator from '../common/separator'
-import TextBox from '../common/textBox'
+import Uploader from './components/uploader'
+import CurSelect from '@/prefComponents/common/select'
+import FolderSetting from './components/folderSetting'
+import { imageActions } from './config'
 
 export default {
   components: {
-    Bool,
     Separator,
-    TextBox
+    CurSelect,
+    FolderSetting,
+    Uploader
   },
   data () {
-    return {
-    }
+    this.imageActions = imageActions
+
+    return {}
   },
   computed: {
-    ...mapState({
-      imagePreferRelativeDirectory: state => state.preferences.imagePreferRelativeDirectory,
-      imageRelativeDirectoryName: state => state.preferences.imageRelativeDirectoryName
-    }),
     imageInsertAction: {
       get: function () {
         return this.$store.state.preferences.imageInsertAction
-      },
-      set: function (value) {
-        const type = 'imageInsertAction'
-        this.$store.dispatch('SET_SINGLE_PREFERENCE', { type, value })
-      }
-    },
-    imageFolderPath: {
-      get: function () {
-        return this.$store.state.preferences.imageFolderPath
-      }
-    },
-    relativeDirectoryNamePlaceholder: {
-      get: function () {
-        return this.$store.state.preferences.imageRelativeDirectoryName || 'assets'
       }
     }
   },
   methods: {
-    openImageFolder () {
-      shell.openPath(this.imageFolderPath)
-    },
-    modifyImageFolderPath () {
-      return this.$store.dispatch('SET_IMAGE_FOLDER_PATH')
-    },
     onSelectChange (type, value) {
       this.$store.dispatch('SET_SINGLE_PREFERENCE', { type, value })
     }
@@ -96,11 +54,6 @@ export default {
 
 <style>
 .pref-image {
-  & h4 {
-    text-transform: uppercase;
-    margin: 0;
-    font-weight: 400;
-  }
   & .image-ctrl {
     font-size: 14px;
     margin: 20px 0;
@@ -108,18 +61,6 @@ export default {
     & label {
       display: block;
       margin: 20px 0;
-    }
-  }
-  & .image-folder {
-    & div.description {
-      font-size: 14px;
-      color: var(--editorColor);
-    }
-    & div.path {
-      font-size: 14px;
-      color: var(--editorColor50);
-      margin-top: 15px;
-      margin-bottom: 15px;
     }
   }
 }

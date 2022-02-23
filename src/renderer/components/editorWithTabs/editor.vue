@@ -614,7 +614,7 @@ export default {
 
       const { container } = this.editor = new Muya(ele, options)
 
-      // Create spell check wrapper and enable spell checking if prefered.
+      // Create spell check wrapper and enable spell checking if preferred.
       this.spellchecker = new SpellChecker(spellcheckerEnabled)
       if (spellcheckerEnabled) {
         this.initSpellchecker()
@@ -626,6 +626,7 @@ export default {
 
       // listen for bus events.
       bus.$on('file-loaded', this.setMarkdownToEditor)
+      bus.$on('invalidate-image-cache', this.handleInvalidateImageCache)
       bus.$on('undo', this.handleUndo)
       bus.$on('redo', this.handleRedo)
       bus.$on('selectAll', this.handleSelectAll)
@@ -693,7 +694,13 @@ export default {
       this.editor.on('selectionChange', changes => {
         const { y } = changes.cursorCoords
         if (this.typewriter) {
-          animatedScrollTo(container, container.scrollTop + y - STANDAR_Y, 100)
+          const startPosition = container.scrollTop
+          const toPosition = startPosition + y - STANDAR_Y
+
+          // Prevent micro shakes and unnecessary scrolling.
+          if (Math.abs(startPosition - toPosition) > 2) {
+            animatedScrollTo(container, toPosition, 100)
+          }
         }
 
         // Used to fix #628: auto scroll cursor to visible if the cursor is too low.
@@ -773,6 +780,7 @@ export default {
     },
 
     async imageAction (image, id, alt = '') {
+      // TODO(Refactor): Refactor this method.
       const {
         imageInsertAction,
         imageFolderPath,
@@ -780,50 +788,71 @@ export default {
         imageRelativeDirectoryName,
         preferences
       } = this
-      const { pathname } = this.currentFile
+      const {
+        filename,
+        pathname
+      } = this.currentFile
+
+      // Save an image relative to the file if the relative image directory include the filename variable.
+      // The image is save relative to the root folder without a variable.
+      const saveRelativeToFile = () => {
+        return /\${filename}/.test(imageRelativeDirectoryName)
+      }
 
       // Figure out the current working directory.
-      let cwd = pathname ? path.dirname(pathname) : null
-      if (pathname && this.projectTree) {
+      const isTabSavedOnDisk = !!pathname
+      let relativeBasePath = isTabSavedOnDisk ? path.dirname(pathname) : null
+      if (isTabSavedOnDisk && !saveRelativeToFile() && this.projectTree) {
         const { pathname: rootPath } = this.projectTree
         if (rootPath && isChildOfDirectory(rootPath, pathname)) {
           // Save assets relative to root directory.
-          cwd = rootPath
+          relativeBasePath = rootPath
         }
       }
 
-      let result = ''
+      const getResolvedImagePath = imagePath => {
+        const replacement = isTabSavedOnDisk
+          // Filename w/o extension
+          ? filename.replace(/\.[^/.]+$/, '')
+          : ''
+        return imagePath.replace(/\${filename}/g, replacement)
+      }
+
+      const resolvedImageFolderPath = getResolvedImagePath(imageFolderPath)
+      const resolvedImageRelativeDirectoryName = getResolvedImagePath(imageRelativeDirectoryName)
+      let destImagePath = ''
       switch (imageInsertAction) {
         case 'upload': {
           try {
-            result = await uploadImage(pathname, image, preferences)
+            destImagePath = await uploadImage(pathname, image, preferences)
           } catch (err) {
             notice.notify({
               title: 'Upload Image',
-              type: 'info',
+              type: 'warning',
               message: err
             })
-            result = await moveImageToFolder(pathname, image, imageFolderPath)
+            destImagePath = await moveImageToFolder(pathname, image, resolvedImageFolderPath)
           }
           break
         }
         case 'folder': {
-          result = await moveImageToFolder(pathname, image, imageFolderPath)
-          if (cwd && imagePreferRelativeDirectory) {
-            result = moveToRelativeFolder(cwd, result, imageRelativeDirectoryName)
+          destImagePath = await moveImageToFolder(pathname, image, resolvedImageFolderPath)
+          if (isTabSavedOnDisk && imagePreferRelativeDirectory) {
+            destImagePath = await moveToRelativeFolder(relativeBasePath, resolvedImageRelativeDirectoryName, pathname, destImagePath)
           }
           break
         }
         case 'path': {
           if (typeof image === 'string') {
-            result = image
+            // Input is a local path.
+            destImagePath = image
           } else {
-            // Move image to image folder if it's Blob object.
-            result = await moveImageToFolder(pathname, image, imageFolderPath)
+            // Save and move image to image folder if input is binary.
+            destImagePath = await moveImageToFolder(pathname, image, resolvedImageFolderPath)
 
-            // Respect user preferences if file exist on disk.
-            if (cwd && imagePreferRelativeDirectory) {
-              result = moveToRelativeFolder(cwd, result, imageRelativeDirectoryName)
+            // Respect user preferences if tab exists on disk.
+            if (isTabSavedOnDisk && imagePreferRelativeDirectory) {
+              destImagePath = await moveToRelativeFolder(relativeBasePath, resolvedImageRelativeDirectoryName, pathname, destImagePath)
             }
           }
           break
@@ -833,12 +862,11 @@ export default {
       if (id && this.sourceCode) {
         bus.$emit('image-action', {
           id,
-          result,
+          result: destImagePath,
           alt
         })
       }
-
-      return result
+      return destImagePath
     },
 
     imagePathPicker () {
@@ -958,6 +986,12 @@ export default {
         })
     },
 
+    handleInvalidateImageCache () {
+      if (this.editor) {
+        this.editor.invalidateImageCache()
+      }
+    },
+
     handleUndo () {
       if (this.editor) {
         this.editor.undo()
@@ -971,7 +1005,11 @@ export default {
     },
 
     handleSelectAll () {
-      if (this.editor && !this.sourceCode && (this.editor.hasFocus() || this.editor.contentState.selectedTableCells)) {
+      if (this.sourceCode) {
+        return
+      }
+
+      if (this.editor && (this.editor.hasFocus() || this.editor.contentState.selectedTableCells)) {
         this.editor.selectAll()
       } else {
         const activeElement = document.activeElement
@@ -1154,7 +1192,7 @@ export default {
       }
     },
 
-    // handle `duplicate`, `delete`, `create paragraph bellow`
+    // handle `duplicate`, `delete`, `create paragraph below`
     handleParagraph (type) {
       const { editor } = this
       if (editor) {
@@ -1237,6 +1275,7 @@ export default {
   },
   beforeDestroy () {
     bus.$off('file-loaded', this.setMarkdownToEditor)
+    bus.$off('invalidate-image-cache', this.handleInvalidateImageCache)
     bus.$off('undo', this.handleUndo)
     bus.$off('redo', this.handleRedo)
     bus.$off('selectAll', this.handleSelectAll)
@@ -1297,6 +1336,7 @@ export default {
     height: 100%;
     overflow: auto;
     box-sizing: border-box;
+    cursor: default;
   }
 
   .typewriter .editor-component {

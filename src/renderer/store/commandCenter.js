@@ -2,7 +2,6 @@ import { ipcRenderer } from 'electron'
 import log from 'electron-log'
 import bus from '../bus'
 import staticCommands, { RootCommand } from '../commands'
-import { isOsx } from '@/util'
 
 const state = {
   rootCommand: new RootCommand(staticCommands)
@@ -61,11 +60,11 @@ const executeCommand = (state, commandId) => {
   command.execute()
 }
 
-const defaultCtrlKey = isOsx ? 'Cmd' : 'Ctrl'
 const normalizeAccelerator = acc => {
   try {
     return acc
-      .replace(/cmdorctrl|cmd|ctrl/i, defaultCtrlKey)
+      .replace(/cmdorctrl|cmd/i, 'Cmd')
+      .replace(/ctrl/i, 'Ctrl')
       .split('+')
   } catch (_) {
     return [acc]

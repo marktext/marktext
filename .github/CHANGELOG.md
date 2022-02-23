@@ -1,3 +1,63 @@
+## 0.17.0
+
+Mark Text is now MarkText! We'd like to thank all contributors and users that have been using MarkText and worked on this release.
+
+**:warning:Breaking Changes:**
+
+- Changed multiple default key bindings.
+- Changed key binding handling: all key bindings are now mapped to the corresponding US key bindings. E.g. `Ctrl+Shift+7` on a German keyboard will now produce `Ctrl+/` because `Shift+7` is equivalent to `/`.
+- Image uploader: SM.MS was removed, GitHub uploader is deprecated and will be replaced by PicGo in our next release.
+
+**:cactus:Feature**
+
+- Added support for image path variables.
+- Added command-line image uploader and reworked settings.
+- Added regular expression group replacement to searcher.
+- Added PlantUML diagram support.
+- Added support for chemical equations in math mode.
+- Added automatic call to search for find-in-file when the pane is opened.
+- Open local non-markdown files in default application.
+- Added support to use all menu entries for key binding.
+- Added window zoom via default mouse event.
+- Zoom level is now restored on startup.
+- Added PicGo to upload images.
+- Ability to invalidate image cache on demand.
+- Added settings page to configure key bindings.
+
+**:butterfly:Optimization**
+
+- Improved inline markdown autocomplete support.
+- Improved preference design.
+- Relative image paths are now converted to forward slashes on Windows for better compatibility.
+- Center sidebar image when no search results are available.
+- Updated emoji database.
+- Improved sidebar file handling UX by providing more error messages.
+
+**:beetle:Bug fix**
+
+- Fixed an issue with code block cursor positioning.
+- Fixed invalid mermaid diagram representation when exporting as PDF.
+- Fixed rendering issue with LaTeX formulas
+- Fixed an issue that may caused editor flickering while pressing `Enter`.
+- Fixed Table of Contents sidebar display issue.
+- Fixed editor overflow when the sidbar is open.
+- Fixed a crash that occurred due to a bug in the markdown footnote parser.
+- Fixed issue with shortcuts that included `Alt`.
+- Fixed multiple issues on non-US keyboards.
+- Normalized source-code editor cursor.
+- Fixed preference scaling issue and added missing scrollbar.
+- Fixed a rendering issue when multiple elements were selected via keyboard.
+- Fixed preference migrations were always executed on start-up.
+- Fixed scrolling and search match positing with high DPI scaling.
+- Fixed slow startup on Windows due to a blocking call.
+- Fixed an issue that caused the paste handler to insert only HTML content because if HTML rendering was disabled.
+- Fixed file rename with editor dialog.
+- Fixed URL open handler when clicking a link in the editor.
+- Fixed an issue that prevented to unindent a list item.
+- Fixed multiple XSS issues on language selector and data input.
+- Fixed a bug that HTML was rendered in preview mode even it was disabled in settings.
+- HTML character encoding is now supported in code blocks.
+
 ## 0.16.3
 
 **:warning:Breaking Changes:**
@@ -188,7 +248,7 @@ v0.15.1 is an unplanned release to fix a XSS security vulnerability.
 - Added portable zip archive for both x86 and x64 Windows.
 - Changed `viewToggleFullScreen` and `windowCloseWindow` key bindings to `windowToggleFullScreen` and `fileCloseWindow`.
 - Removed `viewChangeFont` key binding.
-- Mark Text is now single-instance application on Linux and Windows too.
+- MarkText is now single-instance application on Linux and Windows too.
 
 **:cactus:Feature**
 
@@ -199,7 +259,7 @@ v0.15.1 is an unplanned release to fix a XSS security vulnerability.
 - add tab scrolling and drag&drop (#953)
 - Support to replace the root folder in a window
 - Second-instance files and directories via command-line are opened in the best window
-- Mark Text can use a default directory that is automatically opened during startup (#711)
+- MarkText can use a default directory that is automatically opened during startup (#711)
 - New CLI flags: `--disable-gpu`, `-n,--new-window` and `--user-data-dir`
 - Find in files use ripgrep as searcher.
 - You can know automatically save your document after a predefined intervall.
@@ -294,7 +354,7 @@ foo<section>bar</section>zar
 - Making images display smaller (#659)
 - Open local markdown file when you click on it in another tab (#359)
 - Clicking a link should open it in the browser (#425)
-- Support maxOS `dark mode`, when you change `mode dark or light` in system, Mark Text will change its theme.
+- Support maxOS `dark mode`, when you change `mode dark or light` in system, MarkText will change its theme.
 - Add new themes: Ulysses Light, Graphite Light, Material Dark and One Dark.
 - Watch file changed in tabs and show a notice(autoSave is `false`) or update the file(autoSave is `true`)
 - Support input inline Ruby charactors as raw html (#257)
@@ -327,7 +387,7 @@ foo<section>bar</section>zar
 - Fix dark preview box background color (#587)
 - Use white PDF background color (#583)
 - Fix document printing
-- Restore default Mark Text style after exporting/printing
+- Restore default MarkText style after exporting/printing
 - Prevent enter key as language identifier (#569)
 - Allow pasting text into the code block language text-box (#553)
 - Fixed a crash when opening a directory with an unknown file extension
@@ -373,7 +433,7 @@ foo<section>bar</section>zar
 - Fixed list parse error [more info](https://github.com/marktext/marktext/issues/831#issuecomment-477719256)
 - Fixed source code mode tab switching
 - Fixed source code mode to preview switching
-- Mark Text didn't remove highlight when I delete the markdown symbol like * or `. (#893)
+- MarkText didn't remove highlight when I delete the markdown symbol like * or `. (#893)
 - After delete ``` at the beginning to paragraph by backspace, then type other text foo, the color will be strange, if you type 1. bar. error happened. (#892)
 - Fix highlight error in code block (#545 #890)
 - Fix files sorting in folder (#438)
@@ -387,7 +447,7 @@ foo<section>bar</section>zar
 - Don't show save dialog for an empty document (#422)
 - Sidebar and tab redesign
 - Calculate artifact checksum after uploading (#566)
-- Use `CmdOrCltr+Enter` to add table row bellow.
+- Use `CmdOrCltr+Enter` to add table row below.
 
 **:beetle:Bug fix**
 
@@ -565,7 +625,7 @@ foo<section>bar</section>zar
 
 **:notebook_with_decorative_cover:​Note**
 
-You need uninstall the old version of Mark Text before install version 0.10.21, because we changed the AppId when build.
+You need uninstall the old version of MarkText before install version 0.10.21, because we changed the AppId when build.
 
 **:cactus:Feature**
 
@@ -638,9 +698,9 @@ You need uninstall the old version of Mark Text before install version 0.10.21, 
 
 **:cactus:Feature**
 
-- Add user preferences in `Mark Text menu`, the shoutcut is `CmdorCtrl + ,`, you can set the default `theme` and `autoSave`.
-- Add `autoSave` to `file menu`, the default value is in `preferences.md` which you can open in `Mark Text menu`. #45
-- Add drag and drop to open Markdown file with Mark Text @fxha
+- Add user preferences in `MarkText menu`, the shoutcut is `CmdorCtrl + ,`, you can set the default `theme` and `autoSave`.
+- Add `autoSave` to `file menu`, the default value is in `preferences.md` which you can open in `MarkText menu`. #45
+- Add drag and drop to open Markdown file with MarkText @fxha
 - User setting: fontSize, lineHeight, color in realtime mode.
 - Move your file to other folder @DXXL
 - Rename filename
@@ -652,7 +712,7 @@ You need uninstall the old version of Mark Text before install version 0.10.21, 
 
 **:beetle:Bug fix**
 
-- fix: prevent open image or file directly when drag and drop over Mark Text #42
+- fix: prevent open image or file directly when drag and drop over MarkText #42
 - fix: set theme to all the open window not just the active one.
 - fix: set correct application menu offset on windows #44
 - fix: Missing preferences menu in Linux and Windows. @fxha

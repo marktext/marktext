@@ -1,10 +1,12 @@
 #### Image Uploader Configration
 
-##### SM.MS
+##### PicGo
 
-No need to config, it's a free uploading service up-to 5MB, thanks!
+PicGo is a CLI tool to upload images to various cloud providers. Please see [here](https://picgo.github.io/PicGo-Doc/en/guide/) of more information.
 
 ##### GitHub
+
+> NOTE: This uploader is deprecated and will be replaced by PicGo in version 0.18.
 
 1. Step 1, Create a GitHub [repo](https://github.com/new).
 
@@ -14,10 +16,10 @@ No need to config, it's a free uploading service up-to 5MB, thanks!
 
 ![5ce17bd849d5589341](https://i.loli.net/2019/05/19/5ce17bd849d5589341.png)
 
-3. Config in Mark Text Preferences window. click `CmdOrCtrl + ,` to open Mark Text Preferences window.
+3. Config in MarkText Preferences window. click `CmdOrCtrl + ,` to open MarkText Preferences window.
 
 ![5ce17cb97b0f111638](https://i.loli.net/2019/05/19/5ce17cb97b0f111638.png)
 
 4. Input you `token`, `owner name` and `repo name` whick you just created. Click `Save` and `Set As default Uploader`.
 
-5. Paste an image into Mark Text and open you created repo to see the uploaded image.
+5. Paste an image into MarkText and open you created repo to see the uploaded image.

@@ -1,32 +1,40 @@
 <template>
   <div class="pref-spellchecker">
     <h4>Spelling</h4>
-    <bool
-      description="Enable spell checker (experimental)"
-      :bool="spellcheckerEnabled"
-      :onChange="handleSpellcheckerEnabled"
-    ></bool>
+    <compound>
+      <template #head>
+        <bool
+          description="Enable spell checker"
+          :bool="spellcheckerEnabled"
+          :onChange="handleSpellcheckerEnabled"
+        ></bool>
+      </template>
+      <template #children>
+        <bool
+          description="Use Hunspell instead of system spell checker on macOS and Windows 10"
+          notes="Requires restart."
+          :bool="spellcheckerIsHunspell"
+          :disable="!isOsSpellcheckerSupported || !spellcheckerEnabled"
+          :onChange="value => onSelectChange('spellcheckerIsHunspell', value)"
+        ></bool>
+        <bool
+          description="Hide marks for spelling errors"
+          :bool="spellcheckerNoUnderline"
+          :disable="!spellcheckerEnabled"
+          :onChange="value => onSelectChange('spellcheckerNoUnderline', value)"
+        ></bool>
+        <bool
+          v-show="isOsx && !spellcheckerIsHunspell"
+          description="Automatically detect document language (requires showing marks for spelling errors)"
+          :bool="spellcheckerAutoDetectLanguage"
+          :disable="!spellcheckerEnabled"
+          :onChange="value => onSelectChange('spellcheckerAutoDetectLanguage', value)"
+        ></bool>
+      </template>
+    </compound>
+
     <separator></separator>
-    <bool
-      description="Use Hunspell instead of system spell checker on macOS and Windows 10 (requires restart)"
-      :bool="spellcheckerIsHunspell"
-      :disable="!isOsSpellcheckerSupported || !spellcheckerEnabled"
-      :onChange="value => onSelectChange('spellcheckerIsHunspell', value)"
-    ></bool>
-    <bool
-      description="Hide marks for spelling errors"
-      :bool="spellcheckerNoUnderline"
-      :disable="!spellcheckerEnabled"
-      :onChange="value => onSelectChange('spellcheckerNoUnderline', value)"
-    ></bool>
-    <bool
-      v-show="isOsx && !spellcheckerIsHunspell"
-      description="Automatically detect document language (requires showing marks for spelling errors)"
-      :bool="spellcheckerAutoDetectLanguage"
-      :disable="!spellcheckerEnabled"
-      :onChange="value => onSelectChange('spellcheckerAutoDetectLanguage', value)"
-    ></bool>
-    <separator></separator>
+
     <cur-select
       description="Default language for spell checker"
       :value="spellcheckerLanguage"
@@ -46,7 +54,9 @@
     >
       Additional languages may be added through "Language" in your "Time & language" settings.
     </div>
+
     <div v-if="isHunspellSelected && spellcheckerEnabled">
+      <h6 class="title">Hunspell settings:</h6>
       <div class="description">Installed Hunspell dictionaries</div>
       <el-table
         :data="availableDictionaries"
@@ -93,6 +103,7 @@
 
 <script>
 import { mapState } from 'vuex'
+import Compound from '../common/compound'
 import CurSelect from '../common/select'
 import Bool from '../common/bool'
 import Separator from '../common/separator'
@@ -104,6 +115,7 @@ import { downloadHunspellDictionary, deleteHunspellDictionary } from '@/spellche
 export default {
   components: {
     Bool,
+    Compound,
     CurSelect,
     Separator
   },
@@ -198,7 +210,7 @@ export default {
         const index = dicts.findIndex(d => d === spellcheckerLanguage)
         if (index === -1 && dicts.length >= 1) {
           // Language is not supported, prefer OS language.
-          var lang = process.env.LANG
+          let lang = process.env.LANG
           lang = lang ? lang.split('.')[0] : null
           if (lang) {
             lang = lang.replace(/_/g, '-')
@@ -285,16 +297,15 @@ export default {
 
 <style scoped>
   .pref-spellchecker {
-    & h4 {
-      text-transform: uppercase;
-      margin: 0;
-      font-weight: 400;
-    }
     & div.description {
       margin-top: 10px;
       margin-bottom: 2px;
       color: var(--iconColor);
       font-size: 14px;
+    }
+    & h6.title {
+      font-weight: 400;
+      font-size: 1.1em;
     }
   }
   .el-table, .el-table__expanded-cell {

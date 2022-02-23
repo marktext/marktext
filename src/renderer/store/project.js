@@ -140,7 +140,13 @@ const actions = {
     })
     bus.$on('SIDEBAR::remove', () => {
       const { pathname } = state.activeItem
-      shell.moveItemToTrash(pathname)
+      shell.trashItem(pathname).catch(err => {
+        notice.notify({
+          title: 'Error while deleting',
+          type: 'error',
+          message: err.message
+        })
+      })
     })
     bus.$on('SIDEBAR::copy-cut', type => {
       const { pathname: src } = state.activeItem
@@ -150,15 +156,25 @@ const actions = {
       const { clipboard } = state
       const { pathname, isDirectory } = state.activeItem
       const dirname = isDirectory ? pathname : path.dirname(pathname)
-      if (clipboard) {
+      if (clipboard && clipboard.src) {
         clipboard.dest = dirname + PATH_SEPARATOR + path.basename(clipboard.src)
+
+        if (path.normalize(clipboard.src) === path.normalize(clipboard.dest)) {
+          notice.notify({
+            title: 'Paste Forbidden',
+            type: 'warning',
+            message: 'Source and destination must not be the same.'
+          })
+          return
+        }
+
         paste(clipboard)
           .then(() => {
             commit('SET_CLIPBOARD', null)
           })
           .catch(err => {
             notice.notify({
-              title: 'Paste Error',
+              title: 'Error while pasting',
               type: 'error',
               message: err.message
             })

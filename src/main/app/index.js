@@ -1,5 +1,5 @@
 import path from 'path'
-import fse from 'fs-extra'
+import fsPromises from 'fs/promises'
 import { exec } from 'child_process'
 import dayjs from 'dayjs'
 import log from 'electron-log'
@@ -9,6 +9,7 @@ import { isLinux, isOsx, isWindows } from '../config'
 import parseArgs from '../cli/parser'
 import { normalizeAndResolvePath } from '../filesystem'
 import { normalizeMarkdownPath } from '../filesystem/markdown'
+import { registerKeyboardListeners } from '../keyboard'
 import { selectTheme } from '../menu/actions/theme'
 import { dockMenu } from '../menu/templates'
 import ensureDefaultDict from '../preferences/hunspell'
@@ -107,8 +108,8 @@ class App {
       contents.on('will-navigate', event => {
         event.preventDefault()
       })
-      contents.on('new-window', event => {
-        event.preventDefault()
+      contents.setWindowOpenHandler(details => {
+        return { action: 'deny' }
       })
     })
 
@@ -427,6 +428,8 @@ class App {
   }
 
   _listenForIpcMain () {
+    registerKeyboardListeners()
+
     ipcMain.on('app-create-editor-window', () => {
       this._createEditorWindow()
     })
@@ -444,7 +447,7 @@ class App {
             // Write screenshot image into screenshot folder.
             const image = clipboard.readImage()
             const bufferImage = image.toPNG()
-            await fse.writeFile(screenshotFileName, bufferImage)
+            await fsPromises.writeFile(screenshotFileName, bufferImage)
           } catch (err) {
             log.error(err)
           }
@@ -560,6 +563,23 @@ class App {
       const { keybindings } = this._accessor
       // Convert map to object
       win.webContents.send('mt::keybindings-response', Object.fromEntries(keybindings.keys))
+    })
+
+    ipcMain.on('mt::open-keybindings-config', () => {
+      const { keybindings } = this._accessor
+      keybindings.openConfigInFileManager()
+    })
+
+    ipcMain.handle('mt::keybinding-get-pref-keybindings', () => {
+      const { keybindings } = this._accessor
+      const defaultKeybindings = keybindings.getDefaultKeybindings()
+      const userKeybindings = keybindings.getUserKeybindings()
+      return { defaultKeybindings, userKeybindings }
+    })
+
+    ipcMain.handle('mt::keybinding-save-user-keybindings', async (event, userKeybindings) => {
+      const { keybindings } = this._accessor
+      return await keybindings.setUserKeybindings(userKeybindings)
     })
   }
 }

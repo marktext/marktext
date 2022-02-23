@@ -1,4 +1,4 @@
-productName: "Mark Text"
+productName: "MarkText"
 appId: "com.github.marktext.marktext"
 
 asar: true
@@ -6,14 +6,19 @@ asarUnpack:
 - "**/*.node"
 directories:
   output: "build"
+# Workaround: Don't download prebuilt libraries (GH#2953).
+buildDependenciesFromSource: true
 files:
 - "dist/electron/**/*"
 # Don't bundle these files
 - "!**/node_modules/**/{CHANGELOG.md,README.md,README,readme.md,readme}"
 - "!node_modules/css-b64-images/{draft.png,draft.xcf}"
 - "!node_modules/dagre-d3-renderer/dist/demo/"
+- "!node_modules/dagre-d3/dist/demo/"
 - "!node_modules/dragula/resources"
 - "!node_modules/**/*.js.map"
+- "!node_modules/**/*.cjs.map"
+- "!node_modules/**/*.mjs.map"
 - "!node_modules/**/*.ts.map"
 # Don't bundle build files
 - "!node_modules/@felixrieseberg/spellchecker/bin"
@@ -25,6 +30,16 @@ files:
 - "!node_modules/fontmanager-redux/bin"
 - "!node_modules/keyboard-layout/bin"
 - "!node_modules/keytar/bin"
+- "!node_modules/native-keymap/bin"
+# Large source files that aren't needed
+- "!node_modules/dagre-d3/dist/dagre-d3.min.js"
+- "!node_modules/mermaid/dist/mermaid.js"
+- "!node_modules/mermaid/dist/mermaid.min.js"
+- "!node_modules/mermaid/dist/mermaid.esm.min.mjs"
+- "!node_modules/katex/dist/katex.min.js"
+- "!node_modules/katex/dist/katex.mjs"
+- "!node_modules/vega/build-es5/"
+- "!node_modules/vega-embed/build-es5/"
 # Don't bundle Linux build files
 - "!node_modules/@hfelix/spellchecker/build/Release/hunspell.a"
 - "!node_modules/ced/build/Release/compact_enc_det.a"
@@ -45,6 +60,7 @@ extraResources:
   to: "hunspell_dictionaries/"
   filter:
   - "!**/LICENSE-hunspell.txt"
+afterPack: './.electron-vue/electron-builder/afterPack.js'
 
 fileAssociations:
 - ext:
@@ -58,32 +74,33 @@ fileAssociations:
   description: "Markdown document"
   role: "Editor"
   icon: "../resources/icons/md.icns"
+mac:
+  artifactName: "marktext-${arch}-mac.${ext}"
+  icon: "resources/icons/icon.icns"
+  darkModeSupport: true
+  target:
+    - target: dmg
+      arch: [x64]
+    - target: zip
+      arch: [x64]
 dmg:
-  artifactName: "marktext.${ext}"
+  artifactName: "marktext-${arch}.${ext}"
   contents:
   - x: 410
-    y: 150
+    y: 240
     type: "link"
     path: "/Applications"
   - x: 130
-    y: 150
+    y: 240
     type: "file"
-mac:
-  artifactName: "marktext-mac.${ext}"
-  icon: "resources/icons/icon.icns"
-  darkModeSupport: true
 win:
   artifactName: "marktext-${arch}-win.${ext}"
   icon: "resources/icons/icon.ico"
   target:
   - target: "nsis"
-    arch:
-    - "ia32"
-    - "x64"
+    arch: [ia32, x64]
   - target: "zip"
-    arch:
-    - "ia32"
-    - "x64"
+    arch: [ia32, x64]
   requestedExecutionLevel: "asInvoker"
 nsis:
   artifactName: "marktext-setup.${ext}"
@@ -95,7 +112,7 @@ linux:
   artifactName: "marktext-${arch}.${ext}"
   executableName: "marktext"
   description: "A simple and elegant open-source markdown editor that focused on speed and usability."
-  maintainer: "Mark Text Contributors"
+  maintainer: "MarkText Contributors"
   category: "Office;TextEditor;Utility"
   mimeTypes:
   - "text/markdown"

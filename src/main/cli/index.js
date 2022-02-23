@@ -3,7 +3,6 @@ import { app } from 'electron'
 import os from 'os'
 import { isDirectory } from 'common/filesystem'
 import parseArgs from './parser'
-import { dumpKeyboardInformation } from '../keyboard'
 import { getPath } from '../utils'
 
 const write = s => process.stdout.write(s)
@@ -12,7 +11,7 @@ const writeLine = s => write(s + '\n')
 const cli = () => {
   let argv = process.argv.slice(1)
   if (process.env.NODE_ENV === 'development') {
-    // Don't pass electron development arguments to Mark Text and change user data path.
+    // Don't pass electron development arguments to MarkText and change user data path.
     argv = ['--user-data-dir', path.join(getPath('appData'), 'marktext-dev')]
   }
 
@@ -24,7 +23,6 @@ const cli = () => {
 
         --debug                   Enable debug mode
         --safe                    Disable plugins and other user configuration
-        --dump-keyboard-layout    Dump keyboard information
     -n, --new-window              Open a new window on second-instance
         --user-data-dir           Change the user data directory
         --disable-gpu             Disable GPU hardware acceleration
@@ -36,16 +34,11 @@ const cli = () => {
   }
 
   if (args['--version']) {
-    writeLine(`Mark Text: ${global.MARKTEXT_VERSION_STRING}`)
+    writeLine(`MarkText: ${global.MARKTEXT_VERSION_STRING}`)
     writeLine(`Node.js: ${process.versions.node}`)
     writeLine(`Electron: ${process.versions.electron}`)
     writeLine(`Chromium: ${process.versions.chrome}`)
     writeLine(`OS: ${os.type()} ${os.arch()} ${os.release()}`)
-    process.exit(0)
-  }
-
-  if (args['--dump-keyboard-layout']) {
-    writeLine(dumpKeyboardInformation())
     process.exit(0)
   }
 

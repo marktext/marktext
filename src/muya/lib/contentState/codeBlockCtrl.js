@@ -1,4 +1,5 @@
 import { loadLanguage } from '../prism/index'
+import { escapeHTML } from '../utils'
 // import resizeCodeBlockLineNumber from '../utils/resizeCodeLineNumber'
 import selection from '../selection'
 
@@ -48,7 +49,16 @@ const codeBlockCtrl = ContentState => {
    * @param lang Language identifier
    */
   ContentState.prototype.updateCodeLanguage = function (block, lang) {
-    if (lang && typeof lang === 'string') {
+    if (!lang || typeof lang !== 'string') {
+      console.error('Invalid code block language string:', lang)
+
+      // Use fallback language
+      lang = ''
+    }
+
+    // Prevent possible XSS on language input when using lang attribute later on. The input is also sanitized before rendering.
+    lang = escapeHTML(lang)
+    if (lang !== '') {
       loadLanguage(lang)
     }
 

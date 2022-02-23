@@ -1,10 +1,8 @@
-import { remote } from 'electron'
+import { MenuItem as RemoteMenuItem } from '@electron/remote'
 import log from 'electron-log'
 import bus from '@/bus'
 import { getLanguageName } from '@/spellchecker/languageMap'
 import { SEPARATOR } from './menuItems'
-
-const { MenuItem } = remote
 
 /**
  * Build the spell checker menu depending on input.
@@ -24,7 +22,7 @@ export default (spellchecker, selectedWord, wordSuggestions, replaceCallback) =>
     const availableDictionaries = spellchecker.getAvailableDictionaries()
     const availableDictionariesSubmenu = []
     for (const dict of availableDictionaries) {
-      availableDictionariesSubmenu.push(new MenuItem({
+      availableDictionariesSubmenu.push(new RemoteMenuItem({
         label: getLanguageName(dict),
         enabled: dict !== currentLanguage,
         click () {
@@ -33,7 +31,7 @@ export default (spellchecker, selectedWord, wordSuggestions, replaceCallback) =>
       }))
     }
 
-    spellingSubmenu.push(new MenuItem({
+    spellingSubmenu.push(new RemoteMenuItem({
       label: 'Change Language...',
       submenu: availableDictionariesSubmenu
     }))

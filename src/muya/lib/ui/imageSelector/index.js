@@ -1,4 +1,4 @@
-import Unsplash, { toJson } from 'unsplash-js'
+import { createApi } from 'unsplash-js'
 import BaseFloat from '../baseFloat'
 import { patch, h } from '../../parser/render/snabbdom'
 import { EVENT_KEYS, URL_REG, isWin } from '../../config'
@@ -6,6 +6,14 @@ import { getUniqueId, getImageInfo as getImageSrc } from '../../utils'
 import { getImageInfo } from '../../utils/getImageInfo'
 
 import './index.css'
+
+const toJson = res => {
+  if (res.type === 'success') {
+    return Promise.resolve(res.response)
+  } else {
+    return Promise.reject(new Error(res.type))
+  }
+}
 
 class ImageSelector extends BaseFloat {
   static pluginName = 'imageSelector'
@@ -29,7 +37,7 @@ class ImageSelector extends BaseFloat {
     if (!unsplashAccessKey) {
       this.unsplash = null
     } else {
-      this.unsplash = new Unsplash({
+      this.unsplash = createApi({
         accessKey: unsplashAccessKey
       })
     }
@@ -74,12 +82,14 @@ class ImageSelector extends BaseFloat {
         if (this.unsplash) {
           // Load latest unsplash photos.
           this.loading = true
-          this.unsplash.photos.listPhotos(1, 40, 'latest')
+          this.unsplash.photos.list({
+            perPage: 40
+          })
             .then(toJson)
             .then(json => {
               this.loading = false
-              if (Array.isArray(json)) {
-                this.photoList = json
+              if (Array.isArray(json.results)) {
+                this.photoList = json.results
                 if (this.tab === 'unsplash') {
                   this.render()
                 }
@@ -110,7 +120,11 @@ class ImageSelector extends BaseFloat {
 
     this.loading = true
     this.photoList = []
-    this.unsplash.search.photos(keyword, 1, 40)
+    this.unsplash.search.getPhotos({
+      query: keyword,
+      page: 1,
+      perPage: 40
+    })
       .then(toJson)
       .then(json => {
         this.loading = false
@@ -238,20 +252,26 @@ class ImageSelector extends BaseFloat {
           title
         })
         this.hide()
-        const nSrc = await this.muya.options.imageAction(src, id, alt)
-        const { src: localPath } = getImageSrc(src)
-        if (localPath) {
-          this.muya.contentState.stateRender.urlMap.set(nSrc, localPath)
-        }
-        const imageWrapper = this.muya.container.querySelector(`span[data-id=${id}]`)
 
-        if (imageWrapper) {
-          const imageInfo = getImageInfo(imageWrapper)
-          this.muya.contentState.replaceImage(imageInfo, {
-            alt,
-            src: nSrc,
-            title
-          })
+        try {
+          const newSrc = await this.muya.options.imageAction(src, id, alt)
+          const { src: localPath } = getImageSrc(src)
+          if (localPath) {
+            this.muya.contentState.stateRender.urlMap.set(newSrc, localPath)
+          }
+          const imageWrapper = this.muya.container.querySelector(`span[data-id=${id}]`)
+
+          if (imageWrapper) {
+            const imageInfo = getImageInfo(imageWrapper)
+            this.muya.contentState.replaceImage(imageInfo, {
+              alt,
+              src: newSrc,
+              title
+            })
+          }
+        } catch (error) {
+          // TODO: Notify user about an error.
+          console.error('Unexpected error on image action:', error)
         }
       } else {
         this.hide()
@@ -432,11 +452,13 @@ class ImageSelector extends BaseFloat {
                 const title = photo.user.name
                 const alt = photo.alt_description
                 const src = photo.urls.regular
-                const { id } = photo
-                this.unsplash.photos.getPhoto(id)
+                const { id: photoId } = photo
+                this.unsplash.photos.get({ photoId })
                   .then(toJson)
-                  .then(json => {
-                    this.unsplash.photos.downloadPhoto(json)
+                  .then(result => {
+                    this.unsplash.photos.trackDownload({
+                      downloadLocation: result.links.download_location
+                    })
                   })
                 return this.replaceImageAsync({ alt, title, src })
               }

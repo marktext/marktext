@@ -5,7 +5,6 @@ import { ipcRenderer } from 'electron'
 import listenForMain from './listenForMain'
 import project from './project'
 import editor from './editor'
-import aidou from './aidou'
 import layout from './layout'
 import preferences from './preferences'
 import autoUpdates from './autoUpdates'
@@ -18,9 +17,9 @@ Vue.use(Vuex)
 // global states
 const state = {
   platform: process.platform, // platform of system `darwin` | `win32` | `linux`
-  appVersion: process.versions.MARKTEXT_VERSION_STRING, // Mark Text version string
+  appVersion: process.versions.MARKTEXT_VERSION_STRING, // MarkText version string
   windowActive: true, // whether current window is active or focused
-  init: false // whether Mark Text is initialized
+  init: false // whether MarkText is initialized
 }
 
 const getters = {}
@@ -59,7 +58,6 @@ const store = new Vuex.Store({
     tweet,
     // have states
     project,
-    aidou,
     preferences,
     editor,
     layout,

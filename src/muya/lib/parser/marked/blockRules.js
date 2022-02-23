@@ -37,7 +37,7 @@ export const block = {
   frontmatter: /^(?:(?:---\n([\s\S]+?)---)|(?:\+\+\+\n([\s\S]+?)\+\+\+)|(?:;;;\n([\s\S]+?);;;)|(?:\{\n([\s\S]+?)\}))(?:\n{2,}|\n{1,2}$)/,
   multiplemath: /^\$\$\n([\s\S]+?)\n\$\$(?:\n+|$)/,
   multiplemathGitlab: /^ {0,3}(`{3,})math\n(?:(|[\s\S]*?)\n)(?: {0,3}\1`* *(?:\n+|$)|$)/, // Math inside a code block (GitLab display math)
-  footnote: /^\[\^([^\^\[\]\s]+?)\]:[\s\S]+?(?=\n *\n {0,3}[^ ]+|$)/
+  footnote: /^\[\^([^\^\[\]\s]+?)(?<!\\)\]:[\s\S]+?(?=\n *\n {0,3}[^ ]+|$)/
 }
 
 block._label = /(?!\s*\])(?:\\[\[\]]|[^\[\]])+/
@@ -51,7 +51,7 @@ block.checkbox = /^\[([ xX])\] +/
 block.bullet = /(?:[*+-]|\d{1,9}(?:\.|\)))/ // patched: support "(" as ordered list delimiter too
 // patched: fix https://github.com/marktext/marktext/issues/831#issuecomment-477719256
 // block.item = /^( *)(bull) ?[^\n]*(?:\n(?!\1bull ?)[^\n]*)*/
-block.item = /^(( {0,3})(bull) [^\n]*(?:\n(?!(\2bull |\2bull\n))[^\n]*)*|( {0,3})(bull)(?:\n(?!(\2bull |\2bull\n)))*)/
+block.item = /^(( {0,3})(bull) [^\n]*(?:\n(?!(\2bull |\2bull\n))[^\n]*)*|( {0,3})(bull)(?:\n(?!(\2bull |\2bull\n)))*)/ // eslint-disable-line no-useless-backreference
 block.item = edit(block.item, 'gm')
   .replace(/bull/g, block.bullet)
   .getRegex()

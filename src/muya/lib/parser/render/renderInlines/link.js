@@ -1,5 +1,6 @@
 import { CLASS_OR_ID } from '../../../config'
 import { isLengthEven, snakeToCamel } from '../../../utils'
+import { sanitizeHyperlink } from '../../../utils/url'
 
 // 'link': /^(\[)((?:\[[^\]]*\]|[^\[\]]|\](?=[^\[]*\]))*?)(\\*)\]\((.*?)(\\*)\)/, // can nest
 export default function link (h, cursor, block, token, outerClass) {
@@ -28,7 +29,6 @@ export default function link (h, cursor, block, token, outerClass) {
   )
 
   const lastBracket = this.highlight(h, block, end - 1, end, token)
-
   const firstBacklashStart = start + 1 + token.anchor.length
   const secondBacklashStart = end - 1 - token.backlash.second.length
 
@@ -38,7 +38,7 @@ export default function link (h, cursor, block, token, outerClass) {
         h(`span.${CLASS_OR_ID.AG_GRAY}.${CLASS_OR_ID.AG_REMOVE}`, firstMiddleBracket),
         h(`a.${CLASS_OR_ID.AG_NOTEXT_LINK}.${CLASS_OR_ID.AG_INLINE_RULE}`, {
           props: {
-            href: token.href + encodeURI(token.backlash.second),
+            href: sanitizeHyperlink(token.href + encodeURI(token.backlash.second)),
             target: '_blank',
             title: token.title
           }
@@ -53,7 +53,7 @@ export default function link (h, cursor, block, token, outerClass) {
         h(`span.${className}.${CLASS_OR_ID.AG_REMOVE}`, firstBracket),
         h(`a.${CLASS_OR_ID.AG_INLINE_RULE}`, {
           props: {
-            href: token.href + encodeURI(token.backlash.second),
+            href: sanitizeHyperlink(token.href + encodeURI(token.backlash.second)),
             target: '_blank',
             title: token.title
           },

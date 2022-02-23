@@ -1,7 +1,7 @@
 <template>
   <section class="pref-font-input-item" :class="{'ag-underdevelop': disable}">
     <div class="description">
-      <span>{{description}}</span>
+      <span>{{description}}:</span>
       <i class="el-icon-info" v-if="more" @click="handleMoreClick"></i>
     </div>
     <el-autocomplete
@@ -22,9 +22,8 @@
 
 <script>
 import { shell } from 'electron'
-import fontManager from 'fontmanager-redux'
 
-// Example font objects:
+// Example of fontmanager-redux objects:
 // {
 //     path: '/Library/Fonts/Arial.ttf',
 //     postscriptName: 'ArialMT',
@@ -101,6 +100,8 @@ export default {
     }
   },
   mounted () {
+    // Delay load native library because it's not needed for the editor and causes a delay.
+    const fontManager = require('fontmanager-redux')
     const { onlyMonospace } = this
     const buf = fontManager.getAvailableFontsSync()
       .filter(f => f.family && (!onlyMonospace || (onlyMonospace && f.monospace)))
@@ -141,7 +142,7 @@ export default {
   font-size: 14px;
   color: var(--editorColor);
   & .font-autocomplete {
-    width: 240px;
+    width: 100%;
   }
   & input.el-input__inner {
     height: 30px;

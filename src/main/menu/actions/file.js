@@ -53,9 +53,9 @@ const handleResponseForExport = async (e, { type, content, pathname, title, page
   const win = BrowserWindow.fromWebContents(e.sender)
   const extension = EXTENSION_HASN[type]
   const dirname = pathname ? path.dirname(pathname) : getPath('documents')
-  let nakedFilename = title
+  let nakedFilename = pathname ? path.basename(pathname, '.md') : title
   if (!nakedFilename) {
-    nakedFilename = pathname ? path.basename(pathname, '.md') : 'Untitled'
+    nakedFilename = 'Untitled'
   }
 
   const defaultPath = path.join(dirname, `${nakedFilename}${extension}`)
@@ -71,7 +71,7 @@ const handleResponseForExport = async (e, { type, content, pathname, title, page
         Object.assign(options, getPdfPageOptions(pageOptions))
         const data = await win.webContents.printToPDF(options)
         removePrintServiceFromWindow(win)
-        await writeFile(filePath, data, extension, {})
+        await writeFile(filePath, data, extension, 'binary')
       } else {
         if (!content) {
           throw new Error('No HTML content found.')
@@ -112,7 +112,7 @@ const handleResponseForSave = async (e, { id, filename, markdown, pathname, opti
 
   // If the file doesn't exist on disk add it to the recently used documents later
   // and execute file from filesystem watcher for a short time. The file may exists
-  // on disk nevertheless but is already tracked by Mark Text.
+  // on disk nevertheless but is already tracked by MarkText.
   const alreadyExistOnDisk = !!pathname
 
   let filePath = pathname
@@ -133,6 +133,8 @@ const handleResponseForSave = async (e, { id, filename, markdown, pathname, opti
   }
 
   filePath = path.resolve(filePath)
+  const extension = path.extname(filePath) || '.md'
+  filePath = !filePath.endsWith(extension) ? filePath += extension : filePath
   return writeMarkdownFile(filePath, markdown, options, win)
     .then(() => {
       if (!alreadyExistOnDisk) {
@@ -221,14 +223,14 @@ ipcMain.on('mt::save-and-close-tabs', async (e, unsavedFiles) => {
     Promise.all(unsavedFiles.map(file => handleResponseForSave(e, file)))
       .then(arr => {
         const tabIds = arr.filter(id => id != null)
-        win.send('mt::force-close-tabs-by-id', tabIds)
+        win.webContents.send('mt::force-close-tabs-by-id', tabIds)
       })
       .catch(err => {
-        log.error('Error while save all:', err.error)
+        log.error('Error while save all:', err)
       })
   } else {
     const tabIds = unsavedFiles.map(f => f.id)
-    win.send('mt::force-close-tabs-by-id', tabIds)
+    win.webContents.send('mt::force-close-tabs-by-id', tabIds)
   }
 })
 
@@ -241,7 +243,7 @@ ipcMain.on('mt::response-file-save-as', async (e, { id, filename, markdown, path
 
   // If the file doesn't exist on disk add it to the recently used documents later
   // and execute file from filesystem watcher for a short time. The file may exists
-  // on disk nevertheless but is already tracked by Mark Text.
+  // on disk nevertheless but is already tracked by MarkText.
   const alreadyExistOnDisk = !!pathname
 
   let { filePath, canceled } = await dialog.showSaveDialog(win, {
@@ -357,7 +359,7 @@ ipcMain.on('mt::rename', async (e, { id, pathname, newPathname }) => {
     })
   }
 
-  if (!exists(newPathname)) {
+  if (!await exists(newPathname)) {
     doRename()
   } else {
     const { response } = await dialog.showMessageBox(win, {
@@ -409,23 +411,39 @@ ipcMain.on('mt::ask-for-open-project-in-sidebar', async e => {
 })
 
 ipcMain.on('mt::format-link-click', (e, { data, dirname }) => {
-  if (!data || !data.href || typeof data.href !== 'string') {
+  if (!data || (!data.href && !data.text)) {
     return
   }
 
-  if (URL_REG.test(data.href)) {
-    return shell.openExternal(data.href)
+  const urlCandidate = data.href || data.text
+  if (URL_REG.test(urlCandidate)) {
+    shell.openExternal(urlCandidate)
+    return
+  } else if (/^[a-z0-9]+:\/\//i.test(urlCandidate)) {
+    // Prevent other URLs.
+    return
   }
+
+  const href = data.href
+  if (!href) {
+    return
+  }
+
   let pathname = null
-  if (path.isAbsolute(data.href) && isMarkdownFile(data.href)) {
-    pathname = data.href
+  if (path.isAbsolute(href)) {
+    pathname = href
+  } else if (dirname && !path.isAbsolute(href)) {
+    pathname = path.join(dirname, href)
   }
-  if (!path.isAbsolute(data.href) && isMarkdownFile(path.join(dirname, data.href))) {
-    pathname = path.join(dirname, data.href)
-  }
+
   if (pathname) {
-    const win = BrowserWindow.fromWebContents(e.sender)
-    return openFileOrFolder(win, pathname)
+    pathname = path.normalize(pathname)
+    if (isMarkdownFile(pathname)) {
+      const win = BrowserWindow.fromWebContents(e.sender)
+      openFileOrFolder(win, pathname)
+    } else {
+      shell.openPath(pathname)
+    }
   }
 })
 
@@ -537,6 +555,12 @@ export const newEditorWindow = () => {
 export const closeTab = win => {
   if (win && win.webContents) {
     win.webContents.send('mt::editor-close-tab')
+  }
+}
+
+export const closeWindow = win => {
+  if (win) {
+    win.close()
   }
 }
 

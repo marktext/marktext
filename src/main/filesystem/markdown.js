@@ -1,4 +1,4 @@
-import fs from 'fs-extra'
+import fsPromises from 'fs/promises'
 import path from 'path'
 import log from 'electron-log'
 import iconv from 'iconv-lite'
@@ -71,16 +71,16 @@ export const writeMarkdownFile = (pathname, content, options) => {
  * Reads the contents of a markdown file.
  *
  * @param {string} pathname The path to the markdown file.
- * @param {string} preferedEol The prefered EOL.
+ * @param {string} preferredEol The preferred EOL.
  * @param {boolean} autoGuessEncoding Whether we should try to auto guess encoding.
  * @param {*} trimTrailingNewline The trim trailing newline option.
  * @returns {IMarkdownDocumentRaw} Returns a raw markdown document.
  */
-export const loadMarkdownFile = async (pathname, preferedEol, autoGuessEncoding = true, trimTrailingNewline = 2) => {
+export const loadMarkdownFile = async (pathname, preferredEol, autoGuessEncoding = true, trimTrailingNewline = 2) => {
   // TODO: Use streams to not buffer the file multiple times and only guess
   //       encoding on the first 256/512 bytes.
 
-  let buffer = await fs.readFile(path.resolve(pathname))
+  let buffer = await fsPromises.readFile(path.resolve(pathname))
 
   const encoding = guessEncoding(buffer, autoGuessEncoding)
   const supported = iconv.encodingExists(encoding.encoding)
@@ -95,7 +95,7 @@ export const loadMarkdownFile = async (pathname, preferedEol, autoGuessEncoding 
   const isCrlf = CRLF_LINE_ENDING_REG.test(markdown)
   const isMixedLineEndings = isLf && isCrlf
   const isUnknownEnding = !isLf && !isCrlf
-  let lineEnding = preferedEol
+  let lineEnding = preferredEol
   if (isLf && !isCrlf) {
     lineEnding = 'lf'
   } else if (isCrlf && !isLf) {

@@ -1,5 +1,6 @@
 import template from './index.html'
 import { getUniqueId } from '../../util'
+import { sanitize, EXPORT_DOMPURIFY_CONFIG } from '../../util/dompurify'
 import './index.css'
 
 const INON_HASH = {
@@ -13,6 +14,13 @@ const TYPE_HASH = {
   error: 'mt-error',
   warning: 'mt-warn',
   info: 'mt-info'
+}
+
+const fillTemplate = (type, title, message) => {
+  return template
+    .replace(/\{\{icon\}\}/, INON_HASH[type])
+    .replace(/\{\{title\}\}/, sanitize(title, EXPORT_DOMPURIFY_CONFIG))
+    .replace(/\{\{message\}\}/, sanitize(message, EXPORT_DOMPURIFY_CONFIG))
 }
 
 const notification = {
@@ -36,10 +44,7 @@ const notification = {
     const id = getUniqueId()
 
     const fragment = document.createElement('div')
-    fragment.innerHTML = template
-      .replace(/\{\{icon\}\}/, INON_HASH[type])
-      .replace(/\{\{title\}\}/, title)
-      .replace(/\{\{message\}\}/, message)
+    fragment.innerHTML = fillTemplate(type, title, message)
 
     const noticeContainer = fragment.querySelector('.mt-notification')
     const bgNotice = noticeContainer.querySelector('.notice-bg')

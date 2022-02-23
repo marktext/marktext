@@ -10,7 +10,8 @@ export default function htmlRuby (h, cursor, block, token, outerClass) {
 
   const previewSelector = `span.${CLASS_OR_ID.AG_RUBY_RENDER}`
 
-  return children ? [
+  return children
+  ? [
     h(`span.${className}.${CLASS_OR_ID.AG_RUBY}`, [
       h(`span.${CLASS_OR_ID.AG_INLINE_RULE}.${CLASS_OR_ID.AG_RUBY_TEXT}`, content),
       h(previewSelector, {
@@ -21,7 +22,8 @@ export default function htmlRuby (h, cursor, block, token, outerClass) {
       }, vNode)
     ])
   // if children is empty string, no need to render ruby charactors...
-  ] : [
+  ]
+  : [
     h(`span.${className}.${CLASS_OR_ID.AG_RUBY}`, [
       h(`span.${CLASS_OR_ID.AG_INLINE_RULE}.${CLASS_OR_ID.AG_RUBY_TEXT}`, content)
     ])

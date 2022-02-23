@@ -127,10 +127,6 @@
   background: var(--editorBgColor) !important;
 }
 
-.aidou .search-wrapper {
-  box-shadow: none;
-}
-
 .open-project button,
 .recent-files-projects button {
   box-shadow: none !important;

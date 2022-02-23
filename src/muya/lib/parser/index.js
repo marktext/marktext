@@ -32,12 +32,26 @@ const correctUrl = token => {
   }
 }
 
+const matchHtmlTag = (src, disableHtml) => {
+  const match = inlineRules.html_tag.exec(src)
+  if (!match) {
+    return null
+  }
+
+  // Ignore HTML tag when HTML rendering is disabled and import it as plain text.
+  // NB: We have to allow img tag to support image resizer and options.
+  if (disableHtml && (!match[3] || !/^img$/i.test(match[3]))) {
+    return null
+  }
+  return match
+}
+
 const tokenizerFac = (src, beginRules, inlineRules, pos = 0, top, labels, options) => {
   const originSrc = src
   const tokens = []
   let pending = ''
   let pendingStartPos = pos
-  const { superSubScript, footnote } = options
+  const { disableHtml, superSubScript, footnote } = options
   const pushPending = () => {
     if (pending) {
       tokens.push({
@@ -427,7 +441,7 @@ const tokenizerFac = (src, beginRules, inlineRules, pos = 0, top, labels, option
     }
 
     // html-tag
-    const htmlTo = inlineRules.html_tag.exec(src)
+    const htmlTo = matchHtmlTag(src, disableHtml)
     let attrs
     // handle comment
     if (htmlTo && htmlTo[1] && !htmlTo[3]) {
@@ -448,8 +462,7 @@ const tokenizerFac = (src, beginRules, inlineRules, pos = 0, top, labels, option
       src = src.substring(len)
       pos = pos + len
       continue
-    }
-    if (htmlTo && !(disallowedHtmlTag.test(htmlTo[3])) && (attrs = getAttributes(htmlTo[0]))) {
+    } else if (htmlTo && !(disallowedHtmlTag.test(htmlTo[3])) && (attrs = getAttributes(htmlTo[0]))) {
       const tag = htmlTo[3]
       const html = htmlTo[0]
       const len = htmlTo[0].length

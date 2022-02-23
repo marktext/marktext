@@ -2,6 +2,7 @@ body .ag-render-container {
   position: fixed;
   left: -10000px;
   right: -10000px;
+  max-width: 100%;
 }
 
 body article.print-container {
@@ -64,12 +65,15 @@ body article.print-container {
   }
   body article.markdown-body .flowchart,
   body article.markdown-body .sequence,
+  body article.markdown-body .plantuml,
   body article.markdown-body .mermaid,
   body article.markdown-body .vega-embed {
     text-align: center;
   }
   body article.markdown-body .flowchart > svg,
   body article.markdown-body .sequence > svg,
+  body article.markdown-body .plantuml > svg,
+  body article.markdown-body .plantuml > img,
   body article.markdown-body .mermaid > svg,
   body article.markdown-body .vega-embed > svg {
     max-width: 100%;

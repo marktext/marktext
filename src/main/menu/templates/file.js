@@ -103,11 +103,13 @@ export default function (keybindings, userPreference, recentlyUsedFiles) {
     type: 'separator'
   }, {
     label: 'Move To...',
+    accelerator: keybindings.getAccelerator('file.move-file'),
     click (menuItem, browserWindow) {
       actions.moveTo(browserWindow)
     }
   }, {
     label: 'Rename...',
+    accelerator: keybindings.getAccelerator('file.rename-file'),
     click (menuItem, browserWindow) {
       actions.rename(browserWindow)
     }
@@ -160,7 +162,9 @@ export default function (keybindings, userPreference, recentlyUsedFiles) {
   }, {
     label: 'Close Window',
     accelerator: keybindings.getAccelerator('file.close-window'),
-    role: 'close'
+    click (menuItem, browserWindow) {
+      actions.closeWindow(browserWindow)
+    }
   }, {
     type: 'separator',
     visible: !isOsx
