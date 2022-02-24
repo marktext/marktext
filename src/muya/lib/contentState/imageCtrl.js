@@ -1,6 +1,5 @@
 import { URL_REG, DATA_URL_REG } from '../config'
 import { correctImageSrc } from '../utils/getImageInfo'
-import { shell } from 'electron'
 
 const imageCtrl = ContentState => {
   /**
@@ -209,7 +208,9 @@ const imageCtrl = ContentState => {
   ContentState.prototype.openImage = function ({ key }, realFilePath) {
     const block = this.getBlock(key)
     const { eventCenter } = this.muya
-    shell.openPath(realFilePath)
+    if (this.muya.options.openImageWithExternalTool) {
+      this.muya.options.openImageWithExternalTool(realFilePath)
+    }
 
     this.singleRender(block)
     eventCenter.dispatch('muya-transformer', { reference: null })
