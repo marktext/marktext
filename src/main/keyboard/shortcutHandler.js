@@ -38,6 +38,9 @@ class Keybindings {
   registerKeyHandlers (win, acceleratorMap) {
     for (const item of acceleratorMap) {
       let { accelerator } = item
+      if (accelerator == null || accelerator === '') {
+        continue
+      }
 
       // Regisiter shortcuts on the BrowserWindow instead of using Chromium's native menu.
       // This makes it possible to receive key down events before Chromium/Electron and we
