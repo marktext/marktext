@@ -102,7 +102,7 @@ const commandDescriptions = Object.freeze({
   // # Menu descriptions but not available as command
   // #
 
-  'view.reload-images': 'View: Clear cache and reload images',
+  'view.reload-images': 'View: Force reload images',
 
   // ============================================
   // # Additional command descriptions
