@@ -80,9 +80,9 @@ mac:
   darkModeSupport: true
   target:
     - target: dmg
-      arch: [x64]
+      arch: [x64, arm64]
     - target: zip
-      arch: [x64]
+      arch: [x64, arm64]
 dmg:
   artifactName: "marktext-${arch}.${ext}"
   contents:

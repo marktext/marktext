@@ -1,3 +1,12 @@
+## 0.17.1
+
+- Added native support for Apple M1 (see #2983 if you have issues).
+
+**:beetle:Bug fix**
+
+- Fixed crash when key binding was unset.
+- Fixed paste handler for images.
+
 ## 0.17.0
 
 Mark Text is now MarkText! We'd like to thank all contributors and users that have been using MarkText and worked on this release.
