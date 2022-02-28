@@ -25,6 +25,7 @@ const copyCutCtrl = ContentState => {
         key,
         token
       })
+      this.selectedImage = null
       return
     }
     const { start, end } = selection.getCursorRange()
