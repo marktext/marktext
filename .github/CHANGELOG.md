@@ -1,3 +1,17 @@
+## 0.17.1
+
+- Added experimental native support for Apple M1 (see #2983 if you have issues).
+
+**:butterfly:Optimization**
+
+- Improved behavior of inline markdown character auto pairing.
+
+**:beetle:Bug fix**
+
+- Fixed crash at startup when a key binding was unset.
+- Fixed paste handler for images.
+- Fixed deletion behavior of a selected image.
+
 ## 0.17.0
 
 Mark Text is now MarkText! We'd like to thank all contributors and users that have been using MarkText and worked on this release.

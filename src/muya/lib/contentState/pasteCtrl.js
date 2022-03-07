@@ -265,9 +265,6 @@ const pasteCtrl = ContentState => {
 
     const text = rawText || event.clipboardData.getData('text/plain')
     let html = rawHtml || event.clipboardData.getData('text/html')
-    if (!text && !html) {
-      return
-    }
 
     // Support pasted URLs from Firefox.
     if (URL_REG.test(text) && !/\s/.test(text) && !html) {

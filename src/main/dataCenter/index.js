@@ -30,7 +30,7 @@ class DataCenter extends EventEmitter {
   }
 
   init () {
-    const defaltData = {
+    const defaultData = {
       imageFolderPath: path.join(this.userDataPath, 'images'),
       screenshotFolderPath: path.join(this.userDataPath, 'screenshot'),
       webImages: [],
@@ -46,7 +46,7 @@ class DataCenter extends EventEmitter {
     }
 
     if (!this.hasDataCenterFile) {
-      this.store.set(defaltData)
+      this.store.set(defaultData)
       ensureDirSync(this.store.get('screenshotFolderPath'))
     }
     this._listenForIpcMain()
