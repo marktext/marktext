@@ -1,11 +1,16 @@
 ## 0.17.1
 
-- Added native support for Apple M1 (see #2983 if you have issues).
+- Added experimental native support for Apple M1 (see #2983 if you have issues).
+
+**:butterfly:Optimization**
+
+- Improved behavior of inline markdown character auto pairing.
 
 **:beetle:Bug fix**
 
-- Fixed crash when key binding was unset.
+- Fixed crash at startup when a key binding was unset.
 - Fixed paste handler for images.
+- Fixed deletion behavior of a selected image.
 
 ## 0.17.0
 
