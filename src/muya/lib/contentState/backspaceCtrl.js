@@ -103,11 +103,9 @@ const backspaceCtrl = ContentState => {
 
   ContentState.prototype.docBackspaceHandler = function (event) {
     // handle delete selected image
-    const { selectedImage } = this
-    if (selectedImage) {
+    if (this.selectedImage) {
       event.preventDefault()
-      this.selectedImage = null
-      return this.deleteImage(selectedImage)
+      return this.deleteImage(this.selectedImage)
     }
     if (this.selectedTableCells) {
       event.preventDefault()
@@ -117,17 +115,15 @@ const backspaceCtrl = ContentState => {
 
   ContentState.prototype.backspaceHandler = function (event) {
     const { start, end } = selection.getCursorRange()
-    const { selectedImage } = this
 
     if (!start || !end) {
       return
     }
 
     // handle delete selected image
-    if (selectedImage) {
+    if (this.selectedImage) {
       event.preventDefault()
-      this.selectedImage = null
-      return this.deleteImage(selectedImage)
+      return this.deleteImage(this.selectedImage)
     }
 
     // Handle select all content.
