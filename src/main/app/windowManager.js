@@ -1,7 +1,9 @@
 import { app, BrowserWindow, ipcMain } from 'electron'
 import EventEmitter from 'events'
 import log from 'electron-log'
-import Watcher, { WATCHER_STABILITY_THRESHOLD, WATCHER_STABILITY_POLL_INTERVAL } from '../filesystem/watcher'
+import { loadMarkdownFile } from '../filesystem/markdown'
+import { getWatcherSettingsFromPreferences, WindowWatcherManager } from '../filesystem/watcher'
+import { readDirectoryContentsForSideBar } from '../filesystem/watcher/scanDir'
 import { WindowType } from '../windows/base'
 
 class WindowActivityList {
@@ -60,13 +62,12 @@ class WindowManager extends EventEmitter {
     super()
 
     this._appMenu = appMenu
+    this._preferences = preferences
 
     this._activeWindowId = null
     this._windows = new Map()
     this._windowActivity = new WindowActivityList()
-
-    // TODO(need::refactor): Please see #1035.
-    this._watcher = new Watcher(preferences)
+    this._watcherManager = new WindowWatcherManager()
 
     this._listenForIpcMain()
   }
@@ -93,7 +94,7 @@ class WindowManager extends EventEmitter {
     })
     window.on('window-closed', () => {
       this.remove(windowId)
-      this._watcher.unwatchByWindowId(windowId)
+      this._watcherManager.unwatchByWindowId(windowId)
     })
   }
 
@@ -286,8 +287,8 @@ class WindowManager extends EventEmitter {
 
   // --- helper ---------------------------------
 
-  closeWatcher () {
-    this._watcher.close()
+  close () {
+    this._watcherManager.close()
   }
 
   /**
@@ -304,7 +305,7 @@ class WindowManager extends EventEmitter {
     const { _appMenu, _windows } = this
 
     // Free watchers used by this window
-    this._watcher.unwatchByWindowId(windowId)
+    this._watcherManager.unwatchByWindowId(windowId)
 
     // Application clearup and remove listeners
     _appMenu.removeWindowMenu(windowId)
@@ -383,22 +384,44 @@ class WindowManager extends EventEmitter {
       this._appMenu.updateAlwaysOnTopMenu(win.id, flag)
     })
 
-    // --- local events ---------------
+    // ----------------------------------------------------------
+
+    ipcMain.on('mt::watcher-watch-sidebar-directory', (event, { path: fullPath, token }) => {
+      const window = BrowserWindow.fromWebContents(event.sender)
+      if (window != null) {
+        const config = getWatcherSettingsFromPreferences(this._preferences)
+        this._watcherManager.watchDirectory(fullPath, window, token, config)
+      }
+    })
+
+    ipcMain.on('mt::watcher-unwatch-sidebar-directory', (event, fullPath) => {
+      const window = BrowserWindow.fromWebContents(event.sender)
+      if (window != null) {
+        this._watcherManager.unwatchDirectory(fullPath, window.id)
+      }
+    })
+
+    // TODO: Move IPC handler into filesystem service.
+    ipcMain.handle('mt::filesystem-scan-sidebar-directory', async (event, fullPath) => {
+      return await readDirectoryContentsForSideBar(fullPath)
+    })
+    ipcMain.handle('mt::fs-markdown-load-file', async (event, fullPath) => {
+      const eol = this._preferences.getPreferredEol()
+      const { autoGuessEncoding, trimTrailingNewline } = this._preferences.getAll()
+      return await loadMarkdownFile(fullPath, eol, autoGuessEncoding, trimTrailingNewline)
+    })
+
+    // --- Local events ---------------
 
     ipcMain.on('watcher-unwatch-all-by-id', windowId => {
-      this._watcher.unwatchByWindowId(windowId)
+      this._watcherManager.unwatchByWindowId(windowId)
     })
-    ipcMain.on('watcher-watch-file', (win, filePath) => {
-      this._watcher.watch(win, filePath, 'file')
+    ipcMain.on('watcher-watch-file', (window, filePath) => {
+      const config = getWatcherSettingsFromPreferences(this._preferences)
+      this._watcherManager.watchFile(filePath, window, null, config)
     })
-    ipcMain.on('watcher-watch-directory', (win, pathname) => {
-      this._watcher.watch(win, pathname, 'dir')
-    })
-    ipcMain.on('watcher-unwatch-file', (win, filePath) => {
-      this._watcher.unwatch(win, filePath, 'file')
-    })
-    ipcMain.on('watcher-unwatch-directory', (win, pathname) => {
-      this._watcher.unwatch(win, pathname, 'dir')
+    ipcMain.on('watcher-unwatch-file', (window, filePath) => {
+      this._watcherManager.unwatchFile(filePath, window.id)
     })
 
     ipcMain.on('window-add-file-path', (windowId, filePath) => {
@@ -416,12 +439,6 @@ class WindowManager extends EventEmitter {
         return
       }
       editor.changeOpenedFilePath(pathname, oldPathname)
-    })
-
-    ipcMain.on('window-file-saved', (windowId, pathname) => {
-      // A changed event is emitted earliest after the stability threshold.
-      const duration = WATCHER_STABILITY_THRESHOLD + (WATCHER_STABILITY_POLL_INTERVAL * 2)
-      this._watcher.ignoreChangedEvent(windowId, pathname, duration)
     })
 
     ipcMain.on('window-close-by-id', id => {

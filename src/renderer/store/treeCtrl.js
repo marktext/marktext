@@ -2,6 +2,13 @@ import path from 'path'
 import { getUniqueId } from '../util'
 import { PATH_SEPARATOR } from '../config'
 
+export const PROJECT_UPDATE_POLICY = Object.freeze({
+  /** Mode to only update loaded entries in the project tree (e.g. used by filesystem watcher). */
+  PARTIAL: 0,
+  /** Mode to update the project tree even when the entry was not yet loaded (e.g. used to load new sub-entries). */
+  FORCE: 1
+})
+
 /**
  * Return all sub-directories relative to the root directory.
  *
@@ -11,7 +18,7 @@ import { PATH_SEPARATOR } from '../config'
  */
 const getSubdirectoriesFromRoot = (rootPath, pathname) => {
   if (!path.isAbsolute(pathname)) {
-    throw new Error('Invalid path!')
+    throw new Error('Path in project tree must be absolute.')
   }
   const relativePath = path.relative(rootPath, pathname)
   return relativePath ? relativePath.split(PATH_SEPARATOR) : []
@@ -21,58 +28,33 @@ const getSubdirectoriesFromRoot = (rootPath, pathname) => {
  * Add a new file to the tree list.
  *
  * @param {*} tree Root file tree
- * @param {*} file The file that should be added
+ * @param {String} fullPath The file path that should be added
+ * @param {*} policy The update policy
  */
-export const addFile = (tree, file) => {
-  const { pathname, name } = file
-  const dirname = path.dirname(pathname)
-  const subDirectories = getSubdirectoriesFromRoot(tree.pathname, dirname)
+export const addFile = (tree, fullPath, policy) => {
+  const dirname = path.dirname(fullPath)
+  const filename = path.basename(fullPath)
 
-  let currentPath = tree.pathname
-  let currentFolder = tree
-  let currentSubFolders = tree.folders
-  for (const directoryName of subDirectories) {
-    let childFolder = currentSubFolders.find(f => f.name === directoryName)
-    if (!childFolder) {
-      childFolder = {
-        id: getUniqueId(),
-        pathname: `${currentPath}${PATH_SEPARATOR}${directoryName}`,
-        name: directoryName,
-        isCollapsed: true,
-        isDirectory: true,
-        isFile: false,
-        isMarkdown: false,
-        folders: [],
-        files: []
-      }
-      currentSubFolders.push(childFolder)
-    }
-
-    currentPath = `${currentPath}${PATH_SEPARATOR}${directoryName}`
-    currentFolder = childFolder
-    currentSubFolders = childFolder.folders
+  const currentFolder = createDirectoryIfAbsent(tree, dirname, policy)
+  if (!currentFolder || !isAllowedToCreate(currentFolder, policy)) {
+    // Ignore event because parent directory wasn't visited yet.
+    return
   }
 
-  // Add file to related directory
-  if (!currentFolder.files.find(f => f.name === name)) {
-    // Remove file content from object.
-    const fileCopy = {
+  const isFileEntryAbsent = currentFolder.files.findIndex(f => f.name === filename) === -1
+  if (isFileEntryAbsent) {
+    const fileEntry = {
       id: getUniqueId(),
-      birthTime: file.birthTime,
-      isDirectory: file.isDirectory,
-      isFile: file.isFile,
-      isMarkdown: file.isMarkdown,
-      name: file.name,
-      pathname: file.pathname
+      pathname: fullPath,
+      name: filename,
+      isFile: true
     }
 
-    const idx = currentFolder.files.findIndex(f => {
-      return f.name.localeCompare(name) > 0
-    })
-    if (idx !== -1) {
-      currentFolder.files.splice(idx, 0, fileCopy)
+    const index = currentFolder.files.findIndex(f => f.name.localeCompare(filename) > 0)
+    if (index !== -1) {
+      currentFolder.files.splice(index, 0, fileEntry)
     } else {
-      currentFolder.files.push(fileCopy)
+      currentFolder.files.push(fileEntry)
     }
   }
 }
@@ -81,43 +63,77 @@ export const addFile = (tree, file) => {
  * Add a new directory to the tree list.
  *
  * @param {*} tree Root file tree
- * @param {*} dir The directory that should be added
+ * @param {String} fullPath The directory path that should be added
+ * @param {*} policy The update policy
  */
-export const addDirectory = (tree, dir) => {
-  const subDirectories = getSubdirectoriesFromRoot(tree.pathname, dir.pathname)
+export const addDirectory = (tree, fullPath, policy) => {
+  createDirectoryIfAbsent(tree, fullPath, policy)
+}
 
+/**
+ * Add a new directory to the tree list.
+ *
+ * @param {*} tree Root file tree
+ * @param {String} fullPath The directory path that should be added
+ * @param {*} policy The update policy
+ * @returns The folder entry for the added directory path or null if no directories
+ *          should be created by policy (e.g. file watcher).
+ */
+const createDirectoryIfAbsent = (tree, fullPath, policy) => {
+  const subDirectories = getSubdirectoriesFromRoot(tree.pathname, fullPath)
+
+  let currentFolderEntry = tree
   let currentPath = tree.pathname
   let currentSubFolders = tree.folders
   for (const directoryName of subDirectories) {
     let childFolder = currentSubFolders.find(f => f.name === directoryName)
+    if (!isAllowedToCreate(currentFolderEntry, policy)) {
+      return null
+    }
+
     if (!childFolder) {
       childFolder = {
         id: getUniqueId(),
         pathname: `${currentPath}${PATH_SEPARATOR}${directoryName}`,
         name: directoryName,
-        isCollapsed: true,
         isDirectory: true,
-        isFile: false,
-        isMarkdown: false,
+        isCollapsed: true,
+        isLoaded: false,
         folders: [],
         files: []
       }
-      currentSubFolders.push(childFolder)
+
+      const index = currentSubFolders.findIndex(d => d.name.localeCompare(directoryName) > 0)
+      if (index !== -1) {
+        currentSubFolders.splice(index, 0, childFolder)
+      } else {
+        currentSubFolders.push(childFolder)
+      }
     }
 
     currentPath = `${currentPath}${PATH_SEPARATOR}${directoryName}`
     currentSubFolders = childFolder.folders
+    currentFolderEntry = childFolder
   }
+  return currentFolderEntry
+}
+
+// Check whether we should create all entries (full mode) or
+// only updated visited entries (partial mode).
+const isAllowedToCreate = (folderEntry, policy) => {
+  if (policy === PROJECT_UPDATE_POLICY.FORCE) {
+    return true
+  }
+  return folderEntry.isLoaded
 }
 
 /**
  * Remove the given file from the tree list.
  *
  * @param {*} tree Root file tree
- * @param {*} file The file that should be deleted
+ * @param {String} pathname The file path that should be deleted
  */
-export const unlinkFile = (tree, file) => {
-  const { pathname } = file
+export const unlinkFile = (tree, pathname) => {
   const dirname = path.dirname(pathname)
   const subDirectories = getSubdirectoriesFromRoot(tree.pathname, dirname)
 
@@ -125,7 +141,9 @@ export const unlinkFile = (tree, file) => {
   let currentSubFolders = tree.folders
   for (const directoryName of subDirectories) {
     const childFolder = currentSubFolders.find(f => f.name === directoryName)
-    if (!childFolder) return
+    if (!childFolder) {
+      return
+    }
     currentFolder = childFolder
     currentSubFolders = childFolder.folders
   }
@@ -140,17 +158,18 @@ export const unlinkFile = (tree, file) => {
  * Remove the given directory from the tree list.
  *
  * @param {*} tree Root file tree
- * @param {*} dir The directory that should be deleted
+ * @param {String} pathname The directory path that should be deleted
  */
-export const unlinkDirectory = (tree, dir) => {
-  const { pathname } = dir
+export const unlinkDirectory = (tree, pathname) => {
   const subDirectories = getSubdirectoriesFromRoot(tree.pathname, pathname)
-
   subDirectories.pop()
+
   let currentFolder = tree.folders
   for (const directoryName of subDirectories) {
     const childFolder = currentFolder.find(f => f.name === directoryName)
-    if (!childFolder) return
+    if (!childFolder) {
+      return
+    }
     currentFolder = childFolder.folders
   }
 

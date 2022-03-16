@@ -65,8 +65,7 @@ export const fileMixins = {
       }
     },
     handleFileClick () {
-      const { isMarkdown, pathname } = this.file
-      if (!isMarkdown) return
+      const { pathname } = this.file
       const openedTab = this.tabs.find(file => isSamePathSync(file.pathname, pathname))
       if (openedTab) {
         if (this.currentFile === openedTab) {

@@ -14,7 +14,7 @@
         <range
           description="Delay following document edit before automatically saving"
           :value="autoSaveDelay"
-          :min="1000"
+          :min="1500"
           :max="10000"
           unit="ms"
           :step="100"

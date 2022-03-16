@@ -5,24 +5,19 @@ import { searchFilesAndDir } from '../../utils/imagePathAutoComplement'
 
 ipcMain.on('mt::ask-for-image-auto-path', (e, { pathname, src, id }) => {
   const win = BrowserWindow.fromWebContents(e.sender)
-  if (!src || typeof src !== 'string') {
+  if (!src || typeof src !== 'string' || src.endsWith('/') || src.endsWith('\\') || src.endsWith('.')) {
     win.webContents.send(`mt::response-of-image-path-${id}`, [])
     return
   }
 
-  if (src.endsWith('/') || src.endsWith('\\') || src.endsWith('.')) {
-    return win.webContents.send(`mt::response-of-image-path-${id}`, [])
-  }
   const fullPath = path.isAbsolute(src) ? src : path.join(path.dirname(pathname), src)
   const dir = path.dirname(fullPath)
   const searchKey = path.basename(fullPath)
   searchFilesAndDir(dir, searchKey)
-    .then(files => {
-      return win.webContents.send(`mt::response-of-image-path-${id}`, files)
-    })
-    .catch(err => {
-      log.error(err)
-      return win.webContents.send(`mt::response-of-image-path-${id}`, [])
+    .then(files => win.webContents.send(`mt::response-of-image-path-${id}`, files))
+    .catch(error => {
+      log.error('Error filtering directory contents for image autocompletion:', error)
+      win.webContents.send(`mt::response-of-image-path-${id}`, [])
     })
 })
 

@@ -291,13 +291,8 @@ class EditorWindow extends BaseWindow {
       const { _accessor, browserWindow } = this
       const { menu: appMenu } = _accessor
 
-      if (this._openedRootDirectory) {
-        ipcMain.emit('watcher-unwatch-directory', browserWindow, this._openedRootDirectory)
-      }
-
       appMenu.addRecentlyUsedDocument(pathname)
       this._openedRootDirectory = pathname
-      ipcMain.emit('watcher-watch-directory', browserWindow, pathname)
       browserWindow.webContents.send('mt::open-directory', pathname)
     } else {
       this._directoryToOpen = pathname

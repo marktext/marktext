@@ -95,7 +95,7 @@ import TableBarTools from 'muya/lib/ui/tableTools'
 import FrontMenu from 'muya/lib/ui/frontMenu'
 import Search from '../search'
 import bus from '@/bus'
-import { DEFAULT_EDITOR_FONT_FAMILY } from '@/config'
+import { DEFAULT_EDITOR_FONT_FAMILY, PATH_SEPARATOR } from '@/config'
 import { showContextMenu } from '@/contextMenu/editor'
 import notice from '@/services/notification'
 import Printer from '@/services/printService'
@@ -775,7 +775,7 @@ export default {
       const files = await this.$store.dispatch('ASK_FOR_IMAGE_AUTO_PATH', src)
       return files.map(f => {
         const iconClass = f.type === 'directory' ? 'icon-folder' : 'icon-image'
-        return Object.assign(f, { iconClass, text: f.file + (f.type === 'directory' ? '/' : '') })
+        return Object.assign(f, { iconClass, text: f.file + (f.type === 'directory' ? PATH_SEPARATOR : '') })
       })
     },
 

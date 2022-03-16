@@ -118,7 +118,7 @@ export default {
     }
 
     // store/index.js
-    dispatch('LINTEN_WIN_STATUS')
+    dispatch('LISTEN_WIN_STATUS')
     // module: command center
     dispatch('LISTEN_COMMAND_CENTER_BUS')
     // module: tweet
@@ -149,15 +149,15 @@ export default {
     dispatch('LISTEN_FOR_BOOTSTRAP_WINDOW')
     dispatch('LISTEN_FOR_SAVE_CLOSE')
     dispatch('LISTEN_FOR_RENAME')
-    dispatch('LINTEN_FOR_SET_LINE_ENDING')
-    dispatch('LINTEN_FOR_SET_ENCODING')
-    dispatch('LINTEN_FOR_SET_FINAL_NEWLINE')
+    dispatch('LISTEN_FOR_SET_LINE_ENDING')
+    dispatch('LISTEN_FOR_SET_ENCODING')
+    dispatch('LISTEN_FOR_SET_FINAL_NEWLINE')
     dispatch('LISTEN_FOR_NEW_TAB')
     dispatch('LISTEN_FOR_CLOSE_TAB')
     dispatch('LISTEN_FOR_TAB_CYCLE')
     dispatch('LISTEN_FOR_SWITCH_TABS')
-    dispatch('LINTEN_FOR_PRINT_SERVICE_CLEARUP')
-    dispatch('LINTEN_FOR_EXPORT_SUCCESS')
+    dispatch('LISTEN_FOR_PRINT_SERVICE_CLEARUP')
+    dispatch('LISTEN_FOR_EXPORT_SUCCESS')
     dispatch('LISTEN_FOR_FILE_CHANGE')
     dispatch('LISTEN_WINDOW_ZOOM')
     dispatch('LISTEN_FOR_RELOAD_IMAGES')
