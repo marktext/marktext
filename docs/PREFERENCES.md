@@ -11,13 +11,14 @@ Preferences can be controlled and modified in the settings window or via the `pr
 | titleBarStyle          | String  | custom        | The title bar style on Linux and Window: `custom` or `native`                                                                                              |
 | openFilesInNewWindow   | Boolean | false         | true, false                                                                                                                                                |
 | openFolderInNewWindow  | Boolean | false         | true, false                                                                                                                                                |
-| zoom                   | Number  | 1.0           | The zoom level. Between 0.5 and 2.0 inclusive.                                                                                              |
+| zoom                   | Number  | 1.0           | The zoom level. Between 0.5 and 2.0 inclusive.                                                                                                             |
 | hideScrollbar          | Boolean | false         | Whether to hide scrollbars. Optional value: true, false                                                                                                    |
+| jumpToStartOnLoad      | Boolean | false         | Jump to the start of the document on load (rather than end)                                                                                                |
 | wordWrapInToc          | Boolean | false         | Whether to enable word wrap in TOC. Optional value: true, false                                                                                            |
 | fileSortBy             | String  | created       | Sort files in opened folder by `created` time, modified time and title.                                                                                    |
-| startUpAction          | String  | lastState     | The action after MarkText startup, open the last edited content, open the specified folder or blank page, optional value: `lastState`, `folder`, `blank` |
+| startUpAction          | String  | lastState     | The action after MarkText startup, open the last edited content, open the specified folder or blank page, optional value: `lastState`, `folder`, `blank`   |
 | defaultDirectoryToOpen | String  | `""`          | The path that should be opened if `startUpAction=folder`.                                                                                                  |
-| language               | String  | en            | The language MarkText use.                                                                                                                                |
+| language               | String  | en            | The language MarkText use.                                                                                                                                 |
 
 #### Editor
 

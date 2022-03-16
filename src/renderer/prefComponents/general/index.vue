@@ -41,6 +41,11 @@
           :bool="hideScrollbar"
           :onChange="value => onSelectChange('hideScrollbar', value)"
         ></bool>
+         <bool
+          description="Jump to start (vs end) on load"
+          :bool="jumpToStartOnLoad"
+          :onChange="value => onSelectChange('jumpToStartOnLoad', value)"
+        ></bool>
         <bool
           description="Open files in new window"
           :bool="openFilesInNewWindow"
@@ -158,6 +163,7 @@ export default {
       defaultDirectoryToOpen: state => state.preferences.defaultDirectoryToOpen,
       openFilesInNewWindow: state => state.preferences.openFilesInNewWindow,
       openFolderInNewWindow: state => state.preferences.openFolderInNewWindow,
+      jumpToStartOnLoad: state => state.preferences.jumpToStartOnLoad,
       zoom: state => state.preferences.zoom,
       hideScrollbar: state => state.preferences.hideScrollbar,
       wordWrapInToc: state => state.preferences.wordWrapInToc,
