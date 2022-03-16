@@ -5,3 +5,152 @@
 .CodeMirror-line::selection, .CodeMirror-line > span::selection, .CodeMirror-line > span > span::selection {
   background: rgb(178, 215, 254);
 }
+.CodeMirror-search-label{
+  
+}
+.CodeMirror-dialog {
+  position: fixed !important;
+  width: 600px !important;
+  /* padding: 0 !important; */
+  top: 40px !important;
+  left: unset  !important;
+  right: 20px !important;
+  border-radius: 3px !important;
+  box-shadow: var(--floatShadow) !important;
+  background: var(--floatBgColor) !important;
+  display: flex;
+  flex-direction: row;
+}
+.CodeMirror-dialog .left-arrow {
+  width: 20px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+.CodeMirror-dialog .left-arrow:hover {
+  background: var(--floatHoverColor);
+}
+.CodeMirror-dialog .left-arrow svg {
+  height: 12px;
+  width: 12px;
+}
+.CodeMirror-dialog .left-arrow svg.arrow-right {
+  transform: rotate(-90deg);
+}
+
+.CodeMirror-dialog .right-controls {
+  flex: 1;
+}
+.CodeMirror-dialog .search, .replace {
+  height: 28px;
+  display: flex;
+  padding: 4px 10px 0 4px;
+  margin-bottom: 5px;
+}
+
+.CodeMirror-dialog .button {
+  outline: none;
+  cursor: pointer;
+  box-sizing: border-box;
+  height: 28px;
+  width: 28px;
+  text-align: center;
+  padding: 5px;
+  display: inline-block;
+  font-weight: 500;
+  color: var(--sideBarIconColor);
+  &.left {
+    margin-right: 10px;
+  }
+  &.right {
+    margin-left: 10px;
+  }
+}
+.button.active {
+  color: var(--themeColor);
+}
+.CodeMirror-dialog .button > svg {
+  width: 16px;
+  height: 16px;
+}
+.CodeMirror-dialog .button:active {
+  opacity: .5;
+}
+.CodeMirror-dialog .input-wrapper {
+  display: flex;
+  flex: 1;
+  position: relative;
+  border: 1px solid var(--inputBgColor);
+  background: var(--inputBgColor);
+  border-radius: 3px;
+  overflow: visible;
+}
+.CodeMirror-dialog .input-wrapper.error {
+  border: 1px solid var(--notificationErrorBg);
+  border-bottom-right-radius: 0;
+  border-bottom-left-radius: 0;
+}
+.CodeMirror-dialog .input-wrapper .controls {
+  position: absolute;
+  top: 6px;
+  right: 10px;
+  font-size: 12px;
+  display: flex;
+  color: var(--sideBarTitleColor);
+  & > span.search-result {
+    height: 20px;
+    margin-right: 5px;
+    line-height: 17px;
+  }
+  & > span:not(.search-result) {
+      cursor: pointer;
+      width: 20px;
+      height: 20px;
+      margin-left: 2px;
+      margin-right: 2px;
+      &:hover {
+        color: var(--sideBarIconColor);
+      }
+      & > svg {
+        fill: var(--sideBarIconColor);
+        &:hover {
+          fill: var(--highlightThemeColor);
+        }
+      }
+      &.active svg {
+          fill: var(--highlightThemeColor);
+      }
+    }
+}
+
+.CodeMirror-dialog .input-wrapper .error-msg {
+  position: absolute;
+  top: 27px;
+  width: calc(100% + 2px);
+  height: 28px;
+  left: -1px;
+  padding: 0 8px;
+  box-sizing: border-box;
+  border-bottom-left-radius: 3px;
+  border-bottom-right-radius: 3px;
+  background: var(--notificationErrorBg);
+  line-height: 28px;
+  color: #ffffff;
+  font-size: 14px;
+  z-index: 1;
+}
+
+.CodeMirror-dialog .input-wrapper input {
+  flex: 1;
+  padding: 0 8px;
+  height: 26px;
+  outline: none;
+  border: none;
+  box-sizing: border-box;
+  font-size: 14px;
+  color: var(--editorColor);
+  padding: 0 8px;
+  background: transparent;
+}

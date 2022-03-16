@@ -993,13 +993,13 @@ export default {
     },
 
     handleUndo () {
-      if (this.editor) {
+      if (this.editor && this.sourceCode === false) {
         this.editor.undo()
       }
     },
 
     handleRedo () {
-      if (this.editor) {
+      if (this.editor && this.sourceCode === false) {
         this.editor.redo()
       }
     },
@@ -1077,6 +1077,7 @@ export default {
     },
 
     handleFindAction (action) {
+      if (this.sourceCode) { return }
       const searchMatches = this.editor.find(action)
       this.$store.dispatch('SEARCH', searchMatches)
       this.scrollToHighlight()
