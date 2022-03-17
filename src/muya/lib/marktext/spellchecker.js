@@ -5,7 +5,7 @@
  *
  * @param {*} obj Object to clone
  */
- export const deepClone = obj => {
+export const deepClone = obj => {
   return JSON.parse(JSON.stringify(obj))
 }
 

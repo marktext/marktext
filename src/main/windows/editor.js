@@ -53,7 +53,6 @@ class EditorWindow extends BaseWindow {
       winOptions.icon = path.join(__static, 'logo-96px.png')
     }
 
-    // Enable native or custom/frameless window and titlebar
     const {
       titleBarStyle,
       theme,
@@ -63,6 +62,8 @@ class EditorWindow extends BaseWindow {
       spellcheckerEnabled,
       spellcheckerLanguage
     } = preferences.getAll()
+
+    // Enable native or custom/frameless window and titlebar
     if (!isOsx) {
       winOptions.titleBarStyle = 'default'
       if (titleBarStyle === 'native') {
@@ -71,8 +72,8 @@ class EditorWindow extends BaseWindow {
     }
 
     winOptions.backgroundColor = this._getPreferredBackgroundColor(theme)
-    if (spellcheckerEnabled) {
-      winOptions.webPreferences.spellcheck = true
+    if (env.disableSpellcheck) {
+      winOptions.webPreferences.spellcheck = false
     }
 
     let win = this.browserWindow = new BrowserWindow(winOptions)
@@ -201,7 +202,7 @@ class EditorWindow extends BaseWindow {
 
     mainWindowState.manage(win)
 
-    // Disable application menu shortcuts because we want to handle key bindings yourself.
+    // Disable application menu shortcuts because we want to handle key bindings ourself.
     win.webContents.setIgnoreMenuShortcuts(true)
 
     // Delay load files and directories after the current control flow.

@@ -16,6 +16,7 @@ export class AppEnvironment {
     this._debug = !!options.debug
     this._verbose = !!options.verbose
     this._safeMode = !!options.safeMode
+    this._disableSpellcheck = !!options.disableSpellcheck
   }
 
   /**
@@ -54,6 +55,13 @@ export class AppEnvironment {
   get safeMode () {
     return this._safeMode
   }
+
+  /**
+   * @returns {boolean}
+   */
+  get disableSpellcheck () {
+    return this._disableSpellcheck
+  }
 }
 
 /**
@@ -69,12 +77,14 @@ const setupEnvironment = args => {
   const verbose = args['--verbose'] || 0
   const safeMode = args['--safe']
   const userDataPath = args['--user-data-dir'] // or null (= default user data path)
+  const disableSpellcheck = args['--disable-spellcheck']
 
   const appEnvironment = new AppEnvironment({
     debug,
     verbose,
     safeMode,
-    userDataPath
+    userDataPath,
+    disableSpellcheck
   })
 
   ensureAppDirectoriesSync(appEnvironment.paths)
