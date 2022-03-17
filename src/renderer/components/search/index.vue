@@ -260,6 +260,7 @@ export default {
       if (isRegexp) {
         // Handle invalid regexp.
         try {
+          // eslint-disable-next-line no-new
           new RegExp(searchValue)
           this.searchErrorMsg = ''
         } catch (err) {

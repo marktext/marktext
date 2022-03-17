@@ -49,5 +49,5 @@ export const downloadHunspellDictionary = async lang => {
  * @param {string} lang The language to remove.
  */
 export const deleteHunspellDictionary = async lang => {
-  return await fs.remove(path.join(getDictionaryPath(), `${lang}.bdic`))
+  return fs.remove(path.join(getDictionaryPath(), `${lang}.bdic`))
 }
