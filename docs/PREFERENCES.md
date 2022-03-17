@@ -15,7 +15,7 @@ Preferences can be controlled and modified in the settings window or via the `pr
 | hideScrollbar          | Boolean | false         | Whether to hide scrollbars. Optional value: true, false                                                                                                    |
 | wordWrapInToc          | Boolean | false         | Whether to enable word wrap in TOC. Optional value: true, false                                                                                            |
 | fileSortBy             | String  | created       | Sort files in opened folder by `created` time, modified time and title.                                                                                    |
-| startUpAction          | String  | lastState     | The action after MarkText startup, open the last edited content, open the specified folder or blank page, optional value: `lastState`, `folder`, `blank` |
+| startUpAction          | String  | lastState     | The action on startup: open the last edited content, a folder, or blank page, optional value: `lastFolder`,`lastFile`,`lastFileOrFolder`,`folder`,`blank`  |
 | defaultDirectoryToOpen | String  | `""`          | The path that should be opened if `startUpAction=folder`.                                                                                                  |
 | language               | String  | en            | The language MarkText use.                                                                                                                                |
 

@@ -152,7 +152,7 @@ class App {
       theme
     } = preferences.getAll()
 
-    if (startUpAction === 'folder' && defaultDirectoryToOpen) {
+    if ((startUpAction === 'folder' || startUpAction === 'lastFolder' || startUpAction === 'lastFolder' || startUpAction === 'lastFileOrFolder') && defaultDirectoryToOpen) {
       const info = normalizeMarkdownPath(defaultDirectoryToOpen)
       if (info) {
         _openFilesCache.unshift(info)

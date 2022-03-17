@@ -88,15 +88,14 @@
       </template>
       <template #children>
         <section class="startup-action-ctrl">
-          <el-radio-group v-model="startUpAction">
-            <!--
-              Hide "lastState" for now (#2064).
-            <el-radio class="ag-underdevelop" label="lastState">Restore last editor session</el-radio>
-            -->
-            <el-radio label="folder" style="margin-bottom: 10px;">Open the default directory<span>: {{defaultDirectoryToOpen}}</span></el-radio>
-            <el-button size="small" @click="selectDefaultDirectoryToOpen">Select Folder</el-button>
-            <el-radio label="blank">Open a blank page</el-radio>
-          </el-radio-group>
+          Open File or Directory<span>: {{defaultDirectoryToOpen}}</span>
+          <el-button size="small" @click="selectDefaultDirectoryToOpen">Select Folder</el-button>
+          <cur-select
+          description="Action on startup"
+          :value="startUpAction"
+          :options="startupOptions"
+          :onChange="value => onSelectChange('startUpAction', value)"
+        ></cur-select>
         </section>
       </template>
     </compound>
@@ -131,7 +130,8 @@ import {
   titleBarStyleOptions,
   zoomOptions,
   fileSortByOptions,
-  languageOptions
+  languageOptions,
+  startupOptions
 } from './config'
 
 export default {
@@ -147,6 +147,7 @@ export default {
     this.zoomOptions = zoomOptions
     this.fileSortByOptions = fileSortByOptions
     this.languageOptions = languageOptions
+    this.startupOptions = startupOptions
     this.isOsx = isOsx
     return {}
   },

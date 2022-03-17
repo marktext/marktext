@@ -299,6 +299,12 @@ class EditorWindow extends BaseWindow {
       this._openedRootDirectory = pathname
       ipcMain.emit('watcher-watch-directory', browserWindow, pathname)
       browserWindow.webContents.send('mt::open-directory', pathname)
+
+      const { preferences } = this._accessor
+      const startUpAction = preferences.getItem('startUpAction')
+      if (startUpAction === 'lastFolder' || startUpAction === 'lastFileOrFolder') {
+        preferences.setItem('defaultDirectoryToOpen', pathname)
+      }
     } else {
       this._directoryToOpen = pathname
     }
@@ -453,6 +459,11 @@ class EditorWindow extends BaseWindow {
 
     appMenu.addRecentlyUsedDocument(pathname)
     _openedFiles.push(pathname)
+    const { preferences } = this._accessor
+    const startUpAction = preferences.getItem('startUpAction') // do we want to cache this?
+    if (startUpAction === 'lastFile' || startUpAction === 'lastFileOrFolder') {
+      preferences.setItem('defaultDirectoryToOpen', pathname)
+    }
     browserWindow.webContents.send('mt::open-new-tab', rawDocument, options, selected)
   }
 

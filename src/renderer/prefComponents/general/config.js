@@ -62,3 +62,21 @@ export const languageOptions = [{
   label: 'English',
   value: 'en'
 }]
+
+export const startupOptions = [{
+  label: 'Open the default directory',
+  value: 'folder'
+}, {
+  label: 'Open a blank page',
+  value: 'blank'
+}, {
+  label: 'Open last opened directory',
+  value: 'lastFolder'
+}, {
+  label: 'Open last opened file',
+  value: 'lastFile'
+}, {
+  label: 'Open last opened file or directory',
+  value: 'lastFileOrFolder'
+}
+]
