@@ -101,7 +101,7 @@ import notice from '@/services/notification'
 import Printer from '@/services/printService'
 import { isOsSpellcheckerSupported, offsetToWordCursor, validateLineCursor, SpellChecker } from '@/spellchecker'
 import { delay, isOsx, animatedScrollTo } from '@/util'
-import { moveImageToFolder, moveToRelativeFolder, uploadImage } from '@/util/fileSystem'
+import { IsIdenticalImagePath, moveImageToFolder, moveToRelativeFolder, uploadImage } from '@/util/fileSystem'
 import { guessClipboardFilePath } from '@/util/clipboard'
 import { getCssForOptions, getHtmlToc } from '@/util/pdf'
 import { addCommonStyle, setEditorWidth } from '@/util/theme'
@@ -836,9 +836,14 @@ export default {
           break
         }
         case 'folder': {
-          destImagePath = await moveImageToFolder(pathname, image, resolvedImageFolderPath)
-          if (isTabSavedOnDisk && imagePreferRelativeDirectory) {
-            destImagePath = await moveToRelativeFolder(relativeBasePath, resolvedImageRelativeDirectoryName, pathname, destImagePath)
+          const { identical, relPath } = await IsIdenticalImagePath(relativeBasePath, resolvedImageRelativeDirectoryName, image)
+          if (identical && isTabSavedOnDisk && imagePreferRelativeDirectory) {
+            destImagePath = relPath
+          } else {
+            destImagePath = await moveImageToFolder(pathname, image, resolvedImageFolderPath)
+            if (isTabSavedOnDisk && imagePreferRelativeDirectory) {
+              destImagePath = await moveToRelativeFolder(relativeBasePath, resolvedImageRelativeDirectoryName, pathname, destImagePath)
+            }
           }
           break
         }

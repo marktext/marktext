@@ -34,6 +34,44 @@ export const getContentHash = content => {
 }
 
 /**
+ * Check two image paths are identical
+ *
+ * @param {String} cwd The relative base path (project root or full folder path of opened file).
+ * @param {String} relativeName The relative directory name of image assets.
+ * @param {String} srcImagePath The source image file path.
+ * @returns {{identical: boolean, relPath: string}} Returns the idencial or not and relativePath of image file.
+ */
+export const IsIdenticalImagePath = async (cwd, relativeName, srcImagePath) => {
+  let identical = false
+  let relPath = ''
+  if (typeof srcImagePath !== 'string') {
+    return { identical, relPath }
+  }
+
+  if (!relativeName) {
+    // Use fallback name according settings description
+    relativeName = 'assets'
+  } else if (path.isAbsolute(relativeName)) {
+    throw new Error('Invalid relative directory name.')
+  }
+
+  // Path combination:
+  //  - root directory + relative directory name
+  const absAssetsDirPath = path.resolve(cwd, relativeName)
+  const absAssetsFilePath = path.resolve(absAssetsDirPath, path.basename(srcImagePath))
+  if (absAssetsFilePath === srcImagePath) {
+    // Find relative path between given file and saved image.
+    relPath = path.relative(cwd, srcImagePath)
+    if (isWindows) {
+      // Use forward slashes for better compatibility with websites.
+      relPath = relPath.replace(/\\/g, '/')
+    }
+    identical = true
+  }
+  return { identical, relPath }
+}
+
+/**
  * Moves an image to a relative position.
  *
  * @param {String} cwd The relative base path (project root or full folder path of opened file).
