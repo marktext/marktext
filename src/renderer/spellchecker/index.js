@@ -267,7 +267,7 @@ export class SpellChecker {
    * @param {string} word The word to add.
    */
   async addToDictionary (word) {
-    return await this.provider.addToDictionary(word)
+    return this.provider.addToDictionary(word)
   }
 
   /**
@@ -276,7 +276,7 @@ export class SpellChecker {
    * @param {string} word The word to remove.
    */
   async removeFromDictionary (word) {
-    return await this.provider.removeFromDictionary(word)
+    return this.provider.removeFromDictionary(word)
   }
 
   /**
@@ -430,7 +430,7 @@ export class SpellChecker {
     if (!this.isMisspelled(word)) {
       return []
     }
-    return await this.provider.getCorrectionsForMisspelling(word)
+    return this.provider.getCorrectionsForMisspelling(word)
   }
 
   /**
@@ -500,7 +500,7 @@ export class SpellChecker {
   async _switchLanguage (lang) {
     const result = await this.provider.switchLanguage(lang)
     if (!result) {
-      return await this._tryRecover()
+      return this._tryRecover()
     }
     return this.lang
   }
