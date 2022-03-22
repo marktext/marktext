@@ -56,33 +56,6 @@ export class SpellChecker {
     ipcRenderer.invoke('mt::spellchecker-set-enabled', false)
   }
 
-  // /**
-  //  * Add a word to the user dictionary.
-  //  *
-  //  * @param {string} word The word to add.
-  //  * @returns {Promise<boolean>} Whether the word was added.
-  //  *
-  //  */
-  // async addToDictionary (word) {
-  //   if (!this.isEnabled) {
-  //     return false
-  //   }
-  //   return ipcRenderer.invoke('mt::spellchecker-add-word', word)
-  // }
-  //
-  // /**
-  //  * Remove a word from the user dictionary.
-  //  *
-  //  * @param {string} word The word to remove.
-  //  * @returns {Promise<boolean>} Whether the word was removed.
-  //  */
-  // async removeFromDictionary (word) {
-  //   if (!this.isEnabled) {
-  //     return false
-  //   }
-  //   return ipcRenderer.invoke('mt::spellchecker-remove-word', word)
-  // }
-
   /**
    * Return the current language.
    */
@@ -118,35 +91,6 @@ export class SpellChecker {
     }
     return false
   }
-
-  // /**
-  //  * Is the given word misspelled.
-  //  *
-  //  * @param {string} word The word to check.
-  //  */
-  // isMisspelled (word) {
-  //   // NOTE: Move to main because `webFrame.getWordSuggestions` and `webFrame.isWordMisspelled`
-  //   //       doesn't work on Windows (Electron#28684).
-  //   if (this.isEnabled) {
-  //     return webFrame.isWordMisspelled(word)
-  //   }
-  //   return false
-  // }
-  //
-  // /**
-  //  * Get corrections.
-  //  *
-  //  * @param {string} word The word to get suggestion for.
-  //  * @returns {Promise<string[]>} An array of suggestions.
-  //  */
-  // async getWordSuggestion (word) {
-  //   // NOTE: Move to main because `webFrame.getWordSuggestions` and `webFrame.isWordMisspelled`
-  //   //       doesn't work on Windows (Electron#28684).
-  //   if (this.isEnabled) {
-  //     return webFrame.getWordSuggestions(word)
-  //   }
-  //   return []
-  // }
 
   /**
    * Returns a list of available dictionaries.

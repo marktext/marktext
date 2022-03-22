@@ -73,10 +73,6 @@ export const getAvailableDictionaries = win => {
 }
 
 export default () => {
-  // ipcMain.handle('mt::spellchecker-add-word', async (e, word) => {
-  //   const win = BrowserWindow.fromWebContents(e.sender)
-  //   return addToDictionary(win, word)
-  // })
   ipcMain.handle('mt::spellchecker-remove-word', async (e, word) => {
     const win = BrowserWindow.fromWebContents(e.sender)
     return removeFromDictionary(win, word)

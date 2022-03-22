@@ -1,13 +1,5 @@
 // __MARKTEXT_ONLY__
-
-/**
- * Deep clone the given object.
- *
- * @param {*} obj Object to clone
- */
-export const deepClone = obj => {
-  return JSON.parse(JSON.stringify(obj))
-}
+import { deepClone } from '../utils'
 
 // Source: https://github.com/Microsoft/vscode/blob/master/src/vs/editor/common/model/wordHelper.ts
 // /(-?\d*\.\d\w*)|([^\`\~\!\@\#\$\%\^\&\*\(\)\-\=\+\[\{\]\}\\\|\;\:\'\"\,\.\<\>\/\?\s]+)/
