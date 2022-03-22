@@ -36,6 +36,10 @@ export class SpellChecker {
     try {
       this.enabled = true
       this.isProviderAvailable = true
+      if (isOsx) {
+        // No language string needed on macOS.
+        return await ipcRenderer.invoke('mt::spellchecker-set-enabled', true)
+      }
       return await this.switchLanguage(lang || this.currentSpellcheckerLanguage)
     } catch (error) {
       this.deactivateSpellchecker()
@@ -49,7 +53,7 @@ export class SpellChecker {
   deactivateSpellchecker () {
     this.enabled = false
     this.isProviderAvailable = false
-    ipcRenderer.send('mt::spellchecker-set-enabled', false)
+    ipcRenderer.invoke('mt::spellchecker-set-enabled', false)
   }
 
   // /**
@@ -106,12 +110,9 @@ export class SpellChecker {
       // NB: On macOS the OS spell checker is used and will detect the language automatically.
       return true
     } else if (!lang) {
-      throw new Error('Invalid empty language.')
+      throw new Error('Expected non-empty language for spell checker.')
     } else if (this.isEnabled) {
-      const errorMsg = await ipcRenderer.invoke('mt::spellchecker-switch-language', lang)
-      if (errorMsg) {
-        throw new Error(errorMsg)
-      }
+      await ipcRenderer.invoke('mt::spellchecker-switch-language', lang)
       this.lang = lang
       return true
     }

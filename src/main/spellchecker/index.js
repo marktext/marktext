@@ -83,24 +83,21 @@ export default () => {
   })
   ipcMain.handle('mt::spellchecker-switch-language', async (e, lang) => {
     const win = BrowserWindow.fromWebContents(e.sender)
-    try {
-      switchLanguage(win, lang)
-      return null
-    } catch (err) {
-      log.error(err)
-      return err.message
-    }
+    switchLanguage(win, lang)
+    return null
   })
   ipcMain.handle('mt::spellchecker-get-available-dictionaries', async e => {
     const win = BrowserWindow.fromWebContents(e.sender)
     return getAvailableDictionaries(win)
   })
-  // NOTE: You have to set a language or call `switchLanguage`.
-  ipcMain.on('mt::spellchecker-set-enabled', async (e, enabled) => {
+  // NOTE: We have to set a language or call `switchLanguage` on Linux and Windows.
+  ipcMain.handle('mt::spellchecker-set-enabled', async (e, enabled) => {
     const win = BrowserWindow.fromWebContents(e.sender)
     if (!setSpellCheckerEnabled(win, enabled)) {
       log.warn(`Failed to (de-)activate spell checking on editor (id=${win.id}).`)
+      return false
     }
+    return true
   })
   ipcMain.handle('mt::spellchecker-get-custom-dictionary-words', async e => {
     const win = BrowserWindow.fromWebContents(e.sender)
