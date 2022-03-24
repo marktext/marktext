@@ -403,12 +403,12 @@ class WindowManager extends EventEmitter {
 
     // TODO: Move IPC handler into filesystem service.
     ipcMain.handle('mt::filesystem-scan-sidebar-directory', async (event, fullPath) => {
-      return await readDirectoryContentsForSideBar(fullPath)
+      return readDirectoryContentsForSideBar(fullPath)
     })
     ipcMain.handle('mt::fs-markdown-load-file', async (event, fullPath) => {
       const eol = this._preferences.getPreferredEol()
       const { autoGuessEncoding, trimTrailingNewline } = this._preferences.getAll()
-      return await loadMarkdownFile(fullPath, eol, autoGuessEncoding, trimTrailingNewline)
+      return loadMarkdownFile(fullPath, eol, autoGuessEncoding, trimTrailingNewline)
     })
 
     // --- Local events ---------------
