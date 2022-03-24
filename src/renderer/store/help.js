@@ -44,33 +44,6 @@ export const getOptionsFromState = file => {
   return { encoding, lineEnding, adjustLineEndingOnSave, trimTrailingNewline }
 }
 
-export const getFileStateFromData = data => {
-  const fileState = JSON.parse(JSON.stringify(defaultFileState))
-  const {
-    markdown,
-    filename,
-    pathname,
-    encoding,
-    lineEnding,
-    adjustLineEndingOnSave,
-    trimTrailingNewline
-  } = data
-  const id = getUniqueId()
-
-  assertLineEnding(adjustLineEndingOnSave, lineEnding)
-
-  return Object.assign(fileState, {
-    id,
-    markdown,
-    filename,
-    pathname,
-    encoding,
-    lineEnding,
-    adjustLineEndingOnSave,
-    trimTrailingNewline
-  })
-}
-
 export const getBlankFileState = (tabs, defaultEncoding = 'utf8', lineEnding = 'lf', markdown = '') => {
   const fileState = cloneObj(defaultFileState, true)
   let untitleId = Math.max(...tabs.map(f => {

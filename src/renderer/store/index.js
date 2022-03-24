@@ -34,7 +34,7 @@ const mutations = {
 }
 
 const actions = {
-  LINTEN_WIN_STATUS ({ commit, state }) {
+  LISTEN_WIN_STATUS ({ commit, state }) {
     ipcRenderer.on('mt::window-active-status', (e, { status }) => {
       commit('SET_WIN_STATUS', status)
     })

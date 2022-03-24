@@ -79,11 +79,12 @@ These entires don't have a settings option and need to be changed manually.
 
 ##### File system
 
-| Key                  | Type             | Default | Description                                                                                                                                                      |
-| -------------------- | ---------------- | ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| searchExclusions     | Array of Strings | `[]`    | The filename exclusions for the file searcher. Default: `'*.markdown', '*.mdown', '*.mkdn', '*.md', '*.mkd', '*.mdwn', '*.mdtxt', '*.mdtext', '*.text', '*.txt'` |
-| searchMaxFileSize    | String           | `""`    | The maximum file size to search in (e.g. 50K or 10MB). Default: unlimited                                                                                        |
-| searchIncludeHidden  | Boolean          | false   | Search hidden files and directories                                                                                                                              |
-| searchNoIgnore       | Boolean          | false   | Don't respect ignore files such as `.gitignore`.                                                                                                                 |
-| searchFollowSymlinks | Boolean          | true    | Whether to follow symbolic links.                                                                                                                                |
-| watcherUsePolling    | Boolean          | false   | Whether to use polling to receive file changes. Polling may leads to high CPU utilization.                                                                       |
+| Key                   | Type             | Default | Description                                                                                |
+| --------------------- | ---------------- | ------- | ------------------------------------------------------------------------------------------ |
+| searchExclusions      | Array of Strings | `[]`    | List of glob patterns to exclude from search.                                              |
+| searchMaxFileSize     | String           | `""`    | The maximum file size to search in (e.g. 50K or 10MB). Default: unlimited                  |
+| searchIncludeHidden   | Boolean          | false   | Search hidden files and directories                                                        |
+| searchNoIgnore        | Boolean          | false   | Don't respect ignore files such as `.gitignore`.                                           |
+| searchFollowSymlinks  | Boolean          | true    | Whether to follow symbolic links.                                                          |
+| watcherUsePolling     | Boolean          | false   | Whether to use polling to receive file changes. Polling may leads to high CPU utilization. |
+| watcherDirectoryDepth | Integer          | 12      | Limit how many levels of subdirectories will be watched when a project is opened.          |

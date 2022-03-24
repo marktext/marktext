@@ -1,9 +1,11 @@
 import { clipboard, ipcRenderer, shell, webFrame } from 'electron'
 import path from 'path'
+import log from 'electron-log'
 import equal from 'deep-equal'
 import { isSamePathSync } from 'common/filesystem/paths'
+import { WATCHER_CHANGE_TYPE, WATCHER_STABILITY_THRESHOLD, WATCHER_STABILITY_POLL_INTERVAL } from 'common/filesystem/watcher'
 import bus from '../bus'
-import { hasKeys, getUniqueId } from '../util'
+import { hasKeys, getUniqueId, getErrorMessageFromInvokeRequest } from '../util'
 import listToTree from '../util/listToTree'
 import { createDocumentState, getOptionsFromState, getSingleFileState, getBlankFileState } from './help'
 import notice from '../services/notification'
@@ -15,6 +17,10 @@ import {
 } from '../commands'
 
 const autoSaveTimers = new Map()
+const autoSaveBlockList = new Set()
+const watcherDocumentIgnoreList = new Map()
+
+const WATCHER_IGNORE_DURATION = WATCHER_STABILITY_THRESHOLD + (WATCHER_STABILITY_POLL_INTERVAL * 2) + 100
 
 const state = {
   currentFile: {},
@@ -47,16 +53,18 @@ const mutations = {
   },
   REMOVE_FILE_WITHIN_TABS (state, file) {
     const { tabs, currentFile } = state
+    const { id } = file
     const index = tabs.indexOf(file)
     tabs.splice(index, 1)
 
-    if (file.id && autoSaveTimers.has(file.id)) {
-      const timer = autoSaveTimers.get(file.id)
-      clearTimeout(timer)
-      autoSaveTimers.delete(file.id)
+    if (id) {
+      clearAutoSaveTimer(id)
+      autoSaveBlockList.delete(id)
+      watcherDocumentIgnoreList.delete(id)
     }
 
-    if (file.id === currentFile.id) {
+    // Select another tab if current should be removed.
+    if (id === currentFile.id) {
       const fileState = state.tabs[index] || state.tabs[index - 1] || state.tabs[0] || {}
       state.currentFile = fileState
       if (typeof fileState.markdown === 'string') {
@@ -117,10 +125,11 @@ const mutations = {
     const tab = tabs.find(t => isSamePathSync(t.pathname, pathname))
     if (!tab) {
       // The tab may be closed in the meanwhile.
-      console.error('LOAD_CHANGE: Cannot find tab in tab list.')
+      const message = 'Unable to replace document content because the tab cannot be found.'
+      console.error(message)
       notice.notify({
         title: 'Error loading tab',
-        message: 'There was an error while loading the file change because the tab cannot be found.',
+        message,
         type: 'error',
         time: 20000,
         showConfirm: false
@@ -248,17 +257,28 @@ const mutations = {
     }
   },
   CLOSE_TABS (state, tabIdList) {
-    if (!tabIdList || tabIdList.length === 0) return
+    if (!tabIdList || tabIdList.length === 0) {
+      return
+    }
 
     let tabIndex = 0
-    tabIdList.forEach(id => {
+    for (const id of tabIdList) {
       const index = state.tabs.findIndex(f => f.id === id)
+      if (index === -1) {
+        console.error('Cannot close tab that is already closed.')
+        continue
+      }
+
       const { pathname } = state.tabs[index]
 
       // Notify main process to remove the file from the window and free resources.
       if (pathname) {
         ipcRenderer.send('mt::window-tab-closed', pathname)
       }
+
+      clearAutoSaveTimer(id)
+      autoSaveBlockList.delete(id)
+      watcherDocumentIgnoreList.delete(id)
 
       state.tabs.splice(index, 1)
       if (state.currentFile.id === id) {
@@ -268,7 +288,7 @@ const mutations = {
           tabIndex = index
         }
       }
-    })
+    }
 
     if (!state.currentFile.id && state.tabs.length) {
       state.currentFile = state.tabs[tabIndex] || state.tabs[tabIndex - 1] || state.tabs[0] || {}
@@ -346,22 +366,18 @@ const actions = {
   },
 
   // image path auto complement
-  ASK_FOR_IMAGE_AUTO_PATH ({ commit, state }, src) {
+  ASK_FOR_IMAGE_AUTO_PATH ({ state }, src) {
     const { pathname } = state.currentFile
     if (pathname) {
-      let rs
-      const promise = new Promise((resolve, reject) => {
-        rs = resolve
+      return new Promise((resolve, reject) => {
+        const id = getUniqueId()
+        ipcRenderer.once(`mt::response-of-image-path-${id}`, (e, files) => {
+          resolve(files)
+        })
+        ipcRenderer.send('mt::ask-for-image-auto-path', { pathname, src, id })
       })
-      const id = getUniqueId()
-      ipcRenderer.once(`mt::response-of-image-path-${id}`, (e, files) => {
-        rs(files)
-      })
-      ipcRenderer.send('mt::ask-for-image-auto-path', { pathname, src, id })
-      return promise
-    } else {
-      return []
     }
+    return []
   },
 
   SEARCH ({ commit }, value) {
@@ -481,7 +497,7 @@ const actions = {
       const tab = tabs.find(t => t.id === tabId)
       if (!tab) {
         notice.notify({
-          title: 'Save failure',
+          title: 'Auto save failed',
           message: msg,
           type: 'error',
           time: 20000,
@@ -493,8 +509,9 @@ const actions = {
       commit('SET_SAVE_STATUS_BY_TAB', { tab, status: false })
       commit('PUSH_TAB_NOTIFICATION', {
         tabId,
-        msg: `There was an error while saving: ${msg}`,
-        style: 'crit'
+        msg: `Failed to save document: ${msg}`,
+        style: 'crit',
+        exclusiveType: 'autosave_error'
       })
     })
   },
@@ -1003,18 +1020,18 @@ const actions = {
 
   HANDLE_AUTO_SAVE ({ commit, state, rootState }, { id, filename, pathname, markdown, options }) {
     if (!id || !pathname) {
-      throw new Error('HANDLE_AUTO_SAVE: Invalid tab.')
+      throw new Error(`Unable to auto save because tab (id=${id}, path=${pathname}) isn't available.`)
+    }
+
+    // Ignore auto save if the file has changed on disk until the user want to continue.
+    if (autoSaveBlockList.has(id)) {
+      return
     }
 
     const { tabs } = state
     const { autoSaveDelay } = rootState.preferences
 
-    if (autoSaveTimers.has(id)) {
-      const timer = autoSaveTimers.get(id)
-      clearTimeout(timer)
-      autoSaveTimers.delete(id)
-    }
-
+    clearAutoSaveTimer(id)
     const timer = setTimeout(() => {
       autoSaveTimers.delete(id)
 
@@ -1022,18 +1039,27 @@ const actions = {
       // or force closed. The user decides whether to discard or save the tab when
       // gracefully closed. The automatically save event may fire meanwhile.
       const tab = tabs.find(t => t.id === id)
-      if (tab && !tab.isSaved) {
-        const defaultPath = getRootFolderFromState(rootState)
+      if (tab && !tab.isSaved && !autoSaveBlockList.has(id)) {
+        const lastModTime = watcherDocumentIgnoreList.get(id)
+        ipcRenderer.invoke('mt::editor-file-auto-save', id, pathname, markdown, options, lastModTime)
+          .then(success => {
+            if (success) {
+              tab.isSaved = true
+              return
+            }
 
-        // Tab changed status is set after the file is saved.
-        ipcRenderer.send('mt::response-file-save', {
-          id,
-          filename,
-          pathname,
-          markdown,
-          options,
-          defaultPath
-        })
+            console.warn('Failed to auto save document because the file on disk is newer.')
+            ipcRenderer.emit('mt::watcher-changes-markdown', null, null, [{
+              type: WATCHER_CHANGE_TYPE.CHANGED,
+              path: tab.pathname,
+              isDirectory: false,
+              mtime: new Date()
+            }])
+          })
+          .catch(error => {
+            log.error(error)
+            ipcRenderer.emit('mt::tab-save-failure', null, id, getErrorMessageFromInvokeRequest(error))
+          })
       }
     }, autoSaveDelay)
     autoSaveTimers.set(id, timer)
@@ -1095,7 +1121,7 @@ const actions = {
     })
   },
 
-  LINTEN_FOR_EXPORT_SUCCESS ({ commit }) {
+  LISTEN_FOR_EXPORT_SUCCESS ({ commit }) {
     ipcRenderer.on('mt::export-success', (e, { type, filePath }) => {
       notice.notify({
         title: 'Exported successfully',
@@ -1112,13 +1138,13 @@ const actions = {
     ipcRenderer.send('mt::response-print')
   },
 
-  LINTEN_FOR_PRINT_SERVICE_CLEARUP ({ commit }) {
+  LISTEN_FOR_PRINT_SERVICE_CLEARUP ({ commit }) {
     ipcRenderer.on('mt::print-service-clearup', e => {
       bus.$emit('print-service-clearup')
     })
   },
 
-  LINTEN_FOR_SET_LINE_ENDING ({ commit, dispatch, state }) {
+  LISTEN_FOR_SET_LINE_ENDING ({ commit, dispatch, state }) {
     ipcRenderer.on('mt::set-line-ending', (e, lineEnding) => {
       const { lineEnding: oldLineEnding } = state.currentFile
       if (lineEnding !== oldLineEnding) {
@@ -1134,7 +1160,7 @@ const actions = {
     })
   },
 
-  LINTEN_FOR_SET_ENCODING ({ commit, state }) {
+  LISTEN_FOR_SET_ENCODING ({ commit, state }) {
     ipcRenderer.on('mt::set-file-encoding', (e, encodingName) => {
       const { encoding } = state.currentFile.encoding
       if (encoding !== encodingName) {
@@ -1144,7 +1170,7 @@ const actions = {
     })
   },
 
-  LINTEN_FOR_SET_FINAL_NEWLINE ({ commit, state }) {
+  LISTEN_FOR_SET_FINAL_NEWLINE ({ commit, state }) {
     ipcRenderer.on('mt::set-final-newline', (e, value) => {
       const { trimTrailingNewline } = state.currentFile
       if (trimTrailingNewline !== value) {
@@ -1155,67 +1181,110 @@ const actions = {
   },
 
   LISTEN_FOR_FILE_CHANGE ({ commit, state, rootState }) {
-    ipcRenderer.on('mt::update-file', (e, { type, change }) => {
-      // TODO: We should only load the changed content if the user want to reload the document.
+    ipcRenderer.on('mt::watcher-ignore-change-event', (event, id) => {
+      watcherDocumentIgnoreList.set(id, new Date())
+    })
 
-      const { tabs } = state
-      const { pathname } = change
-      const tab = tabs.find(t => isSamePathSync(t.pathname, pathname))
-      if (tab) {
-        const { id, isSaved, filename } = tab
-        switch (type) {
-          case 'unlink': {
-            commit('SET_SAVE_STATUS_BY_TAB', { tab, status: false })
-            commit('PUSH_TAB_NOTIFICATION', {
-              tabId: id,
-              msg: `"${filename}" has been removed on disk.`,
-              style: 'warn',
-              showConfirm: false,
-              exclusiveType: 'file_changed'
-            })
-            break
+    ipcRenderer.on('mt::watcher-changes-markdown', (event, token, changeList) => {
+      const { type, path: fullPath, isDirectory, mtime } = changeList[0]
+      if (isDirectory) {
+        throw new Error('Invalid state: expected file but got directory change event.')
+      }
+
+      const tab = state.tabs.find(t => isSamePathSync(t.pathname, fullPath))
+      if (!tab) {
+        console.error(`Document changed on disk but cannot find tab for path "${fullPath}".`)
+        return
+      }
+
+      const { id, filename } = tab
+      switch (type) {
+        case WATCHER_CHANGE_TYPE.CREATED:
+        case WATCHER_CHANGE_TYPE.CHANGED: {
+          // NB: Always show if we call this from within the renderer.
+          if (event && shouldIgnoreWatcherEvent(id, mtime)) {
+            return
           }
-          case 'add':
-          case 'change': {
-            const { autoSave } = rootState.preferences
-            if (autoSave) {
-              if (autoSaveTimers.has(id)) {
-                const timer = autoSaveTimers.get(id)
-                clearTimeout(timer)
-                autoSaveTimers.delete(id)
-              }
 
-              // Only reload the content if the tab is saved.
-              if (isSaved) {
-                commit('LOAD_CHANGE', change)
-                return
+          const { autoSave } = rootState.preferences
+          let message = `"${filename}" has been changed on disk. Do you want to load the change?`
+          if (autoSave) {
+            // Forbid auto save until permission gained from user.
+            autoSaveBlockList.add(id)
+            clearAutoSaveTimer(id)
+
+            message = `Auto save is temporary disabled for this document because "${filename}" has been changed on disk. ` +
+              'Do you want to load the change? Otherwise the file will be overwritten with the current document content.'
+          }
+
+          commit('SET_SAVE_STATUS_BY_TAB', { tab, status: false })
+          commit('PUSH_TAB_NOTIFICATION', {
+            tabId: id,
+            msg: message,
+            showConfirm: true,
+            exclusiveType: 'file_changed',
+            action: continueClicked => {
+              if (continueClicked) {
+                ipcRenderer.invoke('mt::fs-markdown-load-file', fullPath)
+                  .then(data => {
+                    commit('LOAD_CHANGE', {
+                      pathname: tab.pathname,
+                      data
+                    })
+                    autoSaveBlockList.delete(id)
+                    ipcRenderer.emit('mt::watcher-ignore-change-event', null, id)
+                  })
+                  .catch(error => {
+                    log.error(error)
+                    commit('PUSH_TAB_NOTIFICATION', {
+                      tabId: id,
+                      msg: `Failed to reload document from disk: ${getErrorMessageFromInvokeRequest(error)}`,
+                      style: 'crit',
+                      showConfirm: false,
+                      exclusiveType: 'load_error'
+                    })
+                    autoSaveBlockList.delete(id)
+                  })
+              } else if (autoSave) {
+                autoSaveBlockList.delete(id)
+                ipcRenderer.send('mt::response-file-save', {
+                  id,
+                  filename,
+                  pathname: tab.pathname,
+                  markdown: tab.markdown,
+                  options: getOptionsFromState(tab),
+                  defaultPath: getRootFolderFromState(rootState)
+                })
               }
             }
-
-            commit('SET_SAVE_STATUS_BY_TAB', { tab, status: false })
-            commit('PUSH_TAB_NOTIFICATION', {
-              tabId: id,
-              msg: `"${filename}" has been changed on disk. Do you want to reload it?`,
-              showConfirm: true,
-              exclusiveType: 'file_changed',
-              action: status => {
-                if (status) {
-                  commit('LOAD_CHANGE', change)
-                }
-              }
-            })
-            break
-          }
-          default:
-            console.error(`LISTEN_FOR_FILE_CHANGE: Invalid type "${type}"`)
+          })
+          break
         }
-      } else {
-        console.error(`LISTEN_FOR_FILE_CHANGE: Cannot find tab for path "${pathname}".`)
+        case WATCHER_CHANGE_TYPE.DELETED: {
+          commit('SET_SAVE_STATUS_BY_TAB', { tab, status: false })
+          commit('PUSH_TAB_NOTIFICATION', {
+            tabId: id,
+            msg: `"${filename}" has been removed on disk.`,
+            style: 'warn',
+            showConfirm: false,
+            exclusiveType: 'file_changed'
+          })
+          break
+        }
       }
+    })
+
+    ipcRenderer.on('mt::watcher-changes-error', (event, token, errorMessage, isKilled) => {
+      // NB: The watcher was closed unexpected and messages are no longer received if isKilled=true.
+      notice.notify({
+        title: 'Watcher failed',
+        type: 'warning',
+        message: `${errorMessage} (killed=${isKilled})`
+      })
     })
   },
 
-  ASK_FOR_IMAGE_PATH ({ commit }) {
+  ASK_FOR_IMAGE_PATH () {
     return ipcRenderer.sendSync('mt::ask-for-image-path')
   },
 
@@ -1408,6 +1477,30 @@ const createSelectionFormatState = formats => {
     state[item.type] = true
   }
   return state
+}
+
+const clearAutoSaveTimer = id => {
+  if (autoSaveTimers.has(id)) {
+    const timer = autoSaveTimers.get(id)
+    clearTimeout(timer)
+    autoSaveTimers.delete(id)
+  }
+}
+
+const shouldIgnoreWatcherEvent = (id, mtime) => {
+  const startTime = watcherDocumentIgnoreList.get(id)
+  if (!startTime) {
+    return false
+  }
+
+  const currentTime = new Date()
+  const passedMs = currentTime - startTime
+  if (passedMs < WATCHER_IGNORE_DURATION) {
+    return true
+  }
+
+  // Try to catch cloud drives that emit the change event not immediately or re-sync the change (GH#3044).
+  return mtime - startTime < WATCHER_IGNORE_DURATION
 }
 
 export default { state, mutations, actions }

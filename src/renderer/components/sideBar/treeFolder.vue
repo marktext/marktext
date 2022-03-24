@@ -50,10 +50,15 @@
 </template>
 
 <script>
+import { ipcRenderer } from 'electron'
 import { mapState } from 'vuex'
 import { showContextMenu } from '../../contextMenu/sideBar'
 import bus from '../../bus'
 import { createFileOrDirectoryMixins } from '../../mixins'
+import { getUniqueId } from '../../util'
+
+import path from 'path'
+import { hasMarkdownExtension } from 'common/filesystem/paths'
 
 export default {
   mixins: [createFileOrDirectoryMixins],
@@ -97,9 +102,44 @@ export default {
     })
   },
   methods: {
-    folderNameClick () {
-      this.folder.isCollapsed = !this.folder.isCollapsed
+    async folderNameClick () {
+      const { folder } = this
+      if (folder.isLoaded) {
+        folder.isCollapsed = !folder.isCollapsed
+        return
+      }
+
+      const fileList = []
+      const folderList = []
+      const directoryList = await ipcRenderer.invoke('mt::filesystem-scan-sidebar-directory', folder.pathname)
+      for (const { path: pathname, isDirectory } of directoryList) {
+        if (isDirectory) {
+          folderList.push({
+            id: getUniqueId(),
+            pathname,
+            name: path.basename(pathname),
+            isDirectory: true,
+            isCollapsed: true,
+            isLoaded: false,
+            files: [],
+            folders: []
+          })
+        } else if (hasMarkdownExtension(pathname)) {
+          fileList.push({
+            id: getUniqueId(),
+            pathname,
+            name: path.basename(pathname),
+            isFile: true
+          })
+        }
+      }
+
+      folder.files = fileList
+      folder.folders = folderList
+      folder.isLoaded = true
+      folder.isCollapsed = false
     },
+
     noop () {},
     focusRenameInput () {
       this.$nextTick(() => {

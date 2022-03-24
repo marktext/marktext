@@ -6,6 +6,7 @@
     :style="{'max-width': showSideBar ? `calc(100vw - ${sideBarWidth}px` : '100vw' }"
   >
     <div class="msg">
+      <span v-if="notificationCount > 1">(1/{{ notificationCount }})</span>
       {{ currentNotification.msg }}
     </div>
     <div class="controls">
@@ -15,15 +16,13 @@
           v-if="currentNotification.showConfirm"
           @click.stop="handleClick(true)"
         >
-          Ok
+          <i class="el-icon-check"></i>
         </span>
         <span
           class="inline-button"
           @click.stop="handleClick(false)"
         >
-          <svg class="close-icon icon" aria-hidden="true">
-            <use id="default-close-icon" xlink:href="#icon-close-small"></use>
-          </svg>
+          <i class="el-icon-close"></i>
         </span>
       </div>
     </div>
@@ -49,6 +48,13 @@ export default {
         return null
       }
       return notifications[0]
+    },
+    notificationCount () {
+      const notifications = this.currentFile.notifications
+      if (!notifications) {
+        return 0
+      }
+      return notifications.length
     }
   },
   methods: {

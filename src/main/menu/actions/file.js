@@ -1,10 +1,11 @@
 import fs from 'fs-extra'
+import fsPromises from 'fs/promises'
 import path from 'path'
 import { BrowserWindow, dialog, ipcMain, shell } from 'electron'
 import log from 'electron-log'
 import { isDirectory, isFile, exists } from 'common/filesystem'
 import { MARKDOWN_EXTENSIONS, isMarkdownFile } from 'common/filesystem/paths'
-import { EXTENSION_HASN, PANDOC_EXTENSIONS, URL_REG } from '../../config'
+import { EXTENSION_HASH, PANDOC_EXTENSIONS, URL_REG } from '../../config'
 import { normalizeAndResolvePath, writeFile } from '../../filesystem'
 import { writeMarkdownFile } from '../../filesystem/markdown'
 import { getPath, getRecommendTitleFromMarkdownString } from '../../utils'
@@ -51,7 +52,7 @@ const getPdfPageOptions = options => {
 // Handle the export response from renderer process.
 const handleResponseForExport = async (e, { type, content, pathname, title, pageOptions }) => {
   const win = BrowserWindow.fromWebContents(e.sender)
-  const extension = EXTENSION_HASN[type]
+  const extension = EXTENSION_HASH[type]
   const dirname = pathname ? path.dirname(pathname) : getPath('documents')
   let nakedFilename = pathname ? path.basename(pathname, '.md') : title
   if (!nakedFilename) {
@@ -135,7 +136,8 @@ const handleResponseForSave = async (e, { id, filename, markdown, pathname, opti
   filePath = path.resolve(filePath)
   const extension = path.extname(filePath) || '.md'
   filePath = !filePath.endsWith(extension) ? filePath += extension : filePath
-  return writeMarkdownFile(filePath, markdown, options, win)
+
+  return writeDocumentContentToDisk(win, id, filePath, markdown, options)
     .then(() => {
       if (!alreadyExistOnDisk) {
         ipcMain.emit('window-add-file-path', win.id, filePath)
@@ -144,7 +146,6 @@ const handleResponseForSave = async (e, { id, filename, markdown, pathname, opti
         const filename = path.basename(filePath)
         win.webContents.send('mt::set-pathname', { id, pathname: filePath, filename })
       } else {
-        ipcMain.emit('window-file-saved', win.id, filePath)
         win.webContents.send('mt::tab-saved', id)
       }
       return id
@@ -153,6 +154,12 @@ const handleResponseForSave = async (e, { id, filename, markdown, pathname, opti
       log.error('Error while saving:', err)
       win.webContents.send('mt::tab-save-failure', id, err.message)
     })
+}
+
+const writeDocumentContentToDisk = async (win, id, filePath, markdown, options) => {
+  // Ignore file watcher change event.
+  win.webContents.send('mt::watcher-ignore-change-event', id)
+  return writeMarkdownFile(filePath, markdown, options, win)
 }
 
 const showUnsavedFilesMessage = async (win, files) => {
@@ -252,6 +259,10 @@ ipcMain.on('mt::response-file-save-as', async (e, { id, filename, markdown, path
 
   if (filePath && !canceled) {
     filePath = path.resolve(filePath)
+
+    // Ignore file watcher change event.
+    win.webContents.send('mt::watcher-ignore-change-event', id)
+
     writeMarkdownFile(filePath, markdown, options, win)
       .then(() => {
         if (!alreadyExistOnDisk) {
@@ -267,7 +278,6 @@ ipcMain.on('mt::response-file-save-as', async (e, { id, filename, markdown, path
           const filename = path.basename(filePath)
           win.webContents.send('mt::set-pathname', { id, pathname: filePath, filename })
         } else {
-          ipcMain.emit('window-file-saved', win.id, filePath)
           win.webContents.send('mt::tab-saved', id)
         }
       })
@@ -317,6 +327,27 @@ ipcMain.on('mt::response-file-save', handleResponseForSave)
 ipcMain.on('mt::response-export', handleResponseForExport)
 
 ipcMain.on('mt::response-print', handleResponseForPrint)
+
+ipcMain.handle('mt::editor-file-auto-save', async (event, id, filePath, markdown, options, lastModTime) => {
+  if (lastModTime) {
+    try {
+      const fileInfo = await fsPromises.stat(filePath)
+      const diffMs = Math.abs(fileInfo.mtime - lastModTime)
+
+      // The file has been changed on disk between last and this auto save but we haven't
+      // yet been notified by the watcher. Don't overwrite the file and notify UI.
+      if (diffMs > 1000 && fileInfo.mtime > lastModTime) {
+        return false
+      }
+    } catch (_) {
+      // Try to write file as the file doesn't exists or we haven't access rights.
+    }
+  }
+
+  const window = BrowserWindow.fromWebContents(event.sender)
+  await writeDocumentContentToDisk(window, id, filePath, markdown, options)
+  return true
+})
 
 ipcMain.on('mt::window::drop', async (e, fileList) => {
   const win = BrowserWindow.fromWebContents(e.sender)
@@ -445,6 +476,13 @@ ipcMain.on('mt::format-link-click', (e, { data, dirname }) => {
       shell.openPath(pathname)
     }
   }
+})
+
+ipcMain.handle('mt::create-and-open-empty-markdown-file', async (event, fullPath) => {
+  const win = BrowserWindow.fromWebContents(event.sender)
+  await fs.outputFile(fullPath, '', 'utf-8')
+  openFileOrFolder(win, fullPath)
+  return null
 })
 
 // --- commands -------------------------------------
