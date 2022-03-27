@@ -43,7 +43,7 @@ const commands = [
       ipcRenderer.emit('mt::new-untitled-tab', null)
     }
   }, {
-    id: 'file.new-file',
+    id: 'file.new-window',
     execute: async () => {
       ipcRenderer.send('mt::cmd-new-editor-window')
     }
@@ -581,12 +581,12 @@ const commands = [
   }, {
     id: 'view.toggle-sidebar',
     execute: async () => {
-      bus.$emit('view:toggle-view-layout-entry', 'showSideBar')
+      bus.$emit('view:toggle-layout-entry', 'showSideBar')
     }
   }, {
     id: 'view.toggle-tabbar',
     execute: async () => {
-      bus.$emit('view:toggle-view-layout-entry', 'showTabBar')
+      bus.$emit('view:toggle-layout-entry', 'showTabBar')
     }
   },
 

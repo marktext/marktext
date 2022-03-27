@@ -1,4 +1,4 @@
-import { app, Menu } from 'electron'
+import { app } from 'electron'
 import { showAboutDialog } from '../actions/help'
 import * as actions from '../actions/marktext'
 
@@ -9,13 +9,13 @@ export default function (keybindings) {
     label: 'MarkText',
     submenu: [{
       label: 'About MarkText',
-      click (menuItem, browserWindow) {
-        showAboutDialog(browserWindow)
+      click (menuItem, focusedWindow) {
+        showAboutDialog(focusedWindow)
       }
     }, {
       label: 'Check for updates...',
-      click (menuItem, browserWindow) {
-        actions.checkUpdates(browserWindow)
+      click (menuItem, focusedWindow) {
+        actions.checkUpdates(focusedWindow)
       }
     }, {
       label: 'Preferences',
@@ -35,18 +35,18 @@ export default function (keybindings) {
       label: 'Hide MarkText',
       accelerator: keybindings.getAccelerator('mt.hide'),
       click () {
-        Menu.sendActionToFirstResponder('hide:')
+        actions.osxHide()
       }
     }, {
       label: 'Hide Others',
       accelerator: keybindings.getAccelerator('mt.hide-others'),
       click () {
-        Menu.sendActionToFirstResponder('hideOtherApplications:')
+        actions.osxHideAll()
       }
     }, {
       label: 'Show All',
       click () {
-        Menu.sendActionToFirstResponder('unhideAllApplications:')
+        actions.osxShowAll()
       }
     }, {
       type: 'separator'

@@ -346,6 +346,7 @@
   },
   "spellcheckerLanguage": {
     "description": "Spelling--The spell checker language",
+    "type": "string",
     "pattern": "^[a-z]{2,3}(?:[-](?:[0-9]|[a-zA-Z]){2,}){0,2}$",
     "default": "en-US"
   },

@@ -1,4 +1,4 @@
-import { shell, Menu } from 'electron'
+import { shell } from 'electron'
 import fs from 'fs'
 import fsPromises from 'fs/promises'
 import path from 'path'
@@ -14,14 +14,25 @@ import keybindingsWindows from './keybindingsWindows'
 
 class Keybindings {
   /**
-   * @param {string} userDataPath The user data path.
+   * @param {CommandManager} commandManager The command manager instance.
+   * @param {AppEnvironment} appEnvironment The application environment instance.
    */
-  constructor (userDataPath) {
+  constructor (commandManager, appEnvironment) {
+    const { userDataPath } = appEnvironment.paths
     this.configPath = path.join(userDataPath, 'keybindings.json')
+    this.commandManager = commandManager
 
     this.userKeybindings = new Map()
     this.keys = this.getDefaultKeybindings()
     this._prepareKeyMapper()
+
+    if (appEnvironment.isDevMode) {
+      for (const [id, accelerator] of this.keys) {
+        if (!commandManager.has(id)) {
+          console.error(`[DEBUG] Command with id="${id}" isn't available for accelerator="${accelerator}".`)
+        }
+      }
+    }
 
     // Load user-defined keybindings
     this._loadLocalKeybindings()
@@ -35,21 +46,32 @@ class Keybindings {
     return name
   }
 
-  registerKeyHandlers (win, acceleratorMap) {
-    for (const item of acceleratorMap) {
-      let { accelerator } = item
-      if (accelerator == null || accelerator === '') {
-        continue
-      }
+  registerAccelerator (win, accelerator, callback) {
+    if (!win || !accelerator || !callback) {
+      throw new Error(`addKeyHandler: invalid arguments (accelerator="${accelerator}").`)
+    }
 
-      // Regisiter shortcuts on the BrowserWindow instead of using Chromium's native menu.
-      // This makes it possible to receive key down events before Chromium/Electron and we
-      // can handle reserved Chromium shortcuts. Afterwards prevent the default action of
-      // the event so the native menu is not triggered.
-      electronLocalshortcut.register(win, accelerator, () => {
-        callMenuCallback(item, win)
-        return true // prevent default action
-      })
+    // Register shortcuts on the BrowserWindow instead of using Chromium's native menu.
+    // This makes it possible to receive key down events before Chromium/Electron and we
+    // can handle reserved Chromium shortcuts. Afterwards prevent the default action of
+    // the event so the native menu is not triggered.
+    electronLocalshortcut.register(win, accelerator, () => {
+      callback(win)
+      return true // prevent default action
+    })
+  }
+
+  unregisterAccelerator (win, accelerator) {
+    electronLocalshortcut.unregister(win, accelerator)
+  }
+
+  registerEditorKeyHandlers (win) {
+    for (const [id, accelerator] of this.keys) {
+      if (accelerator && accelerator.length > 1) {
+        this.registerAccelerator(win, accelerator, () => {
+          this.commandManager.execute(id, win)
+        })
+      }
     }
   }
 
@@ -210,45 +232,6 @@ class Keybindings {
     } catch (_) {
       return null
     }
-  }
-}
-
-export const parseMenu = menuTemplate => {
-  const { submenu, accelerator, click, id, visible } = menuTemplate
-  const items = []
-  if (Array.isArray(menuTemplate)) {
-    for (const item of menuTemplate) {
-      const subitems = parseMenu(item)
-      if (subitems) items.push(...subitems)
-    }
-  } else if (submenu) {
-    const subitems = parseMenu(submenu)
-    if (subitems) items.push(...subitems)
-  } else if ((visible === undefined || visible) && accelerator && click) {
-    items.push({
-      accelerator,
-      click,
-      id // may be null
-    })
-  }
-  return items.length === 0 ? null : items
-}
-
-const callMenuCallback = (menuInfo, win) => {
-  const { click, id } = menuInfo
-  if (click) {
-    let menuItem = null
-    if (id) {
-      const menus = Menu.getApplicationMenu()
-      menuItem = menus.getMenuItemById(id)
-    }
-
-    // Allow all shortcuts/menus without id and only enabled menus with id (GH#980).
-    if (!menuItem || menuItem.enabled !== false) {
-      click(menuItem, win)
-    }
-  } else {
-    console.error('ERROR: callback function is not defined.')
   }
 }
 

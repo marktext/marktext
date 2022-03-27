@@ -4,7 +4,6 @@ import { app, ipcMain, Menu } from 'electron'
 import log from 'electron-log'
 import { ensureDirSync, isDirectory2, isFile2 } from 'common/filesystem'
 import { isLinux, isOsx, isWindows } from '../config'
-import { parseMenu } from '../keyboard/shortcutHandler'
 import { updateSidebarMenu } from '../menu/actions/edit'
 import { updateFormatMenu } from '../menu/actions/format'
 import { updateSelectionMenus } from '../menu/actions/paragraph'
@@ -144,9 +143,9 @@ class AppMenu {
   addEditorMenu (window, options = {}) {
     const isSourceMode = !!options.sourceCodeModeEnabled
     const { windowMenus } = this
-    windowMenus.set(window.id, this._buildEditorMenu(true))
+    windowMenus.set(window.id, this._buildEditorMenu())
 
-    const { menu, shortcutMap } = windowMenus.get(window.id)
+    const { menu } = windowMenus.get(window.id)
 
     // Set source-code editor if preferred.
     const sourceCodeModeMenuItem = menu.getMenuItemById('sourceCodeModeMenuItem')
@@ -158,7 +157,19 @@ class AppMenu {
       typewriterModeMenuItem.enabled = false
       focusModeMenuItem.enabled = false
     }
-    this._keybindings.registerKeyHandlers(window, shortcutMap)
+
+    const { _keybindings } = this
+    _keybindings.registerEditorKeyHandlers(window)
+
+    if (isWindows) {
+      // WORKAROUND: Window close event isn't triggered on Windows if `setIgnoreMenuShortcuts(true)` is used (Electron#32674).
+      // NB: Remove this immediately if upstream is fixed because the event may be emitted twice.
+      _keybindings.registerAccelerator(window, 'Alt+F4', win => {
+        if (win && !win.isDestroyed()) {
+          win.close()
+        }
+      })
+    }
   }
 
   /**
@@ -233,7 +244,7 @@ class AppMenu {
       const { menu: oldMenu, type } = value
       if (type !== MenuType.EDITOR) return
 
-      const { menu: newMenu } = this._buildEditorMenu(false, recentUsedDocuments)
+      const { menu: newMenu } = this._buildEditorMenu(recentUsedDocuments)
 
       // all other menu items are set automatically
       updateMenuItem(oldMenu, newMenu, 'sourceCodeModeMenuItem')
@@ -325,152 +336,14 @@ class AppMenu {
     })
   }
 
-  /**
-   * Append misc shortcuts the the given shortcut map.
-   *
-   * @param {*} lineEnding The shortcut map.
-   */
-  _appendMiscShortcuts = shortcutMap => {
-    shortcutMap.push({
-      accelerator: this._keybindings.getAccelerator('tabs.cycle-forward'),
-      click: (menuItem, win) => {
-        win.webContents.send('mt::tabs-cycle-right')
-      },
-      id: null
-    })
-    shortcutMap.push({
-      accelerator: this._keybindings.getAccelerator('tabs.cycle-backward'),
-      click: (menuItem, win) => {
-        win.webContents.send('mt::tabs-cycle-left')
-      },
-      id: null
-    })
-    shortcutMap.push({
-      accelerator: this._keybindings.getAccelerator('tabs.switch-to-left'),
-      click: (menuItem, win) => {
-        win.webContents.send('mt::tabs-cycle-left')
-      },
-      id: null
-    })
-    shortcutMap.push({
-      accelerator: this._keybindings.getAccelerator('tabs.switch-to-right'),
-      click: (menuItem, win) => {
-        win.webContents.send('mt::tabs-cycle-right')
-      },
-      id: null
-    })
-    shortcutMap.push({
-      accelerator: this._keybindings.getAccelerator('tabs.switch-to-first'),
-      click: (menuItem, win) => {
-        win.webContents.send('mt::switch-first-tab')
-      },
-      id: null
-    })
-    shortcutMap.push({
-      accelerator: this._keybindings.getAccelerator('tabs.switch-to-second'),
-      click: (menuItem, win) => {
-        win.webContents.send('mt::switch-second-tab')
-      },
-      id: null
-    })
-    shortcutMap.push({
-      accelerator: this._keybindings.getAccelerator('tabs.switch-to-third'),
-      click: (menuItem, win) => {
-        win.webContents.send('mt::switch-third-tab')
-      },
-      id: null
-    })
-    shortcutMap.push({
-      accelerator: this._keybindings.getAccelerator('tabs.switch-to-fourth'),
-      click: (menuItem, win) => {
-        win.webContents.send('mt::switch-fourth-tab')
-      },
-      id: null
-    })
-    shortcutMap.push({
-      accelerator: this._keybindings.getAccelerator('tabs.switch-to-fifth'),
-      click: (menuItem, win) => {
-        win.webContents.send('mt::switch-fifth-tab')
-      },
-      id: null
-    })
-    shortcutMap.push({
-      accelerator: this._keybindings.getAccelerator('tabs.switch-to-sixth'),
-      click: (menuItem, win) => {
-        win.webContents.send('mt::switch-sixth-tab')
-      },
-      id: null
-    })
-    shortcutMap.push({
-      accelerator: this._keybindings.getAccelerator('tabs.switch-to-seventh'),
-      click: (menuItem, win) => {
-        win.webContents.send('mt::switch-seventh-tab')
-      },
-      id: null
-    })
-    shortcutMap.push({
-      accelerator: this._keybindings.getAccelerator('tabs.switch-to-eighth'),
-      click: (menuItem, win) => {
-        win.webContents.send('mt::switch-eighth-tab')
-      },
-      id: null
-    })
-    shortcutMap.push({
-      accelerator: this._keybindings.getAccelerator('tabs.switch-to-ninth'),
-      click: (menuItem, win) => {
-        win.webContents.send('mt::switch-ninth-tab')
-      },
-      id: null
-    })
-    shortcutMap.push({
-      accelerator: this._keybindings.getAccelerator('tabs.switch-to-tenth'),
-      click: (menuItem, win) => {
-        win.webContents.send('mt::switch-tenth-tab')
-      },
-      id: null
-    })
-    shortcutMap.push({
-      accelerator: this._keybindings.getAccelerator('file.quick-open'),
-      click: (menuItem, win) => {
-        win.webContents.send('mt::execute-command-by-id', 'file.quick-open')
-      },
-      id: null
-    })
-
-    if (isWindows) {
-      // WORKAROUND: Window close event isn't triggered on Windows if `setIgnoreMenuShortcuts(true)` is used (Electron#32674).
-      // NB: Remove this immediately if upstream is fixed because the event may be emitted twice.
-      shortcutMap.push({
-        accelerator: 'Alt+F4',
-        click: (menuItem, win) => {
-          if (win && !win.isDestroyed()) {
-            win.close()
-          }
-        },
-        id: null
-      })
-    }
-  }
-
-  _buildEditorMenu (createShortcutMap, recentUsedDocuments = null) {
+  _buildEditorMenu (recentUsedDocuments = null) {
     if (!recentUsedDocuments) {
       recentUsedDocuments = this.getRecentlyUsedDocuments()
     }
 
     const menuTemplate = configureMenu(this._keybindings, this._preferences, recentUsedDocuments)
     const menu = Menu.buildFromTemplate(menuTemplate)
-
-    let shortcutMap = null
-    if (createShortcutMap) {
-      shortcutMap = parseMenu(menuTemplate)
-      this._appendMiscShortcuts(shortcutMap)
-    }
-
-    return {
-      shortcutMap,
-      menu,
-      type: MenuType.EDITOR
-    }
+    return { menu, type: MenuType.EDITOR }
   }
 
   _buildSettingMenu () {
