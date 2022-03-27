@@ -57,9 +57,7 @@ const state = {
   autoSwitchTheme: 2,
 
   spellcheckerEnabled: false,
-  spellcheckerIsHunspell: false, // macOS/Windows 10 only
   spellcheckerNoUnderline: false,
-  spellcheckerAutoDetectLanguage: false,
   spellcheckerLanguage: 'en-US',
 
   // Default values that are overwritten with the entries below.

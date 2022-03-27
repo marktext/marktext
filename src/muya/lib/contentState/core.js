@@ -2,13 +2,13 @@ const coreApi = ContentState => {
   /**
    * Replace the word range with the given replacement.
    *
-   * @param {*} line A line block reference of the line that contains the word to
-   *                 replace - must be a valid reference!
+   * @param {*} line A line block reference of the line that contain the word to
+   *                 replace - must be a valid reference.
    * @param {*} wordCursor The range of the word to replace (line: "abc >foo< abc"
-   *                       whereas `>`/`<` is start and end of `wordCursor`). This
+   *                       where `>`/`<` is start and end of `wordCursor`). This
    *                       range is replaced by `replacement`.
    * @param {string} replacement The replacement.
-   * @param {boolean} setCursor Shoud we update the editor cursor?
+   * @param {boolean} setCursor Whether the editor cursor should be updated.
    */
   ContentState.prototype.replaceWordInline = function (line, wordCursor, replacement, setCursor = false) {
     const { start: lineStart, end: lineEnd } = line

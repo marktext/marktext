@@ -98,6 +98,13 @@ export default {
       setMode(editor, 'markdown')
       this.listenChange()
 
+      editor.on('contextmenu', (cm, event) => {
+        // Make sure no context menu is shown in source-code mode because we have to handle
+        // Muyas menu by Electron.
+        event.preventDefault()
+        event.stopPropagation()
+      })
+
       // NOTE: Cursor may be not null but the inner values are.
       if (cursor && cursor.anchor && cursor.focus) {
         const { anchor, focus } = cursor

@@ -329,18 +329,8 @@
     "type": "boolean",
     "default": false
   },
-  "spellcheckerIsHunspell": {
-    "description": "Spelling--Whether Hunspell or the OS spell checker is used (macOS only).",
-    "type": "boolean",
-    "default": false
-  },
   "spellcheckerNoUnderline": {
     "description": "Spelling--Don't underline spelling mistakes.",
-    "type": "boolean",
-    "default": false
-  },
-  "spellcheckerAutoDetectLanguage": {
-    "description": "Spelling--Try to automatically identify the used language when typing.",
     "type": "boolean",
     "default": false
   },

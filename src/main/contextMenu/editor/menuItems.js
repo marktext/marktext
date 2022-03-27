@@ -1,10 +1,8 @@
-import * as contextMenu from './actions'
-
 // NOTE: This are mutable fields that may change at runtime.
 
 export const CUT = {
   label: 'Cut',
-  id: 'cutMenuItem', // not used yet!
+  id: 'cutMenuItem',
   role: 'cut'
 }
 
@@ -23,40 +21,40 @@ export const PASTE = {
 export const COPY_AS_MARKDOWN = {
   label: 'Copy As Markdown',
   id: 'copyAsMarkdownMenuItem',
-  click (menuItem, browserWindow) {
-    contextMenu.copyAsMarkdown()
+  click (menuItem, targetWindow) {
+    targetWindow.webContents.send('mt::cm-copy-as-markdown')
   }
 }
 
 export const COPY_AS_HTML = {
   label: 'Copy As Html',
   id: 'copyAsHtmlMenuItem',
-  click (menuItem, browserWindow) {
-    contextMenu.copyAsHtml()
+  click (menuItem, targetWindow) {
+    targetWindow.webContents.send('mt::cm-copy-as-html')
   }
 }
 
 export const PASTE_AS_PLAIN_TEXT = {
   label: 'Paste as Plain Text',
   id: 'pasteAsPlainTextMenuItem',
-  click (menuItem, browserWindow) {
-    contextMenu.pasteAsPlainText()
+  click (menuItem, targetWindow) {
+    targetWindow.webContents.send('mt::cm-paste-as-plain-text')
   }
 }
 
 export const INSERT_BEFORE = {
   label: 'Insert Paragraph Before',
   id: 'insertParagraphBeforeMenuItem',
-  click (menuItem, browserWindow) {
-    contextMenu.insertParagraph('before')
+  click (menuItem, targetWindow) {
+    targetWindow.webContents.send('mt::cm-insert-paragraph', 'before')
   }
 }
 
 export const INSERT_AFTER = {
   label: 'Insert Paragraph After',
   id: 'insertParagraphAfterMenuItem',
-  click (menuItem, browserWindow) {
-    contextMenu.insertParagraph('after')
+  click (menuItem, targetWindow) {
+    targetWindow.webContents.send('mt::cm-insert-paragraph', 'after')
   }
 }
 

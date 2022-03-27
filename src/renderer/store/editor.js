@@ -1208,6 +1208,30 @@ const actions = {
     ipcRenderer.on('mt::invalidate-image-cache', () => {
       bus.$emit('invalidate-image-cache')
     })
+  },
+
+  LISTEN_FOR_CONTEXT_MENU () {
+    // General context menu
+    ipcRenderer.on('mt::cm-copy-as-markdown', () => {
+      bus.$emit('copyAsMarkdown', 'copyAsMarkdown')
+    })
+    ipcRenderer.on('mt::cm-copy-as-html', () => {
+      bus.$emit('copyAsHtml', 'copyAsHtml')
+    })
+    ipcRenderer.on('mt::cm-paste-as-plain-text', () => {
+      bus.$emit('pasteAsPlainText', 'pasteAsPlainText')
+    })
+    ipcRenderer.on('mt::cm-insert-paragraph', (e, location) => {
+      bus.$emit('insertParagraph', location)
+    })
+
+    // Spelling
+    ipcRenderer.on('mt::spelling-replace-misspelling', (e, info) => {
+      bus.$emit('replace-misspelling', info)
+    })
+    ipcRenderer.on('mt::spelling-show-switch-language', () => {
+      bus.$emit('open-command-spellchecker-switch-language')
+    })
   }
 }
 

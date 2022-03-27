@@ -129,9 +129,29 @@ export const hasKeys = obj => Object.keys(obj).length > 0
  *
  * @param {*} obj Object to clone
  * @param {Boolean} deepCopy Create a shallow (false) or deep copy (true)
+ * @deprecated Use `cloneObject` (shallow copy) or `deepClone` (deep copy).
  */
 export const cloneObj = (obj, deepCopy = true) => {
   return deepCopy ? JSON.parse(JSON.stringify(obj)) : Object.assign({}, obj)
+}
+
+/**
+ * Shallow clone the given object.
+ *
+ * @param {*} obj Object to clone
+ * @param {boolean} inheritFromObject Whether the clone should inherit from `Object`
+ */
+export const cloneObject = (obj, inheritFromObject = true) => {
+  return Object.assign(inheritFromObject ? {} : Object.create(null), obj)
+}
+
+/**
+ * Deep clone the given object.
+ *
+ * @param {*} obj Object to clone
+ */
+export const deepClone = obj => {
+  return JSON.parse(JSON.stringify(obj))
 }
 
 export const isOsx = process.platform === 'darwin'

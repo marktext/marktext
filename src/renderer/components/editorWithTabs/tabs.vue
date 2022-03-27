@@ -121,7 +121,6 @@ export default {
   },
   created () {
     this.$nextTick(() => {
-      // listen for bus events.
       bus.$on('TABS::close-this', this.closeTab)
       bus.$on('TABS::close-others', this.closeOthers)
       bus.$on('TABS::close-saved', this.closeSaved)
@@ -176,7 +175,7 @@ export default {
       })
     })
   },
-  beforeDestroy () {
+  beforeUnmount () {
     const tabs = this.$refs.tabContainer
     tabs.removeEventListener('wheel', this.handleTabScroll)
 
@@ -187,7 +186,8 @@ export default {
     if (this.drake) {
       this.drake.destroy()
     }
-
+  },
+  beforeDestroy () {
     bus.$off('TABS::close-this', this.closeTab)
     bus.$off('TABS::close-others', this.closeOthers)
     bus.$off('TABS::close-saved', this.closeSaved)

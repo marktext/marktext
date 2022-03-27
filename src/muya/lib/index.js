@@ -430,6 +430,21 @@ class Muya {
     this.contentState.replaceWordInline(line, wordCursor, replacement, setCursor)
   }
 
+  /**
+   * Replace the current selected word with the given replacement.
+   *
+   * NOTE: Unsafe method because exacly one word have to be selected. This
+   * is currently used to replace a misspelled word in MarkText that was selected
+   * by Chromium.
+   *
+   * @param {string} word The old word that should be replaced. The whole word must be selected.
+   * @param {string} replacement The word to replace the selecte one.
+   * @returns {boolean} True on success.
+   */
+  _replaceCurrentWordInlineUnsafe (word, replacement) { // __MARKTEXT_PATCH__
+    return this.contentState._replaceCurrentWordInlineUnsafe(word, replacement)
+  }
+
   destroy () {
     this.contentState.clear()
     this.quickInsert.destroy()
