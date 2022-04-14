@@ -140,7 +140,7 @@ const actions = {
     })
     bus.$on('SIDEBAR::remove', () => {
       const { pathname } = state.activeItem
-      shell.trashItem(pathname).catch(err => {
+      ipcRenderer.invoke('mt::fs-trash-item', pathname).catch(err => {
         notice.notify({
           title: 'Error while deleting',
           type: 'error',
