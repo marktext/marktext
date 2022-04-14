@@ -16,6 +16,8 @@ files:
 - "!node_modules/dagre-d3-renderer/dist/demo/"
 - "!node_modules/dagre-d3/dist/demo/"
 - "!node_modules/dragula/resources"
+- "!node_modules/jest-image-snapshot/images/"
+- "!node_modules/jest-image-snapshot/jest-image-snapshot.png"
 - "!node_modules/**/*.js.map"
 - "!node_modules/**/*.cjs.map"
 - "!node_modules/**/*.mjs.map"
@@ -50,7 +52,6 @@ extraFiles:
 - "LICENSE"
 - from: "resources/THIRD-PARTY-LICENSES.txt"
   to: "THIRD-PARTY-LICENSES.txt"
-afterPack: './.electron-vue/electron-builder/afterPack.js'
 
 fileAssociations:
 - ext:
