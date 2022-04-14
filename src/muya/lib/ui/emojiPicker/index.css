@@ -36,6 +36,7 @@
   align-items: center;
   box-sizing: border-box;
   border-radius: 50%;
+  font-family: "Open Sans", "Clear Sans", "Helvetica Neue", Arial, sans-serif, "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji";
 }
 
 .ag-emoji-picker:hover .active {
@@ -58,4 +59,3 @@
   transition: transform .2s ease-in;
   transform-origin: center;
 }
- 
