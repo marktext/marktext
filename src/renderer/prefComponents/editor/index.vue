@@ -159,6 +159,11 @@
           :bool="autoCheck"
           :onChange="value => onSelectChange('autoCheck', value)"
         ></bool>
+        <bool
+          description="Wrap text inside code blocks"
+          :bool="wrapCodeBlocks"
+          :onChange="value => onSelectChange('wrapCodeBlocks', value)"
+        ></bool>
       </template>
     </compound>
   </div>
@@ -217,6 +222,7 @@ export default {
       hideQuickInsertHint: state => state.preferences.hideQuickInsertHint,
       hideLinkPopup: state => state.preferences.hideLinkPopup,
       autoCheck: state => state.preferences.autoCheck,
+      wrapCodeBlocks: state => state.preferences.wrapCodeBlocks,
       editorLineWidth: state => state.preferences.editorLineWidth,
       defaultEncoding: state => state.preferences.defaultEncoding,
       autoGuessEncoding: state => state.preferences.autoGuessEncoding,
