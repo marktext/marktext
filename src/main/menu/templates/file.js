@@ -1,7 +1,6 @@
 import { app } from 'electron'
 import * as actions from '../actions/file'
 import { userSetting } from '../actions/marktext'
-import { showTabBar } from '../actions/view'
 import { isOsx } from '../../config'
 
 export default function (keybindings, userPreference, recentlyUsedFiles) {
@@ -13,11 +12,10 @@ export default function (keybindings, userPreference, recentlyUsedFiles) {
       accelerator: keybindings.getAccelerator('file.new-tab'),
       click (menuItem, browserWindow) {
         actions.newBlankTab(browserWindow)
-        showTabBar(browserWindow)
       }
     }, {
       label: 'New Window',
-      accelerator: keybindings.getAccelerator('file.new-file'),
+      accelerator: keybindings.getAccelerator('file.new-window'),
       click (menuItem, browserWindow) {
         actions.newEditorWindow()
       }
@@ -76,8 +74,6 @@ export default function (keybindings, userPreference, recentlyUsedFiles) {
   }
 
   fileMenu.submenu.push({
-    type: 'separator'
-  }, {
     type: 'separator'
   }, {
     label: 'Save',
@@ -139,7 +135,7 @@ export default function (keybindings, userPreference, recentlyUsedFiles) {
     label: 'Print',
     accelerator: keybindings.getAccelerator('file.print'),
     click (menuItem, browserWindow) {
-      actions.print(browserWindow)
+      actions.printDocument(browserWindow)
     }
   }, {
     type: 'separator',

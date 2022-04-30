@@ -1,8 +1,6 @@
 import runSanitize from './dompurify'
 import { URL_REG, DATA_URL_REG, IMAGE_EXT_REG } from '../config'
-
-const ID_PREFIX = 'ag-'
-let id = 0
+export { getUniqueId, getLongUniqueId } from './random'
 
 const TIMEOUT = 1500
 
@@ -13,10 +11,6 @@ const HTML_TAG_REPLACEMENTS = {
   '"': '&quot;',
   "'": '&#39;'
 }
-
-export const getUniqueId = () => `${ID_PREFIX}${id++}`
-
-export const getLongUniqueId = () => `${getUniqueId()}-${(+new Date()).toString(32)}`
 
 export const isMetaKey = ({ key }) => key === 'Shift' || key === 'Control' || key === 'Alt' || key === 'Meta'
 
@@ -33,6 +27,7 @@ export const isLengthEven = (str = '') => str.length % 2 === 0
 export const snakeToCamel = name => name.replace(/_([a-z])/g, (p0, p1) => p1.toUpperCase())
 
 export const camelToSnake = name => name.replace(/([A-Z])/g, (_, p) => `-${p.toLowerCase()}`)
+
 /**
  *  Are two arrays have intersection
  */
@@ -360,26 +355,6 @@ export const wordCount = markdown => {
   return { word, paragraph, character, all }
 }
 
-/**
- * [genUpper2LowerKeyHash generate constants map hash, the value is lowercase of the key,
- * also translate `_` to `-`]
- */
-export const genUpper2LowerKeyHash = keys => {
-  return keys.reduce((acc, key) => {
-    const value = key.toLowerCase().replace(/_/g, '-')
-    return Object.assign(acc, { [key]: value })
-  }, {})
-}
-
-/**
- * generate constants map, the value is the key.
- */
-export const generateKeyHash = keys => {
-  return keys.reduce((acc, key) => {
-    return Object.assign(acc, { [key]: key })
-  }, {})
-}
-
 // mixins
 export const mixins = (constructor, ...object) => {
   return Object.assign(constructor.prototype, ...object)
@@ -432,4 +407,13 @@ export const getDefer = () => {
   defer.promise = promise
 
   return defer
+}
+
+/**
+ * Deep clone the given object.
+ *
+ * @param {*} obj Object to clone
+ */
+export const deepClone = obj => {
+  return JSON.parse(JSON.stringify(obj))
 }

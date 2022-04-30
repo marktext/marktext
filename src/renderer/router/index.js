@@ -8,8 +8,16 @@ import Theme from '@/prefComponents/theme'
 import Image from '@/prefComponents/image'
 import Keybindings from '@/prefComponents/keybindings'
 
+const parseSettingsPage = type => {
+  let pageUrl = '/preference'
+  if (/\/spelling$/.test(type)) {
+    pageUrl += '/spelling'
+  }
+  return pageUrl
+}
+
 const routes = type => ([{
-  path: '/', redirect: type === 'editor' ? '/editor' : '/preference'
+  path: '/', redirect: type === 'editor' ? '/editor' : parseSettingsPage(type)
 }, {
   path: '/editor', component: App
 }, {

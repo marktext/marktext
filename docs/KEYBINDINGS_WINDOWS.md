@@ -8,7 +8,7 @@ MarkText key bindings for Windows. Please see [general key bindings](KEYBINDINGS
 
 | Id                  | Default                                       | Description                           |
 |:------------------- | --------------------------------------------- | ------------------------------------- |
-| `file.new-file`     | <kbd>Ctrl</kbd>+<kbd>N</kbd>                  | New file                              |
+| `file.new-window`   | <kbd>Ctrl</kbd>+<kbd>N</kbd>                  | New window                            |
 | `file.new-tab`      | <kbd>Ctrl</kbd>+<kbd>T</kbd>                  | New tab                               |
 | `file.open-file`    | <kbd>Ctrl</kbd>+<kbd>O</kbd>                  | Open markdown file                    |
 | `file.open-folder`  | <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>O</kbd> | Open folder                           |

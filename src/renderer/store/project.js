@@ -82,7 +82,7 @@ const actions = {
         showSideBar: true,
         showTabBar: true
       })
-      dispatch('SET_LAYOUT_MENU_ITEM')
+      dispatch('DISPATCH_LAYOUT_MENU_ITEMS')
     })
   },
   LISTEN_FOR_UPDATE_PROJECT ({ commit, state, dispatch }) {

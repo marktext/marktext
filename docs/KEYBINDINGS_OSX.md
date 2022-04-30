@@ -17,7 +17,7 @@ MarkText key bindings for macOS. Please see [general key bindings](KEYBINDINGS.m
 
 | Id                  | Default                                          | Description                           |
 |:------------------- | ------------------------------------------------ | ------------------------------------- |
-| `file.new-file`     | <kbd>Command</kbd>+<kbd>N</kbd>                  | New file                              |
+| `file.new-window`   | <kbd>Command</kbd>+<kbd>N</kbd>                  | New window                            |
 | `file.new-tab`      | <kbd>Command</kbd>+<kbd>T</kbd>                  | New tab                               |
 | `file.open-file`    | <kbd>Command</kbd>+<kbd>O</kbd>                  | Open markdown file                    |
 | `file.open-folder`  | <kbd>Command</kbd>+<kbd>Shift</kbd>+<kbd>O</kbd> | Open folder                           |

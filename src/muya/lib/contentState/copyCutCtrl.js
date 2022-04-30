@@ -243,8 +243,10 @@ const copyCutCtrl = ContentState => {
 
       if (row === 1 && column === 1) {
         // Copy cells text if only one is selected
-        event.clipboardData.setData('text/html', '')
-        event.clipboardData.setData('text/plain', tableContents[0][0].text)
+        if (tableContents[0][0].text.length > 0) {
+          event.clipboardData.setData('text/html', '')
+          event.clipboardData.setData('text/plain', tableContents[0][0].text)
+        }
       } else {
         // Copy as markdown table
         const figureBlock = this.createBlock('figure', {
@@ -254,9 +256,10 @@ const copyCutCtrl = ContentState => {
         this.appendChild(figureBlock, table)
         const { isGitlabCompatibilityEnabled, listIndentation } = this
         const markdown = new ExportMarkdown([figureBlock], listIndentation, isGitlabCompatibilityEnabled).generate()
-
-        event.clipboardData.setData('text/html', '')
-        event.clipboardData.setData('text/plain', markdown)
+        if (markdown.length > 0) {
+          event.clipboardData.setData('text/html', '')
+          event.clipboardData.setData('text/plain', markdown)
+        }
       }
     }
   }
@@ -270,30 +273,38 @@ const copyCutCtrl = ContentState => {
     const { selectedImage } = this
     if (selectedImage) {
       const { token } = selectedImage
-      event.clipboardData.setData('text/html', token.raw)
-      event.clipboardData.setData('text/plain', token.raw)
+      if (token.raw.length > 0) {
+        event.clipboardData.setData('text/html', token.raw)
+        event.clipboardData.setData('text/plain', token.raw)
+      }
       return
     }
 
     const { html, text } = this.getClipBoardData()
     switch (type) {
       case 'normal': {
-        event.clipboardData.setData('text/html', html)
-        event.clipboardData.setData('text/plain', text)
+        if (text.length > 0) {
+          event.clipboardData.setData('text/html', html)
+          event.clipboardData.setData('text/plain', text)
+        }
         break
       }
       case 'copyAsMarkdown': {
-        event.clipboardData.setData('text/html', '')
-        event.clipboardData.setData('text/plain', text)
+        if (text.length > 0) {
+          event.clipboardData.setData('text/html', '')
+          event.clipboardData.setData('text/plain', text)
+        }
         break
       }
       case 'copyAsHtml': {
-        event.clipboardData.setData('text/html', '')
-        event.clipboardData.setData('text/plain', getSanitizeHtml(text, {
-          superSubScript: this.muya.options.superSubScript,
-          footnote: this.muya.options.footnote,
-          isGitlabCompatibilityEnabled: this.muya.options.isGitlabCompatibilityEnabled
-        }))
+        if (text.length > 0) {
+          event.clipboardData.setData('text/html', '')
+          event.clipboardData.setData('text/plain', getSanitizeHtml(text, {
+            superSubScript: this.muya.options.superSubScript,
+            footnote: this.muya.options.footnote,
+            isGitlabCompatibilityEnabled: this.muya.options.isGitlabCompatibilityEnabled
+          }))
+        }
         break
       }
 
@@ -303,8 +314,10 @@ const copyCutCtrl = ContentState => {
         const anchor = this.getAnchor(block)
         const { isGitlabCompatibilityEnabled, listIndentation } = this
         const markdown = new ExportMarkdown([anchor], listIndentation, isGitlabCompatibilityEnabled).generate()
-        event.clipboardData.setData('text/html', '')
-        event.clipboardData.setData('text/plain', markdown)
+        if (markdown.length > 0) {
+          event.clipboardData.setData('text/html', '')
+          event.clipboardData.setData('text/plain', markdown)
+        }
         break
       }
 
@@ -313,8 +326,10 @@ const copyCutCtrl = ContentState => {
         if (typeof codeContent !== 'string') {
           return
         }
-        event.clipboardData.setData('text/html', '')
-        event.clipboardData.setData('text/plain', codeContent)
+        if (codeContent.length > 0) {
+          event.clipboardData.setData('text/html', '')
+          event.clipboardData.setData('text/plain', codeContent)
+        }
       }
     }
   }

@@ -11,18 +11,18 @@ import { isWindows } from './index'
 
 export const create = async (pathname, type) => {
   return type === 'directory'
-    ? await fs.ensureDir(pathname)
-    : await fs.outputFile(pathname, '')
+    ? fs.ensureDir(pathname)
+    : fs.outputFile(pathname, '')
 }
 
 export const paste = async ({ src, dest, type }) => {
   return type === 'cut'
-    ? await fs.move(src, dest)
-    : await fs.copy(src, dest)
+    ? fs.move(src, dest)
+    : fs.copy(src, dest)
 }
 
 export const rename = async (src, dest) => {
-  return await fs.move(src, dest)
+  return fs.move(src, dest)
 }
 
 export const getHash = (content, encoding, type) => {

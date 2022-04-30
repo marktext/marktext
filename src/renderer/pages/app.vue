@@ -125,7 +125,6 @@ export default {
     dispatch('LISTEN_FOR_TWEET')
     // module: layout
     dispatch('LISTEN_FOR_LAYOUT')
-    dispatch('LISTEN_FOR_REQUEST_LAYOUT')
     // module: listenForMain
     dispatch('LISTEN_FOR_EDIT')
     dispatch('LISTEN_FOR_VIEW')
@@ -161,6 +160,8 @@ export default {
     dispatch('LISTEN_FOR_FILE_CHANGE')
     dispatch('LISTEN_WINDOW_ZOOM')
     dispatch('LISTEN_FOR_RELOAD_IMAGES')
+    dispatch('LISTEN_FOR_CONTEXT_MENU')
+
     // module: notification
     dispatch('LISTEN_FOR_NOTIFICATION')
 
