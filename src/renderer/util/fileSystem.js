@@ -6,7 +6,7 @@ import cp from 'child_process'
 import { tmpdir } from 'os'
 import dayjs from 'dayjs'
 import { Octokit } from '@octokit/rest'
-import { isImageFile } from 'common/filesystem/paths'
+import { isChildOfDirectory, isImageFile } from 'common/filesystem/paths'
 import { isWindows } from './index'
 
 export const create = async (pathname, type) => {
@@ -34,14 +34,14 @@ export const getContentHash = content => {
 }
 
 /**
- * Check two image paths are identical
+ * If the two paths are identical, return relative image file path
  *
  * @param {String} cwd The relative base path (project root or full folder path of opened file).
  * @param {String} relativeName The relative directory name of image assets.
  * @param {String} srcImagePath The source image file path.
  * @returns {{identical: boolean, relPath: string}} Returns the idencial or not and relativePath of image file.
  */
-export const IsIdenticalImagePath = async (cwd, relativeName, srcImagePath) => {
+export const getRelativeImagePathIfIdentical = (cwd, relativeName, srcImagePath) => {
   let identical = false
   let relPath = ''
   if (typeof srcImagePath !== 'string') {
@@ -58,9 +58,8 @@ export const IsIdenticalImagePath = async (cwd, relativeName, srcImagePath) => {
   // Path combination:
   //  - root directory + relative directory name
   const absAssetsDirPath = path.resolve(cwd, relativeName)
-  const absAssetsFilePath = path.resolve(absAssetsDirPath, path.basename(srcImagePath))
-  if (absAssetsFilePath === srcImagePath) {
-    // Find relative path between given file and saved image.
+  const absAssetsFilePath = path.resolve(cwd, srcImagePath)
+  if (isChildOfDirectory(absAssetsDirPath, absAssetsFilePath)) {
     relPath = path.relative(cwd, srcImagePath)
     if (isWindows) {
       // Use forward slashes for better compatibility with websites.
