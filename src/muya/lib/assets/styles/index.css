@@ -30,7 +30,6 @@ pre {
 }
 
 mark {
-  display: inline-block;
   height: 1.2em;
   line-height: 1.2;
 }

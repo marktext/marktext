@@ -33,11 +33,6 @@ const args = cli()
 const appEnvironment = setupEnvironment(args)
 initializeLogger(appEnvironment)
 
-// Workaround for GH#1359
-if (process.platform === 'linux' && process.env.XDG_SESSION_TYPE === 'wayland') {
-  app.disableHardwareAcceleration()
-}
-
 if (args['--disable-gpu']) {
   app.disableHardwareAcceleration()
 }

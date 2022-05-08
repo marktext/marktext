@@ -3,6 +3,13 @@ import selection from '../selection'
 const deleteCtrl = ContentState => {
   // Handle `delete` keydown event on document.
   ContentState.prototype.docDeleteHandler = function (event) {
+    // handle delete selected image
+    const { selectedImage } = this
+    if (selectedImage) {
+      event.preventDefault()
+      this.selectedImage = null
+      return this.deleteImage(selectedImage)
+    }
     if (this.selectedTableCells) {
       event.preventDefault()
       return this.deleteSelectedTableCells()

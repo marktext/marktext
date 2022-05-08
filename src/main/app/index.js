@@ -12,7 +12,7 @@ import { normalizeMarkdownPath } from '../filesystem/markdown'
 import { registerKeyboardListeners } from '../keyboard'
 import { selectTheme } from '../menu/actions/theme'
 import { dockMenu } from '../menu/templates'
-import ensureDefaultDict from '../preferences/hunspell'
+import registerSpellcheckerListeners from '../spellchecker'
 import { watchers } from '../utils/imagePathAutoComplement'
 import { WindowType } from '../windows/base'
 import EditorWindow from '../windows/editor'
@@ -112,13 +112,6 @@ class App {
         return { action: 'deny' }
       })
     })
-
-    // Copy default (en-US) Hunspell dictionary.
-    const { paths } = this._accessor
-    ensureDefaultDict(paths.userDataPath)
-      .catch(error => {
-        log.error('Error copying Hunspell dictionary: ', error)
-      })
   }
 
   async getScreenshotFileName () {
@@ -274,9 +267,9 @@ class App {
   /**
    * Create a new setting window.
    */
-  _createSettingWindow () {
+  _createSettingWindow (category) {
     const setting = new SettingWindow(this._accessor)
-    setting.createWindow()
+    setting.createWindow(category)
     this._windowManager.add(setting)
     if (this._windowManager.windowCount === 1) {
       this._accessor.menu.setActiveWindow(setting.id)
@@ -412,11 +405,12 @@ class App {
     pathsToOpen.length = 0
   }
 
-  _openSettingsWindow () {
+  _openSettingsWindow (category) {
     const settingWins = this._windowManager.getWindowsByType(WindowType.SETTINGS)
     if (settingWins.length >= 1) {
       // A setting window is already created
       const browserSettingWindow = settingWins[0].win.browserWindow
+      browserSettingWindow.webContents.send('settings::change-tab', category)
       if (isLinux) {
         browserSettingWindow.focus()
       } else {
@@ -424,11 +418,12 @@ class App {
       }
       return
     }
-    this._createSettingWindow()
+    this._createSettingWindow(category)
   }
 
   _listenForIpcMain () {
     registerKeyboardListeners()
+    registerSpellcheckerListeners()
 
     ipcMain.on('app-create-editor-window', () => {
       this._createEditorWindow()
@@ -462,8 +457,8 @@ class App {
       }
     })
 
-    ipcMain.on('app-create-settings-window', () => {
-      this._openSettingsWindow()
+    ipcMain.on('app-create-settings-window', category => {
+      this._openSettingsWindow(category)
     })
 
     ipcMain.on('app-open-file-by-id', (windowId, filePath) => {
@@ -579,7 +574,7 @@ class App {
 
     ipcMain.handle('mt::keybinding-save-user-keybindings', async (event, userKeybindings) => {
       const { keybindings } = this._accessor
-      return await keybindings.setUserKeybindings(userKeybindings)
+      return keybindings.setUserKeybindings(userKeybindings)
     })
   }
 }

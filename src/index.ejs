@@ -82,18 +82,6 @@
 
     <script>
       const params = new URLSearchParams(window.location.search)
-
-      // --- WORKAROUND ---
-      // `node-spellchecker` is loaded by `internal/modules/cjs/loader.js` before
-      // we can set the envoriment variable in our bootstrap routine.
-      const type = params.get('type')
-      const spellcheckerIsHunspell = params.get('slp') === '1'
-      if (spellcheckerIsHunspell && type !== 'settings') {
-        // Set option to always use Hunspell instead OS spell checker.
-        process.env['SPELLCHECKER_PREFER_HUNSPELL'] = 1 // eslint-disable-line dot-notation
-      }
-      // --- END WORKAROUND ---
-
       const THEMES_COLOR = {
         'one-dark': 'rgba(77, 120, 204, 1)',
         'dark': '#409eff',

@@ -95,6 +95,13 @@ export default {
           this.showCommandPalette = true
           bus.$emit('editor-blur')
           this.$nextTick(() => {
+            // Scroll selected entry into view.
+            const items = this.$refs['command-items']
+            const { selectedCommandIndex } = this
+            if (items && items.length > 0 && selectedCommandIndex >= 0) {
+              this.$refs['command-items'][selectedCommandIndex].scrollIntoView({ block: 'end' })
+            }
+
             if (this.$refs.search) {
               this.$refs.search.focus()
             }
@@ -156,8 +163,7 @@ export default {
       if (event.isComposing) {
         return
       }
-      // NOTE: We're using keyup to catch "enter" key but `ctrlKey`
-      // etc doesn't work here.
+      // NOTE: We're using keyup to catch "enter" key but `ctrlKey` etc doesn't work here.
       switch (event.key) {
         case 'Control':
         case 'Alt':

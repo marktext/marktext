@@ -33,7 +33,7 @@ export const getLanguageName = languageCode => {
  *
  * @param {string} langCode The ISO 4-letter language code.
  */
-export const getHunspellLanguageName = langCode => {
+const getHunspellLanguageName = langCode => {
   const item = HUNSPELL_DICTIONARY_LANGUAGE_MAP.find(item => item.value === langCode)
   if (!item) {
     return null
@@ -42,8 +42,7 @@ export const getHunspellLanguageName = langCode => {
 }
 
 // All available Hunspell dictionary languages.
-// NOTE: Listed as value/label due to settings requirements.
-export const HUNSPELL_DICTIONARY_LANGUAGE_MAP = Object.freeze([{
+const HUNSPELL_DICTIONARY_LANGUAGE_MAP = Object.freeze([{
   label: 'Afrikaans', // Afrikaans
   value: 'af-ZA'
 }, {
@@ -158,7 +157,7 @@ export const HUNSPELL_DICTIONARY_LANGUAGE_MAP = Object.freeze([{
   label: 'தமிழ்', // Tamil
   value: 'ta-IN'
 }, {
-  label: 'тоҷикӣ‎', // Tajik
+  label: 'тоҷикӣ', // Tajik
   value: 'tg-TG'
 }, {
   label: 'Türkçe', // Turkish

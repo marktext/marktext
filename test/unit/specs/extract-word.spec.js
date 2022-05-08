@@ -1,4 +1,4 @@
-import { SpellChecker } from '../../../src/renderer/spellchecker/index.js'
+import { extractWord } from '../../../src/muya/lib/marktext/spellchecker.js'
 
 const basicCheck = 'Lorem ipsum dolor'
 const basicText = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce pharetra turpis in ante viverra, sit amet euismod tortor rutrum. Sed eu libero velit. Aliquam erat volutpat. Sed ullamcorper ultricies auctor. Vestibulum vitae odio eleifend, finibus justo a, vestibulum orci.'
@@ -10,7 +10,7 @@ const buildResult = (left, right, word) => {
 }
 
 const test = (text, offset, expectedWord) => {
-  const wordInfo = SpellChecker.extractWord(text, offset)
+  const wordInfo = extractWord(text, offset)
   if (expectedWord !== wordInfo && (
     expectedWord.left !== wordInfo.left ||
     expectedWord.right !== wordInfo.right ||

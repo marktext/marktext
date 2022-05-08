@@ -28,7 +28,7 @@ jobs:
       - name: Install Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: 14
+          node-version: 16
           check-latest: true
           cache: yarn
           cache-dependency-path: yarn.lock
@@ -44,21 +44,21 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ${{ github.workspace }}/node_modules
-          key: ${{ runner.os }}-node_modules-cache-v1-${{ hashFiles(format('{0}{1}', github.workspace, '/yarn.lock')) }}
+          key: ${{ runner.os }}-node_modules-cache-v2-${{ hashFiles(format('{0}{1}', github.workspace, '/yarn.lock')) }}
           restore-keys: |
-            ${{ runner.os }}-node_modules-cache-v1-
+            ${{ runner.os }}-node_modules-cache-v2-
 
       - name: Cache Electron
         uses: actions/cache@v2
         with:
           path: ${{ env.HOME }}/.cache/electron
-          key: ${{ runner.os }}-electron-cache-v1-${{ hashFiles(format('{0}{1}', github.workspace, '/yarn.lock')) }}
+          key: ${{ runner.os }}-electron-cache-v2-${{ hashFiles(format('{0}{1}', github.workspace, '/yarn.lock')) }}
 
       - name: Cache Electron-Builder
         uses: actions/cache@v2
         with:
           path: ${{ env.HOME }}/.cache//electron-builder
-          key: ${{ runner.os }}-electron-builder-cache-v1-${{ hashFiles(format('{0}{1}', github.workspace, '/yarn.lock')) }}
+          key: ${{ runner.os }}-electron-builder-cache-v2-${{ hashFiles(format('{0}{1}', github.workspace, '/yarn.lock')) }}
 
       - name: Install dependencies
         run: yarn install --check-files --frozen-lockfile
@@ -123,7 +123,7 @@ jobs:
       - name: Install Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: 14
+          node-version: 16
           check-latest: true
           cache: yarn
           cache-dependency-path: yarn.lock
@@ -140,21 +140,21 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ${{ github.workspace }}\node_modules
-          key: ${{ runner.os }}-node_modules-cache-v1-${{ hashFiles(format('{0}{1}', github.workspace, '\yarn.lock')) }}
+          key: ${{ runner.os }}-node_modules-cache-v2-${{ hashFiles(format('{0}{1}', github.workspace, '\yarn.lock')) }}
           restore-keys: |
-            ${{ runner.os }}-node_modules-cache-v1-
+            ${{ runner.os }}-node_modules-cache-v2-
 
       - name: Cache Electron
         uses: actions/cache@v2
         with:
           path: ${{ env.LOCALAPPDATA }}\electron\Cache
-          key: ${{ runner.os }}-electron-cache-v1-${{ hashFiles(format('{0}{1}', github.workspace, '\yarn.lock')) }}
+          key: ${{ runner.os }}-electron-cache-v2-${{ hashFiles(format('{0}{1}', github.workspace, '\yarn.lock')) }}
 
       - name: Cache Electron-Builder
         uses: actions/cache@v2
         with:
           path: ${{ env.LOCALAPPDATA }}\electron-builder\cache
-          key: ${{ runner.os }}-electron-builder-cache-v1-${{ hashFiles(format('{0}{1}', github.workspace, '\yarn.lock')) }}
+          key: ${{ runner.os }}-electron-builder-cache-v2-${{ hashFiles(format('{0}{1}', github.workspace, '\yarn.lock')) }}
 
       - name: Install dependencies
         run: yarn install --check-files --frozen-lockfile

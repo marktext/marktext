@@ -11,6 +11,7 @@ import tableBlockCtrl from './tableBlockCtrl'
 import tableDragBarCtrl from './tableDragBarCtrl'
 import tableSelectCellsCtrl from './tableSelectCellsCtrl'
 import coreApi from './core'
+import marktextApi from './marktext'
 import History from './history'
 import arrowCtrl from './arrowCtrl'
 import pasteCtrl from './pasteCtrl'
@@ -35,6 +36,7 @@ import escapeCharactersMap, { escapeCharacters } from '../parser/escapeCharacter
 
 const prototypes = [
   coreApi,
+  marktextApi,
   tabCtrl,
   enterCtrl,
   updateCtrl,

@@ -64,7 +64,7 @@ export default {
     SourceCode,
     TabNotifications
   },
-    computed: {
+  computed: {
     ...mapState({
       showSideBar: state => state.layout.showSideBar,
       sideBarWidth: state => state.layout.sideBarWidth

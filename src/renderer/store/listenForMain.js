@@ -1,7 +1,6 @@
 import { ipcRenderer } from 'electron'
 import bus from '../bus'
 
-// messages from main process, and do not change the state
 const state = {}
 
 const getters = {}
@@ -18,15 +17,6 @@ const actions = {
         })
       }
       bus.$emit(type, type)
-    })
-  },
-
-  LISTEN_FOR_VIEW ({ commit }) {
-    ipcRenderer.on('mt::editor-change-view', (e, data) => {
-      commit('SET_MODE', data)
-    })
-    ipcRenderer.on('mt::show-command-palette', () => {
-      bus.$emit('show-command-palette')
     })
   },
 

@@ -29,7 +29,7 @@ On Red Hat-based Linux: `sudo dnf install libX11-devel libxkbfile-devel libsecre
 **Additional development dependencies on Windows:**
 
 - Windows 10 SDK (only needed before Windows 10)
-- Visual Studio 2019 (prefered)
+- Visual Studio 2019 (preferred)
 
 ### Let's build
 

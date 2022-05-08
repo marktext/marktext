@@ -1,9 +1,12 @@
 import fs from 'fs-extra'
 import path from 'path'
-import { BrowserWindow, dialog, ipcMain, shell } from 'electron'
+import { BrowserWindow, app, dialog, ipcMain, shell } from 'electron'
 import log from 'electron-log'
 import { isDirectory, isFile, exists } from 'common/filesystem'
 import { MARKDOWN_EXTENSIONS, isMarkdownFile } from 'common/filesystem/paths'
+import { checkUpdates, userSetting } from './marktext'
+import { showTabBar } from './view'
+import { COMMANDS } from '../../commands'
 import { EXTENSION_HASN, PANDOC_EXTENSIONS, URL_REG } from '../../config'
 import { normalizeAndResolvePath, writeFile } from '../../filesystem'
 import { writeMarkdownFile } from '../../filesystem/markdown'
@@ -415,12 +418,17 @@ ipcMain.on('mt::format-link-click', (e, { data, dirname }) => {
     return
   }
 
-  const href = data.href || data.text
-  if (URL_REG.test(href)) {
-    shell.openExternal(href)
+  const urlCandidate = data.href || data.text
+  if (URL_REG.test(urlCandidate)) {
+    shell.openExternal(urlCandidate)
     return
-  } else if (/^[a-z0-9]+:\/\//i.test(href)) {
+  } else if (/^[a-z0-9]+:\/\//i.test(urlCandidate)) {
     // Prevent other URLs.
+    return
+  }
+
+  const href = data.href
+  if (!href) {
     return
   }
 
@@ -432,6 +440,7 @@ ipcMain.on('mt::format-link-click', (e, { data, dirname }) => {
   }
 
   if (pathname) {
+    pathname = path.normalize(pathname)
     if (isMarkdownFile(pathname)) {
       const win = BrowserWindow.fromWebContents(e.sender)
       openFileOrFolder(win, pathname)
@@ -495,7 +504,7 @@ export const importFile = async win => {
   }
 }
 
-export const print = win => {
+export const printDocument = win => {
   if (win) {
     win.webContents.send('mt::show-export-dialog', 'print')
   }
@@ -539,6 +548,7 @@ export const openFileOrFolder = (win, pathname) => {
 export const newBlankTab = win => {
   if (win && win.webContents) {
     win.webContents.send('mt::new-untitled-tab')
+    showTabBar(win)
   }
 }
 
@@ -589,4 +599,25 @@ export const rename = win => {
 
 export const clearRecentlyUsed = () => {
   ipcMain.emit('menu-clear-recently-used')
+}
+
+// --- Commands -------------------------------------------------------------
+
+export const loadFileCommands = commandManager => {
+  commandManager.add(COMMANDS.FILE_CHECK_UPDATE, checkUpdates)
+  commandManager.add(COMMANDS.FILE_CLOSE_TAB, closeTab)
+  commandManager.add(COMMANDS.FILE_CLOSE_WINDOW, closeWindow)
+  commandManager.add(COMMANDS.FILE_EXPORT_FILE, exportFile)
+  commandManager.add(COMMANDS.FILE_IMPORT_FILE, importFile)
+  commandManager.add(COMMANDS.FILE_MOVE_FILE, moveTo)
+  commandManager.add(COMMANDS.FILE_NEW_FILE, newEditorWindow)
+  commandManager.add(COMMANDS.FILE_NEW_TAB, newBlankTab)
+  commandManager.add(COMMANDS.FILE_OPEN_FILE, openFile)
+  commandManager.add(COMMANDS.FILE_OPEN_FOLDER, openFolder)
+  commandManager.add(COMMANDS.FILE_PREFERENCES, userSetting)
+  commandManager.add(COMMANDS.FILE_PRINT, printDocument)
+  commandManager.add(COMMANDS.FILE_QUIT, app.quit)
+  commandManager.add(COMMANDS.FILE_RENAME_FILE, rename)
+  commandManager.add(COMMANDS.FILE_SAVE, save)
+  commandManager.add(COMMANDS.FILE_SAVE_AS, saveAs)
 }
