@@ -776,8 +776,8 @@ export default {
       return this.$store.dispatch('ASK_FOR_IMAGE_PATH')
     },
 
-    openImageWithExternalTool (realFilePath) {
-      return shell.openPath(realFilePath)
+    openImageWithExternalTool (absoluteImagePath) {
+      return shell.openPath(absoluteImagePath)
     },
 
     keyup (event) {

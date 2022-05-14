@@ -1,5 +1,6 @@
 import { URL_REG, DATA_URL_REG } from '../config'
 import { correctImageSrc } from '../utils/getImageInfo'
+import { fileURLToPath } from 'url'
 
 const imageCtrl = ContentState => {
   /**
@@ -205,17 +206,17 @@ const imageCtrl = ContentState => {
     return this.singleRender(outMostBlock, true)
   }
 
-  ContentState.prototype.openImage = function ({ key }, realFilePath) {
+  ContentState.prototype.openImage = function ({ key, absoluteImagePath }) {
     const block = this.getBlock(key)
     const { eventCenter } = this.muya
     if (this.muya.options.openImageWithExternalTool) {
-      this.muya.options.openImageWithExternalTool(realFilePath)
+      const path = fileURLToPath(absoluteImagePath)
+      this.muya.options.openImageWithExternalTool(path)
+      this.singleRender(block)
+      eventCenter.dispatch('muya-transformer', { reference: null })
+      eventCenter.dispatch('muya-image-toolbar', { reference: null })
+      this.muya.dispatchChange()
     }
-
-    this.singleRender(block)
-    eventCenter.dispatch('muya-transformer', { reference: null })
-    eventCenter.dispatch('muya-image-toolbar', { reference: null })
-    return this.muya.dispatchChange()
   }
 }
 

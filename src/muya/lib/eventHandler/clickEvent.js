@@ -166,8 +166,7 @@ class ClickEvent {
         }
         eventCenter.dispatch('muya-image-toolbar', {
           reference,
-          imageInfo,
-          realFilePath: event.target.getAttribute('src')
+          imageInfo
         })
         contentState.selectImage(imageInfo)
         // Handle show image transformer
