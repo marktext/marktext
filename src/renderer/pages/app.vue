@@ -37,7 +37,7 @@
 </template>
 
 <script>
-import { addStyles, addThemeStyle } from '@/util/theme'
+import { addStyles, addThemeStyle, addCustomStyle } from '@/util/theme'
 import Recent from '@/components/recent'
 import EditorWithTabs from '@/components/editorWithTabs'
 import TitleBar from '@/components/titleBar'
@@ -78,6 +78,7 @@ export default {
       showTabBar: state => state.layout.showTabBar,
       sourceCode: state => state.preferences.sourceCode,
       theme: state => state.preferences.theme,
+      customCss: state => state.preferences.customCss,
       textDirection: state => state.preferences.textDirection
     }),
     ...mapState({
@@ -103,6 +104,13 @@ export default {
     theme: function (value, oldValue) {
       if (value !== oldValue) {
         addThemeStyle(value)
+      }
+    },
+    customCss: function (value, oldValue) {
+      if (value !== oldValue) {
+        addCustomStyle({
+          customCss: value
+        })
       }
     },
     zoom: function (zoom) {

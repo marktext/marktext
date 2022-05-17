@@ -150,6 +150,19 @@ ${getEmojiPickerPatch()}
 `
 }
 
+export const addCustomStyle = options => {
+  const { customCss } = options
+  if (!customCss) return
+
+  let customStyleEle = document.querySelector('#custom-styles')
+  if (!customStyleEle) {
+    customStyleEle = document.createElement('style')
+    customStyleEle.id = 'custom-styles'
+    document.head.appendChild(customStyleEle)
+  }
+  customStyleEle.innerHTML = customCss
+}
+
 export const addElementStyle = () => {
   const ID = 'mt-el-style'
   let sheet = document.querySelector(`#${ID}`)

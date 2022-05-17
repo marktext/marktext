@@ -55,6 +55,7 @@ const state = {
 
   theme: 'light',
   autoSwitchTheme: 2,
+  customCss: '',
 
   spellcheckerEnabled: false,
   spellcheckerIsHunspell: false, // macOS/Windows 10 only

@@ -324,6 +324,11 @@
       2
     ]
   },
+  "customCss": {
+    "description": "Custom CSS--Custom CSS to apply to the current theme.",
+    "type": "string",
+    "default": ""
+  },
   "spellcheckerEnabled": {
     "description": "Spelling--Whether spell checking is enabled.",
     "type": "boolean",
