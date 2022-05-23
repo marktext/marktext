@@ -187,7 +187,7 @@ const tabCtrl = ContentState => {
     return this.partialRender()
   }
 
-  ContentState.prototype.insertTab = function () {
+  ContentState.prototype.insertTab = function (event) {
     const tabSize = this.tabSize
     const tabCharacter = String.fromCharCode(160).repeat(tabSize)
     const { start, end } = this.cursor
@@ -201,6 +201,55 @@ const tabCtrl = ContentState => {
       this.cursor = {
         start: { key, offset },
         end: { key, offset }
+      }
+      return this.partialRender()
+    } else if (start.key === end.key &&
+      start.offset !== end.offset &&
+      startBlock.type === 'span' &&
+      startBlock.functionType === 'codeContent') {
+      // 在代码块内
+      let nowLen = 0
+      let oldText = startBlock.text
+      let lines = oldText.split('\n')
+      let dealLine
+      let startTabSize = null
+      if (event.shiftKey) {
+        dealLine = (line) => {
+          let i = 0
+          for (; i < line.length && i < tabSize; i++) {
+            if (!(line.charAt(i) === String.fromCharCode(160) || line.charAt(i) === String.fromCharCode(32))) {
+              break
+            }
+          }
+          if (!startTabSize) startTabSize = -1 * i
+          return line.substr(i)
+        }
+      } else {
+        startTabSize = tabSize
+        dealLine = (line) => {
+          return tabCharacter + line
+        }
+      }
+      let isDealLine = false
+      for (let nowLineNum = 0; nowLineNum < lines.length; nowLineNum++) {
+        nowLen += lines[nowLineNum].length
+        if (start.offset <= nowLen && !isDealLine) {
+          isDealLine = true
+        }
+        if (isDealLine) lines[nowLineNum] = dealLine(lines[nowLineNum])
+        if (end.offset <= nowLen) {
+          break
+        }
+        nowLen += 1
+      }
+      startBlock.text = lines.join('\n')
+      let sk = start.key
+      let so = start.offset + startTabSize
+      let ek = end.key
+      let eo = startBlock.text.length - (oldText.length - end.offset)
+      this.cursor = {
+        start: { key: sk, offset: so },
+        end: { key: ek, offset: eo }
       }
       return this.partialRender()
     }
@@ -313,8 +362,8 @@ const tabCtrl = ContentState => {
       const unindentType = this.isUnindentableListItem(startBlock)
       if (unindentType) {
         this.unindentListItem(startBlock, unindentType)
+        return
       }
-      return
     }
 
     // Handle `tab` to jump to the end of format when the cursor is at the end of format content.
@@ -422,7 +471,7 @@ const tabCtrl = ContentState => {
     if (this.isIndentableListItem()) {
       return this.indentListItem()
     }
-    return this.insertTab()
+    return this.insertTab(event)
   }
 }
 
