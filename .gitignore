@@ -15,3 +15,5 @@ thumbs.db
 .idea
 .env
 .eslintcache
+marktext.code-workspace
+**/*.NEW
