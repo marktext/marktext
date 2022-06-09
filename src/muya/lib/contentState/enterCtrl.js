@@ -9,6 +9,10 @@ const checkAutoIndent = (text, offset) => {
   const pairStr = text.substring(offset - 1, offset + 1)
   return /^(\{\}|\[\]|\(\)|><)$/.test(pairStr)
 }
+const getCodeblockIndentSpace = text => {
+  const match = /\n([ \t]*).*$/.exec(text)
+  return match ? match[1] : ''
+}
 const getIndentSpace = text => {
   const match = /^(\s*)\S/.exec(text)
   return match ? match[1] : ''
@@ -271,7 +275,7 @@ const enterCtrl = ContentState => {
     ) {
       const { text, key } = block
       const autoIndent = checkAutoIndent(text, start.offset)
-      const indent = getIndentSpace(text)
+      const indent = getCodeblockIndentSpace(text.substring(1, start.offset))
       block.text = text.substring(0, start.offset) +
         '\n' +
         (autoIndent ? indent + ' '.repeat(this.tabSize) + '\n' : '') +
