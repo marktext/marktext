@@ -14,6 +14,7 @@ const state = {
   fileSortBy: 'created',
   startUpAction: 'lastState',
   defaultDirectoryToOpen: '',
+  treePathExcludePatterns: [],
   language: 'en',
 
   editorFontFamily: 'Open Sans',

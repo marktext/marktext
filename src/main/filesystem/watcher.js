@@ -3,7 +3,7 @@ import fsPromises from 'fs/promises'
 import log from 'electron-log'
 import chokidar from 'chokidar'
 import { exists } from 'common/filesystem'
-import { hasMarkdownExtension } from 'common/filesystem/paths'
+import { hasMarkdownExtension, checkPathExcludePattern } from 'common/filesystem/paths'
 import { getUniqueId } from '../utils'
 import { loadMarkdownFile } from '../filesystem/markdown'
 import { isLinux, isOsx } from '../config'
@@ -157,6 +157,10 @@ class Watcher {
         }
 
         if (/(?:^|[/\\])(?:\..|node_modules|(?:.+\.asar))/.test(pathname)) {
+          return true
+        }
+
+        if (checkPathExcludePattern(pathname, this._preferences.getItem('treePathExcludePatterns'))) {
           return true
         }
         if (fileInfo.isDirectory()) {
