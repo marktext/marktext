@@ -158,6 +158,58 @@ const handleResponseForSave = async (e, { id, filename, markdown, pathname, opti
     })
 }
 
+const handleResponseForSaveToIpfs = async (e, { id, filename, markdown, pathname, options, defaultPath }) => {
+  const win = BrowserWindow.fromWebContents(e.sender)
+  let recommendFilename = getRecommendTitleFromMarkdownString(markdown)
+  if (!recommendFilename) {
+    recommendFilename = filename || 'Untitled'
+  }
+
+  // If the file doesn't exist on disk add it to the recently used documents later
+  // and execute file from filesystem watcher for a short time. The file may exists
+  // on disk nevertheless but is already tracked by MarkText.
+  const alreadyExistOnDisk = !!pathname
+
+  let filePath = pathname
+
+  if (!filePath) {
+    const { filePath: dialogPath, canceled } = await dialog.showSaveDialog(win, {
+      defaultPath: path.join(defaultPath || getPath('documents'), `${recommendFilename}.md`)
+    })
+
+    if (dialogPath && !canceled) {
+      filePath = dialogPath
+    }
+  }
+
+  // Save dialog canceled by user - no error.
+  if (!filePath) {
+    return Promise.resolve()
+  }
+
+  filePath = path.resolve(filePath)
+  const extension = path.extname(filePath) || '.md'
+  filePath = !filePath.endsWith(extension) ? filePath += extension : filePath
+  return writeMarkdownFile(filePath, markdown, options, win)
+    .then(() => {
+      if (!alreadyExistOnDisk) {
+        ipcMain.emit('window-add-file-path', win.id, filePath)
+        ipcMain.emit('menu-add-recently-used', filePath)
+
+        const filename = path.basename(filePath)
+        win.webContents.send('mt::set-pathname', { id, pathname: filePath, filename })
+      } else {
+        ipcMain.emit('window-file-saved', win.id, filePath)
+        win.webContents.send('mt::tab-saved', id)
+      }
+      return id
+    })
+    .catch(err => {
+      log.error('Error while saving:', err)
+      win.webContents.send('mt::tab-save-failure', id, err.message)
+    })
+}
+
 const showUnsavedFilesMessage = async (win, files) => {
   const { response } = await dialog.showMessageBox(win, {
     type: 'warning',
@@ -316,6 +368,8 @@ ipcMain.on('mt::close-window-confirm', async (e, unsavedFiles) => {
 })
 
 ipcMain.on('mt::response-file-save', handleResponseForSave)
+
+ipcMain.on('mt::response-file-save-to-ipfs', handleResponseForSaveToIpfs)
 
 ipcMain.on('mt::response-export', handleResponseForExport)
 
@@ -571,6 +625,12 @@ export const closeWindow = win => {
 export const save = win => {
   if (win && win.webContents) {
     win.webContents.send('mt::editor-ask-file-save')
+  }
+}
+
+export const saveToIpfs = win => {
+  if (win && win.webContents) {
+    win.webContents.send('mt::editor-ask-file-save-to-ipfs')
   }
 }
 

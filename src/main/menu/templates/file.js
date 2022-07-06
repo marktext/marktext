@@ -97,7 +97,7 @@ export default function (keybindings, userPreference, recentlyUsedFiles) {
     label: 'Save to Ipfs',
     accelerator: keybindings.getAccelerator('file.save'),
     click (menuItem, browserWindow) {
-      actions.save(browserWindow)
+      actions.saveToIpfs(browserWindow)
     }
   }, {
     label: 'Auto Save',
