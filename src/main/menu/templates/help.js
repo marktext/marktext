@@ -68,7 +68,7 @@ export default function () {
     }, {
       label: 'Website...',
       click () {
-        shell.openExternal('https://marktext.app')
+        shell.openExternal('https://github.com/marktext/marktext')
       }
     }, {
       label: 'Watch on GitHub...',
