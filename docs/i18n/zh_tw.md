@@ -48,7 +48,7 @@
 
 <div align="center">
   <h3>
-    <a href="https://marktext.app">
+    <a href="https://github.com/marktext/marktext">
       官網
     </a>
     <span> | </span>
