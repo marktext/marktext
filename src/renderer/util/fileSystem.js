@@ -154,7 +154,7 @@ export const uploadImage = async (pathname, image, preferences) => {
     if (typeof filepath !== 'string') {
       isPath = false
       const data = new Uint8Array(filepath)
-      filepath = path.join(tmpdir(), +new Date())
+      filepath = path.join(tmpdir(), +new Date() + ".png")
       await fs.writeFile(filepath, data)
     }
     if (uploader === 'picgo') {
