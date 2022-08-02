@@ -26,6 +26,8 @@ On Debian-based Linux: `sudo apt-get install libx11-dev libxkbfile-dev libsecret
 
 On Red Hat-based Linux: `sudo dnf install libX11-devel libxkbfile-devel libsecret-devel fontconfig-devel`
 
+On Arch Linux: `sudo pacman -S libx11 libxkbfile libsecret fontconfig`
+
 **Additional development dependencies on Windows:**
 
 - Windows 10 SDK (only needed before Windows 10)
