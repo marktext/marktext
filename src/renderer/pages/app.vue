@@ -144,6 +144,7 @@ export default {
     dispatch('LISTEN_FOR_SAVE_AS')
     dispatch('LISTEN_FOR_MOVE_TO')
     dispatch('LISTEN_FOR_SAVE')
+    dispatch('LISTEN_FOR_SAVE_TO_IPFS')
     dispatch('LISTEN_FOR_SET_PATHNAME')
     dispatch('LISTEN_FOR_BOOTSTRAP_WINDOW')
     dispatch('LISTEN_FOR_SAVE_CLOSE')
