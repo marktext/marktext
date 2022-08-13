@@ -68,6 +68,28 @@ export const writeMarkdownFile = (pathname, content, options) => {
 }
 
 /**
+ * Write the content file to ipfs.
+ *
+ * @param {string} pathname The path to the file.
+ * @param {string} content The buffer to save.
+ * @param {IMarkdownDocumentOptions} options The markdown document options
+ */
+ export const writeMarkdownFileToIpfs = (pathname, content, options) => {
+  const { adjustLineEndingOnSave, lineEnding } = options
+  const { encoding, isBom } = options.encoding
+  const extension = path.extname(pathname) || '.md'
+
+  if (adjustLineEndingOnSave) {
+    content = convertLineEndings(content, lineEnding)
+  }
+
+  const buffer = iconv.encode(content, encoding, { addBOM: isBom })
+
+  // TODO(@fxha): "safeSaveDocuments" using temporary file and rename syscall.
+  return writeFileToIpfs(pathname, buffer, extension, undefined)
+}
+
+/**
  * Reads the contents of a markdown file.
  *
  * @param {string} pathname The path to the markdown file.

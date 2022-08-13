@@ -30,3 +30,21 @@ export const writeFile = (pathname, content, extension, options = 'utf-8') => {
 
   return fs.outputFile(pathname, content, options)
 }
+
+export const writeFileToIpfs = (pathname, content, extension, options = 'utf-8') => {
+  if (!pathname) {
+    return Promise.reject(new Error('[ERROR] Cannot save file without path.'))
+  }
+  pathname = !extension || pathname.endsWith(extension) ? pathname : `${pathname}${extension}`
+
+  try {
+    const IPFS = await import('ipfs-core')
+    const node = await IPFS.create();
+    const id = await node.id();
+    console.log(id);
+  } catch (err) {
+    console.error(err);
+  }
+
+  return fs.outputFile(pathname, content, options)
+}
