@@ -9,7 +9,7 @@ import { showTabBar } from './view'
 import { COMMANDS } from '../../commands'
 import { EXTENSION_HASN, PANDOC_EXTENSIONS, URL_REG } from '../../config'
 import { normalizeAndResolvePath, writeFile } from '../../filesystem'
-import { writeMarkdownFile } from '../../filesystem/markdown'
+import { writeMarkdownFile, writeMarkdownFileToIpfs} from '../../filesystem/markdown'
 import { getPath, getRecommendTitleFromMarkdownString } from '../../utils'
 import pandoc from '../../utils/pandoc'
 

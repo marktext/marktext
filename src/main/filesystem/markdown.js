@@ -5,7 +5,7 @@ import iconv from 'iconv-lite'
 import { LINE_ENDING_REG, LF_LINE_ENDING_REG, CRLF_LINE_ENDING_REG } from '../config'
 import { isDirectory2 } from 'common/filesystem'
 import { isMarkdownFile } from 'common/filesystem/paths'
-import { normalizeAndResolvePath, writeFile } from '../filesystem'
+import { normalizeAndResolvePath, writeFile, writeFileToIpfs } from '../filesystem'
 import { guessEncoding } from './encoding'
 
 const getLineEnding = lineEnding => {
