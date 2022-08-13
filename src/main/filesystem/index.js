@@ -38,12 +38,12 @@ export const writeFileToIpfs = (pathname, content, extension, options = 'utf-8')
   pathname = !extension || pathname.endsWith(extension) ? pathname : `${pathname}${extension}`
 
   try {
-    const IPFS = await import('ipfs-core')
-    const node = await IPFS.create();
-    const id = await node.id();
-    console.log(id);
+//    const IPFS = await import('ipfs-core')
+//    const node = await IPFS.create();
+//    const id = await node.id();
+    console.log('id')
   } catch (err) {
-    console.error(err);
+    console.error(err)
   }
 
   return fs.outputFile(pathname, content, options)
