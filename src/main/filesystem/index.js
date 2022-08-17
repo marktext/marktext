@@ -38,6 +38,7 @@ export const writeFileToIpfs = (pathname, content, extension, options = 'utf-8')
   }
   pathname = !extension || pathname.endsWith(extension) ? pathname : `${pathname}${extension}`
 
+  // eslint-disable-next-line no-unused-expressions
   async () => {
     try {
       const node = await IPFS.create()
