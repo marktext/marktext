@@ -38,21 +38,22 @@ export const writeFileToIpfs = (pathname, content, extension, options = 'utf-8')
   }
   pathname = !extension || pathname.endsWith(extension) ? pathname : `${pathname}${extension}`
 
-  try {
-    const node = await IPFS.create()
-    const version = await node.version()
-  
-    console.log('Version:', version.version)
-    const file = await node.add({
-      path: pathname,
-      content: content
-    });
-  
-    console.log('Added file:', file.path, file.cid.toString());
+  async () => {
+    try {
+      const node = await IPFS.create()
+      const version = await node.version()
 
-  } catch (err) {
-    console.error(err)
+      console.log('Version:', version.version)
+      const file = await node.add({
+        path: pathname,
+        content: content
+      });
+
+      console.log('Added file:', file.path, file.cid.toString());
+
+    } catch (err) {
+      console.error(err)
+    }
   }
-
   return fs.outputFile(pathname, content, options)
 }
