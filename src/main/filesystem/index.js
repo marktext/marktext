@@ -1,5 +1,6 @@
 import fs from 'fs-extra'
 import path from 'path'
+import * as IPFS from 'ipfs-core'
 import { isDirectory, isFile, isSymbolicLink } from 'common/filesystem'
 
 /**
@@ -38,10 +39,17 @@ export const writeFileToIpfs = (pathname, content, extension, options = 'utf-8')
   pathname = !extension || pathname.endsWith(extension) ? pathname : `${pathname}${extension}`
 
   try {
-//    const IPFS = await import('ipfs-core')
-//    const node = await IPFS.create();
-//    const id = await node.id();
-    console.log('id')
+    const node = await IPFS.create()
+    const version = await node.version()
+  
+    console.log('Version:', version.version)
+    const file = await node.add({
+      path: pathname,
+      content: content
+    });
+  
+    console.log('Added file:', file.path, file.cid.toString());
+
   } catch (err) {
     console.error(err)
   }
