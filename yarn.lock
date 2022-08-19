@@ -8787,9 +8787,9 @@ mapped-disposable@^1.0.3:
   resolved "https://registry.npmjs.org/mapped-disposable/-/mapped-disposable-1.0.3.tgz#3eaad0b20b174142ee80bd37f675bab200abd569"
   integrity sha512-DpYYRSZjNB6tOg8E4BZ+rNsKe4WxoptwM8+JqHi8R0buJgHLmrmAfJtv4lcqqO1esTtxaPx4FXOR54bPoS9qwg==
 
-marked@^4.0.18:
+marked@4.0.18:
   version "4.0.18"
-  resolved "https://registry.npmmirror.com/marked/-/marked-4.0.18.tgz#cd0ac54b2e5610cfb90e8fd46ccaa8292c9ed569"
+  resolved "https://registry.npmjs.org/marked/-/marked-4.0.18.tgz#cd0ac54b2e5610cfb90e8fd46ccaa8292c9ed569"
   integrity sha512-wbLDJ7Zh0sqA0Vdg6aqlbT+yPxqLblpAZh1mK2+AO2twQkPywvvqQNfEPVwSSRjZ7dZcdeVBIAgiO7MMp3Dszw==
 
 matcher@^3.0.0:
