@@ -17,7 +17,7 @@
       v-if="renameCache === file.pathname"
       v-model="newName"
       ref="renameInput"
-      @keydown.enter="rename"
+      @keypress.enter="rename"
     >
     <span v-else>{{ file.name }}</span>
   </div>
