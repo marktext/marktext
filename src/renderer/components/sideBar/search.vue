@@ -7,6 +7,7 @@
           type="text" v-model="keyword"
           placeholder="Search in folder..."
           @keyup="search"
+          ref="search"
         >
         <div class="controls">
           <span
@@ -125,14 +126,18 @@ export default {
   },
   watch: {
     showSideBar: function (value, oldValue) {
-      if (value && !oldValue && this.rightColumn === 'search') {
-        this.keyword = this.searchMatches.value
+      if (this.rightColumn === 'search') {
+        if (value && !oldValue) {
+          this.handleFindInFolder(false)
+        } else {
+          bus.$emit('search-blur')
+        }
       }
     }
   },
   created () {
     this.$nextTick(() => {
-      this.keyword = this.searchMatches.value
+      this.handleFindInFolder()
       bus.$on('findInFolder', this.handleFindInFolder)
       if (this.keyword.length > 0 && this.searcherRunning === false) {
         this.searcherRunning = true
@@ -316,8 +321,13 @@ export default {
     openFolder () {
       this.$store.dispatch('ASK_FOR_OPEN_PROJECT')
     },
-    handleFindInFolder () {
+    handleFindInFolder (focus = true) {
       this.keyword = this.searchMatches.value
+      if (focus) {
+        this.$nextTick(() => {
+          this.$refs.search.focus()
+        })
+      }
     }
   },
   destroyed () {
