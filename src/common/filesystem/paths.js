@@ -14,7 +14,8 @@ export const MARKDOWN_EXTENSIONS = Object.freeze([
   'mdtxt',
   'mdtext',
   'text',
-  'txt'
+  'txt',
+  'mdx'
 ])
 
 export const MARKDOWN_INCLUSIONS = Object.freeze(MARKDOWN_EXTENSIONS.map(x => '*.' + x))
