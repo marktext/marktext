@@ -35,7 +35,6 @@ export default {
   data () {
     return {
       contentState: null,
-      editor: null,
       commitTimer: null,
       viewDestroyed: false,
       tabId: null

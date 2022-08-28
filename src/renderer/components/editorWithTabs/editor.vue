@@ -182,7 +182,6 @@ export default {
 
     return {
       selectionChange: null,
-      editor: null,
       pathname: '',
       isShowClose: false,
       dialogTableVisible: false,
