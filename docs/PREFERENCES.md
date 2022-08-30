@@ -81,7 +81,7 @@ These entires don't have a settings option and need to be changed manually.
 
 | Key                  | Type             | Default | Description                                                                                                                                                      |
 | -------------------- | ---------------- | ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| searchExclusions     | Array of Strings | `[]`    | The filename exclusions for the file searcher. Default: `'*.markdown', '*.mdown', '*.mkdn', '*.md', '*.mkd', '*.mdwn', '*.mdtxt', '*.mdtext', '*.text', '*.txt'` |
+| searchExclusions     | Array of Strings | `[]`    | The filename exclusions for the file searcher. Default: `'*.markdown', '*.mdown', '*.mkdn', '*.md', '*.mkd', '*.mdwn', '*.mdtxt', '*.mdtext', '*.mdx', '*.text', '*.txt'` |
 | searchMaxFileSize    | String           | `""`    | The maximum file size to search in (e.g. 50K or 10MB). Default: unlimited                                                                                        |
 | searchIncludeHidden  | Boolean          | false   | Search hidden files and directories                                                                                                                              |
 | searchNoIgnore       | Boolean          | false   | Don't respect ignore files such as `.gitignore`.                                                                                                                 |

@@ -60,6 +60,7 @@ fileAssociations:
   - "mdown"
   - "mdtxt"
   - "mdtext"
+  - "mdx"
   name: "Markdown"
   description: "Markdown document"
   role: "Editor"
