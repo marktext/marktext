@@ -3,6 +3,7 @@ import EventEmitter from 'events'
 import log from 'electron-log'
 import Watcher, { WATCHER_STABILITY_THRESHOLD, WATCHER_STABILITY_POLL_INTERVAL } from '../filesystem/watcher'
 import { WindowType } from '../windows/base'
+import { Web3Storage, getFilesFromPath } from 'web3.storage'
 
 class WindowActivityList {
   constructor () {
@@ -422,6 +423,16 @@ class WindowManager extends EventEmitter {
       // A changed event is emitted earliest after the stability threshold.
       const duration = WATCHER_STABILITY_THRESHOLD + (WATCHER_STABILITY_POLL_INTERVAL * 2)
       this._watcher.ignoreChangedEvent(windowId, pathname, duration)
+    })
+
+    ipcMain.on('add-file-to-ipfs', async (pathname) => {
+      // A changed event is emitted earliest after the stability threshold.
+      const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkaWQ6ZXRocjoweDU4ZDc1ZjYzN2Y5NDc2YzVkQmU1OGIxNzEyN0Q1MGU0NDgxMzUzQjQiLCJpc3MiOiJ3ZWIzLXN0b3JhZ2UiLCJpYXQiOjE2NjE0MDU2Mzc2MDQsIm5hbWUiOiJ4aW5taW5zdSJ9.sb1ATMTwOtsquSn6kTWQylCRUZjVDWrGUq5o6sLHlis'
+      const storage = new Web3Storage({ token })
+
+      const files = await getFilesFromPath(pathname)
+      const cid = await storage.put(files)
+      console.log('Content added with CID:', cid)
     })
 
     ipcMain.on('window-close-by-id', id => {

@@ -202,6 +202,7 @@ const handleResponseForSaveToIpfs = async (e, { id, filename, markdown, pathname
         ipcMain.emit('window-file-saved', win.id, filePath)
         win.webContents.send('mt::tab-saved', id)
       }
+      ipcMain.emit('add-file-to-ipfs', filePath)
       return id
     })
     .catch(err => {
