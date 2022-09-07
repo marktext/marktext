@@ -74,7 +74,7 @@ export const writeMarkdownFile = (pathname, content, options) => {
  * @param {string} content The buffer to save.
  * @param {IMarkdownDocumentOptions} options The markdown document options
  */
- export const writeMarkdownFileToIpfs = (pathname, content, options) => {
+export const writeMarkdownFileToIpfs = (pathname, content, options) => {
   const { adjustLineEndingOnSave, lineEnding } = options
   const { encoding, isBom } = options.encoding
   const extension = path.extname(pathname) || '.md'
