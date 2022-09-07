@@ -1,6 +1,6 @@
 import fs from 'fs-extra'
 import path from 'path'
-import * as IPFS from 'ipfs-core'
+import { Web3Storage, File } from 'web3.storage'
 import { isDirectory, isFile, isSymbolicLink } from 'common/filesystem'
 
 /**
@@ -38,23 +38,12 @@ export const writeFileToIpfs = (pathname, content, extension, options = 'utf-8')
   }
   pathname = !extension || pathname.endsWith(extension) ? pathname : `${pathname}${extension}`
 
-  // eslint-disable-next-line no-unused-expressions
-  async () => {
-    try {
-      const node = await IPFS.create()
-      const version = await node.version()
+  const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkaWQ6ZXRocjoweDU4ZDc1ZjYzN2Y5NDc2YzVkQmU1OGIxNzEyN0Q1MGU0NDgxMzUzQjQiLCJpc3MiOiJ3ZWIzLXN0b3JhZ2UiLCJpYXQiOjE2NjE0MDU2Mzc2MDQsIm5hbWUiOiJ4aW5taW5zdSJ9.sb1ATMTwOtsquSn6kTWQylCRUZjVDWrGUq5o6sLHlis";
+	const storage = new Web3Storage({ token });
 
-      console.log('Version:', version.version)
-      const file = await node.add({
-        path: pathname,
-        content: content
-      });
+  const files = await getFilesFromPath(pathname);
+	const cid = await storage.put(files);
+	console.log('Content added with CID:', cid);
 
-      console.log('Added file:', file.path, file.cid.toString());
-
-    } catch (err) {
-      console.error(err)
-    }
-  }
   return fs.outputFile(pathname, content, options)
 }
