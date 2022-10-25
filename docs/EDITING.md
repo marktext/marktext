@@ -94,7 +94,7 @@ Instantly add emojis to your markdown document without long searches. During typ
 
 ![](assets/marktext-focus-mode.png)
 
-The focus mode will help you to focus on the currently line only by fading out other lines. To activate the focus mode, simply press <kbd>CmdOrCtrl</kbd>+<kbd>Shift</kbd>+<kbd>F</kbd>.
+The focus mode will help you to focus on the current line only by fading out other lines. To activate the focus mode, simply press <kbd>CmdOrCtrl</kbd>+<kbd>Shift</kbd>+<kbd>F</kbd>.
 
 #### Typewriter mode
 

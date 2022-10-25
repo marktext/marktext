@@ -1,6 +1,6 @@
 # Commands
 
-A command can execute a procedure and is shown in the command palette or can be run from event bus. We distinguish between static commands that are defined at compile time (maybe completed at runtime) and dynamtic commands that are created at runtime. Static commands are pure objects that are listed as array and most dynamic commands are classes that need access to the editor or other components. Each command can have nestled subcommands that have the same properties like a command. A root command is the command from which all subcommands are loaded that are displayed on screen. You can change the root command by calling `bus.$emit('show-command-palette', <command-reference>)`. Please note: a root command has special requirements such as a `run` method.
+A command can execute a procedure and is shown in the command palette or can be run from event bus. We distinguish between static commands that are defined at compile time (maybe completed at runtime) and dynamic commands that are created at runtime. Static commands are pure objects that are listed as array and most dynamic commands are classes that need access to the editor or other components. Each command can have nestled subcommands that have the same properties like a command. A root command is the command from which all subcommands are loaded that are displayed on screen. You can change the root command by calling `bus.$emit('show-command-palette', <command-reference>)`. Please note: a root command has special requirements such as a `run` method.
 
 **Static command:**
 

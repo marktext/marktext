@@ -1,4 +1,4 @@
-#### Image Uploader Configration
+#### Image Uploader Configuration
 
 ##### PicGo
 
@@ -20,6 +20,6 @@ PicGo is a CLI tool to upload images to various cloud providers. Please see [her
 
 ![5ce17cb97b0f111638](https://i.loli.net/2019/05/19/5ce17cb97b0f111638.png)
 
-4. Input you `token`, `owner name` and `repo name` whick you just created. Click `Save` and `Set As default Uploader`.
+4. Input you `token`, `owner name` and `repo name` which you just created. Click `Save` and `Set As default Uploader`.
 
 5. Paste an image into MarkText and open you created repo to see the uploaded image.
