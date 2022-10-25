@@ -16,7 +16,7 @@ If you don't like that all spelling mistakes are red highlighted, you can disabl
 
 **Adding words to dictionary:**
 
-You can add words to the selected dictionary by right-clicking on a misspelled word and select `Add to Dictionary` or remove a previously added word. If you want to temporary ignore a word, select `Ignore`.
+You can add words to the selected dictionary by right-clicking on a misspelled word and select `Add to Dictionary` or remove a previously added word. If you want to temporarily ignore a word, select `Ignore`.
 
 ## Manage dictionaries
 

@@ -36,7 +36,7 @@ You can report bugs and problems via our [GitHub issue tracker](https://github.c
 
 > *The SUID sandbox helper binary was found, but is not configured correctly.*
 
-Normally, you should never get this error but if you disabled user namespaces, this error message may appears in the command output when launching MarkText. To solve the issue, that Chromium cannot start the sandbox (process), you can choose one of the following steps:
+Normally, you should never get this error but if you disabled user namespaces, this error message may appear in the command output when launching MarkText. To solve the issue, that Chromium cannot start the sandbox (process), you can choose one of the following steps:
 
 - Enable Linux kernel user namespaces to use the preferred sandbox: `sudo sysctl kernel.unprivileged_userns_clone=1`.
 - Set correct SUID sandbox helper binary permissions: `sudo chown root <path_to_marktext_dir>/chrome-sandbox && sudo chmod 4755 <path_to_marktext_dir>/chrome-sandbox`. This is preferred if you don't want to enable user namespaces.

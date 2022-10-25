@@ -2,7 +2,7 @@
 
 ## Use Visual Studio Code
 
-The most simplest way is to debug using the `Debug MarkText` configuration. You can set breakpoints and use the `debugger` statement.
+The simplest way is to debug using the `Debug MarkText` configuration. You can set breakpoints and use the `debugger` statement.
 
 **Prerequisites:**
 

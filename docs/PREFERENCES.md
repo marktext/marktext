@@ -21,26 +21,26 @@ Preferences can be controlled and modified in the settings window or via the `pr
 
 #### Editor
 
-| Key                                | Type    | Defaut             | Description                                                                                                                                                                   |
-| ---------------------------------- | ------- | ------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| fontSize                           | Number  | 16                 | Font size in pixels. 12 ~ 32                                                                                                                                                   |
-| editorFontFamily                   | String  | Open Sans          | Font Family                                                                                                                                                                    |
-| lineHeight                         | Number  | 1.6                | Line Height                                                                                                                                                                    |
-| autoPairBracket                    | Boolean | true               | Automatically brackets when editing                                                                                                                                            |
-| autoPairMarkdownSyntax             | Boolean | true               | Autocomplete markdown syntax                                                                                                                                                   |
-| autoPairQuote                      | Boolean | true               | Automatic completion of quotes                                                                                                                                                 |
-| endOfLine                          | String  | default            | The newline character used at the end of each line. The default value is default, which selects your operating system's default newline character. `lf` `crlf` `default`         |
-| textDirection                      | String  | ltr                | The writing text direction, optional value: `ltr` or `rtl`                                                                                                                     |
-| codeFontSize                       | Number  | 14                 | Font size on code block, the range is 12 ~ 28                                                                                                                                  |
-| codeFontFamily                     | String  | `DejaVu Sans Mono` | Code font family                                                                                                                                                               |
-| trimUnnecessaryCodeBlockEmptyLines | Boolean | true               | Whether to trim the beginning and end empty line in Code block                                                                                                                 |
-| hideQuickInsertHint                | Boolean | false              | Hide hint for quickly creating paragraphs                                                                                                                                      |
-| imageDropAction                    | String  | folder             | The default behavior after paste or drag the image to MarkText, upload it to the image cloud (if configured), move to the specified folder, insert the path          |
-| defaultEncoding                    | String  | `utf8`             | The default file encoding                                                                                                                                                      |
-| autoGuessEncoding                  | Boolean | true               | Try to automatically guess the file encoding when opening files                                                                                                                |
-| trimTrailingNewline                | Enum    | `2`                | Ensure a single trailing newline or whether trailing newlines should be removed: `0`: trim all trailing newlines, `1`: ensure single newline, `2`: auto detect, `3`: disabled. |
-| hideLinkPopup                      | Boolean | false              | It will not show the link popup when hover over the link if set `hideLinkPopup` to true                                                                                        |
-| autoCheck                          | Boolean | false              | Whether to automatically check related task. Optional value: true, false                                                                                             |
+| Key                                | Type    | Default             | Description                                                                                                                                                                   |
+| ---------------------------------- | ------- |---------------------| --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| fontSize                           | Number  | 16                  | Font size in pixels. 12 ~ 32                                                                                                                                                   |
+| editorFontFamily                   | String  | Open Sans           | Font Family                                                                                                                                                                    |
+| lineHeight                         | Number  | 1.6                 | Line Height                                                                                                                                                                    |
+| autoPairBracket                    | Boolean | true                | Automatically brackets when editing                                                                                                                                            |
+| autoPairMarkdownSyntax             | Boolean | true                | Autocomplete markdown syntax                                                                                                                                                   |
+| autoPairQuote                      | Boolean | true                | Automatic completion of quotes                                                                                                                                                 |
+| endOfLine                          | String  | default             | The newline character used at the end of each line. The default value is default, which selects your operating system's default newline character. `lf` `crlf` `default`         |
+| textDirection                      | String  | ltr                 | The writing text direction, optional value: `ltr` or `rtl`                                                                                                                     |
+| codeFontSize                       | Number  | 14                  | Font size on code block, the range is 12 ~ 28                                                                                                                                  |
+| codeFontFamily                     | String  | `DejaVu Sans Mono`  | Code font family                                                                                                                                                               |
+| trimUnnecessaryCodeBlockEmptyLines | Boolean | true                | Whether to trim the beginning and end empty line in Code block                                                                                                                 |
+| hideQuickInsertHint                | Boolean | false               | Hide hint for quickly creating paragraphs                                                                                                                                      |
+| imageDropAction                    | String  | folder              | The default behavior after paste or drag the image to MarkText, upload it to the image cloud (if configured), move to the specified folder, insert the path          |
+| defaultEncoding                    | String  | `utf8`              | The default file encoding                                                                                                                                                      |
+| autoGuessEncoding                  | Boolean | true                | Try to automatically guess the file encoding when opening files                                                                                                                |
+| trimTrailingNewline                | Enum    | `2`                 | Ensure a single trailing newline or whether trailing newlines should be removed: `0`: trim all trailing newlines, `1`: ensure single newline, `2`: auto detect, `3`: disabled. |
+| hideLinkPopup                      | Boolean | false               | It will not show the link popup when hover over the link if set `hideLinkPopup` to true                                                                                        |
+| autoCheck                          | Boolean | false               | Whether to automatically check related task. Optional value: true, false                                                                                             |
 
 #### Markdown
 
@@ -65,7 +65,7 @@ Preferences can be controlled and modified in the settings window or via the `pr
 
 #### Editable via file
 
-These entires don't have a settings option and need to be changed manually.
+These entries don't have a settings option and need to be changed manually.
 
 ##### View
 

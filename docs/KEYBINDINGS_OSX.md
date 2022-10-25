@@ -99,7 +99,7 @@ MarkText key bindings for macOS. Please see [general key bindings](KEYBINDINGS.m
 | Id                            | Default                                         | Description               |
 | ----------------------------- | ----------------------------------------------- | ------------------------- |
 | `window.minimize`             | <kbd>Command</kbd>+<kbd>M</kbd>                 | Minimize the window       |
-| `window.toggle-always-on-top` | -                                               | Toogle always on top mode |
+| `window.toggle-always-on-top` | -                                               | Toggle always on top mode |
 | `window.zoom-in`              | -                                               | Zoom in                   |
 | `window.zoom-out`             | -                                               | Zoom out                  |
 | `window.toggle-full-screen`   | <kbd>Ctrl</kbd>+<kbd>Command</kbd>+<kbd>F</kbd> | Toggle fullscreen mode    |
