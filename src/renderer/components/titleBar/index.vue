@@ -39,7 +39,7 @@
           <span class="text-center-vertical">&#9776;</span>
         </div>
         <el-tooltip
-          v-if="wordCount"
+          v-if="wordCount && showWordCount"
           class="item"
           :content="`${wordCount[show]} ${HASH[show].full + (wordCount[show] > 1 ? 's' : '')}`"
           placement="bottom-end"
@@ -56,7 +56,7 @@
             </div>
           </div>
           <div
-            v-if="wordCount"
+            v-if="wordCount && showWordCount"
             class="word-count"
             :class="[{ 'title-no-drag': platform !== 'darwin' }]"
             @click.stop="handleWordClick"
@@ -154,6 +154,7 @@ export default {
   computed: {
     ...mapState({
       titleBarStyle: state => state.preferences.titleBarStyle,
+      showWordCount: state => state.preferences.showWordCount,
       showTabBar: state => state.layout.showTabBar
     }),
     paths () {

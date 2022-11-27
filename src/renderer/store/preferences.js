@@ -6,6 +6,7 @@ const state = {
   autoSave: false,
   autoSaveDelay: 5000,
   titleBarStyle: 'custom',
+  showWordCount: true,
   openFilesInNewWindow: false,
   openFolderInNewWindow: false,
   zoom: 1.0,

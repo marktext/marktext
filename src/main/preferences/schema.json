@@ -18,6 +18,11 @@
     ],
     "default": "custom"
   },
+  "showWordCount": {
+    "description": "Show word count",
+    "type": "boolean",
+    "default": true
+  },
   "openFilesInNewWindow": {
     "description": "General--Open files in a new window.",
     "type": "boolean",
