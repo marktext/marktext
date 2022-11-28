@@ -32,6 +32,7 @@
   "textDirection": "ltr",
   "hideQuickInsertHint": false,
   "hideFrontIcon": false,
+  "hideFormatPicker": false,
   "imageInsertAction": "path",
   "imagePreferRelativeDirectory": false,
   "imageRelativeDirectoryName": "assets",

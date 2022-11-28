@@ -225,6 +225,11 @@
     "type": "boolean",
     "default": false
   },
+  "hideFormatPicker": {
+    "description": "Editor--hide the format picker pop up on selecting text",
+    "type": "boolean",
+    "default": false
+  },
   "hideLinkPopup": {
     "description": "Editor--Hide link popup when the cursor is hover on the link",
     "type": "boolean",

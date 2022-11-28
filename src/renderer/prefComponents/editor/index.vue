@@ -155,6 +155,12 @@
           :onChange="value => onSelectChange('hideFrontIcon', value)"
         ></bool>
         <bool
+          description="Hide the format picker pop up on selecting text"
+          notes="Requires restart."
+          :bool="hideFormatPicker"
+          :onChange="value => onSelectChange('hideFormatPicker', value)"
+        ></bool>
+        <bool
           description="Hide popup when cursor is over link"
           :bool="hideLinkPopup"
           :onChange="value => onSelectChange('hideLinkPopup', value)"
@@ -221,6 +227,7 @@ export default {
       trimUnnecessaryCodeBlockEmptyLines: state => state.preferences.trimUnnecessaryCodeBlockEmptyLines,
       hideQuickInsertHint: state => state.preferences.hideQuickInsertHint,
       hideFrontIcon: state => state.preferences.hideFrontIcon,
+      hideFormatPicker: state => state.preferences.hideFormatPicker,
       hideLinkPopup: state => state.preferences.hideLinkPopup,
       autoCheck: state => state.preferences.autoCheck,
       editorLineWidth: state => state.preferences.editorLineWidth,
