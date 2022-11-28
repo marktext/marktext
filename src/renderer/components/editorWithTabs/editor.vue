@@ -152,6 +152,7 @@ export default {
       trimUnnecessaryCodeBlockEmptyLines: state => state.preferences.trimUnnecessaryCodeBlockEmptyLines,
       editorFontFamily: state => state.preferences.editorFontFamily,
       hideQuickInsertHint: state => state.preferences.hideQuickInsertHint,
+      hideFrontIcon: state => state.preferences.hideFrontIcon,
       hideLinkPopup: state => state.preferences.hideLinkPopup,
       autoCheck: state => state.preferences.autoCheck,
       editorLineWidth: state => state.preferences.editorLineWidth,
@@ -305,6 +306,13 @@ export default {
       const { editor } = this
       if (value !== oldValue && editor) {
         editor.setOptions({ hideQuickInsertHint: value })
+      }
+    },
+
+    hideFrontIcon: function (value, oldValue) {
+      const { editor } = this
+      if (value !== oldValue && editor) {
+        editor.setOptions({ hideFrontIcon: value })
       }
     },
 
@@ -477,6 +485,7 @@ export default {
         isHtmlEnabled,
         isGitlabCompatibilityEnabled,
         hideQuickInsertHint,
+        hideFrontIcon,
         editorLineWidth,
         theme,
         sequenceTheme,
@@ -527,6 +536,7 @@ export default {
         disableHtml: !isHtmlEnabled,
         isGitlabCompatibilityEnabled,
         hideQuickInsertHint,
+        hideFrontIcon,
         hideLinkPopup,
         autoCheck,
         sequenceTheme,

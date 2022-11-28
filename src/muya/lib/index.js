@@ -400,6 +400,17 @@ class Muya {
       }
     }
 
+    // Set "front icon" visibility (icon left of paragraph blocks, see ./parser/render/renderBlock.js)
+    const hideFrontIcon = options.hideFrontIcon
+    if (typeof hideFrontIcon !== 'undefined') {
+      const hasClass = this.container.classList.contains('ag-show-front-icon')
+      if (hideFrontIcon && hasClass) {
+        this.container.classList.remove('ag-show-front-icon')
+      } else if (!hideFrontIcon && !hasClass) {
+        this.container.classList.add('ag-show-front-icon')
+      }
+    }
+
     // Set spellcheck container attribute
     const spellcheckEnabled = options.spellcheckEnabled
     if (typeof spellcheckEnabled !== 'undefined') {
@@ -460,7 +471,7 @@ class Muya {
   * [ensureContainerDiv ensure container element is div]
   */
 function getContainer (originContainer, options) {
-  const { hideQuickInsertHint, spellcheckEnabled } = options
+  const { hideQuickInsertHint, hideFrontIcon, spellcheckEnabled } = options
   const container = document.createElement('div')
   const rootDom = document.createElement('div')
   const attrs = originContainer.attributes
@@ -471,6 +482,10 @@ function getContainer (originContainer, options) {
 
   if (!hideQuickInsertHint) {
     container.classList.add('ag-show-quick-insert-hint')
+  }
+
+  if (!hideFrontIcon) {
+    container.classList.add('ag-show-front-icon')
   }
 
   container.setAttribute('contenteditable', true)

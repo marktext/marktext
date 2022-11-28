@@ -220,6 +220,11 @@
     "type": "boolean",
     "default": false
   },
+  "hideFrontIcon": {
+    "description": "Editor--hide icon next to blocks",
+    "type": "boolean",
+    "default": false
+  },
   "hideLinkPopup": {
     "description": "Editor--Hide link popup when the cursor is hover on the link",
     "type": "boolean",

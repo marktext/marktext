@@ -270,6 +270,7 @@ export const MUYA_DEFAULT_OPTION = Object.freeze({
   mermaidTheme: 'default', // dark / forest / default
   vegaTheme: 'latimes', // excel / ggplot2 / quartz / vox / fivethirtyeight / dark / latimes
   hideQuickInsertHint: false,
+  hideFrontIcon: false,
   hideLinkPopup: false,
   autoCheck: false,
   // Whether we should set spellcheck attribute on our container to highlight misspelled words.

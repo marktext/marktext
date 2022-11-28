@@ -150,6 +150,11 @@
           :onChange="value => onSelectChange('hideQuickInsertHint', value)"
         ></bool>
         <bool
+          description="Hide icon to the left of blocks"
+          :bool="hideFrontIcon"
+          :onChange="value => onSelectChange('hideFrontIcon', value)"
+        ></bool>
+        <bool
           description="Hide popup when cursor is over link"
           :bool="hideLinkPopup"
           :onChange="value => onSelectChange('hideLinkPopup', value)"
@@ -215,6 +220,7 @@ export default {
       codeBlockLineNumbers: state => state.preferences.codeBlockLineNumbers,
       trimUnnecessaryCodeBlockEmptyLines: state => state.preferences.trimUnnecessaryCodeBlockEmptyLines,
       hideQuickInsertHint: state => state.preferences.hideQuickInsertHint,
+      hideFrontIcon: state => state.preferences.hideFrontIcon,
       hideLinkPopup: state => state.preferences.hideLinkPopup,
       autoCheck: state => state.preferences.autoCheck,
       editorLineWidth: state => state.preferences.editorLineWidth,
