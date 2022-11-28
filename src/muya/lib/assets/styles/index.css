@@ -605,6 +605,10 @@ pre.ag-front-matter {
   margin: 1rem 0;
 }
 
+pre.ag-front-matter > code > span.language-yaml {
+  white-space: break-spaces !important;
+}
+
 pre.ag-front-matter span.ag-code-content:first-of-type:empty::after {
   content: 'Input YAML Front Matter...';
   color: var(--editorColor10);

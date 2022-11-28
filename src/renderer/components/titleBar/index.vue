@@ -394,7 +394,7 @@ export default {
     color: var(--sideBarColor);
     width: 55px;
     text-align: center;
-    background: #303133;
+    background: var(--editorColor04);
     font-weight: bold;
     cursor: pointer;
   }
