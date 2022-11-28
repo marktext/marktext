@@ -331,7 +331,7 @@ export default {
   }
 
   .left-toolbar {
-    padding: 0 10px;
+    /* padding: 0 10px; */
     height: 100%;
     position: absolute;
     top: 0;
@@ -392,6 +392,11 @@ export default {
   }
   .frameless-titlebar-menu {
     color: var(--sideBarColor);
+    width: 55px;
+    text-align: center;
+    background: #303133;
+    font-weight: bold;
+    cursor: pointer;
   }
   .frameless-titlebar-close:hover {
     background-color: rgb(228, 79, 79);
