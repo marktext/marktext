@@ -9,7 +9,7 @@ Preferences can be controlled and modified in the settings window or via the `pr
 | autoSave               | Boolean | false         | Automatically save the content being edited. option value: true, false                                                                                     |
 | autoSaveDelay          | Number  | 5000          | The delay in milliseconds after a changed file is saved automatically? 1000 ~10000                                                                         |
 | titleBarStyle          | String  | custom        | The title bar style on Linux and Window: `custom` or `native`                                                                                              |
-| showWordCount         | Boolean  | false        | Show word count on the title bar                                                                                              |
+| showWordCount         | Boolean  | true        | Show word count on the title bar                                                                                              |
 | openFilesInNewWindow   | Boolean | false         | true, false                                                                                                                                                |
 | openFolderInNewWindow  | Boolean | false         | true, false                                                                                                                                                |
 | zoom                   | Number  | 1.0           | The zoom level. Between 0.5 and 2.0 inclusive.                                                                                              |
