@@ -146,7 +146,10 @@ class Preference extends EventEmitter {
       this.setItems(settings)
     })
     ipcMain.on('mt::cmd-toggle-autosave', e => {
-      this.setItem('autoSave', !!this.getItem('autoSave'))
+      this.setItem('autoSave', !this.getItem('autoSave'))
+    })
+    ipcMain.on('mt::toggle-spellchecker-underline', e => {
+      this.setItem('spellcheckerNoUnderline', !this.getItem('spellcheckerNoUnderline'))
     })
 
     ipcMain.on('set-user-preference', settings => {

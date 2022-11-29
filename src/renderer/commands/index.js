@@ -606,6 +606,12 @@ const commands = [
       ipcRenderer.send('mt::set-user-preference', { textDirection: value })
     }
   },
+  {
+    id: 'view.toggle-spellchecker-underline',
+    execute: async () => {
+      ipcRenderer.send('mt::toggle-spellchecker-underline')
+    }
+  },
 
   // --------------------------------------------------------------------------
   // MarkText
