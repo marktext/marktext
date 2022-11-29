@@ -2,7 +2,7 @@
 
 <h1 align="center">MarkText+</h1>
 
-Minor QoL changes made to the original MarkText.
+<div align="center">Minor QoL changes made to the original MarkText.</div>
 
 
 <h1 align="center">MarkText</h1>
