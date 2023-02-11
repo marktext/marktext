@@ -1,4 +1,4 @@
-<p align="center"><img src="static/logo-small.png" alt="마크 텍스트" width="100" height="100"></p>
+<p align="center"><img src="../../static/logo-small.png" alt="마크 텍스트" width="100" height="100"></p>
 
 <h1 align="center">마크 텍스트</h1>
 
