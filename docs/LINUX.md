@@ -88,7 +88,7 @@ or `flatpak update` to update all installed flatpaks.
 
 The Arch User Repository also contains the packages:
 
-`marktext`, `marktext-bin`, `marktext-git` and `marktext-appimage`.
+`marktext`, `marktext-bin`, `marktext-git`, `marktext-appimage`, `electron15-bin`, and `ripgrep`.
 
 Install it via an AUR helper like `yay -S marktext` or with
 
