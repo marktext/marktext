@@ -116,7 +116,7 @@ const pasteCtrl = ContentState => {
           link.innerHTML = sanitize(title, PREVIEW_DOMPURIFY_CONFIG, true)
         } else {
           const span = document.createElement('span')
-          span.innerHTML = text
+          span.innerHTML = sanitize(title, PREVIEW_DOMPURIFY_CONFIG, true)
           link.replaceWith(span)
         }
       }
