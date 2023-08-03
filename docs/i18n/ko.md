@@ -1,4 +1,4 @@
-<p align="center"><img src="static/logo-small.png" alt="마크 텍스트" width="100" height="100"></p>
+<p align="center"><img src="../../static/logo-small.png" alt="마크 텍스트" width="100" height="100"></p>
 
 <h1 align="center">마크 텍스트</h1>
 
@@ -47,7 +47,7 @@
 
 <div align="center">
   <h3>
-    <a href="https://marktext.app">
+    <a href="https://github.com/marktext/marktext">
       웹사이트
     </a>
     <span> | </span>
