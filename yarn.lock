@@ -1722,12 +1722,12 @@
     lodash "^4.17.15"
     tmp-promise "^3.0.2"
 
-"@markedjs/html-differ@^4.0.1":
-  version "4.0.1"
-  resolved "https://registry.yarnpkg.com/@markedjs/html-differ/-/html-differ-4.0.1.tgz#c8d6219bc4cd5de05df6cc8e4cfcb05a9c433867"
-  integrity sha512-A0QT31MYTcsCrg596QissG9OdWuIh2sC36eTSUPjzCVdhG/LKfbE3657zNO4XZhyGIOE4lN/dz7l/HD7KFkS6w==
+"@markedjs/html-differ@^3.0.4":
+  version "3.0.4"
+  resolved "https://registry.yarnpkg.com/@markedjs/html-differ/-/html-differ-3.0.4.tgz#e5cbe2711176fbfc25683accd4cdfb63706e029e"
+  integrity sha512-lmcvZSe2LNHMrNSbbo7X4z7Ndhi4lJabmzXb4MhF/OFYQNbJBt07TvXpjS9n4Wn0gDBnyylwhkaeSDhslH723Q==
   dependencies:
-    chalk "^5.0.0"
+    chalk "^4.1.0"
     coa "^2.0.2"
     diff "^5.0.0"
     parse5-sax-parser "^6.0.1"
@@ -3599,11 +3599,6 @@ chalk@^4, chalk@^4.0.0, chalk@^4.1.0, chalk@^4.1.1, chalk@^4.1.2:
   dependencies:
     ansi-styles "^4.1.0"
     supports-color "^7.1.0"
-
-chalk@^5.0.0:
-  version "5.0.0"
-  resolved "https://registry.npmjs.org/chalk/-/chalk-5.0.0.tgz#bd96c6bb8e02b96e08c0c3ee2a9d90e050c7b832"
-  integrity sha512-/duVOqst+luxCQRKEo4bNxinsOQtMP80ZYm7mMqzuh5PociNL0PvmHFvREJ9ueYL2TxlHjBcmLCdmocx9Vg+IQ==
 
 change-case@3.0.x:
   version "3.0.2"

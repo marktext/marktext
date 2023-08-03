@@ -100,7 +100,7 @@
     "@babel/preset-env": "^7.16.11",
     "@babel/register": "^7.17.7",
     "@babel/runtime": "^7.17.9",
-    "@markedjs/html-differ": "^4.0.1",
+    "@markedjs/html-differ": "^3.0.4",
     "@playwright/test": "^1.21.0",
     "babel-loader": "^8.2.4",
     "babel-plugin-component": "^1.1.1",
