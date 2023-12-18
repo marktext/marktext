@@ -16,10 +16,6 @@
 <br>
 
 <div align="center">
-  <!-- Version -->
-  <a href="https://marktext.github.io/website">
-    <img src="https://badge.fury.io/gh/jocs%2Fmarktext.svg" alt="website">
-  </a>
   <!-- License -->
   <a href="LICENSE">
     <img src="https://img.shields.io/github/license/marktext/marktext.svg" alt="LICENSE">
@@ -47,7 +43,7 @@
 
 <div align="center">
   <h3>
-    <a href="https://marktext.app">
+    <a href="https://github.com/marktext/marktext">
       Website
     </a>
     <span> | </span>
