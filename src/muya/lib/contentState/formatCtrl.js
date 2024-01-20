@@ -284,7 +284,7 @@ const formatCtrl = ContentState => {
             if (startNode) {
               const imageWrapper = startNode.closest('.ag-inline-image')
               if (imageWrapper && imageWrapper.classList.contains('ag-empty-image')) {
-                const imageInfo = getImageInfo(imageWrapper)
+                const imageInfo = getImageInfo(imageWrapper, this.muya.options)
                 this.muya.eventCenter.dispatch('muya-image-selector', {
                   reference: imageWrapper,
                   imageInfo,

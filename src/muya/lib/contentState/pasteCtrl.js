@@ -150,7 +150,7 @@ const pasteCtrl = ContentState => {
         return null
       }
 
-      const { src } = getImageSrc(imagePath)
+      const { src } = getImageSrc(imagePath, this.muya.options)
       if (src) {
         this.stateRender.urlMap.set(newSrc, src)
       }
@@ -158,7 +158,7 @@ const pasteCtrl = ContentState => {
       const imageWrapper = this.muya.container.querySelector(`span[data-id=${id}]`)
 
       if (imageWrapper) {
-        const imageInfo = getImageInfo(imageWrapper)
+        const imageInfo = getImageInfo(imageWrapper, this.muya.options)
         this.replaceImage(imageInfo, {
           src: newSrc
         })
@@ -225,7 +225,7 @@ const pasteCtrl = ContentState => {
       const imageWrapper = this.muya.container.querySelector(`span[data-id=${id}]`)
 
       if (imageWrapper) {
-        const imageInfo = getImageInfo(imageWrapper)
+        const imageInfo = getImageInfo(imageWrapper, this.muya.options)
         this.replaceImage(imageInfo, {
           src: newSrc
         })

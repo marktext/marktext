@@ -544,6 +544,11 @@ class App {
       }
     })
 
+    ipcMain.on('mt::show-user-notification-dialog', async (e, title, message) => {
+      const win = BrowserWindow.fromWebContents(e.sender)
+      win.webContents.send('showUserNotificationDialog', title, message)
+    })
+
     ipcMain.on('mt::open-setting-window', () => {
       this._openSettingsWindow()
     })

@@ -4,6 +4,8 @@ import { patch, h } from '../../parser/render/snabbdom'
 import { EVENT_KEYS, URL_REG, isWin } from '../../config'
 import { getUniqueId, getImageInfo as getImageSrc } from '../../utils'
 import { getImageInfo } from '../../utils/getImageInfo'
+import fs from 'fs-extra'
+import { ipcRenderer } from 'electron'
 
 import './index.css'
 
@@ -190,6 +192,13 @@ class ImageSelector extends BaseFloat {
     }
   }
 
+  renameInputKeyDown (event) {
+    if (event.key === EVENT_KEYS.Enter) {
+      event.stopPropagation()
+      this.handleRenameButtonClick()
+    }
+  }
+
   async handleKeyUp (event) {
     const { key } = event
     if (
@@ -236,6 +245,24 @@ class ImageSelector extends BaseFloat {
     return this.replaceImageAsync(this.state)
   }
 
+  handleRenameButtonClick () {
+    const oldSrc = this.imageInfo.token.attrs.src
+    let { src: newLocalPath } = getImageSrc(this.state.src, this.muya.options)
+    let { src: oldLocalPath } = getImageSrc(oldSrc, this.muya.options)
+
+    newLocalPath = newLocalPath.replace('file://', '')
+    oldLocalPath = oldLocalPath.replace('file://', '')
+
+    try {
+      fs.renameSync(oldLocalPath, newLocalPath)
+    } catch (error) {
+      this.state.src = oldSrc
+      ipcRenderer.send('mt::show-user-notification-dialog', 'Could not rename file', error)
+    }
+
+    return this.replaceImageAsync(this.state)
+  }
+
   replaceImageAsync = async ({ alt, src, title }) => {
     if (!this.muya.options.imageAction || URL_REG.test(src)) {
       const { alt: oldAlt, src: oldSrc, title: oldTitle } = this.imageInfo.token.attrs
@@ -255,14 +282,14 @@ class ImageSelector extends BaseFloat {
 
         try {
           const newSrc = await this.muya.options.imageAction(src, id, alt)
-          const { src: localPath } = getImageSrc(src)
+          const { src: localPath } = getImageSrc(src, this.muya.options)
           if (localPath) {
             this.muya.contentState.stateRender.urlMap.set(newSrc, localPath)
           }
           const imageWrapper = this.muya.container.querySelector(`span[data-id=${id}]`)
 
           if (imageWrapper) {
-            const imageInfo = getImageInfo(imageWrapper)
+            const imageInfo = getImageInfo(imageWrapper, this.muya.options)
             this.muya.contentState.replaceImage(imageInfo, {
               alt,
               src: newSrc,
@@ -270,8 +297,7 @@ class ImageSelector extends BaseFloat {
             })
           }
         } catch (error) {
-          // TODO: Notify user about an error.
-          console.error('Unexpected error on image action:', error)
+          ipcRenderer.send('mt::show-user-notification-dialog', 'Error while updating image', error)
         }
       } else {
         this.hide()
@@ -302,6 +328,9 @@ class ImageSelector extends BaseFloat {
     }, {
       label: 'Embed link',
       value: 'link'
+    }, {
+      label: 'Rename',
+      value: 'rename'
     }]
 
     if (this.unsplash) {
@@ -418,6 +447,34 @@ class ImageSelector extends BaseFloat {
         }, `${isFullMode ? 'simple mode' : 'full mode'}.`)
       ])
       bodyContent = [inputWrapper, embedButton, bottomDes]
+    } else if (tab === 'rename') {
+      const srcInput = h('input.src', {
+        props: {
+          placeholder: 'New image link or local path',
+          value: src
+        },
+        on: {
+          input: event => {
+            this.inputHandler(event, 'src')
+          },
+          paste: event => {
+            this.inputHandler(event, 'src')
+          },
+          keydown: event => {
+            this.renameInputKeyDown(event)
+          }
+        }
+      })
+
+      const inputWrapper = h('div.input-container', [srcInput])
+      const renameButton = h('button.muya-button.role-button.link', {
+        on: {
+          click: event => {
+            this.handleRenameButtonClick()
+          }
+        }
+      }, 'Rename Image')
+      bodyContent = [inputWrapper, renameButton]
     } else {
       const searchInput = h('input.search', {
         props: {

@@ -35,6 +35,8 @@ const state = {
   textDirection: 'ltr',
   hideQuickInsertHint: false,
   imageInsertAction: 'folder',
+  serverFolderPath: '',
+  localFolderPath: '',
   imagePreferRelativeDirectory: false,
   imageRelativeDirectoryName: 'assets',
   hideLinkPopup: false,
@@ -135,6 +137,10 @@ const actions = {
 
   SET_IMAGE_FOLDER_PATH ({ commit }, value) {
     ipcRenderer.send('mt::ask-for-modify-image-folder-path', value)
+  },
+
+  SET_LOCAL_FOLDER_PATH ({ commit }, value) {
+    ipcRenderer.send('mt::ask-for-modify-local-folder-path', value)
   },
 
   SELECT_DEFAULT_DIRECTORY_TO_OPEN ({ commit }) {

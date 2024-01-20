@@ -13,6 +13,8 @@
         :onChange="value => onSelectChange('imageInsertAction', value)"></CurSelect>
     </section>
     <Separator />
+    <ServerPathSetting v-if="imageInsertAction === 'folder' || imageInsertAction === 'path'" />
+    <Separator />
     <FolderSetting v-if="imageInsertAction === 'folder' || imageInsertAction === 'path'" />
     <Uploader v-if="imageInsertAction === 'upload'" />
   </div>
@@ -23,12 +25,14 @@ import Separator from '../common/separator'
 import Uploader from './components/uploader'
 import CurSelect from '@/prefComponents/common/select'
 import FolderSetting from './components/folderSetting'
+import ServerPathSetting from './components/serverPathSetting'
 import { imageActions } from './config'
 
 export default {
   components: {
     Separator,
     CurSelect,
+    ServerPathSetting,
     FolderSetting,
     Uploader
   },

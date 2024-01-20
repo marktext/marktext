@@ -103,7 +103,7 @@ class Keyboard {
         case EVENT_KEYS.Space: {
           if (contentState.selectedImage) {
             const { token } = contentState.selectedImage
-            const { src } = getImageInfo(token.src || token.attrs.src)
+            const { src } = getImageInfo(token.src || token.attrs.src, this.muya.options)
             if (src) {
               eventCenter.dispatch('preview-image', {
                 data: src

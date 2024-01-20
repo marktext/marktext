@@ -1,6 +1,9 @@
 <template>
   <section class="image-folder">
     <h5>Global or relative image folder</h5>
+    <div class="footnote">
+        Use variables such as <code>${filename}</code> in paths to automatically insert the document file name.
+    </div>
     <text-box description="Global image folder" :input="imageFolderPath"
       :regexValidator="/^(?:$|([a-zA-Z]:)?[\/\\].*$)/" :defaultValue="folderPathPlaceholder"
       :onChange="value => modifyImageFolderPath(value)"></text-box>
@@ -20,9 +23,6 @@
           :regexValidator="/^(?:$|(?![a-zA-Z]:)[^\/\\].*$)/"
           :defaultValue="relativeDirectoryNamePlaceholder"
           :onChange="value => onSelectChange('imageRelativeDirectoryName', value)"></text-box>
-        <div class="footnote">
-          Include <code>${filename}</code> in the text-box above to automatically insert the document file name.
-        </div>
       </template>
     </compound>
   </section>

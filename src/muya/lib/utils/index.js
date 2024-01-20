@@ -251,14 +251,30 @@ export const checkImageContentType = url => {
  * Return image information and correct the relative image path if needed.
  *
  * @param {string} src Image url
- * @param {string} baseUrl Base path; used on desktop to fix the relative image path.
+ * @param {object} options The muya options object representing user preferences.
  */
-export const getImageInfo = (src, baseUrl = window.DIRNAME) => {
+export const getImageInfo = (src, options) => {
+  const baseUrl = window.DIRNAME
   const imageExtension = IMAGE_EXT_REG.test(src)
   const isUrl = URL_REG.test(src) || (imageExtension && /^file:\/\/.+/.test(src))
 
   // Treat an URL with valid extension as image.
   if (imageExtension) {
+    if (options) {
+      const { serverFolderPath, localFolderPath } = options
+
+      // Do server / local path mapping during preview if desired
+      if (serverFolderPath) {
+        if (src.toLowerCase().includes(serverFolderPath.toLowerCase())) {
+          const escapedServerFolderPath = serverFolderPath.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+          const regex = new RegExp(escapedServerFolderPath, 'ig')
+          src = src.replace(regex, localFolderPath)
+          src = src.replace('//', '/')
+          src = src.replace('\\\\', '\\')
+        }
+      }
+    }
+
     // NOTE: Check both "C:\" and "C:/" because we're using "file:///C:/".
     const isAbsoluteLocal = /^(?:\/|\\\\|[a-zA-Z]:\\|[a-zA-Z]:\/).+/.test(src)
 
@@ -272,11 +288,16 @@ export const getImageInfo = (src, baseUrl = window.DIRNAME) => {
         src
       }
     } else {
-      // Correct relative path on desktop. If we resolve a absolute path "path.resolve" doesn't do anything.
-      // NOTE: We don't need to convert Windows styled path to UNIX style because Chromium handels this internal.
+      // Correct relative path on desktop.
+      // NOTE: We don't need to convert Windows styled path to UNIX style because Chromium handles this internally.
+      if (!isAbsoluteLocal) {
+        src = require('path').resolve(baseUrl, src)
+      } else {
+        src = require('path').resolve(src)
+      }
       return {
         isUnknownType: false,
-        src: 'file://' + require('path').resolve(baseUrl, src)
+        src: 'file://' + src
       }
     }
   } else if (isUrl && !imageExtension) {
