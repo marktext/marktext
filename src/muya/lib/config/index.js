@@ -280,6 +280,8 @@ export const MUYA_DEFAULT_OPTION = Object.freeze({
   imageAction: null,
   // Call Electron open dialog or input element type is file.
   imagePathPicker: null,
+  // Call Electron openPath to open image file with external tool.
+  openImageWithExternalTool: null,
   clipboardFilePath: () => {},
   // image path auto completed when you input in image selector.
   imagePathAutoComplete: () => [],

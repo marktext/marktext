@@ -12,10 +12,13 @@ export const getImageInfo = image => {
     start: offset,
     end: offset + raw.length
   }
+  const imageContainer = image.querySelector('.ag-image-container')
+  const absoluteImagePath = imageContainer.firstChild.currentSrc
   return {
     key: paragraph.id,
     token,
-    imageId: image.id
+    imageId: image.id,
+    absoluteImagePath: absoluteImagePath
   }
 }
 

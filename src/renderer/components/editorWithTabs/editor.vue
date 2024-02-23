@@ -533,6 +533,7 @@ export default {
         spellcheckEnabled: spellcheckerEnabled,
         imageAction: this.imageAction.bind(this),
         imagePathPicker: this.imagePathPicker.bind(this),
+        openImageWithExternalTool: this.openImageWithExternalTool.bind(this),
         clipboardFilePath: guessClipboardFilePath,
         imagePathAutoComplete: this.imagePathAutoComplete.bind(this)
       }
@@ -773,6 +774,10 @@ export default {
 
     imagePathPicker () {
       return this.$store.dispatch('ASK_FOR_IMAGE_PATH')
+    },
+
+    openImageWithExternalTool (absoluteImagePath) {
+      return shell.openPath(absoluteImagePath)
     },
 
     keyup (event) {

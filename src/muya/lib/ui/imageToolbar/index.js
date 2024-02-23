@@ -1,6 +1,7 @@
 import BaseFloat from '../baseFloat'
 import { patch, h } from '../../parser/render/snabbdom'
 import icons from './config'
+import { URL_REG } from '../../config'
 
 import './index.css'
 
@@ -53,6 +54,10 @@ class ImageToolbar extends BaseFloat {
     const { icons, oldVnode, toolbarContainer, imageInfo } = this
     const { attrs } = imageInfo.token
     const dataAlign = attrs['data-align']
+    let isLocalImage = false
+    if (this.isLocalFile(imageInfo)) {
+      isLocalImage = true
+    }
     const children = icons.map(i => {
       let icon
       let iconWrapperSelector
@@ -69,6 +74,13 @@ class ImageToolbar extends BaseFloat {
       const iconWrapper = h(iconWrapperSelector, icon)
       let itemSelector = `li.item.${i.type}`
 
+      if (i.type === 'open') {
+        if (isLocalImage) {
+          itemSelector += '.enable'
+        } else {
+          itemSelector += '.disable'
+        }
+      }
       if (i.type === dataAlign || !dataAlign && i.type === 'inline') {
         itemSelector += '.active'
       }
@@ -99,6 +111,10 @@ class ImageToolbar extends BaseFloat {
     event.stopPropagation()
 
     const { imageInfo } = this
+    let isLocalImage = false
+    if (this.isLocalFile(imageInfo)) {
+      isLocalImage = true
+    }
     switch (item.type) {
       // Delete image.
       case 'delete':
@@ -135,7 +151,21 @@ class ImageToolbar extends BaseFloat {
         this.muya.contentState.updateImage(this.imageInfo, 'data-align', item.type)
         return this.hide()
       }
+      case 'open': {
+        if (isLocalImage) {
+          this.muya.contentState.openImage(this.imageInfo)
+          this.hide()
+        }
+      }
     }
+  }
+
+  isLocalFile (imageInfo) {
+    const { attrs } = imageInfo.token
+    if (URL_REG.test(imageInfo.token.src) || URL_REG.test(attrs.src)) {
+      return false
+    }
+    return true
   }
 }
 

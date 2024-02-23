@@ -1,4 +1,5 @@
 import editIcon from '../../assets/pngicon/imageEdit/2.png'
+import openIcon from '../../assets/pngicon/imageOpen/2.png'
 import inlineIcon from '../../assets/pngicon/inline_image/2.png'
 import leftIcon from '../../assets/pngicon/algin_left/2.png'
 import middleIcon from '../../assets/pngicon/algin_center/2.png'
@@ -10,6 +11,11 @@ const icons = [
     type: 'edit',
     tooltip: 'Edit Image',
     icon: editIcon
+  },
+  {
+    type: 'open',
+    tooltip: 'Open Image',
+    icon: openIcon
   },
   {
     type: 'inline',
