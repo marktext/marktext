@@ -54,7 +54,7 @@
           :style="{'margin-left': `${depth * 5 + 15}px` }"
           ref="input"
           v-model="createName"
-          @keydown.enter="handleInputEnter"
+          @keypress.enter="handleInputEnter"
         >
         <file
           v-for="(file, index) of projectTree.files" :key="index + 'file'"

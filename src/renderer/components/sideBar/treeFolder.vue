@@ -19,7 +19,7 @@
         v-if="renameCache === folder.pathname"
         v-model="newName"
         ref="renameInput"
-        @keydown.enter="rename"
+        @keypress.enter="rename"
       >
       <span v-else class="text-overflow">{{folder.name}}</span>
     </div>
@@ -37,7 +37,7 @@
         class="new-input"
         :style="{'margin-left': `${depth * 5 + 15}px` }"
         ref="input"
-        @keydown.enter="handleInputEnter"
+        @keypress.enter="handleInputEnter"
         v-model="createName"
       >
       <file
