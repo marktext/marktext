@@ -258,29 +258,42 @@ const backspaceCtrl = ContentState => {
       return this.singleRender(startBlock)
     }
 
-    // Fix: https://github.com/marktext/marktext/issues/2013
-    // Also fix the codeblock crashed when the code content is '\n' and press backspace.
     if (
       startBlock.functionType === 'codeContent' &&
       startBlock.key === endBlock.key &&
-      this.cursor.start.offset === this.cursor.end.offset &&
-      (/\n.$/.test(startBlock.text) || startBlock.text === '\n') &&
-      startBlock.text.length === this.cursor.start.offset
+      !(this.cursor.start.offset === 0 && this.cursor.end.offset === 0)
     ) {
       event.preventDefault()
       event.stopPropagation()
-
-      startBlock.text = /\n.$/.test(startBlock.text) ? startBlock.text.replace(/.$/, '') : ''
       const { key } = startBlock
-      const offset = startBlock.text.length
+      let offset
+      const startOffset = this.cursor.start.offset
+      const endOffset = this.cursor.end.offset
+      // Fix: https://github.com/marktext/marktext/issues/2013
+      // Also fix the codeblock crashed when the code content is '\n' and press backspace.
+      if (
+        startOffset === endOffset &&
+        (/\n.$/.test(startBlock.text) || startBlock.text === '\n') &&
+        startBlock.text.length === startOffset
+      ) {
+        startBlock.text = /\n.$/.test(startBlock.text) ? startBlock.text.slice(0, -1) : ''
+        offset = startBlock.text.length
+      } else {
+        // backspace at tabwidth within a codeblock if no text highlighted
+        // and cursor is after a tabWidth of whitespace
+        const regexUnindent = new RegExp(`\n.*(${String.fromCharCode(32).repeat(this.tabSize)})$`)
+        const shouldUnindent = regexUnindent.test(startBlock.text.substring(0, startOffset))
+        const backspaceSize = (shouldUnindent) ? this.tabSize : 1
+        offset = (startOffset === endOffset) ? startOffset - backspaceSize : startOffset
+        startBlock.text = startBlock.text.substring(0, offset) +
+          startBlock.text.substring(endOffset)
+      }
       this.cursor = {
         start: { key, offset },
         end: { key, offset }
       }
-
       return this.singleRender(startBlock)
     }
-
     // If select multiple paragraph or multiple characters in one paragraph, just let
     // inputCtrl to handle this case.
     if (start.key !== end.key || start.offset !== end.offset) {
