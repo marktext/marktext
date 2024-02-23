@@ -37,6 +37,11 @@
           :onChange="value => onSelectChange('titleBarStyle', value)"
         ></cur-select>
         <bool
+          description="Show wordcount"
+          :bool="showWordCount"
+          :onChange="value => onSelectChange('showWordCount', value)"
+        ></bool>
+        <bool
           description="Hide scrollbars"
           :bool="hideScrollbar"
           :onChange="value => onSelectChange('hideScrollbar', value)"
@@ -155,6 +160,7 @@ export default {
       autoSave: state => state.preferences.autoSave,
       autoSaveDelay: state => state.preferences.autoSaveDelay,
       titleBarStyle: state => state.preferences.titleBarStyle,
+      showWordCount: state => state.preferences.showWordCount,
       defaultDirectoryToOpen: state => state.preferences.defaultDirectoryToOpen,
       openFilesInNewWindow: state => state.preferences.openFilesInNewWindow,
       openFolderInNewWindow: state => state.preferences.openFolderInNewWindow,

@@ -39,7 +39,7 @@
           <span class="text-center-vertical">&#9776;</span>
         </div>
         <el-tooltip
-          v-if="wordCount"
+          v-if="wordCount && showWordCount"
           class="item"
           :content="`${wordCount[show]} ${HASH[show].full + (wordCount[show] > 1 ? 's' : '')}`"
           placement="bottom-end"
@@ -56,7 +56,7 @@
             </div>
           </div>
           <div
-            v-if="wordCount"
+            v-if="wordCount && showWordCount"
             class="word-count"
             :class="[{ 'title-no-drag': platform !== 'darwin' }]"
             @click.stop="handleWordClick"
@@ -154,6 +154,7 @@ export default {
   computed: {
     ...mapState({
       titleBarStyle: state => state.preferences.titleBarStyle,
+      showWordCount: state => state.preferences.showWordCount,
       showTabBar: state => state.layout.showTabBar
     }),
     paths () {
@@ -330,7 +331,7 @@ export default {
   }
 
   .left-toolbar {
-    padding: 0 10px;
+    /* padding: 0 10px; */
     height: 100%;
     position: absolute;
     top: 0;
@@ -391,6 +392,11 @@ export default {
   }
   .frameless-titlebar-menu {
     color: var(--sideBarColor);
+    width: 55px;
+    text-align: center;
+    background: var(--editorColor04);
+    font-weight: bold;
+    cursor: pointer;
   }
   .frameless-titlebar-close:hover {
     background-color: rgb(228, 79, 79);

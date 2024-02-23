@@ -63,9 +63,14 @@ mark::after {
   background: var(--highlightColor);
 }
 
+/* Removing this class (with classList.remove) will remove the entire selector */
 div.ag-show-quick-insert-hint p.ag-paragraph.ag-active > span.ag-paragraph-content:first-of-type:empty::after {
   content: 'Type @ to insert';
   color: var(--editorColor10);
+}
+
+div.ag-show-front-icon p.ag-paragraph.ag-active > a.ag-front-icon {
+  visibility: visible !important;
 }
 
 .ag-paragraph {
@@ -600,6 +605,10 @@ pre.ag-front-matter {
   margin: 1rem 0;
 }
 
+pre.ag-front-matter > code > span.language-yaml {
+  white-space: break-spaces !important;
+}
+
 pre.ag-front-matter span.ag-code-content:first-of-type:empty::after {
   content: 'Input YAML Front Matter...';
   color: var(--editorColor10);
@@ -1130,6 +1139,7 @@ span.ag-reference-link {
 }
 
 .ag-front-icon {
+  visibility: hidden;
   position: absolute;
   width: 20px;
   height: 20px;

@@ -116,6 +116,7 @@ const commandDescriptions = Object.freeze({
   'paragraph.reset-paragraph': 'Paragraph: Transform into Paragraph',
   'window.change-theme': 'Theme: Change Theme...',
   'view.text-direction': 'View: Set Text Direction',
+  'view.toggle-spellchecker-underline': 'View: Toggle underline for spelling errors',
   'docs.user-guide': 'MarkText: End User Guide',
   'docs.markdown-syntax': 'MarkText: Markdown Syntax Guide'
 })

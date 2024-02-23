@@ -152,6 +152,8 @@ export default {
       trimUnnecessaryCodeBlockEmptyLines: state => state.preferences.trimUnnecessaryCodeBlockEmptyLines,
       editorFontFamily: state => state.preferences.editorFontFamily,
       hideQuickInsertHint: state => state.preferences.hideQuickInsertHint,
+      hideFrontIcon: state => state.preferences.hideFrontIcon,
+      hideFormatPicker: state => state.preferences.hideFormatPicker,
       hideLinkPopup: state => state.preferences.hideLinkPopup,
       autoCheck: state => state.preferences.autoCheck,
       editorLineWidth: state => state.preferences.editorLineWidth,
@@ -305,6 +307,20 @@ export default {
       const { editor } = this
       if (value !== oldValue && editor) {
         editor.setOptions({ hideQuickInsertHint: value })
+      }
+    },
+
+    hideFrontIcon: function (value, oldValue) {
+      const { editor } = this
+      if (value !== oldValue && editor) {
+        editor.setOptions({ hideFrontIcon: value })
+      }
+    },
+
+    hideFormatPicker: function (value, oldValue) {
+      const { editor } = this
+      if (value !== oldValue && editor) {
+        editor.setOptions({ hideFormatPicker: value })
       }
     },
 
@@ -477,6 +493,8 @@ export default {
         isHtmlEnabled,
         isGitlabCompatibilityEnabled,
         hideQuickInsertHint,
+        hideFrontIcon,
+        hideFormatPicker,
         editorLineWidth,
         theme,
         sequenceTheme,
@@ -498,7 +516,9 @@ export default {
       })
       Muya.use(Transformer)
       Muya.use(ImageToolbar)
-      Muya.use(FormatPicker)
+      if (!hideFormatPicker) {
+        Muya.use(FormatPicker)
+      }
       Muya.use(FrontMenu)
       Muya.use(LinkTools, {
         jumpClick: this.jumpClick
@@ -527,6 +547,8 @@ export default {
         disableHtml: !isHtmlEnabled,
         isGitlabCompatibilityEnabled,
         hideQuickInsertHint,
+        hideFrontIcon,
+        hideFormatPicker,
         hideLinkPopup,
         autoCheck,
         sequenceTheme,

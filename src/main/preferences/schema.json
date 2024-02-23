@@ -18,6 +18,11 @@
     ],
     "default": "custom"
   },
+  "showWordCount": {
+    "description": "Show word count",
+    "type": "boolean",
+    "default": true
+  },
   "openFilesInNewWindow": {
     "description": "General--Open files in a new window.",
     "type": "boolean",
@@ -212,6 +217,16 @@
   },
   "hideQuickInsertHint": {
     "description": "Editor--Hide hint for quickly creating paragraphs",
+    "type": "boolean",
+    "default": false
+  },
+  "hideFrontIcon": {
+    "description": "Editor--hide icon next to blocks",
+    "type": "boolean",
+    "default": false
+  },
+  "hideFormatPicker": {
+    "description": "Editor--hide the format picker pop up on selecting text",
     "type": "boolean",
     "default": false
   },
