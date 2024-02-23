@@ -165,7 +165,7 @@ class Muya {
     return this.contentState.getCodeMirrorCursor()
   }
 
-  setMarkdown (markdown, cursor, isRenderCursor = true) {
+  setMarkdown (markdown, cursor, isRenderCursor = true, setToStartNotEndIfNoCursor = false) {
     let newMarkdown = markdown
     let isValid = false
     if (cursor && cursor.anchor && cursor.focus) {
@@ -174,7 +174,7 @@ class Muya {
       isValid = cursorInfo.isValid
     }
     this.contentState.importMarkdown(newMarkdown)
-    this.contentState.importCursor(cursor && isValid)
+    this.contentState.importCursor(cursor && isValid, setToStartNotEndIfNoCursor)
     this.contentState.render(isRenderCursor)
     setTimeout(() => {
       this.dispatchChange()

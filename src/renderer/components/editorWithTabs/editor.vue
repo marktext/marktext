@@ -162,6 +162,7 @@ export default {
       theme: state => state.preferences.theme,
       sequenceTheme: state => state.preferences.sequenceTheme,
       hideScrollbar: state => state.preferences.hideScrollbar,
+      jumpToStartOnLoad: state => state.preferences.jumpToStartOnLoad,
       spellcheckerEnabled: state => state.preferences.spellcheckerEnabled,
       spellcheckerNoUnderline: state => state.preferences.spellcheckerNoUnderline,
       spellcheckerLanguage: state => state.preferences.spellcheckerLanguage,
@@ -404,6 +405,12 @@ export default {
           codeFontFamily: this.codeFontFamily,
           hideScrollbar: value
         })
+      }
+    },
+    jumpToStartOnLoad: function (value, oldValue) {
+      const { editor } = this
+      if (value !== oldValue && editor) {
+        editor.setOptions({ jumpToStartOnLoad: value })
       }
     },
 
@@ -1072,7 +1079,7 @@ export default {
         if (cursor) {
           editor.setMarkdown(markdown, cursor, true)
         } else {
-          editor.setMarkdown(markdown)
+          editor.setMarkdown(markdown, null, true, this.jumpToStartOnLoad)
         }
       }
     },
@@ -1086,7 +1093,7 @@ export default {
             editor.setHistory(history)
           }
           if (typeof markdown === 'string') {
-            editor.setMarkdown(markdown, cursor, renderCursor)
+            editor.setMarkdown(markdown, cursor, renderCursor, this.jumpToStartOnLoad)
           } else if (cursor) {
             editor.setCursor(cursor)
           }

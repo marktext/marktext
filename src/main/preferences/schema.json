@@ -40,6 +40,11 @@
     "type": "boolean",
     "default": false
   },
+  "jumpToStartOnLoad": {
+    "description": "General--Whether to jump to start (vs end) of document on load.",
+    "type": "boolean",
+    "default": false
+  },
   "wordWrapInToc": {
     "description": "General--Whether to enable word wrap in TOC.",
     "type": "boolean",
