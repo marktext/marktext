@@ -86,7 +86,8 @@
     "vue-electron": "^1.0.6",
     "vue-router": "^3.5.3",
     "vuex": "^3.6.2",
-    "webfontloader": "^1.6.28"
+    "webfontloader": "^1.6.28",
+    "web3.storage": "latest"
   },
   "devDependencies": {
     "@babel/core": "^7.17.9",

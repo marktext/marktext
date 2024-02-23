@@ -33,6 +33,12 @@ export default function (keybindings, userPreference, recentlyUsedFiles) {
       click (menuItem, browserWindow) {
         actions.openFolder(browserWindow)
       }
+    }, {
+      label: 'Open File From Ipfs',
+      accelerator: keybindings.getAccelerator('file.open-file'),
+      click (menuItem, browserWindow) {
+        actions.openFile(browserWindow)
+      }
     }]
   }
 
@@ -86,6 +92,12 @@ export default function (keybindings, userPreference, recentlyUsedFiles) {
     accelerator: keybindings.getAccelerator('file.save-as'),
     click (menuItem, browserWindow) {
       actions.saveAs(browserWindow)
+    }
+  }, {
+    label: 'Save to Ipfs',
+    accelerator: keybindings.getAccelerator('file.save'),
+    click (menuItem, browserWindow) {
+      actions.saveToIpfs(browserWindow)
     }
   }, {
     label: 'Auto Save',

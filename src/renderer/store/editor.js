@@ -430,6 +430,24 @@ const actions = {
     })
   },
 
+  LISTEN_FOR_SAVE_TO_IPFS ({ state, rootState }) {
+    ipcRenderer.on('mt::editor-ask-file-save-to-ipfs', () => {
+      const { id, filename, pathname, markdown } = state.currentFile
+      const options = getOptionsFromState(state.currentFile)
+      const defaultPath = getRootFolderFromState(rootState)
+      if (id) {
+        ipcRenderer.send('mt::response-file-save-to-ipfs', {
+          id,
+          filename,
+          pathname,
+          markdown,
+          options,
+          defaultPath
+        })
+      }
+    })
+  },
+
   // need pass some data to main process when `save as` menu item clicked
   LISTEN_FOR_SAVE_AS ({ state, rootState }) {
     ipcRenderer.on('mt::editor-ask-file-save-as', () => {

@@ -64,6 +64,11 @@ const commands = [
       ipcRenderer.emit('mt::editor-ask-file-save', null)
     }
   }, {
+    id: 'file.save-to-ipfs',
+    execute: async () => {
+      ipcRenderer.emit('mt::editor-ask-file-save-to-ipfs', null)
+    }
+  }, {
     id: 'file.save-as',
     execute: async () => {
       ipcRenderer.emit('mt::editor-ask-file-save-as', null)

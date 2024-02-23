@@ -30,3 +30,12 @@ export const writeFile = (pathname, content, extension, options = 'utf-8') => {
 
   return fs.outputFile(pathname, content, options)
 }
+
+export const writeFileToIpfs = async (pathname, content, extension, options = 'utf-8') => {
+  if (!pathname) {
+    return Promise.reject(new Error('[ERROR] Cannot save file without path.'))
+  }
+  pathname = !extension || pathname.endsWith(extension) ? pathname : `${pathname}${extension}`
+
+  return fs.outputFile(pathname, content, options)
+}

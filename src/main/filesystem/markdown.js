@@ -5,7 +5,7 @@ import iconv from 'iconv-lite'
 import { LINE_ENDING_REG, LF_LINE_ENDING_REG, CRLF_LINE_ENDING_REG } from '../config'
 import { isDirectory2 } from 'common/filesystem'
 import { isMarkdownFile } from 'common/filesystem/paths'
-import { normalizeAndResolvePath, writeFile } from '../filesystem'
+import { normalizeAndResolvePath, writeFile, writeFileToIpfs } from '../filesystem'
 import { guessEncoding } from './encoding'
 
 const getLineEnding = lineEnding => {
@@ -65,6 +65,28 @@ export const writeMarkdownFile = (pathname, content, options) => {
 
   // TODO(@fxha): "safeSaveDocuments" using temporary file and rename syscall.
   return writeFile(pathname, buffer, extension, undefined)
+}
+
+/**
+ * Write the content file to ipfs.
+ *
+ * @param {string} pathname The path to the file.
+ * @param {string} content The buffer to save.
+ * @param {IMarkdownDocumentOptions} options The markdown document options
+ */
+export const writeMarkdownFileToIpfs = (pathname, content, options) => {
+  const { adjustLineEndingOnSave, lineEnding } = options
+  const { encoding, isBom } = options.encoding
+  const extension = path.extname(pathname) || '.md'
+
+  if (adjustLineEndingOnSave) {
+    content = convertLineEndings(content, lineEnding)
+  }
+
+  const buffer = iconv.encode(content, encoding, { addBOM: isBom })
+
+  // TODO(@fxha): "safeSaveDocuments" using temporary file and rename syscall.
+  return writeFileToIpfs(pathname, buffer, extension, undefined)
 }
 
 /**

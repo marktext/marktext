@@ -11,6 +11,7 @@ const commandDescriptions = Object.freeze({
   'file.open-folder': 'File: Open Folder',
   'file.save': 'File: Save',
   'file.save-as': 'File: Save As...',
+  'file.save-to-ipfs': 'File: Save to Ipfs...',
   'file.move-file': 'File: Move...',
   'file.rename-file': 'File: Rename...',
   'file.quick-open': 'File: Show quick open dialog',
