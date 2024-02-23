@@ -16,14 +16,14 @@ autoUpdater.on('error', error => {
 
 autoUpdater.on('update-available', () => {
   if (win) {
-    win.webContents.send('mt::UPDATE_AVAILABLE', 'Found an update, do you want download and install now?')
+    win.webContents.send('mt::UPDATE_AVAILABLE', 'New version is now available. Download and install?')
   }
   runningUpdate = false
 })
 
 autoUpdater.on('update-not-available', () => {
   if (win) {
-    win.webContents.send('mt::UPDATE_NOT_AVAILABLE', 'Current version is up-to-date.')
+    win.webContents.send('mt::UPDATE_NOT_AVAILABLE', 'There are currently no updates available')
   }
   runningUpdate = false
 })
@@ -33,7 +33,7 @@ autoUpdater.on('update-downloaded', () => {
   // not just force close the application.
 
   if (win) {
-    win.webContents.send('mt::UPDATE_DOWNLOADED', 'Update downloaded, application will be quit for update...')
+    win.webContents.send('mt::UPDATE_DOWNLOADED', 'Update downloaded. MarkText will now close and update')
   }
   setImmediate(() => autoUpdater.quitAndInstall())
 })
