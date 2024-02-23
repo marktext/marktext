@@ -132,6 +132,7 @@ kbd {
     padding: 20px 50px 100px 50px;
     box-sizing: border-box;
     cursor: text;
+    padding-bottom: 100vh;
   }
 
   #ag-editor-id, [contenteditable] {
