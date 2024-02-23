@@ -302,6 +302,11 @@ const tabCtrl = ContentState => {
     // disable tab focus
     event.preventDefault()
 
+    // skip subsequent processing if IME is working
+    if (event.isComposing) {
+      return
+    }
+
     const { start, end } = selection.getCursorRange()
     if (!start || !end) {
       return
