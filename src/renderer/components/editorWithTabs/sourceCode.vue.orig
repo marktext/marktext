@@ -14,7 +14,6 @@ import { adjustCursor, animatedScrollTo } from '../../util'
 import bus from '../../bus'
 import { oneDarkThemes, railscastsThemes } from '@/config'
 
-// Same as editor.vue
 const STANDAR_Y = 320
 
 export default {
@@ -47,16 +46,18 @@ export default {
 
   watch: {
     currentTab: function (value, oldValue) {
-      if (!this.sourceCode) { return }
-      // Don't need to worry about setting the line on the oldValue already did in prepareTabSwitch
+      if (! this.sourceCode)
+        return;
+      //Don't need to worry about setting the line on the oldValue already did in prepareTabSwitch
       if (value && value !== oldValue) {
-        if (value.firstViewportVisibleItem && value.firstViewportVisibleItem.startsWith('S')) {
-          let line = value.firstViewportVisibleItem.substring(1)
+        if (value.firstViewportVisibleItem && value.firstViewportVisibleItem.startsWith("S")){
+          let line = value.firstViewportVisibleItem.substring(1);
           this.$nextTick(() => {
-            this.scrollToLineNumberInViewport(line, 15, true)
-          })
+            this.scrollToLineNumberInViewport(line, 15,true);
+          });
         }
       }
+
     },
     textDirection: function (value, oldValue) {
       const { editor } = this
@@ -109,16 +110,17 @@ export default {
       bus.$on('file-changed', this.handleFileChange)
       bus.$on('selectAll', this.handleSelectAll)
       bus.$on('image-action', this.handleImageAction)
+      bus.$on('undo', this.handleUndo)
+      bus.$on('redo', this.handleRedo)
+      bus.$on('find', this.handleFind)
+      bus.$on('replace', this.handleReplace)
+      bus.$on('findNext', this.handleFindNext)
+      bus.$on('findPrev', this.handleFindPrev)
+      document.addEventListener('click', this.docClick)
+      document.addEventListener('keyup', this.docKeyup)
 
       setMode(editor, 'markdown')
       this.listenChange()
-
-      editor.on('contextmenu', (cm, event) => {
-        // Make sure no context menu is shown in source-code mode because we have to handle
-        // Muyas menu by Electron.
-        event.preventDefault()
-        event.stopPropagation()
-      })
 
       // NOTE: Cursor may be not null but the inner values are.
       if (cursor && cursor.anchor && cursor.focus) {
@@ -141,6 +143,14 @@ export default {
     bus.$off('file-changed', this.handleFileChange)
     bus.$off('selectAll', this.handleSelectAll)
     bus.$off('image-action', this.handleImageAction)
+    bus.$off('undo', this.handleUndo)
+    bus.$off('redo', this.handleRedo)
+    bus.$off('find', this.handleFind)
+    bus.$off('replace', this.handleReplace)
+    bus.$off('findNext', this.handleFindNext)
+    bus.$off('findPrev', this.handleFindPrev)
+    document.removeEventListener('click', this.docClick)
+    document.removeEventListener('keyup', this.docKeyup)
 
     const { editor } = this
     const { cursor, markdown } = this.getMarkdownAndCursor(editor)
@@ -259,10 +269,10 @@ export default {
     },
     // Commit changes from old tab. Problem: tab was already switched, so commit changes with old tab id.
     prepareTabSwitch () {
-      let firstViewportVisibleItem = 'S' + this.getFirstLineNumberInViewport()
-      if (this.sourceCode === false) { // this shouldn't happen
-        firstViewportVisibleItem = undefined
-      }
+
+      let firstViewportVisibleItem = "S" + this.getFirstLineNumberInViewport();
+      if (this.sourceCode == false)//this shouldn't happen
+        firstViewportVisibleItem = undefined;       
 
       if (this.commitTimer) clearTimeout(this.commitTimer)
       if (this.tabId) {
@@ -272,15 +282,64 @@ export default {
         this.tabId = null // invalidate tab id
       }
     },
-    scrollToLineNumberInViewport (line, duration = 300, dontAddStandardHeadroom = false) {
-      let pos = this.editor.charCoords({ line: line, ch: 0 }, 'local').top
-      const DURATION = duration
-      if (!dontAddStandardHeadroom) { pos -= STANDAR_Y }
+<<<<<<< HEAD
+    scrollToLineNumberInViewport(line, duration=300, dontAddStandardHeadroom=false){
+      let pos = this.editor.charCoords({line:line,ch:0},"local").top;
+      const DURATION = duration;
+      if (! dontAddStandardHeadroom)
+        pos -= STANDAR_Y;
       animatedScrollTo(this.$el, pos, DURATION)
     },
-    getFirstLineNumberInViewport () {
-      return this.editor.coordsChar({ left: 0, top: this.$el.scrollTop }, 'local').line
+    getFirstLineNumberInViewport(){
+      return this.editor.coordsChar({left:0,top:this.$el.scrollTop},"local").line;
     },
+=======
+    handleUndo () {
+      if (this.editor && this.sourceCode) {
+        this.editor.execCommand('undo')
+      }
+    },
+
+    handleRedo () {
+      if (this.editor && this.sourceCode) {
+        this.editor.execCommand('redo')
+      }
+    },
+    docKeyup (event) {
+      if (this.editor && this.sourceCode && event.key === 'Escape') {
+        this.editor.execCommand('clearSearch')
+      }
+    },
+
+    docClick () {
+      if (this.editor && this.sourceCode)
+      this.editor.execCommand('clearSearch')
+    },
+    handleFind () {
+       if (this.editor && this.sourceCode) {
+        this.editor.execCommand('findPersistent')
+      }
+    },
+
+    handleReplace () {
+       if (this.editor && this.sourceCode) {
+        this.editor.execCommand('replace')
+      }
+    },
+
+    handleFindNext () {
+      if (this.editor && this.sourceCode) {
+        this.editor.execCommand('findNext')
+      }
+    },
+
+    handleFindPrev () {
+      if (this.editor && this.sourceCode) {
+        this.editor.execCommand('findPrev')
+      }
+    },
+
+>>>>>>> sourcecode_editor_find_undo_redo_fixes
     handleSelectAll () {
       if (!this.sourceCode) {
         return

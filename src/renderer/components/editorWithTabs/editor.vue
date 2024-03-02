@@ -111,6 +111,7 @@ import '@/assets/themes/codemirror/one-dark.css'
 // import 'view-image/lib/imgViewer.css'
 import CloseIcon from '@/assets/icons/close.svg'
 
+// Minus 67 here is the Y offset of the container itself, before we didn't include that in the scroll calculations, as we do now this keeps the actual Y offset the same
 const STANDAR_Y = 320
 
 export default {
@@ -437,8 +438,20 @@ export default {
     },
 
     currentFile: function (value, oldValue) {
+        if (this.sourceCode === false && oldValue && oldValue !== value) { // Cannot use the changed event above as it happens after we have switched to the new file
+          let firstViewportVisibleItem = this.getFirstElementInViewport()
+          if (firstViewportVisibleItem) { oldValue.firstViewportVisibleItem = 'M' + this.editor.contentState.getBlockIndex(firstViewportVisibleItem.id) } else { oldValue.firstViewportVisibleItem = 'Z' }// undefining if already set
+        }
+
       if (value && value !== oldValue) {
-        this.scrollToCursor(0)
+        if (this.sourceCode === false && value.firstViewportVisibleItem && value.firstViewportVisibleItem.startsWith('M')) {
+          let indexStr = value.firstViewportVisibleItem.substring(1)
+          this.$nextTick(() => {
+            let elemId = this.editor.contentState.getBlockKeyByIndex(indexStr)
+            if (!elemId) { return }
+            this.scrollToElement('#' + elemId, 15, true)
+          })
+        } else { this.scrollToCursor(0) }
         // Hide float tools if needed.
         this.editor && this.editor.hideAllFloatTools()
       }
@@ -630,7 +643,6 @@ export default {
       //
       //   this.setImageViewerVisible(true)
       // })
-
       this.editor.on('selectionChange', changes => {
         const { y } = changes.cursorCoords
         if (this.typewriter) {
@@ -908,14 +920,51 @@ export default {
       return this.scrollToElement(`#${slug}`)
     },
 
-    scrollToElement (selector) {
+    getFirstElementInViewport () {
+    let node = this.editor.container
+    if (node.childNodes.length === 0) { return null }
+    let offsetY = node.scrollTop
+    node = node.childNodes[0]// this gets us to the editors primary div
+    if (offsetY === 0) {
+      if (node.childNodes.length === 0) { return null }
+      return node.childNodes[0]
+    }
+
+    const nodeStack = []
+
+      while (node) {
+            // Only iterate over elements and text nodes
+            if (node.nodeType > 3) {
+              node = nodeStack.pop()
+              continue
+            }
+            if (node.offsetTop >= offsetY) { return node }
+
+            if (node.nodeType === 1) {
+                // this is an element
+                // add all its children to the stack
+                let i = node.childNodes.length - 1
+                while (i >= 0) {
+                  nodeStack.push(node.childNodes[i])
+                  i -= 1
+                }
+              }
+
+              node = nodeStack.pop()
+      }
+    },
+
+    scrollToElement (selector, duration = 300, dontAddStandardHeadroom = false) {
       // Scroll to search highlight word
       const { container } = this.editor
       const anchor = document.querySelector(selector)
       if (anchor) {
-        const { y } = anchor.getBoundingClientRect()
-        const DURATION = 300
-        animatedScrollTo(container, container.scrollTop + y - STANDAR_Y, DURATION)
+        const DURATION = duration
+        const anchorY = anchor.getBoundingClientRect().y
+        const containerY = container.getBoundingClientRect().y
+
+        const add = dontAddStandardHeadroom ? 0 : STANDAR_Y
+        animatedScrollTo(container, container.scrollTop + anchorY - containerY - add, DURATION)
       }
     },
 
@@ -1072,7 +1121,7 @@ export default {
         if (cursor) {
           editor.setMarkdown(markdown, cursor, true)
         } else {
-          editor.setMarkdown(markdown)
+          editor.setMarkdown(markdown, null, true)
         }
       }
     },

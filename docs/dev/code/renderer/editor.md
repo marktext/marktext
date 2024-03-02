@@ -82,6 +82,7 @@ interface IDocumentState
     index: number
   },
   cursor: any,
+  firstViewportVisibleItem: any,
   wordCount: {
     paragraph: number,
     word: number,

@@ -83,6 +83,7 @@ class ContentState {
     this._selectedImage = null
     this.dropAnchor = null
     this.prevCursor = null
+    this.firstViewportVisibleItem = null
     this.historyTimer = null
     this.history = new History(this)
     this.turndownConfig = Object.assign({}, DEFAULT_TURNDOWN_CONFIG, { bulletListMarker })
@@ -345,6 +346,43 @@ class ContentState {
 
   getCursor () {
     return this.cursor
+  }
+
+  getBlockKeyByIndex (index) {
+    let arr = index.split('.')
+    const travel = blocks => {
+      let pos = arr.shift()
+      let num = parseInt(pos)
+      if (num !== pos || Number.isInteger(num) === false) { return null }
+      pos = num
+      if (blocks.length <= pos) { return null }
+        let block = blocks[pos]
+      if (arr.length === 0) { return block.key } else { return travel(block.children) }
+    }
+    return travel(this.blocks)
+  }
+
+  getBlockIndex (key) {
+    if (!key) return null
+    let result = null
+    const travel = blocks => {
+      for (let index = 0; index < blocks.length; index++) {
+        const block = blocks[index]
+        if (block.key === key) {
+          result = `${index}`
+          return true
+        }
+        if (block.children.length) {
+          if (travel(block.children)) {
+            result = `${index}.${result}`
+            return true
+          }
+        }
+      }
+      return false
+    }
+    travel(this.blocks)
+    return result
   }
 
   getBlock (key) {
