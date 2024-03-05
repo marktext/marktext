@@ -71,6 +71,14 @@
           :onChange="value => onSelectChange('wordWrapInToc', value)"
         ></bool>
 
+        <text-box description='Patterns to exclude directorys or files'
+                  notes='Glob Patterns, Use "," to separate multiple pattern. Requires restart.'
+                  :input="projectPaths"
+                  :defaultValue="treePathExcludePatterns"
+                  :onChange="value => onSelectChange('treePathExcludePatterns',  value.split(','))"
+                  more="https://github.com/isaacs/minimatch"
+        ></text-box>
+
         <!-- TODO: The description is very bad and the entry isn't used by the editor. -->
         <cur-select
           description="Sort field for files in open folders"
@@ -125,6 +133,7 @@ import Range from '../common/range'
 import CurSelect from '../common/select'
 import Bool from '../common/bool'
 import Separator from '../common/separator'
+import textBox from '../common/textBox'
 import { isOsx } from '@/util'
 
 import {
@@ -140,7 +149,8 @@ export default {
     Bool,
     Range,
     CurSelect,
-    Separator
+    Separator,
+    textBox
   },
   data () {
     this.titleBarStyleOptions = titleBarStyleOptions
@@ -158,6 +168,7 @@ export default {
       defaultDirectoryToOpen: state => state.preferences.defaultDirectoryToOpen,
       openFilesInNewWindow: state => state.preferences.openFilesInNewWindow,
       openFolderInNewWindow: state => state.preferences.openFolderInNewWindow,
+      projectPaths: state => state.preferences.treePathExcludePatterns,
       zoom: state => state.preferences.zoom,
       hideScrollbar: state => state.preferences.hideScrollbar,
       wordWrapInToc: state => state.preferences.wordWrapInToc,
