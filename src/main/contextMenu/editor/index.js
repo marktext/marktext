@@ -8,7 +8,8 @@ import {
   PASTE_AS_PLAIN_TEXT,
   SEPARATOR,
   INSERT_BEFORE,
-  INSERT_AFTER
+  INSERT_AFTER,
+  UPLOAD_IMAGE
 } from './menuItems'
 import spellcheckMenuBuilder from './spellcheck'
 
@@ -27,28 +28,34 @@ export const showEditorContextMenu = (win, event, params, isSpellcheckerEnabled)
   //       `webFrame.isWordMisspelled` doesn't work on Windows (Electron#28684).
 
   // Make sure that the request comes from a contenteditable inside the editor container.
-  if (isInsideEditor(params) && !hasImageContents) {
-    const hasText = selectionText.trim().length > 0
-    const canCopy = hasText && editFlags.canCut && editFlags.canCopy
-    // const canPaste = hasText && editFlags.canPaste
-    const isMisspelled = isEditable && !!selectionText && !!misspelledWord
+  const inside = isInsideEditor(params)
+  if (!inside) return
+  const hasText = selectionText.trim().length > 0
+  const canCopy = hasText && editFlags.canCut && editFlags.canCopy
+  // const canPaste = hasText && editFlags.canPaste
+  const isMisspelled = isEditable && !!selectionText && !!misspelledWord
 
-    const menu = new Menu()
-    if (isSpellcheckerEnabled) {
-      const spellingSubmenu = spellcheckMenuBuilder(isMisspelled, misspelledWord, dictionarySuggestions)
-      menu.append(new MenuItem({
-        label: 'Spelling...',
-        submenu: spellingSubmenu
-      }))
-      menu.append(new MenuItem(SEPARATOR))
-    }
-
-    [CUT, COPY, COPY_AS_HTML, COPY_AS_MARKDOWN].forEach(item => {
-      item.enabled = canCopy
-    })
-    CONTEXT_ITEMS.forEach(item => {
-      menu.append(new MenuItem(item))
-    })
-    menu.popup([{ window: win, x: event.clientX, y: event.clientY }])
+  const menu = new Menu()
+  if (isSpellcheckerEnabled) {
+    const spellingSubmenu = spellcheckMenuBuilder(isMisspelled, misspelledWord, dictionarySuggestions)
+    menu.append(new MenuItem({
+      label: 'Spelling...',
+      submenu: spellingSubmenu
+    }))
+    menu.append(new MenuItem(SEPARATOR))
   }
+
+  [CUT, COPY, COPY_AS_HTML, COPY_AS_MARKDOWN].forEach(item => {
+    item.enabled = canCopy
+  })
+  CONTEXT_ITEMS.forEach(item => {
+    menu.append(new MenuItem(item))
+  })
+  if (hasImageContents) {
+    // TODO implement upload-image buttons
+    // if (isLocalImage)
+    //   menu.append(new MenuItem(UPLOAD_IMAGE))
+  }
+  menu.popup([{ window: win, x: event.clientX, y: event.clientY }])
+
 }

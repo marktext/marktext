@@ -58,6 +58,14 @@ export const INSERT_AFTER = {
   }
 }
 
+export const UPLOAD_IMAGE = {
+  label: 'Upload Image',
+  id: 'uploadImageWithUserConfig',
+  click (menuItem, targetWindow) {
+    targetWindow.webContents.send('mt::cm-upload-image')
+  }
+}
+
 export const SEPARATOR = {
   type: 'separator'
 }
