@@ -993,7 +993,7 @@ span.ag-warn.ag-emoji-marked-text {
 
 .ag-inline-image.ag-image-loading {
   width: 400px;
-  height: 250px;
+  height: 50px;
   margin: 0 auto;
   vertical-align: bottom;
 }

@@ -17,6 +17,10 @@ export default function loadImageAsync (imageInfo, attrs, className, imageClass)
       // We have a cached image, but force it to load.
       reload = true
     }
+    if (!imageInfo.isSuccess) {
+      // There is a chance that it will succeed in loading this time, so we will try to reload it.
+      reload = true
+    }
   } else {
     reload = true
   }
