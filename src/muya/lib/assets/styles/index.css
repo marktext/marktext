@@ -72,6 +72,10 @@ div.ag-show-quick-insert-hint p.ag-paragraph.ag-active > span.ag-paragraph-conte
   position: relative;
 }
 
+.ag-hide {
+  display: none;
+}
+
 .ag-atx-line:empty::after,
 .ag-thematic-break-line:empty::after,
 .ag-code-content:empty::after,
@@ -329,6 +333,7 @@ span.ag-math > .ag-math-render.ag-math-error {
 
 .ag-hide.ag-ruby,
 .ag-hide.ag-math {
+  display: inline-block;
   width: auto;
   height: auto;
 }
@@ -796,6 +801,7 @@ span.ag-emoji-marked-text {
 
 .ag-hide.ag-emoji-marked-text[data-emoji],
 .ag-hide.ag-html-escape[data-character] {
+  display: inline-block;
   overflow: visible;
   white-space: nowrap;
   color: transparent;
@@ -886,12 +892,15 @@ span.ag-warn.ag-emoji-marked-text {
   text-decoration: none;
 }
 
-.ag-hide, .ag-hide .ag-highlight, .ag-hide .ag-selection {
-  display: inline-block;
+.ag-hide, .ag-highlight, .ag-selection {
   width: 0;
   height: 0;
   overflow: hidden;
   vertical-align: middle;
+}
+
+.ag-highlight, .ag-selection {
+  display: inline-block;
 }
 
 .ag-inline-image,
