@@ -169,6 +169,10 @@ const imageCtrl = ContentState => {
   }
 
   ContentState.prototype.deleteImage = function ({ key, token }) {
+    const { selectedImage } = this
+    if (selectedImage && (selectedImage.key === key)) {
+      this.selectedImage = null
+    }
     const block = this.getBlock(key)
     const oldText = block.text
     const { start, end } = token.range
