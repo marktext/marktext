@@ -79,14 +79,22 @@ export const moveImageToFolder = async (pathname, image, outputDir) => {
       const filename = path.basename(imagePath)
       const extname = path.extname(imagePath)
       const noHashPath = path.join(outputDir, filename)
+
+      // If the file doesn't need to be moved, return it
       if (noHashPath === imagePath) {
         return imagePath
       }
-      const hash = getContentHash(imagePath)
-      // To avoid name conflict.
-      const hashFilePath = path.join(outputDir, `${hash}${extname}`)
-      await fs.copy(imagePath, hashFilePath)
-      return hashFilePath
+
+      let targetPath = noHashPath
+      if (fs.existsSync(targetPath)) {
+        // If a file already exists in the target location, use the image's content hash to avoid
+        // name conflict.
+        const hash = getContentHash(imagePath)
+        targetPath = path.join(outputDir, `${hash}${extname}`)
+      }
+
+      await fs.copy(imagePath, targetPath)
+      return targetPath
     } else {
       return Promise.resolve(image)
     }

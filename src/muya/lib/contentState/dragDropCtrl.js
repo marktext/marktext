@@ -160,14 +160,14 @@ const dragDropCtrl = ContentState => {
 
         try {
           const newSrc = await this.muya.options.imageAction(path, id, name)
-          const { src } = getImageSrc(path)
+          const { src } = getImageSrc(path, this.muya.options)
           if (src) {
             this.stateRender.urlMap.set(newSrc, src)
           }
           const imageWrapper = this.muya.container.querySelector(`span[data-id=${id}]`)
 
           if (imageWrapper) {
-            const imageInfo = getImageInfo(imageWrapper)
+            const imageInfo = getImageInfo(imageWrapper, this.muya.options)
             this.replaceImage(imageInfo, {
               alt: name,
               src: newSrc

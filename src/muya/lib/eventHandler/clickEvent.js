@@ -127,7 +127,7 @@ class ClickEvent {
       }
       // Handle delete inline iamge by click delete icon.
       if (imageDelete && imageWrapper) {
-        const imageInfo = getImageInfo(imageWrapper)
+        const imageInfo = getImageInfo(imageWrapper, this.muya.options)
         event.preventDefault()
         event.stopPropagation()
         // hide image selector if needed.
@@ -152,7 +152,7 @@ class ClickEvent {
       // Handle image click, to select the current image
       if (target.tagName === 'IMG' && imageWrapper) {
         // Handle select image
-        const imageInfo = getImageInfo(imageWrapper)
+        const imageInfo = getImageInfo(imageWrapper, this.muya.options)
         event.preventDefault()
         eventCenter.dispatch('select-image', imageInfo)
         // Handle show image toolbar
@@ -197,7 +197,7 @@ class ClickEvent {
             return rect
           }
         }
-        const imageInfo = getImageInfo(imageWrapper)
+        const imageInfo = getImageInfo(imageWrapper, this.muya.options)
         eventCenter.dispatch('muya-image-selector', {
           reference,
           imageInfo,

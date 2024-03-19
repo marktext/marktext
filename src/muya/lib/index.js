@@ -23,8 +23,10 @@ class Muya {
     })
   }
 
-  constructor (container, options) {
+  constructor (container, options, preferences) {
     this.options = Object.assign({}, MUYA_DEFAULT_OPTION, options)
+    this.options = Object.assign(this.options, preferences)
+
     const { markdown } = this.options
     this.markdown = markdown
     this.container = getContainer(container, this.options)

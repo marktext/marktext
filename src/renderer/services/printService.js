@@ -20,7 +20,7 @@ class MarkdownPrint {
       const images = printContainer.getElementsByTagName('img')
       for (const image of images) {
         const rawSrc = image.getAttribute('src')
-        image.src = getImageInfo(rawSrc).src
+        image.src = getImageInfo(rawSrc, this.muya.options).src
       }
     }
     document.body.appendChild(printContainer)

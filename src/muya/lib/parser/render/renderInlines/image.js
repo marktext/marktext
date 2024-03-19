@@ -22,7 +22,7 @@ const renderIcon = (h, className, icon) => {
 
 // I dont want operate dom directly, is there any better method? need help!
 export default function image (h, cursor, block, token, outerClass) {
-  const imageInfo = getImageInfo(token.attrs.src)
+  const imageInfo = getImageInfo(token.attrs.src, this.muya.options)
   const { selectedImage } = this.muya.contentState
   const data = {
     dataset: {

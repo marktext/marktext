@@ -31,6 +31,7 @@
       <export-setting-dialog></export-setting-dialog>
       <rename></rename>
       <tweet></tweet>
+      <userNotification></userNotification>
       <import-modal></import-modal>
     </div>
   </div>
@@ -48,6 +49,7 @@ import ExportSettingDialog from '@/components/exportSettings'
 import Rename from '@/components/rename'
 import Tweet from '@/components/tweet'
 import ImportModal from '@/components/import'
+import UserNotification from '@/components/userNotification'
 import { loadingPageMixins } from '@/mixins'
 import { mapState } from 'vuex'
 import bus from '@/bus'
@@ -65,6 +67,7 @@ export default {
     ExportSettingDialog,
     Rename,
     Tweet,
+    UserNotification,
     ImportModal,
     CommandPalette
   },

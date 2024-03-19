@@ -178,6 +178,26 @@ class DataCenter extends EventEmitter {
       }
     })
 
+    ipcMain.on('mt::ask-for-modify-local-folder-path', async (e, imagePath) => {
+      if (!imagePath) {
+        const win = BrowserWindow.fromWebContents(e.sender)
+        const { filePaths } = await dialog.showOpenDialog(win, {
+          properties: ['openDirectory', 'createDirectory']
+        })
+        if (filePaths && filePaths[0]) {
+          imagePath = filePaths[0]
+        }
+      }
+      if (imagePath) {
+        // Ensure they have a path separator at the end of their local folder path
+        if ((!imagePath.endsWith('/')) && (!imagePath.endsWith('\\'))) {
+          const pathSeparator = imagePath.replace(/[^\\/]/g, '')[0]
+          imagePath = imagePath + pathSeparator
+        }
+        this.setItem('localFolderPath', imagePath)
+      }
+    })
+
     ipcMain.on('mt::set-user-data', (e, userData) => {
       this.setItems(userData)
     })

@@ -156,6 +156,8 @@ export default {
       autoCheck: state => state.preferences.autoCheck,
       editorLineWidth: state => state.preferences.editorLineWidth,
       imageInsertAction: state => state.preferences.imageInsertAction,
+      serverFolderPath: state => state.preferences.serverFolderPath,
+      localFolderPath: state => state.preferences.localFolderPath,
       imagePreferRelativeDirectory: state => state.preferences.imagePreferRelativeDirectory,
       imageRelativeDirectoryName: state => state.preferences.imageRelativeDirectoryName,
       imageFolderPath: state => state.preferences.imageFolderPath,
@@ -549,7 +551,7 @@ export default {
         })
       }
 
-      const { container } = this.editor = new Muya(ele, options)
+      const { container } = this.editor = new Muya(ele, options, this.$store.state.preferences)
 
       // Create spell check wrapper and enable spell checking if preferred.
       this.spellchecker = new SpellChecker(spellcheckerEnabled, spellcheckerLanguage)
@@ -717,7 +719,15 @@ export default {
           // Filename w/o extension
           ? filename.replace(/\.[^/.]+$/, '')
           : ''
-        return imagePath.replace(/\${filename}/g, replacement)
+        imagePath = imagePath.replace(/\${filename}/g, replacement)
+
+        // Support year (numeric), month (2-digit), and day (2-digit) for image path replacements
+        const today = new Date()
+        imagePath = imagePath.replace(/\${year}/g, today.toLocaleDateString('en-US', { year: 'numeric' }))
+        imagePath = imagePath.replace(/\${month}/g, today.toLocaleDateString('en-US', { month: '2-digit' }))
+        imagePath = imagePath.replace(/\${day}/g, today.toLocaleDateString('en-US', { day: '2-digit' }))
+
+        return imagePath
       }
 
       const resolvedImageFolderPath = getResolvedImagePath(imageFolderPath)
@@ -768,6 +778,20 @@ export default {
           alt
         })
       }
+
+      // Map local paths to server paths if the user desires
+      if (this.serverFolderPath) {
+        if (destImagePath.toLowerCase().includes(this.localFolderPath.toLowerCase())) {
+          const escapedLocalFolderPath = this.localFolderPath.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+          const regex = new RegExp(escapedLocalFolderPath, 'ig')
+          destImagePath = destImagePath.replace(regex, this.serverFolderPath)
+
+          // Convert slash direction since the user is wanting URLs to represent server paths
+          destImagePath = destImagePath.replace(/\\/g, '/')
+          destImagePath = destImagePath.replace(/\/\//g, '/')
+        }
+      }
+
       return destImagePath
     },
 

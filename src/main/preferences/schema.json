@@ -349,6 +349,16 @@
     ],
     "default": "path"
   },
+  "serverFolderPath": {
+    "description": "If specified, a server path of image URLs to maintain during editing and preview",
+    "type": "string",
+    "default": ""
+  },
+  "localFolderPath": {
+    "description": "The local path that corresponds to serverFolderPath during editing and preview",
+    "type": "string",
+    "default": ""
+  },
   "imagePreferRelativeDirectory": {
     "description": "Image--Whether to prefer the relative image directory.",
     "type": "boolean",

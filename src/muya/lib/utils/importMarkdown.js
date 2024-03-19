@@ -611,7 +611,7 @@ const importRegister = ContentState => {
           const rawSrc = label + backlash.second
           if (render.labels.has((rawSrc).toLowerCase())) {
             const { href } = render.labels.get(rawSrc.toLowerCase())
-            const { src } = getImageInfo(href)
+            const { src } = getImageInfo(href, this.muya.options)
             if (src) {
               results.add(src)
             }
