@@ -21,8 +21,9 @@ Before you can get started developing, you need set up your build environment:
 - libxkbfile (with headers)
 - libsecret (with headers)
 - libfontconfig (with headers)
+- rpm (if building on Debian)
 
-On Debian-based Linux: `sudo apt-get install libx11-dev libxkbfile-dev libsecret-1-dev libfontconfig-dev`
+On Debian-based Linux: `sudo apt-get install libx11-dev libxkbfile-dev libsecret-1-dev libfontconfig-dev rpm`
 
 On Red Hat-based Linux: `sudo dnf install libX11-devel libxkbfile-devel libsecret-devel fontconfig-devel`
 
