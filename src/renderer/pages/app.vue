@@ -138,6 +138,7 @@ export default {
     dispatch('LISTEN_FOR_UPDATE')
     // module: editor
     dispatch('LISTEN_SCREEN_SHOT')
+    dispatch('LISTEN_SCROLL_TO_HEADER')
     dispatch('ASK_FOR_USER_PREFERENCE')
     dispatch('LISTEN_TOGGLE_VIEW')
     dispatch('LISTEN_FOR_CLOSE')

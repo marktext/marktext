@@ -417,8 +417,25 @@ ipcMain.on('mt::format-link-click', (e, { data, dirname }) => {
   if (!data || (!data.href && !data.text)) {
     return
   }
+  let parsedUrl = null
+  let slug = null
 
-  const urlCandidate = data.href || data.text
+  let urlCandidate = data.href || data.text
+  if (typeof (urlCandidate) === 'string') {
+    try {
+      parsedUrl = new URL(urlCandidate, 'b:/fake/')
+      if (parsedUrl.protocol === 'b:') { // seems like a local file
+        if (parsedUrl.hash) {
+          slug = parsedUrl.hash.substring(1)
+          if (urlCandidate.endsWith(parsedUrl.hash)) {
+            urlCandidate = urlCandidate.substring(0, urlCandidate.length - parsedUrl.hash.length)
+          }
+        }
+      }
+    } catch {
+
+    }
+  }
   if (URL_REG.test(urlCandidate)) {
     shell.openExternal(urlCandidate)
     return
@@ -427,8 +444,12 @@ ipcMain.on('mt::format-link-click', (e, { data, dirname }) => {
     return
   }
 
-  const href = data.href
+  const href = urlCandidate
   if (!href) {
+    if (slug) {
+      const win = BrowserWindow.fromWebContents(e.sender)
+      gotoSlug(win, slug)
+    }
     return
   }
 
@@ -443,7 +464,7 @@ ipcMain.on('mt::format-link-click', (e, { data, dirname }) => {
     pathname = path.normalize(pathname)
     if (isMarkdownFile(pathname)) {
       const win = BrowserWindow.fromWebContents(e.sender)
-      openFileOrFolder(win, pathname)
+      openFileOrFolder(win, pathname, slug)
     } else {
       shell.openPath(pathname)
     }
@@ -533,11 +554,13 @@ export const openFolder = async win => {
     openFileOrFolder(win, filePaths[0])
   }
 }
-
-export const openFileOrFolder = (win, pathname) => {
+export const gotoSlug = (win, slug) => {
+    ipcMain.emit('scroll-to-header-by-name', win.id, slug)
+}
+export const openFileOrFolder = (win, pathname, slug) => {
   const resolvedPath = normalizeAndResolvePath(pathname)
   if (isFile(resolvedPath)) {
-    ipcMain.emit('app-open-file-by-id', win.id, resolvedPath)
+    ipcMain.emit('app-open-file-by-id', win.id, resolvedPath, slug)
   } else if (isDirectory(resolvedPath)) {
     ipcMain.emit('app-open-directory-by-id', win.id, resolvedPath)
   } else {

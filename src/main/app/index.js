@@ -460,17 +460,30 @@ class App {
     ipcMain.on('app-create-settings-window', category => {
       this._openSettingsWindow(category)
     })
-
-    ipcMain.on('app-open-file-by-id', (windowId, filePath) => {
+    ipcMain.on('scroll-to-header-by-name', (windowId, slug) => {
+      let editor = this._windowManager.get(windowId)
+      const win = editor.browserWindow
+      win.webContents.send('mt::scroll-to-header-by-name', slug)
+    })
+    ipcMain.on('app-open-file-by-id', (windowId, filePath, slug) => {
       const openFilesInNewWindow = this._accessor.preferences.getItem('openFilesInNewWindow')
+      let editor = null
       if (openFilesInNewWindow) {
         this._createEditorWindow(null, [filePath])
       } else {
-        const editor = this._windowManager.get(windowId)
+        editor = this._windowManager.get(windowId)
         if (editor) {
           editor.openTab(filePath, {}, true)
         }
       }
+      if (!slug) { return }
+
+      if (!editor) { editor = this._windowManager.get(windowId) }
+      if (!editor) { return }
+      const win = editor.browserWindow
+
+      // probably should pass this further down but at least createEditorWindow isn't setup great for taking params.
+      setTimeout(() => win.webContents.send('mt::scroll-to-header-by-name', slug), 250)
     })
     ipcMain.on('app-open-files-by-id', (windowId, fileList) => {
       const openFilesInNewWindow = this._accessor.preferences.getItem('openFilesInNewWindow')

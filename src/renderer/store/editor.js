@@ -344,6 +344,11 @@ const actions = {
       bus.$emit('screenshot-captured')
     })
   },
+  LISTEN_SCROLL_TO_HEADER ({ commit }) {
+    ipcRenderer.on('mt::scroll-to-header-by-name', (e, slug) => {
+      bus.$emit('scroll-to-header-by-name', slug)
+    })
+  },
 
   // image path auto complement
   ASK_FOR_IMAGE_AUTO_PATH ({ commit, state }, src) {
