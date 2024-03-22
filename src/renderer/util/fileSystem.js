@@ -227,12 +227,11 @@ export const uploadImage = async (pathname, image, preferences) => {
             uploadByCommand(currentUploader, reader.result)
             break
           default:
-            uploadByGithub(reader.result, image.name)
+            uploadByGithub(Buffer.from(reader.result).toString('base64'), image.name)
         }
       }
 
-      const readerFunction = currentUploader !== 'github' ? 'readAsArrayBuffer' : 'readAsDataURL'
-      reader[readerFunction](image)
+      reader.readAsArrayBuffer(image)
     }
   }
   return promise
