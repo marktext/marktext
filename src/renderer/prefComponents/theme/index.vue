@@ -16,6 +16,10 @@
       :options="autoSwitchThemeOptions"
       :onChange="value => onSelectChange('autoSwitchTheme', value)"
     ></cur-select>
+    <div>
+      <div style="font-size: smaller; color: var(--editorColor)">Custom CSS</div>
+      <textarea style="width: 100%" rows="10" :value="customCss" @change="event => onSelectChange('customCss', event.target.value)"></textarea>
+    </div>
     <separator v-show="false"></separator>
     <section v-show="false" class="import-themes ag-underdevelop">
       <div>
@@ -53,7 +57,8 @@ export default {
   computed: {
     ...mapState({
       autoSwitchTheme: state => state.preferences.autoSwitchTheme,
-      theme: state => state.preferences.theme
+      theme: state => state.preferences.theme,
+      customCss: state => state.preferences.customCss
     })
   },
   created () {
