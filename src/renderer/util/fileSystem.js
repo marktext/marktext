@@ -241,7 +241,11 @@ export const uploadImage = async (pathname, image, preferences) => {
 export const isFileExecutableSync = (filepath) => {
   try {
     const stat = statSync(filepath)
-    return stat.isFile() && (stat.mode & (constants.S_IXUSR | constants.S_IXGRP | constants.S_IXOTH)) !== 0
+    if (process.platform === 'win32') {
+      return stat.isFile()
+    } else {
+      return stat.isFile() && (stat.mode & (constants.S_IXUSR | constants.S_IXGRP | constants.S_IXOTH)) !== 0
+    }
   } catch (err) {
     // err ignored
     return false
