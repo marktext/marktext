@@ -580,6 +580,12 @@ export const saveAs = win => {
   }
 }
 
+export const exportPDF = win => {
+  if (win && win.webContents) {
+    exportFile(win, 'pdf')
+  }
+}
+
 export const autoSave = (menuItem, browserWindow) => {
   const { checked } = menuItem
   ipcMain.emit('set-user-preference', { autoSave: checked })
@@ -620,4 +626,5 @@ export const loadFileCommands = commandManager => {
   commandManager.add(COMMANDS.FILE_RENAME_FILE, rename)
   commandManager.add(COMMANDS.FILE_SAVE, save)
   commandManager.add(COMMANDS.FILE_SAVE_AS, saveAs)
+  commandManager.add(COMMANDS.FILE_EXPORT_FILE_PDF, exportPDF)
 }

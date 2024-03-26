@@ -126,6 +126,7 @@ export default function (keybindings, userPreference, recentlyUsedFiles) {
         }
       }, {
         label: 'PDF',
+        accelerator: keybindings.getAccelerator('file.export-file.pdf'),
         click (menuItem, browserWindow) {
           actions.exportFile(browserWindow, 'pdf')
         }

@@ -23,6 +23,9 @@ export default new Map([
   ['file.close-window', 'Command+Shift+W'],
   ['file.quit', 'Command+Q'],
 
+  // File > Export submenu
+  ['file.export-file.pdf', 'Ctrl+Alt+E'],
+
   // Edit menu
   ['edit.undo', 'Command+Z'],
   ['edit.redo', 'Command+Shift+Z'],

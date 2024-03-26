@@ -6,21 +6,22 @@ MarkText key bindings for Linux. Please see [general key bindings](KEYBINDINGS.m
 
 #### File menu
 
-| Id                  | Default                                       | Description                           |
-|:------------------- | --------------------------------------------- | ------------------------------------- |
-| `file.new-window`   | <kbd>Ctrl</kbd>+<kbd>N</kbd>                  | New window                            |
-| `file.new-tab`      | <kbd>Ctrl</kbd>+<kbd>T</kbd>                  | New tab                               |
-| `file.open-file`    | <kbd>Ctrl</kbd>+<kbd>O</kbd>                  | Open markdown file                    |
-| `file.open-folder`  | <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>O</kbd> | Open folder                           |
-| `file.save`         | <kbd>Ctrl</kbd>+<kbd>S</kbd>                  | Save                                  |
-| `file.save-as`      | <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd> | Save as...                            |
-| `file.move-file`    | -                                             | Move current file to another location |
-| `file.rename-file`  | -                                             | Rename current file                   |
-| `file.print`        | -                                             | Print current tab                     |
-| `file.preferences`  | <kbd>Ctrl</kbd>+<kbd>,</kbd>                  | Open settings window                  |
-| `file.close-tab`    | <kbd>Ctrl</kbd>+<kbd>W</kbd>                  | Close tab                             |
-| `file.close-window` | <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>W</kbd> | Close window                          |
-| `file.quit`         | <kbd>Ctrl</kbd>+<kbd>Q</kbd>                  | Quit MarkText                         |
+| Id                     | Default                                       | Description                           |
+|:---------------------- | --------------------------------------------- | ------------------------------------- |
+| `file.new-window`      | <kbd>Ctrl</kbd>+<kbd>N</kbd>                  | New window                            |
+| `file.new-tab`         | <kbd>Ctrl</kbd>+<kbd>T</kbd>                  | New tab                               |
+| `file.open-file`       | <kbd>Ctrl</kbd>+<kbd>O</kbd>                  | Open markdown file                    |
+| `file.open-folder`     | <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>O</kbd> | Open folder                           |
+| `file.save`            | <kbd>Ctrl</kbd>+<kbd>S</kbd>                  | Save                                  |
+| `file.save-as`         | <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd> | Save as...                            |
+| `file.export-file.pdf` | <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>E</kbd>   | Export file as PDF                    |
+| `file.move-file`       | -                                             | Move current file to another location |
+| `file.rename-file`     | -                                             | Rename current file                   |
+| `file.print`           | -                                             | Print current tab                     |
+| `file.preferences`     | <kbd>Ctrl</kbd>+<kbd>,</kbd>                  | Open settings window                  |
+| `file.close-tab`       | <kbd>Ctrl</kbd>+<kbd>W</kbd>                  | Close tab                             |
+| `file.close-window`    | <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>W</kbd> | Close window                          |
+| `file.quit`            | <kbd>Ctrl</kbd>+<kbd>Q</kbd>                  | Quit MarkText                         |
 
 #### Edit menu
 
