@@ -4,7 +4,7 @@ Let us take a look at the realtime editor and editing features.
 
 ## Text manipulation
 
-MarkText shows you formatted text in realtime while you can simply write and edit text but also use markdown syntax. To improve your writing efficiency there are a lot of key bindings for better text manipulation. In the preferences you can control the editor settings such as font settings, autocompletion and line width.
+MarkText shows you formatted text in realtime, where you can simply write and edit text, as well as use markdown syntax. To improve your writing efficiency there are a lot of key bindings for better text manipulation. In the preferences you can control the editor settings such as font settings, autocompletion and line width.
 
 ## Selections
 
@@ -12,7 +12,7 @@ You can select text with your mouse cursor, double click on a word or use the ke
 
 **Format overlay:**
 
-The format overlay is a pop up that automatically appears when you're selecting text. You can easily transform text and inline markdown but also remove formatting.
+The format overlay is a pop-up that automatically appears when you're selecting text. You can easily transform text and inline markdown, and remove formatting.
 
 ![](assets/marktext-format-popup.png)
 
@@ -38,19 +38,19 @@ You can configure MarkText to autocomplete markdown syntax, brackets and quotes.
 
 ## Links
 
-Links are shown by default as normal text but if you click on a link the link is shown as markdown link with title and URL like below:
+Links are displayed by default as normal text, but if you click on a link it is shown as a markdown link with title and URL, as shown below:
 
 ![](assets/marktext-link-preview.png)
 
 ## Formatting
 
-MarkText will automatically format your markdown document according CommonMark and GitHub Flavored Markdown specification. You can control few settings via preferences such as list indentation.
+MarkText will automatically format your markdown document according CommonMark and GitHub Flavored Markdown specification. Some settings, such as list indentation, can be controlled via preferences. 
 
 ## Editing features
 
 #### Quick insert
 
-When you start a new line, just type `@` to show a pop up with all available markdown features. Now you can select an entry and the line is transformed into the selected one.
+When you start a new line, just type @ to access a pop-up with all available markdown features. At this point, you can choose an entry and the line is transformed into the selected attribute.
 
 ![](assets/marktext-quick-insert.png)
 
@@ -66,13 +66,13 @@ It's sometimes hard to write and manage tables in markdown. In MarkText you can 
 
 **Insert and delete rows and columns:**
 
-You can insert or delete a new row or column by clicking on an existing cell and click on the menu on the right side for rows or bottom for columns.
+You can insert or delete a new row or column by clicking on an existing cell and clicking on the menu on the right side for rows or bottom for columns.
 
 ![](assets/marktext-table_drag_drop.png)
 
 **Move table cells:**
 
-You can simply move a row or column by clicking on the cell menu (like above) and dragging it by holding your mouse left-button like this:
+You can simply move a row or column by clicking on the cell menu (like above) and dragging it by holding your left mouse button like this:
 
 ![](assets/marktext-table-gif.gif)
 
@@ -80,13 +80,13 @@ You can simply move a row or column by clicking on the cell menu (like above) an
 
 ![](assets/marktext-image-viewer.png)
 
-MarkText provides an image viewer and a pop up to select and label images. You can resize any image by your mouse cursor and changes are applied in realtime. By clicking on an image or writing `![]()` a pop up is automatically shown that allows you to select an image from disk or paste a path or URL. Images can be automatically uploaded to cloud, moved to a relative or absolute path on disk. Even pasting images that are not located on disk is supported and these images are stored in the background. In addition, you can control the image alignment whether inline, left, centered or right.
+MarkText provides an image viewer and a pop-up to select and label images. You can resize any image using your mouse cursor; changes are applied in realtime. By clicking on an image or writing `![]()` a pop-up automatically appears that allows you to select an image from disk, or paste a path or URL. Images can be automatically uploaded to cloud, or moved to a relative or absolute path on your local disk. Even pasting images that are not located on disk is supported and these images are stored in the background. In addition, you can control the image alignment whether inline, left, centered or right.
 
 ![](assets/marktext-image-popup.png)
 
 #### Emoji picker
 
-Instantly add emojis to your markdown document without long searches. During typing, we automatically refresh the list of available emojis.
+Instantly add emojis to your markdown document without long searches. While typing, the application automatically refreshes the list of available emojis.
 
 ![](assets/marktext-emoji-picker.png)
 
@@ -102,7 +102,7 @@ In typewriter mode, the cursor is always keep in the middle of the editor.
 
 ## File encoding
 
-MarkText tries to automatically detect the used file encoding and byte-order mark (BOM) when opening a file. The default encoding is UTF-8 that should support all needed characters but can be changed in settings. You can disable automatically encoding detection but then we assume that all files are UTF-8 encoded. The current used encoding can be shown via command palette and also changed there.
+MarkText tries to automatically detect the encoding and byte-order mark (BOM) of a file upon opening it. The default encoding is UTF-8 that should support all needed characters but can be changed in settings. You can disable automatic encoding detection; however, the application will then assume that all files are UTF-8 encoded. The currently used encoding can be shown and changed via command palette.
 
 ## Line endings
 
@@ -112,8 +112,8 @@ MarkText automatically analyzes each file and detects the used line ending and c
 
 **Inside the editor:**
 
-To quickly find a keyword in your document press <kbd>CmdOrCtrl</kbd>+<kbd>F</kbd> to open the search pop up. Now you can search for text or replace the given keyword.
+To quickly find a keyword in your document press <kbd>CmdOrCtrl</kbd>+<kbd>F</kbd> to open the search pop-up. Now you can search for text or replace the given keyword.
 
 **Search in opened folder:**
 
-MarkText provides a build-in filesystem explorer (tree view) with a fast file searcher. Type a keyword in the search bar and select the needed options like regex or case-insensitive search. That's all, now MarkText will search all markdown files in the opened root directory.
+MarkText provides a built-in filesystem explorer (tree view) with a fast file searcher. Type a keyword in the search bar and select the needed options like regex or case-insensitive search. That's all! MarkText will then search all markdown files in the opened root directory.
