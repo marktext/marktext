@@ -12,7 +12,7 @@ export const getUniqueId = () => {
 export const getRecommendTitleFromMarkdownString = markdown => {
   // NOTE: We should read the title from the renderer cache because this regex matches in
   // code blocks too.
-  const tokens = markdown.match(/#{1,6} {1,}(.*\S.*)(?:\n|$)/g)
+  const tokens = markdown.match(/#{1,6} {1,}(?! )(.*\S.*)(?:\n|$)/g)
   if (!tokens) return ''
   const headers = tokens.map(t => {
     const matches = t.trim().match(/(#{1,6}) {1,}(.+)/)
