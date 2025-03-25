@@ -151,3 +151,14 @@ describe('Match non-character keys', () => {
     })
   )
 })
+
+describe('REDoS Helpers', () => {
+  it('should stop in 1 second', () => {
+    const str = '#' + ' '.repeat(100000) + '\n1\n'
+    const startTime = performance.now()
+    getRecommendTitleFromMarkdownString(str)
+    const endTime = performance.now()
+    const timeTaken = endTime - startTime
+    expect(timeTaken).to.be.lessThan(1000)
+  })
+})
