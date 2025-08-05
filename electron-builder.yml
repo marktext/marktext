@@ -5,6 +5,7 @@ asar: true
 asarUnpack:
 - "**/*.node"
 - "**/node_modules/ced/**"
+- "**/*.dll"  # 添加这行
 directories:
   output: "build"
 # Workaround: Don't download prebuilt libraries (GH#2953).
