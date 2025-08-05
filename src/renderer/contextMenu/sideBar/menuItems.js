@@ -69,3 +69,11 @@ export const SHOW_IN_FOLDER = {
     contextMenu.showInFolder()
   }
 }
+
+export const OPEN_IN_TERMINAL = {
+  label: '用终端打开',
+  id: 'openInTerminalMenuItem',
+  click (menuItem, browserWindow) {
+    contextMenu.openInTerminal()
+  }
+}

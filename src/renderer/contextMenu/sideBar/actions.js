@@ -31,3 +31,7 @@ export const remove = (menuItem, browserWindow) => {
 export const showInFolder = (menuItem, browserWindow) => {
   bus.$emit('SIDEBAR::show-in-folder')
 }
+
+export const openInTerminal = (menuItem, browserWindow) => {
+  bus.$emit('SIDEBAR::open-in-terminal')
+}

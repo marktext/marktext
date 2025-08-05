@@ -132,6 +132,11 @@ const actions = {
       const { pathname } = state.activeItem
       shell.showItemInFolder(pathname)
     })
+    bus.$on('SIDEBAR::open-in-terminal', () => {
+      const { pathname, isDirectory } = state.activeItem
+      const dirPath = isDirectory ? pathname : path.dirname(pathname)
+      ipcRenderer.send('mt::open-in-terminal', dirPath)
+    })
     bus.$on('SIDEBAR::new', type => {
       const { pathname, isDirectory } = state.activeItem
       const dirname = isDirectory ? pathname : path.dirname(pathname)

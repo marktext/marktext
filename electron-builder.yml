@@ -4,6 +4,7 @@ appId: "com.github.marktext.marktext"
 asar: true
 asarUnpack:
 - "**/*.node"
+- "**/node_modules/ced/**"
 directories:
   output: "build"
 # Workaround: Don't download prebuilt libraries (GH#2953).
@@ -47,7 +48,7 @@ files:
 - "!node_modules/**/{*.vcxproj,*.vcxproj.filters}"
 - "!node_modules/**/build/Release/{*.lib,*.exp,*.ilk,*.pdb,*.iobj,*.ipdb}"
 - "!node_modules/**/build/Release/obj"
-- "!node_modules/ced/build/vendor"
+# - "!node_modules/ced/build/vendor"
 extraFiles:
 - "LICENSE"
 - from: "resources/THIRD-PARTY-LICENSES.txt"
@@ -90,9 +91,7 @@ win:
   icon: "resources/icons/icon.ico"
   target:
   - target: "nsis"
-    arch: [ia32, x64]
-  - target: "zip"
-    arch: [ia32, x64]
+    arch: [x64]
   requestedExecutionLevel: "asInvoker"
 nsis:
   artifactName: "marktext-setup.${ext}"

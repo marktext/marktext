@@ -17,6 +17,7 @@ import { watchers } from '../utils/imagePathAutoComplement'
 import { WindowType } from '../windows/base'
 import EditorWindow from '../windows/editor'
 import SettingWindow from '../windows/setting'
+import { registerTerminalActionHandlers } from '../menu/actions/terminal'
 
 class App {
   /**
@@ -79,7 +80,10 @@ class App {
 
     app.on('open-file', this.openFile) // macOS only
 
-    app.on('ready', this.ready)
+    app.on('ready', () => {
+      this.ready()
+      registerTerminalActionHandlers()
+    })
 
     app.on('window-all-closed', () => {
       // Close all the image path watcher
