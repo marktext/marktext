@@ -69,6 +69,7 @@
     "mermaid": "^10.0.0",
     "minizlib": "^2.1.2",
     "native-keymap": "^3.3.0",
+    "node-pty": "^1.0.0",
     "plist": "^3.0.5",
     "popper.js": "^1.16.1",
     "prismjs": "^1.27.0",
@@ -86,7 +87,8 @@
     "vue-electron": "^1.0.6",
     "vue-router": "^3.5.3",
     "vuex": "^3.6.2",
-    "webfontloader": "^1.6.28"
+    "webfontloader": "^1.6.28",
+    "xterm": "^5.3.0"
   },
   "devDependencies": {
     "@babel/core": "^7.17.9",

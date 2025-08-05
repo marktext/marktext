@@ -69,6 +69,11 @@
     <search
       v-if="!sourceCode"
     ></search>
+    <Terminal
+      v-if="showTerminal"
+      :working-directory="currentFile.pathname ? path.dirname(currentFile.pathname) : ''"
+      @close="showTerminal = false"
+    />
   </div>
 </template>
 
@@ -96,6 +101,8 @@ import FrontMenu from 'muya/lib/ui/frontMenu'
 import Search from '../search'
 import bus from '@/bus'
 import { DEFAULT_EDITOR_FONT_FAMILY } from '@/config'
+import Terminal from '../Terminal'
+import path from 'path'
 import notice from '@/services/notification'
 import Printer from '@/services/printService'
 import { SpellcheckerLanguageCommand } from '@/commands'
@@ -115,7 +122,8 @@ const STANDAR_Y = 320
 
 export default {
   components: {
-    Search
+    Search,
+    Terminal
   },
 
   props: {
@@ -184,6 +192,7 @@ export default {
       selectionChange: null,
       editor: null,
       pathname: '',
+      showTerminal: false,
       isShowClose: false,
       dialogTableVisible: false,
       imageViewerVisible: false,
@@ -455,6 +464,11 @@ export default {
     this.$nextTick(() => {
       this.printer = new Printer()
       const ele = this.$refs.editor
+
+      // 监听终端显示事件
+      bus.$on('mt::show-terminal', () => {
+        this.showTerminal = true
+      })
       const {
         focus: focusMode,
         markdown,
@@ -1146,6 +1160,7 @@ export default {
     bus.$off('switch-spellchecker-language', this.switchSpellcheckLanguage)
     bus.$off('open-command-spellchecker-switch-language', this.openSpellcheckerLanguageCommand)
     bus.$off('replace-misspelling', this.replaceMisspelling)
+    bus.$off('mt::show-terminal')
 
     document.removeEventListener('keyup', this.keyup)
 
