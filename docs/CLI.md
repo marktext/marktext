@@ -18,5 +18,5 @@ Usage: marktext [commands] [path ...]
 `marktext` should point to your installation of MarkText. The exact location will vary from platform to platform. On macOS, you can create a convenient alias like:
 
 ```sh
-alias marktext="/Applications/Mark\ Text.app/Contents/MacOS/Mark\ Text"
+alias marktext="/Applications/MarkText.app/Contents/MacOS/MarkText"
 ```
