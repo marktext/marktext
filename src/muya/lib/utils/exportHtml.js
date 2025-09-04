@@ -48,7 +48,14 @@ class ExportHtml {
       securityLevel: 'strict',
       theme: 'default'
     })
-    mermaid.init(undefined, this.exportContainer.querySelectorAll('div.mermaid'))
+    // v11: Use run() instead of deprecated init()
+    const mermaidElements = this.exportContainer.querySelectorAll('div.mermaid')
+    if (mermaidElements.length > 0) {
+      await mermaid.run({
+        nodes: Array.from(mermaidElements),
+        suppressErrors: false
+      })
+    }
     if (this.muya) {
       mermaid.initialize({
         securityLevel: 'strict',

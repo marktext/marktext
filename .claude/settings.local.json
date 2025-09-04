@@ -1,0 +1,29 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(conda create:*)",
+      "Bash(conda activate:*)",
+      "Bash(npm install:*)",
+      "Bash(source:*)",
+      "Bash(conda env remove:*)",
+      "Bash(export PATH=\"$CONDA_PREFIX/bin:$PATH\")",
+      "Bash(node:*)",
+      "Bash(npm:*)",
+      "Bash(yarn --version)",
+      "Bash(yarn install:*)",
+      "Bash(pip install:*)",
+      "Bash(yarn run build:*)",
+      "Bash(yarn run lint)",
+      "Bash(nvm list:*)",
+      "Bash(yarn dev)",
+      "Bash(git checkout:*)",
+      "WebSearch",
+      "WebFetch(domain:github.com)",
+      "Bash(grep:*)",
+      "Bash(yarn lint)",
+      "Bash(git add:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

@@ -1,0 +1,5 @@
+Review this .md editor code. It is perfect just the way it is. But its mermaid diagram support is out of date. It supports around version 8 of mermaid diagrams from 3 years ago. See https://github.com/mermaid-js/mermaid and create a plan for bringing this application's mermaid support up to date.
+
+The report should be a .md diagram (supporting version 9 or below mermaid diagrams if included) that has describes specifically what directions should be given to an LLM to implement this. The report should contain every detail a developer would need to understand the markdown app, how to test it, how to modify it, and how to maintain it.
+
+create a branch for this. We will try to make a PR to update this code. 

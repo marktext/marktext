@@ -109,9 +109,17 @@ class StateRender {
           continue
         }
         try {
-          mermaid.parse(code)
+          // v11: parse is now async and returns boolean
+          const isValid = await mermaid.parse(code)
+          if (!isValid) {
+            throw new Error('Invalid mermaid syntax')
+          }
           target.innerHTML = sanitize(code, PREVIEW_DOMPURIFY_CONFIG, true)
-          mermaid.init(undefined, target)
+          // v11: Use run() instead of deprecated init()
+          await mermaid.run({
+            nodes: [target],
+            suppressErrors: false
+          })
         } catch (err) {
           target.innerHTML = '< Invalid Mermaid Codes >'
           target.classList.add(CLASS_OR_ID.AG_MATH_ERROR)
