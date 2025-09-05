@@ -1,6 +1,6 @@
 import loadRenderer from '../../renderers'
-import { CLASS_OR_ID, PREVIEW_DOMPURIFY_CONFIG } from '../../config'
-import { conflict, mixins, camelToSnake, sanitize } from '../../utils'
+import { CLASS_OR_ID } from '../../config'
+import { conflict, mixins, camelToSnake } from '../../utils'
 import { patch, toVNode, toHTML, h } from './snabbdom'
 import { beginRules } from '../rules'
 import renderInlines from './renderInlines'
@@ -98,29 +98,45 @@ class StateRender {
   async renderMermaid () {
     if (this.mermaidCache.size) {
       const mermaid = await loadRenderer('mermaid')
+
+      // Initialize mermaid once with correct config for v11
+      // Reset initialization on each render to ensure fresh state
       mermaid.initialize({
         securityLevel: 'strict',
-        theme: this.muya.options.mermaidTheme
+        theme: this.muya.options.mermaidTheme || 'default',
+        startOnLoad: false, // Important for manual rendering
+        logLevel: 'error' // Reduce console noise
       })
+
+      // Process all cached diagrams
       for (const [key, value] of this.mermaidCache.entries()) {
         const { code } = value
         const target = document.querySelector(key)
         if (!target) {
           continue
         }
+
+        // Add a small delay to ensure DOM is ready
+        await new Promise(resolve => setTimeout(resolve, 10))
+
         try {
-          // v11: parse is now async and returns boolean
-          const isValid = await mermaid.parse(code)
-          if (!isValid) {
-            throw new Error('Invalid mermaid syntax')
-          }
-          target.innerHTML = sanitize(code, PREVIEW_DOMPURIFY_CONFIG, true)
-          // v11: Use run() instead of deprecated init()
+          // Clean up any previous mermaid content
+          target.removeAttribute('data-processed')
+          target.innerHTML = '' // Clear previous content
+
+          // v11: parse first to validate
+          await mermaid.parse(code)
+
+          // v11: set the code content
+          target.textContent = code
+
+          // v11: run the renderer
           await mermaid.run({
             nodes: [target],
             suppressErrors: false
           })
         } catch (err) {
+          console.error('Mermaid render error for:', code.substring(0, 50), err)
           target.innerHTML = '< Invalid Mermaid Codes >'
           target.classList.add(CLASS_OR_ID.AG_MATH_ERROR)
         }

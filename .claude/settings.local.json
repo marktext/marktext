@@ -21,7 +21,21 @@
       "WebFetch(domain:github.com)",
       "Bash(grep:*)",
       "Bash(yarn lint)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(yarn build:*)",
+      "Bash(yarn rebuild)",
+      "Bash(npx:*)",
+      "Bash(./node_modules/.bin/electron-builder:*)",
+      "Bash(pkill:*)",
+      "Bash(NODE_ENV=production yarn build:dev)",
+      "Bash(SKIP_APP_REBUILD=true npx electron-builder --mac --dir)",
+      "Bash(chmod:*)",
+      "Bash(./create-app-bundle.sh:*)",
+      "Bash(open:*)",
+      "Read(//Applications/MarkText.app/Contents/Resources/app/node_modules/ced/**)",
+      "Bash(ln:*)",
+      "Bash(yarn lint:*)"
     ],
     "deny": [],
     "ask": []

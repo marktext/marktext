@@ -51,10 +51,17 @@ class ExportHtml {
     // v11: Use run() instead of deprecated init()
     const mermaidElements = this.exportContainer.querySelectorAll('div.mermaid')
     if (mermaidElements.length > 0) {
-      await mermaid.run({
-        nodes: Array.from(mermaidElements),
-        suppressErrors: false
-      })
+      // v11: run() expects each node to have code in textContent
+      for (const element of mermaidElements) {
+        try {
+          await mermaid.run({
+            nodes: [element],
+            suppressErrors: false
+          })
+        } catch (err) {
+          console.error('Mermaid render error:', err)
+        }
+      }
     }
     if (this.muya) {
       mermaid.initialize({

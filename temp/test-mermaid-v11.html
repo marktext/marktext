@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Mermaid v11 Test</title>
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+        
+        mermaid.initialize({ 
+            startOnLoad: true,
+            securityLevel: 'strict'
+        });
+        
+        window.testMermaid = async function() {
+            const results = document.getElementById('results');
+            
+            // Test gitGraph
+            try {
+                const gitCode = `gitGraph
+    commit
+    branch develop
+    checkout develop
+    commit
+    commit`;
+                await mermaid.parse(gitCode);
+                results.innerHTML += '<p style="color: green;">✓ gitGraph parse successful</p>';
+            } catch (err) {
+                results.innerHTML += `<p style="color: red;">✗ gitGraph parse failed: ${err.message}</p>`;
+            }
+            
+            // Test pie chart
+            try {
+                const pieCode = `pie title Pets adopted by volunteers
+    "Dogs" : 386
+    "Cats" : 85
+    "Rats" : 15`;
+                await mermaid.parse(pieCode);
+                results.innerHTML += '<p style="color: green;">✓ pie chart parse successful</p>';
+            } catch (err) {
+                results.innerHTML += `<p style="color: red;">✗ pie chart parse failed: ${err.message}</p>`;
+            }
+        }
+    </script>
+</head>
+<body>
+    <h1>Mermaid v11 Compatibility Test</h1>
+    <button onclick="testMermaid()">Test Diagrams</button>
+    <div id="results"></div>
+    
+    <h2>GitGraph Test</h2>
+    <pre class="mermaid">
+gitGraph
+    commit
+    branch develop
+    checkout develop
+    commit
+    commit
+    </pre>
+    
+    <h2>Pie Chart Test</h2>
+    <pre class="mermaid">
+pie title Pets adopted by volunteers
+    "Dogs" : 386
+    "Cats" : 85
+    "Rats" : 15
+    </pre>
+</body>
+</html>
