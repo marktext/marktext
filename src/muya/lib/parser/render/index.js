@@ -116,13 +116,17 @@ class StateRender {
           continue
         }
 
-        // Add a small delay to ensure DOM is ready
-        await new Promise(resolve => setTimeout(resolve, 10))
+        // Add delay to ensure DOM is ready and force re-render
+        await new Promise(resolve => setTimeout(resolve, 50))
 
         try {
           // Clean up any previous mermaid content
           target.removeAttribute('data-processed')
           target.innerHTML = '' // Clear previous content
+
+          // Force layout recalculation
+          // eslint-disable-next-line no-unused-expressions
+          target.offsetHeight
 
           // v11: parse first to validate
           await mermaid.parse(code)
@@ -135,6 +139,9 @@ class StateRender {
             nodes: [target],
             suppressErrors: false
           })
+
+          // Additional delay to ensure rendering completes
+          await new Promise(resolve => setTimeout(resolve, 10))
         } catch (err) {
           console.error('Mermaid render error for:', code.substring(0, 50), err)
           target.innerHTML = '< Invalid Mermaid Codes >'

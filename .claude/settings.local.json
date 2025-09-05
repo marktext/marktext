@@ -35,7 +35,8 @@
       "Bash(open:*)",
       "Read(//Applications/MarkText.app/Contents/Resources/app/node_modules/ced/**)",
       "Bash(ln:*)",
-      "Bash(yarn lint:*)"
+      "Bash(yarn lint:*)",
+      "Bash(yarn release:*)"
     ],
     "deny": [],
     "ask": []
