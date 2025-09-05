@@ -117,7 +117,7 @@ class StateRender {
         }
 
         // Add delay to ensure DOM is ready and force re-render
-        await new Promise(resolve => setTimeout(resolve, 50))
+        await new Promise(resolve => setTimeout(resolve, 120))
 
         try {
           // Clean up any previous mermaid content
@@ -141,7 +141,7 @@ class StateRender {
           })
 
           // Additional delay to ensure rendering completes
-          await new Promise(resolve => setTimeout(resolve, 10))
+          await new Promise(resolve => setTimeout(resolve, 120))
         } catch (err) {
           console.error('Mermaid render error for:', code.substring(0, 50), err)
           target.innerHTML = '< Invalid Mermaid Codes >'
