@@ -105,7 +105,10 @@ class StateRender {
         securityLevel: 'strict',
         theme: this.muya.options.mermaidTheme || 'default',
         startOnLoad: false, // Important for manual rendering
-        logLevel: 'error' // Reduce console noise
+        logLevel: 'error', // Reduce console noise
+        pie: {
+          textPosition: 0.75 // Fix pie chart label positioning
+        }
       })
 
       // Process all cached diagrams
