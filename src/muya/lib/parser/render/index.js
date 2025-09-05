@@ -108,7 +108,11 @@ class StateRender {
         logLevel: 'error' // Reduce console noise
       })
 
-      // Process all cached diagrams
+      // Wait longer for DOM to be fully ready
+      await new Promise(resolve => setTimeout(resolve, 200))
+
+      // Prepare all diagrams first
+      const targets = []
       for (const [key, value] of this.mermaidCache.entries()) {
         const { code } = value
         const target = document.querySelector(key)
@@ -116,36 +120,59 @@ class StateRender {
           continue
         }
 
-        // Add delay to ensure DOM is ready and force re-render
-        await new Promise(resolve => setTimeout(resolve, 120))
-
         try {
           // Clean up any previous mermaid content
           target.removeAttribute('data-processed')
           target.innerHTML = '' // Clear previous content
 
-          // Force layout recalculation
+          // Force layout recalculation and visibility
           // eslint-disable-next-line no-unused-expressions
           target.offsetHeight
+          target.style.visibility = 'visible'
+          target.style.display = 'block'
 
           // v11: parse first to validate
           await mermaid.parse(code)
 
           // v11: set the code content
           target.textContent = code
+          targets.push(target)
+        } catch (err) {
+          console.error('Mermaid parse error for:', code.substring(0, 50), err)
+          target.innerHTML = '< Invalid Mermaid Codes >'
+          target.classList.add(CLASS_OR_ID.AG_MATH_ERROR)
+        }
+      }
 
-          // v11: run the renderer
+      // Render all diagrams at once if we have any
+      if (targets.length > 0) {
+        try {
           await mermaid.run({
-            nodes: [target],
+            nodes: targets,
             suppressErrors: false
           })
 
-          // Additional delay to ensure rendering completes
-          await new Promise(resolve => setTimeout(resolve, 120))
+          // Force multiple repaints to ensure visibility
+          await new Promise(resolve => {
+            requestAnimationFrame(() => {
+              requestAnimationFrame(() => {
+                requestAnimationFrame(resolve)
+              })
+            })
+          })
         } catch (err) {
-          console.error('Mermaid render error for:', code.substring(0, 50), err)
-          target.innerHTML = '< Invalid Mermaid Codes >'
-          target.classList.add(CLASS_OR_ID.AG_MATH_ERROR)
+          console.error('Mermaid batch render error:', err)
+          // Fallback: try individual rendering
+          for (const target of targets) {
+            try {
+              await mermaid.run({
+                nodes: [target],
+                suppressErrors: false
+              })
+            } catch (individualErr) {
+              console.error('Individual render fallback failed:', individualErr)
+            }
+          }
         }
       }
 
