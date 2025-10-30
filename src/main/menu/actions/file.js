@@ -159,6 +159,11 @@ const handleResponseForSave = async (e, { id, filename, markdown, pathname, opti
 }
 
 const showUnsavedFilesMessage = async (win, files) => {
+  // In read-only mode, automatically don't save (no prompt)
+  if (global.READ_ONLY_MODE) {
+    return { needSave: false }
+  }
+
   const { response } = await dialog.showMessageBox(win, {
     type: 'warning',
     buttons: ['Save', 'Cancel', 'Don\'t save'],
