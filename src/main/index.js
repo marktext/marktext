@@ -72,6 +72,9 @@ try {
   process.exit(1)
 }
 
+// Make accessor globally available for accessing preferences
+global.accessor = accessor
+
 // Use synchronous only to report errors in early stage of startup.
 log.transports.file.sync = false
 

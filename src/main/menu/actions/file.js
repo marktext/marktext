@@ -160,7 +160,9 @@ const handleResponseForSave = async (e, { id, filename, markdown, pathname, opti
 
 const showUnsavedFilesMessage = async (win, files) => {
   // In read-only mode, automatically don't save (no prompt)
-  if (global.READ_ONLY_MODE) {
+  // Check both CLI flag and preference setting
+  const alwaysReadOnly = global.accessor && global.accessor.preferences.getItem('alwaysReadOnly')
+  if (global.READ_ONLY_MODE || alwaysReadOnly) {
     return { needSave: false }
   }
 
