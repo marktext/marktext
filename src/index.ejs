@@ -95,6 +95,19 @@
       Array.from(dots).forEach(dot => {
         dot.style.background = THEMES_COLOR[params.get('theme')] || 'rgba(33, 181, 111, 1)'
       })
+
+      // Apply theme background color immediately to prevent white flash in dark mode
+      const THEME_BACKGROUNDS = {
+        'one-dark': '#282c34',
+        'dark': '#282828',
+        'graphite': '#f7f7f7',
+        'material-dark': '#34393f',
+        'light': '#ffffff',
+        'ulysses': '#f3f3f3'
+      }
+      const bgColor = THEME_BACKGROUNDS[params.get('theme')] || '#ffffff'
+      document.documentElement.style.backgroundColor = bgColor
+      document.body.style.backgroundColor = bgColor
     </script>
 
     <!-- Set `__static` path to static files in production -->
