@@ -292,3 +292,7 @@ MarkText قيد التطوير، يرجى التأكد من قراءة <a href="
   <img src="https://app.fossa.io/api/projects/git%2Bgithub.com%2Fmarktext%2Fmarktext.svg?type=large" alt="FOSSA Status">
 </a>
 </div>
+
+### Translation
+
+This document was translated into Arabic by @ALmohawis
