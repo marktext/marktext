@@ -67,6 +67,9 @@
 
 <div align="center">
   <sub>Translations:</sub>
+  <a href="docs/i18n/ar.md#readme">
+    <span>:saudi_arabia:</span>
+  </a>
   <a href="docs/i18n/zh_cn.md#readme">
     <span>:cn:</span>
   </a>
