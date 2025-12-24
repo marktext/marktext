@@ -59,15 +59,15 @@
 <div dir="rtl" align="center">
   <sub>الترجمات:</sub>
   <a href="ar.md#readme"><span>:saudi_arabia:</span></a>
-  <a href="../zh_cn.md#readme"><span>:cn:</span></a>
-  <a href="../zh_tw.md#readme"><span>:taiwan:</span></a>
-  <a href="../pl.md#readme"><span>:poland:</span></a>
-  <a href="../ja.md#readme"><span>:jp:</span></a>
-  <a href="../french.md#readme"><span>:fr:</span></a>
-  <a href="../tr.md#readme"><span>:tr:</span></a>
-  <a href="../spanish.md#readme"><span>:es:</span></a>
-  <a href="../pt.md#readme"><span>:portugal:</span></a>
-  <a href="../ko.md#readme"><span>:kr:</span></a>
+  <a href="zh_cn.md#readme"><span>:cn:</span></a>
+  <a href="zh_tw.md#readme"><span>:taiwan:</span></a>
+  <a href="pl.md#readme"><span>:poland:</span></a>
+  <a href="ja.md#readme"><span>:jp:</span></a>
+  <a href="french.md#readme"><span>:fr:</span></a>
+  <a href="tr.md#readme"><span>:tr:</span></a>
+  <a href="spanish.md#readme"><span>:es:</span></a>
+  <a href="pt.md#readme"><span>:portugal:</span></a>
+  <a href="ko.md#readme"><span>:kr:</span></a>
 </div>
 
 <div dir="rtl" align="center">
