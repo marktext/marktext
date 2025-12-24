@@ -93,13 +93,13 @@ MarkText هو مشروع مفتوح المصدر مرخص بترخيص MIT، و�
 <div dir="rtl">
 
 ## ما الفرق بين Patreon وOpen Collective؟
-
+<div dir="rtl">
 Patreon: سيتم رعاية الأموال مباشرة إلى Luo Ran (@jocs) الذي أنشأ MarkText ويستمر في صيانته.  
 Open Collective: جميع النفقات شفافة. سيتم استخدام الأموال لتطوير وصيانة MarkText، وتمويل الأنشطة عبر الإنترنت وخارجها، والحصول على الموارد الضرورية الأخرى.  
 ستظهر أسماء وشعارات الشركات لجميع الرعاة (من كل من Patreon وOpen Collective) على الموقع الرسمي لـ MarkText وفي ملف README.md الخاص به.
 
 **هل تبحث عن تحرير مشابه لـ MarkText مع تخزين سحابي؟ جرّب Inkio**
-
+</div>
 <a href="https://inkio.me/" target="_blank">
   <img src="https://inkio.me/static/media/logo.35f605dc31b1a0615087.png" width="100">
 </a>
