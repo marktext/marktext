@@ -293,6 +293,4 @@ MarkText قيد التطوير، يرجى التأكد من قراءة <a href="
 </a>
 </div>
 
-### Translation
-
-This document was translated into Arabic by @ALmohawis
+<sub>Arabic translation by @ALmohawis</sub>
