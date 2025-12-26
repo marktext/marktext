@@ -25,6 +25,7 @@ jobs:
       # MARKTEXT_IS_STABLE: 1
       MARKTEXT_EXIT_ON_ERROR: 1
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      ELECTRON_DISABLE_SANDBOX: 1
 
     steps:
       - name: Check out Git repository
@@ -92,6 +93,7 @@ jobs:
       # MARKTEXT_IS_STABLE: 1
       MARKTEXT_EXIT_ON_ERROR: 1
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GYP_MSVS_VERSION: 2022
 
     steps:
       - name: Check out Git repository
