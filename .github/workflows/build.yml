@@ -18,7 +18,7 @@ jobs:
 
     strategy:
       matrix:
-        os: [macos-13, ubuntu-latest]
+        os: [macos-latest, ubuntu-latest]
 
     env:
       DISPLAY: ":99.0"
