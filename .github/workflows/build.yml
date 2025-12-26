@@ -105,6 +105,10 @@ jobs:
           cache: yarn
           cache-dependency-path: yarn.lock
 
+      # Setup MSVC environment for native module compilation
+      - name: Setup MSVC
+        uses: ilammy/msvc-dev-cmd@v1
+
       # Workaround: Fix native build failure due to outdated node-gyp version.
       - name: Fix node-gyp
         run: |
