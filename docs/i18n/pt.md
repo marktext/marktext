@@ -8,7 +8,7 @@
   </a>
 </div>
 <div align="center">
-  <strong>:high_brightness: Editor de Markdown next-gen :crescent_moon:</strong><br>
+  <strong>:high_brightness: Editor de Markdown de nova geração :crescent_moon:</strong><br>
   Um editor de markdown simples e elegante em código aberto, com foco em performance e usabilidade.<br>
   <sub>Disponível para Linux, macOS and Windows.</sub>
 </div>
@@ -111,11 +111,11 @@
 
 <br />
 
-<h2 align="center">Dê apoio ao MarkText</h2>
+<h2 align="center">Apoie o MarkText</h2>
 
-MarkText é um projeto com licença MIT (projetos de código aberto), e suas atualizações sempre estarão disponíveis gratuitamente na página de 'Releases' do Github. MarkText ainda está em desenvolvimento e seu desenvolvimento é inseparável de todos os patrocinadores. Espero que você se junte a esse grupo:
+O MarkText é um projeto com licença MIT (projetos de código aberto), e as suas atualizações sempre estarão disponíveis gratuitamente na página de 'Releases' do GitHub. O MarkText ainda está em desenvolvimento e é inseparável de todos os patrocinadores. Espero que você se junte a esse grupo:
 
-- [Torne-se um apoiador ou patrocinador no Patreon](https://www.patreon.com/ranluo) or [One time donation](https://github.com/Jocs/sponsor.me)
+- [Torne-se um apoiador ou patrocinador no Patreon](https://www.patreon.com/ranluo) ou [Doe uma vez](https://github.com/Jocs/sponsor.me)
 - [Seja um apoiador ou patrocinador no Open Collective](https://opencollective.com/marktext)
 
 ##### Qual é a diferença entre Patreon e Open Collective?
@@ -123,7 +123,7 @@ MarkText é um projeto com licença MIT (projetos de código aberto), e suas atu
 **Patreon**: Os fundos serão patrocinados diretamente para Luo Ran (@jocs) que criou o MarkText e continua a mantê-lo.
 
 **Open Collective**: Todas as despesas são transparentes. Os fundos serão usados para o desenvolvimento e manutenção do MarkText, financiando atividades online e offline e adquirindo outros recursos necessários.
-Nomes e logotipos de empresas de todos os patrocinadores (do Patreon e do Open Collective) aparecerão no site oficial do MarkText e em seu arquivo README.md.
+Nomes e logotipos de empresas de todos os patrocinadores (do Patreon e do Open Collective) aparecerão no site oficial do MarkText e no seu arquivo README.md.
 
 **Patrocinadores Especiais**
 
@@ -170,10 +170,10 @@ Nomes e logotipos de empresas de todos os patrocinadores (do Patreon e do Open C
 - Visualização em tempo real (WYSIWYG) e uma interface limpa e simples para obter uma experiência de escrita sem distrações.
 - Suporta o uso de [CommonMark Spec](https://spec.commonmark.org/0.29/), [GitHub Flavored Markdown Spec](https://github.github.com/gfm/) e suporte seletivo para [Pandoc markdown](https://pandoc.org/MANUAL.html#pandocs-markdown).
 - Extensões de Markdown, como expressões matemáticas (KaTeX), front matter e emojis.
-- Utilixe parágrafos e atalhos de estilos para melhorar sua eficiência de escrita.
-- Consegue exportar arquivos **HTML** e **PDF**.
-- Vários temas, como: **Cadmium Light**, **Material Dark** etc.
-- Vários modos de edição: **Modo Código**, **Modo Escritor**, **Modo Foco**.
+- Utilize parágrafos e atalhos de estilos para melhorar sua eficiência de escrita.
+- Exporta arquivos **HTML** e **PDF**.
+- Vários temas, como: **Cadmium Light**, **Material Dark**, etc.
+- Vários modos de edição: **Modo Código**, **Modo Escritor** e **Modo Foco**.
 - Cole imagens diretamente.
 
 <h4 align="center">:crescent_moon:Temas:high_brightness:</h4>
@@ -194,9 +194,9 @@ Nomes e logotipos de empresas de todos os patrocinadores (do Patreon e do Open C
 
 ## Por que criar outro editor?
 
-1. Amo escrever. Eu usei muitos editores de markdown, mas ainda não há um editor que possa atender totalmente às minhas necessidades. Não gosto de ser incomodado quando escrevo por algum bug insuportável. **MarkText** usa DOM virtual para renderizar páginas, o que tem os benefícios adicionais de ser altamente eficiente e possui código aberto. Dessa forma, qualquer pessoa que adora marcação e escrita pode usar MarkText.
+1. Eu adoro escrever. Usei muitos editores de markdown, mas ainda não há nenhum que consiga atender totalmente às minhas necessidades. Não gosto de ser incomodado quando escrevo por algum bug insuportável. **MarkText** usa DOM virtual para renderizar páginas, o que tem os benefícios adicionais de ser altamente eficiente e possui código aberto. Desta forma, qualquer pessoa que adora markdown e escrita pode usar MarkText.
 2. Conforme mencionado acima, **MarkText** é totalmente gratuito e de código-fonte aberto e será para sempre. Esperamos que todos os amantes do markdown contribuam com seu próprio código e ajudem a desenvolver o **MarkText**, tornando-o um editor de markdown popular.
-3. Existem muitos editores de markdown e todos têm seus próprios méritos, alguns têm recursos que outros não. É difícil satisfazer as necessidades de cada usuário, mas esperamos que **MarkText** seja capaz de satisfazer cada usuário de Markdown tanto quanto possível. Embora o último **MarkText** ainda não seja perfeito, vamos tentar fazer o melhor que pudermos.
+3. Existem muitos editores de markdown e todos têm seus próprios méritos, alguns têm recursos que outros não. É difícil satisfazer as necessidades de cada pessoa, mas esperamos que **MarkText** seja capaz de satisfazer cada utilizador de Markdown tanto quanto possível. Embora o último **MarkText** ainda não seja perfeito, vamos tentar fazer o melhor que pudermos.
 
 ## Download e Instalação
 
@@ -206,11 +206,11 @@ Nomes e logotipos de empresas de todos os patrocinadores (do Patreon e do Open C
 |:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
 | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-x64.dmg.svg)](https://github.com/marktext/marktext/releases/download/v0.17.1/marktext-x64.dmg) | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-setup.exe.svg)](https://github.com/marktext/marktext/releases/download/v0.17.1/marktext-setup.exe) | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-x86_64.AppImage.svg)](https://github.com/marktext/marktext/releases/download/v0.17.1/marktext-x86_64.AppImage) |
 
-Quer ver os últimos recursos? Por favor acesse o [Histórico de Mudanças](.github/CHANGELOG.md).
+Quer ver os últimos recursos? Por favor consulte o [Histórico de Mudanças](.github/CHANGELOG.md).
 
 #### macOS
 
-Você pode baixar o último `marktext-%version%.dmg` acessando [página de versões](https://github.com/marktext/marktext/releases/latest) ou instale o MarkText usando [**homebrew cask**](https://github.com/caskroom/homebrew-cask). Para usar Homebrew-Cask você precisa ter o [Homebrew](https://brew.sh/) instalado.
+Pode baixar o último `marktext-%version%.dmg` indo à [página de versões](https://github.com/marktext/marktext/releases/latest) ou instale o MarkText usando [**homebrew cask**](https://github.com/caskroom/homebrew-cask) (é necessário ter o [Homebrew](https://brew.sh/) instalado).
 
 ```bash
 brew install --cask mark-text
@@ -220,7 +220,7 @@ brew install --cask mark-text
 
 Instale o MarkText utilizando um gerenciador de instalações (`marktext-setup-%version%.exe`) e escolha para instalar para seu usuário ou em toda a máquina.
 
-De forma alternativa, você pode instalar usando [Chocolatey](https://chocolatey.org/). Para usar Chocolatey você precisa de ter instalado [Chocolatey](https://chocolatey.org/install).
+Caso não quiser fazer isso, pode instalar usando o [Chocolatey](https://chocolatey.org/). Para usar o Chocolatey você precisa de ter instalado [Chocolatey](https://chocolatey.org/install).
 
 ```bash
 choco install marktext
@@ -232,7 +232,7 @@ Siga o [Manual de Instalações do Linux](docs/LINUX.md).
 
 #### Outros
 
-Todo o código-fonte para Linux, macOS and Windows pode ser baixado da [página de versões](https://github.com/marktext/marktext/releases/latest). Se você não está conseguindo usar nenhuma versão em seu sistema, por favor abra uma [issue](https://github.com/marktext/marktext/issues).
+Todo o código-fonte para Linux, macOS and Windows pode ser baixado na [página de versões](https://github.com/marktext/marktext/releases/latest). Se não está a conseguir usar nenhuma versão no seu sistema, por favor abra uma [issue](https://github.com/marktext/marktext/issues).
 
 ## Desenvolvimento
 

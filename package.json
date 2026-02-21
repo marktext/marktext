@@ -66,7 +66,7 @@
     "joplin-turndown-plugin-gfm": "^1.0.12",
     "katex": "^0.15.3",
     "keytar": "^7.9.0",
-    "mermaid": "^9.0.0",
+    "mermaid": "^10.0.0",
     "minizlib": "^2.1.2",
     "native-keymap": "^3.3.0",
     "plist": "^3.0.5",

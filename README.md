@@ -121,10 +121,10 @@ Patreon: Funds will be directly sponsored to Luo Ran (@jocs) who created MarkTex
 Open Collective: All expenses are transparent. The funds will be used for the development and maintenance of MarkText, funding online and offline activities, and acquiring other necessary resources.
 Names and company logos of all sponsors (from both Patreon and Open Collective) will appear on the official website for MarkText and in its README.md file.
 
-**Special Sponsors**
+**Looking for MarkText-like editing with cloud storage? try Inkio**
 
-<a href="https://www.dogedoge.com/">
- <img src="https://www.dogedoge.com/assets/new_logo.min.png" width="100" height="100">
+<a href="https://inkio.me/" target="_blank">
+ <img src="https://inkio.me/static/media/logo.35f605dc31b1a0615087.png" width="100">
 </a>
 
 **Platinum Sponsors**
@@ -251,7 +251,7 @@ If you have any questions regarding MarkText, you are welcome to write an issue.
 
 ## Contribution
 
-MarkText is in development, please make sure to read the [Contributing Guide](CONTRIBUTING.md) before making a pull request. Want to add some features to MarkText? Refer to our [roadmap](https://github.com/marktext/marktext/projects) and open issues.
+MarkText is in development, please make sure to read the [Contributing Guide](CONTRIBUTING.md) before making a pull request. Want to add some features to MarkText? Refer to our [roadmap](https://github.com/marktext/marktext/projects?type=classic) and open issues.
 
 
 ## Contributors
