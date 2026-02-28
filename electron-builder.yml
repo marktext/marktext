@@ -6,11 +6,9 @@ asarUnpack:
 - "**/*.node"
 directories:
   output: "build"
-# Workaround: Don't download prebuilt libraries (GH#2953).
 buildDependenciesFromSource: true
 files:
 - "dist/electron/**/*"
-# Don't bundle these files
 - "!**/node_modules/**/{CHANGELOG.md,README.md,README,readme.md,readme}"
 - "!node_modules/css-b64-images/{draft.png,draft.xcf}"
 - "!node_modules/dagre-d3-renderer/dist/demo/"
@@ -25,14 +23,12 @@ files:
 - "!node_modules/vscode-ripgrep/{jsconfig.json,*.md,LICENSE}"
 - "!node_modules/vscode-ripgrep/download.js"
 - "!node_modules/vscode-ripgrep/postinstall.js"
-# Don't bundle build files
 - "!node_modules/ced/bin"
 - "!node_modules/ced/vendor"
 - "!node_modules/fontmanager-redux/bin"
 - "!node_modules/keyboard-layout/bin"
 - "!node_modules/keytar/bin"
 - "!node_modules/native-keymap/bin"
-# Large source files that aren't needed
 - "!node_modules/dagre-d3/dist/dagre-d3.min.js"
 - "!node_modules/mermaid/dist/mermaid.js"
 - "!node_modules/mermaid/dist/mermaid.min.js"
@@ -41,9 +37,7 @@ files:
 - "!node_modules/katex/dist/katex.mjs"
 - "!node_modules/vega/build-es5/"
 - "!node_modules/vega-embed/build-es5/"
-# Don't bundle Linux build files
 - "!node_modules/ced/build/Release/compact_enc_det.a"
-# Don't bundle Windows build files
 - "!node_modules/**/{*.vcxproj,*.vcxproj.filters}"
 - "!node_modules/**/build/Release/{*.lib,*.exp,*.ilk,*.pdb,*.iobj,*.ipdb}"
 - "!node_modules/**/build/Release/obj"
@@ -61,11 +55,12 @@ fileAssociations:
   - "mdown"
   - "mdtxt"
   - "mdtext"
-  - "mdx"
+  - "mdx" # Added MDX support
   name: "Markdown"
   description: "Markdown document"
   role: "Editor"
   icon: "../resources/icons/md.icns"
+
 mac:
   artifactName: "marktext-${arch}-mac.${ext}"
   icon: "resources/icons/icon.icns"
@@ -117,7 +112,6 @@ linux:
   - target: "deb"
   - target: "rpm"
   - target: "tar.gz"
-  # Workaround because file association array doesn't work.
   fileAssociations:
   - ext: "md"
     name: "Markdown"
@@ -137,26 +131,20 @@ linux:
   - ext: "mdtext"
     name: "Markdown"
     description: "Markdown document"
+  - ext: "mdx" # Added MDX support
+    name: "Markdown"
+    description: "Markdown document"
 deb:
-  # Custom dependencies:
   depends:
-  # keytar
   - "libsecret-1-0"
-  # keyboard-layout
   - "libx11-xcb1"
   - "libxkbfile1"
-  # fontmanager
   - "libfontconfig1"
   fpm:
-  # Expat := MIT like
   - "--license=Expat"
 rpm:
-  # Custom dependencies:
   depends:
-  # keytar
   - "libsecret"
-  # keyboard-layout
   - "libX11-xcb"
   - "libxkbfile"
-  # fontmanager
   - "fontconfig"
