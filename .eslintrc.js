@@ -2,7 +2,7 @@ module.exports = {
   root: true,
   parserOptions: {
     parser: '@babel/eslint-parser',
-    ecmaVersion: 11,
+    ecmaVersion: 2022, // Update to ES2022
     ecmaFeatures: {
       impliedStrict: true
     },
@@ -10,45 +10,39 @@ module.exports = {
   },
   env: {
     browser: true,
-    es6: true,
+    es2022: true, // Align with ES2022
     node: true
   },
   extends: [
-    'standard',
     'eslint:recommended',
-    'plugin:vue/base',
+    'plugin:vue/vue3-recommended', // Updated for Vue 3
     'plugin:import/errors',
-    'plugin:import/warnings'
+    'plugin:import/warnings',
+    'standard'
   ],
   globals: {
     __static: true
   },
-  plugins: ['html', 'vue'],
+  plugins: ['vue', 'import'],
   rules: {
     // Two spaces but disallow semicolons
-    indent: ['error', 2, { 'SwitchCase': 1, 'ignoreComments': true }],
-    semi: [2, 'never'],
+    indent: ['error', 2, { SwitchCase: 1, ignoreComments: true }],
+    semi: ['error', 'never'],
     'no-return-await': 'error',
     'no-return-assign': 'error',
     'no-new': 'error',
-    // allow paren-less arrow functions
-    'arrow-parens': 'off',
-    // allow console
-    'no-console': 'off',
-    // allow debugger during development
-    'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'off',
-    'require-atomic-updates': 'off',
-    // TODO: fix these errors someday
-    'prefer-const': 'off',
-    'no-mixed-operators': 'off',
-    'no-prototype-builtins': 'off'
+    'arrow-parens': ['error', 'always'], // Stricter enforcement for consistency
+    'no-console': 'warn', // Warnings instead of allowing it outright
+    'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'warn',
+    'prefer-const': 'error', // Enforce best practices
+    'no-mixed-operators': 'warn',
+    'no-prototype-builtins': 'warn'
   },
   settings: {
     'import/resolver': {
       alias: {
         map: [
           ['common', './src/common'],
-          // Normally only valid for renderer/
           ['@', './src/renderer'],
           ['muya', './src/muya']
         ],
