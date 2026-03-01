@@ -69,7 +69,7 @@ class Muya {
       eventCenter.dispatch('scroll', {
         scrollTop: container.scrollTop
       })
-    }, 250)
+    }, 100)
 
     eventCenter.attachDOMEvent(container, 'focus', () => {
       eventCenter.dispatch('focus')

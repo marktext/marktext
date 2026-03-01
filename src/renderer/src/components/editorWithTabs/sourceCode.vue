@@ -300,8 +300,11 @@ onBeforeUnmount(() => {
 })
 
 const handleScroll = debounce(() => {
+  if (!tabId.value || !sourceCodeContainer.value) {
+    return
+  }
   editorStore.updateScrollPosition(tabId.value, sourceCodeContainer.value.scrollTop)
-}, 500)
+}, 100)
 </script>
 
 <style>
