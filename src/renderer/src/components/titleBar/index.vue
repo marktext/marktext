@@ -179,9 +179,9 @@ watch(
     const hasOpenFolder = props.project && props.project.name
     let title = ''
     if (value) {
-      title = hasOpenFolder ? `${value} - ${props.project.name}` : `${value} - MarkText`
+      title = hasOpenFolder ? `${value} - ${props.project.name}` : `${value}`
     } else {
-      title = hasOpenFolder ? props.project.name : 'MarkText'
+      title = hasOpenFolder ? props.project.name : ''
     }
 
     document.title = title
