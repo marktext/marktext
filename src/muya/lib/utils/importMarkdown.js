@@ -461,6 +461,10 @@ const importRegister = (ContentState) => {
     const { anchor, focus } = this.cursor
     const anchorBlock = this.getBlock(anchor.key)
     const focusBlock = this.getBlock(focus.key)
+    if (!anchorBlock || !focusBlock) {
+      console.warn('Can not find anchor block or focus block in getMuyaIndexCursor')
+      return null
+    }
     const { text: anchorText } = anchorBlock
     const { text: focusText } = focusBlock
     if (anchor.key === focus.key) {
