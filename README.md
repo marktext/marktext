@@ -124,7 +124,7 @@ Patreon: Funds will be directly sponsored to Luo Ran (@jocs) who created MarkTex
 Open Collective: All expenses are transparent. The funds will be used for the development and maintenance of MarkText, funding online and offline activities, and acquiring other necessary resources.
 Names and company logos of all sponsors (from both Patreon and Open Collective) will appear on the official website for MarkText and in its README.md file.
 
-**Looking for MarkText-like editing with cloud storage? try Inkio**
+**Looking for MarkText-like editing with cloud storage? try [Inkio](https://inkio.me)**
 
 <a href="https://inkio.me/" target="_blank">
  <img src="https://inkio.me/static/media/logo.35f605dc31b1a0615087.png" width="100">
