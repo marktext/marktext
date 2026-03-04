@@ -60,6 +60,37 @@ describe('Slugger', () => {
       expect(slugger.slug('heading')).to.equal('heading')
       expect(slugger.slug('')).to.equal('heading-1')
     })
+
+    it('should deduplicate when empty heading appears before real "heading"', () => {
+      expect(slugger.slug('')).to.equal('heading')
+      expect(slugger.slug('heading')).to.equal('heading-1')
+    })
+
+    it('should handle chained collisions with fallback slugs', () => {
+      expect(slugger.slug('')).to.equal('heading')
+      expect(slugger.slug('')).to.equal('heading-1')
+      expect(slugger.slug('heading-1')).to.equal('heading-1-1')
+    })
+  })
+
+  describe('unicode and emoji headings', () => {
+    it('should handle CJK characters', () => {
+      const slug = slugger.slug('你好世界')
+      expect(slug).to.be.a('string')
+      expect(slug.length).to.be.greaterThan(0)
+    })
+
+    it('should handle emoji-only heading', () => {
+      const slug = slugger.slug('🚀🎉')
+      expect(slug).to.be.a('string')
+      expect(slug.length).to.be.greaterThan(0)
+    })
+
+    it('should handle mixed ASCII and Unicode', () => {
+      const slug = slugger.slug('Hello 世界')
+      expect(slug).to.be.a('string')
+      expect(slug.length).to.be.greaterThan(0)
+    })
   })
 
   describe('deduplication', () => {
