@@ -1,5 +1,7 @@
 const calculateAspects = (tableId, barType) => {
+  if (!tableId) return []
   const table = document.querySelector(`#${tableId}`)
+  if (!table) return []
   if (barType === 'bottom') {
     const firstRow = table.querySelector('tr')
     return Array.from(firstRow.children).map(cell => cell.clientWidth)
@@ -9,7 +11,9 @@ const calculateAspects = (tableId, barType) => {
 }
 
 export const getAllTableCells = tableId => {
+  if (!tableId) return []
   const table = document.querySelector(`#${tableId}`)
+  if (!table) return []
   const rows = table.querySelectorAll('tr')
   const cells = []
   for (const row of Array.from(rows)) {
@@ -37,7 +41,9 @@ export const getIndex = (barType, cell) => {
 }
 
 const getDragCells = (tableId, barType, index) => {
+  if (!tableId) return []
   const table = document.querySelector(`#${tableId}`)
+  if (!table) return []
   const dragCells = []
   if (barType === 'left') {
     if (index === 0) {
