@@ -42,6 +42,7 @@ import {
   isValidElectronAccelerator,
   getAcceleratorFromKeyboardEvent
 } from '@hfelix/electron-localshortcut'
+import { capitalizeAccelerator } from 'common/keybinding'
 
 export default {
   data () {
@@ -105,6 +106,9 @@ export default {
       }
 
       const keybinding = getAcceleratorFromKeyboardEvent(event)
+      // Capitalize modifier names to match Electron's expected format (e.g. "ctrl+alt+1" -> "Ctrl+Alt+1").
+      // See: https://github.com/marktext/marktext/issues/4123
+      keybinding.accelerator = capitalizeAccelerator(keybinding.accelerator)
       this.currentKeybinding = keybinding
       // Verify whether the given key binding is valid for Electron.
       this.isKeybindingValid = keybinding.isValid && isValidElectronAccelerator(keybinding.accelerator)

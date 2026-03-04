@@ -139,6 +139,10 @@ export default class KeybindingConfigurator {
   }
 
   _isDefaultBinding (id, accelerator) {
-    return this.defaultKeybindings.get(id) === accelerator
+    const defaultAccelerator = this.defaultKeybindings.get(id)
+    if (defaultAccelerator == null || accelerator == null) {
+      return defaultAccelerator === accelerator
+    }
+    return isEqualAccelerator(defaultAccelerator, accelerator)
   }
 }
