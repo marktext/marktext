@@ -1,6 +1,6 @@
 const isOsx = process.platform === 'darwin'
 
-// Map of lowercase modifier/key names to their canonical Electron accelerator form.
+// Map of lowercase modifier names to their canonical Electron accelerator form.
 const MODIFIER_CAPITALIZATION = {
   commandorcontrol: 'CommandOrControl',
   cmdorctrl: 'CmdOrCtrl',
@@ -18,7 +18,8 @@ const MODIFIER_CAPITALIZATION = {
 
 /**
  * Capitalize an accelerator string to match Electron's expected format.
- * e.g. "ctrl+alt+1" -> "Ctrl+Alt+1", "shift+a" -> "Shift+A"
+ * Only modifier names are capitalized; non-modifier key parts are preserved as-is.
+ * e.g. "ctrl+alt+1" -> "Ctrl+Alt+1", "shift+a" -> "Shift+a"
  *
  * @param {string} accelerator
  * @returns {string}

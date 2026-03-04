@@ -80,4 +80,25 @@ describe('capitalizeAccelerator', () => {
   it('should handle Control modifier (full word)', () => {
     expect(capitalizeAccelerator('control+p')).to.equal('Control+p')
   })
+
+  it('should handle single modifier without key', () => {
+    expect(capitalizeAccelerator('ctrl')).to.equal('Ctrl')
+  })
+
+  it('should handle modifier with Plus key', () => {
+    expect(capitalizeAccelerator('ctrl+Plus')).to.equal('Ctrl+Plus')
+  })
+
+  it('should preserve non-modifier special key names', () => {
+    expect(capitalizeAccelerator('ctrl+Space')).to.equal('Ctrl+Space')
+    expect(capitalizeAccelerator('ctrl+Tab')).to.equal('Ctrl+Tab')
+    expect(capitalizeAccelerator('ctrl+Backspace')).to.equal('Ctrl+Backspace')
+  })
+
+  it('should be idempotent (applying twice gives same result)', () => {
+    const input = 'ctrl+shift+alt+f5'
+    const once = capitalizeAccelerator(input)
+    const twice = capitalizeAccelerator(once)
+    expect(once).to.equal(twice)
+  })
 })

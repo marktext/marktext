@@ -5,7 +5,7 @@ import path from 'path'
 import log from 'electron-log'
 import { electronLocalshortcut, isValidElectronAccelerator } from '@hfelix/electron-localshortcut'
 import { isFile2 } from 'common/filesystem'
-import { isEqualAccelerator } from 'common/keybinding'
+import { isEqualAccelerator, capitalizeAccelerator } from 'common/keybinding'
 import { isLinux, isOsx } from '../config'
 import { getKeyboardInfo, keyboardLayoutMonitor } from '../keyboard'
 import keybindingsDarwin from './keybindingsDarwin'
@@ -166,7 +166,9 @@ class Keybindings {
             // Unset key
             userAccelerators.set(key, '')
           } else if (isValidElectronAccelerator(value)) {
-            userAccelerators.set(key, value)
+            // Normalize modifier casing to match Electron's expected format.
+            // Handles legacy keybindings.json files that may contain lowercase modifiers (see #4123).
+            userAccelerators.set(key, capitalizeAccelerator(value))
           } else {
             console.error(`[WARNING] "${value}" is not a valid accelerator.`)
           }
