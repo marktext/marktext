@@ -6,6 +6,7 @@ Welcome to developer documentation of MarkText.
 - [Build instructions](BUILD.md)
 - [Debugging](DEBUGGING.md)
 - [Interface](INTERFACE.md)
+- [Architecture decision records (ADR)](adr/README.md)
 - [Steps to release MarkText](RELEASE.md)
 - [Prepare a hotfix](RELEASE_HOTFIX.md)
 - [Internal documentation](code/README.md)

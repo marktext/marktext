@@ -1,6 +1,7 @@
 import WindowManager from '../app/windowManager'
 import Preference from '../preferences'
 import DataCenter from '../dataCenter'
+import FeatureConfig from '../featureConfig'
 import Keybindings from '../keyboard/shortcutHandler'
 import AppMenu from '../menu'
 import { loadMenuCommands } from '../menu/actions'
@@ -18,6 +19,7 @@ class Accessor {
 
     this.preferences = new Preference(this.paths)
     this.dataCenter = new DataCenter(this.paths)
+    this.featureConfig = new FeatureConfig(this.paths)
 
     this.commandManager = CommandManager
     this._loadCommands()

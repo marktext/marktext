@@ -121,6 +121,9 @@ export default {
     dispatch('LINTEN_WIN_STATUS')
     // module: command center
     dispatch('LISTEN_COMMAND_CENTER_BUS')
+    // module: icon library
+    dispatch('LISTEN_FOR_ICON_LIBRARY_UPDATES')
+    dispatch('LOAD_ICON_LIBRARY')
     // module: tweet
     dispatch('LISTEN_FOR_TWEET')
     // module: layout

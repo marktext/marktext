@@ -456,6 +456,12 @@ class WindowManager extends EventEmitter {
         browserWindow.webContents.send('mt::user-preference', userData)
       }
     })
+
+    ipcMain.on('broadcast-feature-config-changed', payload => {
+      for (const { browserWindow } of this._windows.values()) {
+        browserWindow.webContents.send('mt::feature-config-changed', payload)
+      }
+    })
   }
 }
 

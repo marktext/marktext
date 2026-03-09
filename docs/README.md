@@ -14,6 +14,7 @@ Welcome to the end-user documentation of MarkText.
 **Further documents:**
 
 - [Frequently asked questions (FAQ)](FAQ.md)
+- [Icon drawer](ICON_DRAWER.md)
 - [Application data directory](APPLICATION_DATA_DIRECTORY.md)
 - [Command line interface](CLI.md)
 - [Environment variables](ENVIRONMENT.md)

@@ -576,6 +576,7 @@ export default {
       bus.$on('replaceValue', this.handReplace)
       bus.$on('find-action', this.handleFindAction)
       bus.$on('insert-image', this.insertImage)
+      bus.$on('insert-plain-text', this.insertPlainText)
       bus.$on('image-uploaded', this.handleUploadedImage)
       bus.$on('file-changed', this.handleFileChange)
       bus.$on('editor-blur', this.blurEditor)
@@ -876,6 +877,12 @@ export default {
       }
     },
 
+    insertPlainText (text) {
+      if (this.sourceCode || !this.editor) return
+      this.editor.focus()
+      document.execCommand('insertText', false, text)
+    },
+
     handleSearch (value, opt) {
       const searchMatches = this.editor.search(value, opt)
       this.$store.dispatch('SEARCH', searchMatches)
@@ -1130,6 +1137,7 @@ export default {
     bus.$off('replaceValue', this.handReplace)
     bus.$off('find-action', this.handleFindAction)
     bus.$off('insert-image', this.insertImage)
+    bus.$off('insert-plain-text', this.insertPlainText)
     bus.$off('image-uploaded', this.handleUploadedImage)
     bus.$off('file-changed', this.handleFileChange)
     bus.$off('editor-blur', this.blurEditor)
