@@ -68,6 +68,10 @@ export const toggleTypewriterMode = win => {
   toggleTypeMode(win, 'typewriter')
 }
 
+export const toggleFullWysiwyg = win => {
+  toggleTypeMode(win, 'fullWysiwyg')
+}
+
 export const reloadImageCache = win => {
   if (win && win.webContents) {
     win.webContents.send('mt::invalidate-image-cache')
@@ -129,6 +133,9 @@ export const viewLayoutChanged = (applicationMenu, changes) => {
         break
       case 'focus':
         changeMenuByName(focusModeMenuItemId, value)
+        break
+      case 'fullWysiwyg':
+        changeMenuByName('fullWysiwygMenuItem', value)
         break
     }
   }

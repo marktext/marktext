@@ -30,6 +30,14 @@ export default function (keybindings) {
         actions.toggleTypewriterMode(focusedWindow)
       }
     }, {
+      id: 'fullWysiwygMenuItem',
+      label: 'Full WYSIWYG Mode',
+      type: 'checkbox',
+      checked: false,
+      click (item, focusedWindow) {
+        actions.toggleFullWysiwyg(focusedWindow)
+      }
+    }, {
       id: 'focusModeMenuItem',
       label: 'Focus Mode',
       accelerator: keybindings.getAccelerator('view.focus-mode'),
