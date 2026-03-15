@@ -22,6 +22,7 @@ const updateCtrl = ContentState => {
   }
 
   ContentState.prototype.checkNeedRender = function (cursor = this.cursor) {
+    if (this.muya.options.fullWysiwyg) return false
     const { labels } = this.stateRender
     const { start: cStart, end: cEnd, anchor, focus } = cursor
     const startBlock = this.getBlock(cStart ? cStart.key : anchor.key)
@@ -64,6 +65,11 @@ const updateCtrl = ContentState => {
    * block must be span block.
    */
   ContentState.prototype.checkInlineUpdate = function (block) {
+    // In full WYSIWYG mode, don't auto-transform typed markdown syntax into blocks.
+    // Users must use the toolbar or keyboard shortcuts to change block types.
+    if (this.muya.options.fullWysiwyg) {
+      return false
+    }
     // table cell can not have blocks in it
     if (/figure/.test(block.type)) {
       return false

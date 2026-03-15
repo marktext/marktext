@@ -120,6 +120,26 @@ const backspaceCtrl = ContentState => {
       return
     }
 
+    // In full WYSIWYG mode, handle backspace at format boundaries.
+    // When cursor is at the start of a formatted span (e.g. just inside **bold**),
+    // remove the formatting instead of deleting a character.
+    if (this.muya.options.fullWysiwyg && start.key === end.key && start.offset === end.offset) {
+      const block = this.getBlock(start.key)
+      if (block && block.text) {
+        const tokens = tokenizer(block.text, { options: this.muya.options })
+        for (const token of tokens) {
+          if (!/strong|em|del|inline_code|inline_math/.test(token.type)) continue
+          const markerLen = (token.type === 'strong' || token.type === 'del') ? 2 : 1
+          // Cursor is right after the opening marker
+          if (start.offset === token.range.start + markerLen) {
+            event.preventDefault()
+            this.format(token.type) // Toggle format off
+            return this.partialRender()
+          }
+        }
+      }
+    }
+
     // handle delete selected image
     if (this.selectedImage) {
       event.preventDefault()

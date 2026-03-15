@@ -93,6 +93,11 @@ const codeBlockCtrl = ContentState => {
    * [codeBlockUpdate if block updated to `pre` return true, else return false]
    */
   ContentState.prototype.codeBlockUpdate = function (block, code = '', lang) {
+    // In full WYSIWYG mode, don't auto-detect code fences from typing.
+    // Code blocks are created via toolbar or keyboard shortcuts (lang param).
+    if (!lang && this.muya.options.fullWysiwyg) {
+      return false
+    }
     if (block.type === 'span') {
       block = this.getParent(block)
     }

@@ -54,11 +54,14 @@ const state = {
   sequenceTheme: 'hand',
 
   theme: 'light',
-  autoSwitchTheme: 2,
+  autoSwitchTheme: 1,
 
   spellcheckerEnabled: false,
   spellcheckerNoUnderline: false,
   spellcheckerLanguage: 'en-US',
+
+  // Full WYSIWYG mode - hides all raw markdown syntax from the user
+  fullWysiwyg: false,
 
   // Default values that are overwritten with the entries below.
   sideBarVisibility: false,

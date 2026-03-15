@@ -290,7 +290,11 @@ export const MUYA_DEFAULT_OPTION = Object.freeze({
   isGitlabCompatibilityEnabled: false,
 
   // Whether HTML rendering is disabled or not.
-  disableHtml: true
+  disableHtml: true,
+
+  // Full WYSIWYG mode: never show raw markdown syntax to the user.
+  // The document renders like a word processor while saving as markdown.
+  fullWysiwyg: false
 })
 
 // export const DIAGRAM_TEMPLATE = Object.freeze({
