@@ -154,25 +154,54 @@ class App {
 
     // Set initial native theme for theme in preferences.
     const isDarkTheme = /dark/i.test(theme)
-    if (autoSwitchTheme === 0 && isDarkTheme !== nativeTheme.shouldUseDarkColors) {
+    if ((autoSwitchTheme === 0 || autoSwitchTheme === 1) && isDarkTheme !== nativeTheme.shouldUseDarkColors) {
       selectTheme(nativeTheme.shouldUseDarkColors ? 'dark' : 'light')
-      nativeTheme.themeSource = nativeTheme.shouldUseDarkColors ? 'dark' : 'light'
+    }
+
+    // When following the system theme, keep themeSource as 'system' so Electron
+    // fires the 'updated' event on OS dark/light mode changes.
+    if (autoSwitchTheme === 1) {
+      nativeTheme.themeSource = 'system'
     } else {
       nativeTheme.themeSource = isDarkTheme ? 'dark' : 'light'
     }
 
     let isDarkMode = nativeTheme.shouldUseDarkColors
+    let isFollowingSystem = autoSwitchTheme === 1
+
     ipcMain.on('broadcast-preferences-changed', change => {
+      // Track autoSwitchTheme changes at runtime
+      if (change.autoSwitchTheme !== undefined) {
+        isFollowingSystem = change.autoSwitchTheme === 1
+        if (isFollowingSystem) {
+          nativeTheme.themeSource = 'system'
+          // Immediately sync to current system theme
+          const systemIsDark = nativeTheme.shouldUseDarkColors
+          if (systemIsDark !== isDarkMode) {
+            isDarkMode = systemIsDark
+            selectTheme(systemIsDark ? 'dark' : 'light')
+          }
+        }
+      }
       // Set Chromium's color for native elements after theme change.
       if (change.theme) {
         const isDarkTheme = /dark/i.test(change.theme)
         if (isDarkMode !== isDarkTheme) {
           isDarkMode = isDarkTheme
-          nativeTheme.themeSource = isDarkTheme ? 'dark' : 'light'
-        } else if (nativeTheme.themeSource === 'system') {
-          // Need to set dark or light theme because we set `system` to get the current system theme.
-          nativeTheme.themeSource = isDarkMode ? 'dark' : 'light'
+          if (!isFollowingSystem) {
+            nativeTheme.themeSource = isDarkTheme ? 'dark' : 'light'
+          }
         }
+      }
+    })
+
+    // Live-follow system theme changes (light/dark mode toggle in System Settings).
+    nativeTheme.on('updated', () => {
+      if (!isFollowingSystem) return
+      const systemIsDark = nativeTheme.shouldUseDarkColors
+      if (systemIsDark !== isDarkMode) {
+        isDarkMode = systemIsDark
+        selectTheme(systemIsDark ? 'dark' : 'light')
       }
     })
 
