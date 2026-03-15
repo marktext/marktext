@@ -1,129 +1,143 @@
 <template>
-  <div class="wysiwyg-toolbar" v-if="fullWysiwyg && !sourceCode">
+  <div class="wysiwyg-toolbar" v-if="fullWysiwyg">
+    <template v-if="!sourceCode">
+      <div class="toolbar-group">
+        <button
+          class="toolbar-btn"
+          :class="{ active: isFormatActive('strong') }"
+          title="Bold (Cmd+B)"
+          @click="applyFormat('strong')"
+        >
+          <strong>B</strong>
+        </button>
+        <button
+          class="toolbar-btn"
+          :class="{ active: isFormatActive('em') }"
+          title="Italic (Cmd+I)"
+          @click="applyFormat('em')"
+        >
+          <em>I</em>
+        </button>
+        <button
+          class="toolbar-btn"
+          :class="{ active: isFormatActive('u') }"
+          title="Underline (Cmd+U)"
+          @click="applyFormat('u')"
+        >
+          <u>U</u>
+        </button>
+        <button
+          class="toolbar-btn"
+          :class="{ active: isFormatActive('del') }"
+          title="Strikethrough (Cmd+D)"
+          @click="applyFormat('del')"
+        >
+          <del>S</del>
+        </button>
+        <button
+          class="toolbar-btn"
+          :class="{ active: isFormatActive('mark') }"
+          title="Highlight (Shift+Cmd+H)"
+          @click="applyFormat('mark')"
+        >
+          <span class="highlight-icon">H</span>
+        </button>
+        <button
+          class="toolbar-btn"
+          :class="{ active: isFormatActive('inline_code') }"
+          title="Inline Code (Cmd+`)"
+          @click="applyFormat('inline_code')"
+        >
+          <code>&lt;/&gt;</code>
+        </button>
+      </div>
+      <div class="toolbar-separator"></div>
+      <div class="toolbar-group">
+        <select
+          class="toolbar-select"
+          :value="currentBlockType"
+          @change="applyParagraph($event.target.value)"
+        >
+          <option value="paragraph">Paragraph</option>
+          <option value="heading 1">Heading 1</option>
+          <option value="heading 2">Heading 2</option>
+          <option value="heading 3">Heading 3</option>
+          <option value="heading 4">Heading 4</option>
+          <option value="heading 5">Heading 5</option>
+          <option value="heading 6">Heading 6</option>
+        </select>
+      </div>
+      <div class="toolbar-separator"></div>
+      <div class="toolbar-group">
+        <button
+          class="toolbar-btn"
+          title="Bullet List"
+          @click="applyParagraph('ul-bullet')"
+        >&#8226;</button>
+        <button
+          class="toolbar-btn"
+          title="Numbered List"
+          @click="applyParagraph('ol-order')"
+        >1.</button>
+        <button
+          class="toolbar-btn"
+          title="Task List"
+          @click="applyParagraph('ul-task')"
+        >&#9745;</button>
+        <button
+          class="toolbar-btn"
+          title="Block Quote"
+          @click="applyParagraph('blockquote')"
+        >&#8220;</button>
+      </div>
+      <div class="toolbar-separator"></div>
+      <div class="toolbar-group">
+        <button
+          class="toolbar-btn"
+          title="Insert Link (Cmd+L)"
+          @click="applyFormat('link')"
+        >&#128279;</button>
+        <button
+          class="toolbar-btn"
+          title="Insert Image (Shift+Cmd+I)"
+          @click="applyFormat('image')"
+        >&#128247;</button>
+        <button
+          class="toolbar-btn"
+          title="Insert Table"
+          @click="insertTable"
+        >&#9638;</button>
+        <button
+          class="toolbar-btn"
+          title="Code Block"
+          @click="applyParagraph('pre')"
+        >{ }</button>
+        <button
+          class="toolbar-btn"
+          title="Horizontal Rule"
+          @click="applyParagraph('hr')"
+        >&mdash;</button>
+      </div>
+      <div class="toolbar-separator"></div>
+      <div class="toolbar-group">
+        <button
+          class="toolbar-btn"
+          title="Clear Formatting (Shift+Cmd+R)"
+          @click="applyFormat('clear')"
+        >&#10006;</button>
+      </div>
+    </template>
+    <div class="toolbar-spacer"></div>
     <div class="toolbar-group">
       <button
-        class="toolbar-btn"
-        :class="{ active: isFormatActive('strong') }"
-        title="Bold (Cmd+B)"
-        @click="applyFormat('strong')"
+        class="toolbar-btn toolbar-toggle"
+        :class="{ active: sourceCode }"
+        :title="sourceCode ? 'Switch to rendered view' : 'Switch to raw markdown'"
+        @click="toggleSourceCode"
       >
-        <strong>B</strong>
+        <span v-if="sourceCode" class="toggle-label">Raw</span>
+        <span v-else class="toggle-label">Raw</span>
       </button>
-      <button
-        class="toolbar-btn"
-        :class="{ active: isFormatActive('em') }"
-        title="Italic (Cmd+I)"
-        @click="applyFormat('em')"
-      >
-        <em>I</em>
-      </button>
-      <button
-        class="toolbar-btn"
-        :class="{ active: isFormatActive('u') }"
-        title="Underline (Cmd+U)"
-        @click="applyFormat('u')"
-      >
-        <u>U</u>
-      </button>
-      <button
-        class="toolbar-btn"
-        :class="{ active: isFormatActive('del') }"
-        title="Strikethrough (Cmd+D)"
-        @click="applyFormat('del')"
-      >
-        <del>S</del>
-      </button>
-      <button
-        class="toolbar-btn"
-        :class="{ active: isFormatActive('mark') }"
-        title="Highlight (Shift+Cmd+H)"
-        @click="applyFormat('mark')"
-      >
-        <span class="highlight-icon">H</span>
-      </button>
-      <button
-        class="toolbar-btn"
-        :class="{ active: isFormatActive('inline_code') }"
-        title="Inline Code (Cmd+`)"
-        @click="applyFormat('inline_code')"
-      >
-        <code>&lt;/&gt;</code>
-      </button>
-    </div>
-    <div class="toolbar-separator"></div>
-    <div class="toolbar-group">
-      <select
-        class="toolbar-select"
-        :value="currentBlockType"
-        @change="applyParagraph($event.target.value)"
-      >
-        <option value="paragraph">Paragraph</option>
-        <option value="heading 1">Heading 1</option>
-        <option value="heading 2">Heading 2</option>
-        <option value="heading 3">Heading 3</option>
-        <option value="heading 4">Heading 4</option>
-        <option value="heading 5">Heading 5</option>
-        <option value="heading 6">Heading 6</option>
-      </select>
-    </div>
-    <div class="toolbar-separator"></div>
-    <div class="toolbar-group">
-      <button
-        class="toolbar-btn"
-        title="Bullet List"
-        @click="applyParagraph('ul-bullet')"
-      >&#8226;</button>
-      <button
-        class="toolbar-btn"
-        title="Numbered List"
-        @click="applyParagraph('ol-order')"
-      >1.</button>
-      <button
-        class="toolbar-btn"
-        title="Task List"
-        @click="applyParagraph('ul-task')"
-      >&#9745;</button>
-      <button
-        class="toolbar-btn"
-        title="Block Quote"
-        @click="applyParagraph('blockquote')"
-      >&#8220;</button>
-    </div>
-    <div class="toolbar-separator"></div>
-    <div class="toolbar-group">
-      <button
-        class="toolbar-btn"
-        title="Insert Link (Cmd+L)"
-        @click="applyFormat('link')"
-      >&#128279;</button>
-      <button
-        class="toolbar-btn"
-        title="Insert Image (Shift+Cmd+I)"
-        @click="applyFormat('image')"
-      >&#128247;</button>
-      <button
-        class="toolbar-btn"
-        title="Insert Table"
-        @click="insertTable"
-      >&#9638;</button>
-      <button
-        class="toolbar-btn"
-        title="Code Block"
-        @click="applyParagraph('pre')"
-      >{ }</button>
-      <button
-        class="toolbar-btn"
-        title="Horizontal Rule"
-        @click="applyParagraph('hr')"
-      >&mdash;</button>
-    </div>
-    <div class="toolbar-separator"></div>
-    <div class="toolbar-group">
-      <button
-        class="toolbar-btn"
-        title="Clear Formatting (Shift+Cmd+R)"
-        @click="applyFormat('clear')"
-      >&#10006;</button>
     </div>
   </div>
 </template>
@@ -184,6 +198,10 @@ export default {
 
     insertTable () {
       bus.$emit('insert-table')
+    },
+
+    toggleSourceCode () {
+      bus.$emit('view:toggle-view-entry', 'sourceCode')
     }
   }
 }
@@ -270,5 +288,29 @@ export default {
     padding: 0 3px;
     border-radius: 2px;
     color: #333;
+  }
+
+  .toolbar-spacer {
+    flex: 1;
+  }
+
+  .toolbar-toggle {
+    width: auto;
+    padding: 0 8px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+    opacity: 0.5;
+  }
+
+  .toolbar-toggle.active {
+    opacity: 1;
+    background: var(--themeColor, #409eff);
+    color: #fff;
+  }
+
+  .toggle-label {
+    pointer-events: none;
   }
 </style>
