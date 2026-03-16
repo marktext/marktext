@@ -7,7 +7,7 @@ param(
 
   [string]$PullRequestBody = '',
 
-  [string]$PushRemote = 'lorraine40',
+  [string]$PushRemote = '',
 
   [string]$BaseRepo = 'marktext/marktext',
 
@@ -34,6 +34,53 @@ function Invoke-Step {
   }
 }
 
+function Get-RepositorySlug {
+  param(
+    [Parameter(Mandatory = $true)]
+    [string]$RemoteName
+  )
+
+  $remoteUrl = (git remote get-url $RemoteName).Trim()
+  if (-not $remoteUrl) {
+    throw ("Could not resolve remote URL for '{0}'." -f $RemoteName)
+  }
+
+  if ($remoteUrl -match 'github\.com[:/](.+?)/(.+?)(?:\.git)?$') {
+    return "{0}/{1}" -f $matches[1], $matches[2]
+  }
+
+  throw ("Remote '{0}' does not point to a GitHub repository." -f $RemoteName)
+}
+
+function Resolve-PushRemote {
+  param(
+    [Parameter(Mandatory = $true)]
+    [string]$TargetRepo
+  )
+
+  $remotes = @(git remote)
+  foreach ($remote in $remotes) {
+    $slug = Get-RepositorySlug -RemoteName $remote
+    $repoJson = gh repo view $slug --json isFork,parent,nameWithOwner 2>$null
+    if ($LASTEXITCODE -ne 0 -or -not $repoJson) {
+      continue
+    }
+
+    $repo = $repoJson | ConvertFrom-Json
+    $parentSlug = if ($repo.parent) {
+      "{0}/{1}" -f $repo.parent.owner.login, $repo.parent.name
+    } else {
+      ''
+    }
+
+    if ($repo.isFork -and $parentSlug -eq $TargetRepo) {
+      return $remote
+    }
+  }
+
+  throw ("Could not find a git remote that is a fork of {0}. Pass -PushRemote explicitly." -f $TargetRepo)
+}
+
 $repoRoot = Split-Path -Parent $PSScriptRoot
 Set-Location $repoRoot
 
@@ -49,6 +96,14 @@ if ($statusLines.Count -eq 0) {
 
 if (-not $PullRequestTitle) {
   $PullRequestTitle = $CommitMessage
+}
+
+if (-not $PushRemote) {
+  $PushRemote = Resolve-PushRemote -TargetRepo $BaseRepo
+}
+
+if (-not (git remote | Where-Object { $_ -eq $PushRemote })) {
+  throw ("Git remote '{0}' does not exist." -f $PushRemote)
 }
 
 Invoke-Step 'git' @('add', '--all')
