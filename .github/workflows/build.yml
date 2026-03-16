@@ -105,7 +105,16 @@ jobs:
           cache: yarn
           cache-dependency-path: yarn.lock
 
-      # Workaround: Fix native build failure due to outdated node-gyp version.
+      - name: Set up MSBuild
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Check MSVC tools
+        run: |
+          where.exe cl
+          where.exe msbuild
+        shell: pwsh
+
+      # Ensure electron-rebuild can invoke node-gyp with the runner's native toolchain.
       - name: Fix node-gyp
         run: |
           npm install --global node-gyp@latest
