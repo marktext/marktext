@@ -115,7 +115,9 @@ if ($SkipPullRequest) {
   exit 0
 }
 
-$headRef = "{0}:{1}" -f $PushRemote, $branch
+$pushRepoSlug = Get-RepositorySlug -RemoteName $PushRemote
+$headOwner = $pushRepoSlug.Split('/')[0]
+$headRef = "{0}:{1}" -f $headOwner, $branch
 $prLookup = gh pr list --repo $BaseRepo --head $headRef --base $BaseBranch --json number,url --state open
 if ($LASTEXITCODE -ne 0) {
   throw 'Failed to query existing pull requests.'
