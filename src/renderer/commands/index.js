@@ -551,6 +551,22 @@ const commands = [
       id: 'window.change-theme-ulysses',
       description: 'Ulysses',
       value: 'ulysses'
+    }, {
+      id: 'window.change-theme-neon-editorial',
+      description: 'Neon Editorial',
+      value: 'neon-editorial'
+    }, {
+      id: 'window.change-theme-neon-editorial-dark',
+      description: 'Neon Editorial Dark',
+      value: 'neon-editorial-dark'
+    }, {
+      id: 'window.change-theme-ashley',
+      description: 'Ashley',
+      value: 'ashley'
+    }, {
+      id: 'window.change-theme-ashley-dark',
+      description: 'Ashley Dark',
+      value: 'ashley-dark'
     }],
     executeSubcommand: async (_, theme) => {
       ipcRenderer.send('mt::set-user-preference', { theme })

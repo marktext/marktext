@@ -1,0 +1,122 @@
+/*
+ * ------------------------------------
+ * Prism.js — Neon Editorial Dark
+ * Terminal merged with magazine design.
+ */
+
+code[class*="language-"],
+pre.ag-paragraph {
+  color: #F3F7FB;
+  text-align: left;
+  white-space: pre;
+  word-spacing: normal;
+  word-break: normal;
+  word-wrap: normal;
+  -moz-tab-size: 4;
+  -o-tab-size: 4;
+  tab-size: 4;
+  -webkit-hyphens: none;
+  -moz-hyphens: none;
+  -ms-hyphens: none;
+  hyphens: none;
+  overflow: visible;
+}
+
+pre.ag-paragraph {
+  padding: 1em;
+  margin: 1em 0;
+  border-radius: 3px;
+}
+
+:not(pre) > code[class*="language-"],
+pre.ag-paragraph {
+  background: #101722;
+}
+
+:not(pre) > code[class*="language-"] {
+  padding: .1em .3em;
+  border-radius: 3px;
+  white-space: normal;
+}
+
+.token.comment,
+.token.prolog,
+.token.doctype,
+.token.cdata {
+  color: #7B8595;
+}
+
+.token.punctuation {
+  color: #B6BFCC;
+}
+
+.namespace {
+  opacity: .7;
+}
+
+.token.property,
+.token.tag,
+.token.constant,
+.token.symbol {
+  color: #FF48C4;
+}
+
+.token.boolean,
+.token.number {
+  color: #8B7BFF;
+}
+
+.token.selector,
+.token.attr-name,
+.token.string,
+.token.char,
+.token.builtin {
+  color: #C6FF00;
+}
+
+.token.inserted {
+  color: #C6FF00;
+  background: rgba(198, 255, 0, .08);
+}
+
+.token.deleted {
+  color: #FF48C4;
+  background: rgba(255, 72, 196, .08);
+}
+
+.token.operator,
+.token.entity,
+.token.url,
+.language-css .token.string,
+.style .token.string {
+  color: #FF8A00;
+}
+
+.token.atrule,
+.token.attr-value,
+.token.function,
+.token.class-name {
+  color: #2DE2FF;
+}
+
+.token.keyword {
+  color: #FF48C4;
+}
+
+.token.regex,
+.token.important,
+.token.variable {
+  color: #FF8A00;
+}
+
+.token.important,
+.token.bold {
+  font-weight: bold;
+}
+.token.italic {
+  font-style: italic;
+}
+
+.token.entity {
+  cursor: help;
+}

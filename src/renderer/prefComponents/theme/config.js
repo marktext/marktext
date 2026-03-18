@@ -16,6 +16,18 @@ export const themes = [
   },
   {
     name: 'one-dark'
+  },
+  {
+    name: 'neon-editorial'
+  },
+  {
+    name: 'neon-editorial-dark'
+  },
+  {
+    name: 'ashley'
+  },
+  {
+    name: 'ashley-dark'
   }
 ]
 

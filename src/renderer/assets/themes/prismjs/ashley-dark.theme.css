@@ -1,0 +1,122 @@
+/*
+ * ------------------------------------
+ * Prism.js — Ashley Dark (Victorian Green)
+ * Warm golds and creams on deep bottle green.
+ */
+
+code[class*="language-"],
+pre.ag-paragraph {
+  color: #E8E0D0;
+  text-align: left;
+  white-space: pre;
+  word-spacing: normal;
+  word-break: normal;
+  word-wrap: normal;
+  -moz-tab-size: 4;
+  -o-tab-size: 4;
+  tab-size: 4;
+  -webkit-hyphens: none;
+  -moz-hyphens: none;
+  -ms-hyphens: none;
+  hyphens: none;
+  overflow: visible;
+}
+
+pre.ag-paragraph {
+  padding: 1em;
+  margin: 1em 0;
+  border-radius: 3px;
+}
+
+:not(pre) > code[class*="language-"],
+pre.ag-paragraph {
+  background: #132613;
+}
+
+:not(pre) > code[class*="language-"] {
+  padding: .1em .3em;
+  border-radius: 3px;
+  white-space: normal;
+}
+
+.token.comment,
+.token.prolog,
+.token.doctype,
+.token.cdata {
+  color: #8A8274;
+}
+
+.token.punctuation {
+  color: #B5AD9E;
+}
+
+.namespace {
+  opacity: .7;
+}
+
+.token.property,
+.token.tag,
+.token.constant,
+.token.symbol {
+  color: #C9A84C;
+}
+
+.token.boolean,
+.token.number {
+  color: #D4748A;
+}
+
+.token.selector,
+.token.attr-name,
+.token.string,
+.token.char,
+.token.builtin {
+  color: #8FBC8F;
+}
+
+.token.inserted {
+  color: #8FBC8F;
+  background: rgba(143, 188, 143, .08);
+}
+
+.token.deleted {
+  color: #D4748A;
+  background: rgba(212, 116, 138, .08);
+}
+
+.token.operator,
+.token.entity,
+.token.url,
+.language-css .token.string,
+.style .token.string {
+  color: #C9A84C;
+}
+
+.token.atrule,
+.token.attr-value,
+.token.function,
+.token.class-name {
+  color: #7EB8C9;
+}
+
+.token.keyword {
+  color: #C9A84C;
+}
+
+.token.regex,
+.token.important,
+.token.variable {
+  color: #D4A05A;
+}
+
+.token.important,
+.token.bold {
+  font-weight: bold;
+}
+.token.italic {
+  font-style: italic;
+}
+
+.token.entity {
+  cursor: help;
+}

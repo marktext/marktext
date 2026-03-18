@@ -101,7 +101,7 @@ const handleResponseForExport = async (e, { type, content, pathname, title, page
 
 const handleResponseForPrint = e => {
   const win = BrowserWindow.fromWebContents(e.sender)
-  win.webContents.print({ printBackground: true }, () => {
+  win.webContents.print({ printBackground: true }).then(() => {
     removePrintServiceFromWindow(win)
   })
 }

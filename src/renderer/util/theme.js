@@ -1,5 +1,5 @@
 import { THEME_STYLE_ID, COMMON_STYLE_ID, DEFAULT_CODE_FONT_FAMILY, oneDarkThemes, railscastsThemes } from '../config'
-import { dark, graphite, materialDark, oneDark, ulysses } from './themeColor'
+import { dark, graphite, materialDark, oneDark, ulysses, neonEditorial, neonEditorialDark, ashley, ashleyDark } from './themeColor'
 import { isLinux } from './index'
 import elementStyle from 'element-ui/lib/theme-chalk/index.css'
 
@@ -46,6 +46,67 @@ const getThemeCluster = themeColor => {
   return clusters
 }
 
+const NEON_ACCENT_STYLE_ID = 'neon-accent-override'
+
+const getAccentConfig = (theme) => {
+  switch (theme) {
+    case 'neon-editorial': return { key: 'neon-editorial-bg', color: '#F7F6F2' }
+    case 'neon-editorial-dark': return { key: 'neon-editorial-dark-bg', color: '#0A0D10' }
+    case 'ashley': return { key: 'ashley-bg', color: '#F7F6F2' }
+    case 'ashley-dark': return { key: 'ashley-dark-bg', color: '#0C1F0C' }
+    default: return null
+  }
+}
+
+export const applyAccentColor = (color) => {
+  let styleEl = document.querySelector(`#${NEON_ACCENT_STYLE_ID}`)
+  if (!styleEl) {
+    styleEl = document.createElement('style')
+    styleEl.id = NEON_ACCENT_STYLE_ID
+    document.head.appendChild(styleEl)
+  }
+  styleEl.innerHTML = `
+    .editor-component, .editor-container, #editor-container,
+    .ag-container, .ag-section { --editorBgColor: ${color}; background-color: ${color}; }
+  `
+}
+
+// Accent localStorage keys that we listen for cross-window changes
+const ACCENT_KEYS = new Set([
+  'neon-editorial-bg', 'neon-editorial-dark-bg', 'ashley-bg', 'ashley-dark-bg'
+])
+
+// Listen for accent changes from other windows (e.g. preferences window)
+if (typeof window !== 'undefined') {
+  window.addEventListener('storage', (e) => {
+    if (ACCENT_KEYS.has(e.key) && e.newValue) {
+      applyAccentColor(e.newValue)
+    }
+  })
+}
+
+const applyAccent = (theme) => {
+  const cfg = getAccentConfig(theme)
+  if (!cfg) return
+  const color = localStorage.getItem(cfg.key) || cfg.color
+
+  let styleEl = document.querySelector(`#${NEON_ACCENT_STYLE_ID}`)
+  if (!styleEl) {
+    styleEl = document.createElement('style')
+    styleEl.id = NEON_ACCENT_STYLE_ID
+    document.head.appendChild(styleEl)
+  }
+  styleEl.innerHTML = `
+    .editor-component, .editor-container, #editor-container,
+    .ag-container, .ag-section { --editorBgColor: ${color}; background-color: ${color}; }
+  `
+}
+
+const removeNeonAccent = () => {
+  const styleEl = document.querySelector(`#${NEON_ACCENT_STYLE_ID}`)
+  if (styleEl) styleEl.innerHTML = ''
+}
+
 export const addThemeStyle = theme => {
   const isCmRailscasts = railscastsThemes.includes(theme)
   const isCmOneDark = oneDarkThemes.includes(theme)
@@ -60,21 +121,43 @@ export const addThemeStyle = theme => {
   switch (theme) {
     case 'light':
       themeStyleEle.innerHTML = ''
+      removeNeonAccent()
       break
     case 'dark':
       themeStyleEle.innerHTML = patchTheme(dark())
+      removeNeonAccent()
       break
     case 'material-dark':
       themeStyleEle.innerHTML = patchTheme(materialDark())
+      removeNeonAccent()
       break
     case 'ulysses':
       themeStyleEle.innerHTML = patchTheme(ulysses())
+      removeNeonAccent()
       break
     case 'graphite':
       themeStyleEle.innerHTML = patchTheme(graphite())
+      removeNeonAccent()
       break
     case 'one-dark':
       themeStyleEle.innerHTML = patchTheme(oneDark())
+      removeNeonAccent()
+      break
+    case 'neon-editorial':
+      themeStyleEle.innerHTML = patchTheme(neonEditorial())
+      applyAccent('neon-editorial')
+      break
+    case 'neon-editorial-dark':
+      themeStyleEle.innerHTML = patchTheme(neonEditorialDark())
+      applyAccent('neon-editorial-dark')
+      break
+    case 'ashley':
+      themeStyleEle.innerHTML = patchTheme(ashley())
+      applyAccent('ashley')
+      break
+    case 'ashley-dark':
+      themeStyleEle.innerHTML = patchTheme(ashleyDark())
+      applyAccent('ashley-dark')
       break
     default:
       console.log('unknown theme')

@@ -20,6 +20,23 @@ if (fs.existsSync(windowsReleasePath)) {
   fs.copyFileSync(srcPath, destPath)
 }
 
+// WORKAROUND: Ad-hoc sign app-builder-bin macOS binaries to prevent false positive virus scanner
+//   detections (OSX/AdLoad). The upstream package ships unsigned Mach-O binaries.
+if (process.platform === 'darwin') {
+  const { execSync } = require('child_process')
+  const appBuilderMacDir = path.resolve(__dirname, '../node_modules/app-builder-bin/mac')
+  if (fs.existsSync(appBuilderMacDir)) {
+    for (const file of fs.readdirSync(appBuilderMacDir)) {
+      const binPath = path.join(appBuilderMacDir, file)
+      try {
+        execSync(`codesign --sign - --force "${binPath}"`, { stdio: 'pipe' })
+      } catch (e) {
+        console.warn(`[WARN] Failed to ad-hoc sign ${file}: ${e.message}`)
+      }
+    }
+  }
+}
+
 // WORKAROUND: electron-builder downloads the wrong prebuilt architecture on macOS and the reason is unknown.
 //   For now, we rebuild all native libraries from source.
 const keytarPath = path.resolve(__dirname, '../node_modules/keytar')

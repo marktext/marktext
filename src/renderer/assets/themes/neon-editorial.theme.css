@@ -1,0 +1,223 @@
+:root {
+  /* Neon Editorial — Light Mode
+     Inspired by 1990s WIRED: fluorescent ink on premium paper stock. */
+
+  --themeColor: #00C2FF;
+  --themeColor90: rgba(0, 194, 255, .9);
+  --themeColor80: rgba(0, 194, 255, .8);
+  --themeColor70: rgba(0, 194, 255, .7);
+  --themeColor60: rgba(0, 194, 255, .6);
+  --themeColor50: rgba(0, 194, 255, .5);
+  --themeColor40: rgba(0, 194, 255, .4);
+  --themeColor30: rgba(0, 194, 255, .3);
+  --themeColor20: rgba(0, 194, 255, .2);
+  --themeColor10: rgba(0, 194, 255, .1);
+
+  --highlightColor: rgba(255, 60, 172, .18);
+  --selectionColor: rgba(255, 60, 172, .18);
+  --editorColor: #17181C;
+  --editorColor80: rgba(23, 24, 28, .8);
+  --editorColor60: rgba(23, 24, 28, .6);
+  --editorColor50: #4B5160;
+  --editorColor40: rgba(23, 24, 28, .4);
+  --editorColor30: #6E7585;
+  --editorColor10: rgba(23, 24, 28, .1);
+  --editorColor04: rgba(23, 24, 28, .04);
+  --editorBgColor: #F7F6F2;
+  --deleteColor: #FF3CAC;
+  --iconColor: #6E7585;
+  --codeBgColor: #EAF7FC;
+  --codeBlockBgColor: #EDF1F7;
+  --footnoteBgColor: #EEECE6;
+  --inputBgColor: rgba(0, 0, 0, .04);
+  --focusColor: #00C2FF;
+
+  --buttonFontColor: #17181C;
+  --buttonBgColor: #ffffff;
+  --buttonBorder: 1px solid #D7DCE5;
+  --buttonShadow: none;
+  --buttonFontColorHover: #17181C;
+  --buttonBgColorHover: linear-gradient(#ffffff, #F7F6F2);
+  --buttonBorderHover: 1px solid #00C2FF;
+  --buttonFontColorActive: #17181C;
+  --buttonBgColorActive: #EEECE6;
+  --buttonBorderActive: 1px solid #D7DCE5;
+  --buttonFocusBorder: 1px solid #00C2FF;
+
+  --buttonPrimaryFontColor: #ffffff;
+  --buttonPrimaryBgColor: #00C2FF;
+  --buttonPrimaryBorder: none;
+  --buttonPrimaryShadow: 0 0 8px 0 rgba(0, 194, 255, .2);
+  --buttonPrimaryFontColorHover: #ffffff;
+  --buttonPrimaryBgColorHover: #00D4FF;
+  --buttonPrimaryBorderHover: none;
+  --buttonPrimaryFontColorActive: #ffffff;
+  --buttonPrimaryBgColorActive: #00AADD;
+  --buttonPrimaryBorderActive: none;
+  --buttonPrimaryFocusBorder: none;
+  --buttonPrimaryFocusShadow: 0 0 0 2px rgba(0, 194, 255, .4);
+  --tableBorderColor: #D7DCE5;
+
+  --sideBarColor: #4B5160;
+  --sideBarIconColor: #6E7585;
+  --sideBarTitleColor: #17181C;
+  --sideBarTextColor: #6E7585;
+  --sideBarBgColor: #EEECE6;
+  --sideBarItemHoverBgColor: rgba(0, 194, 255, .06);
+  --itemBgColor: rgba(0, 0, 0, .04);
+
+  --floatFontColor: #17181C;
+  --floatBgColor: #ffffff;
+  --floatHoverColor: rgba(0, 194, 255, .06);
+  --floatBorderColor: #D7DCE5;
+  --maskColor: rgba(238, 236, 230, .85);
+  --editorAreaWidth: 750px;
+}
+
+/* --- Tabs ---------------------------------------------------- */
+
+.editor-tabs {
+  background: #EEECE6 !important;
+  box-shadow: none !important;
+}
+.editor-tabs:after {
+  position: absolute;
+  content: '';
+  border-bottom: 1px solid #D7DCE5;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 1;
+}
+.editor-tabs ul.tabs-container:after {
+  position: absolute;
+  content: '';
+  border-bottom: 1px solid #D7DCE5;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 2;
+}
+.title-bar-editor-bg.tabs-visible {
+  background: #EEECE6 !important;
+}
+
+.tabs-container > li {
+  background: none !important;
+}
+.tabs-container > li.active {
+  border: 1px solid #D7DCE5;
+  border-top: none;
+  border-bottom: none;
+  background: #F7F6F2 !important;
+}
+.tabs-container > li.active:after {
+  top: 0 !important;
+  bottom: auto !important;
+  background: #00C2FF !important;
+}
+
+/* --- Editor -------------------------------------------------- */
+
+li.ag-paragraph {
+  color: var(--editorColor);
+}
+
+/* Links — bright cyan, magenta on hover */
+a {
+  color: #00C2FF !important;
+}
+a:hover {
+  color: #FF3CAC !important;
+}
+
+/* Blockquote — editorial sidebar feel */
+blockquote {
+  border-left-color: #FF3CAC !important;
+  background: #EEECE6 !important;
+}
+blockquote::before {
+  background: #FF3CAC;
+}
+
+/* Horizontal rule */
+p:not(.ag-active)[data-role="hr"]::before {
+  content: '';
+  position: absolute;
+  width: 100%;
+  display: block;
+  left: 50%;
+  top: 50%;
+  height: 2px;
+  box-sizing: border-box;
+  border: none;
+  border-bottom: 2px solid #D7DCE5;
+  transform: translateX(-50%) translateY(-50%);
+}
+
+/* Code blocks — clean panel */
+:not(pre) > code[class*="language-"],
+pre:not(.CodeMirror-line),
+pre[class*="language-"],
+pre.ag-paragraph {
+  background: var(--codeBlockBgColor) !important;
+  border: 1px solid #D7DCE5 !important;
+  border-radius: 3px !important;
+}
+
+/* Task list checkboxes */
+li.ag-task-list-item {
+  list-style-type: none;
+  position: relative;
+}
+li.ag-task-list-item > input[type=checkbox] {
+  position: absolute;
+  cursor: pointer;
+  width: 16px;
+  height: 16px;
+  top: .1em;
+  transform: rotate(-90deg);
+  margin: 0;
+  left: -24px;
+  transform-origin: center;
+  transition: all .2s ease;
+}
+li.ag-task-list-item > input.ag-checkbox-checked {
+  transform: rotate(0);
+  opacity: .5;
+}
+li.ag-task-list-item > input[type=checkbox]::before {
+  content: '';
+  width: 16px;
+  height: 16px;
+  box-sizing: border-box;
+  display: inline-block;
+  border: 2px solid #4B5160;
+  border-radius: 2px;
+  background-color: var(--editorBgColor);
+  position: absolute;
+  top: 0;
+  left: 0;
+  transition: all .2s ease;
+}
+li.ag-task-list-item > input.ag-checkbox-checked::before {
+  border: transparent;
+  background-color: #00C2FF;
+}
+li.ag-task-list-item > input::after {
+  content: '';
+  transform: rotate(-45deg) scale(0);
+  width: 9px;
+  height: 5px;
+  border: 2px solid #fff;
+  border-top: none;
+  border-right: none;
+  position: absolute;
+  display: inline-block;
+  top: 1px;
+  left: 5px;
+  transition: all .2s ease;
+}
+li.ag-task-list-item > input.ag-checkbox-checked::after {
+  transform: rotate(-45deg) scale(1);
+}

@@ -99,13 +99,26 @@ class StateRender {
     if (this.mermaidCache.size) {
       const mermaid = await loadRenderer('mermaid')
 
-      // Initialize mermaid once with correct config for v11
-      // Reset initialization on each render to ensure fresh state
+      // Only override the specific themeVariables that mermaid gets wrong.
+      // Do NOT override node text colours — mermaid's own themes handle
+      // contrast correctly (white text on dark fills, dark on light fills).
+      // We only fix: edge label backgrounds, pie legends, and signal text.
+      const isDark = document.body.classList.contains('dark')
+      const labelColor = isDark ? '#ffffff' : '#1a1a1a'
+      const neutralBg = isDark ? '#1e1e1e' : '#ffffff'
+
       mermaid.initialize({
         securityLevel: 'strict',
         theme: this.muya.options.mermaidTheme || 'default',
-        startOnLoad: false, // Important for manual rendering
-        logLevel: 'error' // Reduce console noise
+        themeVariables: {
+          edgeLabelBackground: neutralBg,
+          signalTextColor: labelColor,
+          pieTitleTextColor: labelColor,
+          pieSectionTextColor: '#fff',
+          pieLegendTextColor: labelColor
+        },
+        startOnLoad: false,
+        logLevel: 'error'
       })
 
       // Wait longer for DOM to be fully ready

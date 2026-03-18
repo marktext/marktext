@@ -655,6 +655,22 @@ kbd {
   pre {
     word-wrap: break-word;
   }
+  
+  /* Page break support */
+  div[style*="page-break"] {
+    height: 0;
+    margin: 20px 0;
+    border-top: 2px dashed #ccc;
+    opacity: 0.7;
+  }
+  
+  @media print {
+    div[style*="page-break"] {
+      border: none !important;
+      margin: 0 !important;
+      opacity: 0;
+    }
+  }
 }
 /* cover default flowchart.js and sequence style */
 figure[data-role] svg rect[fill="#ffffff"] {
@@ -687,6 +703,46 @@ figure[data-role] svg use[fill="black"] {
 
 figure[data-role] svg use[fill="#000000"] {
   fill: var(--editorColor);
+}
+
+/*
+ * Mermaid overrides — only fix what mermaid's own themes get wrong.
+ * Do NOT override node text colours — mermaid handles contrast on its own
+ * (white text on dark node fills, dark text on light fills).
+ * We only fix edge labels and pie slice labels.
+ */
+
+/* Edge labels: ensure readable text on a neutral background */
+svg .edgeLabel span,
+svg .edgeLabel p,
+svg .edgeLabel foreignObject span,
+svg .edgeLabel foreignObject p,
+svg .edgeLabel foreignObject div {
+  color: #1a1a1a !important;
+  background-color: #ffffff !important;
+}
+
+/* Pie slice labels — always white (on coloured slices) */
+svg[aria-roledescription="pie"] .slice text {
+  fill: #fff !important;
+}
+
+/* --- Dark mode --- */
+
+body.dark svg .edgeLabel span,
+body.dark svg .edgeLabel p,
+body.dark svg .edgeLabel foreignObject span,
+body.dark svg .edgeLabel foreignObject p,
+body.dark svg .edgeLabel foreignObject div {
+  color: #ffffff !important;
+  background-color: #1e1e1e !important;
+}
+
+/* Lines in dark mode */
+body.dark svg[aria-roledescription] .flowchart-link,
+body.dark svg[aria-roledescription] line[class],
+body.dark svg[aria-roledescription="sequence"] line {
+  stroke: rgba(255, 255, 255, .6) !important;
 }
 
 /*

@@ -1,0 +1,282 @@
+:root {
+  /* Ashley Dark — Victorian Green
+     Deep bottle green with warm gold and cream accents.
+     Like a leather-bound book in a gaslit library. */
+
+  --themeColor: #8FBC8F;
+  --themeColor90: rgba(143, 188, 143, .9);
+  --themeColor80: rgba(143, 188, 143, .8);
+  --themeColor70: rgba(143, 188, 143, .7);
+  --themeColor60: rgba(143, 188, 143, .6);
+  --themeColor50: rgba(143, 188, 143, .5);
+  --themeColor40: rgba(143, 188, 143, .4);
+  --themeColor30: rgba(143, 188, 143, .3);
+  --themeColor20: rgba(143, 188, 143, .2);
+  --themeColor10: rgba(143, 188, 143, .1);
+
+  --highlightColor: rgba(143, 188, 143, .15);
+  --selectionColor: rgba(143, 188, 143, .2);
+  --editorColor: #E8E0D0;
+  --editorColor80: rgba(232, 224, 208, .8);
+  --editorColor60: rgba(232, 224, 208, .6);
+  --editorColor50: #B5AD9E;
+  --editorColor40: rgba(232, 224, 208, .4);
+  --editorColor30: #8A8274;
+  --editorColor10: rgba(232, 224, 208, .1);
+  --editorColor04: rgba(232, 224, 208, .04);
+  --editorBgColor: #0C1F0C;
+  --deleteColor: #D4748A;
+  --iconColor: #8A8274;
+  --codeBgColor: #132613;
+  --codeBlockBgColor: #132613;
+  --footnoteBgColor: #162A16;
+  --inputBgColor: rgba(255, 255, 255, .05);
+  --focusColor: #8FBC8F;
+
+  --buttonFontColor: #B5AD9E;
+  --buttonBgColor: linear-gradient(#162A16, #132613);
+  --buttonBorder: 1px solid #2A4A2A;
+  --buttonShadow: none;
+  --buttonFontColorHover: #E8E0D0;
+  --buttonBgColorHover: linear-gradient(#1C351C, #162A16);
+  --buttonBorderHover: 1px solid #8FBC8F;
+  --buttonFontColorActive: #B5AD9E;
+  --buttonBgColorActive: #132613;
+  --buttonBorderActive: 1px solid #2A4A2A;
+  --buttonFocusBorder: 1px solid #8FBC8F;
+
+  --buttonPrimaryFontColor: #0C1F0C;
+  --buttonPrimaryBgColor: #8FBC8F;
+  --buttonPrimaryBorder: none;
+  --buttonPrimaryShadow: 0 0 12px 0 rgba(143, 188, 143, .2);
+  --buttonPrimaryFontColorHover: #0C1F0C;
+  --buttonPrimaryBgColorHover: #A3CCA3;
+  --buttonPrimaryBorderHover: none;
+  --buttonPrimaryFontColorActive: #0C1F0C;
+  --buttonPrimaryBgColorActive: #7AAC7A;
+  --buttonPrimaryBorderActive: none;
+  --buttonPrimaryFocusBorder: none;
+  --buttonPrimaryFocusShadow: 0 0 0 2px rgba(143, 188, 143, .35);
+  --tableBorderColor: #2A4A2A;
+
+  --sideBarColor: #B5AD9E;
+  --sideBarIconColor: #8A8274;
+  --sideBarTitleColor: #E8E0D0;
+  --sideBarTextColor: #8A8274;
+  --sideBarBgColor: #091809;
+  --sideBarItemHoverBgColor: rgba(143, 188, 143, .06);
+  --itemBgColor: #091809;
+
+  --floatFontColor: #B5AD9E;
+  --floatBgColor: #132613;
+  --floatHoverColor: rgba(143, 188, 143, .08);
+  --floatBorderColor: #2A4A2A;
+  --floatShadow: rgba(0, 0, 0, .5);
+  --maskColor: rgba(12, 31, 12, .85);
+  --editorAreaWidth: 750px;
+}
+
+/* --- Scrollbar ------------------------------------------------ */
+
+::-webkit-scrollbar,
+::-webkit-scrollbar-corner {
+  background: var(--editorBgColor);
+}
+::-webkit-scrollbar:vertical {
+  width: 10px;
+}
+::-webkit-scrollbar:vertical:hover {
+  width: 12px;
+}
+::-webkit-scrollbar-thumb {
+  background: #2A4A2A;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #3A6A3A;
+}
+
+/* --- Element UI ---------------------------------------------- */
+
+.v-modal {
+  background: #050F05 !important;
+  opacity: 0.7 !important;
+}
+.el-dialog,
+.el-dialog.ag-dialog-table {
+  border-radius: 6px !important;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, .5) !important;
+  border: 1px solid #2A4A2A !important;
+  background: #132613 !important;
+}
+
+.el-button:focus {
+  color: var(--buttonFontColor);
+}
+.el-button--primary:focus {
+  color: var(--buttonPrimaryFontColor);
+  background: var(--buttonPrimaryBgColor);
+}
+
+/* --- Core elements ------------------------------------------- */
+
+.ag-front-menu .submenu,
+.ag-float-wrapper {
+  box-shadow: 0 4px 16px 0 var(--floatShadow) !important;
+}
+
+.title-bar .frameless-titlebar-button > div > svg {
+  fill: #B5AD9E;
+}
+.title-bar .frameless-titlebar-minimize:hover,
+.title-bar .frameless-titlebar-toggle:hover {
+  background-color: rgba(143, 188, 143, .06) !important;
+}
+
+.input-wrapper {
+  border-radius: 3px !important;
+  border: 1px solid #2A4A2A !important;
+  background: #091809 !important;
+}
+
+/* --- Sidebar ------------------------------------------------- */
+
+.side-bar {
+  border-right: 1px solid #2A4A2A !important;
+}
+.left-column ul > li > svg {
+  fill: #8A8274 !important;
+}
+.left-column ul > li:hover > svg {
+  fill: #B5AD9E !important;
+}
+.left-column ul > li.active > svg {
+  fill: #8FBC8F !important;
+}
+
+/* --- Tabs ---------------------------------------------------- */
+
+.editor-tabs {
+  box-shadow: none !important;
+}
+.editor-tabs:after {
+  position: absolute;
+  content: '';
+  border-bottom: 1px solid #2A4A2A;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 1;
+}
+.editor-tabs ul.tabs-container:after {
+  position: absolute;
+  content: '';
+  border-bottom: 1px solid #2A4A2A;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 2;
+}
+
+.tabs-container > li,
+.tabs-container > li.active {
+  background: var(--editorBgColor) !important;
+}
+.tabs-container > li.active {
+  border: 1px solid #2A4A2A;
+  border-bottom: none;
+}
+.tabs-container > li.active:after {
+  top: 0 !important;
+  right: auto !important;
+  width: 2px !important;
+  height: auto !important;
+  background: #8FBC8F !important;
+}
+.tabs-container svg.close-icon #unsaved-circle-icon {
+  fill: #8FBC8F;
+}
+
+/* --- Editor -------------------------------------------------- */
+
+blockquote {
+  border-left-color: #C9A84C !important;
+  background: #162A16 !important;
+}
+blockquote::before {
+  background: #C9A84C;
+}
+
+:not(pre) > code[class*="language-"],
+pre:not(.CodeMirror-line),
+pre[class*="language-"],
+pre.ag-paragraph {
+  background: var(--codeBlockBgColor) !important;
+  border: 1px solid #2A4A2A !important;
+  border-radius: 3px !important;
+}
+
+p:not(.ag-active)[data-role="hr"]::before {
+  border-top: 2px dashed #2A4A2A !important;
+  background: none !important;
+}
+
+/* Task list checkboxes */
+li.ag-task-list-item {
+  list-style-type: none;
+  position: relative;
+}
+li.ag-task-list-item > input[type=checkbox] {
+  position: absolute;
+  cursor: pointer;
+  width: 16px;
+  height: 16px;
+  top: .1em;
+  transform: rotate(-90deg);
+  margin: 0;
+  left: -24px;
+  transform-origin: center;
+  transition: all .2s ease;
+}
+li.ag-task-list-item > input.ag-checkbox-checked {
+  transform: rotate(0);
+  opacity: .6;
+}
+li.ag-task-list-item > input[type=checkbox]::before {
+  content: '';
+  width: 16px;
+  height: 16px;
+  box-sizing: border-box;
+  display: inline-block;
+  border: 2px solid #8A8274;
+  border-radius: 2px;
+  background-color: var(--editorBgColor);
+  position: absolute;
+  top: 0;
+  left: 0;
+  transition: all .2s ease;
+}
+li.ag-task-list-item > input.ag-checkbox-checked::before {
+  border: transparent;
+  background-color: #8FBC8F;
+}
+li.ag-task-list-item > input::after {
+  content: '';
+  transform: rotate(-45deg) scale(0);
+  width: 9px;
+  height: 5px;
+  border: 2px solid #0C1F0C;
+  border-top: none;
+  border-right: none;
+  position: absolute;
+  display: inline-block;
+  top: 1px;
+  left: 5px;
+  transition: all .2s ease;
+}
+li.ag-task-list-item > input.ag-checkbox-checked::after {
+  transform: rotate(-45deg) scale(1);
+}
+
+figure.ag-active.ag-container-block > div.ag-container-preview {
+  box-shadow: 0 3px 12px 0 var(--floatShadow) !important;
+}

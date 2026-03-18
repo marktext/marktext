@@ -1,0 +1,284 @@
+:root {
+  /* Neon Editorial — Dark Mode
+     Luminous type on ink-black studio glass. */
+
+  --themeColor: #2DE2FF;
+  --themeColor90: rgba(45, 226, 255, .9);
+  --themeColor80: rgba(45, 226, 255, .8);
+  --themeColor70: rgba(45, 226, 255, .7);
+  --themeColor60: rgba(45, 226, 255, .6);
+  --themeColor50: rgba(45, 226, 255, .5);
+  --themeColor40: rgba(45, 226, 255, .4);
+  --themeColor30: rgba(45, 226, 255, .3);
+  --themeColor20: rgba(45, 226, 255, .2);
+  --themeColor10: rgba(45, 226, 255, .1);
+
+  --highlightColor: rgba(45, 226, 255, .15);
+  --selectionColor: rgba(45, 226, 255, .2);
+  --editorColor: #F3F7FB;
+  --editorColor80: rgba(243, 247, 251, .8);
+  --editorColor60: rgba(243, 247, 251, .6);
+  --editorColor50: #B6BFCC;
+  --editorColor40: rgba(243, 247, 251, .4);
+  --editorColor30: #7B8595;
+  --editorColor10: rgba(243, 247, 251, .1);
+  --editorColor04: rgba(243, 247, 251, .04);
+  --editorBgColor: #0A0D10;
+  --deleteColor: #FF48C4;
+  --iconColor: #7B8595;
+  --codeBgColor: #101722;
+  --codeBlockBgColor: #101722;
+  --footnoteBgColor: #11161C;
+  --inputBgColor: rgba(255, 255, 255, .05);
+  --focusColor: #2DE2FF;
+
+  --buttonFontColor: #B6BFCC;
+  --buttonBgColor: linear-gradient(#161C24, #11161C);
+  --buttonBorder: 1px solid #253041;
+  --buttonShadow: none;
+  --buttonFontColorHover: #F3F7FB;
+  --buttonBgColorHover: linear-gradient(#1A2230, #161C24);
+  --buttonBorderHover: 1px solid #2DE2FF;
+  --buttonFontColorActive: #B6BFCC;
+  --buttonBgColorActive: #11161C;
+  --buttonBorderActive: 1px solid #253041;
+  --buttonFocusBorder: 1px solid #2DE2FF;
+
+  --buttonPrimaryFontColor: #0A0D10;
+  --buttonPrimaryBgColor: #2DE2FF;
+  --buttonPrimaryBorder: none;
+  --buttonPrimaryShadow: 0 0 12px 0 rgba(45, 226, 255, .25);
+  --buttonPrimaryFontColorHover: #0A0D10;
+  --buttonPrimaryBgColorHover: #5AEBFF;
+  --buttonPrimaryBorderHover: none;
+  --buttonPrimaryFontColorActive: #0A0D10;
+  --buttonPrimaryBgColorActive: #00C8E0;
+  --buttonPrimaryBorderActive: none;
+  --buttonPrimaryFocusBorder: none;
+  --buttonPrimaryFocusShadow: 0 0 0 2px rgba(45, 226, 255, .4);
+  --tableBorderColor: #253041;
+
+  --sideBarColor: #B6BFCC;
+  --sideBarIconColor: #7B8595;
+  --sideBarTitleColor: #F3F7FB;
+  --sideBarTextColor: #7B8595;
+  --sideBarBgColor: #0E1218;
+  --sideBarItemHoverBgColor: rgba(45, 226, 255, .06);
+  --itemBgColor: #0E1218;
+
+  --floatFontColor: #B6BFCC;
+  --floatBgColor: #11161C;
+  --floatHoverColor: rgba(45, 226, 255, .08);
+  --floatBorderColor: #253041;
+  --floatShadow: rgba(0, 0, 0, .5);
+  --maskColor: rgba(10, 13, 16, .85);
+  --editorAreaWidth: 750px;
+}
+
+/* --- Scrollbar ------------------------------------------------ */
+
+::-webkit-scrollbar,
+::-webkit-scrollbar-corner {
+  background: var(--editorBgColor);
+}
+::-webkit-scrollbar:vertical {
+  width: 10px;
+}
+::-webkit-scrollbar:vertical:hover {
+  width: 12px;
+}
+::-webkit-scrollbar-thumb {
+  background: #253041;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #354560;
+}
+
+/* --- Element UI ---------------------------------------------- */
+
+.v-modal {
+  background: #050709 !important;
+  opacity: 0.7 !important;
+}
+.el-dialog,
+.el-dialog.ag-dialog-table {
+  border-radius: 6px !important;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, .5) !important;
+  border: 1px solid #253041 !important;
+  background: #11161C !important;
+}
+
+.el-button:focus {
+  color: var(--buttonFontColor);
+}
+.el-button--primary:focus {
+  color: var(--buttonPrimaryFontColor);
+  background: var(--buttonPrimaryBgColor);
+}
+
+/* --- Core elements ------------------------------------------- */
+
+.ag-front-menu .submenu,
+.ag-float-wrapper {
+  box-shadow: 0 4px 16px 0 var(--floatShadow) !important;
+}
+
+.title-bar .frameless-titlebar-button > div > svg {
+  fill: #B6BFCC;
+}
+.title-bar .frameless-titlebar-minimize:hover,
+.title-bar .frameless-titlebar-toggle:hover {
+  background-color: rgba(45, 226, 255, .06) !important;
+}
+
+.input-wrapper {
+  border-radius: 3px !important;
+  border: 1px solid #253041 !important;
+  background: #0E1218 !important;
+}
+
+/* --- Sidebar ------------------------------------------------- */
+
+.side-bar {
+  border-right: 1px solid #253041 !important;
+}
+.left-column ul > li > svg {
+  fill: #7B8595 !important;
+}
+.left-column ul > li:hover > svg {
+  fill: #B6BFCC !important;
+}
+.left-column ul > li.active > svg {
+  fill: #2DE2FF !important;
+}
+
+/* --- Tabs ---------------------------------------------------- */
+
+.editor-tabs {
+  box-shadow: none !important;
+}
+.editor-tabs:after {
+  position: absolute;
+  content: '';
+  border-bottom: 1px solid #253041;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 1;
+}
+.editor-tabs ul.tabs-container:after {
+  position: absolute;
+  content: '';
+  border-bottom: 1px solid #253041;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 2;
+}
+
+.tabs-container > li,
+.tabs-container > li.active {
+  background: var(--editorBgColor) !important;
+}
+.tabs-container > li.active {
+  border: 1px solid #253041;
+  border-bottom: none;
+}
+.tabs-container > li.active:after {
+  top: 0 !important;
+  right: auto !important;
+  width: 2px !important;
+  height: auto !important;
+  background: #2DE2FF !important;
+}
+.tabs-container svg.close-icon #unsaved-circle-icon {
+  fill: #2DE2FF;
+}
+
+/* --- Editor -------------------------------------------------- */
+
+/* Blockquote — editorial sidebar on lifted dark surface */
+blockquote {
+  border-left-color: #FF48C4 !important;
+  background: #11161C !important;
+}
+blockquote::before {
+  background: #FF48C4;
+}
+
+/* Code blocks — terminal meets magazine */
+:not(pre) > code[class*="language-"],
+pre:not(.CodeMirror-line),
+pre[class*="language-"],
+pre.ag-paragraph {
+  background: var(--codeBlockBgColor) !important;
+  border: 1px solid #253041 !important;
+  border-radius: 3px !important;
+}
+
+/* Horizontal rule */
+p:not(.ag-active)[data-role="hr"]::before {
+  border-top: 2px dashed #253041 !important;
+  background: none !important;
+}
+
+/* Task list checkboxes */
+li.ag-task-list-item {
+  list-style-type: none;
+  position: relative;
+}
+li.ag-task-list-item > input[type=checkbox] {
+  position: absolute;
+  cursor: pointer;
+  width: 16px;
+  height: 16px;
+  top: .1em;
+  transform: rotate(-90deg);
+  margin: 0;
+  left: -24px;
+  transform-origin: center;
+  transition: all .2s ease;
+}
+li.ag-task-list-item > input.ag-checkbox-checked {
+  transform: rotate(0);
+  opacity: .6;
+}
+li.ag-task-list-item > input[type=checkbox]::before {
+  content: '';
+  width: 16px;
+  height: 16px;
+  box-sizing: border-box;
+  display: inline-block;
+  border: 2px solid #7B8595;
+  border-radius: 2px;
+  background-color: var(--editorBgColor);
+  position: absolute;
+  top: 0;
+  left: 0;
+  transition: all .2s ease;
+}
+li.ag-task-list-item > input.ag-checkbox-checked::before {
+  border: transparent;
+  background-color: #2DE2FF;
+}
+li.ag-task-list-item > input::after {
+  content: '';
+  transform: rotate(-45deg) scale(0);
+  width: 9px;
+  height: 5px;
+  border: 2px solid #0A0D10;
+  border-top: none;
+  border-right: none;
+  position: absolute;
+  display: inline-block;
+  top: 1px;
+  left: 5px;
+  transition: all .2s ease;
+}
+li.ag-task-list-item > input.ag-checkbox-checked::after {
+  transform: rotate(-45deg) scale(1);
+}
+
+figure.ag-active.ag-container-block > div.ag-container-preview {
+  box-shadow: 0 3px 12px 0 var(--floatShadow) !important;
+}
