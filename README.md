@@ -208,12 +208,67 @@ This fork includes Electron 41, Mermaid 11.13 (all 16 diagram types), new themes
 
 **macOS:** Download the `.dmg`, open it, drag MarkText to Applications. On first launch, right-click > Open to bypass Gatekeeper.
 
-**Other platforms (macOS Intel, Linux, Windows):** Must be built from source — native modules require compilation on the target platform:
+**Other platforms** must be built from source — native modules require compilation on the target platform.
+
+#### Linux (Ubuntu/Debian ARM64 or x64)
+
+```bash
+# Install system dependencies
+sudo apt update
+sudo apt install -y git build-essential python3 libsecret-1-dev \
+  libx11-dev libxkbfile-dev libfontconfig1-dev
+
+# Install Node.js 20 (if not already installed)
+curl -fsSL https://deb.nodesource.com/setup_20.x | sudo bash -
+sudo apt install -y nodejs
+
+# Install yarn
+sudo npm install -g yarn
+
+# Clone and build
+git clone https://github.com/EastAgile/marktext.git
+cd marktext
+git checkout develop
+yarn install
+yarn run build:bin
+
+# Run
+./build/linux-*-unpacked/marktext
+```
+
+To add a desktop launcher:
+
+```bash
+mkdir -p ~/.local/share/applications
+cat > ~/.local/share/applications/marktext.desktop << DESKTOP
+[Desktop Entry]
+Name=MarkText
+Comment=Next generation markdown editor
+Exec=$(pwd)/build/linux-*-unpacked/marktext %F
+Icon=$(pwd)/static/logo-96px.png
+Terminal=false
+Type=Application
+Categories=Office;TextEditor;
+MimeType=text/markdown;
+DESKTOP
+```
+
+#### macOS Intel
 
 ```bash
 git clone https://github.com/EastAgile/marktext.git
 cd marktext && git checkout develop
-# Ubuntu: sudo apt install -y build-essential python3 libsecret-1-dev libx11-dev libxkbfile-dev libfontconfig1-dev
+yarn install && yarn run build:bin
+open build/mac/MarkText.app
+```
+
+#### Windows
+
+Requires [Visual Studio Build Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/) with the C++ workload, plus Node.js 20 and yarn.
+
+```bash
+git clone https://github.com/EastAgile/marktext.git
+cd marktext && git checkout develop
 yarn install && yarn run build:bin
 ```
 
