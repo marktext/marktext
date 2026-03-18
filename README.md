@@ -196,6 +196,26 @@ Names and company logos of all sponsors (from both Patreon and Open Collective) 
 
 ## Download and Installation
 
+### EastAgile Edition (v0.17.2-ea1)
+
+**[Download Latest Release](https://github.com/EastAgile/marktext/releases/latest)**
+
+This fork includes Electron 41, Mermaid 11.13 (all 16 diagram types), new themes, WCAG contrast enforcement, and PDF export fixes.
+
+| Platform | Download | Notes |
+|----------|----------|-------|
+| macOS Apple Silicon | [marktext-arm64.dmg](https://github.com/EastAgile/marktext/releases/download/v0.17.2-ea1/marktext-arm64.dmg) | M1/M2/M3/M4 Macs |
+| macOS Intel | [marktext-x64.dmg](https://github.com/EastAgile/marktext/releases/download/v0.17.2-ea1/marktext-x64.dmg) | Intel Macs |
+| Linux ARM64 | [marktext-arm64.tar.gz](https://github.com/EastAgile/marktext/releases/download/v0.17.2-ea1/marktext-arm64.tar.gz) | Ubuntu on ARM (e.g. Parallels) |
+
+**macOS:** Download the `.dmg`, open it, drag MarkText to Applications. On first launch, right-click > Open to bypass Gatekeeper.
+
+**Linux ARM64:** `tar xzf marktext-arm64.tar.gz && cd marktext-arm64 && ./marktext`
+
+---
+
+### Upstream (v0.17.1)
+
 ![platform](https://img.shields.io/static/v1.svg?label=Platform&message=Linux-64%20|%20macOS-64%20|%20Win-32%20|%20Win-64&style=for-the-badge)
 
 | ![](https://raw.githubusercontent.com/wiki/ryanoasis/nerd-fonts/screenshots/v1.0.x/mac-pass-sm.png)                                                                                                  | ![](https://raw.githubusercontent.com/wiki/ryanoasis/nerd-fonts/screenshots/v1.0.x/windows-pass-sm.png)                                                                                                          | ![](https://raw.githubusercontent.com/wiki/ryanoasis/nerd-fonts/screenshots/v1.0.x/linux-pass-sm.png)                                                                                                                        |
