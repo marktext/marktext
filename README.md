@@ -208,33 +208,39 @@ This fork includes Electron 41, Mermaid 11.13 (all 16 diagram types), new themes
 
 **macOS:** Download the `.dmg`, open it, drag MarkText to Applications. On first launch, right-click > Open to bypass Gatekeeper.
 
-**Other platforms** must be built from source — native modules require compilation on the target platform.
+**Other platforms** must be built from source — native modules require compilation on the target platform. **Node.js 22** is required (20 is too old for `@electron/rebuild`).
 
 #### Linux (Ubuntu/Debian ARM64 or x64)
 
 ```bash
-# Install system dependencies
+# 1. Install system dependencies (requires sudo)
 sudo apt update
-sudo apt install -y git build-essential python3 libsecret-1-dev \
-  libx11-dev libxkbfile-dev libfontconfig1-dev
+sudo apt install -y git build-essential python3 \
+  libsecret-1-dev libx11-dev libxkbfile-dev libfontconfig1-dev
 
-# Install Node.js 20 (if not already installed)
-curl -fsSL https://deb.nodesource.com/setup_20.x | sudo bash -
-sudo apt install -y nodejs
+# 2. Install Node.js 22 via nvm (recommended)
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
+source ~/.bashrc        # or restart your terminal
+nvm install 22
+nvm use 22
 
-# Install yarn
-sudo npm install -g yarn
+# 3. Install yarn
+npm install -g yarn
 
-# Clone and build
+# 4. Clone and build
 git clone https://github.com/EastAgile/marktext.git
 cd marktext
 git checkout develop
 yarn install
 yarn run build:bin
 
-# Run
+# 5. Run
 ./build/linux-*-unpacked/marktext
 ```
+
+**Troubleshooting:**
+- If `yarn install` fails with a rebuild error, run `yarn install --ignore-scripts` then `node .electron-vue/postinstall.js && node .electron-vue/rebuild.js && yarn run lint:fix`
+- If rebuild reports "Could not detect abi", run: `cd node_modules/@electron/rebuild/node_modules && rm -rf node-abi && cp -r ../../../node-abi .` then retry
 
 To add a desktop launcher:
 
@@ -256,6 +262,7 @@ DESKTOP
 #### macOS Intel
 
 ```bash
+# Requires Xcode command line tools and Node.js 22
 git clone https://github.com/EastAgile/marktext.git
 cd marktext && git checkout develop
 yarn install && yarn run build:bin
@@ -264,7 +271,7 @@ open build/mac/MarkText.app
 
 #### Windows
 
-Requires [Visual Studio Build Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/) with the C++ workload, plus Node.js 20 and yarn.
+Requires [Visual Studio Build Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/) with the C++ workload, Node.js 22, and yarn.
 
 ```bash
 git clone https://github.com/EastAgile/marktext.git

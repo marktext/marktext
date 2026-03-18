@@ -53,6 +53,40 @@ export default function (userPreference) {
       click (menuItem, browserWindow) {
         actions.selectTheme('ulysses')
       }
+    }, {
+      type: 'separator'
+    }, {
+      label: 'Neon Editorial',
+      type: 'radio',
+      id: 'neon-editorial',
+      checked: theme === 'neon-editorial',
+      click (menuItem, browserWindow) {
+        actions.selectTheme('neon-editorial')
+      }
+    }, {
+      label: 'Neon Editorial Dark',
+      type: 'radio',
+      id: 'neon-editorial-dark',
+      checked: theme === 'neon-editorial-dark',
+      click (menuItem, browserWindow) {
+        actions.selectTheme('neon-editorial-dark')
+      }
+    }, {
+      label: 'Ashley',
+      type: 'radio',
+      id: 'ashley',
+      checked: theme === 'ashley',
+      click (menuItem, browserWindow) {
+        actions.selectTheme('ashley')
+      }
+    }, {
+      label: 'Ashley Dark',
+      type: 'radio',
+      id: 'ashley-dark',
+      checked: theme === 'ashley-dark',
+      click (menuItem, browserWindow) {
+        actions.selectTheme('ashley-dark')
+      }
     }]
   }
 }
