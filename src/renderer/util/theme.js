@@ -58,13 +58,19 @@ const getAccentConfig = (theme) => {
   }
 }
 
+// Validate colour is a safe hex value — prevents CSS injection via localStorage
+const isValidHexColor = (color) => /^#[0-9a-fA-F]{3,8}$/.test(color)
+
 export const applyAccentColor = (color) => {
+  if (!isValidHexColor(color)) return
+
   let styleEl = document.querySelector(`#${NEON_ACCENT_STYLE_ID}`)
   if (!styleEl) {
     styleEl = document.createElement('style')
     styleEl.id = NEON_ACCENT_STYLE_ID
     document.head.appendChild(styleEl)
   }
+  // Safe: color is validated as hex-only above
   styleEl.innerHTML = `
     .editor-component, .editor-container, #editor-container,
     .ag-container, .ag-section { --editorBgColor: ${color}; background-color: ${color}; }
@@ -79,7 +85,7 @@ const ACCENT_KEYS = new Set([
 // Listen for accent changes from other windows (e.g. preferences window)
 if (typeof window !== 'undefined') {
   window.addEventListener('storage', (e) => {
-    if (ACCENT_KEYS.has(e.key) && e.newValue) {
+    if (ACCENT_KEYS.has(e.key) && e.newValue && isValidHexColor(e.newValue)) {
       applyAccentColor(e.newValue)
     }
   })
@@ -89,17 +95,7 @@ const applyAccent = (theme) => {
   const cfg = getAccentConfig(theme)
   if (!cfg) return
   const color = localStorage.getItem(cfg.key) || cfg.color
-
-  let styleEl = document.querySelector(`#${NEON_ACCENT_STYLE_ID}`)
-  if (!styleEl) {
-    styleEl = document.createElement('style')
-    styleEl.id = NEON_ACCENT_STYLE_ID
-    document.head.appendChild(styleEl)
-  }
-  styleEl.innerHTML = `
-    .editor-component, .editor-container, #editor-container,
-    .ag-container, .ag-section { --editorBgColor: ${color}; background-color: ${color}; }
-  `
+  applyAccentColor(color) // validated inside applyAccentColor
 }
 
 const removeNeonAccent = () => {
