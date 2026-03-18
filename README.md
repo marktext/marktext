@@ -205,12 +205,17 @@ This fork includes Electron 41, Mermaid 11.13 (all 16 diagram types), new themes
 | Platform | Download | Notes |
 |----------|----------|-------|
 | macOS Apple Silicon | [marktext-arm64.dmg](https://github.com/EastAgile/marktext/releases/download/v0.17.2-ea1/marktext-arm64.dmg) | M1/M2/M3/M4 Macs |
-| macOS Intel | [marktext-x64.dmg](https://github.com/EastAgile/marktext/releases/download/v0.17.2-ea1/marktext-x64.dmg) | Intel Macs |
-| Linux ARM64 | [marktext-arm64.tar.gz](https://github.com/EastAgile/marktext/releases/download/v0.17.2-ea1/marktext-arm64.tar.gz) | Ubuntu on ARM (e.g. Parallels) |
 
 **macOS:** Download the `.dmg`, open it, drag MarkText to Applications. On first launch, right-click > Open to bypass Gatekeeper.
 
-**Linux ARM64:** `tar xzf marktext-arm64.tar.gz && cd marktext-arm64 && ./marktext`
+**Other platforms (macOS Intel, Linux, Windows):** Must be built from source — native modules require compilation on the target platform:
+
+```bash
+git clone https://github.com/EastAgile/marktext.git
+cd marktext && git checkout develop
+# Ubuntu: sudo apt install -y build-essential python3 libsecret-1-dev libx11-dev libxkbfile-dev libfontconfig1-dev
+yarn install && yarn run build:bin
+```
 
 ---
 
