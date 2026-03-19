@@ -30,6 +30,13 @@ On Red Hat-based Linux: `sudo dnf install libX11-devel libxkbfile-devel libsecre
 
 - Windows 10 SDK (only needed before Windows 10)
 - Visual Studio 2019 (preferred)
+- Additional steps to fix gyp
+```
+$ npm install --global node-gyp@latest
+$ npm prefix -g | % {npm config set node_gyp "$_\node_modules\node-gyp\bin\node-gyp.js"}
+$ node-gyp install
+$ python -m pip install setuptools
+```
 
 ### Let's build
 
