@@ -21,20 +21,20 @@ const getImageExtension = mimeType => {
   return extension.split('+')[0] || 'png'
 }
 
-const getImageFileName = (mimeType, alt) => {
+const getImageFileName = (mimeType, fname) => {
   const extension = getImageExtension(mimeType)
-  const sanitizedAlt = alt && alt.trim()
-    ? alt.trim().replace(/[\\/:*?"<>|]+/g, '-')
+  const sanitizedFileName = fname && fname.trim()
+    ? fname.trim().replace(/[\\/:*?"<>|]+/g, '-')
     : `pasted-image-${getUniqueId()}`
 
-  if (/\.[a-z\d]+$/i.test(sanitizedAlt)) {
-    return sanitizedAlt
+  if (/\.[a-z\d]+$/i.test(sanitizedFileName)) {
+    return sanitizedFileName
   }
 
-  return `${sanitizedAlt}.${extension}`
+  return `${sanitizedFileName}.${extension}`
 }
 
-const createImageFileFromSource = async (src, alt = '') => {
+const createImageFileFromSource = async (src, fname = '') => {
   const response = await window.fetch(src)
   if (!response.ok) {
     throw new Error(`Cannot fetch pasted image: ${response.status}`)
@@ -42,7 +42,7 @@ const createImageFileFromSource = async (src, alt = '') => {
 
   const blob = await response.blob()
   const mimeType = blob.type || 'image/png'
-  const fileName = getImageFileName(mimeType, alt)
+  const fileName = getImageFileName(mimeType, fname)
   return new window.File([blob], fileName, { type: mimeType })
 }
 
@@ -169,10 +169,11 @@ const pasteCtrl = ContentState => {
       const alt = image.getAttribute('alt')
       const img = document.createElement('img')
       let imageSrc = src
-
+      let fname = alt
       if (src && (DATA_URL_REG.test(src) || URL_REG.test(src) || BLOB_URL_REG.test(src))) {
+        if (URL_REG.test(src)) fname = src.split('/').pop().split('?')[0]
         try {
-          const imageFile = await createImageFileFromSource(src, alt)
+          const imageFile = await createImageFileFromSource(src, fname)
           imageSrc = await this.muya.options.imageAction(imageFile, null, alt)
         } catch (error) {
           console.error('Unexpected error while saving pasted HTML image:', error)
