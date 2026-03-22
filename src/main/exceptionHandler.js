@@ -99,6 +99,11 @@ Operating system: ${getOSInformation()}`)
 }
 
 const setupExceptionHandler = () => {
+  // Suppress EPIPE errors when electron-log writes to a closed pipe.
+  const ignoreEpipe = err => { if (err.code !== 'EPIPE') throw err }
+  process.stdout.on('error', ignoreEpipe)
+  process.stderr.on('error', ignoreEpipe)
+
   // main process error handler
   process.on('uncaughtException', error => {
     handleError(ERROR_MSG_MAIN, error, 'main')
