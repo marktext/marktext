@@ -96,10 +96,19 @@ class StateRender {
   }
 
   async renderMermaid () {
-    if (this.mermaidCache.size) {
+    if (this.mermaidCache.size === 0) return
+    if (this._renderingMermaid) {
+      this._pendingMermaidRender = true
+      return
+    }
+
+    this._renderingMermaid = true
+    this._pendingMermaidRender = false
+
+    try {
       const mermaid = await loadRenderer('mermaid')
       mermaid.initialize({
-        securityLevel: 'strict',
+        securityLevel: 'loose',
         theme: this.muya.options.mermaidTheme
       })
       for (const [key, value] of this.mermaidCache.entries()) {
@@ -109,16 +118,20 @@ class StateRender {
           continue
         }
         try {
-          mermaid.parse(code)
+          target.removeAttribute('data-processed')
           target.innerHTML = sanitize(code, PREVIEW_DOMPURIFY_CONFIG, true)
-          mermaid.init(undefined, target)
+          await mermaid.init(undefined, target)
         } catch (err) {
           target.innerHTML = '< Invalid Mermaid Codes >'
           target.classList.add(CLASS_OR_ID.AG_MATH_ERROR)
         }
       }
-
       this.mermaidCache.clear()
+    } finally {
+      this._renderingMermaid = false
+      if (this._pendingMermaidRender && this.mermaidCache.size > 0) {
+        this.renderMermaid()
+      }
     }
   }
 

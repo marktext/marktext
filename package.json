@@ -66,13 +66,13 @@
     "joplin-turndown-plugin-gfm": "^1.0.12",
     "katex": "^0.15.3",
     "keytar": "^7.9.0",
-    "mermaid": "^10.0.0",
+    "mermaid": "10.6.1",
     "minizlib": "^2.1.2",
     "native-keymap": "^3.3.0",
     "plist": "^3.0.5",
     "popper.js": "^1.16.1",
     "prismjs": "^1.27.0",
-    "snabbdom": "^3.4.0",
+    "snabbdom": "3.4.0",
     "snabbdom-to-html": "^7.0.0",
     "source-map-support": "^0.5.21",
     "turndown": "^7.1.1",
@@ -178,7 +178,8 @@
   },
   "resolutions": {
     "node-abi": "^3.8.0",
-    "node-addon-api": "^4.3.0"
+    "node-addon-api": "^4.3.0",
+    "cytoscape": "3.28.1"
   },
   "repository": {
     "type": "git",
