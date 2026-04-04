@@ -1,7 +1,17 @@
 const rendererCache = new Map()
 
+const log = (msg) => {
+  const line = `[${new Date().toISOString()}] [LOADER] ${msg}\n`
+  try {
+    const fs = require('fs')
+    fs.appendFileSync('/tmp/mermaid-debug.log', line)
+  } catch (e) {}
+  console.log('[MERMAID LOADER]', msg)
+}
+
 const loadRenderer = async (name) => {
   if (!rendererCache.has(name)) {
+    log(`Loading ${name}...`)
     let m
     switch (name) {
       case 'sequence':
@@ -17,8 +27,18 @@ const loadRenderer = async (name) => {
         rendererCache.set(name, m.default)
         break
       case 'mermaid':
-        m = await import('mermaid')
-        rendererCache.set(name, m.default)
+        try {
+          m = await import('mermaid')
+          log(`mermaid imported, m keys: ${Object.keys(m).join(',')}`)
+          log(`m.default type: ${typeof m.default}`)
+          if (m.default) {
+            log(`m.default keys: ${Object.keys(m.default).join(',')}`)
+          }
+          rendererCache.set(name, m.default)
+        } catch (err) {
+          log(`Failed to import mermaid: ${err.message}\n${err.stack}`)
+          throw err
+        }
         break
       case 'vega-lite':
         m = await import('vega-embed')
@@ -27,9 +47,12 @@ const loadRenderer = async (name) => {
       default:
         throw new Error(`Unknown diagram name ${name}`)
     }
+    log(`${name} cached`)
   }
 
-  return rendererCache.get(name)
+  const result = rendererCache.get(name)
+  log(`Returning ${name}, type=${typeof result}`)
+  return result
 }
 
 export default loadRenderer
