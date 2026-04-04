@@ -17,22 +17,52 @@ const loadMermaidRuntime = () => {
       return
     }
 
-    const mermaidPath = require.resolve('mermaid/dist/mermaid.min.js')
-    log(`Loading mermaid from: ${mermaidPath}`)
+    const path = require('path')
+    const fs = require('fs')
 
-    const script = document.createElement('script')
-    script.src = `file://${mermaidPath}`
-    log(`Script src: ${script.src}`)
-    script.onload = () => {
-      log(`Script loaded, globalThis.mermaid type: ${typeof globalThis.mermaid}`)
-      if (globalThis.mermaid && typeof globalThis.mermaid.initialize === 'function') {
-        resolve(globalThis.mermaid)
+    let mermaidPath
+    try {
+      const devPath = path.join(__dirname, '../../../../node_modules/mermaid/dist/mermaid.min.js')
+      if (fs.existsSync(devPath)) {
+        mermaidPath = devPath
       } else {
-        reject(new Error('mermaid not found on globalThis after script load'))
+        const prodPath = path.join(process.resourcesPath, 'app.asar', 'node_modules', 'mermaid', 'dist', 'mermaid.min.js')
+        if (fs.existsSync(prodPath)) {
+          mermaidPath = prodPath
+        }
       }
+    } catch (e) {}
+
+    if (!mermaidPath) {
+      reject(new Error('Could not find mermaid.min.js'))
+      return
     }
-    script.onerror = (e) => reject(new Error('Failed to load mermaid script'))
-    document.head.appendChild(script)
+
+    log(`Reading mermaid from: ${mermaidPath}`)
+
+    try {
+      const mermaidCode = fs.readFileSync(mermaidPath, 'utf-8')
+      log(`Mermaid code length: ${mermaidCode.length}`)
+      const blob = new Blob([mermaidCode], { type: 'application/javascript' })
+      const url = URL.createObjectURL(blob)
+      log(`Blob URL created: ${url}`)
+
+      const script = document.createElement('script')
+      script.src = url
+      script.onload = () => {
+        URL.revokeObjectURL(url)
+        log(`Script executed, globalThis.mermaid type: ${typeof globalThis.mermaid}`)
+        if (globalThis.mermaid && typeof globalThis.mermaid.initialize === 'function') {
+          resolve(globalThis.mermaid)
+        } else {
+          reject(new Error('mermaid not found on globalThis'))
+        }
+      }
+      script.onerror = () => reject(new Error('Failed to execute mermaid script'))
+      document.head.appendChild(script)
+    } catch (err) {
+      reject(new Error(`Failed to read mermaid file: ${err.message}`))
+    }
   })
 }
 
