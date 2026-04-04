@@ -34,21 +34,29 @@ class ExportHtml {
   }
 
   async renderMermaid () {
-    const codes = this.exportContainer.querySelectorAll('code.language-mermaid')
-    for (const code of codes) {
-      const preEle = code.parentNode
-      const mermaidContainer = document.createElement('div')
-      mermaidContainer.innerHTML = sanitize(unescapeHTML(code.innerHTML), EXPORT_DOMPURIFY_CONFIG, true)
-      mermaidContainer.classList.add('mermaid')
-      preEle.replaceWith(mermaidContainer)
-    }
     const mermaid = await loadRenderer('mermaid')
-    // We only export light theme, so set mermaid theme to `default`, in the future, we can choose whick theme to export.
     mermaid.initialize({
       securityLevel: 'strict',
       theme: 'default'
     })
-    mermaid.init(undefined, this.exportContainer.querySelectorAll('div.mermaid'))
+
+    const codes = this.exportContainer.querySelectorAll('code.language-mermaid')
+    for (const code of codes) {
+      const preEle = code.parentNode
+      const mermaidContainer = document.createElement('div')
+      mermaidContainer.classList.add('mermaid')
+      preEle.replaceWith(mermaidContainer)
+
+      try {
+        const rawCode = unescapeHTML(code.innerHTML)
+        const id = `mermaid-export-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+        const { svg } = await mermaid.render(id, rawCode)
+        mermaidContainer.innerHTML = svg
+      } catch (err) {
+        mermaidContainer.innerHTML = `< Invalid Mermaid Code > ${err.message}`
+      }
+    }
+
     if (this.muya) {
       mermaid.initialize({
         securityLevel: 'strict',

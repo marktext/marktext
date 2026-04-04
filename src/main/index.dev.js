@@ -10,14 +10,6 @@ require('dotenv').config()
 // Install `vue-devtools`
 require('electron').app.on('ready', () => {
   const { default: installExtension, VUEJS_DEVTOOLS } = require('electron-devtools-installer')
-  installExtension(VUEJS_DEVTOOLS)
-    .then(() => {})
-    .catch(err => {
-      console.log('Unable to install `vue-devtools`: \n', err)
-    })
+  installExtension(VUEJS_DEVTOOLS).catch(() => {})
+  require('./index')
 })
-
-/* eslint-enable */
-
-// Require `main` process to boot app
-require('./index')

@@ -1,10 +1,21 @@
 import loadRenderer from '../../renderers'
-import { CLASS_OR_ID, PREVIEW_DOMPURIFY_CONFIG } from '../../config'
-import { conflict, mixins, camelToSnake, sanitize } from '../../utils'
+import { CLASS_OR_ID } from '../../config'
+import { conflict, mixins, camelToSnake } from '../../utils'
 import { patch, toVNode, toHTML, h } from './snabbdom'
 import { beginRules } from '../rules'
 import renderInlines from './renderInlines'
 import renderBlock from './renderBlock'
+
+const LOG_FILE = '/tmp/mermaid-debug.log'
+
+const log = (msg) => {
+  const line = `[${new Date().toISOString()}] ${msg}\n`
+  try {
+    const fs = require('fs')
+    fs.appendFileSync(LOG_FILE, line)
+  } catch (e) {}
+  console.log('[MERMAID DEBUG]', msg)
+}
 
 class StateRender {
   constructor (muya) {
@@ -96,29 +107,47 @@ class StateRender {
   }
 
   async renderMermaid () {
+    log(`renderMermaid called, cache.size=${this.mermaidCache.size}`)
     if (this.mermaidCache.size) {
-      const mermaid = await loadRenderer('mermaid')
-      mermaid.initialize({
-        securityLevel: 'strict',
-        theme: this.muya.options.mermaidTheme
-      })
-      for (const [key, value] of this.mermaidCache.entries()) {
-        const { code } = value
-        const target = document.querySelector(key)
-        if (!target) {
-          continue
-        }
-        try {
-          mermaid.parse(code)
-          target.innerHTML = sanitize(code, PREVIEW_DOMPURIFY_CONFIG, true)
-          mermaid.init(undefined, target)
-        } catch (err) {
-          target.innerHTML = '< Invalid Mermaid Codes >'
-          target.classList.add(CLASS_OR_ID.AG_MATH_ERROR)
-        }
-      }
+      log('Loading mermaid renderer...')
+      try {
+        const mermaid = await loadRenderer('mermaid')
+        log(`mermaid loaded, type=${typeof mermaid}, keys=${Object.keys(mermaid || {}).join(',')}`)
+        log(`mermaid.initialize exists=${typeof mermaid.initialize}, mermaid.render exists=${typeof mermaid.render}`)
 
-      this.mermaidCache.clear()
+        mermaid.initialize({
+          securityLevel: 'strict',
+          theme: this.muya.options.mermaidTheme
+        })
+        log(`mermaid.initialize() called with theme=${this.muya.options.mermaidTheme}`)
+
+        for (const [key, value] of this.mermaidCache.entries()) {
+          const { code } = value
+          log(`Rendering key=${key}, code.length=${code.length}, code_preview=${code.substring(0, 80)}`)
+          const target = document.querySelector(key)
+          if (!target) {
+            log(`Target not found: ${key}`)
+            continue
+          }
+          log(`Target found: tagName=${target.tagName}, id=${target.id}, classes=${target.className}`)
+          try {
+            log('Calling mermaid.render()...')
+            const id = `mermaid-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+            const { svg } = await mermaid.render(id, code)
+            log(`mermaid.render() succeeded, svg.length=${svg.length}`)
+            target.innerHTML = svg
+          } catch (err) {
+            log(`mermaid.render() failed: ${err.message}\n${err.stack}`)
+            target.innerHTML = `< Invalid Mermaid Codes > ${err.message}`
+            target.classList.add(CLASS_OR_ID.AG_MATH_ERROR)
+          }
+        }
+
+        this.mermaidCache.clear()
+        log('renderMermaid completed')
+      } catch (err) {
+        log(`Failed to load mermaid: ${err.message}\n${err.stack}`)
+      }
     }
   }
 
@@ -181,7 +210,7 @@ class StateRender {
     const oldVdom = toVNode(rootDom)
 
     patch(oldVdom, newVdom)
-    this.renderMermaid()
+    this.renderMermaid().catch(err => console.error('Mermaid render failed:', err))
     this.renderDiagram()
     this.codeCache.clear()
   }
@@ -225,7 +254,7 @@ class StateRender {
       }
     }
 
-    this.renderMermaid()
+    this.renderMermaid().catch(err => console.error('Mermaid render failed:', err))
     this.renderDiagram()
     this.codeCache.clear()
   }
@@ -243,7 +272,7 @@ class StateRender {
     const rootDom = document.querySelector(selector)
     const oldVdom = toVNode(rootDom)
     patch(oldVdom, newVdom)
-    this.renderMermaid()
+    this.renderMermaid().catch(err => console.error('Mermaid render failed:', err))
     this.renderDiagram()
     this.codeCache.clear()
   }
