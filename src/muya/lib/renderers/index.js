@@ -28,14 +28,13 @@ const loadRenderer = async (name) => {
         break
       case 'mermaid':
         try {
-          m = await import(
-            /* webpackChunkName: "mermaid-full" */
-            /* webpackIgnore: true */
-            'mermaid/dist/mermaid.min.js'
-          )
-          log(`mermaid module keys: ${Object.keys(m).join(',')}`)
-          m = m.default || globalThis.mermaid
-          log(`mermaid loaded, type=${typeof m}`)
+          // eslint-disable-next-line import/no-webpack-loader-syntax
+          const mermaidSrc = require('!!raw-loader!mermaid/dist/mermaid.min.js').default
+          log(`mermaid raw length: ${mermaidSrc.length}`)
+          // eslint-disable-next-line no-eval
+          eval.call(window, mermaidSrc)
+          m = globalThis.mermaid
+          log(`mermaid loaded via eval, type=${typeof m}`)
           if (m) {
             log(`m keys: ${Object.keys(m).join(',')}`)
           }
