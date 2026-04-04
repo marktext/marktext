@@ -31,10 +31,25 @@ const loadRenderer = async (name) => {
           // eslint-disable-next-line import/no-webpack-loader-syntax
           const mermaidSrc = require('!!raw-loader!mermaid/dist/mermaid.min.js').default
           log(`mermaid raw length: ${mermaidSrc.length}`)
-          // eslint-disable-next-line no-eval
-          eval.call(window, mermaidSrc)
+
+          const script = document.createElement('script')
+          script.textContent = mermaidSrc
+          document.head.appendChild(script)
+
+          log(`Script injected, globalThis.mermaid type: ${typeof globalThis.mermaid}`)
+          log(`globalThis keys with mermaid: ${Object.keys(globalThis).filter(k => k.includes('mermaid') || k.includes('esbuild')).join(',')}`)
+
           m = globalThis.mermaid
-          log(`mermaid loaded via eval, type=${typeof m}`)
+          if (!m || typeof m.initialize !== 'function') {
+            const esbuildKey = Object.keys(globalThis).find(k => k.includes('esbuild') || k.includes('mermaid_nm'))
+            log(`esbuild key: ${esbuildKey}`)
+            if (esbuildKey) {
+              m = globalThis[esbuildKey]?.mermaid?.default
+              log(`Found via esbuild key, type: ${typeof m}`)
+            }
+          }
+
+          log(`mermaid loaded, type=${typeof m}`)
           if (m) {
             log(`m keys: ${Object.keys(m).join(',')}`)
           }
