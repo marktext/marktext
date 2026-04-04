@@ -211,7 +211,8 @@ const rendererConfig = {
       'common': path.join(__dirname, '../src/common'),
       'muya': path.join(__dirname, '../src/muya'),
       snapsvg: path.join(__dirname, '../src/muya/lib/assets/libs/snap.svg-min.js'),
-      'vue$': 'vue/dist/vue.esm.js'
+      'vue$': 'vue/dist/vue.esm.js',
+      'mermaid$': path.resolve(__dirname, '../node_modules/mermaid/dist/mermaid.min.js')
     },
     extensions: ['.js', '.vue', '.json', '.css', '.node']
   },

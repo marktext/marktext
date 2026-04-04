@@ -28,13 +28,16 @@ const loadRenderer = async (name) => {
         break
       case 'mermaid':
         try {
-          m = await import('mermaid')
-          log(`mermaid imported, m keys: ${Object.keys(m).join(',')}`)
-          log(`m.default type: ${typeof m.default}`)
-          if (m.default) {
-            log(`m.default keys: ${Object.keys(m.default).join(',')}`)
+          const mermaidModule = await import('mermaid')
+          m = mermaidModule.default || mermaidModule
+          if (!m || typeof m.initialize !== 'function') {
+            m = globalThis.mermaid
           }
-          rendererCache.set(name, m.default)
+          log(`mermaid loaded, type=${typeof m}`)
+          if (m) {
+            log(`m keys: ${Object.keys(m).join(',')}`)
+          }
+          rendererCache.set(name, m)
         } catch (err) {
           log(`Failed to import mermaid: ${err.message}\n${err.stack}`)
           throw err
