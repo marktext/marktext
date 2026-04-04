@@ -9,6 +9,33 @@ const log = (msg) => {
   console.log('[MERMAID LOADER]', msg)
 }
 
+const loadMermaidRuntime = () => {
+  return new Promise((resolve, reject) => {
+    if (globalThis.mermaid && typeof globalThis.mermaid.initialize === 'function') {
+      log('Using existing global mermaid')
+      resolve(globalThis.mermaid)
+      return
+    }
+
+    const mermaidPath = require.resolve('mermaid/dist/mermaid.min.js')
+    log(`Loading mermaid from: ${mermaidPath}`)
+
+    const script = document.createElement('script')
+    script.src = `file://${mermaidPath}`
+    log(`Script src: ${script.src}`)
+    script.onload = () => {
+      log(`Script loaded, globalThis.mermaid type: ${typeof globalThis.mermaid}`)
+      if (globalThis.mermaid && typeof globalThis.mermaid.initialize === 'function') {
+        resolve(globalThis.mermaid)
+      } else {
+        reject(new Error('mermaid not found on globalThis after script load'))
+      }
+    }
+    script.onerror = (e) => reject(new Error('Failed to load mermaid script'))
+    document.head.appendChild(script)
+  })
+}
+
 const loadRenderer = async (name) => {
   if (!rendererCache.has(name)) {
     log(`Loading ${name}...`)
@@ -28,18 +55,14 @@ const loadRenderer = async (name) => {
         break
       case 'mermaid':
         try {
-          const mermaidModule = await import('mermaid')
-          m = mermaidModule.default || mermaidModule
-          if (!m || typeof m.initialize !== 'function') {
-            m = globalThis.mermaid
-          }
+          m = await loadMermaidRuntime()
           log(`mermaid loaded, type=${typeof m}`)
           if (m) {
             log(`m keys: ${Object.keys(m).join(',')}`)
           }
           rendererCache.set(name, m)
         } catch (err) {
-          log(`Failed to import mermaid: ${err.message}\n${err.stack}`)
+          log(`Failed to load mermaid: ${err.message}\n${err.stack}`)
           throw err
         }
         break

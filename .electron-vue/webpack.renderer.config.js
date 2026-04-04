@@ -24,7 +24,7 @@ const isProduction = process.env.NODE_ENV === 'production'
  * that provide pure *.vue files that need compiling
  * https://simulatedgreg.gitbooks.io/electron-vue/content/en/webpack-configurations.html#white-listing-externals
  */
-const whiteListedModules = ['vue', 'mermaid']
+const whiteListedModules = ['vue']
 
 /** @type {import('webpack').Configuration} */
 const rendererConfig = {
@@ -211,8 +211,7 @@ const rendererConfig = {
       'common': path.join(__dirname, '../src/common'),
       'muya': path.join(__dirname, '../src/muya'),
       snapsvg: path.join(__dirname, '../src/muya/lib/assets/libs/snap.svg-min.js'),
-      'vue$': 'vue/dist/vue.esm.js',
-      'mermaid$': path.resolve(__dirname, '../node_modules/mermaid/dist/mermaid.min.js')
+      'vue$': 'vue/dist/vue.esm.js'
     },
     extensions: ['.js', '.vue', '.json', '.css', '.node']
   },
