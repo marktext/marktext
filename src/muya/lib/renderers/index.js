@@ -8,15 +8,11 @@ const writeLog = (msg) => {
   try {
     fs.appendFileSync(logFile, line)
   } catch (e) {
-    // ignore
   }
 }
 
 const rendererCache = new Map()
-/**
- *
- * @param {string} name the renderer name: katex, sequence, plantuml, flowchart, mermaid, vega-lite
- */
+
 const loadRenderer = async (name) => {
   if (!rendererCache.has(name)) {
     writeLog('loadRenderer: importing ' + name)
@@ -35,13 +31,13 @@ const loadRenderer = async (name) => {
         rendererCache.set(name, m.default)
         break
       case 'mermaid':
-        m = await import('mermaid/dist/mermaid.esm.mjs')
-        writeLog('loadRenderer: mermaid imported, m keys: ' + Object.keys(m).join(', '))
-        writeLog('loadRenderer: m.default type: ' + typeof m.default)
-        if (m.default) {
-          writeLog('loadRenderer: m.default keys: ' + Object.keys(m.default).join(', '))
+        await import('mermaid/dist/mermaid.min.js')
+        m = globalThis.mermaid
+        writeLog('loadRenderer: mermaid imported, m type: ' + typeof m)
+        if (m) {
+          writeLog('loadRenderer: m keys: ' + Object.keys(m).join(', '))
         }
-        rendererCache.set(name, m.default)
+        rendererCache.set(name, m)
         break
       case 'vega-lite':
         m = await import('vega-embed')
