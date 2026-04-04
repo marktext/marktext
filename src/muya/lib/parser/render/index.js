@@ -6,6 +6,20 @@ import { beginRules } from '../rules'
 import renderInlines from './renderInlines'
 import renderBlock from './renderBlock'
 
+const fs = require('fs')
+const path = require('path')
+const logFile = path.join(process.env.HOME || '/tmp', 'marktext-mermaid-debug.log')
+
+const writeLog = (msg) => {
+  const timestamp = new Date().toISOString()
+  const line = `[${timestamp}] ${msg}\n`
+  try {
+    fs.appendFileSync(logFile, line)
+  } catch (e) {
+    // ignore
+  }
+}
+
 class StateRender {
   constructor (muya) {
     this.muya = muya
@@ -96,29 +110,40 @@ class StateRender {
   }
 
   async renderMermaid () {
+    writeLog('renderMermaid called, cache size: ' + this.mermaidCache.size)
     if (this.mermaidCache.size) {
+      writeLog('Loading mermaid renderer...')
       const mermaid = await loadRenderer('mermaid')
+      writeLog('Mermaid loaded, has render: ' + (typeof mermaid.render) + ', has run: ' + (typeof mermaid.run))
       mermaid.initialize({
         securityLevel: 'strict',
         theme: this.muya.options.mermaidTheme
       })
+      writeLog('Mermaid initialized with theme: ' + this.muya.options.mermaidTheme)
       for (const [key, value] of this.mermaidCache.entries()) {
         const { code } = value
+        writeLog('Processing key: ' + key + ', code length: ' + code.length)
         const target = document.querySelector(key)
         if (!target) {
+          writeLog('Target not found: ' + key)
           continue
         }
+        writeLog('Target found: ' + target.tagName + ', id: ' + target.id)
         try {
           target.innerHTML = code
           target.classList.add('mermaid')
+          writeLog('Calling mermaid.run with node: ' + target.outerHTML.substring(0, 100))
           await mermaid.run({ nodes: [target] })
+          writeLog('mermaid.run completed, target innerHTML length: ' + target.innerHTML.length)
         } catch (err) {
+          writeLog('Error in mermaid.run: ' + err.message + '\n' + err.stack)
           target.innerHTML = '< Invalid Mermaid Codes >'
           target.classList.add(CLASS_OR_ID.AG_MATH_ERROR)
         }
       }
 
       this.mermaidCache.clear()
+      writeLog('renderMermaid completed')
     }
   }
 
@@ -181,7 +206,10 @@ class StateRender {
     const oldVdom = toVNode(rootDom)
 
     patch(oldVdom, newVdom)
-    this.renderMermaid().catch(err => console.error('Mermaid render failed:', err))
+    writeLog('render() called, mermaidCache.size=' + this.mermaidCache.size)
+    this.renderMermaid().catch(err => {
+      writeLog('render() mermaid failed: ' + err.message)
+    })
     this.renderDiagram()
     this.codeCache.clear()
   }
