@@ -1,6 +1,6 @@
 import loadRenderer from '../../renderers'
-import { CLASS_OR_ID, PREVIEW_DOMPURIFY_CONFIG } from '../../config'
-import { conflict, mixins, camelToSnake, sanitize } from '../../utils'
+import { CLASS_OR_ID } from '../../config'
+import { conflict, mixins, camelToSnake } from '../../utils'
 import { patch, toVNode, toHTML, h } from './snabbdom'
 import { beginRules } from '../rules'
 import renderInlines from './renderInlines'
@@ -109,8 +109,8 @@ class StateRender {
           continue
         }
         try {
-          await mermaid.parse(code)
-          target.innerHTML = sanitize(code, PREVIEW_DOMPURIFY_CONFIG, true)
+          target.innerHTML = code
+          target.classList.add('mermaid')
           await mermaid.run({ nodes: [target] })
         } catch (err) {
           target.innerHTML = '< Invalid Mermaid Codes >'
@@ -181,7 +181,7 @@ class StateRender {
     const oldVdom = toVNode(rootDom)
 
     patch(oldVdom, newVdom)
-    this.renderMermaid()
+    this.renderMermaid().catch(err => console.error('Mermaid render failed:', err))
     this.renderDiagram()
     this.codeCache.clear()
   }
@@ -225,7 +225,7 @@ class StateRender {
       }
     }
 
-    this.renderMermaid()
+    this.renderMermaid().catch(err => console.error('Mermaid render failed:', err))
     this.renderDiagram()
     this.codeCache.clear()
   }
@@ -243,7 +243,7 @@ class StateRender {
     const rootDom = document.querySelector(selector)
     const oldVdom = toVNode(rootDom)
     patch(oldVdom, newVdom)
-    this.renderMermaid()
+    this.renderMermaid().catch(err => console.error('Mermaid render failed:', err))
     this.renderDiagram()
     this.codeCache.clear()
   }

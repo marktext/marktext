@@ -34,21 +34,25 @@ class ExportHtml {
   }
 
   async renderMermaid () {
-    const codes = this.exportContainer.querySelectorAll('code.language-mermaid')
-    for (const code of codes) {
-      const preEle = code.parentNode
-      const mermaidContainer = document.createElement('div')
-      mermaidContainer.innerHTML = sanitize(unescapeHTML(code.innerHTML), EXPORT_DOMPURIFY_CONFIG, true)
-      mermaidContainer.classList.add('mermaid')
-      preEle.replaceWith(mermaidContainer)
-    }
     const mermaid = await loadRenderer('mermaid')
-    // We only export light theme, so set mermaid theme to `default`, in the future, we can choose whick theme to export.
     mermaid.initialize({
       securityLevel: 'strict',
       theme: 'default'
     })
-    await mermaid.run({ nodes: this.exportContainer.querySelectorAll('div.mermaid') })
+
+    const codes = this.exportContainer.querySelectorAll('code.language-mermaid')
+    const mermaidDivs = []
+    for (const code of codes) {
+      const preEle = code.parentNode
+      const mermaidContainer = document.createElement('div')
+      mermaidContainer.classList.add('mermaid')
+      mermaidContainer.innerHTML = unescapeHTML(code.innerHTML)
+      preEle.replaceWith(mermaidContainer)
+      mermaidDivs.push(mermaidContainer)
+    }
+
+    await mermaid.run({ nodes: mermaidDivs })
+
     if (this.muya) {
       mermaid.initialize({
         securityLevel: 'strict',
