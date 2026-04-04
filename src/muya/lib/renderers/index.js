@@ -31,13 +31,12 @@ const loadRenderer = async (name) => {
         rendererCache.set(name, m.default)
         break
       case 'mermaid':
-        await import('mermaid/dist/mermaid.min.js')
-        m = globalThis.mermaid
-        writeLog('loadRenderer: mermaid imported, m type: ' + typeof m)
+        m = require('mermaid')
+        writeLog('loadRenderer: mermaid loaded, m type: ' + typeof m)
         if (m) {
           writeLog('loadRenderer: m keys: ' + Object.keys(m).join(', '))
         }
-        rendererCache.set(name, m)
+        rendererCache.set(name, m.default || m)
         break
       case 'vega-lite':
         m = await import('vega-embed')
