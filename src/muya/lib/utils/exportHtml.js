@@ -41,17 +41,21 @@ class ExportHtml {
     })
 
     const codes = this.exportContainer.querySelectorAll('code.language-mermaid')
-    const mermaidDivs = []
     for (const code of codes) {
       const preEle = code.parentNode
       const mermaidContainer = document.createElement('div')
       mermaidContainer.classList.add('mermaid')
-      mermaidContainer.innerHTML = unescapeHTML(code.innerHTML)
       preEle.replaceWith(mermaidContainer)
-      mermaidDivs.push(mermaidContainer)
-    }
 
-    await mermaid.run({ nodes: mermaidDivs })
+      try {
+        const rawCode = unescapeHTML(code.innerHTML)
+        const id = `mermaid-export-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+        const { svg } = await mermaid.render(id, rawCode)
+        mermaidContainer.innerHTML = svg
+      } catch (err) {
+        mermaidContainer.innerHTML = `< Invalid Mermaid Code > ${err.message}`
+      }
+    }
 
     if (this.muya) {
       mermaid.initialize({

@@ -109,11 +109,11 @@ class StateRender {
           continue
         }
         try {
-          target.innerHTML = code
-          target.classList.add('mermaid')
-          await mermaid.run({ nodes: [target] })
+          const id = `mermaid-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+          const { svg } = await mermaid.render(id, code)
+          target.innerHTML = svg
         } catch (err) {
-          target.innerHTML = '< Invalid Mermaid Codes >'
+          target.innerHTML = `< Invalid Mermaid Codes > ${err.message}`
           target.classList.add(CLASS_OR_ID.AG_MATH_ERROR)
         }
       }
