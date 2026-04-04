@@ -114,7 +114,10 @@ class StateRender {
     if (this.mermaidCache.size) {
       writeLog('Loading mermaid renderer...')
       const mermaid = await loadRenderer('mermaid')
-      writeLog('Mermaid loaded, has render: ' + (typeof mermaid.render) + ', has run: ' + (typeof mermaid.run))
+      writeLog('Mermaid loaded: ' + (mermaid ? 'yes' : 'no') + ', type: ' + typeof mermaid)
+      if (mermaid) {
+        writeLog('Mermaid keys: ' + Object.keys(mermaid).join(', '))
+      }
       mermaid.initialize({
         securityLevel: 'strict',
         theme: this.muya.options.mermaidTheme
