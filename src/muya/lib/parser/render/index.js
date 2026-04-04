@@ -1,4 +1,5 @@
 import loadRenderer from '../../renderers'
+import { isDebugLogEnabled } from '../../debug-state'
 import { CLASS_OR_ID } from '../../config'
 import { conflict, mixins, camelToSnake } from '../../utils'
 import { patch, toVNode, toHTML, h } from './snabbdom'
@@ -10,10 +11,12 @@ const LOG_FILE = '/tmp/mermaid-debug.log'
 
 const log = (msg) => {
   const line = `[${new Date().toISOString()}] ${msg}\n`
-  try {
-    const fs = require('fs')
-    fs.appendFileSync(LOG_FILE, line)
-  } catch (e) {}
+  if (isDebugLogEnabled()) {
+    try {
+      const fs = require('fs')
+      fs.appendFileSync(LOG_FILE, line)
+    } catch (e) {}
+  }
   console.log('[MERMAID DEBUG]', msg)
 }
 

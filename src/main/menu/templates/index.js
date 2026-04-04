@@ -41,6 +41,6 @@ export default function (keybindings, preferences, recentlyUsedFiles) {
     window(keybindings),
     theme(preferences),
     view(keybindings),
-    help()
+    help(preferences)
   ]
 }

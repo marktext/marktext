@@ -27,7 +27,8 @@ const isUpdatable = () => {
   return false
 }
 
-export default function () {
+export default function (preferences) {
+  const enableDebugLog = preferences ? preferences.getItem('enableDebugLog') : false
   const helpMenu = {
     label: '&Help',
     role: 'help',
@@ -87,6 +88,16 @@ export default function () {
       }
     }, {
       type: 'separator'
+    }, {
+      id: 'debugLogMenuItem',
+      label: 'Debug日志',
+      type: 'checkbox',
+      checked: enableDebugLog,
+      click (item, focusedWindow) {
+        if (preferences) {
+          preferences.setItem('enableDebugLog', item.checked)
+        }
+      }
     }, {
       label: 'License...',
       click () {

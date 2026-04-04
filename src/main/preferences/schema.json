@@ -407,5 +407,10 @@
     "description": "Watcher--Whether to use polling. Polling may leads to high CPU utilization but is necessary to watch files over a network.",
     "type": "boolean",
     "default": false
+  },
+  "enableDebugLog": {
+    "description": "Debug--Whether to enable mermaid debug logging to /tmp/mermaid-debug.log.",
+    "type": "boolean",
+    "default": false
   }
 }

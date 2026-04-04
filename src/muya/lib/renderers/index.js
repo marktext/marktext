@@ -1,11 +1,15 @@
+import { isDebugLogEnabled } from '../debug-state'
+
 const rendererCache = new Map()
 
 const log = (msg) => {
   const line = `[${new Date().toISOString()}] [LOADER] ${msg}\n`
-  try {
-    const fs = require('fs')
-    fs.appendFileSync('/tmp/mermaid-debug.log', line)
-  } catch (e) {}
+  if (isDebugLogEnabled()) {
+    try {
+      const fs = require('fs')
+      fs.appendFileSync('/tmp/mermaid-debug.log', line)
+    } catch (e) {}
+  }
   console.log('[MERMAID LOADER]', msg)
 }
 

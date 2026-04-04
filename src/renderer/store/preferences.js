@@ -1,5 +1,6 @@
 import { ipcRenderer } from 'electron'
 import bus from '../bus'
+import { setDebugLogEnabled } from '../../muya/lib/debug-state'
 
 // user preference
 const state = {
@@ -73,6 +74,8 @@ const state = {
 
   watcherUsePolling: false,
 
+  enableDebugLog: false,
+
   // --------------------------------------------------------------------------
 
   // Edit modes of the current window (not part of persistent settings)
@@ -121,12 +124,18 @@ const actions = {
 
     ipcRenderer.on('mt::user-preference', (e, preferences) => {
       commit('SET_USER_PREFERENCE', preferences)
+      if (preferences.enableDebugLog !== undefined) {
+        setDebugLogEnabled(preferences.enableDebugLog)
+      }
     })
   },
 
   SET_SINGLE_PREFERENCE ({ commit }, { type, value }) {
     // save to electron-store
     ipcRenderer.send('mt::set-user-preference', { [type]: value })
+    if (type === 'enableDebugLog') {
+      setDebugLogEnabled(value)
+    }
   },
 
   SET_USER_DATA ({ commit }, { type, value }) {

@@ -336,6 +336,21 @@ class AppMenu {
     })
   }
 
+  updateDebugLogMenu = enableDebugLog => {
+    this.windowMenus.forEach(value => {
+      const { menu, type } = value
+      if (type !== MenuType.EDITOR) {
+        return
+      }
+
+      const debugLogMenu = menu.getMenuItemById('debugLogMenuItem')
+      if (!debugLogMenu) {
+        return
+      }
+      debugLogMenu.checked = enableDebugLog
+    })
+  }
+
   _buildEditorMenu (recentUsedDocuments = null) {
     if (!recentUsedDocuments) {
       recentUsedDocuments = this.getRecentlyUsedDocuments()
@@ -414,6 +429,9 @@ class AppMenu {
       }
       if (prefs.autoSave !== undefined) {
         this.updateAutoSaveMenu(prefs.autoSave)
+      }
+      if (prefs.enableDebugLog !== undefined) {
+        this.updateDebugLogMenu(prefs.enableDebugLog)
       }
     })
   }
