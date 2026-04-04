@@ -1,21 +1,7 @@
-const fs = require('fs')
-const path = require('path')
-const logFile = path.join(process.env.HOME || '/tmp', 'marktext-mermaid-debug.log')
-
-const writeLog = (msg) => {
-  const timestamp = new Date().toISOString()
-  const line = `[${timestamp}] ${msg}\n`
-  try {
-    fs.appendFileSync(logFile, line)
-  } catch (e) {
-  }
-}
-
 const rendererCache = new Map()
 
 const loadRenderer = async (name) => {
   if (!rendererCache.has(name)) {
-    writeLog('loadRenderer: importing ' + name)
     let m
     switch (name) {
       case 'sequence':
@@ -31,12 +17,8 @@ const loadRenderer = async (name) => {
         rendererCache.set(name, m.default)
         break
       case 'mermaid':
-        m = require('mermaid')
-        writeLog('loadRenderer: mermaid loaded, m type: ' + typeof m)
-        if (m) {
-          writeLog('loadRenderer: m keys: ' + Object.keys(m).join(', '))
-        }
-        rendererCache.set(name, m.default || m)
+        m = await import('mermaid')
+        rendererCache.set(name, m.default)
         break
       case 'vega-lite':
         m = await import('vega-embed')
@@ -45,12 +27,9 @@ const loadRenderer = async (name) => {
       default:
         throw new Error(`Unknown diagram name ${name}`)
     }
-    writeLog('loadRenderer: ' + name + ' cached')
   }
 
-  const result = rendererCache.get(name)
-  writeLog('loadRenderer: returning ' + name + ', type: ' + typeof result)
-  return result
+  return rendererCache.get(name)
 }
 
 export default loadRenderer

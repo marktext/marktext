@@ -24,7 +24,7 @@ const isProduction = process.env.NODE_ENV === 'production'
  * that provide pure *.vue files that need compiling
  * https://simulatedgreg.gitbooks.io/electron-vue/content/en/webpack-configurations.html#white-listing-externals
  */
-const whiteListedModules = ['vue']
+const whiteListedModules = ['vue', 'mermaid']
 
 /** @type {import('webpack').Configuration} */
 const rendererConfig = {
