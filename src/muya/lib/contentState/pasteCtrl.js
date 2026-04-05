@@ -150,7 +150,11 @@ const pasteCtrl = ContentState => {
   }
 
   ContentState.prototype.normalizeMathDelimiters = function (text) {
-    text = text.replace(/\\\[([\s\S]*?)\\\]/g, (_, content) => `\n$$\n${content}\n$$\n`)
+    // \[...\] → $$\n...\n$$, preserving any trailing text on same line after \]
+    text = text.replace(/\\\[([\s\S]*?)\\\]((?=[^\S\n]*?\S)[^\n]*)?/g, (_, content, trailing) => {
+      return `\n$$\n${content}\n$$${trailing || ''}\n`
+    })
+    // \(...\) → $...$
     text = text.replace(/\\\((.*?)\\\)/g, (_, content) => `$${content}$`)
     return text
   }
