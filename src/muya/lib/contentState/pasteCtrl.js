@@ -73,6 +73,30 @@ const pasteCtrl = ContentState => {
       }
     }
 
+    const mathPlaceholders = []
+
+    // Extract LaTeX from KaTeX <annotation> before DOMPurify strips MathML (mathMl: false).
+    // Use placeholders to prevent Turndown from mangling \[...\] (link syntax) and \\ (escape).
+    if (/<annotation[^>]*application\/x-tex/.test(rawHtml)) {
+      const tempDiv = document.createElement('div')
+      tempDiv.innerHTML = rawHtml
+      const annotations = tempDiv.querySelectorAll('annotation[encoding="application/x-tex"]')
+      for (const annotation of annotations) {
+        const latexSource = annotation.textContent
+        if (!latexSource) continue
+
+        const mathEl = annotation.closest('math')
+        const isDisplayMode = mathEl && mathEl.getAttribute('display') === 'block'
+        const katexEl = annotation.closest('.katex')
+        if (katexEl) {
+          const idx = mathPlaceholders.length
+          mathPlaceholders.push({ latexSource, isDisplayMode })
+          katexEl.replaceWith(document.createTextNode(`__MARKTEXT_MATH_${idx}__`))
+        }
+      }
+      rawHtml = tempDiv.innerHTML
+    }
+
     // Prevent XSS and sanitize HTML.
     const sanitizedHtml = sanitize(rawHtml, PREVIEW_DOMPURIFY_CONFIG, false)
     const tempWrapper = document.createElement('div')
@@ -121,7 +145,14 @@ const pasteCtrl = ContentState => {
         }
       }
     }
+    this._mathPlaceholders = mathPlaceholders.length > 0 ? mathPlaceholders : null
     return tempWrapper.innerHTML
+  }
+
+  ContentState.prototype.normalizeMathDelimiters = function (text) {
+    text = text.replace(/\\\[([\s\S]*?)\\\]/g, (_, content) => `\n$$\n${content}\n$$\n`)
+    text = text.replace(/\\\((.*?)\\\)/g, (_, content) => `$${content}$`)
+    return text
   }
 
   ContentState.prototype.pasteImage = async function (event) {
@@ -424,7 +455,7 @@ const pasteCtrl = ContentState => {
     }
 
     const stateFragments = type === 'pasteAsPlainText' || copyType === 'copyAsMarkdown'
-      ? this.markdownToState(text)
+      ? this.markdownToState(this.normalizeMathDelimiters(text))
       : this.html2State(html)
 
     if (stateFragments.length <= 0) {
