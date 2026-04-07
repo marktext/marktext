@@ -83,17 +83,15 @@ class Keyboard {
         return
       }
 
-      // We need check cursor is null, because we may copy the html preview content,
-      // and no need to dispatch change.
-      const { start, end } = selection.getCursorRange()
-      if (!start || !end) {
-        return
-      }
-
       if (timer) clearTimeout(timer)
       timer = setTimeout(() => {
-        this.muya.dispatchSelectionChange()
-        this.muya.dispatchSelectionFormats()
+        const cursor = selection.getCursorRange()
+        if (!cursor.start || !cursor.end) {
+          return
+        }
+
+        this.muya.dispatchSelectionChange(cursor)
+        this.muya.dispatchSelectionFormats(cursor)
         if (!this.isComposed && event.type === 'click') {
           this.muya.dispatchChange()
         }
