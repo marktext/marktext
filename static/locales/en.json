@@ -175,6 +175,7 @@
       "light": "Light",
       "dark": "Dark",
       "auto": "Auto",
+      "followThemDisabled": "Theme selection disabled when following system theme",
       "lightThemes": "— Light Themes —",
       "darkThemes": "— Dark Themes —",
       "ayuDark": "Ayu Dark",
@@ -1306,9 +1307,19 @@
     "words": {},
     "image": {
       "selector": {
-        "tab": { "select": "Select", "embedLink": "Embed link" },
-        "select": { "chooseButton": "Choose Image", "tip": "Choose image from your computer." },
-        "inputs": { "alt": "Alt text", "src": "Image link or local path", "title": "Image title" },
+        "tab": {
+          "select": "Select",
+          "embedLink": "Embed link"
+        },
+        "select": {
+          "chooseButton": "Choose Image",
+          "tip": "Choose image from your computer."
+        },
+        "inputs": {
+          "alt": "Alt text",
+          "src": "Image link or local path",
+          "title": "Image title"
+        },
         "embedButton": "Embed Image",
         "hint": {
           "prefix": "Paste web image or local image path. Use",

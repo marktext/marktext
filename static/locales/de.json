@@ -175,6 +175,7 @@
       "light": "Hell",
       "dark": "Dunkel",
       "auto": "Automatisch",
+      "followThemDisabled": "Themenauswahl deaktiviert, wenn dem Systemdesign gefolgt wird",
       "lightThemes": "— Helle Designs —",
       "darkThemes": "— Dunkle Designs —",
       "ayuDark": "Ayu Dunkel",

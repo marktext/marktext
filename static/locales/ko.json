@@ -175,6 +175,7 @@
       "light": "밝게",
       "dark": "어둡게",
       "auto": "자동",
+      "followThemDisabled": "시스템 테마를 따를 때는 테마 선택이 비활성화됩니다",
       "lightThemes": "— 라이트 테마 —",
       "darkThemes": "— 다크 테마 —",
       "ayuDark": "Ayu 다크",

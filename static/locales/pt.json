@@ -175,6 +175,7 @@
       "light": "Claro",
       "dark": "Escuro",
       "auto": "Automático",
+      "followThemDisabled": "Seleção de tema desativada ao seguir o tema do sistema",
       "lightThemes": "— Temas Claros —",
       "darkThemes": "— Temas Escuros —",
       "ayuDark": "Ayu Escuro",

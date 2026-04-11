@@ -1,6 +1,6 @@
 import fs from 'fs'
 import path from 'path'
-import { app, Menu, ipcMain } from 'electron'
+import { app, BrowserWindow, Menu, ipcMain } from 'electron'
 import log from 'electron-log'
 import { ensureDirSync, isDirectory2, isFile2 } from 'common/filesystem'
 import { isLinux, isOsx, isWindows } from '../config'
@@ -34,7 +34,7 @@ class AppMenu {
     this.isOsxOrWindows = isOsx || isWindows
     this.activeWindowId = -1
     this.windowMenus = new Map()
-    
+
     // Initialize main process language from preferences
     this._initializeLanguage()
 
@@ -266,7 +266,6 @@ class AppMenu {
 
       // update window menu
       value.menu = newMenu
-
       // update application menu if necessary
       const { activeWindowId } = this
       if (activeWindowId === key) {
@@ -305,9 +304,9 @@ class AppMenu {
   }
 
   /**
-   * Update all theme entries from editor menus to the selected one.
+   * Update theme menu state across editor menus.
    */
-  updateThemeMenu = (theme) => {
+  updateThemeMenu = ({ theme, followSystemTheme } = {}) => {
     this.windowMenus.forEach((value) => {
       const { menu, type } = value
       if (type !== MenuType.EDITOR) {
@@ -319,9 +318,18 @@ class AppMenu {
         return
       }
 
-      themeMenus.submenu.items.forEach((item) => (item.checked = false))
       themeMenus.submenu.items.forEach((item) => {
-        if (item.id && item.id === theme) {
+        if (item.type === 'radio' && typeof followSystemTheme !== 'undefined') {
+          item.enabled = !followSystemTheme
+        }
+
+        if (item.id === 'follow-system-theme' && typeof followSystemTheme !== 'undefined') {
+          item.checked = followSystemTheme
+        }
+
+        if (item.type === 'radio' && typeof theme !== 'undefined') {
+          item.checked = item.id === theme
+        } else if (item.id && item.id === theme) {
           item.checked = true
         }
       })
@@ -434,15 +442,14 @@ class AppMenu {
     })
 
     ipcMain.on('broadcast-preferences-changed', async (prefs) => {
-      if (prefs.theme !== undefined) {
-        this.updateThemeMenu(prefs.theme)
+      if (prefs.theme !== undefined || prefs.followSystemTheme !== undefined) {
+        this.updateAppMenu()
       }
       if (prefs.autoSave !== undefined) {
         this.updateAutoSaveMenu(prefs.autoSave)
       }
       if (prefs.language) {
         // Update main process language and rebuild menu
-        const { setLanguage } = await import('../i18n.js')
         setLanguage(prefs.language)
         this.updateAppMenu()
       }

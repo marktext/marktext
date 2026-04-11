@@ -175,6 +175,7 @@
       "light": "ライト",
       "dark": "ダーク",
       "auto": "自動",
+      "followThemDisabled": "システムテーマに従う場合、テーマ選択は無効です",
       "lightThemes": "— ライトテーマ —",
       "darkThemes": "— ダークテーマ —",
       "ayuDark": "Ayu ダーク",

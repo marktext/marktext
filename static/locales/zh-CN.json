@@ -175,6 +175,7 @@
       "light": "浅色",
       "dark": "深色",
       "auto": "自动",
+      "followThemDisabled": "跟随系统主题时无法选择主题",
       "lightThemes": "— 浅色主题 —",
       "darkThemes": "— 深色主题 —",
       "ayuDark": "Ayu 深色",
