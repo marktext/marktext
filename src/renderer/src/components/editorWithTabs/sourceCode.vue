@@ -87,6 +87,7 @@ const scrollToCords = (y) => {
   requestAnimationFrame(() => {
     // Ensures there we have scrolled to that position before the browser paints the next frame
     // prevents "flickers"
+    if (!sourceCodeContainer.value) return
     sourceCodeContainer.value.scrollTop = y
   })
 }
