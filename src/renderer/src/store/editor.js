@@ -183,10 +183,11 @@ export const useEditorStore = defineStore('editor', {
       if (pathname === currentFile.pathname) {
         // save current state first
         this.currentFile = tab
-        const { id, cursor, history, scrollTop } = tab // Should not use blocks history as this is loaded from disk
+        const { id, cursor, history, scrollTop, muyaIndexCursor } = tab // Should not use blocks history as this is loaded from disk
         bus.emit('file-changed', {
           id,
           markdown,
+          muyaIndexCursor,
           cursor,
           renderCursor: true,
           history,
@@ -537,13 +538,15 @@ export const useEditorStore = defineStore('editor', {
     UPDATE_CURRENT_FILE(currentFile) {
       const oldCurrentFile = this.currentFile
       if (!oldCurrentFile.id || oldCurrentFile.id !== currentFile.id) {
-        const { id, markdown, cursor, history, pathname, scrollTop, blocks } = currentFile
+        const { id, markdown, cursor, history, pathname, scrollTop, blocks, muyaIndexCursor } =
+          currentFile
         window.DIRNAME = pathname ? window.path.dirname(pathname) : ''
         this.currentFile = currentFile
         bus.emit('file-changed', {
           id,
           markdown,
           cursor,
+          muyaIndexCursor,
           renderCursor: true,
           history,
           scrollTop,
@@ -712,12 +715,14 @@ export const useEditorStore = defineStore('editor', {
         const fileState = this.tabs[index] || this.tabs[index - 1] || this.tabs[0] || {}
         this.currentFile = fileState
         if (typeof fileState.markdown === 'string') {
-          const { id, markdown, cursor, history, pathname, scrollTop, blocks } = fileState
+          const { id, markdown, cursor, history, pathname, scrollTop, blocks, muyaIndexCursor } =
+            fileState
           window.DIRNAME = pathname ? window.path.dirname(pathname) : ''
           bus.emit('file-changed', {
             id,
             markdown,
             cursor,
+            muyaIndexCursor,
             renderCursor: true,
             history,
             scrollTop,
@@ -796,12 +801,14 @@ export const useEditorStore = defineStore('editor', {
       if (!this.currentFile.id && this.tabs.length > 0) {
         this.currentFile = this.tabs[tabIndex] || this.tabs[tabIndex - 1] || this.tabs[0] || {}
         if (typeof this.currentFile.markdown === 'string') {
-          const { id, markdown, cursor, history, pathname, scrollTop, blocks } = this.currentFile
+          const { id, markdown, cursor, history, pathname, scrollTop, blocks, muyaIndexCursor } =
+            this.currentFile
           window.DIRNAME = pathname ? window.path.dirname(pathname) : ''
           bus.emit('file-changed', {
             id,
             markdown,
             cursor,
+            muyaIndexCursor,
             renderCursor: true,
             history,
             scrollTop,

@@ -92,7 +92,9 @@ const scrollToCords = (y) => {
   })
 }
 
-const handleFileChange = ({ id, markdown: newMarkdown, cursor, scrollTop }) => {
+const handleFileChange = ({ id, markdown: newMarkdown, muyaIndexCursor, scrollTop }) => {
+  if (!editor.value) return
+
   prepareTabSwitch()
 
   if (typeof newMarkdown === 'string') {
@@ -101,8 +103,9 @@ const handleFileChange = ({ id, markdown: newMarkdown, cursor, scrollTop }) => {
 
   // t('editor.sourceCode.cursorNullComment')
 
-  if (cursor) {
-    const { anchor, focus } = cursor
+  if (muyaIndexCursor) {
+    const { anchor, focus } = muyaIndexCursor
+
     editor.value.setSelection(anchor, focus, { scroll: true }) // Scroll the focus into view.
   } else {
     setCursorAtFirstLine(editor.value)
