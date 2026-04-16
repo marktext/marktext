@@ -221,7 +221,7 @@ const handleFindInFolder = (executeSearch = true) => {
   nextTick(() => {
     if (searchEl.value) {
       searchEl.value.focus()
-      const { selectedText } = searchMatches.value
+      const selectedText = searchMatches.value?.selectedText
       if (selectedText) {
         keyword.value = selectedText
         if (executeSearch) {
