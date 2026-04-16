@@ -22,6 +22,7 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import { spawn } from 'child_process'
+import log from 'electron-log'
 
 function cleanResultLine(resultLine) {
   resultLine = getText(resultLine)
@@ -245,11 +246,26 @@ class RipgrepDirectorySearcher {
 
       child.on('close', (code, signal) => {
         // code 1 is used when no results are found.
-        if (code !== null && code > 1) {
-          reject(new Error(bufferError))
-        } else {
-          resolve()
+        // code 2 is used when some files could not be read, but results may still be available.
+        if (code !== null && code > 1 && bufferError) {
+          // Log ripgrep errors but don't reject, because partial results are still useful.
+          log.warn('Ripgrep finished with errors (exit code ' + code + '):', bufferError)
         }
+
+        // Process remaining stdout buffer.
+        if (buffer && !cancelled) {
+          try {
+            const message = JSON.parse(buffer)
+            if (message.type === 'end') {
+              options.didSearchPaths(++numPathsFound.num)
+              didMatch(pendingEvent)
+            }
+          } catch (err) {
+            // Ignore trailing non-JSON output.
+          }
+        }
+
+        resolve()
       })
       child.on('error', (err) => {
         reject(err)
@@ -268,37 +284,42 @@ class RipgrepDirectorySearcher {
         const lines = buffer.split('\n')
         buffer = lines.pop()
         for (const line of lines) {
-          const message = JSON.parse(line)
-          if (message.type === 'begin') {
-            pendingEvent = {
-              filePath: getText(message.data.path),
-              matches: []
-            }
-            pendingLeadingContext = []
-            pendingTrailingContexts = new Set()
-          } else if (message.type === 'match') {
-            const trailingContextLines = []
-            pendingTrailingContexts.add(trailingContextLines)
-            processUnicodeMatch(message.data)
-            for (const submatch of message.data.submatches) {
-              const { lineText, range } = processSubmatch(
-                submatch,
-                getText(message.data.lines),
-                message.data.line_number - 1
-              )
+          if (!line) continue
+          try {
+            const message = JSON.parse(line)
+            if (message.type === 'begin') {
+              pendingEvent = {
+                filePath: getText(message.data.path),
+                matches: []
+              }
+              pendingLeadingContext = []
+              pendingTrailingContexts = new Set()
+            } else if (message.type === 'match') {
+              const trailingContextLines = []
+              pendingTrailingContexts.add(trailingContextLines)
+              processUnicodeMatch(message.data)
+              for (const submatch of message.data.submatches) {
+                const { lineText, range } = processSubmatch(
+                  submatch,
+                  getText(message.data.lines),
+                  message.data.line_number - 1
+                )
 
-              pendingEvent.matches.push({
-                matchText: getText(submatch.match),
-                lineText,
-                range,
-                leadingContextLines: [...pendingLeadingContext],
-                trailingContextLines
-              })
+                pendingEvent.matches.push({
+                  matchText: getText(submatch.match),
+                  lineText,
+                  range,
+                  leadingContextLines: [...pendingLeadingContext],
+                  trailingContextLines
+                })
+              }
+            } else if (message.type === 'end') {
+              options.didSearchPaths(++numPathsFound.num)
+              didMatch(pendingEvent)
+              pendingEvent = null
             }
-          } else if (message.type === 'end') {
-            options.didSearchPaths(++numPathsFound.num)
-            didMatch(pendingEvent)
-            pendingEvent = null
+          } catch (err) {
+            log.warn('Failed to parse ripgrep output line:', line, err)
           }
         }
       })
