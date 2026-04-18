@@ -92,6 +92,7 @@ class History {
     this.stack = []
     this.index = -1
     this.pendingIndex = -1
+    this.lastEditIndex = -1
   }
 }
 

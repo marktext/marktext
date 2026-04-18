@@ -198,8 +198,17 @@ class ContentState {
     return { stack, index, lastEditIndex }
   }
 
-  setHistory({ stack, index }) {
-    Object.assign(this.history, { stack, index })
+  setHistory({ stack, index, lastEditIndex }) {
+    Object.assign(this.history, { stack, index, pendingIndex: -1 })
+    if (
+      typeof lastEditIndex === 'number' &&
+      lastEditIndex >= -1 &&
+      lastEditIndex < stack.length
+    ) {
+      this.history.lastEditIndex = lastEditIndex
+    } else {
+      this.history.updateFinalEditIndex()
+    }
   }
 
   setCursor() {
