@@ -25,7 +25,7 @@ jobs:
       - name: Install Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: 22.21.1
+          node-version: 24.14.1
 
       - name: Install Linux Build Dependencies
         if: matrix.os == 'ubuntu-22.04'

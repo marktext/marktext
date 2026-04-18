@@ -80,7 +80,7 @@
     "@electron-toolkit/eslint-config-prettier": "^3.0.0",
     "@vitejs/plugin-vue": "^6.0.3",
     "cross-env": "^10.1.0",
-    "electron": "^39.2.7",
+    "electron": "^41.2.1",
     "electron-builder": "^26.4.0",
     "electron-vite": "^5.0.0",
     "eslint": "^9.39.2",
