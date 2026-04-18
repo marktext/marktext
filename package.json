@@ -81,7 +81,7 @@
     "@vitejs/plugin-vue": "^6.0.3",
     "cross-env": "^10.1.0",
     "electron": "^41.2.1",
-    "electron-builder": "^26.4.0",
+    "electron-builder": "^26.8.1",
     "electron-vite": "^5.0.0",
     "eslint": "^9.39.2",
     "eslint-config-prettier": "^10.1.8",
@@ -97,7 +97,7 @@
     "vite": "^7.3.0",
     "vite-plugin-electron-renderer": "^0.14.6",
     "vite-svg-loader": "^5.1.0",
-    "vue": "^3.5.26",
+    "vue": "^3.5.32",
     "vue-eslint-parser": "^10.2.0"
   }
 }
