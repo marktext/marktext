@@ -69,7 +69,6 @@ class ExportMarkdown {
           switch (block.functionType) {
             case 'table': {
               const table = block.children[0]
-              console.log('raw table', JSON.parse(JSON.stringify(table)))
               result.push(this.normalizeTable(table, indent))
               break
             }
