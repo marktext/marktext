@@ -15,3 +15,6 @@ thumbs.db
 .idea
 .env
 .eslintcache
+.claude/
+.agents/
+.agent/
