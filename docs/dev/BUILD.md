@@ -11,7 +11,7 @@ git clone https://github.com/marktext/marktext.git
 Before you can get started developing, you need set up your build environment:
 
 - Node.js `>=v16` but `<v17` and yarn
-- Python `>=v3.6` for node-gyp
+- Python `>=v3.6` for node-gyp; Python `>=v3.12` requires `setuptools` (`pip install setuptools`)
 - C++ compiler and development tools
 - Build is supported on Linux, macOS and Windows
 
