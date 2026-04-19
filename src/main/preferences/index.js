@@ -29,7 +29,17 @@ class Preference extends EventEmitter {
     )
     this.store = new Store({
       schema,
-      name: PREFERENCES_FILE_NAME
+      name: PREFERENCES_FILE_NAME,
+      migrations: {
+        '0.18.6': (store) => {
+          if (store.get('startUpAction') === 'lastState') {
+            store.set('startUpAction', 'openLastFolder')
+          }
+        }
+      },
+      beforeEachMigration: (_store, context) => {
+        log.info(`Preferences migration: ${context.fromVersion} -> ${context.toVersion}`)
+      }
     })
 
     this.staticPath = path.join(global.__static, 'preference.json')
