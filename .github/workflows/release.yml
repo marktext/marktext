@@ -92,7 +92,7 @@ jobs:
             - MacOS releases will show a "`Apple couldn't verify MarkText is free of viruses...`" due to a **lack of notorisation**. 
             - Please run the following commands [based off this fix here](https://github.com/marktext/marktext/issues/3004#issuecomment-1038207300) after you have dragged MarkText into the "Applications" folder
             ```
-            xattr -cr /Applications/marktext.app
+            sudo find /Applications/marktext.app -exec xattr -c {} \; # <-- Note this change on newer MacOS versions
             sudo codesign --force --deep --sign - /Applications/marktext.app
             ```
 
