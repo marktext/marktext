@@ -70,6 +70,10 @@ const getMarkdownAndCursor = (cm) => {
   return { cursor: { focus, anchor }, markdown }
 }
 
+/**
+ * This is to write the OLD content of the editor before switching to another tab
+ * @param id
+ */
 const prepareTabSwitch = () => {
   if (commitTimer.value) clearTimeout(commitTimer.value)
   if (tabId.value) {
@@ -79,7 +83,7 @@ const prepareTabSwitch = () => {
       markdown: newMarkdown,
       muyaIndexCursor: cursor
     })
-    tabId.value = null // invalidate tab id
+    tabId.value = null
   }
 }
 
@@ -114,7 +118,6 @@ const handleFileChange = ({ id, markdown: newMarkdown, muyaIndexCursor, scrollTo
   if (typeof scrollTop === 'number') {
     scrollToCords(scrollTop)
   }
-  tabId.value = id
 }
 
 const handleInvalidateImageCache = () => {
@@ -195,25 +198,20 @@ const listenChange = () => {
     const { cursor, markdown: newMarkdown } = getMarkdownAndCursor(cm)
     // Attention: the cursor may be `{focus: null, anchor: null}` when press `backspace`
     const wordCount = getWordCount(newMarkdown)
-    if (commitTimer.value) clearTimeout(commitTimer.value)
-    commitTimer.value = setTimeout(() => {
-      // See "beforeDestroy" note
-      if (!viewDestroyed.value) {
-        if (tabId.value) {
-          editorStore.LISTEN_FOR_CONTENT_CHANGE({
-            id: tabId.value,
-            markdown: newMarkdown,
-            wordCount,
-            muyaIndexCursor: cursor
-          })
-        } else {
-          // This may occur during tab switching but should not occur otherwise.
-          console.warn(
-            'LISTEN_FOR_CONTENT_CHANGE: Cannot commit changes because not tab id was set!'
-          )
-        }
+    // See "beforeDestroy" note
+    if (!viewDestroyed.value) {
+      if (tabId.value) {
+        editorStore.LISTEN_FOR_CONTENT_CHANGE({
+          id: tabId.value,
+          markdown: newMarkdown,
+          wordCount,
+          muyaIndexCursor: cursor
+        })
+      } else {
+        // This may occur during tab switching but should not occur otherwise.
+        console.warn('LISTEN_FOR_CONTENT_CHANGE: Cannot commit changes because not tab id was set!')
       }
-    }, 1000)
+    }
   })
 }
 

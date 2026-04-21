@@ -542,6 +542,12 @@ export const useEditorStore = defineStore('editor', {
           currentFile
         window.DIRNAME = pathname ? window.path.dirname(pathname) : ''
         this.currentFile = currentFile
+
+        if (!this.tabs.some((file) => file.id === currentFile.id)) {
+          this.tabs.push(currentFile)
+          this.updateTabIdToIndex()
+        }
+
         bus.emit('file-changed', {
           id,
           markdown,
@@ -554,10 +560,6 @@ export const useEditorStore = defineStore('editor', {
         })
       }
 
-      if (!this.tabs.some((file) => file.id === currentFile.id)) {
-        this.tabs.push(currentFile)
-        this.updateTabIdToIndex()
-      }
       this.UPDATE_LINE_ENDING_MENU()
     },
 
@@ -711,6 +713,8 @@ export const useEditorStore = defineStore('editor', {
         autoSaveTimers.delete(file.id)
       }
 
+      this.updateTabIdToIndex() // Update before sending it out to prevent stale mappings.
+
       if (file.id === currentFile.id) {
         const fileState = this.tabs[index] || this.tabs[index - 1] || this.tabs[0] || {}
         this.currentFile = fileState
@@ -798,6 +802,8 @@ export const useEditorStore = defineStore('editor', {
         }
       })
 
+      this.updateTabIdToIndex() // Update before sending it out to prevent stale mappings.
+
       if (!this.currentFile.id && this.tabs.length > 0) {
         this.currentFile = this.tabs[tabIndex] || this.tabs[tabIndex - 1] || this.tabs[0] || {}
         if (typeof this.currentFile.markdown === 'string') {
@@ -821,7 +827,6 @@ export const useEditorStore = defineStore('editor', {
         this.listToc = []
         this.toc = []
       }
-      this.updateTabIdToIndex()
     },
 
     EXCHANGE_TABS_BY_ID(tabIDs) {
@@ -999,8 +1004,8 @@ export const useEditorStore = defineStore('editor', {
         this.UPDATE_CURRENT_FILE(docState)
         bus.emit('file-loaded', { id, markdown, cursor })
       } else {
-        this.tabs.push(docState)
         this.updateTabIdToIndex()
+        this.tabs.push(docState)
       }
 
       if (isMixedLineEndings) {
@@ -1046,13 +1051,14 @@ export const useEditorStore = defineStore('editor', {
     }) {
       const preferencesStore = usePreferencesStore()
       const { autoSave } = preferencesStore
-
       if (!id) {
         throw new Error('Listen for document change but id was not set!')
       } else if (this.tabs.length === 0) {
         return
       } else if (!(id in this.tabIdToIndex)) {
-        throw new Error(`Cannot find tab with id "${id}" in tab list!`)
+        // This only happens when the sourceCode tries to write a stale id via prepareTabSwitch() but the tab
+        // has already been closed. In this case we can safely ignore the update.
+        return
       }
 
       const tab = this.tabs[this.tabIdToIndex[id]]

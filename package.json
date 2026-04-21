@@ -1,6 +1,6 @@
 {
   "name": "marktext",
-  "version": "0.18.8",
+  "version": "0.18.9",
   "description": "MarkText",
   "main": "./out/main/index.js",
   "author": "Marktext Contributors (Tkaixiang fork)",
