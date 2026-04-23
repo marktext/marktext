@@ -413,7 +413,7 @@ ipcMain.on('mt::ask-for-open-project-in-sidebar', async e => {
   }
 })
 
-ipcMain.on('mt::format-link-click', (e, { data, dirname }) => {
+ipcMain.on('mt::format-link-click', async (e, { data, dirname }) => {
   if (!data || (!data.href && !data.text)) {
     return
   }
@@ -445,7 +445,21 @@ ipcMain.on('mt::format-link-click', (e, { data, dirname }) => {
       const win = BrowserWindow.fromWebContents(e.sender)
       openFileOrFolder(win, pathname)
     } else {
-      shell.openPath(pathname)
+      // Require user confirmation before opening non-markdown files to prevent
+      // crafted documents from silently launching arbitrary local files.
+      const win = BrowserWindow.fromWebContents(e.sender)
+      const { response } = await dialog.showMessageBox(win, {
+        type: 'question',
+        buttons: ['Open', 'Cancel'],
+        defaultId: 1,
+        cancelId: 1,
+        message: 'Open external file?',
+        detail: `Do you want to open "${pathname}"?`,
+        noLink: true
+      })
+      if (response === 0) {
+        shell.openPath(pathname)
+      }
     }
   }
 })
