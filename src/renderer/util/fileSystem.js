@@ -158,7 +158,7 @@ export const uploadImage = async (pathname, image, preferences) => {
       await fs.writeFile(filepath, data)
     }
     if (uploader === 'picgo') {
-      cp.exec(`picgo u "${filepath}"`, async (err, data) => {
+      cp.execFile('picgo', ['u', filepath], async (err, data) => {
         if (!isPath) {
           await fs.unlink(filepath)
         }
