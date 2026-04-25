@@ -520,6 +520,7 @@
         "openBlankState": "Abrir estado em branco",
         "openDefaultDirectory": "Abrir diretório padrão",
         "openLastFolder": "Restaurar pasta aberta",
+        "restoreAll": "Restaurar todos os arquivos e pastas abertos",
         "selectFolder": "Selecionar Pasta",
         "openBlankPage": "Abrir página em branco"
       },

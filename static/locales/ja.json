@@ -520,6 +520,7 @@
         "openBlankState": "空の状態を開く",
         "openDefaultDirectory": "デフォルトディレクトリを開く",
         "openLastFolder": "開いているフォルダを復元",
+        "restoreAll": "開いていたすべてのファイルとフォルダを復元",
         "selectFolder": "フォルダを選択",
         "openBlankPage": "空白ページを開く"
       },

@@ -519,6 +519,7 @@
         "openBlankState": "Leeren Zustand öffnen",
         "openDefaultDirectory": "Standardverzeichnis öffnen",
         "openLastFolder": "Geöffneten Ordner wiederherstellen",
+        "restoreAll": "Alle geöffneten Dateien und Ordner wiederherstellen",
         "selectFolder": "Ordner auswählen",
         "openBlankPage": "Leere Seite öffnen"
       },

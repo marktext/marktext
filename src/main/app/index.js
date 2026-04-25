@@ -353,7 +353,13 @@ class App {
       if (startUpAction === 'restoreAll') {
         // We will restore based off the previous buffer, one window per buffer store file
         const bufferStores = editorBufferStore.getAll()
-        Object.values(bufferStores).forEach((bufferStoreInfo) => {
+        const bufferStoreList = Object.values(bufferStores)
+        if (bufferStoreList.length === 0) {
+          this._createEditorWindow()
+          return
+        }
+
+        bufferStoreList.forEach((bufferStoreInfo) => {
           // Read the buffer store file and pass the content
           this._createEditorWindow(null, [], [], {}, bufferStoreInfo)
         })

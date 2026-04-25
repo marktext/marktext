@@ -520,6 +520,7 @@
         "openBlankState": "開啟空白狀態",
         "openDefaultDirectory": "開啟預設目錄",
         "openLastFolder": "恢復開啟的資料夾",
+        "restoreAll": "還原所有已開啟的檔案和資料夾",
         "selectFolder": "選擇資料夾",
         "openBlankPage": "開啟空白頁面"
       },

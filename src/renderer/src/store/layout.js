@@ -2,8 +2,26 @@ import { defineStore } from 'pinia'
 import bus from '../bus'
 import { usePreferencesStore } from './preferences'
 
+const RIGHT_COLUMNS = ['', 'files', 'search', 'toc']
+
+const normalizeSideBarWidth = (width) => {
+  const numericWidth = Number(width)
+  return Number.isFinite(numericWidth) ? Math.max(numericWidth, 220) : 280
+}
+
+const createBufferedLayoutState = (state) => {
+  if (!state) return null
+
+  return {
+    rightColumn: RIGHT_COLUMNS.includes(state.rightColumn) ? state.rightColumn : 'files',
+    showSideBar: !!state.showSideBar,
+    showTabBar: !!state.showTabBar,
+    sideBarWidth: normalizeSideBarWidth(state.sideBarWidth)
+  }
+}
+
 const width = localStorage.getItem('side-bar-width')
-const sideBarWidth = typeof +width === 'number' ? Math.max(+width, 220) : 280
+const sideBarWidth = normalizeSideBarWidth(width)
 
 export const useLayoutStore = defineStore('layout', {
   state: () => ({
@@ -25,6 +43,21 @@ export const useLayoutStore = defineStore('layout', {
       }
       Object.assign(this, layout)
     },
+    CREATE_BUFFERED_STATE() {
+      return createBufferedLayoutState(this.$state)
+    },
+    RESTORE_BUFFERED_STATE(state) {
+      const layout = createBufferedLayoutState(state)
+      if (!layout) return
+
+      this.SET_SIDE_BAR_WIDTH(layout.sideBarWidth)
+      this.SET_LAYOUT({
+        rightColumn: layout.rightColumn,
+        showSideBar: layout.showSideBar,
+        showTabBar: layout.showTabBar
+      })
+      this.DISPATCH_LAYOUT_MENU_ITEMS()
+    },
     TOGGLE_LAYOUT_ENTRY(entryName) {
       this[entryName] = !this[entryName]
       if (entryName === 'showSideBar') {
@@ -36,9 +69,9 @@ export const useLayoutStore = defineStore('layout', {
       }
     },
     SET_SIDE_BAR_WIDTH(width) {
-      // TODO: Add side bar to session (GH#732).
-      localStorage.setItem('side-bar-width', Math.max(+width, 220))
-      this.sideBarWidth = width
+      const normalizedWidth = normalizeSideBarWidth(width)
+      localStorage.setItem('side-bar-width', normalizedWidth)
+      this.sideBarWidth = normalizedWidth
     },
     LISTEN_FOR_LAYOUT() {
       window.electron.ipcRenderer.on('mt::set-view-layout', (e, layout) => {

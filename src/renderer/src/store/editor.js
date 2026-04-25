@@ -1,4 +1,5 @@
 import equal from 'deep-equal'
+import debounce from 'lodash/debounce'
 import bus from '../bus'
 import { hasKeys, getUniqueId, deepClone } from '../util'
 import listToTree from '../util/listToTree'
@@ -39,6 +40,141 @@ export const useEditorStore = defineStore('editor', {
         map[tab.id] = index
         return map
       }, {})
+    },
+
+    CREATE_BUFFERED_STATE() {
+      const projectStore = useProjectStore()
+      const layoutStore = useLayoutStore()
+      return createBufferedEditorState(
+        this.$state,
+        projectStore.CREATE_BUFFERED_STATE(),
+        layoutStore.CREATE_BUFFERED_STATE()
+      )
+    },
+
+    RESTORE_BUFFERED_STATE(state) {
+      const bufferedState = createBufferedEditorState(state)
+      if (!bufferedState) {
+        console.error('RESTORE_BUFFERED_STATE: Invalid editor buffer state.')
+        return
+      }
+
+      const oldIdToNewId = {}
+      const tabs = bufferedState.tabs.map((tab) => {
+        const options = {
+          encoding: tab.encoding,
+          lineEnding: tab.lineEnding,
+          trimTrailingNewline: tab.trimTrailingNewline,
+          adjustLineEndingOnSave: tab.adjustLineEndingOnSave
+        }
+        const fileState = getSingleFileState({
+          markdown: tab.markdown,
+          filename: tab.filename,
+          pathname: tab.pathname,
+          options
+        })
+
+        oldIdToNewId[tab.id] = fileState.id
+
+        Object.assign(fileState, {
+          isSaved: tab.isSaved,
+          cursor: tab.cursor,
+          muyaIndexCursor: tab.muyaIndexCursor || undefined,
+          scrollTop: tab.scrollTop ?? undefined
+        })
+
+        return fileState
+      })
+
+      const currentFileId = oldIdToNewId[bufferedState.currentFileId]
+      const currentFile = tabs.find((tab) => tab.id === currentFileId) || tabs[0] || {}
+      const projectStore = useProjectStore()
+      const layoutStore = useLayoutStore()
+
+      isRestoringBufferedState = true
+      try {
+        projectStore.RESTORE_BUFFERED_STATE(bufferedState.project)
+        layoutStore.RESTORE_BUFFERED_STATE(bufferedState.layout)
+        this.$patch({
+          currentFile,
+          tabs,
+          tabIdToIndex: {},
+          listToc: [],
+          toc: []
+        })
+      } finally {
+        isRestoringBufferedState = false
+      }
+
+      this.updateTabIdToIndex()
+      window.DIRNAME = currentFile.pathname ? window.path.dirname(currentFile.pathname) : ''
+      this.UPDATE_LINE_ENDING_MENU()
+
+      for (const warning of bufferedState.restoreWarnings) {
+        const restoredTabId = warning.tabId ? oldIdToNewId[warning.tabId] : null
+        const tab = restoredTabId
+          ? this.tabs.find((t) => t.id === restoredTabId)
+          : this.tabs.find((t) => window.fileUtils.isSamePathSync(t.pathname, warning.pathname))
+
+        if (!tab) continue
+
+        this.pushTabNotification({
+          tabId: tab.id,
+          msg: warning.msg,
+          showConfirm: warning.showConfirm,
+          style: warning.style,
+          exclusiveType: warning.exclusiveType
+        })
+      }
+    },
+
+    SCHEDULE_BUFFERED_STATE_UPDATE() {
+      debouncedBufferedStateUpdate(this)
+    },
+
+    LISTEN_FOR_BUFFERED_STATE_UPDATE() {
+      if (
+        bufferedStateUnsubscribe &&
+        bufferedProjectStateUnsubscribe &&
+        bufferedLayoutStateUnsubscribe
+      ) {
+        return
+      }
+      const projectStore = useProjectStore()
+      const layoutStore = useLayoutStore()
+
+      if (!bufferedStateUnsubscribe) {
+        bufferedStateUnsubscribe = this.$subscribe(
+          () => {
+            if (!isRestoringBufferedState) {
+              this.SCHEDULE_BUFFERED_STATE_UPDATE()
+            }
+          },
+          { detached: true }
+        )
+      }
+
+      if (!bufferedProjectStateUnsubscribe) {
+        bufferedProjectStateUnsubscribe = projectStore.$subscribe(
+          () => {
+            if (!isRestoringBufferedState) {
+              this.SCHEDULE_BUFFERED_STATE_UPDATE()
+            }
+          },
+          { detached: true }
+        )
+      }
+
+      if (!bufferedLayoutStateUnsubscribe) {
+        bufferedLayoutStateUnsubscribe = layoutStore.$subscribe(
+          () => {
+            if (!isRestoringBufferedState) {
+              this.SCHEDULE_BUFFERED_STATE_UPDATE()
+            }
+          },
+          { detached: true }
+        )
+      }
     },
 
     /**
@@ -362,12 +498,13 @@ export const useEditorStore = defineStore('editor', {
 
       window.electron.ipcRenderer.on('mt::tab-saved', (_, tabId) => {
         const tab = this.tabs.find((f) => f.id === tabId)
-        if (
-          tab &&
-          tab.history.lastEditIndex >= 0 &&
-          tab.history.lastEditIndex < tab.history.stack.length
-        ) {
-          tab.lastSavedHistoryId = tab.history.stack[tab.history.lastEditIndex].id
+        if (tab) {
+          if (
+            tab.history.lastEditIndex >= 0 &&
+            tab.history.lastEditIndex < tab.history.stack.length
+          ) {
+            tab.lastSavedHistoryId = tab.history.stack[tab.history.lastEditIndex].id
+          }
           tab.isSaved = true
         }
       })
@@ -396,7 +533,10 @@ export const useEditorStore = defineStore('editor', {
 
     LISTEN_FOR_CLOSE() {
       const projectStore = useProjectStore()
+      const preferencesStore = usePreferencesStore()
       window.electron.ipcRenderer.on('mt::ask-for-close', () => {
+        this.UPDATE_BUFFERED_STATE()
+
         const unsavedFiles = this.tabs
           .filter((file) => !file.isSaved)
           .map((file) => {
@@ -412,7 +552,8 @@ export const useEditorStore = defineStore('editor', {
             }
           })
 
-        if (unsavedFiles.length) {
+        if (unsavedFiles.length && preferencesStore.startUpAction !== 'restoreAll') {
+          // Ignore unsaved files when user has chosen to restore all on startup, as they will be restored anyway.
           window.electron.ipcRenderer.send('mt::close-window-confirm', deepClone(unsavedFiles))
         } else {
           window.electron.ipcRenderer.send('mt::close-window')
@@ -1004,8 +1145,8 @@ export const useEditorStore = defineStore('editor', {
         this.UPDATE_CURRENT_FILE(docState)
         bus.emit('file-loaded', { id, markdown, cursor })
       } else {
-        this.updateTabIdToIndex()
         this.tabs.push(docState)
+        this.updateTabIdToIndex()
       }
 
       if (isMixedLineEndings) {
@@ -1374,8 +1515,17 @@ export const useEditorStore = defineStore('editor', {
 
     LISTEN_FOR_STATE_REPLACE() {
       window.electron.ipcRenderer.on('mt::load-state', (_, state) => {
-        this.$patch(state)
+        this.RESTORE_BUFFERED_STATE(state)
       })
+    },
+
+    UPDATE_BUFFERED_STATE() {
+      debouncedBufferedStateUpdate.cancel()
+
+      const snapshot = this.CREATE_BUFFERED_STATE()
+      if (snapshot) {
+        window.electron.ipcRenderer.send('update-buffer-state', snapshot)
+      }
     }
   }
 })
@@ -1549,4 +1699,104 @@ const createSelectionFormatState = (formats) => {
     state[item.type] = true
   }
   return state
+}
+
+const EDITOR_BUFFER_STATE_VERSION = 1
+const RIGHT_COLUMNS = ['', 'files', 'search', 'toc']
+let bufferedStateUnsubscribe = null
+let bufferedProjectStateUnsubscribe = null
+let bufferedLayoutStateUnsubscribe = null
+let isRestoringBufferedState = false
+const debouncedBufferedStateUpdate = debounce((store) => {
+  store.UPDATE_BUFFERED_STATE()
+}, 1000)
+
+const toSerializableValue = (value, fallback = null) => {
+  if (value == null) return fallback
+
+  try {
+    return JSON.parse(JSON.stringify(value))
+  } catch (err) {
+    console.warn('Unable to serialize editor buffer value:', err)
+    return fallback
+  }
+}
+
+const createBufferedTabState = (tab) => {
+  return {
+    id: tab.id,
+    pathname: tab.pathname || '',
+    filename: tab.filename || 'Untitled-1',
+    markdown: typeof tab.markdown === 'string' ? tab.markdown : '',
+    isSaved: tab.isSaved !== false,
+    encoding: toSerializableValue(tab.encoding, { encoding: 'utf8', isBom: false }),
+    lineEnding: tab.lineEnding || 'lf',
+    trimTrailingNewline: typeof tab.trimTrailingNewline === 'number' ? tab.trimTrailingNewline : 3,
+    adjustLineEndingOnSave: !!tab.adjustLineEndingOnSave,
+    cursor: toSerializableValue(tab.cursor, null),
+    muyaIndexCursor: toSerializableValue(tab.muyaIndexCursor, null),
+    scrollTop: typeof tab.scrollTop === 'number' ? tab.scrollTop : null
+  }
+}
+
+const createBufferedRestoreWarning = (warning) => {
+  if (!warning) return null
+
+  const { tabId, pathname, msg, showConfirm, style, exclusiveType } = warning
+  if (!tabId && !pathname) return null
+  if (!msg) return null
+
+  return {
+    tabId: tabId || null,
+    pathname: pathname || '',
+    msg,
+    showConfirm: !!showConfirm,
+    style: style || 'info',
+    exclusiveType: exclusiveType || ''
+  }
+}
+
+const createBufferedProjectState = (projectState) => {
+  return {
+    rootDirectory: projectState?.rootDirectory || projectState?.projectTree?.pathname || ''
+  }
+}
+
+const normalizeSideBarWidth = (width) => {
+  const numericWidth = Number(width)
+  return Number.isFinite(numericWidth) ? Math.max(numericWidth, 220) : 280
+}
+
+const createBufferedLayoutState = (layoutState) => {
+  if (!layoutState) return null
+
+  return {
+    rightColumn: RIGHT_COLUMNS.includes(layoutState.rightColumn)
+      ? layoutState.rightColumn
+      : 'files',
+    showSideBar: !!layoutState.showSideBar,
+    showTabBar: !!layoutState.showTabBar,
+    sideBarWidth: normalizeSideBarWidth(layoutState.sideBarWidth)
+  }
+}
+
+const createBufferedEditorState = (
+  state,
+  projectState = state?.project,
+  layoutState = state?.layout
+) => {
+  if (!state || !Array.isArray(state.tabs)) {
+    return null
+  }
+
+  return {
+    version: EDITOR_BUFFER_STATE_VERSION,
+    currentFileId: state.currentFileId || state.currentFile?.id || null,
+    project: createBufferedProjectState(projectState),
+    layout: createBufferedLayoutState(layoutState),
+    tabs: state.tabs.map(createBufferedTabState),
+    restoreWarnings: Array.isArray(state.restoreWarnings)
+      ? state.restoreWarnings.map(createBufferedRestoreWarning).filter(Boolean)
+      : []
+  }
 }

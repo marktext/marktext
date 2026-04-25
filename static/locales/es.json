@@ -519,6 +519,7 @@
         "openBlankState": "Abrir estado en blanco",
         "openDefaultDirectory": "Abrir directorio predeterminado",
         "openLastFolder": "Restaurar carpeta abierta",
+        "restoreAll": "Restaurar todos los archivos y carpetas abiertos",
         "selectFolder": "Seleccionar Carpeta",
         "openBlankPage": "Abrir página en blanco"
       },

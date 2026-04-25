@@ -520,6 +520,7 @@
         "openBlankState": "빈 상태 열기",
         "openDefaultDirectory": "기본 디렉터리 열기",
         "openLastFolder": "열린 폴더 복원",
+        "restoreAll": "열려 있던 모든 파일과 폴더 복원",
         "selectFolder": "폴더 선택",
         "openBlankPage": "빈 페이지 열기"
       },

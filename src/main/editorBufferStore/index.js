@@ -16,7 +16,14 @@ class EditorBufferStore extends EventEmitter {
   }
 
   init() {
+    if (!fs.existsSync(this.editorBufferStorePath)) {
+      fs.mkdirSync(this.editorBufferStorePath, { recursive: true })
+    }
     this._listenForIpcMain()
+  }
+
+  getAll() {
+    return this.getAllBufferStores()
   }
 
   getAllBufferStores() {
@@ -29,7 +36,11 @@ class EditorBufferStore extends EventEmitter {
 
   findEditorBufferStores(dir) {
     const results = {}
-    const entries = fs.readdir(dir, { withFileTypes: true })
+    if (!fs.existsSync(dir)) {
+      return results
+    }
+
+    const entries = fs.readdirSync(dir, { withFileTypes: true })
 
     for (const entry of entries) {
       const fullPath = path.join(dir, entry.name)
@@ -50,19 +61,36 @@ class EditorBufferStore extends EventEmitter {
     // local main events
     ipcMain.on('update-buffer-state', (e, newState) => {
       const win = BrowserWindow.fromWebContents(e.sender)
-      const restoreBufferId = win?.restoreBufferId
+      const restoreBufferId = win?.restoreBufferId ? `${win.restoreBufferId}` : ''
 
       if (!restoreBufferId) {
         console.warn('No restoreBufferId found for window, skipping buffer state update')
+        return
       }
 
-      fs.writeFile(this.bufferStores[restoreBufferId].filePath, JSON.stringify(newState), (err) => {
-        if (err) {
-          console.error('Failed to write buffer state to file', err)
-        } else {
-          console.log('Buffer state updated successfully')
+      if (!this.bufferStores) {
+        this.bufferStores = this.findEditorBufferStores(this.editorBufferStorePath)
+      }
+
+      if (!this.bufferStores[restoreBufferId]) {
+        this.bufferStores[restoreBufferId] = {
+          id: restoreBufferId,
+          filePath: path.join(
+            this.editorBufferStorePath,
+            `${restoreBufferId}_editor_buffer_store.json`
+          )
         }
-      })
+      }
+
+      fs.writeFile(
+        this.bufferStores[restoreBufferId].filePath,
+        JSON.stringify(newState, null, 2),
+        (err) => {
+          if (err) {
+            console.error('Failed to write buffer state to file', err)
+          }
+        }
+      )
     })
   }
 }

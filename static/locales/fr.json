@@ -520,6 +520,7 @@
         "openBlankState": "Ouvrir un état vierge",
         "openDefaultDirectory": "Ouvrir le répertoire par défaut",
         "openLastFolder": "Restaurer le dossier ouvert",
+        "restoreAll": "Restaurer tous les fichiers et dossiers ouverts",
         "selectFolder": "Sélectionner un dossier",
         "openBlankPage": "Ouvrir une page vierge"
       },

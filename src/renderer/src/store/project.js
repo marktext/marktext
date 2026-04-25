@@ -8,6 +8,39 @@ import { getFileStateFromData } from './help'
 import { useLayoutStore } from './layout'
 import { useEditorStore } from './editor'
 
+const normalizeProjectRoot = (pathname) => {
+  return pathname ? window.path.normalize(pathname) : ''
+}
+
+const createProjectRoot = (pathname) => {
+  const normalizedPathname = normalizeProjectRoot(pathname)
+  if (!normalizedPathname) return null
+
+  let name = window.path.basename(normalizedPathname)
+  if (!name) {
+    // Root directory such as "/" or "C:\"
+    name = normalizedPathname
+  }
+
+  return {
+    // Root full path
+    pathname: normalizedPathname,
+    // Root directory name
+    name,
+    isDirectory: true,
+    isFile: false,
+    isMarkdown: false,
+    folders: [],
+    files: []
+  }
+}
+
+const createBufferedProjectState = (state) => {
+  return {
+    rootDirectory: normalizeProjectRoot(state?.rootDirectory || state?.projectTree?.pathname)
+  }
+}
+
 export const useProjectStore = defineStore('project', {
   state: () => ({
     activeItem: {},
@@ -22,39 +55,46 @@ export const useProjectStore = defineStore('project', {
   }),
 
   actions: {
-    LISTEN_FOR_LOAD_PROJECT() {
+    OPEN_PROJECT(pathname) {
       const layoutStore = useLayoutStore()
-      window.electron.ipcRenderer.on('mt::open-directory', (e, pathname) => {
-        let name = window.path.basename(pathname)
-        if (!name) {
-          // Root directory such as "/" or "C:\"
-          name = pathname
-        }
+      const projectTree = createProjectRoot(pathname)
+      if (!projectTree) return
 
-        this.projectTree = {
-          // Root full path
-          pathname: window.path.normalize(pathname),
-          // Root directory name
-          name,
-          isDirectory: true,
-          isFile: false,
-          isMarkdown: false,
-          folders: [],
-          files: []
-        }
-        const layout = {
-          rightColumn: 'files',
-          showSideBar: true,
-          showTabBar: true
-        }
-        layoutStore.SET_LAYOUT(layout)
-        layoutStore.DISPATCH_LAYOUT_MENU_ITEMS()
+      this.projectTree = projectTree
 
-        // Process any pending events that arrived before projectTree was initialized
-        for (const event of this.pendingTreeEvents) {
-          this._processTreeEvent(event.type, event.change)
-        }
+      const layout = {
+        rightColumn: 'files',
+        showSideBar: true,
+        showTabBar: true
+      }
+      layoutStore.SET_LAYOUT(layout)
+      layoutStore.DISPATCH_LAYOUT_MENU_ITEMS()
+
+      // Process any pending events that arrived before projectTree was initialized
+      for (const event of this.pendingTreeEvents) {
+        this._processTreeEvent(event.type, event.change)
+      }
+      this.pendingTreeEvents = []
+    },
+
+    CREATE_BUFFERED_STATE() {
+      return createBufferedProjectState(this.$state)
+    },
+
+    RESTORE_BUFFERED_STATE(state) {
+      const { rootDirectory } = createBufferedProjectState(state)
+      if (rootDirectory) {
+        if (this.projectTree?.pathname === rootDirectory) return
+        this.OPEN_PROJECT(rootDirectory)
+      } else {
+        this.projectTree = null
         this.pendingTreeEvents = []
+      }
+    },
+
+    LISTEN_FOR_LOAD_PROJECT() {
+      window.electron.ipcRenderer.on('mt::open-directory', (e, pathname) => {
+        this.OPEN_PROJECT(pathname)
       })
     },
 

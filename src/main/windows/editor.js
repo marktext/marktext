@@ -50,7 +50,8 @@ class EditorWindow extends BaseWindow {
     bufferStoreInfo = null
   ) {
     const { menu: appMenu, env, preferences } = this._accessor
-    const addBlankTab = !rootDirectory && fileList.length === 0 && markdownList.length === 0
+    const addBlankTab =
+      !bufferStoreInfo && !rootDirectory && fileList.length === 0 && markdownList.length === 0
 
     const mainWindowState = windowStateKeeper({
       defaultWidth: 1200,
@@ -91,11 +92,12 @@ class EditorWindow extends BaseWindow {
     let win = (this.browserWindow = new BrowserWindow(winOptions))
 
     remoteEnable(win.webContents)
-    // If restoreState is turned on and a buffer is present, set the restoreState.id to it, else use win.id
-    if (this.bufferStoreInfo) {
-      this.bufferStoreInfo = bufferStoreInfo ? bufferStoreInfo.id : win.id
-      win.bufferStoreInfo = this.bufferStoreInfo
+    // Give every editor window a stable id for session buffer persistence.
+    this.bufferStoreInfo = {
+      id: bufferStoreInfo ? bufferStoreInfo.id : `${win.id}`,
+      filePath: bufferStoreInfo ? bufferStoreInfo.filePath : null
     }
+    win.restoreBufferId = this.bufferStoreInfo.id
     this.id = win.id
 
     if (spellcheckerEnabled && !isOsx) {
@@ -530,10 +532,20 @@ class EditorWindow extends BaseWindow {
       throw new Error('Invalid state.')
     }
     const { browserWindow, bufferStoreInfo, _accessor } = this
-    const { preferences } = _accessor
+    const { menu: appMenu, preferences } = _accessor
 
     try {
       const bufferState = JSON.parse(fs.readFileSync(bufferStoreInfo.filePath, 'utf-8'))
+      if (!bufferState || !Array.isArray(bufferState.tabs)) {
+        throw new Error('Invalid editor buffer state.')
+      }
+      if (!Array.isArray(bufferState.restoreWarnings)) {
+        bufferState.restoreWarnings = []
+      }
+      const rootDirectory = bufferState.project?.rootDirectory
+      if (rootDirectory) {
+        this.openFolder(rootDirectory)
+      }
 
       // We still need to load the files of all opened tabs and check for errors/changed files
       const eol = preferences.getPreferredEol()
@@ -542,6 +554,10 @@ class EditorWindow extends BaseWindow {
 
       const fileOpenRequests = []
       for (const tab of bufferState.tabs) {
+        if (!tab.pathname) {
+          continue
+        }
+
         fileOpenRequests.push(
           loadMarkdownFile(
             tab.pathname,
@@ -551,20 +567,35 @@ class EditorWindow extends BaseWindow {
             autoNormalizeLineEndings
           )
             .then((rawDocument) => {
-              if (rawDocument !== tab.markdown) {
+              if (rawDocument.markdown !== tab.markdown) {
                 // File has changed since it was last opened, if it is not saved, we should NOT override the buffer
                 if (tab.isSaved) {
-                  tab.markdown = rawDocument // If saved, simply update the markdown
+                  Object.assign(tab, {
+                    markdown: rawDocument.markdown,
+                    filename: rawDocument.filename,
+                    pathname: rawDocument.pathname,
+                    encoding: rawDocument.encoding,
+                    lineEnding: rawDocument.lineEnding,
+                    adjustLineEndingOnSave: rawDocument.adjustLineEndingOnSave,
+                    trimTrailingNewline: rawDocument.trimTrailingNewline,
+                    isSaved: true
+                  })
                 } else {
-                  // If not saved, display a warning to the user but do nothing else
-                  browserWindow.webContents.send('mt::push-tab-notification', {
-                    pathname: tab.filePath,
+                  // If not saved, display a warning to the user after the tab is restored.
+                  bufferState.restoreWarnings.push({
+                    tabId: tab.id,
+                    pathname: tab.pathname,
                     msg: 'This file changed from the last time it was opened. Saving will override it with the contents in MarkText.',
                     style: 'warn',
                     showConfirm: true,
                     exclusiveType: 'file_changed'
                   })
                 }
+              }
+
+              if (!this._openedFiles.includes(tab.pathname)) {
+                this.addToOpenedFiles(tab.pathname)
+                appMenu.addRecentlyUsedDocument(tab.pathname)
               }
             })
             .catch((err) => {
