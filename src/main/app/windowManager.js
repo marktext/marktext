@@ -59,7 +59,7 @@ class WindowManager extends EventEmitter {
    * @param {AppMenu} appMenu The application menu instance.
    * @param {Preference} preferences The preference instance.
    */
-  constructor(appMenu, preferences) {
+  constructor(appMenu, preferences, editorBufferStore) {
     super()
 
     this._appMenu = appMenu
@@ -67,6 +67,7 @@ class WindowManager extends EventEmitter {
     this._activeWindowId = null
     this._windows = new Map()
     this._windowActivity = new WindowActivityList()
+    this.editorBufferStore = editorBufferStore
 
     // TODO(need::refactor): Please see #1035.
     this._watcher = new Watcher(preferences)
@@ -358,6 +359,8 @@ class WindowManager extends EventEmitter {
     // Force close a BrowserWindow
     ipcMain.on('mt::close-window', (e) => {
       const win = BrowserWindow.fromWebContents(e.sender)
+      // Before closing, update the buffer store if needed
+      this.editorBufferStore.handleClose(win?.restoreBufferId, this.getWindowsByType('editor'))
       this.forceClose(win)
     })
 

@@ -1,8 +1,7 @@
 import { defineStore } from 'pinia'
 import bus from '../bus'
 import { usePreferencesStore } from './preferences'
-
-const RIGHT_COLUMNS = ['', 'files', 'search', 'toc']
+import { scheduleBufferedStateUpdate } from './bufferedState'
 
 const normalizeSideBarWidth = (width) => {
   const numericWidth = Number(width)
@@ -13,7 +12,7 @@ const createBufferedLayoutState = (state) => {
   if (!state) return null
 
   return {
-    rightColumn: RIGHT_COLUMNS.includes(state.rightColumn) ? state.rightColumn : 'files',
+    rightColumn: state.rightColumn,
     showSideBar: !!state.showSideBar,
     showTabBar: !!state.showTabBar,
     sideBarWidth: normalizeSideBarWidth(state.sideBarWidth)
@@ -31,7 +30,7 @@ export const useLayoutStore = defineStore('layout', {
     sideBarWidth
   }),
   actions: {
-    SET_LAYOUT(layout) {
+    SET_LAYOUT(layout, { scheduleBufferUpdate = true } = {}) {
       if (layout.showSideBar !== undefined) {
         const { windowId } = global.marktext.env
         window.electron.ipcRenderer.send('mt::update-sidebar-menu', windowId, !!layout.showSideBar)
@@ -42,6 +41,9 @@ export const useLayoutStore = defineStore('layout', {
         })
       }
       Object.assign(this, layout)
+      if (scheduleBufferUpdate) {
+        scheduleBufferedStateUpdate()
+      }
     },
     CREATE_BUFFERED_STATE() {
       return createBufferedLayoutState(this.$state)
@@ -50,12 +52,15 @@ export const useLayoutStore = defineStore('layout', {
       const layout = createBufferedLayoutState(state)
       if (!layout) return
 
-      this.SET_SIDE_BAR_WIDTH(layout.sideBarWidth)
-      this.SET_LAYOUT({
-        rightColumn: layout.rightColumn,
-        showSideBar: layout.showSideBar,
-        showTabBar: layout.showTabBar
-      })
+      this.SET_SIDE_BAR_WIDTH(layout.sideBarWidth, { scheduleBufferUpdate: false })
+      this.SET_LAYOUT(
+        {
+          rightColumn: layout.rightColumn,
+          showSideBar: layout.showSideBar,
+          showTabBar: layout.showTabBar
+        },
+        { scheduleBufferUpdate: false }
+      )
       this.DISPATCH_LAYOUT_MENU_ITEMS()
     },
     TOGGLE_LAYOUT_ENTRY(entryName) {
@@ -67,11 +72,15 @@ export const useLayoutStore = defineStore('layout', {
           value: !!this.showSideBar
         })
       }
+      scheduleBufferedStateUpdate()
     },
-    SET_SIDE_BAR_WIDTH(width) {
+    SET_SIDE_BAR_WIDTH(width, { scheduleBufferUpdate = true } = {}) {
       const normalizedWidth = normalizeSideBarWidth(width)
       localStorage.setItem('side-bar-width', normalizedWidth)
       this.sideBarWidth = normalizedWidth
+      if (scheduleBufferUpdate) {
+        scheduleBufferedStateUpdate()
+      }
     },
     LISTEN_FOR_LAYOUT() {
       window.electron.ipcRenderer.on('mt::set-view-layout', (e, layout) => {

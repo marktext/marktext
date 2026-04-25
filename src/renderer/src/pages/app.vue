@@ -186,7 +186,7 @@ onMounted(async () => {
   editorStore.LISTEN_FOR_RELOAD_IMAGES()
   editorStore.LISTEN_FOR_CONTEXT_MENU()
   editorStore.LISTEN_FOR_STATE_REPLACE()
-  editorStore.LISTEN_FOR_BUFFERED_STATE_UPDATE()
+  editorStore.REGISTER_BUFFERED_STATE_STORES()
 
   // module: notification
   notificationStore.listenForNotification()

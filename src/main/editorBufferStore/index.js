@@ -34,6 +34,46 @@ class EditorBufferStore extends EventEmitter {
     return this.bufferStores
   }
 
+  handleClose(restoreBufferId, editorWindows) {
+    // If > 1 window is present, and the window being closed has all files saved, we can delete its saved buffer
+    // This allows the case where we want to actually close an extra window
+
+    if (!restoreBufferId) {
+      console.warn('No restoreBufferId found for window, skipping buffer cleanup')
+      return
+    }
+
+    if (!(restoreBufferId in this.bufferStores)) {
+      console.warn('No buffer store found for restoreBufferId, skipping buffer cleanup')
+      return
+    }
+
+    if (editorWindows.length > 1) {
+      // Check if all files in the buffer store are saved OR there are no more tabs opened
+      if (!fs.existsSync(this.bufferStores[restoreBufferId].filePath)) {
+        return
+      }
+      try {
+        const buffer = JSON.parse(
+          fs.readFileSync(this.bufferStores[restoreBufferId].filePath).toString()
+        )
+        const allSaved = buffer.tabs.every((file) => file.isSaved)
+        if (buffer.tabs.length === 0 || allSaved) {
+          // Delete the buffer store file
+          fs.unlink(this.bufferStores[restoreBufferId].filePath, (err) => {
+            if (err) {
+              console.error('Failed to delete buffer store file', err)
+            } else {
+              delete this.bufferStores[restoreBufferId]
+            }
+          })
+        }
+      } catch (e) {
+        console.error('Failed to read or parse buffer store file during cleanup', e)
+      }
+    }
+  }
+
   findEditorBufferStores(dir) {
     const results = {}
     if (!fs.existsSync(dir)) {
@@ -61,7 +101,7 @@ class EditorBufferStore extends EventEmitter {
     // local main events
     ipcMain.on('update-buffer-state', (e, newState) => {
       const win = BrowserWindow.fromWebContents(e.sender)
-      const restoreBufferId = win?.restoreBufferId ? `${win.restoreBufferId}` : ''
+      const restoreBufferId = win?.restoreBufferId
 
       if (!restoreBufferId) {
         console.warn('No restoreBufferId found for window, skipping buffer state update')
@@ -82,15 +122,7 @@ class EditorBufferStore extends EventEmitter {
         }
       }
 
-      fs.writeFile(
-        this.bufferStores[restoreBufferId].filePath,
-        JSON.stringify(newState, null, 2),
-        (err) => {
-          if (err) {
-            console.error('Failed to write buffer state to file', err)
-          }
-        }
-      )
+      fs.writeFileSync(this.bufferStores[restoreBufferId].filePath, JSON.stringify(newState))
     })
   }
 }

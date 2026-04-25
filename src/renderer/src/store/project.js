@@ -7,6 +7,7 @@ import notice from '../services/notification'
 import { getFileStateFromData } from './help'
 import { useLayoutStore } from './layout'
 import { useEditorStore } from './editor'
+import { scheduleBufferedStateUpdate } from './bufferedState'
 
 const normalizeProjectRoot = (pathname) => {
   return pathname ? window.path.normalize(pathname) : ''
@@ -55,7 +56,7 @@ export const useProjectStore = defineStore('project', {
   }),
 
   actions: {
-    OPEN_PROJECT(pathname) {
+    OPEN_PROJECT(pathname, { scheduleBufferUpdate = true } = {}) {
       const layoutStore = useLayoutStore()
       const projectTree = createProjectRoot(pathname)
       if (!projectTree) return
@@ -67,7 +68,7 @@ export const useProjectStore = defineStore('project', {
         showSideBar: true,
         showTabBar: true
       }
-      layoutStore.SET_LAYOUT(layout)
+      layoutStore.SET_LAYOUT(layout, { scheduleBufferUpdate })
       layoutStore.DISPATCH_LAYOUT_MENU_ITEMS()
 
       // Process any pending events that arrived before projectTree was initialized
@@ -75,6 +76,10 @@ export const useProjectStore = defineStore('project', {
         this._processTreeEvent(event.type, event.change)
       }
       this.pendingTreeEvents = []
+
+      if (scheduleBufferUpdate) {
+        scheduleBufferedStateUpdate()
+      }
     },
 
     CREATE_BUFFERED_STATE() {
@@ -85,7 +90,7 @@ export const useProjectStore = defineStore('project', {
       const { rootDirectory } = createBufferedProjectState(state)
       if (rootDirectory) {
         if (this.projectTree?.pathname === rootDirectory) return
-        this.OPEN_PROJECT(rootDirectory)
+        this.OPEN_PROJECT(rootDirectory, { scheduleBufferUpdate: false })
       } else {
         this.projectTree = null
         this.pendingTreeEvents = []

@@ -1,5 +1,4 @@
 import equal from 'deep-equal'
-import debounce from 'lodash/debounce'
 import bus from '../bus'
 import { hasKeys, getUniqueId, deepClone } from '../util'
 import listToTree from '../util/listToTree'
@@ -22,6 +21,11 @@ import { useProjectStore } from './project'
 import { useLayoutStore } from './layout'
 import { useMainStore } from '.'
 import { i18n } from '../i18n'
+import {
+  registerBufferedStateStores,
+  scheduleBufferedStateUpdate,
+  updateBufferedState
+} from './bufferedState'
 
 const autoSaveTimers = new Map()
 
@@ -43,24 +47,18 @@ export const useEditorStore = defineStore('editor', {
     },
 
     CREATE_BUFFERED_STATE() {
-      const projectStore = useProjectStore()
-      const layoutStore = useLayoutStore()
-      return createBufferedEditorState(
-        this.$state,
-        projectStore.CREATE_BUFFERED_STATE(),
-        layoutStore.CREATE_BUFFERED_STATE()
-      )
+      return createBufferedEditorState(this.$state)
     },
 
     RESTORE_BUFFERED_STATE(state) {
-      const bufferedState = createBufferedEditorState(state)
-      if (!bufferedState) {
+      const bufferedEditorState = createBufferedEditorState(state?.editor || state)
+      if (!bufferedEditorState) {
         console.error('RESTORE_BUFFERED_STATE: Invalid editor buffer state.')
         return
       }
 
       const oldIdToNewId = {}
-      const tabs = bufferedState.tabs.map((tab) => {
+      const tabs = bufferedEditorState.tabs.map((tab) => {
         const options = {
           encoding: tab.encoding,
           lineEnding: tab.lineEnding,
@@ -86,31 +84,26 @@ export const useEditorStore = defineStore('editor', {
         return fileState
       })
 
-      const currentFileId = oldIdToNewId[bufferedState.currentFileId]
+      const currentFileId = oldIdToNewId[bufferedEditorState.currentFileId]
       const currentFile = tabs.find((tab) => tab.id === currentFileId) || tabs[0] || {}
       const projectStore = useProjectStore()
       const layoutStore = useLayoutStore()
 
-      isRestoringBufferedState = true
-      try {
-        projectStore.RESTORE_BUFFERED_STATE(bufferedState.project)
-        layoutStore.RESTORE_BUFFERED_STATE(bufferedState.layout)
-        this.$patch({
-          currentFile,
-          tabs,
-          tabIdToIndex: {},
-          listToc: [],
-          toc: []
-        })
-      } finally {
-        isRestoringBufferedState = false
-      }
+      projectStore.RESTORE_BUFFERED_STATE(state?.project)
+      layoutStore.RESTORE_BUFFERED_STATE(state?.layout)
+      this.$patch({
+        currentFile,
+        tabs,
+        tabIdToIndex: {},
+        listToc: [],
+        toc: []
+      })
 
       this.updateTabIdToIndex()
       window.DIRNAME = currentFile.pathname ? window.path.dirname(currentFile.pathname) : ''
       this.UPDATE_LINE_ENDING_MENU()
 
-      for (const warning of bufferedState.restoreWarnings) {
+      for (const warning of bufferedEditorState.restoreWarnings) {
         const restoredTabId = warning.tabId ? oldIdToNewId[warning.tabId] : null
         const tab = restoredTabId
           ? this.tabs.find((t) => t.id === restoredTabId)
@@ -129,52 +122,17 @@ export const useEditorStore = defineStore('editor', {
     },
 
     SCHEDULE_BUFFERED_STATE_UPDATE() {
-      debouncedBufferedStateUpdate(this)
+      scheduleBufferedStateUpdate()
     },
 
-    LISTEN_FOR_BUFFERED_STATE_UPDATE() {
-      if (
-        bufferedStateUnsubscribe &&
-        bufferedProjectStateUnsubscribe &&
-        bufferedLayoutStateUnsubscribe
-      ) {
-        return
-      }
+    REGISTER_BUFFERED_STATE_STORES() {
       const projectStore = useProjectStore()
       const layoutStore = useLayoutStore()
-
-      if (!bufferedStateUnsubscribe) {
-        bufferedStateUnsubscribe = this.$subscribe(
-          () => {
-            if (!isRestoringBufferedState) {
-              this.SCHEDULE_BUFFERED_STATE_UPDATE()
-            }
-          },
-          { detached: true }
-        )
-      }
-
-      if (!bufferedProjectStateUnsubscribe) {
-        bufferedProjectStateUnsubscribe = projectStore.$subscribe(
-          () => {
-            if (!isRestoringBufferedState) {
-              this.SCHEDULE_BUFFERED_STATE_UPDATE()
-            }
-          },
-          { detached: true }
-        )
-      }
-
-      if (!bufferedLayoutStateUnsubscribe) {
-        bufferedLayoutStateUnsubscribe = layoutStore.$subscribe(
-          () => {
-            if (!isRestoringBufferedState) {
-              this.SCHEDULE_BUFFERED_STATE_UPDATE()
-            }
-          },
-          { detached: true }
-        )
-      }
+      registerBufferedStateStores({
+        editorStore: this,
+        projectStore,
+        layoutStore
+      })
     },
 
     /**
@@ -207,6 +165,7 @@ export const useEditorStore = defineStore('editor', {
       }
 
       this.tabs[this.tabIdToIndex[id]].scrollTop = scrollTop
+      this.SCHEDULE_BUFFERED_STATE_UPDATE()
     },
 
     /**
@@ -330,6 +289,7 @@ export const useEditorStore = defineStore('editor', {
           scrollTop
         })
       }
+      this.SCHEDULE_BUFFERED_STATE_UPDATE()
     },
 
     FORMAT_LINK_CLICK({ data, dirname }) {
@@ -493,6 +453,7 @@ export const useEditorStore = defineStore('editor', {
         }
         if (tab) {
           Object.assign(tab, { filename, pathname, isSaved: true })
+          this.SCHEDULE_BUFFERED_STATE_UPDATE()
         }
       })
 
@@ -506,6 +467,7 @@ export const useEditorStore = defineStore('editor', {
             tab.lastSavedHistoryId = tab.history.stack[tab.history.lastEditIndex].id
           }
           tab.isSaved = true
+          this.SCHEDULE_BUFFERED_STATE_UPDATE()
         }
       })
 
@@ -528,6 +490,7 @@ export const useEditorStore = defineStore('editor', {
           msg: i18n.global.t('store.editor.errorWhileSaving', { msg }),
           style: 'crit'
         })
+        this.SCHEDULE_BUFFERED_STATE_UPDATE()
       })
     },
 
@@ -678,11 +641,13 @@ export const useEditorStore = defineStore('editor', {
 
     UPDATE_CURRENT_FILE(currentFile) {
       const oldCurrentFile = this.currentFile
+      let didUpdateCurrentFile = false
       if (!oldCurrentFile.id || oldCurrentFile.id !== currentFile.id) {
         const { id, markdown, cursor, history, pathname, scrollTop, blocks, muyaIndexCursor } =
           currentFile
         window.DIRNAME = pathname ? window.path.dirname(pathname) : ''
         this.currentFile = currentFile
+        didUpdateCurrentFile = true
 
         if (!this.tabs.some((file) => file.id === currentFile.id)) {
           this.tabs.push(currentFile)
@@ -702,6 +667,9 @@ export const useEditorStore = defineStore('editor', {
       }
 
       this.UPDATE_LINE_ENDING_MENU()
+      if (didUpdateCurrentFile) {
+        this.SCHEDULE_BUFFERED_STATE_UPDATE()
+      }
     },
 
     // This events are only used during window creation.
@@ -887,6 +855,7 @@ export const useEditorStore = defineStore('editor', {
       if (pathname) {
         window.electron.ipcRenderer.send('mt::window-tab-closed', pathname)
       }
+      this.SCHEDULE_BUFFERED_STATE_UPDATE()
     },
 
     CLOSE_UNSAVED_TAB(file) {
@@ -968,6 +937,7 @@ export const useEditorStore = defineStore('editor', {
         this.listToc = []
         this.toc = []
       }
+      this.SCHEDULE_BUFFERED_STATE_UPDATE()
     },
 
     EXCHANGE_TABS_BY_ID(tabIDs) {
@@ -995,6 +965,7 @@ export const useEditorStore = defineStore('editor', {
         moveItem(tabs, fromIndex, realToIndex)
       }
       this.updateTabIdToIndex()
+      this.SCHEDULE_BUFFERED_STATE_UPDATE()
     },
 
     RENAME_FILE(file) {
@@ -1095,6 +1066,7 @@ export const useEditorStore = defineStore('editor', {
       } else {
         this.tabs.push(fileState)
         this.updateTabIdToIndex()
+        this.SCHEDULE_BUFFERED_STATE_UPDATE()
       }
     },
 
@@ -1147,6 +1119,7 @@ export const useEditorStore = defineStore('editor', {
       } else {
         this.tabs.push(docState)
         this.updateTabIdToIndex()
+        this.SCHEDULE_BUFFERED_STATE_UPDATE()
       }
 
       if (isMixedLineEndings) {
@@ -1171,11 +1144,16 @@ export const useEditorStore = defineStore('editor', {
     },
 
     SET_SAVE_STATUS_WHEN_REMOVE({ pathname }) {
+      let didUpdateSaveStatus = false
       this.tabs.forEach((f) => {
         if (f.pathname === pathname) {
           f.isSaved = false
+          didUpdateSaveStatus = true
         }
       })
+      if (didUpdateSaveStatus) {
+        this.SCHEDULE_BUFFERED_STATE_UPDATE()
+      }
     },
 
     // Content change from realtime preview editor and source code editor
@@ -1210,6 +1188,7 @@ export const useEditorStore = defineStore('editor', {
       tab.markdown = markdown
 
       if (oldMarkdown.length === 0 && markdown.length === 1 && markdown[0] === '\n') {
+        this.SCHEDULE_BUFFERED_STATE_UPDATE()
         return
       }
 
@@ -1241,6 +1220,7 @@ export const useEditorStore = defineStore('editor', {
           })
         }
       } else tab.isSaved = true // An undo can trigger this
+      this.SCHEDULE_BUFFERED_STATE_UPDATE()
     },
 
     HANDLE_AUTO_SAVE({ id, filename, pathname, markdown, options }) {
@@ -1368,6 +1348,7 @@ export const useEditorStore = defineStore('editor', {
         this.currentFile.adjustLineEndingOnSave = lineEnding !== 'lf'
         this.currentFile.isSaved = true
         this.UPDATE_LINE_ENDING_MENU()
+        this.SCHEDULE_BUFFERED_STATE_UPDATE()
       }
     },
 
@@ -1387,6 +1368,7 @@ export const useEditorStore = defineStore('editor', {
           this.currentFile.encoding.encoding = encodingName
           this.currentFile.encoding.isBom = false
           this.currentFile.isSaved = true
+          this.SCHEDULE_BUFFERED_STATE_UPDATE()
         }
       })
     },
@@ -1397,6 +1379,7 @@ export const useEditorStore = defineStore('editor', {
         if (trimTrailingNewline !== value) {
           this.currentFile.trimTrailingNewline = value
           this.currentFile.isSaved = true
+          this.SCHEDULE_BUFFERED_STATE_UPDATE()
         }
       })
     },
@@ -1419,6 +1402,7 @@ export const useEditorStore = defineStore('editor', {
                 showConfirm: false,
                 exclusiveType: 'file_changed'
               })
+              this.SCHEDULE_BUFFERED_STATE_UPDATE()
               break
             }
             case 'add':
@@ -1449,6 +1433,7 @@ export const useEditorStore = defineStore('editor', {
                   }
                 }
               })
+              this.SCHEDULE_BUFFERED_STATE_UPDATE()
               break
             }
             default:
@@ -1520,12 +1505,13 @@ export const useEditorStore = defineStore('editor', {
     },
 
     UPDATE_BUFFERED_STATE() {
-      debouncedBufferedStateUpdate.cancel()
-
-      const snapshot = this.CREATE_BUFFERED_STATE()
-      if (snapshot) {
-        window.electron.ipcRenderer.send('update-buffer-state', snapshot)
-      }
+      const projectStore = useProjectStore()
+      const layoutStore = useLayoutStore()
+      updateBufferedState({
+        editorStore: this,
+        projectStore,
+        layoutStore
+      })
     }
   }
 })
@@ -1701,16 +1687,6 @@ const createSelectionFormatState = (formats) => {
   return state
 }
 
-const EDITOR_BUFFER_STATE_VERSION = 1
-const RIGHT_COLUMNS = ['', 'files', 'search', 'toc']
-let bufferedStateUnsubscribe = null
-let bufferedProjectStateUnsubscribe = null
-let bufferedLayoutStateUnsubscribe = null
-let isRestoringBufferedState = false
-const debouncedBufferedStateUpdate = debounce((store) => {
-  store.UPDATE_BUFFERED_STATE()
-}, 1000)
-
 const toSerializableValue = (value, fallback = null) => {
   if (value == null) return fallback
 
@@ -1756,44 +1732,13 @@ const createBufferedRestoreWarning = (warning) => {
   }
 }
 
-const createBufferedProjectState = (projectState) => {
-  return {
-    rootDirectory: projectState?.rootDirectory || projectState?.projectTree?.pathname || ''
-  }
-}
-
-const normalizeSideBarWidth = (width) => {
-  const numericWidth = Number(width)
-  return Number.isFinite(numericWidth) ? Math.max(numericWidth, 220) : 280
-}
-
-const createBufferedLayoutState = (layoutState) => {
-  if (!layoutState) return null
-
-  return {
-    rightColumn: RIGHT_COLUMNS.includes(layoutState.rightColumn)
-      ? layoutState.rightColumn
-      : 'files',
-    showSideBar: !!layoutState.showSideBar,
-    showTabBar: !!layoutState.showTabBar,
-    sideBarWidth: normalizeSideBarWidth(layoutState.sideBarWidth)
-  }
-}
-
-const createBufferedEditorState = (
-  state,
-  projectState = state?.project,
-  layoutState = state?.layout
-) => {
+const createBufferedEditorState = (state) => {
   if (!state || !Array.isArray(state.tabs)) {
     return null
   }
 
   return {
-    version: EDITOR_BUFFER_STATE_VERSION,
     currentFileId: state.currentFileId || state.currentFile?.id || null,
-    project: createBufferedProjectState(projectState),
-    layout: createBufferedLayoutState(layoutState),
     tabs: state.tabs.map(createBufferedTabState),
     restoreWarnings: Array.isArray(state.restoreWarnings)
       ? state.restoreWarnings.map(createBufferedRestoreWarning).filter(Boolean)
