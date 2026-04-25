@@ -200,10 +200,20 @@ class App {
 
   ready = () => {
     const { _args: args, _openFilesCache } = this
-    const { preferences } = this._accessor
+    const { preferences, editorBufferStore } = this._accessor
 
     // 初始化语言设置
-    const { language } = preferences.getAll()
+    const {
+      startUpAction,
+      defaultDirectoryToOpen,
+      followSystemTheme,
+      lastOpenedFolder,
+      lightModeTheme,
+      darkModeTheme,
+      theme,
+      language
+    } = preferences.getAll()
+
     if (language) {
       setLanguage(language)
     }
@@ -222,17 +232,10 @@ class App {
       }
     }
 
-    const {
-      startUpAction,
-      defaultDirectoryToOpen,
-      followSystemTheme,
-      lastOpenedFolder,
-      lightModeTheme,
-      darkModeTheme,
-      theme
-    } = preferences.getAll()
-
-    if (startUpAction === 'folder' && defaultDirectoryToOpen) {
+    if (startUpAction === 'restoreAll') {
+      // We will restore based off the previous buffer
+      this._openFilesCache = []
+    } else if (startUpAction === 'folder' && defaultDirectoryToOpen) {
       const info = normalizeMarkdownPath(defaultDirectoryToOpen)
       if (info) {
         _openFilesCache.unshift(info)
@@ -347,7 +350,14 @@ class App {
     }
 
     const createWindow = () => {
-      if (_openFilesCache.length) {
+      if (startUpAction === 'restoreAll') {
+        // We will restore based off the previous buffer, one window per buffer store file
+        const bufferStores = editorBufferStore.getAll()
+        Object.values(bufferStores).forEach((bufferStoreInfo) => {
+          // Read the buffer store file and pass the content
+          this._createEditorWindow(null, [], [], {}, bufferStoreInfo)
+        })
+      } else if (_openFilesCache.length) {
         this._openFilesToOpen()
       } else {
         this._createEditorWindow()
@@ -423,14 +433,21 @@ class App {
    * @param {string[]} [fileList] A list of markdown files to open.
    * @param {string[]} [markdownList] Array of markdown data to open.
    * @param {*} [options] The BrowserWindow options.
+   * @param {*|null} [bufferStoreInfo] The editor state to restore the window with.
    * @returns {EditorWindow} The created editor window.
    */
-  _createEditorWindow(rootDirectory = null, fileList = [], markdownList = [], options = {}) {
+  _createEditorWindow(
+    rootDirectory = null,
+    fileList = [],
+    markdownList = [],
+    options = {},
+    bufferStoreInfo = null
+  ) {
     const editor = new EditorWindow(this._accessor)
     if (rootDirectory) {
       this._accessor.preferences.setItems({ lastOpenedFolder: rootDirectory })
     }
-    editor.createWindow(rootDirectory, fileList, markdownList, options)
+    editor.createWindow(rootDirectory, fileList, markdownList, options, bufferStoreInfo)
     this._windowManager.add(editor)
     if (this._windowManager.windowCount === 1) {
       this._accessor.menu.setActiveWindow(editor.id)

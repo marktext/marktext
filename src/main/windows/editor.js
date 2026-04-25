@@ -10,6 +10,7 @@ import { TITLE_BAR_HEIGHT, editorWinOptions, isLinux, isOsx } from '../config'
 import { showEditorContextMenu } from '../contextMenu/editor'
 import { loadMarkdownFile } from '../filesystem/markdown'
 import { switchLanguage } from '../spellchecker'
+import fs from 'fs'
 
 class EditorWindow extends BaseWindow {
   /**
@@ -28,6 +29,8 @@ class EditorWindow extends BaseWindow {
     // used to find the best window to open new files in.
     this._openedRootDirectory = ''
     this._openedFiles = []
+
+    this.bufferStoreInfo = null
   }
 
   /**
@@ -37,8 +40,15 @@ class EditorWindow extends BaseWindow {
    * @param {string[]} [fileList] A list of markdown files to open.
    * @param {string[]} [markdownList] Array of markdown data to open.
    * @param {*} [options] The BrowserWindow options.
+   * @param {*|null} [bufferStoreInfo] The editor state to restore the window with.
    */
-  createWindow(rootDirectory = null, fileList = [], markdownList = [], options = {}) {
+  createWindow(
+    rootDirectory = null,
+    fileList = [],
+    markdownList = [],
+    options = {},
+    bufferStoreInfo = null
+  ) {
     const { menu: appMenu, env, preferences } = this._accessor
     const addBlankTab = !rootDirectory && fileList.length === 0 && markdownList.length === 0
 
@@ -81,6 +91,11 @@ class EditorWindow extends BaseWindow {
     let win = (this.browserWindow = new BrowserWindow(winOptions))
 
     remoteEnable(win.webContents)
+    // If restoreState is turned on and a buffer is present, set the restoreState.id to it, else use win.id
+    if (this.bufferStoreInfo) {
+      this.bufferStoreInfo = bufferStoreInfo ? bufferStoreInfo.id : win.id
+      win.bufferStoreInfo = this.bufferStoreInfo
+    }
     this.id = win.id
 
     if (spellcheckerEnabled && !isOsx) {
@@ -110,15 +125,19 @@ class EditorWindow extends BaseWindow {
 
       win.webContents.send('mt::bootstrap-editor', {
         addBlankTab,
-        markdownList: this._markdownToOpen,
+        markdownList: bufferStoreInfo ? [] : this._markdownToOpen,
         lineEnding,
         sideBarVisibility: resolvedSideBarVisibility,
         tabBarVisibility,
         sourceCodeModeEnabled
       })
 
-      this._doOpenFilesToOpen()
-      this._markdownToOpen.length = 0
+      if (bufferStoreInfo) {
+        this._restoreAllState(bufferStoreInfo)
+      } else {
+        this._doOpenFilesToOpen()
+        this._markdownToOpen.length = 0
+      }
 
       // Listen on default system mouse zoom event (e.g. Ctrl+MouseWheel on Linux/Windows).
       win.webContents.on('zoom-changed', (event, zoomDirection) => {
@@ -504,6 +523,78 @@ class EditorWindow extends BaseWindow {
       this._doOpenTab(doc, options, selected)
     }
     this._filesToOpen.length = 0
+  }
+
+  _restoreAllState() {
+    if (this.lifecycle !== WindowLifecycle.READY) {
+      throw new Error('Invalid state.')
+    }
+    const { browserWindow, bufferStoreInfo, _accessor } = this
+    const { preferences } = _accessor
+
+    try {
+      const bufferState = JSON.parse(fs.readFileSync(bufferStoreInfo.filePath, 'utf-8'))
+
+      // We still need to load the files of all opened tabs and check for errors/changed files
+      const eol = preferences.getPreferredEol()
+      const { autoGuessEncoding, trimTrailingNewline, autoNormalizeLineEndings } =
+        preferences.getAll()
+
+      const fileOpenRequests = []
+      for (const tab of bufferState.tabs) {
+        fileOpenRequests.push(
+          loadMarkdownFile(
+            tab.pathname,
+            eol,
+            autoGuessEncoding,
+            trimTrailingNewline,
+            autoNormalizeLineEndings
+          )
+            .then((rawDocument) => {
+              if (rawDocument !== tab.markdown) {
+                // File has changed since it was last opened, if it is not saved, we should NOT override the buffer
+                if (tab.isSaved) {
+                  tab.markdown = rawDocument // If saved, simply update the markdown
+                } else {
+                  // If not saved, display a warning to the user but do nothing else
+                  browserWindow.webContents.send('mt::push-tab-notification', {
+                    pathname: tab.filePath,
+                    msg: 'This file changed from the last time it was opened. Saving will override it with the contents in MarkText.',
+                    style: 'warn',
+                    showConfirm: true,
+                    exclusiveType: 'file_changed'
+                  })
+                }
+              }
+            })
+            .catch((err) => {
+              const { message, stack } = err
+              log.error(`[ERROR] Cannot open file or directory: ${message}\n\n${stack}`)
+              browserWindow.webContents.send('mt::show-notification', {
+                title: 'Cannot open tab',
+                type: 'error',
+                message: err.message
+              })
+            })
+        )
+      }
+
+      Promise.all(fileOpenRequests)
+        .then(() => {
+          // After all files are loaded, we can send the state to the renderer and open the tabs
+          browserWindow.webContents.send('mt::load-state', bufferState)
+        })
+        .catch((err) => {
+          log.error('Failed to load files for restoring editor state:', err)
+          browserWindow.webContents.send('mt::show-notification', {
+            title: 'Failed to restore buffered state',
+            type: 'error',
+            message: err.message
+          })
+        })
+    } catch (e) {
+      log.error('Failed to restore editor state:', e)
+    }
   }
 }
 

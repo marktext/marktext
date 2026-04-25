@@ -1370,6 +1370,12 @@ export const useEditorStore = defineStore('editor', {
       window.electron.ipcRenderer.on('mt::spelling-show-switch-language', () => {
         bus.emit('open-command-spellchecker-switch-language')
       })
+    },
+
+    LISTEN_FOR_STATE_REPLACE() {
+      window.electron.ipcRenderer.on('mt::load-state', (_, state) => {
+        this.$patch(state)
+      })
     }
   }
 })

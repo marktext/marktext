@@ -1,51 +1,45 @@
 import fs from 'fs'
 import path from 'path'
 import EventEmitter from 'events'
-import { BrowserWindow, dialog, ipcMain } from 'electron'
-import keytar from 'keytar'
-import schema from './schema'
-import Store from 'electron-store'
-import log from 'electron-log'
-import { ensureDirSync } from 'common/filesystem'
-import { IMAGE_EXTENSIONS } from 'common/filesystem/paths'
-import crypto from 'crypto'
-
-const EDITOR_BUFFER_STORE = `${process.pid}-${crypto.randomUUID()}_editor_buffer_store`
-
+import { BrowserWindow, ipcMain } from 'electron'
 class EditorBufferStore extends EventEmitter {
   constructor(paths) {
     super()
 
     const { editorBufferStorePath } = paths
     this.editorBufferStorePath = editorBufferStorePath
+    this.bufferStores = null // This is an object of paths to buffer stores, buffer stores are NOT stored in memory for performance reasons, they are read from disk when needed and written to disk when updated
     this.serviceName = 'marktext'
     this.encryptKeys = ['githubToken']
-    this.store = new Store({
-      schema: {},
-      name: EDITOR_BUFFER_STORE
-    })
 
     this.init()
   }
 
   init() {
-    // Need to check for any number of data centre files and restore appropriate windows
-    const bufferStores = this.findEditorBufferStores(this.editorBufferStorePath)
-
-    // Launch 1 window per buffer store file found - this restore process needs a lot of work
-
     this._listenForIpcMain()
   }
 
+  getAllBufferStores() {
+    if (!this.bufferStores) {
+      this.bufferStores = this.findEditorBufferStores(this.editorBufferStorePath)
+    }
+
+    return this.bufferStores
+  }
+
   findEditorBufferStores(dir) {
-    const results = []
+    const results = {}
     const entries = fs.readdir(dir, { withFileTypes: true })
 
     for (const entry of entries) {
       const fullPath = path.join(dir, entry.name)
 
       if (entry.isFile() && entry.name.endsWith('_editor_buffer_store.json')) {
-        results.push(fullPath)
+        const id = entry.name.replace('_editor_buffer_store.json', '')
+        results[id] = {
+          id, // Add the id to the buffer store data for easier access later (in Editor)
+          filePath: fullPath
+        }
       }
     }
 
@@ -54,54 +48,21 @@ class EditorBufferStore extends EventEmitter {
 
   _listenForIpcMain() {
     // local main events
-    ipcMain.on('set-image-folder-path', (newPath) => {
-      this.setItem('imageFolderPath', newPath)
-    })
-
-    // events from renderer process
-    ipcMain.on('mt::ask-for-user-data', async (e) => {
+    ipcMain.on('update-buffer-state', (e, newState) => {
       const win = BrowserWindow.fromWebContents(e.sender)
-      const userData = await this.getAll()
-      win.webContents.send('mt::user-preference', userData)
-    })
+      const restoreBufferId = win?.restoreBufferId
 
-    ipcMain.on('mt::ask-for-modify-image-folder-path', async (e, imagePath) => {
-      if (!imagePath) {
-        const win = BrowserWindow.fromWebContents(e.sender)
-        const { filePaths } = await dialog.showOpenDialog(win, {
-          properties: ['openDirectory', 'createDirectory']
-        })
-        if (filePaths && filePaths[0]) {
-          imagePath = filePaths[0]
+      if (!restoreBufferId) {
+        console.warn('No restoreBufferId found for window, skipping buffer state update')
+      }
+
+      fs.writeFile(this.bufferStores[restoreBufferId].filePath, JSON.stringify(newState), (err) => {
+        if (err) {
+          console.error('Failed to write buffer state to file', err)
+        } else {
+          console.log('Buffer state updated successfully')
         }
-      }
-      if (imagePath) {
-        this.setItem('imageFolderPath', imagePath)
-      }
-    })
-
-    ipcMain.on('mt::set-user-data', (e, userData) => {
-      this.setItems(userData)
-    })
-
-    // TODO: Replace sync. call.
-    ipcMain.on('mt::ask-for-image-path', async (e) => {
-      const win = BrowserWindow.fromWebContents(e.sender)
-      const { filePaths } = await dialog.showOpenDialog(win, {
-        properties: ['openFile'],
-        filters: [
-          {
-            name: 'Images',
-            extensions: IMAGE_EXTENSIONS
-          }
-        ]
       })
-
-      if (filePaths && filePaths[0]) {
-        e.returnValue = filePaths[0]
-      } else {
-        e.returnValue = ''
-      }
     })
   }
 }
