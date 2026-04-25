@@ -11,7 +11,21 @@ jobs:
 
     strategy:
       matrix:
-        os: [ubuntu-22.04, windows-latest, macos-latest]
+        include:
+          - name: linux
+            os: ubuntu-22.04
+            platform: linux
+          - name: windows
+            os: windows-latest
+            platform: windows
+          - name: macos-x64
+            os: macos-15-intel
+            platform: macos
+            arch: x64
+          - name: macos-arm64
+            os: macos-15
+            platform: macos
+            arch: arm64
 
     steps:
       - name: Check out Git repository
@@ -28,7 +42,7 @@ jobs:
           node-version: 24.14.1
 
       - name: Install Linux Build Dependencies
-        if: matrix.os == 'ubuntu-22.04'
+        if: matrix.platform == 'linux'
         run: sudo apt-get update && sudo apt-get install -y icnsutils graphicsmagick xz-utils libx11-dev libxkbfile-dev gnome-keyring libsecret-1-dev libfontconfig-dev rpm
 
         # --ignore-scripts first to prevent postinstall scripts from running (we will run electron-rebuild manually later)
@@ -40,25 +54,25 @@ jobs:
 
       # Electron seems to require C++20 support for native modules now after Electron 33
       - name: Set C++20 for MacOS
-        if: matrix.os == 'macos-latest'
+        if: matrix.platform == 'macos'
         run: |
           echo "CXXFLAGS=-std=gnu++20 -stdlib=libc++" >> $GITHUB_ENV
 
       - name: Rebuild native modules for Electron (MacOS + Windows)
-        if: matrix.os != 'ubuntu-22.04'
+        if: matrix.platform != 'linux'
         run: npx @electron/rebuild -f
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       # Enforce using gcc/g++ on Linux for electron-rebuild instead of clang (.npmrc covers some settings too)
       - name: Rebuild native modules for Electron (Ubuntu)
-        if: matrix.os == 'ubuntu-22.04'
+        if: matrix.platform == 'linux'
         run: USE_ELECTRON_CLANG=0 npx @electron/rebuild -f
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: build-linux
-        if: matrix.os == 'ubuntu-22.04'
+        if: matrix.platform == 'linux'
         run: npm run build:linux
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -66,13 +80,13 @@ jobs:
       # Mac builds have been disabled due to a lack of a Developer ID to sign it
       # All builds by default will give a "this app is damaged and can't be opened" error
       - name: build-mac
-        if: matrix.os == 'macos-latest'
-        run: npm run build:mac
+        if: matrix.platform == 'macos'
+        run: npm run build:mac -- --${{ matrix.arch }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: build-win
-        if: matrix.os == 'windows-latest'
+        if: matrix.platform == 'windows'
         run: npm run build:win
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -15,7 +15,21 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
+        include:
+          - name: linux
+            os: ubuntu-latest
+            platform: linux
+          - name: windows
+            os: windows-latest
+            platform: windows
+          - name: macos-x64
+            os: macos-15-intel
+            platform: macos
+            arch: x64
+          - name: macos-arm64
+            os: macos-15
+            platform: macos
+            arch: arm64
 
     steps:
       - uses: actions/checkout@v4
@@ -33,7 +47,7 @@ jobs:
           node-version: 22.21.1
 
       - name: Install Linux Build Dependencies
-        if: matrix.os == 'ubuntu-latest'
+        if: matrix.platform == 'linux'
         run: sudo apt-get update && sudo apt-get install -y icnsutils graphicsmagick xz-utils libx11-dev libxkbfile-dev gnome-keyring libsecret-1-dev libfontconfig-dev rpm
 
       - name: Install Dependencies
@@ -42,22 +56,22 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: build-linux
-        if: matrix.os == 'ubuntu-latest'
+        if: matrix.platform == 'linux'
         run: npm run build:linux
 
       - name: build-mac
-        if: matrix.os == 'macos-latest'
-        run: npm run build:mac
+        if: matrix.platform == 'macos'
+        run: npm run build:mac -- --${{ matrix.arch }}
 
       - name: build-win
-        if: matrix.os == 'windows-latest'
+        if: matrix.platform == 'windows'
         run: npm run build:win
 
       # Adjust the path to your build outputs per OS
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: marktext-${{ matrix.os }}
+          name: marktext-${{ matrix.name }}
           # Replace with your actual dist paths or globs
           path: |
             dist/**
