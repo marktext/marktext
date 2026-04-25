@@ -499,28 +499,32 @@ export const useEditorStore = defineStore('editor', {
       const preferencesStore = usePreferencesStore()
       window.electron.ipcRenderer.on('mt::ask-for-close', () => {
         this.UPDATE_BUFFERED_STATE()
+          .catch((err) => {
+            console.error('Failed to update buffered state before closing', err)
+          })
+          .then(() => {
+            const unsavedFiles = this.tabs
+              .filter((file) => !file.isSaved)
+              .map((file) => {
+                const { id, filename, pathname, markdown } = file
+                const options = getOptionsFromState(file)
+                return {
+                  id,
+                  filename,
+                  pathname,
+                  markdown,
+                  options,
+                  defaultPath: getRootFolderFromState(projectStore)
+                }
+              })
 
-        const unsavedFiles = this.tabs
-          .filter((file) => !file.isSaved)
-          .map((file) => {
-            const { id, filename, pathname, markdown } = file
-            const options = getOptionsFromState(file)
-            return {
-              id,
-              filename,
-              pathname,
-              markdown,
-              options,
-              defaultPath: getRootFolderFromState(projectStore)
+            if (unsavedFiles.length && preferencesStore.startUpAction !== 'restoreAll') {
+              // Ignore unsaved files when user has chosen to restore all on startup, as they will be restored anyway.
+              window.electron.ipcRenderer.send('mt::close-window-confirm', deepClone(unsavedFiles))
+            } else {
+              window.electron.ipcRenderer.send('mt::close-window')
             }
           })
-
-        if (unsavedFiles.length && preferencesStore.startUpAction !== 'restoreAll') {
-          // Ignore unsaved files when user has chosen to restore all on startup, as they will be restored anyway.
-          window.electron.ipcRenderer.send('mt::close-window-confirm', deepClone(unsavedFiles))
-        } else {
-          window.electron.ipcRenderer.send('mt::close-window')
-        }
       })
     },
 
@@ -1507,7 +1511,7 @@ export const useEditorStore = defineStore('editor', {
     UPDATE_BUFFERED_STATE() {
       const projectStore = useProjectStore()
       const layoutStore = useLayoutStore()
-      updateBufferedState({
+      return updateBufferedState({
         editorStore: this,
         projectStore,
         layoutStore

@@ -30,11 +30,17 @@ export const createBufferedState = () => {
 const sendBufferedState = () => {
   const snapshot = createBufferedState()
   if (snapshot) {
-    window.electron.ipcRenderer.send('update-buffer-state', snapshot)
+    return window.electron.ipcRenderer.invoke('update-buffer-state', snapshot)
   }
+
+  return Promise.resolve(false)
 }
 
-const debouncedSendBufferedState = debounce(sendBufferedState, BUFFERED_STATE_DEBOUNCE_MS)
+const debouncedSendBufferedState = debounce(() => {
+  sendBufferedState().catch((err) => {
+    console.error('Failed to update buffered state', err)
+  })
+}, BUFFERED_STATE_DEBOUNCE_MS)
 
 export const scheduleBufferedStateUpdate = () => {
   debouncedSendBufferedState()
@@ -46,7 +52,7 @@ export const updateBufferedState = (stores) => {
   }
 
   debouncedSendBufferedState.cancel()
-  sendBufferedState()
+  return sendBufferedState()
 }
 
 export const registerBufferedStateStores = ({ editorStore, projectStore, layoutStore }) => {

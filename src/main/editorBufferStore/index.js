@@ -11,6 +11,7 @@ class EditorBufferStore extends EventEmitter {
     this.bufferStores = null // This is an object of paths to buffer stores, buffer stores are NOT stored in memory for performance reasons, they are read from disk when needed and written to disk when updated
     this.serviceName = 'marktext'
     this.encryptKeys = ['githubToken']
+    this.writeSequence = 0
 
     this.init()
   }
@@ -43,6 +44,10 @@ class EditorBufferStore extends EventEmitter {
       return
     }
 
+    if (!this.bufferStores) {
+      this.bufferStores = this.findEditorBufferStores(this.editorBufferStorePath)
+    }
+
     if (!(restoreBufferId in this.bufferStores)) {
       console.warn('No buffer store found for restoreBufferId, skipping buffer cleanup')
       return
@@ -54,19 +59,11 @@ class EditorBufferStore extends EventEmitter {
         return
       }
       try {
-        const buffer = JSON.parse(
-          fs.readFileSync(this.bufferStores[restoreBufferId].filePath).toString()
-        )
+        const buffer = this.readBufferStoreFile(this.bufferStores[restoreBufferId].filePath)
         const allSaved = buffer.tabs.every((file) => file.isSaved)
         if (buffer.tabs.length === 0 || allSaved) {
-          // Delete the buffer store file
-          fs.unlink(this.bufferStores[restoreBufferId].filePath, (err) => {
-            if (err) {
-              console.error('Failed to delete buffer store file', err)
-            } else {
-              delete this.bufferStores[restoreBufferId]
-            }
-          })
+          fs.unlinkSync(this.bufferStores[restoreBufferId].filePath)
+          delete this.bufferStores[restoreBufferId]
         }
       } catch (e) {
         console.error('Failed to read or parse buffer store file during cleanup', e)
@@ -97,32 +94,77 @@ class EditorBufferStore extends EventEmitter {
     return results
   }
 
+  getBufferStoreInfo(restoreBufferId) {
+    if (!this.bufferStores) {
+      this.bufferStores = this.findEditorBufferStores(this.editorBufferStorePath)
+    }
+
+    if (!this.bufferStores[restoreBufferId]) {
+      this.bufferStores[restoreBufferId] = {
+        id: restoreBufferId,
+        filePath: path.join(
+          this.editorBufferStorePath,
+          `${restoreBufferId}_editor_buffer_store.json`
+        )
+      }
+    }
+
+    return this.bufferStores[restoreBufferId]
+  }
+
+  readBufferStoreFile(filePath) {
+    const content = fs.readFileSync(filePath, 'utf8')
+    if (!content.trim()) {
+      throw new Error('Buffer store file is empty.')
+    }
+
+    const buffer = JSON.parse(content)
+    if (!buffer || !Array.isArray(buffer.tabs)) {
+      throw new Error('Invalid editor buffer state.')
+    }
+
+    return buffer
+  }
+
+  writeBufferStoreFile(filePath, newState) {
+    const tempPath = path.join(
+      path.dirname(filePath),
+      `.${path.basename(filePath)}.${process.pid}.${Date.now()}.${++this.writeSequence}.tmp`
+    )
+
+    try {
+      fs.writeFileSync(tempPath, JSON.stringify(newState), 'utf8')
+      fs.renameSync(tempPath, filePath)
+    } catch (err) {
+      try {
+        if (fs.existsSync(tempPath)) {
+          fs.unlinkSync(tempPath)
+        }
+      } catch (cleanupErr) {
+        console.error('Failed to clean up temporary buffer store file', cleanupErr)
+      }
+      throw err
+    }
+  }
+
+  updateBufferState(e, newState) {
+    const win = BrowserWindow.fromWebContents(e.sender)
+    const restoreBufferId = win?.restoreBufferId
+
+    if (!restoreBufferId) {
+      console.warn('No restoreBufferId found for window, skipping buffer state update')
+      return false
+    }
+
+    const bufferStore = this.getBufferStoreInfo(restoreBufferId)
+    this.writeBufferStoreFile(bufferStore.filePath, newState)
+    return true
+  }
+
   _listenForIpcMain() {
     // local main events
-    ipcMain.on('update-buffer-state', (e, newState) => {
-      const win = BrowserWindow.fromWebContents(e.sender)
-      const restoreBufferId = win?.restoreBufferId
-
-      if (!restoreBufferId) {
-        console.warn('No restoreBufferId found for window, skipping buffer state update')
-        return
-      }
-
-      if (!this.bufferStores) {
-        this.bufferStores = this.findEditorBufferStores(this.editorBufferStorePath)
-      }
-
-      if (!this.bufferStores[restoreBufferId]) {
-        this.bufferStores[restoreBufferId] = {
-          id: restoreBufferId,
-          filePath: path.join(
-            this.editorBufferStorePath,
-            `${restoreBufferId}_editor_buffer_store.json`
-          )
-        }
-      }
-
-      fs.writeFileSync(this.bufferStores[restoreBufferId].filePath, JSON.stringify(newState))
+    ipcMain.handle('update-buffer-state', (e, newState) => {
+      return this.updateBufferState(e, newState)
     })
   }
 }
