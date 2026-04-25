@@ -261,11 +261,6 @@ class App {
     }
 
     ipcMain.on('broadcast-preferences-changed', (change) => {
-      // Update dark mode tracking when theme preference changes
-      if (change.theme) {
-        const newIsDark = /dark/i.test(change.theme)
-      }
-
       // When followSystemTheme is enabled, immediately switch to match system
       if (change.followSystemTheme === true) {
         const systemIsDark = nativeTheme.shouldUseDarkColors
