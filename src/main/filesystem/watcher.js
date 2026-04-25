@@ -170,11 +170,12 @@ class Watcher {
       ignored: (pathname, fileInfo) => {
         // This function is called twice, once with a single argument (the path),
         // second time with two arguments (the path and the "fs.Stats" object of that path).
+        // Filter node_modules and .asar archives only, not hidden directories
         if (!fileInfo) {
-          return /(?:^|[/\\])(?:\..|node_modules|(?:.+\.asar))/.test(pathname)
+          return /(?:^|[/\\])(?:node_modules|(?:.+\.asar))/.test(pathname)
         }
 
-        if (/(?:^|[/\\])(?:\..|node_modules|(?:.+\.asar))/.test(pathname)) {
+        if (/(?:^|[/\\])(?:node_modules|(?:.+\.asar))/.test(pathname)) {
           return true
         }
 
