@@ -570,26 +570,18 @@ class EditorWindow extends BaseWindow {
               if (rawDocument.markdown !== tab.markdown) {
                 // File has changed since it was last opened, if it is not saved, we should NOT override the buffer
                 if (tab.isSaved) {
-                  Object.assign(tab, {
-                    markdown: rawDocument.markdown,
-                    filename: rawDocument.filename,
-                    pathname: rawDocument.pathname,
-                    encoding: rawDocument.encoding,
-                    lineEnding: rawDocument.lineEnding,
-                    adjustLineEndingOnSave: rawDocument.adjustLineEndingOnSave,
-                    trimTrailingNewline: rawDocument.trimTrailingNewline,
-                    isSaved: true
-                  })
+                  tab.markdown = rawDocument.markdown
                 } else {
+                  // TODO: Issue here is that we do not store what the original markdown is, so any unsaved changes
+                  // are seen as "changed from the last time it was opened". However, saving the original markdown is a performance concern.
                   // If not saved, display a warning to the user after the tab is restored.
-                  bufferState.restoreWarnings.push({
-                    tabId: tab.id,
-                    pathname: tab.pathname,
-                    msg: 'This file changed from the last time it was opened. Saving will override it with the contents in MarkText.',
-                    style: 'warn',
-                    showConfirm: true,
-                    exclusiveType: 'file_changed'
-                  })
+                  // bufferState.restoreWarnings.push({
+                  //   tabId: tab.id,
+                  //   pathname: tab.pathname,
+                  //   msg: 'This file changed from the last time it was opened. Saving will override it with the contents in MarkText.',
+                  //   style: 'warn',
+                  //   showConfirm: true
+                  // })
                 }
               }
 

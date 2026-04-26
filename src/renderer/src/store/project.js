@@ -7,7 +7,7 @@ import notice from '../services/notification'
 import { getFileStateFromData } from './help'
 import { useLayoutStore } from './layout'
 import { useEditorStore } from './editor'
-import { scheduleBufferedStateUpdate } from './bufferedState'
+import { debouncedSendBufferedState } from './bufferedState'
 
 const normalizeProjectRoot = (pathname) => {
   return pathname ? window.path.normalize(pathname) : ''
@@ -78,7 +78,7 @@ export const useProjectStore = defineStore('project', {
       this.pendingTreeEvents = []
 
       if (scheduleBufferUpdate) {
-        scheduleBufferedStateUpdate()
+        debouncedSendBufferedState()
       }
     },
 

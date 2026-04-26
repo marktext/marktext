@@ -536,31 +536,47 @@ const importRegister = (ContentState) => {
       return
     }
     const lines = markdown.split('\n')
-    const anchorText = lines[anchor.line]
-    const focusText = lines[focus.line]
-    if (!anchorText || !focusText) {
+    const isValidLine = (line) => Number.isInteger(line) && line >= 0 && line < lines.length
+
+    if (!isValidLine(anchor.line) || !isValidLine(focus.line)) {
       return {
         markdown: lines.join('\n'),
         isValid: false
       }
     }
+
+    const anchorText = lines[anchor.line]
+    const focusText = lines[focus.line]
+    if (typeof anchorText !== 'string' || typeof focusText !== 'string') {
+      return {
+        markdown: lines.join('\n'),
+        isValid: false
+      }
+    }
+
+    const getSafeOffset = (offset, text) => {
+      return Number.isInteger(offset) ? Math.min(Math.max(offset, 0), text.length) : 0
+    }
+    const anchorCh = getSafeOffset(anchor.ch, anchorText)
+    const focusCh = getSafeOffset(focus.ch, focusText)
+
     if (anchor.line === focus.line) {
-      const minOffset = Math.min(anchor.ch, focus.ch)
-      const maxOffset = Math.max(anchor.ch, focus.ch)
+      const minOffset = Math.min(anchorCh, focusCh)
+      const maxOffset = Math.max(anchorCh, focusCh)
       const firstTextPart = anchorText.substring(0, minOffset)
       const secondTextPart = anchorText.substring(minOffset, maxOffset)
       const thirdTextPart = anchorText.substring(maxOffset)
       lines[anchor.line] =
         firstTextPart +
-        (anchor.ch <= focus.ch ? CURSOR_ANCHOR_DNA : CURSOR_FOCUS_DNA) +
+        (anchorCh <= focusCh ? CURSOR_ANCHOR_DNA : CURSOR_FOCUS_DNA) +
         secondTextPart +
-        (anchor.ch <= focus.ch ? CURSOR_FOCUS_DNA : CURSOR_ANCHOR_DNA) +
+        (anchorCh <= focusCh ? CURSOR_FOCUS_DNA : CURSOR_ANCHOR_DNA) +
         thirdTextPart
     } else {
       lines[anchor.line] =
-        anchorText.substring(0, anchor.ch) + CURSOR_ANCHOR_DNA + anchorText.substring(anchor.ch)
+        anchorText.substring(0, anchorCh) + CURSOR_ANCHOR_DNA + anchorText.substring(anchorCh)
       lines[focus.line] =
-        focusText.substring(0, focus.ch) + CURSOR_FOCUS_DNA + focusText.substring(focus.ch)
+        focusText.substring(0, focusCh) + CURSOR_FOCUS_DNA + focusText.substring(focusCh)
     }
 
     return {
@@ -615,13 +631,27 @@ const importRegister = (ContentState) => {
     }
     travel(this.blocks)
 
+    if (cursor.anchor && cursor.focus) {
+      if (
+        muyaIndexCursor.anchor.line < muyaIndexCursor.focus.line ||
+        (muyaIndexCursor.anchor.line === muyaIndexCursor.focus.line &&
+          muyaIndexCursor.anchor.ch <= muyaIndexCursor.focus.ch)
+      ) {
+        cursor.start = cursor.anchor
+        cursor.end = cursor.focus
+      } else {
+        cursor.start = cursor.focus
+        cursor.end = cursor.anchor
+      }
+    }
+
     return cursor
   }
 
   ContentState.prototype.importCursor = function (cursor) {
     // set cursor
 
-    if (!cursor) {
+    if (!cursor || !cursor.anchor || !cursor.focus) {
       cursor = {}
       const firstBlock = this.getFirstBlock()
       const key = firstBlock.key
@@ -630,6 +660,9 @@ const importRegister = (ContentState) => {
       cursor.focus = { key, offset }
       cursor.start = { key, offset }
       cursor.end = { key, offset }
+    } else if (!cursor.start || !cursor.end) {
+      cursor.start = cursor.anchor
+      cursor.end = cursor.focus
     }
 
     this.cursor = cursor

@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import bus from '../bus'
 import { usePreferencesStore } from './preferences'
-import { scheduleBufferedStateUpdate } from './bufferedState'
+import { debouncedSendBufferedState } from './bufferedState'
 
 const normalizeSideBarWidth = (width) => {
   const numericWidth = Number(width)
@@ -42,7 +42,7 @@ export const useLayoutStore = defineStore('layout', {
       }
       Object.assign(this, layout)
       if (scheduleBufferUpdate) {
-        scheduleBufferedStateUpdate()
+        debouncedSendBufferedState()
       }
     },
     CREATE_BUFFERED_STATE() {
@@ -72,14 +72,14 @@ export const useLayoutStore = defineStore('layout', {
           value: !!this.showSideBar
         })
       }
-      scheduleBufferedStateUpdate()
+      debouncedSendBufferedState()
     },
     SET_SIDE_BAR_WIDTH(width, { scheduleBufferUpdate = true } = {}) {
       const normalizedWidth = normalizeSideBarWidth(width)
       localStorage.setItem('side-bar-width', normalizedWidth)
       this.sideBarWidth = normalizedWidth
       if (scheduleBufferUpdate) {
-        scheduleBufferedStateUpdate()
+        debouncedSendBufferedState()
       }
     },
     LISTEN_FOR_LAYOUT() {

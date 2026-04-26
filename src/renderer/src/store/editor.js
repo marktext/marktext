@@ -21,11 +21,7 @@ import { useProjectStore } from './project'
 import { useLayoutStore } from './layout'
 import { useMainStore } from '.'
 import { i18n } from '../i18n'
-import {
-  registerBufferedStateStores,
-  scheduleBufferedStateUpdate,
-  updateBufferedState
-} from './bufferedState'
+import { debouncedSendBufferedState, sendBufferedState } from './bufferedState'
 
 const autoSaveTimers = new Map()
 
@@ -121,20 +117,6 @@ export const useEditorStore = defineStore('editor', {
       }
     },
 
-    SCHEDULE_BUFFERED_STATE_UPDATE() {
-      scheduleBufferedStateUpdate()
-    },
-
-    REGISTER_BUFFERED_STATE_STORES() {
-      const projectStore = useProjectStore()
-      const layoutStore = useLayoutStore()
-      registerBufferedStateStores({
-        editorStore: this,
-        projectStore,
-        layoutStore
-      })
-    },
-
     /**
      * Copies the specified heading's github-slug to the clipboard.
      * @param {string} id The heading-id to copy.
@@ -165,7 +147,7 @@ export const useEditorStore = defineStore('editor', {
       }
 
       this.tabs[this.tabIdToIndex[id]].scrollTop = scrollTop
-      this.SCHEDULE_BUFFERED_STATE_UPDATE()
+      debouncedSendBufferedState()
     },
 
     /**
@@ -289,7 +271,7 @@ export const useEditorStore = defineStore('editor', {
           scrollTop
         })
       }
-      this.SCHEDULE_BUFFERED_STATE_UPDATE()
+      debouncedSendBufferedState()
     },
 
     FORMAT_LINK_CLICK({ data, dirname }) {
@@ -453,7 +435,7 @@ export const useEditorStore = defineStore('editor', {
         }
         if (tab) {
           Object.assign(tab, { filename, pathname, isSaved: true })
-          this.SCHEDULE_BUFFERED_STATE_UPDATE()
+          debouncedSendBufferedState()
         }
       })
 
@@ -467,7 +449,7 @@ export const useEditorStore = defineStore('editor', {
             tab.lastSavedHistoryId = tab.history.stack[tab.history.lastEditIndex].id
           }
           tab.isSaved = true
-          this.SCHEDULE_BUFFERED_STATE_UPDATE()
+          debouncedSendBufferedState()
         }
       })
 
@@ -490,7 +472,7 @@ export const useEditorStore = defineStore('editor', {
           msg: i18n.global.t('store.editor.errorWhileSaving', { msg }),
           style: 'crit'
         })
-        this.SCHEDULE_BUFFERED_STATE_UPDATE()
+        debouncedSendBufferedState()
       })
     },
 
@@ -498,7 +480,7 @@ export const useEditorStore = defineStore('editor', {
       const projectStore = useProjectStore()
       const preferencesStore = usePreferencesStore()
       window.electron.ipcRenderer.on('mt::ask-for-close', () => {
-        this.UPDATE_BUFFERED_STATE()
+        sendBufferedState()
           .catch((err) => {
             console.error('Failed to update buffered state before closing', err)
           })
@@ -672,7 +654,7 @@ export const useEditorStore = defineStore('editor', {
 
       this.UPDATE_LINE_ENDING_MENU()
       if (didUpdateCurrentFile) {
-        this.SCHEDULE_BUFFERED_STATE_UPDATE()
+        debouncedSendBufferedState()
       }
     },
 
@@ -859,7 +841,7 @@ export const useEditorStore = defineStore('editor', {
       if (pathname) {
         window.electron.ipcRenderer.send('mt::window-tab-closed', pathname)
       }
-      this.SCHEDULE_BUFFERED_STATE_UPDATE()
+      debouncedSendBufferedState()
     },
 
     CLOSE_UNSAVED_TAB(file) {
@@ -941,7 +923,7 @@ export const useEditorStore = defineStore('editor', {
         this.listToc = []
         this.toc = []
       }
-      this.SCHEDULE_BUFFERED_STATE_UPDATE()
+      debouncedSendBufferedState()
     },
 
     EXCHANGE_TABS_BY_ID(tabIDs) {
@@ -969,7 +951,7 @@ export const useEditorStore = defineStore('editor', {
         moveItem(tabs, fromIndex, realToIndex)
       }
       this.updateTabIdToIndex()
-      this.SCHEDULE_BUFFERED_STATE_UPDATE()
+      debouncedSendBufferedState()
     },
 
     RENAME_FILE(file) {
@@ -1070,7 +1052,7 @@ export const useEditorStore = defineStore('editor', {
       } else {
         this.tabs.push(fileState)
         this.updateTabIdToIndex()
-        this.SCHEDULE_BUFFERED_STATE_UPDATE()
+        debouncedSendBufferedState()
       }
     },
 
@@ -1123,7 +1105,7 @@ export const useEditorStore = defineStore('editor', {
       } else {
         this.tabs.push(docState)
         this.updateTabIdToIndex()
-        this.SCHEDULE_BUFFERED_STATE_UPDATE()
+        debouncedSendBufferedState()
       }
 
       if (isMixedLineEndings) {
@@ -1156,7 +1138,7 @@ export const useEditorStore = defineStore('editor', {
         }
       })
       if (didUpdateSaveStatus) {
-        this.SCHEDULE_BUFFERED_STATE_UPDATE()
+        debouncedSendBufferedState()
       }
     },
 
@@ -1192,7 +1174,7 @@ export const useEditorStore = defineStore('editor', {
       tab.markdown = markdown
 
       if (oldMarkdown.length === 0 && markdown.length === 1 && markdown[0] === '\n') {
-        this.SCHEDULE_BUFFERED_STATE_UPDATE()
+        debouncedSendBufferedState()
         return
       }
 
@@ -1212,6 +1194,7 @@ export const useEditorStore = defineStore('editor', {
         tab.history.lastEditIndex >= 0 &&
         tab.history.stack[tab.history.lastEditIndex].id !== tab.lastSavedHistoryId
       ) {
+        console.log('setting to isSaved=false')
         tab.isSaved = false
         if (pathname && autoSave) {
           const options = getOptionsFromState(tab)
@@ -1223,8 +1206,15 @@ export const useEditorStore = defineStore('editor', {
             options
           })
         }
-      } else tab.isSaved = true // An undo can trigger this
-      this.SCHEDULE_BUFFERED_STATE_UPDATE()
+      } else if (tab.history.stack.length > 1) {
+        // Check here is to prevent it from overriding a restored .isSaved state
+        console.log('Setting tab to saved because history matches last saved state')
+        console.log('lastSavedHistoryId:', tab.lastSavedHistoryId)
+        console.log('lastEditIndex:', tab.history.lastEditIndex)
+        console.log('tab.history.stack:', tab.history.stack)
+        tab.isSaved = true // An undo can trigger this
+      }
+      debouncedSendBufferedState()
     },
 
     HANDLE_AUTO_SAVE({ id, filename, pathname, markdown, options }) {
@@ -1352,7 +1342,7 @@ export const useEditorStore = defineStore('editor', {
         this.currentFile.adjustLineEndingOnSave = lineEnding !== 'lf'
         this.currentFile.isSaved = true
         this.UPDATE_LINE_ENDING_MENU()
-        this.SCHEDULE_BUFFERED_STATE_UPDATE()
+        debouncedSendBufferedState()
       }
     },
 
@@ -1372,7 +1362,7 @@ export const useEditorStore = defineStore('editor', {
           this.currentFile.encoding.encoding = encodingName
           this.currentFile.encoding.isBom = false
           this.currentFile.isSaved = true
-          this.SCHEDULE_BUFFERED_STATE_UPDATE()
+          debouncedSendBufferedState()
         }
       })
     },
@@ -1383,7 +1373,7 @@ export const useEditorStore = defineStore('editor', {
         if (trimTrailingNewline !== value) {
           this.currentFile.trimTrailingNewline = value
           this.currentFile.isSaved = true
-          this.SCHEDULE_BUFFERED_STATE_UPDATE()
+          debouncedSendBufferedState()
         }
       })
     },
@@ -1406,7 +1396,7 @@ export const useEditorStore = defineStore('editor', {
                 showConfirm: false,
                 exclusiveType: 'file_changed'
               })
-              this.SCHEDULE_BUFFERED_STATE_UPDATE()
+              debouncedSendBufferedState()
               break
             }
             case 'add':
@@ -1437,7 +1427,7 @@ export const useEditorStore = defineStore('editor', {
                   }
                 }
               })
-              this.SCHEDULE_BUFFERED_STATE_UPDATE()
+              debouncedSendBufferedState()
               break
             }
             default:
@@ -1505,16 +1495,6 @@ export const useEditorStore = defineStore('editor', {
     LISTEN_FOR_STATE_REPLACE() {
       window.electron.ipcRenderer.on('mt::load-state', (_, state) => {
         this.RESTORE_BUFFERED_STATE(state)
-      })
-    },
-
-    UPDATE_BUFFERED_STATE() {
-      const projectStore = useProjectStore()
-      const layoutStore = useLayoutStore()
-      return updateBufferedState({
-        editorStore: this,
-        projectStore,
-        layoutStore
       })
     }
   }

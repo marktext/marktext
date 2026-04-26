@@ -133,6 +133,7 @@ class EditorBufferStore extends EventEmitter {
     )
 
     try {
+      // Write the temp file first, then rename it to the final file to ensure atomicity and reduce the risk of data corruption
       fs.writeFileSync(tempPath, JSON.stringify(newState), 'utf8')
       fs.renameSync(tempPath, filePath)
     } catch (err) {
