@@ -93,11 +93,13 @@ class EditorWindow extends BaseWindow {
 
     remoteEnable(win.webContents)
     // Give every editor window a stable id for session buffer persistence.
+    // We cant use win.id as it might collide with same IDs from closed windows
     this.bufferStoreInfo = {
-      id: bufferStoreInfo ? bufferStoreInfo.id : `${win.id}`,
+      id: bufferStoreInfo ? bufferStoreInfo.id : crypto.randomUUID(),
       filePath: bufferStoreInfo ? bufferStoreInfo.filePath : null
     }
     win.restoreBufferId = this.bufferStoreInfo.id
+
     this.id = win.id
 
     if (spellcheckerEnabled && !isOsx) {
@@ -127,15 +129,15 @@ class EditorWindow extends BaseWindow {
 
       win.webContents.send('mt::bootstrap-editor', {
         addBlankTab,
-        markdownList: bufferStoreInfo ? [] : this._markdownToOpen,
+        markdownList: this.bufferStoreInfo.filePath ? [] : this._markdownToOpen,
         lineEnding,
         sideBarVisibility: resolvedSideBarVisibility,
         tabBarVisibility,
         sourceCodeModeEnabled
       })
 
-      if (bufferStoreInfo) {
-        this._restoreAllState(bufferStoreInfo)
+      if (this.bufferStoreInfo.filePath) {
+        this._restoreAllState(this.bufferStoreInfo)
       } else {
         this._doOpenFilesToOpen()
         this._markdownToOpen.length = 0

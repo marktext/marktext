@@ -14,7 +14,6 @@ class History {
 
   updateFinalEditIndex() {
     for (let i = this.index; i >= 0; i--) {
-      console.log('this.stack[i].cursor.isEdit', this.stack[i].cursor.isEdit)
       if (this.stack[i].cursor.isEdit) {
         this.lastEditIndex = i
         return

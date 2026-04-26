@@ -1197,10 +1197,6 @@ export const useEditorStore = defineStore('editor', {
         }
       } else if (tab.lastSavedHistoryId !== -1) {
         // Check here is to prevent it from overriding a restored .isSaved state
-        console.log('Setting tab to saved because history matches last saved state')
-        console.log('lastSavedHistoryId:', tab.lastSavedHistoryId)
-        console.log('lastEditIndex:', tab.history.lastEditIndex)
-        console.log('tab.history.stack:', tab.history.stack)
         tab.isSaved = true // An undo can trigger this
       }
       debouncedSendBufferedState()
