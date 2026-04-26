@@ -325,9 +325,9 @@ div.title > span {
 }
 
 .active .save-dot {
-  margin-left: 3px;
-  width: 7px;
-  height: 7px;
+  margin-right: 0.25rem;
+  width: 8px;
+  height: 8px;
   display: inline-block;
   border-radius: 50%;
   background: var(--highlightThemeColor);

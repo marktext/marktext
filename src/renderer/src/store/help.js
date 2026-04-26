@@ -1,5 +1,4 @@
 import { getUniqueId, deepClone } from '../util'
-import { i18n } from '../i18n'
 
 /**
  * Default internel markdown document with editor options.
@@ -36,6 +35,8 @@ export const defaultFileState = {
     matches: [],
     value: ''
   },
+  scrollTop: 0,
+  muyaIndexCursor: null,
   // Per tab notifications
   notifications: []
 }
@@ -45,38 +46,32 @@ export const getOptionsFromState = (file) => {
   return { encoding, lineEnding, adjustLineEndingOnSave, trimTrailingNewline }
 }
 
-export const getFileStateFromData = (data) => {
-  const fileState = JSON.parse(JSON.stringify(defaultFileState))
-  const {
-    markdown,
-    filename,
-    pathname,
-    encoding,
-    lineEnding,
-    adjustLineEndingOnSave,
-    trimTrailingNewline
-  } = data
-  const id = getUniqueId()
-
-  return Object.assign(fileState, {
-    id,
-    markdown,
-    filename,
-    pathname,
-    encoding,
-    lineEnding,
-    adjustLineEndingOnSave,
-    trimTrailingNewline
-  })
-}
+const documentStateKeys = [
+  'isSaved',
+  'pathname',
+  'filename',
+  'markdown',
+  'encoding',
+  'lineEnding',
+  'trimTrailingNewline',
+  'adjustLineEndingOnSave',
+  'history',
+  'cursor',
+  'wordCount',
+  'searchMatches',
+  'scrollTop',
+  'muyaIndexCursor',
+  'notifications'
+]
 
 export const getBlankFileState = (
   tabs,
-  defaultEncoding = 'utf8',
-  lineEnding = 'lf',
-  markdown = ''
+  defaultEncoding = defaultFileState.encoding.encoding,
+  lineEnding = defaultFileState.lineEnding,
+  markdown = defaultFileState.markdown
 ) => {
   const fileState = deepClone(defaultFileState)
+  const defaultFilenamePrefix = defaultFileState.filename.split('-')[0]
   let untitleId = Math.max(
     ...tabs.map((f) => {
       if (f.pathname === '') {
@@ -92,7 +87,7 @@ export const getBlankFileState = (
 
   // We may pass markdown=null as parameter.
   if (markdown == null) {
-    markdown = ''
+    markdown = defaultFileState.markdown
   }
 
   fileState.encoding.encoding = defaultEncoding
@@ -100,33 +95,8 @@ export const getBlankFileState = (
     lineEnding,
     adjustLineEndingOnSave: lineEnding.toLowerCase() === 'crlf',
     id,
-    filename: `Untitled-${++untitleId}`,
+    filename: `${defaultFilenamePrefix}-${++untitleId}`,
     markdown,
-    lastSavedHistoryId: -1
-  })
-}
-
-export const getSingleFileState = ({
-  id = getUniqueId(),
-  markdown,
-  filename,
-  pathname,
-  options
-}) => {
-  // TODO(refactor:renderer/editor): Replace this function with `createDocumentState`.
-
-  const fileState = deepClone(defaultFileState)
-  const { encoding, lineEnding, adjustLineEndingOnSave, trimTrailingNewline } = options
-
-  return Object.assign(fileState, {
-    id,
-    markdown,
-    filename,
-    pathname,
-    encoding,
-    lineEnding,
-    adjustLineEndingOnSave,
-    trimTrailingNewline,
     lastSavedHistoryId: -1
   })
 }
@@ -138,29 +108,20 @@ export const getSingleFileState = ({
  * @param {String} [id] Random identifier
  * @returns {IDocumentState} Returns a document state
  */
-export const createDocumentState = (markdownDocument, id = getUniqueId()) => {
+export const createDocumentState = (markdownDocument = {}, id = getUniqueId()) => {
+  markdownDocument = markdownDocument || {}
   const docState = deepClone(defaultFileState)
-  const {
-    markdown,
-    filename,
-    pathname,
-    encoding,
-    lineEnding,
-    adjustLineEndingOnSave,
-    trimTrailingNewline,
-    cursor = null
-  } = markdownDocument
+
+  for (const key of documentStateKeys) {
+    if (markdownDocument[key] !== undefined) {
+      docState[key] = markdownDocument[key]
+    }
+  }
 
   return Object.assign(docState, {
     id,
-    markdown,
-    filename,
-    pathname,
-    encoding,
-    lineEnding,
-    cursor,
-    adjustLineEndingOnSave,
-    trimTrailingNewline,
     lastSavedHistoryId: -1
   })
 }
+
+export const getFileStateFromData = (data) => createDocumentState(data)

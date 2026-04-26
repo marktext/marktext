@@ -5,8 +5,8 @@ import listToTree from '../util/listToTree'
 import {
   createDocumentState,
   getOptionsFromState,
-  getSingleFileState,
-  getBlankFileState
+  getBlankFileState,
+  defaultFileState
 } from './help'
 import notice from '../services/notification'
 import {
@@ -55,44 +55,27 @@ export const useEditorStore = defineStore('editor', {
 
       const oldIdToNewId = {}
       const tabs = bufferedEditorState.tabs.map((tab) => {
-        const options = {
-          encoding: tab.encoding,
-          lineEnding: tab.lineEnding,
-          trimTrailingNewline: tab.trimTrailingNewline,
-          adjustLineEndingOnSave: tab.adjustLineEndingOnSave
-        }
-        const fileState = getSingleFileState({
-          markdown: tab.markdown,
-          filename: tab.filename,
-          pathname: tab.pathname,
-          options
-        })
+        const fileState = createDocumentState(tab)
 
         oldIdToNewId[tab.id] = fileState.id
-
-        Object.assign(fileState, {
-          isSaved: tab.isSaved,
-          cursor: tab.cursor,
-          muyaIndexCursor: tab.muyaIndexCursor || undefined,
-          scrollTop: tab.scrollTop ?? undefined
-        })
 
         return fileState
       })
 
       const currentFileId = oldIdToNewId[bufferedEditorState.currentFileId]
-      const currentFile = tabs.find((tab) => tab.id === currentFileId) || tabs[0] || {}
+      const currentFile = tabs.find((tab) => tab.id === currentFileId)
+
       const projectStore = useProjectStore()
       const layoutStore = useLayoutStore()
 
       projectStore.RESTORE_BUFFERED_STATE(state?.project)
       layoutStore.RESTORE_BUFFERED_STATE(state?.layout)
-      this.$patch({
-        currentFile,
-        tabs,
-        tabIdToIndex: {},
-        listToc: [],
-        toc: []
+      this.$patch((state) => {
+        state.tabs = tabs
+        state.currentFile = currentFile
+        state.tabIdToIndex = {}
+        state.listToc = []
+        state.toc = []
       })
 
       this.updateTabIdToIndex()
@@ -201,9 +184,16 @@ export const useEditorStore = defineStore('editor', {
         markdown,
         filename
       } = data
-      const options = { encoding, lineEnding, adjustLineEndingOnSave, trimTrailingNewline }
       // Create a new document and update few entires later.
-      const newFileState = getSingleFileState({ markdown, filename, pathname, options })
+      const newFileState = createDocumentState({
+        markdown,
+        filename,
+        pathname,
+        encoding,
+        lineEnding,
+        adjustLineEndingOnSave,
+        trimTrailingNewline
+      })
 
       const tab = tabs.find((t) => window.fileUtils.isSamePathSync(t.pathname, pathname))
       if (!tab) {
@@ -1194,7 +1184,6 @@ export const useEditorStore = defineStore('editor', {
         tab.history.lastEditIndex >= 0 &&
         tab.history.stack[tab.history.lastEditIndex].id !== tab.lastSavedHistoryId
       ) {
-        console.log('setting to isSaved=false')
         tab.isSaved = false
         if (pathname && autoSave) {
           const options = getOptionsFromState(tab)
@@ -1206,7 +1195,7 @@ export const useEditorStore = defineStore('editor', {
             options
           })
         }
-      } else if (tab.history.stack.length > 1) {
+      } else if (tab.lastSavedHistoryId !== -1) {
         // Check here is to prevent it from overriding a restored .isSaved state
         console.log('Setting tab to saved because history matches last saved state')
         console.log('lastSavedHistoryId:', tab.lastSavedHistoryId)
@@ -1671,6 +1660,9 @@ const createSelectionFormatState = (formats) => {
   return state
 }
 
+/*
+ * Convert a Pinia Proxy Object to a serializable value by applying JSON stringify and parse.
+ */
 const toSerializableValue = (value, fallback = null) => {
   if (value == null) return fallback
 
@@ -1685,17 +1677,21 @@ const toSerializableValue = (value, fallback = null) => {
 const createBufferedTabState = (tab) => {
   return {
     id: tab.id,
-    pathname: tab.pathname || '',
-    filename: tab.filename || 'Untitled-1',
-    markdown: typeof tab.markdown === 'string' ? tab.markdown : '',
-    isSaved: tab.isSaved !== false,
-    encoding: toSerializableValue(tab.encoding, { encoding: 'utf8', isBom: false }),
-    lineEnding: tab.lineEnding || 'lf',
-    trimTrailingNewline: typeof tab.trimTrailingNewline === 'number' ? tab.trimTrailingNewline : 3,
-    adjustLineEndingOnSave: !!tab.adjustLineEndingOnSave,
-    cursor: toSerializableValue(tab.cursor, null),
-    muyaIndexCursor: toSerializableValue(tab.muyaIndexCursor, null),
-    scrollTop: typeof tab.scrollTop === 'number' ? tab.scrollTop : null
+    pathname: tab.pathname ?? defaultFileState.pathname,
+    filename: tab.filename ?? defaultFileState.filename,
+    markdown: typeof tab.markdown === 'string' ? tab.markdown : defaultFileState.markdown,
+    isSaved: tab.isSaved ?? defaultFileState.isSaved,
+    encoding: toSerializableValue(tab.encoding, defaultFileState.encoding),
+    lineEnding: tab.lineEnding ?? defaultFileState.lineEnding,
+    trimTrailingNewline:
+      typeof tab.trimTrailingNewline === 'number'
+        ? tab.trimTrailingNewline
+        : defaultFileState.trimTrailingNewline,
+    adjustLineEndingOnSave: tab.adjustLineEndingOnSave ?? defaultFileState.adjustLineEndingOnSave,
+    cursor: toSerializableValue(tab.cursor, defaultFileState.cursor),
+    wordCount: toSerializableValue(tab.wordCount, defaultFileState.wordCount),
+    muyaIndexCursor: toSerializableValue(tab.muyaIndexCursor, defaultFileState.muyaIndexCursor),
+    scrollTop: tab.scrollTop ?? defaultFileState.scrollTop
   }
 }
 
