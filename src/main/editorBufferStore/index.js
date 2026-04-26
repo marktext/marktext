@@ -162,6 +162,19 @@ class EditorBufferStore extends EventEmitter {
     return true
   }
 
+  getUnUsedBufferUUID() {
+    if (!this.bufferStores) {
+      this.bufferStores = this.findEditorBufferStores(this.editorBufferStorePath)
+    }
+
+    let uuid
+    do {
+      uuid = crypto.randomUUID()
+    } while (uuid in this.bufferStores)
+
+    return uuid
+  }
+
   _listenForIpcMain() {
     // local main events
     ipcMain.handle('update-buffer-state', (e, newState) => {

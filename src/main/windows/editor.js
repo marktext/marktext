@@ -49,7 +49,7 @@ class EditorWindow extends BaseWindow {
     options = {},
     bufferStoreInfo = null
   ) {
-    const { menu: appMenu, env, preferences } = this._accessor
+    const { menu: appMenu, env, preferences, editorBufferStore } = this._accessor
     const addBlankTab =
       !bufferStoreInfo && !rootDirectory && fileList.length === 0 && markdownList.length === 0
 
@@ -95,7 +95,7 @@ class EditorWindow extends BaseWindow {
     // Give every editor window a stable id for session buffer persistence.
     // We cant use win.id as it might collide with same IDs from closed windows
     this.bufferStoreInfo = {
-      id: bufferStoreInfo ? bufferStoreInfo.id : crypto.randomUUID(),
+      id: bufferStoreInfo ? bufferStoreInfo.id : editorBufferStore.getUnUsedBufferUUID(),
       filePath: bufferStoreInfo ? bufferStoreInfo.filePath : null
     }
     win.restoreBufferId = this.bufferStoreInfo.id
