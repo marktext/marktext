@@ -665,7 +665,7 @@ const importRegister = (ContentState) => {
       cursor.end = cursor.focus
     }
 
-    this.cursor = cursor
+    this.cursor = { ...cursor, isInit: true }
   }
 
   /**

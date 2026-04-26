@@ -189,7 +189,8 @@ class ContentState {
     this.cursor = {
       start: { key, offset },
       end: { key, offset },
-      isEdit: false
+      isEdit: false,
+      isInit: true
     }
   }
 
@@ -200,11 +201,7 @@ class ContentState {
 
   setHistory({ stack, index, lastEditIndex }) {
     Object.assign(this.history, { stack, index, pendingIndex: -1 })
-    if (
-      typeof lastEditIndex === 'number' &&
-      lastEditIndex >= -1 &&
-      lastEditIndex < stack.length
-    ) {
+    if (typeof lastEditIndex === 'number' && lastEditIndex >= -1 && lastEditIndex < stack.length) {
       this.history.lastEditIndex = lastEditIndex
     } else {
       this.history.updateFinalEditIndex()

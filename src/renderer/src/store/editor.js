@@ -1181,8 +1181,11 @@ export const useEditorStore = defineStore('editor', {
       }
 
       if (
-        tab.history.lastEditIndex >= 0 &&
-        tab.history.stack[tab.history.lastEditIndex].id !== tab.lastSavedHistoryId
+        (tab.history.lastEditIndex >= 0 &&
+          tab.history.stack[tab.history.lastEditIndex].id !== tab.lastSavedHistoryId) ||
+        (tab.history.lastEditIndex === -1 &&
+          tab.lastSavedHistoryId !== -1 &&
+          tab.lastSavedHistoryId !== tab.history.lastInitIndex) // Edge Case: Undo to original content (lastEditIndex === -1) after saving means we cant use the lastEditIndex. Compare it against the lastInitIndex instead.
       ) {
         tab.isSaved = false
         if (pathname && autoSave) {

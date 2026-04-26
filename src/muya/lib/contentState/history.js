@@ -10,6 +10,7 @@ class History {
     this.contentState = contentState
     this.pendingIndex = -1
     this.lastEditIndex = -1 // The current index is not necessarily an "edit" operation.
+    this.lastInitIndex = -1
   }
 
   updateFinalEditIndex() {
@@ -24,7 +25,7 @@ class History {
 
   undo() {
     this.commitPending()
-    if (this.index > 0) {
+    if (this.index >= 0) {
       this.index = this.index - 1
       this.updateFinalEditIndex()
 
@@ -66,7 +67,12 @@ class History {
       this.stack.shift()
       this.index = this.index - 1
     }
-    this.index = this.index + 1
+    this.index += 1
+
+    if (state.cursor.isInit) {
+      this.lastInitIndex = this.index
+    }
+
     this.updateFinalEditIndex()
     return this.index
   }
