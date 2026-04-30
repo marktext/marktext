@@ -63,7 +63,7 @@ export const useEditorStore = defineStore('editor', {
       })
 
       const currentFileId = oldIdToNewId[bufferedEditorState.currentFileId]
-      const currentFile = tabs.find((tab) => tab.id === currentFileId)
+      const currentFile = tabs.find((tab) => tab.id === currentFileId) ?? {}
 
       const projectStore = useProjectStore()
       const layoutStore = useLayoutStore()
