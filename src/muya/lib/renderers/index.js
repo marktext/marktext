@@ -19,10 +19,24 @@ const loadRenderer = async (name) => {
         m = await import('flowchart.js')
         rendererCache.set(name, m.default)
         break
-      case 'mermaid':
-        m = await import('mermaid/dist/mermaid.core.mjs')
-        rendererCache.set(name, m.default)
+      case 'mermaid': {
+        if (process.env.NODE_ENV === 'development') {
+          m = await import('mermaid/dist/mermaid.core.mjs')
+        } else {
+          if (!window.mermaid) {
+            const script = document.createElement('script')
+            script.src = '../../node_modules/mermaid/dist/mermaid.min.js'
+            document.head.appendChild(script)
+            await new Promise((resolve, reject) => {
+              script.onload = resolve
+              script.onerror = reject
+            })
+          }
+          m = window.mermaid
+        }
+        rendererCache.set(name, m.default || m)
         break
+      }
       case 'vega-lite':
         m = await import('vega-embed')
         rendererCache.set(name, m.default)

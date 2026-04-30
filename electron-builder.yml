@@ -35,7 +35,8 @@ files:
 # Large source files that aren't needed
 - "!node_modules/dagre-d3/dist/dagre-d3.min.js"
 - "!node_modules/mermaid/dist/mermaid.js"
-- "!node_modules/mermaid/dist/mermaid.min.js"
+# NOTE: mermaid.min.js is required for architecture-beta, block-beta, and other v10.9+ diagrams
+# - "!node_modules/mermaid/dist/mermaid.min.js"
 - "!node_modules/mermaid/dist/mermaid.esm.min.mjs"
 - "!node_modules/katex/dist/katex.min.js"
 - "!node_modules/katex/dist/katex.mjs"
