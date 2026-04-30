@@ -368,6 +368,8 @@ class App {
           this._createEditorWindow(null, [], [], {}, bufferStoreInfo)
         })
       } else if (_openFilesCache.length) {
+        // We should wipe the buffer store if not it will keep creating new windows whenever we open files via double click in the file manager
+        editorBufferStore.clearBufferStoresWithAllSaved()
         this._openFilesToOpen()
       } else {
         this._createEditorWindow()

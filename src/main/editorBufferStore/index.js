@@ -35,6 +35,22 @@ class EditorBufferStore extends EventEmitter {
     return this.bufferStores
   }
 
+  clearBufferStoresWithAllSaved() {
+    this.bufferStores = this.getAllBufferStores()
+
+    for (const id in this.bufferStores) {
+      const buffer = this.readBufferStoreFile(this.bufferStores[id].filePath)
+      const allSaved = buffer.tabs.every((file) => file.isSaved)
+      if (buffer.tabs.length === 0 || allSaved) {
+        try {
+          fs.unlinkSync(this.bufferStores[id].filePath)
+        } catch (e) {
+          console.error('Failed to delete buffer store file during clear', e)
+        }
+      }
+    }
+  }
+
   handleClose(restoreBufferId, editorWindows) {
     // If > 1 window is present, and the window being closed has all files saved, we can delete its saved buffer
     // This allows the case where we want to actually close an extra window
