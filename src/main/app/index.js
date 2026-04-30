@@ -232,18 +232,22 @@ class App {
       }
     }
 
-    if (startUpAction === 'restoreAll') {
-      // We will restore based off the previous buffer
-      this._openFilesCache = []
-    } else if (startUpAction === 'folder' && defaultDirectoryToOpen) {
-      const info = normalizeMarkdownPath(defaultDirectoryToOpen)
-      if (info) {
-        _openFilesCache.unshift(info)
-      }
-    } else if (startUpAction === 'openLastFolder' && lastOpenedFolder) {
-      const info = normalizeMarkdownPath(lastOpenedFolder)
-      if (info) {
-        _openFilesCache.unshift(info)
+    // We should NOT restore the previous buffer or open a folder if the user just wants to double click to open a file
+    let isRestorePathway = false
+    if (_openFilesCache.length === 0) {
+      if (startUpAction === 'restoreAll') {
+        // Restore based off the previous buffer
+        isRestorePathway = true
+      } else if (startUpAction === 'folder' && defaultDirectoryToOpen) {
+        const info = normalizeMarkdownPath(defaultDirectoryToOpen)
+        if (info) {
+          _openFilesCache.unshift(info)
+        }
+      } else if (startUpAction === 'openLastFolder' && lastOpenedFolder) {
+        const info = normalizeMarkdownPath(lastOpenedFolder)
+        if (info) {
+          _openFilesCache.unshift(info)
+        }
       }
     }
 
@@ -350,7 +354,7 @@ class App {
     }
 
     const createWindow = () => {
-      if (startUpAction === 'restoreAll') {
+      if (isRestorePathway) {
         // We will restore based off the previous buffer, one window per buffer store file
         const bufferStores = editorBufferStore.getAll()
         const bufferStoreList = Object.values(bufferStores)
