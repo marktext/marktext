@@ -555,6 +555,7 @@ class EditorWindow extends BaseWindow {
         preferences.getAll()
 
       const fileOpenRequests = []
+      const tabsToRestore = []
       for (const tab of bufferState.tabs) {
         if (!tab.pathname) {
           continue
@@ -594,9 +595,10 @@ class EditorWindow extends BaseWindow {
             })
             .catch((err) => {
               const { message, stack } = err
-              log.error(`[ERROR] Cannot open file or directory: ${message}\n\n${stack}`)
+              tab.isSaved = false // Set to false as base file could not be found, needs saving
+              log.error(`[ERROR] Cannot open file: ${message}\n\n${stack}`)
               browserWindow.webContents.send('mt::show-notification', {
-                title: 'Cannot open tab',
+                title: `Could not find file ${tab.filename} on disk, please save your work.`,
                 type: 'error',
                 message: err.message
               })
