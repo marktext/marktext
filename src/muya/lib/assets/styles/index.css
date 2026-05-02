@@ -351,7 +351,7 @@ span.ag-math > .ag-math-render.ag-math-error {
 }
 .ag-hide.ag-ruby > .ag-ruby-render,
 .ag-hide.ag-math > .ag-math-render {
-  padding: 0;
+  padding: 0 2px; /* Tiny padding to prevent rounding errors/small rendering issues from triggering a scroll bar */
   top: 0;
   position: relative;
   border: none;
