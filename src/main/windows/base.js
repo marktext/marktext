@@ -43,11 +43,8 @@ class BaseWindow extends EventEmitter {
     const { browserWindow: win } = this
     if (win.isMinimized()) win.restore()
     if (!win.isVisible()) win.show()
-    if (isLinux) {
-      win.focus()
-    } else {
-      win.moveTop()
-    }
+    win.focus()
+    win.moveTop()
   }
 
   reload() {
@@ -75,12 +72,10 @@ class BaseWindow extends EventEmitter {
     const { codeFontFamily, codeFontSize, hideScrollbar, theme, titleBarStyle } =
       userPreference.getAll()
 
-    /* eslint-disable */
     const baseUrl =
       process.env.NODE_ENV === 'development'
         ? process.env['ELECTRON_RENDERER_URL']
         : `file://${path.join(__dirname, '../renderer/index.html')}` // <-- This points to the path inside the packed ASAR archive, hence it is always correct
-    /* eslint-enable */
 
     const url = new URL(baseUrl)
     url.searchParams.set('udp', paths.userDataPath)
