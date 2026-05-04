@@ -38,6 +38,8 @@ const inline = {
 
   // TODO: make math optional GH#740
   math: /^\$([^$]*?[^\$\\])\$(?!\$)/,
+  // LaTeX inline math \(...\)
+  inlineMathBracket: /^\\\(([\s\S]*?)\\\)/,
 
   // superscript and subScript
   superscript: /^(\^)((?:[^\^\s]|(?<=\\)\1|(?<=\\) )+?)(?<!\\)\1(?!\1)/,

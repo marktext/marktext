@@ -160,6 +160,18 @@ Lexer.prototype.token = function (src, top) {
         continue
       }
 
+      // LaTeX display math \[...\]
+      cap = this.rules.multiplemathBracket.exec(src)
+      if (cap) {
+        src = src.substring(cap[0].length)
+        this.tokens.push({
+          type: 'multiplemath',
+          text: cap[1],
+          mathStyle: 'bracket'
+        })
+        continue
+      }
+
       // match GitLab display math blocks (```math)
       if (isGitlabCompatibilityEnabled) {
         cap = this.rules.multiplemathGitlab.exec(src)

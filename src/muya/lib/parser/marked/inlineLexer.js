@@ -203,6 +203,17 @@ InlineLexer.prototype.output = function (src) {
       }
     }
 
+    // LaTeX inline math \(...\)
+    if (math) {
+      cap = this.rules.inlineMathBracket.exec(src)
+      if (cap) {
+        src = src.substring(cap[0].length)
+        lastChar = cap[0].charAt(cap[0].length - 1)
+        text = cap[1]
+        out += this.renderer.inlineMath(text)
+      }
+    }
+
     // emoji
     if (emoji) {
       cap = this.rules.emoji.exec(src)

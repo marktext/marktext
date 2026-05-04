@@ -216,6 +216,31 @@ const tokenizerFac = (src, beginRules, inlineRules, pos = 0, top, labels, option
       }
     }
     if (inChunk) continue
+
+    // LaTeX inline math \(...\)
+    {
+      const to = inlineRules.inline_math_bracket.exec(src)
+      if (to) {
+        inChunk = true
+        pushPending()
+        const range = {
+          start: pos,
+          end: pos + to[0].length
+        }
+        tokens.push({
+          type: 'inline_math',
+          raw: to[0],
+          range,
+          marker: to[1],
+          parent: tokens,
+          content: to[2],
+          backlash: ''
+        })
+        src = src.substring(to[0].length)
+        pos = pos + to[0].length
+      }
+    }
+    if (inChunk) continue
     // superscript and subscript
     if (superSubScript) {
       const superSubTo = inlineRules.superscript.exec(src) || inlineRules.subscript.exec(src)

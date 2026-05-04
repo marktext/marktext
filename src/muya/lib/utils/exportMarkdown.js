@@ -237,6 +237,9 @@ class ExportMarkdown {
     if (isGitlabCompatibilityEnabled && block.mathStyle === 'gitlab') {
       startToken = '```math'
       endToken = '```'
+    } else if (block.mathStyle === 'bracket') {
+      startToken = '\\['
+      endToken = '\\]'
     }
 
     const result = []
