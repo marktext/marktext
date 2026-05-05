@@ -591,5 +591,17 @@
   "quickInsert.advanced block": "高级块",
   "quickInsert.list block": "列表块",
   "quickInsert.diagram": "图表",
-  "quickInsert.noResult": "无结果"
+  "quickInsert.noResult": "无结果",
+  "dialog.save": "保存",
+  "dialog.cancel": "取消",
+  "dialog.dontSave": "不保存",
+  "dialog.file": "个文件",
+  "dialog.files": "个文件",
+  "dialog.unsavedChanges": "是否要保存对 {count} {filesWord} 所做的更改？\n\n{fileList}",
+  "dialog.unsavedChangesDetail": "如果不保存，更改将会丢失。",
+  "dialog.close": "关闭",
+  "dialog.keepOpen": "保持打开",
+  "dialog.saveFailure": "保存文件时发生错误",
+  "dialog.replace": "替换",
+  "dialog.fileExists": "文件 \"{filename}\" 已存在。是否替换它？"
 }

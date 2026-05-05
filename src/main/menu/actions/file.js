@@ -160,12 +160,17 @@ const handleResponseForSave = async (e, { id, filename, markdown, pathname, opti
 }
 
 const showUnsavedFilesMessage = async (win, files) => {
+  const filesWord = translate('dialog.file' + (files.length === 1 ? '' : 's'))
   const { response } = await dialog.showMessageBox(win, {
     type: 'warning',
-    buttons: ['Save', 'Cancel', 'Don\'t save'],
+    buttons: [translate('dialog.save'), translate('dialog.cancel'), translate('dialog.dontSave')],
     defaultId: 0,
-    message: `Do you want to save the changes you made to ${files.length} ${files.length === 1 ? 'file' : 'files'}?\n\n${files.map(f => f.filename).join('\n')}`,
-    detail: 'Your changes will be lost if you don\'t save them.',
+    message: translate('dialog.unsavedChanges', {
+      count: files.length,
+      filesWord,
+      fileList: files.map(f => f.filename).join('\n')
+    }),
+    detail: translate('dialog.unsavedChangesDetail'),
     cancelId: 1,
     noLink: true
   })
@@ -301,8 +306,8 @@ ipcMain.on('mt::close-window-confirm', async (e, unsavedFiles) => {
         // Notify user about the problem.
         dialog.showMessageBox(win, {
           type: 'error',
-          buttons: ['Close', 'Keep It Open'],
-          message: 'Failure while saving files',
+          buttons: [translate('dialog.close'), translate('dialog.keepOpen')],
+          message: translate('dialog.saveFailure'),
           detail: err.message
         })
           .then(({ response }) => {
@@ -368,9 +373,9 @@ ipcMain.on('mt::rename', async (e, { id, pathname, newPathname }) => {
   } else {
     const { response } = await dialog.showMessageBox(win, {
       type: 'warning',
-      buttons: ['Replace', 'Cancel'],
+      buttons: [translate('dialog.replace'), translate('dialog.cancel')],
       defaultId: 1,
-      message: `The file "${path.basename(newPathname)}" already exists. Do you want to replace it?`,
+      message: translate('dialog.fileExists', { filename: path.basename(newPathname) }),
       cancelId: 1,
       noLink: true
     })

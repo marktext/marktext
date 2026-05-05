@@ -153,7 +153,21 @@ const enDefaults = {
   'contextMenu.editor.spelling': 'spelling',
 
   'editor.untitled': 'Untitled',
-  'editor.quickInsertHint': 'Type @ to insert'
+  'editor.quickInsertHint': 'Type @ to insert',
+
+  'dialog.save': 'Save',
+  'dialog.cancel': 'Cancel',
+  'dialog.dontSave': "Don't save",
+  'dialog.file': 'file',
+  'dialog.files': 'files',
+  'dialog.unsavedChanges': 'Do you want to save the changes you made to {count} {filesWord}?\n\n{fileList}',
+  'dialog.unsavedChangesDetail': "Your changes will be lost if you don't save them.",
+
+  'dialog.close': 'Close',
+  'dialog.keepOpen': 'Keep It Open',
+  'dialog.saveFailure': 'Failure while saving files',
+  'dialog.replace': 'Replace',
+  'dialog.fileExists': 'The file "{filename}" already exists. Do you want to replace it?'
 }
 
 let localeData = null
