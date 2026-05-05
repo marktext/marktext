@@ -36,42 +36,31 @@ export default function (keybindings, userPreference, recentlyUsedFiles, t) {
     }]
   }
 
-  if (!isOsx) {
-    const recentlyUsedMenu = {
-      label: t('menu.file.openRecent'),
-      submenu: []
-    }
+  const recentlyUsedMenu = {
+    label: t('menu.file.openRecent'),
+    submenu: []
+  }
 
-    for (const item of recentlyUsedFiles) {
-      recentlyUsedMenu.submenu.push({
-        label: item,
-        click (menuItem, browserWindow) {
-          actions.openFileOrFolder(browserWindow, menuItem.label)
-        }
-      })
-    }
-
+  for (const item of recentlyUsedFiles) {
     recentlyUsedMenu.submenu.push({
-      type: 'separator',
-      visible: recentlyUsedFiles.length > 0
-    }, {
-      label: t('menu.file.clearRecentlyUsed'),
-      enabled: recentlyUsedFiles.length > 0,
+      label: item,
       click (menuItem, browserWindow) {
-        actions.clearRecentlyUsed()
+        actions.openFileOrFolder(browserWindow, menuItem.label)
       }
     })
-    fileMenu.submenu.push(recentlyUsedMenu)
-  } else {
-    fileMenu.submenu.push({
-      role: 'recentdocuments',
-      submenu: [
-        {
-          role: 'clearrecentdocuments'
-        }
-      ]
-    })
   }
+
+  recentlyUsedMenu.submenu.push({
+    type: 'separator',
+    visible: recentlyUsedFiles.length > 0
+  }, {
+    label: t('menu.file.clearRecentlyUsed'),
+    enabled: recentlyUsedFiles.length > 0,
+    click (menuItem, browserWindow) {
+      actions.clearRecentlyUsed()
+    }
+  })
+  fileMenu.submenu.push(recentlyUsedMenu)
 
   fileMenu.submenu.push({
     type: 'separator'
