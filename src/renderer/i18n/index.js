@@ -51,6 +51,10 @@ export function setAppLanguage (lang) {
       locale.use(elementLocales[lang])
     }
     ipcRenderer.send('mt::set-locale', lang, i18n.messages[lang])
+    try {
+      const { loadLang } = require('muya/lib/translations')
+      loadLang(lang, i18n.messages[lang])
+    } catch (e) {}
   })
 }
 

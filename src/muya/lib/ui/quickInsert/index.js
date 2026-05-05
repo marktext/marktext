@@ -3,6 +3,7 @@ import { patch, h } from '../../parser/render/snabbdom'
 import { deepCopy } from '../../utils'
 import BaseScrollFloat from '../baseScrollFloat'
 import { quickInsertObj } from './config'
+import { t } from '../../translations'
 import './index.css'
 
 class QuickInsert extends BaseScrollFloat {
@@ -46,10 +47,10 @@ class QuickInsert extends BaseScrollFloat {
       return _renderObj[key].length !== 0
     })
       .map(key => {
-        const titleVnode = h('div.title', key.toUpperCase())
+        const titleVnode = h('div.title', t(`quickInsert.${key}`))
         const items = []
         for (const item of _renderObj[key]) {
-          const { title, subTitle, label, icon, shortCut } = item
+          const { subTitle, label, icon, shortCut } = item
           const iconVnode = h('div.icon-container', h('i.icon', h(`i.icon-${label.replace(/\s/g, '-')}`, {
             style: {
               background: `url(${icon}) no-repeat`,
@@ -58,7 +59,7 @@ class QuickInsert extends BaseScrollFloat {
           }, '')))
 
           const description = h('div.description', [
-            h('div.big-title', title),
+            h('div.big-title', t(`quickInsert.${label}`)),
             h('div.sub-title', subTitle)
           ])
           const shortCutVnode = h('div.short-cut', [
@@ -79,7 +80,7 @@ class QuickInsert extends BaseScrollFloat {
       })
 
     if (children.length === 0) {
-      children = h('div.no-result', 'No result')
+      children = h('div.no-result', t('quickInsert.noResult'))
     }
     const vnode = h('div', children)
 

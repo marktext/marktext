@@ -1,6 +1,7 @@
 import BaseFloat from '../baseFloat'
 import { patch, h } from '../../parser/render/snabbdom'
 import { menu, getSubMenu, getLabel } from './config'
+import { t } from '../../translations'
 
 import './index.css'
 
@@ -64,7 +65,7 @@ class FrontMenu extends BaseFloat {
     const rect = reference.getBoundingClientRect()
     const windowHeight = document.documentElement.clientHeight
     const children = subMenu.map(menuItem => {
-      const { icon, title, label, shortCut } = menuItem
+      const { icon, label, shortCut } = menuItem
       const iconWrapperSelector = 'div.icon-wrapper'
       const iconWrapper = h(iconWrapperSelector, h('i.icon', h(`i.icon-${label.replace(/\s/g, '-')}`, {
         style: {
@@ -73,7 +74,7 @@ class FrontMenu extends BaseFloat {
         }
       }, '')))
 
-      const textWrapper = h('span', title)
+      const textWrapper = h('span', t(`quickInsert.${label}`))
       const shortCutWrapper = h('div.short-cut', [
         h('span', shortCut)
       ])
@@ -99,7 +100,7 @@ class FrontMenu extends BaseFloat {
   render () {
     const { oldVnode, frontMenuContainer, outmostBlock, startBlock, endBlock } = this
     const { type, functionType } = outmostBlock
-    const children = menu.map(({ icon, label, text, shortCut }) => {
+    const children = menu.map(({ icon, label, shortCut }) => {
       const subMenu = getSubMenu(outmostBlock, startBlock, endBlock)
       const iconWrapperSelector = 'div.icon-wrapper'
       const iconWrapper = h(iconWrapperSelector, h('i.icon', h(`i.icon-${label.replace(/\s/g, '-')}`, {
@@ -108,7 +109,7 @@ class FrontMenu extends BaseFloat {
           'background-size': '100%'
         }
       }, '')))
-      const textWrapper = h('span', text)
+      const textWrapper = h('span', t(`frontMenu.${label}`))
       const shortCutWrapper = h('div.short-cut', [
         h('span', shortCut)
       ])
