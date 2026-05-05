@@ -7,16 +7,16 @@
       custom-class="ag-dialog-table"
       width="500px"
     >
-      <h3>Export Options</h3>
+      <h3>{{$t('export.title')}}</h3>
       <el-tabs v-model="activeName">
-        <el-tab-pane label="Info" name="info">
-          <span class="text">Please customize the page appearance and click on "export" to continue.</span>
+        <el-tab-pane :label="$t('export.info')" name="info">
+          <span class="text">{{$t('export.infoDesc')}}</span>
         </el-tab-pane>
-        <el-tab-pane label="Page" name="page">
+        <el-tab-pane :label="$t('export.page')" name="page">
           <!-- HTML -->
           <div v-if="!isPrintable">
             <text-box
-              description="The page title:"
+              :description="$t('export.pageTitle')"
               :input="htmlTitle"
               :emitTime="0"
               :onChange="value => onSelectChange('htmlTitle', value)"
@@ -28,53 +28,53 @@
             <div v-if="exportType === 'pdf'">
               <cur-select
                 class="page-size-select"
-                description="Page size:"
+                :description="$t('export.pageSize')"
                 :value="pageSize"
                 :options="pageSizeList"
                 :onChange="value => onSelectChange('pageSize', value)"
               ></cur-select>
               <div v-if="pageSize === 'custom'" class="row">
-                <div>Width/Height in mm:</div>
+                <div>{{$t('export.widthHeight')}}</div>
                 <el-input-number v-model="pageSizeWidth" size="mini" controls-position="right" :min="100"></el-input-number>
                 <el-input-number v-model="pageSizeHeight" size="mini" controls-position="right" :min="100"></el-input-number>
               </div>
 
               <bool
-                description="Landscape orientation:"
+                :description="$t('export.landscapeOrientation')"
                 :bool="isLandscape"
                 :onChange="value => onSelectChange('isLandscape', value)"
               ></bool>
             </div>
 
             <div class="row">
-              <div class="description">Page margin in mm:</div>
+              <div class="description">{{$t('export.pageMargin')}}</div>
               <div>
-                <div class="label">Top/Bottom:</div>
+                <div class="label">{{$t('export.topBottom')}}</div>
                 <el-input-number v-model="pageMarginTop" size="mini" controls-position="right" :min="0" :max="100"></el-input-number>
                 <el-input-number v-model="pageMarginBottom" size="mini" controls-position="right" :min="0" :max="100"></el-input-number>
               </div>
               <div>
-                <div class="label">Left/Right:</div>
+                <div class="label">{{$t('export.leftRight')}}</div>
                 <el-input-number v-model="pageMarginLeft" size="mini" controls-position="right" :min="0" :max="100"></el-input-number>
                 <el-input-number v-model="pageMarginRight" size="mini" controls-position="right" :min="0" :max="100"></el-input-number>
               </div>
             </div>
           </div>
         </el-tab-pane>
-        <el-tab-pane label="Style" name="style">
+        <el-tab-pane :label="$t('export.style')" name="style">
           <bool
-            description="Overwrite theme font settings:"
+            :description="$t('export.overwriteFont')"
             :bool="fontSettingsOverwrite"
             :onChange="value => onSelectChange('fontSettingsOverwrite', value)"
           ></bool>
           <div v-if="fontSettingsOverwrite">
             <font-text-box
-              description="Font family:"
+              :description="$t('export.fontFamily')"
               :value="fontFamily"
               :onChange="value => onSelectChange('fontFamily', value)"
             ></font-text-box>
             <range
-              description="Font size"
+              :description="$t('export.fontSize')"
               :value="fontSize"
               :min="8"
               :max="32"
@@ -83,7 +83,7 @@
               :onChange="value => onSelectChange('fontSize', value)"
             ></range>
             <range
-              description="Line height"
+              :description="$t('export.lineHeight')"
               :value="lineHeight"
               :min="1.0"
               :max="2.0"
@@ -92,98 +92,98 @@
             ></range>
           </div>
           <bool
-            description="Auto numbering headings:"
+            :description="$t('export.autoNumberHeadings')"
             :bool="autoNumberingHeadings"
             :onChange="value => onSelectChange('autoNumberingHeadings', value)"
           ></bool>
           <bool
-            description="Show front matter:"
+            :description="$t('export.showFrontMatter')"
             :bool="showFrontMatter"
             :onChange="value => onSelectChange('showFrontMatter', value)"
           ></bool>
         </el-tab-pane>
-        <el-tab-pane label="Theme" name="theme">
-          <div class="text">You can change the document appearance by choosing a theme or create a handcrafted one.</div>
+        <el-tab-pane :label="$t('export.themeTab')" name="theme">
+          <div class="text">{{$t('export.themeDesc')}}</div>
           <cur-select
-            description="Theme:"
+            :description="$t('export.theme')"
             more="https://github.com/marktext/marktext/blob/develop/docs/EXPORT_THEMES.md"
             :value="theme"
             :options="themeList"
             :onChange="value => onSelectChange('theme', value)"
           ></cur-select>
         </el-tab-pane>
-        <el-tab-pane v-if="isPrintable" label="Header & Footer" name="header">
-          <div class="text">The text appear on all pages if header and/or footer is defined.</div>
+        <el-tab-pane v-if="isPrintable" :label="$t('export.headerFooter')" name="header">
+          <div class="text">{{$t('export.headerFooterDesc')}}</div>
           <cur-select
-            description="Header type:"
+            :description="$t('export.headerType')"
             :value="headerType"
             :options="headerFooterTypes"
             :onChange="value => onSelectChange('headerType', value)"
           ></cur-select>
           <text-box
             v-if="headerType === 2"
-            description="The left header text:"
+            :description="$t('export.headerLeft')"
             :input="headerTextLeft"
             :emitTime="0"
             :onChange="value => onSelectChange('headerTextLeft', value)"
           ></text-box>
           <text-box
             v-if="headerType !== 0"
-            description="The main header text:"
+            :description="$t('export.headerMain')"
             :input="headerTextCenter"
             :emitTime="0"
             :onChange="value => onSelectChange('headerTextCenter', value)"
           ></text-box>
           <text-box
             v-if="headerType === 2"
-            description="The right header text:"
+            :description="$t('export.headerRight')"
             :input="headerTextRight"
             :emitTime="0"
             :onChange="value => onSelectChange('headerTextRight', value)"
           ></text-box>
 
           <cur-select
-            description="Footer type:"
+            :description="$t('export.footerType')"
             :value="footerType"
             :options="headerFooterTypes"
             :onChange="value => onSelectChange('footerType', value)"
           ></cur-select>
           <text-box
             v-if="footerType === 2"
-            description="The left footer text:"
+            :description="$t('export.footerLeft')"
             :input="footerTextLeft"
             :emitTime="0"
             :onChange="value => onSelectChange('footerTextLeft', value)"
           ></text-box>
           <text-box
             v-if="footerType !== 0"
-            description="The main footer text:"
+            :description="$t('export.footerMain')"
             :input="footerTextCenter"
             :emitTime="0"
             :onChange="value => onSelectChange('footerTextCenter', value)"
           ></text-box>
           <text-box
             v-if="footerType === 2"
-            description="The right footer text:"
+            :description="$t('export.footerRight')"
             :input="footerTextRight"
             :emitTime="0"
             :onChange="value => onSelectChange('footerTextRight', value)"
           ></text-box>
 
           <bool
-            description="Customize style:"
+            :description="$t('export.customizeStyle')"
             :bool="headerFooterCustomize"
             :onChange="value => onSelectChange('headerFooterCustomize', value)"
           ></bool>
 
           <div v-if="headerFooterCustomize">
             <bool
-              description="Allow styled header and footer:"
+              :description="$t('export.allowStyledHeaderFooter')"
               :bool="headerFooterStyled"
               :onChange="value => onSelectChange('headerFooterStyled', value)"
             ></bool>
             <range
-              description="Header and footer font size"
+              :description="$t('export.headerFooterFontSize')"
               :value="headerFooterFontSize"
               :min="8"
               :max="20"
@@ -194,15 +194,15 @@
           </div>
         </el-tab-pane>
 
-        <el-tab-pane label="Table of Contents" name="toc">
+        <el-tab-pane :label="$t('export.toc')" name="toc">
           <bool
-            description="Include top heading:"
-            detailedDescription="Includes the first heading level too."
+            :description="$t('export.includeTopHeading')"
+            :detailedDescription="$t('export.includeTopHeadingDesc')"
             :bool="tocIncludeTopHeading"
             :onChange="value => onSelectChange('tocIncludeTopHeading', value)"
           ></bool>
           <text-box
-            description="Title:"
+            :description="$t('export.tocTitle')"
             :input="tocTitle"
             :emitTime="0"
             :onChange="value => onSelectChange('tocTitle', value)"
@@ -211,7 +211,7 @@
       </el-tabs>
       <div class="button-controlls">
         <button class="button-primary" @click="handleClicked">
-          Export...
+          {{$t('export.exportBtn')}}
         </button>
       </div>
     </el-dialog>
@@ -219,7 +219,6 @@
 </template>
 
 <script>
-import { mapState } from 'vuex'
 import fs from 'fs'
 import fsPromises from 'fs/promises'
 import path from 'path'
@@ -231,10 +230,10 @@ import FontTextBox from '@/prefComponents/common/fontTextBox'
 import Range from '@/prefComponents/common/range'
 import TextBox from '@/prefComponents/common/textBox'
 import {
-  pageSizeList,
-  headerFooterTypes,
-  headerFooterStyles,
-  exportThemeList
+  getPageSizeList,
+  getHeaderFooterTypes,
+  getHeaderFooterStyles,
+  getExportThemeList
 } from './exportOptions'
 
 export default {
@@ -248,9 +247,6 @@ export default {
   data () {
     this.exportType = ''
     this.themesLoaded = false
-    this.pageSizeList = pageSizeList
-    this.headerFooterTypes = headerFooterTypes
-    this.headerFooterStyles = headerFooterStyles
     return {
       isPrintable: true,
       showExportSettingsDialog: false,
@@ -271,7 +267,6 @@ export default {
       autoNumberingHeadings: false,
       showFrontMatter: false,
       theme: 'default',
-      themeList: exportThemeList,
       headerType: 0,
       headerTextLeft: '',
       headerTextCenter: '',
@@ -288,8 +283,18 @@ export default {
     }
   },
   computed: {
-    ...mapState({
-    })
+    pageSizeList () {
+      return getPageSizeList(this.$t.bind(this))
+    },
+    headerFooterTypes () {
+      return getHeaderFooterTypes(this.$t.bind(this))
+    },
+    headerFooterStyles () {
+      return getHeaderFooterStyles(this.$t.bind(this))
+    },
+    themeList () {
+      return getExportThemeList(this.$t.bind(this))
+    }
   },
   created () {
     bus.$on('showExportDialog', this.showDialog)

@@ -68,6 +68,10 @@ div.ag-show-quick-insert-hint p.ag-paragraph.ag-active > span.ag-paragraph-conte
   color: var(--editorColor10);
 }
 
+html[lang="zh-CN"] div.ag-show-quick-insert-hint p.ag-paragraph.ag-active > span.ag-paragraph-content:first-of-type:empty::after {
+  content: '输入 @ 插入';
+}
+
 .ag-paragraph {
   position: relative;
 }

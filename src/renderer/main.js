@@ -3,6 +3,7 @@ import VueElectron from 'vue-electron'
 import sourceMapSupport from 'source-map-support'
 import bootstrapRenderer from './bootstrap'
 import VueRouter from 'vue-router'
+import i18n from './i18n'
 import lang from 'element-ui/lib/locale/lang/en'
 import locale from 'element-ui/lib/locale'
 import axios from './axios'
@@ -102,7 +103,9 @@ const router = new VueRouter({
 
 /* eslint-disable no-new */
 new Vue({
+  i18n,
   store,
   router,
   template: '<router-view class="view"></router-view>'
 }).$mount('#app')
+// Language preference is applied via store/ASK_FOR_USER_PREFERENCE -> APPLY_LANGUAGE

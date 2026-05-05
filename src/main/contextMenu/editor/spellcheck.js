@@ -2,6 +2,7 @@ import { ipcMain, MenuItem } from 'electron'
 import log from 'electron-log'
 import { isOsx } from '../../config'
 import { addToDictionary } from '../../spellchecker'
+import { t, translate } from '../../i18n'
 import { SEPARATOR } from './menuItems'
 
 /**
@@ -16,7 +17,7 @@ export default (isMisspelled, misspelledWord, wordSuggestions) => {
   const spellingSubmenu = []
 
   spellingSubmenu.push(new MenuItem({
-    label: 'Change Language...',
+    label: t('contextMenu.editor.changeLanguage'),
     // NB: On macOS the OS spell checker is used and will detect the language automatically.
     visible: !isOsx,
     click (menuItem, targetWindow) {
@@ -27,10 +28,10 @@ export default (isMisspelled, misspelledWord, wordSuggestions) => {
   // Handle misspelled word if wordSuggestions is set, otherwise word is correct.
   if (isMisspelled && misspelledWord && wordSuggestions) {
     spellingSubmenu.push({
-      label: 'Add to Dictionary',
+      label: t('contextMenu.editor.addToDictionary'),
       click (menuItem, targetWindow) {
         if (!addToDictionary(targetWindow, misspelledWord)) {
-          log.error(`Error while adding "${misspelledWord}" to dictionary.`)
+          log.error(translate('contextMenu.editor.errorAddToDict', { word: misspelledWord }))
           return
         }
         // Need to notify Chromium to invalidate the spelling underline.
@@ -54,9 +55,9 @@ export default (isMisspelled, misspelledWord, wordSuggestions) => {
     }
   } else {
     spellingSubmenu.push({
-      label: 'Edit Dictionary...',
+      label: t('contextMenu.editor.editDictionary'),
       click (menuItem, targetWindow) {
-        ipcMain.emit('app-create-settings-window', 'spelling')
+        ipcMain.emit('app-create-settings-window', t('contextMenu.editor.spelling'))
       }
     })
   }

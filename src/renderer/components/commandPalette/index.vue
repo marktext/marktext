@@ -65,10 +65,10 @@ export default {
   },
   data () {
     this.currentCommand = null
-    this.defaultPlaceholderText = 'Type a command to execute'
+    this.defaultPlaceholderText = ''
     return {
       showCommandPalette: false,
-      placeholderText: this.defaultPlaceholderText,
+      placeholderText: this.$t('commandPalette.placeholder'),
       query: '',
       selectedCommandIndex: -1,
       availableCommands: [],
@@ -90,7 +90,7 @@ export default {
         .then(() => {
           this.availableCommands = this.currentCommand.subcommands
           this.selectedCommandIndex = this.currentCommand.subcommandSelectedIndex
-          this.placeholderText = this.currentCommand.placeholder || this.defaultPlaceholderText
+          this.placeholderText = this.currentCommand.placeholder || this.$t('commandPalette.placeholder')
           this.query = ''
           this.showCommandPalette = true
           bus.$emit('editor-blur')
@@ -242,7 +242,7 @@ export default {
       const { availableCommands, currentCommand } = this
       const command = availableCommands.find(c => c.id === commandId)
       if (!command) {
-        log.error(`Cannot find command "${commandId}".`)
+        log.error(this.$t('commandPalette.commandNotFound', { commandId }))
         return
       }
 

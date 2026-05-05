@@ -26,12 +26,12 @@
             v-model="searchValue"
             @keyup="search($event)"
             ref="search"
-            placeholder="Search"
+             :placeholder="$t('search.search')"
           >
           <div class="controls">
             <span class="search-result">{{`${highlightIndex + 1} / ${highlightCount}`}}</span>
             <span
-              title="Case Sensitive"
+              :title="$t('search.caseSensitive')"
               class="is-case-sensitive"
               :class="{'active': isCaseSensitive}"
               @click.stop="toggleCtrl('isCaseSensitive')"
@@ -41,7 +41,7 @@
               </svg>
             </span>
             <span
-              title="Select whole word"
+              :title="$t('search.wholeWord')"
               class="is-whole-word"
               :class="{'active': isWholeWord}"
               @click.stop="toggleCtrl('isWholeWord')"
@@ -51,7 +51,7 @@
               </svg>
             </span>
             <span
-              title="Use query as RegEx"
+              :title="$t('search.useRegEx')"
               class="is-regex"
               :class="{'active': isRegexp}"
               @click.stop="toggleCtrl('isRegexp')"
@@ -80,12 +80,12 @@
       </section>
       <section class="replace" v-if="type === 'replace'">
         <div class="input-wrapper replace-input">
-          <input type="text" v-model="replaceValue" placeholder="Replacement">
+          <input type="text" v-model="replaceValue" :placeholder="$t('search.replacement')">
         </div>
         <div class="button-group">
           <el-tooltip class="item"
             effect="dark"
-            content="Replace All"
+            :content="$t('search.replaceAll')"
             placement="top"
             :visible-arrow="false"
             :open-delay="1000"
@@ -98,7 +98,7 @@
           </el-tooltip>
           <el-tooltip class="item"
             effect="dark"
-            content="Replace Single"
+            :content="$t('search.replaceSingle')"
             placement="top"
             :visible-arrow="false"
             :open-delay="1000"
@@ -264,7 +264,7 @@ export default {
           new RegExp(searchValue)
           this.searchErrorMsg = ''
         } catch (err) {
-          this.searchErrorMsg = `Invalid regular expression: /${searchValue}/.`
+          this.searchErrorMsg = this.$t('search.invalidRegex', { value: searchValue })
           return
         }
         // Handle match empty string, no need to search.
@@ -275,7 +275,7 @@ export default {
           }
           this.searchErrorMsg = ''
         } catch (err) {
-          this.searchErrorMsg = `RegExp: /${searchValue}/ match empty string.`
+          this.searchErrorMsg = this.$t('search.matchEmpty', { value: searchValue })
           return
         }
       }

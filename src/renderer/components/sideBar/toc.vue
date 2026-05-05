@@ -3,7 +3,7 @@
     class="side-bar-toc"
     :class="[{ 'side-bar-toc-overflow': !wordWrapInToc, 'side-bar-toc-wordwrap': wordWrapInToc }]"
   >
-    <div class="title">Table Of Contents</div>
+    <div class="title">{{$t('sidebar.tableOfContents')}}</div>
     <el-tree
       v-if="toc.length"
       :data="toc"

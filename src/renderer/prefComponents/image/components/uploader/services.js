@@ -1,44 +1,39 @@
-// TODO: Remove information from other vue source files into this file.
+import i18n from '@/i18n'
 
 export const isValidService = name => {
   return name !== 'none' && services.hasOwnProperty(name)
 }
 
 const services = {
-  // Dummy service used to opt-in real services.
   none: {
-    name: 'None',
+    name: i18n.t('pref.image.uploader.none'),
     isGdprCompliant: true,
     privacyUrl: '',
     tosUrl: '',
 
-    // Set to true to always allow to change to this dummy service
     agreedToLegalNotices: true
   },
 
-  // Real services
   picgo: {
-    name: 'Picgo',
+    name: i18n.t('pref.image.uploader.picgo'),
     isGdprCompliant: false,
     privacyUrl: '',
     tosUrl: 'https://github.com/PicGo/PicGo-Core',
 
-    // Currently a non-persistent value
     agreedToLegalNotices: true
   },
 
   github: {
-    name: 'GitHub',
+    name: i18n.t('pref.image.uploader.github'),
     isGdprCompliant: true,
     privacyUrl: 'https://github.com/site/privacy',
     tosUrl: 'https://github.com/site/terms',
 
-    // Currently a non-persistent value
     agreedToLegalNotices: false
   },
 
   cliScript: {
-    name: 'Command line script',
+    name: i18n.t('pref.image.uploader.cliScript'),
     isGdprCompliant: true,
     privacyUrl: '',
     tosUrl: '',

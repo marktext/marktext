@@ -12,6 +12,7 @@ import { normalizeMarkdownPath } from '../filesystem/markdown'
 import { registerKeyboardListeners } from '../keyboard'
 import { selectTheme } from '../menu/actions/theme'
 import { dockMenu } from '../menu/templates'
+import { t } from '../i18n'
 import registerSpellcheckerListeners from '../spellchecker'
 import { watchers } from '../utils/imagePathAutoComplement'
 import { WindowType } from '../windows/base'
@@ -177,7 +178,7 @@ class App {
     })
 
     if (isOsx) {
-      app.dock.setMenu(dockMenu)
+      app.dock.setMenu(dockMenu(t))
     } else if (isWindows) {
       app.setJumpList([{
         type: 'recent'

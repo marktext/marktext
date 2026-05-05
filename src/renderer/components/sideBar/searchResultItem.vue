@@ -51,7 +51,7 @@
             class="button tiny"
             @click="handleShowMoreMatches"
           >
-            Show more matches
+            {{$t('sidebar.showMoreMatches')}}
           </div>
         </div>
       </div>

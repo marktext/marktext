@@ -1,68 +1,68 @@
-export const bulletListMarkerOptions = [{
-  label: '*',
+export const bulletListMarkerOptions = (t) => [{
+  label: t('pref.markdown.bulletListMarker.asterisk'),
   value: '*'
 }, {
-  label: '-',
+  label: t('pref.markdown.bulletListMarker.dash'),
   value: '-'
 }, {
-  label: '+',
+  label: t('pref.markdown.bulletListMarker.plus'),
   value: '+'
 }]
 
-export const orderListDelimiterOptions = [{
-  label: '.',
+export const orderListDelimiterOptions = (t) => [{
+  label: t('pref.markdown.orderListDelimiter.dot'),
   value: '.'
 }, {
-  label: ')',
+  label: t('pref.markdown.orderListDelimiter.paren'),
   value: ')'
 }]
 
-export const preferHeadingStyleOptions = [{
-  label: 'ATX heading',
+export const preferHeadingStyleOptions = (t) => [{
+  label: t('pref.markdown.headingStyle.atx'),
   value: 'atx'
 }, {
-  label: 'Setext heading',
+  label: t('pref.markdown.headingStyle.setext'),
   value: 'setext'
 }]
 
-export const listIndentationOptions = [{
-  label: 'DocFX style',
+export const listIndentationOptions = (t) => [{
+  label: t('pref.markdown.listIndentation.docfx'),
   value: 'dfm'
 }, {
-  label: 'True tab character',
+  label: t('pref.markdown.listIndentation.tab'),
   value: 'tab'
 }, {
-  label: 'Single space character',
+  label: t('pref.markdown.listIndentation.space1'),
   value: 1
 }, {
-  label: 'Two space characters',
+  label: t('pref.markdown.listIndentation.space2'),
   value: 2
 }, {
-  label: 'Three space characters',
+  label: t('pref.markdown.listIndentation.space3'),
   value: 3
 }, {
-  label: 'Four space characters',
+  label: t('pref.markdown.listIndentation.space4'),
   value: 4
 }]
 
-export const frontmatterTypeOptions = [{
-  label: 'YAML',
+export const frontmatterTypeOptions = (t) => [{
+  label: t('pref.markdown.frontMatter.yaml'),
   value: '-'
 }, {
-  label: 'TOML',
+  label: t('pref.markdown.frontMatter.toml'),
   value: '+'
 }, {
-  label: 'JSON (;;;)',
+  label: t('pref.markdown.frontMatter.jsonSemi'),
   value: ';'
 }, {
-  label: 'JSON ({})',
+  label: t('pref.markdown.frontMatter.jsonBrace'),
   value: '{'
 }]
 
-export const sequenceThemeOptions = [{
-  label: 'Hand drawn',
+export const sequenceThemeOptions = (t) => [{
+  label: t('pref.markdown.sequenceTheme.hand'),
   value: 'hand'
 }, {
-  label: 'Simple',
+  label: t('pref.markdown.sequenceTheme.simple'),
   value: 'simple'
 }]

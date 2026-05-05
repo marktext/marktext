@@ -8,6 +8,7 @@ import { checkUpdates, userSetting } from './marktext'
 import { showTabBar } from './view'
 import { COMMANDS } from '../../commands'
 import { EXTENSION_HASN, PANDOC_EXTENSIONS, URL_REG } from '../../config'
+import { translate } from '../../i18n'
 import { normalizeAndResolvePath, writeFile } from '../../filesystem'
 import { writeMarkdownFile } from '../../filesystem/markdown'
 import { getPath, getRecommendTitleFromMarkdownString } from '../../utils'
@@ -58,7 +59,7 @@ const handleResponseForExport = async (e, { type, content, pathname, title, page
   const dirname = pathname ? path.dirname(pathname) : getPath('documents')
   let nakedFilename = pathname ? path.basename(pathname, '.md') : title
   if (!nakedFilename) {
-    nakedFilename = 'Untitled'
+    nakedFilename = translate('editor.untitled')
   }
 
   const defaultPath = path.join(dirname, `${nakedFilename}${extension}`)

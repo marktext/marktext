@@ -1,12 +1,12 @@
 <template>
   <div class="pref-sidebar">
-    <h3 class="title">Preferences</h3>
+    <h3 class="title">{{ $t('pref.sidebar.preferences') }}</h3>
     <section class="search-wrapper">
       <el-autocomplete
         popper-class="pref-autocomplete"
         v-model="state"
         :fetch-suggestions="querySearch"
-        placeholder="Search preferences"
+        :placeholder="$t('pref.sidebar.searchPreferences')"
         :trigger-on-focus="false"
         @select="handleSelect">
         <i
@@ -39,11 +39,15 @@ import { category, searchContent } from './config'
 
 export default {
   data () {
-    this.category = category
     return {
       currentCategory: 'general',
       restaurants: [],
       state: ''
+    }
+  },
+  computed: {
+    category () {
+      return category(key => this.$t(key))
     }
   },
   watch: {
@@ -76,7 +80,7 @@ export default {
     },
     handleCategoryItemClick (item) {
       const { currentCategory } = this
-      if (item.name.toLowerCase() !== currentCategory) {
+      if (item.label !== currentCategory) {
         this.$router.push({
           path: item.path
         })

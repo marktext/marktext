@@ -14,7 +14,7 @@ const state = {
   fileSortBy: 'created',
   startUpAction: 'lastState',
   defaultDirectoryToOpen: '',
-  language: 'en',
+  language: 'en-US',
 
   editorFontFamily: 'Open Sans',
   fontSize: 16,
@@ -115,18 +115,32 @@ const mutations = {
 }
 
 const actions = {
-  ASK_FOR_USER_PREFERENCE ({ commit }) {
+  ASK_FOR_USER_PREFERENCE ({ commit, dispatch }) {
     ipcRenderer.send('mt::ask-for-user-preference')
     ipcRenderer.send('mt::ask-for-user-data')
 
     ipcRenderer.on('mt::user-preference', (e, preferences) => {
       commit('SET_USER_PREFERENCE', preferences)
+      if (preferences.language) {
+        dispatch('APPLY_LANGUAGE', preferences.language)
+      }
     })
   },
 
-  SET_SINGLE_PREFERENCE ({ commit }, { type, value }) {
+  APPLY_LANGUAGE ({ commit }, lang) {
+    // Normalize old 'en' preference to 'en-US'
+    const normalizedLang = lang === 'en' ? 'en-US' : lang
+    commit('SET_USER_PREFERENCE', { language: normalizedLang })
+    const { setAppLanguage } = require('../i18n')
+    setAppLanguage(normalizedLang)
+  },
+
+  SET_SINGLE_PREFERENCE ({ commit, dispatch }, { type, value }) {
     // save to electron-store
     ipcRenderer.send('mt::set-user-preference', { [type]: value })
+    if (type === 'language' && value) {
+      dispatch('APPLY_LANGUAGE', value)
+    }
   },
 
   SET_USER_DATA ({ commit }, { type, value }) {

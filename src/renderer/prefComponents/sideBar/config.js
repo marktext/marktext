@@ -8,38 +8,40 @@ import KeyBindingIcon from '@/assets/icons/pref_key_binding.svg'
 
 import preferences from '../../../main/preferences/schema'
 
-export const category = [{
-  name: 'General',
+const categoryLabels = ['general', 'editor', 'markdown', 'spelling', 'theme', 'image', 'keybindings']
+
+export const category = (t) => [{
+  name: t('pref.sidebar.general'),
   label: 'general',
   icon: GeneralIcon,
   path: '/preference/general'
 }, {
-  name: 'Editor',
+  name: t('pref.sidebar.editor'),
   label: 'editor',
   icon: EditorIcon,
   path: '/preference/editor'
 }, {
-  name: 'Markdown',
+  name: t('pref.sidebar.markdown'),
   label: 'markdown',
   icon: MarkdownIcon,
   path: '/preference/markdown'
 }, {
-  name: 'Spelling',
+  name: t('pref.sidebar.spelling'),
   label: 'spelling',
   icon: SpellIcon,
   path: '/preference/spelling'
 }, {
-  name: 'Theme',
+  name: t('pref.sidebar.theme'),
   label: 'theme',
   icon: ThemeIcon,
   path: '/preference/theme'
 }, {
-  name: 'Image',
+  name: t('pref.sidebar.image'),
   label: 'image',
   icon: ImageIcon,
   path: '/preference/image'
 }, {
-  name: 'Key Bindings',
+  name: t('pref.sidebar.keyBindings'),
   label: 'keybindings',
   icon: KeyBindingIcon,
   path: '/preference/keybindings'
@@ -47,13 +49,13 @@ export const category = [{
 
 export const searchContent = Object.keys(preferences).map(k => {
   const { description, enum: emums } = preferences[k]
-  let [category, preference] = description.split('--')
+  let [cat, preference] = description.split('--')
   if (Array.isArray(emums)) {
     preference += ` optional values: ${emums.join(', ')}`
   }
   return {
-    category,
+    category: cat,
     preference
   }
 })
-  .filter(({ category: ca }) => category.some(c => c.label === ca.toLowerCase()))
+  .filter(({ category: ca }) => categoryLabels.includes(ca.toLowerCase()))

@@ -8,6 +8,7 @@ import window from './window'
 import paragraph from './paragraph'
 import format from './format'
 import theme from './theme'
+import { t } from '../../i18n'
 
 export dockMenu from './dock'
 
@@ -18,9 +19,9 @@ export dockMenu from './dock'
  */
 export const configSettingMenu = (keybindings) => {
   return [
-    ...(process.platform === 'darwin' ? [marktext(keybindings)] : []),
-    prefEdit(keybindings),
-    help()
+    ...(process.platform === 'darwin' ? [marktext(keybindings, t)] : []),
+    prefEdit(keybindings, t),
+    help(t)
   ]
 }
 
@@ -33,14 +34,14 @@ export const configSettingMenu = (keybindings) => {
  */
 export default function (keybindings, preferences, recentlyUsedFiles) {
   return [
-    ...(process.platform === 'darwin' ? [marktext(keybindings)] : []),
-    file(keybindings, preferences, recentlyUsedFiles),
-    edit(keybindings),
-    paragraph(keybindings),
-    format(keybindings),
-    window(keybindings),
-    theme(preferences),
-    view(keybindings),
-    help()
+    ...(process.platform === 'darwin' ? [marktext(keybindings, t)] : []),
+    file(keybindings, preferences, recentlyUsedFiles, t),
+    edit(keybindings, t),
+    paragraph(keybindings, t),
+    format(keybindings, t),
+    window(keybindings, t),
+    theme(preferences, t),
+    view(keybindings, t),
+    help(t)
   ]
 }

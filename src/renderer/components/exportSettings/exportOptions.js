@@ -1,61 +1,61 @@
-export const pageSizeList = [
+export const getPageSizeList = (t) => [
   {
-    label: 'A3 (297mm x 420mm)',
+    label: t('export.pageSize.A3'),
     value: 'A3'
   }, {
-    label: 'A4 (210mm x 297mm)',
+    label: t('export.pageSize.A4'),
     value: 'A4'
   }, {
-    label: 'A5 (148mm x 210mm)',
+    label: t('export.pageSize.A5'),
     value: 'A5'
   }, {
-    label: 'US Legal (8.5" x 13")',
+    label: t('export.pageSize.Legal'),
     value: 'Legal'
   }, {
-    label: 'US Letter (8.5" x 11")',
+    label: t('export.pageSize.Letter'),
     value: 'Letter'
   }, {
-    label: 'Tabloid (17" x 11")',
+    label: t('export.pageSize.Tabloid'),
     value: 'Tabloid'
   }, {
-    label: 'Custom',
+    label: t('export.pageSize.Custom'),
     value: 'custom'
   }
 ]
 
-export const headerFooterTypes = [
+export const getHeaderFooterTypes = (t) => [
   {
-    label: 'None',
+    label: t('export.headerFooterType.none'),
     value: 0
   }, {
-    label: 'Single cell',
+    label: t('export.headerFooterType.singleCell'),
     value: 1
   }, {
-    label: 'Three cells',
+    label: t('export.headerFooterType.threeCells'),
     value: 2
   }
 ]
 
-export const headerFooterStyles = [
+export const getHeaderFooterStyles = (t) => [
   {
-    label: 'Default',
+    label: t('export.headerFooterStyle.default'),
     value: 0
   }, {
-    label: 'Simple',
+    label: t('export.headerFooterStyle.simple'),
     value: 1
   }, {
-    label: 'Styled',
+    label: t('export.headerFooterStyle.styled'),
     value: 2
   }
 ]
 
-export const exportThemeList = [{
-  label: 'Academic',
+export const getExportThemeList = (t) => [{
+  label: t('export.theme.academic'),
   value: 'academic'
 }, {
-  label: 'GitHub (Default)',
+  label: t('export.theme.github'),
   value: 'default'
 }, {
-  label: 'Liber',
+  label: t('export.theme.liber'),
   value: 'liber'
 }]

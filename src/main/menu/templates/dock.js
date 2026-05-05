@@ -1,20 +1,20 @@
 import { app, Menu } from 'electron'
 import * as actions from '../actions/file'
 
-const dockMenu = Menu.buildFromTemplate([{
-  label: 'Open...',
-  click (menuItem, browserWindow) {
-    if (browserWindow) {
-      actions.openFile(browserWindow)
-    } else {
-      actions.newEditorWindow()
+export default function (t) {
+  return Menu.buildFromTemplate([{
+    label: t('menu.dock.open'),
+    click (menuItem, browserWindow) {
+      if (browserWindow) {
+        actions.openFile(browserWindow)
+      } else {
+        actions.newEditorWindow()
+      }
     }
-  }
-}, {
-  label: 'Clear Recent',
-  click () {
-    app.clearRecentDocuments()
-  }
-}])
-
-export default dockMenu
+  }, {
+    label: t('menu.dock.clearRecent'),
+    click () {
+      app.clearRecentDocuments()
+    }
+  }])
+}

@@ -1,10 +1,10 @@
 <template>
   <div class="pref-image">
-    <h4>Image</h4>
+    <h4>{{ $t('pref.image.title') }}</h4>
     <section class="image-ctrl">
-      <div>Default action after an image is inserted from local folder or clipboard
+      <div>{{ $t('pref.image.defaultAction') }}
         <el-tooltip class='item' effect='dark'
-          content='Clipboard handling is only fully supported on macOS and Windows.'
+          :content="$t('pref.image.clipboardHint')"
           placement='top-start'>
           <i class="el-icon-info"></i>
         </el-tooltip>
@@ -33,11 +33,12 @@ export default {
     Uploader
   },
   data () {
-    this.imageActions = imageActions
-
     return {}
   },
   computed: {
+    imageActions () {
+      return imageActions(this.$t.bind(this))
+    },
     imageInsertAction: {
       get: function () {
         return this.$store.state.preferences.imageInsertAction

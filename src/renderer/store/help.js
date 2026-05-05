@@ -1,4 +1,5 @@
 import { getUniqueId, cloneObj } from '../util'
+import i18n from '@/i18n'
 
 /**
  * Default internel markdown document with editor options.
@@ -93,7 +94,7 @@ export const getBlankFileState = (tabs, defaultEncoding = 'utf8', lineEnding = '
     lineEnding,
     adjustLineEndingOnSave: lineEnding.toLowerCase() === 'crlf',
     id,
-    filename: `Untitled-${++untitleId}`,
+    filename: `${i18n.t('editor.untitled')}-${++untitleId}`,
     markdown
   })
 }

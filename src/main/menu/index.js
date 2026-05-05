@@ -9,6 +9,7 @@ import { updateFormatMenu } from '../menu/actions/format'
 import { updateSelectionMenus } from '../menu/actions/paragraph'
 import { viewLayoutChanged } from '../menu/actions/view'
 import configureMenu, { configSettingMenu } from '../menu/templates'
+import { setLocale } from '../i18n'
 
 const RECENTLY_USED_DOCUMENTS_FILE_NAME = 'recently-used-documents.json'
 const MAX_RECENTLY_USED_DOCUMENTS = 12
@@ -415,6 +416,11 @@ class AppMenu {
       if (prefs.autoSave !== undefined) {
         this.updateAutoSaveMenu(prefs.autoSave)
       }
+    })
+
+    ipcMain.on('mt::set-locale', (e, lang, localeData) => {
+      setLocale(localeData)
+      this.updateAppMenu()
     })
   }
 }
