@@ -299,7 +299,6 @@ class ExportMarkdown {
 
   normalizeTable(table, indent) {
     const result = []
-    const { row, column } = table
     const tableData = []
     const tHeader = table.children[0]
     const tBody = table.children[1]
@@ -319,8 +318,8 @@ class ExportMarkdown {
     let i
     let j
 
-    for (i = 0; i <= row; i++) {
-      for (j = 0; j <= column; j++) {
+    for (i = 0; i < tableData.length; i++) {
+      for (j = 0; j < tableData[i].length; j++) {
         columnWidth[j].width = Math.max(columnWidth[j].width, tableData[i][j].length + 2) // add 2, because have two space around text
       }
     }
