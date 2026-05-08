@@ -469,6 +469,7 @@
         "spellcheckerLanguage": "El idioma del verificador ortográfico",
         "imageInsertAction": "El comportamiento predeterminado después de insertar imagen desde carpeta local",
         "imagePreferRelativeDirectory": "Si preferir el directorio de imagen relativo",
+        "imageRelativeDirectoryBase": "Dónde se copian las imágenes relativas",
         "imageRelativeDirectoryName": "El nombre de la carpeta de imagen relativa",
         "sideBarVisibility": "Si la barra lateral es visible",
         "tabBarVisibility": "Si las pestañas se muestran",
@@ -621,6 +622,9 @@
         "open": "Abrir",
         "showInFolder": "Mostrar en Carpeta",
         "preferRelative": "Preferir directorio relativo",
+        "relativeCopyLocation": "Copiar imagen relativa a",
+        "copyRelativeToFile": "Relativa al archivo",
+        "copyRelativeToFolder": "Relativa a la carpeta",
         "relativeFolderName": "Nombre de carpeta relativa",
         "filenameNote": "El nombre del archivo se generará automáticamente."
       },

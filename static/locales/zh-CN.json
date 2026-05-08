@@ -470,6 +470,7 @@
         "spellcheckerLanguage": "拼写检查器语言",
         "imageInsertAction": "从本地文件夹插入图片后的默认行为",
         "imagePreferRelativeDirectory": "是否首选相对图片目录",
+        "imageRelativeDirectoryBase": "相对图片的复制位置",
         "imageRelativeDirectoryName": "相对图片文件夹名称",
         "sideBarVisibility": "侧边栏是否可见",
         "tabBarVisibility": "是否显示标签页",
@@ -622,6 +623,9 @@
         "open": "打开",
         "showInFolder": "在文件夹中显示",
         "preferRelative": "首选相对目录",
+        "relativeCopyLocation": "图片相对复制到",
+        "copyRelativeToFile": "相对于文件",
+        "copyRelativeToFolder": "相对于文件夹",
         "relativeFolderName": "相对文件夹名称",
         "filenameNote": "文件名将自动生成。"
       },

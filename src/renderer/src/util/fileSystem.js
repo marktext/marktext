@@ -29,35 +29,13 @@ export const getContentHash = (content) => {
   return getHash(content, 'utf8', 'sha1')
 }
 
-/**
- * Moves an image to a relative position.
- *
- * @param {String} cwd The relative base path (project root or full folder path of opened file).
- * @param {String} relativeName The relative directory name.
- * @param {String} filePath The full path to the opened file in editor.
- * @param {String} imagePath The image to move.
- * @returns {String} The relative path the image from given `filePath`.
- */
-export const moveToRelativeFolder = async (cwd, relativeName, filePath, imagePath) => {
-  if (!relativeName) {
-    relativeName = 'assets'
-  } else if (window.path.isAbsolute(relativeName)) {
-    throw new Error('Invalid relative directory name.')
-  }
-
-  const absPath = window.path.resolve(cwd, relativeName)
-  const dstPath = window.path.resolve(absPath, window.path.basename(imagePath))
-  await window.fileUtils.ensureDir(absPath)
-  await window.fileUtils.move(imagePath, dstPath, { overwrite: true })
-
-  const dstRelPath = window.path.relative(window.path.dirname(filePath), dstPath)
-  if (isWindows) {
-    return dstRelPath.replace(/\\/g, '/')
-  }
-  return dstRelPath
-}
-
-export const moveImageToFolder = async (pathname, image, outputDir) => {
+export const moveImageToFolder = async (
+  pathname,
+  image,
+  outputDir,
+  isRelative = false,
+  currentPathname = null
+) => {
   await window.fileUtils.ensureDir(outputDir)
   const isPath = typeof image === 'string'
   if (isPath) {
@@ -86,6 +64,11 @@ export const moveImageToFolder = async (pathname, image, outputDir) => {
 
     const buffer = Buffer.from(await image.arrayBuffer())
     await window.fileUtils.writeFile(imagePath, buffer, 'binary')
+
+    if (isRelative && currentPathname) {
+      return window.path.relative(window.path.dirname(currentPathname), imagePath)
+    }
+
     return imagePath
   }
 }
@@ -154,8 +137,9 @@ export const uploadImage = async (pathname, image, preferences) => {
           c.startsWith('/') &&
           window.fileUtils?.pathExistsSync &&
           window.fileUtils.pathExistsSync(c)
-        )
+        ) {
           return c
+        }
       } catch {}
     }
     return null
@@ -179,8 +163,9 @@ export const uploadImage = async (pathname, image, preferences) => {
             if (obj) {
               // 仅在明确成功时返回 URL
               if (obj.success === true && typeof obj.imgUrl === 'string') return obj.imgUrl
-              if (obj.success === true && Array.isArray(obj.result) && obj.result.length > 0)
+              if (obj.success === true && Array.isArray(obj.result) && obj.result.length > 0) {
                 return String(obj.result[obj.result.length - 1])
+              }
               if (obj.success === true && typeof obj.url === 'string') return obj.url
             }
           } catch {}

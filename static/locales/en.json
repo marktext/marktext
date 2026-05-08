@@ -468,6 +468,7 @@
         "spellcheckerLanguage": "The spell checker language",
         "imageInsertAction": "The default behavior after insert image from local folder",
         "imagePreferRelativeDirectory": "Whether to prefer the relative image directory",
+        "imageRelativeDirectoryBase": "Where relative images are copied",
         "imageRelativeDirectoryName": "The relative image folder name",
         "sideBarVisibility": "Whether the side bar is visible",
         "tabBarVisibility": "Whether the tabs are shown",
@@ -620,6 +621,9 @@
         "open": "Open",
         "showInFolder": "Show in Folder",
         "preferRelative": "Prefer relative directory",
+        "relativeCopyLocation": "Copy image relative to",
+        "copyRelativeToFile": "Relative to file",
+        "copyRelativeToFolder": "Relative to folder",
         "relativeFolderName": "Relative folder name",
         "filenameNote": "The filename will be automatically generated."
       },

@@ -469,6 +469,7 @@
         "spellcheckerLanguage": "Die Rechtschreibprüfungs-Sprache",
         "imageInsertAction": "Das Standardverhalten nach dem Einfügen von Bildern aus einem lokalen Ordner",
         "imagePreferRelativeDirectory": "Ob das relative Bildverzeichnis bevorzugt werden soll",
+        "imageRelativeDirectoryBase": "Wohin relative Bilder kopiert werden",
         "imageRelativeDirectoryName": "Der relative Bildordner-Name",
         "sideBarVisibility": "Ob die Seitenleiste sichtbar ist",
         "tabBarVisibility": "Ob die Tabs angezeigt werden",
@@ -621,6 +622,9 @@
         "open": "Öffnen",
         "showInFolder": "Im Ordner anzeigen",
         "preferRelative": "Relatives Verzeichnis bevorzugen",
+        "relativeCopyLocation": "Bild relativ kopieren zu",
+        "copyRelativeToFile": "Relativ zur Datei",
+        "copyRelativeToFolder": "Relativ zum Ordner",
         "relativeFolderName": "Name des relativen Ordners",
         "filenameNote": "Der Dateiname wird automatisch generiert."
       },

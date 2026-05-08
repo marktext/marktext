@@ -332,6 +332,11 @@
     "type": "boolean",
     "default": false
   },
+  "imageRelativeDirectoryBase": {
+    "description": "Image--Where relative images are copied.",
+    "enum": ["file", "folder"],
+    "default": "file"
+  },
   "imageRelativeDirectoryName": {
     "description": "Image--The relative image folder name.",
     "type": "string",

@@ -43,6 +43,7 @@ export const usePreferencesStore = defineStore('preferences', {
     hideQuickInsertHint: false,
     imageInsertAction: 'folder',
     imagePreferRelativeDirectory: false,
+    imageRelativeDirectoryBase: 'file',
     imageRelativeDirectoryName: 'assets',
     hideLinkPopup: false,
     autoCheck: false,

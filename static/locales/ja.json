@@ -470,6 +470,7 @@
         "spellcheckerLanguage": "スペルチェッカーの言語",
         "imageInsertAction": "ローカルフォルダから画像を挿入した後のデフォルトの動作",
         "imagePreferRelativeDirectory": "相対画像ディレクトリを優先するかどうか",
+        "imageRelativeDirectoryBase": "相対画像のコピー先",
         "imageRelativeDirectoryName": "相対画像フォルダ名",
         "sideBarVisibility": "サイドバーが表示されているかどうか",
         "tabBarVisibility": "タブが表示されているかどうか",
@@ -622,6 +623,9 @@
         "open": "開く",
         "showInFolder": "フォルダで表示",
         "preferRelative": "相対ディレクトリを優先",
+        "relativeCopyLocation": "画像の相対コピー先",
+        "copyRelativeToFile": "ファイル基準",
+        "copyRelativeToFolder": "フォルダ基準",
         "relativeFolderName": "相対フォルダ名",
         "filenameNote": "ファイル名は自動生成されます。"
       },

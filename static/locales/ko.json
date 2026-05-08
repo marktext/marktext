@@ -470,6 +470,7 @@
         "spellcheckerLanguage": "맞춤법 검사기 언어",
         "imageInsertAction": "로컬 폴더에서 이미지를 삽입한 후의 기본 동작",
         "imagePreferRelativeDirectory": "상대 이미지 디렉터리를 선호할지 여부",
+        "imageRelativeDirectoryBase": "상대 이미지가 복사되는 위치",
         "imageRelativeDirectoryName": "상대 이미지 폴더 이름",
         "sideBarVisibility": "사이드바가 보이는지 여부",
         "tabBarVisibility": "탭이 표시되는지 여부",
@@ -622,6 +623,9 @@
         "open": "열기",
         "showInFolder": "폴더에서 보기",
         "preferRelative": "상대 디렉터리 선호",
+        "relativeCopyLocation": "이미지 상대 복사 기준",
+        "copyRelativeToFile": "파일 기준",
+        "copyRelativeToFolder": "폴더 기준",
         "relativeFolderName": "상대 폴더 이름",
         "filenameNote": "파일 이름은 자동으로 생성됩니다."
       },

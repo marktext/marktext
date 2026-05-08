@@ -90,7 +90,7 @@ import Printer from '@/services/printService'
 import { SpellcheckerLanguageCommand } from '@/commands'
 import { SpellChecker } from '@/spellchecker'
 import { isOsx, animatedScrollTo } from '@/util'
-import { moveImageToFolder, moveToRelativeFolder, uploadImage } from '@/util/fileSystem'
+import { moveImageToFolder, uploadImage } from '@/util/fileSystem'
 import { guessClipboardFilePath } from '@/util/clipboard'
 import { getCssForOptions, getHtmlToc } from '@/util/pdf'
 import { addCommonStyle, setEditorWidth, setWrapCodeBlocks } from '@/util/theme'
@@ -154,6 +154,7 @@ const {
   wrapCodeBlocks,
   imageInsertAction,
   imagePreferRelativeDirectory,
+  imageRelativeDirectoryBase,
   imageRelativeDirectoryName,
   imageFolderPath,
   theme,
@@ -471,16 +472,12 @@ const imageAction = async (image, id, alt = '') => {
   // TODO(Refactor): Refactor this method.
   const { filename, pathname: currentPathname } = currentFile.value
 
-  // Save an image relative to the file if the relative image directory include the filename variable.
-  // The image is save relative to the root folder without a variable.
-  const saveRelativeToFile = () => {
-    return /\${filename}/.test(imageRelativeDirectoryName.value)
-  }
-
   // Figure out the current working directory.
+  // Save an image relative to the file, otherwise use the project root when available.
   const isTabSavedOnDisk = !!currentPathname
+  console.log('isTabSavedOnDisk', isTabSavedOnDisk, 'currentPathname', currentPathname)
   let relativeBasePath = isTabSavedOnDisk ? window.path.dirname(currentPathname) : null
-  if (isTabSavedOnDisk && !saveRelativeToFile() && projectTree.value) {
+  if (isTabSavedOnDisk && imageRelativeDirectoryBase.value !== 'file' && projectTree.value) {
     const { pathname: rootPath } = projectTree.value
     if (rootPath && window.fileUtils.isChildOfDirectory(rootPath, currentPathname)) {
       // Save assets relative to root directory.
@@ -496,8 +493,11 @@ const imageAction = async (image, id, alt = '') => {
     return imagePath.replace(/\${filename}/g, replacement)
   }
 
-  const resolvedImageFolderPath = getResolvedImagePath(imageFolderPath.value)
-  const resolvedImageRelativeDirectoryName = getResolvedImagePath(imageRelativeDirectoryName.value)
+  const resolvedGlobalImageFolderPath = getResolvedImagePath(imageFolderPath.value)
+  const resolvedImageRelativeDirectoryName = getResolvedImagePath(imageRelativeDirectoryName.value) // assets/
+  const resolvedImageRelativeFullDirectoryPath = relativeBasePath
+    ? window.path.join(relativeBasePath, resolvedImageRelativeDirectoryName)
+    : null // /root/dir/assets
   let destImagePath = ''
   switch (imageInsertAction.value) {
     case 'upload': {
@@ -510,18 +510,28 @@ const imageAction = async (image, id, alt = '') => {
           type: 'warning',
           message: err
         })
-        destImagePath = await moveImageToFolder(currentPathname, image, resolvedImageFolderPath)
+        destImagePath = await moveImageToFolder(
+          currentPathname,
+          image,
+          resolvedGlobalImageFolderPath
+        )
       }
       break
     }
     case 'folder': {
-      destImagePath = await moveImageToFolder(currentPathname, image, resolvedImageFolderPath)
       if (isTabSavedOnDisk && imagePreferRelativeDirectory.value) {
-        destImagePath = await moveToRelativeFolder(
-          relativeBasePath,
-          resolvedImageRelativeDirectoryName,
+        destImagePath = await moveImageToFolder(
+          null,
+          image,
+          resolvedImageRelativeFullDirectoryPath,
+          true,
+          currentPathname
+        )
+      } else {
+        destImagePath = await moveImageToFolder(
           currentPathname,
-          destImagePath
+          image,
+          resolvedGlobalImageFolderPath
         )
       }
       break
@@ -532,15 +542,26 @@ const imageAction = async (image, id, alt = '') => {
         destImagePath = image
       } else {
         // Save and move image to image folder if input is binary.
-        destImagePath = await moveImageToFolder(currentPathname, image, resolvedImageFolderPath)
+        console.log('imageAction: moving image to relative directory', {
+          resolvedImageRelativeFullDirectoryPath,
+          resolvedImageRelativeDirectoryName
+        })
 
         // Respect user preferences if tab exists on disk.
         if (isTabSavedOnDisk && imagePreferRelativeDirectory.value) {
-          destImagePath = await moveToRelativeFolder(
-            relativeBasePath,
-            resolvedImageRelativeDirectoryName,
+          destImagePath = await moveImageToFolder(
+            null,
+            image,
+            resolvedImageRelativeFullDirectoryPath,
+            true,
+            currentPathname
+          )
+          console.log('moved image to relative directory', { destImagePath })
+        } else {
+          destImagePath = await moveImageToFolder(
             currentPathname,
-            destImagePath
+            image,
+            resolvedGlobalImageFolderPath
           )
         }
       }

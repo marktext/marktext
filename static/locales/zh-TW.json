@@ -470,6 +470,7 @@
         "spellcheckerLanguage": "拼字檢查器語言",
         "imageInsertAction": "從本地資料夾插入圖片後的預設行為",
         "imagePreferRelativeDirectory": "是否首選相對圖片目錄",
+        "imageRelativeDirectoryBase": "相對圖片的複製位置",
         "imageRelativeDirectoryName": "相對圖片資料夾名稱",
         "sideBarVisibility": "側邊欄是否可見",
         "tabBarVisibility": "是否顯示標籤頁",
@@ -622,6 +623,9 @@
         "open": "開啟",
         "showInFolder": "在資料夾中顯示",
         "preferRelative": "偏好相對目錄",
+        "relativeCopyLocation": "圖片相對複製到",
+        "copyRelativeToFile": "相對於檔案",
+        "copyRelativeToFolder": "相對於資料夾",
         "relativeFolderName": "相對資料夾名稱",
         "filenameNote": "檔案名稱將自動產生。"
       },

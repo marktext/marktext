@@ -37,6 +37,7 @@
   "hideQuickInsertHint": false,
   "imageInsertAction": "path",
   "imagePreferRelativeDirectory": false,
+  "imageRelativeDirectoryBase": "file",
   "imageRelativeDirectoryName": "assets",
   "hideLinkPopup": false,
   "autoCheck": false,
