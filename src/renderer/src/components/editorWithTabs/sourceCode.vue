@@ -4,12 +4,11 @@
 
 <script setup>
 import { ref, watch, onMounted, onBeforeUnmount } from 'vue'
-import { useI18n } from 'vue-i18n'
 import { useEditorStore } from '@/store/editor'
 import { usePreferencesStore } from '@/store/preferences'
 import { storeToRefs } from 'pinia'
 import codeMirror, { setMode, setCursorAtFirstLine, setTextDirection } from '../../codeMirror'
-import { debounce, wordCount as getWordCount } from 'muya/lib/utils'
+import { wordCount as getWordCount } from 'muya/lib/utils'
 import { adjustCursor } from '../../util'
 import bus from '../../bus'
 import { oneDarkThemes, railscastsThemes } from '@/config'
@@ -36,6 +35,10 @@ const tabId = ref(null)
 const { theme, sourceCode } = storeToRefs(preferencesStore)
 const { currentFile: currentTab } = storeToRefs(editorStore)
 
+const isValidMuyaIndexCursor = (cursor) => {
+  return !!(cursor && cursor.anchor && cursor.focus)
+}
+
 watch(
   () => props.textDirection,
   (value, oldValue) => {
@@ -54,7 +57,16 @@ const getMarkdownAndCursor = (cm) => {
     const line = cm.getLine(cursor.line)
     const preLine = cm.getLine(cursor.line - 1)
     const nextLine = cm.getLine(cursor.line + 1)
-    return adjustCursor(cursor, preLine, line, nextLine)
+    return adjustCursor(
+      cursor,
+      preLine,
+      line,
+      nextLine,
+      (lineNumber) => {
+        return cm.getLine(lineNumber)
+      },
+      cm.lineCount()
+    )
   }
 
   anchor = convertToMuyaCursor(anchor) // Selection start as Muya cursor
@@ -87,16 +99,7 @@ const prepareTabSwitch = () => {
   }
 }
 
-const scrollToCords = (y) => {
-  requestAnimationFrame(() => {
-    // Ensures there we have scrolled to that position before the browser paints the next frame
-    // prevents "flickers"
-    if (!sourceCodeContainer.value) return
-    sourceCodeContainer.value.scrollTop = y
-  })
-}
-
-const handleFileChange = ({ id, markdown: newMarkdown, muyaIndexCursor, scrollTop }) => {
+const handleFileChange = ({ id, markdown: newMarkdown, muyaIndexCursor }) => {
   if (!editor.value) return
 
   prepareTabSwitch()
@@ -106,17 +109,12 @@ const handleFileChange = ({ id, markdown: newMarkdown, muyaIndexCursor, scrollTo
   }
 
   // t('editor.sourceCode.cursorNullComment')
-
-  if (muyaIndexCursor) {
+  if (isValidMuyaIndexCursor(muyaIndexCursor)) {
     const { anchor, focus } = muyaIndexCursor
 
     editor.value.setSelection(anchor, focus, { scroll: true }) // Scroll the focus into view.
   } else {
     setCursorAtFirstLine(editor.value)
-  }
-
-  if (typeof scrollTop === 'number') {
-    scrollToCords(scrollTop)
   }
 }
 
@@ -193,25 +191,29 @@ const handleImageAction = ({ id, result, alt }) => {
   }
 }
 
+const saveContent = (cm) => {
+  const { cursor, markdown: newMarkdown } = getMarkdownAndCursor(cm)
+  // Attention: the cursor may be `{focus: null, anchor: null}` when press `backspace`
+  const wordCount = getWordCount(newMarkdown)
+  // See "beforeDestroy" note
+  if (!viewDestroyed.value) {
+    if (tabId.value) {
+      editorStore.LISTEN_FOR_CONTENT_CHANGE({
+        id: tabId.value,
+        markdown: newMarkdown,
+        wordCount,
+        muyaIndexCursor: cursor
+      })
+    } else {
+      // This may occur during tab switching but should not occur otherwise.
+      console.warn('LISTEN_FOR_CONTENT_CHANGE: Cannot commit changes because not tab id was set!')
+    }
+  }
+}
+
 const listenChange = () => {
   editor.value.on('cursorActivity', (cm) => {
-    const { cursor, markdown: newMarkdown } = getMarkdownAndCursor(cm)
-    // Attention: the cursor may be `{focus: null, anchor: null}` when press `backspace`
-    const wordCount = getWordCount(newMarkdown)
-    // See "beforeDestroy" note
-    if (!viewDestroyed.value) {
-      if (tabId.value) {
-        editorStore.LISTEN_FOR_CONTENT_CHANGE({
-          id: tabId.value,
-          markdown: newMarkdown,
-          wordCount,
-          muyaIndexCursor: cursor
-        })
-      } else {
-        // This may occur during tab switching but should not occur otherwise.
-        console.warn('LISTEN_FOR_CONTENT_CHANGE: Cannot commit changes because not tab id was set!')
-      }
-    }
+    saveContent(cm)
   })
 }
 
@@ -226,7 +228,6 @@ onMounted(() => {
 
   const { markdown, muyaIndexCursor, textDirection } = props
   const container = sourceCodeContainer.value
-  container.addEventListener('scroll', handleScroll)
   const codeMirrorConfig = {
     value: markdown,
     lineNumbers: true,
@@ -267,7 +268,7 @@ onMounted(() => {
     event.stopPropagation()
   })
 
-  if (muyaIndexCursor && muyaIndexCursor.anchor && muyaIndexCursor.focus) {
+  if (isValidMuyaIndexCursor(muyaIndexCursor)) {
     const { anchor, focus } = muyaIndexCursor
     codeMirrorInstance.setSelection(anchor, focus, { scroll: true })
   } else {
@@ -297,16 +298,7 @@ onBeforeUnmount(() => {
     muyaIndexCursor: cursor,
     renderCursor: true
   })
-
-  sourceCodeContainer.value.removeEventListener('scroll', handleScroll)
 })
-
-const handleScroll = debounce(() => {
-  if (!tabId.value || !sourceCodeContainer.value) {
-    return
-  }
-  editorStore.updateScrollPosition(tabId.value, sourceCodeContainer.value.scrollTop)
-}, 100)
 </script>
 
 <style>

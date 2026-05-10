@@ -46,10 +46,60 @@ export const dataURItoBlob = function (dataURI) {
   return new window.Blob([ab], { type: mime })
 }
 
-export const adjustCursor = (cursor, preline, line, nextline) => {
-  // Return null if line doesn't exist (e.g., cursor beyond document bounds)
-  if (typeof line !== 'string') {
-    return null
+const getNearestAvailableCursor = (cursor, getLine, lineCount) => {
+  if (typeof getLine === 'function' && lineCount > 0) {
+    const currentLine = Math.min(Math.max(cursor.line, 0), lineCount - 1)
+    const currentText = getLine(currentLine)
+
+    if (typeof currentText === 'string' && /\S/.test(currentText)) {
+      return {
+        line: currentLine,
+        ch: Math.min(cursor.ch, currentText.length)
+      }
+    }
+
+    for (let distance = 1; distance < lineCount; distance++) {
+      const candidates = [currentLine - distance, currentLine + distance]
+
+      for (const lineNumber of candidates) {
+        const text = getLine(lineNumber)
+
+        if (typeof text === 'string' && /\S/.test(text)) {
+          return {
+            line: lineNumber,
+            ch: lineNumber < currentLine ? text.length : 0
+          }
+        }
+      }
+    }
+  }
+
+  return {
+    line: Math.max(cursor.line, 0),
+    ch: 0
+  }
+}
+
+export const adjustCursor = (cursor, preline, line, nextline, getLine, lineCount) => {
+  // Need to adjust the cursor when cursor is on a blank or unavailable line.
+  if (typeof line !== 'string' || !/\S/.test(line)) {
+    const nearestCursor = getNearestAvailableCursor(cursor, getLine, lineCount)
+    const nearestLine = typeof getLine === 'function' ? getLine(nearestCursor.line) : ''
+    const nearestPreLine = typeof getLine === 'function' ? getLine(nearestCursor.line - 1) : ''
+    const nearestNextLine = typeof getLine === 'function' ? getLine(nearestCursor.line + 1) : ''
+
+    if (typeof nearestLine === 'string' && /\S/.test(nearestLine)) {
+      return adjustCursor(
+        nearestCursor,
+        nearestPreLine,
+        nearestLine,
+        nearestNextLine,
+        getLine,
+        lineCount
+      )
+    }
+
+    return nearestCursor
   }
 
   let newCursor = Object.assign({}, { line: cursor.line, ch: cursor.ch })
@@ -57,7 +107,7 @@ export const adjustCursor = (cursor, preline, line, nextline) => {
   if (/\|[^|]+\|.+\|\s*$/.test(line)) {
     if (/\|\s*:?-+:?\s*\|[:-\s|]+\|\s*$/.test(line)) {
       // cursor in `| --- | :---: |` :the second line of table
-      if (typeof nextline === 'string') {
+      if (typeof nextline === 'string' && /\S/.test(nextline)) {
         newCursor.line += 1 // reset the cursor to the next line
         newCursor.ch = nextline.indexOf('|') + 1
       }
@@ -84,12 +134,6 @@ export const adjustCursor = (cursor, preline, line, nextline) => {
     newCursor.ch = 2
   }
 
-  // Need to adjust the cursor when cursor at blank line or in a line contains HTML tag.
-  // set the newCursor to null, the new cursor will at the last line of document.
-
-  if (!/\S/.test(line)) {
-    newCursor = null
-  }
   return newCursor
 }
 
