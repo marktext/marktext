@@ -88,3 +88,10 @@ $ yarn run <script> # or npm run <script>
 | `test` / `unit` | Run unit tests                                   |
 
 For more scripts please see `package.json`.
+
+>[!TIP]
+>To improve efficiency during development, you can tr
+> 1. Use `yarn dev` instead of `yarn build:bin`. This will automatically reload the window when source code is modified.
+> 2. Use `Ctrl+R` to manually reload the application in development mode if needed.
+> 
+> This approach bypasses unnecessary rebuilds and optimizes the developer workflow. However, for CI or release builds, a full rebuild may still be necessary.

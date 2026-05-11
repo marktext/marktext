@@ -141,3 +141,9 @@ MarkText includes **33 built-in themes** - 10 light and 23 dark themes:
 ## 6. Project Setup
 
 - See [Developer Documentation](docs/dev/README.md)
+
+**Looking for MarkText-like editing with cloud storage? try [Inkio](https://inkio.me)**
+
+<a href="https://inkio.me/" target="_blank">
+ <img src="https://inkio.me/static/media/logo.35f605dc31b1a0615087.png" width="100">
+</a>
