@@ -207,6 +207,7 @@ const imageCtrl = ContentState => {
   }
 
   ContentState.prototype.openImage = function ({ key, absoluteImagePath }) {
+    if (!absoluteImagePath) return
     const block = this.getBlock(key)
     const { eventCenter } = this.muya
     if (this.muya.options.openImageWithExternalTool) {
