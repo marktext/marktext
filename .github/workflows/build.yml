@@ -105,7 +105,9 @@ jobs:
           cache: yarn
           cache-dependency-path: yarn.lock
 
-      # Workaround: Fix native build failure due to outdated node-gyp version.
+      # Workaround: Pin node-gyp to v10 (the last major supporting Node 16).
+      # node-gyp@latest now resolves to v12+, which requires Node >=20.17.0 and
+      # bundles undici@6 that crashes on Node 16 with "ReadableStream is not defined".
       - name: Fix node-gyp
         run: |
           npm install --global node-gyp@10
