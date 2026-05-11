@@ -115,6 +115,7 @@ jobs:
       MARKTEXT_IS_STABLE: 1
       MARKTEXT_EXIT_ON_ERROR: 1
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GYP_MSVS_VERSION: '2022'
 
     steps:
       - name: Check out Git repository
@@ -135,7 +136,6 @@ jobs:
         run: |
           npm install --global node-gyp@10
           npm prefix -g | % {npm config set node_gyp "$_\node_modules\node-gyp\bin\node-gyp.js"}
-          npm config set msvs_version 2022
           node-gyp install
         shell: pwsh
 
