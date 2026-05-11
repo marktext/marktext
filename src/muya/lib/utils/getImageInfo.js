@@ -13,7 +13,9 @@ export const getImageInfo = image => {
     end: offset + raw.length
   }
   const imageContainer = image.querySelector('.ag-image-container')
-  const absoluteImagePath = imageContainer.firstChild.currentSrc
+  const absoluteImagePath = imageContainer && imageContainer.firstChild
+    ? imageContainer.firstChild.currentSrc
+    : ''
   return {
     key: paragraph.id,
     token,
