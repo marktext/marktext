@@ -156,6 +156,7 @@ class ImageToolbar extends BaseFloat {
           this.muya.contentState.openImage(this.imageInfo)
           this.hide()
         }
+        break
       }
     }
   }
