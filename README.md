@@ -35,7 +35,7 @@
   </a>
 </div>
 
-- [MarkText](https://github.com/marktext/marktext) is a free and open source markdown editor originally written by [Jocs](https://github.com/Jocs) and [contributors](https://github.com/marktext/marktext/graphs/contributors).
+- [MarkText](https://github.com/marktext/marktext) is a free and open source markdown editor written by [Jocs](https://github.com/Jocs) and [contributors](https://github.com/marktext/marktext/graphs/contributors).
 
 # 1. Installing
 
