@@ -20,7 +20,7 @@ export const getImageInfo = image => {
     key: paragraph.id,
     token,
     imageId: image.id,
-    absoluteImagePath: absoluteImagePath
+    absoluteImagePath
   }
 }
 

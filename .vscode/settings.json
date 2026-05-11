@@ -17,5 +17,8 @@
     "**/build": true,
     "**/node_modules": true,
     "**/dist": true
-  }
+  },
+  "cSpell.words": [
+    "muya"
+  ]
 }
