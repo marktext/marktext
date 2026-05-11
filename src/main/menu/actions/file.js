@@ -440,7 +440,7 @@ ipcMain.on('mt::format-link-click', async (e, { data, dirname }) => {
   }
 
   if (pathname) {
-    pathname = path.normalize(pathname)
+    pathname = normalizeAndResolvePath(pathname)
     if (isMarkdownFile(pathname)) {
       const win = BrowserWindow.fromWebContents(e.sender)
       openFileOrFolder(win, pathname)
@@ -448,17 +448,32 @@ ipcMain.on('mt::format-link-click', async (e, { data, dirname }) => {
       // Require user confirmation before opening non-markdown files to prevent
       // crafted documents from silently launching arbitrary local files.
       const win = BrowserWindow.fromWebContents(e.sender)
+      // Strip control characters (including newlines) from the displayed path
+      // so a crafted filename cannot produce a misleading multi-line dialog.
+      // eslint-disable-next-line no-control-regex
+      const displayPath = pathname.replace(/[\x00-\x1f\x7f]/g, '\uFFFD')
       const { response } = await dialog.showMessageBox(win, {
         type: 'question',
         buttons: ['Open', 'Cancel'],
         defaultId: 1,
         cancelId: 1,
         message: 'Open external file?',
-        detail: `Do you want to open "${pathname}"?`,
+        detail: `Do you want to open "${displayPath}"?`,
         noLink: true
       })
       if (response === 0) {
-        shell.openPath(pathname)
+        // shell.openPath resolves with an error string (empty on success).
+        const err = await shell.openPath(pathname)
+        if (err) {
+          dialog.showMessageBox(win, {
+            type: 'error',
+            buttons: ['OK'],
+            defaultId: 0,
+            message: 'Failed to open file',
+            detail: err,
+            noLink: true
+          })
+        }
       }
     }
   }
