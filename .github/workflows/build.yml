@@ -77,7 +77,9 @@ jobs:
 
       - name: Fix Electron sandbox permissions
         if: runner.os == 'Linux'
-        run: sudo chmod 4755 node_modules/electron/dist/chrome-sandbox
+        run: |
+          sudo chown root node_modules/electron/dist/chrome-sandbox
+          sudo chmod 4755 node_modules/electron/dist/chrome-sandbox
 
       - name: Run unit and E2E tests
         uses: GabrielBB/xvfb-action@v1
