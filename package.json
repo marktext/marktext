@@ -4,7 +4,7 @@
   "description": "MarkText",
   "main": "./out/main/index.js",
   "author": "Marktext Contributors (Tkaixiang fork)",
-  "homepage": "https://github.com/Tkaixiang/marktext",
+  "homepage": "https://github.com/marktext/marktext",
   "scripts": {
     "format": "prettier --write .",
     "lint": "eslint --cache .",

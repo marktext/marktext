@@ -9,15 +9,15 @@
 
 <div align="center">
   <!-- Latest Release Version -->
-  <a href="https://github.com/Tkaixiang/marktext/releases/latest">
+  <a href="https://github.com/marktext/marktext/releases/latest">
     <img alt="GitHub Release" src="https://img.shields.io/github/v/release/tkaixiang/marktext">
   </a>
   <!-- Downloads total -->
-  <a href="https://github.com/Tkaixiang/marktext/releases">
+  <a href="https://github.com/marktext/marktext/releases">
     <img alt="GitHub Downloads (all assets, all releases)" src="https://img.shields.io/github/downloads/tkaixiang/marktext/total">
   </a>
   <!-- Downloads latest release -->
-  <a href="https://github.com/Tkaixiang/marktext/releases/latest">
+  <a href="https://github.com/marktext/marktext/releases/latest">
     <img alt="GitHub Downloads (all assets, latest release)" src="https://img.shields.io/github/downloads/tkaixiang/marktext/latest/total">
   </a>
 </div>
@@ -33,18 +33,18 @@
 
 # 1. インストール
 
-> ⚠️ これらのリリースは依然として **ベータ版** です（移行中にどれだけ壊してしまったか分からないため）。不具合は[Issue トラッカー](https://github.com/Tkaixiang/marktext/issues)で報告してください
+> ⚠️ これらのリリースは依然として **ベータ版** です（移行中にどれだけ壊してしまったか分からないため）。不具合は[Issue トラッカー](https://github.com/marktext/marktext/issues)で報告してください
 
 ## Windows
 
-- [リリースページ](https://github.com/Tkaixiang/marktext/releases)を確認するだけです！
+- [リリースページ](https://github.com/marktext/marktext/releases)を確認するだけです！
 
 - 動作確認環境:
   - `Windows 11`
 
 ## Linux
 
-- [リリースページ](https://github.com/Tkaixiang/marktext/releases)を確認するだけです
+- [リリースページ](https://github.com/marktext/marktext/releases)を確認するだけです
 - 動作確認環境:
   - `Ubuntu 24.0.2`（`AppImage` と `.deb` パッケージ）
   - _他の Linux パッケージのテストにご協力いただけると幸いです！_
@@ -60,7 +60,7 @@
 > ⚠️ **公証の欠如** により、MacOS 版では「`MarkText is damaged and can't be opened`」と表示されます。
 > [こちらの修正](https://github.com/marktext/marktext/issues/3004#issuecomment-1038207300)を参照してください（開発者アカウント署名のない他のアプリにも当てはまります）
 
-- [リリースページ](https://github.com/Tkaixiang/marktext/releases)で入手できます
+- [リリースページ](https://github.com/marktext/marktext/releases)で入手できます
 
 # 2. スクリーンショット
 

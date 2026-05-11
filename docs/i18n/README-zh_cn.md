@@ -9,15 +9,15 @@
 
 <div align="center">
   <!-- Latest Release Version -->
-  <a href="https://github.com/Tkaixiang/marktext/releases/latest">
+  <a href="https://github.com/marktext/marktext/releases/latest">
     <img alt="GitHub Release" src="https://img.shields.io/github/v/release/tkaixiang/marktext">
   </a>
   <!-- Downloads total -->
-  <a href="https://github.com/Tkaixiang/marktext/releases">
+  <a href="https://github.com/marktext/marktext/releases">
     <img alt="GitHub Downloads (all assets, all releases)" src="https://img.shields.io/github/downloads/tkaixiang/marktext/total">
   </a>
   <!-- Downloads latest release -->
-  <a href="https://github.com/Tkaixiang/marktext/releases/latest">
+  <a href="https://github.com/marktext/marktext/releases/latest">
     <img alt="GitHub Downloads (all assets, latest release)" src="https://img.shields.io/github/downloads/tkaixiang/marktext/latest/total">
   </a>
 </div>
@@ -33,18 +33,18 @@
 
 # 1. 安装
 
-> ⚠️ 这些发布仍处于 **beta** 阶段（因为我不确定迁移过程中破坏了多少功能）。请在 [问题跟踪器](https://github.com/Tkaixiang/marktext/issues)中报告任何错误
+> ⚠️ 这些发布仍处于 **beta** 阶段（因为我不确定迁移过程中破坏了多少功能）。请在 [问题跟踪器](https://github.com/marktext/marktext/issues)中报告任何错误
 
 ## Windows
 
-- 只需查看[发布页](https://github.com/Tkaixiang/marktext/releases)下载!
+- 只需查看[发布页](https://github.com/marktext/marktext/releases)下载!
 
 - 已测试：
   - `Windows 11`
 
 ## Linux
 
-- 只需查看[发布页](https://github.com/Tkaixiang/marktext/releases)下载！
+- 只需查看[发布页](https://github.com/marktext/marktext/releases)下载！
 - 已测试：
   - `Ubuntu 24.0.2`（`AppImage` 与 `.deb` 包）
   - _非常希望有人协助测试其他 Linux 打包形式！_
@@ -60,7 +60,7 @@
 > ⚠️ 由于**缺少证书**，MacOS 版本会显示“`MarkText is damaged and can't be opened`”。
 > 请参考[此处的修复方法](https://github.com/marktext/marktext/issues/3004#issuecomment-1038207300)（同样适用于任何缺少开发者账号签名的应用）
 
-- 可在[发布页](https://github.com/Tkaixiang/marktext/releases)获取
+- 可在[发布页](https://github.com/marktext/marktext/releases)获取
 
 # 2. 截图
 

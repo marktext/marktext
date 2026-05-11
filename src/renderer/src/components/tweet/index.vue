@@ -92,7 +92,7 @@ const faceClick = (name) => {
 }
 
 const reportViaGithub = () => {
-  window.electron.shell.openExternal('https://github.com/Tkaixiang/marktext/issues/new')
+  window.electron.shell.openExternal('https://github.com/marktext/marktext/issues/new')
 }
 
 const reportViaTwitter = () => {
@@ -101,7 +101,7 @@ const reportViaTwitter = () => {
 
   const params = {
     via: 'marktextme',
-    url: encodeURI('https://github.com/Tkaixiang/marktext/'),
+    url: encodeURI('https://github.com/marktext/marktext/'),
     text: value.value
   }
 

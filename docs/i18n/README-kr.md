@@ -9,15 +9,15 @@
 
 <div align="center">
   <!-- Latest Release Version -->
-  <a href="https://github.com/Tkaixiang/marktext/releases/latest">
+  <a href="https://github.com/marktext/marktext/releases/latest">
     <img alt="GitHub Release" src="https://img.shields.io/github/v/release/tkaixiang/marktext">
   </a>
   <!-- Downloads total -->
-  <a href="https://github.com/Tkaixiang/marktext/releases">
+  <a href="https://github.com/marktext/marktext/releases">
     <img alt="GitHub Downloads (all assets, all releases)" src="https://img.shields.io/github/downloads/tkaixiang/marktext/total">
   </a>
   <!-- Downloads latest release -->
-  <a href="https://github.com/Tkaixiang/marktext/releases/latest">
+  <a href="https://github.com/marktext/marktext/releases/latest">
     <img alt="GitHub Downloads (all assets, latest release)" src="https://img.shields.io/github/downloads/tkaixiang/marktext/latest/total">
   </a>
 </div>
@@ -33,18 +33,18 @@
 
 # 1. 설치
 
-> ⚠️ 이 릴리스는 아직 **베타** 단계입니다(마이그레이션 중 무엇을 얼마나 망가뜨렸는지 확신할 수 없기 때문입니다). [이슈 트래커](https://github.com/Tkaixiang/marktext/issues)에 버그를 신고해 주세요
+> ⚠️ 이 릴리스는 아직 **베타** 단계입니다(마이그레이션 중 무엇을 얼마나 망가뜨렸는지 확신할 수 없기 때문입니다). [이슈 트래커](https://github.com/marktext/marktext/issues)에 버그를 신고해 주세요
 
 ## Windows
 
-- [릴리스 페이지](https://github.com/Tkaixiang/marktext/releases)만 확인하시면 됩니다!
+- [릴리스 페이지](https://github.com/marktext/marktext/releases)만 확인하시면 됩니다!
 
 - 테스트 환경:
   - `Windows 11`
 
 ## Linux
 
-- [릴리스 페이지](https://github.com/Tkaixiang/marktext/releases)만 확인하시면 됩니다
+- [릴리스 페이지](https://github.com/marktext/marktext/releases)만 확인하시면 됩니다
 - 테스트 환경:
   - `Ubuntu 24.0.2` (`AppImage` 및 `.deb` 패키지)
   - _다른 Linux 패키지 테스트에 도움을 주시면 정말 좋겠습니다!_
@@ -60,7 +60,7 @@
 > ⚠️ **공증 부족**으로 인해 MacOS 릴리스는 "`MarkText is damaged and can't be opened`"라는 메시지를 표시합니다.
 > [여기 있는 해결 방법](https://github.com/marktext/marktext/issues/3004#issuecomment-1038207300)을 참고하세요(개발자 계정 서명이 없는 다른 앱에도 적용됩니다)
 
-- [릴리스 페이지](https://github.com/Tkaixiang/marktext/releases)에서 이용할 수 있습니다
+- [릴리스 페이지](https://github.com/marktext/marktext/releases)에서 이용할 수 있습니다
 
 # 2. 스크린샷
 

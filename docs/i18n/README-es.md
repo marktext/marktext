@@ -9,15 +9,15 @@
 
 <div align="center">
   <!-- Latest Release Version -->
-  <a href="https://github.com/Tkaixiang/marktext/releases/latest">
+  <a href="https://github.com/marktext/marktext/releases/latest">
     <img alt="GitHub Release" src="https://img.shields.io/github/v/release/tkaixiang/marktext">
   </a>
   <!-- Downloads total -->
-  <a href="https://github.com/Tkaixiang/marktext/releases">
+  <a href="https://github.com/marktext/marktext/releases">
     <img alt="GitHub Downloads (all assets, all releases)" src="https://img.shields.io/github/downloads/tkaixiang/marktext/total">
   </a>
   <!-- Downloads latest release -->
-  <a href="https://github.com/Tkaixiang/marktext/releases/latest">
+  <a href="https://github.com/marktext/marktext/releases/latest">
     <img alt="GitHub Downloads (all assets, latest release)" src="https://img.shields.io/github/downloads/tkaixiang/marktext/latest/total">
   </a>
 </div>
@@ -33,18 +33,18 @@
 
 # 1. Instalación
 
-> ⚠️ Estas versiones siguen en **beta** (ya que no sé cuánto habré roto durante la migración). Informa de cualquier error en el [issue tracker](https://github.com/Tkaixiang/marktext/issues)
+> ⚠️ Estas versiones siguen en **beta** (ya que no sé cuánto habré roto durante la migración). Informa de cualquier error en el [issue tracker](https://github.com/marktext/marktext/issues)
 
 ## Windows
 
-- Simplemente visita la [página de lanzamientos](https://github.com/Tkaixiang/marktext/releases)!
+- Simplemente visita la [página de lanzamientos](https://github.com/marktext/marktext/releases)!
 
 - Probado en:
   - `Windows 11`
 
 ## Linux
 
-- Simplemente visita la [página de lanzamientos](https://github.com/Tkaixiang/marktext/releases)
+- Simplemente visita la [página de lanzamientos](https://github.com/marktext/marktext/releases)
 - Probado en:
   - `Ubuntu 24.0.2` (paquetes `AppImage` y `.deb`)
   - _Me encantaría recibir ayuda para probar los otros paquetes de Linux_
@@ -60,7 +60,7 @@
 > ⚠️ Las versiones para MacOS mostrarán "`MarkText is damaged and can't be opened`" debido a la **falta de notarización**.
 > Consulta [esta solución](https://github.com/marktext/marktext/issues/3004#issuecomment-1038207300) (también se aplica a cualquier otra app sin firma de cuenta de desarrollador)
 
-- Disponible en la [página de lanzamientos](https://github.com/Tkaixiang/marktext/releases)
+- Disponible en la [página de lanzamientos](https://github.com/marktext/marktext/releases)
 
 # 2. Capturas de pantalla
 

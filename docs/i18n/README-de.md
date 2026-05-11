@@ -9,15 +9,15 @@
 
 <div align="center">
   <!-- Latest Release Version -->
-  <a href="https://github.com/Tkaixiang/marktext/releases/latest">
+  <a href="https://github.com/marktext/marktext/releases/latest">
     <img alt="GitHub Release" src="https://img.shields.io/github/v/release/tkaixiang/marktext">
   </a>
   <!-- Downloads total -->
-  <a href="https://github.com/Tkaixiang/marktext/releases">
+  <a href="https://github.com/marktext/marktext/releases">
     <img alt="GitHub Downloads (all assets, all releases)" src="https://img.shields.io/github/downloads/tkaixiang/marktext/total">
   </a>
   <!-- Downloads latest release -->
-  <a href="https://github.com/Tkaixiang/marktext/releases/latest">
+  <a href="https://github.com/marktext/marktext/releases/latest">
     <img alt="GitHub Downloads (all assets, latest release)" src="https://img.shields.io/github/downloads/tkaixiang/marktext/latest/total">
   </a>
 </div>
@@ -33,18 +33,18 @@
 
 # 1. Installation
 
-> ⚠️ Diese Releases befinden sich weiterhin in der **Beta-Phase** (da ich nicht weiss, wie viel während der Migration kaputtgegangen sein könnte). Bitte melde alle Fehler im [Issue-Tracker](https://github.com/Tkaixiang/marktext/issues)
+> ⚠️ Diese Releases befinden sich weiterhin in der **Beta-Phase** (da ich nicht weiss, wie viel während der Migration kaputtgegangen sein könnte). Bitte melde alle Fehler im [Issue-Tracker](https://github.com/marktext/marktext/issues)
 
 ## Windows
 
-- Schau dir einfach die [Release-Seite](https://github.com/Tkaixiang/marktext/releases) an!
+- Schau dir einfach die [Release-Seite](https://github.com/marktext/marktext/releases) an!
 
 - Getestet auf:
   - `Windows 11`
 
 ## Linux
 
-- Schau dir einfach die [Release-Seite](https://github.com/Tkaixiang/marktext/releases) an
+- Schau dir einfach die [Release-Seite](https://github.com/marktext/marktext/releases) an
 - Getestet auf:
   - `Ubuntu 24.0.2` (`AppImage` und `.deb`-Pakete)
   - _Ich würde mich über Hilfe beim Testen der anderen Linux-Pakete freuen!_
@@ -60,7 +60,7 @@
 > ⚠️ MacOS-Releases zeigen „`MarkText is damaged and can't be opened`“ aufgrund fehlender **Notarisierung**.
 > Bitte sieh dir [diese Lösung hier](https://github.com/marktext/marktext/issues/3004#issuecomment-1038207300) an (gilt auch für jede andere App ohne Signatur eines Entwicklerkontos)
 
-- Verfügbar auf der [Release-Seite](https://github.com/Tkaixiang/marktext/releases)
+- Verfügbar auf der [Release-Seite](https://github.com/marktext/marktext/releases)
 
 # 2. Bildschirmfotos
 

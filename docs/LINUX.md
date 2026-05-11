@@ -2,7 +2,7 @@
 
 ## AppImage
 
-[Download the AppImage](https://github.com/Tkaixiang/marktext/releases/latest) and type the following:
+[Download the AppImage](https://github.com/marktext/marktext/releases/latest) and type the following:
 
 1. `chmod +x marktext-%version%-x86_64.AppImage`
 2. `./marktext-%version%-x86_64.AppImage`
@@ -40,7 +40,7 @@ You can integrate the AppImage into the system via [AppImageLauncher](https://gi
 1. Save AppImage somewhere. Let's say `~/bin/marktext.AppImage`
 2. `chmod +x ~/bin/marktext.AppImage`
 3. Create a launch script:
-   
+
    ```sh
    #!/bin/bash
    DESKTOPINTEGRATION=0 ~/bin/marktext.AppImage
@@ -52,11 +52,11 @@ You can integrate the AppImage into the system via [AppImageLauncher](https://gi
 
 ## Binary
 
-You can download the latest `marktext-%version%.tar.gz` package from the [release page](https://github.com/Tkaixiang/marktext/releases/latest). You may need to install electron dependencies.
+You can download the latest `marktext-%version%.tar.gz` package from the [release page](https://github.com/marktext/marktext/releases/latest). You may need to install electron dependencies.
 
 ## Arch User Repository
 
-Marktext is available on the AUR as `marktext-tkaixiang-bin` and will automatically install the dependencies: `glibc`, `gtk3`, `nss`, `alsa-lib`, `libxss`, `cups`, `libxkbcommon`, `libxkbfile`, `mesa`, and `hicolor-icon-theme`. 
+Marktext is available on the AUR as `marktext-tkaixiang-bin` and will automatically install the dependencies: `glibc`, `gtk3`, `nss`, `alsa-lib`, `libxss`, `cups`, `libxkbcommon`, `libxkbfile`, `mesa`, and `hicolor-icon-theme`.
 
 Install it via an AUR helper like `yay -S marktext-tkaixiang-bin` or with
 

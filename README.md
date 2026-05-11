@@ -22,44 +22,37 @@
 
 <div align="center">
   <!-- Latest Release Version -->
-  <a href="https://github.com/Tkaixiang/marktext/releases/latest">
+  <a href="https://github.com/marktext/marktext/releases/latest">
     <img alt="GitHub Release" src="https://img.shields.io/github/v/release/tkaixiang/marktext">
   </a>
   <!-- Downloads total -->
-  <a href="https://github.com/Tkaixiang/marktext/releases">
+  <a href="https://github.com/marktext/marktext/releases">
     <img alt="GitHub Downloads (all assets, all releases)" src="https://img.shields.io/github/downloads/tkaixiang/marktext/total">
   </a>
   <!-- Downloads latest release -->
-  <a href="https://github.com/Tkaixiang/marktext/releases/latest">
+  <a href="https://github.com/marktext/marktext/releases/latest">
     <img alt="GitHub Downloads (all assets, latest release)" src="https://img.shields.io/github/downloads/tkaixiang/marktext/latest/total">
   </a>
 </div>
 
 - [MarkText](https://github.com/marktext/marktext) is a free and open source markdown editor originally written by [Jocs](https://github.com/Jocs) and [contributors](https://github.com/marktext/marktext/graphs/contributors).
 
-- Sadly, the core repository became unmaintained since about 3 years ago, but various Quality of Life issues remained that I noticed in my daily usage.
-
-- This repository serves as an attempt at modernising my favourite Markdown Editor, and is a fork based off [Jacob Whall's Fork](https://github.com/jacobwhall/marktext)
-  
-  - See [my motivation below](#1-soo-is-this-fork-any-different-from-the-countless-others)
-
 # 1. Installing
 
-> ⚠️ These releases are still in **beta** (since I do not know how much stuff I might have broken during the migration). Please report any bugs in the [issue tracker](https://github.com/Tkaixiang/marktext/issues)
+> ⚠️ These releases are still in **beta** (since I do not know how much stuff I might have broken during the migration). Please report any bugs in the [issue tracker](https://github.com/marktext/marktext/issues)
 
 ## Windows
 
-- Simply check out the [Releases Page](https://github.com/Tkaixiang/marktext/releases)!
+- Simply check out the [Releases Page](https://github.com/marktext/marktext/releases)!
 
 - Tested on:
-  
   - `Windows 11`
 
 ## Linux
 
-- Simply check out the [Releases Page](https://github.com/Tkaixiang/marktext/releases)
+- Simply check out the [Releases Page](https://github.com/marktext/marktext/releases)
 - Tested on: `Ubuntu 24.0.2`, `Ubuntu 22.04.5`
-  -   _Would love some help in testing the other Linux packages!_
+  - _Would love some help in testing the other Linux packages!_
 
 ### Linux Package Managers
 
@@ -72,7 +65,7 @@
 > ⚠️ MacOS releases will show a "`MarkText is damaged and can't be opened`" due to a **lack of notorisation**.
 > Please see [this fix here](https://github.com/marktext/marktext/issues/3004#issuecomment-1038207300) (which also applies to any other app that lacks a Developer Account signing)
 
-- Available on the [Releases Page](https://github.com/Tkaixiang/marktext/releases)
+- Available on the [Releases Page](https://github.com/marktext/marktext/releases)
 
 # 2. Screenshots
 
@@ -81,7 +74,6 @@
 # 3. ✨Features ⭐
 
 - 🆕 Now available in **9 languages** from the `Preferences` editor (Special thanks to [@hubo1989](https://github.com/hubo1989))
-  
   - `English` 🇺🇸
   - `简体中文` 🇨🇳
   - `繁體中文` 🇹🇼
@@ -128,43 +120,24 @@ MarkText includes **33 built-in themes** - 10 light and 23 dark themes:
 
 ## 3.2 😸Edit Modes🐶
 
-| Source Code          | Typewriter               | Focus               |
-|:--------------------:|:------------------------:|:-------------------:|
+|     Source Code      |        Typewriter        |        Focus        |
+| :------------------: | :----------------------: | :-----------------: |
 | ![](docs/source.gif) | ![](docs/typewriter.gif) | ![](docs/focus.gif) |
 
 # 4. Contributors
 
-<a href="https://github.com/Tkaixiang/marktext/graphs/contributors">
+<a href="https://github.com/marktext/marktext/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=Tkaixiang/marktext" />
 </a>
 
-# 5. Motivation
-
-## 1. Soo is this fork any different from the countless others?
-
-- A main gripe I had when looking into `marktext` was that the development framework + environment was aging badly and took forever to compile
-  
-  - Most libaries were outdated and some couldn't even be installed with modern versions of Node.JS/Python
-
-- Hence, this fork is kind of a major "re-write" that makes use of [electron-vite](https://electron-vite.org/) instead of the old `Babel + Webpack` setup
-  
-  - The goal here is to give `marktext` a **fresh start** using **modern frameworks and libraries as much as possible**
-  - Everything has also been migrated to `Vue3` and `Pinia` with all libraries updated to their latest possible versions
-
-- The `main` and `preload` processes are still compiled to `CommonJS`, but the `renderer` is now fully **`ESModules` only** (_which posed some interesting issues during migration_)
-
-## 2. That's cool! How can I help?
+## 5. That's cool! How can I help?
 
 - Any form of:
-  
   1. Testing for bugs (Bug-Reports)
-  
   2. Pull Requests
-  
+
   Are more than welcome!
 
-- You can find a basic list of commands for getting around this repo below, but otherwise - the file structure should be **very similar to the original marktext**
-
-## 3. Project Setup
+## 6. Project Setup
 
 - See [Developer Documentation](docs/dev/README.md)

@@ -24,7 +24,7 @@
 ### 1.4 Clone and Install
 
 ```bash
-git clone https://github.com/Tkaixiang/marktext.git
+git clone https://github.com/marktext/marktext.git
 cd marktext
 npm install
 ```

@@ -9,15 +9,15 @@
 
 <div align="center">
   <!-- Latest Release Version -->
-  <a href="https://github.com/Tkaixiang/marktext/releases/latest">
+  <a href="https://github.com/marktext/marktext/releases/latest">
     <img alt="GitHub Release" src="https://img.shields.io/github/v/release/tkaixiang/marktext">
   </a>
   <!-- Downloads total -->
-  <a href="https://github.com/Tkaixiang/marktext/releases">
+  <a href="https://github.com/marktext/marktext/releases">
     <img alt="GitHub Downloads (all assets, all releases)" src="https://img.shields.io/github/downloads/tkaixiang/marktext/total">
   </a>
   <!-- Downloads latest release -->
-  <a href="https://github.com/Tkaixiang/marktext/releases/latest">
+  <a href="https://github.com/marktext/marktext/releases/latest">
     <img alt="GitHub Downloads (all assets, latest release)" src="https://img.shields.io/github/downloads/tkaixiang/marktext/latest/total">
   </a>
 </div>
@@ -33,18 +33,18 @@
 
 # 1. Installation
 
-> ⚠️ Ces versions sont encore en **bêta** (je ne sais pas combien d’éléments j’ai pu casser durant la migration). Merci de signaler tout bug dans le [issue tracker](https://github.com/Tkaixiang/marktext/issues)
+> ⚠️ Ces versions sont encore en **bêta** (je ne sais pas combien d’éléments j’ai pu casser durant la migration). Merci de signaler tout bug dans le [issue tracker](https://github.com/marktext/marktext/issues)
 
 ## Windows
 
-- Consultez simplement la [page des releases](https://github.com/Tkaixiang/marktext/releases) !
+- Consultez simplement la [page des releases](https://github.com/marktext/marktext/releases) !
 
 - Testé sur :
   - `Windows 11`
 
 ## Linux
 
-- Consultez simplement la [page des releases](https://github.com/Tkaixiang/marktext/releases)
+- Consultez simplement la [page des releases](https://github.com/marktext/marktext/releases)
 - Testé sur :
   - `Ubuntu 24.0.2` (paquets `AppImage` et `.deb`)
   - _Toute aide pour tester les autres paquets Linux est la bienvenue !_
@@ -60,7 +60,7 @@
 > ⚠️ Les versions MacOS afficheront « `MarkText is damaged and can't be opened` » en raison d’une **absence de notarisation**.
 > Veuillez consulter [ce correctif](https://github.com/marktext/marktext/issues/3004#issuecomment-1038207300) (qui s’applique aussi à toute autre application sans signature de compte développeur)
 
-- Disponible sur la [page des releases](https://github.com/Tkaixiang/marktext/releases)
+- Disponible sur la [page des releases](https://github.com/marktext/marktext/releases)
 
 # 2. Captures d’écran
 
