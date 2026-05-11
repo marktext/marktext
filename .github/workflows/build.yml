@@ -75,6 +75,10 @@ jobs:
           yarn run lint
           yarn run validate-licenses
 
+      - name: Fix Electron sandbox permissions
+        if: runner.os == 'Linux'
+        run: sudo chmod 4755 node_modules/electron/dist/chrome-sandbox
+
       - name: Run unit and E2E tests
         uses: GabrielBB/xvfb-action@v1
         with:
@@ -108,8 +112,11 @@ jobs:
       # Workaround: Pin node-gyp to v10 (the last major supporting Node 16).
       # node-gyp@latest now resolves to v12+, which requires Node >=20.17.0 and
       # bundles undici@6 that crashes on Node 16 with "ReadableStream is not defined".
+      # setuptools restores the distutils module removed in Python 3.12, which
+      # older gyp scripts bundled in the project's node-gyp depend on.
       - name: Fix node-gyp
         run: |
+          pip install setuptools
           npm install --global node-gyp@10
           npm prefix -g | % {npm config set node_gyp "$_\node_modules\node-gyp\bin\node-gyp.js"}
           node-gyp install
