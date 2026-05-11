@@ -84,7 +84,7 @@ jobs:
         run: yarn build:bin
 
   windows:
-    runs-on: windows-latest
+    runs-on: windows-2022
     continue-on-error: false
     timeout-minutes: 45
 
@@ -92,7 +92,6 @@ jobs:
       # MARKTEXT_IS_STABLE: 1
       MARKTEXT_EXIT_ON_ERROR: 1
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      GYP_MSVS_VERSION: '2022'
 
     steps:
       - name: Check out Git repository

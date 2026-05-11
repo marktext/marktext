@@ -8,7 +8,7 @@ const getLicenses = (rootDir, callback) => {
     production: true,
     development: false,
     direct: true,
-    excludePackages: 'file-icons@2.1.47', // file-icons is under MIT License, but license-checker shows no license.
+    excludePackages: 'file-icons@2.1.47;elkjs@0.8.2', // file-icons is under MIT License, but license-checker shows no license. elkjs is EPL-2.0, a mermaid transitive dep hoisted by yarn.
     json: true,
     onlyAllow: 'Unlicense;WTFPL;ISC;MIT;BSD;ISC;Apache-2.0;MIT*;Apache;Apache*;BSD*;CC0-1.0;CC-BY-4.0;CC-BY-3.0',
     customPath: {
