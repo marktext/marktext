@@ -1,6 +1,19 @@
 <p align="center"><img src="../../static/logo-small.png" alt="MarkText" width="100" height="100"></p>
 
 <h1 align="center">MarkText</h1>
+<div align="center">
+  Übersetzungen ebenfalls verfügbar in:
+  <a href="../../README.md">EN</a>
+  <a href="README-zh_cn.md">CN</a>
+  <a href="README-zh_tw.md">TW</a>
+  <a href="README-es.md">ES</a>
+  <a href="README-fr.md">FR</a>
+  <a href="README-jp.md">JP</a>
+  <a href="README-kr.md">KR</a>
+  <a href="README-pt.md">PT</a>
+</div>
+
+---
 
 <div align="center">
   <strong>🔆 Markdown-Editor der nächsten Generation 🌙</strong><br>
@@ -22,42 +35,34 @@
   </a>
 </div>
 
-- [MarkText](https://github.com/marktext/marktext) ist ein freier und Open-Source-Markdown-Editor, ursprünglich geschrieben von [Jocs](https://github.com/Jocs) und [Mitwirkenden](https://github.com/marktext/marktext/graphs/contributors).
-
-- Leider wird das Kern-Repository seit etwa 3 Jahren nicht mehr gepflegt, doch verschiedene Komfortprobleme blieben bestehen, die mir in der täglichen Nutzung aufgefallen sind.
-
-- Dieses Repository ist ein Versuch, meinen Lieblings-Markdown-Editor zu modernisieren, und ist ein Fork, der auf dem [Fork von Jacob Whall](https://github.com/jacobwhall/marktext) basiert
-  - Siehe [meine Motivation unten](#1-soo-is-this-fork-any-different-from-the-countless-others)
-
-- Du kannst unten mehr über meine Motivation lesen
+- [MarkText](https://github.com/marktext/marktext) ist ein freier und Open-Source-Markdown-Editor, geschrieben von [Jocs](https://github.com/Jocs) und [Mitwirkenden](https://github.com/marktext/marktext/graphs/contributors).
 
 # 1. Installation
 
-> ⚠️ Diese Releases befinden sich weiterhin in der **Beta-Phase** (da ich nicht weiss, wie viel während der Migration kaputtgegangen sein könnte). Bitte melde alle Fehler im [Issue-Tracker](https://github.com/marktext/marktext/issues)
+> ⚠️ Diese Releases befinden sich noch in der **Beta-Phase** (da nicht klar ist, wie viel während der Migration kaputtgegangen sein könnte). Bitte melde Fehler im [Issue-Tracker](https://github.com/marktext/marktext/issues)
 
 ## Windows
 
-- Schau dir einfach die [Release-Seite](https://github.com/marktext/marktext/releases) an!
+- Schau einfach auf der [Release-Seite](https://github.com/marktext/marktext/releases) vorbei!
 
 - Getestet auf:
   - `Windows 11`
 
 ## Linux
 
-- Schau dir einfach die [Release-Seite](https://github.com/marktext/marktext/releases) an
-- Getestet auf:
-  - `Ubuntu 24.0.2` (`AppImage` und `.deb`-Pakete)
-  - _Ich würde mich über Hilfe beim Testen der anderen Linux-Pakete freuen!_
+- Schau einfach auf der [Release-Seite](https://github.com/marktext/marktext/releases) vorbei
+- Getestet auf: `Ubuntu 24.0.2`, `Ubuntu 22.04.5`
+  - _Hilfe beim Testen der anderen Linux-Pakete ist sehr willkommen!_
 
 ### Linux-Paketmanager
 
-##### 1. Arch Linux ![AUR Version](<https://img.shields.io/aur/version/marktext-bin?label=(AUR)%20marktext-bin%3E>)
+##### 1. Arch Linux [![AUR Version](https://img.shields.io/aur/version/marktext-bin)](https://aur.archlinux.org/packages/marktext-bin)
 
 - Verfügbar im [AUR](https://aur.archlinux.org/packages/marktext-bin) dank [@kromsam](https://github.com/kromsam)
 
 ## MacOS
 
-> ⚠️ MacOS-Releases zeigen „`MarkText is damaged and can't be opened`“ aufgrund fehlender **Notarisierung**.
+> ⚠️ MacOS-Releases zeigen „`MarkText is damaged and can't be opened`“ aufgrund **fehlender Notarisierung**.
 > Bitte sieh dir [diese Lösung hier](https://github.com/marktext/marktext/issues/3004#issuecomment-1038207300) an (gilt auch für jede andere App ohne Signatur eines Entwicklerkontos)
 
 - Verfügbar auf der [Release-Seite](https://github.com/marktext/marktext/releases)
@@ -68,7 +73,7 @@
 
 # 3. ✨Funktionen ⭐
 
-- Jetzt in **9 Sprachen** verfügbar 🆕 (besonderer Dank an [@hubo1989](https://github.com/hubo1989))
+- 🆕 Jetzt in **9 Sprachen** über den `Einstellungen`-Editor verfügbar (Besonderer Dank an [@hubo1989](https://github.com/hubo1989))
   - `English` 🇺🇸
   - `简体中文` 🇨🇳
   - `繁體中文` 🇹🇼
@@ -79,16 +84,29 @@
   - `한국어` 🇰🇷
   - `Português` 🇵🇹
 
-- Echtzeitvorschau (WYSIWYG) sowie eine klare, schlichte Oberfläche für ein ablenkungsfreies Schreiberlebnis.
-- Unterstützt die [CommonMark-Spezifikation](https://spec.commonmark.org/0.29/), die [GitHub-Flavoured-Markdown-Spezifikation](https://github.github.com/gfm/) sowie selektive Unterstützung für [Pandoc Markdown](https://pandoc.org/MANUAL.html#pandocs-markdown).
+- Echtzeitvorschau (WYSIWYG) und eine klare, schlichte Oberfläche für ein ablenkungsfreies Schreiberlebnis.
+
+- Unterstützt die [CommonMark-Spezifikation](https://spec.commonmark.org/0.29/), die [GitHub Flavored Markdown-Spezifikation](https://github.github.com/gfm/) sowie selektive Unterstützung für [Pandoc Markdown](https://pandoc.org/MANUAL.html#pandocs-markdown).
+
 - Markdown-Erweiterungen wie mathematische Ausdrücke (KaTeX), Front Matter und Emojis.
-- Unterstützung für Absatz- und Inline-Stil-Kurzbefehle, um deine Schreibeﬃzienz zu steigern.
-- Exportiert **HTML**- und **PDF**-Dateien.
-- Verschiedene Themes: **Cadmium Light**, **Material Dark** usw.
+
+- Unterstützung für Absatz- und Inline-Stil-Kurzbefehle, um deine Schreibeffizienz zu steigern.
+
+- Export von **HTML**- und **PDF**-Dateien.
+
+- **33 integrierte Themes** mit beliebten Schemata wie **Dracula**, **Nord**, **Catppuccin**, **Tokyo Night**, **Gruvbox** und mehr.
+
 - Verschiedene Bearbeitungsmodi: **Quellcode-Modus**, **Schreibmaschinen-Modus**, **Fokus-Modus**.
+
 - Bilder direkt aus der Zwischenablage einfügen.
 
 ## 3.1 🌙 Themes🔆
+
+MarkText enthält **33 integrierte Themes** – 10 helle und 23 dunkle Themes:
+
+**Hell**: Ayu Light, Cadmium Light, Catppuccin Latte, Everforest Light, Graphite Light, Gruvbox Light, Rosé Pine Dawn, Solarized Light, Tokyo Night Light, Ulysses Light
+
+**Dunkel**: Ayu Dark, Ayu Mirage, Cadmium Dark, Catppuccin Mocha, cyberdream, Dracula, Everforest Dark, Gruvbox Dark, Horizon Dark, Kanagawa, Material Dark, Monokai Pro, Nightfox, Nord, One Dark, Oxocarbon Dark, Palenight, Rosé Pine, Rosé Pine Moon, Solarized Dark, Synthwave '84, Tokyo Night, Tokyo Night Storm
 
 | Cadmium Light                                   | Dark                                          |
 | ----------------------------------------------- | --------------------------------------------- |
@@ -98,35 +116,28 @@
 | Ulysses Light                                   | One Dark                                      |
 | ![](../themeImages/ulysses-light.png?raw=true)  | ![](../themeImages/one-dark.png?raw=true)     |
 
+> 📖 Siehe [docs/THEMES.md](../THEMES.md) für die vollständige Themes-Liste mit Beschreibungen und Screenshots.
+
 ## 3.2 😸Bearbeitungsmodi🐶
 
 |     Quellcode      |    Schreibmaschine     |       Fokus       |
 | :----------------: | :--------------------: | :---------------: |
 | ![](../source.gif) | ![](../typewriter.gif) | ![](../focus.gif) |
 
-# 4. Motivation
+# 4. Mitwirkende
 
-## 1. Ist dieser Fork anders als die unzähligen anderen?
+<a href="https://github.com/marktext/marktext/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=marktext/marktext" />
+</a>
 
-- Ein Hauptärgernis bei `marktext` war für mich, dass das Entwicklungs-Framework und die Umgebung stark veraltet waren und der Build ewig dauerte
-  - Die meisten Bibliotheken waren veraltet und einige liessen sich mit modernen Versionen von Node.JS/Python nicht einmal installieren
-
-- Daher ist dieser Fork eine Art umfassende „Neuimplementierung“, die [electron-vite](https://electron-vite.org/) anstelle des alten `Babel + Webpack`-Setups verwendet
-  - Ziel ist es, `marktext` einen **Neuanfang** mit **möglichst modernen Frameworks und Bibliotheken** zu geben
-  - Ausserdem wurde alles auf `Vue3` und `Pinia` migriert und sämtliche Bibliotheken auf ihre jeweils neuesten verfügbaren Versionen aktualisiert
-
-- Die Prozesse `main` und `preload` werden weiterhin zu `CommonJS` kompiliert, der `renderer` ist nun aber vollständig **nur `ESModules`** (was während der Migration zu einigen interessanten Problemen führte)
-
-## 2. Klingt gut! Wie kann ich helfen?
+## 5. Klingt gut! Wie kann ich helfen?
 
 - Jede Form von:
-  1. Testen auf Fehler (Fehlermeldungen)
+  1. Fehlertests (Bug-Reports)
   2. Pull Requests
 
   ist sehr willkommen!
 
-- Unten findest du eine grundlegende Liste von Befehlen, um dich in diesem Repo zurechtzufinden; ansonsten sollte die Ordnerstruktur **dem ursprünglichen marktext** sehr ähnlich sein
+## 6. Projektsetup
 
-## 3. Projektsetup
-
-- Siehe die [Entwicklerdokumentation](../dev/README.md)
+- Siehe [Entwicklerdokumentation](../dev/README.md)
