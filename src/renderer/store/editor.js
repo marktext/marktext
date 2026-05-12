@@ -193,6 +193,11 @@ const mutations = {
       state.currentFile.isSaved = status
     }
   },
+  CLEAR_IGNORE_NEXT_CONTENT_CHANGE_FOR_SAVE_STATUS (state) {
+    if (hasKeys(state.currentFile)) {
+      state.currentFile.ignoreNextContentChangeForSaveStatus = false
+    }
+  },
   SET_SAVE_STATUS_WHEN_REMOVE (state, { pathname }) {
     state.tabs.forEach(f => {
       if (f.pathname === pathname) {
@@ -868,6 +873,9 @@ const actions = {
 
     const { markdown, isMixedLineEndings } = markdownDocument
     const docState = createDocumentState(Object.assign(markdownDocument, options))
+    // Ignore the first content change from Muya after setMarkdown (e.g. open from search).
+    // Muya re-serializes content and may differ from disk, which would wrongly set isSaved = false.
+    docState.ignoreNextContentChangeForSaveStatus = true
     const { id, cursor } = docState
 
     if (selected) {
@@ -957,22 +965,34 @@ const actions = {
       commit('SET_TOC', toc)
     }
 
-    // Change save status/save to file only when the markdown changed!
-    if (markdown !== oldMarkdown) {
-      commit('SET_SAVE_STATUS', false)
+    // Change save status/save to file only when the markdown actually changed.
+    // Compare normalized form so that programmatic setMarkdown (e.g. open from search)
+    // which only differs in trailing newlines won't be treated as user edit.
+    const oldMarkdownNormalized = adjustTrailingNewlines(oldMarkdown, trimTrailingNewline)
+    if (markdown !== oldMarkdownNormalized) {
+      // Skip setting unsaved when this change came from programmatic setMarkdown (open from search).
+      // Muya's setMarkdown triggers dispatchChange with re-serialized content that can differ from disk.
+      if (state.currentFile.ignoreNextContentChangeForSaveStatus) {
+        commit('CLEAR_IGNORE_NEXT_CONTENT_CHANGE_FOR_SAVE_STATUS')
+      } else {
+        commit('SET_SAVE_STATUS', false)
 
-      // Save file is auto save is enable and file exist on disk.
-      if (pathname && autoSave) {
-        const options = getOptionsFromState(state.currentFile)
-        dispatch('HANDLE_AUTO_SAVE', {
-          id: currentId,
-          filename,
-          pathname,
-          markdown,
-          options
-        })
+        // Save file is auto save is enable and file exist on disk.
+        if (pathname && autoSave) {
+          const options = getOptionsFromState(state.currentFile)
+          dispatch('HANDLE_AUTO_SAVE', {
+            id: currentId,
+            filename,
+            pathname,
+            markdown,
+            options
+          })
+        }
       }
     }
+    // Always clear so that the flag only protects the very first change; otherwise when the
+    // first change had same content we would never clear and would wrongly ignore a later edit.
+    commit('CLEAR_IGNORE_NEXT_CONTENT_CHANGE_FOR_SAVE_STATUS')
   },
 
   HANDLE_AUTO_SAVE ({ commit, state, rootState }, { id, filename, pathname, markdown, options }) {
