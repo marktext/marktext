@@ -1,66 +1,71 @@
 <p align="center"><img src="../../static/logo-small.png" alt="MarkText" width="100" height="100"></p>
 
 <h1 align="center">MarkText</h1>
+<div align="center">
+  以下の翻訳もご利用いただけます:
+  <a href="../../README.md">EN</a>
+  <a href="README-zh_cn.md">CN</a>
+  <a href="README-zh_tw.md">TW</a>
+  <a href="README-de.md">DE</a>
+  <a href="README-es.md">ES</a>
+  <a href="README-fr.md">FR</a>
+  <a href="README-kr.md">KR</a>
+  <a href="README-pt.md">PT</a>
+</div>
+
+---
 
 <div align="center">
-  <strong>🔆 次世代の Markdown エディタ 🌙</strong><br>
-  速度と使いやすさに重点を置いた、シンプルでエレガントなオープンソースの Markdown エディタ。<br>
+  <strong>🔆 次世代のマークダウンエディタ 🌙</strong><br>
+  スピードと使いやすさにフォーカスした、シンプルで洗練されたオープンソースのマークダウンエディタ。<br>
 </div>
 
 <div align="center">
   <!-- Latest Release Version -->
   <a href="https://github.com/marktext/marktext/releases/latest">
-    <img alt="GitHub Release" src="https://img.shields.io/github/v/release/tkaixiang/marktext">
+    <img alt="GitHub Release" src="https://img.shields.io/github/v/release/marktext/marktext">
   </a>
   <!-- Downloads total -->
   <a href="https://github.com/marktext/marktext/releases">
-    <img alt="GitHub Downloads (all assets, all releases)" src="https://img.shields.io/github/downloads/tkaixiang/marktext/total">
+    <img alt="GitHub Downloads (all assets, all releases)" src="https://img.shields.io/github/downloads/marktext/marktext/total">
   </a>
   <!-- Downloads latest release -->
   <a href="https://github.com/marktext/marktext/releases/latest">
-    <img alt="GitHub Downloads (all assets, latest release)" src="https://img.shields.io/github/downloads/tkaixiang/marktext/latest/total">
+    <img alt="GitHub Downloads (all assets, latest release)" src="https://img.shields.io/github/downloads/marktext/marktext/latest/total">
   </a>
 </div>
 
-- [MarkText](https://github.com/marktext/marktext) は、当初 [Jocs](https://github.com/Jocs) と[コントリビューター](https://github.com/marktext/marktext/graphs/contributors)によって作成された、無料でオープンソースの Markdown エディタです。
-
-- 残念ながら、コアリポジトリは約 3 年前からメンテナンスされておらず、日常的な使用で気付いた利便性の問題がいくつか残っています。
-
-- 本リポジトリは、私のお気に入りの Markdown エディタをモダン化する試みであり、[Jacob Whall のフォーク](https://github.com/jacobwhall/marktext)を元にした派生版です
-  - 下記の[私の動機](#1-soo-is-this-fork-any-different-from-the-countless-others)も参照してください
-
-- 私の動機については以下でもう少し詳しく読めます
+- [MarkText](https://github.com/marktext/marktext) は [Jocs](https://github.com/Jocs) と [コントリビューター](https://github.com/marktext/marktext/graphs/contributors) によって書かれた、無料でオープンソースのマークダウンエディタです。
 
 # 1. インストール
 
-> ⚠️ これらのリリースは依然として **ベータ版** です（移行中にどれだけ壊してしまったか分からないため）。不具合は[Issue トラッカー](https://github.com/marktext/marktext/issues)で報告してください
+> ⚠️ これらのリリースはまだ **ベータ版** です（移行中にどれだけ壊してしまったかわからないため）。バグは [issue tracker](https://github.com/marktext/marktext/issues) に報告してください
 
 ## Windows
 
-- [リリースページ](https://github.com/marktext/marktext/releases)を確認するだけです！
+- [リリースページ](https://github.com/marktext/marktext/releases) をご確認ください！
 
-- 動作確認環境:
+- 動作確認済み:
   - `Windows 11`
 
 ## Linux
 
-- [リリースページ](https://github.com/marktext/marktext/releases)を確認するだけです
-- 動作確認環境:
-  - `Ubuntu 24.0.2`（`AppImage` と `.deb` パッケージ）
+- [リリースページ](https://github.com/marktext/marktext/releases) をご確認ください
+- 動作確認済み: `Ubuntu 24.0.2`、`Ubuntu 22.04.5`
   - _他の Linux パッケージのテストにご協力いただけると幸いです！_
 
 ### Linux パッケージマネージャ
 
-##### 1. Arch Linux ![AUR Version](<https://img.shields.io/aur/version/marktext-tkaixiang-bin?label=(AUR)%20marktext-tkaixiang-bin%3E>)
+##### 1. Arch Linux [![AUR Version](https://img.shields.io/aur/version/marktext-bin)](https://aur.archlinux.org/packages/marktext-bin)
 
-- [@kromsam](https://github.com/kromsam) のおかげで [AUR](https://aur.archlinux.org/packages/marktext-tkaixiang-bin) で利用可能です
+- [@kromsam](https://github.com/kromsam) のおかげで [AUR](https://aur.archlinux.org/packages/marktext-bin) で利用可能です
 
 ## MacOS
 
-> ⚠️ **公証の欠如** により、MacOS 版では「`MarkText is damaged and can't be opened`」と表示されます。
-> [こちらの修正](https://github.com/marktext/marktext/issues/3004#issuecomment-1038207300)を参照してください（開発者アカウント署名のない他のアプリにも当てはまります）
+> ⚠️ MacOS リリースは **公証の不足** により「`MarkText is damaged and can't be opened`」と表示されます。
+> [こちらの修正方法](https://github.com/marktext/marktext/issues/3004#issuecomment-1038207300) をご確認ください（開発者アカウント署名のない他のアプリにも当てはまります）
 
-- [リリースページ](https://github.com/marktext/marktext/releases)で入手できます
+- [リリースページ](https://github.com/marktext/marktext/releases) で利用可能です
 
 # 2. スクリーンショット
 
@@ -68,7 +73,7 @@
 
 # 3. ✨機能 ⭐
 
-- **9 言語** に対応 🆕（[@hubo1989](https://github.com/hubo1989) に特別感謝）
+- 🆕 `環境設定` エディタから **9 言語** で利用可能になりました（[@hubo1989](https://github.com/hubo1989) に感謝）
   - `English` 🇺🇸
   - `简体中文` 🇨🇳
   - `繁體中文` 🇹🇼
@@ -79,16 +84,29 @@
   - `한국어` 🇰🇷
   - `Português` 🇵🇹
 
-- リアルタイムプレビュー（WYSIWYG）と、気が散らない執筆体験のためのクリーンでシンプルなインターフェイス。
-- [CommonMark 仕様](https://spec.commonmark.org/0.29/)、[GitHub Flavored Markdown 仕様](https://github.github.com/gfm/)に対応し、[Pandoc markdown](https://pandoc.org/MANUAL.html#pandocs-markdown)を選択的にサポート。
-- 数学式（KaTeX）、Front Matter、絵文字などの Markdown 拡張。
-- 段落やインラインスタイルのショートカットに対応し、執筆効率を向上。
-- **HTML** と **PDF** での出力に対応。
-- 多彩なテーマ：**Cadmium Light**、**Material Dark** など。
-- 多様な編集モード：**ソースコードモード**、**タイプライターモード**、**フォーカスモード**。
-- クリップボードから画像を直接貼り付け可能。
+- リアルタイムプレビュー（WYSIWYG）と、シンプルでクリーンなインターフェースで、集中して執筆できる体験を提供。
+
+- [CommonMark 仕様](https://spec.commonmark.org/0.29/)、[GitHub Flavored Markdown 仕様](https://github.github.com/gfm/) に対応し、[Pandoc markdown](https://pandoc.org/MANUAL.html#pandocs-markdown) も部分的にサポート。
+
+- 数式（KaTeX）、フロントマター、絵文字などのマークダウン拡張機能。
+
+- 段落とインラインスタイルのショートカットで執筆効率を向上。
+
+- **HTML** および **PDF** ファイルへの出力。
+
+- **33 種類の組み込みテーマ** を搭載。**Dracula**、**Nord**、**Catppuccin**、**Tokyo Night**、**Gruvbox** などの人気テーマを含みます。
+
+- 各種編集モード: **ソースコードモード**、**タイプライターモード**、**フォーカスモード**。
+
+- クリップボードから直接画像を貼り付け。
 
 ## 3.1 🌙 テーマ🔆
+
+MarkText には **33 種類の組み込みテーマ** が含まれています — ライト 10、ダーク 23：
+
+**ライト**: Ayu Light, Cadmium Light, Catppuccin Latte, Everforest Light, Graphite Light, Gruvbox Light, Rosé Pine Dawn, Solarized Light, Tokyo Night Light, Ulysses Light
+
+**ダーク**: Ayu Dark, Ayu Mirage, Cadmium Dark, Catppuccin Mocha, cyberdream, Dracula, Everforest Dark, Gruvbox Dark, Horizon Dark, Kanagawa, Material Dark, Monokai Pro, Nightfox, Nord, One Dark, Oxocarbon Dark, Palenight, Rosé Pine, Rosé Pine Moon, Solarized Dark, Synthwave '84, Tokyo Night, Tokyo Night Storm
 
 | Cadmium Light                                   | Dark                                          |
 | ----------------------------------------------- | --------------------------------------------- |
@@ -98,35 +116,28 @@
 | Ulysses Light                                   | One Dark                                      |
 | ![](../themeImages/ulysses-light.png?raw=true)  | ![](../themeImages/one-dark.png?raw=true)     |
 
+> 📖 全テーマの説明とスクリーンショットは [docs/THEMES.md](../THEMES.md) を参照してください。
+
 ## 3.2 😸編集モード🐶
 
-|    ソースコード    |     タイプライター     |    フォーカス     |
-| :----------------: | :--------------------: | :---------------: |
-| ![](../source.gif) | ![](../typewriter.gif) | ![](../focus.gif) |
+|    ソースコード    |     タイプライター     |     フォーカス     |
+| :----------------: | :--------------------: | :----------------: |
+| ![](../source.gif) | ![](../typewriter.gif) | ![](../focus.gif)  |
 
-# 4. 動機
+# 4. コントリビューター
 
-## 1. このフォークは数え切れない他のフォークと何が違うの？
+<a href="https://github.com/marktext/marktext/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=marktext/marktext" />
+</a>
 
-- `marktext` を調べていて不満だったのは、開発フレームワークと環境が著しく古く、ビルドに非常に時間がかかる点でした
-  - 多くのライブラリが古く、現代の Node.JS/Python ではインストールすらできないものもありました
+## 5. いいね！どう貢献できる？
 
-- そこでこのフォークは、旧来の `Babel + Webpack` 構成の代わりに [electron-vite](https://electron-vite.org/) を採用した、いわば大規模な「書き直し」です
-  - 目的は、**可能な限りモダンなフレームワークとライブラリ**を用いて `marktext` に**新たな出発**を与えること
-  - すべてを `Vue3` と `Pinia` に移行し、各ライブラリも可能な限り最新バージョンへ更新しました
-
-- `main` と `preload` の各プロセスは引き続き `CommonJS` にコンパイルされますが、`renderer` は現在 **`ESModules` のみ** に完全移行しました（移行中は興味深い問題にも遭遇しました）
-
-## 2. 良いね！ どうやって貢献できる？
-
-- 次のいずれの形でも歓迎します:
-  1. バグのテスト（バグ報告）
+- どんな形でも:
+  1. バグのテスト（Bug-Reports）
   2. Pull Request
 
   大歓迎です！
 
-- このリポジトリでの基本的なコマンドは下記にあります。その他の点では、ディレクトリ構成は**オリジナルの marktext**と非常に近いはずです
+## 6. プロジェクトのセットアップ
 
-## 3. プロジェクト設定
-
-- [開発者向けドキュメント](../dev/README.md)を参照してください
+- [開発者向けドキュメント](../dev/README.md) を参照してください

@@ -23,15 +23,15 @@
 <div align="center">
   <!-- Latest Release Version -->
   <a href="https://github.com/marktext/marktext/releases/latest">
-    <img alt="GitHub Release" src="https://img.shields.io/github/v/release/tkaixiang/marktext">
+    <img alt="GitHub Release" src="https://img.shields.io/github/v/release/marktext/marktext">
   </a>
   <!-- Downloads total -->
   <a href="https://github.com/marktext/marktext/releases">
-    <img alt="GitHub Downloads (all assets, all releases)" src="https://img.shields.io/github/downloads/tkaixiang/marktext/total">
+    <img alt="GitHub Downloads (all assets, all releases)" src="https://img.shields.io/github/downloads/marktext/marktext/total">
   </a>
   <!-- Downloads latest release -->
   <a href="https://github.com/marktext/marktext/releases/latest">
-    <img alt="GitHub Downloads (all assets, latest release)" src="https://img.shields.io/github/downloads/tkaixiang/marktext/latest/total">
+    <img alt="GitHub Downloads (all assets, latest release)" src="https://img.shields.io/github/downloads/marktext/marktext/latest/total">
   </a>
 </div>
 
@@ -56,9 +56,9 @@
 
 ### Linux Package Managers
 
-##### 1. Arch Linux [![AUR version](https://img.shields.io/aur/version/marktext-tkaixiang-bin)](https://aur.archlinux.org/packages/marktext-tkaixiang-bin)
+##### 1. Arch Linux [![AUR version](https://img.shields.io/aur/version/marktext-bin)](https://aur.archlinux.org/packages/marktext-bin)
 
-- Available on [AUR](https://aur.archlinux.org/packages/marktext-tkaixiang-bin) thanks to [@kromsam](https://github.com/kromsam)
+- Available on [AUR](https://aur.archlinux.org/packages/marktext-bin) thanks to [@kromsam](https://github.com/kromsam)
 
 ## MacOS
 
@@ -127,7 +127,7 @@ MarkText includes **33 built-in themes** - 10 light and 23 dark themes:
 # 4. Contributors
 
 <a href="https://github.com/marktext/marktext/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=Tkaixiang/marktext" />
+  <img src="https://contrib.rocks/image?repo=marktext/marktext" />
 </a>
 
 ## 5. That's cool! How can I help?
