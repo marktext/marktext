@@ -1,10 +1,50 @@
 
-import { PARAGRAPH_TYPES, PREVIEW_DOMPURIFY_CONFIG, HAS_TEXT_BLOCK_REG, IMAGE_EXT_REG, URL_REG } from '../config'
+import { PARAGRAPH_TYPES, PREVIEW_DOMPURIFY_CONFIG, HAS_TEXT_BLOCK_REG, IMAGE_EXT_REG, URL_REG, DATA_URL_REG } from '../config'
 import { sanitize, getUniqueId, getImageInfo as getImageSrc, getPageTitle } from '../utils'
 import { getImageInfo } from '../utils/getImageInfo'
 
 const LIST_REG = /ul|ol/
 const LINE_BREAKS_REG = /\n/
+const BLOB_URL_REG = /^blob:/i
+const MIME_EXTENSION_MAP = {
+  'image/jpeg': 'jpg',
+  'image/svg+xml': 'svg'
+}
+
+const getImageExtension = mimeType => {
+  const normalizedMimeType = mimeType ? mimeType.split(';')[0].toLowerCase() : ''
+  if (MIME_EXTENSION_MAP[normalizedMimeType]) {
+    return MIME_EXTENSION_MAP[normalizedMimeType]
+  }
+
+  const [, extension = 'png'] = normalizedMimeType.split('/')
+  return extension.split('+')[0] || 'png'
+}
+
+const getImageFileName = (mimeType, fname) => {
+  const extension = getImageExtension(mimeType)
+  const sanitizedFileName = fname && fname.trim()
+    ? fname.trim().replace(/[\\/:*?"<>|]+/g, '-')
+    : `pasted-image-${getUniqueId()}`
+
+  if (/\.[a-z\d]+$/i.test(sanitizedFileName)) {
+    return sanitizedFileName
+  }
+
+  return `${sanitizedFileName}.${extension}`
+}
+
+const createImageFileFromSource = async (src, fname = '') => {
+  const response = await window.fetch(src)
+  if (!response.ok) {
+    throw new Error(`Cannot fetch pasted image: ${response.status}`)
+  }
+
+  const blob = await response.blob()
+  const mimeType = blob.type || 'image/png'
+  const fileName = getImageFileName(mimeType, fname)
+  return new window.File([blob], fileName, { type: mimeType })
+}
 
 const pasteCtrl = ContentState => {
   // check paste type: `MERGE` or `NEWLINE`
@@ -121,9 +161,31 @@ const pasteCtrl = ContentState => {
         }
       }
     }
+    // ksksk
+    // copy images if needed
+    const images = Array.from(tempWrapper.querySelectorAll('img'))
+    for (const image of images) {
+      const src = image.getAttribute('src')
+      const alt = image.getAttribute('alt')
+      const img = document.createElement('img')
+      let imageSrc = src
+      let fname = alt
+      if (src && (DATA_URL_REG.test(src) || URL_REG.test(src) || BLOB_URL_REG.test(src))) {
+        if (URL_REG.test(src)) fname = src.split('/').pop().split('?')[0]
+        try {
+          const imageFile = await createImageFileFromSource(src, fname)
+          imageSrc = await this.muya.options.imageAction(imageFile, null, alt)
+        } catch (error) {
+          console.error('Unexpected error while saving pasted HTML image:', error)
+        }
+      }
+
+      img.src = imageSrc
+      img.alt = alt
+      image.replaceWith(img)
+    }
     return tempWrapper.innerHTML
   }
-
   ContentState.prototype.pasteImage = async function (event) {
     // Try to guess the clipboard file path.
     const imagePath = this.muya.options.clipboardFilePath()
