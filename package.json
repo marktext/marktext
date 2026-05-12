@@ -3,7 +3,7 @@
   "version": "0.18.9",
   "description": "MarkText",
   "main": "./out/main/index.js",
-  "author": "Marktext Contributors (Tkaixiang fork)",
+  "author": "Marktext Contributors",
   "homepage": "https://github.com/marktext/marktext",
   "scripts": {
     "format": "prettier --write .",

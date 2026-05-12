@@ -10,15 +10,15 @@
 <div align="center">
   <!-- Latest Release Version -->
   <a href="https://github.com/marktext/marktext/releases/latest">
-    <img alt="GitHub Release" src="https://img.shields.io/github/v/release/tkaixiang/marktext">
+    <img alt="GitHub Release" src="https://img.shields.io/github/v/release/marktext/marktext">
   </a>
   <!-- Downloads total -->
   <a href="https://github.com/marktext/marktext/releases">
-    <img alt="GitHub Downloads (all assets, all releases)" src="https://img.shields.io/github/downloads/tkaixiang/marktext/total">
+    <img alt="GitHub Downloads (all assets, all releases)" src="https://img.shields.io/github/downloads/marktext/marktext/total">
   </a>
   <!-- Downloads latest release -->
   <a href="https://github.com/marktext/marktext/releases/latest">
-    <img alt="GitHub Downloads (all assets, latest release)" src="https://img.shields.io/github/downloads/tkaixiang/marktext/latest/total">
+    <img alt="GitHub Downloads (all assets, latest release)" src="https://img.shields.io/github/downloads/marktext/marktext/latest/total">
   </a>
 </div>
 
@@ -51,9 +51,9 @@
 
 ### Linux-Paketmanager
 
-##### 1. Arch Linux ![AUR Version](<https://img.shields.io/aur/version/marktext-tkaixiang-bin?label=(AUR)%20marktext-tkaixiang-bin%3E>)
+##### 1. Arch Linux ![AUR Version](<https://img.shields.io/aur/version/marktext-bin?label=(AUR)%20marktext-bin%3E>)
 
-- Verfügbar im [AUR](https://aur.archlinux.org/packages/marktext-tkaixiang-bin) dank [@kromsam](https://github.com/kromsam)
+- Verfügbar im [AUR](https://aur.archlinux.org/packages/marktext-bin) dank [@kromsam](https://github.com/kromsam)
 
 ## MacOS
 

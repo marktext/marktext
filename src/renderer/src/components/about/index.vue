@@ -13,7 +13,7 @@
           <h3 class="title">{{ name }}</h3>
         </el-col>
         <el-col :span="24">
-          <div class="text">{{ store.appVersion }} (Tkaixiang fork)</div>
+          <div class="text">{{ store.appVersion }}</div>
         </el-col>
         <el-col :span="24">
           <div class="text" style="min-height: auto">{{ copyright }}</div>
