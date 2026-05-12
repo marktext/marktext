@@ -20,6 +20,11 @@
           :step="100"
           :onChange="value => onSelectChange('autoSaveDelay', value)"
         ></range>
+        <bool
+          description="Always open in read-only mode (never prompt to save changes)"
+          :bool="alwaysReadOnly"
+          :onChange="value => onSelectChange('alwaysReadOnly', value)"
+        ></bool>
       </template>
     </compound>
 
@@ -154,6 +159,7 @@ export default {
     ...mapState({
       autoSave: state => state.preferences.autoSave,
       autoSaveDelay: state => state.preferences.autoSaveDelay,
+      alwaysReadOnly: state => state.preferences.alwaysReadOnly,
       titleBarStyle: state => state.preferences.titleBarStyle,
       defaultDirectoryToOpen: state => state.preferences.defaultDirectoryToOpen,
       openFilesInNewWindow: state => state.preferences.openFilesInNewWindow,

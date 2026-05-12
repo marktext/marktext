@@ -2,12 +2,20 @@ import fs from 'fs'
 import path from 'path'
 import EventEmitter from 'events'
 import { BrowserWindow, ipcMain, dialog } from 'electron'
-import keytar from 'keytar'
 import schema from './schema'
 import Store from 'electron-store'
 import log from 'electron-log'
 import { ensureDirSync } from 'common/filesystem'
 import { IMAGE_EXTENSIONS } from 'common/filesystem/paths'
+
+// Make keytar optional (fallback if native module fails to load)
+let keytar
+try {
+  keytar = require('keytar')
+} catch (err) {
+  console.warn('Keytar module not available - password storage disabled:', err.message)
+  keytar = null
+}
 
 const DATA_CENTER_NAME = 'dataCenter'
 
@@ -56,9 +64,11 @@ class DataCenter extends EventEmitter {
     const { serviceName, encryptKeys } = this
     const data = this.store.store
     try {
-      const encryptData = await Promise.all(encryptKeys.map(key => {
-        return keytar.getPassword(serviceName, key)
-      }))
+      const encryptData = keytar
+        ? await Promise.all(encryptKeys.map(key => {
+          return keytar.getPassword(serviceName, key)
+        }))
+        : []
       const encryptObj = encryptKeys.reduce((acc, k, i) => {
         return {
           ...acc,
@@ -109,7 +119,7 @@ class DataCenter extends EventEmitter {
    */
   getItem (key) {
     const { encryptKeys, serviceName } = this
-    if (encryptKeys.includes(key)) {
+    if (encryptKeys.includes(key) && keytar) {
       return keytar.getPassword(serviceName, key)
     } else {
       const value = this.store.get(key)
@@ -123,7 +133,7 @@ class DataCenter extends EventEmitter {
       ensureDirSync(value)
     }
     ipcMain.emit('broadcast-user-data-changed', { [key]: value })
-    if (encryptKeys.includes(key)) {
+    if (encryptKeys.includes(key) && keytar) {
       try {
         return await keytar.setPassword(serviceName, key, value)
       } catch (err) {

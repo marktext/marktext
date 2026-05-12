@@ -37,6 +37,9 @@ if (args['--disable-gpu']) {
   app.disableHardwareAcceleration()
 }
 
+// Store read-only mode flag globally
+global.READ_ONLY_MODE = !!args['--read-only']
+
 // Make MarkText a single instance application.
 if (!process.mas && process.env.NODE_ENV !== 'development') {
   const gotSingleInstanceLock = app.requestSingleInstanceLock()
@@ -68,6 +71,9 @@ try {
   }
   process.exit(1)
 }
+
+// Make accessor globally available for accessing preferences
+global.accessor = accessor
 
 // Use synchronous only to report errors in early stage of startup.
 log.transports.file.sync = false

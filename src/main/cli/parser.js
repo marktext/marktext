@@ -21,6 +21,7 @@ const parseArgs = (argv = null, permissive = true) => {
     '--disable-gpu': Boolean,
     '--disable-spellcheck': Boolean,
     '--user-data-dir': String,
+    '--read-only': Boolean,
 
     // Misc
     '--help': Boolean,

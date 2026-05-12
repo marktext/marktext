@@ -10,6 +10,11 @@
     "minimum": 1000,
     "default": 5000
   },
+  "alwaysReadOnly": {
+    "description": "General--Always open files in read-only mode (no save prompts on exit).",
+    "type": "boolean",
+    "default": false
+  },
   "titleBarStyle": {
     "description": "General--The title bar style (Windows and Linux system only).",
     "enum": [
