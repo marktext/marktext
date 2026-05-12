@@ -130,7 +130,7 @@ class App {
       // 如果没有设置语言，则根据系统语言自动设置
       if (!currentLanguage) {
         const systemLanguage = app.getLocale()
-        console.log(`System language detected: ${systemLanguage}`)
+        log.info(`System language detected: ${systemLanguage}`)
 
         // 支持的语言列表（根据项目实际支持的语言）
         const supportedLanguages = [
@@ -180,13 +180,13 @@ class App {
 
         // 保存检测到的语言设置
         this._accessor.preferences.setItem('language', currentLanguage)
-        console.log(`Auto-detected and set language to: ${currentLanguage}`)
+        log.info(`Auto-detected and set language to: ${currentLanguage}`)
       }
 
       setLanguage(currentLanguage)
-      console.log(`Main process language initialized to: ${currentLanguage}`)
+      log.info(`Main process language initialized to: ${currentLanguage}`)
     } catch (error) {
-      console.error('Failed to initialize main process language:', error)
+      log.error('Failed to initialize main process language:', error)
       // 如果出错，使用英语作为默认语言
       setLanguage('en')
     }

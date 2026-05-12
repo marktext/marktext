@@ -54,14 +54,18 @@ function loadTranslations(language) {
 function getTranslation(key, language = 'en', params = {}) {
   const translations = loadTranslations(language)
 
+  if (!translations) {
+    return key
+  }
+
   // 支持点分隔的嵌套键
   const keys = key.split('.')
   let probe = translations
 
-  for (key of keys) {
+  for (const segment of keys) {
     // Navigate through nested objects until the string
-    if (key in probe) {
-      probe = probe[key]
+    if (segment in probe) {
+      probe = probe[segment]
     } else {
       return key // Unable to find key, return the key itself
     }

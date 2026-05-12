@@ -3,5 +3,5 @@ import { app } from 'electron'
 
 // Set `__static` path to static files in production / development depending on the environment
 global.__static = path
-  .join(app.isPackaged ? process.resourcesPath : process.cwd(), 'static')
+  .join(app.isPackaged ? process.resourcesPath : app.getAppPath(), 'static')
   .replace(/\\/g, '\\\\')
