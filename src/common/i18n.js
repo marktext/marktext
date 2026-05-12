@@ -58,10 +58,10 @@ function getTranslation(key, language = 'en', params = {}) {
   const keys = key.split('.')
   let probe = translations
 
-  for (key of keys) {
+  for (const segment of keys) {
     // Navigate through nested objects until the string
-    if (key in probe) {
-      probe = probe[key]
+    if (probe && segment in probe) {
+      probe = probe[segment]
     } else {
       return key // Unable to find key, return the key itself
     }

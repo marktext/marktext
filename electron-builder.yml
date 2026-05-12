@@ -1,4 +1,4 @@
-appId: com.electron.app
+appId: com.github.marktext.marktext
 productName: marktext
 directories:
   buildResources: build
