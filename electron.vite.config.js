@@ -59,13 +59,7 @@ export default defineConfig({
       },
       extensions: ['.mjs', '.js', '.json', '.vue']
     },
-    plugins: [
-      vue(),
-      svgLoader(),
-      renderer({
-        nodeIntegration: true
-      })
-    ],
+    plugins: [vue(), svgLoader(), renderer()],
     css: {
       postcss: {
         plugins: [
