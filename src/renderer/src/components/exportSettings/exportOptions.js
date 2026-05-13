@@ -62,7 +62,7 @@ export const getExportThemeList = () => [{
   value: 'liber'
 }]
 
-// 为了向后兼容，保留原有的导出
+// Retained for backward compatibility
 export const pageSizeList = getPageSizeList()
 export const headerFooterTypes = getHeaderFooterTypes()
 export const headerFooterStyles = getHeaderFooterStyles()

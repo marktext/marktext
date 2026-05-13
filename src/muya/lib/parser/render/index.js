@@ -178,7 +178,7 @@ class StateRender {
 
   render(blocks, activeBlocks, matches) {
     const selector = `div#${CLASS_OR_ID.AG_EDITOR_ID}`
-    const t = this.muya.options.t || ((key) => key) // 获取翻译函数，如果没有则返回原始键值
+    const t = this.muya.options.t || ((key) => key) // Get the translation function, falling back to returning the key itself if absent
     const children = blocks.map((block) => {
       return this.renderBlock(null, block, activeBlocks, matches, true, t)
     })
@@ -197,7 +197,7 @@ class StateRender {
     const cursorOutMostBlock = activeBlocks[activeBlocks.length - 1]
     // If cursor is not in render blocks, need to render cursor block independently
     const needRenderCursorBlock = blocks.indexOf(cursorOutMostBlock) === -1
-    const t = this.muya.options.t || ((key) => key) // 获取翻译函数，如果没有则返回原始键值
+    const t = this.muya.options.t || ((key) => key) // Get the translation function, falling back to returning the key itself if absent
     const newVnode = h(
       'section',
       blocks.map((block) => this.renderBlock(null, block, activeBlocks, matches, false, t))
@@ -256,7 +256,7 @@ class StateRender {
    */
   singleRender(block, activeBlocks, matches) {
     const selector = `#${block.key}`
-    const t = this.muya.options.t || ((key) => key) // 获取翻译函数，如果没有则返回原始键值
+    const t = this.muya.options.t || ((key) => key) // Get the translation function, falling back to returning the key itself if absent
     const newVdom = this.renderBlock(null, block, activeBlocks, matches, true, t)
     const rootDom = document.querySelector(selector)
     const oldVdom = toVNode(rootDom)

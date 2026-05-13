@@ -17,7 +17,7 @@ class QuickInsert extends BaseScrollFloat {
     this.renderArray = null
     this.activeItem = null
     this.block = null
-    // 从muya.options中获取翻译函数，如果没有则使用默认配置
+    // Get the translation function from muya.options, or use the default config if absent
     const translateFn = muya.options && muya.options.t ? muya.options.t : null
     this.originalQuickInsertObj = createQuickInsertObj(translateFn)
     this.renderObj = this.originalQuickInsertObj
@@ -128,13 +128,13 @@ class QuickInsert extends BaseScrollFloat {
     const canInserFrontMatter = contentState.canInserFrontMatter(this.block)
     const obj = deepCopy(this.originalQuickInsertObj)
     if (!canInserFrontMatter) {
-      // 查找包含 front-matter 的基础块分组
+      // Find the basic block group containing front-matter
       const basicBlockKey = Object.keys(obj).find((key) => {
         const items = obj[key]
         return Array.isArray(items) && items.some((item) => item.label === 'front-matter')
       })
       if (basicBlockKey && obj[basicBlockKey]) {
-        // 找到 front-matter 项的索引并移除
+        // Find the index of the front-matter item and remove it
         const frontMatterIndex = obj[basicBlockKey].findIndex(
           (item) => item.label === 'front-matter'
         )
@@ -156,7 +156,7 @@ class QuickInsert extends BaseScrollFloat {
 
   selectItem(item) {
     const { contentState } = this.muya
-    // 检查 block 是否存在，避免 null 引用错误
+    // Check that block exists to avoid a null reference error
     if (!this.block) {
       console.warn('QuickInsert: block is null, cannot select item')
       this.hide()

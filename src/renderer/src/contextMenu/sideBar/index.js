@@ -14,7 +14,7 @@ import {
 export const showContextMenu = (event, hasPathCache) => {
   const menu = new RemoteMenu()
   const win = getCurrentWindow()
-  // 动态获取菜单项以确保翻译正确
+  // Dynamically fetch menu items to ensure correct translation
   const contextItems = [
     getNEW_FILE(),
     getNEW_DIRECTORY(),

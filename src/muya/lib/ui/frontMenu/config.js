@@ -5,7 +5,7 @@ import turnIcon from '../../assets/pngicon/turninto/2.png'
 import { isOsx } from '../../config'
 import { createQuickInsertObj } from '../quickInsert/config'
 
-// 创建一个函数来生成子菜单，接收翻译函数作为参数
+// Creates a function to generate the submenu, accepting a translation function as a parameter
 const createWholeSubMenu = (t) => {
   const quickInsertObj = createQuickInsertObj(t)
   return Object.keys(quickInsertObj).reduce((acc, key) => {
@@ -16,9 +16,9 @@ const createWholeSubMenu = (t) => {
 
 const COMMAND_KEY = isOsx ? '⌘' : '⌃'
 
-// 创建菜单的函数，接收翻译函数作为参数
+// Function to create the menu, accepting a translation function as a parameter
 export const createMenu = (t) => {
-  // 如果没有翻译函数，直接返回键名
+  // If no translation function is provided, return the key name directly
   const translate = t || ((key) => key)
 
   return [
@@ -48,12 +48,12 @@ export const createMenu = (t) => {
   ]
 }
 
-// 为了向后兼容，保留默认的 menu 导出
+// Retained for backward compatibility as the default menu export
 export const menu = createMenu()
 
-// 创建 getLabel 函数，接收翻译函数作为参数
+// Create the getLabel function, accepting a translation function as a parameter
 export const createGetLabel = (t) => {
-  // 如果没有翻译函数，直接返回键名
+  // If no translation function is provided, return the key name directly
   const translate = t || ((key) => key)
 
   return (block) => {
@@ -134,7 +134,7 @@ export const createGetLabel = (t) => {
   }
 }
 
-// 为了向后兼容，保留默认的 getLabel 导出
+// Retained for backward compatibility; export the default getLabel
 export const getLabel = createGetLabel()
 
 export const createGetSubMenu = (t) => {
@@ -175,5 +175,5 @@ export const createGetSubMenu = (t) => {
   }
 }
 
-// 创建默认的getSubMenu函数
+// Create the default getSubMenu function
 export const getSubMenu = createGetSubMenu()

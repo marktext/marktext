@@ -161,7 +161,7 @@ export const uploadImage = async (pathname, image, preferences) => {
           try {
             const obj = JSON.parse(line)
             if (obj) {
-              // 仅在明确成功时返回 URL
+              // Only return URL on explicit success
               if (obj.success === true && typeof obj.imgUrl === 'string') return obj.imgUrl
               if (obj.success === true && Array.isArray(obj.result) && obj.result.length > 0) {
                 return String(obj.result[obj.result.length - 1])
@@ -170,19 +170,19 @@ export const uploadImage = async (pathname, image, preferences) => {
             }
           } catch {}
         }
-        // 仅在包含 success 关键词时接受 URL
+        // Only accept URL when 'success' keyword is present
         const kv = line.match(/(?:success|succeeded|uploaded)\s*:?\s*(https?:\/\/\S+)/i)
         if (kv && kv[1]) return kv[1]
       }
       // last non-empty line may be the URL itself
-      // 不再使用最后一行 URL 兜底，避免误判成功
+      // No longer use the last line URL as a fallback to avoid false positives
     } catch {}
     const marker = cleaned.split('[PicGo SUCCESS]:')
     if (marker.length >= 2) {
       const candidate = marker[marker.length - 1].trim()
       if (/^https?:\/\//i.test(candidate)) return candidate
     }
-    // 不再用任意 URL 兜底
+    // No longer use arbitrary URL as a fallback
     return null
   }
 

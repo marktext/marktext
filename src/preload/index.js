@@ -47,12 +47,12 @@ const fileUtilsAPI = {
 const commandAPI = {
   exists: (command) => {
     try {
-      // 先尝试使用 command-exists 检查
+      // First attempt to check using command-exists
       if (commandExists.sync(command)) {
         return true
       }
 
-      // 对于 picgo，额外检查常见安装路径
+      // For picgo, additionally check common installation paths
       if (command === 'picgo' && process.platform === 'darwin') {
         const commonPaths = [
           '/usr/local/bin/picgo',

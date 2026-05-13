@@ -54,7 +54,7 @@ export const getCategory = () => [
   }
 ]
 
-// 创建响应式的翻译映射函数
+// Creates a reactive translated mapping function
 export const getTranslatedSearchContent = () => {
   // Generate keys by iterating through each language
   const result = []
@@ -65,7 +65,7 @@ export const getTranslatedSearchContent = () => {
 
     let [category] = description.split('--')
 
-    // 映射分类名称
+    // Map category names
     let mappedCategory = category.toLowerCase()
     if (category === 'General') mappedCategory = 'general'
     else if (category === 'Editor') mappedCategory = 'editor'
@@ -78,11 +78,11 @@ export const getTranslatedSearchContent = () => {
     else if (category === 'Spelling') mappedCategory = 'spelling'
     else if (category === 'Custom CSS') mappedCategory = 'custom css'
     else {
-      // 处理特殊分类名称
+      // Handle special category names
       mappedCategory = category.toLowerCase().replace(/\s+/g, '-')
     }
 
-    // 计算用于路由跳转的分类（仅允许已存在的路由，否则回退到 general）
+    // Compute the category for route navigation (only allow existing routes, otherwise fall back to general)
     let routeCategory = mappedCategory
     const validRoutes = [
       'general',
@@ -95,18 +95,18 @@ export const getTranslatedSearchContent = () => {
     ]
     if (!validRoutes.includes(routeCategory)) routeCategory = 'general'
 
-    // 尝试翻译分类和项目
+    // Try to translate the category and item
     const categoryKey = `preferences.search.categories.${mappedCategory}`
     const itemKey = `preferences.search.items.${k}`
 
-    // 翻译分类名称
+    // Translate the category name
     let translatedCategory = category
     const englishCategory = category
     try {
       translatedCategory = t(categoryKey)
     } catch (e) {
       console.warn(`   ⚠️ 搜索分类翻译失败: ${e.message}`)
-      // 尝试fallback到preferences.categories
+      // Try fallback to preferences.categories
       try {
         const fallbackKey = `preferences.categories.${mappedCategory}`
         translatedCategory = t(fallbackKey)
@@ -116,14 +116,14 @@ export const getTranslatedSearchContent = () => {
       }
     }
 
-    // 翻译项目描述
+    // Translate preference description
     let translatedPreference = description.split('--')[1] || description
     const englishPreference = description.split('--')[1] || description
     try {
       translatedPreference = t(itemKey)
     } catch (e) {
       console.warn(`   ⚠️ 搜索项目翻译失败: ${e.message}`)
-      // 尝试fallback到preferences.items
+      // Try fallback to preferences.items
       try {
         const fallbackKey = `preferences.items.${k}`
         translatedPreference = t(fallbackKey)
@@ -147,11 +147,11 @@ export const getTranslatedSearchContent = () => {
   return result
 }
 
-// 添加语言变化监听器
+// Add language change listener
 export const setupLanguageChangeListener = () => {
-  // 监听语言变化事件
+  // Listen for language change events
   const handleLanguageChange = () => {
-    // 触发搜索内容刷新
+    // Trigger search content refresh
     if (window.__VUE_I18N__) {
       try {
         const g =
@@ -160,7 +160,7 @@ export const setupLanguageChangeListener = () => {
             : window.__VUE_I18N__.global
         const currentLanguage = g && g.locale ? g.locale.value || g.locale : 'en'
 
-        // 这里可以触发一个自定义事件，通知搜索组件刷新
+        // Here we can dispatch a custom event to notify the search component to refresh
         window.dispatchEvent(
           new CustomEvent('languageChanged', {
             detail: { language: currentLanguage }
@@ -172,21 +172,21 @@ export const setupLanguageChangeListener = () => {
     }
   }
 
-  // 监听i18n实例的语言变化
+  // Listen for locale changes in the i18n instance
   if (window.__VUE_I18N__) {
     try {
       const i18n = window.__VUE_I18N__
-      // 监听locale变化
+      // Listen for locale changes
       const g = typeof i18n.global === 'function' ? i18n.global() : i18n.global
       if (g && g.locale && g.locale.value !== undefined) {
-        // 使用Vue的响应式系统监听语言变化
+        // Use Vue's reactive system to listen for language changes
       }
     } catch (e) {
       console.warn('⚠️ 设置语言变化监听器失败:', e)
     }
   }
 
-  // 添加定时检查机制作为备选方案
+  // Add a polling fallback mechanism as a backup
   setInterval(() => {
     try {
       if (window.__VUE_I18N__) {
@@ -201,11 +201,11 @@ export const setupLanguageChangeListener = () => {
         }
       }
     } catch (e) {
-      // 忽略错误，继续检查
+      // Ignore errors and continue checking
     }
-  }, 1000) // 每秒检查一次
+  }, 1000) // Check once per second
 
-  // 记录初始语言
+  // Record the initial language
   try {
     if (window.__VUE_I18N__) {
       const g =
@@ -219,17 +219,17 @@ export const setupLanguageChangeListener = () => {
   }
 }
 
-// 初始化语言变化监听器
+// Initialize the language change listener
 setupLanguageChangeListener()
 
-// 添加手动刷新函数
+// Add manual refresh function
 export const refreshSearchContent = () => {
-  // 清除语言缓存，强制重新获取
+  // Clear the language cache to force re-fetch
   if (getTranslatedSearchContent.lastLanguage) {
     delete getTranslatedSearchContent.lastLanguage
   }
 
-  // 触发语言变化事件
+  // Trigger the language change event
   window.dispatchEvent(
     new CustomEvent('languageChanged', {
       detail: { language: 'force-refresh' }
@@ -239,15 +239,15 @@ export const refreshSearchContent = () => {
   return getTranslatedSearchContent()
 }
 
-// 创建调试弹窗（确保关闭按钮显示）
+// Creates the debug popup (ensures the close button is visible)
 function createDebugPopup() {
-  // 移除可能存在的旧弹窗
+  // Remove any existing popup
   const existingPopup = document.getElementById('debugPopup')
   if (existingPopup) {
     document.body.removeChild(existingPopup)
   }
 
-  // 创建新弹窗
+  // Create new popup
   const popup = document.createElement('div')
   popup.id = 'debugPopup'
   popup.style.cssText = `
@@ -264,7 +264,7 @@ function createDebugPopup() {
     box-shadow: 0 0 10px rgba(0,0,0,0.2);
   `
 
-  // 创建标题栏和关闭按钮
+  // Create the title bar and close button
   const titleBar = document.createElement('div')
   titleBar.style.cssText = `
     display: flex;
@@ -291,22 +291,22 @@ function createDebugPopup() {
     font-size: 12px;
   `
 
-  // 添加关闭事件
+  // Add close event
   closeButton.onclick = () => {
     if (popup && popup.parentNode) {
       popup.parentNode.removeChild(popup)
     }
   }
 
-  // 组装标题栏
+  // Assemble the title bar
   titleBar.appendChild(title)
   titleBar.appendChild(closeButton)
 
-  // 创建内容区域
+  // Create the content area
   const content = document.createElement('div')
   content.id = 'debugContent'
 
-  // 组装弹窗
+  // Assemble the popup
   popup.appendChild(titleBar)
   popup.appendChild(content)
 
@@ -314,7 +314,7 @@ function createDebugPopup() {
   return popup
 }
 
-// 获取i18n实例的通用方法（修复API访问问题）
+// General method to get the i18n instance (fixes API access issues)
 function getI18nInstance() {
   if (!window.__VUE_I18N__) {
     return null
@@ -322,7 +322,7 @@ function getI18nInstance() {
 
   const i18n = window.__VUE_I18N__
 
-  // 尝试不同的访问方式
+  // Try different access methods
   if (typeof i18n.global === 'function') {
     return i18n.global()
   } else if (i18n.global && typeof i18n.global.t === 'function') {
@@ -336,16 +336,16 @@ function getI18nInstance() {
   return null
 }
 
-// 强化调试函数（修复API访问问题）
+// Enhanced debug function (fixes API access issues)
 export const debugLanguageState = () => {
-  // 确保弹窗存在并可见
+  // Ensure the popup exists and is visible
   let popup = document.getElementById('debugPopup')
   if (!popup) {
     popup = createDebugPopup()
     popup.style.zIndex = '10000'
   }
 
-  // 确保内容区域存在
+  // Ensure the content area exists
   const debugContent = popup.querySelector('#debugContent')
   if (!debugContent) {
     const newContent = document.createElement('div')
@@ -353,16 +353,16 @@ export const debugLanguageState = () => {
     popup.appendChild(newContent)
   }
 
-  // 清空并添加调试信息
+  // Clear and populate debug information
   debugContent.innerHTML = '<div id="debugDetails">正在加载调试信息...</div>'
 
-  // 填充调试详情
+  // Populate debug details
   const details = debugContent.querySelector('#debugDetails')
 
-  // 模拟延迟加载
+  // Simulate delayed loading
   setTimeout(() => {
     try {
-      // 显示i18n实例的详细信息
+      // Show detailed information about the i18n instance
       let debugInfo = '<h4>🔍 i18n实例详细信息:</h4>'
 
       if (!window.__VUE_I18N__) {
@@ -375,13 +375,13 @@ export const debugLanguageState = () => {
           <p><strong>global 类型:</strong> ${typeof i18n.global}</p>
         `
 
-        // 安全地显示global信息
+        // Safely display global info
         try {
           if (i18n.global) {
             const globalKeys = Object.keys(i18n.global).slice(0, 5)
             debugInfo += `<p><strong>global 键:</strong> ${globalKeys.join(', ')}</p>`
 
-            // 检查是否有翻译函数
+            // Check if translation function is available
             if (typeof i18n.global.t === 'function') {
               debugInfo += '<p style="color:green;">✅ global.t 函数可用</p>'
             } else {
@@ -392,12 +392,12 @@ export const debugLanguageState = () => {
           debugInfo += `<p style="color:red;">❌ 检查global时出错: ${e.message}</p>`
         }
 
-        // 尝试获取i18n实例
+        // Try to get the i18n instance
         const i18nInstance = getI18nInstance()
         if (i18nInstance) {
           debugInfo += '<p style="color:green;">✅ 成功获取i18n实例</p>'
 
-          // 获取当前语言
+          // Get the current language
           let currentLanguage = 'unknown'
           if (i18nInstance.locale && i18nInstance.locale.value) {
             currentLanguage = i18nInstance.locale.value
@@ -407,7 +407,7 @@ export const debugLanguageState = () => {
 
           debugInfo += `<p><strong>🌍 当前语言:</strong> ${currentLanguage}</p>`
 
-          // 测试翻译
+          // Test translation
           try {
             const testTranslation = i18nInstance.t(
               'preferences.general.window.titleBarStyle.custom'
@@ -428,33 +428,33 @@ export const debugLanguageState = () => {
   }, 500)
 }
 /*
-// 在页面上添加调试按钮（仅开发环境显示）
+// Add debug buttons to the page (visible in development environment only)
 if (typeof document !== 'undefined') {
   const isDev = (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.DEV) ||
     (typeof process !== 'undefined' && process.env && process.env.NODE_ENV === 'development');
   if (isDev) {
-    // 确保按钮容器存在
+    // Ensure the button container exists
     const buttonContainer = document.createElement('div');
     buttonContainer.id = 'debugButtonContainer';
     buttonContainer.style.cssText = 'position:fixed;top:10px;right:10px;z-index:999;';
 
-    // 创建调试按钮
+    // Create the debug button
     const debugButton = document.createElement('button');
-    debugButton.textContent = '🛠️ 调试';
+    debugButton.textContent = '🛠️ Debug';
     debugButton.style.cssText = 'padding:8px 15px;margin:5px;background:#f0f0f0;border:1px solid #ddd;border-radius:4px;cursor:pointer;';
     debugButton.onclick = debugLanguageState;
 
-    // 创建刷新按钮
+    // Create the refresh button
     const refreshButton = document.createElement('button');
-    refreshButton.textContent = '🔁 刷新';
+    refreshButton.textContent = '🔁 Refresh';
     refreshButton.style.cssText = 'padding:8px 15px;margin:5px;background:#f0f0f0;border:1px solid #ddd;border-radius:4px;cursor:pointer;';
     refreshButton.onclick = () => window.dispatchEvent(new CustomEvent('languageChanged'));
 
-    // 添加按钮到容器
+    // Add buttons to the container
     buttonContainer.appendChild(debugButton);
     buttonContainer.appendChild(refreshButton);
 
-    // 添加到文档
+    // Add to document
     document.body.appendChild(buttonContainer);
   }
 }

@@ -278,7 +278,7 @@ const executeCommand = (commandId) => {
 }
 
 const handleLanguageChanged = () => {
-  // 如果命令面板当前是打开状态，重新加载命令
+  // If the command palette is currently open, reload commands
   if (showCommandPalette.value && currentCommand.value) {
     currentCommand.value.run().then(() => {
       availableCommands.value = currentCommand.value.subcommands
@@ -290,7 +290,7 @@ const handleLanguageChanged = () => {
 onMounted(() => {
   bus.on('show-command-palette', handleShow)
 
-  // 监听语言变化事件，重新获取命令列表
+  // Listen for language change events and reload the command list
   bus.on('language-changed', handleLanguageChanged)
 })
 

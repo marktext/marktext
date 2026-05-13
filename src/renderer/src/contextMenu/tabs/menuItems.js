@@ -7,7 +7,7 @@ export const SEPARATOR = {
   type: 'separator'
 }
 
-// 使用函数形式避免模块加载时调用翻译函数
+// Use function form to avoid calling the translation function during module load
 export const getCLOSE_THIS = () => ({
   label: t('contextMenu.tabs.close'),
   id: 'closeThisTab',
@@ -64,7 +64,7 @@ export const getSHOW_IN_FOLDER = () => ({
   }
 })
 
-// 为了向后兼容，保留原有的导出
+// Retained for backward compatibility
 export const CLOSE_THIS = getCLOSE_THIS()
 export const CLOSE_OTHERS = getCLOSE_OTHERS()
 export const CLOSE_SAVED = getCLOSE_SAVED()

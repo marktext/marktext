@@ -68,7 +68,7 @@ const querySearch = (queryString, cb) => {
 const createFilter = (queryString) => {
   const q = queryString.toLowerCase()
   return (restaurant) => {
-    // 同时支持当前语言和英文关键词
+    // Support both the current language and English keywords
     const fields = [
       restaurant.preference,
       restaurant.category,
@@ -84,7 +84,7 @@ const createFilter = (queryString) => {
 const loadAll = () => getTranslatedSearchContent()
 
 const handleSelect = (item) => {
-  // 使用安全的 routeCategory，避免不合法分类导致白屏
+  // Use a safe routeCategory to avoid a blank screen caused by invalid categories
   const target =
     item && item.routeCategory ? item.routeCategory : (item?.category || 'general').toLowerCase()
   router.push({ path: `/preference/${target}` }).catch(() => {})
@@ -114,12 +114,12 @@ onMounted(() => {
     currentCategory.value = route.name
   }
   window.electron.ipcRenderer.on('settings::change-tab', onIpcCategoryChange)
-  // 监听语言变化，刷新搜索索引
+  // Listen for language changes and refresh the search index
   const languageChanged = () => {
     restaurants.value = loadAll()
   }
   window.addEventListener('languageChanged', languageChanged)
-  // 卸载时移除监听
+  // Remove listener on unmount
   onUnmounted(() => window.removeEventListener('languageChanged', languageChanged))
 })
 

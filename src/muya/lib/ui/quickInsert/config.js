@@ -33,9 +33,9 @@ const SHIFT_KEY = isOsx ? '⇧' : 'Shift'
 // Caps Lock ⇪
 // Fn
 
-// 创建一个函数来生成配置对象，接收翻译函数作为参数
+// Creates a function to generate the config object, accepting a translation function as a parameter
 export const createQuickInsertObj = (t) => {
-  // 如果没有翻译函数，直接返回键名
+  // If no translation function is provided, return the key name directly
   const translate = t || ((key) => key)
 
   return {
@@ -174,5 +174,5 @@ export const createQuickInsertObj = (t) => {
  }
 }
 
-// 保持向后兼容性，导出默认配置
-// 移除旧的导出，所有地方都应该使用createQuickInsertObj函数
+// Maintained for backward compatibility; export the default configuration
+// Old exports removed — all call sites should use the createQuickInsertObj function

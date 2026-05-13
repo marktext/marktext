@@ -31,9 +31,9 @@ class FrontMenu extends BaseFloat {
     this.endBlock = null
     this.options = opts
     this.reference = null
-    // 获取翻译函数
+    // Get the translation function
     this.t = opts.t || muya.options.t || ((key) => key)
-    // 创建菜单和标签函数
+    // Create the menu and label functions
     this.menu = createMenu(this.t)
     this.getLabel = createGetLabel(this.t)
     this.getSubMenu = createGetSubMenu(this.t)

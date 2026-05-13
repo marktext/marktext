@@ -13,7 +13,7 @@ import {
 import spellcheckMenuBuilder from './spellcheck'
 import { t } from '../../i18n'
 
-// 动态获取菜单项以确保翻译正确
+// Dynamically fetch menu items to ensure correct translation
 const getContextItems = () => [
   getINSERT_BEFORE(),
   getINSERT_AFTER(),

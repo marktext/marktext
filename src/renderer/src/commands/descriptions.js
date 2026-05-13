@@ -2,15 +2,15 @@ import { t } from '../i18n'
 
 const COMMAND_KEY_MAP = {
   // ============================================
-  // # 应用程序级别命令 (Application Level Commands)
+  // # Application Level Commands
   // ============================================
   'mt.hide': 'commands.mt.hide',
   'mt.hide-others': 'commands.mt.hideOthers',
 
   // ============================================
-  // # 文件操作命令 (File Operations)
+  // # File Operations
   // ============================================
-  // 文件创建和打开
+  // File creation and opening
   'file.new-window': 'commands.file.newWindow',
   'file.new-tab': 'commands.file.newTab',
   'file.open-file': 'commands.file.openFile',
@@ -18,42 +18,42 @@ const COMMAND_KEY_MAP = {
   'file.quick-open': 'commands.file.quickOpen',
   'file.import-file': 'commands.file.importFile',
 
-  // 文件保存和导出
+  // File save and export
   'file.save': 'commands.file.save',
   'file.save-as': 'commands.file.saveAs',
   'file.export-file': 'commands.file.exportFile',
   'file.export-file.pdf': 'commands.file.exportFilePdf',
 
-  // 文件管理
+  // File management
   'file.move-file': 'commands.file.moveFile',
   'file.rename-file': 'commands.file.renameFile',
   'file.toggle-auto-save': 'commands.file.toggleAutoSave',
 
-  // 文件设置
+  // File settings
   'file.change-encoding': 'commands.file.changeEncoding',
   'file.line-ending': 'commands.file.changeLineEnding',
   'file.trailing-newline': 'commands.file.trailingNewline',
   'file.preferences': 'commands.file.preferences',
 
-  // 文件操作
+  // File operations
   'file.print': 'commands.file.print',
   'file.zoom': 'commands.file.zoom',
   'file.check-update': 'commands.file.checkUpdate',
 
-  // 文件关闭
+  // File close
   'file.close': 'commands.file.closeTab',
   'file.close-tab': 'commands.file.closeTab',
   'file.close-window': 'commands.file.closeWindow',
   'file.quit': 'commands.file.quit',
 
   // ============================================
-  // # 编辑操作命令 (Edit Operations)
+  // # Edit Operations
   // ============================================
-  // 撤销重做
+  // Undo and redo
   'edit.undo': 'commands.edit.undo',
   'edit.redo': 'commands.edit.redo',
 
-  // 剪贴板操作
+  // Clipboard operations
   'edit.cut': 'commands.edit.cut',
   'edit.copy': 'commands.edit.copy',
   'edit.paste': 'commands.edit.paste',
@@ -61,28 +61,28 @@ const COMMAND_KEY_MAP = {
   'edit.copy-as-html': 'commands.edit.copyAsHtml',
   'edit.paste-as-plaintext': 'commands.edit.pasteAsPlaintext',
 
-  // 选择和复制
+  // Select and copy
   'edit.select-all': 'commands.edit.selectAll',
   'edit.duplicate': 'commands.edit.duplicate',
 
-  // 段落操作
+  // Paragraph operations
   'edit.create-paragraph': 'commands.edit.createParagraph',
   'edit.delete-paragraph': 'commands.edit.deleteParagraph',
 
-  // 查找替换
+  // Find and replace
   'edit.find': 'commands.edit.find',
   'edit.find-next': 'commands.edit.findNext',
   'edit.find-previous': 'commands.edit.findPrevious',
   'edit.replace': 'commands.edit.replace',
   'edit.find-in-folder': 'commands.edit.findInFolder',
 
-  // 其他编辑功能
+  // Other editing features
   'edit.screenshot': 'commands.edit.screenshot',
 
   // ============================================
-  // # 段落格式命令 (Paragraph Formatting)
+  // # Paragraph Formatting
   // ============================================
-  // 标题级别
+  // Heading levels
   'paragraph.heading-1': 'commands.paragraph.heading1',
   'paragraph.heading-2': 'commands.paragraph.heading2',
   'paragraph.heading-3': 'commands.paragraph.heading3',
@@ -92,79 +92,79 @@ const COMMAND_KEY_MAP = {
   'paragraph.upgrade-heading': 'commands.paragraph.upgradeHeading',
   'paragraph.degrade-heading': 'commands.paragraph.degradeHeading',
 
-  // 块级元素
+  // Block-level elements
   'paragraph.table': 'commands.paragraph.table',
   'paragraph.code-fence': 'commands.paragraph.codeFence',
   'paragraph.quote-block': 'commands.paragraph.quoteBlock',
   'paragraph.math-block': 'commands.paragraph.mathBlock',
   'paragraph.html-block': 'commands.paragraph.htmlBlock',
 
-  // 列表类型
+  // List types
   'paragraph.order-list': 'commands.paragraph.orderList',
   'paragraph.bullet-list': 'commands.paragraph.bulletList',
   'paragraph.task-list': 'commands.paragraph.taskList',
   'paragraph.loose-list-item': 'commands.paragraph.looseListItem',
 
-  // 段落类型
+  // Paragraph types
   'paragraph.paragraph': 'commands.paragraph.paragraph',
   'paragraph.reset-paragraph': 'commands.paragraph.resetParagraph',
 
-  // 分隔符和特殊元素
+  // Separators and special elements
   'paragraph.horizontal-rule': 'commands.paragraph.horizontalRule',
   'paragraph.horizontal-line': 'commands.paragraph.horizontalLine',
   'paragraph.math-formula': 'commands.paragraph.mathFormula',
   'paragraph.front-matter': 'commands.paragraph.frontMatter',
 
   // ============================================
-  // # 文本格式命令 (Text Formatting)
+  // # Text Formatting
   // ============================================
-  // 基础格式
+  // Basic formatting
   'format.strong': 'commands.format.strong',
   'format.emphasis': 'commands.format.emphasis',
   'format.underline': 'commands.format.underline',
   'format.strike': 'commands.format.strike',
 
-  // 高级格式
+  // Advanced formatting
   'format.highlight': 'commands.format.highlight',
   'format.superscript': 'commands.format.superscript',
   'format.subscript': 'commands.format.subscript',
 
-  // 内联元素
+  // Inline elements
   'format.inline-code': 'commands.format.inlineCode',
   'format.inline-math': 'commands.format.inlineMath',
 
-  // 链接和媒体
+  // Links and media
   'format.hyperlink': 'commands.format.hyperlink',
   'format.image': 'commands.format.image',
 
-  // 格式清除
+  // Format clearing
   'format.clear-format': 'commands.format.clearFormat',
 
   // ============================================
-  // # 窗口管理命令 (Window Management)
+  // # Window Management
   // ============================================
-  // 窗口控制
+  // Window controls
   'window.minimize': 'commands.window.minimize',
   'window.close': 'commands.window.close',
   'window.toggle-always-on-top': 'commands.window.toggleAlwaysOnTop',
   'window.toggle-full-screen': 'commands.window.toggleFullScreen',
 
-  // 窗口缩放
+  // Window zoom
   'window.zoomIn': 'commands.window.zoomIn',
   'window.zoomOut': 'commands.window.zoomOut',
 
-  // 主题设置
+  // Theme settings
   'window.change-theme': 'commands.window.changeTheme',
 
   // ============================================
-  // # 视图控制命令 (View Controls)
+  // # View Controls
   // ============================================
-  // 界面切换
+  // UI toggles
   'view.toggle-sidebar': 'commands.view.toggleSidebar',
   'view.toggle-tabbar': 'commands.view.toggleTabbar',
   'view.toggle-toc': 'commands.view.toggleToc',
 
-  // 编辑模式
+  // Edit modes
   'view.toggle-source-code-mode': 'commands.view.toggleSourceCodeMode',
   'view.source-code-mode': 'commands.view.sourceCodeMode',
   'view.toggle-typewriter-mode': 'commands.view.toggleTypewriterMode',
@@ -172,29 +172,29 @@ const COMMAND_KEY_MAP = {
   'view.toggle-focus-mode': 'commands.view.toggleFocusMode',
   'view.focus-mode': 'commands.view.focusMode',
 
-  // 视图功能
+  // View features
   'view.command-palette': 'commands.view.commandPalette',
   'view.actual-size': 'commands.view.actualSize',
   'view.text-direction': 'commands.view.textDirection',
 
-  // 开发者工具
+  // Developer tools
   'view.dev-reload': 'commands.view.devReload',
   'view.dev-toggle-developer-tools': 'commands.view.devToggleDeveloperTools',
   'view.toggle-dev-tools': 'commands.view.toggleDevTools',
 
-  // 菜单项
+  // Menu items
   'view.reload-images': 'commands.view.reloadImages',
 
   // ============================================
-  // # 标签页管理命令 (Tab Management)
+  // # Tab Management
   // ============================================
-  // 标签页切换
+  // Tab switching
   'tabs.cycleBackward': 'commands.tabs.cycleBackward',
   'tabs.cycleForward': 'commands.tabs.cycleForward',
   'tabs.switchToLeft': 'commands.tabs.switchToLeft',
   'tabs.switchToRight': 'commands.tabs.switchToRight',
 
-  // 按序号切换标签页
+  // Switch tab by index
   'tabs.switchToFirst': 'commands.tabs.switchToFirst',
   'tabs.switchToSecond': 'commands.tabs.switchToSecond',
   'tabs.switchToThird': 'commands.tabs.switchToThird',
@@ -207,23 +207,23 @@ const COMMAND_KEY_MAP = {
   'tabs.switchToTenth': 'commands.tabs.switchToTenth',
 
   // ============================================
-  // # 文档和帮助命令 (Documentation & Help)
+  // # Documentation & Help
   // ============================================
   'docs.user-guide': 'commands.docs.userGuide',
   'docs.markdown-syntax': 'commands.docs.markdownSyntax',
 
   // ============================================
-  // # 拼写检查命令 (Spell Checker)
+  // # Spell Checker
   // ============================================
   'spellchecker.switch-language': 'commands.spellchecker.switchLanguage'
 }
 
 /**
- * 根据命令ID获取对应的国际化描述文本
- * @param {string} id - 命令ID，格式如 'file.save', 'edit.copy' 等
- * @returns {string} 返回国际化后的命令描述文本，如果找不到对应描述则返回原ID用于调试
+ * Gets the internationalized description text for the given command ID
+ * @param {string} id - Command ID, in formats such as 'file.save', 'edit.copy', etc.
+ * @returns {string} Returns the internationalized command description, or the original ID if no description is found
  */
 export default (id) => {
-  // 每次调用都重新获取命令描述，以支持动态语言切换
+  // Re-fetch the command description on each call to support dynamic language switching
   return id in COMMAND_KEY_MAP ? t(COMMAND_KEY_MAP[id]) : id
 }

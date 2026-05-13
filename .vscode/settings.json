@@ -9,7 +9,10 @@
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
   "cSpell.words": [
+    "contenteditable",
+    "frontmatter",
     "Häusler",
+    "hfelix",
     "Jocs",
     "marktext",
     "muya",

@@ -7,7 +7,7 @@ export const SEPARATOR = {
   type: 'separator'
 }
 
-// 使用函数形式避免模块加载时调用翻译函数
+// Use function form to avoid calling the translation function during module load
 export const getNEW_FILE = () => ({
   label: t('contextMenu.sideBar.newFile'),
   id: 'newFileMenuItem',
@@ -72,7 +72,7 @@ export const getSHOW_IN_FOLDER = () => ({
   }
 })
 
-// 为了向后兼容，保留原有的导出
+// Retained for backward compatibility
 export const NEW_FILE = getNEW_FILE()
 export const NEW_DIRECTORY = getNEW_DIRECTORY()
 export const COPY = getCOPY()

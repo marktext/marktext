@@ -127,12 +127,12 @@ class App {
     try {
       let currentLanguage = this._accessor.preferences.getItem('language')
 
-      // 如果没有设置语言，则根据系统语言自动设置
+      // If no language is set, auto-detect based on the system language
       if (!currentLanguage) {
         const systemLanguage = app.getLocale()
         log.info(`System language detected: ${systemLanguage}`)
 
-        // 支持的语言列表（根据项目实际支持的语言）
+        // Supported language list (based on languages actually supported by the project)
         const supportedLanguages = [
           'en',
           'zh-CN',
@@ -146,7 +146,7 @@ class App {
           'ru'
         ]
 
-        // 语言映射：系统语言代码 -> 应用语言代码
+        // Language mapping: system language code -> application language code
         const languageMap = {
           'zh-CN': 'zh-CN',
           'zh-TW': 'zh-TW',
@@ -173,12 +173,12 @@ class App {
 
         currentLanguage = languageMap[systemLanguage] || 'en'
 
-        // 如果检测到的语言不在支持列表中，使用英语
+        // If the detected language is not in the supported list, use English
         if (!supportedLanguages.includes(currentLanguage)) {
           currentLanguage = 'en'
         }
 
-        // 保存检测到的语言设置
+        // Save the detected language setting
         this._accessor.preferences.setItem('language', currentLanguage)
         log.info(`Auto-detected and set language to: ${currentLanguage}`)
       }
@@ -187,7 +187,7 @@ class App {
       log.info(`Main process language initialized to: ${currentLanguage}`)
     } catch (error) {
       log.error('Failed to initialize main process language:', error)
-      // 如果出错，使用英语作为默认语言
+      // If an error occurs, use English as the default language
       setLanguage('en')
     }
   }
@@ -202,7 +202,7 @@ class App {
     const { _args: args, _openFilesCache } = this
     const { preferences, editorBufferStore } = this._accessor
 
-    // 初始化语言设置
+    // Initialize language settings
     const {
       startUpAction,
       defaultDirectoryToOpen,
@@ -631,7 +631,7 @@ class App {
     registerKeyboardListeners()
     registerSpellcheckerListeners()
 
-    // 处理语言设置请求
+    // Handle language setting requests
     ipcMain.on('mt::get-current-language', (event) => {
       const { language } = this._accessor.preferences.getAll()
       event.reply('mt::current-language', language || 'en')

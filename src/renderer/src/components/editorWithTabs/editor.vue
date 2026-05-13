@@ -502,7 +502,7 @@ const imageAction = async (image, id, alt = '') => {
   switch (imageInsertAction.value) {
     case 'upload': {
       try {
-        // 传入完整的首选项状态对象，避免对不存在的 .value 解引用
+        // Pass the full preferences state object to avoid dereferencing non-existent .value
         destImagePath = await uploadImage(currentPathname, image, preferencesStore.$state)
       } catch (err) {
         notice.notify({
@@ -1032,7 +1032,7 @@ onMounted(() => {
     imagePathPicker,
     clipboardFilePath: guessClipboardFilePath,
     imagePathAutoComplete,
-    t // 添加翻译函数
+    t // Add the translation function
   }
 
   if (/dark/i.test(theme.value)) {

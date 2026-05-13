@@ -224,7 +224,7 @@ const tabCtrl = (ContentState) => {
       startBlock.type === 'span' &&
       startBlock.functionType === 'codeContent'
     ) {
-      // 在代码块内
+      // Inside a code block
       let nowLen = 0
       let oldText = startBlock.text
       let lines = oldText.split('\n')

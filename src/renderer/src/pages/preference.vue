@@ -26,7 +26,7 @@ const preferencesStore = usePreferencesStore()
 const { theme, titleBarStyle } = storeToRefs(preferencesStore)
 
 const showCustomTitleBar = computed(() => {
-  // 在macOS上总是显示自定义标题栏以提供关闭按钮
+  // Always show the custom title bar on macOS to provide a close button
   if (isOsx) {
     return true
   }

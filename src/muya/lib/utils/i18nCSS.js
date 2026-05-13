@@ -1,29 +1,29 @@
 /** editor.type
- * CSS国际化工具
- * 用于动态设置CSS content属性中的文本内容
+ * CSS internationalization utility
+ * Used to dynamically set text content in CSS content properties
  */
 
 class I18nCSS {
   constructor(t) {
-    this.t = t || ((key) => key) // 翻译函数，如果没有提供则返回原始键值
-    // 初始化CSS变量
+    this.t = t || ((key) => key) // Translation function; returns the raw key if none is provided
+    // Initialize CSS variables
     this.updateCSSVariables()
   }
 
   /**
-   * 更新CSS变量的值
+   * Update CSS variable values
    */
   updateCSSVariables() {
     const root = document.documentElement
 
-    // 辅助函数：获取翻译文本，如果翻译失败则使用默认值
+    // Helper function: get translated text, falling back to the default value if translation fails
     const getTranslation = (key, defaultValue) => {
       const translation = this.t(key)
-      // 如果翻译函数返回的是键名本身，说明翻译失败，使用默认值
+      // If the translation function returns the key itself, the translation failed; use the default value
       return translation === key ? defaultValue : translation
     }
 
-    // 更新所有CSS变量
+    // Update all CSS variables
     root.style.setProperty(
       '--i18n-highlight-start',
       `"${getTranslation('editor.highlight-start', ' [highlight start] ')}"`
@@ -91,7 +91,7 @@ class I18nCSS {
       `"${getTranslation('editor.load-image-failed', 'Load image failed')}"`
     )
 
-    // 添加编辑相关的CSS变量
+    // Add editing-related CSS variables
     const translations = {
       undo: this.t('edit.undo'),
       redo: this.t('edit.redo'),
@@ -110,7 +110,7 @@ class I18nCSS {
   }
 
   /**
-   * 设置翻译函数
+   * Set the translation function
    */
   setTranslationFunction(t) {
     this.t = t || ((key) => key)

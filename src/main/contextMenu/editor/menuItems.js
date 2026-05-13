@@ -2,7 +2,7 @@
 
 import { t } from '../../i18n'
 
-// 使用函数形式避免模块加载时调用翻译函数
+// Use function form to avoid calling the translation function during module load
 export const getCUT = () => ({
   label: t('contextMenu.cut'),
   id: 'cutMenuItem',
@@ -61,7 +61,7 @@ export const getINSERT_AFTER = () => ({
   }
 })
 
-// 为了向后兼容，保留原有的导出
+// Retained for backward compatibility
 export const CUT = getCUT()
 export const COPY = getCOPY()
 export const PASTE = getPASTE()

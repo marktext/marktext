@@ -76,14 +76,14 @@ const keybindingConfigurator = ref(null)
 const selectedShortcutId = ref(null)
 const keybindingList = ref([])
 
-// 重新构建快捷键列表的函数
+// Function to rebuild the keybinding list
 const rebuildKeybindingList = () => {
   if (keybindingConfigurator.value) {
     keybindingList.value = keybindingConfigurator.value.rebuildKeybindingList()
   }
 }
 
-// 监听语言变化，重新构建快捷键列表
+// Listen for language changes to rebuild the keybinding list
 watch(locale, () => {
   rebuildKeybindingList()
 })

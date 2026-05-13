@@ -1,16 +1,16 @@
 import fs from 'fs'
 import path from 'path'
 
-// 支持的语言列表
+// List of supported languages
 const SUPPORTED_LANGUAGES = ['en', 'zh-CN', 'zh-TW', 'es', 'fr', 'de', 'ja', 'ko', 'pt']
 
-// 翻译数据缓存
+// Translation data cache
 let translationsCache = {}
 
 /**
- * 加载指定语言的翻译文件
- * @param {string} language - 语言代码
- * @returns {object} 翻译数据
+ * Loads the translation file for the specified language
+ * @param {string} language - Language code
+ * @returns {object} Translation data
  */
 function loadTranslations(language) {
   if (translationsCache[language]) {
@@ -35,7 +35,7 @@ function loadTranslations(language) {
     translationsCache[language] = translationData
     return translationData
   } catch (error) {
-    // 回退到英文
+    // Fallback to English
     console.error('Error loading translation:', error)
     if (language !== 'en') {
       return loadTranslations('en')
@@ -45,11 +45,11 @@ function loadTranslations(language) {
 }
 
 /**
- * 获取翻译文本
- * @param {string} key - 翻译键，支持点分隔的嵌套键
- * @param {string} language - 语言代码
- * @param {object} params - 参数替换对象
- * @returns {string} 翻译后的文本
+ * Gets the translated text
+ * @param {string} key - Translation key, supports dot-separated nested keys
+ * @param {string} language - Language code
+ * @param {object} params - Parameter replacement object
+ * @returns {string} Translated text
  */
 function getTranslation(key, language = 'en', params = {}) {
   const translations = loadTranslations(language)
@@ -58,7 +58,7 @@ function getTranslation(key, language = 'en', params = {}) {
     return key
   }
 
-  // 支持点分隔的嵌套键
+  // Supports dot-separated nested keys
   const keys = key.split('.')
   let probe = translations
 
@@ -84,33 +84,33 @@ function getTranslation(key, language = 'en', params = {}) {
 }
 
 /**
- * 获取支持的语言列表
- * @returns {string[]} 支持的语言代码数组
+ * Gets the list of supported languages
+ * @returns {string[]} Array of supported language codes
  */
 function getSupportedLanguages() {
   return [...SUPPORTED_LANGUAGES]
 }
 
 /**
- * 检查语言是否支持
- * @param {string} language - 语言代码
- * @returns {boolean} 是否支持
+ * Checks if a language is supported
+ * @param {string} language - Language code
+ * @returns {boolean} Whether the language is supported
  */
 function isLanguageSupported(language) {
   return SUPPORTED_LANGUAGES.includes(language)
 }
 
 /**
- * 清除翻译缓存
+ * Clear translation cache
  */
 function clearCache() {
   translationsCache = {}
 }
 
 /**
- * 获取指定语言的所有翻译数据
- * @param {string} language - 语言代码
- * @returns {object} 完整的翻译数据对象
+ * Get all translation data for the specified language
+ * @param {string} language - Language code
+ * @returns {object} Complete translation data object
  */
 function getAllTranslations(language) {
   return loadTranslations(language)

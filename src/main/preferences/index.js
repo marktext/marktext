@@ -177,25 +177,25 @@ class Preference extends EventEmitter {
   }
 
   /**
-   * 获取系统语言，如果系统语言不在支持列表中则返回 null
-   * @returns {string|null} 支持的系统语言代码或 null
+   * Gets the system language, or null if it's not in the supported list
+   * @returns {string|null} Supported system language code or null
    */
   _getSystemLanguage() {
     try {
-      // 获取系统语言
+      // Get the system language
       const systemLocale = app.getLocale()
       log.info(`System locale detected: ${systemLocale}`)
 
-      // 获取支持的语言列表
+      // Get the list of supported languages
       const supportedLanguages = getSupportedLanguages()
 
-      // 直接匹配完整的语言代码（如 zh-CN）
+      // Directly match the full language code (e.g. zh-CN)
       if (isLanguageSupported(systemLocale)) {
         log.info(`Using system language: ${systemLocale}`)
         return systemLocale
       }
 
-      // 尝试匹配语言的主要部分（如 zh）
+      // Attempt to match the primary part of the language (e.g. zh)
       const primaryLanguage = systemLocale.split('-')[0]
       const matchedLanguage = supportedLanguages.find((lang) => lang.startsWith(primaryLanguage))
 

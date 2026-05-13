@@ -14,7 +14,7 @@ export const showContextMenu = (event, tab) => {
   const menu = new RemoteMenu()
   const win = getCurrentWindow()
   const { pathname } = tab
-  // 动态获取菜单项以确保翻译正确
+  // Dynamically fetch menu items to ensure correct translation
   const closeThis = getCLOSE_THIS()
   const closeOthers = getCLOSE_OTHERS()
   const closeSaved = getCLOSE_SAVED()

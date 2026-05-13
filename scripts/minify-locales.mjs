@@ -11,8 +11,8 @@ const files = fs.readdirSync(localesDir)
 files.forEach((file) => {
   if (file.endsWith('.json') && file.indexOf('.min') === -1) {
     // Avoid re-minifying
-    console.log(`Minimising ${file}`)
-    // 使用 readFileSync 和 writeFileSync 避免 Unicode 转义
+    console.log(`Minimizing ${file}`)
+    // Use readFileSync and writeFileSync to avoid Unicode escaping
     const content = fs.readFileSync(path.join(localesDir, file), 'utf8')
 
     const filename = path.parse(file).name
@@ -24,4 +24,4 @@ files.forEach((file) => {
     )
   }
 })
-console.log('Translation files minimised successfully')
+console.log('Translation files minimized successfully')

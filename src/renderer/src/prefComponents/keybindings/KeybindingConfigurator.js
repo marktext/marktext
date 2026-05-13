@@ -59,11 +59,11 @@ export default class KeybindingConfigurator {
     return this.keybindingList
   }
 
-  // 重新构建快捷键列表，用于语言切换时更新描述
+  // Rebuild the keybinding list to update descriptions on language switch
   rebuildKeybindingList() {
-    // 保存当前的用户设置
+    // Save the current user settings
     const userKeybindings = this._getUserKeybindingMap()
-    // 重新构建列表
+    // Rebuild the list
     this.keybindingList = this._buildUiKeybindingList(this.defaultKeybindings, userKeybindings)
     return this.keybindingList
   }
