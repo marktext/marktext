@@ -11,6 +11,8 @@ doc/
 # Ignore temp artifacts
 temp/
 logs/
+test-results/
+playwright-report/
 *.min.json
 .claude/settings.local.json
 .claude/
